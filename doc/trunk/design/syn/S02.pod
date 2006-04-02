@@ -401,8 +401,9 @@ You may cast C<Arguments> to other types with a prefix sigil operator:
     %$args;         # same as '$args as Hash"   or "Hash($args)"
     &$args;         # same as '$args as Code"   or "Code($args)"
 
-Casted as an array, you can access to all positionals.  Casted as a hash, all
-nameds.  As a scalar, the invocant.  As a code, the slurpy nameless block.
+When cast into an array, you can access all the positional arguments; Into a
+hash, all named arguments; Into a scalar, the invocant; Into code, its slurpy
+nameless block.
 
 All prefix sigil operators accept one positional argument, evaluated in
 scalar context as a rvalue.  They can interpolate in strings if called with
