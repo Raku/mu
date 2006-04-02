@@ -65,7 +65,7 @@ use base Pugs::Grammar::Base;
 
 *statement = $rule->compile( q(
     (<statement.parse>)
-    { return { expr => $() ,} }
+    { return { expr => $/[0]() ,} }
 ) )->code;
 
 # ----------
@@ -92,6 +92,7 @@ use base Pugs::Grammar::Base;
         (\d+) { return {num=>$(),} } 
     ) )->code;
     eval $statement->emit_grammar_perl5();
+    print "statement grammar: ", $statement->emit_grammar_perl5();
 
 # ------------
 

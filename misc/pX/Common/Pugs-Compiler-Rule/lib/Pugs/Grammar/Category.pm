@@ -79,18 +79,38 @@ sub emit_perl6_rule {
         my $rule = $op->{fixity};
         $rule .= '_' . $op->{assoc} if $rule eq 'infix';
         my $template = $rule_templates{$rule};
+        
+        # is-parsed
         if ( $op->{rule} ) {
             $template =~ s/<op>.*/<op> $op->{rule}/sg;
         }
-        $template =~ s/<equal>/<$equal>/sg;
-        $template =~ s/<tight>/<$tight>/sg;
-        $template =~ s/<op>/\$<op>:=(<'$op->{name}'>)/s;
-        $template =~ s/<op2>/\$<op2>:=(<'$op->{name2}'>)/s;
+        
+        $template =~ s/<equal>/\$<term1>:=(<$equal>)/sgx;
+        #$template =~ s/<equal>/<$equal>/sgx;
+        
+        $template =~ s/<tight>/\$<term0>:=(<$tight>)/sgx;
+        #$template =~ s/<tight>/<$tight>/sgx;
+        
+        $template =~ s/<op>   /\$<op1>:=(<'$op->{name}'>)/sgx;
+        $template =~ s/<op2>  /\$<op2>:=(<'$op->{name2}'>)/sgx;
+        
+        # $template .= ' { return { op => $<op>[0](), term => $<term>[0](), term2 => $<term2>[0](),} } ';
+        #$template .= ' { return { op1 => $<op1>(), term1 => $<term1>() ,} } ';
+        $template .= ' { return { op1 => $<op1>(), term1 => $<term1>(), term0 => $<term0>() ,} } ';
+        #print "Added rule: $template\n";
+        
         push @rules, $template;
     }
-    push @rules, "<$tight>";
-    @rules = _optimize( @rules );
+    #push @rules, "<$tight>";
+    #push @rules, "\$<term2>:=(<$tight>) { return term2 => \$<term2>[0]() ,} }";
+    #push @rules, "\$<term>:=(<$tight>) { return exp => \$<term>() ,} }";
+    push @rules, "\$<term>:=(<$tight>) { return { expr => \$_[0]{'term'}->() ,} } ";
+
+    # @rules = _optimize( @rules );
+    
     return $rules[0] unless $#rules;
+    @rules = map { "   [ $_ ] \n" } @rules;
+    #print "Rules: \n@rules\n";
     return "[ " . join( ' | ', @rules ) . " ]";
 }
 
