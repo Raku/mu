@@ -171,7 +171,7 @@ of a tie, the winner is the hacker to have consumed the most beer.
 
 =head2 History
 
-This game was played by acme, autrijus, clkao, gugod, ingy, mugwump
+This game was played by acme, audreyt, clkao, gugod, ingy, mugwump
 and obra on the east coast of Taiwan in April 2005. The game was
 brought from London by acme. ingy later added the points system and a
 few other rules.

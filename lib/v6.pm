@@ -75,7 +75,7 @@ L<Perl6::Pugs>
 =head1 AUTHOR
 
 Brian Ingerson C<E<lt>INGY@cpan.orgE<gt>>,
-Audrey Tang C<E<lt>autrijus@autrijus.orgE<gt>>
+Audrey Tang C<E<lt>audreyt@audreyt.orgE<gt>>
 
 =head1 COPYRIGHT
 
