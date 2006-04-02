@@ -64,16 +64,41 @@ use base Pugs::Grammar::Base;
 ) )->code;
 
 *statement = $rule->compile( q(
-    (\d+)
-    { return { int => $() ,} }
+    (<statement.parse>)
+    { return { expr => $() ,} }
 ) )->code;
 
 # ----------
+
+    use Pugs::Grammar::Category;
+    my $statement = Pugs::Grammar::Category->new( {
+        name => 'statement',
+        operand => 'term',
+    } );
+    $statement->add_op( {
+        name => '+',
+        block => sub {},
+        assoc => 'left',
+        precedence => 'looser',
+        other => '*',
+        fixity => 'infix',
+    } );
+
+    package statement;
+    use Pugs::Grammar::Base;
+    use Data::Dumper;
+    no warnings qw( once );
+    *term = Pugs::Compiler::Rule->compile( q( 
+        (\d+) { return {num=>$(),} } 
+    ) )->code;
+    eval $statement->emit_grammar_perl5();
+
+# ------------
 
 package main;
 
 use Data::Dumper;
 {
-    my $match = $grammar->parse( '{000}{123};456' );
+    my $match = $grammar->parse( '{0+0}{123};456' );
     print Dumper $match->();
 }
