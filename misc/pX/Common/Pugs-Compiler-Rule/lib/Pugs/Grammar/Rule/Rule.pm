@@ -105,12 +105,17 @@ rule escaped_char :P5 {^\\(.)}
     }
     unshift @rule_terms, 'capturing_group';
     
-    rule colon1 {
-        \:
+    rule colon {
+        ( 
+            [ \:\:\: ] | 
+            [ \:\: ]   | \: |
+            [ \$\$ ]   | \$ |
+            [ \^\^ ]   | \^
+        )
             
-        { return { colon => 1 ,} }
+        { return { colon => $_[0]->() ,} }
     }
-    push @rule_terms, 'colon1';
+    push @rule_terms, 'colon';
     
 # /terms
 

@@ -179,11 +179,18 @@ Pugs::Grammar::Category - Engine for Perl 6 Rule categories
 
 Pseudo-code for usage inside a grammar:
 
+    sub new_proto( $match ) {
+        return ${$match<category>}.add_op( 
+            name => $match<name>, 
+            fixity => ..., 
+            precedence => ...,
+        );
+    }
+
     rule prototype {
         proto <category>:<name> <options>
         { 
-            $<category>.add_op( name => $<name>, fixity => ..., precedence => ... );
-            return ... ;
+            return new_proto($/);
         }
     }
 

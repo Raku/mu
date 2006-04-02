@@ -2,7 +2,7 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0x7C91F99F or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0x5C3EF044 or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
 *{'Pugs::Grammar::Rule::p6ws'} = sub {
@@ -326,18 +326,54 @@ sub {
     )
 };
     unshift @Pugs::Grammar::Rule::rule_terms, 'capturing_group';
-*{'Pugs::Grammar::Rule::colon1'} = 
+*{'Pugs::Grammar::Rule::colon'} = 
 sub {
     my $grammar = shift;
     $_[0] = '' unless defined $_[0];
     package Pugs::Runtime::Rule;
     rule_wrapper( $_[0], (
         concat(
-          constant( "\:" )
+          capture( 'capturing_group',
+              alternation( [
+                  concat(
+                    constant( "\:" )
+                  ,
+                    constant( "\:" )
+                  ,
+                    constant( "\:" )
+                  ,
+                  ),
+                  concat(
+                    constant( "\:" )
+                  ,
+                    constant( "\:" )
+                  ,
+                  ),
+                    constant( "\:" )
+                  ,
+                  concat(
+                    constant( "\$" )
+                  ,
+                    constant( "\$" )
+                  ,
+                  ),
+                    constant( "\$" )
+                  ,
+                  concat(
+                    constant( "\^" )
+                  ,
+                    constant( "\^" )
+                  ,
+                  ),
+                    constant( "\^" )
+                  ,
+              ] )
+            ,
+          )
         ,
           Pugs::Runtime::Rule::abort(
               sub {
-                  return { bool => 1, tail => $_[0], return => sub { return { colon => 1 ,} } };
+                  return { bool => 1, tail => $_[0], return => sub { return { colon => $_[0]->() ,} } };
               }
           )
         ,
@@ -345,7 +381,7 @@ sub {
         )->( @_ )
     )
 };
-    push @Pugs::Grammar::Rule::rule_terms, 'colon1';
+    push @Pugs::Grammar::Rule::rule_terms, 'colon';
 *{'Pugs::Grammar::Rule::quantifier'} = 
 sub {
     my $grammar = shift;

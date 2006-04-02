@@ -1,4 +1,4 @@
-- <before ...>
+- '<before ...>', '$'
 
 - new class 'Pugs::Grammar::Category'
 

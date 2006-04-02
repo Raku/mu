@@ -161,6 +161,8 @@ sub closure {
     $code =~ s/ ([^']) \$ < (.*?) > /$1 \$_[0]->{$2} /sgx;
     # $()
     $code =~ s/ ([^']) \$ \( \) /$1 \$_[0]->() /sgx;
+    # $/
+    $code =~ s/ ([^']) \$ \/ /$1 \$_[0] /sgx;
     #print "Code: $code\n";
     
     return 
@@ -193,10 +195,12 @@ sub before {
         "$_[1] )\n";
 }
 sub colon {
-    my $num = $_[0];
+    my $str = $_[0];
     return "$_[1] alternation( [ null(), abort() ] ) \n"
-        if $num == 1;
-    die (':' x $num) . " not implemented";
+        if $str eq ':';
+    return "$_[1] end_of_string() \n" 
+        if $str eq '$';
+    die "'$str' not implemented";
 }
 sub constant {
     return "$_[1] constant( q!$_[0]! )\n" unless $_[0] =~ /!/;

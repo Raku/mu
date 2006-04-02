@@ -461,4 +461,14 @@ sub hash {
     return alternation( \@keys );
 }
 
+sub end_of_string {
+    return sub {
+        return $_[3] = { 
+            bool  => ($_[0] eq ''),
+            match => '',
+            tail  => $_[0],
+        };
+    };
+}
+
 1;
