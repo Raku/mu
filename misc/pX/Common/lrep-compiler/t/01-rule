@@ -1,0 +1,14 @@
+#!/usr/bin/perl
+package grammar1;
+use Runtime::RuleCompiler qw(rule);
+use Pugs::Grammar::Rule;
+use Pugs::Runtime::Match;
+use Data::Dumper;
+use Test::More tests=>1;
+*t1 = rule {
+   package Pugs::Runtime::Rule;
+   my $grammar = shift;
+   constant("a");
+};
+$match = grammar1->t1("abc");
+ok($match?1:0,"bolean true");
