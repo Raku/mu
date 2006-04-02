@@ -651,6 +651,10 @@ Use a trailing comma if you want to make a subroutine call instead:
 
     close($handle,)
 
+This applies to prefix unary operators as well:
+
+    !$obj;  # same as $obj.prefix:<!>
+
 A method call first considers methods (including multi-methods and submethods)
 from the class hierarchy of C<$handle>, and fails over to the subroutine
 dispatcher as a last resort only if no method can be found in the class
@@ -686,9 +690,7 @@ multi method is defined in:
 
 The syntax for calling back to C<MyClass> is C<$obj!MyClass::meth()>.
 
-Outside a class or a role, the C<sub> keyword is optional after either
-C<multi> or C<proto>.  Within a class or a role, the C<method> keyword
-is implied instead of C<sub>.
+The C<sub> keyword is optional after either C<multi> or C<proto>.
 
 A C<proto> declaration must come before any matching multis, if at all.
 

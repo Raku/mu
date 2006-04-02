@@ -62,15 +62,7 @@ A modifier keyword may occur before the routine keyword in a named routine:
     proto method bar {...}
     multi method bar {...}
 
-If the routine keyword is omitted, it defaults to C<method> inside a
-class or role, and C<sub> inside a module or package.
-
-    class C {
-        multi foo {...} # multi method foo
-    }
-    module M {
-        multi bar {...} # multi sub bar
-    }
+If the routine keyword is omitted, it defaults to C<sub>.
 
 =head2 Named subroutines
 
@@ -467,7 +459,7 @@ list, with a colon terminating the list of invocants:
 If the parameter list for a C<multi> contains no colon to delimit
 the list of invocant parameters, then all positional parameters are
 considered invocants.  If it's a C<multi method> and C<multi submethod>,
-an additional implicit unamed C<self> invocant is prepended to the
+an additional implicit unnamed C<self> invocant is prepended to the
 signature list.
 
 For the purpose of matching positional arguments against invocant parameters,
