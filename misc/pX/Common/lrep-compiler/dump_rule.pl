@@ -33,8 +33,11 @@ while ($tail =~ m/rule\s+(\S+)\s+\{(.+)$/gs) {
         $source .= $paren;
     }
 
-    my $rule = Runtime::RuleCompiler->compile($source);
-    print '*{\''.$rulename.'\'} = '.$rule->perl5().";\n";
+    #my $rule = Runtime::RuleCompiler->compile($source);
+    #print '*{\''.$rulename.'\'} = '.$rule->perl5().";\n";
+    print "*{\'$rulename\'} = Pugs::Compiler::Rule->compile(<<'RULE')->code();\n";
+    print $source;
+    print "RULE\n";
 }
 print <<'PUSH';
 push @terms, sub { Grammar::Perl6->indirect_object(@_) };
