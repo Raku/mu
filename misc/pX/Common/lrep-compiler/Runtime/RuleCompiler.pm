@@ -18,7 +18,7 @@ sub rule(&) {
     return Runtime::RuleCompiler->compiled(sub {
        	my $grammar = shift;
 	my $tree;
-	print Dumper($rule->($grammar)->( $_[0], undef, $tree, $tree ));
+	print Dumper($rule->($grammar)->( $_[0], undef, $tree, $tree )) if $ENV{DEBUG_lrep};
 	Pugs::Runtime::Rule::rule_wrapper($_[0],$rule->($grammar)->( $_[0], undef, $tree, $tree )); 
     })->code();
 }

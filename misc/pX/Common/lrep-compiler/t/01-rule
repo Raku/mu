@@ -4,7 +4,8 @@ use Runtime::RuleCompiler qw(rule);
 use Pugs::Grammar::Rule;
 use Pugs::Runtime::Match;
 use Data::Dumper;
-use Test::More tests=>1;
+use Test::More tests=>8;
+
 *t1 = rule {
    package Pugs::Runtime::Rule;
    my $grammar = shift;
@@ -12,3 +13,39 @@ use Test::More tests=>1;
 };
 $match = grammar1->t1("abc");
 ok($match?1:0,"bolean true");
+$match = grammar1->t1("def");
+ok(!($match?1:0),"bolean false");
+
+*t2 = rule {
+   package Pugs::Runtime::Rule;
+   my $grammar = shift;
+   concat(constant("a"),constant("b"));
+};
+$match = grammar1->t2("abc");
+ok($match?1:0,"concat bolean true");
+$match = grammar1->t2("acb");
+ok(!($match?1:0),"concat bolean false");
+
+*t3 = rule {
+   package Pugs::Runtime::Rule;
+   my $grammar = shift;
+   concat(sub {$grammar->t1($_[0], { p => 1 }, $_[1])},constant("b"));
+};
+
+$match = grammar1->t3("abc");
+ok($match?1:0,"subrule bolean true");
+$match = grammar1->t3("acb");
+ok(!($match?1:0),"subrule bolean false");
+
+*t4 = rule {
+   package Pugs::Runtime::Rule;
+   my $grammar = shift;
+   concat(capture('t3',sub {$grammar->t3($_[0], { p => 1 }, $_[1])}),constant("c"),capture('t1',sub {$grammar->t1($_[0], { p => 1 }, $_[1])}));
+};
+
+$match = grammar1->t4("abca",{p => 1});
+ok($match?1:0,"subrule bolean true");
+$match = grammar1->t4("abac",{p => 1});
+ok(!($match?1:0),"subrule bolean false");
+
+
