@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use Test::More tests => 12;
+use Test::More tests => 19;
 use Test::Exception;
 use Data::Bind;
 # L<S03/"Binding">
@@ -174,24 +174,26 @@ sub {
   is $var,      "f",  "binding of array elements works with splice (4)";
   is @array[1], "g",  "binding of array elements works with splice (5)";
 }
+=cut comment
 
 # Assignment (not binding) creates new containers
-{
+sub {
   my @array  = <a b c>;
   my $var    = "d";
 
-  @array[1] := $var;
+  my $sig = Data::Bind->sig({ var => '@array'});
+  $sig->positional->[0]->subscript(1);
+  $sig->bind({ positional => [\$var] });
   $var       = "e";
-  is @array[1], "e",       "array assignment creates new containers (1)";
+  is $array[1], "e",       "array assignment creates new containers (1)";
 
   my @new_array = @array;
   $var          = "f";
   # @array[$idx] and $var are now "f", but @new_array is unchanged.
   is $var,        "f",     "array assignment creates new containers (2)";
-  is ~@array,     "a f c", "array assignment creates new containers (3)";
-  is ~@new_array, "a e c", "array assignment creates new containers (4)";
-}
-=cut comment
+  is_deeply \@array,     [<a f c>], "array assignment creates new containers (3)";
+  is_deeply \@new_array, [<a e c>], "array assignment creates new containers (4)";
+}->();
 
 # Binding does not create new containers
 sub {
@@ -212,21 +214,25 @@ sub {
   # @array[$idx] and $var are now "f", but @new_array is unchanged.
   is $var,        "f",     "array binding does not create new containers (2)";
   is_deeply \@array,     [qw(a f c)], "array binding does not create new containers (3)";
+  local $TODO = 'array alias not working yet';
   is_deeply \@new_array, [qw(a f c)], "array binding does not create new containers (4)";
 }->();
-__END__
+
 # Binding @array := $arrayref.
 # See
 # http://colabti.de/irclogger/irclogger_log/perl6?date=2005-11-06,Sun&sel=388#l564
 # and consider the magic behind parameter binding (which is really normal
 # binding).
-{
+sub {
+  local $TODO = 'alias array not working yet';
   my $arrayref  = [<a b c>];
-  my @array    := $arrayref;
+  my @array;
+  # my @array    := $arrayref;
 
+  bind_op('@array' => $arrayref);
   is +@array, 3,          'binding @array := $arrayref works (1)';
 
-  @array[1] = "B";
-  is ~$arrayref, "a B c", 'binding @array := $arrayref works (2)';
-  is ~@array,    "a B c", 'binding @array := $arrayref works (3)';
-}
+  $array[1] = "B";
+  is_deeply $arrayref,  [<a B c>], 'binding @array := $arrayref works (2)';
+  is_deeply \@array,    [<a B c>], 'binding @array := $arrayref works (3)';
+}->();

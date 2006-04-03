@@ -177,10 +177,10 @@ sub bind {
     my $ref = $h->{$self->container_var} or die;
     if ($self->p5type eq '@') {
 	if ($self->subscript) {
-	    Data::Bind::_av_store($ref, $self->subscript, $var);
+	    Data::Bind::_alias_a_to_b(\$ref->[$self->subscript], $var);
 	}
 	else {
-	    @$ref = @$var;
+	    Data::Bind::_alias_a_to_b(\$ref, \$var);
 	}
     }
     else {
