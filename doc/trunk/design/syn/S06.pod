@@ -423,15 +423,17 @@ argument, the C<@> sigil in the parameter list causes the arguments
 to be concatenated:
 
     sub fun (Int @x) { ... }
-    fun( x => 1, x => 2 );  # @x := (1, 2)
+    fun( x => 1, x => 2 );              # @x := (1, 2)
+    fun( x => (1, 2), x => (3, 4) );    # @x := (1, 2, 3, 4)
 
 Other sigils binds only to the I<last> argument with that name:
 
     sub fun (Int $x) { ... }
-    f( x => 1, x => 2 );    # $x := 2
+    f( x => 1, x => 2 );                # $x := 2
+    fun( x => (1, 2), x => (3, 4) );    # $x := (3, 4)
 
-This means a defaults must come I<before> known named parameters,
-similar to how hash constructors work:
+This means a hash holding default values must come I<before> known named
+parameters, similar to how hash constructors work:
 
     # Allow "x" and "y" in %defaults be overrided
     f( *%defaults, x => 1, y => 2 );
