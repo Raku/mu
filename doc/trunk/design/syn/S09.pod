@@ -696,9 +696,10 @@ But these ones I<do> autovivify:
     my $val := $hash{foo}{bar};
 
     my @array;
-    my $ref = \$array[0][0];
+    my $ref = \$array[0][0]; # $ref is an Arguments object - see S02
 
     my %hash;
     $hash{foo}{bar} = "foo"; # duh
 
-This rule applies to dereferencing arrays, hashes, and scalar references.
+This rule applies to C<Array>, C<Hash>, and C<Scalar> container objects.
+
