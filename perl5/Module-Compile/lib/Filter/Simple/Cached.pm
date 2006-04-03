@@ -18,6 +18,15 @@ sub import {
     _setup_filter($pkg, $code);
 }
 
+sub unimport {
+    my $pkg = caller;
+
+    no strict 'refs';
+    *{"$pkg\::pmc_use_means_no"} = sub { 1 };
+
+    goto &{$_[0]->can('import')};
+}
+
 sub FILTER (&) {
     my $pkg = caller;
     my $code = shift;
