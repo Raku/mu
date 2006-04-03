@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
    Maintainer: Patrick Michaud <pmichaud@pobox.com>
    Date: 24 Jun 2002
-   Last Modified: 1 Apr 2006
+   Last Modified: 3 Apr 2006
    Number: 5
-   Version: 13
+   Version: 14
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them "rules" because they haven't been
@@ -588,10 +588,11 @@ into the pattern at that point:
 
 The closure is guaranteed to be run at the canonical time.
 
-An B<explicit> return from the closure binds the I<result object> for
-this match, ignores the rest of the current rule, and reports success:
+As with an ordinary embedded closure, an B<explicit> return from a
+rule closure binds the I<result object> for this match, ignores the
+rest of the current rule, and reports success:
 
-	/ (\d) { return $0.sqrt } NotReached /;
+	/ (\d) <{ return $0.sqrt }> NotReached /;
 
 This has the effect of capturing the square root of the numified string,
 instead of the string.  The C<NotReached> part is not reached.
