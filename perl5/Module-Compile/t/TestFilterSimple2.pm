@@ -1,5 +1,5 @@
 package t::TestFilterSimple2;
-use Filter::Simple::Cached sub {
+use Filter::Simple::Compile sub {
     s/y/k/g; # Y2K!
 };
 
