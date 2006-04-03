@@ -33,6 +33,18 @@ sub pmc_compiler { 1 };
 
 # All Module::Compile based modules inherit this import routine.
 sub import {
+    my ($class) = @_;
+    return if $class->pmc_use_means_no;
+    goto &{$class->can('pmc_import')};
+}
+
+sub unimport {
+    my ($class) = @_;
+    return unless $class->pmc_use_means_no;
+    goto &{$class->can('pmc_import')};
+}
+
+sub pmc_import {
     my ($class, $flag) = @_;
 
     # Handler modules can do C< use Module::Compile -base; >. Make
@@ -160,7 +172,8 @@ sub pmc_filter {
     require Filter::Util::Call;
     Filter::Util::Call::filter_add(sub {
         return 0 if $done;
-        my $data = "use $class;\n";
+        my $data = ($class->pmc_use_means_no ? 'no' : 'use');
+        $data .= " $class;\n";
         my $end = '';
         while (my $status = Filter::Util::Call::filter_read()) {
             return $status if $status < 0;
@@ -266,13 +279,13 @@ sub pmc_chunk {
                 eval { require "$file.pm" };
                 die $@ if $@ and "$@" !~ /^Can't locate /;
             }
-            if (not ($klass->can('pmc_compiler') and $class->pmc_compiler)) {
+            if (not ($klass->can('pmc_compiler') and $klass->pmc_compiler)) {
                 $text .= $part;
             }
             else {
                 push @chunks, [$text, [@classes]];
                 $text = '';
-                if ($use eq 'use') {
+                if (($use eq 'use') xor $klass->pmc_use_means_no) {
                     push @classes, $klass
                       unless grep {$_ eq $klass} @classes;
                 }
@@ -289,6 +302,8 @@ sub pmc_chunk {
         if length $text;
     return @chunks;
 }
+
+sub pmc_use_means_no { 0 }
 
 # Compile/Filter some source code into something else. This is almost
 # always overridden in a subclass.
