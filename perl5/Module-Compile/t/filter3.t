@@ -6,4 +6,5 @@ ok("Indeed nothing is needed")
 
 use t::TestFilterSimple3;
 
-ok("Semicolons are needed now")
+ok("Semicolons are needed now");
+ok("Really, I mean it");
