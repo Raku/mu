@@ -92,7 +92,7 @@ use base Pugs::Grammar::Base;
         (\d+) { return {num=>$(),} } 
     ) )->code;
     eval $statement->emit_grammar_perl5();
-    print "statement grammar: ", $statement->emit_grammar_perl5();
+    #print "statement grammar: ", $statement->emit_grammar_perl5();
 
 # ------------
 
@@ -100,6 +100,6 @@ package main;
 
 use Data::Dumper;
 {
-    my $match = $grammar->parse( '{0+0}{123};456' );
+    my $match = $grammar->parse( '{0+1+2}{3};4+5' );
     print Dumper $match->();
 }

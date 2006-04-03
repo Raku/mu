@@ -94,8 +94,6 @@ sub emit_perl6_rule {
         $template =~ s/<op>   /\$<op1>:=(<'$op->{name}'>)/sgx;
         $template =~ s/<op2>  /\$<op2>:=(<'$op->{name2}'>)/sgx;
         
-        # $template .= ' { return { op => $<op>[0](), term => $<term>[0](), term2 => $<term2>[0](),} } ';
-        #$template .= ' { return { op1 => $<op1>(), term1 => $<term1>() ,} } ';
         $template .= ' { return { op1 => $<op1>(), term1 => $<term1>(), term0 => $<term0>() ,} } ';
         #print "Added rule: $template\n";
         
