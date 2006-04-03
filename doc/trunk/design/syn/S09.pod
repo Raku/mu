@@ -688,18 +688,18 @@ unintentionally, even when the code looks like a non-destructive test:
 In Perl 6 these read-only operations are indeed non-destructive:
 
     my %hash;
-    exists $hash{foo}{bar}; # %hash is still empty
+    exists %hash<foo><bar>; # %hash is still empty
 
 But these ones I<do> autovivify:
 
     my %hash;
-    my $val := $hash{foo}{bar};
+    my $val := %hash<foo><bar>;
 
     my @array;
-    my $ref = \$array[0][0]; # $ref is an Arguments object - see S02
+    my $ref = \@array[0][0]; # $ref is an Arguments object - see S02
 
     my %hash;
-    $hash{foo}{bar} = "foo"; # duh
+    %hash<foo><bar> = "foo"; # duh
 
 This rule applies to C<Array>, C<Hash>, and C<Scalar> container objects.
 
