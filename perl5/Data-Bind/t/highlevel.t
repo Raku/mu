@@ -7,8 +7,8 @@ Data::Bind->sub_signature
     (\&formalize,
      { var => '$title' },
      { var => '$subtitle' },
-     { var => '$case', named => 1 },
-     { var => '$justify', named => 1 });
+     { var => '$case', named_only => 1 },
+     { var => '$justify', named_only => 1 });
 sub formalize {
     my ($title, $subtitle, $case, $justify);
     Data::Bind->arg_bind(\@_);

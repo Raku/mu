@@ -36,14 +36,16 @@ sub sig {
     for my $param (@_) {
 	my $db_param = Data::Bind::Param->new
 	    ({ container_var => $param->{var},
+               named_only => $param->{named_only},
 	       p5type => substr($param->{var}, 0, 1),
 	       name => substr($param->{var}, 1) });
 
-	if ($param->{named}) {
+
+	if ($param->{named_only}) {
 	    $now_named = 1;
-	    $named->{$db_param->name} = $db_param;
 	    $db_param->is_optional(1)
 		unless $param->{required};
+	    $named->{$db_param->name} = $db_param;
 	}
 	else {
 	    Carp::carp "positional argument after named ones" if $now_named;
@@ -51,6 +53,7 @@ sub sig {
 		if $param->{optional};
 
 	    push @{$positional}, $db_param;
+	    $named->{$db_param->name} = $db_param;
 	}
     }
 
@@ -75,7 +78,7 @@ sub sub_signature {
 }
 
 sub arg_bind {
-#    local $Carp::CarpLevel = 1;
+    local $Carp::CarpLevel = 1;
     my $cv = _get_cv(caller_cv(1));
     *$cv->{sig}->bind({ positional => $_[1][0], named => $_[1][1] }, 2);
 }
@@ -100,13 +103,16 @@ Data::Bind - Bind and alias variables
   Data::Bind->sub_signature
     (\&formalize,
      { var => '$title' },
-     { var => '$subtitle' },
-     { var => '$case', named => 1 },
-     { var => '$justify', named => 1 });
+     { var => '$subtitle', optional => 1 },
+     { var => '$case', named_only => 1 },
+     { var => '$justify', named_only => 1 });
   sub formalize {
     my ($title, $subtitle, $case, $justify);
-    Data::Bind->arg_bind;
+    Data::Bind->arg_bind(\@_);
   }
+
+  formalize([\'this is title'], # positional
+            { subtitle => \'hello'} ); #named
 
 =head1 DESCRIPTION
 
@@ -137,9 +143,27 @@ use Carp qw(croak);
 sub bind {
     my ($self, $args, $lv) = @_;
     $lv ||= 1;
+    my %bound;
+
+    my $named_arg = $args->{named};
+    for my $param_name (keys %{$self->named || {}}) {
+	my $param = $self->named->{$param_name};
+	if (my $current = $named_arg->{$param_name}) {
+	    # XXX: handle array concating
+	    $param->bind($current, $lv);
+	    $bound{$param_name}++;
+	}
+	elsif ($param->named_only) {
+	    croak "named argument ".$param->name." is required"
+		unless $param->is_optional;
+	}
+    }
+
+    # XXX: report extra incoming named args
 
     my $pos_arg = $args->{positional};
     for my $param (@{$self->positional || []}) {
+	next if $bound{$param->name};
 	my $current = shift @$pos_arg;
 	unless ($current) {
 	    last if $param->is_optional;
@@ -149,26 +173,12 @@ sub bind {
     }
     # XXX: report extra incoming positional args
 
-    my $named_arg = $args->{named};
-    for my $param_name (keys %{$self->named || {}}) {
-	my $param = $self->named->{$param_name};
-	if (my $current = $named_arg->{$param_name}) {
-	    $param->bind($current, $lv);
-	}
-	else {
-	    croak "named argument ".$param->name." is required"
-		unless $param->is_optional;
-	}
-    }
-
-    # XXX: report extra incoming named args
-
     return;
 }
 
 package Data::Bind::Param;
 use base 'Class::Accessor::Fast';
-__PACKAGE__->mk_accessors(qw(name p5type is_optional is_writable is_slurpy container_var subscript));
+__PACKAGE__->mk_accessors(qw(name p5type is_optional is_writable is_slurpy container_var subscript named_only));
 use Devel::LexAlias qw(lexalias);
 use PadWalker qw(peek_my);
 
