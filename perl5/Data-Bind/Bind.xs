@@ -128,6 +128,7 @@ _alias_a_to_b(SVREF a, SVREF b)
 {
     /* This bit of evil lifted straight from Perl_newSVrv  */
     const U32 refcnt = SvREFCNT(a);
+    svtype type = SvTYPE(b);
     SvREFCNT(a) = 0;
     sv_clear(a);
     SvFLAGS(a) = 0;
@@ -137,6 +138,27 @@ _alias_a_to_b(SVREF a, SVREF b)
     assert(SvIVX(a) == 0);
     assert(SvNVX(a) == 0.0);
     assert(SvPVX(a) == NULL);
-    sv_magicext(a, b, PERL_MAGIC_ext, &alias_vtbl, 0, 0);
-    mg_get(a);
+
+    if (type > SVt_PV) {
+        switch (type) {
+            case SVt_PVHV:
+            case SVt_PVAV: {
+                SV *tie = newRV_noinc((SV*)newHV());
+                HV *stash = gv_stashpv(type == SVt_PVHV ?
+                                       "Data::Bind::Hash" : "Data::Bind::Array",
+                                       TRUE);
+                hv_store(SvRV(tie), "real", 4, newRV_inc((SV *)b), 0);
+                sv_bless(tie, stash);
+                SvUPGRADE(a, SVt_PVAV);
+                hv_magic((HV*)a, (GV *)tie, PERL_MAGIC_tied);
+                break;
+            }
+            default:
+                croak("don't know what to do yet");
+        }
+    }
+    else {
+        sv_magicext(a, b, PERL_MAGIC_ext, &alias_vtbl, 0, 0);
+        mg_get(a);
+    }
 }

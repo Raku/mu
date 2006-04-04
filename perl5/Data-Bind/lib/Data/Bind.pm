@@ -180,13 +180,28 @@ sub bind {
 	    Data::Bind::_alias_a_to_b(\$ref->[$self->subscript], $var);
 	}
 	else {
-	    Data::Bind::_alias_a_to_b(\$ref, \$var);
+	    Data::Bind::_alias_a_to_b($ref, $var);
 	}
     }
     else {
 	die 'not yet';
     }
     return;
+}
+
+package Data::Bind::Array;
+use base 'Tie::Array';
+
+sub FETCH {
+  $_[0]->{real}->[$_[1]];
+}
+
+sub STORE {
+  $_[0]->{real}->[$_[1]] = $_[2];
+}
+
+sub FETCHSIZE {
+  scalar @{$_[0]->{real}};
 }
 
 1;

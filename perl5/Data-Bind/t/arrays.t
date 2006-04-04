@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use Test::More tests => 19;
+use Test::More tests => 24;
 use Test::Exception;
 use Data::Bind;
 # L<S03/"Binding">
@@ -50,27 +50,30 @@ sub {
   is $array[1], "g",  "binding of array elements works with .delete (5)";
 }->();
 
-=begin comment
-{
+sub {
   my @array  = <a b c>;
   my $var    = "d";
 
-  @array[1] := $var;
+  my $sig = Data::Bind->sig({ var => '@array'});
+  $sig->positional->[0]->subscript(1);
+  $sig->bind({ positional => [\$var] });
+
   $var       = "e";
-  is @array[1], "e", "binding of array elements works with resetting the array (1)";
+  is $array[1], "e", "binding of array elements works with resetting the array (1)";
 
   @array = ();
   # $var unchanged, but assigning to $var doesn't modify @array any
   # longer; similarily, changing @array[1] doesn't modify $var now
   is $var,    "e",   "binding of array elements works with resetting the array (2)";
-  is ~@array, "",    "binding of array elements works with resetting the array (3)";
+  is_deeply \@array, [],    "binding of array elements works with resetting the array (3)";
 
   $var      = "f";
-  @array[1] = "g";
+  $array[1] = "g";
   is $var,      "f", "binding of array elements works with resetting the array (4)";
-  is @array[1], "g", "binding of array elements works with resetting the array (5)";
-}
+  is $array[1], "g", "binding of array elements works with resetting the array (5)";
+}->();
 
+=begin comment
 {
   my @array  = <a b c>;
   my $var    = "d";
@@ -214,7 +217,6 @@ sub {
   # @array[$idx] and $var are now "f", but @new_array is unchanged.
   is $var,        "f",     "array binding does not create new containers (2)";
   is_deeply \@array,     [qw(a f c)], "array binding does not create new containers (3)";
-  local $TODO = 'array alias not working yet';
   is_deeply \@new_array, [qw(a f c)], "array binding does not create new containers (4)";
 }->();
 
@@ -224,7 +226,6 @@ sub {
 # and consider the magic behind parameter binding (which is really normal
 # binding).
 sub {
-  local $TODO = 'alias array not working yet';
   my $arrayref  = [<a b c>];
   my @array;
   # my @array    := $arrayref;
