@@ -11,7 +11,7 @@ Data::Bind->sub_signature
      { var => '$justify', named => 1 });
 sub formalize {
     my ($title, $subtitle, $case, $justify);
-    Data::Bind->arg_bind;
+    Data::Bind->arg_bind(\@_);
     no warnings 'uninitialized';
     return join(':', $title, $case, $justify);
 }

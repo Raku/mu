@@ -4,13 +4,14 @@ use strict;
 our $VERSION = '0.24';
 
 use base 'Exporter';
-our @EXPORT = qw(bind_op);
+our @EXPORT = qw(bind_op bind_op2);
 use base 'DynaLoader';
 __PACKAGE__->bootstrap;
 
 use Devel::Caller qw(caller_cv caller_args);
 use B ();
 
+# XXX: Make sig take storage directly
 sub bind_op {
     my %vars = @_;
 
@@ -20,6 +21,11 @@ sub bind_op {
 
     # XXX: probably returning the var
     return;
+}
+
+sub bind_op2 {
+    my ($a, $b) = @_;
+    _alias_a_to_b($a, $b);
 }
 
 sub sig {
@@ -69,9 +75,9 @@ sub sub_signature {
 }
 
 sub arg_bind {
+#    local $Carp::CarpLevel = 1;
     my $cv = _get_cv(caller_cv(1));
-    my @arg = caller_args(1);
-    *$cv->{sig}->bind({ positional => $arg[0], named => $arg[1] }, 2);
+    *$cv->{sig}->bind({ positional => $_[1][0], named => $_[1][1] }, 2);
 }
 
 =head1 NAME
@@ -174,7 +180,7 @@ sub bind {
 	return;
     }
     my $h = peek_my($lv);
-    my $ref = $h->{$self->container_var} or die;
+    my $ref = $h->{$self->container_var} or Carp::confess $self->container_var;
     if ($self->p5type eq '@') {
 	if ($self->subscript) {
 	    Data::Bind::_alias_a_to_b(\$ref->[$self->subscript], $var);
