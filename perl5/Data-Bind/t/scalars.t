@@ -88,18 +88,20 @@ sub {
 
 # Binding subroutine parameters
 # XXX! When executed in interactive Pugs, the following test works!
-SKIP:
 {
-  skip 'not yet', 5;
   my $a;
-  my $b = sub { my $arg; bind_op('$arg', \$_[0]); bind_op('$a', \$arg) };
+  my $b = sub { my $arg; Data::Bind->arg_bind(\@_); bind_op2(\$a => \$arg) };
+  Data::Bind->sub_signature
+    ($b, { var => '$arg' });
+
   my $val = 42;
 
-  $b->($val);
+  $b->([\$val]);
   is $a, 42, "bound readonly sub param was bound correctly (1)";
   $val++;
   is $a, 43, "bound readonly sub param was bound correctly (2)";
 
+  local $TODO = 'params are by default readonly';
   dies_ok { $a = 23 }
     "bound readonly sub param remains readonly (1)";
   is $a, 43,
@@ -108,20 +110,23 @@ SKIP:
     "bound readonly sub param remains readonly (3)";
 }
 
-SKIP:
+use Devel::Peek;
 {
-  skip 'not yet', 5;
   my $a;
-  my $b = sub {};
 #  my $b = sub($arg is rw) { $a := $arg };
+  my $b = sub { my $arg; Data::Bind->arg_bind(\@_); bind_op2(\$a => \$arg) };
+  Data::Bind->sub_signature
+    ($b, { var => '$arg', is_rw => 1 });
   my $val = 42;
 
-  $b->($val);
+  $b->([\$val]);
   is $a, 42, "bound rw sub param was bound correctly (1)";
   $val++;
   is $a, 43, "bound rw sub param was bound correctly (2)";
 
   lives_ok { $a = 23 }  "bound rw sub param remains rw (1)";
+  # XXX: need to read once first??
+  warn "ignore me $val\n";
   is $a, 23,            "bound rw sub param remains rw (2)";
   is $val, 23,          "bound rw sub param remains rw (3)";
 }
