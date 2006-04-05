@@ -87,78 +87,73 @@ sub {
   is $array[1], "g",   "binding of array elements works with rebinding the array (5)";
 }->();
 
-no warnings 'redefine';
 sub {
-  local $TODO = 'not working yet';
 #  my sub foo (@arr) { @arr[1] = "new_value" }
-  sub foo { my @arr; Data::Bind->arg_bind(\@_);
+  my $foo = sub { my @arr; Data::Bind->arg_bind(\@_);
             $arr[1] = "new_value";
-  }
+  };
   Data::Bind->sub_signature
-    (\&foo, { var => '@arr' }),
+    ($foo, { var => '@arr' }),
 
   my @array  = <a b c>;
   my $var    = "d";
   bind_op2(\$array[1], \$var);
 
-  lives_ok { foo([\@array]) };
+  lives_ok { $foo->([\@array]) };
   is $var,    "new_value",     "passing an array to a sub expecting an array behaves correctly (1)";
   is_deeply \@array, [<a new_value c>], "passing an array to a sub expecting an array behaves correctly (2)";
 }->();
 
-{
+sub {
 #  my sub foo (Array $arr) { $arr[1] = "new_value" }
-  local $TODO = 'not working yet';
-  sub foo { my $arr; Data::Bind->arg_bind(\@_);
-            $arr->[1] = "new_value";
-  }
+  my $foo = sub { my $arr; Data::Bind->arg_bind(\@_);
+		  $arr->[1] = "new_value";
+  };
   Data::Bind->sub_signature
-    (\&foo, { var => '$arr', isa => 'Array' }),
+    ($foo, { var => '$arr', isa => 'Array' }),
 
   my @array  = <a b c>;
   my $var    = "d";
   bind_op2(\$array[1] => \$var);
-
-  foo([\@array]);
+  $foo->([\\@array]);
   is $var,    "new_value",     "passing an array to a sub expecting an arrayref behaves correctly (1)";
   is_deeply \@array, [<a new_value c>], "passing an array to a sub expecting an arrayref behaves correctly (2)";
-}
+}->();
 
-{
-  local $TODO = 'not working yet';
+sub {
 #  my sub foo (*@args) { @args[1] = "new_value" }
-  sub foo { my @args; Data::Bind->arg_bind(\@_);
+  my $foo =sub { my @args; Data::Bind->arg_bind(\@_);
             $args[1] = "new_value";
-  }
+  };
   Data::Bind->sub_signature
-    (\&foo, { var => '@args', is_slurpy => 1 }),
+    ($foo, { var => '@args', is_slurpy => 1 }),
 
   my @array  = <a b c>;
   my $var    = "d";
   bind_op2(\$array[1], \$var);
 
-  foo([\@array]);
+  $foo->([\@array]);
   is $var,    "new_value",     "passing an array to a slurpying sub behaves correctly (1)";
   is_deeply \@array, [<a new_value c>], "passing an array to a slurpying sub behaves correctly (2)";
-}
+}->();
 
-{
+sub {
 #  my sub foo (*@args) { push @args, "new_value" }
-  sub foo { my @args; Data::Bind->arg_bind(\@_);
+  my $foo = sub { my @args; Data::Bind->arg_bind(\@_);
             push @args, "new_value";
-  }
+  };
   Data::Bind->sub_signature
-    (\&foo, { var => '@args', is_slurpy => 1 }),
+    ($foo, { var => '@args', is_slurpy => 1 }),
 
   my @array  = <a b c>;
   my $var    = "d";
   bind_op2(\$array[1] => \$var);
 
-  foo([\@array]);
+  $foo->([\@array]);
   is $var,    "d",     "passing an array to a slurpying sub behaves correctly (3)";
   local $TODO = 'slurpy arg should not push to bound array';
   is_deeply \@array, [<a d c>], "passing an array to a slurpying sub behaves correctly (4)";
-}
+}->();
 
 # Binding of not yet existing elements should autovivify
 {

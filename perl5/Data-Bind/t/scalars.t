@@ -61,7 +61,6 @@ sub {
   my $b = "b";
 
   bind_op('$a', \$b, '$b', \$a);
-
 #  ($a, $b) := ($b, $a);
   is($a, 'b', '$a has been changed to "b"');
   is($b, 'a', '$b has been changed to "a"');

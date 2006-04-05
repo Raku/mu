@@ -185,12 +185,15 @@ use PadWalker qw(peek_my);
 sub bind {
     my ($self, $var, $lv) = @_;
     $lv++;
-    if ($self->p5type eq '$') {
-	lexalias($lv, $self->container_var, $var);
-	return;
-    }
+
     my $h = peek_my($lv);
     my $ref = $h->{$self->container_var} or Carp::confess $self->container_var;
+    if ($self->p5type eq '$') {
+	# XXX: check $var type etc, take additional ref
+	lexalias($lv, $self->container_var, $var);
+#	Data::Bind::_alias_a_to_b($ref, $var);
+	return;
+    }
     if ($self->p5type eq '@') {
 	if ($self->subscript) {
 	    Data::Bind::_alias_a_to_b(\$ref->[$self->subscript], $var);
