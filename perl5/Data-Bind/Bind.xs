@@ -79,6 +79,7 @@ alias_mg_set(pTHX_ SV *sv, MAGIC *mg)
 	if (SvIOKp(sv)) {
 	    SvIVX(target) = SvIVX(sv);
 	    SvIOKp_on(target);
+	    SvIOK_on(target); /* XXX */
 	    if (SvIsUV(sv))
 		SvIsUV_on(target);
 	}
