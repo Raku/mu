@@ -300,8 +300,23 @@ define an alias in infix form.  The infix form will parse the right
 argument as a scalar even if the aliased function would have parsed it
 as a list:
 
-    &infix:<dehash> ::= postcircumfix:<{}>;
+    &infix:<dehash> ::= postcircumfix:<{ }>;
     $x = [dehash] $a,'foo','bar';  # $a<foo><bar>, not $a<foo bar>
+
+Note that, because a reduce is a list operator, the argument list to is
+evaluated in list context.  Therefore the following would be incorrect:
+
+    $x = [dehash] %a,'foo','bar';
+
+You'd instead have to say one of:
+
+    $x = [dehash] \%a,'foo','bar';
+    $x = [dehash] %a<foo>,'bar';
+
+On the plus side, this works without a star:
+
+    @args = (\%a,'foo','bar');
+    $x = [dehash] @args;
 
 =head1 Junctive operators
 
