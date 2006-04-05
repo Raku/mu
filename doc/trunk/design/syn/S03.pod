@@ -303,7 +303,7 @@ as a list:
     &infix:<dehash> ::= postcircumfix:<{ }>;
     $x = [dehash] $a,'foo','bar';  # $a<foo><bar>, not $a<foo bar>
 
-Note that, because a reduce is a list operator, the argument list to is
+Note that, because a reduce is a list operator, the argument list is
 evaluated in list context.  Therefore the following would be incorrect:
 
     $x = [dehash] %a,'foo','bar';
@@ -317,6 +317,9 @@ On the plus side, this works without a star:
 
     @args = (\%a,'foo','bar');
     $x = [dehash] @args;
+
+Note also that C<[.foo]> always means C<[$_.foo]>, never a reduce operator.
+Infix operators are not allowed to start with a dot.
 
 =head1 Junctive operators
 
