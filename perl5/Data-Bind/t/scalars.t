@@ -124,7 +124,6 @@ use Devel::Peek;
   is $a, 43, "bound rw sub param was bound correctly (2)";
 
   lives_ok { $a = 23 }  "bound rw sub param remains rw (1)";
-  # XXX: need to read once first??
   is $a, 23,            "bound rw sub param remains rw (2)";
   is $val, 23,          "bound rw sub param remains rw (3)";
 }

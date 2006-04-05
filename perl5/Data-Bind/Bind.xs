@@ -79,7 +79,29 @@ alias_mg_set(pTHX_ SV *sv, MAGIC *mg)
 	if (SvIOKp(sv)) {
 	    SvIVX(target) = SvIVX(sv);
 	    SvIOKp_on(target);
-	    SvIOK_on(target); /* XXX */
+	    if (!SvPOKp(sv) && !SvNOKp(sv)) {
+		/* This is really getting too fragile. 5.8.0 onwards has
+		   arguably-a-bug in save_magic. This line:
+
+		   SvFLAGS(sv) |= (SvFLAGS(sv) & (SVp_NOK|SVp_POK)) >> PRIVSHIFT;
+
+		   should probably read
+
+		   SvFLAGS(sv) |= (SvFLAGS(sv) & (SVp_IOK|SVp_NOK|SVp_POK)) >> PRIVSHIFT;
+
+		   The upshot is that scalars passed in with just SVp_IOK
+		   aren't getting acknowledged as having any defined value.
+
+		   The whole private/not flags business is already rather too
+		   fragile, as 5.8.0 onwards assign different meaning to
+		   private/not private for regular scalars and for magical
+		   scalars, both meanings requireing paired bits. And now we're
+		   trying to proxy values across from one sort (magic) to the
+		   other sort (magic), which (I think) means we're trying to
+		   squeeze two local bits of information on one side into one
+		   at the other.  */
+		SvIOK_on(target);
+	    }
 	    if (SvIsUV(sv))
 		SvIsUV_on(target);
 	}
