@@ -11,9 +11,9 @@ use Pugs::Runtime::Match;
 use Pugs::Emitter::Rule::Perl5;
 
 my %relative_precedences = (
-    tighter => sub { splice( @{$_[0]->{levels}}, $_[1]-1, 0, [ $_[2] ] ) },
-    looser  => sub { splice( @{$_[0]->{levels}}, $_[1]+1, 0, [ $_[2] ] ) },
-    equal   => sub {   push( @{$_[0]->{levels}[$_[1]]}, $_[2] ) },
+    tighter => sub { splice( @{$_[0]->{levels}}, $_[1]-1, 0, { $_[3] => [ $_[2] ] } ) },
+    looser  => sub { splice( @{$_[0]->{levels}}, $_[1]+1, 0, { $_[3] => [ $_[2] ] } ) },
+    equal   => sub {    push @{$_[0]->{levels}[$_[1]]{$_[3]}}, $_[2] },
 );
 
 # parsed: - the rule replaces the right side
@@ -47,14 +47,17 @@ sub merge_category   { die "not implemented" };
 sub add_op {
     my ($self, $opt) = @_;
     #print "adding $opt->{name}\n";
-    $opt->{assoc} = 'left' unless defined $opt->{assoc};
+    $opt->{assoc} =  'left'   unless defined $opt->{assoc};
+    $opt->{fixity} = 'prefix' unless defined $opt->{fixity};
+    my $fixity = $opt->{fixity};
+    $fixity .= '_' . $opt->{assoc} if $fixity eq 'infix';
     for ( 0 .. $#{$self->{levels}} ) {
-        if ( grep { $_->{name} eq $opt->{other} } @{$self->{levels}[$_]} ) {
-            $relative_precedences{$opt->{precedence}}->($self, $_, $opt);
+        if ( grep { $_->{name} eq $opt->{other} } @{$self->{levels}[$_]{$fixity}} ) {
+            $relative_precedences{$opt->{precedence}}->($self, $_, $opt, $fixity);
             return;
         }
     }
-    push @{$self->{levels}}, [ $opt ];
+    push @{$self->{levels}}, { $fixity => [ $opt ] };
 }
 
 sub code { 
@@ -75,15 +78,14 @@ sub emit_perl6_rule {
     my $tight = $level ? 'r' . ($level - 1) : $self->{operand};
     my $equal = "r$level";
     $equal = "parse" if $level == $#{$self->{levels}};
-    for my $op ( @{$self->{levels}[$level]} ) {
-        my $rule = $op->{fixity};
-        $rule .= '_' . $op->{assoc} if $rule eq 'infix';
-        my $template = $rule_templates{$rule};
+    for my $fixity ( keys %{$self->{levels}[$level]} ) {
+        my $template = $rule_templates{$fixity};
+        for my $op ( @{$self->{levels}[$level]{$fixity}} ) {
         
-        # is-parsed
-        if ( $op->{rule} ) {
-            $template =~ s/<op>.*/<op> $op->{rule}/sg;
-        }
+            # is-parsed
+            if ( $op->{rule} ) {
+                $template =~ s/<op>.*/<op> $op->{rule}/sg;
+            }
         
         my $term0 = $template =~ s/<tight>/\$<term0>:=(<$tight>)/sgx;
         #$template =~ s/<tight>/<$tight>/sgx;
@@ -100,7 +102,8 @@ sub emit_perl6_rule {
         $template .= ' { return Pugs::AST::Expression->operator($/, fixity => "' . $op->{fixity} . '", assoc => "' . $op->{assoc} . '" ) } ';
         #print "Added rule: $template\n";
         
-        push @rules, $template;
+            push @rules, $template;
+        }
     }
     push @rules, '$<term>:=(<' . $tight . '>) { return Pugs::AST::Expression->term($/) } ';
 
