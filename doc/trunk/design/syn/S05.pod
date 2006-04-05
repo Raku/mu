@@ -2409,17 +2409,18 @@ Hence:
 For writing your own backslash and assertion rules or macros, you may
 use the following syntactic categories:
 
-     rule rxbackslash:<w> { ... }    # define your own \w and \W
-     rule rxassertion:<*> { ... }    # define your own <*stuff>
-     macro rxmetachar:<,> { ... }    # define a new metacharacter
-     macro rxmodinternal:<x> { ... } # define your own /:x() stuff/
-     macro rxmodexternal:<x> { ... } # define your own m:x()/stuff/
+     rule rule_backslash:<w> { ... }     # define your own \w and \W
+     rule rule_assertion:<*> { ... }     # define your own <*stuff>
+     macro rule_metachar:<,> { ... }     # define a new metacharacter
+     macro rule_mod_internal:<x> { ... } # define your own /:x() stuff/
+     macro rule_mod_external:<x> { ... } # define your own m:x()/stuff/
 
-As with any such syntactic shenanigans, the declaration must be visible in
-the lexical scope to have any effect.  It's possible the internal/external
-distinction is just a trait, and that some of those things are subs
-or methods rather than rules or macros.  (The numeric rxmods are recognized
-by fallback macros defined with an empty operator name.)
+As with any such syntactic shenanigans, the declaration must be
+visible in the lexical scope to have any effect.  It's possible
+the internal/external distinction is just a trait, and that some
+of those things are subs or methods rather than rules or macros.
+(The numeric rule modifiers are recognized by fallback macros defined
+with an empty operator name.)
 
 =head1 Pragmas
 

@@ -53,28 +53,38 @@ so you are free to use any whitespace anywhere that whitespace makes sense.
 
 =item *
 
-In general, whitespace is optional in Perl 6 except where it is
-needed to separate constructs that would be misconstrued as a single
-token or other syntactic unit.  (In other words, Perl 6 follows the
-standard "longest-token" principle, or in the cases of large constructs,
-a "prefer shifting to reducing" principle.)
+In general, whitespace is optional in Perl 6 except where it is needed
+to separate constructs that would be misconstrued as a single token or
+other syntactic unit.  (In other words, Perl 6 follows the standard
+"longest-token" principle, or in the cases of large constructs, a
+"prefer shifting to reducing" principle.  See Grammatical Categories
+below for more on how a Perl program is analyzed into tokens.)
 
 This is an unchanging deep rule, but the surface ramifications of it
 change as various operators and macros are added to or removed from
 the language, which we expect to happen because Perl 6 is designed to
 be a mutable language.  In particular, there is a natural conflict
-between postfix operators and infix operators, either of which may
-occur after a term.  If a given token may be interpreted as either a
-postfix operator or an infix operator, the infix operator requires
-space before it, and the postfix operator requires a lack of space
-before it, unless it begins with a dot.  (Infix operators may not
-start with a dot.)  For instance, if you were to add your own
-C<< infix:<++> >> operator, then it must have space before it, and the
-normal autoincrementing C<< postfix:<++> >> operator may not have
-space before it, or must be written as C<.++> instead.  In standard Perl
-6, however, it doesn't matter if you put a space in front of
-C<< postfix:<++> >>.  To be future proof, though, you should omit
-the space or use dot.
+between postfix operators and infix operators, either of which
+may occur after a term.  If a given token may be interpreted as
+either a postfix operator or an infix operator, the infix operator
+requires space before it, and the postfix operator requires a lack
+of space before it unless the previous token was follwed by a dot.
+(Infix operators may not start with a dot.)  In other words, the only
+way to put whitespace before a postfix operator is to put whitespace
+between a dot and the normal representation of the postfix operator.
+In other other words, a postfix operator starting with a dot is allowed
+to have any amount of whitespace between the dot and the rest of the
+postfix operator.
+
+For instance, if you were to add your own C<< infix:<++> >> operator,
+then it must have space before it, and the normal autoincrementing
+C<< postfix:<++> >> operator may not have space before it, or must
+be written as C<$x. ++> instead.  In standard Perl 6, however, it
+doesn't matter if you put a space in front of C<< postfix:<++> >>.
+To be future proof, though, you should omit the space or use dot.
+
+(A consequence of this rule is that a dot with whitespace in front of it
+is always considered a method call on C<$_>.)
 
 =item *
 
@@ -86,13 +96,13 @@ characters as delimiters without starting a comment.
 =item *
 
 Multiline comments will be provided by extending the syntax of POD
-to nest C<=begin COMMENT>/C<=end COMMENT> correctly without the need
-for C<=cut>.  (Doesn't have to be "COMMENT"--any unrecognized POD
+to nest C<=begin comment>/C<=end comment> correctly without the need
+for C<=cut>.  (Doesn't have to be "comment"--any unrecognized POD
 stream will do to make it a comment.  Bare C<=begin> and C<=end>
 probably aren't good enough though, unless you want all your comments
 to end up in the manpage...)
 
-We have single paragraph comments with C<=for COMMENT> as well.
+We have single paragraph comments with C<=for comment> as well.
 That lets C<=for> keep its meaning as the equivalent of a C<=begin>
 and C<=end> combined.  As with C<=begin> and C<=end>, a comment started
 in code reverts to code afterwards.
@@ -261,11 +271,11 @@ The C<$pkg'var> syntax is dead.  Use C<$pkg::var> instead.
 Perl 6 includes a system of B<sigils> to mark the fundamental
 structural type of a variable:
 
-    $	scalar
-    @	ordered array
-    %	unordered hash (associative array)
-    &	code
-    ::	package/module/class/role/subset/enum/type
+    $   scalar
+    @   ordered array
+    %   unordered hash (associative array)
+    &   code
+    ::  package/module/class/role/subset/enum/type
 
 Within a declaration, the C<&> sigil also declares the visibility of the
 subroutine name without the sigil within the scope of the declaration.
@@ -294,16 +304,16 @@ or package scoped.  Oddly scoped variables include a secondary sigil
 (a B<twigil>) that indicates what kind of strange scoping the variable
 is subject to:
 
-    $foo	ordinary scoping
-    $.foo	object attribute accessor
-    $^foo	self-declared formal parameter
-    $*foo	global variable
-    $+foo	environmental variable
-    $?foo	compiler hint variable
-    $=foo	pod variable
-    $<foo>	match variable, short for $/{'foo'}
-    $!foo	explicitly private attribute (mapped to $foo though)
-    @;foo	multislice
+    $foo        ordinary scoping
+    $.foo       object attribute accessor
+    $^foo       self-declared formal parameter
+    $*foo       global variable
+    $+foo       environmental variable
+    $?foo       compiler hint variable
+    $=foo       pod variable
+    $<foo>      match variable, short for $/{'foo'}
+    $!foo       explicitly private attribute (mapped to $foo though)
+    @;foo       multislice
 
 Most variables with twigils are implicitly declared or assumed to
 be declared in some other scope, and don't need a "my" or "our".
@@ -468,18 +478,18 @@ To make a slice subscript return something other than values, append an
 appropriate adverb to the subscript.
 
     @array = <A B>;
-    @array[0,1,2];	# returns 'A', 'B', undef
-    @array[0,1,2]:p;	# returns 0 => 'A', 1 => 'B'
-    @array[0,1,2]:kv;	# returns 0, 'A', 1, 'B'
-    @array[0,1,2]:k;	# returns 0, 1
-    @array[0,1,2]:v;	# returns 'A', 'B'
+    @array[0,1,2];      # returns 'A', 'B', undef
+    @array[0,1,2]:p;    # returns 0 => 'A', 1 => 'B'
+    @array[0,1,2]:kv;   # returns 0, 'A', 1, 'B'
+    @array[0,1,2]:k;    # returns 0, 1
+    @array[0,1,2]:v;    # returns 'A', 'B'
 
     %hash = (:a<A>, :b<B>);
-    %hash<a b c>;	# returns 'A', 'B', undef
-    %hash<a b c>:p;	# returns a => 'A', b => 'B'
-    %hash<a b c>:kv;	# returns 'a', 'A', 'b', 'B'
-    %hash<a b c>:k;	# returns 'a', 'b'
-    %hash<a b c>:v;	# returns 'A', 'B'
+    %hash<a b c>;       # returns 'A', 'B', undef
+    %hash<a b c>:p;     # returns a => 'A', b => 'B'
+    %hash<a b c>:kv;    # returns 'a', 'A', 'b', 'B'
+    %hash<a b c>:k;     # returns 'a', 'b'
+    %hash<a b c>:v;     # returns 'A', 'B'
 
 The adverbial forms all weed out non-existing entries.
 
@@ -527,7 +537,7 @@ The C<$#foo> notation is dead.  Use C<@foo.end> or C<[-1]> instead.
 
 Ordinary package-qualified names look like in Perl 5:
 
-    $Foo::Bar::baz	# the $baz variable in package Foo::Bar
+    $Foo::Bar::baz      # the $baz variable in package Foo::Bar
 
 Sometimes it's clearer to keep the sigil with the variable name, so an
 alternate way to write this is:
@@ -567,13 +577,13 @@ Most symbolic references are done with this notation:
 
     $foo = "Foo";
     $foobar = "Foo::Bar";
-    $::($foo)		# package-scoped $Foo
-    $::("MY::$foo")	# lexically-scoped $Foo
-    $::("*::$foo")	# global $Foo
-    $::($foobar)	# $Foo::Bar
-    $::($foobar)::baz	# $Foo::Bar::baz
-    $::($foo)::Bar::baz	# $Foo::Bar::baz
-    $::($foobar)baz	# ILLEGAL at compile time (no operator baz)
+    $::($foo)           # package-scoped $Foo
+    $::("MY::$foo")     # lexically-scoped $Foo
+    $::("*::$foo")      # global $Foo
+    $::($foobar)        # $Foo::Bar
+    $::($foobar)::baz   # $Foo::Bar::baz
+    $::($foo)::Bar::baz # $Foo::Bar::baz
+    $::($foobar)baz     # ILLEGAL at compile time (no operator baz)
 
 Note that unlike in Perl 5, initial C<::> doesn't imply global.
 Package names are searched for from inner lexical scopes to outer,
@@ -606,9 +616,9 @@ Or just refer to them as C<$*IN> and C<$*OUT>.
 To do direct lookup in a package's symbol table without scanning, treat
 the package name as a hash:
 
-    Foo::Bar::{'&baz'}	# same as &Foo::Bar::baz
-    GLOBAL::<$IN>	# Same as $*IN
-    Foo::<::Bar><::Baz>	# same as Foo::Bar::Baz
+    Foo::Bar::{'&baz'}  # same as &Foo::Bar::baz
+    GLOBAL::<$IN>       # Same as $*IN
+    Foo::<::Bar><::Baz> # same as Foo::Bar::Baz
 
 Unlike C<::()> symbolic references, this does not parse the argument
 for C<::>, nor does it initiate a namespace scan from that initial
@@ -643,18 +653,18 @@ immediately surrounding the current C<MY>, and C<OUTER::OUTER> is the one
 surrounding that one.
 
     our $foo = 41;
-    say $::foo;		# prints 41, :: is no-op
+    say $::foo;         # prints 41, :: is no-op
     {
-	my $foo = 42;
-	say MY::<$foo>;		# prints "42"
-	say $MY::foo;		# same thing
-	say $::foo;		# same thing, :: is no-op here
+        my $foo = 42;
+        say MY::<$foo>;         # prints "42"
+        say $MY::foo;           # same thing
+        say $::foo;             # same thing, :: is no-op here
 
-	say OUR::<$foo>;	# prints "41"
-	say $OUR::foo;		# same thing
+        say OUR::<$foo>;        # prints "41"
+        say $OUR::foo;          # same thing
 
-	say OUTER::<$foo>;	# prints "41" (our $foo is also lexical)
-	say $OUTER::foo;	# same thing
+        say OUTER::<$foo>;      # prints "41" (our $foo is also lexical)
+        say $OUTER::foo;        # same thing
     }
 
 You may not use any lexically scoped symbol table, either by name or
@@ -712,7 +722,7 @@ is the variable name, including any sigil.  The package object can
 be derived from a type name by use of the C<::> postfix operator:
 
     MyType .:: .{'$foo'}
-    MyType::<$foo>		# same thing
+    MyType::<$foo>              # same thing
 
 (Directly subscripting the type with either square brackets or curlies
 is reserved for various generic type-theoretic operations.  In most other
@@ -770,7 +780,7 @@ Here are some possibilities:
     @?PACKAGE   Which packages am I in?
     $?MODULE    Which module am I in?
     @?MODULE    Which modules am I in?
-    ::?CLASS	Which class am I in? (as package name)
+    ::?CLASS    Which class am I in? (as package name)
     $?CLASS     Which class am I in? (as variable)
     @?CLASS     Which classes am I in?
     ::?ROLE     Which role am I in? (as package name)
@@ -785,14 +795,14 @@ Here are some possibilities:
     @?SUBNAME   Which sub names am I in?
     &?BLOCK     Which block am I in?
     @?BLOCK     Which blocks am I in?
-    $?LABEL	Which block label am I in?
-    @?LABEL	Which block labels am I in?
+    $?LABEL     Which block label am I in?
+    @?LABEL     Which block labels am I in?
 
 Note that some of these things have parallels in the C<*> space at run time:
 
-    $*OS	Which OS I'm running under
-    $*OSVER	Which OS version I'm running under
-    $*PERLVER	Which Perl version I'm running under
+    $*OS        Which OS I'm running under
+    $*OSVER     Which OS version I'm running under
+    $*PERLVER   Which Perl version I'm running under
 
 You should not assume that these will have the same value as their
 compile-time cousins.
@@ -811,20 +821,20 @@ variable sets or temporizes the incipient C<$?> variable in the
 surrounding lexical context that is being compiled.  If nothing in
 the context is being compiled, an exception is thrown.
 
-    $?FOO // say "undefined";	# probably says undefined
+    $?FOO // say "undefined";   # probably says undefined
     BEGIN { COMPILING::<$?FOO> = 42 }
-    say $?FOO;			# prints 42
+    say $?FOO;                  # prints 42
     {
-	say $?FOO;		# prints 42
-	BEGIN { temp COMPILING::<$?FOO> = 43 } # temporizes to *compiling* block
-	say $?FOO;		# prints 43
-	BEGIN { COMPILING::<$?FOO> = 44 }
-	say $?FOO;		# prints 44
-	BEGIN { say COMPILING::<$?FOO> }	# prints 44, but $?FOO probably undefined
+        say $?FOO;              # prints 42
+        BEGIN { temp COMPILING::<$?FOO> = 43 } # temporizes to *compiling* block
+        say $?FOO;              # prints 43
+        BEGIN { COMPILING::<$?FOO> = 44 }
+        say $?FOO;              # prints 44
+        BEGIN { say COMPILING::<$?FOO> }        # prints 44, but $?FOO probably undefined
     }
-    say $?FOO;			# prints 42 (left scope of temp above)
-    $?FOO = 45;			# always an error
-    COMPILING::<$?FOO> = 45;	# an error unless we are compiling something
+    say $?FOO;                  # prints 42 (left scope of temp above)
+    $?FOO = 45;                 # always an error
+    COMPILING::<$?FOO> = 45;    # an error unless we are compiling something
 
 Note that C<< CALLER::<$?FOO> >> might discover the same variable
 as C<COMPILING::<$?FOO>>, but only if the compiling context is the
@@ -876,33 +886,33 @@ or end.
 Initial C<0> no longer indicates octal numbers by itself.  You must use
 an explicit radix marker for that.  Pre-defined radix prefixes include:
 
-    0b		base 2, digits 0..1
-    0o		base 8, digits 0..7
-    0d		base 10, digits 0..9
-    0x		base 16, digits 0..9,a..f (case insensitive)
+    0b          base 2, digits 0..1
+    0o          base 8, digits 0..7
+    0d          base 10, digits 0..9
+    0x          base 16, digits 0..9,a..f (case insensitive)
 
 =item *
 
 The general radix form of a number involves prefixing with the radix
 in adverbial form:
 
-    :10<42>		same as 0d42 or 42
-    :16<dead_beef>	same as 0xdeadbeef
-    :8<177777>		same as 0o177777 (65535)
-    :2<1.1>		same as 0b1.1 (0d1.5)
+    :10<42>             same as 0d42 or 42
+    :16<dead_beef>      same as 0xdeadbeef
+    :8<177777>          same as 0o177777 (65535)
+    :2<1.1>             same as 0b1.1 (0d1.5)
 
 Extra digits are assumed to be represented by 'a'..'z', so you can go up
 to base 36.  (Use 'a' and 'b' for base twelve, not 't' and 'e'.)  Alternately
 you can use a list of digits in decimal:
 
-    :60[12,34,56]	# 12 * 3600 + 34 * 60 + 56
-    :100[3,'.',14,16]	# pi
+    :60[12,34,56]       # 12 * 3600 + 34 * 60 + 56
+    :100[3,'.',14,16]   # pi
 
 Any radix may include a fractional part.  A dot is never ambiguous
 because you have to tell it where the number ends:
 
-    :16<dead_beef.face>	# fraction
-    :16<dead_beef>.face	# method call
+    :16<dead_beef.face> # fraction
+    :16<dead_beef>.face # method call
 
 =item *
 
@@ -919,17 +929,17 @@ It's true that only radixes that define C<e> as a digit are ambiguous that
 way, but with any radix it's not clear whether the exponentiator should
 be 10 or the radix, and this makes it explicit:
 
-    0b1.1e10			illegal, could be read as any of:
+    0b1.1e10                    illegal, could be read as any of:
 
-    :2<1.1> * 2 ** 10		1536
-    :2<1.1> * 10 ** 10		15,000,000,000
-    :2<1.1> * :2<10> ** :2<10>	6
+    :2<1.1> * 2 ** 10           1536
+    :2<1.1> * 10 ** 10          15,000,000,000
+    :2<1.1> * :2<10> ** :2<10>  6
 
 So we write those as
 
-    :2<1.1*2**10>		1536
-    :2<1.1*10**10>		15,000,000,000
-    :2«1.1*:2<10>**:2<10>»	6
+    :2<1.1*2**10>               1536
+    :2<1.1*10**10>              15,000,000,000
+    :2«1.1*:2<10>**:2<10>»      6
 
 The generic string-to-number converter will recognize all of these
 forms (including the * form, since constant folding is not available
@@ -940,10 +950,10 @@ I<never> implies octal in Perl 6.
 
 Any of the adverbial forms may be used as a function:
 
-    :2($x)	# "bin2num"
-    :8($x)	# "oct2num"
-    :10($x)	# "dec2num"
-    :16($x)	# "hex2num"
+    :2($x)      # "bin2num"
+    :8($x)      # "oct2num"
+    :10($x)     # "dec2num"
+    :16($x)     # "hex2num"
 
 Think of these as setting the default radix, not forcing it.  Like Perl
 5's old C<oct()> function, any of these will recognize a number starting
@@ -977,31 +987,31 @@ returned as C<Pair> objects.
 
 Generalized quotes may now take adverbs:
 
-    Short	Long		Meaning
-    =====	====		=======
-    :x		:exec		Execute as command and return results
-    :w		:words		Split result on words (no quote protection)
-    :ww		:quotewords	Split result on words (with quote protection)
-    :t		:to		Interpret result as heredoc terminator
-    :n		:none		No escapes at all (unless otherwise adverbed)
-    :q		:single		Interpolate \\, \q and \' (or whatever)
-    :qq		:double		Interpolate all the following
-    :s		:scalar		Interpolate $ vars
-    :a		:array		Interpolate @ vars
-    :h		:hash		Interpolate % vars
-    :f		:function	Interpolate & calls
-    :c		:closure	Interpolate {...} expressions
-    :b		:backslash	Interpolate \n, \t, etc. (implies :q at least)
+    Short       Long            Meaning
+    =====       ====            =======
+    :x          :exec           Execute as command and return results
+    :w          :words          Split result on words (no quote protection)
+    :ww         :quotewords     Split result on words (with quote protection)
+    :t          :to             Interpret result as heredoc terminator
+    :n          :none           No escapes at all (unless otherwise adverbed)
+    :q          :single         Interpolate \\, \q and \' (or whatever)
+    :qq         :double         Interpolate all the following
+    :s          :scalar         Interpolate $ vars
+    :a          :array          Interpolate @ vars
+    :h          :hash           Interpolate % vars
+    :f          :function       Interpolate & calls
+    :c          :closure        Interpolate {...} expressions
+    :b          :backslash      Interpolate \n, \t, etc. (implies :q at least)
 
 [Conjectural: Ordinarily the colon is required on adverbs, but the
 "quote" declarator allows you to combine any of the existing adverbial
 forms above without an intervening colon:
 
-    quote qw;		# declare a P5-esque qw//
-    quote qqx;		# equivalent to P5's qx//
-    quote qn;		# completely raw quote qn//
-    quote qnc;		# interpolate only closures
-    quote qqxwto;	# qq:x:w:to//
+    quote qw;           # declare a P5-esque qw//
+    quote qqx;          # equivalent to P5's qx//
+    quote qn;           # completely raw quote qn//
+    quote qnc;          # interpolate only closures
+    quote qqxwto;       # qq:x:w:to//
 
 ]
 
@@ -1290,8 +1300,8 @@ left (horizontal whitespace allowed but not comments).  The identifier is not
 subject to keyword or even macro interpretation.  If you say
 
     $x = do {
-	call_something();
-	if => 1;
+        call_something();
+        if => 1;
     }
 
 then C<$x> ends up containing the pair C<< ("if" => 1) >>.  Always.
@@ -1346,14 +1356,14 @@ Heredocs are no longer written with C<<< << >>>, but with an adverb on
 any other quote construct:
 
     print qq:to/END/
-	Give $amount to the man behind curtain number $curtain.
-	END
+        Give $amount to the man behind curtain number $curtain.
+        END
 
 Other adverbs are also allowed:
 
     print q:c:to/END/
-	Give $100 to the man behind curtain number {$curtain}.
-	END
+        Give $100 to the man behind curtain number {$curtain}.
+        END
 
 =item *
 
@@ -1382,12 +1392,12 @@ Perl still has the three main contexts: void, scalar, and list.
 
 In addition to undifferentiated scalars, we also have these scalar contexts:
 
-    Context	Type	OOtype	Operator
-    -------	----	------	--------
-    boolean	bit	Bit	?
-    integer	int	Int	int
-    numeric	num	Num	+
-    string	str	Str	~
+    Context     Type    OOtype  Operator
+    -------     ----    ------  --------
+    boolean     bit     Bit     ?
+    integer     int     Int     int
+    numeric     num     Num     +
+    string      str     Str     ~
 
 There are also various reference contexts that require particular kinds of
 container references.
@@ -1572,3 +1582,43 @@ behave in all respects as variables, properties may therefore also
 be temporized with C<temp>, or hypotheticalized with C<let>.
 
 =back
+
+=head1 Grammatical Categories
+
+Lexing in Perl 6 is controlled by a system of grammatical categories.
+At each point in the parse, the lexer knows which subset of the
+grammatical categories are possible at that point, and follows the
+longest-token rule across all the active grammatical categories.
+(Ordering of grammatical categories matters only in case of a "tie",
+in which case the grammatical category that is notionally "first"
+in the grammar wins.  For instance, a statement_control is always going to win out over a prefix operator of the same name.  More specifically, you can't
+call a function named "if" directly because it would be hidden either
+by the statement_control category or the statement_modifier category.)
+
+Here are the current grammatical categories:
+
+    term:<...>                                  $x = {...}
+    quote:<qX>                                  qX/foo/
+    prefix:<+>                                  +$x
+    infix:<+>                                   $x + $y
+    postfix:<++>                                $x++
+    circumfix:<[ ]>                             [ @x ]
+    postcircumfix:<[ ]>                         $x[$y] or $x .[$y]
+    rule_metachar:<,>                           /,/
+    rule_backslash:<w>                          /\w/ and /\W/
+    rule_assertion:<*>                          /<*stuff>/
+    rule_mod_internal:<p5>                      m:p5//
+    rule_mod_external:<p5>                      m:p5//
+    trait_verb:<handles>                        has $.tail handles <wag>
+    trait_auxiliary:<shall>                     my $x shall conform<TR123>
+    scope_declarator:<has>                      has $.x;
+    statement_control:<if>                      if $condition {...} else {...}
+    statement_modifier:<if>                     ... if $condition
+    infix_postfix_meta_operator:<=>             $x += 2;
+    postfix_prefix_meta_operator:{'»'}          @array »++
+    prefix_postfix_meta_operator:{'«'}          -« @magnitudes
+    infix_circumfix_meta_operator:{'»','«'}     @a »+« @b
+    prefix_circumfix_meta_operator:{'[',']'}    [*]
+
+Any category containing "circumfix" requires two token arguments, supplied
+in slice notation.

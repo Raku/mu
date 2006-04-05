@@ -303,7 +303,7 @@ with digits.  Such an operator I<must> supply an C<is parsed> trait.
 The Perl grammar uses a default rule for the C<:1st>, C<:2nd>, C<:3rd>,
 etc. rule modifiers, something like this:
 
-    sub rxmodexternal:<> ($x) is parsed(rx:p/\d+[st|nd|rd|th]/) {...}
+    sub rule_mod_external:<> ($x) is parsed(rx:p/\d+[st|nd|rd|th]/) {...}
 
 Such default rules are attempted in the order declared.  (They always follow
 any rules with a known prefix, by the longest-token-first rule.)
