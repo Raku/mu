@@ -76,12 +76,12 @@ use base Pugs::Grammar::Base;
         operand => 'term',
     } );
     $statement->add_op( {
-        name => '+',
-        block => sub {},
-        assoc => 'left',
-        precedence => 'looser',
-        other => '*',
-        fixity => 'infix',
+        fixity => 'infix', name => '+', assoc => 'left',
+        precedence => 'looser', other => '*',
+    } );
+    $statement->add_op( {
+        fixity => 'postcircumfix', name => '[', name2 => ']', assoc => 'left',
+        precedence => 'tighter', other => '+',
     } );
 
     package statement;
@@ -89,7 +89,8 @@ use base Pugs::Grammar::Base;
     use Data::Dumper;
     no warnings qw( once );
     *term = Pugs::Compiler::Rule->compile( q( 
-        (\d+) { return {num=>$(),} } 
+        [ (\d+) { return {num=>$() ,} } ] |
+        [ ( [ \$ | \@ | \% | \& ] \w+) { return {name=>$(),} } ]  
     ) )->code;
     eval $statement->emit_grammar_perl5();
     #print "statement grammar: ", $statement->emit_grammar_perl5();
@@ -98,8 +99,11 @@ use base Pugs::Grammar::Base;
 
 package main;
 
+use strict;
+use warnings;
+use Pugs::AST::Expression;
 use Data::Dumper;
 {
-    my $match = $grammar->parse( '{0+1+2}{3};4+5' );
+    my $match = $grammar->parse( '{0+1+$a[7][8]}{3};4+5' );
     print Dumper $match->();
 }

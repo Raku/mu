@@ -22,12 +22,12 @@ my %rule_templates = (
     prefix =>          '<op> <equal>', 
     circumfix =>       '<op> <parse> <op2>',  
     postfix =>         '<tight> <op>', 
-    postcircumfix =>   '<tight> <op> <parse> <op2>', 
+    postcircumfix =>   '<tight> ( <op> <parse> <op2> )+', 
     infix_left =>      '<tight> <op> <equal>', 
     infix_right =>     '<equal> <op> <tight>',
     infix_non =>       '<tight> <op> <tight>', 
-    infix_chain =>     '<tight> [ <op> <tight> ]+',
-    infix_list =>      '<tight> [ <op> <tight> ]+',
+    infix_chain =>     '<tight> ( <op> <tight> )+',
+    infix_list =>      '<tight> ( <op> <tight> )+',
     ternary =>         '<tight> <op> <parse> <op2> <equal>',
 );
 
@@ -85,24 +85,23 @@ sub emit_perl6_rule {
             $template =~ s/<op>.*/<op> $op->{rule}/sg;
         }
         
-        $template =~ s/<equal>/\$<term1>:=(<$equal>)/sgx;
-        #$template =~ s/<equal>/<$equal>/sgx;
-        
-        $template =~ s/<tight>/\$<term0>:=(<$tight>)/sgx;
+        my $term0 = $template =~ s/<tight>/\$<term0>:=(<$tight>)/sgx;
         #$template =~ s/<tight>/<$tight>/sgx;
         
-        $template =~ s/<op>   /\$<op1>:=(<'$op->{name}'>)/sgx;
-        $template =~ s/<op2>  /\$<op2>:=(<'$op->{name2}'>)/sgx;
+        my $term2 = $template =~ s/<parse>/\$<term2>:=(<parse>)/sgx;
         
-        $template .= ' { return { op1 => $<op1>(), term1 => $<term1>(), term0 => $<term0>() ,} } ';
-        #print "Added rule: $template\n";
+        my $term1 = $template =~ s/<equal>/\$<term1>:=(<$equal>)/sgx;
+        #$template =~ s/<equal>/<$equal>/sgx;
+        
+        $template =~ s/<op>   /\$<op1>:=(<'$op->{name}'>)/sgx;
+        my $op2 = $template =~ s/<op2>  /\$<op2>:=(<'$op->{name2}'>)/sgx;
+        
+        $template .= ' { return Pugs::AST::Expression->operator($/) } ';
+        # print "Added rule: $template\n";
         
         push @rules, $template;
     }
-    #push @rules, "<$tight>";
-    #push @rules, "\$<term2>:=(<$tight>) { return term2 => \$<term2>[0]() ,} }";
-    #push @rules, "\$<term>:=(<$tight>) { return exp => \$<term>() ,} }";
-    push @rules, "\$<term>:=(<$tight>) { return { expr => \$_[0]{'term'}->() ,} } ";
+    push @rules, '$<term>:=(<' . $tight . '>) { return Pugs::AST::Expression->term($/) } ';
 
     # @rules = _optimize( @rules );
     
