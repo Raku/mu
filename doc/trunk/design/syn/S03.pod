@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 5 Apr 2006
   Number: 3
-  Version: 15
+  Version: 16
 
 =head1 Operator renaming
 
@@ -198,9 +198,10 @@ Hyper operators are defined recursively on array references, so:
 
 =head1 Reduction operators
 
-The other metaoperator in Perl 6 is the reduction operator.  Any infix
-operator can be surrounded by square brackets in term position to create
-a list operator that reduces using that operation:
+The other metaoperator in Perl 6 is the reduction operator.  Any
+infix operator (except for non-associating operators and assignment
+operators) can be surrounded by square brackets in term position to
+create a list operator that reduces using that operation:
 
     [+] 1, 2, 3;      # 1 + 2 + 3 = 6
     my @a = (5,6);
@@ -216,29 +217,83 @@ together, just as if you had written it out explicitly:
 
     [<] 1, 3, 5;      # 1 < 3 < 5
 
-If no arguments are given, and if the infix operator defines
-an "identity" value property, that identity value is returned.
-(For instance, C<[*] @list> must return C<1> when C<@list> is empty.)
-In the absence of an identity value, the reduce metaoperator calls
-C<fail> (either returning C<undef>, or throwing an exception if C<use
-fatal> is in effect).
+If fewer than two arguments are given, one MMD attempt is made to
+dispatch to the operator anyway with whatever arguments are given.
+If this MMD dispatch succeeds, the result becomes the result of the
+of the reduce.
 
-If exactly one argument is given, it is returned by default.  However,
-this default doesn't make sense for an operator like C<< < >> that
-doesn't return the same type as it takes, so these kinds of operators
-overload the single-argument case to return something more meaningful.
-All the comparison operators return truth in this case.  This behavior
-is triggered by storage of the "trivial" value property on the infix
-operator.  (The trivial property is also returned for 0 arguments.)
+Otherwise, if the MMD dispatch fails, then if there is one argument,
+that argument is returned.  However, this default doesn't make sense
+for an operator like C<< < >> that doesn't return the same type as it
+takes, so these kinds of operators overload the single-argument case
+to return something more meaningful.  All the comparison operators
+return a boolean for either 1 or 0 arguments.  Negated operators,
+return Bool::False, and all the rest return Bool::True.
 
-The identity and trivial properties are stored on the most general
-default variant of the infix operator, if there is more than
-one variant.  (Perhaps they can be returned simply by calling C<< infix:<op>() >> and C<< infix:<op>($x) >>, respectively, letting the defaults handle it.)
+If no arguments were given, and the dispatch to the 0-ary form fails,
+the reduce as a whole fails.  Operators that wish to specify an identity
+value should do so by overloading the 0-ary variant.  Among the builtin
+operators, infix:<+>() returns 0 and infix:<*>() returns 1.  Note that,
+while the single argument form can MMD dispatch based on the type of
+the single argument, the 0-argument form cannot.
 
 This metaoperator can also be used on the semicolon second-dimension
 separator:
 
     [[;] 1,2,3]   # equivalent to [1;2;3]
+
+Builtin infix operators specify the following identity operations:
+
+    multi sub infix:<**> ()     { 1 }   # arguably nonsensical
+    multi sub infix:<*> ()      { 1 }
+    multi sub infix:</> ()      { ??? } # reduce is nonsensical
+    multi sub infix:<%> ()      { ??? } # reduce is nonsensical
+    multi sub infix:<x> ()      { ??? } # reduce is nonsensical
+    multi sub infix:<xx> ()     { ??? } # reduce is nonsensical
+    multi sub infix:<+&> ()     { +^0 } # -1 on 2's complement machine
+    multi sub infix:{'+<'} ()   { ??? } # reduce is nonsensical
+    multi sub infix:{'+>'} ()   { ??? } # reduce is nonsensical
+    multi sub infix:<~&> ()     { ??? } # sensical but 1's length indeterminate
+    multi sub infix:{'~<'} ()   { ??? } # reduce is nonsensical
+    multi sub infix:{'~>'} ()   { ??? } # reduce is nonsensical
+    multi sub infix:<+> ()      { 0 }
+    multi sub infix:<-> ()      { 0 }
+    multi sub infix:<~> ()      { '' }
+    multi sub infix:<+|> ()     { 0 }
+    multi sub infix:<+^> ()     { 0 }
+    multi sub infix:<~|> ()     { '' } # length indeterminate but 0's default
+    multi sub infix:<~^> ()     { '' } # length indeterminate but 0's default
+    multi sub infix:<&> ()      { all() }
+    multi sub infix:<|> ()      { any() }
+    multi sub infix:<^> ()      { one() }
+    multi sub infix:<!=> ($x?)  { Bool::False }
+    multi sub infix:<==> ($x?)  { Bool::True }
+    multi sub infix:{'<'} ($x?) { Bool::True }
+    multi sub infix:{'<='} ($x?) { Bool::True }
+    multi sub infix:{'>'} ($x?) { Bool::True }
+    multi sub infix:{'>='} ($x?) { Bool::True }
+    multi sub infix:<~~> ($x?)  { Bool::True }
+    multi sub infix:<!~> ($x?)  { Bool::False }
+    multi sub infix:<eq> ($x?)  { Bool::True }
+    multi sub infix:<ne> ($x?)  { Bool::False }
+    multi sub infix:<lt> ($x?)  { Bool::True }
+    multi sub infix:<le> ($x?)  { Bool::True }
+    multi sub infix:<gt> ($x?)  { Bool::True }
+    multi sub infix:<ge> ($x?)  { Bool::True }
+    multi sub infix:<=:=> ($x?) { Bool::True }
+    multi sub infix:<===> ($x?) { Bool::True }
+    multi sub infix:<&&> ()     { Bool::True }
+    multi sub infix:<||> ()     { Bool::False }
+    multi sub infix:<^^> ()     { Bool::False }
+    multi sub infix:<//> ()     { undef }
+    multi sub infix:<,> ()      { () }
+    multi sub infix:<¥> ()      { [] }
+
+Any builtin operator not mentioned here does not have an identity
+value.  User-defined operators may of course define their own
+identity values.  Math packages wishing to find the identity value
+for an operation can call C<infix:{$opname}()> to discover it.
+(There is no explicit identity property.)
 
 =head1 Junctive operators
 
@@ -328,7 +383,7 @@ is equivalent to:
 
 as is this:
 
-    my $args = \(@foo, @bar);	 # construct List object
+    my $args = \(@foo, @bar);    # construct List object
     push *$args;
 
 In list context, a scalar reference to an array does not flatten.  Hence
@@ -461,26 +516,26 @@ operator:
 
 Perl 6 has 22 precedence levels (which is fewer than Perl 5):
 
-    terms		42 "eek" $x /abc/ (1+2) a(1) :by(2) .meth listop
-    method postfix	. .+ .? .* .() .[] .{} .«» .=
-    autoincrement	++ --
-    exponentiation	**
-    symbolic unary	! + - ~ ? * ** +^ ~^ ?^ \ ^
-    multiplicative	* / % x xx +& +< +> ~& ~< ~>
-    additive		+ - ~ +| +^ ~| ~^
-    junctive and (all)	&
-    junctive or (any)	| ^
-    named unary		rand sleep abs etc.
-    nonchaining binary	but does cmp <=> .. ^.. ..^ ^..^ ff ^ff ff^ ^ff^ fff ^fff etc.
-    chaining binary	!= == < <= > >= ~~ !~ eq ne lt le gt ge =:= ===
-    tight and		&&
-    tight or		|| ^^ //
-    ternary		?? !!
-    assignment		= := ::= += -= **= xx= etc. (and also =>)
-    list item separator	, ¥
-    list op (rightward)	<== print push any all true not etc.
-    pipe forward	==>
-    loose and		and
-    loose or		or xor err
-    expr terminator	; {} as control block, statement modifiers
+    terms               42 "eek" $x /abc/ (1+2) a(1) :by(2) .meth listop
+    method postfix      . .+ .? .* .() .[] .{} .«» .=
+    autoincrement       ++ --
+    exponentiation      **
+    symbolic unary      ! + - ~ ? * ** +^ ~^ ?^ \ ^
+    multiplicative      * / % x xx +& +< +> ~& ~< ~>
+    additive            + - ~ +| +^ ~| ~^
+    junctive and (all)  &
+    junctive or (any)   | ^
+    named unary         rand sleep abs etc.
+    nonchaining binary  but does cmp <=> .. ^.. ..^ ^..^ ff ^ff ff^ ^ff^ fff ^fff etc.
+    chaining binary     != == < <= > >= ~~ !~ eq ne lt le gt ge =:= ===
+    tight and           &&
+    tight or            || ^^ //
+    ternary             ?? !!
+    assignment          = := ::= += -= **= xx= etc. (and also =>)
+    list item separator , ¥
+    list op (rightward) <== print push any all true not etc.
+    pipe forward        ==>
+    loose and           and
+    loose or            or xor err
+    expr terminator     ; {} as control block, statement modifiers
 
