@@ -9,13 +9,16 @@ sub term {
 }
 
 sub operator {
-    my $self = $_[0];
-    # die "not a match" unless ref($_[1]) eq 'Pugs::Runtime::Match';
-    my %h = %{$_[1]};
+    my $self = shift;
+    my $match = shift;
+    # die "not a match" unless ref($match) eq 'Pugs::Runtime::Match';
+    my %h = %$match;
+    my %opt = @_;
+    
     for ( keys %h ) {
         $h{$_} = $h{$_}->();
     }
-    my @a = @{$_[1]};
+    my @a = @$match;
     if ( @a ) {
         $a = shift @a;
         for ( @$a ) {
@@ -23,6 +26,7 @@ sub operator {
         }
         $h{list} = $a;
     }
+    $h{$_} = $opt{$_} for keys %opt;
     return \%h;
 }
 

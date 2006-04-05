@@ -1,4 +1,4 @@
-package Pugs::Grammar::Category;
+﻿package Pugs::Grammar::Category;
 
 # Documentation in the __END__
 use 5.006;
@@ -21,10 +21,10 @@ my %relative_precedences = (
 my %rule_templates = (
     prefix =>          '<op> <equal>', 
     circumfix =>       '<op> <parse> <op2>',  
+    infix_right =>     '<equal> <op> <tight>',
     postfix =>         '<tight> <op>', 
     postcircumfix =>   '<tight> ( <op> <parse> <op2> )+', 
     infix_left =>      '<tight> <op> <equal>', 
-    infix_right =>     '<equal> <op> <tight>',
     infix_non =>       '<tight> <op> <tight>', 
     infix_chain =>     '<tight> ( <op> <tight> )+',
     infix_list =>      '<tight> ( <op> <tight> )+',
@@ -96,8 +96,9 @@ sub emit_perl6_rule {
         $template =~ s/<op>   /\$<op1>:=(<'$op->{name}'>)/sgx;
         my $op2 = $template =~ s/<op2>  /\$<op2>:=(<'$op->{name2}'>)/sgx;
         
-        $template .= ' { return Pugs::AST::Expression->operator($/) } ';
-        # print "Added rule: $template\n";
+	#print "fixity: ", $op->{fixity}, "\n";
+        $template .= ' { return Pugs::AST::Expression->operator($/, fixity => "' . $op->{fixity} . '", assoc => "' . $op->{assoc} . '" ) } ';
+        #print "Added rule: $template\n";
         
         push @rules, $template;
     }
