@@ -295,6 +295,14 @@ identity values.  Math packages wishing to find the identity value
 for an operation can call C<infix:{$opname}()> to discover it.
 (There is no explicit identity property.)
 
+To call some other non-infix function as a reduce operator, you must
+define an alias in infix form.  The infix form will parse the right
+argument as a scalar even if the aliased function would have parsed it
+as a list:
+
+    &infix:<dehash> ::= postcircumfix:<{}>;
+    $x = [dehash] $a,'foo','bar';  # $a<foo><bar>, not $a<foo bar>
+
 =head1 Junctive operators
 
 C<|>, C<&>, and C<^> are no longer bitwise operators (see L</Operator

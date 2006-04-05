@@ -84,7 +84,8 @@ doesn't matter if you put a space in front of C<< postfix:<++> >>.
 To be future proof, though, you should omit the space or use dot.
 
 (A consequence of this rule is that a dot with whitespace in front of it
-is always considered a method call on C<$_>.)
+is always considered a method call on C<$_>.  If a term is not expected at
+this point, it is a syntax error.)
 
 =item *
 
