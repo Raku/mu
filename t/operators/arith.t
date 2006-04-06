@@ -51,6 +51,12 @@ tryeq -13 %  4, 3;
 tryeq  13 % -4, -3;
 tryeq -13 % -4, -1;
 
+# % now does floats {
+    tryeq 5 % 2.5, 0;
+    tryeq 2.5 % 1, .5;
+# }
+
+
 my $limit = 1e6;
 
 tryok abs( 13e21 %  4e21 -  1e21) < $limit;
