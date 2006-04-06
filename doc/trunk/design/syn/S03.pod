@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 5 Apr 2006
   Number: 3
-  Version: 16
+  Version: 17
 
 =head1 Operator renaming
 
@@ -546,7 +546,7 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
     method postfix      . .+ .? .* .() .[] .{} .«» .=
     autoincrement       ++ --
     exponentiation      **
-    symbolic unary      ! + - ~ ? * ** +^ ~^ ?^ \ ^
+    symbolic unary      ! + - ~ ? $ @ % & * ** +^ ~^ ?^ \ ^
     multiplicative      * / % x xx +& +< +> ~& ~< ~>
     additive            + - ~ +| +^ ~| ~^
     junctive and (all)  &
