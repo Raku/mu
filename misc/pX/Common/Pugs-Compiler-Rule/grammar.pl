@@ -77,11 +77,18 @@ use base Pugs::Grammar::Base;
     } );
     $statement->add_op( {
         fixity => 'infix', name => '+', assoc => 'left',
-        precedence => 'looser', other => '*',
+    } );
+    $statement->add_op( {
+        fixity => 'infix', name => '*', assoc => 'left',
+        precedence => 'tighter', other => '+',
     } );
     $statement->add_op( {
         fixity => 'postcircumfix', name => '[', name2 => ']', assoc => 'left',
         precedence => 'tighter', other => '+',
+    } );
+    $statement->add_op( {
+        fixity => 'postcircumfix', name => '{', name2 => '}', assoc => 'left',
+        precedence => 'equal', other => '[',
     } );
 
     package statement;
@@ -103,6 +110,97 @@ use strict;
 use warnings;
 use Pugs::AST::Expression;
 use Data::Dumper;
+$Data::Dumper::Sortkeys = 1;
+use Test::More qw(no_plan);
+
+=for nothing
+sub ::contains {
+    my $tree = shift;
+    my $data = shift;
+    my $ref = ref $tree;
+    if ( $ref eq 'ARRAY' ) {
+        for ( @$tree ) {
+            return 1 if contains( $_, $data );
+    }}
+    if ( $ref eq 'HASH' ) {
+        return 1 if exists ${$tree}{$data};
+        for ( keys %$tree ) {
+            return 1 if contains( ${$tree}{$_}, $data );
+    }}
+    return 1 if defined $tree && $data eq $tree;
+    return;
+}
+=cut
+
+sub ::postfix {
+    my $tree = shift;
+    my $ref = ref $tree;
+    my $s = "$tree";
+    if ( $ref eq 'ARRAY' ) {
+        $s = join( ' ', map { postfix( $_ ) } @$tree );
+    }
+    if ( $ref eq 'HASH' ) {
+        return postfix( ${$tree}{term} ) if exists ${$tree}{term};
+        $s = join( ' ', map { postfix( ${$tree}{$_} ) } 
+                ( grep { $_ !~ /^(op|fix|list)/ }
+                  sort keys %$tree
+                ), 
+                ( exists ${$tree}{list} ? 'list' : () ) 
+            );
+        if ( defined ${$tree}{op1} ) {
+            no warnings qw(uninitialized);
+            my $fixity = ${$tree}{fixity};
+            $fixity = $1 if $fixity =~ /^(.*)_/;
+            $s .= ' ' . $fixity . ':<' . ${$tree}{op1} . ${$tree}{op2} . '>';
+        }
+    }
+    $s =~ s/\s+/ /g;
+    $s =~ s/^\s+|\s+$//;
+    return $s;
+}
+
+{
+    my $match = $grammar->parse( '3+4+5' );
+    #print Dumper $match->();
+    ok( 
+        postfix( $match->() ) eq '3 4 infix:<+> 5 infix:<+>' || 
+        postfix( $match->() ) eq '3 4 5 infix:<+> infix:<+>', 
+        'AST looks ok' 
+    );
+    #print postfix( $match->() );
+}
+
+{
+    my $match = $grammar->parse( '3+4*5' );
+    #print Dumper $match->();
+    ok( 
+        postfix( $match->() ) eq '3 4 5 infix:<*> infix:<+>', 
+        'AST +/* looks ok' 
+    );
+    #print postfix( $match->() );
+}
+
+{
+    my $match = $grammar->parse( '3*4+5' );
+    #print Dumper $match->();
+    ok( 
+        postfix( $match->() ) eq '3 4 infix:<*> 5 infix:<+>' 
+        # || 
+        # postfix( $match->() ) eq '3 4 5 infix:<+> infix:<*>'
+        , 
+        'AST +/* looks ok' 
+    );
+    #print postfix( $match->() );
+    #print Dumper $match->();
+}
+__END__
+{
+    my $match = $grammar->parse( '{0+1+$a[7][8]{9}{10}[11]}{3};4+5' );
+    print Dumper $match->();
+    ok( contains( $match->(), '$a', 'AST looks ok' ) );
+    #print postfix( $match->() );
+}
+__END__
 {
     my $match = $grammar->parse( '{0+1+$a[7][8]}{3};4+5' );
     print Dumper $match->();

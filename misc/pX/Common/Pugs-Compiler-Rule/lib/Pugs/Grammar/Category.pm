@@ -11,9 +11,21 @@ use Pugs::Runtime::Match;
 use Pugs::Emitter::Rule::Perl5;
 
 my %relative_precedences = (
-    tighter => sub { splice( @{$_[0]->{levels}}, $_[1]-1, 0, { $_[3] => [ $_[2] ] } ) },
-    looser  => sub { splice( @{$_[0]->{levels}}, $_[1]+1, 0, { $_[3] => [ $_[2] ] } ) },
-    equal   => sub {    push @{$_[0]->{levels}[$_[1]]{$_[3]}}, $_[2] },
+    tighter => sub {
+        #print "tighter: ", ::Dumper($_[0]);
+        splice( @{$_[0]->{levels}}, $_[1]-1, 0, { $_[3] => [ $_[2] ] } );
+        #print "tighter after: ", ::Dumper($_[0]);
+    },
+    looser  => sub {
+        #print "looser: ", ::Dumper($_[0]);
+        splice( @{$_[0]->{levels}}, $_[1]+1, 0, { $_[3] => [ $_[2] ] } );
+        #print "looser after: ", ::Dumper($_[0]);
+    },
+    equal   => sub {    
+        #print "equal: ", ::Dumper($_[0]);
+        push @{$_[0]->{levels}[$_[1]]{$_[3]}}, $_[2];
+        #print "equal after: ", ::Dumper($_[0]);
+    },
 );
 
 # parsed: - the rule replaces the right side
@@ -23,8 +35,8 @@ my %rule_templates = (
     circumfix =>       '<op> <parse> <op2>',  
     infix_right =>     '<equal> <op> <tight>',
     postfix =>         '<tight> <op>', 
-    postcircumfix =>   '<tight> ( <op> <parse> <op2> )+', 
-    infix_left =>      '<tight> <op> <equal>', 
+    #postcircumfix =>   '<tight> ( <op> <parse> <op2> )+', 
+    #infix_left =>      '<tight> <op> <equal>', 
     infix_non =>       '<tight> <op> <tight>', 
     infix_chain =>     '<tight> ( <op> <tight> )+',
     infix_list =>      '<tight> ( <op> <tight> )+',
@@ -51,13 +63,19 @@ sub add_op {
     $opt->{fixity} = 'prefix' unless defined $opt->{fixity};
     my $fixity = $opt->{fixity};
     $fixity .= '_' . $opt->{assoc} if $fixity eq 'infix';
-    for ( 0 .. $#{$self->{levels}} ) {
-        if ( grep { $_->{name} eq $opt->{other} } @{$self->{levels}[$_]{$fixity}} ) {
-            $relative_precedences{$opt->{precedence}}->($self, $_, $opt, $fixity);
-            return;
+    for my $level ( 0 .. $#{$self->{levels}} ) {
+        for my $fix ( keys %{$self->{levels}[$level]} ) {
+            if ( grep { $_->{name} eq $opt->{other} } @{$self->{levels}[$level]{$fix}} ) {
+                $relative_precedences{$opt->{precedence}}->($self, $level, $opt, $fixity);
+                return;
+            }
         }
     }
-    push @{$self->{levels}}, { $fixity => [ $opt ] };
+    if ( ! defined $opt->{precedence} ) {
+        push @{$self->{levels}}, { $fixity => [ $opt ] };
+        return;
+    }
+    die "there is no precedence like ", $opt->{other};
 }
 
 sub code { 
@@ -75,32 +93,61 @@ sub perl5 {
 sub emit_perl6_rule {
     my ($self, $level, $default) = @_;
     my @rules;
-    my $tight = $level ? 'r' . ($level - 1) : $self->{operand};
-    my $equal = "r$level";
-    $equal = "parse" if $level == $#{$self->{levels}};
+    #my $tight = $level ? 'r' . ($level - 1) : $self->{operand};
+    #my $equal = "r$level";
+    #$equal = "parse" if $level == $#{$self->{levels}};
+    
+    my $tight = $level == 0 ? $self->{operand} : 'r' . ($level - 1);
+    my $equal = $level == $#{$self->{levels}} ? "parse" : "r$level";
+
     for my $fixity ( keys %{$self->{levels}[$level]} ) {
-        my $template = $rule_templates{$fixity};
-        for my $op ( @{$self->{levels}[$level]{$fixity}} ) {
+        my @r = @{$self->{levels}[$level]{$fixity}};
+        next unless @r;
+
+        my $return = ' { return Pugs::AST::Expression->operator($/, fixity => "' . 
+            $fixity . '" ) } ';
+
+        if ( $fixity eq 'infix_left' ) {
+            push @rules, "\$<term0>:=(<$tight>) \$<op1>:=(" .
+                join( '|', map { 
+                    "<'" . $_->{name} . "'>" } @r ) .
+                ") \$<term1>:=(<$equal>)" . $return;
+            #print $rules[-1],"\n";
+            next;
+        }
+        if ( $fixity eq 'postcircumfix' ) {
+            push @rules, "\$<term0>:=(<$tight>) ([" .
+                join( ']|[', map { 
+                    "\$<op1>:=(<'" . $_->{name} . "'>)\$<term2>:=(<parse>)" .
+                    "\$<op2>:=(<'" . $_->{name2} . "'>)" } @r ) .
+                "])+" . $return;
+            #print $rules[-1],"\n";
+            next;
+        }
         
+        for my $op ( @r ) {
+        
+            my $template = $rule_templates{$fixity};
+
             # is-parsed
             if ( $op->{rule} ) {
                 $template =~ s/<op>.*/<op> $op->{rule}/sg;
             }
         
-        my $term0 = $template =~ s/<tight>/\$<term0>:=(<$tight>)/sgx;
-        #$template =~ s/<tight>/<$tight>/sgx;
-        
-        my $term2 = $template =~ s/<parse>/\$<term2>:=(<parse>)/sgx;
-        
-        my $term1 = $template =~ s/<equal>/\$<term1>:=(<$equal>)/sgx;
-        #$template =~ s/<equal>/<$equal>/sgx;
-        
-        $template =~ s/<op>   /\$<op1>:=(<'$op->{name}'>)/sgx;
-        my $op2 = $template =~ s/<op2>  /\$<op2>:=(<'$op->{name2}'>)/sgx;
-        
-	#print "fixity: ", $op->{fixity}, "\n";
-        $template .= ' { return Pugs::AST::Expression->operator($/, fixity => "' . $op->{fixity} . '", assoc => "' . $op->{assoc} . '" ) } ';
-        #print "Added rule: $template\n";
+            my $term0 = $template =~ s/<tight>/\$<term0>:=(<$tight>)/sgx;
+            #$template =~ s/<tight>/<$tight>/sgx;
+            
+            my $term2 = $template =~ s/<parse>/\$<term2>:=(<parse>)/sgx;
+            
+            my $term1 = $template =~ s/<equal>/\$<term1>:=(<$equal>)/sgx;
+            #$template =~ s/<equal>/<$equal>/sgx;
+            
+            $template =~ s/<op>   /\$<op1>:=(<'$op->{name}'>)/sgx;
+            my $op2 = $template =~ s/<op2>  /\$<op2>:=(<'$op->{name2}'>)/sgx;
+            
+            #print "fixity: ", $op->{fixity}, "\n";
+            $template .= ' { return Pugs::AST::Expression->operator($/, fixity => "' . $fixity . '" ) } ';
+            print "Added rule: $template\n";
         
             push @rules, $template;
         }
@@ -112,7 +159,9 @@ sub emit_perl6_rule {
     return $rules[0] unless $#rules;
     @rules = map { "   [ $_ ] \n" } @rules;
     #print "Rules: \n@rules\n";
-    return "[ " . join( ' | ', @rules ) . " ]";
+    my $r = "[ " . join( ' | ', @rules ) . " ]";
+    #print "Rules: $r\n";
+    return $r;
 }
 
 sub emit_grammar_perl6 {
@@ -121,8 +170,7 @@ sub emit_grammar_perl6 {
     #print "emitting grammar in perl6\n";
     my $s = "";
     for my $level ( 0 .. $#{$self->{levels}} ) {
-        my $equal = "r$level";
-        $equal = "parse" if $level == $#{$self->{levels}};
+        my $equal = $level == $#{$self->{levels}} ? "parse" : "r$level";
         $s = $s . "    rule $equal { " .
             emit_perl6_rule($self, $level, $default) .
             " }\n";
@@ -138,8 +186,7 @@ sub emit_grammar_perl5 {
     #print "emitting grammar in perl5\n";
     my $s = "";
     for my $level ( 0 .. $#{$self->{levels}} ) {
-        my $equal = "r$level";
-        $equal = "parse" if $level == $#{$self->{levels}};
+        my $equal = $level == $#{$self->{levels}} ? "parse" : "r$level";
         $s = $s . "    *$equal = Pugs::Compiler::Rule->compile( '" .
             _quotemeta( emit_perl6_rule($self, $level, $default) ) .
             "' )->code;\n";

@@ -23,8 +23,10 @@ sub operator {
         $a = shift @a;
         for ( @$a ) {
             $_ = $self->operator( $_ );
+            ${$_}{fixity} = $opt{fixity};
         }
         $h{list} = $a;
+        delete $opt{fixity};
     }
     $h{$_} = $opt{$_} for keys %opt;
     return \%h;

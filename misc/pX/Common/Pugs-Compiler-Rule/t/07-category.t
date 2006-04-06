@@ -13,8 +13,8 @@ use_ok( "Pugs::Grammar::Category" );
         name => '+',
         block => sub {},
         assoc => 'left',
-        precedence => 'looser',
-        other => '*',
+        #precedence => 'looser',
+        #other => '*',
         fixity => 'infix',
     } );
     $cat->add_op( {
