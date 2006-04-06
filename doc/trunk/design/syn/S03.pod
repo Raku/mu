@@ -55,13 +55,13 @@ variant, C<«...»>.
 For those still living without the blessings of Unicode, that can also be
 written: C<<< << ... >> >>>.
 
-=item * The scalar comma C<,> now constructs a List reference of its
+=item * The scalar comma C<,> now constructs a List object from its
 operands.  You have to use a C<[-1]> subscript to get the last one.
 
-=item * The backslash operator still produces a reference, but when
-applied to a parenthesized list, produces a List object (an arglist)
-instead of a list of refs.  (According to the previous item, in scalar
-context the backslash is redundant, but is good documentation anyway.)
+=item * The backslash operator captures its arguments, and returns an
+object representing those arguments.  You can I<dereference> this object
+in several ways to retrieve different parts of the arguments; see the
+definition of C<Arguments> S02 for details.
 
 =item * The old scalar C<..> flipflop operator is now done with
 C<ff> operator.  (C<..> now always produces a Range object
@@ -189,7 +189,7 @@ When using a unary operator, only put it on the operand's side:
 Note that method calls are really postfix operators, not infix, so you
 shouldn't put a C<«> after the dot.
 
-Hyper operators are defined recursively on array references, so:
+Hyper operators are defined recursively on arrays, so:
 
     -« [[1, 2], 3]               #    [-«[1, 2], -«3]
                                  # == [[-1, -2], -3]
@@ -390,15 +390,17 @@ There is also an identity test, C<=:=>, which tests whether two names
 are bound to the same underlying variable.  C<$x =:= $y> would return
 true in the above example.
 
-=head1 List flattening
+=head1 Flattening
 
 Since typeglobs are being removed, unary C<*> may now serve as a
-lazy list flattening operator.  It is used to "flatten" an Array
-(or List) into the List being constructed for the current call,
-usually to allow the array's contents to be used as the arguments of
-a subroutine call.  Note that those arguments still must comply with
-the subroutine's signature, but the presence of C<*> defers that test
-until run time for that argument (and for any subsequent arguments):
+general-purpose flattening operator.  It can be used to "flatten" an
+Array or Hash into the current call's argument list (as positional
+and named arguments respectively), usually to allow their contents to be used
+as the arguments of a subroutine call.
+
+Note that those arguments still must comply with the subroutine's
+signature, but the presence of C<*> defers that test until run time for
+that argument (and for any subsequent arguments):
 
     my @args = (\@foo, @bar);
     push *@args;
@@ -409,26 +411,24 @@ is equivalent to:
 
 as is this:
 
-    my $args = \(@foo, @bar);    # construct List object
+    my $args = \(@foo, @bar);    # construct Arguments object
     push *$args;
 
-In list context, a scalar reference to an array does not flatten.  Hence
+In list context, a Scalar holding an Array object does not flatten.  Hence
 
     $bar = @bar;
     push @foo, $bar;
 
-merely pushes a single scalar reference onto C<@foo>.  You can
-explicitly flatten it in any of these ways:
+merely pushes a single Array object onto C<@foo>.  You can explicitly flatten
+it in any of these ways:
 
     push @foo, *$bar;
     push @foo, @$bar;
     push @foo, $bar[];
 
-(The C<*> in list context doesn't change the call semantics as it
-does in scalar context.)  Note that these three forms also allow you
-to specify list context on assignment:
+Note that the last two forms also allow you to specify list context on
+assignment:
 
-    *$bar = (1,2,3);
     @$bar = (1,2,3);
     $bar[] = (1,2,3);
 
