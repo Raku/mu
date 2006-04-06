@@ -27,17 +27,28 @@ L<http://www.thethirdmanifesto.com/> is the main home on the web for
 Christopher J. Date's and Hugh Darwen's proposal for a foundation for data
 and database management systems, which Rosetta is officially an
 implementation of.  It contains various useful documents and links on the
-subject, especially
-L<http://web.onetel.com/~hughdarwen/TheThirdManifesto/CHAP03.pdf>.  See
-also the brand new release of their book containing the full proposal,
+subject, some specified in the next paragraph.
+
+See also the brand new release of their book containing the full proposal,
 "Databases, Types, and The Relational Model: The Third Manifesto, 3rd
 edition, Addison-Wesley, 2006 (ISBN: 0-321-44281-4)", at
 L<http://www.aw-bc.com/catalog/academic/product/0,1144,0321399420,00.html>.
 
+The web site for The Third Manifesto has reproduced several chapters and
+appendicies from the aforementioned new 3rd edition of the book.  Chapter 4
+(L<http://web.onetel.com/~hughdarwen/TheThirdManifesto/CHAP04.pdf>) is the
+15-page heart of the book and has the actual TTM definition, upon which the
+rest of the book expands on, rationalizes, and gives examples of.  Chapter
+5 (L<http://web.onetel.com/~hughdarwen/TheThirdManifesto/CHAP05.pdf>) gives
+the the complete grammar of the teaching language "Tutorial D", which is a
+computationally complete programming language with fully integrated
+database functionality, whose principal purpose is to serve as a teaching
+vehicle.
+
 =item B<Database in Depth>
 
 See Christopher J. Date's "Database in Depth: Relational Theory for
-Practitioners, 1st edition, Oreilly, 2006 (ISBN: 0-596-10012-4)" at
+Practitioners, 1st edition, Oreilly, 2005 (ISBN: 0-596-10012-4)" at
 L<http://www.oreilly.com/catalog/databaseid/>.  This is the first printed
 book that I read fully, which is related to The Third Manifesto, and it was
 my main introduction.  It explains in an easy to follow matter just what
@@ -79,10 +90,12 @@ The Wikipedia article on the relational data model, and related topics.
 Also, the vendor documentation for various relational and/or SQL databases
 such as MySQL and SQLite were regularly consulted, and various other sites.
 
-=head1 SOME TTM/D-RELATED DBMS PROJECTS
+=head1 SOME FULLY TTM/D RELATED DBMS PROJECTS
 
-Besides the Rosetta DBMS framework, other projects exist which
-attempt to implement The Third Manifesto or approximations of it.
+Besides the Rosetta DBMS framework, other projects exist which attempt to
+implement The Third Manifesto fully and without compromise (that lack
+anti-TTM features), though their current implementations may be incomplete
+and/or in development.  None of these use 'SQL' as their native language.
 
 =head2 Free and Open Source Software
 
@@ -116,14 +129,6 @@ code or permission to change them, though some are available at zero cost:
 
 =over
 
-=item B<Dataphor> - L<http://www.alphora.com/>
-
-Dataphor is a TTM-inspired commercial database application development tool
-set, owned by Alphora (a division of Softwise, Inc.), that implements its
-own "D4" language.  It is written to the .Net platform and only runs on
-Windows.  It is implemented using a federated server that employs various
-other database engines for storage.
-
 =item B<Opus> - L<http://ca.geocities.com/dcauz@rogers.com/opus/>
 
 Opus is a command-line relational database development system, written by
@@ -147,10 +152,11 @@ This is a final year project by UMIST student Peter Nicol.
 
 =back
 
-=head1 SOME SQL-BASED DBMS PROJECTS
+=head1 SOME PARTIALLY TTM/D RELATED DBMS PROJECTS
 
-Many DBMS exist which implement a variant of the SQL language as their main
-or only interface; a relative few are listed here.
+Some DBMS exist which desire to support TTM principles but still justify
+themselves to provide features that are anti-TTM.  They may or may not use
+a SQL dialect as their command language.
 
 =head2 Free and Open Source Software
 
@@ -164,7 +170,42 @@ construction.  It is written in a hybrid of C and Perl 5, and runs on any
 operating system.  It is licensed under the GNU GPL.
 
 I<Note: Genezzo sans its SQL interface is currently a front-line candidate
-for implementing a production / industrial quality Rosetta Engine.>
+for implementing a production / industrial strength Rosetta Engine.>
+
+=back
+
+=head2 Closed Source Software
+
+=over
+
+=item B<Dataphor> - L<http://www.alphora.com/>
+
+Dataphor is a TTM-inspired commercial database application development tool
+set, owned by Alphora (a division of Softwise, Inc.), that implements its
+own "D4" language.  While TTM conformant in many other respects, Alphora
+found it necessary to support SQL-style nulls.  It is written to the .Net
+platform and only runs on Windows.  It is implemented using a federated
+server that employs various other database engines for storage.
+
+=item B<Teradata> - L<http://www.teradata.com/>
+
+Teradata is a commercial DBMS that, as far as the developers know, is the
+only SQL-DBMS that supports and/or defaults to set semantics.  They also
+support, but don't encourage the use of, a mode that supports bag
+semantics.  Bindings for many programming languages exist, including for
+Perl 5.
+
+=back
+
+=head1 SOME SQL-BASED DBMS PROJECTS
+
+Many DBMS exist which do not expressly support TTM principles and/or
+actively embrace anti-TTM features.  Many of those use a SQL dialect as
+their primary or only interface; a relative few are listed here.
+
+=head2 Free and Open Source Software
+
+=over
 
 =item B<SQLite> - L<http://www.sqlite.org/>
 

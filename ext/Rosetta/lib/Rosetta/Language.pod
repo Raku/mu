@@ -42,9 +42,11 @@ to say you can't emulate all the SQL features over Rosetta D; you can, at
 least once its complete.
 
 Rosetta D also has design aspects and constructs that are taken from or
-influenced by Perl 6, and various SQL dialects and implementations, and
-other TTM implementations (see the L<Rosetta::SeeAlso> file), but none of
-the adaptions from these are incompatible with TTM.
+influenced by Perl 6, pure functional languages like Haskell, Tutorial D,
+various TTM implementations, and various SQL dialects and implementations
+(see the L<Rosetta::SeeAlso> file).  While most of these languages or
+projects aren't specifically related to TTM, none of Rosetta's adaptions
+from these are incompatible with TTM.
 
 Note that the Rosetta documentation will be focusing mainly on how Rosetta
 itself works, and will not spend much time in providing rationales; you can
@@ -52,18 +54,22 @@ read TTM itself and various other external documentation for much of that.
 
 =head1 10,000 MILE VIEW
 
-Rosetta D is a high-level language for defining, querying, and updating
-relational databases.  It is primarily declarative because it focuses on
-what needs to be accomplished rather than how to accomplish that; but, its
-appearance is also imperative in style, since users still provide
-sequential instructions at a higher level.  This permits a lot of
-flexability on the part of implementers of the language (usually Rosetta
-Engine classes) to be adaptive to changing constraints of their environment
-and deliver efficient solutions.  This also makes things a lot easier for
-users of the language because they can focus on the meaning of their data
-rather than worrying about implementation details, which relieves burdens
-on their creativity, and saves them time.  In short, this system improves
-everyone's lives.
+Rosetta D is a computationally complete (and industrial strength)
+high-level programming language with fully integrated database
+functionality; you can use it to define, query, and update relational
+databases.  It is mainly imperative in style, since at the higher levels,
+users provide sequential instructions; but in many respects it is also
+functional or declarative, in that many constructs are pure or
+deterministic, and the constructs focus on defining what needs to be
+accomplished rather than how to accomplish that.
+
+This permits a lot of flexability on the part of implementers of the
+language (usually Rosetta Engine classes) to be adaptive to changing
+constraints of their environment and deliver efficient solutions.  This
+also makes things a lot easier for users of the language because they can
+focus on the meaning of their data rather than worrying about
+implementation details, which relieves burdens on their creativity, and
+saves them time.  In short, this system improves everyone's lives.
 
 =head2 Environment
 
