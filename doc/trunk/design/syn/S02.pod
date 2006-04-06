@@ -327,7 +327,7 @@ declarator.
 Sigils are now invariant.  C<$> always means a scalar variable, C<@>
 an array variable, and C<%> a hash variable, even when subscripting.
 Variables such as C<@array> and C<%hash> in scalar context simply
-returns themselves Array and Hash objects.
+return themselves as C<Array> and C<Hash> objects.
 
 =item *
 
@@ -442,7 +442,7 @@ otherwise be untyped:
 
 =item *
 
-Unlike in Perl 5, the notation C<&foo> merely returns the C<foo>
+Unlike in Perl 5, the notation C<&foo> merely stands for the C<foo>
 function as a Code object without calling it.  You may call any Code
 object with parens after it (which may, of course, contain arguments):
 
@@ -500,11 +500,12 @@ The adverbial forms all weed out non-existing entries.
 
 =item *
 
-In numeric context, a Hash object returns the number of pairs contained
-in the hash.  Hash in a boolean context returns true if there are any pairs
-in the hash.  In either case, any intrinsic iterator would be reset.  (If
-hashes do carry an intrinsic iterator (as they do in Perl 5), there will
-be a C<.reset> method on the hash object to reset the iterator explicitly.)
+In numeric context (i.e. when casted into C<Int> or C<Num>), a Hash object
+becomes the number of pairs contained in the hash.  In a boolean context, a
+Hash object is true if there are any pairs in the hash.  In either case,
+any intrinsic iterator would be reset.  (If hashes do carry an intrinsic
+iterator (as they do in Perl 5), there will be a C<.reset> method on the h
+hash object to reset the iterator explicitly.)
 
 =item *
 
