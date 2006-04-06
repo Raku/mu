@@ -146,15 +146,17 @@ _av_store(SV *av_ref, I32 key, SV *val)
 }
 
 void
-_alias_a_to_b(SVREF a, SVREF b)
+_alias_a_to_b(SVREF a, SVREF b, int read_only)
   CODE:
 {
     /* This bit of evil lifted straight from Perl_newSVrv  */
     const U32 refcnt = SvREFCNT(a);
+    int is_my = SvPADMY(a);
     svtype type = SvTYPE(b);
     SvREFCNT(a) = 0;
     sv_clear(a);
     SvFLAGS(a) = 0;
+    SvPADMY_on(a);
     SvREFCNT(a) = refcnt;
 
     SvUPGRADE(a, SVt_PVMG);
@@ -176,6 +178,13 @@ _alias_a_to_b(SVREF a, SVREF b)
                 hv_magic((HV*)a, (GV *)tie, PERL_MAGIC_tied);
                 break;
             }
+            case SVt_PVMG: {
+		//		SvMAGIC(a) = SvMAGIC(b);
+		sv_magicext(a, SvMAGIC(b)->mg_obj, PERL_MAGIC_ext, &alias_vtbl, 0, 0);
+		//		SvREFCNT(SvMAGIC(a)->mg_obj)++;
+		mg_get(a);
+                break;
+	    }
             default:
                 croak("don't know what to do yet");
         }
@@ -183,5 +192,9 @@ _alias_a_to_b(SVREF a, SVREF b)
     else {
         sv_magicext(a, b, PERL_MAGIC_ext, &alias_vtbl, 0, 0);
         mg_get(a);
+    }
+
+    if (read_only || SvREADONLY(b)) {
+	SvREADONLY_on(a);
     }
 }

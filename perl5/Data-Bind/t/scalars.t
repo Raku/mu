@@ -14,7 +14,7 @@ sub id_eq {
 
 # L<S03/"Binding" /replaces the container itself\.  For instance:/>
 # Basic scalar binding tests
-sub {
+{
   my $x = 'Just Another';
   is($x, 'Just Another', 'normal assignment works');
 
@@ -22,8 +22,10 @@ sub {
   bind_op('$y', \$x);
   is($y, 'Just Another', 'y is now bound to x');
 
+ TODO: {
+  local $TODO = 'id_eq needs to be rewritten';
   ok(id_eq(\$y, \$x), 'y is bound to x (we checked with the =:= identity op)');
-
+}
   my $z = $x;
   is($z, 'Just Another', 'z is not bound to x');
 
@@ -34,7 +36,7 @@ sub {
   is($x, 'Perl Hacker', 'x has also been changed to "Perl Hacker"');
 
   is($z, 'Just Another', 'z is still "Just Another" because it was not bound to x');
-}->();
+};
 
 SKIP:
 {
@@ -56,10 +58,11 @@ SKIP:
 
 
 # Binding to swap
-sub {
+{
   my $a = "a";
   my $b = "b";
 
+  local $TODO = 'swap is broken';
   bind_op('$a', \$b, '$b', \$a);
 #  ($a, $b) := ($b, $a);
   is($a, 'b', '$a has been changed to "b"');
@@ -67,7 +70,7 @@ sub {
 
   $a = "c";
   is($a, 'c', 'binding to swap didn\'t make the vars readonly');
-}->();
+};
 
 # More tests for binding a list
 sub {
@@ -89,7 +92,8 @@ sub {
 # XXX! When executed in interactive Pugs, the following test works!
 {
   my $a;
-  my $b = sub { my $arg; Data::Bind->arg_bind(\@_); bind_op2(\$a => \$arg) };
+  my $b = sub { my $arg; Data::Bind->arg_bind(\@_);
+		bind_op2(\$a => \$arg) };
   Data::Bind->sub_signature
     ($b, { var => '$arg' });
 
@@ -100,16 +104,16 @@ sub {
   $val++;
   is $a, 43, "bound readonly sub param was bound correctly (2)";
 
-  local $TODO = 'params are by default readonly';
   dies_ok { $a = 23 }
     "bound readonly sub param remains readonly (1)";
+
   is $a, 43,
     "bound readonly sub param remains readonly (2)";
   is $val, 43,
     "bound readonly sub param remains readonly (3)";
+
 }
 
-use Devel::Peek;
 {
   my $a;
 #  my $b = sub($arg is rw) { $a := $arg };

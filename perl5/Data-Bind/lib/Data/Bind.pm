@@ -15,7 +15,7 @@ use B ();
 sub bind_op {
     my %vars = @_;
 
-    my $sig = Data::Bind->sig(map { { var => $_ } } keys %vars);
+    my $sig = Data::Bind->sig(map { { var => $_, is_rw => 1 } } keys %vars);
     $sig->bind({ positional => [ values %vars ],
 		 named => {} }, 2);
 
@@ -25,7 +25,7 @@ sub bind_op {
 
 sub bind_op2 {
     my ($a, $b) = @_;
-    _alias_a_to_b($a, $b);
+    _alias_a_to_b($a, $b, 0);
 }
 
 sub sig {
@@ -37,9 +37,9 @@ sub sig {
 	my $db_param = Data::Bind::Param->new
 	    ({ container_var => $param->{var},
                named_only => $param->{named_only},
+               is_writable => $param->{is_rw},
 	       p5type => substr($param->{var}, 0, 1),
 	       name => substr($param->{var}, 1) });
-
 
 	if ($param->{named_only}) {
 	    $now_named = 1;
@@ -190,8 +190,8 @@ sub bind {
     my $ref = $h->{$self->container_var} or Carp::confess $self->container_var;
     if ($self->p5type eq '$') {
 	# XXX: check $var type etc, take additional ref
-	lexalias($lv, $self->container_var, $var);
-#	Data::Bind::_alias_a_to_b($ref, $var);
+#	lexalias($lv, $self->container_var, $var);
+	Data::Bind::_alias_a_to_b($ref, $var, !$self->is_writable);
 	return;
     }
     if ($self->p5type eq '@') {
@@ -199,7 +199,7 @@ sub bind {
 	    Data::Bind::_alias_a_to_b(\$ref->[$self->subscript], $var);
 	}
 	else {
-	    Data::Bind::_alias_a_to_b($ref, $var);
+	    Data::Bind::_alias_a_to_b($ref, $var, !$self->is_writable);
 	}
     }
     else {
