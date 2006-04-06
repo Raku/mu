@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 1 Apr 2006
+  Last Modified: 6 Apr 2006
   Number: 6
-  Version: 22
+  Version: 23
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -119,11 +119,11 @@ with the C<is rw> trait:
 
 Raw blocks are also executable code structures in Perl 6.
 
-Every block defines an object of type C<Code>, which may either be executed
-immediately or passed on as a C<Code> reference argument.  A
+Every block defines an object of type C<Code>, which may either be
+executed immediately or passed on as a C<Code> object.  A
 bare block where an operator is expected is bound to the current
 statement level control syntax.  A bare block where a term is expected
-merely produces a reference.  If the term bare block occurs in a list,
+merely produces a C<Code> object.  If the term bare block occurs in a list,
 it is considered the final element of that list unless followed immediately
 by a comma or comma surrogate.
 
@@ -399,7 +399,7 @@ To pass both key and value out of hash as a positional pair, use C<:p>.
     doit %hash{'b'}:p,1,2,3;
 
 instead..  (The C<:p> stands for "pairs", not "positional"--the
-C<:p> adverb may be placed on any hash reference to make it mean
+C<:p> adverb may be placed on any Hash objects to make it mean
 "pairs" instead of "values".)
 
 Pair constructors are recognized syntactically at the call level and
@@ -1821,7 +1821,7 @@ variable, subroutine, or other object in a given scope:
     } # Old values of $*foo and &bar reinstated at this point
 
 C<temp> invokes its argument's C<.TEMP> method. The method is expected
-to return a reference to a subroutine that can later restore the current
+to return a C<Code> object that can later restore the current
 value of the object. At the end of the lexical scope in which the
 C<temp> was applied, the subroutine returned by the C<.TEMP> method is
 executed.
@@ -1979,7 +1979,7 @@ or even:
 
     &textfrom := &substr.assuming:str($text):len(Inf);
 
-It returns a reference to a subroutine that implements the same behaviour
+It returns a C<Code> object that implements the same behaviour
 as the original subroutine, but has the values passed to C<.assuming>
 already bound to the corresponding parameters:
 
@@ -2150,7 +2150,7 @@ the macro call:
 
 C<{...}> is always a block.  However, if it is completely empty or
 consists of a single list, the first element of which is either a hash
-or a pair, it is executed immediately to compose a hash reference.  
+or a pair, it is executed immediately to compose a Hash object.  
 
 The standard C<pair> list operator is equivalent to:
 

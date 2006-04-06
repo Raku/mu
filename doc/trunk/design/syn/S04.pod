@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 1 Apr 2006
+  Last Modified: 6 Apr 2006
   Number: 4
-  Version: 12
+  Version: 13
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -400,8 +400,8 @@ your own C<CATCH> block.
 A C<return> always exits from the lexically surrounding sub
 or method definition (that is, from a function officially declared
 with the C<sub>, C<method>, or C<submethod> keywords).  Pointy subs
-and bare closures are transparent to C<return>.  If you pass a reference
-to a closure outside of its official "sub" scope, it is illegal to
+and bare closures are transparent to C<return>.  If you pass a closure
+object outside of its official "sub" scope, it is illegal to
 return from it.  You may only leave the closure block itself with C<leave>
 or by falling off the end of it.
 
@@ -828,9 +828,9 @@ routine's lexical scope and binds it to the current instance of the routine
 so that if you ever use the current reference to the routine, it gets
 the current snapshot of its world, lexically speaking.
 
-Some closures produce references at compile time that cannot be
+Some closures produce C<Code> objects at compile time that cannot be
 cloned, because they're not attached to any runtime code that can
-actively clone them.  C<BEGIN>, C<CHECK>, C<INIT>, and C<END> blocks probably
+actively clone them.  C<BEGIN>, C<CHECK>, C<INIT>, and C<END> blocks
 fall into this category.  Therefore you can't reliably refer to
 run-time variables from them even if they appear to be in scope.
 (The compile-time closure may, in fact, see a some kind of permanent
