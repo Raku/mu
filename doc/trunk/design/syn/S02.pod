@@ -1614,8 +1614,8 @@ Here are the current grammatical categories:
     rule_metachar:<,>                           /,/
     rule_backslash:<w>                          /\w/ and /\W/
     rule_assertion:<*>                          /<*stuff>/
-    rule_mod_internal:<p5>                      m:p5//
-    rule_mod_external:<p5>                      m:p5//
+    rule_mod_internal:<perl5>                   m:/ ... :perl5 ... /
+    rule_mod_external:<nth>                     m:nth(3)/ ... /
     trait_verb:<handles>                        has $.tail handles <wag>
     trait_auxiliary:<shall>                     my $x shall conform<TR123>
     scope_declarator:<has>                      has $.x;
