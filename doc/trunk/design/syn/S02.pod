@@ -444,9 +444,14 @@ otherwise be untyped:
 
 Unlike in Perl 5, the notation C<&foo> merely returns the C<foo>
 function as a Code object without calling it.  You may call any Code
-object parens (which may, of course, contain arguments).  Whitespace
-is not allowed before the parens, but there is a corresponding C<.()>
-operator, which allows you to insert optional whitespace before the dot.
+object with parens after it (which may, of course, contain arguments):
+
+    &foo($arg1, $arg2);
+
+Whitespace is not allowed before the parens, but there is a corresponding
+C<.()> operator, which allows you to insert optional whitespace before the dot:
+
+    &foo    .($arg1, $arg2);
 
 =item *
 
