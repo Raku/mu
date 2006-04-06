@@ -500,11 +500,11 @@ The adverbial forms all weed out non-existing entries.
 
 =item *
 
-In numeric context (i.e. when casted into C<Int> or C<Num>), a Hash object
+In numeric context (i.e. when cast into C<Int> or C<Num>), a Hash object
 becomes the number of pairs contained in the hash.  In a boolean context, a
 Hash object is true if there are any pairs in the hash.  In either case,
 any intrinsic iterator would be reset.  (If hashes do carry an intrinsic
-iterator (as they do in Perl 5), there will be a C<.reset> method on the h
+iterator (as they do in Perl 5), there will be a C<.reset> method on the
 hash object to reset the iterator explicitly.)
 
 =item *
