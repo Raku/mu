@@ -358,7 +358,7 @@ Subscripts now consistently dereference the container produced by
 whatever was to their left.  Whitespace is not allowed between a
 variable name and its subscript.  However, there is a corresponding
 B<dot> form of each subscript (C<@foo.[1]> and C<%bar.{'a'}>) which
-allows optional whitespace before the dot (except when interpolating).
+allows optional whitespace after the dot (except when interpolating).
 Constant string subscripts may be placed in angles, so C<%bar.{'a'}>
 may also be written as C<< %bar<a> >> or C<< %bar.<a> >>.
 
@@ -449,9 +449,9 @@ object with parens after it (which may, of course, contain arguments):
     &foo($arg1, $arg2);
 
 Whitespace is not allowed before the parens, but there is a corresponding
-C<.()> operator, which allows you to insert optional whitespace before the dot:
+C<.()> operator, which allows you to insert optional whitespace after the dot:
 
-    &foo    .($arg1, $arg2);
+    &foo.   ($arg1, $arg2);
 
 =item *
 
@@ -1316,15 +1316,15 @@ You can also use the :key($value) form to quote the keys of option
 pairs.  To align values of option pairs, you may not use the
 dot postfix forms:
 
-    :longkey  .($value)
-    :shortkey .<string>
-    :fookey   .{ $^a <=> $^b }
+    :longkey.  ($value)
+    :shortkey. <string>
+    :fookey.   { $^a <=> $^b }
 
 These will be interpreted as
 
-    :longkey(1)  .($value)
-    :shortkey(1) .<string>
-    :fookey(1)   .{ $^a <=> $^b }
+    :longkey(1).  ($value)
+    :shortkey(1). <string>
+    :fookey(1).   { $^a <=> $^b }
 
 You just have to put spaces inside the parenthesis form to align things.
 
