@@ -88,20 +88,15 @@ op2Modulus x y
     | VInt x' <- x, VInt y' <- y
     = if y' == 0 then err else return . VInt $ x' `mod` y'
     | VInt x' <- x, VRat y' <- y
-    = if y' == 0 then err else return . VInt $ x' `mod` (truncate y')
+    = if y' == 0 then err else return . VRat $ (x' % 1) `fmod` y'
     | VRat x' <- x, VInt y' <- y
-    = if y' == 0 then err else return . VInt $ (truncate x') `mod` y'
+    = if y' == 0 then err else return . VRat $ x' `fmod` (y' % 1)
     | VRat x' <- x, VRat y' <- y
-    = if y' == 0 then err else return . VInt $ (truncate x') `mod` (truncate y')
-    | VRef ref <- x
-    = do
-        x' <- readRef ref
-        op2Modulus x' y
-    | VRef ref <- y
-    = do
-        y' <- readRef ref
-        op2Modulus x y'
+    = if y' == 0 then err else return . VRat $ x' `fmod` y'
     | otherwise      -- pray for the best
-    = op2Int mod x y -- typeErr
+    = op2Num fmod x y
     where
     err = fail "Illegal modulus zero"
+    fmod :: RealFrac a => a -> a -> a
+    fmod x y = let mod = x - (fromIntegral (truncate (x/y)) * y) in
+        if signum y * signum mod < 0 then mod + y else mod
