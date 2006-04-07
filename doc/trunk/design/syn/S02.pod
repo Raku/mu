@@ -67,25 +67,49 @@ be a mutable language.  In particular, there is a natural conflict
 between postfix operators and infix operators, either of which
 may occur after a term.  If a given token may be interpreted as
 either a postfix operator or an infix operator, the infix operator
-requires space before it, and the postfix operator requires a lack
-of space before it unless the previous token was follwed by a dot.
-(Infix operators may not start with a dot.)  In other words, the only
-way to put whitespace before a postfix operator is to put whitespace
-between a dot and the normal representation of the postfix operator.
-In other other words, a postfix operator starting with a dot is allowed
-to have any amount of whitespace between the dot and the rest of the
-postfix operator.
+requires space before it.  Postfix operators may never have intervening
+space, though they may have an intervening dot, or a "long dot" that begins
+and ends with dots and contains whitespace and commentary between the dots.
+The pattern for "long dot" is C<< m:p/\.+ \s<ws> \./ >>.  (A minor
+consequence of this is that the C<< postfix:<...> >> operator should not
+be followed by whitespace.)
 
 For instance, if you were to add your own C<< infix:<++> >> operator,
-then it must have space before it, and the normal autoincrementing
-C<< postfix:<++> >> operator may not have space before it, or must
-be written as C<$x. ++> instead.  In standard Perl 6, however, it
-doesn't matter if you put a space in front of C<< postfix:<++> >>.
-To be future proof, though, you should omit the space or use dot.
+then it must have space before it. The normal autoincrementing
+C<< postfix:<++> >> operator may never have space before it, but may
+be written in any of these forms:
 
-(A consequence of this rule is that a dot with whitespace in front of it
-is always considered a method call on C<$_>.  If a term is not expected at
-this point, it is a syntax error.)
+    $x++
+
+    $x.++
+
+    $x. .++
+
+    $x...         .++
+
+    $x..................         .++
+
+    $x...
+    .++
+
+    $x...	# comment
+    		# more comment
+    .++
+
+    $x...	# comment
+    =begin podstuff
+    whatever
+    =end podstuff
+    .++
+
+A consequence of this rule is that, in the absence of a "long dot",
+a dot with whitespace in front of it is always considered a method
+call on C<$_> where a term is expected.  If a term is not expected
+at this point, it is a syntax error.  (Unless, of course, there is
+an infix operator of that name beginning with dot.  You could define
+a Fortranly C<< infix:<.EQ.> >>, for instance, if the fit took you.
+But you'll have to be sure to always put whitespace in front of it, or
+it would be interpreted as a postfix method call instead.)
 
 =item *
 
