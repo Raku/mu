@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 6 Apr 2006
+  Last Modified: 7 Apr 2006
   Number: 2
-  Version: 20
+  Version: 21
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -72,7 +72,9 @@ space, though they may have an intervening dot, or a "long dot" that begins
 and ends with dots and contains whitespace and commentary between the dots.
 The pattern for "long dot" is C<< m:p/\.+ \s<ws> \./ >>.  (A minor
 consequence of this is that the C<< postfix:<...> >> operator should not
-be followed by whitespace.)
+be followed by whitespace.  Also, if you put space after the C<..> range
+operator, it should have space before it as well.  But you already do it
+that way, right?)
 
 For instance, if you were to add your own C<< infix:<++> >> operator,
 then it must have space before it. The normal autoincrementing
@@ -110,6 +112,13 @@ an infix operator of that name beginning with dot.  You could define
 a Fortranly C<< infix:<.EQ.> >>, for instance, if the fit took you.
 But you'll have to be sure to always put whitespace in front of it, or
 it would be interpreted as a postfix method call instead.)
+
+The long dot form of the C<...> postfix is C<0. ...> rather than
+C<0. ....> because the long dot eats the first dot after the whitespace.
+It does not follow that you can write C<0....> because that would
+take the first three dots under the longest token rule.  (The long dot
+does not count as a longer token because the longest-token rule only
+applies to the fixed prefix of any rule with variable components.)
 
 =item *
 
@@ -381,10 +390,11 @@ formats for both key and value in the first string: C<< .as('%s: %s', "\n") >>.
 Subscripts now consistently dereference the container produced by
 whatever was to their left.  Whitespace is not allowed between a
 variable name and its subscript.  However, there is a corresponding
-B<dot> form of each subscript (C<@foo.[1]> and C<%bar.{'a'}>) which
-allows optional whitespace after the dot (except when interpolating).
-Constant string subscripts may be placed in angles, so C<%bar.{'a'}>
-may also be written as C<< %bar<a> >> or C<< %bar.<a> >>.
+B<dot> form of each subscript (C<@foo.[1]> and C<%bar.{'a'}>).
+There is also a "long dot" form which allows optional whitespace
+between dots. (The long dot is not allowed when interpolating).  Constant
+string subscripts may be placed in angles, so C<%bar.{'a'}> may also
+be written as C<< %bar<a> >> or C<< %bar.<a> >>.
 
 =item *
 
@@ -473,9 +483,11 @@ object with parens after it (which may, of course, contain arguments):
     &foo($arg1, $arg2);
 
 Whitespace is not allowed before the parens, but there is a corresponding
-C<.()> operator, which allows you to insert optional whitespace after the dot:
+C<.()> operator, plus a "long dot" form which allows you to insert optional whitespace between dots:
 
-    &foo.   ($arg1, $arg2);
+    &foo.   .($arg1, $arg2);
+    &foo...  #comment
+    .($arg1, $arg2);
 
 =item *
 
@@ -1337,20 +1349,21 @@ then C<$x> ends up containing the pair C<< ("if" => 1) >>.  Always.
 (Unlike in Perl 5, where version numbers didn't autoquote.)
 
 You can also use the :key($value) form to quote the keys of option
-pairs.  To align values of option pairs, you may not use the
-dot postfix forms:
+pairs.  To align values of option pairs, you may use the
+"long dot" postfix forms:
 
-    :longkey.  ($value)
-    :shortkey. <string>
-    :fookey.   { $^a <=> $^b }
+    :longkey.  .($value)
+    :shortkey. .<string>
+    :fookey.   .{ $^a <=> $^b }
 
 These will be interpreted as
 
-    :longkey(1).  ($value)
-    :shortkey(1). <string>
-    :fookey(1).   { $^a <=> $^b }
+    :longkey($value)
+    :shortkey<string>
+    :fookey{ $^a <=> $^b }
 
-You just have to put spaces inside the parenthesis form to align things.
+But note that C<..> is not a long dot because at least one internal space
+is required to differentiate from the range operator.
 
 =item *
 
