@@ -13,7 +13,7 @@ use Pugs::Emitter::Rule::Perl5;
 my %relative_precedences = (
     tighter => sub {
         #print "tighter: ", ::Dumper($_[0]);
-        splice( @{$_[0]->{levels}}, $_[1]-1, 0, { $_[3] => [ $_[2] ] } );
+        splice( @{$_[0]->{levels}}, $_[1], 0, { $_[3] => [ $_[2] ] } );
         #print "tighter after: ", ::Dumper($_[0]);
     },
     looser  => sub {
@@ -31,8 +31,8 @@ my %relative_precedences = (
 # parsed: - the rule replaces the right side
 # note: S06 - 'chain' can't be mixed with other types in the same level
 my %rule_templates = (
-    prefix =>          '<op> <equal>', 
-    circumfix =>       '<op> <parse> <op2>',  
+    #prefix =>          '<op> <equal>', 
+    #circumfix =>       '<op> <parse> <op2>',  
     infix_right =>     '<equal> <op> <tight>',
     postfix =>         '<tight> <op>', 
     #postcircumfix =>   '<tight> ( <op> <parse> <op2> )+', 
@@ -66,6 +66,7 @@ sub add_op {
     for my $level ( 0 .. $#{$self->{levels}} ) {
         for my $fix ( keys %{$self->{levels}[$level]} ) {
             if ( grep { $_->{name} eq $opt->{other} } @{$self->{levels}[$level]{$fix}} ) {
+                #print "pos $level at $opt->{precedence} $opt->{other}\n";
                 $relative_precedences{$opt->{precedence}}->($self, $level, $opt, $fixity);
                 return;
             }
@@ -107,12 +108,18 @@ sub emit_perl6_rule {
         my $return = ' { return Pugs::AST::Expression->operator($/, fixity => "' . 
             $fixity . '" ) } ';
 
+        if ( $fixity eq 'prefix' ) {
+            push @rules, "\$<op1>:=(" .
+                join( '|', map { 
+                    "<'" . $_->{name} . "'>" } @r ) .
+                ") \$<term0>:=(<$equal>)" . $return;
+            next;
+        }
         if ( $fixity eq 'infix_left' ) {
             push @rules, "\$<term0>:=(<$tight>) \$<op1>:=(" .
                 join( '|', map { 
                     "<'" . $_->{name} . "'>" } @r ) .
                 ") \$<term1>:=(<$equal>)" . $return;
-            #print $rules[-1],"\n";
             next;
         }
         if ( $fixity eq 'postcircumfix' ) {
@@ -121,7 +128,14 @@ sub emit_perl6_rule {
                     "\$<op1>:=(<'" . $_->{name} . "'>)\$<term2>:=(<parse>)" .
                     "\$<op2>:=(<'" . $_->{name2} . "'>)" } @r ) .
                 "])+" . $return;
-            #print $rules[-1],"\n";
+            next;
+        }
+        if ( $fixity eq 'circumfix' ) {
+            push @rules, "[" .
+                join( ']|[', map { 
+                    "\$<op1>:=(<'" . $_->{name} . "'>)\$<term0>:=(<parse>)" .
+                    "\$<op2>:=(<'" . $_->{name2} . "'>)" } @r ) .
+                $return . "]";
             next;
         }
         

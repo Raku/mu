@@ -70,37 +70,43 @@ use base Pugs::Grammar::Base;
 
 # ----------
 
-    use Pugs::Grammar::Category;
-    my $statement = Pugs::Grammar::Category->new( {
-        name => 'statement',
-        operand => 'term',
-    } );
-    $statement->add_op( {
-        fixity => 'infix', name => '+', assoc => 'left',
-    } );
-    $statement->add_op( {
-        fixity => 'infix', name => '*', assoc => 'left',
-        precedence => 'tighter', other => '+',
-    } );
-    $statement->add_op( {
-        fixity => 'postcircumfix', name => '[', name2 => ']', assoc => 'left',
-        precedence => 'tighter', other => '+',
-    } );
-    $statement->add_op( {
-        fixity => 'postcircumfix', name => '{', name2 => '}', assoc => 'left',
-        precedence => 'equal', other => '[',
-    } );
+package statement;
+use Pugs::Grammar::Base;
+use Pugs::Grammar::Category;
+use Data::Dumper;
+no warnings qw( once );
 
-    package statement;
-    use Pugs::Grammar::Base;
-    use Data::Dumper;
-    no warnings qw( once );
-    *term = Pugs::Compiler::Rule->compile( q( 
-        [ (\d+) { return {num=>$() ,} } ] |
-        [ ( [ \$ | \@ | \% | \& ] \w+) { return {name=>$(),} } ]  
-    ) )->code;
-    eval $statement->emit_grammar_perl5();
-    #print "statement grammar: ", $statement->emit_grammar_perl5();
+our $statement = Pugs::Grammar::Category->new( {
+    name => 'statement',
+    operand => 'term',
+} );
+$statement->add_op( {
+    fixity => 'infix', name => '+', assoc => 'left',
+} );
+$statement->add_op( {
+    fixity => 'infix', name => '*', assoc => 'left',
+    precedence => 'tighter', other => '+',
+} );
+$statement->add_op( {
+    fixity => 'postcircumfix', name => '[', name2 => ']', assoc => 'left',
+    precedence => 'tighter', other => '*',
+} );
+$statement->add_op( {
+    fixity => 'postcircumfix', name => '{', name2 => '}', assoc => 'left',
+    precedence => 'equal', other => '[',
+} );
+$statement->add_op( {
+    fixity => 'circumfix', name => '(', name2 => ')', assoc => 'left',
+    precedence => 'tighter', other => '[',
+} );
+
+*term = Pugs::Compiler::Rule->compile( q( 
+      [ (\d+)                        { return { num  => $()     ,} } ] 
+    | [ ( [ \$ | \@ | \% | \& ] \w+) { return { name => $()     ,} } ] 
+    # | [ \( (<statement.parse>) \)    { return { expr => $/[0]() ,} } ]
+) )->code;
+eval $statement->emit_grammar_perl5();
+#print "statement grammar: ", $statement->emit_grammar_perl6();
 
 # ------------
 
@@ -193,15 +199,93 @@ sub ::postfix {
     #print postfix( $match->() );
     #print Dumper $match->();
 }
-__END__
+
 {
-    my $match = $grammar->parse( '{0+1+$a[7][8]{9}{10}[11]}{3};4+5' );
-    print Dumper $match->();
-    ok( contains( $match->(), '$a', 'AST looks ok' ) );
+    print "# TODO - ws not allowed before subscript\n";
+    my $match = $grammar->parse( '3*@a{$b}[$c]+5' );
+    #print Dumper $match->();
+    ok( 
+        postfix( $match->() ) eq 
+        '3 @a $b postcircumfix:<{}> $c postcircumfix:<[]> infix:<*> 5 infix:<+>', 
+        'AST +/*/[]/{} looks ok' 
+    );
+    #print postfix( $match->() );
+    #print Dumper $match->();
+}
+
+{
+    my $match = $grammar->parse( '{1+@a{8}}' );
+    ok( 
+        postfix( $match->() ) eq 
+        '1 @a 8 postcircumfix:<{}> infix:<+>', 
+        'statement/expression inside a block' 
+    );
     #print postfix( $match->() );
 }
+
+{
+    # define a new operator globally
+    {
+        package statement;
+        $statement->add_op( {
+            fixity => 'prefix', name => '+', 
+            precedence => 'looser', other => '[',
+        } );
+        no warnings qw( redefine );
+        eval $statement->emit_grammar_perl5();
+    }
+    
+    my $match = $grammar->parse( '+1+2' );
+    ok( 
+        postfix( $match->() ) eq 
+        '1 prefix:<+> 2 infix:<+>', 
+        'define a new operator globally; prefix+infix' 
+    );
+    #print postfix( $match->() );
+}
+
+{
+    my $match = $grammar->parse( '3*(4+5)' );
+    #print Dumper $match->();
+    ok( 
+        postfix( $match->() ) eq '3 4 5 infix:<+> circumfix:<()> infix:<*>', 
+        'parenthesis' 
+    );
+    #print postfix( $match->() );
+    #print Dumper $match->();
+}
+
 __END__
 {
-    my $match = $grammar->parse( '{0+1+$a[7][8]}{3};4+5' );
+    # TODO - emit error message
+    my $match = $grammar->parse( '{1 2 3}' );
+    ok( 
+        postfix( $match->() ) eq 
+        '1 2 3', 
+        'syntax error' 
+    );
+    print postfix( $match->() );
     print Dumper $match->();
 }
+
+{
+    # TODO - remove 'null statements'
+    my $match = $grammar->parse( '{1;2;3}' );
+    ok( 
+        postfix( $match->() ) eq 
+        '1 2 3', 
+        'stamements inside a block' 
+    );
+    print postfix( $match->() );
+    print Dumper $match->();
+}
+
+=for TODO
+test lexical add_op:
+    $statement->add_op( {
+        fixity => 'infix', name => '*', assoc => 'left',
+        precedence => 'tighter', other => '+',
+    } );
+=cut
+
+__END__

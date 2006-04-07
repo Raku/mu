@@ -15,6 +15,7 @@ sub operator {
     my %h = %$match;
     my %opt = @_;
     
+    #print "capture ", Dumper($match) if $opt{'fixity'} eq 'circumfix';
     for ( keys %h ) {
         $h{$_} = $h{$_}->();
     }
