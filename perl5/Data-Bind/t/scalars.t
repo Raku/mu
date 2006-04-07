@@ -14,7 +14,7 @@ sub id_eq {
 
 # L<S03/"Binding" /replaces the container itself\.  For instance:/>
 # Basic scalar binding tests
-{
+sub {
   my $x = 'Just Another';
   is($x, 'Just Another', 'normal assignment works');
 
@@ -22,10 +22,8 @@ sub id_eq {
   bind_op('$y', \$x);
   is($y, 'Just Another', 'y is now bound to x');
 
- TODO: {
-  local $TODO = 'id_eq needs to be rewritten';
   ok(id_eq(\$y, \$x), 'y is bound to x (we checked with the =:= identity op)');
-}
+
   my $z = $x;
   is($z, 'Just Another', 'z is not bound to x');
 
@@ -36,7 +34,7 @@ sub id_eq {
   is($x, 'Perl Hacker', 'x has also been changed to "Perl Hacker"');
 
   is($z, 'Just Another', 'z is still "Just Another" because it was not bound to x');
-};
+}->();
 
 SKIP:
 {
@@ -58,11 +56,10 @@ SKIP:
 
 
 # Binding to swap
-{
+sub {
   my $a = "a";
   my $b = "b";
 
-  local $TODO = 'swap is broken';
   bind_op('$a', \$b, '$b', \$a);
 #  ($a, $b) := ($b, $a);
   is($a, 'b', '$a has been changed to "b"');
@@ -70,7 +67,7 @@ SKIP:
 
   $a = "c";
   is($a, 'c', 'binding to swap didn\'t make the vars readonly');
-};
+}->();
 
 # More tests for binding a list
 sub {

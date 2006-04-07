@@ -191,8 +191,12 @@ sub bind {
     my $ref = $h->{$self->container_var} or Carp::confess $self->container_var;
     if ($self->p5type eq '$') {
 	# XXX: check $var type etc, take additional ref
-#	lexalias($lv, $self->container_var, $var);
-	Data::Bind::_alias_a_to_b($ref, $var, !$self->is_writable);
+	if ($self->is_writable) {
+	    lexalias($lv, $self->container_var, $var);
+	}
+	else {
+	    Data::Bind::_alias_a_to_b($ref, $var, 1);
+	}
 	return;
     }
     if ($self->p5type eq '@') {
