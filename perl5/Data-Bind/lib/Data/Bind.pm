@@ -164,6 +164,11 @@ sub bind {
 
     my $pos_arg = $args->{positional};
     for my $param (@{$self->positional || []}) {
+	if ($param->is_slurpy) {
+	    $param->slurpy_bind($pos_arg, $lv);
+	    $pos_arg = [];
+	    last;
+	}
 	next if $bound{$param->name};
 	my $current = shift @$pos_arg;
 	unless ($current) {
@@ -183,6 +188,26 @@ __PACKAGE__->mk_accessors(qw(name p5type is_optional is_writable is_slurpy conta
 use Devel::LexAlias qw(lexalias);
 use PadWalker qw(peek_my);
 
+sub slurpy_bind {
+    my ($self, $vars, $lv) = @_;
+    $lv++;
+
+    my $h = peek_my($lv);
+    my $ref = $h->{$self->container_var} or Carp::confess $self->container_var;
+
+    my $i = 0;
+    # flatten
+    for my $var (@$vars) {
+	if (ref($var) eq 'ARRAY') {
+	    Data::Bind::_av_store($ref, $i++, \$var->[$_]) for 0..$#{$var};
+	}
+	else {
+	    Data::Bind::_av_store($ref, $i++, $var);
+	}
+    }
+    return;
+}
+
 sub bind {
     my ($self, $var, $lv) = @_;
     $lv++;
@@ -200,14 +225,7 @@ sub bind {
 	return;
     }
     if ($self->p5type eq '@') {
-	if ($self->is_slurpy) {
-	    for (0..$#{$var}) {
-		Data::Bind::_av_store($ref, $_, \$var->[$_]);
-	    }
-	}
-	else {
-	    Data::Bind::_alias_a_to_b($ref, $var, !$self->is_writable);
-	}
+	Data::Bind::_alias_a_to_b($ref, $var, !$self->is_writable);
     }
     else {
 	die 'not yet';

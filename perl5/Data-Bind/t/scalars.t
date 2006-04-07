@@ -145,13 +145,12 @@ sub {
   is($a, "foo", "bound keyword");
 
 
-  local $TODO = 'slurpy not yet';
   my @tail;
 #  eval '($a, *@tail) := (1, 2, 3)';
 
-  # XXX: for now
-  $sig->bind({ positional => [],
-	       named => { a => \1 } });
+  $sig = Data::Bind->sig
+      ({ var => '$a' }, { var => '@tail', is_slurpy => 1 });
+  $sig->bind({ positional => [\1,\2,\3] });
 
   ok($a == 1 && eq_array(\@tail, [2, 3]), 'bound slurpy');
 }->();
