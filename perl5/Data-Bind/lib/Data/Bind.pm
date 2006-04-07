@@ -31,7 +31,7 @@ sub bind_op2 {
 sub sig {
     my $class = shift;
     my $now_named = 0;
-    my ($named, $positional) = ({}, []);
+    my ($named, $positional, $named_slurpy) = ({}, []);
 
     for my $param (@_) {
 	my $db_param = Data::Bind::Param->new
@@ -43,13 +43,19 @@ sub sig {
 	       name => substr($param->{var}, 1) });
 
 	if ($param->{named_only}) {
+	    if ($db_param->is_slurpy) {
+		$named_slurpy = $db_param;
+		next;
+	    }
 	    $now_named = 1;
 	    $db_param->is_optional(1)
 		unless $param->{required};
 	    $named->{$db_param->name} = $db_param;
 	}
 	else {
-	    Carp::carp "positional argument after named ones" if $now_named;
+	    unless ($db_param->is_slurpy) {
+		Carp::carp "positional argument after named ones" if $now_named;
+	    }
 	    $db_param->is_optional(1)
 		if $param->{optional};
 
@@ -59,7 +65,8 @@ sub sig {
     }
 
     return Data::Bind::Sig->new
-	({ named => $named, positional => $positional});
+	({ named => $named, positional => $positional,
+	   named_slurpy => $named_slurpy });
 }
 
 # some higher level stuff
@@ -137,7 +144,7 @@ See L<http://www.perl.com/perl/misc/Artistic.html>
 
 package Data::Bind::Sig;
 use base 'Class::Accessor::Fast';
-__PACKAGE__->mk_accessors(qw(positional named));
+__PACKAGE__->mk_accessors(qw(positional named named_slurpy));
 use Carp qw(croak);
 
 
@@ -149,7 +156,7 @@ sub bind {
     my $named_arg = $args->{named};
     for my $param_name (keys %{$self->named || {}}) {
 	my $param = $self->named->{$param_name};
-	if (my $current = $named_arg->{$param_name}) {
+	if (my $current = delete $named_arg->{$param_name}) {
 	    # XXX: handle array concating
 	    $param->bind($current, $lv);
 	    $bound{$param_name}++;
@@ -160,7 +167,12 @@ sub bind {
 	}
     }
 
-    # XXX: report extra incoming named args
+    if ($self->named_slurpy) {
+	$self->named_slurpy->slurpy_bind($named_arg, $lv);
+    }
+    else {
+	# XXX: report extra incoming named args
+    }
 
     my $pos_arg = $args->{positional};
     for my $param (@{$self->positional || []}) {
@@ -195,15 +207,25 @@ sub slurpy_bind {
     my $h = peek_my($lv);
     my $ref = $h->{$self->container_var} or Carp::confess $self->container_var;
 
-    my $i = 0;
-    # flatten
-    for my $var (@$vars) {
-	if (ref($var) eq 'ARRAY') {
-	    Data::Bind::_av_store($ref, $i++, \$var->[$_]) for 0..$#{$var};
+    if ($self->p5type eq '@') {
+	my $i = 0;
+	# flatten
+	for my $var (@$vars) {
+	    if (ref($var) eq 'ARRAY') {
+		Data::Bind::_av_store($ref, $i++, \$var->[$_]) for 0..$#{$var};
+	    }
+	    else {
+		Data::Bind::_av_store($ref, $i++, $var);
+	    }
 	}
-	else {
-	    Data::Bind::_av_store($ref, $i++, $var);
-	}
+	return;
+    }
+    if ($self->p5type eq '%') {
+	Data::Bind::_hv_store($ref, $_, $vars->{$_})
+	   for keys %$vars;
+    }
+    else {
+	die "not yet";
     }
     return;
 }

@@ -146,6 +146,16 @@ _av_store(SV *av_ref, I32 key, SV *val)
 }
 
 void
+_hv_store(SV *hv_ref, const char *key, SV *val)
+  CODE:
+{
+    /* XXX many checks */
+    HV *hv = (HV *)SvRV(hv_ref);
+    /* XXX unref the old one in slot? */
+    hv_store(hv, key, strlen(key), SvREFCNT_inc((SvRV(val))), 0);
+}
+
+void
 _alias_a_to_b(SVREF a, SVREF b, int read_only)
   CODE:
 {
