@@ -38,6 +38,7 @@ sub sig {
 	    ({ container_var => $param->{var},
                named_only => $param->{named_only},
                is_writable => $param->{is_rw},
+               is_slurpy => $param->{is_slurpy},
 	       p5type => substr($param->{var}, 0, 1),
 	       name => substr($param->{var}, 1) });
 
@@ -178,7 +179,7 @@ sub bind {
 
 package Data::Bind::Param;
 use base 'Class::Accessor::Fast';
-__PACKAGE__->mk_accessors(qw(name p5type is_optional is_writable is_slurpy container_var subscript named_only));
+__PACKAGE__->mk_accessors(qw(name p5type is_optional is_writable is_slurpy container_var named_only));
 use Devel::LexAlias qw(lexalias);
 use PadWalker qw(peek_my);
 
@@ -195,8 +196,10 @@ sub bind {
 	return;
     }
     if ($self->p5type eq '@') {
-	if ($self->subscript) {
-	    Data::Bind::_alias_a_to_b(\$ref->[$self->subscript], $var);
+	if ($self->is_slurpy) {
+	    for (0..$#{$var}) {
+		Data::Bind::_av_store($ref, $_, \$var->[$_]);
+	    }
 	}
 	else {
 	    Data::Bind::_alias_a_to_b($ref, $var, !$self->is_writable);

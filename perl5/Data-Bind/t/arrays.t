@@ -151,7 +151,6 @@ sub {
 
   $foo->([\@array]);
   is $var,    "d",     "passing an array to a slurpying sub behaves correctly (3)";
-  local $TODO = 'slurpy arg should not push to bound array';
   is_deeply \@array, [<a d c>], "passing an array to a slurpying sub behaves correctly (4)";
 }->();
 
