@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-use Test::More tests => 19;
+use Test::More tests => 26;
 
 =pod
 
@@ -19,7 +19,7 @@ use Test::Exception;
 use Data::Bind;
 {
  no warnings 'uninitialized';
-my @sig = 
+ my @sig =
     ({ var => '$n' },
      { var => '%h', is_slurpy => 1, named_only => 1 },
      { var => '@a', is_slurpy => 1 });
@@ -131,27 +131,31 @@ is((foo3 [\1, \4000], {n => \20, y => \300}), 4001,
   'Testing the value for slurpy *@a');
 }
 
-__END__
 # named with slurpy *%h and slurpy *@a
 ## Named arguments **ARE** required in tests below
 
 #### ++ version
 {
-my sub foo(:$n!, *%h, *@a){ };
+#my sub foo(:$n!, *%h, *@a){ };
+Data::Bind->sub_signature(\&foo,
+ { var => '$n', named_only => 1, required => 1 },
+ { var => '%h', is_slurpy => 1, named_only => 1 },
+ { var => '@a', is_slurpy => 1 });
+
 diag('Testing with named arguments (named param is required) (++ version)');
-lives_ok { foo 1, n => 20, y => 300, 4000 },
+lives_ok { foo [\1, \4000], {n => \20, y => \300} }
   'Testing: `my sub foo(+:$n, *%h, *@a){ }; foo 1, n => 20, y => 300, 4000 }`';
-dies_ok { foo 1, x => 20, y => 300, 4000 }, :todo<bug>;
+dies_ok { foo [\1, \4000], {x => \20, y => \300} };
 }
 
 #### "trait" version
 {
-my sub foo(:$n is required, *%h, *@a) { };
+#my sub foo(:$n is required, *%h, *@a) { };
 diag('Testing with named arguments (named param is required) (trait version)');
-lives_ok { foo 1, n => 20, y => 300, 4000 },
+lives_ok { foo [\1, \4000], {n => \20, y => \300} }
   'Testing: `my sub foo(:$n is required, *%h, *@a){ }; foo 1, n => 20, y => 300, 4000 }`';
-dies_ok { foo 1, x => 20, y => 300, 4000 },
-  'Testing: `my sub foo(:$n is required, *%h, *@a){ }; foo 1, x => 20, y => 300, 4000 }`', :todo<bug>;
+dies_ok { foo [\1, \4000], {x => \20, y => \300} }
+  'Testing: `my sub foo(:$n is required, *%h, *@a){ }; foo 1, x => 20, y => 300, 4000 }`';
 }
 
 ##### Now slurpy scalar tests here.
@@ -165,14 +169,30 @@ L<<S06/"List parameters" /Slurpy scalar parameters capture what would otherwise 
 
 =cut
 
-sub first(*$f, *$s, *@r){ return $f };
-sub second(*$f, *$s, *@r){ return $s };
-sub rest(*$f, *$s, *@r){ return @r.sum };
+#sub first(*$f, *$s, *@r){ return $f };
+my @sig =
+    ({ var => '$f', is_slurpy => 1 },
+     { var => '$s', is_slurpy => 1 },
+     { var => '@r', is_slurpy => 1 });
+sub first { my ($f, $s, @r); Data::Bind->arg_bind(\@_);
+	    return $f };
+Data::Bind->sub_signature(\&first, @sig);
+
+#sub second(*$f, *$s, *@r){ return $s };
+sub second { my ($f, $s, @r); Data::Bind->arg_bind(\@_);
+	    return $s };
+Data::Bind->sub_signature(\&second, @sig);
+
+#sub rest(*$f, *$s, *@r){ return @r.sum };
+sub rest { my ($f, $s, @r); Data::Bind->arg_bind(\@_);
+	    return sum(@r) };
+Data::Bind->sub_signature(\&rest, @sig);
+
 diag 'Testing with slurpy scalar';
-is first(1, 2, 3, 4, 5), 1,
+is first([map { \$_} (1, 2, 3, 4, 5)]), 1,
   'Testing the first slurpy scalar...';
-is second(1, 2, 3, 4, 5), 2,
+is second([map { \$_} (1, 2, 3, 4, 5)]), 2,
   'Testing the second slurpy scalar...';
-is rest(1, 2, 3, 4, 5), 12,
+is rest([map { \$_} (1, 2, 3, 4, 5)]), 12,
   'Testing the rest slurpy *@r';
 

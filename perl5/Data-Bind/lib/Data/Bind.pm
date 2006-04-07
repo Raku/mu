@@ -176,7 +176,7 @@ sub bind {
 
     my $pos_arg = $args->{positional};
     for my $param (@{$self->positional || []}) {
-	if ($param->is_slurpy) {
+	if ($param->is_slurpy && $param->p5type ne '$') {
 	    $param->slurpy_bind($pos_arg, $lv);
 	    $pos_arg = [];
 	    last;
@@ -223,11 +223,9 @@ sub slurpy_bind {
     if ($self->p5type eq '%') {
 	Data::Bind::_hv_store($ref, $_, $vars->{$_})
 	   for keys %$vars;
+	return;
     }
-    else {
-	die "not yet";
-    }
-    return;
+    die "not yet";
 }
 
 sub bind {
