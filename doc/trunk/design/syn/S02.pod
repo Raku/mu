@@ -53,6 +53,62 @@ so you are free to use any whitespace anywhere that whitespace makes sense.
 
 =item *
 
+Single-line comments work as in Perl 5, starting with a C<#> character
+and ending at the subsequent newline.  They count as whitespace
+equivalent to newline for purposes of separation.  Certain quoting
+tokens may make use of C<#> characters as delimiters without starting
+a comment.
+
+=item *
+
+Multiline comments are provided by extending the syntax of POD
+to nest C<=begin comment>/C<=end comment> correctly without the need
+for C<=cut>.  (Doesn't have to be "comment"--any unrecognized POD
+stream will do to make it a comment.  Bare C<=begin> and C<=end>
+probably aren't good enough though, unless you want all your comments
+to end up in the manpage...)
+
+We have single paragraph comments with C<=for comment> as well.
+That lets C<=for> keep its meaning as the equivalent of a C<=begin>
+and C<=end> combined.  As with C<=begin> and C<=end>, a comment started
+in code reverts to code afterwards.
+
+Since there is a newline before the first C<=>, the POD form of comment
+counts as whitespace equivalent to a newline.
+
+=item *
+
+Embedded comments are supported as a variant on quoting syntax, introduced
+by C<.#> and delimited by user-selected characters.
+
+    say .#( embedded comment ) "hello, world!";
+
+    $object.#/ embedded comments /.say;
+
+    $object.#[
+	embedded comments
+    ].say;
+
+The delimiters of the C<.#//> embedded comment form may be chosen
+from the same set that are valid for ordinary C<q//> quote forms,
+and follow the same policy on the nesting of bracketing characters.
+Unlike the other two forms of comment, the embedded form does not
+count as whitespace.
+
+As a variant of the embedded form, a single dot followed by a space
+is equivalent to C<.#.> (plus an extra dot at the end) so you can
+write a small (generally whitespace only) comment as:
+
+    %hash.  .{$key}
+    @array. .{$key}
+
+which is useful for lining up postfixes.  This is known as the "long dot",
+partly because it substitutes for a dot without the need for a third dot:
+
+    $object.  .say();
+
+=item *
+
 In general, whitespace is optional in Perl 6 except where it is needed
 to separate constructs that would be misconstrued as a single token or
 other syntactic unit.  (In other words, Perl 6 follows the standard
@@ -68,13 +124,9 @@ between postfix operators and infix operators, either of which
 may occur after a term.  If a given token may be interpreted as
 either a postfix operator or an infix operator, the infix operator
 requires space before it.  Postfix operators may never have intervening
-space, though they may have an intervening dot, or a "long dot" that begins
-and ends with dots and contains whitespace and commentary between the dots.
-The pattern for "long dot" is C<< m:p/\.+ \s<ws> \./ >>.  (A minor
-consequence of this is that the C<< postfix:<...> >> operator should not
-be followed by whitespace.  Also, if you put space after the C<..> range
-operator, it should have space before it as well.  But you already do it
-that way, right?)
+space, though they may have an intervening dot.  If further separation
+is desired, an embedded comment may be used as described above, as long
+as no whitespace occurs outside the embedded comment.
 
 For instance, if you were to add your own C<< infix:<++> >> operator,
 then it must have space before it. The normal autoincrementing
@@ -87,64 +139,39 @@ be written in any of these forms:
 
     $x. .++
 
-    $x...         .++
+    $x.#.    .++
 
-    $x..................         .++
+    $x. comment .++
 
-    $x...
+    $x.#( comment ).++
+
+    $x.
     .++
 
-    $x...	# comment
+    $x.#.
+    .++
+
+    $x.#[	# comment
     		# more comment
-    .++
+    ].++
 
-    $x...	# comment
+    $x.#[   comment 1
+    comment 2
     =begin podstuff
-    whatever
+    whatever (pod comments ignore current parser state)
     =end podstuff
-    .++
+    comment 3
+    ].++
 
-A consequence of this rule is that, in the absence of a "long dot",
-a dot with whitespace in front of it is always considered a method
-call on C<$_> where a term is expected.  If a term is not expected
-at this point, it is a syntax error.  (Unless, of course, there is
-an infix operator of that name beginning with dot.  You could define
-a Fortranly C<< infix:<.EQ.> >>, for instance, if the fit took you.
-But you'll have to be sure to always put whitespace in front of it, or
-it would be interpreted as a postfix method call instead.)
-
-The long dot form of the C<...> postfix is C<0. ...> rather than
-C<0. ....> because the long dot eats the first dot after the whitespace.
-It does not follow that you can write C<0....> because that would
-take the first three dots under the longest token rule.  (The long dot
-does not count as a longer token because the longest-token rule only
-applies to the fixed prefix of any rule with variable components.)
-
-=item *
-
-Single-line comments work as in Perl 5, starting with a C<#> character
-and ending with the subsequent newline.  They count as whitespace for
-purposes of separation.  Certain quoting tokens may make use of C<#>
-characters as delimiters without starting a comment.
-
-=item *
-
-Multiline comments will be provided by extending the syntax of POD
-to nest C<=begin comment>/C<=end comment> correctly without the need
-for C<=cut>.  (Doesn't have to be "comment"--any unrecognized POD
-stream will do to make it a comment.  Bare C<=begin> and C<=end>
-probably aren't good enough though, unless you want all your comments
-to end up in the manpage...)
-
-We have single paragraph comments with C<=for comment> as well.
-That lets C<=for> keep its meaning as the equivalent of a C<=begin>
-and C<=end> combined.  As with C<=begin> and C<=end>, a comment started
-in code reverts to code afterwards.
-
-=item *
-
-Intra-line comments will not be supported in standard Perl (but it would
-be trivial to declare them as a macro).
+A consequence of the postfix rule is that (except when delimiting a
+a quote or comment) a dot with whitespace in front of it is always
+considered a method call on C<$_> where a term is expected.  If a
+term is not expected at this point, it is a syntax error.  (Unless,
+of course, there is an infix operator of that name beginning with
+dot.  You could, for instance, define a Fortranly C<< infix:<.EQ.> >>
+if the fit took you.  But you'll have to be sure to always put
+whitespace in front of it, or it would be interpreted as a postfix
+method call instead.)
 
 =back
 
@@ -390,9 +417,7 @@ formats for both key and value in the first string: C<< .as('%s: %s', "\n") >>.
 Subscripts now consistently dereference the container produced by
 whatever was to their left.  Whitespace is not allowed between a
 variable name and its subscript.  However, there is a corresponding
-B<dot> form of each subscript (C<@foo.[1]> and C<%bar.{'a'}>).
-There is also a "long dot" form which allows optional whitespace
-between dots. (The long dot is not allowed when interpolating).  Constant
+B<dot> form of each subscript (C<@foo.[1]> and C<%bar.{'a'}>).  Constant
 string subscripts may be placed in angles, so C<%bar.{'a'}> may also
 be written as C<< %bar<a> >> or C<< %bar.<a> >>.
 
@@ -482,12 +507,14 @@ object with parens after it (which may, of course, contain arguments):
 
     &foo($arg1, $arg2);
 
-Whitespace is not allowed before the parens, but there is a corresponding
-C<.()> operator, plus a "long dot" form which allows you to insert optional whitespace between dots:
+Whitespace is not allowed before the parens, but there is a
+corresponding C<.()> operator, plus the "long dot" forms that allow
+you to insert optional whitespace between dots:
 
     &foo.   .($arg1, $arg2);
-    &foo...  #comment
-    .($arg1, $arg2);
+    &foo.#[
+	embedded comment
+    ].($arg1, $arg2);
 
 =item *
 
@@ -1134,15 +1161,18 @@ dereferencers: that is, any of:
 
 =item 6. A sequence of one or more unparenthesized method call, followed by any of 1 through 5
 
+=item 7. An embedded comment that uses bracketing characters, such
+as .#(comment).
+
 =back
 
 In other words, this is legal:
 
-    "Val = $a.ord.as('%x')\n"
+    "Val = $a.ord.#( Yikes! ).as('%x')\n"
 
 and is equivalent to
 
-    "Val = { $a.ord.as('%x') }\n"
+    "Val = { $a.ord.#( Yikes! ).as('%x') }\n"
 
 
 =item *
