@@ -1,5 +1,6 @@
 ﻿package Pugs::Grammar::Str;
-use Pugs::Grammar::Base;
+use Pugs::Compiler::Rule;
+use base Pugs::Grammar::Base;
 use Pugs::Runtime::Match;
 use Text::Balanced; 
 
@@ -24,6 +25,12 @@ Quoting constructs are macros:
 S02
 
 =cut
+
+# TODO - implement the "magic hash" dispatcher
+
+*parse = Pugs::Compiler::Rule->compile( '
+    <single_quote> | <double_quote>
+' )->code;
 
 sub single_quote {
     my $grammar = shift;

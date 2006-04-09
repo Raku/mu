@@ -1,5 +1,6 @@
-﻿package Pugs::Grammar::Var;
-use Pugs::Grammar::Base;
+﻿package Pugs::Grammar::Num;
+use Pugs::Compiler::Rule;
+use base Pugs::Grammar::Base;
 use Pugs::Runtime::Match;
 
 =for pod
@@ -15,17 +16,14 @@ Parses the text inside strings like:
 
 =cut
 
-sub num {
-    my $grammar = shift;
-    return $grammar->no_match unless $_[0];
-    die "not implemented";
-    my ($extracted,$remainder) = Text::Balanced::extract_delimited( $_[0], "'" );
-    $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
-    return Pugs::Runtime::Match->new( { 
-        bool  => ( $extracted ne '' ),
-        match => $extracted,
-        tail  => $remainder,
-    } );
-}
+# TODO - implement the "magic hash" dispatcher
+
+*parse = Pugs::Compiler::Rule->compile( '
+    <num>
+' )->code;
+
+*num = Pugs::Compiler::Rule->compile( '
+    \d+
+' )->code;
 
 1;
