@@ -510,10 +510,14 @@ makeTokenParser languageDef
     simpleSpace =
         skipMany1 (satisfy isSpace)    
         
-    multiLineComment =
-        do { try (string (commentStart languageDef))
-           ; inComment
-           }
+    multiLineComment = do
+        opendelim <- try $ do
+            string (commentStart languageDef)
+            notFollowedBy alphaNum
+            anyChar
+        many $ satisfy (/= balancedDelim opendelim)
+        char $ balancedDelim opendelim
+        return ()
 
     inComment 
         | nestedComments languageDef  = inCommentMulti
