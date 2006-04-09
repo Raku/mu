@@ -27,21 +27,26 @@ and maybe
 =cut
 
 # TODO - implement the "magic hash" dispatcher
+# TODO - generate AST
+
+my $ident = Pugs::Compiler::Rule->compile( '
+        [
+            [ \:\: ]?
+            [ \_ | <alnum> ]+
+        ]+
+    ', 
+    grammar => 'Pugs::Grammar::Str',
+);
+
+our %hash = (
+    map {
+        $_ => $ident
+    }
+    qw( $ % @ )
+);
 
 *parse = Pugs::Compiler::Rule->compile( '
-    <variable>
+    %Pugs::Grammar::Var::hash
 ' )->code;
-
-# copied from PCR Rule.pmc
-sub variable {
-    my $grammar = shift;
-    $_[0] = "" unless defined $_[0];
-    my $bool = $_[0] =~ /^([\$\%\@](?:(?:\:\:)?[_[:alnum:]]+)+)(.*)$/sx;
-    return {
-        bool  => $bool,
-        match => $1,
-        tail  => $2,
-    }
-};
 
 1;

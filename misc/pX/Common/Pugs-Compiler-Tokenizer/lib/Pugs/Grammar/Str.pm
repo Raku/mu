@@ -46,31 +46,7 @@ our %hash = (
 );
 
 *parse = Pugs::Compiler::Rule->compile( '
-    <single_quote> | <double_quote>
+        %Pugs::Grammar::Str::hash
 ' )->code;
-
-sub single_quote {
-    my $grammar = shift;
-    return $grammar->no_match unless $_[0];
-    my ($extracted,$remainder) = Text::Balanced::extract_delimited( $_[0], "'" );
-    $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
-    return Pugs::Runtime::Match->new( { 
-        bool  => ( $extracted ne '' ),
-        match => $extracted,
-        tail  => $remainder,
-    } );
-}
-
-sub double_quote {
-    my $grammar = shift;
-    return $grammar->no_match unless $_[0];
-    my ($extracted,$remainder) = Text::Balanced::extract_delimited( $_[0], '"' );
-    $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
-    return Pugs::Runtime::Match->new( { 
-        bool  => ( $extracted ne '' ),
-        match => $extracted,
-        tail  => $remainder,
-    } );
-}
 
 1;

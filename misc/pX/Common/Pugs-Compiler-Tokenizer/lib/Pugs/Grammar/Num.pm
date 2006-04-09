@@ -17,15 +17,20 @@ Parses the text inside strings like:
 =cut
 
 # TODO - implement the "magic hash" dispatcher
+# TODO - generate AST
+
+our %hash = (
+    q() => Pugs::Compiler::Rule->compile( q(
+                \d+ 
+            ), 
+            grammar => 'Pugs::Grammar::Str',
+        ),
+    q(Inf) => 1,
+    q(NaN) => 1,
+);
 
 *parse = Pugs::Compiler::Rule->compile( '
-    <num>
-' )->code;
-
-*num = Pugs::Compiler::Rule->compile( '
-      \d+ 
-    | Inf
-    | NaN
+        %Pugs::Grammar::Num::hash
 ' )->code;
 
 1;
