@@ -688,7 +688,7 @@ sub for_perl5 {
         -e "$dir/Makefile.PL" or next;
 
         # Skip XS modules for now
-        next if () = (glob("$dir/*.xs"), glob("$dir/*.i"));
+        next if glob("$dir/*.xs") or glob("$dir/*.i");
 
         my $this = $cmd;
         $this =~ s{__DIR__}{$dir}g;
