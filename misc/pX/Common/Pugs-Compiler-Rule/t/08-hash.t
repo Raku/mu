@@ -19,7 +19,7 @@ use_ok( 'Pugs::Compiler::Rule' );
     my %test = (
         if =>    2,        # fail (number, not '1')
         iff =>   1,        # match (longer than 'if')
-        until => Pugs::Compiler::Rule->compile('(aa)'),  
+        until => Pugs::Compiler::Rule->compile('(a.a)'),  
                            # subrule - match "until(aa)"
         use =>   sub { $v = 1 },   
                            # closure - print "use()"
@@ -36,9 +36,9 @@ use_ok( 'Pugs::Compiler::Rule' );
     $match = $rule1->match("use");
     is($v,1,"closure was called hash{use}");
 
-    $match = $rule1->match("untilaa123");
+    $match = $rule1->match("untilaba123");
     #print Dumper($match);
-    is($match,'untilaa123',"subrule hash{until}");
-    is($match->(),'untilaa123',"subrule hash{until}");
+    is($match,'untilaba123',"subrule hash{until}");
+    is($match->(),'untilaba123',"subrule hash{until}");
 
 }

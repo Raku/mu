@@ -431,9 +431,9 @@ sub _preprocess_hash {
         #print "compiling subrule\n";
         #return $h->code;
         return sub { 
-            # print "into subrule - $_[0]\n"; 
-            my $match = $h->match( $_[0], { p => 1 } );
-            # print "match: ",$match->(),"\n";
+            #print "into subrule - $_[0] - grammar $_[4]\n"; 
+            my $match = $h->match( $_[0], $_[4], { p => 1 } );
+            #print "match: ",$match->(),"\n";
             return $_[3] = $$match;
         };
     }

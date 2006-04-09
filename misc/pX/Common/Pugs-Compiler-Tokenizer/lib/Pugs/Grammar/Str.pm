@@ -15,6 +15,7 @@ Parses the text inside strings like:
     qw(...)
     <... ...>
     <<... ...>>
+    «...»
 
 Quoting constructs are macros:
 
@@ -27,6 +28,22 @@ S02
 =cut
 
 # TODO - implement the "magic hash" dispatcher
+# TODO - generate AST
+
+our %hash = (
+    q(') => Pugs::Compiler::Rule->compile( q(
+                [ . | \\ \' ]* 
+                \'
+            ), 
+            grammar => 'Pugs::Grammar::Str',
+        ),
+    q(") => Pugs::Compiler::Rule->compile( q(
+                [ . | \\ \" ]* 
+                \"
+            ), 
+            grammar => 'Pugs::Grammar::Str',
+        ),
+);
 
 *parse = Pugs::Compiler::Rule->compile( '
     <single_quote> | <double_quote>

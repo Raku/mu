@@ -79,9 +79,10 @@ sub match {
 
 sub perl5 {
     my $self = shift;
-    return "bless { " . 
-        "code => "    . $self->{perl5} . ",\n" . 
-        "perl5 => q(" . $self->{perl5} . ") }, " . 
+    return "bless {\n" . 
+        "  grammar => q(" . $self->{grammar} . "),\n" . 
+        "  code => "    . $self->{perl5} . ",\n" . 
+        "  perl5 => q(" . $self->{perl5} . ") }, " . 
         "q(" . __PACKAGE__ . ")";
 }
 

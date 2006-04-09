@@ -91,6 +91,20 @@ sub perl5 {
     warn "not implemented";
 }
 
+sub _op_long_name {
+    my $opt = shift;
+    my $fixity = $opt->{fixity};
+    $fixity = $1 if $fixity =~ /^(.*)_/;
+    return $fixity . ':<' . $opt->{name} . ' ' . $opt->{name2} . '>'
+        if defined $opt->{op2};
+    return $fixity . ':<' . $opt->{name} . '>';
+}
+
+sub _op_rule {
+    my $opt = shift;
+    return "<'" . _op_long_name($opt) . "'>|<'" . $opt->{name} . "'>";
+}
+
 sub emit_perl6_rule {
     my ($self, $level, $default) = @_;
     my @rules;
@@ -111,14 +125,16 @@ sub emit_perl6_rule {
         if ( $fixity eq 'prefix' ) {
             push @rules, "\$<op1>:=(" .
                 join( '|', map { 
-                    "<'" . $_->{name} . "'>" } @r ) .
+                    _op_rule( $_ ) 
+                } @r ) .
                 ") \$<term0>:=(<$equal>)" . $return;
             next;
         }
         if ( $fixity eq 'infix_left' ) {
             push @rules, "\$<term0>:=(<$tight>) \$<op1>:=(" .
                 join( '|', map { 
-                    "<'" . $_->{name} . "'>" } @r ) .
+                    _op_rule( $_ ) 
+                } @r ) .
                 ") \$<term1>:=(<$equal>)" . $return;
             next;
         }

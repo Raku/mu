@@ -1,5 +1,12 @@
 TODO for Pugs::Compiler::Rule (PCR)
 
+Perl 6 parser:
+
+- implement Perl 6 minilanguages (and categories).
+  each language generate entries for the tokenizer hash
+  <%statement_control|%prefix|%term>
+- implement the main tokenizer using the minilanguages as terms
+
 Priorities:
 
 - features used in PGE P6 Grammar

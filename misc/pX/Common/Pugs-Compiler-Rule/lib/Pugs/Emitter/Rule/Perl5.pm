@@ -126,6 +126,7 @@ sub variable {
     $value = join('', eval $name) if $name =~ /^\@/;
     if ( $name =~ /^%/ ) {
         # XXX - runtime or compile-time interpolation?
+        return "$_[1] hash( \\$name )\n" if $name =~ /::/;
         return "$_[1] hash( get_variable( '$name' ) )\n";
     }
     return "$_[1] constant( '" . $value . "' )\n";

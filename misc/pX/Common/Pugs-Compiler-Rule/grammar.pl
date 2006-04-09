@@ -255,6 +255,16 @@ sub ::postfix {
     #print Dumper $match->();
 }
 
+{
+    my $match = $grammar->parse( '1infix:<+>1' );
+    ok( 
+        postfix( $match->() ) eq 
+        '1 1 infix:<+>', 
+        'operator long name' 
+    );
+    print postfix( $match->() );
+}
+
 __END__
 {
     # TODO - emit error message

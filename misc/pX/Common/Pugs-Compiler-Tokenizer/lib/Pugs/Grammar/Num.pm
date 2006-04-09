@@ -23,7 +23,9 @@ Parses the text inside strings like:
 ' )->code;
 
 *num = Pugs::Compiler::Rule->compile( '
-    \d+
+      \d+ 
+    | Inf
+    | NaN
 ' )->code;
 
 1;
