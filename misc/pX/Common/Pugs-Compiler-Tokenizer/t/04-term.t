@@ -1,5 +1,6 @@
 
-use Test::More tests => 4;
+use Test::More tests => 5;
+use Data::Dumper;
 
 use_ok( 'Pugs::Grammar::Term' );
 
@@ -17,3 +18,15 @@ use_ok( 'Pugs::Grammar::Term' );
     my $match = Pugs::Grammar::Term->parse( q(10) );
     is( "$match", q(10), 'num' );
 }
+
+{
+    my $rule = Pugs::Compiler::Rule->compile( q(
+        ( %Pugs::Grammar::Term::hash <?ws>? )*
+    ));
+    #print $rule->perl5;
+    my $match = $rule->match( q(10 $a "abc") );
+    my @m = @{$match->[0]};
+    #print Dumper( @m );
+    is( join(';', map { $_->() } @m), q(10 ;$a ;"abc"), 'split on terms' );
+}
+

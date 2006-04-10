@@ -29,24 +29,45 @@ and maybe
 # TODO - implement the "magic hash" dispatcher
 # TODO - generate AST
 
-my $ident = Pugs::Compiler::Rule->compile( '
-        [
-            [ \:\: ]?
-            [ \_ | <alnum> ]+
-        ]+
-    ', 
-    grammar => 'Pugs::Grammar::Str',
+our %hash = (
+    '$' => Pugs::Compiler::Rule->compile( '
+            [
+                [ \:\: ]?
+                [ \_ | <alnum> ]+
+            ]+
+            { return { scalar => "\$" . $() ,} }
+        ', 
+        grammar => 'Pugs::Grammar::Str',
+    ),
+    '@' => Pugs::Compiler::Rule->compile( '
+            [
+                [ \:\: ]?
+                [ \_ | <alnum> ]+
+            ]+
+            { return { array => "\@" . $() ,} }
+        ', 
+        grammar => 'Pugs::Grammar::Str',
+    ),
+    '%' => Pugs::Compiler::Rule->compile( '
+            [
+                [ \:\: ]?
+                [ \_ | <alnum> ]+
+            ]+
+            { return { hash => "\%" . $() ,} }
+        ', 
+        grammar => 'Pugs::Grammar::Str',
+    ),
 );
 
-our %hash = (
-    map {
-        $_ => $ident
-    }
-    qw( $ % @ )
-);
+sub capture {
+    # print Dumper ${$_[0]}->{match}[0]{match}[1]{capture}; 
+    return ${$_[0]}->{match}[0]{match}[1]{capture};
+}
+
 
 *parse = Pugs::Compiler::Rule->compile( '
     %Pugs::Grammar::Var::hash
+    { return Pugs::Grammar::Var::capture( $/ ) }
 ' )->code;
 
 1;
