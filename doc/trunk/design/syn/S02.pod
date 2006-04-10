@@ -46,6 +46,15 @@ a single token.  On the other hand, Perl doesn't use indentation as syntax,
 so you are free to use any whitespace anywhere that whitespace makes sense.
 Comments always count as whitespace.
 
+=item *
+
+For some syntactic purposes, Perl distinguishes bracketing characters
+from non-bracketing.  Bracketing characters are defined as any Unicode
+characters with either bidirectional mirrorings or Ps/Pe properties.
+(In practice, though, you're safest using matching characters with
+Ps/Pe properties, though ASCII angle brackets are a notable exception,
+since they're bidirectional but not in the Ps/Pe set.)
+
 =back
 
 =head1 Molecules
@@ -80,7 +89,7 @@ counts as whitespace equivalent to a newline.
 =item *
 
 Embedded comments are supported as a variant on quoting syntax, introduced
-by C<#> plus any user-selected bracketing characters (including Unicode):
+by C<#> plus any user-selected bracket characters (see definition above):
 
     say #( embedded comment ) "hello, world!";
 
@@ -91,7 +100,27 @@ by C<#> plus any user-selected bracketing characters (including Unicode):
     」.say;
 
 There must be no space between the # and the opening bracket character.
-Brackets may be nested following the same policy as ordinary quote brackets.
+(There may be the I<appearance> of space for some double-wide
+characters, however, such as the corner quotes above.)  Brackets may
+be nested following the same policy as ordinary quote brackets.
+
+=item *
+
+For all quoting constructs that use user-selected brackets, multiple,
+adjacent, identical opening brackets must always be matched by
+an equal number of adjacent closing brackets.  Use of two or more
+brackets disables bracket counting within the quoted text and merely
+scans for the closing set of brackets.  Hence this comment legally
+contains unmatched brackets and even an unmatched C<{{>:
+
+    #{{
+	Comment contains unmatched { and { { { { and {{ and } and } } but not:
+    }}
+
+Note however that bare circumfix or postcircumfix C<<< <<...>> >>> is
+not a user-selected bracket, but the ASCII variant of the C<< «...» >>
+interpolating word list.  Only C<#> and the C<q>-style quoters (including
+C<m>, C<s>, C<tr>, and C<rx>) enable subsequent user-selected brackets.
 
 =item *
 
@@ -113,7 +142,7 @@ Because comments always count as whitespace, the dots in
     $object.#{ foo }.say
 
 reduce to a "long dot" rather than the range operator.  Valid ways to
-insert a line break into a sequence of methods calls include:
+insert a line break into a sequence of method calls include:
 
     $object. # comment
     .say
@@ -157,6 +186,7 @@ be written in any of these forms:
     $x. .++
 
     $x.#( comment ).++
+    $x.#((( comment ))).++
 
     $x.
     .++
@@ -178,7 +208,7 @@ be written in any of these forms:
     ].++
 
 A consequence of the postfix rule is that (except when delimiting a
-a quote or terminating a "long dot") a dot with whitespace in front
+quote or terminating a "long dot") a dot with whitespace in front
 of it is always considered a method call on C<$_> where a term is
 expected.  If a term is not expected at this point, it is a syntax
 error.  (Unless, of course, there is an infix operator of that name
@@ -547,7 +577,7 @@ object with parens after it (which may, of course, contain arguments):
 
 Whitespace is not allowed before the parens, but there is a
 corresponding C<.()> operator, plus the "long dot" forms that allow
-you to insert optional whitespace and commentsbetween dots:
+you to insert optional whitespace and comments between dots:
 
     &foo.   .($arg1, $arg2);
     &foo.#[
