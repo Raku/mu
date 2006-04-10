@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 7 Apr 2006
+  Last Modified: 10 Apr 2006
   Number: 2
-  Version: 21
+  Version: 22
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -44,6 +44,7 @@ Unicode horizontal whitespace is counted as whitespace, but it's better
 not to use thin spaces where they will make adjoining tokens look like
 a single token.  On the other hand, Perl doesn't use indentation as syntax,
 so you are free to use any whitespace anywhere that whitespace makes sense.
+Comments always count as whitespace.
 
 =back
 
@@ -79,33 +80,49 @@ counts as whitespace equivalent to a newline.
 =item *
 
 Embedded comments are supported as a variant on quoting syntax, introduced
-by C<.#> and delimited by user-selected characters.
+by C<#> plus any user-selected bracketing characters (including Unicode):
 
-    say .#( embedded comment ) "hello, world!";
+    say #( embedded comment ) "hello, world!";
 
-    $object.#/ embedded comments /.say;
+    $object.#{ embedded comments }.say;
 
-    $object.#[
+    $object.#「
 	embedded comments
-    ].say;
+    」.say;
 
-The delimiters of the C<.#//> embedded comment form may be chosen
-from the same set that are valid for ordinary C<q//> quote forms,
-and follow the same policy on the nesting of bracketing characters.
-Unlike the other two forms of comment, the embedded form does not
-count as whitespace.
+There must be no space between the # and the opening bracket character.
+Brackets may be nested following the same policy as ordinary quote brackets.
 
-As a variant of the embedded form, a single dot followed by a space
-is equivalent to C<.#.> (plus an extra dot at the end) so you can
-write a small (generally whitespace only) comment as:
+=item *
+
+In addition to the general comment forms above, there is a whitespace-only
+comment form that begins and ends with a single dot, separated by whitespace,
+which is equivalent to a single dot:
 
     %hash.  .{$key}
     @array. .{$key}
 
-which is useful for lining up postfixes.  This is known as the "long dot",
+This is useful for lining up postfixes.  This is known as the "long dot",
 partly because it substitutes for a dot without the need for a third dot:
 
     $object.  .say();
+
+The whitespace in the middle may include any of the comment forms above.
+Because comments always count as whitespace, the dots in
+
+    $object.#{ foo }.say
+
+reduce to a "long dot" rather than the range operator.  Valid ways to
+insert a line break into a sequence of methods calls include:
+
+    $object. # comment
+    .say
+
+    $object.#[ comment
+    ].say
+
+    $object.
+    .say
 
 =item *
 
@@ -139,21 +156,18 @@ be written in any of these forms:
 
     $x. .++
 
-    $x.#.    .++
-
-    $x. comment .++
-
     $x.#( comment ).++
 
     $x.
     .++
 
-    $x.#.
+    $x. 	# comment
+    		# more comment
     .++
 
-    $x.#[	# comment
-    		# more comment
-    ].++
+    $x.#『	comment
+    		more comment
+    』.++
 
     $x.#[   comment 1
     comment 2
@@ -164,14 +178,38 @@ be written in any of these forms:
     ].++
 
 A consequence of the postfix rule is that (except when delimiting a
-a quote or comment) a dot with whitespace in front of it is always
-considered a method call on C<$_> where a term is expected.  If a
-term is not expected at this point, it is a syntax error.  (Unless,
-of course, there is an infix operator of that name beginning with
-dot.  You could, for instance, define a Fortranly C<< infix:<.EQ.> >>
-if the fit took you.  But you'll have to be sure to always put
-whitespace in front of it, or it would be interpreted as a postfix
-method call instead.)
+a quote or terminating a "long dot") a dot with whitespace in front
+of it is always considered a method call on C<$_> where a term is
+expected.  If a term is not expected at this point, it is a syntax
+error.  (Unless, of course, there is an infix operator of that name
+beginning with dot.  You could, for instance, define a Fortranly C<<
+infix:<.EQ.> >> if the fit took you.  But you'll have to be sure to
+always put whitespace in front of it, or it would be interpreted as
+a postfix method call instead.)
+
+For example,
+
+    foo .method
+
+and
+
+    foo
+    .method
+
+will always be interpreted as
+
+    foo $_.method
+
+but never as
+
+    foo.method	
+
+Use some variant of
+
+    foo.
+    .method
+
+if you mean the postfix method call.
 
 =back
 
@@ -509,7 +547,7 @@ object with parens after it (which may, of course, contain arguments):
 
 Whitespace is not allowed before the parens, but there is a
 corresponding C<.()> operator, plus the "long dot" forms that allow
-you to insert optional whitespace between dots:
+you to insert optional whitespace and commentsbetween dots:
 
     &foo.   .($arg1, $arg2);
     &foo.#[
@@ -789,7 +827,7 @@ subscript the package object itself as a hash object, the key of which
 is the variable name, including any sigil.  The package object can
 be derived from a type name by use of the C<::> postfix operator:
 
-    MyType .:: .{'$foo'}
+    MyType. .::. .{'$foo'}
     MyType::<$foo>              # same thing
 
 (Directly subscripting the type with either square brackets or curlies
