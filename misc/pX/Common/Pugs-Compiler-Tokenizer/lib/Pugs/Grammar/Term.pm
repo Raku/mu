@@ -1,9 +1,8 @@
 ﻿package Pugs::Grammar::Term;
 use strict;
 use warnings;
-use Pugs::Compiler::Rule;
-use base qw(Pugs::Grammar::Base);
-#use Pugs::Runtime::Match;
+use base qw(Pugs::Grammar::BaseCategory);
+use Pugs::Runtime::Match;
 
 use Pugs::Grammar::Var;
 use Pugs::Grammar::Num;
@@ -13,20 +12,15 @@ use Pugs::Grammar::Str;
 # TODO - generate AST
 # TODO - term:<...>  - yada-yada-yada
 
-our %hash = (
-    %Pugs::Grammar::Str::hash,
-    %Pugs::Grammar::Num::hash,
-    %Pugs::Grammar::Var::hash,
-);
+our %hash;
 
-sub capture {
-    # print Dumper ${$_[0]}->{match}[0]{match}[1]{capture}; 
-    return ${$_[0]}->{match}[0]{match}[1]{capture};
+BEGIN {
+    %hash = (
+        %Pugs::Grammar::Str::hash,
+        %Pugs::Grammar::Num::hash,
+        %Pugs::Grammar::Var::hash,
+    );
+    __PACKAGE__->recompile;
 }
-
-*parse = Pugs::Compiler::Rule->compile( '
-    %Pugs::Grammar::Term::hash
-    { return Pugs::Grammar::Term::capture( $/ ) }
-' )->code;
 
 1;

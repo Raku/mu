@@ -1,10 +1,7 @@
 ﻿package Pugs::Grammar::Str;
 use strict;
 use warnings;
-use Pugs::Compiler::Rule;
-use base qw(Pugs::Grammar::Base);
-#use Pugs::Runtime::Match;
-#use Text::Balanced; 
+use base qw(Pugs::Grammar::BaseCategory);
 
 =for pod
 
@@ -32,31 +29,18 @@ S02
 # TODO - implement the "magic hash" dispatcher
 # TODO - generate AST
 
-our %hash = (
-    q(') => Pugs::Compiler::Rule->compile( q(
+BEGIN {
+    __PACKAGE__->add_rule( q(') => q(
                 [ . | \\ \' ]* 
                 \'
                 { return { single_quoted => "\'" . $() ,} }
-            ), 
-            grammar => 'Pugs::Grammar::Str',
-        ),
-    q(") => Pugs::Compiler::Rule->compile( q(
+            ) );
+    __PACKAGE__->add_rule( q(") => q(
                 [ . | \\ \" ]* 
                 \"
                 { return { double_quoted => "\"" . $() ,} }
-            ), 
-            grammar => 'Pugs::Grammar::Str',
-        ),
-);
-
-sub capture {
-    # print Dumper ${$_[0]}->{match}[0]{match}[1]{capture}; 
-    return ${$_[0]}->{match}[0]{match}[1]{capture};
+            ) );
+    __PACKAGE__->recompile;
 }
-
-*parse = Pugs::Compiler::Rule->compile( q(
-    %Pugs::Grammar::Str::hash
-    { return Pugs::Grammar::Str::capture( $/ ) }
-) )->code;
 
 1;

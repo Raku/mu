@@ -1,10 +1,7 @@
 ﻿package Pugs::Grammar::Var;
 use strict;
 use warnings;
-use Pugs::Compiler::Rule;
-use base qw(Pugs::Grammar::Base);
-#use Pugs::Runtime::Match;
-#use Text::Balanced; 
+use base qw(Pugs::Grammar::BaseCategory);
 
 =for pod
 
@@ -39,37 +36,20 @@ and maybe
             { return { scalar => "\$" . $() ,} }
         ' )->code;
 
-our %hash = (
-    '$' => Pugs::Compiler::Rule->compile( '
+BEGIN {
+    __PACKAGE__->add_rule( '$' => '
                 <Pugs::Grammar::Var.ident>
                 { return { scalar => "\$" . $() ,} }
-            ', 
-            grammar => 'Pugs::Grammar::Var',
-        ),
-    '@' => Pugs::Compiler::Rule->compile( '
+            ' );
+    __PACKAGE__->add_rule( '@' => '
                 <Pugs::Grammar::Var.ident>
                 { return { array => "\@" . $() ,} }
-            ', 
-            grammar => 'Pugs::Grammar::Var',
-        ),
-    '%' => Pugs::Compiler::Rule->compile( '
+            ' );
+    __PACKAGE__->add_rule( '%' => '
                 <Pugs::Grammar::Var.ident>
                 { return { hash => "\%" . $() ,} }
-            ', 
-            grammar => 'Pugs::Grammar::Var',
-        ),
-);
-
-sub capture {
-    # print Dumper ${$_[0]}->{match}[0]{match}[1]{capture}; 
-    return ${$_[0]}->{match}[0]{match}[1]{capture};
+            ' );
+    __PACKAGE__->recompile;
 }
-
-*parse = Pugs::Compiler::Rule->compile( '
-            %Pugs::Grammar::Var::hash
-            { return Pugs::Grammar::Var::capture( $/ ) }
-        ', 
-        grammar => 'Pugs::Grammar::Var',
-    )->code;
 
 1;
