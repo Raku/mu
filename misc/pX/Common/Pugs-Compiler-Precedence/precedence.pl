@@ -1,6 +1,7 @@
 use Parse::Yapp;
 $DEBUG=1;
 $|=1;
+use Data::Dumper;
 
 
 my $g = <<'EOT';
@@ -8,7 +9,7 @@ my $g = <<'EOT';
 %left '*'
 %%
 S:  A { return($out) } ;
-A:  A '*' A { $out="($_[1]$_[2]$_[3])" }
+A:  A '*' A { $out= [ $_[1], $_[2], $_[3] ] }
   | B
 ;
 B:  'a' | 'b' | 'c' | 'd' ;
@@ -50,13 +51,9 @@ my($count)=0;
     $p=new Test(yylex => $lex, yyerror => sub {});
 
     $out=$p->YYParse;
+
+    print Dumper $out;
+
     undef $p;
-
-        $out eq $chk
-    or  do {
-        print "Got '$out' instead of '$chk'\n";
-        die;
-    };
-
     undef(&Test::new);
 
