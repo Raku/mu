@@ -1417,6 +1417,14 @@ ruleTypeLiteral = rule "type" $ try $ do
         | pre `isPrefixOf` str = Just (drop (length pre) str)
         | otherwise            = Nothing
 
+ruleDot :: RuleParser ()
+ruleDot = try $ do
+    char '.'
+    notFollowedBy (char '.')
+    optional $ do
+        skipMany1 (satisfy isSpace)
+        char '.'
+
 rulePostTerm :: RuleParser (Exp -> Exp)
 rulePostTerm = tryVerbatimRule "term postfix" $ do
     hasDot <- option Nothing $ tryChoice [dotChar, bangChar]
@@ -1430,8 +1438,8 @@ rulePostTerm = tryVerbatimRule "term postfix" $ do
         , ruleCodeSubscript
         ]
     where
-    dotChar = do { whiteSpace; char '.'; notFollowedBy (char '.'); return $ Just '.' }
-    bangChar = do { whiteSpace; char '!'; lookAhead ruleSubName; return $ Just '!' }
+    dotChar = do { ruleDot; return $ Just '.' }
+    bangChar = do { char '!'; lookAhead ruleSubName; return $ Just '!' }
     -- XXX - this should happen only in a "trusts" class!
     bangKludged p = do
         f <- p
@@ -1548,7 +1556,7 @@ ruleApplySub isFolded = do
         
     -- True for `foo .($bar)`-style applications
     (paramListInv, args) <- tryChoice
-        [ do { whiteSpace; char '.'; parseHasParenParamList }
+        [ do { ruleDot; parseHasParenParamList }
         , parseParenParamList <|> do { whiteSpace; parseNoParenParamList }
         ]
 
@@ -1990,7 +1998,7 @@ qInterpolateQuoteConstruct = try $ do
 
 qInterpolatorPostTerm :: RuleParser (Exp -> Exp)
 qInterpolatorPostTerm = try $ do
-    option ' ' $ char '.'
+    optional $ char '.'
     choice
         [ try ruleInvocationParens
         , try ruleArraySubscript

@@ -56,6 +56,7 @@ naturalOrRat  = (<?> "number") $ do
             notFollowedBy . satisfy $ \x -> case x of
                 '_' -> True
                 '.' -> True
+                ' ' -> True
                 '=' -> True
                 _   -> isAlpha x
             digits <- count (satisfy isWordDigit) <?> "fraction"
