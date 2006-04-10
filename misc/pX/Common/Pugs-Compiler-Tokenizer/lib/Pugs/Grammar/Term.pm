@@ -9,17 +9,21 @@ use Pugs::Grammar::Num;
 use Pugs::Grammar::Str;
 
 # TODO - implement the "magic hash" dispatcher
-# TODO - generate AST
 # TODO - term:<...>  - yada-yada-yada
 
 our %hash;
 
-BEGIN {
+sub recompile {
+    my $class = shift;
     %hash = (
         %Pugs::Grammar::Str::hash,
         %Pugs::Grammar::Num::hash,
         %Pugs::Grammar::Var::hash,
     );
+    $class->SUPER::recompile;
+}
+
+BEGIN {
     __PACKAGE__->recompile;
 }
 

@@ -5,7 +5,7 @@ use base qw(Pugs::Grammar::BaseCategory);
 
 =for pod
 
-Parses the text inside strings like:
+Parses text like:
 
     '...' 
     "..."
