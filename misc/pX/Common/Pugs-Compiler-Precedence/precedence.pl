@@ -1,5 +1,5 @@
 use Parse::Yapp;
-$DEBUG=1;
+$DEBUG=0;
 $|=1;
 use Data::Dumper;
 
@@ -17,21 +17,16 @@ B:  'a' | 'b' | 'c' | 'd' ;
 EOT
 
 
-my $in = [ 'a', '*', 'b', '*', 'c', '*', 'd' ];
-
-
-my $chk = "(((a*b)*c)*d)";
-
-
-my($count)=0;
+my $in = [ ['a'=>{'term'=>'a'}], ['*'=>'*'], ['b'=>'b'], ['*'=>'*'], ['c'=>'c'], ['*'=>'*'], ['d'=>'d'] ];
 
 
     my($lex) = sub {
         my($t)=shift(@$in);
+        print "return $$t[0],$$t[1]\n";
 
             defined($t)
-        or  $t='';
-        return($t,$t);
+        or  $t=['',''];
+        return($$t[0],$$t[1]);
     };
 
 
