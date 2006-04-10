@@ -1,0 +1,44 @@
+﻿TODO list for Pugs-Compiler-Tokenizer
+
+- Implement base 'tokens-class' (category?)
+- Implement compile-time dynamic 'add_token' (lexical at run-time)
+
+- Implement double-quoted-string split on variables (interpolation)
+
+- Make the tokenizer match eagerly (faster)
+
+- Implement the "magic hash" dispatcher
+
+    TimToady on #perl6 -
+    xxx:<+> has to be considered just a funny looking name. 
+    It's the grammar's responsibility (somehow) to pull in any existing xxx and 
+    newly created xxx and combine them into any rules or %hash that references them.
+    supposing a grammatical category shows up in %xxx, then we need two ways to deal 
+    with it.
+    first, if we want one category to hide another, you can get away with a mixin 
+    style of
+        rule { %xxx | %yyy | %zzz }
+    but there are some syntactic categories that have to be magically combined like
+    compile-time roles:
+        rule { %xxx_or_yyy_or_zzz }
+    that is, the longest-token rule is applies in parallel across all the categories
+    simultaneously.
+    that's why the magic hash was invented (or more accurately, is scheduled to 
+    be invented :)
+
+- Specify/generate AST
+
+- Implement expressions inside names - like:
+    prefix:{'+'}
+
+BUGS
+
+- A Match doesn't stringify if there is a capture
+
+- Fix %hash capture - it currently works like this:
+
+  sub capture {
+    # print Dumper ${$_[0]}->{match}[0]{match}[1]{capture}; 
+    return ${$_[0]}->{match}[0]{match}[1]{capture};
+  }
+

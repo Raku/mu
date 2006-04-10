@@ -22,6 +22,7 @@ use_ok( 'Pugs::Grammar::Term' );
 {
     my $rule = Pugs::Compiler::Rule->compile( q(
         ( %Pugs::Grammar::Term::hash <?ws>? )*
+        # ( <Pugs::Grammar::Term.parse> <?ws>? )*
     ));
     #print $rule->perl5;
     my $match = $rule->match( q(10 $a "abc") );

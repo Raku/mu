@@ -1,8 +1,10 @@
 ﻿package Pugs::Grammar::Var;
+use strict;
+use warnings;
 use Pugs::Compiler::Rule;
-use base Pugs::Grammar::Base;
-use Pugs::Runtime::Match;
-use Text::Balanced; 
+use base qw(Pugs::Grammar::Base);
+#use Pugs::Runtime::Match;
+#use Text::Balanced; 
 
 =for pod
 
@@ -29,34 +31,33 @@ and maybe
 # TODO - implement the "magic hash" dispatcher
 # TODO - generate AST
 
-our %hash = (
-    '$' => Pugs::Compiler::Rule->compile( '
+*ident = Pugs::Compiler::Rule->compile( '
             [
                 [ \:\: ]?
                 [ \_ | <alnum> ]+
             ]+
             { return { scalar => "\$" . $() ,} }
-        ', 
-        grammar => 'Pugs::Grammar::Str',
-    ),
+        ' )->code;
+
+our %hash = (
+    '$' => Pugs::Compiler::Rule->compile( '
+                <Pugs::Grammar::Var.ident>
+                { return { scalar => "\$" . $() ,} }
+            ', 
+            grammar => 'Pugs::Grammar::Var',
+        ),
     '@' => Pugs::Compiler::Rule->compile( '
-            [
-                [ \:\: ]?
-                [ \_ | <alnum> ]+
-            ]+
-            { return { array => "\@" . $() ,} }
-        ', 
-        grammar => 'Pugs::Grammar::Str',
-    ),
+                <Pugs::Grammar::Var.ident>
+                { return { array => "\@" . $() ,} }
+            ', 
+            grammar => 'Pugs::Grammar::Var',
+        ),
     '%' => Pugs::Compiler::Rule->compile( '
-            [
-                [ \:\: ]?
-                [ \_ | <alnum> ]+
-            ]+
-            { return { hash => "\%" . $() ,} }
-        ', 
-        grammar => 'Pugs::Grammar::Str',
-    ),
+                <Pugs::Grammar::Var.ident>
+                { return { hash => "\%" . $() ,} }
+            ', 
+            grammar => 'Pugs::Grammar::Var',
+        ),
 );
 
 sub capture {
@@ -64,10 +65,11 @@ sub capture {
     return ${$_[0]}->{match}[0]{match}[1]{capture};
 }
 
-
 *parse = Pugs::Compiler::Rule->compile( '
-    %Pugs::Grammar::Var::hash
-    { return Pugs::Grammar::Var::capture( $/ ) }
-' )->code;
+            %Pugs::Grammar::Var::hash
+            { return Pugs::Grammar::Var::capture( $/ ) }
+        ', 
+        grammar => 'Pugs::Grammar::Var',
+    )->code;
 
 1;
