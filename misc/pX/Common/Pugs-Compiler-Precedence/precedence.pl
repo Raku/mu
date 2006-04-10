@@ -17,13 +17,19 @@ B:  'a' | 'b' | 'c' | 'd' ;
 EOT
 
 
-my $in = [ ['a'=>{'term'=>'a'}], ['*'=>'*'], ['b'=>'b'], ['*'=>'*'], ['c'=>'c'], ['*'=>'*'], ['d'=>'d'] ];
+my $in = [ 
+    ['a'=>{term=>'a'}], 
+    ['*'=>{op=>'*'}], 
+    ['b'=>{term=>'b'}], 
+    ['*'=>{op=>'*'}], 
+    ['c'=>{term=>'c'}], 
+    ['*'=>{op=>'*'}], 
+    ['d'=>{term=>'d'}] 
+];
 
 
     my($lex) = sub {
         my($t)=shift(@$in);
-        print "return $$t[0],$$t[1]\n";
-
             defined($t)
         or  $t=['',''];
         return($$t[0],$$t[1]);
@@ -38,10 +44,7 @@ my $in = [ ['a'=>{'term'=>'a'}], ['*'=>'*'], ['b'=>'b'], ['*'=>'*'], ['c'=>'c'],
 
     eval $p;
         $@
-    and do {
-        print "$@\n";
-        die;
-    };
+    and die "$@\n";
 
     $p=new Test(yylex => $lex, yyerror => sub {});
 
