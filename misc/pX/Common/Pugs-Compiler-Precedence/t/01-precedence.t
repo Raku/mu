@@ -2,10 +2,10 @@ use Test::More tests => 1; #4;
 use strict;
 use warnings;
 use Data::Dumper;
-use_ok( "Pugs::Grammar::Category" );
+use_ok( "Pugs::Grammar::Precedence" );
 
 {
-    my $cat = Pugs::Grammar::Category->new( {
+    my $cat = Pugs::Grammar::Precedence->new( {
         name => 'test',
         operand => 'item',
     } );

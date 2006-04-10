@@ -1,4 +1,4 @@
-﻿package Pugs::Grammar::Category;
+﻿package Pugs::Grammar::Precedence;
 
 # Documentation in the __END__
 use 5.006;
@@ -31,16 +31,16 @@ my %relative_precedences = (
 # parsed: - the rule replaces the right side
 # note: S06 - 'chain' can't be mixed with other types in the same level
 my %rule_templates = (
-    #prefix =>          '<op> <equal>', 
-    #circumfix =>       '<op> <parse> <op2>',  
-    infix_right =>     '<equal> <op> <tight>',
-    postfix =>         '<tight> <op>', 
-    #postcircumfix =>   '<tight> ( <op> <parse> <op2> )+', 
-    #infix_left =>      '<tight> <op> <equal>', 
-    infix_non =>       '<tight> <op> <tight>', 
-    infix_chain =>     '<tight> ( <op> <tight> )+',
-    infix_list =>      '<tight> ( <op> <tight> )+',
-    ternary =>         '<tight> <op> <parse> <op2> <equal>',
+    prefix =>          '<op> exp', 
+    circumfix =>       '<op> exp <op2>',  
+    infix_right =>     'exp <op> exp',
+    postfix =>         'exp <op>', 
+    postcircumfix =>   'exp <op> exp <op2>', 
+    infix_left =>      'exp <op> exp', 
+    infix_non =>       'exp <op> exp', 
+    infix_chain =>     'exp ( <op> exp )+', # XXX
+    infix_list =>      'exp ( <op> exp )+', # XXX
+    ternary =>         'exp <op> exp <op2> exp',
 );
 
 sub new {
@@ -183,29 +183,12 @@ sub emit_perl6_rule {
         }
     }
     push @rules, '$<term>:=(<' . $tight . '>) { return Pugs::AST::Expression->term($/) } ';
-
-    # @rules = _optimize( @rules );
-    
-    return $rules[0] unless $#rules;
+    return $rules[0] unless $#rules;
     @rules = map { "   [ $_ ] \n" } @rules;
     #print "Rules: \n@rules\n";
     my $r = "[ " . join( ' | ', @rules ) . " ]";
     #print "Rules: $r\n";
     return $r;
-}
-
-sub emit_grammar_perl6 {
-    # item=>'<item>',
-    my ($self, $default) = @_;
-    #print "emitting grammar in perl6\n";
-    my $s = "";
-    for my $level ( 0 .. $#{$self->{levels}} ) {
-        my $equal = $level == $#{$self->{levels}} ? "parse" : "r$level";
-        $s = $s . "    rule $equal { " .
-            emit_perl6_rule($self, $level, $default) .
-            " }\n";
-    }
-    return "grammar $self->{name} { \n$s}\n";
 }
 
 sub _quotemeta { my $s = shift; $s =~ s!'!\\'!g; $s }
@@ -224,46 +207,21 @@ sub emit_grammar_perl5 {
     return $s;  #"package $self->{name};\n$s\n";
 }
 
-sub _optimize {
-    my @rules = reverse sort @_;
-    my $i = 0;
-    my $j = $i;
-    my ($item) = $rules[$i] =~ /^(<.*?>)/;
-    #print "item: $item\n";
-    for my $i ( $i .. $#rules ) {
-        last unless $rules[$i] =~ /^$item/;
-        #print "optimize: $rules[$i]\n";
-        $j = $i;
-    }
-    if ( $i != $j ) {
-        #print "optimize $item in @rules[$i..$j]\n";
-        my $len = length( $item );
-        my @r = map { $_ eq $item ? '' : substr($_,$len) } @rules[$i..$j];
-        pop @r if $r[-1] eq '';
-        #print "optimized: [",join(",",@r),"] $i $j\n";
-        splice( @rules, $i, (1+$j-$i), 
-            "$item [ " . join( ' | ', @r ) . " ]?"
-        );
-        #print "optimized: [",join(",",@rules),"]\n";
-    }
-    return @rules;
-}
-
 1;
 
 __END__
 
 =head1 NAME 
 
-Pugs::Grammar::Category - Engine for Perl 6 Rule categories
+Pugs::Grammar::Precedence - Engine for Perl 6 Rule operator precedence
 
 =head1 SYNOPSIS
 
-  use Pugs::Grammar::Category;
+  use Pugs::Grammar::Precedence;
 
   # example definition for "sub rxinfix:<|> ..."
   
-  my $rxinfix = Pugs::Grammar::Category->new( 
+  my $rxinfix = Pugs::Grammar::Precedence->new( 
     name => 'rxinfix',
     operand => 'rxatom',
     # XXX - default assoc, default fixity ?

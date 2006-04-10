@@ -1,0 +1,12 @@
+TODO file for Pugs-Compiler-Precedence
+
+- sync add_op() in op-precedence and tokenizer
+
+- add is-parsed to the appropriate category in op-precedence and tokenizer
+
+- cleanup Pugs::AST::Expression in PCR (no longer used?)
+
+- add_op() doesn't need the 'block' key
+
+- PCP needs to return a Match object
+  (maybe a match-like object is more appropriate?)

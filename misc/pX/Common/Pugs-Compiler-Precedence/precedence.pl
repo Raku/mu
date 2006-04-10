@@ -1,34 +1,61 @@
+# this is the prototype for the Pugs-Compiler-Precedence module - fglock
+
 use Parse::Yapp;
 $DEBUG=0;
 $|=1;
 use Data::Dumper;
 
+# see also:
+#  http://web.mit.edu/gnu/doc/html/bison_[6,8].html
+
+# notes:
+#  'assoc' is one of:  nonassoc / right / left
 
 my $g = <<'EOT';
 %{ my $out; %}
+
+%right  '='
 %left   '-' '+'
 %left   '*' '/'
+%left   NEG
+%right  '^'
+
 %%
-S:  A { return($out) } ;
-A:  A '*' A { $out= [ $_[1], $_[2], $_[3] ] }
-  | A '/' A { $out= [ $_[1], $_[2], $_[3] ] }
-  | A '+' A { $out= [ $_[1], $_[2], $_[3] ] }
-  | A '-' A { $out= [ $_[1], $_[2], $_[3] ] }
-  | B
+statement:  exp { return($out) } ;
+
+exp:        NUM                 { $out= $_[1] }
+        |   VAR                 { $out= $_[1] }
+        |   VAR '=' exp         { $out= [ $_[1], $_[2], $_[3] ] }
+        |   exp '+' exp         { $out= [ $_[1], $_[2], $_[3] ] }
+        |   exp '-' exp         { $out= [ $_[1], $_[2], $_[3] ] }
+        |   exp '*' exp         { $out= [ $_[1], $_[2], $_[3] ] }
+        |   exp '/' exp         { $out= [ $_[1], $_[2], $_[3] ] }
+        |   '-' exp %prec NEG   { $out= [ $_[1], $_[2] ] }
+        |   exp '^' exp         { $out= [ $_[1], $_[2], $_[3] ] }
+        |   '(' exp ')'         { $out= $_[2] }
 ;
-B:  'a' | 'b' | 'c' | 'd' ;
+
+list_left:  exp                 { $out= [ $_[1] ] }
+        |   list_left ',' exp   { $out= [ @{$_[1]}, $_[3] ] }
+;
+
+list_right: exp                 { $out= [ $_[1] ] }
+        |   exp ';' list_right  { $out= [ $_[1], @{$_[3]} ] }
+;
+
 %%
 EOT
 
 
 my $in = [ 
-    ['a'=>{term=>'a'}], 
+    ['-'=>{op=>'-'}], 
+    ['NUM'=>{num=>'1'}], 
     ['*'=>{op=>'*'}], 
-    ['b'=>{term=>'b'}], 
+    ['NUM'=>{num=>'2'}], 
     ['+'=>{op=>'+'}], 
-    ['c'=>{term=>'c'}], 
+    ['NUM'=>{num=>'3'}], 
     ['*'=>{op=>'*'}], 
-    ['d'=>{term=>'d'}] 
+    ['NUM'=>{num=>'4'}] 
 ];
 
 
