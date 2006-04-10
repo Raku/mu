@@ -419,12 +419,13 @@ code; instead refer to other above-named packages in this file.>
 The "Rosetta" DBMS framework is a powerful but elegant system, which makes
 it easy to create and use relational databases in a very reliable,
 portable, and efficient way.  This "Rosetta" file is the core of the
-Rosetta framework and defines a common programmatic interface (API) which
-applications invoke and which multiple interchangeable "Engine" back-ends
-(usually provided by third parties) implement.  This interface is
-rigorously defined, such that there should be no ambiguity when trying to
-invoke or implement it, and so an application written to it should behave
-identically no matter which conforming "Engine" is in use.
+Rosetta framework and defines a common programmatic interface (API), called
+the Rosetta Native Interface (RNI), which applications invoke and which
+multiple interchangeable "Engine" back-ends (usually provided by third
+parties) implement.  This interface is rigorously defined, such that there
+should be no ambiguity when trying to invoke or implement it, and so an
+application written to it should behave identically no matter which
+conforming "Engine" is in use.
 
 Rosetta is a complete and uncompromising implementation of "The Third
 Manifesto" (TTM), Christopher J. Date's and Hugh Darwen's proposal for a
@@ -436,56 +437,60 @@ documentation will be focusing mainly on how Rosetta itself works, and will
 not spend much time in providing rationales; you can read TTM itself and
 various other external documentation for much of that.
 
-You can create multiple Rosetta DBMS objects.  Each one is a virtual
-machine that operates in complete isolation from all of the others (not
-even knowing that they exist), even if more than one uses the same Engine
-class to implement it.  Your application interacts with a virtual machine
-using methods of its DBMS object to input commands and read any resulting
-output.
+The Rosetta Native Interface is defined mainly in terms of a new high-level
+programming language named "Rosetta D", which is computationally complete
+(and industrial strength) and has fully integrated database functionality;
+this language, which satisfies TTM's definition of a "D" language, is
+described fully in the L<Rosetta::Language> documentation file that comes
+with this "Rosetta" distribution.
 
-The simplest usage scenario for a DBMS involves just commands that are
-value expressions and only involve system/built-in operators and literal or
-system/built-in variables; eg, using the DBMS to just evaluate 1+1.  The
-next simplest usage scenario adds commands that declare and assign to and
-read from user-defined temporary variables, which includes relation typed
-variables; this actually is using the DBMS to implement a relational
-database, but that the database is not persistent beyond the life of the
-DBMS object itself; rather, it is like an in-memory sharable data cache.
+While it is possible that one could write a self-contained application in
+Rosetta D and compile that into its own executable, in practice one would
+normally just write some components of their application in Rosetta D (as
+either named modules or anonymous routines) and write the rest of the
+application in their other language(s) of choice.  Assuming the main
+application is written in Perl, it is this "Rosetta" file which provides
+the glue between your Perl code and your Rosetta D code; "Rosetta"
+implements a virtual machine that is embedded in your Perl application and
+in which the Rosetta D code runs (it is analagous to the Perl interpreter
+itself, which provides a virtual machine in which Perl code runs).
 
-Following that in complexity, we have commands that mount and/or create a
-persistent repository, and declaring and assigning to or reading from
-user-defined variables (usually relation typed) in them; this is what one
-normally intends when using a relational database, but with Rosetta it
-isn't actually mandatory.  Depending on how the Engine in question works, a
-mounted repository can correspond to either a file on disk or a network
-server (local or internet) or some other addressable location.  Rosetta
-lets you mount more than one at a time within the same DBMS, and under that
-circumstance, all such repositories are a single database with respect to
-transactions; a commit or rollback command will treat the sum of changes to
-all of them as being atomic.  Therefore, if you want to have multiple
-isolated parallel transactions (same or different repositories), each one
-needs to be under a different DBMS object.
+The classes and methods of this "Rosetta" file, together with those of
+L<Rosetta::Model>, define the balance of the Rosetta Native Interface.  A
+Rosetta::Interface::DBMS object represents a single active Rosetta virtual
+machine; it has a spartan DBI-inspired set of methods which you use to
+compile/prepare and/or invoke/execute Rosetta D statements and routines
+within the virtual machine, input data to it, and output data from it.
 
-The native command language of a Rosetta DBMS / virtual machine is called
-"Rosetta D".  Both that language, and the details of the Rosetta virtual
-machine's environment in which it executes, are described fully in the
-L<Rosetta::Language> documentation file that comes with this "Rosetta"
-distribution.  Rosetta D satisfies TTM's definition of a "D" language, and
-is used by Rosetta instead of SQL (unlike many other DBMS products) because
-SQL is more ambiguous and error-prone to use, and it is less expressive.
+You can create more than one DBMS object at a time, and they are
+essentially all isolated from each other, even if more than one uses the
+same Engine class to implement it; that is, multiple DBMS objects will not
+have references to each other at a level visible in the Rosetta Native
+Interface, if at all.  To account for situations where multiple DBMS
+objects want to use the same external resources, such as a repository file
+on disk, it is expected that the Engines will employ appropriate measures
+such as system-managed locks so that resource corruption or application
+failure is prevented.  I<Also, Rosetta should be thread safe and/or saavy
+in the future, but for now it officially is not and you should not share
+Rosetta objects between multiple threads, nor have objects in separate
+threads try to access the same external resources.>
 
-While Rosetta D is very different from SQL, it is fully capable of
-modelling anything in the real world accurately, and it can support a
-complete SQL emulation layer on top of it, so that your legacy applications
-can be migrated to use the Rosetta DBMS with little trouble.
+Rosetta does not use any dialect of SQL in its native API (unlike many
+other DBMS products) because SQL is more ambiguous and error-prone to use,
+and it is less expressive.  While Rosetta D is very different from SQL, it
+is fully capable of modelling anything in the real world accurately, and it
+can support a complete SQL emulation layer on top of it, so that your
+legacy applications can be migrated to use the Rosetta DBMS with little
+trouble.  Likewise, emulation layers for any other programming language can
+be supported, such as Tutorial D or XQuery or FoxPro or dBase.
 
 One distinctive feature of a Rosetta DBMS (compared to a typical other
-vendor's DBMS) is that data definition commands are structured as standard
-data manipulation commands but that the target relation variables are
-system catalog relation variables rather than user-defined relation
-variables.  In SQL terms, you create or alter tables by adding or updating
-their "information schema" records, which in SQL are read-only, not by
-using special 'create' or 'alter' statements.
+vendor's DBMS) is that data definition statements are structured as
+standard data manipulation statements but that the target relation
+variables are system catalog relation variables rather than user-defined
+relation variables.  In SQL terms, you create or alter tables by adding or
+updating their "information schema" records, which in SQL are read-only,
+not by using special 'create' or 'alter' statements.
 
 Each Rosetta Engine has the complete freedom to implement the Rosetta DBMS
 and Rosetta D however it likes; all Rosetta cares about is that the user
@@ -500,14 +505,20 @@ and reliably, it also performs quite slowly; you should only use Example
 for testing, development, and study; you should not use it in production.
 
 For production use, there should be a wide variety of third party Engine
-modules that become available over time.  Most of these will likely just
-map Rosetta's rigorously defined API onto a pre-existing (pseudo)
-relational database manager (such as Genezzo, SQLite, PostgreSQL, MySQL,
-Firebird, Oracle, Sybase, SQL Server, Informix, DB2, etc).  Given this
-fact, Rosetta's most prominant feature is that it provides a common API for
-access to those databases, each of which takes a different SQL or
-pseudo-SQL dialect.  An application written to it should easily port to
-alternative relational database engines with minimal effort.
+modules that become available over time.  One plan which I favor is that
+the new (under development) enterprise-strength and Perl implemented
+database server named L<Genezzo> (see also L<http://www.genezzo.com/>) will
+evolve to implement the Rosetta DBMS natively, and be I<the> back-end which
+I recommend above all others for production use.
+
+Most of the other (near term) third party Engines will likely just map
+Rosetta's rigorously defined API onto a pre-existing (pseudo) relational
+database manager (such as SQLite, PostgreSQL, MySQL, Firebird, Teradata,
+Oracle, Sybase, SQL Server, Informix, DB2, OpenBase, FrontBase, etc).
+Given this fact, Rosetta's most prominant feature is that it provides a
+common API for access to those databases, each of which takes a different
+SQL or pseudo-SQL dialect.  An application written to it should easily port
+to alternative relational database engines with minimal effort.
 
 This might seem strange to somebody who has not tried to port between
 databases before, especially given that the Perl DBI purports to provide

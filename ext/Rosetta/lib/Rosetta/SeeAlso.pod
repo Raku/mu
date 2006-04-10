@@ -302,18 +302,17 @@ get Rosetta bindings: L<Catalyst>, L<Maypole>, L<Bricolage>, L<RT>.
 
 I<This documentation is pending.>
 
-These Perl 5 packages work to solve similar problems as Rosetta:
+These other Perl 5 packages also work in the problem domain of managing
+data or data definitions or connections to databases:
+
 L<DBI>, L<Tangram>, L<DBIx::Class>, L<HDB>, L<Genezzo>, L<Class::DBI>,
 L<Pixie>, L<Alzabo>, L<DBIx::SQLEngine>, L<SPOPS>, L<DBIx::SearchBuilder>,
 L<DBIx::RecordSet>, L<DBIx::Abstract>, L<DBIx::AnyDBD>, L<DBIx::Browse>,
 L<DBIx::DBH>, L<MKDoc::SQL>, L<Data::Transactional>, L<DBIx::ModelUpdate>,
 L<DBIx::ProcedureCall>, L<DB::Ent>, L<DBIx::DBSchema>, L<DBIx::Namespace>,
-L<TripleStore>, L<Data::Table>, L<ORM>, L<OOPS>.
-
-These Perl 5 packages work to solve similar problems as Rosetta::Model:
-L<SQL::Statement>, L<SQL::Parser>, L<SQL::Translator>, L<SQL::YASP>,
-L<SQL::Generator>, L<SQL::Schema>, L<SQL::Abstract>, L<SQL::Snippet>,
-L<SQL::Catalog>.
+L<TripleStore>, L<Data::Table>, L<ORM>, L<OOPS>, L<SQL::Statement>,
+L<SQL::Parser>, L<SQL::Translator>, L<SQL::YASP>, L<SQL::Generator>,
+L<SQL::Schema>, L<SQL::Abstract>, L<SQL::Snippet>, L<SQL::Catalog>.
 
 =head1 AUTHOR
 
