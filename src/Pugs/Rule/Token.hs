@@ -457,9 +457,9 @@ makeTokenParser languageDef
 
     comment = do
         char '#'
-        multiLineComment <|> do
         pos <- getPosition
-        if sourceColumn pos /= 2 then skipToLineEnd else do
+        if sourceColumn pos /= 2 then multiLineComment <|> skipToLineEnd else do
+        -- Beginning of line - parse #line directive
         isPlain <- (<|> return True) $ try $ do
             string "line"
             many1 $ satisfy (\x -> isSpace x && x /= '\n')
@@ -500,15 +500,23 @@ makeTokenParser languageDef
     simpleSpace =
         skipMany1 (satisfy isSpace)    
         
+    -- XXX - nesting
     multiLineComment = do
-        c       <- satisfy (\x -> balancedDelim x /= x)
-        more    <- many (char c)
-        let closeOne = balancedDelim c
-            closeAll = string (replicate (1 + length more) (balancedDelim c))
+        openOne <- satisfy (\x -> balancedDelim x /= x)
+        more    <- many (char openOne)
+        let closeOne = balancedDelim openOne
+            openAll  = string (openOne:more)
+            closeAll = string (replicate (1 + length more) (balancedDelim openOne))
             scanOne  = do
-                c' <- anyChar
-                if c' == closeOne then return () else scanOne
-            scanAll  = do { try closeAll; return () } <|> do { anyChar; scanAll }
+                c <- anyChar
+                if c == closeOne then return () else do
+                if c == openOne then scanOne >> scanOne else do
+                scanOne
+            scanAll  = choice
+                [ do { try closeAll; return () }
+                , do { try openAll; scanAll; scanAll }
+                , do { anyChar; scanAll }
+                ]
         if null more then scanOne else scanAll
 
     inComment 
