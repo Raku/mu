@@ -37,12 +37,12 @@ naturalOrRat  = (<?> "number") $ do
         option (Left n) (try $ fractRat n)
 
     fractRatOnly = do
-        fract <- try $ fraction many1
+        fract <- try fraction
         expo  <- option (1%1) expo
         return (Right $ fract * expo) -- Right is Rat
 
     fractRat n = do
-            fract <- try $ fraction many
+            fract <- try fraction
             expo  <- option (1%1) expo
             return (Right $ ((n % 1) + fract) * expo) -- Right is Rat
         <|> do
@@ -51,15 +51,9 @@ naturalOrRat  = (<?> "number") $ do
                 then return (Right $ (n % 1) * expo)
                 else return (Right $ (n % 1) * expo)
 
-    fraction count = do
+    fraction = do
             char '.'
-            notFollowedBy . satisfy $ \x -> case x of
-                '_' -> True
-                '.' -> True
-                '#' -> True
-                '=' -> True
-                _   -> isAlpha x || isSpace x
-            digits <- count (satisfy isWordDigit) <?> "fraction"
+            digits <- many1 (satisfy isWordDigit) <?> "fraction"
             return (digitsToRat $ filter (/= '_') digits)
         <?> "fraction"
         where
