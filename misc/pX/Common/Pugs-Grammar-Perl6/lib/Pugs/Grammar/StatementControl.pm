@@ -7,8 +7,23 @@ use base qw(Pugs::Grammar::BaseCategory);
 # TODO - generate AST
 
 BEGIN {
-    __PACKAGE__->add_rule( if =>    q( ... { return { xxx => $() ,} } ) );
-    __PACKAGE__->add_rule( while => q( ... { return { xxx => $() ,} } ) );
+    __PACKAGE__->add_rule( 
+        '{' => q( 
+            <Pugs::Grammar::Expression.parse> \} 
+            { return { bare_block => $() ,} } 
+    ) );
+    __PACKAGE__->add_rule( 
+        if =>  q( 
+            <Pugs::Grammar::Expression.parse> 
+            \{ <Pugs::Grammar::Expression.parse> \} 
+            { return { if => $() ,} } 
+    ) );
+    __PACKAGE__->add_rule( 
+        while => q( 
+            <Pugs::Grammar::Expression.parse> 
+            \{ <Pugs::Grammar::Expression.parse> \} 
+            { return { while => $() ,} } 
+    ) );
     __PACKAGE__->recompile;
 }
 
