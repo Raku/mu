@@ -104,6 +104,11 @@ There must be no space between the # and the opening bracket character.
 characters, however, such as the corner quotes above.)  Brackets may
 be nested following the same policy as ordinary quote brackets.
 
+As a special case to facilitate commenting out sections of code with
+C<s/^/#/>, C<#> on the left margin is always considered a line-end
+comment rather than an embedded comment, even if followed by a
+bracketing character.
+
 =item *
 
 For all quoting constructs that use user-selected brackets, multiple,
