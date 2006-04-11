@@ -10,12 +10,14 @@ use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
 
-*parse = Pugs::Compiler::Rule->compile( q(
+our $parser = Pugs::Compiler::Rule->compile( q(
         ( %Pugs::Grammar::Term::hash     <?ws>? |
           %Pugs::Grammar::Operator::hash <?ws>? )*
 
         { return Pugs::Grammar::Expression::ast( $/ ); }
-    ))->code;
+    ));
+
+*parse = $parser->code;
 
 sub ast {
     my $match = shift;
