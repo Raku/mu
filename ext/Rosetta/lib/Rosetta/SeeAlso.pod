@@ -21,41 +21,56 @@ particularly useful:
 
 =over
 
-=item B<The Third Manifesto>
+=item L<http://www.thethirdmanifesto.com/>
 
-L<http://www.thethirdmanifesto.com/> is the main home on the web for
-Christopher J. Date's and Hugh Darwen's proposal for a foundation for data
-and database management systems, which Rosetta is officially an
-implementation of.  It contains various useful documents and links on the
-subject, some specified in the next paragraph.
+This is the Hugh Darwen's and Christopher J. Date's home on the web for
+"The Third Manifesto" (TTM), their formal proposal for a solid foundation
+for data and database management systems (DBMSs); like Edgar F. Codd's
+original papers, TTM can be seen as an abstract blueprint for the design of
+a DBMS and the language interface to such a DBMS.  Rosetta has officially
+incorporated this blueprint into its own design, and implements its rules
+without compromise.  The TTM web site contains various useful documents and
+links on the subject, some being specified further below.
 
-See also the brand new release of their book containing the full proposal,
-"Databases, Types, and The Relational Model: The Third Manifesto, 3rd
-edition, Addison-Wesley, 2006 (ISBN: 0-321-44281-4)", at
+=item B<Database in Depth: Relational Theory for Practitioners>
+
+Christopher J. Date - "Database in Depth: Relational Theory for
+Practitioners, 1st edition, Oreilly, 2005 (ISBN: 0-596-10012-4)"; see
+L<http://www.oreilly.com/catalog/databaseid/>.
+
+This is the first printed book that I read fully, which is related to The
+Third Manifesto, and it was my main introduction.  It explains in an easy
+to follow matter just what the relational data model really is, a solid and
+provable logical system, and partially contrasts with SQL's distorted view
+of it.  While being easy to follow, the book is written towards people that
+are already database professionals, and doesn't go into the basics that we
+should already know.
+
+=item B<Databases, Types, and The Relational Model: The Third Manifesto>
+
+Christopher J. Date, Hugh Darwen - "Databases, Types, and The Relational
+Model: The Third Manifesto, 3rd edition, Addison-Wesley, 2006 (ISBN:
+0-321-39942-0)"; see
 L<http://www.aw-bc.com/catalog/academic/product/0,1144,0321399420,00.html>.
 
-The web site for The Third Manifesto has reproduced several chapters and
-appendicies from the aforementioned new 3rd edition of the book.  Chapter 4
+This is the thicker, college level textbook about The Third Manifesto, and
+it is the most central of the authors' publications, able to stand alone
+and present nearly everything important.  It includes an informal overview
+of both the relational model and a theory of types, a reference section
+with the Manifesto proper and a grammar for a teaching language based on
+its principles called Tutorial D, a larger section which explains and
+rationalizes the parts of the Manifesto, and sections that do likewise for
+type inheritence what the earlier sections do with the Manifesto proper.
+
+Note that the web site for The Third Manifesto, mentioned above, has
+reproduced several chapters and appendicies from this book.  Chapter 4
 (L<http://web.onetel.com/~hughdarwen/TheThirdManifesto/CHAP04.pdf>) is the
 15-page heart of the book and has the actual TTM definition, upon which the
 rest of the book expands on, rationalizes, and gives examples of.  Chapter
 5 (L<http://web.onetel.com/~hughdarwen/TheThirdManifesto/CHAP05.pdf>) gives
-the the complete grammar of the teaching language "Tutorial D", which is a
-computationally complete programming language with fully integrated
-database functionality, whose principal purpose is to serve as a teaching
-vehicle.
-
-=item B<Database in Depth>
-
-See Christopher J. Date's "Database in Depth: Relational Theory for
-Practitioners, 1st edition, Oreilly, 2005 (ISBN: 0-596-10012-4)" at
-L<http://www.oreilly.com/catalog/databaseid/>.  This is the first printed
-book that I read fully, which is related to The Third Manifesto, and it was
-my main introduction.  It explains in an easy to follow matter just what
-the relational data model really is, a solid and provable logical system,
-and partially contrasts with SQL's distorted view of it.  While being easy
-to follow, the book is written towards people that are already database
-professionals, and doesn't go into the basics that we should already know.
+the the complete grammar of "Tutorial D", which is a computationally
+complete programming language with fully integrated database functionality,
+whose principal purpose is to serve as a teaching vehicle.
 
 =item L<http://www.acm.org/classics/nov95/toc.html>
 
@@ -305,8 +320,8 @@ I<This documentation is pending.>
 These other Perl 5 packages also work in the problem domain of managing
 data or data definitions or connections to databases:
 
-L<DBI>, L<Tangram>, L<DBIx::Class>, L<HDB>, L<Genezzo>, L<Class::DBI>,
-L<Pixie>, L<Alzabo>, L<DBIx::SQLEngine>, L<SPOPS>, L<DBIx::SearchBuilder>,
+L<DBI>, L<Tangram>, L<DBIx::Class>, L<HDB>, L<Class::DBI>, L<Pixie>,
+L<Alzabo>, L<DBIx::SQLEngine>, L<SPOPS>, L<DBIx::SearchBuilder>,
 L<DBIx::RecordSet>, L<DBIx::Abstract>, L<DBIx::AnyDBD>, L<DBIx::Browse>,
 L<DBIx::DBH>, L<MKDoc::SQL>, L<Data::Transactional>, L<DBIx::ModelUpdate>,
 L<DBIx::ProcedureCall>, L<DB::Ent>, L<DBIx::DBSchema>, L<DBIx::Namespace>,

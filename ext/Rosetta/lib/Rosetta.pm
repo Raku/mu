@@ -427,12 +427,16 @@ should be no ambiguity when trying to invoke or implement it, and so an
 application written to it should behave identically no matter which
 conforming "Engine" is in use.
 
-Rosetta is a complete and uncompromising implementation of "The Third
-Manifesto" (TTM), Christopher J. Date's and Hugh Darwen's proposal for a
-foundation for data and database management systems.  The main web site for
-TTM is L<http://www.thethirdmanifesto.com/>, and its authors have also
-written several books and papers and taught classes on the subject over the
-last 35+ years, along with Edgar F. Codd himself.  Note that the Rosetta
+Rosetta incorporates a complete and uncompromising implementation of "The
+Third Manifesto" (TTM), a formal proposal by Christopher J. Date and Hugh
+Darwen for a solid foundation for data and database management systems
+(DBMSs); like Edgar F. Codd's original papers, TTM can be seen as an
+abstract blueprint for the design of a DBMS and the language interface to
+such a DBMS.  The main web site for TTM is
+L<http://www.thethirdmanifesto.com/>, and its authors have also written
+several books and papers and taught classes on the subject over the last
+35+ years, along with Codd himself (some are listed in the
+L<Rosetta::SeeAlso> documentation file).  Note that the Rosetta
 documentation will be focusing mainly on how Rosetta itself works, and will
 not spend much time in providing rationales; you can read TTM itself and
 various other external documentation for much of that.

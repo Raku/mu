@@ -18,8 +18,9 @@ then either the other document is in error, or the developers were
 negligent in updating it before Language, so you can yell at them.
 
 Rosetta D is intended to qualify as a "D" language as defined by "The Third
-Manifesto" (TTM), a proposal for a foundation for data and database
-management systems, written by Christopher J. Date and Hugh Darwen; see
+Manifesto" (TTM), a formal proposal for a solid foundation for data and
+database management systems, written by Christopher J. Date and Hugh
+Darwen; see
 L<http://www.aw-bc.com/catalog/academic/product/0,1144,0321399420,00.html>
 for a publishers link to the book that formally publishes TTM.  See
 L<http://www.thethirdmanifesto.com/> for some references to what TTM is,
@@ -41,12 +42,12 @@ not specify attributes by ordinal position instead of by name.  That's not
 to say you can't emulate all the SQL features over Rosetta D; you can, at
 least once its complete.
 
-Rosetta D also has design aspects and constructs that are taken from or
-influenced by Perl 6, pure functional languages like Haskell, Tutorial D,
-various TTM implementations, and various SQL dialects and implementations
-(see the L<Rosetta::SeeAlso> file).  While most of these languages or
-projects aren't specifically related to TTM, none of Rosetta's adaptions
-from these are incompatible with TTM.
+Rosetta D also incorporates design aspects and constructs that are taken
+from or influenced by Perl 6, pure functional languages like Haskell,
+Tutorial D, various TTM implementations, and various SQL dialects and
+implementations (see the L<Rosetta::SeeAlso> file).  While most of these
+languages or projects aren't specifically related to TTM, none of Rosetta's
+adaptions from these are incompatible with TTM.
 
 Note that the Rosetta documentation will be focusing mainly on how Rosetta
 itself works, and will not spend much time in providing rationales; you can
