@@ -13,15 +13,11 @@ use Parse::Yapp;
     );
     $cat->add_op( {
         name => '+',
-        block => sub {},
         assoc => 'left',
-        #precedence => 'looser',
-        #other => '*',
         fixity => 'infix',
     } );
     $cat->add_op( {
         name => '*',
-        block => sub {},
         assoc => 'left',
         precedence => 'tighter',
         other => '+',
@@ -29,7 +25,6 @@ use Parse::Yapp;
     } );
     $cat->add_op( {
         name => '-',
-        block => sub {},
         assoc => 'left',
         precedence => 'equal',
         other => '+',
@@ -37,7 +32,6 @@ use Parse::Yapp;
     } );
     $cat->add_op( {
         name => 'or',
-        block => sub {},
         assoc => 'left',
         precedence => 'looser',
         other => '+',
@@ -46,15 +40,12 @@ use Parse::Yapp;
     $cat->add_op( {
         name => '[',
         name2 => ']',
-        block => sub {},
-        #assoc => 'non',
         precedence => 'looser',
         other => '+',
         fixity => 'postcircumfix',
     } );
     $cat->add_op( {
         name => 'Y',
-        block => sub {},
         assoc => 'list',
         precedence => 'looser',
         other => '+',
@@ -62,8 +53,6 @@ use Parse::Yapp;
     } );
     $cat->add_op( {
         name => 'custom_op',
-        block => sub {},
-        #assoc => 'left',
         precedence => 'looser',
         other => '+',
         fixity => 'infix',
@@ -72,8 +61,6 @@ use Parse::Yapp;
     $cat->add_op( {
         name => '??',
         name2 => '!!',
-        block => sub {},
-        #assoc => 'left',
         precedence => 'equal',
         other => 'custom_op',
         fixity => 'ternary',
@@ -81,8 +68,6 @@ use Parse::Yapp;
     $cat->add_op( {
         name => '(',
         name2 => ')',
-        block => sub {},
-        #assoc => 'left',
         precedence => 'equal',
         other => '*',
         fixity => 'circumfix',
