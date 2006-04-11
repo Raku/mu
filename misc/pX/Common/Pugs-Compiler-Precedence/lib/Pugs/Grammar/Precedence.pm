@@ -12,151 +12,114 @@ use Pugs::Emitter::Rule::Perl5;
 
 my %relative_precedences = (
     tighter => sub {
-        #print "tighter: ", ::Dumper($_[0]);
-        splice( @{$_[0]->{levels}}, $_[1], 0, { $_[3] => [ $_[2] ] } );
-        #print "tighter after: ", ::Dumper($_[0]);
+        splice( @{$_[0]->{levels}}, $_[1], 0, [ $_[2] ] );
     },
     looser  => sub {
-        #print "looser: ", ::Dumper($_[0]);
-        splice( @{$_[0]->{levels}}, $_[1]+1, 0, { $_[3] => [ $_[2] ] } );
-        #print "looser after: ", ::Dumper($_[0]);
+        splice( @{$_[0]->{levels}}, $_[1]+1, 0, [ $_[2] ] );
     },
     equal   => sub {    
-        #print "equal: ", ::Dumper($_[0]);
-        push @{$_[0]->{levels}[$_[1]]{$_[3]}}, $_[2];
-        #print "equal after: ", ::Dumper($_[0]);
+        push @{$_[0]->{levels}[$_[1]]}, $_[2];
     },
 );
 
 # parsed: - the rule replaces the right side
 # note: S06 - 'chain' can't be mixed with other types in the same level
 my %rule_templates = (
-    prefix =>          '<op> exp', 
-    circumfix =>       '<op> exp <op2>',  
-    infix_right =>     'exp <op> exp',
-    postfix =>         'exp <op>', 
-    postcircumfix =>   'exp <op> exp <op2>', 
-    infix_left =>      'exp <op> exp', 
-    infix_non =>       'exp <op> exp', 
-    infix_chain =>     'exp ( <op> exp )+', # XXX
-    infix_list =>      'exp ( <op> exp )+', # XXX
-    ternary =>         'exp <op> exp <op2> exp',
+    prefix_non =>        
+        "'name' exp         \n\t{ \$out= {op1 => 'name', exp1 => \$_[2],} }", 
+    circumfix_non =>     
+        "'name' exp 'name2' \n\t{ \$out= {op1 => 'name', op2 => 'name2', exp1 => \$_[2],} }",  
+    infix_right =>       
+        "exp 'name' exp     \n\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }",
+    postfix_non =>       
+        "exp 'name'         \n\t{ \$out= {op1 => 'name', exp1 => \$_[2],} }", 
+    postcircumfix_non => 
+        "exp 'name' exp 'name2' \n\t{ \$out= {op1 => 'name', op2 => 'name2', exp1 => \$_[2], exp2 => \$_[4],} }", 
+    infix_left =>        
+        "exp 'name' exp     \n\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }", 
+    infix_non =>         
+        "exp 'name' exp     \n\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }", 
+    ternary_non =>       
+        "exp 'name' exp 'name2' exp \n\t{ \$out= {op1 => 'name', op2 => 'name2', exp1 => \$_[1], exp2 => \$_[3], exp3 => \$_[5],} }",
+        
+    # XXX
+    infix_chain =>       
+        "exp 'name' list_right  \n\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }",
+    infix_list =>        
+        "exp 'name' list_right \n\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }", 
 );
 
 sub new {
-    my ($class, $opt) = @_;
-    my $self = { levels => [], %$opt };
+    my ($class) = @_;
+    my $self = { levels => [] };
     bless $self, $class; 
 }
-
-sub exists_op { die "not implemented" };
-sub delete_op { die "not implemented" };
-sub get_op    { die "not implemented" };
-sub inherit_category { die "not implemented" };
-sub inherit_grammar  { die "not implemented" };
-sub merge_category   { die "not implemented" };
 
 sub add_op {
     my ($self, $opt) = @_;
     #print "adding $opt->{name}\n";
-    $opt->{assoc} =  'left'   unless defined $opt->{assoc};
+    $opt->{assoc}  = 'non'    unless defined $opt->{assoc};
     $opt->{fixity} = 'prefix' unless defined $opt->{fixity};
-    my $fixity = $opt->{fixity};
-    $fixity .= '_' . $opt->{assoc} if $fixity eq 'infix';
+    #my $fixity = $opt->{fixity};
+    #$fixity .= '_' . $opt->{assoc} if $opt->{fixity} eq 'infix';
     for my $level ( 0 .. $#{$self->{levels}} ) {
-        for my $fix ( keys %{$self->{levels}[$level]} ) {
-            if ( grep { $_->{name} eq $opt->{other} } @{$self->{levels}[$level]{$fix}} ) {
-                #print "pos $level at $opt->{precedence} $opt->{other}\n";
-                $relative_precedences{$opt->{precedence}}->($self, $level, $opt, $fixity);
-                return;
-            }
+        if ( grep { $_->{name} eq $opt->{other} } @{$self->{levels}[$level]} ) {
+            #print "pos $level at $opt->{precedence} $opt->{other}\n";
+            $relative_precedences{$opt->{precedence}}->($self, $level, $opt);
+            return;
         }
     }
     if ( ! defined $opt->{precedence} ) {
-        push @{$self->{levels}}, { $fixity => [ $opt ] };
+        push @{$self->{levels}}, [ $opt ];
         return;
     }
     die "there is no precedence like ", $opt->{other};
 }
 
-sub code { 
-    warn "not implemented";
-}
-
-sub match {
-    warn "not implemented";
-}
-
-sub perl5 {
-    warn "not implemented";
-}
-
-sub _op_long_name {
-    my $opt = shift;
-    my $fixity = $opt->{fixity};
-    $fixity = $1 if $fixity =~ /^(.*)_/;
-    return $fixity . ':<' . $opt->{name} . ' ' . $opt->{name2} . '>'
-        if defined $opt->{op2};
-    return $fixity . ':<' . $opt->{name} . '>';
-}
-
-sub _op_rule {
-    my $opt = shift;
-    return "<'" . _op_long_name($opt) . "'>|<'" . $opt->{name} . "'>";
-}
-
-sub emit_perl6_rule {
-    my ($self, $level, $default) = @_;
-    my @rules;
-    #my $tight = $level ? 'r' . ($level - 1) : $self->{operand};
-    #my $equal = "r$level";
-    #$equal = "parse" if $level == $#{$self->{levels}};
-    
-    my $tight = $level == 0 ? $self->{operand} : 'r' . ($level - 1);
-    my $equal = $level == $#{$self->{levels}} ? "parse" : "r$level";
-
-    for my $fixity ( keys %{$self->{levels}[$level]} ) {
-        my @r = @{$self->{levels}[$level]{$fixity}};
-        next unless @r;
-
-        my $return = ' { return Pugs::AST::Expression->operator($/, fixity => "' . 
-            $fixity . '" ) } ';
-
-        if ( $fixity eq 'prefix' ) {
-            push @rules, "\$<op1>:=(" .
-                join( '|', map { 
-                    _op_rule( $_ ) 
-                } @r ) .
-                ") \$<term0>:=(<$equal>)" . $return;
-            next;
+sub emit_yapp {
+    my ($self) = @_;
+    my $s = "%{ my \$out; %}\n";
+    for my $level ( reverse 0 .. $#{$self->{levels}} ) {            
+        my %assoc;
+        for ( @{$self->{levels}[$level]} ) {
+            push @{$assoc{ $_->{assoc} }}, $_;
         }
-        if ( $fixity eq 'infix_left' ) {
-            push @rules, "\$<term0>:=(<$tight>) \$<op1>:=(" .
-                join( '|', map { 
-                    _op_rule( $_ ) 
-                } @r ) .
-                ") \$<term1>:=(<$equal>)" . $return;
-            next;
+        for ( keys %assoc ) {
+            if ( @{$assoc{$_}} ) {
+                my $a = $_;
+                $a = 'nonassoc' if $a eq 'non';
+                $a = 'left'     if $a eq 'list';
+                $s .= "%$a " . 
+                    join( ' ', map { "'$_->{name}'" } @{$assoc{$_}} ) .
+                    "\n";
+            }
         }
-        if ( $fixity eq 'postcircumfix' ) {
-            push @rules, "\$<term0>:=(<$tight>) ([" .
-                join( ']|[', map { 
-                    "\$<op1>:=(<'" . $_->{name} . "'>)\$<term2>:=(<parse>)" .
-                    "\$<op2>:=(<'" . $_->{name2} . "'>)" } @r ) .
-                "])+" . $return;
-            next;
-        }
-        if ( $fixity eq 'circumfix' ) {
-            push @rules, "[" .
-                join( ']|[', map { 
-                    "\$<op1>:=(<'" . $_->{name} . "'>)\$<term0>:=(<parse>)" .
-                    "\$<op2>:=(<'" . $_->{name2} . "'>)" } @r ) .
-                $return . "]";
-            next;
-        }
+    }
+    $s .= "%%\n" .
+        "statement:  exp { return(\$out) } ;\n" .
         
-        for my $op ( @r ) {
+        # XXX
+        "list_left:  exp { \$out= [ \$_[1] ] }\n" .
+        "    |   list_left ',' exp   { \$out= [ \@{\$_[1]}, \$_[3] ] } ;\n" .
+        "list_right: exp { \$out= [ \$_[1] ] }\n" .
+        "    |   exp ';' list_right  { \$out= [ \$_[1], \@{\$_[3]} ] } ;\n" .
         
+        "exp:   NUM  { \$out= \$_[1] }\n" .
+        "    |  VAR  { \$out= \$_[1] }\n" ;
+    for my $level ( 0 .. $#{$self->{levels}} ) {            
+        for my $op ( @{$self->{levels}[$level]} ) {
+            my $t = $rule_templates{"$op->{fixity}_$op->{assoc}"};
+            $t =~ s/$_/$op->{$_}/g for qw( name2 name );
+            $s .= "    |  $t \n\t/* $op->{name} $op->{fixity} $op->{assoc} */\n";
+        }
+    }
+    $s .= ";\n" .
+        "%%\n";
+    #print $s;
+    return $s;
+}
+
+=for old        
             my $template = $rule_templates{$fixity};
 
             # is-parsed
@@ -183,29 +146,26 @@ sub emit_perl6_rule {
         }
     }
     push @rules, '$<term>:=(<' . $tight . '>) { return Pugs::AST::Expression->term($/) } ';
-    return $rules[0] unless $#rules;
-    @rules = map { "   [ $_ ] \n" } @rules;
-    #print "Rules: \n@rules\n";
-    my $r = "[ " . join( ' | ', @rules ) . " ]";
-    #print "Rules: $r\n";
-    return $r;
-}
-
-sub _quotemeta { my $s = shift; $s =~ s!'!\\'!g; $s }
+=cut
 
 sub emit_grammar_perl5 {
+    # XXX
     # item=>'<item>',
     my ($self, $default) = @_;
     #print "emitting grammar in perl5\n";
     my $s = "";
-    for my $level ( 0 .. $#{$self->{levels}} ) {
-        my $equal = $level == $#{$self->{levels}} ? "parse" : "r$level";
-        $s = $s . "    *$equal = Pugs::Compiler::Rule->compile( '" .
-            _quotemeta( emit_perl6_rule($self, $level, $default) ) .
-            "' )->code;\n";
-    }
     return $s;  #"package $self->{name};\n$s\n";
 }
+
+sub exists_op { die "not implemented" };
+sub delete_op { die "not implemented" };
+sub get_op    { die "not implemented" };
+sub inherit_category { die "not implemented" };
+sub inherit_grammar  { die "not implemented" };
+sub merge_category   { die "not implemented" };
+sub code  { die "not implemented" }
+sub match { die "not implemented" }
+sub perl5 { die "not implemented" }
 
 1;
 

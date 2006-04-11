@@ -1,20 +1,16 @@
-use Test::More tests => 1; #4;
+use Test::More tests => 2;
 use strict;
 use warnings;
 use Data::Dumper;
 use_ok( "Pugs::Grammar::Precedence" );
+use Parse::Yapp;
 
 {
-    my $cat = Pugs::Grammar::Precedence->new( {
-        name => 'test',
-        operand => 'item',
-    } );
+    my $cat = Pugs::Grammar::Precedence->new();
     $cat->add_op( {
         name => '+',
         block => sub {},
         assoc => 'left',
-        #precedence => 'looser',
-        #other => '*',
         fixity => 'infix',
     } );
     $cat->add_op( {
@@ -25,117 +21,60 @@ use_ok( "Pugs::Grammar::Precedence" );
         other => '+',
         fixity => 'infix',
     } );
-    $cat->add_op( {
-        name => '-',
-        block => sub {},
-        assoc => 'left',
-        precedence => 'equal',
-        other => '+',
-        fixity => 'infix',
-    } );
-    $cat->add_op( {
-        name => 'or',
-        block => sub {},
-        assoc => 'left',
-        precedence => 'looser',
-        other => '+',
-        fixity => 'infix',
-    } );
-    $cat->add_op( {
-        name => '[',
-        name2 => ']',
-        block => sub {},
-        assoc => 'left',
-        precedence => 'looser',
-        other => '+',
-        fixity => 'postcircumfix',
-    } );
-    $cat->add_op( {
-        name => 'Y',
-        block => sub {},
-        assoc => 'list',
-        precedence => 'looser',
-        other => '+',
-        fixity => 'infix',
-    } );
-    $cat->add_op( {
-        name => 'custom_op',
-        block => sub {},
-        assoc => 'left',
-        precedence => 'looser',
-        other => '+',
-        fixity => 'infix',
-        rule => '<custom_parsed>',
-    } );
-    $cat->add_op( {
-        name => '??',
-        name2 => '!!',
-        block => sub {},
-        assoc => 'left',
-        precedence => 'equal',
-        other => 'custom_op',
-        fixity => 'ternary',
-    } );
-    $cat->add_op( {
-        name => '(',
-        name2 => ')',
-        block => sub {},
-        assoc => 'left',
-        precedence => 'equal',
-        other => '*',
-        fixity => 'circumfix',
-    } );
 
-    #print "cat: ", Dumper($cat);
-    #print "grammar in perl6: \n", $cat->emit_grammar_perl6();
-    #print "grammar in perl5: \n", $cat->emit_grammar_perl5();
 
-    package test;
-    use Pugs::Compiler::Rule;
-    use Pugs::Grammar::Base;
-    use Data::Dumper;
-    no warnings qw( once );
-    *item = Pugs::Compiler::Rule->compile( q( 
-        (\d+) { return {num=>$_[0][0](),} } 
-    ) )->code;
-    eval $cat->emit_grammar_perl5();
+    my $g = $cat->emit_yapp();
 
-# tests temporarily disabled
-}
-__END__
+    my $in = [ 
+        ['NUM'=>{num=>'1'}], 
+        ['*'  =>{op=>'*'}], 
+        ['NUM'=>{num=>'2'}], 
+        ['+'  =>{op=>'+'}], 
+        ['NUM'=>{num=>'3'}], 
+        ['*'  =>{op=>'*'}], 
+        ['NUM'=>{num=>'4'}] 
+    ];
+    my($lex) = sub {
+        my($t)=shift(@$in);
+            defined($t)
+        or  $t=['',''];
+        return($$t[0],$$t[1]);
+    };
 
-    {
-        my $match = test->parse( '3+5*6' );
-        #print show_match( $match );
-        Test::More::is( "$match", "3+5*6", "expression matches" );
-    }
+    my($p)=new Parse::Yapp(input => $g);
+    $p=$p->Output(classname => 'Test');
+    #print $p;
 
-    {
-        my $match = test->parse( '(2)' );
-        #print show_match( $match );
-        Test::More::is( "$match", "(2)", "expression matches" );
-    }
+    eval $p;
+    die "$@\n" if $@;
 
-    {
-        my $match = test->parse( '4*(3+5*6)' );
-        #print show_match( $match );
-        Test::More::is( "$match", "4*(3+5*6)", "expression matches" );
-    }
-}
+    $p=new Test(yylex => $lex, yyerror => sub { die "error" });
 
-sub test::show_match {
-    my $m = shift;
-    my $tab = shift || "";
-    if ( @$m ) {
-        return join('', map {test::show_match( $_, $tab."  " )} @$m );
-    }
-    if ( %$m ) {
-      my $ret;
-      my %h = %$m;
-      while (my ($k, $v) = each %h) {
-        $ret .= "$tab $k => \n" . test::show_match( $v, $tab."  " );
-      }
-      return $ret;
-    }
-    return "$tab $m\n";
+    my $out=$p->YYParse;
+
+    #print Dumper $out;
+    
+my $expected = {
+  'exp2' => {
+    'exp2' => {
+      'num' => '4'
+    },
+    'exp1' => {
+      'num' => '3'
+    },
+    'op1' => '*'
+  },
+  'exp1' => {
+    'exp2' => {
+      'num' => '2'
+    },
+    'exp1' => {
+      'num' => '1'
+    },
+    'op1' => '*'
+  },
+  'op1' => '+'
+};
+
+    is_deeply( $out, $expected, '1*2+3*4' );
 }

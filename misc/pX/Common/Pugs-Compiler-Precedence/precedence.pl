@@ -1,4 +1,4 @@
-# this is the prototype for the Pugs-Compiler-Precedence module - fglock
+﻿# this is the prototype for the Pugs-Compiler-Precedence module - fglock
 
 use Parse::Yapp;
 $DEBUG=0;
@@ -15,8 +15,8 @@ my $g = <<'EOT';
 %{ my $out; %}
 
 %right  '='
-%left   '-' '+'
-%left   '*' '/'
+%left   '-' '«+»'
+%left   'infix:<times>' '/'
 %left   NEG
 %right  '^'
 
@@ -26,9 +26,9 @@ statement:  exp { return($out) } ;
 exp:        NUM                 { $out= $_[1] }
         |   VAR                 { $out= $_[1] }
         |   VAR '=' exp         { $out= [ $_[1], $_[2], $_[3] ] }
-        |   exp '+' exp         { $out= [ $_[1], $_[2], $_[3] ] }
+        |   exp '«+»' exp         { $out= [ $_[1], $_[2], $_[3] ] }
         |   exp '-' exp         { $out= [ $_[1], $_[2], $_[3] ] }
-        |   exp '*' exp         { $out= [ $_[1], $_[2], $_[3] ] }
+        |   exp 'infix:<times>' exp         { $out= [ $_[1], $_[2], $_[3] ] }
         |   exp '/' exp         { $out= [ $_[1], $_[2], $_[3] ] }
         |   '-' exp %prec NEG   { $out= [ $_[1], $_[2] ] }
         |   exp '^' exp         { $out= [ $_[1], $_[2], $_[3] ] }
@@ -50,11 +50,11 @@ EOT
 my $in = [ 
     ['-'=>{op=>'-'}], 
     ['NUM'=>{num=>'1'}], 
-    ['*'=>{op=>'*'}], 
+    ['infix:<times>'=>{op=>'*'}], 
     ['NUM'=>{num=>'2'}], 
-    ['+'=>{op=>'+'}], 
+    ['«+»'=>{op=>'+'}], 
     ['NUM'=>{num=>'3'}], 
-    ['*'=>{op=>'*'}], 
+    ['infix:<times>'=>{op=>'*'}], 
     ['NUM'=>{num=>'4'}] 
 ];
 
