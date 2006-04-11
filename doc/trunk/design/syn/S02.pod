@@ -112,15 +112,13 @@ bracketing character.
 =item *
 
 For all quoting constructs that use user-selected brackets, multiple,
-adjacent, identical opening brackets must always be matched by
-an equal number of adjacent closing brackets.  Use of two or more
-brackets disables bracket counting within the quoted text and merely
-scans for the closing set of brackets.  Hence this comment legally
-contains unmatched brackets and even an unmatched C<{{>:
+adjacent, identical opening brackets must always be matched by an
+equal number of adjacent closing brackets.  Bracket counting naturally
+applies only to sets of brackets of the same length:
 
-    #{{
-	Comment contains unmatched { and { { { { and {{ and } and } } but not:
-    }}
+    say #{{
+	Comment contains unmatched } and { { { { plus a counted {{ ... }} pair.
+    }} q<< <<woot>> >>   # says "<<woot>>"
 
 Note however that bare circumfix or postcircumfix C<<< <<...>> >>> is
 not a user-selected bracket, but the ASCII variant of the C<< «...» >>
