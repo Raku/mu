@@ -20,21 +20,29 @@ my %relative_precedences = (
 # note: S06 - 'chain' can't be mixed with other types in the same level
 my %rule_templates = (
     prefix_non =>        
-        "'name' exp         \n\t{ \$out= {op1 => 'name', exp1 => \$_[2],} }", 
+        "'name' exp         \n" .
+        "\t{ \$out= {op1 => 'name', exp1 => \$_[2],} }", 
     circumfix_non =>     
-        "'name' exp 'name2' \n\t{ \$out= {op1 => 'name', op2 => 'name2', exp1 => \$_[2],} }",  
+        "'name' exp 'name2' \n" .
+        "\t{ \$out= {op1 => 'name', op2 => 'name2', exp1 => \$_[2],} }",  
     infix_right =>       
-        "exp 'name' exp     \n\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }",
+        "exp 'name' exp     \n" .
+        "\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }",
     postfix_non =>       
-        "exp 'name'         \n\t{ \$out= {op1 => 'name', exp1 => \$_[2],} }", 
+        "exp 'name'         \n" .
+        "\t{ \$out= {op1 => 'name', exp1 => \$_[2],} }", 
     postcircumfix_non => 
-        "exp 'name' exp 'name2' \n\t{ \$out= {op1 => 'name', op2 => 'name2', exp1 => \$_[2], exp2 => \$_[4],} }", 
+        "exp 'name' exp 'name2' \n" .
+        "\t{ \$out= {op1 => 'name', op2 => 'name2', exp1 => \$_[1], exp2 => \$_[3],} }", 
     infix_left =>        
-        "exp 'name' exp     \n\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }", 
+        "exp 'name' exp     \n" .
+        "\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }", 
     infix_non =>         
-        "exp 'name' exp     \n\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }", 
+        "exp 'name' exp     \n" .
+        "\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }", 
     ternary_non =>       
-        "exp 'name' exp 'name2' exp \n\t{ \$out= {op1 => 'name', op2 => 'name2', exp1 => \$_[1], exp2 => \$_[3], exp3 => \$_[5],} }",
+        "exp 'name' exp 'name2' exp \n" .
+        "\t{ \$out= {op1 => 'name', op2 => 'name2', exp1 => \$_[1], exp2 => \$_[3], exp3 => \$_[5],} }",
         
     # XXX
     infix_chain =>       
@@ -73,6 +81,7 @@ sub add_op {
 sub emit_yapp {
     my ($self) = @_;
     my $s = "%{ my \$out; %}\n";
+    my $prec = "P000";
     for my $level ( reverse 0 .. $#{$self->{levels}} ) {            
         my %assoc;
         for ( @{$self->{levels}[$level]} ) {
@@ -85,7 +94,9 @@ sub emit_yapp {
                 $a = 'left'     if $a eq 'list';
                 $s .= "%$a " . 
                     join( ' ', map { "'$_->{name}'" } @{$assoc{$_}} ) .
+                    " $prec" .
                     "\n";
+                $prec++;
             }
         }
     }
@@ -100,11 +111,26 @@ sub emit_yapp {
         
         "exp:   NUM  { \$out= \$_[1] }\n" .
         "    |  VAR  { \$out= \$_[1] }\n" ;
-    for my $level ( 0 .. $#{$self->{levels}} ) {            
-        for my $op ( @{$self->{levels}[$level]} ) {
-            my $t = $rule_templates{"$op->{fixity}_$op->{assoc}"};
-            $t =~ s/$_/$op->{$_}/g for qw( name2 name );
-            $s .= "    |  $t \n\t/* $op->{name} $op->{fixity} $op->{assoc} */\n";
+    $prec = "P000";
+    for my $level ( reverse 0 .. $#{$self->{levels}} ) {            
+        my %assoc;
+        for ( @{$self->{levels}[$level]} ) {
+            push @{$assoc{ $_->{assoc} }}, $_;
+        }
+        for ( keys %assoc ) {
+            if ( @{$assoc{$_}} ) {
+
+
+                for my $op ( @{$assoc{$_}} ) {
+                    my $t = $rule_templates{"$op->{fixity}_$op->{assoc}"};
+                    $t =~ s/$_/$op->{$_}/g for qw( name2 name );
+                    $t =~ s/\{ /%prec $prec { /;
+                    $s .= "    |  $t \n" . 
+                        # "\t%prec $prec\n" .
+                        "\t/* $op->{name} $op->{fixity} $op->{assoc} */\n";
+                }
+                $prec++;
+            }
         }
     }
     $s .= ";\n" .
@@ -116,6 +142,7 @@ sub emit_yapp {
 sub emit_grammar_perl5 {
     my $self = shift;
     my $g = $self->emit_yapp();
+    #print $g;
     my($p)=new Parse::Yapp(input => $g);
     return $p->Output(classname => $self->{grammar} );
 }

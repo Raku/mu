@@ -71,4 +71,5 @@ use Parse::Yapp;
     };
 
     is_deeply( $out, $expected, '1*2+3*4' );
+    #print Dumper $out;
 }
