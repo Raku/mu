@@ -215,8 +215,8 @@ quote or terminating a "long dot") a dot with whitespace in front
 of it is always considered a method call on C<$_> where a term is
 expected.  If a term is not expected at this point, it is a syntax
 error.  (Unless, of course, there is an infix operator of that name
-beginning with dot.  You could, for instance, define a Fortranly C<<
-infix:<.EQ.> >> if the fit took you.  But you'll have to be sure to
+beginning with dot.  You could, for instance, define a Fortranly
+C<< infix:<.EQ.> >> if the fit took you.  But you'll have to be sure to
 always put whitespace in front of it, or it would be interpreted as
 a postfix method call instead.)
 
@@ -243,6 +243,15 @@ Use some variant of
     .method
 
 if you mean the postfix method call.
+
+One consequence of all this is that you may no longer write a Num as
+C<42.> with just a trailing dot.  You must instead say either C<42>
+or C<42.0>.  In other words, a dot following a number can only be a
+decimal point if the following character is a digit.  Otherwise the
+postfix dot will be taken to be the start of some kind of method call
+syntax, whether long-dotty or not.  (The C<.123> form with a leading
+dot is still allowed however when a term is expected, and is equivalent
+to C<0.123>.)
 
 =back
 
