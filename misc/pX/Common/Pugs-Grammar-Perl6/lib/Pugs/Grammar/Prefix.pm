@@ -1,7 +1,10 @@
 ﻿package Pugs::Grammar::Prefix;
 use strict;
 use warnings;
-use base qw(Pugs::Grammar::Operator);
+#use base qw(Pugs::Grammar::Operator);
+use Pugs::Grammar::Operator;
+use base qw(Pugs::Grammar::BaseCategory);
+
 use Pugs::Grammar::Infix;
 
 # TODO - generate AST
@@ -11,13 +14,14 @@ use Pugs::Grammar::Infix;
 sub add_rule {
     my $self = shift;
     my %opt = @_;
-    $self->SUPER::add_rule( %opt,
+    $self->Pugs::Grammar::Operator::add_rule( %opt,
         fixity => 'prefix', 
     );
-    $self->SUPER::add_rule( %opt,
+    $self->Pugs::Grammar::Operator::add_rule( %opt,
         fixity => 'prefix', 
         name => 'prefix:<' . $opt{name} . '>',
     );
+    $self->SUPER::add_rule( $opt{name} => $opt{rule} );
 }
 
 

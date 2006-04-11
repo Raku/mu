@@ -32,10 +32,11 @@ BEGIN {
 
 {
     my $exp = Pugs::Compiler::Rule->compile( q(
-        ( %Pugs::Grammar::Term::hash <?ws>? )*
+        ( %Pugs::Grammar::Term::hash     <?ws>? |
+          %Pugs::Grammar::Operator::hash <?ws>? )*
     ));
     #print $rule->perl5;
-    my $match = $exp->match( q(10 $a "abc") );
+    my $match = $exp->match( q(10 + $a / "abc") );
     #print Dumper( $match->[0] );
     my @m = @{$match->[0]};
     #print Dumper( @m );

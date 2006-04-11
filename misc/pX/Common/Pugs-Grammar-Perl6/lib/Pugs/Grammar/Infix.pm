@@ -1,19 +1,24 @@
 ﻿package Pugs::Grammar::Infix;
 use strict;
 use warnings;
-use base qw(Pugs::Grammar::Operator);
+#use base qw(Pugs::Grammar::Operator);
+use Pugs::Grammar::Operator;
+use base qw(Pugs::Grammar::BaseCategory);
 
 sub add_rule {
+    print "add infix operator\n";
     my $self = shift;
     my %opt = @_;
     print "Infix add: @{[ %opt ]} \n";
-    $self->SUPER::add_rule( %opt,
+
+    Pugs::Grammar::Operator::add_rule( $self, %opt,
         fixity => 'infix', 
     );
-    $self->SUPER::add_rule( %opt,
+    $self->Pugs::Grammar::Operator::add_rule( %opt,
         fixity => 'infix', 
         name => 'infix:<' . $opt{name} . '>',
     );
+    $self->SUPER::add_rule( $opt{name} => $opt{rule} );
 }
 
 BEGIN {
