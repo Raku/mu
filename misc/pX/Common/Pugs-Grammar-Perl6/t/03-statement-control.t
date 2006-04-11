@@ -26,17 +26,23 @@ $Data::Dumper::Sortkeys = 1;
         'the expression compiler looks ok' );
 }
 
-my $match = Pugs::Grammar::StatementControl->parse( q({10}) );
-#print Dumper $match->();
+{
+    my $match = Pugs::Grammar::StatementControl->parse( q(10+10;) );
+    print Dumper $match->();
+    is_deeply(
+        $match->(), { 'num' => '10' ,}, 
+        'a simple statement' );
+}
 
-is_deeply(
-    $match->(),
+{
+    my $match = Pugs::Grammar::StatementControl->parse( q({ 10 }) );
+    #print Dumper $match->();
 
-    {
-      'bare_block' => {
-        'num' => '10'
-      }
-    },
-
-    'bare block'
-);
+    is_deeply(
+        $match->(),
+        {
+          'bare_block' => { 'num' => '10' }
+        },
+        'a bare block'
+    );
+}
