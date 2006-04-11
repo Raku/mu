@@ -373,7 +373,14 @@ reduceSyn "env" [] = do
     -- writeVar "$*_" val
     return . VControl $ ControlEnv env
 
---reduceSyn wholeExp name exps = case name of
+reduceSyn "block" [Ann _ (Syn "sub" [Val (VCode sub)])]
+    | subType sub == SubBlock, isEmptyParams (subParams sub) =
+    enterBlock $ reduce (subBody sub)
+
+reduceSyn "block" [Syn "sub" [Val (VCode sub)]]
+    | subType sub == SubBlock, isEmptyParams (subParams sub) =
+    enterBlock $ reduce (subBody sub)
+
 reduceSyn "block" [body] = do
     enterBlock $ reduce body
     
