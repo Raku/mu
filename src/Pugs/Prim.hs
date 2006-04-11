@@ -314,9 +314,8 @@ op1 "take" = \v -> do
     lex <- asks envLexical
     arr <- findSymRef "@?TAKE" lex
     op2 "push" (VRef arr) v
-op1 "sign" = \v -> if defined v
-    then op1Cast (VInt . signum) v
-    else return undef
+op1 "sign" = \v -> withDefined [v] $
+    op1Cast (VInt . signum) v
 
 op1 "rand"  = \v -> do
     x    <- fromVal v
@@ -1301,8 +1300,8 @@ op2Cmp f cmp x y = do
     y' <- f y
     return $ VBool $ x' `cmp` y'
 
-op2Ord :: (Ord ord) => (a -> Eval ord) -> a -> a -> Eval Val
-op2Ord f x y = do
+op2Ord :: (Ord ord) => (Val -> Eval ord) -> Val -> Val -> Eval Val
+op2Ord f x y = withDefined [x, y] $ do
     x' <- f x
     y' <- f y
     return $ VInt $ case x' `compare` y' of
@@ -1354,6 +1353,20 @@ op3Caller kind skip _ = do                                 -- figure out label
                 return ((caller, Just sub) : rest)
             _           -> return []
 
+
+{-| Assert that a list of Vals is all defined.
+This should 'fail' (in the Perl sense).
+
+TOTHINK: report which element in the input list was the one
+triggering the failure. Just zipping with [1 ..] may not be
+enough because our caller may not be passing through its own
+input args in the same order/position to us.
+
+-}
+withDefined :: (Monad m) => [Val] -> m a -> m a
+withDefined [] c = c
+withDefined (VUndef:_) _ = fail "use of uninitialized value"
+withDefined (_:xs) c = withDefined xs c
 
 -- |Returns a transaction to install a primitive operator using
 -- 'Pugs.AST.genMultiSym'.
