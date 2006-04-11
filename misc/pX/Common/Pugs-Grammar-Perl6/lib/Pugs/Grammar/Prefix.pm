@@ -16,14 +16,16 @@ sub add_rule {
     my %opt = @_;
     $self->Pugs::Grammar::Operator::add_rule( %opt,
         fixity => 'prefix', 
+        assoc => 'non',
     );
     $self->Pugs::Grammar::Operator::add_rule( %opt,
         fixity => 'prefix', 
+        assoc => 'non',
         name => 'prefix:<' . $opt{name} . '>',
     );
     $self->SUPER::add_rule( 
         $opt{name}, 
-        '{ return { op => "<' . $opt{name} . '>" ,} }' );
+        '{ return { op => "' . $opt{name} . '" ,} }' );
     $self->SUPER::add_rule( 
         "prefix:<' . $opt{name} . '>",
         '{ return { op => "prefix:<' . $opt{name} . '>" ,} }' );
