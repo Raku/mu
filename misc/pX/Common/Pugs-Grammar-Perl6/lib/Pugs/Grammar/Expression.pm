@@ -4,24 +4,28 @@ use Pugs::Compiler::Rule;
 use Pugs::Grammar::Precedence;
 use Pugs::Grammar::Term;
 use Pugs::Grammar::Operator;
+use base 'Pugs::Grammar::Base';
 
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
 
-sub parse {
-    my $self = shift;
-
-    my $exp = Pugs::Compiler::Rule->compile( q(
+*parse = Pugs::Compiler::Rule->compile( q(
         ( %Pugs::Grammar::Term::hash     <?ws>? |
           %Pugs::Grammar::Operator::hash <?ws>? )*
-    ));
+
+        { return Pugs::Grammar::Expression::ast( $/ ); }
+    ))->code;
+
+sub ast {
+    my $match = shift;
+
     #print $rule->perl5;
-    my $match = $exp->match( q(10 + $a / "abc") );
+    # my $match = $exp->match( q(10 + $a / "abc") );
     #print Dumper( $match->[0] );
     my @m = @{$match->[0]};
     #print Dumper( @m );
-    is( join(';', map { $_->() } @m), q(10 ;+ ;$a ;/ ;"abc"), 'split on terms' );
+    #is( join(';', map { $_->() } @m), q(10 ;+ ;$a ;/ ;"abc"), 'split on terms' );
 
     my @in;
     for my $term ( @m ) {
@@ -48,7 +52,8 @@ sub parse {
     $p=new Pugs::Grammar::Operator(yylex => $lex, yyerror => sub { die "error in expression" });
 
     my $out=$p->YYParse;
-    print Dumper $out;
+    #print Dumper $out;
+    return $out;
 }
 
 1;
