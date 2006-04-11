@@ -18,15 +18,25 @@ use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
 
-my $match = Pugs::Grammar::StatementControl->parse( q({ 10 }) );
+{
+    my $match = Pugs::Grammar::Expression->parse( q(10) );
+    #print Dumper $match->();
+    is_deeply(
+        $match->(), { 'num' => '10' ,}, 
+        'the expression compiler looks ok' );
+}
+
+my $match = Pugs::Grammar::StatementControl->parse( q({10}) );
 #print Dumper $match->();
 
 is_deeply(
     $match->(),
 
     {
-      'exp1' => '...',
+      'bare_block' => {
+        'num' => '10'
+      }
     },
 
-    'expression q(10 + $a / "abc")'
+    'bare block'
 );

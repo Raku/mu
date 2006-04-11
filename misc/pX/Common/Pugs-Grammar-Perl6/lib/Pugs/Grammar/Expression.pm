@@ -11,8 +11,10 @@ $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
 
 our $parser = Pugs::Compiler::Rule->compile( q(
+        <?ws>?
         ( %Pugs::Grammar::Term::hash     <?ws>? |
           %Pugs::Grammar::Operator::hash <?ws>? )*
+        <before \; | \} | $ >   # XXX
 
         { return Pugs::Grammar::Expression::ast( $/ ); }
     ));
@@ -44,6 +46,16 @@ sub ast {
         }
     }
     #print Dumper @in;
+
+=for TODO
+    the tokenizer should get tokens lazily
+    is 'space-{' is found, is sent to the opp - if the opp is expecting an operator,
+    it means end-of-expression
+
+    TimToady in #perl6 - space + block is a top-level block only where an operator 
+    is expected, and you're not in brackets.
+    where a term is expected, it's just a closure argument. (or a hash composer)
+=cut
 
     my($lex) = sub {
         my($t)=shift(@in);

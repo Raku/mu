@@ -10,7 +10,7 @@ BEGIN {
     __PACKAGE__->add_rule( 
         '{' => q( 
             <Pugs::Grammar::Expression.parse> \} 
-            { return { bare_block => $() ,} } 
+            { return { bare_block => $/{'Pugs::Grammar::Expression.parse'}->() ,} } 
     ) );
     __PACKAGE__->add_rule( 
         if =>  q( 
