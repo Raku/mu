@@ -6,6 +6,7 @@ use base qw(Pugs::Grammar::Operator);
 sub add_rule {
     my $self = shift;
     my %opt = @_;
+    print "Infix add: @{[ %opt ]} \n";
     $self->SUPER::add_rule( %opt,
         fixity => 'infix', 
     );

@@ -7,12 +7,23 @@ use lib
 use Pugs::Compiler::Rule;
 use Pugs::Grammar::Precedence;
 use Pugs::Grammar::Term;
+use Pugs::Grammar::Operator;
 
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
 
 use Test::More 'no_plan';
+
+BEGIN {
+    my $g = $Pugs::Grammar::Operator::operator->emit_yapp;
+    print $g;
+
+    my $p = $Pugs::Grammar::Operator::operator->emit_grammar_perl5;
+    #print $p;
+    eval $p;
+    die "$@\n" if $@;
+}
 
 {
     my $match = Pugs::Grammar::Term->parse( q(10) );
