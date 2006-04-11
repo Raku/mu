@@ -374,12 +374,14 @@ reduceSyn "env" [] = do
     return . VControl $ ControlEnv env
 
 reduceSyn "block" [Ann _ (Syn "sub" [Val (VCode sub)])]
-    | subType sub == SubBlock, isEmptyParams (subParams sub) =
-    enterBlock $ reduce (subBody sub)
+    | subType sub == SubBlock = if isEmptyParams (subParams sub) 
+        then enterBlock $ reduce (subBody sub)
+        else fail "Blocks with implicit params cannot occcur at statement level"
 
 reduceSyn "block" [Syn "sub" [Val (VCode sub)]]
-    | subType sub == SubBlock, isEmptyParams (subParams sub) =
-    enterBlock $ reduce (subBody sub)
+    | subType sub == SubBlock = if isEmptyParams (subParams sub) 
+        then enterBlock $ reduce (subBody sub)
+        else fail "Blocks with implicit params cannot occcur at statement level"
 
 reduceSyn "block" [body] = do
     enterBlock $ reduce body
