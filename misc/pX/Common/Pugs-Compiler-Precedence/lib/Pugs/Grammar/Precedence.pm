@@ -44,8 +44,8 @@ my %rule_templates = (
 );
 
 sub new {
-    my ($class) = @_;
-    my $self = { levels => [] };
+    my $class = shift;
+    my $self = { levels => [], @_ };
     bless $self, $class; 
 }
 
@@ -114,14 +114,10 @@ sub emit_yapp {
 }
 
 sub emit_grammar_perl5 {
-    die "not implemented";
-    
-    # XXX
-    # item=>'<item>',
-    my ($self, $default) = @_;
-    #print "emitting grammar in perl5\n";
-    my $s = "";
-    return $s;  #"package $self->{name};\n$s\n";
+    my $self = shift;
+    my $g = $self->emit_yapp();
+    my($p)=new Parse::Yapp(input => $g);
+    return $p->Output(classname => $self->{grammar} );
 }
 
 sub exists_op { die "not implemented" };
@@ -149,9 +145,7 @@ Pugs::Grammar::Precedence - Engine for Perl 6 Rule operator precedence
   # example definition for "sub rxinfix:<|> ..."
   
   my $rxinfix = Pugs::Grammar::Precedence->new( 
-    name => 'rxinfix',
-    operand => 'rxatom',
-    # XXX - default assoc, default fixity ?
+    grammar => 'rxinfix',
   );
   $rxinfix->add_op( 
     name => '|',
@@ -192,10 +186,8 @@ Class method.  Returns a category object.
 
 options:
 
-=item * name => $category_name - the name of this category 
+=item * grammar => $category_name - the name of this category 
 (a namespace or a Grammar name).
-
-=item * operand => $rule_name - the name of the rule that will parse operands.
 
 =head2 add_op ()
 
