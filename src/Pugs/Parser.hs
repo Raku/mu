@@ -1418,16 +1418,15 @@ ruleTypeLiteral = rule "type" $ try $ do
         | otherwise            = Nothing
 
 ruleDot :: RuleParser ()
-ruleDot = try $ do
-    char '.'
-    notFollowedBy (char '.')
-    optional $ do
+ruleDot = verbatimRule "dot" $ do
+    try $ char '.' >> notFollowedBy (char '.')
+    optional $ verbatimRule "long dot" $ do
         whiteSpace
         char '.'
 
 rulePostTerm :: RuleParser (Exp -> Exp)
-rulePostTerm = tryVerbatimRule "term postfix" $ do
-    hasDot <- option Nothing $ tryChoice [dotChar, bangChar]
+rulePostTerm = verbatimRule "term postfix" $ do
+    hasDot <- option Nothing $ choice [dotChar, try bangChar]
     let maybeInvocation = case hasDot of
             Just '.' -> (ruleInvocation:)
             Just '!' -> (bangKludged ruleInvocation:)
