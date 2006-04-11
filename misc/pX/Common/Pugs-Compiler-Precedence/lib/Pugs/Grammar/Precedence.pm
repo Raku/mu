@@ -5,11 +5,6 @@ use 5.006;
 use strict;
 use warnings;
 
-use Pugs::Grammar::Base;  # not 'use base'
-use Pugs::Grammar::Rule;
-use Pugs::Runtime::Match;
-use Pugs::Emitter::Rule::Perl5;
-
 my %relative_precedences = (
     tighter => sub {
         splice( @{$_[0]->{levels}}, $_[1], 0, [ $_[2] ] );
@@ -22,7 +17,6 @@ my %relative_precedences = (
     },
 );
 
-# parsed: - the rule replaces the right side
 # note: S06 - 'chain' can't be mixed with other types in the same level
 my %rule_templates = (
     prefix_non =>        
@@ -119,36 +113,9 @@ sub emit_yapp {
     return $s;
 }
 
-=for old        
-            my $template = $rule_templates{$fixity};
-
-            # is-parsed
-            if ( $op->{rule} ) {
-                $template =~ s/<op>.*/<op> $op->{rule}/sg;
-            }
-        
-            my $term0 = $template =~ s/<tight>/\$<term0>:=(<$tight>)/sgx;
-            #$template =~ s/<tight>/<$tight>/sgx;
-            
-            my $term2 = $template =~ s/<parse>/\$<term2>:=(<parse>)/sgx;
-            
-            my $term1 = $template =~ s/<equal>/\$<term1>:=(<$equal>)/sgx;
-            #$template =~ s/<equal>/<$equal>/sgx;
-            
-            $template =~ s/<op>   /\$<op1>:=(<'$op->{name}'>)/sgx;
-            my $op2 = $template =~ s/<op2>  /\$<op2>:=(<'$op->{name2}'>)/sgx;
-            
-            #print "fixity: ", $op->{fixity}, "\n";
-            $template .= ' { return Pugs::AST::Expression->operator($/, fixity => "' . $fixity . '" ) } ';
-            print "Added rule: $template\n";
-        
-            push @rules, $template;
-        }
-    }
-    push @rules, '$<term>:=(<' . $tight . '>) { return Pugs::AST::Expression->term($/) } ';
-=cut
-
 sub emit_grammar_perl5 {
+    die "not implemented";
+    
     # XXX
     # item=>'<item>',
     my ($self, $default) = @_;
@@ -190,7 +157,6 @@ Pugs::Grammar::Precedence - Engine for Perl 6 Rule operator precedence
     name => '|',
     assoc => 'left',
     fixity => 'infix',
-    block => sub {...},   # XXX - the return block could be generated automatically ?
   );
 
 Pseudo-code for usage inside a grammar:
@@ -216,9 +182,7 @@ Pseudo-code for usage inside a grammar:
 
 =head1 DESCRIPTION
 
-This module provides an implementation for Perl 6 Rule categories.  
-
-The module is still very unstable, and the algorithm is not optimized for speed yet.
+This module provides an implementation for Perl 6 operator precedence.  
 
 =head1 METHODS
 
@@ -253,8 +217,6 @@ an operator pair, such as circumfix [ '(', ')' ] or ternary [ '??', '!!' ].
  #  left/right/non/chain/list
  # rule=>$rule 
  #  (is parsed) 
- # block => ???
- #  (will do) 
 
 =head1 AUTHORS
 
@@ -262,7 +224,7 @@ The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
 
 =head1 SEE ALSO
 
-The Perl 6 Rules Spec: L<http://dev.perl.org/perl6/doc/design/syn/S05.html>
+Summary of Perl 6 Operators: L<http://dev.perl.org/perl6/doc/design/syn/S03.html>
 
 =head1 COPYRIGHT
 

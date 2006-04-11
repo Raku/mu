@@ -9,13 +9,11 @@ use Parse::Yapp;
     my $cat = Pugs::Grammar::Precedence->new();
     $cat->add_op( {
         name => '+',
-        block => sub {},
         assoc => 'left',
         fixity => 'infix',
     } );
     $cat->add_op( {
         name => '*',
-        block => sub {},
         assoc => 'left',
         precedence => 'tighter',
         other => '+',
