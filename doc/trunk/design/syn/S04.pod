@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 6 Apr 2006
+  Last Modified: 10 Apr 2006
   Number: 4
-  Version: 13
+  Version: 14
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -286,6 +286,10 @@ Since C<do> is defined as going in front of a statement, it follows
 that it can always be followed by a statement label.  This is particularly
 useful for the do-once block, since it is offically a loop and can take
 therefore loop control statements.
+
+Although a bare block is no longer a do-once loop, it still executes
+immediately as in Perl 5.  If you wish to return a closure from a
+function, you must use an explicit C<return>.
 
 =head1 Switch statements
 
