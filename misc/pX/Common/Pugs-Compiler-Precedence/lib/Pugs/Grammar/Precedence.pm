@@ -5,6 +5,8 @@ use 5.006;
 use strict;
 use warnings;
 
+use Parse::Yapp;
+
 my %relative_precedences = (
     tighter => sub {
         splice( @{$_[0]->{levels}}, $_[1], 0, [ $_[2] ] );
@@ -82,6 +84,7 @@ sub emit_yapp {
     my ($self) = @_;
     my $s = "%{ my \$out; %}\n";
     my $prec = "P000";
+    my %seen;
     for my $level ( reverse 0 .. $#{$self->{levels}} ) {            
         my %assoc;
         for ( @{$self->{levels}[$level]} ) {
@@ -93,9 +96,10 @@ sub emit_yapp {
                 $a = 'nonassoc' if $a eq 'non';
                 $a = 'left'     if $a eq 'list';
                 $s .= "%$a " . 
-                    join( ' ', map { "'$_->{name}'" } @{$assoc{$_}} ) .
+                    join( ' ', map { $seen{$_->{name}} ? () : "'$_->{name}'" } @{$assoc{$_}} ) .
                     " $prec" .
                     "\n";
+                $seen{$_->{name}} = 1 for @{$assoc{$_}};
                 $prec++;
             }
         }
@@ -123,6 +127,10 @@ sub emit_yapp {
 
                 for my $op ( @{$assoc{$_}} ) {
                     my $t = $rule_templates{"$op->{fixity}_$op->{assoc}"};
+                    unless ( defined $t ) {
+                        warn "can't find template for '$op->{fixity}_$op->{assoc}'";
+                        next;
+                    }
                     $t =~ s/$_/$op->{$_}/g for qw( name2 name );
                     $t =~ s/\{ /%prec $prec { /;
                     $s .= "    |  $t \n" . 

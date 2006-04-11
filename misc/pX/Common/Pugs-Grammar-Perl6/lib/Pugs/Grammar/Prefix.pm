@@ -21,7 +21,12 @@ sub add_rule {
         fixity => 'prefix', 
         name => 'prefix:<' . $opt{name} . '>',
     );
-    $self->SUPER::add_rule( $opt{name} => $opt{rule} );
+    $self->SUPER::add_rule( 
+        $opt{name}, 
+        '{ return { op => "<' . $opt{name} . '>" ,} }' );
+    $self->SUPER::add_rule( 
+        "prefix:<' . $opt{name} . '>",
+        '{ return { op => "prefix:<' . $opt{name} . '>" ,} }' );
 }
 
 
@@ -31,13 +36,13 @@ BEGIN {
         assoc => 'left',
         precedence => 'tighter',
         other => '*',
-        rule => '{ return { op => "prefix:<+>" ,} }' );
+    );
     __PACKAGE__->add_rule(
         name => '-',
         assoc => 'left',
         precedence => 'equal',
         other => 'prefix:<+>',
-        rule => '{ return { op => "prefix:<->" ,} }' );
+    );
     __PACKAGE__->recompile;
 }
 
