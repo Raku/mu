@@ -1,8 +1,4 @@
-use lib 
-    '../Pugs-Compiler-Rule/lib',
-    '../Pugs-Compiler-Tokenizer/lib',
-    '../Pugs-Compiler-Precedence/lib',
-;
+package Pugs::Grammar::Expression;
 
 use Pugs::Compiler::Rule;
 use Pugs::Grammar::Precedence;
@@ -13,14 +9,9 @@ use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
 
-use Test::More 'no_plan';
+sub parse {
+    my $self = shift;
 
-{
-    my $match = Pugs::Grammar::Term->parse( q(10) );
-    is_deeply( $match->(), {num=>10}, 'num' );
-}
-
-{
     my $exp = Pugs::Compiler::Rule->compile( q(
         ( %Pugs::Grammar::Term::hash     <?ws>? |
           %Pugs::Grammar::Operator::hash <?ws>? )*
@@ -59,3 +50,5 @@ use Test::More 'no_plan';
     my $out=$p->YYParse;
     print Dumper $out;
 }
+
+1;

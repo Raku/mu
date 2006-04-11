@@ -9,7 +9,7 @@ sub add_rule {
     # print "add infix operator\n";
     my $self = shift;
     my %opt = @_;
-    print "Infix add: @{[ %opt ]} \n";
+    #print "Infix add: @{[ %opt ]} \n";
 
     Pugs::Grammar::Operator::add_rule( $self, %opt,
         fixity => 'infix', 

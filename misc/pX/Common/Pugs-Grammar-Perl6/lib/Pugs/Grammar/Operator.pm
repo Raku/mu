@@ -34,11 +34,21 @@ our %hash;
 
 sub recompile {
     my $class = shift;
+
+    # tokenizer
     %hash = (
         %Pugs::Grammar::Infix::hash,
         %Pugs::Grammar::Prefix::hash,
     );
     $class->SUPER::recompile;
+
+    # operator-precedence
+    my $g = $operator->emit_yapp;
+    #print $g;
+    my $p = $operator->emit_grammar_perl5;
+    #print $p;
+    eval $p;
+    die "$@\n" if $@;
 }
 
 BEGIN {
