@@ -7,16 +7,16 @@ use Test;
 
 plan 3;
 
-ok .#[
+ok #[
     Multiline
     comments
     is fine
 ] 1;
 
-ok .#(
+ok #(
     Parens works also
 ) 1;
 
-ok .#!
-    Or this...
-! 1;
+ok #<<<
+    Or this <also> works...
+>>> 1;

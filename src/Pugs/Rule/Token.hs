@@ -26,6 +26,7 @@ import Data.Char (digitToInt)
 import Data.List (nub,sort)
 import Data.Maybe
 import Pugs.Rule
+import Debug.Trace
 
 
 -----------------------------------------------------------
@@ -142,13 +143,9 @@ makeTokenParser languageDef
     balancedDelim :: Char -> Char
     balancedDelim c = case c of
                         '(' -> ')'
-                        ')' -> '('
                         '{' -> '}'
-                        '}' -> '{'
                         '<' -> '>'
-                        '>' -> '<'
                         '[' -> ']'
-                        ']' -> '['
                         _   -> c
 
     -- balanced: parses an open/close delimited expression of any non-alphanumeric character
@@ -456,18 +453,11 @@ makeTokenParser languageDef
       
       
     --whiteSpace    
-    whiteSpace 
-        | noLine && noMulti  = skipMany (simpleSpace <?> "")
-        | noLine             = skipMany (simpleSpace <|> multiLineComment <?> "")
-        | noMulti            = skipMany (simpleSpace <|> oneLineComment <?> "")
-        | otherwise          = skipMany (simpleSpace <|> oneLineComment <|> multiLineComment <?> "")
-        where
-          noLine  = null (commentLine languageDef)
-          noMulti = null (commentStart languageDef)   
-          
+    whiteSpace = skipMany (simpleSpace <|> comment)
 
-    oneLineComment = do
-        try (string (commentLine languageDef))
+    comment = do
+        char '#'
+        multiLineComment <|> do
         pos <- getPosition
         if sourceColumn pos /= 2 then skipToLineEnd else do
         isPlain <- (<|> return True) $ try $ do
@@ -511,13 +501,15 @@ makeTokenParser languageDef
         skipMany1 (satisfy isSpace)    
         
     multiLineComment = do
-        opendelim <- try $ do
-            string (commentStart languageDef)
-            notFollowedBy alphaNum
-            anyChar
-        many $ satisfy (/= balancedDelim opendelim)
-        char $ balancedDelim opendelim
-        return ()
+        c       <- satisfy (\x -> balancedDelim x /= x)
+        more    <- many (char c)
+        let closeOne = balancedDelim c
+            closeAll = string (replicate (1 + length more) (balancedDelim c))
+            scanOne  = do
+                c' <- anyChar
+                if c' == closeOne then return () else scanOne
+            scanAll  = do { try closeAll; return () } <|> do { anyChar; scanAll }
+        if null more then scanOne else scanAll
 
     inComment 
         | nestedComments languageDef  = inCommentMulti

@@ -36,7 +36,7 @@ import qualified Pugs.Rule.Token as P
 
 perl6Def  :: LanguageDef st
 perl6Def  = javaStyle
-          { P.commentStart   = ".#"
+          { P.commentStart   = "#"
           , P.commentEnd     = ""
           , P.commentLine    = "#"
           , P.nestedComments = False

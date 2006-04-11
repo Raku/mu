@@ -1422,7 +1422,7 @@ ruleDot = try $ do
     char '.'
     notFollowedBy (char '.')
     optional $ do
-        skipMany1 (satisfy isSpace)
+        whiteSpace
         char '.'
 
 rulePostTerm :: RuleParser (Exp -> Exp)
