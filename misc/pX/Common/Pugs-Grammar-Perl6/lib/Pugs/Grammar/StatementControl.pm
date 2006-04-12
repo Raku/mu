@@ -8,6 +8,7 @@ use base qw(Pugs::Grammar::BaseCategory);
 
 *statement_list
     = Pugs::Compiler::Rule->compile( q(
+    
             <Pugs::Grammar::Expression.parse> \;? :
             {
                 #print "expression...\n";
@@ -17,6 +18,19 @@ use base qw(Pugs::Grammar::BaseCategory);
                     ]
                 }
             }
+            
+    |
+    
+            <Pugs::Grammar::StatementControl.parse> 
+            {
+                return { 
+                    statements => [
+                        $/{'Pugs::Grammar::StatementControl.parse'}->(),
+                    ]
+                }
+            }
+
+            
     ) )->code;
 
 BEGIN {

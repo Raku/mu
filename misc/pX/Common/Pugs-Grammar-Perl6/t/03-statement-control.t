@@ -156,3 +156,19 @@ $Data::Dumper::Sortkeys = 1;
         'if with 2-statement block'
     );
 }
+
+__END__
+{
+    my $match = Pugs::Grammar::StatementControl->parse( q( 
+        if 10 {  if $a { $b }  }
+    ) );
+    print Dumper $match->();
+    is_deeply(
+        $match->(),
+        {
+
+
+        },
+        'if with 2-statement block'
+    );
+}
