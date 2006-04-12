@@ -14,8 +14,8 @@ our $parser = Pugs::Compiler::Rule->compile( q(
         <?ws>?
         ( %Pugs::Grammar::Term::hash     <?ws>? |
           %Pugs::Grammar::Operator::hash <?ws>? )*
-        <before \; | \} | $ >   # XXX
-
+        <before  \} | \{ | $ >   # XXX
+        
         { return Pugs::Grammar::Expression::ast( $/ ); }
     ));
 
@@ -23,6 +23,8 @@ our $parser = Pugs::Compiler::Rule->compile( q(
 
 sub ast {
     my $match = shift;
+
+    #print "Expression: $match";
 
     #print $rule->perl5;
     # my $match = $exp->match( q(10 + $a / "abc") );

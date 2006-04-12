@@ -6,30 +6,65 @@ use base qw(Pugs::Grammar::BaseCategory);
 # TODO - implement the "magic hash" dispatcher
 # TODO - generate AST
 
+*statement_list
+    = Pugs::Compiler::Rule->compile( q(
+            <Pugs::Grammar::Expression.parse> \;? :
+            {
+                #print "expression...\n";
+                return { 
+                    statements => [
+                        $/{'Pugs::Grammar::Expression.parse'}->(),
+                    ]
+                }
+            }
+    ) )->code;
+
 BEGIN {
-    __PACKAGE__->add_rule( 
-        '{' => q( 
-            <Pugs::Grammar::Expression.parse> \}   # XXX
-            { return { bare_block => $/{'Pugs::Grammar::Expression.parse'}->() ,} } 
+    __PACKAGE__->add_rule(
+        '{' => q(
+            # { print "block...\n" }
+            <Pugs::Grammar::StatementControl.statement_list> \}   # XXX
+            {
+                #print "block...\n";
+                return { bare_block =>
+                    $/{'Pugs::Grammar::StatementControl.statement_list'}->() ,}
+            }
     ) );
-    __PACKAGE__->add_rule( 
-        if =>  q( 
-            <Pugs::Grammar::Expression.parse>    # XXX
-            \{ <Pugs::Grammar::Expression.parse> \} 
-            { return { if => $/{'Pugs::Grammar::Expression.parse'}->() ,} } 
+    __PACKAGE__->add_rule(
+        if =>  q(
+            # { print "if...\n" }
+            <Pugs::Grammar::Expression.parse>   
+            \{ <Pugs::Grammar::StatementControl.statement_list> \}
+            { return { 
+                if => {
+                    exp   => $/{'Pugs::Grammar::Expression.parse'}->(),
+                    block => $/{'Pugs::Grammar::StatementControl.statement_list'}->(),
+                }
+              } 
+            }
     ) );
-    __PACKAGE__->add_rule( 
-        while => q( 
-            <Pugs::Grammar::Expression.parse>    # XXX
-            \{ <Pugs::Grammar::Expression.parse> \} 
-            { return { while => $/{'Pugs::Grammar::Expression.parse'}->() ,} } 
+    __PACKAGE__->add_rule(
+        while => q(
+            <Pugs::Grammar::Expression.parse>   
+            \{ <Pugs::Grammar::StatementControl.statement_list> \}
+            { return { 
+                while => {
+                    exp   => $/{'Pugs::Grammar::Expression.parse'}->(),
+                    block => $/{'Pugs::Grammar::StatementControl.statement_list'}->(),
+                }
+              } 
+            }
     ) );
-    __PACKAGE__->add_rule( 
-        q() => q( 
-              <Pugs::Grammar::Expression.parse> 
-            | <Pugs::Grammar::Expression.parse> \;
-            { return { statement => $/{'Pugs::Grammar::Expression.parse'}->() ,} } 
+=for later
+    __PACKAGE__->add_rule(
+        q() => q(
+            <Pugs::Grammar::Expression.parse> \;?
+            {
+                print "expression...\n";
+                return { statement => $/{'Pugs::Grammar::Expression.parse'}->() ,}
+            }
     ) );
+=cut
     __PACKAGE__->recompile;
 }
 

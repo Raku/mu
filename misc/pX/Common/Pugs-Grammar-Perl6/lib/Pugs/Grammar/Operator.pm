@@ -25,6 +25,7 @@ sub add_rule {
 
 use Pugs::Grammar::Infix;
 use Pugs::Grammar::Prefix;
+use Pugs::Grammar::List;
 
 # use Pugs::Runtime::Match;
 
@@ -39,6 +40,7 @@ sub recompile {
     %hash = (
         %Pugs::Grammar::Infix::hash,
         %Pugs::Grammar::Prefix::hash,
+        %Pugs::Grammar::List::hash,
     );
     $class->SUPER::recompile;
 

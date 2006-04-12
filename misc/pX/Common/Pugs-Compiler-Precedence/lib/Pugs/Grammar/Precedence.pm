@@ -47,10 +47,12 @@ my %rule_templates = (
         "\t{ \$out= {op1 => 'name', op2 => 'name2', exp1 => \$_[1], exp2 => \$_[3], exp3 => \$_[5],} }",
         
     # XXX
-    infix_chain =>       
-        "exp 'name' list_right  \n\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }",
-    infix_list =>        
-        "exp 'name' list_right \n\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }", 
+    #infix_chain =>       
+    #    "exp 'name' list_right  \n" .
+    #    "\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }",
+    #infix_list =>        
+    #    "exp 'name' list_right \n" .
+    #    "\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }", 
 );
 
 sub new {
@@ -59,11 +61,13 @@ sub new {
     bless $self, $class; 
 }
 
+our $op_count = '000';
 sub add_op {
     my ($self, $opt) = @_;
     #print "adding $opt->{name}\n";
     $opt->{assoc}  = 'non'    unless defined $opt->{assoc};
     $opt->{fixity} = 'prefix' unless defined $opt->{fixity};
+    $opt->{index}  = 'OP' . $op_count++;
     #my $fixity = $opt->{fixity};
     #$fixity .= '_' . $opt->{assoc} if $opt->{fixity} eq 'infix';
     for my $level ( 0 .. $#{$self->{levels}} ) {
@@ -78,6 +82,14 @@ sub add_op {
         return;
     }
     die "there is no precedence like ", $opt->{other};
+}
+
+
+sub add_to_list {
+    my ( $op, $x, $y ) = @_;
+    my @x = ($x);
+    @x = @{$x->{list}} if exists $x->{list} && $x->{op1} eq $op;
+    return { op1 => $op, list => [ @x, $y ] };
 }
 
 sub emit_yapp {
@@ -96,7 +108,13 @@ sub emit_yapp {
                 $a = 'nonassoc' if $a eq 'non';
                 $a = 'left'     if $a eq 'list';
                 $s .= "%$a " . 
-                    join( ' ', map { $seen{$_->{name}} ? () : "'$_->{name}'" } @{$assoc{$_}} ) .
+                    join( ' ', map { 
+                            $seen{$_->{name}} 
+                            ? () 
+                            : $_ eq 'list' 
+                              ? $_->{index}
+                              : "'$_->{name}'" 
+                        } @{$assoc{$_}} ) .
                     " $prec" .
                     "\n";
                 $seen{$_->{name}} = 1 for @{$assoc{$_}};
@@ -105,14 +123,9 @@ sub emit_yapp {
         }
     }
     $s .= "%%\n" .
-        "statement:  exp { return(\$out) } ;\n" .
-        
-        # XXX
-        "list_left:  exp { \$out= [ \$_[1] ] }\n" .
-        "    |   list_left ',' exp   { \$out= [ \@{\$_[1]}, \$_[3] ] } ;\n" .
-        "list_right: exp { \$out= [ \$_[1] ] }\n" .
-        "    |   exp ';' list_right  { \$out= [ \$_[1], \@{\$_[3]} ] } ;\n" .
-        
+        "statement:  exp { return(\$out) } ;\n";
+            
+    $s .=     
         "exp:   NUM  { \$out= \$_[1] }\n" .
         "    |  VAR  { \$out= \$_[1] }\n" ;
     $prec = "P000";
@@ -126,6 +139,15 @@ sub emit_yapp {
 
 
                 for my $op ( @{$assoc{$_}} ) {
+                    if ( $op->{assoc} eq 'list' ) {
+                        $s .= 
+                            "    |  exp '$op->{name}' exp   %prec $prec\n" .
+                            "        { \$out= Pugs::Grammar::Precedence::add_to_list( '$op->{name}', \$_[1], \$_[3] ) } \n" ;
+                        $s .= 
+                            "    |  exp '$op->{name}'    %prec $prec\n" .
+                            "        { \$out= \$_[1] } \n" ;
+                        next;
+                    }
                     my $t = $rule_templates{"$op->{fixity}_$op->{assoc}"};
                     unless ( defined $t ) {
                         warn "can't find template for '$op->{fixity}_$op->{assoc}'";
