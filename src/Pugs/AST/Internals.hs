@@ -1030,6 +1030,12 @@ extractPlaceholderVars (Var name) vs
 extractPlaceholderVars (Ann ann ex) vs = ((Ann ann ex'), vs')
     where
     (ex', vs') = extractPlaceholderVars ex vs
+extractPlaceholderVars (Pad scope pad ex) vs = ((Pad scope pad ex'), vs')
+    where
+    (ex', vs') = extractPlaceholderVars ex vs
+extractPlaceholderVars (Sym scope var ex) vs = ((Sym scope var ex'), vs')
+    where
+    (ex', vs') = extractPlaceholderVars ex vs
 extractPlaceholderVars exp vs = (exp, vs)
 
 
