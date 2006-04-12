@@ -14,7 +14,7 @@ use_ok( 'Pugs::Grammar::Prefix' );
     #print Dumper $match->();
     is_deeply( $match->(), 
         {
-            'op' => 'prefix:<->',
+            'op' => '-',
         }, 
         'prefix:<->' );
 }

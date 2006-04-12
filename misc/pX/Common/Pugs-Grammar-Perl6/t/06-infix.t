@@ -7,6 +7,7 @@ use lib
 use Test::More tests => 2;
 use Data::Dumper;
 
+use Pugs::Grammar::Prefix;
 use_ok( 'Pugs::Grammar::Infix' );
 
 {
@@ -14,7 +15,7 @@ use_ok( 'Pugs::Grammar::Infix' );
     #print Dumper $match->();
     is_deeply( $match->(), 
         {
-            'op' => 'infix:<->',
+            'op' => '-',
         }, 
         'infix:<->' );
 }
