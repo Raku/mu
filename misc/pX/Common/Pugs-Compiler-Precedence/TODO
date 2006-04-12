@@ -1,6 +1,6 @@
 TODO file for Pugs-Compiler-Precedence
 
-- sync add_op() in op-precedence and tokenizer
+- \s{ is an expression terminator if the parser is expecting an operator
 
 - add is-parsed to the appropriate category in op-precedence and tokenizer
 
@@ -8,5 +8,5 @@ TODO file for Pugs-Compiler-Precedence
 
 - add_op() doesn't need the 'block' key
 
-- PCP needs to return a Match object
+- PCP needs to return a Match object?
   (maybe a match-like object is more appropriate?)
