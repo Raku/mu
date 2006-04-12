@@ -46,11 +46,14 @@ BEGIN {
     ) );
     __PACKAGE__->add_rule(
         if =>  q(
-            # { print "if...\n" }
+            #{ print "if... $_[0]\n" }
             <Pugs::Grammar::Expression.parse>   
+            #{ print "if expression parsed \n" }
             \{ <Pugs::Grammar::StatementControl.statement_list> \}
-            { return { 
-                if => {
+            { 
+                # print "if parsed \n";
+                return { 
+                  if => {
                     exp   => $/{'Pugs::Grammar::Expression.parse'}->(),
                     block => $/{'Pugs::Grammar::StatementControl.statement_list'}->(),
                 }
@@ -74,7 +77,7 @@ BEGIN {
         q() => q(
             <Pugs::Grammar::Expression.parse> \;?
             {
-                print "expression...\n";
+                # print "expression...\n";
                 return { statement => $/{'Pugs::Grammar::Expression.parse'}->() ,}
             }
     ) );

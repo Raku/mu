@@ -48,6 +48,10 @@ sub recompile {
     my $g = $operator->emit_yapp;
     #print $g;
     my $p = $operator->emit_grammar_perl5;
+
+    # create a local variable '$out' inside the parser
+    # $p =~ s/my\(\$self\)=/my \$out; my\(\$self\)=/;
+
     #print $p;
     eval $p;
     die "$@\n" if $@;

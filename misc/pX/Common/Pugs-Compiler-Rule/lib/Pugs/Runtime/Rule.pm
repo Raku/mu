@@ -178,6 +178,7 @@ sub constant {
     no warnings qw( uninitialized );
     return sub {
         #print "Pos: $_[5] - ", length($_[6])-length($_[0]), "\n";
+        #print "constant: $const ";
         if ( $const eq substr( $_[0], $_[5], $lconst ) ) {
             return $_[3] = { 
                 bool => 1,
@@ -451,7 +452,8 @@ sub _preprocess_hash {
 sub hash {
     my %hash = %{shift()};
     #print "HASH: @{[ %hash ]}\n";
-    my @keys = sort {length $b <=> length $b } keys %hash;
+    my @keys = sort {length $b <=> length $a } keys %hash;
+    #print "hash keys: @keys\n";
     @keys = map {
         concat(
             constant( $_ ),

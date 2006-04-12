@@ -24,7 +24,7 @@ sub add_rule {
         $opt{name}, 
         '{ return { op => "' . $opt{name} . '" ,} }' );
     $self->SUPER::add_rule( 
-        "infix:<' . $opt{name} . '>",
+        "infix:<" . $opt{name} . ">",
         '{ return { op => "infix:<' . $opt{name} . '>" ,} }' );
 }
 

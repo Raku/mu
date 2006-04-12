@@ -23,36 +23,36 @@ my %relative_precedences = (
 my %rule_templates = (
     prefix_non =>        
         "'name' exp         \n" .
-        "\t{ \$out= {op1 => 'name', exp1 => \$_[2],} }", 
+        "\t{ \$_[0]->{out}= {op1 => 'name', exp1 => \$_[2],} }", 
     circumfix_non =>     
         "'name' exp 'name2' \n" .
-        "\t{ \$out= {op1 => 'name', op2 => 'name2', exp1 => \$_[2],} }",  
+        "\t{ \$_[0]->{out}= {op1 => 'name', op2 => 'name2', exp1 => \$_[2],} }",  
     infix_right =>       
         "exp 'name' exp     \n" .
-        "\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }",
+        "\t{ \$_[0]->{out}= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }",
     postfix_non =>       
         "exp 'name'         \n" .
-        "\t{ \$out= {op1 => 'name', exp1 => \$_[2],} }", 
+        "\t{ \$_[0]->{out}= {op1 => 'name', exp1 => \$_[2],} }", 
     postcircumfix_non => 
         "exp 'name' exp 'name2' \n" .
-        "\t{ \$out= {op1 => 'name', op2 => 'name2', exp1 => \$_[1], exp2 => \$_[3],} }", 
+        "\t{ \$_[0]->{out}= {op1 => 'name', op2 => 'name2', exp1 => \$_[1], exp2 => \$_[3],} }", 
     infix_left =>        
         "exp 'name' exp     \n" .
-        "\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }", 
+        "\t{ \$_[0]->{out}= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }", 
     infix_non =>         
         "exp 'name' exp     \n" .
-        "\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }", 
+        "\t{ \$_[0]->{out}= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }", 
     ternary_non =>       
         "exp 'name' exp 'name2' exp \n" .
-        "\t{ \$out= {op1 => 'name', op2 => 'name2', exp1 => \$_[1], exp2 => \$_[3], exp3 => \$_[5],} }",
+        "\t{ \$_[0]->{out}= {op1 => 'name', op2 => 'name2', exp1 => \$_[1], exp2 => \$_[3], exp3 => \$_[5],} }",
         
     # XXX
     #infix_chain =>       
     #    "exp 'name' list_right  \n" .
-    #    "\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }",
+    #    "\t{ \$_[0]->{out}= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }",
     #infix_list =>        
     #    "exp 'name' list_right \n" .
-    #    "\t{ \$out= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }", 
+    #    "\t{ \$_[0]->{out}= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }", 
 );
 
 sub new {
@@ -71,7 +71,11 @@ sub add_op {
     #my $fixity = $opt->{fixity};
     #$fixity .= '_' . $opt->{assoc} if $opt->{fixity} eq 'infix';
     for my $level ( 0 .. $#{$self->{levels}} ) {
-        if ( grep { $_->{name} eq $opt->{other} } @{$self->{levels}[$level]} ) {
+        if ( grep { 
+                defined $opt->{other} 
+                ? ($_->{name} eq $opt->{other}) 
+                : 0 
+             } @{$self->{levels}[$level]} ) {
             #print "pos $level at $opt->{precedence} $opt->{other}\n";
             $relative_precedences{$opt->{precedence}}->($self, $level, $opt);
             return;
@@ -94,7 +98,7 @@ sub add_to_list {
 
 sub emit_yapp {
     my ($self) = @_;
-    my $s = "%{ my \$out; %}\n";
+    my $s;  # = "%{ my \$_[0]->{out}; %}\n";
     my $prec = "P000";
     my %seen;
     for my $level ( reverse 0 .. $#{$self->{levels}} ) {            
@@ -123,11 +127,11 @@ sub emit_yapp {
         }
     }
     $s .= "%%\n" .
-        "statement:  exp { return(\$out) } ;\n";
+        "statement:  exp { return(\$_[0]->{out}) } ;\n";
             
     $s .=     
-        "exp:   NUM  { \$out= \$_[1] }\n" .
-        "    |  VAR  { \$out= \$_[1] }\n" ;
+        "exp:   NUM  { \$_[0]->{out}= \$_[1] }\n" .
+        "    |  VAR  { \$_[0]->{out}= \$_[1] }\n" ;
     $prec = "P000";
     for my $level ( reverse 0 .. $#{$self->{levels}} ) {            
         my %assoc;
@@ -142,10 +146,10 @@ sub emit_yapp {
                     if ( $op->{assoc} eq 'list' ) {
                         $s .= 
                             "    |  exp '$op->{name}' exp   %prec $prec\n" .
-                            "        { \$out= Pugs::Grammar::Precedence::add_to_list( '$op->{name}', \$_[1], \$_[3] ) } \n" ;
+                            "        { \$_[0]->{out}= Pugs::Grammar::Precedence::add_to_list( '$op->{name}', \$_[1], \$_[3] ) } \n" ;
                         $s .= 
                             "    |  exp '$op->{name}'    %prec $prec\n" .
-                            "        { \$out= \$_[1] } \n" ;
+                            "        { \$_[0]->{out}= \$_[1] } \n" ;
                         next;
                     }
                     my $t = $rule_templates{"$op->{fixity}_$op->{assoc}"};

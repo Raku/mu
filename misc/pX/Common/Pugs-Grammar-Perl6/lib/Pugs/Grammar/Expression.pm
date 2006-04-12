@@ -1,5 +1,8 @@
 package Pugs::Grammar::Expression;
 
+use strict;
+use warnings;
+
 use Pugs::Compiler::Rule;
 use Pugs::Grammar::Precedence;
 use Pugs::Grammar::Term;
@@ -11,12 +14,23 @@ $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
 
 our $parser = Pugs::Compiler::Rule->compile( q(
+        # { print "Grammar::Expression::parse $_[0] - ",(keys %Pugs::Grammar::Term::hash),"\n"; }
         <?ws>?
-        ( %Pugs::Grammar::Term::hash     <?ws>? |
-          %Pugs::Grammar::Operator::hash <?ws>? )*
+        ( 
+            # { print "looking term\n"; } 
+            %Pugs::Grammar::Term::hash     <?ws>? 
+            #{ print "term\n"; } 
+        |
+            # { print "looking op\n"; } 
+            %Pugs::Grammar::Operator::hash <?ws>? 
+            #{ print "op\n";   } 
+        )*
         <before  \} | \{ | $ >   # XXX
         
-        { return Pugs::Grammar::Expression::ast( $/ ); }
+        { 
+            # print "Grammar::Expression::parse returning \n";
+            return Pugs::Grammar::Expression::ast( $/ ); 
+        }
     ));
 
 *parse = $parser->code;
@@ -24,7 +38,7 @@ our $parser = Pugs::Compiler::Rule->compile( q(
 sub ast {
     my $match = shift;
 
-    #print "Expression: $match";
+    # print "Grammar::Expression::AST $match \n";
 
     #print $rule->perl5;
     # my $match = $exp->match( q(10 + $a / "abc") );
@@ -61,11 +75,11 @@ sub ast {
 
     my($lex) = sub {
         my($t)=shift(@in);
-            defined($t)
-        or  $t=['',''];
+        $t=['',''] unless defined($t);
+        # print "token: $$t[0]\n";
         return($$t[0],$$t[1]);
     };
-    $p=new Pugs::Grammar::Operator(yylex => $lex, yyerror => sub { die "error in expression" });
+    my $p = Pugs::Grammar::Operator->new(yylex => $lex, yyerror => sub { die "error in expression" });
 
     my $out=$p->YYParse;
     #print Dumper $out;

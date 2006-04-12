@@ -1,6 +1,5 @@
 use lib 
     '../Pugs-Compiler-Rule/lib',
-    '../Pugs-Compiler-Tokenizer/lib',
     '../Pugs-Compiler-Precedence/lib',
 ;
 

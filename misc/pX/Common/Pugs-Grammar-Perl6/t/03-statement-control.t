@@ -27,6 +27,14 @@ $Data::Dumper::Sortkeys = 1;
 }
 
 {
+    my $match = Pugs::Grammar::Expression->parse( q( $a ) );
+    #print Dumper $match->();
+    is_deeply(
+        $match->(), { 'scalar' => '$a' ,}, 
+        'the expression compiler looks ok - var' );
+}
+
+{
     my $match = Pugs::Grammar::StatementControl->statement_list( q(10) );
     #print Dumper $match->();
     is_deeply(
@@ -157,10 +165,10 @@ $Data::Dumper::Sortkeys = 1;
     );
 }
 
-__END__
+#__END__
 {
     my $match = Pugs::Grammar::StatementControl->parse( q( 
-        if 10 {  if $a { $b }  }
+        if $i {  if $a { $b }  }
     ) );
     print Dumper $match->();
     is_deeply(
@@ -169,6 +177,6 @@ __END__
 
 
         },
-        'if with 2-statement block'
+        'if inside if'
     );
 }
