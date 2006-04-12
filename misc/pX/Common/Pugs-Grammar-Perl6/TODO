@@ -1,9 +1,16 @@
 ﻿TODO list for Pugs-Compiler-Tokenizer
+* The BUG list is below
 
 - Implement base 'tokens-class' (category?)
 - Implement compile-time dynamic 'add_token' (lexical at run-time)
 
 - Implement double-quoted-string split on variables (interpolation)
+- Implement %hash<qw string> and '<' and '>'
+- Implement /rule/ and '/'
+- Implement unquoted=>'value'
+- Implement [op]@list
+- Implement expressions inside names - like:
+    prefix:{'+'}
 
 - Make the tokenizer match eagerly (faster)
 
@@ -26,10 +33,16 @@
     that's why the magic hash was invented (or more accurately, is scheduled to 
     be invented :)
 
-- Specify/generate AST
+-   the tokenizer should get tokens lazily ?
 
-- Implement expressions inside names - like:
-    prefix:{'+'}
+-   is 'space-{' is found, is sent to the opp - if the opp is expecting an operator,
+    it means end-of-expression
+
+    TimToady in #perl6 - space + block is a top-level block only where an operator 
+    is expected, and you're not in brackets.
+    where a term is expected, it's just a closure argument. (or a hash composer)
+
+- Specify/generate AST
 
 BUGS
 
@@ -41,4 +54,6 @@ BUGS
     # print Dumper ${$_[0]}->{match}[0]{match}[1]{capture}; 
     return ${$_[0]}->{match}[0]{match}[1]{capture};
   }
+
+- error/infinite loop in reentrant Expression.pm
 
