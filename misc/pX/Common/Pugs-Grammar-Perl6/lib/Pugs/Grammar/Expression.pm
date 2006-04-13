@@ -14,14 +14,17 @@ $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
 
 our $parser = Pugs::Compiler::Rule->compile( q(
-        # { print "Grammar::Expression::parse $_[0] - ",(keys %Pugs::Grammar::Term::hash),"\n"; }
+        # { print "Grammar::Expression::parse $_[0] \n";
+        #  # print (keys %Pugs::Grammar::Term::hash),"\n"; 
+        # }
+        
         <?ws>?
         ( 
-            # { print "looking term\n"; } 
-            %Pugs::Grammar::Term::hash     <?ws>? 
+            #{ print "trying term\n"; } 
+            %Pugs::Grammar::Term::hash     <?ws>?
             #{ print "term\n"; } 
         |
-            # { print "looking op\n"; } 
+            #{ print "trying op\n"; } 
             %Pugs::Grammar::Operator::hash <?ws>? 
             #{ print "op\n";   } 
         )*
@@ -31,6 +34,8 @@ our $parser = Pugs::Compiler::Rule->compile( q(
             # print "Grammar::Expression::parse returning \n";
             return Pugs::Grammar::Expression::ast( $/ ); 
         }
+        
+        # | { print "fail $_[0]\n"; }
     ));
 
 *parse = $parser->code;
@@ -43,7 +48,9 @@ sub ast {
     #print $rule->perl5;
     # my $match = $exp->match( q(10 + $a / "abc") );
     #print Dumper( $match->[0] );
-    my @m = @{$match->[0]};
+    my $m = $match->[0];
+    return unless defined $m;
+    my @m = @$m;
     #print Dumper( @m );
     #is( join(';', map { $_->() } @m), q(10 ;+ ;$a ;/ ;"abc"), 'split on terms' );
 
@@ -62,16 +69,6 @@ sub ast {
         }
     }
     #print Dumper @in;
-
-=for TODO
-    the tokenizer should get tokens lazily
-    is 'space-{' is found, is sent to the opp - if the opp is expecting an operator,
-    it means end-of-expression
-
-    TimToady in #perl6 - space + block is a top-level block only where an operator 
-    is expected, and you're not in brackets.
-    where a term is expected, it's just a closure argument. (or a hash composer)
-=cut
 
     my($lex) = sub {
         my($t)=shift(@in);

@@ -110,6 +110,22 @@ $Data::Dumper::Sortkeys = 1;
 }
 
 {
+    my $match = Pugs::Grammar::StatementControl->parse( q({}) );
+    #print Dumper $match->();
+    is_deeply(
+        $match->(),
+        {             
+          'bare_block' => {
+            'statements' => [
+              ''
+            ]
+          }
+        },
+        'an empty block'
+    );
+}
+
+{
     my $match = Pugs::Grammar::StatementControl->parse( q( if 10 { 20 }) );
     #print Dumper $match->();
     is_deeply(
@@ -178,5 +194,36 @@ $Data::Dumper::Sortkeys = 1;
 
         },
         'if inside if'
+    );
+}
+
+{
+    my $match = Pugs::Grammar::StatementControl->parse( q({{}}) );
+    print Dumper $match->();
+    is_deeply(
+        $match->(),
+        {             
+          'bare_block' => {
+            'statements' => [
+              ''
+            ]
+          }
+        },
+        'a block with an empty block'
+    );
+}
+
+{
+    my $match = Pugs::Grammar::StatementControl->parse( q( 
+        if 11 {  if $a { $b }  }
+    ) );
+    print Dumper $match->();
+    is_deeply(
+        $match->(),
+        {
+
+
+        },
+        'if inside if 2'
     );
 }
