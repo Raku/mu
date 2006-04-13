@@ -298,6 +298,10 @@ relative few are listed here.
 
 =item B<FileMaker Pro> - L<http://www.filemaker.com/>
 
+=over
+
+=item B<Valentina> - L<http://www.paradigmasoft.com/>
+
 =back
 
 =head1 LIST OF PUBLIC ROSETTA ENGINES
