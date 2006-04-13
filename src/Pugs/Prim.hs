@@ -1378,24 +1378,24 @@ withDefined (_:xs) c = withDefined xs c
 primOp :: String -> String -> Params -> String -> Bool -> STM (PadMutator)
 primOp sym assoc prms ret isSafe =
     -- In safemode, we filter all prims marked as "unsafe".
-    if (not isSafe) && safeMode
-        then return id
-        else genMultiSym name sub
+    genMultiSym name (sub (isSafe || not safeMode))
     where
     name | isAlpha (head sym)
          , fixity == "prefix"
          = "&*" ++ sym
          | otherwise
          = "&*" ++ fixity ++ (':':sym)
-    sub  = codeRef $ mkPrim
+    sub safe = codeRef $! mkPrim
         { subName     = sym
         , subType     = if sym == "Object::new" then SubMethod else SubPrim
         , subAssoc    = assoc
         , subParams   = prms
         , subReturns  = mkType ret
-        , subBody     = Prim f
+        , subBody     = Prim $! if safe then f else unsafe
         }
     symStr = encodeUTF8 sym
+    unsafe :: [Val] -> Eval Val
+    unsafe _ = fail $ "Unsafe function '" ++ sym ++ "' called under safe mode"
     f :: [Val] -> Eval Val
     f    = case (arity :: Integer) of
         0 -> \x -> op0 symStr x
