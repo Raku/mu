@@ -790,13 +790,13 @@ guardedIO2 f u v = do
     guardIO $ f x y
     return $ VBool True
 
-mapStr :: (Word32 -> Word32) -> [Word32] -> String
+mapStr :: (Word8 -> Word8) -> [Word8] -> String
 mapStr f = map (chr . fromEnum . f)
 
-mapStr2 :: (Word32 -> Word32 -> Word32) -> [Word32] -> [Word32] -> String
+mapStr2 :: (Word8 -> Word8 -> Word8) -> [Word8] -> [Word8] -> String
 mapStr2 f x y = map (chr . fromEnum . uncurry f) $ x `zip` y
 
-mapStr2Fill :: (Word32 -> Word32 -> Word32) -> [Word32] -> [Word32] -> String
+mapStr2Fill :: (Word8 -> Word8 -> Word8) -> [Word8] -> [Word8] -> String
 mapStr2Fill f x y = map (chr . fromEnum . uncurry f) $ x `zipFill` y
     where
     zipFill [] [] = []
