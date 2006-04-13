@@ -1,4 +1,4 @@
-use Test::More tests => 7;
+use Test::More tests => 8;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -39,6 +39,18 @@ use_ok( 'Pugs::Compiler::Rule' );
     $match = $rule1->match("untilaba123");
     #print Dumper($match);
     is($match,'untilaba123',"subrule hash{until}");
-    is($match->(),'untilaba123',"subrule hash{until}");
+    is($match->(),'untilaba123',"subrule hash{until} - 2");
 
+}
+
+{
+    my $match;
+    my %test = (
+        rule1 => Pugs::Compiler::Rule->compile('xx %test yy'),  
+        rule2 => Pugs::Compiler::Rule->compile('abc'),   
+    );   
+    $rule1 = Pugs::Compiler::Rule->compile('%test 123');
+    #print $rule1->perl5;
+    $match = $rule1->match("rule1xxrule2abcyy123");
+    is($match,'rule1xxrule2abcyy123',"Matched hash inside hash");
 }

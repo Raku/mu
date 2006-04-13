@@ -55,6 +55,17 @@ sub match {
 
     if ( $flags->{p} ) {
         #print "flag p";
+        #print "match: grammar $rule->{grammar}, $str, %$flags\n";
+        #print $rule->{code};
+
+        # XXX BUG! - $rule->{code} disappeared - in t/08-hash.t ???
+        unless ( defined $rule->{code} ) {
+            local $@;
+            $rule->{code} = eval 
+                $rule->{perl5};
+            die "Error in evaluation: $@\nSource:\n$rule->{perl5}\n" if $@;
+        }
+        
         my $match = $rule->{code}( 
             $grammar,
             $str, 

@@ -433,6 +433,7 @@ sub _preprocess_hash {
         #return $h->code;
         return sub { 
             #print "into subrule - $_[0] - grammar $_[4]\n"; 
+            #print $h->code;
             my $match = $h->match( $_[0], $_[4], { p => 1 } );
             #print "match: ",$match->(),"\n";
             return $_[3] = $$match;
