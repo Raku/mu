@@ -20,7 +20,7 @@ $str = qq{hello};
 ok($str eq 'hello', "qq brace");
 $str = qq<world>;
 ok($str eq 'world', "qq angle");
-$str = qq>hello<;
+$str = qq>hello>;
 ok($str eq 'hello', "qq backwards angle");
 $str = qq/world/;
 ok($str eq 'world', "qq slash");
