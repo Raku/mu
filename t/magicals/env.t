@@ -5,7 +5,7 @@
 use v6;
 use Test;
 # L<S02/"Names" /environment variables passed to program/>
-plan 11;
+plan 14;
 
 if $*OS eq "browser" {
   skip_rest "Programs running in browsers don't have access to regular IO.";
@@ -118,3 +118,19 @@ if (! $err) {
 };
 
 ok !%*ENV.exists("does_not_exist"), "exists() returns false on a not defined env var";
+
+# %ENV must not be imported by default
+my $x = eval "%ENV";
+ok $! ~~ /Undeclared/, '%ENV not visible by default';
+
+# following doesn't parse yet
+eval q{
+    {
+	# It must be importable
+	use GLOBAL <%ENV>;
+	ok +%ENV.keys, 'imported %ENV has keys';
+    }
+    # Importation must be lexical
+    $x = eval "%ENV";
+    ok $! ~~ /Undeclared/, '%ENV not visible by after lexical import scope';
+};

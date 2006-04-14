@@ -9,8 +9,8 @@ my $progdir   = splitpath($*PROGRAM_NAME)[1] || '.';
 unshift @*INC, $progdir;
 require Motd; 
 
-my $subject   = @ARGS[0] // 'Pugs is';
-my $surveyed  = @ARGS[1] // 20;
+my $subject   = @*ARGS[0] // 'Pugs is';
+my $surveyed  = @*ARGS[1] // 20;
 my %tally     ;
 my @list      ;
 my $dict = canonpath("$progdir/pugspraise");

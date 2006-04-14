@@ -5,7 +5,7 @@ use v6;
 
 # The width of our square
 # ($ARGV[0] or 5 if no arguments given):
-my $n = @ARGS[0] // 5;      #/
+my $n = @*ARGS[0] // 5;      #/
 
 # Our square, of size $n+1 x $n+1 due to the sentinel values:
 my @single_line = ( 0  xx $n, -1 );

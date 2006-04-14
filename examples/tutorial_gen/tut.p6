@@ -14,8 +14,8 @@ $path ||= '.';
 my $conf_fp;
 my $dg = 1;
 
-if ( @ARGS[0] ) {
-    $conf_fp = @ARGS[0];
+if ( @*ARGS[0] ) {
+    $conf_fp = @*ARGS[0];
     $path = splitpath( $conf_fp )[1];
 } else {    
     $conf_fp = "$path/conf.p6";

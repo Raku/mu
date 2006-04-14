@@ -41,10 +41,10 @@ Each builtin type "does" exactly one of the five types above.
     Sigs        does Plural[RW[Any]];  # :($x,$y,$z)
     Tuple[::T]  does Plural[T];        # (1,2,3)
     Range[::T]  does Plural[T];        # (1..3)
-    Scalar[::T] does RW[Single[T]];    # $IN
-    Array[::T]  does RW[Plural[T]];    # @ARGS
-    Hash[::T]   does RW[Plural[T]];    # %ENV
-    List[::T]   does RW[Plural[T]];    # ($IN,@ARGS,%ENV)
+    Scalar[::T] does RW[Single[T]];    # $*IN
+    Array[::T]  does RW[Plural[T]];    # @*ARGS
+    Hash[::T]   does RW[Plural[T]];    # %*ENV
+    List[::T]   does RW[Plural[T]];    # ($*IN,@*ARGS,%*ENV)
 
 Note that the list-associative infix:<,> has two variants: If all its arguments
 does RW, it returns a List; otherwise it returns a Tuple.  This matches the Perl5

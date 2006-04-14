@@ -225,8 +225,8 @@ sub load_params {
                 unpack_params($content) if $content;
             }
         }
-        elsif (@ARGS) {
-            my $input = join('', @ARGS);
+        elsif (@*ARGS) {
+            my $input = join('', @*ARGS);
             unpack_params($input);
         }
         else {

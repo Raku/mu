@@ -34,9 +34,9 @@ my $VERSION = "Pugs $?PUGS_VERSION";
 
 initialise();
 
-@uploaded_files = ftp_upload_files(@ARGS);
+@uploaded_files = ftp_upload_files(@*ARGS);
 pause_add_files(@uploaded_files) if @uploaded_files > 0;
-_verbose(int(@ARGS), int(@ARGS) == 1 ?? " file " !! " files ",
+_verbose(int(@*ARGS), int(@*ARGS) == 1 ?? " file " !! " files ",
          "uploaded successfully.\n");
 
 exit 0;
@@ -63,7 +63,7 @@ sub initialise () {
     # expand any embedded variables - eg if you have a $ sign
     # in your password.
     #-------------------------------------------------------------------
-    $HOME = %ENV<HOME>;
+    $HOME = %*ENV<HOME>;
     $config_file = "$HOME/.pause";
     $config = eval(q!
         my $config = AppConfig::Std->new();
@@ -86,14 +86,14 @@ sub initialise () {
     {
         $config.file($config_file) || exit 1;
     }
-    $config.args(\@ARGS)
+    $config.args(\@*ARGS)
         || die "run \"$PROGRAM -help\" to see valid options\n";
 
     #-------------------------------------------------------------------
     # Check we have the information we need
     #-------------------------------------------------------------------
 
-    die "No files specified for upload\n" unless @ARGS > 0;
+    die "No files specified for upload\n" unless @*ARGS > 0;
 
     die "No email address (mailto) specified\n" unless $config.mailto;
     die "No PAUSE user specified\n"             unless $config.user;

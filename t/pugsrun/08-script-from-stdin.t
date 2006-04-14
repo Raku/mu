@@ -12,7 +12,7 @@ indicated by the C<-> switch.
 
 my @examples = map -> Junction $_ { $_.values } (
    any('say qq.Hello Pugs.',
-       'say @ARGS',
+       'say @*ARGS',
    )
 );
 

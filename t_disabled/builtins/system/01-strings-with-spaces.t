@@ -99,7 +99,7 @@ my @command = (
   #[$INTERPRETER, "$cwd/$batx"],
   #[$INTERPRETER, "$cwdb\\$batbx"],
   #[$INTERPRETER, "-w", "$cwdb\\$batbx"],
-  #[$pugs,'-e',q!say('['~$*PROGRAM_NAME~']['~@ARGS.join('][')~']')!],
+  #[$pugs,'-e',q!say('['~$*PROGRAM_NAME~']['~@*ARGS.join('][')~']')!],
   [$pugs,$plx],
   [$pugs,$plxb],
 );

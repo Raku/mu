@@ -10,7 +10,7 @@
 
 use v6;
 
-my @speldirs = split /\:+/, %ENV<SPELWORDS> || "%ENV<HOME>:.";
+my @speldirs = split /\:+/, %*ENV<SPELWORDS> || "%*ENV<HOME>:.";
 my @spelfiles;
 for @speldirs -> $d {
    push @spelfiles, map { "$d/$_" } grep { $_ ~~ /.spel$/ } readdir $d;

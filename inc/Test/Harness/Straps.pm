@@ -455,7 +455,7 @@ sub _filtered_INC {
     @inc = @INC unless @inc;
 
     if( $self->{_is_vms} ) {
-        # VMS has a 255-byte limit on the length of %ENV entries, so
+        # VMS has a 255-byte limit on the length of %*ENV entries, so
         # toss the ones that involve perl_root, the install location
         @inc = grep !/perl_root/i, @inc;
 

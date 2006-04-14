@@ -77,7 +77,7 @@ my  $world = (
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 );
 
-my $gen = @ARGS[0] || 100;
+my $gen = @*ARGS[0] || 100;
 say "Running ", $gen, " generations";
 my $ts = time;
 

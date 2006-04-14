@@ -3,7 +3,7 @@ module Test-0.0.6;
 ### CONSTANTS
 
 # some options available through the environment
-$Test::ALWAYS_CALLER = %ENV<TEST_ALWAYS_CALLER>;
+$Test::ALWAYS_CALLER = %*ENV<TEST_ALWAYS_CALLER>;
 
 ### GLOBALS
 

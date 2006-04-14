@@ -2,7 +2,7 @@
 
 use v6;
 
-my $port = @ARGS[0] // 8080;
+my $port = @*ARGS[0] // 8080;
 my $sock = listen($port);
 
 say "Please connect to:";

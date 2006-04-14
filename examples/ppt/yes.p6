@@ -4,15 +4,15 @@ use v6;
 
 my $VERSION = '0.1';
 
-for @ARGS {
+for @*ARGS {
     when <--version> { version() };
     when <--help>    { help() };
-    when <-->        { shift @ARGS; last };
+    when <-->        { shift @*ARGS; last };
 }
 
-@ARGS = <y> unless @ARGS;
+@*ARGS = <y> unless @*ARGS;
 
-loop { say @ARGS.join(" ") };
+loop { say @*ARGS.join(" ") };
 
 sub version {
     say "$*PROGRAM_NAME (Perl6 Power Tools) $VERSION";

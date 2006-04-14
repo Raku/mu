@@ -199,14 +199,14 @@ my $tail = 'tail.p6';
 my $rev  = 'rev.p6';
 my $mid  = 'mid.p6';
 my $wc   = 'wc.p6';
-if @ARGS {
-    +@ARGS == 6 or usage();
-    $PUGS = @ARGS.shift();
-    $head = @ARGS.shift();
-    $tail = @ARGS.shift();
-    $rev  = @ARGS.shift();
-    $mid  = @ARGS.shift();
-    $wc   = @ARGS.shift();
+if @*ARGS {
+    +@*ARGS == 6 or usage();
+    $PUGS = @*ARGS.shift();
+    $head = @*ARGS.shift();
+    $tail = @*ARGS.shift();
+    $rev  = @*ARGS.shift();
+    $mid  = @*ARGS.shift();
+    $wc   = @*ARGS.shift();
 }
 -f $head or die("error: file '$head' not found");
 -f $tail or die("error: file '$tail' not found");
