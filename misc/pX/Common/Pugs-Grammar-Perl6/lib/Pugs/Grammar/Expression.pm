@@ -14,21 +14,28 @@ $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
 
 our $parser = Pugs::Compiler::Rule->compile( q(
-        # { print "Grammar::Expression::parse $_[0] \n";
-        #  # print (keys %Pugs::Grammar::Term::hash),"\n"; 
-        # }
+        #~ { print "Grammar::Expression::parse '$_[0]' \n";
+          #~ # print (keys %Pugs::Grammar::Term::hash),"\n"; 
+        #~ }
         
         <?ws>?
+            #~ <Pugs::Grammar::StatementControl.parse>     <?ws>?
+            #~ {
+                #~ return $/{'Pugs::Grammar::StatementControl.parse'}->();
+            #~ }
+        #~ |
         ( 
             #{ print "trying term\n"; } 
-            %Pugs::Grammar::Term::hash     <?ws>?
+            <Pugs::Grammar::Term.parse>     <?ws>?
             #{ print "term\n"; } 
         |
             #{ print "trying op\n"; } 
-            %Pugs::Grammar::Operator::hash <?ws>? 
+            <Pugs::Grammar::Operator.parse> <?ws>? 
             #{ print "op\n";   } 
         )*
+        #~ { print "matched ", Dumper(@_); }
         <before  \} | \{ | $ >   # XXX
+        #{ print "before $_[0]\n"; }
         
         { 
             # print "Grammar::Expression::parse returning \n";
@@ -43,22 +50,25 @@ our $parser = Pugs::Compiler::Rule->compile( q(
 sub ast {
     my $match = shift;
 
-    # print "Grammar::Expression::AST $match \n";
+    #print "Grammar::Expression::AST $match \n";
 
     #print $rule->perl5;
     # my $match = $exp->match( q(10 + $a / "abc") );
     #print Dumper( $match->[0] );
     my $m = $match->[0];
-    return unless defined $m;
+    return {} unless defined $m;
     my @m = @$m;
     #print Dumper( @m );
     #is( join(';', map { $_->() } @m), q(10 ;+ ;$a ;/ ;"abc"), 'split on terms' );
 
     my @in;
     for my $term ( @m ) {
+        my ($k) = keys %$term;
+        #print %$term, "\n";
         #print $term->(), "\n";
-        #print Dumper ${$term}->{match}{match}[0]{match}[1]{capture};
-        my $ast = ${$term}->{match}{match}[0]{match}[1]{capture};
+        #print Dumper $term->{$k};
+        my $ast = $term->{$k}();
+        #my $ast = ${$term}->{match}{match}[0]{match}[1]{capture};
         my ($type) = keys %$ast;
         #print "type: $type\n";
         if ( $type eq 'op' ) {

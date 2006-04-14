@@ -49,6 +49,32 @@ BEGIN {
         precedence => 'equal',
         other => '*',
     );
+    
+    __PACKAGE__->add_rule( 
+        name => 'Y',
+        assoc => 'list',
+        precedence => 'looser',
+        other => '+',
+    );
+    __PACKAGE__->add_rule( 
+        name => '¥',
+        assoc => 'list',
+        precedence => 'equal',
+        other => 'Y',
+    );
+    __PACKAGE__->add_rule( 
+        name => ',',
+        assoc => 'list',
+        precedence => 'equal',
+        other => 'Y',
+    );
+    __PACKAGE__->add_rule( 
+        name => ';',
+        assoc => 'list',
+        precedence => 'looser',
+        other => 'Y',
+    );
+
     __PACKAGE__->recompile;
 }
 
