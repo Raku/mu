@@ -168,7 +168,7 @@ sub closure {
     
     return 
         "$_[1] sub {\n" . 
-        "$_[1]     $code;\n" . 
+        "$_[1]     $code( \@_ );\n" . 
         "$_[1]     return { bool => 1, tail => \$_[0] }\n" .
         "$_[1] }\n"
         unless $code =~ /return/;
@@ -197,7 +197,7 @@ sub before {
 }
 sub colon {
     my $str = $_[0];
-    return "$_[1] alternation( [ null(), abort() ] ) \n"
+    return "$_[1] alternation( [ null(), fail() ] ) \n"
         if $str eq ':';
     return "$_[1] end_of_string() \n" 
         if $str eq '$';

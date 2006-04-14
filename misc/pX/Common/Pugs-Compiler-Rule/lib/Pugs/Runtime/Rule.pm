@@ -107,7 +107,7 @@ sub concat {
             $matches[0] = $nodes[0]->( $tail, $state[0], $_[2], $_[3]{match}[0], @_[4,5,6] );
             $matches[0] = ${$matches[0]} if ref($matches[0]) eq 'Pugs::Runtime::Match';
             ### 1st match: $matches[0]
-            return $matches[0] 
+            return $_[3] = $matches[0] 
                 if $matches[0]{abort};
             if ( ! $matches[0]{bool} ) {
                 return unless defined $matches[0]{state};
@@ -121,12 +121,14 @@ sub concat {
             $matches[1] = $nodes[1]->( $matches[0]{tail}, $state[1], $_[2], $_[3]{match}[1], @_[4,5,6] );
             $matches[1] = ${$matches[1]} if ref($matches[1]) eq 'Pugs::Runtime::Match';
             ### 2nd match: $matches[1]
+            if ( ! $matches[1]{abort} ) {
+                # die "not implemented";
+                # XXX - untested (use ':' to test this)
+                # XXX - what to do with $matches[0] ???
+                #return $_[3] = $matches[1];
+            #}
+            
             if ( ! $matches[1]{bool} ) {
-                
-                if ( $matches[1]{abort} ) {
-                    die "not implemented";
-                }
-
                 if ( ! defined( $matches[1]{state} ) ) {
                     return unless defined $matches[0]{state};
                     @state = ( $matches[0]{state}, 0 );
@@ -136,7 +138,7 @@ sub concat {
                 next;
             }
             
-
+            }
             #print "Matched concat 1, tree:", Dumper($_[2]) if defined $_[2];
 
             my $succ;
@@ -162,7 +164,7 @@ sub concat {
             $match2->{match} = \@matches;
             $match2->{state} = $succ;
             delete $match2->{label};
-            delete $matches[1]{abort};
+            #delete $matches[1]{abort};
             delete $matches[1]{return};
 
             # print "concat: ",Dumper( $match2 );
@@ -262,11 +264,21 @@ sub try {
 sub abort { 
     my $op = shift;
     return sub {
+        #print __PACKAGE__ . "->abort\n";
+        #print caller;
         my $match = $op->( @_ );
         ### aborting match: $match
         $match->{abort} = 1;
         return $match;
     };
+};
+
+sub fail { 
+    return abort( 
+        sub {
+            return { bool => 0 };
+        } 
+    );
 };
 
 # experimental!
@@ -286,8 +298,8 @@ sub before {
     my $op = shift;
     return sub {
         my $match = $op->( @_ );
-        return $match unless $match->{bool};
-        return { bool => 1,
+        #return $match unless $match->{bool};
+        return { bool => $match->{bool},
                  tail => $_[0],
                }
     };
