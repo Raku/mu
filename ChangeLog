@@ -1,15 +1,16 @@
-= Changes for 6.28.0 (rXXXX) - Feb XX, 2006
+= Changes for 6.28.0 (rXXXX) - Apr XX, 2006
 
 == Bundled Modules
 
 === New Perl 6 modules
 
+* [ext/Relation/]: Relation type for Perl 6.
 
 === Updated modules
 
 * [ext/Rosetta/]: Multiple additions and rewrites.
 ** Merged ext/Rosetta-Engine-Native/ in, renamed to ::Example.
-** Now officially implements "The Third Manifesto".
+** Now officially incorporates "The Third Manifesto".
 ** Rewrote Language.pod, large updates to some other files.
 
 === Experimental modules (in misc/, not installed)
