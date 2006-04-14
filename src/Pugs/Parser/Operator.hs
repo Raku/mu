@@ -57,7 +57,7 @@ tightOperators = do
     -- Assignment
     , rightOps " => "                                -- Pair constructor
       ++ rightSyn (
-               " = := ::= " ++
+               " = := ::= .= " ++
                " ~= += -= *= /= %= x= Y= ¥= **= xx= ||= &&= //= ^^= " ++
                " +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= ")
     ]
