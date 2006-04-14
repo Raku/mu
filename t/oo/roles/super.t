@@ -27,7 +27,7 @@ role ChildRole does ParentRole
     {
         return if $call_count++ > 1;
         my $rv;
-        eval {
+        try {
            # XXX - SUPER and Roles?
            $rv = $self.SUPER::interesting();
         };
