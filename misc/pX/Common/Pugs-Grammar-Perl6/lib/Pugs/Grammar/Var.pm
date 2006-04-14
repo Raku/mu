@@ -28,27 +28,27 @@ and maybe
 # TODO - implement the "magic hash" dispatcher
 # TODO - generate AST
 
-*ident = Pugs::Compiler::Rule->compile( '
-            [
-                [ \:\: ]?
-                [ \_ | <alnum> ]+
-            ]+
-            { return { scalar => "\$" . $() ,} }
-        ' )->code;
+#~ *ident = Pugs::Compiler::Rule->compile( '
+            #~ ([
+                #~ [ \:\: ]?
+                #~ [ \_ | <alnum> ]+
+            #~ ]+)
+            #~ { return { ident => $_[0][0]() ,} }
+        #~ ' )->code;
 
 BEGIN {
-    __PACKAGE__->add_rule( '$' => '
-                <Pugs::Grammar::Var.ident>
-                { return { scalar => "\$" . $() ,} }
-            ' );
-    __PACKAGE__->add_rule( '@' => '
-                <Pugs::Grammar::Var.ident>
-                { return { array => "\@" . $() ,} }
-            ' );
-    __PACKAGE__->add_rule( '%' => '
-                <Pugs::Grammar::Var.ident>
-                { return { hash => "\%" . $() ,} }
-            ' );
+    __PACKAGE__->add_rule( '$' => q(
+                <Pugs::Grammar::Rule.ident>
+                { return { scalar => '$' . $_[0]->{'Pugs::Grammar::Rule.ident'}() ,} }
+            ) );
+    __PACKAGE__->add_rule( '@' => q(
+                <Pugs::Grammar::Rule.ident>
+                { return { array => "\@" . $_[0]->{'Pugs::Grammar::Rule.ident'}() ,} }
+            ) );
+    __PACKAGE__->add_rule( '%' => q(
+                <Pugs::Grammar::Rule.ident>
+                { return { hash  => "\%" . $_[0]->{'Pugs::Grammar::Rule.ident'}() ,} }
+            ) );
     __PACKAGE__->recompile;
 }
 
