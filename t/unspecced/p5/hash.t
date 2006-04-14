@@ -62,7 +62,7 @@ my $p5hash = $p5ha.new(\%hash);
 my $rethash = $p5hash.hash;
 my @keys = %hash.keys.sort;
 my @p5keys;
-eval {
+try {
     @p5keys = $p5hash.my_keys; # this doesn't even pass lives_ok ??
     @p5keys .= sort;
 };
