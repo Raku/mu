@@ -520,6 +520,8 @@ Jesse Vincent <jesse@bestpractical.com>
 
 Yuval Kogman <nothingmuch@woobling.org>
 
+Darren Duncan <perl@DarrenDuncan.net>
+
 Nathan Gray <kolibrie@graystudios.org>
 
 Max Maischein <corion@cpan.org>
