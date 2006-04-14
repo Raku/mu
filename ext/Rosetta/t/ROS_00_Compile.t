@@ -40,7 +40,7 @@ skip( 1, q{is( Rosetta::Engine::Example::L::en.meta.identifier.version, 0.2.1,
     'Rosetta::Engine::Example::L::en is the correct version' );} );
 
 use Rosetta::Shell; pass "(dummy instead of broken use_ok)";
-skip( 1, q{is( Rosetta::Shell.meta.identifier.version, 0.1.1,
+skip( 1, q{is( Rosetta::Shell.meta.identifier.version, 0.1.2,
     'Rosetta::Shell is the correct version' );} );
 
 use Rosetta::Shell::L::en; pass "(dummy instead of broken use_ok)";
