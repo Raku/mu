@@ -1,10 +1,12 @@
 use lib 
     '../Pugs-Compiler-Rule/lib',
-    '../Pugs-Compiler-Tokenizer/lib',
     '../Pugs-Compiler-Precedence/lib',
 ;
 
-use Test::More 'no_plan';
+use strict;
+use warnings;
+
+use Test::More tests => 15;
 
 use Pugs::Compiler::Rule;
 use Pugs::Grammar::Precedence;
@@ -27,11 +29,35 @@ $Data::Dumper::Sortkeys = 1;
 }
 
 {
+    my $match = Pugs::Grammar::Expression->parse( q($a) );
+    #print Dumper $match->();
+    is_deeply(
+        $match->(), { 'scalar' => '$a' ,}, 
+        'the expression compiler looks ok - var without spaces' );
+}
+
+{
     my $match = Pugs::Grammar::Expression->parse( q( $a ) );
     #print Dumper $match->();
     is_deeply(
         $match->(), { 'scalar' => '$a' ,}, 
-        'the expression compiler looks ok - var' );
+        'the expression compiler looks ok - var with spaces' );
+}
+
+{
+    my $match = Pugs::Grammar::Expression->parse( q($a {) );
+    #print Dumper $match->();
+    is_deeply(
+        $match->(), { 'scalar' => '$a' ,}, 
+        'the expression compiler looks ok - var before {' );
+}
+
+{
+    my $match = Pugs::Grammar::Expression->parse( q($a )."\n" );
+    #print Dumper $match->();
+    is_deeply(
+        $match->(), { 'scalar' => '$a' ,}, 
+        'the expression compiler looks ok - var before newline' );
 }
 
 {
@@ -39,11 +65,11 @@ $Data::Dumper::Sortkeys = 1;
     #print Dumper $match->();
     is_deeply(
         $match->(), { 
-          'statements' => [
-            {
+          #'statements' => [
+          #  {
               'num' => '10'
-            }
-          ]
+          #  }
+          #]
         }, 
         'a simple statement' );
 }
@@ -53,8 +79,8 @@ $Data::Dumper::Sortkeys = 1;
     #print Dumper $match->();
     is_deeply(
         $match->(), {
-          'statements' => [
-            {
+          #'statements' => [
+          #  {
               'list' => [
                 {
                   'num' => '10'
@@ -64,8 +90,8 @@ $Data::Dumper::Sortkeys = 1;
                 }
               ],
               'op1' => ';'
-            }
-          ]
+          #  }
+          #]
         }, 
         'statements' );
 }
@@ -76,8 +102,8 @@ $Data::Dumper::Sortkeys = 1;
     is_deeply(
         $match->(), 
         { 
-          'statements' => [
-            {
+          #'statements' => [
+          #  {
               'exp1' => {
                 'num' => '10'
               },
@@ -85,8 +111,8 @@ $Data::Dumper::Sortkeys = 1;
                 'num' => '10'
               },
               'op1' => '+'
-            }
-          ]
+          #  }
+          #]
         }, 
         'a simple statement 2' );
 }
@@ -98,11 +124,7 @@ $Data::Dumper::Sortkeys = 1;
         $match->(),
         {             
           'bare_block' => {
-            'statements' => [
-              {
-                'num' => '10'
-              }
-            ]
+            'num' => '10'
           }
         },
         'a bare block'
@@ -116,9 +138,9 @@ $Data::Dumper::Sortkeys = 1;
         $match->(),
         {             
           'bare_block' => {
-            'statements' => [
-              ''
-            ]
+            #'statements' => [
+            #  {}
+            #]
           }
         },
         'an empty block'
@@ -133,11 +155,11 @@ $Data::Dumper::Sortkeys = 1;
          {     
           'if' => {
             'block' => {
-              'statements' => [
-                {
+              #'statements' => [
+              #  {
                   'num' => '20'
-                }
-              ]
+              #  }
+              #]
             },
             'exp' => {
               'num' => '10'
@@ -149,7 +171,7 @@ $Data::Dumper::Sortkeys = 1;
 }
 
 {
-    my $match = Pugs::Grammar::StatementControl->parse( q( if 10 { 20; 30 }) );
+    my $match = Pugs::Grammar::StatementControl->parse( q(if 10 { 20; 30 }) );
     #print Dumper $match->();
     is_deeply(
         $match->(),
@@ -157,8 +179,8 @@ $Data::Dumper::Sortkeys = 1;
 
           'if' => {
             'block' => {
-              'statements' => [
-                {
+              #'statements' => [
+              #  {
                   'list' => [
                     {
                       'num' => '20'
@@ -168,8 +190,8 @@ $Data::Dumper::Sortkeys = 1;
                     }
                   ],
                   'op1' => ';'
-                }
-              ]
+              #  }
+              #]
             },
             'exp' => {
               'num' => '10'
@@ -181,17 +203,27 @@ $Data::Dumper::Sortkeys = 1;
     );
 }
 
-#__END__
 {
-    my $match = Pugs::Grammar::StatementControl->parse( q( 
-        if $i {  if $a { $b }  }
-    ) );
-    print Dumper $match->();
+    my $match = Pugs::Grammar::StatementControl->parse( q(if $i { if $a { $b } }) );
+    #print Dumper $match->();
     is_deeply(
         $match->(),
         {
-
-
+          'if' => {
+            'block' => {
+              'if' => {
+                'block' => {
+                  'scalar' => '$b'
+                },
+                'exp' => {
+                  'scalar' => '$a'
+                }
+              }
+            },
+            'exp' => {
+              'scalar' => '$i'
+            }
+          }
         },
         'if inside if'
     );
@@ -199,14 +231,12 @@ $Data::Dumper::Sortkeys = 1;
 
 {
     my $match = Pugs::Grammar::StatementControl->parse( q({{}}) );
-    print Dumper $match->();
+    # print Dumper $match->();
     is_deeply(
         $match->(),
         {             
           'bare_block' => {
-            'statements' => [
-              ''
-            ]
+            'bare_block' => {}
           }
         },
         'a block with an empty block'
@@ -214,16 +244,33 @@ $Data::Dumper::Sortkeys = 1;
 }
 
 {
-    my $match = Pugs::Grammar::StatementControl->parse( q( 
-        if 11 {  if $a { $b }  }
-    ) );
-    print Dumper $match->();
+    my $match = Pugs::Grammar::StatementControl->statement_list( q(
+        if 11 {  
+            if $a { 
+                $b;
+            }  
+        }
+     ) );
+    #print Dumper $match->();
     is_deeply(
         $match->(),
         {
-
-
+          'if' => {
+            'block' => {
+              'if' => {
+                'block' => {
+                  'scalar' => '$b'
+                },
+                'exp' => {
+                  'scalar' => '$a'
+                }
+              }
+            },
+            'exp' => {
+              'num' => '11'
+            }
+          }
         },
-        'if inside if 2'
+        'if inside if 2 with newlines'
     );
 }
