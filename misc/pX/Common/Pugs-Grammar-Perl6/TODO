@@ -1,6 +1,18 @@
 ﻿TODO list for Pugs-Compiler-Tokenizer
 * The BUG list is below
 
+Priorities
+
+- merge Pod.pm into statement-list
+- pass t/01-sanity/*
+
+- special cases
+ moose=>1
+ moose:<elk>
+ moose:{antler()}
+
+TODO
+
 - Implement base 'tokens-class' (category?)
 - Implement compile-time dynamic 'add_token' (lexical at run-time)
 
@@ -54,6 +66,4 @@ BUGS
     # print Dumper ${$_[0]}->{match}[0]{match}[1]{capture}; 
     return ${$_[0]}->{match}[0]{match}[1]{capture};
   }
-
-- error/infinite loop in reentrant Expression.pm
 
