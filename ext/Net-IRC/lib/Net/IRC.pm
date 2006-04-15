@@ -133,9 +133,9 @@ sub new_bot(
     return unless defined $chan;
     $chan = normalize $chan;
 
-    my @nicks = split(" ", $nicks)
-               .map:{ ($_ ~~ m:P5/^[@+%]?(.+)/)[0] }
-               .grep:{ defined $_ }
+    my @nicks = split(" ", $nicks).
+               .map:{ ($_ ~~ m:P5/^[@+%]?(.+)/)[0] }.
+               .grep:{ defined $_ }.
                .map:{ normalize $_ };
 
     unless defined %cache353{$chan} {
@@ -232,7 +232,7 @@ sub new_bot(
     %users.delete(normalize $killee);
   }];
 
-  # Somebody quit. Remove him/she from %users and %channels.
+  # Somebody quit. Remove him/her from %users and %channels.
   %handler<QUIT> = [-> $event {
     my @chans = %users{normalize $event<from_nick>}<channels>.keys;
     %channels{$_}<users>.delete(normalize $event<from_nick>) for @chans;
