@@ -1,31 +1,37 @@
-= Q: What happened to references?
+=head1 NAME
 
-A: They have been superseded by Captures.
+Perl6::FAQ::Capture - Capture objects
 
+=head1 DESCRIPTION
 
-= Q: What is a Capture?
+This FAQ answers questions about B<Capture> objects, as well as their uses in
+bindings and function calls.
+
+=head2 What happened to references?
+
+They have been superseded by Capture objects.
+
+=head2 What is a Capture?
 
 A Capture is an object representing arguments in a function call.
 
-For example, the arguments in say("Hello", "World") is a Capture object
-denoted by \("Hello", "World").
+For example, the arguments in C<say("Hello", "World")> is a Capture object
+denoted by C<\("Hello", "World")>.
 
+=head2 Can I see how captures look like? Does \$x no longer work?
 
-= Q: Can I see how captures look like? Does \$x no longer work?
-
-Prefix \ is now the Capture constructor.  These are all equivalent:
+Prefix C<\> is now the Capture constructor.  These are all equivalent:
 
   my $xcap1 = \$x;
   my $xcap2 = \($x);
   my $xcap3 = \($x :);
 
-All three represent an argument list with a single invocant $x, and hence are
+All three represent an argument list with a single invocant C<$x>, and hence are
 all equivalent with each other:
 
   $xcap1 === $xcap2 === $xcap3; # true
 
-
-= Q: What about capturing multiple arguments?
+=head2 What about capturing multiple arguments?
 
 Here's how Captures look like deferred argument lists:
 
@@ -41,8 +47,7 @@ Here's how Captures look like deferred argument lists:
   # or by name
   say "It has $car_cap<doors> doors" # 2 doors
 
-
-= Q: How do I extract all positional arguments or all named arguments?
+=head2 How do I extract all positional arguments or all named arguments?
 
 As you can see above, a Capture object holds both positional and named parts.
 If you want to retrieve all positional parts, there are two ways:
@@ -51,18 +56,19 @@ If you want to retrieve all positional parts, there are two ways:
   @$cap;   # prefix @
 
 Both forms flatten under list context, so they may be used interchangeably.
-However, only the postfix .[] form interpolates in a string.
+However, only the postfix C<.[]> form interpolates in a string.
 
-Similarly, access to named arguments is available by treating the Capture as a hash:
+Similarly, access to named arguments is available by treating the Capture
+as a hash:
 
   $cap{};  # postfix .{}
   %$cap;   # prefix %
 
 Note that the positional parts do not include the invocant.
 
-= Q: What do you mean by "invocant"?
+=head2 What do you mean by "invocant"?
 
-When you call a object's method, the "self" inside the method is set to that
+When you call a object's method, the C<self> inside the method is set to that
 object. These are all equivalent:
 
   $fh.say("Hi!");
@@ -82,13 +88,11 @@ So this Perl5ish equivalence still holds:
 
   $x === $(\$x);
 
-
-= Q: What about multimethod dispatch and cases where there is more than one invocant?
+=head2 What about multimethod dispatch and cases where there is more than one invocant?
 
 There's always one invocant, but it may be an Array of several values (see below).
 
-
-= Q: What happens when a named argument is repeated?
+=head2 What happens when a named argument is repeated?
 
 Let's look at some examples:
 
@@ -99,15 +103,15 @@ Let's look at some examples:
   board_ark( animal => "moose", animal => "elephant"); # 2 animals 
 
 A Capture object may hold named arguments that occur twice or more.  When it's
-bound to a variable in the Signature, if the sigil is "@", then it expands to a
-list of all arguments (in the order they were specified).  Otherwise (i.e. if
-it's bound to a scalar or a slurpy hash), the last argument overrides the
-previous ones.
+bound to a variable in the Signature, if the sigil is C<@>, then it expands to a
+list of all arguments (in the order they were specified).
 
+Otherwise (i.e. if it's bound to a scalar or a slurpy hash), the last argument
+overrides the previous ones.
 
-= Q: What do *$x, *@x and *%x mean?
+=head2 What do *$x, *@x and *%x mean?
 
-The prefix * method casts an object into a Capture object, and merges it
+The prefix C<*> method casts an object into a Capture object, and merges it
 into the Capture being currently constructed (e.g. an argument list):
 
     my $cap = \(1, 2, x=>42);
@@ -120,10 +124,9 @@ Array, List, Hash and Pair objects cast into Capture objects in obvious ways:
     my $h = {x => 42};  f(*$h);     # f(x => 42)
     my $p = (x => 42);  f(*$p);     # f(x => 42)
 
+=head2 What does $x = \@y mean?
 
-= Q: What does $x = \@y mean?
-
-The same as $x = (@y: ). That is, a Capture of one array as invocant. 
+The same as C<$x = (@y: )>. That is, a Capture of one array as invocant. 
 
 Unlike in Perl 5, this means that you can get back the Array object with:
 
@@ -138,17 +141,16 @@ Manipulating the original value via the $x capture is still possible:
   $$x.push("another element");
   
 Note the need for the extra $ sigil, implying we are accessing the captured invocant.
-@$x.push() would mean an attempt to add an extra positional argument into $x; however,
-this is forbidden by the spec, as all parts are immutable in an Capture object.
+C<@$x.push()> would mean an attempt to add an extra positional argument into
+C<$x>; this would fail as all parts are immutable in an Capture object.
 
 (Captures are immutable; their underlying data may not be.)
 
+=head2 So $x = @y does not mean $x = \@y anymore. What does it mean then?
 
-= Q: So $x = @y does not mean $x = \@y anymore. What does it mean then?
+It means assigning C<$x> with the object bound to C<@y> (typically an Array object).
 
-Assign $x with the object @y is bound to (typically an Array object).
-
-This does not create Capture objects; to get back @y, @$x would do.
+This does not create Capture objects; to get back C<@y>, C<@$x> would do.
 
 Also note that all these forms mean the same thing:
 
@@ -159,26 +161,28 @@ Also note that all these forms mean the same thing:
   @y[][];
   @y[][][];
 
-= Q: Does this mean I can't have something akin to a refrence to a reference?
+=head2 Does this mean I can't have something akin to a refrence to a reference?
 
 You can, as a Capture can contain another capture object in its invocant slot:
 
     my $x = \\3;
     say $$$x; # same as "say 3"
 
-= Q: Can I create a "pass-through" function that captures all arguments?
+=head2 Can I create a "pass-through" function that captures all arguments?
 
-Yes, using the \$ signature:
+Yes, using the C<\$> signature:
 
     sub f (\$args) { g(*$args) }
     f(1, 2, x => 42);   # same as g(1, 2, x => 42)
 
-The $args above becomes a Capture object.
+The C<$args> above becomes a Capture object.
 
-= Q: How is @x = (1, 2, 3) different from @y := (1, 2, 3) ?
+=head2 How is @x = (1, 2, 3) different from @y := (1, 2, 3) ?
 
-The latter is an error. :-)  The := operator binds its left hand side (a Signature object)
-to its right hand side (a Capture object), so the latter form is akin to:
+The latter is an error. :-)
+
+The C<:=> operator binds its left hand side (a Signature object) to its right
+hand side (a Capture object), so the latter form is akin to:
 
   sub foo (@y is rw) { ... }
   foo(1, 2, 3); # error: three arguments passed where one is expected
@@ -192,10 +196,9 @@ However, these forms are valid:
 
 But they are still different from the assignment form.
 
+=head2 How is @x = (1, 2, 3) different from *@y := (1, 2, 3), then?
 
-= Q: How is @x = (1, 2, 3) different from *@y := (1, 2, 3), then?
-
-This means that while @y holds the values 1, 2, and 3, you cannot modify the
+This means that while C<@y> holds the values 1, 2, and 3, you cannot modify the
 container itself, so this won't work:
 
   @y.push(4);   # error: cannot find method: List.push
@@ -206,26 +209,24 @@ two mean the same:
   my @x := [];  # new Array object 
   my @x;        # implicitly does the same thing
 
-so @x = (1, 2, 3) would simply populate the previously allocated Array object
+so C<@x = (1, 2, 3)> would simply populate the previously allocated Array object
 with new elements.
 
-
-= Q: Is there any difference between $x = (1, 2, 3) and @y = (1, 2, 3)?
+=head2 Is there any difference between $x = (1, 2, 3) and @y = (1, 2, 3)?
 
 Yes.  The right-hand side in both case is a single List object constructed with
-the list-associative infix:<,> operator, but it is flattened in the second
+the list-associative C<< infix:<,> >> operator, but it is flattened in the second
 case, and its elements are put into the previously allocated Array container
-bound to @y:
+bound to C<@y>:
 
     $x.push(0); # error: cannot find method: List.push
     @y.push(0); # works just fine
 
+=head2 Is there any difference between $x = [1, 2, 3] and @y = [1, 2, 3]?
 
-= Q: Is there any difference between $x = [1, 2, 3] and @y = [1, 2, 3]?
-
-Yes.  As in Perl 5, the Array constructor [...] does not flatten under list
-context, so @y receives a List with one element (an Array object), which then
-becomes @y[0]:
+Yes.  As in Perl 5, the Array constructor C<circumfix:[ ]> does not flatten
+under list context, so C<@y> receives a List with one element (an Array
+object), which then becomes C<@y[0]>:
 
     $x.elems; # 3
     @y.elems; # 1
@@ -236,8 +237,7 @@ The behaviours below are similar to Perl 5 as well:
     @y[0].push(0);  # works - @y.elems remains 1
     @y.push(0);     # works - @y.elems becomes 2 
 
-
-= Q: Is there any difference between $x := [1, 2, 3] and @y := [1, 2, 3]?
+=head2 Is there any difference between $x := [1, 2, 3] and @y := [1, 2, 3]?
 
 For the usual method-based operations, they are pretty much interchangeable:
 
