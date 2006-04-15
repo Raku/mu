@@ -259,3 +259,15 @@ However, they differ when you try to assign something into them:
     $x = 42; # fails - Array doesn't handle scalar assignment
     @y = 42; # works - @y.elems is now 1
 
+Note that C<$x = 42> fails because the C<:=> in C<$x := [1, 2, 3]> changes the
+underlying container of $x from a Scalar into an Array.  Compare this with the
+assignment case:
+
+    $x = [1,2,3];
+    $x = 42;        # works just fine
+
+and also binding into an integer:
+
+    $x := 41;
+    $x = 42;        # fails - Int doesn't handle scalar assignment either
+
