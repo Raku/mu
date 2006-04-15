@@ -3,7 +3,7 @@
 
 Priorities
 
-- merge Pod.pm into statement-list
+- merge Pod.pm into Perl6.pm
 - pass t/01-sanity/*
 
 - special cases
