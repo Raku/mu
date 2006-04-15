@@ -6,7 +6,7 @@ use lib
 use strict;
 use warnings;
 
-use Test::More tests => 15;
+use Test::More tests => 17;
 
 use Pugs::Compiler::Rule;
 use Pugs::Grammar::Precedence;
@@ -272,5 +272,79 @@ $Data::Dumper::Sortkeys = 1;
           }
         },
         'if inside if 2 with newlines'
+    );
+}
+
+{
+    my $match = Pugs::Grammar::StatementControl->statement_list( q(
+        { 3 }  
+        { 4 }
+     ) );
+    #print Dumper $match->();
+    is_deeply(
+        $match->(),
+        [
+          {
+            'bare_block' => [
+              {
+                'num' => '3'
+              }
+            ]
+          },
+          {
+            'bare_block' => [
+              {
+                'num' => '4'
+              }
+            ]
+          }
+        ],
+        '2 blocks'
+    );
+}
+
+{
+    my $match = Pugs::Grammar::StatementControl->statement_list( q(
+        { 3 }  7;
+        { 4+5 }  8+9;
+     ) );
+    #print Dumper $match->();
+    is_deeply(
+        $match->(),
+        [
+          {
+            'bare_block' => [
+              {
+                'num' => '3'
+              }
+            ]
+          },
+          {
+            'num' => '7'
+          },
+          {
+            'bare_block' => [
+              {
+                'exp1' => {
+                  'num' => '4'
+                },
+                'exp2' => {
+                  'num' => '5'
+                },
+                'op1' => '+'
+              }
+            ]
+          },
+          {
+            'exp1' => {
+              'num' => '8'
+            },
+            'exp2' => {
+              'num' => '9'
+            },
+            'op1' => '+'
+          }
+        ],
+        '2 blocks, 2 expressions'
     );
 }

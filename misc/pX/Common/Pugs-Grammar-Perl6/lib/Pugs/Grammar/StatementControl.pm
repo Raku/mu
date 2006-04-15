@@ -5,6 +5,7 @@ use base qw(Pugs::Grammar::BaseCategory);
 
 # TODO - implement the "magic hash" dispatcher
 # TODO - generate AST
+# TODO - redefine <ws> to test Pod.pm after each \n
 
 *statement_list
     = Pugs::Compiler::Rule->compile( q(
@@ -14,21 +15,38 @@ use base qw(Pugs::Grammar::BaseCategory);
             <Pugs::Grammar::StatementControl.parse> 
             #{ print "end of statement\n"; }
             <?ws>?
+            <statement_list>?
             {
                 #print "statement... $/ \n";
-                return $/{'Pugs::Grammar::StatementControl.parse'}->();
+                my $match = $/{'statement_list'}[0];
+                #print "match ", ref $match, "\n";
+                #print "match: ",Dumper $match->();
+                #my @a = @{ $match->() };
+                return [
+                    $/{'Pugs::Grammar::StatementControl.parse'}->(),
+                    @{ $match->() },
+                ];
             }
         |
             #{ print "trying Grammar::Expression::parse $_[0] \n"; }
-            <Pugs::Grammar::Expression.parse> \;? :
+            <Pugs::Grammar::Expression.parse> \;?
+            #\;
+            <statement_list>?
             {
+                #print "tail ", ${$_[0]}->{tail}, "\n";
                 #print "expression... $/ \n";
-                return $/{'Pugs::Grammar::Expression.parse'}->();
+                my $match = $/{'statement_list'}[0];
+                #print "match ", ref $match, "\n";
+                #print "match: ",Dumper $match->();
+                return [
+                    $/{'Pugs::Grammar::Expression.parse'}->(),
+                    @{ $match->() },
+                ];
             }
         |
             { 
                 #print "no match... $/ \n";
-                return {};
+                return [];
             }
             
     ) )->code;

@@ -32,7 +32,7 @@ our $parser = Pugs::Compiler::Rule->compile( q(
             #{ print "trying op\n"; } 
             <Pugs::Grammar::Operator.parse> <?ws>? 
             #{ print "op\n";   } 
-        )*
+        )+
         #~ { print "matched ", Dumper(@_); }
         <before  \} | \{ | $ >   # XXX
         #{ print "before $_[0]\n"; }
@@ -56,7 +56,7 @@ sub ast {
     # my $match = $exp->match( q(10 + $a / "abc") );
     #print Dumper( $match->[0] );
     my $m = $match->[0];
-    return {} unless defined $m;
+    return [] unless defined $m;
     my @m = @$m;
     #print Dumper( @m );
     #is( join(';', map { $_->() } @m), q(10 ;+ ;$a ;/ ;"abc"), 'split on terms' );
