@@ -403,7 +403,7 @@ C<:p> adverb may be placed on any Hash objects to make it mean
 "pairs" instead of "values".)
 
 Pair constructors are recognized syntactically at the call level and
-put into the named slot of the C<Arguments> structure.  Hence they may be
+put into the named slot of the C<Capture> structure.  Hence they may be
 bound to positionals only by name, not as ordinary positional C<Pair>
 objects.  Leftover named arguments can be slurped into a slurpy hash.
 
@@ -579,7 +579,7 @@ different:
 so that you can use more descriptive internal parameter names without
 imposing inconveniently long external labels on named arguments.
 
-Arguments that correspond to named parameters are evaluated in scalar
+Capture that correspond to named parameters are evaluated in scalar
 context. They can only be passed by name, so it doesn't matter what
 order you pass them in, so long as they don't intermingle with any
 positional arguments:
@@ -681,13 +681,13 @@ last if you want to force it to come in as the last argument.
 
 =head2 Argument list binding
 
-The underlying C<Arguments> object may be bound to a single scalar
+The underlying C<Capture> object may be bound to a single scalar
 parameter marked with a C<\>.
 
     sub bar ($a,$b,$c,:$mice) { say $mice }
     sub foo (\$args) { say $args.perl; &bar.call($args); }
 
-The C<.call> method of C<Code> objects accepts a single C<Arguments>
+The C<.call> method of C<Code> objects accepts a single C<Capture>
 object, and calls it without introducing a C<CALLER> frame.
 
     foo 1,2,3,:mice<blind>;	# says "\(1,2,3,:mice<blind>)" then "blind"
@@ -705,12 +705,12 @@ attempts at binding.
 
 =head2 Flattening argument lists
 
-The unary prefix operator C<*> casts a value to an C<Arguments>
+The unary prefix operator C<*> casts a value to an C<Capture>
 object, then splices it into the argument list it occurs in.
 
-Casting C<Arguments> to C<Arguments> is a no-op:
+Casting C<Capture> to C<Capture> is a no-op:
 
-    *(\(1, x=>2));    # Arguments, becomes \(1, x=>2)
+    *(\(1, x=>2));    # Capture, becomes \(1, x=>2)
 
 C<Pair> and C<Hash> become named arguments:
 
@@ -744,11 +744,11 @@ operator:
 
 =head2 Multidimensional argument list binding
 
-Some functions take multiple C<Arguments> that they wish not to be flattened
-into one list.  For instance, C<zip()> wants to iterate several lists in
-parallel, while array and hash subscripts want to process multidimensional
-slices.  The set of underlying argument list (List) objects may be bound to a
-single array parameter declared with a C<;> twigil:
+Some functions take more than one C<Capture> as their argument list, that they
+wish not to be flattened into one list.  For instance, C<zip()> wants to
+iterate several lists in parallel, while array and hash subscripts want to
+process multidimensional slices.  The set of underlying argument list (Capture)
+objects may be bound to a single array parameter declared with a C<;> twigil:
 
     sub foo (*@;slices) { ... }
 
@@ -1340,7 +1340,7 @@ if and only if their types and contents are identical.
     Pair        Tuple of two elements that serves as an one-element Mapping
     Mapping     Pairs with no duplicate keys
     Signature   Function parameters (left-hand side of a binding)
-    Arguments   Function call arguments (right-hand side of a binding)
+    Capture   Function call arguments (right-hand side of a binding)
 
 =head2 Mutable types
 
@@ -1739,14 +1739,20 @@ coerced to scalar context explicitly if that is desired.
 
 =head2 The C<return> function
 
-The C<return> function accepts C<Arguments> just like any other function.
-This allows named return values if the caller expects one:
+The C<return> function preserves its argument list as a C<Capture> object, and
+responds to the left-hand C<Signature> in a binding.  This allows named return
+values if the caller expects one:
 
-    sub f { return x => 1 }
+    sub f { return :x<1> }
     sub g ($x) { print $x }
 
     my $x := *f();  # binds 1 to $x, via a named argument
     g(*f());        # prints 1, via a named argument
+
+To return a literal C<Pair> object, always put it in an additional set of
+parentheses:
+
+    return( (:x<1>), (:y<2>) ); # two positional Pair objects
 
 =head2 The C<caller> function
 
@@ -1918,7 +1924,7 @@ It can then be passed to C<call> as C<*$args>:
     &thermo.wrap( -> \$args { call(*$args) * 2 } );
 
 The wrapper is not required to call the original routine; it can call another
-C<Code> object by passing the C<Arguments> to its C<call> method:
+C<Code> object by passing the C<Capture> to its C<call> method:
 
     # Transparently redirect all calls to &thermo to &other_thermo
     &thermo.wrap( -> \$args { &other_thermo.call(*$args) } );

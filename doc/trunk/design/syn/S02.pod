@@ -525,35 +525,33 @@ for more about parameter binding.
 
 =item *
 
-An argument list object (C<Arguments>) may be created with backslashed parens:
+An argument list object (C<Capture>) may be created with backslashed parens:
 
     $args = \(1,2,3,:mice<blind>)
 
-Values in C<Arguments> values are parsed as ordinary expressions, marked as
-positional, named, to-be-flattened, and so on.
+Values in C<Capture> are parsed as ordinary expressions, marked as invocant,
+positional, named, and so on.
 
-Like C<List> objects, C<Arguments> are immutable in the abstract, but
-evaluates its arguments lazily.  Before everything inside a C<Arguments> are
+Like C<List> objects, C<Capture> objects are immutable in the abstract, but
+evaluates its arguments lazily.  Before everything inside a C<Capture> are
 fully evaluated (which happens at compile time when all the arguments are
 constants), the eventual value may well be unknown.  All we know is that is
 that we have the promise to make the bits of it immutable as they become known.
 
-C<Arguments> objects may contain multiple unresolved iterators such as pipes
+C<Capture> objects may contain multiple unresolved iterators such as pipes
 or slices.  How these are resolved depends on what they are eventually
 bound to.  Some bindings are sensitive to multiple dimensions while
 others are not.
 
-You may cast C<Arguments> to other types with a prefix sigil operator:
+You may retrieve parts from a C<Capture> object with a prefix sigil operator:
 
     $args = \3;     # same as "$args = \(3)"
     $$args;         # same as "$args as Scalar" or "Scalar($args)"
     @$args;         # same as '$args as Array"  or "Array($args)"
     %$args;         # same as '$args as Hash"   or "Hash($args)"
-    &$args;         # same as '$args as Code"   or "Code($args)"
 
 When cast into an array, you can access all the positional arguments; into a
-hash, all named arguments; into a scalar, the invocant; into code, its slurpy
-nameless block.
+hash, all named arguments; into a scalar, its invocant.
 
 All prefix sigil operators accept one positional argument, evaluated in
 scalar context as a rvalue.  They can interpolate in strings if called with

@@ -61,7 +61,7 @@ operands.  You have to use a C<[-1]> subscript to get the last one.
 =item * The backslash operator captures its arguments, and returns an
 object representing those arguments.  You can I<dereference> this object
 in several ways to retrieve different parts of the arguments; see the
-definition of C<Arguments> S02 for details.
+definition of C<Capture> in S02 for details.
 
 =item * The old scalar C<..> flipflop operator is now done with
 C<ff> operator.  (C<..> now always produces a Range object
@@ -456,7 +456,7 @@ is equivalent to:
 
 as is this:
 
-    my $args = \(@foo, @bar);    # construct Arguments object
+    my $args = \(@foo, @bar);    # construct a Capture object
     push *$args;
 
 In list context, a Scalar holding an Array object does not flatten.  Hence
