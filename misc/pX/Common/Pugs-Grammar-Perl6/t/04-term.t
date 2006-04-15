@@ -5,6 +5,11 @@ use Data::Dumper;
 use_ok( 'Pugs::Grammar::Term' );
 
 {
+    my $match = Pugs::Grammar::Term->parse( q(...) );
+    is_deeply( $match->(), { die => 'not implemented' }, 'yada x 3' );
+}
+
+{
     my $match = Pugs::Grammar::Term->parse( q("abc") );
     is( "$match", q("abc"), 'double quoted str' );
 }
