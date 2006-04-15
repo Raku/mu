@@ -159,14 +159,21 @@ Also note that all these forms mean the same thing:
   @y[][];
   @y[][][];
 
-
 = Q: Does this mean I can't have something akin to a refrence to a reference?
 
-[ hw !! 1 ]
-You can, because a Signature can contain Captures.
+You can, as a Capture can contain another capture object in its invocant slot:
 
-  sub apply (Code $f, Capture $args) { $f(*$args) }
+    my $x = \\3;
+    say $$$x; # same as "say 3"
 
+= Q: Can I create a "pass-through" function that captures all arguments?
+
+Yes, using the \$ signature:
+
+    sub f (\$args) { g(*$args) }
+    f(1, 2, x => 42);   # same as g(1, 2, x => 42)
+
+The $args above becomes a Capture object.
 
 = Q: How is @x = (1, 2, 3) different from @y := (1, 2, 3) ?
 
