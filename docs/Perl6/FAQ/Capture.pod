@@ -1,6 +1,7 @@
 = Q: What happened to references?
 
-A: They have been superceded by Captures.
+A: They have been superseded by Captures.
+
 
 = Q: What is a Capture?
 
@@ -8,6 +9,7 @@ A Capture is an object representing arguments in a function call.
 
 For example, the arguments in say("Hello", "World") is a Capture object
 denoted by \("Hello", "World").
+
 
 = Q: Can I see how captures look like? Does \$x no longer work?
 
@@ -22,11 +24,12 @@ all equivalent with each other:
 
   $xcap1 === $xcap2 === $xcap3; # true
 
+
 = Q: What about capturing multiple arguments?
 
 Here's how Captures look like deferred argument lists:
 
-  sub make_car (Str $model, Str $color = "black", Int $doors = 4);
+  sub make_car (Str $model, Str $color? = "black", Int $doors = 4);
   my $car_cap = \("Model T", doors => 2); # some positional, some named
 
   # passing the opaque Capture as actual function arguments  
@@ -45,7 +48,7 @@ As you can see above, a Capture object holds both positional and named parts.
 If you want to retrieve all positional parts, there are two ways:
 
   $cap[];  # postfix .[]
-  @$cap; # prefix @
+  @$cap;   # prefix @
 
 Both forms flatten under list context, so they may be used interchangeably.
 However, only the postfix .[] form interpolates in a string.
@@ -78,7 +81,13 @@ To get back the invocant from a Capture object, use the prefix "$" operator:
 So this Perl5ish equivalence still holds:
 
   $x === $(\$x);
-  
+
+
+= Q: What about multimethod dispatch and cases where there is more than one invocant?
+
+There's always one invocant, but it may be an Array of several values (see below).
+
+
 = Q: What happens when a named argument is repeated?
 
 Let's look at some examples:
@@ -89,16 +98,17 @@ Let's look at some examples:
   sub board_ark (@animal) { say "@animal.elems() animals boarded the ark" }
   board_ark( animal => "moose", animal => "elephant"); # 2 animals 
 
-A Capture object may hold named arguments that occurs twice or more.  When it's
+A Capture object may hold named arguments that occur twice or more.  When it's
 bound to a variable in the Signature, if the sigil is "@", then it expands to a
 list of all arguments (in the order they were specified).  Otherwise (i.e. if
 it's bound to a scalar or a slurpy hash), the last argument overrides the
 previous ones.
 
+
 = Q: What do *$x, *@x and *%x mean?
 
 The prefix * method casts an object into a Capture object, and merges it
-into the currently constructing Capture (e.g. an argument list):
+into the Capture being currently constructed (e.g. an argument list):
 
     my $cap = \(1, 2, x=>42);
     f(*$cap);   # f(1, 2, x=>42)
@@ -110,6 +120,7 @@ Array, List, Hash and Pair objects cast into Capture objects in obvious ways:
     my $h = {x => 42};  f(*$h);     # f(x => 42)
     my $p = (x => 42);  f(*$p);     # f(x => 42)
 
+
 = Q: What does $x = \@y mean?
 
 The same as $x = (@y: ). That is, a Capture of one array as invocant. 
@@ -120,7 +131,7 @@ Unlike in Perl 5, this means that you can get back the Array object with:
 
 instead of:
 
-  my @y2 := @$x; # $x contains no positional parts
+  my @y2 := @$x; # WRONG: $x contains no positional parts
 
 Manipulating the original value via the $x capture is still possible:
 
@@ -131,6 +142,7 @@ Note the need for the extra $ sigil, implying we are accessing the captured invo
 this is forbidden by the spec, as all parts are immutable in an Capture object.
 
 (Captures are immutable; their underlying data may not be.)
+
 
 = Q: So $x = @y does not mean $x = \@y anymore. What does it mean then?
 
@@ -147,6 +159,15 @@ Also note that all these forms mean the same thing:
   @y[][];
   @y[][][];
 
+
+= Q: Does this mean I can't have something akin to a refrence to a reference?
+
+[ hw !! 1 ]
+You can, because a Signature can contain Captures.
+
+  sub apply (Code $f, Capture $args) { $f(*$args) }
+
+
 = Q: How is @x = (1, 2, 3) different from @y := (1, 2, 3) ?
 
 The latter is an error. :-)  The := operator binds its left hand side (a Signature object)
@@ -157,28 +178,30 @@ to its right hand side (a Capture object), so the latter form is akin to:
 
 However, these forms are valid:
 
-  *@y := (1,2,3);       # slurpy @
-  @y := ((1,2,3):);      # list as invocant
-  @y := ((1,2,3),);      # list as first positional
-  @y := (y => (1,2,3)); # named binding
+  *@y := (1,2,3);         # slurpy @
+  @y  := ((1,2,3):);      # list as invocant
+  @y  := ((1,2,3),);      # list as first positional
+  @y  := (y => (1,2,3));  # named binding
 
 But they are still different from the assignment form.
+
 
 = Q: How is @x = (1, 2, 3) different from *@y := (1, 2, 3), then?
 
 This means that while @y holds the values 1, 2, and 3, you cannot modify the
 container itself, so this won't work:
 
-  @y.push(4); # error: cannot find method: List.push
+  @y.push(4);   # error: cannot find method: List.push
 
 On the other hand, because variables are initialized by their sigils, so these
 two mean the same:
 
-  my @x := []; # new Array object 
-  my @x;      # implicitly does the same thing
+  my @x := [];  # new Array object 
+  my @x;        # implicitly does the same thing
 
 so @x = (1, 2, 3) would simply populate the previously allocated Array object
 with new elements.
+
 
 = Q: Is there any difference between $x = (1, 2, 3) and @y = (1, 2, 3)?
 
@@ -189,6 +212,7 @@ bound to @y:
 
     $x.push(0); # error: cannot find method: List.push
     @y.push(0); # works just fine
+
 
 = Q: Is there any difference between $x = [1, 2, 3] and @y = [1, 2, 3]?
 
@@ -204,6 +228,7 @@ The behaviours below are similar to Perl 5 as well:
     $x.push(0);     # works - $x.elems becomes 4
     @y[0].push(0);  # works - @y.elems remains 1
     @y.push(0);     # works - @y.elems becomes 2 
+
 
 = Q: Is there any difference between $x := [1, 2, 3] and @y := [1, 2, 3]?
 
