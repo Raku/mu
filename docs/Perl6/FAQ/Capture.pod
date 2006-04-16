@@ -206,6 +206,17 @@ Yes, using the C<\$> signature:
 
 The C<$args> above becomes a Capture object.
 
+=head3 What about delegating a method?
+
+[hw; there's probably a golfier way]
+Perl has a few other provisions for this (e.g., WRAP), but if you want
+more control over invocation, you need to pass through the Capture but
+replace the invocant:
+
+  method front_meth (\$args) { $:real_obj.back_meth( ??? ) }
+
+  # [ does $obj.meth($args) ignore a prebound invocant? ]
+
 =head3 How is @x = (1, 2, 3) different from @y := (1, 2, 3) ?
 
 The latter is an error. :-)
