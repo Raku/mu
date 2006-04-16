@@ -373,7 +373,7 @@ sub non_greedy_plus {
         # XXX - didn't work
         # my $match = $state->{op}->( $tail, $state->{state}, $flags ); 
 
-        my $match = $state->{op}->( $tail, undef );
+        my $match = $state->{op}->( $tail, undef, $_[2], $_[3]{match}, @_[4..6] );
         return unless $match->{bool};
         $match->{state} = {
             state => $match->{state},

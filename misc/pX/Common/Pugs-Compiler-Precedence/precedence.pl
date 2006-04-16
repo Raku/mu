@@ -14,7 +14,7 @@ use Data::Dumper;
 my $g = <<'EOT';
 %{ my $out; %}
 
-%right  '='
+%left   ';'
 %left   '-' '«+»'
 %left   'infix:<times>' '/'
 %left   NEG
@@ -24,8 +24,9 @@ my $g = <<'EOT';
 statement:  exp { return($out) } ;
 
 exp:        NUM                 { $out= $_[1] }
-        |   VAR                 { $out= $_[1] }
-        |   VAR '=' exp         { $out= [ $_[1], $_[2], $_[3] ] }
+        |   STMT                { $out= $_[1] }
+        |   STMT exp            { $out= [ $_[1], $_[2] ] }
+        |   exp ';' STMT            { $out= [ $_[1], $_[3] ] }
         |   exp '«+»' exp         { $out= [ $_[1], $_[2], $_[3] ] }
         |   exp '-' exp         { $out= [ $_[1], $_[2], $_[3] ] }
         |   exp 'infix:<times>' exp         { $out= [ $_[1], $_[2], $_[3] ] }
@@ -55,7 +56,9 @@ my $in = [
     ['«+»'=>{op=>'+'}], 
     ['NUM'=>{num=>'3'}], 
     ['infix:<times>'=>{op=>'*'}], 
-    ['NUM'=>{num=>'4'}] 
+    ['NUM'=>{num=>'4'}] ,
+    [';'=>{}] ,
+    ['STMT'=>{if=>'block'}] 
 ];
 
 

@@ -23,16 +23,18 @@ my %relative_precedences = (
 my %rule_templates = (
     prefix_non =>        
         "'name' exp         \n" .
-        "\t{ \$_[0]->{out}= {op1 => 'name', exp1 => \$_[2],} }", 
+        "\t{ \$_[0]->{out}= {op1 => \$_[1], exp1 => \$_[2],} }", 
     circumfix_non =>     
         "'name' exp 'name2' \n" .
-        "\t{ \$_[0]->{out}= {op1 => 'name', op2 => 'name2', exp1 => \$_[2],} }",  
+        "\t{ \$_[0]->{out}= {op1 => \$_[1], op2 => 'name2', exp1 => \$_[2],} }\n" .  
+        "\t | 'name' 'name2' \n" .
+        "\t{ \$_[0]->{out}= {op1 => \$_[1], op2 => 'name2' } }",  
     infix_right =>       
         "exp 'name' exp     \n" .
         "\t{ \$_[0]->{out}= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }",
     postfix_non =>       
         "exp 'name'         \n" .
-        "\t{ \$_[0]->{out}= {op1 => 'name', exp1 => \$_[2],} }", 
+        "\t{ \$_[0]->{out}= {op1 => 'name', exp1 => \$_[1],} }", 
     postcircumfix_non => 
         "exp 'name' exp 'name2' \n" .
         "\t{ \$_[0]->{out}= {op1 => 'name', op2 => 'name2', exp1 => \$_[1], exp2 => \$_[3],} }", 
@@ -111,17 +113,19 @@ sub emit_yapp {
                 my $a = $_;
                 $a = 'nonassoc' if $a eq 'non';
                 $a = 'left'     if $a eq 'list';
-                $s .= "%$a " . 
-                    join( ' ', map { 
-                            $seen{$_->{name}} 
-                            ? () 
-                            : $_ eq 'list' 
-                              ? $_->{index}
-                              : "'$_->{name}'" 
-                        } @{$assoc{$_}} ) .
+                $s .= "%$a ";
+                for ( @{ $assoc{$_} } ) {
+                    next if $seen{$_->{name}};
+                    $seen{$_->{name}} = 1;
+                    $s .= ' ' .
+                        $_ eq 'list' 
+                            ? $_->{index}
+                            : "'$_->{name}'";
+                }
+                $s .= 
                     " $prec" .
                     "\n";
-                $seen{$_->{name}} = 1 for @{$assoc{$_}};
+                # $seen{$_->{name}} = 1 for @{$assoc{$_}};
                 $prec++;
             }
         }
@@ -129,9 +133,13 @@ sub emit_yapp {
     $s .= "%%\n" .
         "statement:  exp { return(\$_[0]->{out}) } ;\n";
             
-    $s .=     
-        "exp:   NUM  { \$_[0]->{out}= \$_[1] }\n" .
-        "    |  VAR  { \$_[0]->{out}= \$_[1] }\n" ;
+    if ( defined $self->{header} ) {
+        $s .= $self->{header};
+    }
+    else {
+        $s .=     
+            "exp:   NUM  { \$_[0]->{out}= \$_[1] }\n";
+    }
     $prec = "P000";
     for my $level ( reverse 0 .. $#{$self->{levels}} ) {            
         my %assoc;
