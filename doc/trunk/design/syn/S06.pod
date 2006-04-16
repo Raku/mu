@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 6 Apr 2006
+  Last Modified: 15 Apr 2006
   Number: 6
-  Version: 23
+  Version: 24
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -579,7 +579,7 @@ different:
 so that you can use more descriptive internal parameter names without
 imposing inconveniently long external labels on named arguments.
 
-Capture that correspond to named parameters are evaluated in scalar
+Arguments that correspond to named parameters are evaluated in scalar
 context. They can only be passed by name, so it doesn't matter what
 order you pass them in, so long as they don't intermingle with any
 positional arguments:

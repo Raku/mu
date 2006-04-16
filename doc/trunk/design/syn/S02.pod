@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 10 Apr 2006
+  Last Modified: 15 Apr 2006
   Number: 2
-  Version: 22
+  Version: 23
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -533,9 +533,9 @@ Values in C<Capture> are parsed as ordinary expressions, marked as invocant,
 positional, named, and so on.
 
 Like C<List> objects, C<Capture> objects are immutable in the abstract, but
-evaluates its arguments lazily.  Before everything inside a C<Capture> are
+evaluate their arguments lazily.  Before everything inside a C<Capture> is
 fully evaluated (which happens at compile time when all the arguments are
-constants), the eventual value may well be unknown.  All we know is that is
+constants), the eventual value may well be unknown.  All we know is
 that we have the promise to make the bits of it immutable as they become known.
 
 C<Capture> objects may contain multiple unresolved iterators such as pipes
