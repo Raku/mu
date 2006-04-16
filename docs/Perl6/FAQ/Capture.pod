@@ -239,14 +239,23 @@ The C<$args> above becomes a Capture object.
 
 =head3 What about delegating a method?
 
-[hw; there's probably a golfier way]
-Perl has a few other provisions for this (e.g., WRAP), but if you want
-more control over invocation, you need to pass through the Capture but
-replace the invocant:
+Perl 6 has a few other provisions for this (e.g., .wrap), but if you want
+more control over invocation, you can take advantage of the default Signature
+for methods, which puts all positionals in C<@_> and named arguments in C<%_>:
 
-  method front_meth (\$args) { $:real_obj.back_meth( ??? ) }
+  method front_meth {
+    $!real_obj.back_meth( *@_, *%_ );
+  }
 
-  # [ does $obj.meth($args) ignore a prebound invocant? ]
+You can also take the argument list as a Capture object, and merge it with
+another method invocation:
+
+  method front_meth (\$args) {
+    $!real_obj_A.back_meth( *$args );
+  }
+
+This works because when there is already an invocant present, further
+invocants in the constructing argument list will be ignored.
 
 =head3 How is @x = (1, 2, 3) different from @y := (1, 2, 3) ?
 
