@@ -101,13 +101,36 @@ So this Perl5ish equivalence still holds:
 
   $x === $(\$x);
 
-=head3 What about multimethod dispatch and cases where there is more than one invocant?
+=head3 What about multi-dispatch?
 
-In the argument list (Capture), there is always zero or one invocant I<argument>.
+Multi-dispatch governs cases where multiple subroutines or methods share
+the same name, relying on the arity and types of tie-breaking I<parameters>
+in their parameter list (Signature):
 
-Multimethod dispatch governs cases where multiple invocant I<parameters>
-are declared in the parameter list (Signature); each of them may bind
-to the invocant argument, or one of the positional arguments.
+    multi f ($x: $z)             { say 'A' }
+    multi f (Int $x, Int $y: $z) { say 'B' }
+    multi f (Str $x, Str $y: $z) { say 'C' }
+
+    f(1, 2);            # goes to A
+    f(1, 2, 3);         # goes to B
+    f('x', 'y', 'z');   # goes to C
+
+During multi-dispatch, a tie-breaking parameter may bind to the invocant
+argument (e.g. for multi-methods), or one of the positional arguments.
+
+However, regardless of single- or multi- dispatch, the argument list (Capture)
+can never have more than one invocants.  Typically, the presence of an invocant
+indicates a method-call (which may fall back to a subroutine-call); the lack of
+invocant means a subroutine-call.
+
+    1.foo(2);  # Int.foo with 1 as "self"; if not found, fallback to foo(1, 2)
+    foo(1: 2); # same as above
+
+    bar(1, 2); # never looks at Int.foo; calls &foo in lexical/package scope
+
+Method/subroutine calls are determined by the presence of an invocant at the
+calling site.  Single/multi dispatch are determined by the precense of "multi"
+in the declaration site.  The two concepts are entirely orthogonal.
 
 =head3 What happens when a named argument is repeated?
 
@@ -149,6 +172,14 @@ ways:
     my $l = (1, 2);     f(*$l);     # f(1, 2)
     my $h = {x => 42};  f(*$h);     # f(x => 42)
     my $p = (x => 42);  f(*$p);     # f(x => 42)
+
+It also works with the C<@> and C<%> sigils:
+
+    my @a = (1, 2);     f(*@a);     # f(1, 2)
+    my @a := [1, 2];    f(*@a);     # f(1, 2)
+    my %h = (x => 42);  f(*%a);     # f(x => 42)
+    my %h := {x => 42}; f(*%h);     # f(x => 42)
+
 
 =head3 What does $x = \@y mean?
 
