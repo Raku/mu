@@ -41,8 +41,8 @@ Here's how Captures look like deferred argument lists:
 
   sub make_car (
     Str $model,
-    Str $color = "black",
-    Int $doors = 4
+    Str $color? = "black",
+    Int $doors  = 4
   ) { ... }
 
   # some positional, some named
@@ -113,11 +113,19 @@ to the invocant argument, or one of the positional arguments.
 
 Let's look at some examples:
 
-  sub make_car (Int $doors) { say "My car has $doors doors" }
-  make_car( doors => 2, doors => 4 ); # 4 doors
+  sub make_car (Int $doors) {
+    say "My car has $doors doors";
+  }
+  make_car(
+    doors => 2, doors => 4
+  ); # 4 doors
  
-  sub board_ark (@animal) { say "@animal.elems() animals boarded the ark" }
-  board_ark( animal => "moose", animal => "elephant"); # 2 animals 
+  sub board_ark (@animal) {
+    say "@animal.elems() animals boarded the ark";
+  }
+  board_ark(
+    animal => "moose", animal => "elephant"
+  ); # 2 animals 
 
 A Capture object may hold named arguments that occur twice or more.
 When it's bound to a variable in the Signature, if the sigil is C<@>, then
