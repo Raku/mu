@@ -57,6 +57,8 @@ Here's how Captures look like deferred argument lists:
   # or by name
   say "It has $car_cap<doors> doors" # 2 doors
 
+=head3 Since a Capture is immutable (see below), how did C<$car_cap> gain knowledge of the default color of the car?
+
 =head3 How do I extract all positional arguments or all named arguments?
 
 As you can see above, a Capture object holds both positional and named
