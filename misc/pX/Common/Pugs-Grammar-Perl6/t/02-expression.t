@@ -81,7 +81,7 @@ $Data::Dumper::Sortkeys = 1;
           'scalar' => '$a'
         },
         'exp2' => {
-          'double_quoted' => '"abc"'
+          'double_quoted' => 'abc'
         },
         'op1' => '/'
       },

@@ -7,34 +7,42 @@ use Pugs::Compiler::Rule;
 use Pugs::Grammar::Precedence;
 use Pugs::Grammar::Term;
 use Pugs::Grammar::Operator;
+use Pugs::Grammar::StatementControl;
 use base 'Pugs::Grammar::Base';
 
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
 
-our $parser = Pugs::Compiler::Rule->compile( q(
+# XXX - PCR is not calling this
+*ws = &Pugs::Grammar::BaseCategory::ws;
+
+our $parser = Pugs::Compiler::Rule->compile( q!
         #~ { print "Grammar::Expression::parse '$_[0]' \n";
           #~ # print (keys %Pugs::Grammar::Term::hash),"\n"; 
         #~ }
         
-        <?ws>?
+        <?Pugs::Grammar::BaseCategory.ws>?
             #~ <Pugs::Grammar::StatementControl.parse>     <?ws>?
             #~ {
                 #~ return $/{'Pugs::Grammar::StatementControl.parse'}->();
             #~ }
         #~ |
         ( 
-            #{ print "trying term\n"; } 
-            <Pugs::Grammar::Term.parse>     <?ws>?
-            #{ print "term\n"; } 
+            #{ print "trying stmt\n"; } 
+            <Pugs::Grammar::StatementControl.parse> <?Pugs::Grammar::BaseCategory.ws>? 
+            #{ print "stmt\n";   } 
         |
             #{ print "trying op\n"; } 
-            <Pugs::Grammar::Operator.parse> <?ws>? 
+            <Pugs::Grammar::Operator.parse> <?Pugs::Grammar::BaseCategory.ws>? 
             #{ print "op\n";   } 
-        )+
-        #~ { print "matched ", Dumper(@_); }
-        <before  \} | \{ | $ >   # XXX
+        |
+            #{ print "trying term\n"; } 
+            <Pugs::Grammar::Term.parse>     <?Pugs::Grammar::BaseCategory.ws>?
+            #{ print "term\n"; } 
+        )*
+        #{ print "matched ", Dumper(@_); }
+        #<before  \} | \{ | $ >   # XXX
         #{ print "before $_[0]\n"; }
         
         { 
@@ -43,7 +51,7 @@ our $parser = Pugs::Compiler::Rule->compile( q(
         }
         
         # | { print "fail $_[0]\n"; }
-    ));
+    !);
 
 *parse = $parser->code;
 
@@ -61,18 +69,24 @@ sub ast {
     #print Dumper( @m );
     #is( join(';', map { $_->() } @m), q(10 ;+ ;$a ;/ ;"abc"), 'split on terms' );
 
+    #print "Subroutines: @Pugs::Grammar::Operator::subroutine_names\n";
+
     my @in;
     for my $term ( @m ) {
+        #print Dumper $term->();
         my ($k) = keys %$term;
-        #print %$term, "\n";
-        #print $term->(), "\n";
-        #print Dumper $term->{$k};
+        
+        #print Dumper $term->{$k}();
+        
         my $ast = $term->{$k}();
-        #my $ast = ${$term}->{match}{match}[0]{match}[1]{capture};
-        my ($type) = keys %$ast;
-        #print "type: $type\n";
-        if ( $type eq 'op' ) {
-            push @in, [ $ast->{$type} => $ast ]
+        if ( exists $ast->{stmt} ) {
+            push @in, [ $ast->{stmt} => $ast ]
+        }
+        elsif ( exists $ast->{op} ) {
+            push @in, [ $ast->{op} => $ast ]
+        }
+        elsif ( exists $ast->{bareword} ) {
+            push @in, [ 'BAREWORD' => $ast ]
         }
         else {
             push @in, [ 'NUM' => $ast ]
@@ -83,13 +97,16 @@ sub ast {
     my($lex) = sub {
         my($t)=shift(@in);
         $t=['',''] unless defined($t);
-        # print "token: $$t[0]\n";
+        print "token: $$t[0] ", Dumper( $$t[1] );
         return($$t[0],$$t[1]);
     };
-    my $p = Pugs::Grammar::Operator->new(yylex => $lex, yyerror => sub { die "error in expression" });
+    my $p = Pugs::Grammar::Operator->new(
+        yylex => $lex, 
+        yyerror => sub { warn "error in expression: $match ..." },
+    );
 
     my $out=$p->YYParse;
-    #print Dumper $out;
+    print Dumper $out;
     return $out;
 }
 

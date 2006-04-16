@@ -28,8 +28,21 @@ sub add_rule {
 
 BEGIN {
     __PACKAGE__->add_rule( 
+        name => '*',
+        assoc => 'left',
+    );
+    __PACKAGE__->add_rule( 
+        name => '/',
+        assoc => 'left',
+        precedence => 'equal',
+        other => '*',
+    );
+
+    __PACKAGE__->add_rule( 
         name => '+',
         assoc => 'left',
+        precedence => 'looser',
+        other => '*',
     );
     __PACKAGE__->add_rule( 
         name => '-',
@@ -38,23 +51,69 @@ BEGIN {
         other => '+',
     );
     __PACKAGE__->add_rule( 
-        name => '*',
+        name => '~',
         assoc => 'left',
-        precedence => 'tighter',
+        precedence => 'equal',
+        other => '+',
+    );
+    
+    __PACKAGE__->add_rule( 
+        name => 'eq',
+        assoc => 'list',
+        precedence => 'looser',
         other => '+',
     );
     __PACKAGE__->add_rule( 
-        name => '/',
-        assoc => 'left',
+        name => 'ne',
+        assoc => 'list',
         precedence => 'equal',
-        other => '*',
+        other => 'eq',
+    );
+    __PACKAGE__->add_rule( 
+        name => '==',
+        assoc => 'list',
+        precedence => 'equal',
+        other => 'eq',
+    );
+    __PACKAGE__->add_rule( 
+        name => '!=',
+        assoc => 'list',
+        precedence => 'equal',
+        other => 'eq',
+    );
+    
+    __PACKAGE__->add_rule( 
+        name => '&&',
+        assoc => 'right',
+        precedence => 'looser',
+        other => 'eq',
+    );
+    
+    __PACKAGE__->add_rule( 
+        name => '||',
+        assoc => 'right',
+        precedence => 'looser',
+        other => '&&',
+    );
+    
+    __PACKAGE__->add_rule( 
+        name => '=',
+        assoc => 'right',
+        precedence => 'looser',
+        other => '||',
+    );
+    __PACKAGE__->add_rule( 
+        name => ':=',
+        assoc => 'right',
+        precedence => 'equal',
+        other => '=',
     );
     
     __PACKAGE__->add_rule( 
         name => 'Y',
         assoc => 'list',
         precedence => 'looser',
-        other => '+',
+        other => '=',
     );
     __PACKAGE__->add_rule( 
         name => '¥',
@@ -68,11 +127,18 @@ BEGIN {
         precedence => 'equal',
         other => 'Y',
     );
+    
     __PACKAGE__->add_rule( 
         name => ';',
         assoc => 'list',
         precedence => 'looser',
         other => 'Y',
+    );
+    __PACKAGE__->add_rule( 
+        name => '->',
+        assoc => 'non',
+        precedence => 'equal',
+        other => ';',
     );
 
     __PACKAGE__->recompile;
