@@ -8,7 +8,9 @@ Priorities
 - failures:
     %ENV<TEST_ALWAYS_CALLER>
     infinite loop?
-    
+- <...> and %x<...> should be implemented as circumfix and postcircumfix op
+- /rule/ is a term
+  
 - merge Pod.pm into Perl6.pm
 
 - check that these special cases are covered:
@@ -39,6 +41,38 @@ TODO
 - Implement double-quoted-string split on variables (interpolation)
 - Implement /rule/ and '/'
     - see expect... in Expression.pm
+
+    <fglock> TimToady: is the lexer the right place to make the '<'/'<a>' distinction? (it is not user-modifyable)
+
+<TimToady> fglock: that depends on what you count as part of the lexer.  
+    The bottom-up parser knows when it's looking for a <%infix> vs <%prefix> vs <%postfix>, so only those tokens are active that would be valid at that spot.
+<TimToady> (I oversimplify the hash stuff slightly there.)
+<TimToady> It's more like:
+<TimToady> <%infix> vs <%prefix|%term|%circumfix> vs <%postfix|%postcircumfix>
+<TimToady> assuming we adopt the new <%a|%b|%c> notation to combine 
+    longest-token processing of multiple hashes.
+<TimToady> fglock: for speed one could cache all the hash keys for all the hashes in a trie or some similar structure.  Just have to be careful that longest key wins regardless of hash, and in case of tie first hash wins.
+<TimToady> 'course you have to recalculate if any of the hashes is modified...
+
+<TimToady> can probably treat alphanumeric sub names specially so that you don't have to recalculate on every sub declaration.
+<TimToady> if you assume that no "foo" prefix operator or term can match if the next char is alphanumeric.
+<TimToady> maybe just run the prescanned identifier down a different trie than the non-alpha ops.
+<TimToady> actually, if you know the length then the ident one doesn't need a tree.  Just a hash would work.
+<TimToady> since you know its length already.
+
+<fglock> TimToady: what if both postcircumfix and infix are expected? then the op is chosen based on if there is whitespace or not?
+<fglock> like in %ENV<x> vs. %ENV <...
+<TimToady> <%postcircumfix|%infix> is what you look for before whitespace, and <%infix> after.
+<TimToady> that's why we completely outlawed whitespace before postfix.
+<TimToady> hmm, that doesn't quite work.
+<TimToady> I think at postfix location you actually look for <%postfix|%postcircumfix>|<%infix> becuase
+<TimToady> you don't want the %infix participating in longest token there.
+<TimToady> $x<=2 is an error, but $x <= 2 is okay.
+<TimToady> or looking at it in terms of whitespace, if you don't get any match on a postfix, then you can pretend there was whitespace even if there wasn't, and try %infix.
+<fglock> I think I'll need to do some tests ... - how about /rule/ vs. division? is it just that rule is a term and division is an op?
+<TimToady> yeah, that's just simple term vs op expectation.
+<TimToady> just as in P5.
+<TimToady> It's really only the postfix category that's new to P6
 
 - Implement [op]@list
 - Implement expressions inside names - like:
