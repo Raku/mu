@@ -25,7 +25,7 @@ When adding responses, please keep in mind:
 
 =head2 Perl 6 has too many operators!
 
-Compared to Perl 5, Perl 6 has a few more operators -- and a few I<less>
+Compared to Perl 5, Perl 6 has a few more operators -- and slightly I<fewer>
 precedence levels. This doesn't automatically make the language harder to
 learn. Many operators are there to make your life much easier. Many tedious
 and error prone loops are no longer needed, and there are operators that are
@@ -101,8 +101,8 @@ This is assuming you didn't obfuscate or golf :) And of course, that your code
 does not depend on bugs in Perl 5.
 
 To get idiomatic Perl 6, yes, you will need to rewrite the code by hand.
-Whether this is worth the effort is up to you to decide. Keep in mind that Perl
-5 will not suddenly disappear.
+Whether this is worth the effort is up to you to decide. Rest assured
+that Perl 5 will not suddenly disappear.
 
 =head2 Perl 6 is hard to learn!
 
@@ -114,10 +114,10 @@ will in fact be much easier, because unexpected side effects and changing
 symbols have been taken care of.
 
 Many things that required manual fiddling are now automatic. Especially in
-object oriented programming, the differences are huge. Perl 5 supported OOP,
-but didn't do much to help you do so. Perl 6 has a very complete object model.
-Perl 5 was, because of its complexity when dealing with objects, not well
-suited for teaching OO to beginners.
+object oriented programming, the differences are huge. Perl 5 supported
+OOP, but didn't do much to help you write in it. Perl 6 has a very
+complete object model. Perl 5 was not well suited for teaching OO to
+beginners, because of its explicit complexity when dealing with objects.
 
 Perl 6 aims to be much more usable in academic programming, and for first time
 programmers.
@@ -126,8 +126,8 @@ programmers.
 
 While a release date is purposefully not given, there is no reason to assume
 that it will never be released. Building a language that supports all the ways
-of programming currently known to man, but also ways that are entirely new to
-us, is challenging and takes a lot of time. Perl 5 has been around for over 15
+of programming currently known to man (as well as some entirely new ones)
+is challenging and takes a lot of time. Perl 5 has been around for over 15
 years, and Perl 6 will also be built to last at least 20.
 
 Note, by the way, that it took all this time since 1987 to get Perl 5 where it
@@ -206,7 +206,7 @@ F<examples/golf/> directories in the Pugs repository.
 
 =head2 It takes too long to port all CPAN modules!
 
-=head2 "Programming Perl" will be three volumes!
+=head2 I<Programming Perl> will be three volumes!
 
 =head2 POD will still not support OO and Grammars!
 
@@ -222,7 +222,7 @@ F<examples/golf/> directories in the Pugs repository.
 
 =head2 Perl 6 will not be able to fix the line noise stigma!
 
-=head2 Perl 6 is un-necessary and hurting Perl 5 development!
+=head2 Perl 6 is unnecessary and is hurting Perl 5 development!
 
 =head2 There is too much misinformation surrounding Perl 6!
 
