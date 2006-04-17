@@ -705,7 +705,7 @@ attempts at binding.
 
 =head2 Flattening argument lists
 
-The unary prefix operator C<*> casts a value to an C<Capture>
+The unary prefix operator C<*> casts a value to a C<Capture>
 object, then splices it into the argument list it occurs in.
 
 Casting C<Capture> to C<Capture> is a no-op:
