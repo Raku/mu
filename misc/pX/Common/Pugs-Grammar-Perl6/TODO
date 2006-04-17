@@ -37,7 +37,10 @@ TODO
 
 - Implement double-quoted-string split on variables (interpolation)
 - Implement %hash<qw string> and '<' and '>'
+    - '<' always requires whitespace before
 - Implement /rule/ and '/'
+    - see expect... in Expression.pm
+
 - Implement [op]@list
 - Implement expressions inside names - like:
     prefix:{'+'}

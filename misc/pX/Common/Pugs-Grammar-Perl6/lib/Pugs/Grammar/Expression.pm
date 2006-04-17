@@ -33,32 +33,56 @@ sub ast {
     my $p;
     my $last = length( $match );
     my $lex = sub {
-
         my $m;
+        my $whitespace_before = 0;
+
+      for ( 1 ) {
         $m = Pugs::Grammar::BaseCategory->ws( $match );
-        # ws is nonstandard in that it returns a hashref instead of a Match
+        # <ws> is nonstandard in that it returns a hashref instead of a Match
         # print "match is ",Dumper($m),"\n";
-        $match = $m->{tail} if $m->{bool};
+        if ( $m->{bool} ) {
+            $match = $m->{tail};
+            $whitespace_before = 1;
+        }
         # print "tail $match \n"; 
         $m = Pugs::Grammar::StatementControl->parse( $match, { p => 1 } );
-        if ( $m ) {
-            #print "statement-control: ", Dumper $m->();
-        }
-        else {
-          $m = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
-          if ( $m ) {
-              #print "op: ", Dumper $m->();
-          }
-          else {
-            $m = Pugs::Grammar::Term->parse( $match, { p => 1 } );
+        last if ( $m );
+        if ( $match =~ /^</ ) {   # && ! $whitespace_before ) {
+            # after whitespace means '<' (default)
+            # without whitespace means '<str>'
+            print "checking angle quote ...\n";
+            $m = Pugs::Grammar::Term->angle_quoted( substr($match, 1), { p => 1 } );
             if ( $m ) {
-                #print "term: ", Dumper $m->();
+                print "Match: ",Dumper $m->();
+                if ( grep { $_ eq 'NUM' } $p->YYExpect ) {
+                    # expects a term
+                    $m = Pugs::Runtime::Match->new( { 
+                        bool  => 1,
+                        match => $m,
+                        tail  => $$m->{tail},
+                        capture => { angle_quoted => $m->() },
+                    } );
+                }
+                else {
+                    # expects an op
+                    $m = Pugs::Runtime::Match->new( { 
+                        bool  => 1,
+                        match => $m,
+                        tail  => $$m->{tail},
+                        capture => { op => "ANGLE", angle_quoted => $m->() },
+                    } );
+                }
+                print "Match: ",Dumper $m->();
+                last;
             }
-            else {
-                #print "unrecognized token\n";
-            }
-          }
         }
+        $m = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
+        last if ( $m );
+        $m = Pugs::Grammar::Term->parse( $match, { p => 1 } );
+        last if ( $m );
+        #print "unrecognized token\n";
+      } # /for
+
         $match = $$m->{tail};
         my $ast = $m->();
         $ast->{pos} = $last - length( $match );
@@ -76,8 +100,13 @@ sub ast {
             $t = [ 'NUM' => $ast ]
         }
         $t=['',''] unless $match; # defined($t);
+
+        print "expect NUM \n" if grep { $_ eq 'NUM' } $p->YYExpect;
+        print "expect '/' \n" if grep { $_ eq '/' } $p->YYExpect;
+
         print "token: $$t[0] ", Dumper( $$t[1] );
         # print "expect: ", Dumper( $p->YYExpect );
+
         return($$t[0],$$t[1]);
     };
 
@@ -89,7 +118,7 @@ sub ast {
     );
 
     my $out=$p->YYParse;
-    print Dumper $out;
+    #print Dumper $out;
     return $out;
 }
 

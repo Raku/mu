@@ -20,7 +20,7 @@ if ( @ARGV ) {
     #use YAML;
     #print Dump $match->();
     print Dumper $match->();
-    print "tail: ", ${$match}->{tail},"\n";
+    print "tail: ", substr( ${$match}->{tail}, 0, 20 ),"...\n";
     exit;
 }
 
@@ -70,12 +70,18 @@ sub ok_auto {
 }
 
 module Test-0.0.6;
-#$Test::ALWAYS_CALLER = %ENV<TEST_ALWAYS_CALLER>;
+$Test::ALWAYS_CALLER = %ENV<TEST_ALWAYS_CALLER>;
 $Test::num_of_tests_run    = 0;
 $Test::num_of_tests_planned;
-
+say <angle quoted>;
+say 1 < 2;
 1;
 PERL6
+
+    print Dumper $match->();
+    print "tail: ", substr( ${$match}->{tail}, 0, 20 ),"...\n";
+__END__
+
 use YAML;
 print Dump $match->();
 

@@ -66,26 +66,38 @@ BEGIN {
     
     __PACKAGE__->add_rule( 
         name => 'eq',
-        assoc => 'list',
+        assoc => 'left',
         precedence => 'looser',
         other => '..',
     );
     
     __PACKAGE__->add_rule( 
         name => 'ne',
-        assoc => 'list',
+        assoc => 'left',
         precedence => 'equal',
         other => 'eq',
     );
     __PACKAGE__->add_rule( 
         name => '==',
-        assoc => 'list',
+        assoc => 'left',
         precedence => 'equal',
         other => 'eq',
     );
     __PACKAGE__->add_rule( 
         name => '!=',
-        assoc => 'list',
+        assoc => 'left',
+        precedence => 'equal',
+        other => 'eq',
+    );
+    __PACKAGE__->add_rule( 
+        name => '<',
+        assoc => 'left',
+        precedence => 'equal',
+        other => 'eq',
+    );
+    __PACKAGE__->add_rule( 
+        name => '>',
+        assoc => 'left',
         precedence => 'equal',
         other => 'eq',
     );
