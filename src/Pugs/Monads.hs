@@ -270,7 +270,7 @@ enterSub sub action
                 }
         | otherwise = do
             subRec <- sequence
-                [ genSym "&?SUB" (codeRef (orig sub))
+                [ genSym "&?ROUTINE" (codeRef (orig sub))
                 , genSym "$?SUBNAME" (scalarRef $ VStr $ subName sub)]
             -- retRec    <- genSubs env "&return" retSub
             callerRec <- genSubs env "&?CALLER_CONTINUATION" (ccSub cc)
@@ -279,7 +279,7 @@ enterSub sub action
                 , envPackage = maybe (envPackage e) envPackage (subEnv sub)
                 , envOuter   = maybe Nothing envOuter (subEnv sub)
                 , envImplicit= envImplicit e `Map.union` Map.fromList
-                    [ ("&?SUB", ()), ("$?SUBNAME", ()), ("&?CALLER_CONTINUATION", ()) ]
+                    [ ("&?ROUTINE", ()), ("$?SUBNAME", ()), ("&?CALLER_CONTINUATION", ()) ]
                 }
     ccSub :: (Val -> Eval Val) -> Env -> VCode
     ccSub cc env = mkPrim

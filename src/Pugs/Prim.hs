@@ -685,7 +685,7 @@ op1Return :: Eval Val -> Eval Val
 op1Return action = do
     depth <- asks envDepth
     if depth == 0 then fail "cannot return() outside a subroutine" else do
-    sub   <- fromVal =<< readVar "&?SUB"
+    sub   <- fromVal =<< readVar "&?ROUTINE"
     -- If this is a coroutine, reset the entry point
     case subCont sub of
         Nothing -> action
@@ -701,7 +701,7 @@ op1Yield :: Eval Val -> Eval Val
 op1Yield action = do
     depth <- asks envDepth
     if depth == 0 then fail "cannot yield() outside a coroutine" else do
-    sub   <- fromVal =<< readVar "&?SUB"
+    sub   <- fromVal =<< readVar "&?ROUTINE"
     case subCont sub of
         Nothing -> fail $ "cannot yield() from a " ++ pretty (subType sub)
         Just tvar -> callCC $ \esc -> do
@@ -1346,7 +1346,7 @@ op3Caller kind skip _ = do                                 -- figure out label
     callChain cur = 
         case envCaller cur of
             Just caller -> do
-                val <- local (const caller) (readVar "&?SUB")
+                val <- local (const caller) (readVar "&?ROUTINE")
                 if (val == undef) then return [(caller, Nothing)] else do
                 sub <- fromVal val
                 rest <- callChain caller
