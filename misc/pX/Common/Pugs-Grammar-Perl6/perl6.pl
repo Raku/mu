@@ -43,6 +43,10 @@ $string.isa "Str";
     if $num.isa("Num")    { say "ok 2" } else { say "not ok 2" }
 }
 
+#~ {
+    #~ my $string = "Pugs";
+    #~ if $string.ref eq "Str" { say "ok 1" } else { say "not ok 1" }
+#~ }
 
 1;
 PERL6

@@ -122,6 +122,12 @@ sub recompile {
         NaN => Pugs::Compiler::Rule->compile( q(
             { return { num => 'NaN' ,} } 
         ) ),
+        'bool::true' => Pugs::Compiler::Rule->compile( q(
+            { return { bool => 1 ,} } 
+        ) ),
+        'bool::false' => Pugs::Compiler::Rule->compile( q(
+            { return { bool => 0 ,} } 
+        ) ),
         q(') => Pugs::Compiler::Rule->compile( q(
             <Pugs::Grammar::Term.single_quoted>
             { return { single_quoted => $/{'Pugs::Grammar::Term.single_quoted'}->() ,} }

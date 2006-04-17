@@ -58,11 +58,19 @@ BEGIN {
     );
     
     __PACKAGE__->add_rule( 
-        name => 'eq',
-        assoc => 'list',
+        name => '..',
+        assoc => 'left',
         precedence => 'looser',
         other => '+',
     );
+    
+    __PACKAGE__->add_rule( 
+        name => 'eq',
+        assoc => 'list',
+        precedence => 'looser',
+        other => '..',
+    );
+    
     __PACKAGE__->add_rule( 
         name => 'ne',
         assoc => 'list',

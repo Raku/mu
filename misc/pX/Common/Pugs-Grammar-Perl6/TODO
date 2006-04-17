@@ -1,6 +1,19 @@
 ﻿TODO list for Pugs-Compiler-Tokenizer
 * The BUG list is below
 
+t/01-sanity failures:
+  07-isa.t 
+    - no closures 
+  07-ref.t 
+    - no $obj.method 
+  07-simple-multisubs.t 
+    - no multi
+    - no and
+  07-tailcall.t
+    - no &
+  07-try.t
+    - no $!
+    
 Priorities
 
 - merge Pod.pm into Perl6.pm

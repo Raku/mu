@@ -42,12 +42,13 @@ BEGIN {
     __PACKAGE__->add_rule(
         '}' => q( { return { stmt => '}'} } ));
     __PACKAGE__->add_rule(
-        '.' => q( { return { stmt => '.'} } ));
+        '.' => q( <before <Pugs::Grammar::Term.bareword> > { return { stmt => '.'} } ));
+    __PACKAGE__->add_rule(
+        'sub' => q( <before \s> { return { stmt => 'sub'} } ));
     for ( qw( 
         for 
         if else elsif 
         while 
-        sub 
         BEGIN END 
     ) ) {
         __PACKAGE__->add_rule(

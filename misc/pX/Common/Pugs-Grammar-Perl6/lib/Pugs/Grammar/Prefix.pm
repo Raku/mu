@@ -46,11 +46,25 @@ BEGIN {
         other => 'prefix:<+>',
     );
     __PACKAGE__->add_rule(
+        name => '?',
+        assoc => 'left',
+        precedence => 'equal',
+        other => 'prefix:<+>',
+    );
+    
+    __PACKAGE__->add_rule(
         name => 'say',
         assoc => 'left',
         precedence => 'looser',
         other => 'infix:<,>',
     );
+    __PACKAGE__->add_rule(
+        name => 'substr',
+        assoc => 'left',
+        precedence => 'equal',
+        other => 'prefix:<say>',
+    );
+    
     __PACKAGE__->add_rule( 
         name => '++',
         assoc => 'left',
