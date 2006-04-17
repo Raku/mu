@@ -58,7 +58,26 @@ our Int multi Num::round_alternate (Num $x) {
 }
 
 our Int multi Num::round_random (Num $x) {
-	...
+	my @l = (
+		{ $^a.round_half_up: symmetrical => $^b },
+		{ $^a.round_half_down: symmetrical => $^b },
+		{ $^a.round_half_even },
+		{ $^a.round_half_odd },
+
+#		{ $^a.round_half_alternate },
+#		{ $^a.round_half_random },
+
+		{ $^a.round_half_ceiling },
+		{ $^a.round_toward_zero },
+		{ $^a.round_away_from_zero },
+
+#		{ $^a.round_up: symmetrical => $^b },
+#		{ $^a.round_down: symmetrical => $^b },
+		);
+	my $sym_flag = (int(rand() * 10)) % 2;
+	my $selector = (int(rand() * 100)) % @l.elems;
+
+	@l[$selector]($x, $sym_flag);
 }
 
 our Int multi Num::round_ceiling (Num $x) {
@@ -85,11 +104,17 @@ our Int multi Num::round_away_from_zero (Num $x) {
 	$x > 0 ?? $t + 1 !! $t - 1;
 }
 
-our Int multi Num::round_up (Num $x) {
-	...
+our Int multi Num::round_up (Num $x, int $symmetrical? = 1) {
+	$symmetrical ?? $x.round_away_from_zero
+		!! $x.round_ceiling
 }
 
-our Int multi Num::round_down (Num $x) {
+our Int multi Num::round_down (Num $x, int $symmetrical? = 1) {
+	$symmetrical ?? $x.round_toward_zero
+		!! $x.round_floor
+}
+
+our Int multi Num::truncation (Num $x) {
 	...
 }
 
