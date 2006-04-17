@@ -119,14 +119,16 @@ During multi-dispatch, a tie-breaking parameter may bind to the invocant
 argument (e.g. for multi-methods), or one of the positional arguments.
 
 However, regardless of single- or multi- dispatch, the argument list (Capture)
-can never have more than one invocants.  Typically, the presence of an invocant
+can never have more than one invocant.  Typically, the presence of an invocant
 indicates a method-call (which may fall back to a subroutine-call); the lack of
 invocant means a subroutine-call.
 
-    1.foo(2);  # Int.foo with 1 as "self"; if not found, fallback to foo(1, 2)
+    1.foo(2);  # Int.foo with 1 as "self"; if not
+               # found, fallback to foo(1, 2)
     foo(1: 2); # same as above
 
-    bar(1, 2); # never looks at Int.foo; calls &foo in lexical/package scope
+    bar(1, 2); # never looks at Int.bar; calls &bar
+               # in lexical/package scope
 
 Method/subroutine calls are determined by the presence of an invocant at the
 calling site.  Single/multi dispatch are determined by the precense of "multi"
@@ -265,7 +267,7 @@ The C<:=> operator binds its left hand side (a Signature object) to its
 right hand side (a Capture object), so the latter form is akin to:
 
   sub foo (@y is rw) { ... }
-  foo(1, 2, 3); # error: three arguments passed where one is expected
+  foo(1, 2, 3); # FAIL: three arguments passed where one is expected
 
 However, these forms are valid:
 
@@ -281,7 +283,7 @@ But they are still different from the assignment form.
 This means that while C<@y> holds the values 1, 2, and 3, you cannot
 modify the container itself, so this won't work:
 
-  @y.push(4);   # error: cannot find method: List.push
+  @y.push(4);   # FAIL: cannot find method: List.push
 
 On the other hand, because variables are initialized by their sigils,
 so these two mean the same:
@@ -299,7 +301,7 @@ with the list-associative C<< infix:<,> >> operator, but it is flattened
 in the second case, and its elements are put into the previously allocated
 Array container bound to C<@y>:
 
-    $x.push(0); # error: cannot find method: List.push
+    $x.push(0); # FAIL: cannot find method: List.push
     @y.push(0); # works just fine
 
 =head3 Is there any difference between $x = [1, 2, 3] and @y = [1, 2, 3]?
@@ -326,7 +328,7 @@ For the usual method-based operations, they are pretty much interchangeable:
 
 However, they differ when you try to assign something into them:
 
-    $x = 42; # fails - Array doesn't handle scalar assignment
+    $x = 42; # FAIL  - Array doesn't handle scalar assignment
     @y = 42; # works - @y.elems is now 1
 
 Note that C<$x = 42> fails because the C<:=> in C<$x := [1, 2, 3]>
@@ -339,7 +341,7 @@ Compare this with the assignment case:
 and also binding into an integer:
 
     $x := 41;
-    $x = 42;        # fails - Int doesn't handle scalar assignment either
+    $x = 42;        # FAIL - Int doesn't handle scalar assignment either
 
 =head2 Why
 
