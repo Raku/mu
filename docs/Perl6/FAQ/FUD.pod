@@ -25,13 +25,13 @@ When adding responses, please keep in mind:
 
 =head2 Perl 6 has too many operators!
 
-Perl 6 has a few more operators than Perl 5 had. This doesn't automatically
-make the language harder to learn.  Many operators are there to make your life
-much easier.  Many tedious and error prone loops are no longer needed, and
-there are operators that are very easy to learn that let you avoid constructs
-that are hard to learn.
+Compared to Perl 5, Perl 6 has a few more operators -- and a few I<less>
+precedence levels. This doesn't automatically make the language harder to
+learn. Many operators are there to make your life much easier. Many tedious
+and error prone loops are no longer needed, and there are operators that are
+very easy to learn that let you avoid constructs that are hard to learn.
 
-The number of operators has greatly increased because of some much needed
+The number of operators has increased mostly because of some much needed
 separation. The single bitwise-OR operator C<|> is now three different
 operators: C<~|>, C<+|> and C<?|>, operating on strings, numbers and booleans
 respectively.  That does not mean you have to learn each of them. Their
