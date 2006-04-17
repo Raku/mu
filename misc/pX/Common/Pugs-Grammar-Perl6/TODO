@@ -7,6 +7,7 @@ Priorities
 - parse ext/Test/lib/Test.pm
 - failures:
     %ENV<TEST_ALWAYS_CALLER>
+    infinite loop?
     
 - merge Pod.pm into Perl6.pm
 
@@ -36,8 +37,6 @@ TODO
 - Implement compile-time dynamic 'add_token' (lexical at run-time)
 
 - Implement double-quoted-string split on variables (interpolation)
-- Implement %hash<qw string> and '<' and '>'
-    - '<' always requires whitespace before
 - Implement /rule/ and '/'
     - see expect... in Expression.pm
 

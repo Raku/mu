@@ -149,10 +149,11 @@ sub recompile {
             <Pugs::Grammar::Term.double_quoted>
             { return { double_quoted => $/{'Pugs::Grammar::Term.double_quoted'}->() ,} }
         ) ),
-        q(<) => Pugs::Compiler::Rule->compile( q(
-            <Pugs::Grammar::Term.angle_quoted>
-            { return { angle_quoted => $/{'Pugs::Grammar::Term.angle_quoted'}->() ,} }
-        ) ),
+        # angle is handled by the lexer
+        #q(<) => Pugs::Compiler::Rule->compile( q(
+        #    <Pugs::Grammar::Term.angle_quoted>
+        #    { return { angle_quoted => $/{'Pugs::Grammar::Term.angle_quoted'}->() ,} }
+        #) ),
         #~ q(.) => Pugs::Compiler::Rule->compile( q(
             #~ <Pugs::Grammar::Term.bareword>
             #~ { return { method => $/{'Pugs::Grammar::Term.bareword'}->() ,} }

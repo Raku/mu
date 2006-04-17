@@ -48,6 +48,8 @@ sub ast {
         $m = Pugs::Grammar::StatementControl->parse( $match, { p => 1 } );
         last if ( $m );
         if ( $match =~ /^</ ) {   # && ! $whitespace_before ) {
+            # XXX - angle quotes are always tried even if it were expecting a simple '<'
+
             # after whitespace means '<' (default)
             # without whitespace means '<str>'
             print "checking angle quote ... [$whitespace_before]\n";
