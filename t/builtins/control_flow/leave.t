@@ -30,11 +30,11 @@ skip_rest; exit;
 
 {
   my $sub = sub () {
-    leave &?SUB, 42;
+    leave &?ROUTINE, 42;
     return 23;
   };
 
-  is $sub(), 42, "leave() works with &?SUB as parameter";
+  is $sub(), 42, "leave() works with &?ROUTINE as parameter";
 }
 
 {

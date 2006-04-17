@@ -80,5 +80,5 @@ is $str, 'inner', 'return in pointy returns from enclosing sub';
 # What about nested pointies -> { ... -> {} }?
 
 
-# L<S06/"Pointy subs" /It is referenced by &?BLOCK, not &?SUB/>
+# L<S06/"Pointy subs" /It is referenced by &?BLOCK, not &?ROUTINE/>
 # Coming soon...

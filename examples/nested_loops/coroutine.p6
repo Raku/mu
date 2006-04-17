@@ -16,7 +16,7 @@ sub NestedLoop (:@loop!, :$only_when, :$code) {
         return $next unless defined $next[0];
 
         if $only_when {
-            return &?SUB() unless $only_when($next);
+            return &?ROUTINE() unless $only_when($next);
         }
 
         $code($next) if $code;
