@@ -41,6 +41,8 @@ BEGIN {
         '{' => q( { return { stmt => '{'} } ));
     __PACKAGE__->add_rule(
         '}' => q( { return { stmt => '}'} } ));
+    __PACKAGE__->add_rule(
+        '.' => q( { return { stmt => '.'} } ));
     for ( qw( 
         for 
         if else elsif 

@@ -45,10 +45,16 @@ stmt:
 exp: 
       NUM                 
         { $_[0]->{out}= $_[1] }
+        
     | BAREWORD            
         { $_[0]->{out}= { call => { sub => $_[1], } } }
     | BAREWORD exp   %prec P003
         { $_[0]->{out}= { call => { sub => $_[1], param => $_[2], } } }
+    | exp '.' BAREWORD '(' exp ')'  %prec P003
+        { $_[0]->{out}= { method_call => { self => $_[1], method => $_[3], param => $_[5], } } }
+    | exp '.' BAREWORD exp   %prec P003
+        { $_[0]->{out}= { method_call => { self => $_[1], method => $_[3], param => $_[4], } } }
+        
     | stmt                
         { $_[0]->{out}= $_[1] }
     | stmt exp            

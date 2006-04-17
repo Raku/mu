@@ -134,13 +134,16 @@ sub recompile {
             <Pugs::Grammar::Term.angle_quoted>
             { return { angle_quoted => $/{'Pugs::Grammar::Term.angle_quoted'}->() ,} }
         ) ),
-        q(.) => Pugs::Compiler::Rule->compile( q(
-            <Pugs::Grammar::Term.bareword>
-            { return { method => $/{'Pugs::Grammar::Term.bareword'}->() ,} }
-        ) ),
+        #~ q(.) => Pugs::Compiler::Rule->compile( q(
+            #~ <Pugs::Grammar::Term.bareword>
+            #~ { return { method => $/{'Pugs::Grammar::Term.bareword'}->() ,} }
+        #~ ) ),
         q() => Pugs::Compiler::Rule->compile( q!
+                ### floating point
+                \d+\.\d+ { return { num => $() ,} } 
+            |
                 ### number
-                \d+ { return { num => $() ,} } 
+                \d+ { return { int => $() ,} } 
             |
                 ### long:<name> 
                 <Pugs::Grammar::Term.pair>

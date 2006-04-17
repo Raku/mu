@@ -28,6 +28,22 @@ my $match = Pugs::Grammar::Perl6->parse(<<'PERL6');
 if key:<val> {
     10 + $a / "abc"
 }
+$string.isa("Str");
+$string.isa "Str";
+#$string.say;
+
+
+{
+    my $string = "Pugs";
+    if $string.isa("Str") { say "ok 1" } else { say "not ok 1" }
+}
+
+{
+    my $num = 3.141;
+    if $num.isa("Num")    { say "ok 2" } else { say "not ok 2" }
+}
+
+
 1;
 PERL6
 use YAML;
