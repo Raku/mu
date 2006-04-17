@@ -70,7 +70,7 @@ sub ok_auto {
 }
 
 module Test-0.0.6;
-$Test::ALWAYS_CALLER = %ENV<TEST_ALWAYS_CALLER>;
+#$Test::ALWAYS_CALLER = %ENV<TEST_ALWAYS_CALLER>;
 $Test::num_of_tests_run    = 0;
 $Test::num_of_tests_planned;
 

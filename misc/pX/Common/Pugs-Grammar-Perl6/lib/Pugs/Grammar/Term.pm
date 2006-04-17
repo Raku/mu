@@ -41,6 +41,19 @@ sub pair {
     #~ return $class->no_match;
 #~ };
 
+sub cpan_bareword {
+    my $class = shift;
+    return $class->no_match unless $_[0];
+    return Pugs::Runtime::Match->new( { 
+        bool  => 1,
+        match => $1,
+        tail  => $2,
+        capture => { cpan_bareword => $1 },
+    } )
+        if $_[0] =~ /^ ([_\w\d]+ \- [_\w\d\-\.]+) ( (?: \(|\;|\s|$ ) .*)$/sx;
+    return $class->no_match;
+};
+
 sub bareword {
     my $class = shift;
     return $class->no_match unless $_[0];
@@ -158,6 +171,10 @@ sub recompile {
                 #~ ### func(... func.(...
                 #~ <Pugs::Grammar::Term.sub_call> 
                 #~ { return $/{'Pugs::Grammar::Term.sub_call'}->() }
+            |
+                ### Test-0.0.6
+                <Pugs::Grammar::Term.cpan_bareword> 
+                { return $/{'Pugs::Grammar::Term.cpan_bareword'}->() }
             |
                 ### v6
                 <Pugs::Grammar::Term.bareword> 
