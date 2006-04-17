@@ -50,7 +50,7 @@ sub ast {
         if ( $match =~ /^</ ) {   # && ! $whitespace_before ) {
             # after whitespace means '<' (default)
             # without whitespace means '<str>'
-            print "checking angle quote ...\n";
+            print "checking angle quote ... [$whitespace_before]\n";
             $m = Pugs::Grammar::Term->angle_quoted( substr($match, 1), { p => 1 } );
             if ( $m ) {
                 print "Match: ",Dumper $m->();
@@ -62,18 +62,22 @@ sub ast {
                         tail  => $$m->{tail},
                         capture => { angle_quoted => $m->() },
                     } );
+                    print "Match: ",Dumper $m->();
+                    last;
                 }
-                else {
-                    # expects an op
+                # expects an op
+                # x < 1  --- less than
+                # x<1    --- starts angle-quote
+                unless ( $whitespace_before ) {
                     $m = Pugs::Runtime::Match->new( { 
                         bool  => 1,
                         match => $m,
                         tail  => $$m->{tail},
                         capture => { op => "ANGLE", angle_quoted => $m->() },
                     } );
+                    print "Match: ",Dumper $m->();
+                    last;
                 }
-                print "Match: ",Dumper $m->();
-                last;
             }
         }
         $m = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
