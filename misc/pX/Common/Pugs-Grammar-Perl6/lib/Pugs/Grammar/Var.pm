@@ -52,6 +52,10 @@ BEGIN {
                 <Pugs::Grammar::Rule.ident>
                 { return { hash  => "\%" . $_[0]->{'Pugs::Grammar::Rule.ident'}() ,} }
             ) );
+    __PACKAGE__->add_rule( '&' => q(
+                <Pugs::Grammar::Rule.ident>
+                { return { code  => "\&" . $_[0]->{'Pugs::Grammar::Rule.ident'}() ,} }
+            ) );
     __PACKAGE__->recompile;
 }
 

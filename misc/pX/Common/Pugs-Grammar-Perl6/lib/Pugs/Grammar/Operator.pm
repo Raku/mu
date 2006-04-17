@@ -31,6 +31,8 @@ stmt:
     | 'for' exp '{' exp '}'
         { $_[0]->{out}= { 'for' => { exp => $_[2], block => $_[4], } } }
         
+    | 'sub' BAREWORD '{' exp '}' 
+        { $_[0]->{out}= { 'sub' => { name => $_[2], block => $_[4] } } }
     | 'sub' BAREWORD '(' ')' '{' exp '}' 
         { $_[0]->{out}= { 'sub' => { name => $_[2], param => {}, block => $_[6] } } }
     | 'sub' BAREWORD '(' exp ')' '{' exp '}' 
@@ -43,6 +45,8 @@ stmt:
         
     | 'multi' BAREWORD '{' exp '}' 
         { $_[0]->{out}= { 'multi' => { name => $_[2], block => $_[4] } } }
+    | 'multi' BAREWORD '(' ')' '{' exp '}' 
+        { $_[0]->{out}= { 'multi' => { name => $_[2], param => {}, block => $_[6] } } }
     | 'multi' BAREWORD '(' exp ')' '{' exp '}' 
         { $_[0]->{out}= { 'multi' => { name => $_[2], param => $_[4], block => $_[7] } } }
         
@@ -61,6 +65,8 @@ exp:
         { $_[0]->{out}= { call => { sub => $_[1], } } }
     | BAREWORD exp   %prec P003
         { $_[0]->{out}= { call => { sub => $_[1], param => $_[2], } } }
+    | exp '.' BAREWORD    %prec P003
+        { $_[0]->{out}= { method_call => { self => $_[1], method => $_[3], } } }
     | exp '.' BAREWORD '(' exp ')'  %prec P003
         { $_[0]->{out}= { method_call => { self => $_[1], method => $_[3], param => $_[5], } } }
     | exp '.' BAREWORD exp   %prec P003

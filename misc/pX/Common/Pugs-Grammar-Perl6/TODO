@@ -2,27 +2,31 @@
 
 Priorities
 
-- pass t/01-sanity/*
+- Deep recursion message in perl6.pl (but it works)
 
-    t/01-sanity failures:
-    
-      07-isa.t 
-        - no closures 
-      07-ref.t 
-        - no $obj.method 
-      07-tailcall.t
-        - no &
+- parse ext/Test/lib/Test.pm
     
 - merge Pod.pm into Perl6.pm
 
-- special cases
- moose=>1
- moose:<elk>
- moose:{antler()}
+- check that these special cases are covered:
+    moose=>1
+    moose:<elk>
+    moose:{antler()}
+
+- transform hash collisions into alternations
+    example: short name of prefix:<&> (Prefix.pm) vs. sigil in &name (Var.pm)
 
 TODO
 
 - macro
+- dynamic grammar
+
+- unify syntax in Operator.pm:
+    unless/for
+    operators with the same precedence, fixity, and associativity
+    subroutines
+    sub/multi
+    BEGIN/END
 
 - Implement compile-time dynamic 'add_token' (lexical at run-time)
 

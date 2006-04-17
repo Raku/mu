@@ -54,9 +54,25 @@ sub foo () {
     say "ok";
 }
 
-print 123;
+print &sub123;
 
-bar.goto("param1", "param2");
+$bar.goto("param1", "param2");
+&bar.goto("param1", "param2");
+subname;
+subname();
+subname 99;
+$bar.methodname 99;
+$bar.methodname;
+my $code = { 42 };
+
+sub ok_auto {
+    say "ok $counter";
+}
+
+module Test-0.0.6;
+$Test::ALWAYS_CALLER = %ENV<TEST_ALWAYS_CALLER>;
+$Test::num_of_tests_run    = 0;
+$Test::num_of_tests_planned;
 
 1;
 PERL6
