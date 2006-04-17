@@ -31,14 +31,15 @@ sub ast {
     $match .= '';
     # print "Grammar::Expression::AST '$match' \n";
     my $p;
-    my($lex) = sub {
+    my $last = length( $match );
+    my $lex = sub {
 
         my $m;
         $m = Pugs::Grammar::BaseCategory->ws( $match );
         # ws is nonstandard in that it returns a hashref instead of a Match
         # print "match is ",Dumper($m),"\n";
         $match = $m->{tail} if $m->{bool};
-        # print "tail $match \n";
+        # print "tail $match \n"; 
         $m = Pugs::Grammar::StatementControl->parse( $match, { p => 1 } );
         if ( $m ) {
             #print "statement-control: ", Dumper $m->();
@@ -60,6 +61,7 @@ sub ast {
         }
         $match = $$m->{tail};
         my $ast = $m->();
+        $ast->{pos} = $last - length( $match );
         my $t;
         if ( exists $ast->{stmt} ) {
             $t = [ $ast->{stmt} => $ast ]
