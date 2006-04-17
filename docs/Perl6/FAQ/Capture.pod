@@ -22,7 +22,7 @@ object denoted by C<\("Hello", "World")>.
 
 =head2 How
 
-=head3 Can I see how captures look like? Does \$x no longer work?
+=head3 Can I see what captures look like? Does \$x no longer work?
 
 Prefix C<\> is now the Capture constructor.  These are all equivalent:
 
@@ -79,7 +79,7 @@ Note that the positional parts do not include the invocant.
 
 =head3 What do you mean by "invocant"?
 
-When you call a object's method, the C<self> inside the method is set
+When you call an object's method, the C<self> inside the method is set
 to that object. These are all equivalent:
 
   $fh.say("Hi!");
@@ -129,7 +129,7 @@ invocant means a subroutine-call.
                # in lexical/package scope
 
 Method/subroutine calls are determined by the presence of an invocant at the
-calling site.  Single/multi dispatch are determined by the precense of "multi"
+calling site.  Single/multi dispatch are determined by the presence of "multi"
 in the declaration site.  The two concepts are entirely orthogonal.
 
 =head3 What happens when a named argument is repeated?
@@ -204,7 +204,7 @@ in an Capture object.
 
 (Captures are immutable; their underlying data may not be.)
 
-=head3 So $x = @y does not mean $x = \@y anymore. What does it mean then?
+=head3 So $x = @y does not mean $x = \@y anymore. Then, what does it mean?
 
 It means assigning C<$x> with the object bound to C<@y> (typically an
 Array object).
