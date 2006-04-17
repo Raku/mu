@@ -764,6 +764,7 @@ separate entries for lists.
     Array   .[number] array element truth*     match if $_[number]
     Num     NumRange  in numeric range         match if $min <= $_ <= $max
     Str     StrRange  in string range          match if $min le $_ le $max
+    Capture Signature parameter binding        match if $cap can bind to $sig
     Any     Code<>    simple closure truth*    match if $x() (ignoring $_)
     Any     Class     class membership         match if $_.does($x)
     Any     Role      role playing             match if $_.does($x)
