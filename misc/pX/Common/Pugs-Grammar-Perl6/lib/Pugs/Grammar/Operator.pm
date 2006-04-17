@@ -23,11 +23,16 @@ stmt:
     | 'if' exp '{' exp '}' else '{' exp '}'
         { $_[0]->{out}= { 'if' => { exp => $_[2], then => $_[4], else => $_[8] } } }
         
+    | 'unless' exp '{' exp '}' 
+        { $_[0]->{out}= { 'unless' => { exp => $_[2], then => $_[4] } } }
+    | 'unless' exp '{' exp '}' else '{' exp '}'
+        { $_[0]->{out}= { 'unless' => { exp => $_[2], then => $_[4], else => $_[8] } } }
+        
     | 'for' exp '{' exp '}'
         { $_[0]->{out}= { 'for' => { exp => $_[2], block => $_[4], } } }
         
-    | 'sub' BAREWORD '{' exp '}' 
-        { $_[0]->{out}= { 'sub' => { name => $_[2], block => $_[4] } } }
+    | 'sub' BAREWORD '(' ')' '{' exp '}' 
+        { $_[0]->{out}= { 'sub' => { name => $_[2], param => {}, block => $_[6] } } }
     | 'sub' BAREWORD '(' exp ')' '{' exp '}' 
         {
             #print "parse-time define sub: ", Dumper( $_[2] );

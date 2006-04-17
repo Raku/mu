@@ -12,8 +12,6 @@ Priorities
         - no $obj.method 
       07-tailcall.t
         - no &
-      07-try.t
-        - no $!
     
 - merge Pod.pm into Perl6.pm
 

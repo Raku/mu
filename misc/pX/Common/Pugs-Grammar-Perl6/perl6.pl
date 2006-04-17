@@ -48,6 +48,14 @@ $string.isa "Str";
     #~ if $string.ref eq "Str" { say "ok 1" } else { say "not ok 1" }
 #~ }
 
+sub foo () {
+    say "ok";
+}
+
+print 123;
+
+bar.goto("param1", "param2");
+
 1;
 PERL6
 use YAML;

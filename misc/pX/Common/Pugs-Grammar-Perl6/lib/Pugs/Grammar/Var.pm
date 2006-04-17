@@ -41,6 +41,9 @@ BEGIN {
                 <Pugs::Grammar::Rule.ident>
                 { return { scalar => '$' . $_[0]->{'Pugs::Grammar::Rule.ident'}() ,} }
             ) );
+    __PACKAGE__->add_rule( '$!' => q(
+                { return { scalar => '$!' ,} }
+            ) );
     __PACKAGE__->add_rule( '@' => q(
                 <Pugs::Grammar::Rule.ident>
                 { return { array => "\@" . $_[0]->{'Pugs::Grammar::Rule.ident'}() ,} }

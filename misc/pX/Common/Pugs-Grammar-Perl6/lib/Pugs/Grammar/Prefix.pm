@@ -51,6 +51,12 @@ BEGIN {
         precedence => 'equal',
         other => 'prefix:<+>',
     );
+    __PACKAGE__->add_rule(
+        name => '&',
+        assoc => 'left',
+        precedence => 'equal',
+        other => 'prefix:<+>',
+    );
     
     __PACKAGE__->add_rule(
         name => 'say',
