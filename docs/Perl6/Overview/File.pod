@@ -1,0 +1,63 @@
+=head1 NAME
+
+Perl6::Overview::File - File and Filesystem operations
+Structure
+
+=head1 DESCRIPTION
+
+=head2 Files
+     
+    FH = open FILENAME, MODE
+    # FH is the returned filehandle
+    # FILENAME is, well the name of the file
+    # MODE can be :r :w :a :rw
+    # if MODE left out it defaults to :r
+    
+    my $fh = open "filename", :r err die "Could not open file $!";
+
+    my $row = =$fh;                           # reading a line
+
+    my @rows = =$fh;                          # reading all the lines
+
+    my $content = slurp "filename";
+                    # slurp the content of a file into a scalar variable
+
+    close $fh;
+    
+=head2 Directories
+
+    my $dh = opendir "dirname" err die "Could not open directory $!";
+
+    my @files = readdir($dh);
+    my @files = $dh.readdir;
+    
+    for $dh.readdir -> $entry {  # read them one-by-one
+        say $entry;
+    }
+
+    closedir($dh);
+    $dh.closedir;
+
+    rewinddir($dh);               # start from the beginning
+    $dh.rewinddir;
+
+=head2 File and Directory tests
+    -e "thing"                    # true if thing exists in the filesystem
+    -d "thing"                    # true on directories
+    -f "thing"                    # true on files
+    -r "thing"                    # true on readable files/directories
+    -w "thing"                    # true on writable files/directories
+    -x "thing"                    # true on executable files/directories
+
+    -z "file"                     # true if size is 0
+    -s "file"                     # returns file size in bytes
+
+
+    mkdir "dirname"
+    rmdir "dirname"
+    chdir "dirname"
+
+    unlink
+    chmod
+    chown
+
