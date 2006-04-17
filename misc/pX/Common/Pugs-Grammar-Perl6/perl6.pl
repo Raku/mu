@@ -1,7 +1,9 @@
-use lib 
-     './lib',
-    '../Pugs-Compiler-Rule/lib',
-    '../Pugs-Compiler-Precedence/lib',
+use FindBin '$Bin';
+use lib
+    "$Bin/lib",
+    "$Bin/../../../../lib",
+    "$Bin/../Pugs-Compiler-Rule/lib",
+    "$Bin/../Pugs-Compiler-Precedence/lib",
 ;
 
 use Pugs::Grammar::Perl6;
