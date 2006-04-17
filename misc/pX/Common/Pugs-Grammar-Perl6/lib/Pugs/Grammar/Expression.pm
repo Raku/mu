@@ -18,89 +18,70 @@ $Data::Dumper::Sortkeys = 1;
 *ws = &Pugs::Grammar::BaseCategory::ws;
 
 our $parser = Pugs::Compiler::Rule->compile( q!
-        #~ { print "Grammar::Expression::parse '$_[0]' \n";
-          #~ # print (keys %Pugs::Grammar::Term::hash),"\n"; 
-        #~ }
-        
-        <?Pugs::Grammar::BaseCategory.ws>?
-            #~ <Pugs::Grammar::StatementControl.parse>     <?ws>?
-            #~ {
-                #~ return $/{'Pugs::Grammar::StatementControl.parse'}->();
-            #~ }
-        #~ |
-        ( 
-            #{ print "trying stmt\n"; } 
-            <Pugs::Grammar::StatementControl.parse> <?Pugs::Grammar::BaseCategory.ws>? 
-            #{ print "stmt\n";   } 
-        |
-            #{ print "trying op\n"; } 
-            <Pugs::Grammar::Operator.parse> <?Pugs::Grammar::BaseCategory.ws>? 
-            #{ print "op\n";   } 
-        |
-            #{ print "trying term\n"; } 
-            <Pugs::Grammar::Term.parse>     <?Pugs::Grammar::BaseCategory.ws>?
-            #{ print "term\n"; } 
-        )*
-        #{ print "matched ", Dumper(@_); }
-        #<before  \} | \{ | $ >   # XXX
-        #{ print "before $_[0]\n"; }
-        
+        .*
         { 
-            # print "Grammar::Expression::parse returning \n";
             return Pugs::Grammar::Expression::ast( $/ ); 
         }
-        
-        # | { print "fail $_[0]\n"; }
     !);
 
 *parse = $parser->code;
 
 sub ast {
     my $match = shift;
+    $match .= '';
+    # print "Grammar::Expression::AST '$match' \n";
+    my $p;
+    my($lex) = sub {
 
-    #print "Grammar::Expression::AST $match \n";
-
-    #print $rule->perl5;
-    # my $match = $exp->match( q(10 + $a / "abc") );
-    #print Dumper( $match->[0] );
-    my $m = $match->[0];
-    return [] unless defined $m;
-    my @m = @$m;
-    #print Dumper( @m );
-    #is( join(';', map { $_->() } @m), q(10 ;+ ;$a ;/ ;"abc"), 'split on terms' );
-
-    #print "Subroutines: @Pugs::Grammar::Operator::subroutine_names\n";
-
-    my @in;
-    for my $term ( @m ) {
-        #print Dumper $term->();
-        my ($k) = keys %$term;
-        
-        #print Dumper $term->{$k}();
-        
-        my $ast = $term->{$k}();
-        if ( exists $ast->{stmt} ) {
-            push @in, [ $ast->{stmt} => $ast ]
-        }
-        elsif ( exists $ast->{op} ) {
-            push @in, [ $ast->{op} => $ast ]
-        }
-        elsif ( exists $ast->{bareword} ) {
-            push @in, [ 'BAREWORD' => $ast ]
+        my $m;
+        $m = Pugs::Grammar::BaseCategory->ws( $match );
+        # ws is nonstandard in that it returns a hashref instead of a Match
+        # print "match is ",Dumper($m),"\n";
+        $match = $m->{tail} if $m->{bool};
+        # print "tail $match \n";
+        $m = Pugs::Grammar::StatementControl->parse( $match, { p => 1 } );
+        if ( $m ) {
+            #print "statement-control: ", Dumper $m->();
         }
         else {
-            push @in, [ 'NUM' => $ast ]
+          $m = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
+          if ( $m ) {
+              #print "op: ", Dumper $m->();
+          }
+          else {
+            $m = Pugs::Grammar::Term->parse( $match, { p => 1 } );
+            if ( $m ) {
+                #print "term: ", Dumper $m->();
+            }
+            else {
+                #print "unrecognized token\n";
+            }
+          }
         }
-    }
-    #print Dumper @in;
-
-    my($lex) = sub {
-        my($t)=shift(@in);
-        $t=['',''] unless defined($t);
+        $match = $$m->{tail};
+        my $ast = $m->();
+        my $t;
+        if ( exists $ast->{stmt} ) {
+            $t = [ $ast->{stmt} => $ast ]
+        }
+        elsif ( exists $ast->{op} ) {
+            $t = [ $ast->{op} => $ast ]
+        }
+        elsif ( exists $ast->{bareword} ) {
+            $t = [ 'BAREWORD' => $ast ]
+        }
+        else {
+            $t = [ 'NUM' => $ast ]
+        }
+        $t=['',''] unless $match; # defined($t);
         print "token: $$t[0] ", Dumper( $$t[1] );
+        # print "expect: ", Dumper( $p->YYExpect );
         return($$t[0],$$t[1]);
     };
-    my $p = Pugs::Grammar::Operator->new(
+
+    # TODO - check for remaining whitespace!
+
+    $p = Pugs::Grammar::Operator->new(
         yylex => $lex, 
         yyerror => sub { warn "error in expression: $match ..." },
     );

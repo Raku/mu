@@ -5,6 +5,8 @@ Priorities
 - Deep recursion message in perl6.pl (but it works)
 
 - parse ext/Test/lib/Test.pm
+- failures:
+    %ENV<TEST_ALWAYS_CALLER>
     
 - merge Pod.pm into Perl6.pm
 
@@ -15,6 +17,9 @@ Priorities
 
 - transform hash collisions into alternations
     example: short name of prefix:<&> (Prefix.pm) vs. sigil in &name (Var.pm)
+
+- missing syntax
+    elsif
 
 TODO
 
