@@ -1,23 +1,21 @@
 ﻿TODO list for Pugs-Compiler-Tokenizer
-* The BUG list is below
 
-t/01-sanity failures:
-  07-isa.t 
-    - no closures 
-  07-ref.t 
-    - no $obj.method 
-  07-simple-multisubs.t 
-    - no multi
-    - no and
-  07-tailcall.t
-    - no &
-  07-try.t
-    - no $!
-    
 Priorities
 
-- merge Pod.pm into Perl6.pm
 - pass t/01-sanity/*
+
+    t/01-sanity failures:
+    
+      07-isa.t 
+        - no closures 
+      07-ref.t 
+        - no $obj.method 
+      07-tailcall.t
+        - no &
+      07-try.t
+        - no $!
+    
+- merge Pod.pm into Perl6.pm
 
 - special cases
  moose=>1
@@ -26,13 +24,13 @@ Priorities
 
 TODO
 
-- Implement base 'tokens-class' (category?)
+- macro
+
 - Implement compile-time dynamic 'add_token' (lexical at run-time)
 
 - Implement double-quoted-string split on variables (interpolation)
 - Implement %hash<qw string> and '<' and '>'
 - Implement /rule/ and '/'
-- Implement unquoted=>'value'
 - Implement [op]@list
 - Implement expressions inside names - like:
     prefix:{'+'}
@@ -69,7 +67,7 @@ TODO
 
 - Specify/generate AST
 
-BUGS
+P::C::R BUGS
 
 - A Match doesn't stringify if there is a capture
 

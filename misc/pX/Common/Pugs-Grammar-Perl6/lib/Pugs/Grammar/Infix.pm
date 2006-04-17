@@ -137,10 +137,24 @@ BEGIN {
     );
     
     __PACKAGE__->add_rule( 
+        name => 'and',
+        assoc => 'left',
+        precedence => 'looser',
+        other => 'Y',
+    );
+    
+    __PACKAGE__->add_rule( 
+        name => 'or',
+        assoc => 'left',
+        precedence => 'looser',
+        other => 'and',
+    );
+    
+    __PACKAGE__->add_rule( 
         name => ';',
         assoc => 'list',
         precedence => 'looser',
-        other => 'Y',
+        other => 'or',
     );
     __PACKAGE__->add_rule( 
         name => '->',

@@ -45,6 +45,8 @@ BEGIN {
         '.' => q( <before <Pugs::Grammar::Term.bareword> > { return { stmt => '.'} } ));
     __PACKAGE__->add_rule(
         'sub' => q( <before \s> { return { stmt => 'sub'} } ));
+    __PACKAGE__->add_rule(
+        'multi' => q( <before \s> { return { stmt => 'multi'} } ));
     for ( qw( 
         for 
         if else elsif 

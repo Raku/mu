@@ -35,6 +35,12 @@ stmt:
             #print "Subroutines: @subroutine_names\n";
             $_[0]->{out}= { 'sub' => { name => $_[2], param => $_[4], block => $_[7] } } 
         }
+        
+    | 'multi' BAREWORD '{' exp '}' 
+        { $_[0]->{out}= { 'multi' => { name => $_[2], block => $_[4] } } }
+    | 'multi' BAREWORD '(' exp ')' '{' exp '}' 
+        { $_[0]->{out}= { 'multi' => { name => $_[2], param => $_[4], block => $_[7] } } }
+        
     | '{' exp '}'        
         { $_[0]->{out}= { 'bare_block' => $_[2] } }
     | 'BEGIN' '{' exp '}'        
