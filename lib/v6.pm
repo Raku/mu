@@ -1,6 +1,22 @@
 package v6;
 
 use strict;
+use Filter::Util::Call;
+
+sub import {
+    my ($package, $filename, $line) = caller;
+    my $f = do {
+        open my $fh, '<', $filename.'c';
+        local $/;
+        readline($fh);
+    };
+    filter_add(sub {
+        filter_del(); 1 while filter_read(); $_ = $f; 1;
+    });
+}
+
+1;
+__END__
 use Inline; # this is going away soon
 use Filter::Simple;
 
