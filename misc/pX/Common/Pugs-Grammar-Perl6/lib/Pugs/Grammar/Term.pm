@@ -84,7 +84,7 @@ sub single_quoted {
     my ($extracted,$remainder) = Text::Balanced::extract_delimited( "'" . $_[0], "'" );
     $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
     return Pugs::Runtime::Match->new( { 
-        bool  => ( $extracted ne '' ),
+        bool  => 1, # ( $extracted ne '' ),
         match => $extracted,
         tail  => $remainder,
         capture => $extracted,
@@ -97,7 +97,7 @@ sub double_quoted {
     my ($extracted,$remainder) = Text::Balanced::extract_delimited( '"' . $_[0], '"' );
     $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
     return Pugs::Runtime::Match->new( { 
-        bool  => ( $extracted ne '' ),
+        bool  => 1, # ( $extracted ne '' ),
         match => $extracted,
         tail  => $remainder,
         capture => $extracted,
@@ -110,7 +110,7 @@ sub angle_quoted {
     my ($extracted,$remainder) = Text::Balanced::extract_bracketed( '<' . $_[0], '<..>' );
     $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
     return Pugs::Runtime::Match->new( { 
-        bool  => ( $extracted ne '' ),
+        bool  => 1, # ( $extracted ne '' ),
         match => $extracted,
         tail  => $remainder,
         capture => $extracted,
@@ -121,8 +121,10 @@ sub ident {
     my $grammar = shift;
     $_[0] = "" unless defined $_[0];
     my $bool = $_[0] =~ /^(
-            \!
+            \!     # $!
         |
+            \??    # $?CALLER
+
             (?:\*)?
             (?:  (?:\:\:)?
                  [_[:alnum:]]+

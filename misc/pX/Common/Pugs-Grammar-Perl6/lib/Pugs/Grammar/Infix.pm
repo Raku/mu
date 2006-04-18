@@ -130,6 +130,12 @@ BEGIN {
         precedence => 'looser',
         other => '&&',
     );
+    __PACKAGE__->add_rule( 
+        name => '//',
+        assoc => 'right',
+        precedence => 'equal',
+        other => '||',
+    );
     
     __PACKAGE__->add_rule( 
         name => '=',
@@ -139,6 +145,12 @@ BEGIN {
     );
     __PACKAGE__->add_rule( 
         name => ':=',
+        assoc => 'right',
+        precedence => 'equal',
+        other => '=',
+    );
+    __PACKAGE__->add_rule( 
+        name => '~=',
         assoc => 'right',
         precedence => 'equal',
         other => '=',

@@ -29,6 +29,18 @@ attr:
         } }
     ;
 
+signature:
+        #empty  
+        { $_[0]->{out}= { signature => [] } }
+    |   exp  signature
+        { $_[0]->{out}= { 
+            signature => [ 
+                [ $_[1] ],
+                @{$_[2]{signature}}, 
+            ], 
+        } }
+    ;
+
 stmt:  
       IF exp '{' exp '}' 
         { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[4] } }
@@ -38,25 +50,26 @@ stmt:
     | 'for' exp '{' exp '}'
         { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[4], } }
         
-    | 'sub' BAREWORD             attr '{' exp '}' 
-        { $_[0]->{out}= { 'sub' => { name => $_[2], block => $_[5], %{$_[3]} } } }
-    | 'sub' BAREWORD '(' ')'     attr '{' exp '}' 
-        { $_[0]->{out}= { 'sub' => { name => $_[2], param => {}, block => $_[7], %{$_[5]} } } }
-    | 'sub' BAREWORD '(' exp ')' attr '{' exp '}' 
+    | SUB BAREWORD             attr '{' exp '}' 
+        { $_[0]->{out}= { op1 => $_[1], name => $_[2], block => $_[5], %{$_[3]} } }
+    | SUB BAREWORD '(' signature ')' attr '{' exp '}' 
         {
             #print "parse-time define sub: ", Dumper( $_[2] );
             #push @subroutine_names, $_[2]->{bareword};
             #print "Subroutines: @subroutine_names\n";
-            $_[0]->{out}= { 'sub' => { name => $_[2], param => $_[4], block => $_[8], %{$_[6]} } } 
+            $_[0]->{out}= { op1 => $_[1], name => $_[2], block => $_[8], %{$_[4]}, %{$_[6]} } 
         }
-        
-    | 'multi' BAREWORD             attr '{' exp '}' 
-        { $_[0]->{out}= { 'multi' => { name => $_[2], block => $_[5], %{$_[3]} } } }
-    | 'multi' BAREWORD '(' ')'     attr '{' exp '}' 
-        { $_[0]->{out}= { 'multi' => { name => $_[2], param => {}, block => $_[7], %{$_[5]} } } }
-    | 'multi' BAREWORD '(' exp ')' attr '{' exp '}' 
-        { $_[0]->{out}= { 'multi' => { name => $_[2], param => $_[4], block => $_[8], %{$_[6]} } } }
-        
+    
+    | SUB SUB BAREWORD             attr '{' exp '}' 
+        { $_[0]->{out}= { op1 => $_[2], name => $_[3], block => $_[6], %{$_[4]} } }
+    | SUB SUB BAREWORD '(' signature ')' attr '{' exp '}' 
+        {
+            #print "parse-time define sub: ", Dumper( $_[2] );
+            #push @subroutine_names, $_[2]->{bareword};
+            #print "Subroutines: @subroutine_names\n";
+            $_[0]->{out}= { op1 => $_[2], name => $_[3], block => $_[9], %{$_[5]}, %{$_[7]} } 
+        }
+
     | '{' exp '}'        
         { $_[0]->{out}= { 'bare_block' => $_[2] } }
     | 'BEGIN' '{' exp '}'        
@@ -107,6 +120,7 @@ use Pugs::Grammar::Prefix;
 use Pugs::Grammar::Postfix;
 use Pugs::Grammar::Circumfix;
 use Pugs::Grammar::Postcircumfix;
+use Pugs::Grammar::Ternary;
 
 sub recompile {
     my $class = shift;
@@ -118,6 +132,7 @@ sub recompile {
         %Pugs::Grammar::Postfix::hash,
         %Pugs::Grammar::Circumfix::hash,
         %Pugs::Grammar::Postcircumfix::hash,
+        %Pugs::Grammar::Ternary::hash,
     );
     $class->SUPER::recompile;
 

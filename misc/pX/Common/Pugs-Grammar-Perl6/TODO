@@ -27,6 +27,9 @@ Priorities
 
 TODO
 
+- parse the op table from
+  http://svn.perl.org/parrot/trunk/languages/perl6/lib/grammar_optok.pge
+
 - macro
 - dynamic grammar
 

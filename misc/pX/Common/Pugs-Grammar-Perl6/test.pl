@@ -88,6 +88,8 @@ say(3 if 4);    # wrong?
 
 #1 if 2 if 3;
 
+Test::skip $reason, :$depends;
+
 1;
 PERL6
 

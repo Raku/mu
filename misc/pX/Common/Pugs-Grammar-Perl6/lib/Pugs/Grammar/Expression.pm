@@ -86,7 +86,7 @@ sub ast {
         last if ( $m );
         $m = Pugs::Grammar::Term->parse( $match, { p => 1 } );
         last if ( $m );
-        print "unrecognized token\n";
+        print "unrecognized token '",substr($match,0,10),"'\n";
       } # /for
 
         my $ast = $m->();
@@ -99,7 +99,7 @@ sub ast {
             if (   defined $name 
                 && $name =~ /[[:alnum:]]$/ 
                 && defined $$m->{tail}
-                && $$m->{tail} =~ /^[[:alnum:]]/ 
+                && $$m->{tail} =~ /^[_[:alnum:]]/ 
             ) {
                 print "mismatched name: $name\n";
                 $m = Pugs::Grammar::Term->parse( $match, { p => 1 } );
@@ -119,6 +119,9 @@ sub ast {
 
             if ( $ast->{stmt} eq 'if' or $ast->{stmt} eq 'unless' ) {
                 $t = [ 'IF' => $ast ]
+            }
+            elsif ( $ast->{stmt} eq 'sub' or $ast->{stmt} eq 'multi' ) {
+                $t = [ 'SUB' => $ast ]
             }
             else {
                 $t = [ $ast->{stmt} => $ast ]
