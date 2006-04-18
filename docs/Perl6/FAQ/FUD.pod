@@ -214,6 +214,19 @@ F<examples/golf/> directories in the Pugs repository.
 
 =head2 Every module requires 42 "use" statements to improve syntax!
 
+Larry's really bad decisions tend to get fixed later in the design process, we hope.
+If you keep using the same modules over and over, you can make a module that uses all
+of those modules, and still end up with the things getting exported to teh right place.
+Individual authors, communities, or style guides could have their own sets.
+Most languages with the possible exception of your $language_of_choice have numberus
+misdesissions. In Perl 6 due to the dynamic grammar you can change them.
+
+use Style:jrandom
+use Style:pbp
+use Style:gnu
+
+=head2 Perl 6 will split into multiple incompatible dialects!
+
 =head2 The internals will be just as inaccessable as Perl 5's!
 
 =head2 The Perl 6 process is driving away too many good developers!
@@ -225,5 +238,6 @@ F<examples/golf/> directories in the Pugs repository.
 =head2 Perl 6 is unnecessary and is hurting Perl 5 development!
 
 =head2 There is too much misinformation surrounding Perl 6!
+
 
 =cut
