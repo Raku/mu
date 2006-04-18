@@ -131,7 +131,7 @@ our Num multi Num::abs (Num $x) {
 	$x < 0 ?? -$x !! $x;
 }
 
-our Num multi Num::sign (Num $x) {
+our int multi Num::sign (Num $x) {
 	return 0 if $x == 0;
 	$x > 0 ?? 1 !! -1;
 }
