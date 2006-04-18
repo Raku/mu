@@ -90,6 +90,21 @@ TODO
 <TimToady> just as in P5.
 <TimToady> It's really only the postfix category that's new to P6
 
+<fglock> TimToady: is specifying an 'end token' parameter the way to go in interfacing the rule-based statement parser to the bottom-up parser?
+<TimToady> "an" end token is probably limiting it unnecessarily.  A set of end tokens is more like it.
+<TimToady> But a match can match a set of tokens, so passing in an end match is probably sufficient.
+<TimToady> The real problem with lvalue substr is that Perl 5 fakes it without a real COW engine underneath.
+<fglock> are the things inside brackets parsed using subrules? like in (@a;@b); - so that the 'end' is not matched in the wrong place
+<TimToady> As a basic rule of thumb, if you have brackets, you probably want a subrule
+<TimToady> though it's possible to do with op prec if you fiddle with infinities in the relative precedence inside and outside.
+<TimToady> but it's difficult to detect the (@a;@b] error without knowing the "right" terminator.
+<fglock> is sub 'circumfix:( ]' a valid spec?
+<TimToady> It's sort of like the difference between which things you need to use recursive regex on vs which things you can match with a flat regex (in P5 terms).
+<TimToady> syntactically, yes, that's valid.  You're nuts if you do it though.
+<TimToady> And you'll likely get a warning anyway if you define two circumfixes with the same left side.
+<TimToady> s/two/a second/
+<TimToady> but there's nothing says a circumfix can't be <fred barney>
+
 - Implement [op]@list
 - Implement expressions inside names - like:
     prefix:{'+'}
