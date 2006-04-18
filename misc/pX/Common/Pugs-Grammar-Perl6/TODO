@@ -35,6 +35,7 @@ TODO
 
 - implement statements using top-down parser (rules)
 - implement ordered testing of categories <%a|%b|%c> depending on the parser state
+- expression terminator (maybe the tokenizer is the best place?)
 
 - parse the op table from
   http://svn.perl.org/parrot/trunk/languages/perl6/lib/grammar_optok.pge
@@ -139,3 +140,6 @@ P::C::R BUGS
 - needs character classes
 
 - needs <after...>
+
+- cleanup Pugs::AST::Expression (no longer used?)
+
