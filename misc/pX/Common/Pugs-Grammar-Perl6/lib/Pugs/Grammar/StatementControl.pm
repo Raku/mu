@@ -42,15 +42,17 @@ BEGIN {
     __PACKAGE__->add_rule(
         '}' => q( { return { stmt => '}'} } ));
     __PACKAGE__->add_rule(
-        '.' => q( <before <Pugs::Grammar::Term.bareword> > { return { stmt => '.'} } ));
-    __PACKAGE__->add_rule(
-        'sub' => q( <before \s> { return { stmt => 'sub'} } ));
-    __PACKAGE__->add_rule(
-        'multi' => q( <before \s> { return { stmt => 'multi'} } ));
+        '.' => q( <before <Pugs::Grammar::Term.ident> > { return { stmt => '.'} } ));
     for ( qw( 
         for 
         if else elsif unless
         while 
+        sub multi
+    ) ) {
+        __PACKAGE__->add_rule(
+            $_ =>  qq( <before \\s> { return { stmt => '$_' } } ));
+    }
+    for ( qw( 
         BEGIN END 
     ) ) {
         __PACKAGE__->add_rule(

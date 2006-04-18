@@ -17,15 +17,6 @@ $Data::Dumper::Sortkeys = 1;
 # XXX - PCR is not calling this
 *ws = &Pugs::Grammar::BaseCategory::ws;
 
-our $parser = Pugs::Compiler::Rule->compile( q!
-        .*
-        { 
-            return Pugs::Grammar::Expression::ast( $/ ); 
-        }
-    !);
-
-*parse = $parser->code;
-
 sub ast {
     my $match = shift;
     $match .= '';
@@ -44,9 +35,18 @@ sub ast {
             $match = $m->{tail};
             $whitespace_before = 1;
         }
+        my @expect = $p->YYExpect;  # XXX is this expensive?
+        
         # print "tail $match \n"; 
+
+        # XXX @expect should use symbolic names; better use TABLE instead of 'literal'
+        #print " @{[ sort @expect ]} \n";
+        # if ( grep { $_ eq '++' || $_ eq '{' } @expect ) {
         $m = Pugs::Grammar::StatementControl->parse( $match, { p => 1 } );
         last if ( $m );
+        #}
+
+        # XXX temporary hack - matching options in 'expected' order should fix this
         if ( $match =~ /^</ ) {   # && ! $whitespace_before ) {
             # XXX - angle quotes are always tried even if it were expecting a simple '<'
 
@@ -56,7 +56,7 @@ sub ast {
             $m = Pugs::Grammar::Term->angle_quoted( substr($match, 1), { p => 1 } );
             if ( $m ) {
                 print "Match: ",Dumper $m->();
-                if ( grep { $_ eq 'NUM' } $p->YYExpect ) {
+                if ( grep { $_ eq 'NUM' } @expect ) {
                     # expects a term
                     $m = Pugs::Runtime::Match->new( { 
                         bool  => 1,
@@ -86,11 +86,33 @@ sub ast {
         last if ( $m );
         $m = Pugs::Grammar::Term->parse( $match, { p => 1 } );
         last if ( $m );
-        #print "unrecognized token\n";
+        print "unrecognized token\n";
       } # /for
 
-        $match = $$m->{tail};
         my $ast = $m->();
+
+        {
+            # XXX temporary hack - check if an alphanumeric-ending token is actually 
+            #     a longer-token bareword
+            #     'ne' vs. ':negate'
+            my $name = $ast->{op};
+            if (   defined $name 
+                && $name =~ /[[:alnum:]]$/ 
+                && defined $$m->{tail}
+                && $$m->{tail} =~ /^[[:alnum:]]/ 
+            ) {
+                print "mismatched name: $name\n";
+                $m = Pugs::Grammar::Term->parse( $match, { p => 1 } );
+                $ast = $m->();
+            }
+        }        
+
+        {
+            # trim tail
+            my $tmp = $$m->{tail};
+            $match = $tmp if defined $tmp;  # match failure doesn't kill $match (PCR "bug")
+        }
+
         $ast->{pos} = $last - length( $match );
         my $t;
         if ( exists $ast->{stmt} ) {
@@ -107,11 +129,11 @@ sub ast {
         }
         $t=['',''] unless $match; # defined($t);
 
-        print "expect NUM \n" if grep { $_ eq 'NUM' } $p->YYExpect;
-        print "expect '/' \n" if grep { $_ eq '/' } $p->YYExpect;
+        #print "expect NUM \n" if grep { $_ eq 'NUM' } @expect;
+        #print "expect '/' \n" if grep { $_ eq '/' }   @expect;
 
         print "token: $$t[0] ", Dumper( $$t[1] );
-        # print "expect: ", Dumper( $p->YYExpect );
+        # print "expect: ", Dumper( @expect );
 
         return($$t[0],$$t[1]);
     };
@@ -120,12 +142,12 @@ sub ast {
 
     $p = Pugs::Grammar::Operator->new(
         yylex => $lex, 
-        yyerror => sub { warn "error in expression: $match ..." },
+        yyerror => sub { warn "error in expression: ..." . substr($match,0,30) . "... "; },
     );
 
     my $out=$p->YYParse;
     #print Dumper $out;
-    return $out;
+    return ( $out, $match );
 }
 
 1;

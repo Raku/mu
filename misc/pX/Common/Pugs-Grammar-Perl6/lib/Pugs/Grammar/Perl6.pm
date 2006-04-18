@@ -8,13 +8,16 @@ use Pugs::Grammar::Pod;
 
 # TODO - redefine <ws> to test Pod.pm after each \n
 
-*parse = Pugs::Compiler::Rule->compile( q(
-    
-            <Pugs::Grammar::Expression.parse> 
-            {
-                return $/{'Pugs::Grammar::Expression.parse'}->()
-            }
-            
-    ) )->code;
+sub parse {
+    my $class = shift;
+    my $src = shift;
+    my ( $ast, $tail ) = Pugs::Grammar::Expression::ast( $src );
+    return Pugs::Runtime::Match->new( { 
+        bool  =>   1,
+        match =>   $src,
+        tail  =>   $tail,
+        capture => $ast,
+    } )
+};
 
 1;

@@ -65,12 +65,27 @@ BEGIN {
     );
     
     __PACKAGE__->add_rule( 
-        name => 'eq',
+        name => '|',
         assoc => 'left',
         precedence => 'looser',
         other => '..',
     );
+
+    # XXX - BUG - collision with &name
     
+    #__PACKAGE__->add_rule( 
+    #    name => '&',
+    #    assoc => 'left',
+    #    precedence => 'equal',
+    #    other => 'infix:<|>',
+    #);
+
+    __PACKAGE__->add_rule( 
+        name => 'eq',
+        assoc => 'left',
+        precedence => 'looser',
+        other => 'infix:<|>',
+    );
     __PACKAGE__->add_rule( 
         name => 'ne',
         assoc => 'left',

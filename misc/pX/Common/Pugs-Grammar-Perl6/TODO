@@ -6,10 +6,11 @@ Priorities
 
 - parse ext/Test/lib/Test.pm
 - failures:
-    %ENV<TEST_ALWAYS_CALLER>
-    infinite loop?
-- <...> and %x<...> should be implemented as circumfix and postcircumfix op
-- /rule/ is a term
+    $var is rw
+- workarounds:
+    - prefix/infix:<&> vs. &code
+    - <...> and %x<...> should be implemented as circumfix and postcircumfix op
+    - /rule/ is a term
   
 - merge Pod.pm into Perl6.pm
 

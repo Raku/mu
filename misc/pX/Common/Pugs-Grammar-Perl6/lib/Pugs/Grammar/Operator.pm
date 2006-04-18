@@ -17,6 +17,18 @@ BEGIN {
     $operator = Pugs::Grammar::Precedence->new( 
         grammar => 'Pugs::Grammar::Operator',
         header  => q!
+attr:
+        #empty  
+        { $_[0]->{out}= { attribute => [] } }
+    |   BAREWORD  BAREWORD  attr
+        { $_[0]->{out}= { 
+            attribute => [ 
+                [$_[1], $_[2],],
+                @{$_[3]{attribute}}, 
+            ], 
+        } }
+    ;
+
 stmt:  
       'if' exp '{' exp '}' 
         { $_[0]->{out}= { 'if' => { exp => $_[2], then => $_[4] } } }
@@ -31,24 +43,24 @@ stmt:
     | 'for' exp '{' exp '}'
         { $_[0]->{out}= { 'for' => { exp => $_[2], block => $_[4], } } }
         
-    | 'sub' BAREWORD '{' exp '}' 
-        { $_[0]->{out}= { 'sub' => { name => $_[2], block => $_[4] } } }
-    | 'sub' BAREWORD '(' ')' '{' exp '}' 
-        { $_[0]->{out}= { 'sub' => { name => $_[2], param => {}, block => $_[6] } } }
-    | 'sub' BAREWORD '(' exp ')' '{' exp '}' 
+    | 'sub' BAREWORD             attr '{' exp '}' 
+        { $_[0]->{out}= { 'sub' => { name => $_[2], block => $_[5], %{$_[3]} } } }
+    | 'sub' BAREWORD '(' ')'     attr '{' exp '}' 
+        { $_[0]->{out}= { 'sub' => { name => $_[2], param => {}, block => $_[7], %{$_[5]} } } }
+    | 'sub' BAREWORD '(' exp ')' attr '{' exp '}' 
         {
             #print "parse-time define sub: ", Dumper( $_[2] );
             #push @subroutine_names, $_[2]->{bareword};
             #print "Subroutines: @subroutine_names\n";
-            $_[0]->{out}= { 'sub' => { name => $_[2], param => $_[4], block => $_[7] } } 
+            $_[0]->{out}= { 'sub' => { name => $_[2], param => $_[4], block => $_[8], %{$_[6]} } } 
         }
         
-    | 'multi' BAREWORD '{' exp '}' 
-        { $_[0]->{out}= { 'multi' => { name => $_[2], block => $_[4] } } }
-    | 'multi' BAREWORD '(' ')' '{' exp '}' 
-        { $_[0]->{out}= { 'multi' => { name => $_[2], param => {}, block => $_[6] } } }
-    | 'multi' BAREWORD '(' exp ')' '{' exp '}' 
-        { $_[0]->{out}= { 'multi' => { name => $_[2], param => $_[4], block => $_[7] } } }
+    | 'multi' BAREWORD             attr '{' exp '}' 
+        { $_[0]->{out}= { 'multi' => { name => $_[2], block => $_[5], %{$_[3]} } } }
+    | 'multi' BAREWORD '(' ')'     attr '{' exp '}' 
+        { $_[0]->{out}= { 'multi' => { name => $_[2], param => {}, block => $_[7], %{$_[5]} } } }
+    | 'multi' BAREWORD '(' exp ')' attr '{' exp '}' 
+        { $_[0]->{out}= { 'multi' => { name => $_[2], param => $_[4], block => $_[8], %{$_[6]} } } }
         
     | '{' exp '}'        
         { $_[0]->{out}= { 'bare_block' => $_[2] } }

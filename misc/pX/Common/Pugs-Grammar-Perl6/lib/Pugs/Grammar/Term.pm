@@ -4,8 +4,6 @@ use warnings;
 use base qw(Pugs::Grammar::BaseCategory);
 use Pugs::Runtime::Match;
 
-use Pugs::Grammar::Var;
-
 # TODO - implement the "magic hash" dispatcher
 # TODO - term:<...>  - yada-yada-yada
 # moose=>1
@@ -54,18 +52,18 @@ sub cpan_bareword {
     return $class->no_match;
 };
 
-sub bareword {
-    my $class = shift;
-    return $class->no_match unless $_[0];
-    return Pugs::Runtime::Match->new( { 
-        bool  => 1,
-        match => $1,
-        tail  => $2,
-        capture => { bareword => $1 },
-    } )
-        if $_[0] =~ /^ ([_\w\d-]+) ( (?: \(|\;|\s|$ ) .*)$/sx;
-    return $class->no_match;
-};
+#sub bareword {
+#    my $class = shift;
+#    return $class->no_match unless $_[0];
+#    return Pugs::Runtime::Match->new( { 
+#        bool  => 1,
+#        match => $1,
+#        tail  => $2,
+#        capture => { bareword => $1 },
+#    } )
+#        if $_[0] =~ /^ ([_\w\d-]+) ( (?: \(|\;|\s|$ ) .*)$/sx;
+#    return $class->no_match;
+#};
 
 #~ sub sub_call_no_paren {
     #~ my $class = shift;
@@ -119,11 +117,46 @@ sub angle_quoted {
     } );
 }
 
+sub ident {
+    my $grammar = shift;
+    $_[0] = "" unless defined $_[0];
+    my $bool = $_[0] =~ /^(
+            \!
+        |
+            (?:\*)?
+            (?:  (?:\:\:)?
+                 [_[:alnum:]]+
+            )+
+        )(.*)$/sx;
+    #print "ident match: [$1]\n";
+    return {
+        bool  => $bool,
+        match => $1,
+        tail  => $2,
+        capture => $1,   # { bareword => $1 },
+    }
+};
+
 sub recompile {
     my $class = shift;
     %hash = (
-        %Pugs::Grammar::Var::hash,
-        %Pugs::Grammar::StatementControl::hash,
+        '$' => Pugs::Compiler::Rule->compile( q(
+                <Pugs::Grammar::Term.ident>
+                { return { scalar => '$' . $_[0]->{'Pugs::Grammar::Term.ident'} ,} }
+            ) ),
+        '@' => Pugs::Compiler::Rule->compile( q(
+                <Pugs::Grammar::Term.ident>
+                { return { array => "\@" . $_[0]->{'Pugs::Grammar::Term.ident'} ,} }
+            ) ),
+        '%' => Pugs::Compiler::Rule->compile( q(
+                <Pugs::Grammar::Term.ident>
+                { return { hash  => "\%" . $_[0]->{'Pugs::Grammar::Term.ident'} ,} }
+            ) ),
+        '&' => Pugs::Compiler::Rule->compile( q(
+                <Pugs::Grammar::Term.ident>
+                { return { code  => "\&" . $_[0]->{'Pugs::Grammar::Term.ident'} ,} }
+            ) ),
+
         '...' => Pugs::Compiler::Rule->compile( q(
             { 
                 return { die => "not implemented" } 
@@ -177,9 +210,13 @@ sub recompile {
                 <Pugs::Grammar::Term.cpan_bareword> 
                 { return $/{'Pugs::Grammar::Term.cpan_bareword'}->() }
             |
-                ### v6
-                <Pugs::Grammar::Term.bareword> 
-                { return $/{'Pugs::Grammar::Term.bareword'}->() }
+                ### Test::More
+                <Pugs::Grammar::Term.ident> 
+                { return { bareword => $/{'Pugs::Grammar::Term.ident'}->() } }
+            #|
+            #    ### v6
+            #    <Pugs::Grammar::Term.bareword> 
+            #    { return $/{'Pugs::Grammar::Term.bareword'}->() }
         ! ),
     );
     $class->SUPER::recompile;
