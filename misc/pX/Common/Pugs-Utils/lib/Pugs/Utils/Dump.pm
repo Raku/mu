@@ -51,14 +51,14 @@ sub p5 {
 
 sub import {
 	# get the format specified on the command line
-	$dumper = $format{$Pugs::Util::Interface::format};
+	$dumper = $format{$Pugs::Utils::Interface::format};
 
 	# load the required module
 	eval "require $dumper->[0]";
 	die "install $dumper->[0] to enable $interface::format" if $@;
 
 	#export the funtions
-	Pugs::Util::Dump->export_to_level(1,@_);
+	Pugs::Utils::Dump->export_to_level(1,@_);
 }
 
 sub dump_tree {

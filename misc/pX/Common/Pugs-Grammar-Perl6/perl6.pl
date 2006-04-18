@@ -3,15 +3,14 @@ use lib
     "$Bin/lib",
     "$Bin/../../../../lib",
     "$Bin/../Pugs-Compiler-Rule/lib",
+    "$Bin/../Pugs-Utils/lib",
     "$Bin/../Pugs-Compiler-Precedence/lib",
 ;
 
 use Pugs::Grammar::Perl6;
+use Pugs::Utils::Dump;
 use strict;
 use warnings;
-use Data::Dumper;
-$Data::Dumper::Indent = 1;
-$Data::Dumper::Sortkeys = 1;
 
 if ( @ARGV ) {
     my @a=<>;
@@ -19,7 +18,7 @@ if ( @ARGV ) {
     my $match = Pugs::Grammar::Perl6->parse( $src );
     #use YAML;
     #print Dump $match->();
-    print Dumper $match->();
+    print dump_tree $match->();
     print "tail: ", substr( ${$match}->{tail}, 0, 20 ),"...\n";
     exit;
 }
@@ -78,10 +77,6 @@ say 1 < 2;
 1;
 PERL6
 
-    print Dumper $match->();
+    print dump_tree $match->();
     print "tail: ", substr( ${$match}->{tail}, 0, 20 ),"...\n";
-__END__
-
-use YAML;
-print Dump $match->();
 

@@ -1,5 +1,5 @@
 # work in progress
-package Pugs::Utils::Interfac;
+package Pugs::Utils::Interface;
 
 #options
 our $print_program = 0;
