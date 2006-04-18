@@ -126,7 +126,7 @@ Named rules are methods in a Grammar:
 
     package MyGrammar;
     use Pugs::Compiler::Rule;
-    use Pugs::Grammar::Base;
+    use base 'Pugs::Grammar::Base';
 
     *rule = Pugs::Compiler::Rule->compile( '((.).).' )->code;
     my $match = MyGrammar->rule( 'abc' );
