@@ -35,6 +35,9 @@ stmt:
     | 'if' exp '{' exp '}' else '{' exp '}'
         { $_[0]->{out}= { 'if' => { exp => $_[2], then => $_[4], else => $_[8] } } }
         
+    | exp 'if' exp 
+        { $_[0]->{out}= { 'if' => { exp => $_[3], then => $_[1], } } }
+
     | 'unless' exp '{' exp '}' 
         { $_[0]->{out}= { 'unless' => { exp => $_[2], then => $_[4] } } }
     | 'unless' exp '{' exp '}' else '{' exp '}'

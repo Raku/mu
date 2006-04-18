@@ -105,6 +105,14 @@ BEGIN {
         other => 'prefix:<++>',
     );
 
+    # experimental
+    __PACKAGE__->add_rule(
+        name => 'do',
+        assoc => 'non',
+        precedence => 'equal',
+        other => 'infix:<if>',
+    );
+
     for ( qw( print use push pop ) ) {
         __PACKAGE__->add_rule(
             name => $_,
@@ -121,6 +129,7 @@ BEGIN {
             other => '=',
         );
     }
+
     __PACKAGE__->recompile;
 }
 

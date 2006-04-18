@@ -80,6 +80,9 @@ sub plan (Int $number_of_tests, :$x, $y? ) returns Void is export {
     say "1..$number_of_tests";
 }
 
+1 if 4; 2 if 5;
+my $x = do 1 if 2;
+
 1;
 PERL6
 

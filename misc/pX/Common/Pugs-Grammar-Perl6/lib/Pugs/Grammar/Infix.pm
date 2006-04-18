@@ -190,6 +190,13 @@ BEGIN {
         other => ';',
     );
 
+    __PACKAGE__->add_rule( 
+        name => 'if',
+        assoc => 'non',
+        precedence => 'tighter',
+        other => ';',
+    );
+
     __PACKAGE__->recompile;
 }
 
