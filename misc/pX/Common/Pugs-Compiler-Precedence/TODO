@@ -1,12 +1,14 @@
 TODO file for Pugs-Compiler-Precedence
 
+- needs to use category identifiers, like INFIX
+  maybe INFIX_004 for category+precedence?
+
 - \s{ is an expression terminator if the parser is expecting an operator
 
 - add is-parsed to the appropriate category in op-precedence and tokenizer
 
-- cleanup Pugs::AST::Expression in PCR (no longer used?)
-
-- add_op() doesn't need the 'block' key
-
 - PCP needs to return a Match object?
   (maybe a match-like object is more appropriate?)
+
+- The P::Yapp 'expect' state can be verified inside
+    %{$self->{STATES}[$self->{STACK}[-1][0]]{ACTIONS}}
