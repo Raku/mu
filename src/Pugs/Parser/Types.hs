@@ -5,7 +5,7 @@ module Pugs.Parser.Types (
     DynParsers(..), ParensOption(..),
     RuleOperator, RuleOperatorTable,
     getRuleEnv, modifyRuleEnv, putRuleEnv,
-    clearDynParsers,
+    clearDynParsers, withRuleConditional,
 ) where
 import Pugs.AST
 import Pugs.Rule
@@ -35,6 +35,8 @@ data RuleState = MkRuleState
     { ruleEnv           :: !Env
     , ruleDynParsers    :: !DynParsers -- ^ Cache for dynamically-generated
                                        --     parsers
+    , ruleInConditional :: !Bool       -- ^ Whether we are in an conditional
+                                       --     part and has to suppress {..} literals
     }
 
 {-|
@@ -51,6 +53,17 @@ instance MonadState RuleState (GenParser Char RuleState) where
 
 type RuleOperator a = Operator Char RuleState a
 type RuleOperatorTable a = OperatorTable Char RuleState a
+
+{-|
+Retrieve the 'Pugs.AST.Internals.Env' from the current state of the parser.
+-}
+withRuleConditional :: RuleParser a -> RuleParser a
+withRuleConditional rule = do
+    prev <- gets ruleInConditional
+    modify $ \state -> state{ ruleInConditional = True }
+    rv <- rule
+    modify $ \state -> state{ ruleInConditional = prev }
+    return rv
 
 {-|
 Retrieve the 'Pugs.AST.Internals.Env' from the current state of the parser.

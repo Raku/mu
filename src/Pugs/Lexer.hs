@@ -277,10 +277,10 @@ literalRule :: String -> GenParser Char st a -> GenParser Char st a
 literalRule name action = (<?> name) $ postSpace $ action
 
 tryRule :: String -> GenParser Char st a -> GenParser Char st a
-tryRule name action = (<?> name) $ lexeme $ action
+tryRule name action = (<?> name) $ lexeme $ try action
 
 tryVerbatimRule :: String -> GenParser tok st a -> GenParser tok st a
-tryVerbatimRule name action = (<?> name) $ action
+tryVerbatimRule name action = (<?> name) $ try action
 
 ruleScope :: RuleParser Scope
 ruleScope = tryRule "scope" $ do
@@ -350,8 +350,7 @@ the next one.
 -}
 tryChoice :: [GenParser tok st a] -- ^ List of candidate parsers
           -> GenParser tok st a
-tryChoice = choice
--- tryChoice = choice . map try
+tryChoice = choice . map try
 
 {-|
 Match '@(@', followed by the given parser, followed by '@)@'.
