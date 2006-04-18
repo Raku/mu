@@ -30,21 +30,13 @@ attr:
     ;
 
 stmt:  
-      'if' exp '{' exp '}' 
-        { $_[0]->{out}= { 'if' => { exp => $_[2], then => $_[4] } } }
-    | 'if' exp '{' exp '}' else '{' exp '}'
-        { $_[0]->{out}= { 'if' => { exp => $_[2], then => $_[4], else => $_[8] } } }
-        
-    | exp 'if' exp 
-        { $_[0]->{out}= { 'if' => { exp => $_[3], then => $_[1], } } }
+      IF exp '{' exp '}' 
+        { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[4] } }
+    | IF exp '{' exp '}' 'else' '{' exp '}'
+        { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[4], exp3 => $_[8] } }
 
-    | 'unless' exp '{' exp '}' 
-        { $_[0]->{out}= { 'unless' => { exp => $_[2], then => $_[4] } } }
-    | 'unless' exp '{' exp '}' else '{' exp '}'
-        { $_[0]->{out}= { 'unless' => { exp => $_[2], then => $_[4], else => $_[8] } } }
-        
     | 'for' exp '{' exp '}'
-        { $_[0]->{out}= { 'for' => { exp => $_[2], block => $_[4], } } }
+        { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[4], } }
         
     | 'sub' BAREWORD             attr '{' exp '}' 
         { $_[0]->{out}= { 'sub' => { name => $_[2], block => $_[5], %{$_[3]} } } }

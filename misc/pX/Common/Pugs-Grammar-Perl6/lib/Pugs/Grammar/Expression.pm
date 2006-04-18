@@ -116,7 +116,13 @@ sub ast {
         $ast->{pos} = $last - length( $match );
         my $t;
         if ( exists $ast->{stmt} ) {
-            $t = [ $ast->{stmt} => $ast ]
+
+            if ( $ast->{stmt} eq 'if' or $ast->{stmt} eq 'unless' ) {
+                $t = [ 'IF' => $ast ]
+            }
+            else {
+                $t = [ $ast->{stmt} => $ast ]
+            }
         }
         elsif ( exists $ast->{op} ) {
             $t = [ $ast->{op} => $ast ]

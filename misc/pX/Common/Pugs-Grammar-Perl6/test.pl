@@ -83,6 +83,11 @@ sub plan (Int $number_of_tests, :$x, $y? ) returns Void is export {
 1 if 4; 2 if 5;
 my $x = do 1 if 2;
 
+say(3 if 4);    # wrong?
+(4 if 5) + (6 if 7);   # wrong?
+
+#1 if 2 if 3;
+
 1;
 PERL6
 

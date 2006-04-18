@@ -190,8 +190,9 @@ BEGIN {
         other => ';',
     );
 
+    # experimental
     __PACKAGE__->add_rule( 
-        name => 'if',
+        name => 'IF',
         assoc => 'non',
         precedence => 'tighter',
         other => ';',

@@ -34,16 +34,16 @@ my %rule_templates = (
         "\t{ \$_[0]->{out}= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }",
     postfix_non =>       
         "exp 'name'         \n" .
-        "\t{ \$_[0]->{out}= {op1 => 'name', exp1 => \$_[1],} }", 
+        "\t{ \$_[0]->{out}= {op1 => \$_[2], exp1 => \$_[1],} }", 
     postcircumfix_non => 
         "exp 'name' exp 'name2' \n" .
         "\t{ \$_[0]->{out}= {op1 => 'name', op2 => 'name2', exp1 => \$_[1], exp2 => \$_[3],} }", 
     infix_left =>        
         "exp 'name' exp     \n" .
-        "\t{ \$_[0]->{out}= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }", 
+        "\t{ \$_[0]->{out}= {op1 => \$_[2], exp1 => \$_[1], exp2 => \$_[3],} }", 
     infix_non =>         
         "exp 'name' exp     \n" .
-        "\t{ \$_[0]->{out}= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }", 
+        "\t{ \$_[0]->{out}= {op1 => \$_[2], exp1 => \$_[1], exp2 => \$_[3],} }", 
     ternary_non =>       
         "exp 'name' exp 'name2' exp \n" .
         "\t{ \$_[0]->{out}= {op1 => 'name', op2 => 'name2', exp1 => \$_[1], exp2 => \$_[3], exp3 => \$_[5],} }",

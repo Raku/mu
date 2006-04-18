@@ -110,7 +110,7 @@ BEGIN {
         name => 'do',
         assoc => 'non',
         precedence => 'equal',
-        other => 'infix:<if>',
+        other => 'infix:<IF>',
     );
 
     for ( qw( print use push pop ) ) {
