@@ -130,7 +130,6 @@ sub {
 }
 
 # := actually takes subroutine parameter list
-TODO:
 sub {
 
   my $a;

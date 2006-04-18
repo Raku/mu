@@ -146,19 +146,20 @@ package Data::Bind::Sig;
 use base 'Class::Accessor::Fast';
 __PACKAGE__->mk_accessors(qw(positional named named_slurpy));
 use Carp qw(croak);
-
+use PadWalker qw(peek_my);
 
 sub bind {
     my ($self, $args, $lv) = @_;
     $lv ||= 1;
     my %bound;
 
+    my $pad = peek_my($lv);
     my $named_arg = $args->{named};
     for my $param_name (keys %{$self->named || {}}) {
 	my $param = $self->named->{$param_name};
 	if (my $current = delete $named_arg->{$param_name}) {
 	    # XXX: handle array concating
-	    $param->bind($current, $lv);
+	    $param->bind($current, $lv, $pad);
 	    $bound{$param_name}++;
 	}
 	elsif ($param->named_only) {
@@ -168,7 +169,7 @@ sub bind {
     }
 
     if ($self->named_slurpy) {
-	$self->named_slurpy->slurpy_bind($named_arg, $lv);
+	$self->named_slurpy->slurpy_bind($named_arg, $lv, $pad);
     }
     else {
 	# XXX: report extra incoming named args
@@ -177,7 +178,7 @@ sub bind {
     my $pos_arg = $args->{positional};
     for my $param (@{$self->positional || []}) {
 	if ($param->is_slurpy && $param->p5type ne '$') {
-	    $param->slurpy_bind($pos_arg, $lv);
+	    $param->slurpy_bind($pos_arg, $lv, $pad);
 	    $pos_arg = [];
 	    last;
 	}
@@ -187,7 +188,7 @@ sub bind {
 	    last if $param->is_optional;
 	    croak "positional argument ".$param->name." is required";
 	}
-	$param->bind($current, $lv);
+	$param->bind($current, $lv, $pad);
     }
     # XXX: report extra incoming positional args
 
@@ -198,14 +199,12 @@ package Data::Bind::Param;
 use base 'Class::Accessor::Fast';
 __PACKAGE__->mk_accessors(qw(name p5type is_optional is_writable is_slurpy container_var named_only));
 use Devel::LexAlias qw(lexalias);
-use PadWalker qw(peek_my);
 
 sub slurpy_bind {
-    my ($self, $vars, $lv) = @_;
+    my ($self, $vars, $lv, $pad) = @_;
     $lv++;
 
-    my $h = peek_my($lv);
-    my $ref = $h->{$self->container_var} or Carp::confess $self->container_var;
+    my $ref = $pad->{$self->container_var} or Carp::confess $self->container_var;
 
     if ($self->p5type eq '@') {
 	my $i = 0;
@@ -229,11 +228,10 @@ sub slurpy_bind {
 }
 
 sub bind {
-    my ($self, $var, $lv) = @_;
+    my ($self, $var, $lv, $pad) = @_;
     $lv++;
 
-    my $h = peek_my($lv);
-    my $ref = $h->{$self->container_var} or Carp::confess $self->container_var;
+    my $ref = $pad->{$self->container_var} or Carp::confess $self->container_var;
     if ($self->p5type eq '$') {
 	# XXX: check $var type etc, take additional ref
 	if ($self->is_writable) {
