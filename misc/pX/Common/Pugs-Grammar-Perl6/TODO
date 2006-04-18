@@ -8,7 +8,9 @@ Priorities
 
 - parse ext/Test/lib/Test.pm
 - failures:
+    - it is trying to parse the examples in the pod
 - workarounds:
+    - listop if ...;  -- implemented as a special case
     - listop;    -- say;
     - $obj.op()  -- when 'op' is a declared operator (not plain bareword)
     - prefix/infix:<&> vs. &code
@@ -21,6 +23,7 @@ Priorities
     moose=>1
     moose:<elk>
     moose:{antler()}
+    sub 'ternary:?? !!'
 
 - transform hash collisions into alternations
     example: short name of prefix:<&> (Prefix.pm) vs. sigil in &name (Var.pm)
@@ -30,8 +33,13 @@ Priorities
 
 TODO
 
+- implement statements using top-down parser (rules)
+- implement ordered testing of categories <%a|%b|%c> depending on the parser state
+
 - parse the op table from
   http://svn.perl.org/parrot/trunk/languages/perl6/lib/grammar_optok.pge
+- use the grammar from
+  http://svn.perl.org/parrot/trunk/languages/perl6/lib/grammar_rules.pge
 
 - macro
 - dynamic grammar
@@ -128,3 +136,6 @@ P::C::R BUGS
     return ${$_[0]}->{match}[0]{match}[1]{capture};
   }
 
+- needs character classes
+
+- needs <after...>
