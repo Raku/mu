@@ -2,12 +2,15 @@
 
 Priorities
 
-- Deep recursion message in perl6.pl (but it works)
+- Things that are not giving error messages:
+    (1 if 1)           # 'if' is an op
+    sub sub xxx ...    # 'multi' and 'sub' are parsed the same way
 
 - parse ext/Test/lib/Test.pm
 - failures:
-    $var is rw
 - workarounds:
+    - listop;    -- say;
+    - $obj.op()  -- when 'op' is a declared operator (not plain bareword)
     - prefix/infix:<&> vs. &code
     - <...> and %x<...> should be implemented as circumfix and postcircumfix op
     - /rule/ is a term

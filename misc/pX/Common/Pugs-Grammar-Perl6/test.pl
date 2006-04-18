@@ -88,9 +88,14 @@ say(3 if 4);    # wrong?
 
 #1 if 2 if 3;
 
-Test::skip $reason, :$depends;
-
+$*ERR.say("# ok");
+END { Test::test_ends() }
 1;
+=kwid
+=cut
+say;
+return if 1;
+
 PERL6
 
     print Dumper $match->();

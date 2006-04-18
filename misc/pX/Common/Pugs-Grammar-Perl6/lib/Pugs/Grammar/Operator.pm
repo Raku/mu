@@ -46,6 +46,17 @@ stmt:
         { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[4] } }
     | IF exp '{' exp '}' 'else' '{' exp '}'
         { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[4], exp3 => $_[8] } }
+    | IF exp '{' exp '}' 'elsif' exp '{' exp '}' 'else' '{' exp '}'
+        { $_[0]->{out}= { 
+            op1 => $_[1], exp1 => $_[2], exp2 => $_[4], 
+                          exp3 => $_[7], exp4 => $_[9],
+                          exp5 => $_[13],
+        } }
+    | IF exp '{' exp '}' 'elsif' exp '{' exp '}' 
+        { $_[0]->{out}= { 
+            op1 => $_[1], exp1 => $_[2], exp2 => $_[4], 
+                          exp3 => $_[7], exp4 => $_[9],
+        } }
 
     | 'for' exp '{' exp '}'
         { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[4], } }
@@ -83,6 +94,11 @@ exp:
         
     | BAREWORD            
         { $_[0]->{out}= { call => { sub => $_[1], } } }
+
+    | BAREWORD 'IF' exp   %prec P003 
+        { $_[0]->{out}= { op1 => $_[2], exp1 => $_[3], 
+            exp2 => { call => { sub => $_[1], } } } }
+
     | BAREWORD exp   %prec P003
         { $_[0]->{out}= { call => { sub => $_[1], param => $_[2], } } }
     | exp '.' BAREWORD    %prec P003

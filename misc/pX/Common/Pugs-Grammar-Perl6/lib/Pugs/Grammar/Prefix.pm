@@ -79,18 +79,18 @@ BEGIN {
         #~ other => 'prefix:<+>',
     #~ );
     
-    __PACKAGE__->add_rule(
-        name => 'say',
-        assoc => 'left',
-        precedence => 'looser',
-        other => 'infix:<,>',
-    );
-    __PACKAGE__->add_rule(
-        name => 'substr',
-        assoc => 'left',
-        precedence => 'equal',
-        other => 'prefix:<say>',
-    );
+    #__PACKAGE__->add_rule(
+    #    name => 'say',
+    #    assoc => 'left',
+    #    precedence => 'looser',
+    #    other => 'infix:<,>',
+    #);
+    #__PACKAGE__->add_rule(
+    #    name => 'substr',
+    #    assoc => 'left',
+    #    precedence => 'equal',
+    #    other => 'prefix:<say>',
+    #);
     
     __PACKAGE__->add_rule( 
         name => '++',
@@ -113,14 +113,14 @@ BEGIN {
         other => 'infix:<IF>',
     );
 
-    for ( qw( print use push pop ) ) {
-        __PACKAGE__->add_rule(
-            name => $_,
-            assoc => 'left',
-            precedence => 'equal',
-            other => 'say',
-        );
-    }
+    #for ( qw( print use push pop ) ) {
+    #    __PACKAGE__->add_rule(
+    #        name => $_,
+    #        assoc => 'left',
+    #        precedence => 'equal',
+    #        other => 'say',
+    #    );
+    #}
     for ( qw( my our ) ) {
         __PACKAGE__->add_rule(
             name => $_,

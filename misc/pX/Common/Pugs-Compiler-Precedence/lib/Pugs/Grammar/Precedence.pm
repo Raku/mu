@@ -177,7 +177,7 @@ sub emit_yapp {
     }
     $s .= ";\n" .
         "%%\n";
-    #print $s;
+    print $s;
     return $s;
 }
 
