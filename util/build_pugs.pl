@@ -134,9 +134,11 @@ sub build_lib {
             die "*** Wasn't able to find '$basename', aborting...\n";
         }
 
-    unless( File::Spec->canonpath($candidates[0]) eq $target ) {
-        copy($candidates[0] => $target);
-    }
+        unless( File::Spec->canonpath($candidates[0]) eq $target ) {
+            mkpath(($target =~ m!(.*/)!)[0]); # create dir for target
+            copy($candidates[0] => $target)
+                or die "Copy '$candidates[0]' => '$target' failed: $!";
+        }
 
         system($ar, r => $a_file, "dist/build/src/$pathname");
     };
