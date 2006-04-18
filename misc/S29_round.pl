@@ -1,137 +1,190 @@
-our Int multi Num::round_toward_nearest (Num $x, int $symmetrical? = 1) {
-# XXX -- Not implemented
-# How should I implement this? As in
-# http://www.pldesignline.com/howto/showArticle.jhtml?articleID=175801189
-# says, This may be considered as the superset of round_half_up and
-# round_half_down
+use v6;
 
+our Int multi Num::round_half_up_symmetric ( Num $x ) {
+    my $x_round;
+
+    # round .5 up above 0, down below 0
+    given abs($x) - floor( abs($x) ) {
+        when $_ <  .5 { $x_round = sign($x) * floor( abs($x) ) }
+        when $_ >= .5 { $x_round = sign($x) * ceil( abs($x) ) }
+    }
+    return $x_round;
 }
 
-our Int multi Num::round_half_up (Num $x, int $symmetrical? = 1) {
-	return int($x + 0.5)
-		if $x > 0;
+our Int multi Num::round_half_up_asymmetric ( Num $x ) {
+    my $x_round;
 
-	$symmetrical ??
-		-(int(abs($x) + 0.5)) !!
-		-(int(abs($x) + 0.4))
+    # round .5 up above 0, up below 0
+    given abs($x) - floor( abs($x) ) {
+        when ($_ <  .5) && ($x >= 0) { $x_round = sign($x) * floor( abs($x) ) }
+        when ($_ >= .5) && ($x >= 0) { $x_round = sign($x) * ceil( abs($x) ) }
+        when ($_ <= .5) && ($x <  0) { $x_round = sign($x) * floor( abs($x) ) }
+        when ($_ >  .5) && ($x <  0) { $x_round = sign($x) * ceil( abs($x) ) }
+    }
+    return $x_round;
 }
 
-our Int multi Num::round_half_down (Num $x, int $symmetrical? = 1) {
-	return int($x + 0.4)
-		if $x > 0;
+our Int multi Num::round_half_down_symmetric ( Num $x ) {
+    my $x_round;
 
-	$symmetrical ??
-		-(int(abs($x) + 0.4)) !!
-		-(int(abs($x) + 0.5))
+    # round .5 down above 0, down below 0
+    given abs($x) - floor( abs($x) ) {
+        when $_ <= .5 { $x_round = sign($x) * floor( abs($x) ) }
+        when $_ >  .5 { $x_round = sign($x) * ceil( abs($x) ) }
+    }
+    return $x_round;
 }
 
-# No symmetry flag
-our Int multi Num::round_half_even (Num $x) {
-	return int($x.is_even ?? $x + 0.4 !! $x + 0.5)
-		if $x > 0;
+our Int multi Num::round_half_down_asymmetric ( Num $x ) {
+    my $x_round;
 
-	return 0 if $x == 0;
-
-	return -(&?ROUTINE(abs($x)));
+    # round .5 down above 0, up below 0
+    given abs($x) - floor( abs($x) ) {
+        when ($_ <= .5) && ($x >= 0) { $x_round = sign($x) * floor( abs($x) ) }
+        when ($_ >  .5) && ($x >= 0) { $x_round = sign($x) * ceil( abs($x) ) }
+        when ($_ <  .5) && ($x <  0) { $x_round = sign($x) * floor( abs($x) ) }
+        when ($_ >= .5) && ($x <  0) { $x_round = sign($x) * ceil( abs($x) ) }
+    }
+    return $x_round;
 }
 
-our Int multi Num::round_half_odd (Num $x) {
-	return int($x.is_odd ?? $x + 0.4 !! $x + 0.5)
-		if $x > 0;
+our Int multi Num::round_half_even ( Num $x ) {
+    my $x_round;
 
-	return 0 if $x == 0;
-
-	return -(&?ROUTINE(abs($x)));
+    # round .5 to the nearest even number
+    given abs($x) - floor( abs($x) ) {
+        when $_ < .5 { $x_round = sign($x) * floor(abs($x)) }
+        when $_ > .5 { $x_round = sign($x) * ceil(abs($x)) }
+        when $_ == .5 {
+            given floor( abs($x) ) % 2 {
+                when $_ == 0 { $x_round = sign($x) * floor( abs($x) ) }
+                when $_ == 1 { $x_round = sign($x) * (floor( abs($x) ) + 1) }
+            }
+        }
+    }
+    return $x_round;
 }
 
-our Int multi Num::round_alternate (Num $x) {
-# XXX I don't understand what round-alternate means.
-# But in my understanding, The implemention below might be right.
-	state $t;
-	if $t {
-		$t = 0;
-		return $x.round_half_even;
-	} else {
-		$t = 1;
-		return $x.round_half_odd;
-	}
+our Int multi Num::round_half_odd ( Num $x ) {
+    my $x_round;
+
+    # round .5 to the nearest odd number
+    given abs($x) - floor( abs($x) ) {
+        when $_ < .5 { $x_round = sign($x) * floor(abs($x)) }
+        when $_ > .5 { $x_round = sign($x) * ceil(abs($x)) }
+        when $_ == .5 {
+            given floor( abs($x) ) % 2 {
+                when $_ == 0 { $x_round = sign($x) * (floor( abs($x) ) + 1) }
+                when $_ == 1 { $x_round = sign($x) * floor( abs($x) ) }
+            }
+        }
+    }
+    return $x_round;
 }
 
-our Int multi Num::round_random (Num $x) {
-	my @l = (
-		{ $^a.round_half_up: symmetrical => $^b },
-		{ $^a.round_half_down: symmetrical => $^b },
-		{ $^a.round_half_even },
-		{ $^a.round_half_odd },
+our Int multi Num::round_alternate ( Num $x ) {
+    my $x_round;
+    state $round_up = 1;
 
-#		{ $^a.round_half_alternate },
-#		{ $^a.round_half_random },
+    # alternate rounding .5 up and down
+    given abs($x) - floor( abs($x) ) {
+        when $_ < .5 { $x_round = sign($x) * floor(abs($x)) }
+        when $_ > .5 { $x_round = sign($x) * ceil(abs($x)) }
+        when $_ == .5 {
+            if $round_up {
+                $x_round = round_up_symmetric($x);
+                $round_up = 0;
+            }
+            else {
+                $x_round = round_down_symmetric($x);
+                $round_up = 1;
+            }
+        }
+    }
 
-		{ $^a.round_half_ceiling },
-		{ $^a.round_toward_zero },
-		{ $^a.round_away_from_zero },
-
-#		{ $^a.round_up: symmetrical => $^b },
-#		{ $^a.round_down: symmetrical => $^b },
-		);
-	my $sym_flag = (int(rand() * 10)) % 2;
-	my $selector = (int(rand() * 100)) % @l.elems;
-
-	@l[$selector]($x, $sym_flag);
+    return $x_round;
 }
 
-our Int multi Num::round_ceiling (Num $x) {
-	my Int $t = int($x);
-	$x > 0 && $x != $t ??
-		$t + 1 !! $t
+our Int multi Num::round_random ( Num $x ) {
+    my $x_round;
+    state $rand_up = 1;
+
+    # randomly round .5 up or down
+    given abs($x) - floor( abs($x) ) {
+        when $_ <  .5 { $x_round = sign($x) * floor(abs($x)) }
+        when $_ >  .5 { $x_round = sign($x) * ceil(abs($x)) }
+        when $_ == .5 {
+            if $rand_up {
+                if rand < .5 {
+                    $x_round = round_up_symmetric($x);
+                }
+                else {
+                    $x_round = round_down_symmetric($x);
+                }
+                $rand_up = 0;
+            }
+            else {
+                if rand <= .5 {
+                    $x_round = round_up_symmetric($x);
+                }
+                else {
+                    $x_round = round_down_symmetric($x);
+                }
+                $rand_up = 1;
+            }
+        }
+    }
+
+    return $x_round;
 }
 
-our Int multi Num::round_floor (Num $x) {
-	my Int $t = int($x);
-	$x > 0 || $x == $t ??
-		$t !! $t - 1
+our Int multi Num::round_ceiling ( Num $x ) {
+    my $x_round = ceil($x);
+
+    return $x_round;
 }
 
-our Int multi Num::round_toward_zero (Num $x) {
-	return(int $x);
+our Int multi Num::round_floor ( Num $x ) {
+    my $x_round = floor($x);
+
+    return $x_round;
 }
 
-our Int multi Num::round_away_from_zero (Num $x) {
-	return 0 if $x == 0;
+our Int multi Num::round_toward_zero ( Num $x ) {
+    my $x_round;
 
-	my Int $t = int($x);
-	return $x if $x == $t;
-	$x > 0 ?? $t + 1 !! $t - 1;
+    # round floor above 0, round ceiling below 0
+    if $x < 0 {
+        $x_round = round_floor($x);
+    }
+    elsif $x > 0 {
+        $x_round = round_ceiling($x);
+    }
+    else {
+        $x_round = 0;
+    }
+
+    return $x_round;
 }
 
-our Int multi Num::round_up (Num $x, int $symmetrical? = 1) {
-	$symmetrical ?? $x.round_away_from_zero
-		!! $x.round_ceiling
+our Int multi Num::round_away_from_zero ( Num $x ) {
+    my $x_round;
+
+    # round ceiling above 0, round floor below 0
+    if $x < 0 {
+        $x_round = round_ceiling($x);
+    }
+    elsif $x > 0 {
+        $x_round = round_floor($x);
+    }
+    else {
+        $x_round = 0;
+    }
+
+    return $x_round;
 }
 
-our Int multi Num::round_down (Num $x, int $symmetrical? = 1) {
-	$symmetrical ?? $x.round_toward_zero
-		!! $x.round_floor
-}
-
-our Int multi Num::truncation (Num $x) {
-	...
-}
-
-# Other math functions.
-our bool multi Num::is_odd (Num $x) {
-        return ?(int($x) % 2);
-}
-
-our bool multi Num::is_even (Num $x) {
-        return !(int($x) % 2);
-}
-
-our Num multi Num::abs (Num $x) {
-	$x < 0 ?? -$x !! $x;
-}
-
-our int multi Num::sign (Num $x) {
+our Int multi Num::sign (Num $x) {
 	return 0 if $x == 0;
 	$x > 0 ?? 1 !! -1;
 }
