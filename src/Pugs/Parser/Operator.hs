@@ -59,7 +59,7 @@ tightOperators = do
       ++ rightSyn (
                " = := ::= .= " ++
                " ~= += -= *= /= %= x= Y= ¥= **= xx= ||= &&= //= ^^= " ++
-               " +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= ")
+               " +<= +>= ~<= ~>= +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= ")
     ]
 
 looseOperators :: RuleParser (RuleOperatorTable Exp)
