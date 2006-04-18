@@ -159,6 +159,12 @@ Magic: <one of the nodes>
 An Expression is either a Literal, a LValue (Variable/Apply/Call), or one of the
 special forms (Binding/Assignment):
 
+Operator nodes need to include the 'fixity' in which the operator 
+was found, in order to tell ++$a from $a++.
+# or would it just store the long name?
+# is "sub '++' {}" declaring "prefix:++" by default, or it a separate sub?
+# which just happens to clash with prefix:++ in some context?
+
 # Bare block is a call of a literal block?
 Aye, it's Apply of a Code literal.
 
