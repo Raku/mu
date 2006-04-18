@@ -1,16 +1,21 @@
 #include <stdlib.h>
+#include <string.h>
 #include <optable.h>
 
+#define REG_SCTABLE(s,v) \
+    if (0 == strncmp(in, s, strlen(s))) { return v; }
+
 ParseMode sctable (Str in) {
-    if (strncmp(in, "term:", 5)          ) { return PGE_SCTABLE_TERM; }
-    if (strncmp(in, "postfix:", 8)       ) { return PGE_SCTABLE_POSTFIX; }
-    if (strncmp(in, "close:", 6)         ) { return PGE_SCTABLE_CLOSE; }
-    if (strncmp(in, "prefix:", 7)        ) { return PGE_SCTABLE_PREFIX; }
-    if (strncmp(in, "prelist:", 8)       ) { return PGE_SCTABLE_PRELIST; }
-    if (strncmp(in, "infix:", 6)         ) { return PGE_SCTABLE_INFIX; }
-    if (strncmp(in, "ternary:", 8)       ) { return PGE_SCTABLE_TERNARY; }
-    if (strncmp(in, "postcircumfix:", 14)) { return PGE_SCTABLE_POSTCIRCUMFIX; }
-    if (strncmp(in, "circumfix:", 10)    ) { return PGE_SCTABLE_CIRCUMFIX; }
+    REG_SCTABLE("term:",             PGE_SCTABLE_TERM)
+    REG_SCTABLE("postfix:",          PGE_SCTABLE_POSTFIX)
+    REG_SCTABLE("close:",            PGE_SCTABLE_CLOSE)
+    REG_SCTABLE("prefix:",           PGE_SCTABLE_PREFIX)
+    REG_SCTABLE("prelist:",          PGE_SCTABLE_PRELIST)
+    REG_SCTABLE("infix:",            PGE_SCTABLE_INFIX)
+    REG_SCTABLE("ternary:",          PGE_SCTABLE_TERNARY)
+    REG_SCTABLE("postcircumfix:",    PGE_SCTABLE_POSTCIRCUMFIX)
+    REG_SCTABLE("circumfix:",        PGE_SCTABLE_CIRCUMFIX)
+    /* XXX: default return */
 }
 
 OpParser new_parser () {
