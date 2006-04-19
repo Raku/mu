@@ -16,6 +16,9 @@ They have been superseded by Capture objects.
 =head3 What is a Capture?
 
 A Capture is an object representing arguments in a function call.
+More generally, Capture objects express annotated nodes with children
+such as capture groups returned by rules, XML DOM nodes, argument lists
+and more.
 
 For example, the arguments in C<say("Hello", "World")> is a Capture
 object denoted by C<\("Hello", "World")>.
@@ -340,6 +343,27 @@ and also binding into an integer:
 
     $x := 41;
     $x = 42;        # FAIL - Int doesn't handle scalar assignment either
+
+=head3 So how do Captures work with Rules?
+
+In the context of rules, Captures are superclasses of Match. So in the example of:
+    
+    my $rv = ("x-y-z-moose" ~~ /(.)-(.)-(.)-<animal> :{ return give_birth(*$/) })
+
+C<give_birth()> gets called with 'x', 'y', and 'z' as positional arguments,
+and :animal<moose> as a named argument.  C<give_birth()> can return a Moose object -
+and C<$rv> is assigned a Capture object with the Moose object in its invocant slot.
+C<$rv> has the same positional and named slots as the Moose object - and you can
+retrieve the Moose back through C<$rv as Animal>.
+
+Nested captures in the rule then become nested Capture objects within positional
+slots in $/, which allows them to be retrieved as arguments for additional functions.
+And so you can bind annotated nodes of a tree to particular function calls, passing
+the data straight in thanks to the equivalence of Captures returned by rules and
+Captures used to invoke functions and methods.  As such, Captures could be considered
+a natural data type for XML nodes, and provide considerable power for parsing DOMs using
+Rules, and providing native tree manipulations.
+
 
 =head2 Why
 
