@@ -779,7 +779,7 @@ If you call a function without parens and supply no arguments, the
 argument list becomes a zero-dimensional slice.  It differs from
 C<\()> in several ways:
 
-    sub foo (@;slices) {...}
+    sub foo (*@;slices) {...}
     foo;        # +@;slices == 0
     foo();      # +@;slices == 1
 
@@ -1188,9 +1188,9 @@ You may omit the top variable if you prefix the parentheses with a colon
 to indicate a signature.  Otherwise you must at least put the sigil of
 the variable, or we can't correctly differentiate:
 
-    my Dog ($fido, $spot) = twodogs();		# list of two dogs
+    my Dog ($fido, $spot)   := twodogs();	# list of two dogs
     my Dog $ ($fido, $spot) := twodogs();	# one twodog object
-    my Dog :($fido, $spot) := twodogs();	# one twodog object
+    my Dog :($fido, $spot)  := twodogs();	# one twodog object
 
 Subsignatures can be matched directly with rules by using C<:(...)>
 notation.
