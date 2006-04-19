@@ -20,12 +20,14 @@ Parrot_Interp new_interpreter() {
 	i = Parrot_new(NULL);
 	return i;
 }
-PMC global(char *name) {
-	return Parrot_find_global()
+/*
+PMC global(Parrot_Interp i,Parrot_char *name) {
+	return Parrot_find_global();
 }
+*/
 C
 print "ok 1 - c code compiled\n";
 my $i = new_interpreter();
 #greet();
-#run_bytecode($i,"ok.pbc");
-run_bytecode($i,"namespace.pbc");
+run_bytecode($i,"ok.pbc");
+#$run_bytecode($i,"namespace.pbc");
