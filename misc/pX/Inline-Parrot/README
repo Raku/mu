@@ -1,0 +1,3 @@
+The beginning of a C version of Inline-Parrot
+Just run Parrot,pm to see it at work
+The Makefile is only used for a example lib which can be loadlib'ed from parrot
