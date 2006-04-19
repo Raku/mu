@@ -82,10 +82,11 @@ struct _op_token {
 typedef struct _op_token OpToken;
 
 struct _op_match {
-    OpToken     token;
-    Pos         from;
-    Pos         to;
-    Str         target;
+    OpToken     token;      /* The token used for match */
+    Str         target;     /* The original target string */
+    Pos         from;       /* Begin offset on target */
+    Pos         to;         /* End offset on target */
+    Array       children;   /* Array of child match nodes */
 };
 typedef struct _op_match OpMatch;
 

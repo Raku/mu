@@ -40,7 +40,7 @@ void add_token (
 ) {
 }
 
-OpMatch parse (OpParser p, Str in) {
+OpMatch parse (OpParser p, Str target, Str stop_token) {
 }
 
 int main () {
