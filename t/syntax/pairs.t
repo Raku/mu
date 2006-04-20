@@ -19,7 +19,7 @@ use Test;
 #   foo($pair);      # pair passed positionally
 #   foo(*$pair);     # named
 
-plan 37;
+plan 39;
 
 sub f1 ($a, $b) { ref($a) ~ ref($b) }
 {
@@ -28,11 +28,13 @@ sub f1 ($a, $b) { ref($a) ~ ref($b) }
     is f1(("a") => 42, 23), "IntInt", "'(\"a\") => 42' is a named";
     is f1(:a(42),  23),     "IntInt", "':a(42)' is a named";
     is f1(:a,      23),     "IntInt",  "':a' is a named";
+    is f1(:!a,     23),     "IntInt",  "':!a' is also named";
 
     is f1((z   => 42), 23), "PairInt", "'(a => 42)' is a pair";
     is f1(("a" => 42), 23), "PairInt", "'(\"a\" => 42)' is a pair";
     is f1((:a(42)),    23), "PairInt", "'(:a(42))' is a pair";
     is f1((:a),        23), "PairInt",  "'(:a)' is a pair";
+    is f1((:!a),       23), "PairInt",  "'(:a)' is also a pair";
 }
 
 sub f2 (:$a!) { ~ref($a) }

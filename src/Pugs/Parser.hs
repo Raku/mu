@@ -1944,8 +1944,12 @@ pairArrow = do
 pairAdverb :: RuleParser Exp
 pairAdverb = do
     char ':'
-    shortcutPair <|> regularPair
+    negatedPair <|> shortcutPair <|> regularPair
     where
+    negatedPair = do
+        char '!'
+        key <- many1 wordAny
+        return $ App (Var "&infix:=>") Nothing [Val (VStr key), Val (VBool False)]
     shortcutPair = do
         var <- regularVarName
         let key = reverse (takeWhile isWordAny (reverse var))
