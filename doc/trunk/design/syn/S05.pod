@@ -11,11 +11,11 @@ Allison Randal <al@shadowed.net>
 
 =head1 VERSION
 
-   Maintainer: Patrick Michaud <pmichaud@pobox.com>
+   Maintainer: Patrick Michaud <pmichaud@pobox.com> (& TimToady)
    Date: 24 Jun 2002
-   Last Modified: 6 Apr 2006
+   Last Modified: 20 Apr 2006
    Number: 5
-   Version: 15
+   Version: 16
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them "rules" because they haven't been
@@ -30,8 +30,8 @@ current (or most recent) match is through this variable, even when
 it doesn't look like it.  The individual capture variables (such as C<$0>,
 C<$1>, etc.) are just elements of C<$/>.
 
-By the way, the numbered capture variables now start at C<$0>, C<$1>,
-C<$2>, etc. See below.
+By the way, the numbered capture variables now start at C<$0> rather than
+C<$1>.  See below.
 
 =head1 Unchanged syntactic features
 
@@ -68,6 +68,8 @@ Minimal matching suffix:   ??,  *?,  +?
 =item *
 
 The extended syntax (C</x>) is no longer required...it's the default.
+(In fact, it's pretty much mandatory--the only way to get back to
+the old syntax is with the C<:Perl5>/C<:P5> modifier.)
 
 =item *
 
@@ -78,7 +80,11 @@ replace them - see below).
 
 There is no C</e> evaluation modifier on substitutions; instead use:
 
-     s/pattern/{ code() }/
+     s/pattern/{ doit() }/
+
+Instead of C</ee> say:
+
+     s/pattern/{ eval doit() }/
 
 =item *
 
@@ -87,8 +93,9 @@ Modifiers are now placed as adverbs at the I<start> of a match/substitution:
      m:g:i/\s* (\w*) \s* ,?/;
 
 Every modifier must start with its own colon.  The delimiter must be
-separated from the final modifier by a colon or whitespace if it would
-be taken as an argument to the preceding modifier.
+separated from the final modifier by whitespace if it would be taken
+as an argument to the preceding modifier (which is true for any
+bracketing character).
 
 =item *
 
@@ -127,18 +134,12 @@ Note that
 
 is roughly equivalent to
 
-     m:p/.*? pattern/
+     m:p/.*? <( pattern )> /
+
+Also note that any rule called as a subrule is implicitly anchored to the
+current position anyway.
 
 =item *
-
-The new C<:once> modifier replaces the Perl 5 C<?...?> syntax:
-
-     m:once/ pattern /    # only matches first time
-
-=item *
-
-[Note: We're still not sure if :w is ultimately going to work exactly 
-as described below.  But this is how it works for now.]
 
 The new C<:w> (C<:words>) modifier causes whitespace sequences to be
 replaced by C<\s*> or C<\s+> subpattern as defined by the C<< <?ws> >> rule.
@@ -164,6 +165,9 @@ or equivalently,
 C<< <?ws> >> can't decide what to do until it sees the data.  It still does
 the right thing.  If not, define your own C<< <?ws> >> and C<:w> will use that.
 
+In general you don't need to use C<:w> within grammars because
+the parse rules automatically handle whitespace policy for you.
+
 =item *
 
 New modifiers specify Unicode level:
@@ -177,9 +181,9 @@ There are corresponding pragmas to default to these levels.
 
 =item *
 
-The new C<:perl5> modifier allows Perl 5 regex syntax to be used instead:
+The new C<:Perl5> modifier allows Perl 5 regex syntax to be used instead:
 
-     m:perl5/(?mi)^[a-z]{1,2}(?=\s)/
+     m:Perl5/(?mi)^[a-z]{1,2}(?=\s)/
 
 (It does not go so far as to allow you to put your modifiers at
 the end.)
@@ -194,16 +198,16 @@ determined by the character that follows.
 If followed by an C<x>, it means repetition.  Use C<:x(4)> for the
 general form.  So
 
-     s:4x { (<?ident>) = (\N+) $$}{$0 => $1};
+     s:4x [ (<?ident>) = (\N+) $$] [$0 => $1];
 
 is the same as:
 
-     s:x(4) { (<?ident>) = (\N+) $$}{$0 => $1};
+     s:x(4) [ (<?ident>) = (\N+) $$] [$0 => $1];
 
 which is almost the same as:
 
      $_.pos = 0;
-     s:c{ (<?ident>) = (\N+) $$}{$0 => $1} for 1..4;
+     s:c [ (<?ident>) = (\N+) $$] [$0 => $1] for 1..4;
 
 except that the string is unchanged unless all four matches are found.
 However, ranges are allowed, so you can say C<:x(1..4)> to change anywhere
@@ -250,10 +254,15 @@ context, or a disjunction of matches in a scalar context.
      $str = "abracadabra";
 
      if $str ~~ m:exhaustive/ a (.*) a / {
-         @substrings = $/.matches();    # br brac bracad bracadabr
-                                        # c cad cadabr d dabr br
+         say "@()";    # br brac bracad bracadabr c cad cadabr d dabr br
      }
 
+Note that the C<~~> above can return as soon as the first match is found,
+and the rest of the matches may be performed lazily by C<@()>.
+
+[Conjecture: the C<:exhaustive> modifier should have an optional argument
+specifying how many seconds to run before giving up, since it's trivially
+easy to ask for the heat death of the universe to happen first.]
 
 =item *
 
@@ -275,7 +284,24 @@ throws away whitespace and comments to keep them instead.
 
 =item *
 
-The C<:i>, C<:w>, C<:perl5>, and Unicode-level modifiers can be
+The new C<:ratchet> modifier causes this rule to not backtrack by default.
+(Generally you do not use this modifier directly, since it's implied by
+C<token> and C<parse> declarations.)  The effect of this modifier is
+to imply a C<:> after every construct that could backtrack, including
+bare C<*>, C<+>, and C<?> quantifiers, as well as alternations.
+
+=item *
+
+The new C<:panic> modifier causes this rule and all invoked subrules
+to try to backtrack on any rules that would otherwise default to
+not backtracking because they have C<:ratchet> set.  Never panic
+unless you're desperate and want the pattern matcher to do a lot of
+unnecessary work.  If you have an error in your grammar, it's almost
+certainly a bad idea to fix it by backtracking.
+
+=item *
+
+The C<:i>, C<:w>, C<:Perl5>, and Unicode-level modifiers can be
 placed inside the rule (and are lexically scoped):
 
      m/:w alignment = [:i left|right|cent[er|re]] /
@@ -297,7 +323,6 @@ User-defined modifiers can also take arguments:
 To use parens or brackets for your delimiters you have to separate:
 
          m:fuzzy (pattern);
-         m:fuzzy:(pattern);
 
 or you'll end up with:
 
@@ -346,7 +371,10 @@ Because C</x> is default:
 
 =item *
 
-An unescaped C<#> now always introduces a comment.
+An unescaped C<#> now always introduces a comment.  If followed
+by an opening bracket character (and if not in the first column),
+it introduces an embedded comment that terminates with the closing
+bracket.  Otherwise the comment terminates at the newline.
 
 =item *
 
@@ -438,7 +466,7 @@ The optimizer will likely optimize away things like C<**{1...}>
 so that the closure is never actually run in that case.  But it's
 a closure that must be run in the general case, so you can use
 it to generate a range on the fly based on the earlier matching.
-(Of course, bear in mind the closure is run I<before> attempting to
+(Of course, bear in mind the closure must be run I<before> attempting to
 match whatever it quantifies.)
 
 =item *
@@ -473,7 +501,9 @@ is like a Perl 5:
 
      / \Q$var\E /
 
-(To get rule interpolation use an assertion - see below)
+However, if C<$var> contains a rule object, rather attempting to
+convert it to a string, it is called as if you said C<< <$var> >>.
+See assertions below.
 
 =item *
 
@@ -486,7 +516,8 @@ is matched as if it were an alternation of its elements:
      / [ @cmds[0] | @cmds[1] | @cmds[2] | ... ] /
 
 
-As with a scalar variable, each element is matched as a literal.
+As with a scalar variable, each element is matched as a literal unless
+it happens to be a rule object, in which case it is matched as a subrule.
 
 =item *
 
@@ -503,15 +534,23 @@ is executed.
 
 =item *
 
-If it is a string or rule object, it is executed as a subrule.
+If it is a string, it is matched literally, starting after where the
+key left off matching.
 
 =item *
 
-If it has the value 1, nothing special happens beyond the match.
+If it is a rule object, it is executed as a subrule, with an initial
+position after the matched key.
 
 =item *
 
-Any other value causes the match to fail.
+If it has the value 1, nothing special happens except that the key match
+succeeds.
+
+=item *
+
+Any other value causes the match to fail.  In particular, shorter keys
+are not tried if a longer one matches and fails.
 
 =back
 
@@ -547,6 +586,11 @@ The C<after> assertion implements lookbehind by reversing the syntax
 tree and looking for things in the opposite order going to the left.
 It is illegal to do lookbehind on a pattern that cannot be reversed.
 
+Note: the effect of a forward-scanning lookbehind at the top level
+can be achieved with:
+
+    / .*? prestuff <( mainpat >) /
+
 =item *
 
 A leading C<?> causes the assertion not to capture what it matches (see
@@ -556,28 +600,66 @@ L<Subrule captures>. For example:
      / <?ident> <ws>  /      # only $/<ws> captured
      / <?ident> <?ws> /      # nothing captured
 
+The non-capturing behavior may be overridden with a C<:keepall>.
+
 =item *
 
 A leading C<$> indicates an indirect rule.  The variable must contain
-either a hard reference to a rule, or a string containing the rule.
+either a rule object, or a string to be compiled as the rule.  The
+string is never matched literally.
 
 =item *
 
 A leading C<::> indicates a symbolic indirect rule:
 
-     / <::($somename)>
+     / <::($somename)> /
 
-The variable must contain the name of a rule.
+The variable must contain the name of a rule.  By the rules of single method
+dispatch this is first searched for in the current grammar and its ancestors.
+If this search fails an attempt is made to dispatch via MMD, in which case
+it can find rules defined as multis rather than methods.
 
 =item *
 
 A leading C<@> matches like a bare array except that each element
-is treated as a rule (string or hard ref) rather than as a literal.
+is treated as a rule (string or rule object) rather than as a literal.
+That is, a string is forced to be compiled as a rule rather than matched
+literally.  (There is no difference for a rule object.)
 
 =item *
 
-A leading C<%> matches like a bare hash except that each key
-is treated as a rule (string or hard ref) rather than as a literal.
+A leading C<%> matches like a bare hash except that each value is always
+treated as a rule, even if it is a string that must be compiled to a rule
+at match time.
+
+With both bare hash and hash in angles, the key is always skipped
+over before calling any rule in the value.  That rule may, however,
+magically access the key anyway as if the rule had started before the
+key and matched with C<< <KEY> >> assertion.  That is, C<< $<KEY> >>
+will contain the keyword or token that this rule was looked up under,
+and that value will be returned by the current match object even if
+you do nothing special with it within the match.  (This also works
+for the name of a macro as seen from an C<is parsed> rule, since
+internally that turns into a hash lookup.)
+
+As with bare hash, the longest key matches according to the longest token
+rule, but in addition, you may combine multiple hashes under the same
+longest-token consideration like this:
+
+    <%statement|%prefix|%term>
+
+This means that, despite being in a later hash, C<< %term<food> >>
+will be selected in preference to C<< %prefix<foo> >> because it's
+the longer token.  However, if there is a tie, the earlier hash wins,
+so C<< %statement<if> >> hides any C<< %prefix<if> >> or C<< %term<if> >>.
+
+In contrast, if you say
+
+    [ <%prefix> | <%term> ]
+
+a C<< %prefix<foo> >> would be selected in preference to a C<< %term<food> >>.
+(Which is not what you usually want if your language is to do longest-token
+consistently.)
 
 =item *
 
@@ -592,7 +674,7 @@ As with an ordinary embedded closure, an B<explicit> return from a
 rule closure binds the I<result object> for this match, ignores the
 rest of the current rule, and reports success:
 
-	/ (\d) <{ return $0.sqrt }> NotReached /;
+        / (\d) <{ return $0.sqrt }> NotReached /;
 
 This has the effect of capturing the square root of the numified string,
 instead of the string.  The C<NotReached> part is not reached.
@@ -654,13 +736,15 @@ is equivalent to:
     / <after foo> \d+ <before bar> /
 
 except that the scan for "foo" can be done in the forward direction,
-while a lookbehind assertion would presumably scan for \d+ and then
-match "foo" backwards.  The use of C<< <(...)> >> affects only the
+while a lookbehind assertion would presumably scan for C<\d+> and then
+match "C<foo>" backwards.  The use of C<< <(...)> >> affects only the
 meaning of the "result object" and the positions of the beginning and
 ending of the match.  That is, after the match above, C<$()> contains
 only the digits matched, and C<.pos> is pointing to after the digits.
 Other captures (named or numbered) are unaffected and may be accessed
 through C<$/>.
+
+It is a syntax error to use an unbalanced C<< <( >> or C<< )> >>.
 
 =item *
 
@@ -716,6 +800,17 @@ Same as:
 A leading C<!> indicates a negated meaning (always a zero-width assertion):
 
      / <!before _ > /    # We aren't before an _
+
+Note that C<< <!alpha> >> is different from C<< <-alpha> >> because the
+latter matches C</./> when it is not an alpha.
+
+=item *
+
+Conjecture: Multiple opening angles are matched by a corresponding
+number of closing angles, and otherwise function as single angles.
+This can be used to visually isolate unmatched angles inside:
+
+    <<<Ccode: a >> 1>>>
 
 =back
 
@@ -904,6 +999,49 @@ Using C<{...}> or C</.../> in the scalar context of the first argument
 causes it to produce a C<Code> or C<Rule> reference, which the switch
 statement then selects upon.
 
+=item *
+
+Just as C<rx> has variants, so does the C<rule> declarator.
+In particular, there are two special variants for use in grammars:
+C<token> and C<parse>.
+
+A token declaration:
+
+    token ident { [ <alpha> | _ ] \w+ }
+
+never backtracks by default.  That is, it likes to commit to whatever
+it has scanned so far.  The above is equivalent to
+
+    rule ident { [ <alpha>: | _ ]: \w+: }
+
+but rather easier to read.  The bare C<*>, C<+> and C<?> quantifiers
+never backtrack in a C<token> unless some outer rule has specified a
+C<:panic> option that applies.  If you want to prevent even that, use
+C<*:>, C<+:> or C<?:> to prevent any backtracking into the quantifier.
+If you want to explicitly backtrack, append either a C<?> or a C<+>
+to the quantifier.   The C<?> forces minimal matching as usual,
+while the C<+> forces greedy matching.  The C<token> declarator is
+really just short for
+
+    rule :ratchet { ... }
+
+The other is the C<parse> declarator, for declaring non-terminal
+productions in a grammar.  It also does not backtrack unless a
+C<:panic> is in effect or you explicitly specify a backtracking
+quantifier.  In addition, a C<parse> rule also assumes C<:words>.
+A C<parse> is really short for:
+
+    rule :ratchet :words { ... }
+
+=item *
+
+The Perl 5 C<?...?> syntax ("match once") was rarely used and can be
+now emulated more cleanly with a state variable:
+
+    (state $x) ||= / pattern /;    # only matches first time
+
+To reset the pattern, simply set C<$x = 0>.
+
 =back
 
 =head1 Backtracking control
@@ -912,13 +1050,39 @@ statement then selects upon.
 
 =item *
 
+By default, backtracking is greedy in C<rx>, C<m>, C<s>, and the
+like.  It's also greedy in ordinary rules.  In C<parse> and C<token>
+declarations, backtracking must be explicit.
+
+=item *
+
+To force the preceding atom to do eager backtracking,
+append a C<:?> or C<?> to the atom.  If the preceding token is
+a quantifier, the C<:> may be omitted, so C<*?> works just as
+in Perl 5.
+
+=item *
+
+To force the preceding atom to do greedy backtracking,
+append a C<:+> or C<+> to the atom.  If the preceding token
+is a quantifier, the C<:> may be omitted.  (Perl 5 has no
+corresponding construct because backtracking always defaults
+to greedy in Perl 5.)
+
+=item *
+
+To force the preceding atom to do no backtracking, use a single C<:>
+without a subsequent C<?> or C<+>.
 Backtracking over a single colon causes the rule engine not to retry
 the preceding atom:
 
-     m:w/ \( <expr> [ , <expr> ]* : \) /
+     m:w/ \( <expr> [ , <expr> ]*: \) /
 
 (i.e. there's no point trying fewer C<< <expr> >> matches, if there's
 no closing parenthesis on the horizon)
+
+To force all the atoms in an expression not to backtrack by default,
+use C<:ratchet> or C<parse> or C<token>.
 
 =item *
 
@@ -931,8 +1095,12 @@ alternations to immediately fail:
           ]
      /
 
-(i.e. there's no point trying to match a different keyword if one
-was already found but failed).
+(i.e. there's no point trying to match a different keyword if one was
+already found but failed).  Note that you can still back into such an
+alternation, so you may also need to put C<:> after it if you also
+want to disable that.  If a an explicit or implicit C<:ratchet> has
+disabled backtracking, you need to put C<:+> after the alternation
+to enable backing into another alternative if the first pick fails.
 
 =item *
 
@@ -993,9 +1161,10 @@ Just as you can have anonymous subs and named subs...
 
 =item *
 
-...so too you can have anonymous rules and I<named> rules:
+...so too you can have anonymous rules and I<named> rules (and tokens,
+and parses):
 
-     rule ident { [<alpha>|_] \w* }
+     token ident { [<alpha>|_] \w* }
 
      # and later...
 
@@ -1007,11 +1176,11 @@ As the above example indicates, it's possible to refer to named rules,
 such as:
 
      rule serial_number { <[A..Z]> \d**{8} }
-     rule type { alpha | beta | production | deprecated | legacy }
+     token type { alpha | beta | production | deprecated | legacy }
 
 in other rules as named assertions:
 
-     rule identification { [soft|hard]ware <type> <serial_number> }
+     parse identification { [soft|hard]ware <type> <serial_number> }
 
 =back
 
@@ -1049,12 +1218,29 @@ To match a null alternative, use:
 
 This makes it easier to catch errors like this:
 
+    /a|b|c|/
+
+As a special case, however, the first null alternative in a match like
+
      m:w/ [
           | if :: <expr> <block>
           | for :: <list> <block>
           | loop :: <loop_controls>? <block>
           ]
      /
+
+is simply ignored.  Only the first alternative is special that way.
+If you write:
+
+     m:w/ [
+              if :: <expr> <block>              |
+              for :: <list> <block>             |
+              loop :: <loop_controls>? <block>  |
+          ]
+     /
+
+
+it's still an error.
 
 =item *
 
@@ -1099,6 +1285,10 @@ succeed?):
      # or:
      /pattern/; if $/ {...}
 
+With C<:global> or C<:overlap> or C<:exhaustive> the boolean is
+allowed to return true on the first match.  The C<Match> object can
+produce the rest of the results lazily if evaluated in list context.
+
 =item *
 
 In string context it evaluates to the stringified value of its
@@ -1121,7 +1311,7 @@ I<result object>, which is usually the entire matched string:
 
 =item *
 
-When used as a scalar, a Match object evaluates to its underlying
+When used as a scalar, a C<Match> object evaluates to its underlying
 result object.  Usually this is just the entire match string, but
 you can override that by calling C<return> inside a rule:
 
@@ -1146,7 +1336,7 @@ matching, and a list of one or more elements when doing array matching.
 Additionally, the C<Match> object delegates its C<coerce> calls
 (such as C<+$match> and C<~$match>) to its underlying result object.
 The only exception is that C<Match> handles boolean coercion itself,
-which returns whether the match had succeeded.
+which returns whether the match had succeeded at least once.
 
 This means that these two work the same:
 
@@ -1155,7 +1345,7 @@ This means that these two work the same:
 
 =item *
 
-When used as an array, a Match object pretends to be an array of all
+When used as an array, a C<Match> object pretends to be an array of all
 its positional captures.  Hence
 
      ($key, $val) = m:w/ (\S+) => (\S+)/;
@@ -1179,11 +1369,13 @@ Or cast it into an array:
 
 Note that, as a scalar variable, C<$/> doesn't automatically flatten
 in list context.  Use C<@()> as a shorthand for C<@($/)> to flatten
-the positional captures under list context.
+the positional captures under list context.  Note that a C<Match> object
+is allowed to evaluate its match lazily in list context.  Use C<**@()>
+to force an eager match.
 
 =item *
 
-When used as a hash, a Match object pretends to be a hash of all its named
+When used as a hash, a C<Match> object pretends to be a hash of all its named
 captures.  The keys do not include any sigils, so if you capture to
 variable C<< @<foo> >> its real name is C<$/{'foo'}> or C<< $/<foo> >>.
 However, you may still refer to it as C<< @<foo> >> anywhere C<$/>
@@ -1192,7 +1384,8 @@ capture datatypes.)
 
 Note that, as a scalar variable, C<$/> doesn't automatically flatten
 in list context.  Use C<%()> as a shorthand for C<%($/)> to flatten as a
-hash, or bind it to a variable of the appropriate type.
+hash, or bind it to a variable of the appropriate type.  As with C<@()>,
+it's possible for C<%()> to produce its pairs lazily in list context.
 
 =item *
 
@@ -1240,7 +1433,7 @@ Inside a rule, the C<$/> variable holds the current rule's
 incomplete C<Match> object (which can be modified via the internal C<$/>.
 For example:
 
-    $str ~~ / foo                # Match 'foo'
+    $str ~~ / foo                 # Match 'foo'
                { $/ = 'bar' }     # But pretend we matched 'bar'
              /;
     say $/;                       # says 'bar'
@@ -1556,7 +1749,9 @@ indexing semantics.  See L<Numbered scalar aliasing> below for details.
 
 =item *
 
-Any call to a named C<< <rule> >> within a pattern is known as a I<subrule>.
+Any call to a named C<< <rule> >> within a pattern is known as a
+I<subrule>, whether that rule is actually defined as a C<rule> or
+C<token> or C<parse> or even an ordinary C<method> or C<multi>.
 
 =item *
 
@@ -1599,9 +1794,9 @@ object. For example:
 =item *
 
 The hash entries of a C<Match> object can be referred to using any of the
-standard hash access notations (C<$/{'foo'}>, C<< $/<bar> >>, C<$/«baz»>,
+standard hash access notations (C<$/{'foo'}>, C<< $/<bar> >>, C<$/Â«bazÂ»>,
 etc.), or else via corresponding lexically scoped aliases (C<< $<foo> >>,
-C<$«bar»>, C<< $<baz> >>, etc.)  So the previous example also implies:
+C<$Â«barÂ»>, C<< $<baz> >>, etc.)  So the previous example also implies:
 
       #    $<ident>             $0<ident>
       #     __^__                 __^__
@@ -2334,10 +2529,10 @@ Just as a class can collect named actions together:
 so too a grammar can collect a set of named rules together:
 
      grammar Identity {
-         rule name :w { Name = (\N+) }
-         rule age  :w { Age  = (\d+) }
-         rule addr :w { Addr = (\N+) }
-         rule desc {
+         parse name { Name = (\N+) }
+         parse age  { Age  = (\d+) }
+         parse addr { Addr = (\N+) }
+         parse desc {
              <name> \n
              <age>  \n
              <addr> \n
@@ -2351,22 +2546,22 @@ so too a grammar can collect a set of named rules together:
 Like classes, grammars can inherit:
 
      grammar Letter {
-         rule text     { <greet> <body> <close> }
+         parse text     { <greet> <body> <close> }
 
-         rule greet :w { [Hi|Hey|Yo] $<to>:=(\S+?) , $$}
+         parse greet { [Hi|Hey|Yo] $<to>:=(\S+?) , $$}
 
-         rule body     { <line>+ }
+         parse body     { <line>+? }
 
-         rule close :w { Later dude, $<from>:=(.+) }
+         parse close { Later dude, $<from>:=(.+) }
 
          # etc.
      }
 
      grammar FormalLetter is Letter {
 
-         rule greet :w { Dear $<to>:=(\S+?) , $$}
+         parse greet { Dear $<to>:=(\S+?) , $$}
 
-         rule close :w { Yours sincerely, $<from>:=(.+) }
+         parse close { Yours sincerely, $<from>:=(.+) }
 
      }
 
@@ -2382,14 +2577,15 @@ Perl 6 will come with at least one grammar predefined:
 
      grammar Perl {    # Perl's own grammar
 
-         rule prog { <statement>* }
+         parse prog { <statement>* }
 
-         rule statement { <decl>
+         parse statement {
+                   | <decl>
                    | <loop>
                    | <label> [<cond>|<sideff>|;]
          }
 
-         rule decl { <sub> | <class> | <use> }
+         parse decl { <sub> | <class> | <use> }
 
          # etc. etc. etc.
      }
@@ -2439,7 +2635,7 @@ produces a pair list:
 
      $str.trans( %mapping.pairs.sort );
 
-Use the .= form to do a translation in place:
+Use the C<.=> form to do a translation in place:
 
      $str.=trans( %mapping.pairs.sort );
 
