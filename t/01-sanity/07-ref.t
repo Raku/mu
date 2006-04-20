@@ -16,5 +16,5 @@ say "1..3";
 
 {
     my $bool = bool::true;
-    if $bool.ref eq "Bool" { say "ok 2" } else { say "not ok 2" }
+    if $bool.ref eq "Bool" { say "ok 3" } else { say "not ok 3" }
 }
