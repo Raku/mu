@@ -94,7 +94,7 @@ This code is free software; you can redistribute it and/or modify it under
 the terms of either:
 
     a) the GNU General Public License, version 2, or
-    b) the Artistic License, version 2.0beta5.
+    b) the Artistic License, version 2.
 
 For the full license text, please see the F<GPL-2> and F<Artistic-2> files
 under the F<LICENSE> directory in the Pugs distribution.
