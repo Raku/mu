@@ -11,16 +11,17 @@ Allison Randal <al@shadowed.net>
 
 =head1 VERSION
 
-   Maintainer: Patrick Michaud <pmichaud@pobox.com> (& TimToady)
+   Maintainer: Patrick Michaud <pmichaud@pobox.com> and
+               Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
    Last Modified: 20 Apr 2006
    Number: 5
-   Version: 17
+   Version: 18
 
 This document summarizes Apocalypse 5, which is about the new regex
-syntax.  We now try to call them "regex" because they haven't been
+syntax.  We now try to call them I<regex> because they haven't been
 regular expressions for a long time.  When referring to their use in
-a grammar, the term "rule" is preferred.
+a grammar, the term I<rule> is preferred.
 
 =head1 New match state and capture variables
 
@@ -126,7 +127,7 @@ the string's current C<.pos>:
 
 Since this is implicitly anchored to the position, it's suitable for
 building parsers and lexers.  The pattern you supply to a Perl macro's
-"is parsed" trait has an implicit C<:p> modifier.
+C<is parsed> trait has an implicit C<:p> modifier.
 
 Note that
 
@@ -266,7 +267,7 @@ easy to ask for the heat death of the universe to happen first.]
 
 =item *
 
-The new C<:rw> modifier causes this regex to "claim" the current
+The new C<:rw> modifier causes this regex to I<claim> the current
 string for modification rather than assuming copy-on-write semantics.
 All the bindings in C<$/> become lvalues into the string, such
 that if you modify, say, C<$1>, the original string is modified in
@@ -394,8 +395,8 @@ the final character in the string.
 
 =item *
 
-C<.> matches an "anything", while C<\N> matches an "anything except
-newline". (The C</s> modifier is gone.)  In particular, C<\N> matches
+C<.> matches an I<anything>, while C<\N> matches an I<anything except
+newline>. (The C</s> modifier is gone.)  In particular, C<\N> matches
 neither carriage return nor line feed.
 
 =item *
@@ -451,7 +452,7 @@ the optimizer could prove that something after them can't match.
 The repetition specifier is now C<**{...}> for maximal matching,
 with a corresponding C<**{...}?> for minimal matching.  Space is
 allowed on either side of the asterisks.  The curlies are taken to
-be a closure returning a number or a range.
+be a closure returning an Int or a Range object.
 
      / value was (\d ** {1..6}?) with ([\w]**{$m..$n}) /
 
@@ -459,7 +460,7 @@ It is illegal to return a list, so this easy mistake fails:
 
      / [foo]**{1,3} /
 
-(At least, it fails in the absence of "C<use rx :listquantifier>",
+(At least, it fails in the absence of C<use rx :listquantifier>,
 which is likely to be unimplemented in Perl 6.0.0 anyway).
 
 The optimizer will likely optimize away things like C<**{1...}>
@@ -471,7 +472,7 @@ match whatever it quantifies.)
 
 =item *
 
-C<< <...> >> are now extensible metasyntax delimiters or "assertions"
+C<< <...> >> are now extensible metasyntax delimiters or I<assertions>
 (i.e. they replace Perl 5's crufty C<(?...)> syntax).
 
 =back
@@ -486,7 +487,7 @@ In Perl 6 regexes, variables don't interpolate.
 
 =item *
 
-Instead they're passed "raw" to the regex engine, which can then decide
+Instead they're passed I<raw> to the regex engine, which can then decide
 how to handle them (more on that below).
 
 =item *
@@ -520,7 +521,7 @@ is matched as if it were an alternation of its elements:
 As with a scalar variable, each element is matched as a literal
 unless it happens to be a Regex object, in which case it is matched
 as a subrule.  As with scalar subrules, a tainted subrule always fails.
-All values pay attention to the current C<:ignorecase> setting
+All values pay attention to the current C<:ignorecase> setting.
 
 =item *
 
@@ -539,7 +540,7 @@ is executed.
 
 If the value is a string, it is matched literally, starting after where
 the key left off matching.  As a natural consequence, if the value is
-"", nothing special happens except that the key match succeeds.
+C<"">, nothing special happens except that the key match succeeds.
 
 =item *
 
@@ -669,7 +670,7 @@ for the name of a macro as seen from an C<is parsed> regex, since
 internally that turns into a hash lookup.)
 
 As with bare hash, the longest key matches according to the venerable
-"longest token rule", but in addition, you may combine multiple hashes
+I<longest token rule>, but in addition, you may combine multiple hashes
 under the same longest-token consideration like this:
 
     <%statement|%prefix|%term>
@@ -761,10 +762,10 @@ is equivalent to:
 
     / <after foo> \d+ <before bar> /
 
-except that the scan for "foo" can be done in the forward direction,
+except that the scan for "C<foo>" can be done in the forward direction,
 while a lookbehind assertion would presumably scan for C<\d+> and then
 match "C<foo>" backwards.  The use of C<< <(...)> >> affects only the
-meaning of the "result object" and the positions of the beginning and
+meaning of the I<result object> and the positions of the beginning and
 ending of the match.  That is, after the match above, C<$()> contains
 only the digits matched, and C<.pos> is pointing to after the digits.
 Other captures (named or numbered) are unaffected and may be accessed
@@ -966,7 +967,7 @@ modifiers:
 =item *
 
 The name of the constructor was changed from C<qr> because it's no
-longer an interpolating quote-like operator.  C<rx> is short for "regex",
+longer an interpolating quote-like operator.  C<rx> is short for I<regex>,
 (not to be confused with regular expressions).
 
 =item *
@@ -1062,12 +1063,12 @@ A C<rule> is really short for:
 
 =item *
 
-The Perl 5 C<?...?> syntax ("match once") was rarely used and can be
+The Perl 5 C<?...?> syntax (I<match once>) was rarely used and can be
 now emulated more cleanly with a state variable:
 
-    (state $x) ||= / pattern /;    # only matches first time
+    (state $x) //= / pattern /;    # only matches first time
 
-To reset the pattern, simply set C<$x = 0>.
+To reset the pattern, simply say C<undefine $x>.
 
 =back
 
@@ -1154,7 +1155,7 @@ to fail outright, no matter how many subrules down it happens:
      m:w/ sub <subname>? <block> /
 
 (i.e. using a reserved word as a subroutine name is instantly fatal
-to the "surrounding" match as well)
+to the I<surrounding> match as well)
 
 =item *
 
@@ -1287,7 +1288,7 @@ case matching the null string:
 
 =item *
 
-A match always returns a "match object", which is also available
+A match always returns a Match object, which is also available
 as C<$/>, which is an environmental lexical declared in the outer
 subroutine that is calling the regex.  (A closure lexically embedded
 in a regex does not redeclare C<$/>, so C<$/> always refers to the
@@ -1296,7 +1297,7 @@ current match, not any prior submatch done within the closure).
 =item *
 
 Notionally, a match object contains (among other things) a boolean
-success value, a scalar "result object", an array of ordered submatch
+success value, a scalar I<result object>, an array of ordered submatch
 objects, and a hash of named submatch objects.  To provide convenient
 access to these various values, the match object evaluates differently
 in different contexts:
@@ -1386,7 +1387,7 @@ To get a single capture into a string, use a subscript:
 
      $mystring = "{ m:w/ (\S+) => (\S+)/[0] }";
 
-To get all the captures into a string, use a "zen" slice:
+To get all the captures into a string, use a I<zen> slice:
 
      $mystring = "{ m:w/ (\S+) => (\S+)/[] }";
 
@@ -1879,7 +1880,7 @@ Likewise, with a mixture of both:
 =item *
 
 However, if a subrule is explicitly renamed (or aliased -- see L<Aliasing>),
-then only the "final" name counts when deciding whether it is or isn't
+then only the I<final> name counts when deciding whether it is or isn't
 repeated. For example:
 
      if m:w/ mv <file> $<dir>:=<file> / {
@@ -2092,7 +2093,7 @@ value). That is:
 
 =item *
 
-This "follow-on" behavior is particularly useful for reinstituting
+This I<follow-on> behavior is particularly useful for reinstituting
 Perl5 semantics for consecutive subpattern numbering in alternations:
 
      $tune_up = rx/ (don't) (ray) (me) (for) (solar tea), (d'oh!)
@@ -2426,7 +2427,7 @@ Instead of using internal aliases like:
 
      m/ mv  @<files>:=<ident>+  $<dir>:=<ident> /
 
-the name of an ordinary variable can be used as an "external alias", like so:
+the name of an ordinary variable can be used as an I<external> alias, like so:
 
      m/ mv  @files:=<ident>+  $dir:=<ident> /
 
@@ -2539,7 +2540,7 @@ C<ident> rule.  So some mechanism is needed to confine rules to a namespace.
 
 If subs are the model for rules, then modules/classes are the obvious
 model for aggregating them.  Such collections of rules are generally
-known as "grammars".
+known as I<grammars>.
 
 =item *
 
