@@ -1148,6 +1148,51 @@ returned as C<Pair> objects.
 
 =item *
 
+There is now a generalized adverbial form of Pair notation:
+
+The following table shows the correspondence:
+
+    Fat arrow		Adverbial pair
+    =========		==============
+    a => 1		:a
+    a => 0		:!a
+    a => 0		:a(0)
+    a => $x		:a($x)
+    a => 'foo'		:a<foo>
+    a => <foo bar>	:a<foo bar>
+    a => «$foo @bar»	:a«$foo @bar»
+    a => {...}		:a{...}
+    a => [...]		:a[...]
+    a => $a		:$a
+    a => @a		:@a
+    a => %a		:%a
+    a => %foo<a>	%foo:<a>
+
+Note that as usual the C<{...}> form can indicate either a closure or a hash
+depending on the contents.
+
+Note also that the C<< <a b> >> form is not a subscript and is therefore
+equivalent not to C<.{'a','b'}> but rather to C<('a','b')>.  Bare C<< <a> >>
+turns into C<('a')> rather than C<('a',)>.
+
+Two or more adverbs can always be strung together without intervening
+punctuation anywhere a single adverb is acceptible.  When used as named
+arguments, you may put comma between.  See S06.
+
+The negated form (C<$!a>) and the sigiled forms (C<:$a>, C<:@a>,
+C<:%a>) never take an argument and don't care what the next character is.
+They are considered complete.
+
+The other forms of adverb (including the bare C<:a> form) I<always>
+look for an immediate bracketed argument, and will slurp it up.
+If that's not intended, you must use whitespace between the adverb
+and the opening bracket.
+
+Despite not being a subscript, the brackets are parsed as postfix operators,
+and may be separated from their C<:foo> with dot or "long dot".
+
+=item *
+
 Generalized quotes may now take adverbs:
 
     Short       Long            Meaning
@@ -1208,13 +1253,13 @@ Whitespace is allowed between the "q" and its adverb: C<q :w /.../>.
 For these "q" forms the choice of delimiters has no influence on the
 semantics.  That is, C<''>, C<"">, C<< <> >>, C<«»>, C<``>, C<()>,
 C<[]>, and C<{}> have no special significance when used in place of
-C<//> as delimiters.  There may be whitespace or a colon before the
+C<//> as delimiters.  There may be whitespace before the
 opening delimiter. (Which is mandatory for parens because C<q()> is
 a subroutine call and C<q:w(0)> is an adverb with arguments).  Other
-brackets may also require a colon or space when they would be understood as
+brackets may also require whitespace when they would be understood as
 an argument to an adverb in something like C<< q:z<foo>// >>.
 A colon may never be used as the delimiter since it will always be
-taken to mean something else regardless of what's in front of it.
+taken to mean another adverb regardless of what's in front of it.
 
 =item *
 
@@ -1356,6 +1401,10 @@ the curlies.  If you need to have double quotes that don't interpolate
 curlies, you can explicitly remove the capability:
 
     qq:c(0) "Here are { $two uninterpolated } curlies";
+
+or eqivalently:
+
+    qq:!c "Here are { $two uninterpolated } curlies";
 
 Alternately, you can build up capabilities from single quote to tell
 it exactly what you I<do> want to interpolate:

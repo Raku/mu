@@ -588,7 +588,7 @@ positional arguments:
     $formal = formalize($title, justify=>'left');
     $formal = formalize($title, :justify<right>, :case<title>);
 
-Named parameters are optional unless marked with C<!>.  Default values for
+Named parameters are optional unless marked with a following C<!>.  Default values for
 optional named parameters are defined in the same way as for positional
 parameters, but may depend only on the values of parameters that have
 already been bound.  (Note that binding happens in the call order,
@@ -596,23 +596,8 @@ not declaration order.)  Named optional parameters default to C<undef> if they
 have no default.  Named required parameters fail unless an argument pair
 of that name is supplied.
 
-Again, note the use of adverbial pairs in the argument list.  The following
-table shows the correspondence:
-
-    Fat arrow		Adverbial pair
-    =========		==============
-    a => 1		:a
-    a => 0		:a(0)
-    a => $x		:a($x)
-    a => 'foo'		:a<foo>
-    a => <foo bar>	:a<foo bar>
-    a => «$foo @bar»	:a«$foo @bar»
-    a => {...}		:a{...}
-    a => [...]		:a[...]
-    a => $a		:$a
-    a => @a		:@a
-    a => %a		:%a
-    a => %foo<a>	%foo:<a>
+Again, note the use of adverbial pairs in the argument list.  See S02 for
+the correspondence between adverbial form and arrow notation.
 
 =head2 List parameters
 
@@ -636,7 +621,7 @@ in list context.
 For example:
 
     duplicate(3, reverse => 1, collate => 0, 2, 3, 5, 7, 11, 14);
-    duplicate(3, :reverse, :collate(0), 2, 3, 5, 7, 11, 14);  # same
+    duplicate(3, :reverse, :!collate, 2, 3, 5, 7, 11, 14);  # same
 
     # The @data parameter receives [2, 3, 5, 7, 11, 14]
     # The %flag parameter receives { reverse => 1, collate => 0 }
