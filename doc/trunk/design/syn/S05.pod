@@ -1066,9 +1066,9 @@ A C<rule> is really short for:
 The Perl 5 C<?...?> syntax (I<match once>) was rarely used and can be
 now emulated more cleanly with a state variable:
 
-    (state $x) //= / pattern /;    # only matches first time
+    (state $x) ||= / pattern /;    # only matches first time
 
-To reset the pattern, simply say C<undefine $x>.
+To reset the pattern, simply say C<$x = 0>.
 
 =back
 
