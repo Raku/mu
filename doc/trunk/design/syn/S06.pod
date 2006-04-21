@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 18 Apr 2006
+  Last Modified: 21 Apr 2006
   Number: 6
-  Version: 25
+  Version: 26
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -717,10 +717,10 @@ C<Pair> and C<Hash> become named arguments:
     *(x=>1);          # Pair, becomes \(x=>1)
     *{x=>1, y=>2};    # Hash, becomes \(x=>1, y=>2)
 
-C<List> (also C<Tuple>, C<Range>, etc.) are simply turned into
+C<List> (also C<Seq>, C<Range>, etc.) are simply turned into
 positional arguments:
 
-    *(1,2,3);         # Tuple, becomes \(1,2,3)
+    *(1,2,3);         # Seq, becomes \(1,2,3)
     *(1..3);          # Range, becomes \(1,2,3)
     *(1..2, 3);       # List, becomes \(1,2,3)
     *([x=>1, x=>2]);  # List (from an Array), becomes \((x=>1), (x=>2))
@@ -1307,8 +1307,7 @@ you treat them as objects:
     bit         single native bit
     int         native signed integer
     uint        native unsigned integer (autoboxes to Int)
-    buf         native bytes (finite sequence of "uint8"s, no Unicode)
-    str         native string (finite sequence of native integers, no Unicode)
+    buf         native buffer (finite seq of native ints or uints, no Unicode)
     num         native floating point
     complex	native complex number
     bool        native boolean
@@ -1329,7 +1328,6 @@ if and only if their types and contents are identical.
 
     Bit         Perl single bit (allows traits, aliasing, undef, etc.)
     Int         Perl integer (allows Inf/NaN, arbitrary precision, etc.)
-    Buf         Perl buffer (possibly lazy list of bytes, can be subscripted)
     Str         Perl string (finite sequence of Unicode characters)
     Num         Perl number
     Complex     Perl complex number
@@ -1337,15 +1335,15 @@ if and only if their types and contents are identical.
     Exception   Perl exception
     Code        Base class for all executable objects
     Block       Executable objects that have lexical scopes
-    List        Lazy Perl list (composed of Tuple and Range parts)
-    Tuple       Completely evaluated (hence immutable) sequence
+    List        Lazy Perl list (composed of Seq and Range parts)
+    Seq         Completely evaluated (hence immutable) sequence
     Range       Incrementally generated (hence lazy) sequence
-    Set         Unordered Tuples that allow no duplicates
+    Set         Unordered Seqs that allow no duplicates
     Junction    Sets with additional behaviours
-    Pair        Tuple of two elements that serves as an one-element Mapping
+    Pair        Seq of two elements that serves as an one-element Mapping
     Mapping     Pairs with no duplicate keys
     Signature   Function parameters (left-hand side of a binding)
-    Capture   Function call arguments (right-hand side of a binding)
+    Capture     Function call arguments (right-hand side of a binding)
 
 =head2 Mutable types
 
@@ -1354,6 +1352,7 @@ Objects with these types have distinct C<.id> values.
     Array       Perl array
     Hash        Perl hash
     Scalar      Perl scalar
+    Buf         Perl buffer (an stringish array of memory locations)
     IO          Perl filehandle
     Routine     Base class for all wrappable executable objects
     Sub         Perl subroutine

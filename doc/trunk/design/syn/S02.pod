@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 18 Apr 2006
+  Last Modified: 21 Apr 2006
   Number: 2
-  Version: 24
+  Version: 25
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -319,6 +319,7 @@ strings either.
 =item *
 
 C<my Dog $spot> by itself does not automatically call a C<Dog> constructor.
+It merely installs an undefined C<Dog> prototype as the object.
 The actual constructor syntax turns out to be C<my Dog $spot .= new;>,
 making use of the C<.=> mutator method-call syntax.
 
@@ -339,10 +340,10 @@ Built-in object types start with an uppercase letter. This includes
 immutable types (e.g. C<Int>, C<Num>, C<Complex>, C<Rational>, C<Str>,
 C<Bit>, C<Rule>, C<Set>, C<Junction>, C<Code>, B<Block>, C<List>,
 C<Tuple>), as well as mutable (container) types, such as C<Scalar>,
-C<Array>, C<Hash>, C<Routine>, C<Module>, etc.
+C<Array>, C<Hash>, C<Buf>, C<Routine>, C<Module>, etc.
 
 Non-object (native) types are lowercase: C<int>, C<num>, C<complex>,
-C<rational>, C<str>, C<bit>.  Native types are primarily intended for
+C<rational>, C<buf>, C<bit>.  Native types are primarily intended for
 declaring compact array storage.  However, Perl will try to make those
 look like their corresponding uppercase types if you treat them that way.
 (In other words, it does autoboxing.  Note, however, that sometimes
@@ -392,10 +393,19 @@ on overflow.
 
 =item *
 
-A C<Str> is a Unicode string object.  A C<str> is a stringish view of
-an array of integers, and has no Unicode or character properties without
-explicit conversion to some kind of C<Str>.  Typically it's an array of bytes
-serving as a buffer.
+A C<Str> is a Unicode string object.  (There is no corresponding
+native C<str> type.)  A C<Buf> is a stringish view of an array of
+integers, and has no Unicode or character properties without explicit
+conversion to some kind of C<Str>.  (A C<buf> is the native counterpart.)
+Typically it's an array of bytes serving as a buffer.  Bitwise
+operations on a C<Buf> treat the entire buffer as a single large
+integer.  Bitwise operations on a C<Str> generally fail unless the
+C<Str> in question can provide an abstract C<Btr> interface somehow.
+Coercion to C<Btr> should generally invalidate the C<Str> interface.
+As a generic type C<Btr> may be instantiated as (or bound to) any
+of C<buf8>, C<buf16>, or C<buf32> (or to any type that provide the
+appropriate C<Buf> interface), but when used to create a buffer C<Buf>
+defaults to C<buf8>.
 
 =back
 
@@ -1554,7 +1564,7 @@ In addition to undifferentiated scalars, we also have these scalar contexts:
     boolean     bit     Bit     ?
     integer     int     Int     int
     numeric     num     Num     +
-    string      str     Str     ~
+    string      buf     Str     ~
 
 There are also various container contexts that require particular kinds of
 containers.

@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
-  Last Modified: 6 Apr 2006
+  Last Modified: 21 Apr 2006
   Number: 9
-  Version: 7
+  Version: 8
 
 =head1 Overview
 
@@ -57,6 +57,11 @@ of bits to a generic low-level type name:
     complex32
     complex64	(aka complex on most architectures)
     complex128
+
+    buf8	aka buf, a "normal" byte buffer
+    buf16	a uint16 buffer
+    buf32	a uint32 buffer
+    buf64	a uint64 buffer
 
 Complex sizes indicate the size of each C<num> component rather than
 the total.  This would extend to tensor typenames as well if they're
@@ -111,6 +116,29 @@ elements of the specified type without any fancy object boxing that
 typically applies to undifferentiated scalars.  (Perl tries really
 hard to make these elements look like objects when you treat them
 like objects--this is called autoboxing.)
+
+A compact array is for most purposes interchangeable with the
+corresponding buffer type.  For example, apart from the sigil,
+these are equivalent declarations:
+
+    my uint8 @buffer;
+    my buf8 $buffer;
+
+(Note: If you actually said both of those, you'd still get two
+different names, since the sigil is part of the name.)
+
+So given C<@buffer> you can say
+
+    $piece = substr(@buffer, $beg, $end - $beg);
+
+and given C<$buffer> you can also say
+
+    @pieces = $buffer[$n..^$end];
+
+Note that subscripting still pulls the elements out as numbers,
+but C<substr()> returns the same buffer type.
+
+=head1 Multidimensional arrays
 
 The declarations above declare one-dimensional arrays of indeterminate
 length.  Such arrays are autoextending just like ordinary Perl
