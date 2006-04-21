@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
   Last Modified: 21 Apr 2006
   Number: 2
-  Version: 25
+  Version: 26
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -400,9 +400,9 @@ conversion to some kind of C<Str>.  (A C<buf> is the native counterpart.)
 Typically it's an array of bytes serving as a buffer.  Bitwise
 operations on a C<Buf> treat the entire buffer as a single large
 integer.  Bitwise operations on a C<Str> generally fail unless the
-C<Str> in question can provide an abstract C<Btr> interface somehow.
-Coercion to C<Btr> should generally invalidate the C<Str> interface.
-As a generic type C<Btr> may be instantiated as (or bound to) any
+C<Str> in question can provide an abstract C<Buf> interface somehow.
+Coercion to C<Buf> should generally invalidate the C<Str> interface.
+As a generic type C<Buf> may be instantiated as (or bound to) any
 of C<buf8>, C<buf16>, or C<buf32> (or to any type that provide the
 appropriate C<Buf> interface), but when used to create a buffer C<Buf>
 defaults to C<buf8>.

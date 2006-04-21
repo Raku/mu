@@ -15,7 +15,7 @@ Allison Randal <al@shadowed.net>
   Date: 21 Mar 2003
   Last Modified: 21 Apr 2006
   Number: 6
-  Version: 26
+  Version: 27
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -790,7 +790,24 @@ parameter(s) of the receiver on the sharp end.  In the case of a receiver
 that is a variadic function, the pipe is received as part of its slurpy list.
 So both of the calls above are equivalent to:
 
-    grep { $_ % 2 } @data;
+    grep { $_ % 2 }, @data;
+
+Note that all such pipes (and indeed all lazy argument lists) supply
+an implicit promise that the code producing the lists may execute
+in parallel with the code receiving the lists.  (Pipes, hyperops,
+and junctions all have this promise of parallelizability in common,
+but differ in interface.  Code which violates these promises is
+erroneous, and will produce undefined results when parallelized.)
+In particular, a pipeline may not begin and end with the same array.
+(You may, however, assign to an array that is used within a pipeline
+on the right side of the assignment, since list assignment will clear
+and copy as necessary to make it work.)  That is, this doesn't work:
+
+    @data <== grep { $_ % 2 } <== @data;
+
+but this does:
+
+    @data = grep { $_ % 2 } <== @data;
 
 Leftward pipes are a convenient way of explicitly indicating the typical
 right-to-left flow of data through a chain of operations:
@@ -843,31 +860,6 @@ the results of the pipeline, so you can equivalently write any of:
 
 Since the pipe iterator is bound into the final variable, the variable
 can be just as lazy as the pipe that is producing the values.
-
-=begin Damian
-
-[DMC: On the other hand, these "push" semantics will break a very common
-      left-to-right processing pattern:
-
-          @data ==> grep { condition } ==> sort ==> @data;
-
-      It will also impose a very subtle distinction between the broken
-      symmetry of:
-
-          @data = sort <== grep { condition } <== @data;
-
-      and (the much more tempting, but almost certainly wrong):
-
-          @data <== sort <== grep { condition } <== @data;
-
-      Seems to me that we might be setting a trap here.
-
-      Could there be a special case that turns off "push" semantics in
-      any piped sequence where the origin is the same variable as the
-      destination???
-]
-
-=end Damian
 
 Because pipes are bound to arrays with "push" semantics, you can have
 a receiver for multiple pipes:
@@ -947,15 +939,17 @@ produces [0,'a'],[1,'b'],[2,'c'].  If you don't want the subarrays, then
 use C<each()> instead:
 
     (0..2; 'a'..'c') ==> my @;tmp;
-    for @;tmp.map { say }
+    for @;tmp.each { say }
 
 and then you just get 0,'a',1,'b',2,'c'.  This is good for
 
-    for @;tmp.map -> $i, $a { say "$i: $a" }
+    for @;tmp.each -> $i, $a { say "$i: $a" }
 
 In list context the C<@;foo> notation is really a shorthand for C<[;](@;foo)>.
+In particular, you can use C<@;foo> to interpolate a multidimensional slice
+in an array or hash subscript.
 
-Every lexical scope gets its own implicitly declared C<@;> variable,
+Every lexical scope gets its own implicitly declared C<@;_> variable,
 which is the default receiver.  So instead of using C<@;foo> above
 you can just say
 
@@ -964,9 +958,9 @@ you can just say
     pidigits() ==> ;
 
     # outputs "(0, 'a', 3)\n"...
-    for zip(@;) { .perl.say }
+    for zip(@;_) { .perl.say }
 
-If C<@;> is currently empty, then C<for zip(@;) {...}> would act on a
+If C<@;_> is currently empty, then C<for zip(@;_) {...}> would act on a
 zero-dimensional slice (i.e. C<for (zip) {...}>), and output nothing
 at all.
 
@@ -976,13 +970,13 @@ left to right in general regardless of the position of the receiver.
 So
 
     ('a'...; 0...) ==> ;
-     for zip(@; <== @foo) -> [$a, $i, $x] { ...}
+     for zip(@;_ <== @foo) -> [$a, $i, $x] { ...}
 
 is the same as
 
     'a'... ==> ;
      0...  ==> ;
-     for zip(@; <== @foo) -> [$a, $i, $x] { ...}
+     for zip(@;_ <== @foo) -> [$a, $i, $x] { ...}
 
 which is the same as
 
@@ -992,12 +986,12 @@ And
 
     @foo ==> ;
     0... ==> ;
-    for each(@;) -> $x, $i { ...}
+    for each(@;_) -> $x, $i { ...}
 
 is the same as
 
     0... ==> ;
-    for each(@foo; @;) -> $x, $i { ...}
+    for each(@foo; @;_) -> $x, $i { ...}
 
 which is the same as
 
@@ -1006,12 +1000,18 @@ which is the same as
 Note that the each method is also sensitive to multislicing, so you
 could also just write that as:
 
-    (@foo; 0...).map: -> $x, $i { ...}
+    (@foo; 0...).each: -> $x, $i { ...}
 
 Also note that these come out to identical for ordinary arrays:
 
-    @foo.map
+    @foo.each
     @foo.cat
+
+The C<@;($foo)> coercer can be used to pull a multidim out of some
+object that contain one, such as a C<Capture> or C<Match> object.  Like
+C<@()>, C<@;()> defaults to C<@;($/)>, and returns a multidimensional
+view of any match that repeatedly applies itself with C<:g> and
+the like.  In contrast, C<@()> would flatten those into one list.
 
 =head2 Closure parameters
 
