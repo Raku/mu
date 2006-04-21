@@ -11,10 +11,22 @@
 |                                                                   |
 =====================================================================
 
-Pugs is Copyright 2005, 2006 by Audrey Tang.  All Rights Reserved.
+COPYRIGHT DISCAIMER
+--------------------
 
-CONTRIBUTED WORKS UNDER OTHER LICENSES
---------------------------------------
+The author disclaims copyright for the compilation of the Pugs distribution.
+
+In place of a legal notice, here is a blessing:
+
+    May you do good and not evil.
+    May you find forgiveness for yourself and forgive others.
+    May you share freely, never taking more than you give.
+
+The Pugs distribution contains copyrighted contributions from third-party
+projects, under their own licenses cited below.
+
+COPYRIGHTED WORKS FROM THIRD-PARTY PROJECTS
+-------------------------------------------
 
 The "PGE" subsystem is derived from PGE by Patrick Michaud,
 under the same license as Perl 5.  See src/pge/README.
@@ -41,27 +53,14 @@ The "FastPackedString" subsystem is derived from Don Stewart et all's work,
 under a BSD-style license.  See src/Data/FastPackedString.hs.
 
 The "Unicode" subsystem is derived from Dimitry Golubovsky's work,
-under the same license as GHC.  See LICENSES/GHC.
+under the same license as GHC.  See src/Unicode.hs.
 
 The "PArrows" subsystem is derived from Einar Karttunen's work,
 under a BSD-style license.  See src/Text/Parser/PArrows.cabal.
 
-LICENSE INFORMATION
--------------------
-
-This code is free software; you can redistribute it and/or modify it under
-the terms of either:
-
-    a) the GNU General Public License, version 2, or
-    b) the Artistic License, version 2.
-
-Please see the "GPL-2" and "Artistic-2" files under the "LICENSE" directory
-for the full license text.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See either
-the GNU General Public License or the Artistic License for more details.
+The "TextRegexLazy" subsystem is derived from Christopher Kuklewic's
+work, under a BSD-style license.  See
+third-party/TextRegexLazy/Text/Regex/Lazy/LICENSE.
 
 INSTALLATION
 ------------

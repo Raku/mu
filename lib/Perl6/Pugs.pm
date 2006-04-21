@@ -86,17 +86,17 @@ L<http://news.gmane.org/gmane.comp.lang.perl.perl6.compiler>.
 
 Please submit bug reports to C<E<lt>pugsbugs@perl.orgE<gt>>.
 
+=head1 AUTHORS
+
+Audrey Tang C<E<lt>audreyt@audreyt.orgE<gt>>
+
 =head1 COPYRIGHT
 
-Copyright 2005, 2006 by Audrey Tang C<E<lt>audreyt@audreyt.orgE<gt>>.
+The author disclaims copyright to this source code.  In place of a legal
+notice, here is a blessing:
 
-This code is free software; you can redistribute it and/or modify it under
-the terms of either:
-
-    a) the GNU General Public License, version 2, or
-    b) the Artistic License, version 2.
-
-For the full license text, please see the F<GPL-2> and F<Artistic-2> files
-under the F<LICENSE> directory in the Pugs distribution.
+    May you do good and not evil.
+    May you find forgiveness for yourself and forgive others.
+    May you share freely, never taking more than you give.
 
 =cut
