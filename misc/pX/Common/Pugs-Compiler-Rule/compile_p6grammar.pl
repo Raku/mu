@@ -1,4 +1,6 @@
-# Usage: perl compile_p6grammar.pl Perl6GrammarFile.pm > Perl5PCRFile.pm
+# Usage: perl compile_p6grammar.pl GrammarFile.pm > GrammarFile.pmc
+# The .pm file is in Perl 6 syntax
+# The .pmc file is in Perl 5 Pugs::Compiler::Rule syntax
 
 package Grammar::Compiler;
 use Pugs::Compiler::Rule;
@@ -22,4 +24,40 @@ sub slurp {
     my $fh = IO::File->new(shift) || return;
     return join('', $fh->getlines);
 }
+
+__END__
+
+=head1 NAME
+
+compile_p6grammar.pl - Compile Perl6 Grammars to Perl5 Modules
+
+=head1 SYNOPSIS
+
+  # The .pm file is in Perl 6 syntax
+  # The .pmc file is in Perl 5 Pugs::Compiler::Rule syntax
+
+  perl compile_p6grammar.pl GrammarFile.pm > GrammarFile.pmc
+
+=head1 DESCRIPTION
+
+Used to convert grammars in Perl 6 syntax into Perl 5 modules.
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 Rules Spec: L<http://dev.perl.org/perl6/doc/design/syn/S05.html>
+
+=head1 COPYRIGHT
+
+Copyright 2006 by Nathan Gray.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=cut
 
