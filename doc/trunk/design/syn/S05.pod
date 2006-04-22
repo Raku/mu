@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 21 Apr 2006
+   Last Modified: 22 Apr 2006
    Number: 5
-   Version: 20
+   Version: 21
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> because they haven't been
@@ -550,7 +550,9 @@ subrule always fails, and no capture is attempted.
 
 =item *
 
-If the value is a number, the key is rematched ignoring any keys
+If the value is a number, this entry represents a "false match".
+The match position is set back to before the current false match, and the
+key is rematched using the same hash, but this time ignoring any keys
 longer than the number.  (This is measured in the default Unicode
 level in effect where the hash was declared, usually graphemes. If
 the current Unicode level is lower, the results are as if the string
@@ -651,16 +653,18 @@ C<< $<@foo> := <@foo> >> if you prefer to include the sigil in the key.
 
 =item *
 
-A leading C<%> matches like a bare hash except that each value is
+A leading C<%> matches like a bare hash except that a string value is
 always treated as a subrule, even if it is a string that must be compiled
-to a regex at match time.
+to a regex at match time.  (Numeric values may still indicate "false match".
+and a closure may do whatever it likes.)
 
 By default C<< <%foo> >> is captured into C<< $<foo> >>, but you can
 use the C<< <?%foo> >> form to suppress capture, and you can always say
 C<< $<%foo> := <%foo> >> if you prefer to include the sigil in the key.
 
-With both bare hash and hash in angles, the key is always skipped
-over before calling any subrule in the value.  That subrule may, however,
+With both bare hash and hash in angles, the key is counted as "matched"
+immediately; that is, the current match position is set to C<after> the key
+token before calling any subrule in the value.  That subrule may, however,
 magically access the key anyway as if the subrule had started before the
 key and matched with C<< <KEY> >> assertion.  That is, C<< $<KEY> >>
 will contain the keyword or token that this subrule was looked up under,
@@ -857,10 +861,29 @@ rare cases that need them you can use C<< <{ lc $regex }> >> etc.
 
 =item *
 
-The C<\G> sequence is gone.  Use C<:p> instead.  (Note, however, that
-it makes no sense to use C<:p> within a pattern, since every internal
-pattern is implicitly anchored to the current position.  You'll have
-to explicitly compare C<< <( .pos == $oldpos )> >> in that case.)
+The C<\G> sequence is gone.  Use C<:p> instead.  (Note, however,
+that it makes no sense to use C<:p> within a pattern, since every
+internal pattern is implicitly anchored to the current position.)
+To anchor to a particular position in the general case you can use
+the C<< <at($pos)> >> assertion to say that the current position
+is the same as the position object you supply.  Please remember
+that in Perl 6 string positions are generally I<not> integers, but
+objects that point to a particular place in the string regardless
+of whether you count by bytes or codepoints or graphemes.  If used
+with an integer, the C<at> assertion will assume you mean the current
+lexically scoped Unicode level, on the assumption that this integer was
+somehow generated in this same lexical scope.  If this is outside the
+current string's allowed abstraction levels, an exception is thrown.
+See S02 for more discussion of string positions.
+
+C<Buf> types are based on fixed-width cells and can therefore
+handle integer positions just fine, and treat them as array indices.
+In particular, C<buf8> AKA C<buf> is just an old-school byte string.
+However, as with matching on any C<Array> type, if you do matching on
+a C<buf32> and end up in the middle of a 32-bit cell, you'll still
+get an opaque C<StrPos> that remembers both the element offset and
+the position within that element.  If you force it to give you a
+numeric offset, I wouldn't blame it for giving you a fractional value.
 
 =item *
 

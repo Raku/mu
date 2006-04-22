@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 21 Apr 2006
+  Last Modified: 22 Apr 2006
   Number: 2
-  Version: 28
+  Version: 29
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -393,8 +393,35 @@ on overflow.
 
 =item *
 
-A C<Str> is a Unicode string object.  (There is no corresponding
-native C<str> type.)  A C<Buf> is a stringish view of an array of
+A C<Str> is a Unicode string object.  There is no corresponding native
+C<str> type.  However, since a C<Str> object may fill multiple roles,
+we say that a C<Str> keeps track of its minimum and maximum Unicode
+abstraction levels, and plays along nicely with the current lexical
+scope's idea of the ideal character, whether that is bytes, codepoints,
+graphemes, or characters in some language.  For all builtin operations,
+all C<Str> positions are reported as position objects, not integers.
+These C<StrPos> objects point into a particular string at a particular
+location independent of abstraction level.  The subtraction of two
+C<StrPos> objects gives a C<StrLen> object, which is still not an
+integer, because the string between two positions also has multiple
+integer interpretations depending on the units.  A given C<StrLen>
+may know that it represents 18 bytes, 7 codepoints, and 3 graphemes,
+but it knows this lazily because it actually just hangs onto the two
+C<StrPos> objects.  (It's much like a C<Range> object in that respect.)
+
+If you use integers as arguments where position objects are expected,
+it will be assumed that you mean the units of the current lexically
+scoped Unicode abstraction level.  (Which defaults to graphemes.)
+Otherwise you'll need to coerce to the proper units:
+
+    substr($string, 42.as(Bytes), 1.as(ArabicChars))
+
+Of course, such a dimensional number will fail if used on a string
+that doesn't provide the appropriate abstraction level.
+
+=item *
+
+A C<Buf> is a stringish view of an array of
 integers, and has no Unicode or character properties without explicit
 conversion to some kind of C<Str>.  (A C<buf> is the native counterpart.)
 Typically it's an array of bytes serving as a buffer.  Bitwise
@@ -406,6 +433,17 @@ As a generic type C<Buf> may be instantiated as (or bound to) any
 of C<buf8>, C<buf16>, or C<buf32> (or to any type that provide the
 appropriate C<Buf> interface), but when used to create a buffer C<Buf>
 defaults to C<buf8>.
+
+Unlike C<Str> types, C<Buf> types prefer to deal with integer string
+positions, and map these directly to the underlying compact array
+as indices.  That is, these are not necessarily byte positions--an
+integer position just counts over the number of underlying positions,
+where one position means one cell of the underlying integer type.
+Builtin string operations on C<Buf> types return integers and expect
+integers when dealing with positions.  As a limiting case, C<buf8> is
+just an old-school byte string, and the positions are byte positions.
+Note, though, that if you remap a section of C<buf32> memory to be
+C<buf8>, you'll have to multiply all your positions by 4.
 
 =back
 
