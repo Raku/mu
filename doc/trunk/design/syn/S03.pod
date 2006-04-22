@@ -535,6 +535,10 @@ arguments proceeds as if the C<Signature> were the formal parameters for
 a function, except that, unlike in a function call, the parameters
 are bound C<rw> by default rather than C<readonly>.  See Binding below.
 
+Note that C<temp> and C<let> are I<not> variable declarators, because
+their effects only take place at runtime.  Therefore, they take an ordinary
+lvalue object as their arguments.  See S04 for more details.
+
 There are a number of other declarators that are not variable
 declarators.  These include both type declarators:
 
