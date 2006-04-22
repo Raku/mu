@@ -1,0 +1,8 @@
+The beginning of a C version of Inline-Parrot
+Just run Parrot,pm to see it at work
+Feel free to commit at will. pmurias is the author of all this. 
+Visit #perl6 on freenode to flame him, or to get a commit bit from Audrey to help Pawel
+with bringing parrot to the perl5 world.
+Inline::Parrot uses nci for data exchange.
+namespace.pir contains remains remains of a failed attempt at accessing parrot namespaces.
+instead of perl5 ones. TIMTOWTDI I'm using nci now.

@@ -1,0 +1,3 @@
+TYPEMAP
+Parrot_Interp	T_PTROBJ
+PMC *	 T_PTROBJ

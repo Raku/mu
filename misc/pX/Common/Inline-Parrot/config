@@ -1,0 +1,4 @@
+#!/usr/bin/perl
+use strict;
+use ExtUtils::Embed;
+print perl_inc;
