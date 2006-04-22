@@ -15,7 +15,7 @@ Allison Randal <al@shadowed.net>
   Date: 21 Mar 2003
   Last Modified: 21 Apr 2006
   Number: 6
-  Version: 28
+  Version: 29
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -34,12 +34,17 @@ B<Submethods> (keyword: C<submethod>) are non-inheritable methods, or
 subroutines masquerading as methods. They have an invocant and belong to
 a particular kind or class.
 
-B<Rules> (keyword: C<rule>) are methods (of a grammar) that perform
+B<Regexes> (keyword: C<regex>) are methods (of a grammar) that perform
 pattern matching. Their associated block has a special syntax (see
-Synopsis 5).
+Synopsis 5).  (We also use the term "regex" for anonymous patterns
+of the traditional form.)
 
-B<Tokens> (keyword: C<token>) are rules that perform low-level
-pattern matching (and also enable rules to do whitespace dwimmery).
+B<Tokens> (keyword: C<token>) are regexes that perform low-level
+non-backtracking (by default) pattern matching.
+
+B<Rules> (keyword: C<rule>) are regexes that perform non-backtracking
+(by default) pattern matching (and also enable rules to do whitespace
+dwimmery).
 
 B<Macros> (keyword: C<macro>) are routines whose calls execute as soon
 as they are parsed (i.e. at compile-time). Macros may return another
@@ -297,13 +302,13 @@ Whitespace may never be part of the name (except as separator
 within a C<< <...> >> or C<«...»> slice, as in the example above).
 
 A null operator name does not define a null or whitespace operator, but
-a default matching rule for that syntactic category, which is useful when
+a default matching subrule for that syntactic category, which is useful when
 there is no fixed string that can be recognized, such as tokens beginning
 with digits.  Such an operator I<must> supply an C<is parsed> trait.
-The Perl grammar uses a default rule for the C<:1st>, C<:2nd>, C<:3rd>,
-etc. rule modifiers, something like this:
+The Perl grammar uses a default subrule for the C<:1st>, C<:2nd>, C<:3rd>,
+etc. regex modifiers, something like this:
 
-    sub rule_mod_external:<> ($x) is parsed(rx:p/\d+[st|nd|rd|th]/) {...}
+    sub regex_mod_external:<> ($x) is parsed(token { \d+[st|nd|rd|th] }) {...}
 
 Such default rules are attempted in the order declared.  (They always follow
 any rules with a known prefix, by the longest-token-first rule.)
@@ -1181,7 +1186,7 @@ the variable, or we can't correctly differentiate:
     my Dog $ ($fido, $spot) := twodogs();	# one twodog object
     my Dog :($fido, $spot)  := twodogs();	# one twodog object
 
-Subsignatures can be matched directly with rules by using C<:(...)>
+Subsignatures can be matched directly within regexes by using C<:(...)>
 notation.
 
     push @a, "foo";
@@ -1202,7 +1207,7 @@ If you want a parameter bound into C<$/>, you have to say C<< $<i> >>
 within the signature.  Otherwise it will try to bind an external C<$i>
 instead, and fail if no such variable is declared.
 
-Note that unlike a sub declaration, a rule-embedded signature has no
+Note that unlike a sub declaration, a regex-embedded signature has no
 associated "returns" syntactic slot, so you have to use C<< --> >>
 within the signature to specify the type of the tuple, or match as
 an arglist:
@@ -1234,7 +1239,7 @@ or
 
 and match a tuple-ish item with a single value of type Dog.
 
-Note also that bare C<\(1,2,3)> is never legal in a rule since the
+Note also that bare C<\(1,2,3)> is never legal in a regex since the
 first paren would try to match literally.
 
 =head2 Attributive parameters
@@ -1348,7 +1353,7 @@ Objects with these types have distinct C<.id> values.
     Method      Perl method
     Submethod   Perl subroutine acting like a method
     Macro       Perl compile-time subroutine
-    Rule        Perl pattern
+    Regex       Perl pattern
     Match       Perl match, usually produced by applying a pattern
     Package     Perl 5 compatible namespace
     Module      Perl 6 standard namespace
@@ -1603,7 +1608,9 @@ Marks a subroutine as returning an lvalue.
 
 =item C<is parsed>
 
-Specifies the rule by which a macro call is parsed.
+Specifies the subrule by which a macro call is parsed.  The parse
+always starts after the macro token, but the token may be referred
+to within the subrule as C<< $<KEY> >>.
 
 =item C<is cached>
 
@@ -1795,9 +1802,11 @@ parts of which may in fact be eventually bound into scalar context.
 
 =head2 The C<leave> function
 
-A C<return> statement causes the innermost surrounding subroutine, method,
-rule, macro, or multimethod to return.  Only declarations with an explicit
-keyword such as "sub" may be returned from.
+A C<return> statement causes the innermost surrounding subroutine,
+method, rule, token, regex (as a keyword), macro, or multimethod
+to return.  Only declarations with an explicit keyword such as "sub"
+may be returned from.  You may not return from a quotelike operator such
+as C<rx//>.
 
 To return from other types of code structures, the C<leave> function is used:
 
@@ -1807,6 +1816,13 @@ To return from other types of code structures, the C<leave> function is used:
     leave &foo <== 1,2,3;       # Return from innermost surrounding call to &foo
     leave Loop, :label<COUNT>;  # Same as: last COUNT;
 
+Note that the last is equivalent to
+
+    last COUNT;
+
+and, in fact, you can return a final loop value that way:
+
+    last COUNT <== 42;
 
 =head2 Temporization
 
@@ -2106,7 +2122,7 @@ the closing delimiter.  Writing a rule that looks for three opening
 delimiters in a row should not be a problem.  It has to be a special
 grammar rule, though, not a fixed token, since we need to be able to
 nest code blocks with different delimiters.  Likewise when parsing the
-inner expression, the inner parser rule is parameterized to know that
+inner expression, the inner parser subrule is parameterized to know that
 C<}}}> or whatever is its closing delimiter.)
 
 Unquoted expressions are inserted appropriately depending on the

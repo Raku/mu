@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 15 Apr 2006
+  Last Modified: 21 Apr 2006
   Number: 4
-  Version: 15
+  Version: 17
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -752,13 +752,13 @@ separate entries for lists.
     Hash    Array     hash value slice truth   match if $_{any(@$x)}
     Hash    any(list) hash key slice existence match if exists $_{any(list)}
     Hash    all(list) hash key slice existence match if exists $_{all(list)}
-    Hash    Rule      hash key grep            match if any($_.keys) ~~ /$x/
+    Hash    Regex     hash key grep            match if any($_.keys) ~~ /$x/
     Hash    Any       hash entry existence     match if exists $_{$x}
     Hash    .{Any}    hash element truth*      match if $_{Any}
     Hash    .<string> hash element truth*      match if $_<string>
     Array   Array     arrays are identical     match if $_ »~~« $x
     Array   any(list) list intersection        match if any(@$_) ~~ any(list)
-    Array   Rule      array grep               match if any(@$_) ~~ /$x/
+    Array   Regex     array grep               match if any(@$_) ~~ /$x/
     Array   Num       array contains number    match if any($_) == $x
     Array   Str       array contains string    match if any($_) eq $x
     Array   .[number] array element truth*     match if $_[number]
@@ -771,7 +771,7 @@ separate entries for lists.
     Any     Num       numeric equality         match if $_ == $x
     Any     Str       string equality          match if $_ eq $x
     Any     .method   method truth*            match if $_.method
-    Any     Rule      pattern match            match if $_ ~~ /$x/
+    Any     Regex     pattern match            match if $_ ~~ /$x/
     Any     subst     substitution match*      match if $_ ~~ subst
     Any     boolean   simple expression truth* match if true given $_
     Any     undef     undefined                match unless defined $_
@@ -846,10 +846,10 @@ defined (much like in Perl 5).  But generally you should be using
 C<fail> in such a case to return an exception object.  Exception
 objects also behave like undefined generators in list context.
 In any case, returning an unthrown exception is considered failure
-from the standpoint of C<let>.  Backtracking over a closure in a rule
+from the standpoint of C<let>.  Backtracking over a closure in a regex
 is also considered failure of the closure, which is how hypothetical
-variables are managed by rules.  (And on the flip side, use of C<fail>
-within a rule closure initiates backtracking of the rule.)
+variables are managed by regexes.  (And on the flip side, use of C<fail>
+within a regex closure initiates backtracking of the regex.)
 
 =head1 When is a closure not a closure
 

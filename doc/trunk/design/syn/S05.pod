@@ -2,7 +2,7 @@
 
 =head1 TITLE
 
-Synopsis 5: Rules
+Synopsis 5: Regexes and Rules
 
 =head1 AUTHORS
 
@@ -16,7 +16,7 @@ Allison Randal <al@shadowed.net>
    Date: 24 Jun 2002
    Last Modified: 21 Apr 2006
    Number: 5
-   Version: 19
+   Version: 20
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> because they haven't been
@@ -726,7 +726,7 @@ In any case of regex interpolation, if the value already happens to be
 a Regex object, it is not recompiled.  If it is a string, the compiled
 form is cached with the string so that it is not recompiled next
 time you use it unless the string changes.  (Any external lexical
-variable names must be rebound each time though.)  Rules may not be
+variable names must be rebound each time though.)  Subrules may not be
 interpolated with unbalanced bracketing.  An interpolated subrule
 keeps its own inner C<$/>, so its parentheses never count toward the
 outer regexes groupings.  (In other words, parenthesis numbering is always
@@ -1017,7 +1017,7 @@ like C<grep>:
 
      sub my_grep($selector, *@list) {
          given $selector {
-             when Rule  { ... }
+             when Regex { ... }
              when Code  { ... }
              when Hash  { ... }
              # etc.
@@ -1025,7 +1025,7 @@ like C<grep>:
      }
 
 Using C<{...}> or C</.../> in the scalar context of the first argument
-causes it to produce a C<Code> or C<Rule> object, which the switch
+causes it to produce a C<Code> or C<Regex> object, which the switch
 statement then selects upon.
 
 =item *
