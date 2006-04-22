@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 21 Apr 2006
+  Last Modified: 22 Apr 2006
   Number: 3
-  Version: 19
+  Version: 20
 
 =head1 Changes to existing operators
 
@@ -28,12 +28,13 @@ Huffman-code the language, while others have changed precedence.
 =item * The string concatenation C<.> becomes C<~>.  Think of it as
 "stitching" the two ends of its arguments together.
 
-=item * Unary C<~> now imposes a string context on its argument, and
-C<+> imposes a numeric context (as opposed to being a no-op in Perl 5).
-Along the same lines, C<?> imposes a boolean context, and C<*> imposes
-a list context.   Unary sigils impose the container context implied
-by their sigil.  As with Perl 5, however, C<$$foo[bar]> parses as
-C<$($foo)[bar]>, so you need C<$($foo[bar])> to mean the other way.
+=item * Unary C<~> now imposes a string (C<Str>) context on its argument, and
+C<+> imposes a numeric (C<Num>) context (as opposed to being a no-op in Perl
+5).  Along the same lines, C<?> imposes a boolean (C<Bool>) context, and C<*>
+imposes an function-arguments (C<Capture>) context.   Unary sigils impose the
+container context implied by their sigil.  As with Perl 5, however,
+C<$$foo[bar]> parses as C<$($foo)[bar]>, so you need C<$($foo[bar])> to mean
+the other way.
 
 =item * Bitwise operators get a data type prefix: C<+>, C<~>, or C<?>.
 For example, C<|> becomes either C<+|> or C<~|> or C<?|>, depending on
@@ -561,19 +562,20 @@ and code declarators:
 
 These all have their uses and are explained in subsequent synopses.
 
-=head1 Flattening
+=head1 Argument List Interpolating
 
-Since typeglobs are being removed, unary C<*> may now serve as a
-general-purpose flattening operator.  It can be used to "flatten" an
-Array or Hash into the current call's argument list (as positional
-and named arguments respectively), usually to allow their contents to be used
-as the arguments of a subroutine call.
+Since typeglobs are being removed, unary C<*> may now serve as an
+interpolator, by casting its single operand to a C<Capture> object
+and insert it into the current argument list.
+
+It can be used to interpolate an C<Array> or C<Hash> into the current
+call, as positional and named arguments respectively.
 
 Note that those arguments still must comply with the subroutine's
 signature, but the presence of C<*> defers that test until run time for
 that argument (and for any subsequent arguments):
 
-    my @args = (\@foo, @bar);
+    my @args = (scalar @foo, @bar);
     push *@args;
 
 is equivalent to:
@@ -597,6 +599,11 @@ explicitly flatten it in any of these ways:
     push @foo, @$bar;
     push @foo, $bar[];
 
+The first form works by interpolating C<$bar>'s elements into positional
+arguments to C<push>.  The last two forms works because the slurpy
+array in C<push>'s signature flattens the C<Array> object in positional
+argument.
+
 Note that the last two forms also allow you to specify list context on
 assignment:
 
@@ -614,9 +621,13 @@ returning no elements.  Likewise for C<{}> and C<.{}> on hashes,
 not to mention the C<< <> >>, C<< .<> >>, C<«»>, and C<.«»>
 constant and interpolating slice subscripting forms.
 
-The C<*> operator flattens lazily.  To get an immediate flattening like
-Perl 5 does, use unary C<**> instead.  You may use either of them on
-a scalar iterator to force it to iterate.
+The C<*> operator interpolates lazily for C<Array> and C<Range> objects.
+To get an immediate interpolation like Perl 5 does, use unary C<**> instead:
+
+    func(*(1..Inf));    # works fine
+    func(**(1..Inf));   # never terminates
+
+You may use either of them on a scalar iterator to force it to iterate.
 
 =head1 Piping operators
 
