@@ -12,14 +12,14 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 7 Apr 2006
+  Last Modified: 21 Apr 2006
   Number: 3
-  Version: 18
+  Version: 19
 
-=head1 Operator renaming
+=head1 Changes to existing operators
 
 Several operators have been given new names to increase clarity and better
-Huffman-code the language:
+Huffman-code the language, while others have changed precedence.
 
 =over
 
@@ -28,10 +28,12 @@ Huffman-code the language:
 =item * The string concatenation C<.> becomes C<~>.  Think of it as
 "stitching" the two ends of its arguments together.
 
-=item * Unary C<~> now imposes a string context on its argument,
-and C<+> imposes a numeric context (as opposed to being a no-op
-in Perl 5).  Along the same lines, C<?> imposes a boolean context,
-and C<*> imposes a list context.
+=item * Unary C<~> now imposes a string context on its argument, and
+C<+> imposes a numeric context (as opposed to being a no-op in Perl 5).
+Along the same lines, C<?> imposes a boolean context, and C<*> imposes
+a list context.   Unary sigils impose the container context implied
+by their sigil.  As with Perl 5, however, C<$$foo[bar]> parses as
+C<$($foo)[bar]>, so you need C<$($foo[bar])> to mean the other way.
 
 =item * Bitwise operators get a data type prefix: C<+>, C<~>, or C<?>.
 For example, C<|> becomes either C<+|> or C<~|> or C<?|>, depending on
@@ -42,13 +44,17 @@ bitwise NOT is like an exclusive-or against solid ones.  Note that C<?^>
 is functionally identical to C<!>.  C<?|> differs from C<||> in that
 C<?|> always returns a standard boolean value (either 1 or 0), whereas
 C<||> return the actual value of the first of its arguments that is
-true.
+true.  Bitwise string operators may only be applied to Buf types or
+similar compact integer arrays, and treat the entire chunk of memory
+as a single huge integer.
 
 =item * C<x> splits into two operators: C<x> (which concatenates repetitions 
 of a string to produce a single string), and C<xx> (which creates a list of 
-repetitions of a list or scalar).
+repetitions of a list or scalar).  Conjecture: the C<xxx> "infix" operator
+takes no right argument and is equivalent to C<xx Inf>.
 
-=item * Trinary C<? :> becomes C<?? !!>.
+=item * Trinary C<? :> becomes C<?? !!>.  It is a syntax error to use an
+operator in the middle that binds looser in precedence, such as C<=>.
 
 =item * C<qw{ ... }> gets a synonym: C< < ... > >, and an interpolating
 variant, C<«...»>.
@@ -68,6 +74,29 @@ C<ff> operator.  (C<..> now always produces a Range object
 even in scalar context.)  The C<ff> operator may take a caret on
 either end to exclude either the beginning or ending.  There is
 also a corresponding C<fff> operator with Perl 5's C<...> semantics.
+
+=item * All comparison operators are unified at the same precedence level.
+See Chained Comparisons below.
+
+=item * The list assignment operator now parses on the right like
+any other list operator, so you don't need parens on the right side of:
+
+    @foo = 1,2,3;
+
+You do still need them on the left for
+
+    ($a,$b,$c) = 1,2,3;
+
+since list assignment operators are of assignment precedence to their left.
+
+=item * The scalar assignment operator still parses as it did before, so
+
+    loop ($a = 1, $b = 2; ; $a++, $b++) {...}
+
+still works fine.  The distinction between scalar and list assignment
+is pretty much identical to the way Perl 5 does it.  If there are
+parens around the left side, or if the sigil of the variable is C<@>
+or C<%>, it's a list assignment.  Otherwise it's a scalar assignment.
 
 =back
 
@@ -118,9 +147,8 @@ the Perl 6 parser defines an C<< infix:<=~> >> macro which always fails at
 compile time with a message directing the user either to use C<~~> or C<~=> instead,
 or to put a space between if they really wanted to assign a stringified value.)
 
-=item * "Unary" C<.> calls its single argument (which must be a method, or a
-dereferencer for a hash or array) on C<$_>.  (It's not really a unary operator,
-so we put it in quotes.)
+=item * "Unary" C<.> calls its single argument (which must a postfix operator)
+on C<$_>.  (It's not really a unary operator, so we put it in quotes.)
 
 =item * The C<..> range operator has variants with C<^> on either
 end to indicate exclusion of that endpoint from the range.  It always
@@ -136,19 +164,30 @@ is always a null range, as is C<1^..^2>.  To reverse a range use:
 as well.)
 
 Because C<Range> objects are lazy, they do not automatically generate
-a list.  So smart matching against a Range object smartmatches the
-endpoints in the domain of the object being matched, so C<< 1.5 ~~
-1^..^2 >> is true.  (But C<< 2.1 ~~ 1..2 >> is false.)
+a list.  So smart matching against a C<Range> object smartmatches the
+endpoints in the domain of the object being matched, so fractional
+numbers are C<not> truncated before comparison to integer ranges:
+
+    1.5 ~~ 1^..^2  # true, equivalent to 1 < 1.5 < 2
+    2.1 ~~ 1..2    # false, equivalent to 1 <= 2.1 <= 2
 
 =item * The unary C<^> operator generates a range from C<0> up to
-one less than its argument.  so C<^4> is short for C<0..^4> or C<0..3>.
+one less than its argument.  So C<^4> is short for C<0..^4> or C<0..3>.
 
     for ^4 { say $_ } # 0, 1, 2, 3
 
-=item * C<...> is a unary postfix operator that constructs a semi-infinite
-(and lazily evaluated) list, starting at the value of its single argument.
-It should not have any trailing whitespace, or it will be confused with
-a "long dot".
+If applied to a list, it generates a multidimensional set of subscripts.
+
+    for ^(3,3) { ... } # (0,0)(0,1)(0,2)(1,0)(1,1)(1,2)(2,0)(2,1)(2,2)
+
+If applied to a type name, it indicates the metaclass instance instead,
+so C<^Moose> is short for C<Moose.meta>.  It still kinda means "what
+is this thing's domain" in an abstract sort of way.
+
+=item * C<...> where an operator is expected is either a unary postfix
+or an infix operator that takes no right argument.  It constructs a
+semi-infinite (and lazily evaluated) list, starting at the value of
+its single argument.
 
 =item * However, C<...> where a term is expected is the "yada,
 yada, yada" prefix operator, which is used as the body in function
@@ -156,12 +195,14 @@ prototypes.  It complains bitterly (by calling C<fail>) if it is
 ever executed.  Variant C<???> calls C<warn>, and C<!!!> calls C<die>.
 The argument is optional, but if provided, is passed onto the C<warn>,
 C<fail>, or C<die>.  Otherwise the system will make up a message for
-you based on the context.
+you based on the context.  We can't be responsible for what it might
+say.
 
-=item * In addition, to the ordinary C<.> method invocation, there are
-variants C<.*>, C<.?>, and C<.+> to control how multiple parent methods
+=item * In addition to the ordinary C<.> method invocation, there are
+variants C<.*>, C<.?>, and C<.+> to control how multiple related methods
 of the same name are handled.  The C<.=> operator does inplace modification
-of the object on the left.  The C<.^> operator calls a class metamethod.
+of the object on the left.  The C<.^> operator calls a class metamethod;
+C<foo.^bar> is short for C<foo.meta.bar>.
 
 =item * Unary C<=> reads lines from a filehandle or filename, or in general
 iterates an iterator.
@@ -183,7 +224,7 @@ If one argument is insufficiently dimensioned, Perl "upgrades" it:
 
      (3,8,2,9,3,8) >>-<< 1;          # (2,7,1,8,2,7)
 
-When using a unary operator, only put it on the operand's side:
+When using a unary operator, only put it on the side of the single operand:
 
      @negatives = -« @positives;
 
@@ -201,6 +242,12 @@ Hyper operators are defined recursively on arrays, so:
                                  # == [[-1, -2], -3]
     [[1, 2], 3] »+« [4, [5, 6]]  #    [[1,2] »+« 4, 3 »+« [5, 6]]
                                  # == [[5, 6], [8, 9]]
+
+You are not allowed to define your own hyper operators, because they are
+supposed to have consistent semantics derivable entirely from the modified
+scalar operator.  If you're looking for a mathematical vector product, this
+isn't where you'll find it.  A hyperoperator is one of the ways that you
+can promise to the optimizer that your code is parallelizable.
 
 =head1 Reduction operators
 
@@ -281,7 +328,7 @@ for operators like C<< < >> that don't return the same type as they
 take, so these kinds of operators overload the single-argument case
 to return something more meaningful.  All the comparison operators
 return a boolean for either 1 or 0 arguments.  Negated operators,
-return Bool::False, and all the rest return Bool::True.
+return C<Bool::False>, and all the rest return C<Bool::True>.
 
 This metaoperator can also be used on the semicolon second-dimension
 separator:
@@ -407,9 +454,11 @@ iterations and they can be run in any order or even in parallel.
 Perl 6 supports the natural extension to the comparison operators,
 allowing multiple operands.
 
-     if 3 < $roll <= 6              { print "High roll" }
+    if 1 < $a < 100 { say "Good, you picked a number *between* 1 and 100." }
 
-     if 1 <= $roll1 == $roll2 <= 6  { print "Doubles!" }
+    if 3 < $roll <= 6              { print "High roll" }
+
+    if 1 <= $roll1 == $roll2 <= 6  { print "Doubles!" }
 
 Note: any operator beginning with C<< < >> must have whitespace
 in front of it, or it will be interpreted as a hash subscript instead.
@@ -434,6 +483,79 @@ compile time.
 There is also an identity test, C<=:=>, which tests whether two names
 are bound to the same underlying variable.  C<$x =:= $y> would return
 true in the above example.
+
+The binding fails if the type of the variable being bound is sufficiently
+inconsistent with the type of the current declaration.
+
+=head1 Declarators
+
+The list of variable declarators has expanded from C<my> and C<our>
+to include:
+
+    my $foo		# ordinary lexically scoped variable
+    our $foo		# lexically scoped alias to package variable
+    has $foo		# object attribute
+    state $foo		# persistent lexical (cloned with closures)
+    constant $foo	# lexically scoped compile-time constant
+
+Variable declarators such as C<my> now take a C<Signature> as their
+argument.  The parentheses around the signature may be omitted for a
+simple declaration that declares a single variable, along with its
+associated type and traits.  Parentheses must always be used when
+declaring multiple parameters:
+
+    my $a;		# okay
+    my ($b, $c);	# okay
+    my $b, $c;		# wrong: "Use of undeclared variable: $c"
+
+The syntax for a C<Signature> when one isn't expected is:
+
+    :(Dog $a, *@c)
+
+The colon (and sometimes the parens) may be omitted within declarators
+where a signature is expected, for instance in the formal list of a loop
+block:
+
+    for @dogpound -> Dog $fido { ... }
+
+If a C<Signature> is assigned to (whether declared or colon form), the
+signature is converted to a list of lvalue variables and the ordinary
+rules of assignment apply, except that the evaluation of the right
+side and the assignment happens at time determined by the declarator.
+(With C<my> this is always when an ordinary assignment would happen.)
+If the signature is too complicated to convert to an assignment,
+a compile-time error occurs.  Assignment to a signature makes the
+same scalar/list distinction as ordinary assignment, so
+
+    my $a = foo();	# foo in scalar context
+    my ($a) = foo();	# foo in list context
+
+If a C<Signature> is bound to an argument list, then the binding of the
+arguments proceeds as if the C<Signature> were the formal parameters for
+a function, except that, unlike in a function call, the parameters
+are bound C<rw> by default rather than C<readonly>.  See Binding below.
+
+There are a number of other declarators that are not variable
+declarators.  These include both type declarators:
+
+    package Foo
+    module Foo
+    class Foo
+    role Foo
+    subset Foo
+
+and code declarators:
+
+    sub foo
+    method foo
+    submethod foo
+    multi foo
+    proto foo
+    regex foo
+    rule foo
+    token foo
+
+These all have their uses and are explained in subsequent synopses.
 
 =head1 Flattening
 
@@ -464,8 +586,8 @@ In list context, a Scalar holding an Array object does not flatten.  Hence
     $bar = @bar;
     push @foo, $bar;
 
-merely pushes a single Array object onto C<@foo>.  You can explicitly flatten
-it in any of these ways:
+merely pushes a single C<Array> object onto C<@foo>.  You can
+explicitly flatten it in any of these ways:
 
     push @foo, *$bar;
     push @foo, @$bar;
@@ -604,7 +726,7 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
     ternary             ?? !!
     assignment          = := ::= += -= **= xx= etc. (and also =>)
     list item separator , ¥
-    list op (rightward) <== print push any all true not etc.
+    list op (rightward) <== print push any all true not etc. and ()= rightward
     pipe forward        ==>
     loose and           and
     loose or            or xor err
