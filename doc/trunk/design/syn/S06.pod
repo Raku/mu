@@ -15,7 +15,7 @@ Allison Randal <al@shadowed.net>
   Date: 21 Mar 2003
   Last Modified: 21 Apr 2006
   Number: 6
-  Version: 27
+  Version: 28
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -733,9 +733,9 @@ Some functions take more than one lists of positional and/or named arguments,
 that they wish not to be flattened into one list.  For instance, C<zip()> wants
 to iterate several lists in parallel, while array and hash subscripts want to
 process multidimensional slices.  The set of underlying argument lists may be
-bound to a single array parameter declared with a C<;> twigil:
+bound to a single array parameter declared with a double C<@@> sigil:
 
-    sub foo (*@;slices) { ... }
+    sub foo (*@@slices) { ... }
 
 Note that this is different from
 
@@ -743,20 +743,24 @@ Note that this is different from
 
 insofar as C<\$slices> is bound to a single argument-list object that
 makes no commitment to processing its structure (and maybe doesn't
-even know its own structure yet), while C<*@;slices> has to create
+even know its own structure yet), while C<*@@slices> has to create
 an array that binds the incoming dimensional lists to the array's
 dimensions, and make that commitment visible to the rest of the scope
-via the twigil so that constructs expecting multidimensional lists
+via the sigil so that constructs expecting multidimensional lists
 know that multidimensionality is the intention.
 
 It is allowed to specify a return type:
 
-    sub foo (*@;slices --> Num) { ... }
+    sub foo (*@@slices --> Num) { ... }
 
 The invocant does not participate in multi-dimensional argument lists,
-so C<self> is not present in any of the C<@;slices> below:
+so C<self> is not present in any of the C<@@slices> below:
 
-    method foo (*@;slices) { ... }
+    method foo (*@@slices) { ... }
+
+The C<@@> sigil is just a variant of the C<@> sigil, so C<@@slices>
+and C<@slices> are really the same array.  In particular, C<@@_> is
+really the good old C<@_> array viewed as multidimensional.
 
 =head2 Zero-dimensional argument list
 
@@ -764,9 +768,9 @@ If you call a function without parens and supply no arguments, the
 argument list becomes a zero-dimensional slice.  It differs from
 C<\()> in several ways:
 
-    sub foo (*@;slices) {...}
-    foo;        # +@;slices == 0
-    foo();      # +@;slices == 1
+    sub foo (*@@slices) {...}
+    foo;        # +@@slices == 0
+    foo();      # +@@slices == 1
 
     sub bar (\$args = \(1,2,3)) {...}
     bar;        # $args === \(1,2,3)
@@ -873,15 +877,15 @@ Note how the pipes are concatenated in C<@foo> so that C<@foo>
 is a list of 6 elements.  This is the default behavior.  However,
 sometimes you want to capture the outputs as a list of two iterators,
 namely the two iterators that represent the two input pipes.  You can
-get at those two iterators by using the name C<@;foo> instead, where
+get at those two iterators by using the name C<@@foo> instead, where
 the "pipe" twigil marks a multidimensional array, that is, an
 array of slices.
 
-    0...       ==> @;foo;
-    'a'...     ==> @;foo;
-    pidigits() ==> @;foo;
+    0...       ==> @@foo;
+    'a'...     ==> @@foo;
+    pidigits() ==> @@foo;
 
-    for zip(@;foo) { say }
+    for zip(@@foo) { say }
 
 	[0,'a',3]
 	[1,'b',1]
@@ -891,19 +895,19 @@ array of slices.
 	[5,'f',9]
 	...
 
-Here C<@;foo> is an array of three iterators, so
+Here C<@@foo> is an array of three iterators, so
 
-    zip(@;foo)
+    zip(@@foo)
 
 is equivalent to
 
-    zip(@;foo[0]; @;foo[1]; @;foo[2])
+    zip(@@foo[0]; @@foo[1]; @@foo[2])
 
 A semicolon inside brackets is equivalent to stacked pipes.  The code above
 could be rewritten as:
 
-    (0...; 'a'...; pidigits()) ==> my @;foo;
-    for @;foo.zip { say }
+    (0...; 'a'...; pidigits()) ==> my @@foo;
+    for @@foo.zip { say }
 
 which is in turn equivalent to
 
@@ -926,41 +930,41 @@ have "cat" semantics.  If you say
 then you get 0,1,2,'a','b','c'.  If you have a multidim array, you
 can ask for cat semantics explicitly with cat():
 
-    (0..2; 'a'..'c') ==> my @;tmp;
-    for @;tmp.cat { say }
+    (0..2; 'a'..'c') ==> my @@tmp;
+    for @@tmp.cat { say }
 
 As we saw earlier, "zip" produces little arrays by taking one element
 from each list in turn, so
 
-    (0..2; 'a'..'c') ==> my @;tmp;
-    for @;tmp.zip { say }
+    (0..2; 'a'..'c') ==> my @@tmp;
+    for @@tmp.zip { say }
 
 produces [0,'a'],[1,'b'],[2,'c'].  If you don't want the subarrays, then
 use C<each()> instead:
 
-    (0..2; 'a'..'c') ==> my @;tmp;
-    for @;tmp.each { say }
+    (0..2; 'a'..'c') ==> my @@tmp;
+    for @@tmp.each { say }
 
 and then you just get 0,'a',1,'b',2,'c'.  This is good for
 
-    for @;tmp.each -> $i, $a { say "$i: $a" }
+    for @@tmp.each -> $i, $a { say "$i: $a" }
 
-In list context the C<@;foo> notation is really a shorthand for C<[;](@;foo)>.
-In particular, you can use C<@;foo> to interpolate a multidimensional slice
+In list context the C<@@foo> notation is really a shorthand for C<[;](@@foo)>.
+In particular, you can use C<@@foo> to interpolate a multidimensional slice
 in an array or hash subscript.
 
-Every lexical scope gets its own implicitly declared C<@;_> variable,
-which is the default receiver.  So instead of using C<@;foo> above
-you can just say
+Every lexical scope can use its own implicitly declared C<@_> variable
+as the default receiver.  So instead of using C<@@foo> above you can
+just say
 
     0...       ==> ;
     'a'...     ==> ;
     pidigits() ==> ;
 
     # outputs "(0, 'a', 3)\n"...
-    for zip(@;_) { .perl.say }
+    for zip(@@_) { .perl.say }
 
-If C<@;_> is currently empty, then C<for zip(@;_) {...}> would act on a
+If C<@@_> is currently empty, then C<for zip(@@_) {...}> would act on a
 zero-dimensional slice (i.e. C<for (zip) {...}>), and output nothing
 at all.
 
@@ -970,13 +974,13 @@ left to right in general regardless of the position of the receiver.
 So
 
     ('a'...; 0...) ==> ;
-     for zip(@;_ <== @foo) -> [$a, $i, $x] { ...}
+     for zip(@@_ <== @foo) -> [$a, $i, $x] { ...}
 
 is the same as
 
     'a'... ==> ;
      0...  ==> ;
-     for zip(@;_ <== @foo) -> [$a, $i, $x] { ...}
+     for zip(@@_ <== @foo) -> [$a, $i, $x] { ...}
 
 which is the same as
 
@@ -986,12 +990,12 @@ And
 
     @foo ==> ;
     0... ==> ;
-    for each(@;_) -> $x, $i { ...}
+    for each(@@_) -> $x, $i { ...}
 
 is the same as
 
     0... ==> ;
-    for each(@foo; @;_) -> $x, $i { ...}
+    for each(@foo; @@_) -> $x, $i { ...}
 
 which is the same as
 
@@ -1007,9 +1011,9 @@ Also note that these come out to identical for ordinary arrays:
     @foo.each
     @foo.cat
 
-The C<@;($foo)> coercer can be used to pull a multidim out of some
-object that contain one, such as a C<Capture> or C<Match> object.  Like
-C<@()>, C<@;()> defaults to C<@;($/)>, and returns a multidimensional
+The C<@@($foo)> coercer can be used to pull a multidim out of some
+object that contains one, such as a C<Capture> or C<Match> object.  Like
+C<@()>, C<@@()> defaults to C<@@($/)>, and returns a multidimensional
 view of any match that repeatedly applies itself with C<:g> and
 the like.  In contrast, C<@()> would flatten those into one list.
 

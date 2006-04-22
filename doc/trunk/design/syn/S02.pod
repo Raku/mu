@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
   Last Modified: 21 Apr 2006
   Number: 2
-  Version: 26
+  Version: 27
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -427,6 +427,7 @@ structural type of a variable:
     %   unordered hash (associative array)
     &   code
     ::  package/module/class/role/subset/enum/type
+    @@  multislice view of @
 
 Within a declaration, the C<&> sigil also declares the visibility of the
 subroutine name without the sigil within the scope of the declaration.
@@ -464,7 +465,6 @@ is subject to:
     $=foo       pod variable
     $<foo>      match variable, short for $/{'foo'}
     $!foo       explicitly private attribute (mapped to $foo though)
-    @;foo       multislice
 
 Most variables with twigils are implicitly declared or assumed to
 be declared in some other scope, and don't need a "my" or "our".
@@ -1402,7 +1402,7 @@ curlies, you can explicitly remove the capability:
 
     qq:c(0) "Here are { $two uninterpolated } curlies";
 
-or eqivalently:
+or equivalently:
 
     qq:!c "Here are { $two uninterpolated } curlies";
 

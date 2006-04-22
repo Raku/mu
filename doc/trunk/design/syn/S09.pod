@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
   Last Modified: 21 Apr 2006
   Number: 9
-  Version: 8
+  Version: 9
 
 =head1 Overview
 
@@ -184,20 +184,34 @@ which is equivalent to
 
     @array.postcircumfix:<[ ]>( <== @x[0] <== @x[1] <== @x[2]...);
 
-Alternately, use a multislice array, indicated by a C<;> twigil:
+Alternately, use a multislice array, indicated by a double C<@@> sigil:
 
-    @array[@;x]
+    @array[@@x]
 
-Multislice arrays have the advantage of being able to collect individual
-pipes and keep them distinct:
+Multislice arrays can keep track of their dimensionality as they
+are being defined.  Use of multislice syntax can then pull out those
+distinct dimensions:
 
-    my @;x;
-    @;x <==  %hash.keys.grep: {/^X/};
-    @;x <== =<>;
-    @;x <== 1...;
-    @;x <== gather { loop { take rand 100 } };
+    my @@x;
+    @@x <==  %hash.keys.grep: {/^X/};
+    @@x <== =<>;
+    @@x <== 1...;
+    @@x <== gather { loop { take rand 100 } };
 
-    %hash{@;x}
+    %hash{@@x}
+
+Conjecture, since @@x and @x are really the same object, any array can
+keep track of its dimensionality, and it only matters how you use it
+in the end:
+
+    my @x;
+    @x <==  %hash.keys.grep: {/^X/};
+    @x <== =<>;
+    @x <== 1...;
+    @x <== gather { loop { take rand 100 } };
+
+    %hash{@@x}	# multidimensional
+    %hash{@x}	# flattened
 
 To declare a multidimensional array, you may declare it with a signature as
 if it were a function returning one of its entries:
@@ -240,7 +254,7 @@ the possible values, so the following are all equivalent:
 You can pass a multislice for the shape as well:
 
     my int @ints[[;]@fooshape];
-    my int @ints[@;fooshape];	# same thing
+    my int @ints[@@fooshape];	# same thing
 
 Again, the C<[;]> list operator interpolates a list into a semicolon
 list, which we do for consistency with subscript notation, not because
@@ -278,12 +292,12 @@ or by both:
 
 =head1 PDL support
 
-An array C<@array> can be tied to a piddle at declaration time:
+An array C<@array> can be tied to a PDL at declaration time:
 
-    my num @array[@;mytensorshape] is Piddle;
-    my @array is Piddle(:shape(^2;^2;^2;^2)) of int8;
+    my num @array[@@mytensorshape] is PDL;
+    my @array is PDL(:shape(^2;^2;^2;^2)) of int8;
 
-Piddles are allowed to assume a type of C<num> by default rather than
+PDLs are allowed to assume a type of C<num> by default rather than
 the usual simple scalar.  (And in general, the type info is merely
 made available to the "tie" implementation to do with what it will.
 Some data structures may ignore the "of" type and just store everything
@@ -296,7 +310,7 @@ binding rather than assignment to set one without copying:
 
     @b := @a[0...:by(2)]
 
-With piddles in particular, this might alias each of the individual
+With PDLs in particular, this might alias each of the individual
 elements rather than the array as a whole.  So modifications to @b
 are likely to be reflected back into @a.  (But maybe the PDLers will
 prefer a different notation for that.)
@@ -331,7 +345,7 @@ A three-dimensional slice might look like this:
 It is up to the implementation of C<@x> to decide how aggressively
 or lazily this subscript is evaluated, and whether the slice entails
 copying.  (The PDL folks will generally want it to merely produce a
-virtual piddle where the new array aliases its values back into the
+virtual PDL where the new array aliases its values back into the
 old one.)
 
 Of course, a single element can be selected merely by providing a single
@@ -463,7 +477,7 @@ resembling this:
 where that turns into something like this:
 
     role PDL_stuff[::TYPE] {
-	multi sub inner (TYPE @a, TYPE @b --> TYPE) {
+	multi inner (TYPE @a, TYPE @b --> TYPE) {
 	    my $n = @a.shape[0];	# or maybe $n is just a parameter
 	    assert($n == @b.shape[0]);	#  and this is already checked by PDL
 	    my TYPE $tmp = 0;

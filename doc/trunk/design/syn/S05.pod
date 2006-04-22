@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 20 Apr 2006
+   Last Modified: 21 Apr 2006
    Number: 5
-   Version: 18
+   Version: 19
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> because they haven't been
@@ -31,8 +31,8 @@ current (or most recent) match is through this variable, even when
 it doesn't look like it.  The individual capture variables (such as C<$0>,
 C<$1>, etc.) are just elements of C<$/>.
 
-By the way, the numbered capture variables now start at C<$0> rather than
-C<$1>.  See below.
+By the way, unlike in Perl 5, the numbered capture variables now
+start at C<$0> instead of C<$1>.  See below.
 
 =head1 Unchanged syntactic features
 
@@ -243,7 +243,7 @@ in a scalar context.  The first match at any position is returned.
      $str = "abracadabra";
 
      if $str ~~ m:overlap/ a (.*) a / {
-         @substrings = @;();    # bracadabr cadabr dabr br
+         @substrings = @@();    # bracadabr cadabr dabr br
      }
 
 =item *
@@ -415,7 +415,7 @@ and backtracking makes the right argument vary faster than the left.
 =item *
 
 C<(...)> still delimits a capturing group. However the ordering of these
-groups is hierarchical, rather than linear. See L<Nested subpattern captures>.
+groups is hierarchical rather than linear. See L<Nested subpattern captures>.
 
 =item *
 
@@ -502,7 +502,7 @@ is like a Perl 5:
 
      / \Q$var\E /
 
-However, if C<$var> contains a Regex object, rather attempting to
+However, if C<$var> contains a Regex object, instead of attempting to
 convert it to a string, it is called as a subrule, as if you said
 C<< <$var> >>.  (See assertions below.)  This form does not capture,
 and it fails if C<$var> is tainted.
@@ -642,7 +642,7 @@ multis rather than methods.  This form is not captured by default.
 
 A leading C<@> matches like a bare array except that each element is
 treated as a subrule (string or Regex object) rather than as a literal.
-That is, a string is forced to be compiled as a subrule rather than
+That is, a string is forced to be compiled as a subrule instead of being
 matched literally.  (There is no difference for a Regex object.)
 
 By default C<< <@foo> >> is captured into C<< $<foo> >>, but you can
@@ -978,7 +978,7 @@ constructor.  In fact, that analogy will run I<very> deep in Perl 6.
 =item *
 
 Just as a raw C<{...}> is now always a closure (which may still
-execute immediately in certain contexts and be passed as a reference
+execute immediately in certain contexts and be passed as an object
 in others), so too a raw C</.../> is now always a Regex object (which
 may still match immediately in certain contexts and be passed as an
 object in others).
@@ -1025,7 +1025,7 @@ like C<grep>:
      }
 
 Using C<{...}> or C</.../> in the scalar context of the first argument
-causes it to produce a C<Code> or C<Rule> reference, which the switch
+causes it to produce a C<Code> or C<Rule> object, which the switch
 statement then selects upon.
 
 =item *
@@ -1634,8 +1634,7 @@ made by the repeated subpattern.
 
 Because a quantified subpattern returns a list of C<Match> objects, the
 corresponding array element for the quantified capture will store a
-reference to a (nested) array, rather than a single C<Match> object.
-For example:
+(nested) array rather than a single C<Match> object.  For example:
 
      if m/ (\w+) \: (\w+ \s+)* / {
          say "Key:    $0";         # Unquantified --> single Match
@@ -1669,7 +1668,7 @@ top-level scope. Hence their top-level designations: C<$0> and C<$1>.
 =item *
 
 However, because the two subpatterns are inside a quantified
-structure, C<$0> and C<$1> will each contain a reference to an array.
+structure, C<$0> and C<$1> will each contain an array.
 The elements of that array will be the submatches returned by the
 corresponding subpattern on each iteration of the non-capturing
 parentheses. For example:
@@ -1764,7 +1763,7 @@ C<|>. Hence:
                   /;
 
 This means that if the second alternation matches, the C<@$/> array will
-contain C<('every', 'green', 'BEM', 'devours', 'faces')>, rather than
+contain C<('every', 'green', 'BEM', 'devours', 'faces')> rather than
 C<(undef, undef, undef, undef, undef, undef, 'every', 'green', 'BEM',
 'devours', 'faces')> (as the same regex would in Perl 5).
 
@@ -1854,8 +1853,8 @@ the thing.
 If a subrule appears two (or more) times in any branch of a lexical
 scope (i.e. twice within the same subpattern and alternation), or if the
 subrule is quantified anywhere within a given scope, then its
-corresponding hash entry is always assigned a reference to an array of
-C<Match> objects, rather than a single C<Match> object.
+corresponding hash entry is always assigned an array of
+C<Match> objects rather than a single C<Match> object.
 
 =item *
 
@@ -2082,7 +2081,7 @@ If a numbered alias is used instead of a named alias:
 
 the behavior is exactly the same as for a named alias (i.e the various
 cases described above), except that the resulting C<Match> object is
-assigned to the corresponding element of the appropriate array, rather
+assigned to the corresponding element of the appropriate array rather
 than to an element of the hash.
 
 =item *
@@ -2161,7 +2160,7 @@ subpattern, that quantified subrule or subpattern will have returned a
 list of C<Match> objects (as described in L<Quantified subpattern
 captures> and L<Repeated captures of the same subrule>).
 So the corresponding array element or hash entry for the alias will
-contain a reference to an array, instead of a single C<Match> object.
+contain an array, instead of a single C<Match> object.
 
 =item *
 
@@ -2170,7 +2169,7 @@ For example:
 
      if m/ mv $0:=<file>+ / {
          # <file>+ returns a list of Match objects,
-         # so $0 contains a reference to an array of Match objects,
+         # so $0 contains an array of Match objects,
          # one for each successful call to <file>
 
          # $/<file> does not exist (it's pre-empted by the alias)
@@ -2179,7 +2178,7 @@ For example:
 
      if m/ mv $<from>:=(\S+ \s+)* / {
          # Quantified subpattern returns a list of Match objects,
-         # so $/<from> contains a reference to an array of Match
+         # so $/<from> contains an array of Match
          # objects, one for each successful match of the subpattern
 
          # $0 does not exist (it's pre-empted by the alias)
@@ -2215,7 +2214,7 @@ For example:
 
 Using the C<< @<alias>:= >> notation instead of a C<< $<alias>:= >>
 mandates that the corresponding hash entry or array element I<always>
-receives a reference to an array of C<Match> objects, even if the
+receives an array of C<Match> objects, even if the
 construct being aliased would normally return a single C<Match> object.
 This is useful for creating consistent capture semantics across
 structurally different alternations (by enforcing array captures in all
@@ -2337,7 +2336,7 @@ the internal structure of each repetition.
 It is also possible to use a numbered variable as an array alias.
 The semantics are exactly as described above, with the sole difference
 being that the resulting array of C<Match> objects is assigned into the
-appropriate element of the regex's match array, rather than to a key of
+appropriate element of the regex's match array rather than to a key of
 its match hash. For example:
 
      if m/ mv  \s+  @0:=((\w+) \s+)+  $1:=((\W+) (\s*))* / {
@@ -2382,7 +2381,7 @@ instead of a scalar or an array. For example:
 
 A hash alias causes the corresponding hash or array element in the
 current scope's C<Match> object to be assigned a (nested) Hash object
-(rather than an Array object or a single C<Match> object).
+(rather than an C<Array> object or a single C<Match> object).
 
 =item *
 
@@ -2401,7 +2400,7 @@ C<Match> object is stored:
      if m:w/ %0:=<one_to_many>+ / {
          # $/[0] contains a hash, in which each key is provided by
          # the first subcapture within C<one_to_many>, and each
-         # value is a reference to an  array containing the
+         # value is an  array containing the
          # subrule's second, third, and fourth, etc. subcaptures...
 
          for %{$/[0]} -> $pair {
@@ -2482,8 +2481,8 @@ string that the regex skipped over in order to find later matches).
 Subcaptures are returned as a multidimensional list, which the user can
 choose to process in either of two ways.  If you refer to
 C<@()>, the multidimensionality is ignored and all the matches are returned
-flattened (but still lazily).  If you refer to @;(), you can
-get each individual sublist as a Capture object. (That is, there is a C<@;()>
+flattened (but still lazily).  If you refer to @@(), you can
+get each individual sublist as a Capture object. (That is, there is a C<@@()>
 coercion operator that happens, like C<@()>, to default to C<$/>.)
 As with any multidimensional list, each sublist can be lazy separately.
 
@@ -2499,9 +2498,9 @@ But the list of individual match objects corresponding to each separate
 match is also available:
 
      if $text ~~ m:w:g/ (\S+:) <rocks> / {
-         say "Matched { +@;() } times";    # Note: forced eager here
+         say "Matched { +@@() } times";    # Note: forced eager here
 
-         for @;() -> $m {
+         for @@() -> $m {
              say "Match between $m.from() and $m.to()";
              say 'Right on, dude!' if $m[0] eq 'Perl';
              say "Rocks like $m<rocks>";
