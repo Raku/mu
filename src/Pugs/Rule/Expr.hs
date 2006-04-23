@@ -18,8 +18,8 @@ module Pugs.Rule.Expr
                  , buildExpressionParser
                  ) where
 
-import Pugs.Rule.Prim
-import Pugs.Rule.Combinator
+import Text.ParserCombinators.Parsec.Prim
+import Text.ParserCombinators.Parsec.Combinator
 
 
 -----------------------------------------------------------

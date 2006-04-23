@@ -1,5 +1,4 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
-{-# OPTIONS_GHC -#include "../../UnicodeC.h" #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -19,75 +18,32 @@ module Pugs.Rule.Token
                   ( LanguageDef (..)
                   , TokenParser (..)
                   , makeTokenParser
+                  , balanced
+                  , balancedDelim
                   ) where
 
-import Unicode (isAlpha,toLower,toUpper,isSpace)
-import Data.Char (digitToInt)
+import Data.Char (digitToInt, isAlpha,toLower,toUpper,isSpace)
 import Data.List (nub,sort)
 import Data.Maybe
-import Pugs.Rule
-import Debug.Trace
+import Text.ParserCombinators.Parsec
+import Text.ParserCombinators.Parsec.Token (LanguageDef(..), TokenParser(..))
 
+balancedDelim :: Char -> Char
+balancedDelim c = case c of
+    '(' -> ')'
+    '{' -> '}'
+    '<' -> '>'
+    '[' -> ']'
+    _   -> c
 
------------------------------------------------------------
--- Language Definition
------------------------------------------------------------
-data LanguageDef st  
-    = LanguageDef 
-    { commentStart   :: String
-    , commentEnd     :: String
-    , commentLine    :: String
-    , nestedComments :: Bool                  
-    , identStart     :: CharParser st Char
-    , identLetter    :: CharParser st Char
-    , opStart        :: CharParser st Char
-    , opLetter       :: CharParser st Char
-    , reservedNames  :: [String]
-    , reservedOpNames:: [String]
-    , caseSensitive  :: Bool
-    }                           
-           
------------------------------------------------------------
--- A first class module: TokenParser
------------------------------------------------------------
-data TokenParser st
-    = TokenParser{ identifier       :: CharParser st String
-                 , reserved         :: String -> CharParser st ()
-                 , operator         :: CharParser st String
-                 , reservedOp       :: String -> CharParser st ()
-                        
-                 , charLiteral      :: CharParser st Char
-                 , stringLiteral    :: CharParser st String
-                 , natural          :: CharParser st Integer
-                 , integer          :: CharParser st Integer
-                 , float            :: CharParser st Double
-                 , naturalOrFloat   :: CharParser st (Either Integer Double)
-                 , decimal          :: CharParser st Integer
-                 , hexadecimal      :: CharParser st Integer
-                 , octal            :: CharParser st Integer
-            
-                 , symbol           :: String -> CharParser st String
-                 , lexeme           :: forall a. CharParser st a -> CharParser st a
-                 , whiteSpace       :: CharParser st ()     
-             
-                 , parens           :: forall a. CharParser st a -> CharParser st a 
-                 , braces           :: forall a. CharParser st a -> CharParser st a
-                 , angles           :: forall a. CharParser st a -> CharParser st a
-                 , brackets         :: forall a. CharParser st a -> CharParser st a
-                 -- "squares" is deprecated
-                 , squares          :: forall a. CharParser st a -> CharParser st a 
-                 , balancedDelim    :: Char -> Char
-                 , balanced         :: CharParser st String
+-- balanced: parses an open/close delimited expression of any non-alphanumeric character
+balanced        = do
+    notFollowedBy alphaNum
+    opendelim <- anyChar 
+    contents <- many $ satisfy (/= balancedDelim opendelim)
+    char $ balancedDelim opendelim
+    return contents
 
-                 , semi             :: CharParser st String
-                 , comma            :: CharParser st String
-                 , colon            :: CharParser st String
-                 , dot              :: CharParser st String
-                 , semiSep          :: forall a . CharParser st a -> CharParser st [a]
-                 , semiSep1         :: forall a . CharParser st a -> CharParser st [a]
-                 , commaSep         :: forall a . CharParser st a -> CharParser st [a]
-                 , commaSep1        :: forall a . CharParser st a -> CharParser st [a]                
-                 }
 
 -----------------------------------------------------------
 -- Given a LanguageDef, create a token parser.
@@ -118,8 +74,6 @@ makeTokenParser languageDef
                  , angles = angles
                  , brackets = brackets
                  , squares = brackets
-                 , balancedDelim = balancedDelim
-                 , balanced = balanced
                  , semi = semi
                  , comma = comma
                  , colon = colon
@@ -139,21 +93,6 @@ makeTokenParser languageDef
     braces p        = between (symbol "{") (symbol "}") p
     angles p        = between (symbol "<") (symbol ">") p
     brackets p      = between (symbol "[") (symbol "]") p
-
-    balancedDelim :: Char -> Char
-    balancedDelim c = case c of
-                        '(' -> ')'
-                        '{' -> '}'
-                        '<' -> '>'
-                        '[' -> ']'
-                        _   -> c
-
-    -- balanced: parses an open/close delimited expression of any non-alphanumeric character
-    balanced        = do notFollowedBy alphaNum
-                         opendelim <- anyChar 
-                         contents <- many $ satisfy (/= balancedDelim opendelim)
-                         char $ balancedDelim opendelim
-                         return contents
 
     semi            = symbol ";" 
     comma           = symbol ","
@@ -472,10 +411,9 @@ makeTokenParser languageDef
         if file == Just Nothing then skipToLineEnd else do
         many $ satisfy (/= '\n')
         setPosition $ pos
-            { sourceLine    = (fromInteger line) - 1
-            , sourceColumn  = 1
-            , sourceName    = maybe (sourceName pos) fromJust file
-            }
+            `setSourceLine`     (fromInteger line - 1)
+            `setSourceColumn`   1
+            `setSourceName`     maybe (sourceName pos) fromJust file
         return ()
 
     fileNameQuoted = try $ do

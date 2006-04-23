@@ -1,5 +1,4 @@
 {-# OPTIONS_GHC -fglasgow-exts -fth -cpp #-}
-{-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 module Emit.PIR.ParrotObject where
 
 import Data.Char

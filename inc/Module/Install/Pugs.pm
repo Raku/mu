@@ -219,12 +219,15 @@ sub assert_ghc {
 *** Please install GHC from http://haskell.org/ghc/.
 .
 
-    unless ($ghc_version =~ /^(\d)\.(\d+)/ and $1 >= 6 and $2 >= 4) {
+    my $ghc_lt_640 = !($ghc_version =~ /^(\d)\.(\d+)/ and $1 >= 6 and $2 >= 4);
+
+    if ($ghc_lt_640 or ($ghc_version =~ /^6.4(?:.0)?$/)) {
         die << ".";
-*** Cannot find GHC 6.4 or above from path (we have $ghc_version).
+*** Cannot find GHC 6.4.1 or above from path (we have $ghc_version).
 *** Please install a newer version from http://haskell.org/ghc/.
 .
     }
+
     my $ghc_flags = "-H0 ";
     $ghc_flags .= " -i. -isrc -isrc/pcre -isrc/syck -isrc/cbits -I. -Isrc -Isrc/pcre -Isrc/syck -Isrc/cbits -static ";
     $ghc_flags .= " -Wall " #  -package-name Pugs -odir dist/build/src -hidir dist/build/src "

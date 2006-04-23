@@ -1,5 +1,4 @@
 {-# OPTIONS_GHC -cpp -fglasgow-exts -funbox-strict-fields -fno-full-laziness -fno-cse #-}
-{-# OPTIONS_GHC -#include "../UnicodeC.h" #-}
 
 {-|
     Higher-level parser for building ASTs.

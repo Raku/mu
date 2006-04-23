@@ -1,15 +1,23 @@
+static PWord_t PValue = NULL;
+
 #ifndef PGE_OPTABLE_H
 
 #include <Judy.h>
 
+#define HashNew() \
+        calloc(1,sizeof(void *))
+
 #define HashIns(x, y, z) \
-        *(JudySLIns(&x, y, PJE0)) = (PPvoid_t)z
+        *(JudyHSIns(&x, y, PJE0)) = (PPvoid_t)z
 
 #define HashSet(x, y) \
-        *(JudySLIns(&x, y, PJE0))
+        *(JudyHSIns(&x, y, PJE0))
+
+#define HashGet(x, y) \
+        *(JudyHSIns(&x, y, PJE0))
 
 #define HashFree(x) \
-        JudySLFreeArray(&x, PJE0)
+        JudyHSFreeArray(&x, PJE0)
 
 #define PGE_OPTABLE_H 1
 

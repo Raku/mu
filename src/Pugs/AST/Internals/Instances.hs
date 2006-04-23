@@ -1,5 +1,4 @@
 {-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -fallow-overlapping-instances -funbox-strict-fields -fallow-undecidable-instances #-}
-{-# OPTIONS_GHC -#include "../../../UnicodeC.h" #-}
 
 
 
@@ -704,7 +703,6 @@ instance Perl5 Val where
     showPerl5 (VStr aa) = showP5ArrayObj "VStr" [showPerl5 aa]
     showPerl5 (VList aa) = showP5ArrayObj "VList" [showPerl5 aa]
     showPerl5 (VType aa) = showP5ArrayObj "VType" [showPerl5 aa]
-    showPerl5 (VCode{}) = showP5Class "VUndef" -- XXX - fix the END block!
 
 instance JSON Val where
     showJSON (VUndef) = showJSScalar "VUndef"

@@ -15,11 +15,10 @@
 
 module Pugs.Internals (
     module UTF8,
-    module Unicode,
     module Pugs.Compat,
     module RRegex,
     module RRegex.Syntax,
-    module Pugs.Rule.Pos,
+    module Data.Char,
     module Data.Dynamic,
     module Data.Unique,
     module Data.FunctorM,
@@ -76,10 +75,10 @@ module Pugs.Internals (
 ) where
 
 import UTF8
-import Unicode
 import Pugs.Compat
 import RRegex
 import RRegex.Syntax
+import Data.Char
 import Data.IORef
 import Data.Dynamic
 import Data.Array (elems)
@@ -125,7 +124,6 @@ import Data.Set (Set)
 import Data.Map (Map)
 import Data.IntMap (IntMap)
 import Debug.Trace
-import Pugs.Rule.Pos
 -- import GHC.Conc (unsafeIOToSTM)
 
 -- Instances.

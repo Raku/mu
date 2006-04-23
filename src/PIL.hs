@@ -1,5 +1,4 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
-{-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 {-|
     PIL2 - The New Runcore.

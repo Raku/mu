@@ -1,5 +1,4 @@
 {-# OPTIONS_GHC -fglasgow-exts -fvia-C -optc-w #-}
-{-# OPTIONS_GHC -#include "../UnicodeC.h" #-}
 
 {-|
     Lexical analyzer.
@@ -29,7 +28,6 @@ module Pugs.Lexer (
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Rule
-import Pugs.Rule.Language
 import Pugs.Types
 import Pugs.Parser.Types
 import qualified Pugs.Rule.Token as P
@@ -78,9 +76,9 @@ brackets   = P.brackets   perl6Lexer
 angles     :: CharParser st a -> CharParser st a
 angles     = P.angles     perl6Lexer
 balanced   :: CharParser st String
-balanced   = P.balanced   perl6Lexer
+balanced   = P.balanced
 balancedDelim :: Char -> Char
-balancedDelim = P.balancedDelim perl6Lexer
+balancedDelim = P.balancedDelim
 decimal    :: CharParser st Integer
 decimal    = P.decimal    perl6Lexer
 
@@ -106,8 +104,8 @@ ruleQualifiedIdentifier = verbatimRule "qualified identifier" $ do
 
 ruleVerbatimIdentifier :: GenParser Char st String
 ruleVerbatimIdentifier = (<?> "identifier") $ do
-    c  <- identStart perl6Def
-    cs <- many (identLetter perl6Def)
+    c  <- P.identStart perl6Def
+    cs <- many (P.identLetter perl6Def)
     return (c:cs)
 
 {-|

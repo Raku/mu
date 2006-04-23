@@ -1,5 +1,4 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
-{-# OPTIONS_GHC -#include "../../UnicodeC.h" #-}
 
 module Pugs.CodeGen.Binary (genBinary) where
 import Pugs.Internals

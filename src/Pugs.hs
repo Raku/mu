@@ -224,7 +224,7 @@ doHelperRun backend args =
         "js"    -> if (args' == [])
                    then (doExecuteHelper "jspugs.pl"  args)
                    else (doExecuteHelper "runjs.pl"   args)
-        "perl5" ->       doExecuteHelper "pugs-p5.pl" args
+        "perl5" ->       doExecuteHelper "perl6.pl" args
         "js-perl5" -> doExecuteHelper "runjs.pl" (jsPerl5Args ++ args)
         _       ->       fail ("unknown backend: " ++ backend)
     where
@@ -247,6 +247,7 @@ doExecuteHelper helper args = do
     where
     suffixes =
         [ []
+        , ["misc", "pX", "Common", "Pugs-Grammar-Perl6"]
         , ["perl5", "PIL2JS"]      --  $sourcedir/perl5/PIL2JS/jspugs.pl
         , ["perl5", "PIL-Run"]     --  $sourcedir/perl5/PIL-Run/pugs-p5.pl
         , ["perl5", "lib"]         --  $pugslibdir/perl5/lib/jspugs.pl

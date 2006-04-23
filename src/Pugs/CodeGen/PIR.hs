@@ -1,5 +1,4 @@
 {-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fno-warn-orphans -funbox-strict-fields -cpp #-}
-{-# OPTIONS_GHC -#include "../../UnicodeC.h" #-}
 
 {-|
     This module provides 'genPIR', a function which compiles the current
@@ -149,6 +148,10 @@ instance Translate PIL_Literal Expression where
     trans (PVal (VNum num)) = return $ ExpLit (LitNum num)
     trans (PVal (VRat rat)) = return $ ExpLit (LitNum (ratToNum rat))
     -- trans (PVal (VList [])) = return $ LitInt 0 -- XXX Wrong
+    trans (PVal (VCode code))
+        | MkCode{ subBody = Syn "block" [ Ann _ exp ] } <- code
+        , App (Var var) Nothing [] <- exp
+        = fmap ExpLV (trans (PVar var))
     trans (PVal (VList vs)) = do
         pmc <- genArray "vlist"
         forM vs $ \val -> do

@@ -1,5 +1,4 @@
 {-# OPTIONS_GHC -fglasgow-exts -cpp #-}
-{-# OPTIONS_GHC -#include "../../UnicodeC.h" #-}
 
 module Pugs.Eval.Var (
     findVar, findVarRef,

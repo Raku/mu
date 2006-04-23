@@ -206,16 +206,13 @@ sub set_postamble {
     my $o = sub { map { substr($_, 0, -1) . 'o' } @_ };
 
     my $pcre_c    = "src/pcre/pcre.c";
-    my $unicode_c = "src/UnicodeC.c";
     my @cbits_c   = glob("src/cbits/*.c");
     my @syck_c    = glob("src/syck/*.c");
     my ($pcre)    = $o->($pcre_c);
-    my ($unicode) = $o->($unicode_c);
     my @cbits     = $o->(@cbits_c);
     my @syck      = $o->(@syck_c);
 
     my @prereqs = ($pcre, @syck, @cbits);
-    #$ghc_output .= " $pcre @cbits $unicode";
 
     my $embed_flags = "";
     my $hsc2hs_flags = "";
@@ -257,14 +254,6 @@ sub set_postamble {
     # Respect CC setting
     my $cc = $ENV{CC} || 'gcc';
     $ghc_flags .= " -pgmc $cc " unless $cc eq 'gcc';
-
-    if ($ghc_version =~ /^6.4(?:.0)?$/) {
-        $ghc_flags .= " -DWITH_UNICODEC ";
-        push @prereqs, $unicode;
-    }
-    else {
-        $unicode = $unicode_c = '';
-    }
 
     # GHC 6.4.1, OS X / Tiger and gcc4.0 doesn't work together. complain.
     if ($Config{osname} eq "darwin") {
@@ -612,11 +601,11 @@ ghci : @prereqs
 	$ghc $ghc_flags $ghc_output --make -O0 -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Prereqs.hs @prereqs
 	$ghc $ghc_flags $ghc_output --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
 
-pil$Config{_exe} : $config_h $unicode $pcre @cbits @srcfiles src/PIL/Native/Bootstrap.hs src/PIL/Native/Syntax.hs
-	$ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -isrc/cbits -Isrc -Isrc/cbits -L. -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs $unicode $pcre @cbits
+pil$Config{_exe} : $config_h $pcre @cbits @srcfiles src/PIL/Native/Bootstrap.hs src/PIL/Native/Syntax.hs
+	$ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -isrc/cbits -Isrc -Isrc/cbits -L. -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs $pcre @cbits
 
 pili : pil$Config{_exe}
-	$ghc --interactive -fglasgow-exts -isrc -isrc/cbits -Isrc -Isrc/cbits -L. -static -fno-warn-name-shadowing src/PIL.hs $unicode $pcre @cbits
+	$ghc --interactive -fglasgow-exts -isrc -isrc/cbits -Isrc -Isrc/cbits -L. -static -fno-warn-name-shadowing src/PIL.hs $pcre @cbits
 
 tags : @srcfiles
 	$hasktags -c @srcfiles

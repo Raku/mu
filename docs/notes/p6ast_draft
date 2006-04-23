@@ -50,11 +50,9 @@ Code: ->$x{$x+1}
  
 Capture: \(x=>1)
  - invocant
- - positional
- - named
-
-MultiCapture: \(x=>1;x=>2)
- - just a sequence of captures
+ - possibly multiple sequences of:
+    - positional
+    - named
 
 Signature: :($x?=2)
  - params, sorted by tiebreaking level  (the last level is non-tiebreaking)
@@ -297,5 +295,5 @@ say "Hello World"
 
 say "Hello ", "World"
 
-==> Call( name => 'say', args => Capture(positional => [LitStr("Hello "), LitStr("World"])
+==> Call( name => 'say', args => Capture([positional => [LitStr("Hello "), LitStr("World"]])
 

@@ -19,7 +19,7 @@ ParseMode sctable (Str in) {
 }
 
 OpParser new_parser () {
-    OpParser p = {NULL, NULL, NULL, NULL};
+    OpParser p = {HashNew(), HashNew(), HashNew(), HashNew()};
     return p;
 }
 

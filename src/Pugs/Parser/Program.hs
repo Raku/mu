@@ -7,7 +7,7 @@ import Pugs.AST
 
 import Pugs.Parser
 import Pugs.Rule
-import Pugs.Rule.Error
+import Text.ParserCombinators.Parsec.Error (showErrorMessages, errorMessages)
 
 parseProgram :: Env -> FilePath -> String -> Env
 parseProgram = flip runRule ruleProgram

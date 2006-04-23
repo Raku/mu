@@ -1,5 +1,4 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
-{-# OPTIONS_GHC -#include "../UnicodeC.h" #-}
 
 {-|
     Pretty printing for various data structures.
@@ -18,6 +17,7 @@ module Pugs.Pretty (
 import Pugs.Internals
 import Pugs.Types
 import Pugs.AST
+import Pugs.Rule (SourcePos)
 import Text.PrettyPrint
 import qualified Data.Set as Set
 import qualified Data.Map as Map
