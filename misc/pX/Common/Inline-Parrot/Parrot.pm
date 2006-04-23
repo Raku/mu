@@ -1,12 +1,14 @@
 use strict;
 package Inline::Parrot;
 #use Inline 'INFO','NOISY','FORCE';
+use lib 'lib';
+use Inline::Parrot::PMC 'get_int';
 use Inline C=>'Config',
 	INC => `pkg-config --cflags parrot`,
 	LIBS => `pkg-config --libs parrot`,
 	TYPEMAPS=>'typemap';
 use Inline C=><<'C';
-#include "parrot/embed.h"
+#include "parrot/parrot.h"
 void run_bytecode(Parrot_Interp i,char *bcfile) {
     Parrot_PackFile pf = Parrot_readbc(i,bcfile);
     Parrot_loadbc(i, pf);
@@ -24,5 +26,5 @@ print "ok 1 - c code compiled\n";
 my $i = new_interpreter();
 run_bytecode($i,"loadlib.pbc");
 print $msg;
-print "Data:$data\n";
+print "Data:$data:",get_int($i,$data),"\n";
 1;

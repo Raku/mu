@@ -1,0 +1,3 @@
+* create a method of autogenerating pmc bindings
+* merge with fglock's Inline::Parrot
+* use the Inline interface

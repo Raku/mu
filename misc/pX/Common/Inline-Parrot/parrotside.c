@@ -12,6 +12,6 @@ void send_msg(void) {
 }
 int send_pmc(Parrot_Interp i,PMC *what,char *where) {
 	SV *sv = get_sv(where,TRUE);
-	sv_setref_pv(sv, "PMC", (void*)what);
+	sv_setref_pv(sv, "PMCPtr", (void*)what);
 	return 0;
 }
