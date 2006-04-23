@@ -45,7 +45,6 @@ module Pugs.Internals (
     module Data.Either,
     module Data.Word,
     module Data.Ratio,
-    module Data.Char,
     module Data.Tree,
     module Data.Maybe,
     module Data.Complex,
