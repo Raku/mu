@@ -623,22 +623,25 @@ before it:
 You can still parenthesize the expression argument for old times'
 sake, as long as there's a space between the closing paren and the
 opening brace.  You I<must> parenthesize the expression if there is
-a bare block that would be misinterpreted as the statement's block.
-This is regardless of whether a term or operator is expected where
-the bare block occurs.  (A block inside brackets, or used as as
+a bare block or pointy block that would be misinterpreted as the statement's
+block.  This is regardless of whether a term or operator is expected where
+the block occurs.  (A block inside brackets, or used as as
 postcircumfix is fine, though.)  Any block with whitespace
 in front of it will be taken as terminating the conditional, even if
 the conditional expression could take another argument.  Therefore
 
     if -e { say "exists" } { extra() }
+    if -e -> $x { say "exists" } { extra() }
 
 is always parsed as
 
     if (-e) { say "exists" }; { extra() }
+    if (-e) -> $x { say "exists" }; { extra() }
 
 rather than
 
     if (-e { say "exists" }) { extra() }
+    if (-e (-> $x { say "exists" })) { extra() }
 
 Apart from that, it is illegal to use a bare closure where an
 operator is expected.  (Remove the whitespace if you wish it to be
