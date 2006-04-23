@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 21 Apr 2006
+  Last Modified: 22 Apr 2006
   Number: 6
-  Version: 29
+  Version: 30
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -886,8 +886,8 @@ get at those two iterators by using the name C<@@foo> instead, where
 the "pipe" twigil marks a multidimensional array, that is, an
 array of slices.
 
-    0...       ==> @@foo;
-    'a'...     ==> @@foo;
+    0..*       ==> @@foo;
+    'a'..*     ==> @@foo;
     pidigits() ==> @@foo;
 
     for zip(@@foo) { say }
@@ -911,12 +911,12 @@ is equivalent to
 A semicolon inside brackets is equivalent to stacked pipes.  The code above
 could be rewritten as:
 
-    (0...; 'a'...; pidigits()) ==> my @@foo;
+    (0..*; 'a'..*; pidigits()) ==> my @@foo;
     for @@foo.zip { say }
 
 which is in turn equivalent to
 
-    for zip(0...; 'a'...; pidigits()) { say }
+    for zip(0..*; 'a'..*; pidigits()) { say }
 
 A named receiver array is useful when you wish to pipe into an
 expression that is not an ordinary list operator, and you wish to be
@@ -962,8 +962,8 @@ Every lexical scope can use its own implicitly declared C<@_> variable
 as the default receiver.  So instead of using C<@@foo> above you can
 just say
 
-    0...       ==> ;
-    'a'...     ==> ;
+    0..*       ==> ;
+    'a'..*     ==> ;
     pidigits() ==> ;
 
     # outputs "(0, 'a', 3)\n"...
@@ -978,38 +978,38 @@ left to right in general regardless of the position of the receiver.
 
 So
 
-    ('a'...; 0...) ==> ;
+    ('a'..*; 0..*) ==> ;
      for zip(@@_ <== @foo) -> [$a, $i, $x] { ...}
 
 is the same as
 
-    'a'... ==> ;
-     0...  ==> ;
+    'a'..* ==> ;
+     0..*  ==> ;
      for zip(@@_ <== @foo) -> [$a, $i, $x] { ...}
 
 which is the same as
 
-    for zip('a'...; 0...; @foo) -> [$a, $i, $x] { ...}
+    for zip('a'..*; 0..*; @foo) -> [$a, $i, $x] { ...}
 
 And
 
     @foo ==> ;
-    0... ==> ;
+    0..* ==> ;
     for each(@@_) -> $x, $i { ...}
 
 is the same as
 
-    0... ==> ;
+    0..* ==> ;
     for each(@foo; @@_) -> $x, $i { ...}
 
 which is the same as
 
-    for each(@foo; 0...) -> $x, $i { ...}
+    for each(@foo; 0..*) -> $x, $i { ...}
 
 Note that the each method is also sensitive to multislicing, so you
 could also just write that as:
 
-    (@foo; 0...).each: -> $x, $i { ...}
+    (@foo; 0..*).each: -> $x, $i { ...}
 
 Also note that these come out to identical for ordinary arrays:
 

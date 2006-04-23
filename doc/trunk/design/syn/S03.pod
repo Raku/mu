@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 22 Apr 2006
   Number: 3
-  Version: 20
+  Version: 21
 
 =head1 Changes to existing operators
 
@@ -75,6 +75,11 @@ C<ff> operator.  (C<..> now always produces a Range object
 even in scalar context.)  The C<ff> operator may take a caret on
 either end to exclude either the beginning or ending.  There is
 also a corresponding C<fff> operator with Perl 5's C<...> semantics.
+You may say
+
+    /foo/ ff *
+
+to indicate a flipflop that never flops once flipped.
 
 =item * All comparison operators are unified at the same precedence level.
 See Chained Comparisons below.
@@ -172,6 +177,23 @@ numbers are C<not> truncated before comparison to integer ranges:
     1.5 ~~ 1^..^2  # true, equivalent to 1 < 1.5 < 2
     2.1 ~~ 1..2    # false, equivalent to 1 <= 2.1 <= 2
 
+If an argumentless C<*> (see the "Whatever" operator below) occurs on
+the right side of a range, it is taken to mean "positive infinity"
+in whatever space the range is operating.  A C<*> on the left means
+"negative infinity" for types that support negative values.  If the
+C<*> occurs on one side but not the other, the type is inferred from
+the other argument.  A star on both sides will match any value that
+supports the Ordered role.
+
+    0..*	# 0 .. +Inf
+    'a'..*	# 'a' .. 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzz...
+    *..0	# -Inf .. 0
+    *..*	# "-Inf .. +Inf", really Ordered
+    1.2.3..*	# Any version higher than 1.2.3.
+
+Note: infinite lists are constructed lazily.  And even though C<*..*>
+can't be constructed at all, it's still useful as a selector object.
+
 =item * The unary C<^> operator generates a range from C<0> up to
 one less than its argument.  So C<^4> is short for C<0..^4> or C<0..3>.
 
@@ -185,13 +207,8 @@ If applied to a type name, it indicates the metaclass instance instead,
 so C<^Moose> is short for C<Moose.meta>.  It still kinda means "what
 is this thing's domain" in an abstract sort of way.
 
-=item * C<...> where an operator is expected is either a unary postfix
-or an infix operator that takes no right argument.  It constructs a
-semi-infinite (and lazily evaluated) list, starting at the value of
-its single argument.
-
-=item * However, C<...> where a term is expected is the "yada,
-yada, yada" prefix operator, which is used as the body in function
+=item * The C<...> prefix operator is the
+"yada, yada, yada" operator, which is used as the body in function
 prototypes.  It complains bitterly (by calling C<fail>) if it is
 ever executed.  Variant C<???> calls C<warn>, and C<!!!> calls C<die>.
 The argument is optional, but if provided, is passed onto the C<warn>,
@@ -629,6 +646,41 @@ To get an immediate interpolation like Perl 5 does, use unary C<**> instead:
     func(**(1..Inf));   # never terminates
 
 You may use either of them on a scalar iterator to force it to iterate.
+
+=item * The "Whatever" operator
+
+If the C<*> prefix operator has I<no> argument, it captures the notion
+of "Whatever", which is applied lazily by whatever operator it is
+an argument to.  Generally it can just be thought of as a "glob"
+that gives you everything it can in that argument position.  For instance:
+
+    if $x ~~ 1..* {...}			# if 1 <= $x <= +Inf
+    my ($a,$b,$c) = "foo" xx *;		# an arbitrary long list of "foo"
+    if /foo/ ff * {...}			# a latching flipflop
+    @slice = @x[*;0;*];			# any Int
+    %slice = %x{*;'foo'};		# any keys in domain of 1st dimension
+    %array[*]				# *not* a zen slice
+
+C<Whatever> is an undefined prototype object derived from C<Any>.  As a
+type it is abstract, and may not be instantiated as a defined object.
+If for a particular MMD dispatch, nothing in the MMD system claims it,
+it dispatches to as an C<Any> with an undefined value, and usually
+blows up constructively.  If you say
+
+    say 1 + *;
+
+you should probably not expect it to yield a reasonable answer, unless
+you think an exception is reasonable.  Since the C<Whatever> object
+is effectively immutable, the optimizer is free to recognize bare C<*>
+and optimize in the context of what operator it is being passed to.
+
+Other uses for C<*> will doubtless suggest themselves over time.  These
+can be given meaning via the MMD system, if not the compiler.  In general
+a C<Whatever> should be interpreted as maximizing the degrees of freedom
+in a dwimmey way, not as a nihilistic "don't care anymore--just shoot me".
+Care must also be taken not to introduce it on the left side of an infix
+that would be misconstrued as a term or prefix.  C<*..*> works only because
+no term starts with "C<..>".
 
 =head1 Piping operators
 
