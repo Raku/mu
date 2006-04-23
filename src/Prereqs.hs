@@ -10,6 +10,7 @@ import Pugs.Compat ()
 import Pugs.Embed.Parrot ()
 import Pugs.Embed.Perl5 ()
 import Pugs.Run.Perl5 ()
+import Pugs.Parser.Program ()
 import Data.FastPackedString ()
 import Data.Yaml.Syck ()
 

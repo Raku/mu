@@ -57,10 +57,10 @@ type RuleOperatorTable a = OperatorTable Char RuleState a
 {-|
 Retrieve the 'Pugs.AST.Internals.Env' from the current state of the parser.
 -}
-withRuleConditional :: RuleParser a -> RuleParser a
-withRuleConditional rule = do
+withRuleConditional :: Bool -> RuleParser a -> RuleParser a
+withRuleConditional newState rule = do
     prev <- gets ruleInConditional
-    modify $ \state -> state{ ruleInConditional = True }
+    modify $ \state -> state{ ruleInConditional = newState }
     rv <- rule
     modify $ \state -> state{ ruleInConditional = prev }
     return rv

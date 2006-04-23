@@ -378,8 +378,7 @@ EOD
     }
 
     if ( try_compile("main :: IO ()\nmain = return ()", $ghc, "-lz") ) {
-        $ghc_flags .= ' -DUSE_ZLIB ';
-        $ghc_output .= " -lz ";
+        $ghc_flags .= ' -DUSE_ZLIB -lz ';
     }
 
     $hsc2hs_flags .= " -Isrc/syck "; # for Data.Yaml
