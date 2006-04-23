@@ -19,8 +19,10 @@ Parrot_Interp new_interpreter() {
 }
 C
 our $msg = "not ok\n";
+our $data;
 print "ok 1 - c code compiled\n";
 my $i = new_interpreter();
 run_bytecode($i,"loadlib.pbc");
 print $msg;
+print "Data:$data\n";
 1;
