@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
   Last Modified: 24 Apr 2006
   Number: 2
-  Version: 30
+  Version: 31
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -371,7 +371,7 @@ Perl 6 intrinsically supports big integers and rationals through its
 system of type declarations.  C<Int> automatically supports promotion
 to arbitrary precision, as well as holding C<Inf> and C<NaN> values.
 
-(C<Num> may support arbitrary-precision floating-point arithmatic, but
+(C<Num> may support arbitrary-precision floating-point arithmetic, but
 is not required to unless we can do so portably and efficiently.)
 
 C<Rational> supports arbitrary precision rational arithmetic.  However,
@@ -1215,7 +1215,7 @@ equivalent not to C<.{'a','b'}> but rather to C<('a','b')>.  Bare C<< <a> >>
 turns into C<('a')> rather than C<('a',)>.
 
 Two or more adverbs can always be strung together without intervening
-punctuation anywhere a single adverb is acceptible.  When used as named
+punctuation anywhere a single adverb is acceptable.  When used as named
 arguments, you may put comma between.  See S06.
 
 The negated form (C<:!a>) and the sigiled forms (C<:$a>, C<:@a>,
@@ -1532,7 +1532,7 @@ always be taken to mean a subroutine or method name.  (Class names
 (and other type names) are predeclared, or prefixed with the C<::>
 type sigil when you're declaring a new one.)  A consequence of this
 is that there's no longer any "C<use strict 'subs'>".  Since the syntax
-for method calls is distinguished from sub calls, it is only unreconized
+for method calls is distinguished from sub calls, it is only unrecognized
 sub calls that must be treated specially.
 
 You still must declare your subroutines, but an unrecognized bare
@@ -1588,14 +1588,25 @@ So for any undeclared identifier "C<foo>":
     foo bar 1		# foo(bar(1))	-- both subject to postdeclaration
 					-- never taken as indirect object
     foo $bar: 1		# $bar.foo(1)	-- indirect object even if declared sub
-    foo bar():		# bar().foo(1)	-- even if foo declared sub
-    foo bar baz: 1	# foo(bar baz: 1) -- colon controls "bar", not foo.
+    					-- $bar considered one token
+    foo (bar()):	# bar().foo(1)	-- even if foo declared sub
+    foo bar():		# illegal	-- bar() is two tokens.
+    foo .bar:		# foo(.bar:)	-- colon chooses .bar to listopify
+    foo bar baz: 1	# foo(baz.bar(1)) -- colon controls "bar", not foo.
     foo (bar baz): 1	# bar(baz()).foo(1) -- colon controls "foo"
     $foo $bar		# illegal	-- two terms in a row
     $foo $bar:		# illegal	-- use $bar.$foo for indirection
     (foo bar) baz: 1	# illegal	-- use $baz.$(foo bar) for indirection
 
-Parens are required around any indirect object that would be ambiguous.
+The indirect object colon only ever dominates a simple term, where
+"simple" includes classes and variables and parenthesized expressions,
+but explicitly not method calls, because the colon will bind to a
+trailing method call in preference.  An indirect object that parses
+as more than one token must be placed in parentheses, followed by
+the colon.  In short, only an identifier followed by a simple term
+followed by a postfix colon is C<ever> parsed as an indirect object,
+but that form will C<always> be parsed as an indirect object regardless
+of whether the identifier is otherwise declared.
 
 =item *
 
