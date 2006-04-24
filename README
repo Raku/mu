@@ -16,12 +16,6 @@ COMPILATION COPYRIGHT DISCAIMER
 
 The author disclaims copyright for the compilation of the Pugs distribution.
 
-In place of a legal notice, here is a blessing:
-
-    May you do good and not evil.
-    May you find forgiveness for yourself and forgive others.
-    May you share freely, never taking more than you give.
-
 The Pugs distribution contains copyrighted contributions from third-party
 projects, under their own licenses cited below.
 
@@ -41,8 +35,8 @@ Please see the "GPL-2" and "Artistic-2.0b5" files under the "LICENSE" directory
 for the full license text.
 
 (In the next release, the author would like contributions under the src/
-directory, which forms the main "pugs" executable, to be under public domain as
-well, but this is still an on-going process.)
+directory, which forms the main "pugs" executable, to be under the MIT license,
+but that is still an on-going process.)
 
 COPYRIGHTED WORKS FROM THIRD-PARTY PROJECTS
 -------------------------------------------
