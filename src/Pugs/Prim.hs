@@ -1110,9 +1110,9 @@ op3 "Object::new" = \t n p -> do
     liftIO $ obj `setFinalizationIn` env
     where
     setFinalizationIn obj env = do
-        objRef <- mkWeakPtr obj . Just $
-            runEvalIO env . evalExp $
-                App (Var "&DESTROYALL") (Just $ Val obj) []
+        objRef <- mkWeakPtr obj . Just $ do
+            runEvalIO env $ do
+                evalExp $ App (Var "&DESTROYALL") (Just $ Val obj) []
             return ()
         modifyIORef _GlobalFinalizer (>> finalize objRef)
         return obj
