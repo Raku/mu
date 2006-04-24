@@ -1552,6 +1552,10 @@ C<proto> predeclaration may make all postdeclared C<multi> work fine,
 since that's a run-time dispatch, and all multis are effectively
 visible at the point of the controlling C<proto> declaration.
 
+Parsing of a provisional call is always done the same way list operators
+are treated.  If a postdeclaration bends the syntax to be inconsistent
+with that, it is an error of the inconsistent signature variety.
+
 If the unrecogized subname is followed by C<< postcircumfix:<( )> >>, it is
 compiled as a provisional function call of the parenthesized form.
 If it is not, it is compiled as a provisional function call of
