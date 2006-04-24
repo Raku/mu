@@ -101,6 +101,9 @@ Other:
 
 - cached precompiled variable rules, per S05
 
+- bug: can only access parameters through $^a $^b...
+- bug: parameters must be constants
+
 Implementation notes:
 
 - maybe change PCR->code() to PCR->as_method()

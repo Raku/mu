@@ -11,18 +11,19 @@ $Data::Dumper::Indent = 1;
 
 # XXX - reuse this sub in metasyntax()
 sub call_subrule {
-    my $name = $_[0];
-    $name = "\$_[4]->" . $_[0] unless $_[0] =~ / :: | \. | -> /x;
-    $name =~ s/\./->/;   # XXX - source filter
+    my ( $subrule, $tab, @param ) = @_;
+    $subrule = "\$_[4]->" . $subrule unless $subrule =~ / :: | \. | -> /x;
+    $subrule =~ s/\./->/;   # XXX - source filter
     return 
-        "$_[1] sub{ \n" .
-        "$_[1]     $name( \$_[0], { p => 1 }, \$_[1] );\n" .
-        "$_[1] }\n";
+        "$tab sub{ \n" .
+        "$tab     # param: @param \n" .
+        "$tab     $subrule( \$_[0], { p => 1, args => [" . join(", ",@param) . "] }, \$_[1] );\n" .
+        "$tab }\n";
 }
 
 sub emit {
     my ($grammar, $ast) = @_;
-    # runtime parameters: $grammar, $string, $state
+    # runtime parameters: $grammar, $string, $state, $arg_list
     # rule parameters: see Runtime::Rule.pm
     return 
         "do {\n" .
@@ -32,9 +33,11 @@ sub emit {
         "  sub {\n" . 
         "    my \$grammar = shift;\n" .
         "    my \$tree;\n" .
+        # "    print \"\\nVariables: args[\", join(\",\",\@_) ,\"] \\n\";\n" .
+        # "    print \"         : \@{\$_[2]}} \\n\" if defined \$_[2];\n" .
         # "    \$_[0] = '' unless defined \$_[0];\n" .
         "    rule_wrapper( \$_[0], \n" . 
-        "        \$matcher->( \$_[0], \$_[1], \$tree, \$tree, \$grammar, 0, \$_[0] )\n" .
+        "        \$matcher->( \$_[0], \$_[1], \$tree, \$tree, \$grammar, 0, \$_[0], \$_[2] )\n" .
         "    );\n" .
         "  }\n" .
         "}\n";
@@ -119,16 +122,39 @@ sub dot {
 }
 sub variable {
     my $name = "$_[0]";
-    my $value = "sub { die 'interpolation of $name not implemented' }\n";
+    my $value = undef;
     # XXX - eval $name doesn't look up in user lexical pad
     # XXX - what &xxx interpolate to?
-    $value = eval $name if $name =~ /^\$/;
+    
+    if ( $name =~ /^\$/ ) {
+        # $^a, $^b
+        if ( $name =~ /^ \$ \^ ([^\s]*) /x ) {
+            my $index = ord($1)-ord('a');
+            #print "Variable #$index\n";
+            #return "$_[1] constant( \$_[7][$index] )\n";
+            
+            my $code = 
+            "    sub { 
+                #print \"Runtime Variable args[\", join(\",\",\@_) ,\"] \$_[7][$index]\\n\";
+                return constant( \$_[7][$index] )->(\@_);
+            }";
+            $code =~ s/^/$_[1]/mg;
+            return "$code\n";
+        }
+        else {
+            $value = eval $name;
+        }
+    }
+    
     $value = join('', eval $name) if $name =~ /^\@/;
     if ( $name =~ /^%/ ) {
         # XXX - runtime or compile-time interpolation?
         return "$_[1] hash( \\$name )\n" if $name =~ /::/;
         return "$_[1] hash( get_variable( '$name' ) )\n";
     }
+    die "interpolation of $name not implemented"
+        unless defined $value;
+
     return "$_[1] constant( '" . $value . "' )\n";
 }
 sub special_char {
@@ -290,9 +316,13 @@ sub metasyntax {
             return;
         }
         # capturing subrule
-        return 
-            "$_[1] capture( '$cmd', \n" . 
-            call_subrule( $cmd, $_[1]."  " ) . 
+        # <subrule ( param, param ) >
+        my ( $subrule, $param_list ) = split( /[\(\)]/, $cmd );
+        $param_list = '' unless defined $param_list;
+        my @param = split( ',', $param_list );
+        return             
+            "$_[1] capture( '$subrule', \n" . 
+            call_subrule( $subrule, $_[1]."  ", @param ) . 
             "$_[1] )\n";
     }
     die "<$cmd> not implemented";

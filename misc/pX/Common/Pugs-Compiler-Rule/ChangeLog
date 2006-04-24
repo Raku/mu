@@ -1,3 +1,5 @@
+- implemented parameters in subrule call (positionals only, constants only)
+
 - '<before ...>', '$'
 
 - new class 'Pugs::Grammar::Category'

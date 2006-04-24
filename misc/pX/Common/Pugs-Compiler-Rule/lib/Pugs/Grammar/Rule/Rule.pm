@@ -16,6 +16,8 @@ Abstract Syntax Tree (AST) for Rules.
 rule p6ws     :P5 {^((?:\s|\#(?-s:.)*)+)}
 
 rule variable :P5 {^([\$\%\@](?:(?:\:\:)?[_[:alnum:]]+)+)}
+rule positional_variable 
+              :P5 {^([\$\%\@]\^(?:[_[:alnum:]]+))}
 
 rule ident    :P5 {^((?:(?:\:\:)?[_[:alnum:]]+)+)}
 
@@ -56,14 +58,14 @@ rule escaped_char :P5 {^\\(.)}
     push @rule_terms, 'non_capturing_group';
     
     rule closure_rule {
-        <code> 
+        <code>
             
         { return { closure => $_[0]{code}() ,} }
     }
     unshift @rule_terms, 'closure_rule';
     
     rule variable_rule {
-        <variable> 
+        <variable> | <positional_variable>
             
         { return { variable => $() ,} }
     }

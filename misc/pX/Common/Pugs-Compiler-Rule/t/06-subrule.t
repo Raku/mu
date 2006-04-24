@@ -1,8 +1,9 @@
-use Test::More tests => 28;
+use Test::More tests => 30;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 use strict;
 use warnings;
+no warnings 'once';
 
 use_ok( 'Pugs::Compiler::Rule' );
 
@@ -85,3 +86,40 @@ use_ok( 'Pugs::Compiler::Rule' );
     $match = $rule->match("ab");
     is( "$match",'',"before didn't match");
 }
+
+{
+    my $subrule = Pugs::Compiler::Rule->compile(' .* $^a ');
+    #print $subrule->perl5;
+
+    {
+        package Test;
+        use base 'Pugs::Grammar::Base';
+        *subrule = $subrule->code;
+    }
+    
+    my $rule = Pugs::Compiler::Rule->compile(' \[ <Test.subrule("]")> ');
+    my $match = $rule->match("[abc]");
+    #print Dumper $match;
+    #print $match->(), "\n";
+    is( "$match",'[abc]',"subrule+param matched");
+}
+
+TODO: {
+    local $TODO = "failing optional quantifier - subrule + param\n";
+
+    my $subrule = Pugs::Compiler::Rule->compile(' .*? $^a ');
+    #print $subrule->perl5;
+
+    {
+        package Test;
+        use base 'Pugs::Grammar::Base';
+        *subrule2 = $subrule->code;
+    }
+    
+    my $rule = Pugs::Compiler::Rule->compile(' \[ <Test.subrule2("]")> ');
+    my $match = $rule->match("[abc]");
+    #print Dumper $match;
+    #print $match->(), "\n";
+    is( "$match",'[abc]',"subrule+param matched");
+}
+

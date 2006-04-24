@@ -12,9 +12,16 @@ use Pugs::Grammar::Rule;
 use Pugs::Runtime::Match;
 use Pugs::Emitter::Rule::Perl5;
 
+use Data::Dumper;
+
 sub new { $_[0] }
 
 sub compile {
+    
+    # $class->compile( $source )
+    # $class->compile( $source, { p=>1 } )
+    # $class->compile( $source, { signature => $sig } ) -- TODO
+
     my ( $class, $rule_source, %param ) = @_;
 
     my $self = { source => $rule_source };
@@ -52,6 +59,7 @@ sub match {
     my ( $rule, $str, $grammar, $flags, $state ) = @_; 
     $grammar ||= $rule->{grammar};
     #print "match: grammar $rule->{grammar}, $_[0], $flags\n";
+    #print "match: Variables: ", Dumper ( $flags->{args} ) if defined $flags->{args};
 
     if ( $flags->{p} ) {
         #print "flag p";
@@ -70,6 +78,7 @@ sub match {
             $grammar,
             $str, 
             $state,
+            $flags->{args},
         );
         $match->{from} = 0;
         return Pugs::Runtime::Match->new( $match ) 
@@ -80,6 +89,7 @@ sub match {
             $grammar,
             substr($str, $i),
             $state,
+            $flags->{args},
         );
         defined $match or next;
         $match->{from} = $i;
@@ -131,6 +141,14 @@ Named rules are methods in a Grammar:
     *rule = Pugs::Compiler::Rule->compile( '((.).).' )->code;
     my $match = MyGrammar->rule( 'abc' );
 
+Rules may have parameters:
+
+    *subrule = $grammar->compile( $source, { signature => $sig } )->code;
+
+    *rule = $grammar->compile( '
+            <subrule: param1, param2>
+        ' )->code;
+
 =head1 DESCRIPTION
 
 This module provides an implementation for Perl 6 Rules.  It is a front-end
@@ -178,6 +196,7 @@ to several other modules:
  <?subrule>
  <!subrule>
  <before ...>
+ <subrule('param')>  -- constant parameters only
 
  %hash
 
@@ -195,6 +214,7 @@ to several other modules:
  $<0> $<1>
  $0 $1
  \n \N
+ $^a $^b            -- positional parameters (must start with $^a)
 
 =head2 Unimplemented or untested features
 

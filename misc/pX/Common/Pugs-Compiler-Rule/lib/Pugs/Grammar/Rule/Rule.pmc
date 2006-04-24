@@ -2,7 +2,7 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0x5C3EF044 or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0x64A6E577 or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
 *{'Pugs::Grammar::Rule::p6ws'} = sub {
@@ -22,6 +22,18 @@ package Pugs::Grammar::Rule;
     #warn "rule argument is undefined" unless defined $_[0];
     $_[0] = "" unless defined $_[0];
     my $bool = $_[0] =~ /^([\$\%\@](?:(?:\:\:)?[_[:alnum:]]+)+)(.*)$/sx;
+    return {
+        bool  => $bool,
+        match => $1,
+        tail  => $2,
+        #capture => $1,
+    }
+};
+*{'Pugs::Grammar::Rule::positional_variable'} = sub {
+    my $grammar = shift;
+    #warn "rule argument is undefined" unless defined $_[0];
+    $_[0] = "" unless defined $_[0];
+    my $bool = $_[0] =~ /^([\$\%\@]\^(?:[_[:alnum:]]+))(.*)$/sx;
     return {
         bool  => $bool,
         match => $1,
@@ -188,7 +200,12 @@ sub {
     package Pugs::Runtime::Rule;
     rule_wrapper( $_[0], (
         concat(
-          capture( 'variable', sub{ $grammar->variable(@_) } )
+          alternation( [
+                capture( 'variable', sub{ $grammar->variable(@_) } )
+              ,
+                capture( 'positional_variable', sub{ $grammar->positional_variable(@_) } )
+              ,
+          ] )
         ,
           Pugs::Runtime::Rule::abort(
               sub {

@@ -19,6 +19,7 @@ A "rule" function gets as argument a list:
 4 - a grammar name
 5 - pos - TODO - change #0 ???
 6 - the whole string to match - TODO - unify with $_[0]
+7 - argument list - <subrule($x,$y)>
 
 it returns (or "yields"):
 
@@ -68,7 +69,7 @@ sub alternation {
         while ( defined $state ) {
             ### alternation string to match: "$tail - (node,state)=@$state"
             $match = 
-                $nodes->[ $state->[0] ]->( $tail, $state->[1], $_[2], $_[3]{match}, @_[4,5,6] );
+                $nodes->[ $state->[0] ]->( $tail, $state->[1], $_[2], $_[3]{match}, @_[4,5,6,7] );
             $match = $$match if ref($match) eq 'Pugs::Runtime::Match';
             ### match: $match
             if ( $match->{state} ) {
@@ -104,7 +105,7 @@ sub concat {
         $_[3] = { match => [] };
         while (1) {
             
-            $matches[0] = $nodes[0]->( $tail, $state[0], $_[2], $_[3]{match}[0], @_[4,5,6] );
+            $matches[0] = $nodes[0]->( $tail, $state[0], $_[2], $_[3]{match}[0], @_[4,5,6,7] );
             $matches[0] = ${$matches[0]} if ref($matches[0]) eq 'Pugs::Runtime::Match';
             ### 1st match: $matches[0]
             return $_[3] = $matches[0] 
@@ -118,7 +119,7 @@ sub concat {
             $_[3]{capture} = $_[3]{match}[0]{capture};
             #print "Matched concat 0, tree:", Dumper($_[2]);
 
-            $matches[1] = $nodes[1]->( $matches[0]{tail}, $state[1], $_[2], $_[3]{match}[1], @_[4,5,6] );
+            $matches[1] = $nodes[1]->( $matches[0]{tail}, $state[1], $_[2], $_[3]{match}[1], @_[4,5,6,7] );
             $matches[1] = ${$matches[1]} if ref($matches[1]) eq 'Pugs::Runtime::Match';
             ### 2nd match: $matches[1]
             if ( ! $matches[1]{abort} ) {
@@ -180,7 +181,7 @@ sub constant {
     no warnings qw( uninitialized );
     return sub {
         #print "Pos: $_[5] - ", length($_[6])-length($_[0]), "\n";
-        #print "constant: $const ";
+        #print "Runtime.constant: $const \n";
         if ( $const eq substr( $_[0], $_[5], $lconst ) ) {
             return $_[3] = { 
                 bool => 1,
@@ -222,7 +223,7 @@ sub capture {
     my $node = shift;
     sub {
         $_[3] = { label => $label };
-        my $match = $node->( @_[0,1,2], $_[3]{match}, @_[4,5,6] );
+        my $match = $node->( @_[0,1,2], $_[3]{match}, @_[4,5,6,7] );
         $match = $$match if ref($match) eq 'Pugs::Runtime::Match';
         return unless $match->{bool};
         ## return if $match->{abort}; - maybe a { return }

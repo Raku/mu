@@ -86,7 +86,8 @@ sub _get_captures {
     else {
         push @a, ${$_[0]}->{match};        
     }
-    while ( exists $a[-1]{match} && ref( $a[-1]{match} ) eq 'ARRAY' ) {
+    #print Dumper @a;
+    while ( ref $a[-1] && exists $a[-1]{match} && ref( $a[-1]{match} ) eq 'ARRAY' ) {
         my $t = pop @a;
         push @a, @{$t->{match}};
     }
@@ -98,7 +99,7 @@ sub hash {
     my @a = _get_captures( $_[0] );
     my %r;
     for my $m ( @a ) {
-        next unless exists $m->{label};
+        next unless ref $m && exists $m->{label};
         if ( $m->{label} eq '*quantifier*' ) {
             my %h = %{ _box_submatch( $_[0], $m ) };
             while ( my ($k, $v) = each %h ) {
