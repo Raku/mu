@@ -582,7 +582,7 @@ op1 "gather" = \v -> do
 op1 "Thread::yield" = const $ do
     ok <- tryIO False $ do { yield ; return True } -- change to guardIO?
     return $ VBool ok
-op1 "DESTROYALL" = op1WalkAllNoArgs id "DESTROY"
+op1 "DESTROYALL" = \x -> cascadeMethod id "DESTROY" x VUndef
 -- [,] is a noop -- It simply returns the input list
 op1 "prefix:[,]" = return
 op1 "Code::assoc" = op1CodeAssoc
@@ -649,36 +649,25 @@ op1IO = \fun v -> do
     val <- fromVal v
     fmap castV (guardIO $ fun val)
 
-{-
-returnList :: [Val] -> Eval Val
-returnList vals = ifListContext
-    (return . VRef $ arrayRef vals)
-    (return . VList $ vals)
--}
-
 returnList :: [Val] -> Eval Val
 returnList = return . VList
 
-op1WalkAllNoArgs :: ([VStr] -> [VStr]) -> VStr -> Val -> Eval Val
-op1WalkAllNoArgs f meth v = do
-    pkgs    <- pkgParents =<< fmap showType (evalValType v)
-    forM_ (f pkgs) $ \pkg -> do
+cascadeMethod :: ([VStr] -> [VStr]) -> VStr -> Val -> Val -> Eval Val
+cascadeMethod f meth v args = do
+    typ     <- evalValType v
+    pkgs    <- fmap f (pkgParents $ showType typ)
+    named   <- case args of
+        VUndef -> return Map.empty
+        _      -> join $ doHash args hash_fetch
+    forM_ pkgs $ \pkg -> do
         let sym = ('&':pkg) ++ "::" ++ meth
-        maybeM (fmap (findSym sym) askGlobal) $ \_ -> do
-            enterEvalContext CxtVoid (App (Var sym) (Just $ Val v) [])
-    return undef
-
-op1WalkAll :: ([VStr] -> [VStr]) -> VStr -> Val -> Val -> Eval Val
-op1WalkAll f meth v hashval = do
-    pkgs    <- pkgParents =<< fmap showType (evalValType v)
-    named   <- join $ doHash hashval hash_fetch
-    forM_ (f pkgs) $ \pkg -> do
-        let sym = ('&':pkg) ++ "::" ++ meth
-        maybeM (fmap (findSym sym) askGlobal) $ \_ -> do
-            enterEvalContext CxtVoid (App (Var sym) (Just $ Val v)
-                [ Syn "named" [Val (VStr key), Val val]
-                | (key, val) <- Map.assocs named ])
-    return undef
+        maybeM (fmap (findSym sym) askGlobal) . const $ do
+            enterEvalContext CxtVoid $
+                App (Var sym) (Just $ Val v)
+                    [ Syn "named" [Val (VStr key), Val val]
+                    | (key, val) <- Map.assocs named
+                    ]
+    return VUndef
 
 op1Return :: Eval Val -> Eval Val
 op1Return action = do
@@ -972,7 +961,7 @@ op2 "sort" = \x y -> do
     op1 "sort" . VList $ xs ++ ys
 op2 "IO::say" = op2Print hPutStrLn
 op2 "IO::print" = op2Print hPutStr
-op2 "BUILDALL" = op1WalkAll reverse "BUILD"
+op2 "BUILDALL" = cascadeMethod reverse "BUILD"
 op2 "Pugs::Internals::install_pragma_value" = \x y -> do
     name <- fromVal x
     val  <- fromVal y
@@ -1107,7 +1096,6 @@ op3 "Object::new" = \t n p -> do
     attrs   <- liftSTM $ newTVar Map.empty
     writeIVar (IHash attrs) named
     uniq    <- liftIO $ newUnique
-    env     <- ask
     unless (positionals == VList []) (fail "Must only use named arguments to new() constructor")
     let obj = VObject $ MkObject
             { objType   = typ
@@ -1118,10 +1106,17 @@ op3 "Object::new" = \t n p -> do
     -- Now start calling BUILD for each of parent classes (if defined)
     op2 "BUILDALL" obj $ (VRef . hashRef) named
     -- Register finalizers by keeping weakrefs somehow
-    liftIO $ do
-        objRef <- mkWeakPtr obj (Just $ objectFinalizer env obj)
+    env <- ask
+    liftIO $ obj `setFinalizationIn` env
+    where
+    setFinalizationIn obj env = do
+        objRef <- mkWeakPtr obj . Just $
+            runEvalIO env . evalExp $
+                App (Var "&DESTROYALL") (Just $ Val obj) []
+            return ()
         modifyIORef _GlobalFinalizer (>> finalize objRef)
-    return obj
+        return obj
+        
 op3 "Object::clone" = \t n p -> do
     named <- fromVal n
     (VObject o) <- fromVal t
@@ -1481,12 +1476,6 @@ doPrettyVal v@(VObject obj) = do
     return $ showType (objType obj)
         ++ ".new(" ++ init (tail str) ++ ")"
 doPrettyVal v = return (pretty v)
-
--- | Call object destructors when GC takes them away
-objectFinalizer :: Env -> Val -> IO ()
-objectFinalizer env obj = do
-    runEvalIO env (evalExp (App (Var "&DESTROYALL") (Just $ Val $ obj) []))
-    return ()
 
 -- XXX -- Junctive Types -- XXX --
 

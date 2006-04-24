@@ -311,7 +311,7 @@ ruleTrait = rule "trait" $ do
         optional $ string "::" -- XXX Bad Hack
         ruleQualifiedIdentifier
     -- XXX: For now, we *only* *parse* "is export(...)". The arguments are
-    -- thrown away. So module writers can give detailed export lists now,
+    -- thrown away. So module writers can give a sensible export lists now,
     -- as otherwise
     -- <Aankhen``> Otherwise, it'll be a pain to go back to every module and
     --             change it all once the proper behaviour is implemented.
