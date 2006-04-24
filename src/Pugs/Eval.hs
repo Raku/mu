@@ -889,19 +889,22 @@ chainFun _ _ _ _ _ = internalError "chainFun: Not enough parameters in Val list"
 applyExp :: SubType -> [ApplyArg] -> Exp -> Eval Val
 applyExp _ bound (Prim f) =
     f [ argValue arg | arg <- bound, (argName arg) /= "%_" ]
-applyExp styp bound body = do
-    let invocant         = head bound
-    let (attrib, normal) = partition isAttrib bound
-    sequence_ [ evalExp (Syn "=" [Syn "{}" [Val (argValue invocant), Val (VStr key)], Val val]) |
-        ApplyArg{ argName = (_:_:key), argValue = val } <- attrib ]
-    -- typ <- inferExpType body
-    ret <- applyThunk styp normal $ MkThunk (evalExp body) anyType
-    return ret
-
-isAttrib :: ApplyArg -> Bool
-isAttrib ApplyArg{ argName = (_:'.':_) } = True
-isAttrib ApplyArg{ argName = (_:':':_) } = True
-isAttrib _ = False
+applyExp styp [] body = do
+    applyThunk styp [] $ MkThunk (evalExp body) anyType
+applyExp styp bound@(invArg:_) body = do
+    let (attribute, normal) = partition isAttribute bound
+        invocant            = argValue invArg
+    -- For each $!foo or $.bar in arg list, assign back to the object directly.
+    forM attribute $ \arg -> do
+        let name  = dropWhile (not . isAlpha) (argName arg)
+            value = argValue arg
+        evalExp $ Syn "=" [Syn "{}" [Val invocant, Val (VStr name)], Val value]
+    applyThunk styp normal $ MkThunk (evalExp body) anyType
+    where
+    isAttribute arg = case reverse (takeWhile (not . isAlpha) (argName arg)) of
+        ('.':_) -> True
+        ('!':_) -> True
+        _       -> False
 
 applyThunk :: SubType -> [ApplyArg] -> VThunk -> Eval Val
 applyThunk _ [] thunk = thunk_force thunk
