@@ -28,11 +28,11 @@ projects, under their own licenses cited below.
 COPYRIGHTED WORKS FROM THE PUGS PROJECT
 ---------------------------------------
 
-Currently, all subdirectories under the top-level directory is copyrighted
-by their respective authors, under their own license disclaimer.
+Currently, all subdirectories under the top-level directory are copyrighted
+by their respective authors, under their own license declarations.
 
-Apart from explicitly declared licenses, you can redistribute them and/or
-modify them under the terms of either:
+For all subdirectories except those with explicitly declared licenses, you
+can redistribute them and/or modify them under the terms of either:
 
     a) the GNU General Public License, version 2, or
     b) the Artistic License, version 2.0beta5.

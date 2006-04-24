@@ -254,9 +254,7 @@ Darren R. Duncan (C<perl@DarrenDuncan.net>)
 
 This file is part of the Relation library.
 
-Relation is Copyright (c) 2006, Darren R. Duncan.  But any copyright
-interest will be transferred to The Perl Foundation for portions or
-derivations that become part of Perl 6 itself.
+Relation is Copyright (c) 2006, Darren R. Duncan.
 
 Relation is free software; you can redistribute it and/or modify it under
 the same terms as Perl 6 itself.
