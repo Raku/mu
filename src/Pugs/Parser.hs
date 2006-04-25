@@ -1582,8 +1582,9 @@ ruleApplySub isFolded = do
 
 ruleFoldOp :: RuleParser String
 ruleFoldOp = verbatimRule "reduce metaoperator" $ do
-    char '['
-    [_, _, _, _, _, infixOps] <- currentTightFunctions
+    [_, _, _, _, _, infixOps] <- try $ do
+        char '['
+        currentTightFunctions
     -- name <- choice $ ops (try . string) (addHyperInfix $ infixOps ++ defaultInfixOps)
     name <- verbatimRule "infix operator" $ do
         choice $ ops (try . string) (addHyperInfix $ infixOps ++ defaultInfixOps)
