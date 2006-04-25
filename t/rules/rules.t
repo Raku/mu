@@ -99,8 +99,8 @@ is(("abbbbc" ~~ /\N**{3..4}/ && $/.from), 0, 're_tests 24/0 (#42)');
 #  31: ab{0,}bc    abbbbc    y    $&    abbbbc
 #  32: ab{0,}bc    abbbbc    y    $-[0]    0
 #  33: ab{0,}bc    abbbbc    y    $+[0]    6 # SKIP
-is(("abbbbc" ~~ /ab**{0...}bc/ && $<>), "abbbbc", 're_tests 26/0 (#45)');
-is(("abbbbc" ~~ /ab**{0...}bc/ && $/.from), 0, 're_tests 26/0 (#46)');
+is(("abbbbc" ~~ /ab**{0..*}bc/ && $<>), "abbbbc", 're_tests 26/0 (#45)');
+is(("abbbbc" ~~ /ab**{0..*}bc/ && $/.from), 0, 're_tests 26/0 (#46)');
 #  34: ab+bc    abbc    y    $&    abbc
 #  35: ab+bc    abbc    y    $-[0]    0
 #  36: ab+bc    abbc    y    $+[0]    4 # SKIP
@@ -111,7 +111,7 @@ ok((not ("abc" ~~ /ab+bc/)), 're_tests 30  (#52)');
 #  38: ab+bc    abq    n    -    -
 ok((not ("abq" ~~ /ab+bc/)), 're_tests 32  (#54)');
 #  39: ab{1,}bc    abq    n    -    -
-ok((not ("abq" ~~ /ab**{1...}bc/)), 're_tests 34  (#56)');
+ok((not ("abq" ~~ /ab**{1..*}bc/)), 're_tests 34  (#56)');
 #  40: ab+bc    abbbbc    y    $&    abbbbc
 #  41: ab+bc    abbbbc    y    $-[0]    0
 #  42: ab+bc    abbbbc    y    $+[0]    6 # SKIP
@@ -120,8 +120,8 @@ is(("abbbbc" ~~ /ab+bc/ && $/.from), 0, 're_tests 36/0 (#60)');
 #  43: ab{1,}bc    abbbbc    y    $&    abbbbc
 #  44: ab{1,}bc    abbbbc    y    $-[0]    0
 #  45: ab{1,}bc    abbbbc    y    $+[0]    6 # SKIP
-is(("abbbbc" ~~ /ab**{1...}bc/ && $<>), "abbbbc", 're_tests 38/0 (#63)');
-is(("abbbbc" ~~ /ab**{1...}bc/ && $/.from), 0, 're_tests 38/0 (#64)');
+is(("abbbbc" ~~ /ab**{1..*}bc/ && $<>), "abbbbc", 're_tests 38/0 (#63)');
+is(("abbbbc" ~~ /ab**{1..*}bc/ && $/.from), 0, 're_tests 38/0 (#64)');
 #  46: ab{1,3}bc    abbbbc    y    $&    abbbbc
 #  47: ab{1,3}bc    abbbbc    y    $-[0]    0
 #  48: ab{1,3}bc    abbbbc    y    $+[0]    6 # SKIP
@@ -343,7 +343,7 @@ is(("abc" ~~ /(a)b(c)/ && $1), "c", 're_tests 210/2 (#252)');
 # 153: a+b+c    aabbabc    y    $&    abc
 is(("aabbabc" ~~ /a+b+c/ && $<>), "abc", 're_tests 212/0 (#254)');
 # 154: a{1,}b{1,}c    aabbabc    y    $&    abc
-is(("aabbabc" ~~ /a**{1...}b**{1...}c/ && $<>), "abc", 're_tests 214/0 (#256)');
+is(("aabbabc" ~~ /a**{1..*}b**{1..*}c/ && $<>), "abc", 're_tests 214/0 (#256)');
 # 155: a**    -    c    -    Nested quantifiers
 # -- SKIPPED - TESTS ERROR MESSAGE
 # 156: a.+?c    abcabc    y    $&    abc
@@ -358,14 +358,14 @@ is(("ab" ~~ /(a+|b)*/ && $/.from), 0, 're_tests 220/0 (#264)');
 # 161: (a+|b)*    ab    y    $+[1]    2 # SKIP
 is(("ab" ~~ /(a+|b)*/ && $/[0].from), 1, 're_tests 222/1 (#266)', :todo<bug>);
 # 162: (a+|b){0,}    ab    y    $&-$0    ab-b
-is(("ab" ~~ /(a+|b)**{0...}/ && $<>), "ab", 're_tests 224/0 (#269)');
-is(("ab" ~~ /(a+|b)**{0...}/ && $0), "b", 're_tests 224/1 (#270)');
+is(("ab" ~~ /(a+|b)**{0..*}/ && $<>), "ab", 're_tests 224/0 (#269)');
+is(("ab" ~~ /(a+|b)**{0..*}/ && $0), "b", 're_tests 224/1 (#270)');
 # 163: (a+|b)+    ab    y    $&-$0    ab-b
 is(("ab" ~~ /(a+|b)+/ && $<>), "ab", 're_tests 226/0 (#273)');
 is(("ab" ~~ /(a+|b)+/ && $0[-1]), "b", 're_tests 226/1 (#274)');
 # 164: (a+|b){1,}    ab    y    $&-$0    ab-b
-is(("ab" ~~ /(a+|b)**{1...}/ && $<>), "ab", 're_tests 228/0 (#277)');
-is(("ab" ~~ /(a+|b)**{1...}/ && $0), "b", 're_tests 228/1 (#278)');
+is(("ab" ~~ /(a+|b)**{1..*}/ && $<>), "ab", 're_tests 228/0 (#277)');
+is(("ab" ~~ /(a+|b)**{1..*}/ && $0), "b", 're_tests 228/1 (#278)');
 # 165: (a+|b)?    ab    y    $&-$0    a-a
 is(("ab" ~~ /(a+|b)?/ && $<>), "a", 're_tests 230/0 (#281)');
 is(("ab" ~~ /(a+|b)?/ && $0), "a", 're_tests 230/1 (#282)');
@@ -604,7 +604,7 @@ is(("ABBC" ~~ rx:i/ab*bc/ && $<>), "ABBC", 're_tests 378/0 (#488)', :todo<featur
 # 273: 'ab*?bc'i    ABBBBC    y    $&    ABBBBC
 is(("ABBBBC" ~~ rx:i/ab*?bc/ && $<>), "ABBBBC", 're_tests 380/0 (#490)', :todo<feature>);
 # 274: 'ab{0,}?bc'i    ABBBBC    y    $&    ABBBBC
-is(("ABBBBC" ~~ rx:i/ab**{0...}?bc/ && $<>), "ABBBBC", 're_tests 382/0 (#492)', :todo<feature>);
+is(("ABBBBC" ~~ rx:i/ab**{0..*}?bc/ && $<>), "ABBBBC", 're_tests 382/0 (#492)', :todo<feature>);
 # 275: 'ab+?bc'i    ABBC    y    $&    ABBC
 is(("ABBC" ~~ rx:i/ab+?bc/ && $<>), "ABBC", 're_tests 384/0 (#494)', :todo<feature>);
 # 276: 'ab+bc'i    ABC    n    -    -
@@ -612,11 +612,11 @@ ok((not ("ABC" ~~ rx:i/ab+bc/)), 're_tests 386  (#496)');
 # 277: 'ab+bc'i    ABQ    n    -    -
 ok((not ("ABQ" ~~ rx:i/ab+bc/)), 're_tests 388  (#498)');
 # 278: 'ab{1,}bc'i    ABQ    n    -    -
-ok((not ("ABQ" ~~ rx:i/ab**{1...}bc/)), 're_tests 390  (#500)');
+ok((not ("ABQ" ~~ rx:i/ab**{1..*}bc/)), 're_tests 390  (#500)');
 # 279: 'ab+bc'i    ABBBBC    y    $&    ABBBBC
 is(("ABBBBC" ~~ rx:i/ab+bc/ && $<>), "ABBBBC", 're_tests 392/0 (#502)', :todo<feature>);
 # 280: 'ab{1,}?bc'i    ABBBBC    y    $&    ABBBBC
-is(("ABBBBC" ~~ rx:i/ab**{1...}?bc/ && $<>), "ABBBBC", 're_tests 394/0 (#504)', :todo<feature>);
+is(("ABBBBC" ~~ rx:i/ab**{1..*}?bc/ && $<>), "ABBBBC", 're_tests 394/0 (#504)', :todo<feature>);
 # 281: 'ab{1,3}?bc'i    ABBBBC    y    $&    ABBBBC
 is(("ABBBBC" ~~ rx:i/ab**{1..3}?bc/ && $<>), "ABBBBC", 're_tests 396/0 (#506)', :todo<feature>);
 # 282: 'ab{3,4}?bc'i    ABBBBC    y    $&    ABBBBC
@@ -732,7 +732,7 @@ is(("ABC" ~~ rx:i/(a)b(c)/ && $1), "C", 're_tests 484/2 (#606)', :todo<feature>)
 # 334: 'a+b+c'i    AABBABC    y    $&    ABC
 is(("AABBABC" ~~ rx:i/a+b+c/ && $<>), "ABC", 're_tests 486/0 (#608)', :todo<feature>);
 # 335: 'a{1,}b{1,}c'i    AABBABC    y    $&    ABC
-is(("AABBABC" ~~ rx:i/a**{1...}b**{1...}c/ && $<>), "ABC", 're_tests 488/0 (#610)', :todo<feature>);
+is(("AABBABC" ~~ rx:i/a**{1..*}b**{1..*}c/ && $<>), "ABC", 're_tests 488/0 (#610)', :todo<feature>);
 # 336: 'a**'i    -    c    -    Nested quantifiers
 # -- SKIPPED - TESTS ERROR MESSAGE
 # 337: 'a.+?c'i    ABCABC    y    $&    ABC
@@ -745,14 +745,14 @@ is(("ABCABC" ~~ rx:i/a\N**{0..5}?c/ && $<>), "ABC", 're_tests 494/0 (#616)', :to
 is(("AB" ~~ rx:i/(a+|b)*/ && $<>), "AB", 're_tests 496/0 (#619)', :todo<feature>);
 is(("AB" ~~ rx:i/(a+|b)*/ && $0), "B", 're_tests 496/1 (#620)', :todo<feature>);
 # 341: '(a+|b){0,}'i    AB    y    $&-$0    AB-B
-is(("AB" ~~ rx:i/(a+|b)**{0...}/ && $<>), "AB", 're_tests 498/0 (#623)', :todo<feature>);
-is(("AB" ~~ rx:i/(a+|b)**{0...}/ && $0), "B", 're_tests 498/1 (#624)', :todo<feature>);
+is(("AB" ~~ rx:i/(a+|b)**{0..*}/ && $<>), "AB", 're_tests 498/0 (#623)', :todo<feature>);
+is(("AB" ~~ rx:i/(a+|b)**{0..*}/ && $0), "B", 're_tests 498/1 (#624)', :todo<feature>);
 # 342: '(a+|b)+'i    AB    y    $&-$0    AB-B
 is(("AB" ~~ rx:i/(a+|b)+/ && $<>), "AB", 're_tests 500/0 (#627)', :todo<feature>);
 is(("AB" ~~ rx:i/(a+|b)+/ && $0), "B", 're_tests 500/1 (#628)', :todo<feature>);
 # 343: '(a+|b){1,}'i    AB    y    $&-$0    AB-B
-is(("AB" ~~ rx:i/(a+|b)**{1...}/ && $<>), "AB", 're_tests 502/0 (#631)', :todo<feature>);
-is(("AB" ~~ rx:i/(a+|b)**{1...}/ && $0), "B", 're_tests 502/1 (#632)', :todo<feature>);
+is(("AB" ~~ rx:i/(a+|b)**{1..*}/ && $<>), "AB", 're_tests 502/0 (#631)', :todo<feature>);
+is(("AB" ~~ rx:i/(a+|b)**{1..*}/ && $0), "B", 're_tests 502/1 (#632)', :todo<feature>);
 # 344: '(a+|b)?'i    AB    y    $&-$0    A-A
 is(("AB" ~~ rx:i/(a+|b)?/ && $<>), "A", 're_tests 504/0 (#635)', :todo<feature>);
 is(("AB" ~~ rx:i/(a+|b)?/ && $0), "A", 're_tests 504/1 (#636)', :todo<feature>);
@@ -1719,7 +1719,7 @@ ok((not ("b\nca" ~~ /abb$/)), 're_tests 1095  (#1299)');
 # 798: (^|x)(c)    ca    y    $1    c
 is(("ca" ~~ /(^|x)(c)/ && $1), "c", 're_tests 1107/2 (#1311)');
 # 799: a*abc?xyz+pqr{3}ab{2,}xy{4,5}pq{0,6}AB{0,}zz    x    n    -    -
-ok((not ("x" ~~ /a*abc?xyz+pqr**{3}ab**{2...}xy**{4..5}pq**{0..6}AB**{0...}zz/)), 're_tests 1109  (#1313)');
+ok((not ("x" ~~ /a*abc?xyz+pqr**{3}ab**{2..*}xy**{4..5}pq**{0..6}AB**{0..*}zz/)), 're_tests 1109  (#1313)');
 # 800: a(?{$a=2;$b=3;($b)=$a})b    yabz    y    $b    2
 # SKIPPED: script doesn't understand `$b' yet
 # -- SKIPPED - p5re_to_p6rule doesn't support `(?{...' yet
@@ -1831,25 +1831,25 @@ is(("a,b,c" ~~ /^(<-[,]>*,)**{2}c/ && $0), "b,", 're_tests 1187/1 (#1391)');
 # 846: ^([^,]*,){3}d    aaa,b,c,d    y    $0    c,
 is(("aaa,b,c,d" ~~ /^(<-[,]>*,)**{3}d/ && $0), "c,", 're_tests 1189/1 (#1393)');
 # 847: ^([^,]*,){3,}d    aaa,b,c,d    y    $0    c,
-is(("aaa,b,c,d" ~~ /^(<-[,]>*,)**{3...}d/ && $0), "c,", 're_tests 1191/1 (#1395)');
+is(("aaa,b,c,d" ~~ /^(<-[,]>*,)**{3..*}d/ && $0), "c,", 're_tests 1191/1 (#1395)');
 # 848: ^([^,]*,){0,3}d    aaa,b,c,d    y    $0    c,
 is(("aaa,b,c,d" ~~ /^(<-[,]>*,)**{0..3}d/ && $0), "c,", 're_tests 1193/1 (#1397)');
 # 849: ^([^,]{1,3},){3}d    aaa,b,c,d    y    $0    c,
 is(("aaa,b,c,d" ~~ /^(<-[,]>**{1..3},)**{3}d/ && $0), "c,", 're_tests 1195/1 (#1399)');
 # 850: ^([^,]{1,3},){3,}d    aaa,b,c,d    y    $0    c,
-is(("aaa,b,c,d" ~~ /^(<-[,]>**{1..3},)**{3...}d/ && $0), "c,", 're_tests 1197/1 (#1401)');
+is(("aaa,b,c,d" ~~ /^(<-[,]>**{1..3},)**{3..*}d/ && $0), "c,", 're_tests 1197/1 (#1401)');
 # 851: ^([^,]{1,3},){0,3}d    aaa,b,c,d    y    $0    c,
 is(("aaa,b,c,d" ~~ /^(<-[,]>**{1..3},)**{0..3}d/ && $0), "c,", 're_tests 1199/1 (#1403)');
 # 852: ^([^,]{1,},){3}d    aaa,b,c,d    y    $0    c,
-is(("aaa,b,c,d" ~~ /^(<-[,]>**{1...},)**{3}d/ && $0), "c,", 're_tests 1201/1 (#1405)');
+is(("aaa,b,c,d" ~~ /^(<-[,]>**{1..*},)**{3}d/ && $0), "c,", 're_tests 1201/1 (#1405)');
 # 853: ^([^,]{1,},){3,}d    aaa,b,c,d    y    $0    c,
-is(("aaa,b,c,d" ~~ /^(<-[,]>**{1...},)**{3...}d/ && $0), "c,", 're_tests 1203/1 (#1407)');
+is(("aaa,b,c,d" ~~ /^(<-[,]>**{1..*},)**{3..*}d/ && $0), "c,", 're_tests 1203/1 (#1407)');
 # 854: ^([^,]{1,},){0,3}d    aaa,b,c,d    y    $0    c,
-is(("aaa,b,c,d" ~~ /^(<-[,]>**{1...},)**{0..3}d/ && $0), "c,", 're_tests 1205/1 (#1409)');
+is(("aaa,b,c,d" ~~ /^(<-[,]>**{1..*},)**{0..3}d/ && $0), "c,", 're_tests 1205/1 (#1409)');
 # 855: ^([^,]{0,3},){3}d    aaa,b,c,d    y    $0    c,
 is(("aaa,b,c,d" ~~ /^(<-[,]>**{0..3},)**{3}d/ && $0), "c,", 're_tests 1207/1 (#1411)');
 # 856: ^([^,]{0,3},){3,}d    aaa,b,c,d    y    $0    c,
-is(("aaa,b,c,d" ~~ /^(<-[,]>**{0..3},)**{3...}d/ && $0), "c,", 're_tests 1209/1 (#1413)');
+is(("aaa,b,c,d" ~~ /^(<-[,]>**{0..3},)**{3..*}d/ && $0), "c,", 're_tests 1209/1 (#1413)');
 # 857: ^([^,]{0,3},){0,3}d    aaa,b,c,d    y    $0    c,
 is(("aaa,b,c,d" ~~ /^(<-[,]>**{0..3},)**{0..3}d/ && $0), "c,", 're_tests 1211/1 (#1415)');
 # 858: (?i)        y    -    -
