@@ -417,8 +417,9 @@ ruleSubNamePossiblyWithTwigil = verbatimRule "subroutine name" $ try $ do
 
 ruleSubName :: RuleParser String
 ruleSubName = verbatimRule "subroutine name" $ do
+    twigil  <- option "" (string "*")
     name <- ruleOperatorName <|> ruleQualifiedIdentifier
-    return ('&':name)
+    return $ "&" ++ twigil ++ name
 
 ruleOperatorName :: RuleParser String
 ruleOperatorName = verbatimRule "operator name" $ do
