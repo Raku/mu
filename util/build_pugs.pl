@@ -119,7 +119,9 @@ sub build_lib {
         # we have to locate "Syck_stub.o" and copy it into
         # dist/build/src/Data/Yaml/.
         my @candidates;
-        my $target = File::Spec->canonpath("dist/build/src/$pathname");
+        my $target = File::Spec->canonpath(
+            File::Spec->catfile(qw< dist build src >, $pathname
+        );
         my $wanted = sub {
             return unless $_ eq $basename;
             push @candidates, $File::Find::name;
@@ -135,12 +137,12 @@ sub build_lib {
         }
 
         unless( File::Spec->canonpath($candidates[0]) eq $target ) {
-            mkpath(($target =~ m!(.*/)!)[0]); # create dir for target
+            mkpath(($target =~ m!(.*[/\\])!)[0]); # create dir for target
             copy($candidates[0] => $target)
                 or die "Copy '$candidates[0]' => '$target' failed: $!";
         }
 
-        system($ar, r => $a_file, "dist/build/src/$pathname");
+        system($ar, r => $a_file, $target);
     };
 
     $fixup->('Data.Yaml.Syck');
