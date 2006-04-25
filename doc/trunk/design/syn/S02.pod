@@ -1546,15 +1546,24 @@ is that there's no longer any "C<use strict 'subs'>".  Since the syntax
 for method calls is distinguished from sub calls, it is only unrecognized
 sub calls that must be treated specially.
 
-You still must declare your subroutines, but an unrecognized bare
-identifier is provisionally compiled as a subroutine call on that
-assumption that such a declaration will occur by the end of the current
-compilation unit.  If it is not, the compile fails at C<CHECK> time.
+You still must declare your subroutines, but a bareword with an unrecognized
+name is provisionally compiled as a subroutine call, on that assumption that
+such a declaration will occur by the end of the current compilation unit:
+
+    foo;         # provisional call if neither &foo nor ::foo is defined so far
+    foo();       # provisional call if &foo is not defined so far
+    foo($x, $y); # provisional call if &foo is not defined so far
+    $x.foo;      # not a provisional call; it's a method call on $x
+    foo($x);     # not a provisional call; it's a method call on $x
+
+If a postdeclaration is not seen, the compile fails at C<CHECK> time.
 (You are still free to predeclare subroutines explicitly, of course.)
 The postdeclaration may be in any lexical or package scope that
 could have made the declaration visible to the provisional call had the
 declaration occurred before rather than after than the provisional
-call.  This fixup is done only for provisional calls.  If there
+call.
+
+This fixup is done only for provisional calls.  If there
 is I<any> real predeclaration visible, it always takes precedence.
 In case of multiple ambiguous postdeclarations, either they must all
 be multis, or a compile-time error is declared and you must predeclare,
@@ -1563,9 +1572,10 @@ C<proto> predeclaration may make all postdeclared C<multi> work fine,
 since that's a run-time dispatch, and all multis are effectively
 visible at the point of the controlling C<proto> declaration.
 
-Parsing of a provisional call is always done the same way list operators
-are treated.  If a postdeclaration bends the syntax to be inconsistent
-with that, it is an error of the inconsistent signature variety.
+Parsing of a bareword function as a provisional call is always done
+the same way list operators are treated.  If a postdeclaration bends
+the syntax to be inconsistent with that, it is an error of the
+inconsistent signature variety.
 
 If the unrecogized subname is followed by C<< postcircumfix:<( )> >>, it is
 compiled as a provisional function call of the parenthesized form.
