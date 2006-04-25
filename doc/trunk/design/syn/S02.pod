@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
   Last Modified: 24 Apr 2006
   Number: 2
-  Version: 31
+  Version: 32
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1187,9 +1187,8 @@ returned as C<Pair> objects.
 
 =item *
 
-There is now a generalized adverbial form of Pair notation:
-
-The following table shows the correspondence:
+There is now a generalized adverbial form of Pair notation.  The
+following table shows the correspondence to the "fatarrow" notation:
 
     Fat arrow		Adverbial pair
     =========		==============
@@ -1215,8 +1214,12 @@ equivalent not to C<.{'a','b'}> but rather to C<('a','b')>.  Bare C<< <a> >>
 turns into C<('a')> rather than C<('a',)>.
 
 Two or more adverbs can always be strung together without intervening
-punctuation anywhere a single adverb is acceptable.  When used as named
-arguments, you may put comma between.  See S06.
+punctuation anywhere a single adverb is acceptable.  When used as
+named arguments in an argument list, you may put comma between,
+because they're just ordinary named arguments to the function, and
+a fatarrow pair would work the same.   When modifying an operator
+(that is, when one occurs where an operator is expected), you may
+not put commas between, and the fatarrow form is not allowd.  See S06.
 
 The negated form (C<:!a>) and the sigiled forms (C<:$a>, C<:@a>,
 C<:%a>) never take an argument and don't care what the next character is.
@@ -1224,11 +1227,19 @@ They are considered complete.
 
 The other forms of adverb (including the bare C<:a> form) I<always>
 look for an immediate bracketed argument, and will slurp it up.
-If that's not intended, you must use whitespace between the adverb
-and the opening bracket.
+If that's not intended, you must use whitespace between the adverb and
+the opening bracket.  The syntax of individual adverbs is the same
+everywhere in Perl 6.  There are no exceptions based on whether an
+argument is wanted or not.  Except as noted above, the parser always
+looks for the brackets.  Despite not indicating a true subscript,
+the brackets are similarly parsed as postfix operators.  As postfixes
+the brackets may be separated from their initial C<:foo> with either
+dot or "long dot", but nothing else.
 
-Despite not being a subscript, the brackets are parsed as postfix operators,
-and may be separated from their C<:foo> with dot or "long dot".
+Regardless of syntax, adverbs used as named arguments generally show
+up as optional named parameters to the function in question--even
+if the function is an operator or macro.  The function in question
+neither knows nor cares how weird the original syntax was.
 
 =item *
 
