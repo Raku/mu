@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 21 Apr 2006
+  Last Modified: 25 Apr 2006
   Number: 4
-  Version: 17
+  Version: 18
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -226,8 +226,8 @@ To process two arrays in parallel, use the C<each> function:
 
     for each(@a;@b) -> $a, $b { print "[$a, $b]\n" }
 
-or use the C<zip> function to generate a list of tuples that each can be bound
-to multiple arguments enclosed in square brackets:
+or use the C<zip> function to generate a list of C<Seq> objects that each can
+be bound to multiple arguments enclosed in square brackets:
 
     for zip(@a;@b) -> [$a, $b] { print "[$a, $b]\n" }
 

@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 25 Apr 2006
   Number: 3
-  Version: 22
+  Version: 23
 
 =head1 Changes to existing operators
 
@@ -722,7 +722,8 @@ it should be parsed as a list operator:
 =head1 C<zip>
 
 In order to support parallel iteration over multiple arrays, Perl 6 has
-a C<zip> function that builds tuples of the elements of two or more arrays.
+a C<zip> function that builds C<Seq> objects from the elements of two or more
+arrays.
 
     for zip(@names; @codes) -> [$name, $zip] {
         print "Name: $name;   Zip code: $zip\n";

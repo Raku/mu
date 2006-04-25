@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 24 Apr 2006
+  Last Modified: 25 Apr 2006
   Number: 2
-  Version: 32
+  Version: 33
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -627,11 +627,11 @@ instance stack multiple types that all must match:
     :(Any Num Dog|Cat $numdog)
 
 Such a signature may be used within another signature to apply
-additional type constraints.  When applied to a tuple argument, the
+additional type constraints.  When applied to a C<Capture> argument, the
 signature allows you to specify the types of parameters that would
 otherwise be untyped:
 
-    :(Any Num Dog|Cat $numdog, MySig *$a ($i,$j,$k,$mousestatus))
+    :(Any Num Dog|Cat $numdog, MySig \$a ($i,$j,$k,$mousestatus))
 
 =item *
 

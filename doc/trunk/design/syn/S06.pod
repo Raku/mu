@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 22 Apr 2006
+  Last Modified: 25 Apr 2006
   Number: 6
-  Version: 30
+  Version: 31
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1196,7 +1196,7 @@ notation.
     my ($i, $j, $k);
     @a ~~ rx/
 	    <,>				# match initial elem boundary
-	    :(Int $i,Int $j,Int? $k)	# match tuple with 2 or 3 ints
+	    :(Int $i,Int $j,Int? $k)	# match lists with 2 or 3 ints
 	    <,>				# match final elem boundary
 	  /;
     say "i = $<i>";
@@ -1209,7 +1209,7 @@ instead, and fail if no such variable is declared.
 
 Note that unlike a sub declaration, a regex-embedded signature has no
 associated "returns" syntactic slot, so you have to use C<< --> >>
-within the signature to specify the type of the tuple, or match as
+within the signature to specify the type of the signature, or match as
 an arglist:
 
     :(Num, Num --> Coord)
@@ -1225,7 +1225,7 @@ which would be equivalent to
 
     :(\Dog())
 
-that is, match a null tuple of type C<Dog>.  Nor is it equivalent to
+that is, match a nullary function of type C<Dog>.  Nor is it equivalent to
 
     :(Dog)
 
@@ -1233,11 +1233,7 @@ which would be equivalent to
 
     :(\Any(Dog))
 
-or
-
-    :([Dog])
-
-and match a tuple-ish item with a single value of type Dog.
+and match a function taking a single value of type Dog.
 
 Note also that bare C<\(1,2,3)> is never legal in a regex since the
 first paren would try to match literally.
