@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 22 Apr 2006
+  Last Modified: 25 Apr 2006
   Number: 3
-  Version: 21
+  Version: 22
 
 =head1 Changes to existing operators
 
@@ -51,8 +51,7 @@ as a single huge integer.
 
 =item * C<x> splits into two operators: C<x> (which concatenates repetitions 
 of a string to produce a single string), and C<xx> (which creates a list of 
-repetitions of a list or scalar).  Conjecture: the C<xxx> "infix" operator
-takes no right argument and is equivalent to C<xx Inf>.
+repetitions of a list or scalar).
 
 =item * Trinary C<? :> becomes C<?? !!>.  It is a syntax error to use an
 operator in the middle that binds looser in precedence, such as C<=>.
@@ -118,7 +117,7 @@ too: C<err>.
 tests whether they are the same value (eg. C<1 === 1>); for two reference
 types, checks whether they have the same identity value.  For reference
 types that do not define an identity, the reference itself is used (eg. it
-is not true that C<[1,2] === [1,2]>, but it is true that C<\@a === \@a>).
+is not true that C<[1,2] === [1,2]>, but it is true that C<@a === @a>).
 
 Any reference type may pretend to be a value type by defining a C<.id> method
 which returns a built-in value, i.e. an immutable object or a native value,
@@ -148,7 +147,7 @@ Its precedence is now equivalent to assignment, and it is right associative.
 
 =item * C<=~> becomes the "smart match" operator C<~~>, with a whole new set
 of semantics.  Anywhere you used C<=~> before you now use C<~~>, but C<~~> is
-much more general now.  See L<Synopsis 4> for details.  (To catch "brainos",
+much more general now.  See S04 for details.  (To catch "brainos",
 the Perl 6 parser defines an C<< infix:<=~> >> macro which always fails at
 compile time with a message directing the user either to use C<~~> or C<~=> instead,
 or to put a space between if they really wanted to assign a stringified value.)
@@ -578,7 +577,7 @@ and code declarators:
     rule foo
     token foo
 
-These all have their uses and are explained in subsequent synopses.
+These all have their uses and are explained in subsequent Synopses.
 
 =head1 Argument List Interpolating
 
@@ -658,8 +657,8 @@ that gives you everything it can in that argument position.  For instance:
     my ($a,$b,$c) = "foo" xx *;		# an arbitrary long list of "foo"
     if /foo/ ff * {...}			# a latching flipflop
     @slice = @x[*;0;*];			# any Int
-    %slice = %x{*;'foo'};		# any keys in domain of 1st dimension
-    %array[*]				# *not* a zen slice
+    @slice = %x{*;'foo'};		# any keys in domain of 1st dimension
+    @array[*]				# flattens, unlike @array[]
 
 C<Whatever> is an undefined prototype object derived from C<Any>.  As a
 type it is abstract, and may not be instantiated as a defined object.
@@ -703,7 +702,7 @@ or:
              <== grep { /^ \d+ $/ }
              <== @data;
 
-Either form more clearly indicates the flow of data.  See L<Synopsis 6> for 
+Either form more clearly indicates the flow of data.  See S06 for 
 more of the (less-than-obvious) details on these two operators.
 
 =head1 Invocant marker
@@ -729,7 +728,8 @@ a C<zip> function that builds tuples of the elements of two or more arrays.
         print "Name: $name;   Zip code: $zip\n";
     }
 
-C<zip> has an infix synonym, the Unicode operator C<¥>.
+C<zip> has an infix synonym, the Unicode operator C<¥>, and its the ASCII
+equivalent C<Y>.
 
 To read arrays in parallel like C<zip> but just sequence the values
 rather than generating tuples, use C<each> instead of C<zip>.
@@ -766,12 +766,12 @@ constructs:
     }
     while 0 < $i { $i++ }
 
-It is, however, still possible to align accessors by explicitly using the C<.>
-operator:
+It is, however, still possible to align accessors by explicitly using the
+I<long dot> syntax:
 
      %monsters.{'cookie'} = Monster.new;
-     %people  .{'john'}   = Person .new;
-     %cats    .{'fluffy'} = Cat    .new;
+     %people. .{'john'}   = Person.new;
+     %cats.   .{'fluffy'} = Cat.new;
 
 =head1 Precedence
 
