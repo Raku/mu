@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 22 Apr 2006
+   Last Modified: 24 Apr 2006
    Number: 5
-   Version: 22
+   Version: 23
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> because they haven't been
@@ -117,6 +117,11 @@ Note that this does not automatically anchor the pattern to the starting
 location.  (Use C<:p> for that.)  The pattern you supply to C<split>
 has an implicit C<:c> modifier.
 
+The C<:continue> modifier takes an optional argument of type C<StrPos>
+which specifies the point at which to start scanning for a match.
+This should not be used unless you know what you're doing, or just
+happen to like hard-to-debug infinite loops.
+
 =item *
 
 The C<:p> (or C<:pos>) modifier causes the pattern to try to match only at
@@ -139,6 +144,10 @@ is roughly equivalent to
 
 Also note that any regex called as a subrule is implicitly anchored to the
 current position anyway.
+
+The C<:pos> modifier takes an optional argument of type C<StrPos>
+which specifies the point at which to attempt a match.  This should not
+be used lightly.  Put it in the category of a "goto".
 
 =item *
 
@@ -502,7 +511,7 @@ is like a Perl 5:
 
      / \Q$var\E /
 
-However, if C<$var> contains a Regex object, instead of attempting to
+However, if C<$var> contains a C<Regex> object, instead of attempting to
 convert it to a string, it is called as a subrule, as if you said
 C<< <$var> >>.  (See assertions below.)  This form does not capture,
 and it fails if C<$var> is tainted.
@@ -519,7 +528,7 @@ is matched as if it were an alternation of its elements:
 
 
 As with a scalar variable, each element is matched as a literal
-unless it happens to be a Regex object, in which case it is matched
+unless it happens to be a C<Regex> object, in which case it is matched
 as a subrule.  As with scalar subrules, a tainted subrule always fails.
 All values pay attention to the current C<:ignorecase> setting.
 
@@ -544,9 +553,10 @@ C<"">, nothing special happens except that the key match succeeds.
 
 =item *
 
-If it is a Regex object, it is executed as a subrule, with an initial
-position I<after> the matched key.  As with scalar subrules, a tainted
-subrule always fails, and no capture is attempted.
+If it is a C<Regex> object, it is executed as a subrule, with an
+initial position I<after> the matched key.  (This is further described
+below under the C<< <%hash> >> notation.)  As with scalar subrules,
+a tainted subrule always fails, and no capture is attempted.
 
 =item *
 
@@ -595,8 +605,10 @@ The special named assertions include:
      / <after pattern> /     # was /(?<pattern)/
 
      / <ws> /                # match whitespace by :w policy
-
      / <sp> /                # match a space char
+
+     / <at($pos)> /          # match only at a particular StrPos
+     			     # short for <?{ .pos == $pos }>
 
 The C<after> assertion implements lookbehind by reversing the syntax
 tree and looking for things in the opposite order going to the left.
@@ -621,7 +633,7 @@ The non-capturing behavior may be overridden with a C<:keepall>.
 =item *
 
 A leading C<$> indicates an indirect subrule.  The variable must contain
-either a Regex object, or a string to be compiled as the regex.  The
+either a C<Regex> object, or a string to be compiled as the regex.  The
 string is never matched literally.
 
 By default C<< <$foo> >> is captured into C<< $<foo> >>, but you can
@@ -643,9 +655,9 @@ multis rather than methods.  This form is not captured by default.
 =item *
 
 A leading C<@> matches like a bare array except that each element is
-treated as a subrule (string or Regex object) rather than as a literal.
+treated as a subrule (string or C<Regex> object) rather than as a literal.
 That is, a string is forced to be compiled as a subrule instead of being
-matched literally.  (There is no difference for a Regex object.)
+matched literally.  (There is no difference for a C<Regex> object.)
 
 By default C<< <@foo> >> is captured into C<< $<foo> >>, but you can
 use the C<< <?@foo> >> form to suppress capture, and you can always say
@@ -727,7 +739,7 @@ is short for
 =item *
 
 In any case of regex interpolation, if the value already happens to be
-a Regex object, it is not recompiled.  If it is a string, the compiled
+a C<Regex> object, it is not recompiled.  If it is a string, the compiled
 form is cached with the string so that it is not recompiled next
 time you use it unless the string changes.  (Any external lexical
 variable names must be rebound each time though.)  Subrules may not be
@@ -864,26 +876,7 @@ rare cases that need them you can use C<< <{ lc $regex }> >> etc.
 The C<\G> sequence is gone.  Use C<:p> instead.  (Note, however,
 that it makes no sense to use C<:p> within a pattern, since every
 internal pattern is implicitly anchored to the current position.)
-To anchor to a particular position in the general case you can use
-the C<< <at($pos)> >> assertion to say that the current position
-is the same as the position object you supply.  Please remember
-that in Perl 6 string positions are generally I<not> integers, but
-objects that point to a particular place in the string regardless
-of whether you count by bytes or codepoints or graphemes.  If used
-with an integer, the C<at> assertion will assume you mean the current
-lexically scoped Unicode level, on the assumption that this integer was
-somehow generated in this same lexical scope.  If this is outside the
-current string's allowed abstraction levels, an exception is thrown.
-See S02 for more discussion of string positions.
-
-C<Buf> types are based on fixed-width cells and can therefore
-handle integer positions just fine, and treat them as array indices.
-In particular, C<buf8> AKA C<buf> is just an old-school byte string.
-However, as with matching on any C<Array> type, if you do matching on
-a C<buf32> and end up in the middle of a 32-bit cell, you'll still
-get an opaque C<StrPos> that remembers both the element offset and
-the position within that element.  If you force it to give you a
-numeric offset, I wouldn't blame it for giving you a fractional value.
+See the C<at> assertion below.
 
 =item *
 
@@ -1002,7 +995,7 @@ constructor.  In fact, that analogy will run I<very> deep in Perl 6.
 
 Just as a raw C<{...}> is now always a closure (which may still
 execute immediately in certain contexts and be passed as an object
-in others), so too a raw C</.../> is now always a Regex object (which
+in others), so too a raw C</.../> is now always a C<Regex> object (which
 may still match immediately in certain contexts and be passed as an
 object in others).
 
@@ -1010,13 +1003,13 @@ object in others).
 
 Specifically, a C</.../> matches immediately in a value context (void,
 Boolean, string, or numeric), or when it is an explicit argument of
-a C<~~>.  Otherwise it's a Regex constructor identical to the explicit
+a C<~~>.  Otherwise it's a C<Regex> constructor identical to the explicit
 C<regex> form.  So this:
 
      $var = /pattern/;
 
 no longer does the match and sets C<$var> to the result.
-Instead it assigns a Regex object to C<$var>.
+Instead it assigns a C<Regex> object to C<$var>.
 
 =item *
 
@@ -1466,6 +1459,11 @@ the match. For example:
      if m/ def <ident> <codeblock> / {
          say "Found sub def from index $/.from() to index $/.to()";
      }
+
+Warning: these methods usually return values of type C<StrPos>,
+which you should not treat as integers.  The interpolation of these
+values in the example above is slightly naughty, and likely to print
+out the positions not as numbers but as "C<Graphs(42)>" or some such.
 
 =item *
 
@@ -2753,6 +2751,43 @@ There are also method forms of C<m//> and C<s///>:
 
 =back
 
+=head1 Positional matching, fixed width types
+
+=over
+
+=item *
+
+To anchor to a particular position in the general case you can use
+the C<< <at($pos)> >> assertion to say that the current position
+is the same as the position object you supply.  You may set the
+current match position via the C<:c> and C<:p> modifiers.
+
+However, please remember that in Perl 6 string positions are generally
+I<not> integers, but objects that point to a particular place in
+the string regardless of whether you count by bytes or codepoints or
+graphemes.  If used with an integer, the C<at> assertion will assume
+you mean the current lexically scoped Unicode level, on the assumption
+that this integer was somehow generated in this same lexical scope.
+If this is outside the current string's allowed abstraction levels, an
+exception is thrown.  See S02 for more discussion of string positions.
+
+=item *
+
+C<Buf> types are based on fixed-width cells and can therefore
+handle integer positions just fine, and treat them as array indices.
+In particular, C<buf8> AKA C<buf> is just an old-school byte string.
+Matches against C<Buf> types are restricted to ASCII semantics in
+the absence of an I<explicit> modifier asking for the array's values
+to be treated as some particular encoding such as UTF-32.  (This is
+also true for those compact arrays that are considered isomorphic to
+C<Buf> types.)  Positions within C<Buf> types are always integers,
+counting one per unit cell of the underlying array.  Be aware that
+"from" and "to" positions are reported as being between elements.
+If matching against a compact array C<@foo>, a final position of 42
+indicates that C<@foo[42]> was the first element I<not> included.
+
+=back
+
 =head1 Matching against non-strings
 
 =over
@@ -2768,22 +2803,41 @@ regex. This feature is particularly useful with input streams:
 
      $stream ~~ m/pattern/;         # match from stream
 
-An array can be matched against a regex.  The special C<< <,> >>
-subrule matches the boundary between elements.  If the array elements
-are strings, they are concatenated virtually into a single logical
-string.  If the array elements are tokens or other such objects, the
-objects must provide appropriate methods for the kinds of subrules to
-match against.  It is an assertion error to match a string-matching
-assertion against an object that doesn't provide a string view.
-However, pure object lists can be parsed as long as the match
-restricts itself to assertions like:
+=item *
+
+Any non-compact array of mixed strings or objects can be matched
+against a regex:
+
+    @array ~~ / foo <,> bar <elem>* /;
+
+The special C<< <,> >> subrule matches the boundary between elements.
+The C<< <elem> >> assertion matches any individual array element.
+It is the equivalent of "dot" for the whole element.
+
+If the array elements are strings, they are concatenated virtually into
+a single logical string.  If the array elements are tokens or other
+such objects, the objects must provide appropriate methods for the
+kinds of subrules to match against.  It is an assertion error to match
+a string-matching assertion against an object that doesn't provide
+a string view.  However, pure object lists can be parsed as long as
+the match (including any subrules) restricts itself to assertions like:
 
      <.isa(Dog)>
      <.does(Bark)>
      <.can('scratch')>
 
-It is permissible to mix tokens and strings in an array as long as they're
+It is permissible to mix objects and strings in an array as long as they're
 in different elements.  You may not embed objects in strings, however.
+Any object may, of course, pretend to be a string element if it likes.
+
+Please be aware that the warnings on C<.from> and C<.to> returning
+opaque objects goes double for matching against an array, where a
+particular position reflects both a position within the array and
+(potentially) a positional within a string of that array.  Do not
+expect to do math with such values.  Nor should you expect to be
+able to extract a substr that crosses element boundaries.
+
+=item *
 
 To match against each element of an array, use a hyper operator:
 
