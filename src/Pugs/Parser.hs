@@ -1581,10 +1581,9 @@ ruleApplySub isFolded = do
     possiblyApplyMacro $ App (Var name) paramListInv args
 
 ruleFoldOp :: RuleParser String
-ruleFoldOp = verbatimRule "reduce metaoperator" $ do
-    [_, _, _, _, _, infixOps] <- try $ do
-        char '['
-        currentTightFunctions
+ruleFoldOp = verbatimRule "reduce metaoperator" $ try $ do
+    char '['
+    [_, _, _, _, _, infixOps] <- currentTightFunctions
     -- name <- choice $ ops (try . string) (addHyperInfix $ infixOps ++ defaultInfixOps)
     name <- verbatimRule "infix operator" $ do
         choice $ ops (try . string) (addHyperInfix $ infixOps ++ defaultInfixOps)
