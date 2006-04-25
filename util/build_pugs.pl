@@ -120,7 +120,7 @@ sub build_lib {
         # dist/build/src/Data/Yaml/.
         my @candidates;
         my $target = File::Spec->canonpath(
-            File::Spec->catfile(qw< dist build src >, $pathname
+            File::Spec->catfile(qw< dist build src >, $pathname)
         );
         my $wanted = sub {
             return unless $_ eq $basename;
