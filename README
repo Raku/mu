@@ -11,8 +11,8 @@
 |                                                                   |
 =====================================================================
 
-COMPILATION COPYRIGHT DISCAIMER
--------------------------------
+COMPILATION COPYRIGHT DISCLAIMER
+--------------------------------
 
 The author disclaims copyright for the act of compilation of the Pugs
 distribution.  If you want to redistribute part of this distribution, the
@@ -25,10 +25,10 @@ projects, redistributed under their own licenses cited below.
 COPYRIGHTED WORKS FROM THE PUGS PROJECT
 ---------------------------------------
 
-Currently, all subdirectories under the top-level directory are copyrighted
+Currently, all sub-directories under the top-level directory are copyrighted
 by their respective authors, under their own license declarations.
 
-For all subdirectories except those with explicitly declared licenses, you
+For all sub-directories except those with explicitly declared licenses, you
 can redistribute them and/or modify them under the terms of either:
 
     a) the GNU General Public License, version 2, or
