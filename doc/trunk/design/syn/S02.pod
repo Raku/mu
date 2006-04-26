@@ -51,17 +51,19 @@ Comments always count as whitespace.
 For some syntactic purposes, Perl distinguishes bracketing characters
 from non-bracketing.  Bracketing characters are defined as any Unicode
 characters with either bidirectional mirrorings or Ps/Pe properties.
-However, bidirectional mirroring characters with no corresponding
-closing characters does not qualify as opening brackets.
 
-In practice, though, you're safest using matching characters with
-Ps/Pe properties, though ASCII angle brackets are a notable exception,
-since they're bidirectional but not in the Ps/Pe set.
+Characters with no corresponding closing characters does not qualify
+as opening brackets.  This includes the second section of the BidiMirroring
+data table, as well as C<U+201A> and C<U+201E>.
 
 The C<U+301D> has two closing alternatives, C<U+301E> and C<U+301F>;
 Perl 6 only recognizes the one with lower code point number, C<U+301E>,
 as the closing brace.  This policy also applies to new one-to-many
 mappings introduced in the future.
+
+In practice, though, you're safest using matching characters with
+Ps/Pe properties, though ASCII angle brackets are a notable exception,
+since they're bidirectional but not in the Ps/Pe set.
 
 =back
 
