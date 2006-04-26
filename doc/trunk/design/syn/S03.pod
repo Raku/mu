@@ -782,7 +782,7 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
     method postfix      . .+ .? .* .() .[] .{} .«» .=
     autoincrement       ++ --
     exponentiation      **
-    symbolic unary      ! + - ~ ? $ @ % & * ** +^ ~^ ?^ \ ^
+    symbolic unary      ! + - ~ ? $ @ % & * ** +^ ~^ ?^ \ ^ = -e -r -w -x etc.
     multiplicative      * / % x xx +& +< +> ~& ~< ~>
     additive            + - ~ +| +^ ~| ~^
     junctive and (all)  &
