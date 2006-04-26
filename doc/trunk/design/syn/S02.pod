@@ -56,7 +56,7 @@ In practice, though, you're safest using matching characters with
 Ps/Pe properties, though ASCII angle brackets are a notable exception,
 since they're bidirectional but not in the Ps/Pe set.
 
-Characters with no corresponding closing characters does not qualify
+Characters with no corresponding closing character do not qualify
 as opening brackets.  This includes the second section of the BidiMirroring
 data table, as well as C<U+201A> and C<U+201E>.
 

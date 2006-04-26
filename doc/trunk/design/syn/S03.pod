@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 25 Apr 2006
+  Last Modified: 26 Apr 2006
   Number: 3
-  Version: 23
+  Version: 24
 
 =head1 Changes to existing operators
 
@@ -99,9 +99,21 @@ since list assignment operators are of assignment precedence to their left.
     loop ($a = 1, $b = 2; ; $a++, $b++) {...}
 
 still works fine.  The distinction between scalar and list assignment
-is pretty much identical to the way Perl 5 does it.  If there are
-parens around the left side, or if the sigil of the variable is C<@>
-or C<%>, it's a list assignment.  Otherwise it's a scalar assignment.
+is similar to the way Perl 5 does it.  If there are parens around
+the left side, or if the variable is an array or hash, it's a list
+assignment.  Otherwise it's a scalar assignment.  One difference from
+Perl 5 is that Perl 6 does not attempt to intuit whether an lvalue
+slice is meant to be one element or several, so you must use parens
+in that case.  This is true even if you put something that is obviously
+a list as the subscript:
+
+    @x[1,2,3] = 4,5,6;		# WRONG
+    (@x[1,2,3]) = 4,5,6;	# correct
+
+These parens actually apply list context on both sides:
+
+    @x[foo()] = bar();		# foo() and bar() both in scalar context
+    (@x[foo()]) = bar();	# foo() and bar() both in list context
 
 =back
 
@@ -719,6 +731,25 @@ it should be parsed as a list operator:
 
     $hacker.feed: 'Pizza and cola';
 
+This colon is a separate token.  A colon prefixing an adverb is not
+a separate token.  Therefore, under the longest-token rule,
+
+    $hacker.feed:xxx('Pizza and cola');
+
+is tokenized as an adverb applying to the method:
+
+    $hacker.feed :xxx('Pizza and cola');
+
+not as an xxx sub in the argument list of .feed:
+
+    $hacker.feed: xxx('Pizza and cola');  # wrong
+
+If you want both meanings of colon, you have to put it twice:
+
+    $hacker.feed: :xxx('Pizza and cola'), 1,2,3;
+
+(For similar reasons it's best to put whitespace after the colon of a label.)
+
 =head1 C<zip>
 
 In order to support parallel iteration over multiple arrays, Perl 6 has
@@ -782,12 +813,12 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
     method postfix      . .+ .? .* .() .[] .{} .«» .=
     autoincrement       ++ --
     exponentiation      **
-    symbolic unary      ! + - ~ ? $ @ % & * ** +^ ~^ ?^ \ ^ = -e -r -w -x etc.
+    symbolic unary      ! + - ~ ? $ @ % & * ** +^ ~^ ?^ \ ^ =
     multiplicative      * / % x xx +& +< +> ~& ~< ~>
     additive            + - ~ +| +^ ~| ~^
     junctive and (all)  &
     junctive or (any)   | ^
-    named unary         rand sleep abs etc.
+    named unary         rand sleep abs etc. -e -r -w -x etc.
     nonchaining binary  but does cmp <=> .. ^.. ..^ ^..^ ff ^ff ff^ ^ff^ fff ^fff etc.
     chaining binary     != == < <= > >= ~~ !~ eq ne lt le gt ge =:= ===
     tight and           &&
