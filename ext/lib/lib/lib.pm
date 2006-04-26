@@ -20,7 +20,7 @@ sub import (Str $pkg: *@_paths) returns Void {
 # I am purposfully leaving out the archname, version_dir, version_arch_dir
 # and inc_version_list code from lib.pm because I am hoping that perl6
 # and the new module functionality will not need it. Althoug this may be a 
-# niave understanding of what this stuff is for, so if it is, I invite 
+# naive understanding of what this stuff is for, so if it is, I invite 
 # others to fix it.
 
 =kwid

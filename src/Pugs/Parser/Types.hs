@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields #-}
 
 module Pugs.Parser.Types (
-    RuleParser, RuleState(..),
+    RuleParser, RuleState(..), CharClass(..),
     DynParsers(..), ParensOption(..),
     RuleOperator, RuleOperatorTable,
     getRuleEnv, modifyRuleEnv, putRuleEnv,
@@ -37,12 +37,16 @@ data RuleState = MkRuleState
                                        --     parsers
     , ruleInConditional :: !Bool       -- ^ Whether we are in an conditional
                                        --     part and has to suppress {..} literals
+    , rulePrevClass     :: !CharClass  -- ^ What the previous character contains
     }
 
 {-|
 A parser that operates on @Char@s, and maintains state in a 'RuleState'.
 -}
 type RuleParser a = GenParser Char RuleState a
+
+data CharClass = WordClass | SpaceClass | SymClass
+    deriving (Show, Eq)
 
 data ParensOption = ParensMandatory | ParensOptional
     deriving (Show, Eq)

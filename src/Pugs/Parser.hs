@@ -32,20 +32,8 @@ import Pugs.Parser.Unsafe
 import Pugs.Parser.Export
 import Pugs.Parser.Operator
 import Pugs.Parser.Doc
-
-fixities :: [String]
-fixities = words $ " prefix: postfix: infix: circumfix: coerce: self: term: "
-    ++ " postcircumfix: rule_modifier: trait_verb: trait_auxiliary: "
-    ++ " scope_declarator: statement_control: infix_postfix_meta_operator: "
-    ++ " postfix_prefix_meta_operator: prefix_postfix_meta_operator: "
-    ++ " infix_circumfix_meta_operator: "
-
-isOperatorName :: String -> Bool
-isOperatorName ('&':name) = any hasOperatorPrefix [name, tail name]
-    where
-    hasOperatorPrefix :: String -> Bool
-    hasOperatorPrefix name = any (`isPrefixOf` name) fixities
-isOperatorName _ = False
+import Pugs.Parser.Literal
+import Pugs.Parser.Util
 
 -- Lexical units --------------------------------------------------
 
@@ -62,19 +50,6 @@ ruleEmptyExp = expRule $ do
     symbol ";"
     return emptyExp
 
--- around a block body we save the package and the current lexical pad
--- at the start, so that they can be restored after parsing the body
-localEnv :: RuleParser a -> RuleParser a
-localEnv m = do
-    env     <- getRuleEnv
-    rv      <- m
-    env'    <- getRuleEnv
-    putRuleEnv env'
-        { envPackage = envPackage env
-        , envLexical = envLexical env
-        }
-    return rv
-    
 ruleBlockBody :: RuleParser Exp
 ruleBlockBody =
   localEnv $ do
@@ -82,6 +57,7 @@ ruleBlockBody =
     pre     <- many ruleEmptyExp
     body    <- option emptyExp ruleStatementList
     post    <- many ruleEmptyExp
+    whiteSpace
     return $ foldl1 mergeStmts (pre ++ [body] ++ post)
 
 {-|
@@ -221,26 +197,6 @@ ruleSubGlobal :: RuleParser SubDescription
 ruleSubGlobal = rule "global subroutine" $ do
     (isMulti, styp, name) <- ruleSubHead
     return (SGlobal, "Any", isMulti, styp, name)
-
-doExtract :: SubType -> Maybe [Param] -> Exp -> (Exp, [String], [Param])
-doExtract SubBlock formal body = (fun, names', params)
-    where
-    (fun, names) = extractPlaceholderVars body []
-    names' | isJust formal
-           = filter (/= "$_") names
-           | otherwise
-           = names
-    params = map nameToParam (sort names') ++ (maybe [] id formal)
-doExtract SubPointy formal body = (body, [], maybe [] id formal)
-doExtract SubMethod formal body = (body, [], maybe [] id formal)
-doExtract _ formal body = (body, names', params)
-    where
-    (_, names) = extractPlaceholderVars body []
-    names' | isJust formal
-           = filter (/= "$_") names
-           | otherwise
-           = filter (== "$_") names
-    params = map nameToParam (sort names') ++ (maybe [] id formal)
 
 ruleRuleDeclaration :: RuleParser Exp
 ruleRuleDeclaration = rule "rule declaration" $ try $ do
@@ -395,20 +351,6 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             return $ Pad scope lexDiff $ mkExp name
 
 
--- | A Param representing the default (unnamed) invocant of a method on the given type.
-selfParam :: String -> Param
-selfParam typ = MkParam
-    { isInvocant    = True
-    , isOptional    = False
-    , isNamed       = False
-    , isLValue      = True
-    , isWritable    = True
-    , isLazy        = False
-    , paramName     = "$?SELF"
-    , paramContext  = CxtItem (mkType typ)
-    , paramDefault  = Noop
-    }
-
 ruleSubNamePossiblyWithTwigil :: RuleParser String
 ruleSubNamePossiblyWithTwigil = verbatimRule "subroutine name" $ try $ do
     twigil  <- ruleTwigil
@@ -445,34 +387,6 @@ ruleSubParameters wantParens = rule "subroutine parameters" $ do
         _                   -> return Nothing
     where
     setInv e = e { isInvocant = True }
-
-ruleParamList :: ParensOption -> RuleParser a -> RuleParser (Maybe [[a]])
-ruleParamList wantParens parse = rule "parameter list" $ do
-    (formal, hasParens) <- f $
-        (((try parse) `sepEndBy` ruleComma) `sepEndBy` invColon)
-    case formal of
-        [[]]   -> return $ if hasParens then Just [[], []] else Nothing
-        [args] -> return $ Just [[], args]
-        [_,_]  -> return $ Just formal
-        _      -> fail "Only one invocant list allowed"
-    where
-    f = case wantParens of
-        ParensOptional  -> maybeParensBool
-        ParensMandatory -> \x -> do rv <- parens x; return (rv, True)
-    invColon = do
-        string ":"
-        -- Compare:
-        --   sub foo (: $a)   # vs.
-        --   sub foo (:$a)
-        lookAhead $ (many1 space <|> string ")")
-        whiteSpace
-        return ":"
-        
-maybeParensBool :: RuleParser a -> RuleParser (a, Bool)
-maybeParensBool p = choice
-    [ do rv <- parens p; return (rv, True)
-    , do rv <- p; return (rv, False)
-    ]
 
 ruleFormalParam :: RuleParser Param
 ruleFormalParam = rule "formal parameter" $ do
@@ -996,16 +910,6 @@ ruleCodeQuotation = rule "code quotation" $ do
     symbol "q:code" >> optional (symbol "(:COMPILING)")
     body <- verbatimBraces ruleBlockBody
     return $ Syn "q:code" [ body ]
-
-{-| Wraps a call to @&Pugs::Internals::check_for_io_leak@ around the input
-    expression. @&Pugs::Internals::check_for_io_leak@ should @die()@ if the
-    expression returned an IO handle. -}
--- Please remember to edit Prelude.pm, too, if you rename the name of the
--- checker function.
-checkForIOLeak :: Exp -> Exp
-checkForIOLeak exp =
-    App (Var "&Pugs::Internals::check_for_io_leak") Nothing
-        [ Val $ VCode mkSub { subBody = exp } ]
     
 -- | If we've executed code like @BEGIN { exit }@, we've to run all @\@*END@
 --   blocks and then exit. Returns the input expression if there's no need to
@@ -1255,26 +1159,6 @@ ruleBlockLiteral = rule "block construct" $ do
     body <- ruleBlock
     retBlock typ formal lvalue body
 
-extractHash :: Exp -> Maybe Exp
-extractHash exp = extractHash' (possiblyUnwrap exp)
-    where
-    possiblyUnwrap (Syn "block" [exp]) = exp
-    possiblyUnwrap (App (Val (VCode (MkCode { subType = SubBlock, subBody = fun }))) Nothing []) = fun
-    possiblyUnwrap x = x
-    
-    isHashOrPair (Ann _ exp) = isHashOrPair exp
-    isHashOrPair (App (Var "&pair") _ _) = True
-    isHashOrPair (App (Var "&infix:=>") _ _) = True
-    isHashOrPair (Var ('%':_)) = True
-    isHashOrPair (Syn "%{}" _) = True
-    isHashOrPair _ = False
-    
-    extractHash' (Ann _ exp) = extractHash' exp
-    extractHash' exp                      | isHashOrPair exp    = Just exp
-    extractHash' exp@(Syn "," (subexp:_)) | isHashOrPair subexp = Just exp
-    extractHash' exp@Noop = Just exp
-    extractHash' _ = Nothing
-
 retBlock :: SubType -> Maybe [Param] -> Bool -> Exp -> RuleParser Exp
 retBlock SubBlock Nothing _ exp | Just hashExp <- extractHash (unwrap exp) = return $ Syn "\\{}" [hashExp]
 retBlock typ formal lvalue body = retVerbatimBlock typ formal lvalue body
@@ -1301,18 +1185,6 @@ retVerbatimBlock styp formal lvalue body = expRule $ do
             , subCont       = Nothing
             }
     return (Syn "sub" [Val $ VCode sub])
-
-paramsFor :: SubType -> Maybe [Param] -> [Param] -> [Param]
-paramsFor SubMethod formal params 
-    | isNothing (find (("%_" ==) . paramName) params)
-    = paramsFor SubRoutine formal params ++ [defaultHashParam]
-paramsFor styp Nothing []       = defaultParamFor styp
-paramsFor _ _ params            = params
-
-defaultParamFor :: SubType -> [Param]
-defaultParamFor SubBlock    = [defaultScalarParam]
-defaultParamFor SubPointy   = []
-defaultParamFor _           = [defaultArrayParam]
 
 ruleBlockFormalStandard :: RuleParser (SubType, Maybe [Param], Bool)
 ruleBlockFormalStandard = rule "standard block parameters" $ do
@@ -1409,30 +1281,6 @@ ruleTypeVar = rule "type" $ try $ do
     return $ case nameExps of
         [Val (VStr name)] -> Var $ ":" ++ name
         _                 -> Syn (":::()") nameExps
-
-ruleTypeLiteral :: RuleParser Exp
-ruleTypeLiteral = rule "type" $ try $ do
-    name <- fmap (concat . intersperse "::") $ ruleDelimitedIdentifier "::"
-    env  <- getRuleEnv
-    let prefix = envPackage env ++ "::"
-        classes = [ c | MkType c <- flatten $ envClasses env ]
-        packageClasses = concatMap (maybeToList . removePrefix prefix) classes
-    case () of
-        () | name `elem` packageClasses -> return . Var $ ':':(prefix ++ name)
-           | name `elem` classes        -> return . Var $ ':':name
-           | otherwise                  -> fail "not a class name"
-    where
-    removePrefix :: (Eq a) => [a] -> [a] -> Maybe [a]
-    removePrefix pre str
-        | pre `isPrefixOf` str = Just (drop (length pre) str)
-        | otherwise            = Nothing
-
-ruleDot :: RuleParser ()
-ruleDot = verbatimRule "dot" $ do
-    try $ char '.' >> notFollowedBy (char '.')
-    optional $ verbatimRule "long dot" $ do
-        whiteSpace
-        char '.'
 
 rulePostTerm :: RuleParser (Exp -> Exp)
 rulePostTerm = verbatimRule "term postfix" $ do
@@ -1767,38 +1615,6 @@ parseNoParenParamList = do
         a <- option [] $ try $ many pairOrBlockAdverb
         return (x:a, ruleComma)
         
-ruleCommaOrSemicolon :: RuleParser ()
-ruleCommaOrSemicolon = do
-    lexeme (oneOf ",;")
-    return ()
-
-processFormals :: Monad m => [[Exp]] -> m (Maybe Exp, [Exp])
-processFormals formal = case formal of
-    []      -> return (Nothing, [])
-    [args]  -> return (Nothing, unwind args)
-    [invs,args] | [inv] <- unwind invs -> return (Just inv, unwind args)
-    _                   -> fail "Only one invocant allowed"
-    where
-    unwind :: [Exp] -> [Exp]
-    unwind [] = []
-    unwind ((Syn "," list):xs) = unwind list ++ unwind xs
-    unwind x  = x
-
-nameToParam :: String -> Param
-nameToParam name = MkParam
-    { isInvocant    = False
-    , isOptional    = False
-    , isNamed       = False
-    , isLValue      = True
-    , isWritable    = (name == "$_")
-    , isLazy        = False
-    , paramName     = name
-    , paramContext  = case name of
-        -- "$_" -> CxtSlurpy $ typeOfSigil (head name)
-        _    -> CxtItem   $ typeOfSigil (head name)
-    , paramDefault  = Noop
-    }
-
 ruleParamName :: RuleParser String
 ruleParamName = literalRule "parameter name" $ do
     -- Valid param names: $foo, @bar, &baz, %grtz, ::baka
@@ -1828,23 +1644,6 @@ regularVarName = do
     -- doesn't handle names /beginning/ with "::"
     name    <- ruleQualifiedIdentifier
     return $ (sigil:twigil) ++ name
-
-ruleTwigil :: RuleParser String
-ruleTwigil = option "" . choice . map string $ words " ^ * ? . ! + ; "
-
-ruleMatchPos :: RuleParser String
-ruleMatchPos = do
-    sigil   <- char '$'
-    digits  <- many1 digit
-    return $ (sigil:digits)
-
-ruleMatchNamed :: RuleParser String
-ruleMatchNamed = do
-    sigil   <- char '$'
-    twigil  <- char '<'
-    name    <- many (do { char '\\'; anyChar } <|> satisfy (/= '>'))
-    char '>'
-    return $ (sigil:twigil:name) ++ ">"
 
 ruleDereference :: RuleParser Exp
 ruleDereference = try $ do
@@ -2374,29 +2173,4 @@ rxLiteralBare = try $ tryChoice
          expr    <- rxLiteral6 ch (balancedDelim ch)
          return $ Syn "//" [expr, Val undef]
     ]
-
-{-|
-Match the given literal string (as a lexeme), returning the second argument in
-a 'Pugs.AST.Internals.Val' expression.
-
-Used by 'ruleLit' for @NaN@ and @Inf@.
--}
-namedLiteral :: String -- Literal string to match
-             -> Val    -- Value to return
-             -> RuleParser Exp
-namedLiteral n v = do { symbol n; return $ Val v }
-
-{-|
-Match one of the \'yada-yada-yada\' placeholder expressions (@...@, @???@ or
-@!!!@), returning a call to @&fail@, @&warn@ or @&die@ respectively.
--}
-yadaLiteral :: RuleParser Exp
-yadaLiteral = expRule $ do
-    sym  <- choice . map symbol $ words " ... ??? !!! "
-    return $ App (Var $ doYada sym) Nothing [Val $ VStr (sym ++ " - not yet implemented")]
-    where
-    doYada "..." = "&fail_" -- XXX rename to fail() eventually
-    doYada "???" = "&warn"
-    doYada "!!!" = "&die"
-    doYada _ = error "Bad yada symbol"
 

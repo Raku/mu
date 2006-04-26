@@ -18,6 +18,6 @@ module Pugs.Rule (
 ) where
 
 import Pugs.Rule.Expr
-import Text.ParserCombinators.Parsec
+import Text.ParserCombinators.Parsec hiding (token)
 import Text.ParserCombinators.Parsec.Pos
 import Text.ParserCombinators.Parsec.Language
