@@ -12,7 +12,6 @@ module Pugs.Compile.PIL2 (
 import Pugs.AST
 import Pugs.Internals
 import Pugs.Types
-import Pugs.Eval
 import Pugs.Eval.Var
 import Pugs.Monads
 import Pugs.PIL2
