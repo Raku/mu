@@ -34,7 +34,7 @@ tightOperators = do
     , postOps  " ++ -- " ++ preOps " ++ -- "            -- Auto-Increment
     , rightOps " ** "                                   -- Exponentiation
     , preSyn "*"                                        -- Symbolic Unary
-      ++ preOps (concatMap (\x -> " -" ++ [x]) "rwxoRWXOezsfdlpSbctugkTBMAC")
+      ++ optSymOps (concatMap (\x -> " -" ++ [x]) "rwxoRWXOezsfdlpSbctugkTBMAC")
       ++ preOps " = ! + - ** ~ ? +^ ~^ ?^ \\ ^"
       ++ preSymOps preUnary
       ++ postOps postUnary
@@ -162,6 +162,8 @@ preOps      :: String -> [RuleOperator Exp]
 preOps      = (ops $ makeOp1 Prefix "&prefix:" doApp) . addHyperPrefix
 preSymOps   :: String -> [RuleOperator Exp]
 preSymOps   = (ops $ makeOp1 Prefix "&prefix:" doAppSym) . addHyperPrefix
+optSymOps   :: String -> [RuleOperator Exp]
+optSymOps   = (ops $ makeOp1 OptionalPrefix "&prefix:" doAppSym) . addHyperPrefix
 postOps     :: String -> [RuleOperator Exp]
 postOps     = (ops $ makeOp1 Postfix "&postfix:" doApp) . addHyperPostfix
 optOps      :: String -> [RuleOperator Exp]

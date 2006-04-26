@@ -15,15 +15,27 @@ import Pugs.AST
 import Pugs.Rule
 import Pugs.Rule.Expr
 import Pugs.Internals
-import Text.ParserCombinators.Parsec.Language
 import Text.ParserCombinators.Parsec.Pos
 
 satisfy :: (Char -> Bool) -> RuleParser Char
-satisfy f           = tokenPrim (\c -> show [c]) 
-                                (\pos c cs -> updatePosChar pos c) 
-                                (\c -> if f c then Just c else Nothing)
+satisfy f = do
+    rv <- tokenPrim (\c -> show [c]) 
+                    (\pos c _ -> updatePosChar pos c) 
+                    (\c -> if f c then Just c else Nothing)
+    modify $ \state -> state{ ruleCharClass = charClassOf rv }
+    return rv
 
-string s = tokens show updatePosString s
+string s = do
+    rv <- tokens show updatePosString s
+    modify $ \state -> state{ ruleCharClass = charClassOf (last s) }
+    return rv
+
+charClassOf :: Char -> CharClass
+charClassOf '_' = WordClass
+charClassOf c   | isAlphaNum c  = WordClass
+                | isSpace c     = SpaceClass
+                | otherwise     = SymClass
+
 
 oneOf, noneOf :: [Char] -> RuleParser Char
 oneOf cs    = satisfy (\c -> elem c cs)

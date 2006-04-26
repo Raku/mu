@@ -1150,8 +1150,6 @@ rulePostIterate = rule "postfix iteration" $ do
 
 ruleBlockLiteral :: RuleParser Exp
 ruleBlockLiteral = rule "block construct" $ do
-    cond <- gets ruleInConditional
-    when cond (fail "block literals in conditional")
     (typ, formal, lvalue) <- option (SubBlock, Nothing, False) $ choice
         [ ruleBlockFormalPointy
         , ruleBlockFormalStandard
@@ -1258,8 +1256,12 @@ parseTerm = rule "term" $ do
         , ruleApply False   -- Normal application
         , verbatimParens (withRuleConditional False ruleExpression)
         ]
+    cond <- gets ruleInConditional
+    cls  <- gets ruleCharClass
     -- rulePostTerm returns an (Exp -> Exp) that we apply to the original term
-    fs <- many rulePostTerm
+    fs   <- if cond && cls == SpaceClass
+                then return []
+                else many rulePostTerm
     return $ combine (reverse fs) term
 
 ruleBarewordMethod :: RuleParser Exp
@@ -1289,12 +1291,9 @@ rulePostTerm = verbatimRule "term postfix" $ do
             Just '.' -> (ruleInvocation:)
             Just '!' -> (bangKludged ruleInvocation:)
             _        -> id
-    cond <- gets ruleInConditional
     choice $ maybeInvocation
         [ ruleArraySubscript
-        , if cond && isNothing hasDot
-            then ruleHashSubscriptQW
-            else ruleHashSubscript
+        , ruleHashSubscript
         , ruleCodeSubscript
         ]
     where
@@ -1690,24 +1689,26 @@ makeVar (sigil:'!':name) | not (null name) =
 makeVar var = Var var
 
 ruleLit :: RuleParser Exp
-ruleLit = choice
-    [ ruleDoBlock
-    , ruleBlockLiteral
-    , numLiteral
-    , emptyListLiteral
-    , emptyArrayLiteral
-    , arrayLiteral
-    , pairLiteral
-    , undefLiteral
-    , namedLiteral "NaN"    (VNum $ 0/0)
-    , namedLiteral "Inf"    (VNum $ 1/0)
-    , yadaLiteral
-    , qLiteral
-    , rxLiteral
-    , rxLiteralBare
-    , substLiteral
-    , nullaryLiteral
-    ]
+ruleLit = do
+    cond <- gets ruleInConditional
+    let blk | cond      = id
+            | otherwise = (ruleBlockLiteral:)
+    choice ( ruleDoBlock : blk
+        [ numLiteral
+        , emptyListLiteral
+        , emptyArrayLiteral
+        , arrayLiteral
+        , pairLiteral
+        , undefLiteral
+        , namedLiteral "NaN"    (VNum $ 0/0)
+        , namedLiteral "Inf"    (VNum $ 1/0)
+        , yadaLiteral
+        , qLiteral
+        , rxLiteral
+        , rxLiteralBare
+        , substLiteral
+        , nullaryLiteral
+        ])
 
 nullaryLiteral :: RuleParser Exp
 nullaryLiteral = try $ do

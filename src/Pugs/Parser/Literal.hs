@@ -4,18 +4,11 @@ module Pugs.Parser.Literal where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
-import Pugs.Version (versnum)
 import Pugs.Lexer
 import Pugs.Rule
-import Pugs.Rule.Expr
-import Pugs.Pretty
 
 import Pugs.Parser.Types
-import Pugs.Parser.Number
-import Pugs.Parser.Unsafe
-import Pugs.Parser.Export
 import Pugs.Parser.Operator
-import Pugs.Parser.Doc
 
 {-|
 Match one of the \'yada-yada-yada\' placeholder expressions (@...@, @???@ or

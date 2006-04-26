@@ -4,18 +4,10 @@ module Pugs.Parser.Util where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
-import Pugs.Version (versnum)
 import Pugs.Lexer
 import Pugs.Rule
-import Pugs.Rule.Expr
-import Pugs.Pretty
 
 import Pugs.Parser.Types
-import Pugs.Parser.Number
-import Pugs.Parser.Unsafe
-import Pugs.Parser.Export
-import Pugs.Parser.Operator
-import Pugs.Parser.Doc
 
 fixities :: [String]
 fixities = words $ " prefix: postfix: infix: circumfix: coerce: self: term: "
