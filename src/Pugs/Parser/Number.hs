@@ -5,6 +5,7 @@ module Pugs.Parser.Number (
 ) where
 import Pugs.Internals
 import Pugs.Rule
+import Text.ParserCombinators.Parsec.Char
 
 parseNatOrRat :: String -> Either ParseError (Either Integer (Ratio Integer))
 parseNatOrRat s = runParser naturalOrRat () "" s

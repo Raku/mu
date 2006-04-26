@@ -31,6 +31,8 @@ import Pugs.Rule
 import Pugs.Types
 import Pugs.Parser.Types
 import qualified Pugs.Rule.Token as P
+import Text.ParserCombinators.Parsec.Language
+import qualified Text.ParserCombinators.Parsec.Char as C (satisfy)
 
 perl6Def  :: LanguageDef st
 perl6Def  = javaStyle
@@ -38,13 +40,13 @@ perl6Def  = javaStyle
           , P.commentEnd     = ""
           , P.commentLine    = "#"
           , P.nestedComments = False
-          , P.identStart     = wordAlpha
-          , P.identLetter    = wordAny
+          , P.identStart     = C.satisfy isWordAlpha
+          , P.identLetter    = C.satisfy isWordAny
           , P.caseSensitive  = False
           }
 
-wordAlpha   :: GenParser Char st Char
-wordAny     :: GenParser Char st Char
+wordAlpha   :: RuleParser Char
+wordAny     :: RuleParser Char
 wordAlpha   = satisfy isWordAlpha <?> "alphabetic word character"
 wordAny     = satisfy isWordAny <?> "word character"
 
@@ -56,30 +58,30 @@ isWordAlpha x = (isAlpha x || x == '_')
 perl6Lexer :: P.TokenParser st
 perl6Lexer = P.makeTokenParser perl6Def
 
-maybeParens :: CharParser st a -> CharParser st a
+maybeParens :: RuleParser a -> RuleParser a
 maybeParens p = choice [ parens p, p ]
 
-parens     :: CharParser st a -> CharParser st a
+parens     :: RuleParser a -> RuleParser a
 parens     = P.parens     perl6Lexer
-whiteSpace :: CharParser st ()
+whiteSpace :: RuleParser ()
 whiteSpace = P.whiteSpace perl6Lexer
-mandatoryWhiteSpace :: CharParser st ()
+mandatoryWhiteSpace :: RuleParser ()
 mandatoryWhiteSpace = skipMany1 (oneOf " \t\n")  -- XXX unicode and whatnot
-lexeme     :: CharParser st a -> CharParser st a
+lexeme     :: RuleParser a -> RuleParser a
 lexeme     = P.lexeme     perl6Lexer
-identifier :: CharParser st String
+identifier :: RuleParser String
 identifier = P.identifier perl6Lexer
-braces     :: CharParser st a -> CharParser st a
+braces     :: RuleParser a -> RuleParser a
 braces     = P.braces     perl6Lexer
-brackets   :: CharParser st a -> CharParser st a
+brackets   :: RuleParser a -> RuleParser a
 brackets   = P.brackets   perl6Lexer
-angles     :: CharParser st a -> CharParser st a
+angles     :: RuleParser a -> RuleParser a
 angles     = P.angles     perl6Lexer
-balanced   :: CharParser st String
+balanced   :: RuleParser String
 balanced   = P.balanced
 balancedDelim :: Char -> Char
 balancedDelim = P.balancedDelim
-decimal    :: CharParser st Integer
+decimal    :: RuleParser Integer
 decimal    = P.decimal    perl6Lexer
 
 {-|
@@ -90,19 +92,19 @@ can always recreate them using \"@concat $ intersperse delim@\" if you want,
 or else use 'ruleQualifiedIdentifier'.
 -}
 ruleDelimitedIdentifier :: String -- ^ Delimiter (e.g. \'@::@\')
-                        -> GenParser Char st [String]
+                        -> RuleParser [String]
 ruleDelimitedIdentifier delim = verbatimRule "delimited identifier" $ do
     -- Allowing the leading delim actually leads to subtle oddness with things
     -- like `use jsan:.Foo` and `use pugs:::Foo`, so I took it out.
     --option "" (try $ string delim) -- leading delimiter
     ruleVerbatimIdentifier `sepBy1` (try $ string delim)
 
-ruleQualifiedIdentifier :: GenParser Char st String
+ruleQualifiedIdentifier :: RuleParser String
 ruleQualifiedIdentifier = verbatimRule "qualified identifier" $ do
     chunks <- ruleDelimitedIdentifier "::"
     return $ concat (intersperse "::" chunks)
 
-ruleVerbatimIdentifier :: GenParser Char st String
+ruleVerbatimIdentifier :: RuleParser String
 ruleVerbatimIdentifier = (<?> "identifier") $ do
     c  <- P.identStart perl6Def
     cs <- many (P.identLetter perl6Def)
@@ -112,7 +114,7 @@ ruleVerbatimIdentifier = (<?> "identifier") $ do
 Match any amount of whitespace (not including newlines), followed by a newline
 (as matched by 'ruleEndOfLine').
 -}
-ruleWhiteSpaceLine :: GenParser Char st ()
+ruleWhiteSpaceLine :: RuleParser ()
 ruleWhiteSpaceLine = do
     many $ satisfy (\x -> isSpace x && x /= '\n')
     ruleEndOfLine
@@ -121,10 +123,10 @@ ruleWhiteSpaceLine = do
 Match either a single newline, or EOF (which constitutes the termination of a
 line anyway).
 -}
-ruleEndOfLine :: GenParser Char st ()
+ruleEndOfLine :: RuleParser ()
 ruleEndOfLine = choice [ do { char '\n'; return () }, eof ]
 
-symbol :: String -> GenParser Char st String
+symbol :: String -> RuleParser String
 symbol s
     | isWordAny (last s) = try $ do
         rv <- string s
@@ -191,20 +193,20 @@ interpolatingStringLiteral startrule endrule interpolator = do
         ]
 
 -- | Backslashed non-alphanumerics (except for @\^@) translate into themselves.
-escapeCode      :: GenParser Char st String
+escapeCode      :: RuleParser String
 escapeCode      = ch charEsc <|> charNum <|> ch charAscii <|> ch charControl <|> ch anyChar
                 <?> "escape code"
     where
     ch = fmap (:[])
 
-charControl :: GenParser Char st Char
+charControl :: RuleParser Char
 charControl     = do{ char 'c'
                     ; code <- upper <|> char '@'
                     ; return (toEnum (fromEnum code - fromEnum '@'))
                     }
 
 -- This is currently the only escape that can return multiples.
-charNum :: GenParser Char st String
+charNum :: RuleParser String
 charNum = do
     codes <- choice
         [ fmap (:[]) decimal 
@@ -220,24 +222,24 @@ charNum = do
                , fmap (:[]) (number num p)
                ]
 
-ruleComma :: GenParser Char st ()
+ruleComma :: RuleParser ()
 ruleComma = do
     lexeme (char ',')
     return ()
 
-number :: Integer -> GenParser tok st Char -> GenParser tok st Integer
+number :: Integer -> RuleParser Char -> RuleParser Integer
 number base baseDigit
     = do{ digits <- many1 baseDigit
         ; let n = foldl (\x d -> base*x + toInteger (digitToInt d)) 0 digits
         ; seq n (return n)
         }          
 
-charEsc         :: GenParser Char st Char
+charEsc         :: RuleParser Char
 charEsc         = choice (map parseEsc escMap)
                 where
                   parseEsc (c,code)     = do{ char c; return code }
                   
-charAscii       :: GenParser Char st Char
+charAscii       :: RuleParser Char
 charAscii       = choice (map parseAscii asciiMap)
                 where
                   parseAscii (asc,code) = try (do{ string asc; return code })
@@ -265,19 +267,19 @@ ascii3          = ['\NUL','\SOH','\STX','\ETX','\EOT','\ENQ','\ACK',
                    '\BEL','\DLE','\DC1','\DC2','\DC3','\DC4','\NAK',
                    '\SYN','\ETB','\CAN','\SUB','\ESC','\DEL']
 
-rule :: String -> CharParser st a -> GenParser Char st a
+rule :: String -> RuleParser a -> RuleParser a
 rule name action = (<?> name) $ lexeme $ action
 
-verbatimRule :: String -> GenParser tok st a -> GenParser tok st a
+verbatimRule :: String -> RuleParser a -> RuleParser a
 verbatimRule name action = (<?> name) $ action
 
-literalRule :: String -> GenParser Char st a -> GenParser Char st a
+literalRule :: String -> RuleParser a -> RuleParser a
 literalRule name action = (<?> name) $ postSpace $ action
 
-tryRule :: String -> GenParser Char st a -> GenParser Char st a
+tryRule :: String -> RuleParser a -> RuleParser a
 tryRule name action = (<?> name) $ lexeme $ action
 
-tryVerbatimRule :: String -> GenParser tok st a -> GenParser tok st a
+tryVerbatimRule :: String -> RuleParser a -> RuleParser a
 tryVerbatimRule name action = (<?> name) $ action
 
 ruleScope :: RuleParser Scope
@@ -297,14 +299,14 @@ ruleScopeName :: RuleParser String
 ruleScopeName = choice . map symbol . map (map toLower) . map (tail . show)
     $ [SState .. SOur]
 
-postSpace :: GenParser Char st a -> GenParser Char st a
+postSpace :: RuleParser a -> RuleParser a
 postSpace rule = try $ do
     rv <- rule
     notFollowedBy wordAny
     whiteSpace
     return rv
 
-ruleTrait :: GenParser Char st String
+ruleTrait :: RuleParser String
 ruleTrait = rule "trait" $ do
     symbol "is" <|> symbol "does"
     trait <- do
@@ -318,13 +320,13 @@ ruleTrait = rule "trait" $ do
     optional $ verbatimParens $ many $ satisfy (/= ')')
     return trait
 
-ruleTraitName :: String -> GenParser Char st String
+ruleTraitName :: String -> RuleParser String
 ruleTraitName trait = rule "named trait" $ do
     symbol "is"
     symbol trait
     ruleQualifiedIdentifier
 
-ruleBareTrait :: String -> GenParser Char st String
+ruleBareTrait :: String -> RuleParser String
 ruleBareTrait trait = rule "bare trait" $ do
     choice [ ruleTraitName trait
            , do symbol trait
@@ -334,7 +336,7 @@ ruleBareTrait trait = rule "bare trait" $ do
                 return str
            ]
 
-ruleType :: GenParser Char st String
+ruleType :: RuleParser String
 ruleType = literalRule "context" $ do
     -- Valid type names: Foo, Bar::Baz, ::Grtz, ::?CLASS, but not :Foo
     lead    <- count 1 wordAlpha <|> string "::"
@@ -346,24 +348,24 @@ Attempt each of the given parsers in turn until one succeeds, but if one of
 them fails we backtrack (i.e. retroactively consume no input) before trying
 the next one.
 -}
-tryChoice :: [GenParser tok st a] -- ^ List of candidate parsers
-          -> GenParser tok st a
+tryChoice :: [RuleParser a] -- ^ List of candidate parsers
+          -> RuleParser a
 tryChoice = choice
 
 {-|
 Match '@(@', followed by the given parser, followed by '@)@'.
 -}
-verbatimParens :: GenParser Char st a -> GenParser Char st a
+verbatimParens :: RuleParser a -> RuleParser a
 verbatimParens = between (lexeme $ char '(') (char ')')
 
 {-|
 Match '@\[@', followed by the given parser, followed by '@\]@'.
 -}
-verbatimBrackets :: GenParser Char st a -> GenParser Char st a
+verbatimBrackets :: RuleParser a -> RuleParser a
 verbatimBrackets = between (lexeme $ char '[') (char ']')
 
 {-|
 Match '@{@', followed by the given parser, followed by '@}@'.
 -}
-verbatimBraces :: GenParser Char st a -> GenParser Char st a
+verbatimBraces :: RuleParser a -> RuleParser a
 verbatimBraces = between (lexeme $ char '{') (char '}')

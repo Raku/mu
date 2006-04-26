@@ -6,11 +6,40 @@ module Pugs.Parser.Types (
     RuleOperator, RuleOperatorTable,
     getRuleEnv, modifyRuleEnv, putRuleEnv,
     clearDynParsers, withRuleConditional,
+
+    -- Alternate Char implementations that keeps track of ruleCharClass
+    satisfy, string, oneOf, noneOf, char, hexDigit, octDigit,
+    digit, upper, anyChar,
 ) where
 import Pugs.AST
 import Pugs.Rule
 import Pugs.Rule.Expr
 import Pugs.Internals
+import Text.ParserCombinators.Parsec.Language
+import Text.ParserCombinators.Parsec.Pos
+
+satisfy :: (Char -> Bool) -> RuleParser Char
+satisfy f           = tokenPrim (\c -> show [c]) 
+                                (\pos c cs -> updatePosChar pos c) 
+                                (\c -> if f c then Just c else Nothing)
+
+string s = tokens show updatePosString s
+
+oneOf, noneOf :: [Char] -> RuleParser Char
+oneOf cs    = satisfy (\c -> elem c cs)
+noneOf cs   = satisfy (\c -> not (elem c cs))
+
+char :: Char -> RuleParser Char
+char c      = satisfy (==c)  <?> show [c]
+
+hexDigit    = satisfy (isHexDigit)  <?> "hexadecimal digit"
+octDigit    = satisfy (isOctDigit)  <?> "octal digit"
+
+digit       = satisfy (isDigit)     <?> "digit"
+upper       = satisfy (isUpper)     <?> "uppercase letter"
+
+anyChar :: RuleParser Char
+anyChar     = satisfy (const True)
 
 {-|
 Cache holding dynamically-generated parsers for user-defined operators.  This
@@ -37,7 +66,7 @@ data RuleState = MkRuleState
                                        --     parsers
     , ruleInConditional :: !Bool       -- ^ Whether we are in an conditional
                                        --     part and has to suppress {..} literals
-    , rulePrevClass     :: !CharClass  -- ^ What the previous character contains
+    , ruleCharClass     :: !CharClass  -- ^ What the previous character contains
     }
 
 {-|

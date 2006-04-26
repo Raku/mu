@@ -14,10 +14,21 @@
 module Pugs.Rule (
     module Pugs.Rule.Expr,
     module Text.ParserCombinators.Parsec,
-    LanguageDef, javaStyle,
+    module Pugs.Rule,
 ) where
 
+import Data.Char
 import Pugs.Rule.Expr
-import Text.ParserCombinators.Parsec hiding (token)
-import Text.ParserCombinators.Parsec.Pos
-import Text.ParserCombinators.Parsec.Language
+import Text.ParserCombinators.Parsec hiding (
+    token       ,
+    char        ,
+    octDigit    ,
+    satisfy     ,
+    oneOf       ,
+    string      ,
+    anyChar     ,
+    upper       ,
+    hexDigit    ,
+    digit       ,
+    noneOf      ,
+    )
