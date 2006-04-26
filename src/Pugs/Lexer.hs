@@ -30,20 +30,10 @@ import Pugs.AST
 import Pugs.Rule
 import Pugs.Types
 import Pugs.Parser.Types
-import qualified Pugs.Rule.Token as P
-import Text.ParserCombinators.Parsec.Language
 import qualified Text.ParserCombinators.Parsec.Char as C (satisfy)
 
-perl6Def  :: LanguageDef st
-perl6Def  = javaStyle
-          { P.commentStart   = "#"
-          , P.commentEnd     = ""
-          , P.commentLine    = "#"
-          , P.nestedComments = False
-          , P.identStart     = C.satisfy isWordAlpha
-          , P.identLetter    = C.satisfy isWordAny
-          , P.caseSensitive  = False
-          }
+identStart  = satisfy isWordAlpha
+identLetter = satisfy isWordAny
 
 wordAlpha   :: RuleParser Char
 wordAny     :: RuleParser Char
@@ -55,9 +45,6 @@ isWordAlpha :: Char -> Bool
 isWordAny x = (isAlphaNum x || x == '_')
 isWordAlpha x = (isAlpha x || x == '_')
 
-perl6Lexer :: P.TokenParser st
-perl6Lexer = P.makeTokenParser perl6Def
-
 maybeParens :: RuleParser a -> RuleParser a
 maybeParens p = choice [ parens p, p ]
 
@@ -68,15 +55,6 @@ brackets p      = between (symbol "[") (symbol "]") p
 
 mandatoryWhiteSpace :: RuleParser ()
 mandatoryWhiteSpace = skipMany1 (satisfy isSpace)
-
-whiteSpace :: RuleParser ()
-whiteSpace = P.whiteSpace perl6Lexer
-lexeme     :: RuleParser a -> RuleParser a
-lexeme     = P.lexeme     perl6Lexer
-identifier :: RuleParser String
-identifier = P.identifier perl6Lexer
-decimal    :: RuleParser Integer
-decimal    = P.decimal    perl6Lexer
 
 balancedDelim :: Char -> Char
 balancedDelim c = case c of
@@ -174,8 +152,8 @@ ruleQualifiedIdentifier = verbatimRule "qualified identifier" $ do
 
 ruleVerbatimIdentifier :: RuleParser String
 ruleVerbatimIdentifier = (<?> "identifier") $ do
-    c  <- P.identStart perl6Def
-    cs <- many (P.identLetter perl6Def)
+    c  <- identStart
+    cs <- many identLetter
     return (c:cs)
 
 {-|
@@ -437,3 +415,180 @@ Match '@{@', followed by the given parser, followed by '@}@'.
 -}
 verbatimBraces :: RuleParser a -> RuleParser a
 verbatimBraces = between (lexeme $ char '{') (char '}')
+
+
+-----------------------------------------------------------
+-- Chars & Strings
+-----------------------------------------------------------
+-----------------------------------------------------------
+-- Numbers
+-----------------------------------------------------------
+-- naturalOrFloat :: CharParser st (Either Integer Double)
+naturalOrFloat  = lexeme (natFloat) <?> "number"
+
+float           = lexeme floating   <?> "float"
+integer         = lexeme int        <?> "integer"
+natural         = lexeme nat        <?> "natural"
+
+
+-- floats
+floating        = do{ n <- decimal 
+                    ; fractExponent n
+                    }
+
+
+natFloat        = do{ char '0'
+                    ; zeroNumFloat
+                    }
+                    <|> decimalFloat
+                    
+zeroNumFloat    =  do{ n <- hexadecimal <|> octal
+                        ; return (Left n)
+                        }
+                <|> decimalFloat
+                <|> fractFloat 0
+                <|> return (Left 0)                  
+                    
+decimalFloat    = do{ n <- decimal
+                    ; option (Left n) 
+                                (fractFloat n)
+                    }
+
+fractFloat n    = do{ f <- fractExponent n
+                    ; return (Right f)
+                    }
+                    
+fractExponent n = do{ fract <- fraction
+                    ; expo  <- option 1.0 exponent'
+                    ; return ((fromInteger n + fract)*expo)
+                    }
+                <|>
+                    do{ expo <- exponent'
+                    ; return ((fromInteger n)*expo)
+                    }
+
+fraction        = do{ char '.'
+                    ; digits <- many1 digit <?> "fraction"
+                    ; return (foldr op 0.0 digits)
+                    }
+                    <?> "fraction"
+                where
+                    op d f    = (f + fromIntegral (digitToInt d))/10.0
+                    
+exponent'       = do{ oneOf "eE"
+                    ; f <- sign
+                    ; e <- decimal <?> "exponent"
+                    ; return (power (f e))
+                    }
+                    <?> "exponent"
+                where
+                    power e  | e < 0      = 1.0/power(-e)
+                            | otherwise  = fromInteger (10^e)
+
+
+-- integers and naturals
+int             = do{ f <- lexeme sign
+                    ; n <- nat
+                    ; return (f n)
+                    }
+                    
+-- sign            :: CharParser st (Integer -> Integer)
+sign            =   (char '-' >> return negate) 
+                <|> (char '+' >> return id)     
+                <|> return id
+
+nat             = zeroNumber <|> decimal
+    
+zeroNumber      = do{ char '0'
+                    ; hexadecimal <|> octal <|> decimal <|> return 0
+                    }
+                    <?> ""       
+
+decimal         = number 10 digit        
+hexadecimal     = do{ oneOf "xX"; number 16 hexDigit }
+octal           = do{ oneOf "oO"; number 8 octDigit  }
+
+-----------------------------------------------------------
+-- Identifiers & Reserved words
+-----------------------------------------------------------
+identifier = lexeme $ try $ ident
+    
+ident           
+    = do{ c <- identStart
+        ; cs <- many identLetter
+        ; return (c:cs)
+        }
+    <?> "identifier"
+
+-----------------------------------------------------------
+-- White space & symbols
+-----------------------------------------------------------
+lexeme p       
+    = do{ x <- p; whiteSpace; return x  }
+    
+    
+--whiteSpace    
+whiteSpace = skipMany (simpleSpace <|> comment)
+
+comment = do
+    char '#' <?> "comment"
+    pos <- getPosition
+    if sourceColumn pos /= 2 then multiLineComment <|> skipToLineEnd else do
+    -- Beginning of line - parse #line directive
+    isPlain <- (<|> return True) $ try $ do
+        string "line"
+        many1 $ satisfy (\x -> isSpace x && x /= '\n')
+        return False
+    if isPlain then skipToLineEnd else do
+    line <- decimal
+    file <- (<|> return Nothing) $ try $ do
+        many1 $ satisfy (\x -> isSpace x && x /= '\n')
+        fileNameQuoted <|> fileNameBare
+    if file == Just Nothing then skipToLineEnd else do
+    many $ satisfy (/= '\n')
+    setPosition $ pos
+        `setSourceLine`     (fromInteger line - 1)
+        `setSourceColumn`   1
+        `setSourceName`     maybe (sourceName pos) fromJust file
+    return ()
+
+fileNameQuoted = try $ do
+    char '"'
+    file <- many (satisfy (/= '"'))
+    char '"'
+    many $ satisfy (\x -> isSpace x && x /= '\n')
+    lookAhead (satisfy (== '\n'))
+    return $ Just $ Just file
+
+fileNameBare = try $ do
+    file <- many1 $ satisfy (not . isSpace)
+    many $ satisfy (\x -> isSpace x && x /= '\n')
+    (<|> return (Just Nothing)) $ try $ do
+        lookAhead (satisfy (== '\n'))
+        return $ Just $ Just file
+
+skipToLineEnd = do
+    skipMany (satisfy (/= '\n'))
+    return ()
+        
+simpleSpace =
+    skipMany1 (satisfy isSpace)    
+    
+-- XXX - nesting
+multiLineComment = do
+    openOne <- satisfy (\x -> balancedDelim x /= x)
+    more    <- many (char openOne)
+    let closeOne = balancedDelim openOne
+        openAll  = string (openOne:more)
+        closeAll = string (replicate (1 + length more) (balancedDelim openOne))
+        scanOne  = do
+            c <- anyChar
+            if c == closeOne then return () else do
+            if c == openOne then scanOne >> scanOne else do
+            scanOne
+        scanAll  = choice
+            [ do { try closeAll; return () }
+            , do { try openAll; scanAll; scanAll }
+            , do { anyChar; scanAll }
+            ]
+    if null more then scanOne else scanAll
