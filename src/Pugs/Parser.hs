@@ -1040,7 +1040,7 @@ ruleCondConstruct = rule "conditional construct" $ do
 ruleCondBody :: String -> RuleParser Exp
 ruleCondBody csym = rule "conditional expression" $ do
     cond     <- ruleCondPart
-    body     <- option emptyExp ruleBlock
+    body     <- ruleBlock
     bodyElse <- option emptyExp ruleElseConstruct
     return $ Syn csym [cond, body, bodyElse]
     {-
@@ -1607,7 +1607,7 @@ parseNoParenParamList = do
         lookAhead $ satisfy pred
         return ([x], return ())
     dotAllowed = (/= '.')
-    dotForbidden = (not . (`elem` ".,"))
+    dotForbidden = (/= '.') -- XXX -  not . (`elem` ".,"))
     argVanilla :: RuleParser ([Exp], RuleParser ())
     argVanilla = do
         x <- namedArgOr parseExpWithTightOps
