@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 25 Apr 2006
+  Last Modified: 26 Apr 2006
   Number: 2
-  Version: 33
+  Version: 34
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1591,18 +1591,19 @@ the same way list operators are treated.  If a postdeclaration bends
 the syntax to be inconsistent with that, it is an error of the
 inconsistent signature variety.
 
-If the unrecogized subname is followed by C<< postcircumfix:<( )> >>, it is
-compiled as a provisional function call of the parenthesized form.
+If the unrecognized subroutine name is followed by C<< postcircumfix:<( )> >>,
+it is compiled as a provisional function call of the parenthesized form.
 If it is not, it is compiled as a provisional function call of
 the list operator form, which may or may not have an argument list.
 When in doubt, the attempt is made to parse an argument list.  As with
 any list operator, an immediate postfix operator means there are no
 arguments, whereas anything following whitespace will be interpreted
-as an argument list if possible.  It is illegal for a provisional
-subroutine call to be followed by a colon postfix, since such a colon
-is allowed only on an indirect object or a method call in dot form.
-(It is also allowed on a label when a statement is expected.)
-So for any undeclared identifier "C<foo>":
+as an argument list if possible.
+
+It is illegal for a provisional subroutine call to be followed by a
+colon postfix, since such a colon is allowed only on an indirect object,
+or a method call in dot form.  (It is also allowed on a label when a
+statement is expected.) So for any undeclared identifier "C<foo>":
 
     foo.bar		# foo().bar	-- postfix prevents args
     foo .bar		# foo($_.bar)	-- no postfix starts with whitespace
@@ -1636,12 +1637,13 @@ So for any undeclared identifier "C<foo>":
 The indirect object colon only ever dominates a simple term, where
 "simple" includes classes and variables and parenthesized expressions,
 but explicitly not method calls, because the colon will bind to a
-trailing method call in preference.  An indirect object that parses
-as more than one token must be placed in parentheses, followed by
-the colon.  In short, only an identifier followed by a simple term
-followed by a postfix colon is C<ever> parsed as an indirect object,
-but that form will C<always> be parsed as an indirect object regardless
-of whether the identifier is otherwise declared.
+trailing method call in preference.  An indirect object that parses as
+more than one token must be placed in parentheses, followed by the colon.
+
+In short, only an identifier followed by a simple term followed by a
+postfix colon is C<ever> parsed as an indirect object, but that form
+will C<always> be parsed as an indirect object regardless of whether
+the identifier is otherwise declared.
 
 =item *
 
