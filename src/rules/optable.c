@@ -3,9 +3,9 @@
 #include <optable.h>
 
 #define REG_SCTABLE(s,v) \
-    if (0 == strncmp(in, s, strlen(s))) { return v; }
+    if (0 == strncmp(s, in.bytes, in.len)) { return v; }
 
-ParseMode sctable (Str in) {
+ParseMode sctable (Buf in) {
     REG_SCTABLE("term:",             PGE_SCTABLE_TERM)
     REG_SCTABLE("postfix:",          PGE_SCTABLE_POSTFIX)
     REG_SCTABLE("close:",            PGE_SCTABLE_CLOSE)
@@ -31,8 +31,8 @@ void free_parser (OpParser p) {
 
 void add_token (
     OpParser    p,
-    Str         name,       /* infix:moose */
-    Str         relation,   /* <postfix:antler */
+    Buf         name,       /* infix:moose */
+    Buf         relation,   /* <postfix:antler */
     Bool        nows,       /* no whitespace allowed before this */
     Bool        nullterm,   /* is this a null term? */
     Callback    parsed,     /* dynamic parsing */
@@ -40,7 +40,7 @@ void add_token (
 ) {
 }
 
-OpMatch parse (OpParser p, Str target, Str stop_token) {
+OpMatch parse (OpParser p, Buf target, Buf stop_token) {
 }
 
 int main () {

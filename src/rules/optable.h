@@ -1,20 +1,19 @@
+#include <Judy.h>
+
 static PWord_t PValue = NULL;
 
 #ifndef PGE_OPTABLE_H
-
-#include <Judy.h>
-
 #define HashNew() \
         calloc(1,sizeof(void *))
 
-#define HashIns(x, y, z) \
-        *(JudyHSIns(&x, y, PJE0)) = (PPvoid_t)z
+#define HashIns(hash, buf, val) \
+        *(JudyHSIns(&hash, buf.bytes, buf.len, PJE0)) = (PPvoid_t)val
 
-#define HashSet(x, y) \
-        *(JudyHSIns(&x, y, PJE0))
+#define HashGet(hash, buf) \
+        *(JudyHSIns(&hash, buf.bytes, buf.len, PJE0))
 
-#define HashGet(x, y) \
-        *(JudyHSIns(&x, y, PJE0))
+#define HashDel(hash, buf) \
+        *(JudyHSDel(&hash, buf.bytes, buf.len, PJE0))
 
 #define HashFree(x) \
         JudyHSFreeArray(&x, PJE0)
@@ -66,9 +65,15 @@ typedef void* Extras; /* extras */
 
 typedef Pvoid_t Array;
 typedef Pvoid_t Hash;
-typedef const char* Str;
 
 /* static Pvoid_t sctable = (PWord_t)NULL; */
+
+/* Buf is a buffer that knows its size */
+struct _str {
+    Word_t len;
+    const char* bytes;
+};
+typedef struct _str Buf;
 
 struct _op_parser {
     Hash tokens;
@@ -82,7 +87,7 @@ struct _op_token {
     TokenName   name;
     TokenPrec   prec;
     Callback    parsed;
-    Str         key_close;
+    Buf         key_close;
     TokenPrec   prec_close;
     ParseMode   mode;
     Extras      extras;
@@ -91,13 +96,13 @@ typedef struct _op_token OpToken;
 
 struct _op_match {
     OpToken     token;      /* The token used for match */
-    Str         target;     /* The original target string */
+    Buf         target;     /* The original target string */
     Pos         from;       /* Begin offset on target */
     Pos         to;         /* End offset on target */
     Array       children;   /* Array of child match nodes */
 };
 typedef struct _op_match OpMatch;
 
-ParseMode sctable (Str in);
+ParseMode sctable (Buf in);
 
 #endif
