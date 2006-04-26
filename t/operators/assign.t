@@ -28,9 +28,11 @@ plan 60;
     # (moved this from array.t)
     
     my @a = (1 .. 5);
-    @a[0,1] = @a[1,0];
+    (@a[0,1]) = @a[1,0];
     is(@a[0], 2, "slice assignment swapping two element in the same array");
     is(@a[1], 1, "slice assignment swapping two element in the same array");
+    eval '@a[0,1] = @a[1,0]';
+    ok($!, "lvalue slice without parens fails");
 };
 
 {
@@ -61,14 +63,14 @@ plan 60;
 
 {
     my @a;
-    @a[1, 2, 3] = (100, 200, 300);
+    (@a[1, 2, 3]) = 100, 200, 300;
     is(@a[1], 100, "assigned correct value from list to sliced array");
     is(@a[2], 200, "... and second");
     is(@a[3], 300, "... and third");
     is(@a[0], undef, "won't modify unassigned one");
 
     my @b;
-    @b[2, 1, 0] = (401, 201, 1);
+    (@b[2, 1, 0]) = 401, 201, 1;
     is(@b[0], 1, "assigned correct value from list to unsorted sliced array");
     is(@b[1], 201, "... and second");
     is(@b[2], 401, "... and third");
@@ -231,26 +233,25 @@ plan 60;
 
 {
     my $x = 1;
-    eval '$x +<<= 8';   # XXX: compiler blows up
-    is($x, 256, '+<<= operator', :todo);
+    eval '$x +<= 8';   # XXX: compiler blows up
+    is($x, 256, '+<= operator', :todo);
 }
 
 {
-    my $x = 1;
-    eval '$x +>>= 8';   # XXX: compiler blows up
-    is($x, 0, '+>>= operator', :todo);
+    my $x = 511;
+    eval '$x +>= 8';   # XXX: compiler blows up
+    is($x, 1, '+>= operator', :todo);
+}
+
+# XXX: The following tests assume autoconvertion between "a" and buf8 type
+{
+    my $x = "a";
+    eval '$x ~<= 8';   # XXX: compiler blows up
+    is($x, "a\0", '~<= operator', :todo);
 }
 
 {
-    my $x = 1;
-    eval '$x ~<<= 8';   # XXX: compiler blows up
-    # XXX: expected could be wrong (I don't understand this operator)
-    is($x, 256, '~<<= operator', :todo);
-}
-
-{
-    my $x = 1;
-    eval '$x ~>>= 8';   # XXX: compiler blows up
-    # XXX: expected could be wrong (I don't understand this operator)
-    is($x, 0, '~>>= operator', :todo);
+    my $x = "aa";
+    eval '$x ~>= 8';   # XXX: compiler blows up
+    is($x, "a", '~>= operator', :todo);
 }
