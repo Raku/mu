@@ -11,7 +11,7 @@ L<S04/"Conditional statements">
 
 =cut
 
-plan 18;
+plan 19;
 
 my $x = 'test';
 if ($x eq $x) { pass("if ($x eq $x) {} works"); } else { flunk("if ($x eq $x) {} failed"); }
@@ -105,4 +105,8 @@ is $foo, 1, "die should stop execution immediately.";
         2,
         "'my' variable within 'if' conditional",
     :todo<feature>);
+}
+
+{
+    dies_ok { if 1 }, 'test "if 1"';
 }
