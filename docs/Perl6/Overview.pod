@@ -53,9 +53,9 @@ its command line.  To exit, type C<ctrl-D> or C<:q>.
 
 =head2 Basic syntax overview
 
-A Perl 6 program consists of one or more statements.  These statements are simply 
-written in a plain text file, one after another.  There is no need to have a
-C<main()> function or anything of that kind.
+A Perl 6 program consists of one or more statements.  These statements are
+simply written in a plain text file, one after another.  There is no need to
+have a C<main()> function or anything of that kind.
 
 Perl 6 statements end in a semi-colon:
 
@@ -82,19 +82,19 @@ Double quotes or single quotes may be used around literal strings:
    say "Hello, world";
    say 'Hello, world';
 
-However, only double quotes "interpolate" variables and special characters such 
-as newlines (C<\n>):
+However, only double quotes "interpolate" variables and special characters
+such as newlines (C<\n>):
 
    my $name = 'Johnny';
-   print "Hello, $name\n";     # prints: Hello, Johnny  (followed by a newline)
-   print 'Hello, $name\n';     # prints: Hello, $name\n (no newline)
+   print "Hello, $name\n";   # prints: Hello, Johnny  (followed by a newline)
+   print 'Hello, $name\n';   # prints: Hello, $name\n (no newline)
 
 Numbers don't need quotes around them:
 
    say 42;
 
-Most of the time, you can use parentheses for functions' arguments or omit them
-according to your personal taste.  
+Most of the time, you can use parentheses for functions' arguments or omit
+them according to your personal taste.
 
    say("Hello, world");
    say "Hello, world";
@@ -145,7 +145,8 @@ Arrays are zero-indexed.  Here's how you get at elements in an array:
     say @animals[0];              # prints "camel"
     say @animals[1];              # prints "llama"
 
-The numeric index of the last element of an array can by found with C<@array.end>:
+The numeric index of the last element of an array can by found with
+C<@array.end>:
 
     say @animals[@animals.end];   # prints "owl"
 
@@ -279,14 +280,14 @@ There are also a number of specialized scopes available.  Many of these
 scopes are declared and accessed through the use of secondary sigils, or
 'twigils'.
 
-    $foo                # ordinary scoping
-    $.foo               # object attribute accessor
-    $^foo               # self-declared formal parameter
-    $*foo               # global variable
-    $+foo               # environmental variable
-    $?foo               # compiler hint variable
-    $=foo               # pod variable
-    $!foo               # explicitly private attribute (mapped to $foo though)
+    $foo               # ordinary scoping
+    $.foo              # object attribute accessor
+    $^foo              # self-declared formal parameter
+    $*foo              # global variable
+    $+foo              # environmental variable
+    $?foo              # compiler hint variable
+    $=foo              # pod variable
+    $!foo              # explicitly private attribute (mapped to $foo though)
 
 Most variables with twigils are implicitly declared or assumed to be
 declared in some other scope, and don't need a "my" or "our".  Attribute
@@ -295,7 +296,8 @@ declared somewhere in the dynamic scope with the "env" declarator.
 
 By default, a subroutine or method hides variables declared within its
 lexical scope (with the exception of C<$_> ).  Variables declared within a
-subroutine or method cannot usually be accessed when the subroutine or method is called.  To change this, declare the variable with C<env>.
+subroutine or method cannot usually be accessed when the subroutine or method
+is called.  To change this, declare the variable with C<env>.
 
     [XXX Probably should include an example declaring and accessing an ENV
     variable]
@@ -421,9 +423,13 @@ any arguments
 
 =head2 Built-in operators and functions
 
-Perl comes with a wide selection of builtin functions.  Some of the ones we've already seen include "print", "sort" and "reverse".  A list of them is given at the start of perlfunc and you can easily read about any given function by using "perldoc -f functionname".
+Perl comes with a wide selection of builtin functions.  Some of the ones
+we've already seen include "print", "sort" and "reverse".  A list of them is
+given at the start of perlfunc and you can easily read about any given
+function by using "perldoc -f functionname".
 
-Perl operators are documented in full in perlop, but here are a few of the most common ones:
+Perl operators are documented in full in perlop, but here are a few of the
+most common ones:
 
 Arithmetic
        +   addition
@@ -449,7 +455,10 @@ String comparison
        le  less than or equal
        ge  greater than or equal
 
-(Why do we have separate numeric and string comparisons?  Because we don't have special variable types, and Perl needs to know whether to sort numerically (where 99 is less than 100) or alphabetically (where 100 comes before 99).
+(Why do we have separate numeric and string comparisons?  Because we don't
+have special variable types, and Perl needs to know whether to sort
+numerically (where 99 is less than 100) or alphabetically (where 100 comes
+before 99).
 
 Smart comparison
        ~~  smart match (see smartmatch)
@@ -460,7 +469,10 @@ Boolean logic
        ||  or
        !   not
 
-("and", "or" and "not" aren't just in the above table as descriptions of the operators -- they're also supported as operators in their own right.  They're more readable than the C-style operators, but have different precedence to "&&" and friends.  Check perlop for more detail.)
+("and", "or" and "not" aren't just in the above table as descriptions of the
+operators -- they're also supported as operators in their own right.  They're
+more readable than the C-style operators, but have different precedence to
+"&&" and friends.  Check perlop for more detail.)
 
 Miscellaneous
        =   assignment
@@ -566,8 +578,8 @@ Note that those variables are numbered from 0 not 1;
 
 =item Other regexp features
 
-Perl rules also support named rules,grammars,backreferences, lookaheads, and all kinds of
-other complex details.  Read all about them in L<XXX>,
+Perl rules also support named rules,grammars,backreferences, lookaheads, and
+all kinds of other complex details.  Read all about them in L<XXX>.
 
 =back
 
