@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 58;
+plan 66;
 
 =pod
 
@@ -275,4 +275,13 @@ is(all(1).pick, 1, 'all(1).pick should be 1');
 is(all(1,1).pick, 1, 'all(1,1).pick should be 1');
 is(all(1,2).pick, undef, 'all(1,2).pick should be undef');
 
+# junction in boolean context
+ok(?(0&0) == ?(0&&0), 'boolean context');
+ok(?(0&1) == ?(0&&1), 'boolean context');
+ok(?(1&1) == ?(1&&1), 'boolean context');
+ok(?(1&0) == ?(1&&0), 'boolean context');
+ok(!(?(0&0) != ?(0&&0)), 'boolean context');
+ok(!(?(0&1) != ?(0&&1)), 'boolean context');
+ok(!(?(1&1) != ?(1&&1)), 'boolean context');
+ok(!(?(1&0) != ?(1&&0)), 'boolean context');
 
