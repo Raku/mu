@@ -5,7 +5,7 @@ module Pugs.Parser.Types (
     DynParsers(..), ParensOption(..),
     RuleOperator, RuleOperatorTable,
     getRuleEnv, modifyRuleEnv, putRuleEnv,
-    clearDynParsers, withRuleConditional,
+    clearDynParsers, withRuleConditional, getPrevCharClass,
 
     -- Alternate Char implementations that keeps track of ruleCharClass
     satisfy, string, oneOf, noneOf, char, hexDigit, octDigit,
@@ -22,12 +22,12 @@ satisfy f = do
     rv <- tokenPrim (\c -> show [c]) 
                     (\pos c _ -> updatePosChar pos c) 
                     (\c -> if f c then Just c else Nothing)
-    modify $ \state -> state{ ruleCharClass = charClassOf rv }
+    modify $ \state -> state{ ruleChar = rv }
     return rv
 
 string s = do
     rv <- tokens show updatePosString s
-    modify $ \state -> state{ ruleCharClass = charClassOf (last s) }
+    modify $ \state -> state{ ruleChar = last s }
     return rv
 
 charClassOf :: Char -> CharClass
@@ -36,6 +36,10 @@ charClassOf c   | isAlphaNum c  = WordClass
                 | isSpace c     = SpaceClass
                 | otherwise     = SymClass
 
+getPrevCharClass :: RuleParser CharClass
+getPrevCharClass = do
+    c <- gets ruleChar
+    return $ charClassOf c
 
 oneOf, noneOf :: [Char] -> RuleParser Char
 oneOf cs    = satisfy (\c -> elem c cs)
@@ -78,7 +82,7 @@ data RuleState = MkRuleState
                                        --     parsers
     , ruleInConditional :: !Bool       -- ^ Whether we are in an conditional
                                        --     part and has to suppress {..} literals
-    , ruleCharClass     :: !CharClass  -- ^ What the previous character contains
+    , ruleChar          :: !Char       -- ^ What the previous character contains
     }
 
 {-|

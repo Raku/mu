@@ -1257,7 +1257,7 @@ parseTerm = rule "term" $ do
         , verbatimParens (withRuleConditional False ruleExpression)
         ]
     cond <- gets ruleInConditional
-    cls  <- gets ruleCharClass
+    cls  <- getPrevCharClass
     -- rulePostTerm returns an (Exp -> Exp) that we apply to the original term
     fs   <- if cond && cls == SpaceClass
                 then return []
