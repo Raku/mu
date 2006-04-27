@@ -34,7 +34,6 @@ tightOperators = do
     , postOps  " ++ -- " ++ preOps " ++ -- "            -- Auto-Increment
     , rightOps " ** "                                   -- Exponentiation
     , preSyn "*"                                        -- Symbolic Unary
-      ++ optSymOps (concatMap (\x -> " -" ++ [x]) "rwxoRWXOezsfdlpSbctugkTBMAC")
       ++ preOps " = ! + - ** ~ ? +^ ~^ ?^ \\ ^"
       ++ preSymOps preUnary
       ++ postOps postUnary
@@ -43,7 +42,9 @@ tightOperators = do
       ++ leftOps infixOps                               -- User defined ops
     , listOps  " & "                                    -- Junctive And
     , listOps  " ^ | "                                  -- Junctive Or
-    , optOps optionary, preOps namedUnary               -- Named Unary
+    , optOps optionary                                  -- Named Unary
+      ++ preOps namedUnary
+      ++ optSymOps (concatMap (\x -> " -" ++ [x]) "rwxoRWXOezsfdlpSbctugkTBMAC")
     , noneSyn  " is but does "                          -- Traits
       ++ noneOps " cmp <=> .. ^.. ..^ ^..^ till ^till till^ "  -- Non-chaining Binary
       ++ postOps "..."                                  -- Infinite range
