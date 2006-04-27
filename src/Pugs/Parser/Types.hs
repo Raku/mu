@@ -5,7 +5,7 @@ module Pugs.Parser.Types (
     DynParsers(..), ParensOption(..),
     RuleOperator, RuleOperatorTable,
     getRuleEnv, modifyRuleEnv, putRuleEnv,
-    clearDynParsers, withRuleConditional, getPrevCharClass,
+    clearDynParsers, withRuleConditional, getPrevCharClass, charClassOf,
 
     -- Alternate Char implementations that keeps track of ruleCharClass
     satisfy, string, oneOf, noneOf, char, hexDigit, octDigit,
@@ -53,6 +53,9 @@ octDigit    = satisfy (isOctDigit)  <?> "octal digit"
 
 digit       = satisfy (isDigit)     <?> "digit"
 upper       = satisfy (isUpper)     <?> "uppercase letter"
+
+whiteSpace  = satisfy (\c -> charClassOf c == SpaceClass)
+                                    <?> "whitespace"
 
 anyChar :: RuleParser Char
 anyChar     = satisfy (const True)

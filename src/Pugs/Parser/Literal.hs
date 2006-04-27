@@ -81,3 +81,12 @@ ruleDot = verbatimRule "dot" $ do
         whiteSpace
         char '.'
 
+-- zero-width, non-consuming word boundary assertion (\b)
+ruleWordBoundary :: RuleParser ()
+ruleWordBoundary = do
+    cls <- getPrevCharClass
+    look $ if (cls == SpaceClass) then (/=) else (==)
+    return ()
+    where
+    look op = lookAhead (satisfy (\c -> SpaceClass `op` charClassOf c))
+
