@@ -1,8 +1,8 @@
+#ifndef PGE_OPTABLE_H
+#define PGE_OPTABLE_H 1
+
 #include <Judy.h>
 
-static PWord_t PValue = NULL;
-
-#ifndef PGE_OPTABLE_H
 #define HashNew() \
         calloc(1,sizeof(void *))
 
@@ -17,8 +17,6 @@ static PWord_t PValue = NULL;
 
 #define HashFree(x) \
         JudyHSFreeArray(&x, PJE0)
-
-#define PGE_OPTABLE_H 1
 
 #define PGE_OPTABLE_ARITY           0x0003
 #define PGE_OPTABLE_ASSOC           0x000c
@@ -66,14 +64,16 @@ typedef void* Extras; /* extras */
 typedef Pvoid_t Array;
 typedef Pvoid_t Hash;
 
+static PWord_t PValue = NULL;      /* ??? */
+
 /* static Pvoid_t sctable = (PWord_t)NULL; */
 
 /* Buf is a buffer that knows its size */
-struct _str {
+struct _buf {
     Word_t len;
     const char* bytes;
 };
-typedef struct _str Buf;
+typedef struct _buf Buf;
 
 struct _op_parser {
     Hash tokens;
