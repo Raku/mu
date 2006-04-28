@@ -18,7 +18,7 @@ operators = do
     loose <- looseOperators
     return $ concat $
         [ tight
-        , [ listSyn  " , ", listOps " Y ¥ " ]           -- Comma
+        , [ listSyn  " , ", listOps " Y \xA5 " ]           -- Comma
         , loose
     --  , [ listSyn  " ; " ]                            -- Terminator
         ]
@@ -58,7 +58,7 @@ tightOperators = do
     , rightOps " => "                                -- Pair constructor
       ++ rightSyn (
                " = := ::= .= " ++
-               " ~= += -= *= /= %= x= Y= ¥= **= xx= ||= &&= //= ^^= " ++
+               " ~= += -= *= /= %= x= Y= \xA5= **= xx= ||= &&= //= ^^= " ++
                " +<= +>= ~<= ~>= +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= ")
     ]
 
@@ -153,7 +153,7 @@ currentTightFunctions = do
     -- Hack: Filter out &infix:<,> (which are most Preludes for PIL -> *
     -- compilers required to define), because else basic function application
     -- (foo(1,2,3) will get parsed as foo(&infix:<,>(1,&infix:<,>(2,3))) (bad).
-    return $ map (encodeUTF8 . unwords . filter (/= ",") . nub) $
+    return $ map (unwords . filter (/= ",") . nub) $
         [nullary, optionary, namedUnary, preUnary, postUnary, infixOps]
 
 
@@ -187,7 +187,7 @@ listSyn     :: String -> [RuleOperator Exp]
 listSyn     = ops $ makeOp0 AssocList "" Syn
 
 ops :: (String -> a) -> String -> [a]
-ops f = map (f . snd) . sort . map (\x -> (-length x, x)) . nub . words . decodeUTF8
+ops f = map (f . snd) . sort . map (\x -> (-length x, x)) . nub . words
 
 
 -- chainOps    = ops $ makeOpChained
@@ -250,7 +250,7 @@ For example, the string @\"+ -\"@ would be transformed into
 addHyperInfix :: String -> String
 addHyperInfix = unwords . concatMap hyperForm . words
     where
-    hyperForm op = [op, ">>" ++ op ++ "<<", "»" ++ op ++ "«"]
+    hyperForm op = [op, ">>" ++ op ++ "<<", "\xBB" ++ op ++ "\xAB"]
 
 {-|
 Similar to 'addHyperInfix', but for prefix ops.
@@ -261,7 +261,7 @@ For example, @\"++ --\"@ would become
 addHyperPrefix :: String -> String
 addHyperPrefix = unwords . concatMap hyperForm . words
     where
-    hyperForm op = [op, op ++ "<<", op ++ "«"]
+    hyperForm op = [op, op ++ "<<", op ++ "\xAB"]
 
 {-|
 Similar to 'addHyperInfix', but for postfix ops.
@@ -272,7 +272,7 @@ For example, @\"++ --\"@ would become
 addHyperPostfix :: String -> String
 addHyperPostfix = unwords . concatMap hyperForm . words
     where
-    hyperForm op = [op, ">>" ++ op, "»" ++ op]
+    hyperForm op = [op, ">>" ++ op, "\xBB" ++ op]
 
 methOps             :: a -> [b]
 methOps _ = []

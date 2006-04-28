@@ -181,14 +181,14 @@ maybeColon = option id $ do
 type SubDescription = (Scope, String, Bool, SubType, String)
 
 ruleSubScopedWithContext :: RuleParser SubDescription
-ruleSubScopedWithContext = try $ rule "scoped subroutine with context" $ do
+ruleSubScopedWithContext = tryRule "scoped subroutine with context" $ do
     scope   <- ruleScope
     cxt     <- identifier
     (isMulti, styp, name) <- ruleSubHead
     return (scope, cxt, isMulti, styp, name)
 
 ruleSubScoped :: RuleParser SubDescription
-ruleSubScoped = try $ rule "scoped subroutine" $ do
+ruleSubScoped = tryRule "scoped subroutine" $ do
     scope <- ruleScope
     (isMulti, styp, name) <- ruleSubHead
     return (scope, "Any", isMulti, styp, name)
@@ -199,17 +199,12 @@ ruleSubGlobal = rule "global subroutine" $ do
     return (SGlobal, "Any", isMulti, styp, name)
 
 ruleRuleDeclaration :: RuleParser Exp
-ruleRuleDeclaration = rule "rule declaration" $ try $ do
-    symbol "rule"
-    name    <- identifier
+ruleRuleDeclaration = rule "rule declaration" $ do
+    name    <- try (symbol "rule" >> identifier)
     adverbs <- ruleAdverbHash
     ch      <- char '{'
     expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
-    actual  <- possiblyApplyMacro $
-                   App (Var ("&rx_")) Nothing
-                       [adverbs, expr,
-                        (Val $ VStr [ch]), (Val $ VStr [(balancedDelim ch)])]
-    let exp = Syn ":=" [Var ('<':'*':name), actual]
+    let exp = Syn ":=" [Var ('<':'*':name), Syn "rx" [expr, adverbs]]
     unsafeEvalExp (Sym SGlobal ('<':'*':name) exp)
     return emptyExp
 
@@ -440,15 +435,15 @@ ruleTrustsDeclaration = do
 
 ruleTraitDeclaration :: RuleParser Exp
 ruleTraitDeclaration = try $ do
-    trait   <- ruleTrait
-    env     <- getRuleEnv
     -- XXX horrible hack! "is eval(...), ..." should *not* be parsed as a trait
     -- declaration. So we check whether we're really statement-level, i.e.
     --   is eval(...) [eof]   # trait
     --   is eval(...);        # trait
     --   is eval(...) }       # trait
     --   is eval(...), ...    # sub call
-    lookAhead $ try eof <|> (oneOf ";}" >> return ())
+    trait   <- ruleTrait
+    lookAhead (eof <|> (oneOf ";}" >> return ()))
+    env     <- getRuleEnv
     let pkg = Var (':':envPackage env)
     return $ Syn "=" [Syn "{}" [pkg, Val (VStr "traits")], Syn "," [Syn "@{}" [Syn "{}" [pkg, Val (VStr "traits")]], Val (VStr trait)]]
 
@@ -848,7 +843,7 @@ ruleRequireDeclaration = rule "require declaration" $ do
     return $ App (Var "&require") Nothing [Val . VStr $ concat (intersperse "::" names)]
 
 ruleDoBlock :: RuleParser Exp
-ruleDoBlock = rule "do block" $ try $ do
+ruleDoBlock = rule "do block" $ do
     symbol "do"
     choice
         -- do { STMTS }
@@ -1192,9 +1187,9 @@ retVerbatimBlock styp formal lvalue body = expRule $ do
 ruleBlockFormalStandard :: RuleParser (SubType, Maybe [Param], Bool)
 ruleBlockFormalStandard = rule "standard block parameters" $ do
     styp <- choice
-        [ do { try $ symbol "sub";   return SubRoutine }
-        , do { try $ symbol "coro";  return SubCoroutine }
-        , do {       symbol "macro"; return SubMacro }
+        [ do { symbol "sub";   return SubRoutine }
+        , do { symbol "coro";  return SubCoroutine }
+        , do { symbol "macro"; return SubMacro }
         ]
     params <- option Nothing $ ruleSubParameters ParensMandatory
     traits <- many $ ruleTrait
@@ -1253,13 +1248,13 @@ parseTerm = rule "term" $ do
         , ruleVar
         , ruleApply True    -- Folded metaoperators
         , ruleLit
-        , ruleBarewordMethod
+--      , ruleBarewordMethod
         , ruleClosureTrait True
         , ruleCodeQuotation
         , ruleTypeVar
         , ruleTypeLiteral
         , ruleApply False   -- Normal application
-        , verbatimParens (withRuleConditional False ruleExpression)
+        , verbatimParens (withRuleConditional False ruleExpressionOrWhitespace)
         ]
     cond <- gets ruleInConditional
     -- rulePostTerm returns an (Exp -> Exp) that we apply to the original term
@@ -1272,14 +1267,16 @@ parseTerm = rule "term" $ do
         SpaceClass -> return term
         _          -> parsePostTerm
 
+{-
 ruleBarewordMethod :: RuleParser Exp
 ruleBarewordMethod = try $ do
     name <- identifier
     lookAhead (char '.' >> ruleSubName)
     return $ Var (':':name)
+-}
 
 ruleTypeVar :: RuleParser Exp
-ruleTypeVar = rule "type" $ try $ do
+ruleTypeVar = rule "type" $ do
     -- We've to allow symbolic references with type vars, too.
     nameExps <- many1 $ do
         string "::"
@@ -1703,8 +1700,6 @@ ruleLit = do
             | otherwise = (ruleBlockLiteral:)
     choice ( ruleDoBlock : blk
         [ numLiteral
-        , emptyListLiteral
-        , emptyArrayLiteral
         , arrayLiteral
         , pairLiteral
         , undefLiteral
@@ -1730,7 +1725,7 @@ Match the literal @undef@, returning an expression representing the undefined
 value.
 -}
 undefLiteral :: RuleParser Exp
-undefLiteral = try $ do
+undefLiteral = do
     symbol "undef"
     return $ Val VUndef
 
@@ -1741,19 +1736,12 @@ numLiteral = do
         Left  i -> return . Val $ VInt i
         Right d -> return . Val $ VRat d
 
-emptyListLiteral :: RuleParser Exp
-emptyListLiteral = rule "empty list" $ do
-    try $ verbatimParens whiteSpace
-    return $ Syn "," []
-
-emptyArrayLiteral :: RuleParser Exp
-emptyArrayLiteral = rule "empty array" $ do
-    try $ verbatimBrackets whiteSpace
-    return $ Syn "\\[]" [emptyExp]
+ruleExpressionOrWhitespace :: RuleParser Exp
+ruleExpressionOrWhitespace = ruleExpression <|> do { whiteSpace; return emptyExp }
 
 arrayLiteral :: RuleParser Exp
 arrayLiteral = try $ do
-    item <- verbatimBrackets ruleExpression
+    item <- verbatimBrackets ruleExpressionOrWhitespace
     return $ Syn "\\[]" [item]
 
 {-|
@@ -1807,7 +1795,7 @@ pairAdverb = try $ do
         skipMany1 (satisfy isSpace)
         return (Val $ VInt 1)
     valueExp = lexeme $ choice
-        [ verbatimParens ruleExpression
+        [ verbatimParens ruleExpressionOrWhitespace
         , arrayLiteral
         , angleBracketLiteral
         ]
@@ -1825,10 +1813,10 @@ qInterpolateDelimiter protectedChar = do
     c <- oneOf (protectedChar:"\\")
     return (Val $ VStr [c])
 
-qInterpolateMinimal :: Char -> RuleParser Exp
-qInterpolateMinimal _protectedChar = do
+qInterpolateDelimiterMinimal :: Char -> RuleParser Exp
+qInterpolateDelimiterMinimal protectedChar = do
     char '\\'
-    c <- anyChar
+    c <- oneOf (protectedChar:"\\")
     return (Val $ VStr ['\\',c])
 
 qInterpolateQuoteConstruct :: RuleParser Exp
@@ -1839,13 +1827,13 @@ qInterpolateQuoteConstruct = try $ do
     return expr
 
 qInterpolatorPostTerm :: RuleParser (Exp -> Exp)
-qInterpolatorPostTerm = try $ do
-    optional $ char '.'
+qInterpolatorPostTerm = do
+    optional $ ruleDot
     choice
-        [ try ruleInvocationParens
-        , try ruleArraySubscript
-        , try ruleHashSubscript
+        [ ruleArraySubscript
+        , ruleHashSubscript
         , ruleCodeSubscript
+        , try ruleInvocationParens
         ]
 
 qInterpolator :: QFlags -> RuleParser Exp
@@ -1864,7 +1852,7 @@ qInterpolator flags = choice [
                <|> (try $ qInterpolateDelimiter $ qfProtectedChar flags)
             QB_Single -> try qInterpolateQuoteConstruct
                <|> (try $ qInterpolateDelimiter $ qfProtectedChar flags)
-            QB_Minimal -> try $ qInterpolateMinimal $ qfProtectedChar flags
+            QB_Minimal -> try $ qInterpolateDelimiterMinimal $ qfProtectedChar flags
             QB_No -> mzero
         variable = try $ do
             var <- ruleVarNameString
@@ -1922,27 +1910,22 @@ qLiteral1 qStart qEnd flags = do
     -- qEnd
     case qfSplitWords flags of
         -- expr ~~ rx:perl5:g/(\S+)/
-        QS_Yes      -> doSplit expr
-        QS_Protect  -> doSplit expr
+        QS_Yes      -> return (doSplit expr)
+        QS_Protect  -> return (doSplit expr)
         QS_No       -> return expr
     where
     -- words() regards \xa0 as (breaking) whitespace. But \xa0 is
     -- a nonbreaking ws char.
-    doSplit (Ann (Cxt (CxtItem _)) (Val (VStr str))) = return $ doSplitStr str -- XXX: generalize to Ann _?
-    doSplit expr = doSplitRx expr
-
-    doSplitRx expr = do
-      rxSplit <- possiblyApplyMacro $ App (Var ("&rx_")) Nothing
-            [ Val $ VList
-                [ castV (VStr "P5", VInt 1)
-                , castV (VStr "g", VInt 1)
-                , castV (VStr "stringify", VInt 1)
-                ]
-            , Val $ VStr "(\\S+)"
-            , Val $ VStr "/"
-            , Val $ VStr "/"
+    doSplit (Ann (Cxt (CxtItem _)) (Val (VStr str))) = doSplitStr str
+    doSplit expr = App (Var "&infix:~~") Nothing [expr, rxSplit]
+    rxSplit = Syn "rx" $
+        [ Val $ VStr "(\\S+)"
+        , Val $ VList
+            [ castV (VStr "P5", VInt 1)
+            , castV (VStr "g", VInt 1)
+            , castV (VStr "stringify", VInt 1)
             ]
-      return $ App (Var "&infix:~~") Nothing [expr, rxSplit]
+        ]
 
 
 -- | splits the string into expressions on whitespace.
@@ -2135,7 +2118,7 @@ ruleAdverbHash = do
     return $ Syn "\\{}" [Syn "," pairs]
 
 substLiteral :: RuleParser Exp
-substLiteral = try $ do
+substLiteral = do
     symbol "s"
     adverbs <- ruleAdverbHash
     ch      <- openingDelim
@@ -2148,38 +2131,19 @@ substLiteral = try $ do
     return $ Syn "subst" [expr, subst, adverbs]
 
 rxLiteral :: RuleParser Exp
-rxLiteral = try $ choice 
-    [ do sym     <- symbol "rx" <|> symbol "m" <|> do
-             symbol "rule"
-             lookAhead $ do { ruleAdverbHash; char '{' }
-             return "rx"
-         adverbs <- ruleAdverbHash
-         ch      <- anyChar
-         expr    <- rxLiteral6 ch (balancedDelim ch)
-         possiblyApplyMacro $
-             App (Var ("&" ++ sym ++ "_")) Nothing  -- "&rx_" or "&m_"
-             [adverbs, expr,
-              (Val $ VStr [ch]), (Val $ VStr [(balancedDelim ch)])]
-    , do symbol "pugs_internals_rx"
-         adverbs <- ruleAdverbHash
-         ch      <- anyChar
-         expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
-         return $ Syn "rx" [expr, adverbs]
-    , do symbol "pugs_internals_m"
-         adverbs <- ruleAdverbHash
-         ch      <- anyChar
-         expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
-         return $ Syn "match" [expr, adverbs]
-    ]
+rxLiteral = do
+    sym     <- symbol "rx" <|> do { symbol "m"; return "match" } <|> do
+        symbol "rule"
+        lookAhead $ do { ruleAdverbHash; char '{' }
+        return "rx"
+    adverbs <- ruleAdverbHash
+    ch      <- anyChar
+    expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
+    return $ Syn sym [expr, adverbs]
 
 rxLiteralBare :: RuleParser Exp
-rxLiteralBare = try $ choice 
-    [ do ch      <- char '/'
-         expr    <- rxLiteral6 ch (balancedDelim ch)
-         possiblyApplyMacro $ App (Var "&rxbare_") Nothing [expr]
-    , do symbol "pugs_internals_rxbare"
-         ch      <- char '/'
-         expr    <- rxLiteral6 ch (balancedDelim ch)
-         return $ Syn "//" [expr, Val undef]
-    ]
+rxLiteralBare = do
+    ch      <- char '/'
+    expr    <- rxLiteral6 ch (balancedDelim ch)
+    return $ Syn "//" [expr, Val undef]
 
