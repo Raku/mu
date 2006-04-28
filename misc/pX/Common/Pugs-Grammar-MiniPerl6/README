@@ -75,3 +75,19 @@ Currently, this rule is in src/Pugs/Parser/Literal.hs:
     	doYada "!!!" = "&die"
     	doYada _ = error "Bad yada symbol"
 
+
+Spec of MiniPerl6
+
+The MiniPerl6 includes only these language constructions
+(c.f. lib/Pugs/Grammar/MiniPerl6.grammar)
+
+   Var: $<name> $0           # XXX what does $0 mean?
+   Return: return
+   Call: Foo( exp, exp... )  # parantheses are necessary
+         Bar
+   Infix: ~ + -              # not completely listed
+   Lit: [exp, exp]
+        (exp, exp)
+        123
+        "string"  # no 'string', no interpolating, no escape except \" and \\
+

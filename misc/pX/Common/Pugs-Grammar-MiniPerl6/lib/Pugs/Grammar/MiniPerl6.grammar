@@ -1,0 +1,53 @@
+grammar Pugs::Grammar::MiniPerl6;
+
+rule String {
+    \" .* \"
+}
+
+rule VariableName {
+    \S+
+}
+
+rule Variable {
+    \$\< <VariableName> \>
+}
+
+rule Constants {
+    <String>
+    | \d+
+}
+
+rule FunctionName { <VariableName> }
+
+rule Parameters {
+    <Expr> <ws>? [ \, <ws>? <Parameters> <ws>? ]*
+}
+
+rule FunctionAppExpr {
+    <Variable>
+    | <Constants>
+    | <FunctionName> <ws>? [ ( <ws>? <Parameters> ) ]?
+}
+
+rule AdditiveExpr {
+    <FunctionAppExpr> <ws>? [ [ \+ | \- | \~ ] <ws>? <AdditiveExpr> <ws>? ]*
+}
+
+rule Expr {
+    <AdditiveExpr>
+}
+
+rule Return {
+    return <ws> <Expr> \;?
+    { use v5; return "    return \$ " . $<Expr> }
+}
+
+rule Statements {
+    <Expr> <ws>? \; <ws>? <Statements>
+    { use v5; return $<Expr>() . $<Statements>() }
+}
+
+rule ProductionRule {
+    <Statements> <ws>? <Return>
+    { use v5; return $<Statements>() . $<Return> }
+}
