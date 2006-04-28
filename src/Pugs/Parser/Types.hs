@@ -30,6 +30,22 @@ string s = do
     modify $ \state -> state{ ruleChar = last s }
     return rv
 
+captureNamed :: String -> RuleParser a -> RuleParser a
+captureNamed newState rule = do
+    prev <- gets ruleName
+    modify $ \state -> state{ ruleName = newState }
+    rv <- rule
+    modify $ \state -> state{ ruleName = prev }
+    return rv
+
+capturePositioned :: Int -> RuleParser a -> RuleParser a
+capturePositioned pos rule = do
+    prev <- gets rulePos
+    modify $ \state -> state{ rulePos = pos }
+    rv <- rule
+    modify $ \state -> state{ rulePos = prev }
+    return rv
+
 charClassOf :: Char -> CharClass
 charClassOf c   | isAlphaNum c  = WordClass
                 | isSpace c     = SpaceClass
@@ -86,6 +102,8 @@ data RuleState = MkRuleState
     , ruleInConditional :: !Bool       -- ^ Whether we are in an conditional
                                        --     part and has to suppress {..} literals
     , ruleChar          :: !Char       -- ^ What the previous character contains
+    , ruleName          :: !String     -- ^ Capture name
+    , rulePos           :: !Int        -- ^ Capture position
     }
 
 {-|
