@@ -19,11 +19,10 @@ class Relation-0.0.1 {
     # (None Yet)
 
     # Attributes of every Relation object:
-    has Role %!heading;
-        # Hash(Str) of Role
+    has 1 %!heading;
+        # Hash(Str) of 1
         # Each hash key is a name of one of this Relation's attributes; the
-        # corresponding hash value is the role that the class of each value
-        # of that Relation attribute must implement.
+        # corresponding hash value is always the number 1.
         # Note that it is valid for a Relation to have zero attributes.
     has Hash @!body;
         # Array of Hash(Str) of Any
@@ -37,7 +36,7 @@ class Relation-0.0.1 {
 
 ###########################################################################
 
-submethod BUILD (Role :%heading? = {}, Hash :@body? = []) {
+submethod BUILD (1 :%heading? = {}, Hash :@body? = []) {
 
     die "Arg :%heading has the empty string for a key."
         if %heading.exists($EMPTY_STR);
@@ -53,15 +52,9 @@ submethod BUILD (Role :%heading? = {}, Hash :@body? = []) {
             die "An element of arg :@body has a key, '$atnm', that does"
                     ~ " not match any key of arg :%heading."
                 if !%heading.exists($atnm);
-            die "An element of arg :@body has a value for key '$atnm'"
-                    ~ " whose implementing class, '{$atvl.ref}' does not"
-                    ~ " implement the role specified for the corresponding"
-                    ~ " :%heading element, '{%heading{$atnm}}'."
-                if !$atvl.does(%heading{$atnm});
         }
     }
-    # TODO: Validate that all the given tuples are mutually distinct, and
-    # throw an exception if not.  Or alternately just merge them silently.
+    # TODO: Eliminate any duplicate/redundant @body elements silently.
     @!body = [@body.map:{ {$_} }];
 
     return;
@@ -105,9 +98,10 @@ I<This documentation is pending.>
 =head1 DESCRIPTION
 
 This class implements a Relation data type that corresponds to the
-"relation" of logic and philosophy ("a predicate ranging over more than one
-argument"), which is also the basis of the relational data model proposed
-by E. F. Codd, upon which anything in the world can be modelled.
+"relation" of logic and mathematics and philosophy ("a predicate ranging
+over more than one argument"), which is also the basis of the relational
+data model proposed by Edgar. F. Codd, upon which anything in the world can
+be modelled.
 
 A relation is essentially a set of sets, or a set of logical tuples; a
 picture of one can look like a table, where each tuple is a row and each
@@ -117,6 +111,14 @@ The intended interface and use of this class in Perl programs is similar to
 the intended use of a L<Set> class; a Relation is like a Set that exists
 over N dimensions rather than one.  The Relation operators are somewhat of
 a superset of the Set operators.
+
+Like the Set data type, the Relation data type is immutable.  The value of
+a Relation object is determined when it is constructed, and the object can
+not be changed afterwards.
+
+If you want something similar but that is mutable, you can accomplish that
+manually using a multi-dimensional object Hash, or various combinations of
+other data types.
 
 While the implementation can be changed greatly (it isn't what's important;
 the interface/behaviour is), this Relation data type is proposed to be
@@ -138,14 +140,13 @@ returns, you can assume that it has succeeded.
 =head2 The Relation Class
 
 A Relation object is an unordered set of tuples, each of which is an
-unordered set of named and typed attributes; all tuples in a Relation are
-of the same degree, and the attribute names of each tuple are all the same
-as those of all the other tuples, and the implementing classes of their
-attribute values all fulfill the same Role as corresponding by their names.
+unordered set of named attributes; all tuples in a Relation are of the same
+degree, and the attribute names of each tuple are all the same as those of
+all the other tuples.
 
 For purposes of the Relation class' API, a tuple is represented by a Perl
 Hash where each Hash key is an attribute name and each Hash value is the
-corresponding attribute value, which knows its own implementing class.
+corresponding attribute value.
 
 Every Relation attribute has a name that is distinct from the other
 attributes, though several attributes may store values of the same class;
@@ -163,10 +164,16 @@ is analagous to what the identity numbers 0 and 1 mean to normal algebra.
 A picture of a Relation can look like a table, where each of its tuples is
 a row, and each attribute is a column, but a Relation is not a table.
 
-The Relation class is pure and/or deterministic, such that all of its class
-and object methods will each return the same result and/or make the same
-change to an object when the permutation of its arguments and any invocant
-object's attributes is identical; they do not interact with the outside
+Note that, unlike some standard definitions of what a Relation should be,
+this class does not associate specific data types with each relation
+attribute, such to constrain corresponding tuple attributes; rather, every
+attribute is implicitly of type Any.  That said, like said standard
+definitions, no two stored values will be considered equal if they aren't
+of the same actual class.
+
+The Relation class is pure and deterministic, such that all of its class
+and object methods will each return the same result when invoked on the
+same object with the same arguments; they do not interact with the outside
 environment at all.
 
 A Relation object has 2 main attributes (implementation details subject to
@@ -176,23 +183,18 @@ change):
 
 =item C<%!heading> - B<Relation Heading>
 
-Hash(Str) of Role - This contains zero or more Relation attribute names and
-Role names, that together define the heading of this Relation.  Each
-attribute name is a non-empty character string, and each Role name must
-match a possible representation / Role of the class implementing a
-corresponding attribute value; eg, a tuple attribute value is only
-acceptable if it satisfies "<value>.does(<Role>)".
+Hash(Str) of 1 - This contains zero or more Relation attribute names that
+define the heading of this Relation.  Each attribute name is a non-empty
+character string.
 
 =item C<@!body> - B<Relation Body>
 
 Array of Hash(Str) of Any - This contains zero or more member tuples of the
 Relation; each Array element is a Hash whose keys and values are attribute
-names and values.  Each Hash key of Body must match a Hash key of Heading,
-and each Hash value of Body must satisfy the corresponding Hash value of
-Heading, and those two hashes must be of the same degree; the values of all
-tuples, as seen through the roles they must implement, must be mutually
-distinct.  Despite this property being implemented (for now) with an Array,
-its elements are all conceptually not in any order.
+names and values.  Each Hash key of a Body tuple must match a Hash key of
+Heading, and the value of every tuple in Body must be mutually distinct.
+Despite this property being implemented (for now) with an Array, its
+elements are all conceptually not in any order.
 
 =back
 
