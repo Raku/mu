@@ -1,5 +1,5 @@
 
-use Test::More tests => 22;
+use Test::More tests => 23;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -85,6 +85,13 @@ no warnings qw( once );
     my $rule = Pugs::Compiler::Rule->compile( '<alpha>+' );
     my $match = $rule->match( "xy12" );
     is( "$match", "xy", 'built-in rule <alpha>' );
+}
+
+{
+    # not-special chars
+    my $rule = Pugs::Compiler::Rule->compile( ',' );
+    my $match = $rule->match( "," );
+    is( "$match", ",", 'comma is not a special char' );
 }
 
 {

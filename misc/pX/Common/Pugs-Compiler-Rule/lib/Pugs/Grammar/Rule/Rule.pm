@@ -37,9 +37,9 @@ rule escaped_char :P5 {^\\(.)}
     # \w not implemented in lrep...
     rule _word_char    :P5 {^([[:alnum:]])}
     rule word {
-        <_word_char>    
+        <_word_char> | \, | \;
             
-        { return { 'constant' => $_[0]{_word_char}() ,} }
+        { return { 'constant' => $_[0]() ,} }
     }
     unshift @rule_terms, 'word';
     
