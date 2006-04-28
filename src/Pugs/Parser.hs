@@ -1313,18 +1313,16 @@ rulePostTerm = verbatimRule "term postfix" $ do
             e -> e
 
 ruleInvocation :: RuleParser (Exp -> Exp)
-ruleInvocation = fmap ($ id) $ ruleInvocationCommon False
+ruleInvocation = ruleInvocationCommon False
 
 -- used only by 'qInterpolatorPostTerm'?
 ruleInvocationParens :: RuleParser (Exp -> Exp)
-ruleInvocationParens = fmap ($ id) $ ruleInvocationCommon True
+ruleInvocationParens = ruleInvocationCommon True
         
-ruleInvocationCommon :: Bool -> RuleParser ((String -> String) -> Exp -> Exp)
+ruleInvocationCommon :: Bool -> RuleParser (Exp -> Exp)
 ruleInvocationCommon mustHaveParens = do
-    colonify    <- maybeColon
-    hasEqual    <- option False $ do { char '='; whiteSpace; return True }
-    name        <- do { str <- ruleSubName; return $ colonify str }
-    (invs, args) <- if mustHaveParens
+    name            <- ruleSubName
+    (invs, args)    <- if mustHaveParens
         then parseHasParenParamList
         else do  --  $obj.foo: arg1, arg2    # listop method call
                  -- we require whitespace after the colon (but not before)
@@ -1335,9 +1333,7 @@ ruleInvocationCommon mustHaveParens = do
                 then parseNoParenParamList
                 else option (Nothing,[]) $ parseParenParamList
     when (isJust invs) $ fail "Only one invocant allowed"
-    return $ \f x -> if hasEqual
-        then Syn "=" [x, App (Var (f name)) (Just x) args]
-        else App (Var (f name)) (Just x) args
+    return $ \x -> App (Var name) (Just x) args
 
 ruleArraySubscript :: RuleParser (Exp -> Exp)
 ruleArraySubscript = tryVerbatimRule "array subscript" $ do
@@ -1396,17 +1392,12 @@ ruleApplyImplicitMethod = do
        (inv :: Maybe Exp) might hold a 'Var' expression indicating the implicit
        invocant.  Of course, if you're not using implicit-invocant syntax, this
        will be 'Nothing'. -}
-    (colonify, implicitInv) <- do
-        char '.'                -- implicit-invocant forms all begin with '.'
-        option (id, Var "$_") $ choice
-            [ do { char '/'; return (id, (Var "$?SELF")) }
-            , do char ':'
-                 return ( \(sigil:name) -> (sigil:':':name)
-                        , Var "$?SELF"
-                        )
-            ]
-            
-    fmap (($ implicitInv) . ($ colonify)) $ ruleInvocationCommon False
+    implicitInv <- do
+        char '.' -- implicit-invocant forms all begin with '.'
+        option (Var "$_") $
+            -- XXX - This ./method form is going to be removed
+            do { char '/'; return (Var "$?SELF") }
+    fmap ($ implicitInv) $ ruleInvocationCommon False
 
 ruleSubNameWithoutPostfixModifier = try $ do
     name <- ruleSubName
