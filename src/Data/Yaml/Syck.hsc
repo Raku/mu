@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts -fvia-C -optc-w -funbox-strict-fields #-}
 #include "../../syck/syck.h"
-#include "../../cbits/fpstring.h"
+#include "../../../third-party/fps/cbits/fpstring.h"
 
 module Data.Yaml.Syck (
     parseYamlFS, emitYamlFS,
