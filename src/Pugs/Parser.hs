@@ -1443,7 +1443,7 @@ ruleFoldOp = verbatimRule "reduce metaoperator" $ try $ do
     possiblyHyper <- option "" ((char '\171' >> return "<<") <|> (string "<<"))
     return $ "&prefix:[" ++ name ++ "]" ++ possiblyHyper
     where
-    defaultInfixOps = concat
+    defaultInfixOps = words $ concat
         [ " ** * / % x xx +& +< +> ~& ~< ~> "
         , " + - ~ +| +^ ~| ~^ ?| , "
         , " & ^ | "
@@ -1716,7 +1716,7 @@ ruleLit = do
 nullaryLiteral :: RuleParser Exp
 nullaryLiteral = try $ do
     (nullary:_) <- currentTightFunctions
-    name <- choice $ map symbol $ words nullary
+    name <- choice . map symbol $ nullary
     notFollowedBy (char '(')
     possiblyApplyMacro $ App (Var ('&':name)) Nothing []
 

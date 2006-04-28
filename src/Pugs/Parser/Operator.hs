@@ -18,7 +18,7 @@ operators = do
     loose <- looseOperators
     return $ concat $
         [ tight
-        , [ listSyn  " , ", listOps " Y \xA5 " ]           -- Comma
+        , [ listSyn [","], listOps ["Y", "\xA5"] ]           -- Comma
         , loose
     --  , [ listSyn  " ; " ]                            -- Terminator
         ]
@@ -30,36 +30,36 @@ tightOperators :: (?parseExpWithTightOps :: RuleParser Exp) =>
 tightOperators = do
   [_, optionary, namedUnary, preUnary, postUnary, infixOps] <- currentTightFunctions
   return $
-    [ methOps  " . .+ .? .* .+ .() .[] .{} .<<>> .= "   -- Method postfix
-    , postOps  " ++ -- " ++ preOps " ++ -- "            -- Auto-Increment
-    , rightOps " ** "                                   -- Exponentiation
-    , preSyn "*"                                        -- Symbolic Unary
-      ++ preOps " = ! + - ** ~ ? +^ ~^ ?^ \\ ^"
+    [ methOps   (words " . .+ .? .* .+ .() .[] .{} .<<>> .= ")  -- Method postfix
+    , postOps   (words " ++ -- ")
+      ++ preOps (words " ++ -- ")                               -- Auto-Increment
+    , rightOps  (words " ** ")                                  -- Exponentiation
+    , preSyn    ["*"]                                           -- Symbolic Unary
+      ++ preOps (words " = ! + - ** ~ ? +^ ~^ ?^ \\ ^")
       ++ preSymOps preUnary
       ++ postOps postUnary
-    , leftOps  " * / % x xx +& +< +> ~& ~< ~> "         -- Multiplicative
-    , leftOps  " + - ~ +| +^ ~| ~^ ?| " -- Additive
-      ++ leftOps infixOps                               -- User defined ops
-    , listOps  " & "                                    -- Junctive And
-    , listOps  " ^ | "                                  -- Junctive Or
-    , optOps optionary                                  -- Named Unary
+    , leftOps   (words " * / % x xx +& +< +> ~& ~< ~> ")        -- Multiplicative
+    , leftOps   (words " + - ~ +| +^ ~| ~^ ?| ")                -- Additive
+      ++ leftOps infixOps                                       -- User defined ops
+    , listOps   ["&"]                                           -- Junctive And
+    , listOps   (words " ^ | ")                                 -- Junctive Or
+    , optOps optionary                                          -- Named Unary
       ++ preOps namedUnary
-      ++ optSymOps (concatMap (\x -> " -" ++ [x]) "rwxoRWXOezsfdlpSbctugkTBMAC")
-    , noneSyn  " is but does "                          -- Traits
-      ++ noneOps " cmp <=> .. ^.. ..^ ^..^ till ^till till^ "  -- Non-chaining Binary
-      ++ postOps "..."                                  -- Infinite range
-    , chainOps $
-               " != == < <= > >= ~~ !~ " ++
-               " eq ne lt le gt ge =:= === "            -- Chained Binary
-    , leftOps  " && "                                   -- Tight And
-    , leftOps  " || ^^ // "                             -- Tight Or
-    , [ternOp "??" "!!" "if"]                           -- Ternary
+      ++ optSymOps (map (\x -> ['-', x]) "rwxoRWXOezsfdlpSbctugkTBMAC")
+    , noneSyn   (words " is but does ")                         -- Traits
+      ++ noneOps (words " cmp <=> .. ^.. ..^ ^..^ till ^till till^ ")  -- Non-chaining Binary
+      ++ postOps (words "...")                                  -- Infinite range
+    , chainOps (words " != == < <= > >= ~~ !~ eq ne lt le gt ge =:= === ")
+                                                                -- Chained Binary
+    , leftOps  ["&&"]                                           -- Tight And
+    , leftOps  (words " || ^^ // ")                             -- Tight Or
+    , [ternOp "??" "!!" "if"]                                   -- Ternary
     -- Assignment
-    , rightOps " => "                                -- Pair constructor
-      ++ rightSyn (
+    , rightOps ["=>"]                                           -- Pair constructor
+      ++ rightSyn (words (
                " = := ::= .= " ++
                " ~= += -= *= /= %= x= Y= \xA5= **= xx= ||= &&= //= ^^= " ++
-               " +<= +>= ~<= ~>= +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= ")
+               " +<= +>= ~<= ~>= +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= "))
     ]
 
 looseOperators :: RuleParser (RuleOperatorTable Exp)
@@ -67,9 +67,9 @@ looseOperators = do
     -- names <- currentListFunctions
     return $
         [ -- preOps names                               -- List Operator
-          leftOps  " ==> "                              -- Pipe Forward
-        , leftOps  " and "                              -- Loose And
-        , leftOps  " or xor err "                       -- Loose Or
+          leftOps  ["==>"]                              -- Pipe Forward
+        , leftOps  ["and"]                              -- Loose And
+        , leftOps  (words " or xor err ")                       -- Loose Or
         ]
 
 -- not a parser!
@@ -115,7 +115,7 @@ currentFunctions = do
     relevantToParsing _     _            = True
 
 -- read just the current state
-currentTightFunctions :: RuleParser [String]
+currentTightFunctions :: RuleParser [[String]]
 currentTightFunctions = do
     funs    <- currentFunctions
     let (unary, rest) = (`partition` funs) $ \x -> case x of
@@ -153,42 +153,42 @@ currentTightFunctions = do
     -- Hack: Filter out &infix:<,> (which are most Preludes for PIL -> *
     -- compilers required to define), because else basic function application
     -- (foo(1,2,3) will get parsed as foo(&infix:<,>(1,&infix:<,>(2,3))) (bad).
-    return $ map (unwords . filter (/= ",") . nub) $
+    return $ map (filter (/= ",") . nub) $
         [nullary, optionary, namedUnary, preUnary, postUnary, infixOps]
 
 
-preSyn      :: String -> [RuleOperator Exp]
+preSyn      :: [String] -> [RuleOperator Exp]
 preSyn      = ops $ makeOp1 Prefix "" Syn
-preOps      :: String -> [RuleOperator Exp]
+preOps      :: [String] -> [RuleOperator Exp]
 preOps      = (ops $ makeOp1 Prefix "&prefix:" doApp) . addHyperPrefix
-preSymOps   :: String -> [RuleOperator Exp]
+preSymOps   :: [String] -> [RuleOperator Exp]
 preSymOps   = (ops $ makeOp1 Prefix "&prefix:" doAppSym) . addHyperPrefix
-optSymOps   :: String -> [RuleOperator Exp]
+optSymOps   :: [String] -> [RuleOperator Exp]
 optSymOps   = (ops $ makeOp1 OptionalPrefix "&prefix:" doAppSym) . addHyperPrefix
-postOps     :: String -> [RuleOperator Exp]
+postOps     :: [String] -> [RuleOperator Exp]
 postOps     = (ops $ makeOp1 Postfix "&postfix:" doApp) . addHyperPostfix
-optOps      :: String -> [RuleOperator Exp]
+optOps      :: [String] -> [RuleOperator Exp]
 optOps      = (ops $ makeOp1 OptionalPrefix "&prefix:" doApp) . addHyperPrefix
-leftOps     :: String -> [RuleOperator Exp]
+leftOps     :: [String] -> [RuleOperator Exp]
 leftOps     = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix
-rightOps    :: String -> [RuleOperator Exp]
+rightOps    :: [String] -> [RuleOperator Exp]
 rightOps    = (ops $ makeOp2 AssocRight "&infix:" doApp) . addHyperInfix
-noneOps     :: String -> [RuleOperator Exp]
+noneOps     :: [String] -> [RuleOperator Exp]
 noneOps     = ops $ makeOp2 AssocNone "&infix:" doApp
-listOps     :: String -> [RuleOperator Exp]
+listOps     :: [String] -> [RuleOperator Exp]
 listOps     = ops $ makeOp2 AssocLeft "&infix:" doApp
-chainOps    :: String -> [RuleOperator Exp]
+chainOps    :: [String] -> [RuleOperator Exp]
 chainOps    = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix
-rightSyn    :: String -> [RuleOperator Exp]
+rightSyn    :: [String] -> [RuleOperator Exp]
 rightSyn    = ops $ makeOp2 AssocRight "" Syn
-noneSyn     :: String -> [RuleOperator Exp]
+noneSyn     :: [String] -> [RuleOperator Exp]
 noneSyn     = ops $ makeOp2 AssocNone "" Syn
-listSyn     :: String -> [RuleOperator Exp]
+listSyn     :: [String] -> [RuleOperator Exp]
 listSyn     = ops $ makeOp0 AssocList "" Syn
 
 -- 0x10FFFF is the max number "chr" can take.
-ops :: (String -> a) -> String -> [a]
-ops f = map (f . tail) . sort . map (\x -> (chr (0x10FFFF - length x):x)) . words
+ops :: (String -> a) -> [String] -> [a]
+ops f = map (f . tail) . sort . map (\x -> (chr (0x10FFFF - length x):x))
 
 
 -- chainOps    = ops $ makeOpChained
@@ -248,8 +248,8 @@ hyperized forms.
 For example, the string @\"+ -\"@ would be transformed into
 @\"+ >>+\<\< »+« - >>-\<\< »-«\"@.
 -}
-addHyperInfix :: String -> String
-addHyperInfix = unwords . concatMap hyperForm . words
+addHyperInfix :: [String] -> [String]
+addHyperInfix = concatMap hyperForm
     where
     hyperForm op = [op, ">>" ++ op ++ "<<", "\xBB" ++ op ++ "\xAB"]
 
@@ -259,8 +259,8 @@ Similar to 'addHyperInfix', but for prefix ops.
 For example, @\"++ --\"@ would become
 @\"++ ++\<\< ++« -- --\<\< --«\"@.
 -}
-addHyperPrefix :: String -> String
-addHyperPrefix = unwords . concatMap hyperForm . words
+addHyperPrefix :: [String] -> [String]
+addHyperPrefix = concatMap hyperForm
     where
     hyperForm op = [op, op ++ "<<", op ++ "\xAB"]
 
@@ -270,8 +270,8 @@ Similar to 'addHyperInfix', but for postfix ops.
 For example, @\"++ --\"@ would become
 @\"++ >>++ »++ -- >>-- »--\"@.
 -}
-addHyperPostfix :: String -> String
-addHyperPostfix = unwords . concatMap hyperForm . words
+addHyperPostfix :: [String] -> [String]
+addHyperPostfix = concatMap hyperForm
     where
     hyperForm op = [op, ">>" ++ op, "\xBB" ++ op]
 
