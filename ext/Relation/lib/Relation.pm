@@ -19,43 +19,35 @@ class Relation-0.0.1 {
     # (None Yet)
 
     # Attributes of every Relation object:
-    has 1 %!heading;
-        # Hash(Str) of 1
-        # Each hash key is a name of one of this Relation's attributes; the
-        # corresponding hash value is always the number 1.
+    has Junction of Str $!heading;
+        # Junction of Str
+        # Each Junction member is a name of one of this Relation's
+        # attributes.
         # Note that it is valid for a Relation to have zero attributes.
-    has Hash @!body;
-        # Array of Hash(Str) of Any
-        # Each array element is a tuple of this Relation, where the tuple
-        # is represented as a hash; each key of that hash is the name of
-        # one of this Relation's attributes and the value corresponding to
-        # that is the value for that attribute for that tuple.
+    has Junction of Mapping(Str) of Any $!body;
+        # Junction of Mapping(Str) of Any
+        # Each Junction member is a tuple of this Relation, where the tuple
+        # is represented as a Mapping; each key of that Mapping is the name
+        # of one of this Relation's attributes and the value corresponding
+        # to that is the value for that attribute for that tuple.
         # Note that it is valid for a Relation to have zero tuples.
-        # Note that while an array is used here, it is meant to represent a
-        # set of tuples, so its elements are conceptually not in any order.
 
 ###########################################################################
 
-submethod BUILD (1 :%heading? = {}, Hash :@body? = []) {
+submethod BUILD (Junction of Str :$heading? = any(),
+        Junction of Mapping(Str) of Any :$body? = ()) {
+    $heading //= any(); #/
+    $body    //= ();    #/
 
-    die "Arg :%heading has the empty string for a key."
-        if %heading.exists($EMPTY_STR);
-    %!heading = {%heading};
-
-    for @body -> %tuple {
-        die "An element of arg :@body has an element count that does not"
-                ~ "match the element count of arg :%heading."
-            if +%tuple.keys != +%heading.keys;
-        die "An element of arg :@body has the empty string for a key."
-            if %tuple.exists($EMPTY_STR);
-        for %tuple.kv -> $atnm, $atvl {
-            die "An element of arg :@body has a key, '$atnm', that does"
-                    ~ " not match any key of arg :%heading."
-                if !%heading.exists($atnm);
-        }
+    for $body.values -> $tuple {
+        die "The keys of a member of arg :$body do not match the members"
+                . " of arg :$heading; the header of a tuple in :$body"
+                . " does not match the header of this relation."
+            if !(all($tuple.keys) === $heading);
     }
-    # TODO: Eliminate any duplicate/redundant @body elements silently.
-    @!body = [@body.map:{ {$_} }];
+
+    $!heading = $heading;
+    $!body    = $body;
 
     return;
 }
@@ -64,8 +56,8 @@ submethod BUILD (1 :%heading? = {}, Hash :@body? = []) {
 
 method export_as_hash () returns Hash {
     return {
-        'heading' => {%!heading},
-        'body'    => [@!body.map:{ {$_} }],
+        'heading' => $!heading,
+        'body'    => $!body,
     };
 }
 
@@ -103,7 +95,7 @@ over more than one argument"), which is also the basis of the relational
 data model proposed by Edgar. F. Codd, upon which anything in the world can
 be modelled.
 
-A relation is essentially a set of sets, or a set of logical tuples; a
+A relation is essentially a set of mappings, or a set of logical tuples; a
 picture of one can look like a table, where each tuple is a row and each
 relation/tuple attribute is a column, but it is not the same as a table.
 
@@ -116,9 +108,9 @@ Like the Set data type, the Relation data type is immutable.  The value of
 a Relation object is determined when it is constructed, and the object can
 not be changed afterwards.
 
-If you want something similar but that is mutable, you can accomplish that
-manually using a multi-dimensional object Hash, or various combinations of
-other data types.
+If you want something similar but that is more mutable, you can accomplish
+that manually using a set of mappings, or a multi-dimensional object Hash,
+or various combinations of other data types.
 
 While the implementation can be changed greatly (it isn't what's important;
 the interface/behaviour is), this Relation data type is proposed to be
@@ -145,8 +137,8 @@ degree, and the attribute names of each tuple are all the same as those of
 all the other tuples.
 
 For purposes of the Relation class' API, a tuple is represented by a Perl
-Hash where each Hash key is an attribute name and each Hash value is the
-corresponding attribute value.
+Mapping where each Mapping key is an attribute name and each Mapping value
+is the corresponding attribute value.
 
 Every Relation attribute has a name that is distinct from the other
 attributes, though several attributes may store values of the same class;
@@ -164,13 +156,6 @@ is analagous to what the identity numbers 0 and 1 mean to normal algebra.
 A picture of a Relation can look like a table, where each of its tuples is
 a row, and each attribute is a column, but a Relation is not a table.
 
-Note that, unlike some standard definitions of what a Relation should be,
-this class does not associate specific data types with each relation
-attribute, such to constrain corresponding tuple attributes; rather, every
-attribute is implicitly of type Any.  That said, like said standard
-definitions, no two stored values will be considered equal if they aren't
-of the same actual class.
-
 The Relation class is pure and deterministic, such that all of its class
 and object methods will each return the same result when invoked on the
 same object with the same arguments; they do not interact with the outside
@@ -181,20 +166,19 @@ change):
 
 =over
 
-=item C<%!heading> - B<Relation Heading>
+=item C<$!heading> - B<Relation Heading>
 
-Hash(Str) of 1 - This contains zero or more Relation attribute names that
-define the heading of this Relation.  Each attribute name is a non-empty
-character string.
+Junction of Str - This contains zero or more Relation attribute names that
+define the heading of this Relation.  Each attribute name is a character
+string.
 
-=item C<@!body> - B<Relation Body>
+=item C<$!body> - B<Relation Body>
 
-Array of Hash(Str) of Any - This contains zero or more member tuples of the
-Relation; each Array element is a Hash whose keys and values are attribute
-names and values.  Each Hash key of a Body tuple must match a Hash key of
-Heading, and the value of every tuple in Body must be mutually distinct.
-Despite this property being implemented (for now) with an Array, its
-elements are all conceptually not in any order.
+Junction of Mapping(Str) of Any - This contains zero or more member tuples
+of the Relation; each Junction member is a Mapping whose keys and values
+are attribute names and values.  Each Mapping key of a Body tuple must
+match a Junction member of Heading, and the value of every tuple in Body
+must be mutually distinct.
 
 =back
 
@@ -202,14 +186,15 @@ This is the main Relation constructor method:
 
 =over
 
-=item C<new( Role :%heading?, Hash :@body? )>
+=item C<new( Junction of Str :$heading?, Junction of Mapping(Str) of Any
+:$body? )>
 
 This method creates and returns a new Relation object, whose Heading and
 Body attributes are set respectively from the optional named parameters
-%heading and @body.  If %heading is undefined or an empty Hash, the
-Relation has zero attributes.  If @body is undefined or an empty Array, the
-Relation has zero tuples.  If a Relation has zero attributes, then @body
-may be an Array with a single element that is an empty Hash.
+$heading and $body.  If $heading is undefined or an empty Junction, the
+Relation has zero attributes.  If $body is undefined or an empty Junction,
+the Relation has zero tuples.  If a Relation has zero attributes, then
+$body may be an Junction with a single member that is an empty Mapping.
 
 =back
 
