@@ -2,9 +2,10 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0x7599B7C4 or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0xF6DE2CB7 or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
+use base 'Pugs::Grammar::Base';
 *{'Pugs::Grammar::Rule::p6ws'} = sub {
     my $grammar = shift;
     #warn "rule argument is undefined" unless defined $_[0];
@@ -65,18 +66,6 @@ package Pugs::Grammar::Rule;
         #capture => $1,
     }
 };
-*{'Pugs::Grammar::Rule::escaped_char'} = sub {
-    my $grammar = shift;
-    #warn "rule argument is undefined" unless defined $_[0];
-    $_[0] = "" unless defined $_[0];
-    my $bool = $_[0] =~ /^\\(.)(.*)$/sx;
-    return {
-        bool  => $bool,
-        match => $1,
-        tail  => $2,
-        #capture => $1,
-    }
-};
 *{'Pugs::Grammar::Rule::dot'} = 
 sub {
     my $grammar = shift;
@@ -115,11 +104,13 @@ sub {
               ,
                 constant( "\/" )
               ,
+                constant( "\~" )
+              ,
           ] )
         ,
           Pugs::Runtime::Rule::abort(
               sub {
-                  return { bool => 1, tail => $_[0], return => sub { return { 'constant' => $_[0]() ,} } };
+                  return { bool => 1, tail => $_[0], return => sub { return { 'constant' =>  $_[0]->()  ,} } };
               }
           )
         ,
@@ -135,11 +126,13 @@ sub {
     package Pugs::Runtime::Rule;
     rule_wrapper( $_[0], (
         concat(
-          capture( 'escaped_char', sub{ $grammar->escaped_char(@_) } )
+          constant( "\\" )
+        ,
+          sub{ $grammar->any(@_) }
         ,
           Pugs::Runtime::Rule::abort(
               sub {
-                  return { bool => 1, tail => $_[0], return => sub { return { special_char => $_[0]{escaped_char}(), } } };
+                  return { bool => 1, tail => $_[0], return => sub { return { special_char =>  $_[0]->() , } } };
               }
           )
         ,

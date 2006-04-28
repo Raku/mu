@@ -45,7 +45,8 @@ sub node::ws {
 }
 sub node::grammar_name {
     my $ident = get_str( $_[0], '$<ident>' );
-    return "package $ident;\n";
+    return "package $ident;\n" .
+           "use base 'Pugs::Grammar::Base';\n";
 }
 sub node::rule_decl {
     my $name = get_str( $_[0], '$<ident>' );

@@ -12,7 +12,7 @@ require 'iterator_engine.pl';
 require 'p6rule_lib.pl';
 require 'p5hacks.pl';
 
-my $namespace = 'Rule::Grammar::Rule::';
+my $namespace = 'Pugs::Grammar::Rule::';
 
 {
   package grammar1;
@@ -147,7 +147,7 @@ sub negated_subrule {
         Inside a closure, refers to the current match, even if there is another
         match inside the closure
     $/()  
-        just the capture - what's returned in { return ... }
+        just the capture - what''s returned in { return ... }
     $/0
         the first submatch
 Alternate names:        
@@ -368,7 +368,8 @@ sub node::code {
     return "$_[1] $_[0]  # XXX - code\n";  
 }        
 sub node::dot {
-    return "$_[1] \\&{'${namespace}any'}\n";
+    node::non_capturing_subrule( 'any', $_[1] );
+    # return "$_[1] \\&{'${namespace}any'}\n";
 }
 sub node::subrule {
     my $name = $_[0];

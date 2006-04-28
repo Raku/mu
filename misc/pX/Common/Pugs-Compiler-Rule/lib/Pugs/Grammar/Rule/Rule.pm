@@ -24,7 +24,6 @@ rule ident    :P5 {^((?:(?:\:\:)?[_[:alnum:]]+)+)}
 
 rule num_variable :P5 {^(?:\$[[:digit:]]+)}
 
-rule escaped_char :P5 {^\\(.)}
 
 # terms
 
@@ -36,16 +35,16 @@ rule escaped_char :P5 {^\\(.)}
     unshift @rule_terms, 'dot';
     
     rule plain_text {
-        <alnum> | \, | \; | \_ | \/
+        <alnum> | \, | \; | \_ | \/ | \~
             
-        { return { 'constant' => $_[0]() ,} }
+        { return { 'constant' => $() ,} }
     }
     unshift @rule_terms, 'plain_text';
     
     rule special_char {
-        <escaped_char>
+        \\ .
 
-        { return { special_char => $_[0]{escaped_char}(), } } 
+        { return { special_char => $(), } } 
     }
     unshift @rule_terms, 'special_char';
     

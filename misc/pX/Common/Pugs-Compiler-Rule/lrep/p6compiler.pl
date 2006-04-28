@@ -12,6 +12,10 @@ use strict;
 use warnings;
 no warnings 'redefine';
 
+use FindBin '$Bin';
+use lib "$Bin/../lib";
+use Pugs::Grammar::Base;
+
 require 'p6rule.pl';
 require 'emit.pl';
 require 'interface.pm';
