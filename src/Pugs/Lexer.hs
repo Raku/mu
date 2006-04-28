@@ -216,7 +216,7 @@ interpolatingStringLiteral startrule endrule interpolator = do
         = App (Var "&infix:~") Nothing [x, homogenConcat xs]
     
     stringList :: Int -> RuleParser [Exp]
-    stringList i = tryChoice
+    stringList i = choice
         [ do
             parse <- interpolator
             rest  <- stringList i
@@ -314,22 +314,22 @@ ascii3          = ['\NUL','\SOH','\STX','\ETX','\EOT','\ENQ','\ACK',
                    '\SYN','\ETB','\CAN','\SUB','\ESC','\DEL']
 
 rule :: String -> RuleParser a -> RuleParser a
-rule name action = (<?> name) $ lexeme $ action
+rule name = (<?> name) . lexeme
 
 verbatimRule :: String -> RuleParser a -> RuleParser a
-verbatimRule name action = (<?> name) $ action
+verbatimRule name = (<?> name)
 
 literalRule :: String -> RuleParser a -> RuleParser a
-literalRule name action = (<?> name) $ postSpace $ action
+literalRule name = (<?> name) . postSpace
 
 tryRule :: String -> RuleParser a -> RuleParser a
-tryRule name action = (<?> name) $ lexeme $ action
+tryRule name = (<?> name) . lexeme . try
 
 tryVerbatimRule :: String -> RuleParser a -> RuleParser a
-tryVerbatimRule name action = (<?> name) $ action
+tryVerbatimRule name = (<?> name)
 
 ruleScope :: RuleParser Scope
-ruleScope = tryRule "scope" $ do
+ruleScope = rule "scope" $ do
     scope <- ruleScopeName
     return $ readScope scope
     where
@@ -396,7 +396,7 @@ the next one.
 -}
 tryChoice :: [RuleParser a] -- ^ List of candidate parsers
           -> RuleParser a
-tryChoice = choice
+tryChoice = choice . map try
 
 {-|
 Match '@(@', followed by the given parser, followed by '@)@'.

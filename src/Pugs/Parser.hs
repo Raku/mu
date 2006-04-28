@@ -68,7 +68,7 @@ In other words, the closing brace must be the last meaningful character on
 its line.
 -}
 ruleStandaloneBlock :: RuleParser Exp
-ruleStandaloneBlock = tryRule "standalone block" $ do
+ruleStandaloneBlock = rule "standalone block" $ do
     body <- bracesAlone ruleBlockBody
     retBlock SubBlock Nothing False body
     where
@@ -265,7 +265,7 @@ rulePackageHead = do
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
     namePos <- getPosition
-    (scope, typ, isMulti, styp, name) <- tryChoice
+    (scope, typ, isMulti, styp, name) <- choice
         [ ruleSubScopedWithContext
         , ruleSubScoped
         , ruleSubGlobal
@@ -415,7 +415,7 @@ ruleFormalParam = rule "formal parameter" $ do
     exp <- ruleParamDefault (not isOptional)
     optional $ do
         symbol "-->"
-        ruleParamList ParensOptional $ tryChoice
+        ruleParamList ParensOptional $ choice
             [ do { ruleFormalParam; return "" }
             , ruleType
             ]
@@ -591,7 +591,7 @@ Works by matching \'@no@\', then trying 'ruleNoVersion' and
 ruleNoDeclaration :: RuleParser Exp
 ruleNoDeclaration = rule "no declaration" $ do
     symbol "no"
-    tryChoice [ ruleNoVersion >> return emptyExp
+    choice [ ruleNoVersion >> return emptyExp
               , ruleUsePackage False
               ]
     return emptyExp
@@ -605,7 +605,7 @@ Works by matching \'@use@\', then trying 'ruleUseVersion' and
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
     symbol "use"
-    tryChoice [ ruleUseVersion >> return emptyExp
+    choice [ ruleUseVersion >> return emptyExp
               , ruleUsePackage True
               ]
 
@@ -739,7 +739,7 @@ More info about JSAN can be found at <http://www.openjsan.org/>.
 -}
 ruleUseJSANModule :: RuleParser Exp
 ruleUseJSANModule = do
-    (names, _, _) <- tryChoice
+    (names, _, _) <- choice
         [ rulePackageFullName
         -- leave this in as a hack, until we decide
         -- whether to allow it or not
@@ -768,7 +768,7 @@ sub call 'Pugs.AST.Exp' that will load the module using subs defined in
 -}
 ruleUseJSPerl5Module :: RuleParser Exp
 ruleUseJSPerl5Module = do
-    (names, _, _) <- tryChoice
+    (names, _, _) <- choice
         [ rulePackageFullName
         -- leave this in as a hack, until we decide
         -- whether to allow it or not
@@ -826,7 +826,7 @@ ruleAuthorPart = do -- author - XXX
 {- end of ruleUseDeclaration -}
 
 ruleInlineDeclaration :: RuleParser Exp
-ruleInlineDeclaration = tryRule "inline declaration" $ do
+ruleInlineDeclaration = rule "inline declaration" $ do
     symbol "inline"
     args <- ruleExpression
     case args of
@@ -842,7 +842,7 @@ load the package at runtime.
 anybody has some tuits.)
 -}
 ruleRequireDeclaration :: RuleParser Exp
-ruleRequireDeclaration = tryRule "require declaration" $ do
+ruleRequireDeclaration = rule "require declaration" $ do
     symbol "require"
     (names, _, _) <- rulePackageFullName
     return $ App (Var "&require") Nothing [Val . VStr $ concat (intersperse "::" names)]
@@ -864,7 +864,7 @@ ruleClosureTrait :: Bool -> RuleParser Exp
 ruleClosureTrait rhs = rule "closure trait" $ do
     let names | rhs       = " BEGIN CHECK INIT FIRST "
               | otherwise = " BEGIN CHECK INIT FIRST END "
-    name    <- tryChoice $ map symbol $ words names
+    name    <- choice $ map symbol $ words names
     block   <- ruleBlock
     let (fun, names) = extractPlaceholderVars block []
     -- Check for placeholder vs formal parameters
@@ -992,7 +992,7 @@ vcode2initOrCheckBlock magicalVar allowIOLeak code = do
 -- Constructs ------------------------------------------------
 
 ruleConstruct :: RuleParser Exp
-ruleConstruct = rule "construct" $ tryChoice
+ruleConstruct = rule "construct" $ choice
     [ ruleForConstruct
     , ruleLoopConstruct
     , ruleCondConstruct
@@ -1015,7 +1015,7 @@ ruleForConstruct = rule "for construct" $ do
 ruleLoopConstruct :: RuleParser Exp
 ruleLoopConstruct = rule "loop construct" $ do
     symbol "loop"
-    tryChoice [ ruleSemiLoopConstruct, rulePostLoopConstruct ]
+    choice [ ruleSemiLoopConstruct, rulePostLoopConstruct ]
 
 ruleSemiLoopConstruct :: RuleParser Exp
 ruleSemiLoopConstruct = rule "for-like loop construct" $ do
@@ -1121,7 +1121,7 @@ appropriate 'Pugs.AST.Internals.Syn' (either @\"if\"@ or @\"unless\"@).
 -}
 rulePostConditional :: RuleParser (Exp -> RuleParser Exp)
 rulePostConditional = rule "postfix conditional" $ do
-    cond <- tryChoice $ map symbol ["if", "unless"]
+    cond <- choice $ map symbol ["if", "unless"]
     exp <- ruleExpression
     return $ \body -> return $ Syn cond [exp, body, emptyExp]
 
@@ -1134,7 +1134,7 @@ appropriate 'Pugs.AST.Internals.Syn' (either @\"while\"@ or @\"until\"@).
 -}
 rulePostLoop :: RuleParser (Exp -> RuleParser Exp)
 rulePostLoop = rule "postfix loop" $ do
-    cond <- tryChoice $ map symbol ["while", "until"]
+    cond <- choice $ map symbol ["while", "until"]
     exp <- ruleExpression
     return $ \body -> return $ Syn cond [exp, body]
 
@@ -1147,7 +1147,7 @@ Returns a function that will take the statement proper, and enclose it in
 -}
 rulePostIterate :: RuleParser (Exp -> RuleParser Exp)
 rulePostIterate = rule "postfix iteration" $ do
-    cond <- tryChoice $ map symbol ["for"]
+    cond <- choice $ map symbol ["for"]
     exp <- ruleExpression
     return $ \body -> do
         block <- retBlock SubBlock Nothing False body
@@ -1262,12 +1262,15 @@ parseTerm = rule "term" $ do
         , verbatimParens (withRuleConditional False ruleExpression)
         ]
     cond <- gets ruleInConditional
-    cls  <- getPrevCharClass
     -- rulePostTerm returns an (Exp -> Exp) that we apply to the original term
-    fs   <- if cond && cls == SpaceClass
-                then return []
-                else many rulePostTerm
-    return $ combine (reverse fs) term
+    let parsePostTerm = do
+            fs <- many rulePostTerm
+            return (combine (reverse fs) term)
+    if not cond then parsePostTerm else do
+    cls  <- getPrevCharClass
+    case cls of
+        SpaceClass -> return term
+        _          -> parsePostTerm
 
 ruleBarewordMethod :: RuleParser Exp
 ruleBarewordMethod = try $ do
@@ -1425,7 +1428,7 @@ ruleApplySub isFolded = do
         else ruleSubNameWithoutPostfixModifier
 
     -- True for `foo. .($bar)`-style applications
-    (paramListInv, args) <- tryChoice
+    (paramListInv, args) <- choice
         [ do { ruleDot; parseHasParenParamList }
         , parseParenParamList <|> do { whiteSpace; parseNoParenParamList }
         ]
@@ -1510,7 +1513,7 @@ namedAdverb :: RuleParser Exp
 namedAdverb = named pairAdverb
 
 pairOrBlockAdverb :: RuleParser Exp
-pairOrBlockAdverb = tryChoice [ namedAdverb, blockAdverb ]
+pairOrBlockAdverb = choice [ namedAdverb, blockAdverb ]
 
 blockAdverb :: RuleParser Exp
 blockAdverb = do
@@ -1594,7 +1597,7 @@ parseNoParenParamList = do
     sep = symbol ":"
     formalSegment :: (Char -> Bool) -> RuleParser [Exp]
     formalSegment dot = do
-        rv <- option Nothing (fmap Just $ tryChoice (argBlockish dot))
+        rv <- option Nothing (fmap Just $ choice (argBlockish dot))
         case rv of
             Nothing           -> return []
             Just (exp, trail) -> do
@@ -1739,12 +1742,12 @@ numLiteral = do
         Right d -> return . Val $ VRat d
 
 emptyListLiteral :: RuleParser Exp
-emptyListLiteral = tryRule "empty list" $ do
+emptyListLiteral = rule "empty list" $ do
     try $ verbatimParens whiteSpace
     return $ Syn "," []
 
 emptyArrayLiteral :: RuleParser Exp
-emptyArrayLiteral = tryRule "empty array" $ do
+emptyArrayLiteral = rule "empty array" $ do
     try $ verbatimBrackets whiteSpace
     return $ Syn "\\[]" [emptyExp]
 
@@ -1792,7 +1795,7 @@ pairAdverb = try $ do
         return $ App (Var "&infix:=>") Nothing [Val (VStr key), Var var]
     regularPair = do
         key <- many1 wordAny
-        val <- option (Val $ VInt 1) $ tryChoice [ valueDot, noValue, valueExp ]
+        val <- option (Val $ VInt 1) $ choice [ valueDot, noValue, valueExp ]
         return $ if (all isDigit key)
             then App (Var "&Pugs::Internals::base") Nothing [Val (VStr key), val]
             else App (Var "&infix:=>") Nothing [Val (VStr key), val]
@@ -2145,7 +2148,7 @@ substLiteral = try $ do
     return $ Syn "subst" [expr, subst, adverbs]
 
 rxLiteral :: RuleParser Exp
-rxLiteral = try $ tryChoice 
+rxLiteral = try $ choice 
     [ do sym     <- symbol "rx" <|> symbol "m" <|> do
              symbol "rule"
              lookAhead $ do { ruleAdverbHash; char '{' }
@@ -2170,7 +2173,7 @@ rxLiteral = try $ tryChoice
     ]
 
 rxLiteralBare :: RuleParser Exp
-rxLiteralBare = try $ tryChoice 
+rxLiteralBare = try $ choice 
     [ do ch      <- char '/'
          expr    <- rxLiteral6 ch (balancedDelim ch)
          possiblyApplyMacro $ App (Var "&rxbare_") Nothing [expr]

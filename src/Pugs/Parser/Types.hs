@@ -31,9 +31,9 @@ string s = do
     return rv
 
 charClassOf :: Char -> CharClass
-charClassOf '_' = WordClass
 charClassOf c   | isAlphaNum c  = WordClass
                 | isSpace c     = SpaceClass
+                | '_' <- c      = WordClass
                 | otherwise     = SymClass
 
 getPrevCharClass :: RuleParser CharClass
