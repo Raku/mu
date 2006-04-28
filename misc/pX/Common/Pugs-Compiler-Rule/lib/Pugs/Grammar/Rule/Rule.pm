@@ -16,6 +16,7 @@ Abstract Syntax Tree (AST) for Rules.
 rule p6ws     :P5 {^((?:\s|\#(?-s:.)*)+)}
 
 rule variable :P5 {^([\$\%\@](?:(?:\:\:)?[_[:alnum:]]+)+)}
+
 rule positional_variable 
               :P5 {^([\$\%\@]\^(?:[_[:alnum:]]+))}
 
@@ -34,14 +35,12 @@ rule escaped_char :P5 {^\\(.)}
     }
     unshift @rule_terms, 'dot';
     
-    # \w not implemented in lrep...
-    rule _word_char    :P5 {^([[:alnum:]])}
-    rule word {
-        <_word_char> | \, | \;
+    rule plain_text {
+        <alnum> | \, | \; | \_ | \/
             
         { return { 'constant' => $_[0]() ,} }
     }
-    unshift @rule_terms, 'word';
+    unshift @rule_terms, 'plain_text';
     
     rule special_char {
         <escaped_char>
