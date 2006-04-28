@@ -23,9 +23,9 @@ Basic tests for the chomp() builtin working on an array of strings
 {
     my @foo = ("foo\n","bar\n","baz\n");
     chomp(@foo);
-    is(@foo[0], "foo\n", '1st element was not yet chomped', :todo<feature>);
-    is(@foo[1], "bar\n", '2nd element was not yet chomped', :todo<feature>);
-    is(@foo[2], "baz\n", '3rd element was not yet chomped', :todo<feature>);
+    is(@foo[0], "foo\n", '1st element was not yet chomped');
+    is(@foo[1], "bar\n", '2nd element was not yet chomped');
+    is(@foo[2], "baz\n", '3rd element was not yet chomped');
     @foo .= chomp;
     is(@foo[0], 'foo', '1st element chomped correctly', :todo<feature>);
     is(@foo[1], 'bar', '2nd element chomped correctly', :todo<feature>);

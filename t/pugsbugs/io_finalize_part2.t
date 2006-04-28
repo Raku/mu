@@ -24,7 +24,7 @@ my $filename = 'tempfile';
 my $fh = open($filename);
 isa_ok($fh, 'IO');
 my $line = readline($fh);
-is($line, "Hello World", 'finalize without explicit filehandle close worked', :todo<bug>);
+is($line, "Hello World", 'finalize without explicit filehandle close worked');
 
 #now be sure to delete the file as well
 
