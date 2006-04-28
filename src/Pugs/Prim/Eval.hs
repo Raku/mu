@@ -54,9 +54,8 @@ opRequire dumpEnv v = do
                               , mkStrPair "relpath"  (decodeUTF8 file) ]
                     ]
             ]
-        tryFastEval (pathName ++ ".yml.gz") $
-            tryFastEval (pathName ++ ".yml") $
-                slowEval pathName
+        tryFastEval (pathName ++ ".yml") $
+            slowEval pathName
     where
     tryFastEval pathName' fallback = do
         ok <- liftIO $ doesFileExist pathName'
