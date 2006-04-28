@@ -37,7 +37,7 @@ unsafeEvalEnv exp = do
 {-# NOINLINE unsafeEvalExp #-}
 unsafeEvalExp :: Exp -> RuleParser Exp
 unsafeEvalExp exp = do
-    clearDynParsers
+    -- clearDynParsers
     env <- getRuleEnv
     let val = unsafePerformIO $ do
         runEvalIO (env{ envDebug = Nothing }) $ do

@@ -328,7 +328,8 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             (return ())
             
     -- Don't add the sub if it's unsafe and we're in safemode.
-    if "unsafe" `elem` traits && safeMode then return emptyExp else case scope of
+    if "unsafe" `elem` traits && safeMode then return emptyExp else do
+    rv <- case scope of
         SGlobal | isExported -> do
             -- we mustn't perform the export immediately upon parse, because
             -- then only the first consumer of a module will see it. Instead,
@@ -349,6 +350,8 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         _ -> do
             lexDiff <- unsafeEvalLexDiff $ mkSym nameQualified
             return $ Pad scope lexDiff $ mkExp name
+    clearDynParsers
+    return rv
 
 
 ruleSubNamePossiblyWithTwigil :: RuleParser String
@@ -722,6 +725,7 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
                 (exportSym hardcodedScopeFixme name ex : doExportList xs)
             doExportList x = error $ "doExportList x: " ++ show x
         syms <- sequence $ doExportList exportList
+        clearDynParsers
         return $ foldl mergeStmts Noop syms
 
 {-|
@@ -888,6 +892,7 @@ ruleClosureTrait rhs = rule "closure trait" $ do
             env <- getRuleEnv
             let idat = unsafePerformIO $ liftSTM $ readTVar $ envInitDat env
             install $ initPragmas idat
+            clearDynParsers
             return val
         "CHECK" -> vcode2checkBlock code
         "INIT"  -> vcode2initBlock code
