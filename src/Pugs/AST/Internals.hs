@@ -1251,6 +1251,7 @@ data CompUnit = MkCompUnit
     , ast  :: Exp        -- AST of unit
     } deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, JSON, Perl5!-}
 
+mkCompUnit :: String -> TVar Pad -> Exp -> CompUnit
 mkCompUnit = MkCompUnit 1
 
 {- Eval Monad -}
@@ -1527,25 +1528,20 @@ clearRef (MkRef (IThunk tv)) = clearRef =<< fromVal =<< thunk_force tv
 clearRef r = retError "cannot clearRef" r
 
 newObject :: (MonadSTM m) => Type -> m VRef
-newObject (MkType "Item") = liftSTM $
-    fmap scalarRef $ newTVar undef
-newObject (MkType "Scalar") = liftSTM $
-    fmap scalarRef $ newTVar undef
-newObject (MkType "Array")  = liftSTM $
-    fmap arrayRef $ (newTVar IntMap.empty :: STM IArray)
-newObject (MkType "Hash")   = liftSTM $
-    fmap hashRef $ (newTVar Map.empty :: STM IHash)
-newObject (MkType "Code")   = liftSTM $
-    fmap codeRef $ newTVar mkSub
-newObject (MkType "Pugs::Internals::VRule")   = liftSTM $
-    fmap scalarRef $ newTVar undef
-newObject (MkType "Type")   = liftSTM $
-    fmap scalarRef $ newTVar undef
-newObject (MkType "Pair") = do
-    key <- newObject (MkType "Scalar")
-    val <- newObject (MkType "Scalar")
-    return $ MkRef (IPair (VRef key, VRef val))
-newObject typ = fail ("Cannot create object: " ++ showType typ)
+newObject typ = case showType typ of
+    "Item"      -> liftSTM $ fmap scalarRef $ newTVar undef
+    "Scalar"    -> liftSTM $ fmap scalarRef $ newTVar undef
+    "Array"     -> liftSTM $ fmap arrayRef $ (newTVar IntMap.empty :: STM IArray)
+    "Hash"      -> liftSTM $ fmap hashRef $ (newTVar Map.empty :: STM IHash)
+    "Code"      -> liftSTM $ fmap codeRef $ newTVar mkSub
+    "Type"      -> liftSTM $ fmap scalarRef $ newTVar undef
+    "Pair"      -> do
+        key <- newObject (mkType "Scalar")
+        val <- newObject (mkType "Scalar")
+        return $ MkRef (IPair (VRef key, VRef val))
+    "Pugs::Internals::VRule"
+                -> liftSTM $ fmap scalarRef $ newTVar undef
+    _           -> fail ("Cannot create object: " ++ showType typ)
 
 doPair :: Val -> (forall a. PairClass a => a -> b) -> Eval b
 doPair (VRef (MkRef (IPair pv))) f = return $ f pv
@@ -1557,7 +1553,7 @@ doPair (VRef (MkRef (IScalar sv))) f = do
     val <- scalar_fetch sv
     case val of
         VUndef  -> do
-            ref@(MkRef (IPair pv)) <- newObject (MkType "Pair")
+            ref@(MkRef (IPair pv)) <- newObject (mkType "Pair")
             scalar_store sv (VRef ref)
             return $ f pv
         _  -> doPair val f
@@ -1578,7 +1574,7 @@ doHash (VRef (MkRef (IScalar sv))) f = do
     val <- scalar_fetch sv
     case val of
         VUndef  -> do
-            ref@(MkRef (IHash hv)) <- newObject (MkType "Hash")
+            ref@(MkRef (IHash hv)) <- newObject (mkType "Hash")
             scalar_store sv (VRef ref)
             return $ f hv
         _  -> doHash val f
@@ -1612,7 +1608,7 @@ doArray (VRef (MkRef (IScalar sv))) f = do
     if defined val
         then doArray val f
         else do
-            ref@(MkRef (IArray hv)) <- newObject (MkType "Array")
+            ref@(MkRef (IArray hv)) <- newObject (mkType "Array")
             scalar_store sv (VRef ref)
             return $ f hv
 doArray (VRef (MkRef p@(IPair _))) f = return $ f p
@@ -1873,15 +1869,15 @@ instance YAML VRef where
         liftIO $ print svC
         fail ("not implemented: asYAML \"" ++ showType (refType ref) ++ "\"")
     fromYAML MkYamlNode{tag=Just s, el=YamlSeq [node]}
-        | s == Str.pack "tag:hs:VCode"   =
+        | s == packBuf "tag:hs:VCode"   =
             fmap (MkRef . ICode) (fromYAML node :: IO VCode)
-        | s == Str.pack "tag:hs:VScalar" =
+        | s == packBuf "tag:hs:VScalar" =
             fmap (MkRef . IScalar) (fromYAML node :: IO VScalar)
-        | s == Str.pack "tag:hs:Pair"    =
+        | s == packBuf "tag:hs:Pair"    =
             fmap pairRef (fromYAML node :: IO VPair)
-        | s == Str.pack "tag:hs:IScalar" = newV newScalar
-        | s == Str.pack "tag:hs:Array"   = newV newArray
-        | s == Str.pack "tag:hs:Hash"    = newV newHash
+        | s == packBuf "tag:hs:IScalar" = newV newScalar
+        | s == packBuf "tag:hs:Array"   = newV newArray
+        | s == packBuf "tag:hs:Hash"    = newV newHash
         where newV f = fmap MkRef (f =<< fromYAML node)
     fromYAML node = fail $ "unhandled node: " ++ show node
 

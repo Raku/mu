@@ -10,7 +10,9 @@
 >   In the Land of Mordor where the Shadows lie.
 -}
 
-module Pugs.Types (
+module Pugs.Types 
+{-
+(
     Type(..), mkType, anyType, showType, isaType, isaType', deltaType,
     ClassTree, initTree, addNode,
 
@@ -25,11 +27,17 @@ module Pugs.Types (
     VThread(..),
 
     MatchPGE(..)
-) where
+)
+-}
+where
 import Pugs.Internals
+import qualified Data.Map as Map
+import qualified Data.ByteString.Char8 as Buf
+
+type Buf = Buf.ByteString
 
 data Type
-    = MkType !String      -- ^ A regular type
+    = MkType !Buf         -- ^ A regular type
     | TypeOr  !Type !Type -- ^ The disjunction (|) of two types
     | TypeAnd !Type !Type -- ^ The conjunction (&) of two types
     deriving (Eq, Ord, Typeable)
@@ -38,7 +46,7 @@ instance Show Type where
     show t = "(mkType \"" ++ showType t ++ "\")"
 
 showType :: Type -> String
-showType (MkType typ)    = typ
+showType (MkType typ)    = Buf.unpack typ
 showType (TypeOr t1 t2)  = showType t1 ++ "|" ++ showType t2
 showType (TypeAnd t1 t2) = showType t1 ++ "&" ++ showType t2
 
@@ -117,11 +125,11 @@ mkType :: String -- ^ Name of the type, e.g. \"Hash\" or \"Str|Int\"
        -> Type
 mkType str
     | (t1, (_:t2)) <- span (/= '|') str
-    = TypeOr (MkType t1) (mkType t2)
+    = TypeOr (mkType t1) (mkType t2)
     | (t1, (_:t2)) <- span (/= '&') str
-    = TypeAnd (MkType t1) (mkType t2)
+    = TypeAnd (mkType t1) (mkType t2)
     | otherwise
-    = MkType str
+    = MkType (Buf.pack str)
 
 -- | Variable name.
 type Var   = String
@@ -282,12 +290,26 @@ them, and passing the resulting type chains to 'compareList'.
 See 'compareList' for further details.
 -}
 distanceType :: ClassTree -> Type -> Type -> Int
-distanceType tree base target = compareList l1 l2
+distanceType tree base@(MkType b) target@(MkType t) = 
+    Map.findWithDefault (compareList l1 l2) (b, t) initCache
 --  | not (castOk base target)  = 0
 --  | otherwise = compareList l1 l2
     where
     l1 = findList base tree
     l2 = findList target tree
+distanceType _ _ _ = error "distanceType: MkType not 'simple'"
+
+initCache :: Map.Map (Buf, Buf) Int
+initCache = Map.fromList leaves
+    where
+    leaves = [ ((x, y), cachedLookup x y) | x <- initLeaves, y <- initLeaves ]
+    cachedLookup base target = compareList l1 l2
+        where
+        l1 = findList base rawTree
+        l2 = findList target rawTree
+
+initLeaves :: [Buf]
+initLeaves = flatten rawTree
 
 {-
 -- | (This is currently unused...)
@@ -314,8 +336,9 @@ E.g.:
 
 * comparing @Blorple@ and @Method@ will produce -999 (or similar)
 -}
-compareList :: [Type] -- ^ Base type's chain
-            -> [Type] -- ^ Possibly-derived type's chain
+compareList :: Eq a
+            => [a] -- ^ Base type's chain
+            -> [a] -- ^ Possibly-derived type's chain
             -> Int
 compareList [] _ = -999 -- XXX hack (nonexistent base type?)
 compareList _ [] = -999 -- XXX hack (incompatible types)
@@ -323,6 +346,8 @@ compareList l1 l2
     | last l1 `elem` l2 =   length(l2 \\ l1) -- compatible types
     | last l2 `elem` l1 = - length(l1 \\ l2) -- anti-compatible types
     | otherwise = compareList l1 (init l2)
+{-# SPECIALIZE compareList :: [Buf] -> [Buf] -> Int #-}
+{-# SPECIALIZE compareList :: [Type] -> [Type] -> Int #-}
 
 {-|
 Produce the type \'inheritance\' chain leading from the base type (@Any@) to
@@ -342,16 +367,18 @@ Any, Void, Object, Scalar, Complex, Num
 
 This function does /not/ expect to be given junctive types.
 -}
-findList :: Type      -- ^ 'Type' to find the inheritance chain of
-         -> ClassTree -- ^ Class tree to look in
-         -> [Type]
+findList :: Eq a
+         => a      -- ^ 'Type' to find the inheritance chain of
+         -> Tree a -- ^ Class tree to look in
+         -> [a]
 findList base (Node l cs)
     | base == l                             = [l]
     | Just ls <- find (not . null) found    = l:ls
     | otherwise                             = []
     where
-    found :: [[Type]]
     found = map (findList base) cs
+{-# SPECIALIZE findList :: Buf -> Tree Buf -> [Buf] #-}
+{-# SPECIALIZE findList :: Type -> Tree Type -> [Type] #-}
 
 {-
 {-|
@@ -375,7 +402,10 @@ addNode _ _ = error "malformed tree"
 Default class tree, containing all built-in types.
 -}
 initTree :: ClassTree
-initTree = fmap MkType $ Node "Object"
+initTree = fmap MkType rawTree
+
+rawTree :: Tree Buf
+rawTree = fmap Buf.pack $! Node "Object"
     [ Node "Any"
         [ Node "Item"
             [ Node "List"

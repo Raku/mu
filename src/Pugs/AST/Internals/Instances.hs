@@ -33,7 +33,7 @@ import DrIFT.YAML
 import DrIFT.JSON
 import DrIFT.Perl5
 import Control.Monad
-import qualified Data.ByteString as Str
+import qualified Data.ByteString as Buf
 
 import Pugs.AST.Scope
 import Pugs.AST.Pos
@@ -716,6 +716,6 @@ instance JSON Val where
 
 --  Imported from other files :-
 
-type Str = Str.ByteString
+type Buf = Buf.ByteString
 
 #endif

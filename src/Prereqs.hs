@@ -11,7 +11,8 @@ import Pugs.Embed.Parrot ()
 import Pugs.Embed.Perl5 ()
 import Pugs.Run.Perl5 ()
 import Pugs.Parser.Program ()
-import Data.FastPackedString ()
+import Data.ByteString ()
+import Data.ByteString.Char8 ()
 import Data.Yaml.Syck ()
 
 main :: IO a

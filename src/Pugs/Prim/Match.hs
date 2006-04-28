@@ -78,6 +78,9 @@ not_VRule :: Val -> Bool
 not_VRule _y@(VRule _) = False
 not_VRule _            = True
 
+classType :: Type
+classType = mkType "Class"
+
 -- XXX - need to generalise this
 op2Match :: Val -> Val -> Eval Val
 
@@ -99,15 +102,15 @@ op2Match x (VRef y) = do
     y' <- readRef y
     op2Match x y'
 
-op2Match x@(VObject MkObject{ objType = MkType "Class" } ) y = do
+op2Match x@(VObject MkObject{ objType = cls }) y | cls == classType = do
     fetch   <- doHash x hash_fetchVal
     name    <- fromVal =<< fetch "name"
-    op2Match (VType (MkType name)) y
+    op2Match (VType (mkType name)) y
 
-op2Match x y@(VObject MkObject{ objType = MkType "Class" } ) = do
+op2Match x y@(VObject MkObject{ objType = cls }) | cls == classType = do
     fetch   <- doHash y hash_fetchVal
     name    <- fromVal =<< fetch "name"
-    op2Match x (VType (MkType name))
+    op2Match x (VType (mkType name))
 
 op2Match x (VSubst (rx, subst)) | rxGlobal rx = do
     str         <- fromVal x
@@ -201,7 +204,7 @@ op2Match (VType typ) (VType t) = do
 op2Match x y@(VType _) = do
     typ <- fromVal x
     case x of
-        VRef x | typ == MkType "Class" -> do
+        VRef x | typ == mkType "Class" -> do
             x' <- readRef x
             op2Match x' y
         _ -> op2Match (VType typ) y

@@ -4,6 +4,7 @@ module DrIFT.Perl5 where
 import Data.Ratio
 import Data.List (intersperse)
 import Data.Char (chr)
+import qualified Data.ByteString.Char8 as Buf
 import GHC.Exts
 import UTF8
 
@@ -41,6 +42,9 @@ instance Perl5 () where
 
 instance Perl5 Int where
     showPerl5 = show
+
+instance Perl5 Buf.ByteString where
+    showPerl5 = showPerl5 . Buf.unpack
 
 instance Perl5 String where
     showPerl5 str = "\"" ++ concatMap escape (encodeUTF8 str) ++ "\""

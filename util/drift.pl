@@ -4,7 +4,7 @@ use Config;
 use File::Spec;
 use FindBin qw<$Bin>;
 
-my $setup = File::Spec->catfile($Bin, "Setup$Config{_exe}");
+my $setup = File::Spec->catfile($Bin, "DrIFT$Config{_exe}");
 
 -e "$Bin/../../DrIFT/src/DrIFT.hs" or exit;
 
@@ -108,7 +108,7 @@ import DrIFT.YAML
 import DrIFT.JSON
 import DrIFT.Perl5
 import Control.Monad
-import qualified Data.FastPackedString as Str
+import qualified Data.ByteString as Buf
 
 .
 
@@ -127,7 +127,7 @@ print OUT @program;
 
 print OUT <<".";
 
-type Str = Str.FastString
+type Buf = Buf.ByteString
 
 #endif
 .

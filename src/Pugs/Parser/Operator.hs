@@ -186,8 +186,9 @@ noneSyn     = ops $ makeOp2 AssocNone "" Syn
 listSyn     :: String -> [RuleOperator Exp]
 listSyn     = ops $ makeOp0 AssocList "" Syn
 
+-- 0x10FFFF is the max number "chr" can take.
 ops :: (String -> a) -> String -> [a]
-ops f = map (f . tail) . sort . map (\x -> (chr (65536 - length x):x)) . words
+ops f = map (f . tail) . sort . map (\x -> (chr (0x10FFFF - length x):x)) . words
 
 
 -- chainOps    = ops $ makeOpChained

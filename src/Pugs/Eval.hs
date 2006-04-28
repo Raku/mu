@@ -255,7 +255,7 @@ reduceVar (sigil:'!':name@(_:_)) = enterContext (cxtOfSigil sigil) $
     reduceSyn "{}" [Var "$?SELF", Val (VStr name)]
 reduceVar name = do
     let cxt = case name of
-            ('$':_) -> enterContext (CxtItem $ MkType "Scalar")
+            ('$':_) -> enterContext (CxtItem $ mkType "Scalar")
             _       -> id
     v <- findVar name
     case v of
@@ -585,13 +585,13 @@ reduceSyn "val" [exp] = do
 
 reduceSyn "\\{}" [exp] = do
     v   <- enterRValue $ enterEvalContext cxtSlurpyAny exp
-    hv  <- newObject (MkType "Hash")
+    hv  <- newObject (mkType "Hash")
     writeRef hv v
     retVal $ VRef hv
 
 reduceSyn "\\[]" [exp] = do
     v   <- enterRValue $ enterEvalContext cxtSlurpyAny exp
-    av  <- newObject (MkType "Array")
+    av  <- newObject (mkType "Array")
     writeRef av v
     retItem $ VRef av
 

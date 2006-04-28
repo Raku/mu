@@ -445,7 +445,7 @@ op1 "Pugs::Internals::runInteractiveCommand" = \v -> do
                        ]
 op1 "Pugs::Internals::check_for_io_leak" = \v -> do
     rv      <- evalExp (App (Val v) Nothing [])
-    leaked  <- fromVal =<< op2Match rv (VType $ MkType "IO")
+    leaked  <- fromVal =<< op2Match rv (VType $ mkType "IO")
     when leaked $ do
         fail $ "BEGIN and CHECK blocks may not return IO handles,\n" ++
                "as they would be invalid at runtime."
@@ -1327,14 +1327,14 @@ op3Caller kind skip _ = do                                 -- figure out label
         ]
     kindFilter :: (Env, Maybe VCode) -> Bool
     kindFilter (_, Just sub) =
-        case (kind, subType sub) of
-            (MkType "Any",      _)          -> True  -- I hope this is optimized
-            (MkType "Method",   SubMethod)  -> True
-            (MkType "Sub",      SubRoutine) -> True
-            (MkType "Block",    SubBlock)   -> True
-            (MkType "Block",    SubPointy)  -> True
-            (_,                 _)          -> False
-    kindFilter _ = kind == MkType "Any"
+        case (showType kind, subType sub) of
+            ("Any",      _)          -> True  -- I hope this is optimized
+            ("Method",   SubMethod)  -> True
+            ("Sub",      SubRoutine) -> True
+            ("Block",    SubBlock)   -> True
+            ("Block",    SubPointy)  -> True
+            (_,          _)          -> False
+    kindFilter _ = kind == anyType
     labelFilter _ = True                             -- TODO: figure out how
     callChain :: Env -> Eval [(Env, Maybe VCode)]
     callChain cur = 

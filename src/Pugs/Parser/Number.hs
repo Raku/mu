@@ -97,6 +97,7 @@ naturalOrRat  = (<?> "number") $ do
             | b >  10 && b <= 36    = oneOf $ ['0'..'9'] 
                                     ++ take (b - 10) ['a'..'z'] 
                                     ++ take (b - 10) ['A'..'Z']
+            | otherwise             = error "baseDigitInt: base too large"
         b36DigitToInteger           = toInteger . b36DigitToInt
         b36DigitToInt c
             | isDigit c             = fromEnum c - fromEnum '0'

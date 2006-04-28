@@ -12,10 +12,11 @@ import qualified Data.IntSet as IntSet
 import Foreign.StablePtr
 import Foreign.Ptr
 import Control.Monad.Reader
-import qualified Data.ByteString as Str
+import qualified Data.ByteString.Char8 as Buf
+import qualified Data.ByteString as Bytes
 import UTF8
 
-type Str = Str.ByteString
+type Buf = Buf.ByteString
 
 type YAMLClass = String
 type YAMLKey = String
@@ -90,12 +91,17 @@ instance YAML () where
 
 instance YAML Int where
     asYAML x = return $ mkTagStrNode "int" $ show x
-    fromYAMLElem (YamlStr x) = return $ read $ unpackBuf x
+    fromYAMLElem (YamlStr x) = return $ read $ Buf.unpack x
+    fromYAMLElem e = failWith e
+
+instance YAML Buf where
+    asYAML = return . mkNode . YamlStr
+    fromYAMLElem (YamlStr str) = return str
     fromYAMLElem e = failWith e
 
 instance YAML String where
-    asYAML = return . mkTagStrNode "str" . map (chr . fromEnum) . encode
-    fromYAMLElem (YamlStr str) = return . fst . decode $ map (toEnum . ord) (unpackBuf str)
+    asYAML = return .  mkTagNode "str" . YamlStr . Bytes.pack . encode
+    fromYAMLElem (YamlStr str) = return . fst . decode $ Bytes.unpack str
     fromYAMLElem e = failWith e
 
 instance YAML Bool where
@@ -109,7 +115,7 @@ instance YAML Bool where
 
 instance YAML Integer where 
     asYAML x = return $ mkTagStrNode "int" $ show x
-    fromYAMLElem (YamlStr x) = return $ read $ unpackBuf x
+    fromYAMLElem (YamlStr x) = return $ read $ Buf.unpack x
     fromYAMLElem e = failWith e
 
 instance YAML Rational where 
@@ -118,7 +124,7 @@ instance YAML Rational where
         x = numerator r
         y = denominator r
     fromYAMLElem (YamlSeq [MkYamlNode{el=YamlStr x}, MkYamlNode{el=YamlStr y}]) =
-        return $ (read $ unpackBuf x) % (read $ unpackBuf y)
+        return $ (read $ Buf.unpack x) % (read $ Buf.unpack y)
     fromYAMLElem e = failWith e
     
 instance YAML Double where 
@@ -131,7 +137,7 @@ instance YAML Double where
     fromYAML MkYamlNode{tag=Just s} | s == packBuf "float#neginf" = return $ -1/0 -- "-Infinity" 
     fromYAML MkYamlNode{tag=Just s} | s == packBuf "float#nan"    = return $  0/0 -- "NaN" 
     fromYAML MkYamlNode{el=x} = fromYAMLElem x
-    fromYAMLElem (YamlStr x) = return $ read $ unpackBuf x
+    fromYAMLElem (YamlStr x) = return $ read $ Buf.unpack x
     fromYAMLElem e = failWith e
 
 instance (YAML a) => YAML (Maybe a) where

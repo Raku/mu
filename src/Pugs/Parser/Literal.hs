@@ -40,7 +40,7 @@ ruleTypeLiteral = rule "type" $ try $ do
     name <- fmap (concat . intersperse "::") $ ruleDelimitedIdentifier "::"
     env  <- getRuleEnv
     let prefix = envPackage env ++ "::"
-        classes = [ c | MkType c <- flatten $ envClasses env ]
+        classes = [ showType c | c <- flatten $ envClasses env ]
         packageClasses = concatMap (maybeToList . removePrefix prefix) classes
     case () of
         () | name `elem` packageClasses -> return . Var $ ':':(prefix ++ name)
