@@ -187,7 +187,7 @@ listSyn     :: String -> [RuleOperator Exp]
 listSyn     = ops $ makeOp0 AssocList "" Syn
 
 ops :: (String -> a) -> String -> [a]
-ops f = map (f . snd) . sort . map (\x -> (-length x, x)) . nub . words
+ops f = map (f . tail) . sort . map (\x -> (chr (65536 - length x):x)) . words
 
 
 -- chainOps    = ops $ makeOpChained
