@@ -21,6 +21,6 @@ extra-libraries: __LIBS__
 extra-lib-dirs: __LIB_DIRS__
 extensions: ForeignFunctionInterface
 include-dirs: __INCLUDE_DIRS__
-hs-source-dir: src third-party/fps
+hs-source-dirs: src third-party/fps
 other-modules: Data.ByteString Data.ByteString.Char8 Data.DeepSeq Data.Yaml.Syck DrIFT.JSON DrIFT.Perl5 DrIFT.YAML RRegex RRegex.PCRE RRegex.Syntax System.FilePath UTF8
 ghc-options: __OPTIONS__
