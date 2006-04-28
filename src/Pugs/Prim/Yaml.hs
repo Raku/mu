@@ -11,7 +11,7 @@ import Data.Yaml.Syck
 import qualified Data.Map as Map
 import qualified Data.IntSet as IntSet
 import qualified Data.IntMap as IntMap
-import qualified Data.FastPackedString as Str
+import qualified Data.ByteString as Str
 import DrIFT.YAML
 
 evalYaml :: Val -> Eval Val
@@ -25,7 +25,7 @@ evalYaml cv = do
 
 fromYaml :: YamlNode -> Eval Val
 fromYaml MkYamlNode{el=YamlNil}       = return VUndef
-fromYaml MkYamlNode{el=YamlStr str}   = return $ VStr $ decodeUTF8 $ Str.unpack str
+fromYaml MkYamlNode{el=YamlStr str}   = return $ VStr $ decodeUTF8 $ unpackBuf str
 fromYaml MkYamlNode{el=YamlSeq nodes} = do
     vals    <- mapM fromYaml nodes
     av      <- liftSTM $ newTVar $
@@ -41,14 +41,14 @@ fromYaml MkYamlNode{el=YamlMap nodes,tag=tag} = do
             hv      <- liftSTM $ (newTVar (Map.fromList vals) :: STM IHash)
             return $ VRef (hashRef hv)
         Just s | (pre, post) <- Str.splitAt 16 s   -- 16 == length "tag:pugs:Object:"
-               , pre == Str.pack "tag:pugs:Object:" -> do
-            let typ = Str.unpack post
+               , pre == packBuf "tag:pugs:Object:" -> do
+            let typ = unpackBuf post
             vals    <- forM nodes $ \(keyNode, valNode) -> do
                 key <- fromVal =<< fromYaml keyNode
                 val <- fromYaml valNode
                 return (key, val)
             return . VObject =<< createObject (mkType typ) vals
-        Just s | s == Str.pack "tag:pugs:Rule" -> do
+        Just s | s == packBuf "tag:pugs:Rule" -> do
             vals    <- forM nodes $ \(keyNode, valNode) -> do
                 key <- fromVal =<< fromYaml keyNode
                 val <- fromYaml valNode
@@ -62,7 +62,7 @@ fromYaml MkYamlNode{el=YamlMap nodes,tag=tag} = do
             stringify <- fromVal =<< Map.lookup "stringify" spec
             adverbs <- Map.lookup "adverbs" spec
             return $ VRule MkRulePGE{rxRule=rule, rxGlobal=global, rxStringify=stringify, rxAdverbs=adverbs}
-        Just x   -> error ("can't deserialize: " ++ (Str.unpack x))
+        Just x   -> error ("can't deserialize: " ++ unpackBuf x)
 
 dumpYaml :: Val -> Eval Val
 dumpYaml v = do
@@ -73,7 +73,7 @@ dumpYaml v = do
            (return . VStr . decodeUTF8) rv
 
 strNode :: String -> YamlNode
-strNode = mkNode . YamlStr . Str.pack
+strNode = mkNode . YamlStr . packBuf
 
 {-
 addressOf :: a -> IO Int
@@ -108,7 +108,7 @@ toYaml v@(VObject obj) = do
     -- parens, which is, of course, wrong.
     hash    <- fromVal v :: Eval VHash
     attrs   <- toYaml $ VRef (hashRef hash)
-    return $ tagNode (Just $ Str.pack $ "tag:pugs:Object:" ++ showType (objType obj)) attrs
+    return $ tagNode (Just $ packBuf $ "tag:pugs:Object:" ++ showType (objType obj)) attrs
 toYaml (VRule MkRulePGE{rxRule=rule, rxGlobal=global, rxStringify=stringify, rxAdverbs=adverbs}) = do
     adverbs' <- toYaml adverbs
     return . mkTagNode "tag:pugs:Rule" $ YamlMap

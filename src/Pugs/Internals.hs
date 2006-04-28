@@ -64,7 +64,8 @@ module Pugs.Internals (
     forM_,
     combine,
     modifyTVar,
-    unsafePerformSTM,
+    inlinePerformIO,
+    inlinePerformSTM,
     possiblyFixOperatorName,
     maybeM,
     safeMode,
@@ -123,7 +124,8 @@ import Data.Set (Set)
 import Data.Map (Map)
 import Data.IntMap (IntMap)
 import Debug.Trace
--- import GHC.Conc (unsafeIOToSTM)
+import GHC.Base (realWorld#)
+import GHC.IOBase (IO(..))
 
 -- Instances.
 instance Show Unique where
@@ -233,9 +235,13 @@ combine :: [a -> a] -- ^ List of transformer functions
         -> (a -> a) -- ^ The final combined transformer
 combine = foldr (.) id
 
-{-# NOINLINE unsafePerformSTM #-}
-unsafePerformSTM :: STM a -> a
-unsafePerformSTM = unsafePerformIO . atomically
+{-# INLINE inlinePerformIO #-}
+inlinePerformIO :: IO a -> a
+inlinePerformIO (IO m) = case m realWorld# of (# _, r #) -> r
+
+{-# INLINE inlinePerformSTM #-}
+inlinePerformSTM :: STM a -> a
+inlinePerformSTM m = inlinePerformIO (atomically m)
 
 {-|
 Read an STM variable, apply some transformation function to it, and write the
@@ -304,9 +310,8 @@ possiblyFixOperatorName name
 Returns @True@ if the environment variable @PUGS_SAFEMODE@ is set to a
 true value. Most IO primitives are disabled under safe mode.
 -}
-{-# NOINLINE safeMode #-}
 safeMode :: Bool
-safeMode = case (unsafePerformIO $ getEnv "PUGS_SAFEMODE") of
+safeMode = case (inlinePerformIO $ getEnv "PUGS_SAFEMODE") of
     Nothing     -> False
     Just ""     -> False
     Just "0"    -> False

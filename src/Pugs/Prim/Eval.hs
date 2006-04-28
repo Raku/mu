@@ -16,11 +16,11 @@ import Pugs.Internals
 import Pugs.Pretty
 import Pugs.Config
 import Pugs.Prim.Keyed
-import qualified Data.FastPackedString as Str
+import qualified Data.ByteString as Str
 import DrIFT.YAML
 import Data.Yaml.Syck
 
--- type Str = Str.FastString
+-- type Str = Str.ByteString
 
 
 data EvalError = EvalErrorFatal
@@ -113,7 +113,7 @@ op1EvalP6Y :: Val -> Eval Val
 op1EvalP6Y fileName = do
     fileName' <- fromVal fileName
     yml  <- liftIO $ (`catch` (return . Left . show)) $ do
-        parseYamlFS =<< Str.gzReadFile fileName'
+        parseYamlFS =<< Str.mmapFile fileName'
     case yml of
         Right (Just yml') -> do
             globTVar    <- asks envGlobal

@@ -27,7 +27,7 @@ instanceSkeleton' s ii  d = (simpleInstance s d <+> text "where")
 	f (i,dflt) = map i (body d) ++ [dflt $ body d]      
 
 caseHead, caseTail :: [Body] -> Doc
-caseHead _ = text "fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of"
+caseHead _ = text "fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of"
 caseTail bodies = nest 4 (text $ "_ -> fail $ \"unhandled tag: \" ++ show t ++ \", expecting \" ++ show " ++ show (map constructor bodies) ++ " ++ \" in node \" ++ show e")
        $+$ text "fromYAML _ = fail \"no tag found\""
 
@@ -42,7 +42,7 @@ makeFromYAML alwaysPos Body{constructor=constructor,labels=labels,types=types} =
     xvars = vars 'x'
     mvars = vars 'm'
     vars c = map ((char c <>) . int) [1 .. arity]
---  eqv   = text "| t == packFS" <+> dqt ("tag:hs:" ++ constructor)
+--  eqv   = text "| t == packBuf" <+> dqt ("tag:hs:" ++ constructor)
     eqv   = dqt constructor
     makeFromYAML'
         | null types = nest 4 $ text "return" <+> text constructor

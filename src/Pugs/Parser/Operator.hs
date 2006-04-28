@@ -81,11 +81,11 @@ litOperators = do
     return $ tight ++ loose
 
 -- read just the current state (ie, not a parser)
-{-# NOINLINE currentFunctions #-}
+-- {-# NOINLINE currentFunctions #-}
 currentFunctions :: RuleParser [(Var, VStr, Params)]
 currentFunctions = do
     env     <- getRuleEnv
-    return . concat . unsafePerformSTM $ do
+    return . concat . inlinePerformSTM $ do
         glob <- readTVar $ envGlobal env
         let funs  = padToList glob ++ padToList (envLexical env)
             pkg   = envPackage env

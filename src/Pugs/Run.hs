@@ -32,13 +32,13 @@ import Pugs.Prelude
 import Data.IORef
 import System.FilePath
 import qualified Data.Map as Map
-import qualified Data.FastPackedString as Str
+import qualified Data.ByteString as Str
 import DrIFT.YAML
 import Data.Yaml.Syck
 --import Data.Generics.Schemes
 import System.IO
 
-type Str = Str.FastString
+type Str = Str.ByteString
 
 
 {-|
@@ -244,8 +244,7 @@ initPreludePC env = do
     loadPreludePC = do
         -- print "Parsing yaml..."
         incs <- liftIO $ fmap ("blib6/lib":) getLibs
-        p    <- liftIO $ getYaml incs "Prelude.pm.yml.gz" Str.gzReadFile
-            `catch` (return $ getYaml incs "Prelude.pm.yml" Str.readFile)
+        p    <- liftIO $ getYaml incs "Prelude.pm.yml" Str.readFile
         -- print "Parsing done!"
         case p of
             Right (Just yml) -> do

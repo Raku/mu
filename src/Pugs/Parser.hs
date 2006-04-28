@@ -885,7 +885,7 @@ ruleClosureTrait rhs = rule "closure trait" $ do
             val <- possiblyExit =<< unsafeEvalExp (checkForIOLeak fun)
             -- And install any pragmas they've requested.
             env <- getRuleEnv
-            let idat = unsafePerformIO $ liftSTM $ readTVar $ envInitDat env
+            let idat = inlinePerformSTM . readTVar $ envInitDat env
             install $ initPragmas idat
             clearDynParsers
             return val
@@ -928,7 +928,7 @@ possiblyExit (Val (VControl (ControlExit exit))) = do
             ]
         ]
     -- ...and then exit.
-    return $ unsafePerformIO $ exitWith exit
+    return $ inlinePerformIO $ exitWith exit
 possiblyExit x = return x
 
 vcode2firstBlock :: Val -> RuleParser Exp

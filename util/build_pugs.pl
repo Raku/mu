@@ -53,12 +53,11 @@ sub build {
     my $pm = "src/perl6/Prelude.pm";
     my $ppc_hs = "src/Pugs/Prelude.hs";
     my $ppc_yml = "blib6/lib/Prelude.pm.yml";
-    my $ppc_yml_gz = "$ppc_yml.gz";
 
     build_lib($version, $ghc, @args);
     build_exe($version, $ghc, $ghc_version, @args);
 
-    if (!(-s $ppc_yml_gz || -s $ppc_yml) or (-M $ppc_yml_gz || -M $ppc_yml) > -M $ppc_hs) {
+    if ((!-s $ppc_yml) or -M $ppc_yml > -M $ppc_hs) {
         # can't assume blib6/lib exists: the user may be running
         # `make unoptimzed` which doesn't create it.
         mkpath(dirname($ppc_yml));
@@ -66,12 +65,6 @@ sub build {
         run($^X, qw<util/gen_prelude.pl -v -i src/perl6/Prelude.pm>,
                 (map { ('-i' => $_) } @{ PugsBuild::Config->lookup('precompile_modules') }),
                 '-p', $thispugs, '--output', $ppc_yml);
-
-        eval { gzip_file($ppc_yml, $ppc_yml_gz) } or warn <<".";
-*** Can't compress $ppc_yml: $@
-    This is not a fatal error, but you can save some space by gzipping
-    your $ppc_yml yourself.
-.
     }
 }
 

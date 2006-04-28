@@ -4,10 +4,10 @@ module Pugs.Compile.Pugs (genPugs) where
 import Pugs.AST
 import Pugs.Types
 import Pugs.Internals
-import qualified Data.FastPackedString as Str
+import qualified Data.ByteString.Char8 as Str
 import qualified Data.Map as Map
 
-type Str = Str.FastString
+type Str = Str.ByteString
 type Comp a = WriterT [a] Eval a
 
 class (Show x) => Compile x where

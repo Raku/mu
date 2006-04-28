@@ -166,7 +166,7 @@ instance Pretty Val where
     format (VHandle x) = text $ show x
     format (VThread t) = text $ takeWhile isDigit $ dropWhile (not . isDigit) $ show t
     format (VSocket x) = text $ show x
-    -- format (MVal v) = text $ unsafePerformIO $ do
+    -- format (MVal v) = text $ inlinePerformSTM $ do
     --     val <- readTVar v
     --     return $ pretty val
     format (VRule _) = text $ "{rule}"
