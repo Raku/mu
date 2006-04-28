@@ -600,9 +600,9 @@ Works by matching \'@use@\', then trying 'ruleUseVersion' and
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
     symbol "use"
-    choice [ ruleUseVersion >> return emptyExp
-              , ruleUsePackage True
-              ]
+    choice [ try ruleUseVersion >> return emptyExp
+           , ruleUsePackage True
+           ]
 
 rulePerlVersion :: RuleParser String
 rulePerlVersion = rule "perl version" $ do
