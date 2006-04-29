@@ -1911,8 +1911,9 @@ instance (Show (TVar a)) => JSON (TVar a) where
 instance Typeable Unique where typeOf _ = typeOf ()
 instance Typeable ProcessHandle where typeOf _ = typeOf ()
 instance Typeable Regex where typeOf _ = typeOf ()
+#if __GLASGOW_HASKELL__ <= 604
 instance Typeable1 Tree where typeOf1 _ = typeOf ()
-
+#endif
 
 
 {- !!! For DrIFT -- Don't delete !!!
