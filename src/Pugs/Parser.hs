@@ -38,7 +38,28 @@ import Pugs.Parser.Util
 -- Lexical units --------------------------------------------------
 
 ruleBlock :: RuleParser Exp
-ruleBlock = lexeme ruleVerbatimBlock
+ruleBlock = do
+    lvl <- gets ruleBracketLevel
+    case lvl of
+        StatementBracket    -> ruleBlock'
+        _                   -> lexeme ruleVerbatimBlock
+    where
+    ruleBlock' = do
+        rv <- ruleVerbatimBlock
+        -- Implementation of 'line-ending } terminates statement'
+        -- See L<S04/Statement-ending blocks>.
+        -- We are now at end of closing '}'. Mark the position...
+        prevPos <- getPosition
+        -- Skip whitespaces.  If we go into another line,
+        -- then it's statement-level break
+        whiteSpace
+        currPos <- getPosition
+        when (sourceLine prevPos /= sourceLine currPos) $ do
+            -- Manually insert a ';' symbol here!
+            input <- getInput 
+            setInput (';':input)
+            setPosition (setSourceColumn currPos (sourceColumn currPos - 1))
+        return rv
 
 ruleVerbatimBlock :: RuleParser Exp
 ruleVerbatimBlock = verbatimRule "block" $ do
@@ -95,13 +116,15 @@ ruleStatement = do
     f exp
 
 ruleStatementList :: RuleParser Exp
-ruleStatementList = rule "statements" $ sepLoop $ choice
-    [ noSep ruleDocBlock
-    , nonSep  ruleBlockDeclaration
-    , semiSep ruleDeclaration
-    , nonSep  ruleConstruct
-    , semiSep ruleStatement
-    ]
+ruleStatementList = rule "statements" .
+    enterBracketLevel StatementBracket .
+        sepLoop $ choice
+            [ noSep     ruleDocBlock
+            , nonSep    ruleBlockDeclaration
+            , semiSep   ruleDeclaration
+            , nonSep    ruleConstruct
+            , semiSep   ruleStatement
+            ]
     where
     nonSep  = doSep many  -- must be followed by 0+ semicolons
     semiSep = doSep many1 -- must be followed by 1+ semicolons
@@ -992,7 +1015,7 @@ ruleConstruct = rule "construct" $ choice
     , ruleLoopConstruct
     , ruleCondConstruct
     , ruleWhileUntilConstruct
-    , ruleStandaloneBlock
+--  , ruleStandaloneBlock
     , ruleGivenConstruct
     , ruleWhenConstruct
     , ruleDefaultConstruct
@@ -1040,29 +1063,13 @@ ruleCondConstruct = rule "conditional construct" $ do
 ruleCondBody :: String -> RuleParser Exp
 ruleCondBody csym = rule "conditional expression" $ do
     cond     <- ruleCondPart
-    body     <- ruleBlock
-    bodyElse <- option emptyExp ruleElseConstruct
-    return $ Syn csym [cond, body, bodyElse]
-    {-
-    where
-    -- XXX evil hack: as a result of whitespace-hungry parsing, 'foo {bar}',
-    -- 'foo{bar}', and 'foo .{bar}' are often indistinguishable to ruleExpression
-    -- and its brethren.
-    -- so if we're missing the body of a conditional, there's a good chance
-    -- that it got parsed as a hash subscript to the condition.
-    -- we take the hash subscript and treat it as the body.
-    -- note that this WRONG, and 'if {foo}{bar}' and even
-    -- 'if {foo}{bar} elsif {baz}.{qux} else {quux}' will parse -- INCORRECTLY.
-    retCond csym (Syn "{}" [cond@_, body@_]) Noop bodyElse = retCond' csym (unwrap cond) (unwrap body) bodyElse
-    retCond _ _ Noop _ = fail "conditional missing body"
-    retCond csym cond body bodyElse = return $ Syn csym [cond, body, bodyElse]
-    retCond' csym cond@(Syn "sub" _) body bodyElse = return $ Syn csym [cond, body, bodyElse]
-    retCond' csym cond@(App _ _ _) body bodyElse = return $ Syn csym [cond, body, bodyElse]
-    retCond' _ _ _ _ = fail "conditional missing body"
-    -}
+    enterBracketLevel ParensBracket $ do
+        body     <- ruleBlock
+        bodyElse <- option emptyExp ruleElseConstruct
+        return $ Syn csym [cond, body, bodyElse]
 
 ruleCondPart :: RuleParser Exp
-ruleCondPart = withRuleConditional True ruleExpression
+ruleCondPart = enterBracketLevel ConditionalBracket ruleExpression
 
 ruleElseConstruct :: RuleParser Exp
 ruleElseConstruct = rule "else or elsif construct" $
@@ -1254,18 +1261,15 @@ parseTerm = rule "term" $ do
         , ruleTypeVar
         , ruleTypeLiteral
         , ruleApply False   -- Normal application
-        , verbatimParens (withRuleConditional False ruleExpressionOrWhitespace)
+        , verbatimParens ruleBracketedExpression
         ]
-    cond <- gets ruleInConditional
-    -- rulePostTerm returns an (Exp -> Exp) that we apply to the original term
-    let parsePostTerm = do
-            fs <- many rulePostTerm
-            return (combine (reverse fs) term)
-    if not cond then parsePostTerm else do
     cls  <- getPrevCharClass
     case cls of
         SpaceClass -> return term
-        _          -> parsePostTerm
+        _ -> do
+            -- rulePostTerm returns an (Exp -> Exp) that we apply to the original term
+            fs <- many rulePostTerm
+            return (combine (reverse fs) term)
 
 {-
 ruleBarewordMethod :: RuleParser Exp
@@ -1686,9 +1690,9 @@ makeVar var = Var var
 
 ruleLit :: RuleParser Exp
 ruleLit = do
-    cond <- gets ruleInConditional
-    let blk | cond      = id
-            | otherwise = (ruleBlockLiteral:)
+    lvl <- gets ruleBracketLevel
+    let blk | ConditionalBracket <- lvl = id
+            | otherwise                 = (ruleBlockLiteral:)
     choice ( ruleDoBlock : blk
         [ numLiteral
         , arrayLiteral
@@ -1727,12 +1731,13 @@ numLiteral = do
         Left  i -> return . Val $ VInt i
         Right d -> return . Val $ VRat d
 
-ruleExpressionOrWhitespace :: RuleParser Exp
-ruleExpressionOrWhitespace = ruleExpression <|> do { whiteSpace; return emptyExp }
+ruleBracketedExpression :: RuleParser Exp
+ruleBracketedExpression = enterBracketLevel ParensBracket $
+    ruleExpression <|> do { whiteSpace; return emptyExp }
 
 arrayLiteral :: RuleParser Exp
 arrayLiteral = try $ do
-    item <- verbatimBrackets ruleExpressionOrWhitespace
+    item <- verbatimBrackets ruleBracketedExpression
     return $ Syn "\\[]" [item]
 
 {-|
@@ -1786,7 +1791,7 @@ pairAdverb = try $ do
         skipMany1 (satisfy isSpace)
         return (Val $ VInt 1)
     valueExp = lexeme $ choice
-        [ verbatimParens ruleExpressionOrWhitespace
+        [ verbatimParens ruleBracketedExpression
         , arrayLiteral
         , angleBracketLiteral
         ]

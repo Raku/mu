@@ -2,10 +2,10 @@
 
 module Pugs.Parser.Types (
     RuleParser, RuleState(..), CharClass(..),
-    DynParsers(..), ParensOption(..),
+    DynParsers(..), ParensOption(..), BracketLevel(..),
     RuleOperator, RuleOperatorTable,
     getRuleEnv, modifyRuleEnv, putRuleEnv,
-    clearDynParsers, withRuleConditional, getPrevCharClass, charClassOf,
+    clearDynParsers, enterBracketLevel, getPrevCharClass, charClassOf,
 
     -- Alternate Char implementations that keeps track of ruleCharClass
     satisfy, string, oneOf, noneOf, char, hexDigit, octDigit,
@@ -99,12 +99,19 @@ data RuleState = MkRuleState
     { ruleEnv           :: !Env
     , ruleDynParsers    :: !DynParsers -- ^ Cache for dynamically-generated
                                        --     parsers
-    , ruleInConditional :: !Bool       -- ^ Whether we are in an conditional
+    , ruleBracketLevel  :: !BracketLevel
+                                       -- ^ The kind of "bracket" we are in
                                        --     part and has to suppress {..} literals
     , ruleChar          :: !Char       -- ^ What the previous character contains
     , ruleName          :: !String     -- ^ Capture name
     , rulePos           :: !Int        -- ^ Capture position
     }
+
+data BracketLevel
+    = ConditionalBracket    -- if ... {}
+    | StatementBracket      -- ... ; ...
+    | ParensBracket         -- (...)
+    deriving (Show, Eq)
 
 {-|
 A parser that operates on @Char@s, and maintains state in a 'RuleState'.
@@ -127,12 +134,12 @@ type RuleOperatorTable a = OperatorTable Char RuleState a
 {-|
 Retrieve the 'Pugs.AST.Internals.Env' from the current state of the parser.
 -}
-withRuleConditional :: Bool -> RuleParser a -> RuleParser a
-withRuleConditional newState rule = do
-    prev <- gets ruleInConditional
-    modify $ \state -> state{ ruleInConditional = newState }
+enterBracketLevel :: BracketLevel -> RuleParser a -> RuleParser a
+enterBracketLevel bracket rule = do
+    prev <- gets ruleBracketLevel
+    modify $ \state -> state{ ruleBracketLevel = bracket }
     rv <- rule
-    modify $ \state -> state{ ruleInConditional = prev }
+    modify $ \state -> state{ ruleBracketLevel = prev }
     return rv
 
 {-|

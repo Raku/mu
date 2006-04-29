@@ -13,7 +13,7 @@ parseProgram :: Env -> FilePath -> String -> Env
 parseProgram = flip runRule ruleProgram
 
 makeState :: Env -> RuleState
-makeState env = MkRuleState env MkDynParsersEmpty False ' ' "" 0
+makeState env = MkRuleState env MkDynParsersEmpty StatementBracket ' ' "" 0
 
 runRule :: Env -> RuleParser Env -> FilePath -> String -> Env
 runRule env p name str =
