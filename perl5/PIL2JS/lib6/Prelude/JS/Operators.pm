@@ -1,4 +1,4 @@
-my $mapStr = -> Code $f, Str $x {
+my $mapStr = -> Str $x, Code $f {
   "
     (function () \{
       var res = \"\";
@@ -67,7 +67,7 @@ my @subs = (
   "infix:«~&»",   2, "S", "$mapStr2("&", "String(a)", "String(b)")",
   "infix:«~|»",   2, "S", "a = String(a), b = String(b), $mapStr2Fill("|", "a", "b")",
   "infix:«~^»",   2, "S", "a = String(a), b = String(b), $mapStr2Fill("^", "a", "b")",
-  "prefix:«~^»",  1, "S", "$mapStr({ "255 - $^ord" }, "String(a)")",
+  "prefix:«~^»",  1, "S", $mapStr("String(a)", { "255 - $^ord" }),
   "prefix:«+^»",  1, "N", "~Number(a)",
   "infix:«+^»",   2, "N", "Number(a)  ^ Number(b)",
   "infix:«+<»",   2, "N", "Number(a) << Number(b)",
