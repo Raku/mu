@@ -1,4 +1,5 @@
 use strict;
+use warnings;
 package Inline::Parrot;
 #use Inline 'INFO','NOISY','FORCE';
 use lib 'lib';
@@ -24,7 +25,8 @@ our $msg = "not ok\n";
 our $data;
 print "ok 1 - c code compiled\n";
 my $i = new_interpreter();
+$Inline::Parrot::PMC::interpreter=$i;
 run_bytecode($i,"loadlib.pbc");
 print $msg;
-print "Data:$data:",get_int($i,$data),"\n";
+print "Data:$data\n";
 1;

@@ -2,6 +2,7 @@ all: libparrotside.so loadlib.pbc
 clean:
 	rm *.pbc
 	rm *.so
+	rm _Inline
 loadlib.pbc: loadlib.pir
 	parrot -o loadlib.pbc loadlib.pir
 libparrotside.so: parrotside.c
