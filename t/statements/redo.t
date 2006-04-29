@@ -16,7 +16,7 @@ plan 10;
     my $i;
     while ++$i < 5 {
         push @log, "before";
-        if (++$i == 2){
+        if (++$i == 2) {
             redo;
         } else {
             push @log, "no_redo";

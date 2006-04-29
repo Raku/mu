@@ -56,10 +56,15 @@ ruleBlock = do
         currPos <- getPosition
         when (sourceLine prevPos /= sourceLine currPos) $ do
             -- Manually insert a ';' symbol here!
-            input <- getInput 
-            setInput (';':input)
-            setPosition (setSourceColumn currPos (sourceColumn currPos - 1))
+            insertIntoPosition ';' 
         return rv
+
+insertIntoPosition :: Char -> RuleParser ()
+insertIntoPosition ch = do
+    currPos <- getPosition
+    input <- getInput 
+    setInput (ch:input)
+    setPosition (setSourceColumn currPos (sourceColumn currPos - 1))
 
 ruleVerbatimBlock :: RuleParser Exp
 ruleVerbatimBlock = verbatimRule "block" $ do
@@ -1401,7 +1406,9 @@ ruleApplyImplicitMethod = do
         option (Var "$_") $
             -- XXX - This ./method form is going to be removed
             do { char '/'; return (Var "$?SELF") }
-    fmap ($ implicitInv) $ ruleInvocationCommon False
+    insertIntoPosition '.' 
+    fs <- many rulePostTerm
+    return (combine (reverse fs) implicitInv)
 
 ruleSubNameWithoutPostfixModifier = try $ do
     name <- ruleSubName
@@ -1576,7 +1583,7 @@ ruleApply (when `foo .($bar)`?) (after whitespace when there's no implicit-inv)
 parseNoParenParamList :: RuleParser (Maybe Exp, [Exp])
 parseNoParenParamList = do
     formal <- (<|> return []) $ do
-        -- Autrijus says that 'dotForbidden' is needed so that 
+        -- Audrey says that 'dotForbidden' is needed so that 
         -- `foo {}.blah` gets parsed as `foo ({}.blah)`
         -- rather than `(foo {}).blah` or something else
         x <- formalSegment dotForbidden

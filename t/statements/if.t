@@ -86,7 +86,7 @@ is $foo, 1, "die should stop execution immediately.";
 
 {
     my $foo = 1;
-    if { 1 > 0 } { $foo = 2 } else { $foo = 3 };
+    if ({ 1 > 0 }) { $foo = 2 } else { $foo = 3 };
     is $foo, 2, 'if with no parens, and closure as cond';
 }
 
@@ -108,5 +108,5 @@ is $foo, 1, "die should stop execution immediately.";
 }
 
 {
-    dies_ok { if 1 }, 'test "if 1"';
+    isnt(eval('if 1; 2'), 2, 'test "if 1"');
 }

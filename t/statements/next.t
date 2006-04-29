@@ -132,7 +132,7 @@ Check that C<next> works on the correct loop/block
     my $i = 0;
     
     for (1, 1, 0, 1, 0, 1) -> $x {
-        if ($x){ next }
+        if ($x) { next }
         $i++;
     }
     
@@ -144,7 +144,7 @@ Check that C<next> works on the correct loop/block
     my $j;
     
     loop ($j = 0; $j < 6; $j++) {
-        if ($j % 2 == 0){ next }
+        if ($j % 2 == 0) { next }
         $i++;
     }
     
