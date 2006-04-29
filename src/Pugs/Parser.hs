@@ -217,7 +217,7 @@ ruleSubScoped = tryRule "scoped subroutine" $ do
     return (scope, "Any", isMulti, styp, name)
 
 ruleSubGlobal :: RuleParser SubDescription
-ruleSubGlobal = rule "global subroutine" $ do
+ruleSubGlobal = tryRule "global subroutine" $ do
     (isMulti, styp, name) <- ruleSubHead
     return (SGlobal, "Any", isMulti, styp, name)
 
@@ -1509,7 +1509,7 @@ pairOrBlockAdverb = choice [ namedAdverb, blockAdverb ]
 
 blockAdverb :: RuleParser Exp
 blockAdverb = do
-    char ':'
+    char ':' `tryLookAhead` char '{'
     ruleBlockLiteral
 
 parseHasParenParamList :: RuleParser (Maybe Exp, [Exp])

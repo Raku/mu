@@ -110,22 +110,20 @@ eval('
 # (Test is more or less directly from S06.)
 {
   my $next    = 0;
-  # We stub &advance so we don't need to eval() the whole test.
-  sub advance() {}
 
   # Here is the real implementation of &advance.
-  eval 'sub advance() {
+  sub advance() {
     my $curr = $next++;
     TEMP {{ $next = $curr }}  # TEMP block returns the closure { $next = $curr }
     return $curr;
-  }';
+  };
 
   # and later...
 
-  is advance(), 0, "TEMP{} block (1)", :todo<feature>;
-  is advance(), 1, "TEMP{} block (2)", :todo<feature>;
-  is advance(), 2, "TEMP{} block (3)", :todo<feature>;
-  is $next,     3, "TEMP{} block (4)", :todo<feature>;
+  is advance(), 0, "TEMP{} block (1)";
+  is advance(), 1, "TEMP{} block (2)";
+  is advance(), 2, "TEMP{} block (3)";
+  is $next,     3, "TEMP{} block (4)";
 
   flunk "TEMP{} block (5)", :todo<feature>;
   flunk "TEMP{} block (6)", :todo<feature>;
@@ -154,15 +152,15 @@ eval('
 # L<S06/"Temporization" /temp invokes its argument's .TEMP method./>
 {
   my $was_in_own_temp_handler = 0;
-  eval '
-    class WierdTemp is Int {
-      method TEMP {
-        $was_in_own_temp_handler++;
-        return { $was_in_own_temp_handler++ };
-      }
-  ';
 
-  my $a = eval 'WierdTemp.new()';
+  class WierdTemp is Int {
+    method TEMP {
+      $was_in_own_temp_handler++;
+      return { $was_in_own_temp_handler++ };
+    }
+  }
+
+  my $a = WierdTemp.new();
   ok defined($a), "instantiating a WierdTemp worked";
   is $was_in_own_temp_handler, 0, ".TEMP method wasn't yet executed";
 
@@ -172,4 +170,5 @@ eval('
   }
   is $was_in_own_temp_handler, 2, ".TEMP method was executed on restoration";
 }
+
 
