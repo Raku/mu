@@ -23,7 +23,7 @@ Apocalypses, which are frozen in time as "historical documents".
 These updates are not marked--if a Synopsis disagrees with its
 Apocalypse, assume the Synopsis is correct.)
 
-=head1 Atoms
+=head1 Lexical Conventions
 
 =over 4
 
@@ -71,7 +71,7 @@ mappings introduced in the future.
 
 =back
 
-=head1 Molecules
+=head1 Whitespace and Comments
 
 =over 4
 
