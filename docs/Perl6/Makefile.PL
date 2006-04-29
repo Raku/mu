@@ -18,7 +18,7 @@ WritePugs  (5);
 
 sub refresh_specs {
     # okay, we are at author side - refresh Synopses
-    require LWP::Simple;
+    eval { require LWP::Simple } or return;
 
     use vars '$ua';
     LWP::Simple->import('mirror', '$ua');
