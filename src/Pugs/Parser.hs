@@ -1734,6 +1734,9 @@ undefLiteral = do
 numLiteral :: RuleParser Exp
 numLiteral = do
     n <- naturalOrRat
+    -- XXX - This is a hack to allow \b to work with numbers
+    --       because Parser.Number is currently not a RuleParser
+    modify $ \state -> state{ ruleChar = '0' }
     case n of
         Left  i -> return . Val $ VInt i
         Right d -> return . Val $ VRat d
