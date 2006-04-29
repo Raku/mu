@@ -386,9 +386,9 @@ ruleSubName = verbatimRule "subroutine name" $ do
 
 ruleOperatorName :: RuleParser String
 ruleOperatorName = verbatimRule "operator name" $ do
-    fixity  <- identifier `tryLookAhead` (char ':' >> oneOf "<{")
+    fixity  <- choice (map (try . string) fixities) `tryLookAhead` (oneOf "\xAB<{")
     name    <- do
-        char ':'
+        -- char ':'
         sub <- ruleHashSubscript
         -- Not exactly un-evil
         let (Syn "{}" [_, expr]) = sub (Val VUndef)
@@ -396,7 +396,7 @@ ruleOperatorName = verbatimRule "operator name" $ do
             App (Var "&*join") 
             Nothing 
             (Val (VStr " ") : [expr])
-        return (':':name)
+        return name
     return $ fixity ++ name
 
 
@@ -1513,7 +1513,7 @@ blockAdverb = do
     ruleBlockLiteral
 
 parseHasParenParamList :: RuleParser (Maybe Exp, [Exp])
-parseHasParenParamList = verbatimParens $ do
+parseHasParenParamList = verbatimParens . enterBracketLevel ParensBracket $ do
     -- formal :: [[Exp]]
     -- outer level of listness provided by `sepEndBy`
     -- the inner (`fix`ed) part returns [Exp]
@@ -1957,9 +1957,9 @@ angleBracketLiteral = try $
         qLiteral1 (symbol "<") (string ">") $ qFlags
             { qfSplitWords = QS_Yes, qfProtectedChar = '>' }
     <|> do
-        symbol "\xab"
-        qLiteral1 (symbol "\xab") (string "\xbb") $ qFlags
-            { qfSplitWords = QS_Yes, qfProtectedChar = '\xbb' }
+        symbol "\xAB"
+        qLiteral1 (symbol "\xAB") (string "\xBB") $ qFlags
+            { qfSplitWords = QS_Yes, qfProtectedChar = '\xBB' }
 
 -- Quoting delimitor and flags
 -- qfProtectedChar is the character to be

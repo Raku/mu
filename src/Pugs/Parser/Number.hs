@@ -51,10 +51,10 @@ naturalOrRat  = (<?> "number") $ do
                 then return (Right $ (n % 1) * expo)
                 else return (Right $ (n % 1) * expo)
 
-    fraction = do
+    fraction = try (do
             char '.'
             digits <- many1 (satisfy isWordDigit) <?> "fraction"
-            return (digitsToRat $ filter (/= '_') digits)
+            return (digitsToRat $ filter (/= '_') digits))
         <?> "fraction"
         where
         digitsToRat d = digitsNum d % (10 ^ length d)

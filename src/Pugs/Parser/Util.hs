@@ -10,11 +10,7 @@ import Pugs.Rule
 import Pugs.Parser.Types
 
 fixities :: [String]
-fixities = words $ " prefix: postfix: infix: circumfix: coerce: self: term: "
-    ++ " postcircumfix: rule_modifier: trait_verb: trait_auxiliary: "
-    ++ " scope_declarator: statement_control: infix_postfix_meta_operator: "
-    ++ " postfix_prefix_meta_operator: prefix_postfix_meta_operator: "
-    ++ " infix_circumfix_meta_operator: "
+fixities = ["prefix_circumfix_meta_operator:","infix_circumfix_meta_operator:","prefix_postfix_meta_operator:","postfix_prefix_meta_operator:","infix_postfix_meta_operator:","statement_modifier:","statement_control:","scope_declarator:","trait_auxiliary:","trait_verb:","regex_mod_external:","regex_mod_internal:","regex_assertion:","regex_backslash:","regex_metachar:","postcircumfix:","circumfix:","postfix:","infix:","prefix:","quote:","term:"]
 
 -- around a block body we save the package and the current lexical pad
 -- at the start, so that they can be restored after parsing the body
