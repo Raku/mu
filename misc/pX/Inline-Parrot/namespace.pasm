@@ -1,2 +1,0 @@
-.namespace ["Inline::Parrot"]
-end
