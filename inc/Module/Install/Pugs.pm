@@ -176,7 +176,7 @@ sub assert_ghc {
     # This local subroutine returns the version of ghc passed to it.
 
     my $test_ghc_ver = sub { 
-        (`$_[0] --version` =~ /Glasgow.*\bversion\s*(\S+)/s)[0]; 
+        (`$_[0] --version` =~ /\bversion\s*(\S+)/s)[0]; 
     };
 
     my ($ghc_version) = $test_ghc_ver->($ghc);
