@@ -9,7 +9,7 @@ rule VariableName {
 }
 
 rule Variable {
-    \$\< <VariableName> \>
+    \$\< <VariableName> \> { use v5; return $<VariableName>() }
 }
 
 rule Constants {
@@ -24,30 +24,34 @@ rule Parameters {
 }
 
 rule FunctionAppExpr {
-    <Variable>
+    <Variable> { use v5; return $<Variable> }
     | <Constants>
     | <FunctionName> <ws>? [ ( <ws>? <Parameters> ) ]?
 }
 
 rule AdditiveExpr {
-    <FunctionAppExpr> <ws>? [ [ \+ | \- | \~ ] <ws>? <AdditiveExpr> <ws>? ]*
+    <FunctionAppExpr> <ws>?
+    [ $<op> := (\+ | \- | ~) <ws>?
+      $<rhs> := (<AdditiveExpr>) <ws>? ]?
+    { use v5;
+      if($<op>[0]){
+	  return $<FunctionAppExpr>() . " " . $<op>[0] . " " . $<rhs>[0];
+      }else{
+	  return $<FunctionAppExpr>();
+      }
+    }
 }
 
 rule Expr {
-    <AdditiveExpr>
+    <AdditiveExpr> { use v5; return $<AdditiveExpr>() }
 }
 
 rule Return {
-    return <ws> <Expr> \;?
-    { use v5; return "    return \$ " . $<Expr> }
-}
-
-rule Statements {
-    <Expr> <ws>? \; <ws>? <Statements>
-    { use v5; return $<Expr>() . $<Statements>() }
+    <'return'> <ws> <Expr> \;?
+    { use v5; return "    return \$ " . $<Expr>() }
 }
 
 rule ProductionRule {
-    <Statements> <ws>? <Return>
-    { use v5; return $<Statements>() . $<Return> }
+    <Return>
+    { use v5; return $<Return>() }
 }
