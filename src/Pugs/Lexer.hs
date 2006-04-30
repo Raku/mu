@@ -54,7 +54,7 @@ angles p        = between (symbol "<") (symbol ">") p
 brackets p      = between (symbol "[") (symbol "]") p
 
 mandatoryWhiteSpace :: RuleParser ()
-mandatoryWhiteSpace = skipMany1 (satisfy isSpace)
+mandatoryWhiteSpace = skipMany1 (simpleSpace <|> comment)
 
 balancedDelim :: Char -> Char
 balancedDelim c = case c of

@@ -1388,8 +1388,10 @@ ruleApplySub isFolded = do
 
     -- True for `foo. .($bar)`-style applications
     (paramListInv, args) <- choice
-        [ do { ruleDot; parseHasParenParamList }
-        , parseParenParamList <|> do { whiteSpace; parseNoParenParamList }
+        [ (ruleDot `tryLookAhead` char '(') >> parseHasParenParamList
+        , parseParenParamList
+        , mandatoryWhiteSpace >> parseNoParenParamList
+        , return (Nothing, [])
         ]
 
     possiblyApplyMacro $ App (Var name) paramListInv args
