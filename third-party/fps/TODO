@@ -1,8 +1,4 @@
 
 * remove Posix dependency for mmap.
-
-* fix the pack issue. check it runs as fast as 0.3
-
-* port to hugs
-
-
+* mmap can't go in base libraries. relies on 'unix' for handleToFd.
+    System.Posix.Mmap
