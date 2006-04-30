@@ -230,9 +230,9 @@ flunk("when true is parsefail", :todo<feature>) if $!;
 {
     my %h;
     given %h { .{'key'} = 'value'; };
-    ok(%h{'key'} eq 'value', 'given and hash deref using .{}', :todo);
+    ok(%h{'key'} eq 'value', 'given and hash deref using .{}';
     given %h { .<key> = "value"; }
-    ok(%h{'key'} eq 'value', 'given and hash deref using .<>', :todo);
+    ok(%h{'key'} eq 'value', 'given and hash deref using .<>';
 }
 
 # given + 0-arg closure
