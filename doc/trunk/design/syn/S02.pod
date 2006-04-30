@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 26 Apr 2006
+  Last Modified: 30 Apr 2006
   Number: 2
-  Version: 34
+  Version: 35
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -141,33 +141,35 @@ C<m>, C<s>, C<tr>, and C<rx>) enable subsequent user-selected brackets.
 
 =item *
 
-In addition to the general comment forms above, there is a whitespace-only
-comment form that begins and ends with a single dot, separated by whitespace,
+In addition to the general comment forms above, there is a
+whitespace-only comment form that begins with backslash and ends
+with a single dot, separated by 0 or more characters of whitespace,
 which is equivalent to a single dot:
 
-    %hash.  .{$key}
-    @array. .{$key}
+    %hash\  .{$key}
+    @array\ .[$ix]
+    $subref\.($arg)
 
 This is useful for lining up postfixes.  This is known as the "long dot",
-partly because it substitutes for a dot without the need for a third dot:
+partly because it substitutes for a dot without the need for an extra dot:
 
-    $object.  .say();
+    $object\  .say();
 
 The whitespace in the middle may include any of the comment forms above.
-Because comments always count as whitespace, the dots in
+Because comments always count as whitespace, the C<\.> in
 
-    $object.#{ foo }.say
+    $object\#{ foo }.say
 
 reduce to a "long dot" rather than the range operator.  Valid ways to
 insert a line break into a sequence of method calls include:
 
-    $object. # comment
+    $object\ # comment
     .say
 
-    $object.#[ comment
+    $object\#[ comment
     ].say
 
-    $object.
+    $object\
     .say
 
 =item *
@@ -659,8 +661,8 @@ Whitespace is not allowed before the parens, but there is a
 corresponding C<.()> operator, plus the "long dot" forms that allow
 you to insert optional whitespace and comments between dots:
 
-    &foo.   .($arg1, $arg2);
-    &foo.#[
+    &foo\   .($arg1, $arg2);
+    &foo\#[
 	embedded comment
     ].($arg1, $arg2);
 

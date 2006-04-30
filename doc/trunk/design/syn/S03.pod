@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 26 Apr 2006
+  Last Modified: 30 Apr 2006
   Number: 3
-  Version: 24
+  Version: 25
 
 =head1 Changes to existing operators
 
@@ -802,8 +802,8 @@ It is, however, still possible to align accessors by explicitly using the
 I<long dot> syntax:
 
      %monsters.{'cookie'} = Monster.new;
-     %people. .{'john'}   = Person.new;
-     %cats.   .{'fluffy'} = Cat.new;
+     %people\ .{'john'}   = Person.new;
+     %cats\   .{'fluffy'} = Cat.new;
 
 =head1 Precedence
 

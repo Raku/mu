@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 25 Apr 2006
+  Last Modified: 30 Apr 2006
   Number: 4
-  Version: 18
+  Version: 19
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -674,7 +674,7 @@ is interpreted as a hash subscript.
     if $term{$x}	# subscript because postfix expected
     if $term {$x}	# expression followed by statement block
     if $term.{$x}	# valid subscript with dot
-    if $term. .{$x}	# valid subscript with "long dot"
+    if $term\ .{$x}	# valid subscript with "long dot"
 
 Similar rules apply to array subscripts:
 
@@ -682,7 +682,7 @@ Similar rules apply to array subscripts:
     if $term[$x]	# subscript because postfix expected
     if $term [$x]	# syntax error (two terms in a row)
     if $term.[$x]	# valid subscript with dot
-    if $term. .[$x]	# valid subscript with "long dot"
+    if $term\ .[$x]	# valid subscript with "long dot"
 
 And to the parentheses delimiting function arguments:
 
@@ -690,7 +690,7 @@ And to the parentheses delimiting function arguments:
     if $term($x)	# function call because operator expected
     if $term ($x)	# syntax error (two terms in a row)
     if $term.($x)	# valid function call with dot
-    if $term. .($x)	# valid function call with "long dot"
+    if $term\ .($x)	# valid function call with "long dot"
 
 Outside of any kind of expression brackets, a final closing curly
 on a line (not counting whitespace or comments) always reverts
