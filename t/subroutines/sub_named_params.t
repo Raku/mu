@@ -47,6 +47,7 @@ is(foo(), 3, "not specifying named params that aren't mandatory works");
 dies_ok({foo(4)}, "using a named as a positional fails", :todo<bug>);
 
 is(foo( 'x' => 5), 5, "naming named param also works");
+is(foo( :x<5> ), 5, "naming named param adverb-style also works");
 
 sub foo2 (:$x = 3, :$y = 5) { $x + $y }
 
@@ -56,6 +57,12 @@ dies_ok({foo2(4, 10)}, "using a named as a positional fails (foo2)", :todo<bug>)
 is(foo2( 'x' => 5), 10, "naming named param x also works (foo2)");
 is(foo2( 'y' => 3), 6, "naming named param y also works (foo2)");
 is(foo2( 'x' => 10, 'y' => 10), 20, "naming named param x & y also works (foo2)");
+is(foo2( :x<5> ), 10, "naming named param x adverb-style also works (foo2)");
+is(foo2( :y<3> ), 6, "naming named param y adverb-style also works (foo2)");
+is(foo2( :x<10>, :y<10> ), 20, "naming named params x & y adverb-style also works (foo2)");
+is(foo2( 'x' => 10, :y<10> ), 20, "mixing fat-comma and adverb naming styles also works for named params (foo2)")
+is(foo2( :x<10>, 'y' => 10 ), 20, "mixing adverb and fat-comma naming styles also works for named params (foo2)")
+
 
 sub assign_based_on_named_positional ($x, :$y = $x) { $y } 
 
