@@ -87,23 +87,6 @@ ruleBlockBody =
     return $ foldl1 mergeStmts (pre ++ [body] ++ post)
 
 {-|
-Match an opening brace (@{@), followed by a 'ruleBlockBody', followed by a
-closing brace (@}@) and nothing else (see 'ruleWhiteSpaceLine').
-
-In other words, the closing brace must be the last meaningful character on
-its line.
--}
-ruleStandaloneBlock :: RuleParser Exp
-ruleStandaloneBlock = rule "standalone block" $ do
-    body <- bracesAlone ruleBlockBody
-    retBlock SubBlock Nothing False body
-    where
-    bracesAlone p  = between (symbol "{") closingBrace p
-    closingBrace = do
-        char '}'
-        ruleWhiteSpaceLine
-
-{-|
 Match a single statement (not including any terminating semicolon).  A
 statement consists of a single 'ruleExpression', followed by an optional
 statement-modifier (e.g. @if $foo@ or @for \@baz@).
@@ -191,19 +174,6 @@ ruleSubHead = rule "subroutine head" $ do
         ] <|> implicitSub
     name    <- ruleSubName
     return (isMulti, styp, name)
-
-{-|
-Try to match a colon character.  If one is found, return a function that will
-take a variable name (including sigil) and insert a colon after the sigil.
-If no colon is found, return @id@.
-
-Used to match the private-method colon in 'ruleInvocation' and
-'ruleInvocationParens'.
--}
-maybeColon :: RuleParser ([Char] -> [Char])
-maybeColon = option id $ do
-    char ':'
-    return $ \(sigil:name) -> (sigil:':':name)
 
 -- | Scope, context, isMulti, styp, name
 type SubDescription = (Scope, String, Bool, SubType, String)
@@ -1365,10 +1335,7 @@ ruleHashSubscriptQW = do
 
 ruleCodeSubscript :: RuleParser (Exp -> Exp)
 ruleCodeSubscript = tryVerbatimRule "code subscript" $ do
-    (invs, args) <- verbatimParens parseParamList
-    -- FAILED PARSER PATCH
-    --(invs, args) <- parseHasParenParamList -- XXX doesn't handle trailing 
-    --                                       --       adverbs outside parens
+    (invs, args) <- parseHasParenParamList
     return $ \x -> App x invs args
 
 {-|
@@ -1757,11 +1724,13 @@ Match a pair literal -- either an arrow pair (@a => 'b'@), or an adverbial pair
 pairLiteral :: RuleParser Exp
 pairLiteral = choice [ pairArrow, pairAdverb ]
 
+tryFollowedBy :: RuleParser a -> RuleParser b -> RuleParser a
 tryFollowedBy rule after = try $ do
     rv <- rule
     after
     return rv
 
+tryLookAhead :: RuleParser a -> RuleParser b -> RuleParser a
 tryLookAhead rule after = try $ do
     rv <- rule
     lookAhead after
