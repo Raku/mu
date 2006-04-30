@@ -32,7 +32,7 @@ sub statement_control:<loop>(Any $pre, Code $cond, Code $body, Code $post) is pr
       }
       return undefined;
     }
-  )')($pre, ({?$cond()}), $body, $post);
+  )')($pre, {?$cond()}, $body, $post);
 }
 
 sub statement_control:<while>(Code $cond, Code $body) is primitive {
