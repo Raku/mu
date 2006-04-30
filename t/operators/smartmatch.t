@@ -71,12 +71,12 @@ my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
     my $string = "foo";
     ok(eval('(%hash5 ~~ .{$string})'), 'hash.{Any} truth', :todo);
     $string = "gorch";
-    ok(eval('!(%hash5 ~~ .{$string})'), 'hash.{Any} untruth', :todo);
+    ok(eval('!(%hash5 ~~ .{$string})'), 'hash.{Any} untruth');
 };
 
 { #L<<S04/"Smart matching" /Hash\s+.<string>\s+hash\s+element\s+truth*\s+match\s+if\s+\$_\<string\>/>>
     ok(eval('(%hash5 ~~ .<foo>)'), "hash<string> truth", :todo);
-    ok(eval('!(%hash5 ~~ .<gorch>)'), "hash<string> untruth", :todo);
+    ok(eval('!(%hash5 ~~ .<gorch>)'), "hash<string> untruth");
 };
 
 { #L<<S04/"Smart matching" /Array\s+Array\s+arrays\s+are\s+identical\s+match\s+if\s+\$_\s+»~~«\s+\$x/>>
@@ -103,7 +103,7 @@ my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 
 { #L<<S04/"Smart matching" /Array\s+.[number]\s+array\s+element\s+truth*\s+match\s+if\s+\$_[number]/>>
     ok(eval('((undef, 1, undef) ~~ .[1])'), "element 1 of (undef, 1, undef) is true", :todo);
-    ok(eval('!((undef, undef) ~~ .[0])'), "element 0 of (undef, undef) is false", :todo);
+    ok(eval('!((undef, undef) ~~ .[0])'), "element 0 of (undef, undef) is false");
 };
 
 { #L<<S04/"Smart matching" /Num\s+NumRange\s+in\s+numeric\s+range\s+match\s+if\s+\$min\s+<=\s+\$_\s+<=\s+\$max/>>

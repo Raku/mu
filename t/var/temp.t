@@ -142,9 +142,9 @@ eval('
   #  is temp(advance()), 5, "TEMP{} block (8)", :todo<feature>;
   #}  # $next = 3
 
-  is $next,     3, "TEMP{} block (9)",  :todo<feature>;
-  is advance(), 3, "TEMP{} block (10)", :todo<feature>;
-  is $next,     4, "TEMP{} block (11)", :todo<feature>;
+  is $next,     3, "TEMP{} block (9)";
+  is advance(), 3, "TEMP{} block (10)";
+  is $next,     4, "TEMP{} block (11)";
 }
 
 # Following are OO tests, but I think they fit better in var/temp.t than in
