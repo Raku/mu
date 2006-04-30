@@ -22,7 +22,7 @@ use 5.006;
 use strict;
 use warnings;
 use Config;
-use Cwd qw(abs_path);
+use Cwd qw(abs_path cwd);
 use File::Spec;
 use FindBin;
 BEGIN { chdir $FindBin::RealBin };
@@ -145,6 +145,13 @@ sub set_postamble {
     Please check your GHC and Cabal installation.
 .
     }
+
+    my $pwd = cwd();
+    chdir "third-party/fps";
+    system("../../Setup$Config{_exe}", 'configure', '--prefix', "$pwd/dist");
+    system("../../Setup$Config{_exe}", 'build');
+    system("../../Setup$Config{_exe}", 'install', '--user');
+    chdir $pwd;
 
     my $heap;
 
