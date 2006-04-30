@@ -1098,7 +1098,7 @@ if we don't care about anything but the matching.
 
 Instead of specifying an array parameter as an array:
 
-    sub quicksort (@data, ?$reverse, ?$inplace) {
+    sub quicksort (@data, $reverse?, $inplace?) {
         my $pivot := shift @data;
         ...
     }
@@ -1107,7 +1107,7 @@ it may be broken up into components in the signature, by
 specifying the parameter as if it were an anonymous array of
 parameters:
 
-    sub quicksort ([$pivot, *@data], ?$reverse, ?$inplace) {
+    sub quicksort ([$pivot, *@data], $reverse?, $inplace?) {
         ...
     }
 
