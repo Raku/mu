@@ -46,7 +46,7 @@ sub build {
     print "Build configuration:\n" . PugsBuild::Config->pretty_print;
 
     my ($version, $ghc, $ghc_version, $setup, @args) = @{$opts->{GHC}};
-    write_buildinfo($version, $ghc_version, @args);
+    write_buildinfo($version, $ghc, $ghc_version, @args);
     $run_setup = sub { system($setup, @_) };
     $run_setup->('configure', grep !/^--.*=$/, @{$opts->{SETUP}});
 
@@ -196,6 +196,7 @@ sub build_exe {
 
 sub write_buildinfo { 
     my $version = shift;
+    my $ghc = shift;
     my $ghc_version = shift;
 
     open IN, "< Pugs.cabal.in" or die $!;
@@ -239,8 +240,16 @@ sub write_buildinfo {
     my @libs = map substr($_, 2), grep /^-l/, @_;
     #push @libs, grep /\.(?:a|o(?:bj)?)$/, @_;
 
+    my $ghc_pkg = $ghc;
+    $ghc_pkg =~ s/(.*ghc)/$1-pkg/;
+    my $has_new_cabal = (`$ghc_pkg describe Cabal` =~ /version: 1\.[1-9]/i);
+
     while (<IN>) {
-        if ($ghc_version =~ /^6.4(?:.[01])?$/) {
+        # Adjust the dependency line based on Cabal version
+        if ($has_new_cabal) {
+            s/hs-source-dir/hs-source-dirs/;
+        }
+        else {
             s/fps -any, //;
         }
         s/__OPTIONS__/@_/;
