@@ -240,6 +240,11 @@ sub write_buildinfo {
     #push @libs, grep /\.(?:a|o(?:bj)?)$/, @_;
 
     while (<IN>) {
+        if ($ghc_version =~ /^6\.4(?:\.[01])?$/) {
+            if (s/hs-source-dirs: src (.+)/hs-source-dir: src/) {
+                push @_, map { "-I$_" } split /\s+/, $1;
+            }
+        }
         s/__OPTIONS__/@_/;
         s/__VERSION__/$version/;
         s/__DEPENDS__/$depends/;
