@@ -59,13 +59,6 @@ ruleBlock = do
             insertIntoPosition ';' 
         return rv
 
-insertIntoPosition :: Char -> RuleParser ()
-insertIntoPosition ch = do
-    currPos <- getPosition
-    input <- getInput 
-    setInput (ch:input)
-    setPosition (setSourceColumn currPos (sourceColumn currPos - 1))
-
 ruleVerbatimBlock :: RuleParser Exp
 ruleVerbatimBlock = verbatimRule "block" $ do
     body <- verbatimBraces ruleBlockBody
@@ -409,8 +402,8 @@ ruleFormalParam = rule "formal parameter" $ do
     optional $ do
         symbol "-->"
         ruleParamList ParensOptional $ choice
-            [ do { ruleFormalParam; return "" }
-            , ruleType
+            [ ruleType
+            , do { ruleFormalParam; return "" }
             ]
     return $ foldr appTrait (buildParam typ sigil' name exp) traits
     where

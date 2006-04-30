@@ -56,8 +56,9 @@ tightOperators = do
     , [ternOp "??" "!!" "if"]                                   -- Ternary
     -- Assignment
     , rightOps ["=>"]                                           -- Pair constructor
+      ++ rightRewriteSyn [".="]
       ++ rightSyn (words (
-               " = := ::= .= " ++
+               " = := ::= " ++
                " ~= += -= *= /= %= x= Y= \xA5= **= xx= ||= &&= //= ^^= " ++
                " +<= +>= ~<= ~>= +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= "))
     ]
@@ -185,6 +186,8 @@ noneSyn     :: [String] -> [RuleOperator Exp]
 noneSyn     = ops $ makeOp2 AssocNone "" Syn
 listSyn     :: [String] -> [RuleOperator Exp]
 listSyn     = ops $ makeOp0 AssocList "" Syn
+rightRewriteSyn :: [String] -> [RuleOperator Exp]
+rightRewriteSyn = ops $ makeOp2Rewrite AssocRight "" Syn
 
 -- 0x10FFFF is the max number "chr" can take.
 ops :: (String -> a) -> [String] -> [a]
@@ -217,20 +220,33 @@ makeOp1 prec sigil con name = prec $ try $ do
         | otherwise
         = sigil ++ name
 
+-- Just for the ".=" rewriting
+makeOp2Rewrite :: Assoc -> 
+           String -> 
+           (String -> [Exp] -> Exp) -> 
+           String -> 
+           RuleOperator Exp
+makeOp2Rewrite prec sigil con name = (`Infix` prec) $ do
+    symbol name
+    insertIntoPosition '.' -- "$x .= foo" becomes "$x .= .foo"
+    return $ \invExp argExp -> case argExp of
+        App meth _ args -> con "=" [invExp, App meth (Just invExp) args]
+        _               -> fail "the right-hand-side of .= must be a function application"
+
 makeOp2 :: Assoc -> 
            String -> 
-           (String -> [a] -> a) -> 
+           (String -> [Exp] -> Exp) -> 
            String -> 
-           RuleOperator a
+           RuleOperator Exp
 makeOp2 prec sigil con name = (`Infix` prec) $ do
     symbol name
     return $ \x y -> con (sigil ++ name) [x,y]
 
 makeOp0 :: Assoc -> 
            String -> 
-           (String -> [a] -> a) -> 
+           (String -> [Exp] -> Exp) -> 
            String -> 
-           RuleOperator a
+           RuleOperator Exp
 makeOp0 prec sigil con name = (`InfixList` prec) $ do
     many1 $ do
         string name

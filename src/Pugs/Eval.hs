@@ -745,9 +745,6 @@ reduceSyn "=>" [keyExp, valExp] = do
     val <- enterEvalContext cxtItemAny valExp
     retItem $ castV (key, val)
 
-reduceSyn ".=" [invExp, App meth _ args] = do
-    reduceSyn "=" [invExp, App meth (Just invExp) args]
-
 reduceSyn syn [lhs, exp]
     | last syn == '=' = do
         let op = "&infix:" ++ init syn

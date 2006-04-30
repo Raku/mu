@@ -53,8 +53,9 @@ naturalOrRat  = (<?> "number") $ do
 
     fraction = do
             char '.'
-            digits <- many1 (satisfy isWordDigit) <?> "fraction"
-            return (digitsToRat $ filter (/= '_') digits)
+            digit  <- satisfy isDigit
+            digits <- many (satisfy isWordDigit) <?> "fraction"
+            return (digitsToRat $ filter (/= '_') (digit:digits))
         <?> "fraction"
         where
         digitsToRat d = digitsNum d % (10 ^ length d)
