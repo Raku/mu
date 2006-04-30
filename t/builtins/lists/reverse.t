@@ -69,7 +69,7 @@ is(@a[1], "foo", 'the list was reversed properly');
     is(@b[0], "foo", 'our list is reversed properly'); 
     is($b, "oof", 'in scalar context it is a string');
     is(@a[0], "foo", "original array left untouched");
-    @a.=reverse;
+    @a .= reverse;
     is(@a[0], "foo", 'in place reversal works');
 }
 
@@ -87,7 +87,7 @@ is(@a[1], "foo", 'the list was reversed properly');
     is(@a[0], "foo", "original array left untouched");
     is(@a[1], "bar", "original array left untouched");
     
-    @a.=reverse;
+    @a .= reverse;
     is(@a[0], "bar", 'in place reversal works');
     is(@a[1], "foo", 'in place reversal works');
 }
@@ -102,7 +102,7 @@ is(@a[1], "foo", 'the list was reversed properly');
     is(@b[0], "oof", 'string in the array has been reversed', :todo<bug>);
     is($b, "oof", 'string has been reversed');
     is($a, "foo", "original scalar left untouched");
-    $a.=reverse;
+    $a .= reverse;
     is($a, "oof", 'in place reversal works on strings');
 }
 
