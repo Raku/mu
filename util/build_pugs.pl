@@ -242,7 +242,7 @@ sub write_buildinfo {
     while (<IN>) {
         if ($ghc_version =~ /^6\.4(?:\.[01])?$/) {
             if (s/hs-source-dirs: src (.+)/hs-source-dir: src/) {
-                push @_, map { "-I$_" } split /\s+/, $1;
+                push @_, map { "-i$_" } split /\s+/, $1;
             }
         }
         s/__OPTIONS__/@_/;
