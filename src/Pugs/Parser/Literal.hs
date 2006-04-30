@@ -76,11 +76,14 @@ ruleMatchNamed = do
 
 ruleDot :: RuleParser ()
 ruleDot = verbatimRule "dot" $ do
-    try $ char '.' >> notFollowedBy (char '.')
-    optional $ verbatimRule "long dot" $ do
-        whiteSpace
-        char '.'
-    optional $ oneOf ":*+?"
+    char '.' <|> ruleLongDot
+    optional $ oneOf "*+?"
+
+ruleLongDot :: RuleParser Char
+ruleLongDot = do
+    try (char '\\' >> notFollowedBy (char '('))
+    whiteSpace
+    char '.'
 
 -- zero-width, non-consuming word boundary assertion (\b)
 ruleWordBoundary :: RuleParser ()
