@@ -57,7 +57,7 @@ three=four
 ", '... got the right config text');
 
 ok(unlink($new_config_path), '... removing the new config file');
-ok(!-e $new_config_path, '... the file is really gone');
+ok(not -e $new_config_path, '... the file is really gone');
 
 # check some errors
 

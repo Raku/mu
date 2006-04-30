@@ -9,7 +9,7 @@ sub import (Str $pkg: *@_paths) returns Void {
         if ($path eq '') {
             $*ERR.say("Empty compile time value given to lib.import()");
         }
-        if (-e $path && !-d $path) {
+        if (-e $path and not -d $path) {
             $*ERR.say("Parameter to lib.import() must be directory, not file");
         }
         # add to the @*INC, but do not allow duplicates
