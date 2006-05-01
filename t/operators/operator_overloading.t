@@ -117,7 +117,7 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
     class MyClass {
       method prefix:<~> { "hi" }
       method prefix:<+> { 42   }
-      method coerce:<as>($self, OtherClass $to) {
+      method infix:<as>($self, OtherClass $to) {
         my $obj = $to.new;
         $obj.x = 23;
         return $obj;
@@ -129,7 +129,7 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
     }
 
   my $obj;
-  lives_ok { $obj = MyClass.new }, "instantiation of a prefix:<...> and coerce:<as> overloading class worked";
+  lives_ok { $obj = MyClass.new }, "instantiation of a prefix:<...> and infix:<as> overloading class worked";
   my $try = lives_ok { ~$obj }, "our object was stringified correctly";
   if ($try) {
    is ~$obj, "hi", "our object was stringified correctly";

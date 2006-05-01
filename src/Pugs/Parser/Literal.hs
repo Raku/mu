@@ -62,13 +62,13 @@ ruleTwigil = option "" . choice . map string $ words " ^ * ? . ! + ; "
 
 ruleMatchPos :: RuleParser String
 ruleMatchPos = do
-    sigil   <- char '$'
+    sigil   <- oneOf "$@%"
     digits  <- many1 digit
     return $ (sigil:digits)
 
 ruleMatchNamed :: RuleParser String
 ruleMatchNamed = do
-    sigil   <- char '$'
+    sigil   <- oneOf "$@%"
     twigil  <- char '<'
     name    <- many (do { char '\\'; anyChar } <|> satisfy (/= '>'))
     char '>'
@@ -76,14 +76,15 @@ ruleMatchNamed = do
 
 ruleDot :: RuleParser ()
 ruleDot = verbatimRule "dot" $ do
-    char '.' <|> ruleLongDot
+    try (char '.' >> notFollowedBy (char '.')) <|> ruleLongDot
     optional $ oneOf "*+?"
 
-ruleLongDot :: RuleParser Char
+ruleLongDot :: RuleParser ()
 ruleLongDot = do
     try (char '\\' >> notFollowedBy (char '('))
     whiteSpace
     char '.'
+    return ()
 
 -- zero-width, non-consuming word boundary assertion (\b)
 ruleWordBoundary :: RuleParser ()

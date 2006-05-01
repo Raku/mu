@@ -24,8 +24,8 @@ Also with array refs nested in hash refs.
 plan 4;
 
 my $hash = {
-   '1' =>  { '2' => 3,  '4' => 5}
-   };
+   '1' => { '2' => 3, '4' => 5 },
+};
 
 
 is( $hash<1><2>, '3', 'First nested element.');

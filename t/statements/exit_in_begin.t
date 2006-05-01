@@ -16,6 +16,7 @@ END {
 BEGIN {
   # Output the TAP header...
   plan 1;
+  is $failed // 0, 0, 'exit() works in BEGIN {}';
   # ...and exit, implicitly calling END.
   exit;
 }

@@ -9,7 +9,7 @@ use Test;
 
 =cut
 
-plan 39;
+plan 38;
 
 { # binary infix
         my @r;
@@ -171,9 +171,9 @@ plan 39;
 { # mixed hyper and reduce metaops
     is ~([+]<< ([1,2,3], [4,5,6])), "6 15", "mixed hyper and reduce metaop ([+]<<) works";
 
-    # XXX: Test for [+]<<<<
-    is ~([+]<<<< ([[1,2],[3,4]],[[5,6],[7,8]])), "3 7 11 15",
-      "mixed double hyper and reduce metaop ([+]<<<<) works";
+    ## XXX: Test for [+]<<<< - This is unspecced, commenting it out
+    #is ~([+]<<<< ([[1,2],[3,4]],[[5,6],[7,8]])), "3 7 11 15",
+    #  "mixed double hyper and reduce metaop ([+]<<<<) works";
 
     is ~([+]« [1,2,3], [4,5,6]), "6 15",
       "mixed Unicode hyper and reduce metaop ([+]«) works";

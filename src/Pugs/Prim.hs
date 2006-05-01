@@ -1117,7 +1117,7 @@ op3 "Object::new" = \t n p -> do
         modifyIORef _GlobalFinalizer (>> finalize objRef)
         return obj
         
-op3 "Object::clone" = \t n p -> do
+op3 "Object::clone" = \t n _ -> do
     named <- fromVal n
     (VObject o) <- fromVal t
     attrs   <- readIVar (IHash $ objAttrs o)

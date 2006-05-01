@@ -22,18 +22,18 @@ if(!eval('("a" ~~ /a/)')) {
 force_todo 1..12, 14..45;
 
 ok("  a b\tc" ~~ m/@<chars>:=[ \s+ \S+ ]+/, 'Named simple array capture');
-is(join("|",@{$/<chars>}), "  a| b|\tc", 'Captured strings');
+is(join("|", @<chars>), "  a| b|\tc", 'Captured strings');
 
 ok("  a b\tc" ~~ m/@<first>:=[ \s+ \S+ ]+ @<last>:=[ \s+ \S+]+/, 'Sequential simple array capture');
-is(join("|",@{$/<first>}), "  a| b", 'First captured strings');
-is(join("|",@{$/<last>}), "\tc", 'Last captured strings');
+is(join("|", @<first>), "  a| b", 'First captured strings');
+is(join("|", @<last>), "\tc", 'Last captured strings');
 
 ok("abcxyd" ~~ m/a  @<foo>:=(.(.))+ d/, 'Repeated hypothetical array capture');
-is("{@{$/<foo>}}", "c y", 'Hypothetical variable captured');
+is("@<foo>", "c y", 'Hypothetical variable captured');
 ok(%$/.keys == 1, 'No extra captures');
 
 ok("abcd" ~~ m/a  @<foo>:=(.(.))  d/, 'Hypothetical array capture');
-is("{@{$/<foo>}}", "c", 'Hypothetical variable captured');
+is("@<foo>", "c", 'Hypothetical variable captured');
 
 our @GA;
 flunk "Test hangs", :todo<bug>;
@@ -55,38 +55,38 @@ flunk "Test hangs", :todo<bug>;
   lives_ok { $ret = $/[0]<two> }, 'Implicit hypothetical variable captured -- lives_ok';
   is $ret, "bc", 'Implicit hypothetical variable captured -- retval is correct';
 }
-ok(! @{$/<foo>}, 'Explicit hypothetical variable not captured', :todo<bug>);
+ok(! @<foo>, 'Explicit hypothetical variable not captured', :todo<bug>);
 
 flunk "Test hangs", :todo<bug>;
 # ok("  a b\tc" ~~ m/@<chars>:=( @<spaces>:=[\s+] (\S+))+/, 'Nested array capture');
-is("{@{$/<chars>}}", "a b c", 'Outer array capture');
-is(join("|",@{$/<spaces>}), "  | |\t", 'Inner array capture');
+is("@<chars>", "a b c", 'Outer array capture');
+is(join("|", @<spaces>), "  | |\t", 'Inner array capture');
 
 # FIXME parsefail
 eval('  rule spaces { @<spaces>:=[(\s+)] }  ');
 
 ok("  a b\tc" ~~ m/@<chars>:=( <spaces> (\S+))+/, 'Subrule array capture');
 
-is("{@{$/<chars>}}", "a b c", 'Outer rule array capture');
-is($/<spaces>, "\t", 'Final subrule array capture');
+is("@<chars>", "a b c", 'Outer rule array capture');
+is($<spaces>, "\t", 'Final subrule array capture');
 
 ok("  a b\tc" ~~ m/@<chars>:=( @<spaces>:=[<?spaces>] (\S+))+/, 'Nested subrule array capture');
-is("{@{$/<chars>}}", "a b c", 'Outer rule nested array capture');
-is(join("|",@{$/<spaces>}), "  | |\t", 'Subrule array capture');
+is("@<chars>", "a b c", 'Outer rule nested array capture');
+is(join("|", @<spaces>), "  | |\t", 'Subrule array capture');
 
 
 ok("  a b\tc" ~~ m/@<chars>:=[ (<?spaces>) (\S+)]+/, 'Nested multiple array capture');
-is(ref $/<chars>, "Array", 'Multiple capture to nested array');
-ok(@{$/<chars>} == 3, 'Multiple capture count');
-is(try { ref $/<chars>[0] }, "Match", 'Multiple capture to nested AoA[0]');
-is(try { ref $/<chars>[1] }, "Match", 'Multiple capture to nested AoA[2]');
-is(try { ref $/<chars>[2] }, "Match", 'Multiple capture to nested AoA[3]');
-is(try { $/<chars>[0][0] }, "  ", 'Multiple capture value of nested AoA[0][0]');
-is(try { $/<chars>[0][1] }, "a", 'Multiple capture value of nested AoA[0][1]');
-is(try { $/<chars>[1][0] }, " ", 'Multiple capture value of nested AoA[1][0]');
-is(try { $/<chars>[1][1] }, "b", 'Multiple capture value of nested AoA[1][1]');
-is(try { $/<chars>[2][0] }, "\t", 'Multiple capture value of nested AoA[2][0]');
-is(try { $/<chars>[2][1] }, "c", 'Multiple capture value of nested AoA[2][1]');
+is(ref $<chars>, "Array", 'Multiple capture to nested array');
+ok(@<chars> == 3, 'Multiple capture count');
+is(try { ref $<chars>[0] }, "Match", 'Multiple capture to nested AoA[0]');
+is(try { ref $<chars>[1] }, "Match", 'Multiple capture to nested AoA[2]');
+is(try { ref $<chars>[2] }, "Match", 'Multiple capture to nested AoA[3]');
+is(try { $<chars>[0][0] }, "  ", 'Multiple capture value of nested AoA[0][0]');
+is(try { $<chars>[0][1] }, "a", 'Multiple capture value of nested AoA[0][1]');
+is(try { $<chars>[1][0] }, " ", 'Multiple capture value of nested AoA[1][0]');
+is(try { $<chars>[1][1] }, "b", 'Multiple capture value of nested AoA[1][1]');
+is(try { $<chars>[2][0] }, "\t", 'Multiple capture value of nested AoA[2][0]');
+is(try { $<chars>[2][1] }, "c", 'Multiple capture value of nested AoA[2][1]');
 
 
 my @bases = ();

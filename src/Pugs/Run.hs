@@ -38,8 +38,6 @@ import Data.Yaml.Syck
 --import Data.Generics.Schemes
 import System.IO
 
-type Str = Str.ByteString
-
 
 {-|
 Run 'Main.run' with command line args. 

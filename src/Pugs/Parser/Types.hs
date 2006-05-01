@@ -116,7 +116,7 @@ data BracketLevel
 {-|
 A parser that operates on @Char@s, and maintains state in a 'RuleState'.
 -}
-type RuleParser a = GenParser Char RuleState a
+type RuleParser = GenParser Char RuleState
 
 data CharClass = WordClass | SpaceClass | SymClass
     deriving (Show, Eq)
@@ -124,7 +124,20 @@ data CharClass = WordClass | SpaceClass | SymClass
 data ParensOption = ParensMandatory | ParensOptional
     deriving (Show, Eq)
 
-instance MonadState RuleState (GenParser Char RuleState) where
+instance MonadReader Env RuleParser where
+    ask = getRuleEnv
+    local f action = do
+        env     <- getRuleEnv
+        putRuleEnv (f env)
+        rv      <- action
+        env'    <- getRuleEnv
+        putRuleEnv env'
+            { envPackage = envPackage env
+            , envLexical = envLexical env
+            }
+        return rv
+
+instance MonadState RuleState RuleParser where
     get = getState
     put = setState
 

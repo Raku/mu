@@ -16,6 +16,7 @@ END {
 CHECK {
   # Output the TAP header...
   plan 1;
-  # ...and exit, implicitly calling END.
+  is $failed // 0, 0, 'exit() works in CHECK {}';
+  # ...and exit, which does _not_ call END.
   exit;
 }

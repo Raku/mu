@@ -60,8 +60,8 @@ is(foo2( 'x' => 10, 'y' => 10), 20, "naming named param x & y also works (foo2)"
 is(foo2( :x(5) ), 10, "naming named param x adverb-style also works (foo2)");
 is(foo2( :y(3) ), 6, "naming named param y adverb-style also works (foo2)");
 is(foo2( :x(10), :y(10) ), 20, "naming named params x & y adverb-style also works (foo2)");
-is(foo2( 'x' => 10, :y(10) ), 20, "mixing fat-comma and adverb naming styles also works for named params (foo2)")
-is(foo2( :x(10), 'y' => 10 ), 20, "mixing adverb and fat-comma naming styles also works for named params (foo2)")
+is(foo2( 'x' => 10, :y(10) ), 20, "mixing fat-comma and adverb naming styles also works for named params (foo2)");
+is(foo2( :x(10), 'y' => 10 ), 20, "mixing adverb and fat-comma naming styles also works for named params (foo2)");
 
 
 sub assign_based_on_named_positional ($x, :$y = $x) { $y } 
