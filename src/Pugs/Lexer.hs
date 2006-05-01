@@ -222,14 +222,14 @@ interpolatingStringLiteral startrule endrule interpolator = do
             rest  <- stringList i
             return (parse:rest)
         , do
-            ch <- endrule
+            ch    <- endrule
             if i == 0
                 then return []
                 else do
                     rest <- stringList (i-1)
                     return (Val (VStr ch):rest)
         , do
-            ch <- startrule
+            ch   <- try startRule
             rest <- stringList (i+1)
             return (Val (VStr ch):rest)
         , do
