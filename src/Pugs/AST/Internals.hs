@@ -108,8 +108,6 @@ import qualified Data.Map       as Map
 #include "../Types/Pair.hs"
 #include "../Types/Object.hs"
 
--- type Str = Str.FastString
-
 errIndex :: Show a => Maybe b -> a -> Eval b
 errIndex (Just v) _ = return v
 errIndex _ idx =
@@ -1868,7 +1866,7 @@ instance YAML VRef where
         liftIO $ print "====>"
         liftIO $ print svC
         fail ("not implemented: asYAML \"" ++ showType (refType ref) ++ "\"")
-    fromYAML MkYamlNode{tag=Just s, el=YamlSeq [node]}
+    fromYAML MkYamlNode{nodeTag=Just s, nodeElem=YamlSeq [node]}
         | s == packBuf "tag:hs:VCode"   =
             fmap (MkRef . ICode) (fromYAML node :: IO VCode)
         | s == packBuf "tag:hs:VScalar" =

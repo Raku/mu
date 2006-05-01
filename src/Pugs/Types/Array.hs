@@ -215,13 +215,21 @@ instance ArrayClass IArray where
 instance ArrayClass VArray where
     array_iType = const $ mkType "Array::Const"
     array_store [] _ = return ()
-    array_store _ [] = return ()
     array_store (VUndef:as) (_:vs) = array_store as vs
+    array_store as [] = forM_ as $ \a -> do
+        -- clear out everything
+        env <- ask
+        ref <- fromVal a
+        if isaType (envClasses env) "List" (refType ref)
+            then writeRef ref (VList [])
+            else writeRef ref VUndef
     array_store (a:as) vals@(v:vs) = do
         env <- ask
         ref <- fromVal a
         if isaType (envClasses env) "List" (refType ref)
-            then writeRef ref (VList vals)
+            then do
+                writeRef ref (VList vals)
+                array_store as []
             else do
                 writeRef ref v
                 array_store as vs
