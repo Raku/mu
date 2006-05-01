@@ -48,7 +48,7 @@ sub build {
     my ($version, $ghc, $ghc_version, $setup, @args) = @{$opts->{GHC}};
     write_buildinfo($version, $ghc, $ghc_version, @args);
     $run_setup = sub { system($setup, @_) };
-    $run_setup->('configure', grep !/^--.*=$/, @{$opts->{SETUP}});
+    $run_setup->('configure', '--user', grep !/^--.*=$/, @{$opts->{SETUP}});
 
     my $pm = "src/perl6/Prelude.pm";
     my $ppc_hs = "src/Pugs/Prelude.hs";
