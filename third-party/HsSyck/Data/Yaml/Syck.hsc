@@ -19,6 +19,7 @@ import Foreign.C.String
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Utils
 import Foreign.Storable
+import GHC.Ptr (Ptr)
 import qualified Data.HashTable as Hash
 import qualified Data.ByteString as Buf
 import qualified Data.ByteString.Char8 as Char8
