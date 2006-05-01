@@ -169,7 +169,7 @@ sub build_exe {
     #my @o = qw( src/pcre/pcre.o src/syck/bytecode.o src/syck/emitter.o src/syck/gram.o src/syck/handler.o src/syck/implicit.o src/syck/node.o src/syck/syck.o src/syck/syck_st.o src/syck/token.o src/syck/yaml2byte.o src/cbits/fpstring.o );
     #push @o, 'src/UnicodeC.o' if grep /WITH_UNICODEC/, @_;
     #system $ghc, '--make', @_, @o, '-o' => 'pugs', 'src/Main.hs';
-    my @pkgs = qw(-package stm -package network -package mtl -package template-haskell -package base -package fps );
+    my @pkgs = qw(-package stm -package network -package mtl -package template-haskell -package base -package fps -package HsSyck );
     if ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) {
         push @pkgs, -package => 'Win32' unless $ghc_version =~ /^6.4(?:.0)?$/;
     }
