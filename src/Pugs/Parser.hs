@@ -194,7 +194,7 @@ ruleRuleDeclaration = rule "rule declaration" $ do
     name    <- try (symbol "rule" >> identifier)
     adverbs <- ruleAdverbHash
     ch      <- char '{'
-    expr    <- rxLiteralAny adverbs (balancedDelim ch)
+    expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
     let exp = Syn ":=" [Var ('<':'*':name), Syn "rx" [expr, adverbs]]
     unsafeEvalExp (Sym SGlobal ('<':'*':name) exp)
     return emptyExp
@@ -2065,7 +2065,7 @@ rxP6Flags = MkQFlags QS_No False False False False False QB_Minimal '/' False Fa
 -- Regexps
 
 -- | A parser returning a regex, given a hashref of adverbs and a closing delimiter.
-rxLiteralAny :: Exp -> Char -> RuleParser Exp
+rxLiteralAny :: Exp -> Char -> Char -> RuleParser Exp
 rxLiteralAny adverbs
     | Syn "\\{}" [Syn "," pairs] <- adverbs
     , not (null [
@@ -2077,14 +2077,16 @@ rxLiteralAny adverbs
     | otherwise
     = rxLiteral6
 
-rxLiteral5 :: Char -- ^ Closing delimiter
+rxLiteral5 :: Char -- ^ Opening delimiter
+           -> Char -- ^ Closing delimiter
            -> RuleParser Exp
-rxLiteral5 delimEnd = qLiteral1 mzero (string [delimEnd]) $
+rxLiteral5 delimStart delimEnd = qLiteral1 (string [delimStart]) (string [delimEnd]) $
     rxP5Flags { qfProtectedChar = delimEnd }
 
-rxLiteral6 :: Char -- ^ Closing delimiter
+rxLiteral6 :: Char -- ^ Opening delimiter
+           -> Char -- ^ Closing delimiter
            -> RuleParser Exp
-rxLiteral6 delimEnd = qLiteral1 mzero (string [delimEnd]) $
+rxLiteral6 delimStart delimEnd = qLiteral1 (string [delimStart]) (string [delimEnd]) $
     rxP6Flags { qfProtectedChar = delimEnd }
 
 
@@ -2098,12 +2100,12 @@ substLiteral = do
     symbol "s"
     adverbs <- ruleAdverbHash
     ch      <- openingDelim
-    -- XXX - probe for adverbs to determine p5 vs p6
     let endch = balancedDelim ch
-    expr    <- rxLiteralAny adverbs endch
+    -- XXX - probe for adverbs to determine p5 vs p6
+    expr    <- rxLiteralAny adverbs ch endch
     ch      <- if ch == endch then return ch else do { whiteSpace ; anyChar }
     let endch = balancedDelim ch
-    subst   <- qLiteral1 mzero (string [endch]) qqFlags { qfProtectedChar = endch }
+    subst   <- qLiteral1 (string [ch]) (string [endch]) qqFlags { qfProtectedChar = endch }
     return $ Syn "subst" [expr, subst, adverbs]
 
 rxLiteral :: RuleParser Exp
@@ -2114,12 +2116,12 @@ rxLiteral = do
         return "rx"
     adverbs <- ruleAdverbHash
     ch      <- anyChar
-    expr    <- rxLiteralAny adverbs (balancedDelim ch)
+    expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
     return $ Syn sym [expr, adverbs]
 
 rxLiteralBare :: RuleParser Exp
 rxLiteralBare = do
     ch      <- char '/'
-    expr    <- rxLiteral6 (balancedDelim ch)
+    expr    <- rxLiteral6 ch (balancedDelim ch)
     return $ Syn "//" [expr, Val undef]
 
