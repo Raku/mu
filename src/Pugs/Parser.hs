@@ -1565,13 +1565,8 @@ parseNoParenParamList = do
     argListEndingBlock = do
         x <- ruleBareOrPointyBlockLiteral
         (ruleComma >> return ([x], return ())) <|> do
-            -- XXX - is the Space test here really right? Ask TimToady!
-            --       map { $_ } .moose; # map({$_}, $_.moose)
-            --       map { $_ }.moose;  # map({$_}).moose
-            cls  <- getPrevCharClass
-            case cls of
-                SpaceClass  -> return ([x], return ())
-                _           -> return ([x], mzero)
+            -- Unless terminated by a comma, block always end the list right there.
+            return ([x], mzero)
     argBlockWith :: RuleParser a -> RuleParser ([a], RuleParser ())
     argBlockWith rule = do
         x <- rule
