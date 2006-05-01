@@ -9,7 +9,7 @@ Cipher.pm - Perl 6 Cipher API
             # No state to zeroize
         }
         method _cipher(byte @data) {
-            return map { +^$_ } @data;
+            return map { +^$_ }, @data;
         }
     }
     #Later...
@@ -349,8 +349,8 @@ submethod DESTROY() {
 # utility subroutines
 
 sub byteify(Str $string) returns Array of Int {
-    return map {ord} $string.split('');
+    return map {ord}, $string.split('');
 }
 sub stringify(Array $array) returns Str {
-    return [~] map {chr} *$array;
+    return [~] map {chr}, *$array;
 }

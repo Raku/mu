@@ -73,7 +73,7 @@ for @tests -> $code_to_run, $condition {
   system $command;
 
   my $got     = slurp "$tmpfile-out";
-  unlink map { "$tmpfile-$_" } <src out opened>;
+  unlink map { "$tmpfile-$_" }, <src out opened>;
   diag "The code wrote to STDOUT:\n  $got";
 
   ok $condition($got), "IO handles created at compile-time may not leak into runtime ($i)";

@@ -147,5 +147,5 @@ method trans (Str $self: Pair *@intable) {
         %transtable{@ks} = @vs;
     }
 
-    [~] map { %transtable{$_} // $_ } $self.split('');
+    [~] map { %transtable{$_} // $_ }, $self.split('');
 }

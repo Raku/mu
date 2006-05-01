@@ -68,8 +68,8 @@ Perl6::Overview::Data - Data Types
 
     .elems          # Number of elements
     .join($sep)
-    .map:{ ... }
-    .grep:{ ... }
+    .map: { ... }
+    .grep: { ... }
     .pop
     .push($elem)
     .shift

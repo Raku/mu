@@ -15,7 +15,7 @@ use v6;
 # push(@EXPORT, @HTTP::Status::EXPORT);
 
 # $VERSION = sprintf("%d.%02d", q$Revision: 1.41 $ =~ /(\d+)\.(\d+)/);
-# $FULL_LWP++ if grep {lc($_) eq "http_proxy"} keys %*ENV;
+# $FULL_LWP++ if grep {lc($_) eq "http_proxy"}, keys %*ENV;
 
 # my $CRLF = rx:perl5/\015?\012/;
 my $CRLF = "\x0D\x0A\x0D\x0A";
@@ -86,7 +86,7 @@ sub head (Str $url) is export {
     # my @list = "X-LWP-HTTP-Status: $code", (split rx:perl5/\015?\012/, $head);
     #if (want.List) { return @list };
     #if (want.Hash) {
-    #  my %res = map { rx:perl5/^(.*?): (.*)/; ($0 => $1) } @list;
+    #  my %res = map { rx:perl5/^(.*?): (.*)/; ($0 => $1) }, @list;
     #  return %res
     #} else {
     #  # What context can we also get?

@@ -47,7 +47,7 @@ multi encode (*@string is copy) returns Array {
   gather {
     while (@string>=3) {
 
-      my Int @octect = map { ord $_} splice @string,0,3;
+      my Int @octect = map { ord $_}, splice @string,0,3;
 
       take encode(index(0         ,0,@octect[0],2,0x3F)); # 0.index
       take encode(index(@octect[0],4,@octect[1],4,0x3F)); # 1.index
@@ -56,7 +56,7 @@ multi encode (*@string is copy) returns Array {
     }
 
     if (@string == 2) {
-      my Int @octect = map { ord $_} splice @string,0,3;
+      my Int @octect = map { ord $_}, splice @string,0,3;
 
       take encode(index(0         ,0,@octect[0],2,0x3F)); # 0.index
       take encode(index(@octect[0],4,@octect[1],4,0x3F)); # 1.index
@@ -64,7 +64,7 @@ multi encode (*@string is copy) returns Array {
       take "=";
 
     } elsif (@string == 1) {
-      my Int @octect = map { ord $_} splice @string,0,3;
+      my Int @octect = map { ord $_}, splice @string,0,3;
 
       take encode(index(0         ,0,@octect[0],2,0x3F)); # 0.index
       take encode(index(@octect[0],4,         0,0,0x3F)); # 1.index
@@ -91,7 +91,7 @@ sub decode (Str $didget) {
  		default {
 		  my @index = split('',$didget);
 		  @index = grep {$_ ~~ /^<[A..Za..z0..9+\/=]>+$/},@index;
-		  [~] map {chr ($_)} decode(@index)}
+		  [~] map {chr ($_)}, decode(@index)}
   }
 }
 
@@ -105,7 +105,7 @@ sub decode (Str $didget) {
 
 sub decode (*@string is copy) {
 #  say "decode Array ->" ~ @index.perl ~ "<-";
-  @string = map { decode($_) } @string;
+  @string = map { decode($_) }, @string;
   gather {
     while (@string>0 and all(@string[0..3])>0) {
       my Int @index = splice @string,0,4;

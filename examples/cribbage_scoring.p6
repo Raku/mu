@@ -38,7 +38,7 @@ sub score ( @hand ) returns Int {
         !! 0;
 
     # Check for right-jack, @hand[-1] is community card
-    $score++ if grep { $_<num> == 11 && $_<suit> eq @hand[-1]<suit> } @hand[0..3];
+    $score++ if grep { $_<num> == 11 && $_<suit> eq @hand[-1]<suit> }, @hand[0..3];
 
     # Count 15's
     my @vals = @hand>>.<val>;
@@ -83,6 +83,6 @@ sub new_deck () returns Array {
     return map -> $num {
         map -> $suit {
             { num => $num, val => $num > 10 ?? 10 !! $num, suit => $suit }
-        } <H D C S>;
-    } 1..13;
+        }, <H D C S>;
+    }, 1..13;
 }

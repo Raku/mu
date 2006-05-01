@@ -38,7 +38,7 @@ class NestedLoops {
              $self.reset;
       }
       method data () {
-          return map -> $i { @.loops[$i][ $.counter.positions[$i] ] } 0 .. @.loops.end;
+          return map -> $i { @.loops[$i][ $.counter.positions[$i] ] }, 0 .. @.loops.end;
       };
 }
 

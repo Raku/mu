@@ -10,7 +10,7 @@ plan 3;
   my @array = <1 2 3 4>;
   my $output;
 
-  for grep { 1 } @array -> $elem {
+  for (grep { 1 }, @array) -> $elem {
     $output ~= "$elem,";
   }
 
@@ -33,7 +33,7 @@ plan 3;
   my @array = <1 2 3 4>;
   my $output;
 
-  for grep { 1 } sort @array -> $elem {
+  for (grep { 1 }, sort @array) -> $elem {
     $output ~= "$elem,";
   }
 

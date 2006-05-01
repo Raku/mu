@@ -10,7 +10,7 @@ plan 3;
   my @array = <1 2 3 4>;
   my $output;
 
-  for map { 1 } @array -> $elem {
+  for (map { 1 }, @array) -> $elem {
     $output ~= "$elem,";
   }
 
@@ -33,7 +33,7 @@ plan 3;
   my @array = <1 2 3 4>;
   my $output;
 
-  for map { 1 } sort @array -> $elem {
+  for (map { 1 }, sort @array) -> $elem {
     $output ~= "$elem,";
   }
 

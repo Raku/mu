@@ -117,11 +117,11 @@ multi List::zip ( Array *@lists, Bit :$shortest --> Lazy ) {
 }
 ## tweaked from PIL2JS Array.pm r8593.
 #multi List::zip (Array *@arrays --> List) {
-#  my $maxlen = max map { +$_ } @arrays;
+#  my $maxlen = max map { +$_ }, @arrays;
 #  map {
 #    my $i := $_;
 #    map { @arrays[$_][$i] } 0..@arrays.end;
-#  } 0..$maxlen-1;
+#  }, 0..$maxlen-1;
 #}
 
 

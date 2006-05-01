@@ -108,7 +108,7 @@ has Int $.j;
 submethod BUILD($key?) {
     my @key;
     if $key.isa(Array)  { @key = *$key }
-    else { @key = map {ord} $key.split }
+    else { @key = map {ord}, $key.split }
     
     .zeroize();
     

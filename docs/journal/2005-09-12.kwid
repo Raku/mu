@@ -11,7 +11,7 @@ complex definitions of lazy lists:
     if ($x == Inf) { $x }
     else { if ( $x == 1 ) { $x } else { fat( $x-1) * $x }  }
   }
-  @a = (1..Inf).map:{ fat($_) }
+  @a = (1..Inf).map: { fat($_) }
 
   (1, 2, 6 ... Inf)
 

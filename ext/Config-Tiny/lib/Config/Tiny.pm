@@ -50,7 +50,7 @@ sub Config::Tiny::new () returns Ref {
             if ( ref $output ne 'IO' ) {
                 %self<_err_str> = "Failed to open $file for writing" and return FALSE;
             }
-            # for grep {$_ ne '_err_str' } sort keys %self -> $section {
+            # for grep {$_ ne '_err_str' }, sort keys %self -> $section {
             # XXX doesn't work because of a pugsbug ATM
             for sort keys %self -> $section {
                 next if $_ eq "_err_str";

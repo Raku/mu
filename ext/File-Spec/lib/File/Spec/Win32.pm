@@ -18,7 +18,7 @@ sub splitdir (Str $directories) returns Array is export {
     if (($directories ~~ rx:perl5{[\\/]\Z(?!\n)})) {
         @dirs[@dirs - 1] = '';
     }
-    @dirs = map {~$_ } @dirs;
+    @dirs = map {~$_ }, @dirs;
     return @dirs;
 }
 

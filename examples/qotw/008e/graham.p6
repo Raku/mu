@@ -22,7 +22,7 @@ sub get_squaring_factors($n,$start_from=2)
         return %gsf_cache{$n};
     }
 
-    my $p = [//] grep { $n % $_ == 0 } ($start_from .. $n);
+    my $p = [//] grep { $n % $_ == 0 }, ($start_from .. $n);
     # This function is recursive to make better use of the Memoization
     # feature.
     return 
@@ -64,7 +64,7 @@ sub Graham($n)
         loop
         {
             $lb_sq_factors = get_squaring_factors($lower_bound);
-            if (grep { $_ == $largest_factor } @$lb_sq_factors)
+            if (grep { $_ == $largest_factor }, @$lb_sq_factors)
             {
                 last;
             }

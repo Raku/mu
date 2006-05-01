@@ -11,7 +11,7 @@ The spaceship operator parses incorrectly in multiple ways
 
 plan 5;
 
-my %ball = map { $_ => 1; } 1..12;
+my %ball = map { $_ => 1; }, 1..12;
 is(
     (%ball{12}) <=> (%ball{11}),
     0,

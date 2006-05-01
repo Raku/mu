@@ -190,11 +190,11 @@ sub JS::Root::uniq(Code $cmp is copy = &infix:<cmp>, *@array) is primitive {
 }
 
 sub JS::Root::zip(Array *@arrays) is primitive is rw {
-  my $maxlen = max map { +$_ } @arrays;  # XXX wanting hyperops
+  my $maxlen = max map { +$_ }, @arrays;  # XXX wanting hyperops
   map {
     my $i := $_;
-    map { @arrays[$_][$i] } 0..@arrays.end;
-  } 0..$maxlen-1;
+    map { @arrays[$_][$i] }, 0..@arrays.end;
+  }, 0..$maxlen-1;
 }
 
 method reverse(*@things is copy:) {

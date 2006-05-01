@@ -20,7 +20,7 @@ sub NestedLoop (:@loop!, :$OnlyWhen, :$code) returns Ref{
                 }
             }
             return () if @pos[-1] > @loop[-1].end;
-            @group = map -> $i { @loop[$i][@pos[$i]] } 0 .. @pos.end;
+            @group = map -> $i { @loop[$i][@pos[$i]] }, 0 .. @pos.end;
             if $OnlyWhen.does(Code) { $OnlyWhen(@group) or next }
             $code(@group) if $code.does(Code);
             last;

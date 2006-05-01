@@ -15,7 +15,7 @@ module Getopt::Proccesor {
         my multi sub collect_arguments ([]) {}
         my multi sub collect_arguments ([ $args, *@args ]) {
             my $normalizer = $arg but $.normalizer_role;
-            return $normalizer but $.coercer_role, collect_arguments( grep { not try { $normalizer.subsume( $_ ) } } @args );
+            return $normalizer but $.coercer_role, collect_arguments( grep { not try { $normalizer.subsume( $_ ) } }, @args );
         }
         
         method create_arguments ( @strings )  {
@@ -78,7 +78,7 @@ module Getopt::Emitter::Perl {
     class Getopt::Argument::Style::Clustered is Getopt::Argument::Style {
         method ^string_to_arguments( $string ) {
             given $string {
-                when /^-(\w)+/ { map { call("-$_") } @/ }
+                when /^-(\w)+/ { map { call("-$_") }, @/ }
                 default { next METHOD }
             }
         }

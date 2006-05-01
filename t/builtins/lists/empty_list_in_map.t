@@ -8,7 +8,7 @@ plan 6;
 # Test was primarily aimed at PIL2JS, which did not pass this test (fixed now).
 {
   my @array  = <a b c d>;
-  my @result = map { () } @array;
+  my @result = map { () }, @array;
 
   is +@result, 0, "map works with the map body returning an empty list";
 }
@@ -16,14 +16,14 @@ plan 6;
 {
   my @array  = <a b c d>;
   my @empty  = ();
-  my @result = map { @empty } @array;
+  my @result = map { @empty }, @array;
 
   is +@result, 0, "map works with the map body returning an empty array";
 }
 
 {
   my @array  = <a b c d>;
-  my @result = map { [] } @array;
+  my @result = map { [] }, @array;
 
   is +@result, 4, "map works with the map body returning an empty arrayref";
 }
@@ -31,14 +31,14 @@ plan 6;
 {
   my @array  = <a b c d>;
   my $empty  = [];
-  my @result = map { $empty } @array;
+  my @result = map { $empty }, @array;
 
   is +@result, 4, "map works with the map body returning an empty arrayref variable", :todo<bug>;
 }
 
 {
   my @array  = <a b c d>;
-  my @result = map { undef } @array;
+  my @result = map { undef }, @array;
 
   is +@result, 4, "map works with the map body returning undef";
 }
@@ -46,7 +46,7 @@ plan 6;
 {
   my @array  = <a b c d>;
   my $undef  = undef;
-  my @result = map { $undef } @array;
+  my @result = map { $undef }, @array;
 
   is +@result, 4, "map works with the map body returning an undefined variable";
 }

@@ -35,7 +35,7 @@ sub pretty_duration ($seconds is copy) {
     for <days hours minutes seconds> -> $key {
         push @pretty, "%duration{$key} $key" if %duration{$key};
     }
-    my $pretty = join(' ', grep { defined $_ } @pretty[0..2]);
+    my $pretty = join(' ', grep { defined $_ }, @pretty[0..2]);
     debug "pretty duration is $pretty";
     return $pretty;
 }

@@ -25,7 +25,7 @@ say @aonly;
 @b = (3,5);
 
 # for numbers
-@aonly = grep { $_ == none(@b) } @a;
+@aonly = grep { $_ == none(@b) }, @a;
 say @aonly;
 # for strings
 @a = ('foo', 'bar', 'baz');

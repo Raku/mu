@@ -180,7 +180,7 @@ sub tmpdir returns Str is export {
 #     #     no strict 'refs';
 #     #     if (${"\cTAINT"}) { # Check for taint mode on perl >= 5.8.0
 #     #             require Scalar::Util;
-#     #         @dirlist = grep { ! Scalar::Util::tainted($_) } @dirlist;
+#     #         @dirlist = grep { ! Scalar::Util::tainted($_) }, @dirlist;
 #     #     }
 #     # }
 #     for @dirlist -> $dir {

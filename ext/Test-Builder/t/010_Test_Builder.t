@@ -64,7 +64,7 @@ else
 
 sub run_pugs (Str $filename)
 {
-    my $libs     = join(' ', map { "-I$_" } @*INC );
+    my $libs     = join(' ', map { "-I$_" }, @*INC );
     my $tempfile = "temp-ex-output" ~ ".$*PID." ~ int rand 1000;
     my $command  = "$pugs $libs $filename $redir $tempfile";
     diag $command;

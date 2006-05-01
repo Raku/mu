@@ -146,7 +146,7 @@ class Perl::Compiler::PIL::PILApp
     has Perl::Compiler::PIL::PIL $.code;
     has Perl::Compiler::PIL::PIL @.args;
     submethod BUILD () {
-        type_check map { $_.vtype, 'Expression' } $.code, @.args;
+        type_check map { $_.vtype, 'Expression' }, $.code, @.args;
     }
     method vtype () { 'Expression' }
 }

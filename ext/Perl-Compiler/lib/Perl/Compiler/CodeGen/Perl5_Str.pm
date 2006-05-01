@@ -38,7 +38,7 @@ class Perl::Compiler::CodeGen::Perl5_Str
                 $ng.ret("$INS\::p5_make_code( sub \{ { 
                     (join "\n", map { 
                         "my " ~ ./pad_var($_)
-                    } $tree.pads)
+                    }, $tree.pads)
                     ~ $inner
                 } } )");  ''
             }
@@ -52,7 +52,7 @@ class Perl::Compiler::CodeGen::Perl5_Str
                     when Num { box("P5::PIL::Run::Number" => number($_)) }
                     when Bool { &?OUTER::BLOCK(+$_) }
                     when undef { box("P5::PIL::Run::Undef" => perl("undef")) }
-                    when List { box("P5::PIL::Run::List" => list(map { &OUTER::BLOCK($_) } *$_)) }
+                    when List { box("P5::PIL::Run::List" => list(map { &OUTER::BLOCK($_) }, *$_)) }
                     when Error { box("P5::PIL::Run::Error", string($_.first), list(@{ $_.second })) }
                     when Junc { die "no junctions yet"; box("P5::PIL::Run::Junction", ...) }
                     default { die "a value of type $_.ref cannot appear in PIL. Your compiler must be sick." }
@@ -72,10 +72,10 @@ class Perl::Compiler::CodeGen::Perl5_Str
             when ::Perl::Compiler::PIL::PILApp    {
                 my $str = join ' ',
                     ./gen(.code, $ng.fork('code')),
-                    map { ./gen($^arg, $^gen) } zip([.args], [map { $ng.fork("arg$_") } 0 ..^ .args]);
+                    map { ./gen($^arg, $^gen) }, zip([.args], [map { $ng.fork("arg$_") }, 0 ..^ .args]);
                 $ng.ret(
                     $ng.r('code') ~ '->CALL(' 
-                        ~ join(', ', map { $ng.r("arg$_") } 0 ..^ .args) ~ ')'
+                        ~ join(', ', map { $ng.r("arg$_") }, 0 ..^ .args) ~ ')'
                 );
                 $str;
             }

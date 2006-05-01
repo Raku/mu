@@ -20,14 +20,14 @@ use Cipher;
 class Cipher::TestGuts is Cipher {
     has int $.num_invocations;
 
-    method _head() { return map {ord} 'head'.split('') }
-    method _tail() { return map {ord} 'tail'.split('') }
+    method _head() { return map {ord}, 'head'.split('') }
+    method _tail() { return map {ord}, 'tail'.split('') }
     method _cipher($self: Array $data) {
         $.num_invocations++;
         return map {
             ($self.mode eq 'enciphering' ?? ord 'E' !! ord 'D'), 
             ord $.num_invocations
-        } *$data;
+        }, *$data;
     }
     
     submethod BUILD() { .zeroize() }

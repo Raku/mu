@@ -31,11 +31,11 @@ role Class::Events::Publisher {
     }
 
     method mk_notifications (*@subscriptions of Class::Events::Subscription) {
-        map { Class::Events::Notification.new(:subscriber($_), :event($event)) } *@subscriptions;
+        map { Class::Events::Notification.new(:subscriber($_), :event($event)) }, *@subscriptions;
     }
     
     method get_subscriptions (Class::Events::Publisher $publisher, Class::Publisher::Event $event) {
-        grep { .match($event) } gather {
+        grep { .match($event) }, gather {
             take $.subscriptions.members;
 
             # FIXME this is bullshit - i ought to read the details

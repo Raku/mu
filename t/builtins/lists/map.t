@@ -14,7 +14,7 @@ plan 58;
 my @list = (1 .. 5);
 
 {
-    my @result = map { $_ * 2 } @list;
+    my @result = map { $_ * 2 }, @list;
     is(+@result, 5, 'we got a list back');
     is(@result[0], 2, 'got the value we expected');
     is(@result[1], 4, 'got the value we expected');
@@ -85,10 +85,10 @@ my @list = (1 .. 5);
 
 {
     my @list = 1 .. 5;
-    is +(map {;$_ => 1 } @list), 5,
+    is +(map {;$_ => 1 }, @list), 5,
             'heuristic for block - looks like a closure';
 
-    my %result = map {; $_ => ($_*2) } @list;
+    my %result = map {; $_ => ($_*2) }, @list;
     isa_ok(%result, 'Hash');
     is(%result<1>, 2,  'got the value we expected');
     is(%result<2>, 4,  'got the value we expected');
@@ -121,23 +121,23 @@ Test that a constant list can have C<map> applied to it.
 should be equivalent to
 
   my @val = ("foo","bar");
-  @val = map { substr($_,1,1) } @val;
+  @val = map { substr($_,1,1) }, @val;
 
 =cut
 
 {
   my @expected = ("foo","bar");
-  @expected = map { substr($_,1,1) } @expected;
+  @expected = map { substr($_,1,1) }, @expected;
 
   is(("foo","bar").map:{ $_.substr(1,1) }, @expected, "map of constant list works");
 }
 
 {
   my @a = (1, 2, 3); 
-  my @b = map { hash {"v"=>$_, "d" => $_*2} } @a; 
+  my @b = map { hash {"v"=>$_, "d" => $_*2} }, @a; 
   is(+@b,3, "should be 3 elemens");
 
-  my @c = map { {"v"=>$_, "d" => $_*2} } @a;
+  my @c = map { {"v"=>$_, "d" => $_*2} }, @a;
   is(+@c,3, "should be 3 elemens without the hash keyword as well", :todo);
 }
 

@@ -138,9 +138,9 @@ class Net::IRC {
       return unless defined $chan;
       $chan = normalize $chan;
 
-      my @nicks = split(" ", $nicks)
-                 .map:{ ($_ ~~ m:P5/^[@+%]?(.+)/)[0] }
-                 .grep:{ defined $_ }
+      my @nicks = split(" ", $nicks)\
+                 .map:{ ($_ ~~ m:P5/^[@+%]?(.+)/)[0] }\
+                 .grep:{ defined $_ }\
                  .map:{ normalize $_ };
 
       unless defined %!cache353{$chan} {
