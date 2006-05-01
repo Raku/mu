@@ -255,7 +255,7 @@ but never as
 
 Use some variant of
 
-    foo.
+    foo\
     .method
 
 if you mean the postfix method call.
@@ -1606,7 +1606,7 @@ statement is expected.) So for any undeclared identifier "C<foo>":
 
     foo.bar		# foo().bar	-- postfix prevents args
     foo .bar		# foo($_.bar)	-- no postfix starts with whitespace
-    foo. .bar		# foo().bar	-- long dot, so postfix
+    foo\ .bar		# foo().bar	-- long dot, so postfix
     foo++		# foo()++	-- postfix
     foo 1,2,3		# foo(1,2,3)	-- args always expected after listop
     foo + 1		# foo(+1)	-- term always expected after listop
