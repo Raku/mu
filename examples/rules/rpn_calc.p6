@@ -27,7 +27,7 @@ for $config<config><statement> -> $o  {
 sub match_describe (Match $o, Num $indent) {
    my $desc;
    if ( @$o.elems ){
-     $desc ~= "[\n" ~ join("" , map { match_describe($_, $indent + 1) } @$o ) ~ "{"\t" x $indent}],";
+     $desc ~= "[\n" ~ join("" , map { match_describe($_, $indent + 1) }, @$o ) ~ "{"\t" x $indent}],";
    } elsif (  %$o.keys.elems ) {
       $desc ~= "{"\t" x $indent}\{\n";
       
