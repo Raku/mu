@@ -334,7 +334,61 @@ Array can do "map", "grep", splice, push, pop, store, fetch.
 Array can be "bound" and "tied".
 
 
-== splice
+== map() 
+
+map() applies a 'Code' to an Array state:
+
+  1:   @a = 1..100;            # 1, 2, 3, ...
+  2:   @b = @a.map:{ $_ * 2 }; # 2, 4, 6, ...
+  3:  
+  4:   @a[2] = 0;              # 1, 0, 3, ...  - original has changed
+  5:   say @b[1..3];           # 2, 4, 6, ...  - result didn't change
+
+Line 1:
+
+   Container: @a
+   Contents:  1..100
+   Internals: [
+                Generator( 1, 100 ),
+              ]
+
+Line 2:
+
+   Container: @_TEMP_
+   Internals: [
+                Generator( 1, 100 ),
+              ]
+
+   Container: @a
+   Internals: [
+                RefArray( @_TEMP_ ),
+              ]
+
+   Container: @b
+   Internals: [
+                MapArray( @_TEMP_, { $_ * 2 } ),
+              ]
+
+Line 4:
+
+   Container: @_TEMP_
+   Internals: [
+                [ 1, 2 ]
+                Generator( 3, 100 ),
+              ]
+
+   Container: @a
+   Internals: [
+                [ 1, 0 ],
+                SpliceArray( @_TEMP_, 2 ),
+              ]
+
+   Container: @b
+   Internals: [
+                MapArray( @_TEMP_, { $_ * 2 } ),
+              ]
+
+== splice() 
 
 This pseudo-code implements splice().
 It assumes that the internal representation of Array can do .head(n) and .tail(n) - 
