@@ -939,8 +939,9 @@ subscript the package object itself as a hash object, the key of which
 is the variable name, including any sigil.  The package object can
 be derived from a type name by use of the C<::> postfix operator:
 
-    MyType. .::. .{'$foo'}
-    MyType::<$foo>              # same thing
+    MyType::<$foo>
+    MyType.::.{'$foo'}          # same thing with dots
+    MyType\ .::\ .{'$foo'}      # same thing with long dots
 
 (Directly subscripting the type with either square brackets or curlies
 is reserved for various generic type-theoretic operations.  In most other
@@ -1677,9 +1678,9 @@ You can also use the :key($value) form to quote the keys of option
 pairs.  To align values of option pairs, you may use the
 "long dot" postfix forms:
 
-    :longkey.  .($value)
-    :shortkey. .<string>
-    :fookey.   .{ $^a <=> $^b }
+    :longkey\  .($value)
+    :shortkey\ .<string>
+    :fookey\   .{ $^a <=> $^b }
 
 These will be interpreted as
 
