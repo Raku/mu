@@ -105,7 +105,7 @@ sub process ($a is rw,$b is rw,$c is rw,$d is rw) {
 
   if ($ice) {
     # freeze vapor
-    ($a,$b,$c,$d) = map {$_ eq $VAPOR ?? $ICE !! $_} ($a,$b,$c,$d);
+    ($a,$b,$c,$d) = map {$_ eq $VAPOR ?? $ICE !! $_}, $a,$b,$c,$d;
   }
   else {
     # randomly rotate vapor
