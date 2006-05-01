@@ -15,7 +15,7 @@ if (1) { # create a new lexical scope
     my $b = 1;
     ok($b, '$b is available in this scope');
 }
-ok(!(eval'$b'), '$b is not available in this scope');
+ok(!(eval '$b'), '$b is not available in this scope');
 
 # changing a lexical within a block retains the changed value
 
@@ -47,7 +47,7 @@ if (1) { # create a new lexical scope
     $func2 = sub { $e };  # one to access it
 }
 
-ok(!(eval'$e'), '$e is the not available in this scope');
+ok(!(eval '$e'), '$e is the not available in this scope');
 is($func2(), 0, '$func2() just returns the $e lexical which is held by the closure');
 $func();
 is($func2(), 1, '$func() increments the $e lexical which is held by the closure');

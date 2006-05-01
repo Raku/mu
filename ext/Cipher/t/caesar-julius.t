@@ -10,6 +10,6 @@ my $julius  = Cipher::Caesar.new(:shift(3));
 my $general = Cipher::Caesar.new(:shift(3), :mode<decipher>);
 plan(3);
 
-is($julius .cipher("Et tu, Brute?"),  "Hw wx, Euxwh?",  "Encrypting works");
+is($julius\.cipher("Et tu, Brute?"),  "Hw wx, Euxwh?",  "Encrypting works");
 is($general.cipher("Dwwdfn dw gdzq"), "Attack at dawn", "So does decrypting");
 is($general.cipher($julius.cipher("Test")), "Test", "Round-tripping works");

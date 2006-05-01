@@ -105,7 +105,7 @@ sub decode (Str $didget) {
 
 sub decode (*@string is copy) {
 #  say "decode Array ->" ~ @index.perl ~ "<-";
-  @string = map{ decode($_) } @string;
+  @string = map { decode($_) } @string;
   gather {
     while (@string>0 and all(@string[0..3])>0) {
       my Int @index = splice @string,0,4;

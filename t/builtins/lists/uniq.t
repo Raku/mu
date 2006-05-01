@@ -21,7 +21,7 @@ See the thread "[S29] uniq" on p6l, too.
   is ~@array, "a b b c d e b b b b f b",  "basic sanity";
   is ~@array.uniq,  "a b c d e f", "method form of uniq works";
   is ~uniq(@array), "a b c d e f", "subroutine form of uniq works";
-  ok @array.=uniq,                 "inplace form of uniq works (1)";
+  ok @array .= uniq,                 "inplace form of uniq works (1)";
   is      ~@array,  "a b c d e f", "inplace form of uniq works (2)";
 }
 

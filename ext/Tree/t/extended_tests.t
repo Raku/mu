@@ -566,7 +566,7 @@ for (0 .. $tree.child_count()) -> $i {
 
 # addChildren's return value is actually $self
 # so that method calls can be chained
-my $self_ref_tree_test = Tree.new(node => "3.1")
+my $self_ref_tree_test = Tree.new(node => "3.1")\
                                 .add_children(
                                     Tree.new(node => "3.1.1"),
                                     Tree.new(node => "3.1.2")
@@ -618,7 +618,7 @@ for ($self_ref_tree_test.get_all_children()) ->  $sub_child {
 
 # addChild's return value is actually $self
 # so that method calls can be chained
-my $self_ref_tree_test_2 = Tree.new(node => "2.1")
+my $self_ref_tree_test_2 = Tree.new(node => "2.1")\
                                 .add_child(
                                     Tree.new(node => "2.1.1")
                                 );

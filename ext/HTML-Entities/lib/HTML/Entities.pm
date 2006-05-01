@@ -302,7 +302,7 @@ multi sub decode_entities(*@strings is rw) is export
 {
     @strings;
     
-    my @results = @strings.map:-> $string is copy { decode_entities($string); };
+    my @results = @strings.map: -> $string is copy { decode_entities($string); };
     
     return @results;
 }
