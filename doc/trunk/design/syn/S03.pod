@@ -698,8 +698,8 @@ no term starts with "C<..>".
 The new operators C<< ==> >> and C<< <== >> are akin to UNIX pipes, but
 work with functions that accept and return lists.  For example,
 
-     @result = map { floor($^x / 2) }
-                 grep { /^ \d+ $/ }
+     @result = map { floor($^x / 2) },
+                 grep { /^ \d+ $/ },
                    @data;
 
 Can also now be written:
