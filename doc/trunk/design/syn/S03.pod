@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 30 Apr 2006
+  Last Modified: 2 May 2006
   Number: 3
-  Version: 25
+  Version: 26
 
 =head1 Changes to existing operators
 
@@ -671,6 +671,8 @@ that gives you everything it can in that argument position.  For instance:
     @slice = @x[*;0;*];			# any Int
     @slice = %x{*;'foo'};		# any keys in domain of 1st dimension
     @array[*]				# flattens, unlike @array[]
+    (*, *, $x) = (1, 2, 3);		# skip first two elements
+					# (same as lvalue "undef" in Perl 5)
 
 C<Whatever> is an undefined prototype object derived from C<Any>.  As a
 type it is abstract, and may not be instantiated as a defined object.
