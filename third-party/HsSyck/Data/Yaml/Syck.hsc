@@ -22,7 +22,6 @@ import Foreign.Storable
 import qualified Data.HashTable as Hash
 import qualified Data.ByteString as Buf
 import qualified Data.ByteString.Char8 as Char8
-import GHC.Ptr  (Ptr(..))
 
 type Buf        = Buf.ByteString
 type YamlTag    = Maybe Buf
