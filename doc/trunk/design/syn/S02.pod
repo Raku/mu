@@ -107,9 +107,9 @@ by C<#> plus any user-selected bracket characters (see definition above):
 
     say #( embedded comment ) "hello, world!";
 
-    $object.#{ embedded comments }.say;
+    $object\#{ embedded comments }.say;
 
-    $object.#「
+    $object\ #「
 	embedded comments
     」.say;
 
@@ -160,7 +160,7 @@ Because comments always count as whitespace, the C<\.> in
 
     $object\#{ foo }.say
 
-reduce to a "long dot" rather than the range operator.  Valid ways to
+reduce to a "long dot".  Valid ways to
 insert a line break into a sequence of method calls include:
 
     $object\ # comment
@@ -202,23 +202,23 @@ be written in any of these forms:
 
     $x.++
 
-    $x. .++
+    $x\ .++
 
-    $x.#( comment ).++
-    $x.#((( comment ))).++
+    $x\#( comment ).++
+    $x\#((( comment ))).++
 
-    $x.
+    $x\
     .++
 
-    $x. 	# comment
+    $x\ 	# comment
     		# more comment
     .++
 
-    $x.#『	comment
+    $x\#『	comment
     		more comment
     』.++
 
-    $x.#[   comment 1
+    $x\#[   comment 1
     comment 2
     =begin podstuff
     whatever (pod comments ignore current parser state)
@@ -1368,18 +1368,15 @@ dereferencers: that is, any of:
 
 =item 6. A sequence of one or more unparenthesized method call, followed by any of 1 through 5
 
-=item 7. An embedded comment that uses bracketing characters, such
-as .#(comment).
-
 =back
 
 In other words, this is legal:
 
-    "Val = $a.ord.#( Yikes! ).as('%x')\n"
+    "Val = $a.ord.as('%x')\n"
 
 and is equivalent to
 
-    "Val = { $a.ord.#( Yikes! ).as('%x') }\n"
+    "Val = { $a.ord.as('%x') }\n"
 
 
 =item *
