@@ -255,6 +255,6 @@ initPreludePC env = do
             x  -> fail $ "Error loading precompiled Prelude: " ++ show x
     getYaml incs fileName loader = do
         pathName <- liftIO $ requireInc incs fileName ""
-        parseYamlFS =<< loader pathName
+        parseYamlBytes =<< loader pathName
         
 

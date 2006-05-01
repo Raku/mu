@@ -46,7 +46,7 @@ instance JSON PIL_Environment where
 	     [("pilGlob", showJSON aa), ("pilMain", showJSON ab)]
 
 instance YAML PIL_Environment where
-    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+    fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"PIL_Environment" -> do
 	    let YamlMap assocs = e
 	    let [aa, ab] = map snd assocs
@@ -73,7 +73,7 @@ instance JSON PIL_Stmts where
 	      ("pStmts", showJSON ac)]
 
 instance YAML PIL_Stmts where
-    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+    fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"PNil" -> do
 	    return PNil
 	"PStmts" -> do
@@ -110,7 +110,7 @@ instance JSON PIL_Stmt where
 	      ("pNode", showJSON ac)]
 
 instance YAML PIL_Stmt where
-    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+    fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"PNoop" -> do
 	    return PNoop
 	"PStmt" -> do
@@ -153,7 +153,7 @@ instance JSON PIL_Expr where
 	      ("pBody", showJSON ae)]
 
 instance YAML PIL_Expr where
-    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+    fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"PRawName" -> do
 	    let YamlMap assocs = e
 	    let [aa] = map snd assocs
@@ -199,7 +199,7 @@ instance JSON PIL_Decl where
 	      ("pSubIsMulti", showJSON ae), ("pSubBody", showJSON af)]
 
 instance YAML PIL_Decl where
-    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+    fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"PSub" -> do
 	    let liftM6 f m1 m2 m3 m4 m5 m6 = do
 		{x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; return (f x1 x2 x3 x4 x5 x6)}
@@ -220,7 +220,7 @@ instance JSON PIL_Literal where
     showJSON (PVal aa) = showJSHashObj "PVal" [("pVal", showJSON aa)]
 
 instance YAML PIL_Literal where
-    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+    fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"PVal" -> do
 	    let YamlMap assocs = e
 	    let [aa] = map snd assocs
@@ -252,7 +252,7 @@ instance JSON PIL_LValue where
 	     [("pLHS", showJSON aa), ("pRHS", showJSON ab)]
 
 instance YAML PIL_LValue where
-    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+    fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"PVar" -> do
 	    let YamlMap assocs = e
 	    let [aa] = map snd assocs
@@ -289,7 +289,7 @@ instance JSON TParam where
 	     [("tpParam", showJSON aa), ("tpDefault", showJSON ab)]
 
 instance YAML TParam where
-    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+    fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"MkTParam" -> do
 	    let YamlMap assocs = e
 	    let [aa, ab] = map snd assocs
@@ -319,7 +319,7 @@ instance JSON TCxt where
     showJSON (TTailCall aa) = showJSArrayObj "TTailCall" [showJSON aa]
 
 instance YAML TCxt where
-    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+    fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"TCxtVoid" -> do
 	    return TCxtVoid
 	"TCxtLValue" -> do
@@ -355,7 +355,7 @@ instance JSON TEnv where
 	      ("tLabel", showJSON ae)]
 
 instance YAML TEnv where
-    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+    fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"MkTEnv" -> do
 	    let YamlMap assocs = e
 	    let [aa, ab, ac, ad, ae] = map snd assocs

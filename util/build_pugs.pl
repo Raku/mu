@@ -138,7 +138,6 @@ sub build_lib {
         system($ar, r => $a_file, $target);
     };
 
-    $fixup->('Data.Yaml.Syck');
     $fixup->('Pugs.Embed.Perl5') if grep /^-DPUGS_HAVE_PERL5$/, @_;
     $fixup->('Pugs.Embed.Parrot') if grep /^-DPUGS_HAVE_PARROT$/, @_;
 
@@ -250,7 +249,7 @@ sub write_buildinfo {
             s/hs-source-dir/hs-source-dirs/;
         }
         else {
-            s/fps -any, //;
+            s/fps -any, HsSyck -any, //;
         }
         s/__OPTIONS__/@_/;
         s/__VERSION__/$version/;

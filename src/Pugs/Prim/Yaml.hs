@@ -17,21 +17,18 @@ import DrIFT.YAML
 evalYaml :: Val -> Eval Val
 evalYaml cv = do
     str     <- fromVal cv
-    rv      <- liftIO (parseYaml $ encodeUTF8 str)
-    case rv of
-        Left err            -> fail $ "YAML Parse Error: " ++ err
-        Right Nothing       -> return undef
-        Right (Just node)   -> fromYaml node
+    node    <- guardIO (parseYaml $ encodeUTF8 str)
+    fromYaml node
 
 fromYaml :: YamlNode -> Eval Val
-fromYaml MkYamlNode{el=YamlNil}       = return VUndef
-fromYaml MkYamlNode{el=YamlStr str}   = return $ VStr $ decodeUTF8 $ unpackBuf str
-fromYaml MkYamlNode{el=YamlSeq nodes} = do
+fromYaml MkYamlNode{nodeElem=YamlNil}       = return VUndef
+fromYaml MkYamlNode{nodeElem=YamlStr str}   = return $ VStr $ decodeUTF8 $ unpackBuf str
+fromYaml MkYamlNode{nodeElem=YamlSeq nodes} = do
     vals    <- mapM fromYaml nodes
     av      <- liftSTM $ newTVar $
         IntMap.fromAscList ([0..] `zip` map lazyScalar vals)
     return $ VRef (arrayRef av)
-fromYaml MkYamlNode{el=YamlMap nodes,tag=tag} = do
+fromYaml MkYamlNode{nodeElem=YamlMap nodes, nodeTag=tag} = do
     case tag of
         Nothing  -> do
             vals    <- forM nodes $ \(keyNode, valNode) -> do
@@ -68,9 +65,8 @@ dumpYaml :: Val -> Eval Val
 dumpYaml v = do
     let ?seen = IntSet.empty
     obj     <- toYaml v
-    rv      <- liftIO . emitYaml $ obj
-    either (fail . ("YAML Emit Error: "++))
-           (return . VStr . decodeUTF8) rv
+    rv      <- guardIO . emitYaml $ obj
+    (return . VStr . decodeUTF8) rv
 
 strNode :: String -> YamlNode
 strNode = mkNode . YamlStr . packBuf
@@ -88,7 +84,7 @@ toYaml (VBool x)    = return $ boolToYaml x
 toYaml (VStr str)   = return $ strNode (encodeUTF8 str)
 toYaml v@(VRef r)   = do
     ptr <- liftIO $ addressOf r
-    if IntSet.member ptr ?seen then return nilNode{ anchor = MkYamlReference ptr } else do
+    if IntSet.member ptr ?seen then return nilNode{ nodeAnchor = MkYamlReference ptr } else do
         let ?seen = IntSet.insert ptr ?seen
         node <- ifValTypeIsa v "Hash" (hashToYaml r) $ do
             v'      <- readRef r
@@ -96,7 +92,7 @@ toYaml v@(VRef r)   = do
             ifValTypeIsa v "Array" (return nodes) $ case v' of
                 VObject _   -> return nodes
                 _           -> liftIO $ toYamlNode r
-        return node{ anchor = MkYamlAnchor ptr }
+        return node{ nodeAnchor = MkYamlAnchor ptr }
 toYaml (VList nodes) = do
     n <- mapM toYaml nodes
     return $ mkNode (YamlSeq n)

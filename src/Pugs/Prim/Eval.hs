@@ -111,10 +111,10 @@ op1EvalHaskell cv = do
 op1EvalP6Y :: Val -> Eval Val
 op1EvalP6Y fileName = do
     fileName' <- fromVal fileName
-    yml  <- liftIO $ (`catch` (return . Left . show)) $ do
-        parseYamlFS =<< Str.readFile fileName'
+    yml  <- liftIO $ (`catch` (return . Left . show)) $
+        fmap Right (parseYamlFile fileName')
     case yml of
-        Right (Just yml') -> do
+        Right yml' -> do
             globTVar    <- asks envGlobal
             (glob, ast) <- liftIO $ fromYAML yml'
             resetT $ do

@@ -1793,6 +1793,12 @@ qInterpolateDelimiterMinimal protectedChar = do
     c <- oneOf (protectedChar:"\\")
     return (Val $ VStr ['\\',c])
 
+qInterpolateDelimiterBalanced :: Char -> RuleParser Exp
+qInterpolateDelimiterBalanced protectedChar = do
+    char '\\'
+    c <- oneOf (protectedChar:balancedDelim protectedChar:"\\")
+    return (Val $ VStr ['\\',c])
+
 qInterpolateQuoteConstruct :: RuleParser Exp
 qInterpolateQuoteConstruct = try $ do
     string "\\"
@@ -1831,6 +1837,7 @@ qInterpolator flags = choice [
             QB_Single -> try qInterpolateQuoteConstruct
                <|> (try $ qInterpolateDelimiter $ qfProtectedChar flags)
             QB_Minimal -> try $ qInterpolateDelimiterMinimal $ qfProtectedChar flags
+            QB_Balanced -> try $ qInterpolateDelimiterBalanced $ qfProtectedChar flags
             QB_No -> mzero
         variable = try $ do
             var <- ruleVarNameString
@@ -1948,7 +1955,7 @@ angleBracketLiteral = try $
 --   protected by backslashes, if
 --   qfInterpolateBackslash is Minimal or Single or All
 data QS_Flag = QS_No | QS_Yes | QS_Protect deriving (Show, Eq, Ord, Typeable)
-data QB_Flag = QB_No | QB_Minimal | QB_Single | QB_All deriving (Show, Eq, Ord, Typeable)
+data QB_Flag = QB_No | QB_Minimal | QB_Balanced | QB_Single | QB_All deriving (Show, Eq, Ord, Typeable)
 
 data QFlags = MkQFlags
     { qfSplitWords              :: !QS_Flag -- No, Yes, Protect
@@ -2057,10 +2064,10 @@ rawFlags  :: QFlags
 rawFlags  = MkQFlags QS_No False False False False False QB_No 'x' False False False
 -- | Default flags
 rxP5Flags :: QFlags
-rxP5Flags = MkQFlags QS_No True True True True False QB_Minimal '/' True False False
+rxP5Flags = MkQFlags QS_No True True True True False QB_Balanced '/' True False False
 -- | Default flags
 rxP6Flags :: QFlags
-rxP6Flags = MkQFlags QS_No False False False False False QB_Minimal '/' False False False
+rxP6Flags = MkQFlags QS_No False False False False False QB_Balanced '/' False False False
 
 -- Regexps
 
@@ -2081,13 +2088,13 @@ rxLiteral5 :: Char -- ^ Opening delimiter
            -> Char -- ^ Closing delimiter
            -> RuleParser Exp
 rxLiteral5 delimStart delimEnd = qLiteral1 (string [delimStart]) (string [delimEnd]) $
-    rxP5Flags { qfProtectedChar = delimEnd }
+    rxP5Flags { qfProtectedChar = delimStart }
 
 rxLiteral6 :: Char -- ^ Opening delimiter
            -> Char -- ^ Closing delimiter
            -> RuleParser Exp
 rxLiteral6 delimStart delimEnd = qLiteral1 (string [delimStart]) (string [delimEnd]) $
-    rxP6Flags { qfProtectedChar = delimEnd }
+    rxP6Flags { qfProtectedChar = delimStart }
 
 
 ruleAdverbHash :: RuleParser Exp

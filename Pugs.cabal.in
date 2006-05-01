@@ -4,7 +4,7 @@ license: GPL
 license-file: LICENSE
 copyright: 2005-2006, Audrey Tang
 maintainer: Audrey Tang <autrijus@autrijus.org>
-build-depends: fps -any, QuickCheck -any, base -any, mtl -any, stm -any, haskell98 -any, parsec -any, network -any, template-haskell -any__DEPENDS__
+build-depends: fps -any, HsSyck -any, QuickCheck -any, base -any, mtl -any, stm -any, haskell98 -any, parsec -any, network -any, template-haskell -any__DEPENDS__
 stability: experimental
 homepage: http://pugscode.org/
 synopsis: A Perl 6 Implementation
@@ -13,14 +13,11 @@ author: Audrey Tang <autrijus@autrijus.org>
 tested-with: GHC -any
 exposed-modules: Pugs Pugs.AST Pugs.AST.Internals Pugs.AST.Internals.Instances Pugs.AST.Pad Pugs.AST.Pos Pugs.AST.Prag Pugs.AST.SIO Pugs.AST.Scope Pugs.Bind Pugs.CodeGen Pugs.CodeGen.JSON Pugs.CodeGen.PIL1 Pugs.CodeGen.PIL2 Pugs.CodeGen.PIR Pugs.CodeGen.PIR.Prelude Pugs.Prelude Pugs.CodeGen.Perl5 Pugs.CodeGen.YAML Pugs.Compat Pugs.Compile Pugs.Compile.PIL2 Pugs.Compile.Haskell Pugs.Compile.Pugs Pugs.Config Pugs.Cont Pugs.DeepSeq Pugs.Embed Pugs.Embed.Haskell Pugs.Embed.Parrot Pugs.Embed.Perl5 Pugs.Embed.Pugs Pugs.Eval Pugs.Eval.Var Pugs.External Pugs.External.Haskell Pugs.Help Pugs.Internals Pugs.Junc Pugs.Lexer Pugs.Monads Pugs.PIL1 Pugs.PIL1.Instances Pugs.PIL2 Pugs.PIL2.Instances Pugs.Parser Pugs.Parser.Operator Pugs.Parser.Number Pugs.Parser.Program Pugs.Parser.Types Pugs.Parser.Unsafe Pugs.Parser.Export Pugs.Parser.Doc Pugs.Parser.Literal Pugs.Parser.Util Pugs.Pretty Pugs.Prim Pugs.Prim.Code Pugs.Prim.Eval Pugs.Prim.FileTest Pugs.Prim.Keyed Pugs.Prim.Lifts Pugs.Prim.List Pugs.Prim.Match Pugs.Prim.Numeric Pugs.Prim.Param Pugs.Prim.Yaml Pugs.Rule Pugs.Rule.Expr Pugs.Run Pugs.Run.Args Pugs.Run.Perl5 Pugs.Shell Pugs.Types Pugs.Version Emit.Common Emit.PIR Emit.PIR.Instances
 buildable: True
-c-sources: src/pcre/pcre.c
-           src/syck/bytecode.c src/syck/emitter.c src/syck/gram.c src/syck/handler.c
-           src/syck/implicit.c src/syck/node.c src/syck/syck.c src/syck/syck_st.c src/syck/token.c
-           src/syck/yaml2byte.c __PERL5_C__
+c-sources: src/pcre/pcre.c __PERL5_C__
 hs-source-dir: src
 extra-libraries: __LIBS__
 extra-lib-dirs: __LIB_DIRS__
 extensions: ForeignFunctionInterface
 include-dirs: __INCLUDE_DIRS__
-other-modules: Data.DeepSeq Data.Yaml.Syck DrIFT.JSON DrIFT.Perl5 DrIFT.YAML RRegex RRegex.PCRE RRegex.Syntax System.FilePath UTF8
+other-modules: Data.DeepSeq DrIFT.JSON DrIFT.Perl5 DrIFT.YAML RRegex RRegex.PCRE RRegex.Syntax System.FilePath UTF8
 ghc-options: __OPTIONS__

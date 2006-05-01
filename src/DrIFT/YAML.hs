@@ -28,9 +28,8 @@ toYamlNode x = runReaderT (asYAML x) IntSet.empty
 
 showYaml :: YAML a => a -> IO String
 showYaml x = do
-    node    <- toYamlNode x
-    rv      <- emitYaml node
-    either fail return rv
+    node <- toYamlNode x
+    emitYaml node
 
 type EmitAs = ReaderT SeenCache IO
 
@@ -43,7 +42,7 @@ class Typeable a => YAML a where
             "()" -> return nilNode
             _    -> return $ mkTagNode (tagHs ty) YamlNil
     fromYAML :: YamlNode -> IO a
-    fromYAML MkYamlNode{el=x} = fromYAMLElem x
+    fromYAML MkYamlNode{nodeElem=x} = fromYAMLElem x
     fromYAMLElem :: YamlElem -> IO a
     fromYAMLElem e = fail $ "unhandled element: " ++ (show e)
 
@@ -63,9 +62,9 @@ asYAMLmap c ps = do
         return (k', v')
 
 fromYAMLmap :: YAML a => YamlNode -> IO [(String, a)]
-fromYAMLmap MkYamlNode{el=YamlMap m} = mapM fromYAMLpair m
+fromYAMLmap MkYamlNode{nodeElem=YamlMap m} = mapM fromYAMLpair m
     where
-    fromYAMLpair (MkYamlNode{el=YamlStr k}, v) = do
+    fromYAMLpair (MkYamlNode{nodeElem=YamlStr k}, v) = do
         v' <- fromYAML v
         return (unpackBuf k, v')
     fromYAMLpair e = fail $ "no parse: " ++ show e
@@ -78,7 +77,7 @@ tagHs :: YAMLClass -> String
 tagHs = ("tag:hs:" ++)
 
 deTag :: YamlNode -> YAMLClass
-deTag MkYamlNode{tag=Just s} =
+deTag MkYamlNode{nodeTag=Just s} =
     case s' of
         't':'a':'g':':':'h':'s':':':tag -> tag
         tag                             -> error $ "not a Haskell tag: " ++ tag
@@ -107,9 +106,9 @@ instance YAML String where
 instance YAML Bool where
     asYAML True = return $ mkTagStrNode "bool#yes" "1"
     asYAML False = return $ mkTagStrNode "bool#no" "0"
-    fromYAML MkYamlNode{tag=Just s} | s == packBuf "bool#yes" = return True
-    fromYAML MkYamlNode{tag=Just s} | s == packBuf "bool#no"  = return False
-    fromYAML MkYamlNode{el=x} = fromYAMLElem x
+    fromYAML MkYamlNode{nodeTag=Just s} | s == packBuf "bool#yes" = return True
+    fromYAML MkYamlNode{nodeTag=Just s} | s == packBuf "bool#no"  = return False
+    fromYAML MkYamlNode{nodeElem=x} = fromYAMLElem x
     fromYAMLElem (YamlStr x) = return (x /= packBuf "0")
     fromYAMLElem e = failWith e
 
@@ -123,7 +122,7 @@ instance YAML Rational where
         where
         x = numerator r
         y = denominator r
-    fromYAMLElem (YamlSeq [MkYamlNode{el=YamlStr x}, MkYamlNode{el=YamlStr y}]) =
+    fromYAMLElem (YamlSeq [MkYamlNode{nodeElem=YamlStr x}, MkYamlNode{nodeElem=YamlStr y}]) =
         return $ (read $ Buf.unpack x) % (read $ Buf.unpack y)
     fromYAMLElem e = failWith e
     
@@ -133,17 +132,17 @@ instance YAML Double where
         | show num == "-Infinity" = return $ mkTagStrNode "float#neginf" "-.Inf"
         | show num == "NaN"       = return $ mkTagStrNode "float#nan"    "-.NaN"
         | otherwise               = return $ mkTagStrNode "float"        $ show num
-    fromYAML MkYamlNode{tag=Just s} | s == packBuf "float#inf"    = return $  1/0 -- "Infinity" 
-    fromYAML MkYamlNode{tag=Just s} | s == packBuf "float#neginf" = return $ -1/0 -- "-Infinity" 
-    fromYAML MkYamlNode{tag=Just s} | s == packBuf "float#nan"    = return $  0/0 -- "NaN" 
-    fromYAML MkYamlNode{el=x} = fromYAMLElem x
+    fromYAML MkYamlNode{nodeTag=Just s} | s == packBuf "float#inf"    = return $  1/0 -- "Infinity" 
+    fromYAML MkYamlNode{nodeTag=Just s} | s == packBuf "float#neginf" = return $ -1/0 -- "-Infinity" 
+    fromYAML MkYamlNode{nodeTag=Just s} | s == packBuf "float#nan"    = return $  0/0 -- "NaN" 
+    fromYAML MkYamlNode{nodeElem=x} = fromYAMLElem x
     fromYAMLElem (YamlStr x) = return $ read $ Buf.unpack x
     fromYAMLElem e = failWith e
 
 instance (YAML a) => YAML (Maybe a) where
     asYAML (Just x) = asYAML x
     asYAML Nothing = return $ nilNode
-    fromYAML MkYamlNode{el=YamlNil} = return Nothing
+    fromYAML MkYamlNode{nodeElem=YamlNil} = return Nothing
     fromYAML x = return . Just =<< fromYAML x
     fromYAMLElem YamlNil = return Nothing
     fromYAMLElem x = return . Just =<< fromYAMLElem x
@@ -189,10 +188,10 @@ asYAMLwith f x = do
     ptr  <- liftIO $ addressOf x
     seen <- ask
     if IntSet.member ptr seen
-        then return nilNode{ anchor = MkYamlReference ptr } 
+        then return nilNode{ nodeAnchor = MkYamlReference ptr } 
         else do
             rv   <- local (IntSet.insert ptr) (asYAML =<< f x)
-            return rv{ anchor = MkYamlAnchor ptr }
+            return rv{ nodeAnchor = MkYamlAnchor ptr }
 
 addressOf :: a -> IO Int
 addressOf x = do

@@ -95,7 +95,7 @@ clean_files     (map fixpaths($_),
     src/Pugs/pugs_config.h src/Pugs/Config.hs blib6 dist
     src/Pugs/Prelude.hs src/Pugs/CodeGen/PIR/Prelude.hs test.log
     src/Pugs/Embed/Parrot.hs src/Pugs/Embed/Parrot_hsc.*
-    src/Pugs/Run/Perl5_stub.* src/Data/Yaml/Syck_stub.* src/Data/Yaml/Syck.hs
+    src/Pugs/Run/Perl5_stub.*
     temp-ex* unlink-test* Prelude Pugs.cabal Setup.hi Setup.o
     .setup-config .installed-pkg-config
     temp-test.*.*-out tempfile.*.* create_this_file create_this_file2
@@ -147,11 +147,14 @@ sub set_postamble {
     }
 
     my $pwd = cwd();
-    chdir "third-party/fps";
-    system("../../Setup$Config{_exe}", 'configure', '--prefix', "$pwd/dist");
-    system("../../Setup$Config{_exe}", 'build');
-    system("../../Setup$Config{_exe}", 'install', '--user');
-    chdir $pwd;
+
+    foreach my $module (qw< fps HsSyck >) {
+        chdir "third-party/$module";
+        system("../../Setup$Config{_exe}", 'configure', '--user', '--prefix', "$pwd/dist");
+        system("../../Setup$Config{_exe}", 'build');
+        system("../../Setup$Config{_exe}", 'install', '--user');
+        chdir $pwd;
+    }
 
     my $heap;
 

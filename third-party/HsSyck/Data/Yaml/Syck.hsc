@@ -2,6 +2,7 @@
 
 module Data.Yaml.Syck (
     parseYaml, emitYaml,
+    parseYamlFile, emitYamlFile,
     parseYamlBytes, emitYamlBytes,
     YamlNode(..), YamlElem(..), YamlAnchor(..),
     tagNode, nilNode, mkNode, mkTagNode, mkTagStrNode, SYMID,
@@ -101,7 +102,7 @@ mkTagStrNode tag str = mkTagNode tag (YamlStr $! packBuf str)
 type EmitterExtras = Ptr ()
 -}
 
-emitYamlBytes :: YamlNode -> IO (Either Buf Buf)
+emitYamlBytes :: YamlNode -> IO Buf
 emitYamlBytes node = do
     bracket syck_new_emitter syck_free_emitter $ \emitter -> do
         -- set up output port
@@ -122,10 +123,15 @@ emitYamlBytes node = do
         let nodePtr' = fromIntegral $ nodePtr `minusPtr` nullPtr
         syck_emit emitter nodePtr'
         syck_emitter_flush emitter 0
-        fmap (Right . Buf.concat . reverse) (readIORef out)
+        fmap (Buf.concat . reverse) (readIORef out)
 
-emitYaml :: YamlNode -> IO (Either String String)
-emitYaml node = fmap (either (Left . unpackBuf) (Right . unpackBuf)) (emitYamlBytes node)
+emitYamlFile :: FilePath -> YamlNode -> IO ()
+emitYamlFile file node = do
+    buf <- emitYamlBytes node
+    Buf.writeFile file buf
+
+emitYaml :: YamlNode -> IO String
+emitYaml node = fmap unpackBuf (emitYamlBytes node)
 
 markYamlNode :: (YamlNode -> IO SyckNodePtr) -> SyckEmitter -> YamlNode -> IO ()
 {-
@@ -194,13 +200,16 @@ emitNode freeze e n@(MkYamlNode{nodeElem = YamlMap m}) = do
 withTag :: YamlNode -> CString -> (CString -> IO a) -> IO a
 withTag node def f = maybe (f def) (`Buf.useAsCString` f) (nodeTag node)
 
-parseYaml :: String -> IO (Either String (Maybe YamlNode))
+parseYaml :: String -> IO YamlNode
 parseYaml = (`withCString` parseYamlCStr)
 
-parseYamlBytes :: Buf -> IO (Either String (Maybe YamlNode))
+parseYamlFile :: String -> IO YamlNode
+parseYamlFile file = parseYamlBytes =<< Buf.readFile file
+
+parseYamlBytes :: Buf -> IO YamlNode
 parseYamlBytes = (`Buf.useAsCString` parseYamlCStr)
 
-parseYamlCStr :: CString -> IO (Either String (Maybe YamlNode))
+parseYamlCStr :: CString -> IO YamlNode
 parseYamlCStr cstr = do
     bracket syck_new_parser syck_free_parser $ \parser -> do
         err <- newIORef Nothing
@@ -211,11 +220,11 @@ parseYamlCStr cstr = do
         syck_parser_implicit_typing parser 0
         syck_parser_taguri_expansion parser 0
         symId <- syck_parse parser
-        if symId /= 0 then fmap (Right . Just) (readNode parser symId) else do
+        if symId /= 0 then readNode parser symId else do
         rv <- readIORef err
-        return $ case rv of
-            Nothing     -> Right Nothing
-            Just e      -> Left e
+        case rv of
+            Nothing     -> return nilNode
+            Just e      -> fail e
 
 nodeCallback :: SyckParser -> SyckNode -> IO SYMID
 nodeCallback parser syckNode = do
