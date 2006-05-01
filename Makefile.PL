@@ -148,13 +148,18 @@ sub set_postamble {
 
     my $pwd = cwd();
 
+    print "*** Building dependencies.  Please wait...\n\n";
     foreach my $module (qw< fps HsSyck >) {
         chdir "third-party/$module";
         system("../../Setup$Config{_exe}", 'configure', '--user', '--prefix', "$pwd/dist");
+
+        print "*** Building the '$module' dependency.  Please wait...\n\n";
+
         system("../../Setup$Config{_exe}", 'build');
         system("../../Setup$Config{_exe}", 'install', '--user');
         chdir $pwd;
     }
+    print "*** Finished building dependencies.\n\n";
 
     my $heap;
 
