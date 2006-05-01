@@ -242,17 +242,15 @@ initPreludePC env = do
     loadPreludePC = do
         -- print "Parsing yaml..."
         incs <- liftIO $ fmap ("blib6/lib":) getLibs
-        p    <- liftIO $ getYaml incs "Prelude.pm.yml" Str.readFile
+        yml  <- liftIO $ getYaml incs "Prelude.pm.yml" Str.readFile
         -- print "Parsing done!"
-        case p of
-            Right (Just yml) -> do
-                -- print "Loading yaml..."
-                (glob, ast) <- fromYAML yml
-                -- print "Loading done!"
-                liftSTM $ modifyTVar (envGlobal env) (`unionPads` glob)
-                runEnv env{ envBody = ast, envDebug = Nothing }
-            Right Nothing -> fail ""
-            x  -> fail $ "Error loading precompiled Prelude: " ++ show x
+        -- print "Loading yaml..."
+        (glob, ast) <- fromYAML yml
+        -- print "Loading done!"
+        liftSTM $ modifyTVar (envGlobal env) (`unionPads` glob)
+        runEnv env{ envBody = ast, envDebug = Nothing }
+        --     Right Nothing -> fail ""
+        --     x  -> fail $ "Error loading precompiled Prelude: " ++ show x
     getYaml incs fileName loader = do
         pathName <- liftIO $ requireInc incs fileName ""
         parseYamlBytes =<< loader pathName
