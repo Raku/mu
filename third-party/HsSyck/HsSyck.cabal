@@ -1,14 +1,15 @@
 Name:                HsSyck
 Version:             0.1
 Description:         Fast, lightweight YAML loader and dumper
-License:             BSD3 -- really "MIT", but Cabal allows no such field
+-- License is really "MIT", but Cabal allows no such field
+License:             BSD3
 License-file:        LICENSE
 Author:              Audrey Tang
 Maintainer:          audreyt@audreyt.org
 -- Tested-with:         hugs March2005, ghc 6.4.1, ghc 6.5.20060420
 Build-Depends:       base, fps
-Exposed-modules:     Data.Yaml.Syck,
-extensions:          CPP, ForeignFunctionInterface
+Exposed-modules:     Data.Yaml.Syck
+extensions:          ForeignFunctionInterface
 ghc-options:         -Wall -fglasgow-exts -O -optc-O2 -funbox-strict-fields
 c-sources:           syck/bytecode.c syck/emitter.c syck/gram.c syck/handler.c
                      syck/implicit.c syck/node.c syck/syck.c syck/syck_st.c syck/token.c
