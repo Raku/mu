@@ -203,7 +203,7 @@ interpolatingStringLiteral :: RuleParser String -- ^ Opening delimiter
                            -> RuleParser Exp    -- ^ Interpolator
                            -> RuleParser Exp    -- ^ Entire string
                                                 --     (without delims)
-interpolatingStringLiteral startrule endrule interpolator = do
+interpolatingStringLiteral startRule endRule interpolator = do
     list <- stringList 0
     return $ Ann (Cxt (CxtItem $ mkType "Str")) (homogenConcat list)
     where
@@ -222,7 +222,7 @@ interpolatingStringLiteral startrule endrule interpolator = do
             rest  <- stringList i
             return (parse:rest)
         , do
-            ch    <- endrule
+            ch    <- endRule
             if i == 0
                 then return []
                 else do
