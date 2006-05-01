@@ -1311,6 +1311,7 @@ C<.id> of 0.  One can create them with the built-in C<undef> and C<fail>
 functions.  (See S02 for how failures are handled.)
 
     Undef       Undefined (can serve as a prototype object of any class)
+    Whatever    Wildcard (like undef, but subject to do-what-I-mean via MMD)
     Failure     Failure (throws an exception if not handled properly)
 
 =head2 Immutable types
