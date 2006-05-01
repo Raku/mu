@@ -121,7 +121,7 @@ to get the Perl 5 behavior.
 =head1 Statement-ending blocks
 
 A line ending with a closing brace "C<}>", followed by nothing but
-whitespace or comments, will terminates statement if an end of statement
+whitespace or comments, will terminate a statement if an end of statement
 can occur there.  That is, these two statements are equivalent:
 
     my $x = sub { 3 }
@@ -134,6 +134,13 @@ this still works:
         sub { 3 },  # this comma is not optional
         sub { 3 }   # the statement won't terminate here 
     ];
+
+However, a nested hash block must be disambiguated by a trailing comma:
+
+    # Without the trailing comma, this becomes a code block
+    my $hash = {
+        1 => { 2 => 3, 4 => 5 },
+    };
 
 Because subroutine declarations are expressions, not statements,
 this is now invalid:
