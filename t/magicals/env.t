@@ -46,7 +46,7 @@ ok !defined(%*ENV<PUGS_ROCKS>), "there's still no env variable 'PUGS_ROCKS'";
 
 my ($pugs,$redir,$squo) = ("./pugs", ">", "'");
 
-if($*OS eq any<MSWin32 mingw msys cygwin>) {
+if($*OS eq any <MSWin32 mingw msys cygwin>) {
     $pugs = 'pugs.exe';
 };
 
@@ -69,7 +69,7 @@ unlink $tempfile;
 my $err = 0;
 for %*ENV.kv -> $k,$v {
   # Ignore env vars which bash and maybe other shells set automatically.
-  next if $k eq any<SHLVL _ OLDPWD PS1>;
+  next if $k eq any <SHLVL _ OLDPWD PS1>;
   if (%child_env{$k} !~ $v) {
     if (! $err) {
       flunk("Environment gets propagated to child.");
@@ -101,7 +101,7 @@ is(%child_env<PUGS_ROCKS>,undef,'The child did not see %*ENV<PUGS_ROCKS>');
 my $err = 0;
 for %*ENV.kv -> $k,$v {
   # Ignore env vars which bash and maybe other shells set automatically.
-  next if $k eq any<SHLVL _ OLDPWD PS1>;
+  next if $k eq any <SHLVL _ OLDPWD PS1>;
   if (%child_env{$k} !~ $v) {
     if (! $err) {
       flunk("Environment gets propagated to child.");

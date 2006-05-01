@@ -26,7 +26,7 @@ multi sub escape (Str $source is copy, Str $lang) {
 
     default {
       die '"lang" parameter must be "html"|"doublequote"' unless
-        $lang eq any<html doublequote>;
+        $lang eq any <html doublequote>;
     }
   }
 

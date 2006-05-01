@@ -52,7 +52,7 @@ $out.close;
 
 my ($pugs,$redir) = ( '../../pugs', '>' );
 
-if($?OS eq any<MSWin32 mingw cygwin>)
+if($?OS eq any <MSWin32 mingw cygwin>)
 {
     $pugs = '..\\..\\pugs.exe';
     $pugs = 'pugs.exe' if -e 'pugs.exe';

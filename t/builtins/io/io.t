@@ -152,7 +152,7 @@ isa_ok($fh10, 'IO');
 #ok($fh10.close, 'file closed okay (10)');
 
 # This test fails on win32; skip it for now.
-if($*OS eq any<MSWin32 mingw msys cygwin>) {
+if($*OS eq any <MSWin32 mingw msys cygwin>) {
     unlink($filename);
     flunk('skip unlink() test - erratic behaviour on win32', :todo<bug>);
 }

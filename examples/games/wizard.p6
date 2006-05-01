@@ -27,7 +27,7 @@ multi *prompt ($prompt, @options is copy) {
     return $choice.param // $choice.key;
 }
 
-sub *cls { system(($?OS eq any<MSWin32 mingw>) ?? 'cls' !! 'clear'); }
+sub *cls { system(($?OS eq any <MSWin32 mingw>) ?? 'cls' !! 'clear'); }
 
 #random number between $low and $high, ($low..$high).pick but easier on memory
 sub *random ($low,$high) {int( rand($high - $low) + $low ) + 1; };

@@ -25,7 +25,7 @@ sub report (@x) returns Str is export {
 
 #Autrijus' "cls"
 sub clear returns Void is export{
-    system(($?OS eq any<MSWin32 mingw>) ?? 'cls' !! 'clear');
+    system(($?OS eq any <MSWin32 mingw>) ?? 'cls' !! 'clear');
 }
 
 sub max (Array @x) returns Int is export{

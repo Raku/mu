@@ -63,7 +63,7 @@ say %conf.ref ~ ' ' ~ %conf if $dg;
 #say %conf.ref; say %conf.<index>.ref;
 
 my $os;
-$os = 'win32' if lc($?OS) eq any<mswin32 mingw>;
+$os = 'win32' if lc($?OS) eq any <mswin32 mingw>;
 say 'os: ' ~ $os if $dg;
 
 for %conf.keys -> $key {

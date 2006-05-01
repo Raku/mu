@@ -14,7 +14,7 @@ my $allowed_bad_guesses   = 6;  # number of allowed bad guesses
 ## do our functions
 
 sub cls returns Void {
-    system(($?OS eq any<MSWin32 mingw cygwin>) ?? 'cls' !! 'clear');
+    system(($?OS eq any <MSWin32 mingw cygwin>) ?? 'cls' !! 'clear');
 }
 
 sub get_committer_list (Str $dict_file) returns List {
