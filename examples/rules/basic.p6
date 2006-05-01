@@ -4,87 +4,55 @@ use v6;
 say "Loading BASIC grammar...";
 
 #grammar Basic {
-   rule var   { <ident> \$   }
- 
+   rule var       { <ident> \$ }
+   rule string    { <-["]>+ }
+   rule expr      { [<var> | "<string>" }
+   rule expr_list { [<expr> \s* , \s* ]* <expr> }
    
-   rule let   { LET <var>  }
-   rule print { PRINT <var>}
-   rule goto  { GOTO \d+   }
+   rule f_let   { LET   \s+ <var> \s* = \s* <expr>}
+   rule f_print  { PRINT \s+ <expr> }
+   rule f_goto   { GOTO  \s+ (\d+) }
   
-   rule expr  {  <let> | <print> | <goto> }
-   rule line  { (<expr>;)+ }
-   rule program { (<line>\n+)+ }
+   rule command {  
+           <f_let>   | 
+           <f_print> |
+           <f_goto> 
+        }
+
+   rule line  { [\s*<command>;]+ }
+   rule program { [<line>\n+]+ }
 #}
 
 
-my $basic_program = "LET X$; PRINT X$;\n";
-my $parsed = $basic_program ~~ /<program>/;
-say $parsed.perl;
+sub expr_to_string (Match $expr) {
+  return %$expr.<string> if defined %$expr.<string>;
+}
 
+do {
+  my $basic_program;
+  my $i = 0;
+  my $line = "123";
+  do {
+   print "{$i++}: ";
+   $line = =$*IN;
+#  exit if $line eq "exit";
+   $basic_program ~= $line ~ "\n";
+  } until(! $line.chars );
+  my $parsed = $basic_program ~~ /<program>/;
+  $parsed.perl.say;
+  execute($parsed) if $parsed;
+};
 
-=begin DATA
-Loading BASIC grammar...
-\Match.new(
-  ok => bool::true, 
-  from => 15, 
-  to => 18, 
-  str => "$;\n", 
-  sub_pos => (), 
-  sub_named =>
-    { "program" =>
-        Match.new(
-          ok => bool::true, 
-          from => 15, 
-          to => 18, 
-          str => "$;\n", 
-          sub_pos =>
-            ((Match.new(
-                ok => bool::true, 
-                from => 15, 
-                to => 18, 
-                str => "$;\n", 
-                sub_pos => (), 
-                sub_named =>
-                  { "line" =>
-                      Match.new(
-                        ok => bool::true, 
-                        from => 15, 
-                        to => 17, 
-                        str => "$;", 
-                        sub_pos =>
-                          ((Match.new(
-                              ok => bool::true, 
-                              from => 15, 
-                              to => 17, 
-                              str => "$;", 
-                              sub_pos => (), 
-                              sub_named =>
-                                { "expr" =>
-                                    Match.new(
-                                      ok => bool::true, 
-                                      from => 15, 
-                                      to => 16, 
-                                      str => "$", 
-                                      sub_pos => (), 
-                                      sub_named =>
-                                        { "print" =>
-                                            Match.new(
-                                              ok => bool::true, 
-                                              from => 15, 
-                                              to => 16, 
-                                              str => "$", 
-                                              sub_pos => (), 
-                                              sub_named => {}
-                                            )
-                                        }
-                                    )
-                                }
-                            ),),), 
-                        sub_named => {}
-                      )
-                  }
-              ),),), 
-          sub_named => {}
-        )
-    }
-)
+sub execute (Match $basic) {
+  say "Running...";
+  my $i = 0;
+  for @{$basic<program><line>} -> $line {
+#   say "{$i++}: $line";
+   for @{$line<command>} -> $cmd {
+     for %$cmd.keys {
+       when 'f_print' { print expr_to_string(%$cmd<f_print><expr>) }
+      }
+   }
+  }
+  say "\nDone.";
+}
