@@ -243,6 +243,7 @@ initPreludePC env = do
         -- print "Parsing yaml..."
         incs <- liftIO $ fmap ("blib6/lib":) getLibs
         yml  <- liftIO $ getYaml incs "Prelude.pm.yml" Str.readFile
+        when (nodeElem yml == YamlNil) $ fail ""
         -- print "Parsing done!"
         -- print "Loading yaml..."
         (glob, ast) <- fromYAML yml
