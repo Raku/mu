@@ -1904,6 +1904,18 @@ instance (Show (TVar a)) => Perl5 (TVar a) where
     showPerl5 _ = "(warn '<ref>')"
 instance (Show (TVar a)) => JSON (TVar a) where
     showJSON _ = "null"
+
+instance Perl5 Val where
+    showPerl5 (VUndef) = showP5Class "VUndef"
+    showPerl5 (VBool aa) = showP5ArrayObj "VBool" [showPerl5 aa]
+    showPerl5 (VInt aa) = showP5ArrayObj "VInt" [showPerl5 aa]
+    showPerl5 (VRat aa) = showP5ArrayObj "VRat" [showPerl5 aa]
+    showPerl5 (VNum aa) = showP5ArrayObj "VNum" [showPerl5 aa]
+    showPerl5 (VStr aa) = showP5ArrayObj "VStr" [showPerl5 aa]
+    showPerl5 (VList aa) = showP5ArrayObj "VList" [showPerl5 aa]
+    showPerl5 (VType aa) = showP5ArrayObj "VType" [showPerl5 aa]
+    showPerl5 (VCode{}) = showP5Class "VUndef" -- XXX - fix the END block!
+
 </DrIFT> Do NOT delete! These instances are your friends! -}
 
 instance Typeable Unique where typeOf _ = typeOf ()
@@ -1945,7 +1957,7 @@ data Val
     | VStr      !VStr        -- ^ String value
     | VList     !VList       -- ^ List value
     | VType     !VType       -- ^ Type value (e.g. @Int@ or @Type@)
-    {-!derive: Perl5, JSON!-}
+    {-!derive: JSON!-}
 
 -}
 
