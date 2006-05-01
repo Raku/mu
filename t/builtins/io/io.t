@@ -54,6 +54,7 @@ my $line2c = $in2.readline();
 is($line2c, "The End\n", '$in.readline() worked');
 ok($in2.close, 'file closed okay (2)');
 
+# L<S02/Files /you now write/>
 my $in3 = open($filename);
 isa_ok($in3, 'IO');
 my $line3a = =$in3;
