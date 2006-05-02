@@ -217,7 +217,7 @@ sub prefix:<[.[]]> (*$head is copy, *@rest is copy) is primitive {
 sub prefix:«[=>]» (*@args) is primitive {
   # XXX copying necessary because PIL2JS's => currently captures *containers*,
   # not values.
-  reduce -> $a, $b {; my $B = $b; my $A = $a; $B => $A } reverse @args;
+  reduce -> $a, $b {; my $B = $b; my $A = $a; $B => $A }, reverse @args;
 }
 
 sub prefix:«[=]» (*@vars is copy) is primitive is rw {
