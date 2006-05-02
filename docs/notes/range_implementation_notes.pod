@@ -14,7 +14,7 @@ A Range is a lazy iterator with a starting, iterating, and stopping condition.
 The Range API will be specified using a role, but there will be a number of 
 class implementations which do that role. 
 
-There are two basic "front-end" range classes, which are:
+There are basic "front-end" range classes, which are:
 
 =over 4
 
@@ -27,9 +27,16 @@ The classic numeric range, C<1 .. 10> and all that it implies.
 The range of strings, C<a .. z>. Probably pretty obvious, but might be a little 
 trickier in the presence of unicode. We will see.
 
+=item RepeatRange
+
+A range of repeated things, C<1 xx 10>. This is useful for initializing
+data structures:
+
+    @a[0..999] = -1 xx 1000;
+
 =back
 
-The other classes will be private or inner classes to the two "front-end" 
+The other classes will be private or inner classes to the "front-end" 
 Range clases, and those are:
 
 =over 4

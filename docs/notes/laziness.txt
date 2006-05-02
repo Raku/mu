@@ -330,7 +330,7 @@ A Lazy Array contains a "specs" Array, which contains Generators, or Native Arra
 = Array API
 
 - TODO
-Array can do "map", "grep", splice, push, pop, store, fetch. 
+Array can do "zip", "map", "grep", splice, push, pop, store, fetch. 
 Array can be "bound" and "tied".
 
 
@@ -347,7 +347,6 @@ map() applies a 'Code' to an Array state:
 Line 1:
 
    Container: @a
-   Contents:  1..100
    Internals: [
                 Generator( 1, 100 ),
               ]
