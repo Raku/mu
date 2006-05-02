@@ -1,4 +1,4 @@
-= Changes for 6.28.0 (rXXXX) - Apr XX, 2006
+= Changes for 6.28.0 (rXXXX) - May XX, 2006
 
 == Bundled Modules
 
@@ -8,6 +8,7 @@
 
 === Updated modules
 
+* [ext/Locale-KeyedText/] - Added export_as_hash() methods.
 * [ext/Rosetta/]: Multiple additions and rewrites.
 ** Merged ext/Rosetta-Engine-Native/ in, renamed to ::Example.
 ** Now officially incorporates "The Third Manifesto".

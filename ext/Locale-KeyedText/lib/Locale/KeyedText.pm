@@ -13,7 +13,7 @@ my Str $EMPTY_STR is readonly = q{};
 ###########################################################################
 ###########################################################################
 
-package Locale::KeyedText-1.72.2 {
+package Locale::KeyedText-1.73.0 {
     # Note: This given version applies to all of this file's packages.
 } # package Locale::KeyedText
 
@@ -44,6 +44,15 @@ submethod BUILD (Str :$msg_key!, Any :%msg_vars? = {}) {
     %!msg_vars = %msg_vars;
 
     return;
+}
+
+###########################################################################
+
+method export_as_hash () returns Hash {
+    return {
+        'msg_key'  => $!msg_key,
+        'msg_vars' => {%!msg_vars},
+    };
 }
 
 ###########################################################################
@@ -134,6 +143,15 @@ submethod BUILD (Str :@set_names!, Str :@member_names!) {
     @!member_names = @member_names;
 
     return;
+}
+
+###########################################################################
+
+method export_as_hash () returns Hash {
+    return {
+        'set_names'    => [@!set_names],
+        'member_names' => [@!member_names],
+    };
 }
 
 ###########################################################################
@@ -362,7 +380,7 @@ Refer to user messages in programs by keys
 
 =head1 VERSION
 
-This document describes Locale::KeyedText version 1.72.2.
+This document describes Locale::KeyedText version 1.73.0.
 
 It also describes the same-number versions of Locale::KeyedText::Message
 ("Message") and Locale::KeyedText::Translator ("Translator").
@@ -662,6 +680,11 @@ A Message object has these methods:
 
 =over
 
+=item C<export_as_hash()>
+
+This method returns a deep copy of this Message as a Hash ref of 2
+elements, which correspond to the 2 named parameters of new().
+
 =item C<get_msg_key()>
 
 This method returns the Message Key attribute of its object.
@@ -834,6 +857,11 @@ object that is a clone of the first but for the changes.
 A Translator object has these methods:
 
 =over
+
+=item C<export_as_hash()>
+
+This method returns a deep copy of this Translator as a Hash ref of 2
+elements, which correspond to the 2 named parameters of new().
 
 =item C<get_set_names()>
 
