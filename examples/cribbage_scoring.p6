@@ -50,7 +50,7 @@ sub score ( @hand ) returns Int {
     # Runs
     SPAN:
     for 5, 4, 3 -> $span {
-        for sort { $^a <=> $^b } %ordval.keys -> $start {
+        for (sort { $^a <=> $^b }, %ordval.keys) -> $start {
             if all( %ordval{$start .. $start + $span} ) > 1 {
                 $score += [*] %ordval{$start .. $start + $span}, $span;
                 last SPAN;

@@ -6,7 +6,7 @@ use v6;
 # the squaring factors of ($n*$m)
 sub multiply_squaring_factors($n,$m)
 {
-    return sort { $^a <=> $^b } one(@$n,@$m).values;
+    return sort { $^a <=> $^b }, one(@$n,@$m).values;
 }
 
 my %gsf_cache = (1 => []);
@@ -212,7 +212,7 @@ sub Graham($n)
         while ($n_vec.elems())
         {
             # Assing $id as the minimal ID of the squaring factors of $p
-            my @ids_vec = (sort { $^a <=> $^b } %primes_to_ids_map{@$n_vec});
+            my @ids_vec = (sort { $^a <=> $^b }, %primes_to_ids_map{@$n_vec});
             my $id = @ids_vec[0];
             # Mulitply by the controlling vector of this ID if such one exists
             # or terminate if there isn't such.

@@ -74,7 +74,7 @@ gather {
         /$re/ and take { word => $_, score => %scores{ .letters }.sum };
     }
 }
-==> sort { -.<score> }, { .<word>.length }, { .<word> };
+==> sort [ { -.<score> }, { .<word>.length }, { .<word> } ];
 ==> my @words;
 
 sayf 'MATRIX IS WORTH %d POINTS' <== sum @words>>[0];

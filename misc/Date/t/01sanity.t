@@ -98,7 +98,7 @@ for @forms -> $form {
     $iso ~~ rx:perl5/(DD)/ && (substr($iso,$/.from,$/.chars)=sprintf("%02d", $day)) or undefine($day);
     $iso ~~ rx:perl5/(D)/ && (substr($iso,$/.from,$/.chars)=sprintf("%1d", $dow)) or undefine($dow);
 
-    my $seconds = (reduce { $^a * 60 + $^b } $hour, $min, $sec) + $frac;
+    my $seconds = (reduce { $^a * 60 + $^b }, $hour, $min, $sec) + $frac;
 
     # here's a nice little higher order challenge ... reduce the
     # following code to only have one copy of the fractional bits :)
@@ -195,7 +195,7 @@ sub numify (Str $str) returns Num {
     return $num;
 }
 
-#sub horner($base, @numerals) { reduce { $^a * $base + $^b } @numerals }
+#sub horner($base, @numerals) { reduce { $^a * $base + $^b }, @numerals }
 #our &horner60 ::= &horner.assuming(:base(60));
 #sub divmod(Num $a, Num $b) returns (Int, Num) {
 #    my $ratio = $a / $b;

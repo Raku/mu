@@ -57,7 +57,7 @@ while($instruction = %instructions{"$state %tape{$tape_loc}"}) {
   }
 }
 
-my $final_tape = join "", %tape{sort {$^a <=> $^b} keys %tape};
+my $final_tape = join "", %tape{sort {$^a <=> $^b}, keys %tape};
 $final_tape ~~ s:Perl5/^_+//;
 $final_tape ~~ s:Perl5/_+$//;
 
