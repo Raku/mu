@@ -61,8 +61,8 @@ sub f2 (:$a!) { ~ref($a) }
     flunk("FIXME parsefail (in 'foo.((:a))', '(:a)' is a pair)", :todo<bug>);
     # dies_ok { f2.((:a))       }, "in 'f2.((:a))', '(:a)' is a pair";
     
-    dies_ok { $f2((:a))       }, "in '\$f2((:a))', '(:a)' is a pair", :todo<bug>;
-    dies_ok { $f2.((:a))      }, "in '\$f2.((:a))', '(:a)' is a pair", :todo<bug>;
+    dies_ok { $f2((:a))       }, "in '\$f2((:a))', '(:a)' is a pair";
+    dies_ok { $f2.((:a))      }, "in '\$f2.((:a))', '(:a)' is a pair";
     dies_ok { $f2(((:a)))     }, "in '\$f2(((:a)))', '(:a)' is a pair";
     dies_ok { $f2.(((:a)))    }, "in '\$f2.(((:a)))', '(:a)' is a pair";
 }
