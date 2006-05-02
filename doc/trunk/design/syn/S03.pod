@@ -376,9 +376,9 @@ or
 defines both the C<[foo]> reduce operator and the C<foo> infix operator.
 Where appropriate, use of the infix form may be optimized like this:
 
-    $a foo $b           ===>    [foo] $a, $b
-    $a foo $b foo $c    ===>    [foo] $a, $b, $c
-    ...                         ...
+    # Original          # Optimized
+    $a foo $b           # [foo] $a, $b
+    $a foo $b foo $c    # [foo] $a, $b, $c
 
 If the reduction operator is defined separately from the infix operator,
 it must associate the same way as the operator used:
