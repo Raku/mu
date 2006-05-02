@@ -12,7 +12,7 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 2 May 2006
+  Last Modified: 1 May 2006
   Number: 3
   Version: 26
 
@@ -114,6 +114,61 @@ These parens actually apply list context on both sides:
 
     @x[foo()] = bar();		# foo() and bar() both in scalar context
     (@x[foo()]) = bar();	# foo() and bar() both in list context
+
+=item * List operators are all parsed consistently.  As in Perl 5,
+to the left they look like terms, while to the right they look like
+operators that are looser than comma.  Unlike in Perl 5, the difference
+between the list operator form and the function form is consistently
+indicated via whitespace between the list operator and the first
+argument.  If there is whitespace, it is always a list operator,
+and the next token will be taken as the first term of the list.
+If there is no whitespace, the parser is biased towards taking the
+next token as an operator if at all possible.  If the next token
+can be taken as either an infix or a postfix operator, it indicates
+that the list operator has no arguments.  (Or more precisely, no
+extra arguments that aren't supplied the operator, since C<.()>
+is a postfix that supplies arguments to the preceding function.)
+
+Examples:
+
+    say foo($bar+1),$baz		say(foo($bar+1), $baz);
+    say foo.($bar+1),$baz		say(foo($bar+1), $baz);
+    say foo ($bar+1),$baz		say(foo($bar+1, $baz));
+    say foo .($bar+1),$baz		say(foo($_.($bar+1), $baz));
+
+    say foo[$bar+1],$baz		say((foo[$bar+1]), $baz);
+    say foo.[$bar+1],$baz		say((foo[$bar+1]), $baz);
+    say foo [$bar+1],$baz		say(foo([$bar+1], $baz));
+    say foo .[$bar+1],$baz		say(foo($_.[$bar+1], $baz));
+
+    say foo{$bar+1},$baz		say((foo{$bar+1}), $baz);
+    say foo.{$bar+1},$baz		say((foo{$bar+1}), $baz);
+    say foo {$bar+1},$baz		say(foo({$bar+1}, $baz));
+    say foo .{$bar+1},$baz		say(foo($_.{$bar+1}, $baz));
+
+    say foo<$bar+1>,$baz		say((foo<$bar+1>), $baz);
+    say foo.<$bar+1>,$baz		say((foo<$bar+1>), $baz);
+    say foo <$bar+1>,$baz		say(foo(<$bar+1>, $baz));
+    say foo .<$bar+1>,$baz		say(foo($_.<$bar+1>, $baz));
+
+Note that Perl 6 is making a consistent three-way distinction between
+term vs postfix vs infix, and will interpret an overloaded character
+like C<< < >> accordingly:
+
+    any <a b c>				any('a','b','c')	# term
+    any<a b c>				(any).{'a','b','c'}	# postfix
+    any()<a b c>			(any).{'a','b','c'}	# postfix
+    any() < $x				(any) < $x		# infix
+
+This will seem unfamiliar and "undwimmy" to Perl 5 programmers, who
+are used to a grammar that sloppily hardwires a few postfix operators
+at the price of extensibility.  Perl 6 chooses instead to mandate a
+whitespace dependency in order to gain a completely extensible class
+of postfix operators.
+
+=item * A list operator's arguments are also terminated by a closure
+that is not followed by a comma or colon.  (And a semicolon is implied if
+the closure is the final thing on a line.)
 
 =back
 
