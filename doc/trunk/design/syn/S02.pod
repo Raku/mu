@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 30 Apr 2006
+  Last Modified: 1 May 2006
   Number: 2
-  Version: 35
+  Version: 36
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -388,24 +388,40 @@ system of type declarations.  C<Int> automatically supports promotion
 to arbitrary precision, as well as holding C<Inf> and C<NaN> values.
 
 (C<Num> may support arbitrary-precision floating-point arithmetic, but
-is not required to unless we can do so portably and efficiently.)
+is not required to unless we can do so portably and efficiently.  Num
+must support the largest native floating point format that runs at full speed.)
 
 C<Rational> supports arbitrary precision rational arithmetic.  However,
 dividing two C<Int> objects produces fractionals as C<Num> objects by
 default, not C<Rational> objects.  You can override this behavior with
 a pragma.
 
-Lower-case types like C<int> and C<num> imply the native machine
-representation for integers and floating-point numbers, respectively, and
-do not promote to arbitrary precision.  Untyped numeric scalars use C<Int>
-and C<Num> semantics rather than C<int> and C<num>.
+Lower-case types like C<int> and C<num> imply the native
+machine representation for integers and floating-point numbers,
+respectively, and do not promote to arbitrary precision, though
+larger representations are always allowed for temporary values.
+Unless qualified with a number of bits, C<int> and C<num> types default
+to the largest native types that run at full speed.  Untyped numeric
+scalars use C<Int> and C<Num> semantics rather than C<int> and C<num>.
+
 
 =item *
 
 Perl 6 should by default make standard IEEE floating point concepts
-visible, such as C<Inf> (infinity) and C<NaN> (not a number).
-It should also be at least pragmatically possible to throw exceptions
-on overflow.
+visible, such as C<Inf> (infinity) and C<NaN> (not a number).  Within a
+lexical scope, pragmas may specify the nature of temporary values,
+and how floating point is to behave under various circumstances.
+All IEEE modes must be lexically available via pragma except in cases
+where that would entail heroic efforts to bypass a braindead platform.
+
+The default floating-point modes do not throw exceptions but rather
+propagate Inf and NaN.  The boxed object types may carry more detailed
+information on where overflow or underflow occurred.  Numerics in Perl
+are not designed to give the identical answer everywhere.  They are
+designed to give the typical programmer the tools to achieve a good
+enough answer most of the time.  (Really good programmers may occasionally
+do even better.)  Mostly this just involves using enough bits that the
+stupidities of the algorithm don't matter much.
 
 =item *
 
