@@ -26,8 +26,8 @@ has %.pubhash;
 has %!privhash;
 
 method run_test() {
-    Test::lives_ok { %.pubhash  = (); %.pubhash<1>  = 1 }, "%.hash = () works", :todo<bug>;
-    Test::lives_ok { %!privhash = (); %!privhash<1> = 1 }, "%!hash = () works", :todo<bug>;
+    Test::lives_ok { %.pubhash  = (); %.pubhash<1>  = 1 }, "%.hash = () works";
+    Test::lives_ok { %!privhash = (); %!privhash<1> = 1 }, "%!hash = () works";
 }
 
 HashCrash.new.run_test;
