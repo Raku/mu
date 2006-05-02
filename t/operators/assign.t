@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 60;
+plan 67;
 
 # tests various assignment styles
 
@@ -75,6 +75,34 @@ plan 60;
     is(@b[1], 201, "... and second");
     is(@b[2], 401, "... and third");
     
+}
+
+{
+    # chained @array = %hash = list assignment 
+    my (@a, @b, %h);
+    @a = %h = (1,2);
+    @b = %h;
+    is(@a[0], @b[0], "chained @ = % = list assignment");
+    is(@a[1], @b[1], "chained @ = % = list assignment");
+}
+
+{
+    # chained $scalar = %hash = list assignment 
+    my ($s, $t, %h);
+    $s = %h = (1,2);
+    $t = %h;
+    is($s, $t, "chained $ = % = list assignment");
+}
+
+{
+    # (@b, @a) = (@a, @b) assignment
+    my (@a, @b);
+    @a = (1);
+    @b = (2);
+    (@b, @a) = (@a, @b);
+    is(@a[0], undef, "(@b, @a) = (@a, @b) assignment \@a[0] == undef");
+    is(@b[0], 1,     "(@b, @a) = (@a, @b) assignment \@b[0]");
+    is(@b[1], 2,     "(@b, @a) = (@a, @b) assignment \@b[1]");
 }
 
 {
