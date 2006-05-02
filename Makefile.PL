@@ -24,6 +24,7 @@ use warnings;
 use Config;
 use Cwd qw(abs_path cwd);
 use File::Spec;
+use File::Basename;
 use FindBin;
 BEGIN { chdir $FindBin::RealBin };
 use inc::Module::Install;
@@ -147,6 +148,9 @@ sub set_postamble {
     }
 
     my $pwd = cwd();
+
+    # Add GHC to PATH
+    local $ENV{PATH} = dirname($ghc) . $Config{path_sep} . $ENV{PATH};
 
     print "*** Building dependencies.  Please wait...\n\n";
     foreach my $module (qw< fps HsSyck >) {
