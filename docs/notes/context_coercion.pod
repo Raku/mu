@@ -27,8 +27,8 @@ represented as roles.
 
 Denotationally, the signature for = and := are as below:
 
-    proto infix:<=> (RW[::T]: T) --> RW[T]
-    proto infix:<:=> (Plural[RW[::T]]: Plural[RW[Any]]) --> Plural[RW[::T]]
+    proto infix:<=> (RW[::T]: T --> RW[T])
+    proto infix:<:=> (Plural[RW[::T]]: Plural[RW[Any]] --> Plural[RW[::T]])
 
 Note that both forms only have one invocant; dispatch is decided by the
 left-hand side's type.
