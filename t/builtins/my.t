@@ -85,7 +85,7 @@ is(eval('loop (my $x = 1, my $y = 2; $x > 0; $x--) { last } $y'), 2, '2nd my in 
 # check that can declaring lexical twice is noop
 {
     my $f;
-    $a = 5;
+    $f = 5;
     my $f;
     is($f, 5, "two lexicals declared in scope is noop", :todo<bug>);
 }
