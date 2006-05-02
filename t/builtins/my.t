@@ -81,3 +81,11 @@ is(eval('loop (my $x = 1, my $y = 2; $x > 0; $x--) { $result = $x; last } $resul
 is(eval('loop (my $x = 1, my $y = 2; $x > 0; $x--) { $result = $y; last } $result'), 2, '2nd my in loop cond seen from body', :todo<feature>);
 is(eval('loop (my $x = 1, my $y = 2; $x > 0; $x--) { last } $x'), 1, '1st my in loop cond seen after', :todo<feature>);
 is(eval('loop (my $x = 1, my $y = 2; $x > 0; $x--) { last } $y'), 2, '2nd my in loop cond seen after', :todo<feature>);
+
+# check that can declaring lexical twice is noop
+{
+    my $f;
+    $a = 5;
+    my $f;
+    is($f, 5, "two lexicals declared in scope is noop", :todo<bug>);
+}
