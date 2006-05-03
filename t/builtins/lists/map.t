@@ -44,7 +44,7 @@ my @list = (1 .. 5);
 }
 
 {
-    my @result = map { $_ * 2 }, @list;
+    my @result = map { $_ * 2 }: @list;
     is(+@result, 5, 'we got a list back');
     is(@result[0], 2, 'got the value we expected');
     is(@result[1], 4, 'got the value we expected');
@@ -127,7 +127,7 @@ should be equivalent to
 
 {
   my @expected = ("foo","bar");
-  @expected = map { substr($_,1,1) }, @expected;
+  @expected = map { substr($_,1,1) }: @expected;
 
   is(("foo","bar").map:{ $_.substr(1,1) }, @expected, "map of constant list works");
 }

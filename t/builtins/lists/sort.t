@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 19;
+plan 21;
 
 {
     my @a = (4, 5, 3, 2, 5, 1);
@@ -35,6 +35,22 @@ plan 19;
 
     my @s = sort { $^a <=> $^b }, @a;
     is(@s, @e, '... with explicit spaceship'); 
+}
+
+{
+    my @a = (2, 45, 6, 1, 3);
+    my @e = (1, 2, 3, 6, 45);
+
+    my @s = sort { $^a <=> $^b }: @a;
+    is(@s, @e, '... with closure as indirect invocant'); 
+}
+
+{
+    my @a = (2, 45, 6, 1, 3);
+    my @e = (1, 2, 3, 6, 45);
+
+    my @s = { $^a <=> $^b }.sort: @a;
+    is(@s, @e, '... with closure as direct invocant'); 
 }
 
 {
