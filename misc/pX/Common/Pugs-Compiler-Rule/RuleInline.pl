@@ -24,6 +24,10 @@ sub null {
     "1";
 };
 
+sub optional {
+    alternation( @_, 1 );
+}
+
 sub wrap {
     return eval( "sub { my \@match; my \$s = shift; $_[0]; return \$s, \\\@match; }" );
 }
@@ -40,9 +44,10 @@ print Dumper( $x->("abc") );
 use Benchmark;
 use Pugs::Compiler::Rule;
 my $rpcr = Pugs::Compiler::Rule->compile('[a|b]b');
-Benchmark::cmpthese(1000, {
-    PCR => sub{$rpcr->match('abc') for 1..10},
-    fast_x1000 => sub{$x->('abc') for 1..300},
+Benchmark::cmpthese(500, {
+    PCR_x1       => sub{$rpcr->match('abc') for 1..20},
+    fast_x10     => sub{$x->('abc')         for 1..200},
+    P5regex_x100 => sub{ 'abc' =~ /[a|b]b/o for 1..2000},
 });
 
 __END__
