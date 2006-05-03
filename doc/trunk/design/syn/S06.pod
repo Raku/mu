@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 25 Apr 2006
+  Last Modified: 3 May 2006
   Number: 6
-  Version: 31
+  Version: 32
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1753,6 +1753,27 @@ parentheses:
 
     return( (:x<1>), (:y<2>) ); # two positional Pair objects
 
+Note that the postfix parentheses on the function call don't count as
+"additional".  However, as with any function, whitespace after the
+C<return> keyword prevents that interpretation and turns it instead
+into a list operator:
+
+    return :x<1>, :y<2>; # two named arguments (if caller uses *)
+    return ( :x<1>, :y<2> ); # two positional Pair objects
+
+If the function ends with an expression without an explicit C<return>,
+that expression is also taken to be a C<Capture>, just as if expression
+were the argument to a C<return> list operator (with whitespace):
+
+    sub f { :x<1> } # named-argument binding (if caller uses *)
+    sub f { (:x<1>) } # always just one positional Pair object 
+
+On the caller's end, the C<Capture> is interpolated into any new argument list
+much like an array would be, that is, as a scalar in scalar context, and as
+a list in list context.  This is the default behavior, but as with an array,
+the caller may use C<< prefix:<*> >> to inline the returned values as part of
+the new argument list.  The caller may also bind the return Capture directly.
+
 =head2 The C<caller> function
 
 The C<caller> function returns an object that describes a particular 
@@ -1939,6 +1960,13 @@ C<Code> object by passing the C<Capture> to its C<call> method:
 
 Outside a wrapper, C<call> implicitly calls the next-most-likely method
 or multi-sub; see S12 for details.
+
+As with any return value, you may capture the returned C<Capture> of call
+by binding:
+
+    my \$retval = call(*$args);
+    ... # postprocessing
+    return *$retval;
 
 =head2 The C<&?ROUTINE> object
 
