@@ -20,6 +20,14 @@ sub constant {
     return "( ( \$s =~ m/^(\Q$const\E)(.*)/s ) ? do{ \$s = \$2; push \@match, \$1 } : 0 )";
 }
 
+sub capture { 
+    return "do{ 
+        push \@match, { 
+            name => '$_[0]', 
+            match => do{ my \@match; $_[1]; \\\@match },
+        } }";
+}
+
 sub null {
     "1";
 };
@@ -32,10 +40,18 @@ sub wrap {
     return "sub { my \@match; my \$s = shift; $_[0]; return \$s, \\\@match; }";
 }
 
+{
+my $r = capture( 'cap', constant('a') );
+print "Perl5 source:\n", wrap( $r ), "\n";
+my $x = eval wrap( $r );
+print "Tail, Match:\n", Dumper( $x->("abc") );
+}
+
+{
 my $r = 
     concat( 
         alternation( constant('a'), constant('b') ),
-        constant('b'),
+        capture( 'cap', constant('b') ),
     );
 print "Perl5 source:\n", wrap( $r ), "\n";
 my $x = eval wrap( $r );
@@ -50,6 +66,8 @@ Benchmark::cmpthese(500, {
     fast_x10     => sub{$x->('abc')         for 1..200},
     P5regex_x100 => sub{ 'abc' =~ /[a|b]b/o for 1..2000},
 });
+
+}
 
 __END__
 
