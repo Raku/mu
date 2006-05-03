@@ -17,7 +17,7 @@ sub concat {
 
 sub constant { 
     my $const = shift;
-    return "( ( \$s =~ m/^(\Q$const\E)(.*)/s ) ? ( \$s = \$2, push \@match, \$1 ) : 0 )";
+    return "( ( \$s =~ m/^(\Q$const\E)(.*)/s ) ? do{ \$s = \$2; push \@match, \$1 } : 0 )";
 }
 
 sub null {
@@ -29,7 +29,7 @@ sub optional {
 }
 
 sub wrap {
-    return eval( "sub { my \@match; my \$s = shift; $_[0]; return \$s, \\\@match; }" );
+    return "sub { my \@match; my \$s = shift; $_[0]; return \$s, \\\@match; }";
 }
 
 my $r = 
@@ -37,13 +37,14 @@ my $r =
         alternation( constant('a'), constant('b') ),
         constant('b'),
     );
-print $r;
-my $x = wrap( $r );
-print Dumper( $x->("abc") );
+print "Perl5 source:\n", wrap( $r ), "\n";
+my $x = eval wrap( $r );
+print "Tail, Match:\n", Dumper( $x->("abc") );
 
 use Benchmark;
 use Pugs::Compiler::Rule;
 my $rpcr = Pugs::Compiler::Rule->compile('[a|b]b');
+print "Benchmark:\n";
 Benchmark::cmpthese(500, {
     PCR_x1       => sub{$rpcr->match('abc') for 1..20},
     fast_x10     => sub{$x->('abc')         for 1..200},
