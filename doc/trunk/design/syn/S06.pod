@@ -15,7 +15,7 @@ Allison Randal <al@shadowed.net>
   Date: 21 Mar 2003
   Last Modified: 3 May 2006
   Number: 6
-  Version: 32
+  Version: 33
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1542,7 +1542,7 @@ not as if you'd said
 
     my sub wanda ($x) returns Fish { ... }
 
-It is possible for the outer type to disagree with the outside type:
+It is possible for the outer type to disagree with the inner type:
 
     my Squid sub wanda ($x) returns Fish { ... }
 
@@ -1738,6 +1738,14 @@ coerced to scalar context explicitly if that is desired.
 
 =head2 The C<return> function
 
+The C<return> function notionally throws a control exception that is caught
+by the current lexically enclosing C<Routine> to force a return through
+the control logic code of any intermediate block constructs.  With normal
+blocks this can be optimized away to a "goto".  All C<Routine> declarations
+have an explicit declarator such as C<sub> or C<method>; bare blocks and
+"pointy" subs are never considered to be routines in that sense.  To return
+from a block, use C<leave> instead--see below.
+
 The C<return> function preserves its argument list as a C<Capture> object, and
 responds to the left-hand C<Signature> in a binding.  This allows named return
 values if the caller expects one:
@@ -1762,17 +1770,17 @@ into a list operator:
     return ( :x<1>, :y<2> ); # two positional Pair objects
 
 If the function ends with an expression without an explicit C<return>,
-that expression is also taken to be a C<Capture>, just as if expression
+that expression is also taken to be a C<Capture>, just as if the expression
 were the argument to a C<return> list operator (with whitespace):
 
     sub f { :x<1> } # named-argument binding (if caller uses *)
     sub f { (:x<1>) } # always just one positional Pair object 
 
 On the caller's end, the C<Capture> is interpolated into any new argument list
-much like an array would be, that is, as a scalar in scalar context, and as
-a list in list context.  This is the default behavior, but as with an array,
-the caller may use C<< prefix:<*> >> to inline the returned values as part of
-the new argument list.  The caller may also bind the return Capture directly.
+much like an array would be, that is, as a scalar in scalar context, and as a
+list in list context.  This is the default behavior, but as with an array, the
+caller may use C<< prefix:<*> >> to inline the returned values as part of the
+new argument list.  The caller may also bind the returned C<Capture> directly.
 
 =head2 The C<caller> function
 
@@ -1834,7 +1842,7 @@ To return from other types of code structures, the C<leave> function is used:
     leave Method;               # return from innermost calling method
     leave &?SUB <== 1,2,3;      # Return from current sub. Same as: return 1,2,3
     leave &foo <== 1,2,3;       # Return from innermost surrounding call to &foo
-    leave Loop, :label<COUNT>;  # Same as: last COUNT;
+    leave Loop where { .label eq 'COUNT' };  # Same as: last COUNT;
 
 Note that the last is equivalent to
 
@@ -1843,6 +1851,10 @@ Note that the last is equivalent to
 and, in fact, you can return a final loop value that way:
 
     last COUNT <== 42;
+
+If supplied, the first argument to C<leave> is a C<Selector>, and will
+be smart-matched against the dynamic scope objects from inner to outer.
+The first that matches is the scope that is left.
 
 =head2 Temporization
 
@@ -1961,10 +1973,10 @@ C<Code> object by passing the C<Capture> to its C<call> method:
 Outside a wrapper, C<call> implicitly calls the next-most-likely method
 or multi-sub; see S12 for details.
 
-As with any return value, you may capture the returned C<Capture> of call
+As with any return value, you may capture the returned C<Capture> of C<call>
 by binding:
 
-    my \$retval = call(*$args);
+    my \$retval := call(*$args);
     ... # postprocessing
     return *$retval;
 
