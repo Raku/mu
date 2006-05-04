@@ -5,7 +5,7 @@ rule String {
 }
 
 rule VariableName {
-    \S+
+    \w+
 }
 
 rule Variable {
@@ -20,13 +20,21 @@ rule Constants {
 rule FunctionName { <VariableName> }
 
 rule Parameters {
-    <Expr> <ws>? [ \, <ws>? <Parameters> <ws>? ]*
+    <Expr> <ws>? [ , <ws>? <Parameters> <ws>? ]*
 }
 
 rule FunctionAppExpr {
-    <Variable> { use v5; return $<Variable> }
-    | <Constants>
-    | <FunctionName> <ws>? [ ( <ws>? <Parameters> ) ]?
+    <Variable> { use v5; return $<Variable>() }
+    | <Constants> { use v5; return $<Constants>() }
+    | <FunctionName> [ <ws>? \( <ws>? <Parameters> \) ]?
+    {
+      use v5;
+      if($<Parameters>[0]){
+	return "(" . $<FunctionName>() . $<Parameters>[0] . ")";
+      }else{
+	return $<FunctionName>();
+      }
+    }
 }
 
 rule AdditiveExpr {
@@ -35,7 +43,7 @@ rule AdditiveExpr {
       $<rhs> := (<AdditiveExpr>) <ws>? ]?
     { use v5;
       if($<op>[0]){
-	  return $<FunctionAppExpr>() . " " . $<op>[0] . " " . $<rhs>[0];
+	  return "(" . $<FunctionAppExpr>() . " " . $<op>[0] . " " . $<rhs>[0] . ")";
       }else{
 	  return $<FunctionAppExpr>();
       }
