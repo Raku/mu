@@ -3,9 +3,19 @@ package main;
 use Pugs::Grammar::MiniPerl6;
 use Data::Dumper;
 
-my $match = Pugs::Grammar::MiniPerl6->ProductionRule("return \$<a> + t + 3");
+my $match1 = Pugs::Grammar::MiniPerl6->ProductionRule("return \$<a> + t + 3");
 
-print $match->();  # return $ (a + (t + 3))
-print $match->from;
-print $match->to;
+print $match1->();  # return $ (a + (t + 3))
+
+my $match2 = Pugs::Grammar::MiniPerl6->ProductionRule("return App ( 2 )");
+
+print $match2->();  # return $ (App 2)
+
+my $match3 = Pugs::Grammar::MiniPerl6->ProductionRule(q#
+          return App(
+            Var( doYada( $<sym> ) ),
+            Nothing )
+#);
+
+print $match3->();  # return $ (App (Var (doYada sym)) Nothing)
 

@@ -20,17 +20,24 @@ rule Constants {
 rule FunctionName { <VariableName> }
 
 rule Parameters {
-    <Expr> <ws>? [ , <ws>? <Parameters> <ws>? ]*
+    <Expr> <ws>? [ , <ws>? $<param> := (<Parameters>) <ws>? ]?
+    { use v5;
+      if($<param>[0]){
+        return $<Expr>() . " " . $<param>[0];
+      }else{
+        return $<Expr>();
+      }
+    }
 }
 
 rule FunctionAppExpr {
     <Variable> { use v5; return $<Variable>() }
     | <Constants> { use v5; return $<Constants>() }
-    | <FunctionName> [ <ws>? \( <ws>? <Parameters> \) ]?
+    | <FunctionName> [ <ws>? <'('> <ws>? $<param> := (<Parameters>) <')'> ]?
     {
       use v5;
-      if($<Parameters>[0]){
-	return "(" . $<FunctionName>() . $<Parameters>[0] . ")";
+      if($<param>[0]){
+	return "(" . $<FunctionName>() . " " . $<param>[0] . ")";
       }else{
 	return $<FunctionName>();
       }
