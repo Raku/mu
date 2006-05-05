@@ -30,6 +30,6 @@ dies_ok {
         our $sa2 = my $sb2 = 42;
     }
     ($sa2, $sb2);
-   } "scoping our, my ('our' doesn't leak)";
+   }, "scoping our, my ('our' doesn't leak)";
 
 # XXX: add more!

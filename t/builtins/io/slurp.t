@@ -17,9 +17,9 @@ if $*OS eq "browser" {
 }
 
 {
-  dies_ok { slurp "does-not-exist" } "slurp() on not-existant files fails";
+  dies_ok { slurp "does-not-exist" }, "slurp() on not-existant files fails";
 }
 
 {
-  dies_ok { slurp "t/" } "slurp() on directories fails";
+  dies_ok { slurp "t/" }, "slurp() on directories fails";
 }
