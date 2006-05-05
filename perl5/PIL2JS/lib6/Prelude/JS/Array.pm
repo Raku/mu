@@ -69,7 +69,7 @@ sub JS::Root::map(Code $code, *@array is rw) is primitive {
   my @res;
   while +@array > 0 {
     my @args = ();
-    my $i; loop $i = 0; $i < $arity; $i++ {
+    my $i; loop ($i = 0; $i < $arity; $i++) {
       # Slighly hacky
       push @args: undef;
       @args[-1] := @array.shift;
@@ -117,7 +117,7 @@ sub JS::Root::reduce(Code $code, *@array) is primitive {
   my $ret = @array.shift;
   while +@array > 0 {
     my @args;
-    my $i; loop $i = 0; $i < $arity - 1; $i++ {
+    my $i; loop ($i = 0; $i < $arity - 1; $i++) {
       # Slighly hacky
       push @args: undef;
       @args[-1] := @array.shift;
@@ -214,7 +214,7 @@ sub infix:<..>(Num $from, Num $to) is primitive {
   my $i;
   my @res;
 
-  loop $i = $from; $i <= $to; $i++ {
+  loop ($i = $from; $i <= $to; $i++) {
     push @res, $i;
   }
 

@@ -37,13 +37,13 @@ sub statement_control:<loop>(Any $pre, Code $cond, Code $body, Code $post) is pr
 
 sub statement_control:<while>(Code $cond, Code $body) is primitive {
   my $ret;
-  loop 1; $ret = $cond(); 1 { $body() }
+  loop (1; $ret = $cond(); 1) { $body() }
   $ret;
 }
 
 sub statement_control:<until>(Code $cond, Code $body) is primitive {
   my $ret;
-  loop 1; !($ret = $cond()); 1 { $body() }
+  loop (1; !($ret = $cond()); 1) { $body() }
   $ret;
 }
 
@@ -71,7 +71,7 @@ sub statement_control:<for>(*@args) is primitive {
   my $idx = 0;
   while $idx < +@array {
     my @args = ();
-    my $i; loop $i = 0; $i < $arity; $i++ {
+    my $i; loop ($i = 0; $i < $arity; $i++) {
       # Slighly hacky
       push @args: undef;
       @args[-1] := @array[$idx++];

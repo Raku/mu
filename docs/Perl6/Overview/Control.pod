@@ -9,7 +9,7 @@ Perl6::Overview::Control - Control Structure
     loop { ... };
     loop { ... } while EXPR;
     loop { ... } until EXPR;
-    loop $i = 0; $i < 10; $i++ { ... }
+    loop ($i = 0; $i < 10; $i++) { ... }
     
     while EXPR { ... }
     until EXPR { ... }
