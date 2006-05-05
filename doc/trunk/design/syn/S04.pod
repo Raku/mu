@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 30 Apr 2006
+  Last Modified: 5 May 2006
   Number: 4
-  Version: 19
+  Version: 20
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -206,7 +206,8 @@ The C<loop> statement is the C-style C<for> loop in disguise:
 	...
     }
 
-As seen in the previous section, the 3-part loop spec may be entirely
+As in C, the parentheses are required if you supply the 3-part spec; however,
+as shown in the previous section, the 3-part loop spec may be entirely
 omitted to write an infinite loop.  If you omit the 3-part loop spec
 you may add a C<while> or C<until> statement modifier at the end
 to make it a "repeat at least once" loop.  Unlike C<do> in Perl 5,
