@@ -19,14 +19,13 @@ class Relation-0.0.1 {
     # (None Yet)
 
     # Attributes of every Relation object:
-    has Junction of Str $!heading;
-        # Junction of Str
-        # Each Junction member is a name of one of this Relation's
-        # attributes.
+    has Set of Str $!heading;
+        # Set of Str
+        # Each Set member is a name of one of this Relation's attributes.
         # Note that it is valid for a Relation to have zero attributes.
-    has Junction of Mapping(Str) of Any $!body;
-        # Junction of Mapping(Str) of Any
-        # Each Junction member is a tuple of this Relation, where the tuple
+    has Set of Mapping(Str) of Any $!body;
+        # Set of Mapping(Str) of Any
+        # Each Set member is a tuple of this Relation, where the tuple
         # is represented as a Mapping; each key of that Mapping is the name
         # of one of this Relation's attributes and the value corresponding
         # to that is the value for that attribute for that tuple.
@@ -34,16 +33,14 @@ class Relation-0.0.1 {
 
 ###########################################################################
 
-submethod BUILD (Junction of Str :$heading? = any(),
-        Junction of Mapping(Str) of Any :$body? = ()) {
-    $heading //= any(); #/
-    $body    //= ();    #/
+submethod BUILD (Set of Str :$heading? = set(),
+        Set of Mapping(Str) of Any :$body? = set()) {
 
     for $body.values -> $tuple {
-        die "The keys of a member of arg :$body do not match the members"
-                . " of arg :$heading; the header of a tuple in :$body"
-                . " does not match the header of this relation."
-            if !(all($tuple.keys) === $heading);
+        die "The keys of a member of arg :$body? do not match the members"
+                ~ " of arg :$heading?; the header of a tuple in :$body?"
+                ~ " does not match the header of this relation."
+            if !(all( $tuple.keys ) === $heading);
     }
 
     $!heading = $heading;
@@ -59,6 +56,47 @@ method export_as_hash () returns Hash {
         'heading' => $!heading,
         'body'    => $!body,
     };
+}
+
+###########################################################################
+
+method heading () returns Set of Str {
+    return $!heading;
+}
+
+method body () returns Set of Mapping(Str) of Any {
+    return $!body;
+}
+
+method size () returns Int {
+    return +$!body.values;
+}
+
+method exists (Mapping(Str) of Any $tuple!) returns Bool {
+    return $tuple === any($!body);
+}
+
+###########################################################################
+
+method rename (Mapping(Str) of Str $mapping!) returns Relation {
+
+    die "Some keys of :$mapping! do not match this relation's attributes."
+        if !(all( $mapping.keys ) === any( $!heading ));
+    die "Some values of :$mapping! duplicate each other."
+        if +all( $mapping.values ) != +$mapping.values;
+    die "Some values of :$mapping! duplicate attribute names of this"
+            ~ " relation that aren't being renamed."
+        if any( $mapping.values )
+            === any( $!heading.difference( all( $mapping.keys ) ) );
+
+    my %full_map = { $!heading.values.map:{ $_ => $_ }, $mapping.pairs };
+
+    return Relation.new(
+        heading => set( %full_map.values ),
+        body => set( $!body.values.map:{
+            mapping( $_.pairs.map:{ %full_map{$_.key} => $_.value } )
+        }),
+    );
 }
 
 ###########################################################################
@@ -168,17 +206,17 @@ change):
 
 =item C<$!heading> - B<Relation Heading>
 
-Junction of Str - This contains zero or more Relation attribute names that
+Set of Str - This contains zero or more Relation attribute names that
 define the heading of this Relation.  Each attribute name is a character
 string.
 
 =item C<$!body> - B<Relation Body>
 
-Junction of Mapping(Str) of Any - This contains zero or more member tuples
-of the Relation; each Junction member is a Mapping whose keys and values
-are attribute names and values.  Each Mapping key of a Body tuple must
-match a Junction member of Heading, and the value of every tuple in Body
-must be mutually distinct.
+Set of Mapping(Str) of Any - This contains zero or more member tuples of
+the Relation; each Set member is a Mapping whose keys and values are
+attribute names and values.  Each Mapping key of a Body tuple must match a
+Set member of Heading, and the value of every tuple in Body must be
+mutually distinct.
 
 =back
 
@@ -186,15 +224,14 @@ This is the main Relation constructor method:
 
 =over
 
-=item C<new( Junction of Str :$heading?, Junction of Mapping(Str) of Any
-:$body? )>
+=item C<new( Set of Str :$heading?, Set of Mapping(Str) of Any :$body? )>
 
 This method creates and returns a new Relation object, whose Heading and
 Body attributes are set respectively from the optional named parameters
-$heading and $body.  If $heading is undefined or an empty Junction, the
-Relation has zero attributes.  If $body is undefined or an empty Junction,
-the Relation has zero tuples.  If a Relation has zero attributes, then
-$body may be an Junction with a single member that is an empty Mapping.
+$heading and $body.  If $heading is undefined or an empty Set, the Relation
+has zero attributes.  If $body is undefined or an empty Set, the Relation
+has zero tuples.  If a Relation has zero attributes, then $body may be an
+Set with a single member that is an empty Mapping.
 
 =back
 
@@ -206,6 +243,34 @@ A Relation object has these methods:
 
 This method returns a deep copy of this Relation as a Hash ref of 2
 elements, which correspond to the 2 named parameters of new().
+
+=item C<heading()>
+
+This method returns this Relation's heading.
+
+=item C<body()>
+
+This method returns this Relation's body.
+
+=item C<size()>
+
+This method returns a count of this Relation's member tuples as an Int.
+
+=item C<exists( Mapping(Str) of Any $tuple! )>
+
+This method returns a Bool indicating whether the argument $tuple exists in
+/ is a member of this Relation.
+
+=item C<rename( Mapping(Str) of Str $mapping! )>
+
+This method is a generic relational operator that returns a new Relation
+which is the same as the invocant Relation but that some of its attributes
+are renamed.  The argument $mapping says which attributes are being
+renamed, with its keys being the old names and its values the new names.
+This method will fail if any $mapping keys do not match invocant Relation
+attribute names, or any $mapping values duplicate each other, or duplicate
+attribute names that aren't being renamed.  This method supports renaming
+attributes to each others' names.
 
 =back
 
