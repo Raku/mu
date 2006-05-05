@@ -104,7 +104,7 @@ if $*OS eq "browser" {
 
     ($beguser,$begsys) = times;
     my $i;
-    loop $i = 0; $i < 100000; $i++ {
+    loop ($i = 0; $i < 100000; $i++) {
         ($nowuser, $nowsys) = times;
         $i = 200000 if $nowuser > $beguser && ( $nowsys >= $begsys || (!$nowsys && !$begsys));
         $now = time;
