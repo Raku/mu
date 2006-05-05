@@ -182,7 +182,7 @@ use the C<[;]> reduce operator:
 
 which is equivalent to
 
-    @array.postcircumfix:<[ ]>( <== @x[0] <== @x[1] <== @x[2]...);
+    @array.postcircumfix:<[ ]>( <== @x[0] <== @x[1] <== @x[2]..*);
 
 Alternately, use a multislice array, indicated by a double C<@@> sigil:
 
@@ -195,7 +195,7 @@ distinct dimensions:
     my @@x;
     @@x <==  %hash.keys.grep: {/^X/};
     @@x <== =<>;
-    @@x <== 1...;
+    @@x <== 1..*;
     @@x <== gather { loop { take rand 100 } };
 
     %hash{@@x}
@@ -207,7 +207,7 @@ in the end:
     my @x;
     @x <==  %hash.keys.grep: {/^X/};
     @x <== =<>;
-    @x <== 1...;
+    @x <== 1..*;
     @x <== gather { loop { take rand 100 } };
 
     %hash{@@x}	# multidimensional
@@ -308,7 +308,7 @@ dimensionality supported by the implementation.  You may use arrays
 just like scalars -- the main caveat is that you have to use
 binding rather than assignment to set one without copying:
 
-    @b := @a[0...:by(2)]
+    @b := @a[0..(*):by(2)]
 
 With PDLs in particular, this might alias each of the individual
 elements rather than the array as a whole.  So modifications to @b
@@ -340,7 +340,7 @@ of an array is sliced separately, so we say a subscript is a
 semicolon-separated list of slice specifiers, also known as a multislice.
 A three-dimensional slice might look like this:
 
-    @x[0..10; 1,0; 1...:by(2)]
+    @x[0..10; 1,0; 1..(*):by(2)]
 
 It is up to the implementation of C<@x> to decide how aggressively
 or lazily this subscript is evaluated, and whether the slice entails
@@ -412,9 +412,9 @@ values from these ranges and "piddle" around with them:
 
     @nums[$min..$max:by(3)]
     @nums[$min..$max]
-    @nums[$min...:by(3)]
-    @nums[1...:by(2)]		# the odds
-    @nums[0...:by(2)]		# the evens
+    @nums[$min..(*):by(3)]
+    @nums[1..(*):by(2)]		# the odds
+    @nums[0..(*):by(2)]		# the evens
 
 That's all just the standard Perl 6 notation for ranges.  Additional
 syntactic relief is always available as long as it's predeclared
@@ -440,15 +440,7 @@ rather than
 
     0 .. Inf :by(2)
 
-That why we have postfix C<...> to mean C<..Inf>.  But then if you
-leave out the first argument:
-
-    ...:by(2)
-
-you've written the yada-yada-yada operator, which is actually a term
-that will not produce an infinite range for you.  Don't do that.
-
-Maybe you should just find some nice Unicode characters for your operators...
+That's why we have postfix C<..*> to mean C<..Inf>.
 
 =head1 PDL signatures
 
@@ -700,7 +692,7 @@ user replaced.  When the hash itself needs an iterator for C<.pairs>,
 C<.keys>, C<.values>, or C<.kv>, it calls C<%hash.iterator()> to
 start one.  In scalar context, C<.iterator> returns an iterator object.
 In list context, it returns a lazy list fed by the iterator.  It must
-be possible for a hash to be in more than one iterator at at time,
+be possible for a hash to be in more than one iterator at a time,
 as long as the iterator state is stored in a lazy list.
 However, there is only one implicit iterator (the C<each> iterator)
 that works in scalar context to return the next pair.  [Or maybe not.]

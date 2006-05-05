@@ -342,4 +342,4 @@ a bare literal in a void context I<ought> to have produced a warning.
 It's not necessary to force Perl 6 if the interpreter or command
 specified already implies it, such as use of a "C<#!/usr/bin/perl6>"
 shebang line.  Nor is it necessary to force Perl 6 in any file that
-beings with the "class" or "module" keywords.
+begins with the "class" or "module" keywords.
