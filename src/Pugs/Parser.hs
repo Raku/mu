@@ -1005,7 +1005,7 @@ ruleLoopConstruct = rule "loop construct" $ do
 
 ruleSemiLoopConstruct :: RuleParser Exp
 ruleSemiLoopConstruct = rule "for-like loop construct" $ do
-    conds <- maybeParens $ try $ do
+    conds <- parens $ do
         a <- option emptyExp ruleExpression
         symbol ";"
         b <- option emptyExp ruleExpression
