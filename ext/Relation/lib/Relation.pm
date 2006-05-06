@@ -78,6 +78,17 @@ method exists (Mapping(Str) of Any $tuple!) returns Bool {
 
 ###########################################################################
 
+method equal (Relation $other!) returns Bool {
+    return $other!heading === $?SELF!heading
+        and $other!body === $?SELF!body;
+}
+
+method not_equal (Relation $other!) returns Bool {
+    return !$?SELF.equal( $other );
+}
+
+###########################################################################
+
 method rename (Mapping(Str) of Str $mapping!) returns Relation {
 
     die "Some keys of :$mapping! do not match this relation's attributes."
@@ -97,6 +108,33 @@ method rename (Mapping(Str) of Str $mapping!) returns Relation {
             mapping( $_.pairs.map:{ %full_map{$_.key} => $_.value } )
         }),
     );
+}
+
+###########################################################################
+
+method project (Set of Str $attrs!) returns Relation {
+
+    if ($attrs.size() == 0) {
+        return Relation.new( heading => set(), body => set( mapping() ) );
+    }
+
+    if ($attrs === $!heading) {
+        return $?SELF;
+    }
+
+    die "Some members of :$attrs! do not match this relation's attributes."
+        if !(all( $attrs ) === any( $!heading ));
+
+    return Relation.new(
+        heading => $attrs,
+        body => set( $!body.values.map:{
+            mapping( $_.pairs.grep:{ $_.key === any( $attrs ) } )
+        }),
+    );
+}
+
+method project_all_but (Set of Str $attrs!) returns Relation {
+    return $?SELF.project( $!heading.difference( $attrs ) );
 }
 
 ###########################################################################
@@ -261,6 +299,15 @@ This method returns a count of this Relation's member tuples as an Int.
 This method returns a Bool indicating whether the argument $tuple exists in
 / is a member of this Relation.
 
+=item C<equal( Relation $other! )>
+
+This method returns a Bool indicating whether the immutable identity of the
+argument $other equals the immutable identity of the invocant.
+
+=item C<not_equal( Relation $other! )>
+
+This method returns the complement of equal() with the same argument.
+
 =item C<rename( Mapping(Str) of Str $mapping! )>
 
 This method is a generic relational operator that returns a new Relation
@@ -271,6 +318,26 @@ This method will fail if any $mapping keys do not match invocant Relation
 attribute names, or any $mapping values duplicate each other, or duplicate
 attribute names that aren't being renamed.  This method supports renaming
 attributes to each others' names.
+
+=item C<project( Set of Str $attrs! )>
+
+This method is a generic relational operator that returns a new Relation
+which has a subset of the original's attributes; that subset is the same as
+those attribute names in the argument $attrs.  The new Relation has all of
+the tuples of the original (or rather, the corresponding projection of each
+tuple), but that any duplicates following the projection have been
+eliminated.  Trivial cases are where $attrs is either empty or equal to the
+invocant Relation's header, in which case it returns the identity-one
+Relation or the invocant Relation respectively.  This method will fail if
+any members of $attrs do not match attribute names of the invocant
+Relation.  Note that some implementations of the relational model use the
+keyword 'select' to mean 'project'.
+
+=item C<project_all_but( Set of Str $attrs! )>
+
+This method is the same as project() but that the returned Relation has the
+complement subset of the original's attributes to what project() would
+return given the same $attrs;
 
 =back
 
