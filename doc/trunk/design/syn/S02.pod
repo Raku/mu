@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 2 May 2006
+  Last Modified: 6 May 2006
   Number: 2
-  Version: 37
+  Version: 38
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -79,9 +79,8 @@ mappings introduced in the future.
 
 Single-line comments work as in Perl 5, starting with a C<#> character
 and ending at the subsequent newline.  They count as whitespace
-equivalent to newline for purposes of separation.  Certain quoting
-tokens may make use of C<#> characters as delimiters without starting
-a comment.
+equivalent to newline for purposes of separation.  Unlike in Perl 5,
+C<#> may not be used as the delimiter in quoting constructs.
 
 =item *
 
@@ -1354,6 +1353,8 @@ brackets may also require whitespace when they would be understood as
 an argument to an adverb in something like C<< q:z<foo>// >>.
 A colon may never be used as the delimiter since it will always be
 taken to mean another adverb regardless of what's in front of it.
+Nor may a C<#> character be used as the delimiter since it is always
+taken as whitespace (specifically, as a comment).
 
 =item *
 
