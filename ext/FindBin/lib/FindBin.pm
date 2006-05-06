@@ -32,7 +32,7 @@ sub init {
         my Int $dosish = ( $?OS eq 'MSWin32' or $?OS eq 'os2' );
         &readlink := { undef } if $dosish;
 
-        unless ( ( $script ~~ m:P5#/# || ( $dosish && $script ~~ m:P5#\\# ) )
+        unless ( ( $script ~~ m:P5 [/] || ( $dosish && $script ~~ m:P5 [\\] ) )
                  && -f $script )
         {
             for File::Spec.path() -> $dir {
@@ -40,7 +40,8 @@ sub init {
                 if -r $scr && ( !$dosish || -x _ ) {
                     $script = $scr;
                     if -f $*PROGRAM_NAME {
-                        $script = $*PROGRAM_NAME unless -T $script;
+			# XXX -T doesn't work yet.
+                        $script = $*PROGRAM_NAME unless try { -T $script };
                     }
                     last;
                 }
