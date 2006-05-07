@@ -56,18 +56,18 @@ grammar Signature {
     # this allows specifying a type on a parameter, as well as
     # parameterizing that type.
     # Future uses of the type parameter will have to refer
-    # back to $/<typeParam><type>[1] or something?
+    # back to $/<typeParam>[*]<type>[1] or something?
     rule typeParam { <type> [ \:\: <type> ]? }
 
     # $x, $^x
-    # can treat positionals as named with $/<positional><name>[0]
+    # can treat positionals as named with $/<positional>[*]<name>[0]
     # XXX need to set the default to isRequired
     rule positional {
         [ <sigil> <twigil>? <name> ]
     }
 
     # :$x and :x($y)
-    # external name will be $/<named><name>[0], internal will be [1]
+    # external name will be $/<named>[*]<name>[0], internal will be [1]
     # XXX need to set the default to isOptional
     # XXX what are the rules for external names?  any valid hash key?
     rule named {
@@ -76,6 +76,12 @@ grammar Signature {
         | <sigil> <name>
         | <open_group> <name> <sigil> <name> <close_group>
         ]
+
+        # XXX how should I do this?
+        # I want to do something like
+        # { $/<named>[*]<name>[0] := $/<named>[*]<externalName>;
+        #   $/<named>[*]<name>[1] := $/<named>[*]<internalName>;
+        # } 
     }
 
     # [ $x, *@y ]
