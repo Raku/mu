@@ -13,10 +13,11 @@ grammar Signature {
 
     # names don't have \d as the first character and have
     # at least one non-_ character
+    # XXX this allows all _ names as long as there's at least 2 _.  OK?
     token name { [ <alpha> | _ ]+ [ <alpha> | \d | _ ]+  }
 
     # types start with an uppercase letter
-    token type { <upper>+ [ <alpha> | _ ]* \s+ }
+    token type { <upper>+ [ <alpha> | _ | \d ]* \s+ }
         
     # parse *@x and :$x and mark for slurpy/named
     # XXX does this need to handle \ at all?
@@ -47,7 +48,7 @@ grammar Signature {
     token open_group { <[<({[]> }   # should be Ps and <
     token close_group { <[>)}\]]> } # should be Pe and >
                            
-    # $x, $^x, $x? and $x!
+    # $x, $^x
     rule positional {
         [ <sigil> <twigil>? <name> ]
     }
@@ -58,16 +59,18 @@ grammar Signature {
         <named_mod>
         [
         | <sigil> <name>
-        |  <open_group> <name>* <sigil> <name> <close_group>
+        | <open_group> <name>* <sigil> <name> <close_group>
         ]
     }
 
     # [ $x, *@y ]
     # XXX almost definitely broken, need help
-    rule packed { <open_group> <positional>+ <slurpy>? <close_group> }
+    rule unpacked {
+        <open_group> <type>? <positional>+ <trait>* <slurpy>? <close_group>
+    }
         
     rule param {
-        <type>? [ <positional> | <named> | <packed> ] <postfix_mod>? <trait>*
+        <type>? [ <positional> | <named> | <unpacked> ] <postfix_mod>? <trait>*
     }
         
     # *@x
@@ -79,7 +82,8 @@ grammar Signature {
 
     # signature for a single dispatch routine
     # XXX is more than one slurpy allowed?
+    # XXX this allows unpacking unpacked params, which is certainly wrong
     rule sd_sig {
-        <param>* <slurpy>? <returnType>?
+        [ <param> <unpacked>?, ]* <slurpy>? <returnType>?
     }
 }
