@@ -8,7 +8,7 @@
 # XXX lots of other no support things, I'm sure
 
 # XXX trusting rules to DWIM for whitespace.
-#   Do I have to explicit in places where whitespace is _not_ allowed?
+#   Do I have to be explicit in places where whitespace is _not_ allowed?
 #     $ foo # should not be allowed
 #   Do I have to be explicit about places where whitespace is required?
 #     $foo is rwis deep # should not be allowed
