@@ -1,0 +1,85 @@
+# A set of rules for parsing Signatures in perl6
+
+# XXX no support for identifying invocants
+# XXX no support for tiebreaking with different invocants for multi dispatch
+# XXX no support for type parameters
+# XXX whitespace handling is highly questionable
+# XXX lots of other no support things, I'm sure
+
+grammar Signature {
+    # perl6 sigils in signatures
+    # XXX does this need to handle ^ as a sigil?
+    token sigil { <[$@%&]> }
+
+    # names don't have \d as the first character and have
+    # at least one non-_ character
+    token name { [ <alpha> | _ ]+ [ <alpha> | \d | _ ]+  }
+
+    # types start with an uppercase letter
+    token type { <upper>+ [ <alpha> | _ ]* \s+ }
+        
+    # parse *@x and :$x and mark for slurpy/named
+    # XXX does this need to handle \ at all?
+    token isNamed { <[:]> }
+    token isSlurpy { <[*]> }
+    token prefix_mod { [ <isNamed> | <isSlurpy> ] }
+
+    # parse $x! and $x? and mark for required/optional
+    # XXX is this really the best place to require trailing whitespace?
+    token isOptional { <[?]> }
+    token isRequired { <[!]> }
+    token postfix_mod { [<isOptional> | <isRequired> ] \s+}
+
+    # parse $^x and mark it as an implicit param
+    token isImplicit { <[^]> }
+    token twigil { <isImplicit> }
+
+    token trait { is \s+ <name> }
+
+    token returnType { \-\-\> <type> }
+
+    # this only handles the introduction of a type parameter
+    # XXX how do I parse future uses of a type parameter declared this way?
+    token typeParam { \:\: <type> }
+
+    # stand in for bracketing constructs
+    # XXX add more or get unicode character classes working
+    token open_group { <[<({[]> }   # should be Ps and <
+    token close_group { <[>)}\]]> } # should be Pe and >
+                           
+    # $x, $^x, $x? and $x!
+    rule positional {
+        [ <sigil> <twigil>? <name> ]
+    }
+
+    # :$x and :x($y)
+    # XXX what are the rules for external names?  any valid hash key?
+    rule named {
+        <named_mod>
+        [
+        | <sigil> <name>
+        |  <open_group> <name>* <sigil> <name> <close_group>
+        ]
+    }
+
+    # [ $x, *@y ]
+    # XXX almost definitely broken, need help
+    rule packed { <open_group> <positional>+ <slurpy>? <close_group> }
+        
+    rule param {
+        <type>? [ <positional> | <named> | <packed> ] <postfix_mod>? <trait>*
+    }
+        
+    # *@x
+    # need to keep slurpies separate from other params because they have to come last
+    # XXX *@^x is possible, right?
+    rule slurpy {
+        <type>? <slurpy_mod> <sigil> <twigil>? <name> <trait>*
+    }
+
+    # signature for a single dispatch routine
+    # XXX is more than one slurpy allowed?
+    rule sd_sig {
+        <param>* <slurpy>? <returnType>?
+    }
+}
