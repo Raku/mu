@@ -2,11 +2,25 @@
 
 # XXX no support for identifying invocants
 # XXX no support for tiebreaking with different invocants for multi dispatch
-# XXX no support for type parameters
-# XXX whitespace handling is highly questionable
+# XXX no support for isLValue, isWritable, or isLazy (don't understand isLazy)
+#       described in Internals.hs line 798
+
 # XXX lots of other no support things, I'm sure
 
+# XXX trusting rules to DWIM for whitespace.
+#   Do I have to explicit in places where whitespace is _not_ allowed?
+#     $ foo # should not be allowed
+#   Do I have to be explicit about places where whitespace is required?
+#     $foo is rwis deep # should not be allowed
+
+# XXX need to learn a mechanism for setting defaults (isRequired, etc)
+
 grammar Signature {
+    # stand-in for bracketing constructs
+    # XXX add more or get unicode character classes working
+    token open_group { <[<({[]> }   # should be Ps and <
+    token close_group { <[>)}\]]> } # should be Pe and >
+                           
     # perl6 sigils in signatures
     # XXX does this need to handle ^ as a sigil?
     token sigil { <[$@%&]> }
@@ -17,7 +31,7 @@ grammar Signature {
     token name { [ <alpha> | _ ]+ [ <alpha> | \d | _ ]+  }
 
     # types start with an uppercase letter
-    token type { <upper>+ [ <alpha> | _ | \d ]* \s+ }
+    token type { <upper>+ [ <alpha> | _ | \d ]* }
         
     # parse *@x and :$x and mark for slurpy/named
     # XXX does this need to handle \ at all?
@@ -26,64 +40,67 @@ grammar Signature {
     token prefix_mod { [ <isNamed> | <isSlurpy> ] }
 
     # parse $x! and $x? and mark for required/optional
-    # XXX is this really the best place to require trailing whitespace?
     token isOptional { <[?]> }
     token isRequired { <[!]> }
-    token postfix_mod { [<isOptional> | <isRequired> ] \s+}
+    token postfix_mod { [<isOptional> | <isRequired> ] }
 
     # parse $^x and mark it as an implicit param
+    # leave room for other twigils
     token isImplicit { <[^]> }
     token twigil { <isImplicit> }
 
     token trait { is \s+ <name> }
 
-    token returnType { \-\-\> <type> }
+    rule returnType { \-\-\> <type> }
 
-    # this only handles the introduction of a type parameter
-    # XXX how do I parse future uses of a type parameter declared this way?
-    token typeParam { \:\: <type> }
+    # this allows specifying a type on a parameter, as well as
+    # parameterizing that type.
+    # Future uses of the type parameter will have to refer
+    # back to $/<typeParam><type>[1] or something?
+    rule typeParam { <type> [ \:\: <type> ]? }
 
-    # stand in for bracketing constructs
-    # XXX add more or get unicode character classes working
-    token open_group { <[<({[]> }   # should be Ps and <
-    token close_group { <[>)}\]]> } # should be Pe and >
-                           
     # $x, $^x
+    # can treat positionals as named with $/<positional><name>[0]
+    # XXX need to set the default to isRequired
     rule positional {
         [ <sigil> <twigil>? <name> ]
     }
 
     # :$x and :x($y)
+    # external name will be $/<named><name>[0], internal will be [1]
+    # XXX need to set the default to isOptional
     # XXX what are the rules for external names?  any valid hash key?
     rule named {
-        <named_mod>
+        <isNamed>
         [
         | <sigil> <name>
-        | <open_group> <name>* <sigil> <name> <close_group>
+        | <open_group> <name> <sigil> <name> <close_group>
         ]
     }
 
     # [ $x, *@y ]
-    # XXX almost definitely broken, need help
+    # XXX how should unpacked params be accessed?  in $/<unpacked>?
+    #  in some cases they'll be aliased to something in $/<positional|named>
+    #  in other cases, they'll act as anonymous $<positional>
     rule unpacked {
-        <open_group> <type>? <positional>+ <trait>* <slurpy>? <close_group>
+        <open_group> <typeParam>? <positional>+ <trait>* <slurpy>? <close_group>
     }
         
     rule param {
-        <type>? [ <positional> | <named> | <unpacked> ] <postfix_mod>? <trait>*
+        <typeParam>? [ <positional> | <named> | <unpacked> ] <postfix_mod>? <trait>*
     }
         
     # *@x
     # need to keep slurpies separate from other params because they have to come last
     # XXX *@^x is possible, right?
     rule slurpy {
-        <type>? <slurpy_mod> <sigil> <twigil>? <name> <trait>*
+        <typeParam>? <isSlurpy> <sigil> <twigil>? <name> <trait>*
     }
 
     # signature for a single dispatch routine
     # XXX is more than one slurpy allowed?
     # XXX this allows unpacking unpacked params, which is certainly wrong
     rule sd_sig {
-        [ <param> <unpacked>?, ]* <slurpy>? <returnType>?
+        [ <param> <unpacked>? , ]* <slurpy>? <returnType>?
     }
 }
