@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 30 Apr 2006
+  Last Modified: 8 May 2006
   Number: 12
-  Version: 14
+  Version: 15
 
 =head1 Overview
 
@@ -614,7 +614,10 @@ are multiple visible long names, they are all considered candidates.
 They are sorted into an order according to how close the actual types
 of the arguments match up with the declared types of the parameters of
 each candidate.  The best candidate is called, unless there's a tie,
-in which case only candidates marked with the C<default> trait are
+in which case the tied candidates are redispatched using any additional
+tiebreaker long names (see below).
+
+If a tie still results, only candidates marked with the C<default> trait are
 considered, and the best matching default routine is used.  If there
 are no default routines, or if the available defaults are also tied,
 a final tie-breaking proto sub is called, if there is one (see above).
@@ -633,9 +636,38 @@ invocant list:
 
     multi sub infix:<..>(Int $min, Int $max: Int $by = 1) {...}
 
+The final colon, if any, determines the complete long name of a multi.
+However, a given multi may advertise multiple long names, some
+of which are shorter than the complete long name.  This is done by
+putting a colon after each advertised long name (replacing the comma,
+if present).  The initial dispatch is always to the shortest advertised
+long name.  Since the shorter long name does not guarantee uniqueness,
+if that shorter long name is chosen for dispatch, and a tie would be
+declared for that dispatch, the next longer set of long names may be
+used to break ties, for those candidates that supply longer names.
+(As a limiting case, marking every parameter as the end of a long
+name produces dispatch semantics like Common Lisp.)
+
 Within a class, C<multi submethod> is visible to both method-dispatch
 and subroutine-dispatch.  A C<multi method> never participates in the
-subroutine-dispatch process.
+subroutine-dispatch process.  It is dispatched just like a normal
+method, then the tie-breaking rules of the previous paragraph are applied.
+That is, the shortest long name of a multi method includes I<only> the
+single invocant, and any additional colons may only indicate long names
+to be used as tiebreakers.
+
+Conjecture: In order to specify dispatch that includes the return
+type context, it is necessary to place a colon after the return type:
+
+    multi infix:<..>(Int $min, Int $max: Int $by = 1 --> Iterator:) {...}
+    multi infix:<..>(Int $min, Int $max: Int $by = 1 --> Selector:) {...}
+
+Note that such a declaration might have to delay dispatch until the
+actual desired type is known!  (Generally, you might just consider
+returning a flexible C<Range> object instead of an anonymous partial
+dispatch that may or may not be resolved at compile time via type
+inferencing.  Therefore return-type tiebreaking need not be supported
+in 6.0.0 unless some enterprising soul decides to make it work.)
 
 =head2 Method call vs. Subroutine call
 
