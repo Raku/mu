@@ -8,8 +8,14 @@ rule VariableName {
     \w+
 }
 
+rule CaptureVariableName {
+    \< <VariableName> \> { use v5; return $<VariableName>() }
+    | $<cap_num> := (\d+) { use v5; return "c_" . $<cap_num> }
+}
+
 rule Variable {
-    \$\< <VariableName> \> { use v5; return $<VariableName>() }
+    \$ <CaptureVariableName>
+    { use v5; return $<CaptureVariableName>() }
 }
 
 rule Constants {
@@ -50,7 +56,8 @@ rule AdditiveExpr {
       $<rhs> := (<AdditiveExpr>) <ws>? ]?
     { use v5;
       if($<op>[0]){
-	  return "(" . $<FunctionAppExpr>() . " " . $<op>[0] . " " . $<rhs>[0] . ")";
+	  my $op = $<op>[0] eq '~' ? '++' : $<op>[0];
+	  return "(" . $<FunctionAppExpr>() . " " . $op . " " . $<rhs>[0] . ")";
       }else{
 	  return $<FunctionAppExpr>();
       }
