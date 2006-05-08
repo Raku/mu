@@ -13,8 +13,8 @@
 grammar Signature {
     # stand-in for bracketing constructs
     # XXX add more or get unicode character classes working
-    token open_group { <[<({[]> }   # should be Ps and <
-    token close_group { <[>)}\]]> } # should be Pe and >
+    token openGroup { <[<({[]> }   # should be Ps and <
+    token closeGroup { <[>)}\]]> } # should be Pe and >
                            
     # perl6 sigils in signatures
     # XXX does this need to handle ^ as a sigil?
@@ -30,8 +30,8 @@ grammar Signature {
     # at least one non-_ character
     # XXX this allows  [_]**{2..*} names.  OK?
     token paramName    { [ <alpha> | _ ]+ [ <alpha> | \d | _ ]+  }
-    token internalName { <paramName> }
-    token externalName { <paramName> }
+    token internal     { <paramName> }
+    token external     { <paramName> }
 
     # defaults for arguments can be assigned in the sig
     rule default { = <expression( terminates => ',' )> }
@@ -77,7 +77,7 @@ grammar Signature {
         <isNamed>
         [
         | <sigil> <twigil>? $<internal> := <external>
-        | <open_group> <external> <sigil> <twigil>? <internal> <close_group>
+        | <openGroup> <external> <sigil> <twigil>? <internal> <closeGroup>
         ]
     }
 
@@ -86,7 +86,7 @@ grammar Signature {
     #  in some cases they'll be aliased to something in $/<positional|named>
     #  in other cases, they'll act as anonymous $<positional>
     rule unpacked {
-        <open_group> <typeParam>? <positional>+ <trait>* <slurpy>? <close_group>
+        <openGroup> <typeParam>? <positional>+ <trait>* <slurpy>? <closeGroup>
     }
         
     rule param {
