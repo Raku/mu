@@ -4,8 +4,6 @@
 # XXX no support for isLValue, isWritable, or isLazy (don't understand isLazy)
 #       described in InternalNames.hs line 798
 
-# XXX am I doing the aliasing correctly?
-
 # XXX trusting rules to DWIM for whitespace.
 #   Do I have to be explicit in places where whitespace is _not_ allowed?
 #     $ foo # should not be allowed
@@ -31,7 +29,7 @@ grammar Signature {
     # names don't have \d as the first character and have
     # at least one non-_ character
     # XXX this allows  [_]**{2..*} names.  OK?
-    token paramName { [ <alpha> | _ ]+ [ <alpha> | \d | _ ]+  }
+    token paramName    { [ <alpha> | _ ]+ [ <alpha> | \d | _ ]+  }
     token internalName { <paramName> }
     token externalName { <paramName> }
 
@@ -48,18 +46,18 @@ grammar Signature {
     
     # parse *@x and :$x and mark for slurpy/named
     # XXX does this need to handle \ at all?
-    token isNamed { <[:]> }
-    token isSlurpy { <[*]> }
+    token isNamed    { <[:]> }
+    token isSlurpy   { <[*]> }
     token prefix_mod { [ <isNamed> | <isSlurpy> ] }
 
     # parse $x! and $x? and mark for required/optional
-    token isOptional { <[?]> }
-    token isRequired { <[!]> }
-    token postfix_mod { [<isOptional> | <isRequired> ] }
+    token isOptional  { <[?]> }
+    token isRequired  { <[!]> }
+    token postfix_mod { [ <isOptional> | <isRequired> ] }
 
     # parse $^x and mark it as an implicit.  leave room for other twigils
     token isImplicit { <[^]> }
-    token twigil { <isImplicit> }
+    token twigil     { <isImplicit> }
 
     # traits have the same rules for names as params
     token traitName := paramName;
@@ -70,7 +68,7 @@ grammar Signature {
 
     # $x, $^x
     rule positional {
-        [ <sigil> <twigil>? <internal> := $<external> ]
+        [ <sigil> <twigil>? $<internal> := <external> ]
     }
 
     # :$x and :x($y)
@@ -78,7 +76,7 @@ grammar Signature {
     rule named {
         <isNamed>
         [
-        | <sigil> <twigil>? <internal> := $<external>
+        | <sigil> <twigil>? $<internal> := <external>
         | <open_group> <external> <sigil> <twigil>? <internal> <close_group>
         ]
     }
