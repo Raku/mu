@@ -1,7 +1,7 @@
 grammar Pugs::Grammar::MiniPerl6;
 
 rule String {
-    \" .* \"
+    \" [ <[^\"]> | \\" | \\\\ ]* \"
 }
 
 rule VariableName {
@@ -10,7 +10,7 @@ rule VariableName {
 
 rule CaptureVariableName {
     \< <VariableName> \> { use v5; return $<VariableName>() }
-    | $<cap_num> := (\d+) { use v5; return "c_" . $<cap_num> }
+    | $<cap_num> := (\d+) { use v5; return "capture_" . $<cap_num> }
 }
 
 rule Variable {

@@ -19,7 +19,9 @@ my $match3 = Pugs::Grammar::MiniPerl6->ProductionRule(q#
 
 print $match3->();  # return $ (App (Var (doYada sym)) Nothing)
 
-my $match4 = Pugs::Grammar::MiniPerl6->ProductionRule("return App(\$1 ~ \$<sym>)");
+my $match4 = Pugs::Grammar::MiniPerl6->
+    ProductionRule('return App($1 ~ "backslash: \\"\\\\\\"" ~ $<sym>)');
 
-print $match4->();  # return $ (App (capture_1 ++ sym))
+print $match4->();  # return $ (App (capture_1 ++ ("backslash: \"\\\"" ++ sym)))
+
 
