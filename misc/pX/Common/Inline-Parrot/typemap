@@ -1,3 +1,14 @@
 TYPEMAP
 Parrot_Interp	T_PTROBJ
-PMC *	 T_PTROBJ
+PMC*	T_PTROBJ
+INPUT
+T_PMC
+	if (sv_derived_from($arg, "PMC")) {
+	    IV tmp = SvIV((SV*)SvRV($arg));
+	    $var = INT2PTR($type,tmp);
+	}
+	else
+	    Perl_croak(aTHX_ "PMC")
+OUTPUT
+T_PMC
+	sv_setref_pv($arg, "PMC", (void*)$var);
