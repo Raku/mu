@@ -75,8 +75,13 @@ grammar Signature {
         <is_named>
         [
         | <sigil> $<internal> := <external>?
-        | <open_group> <external>? <sigil> <twigil>? <internal> <close_group>
+        | <open_group> <external>? <sigil> <internal> <close_group>
         ]
+    }
+
+    # *@x
+    rule slurpy {
+        <type_param>? <is_slurpy> <positional>? <trait>* <default>?
     }
 
     # [ $x, *@y ]
@@ -84,7 +89,7 @@ grammar Signature {
     #  in some cases they'll be aliased to something in $<positional|named>
     #  in other cases, they'll act as anonymous $<positional>
     rule unpacked {
-        <open_group> <type_param>? <positional>+ <trait>* <slurpy>? <close_group>
+        <open_group> <type_param>? <positional>+ <trait>* <slurpy>* <close_group>
     }
         
     rule param {
@@ -94,23 +99,19 @@ grammar Signature {
         | <named>
         | <unpacked>
         ]
-        <postfix_mod>? <trait>* <default>*
+        <postfix_mod>? <trait>* <default>?
     }
         
-    # *@x
-    # need to keep slurpies separate from other params because they have to come last
-    rule slurpy {
-        <type_param>? <is_slurpy> <positional>? <trait>* <default>?
-    }
-
     # signature for a single dispatch routine
+    # XXX does this definition backtrack
     rule single_sig {
-        [ <param> <unpacked>? <close_param> ]* <slurpy>? <returns>?
+        [ <param> <unpacked>? <close_param> ]* <slurpy>* <returns>?
     }
 
     # sig for multi dispatch routine
     rule multi_sig {
         <single_sig> [ <tie_break> <single_sig> ]* <tieBreak>?
-        : { @single_sig[ *..+$<tiebreak> ]<is_invocant> >>++ } # thanks audreyt++
+        : { @single_sig[ *..( +$<tiebreak> - 1 ) ]<is_invocant> >>++ } # thanks audreyt++
     }
 }
+xs
