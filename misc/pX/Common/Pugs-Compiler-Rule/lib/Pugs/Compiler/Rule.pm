@@ -11,6 +11,7 @@ use Pugs::Grammar::Rule;
 #use Pugs::Runtime::Rule;
 use Pugs::Runtime::Match;
 use Pugs::Emitter::Rule::Perl5;
+use Pugs::Emitter::Rule::Perl5::Ratchet;
 
 use Data::Dumper;
 
@@ -22,20 +23,28 @@ sub compile {
     # $class->compile( $source, { p=>1 } )
     # $class->compile( $source, { signature => $sig } ) -- TODO
 
-    my ( $class, $rule_source, %param ) = @_;
+    my ( $class, $rule_source, $param ) = @_;
 
     my $self = { source => $rule_source };
 
     # XXX - should use user's lexical pad instead?
-    $self->{grammar} = delete $param{grammar} || 'Pugs::Grammar::Base';
+    $self->{grammar} = delete $param->{grammar} || 'Pugs::Grammar::Base';
+    $self->{ratchet} = delete $param->{ratchet} || 0;
 
     #print 'rule source: ', $self->{source}, "\n";
     $self->{ast} = Pugs::Grammar::Rule->rule( 
         $self->{source} );
     die "Error in rule: '$rule_source' at: '$self->{ast}{tail}'\n" if $self->{ast}{tail};
     #print 'rule ast: ', do{use Data::Dumper; Dumper($self->{ast}{capture})};
-    $self->{perl5} = Pugs::Emitter::Rule::Perl5::emit( 
-        $self->{grammar}, $self->{ast}{capture} );
+
+    if ( $self->{ratchet} ) {
+        $self->{perl5} = Pugs::Emitter::Rule::Perl5::Ratchet::emit( 
+            $self->{grammar}, $self->{ast}{capture} );
+    }
+    else {
+        $self->{perl5} = Pugs::Emitter::Rule::Perl5::emit( 
+            $self->{grammar}, $self->{ast}{capture} );
+    }
     #print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
 
     local $@;

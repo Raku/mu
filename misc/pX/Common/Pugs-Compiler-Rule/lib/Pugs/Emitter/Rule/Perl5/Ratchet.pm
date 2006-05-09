@@ -1,7 +1,7 @@
 package Pugs::Emitter::Rule::Perl5::Ratchet;
 
 # p6-rule perl5 emitter for ":ratchet" (non-backtracking)
-# see: RuleInline.pl for a program prototype
+# see: RuleInline.pl, RuleInline-more.pl for a program prototype
 
 # XXX - cleanup unused nodes
 
