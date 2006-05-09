@@ -1,7 +1,11 @@
 grammar Pugs::Grammar::MiniPerl6;
 
+rule EscapeChar {
+    \\ | \"
+}
+
 rule String {
-    \" [ <[^\"]> | \\" | \\\\ ]* \"
+    \" [ <-[\"]> | \\ <EscapeChar> ]* \"
 }
 
 rule VariableName {
@@ -23,6 +27,23 @@ rule Constants {
     | \d+
 }
 
+rule ArrayTail {
+    \]
+    | , <ws>* <Expr> <ws>* <ArrayTail>
+    {
+      use v5;
+      return ', ' . $<Expr>() . $<ArrayTail>();
+    }
+}
+
+rule ArrayRef {
+    \[ <ws>* <Expr> <ws>* <ArrayTail>
+    {
+      use v5;
+      return '[' . $<Expr>() . $<ArrayTail>();
+    }
+}
+
 rule FunctionName { <VariableName> }
 
 rule Parameters {
@@ -39,6 +60,7 @@ rule Parameters {
 rule FunctionAppExpr {
     <Variable> { use v5; return $<Variable>() }
     | <Constants> { use v5; return $<Constants>() }
+    | <ArrayRef> { use v5; return $<ArrayRef>() }
     | <FunctionName> [ <ws>? <'('> <ws>? $<param> := (<Parameters>) <')'> ]?
     {
       use v5;

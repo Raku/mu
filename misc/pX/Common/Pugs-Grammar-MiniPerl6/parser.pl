@@ -24,4 +24,8 @@ my $match4 = Pugs::Grammar::MiniPerl6->
 
 print $match4->();  # return $ (App (capture_1 ++ ("backslash: \"\\\"" ++ sym)))
 
+my $match5 = Pugs::Grammar::MiniPerl6->
+    ProductionRule('return [ "1" ~ $0, "2" ~ $<sym> ]');
+
+print $match5->();  # return $ [("1" ++ capture_0), ("2" ++ sym)]
 
