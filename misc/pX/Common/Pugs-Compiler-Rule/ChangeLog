@@ -10,6 +10,8 @@
 
 - fixed method 'perl5'
 
+- Perl 5 emitter character classes (partially) implemented
+
 0.02  2006-03-28
 
 - new method 'perl5', returns a string that can be eval'ed into a new PCR object

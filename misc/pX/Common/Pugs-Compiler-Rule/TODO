@@ -36,6 +36,10 @@ Bugs:
 
 - $variable should look into the user pad
 
+- in Pugs::Emitter::Rule::Perl5.pm
+ * <[^a]> should be [\^a]
+ * fix <[!)]>
+
 Categories:
 
 - see "Syntactic categories" in S05 (extensibility)

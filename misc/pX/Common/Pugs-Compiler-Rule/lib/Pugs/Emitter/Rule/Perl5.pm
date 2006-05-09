@@ -163,6 +163,7 @@ sub special_char {
         return "$_[1] perl5( '\\$_' )\n" if $char eq $_;
         return "$_[1] perl5( '[^\\$_]' )\n" if $char eq uc($_);
     }
+    $char = '\\\\' if $char eq '\\';
     return "$_[1] constant( q!$char! )\n" unless $char eq '!';
     return "$_[1] constant( q($char) )\n";
 }
@@ -230,8 +231,9 @@ sub colon {
     die "'$str' not implemented";
 }
 sub constant {
-    return "$_[1] constant( q!$_[0]! )\n" unless $_[0] =~ /!/;
-    return "$_[1] constant( q($_[0]) )\n";
+    my $char = $_[0] eq '\\' ? '\\\\' : $_[0];
+    return "$_[1] constant( q!$char! )\n" unless $char =~ /!/;
+    return "$_[1] constant( q($char) )\n";
 }
 sub metasyntax {
     # <cmd>
@@ -266,8 +268,15 @@ sub metasyntax {
         return;
     }
     if ( $prefix =~ /[-+[]/ ) {   # character class 
-        warn "character classes not implemented";
-        return;
+	if ( $prefix eq '-' ) {
+	    $cmd = '[^' . substr($cmd, 2);
+	} elsif ( $prefix eq '+' ) {
+	    $cmd = substr($cmd, 2);
+	}
+	# XXX <[^a]> means [\^a] instead of [^a] in perl5re
+
+	return "$_[1] perl5( q!$cmd! )\n" unless $cmd =~ /!/;
+	return "$_[1] perl5( q($cmd) )\n"; # XXX if $cmd eq '!)'
     }
     if ( $prefix eq '?' ) {   # non_capturing_subrule / code assertion
         $cmd = substr( $cmd, 1 );
