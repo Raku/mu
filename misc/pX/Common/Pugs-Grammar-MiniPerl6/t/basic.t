@@ -2,7 +2,7 @@
 package main;
 use lib '../Pugs-Compiler-Rule/lib';
 use Pugs::Grammar::MiniPerl6;
-use Test::More tests => 4;
+use Test::More tests => 5;
 
 sub is_production_match {
     my ($input, $output, @arg) = @_;
@@ -24,6 +24,7 @@ is_production_match(q#
             Nothing )
 #, '    return $ (App (Var (doYada sym)) Nothing)');
 
+local $TODO = 'not yet';
 is_production_match('return App($1 ~ "backslash: \\"\\\\\\"" ~ $<sym>)',
 		    '    return $ (App (capture_1 ++ ("backslash: \"\\\"" ++ sym)))');
 
