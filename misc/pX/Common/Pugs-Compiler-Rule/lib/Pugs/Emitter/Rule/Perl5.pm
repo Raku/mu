@@ -257,26 +257,27 @@ sub metasyntax {
             "$_[1]     \$r->match( \@_[0, 4], {p => 1}, \$_[1] );\n" .
             "$_[1] }\n";
     }
-    if ( $prefix eq q(') ) {   # single quoted literal 
+    if ( $prefix eq q(') ) {   # single quoted literal ' 
         $cmd = substr( $cmd, 1, -1 );
         return "$_[1] constant( q!$cmd! )\n" unless $cmd =~ /!/;
         return "$_[1] constant( q($cmd) )\n";
     }
-    if ( $prefix eq q(") ) {   # interpolated literal 
+    if ( $prefix eq q(") ) {   # interpolated literal "
         $cmd = substr( $cmd, 1, -1 );
         warn "<\"...\"> not implemented";
         return;
     }
     if ( $prefix =~ /[-+[]/ ) {   # character class 
-	if ( $prefix eq '-' ) {
-	    $cmd = '[^' . substr($cmd, 2);
-	} elsif ( $prefix eq '+' ) {
-	    $cmd = substr($cmd, 2);
-	}
-	# XXX <[^a]> means [\^a] instead of [^a] in perl5re
+	   if ( $prefix eq '-' ) {
+	       $cmd = '[^' . substr($cmd, 2);
+	   } 
+       elsif ( $prefix eq '+' ) {
+	       $cmd = substr($cmd, 2);
+	   }
+	   # XXX <[^a]> means [\^a] instead of [^a] in perl5re
 
-	return "$_[1] perl5( q!$cmd! )\n" unless $cmd =~ /!/;
-	return "$_[1] perl5( q($cmd) )\n"; # XXX if $cmd eq '!)'
+	   return "$_[1] perl5( q!$cmd! )\n" unless $cmd =~ /!/;
+	   return "$_[1] perl5( q($cmd) )\n"; # XXX if $cmd eq '!)'
     }
     if ( $prefix eq '?' ) {   # non_capturing_subrule / code assertion
         $cmd = substr( $cmd, 1 );

@@ -51,7 +51,7 @@ print "Tail, Match:\n", Dumper( $x->("abc") );
 my $r = 
     concat( 
         alternation( constant('a'), constant('b') ),
-        capture( 'cap', constant('b') ),
+        capture( '0', constant('b') ),
     );
 print "Perl5 source:\n", wrap( $r ), "\n";
 my $x = eval wrap( $r );
@@ -59,61 +59,18 @@ print "Tail, Match:\n", Dumper( $x->("abc") );
 
 use Benchmark;
 use Pugs::Compiler::Rule;
-my $rpcr = Pugs::Compiler::Rule->compile('[a|b]b');
+my $rpcr = Pugs::Compiler::Rule->compile('[a|b](b)');
 print "Benchmark:\n";
 Benchmark::cmpthese(500, {
     PCR_x1       => sub{$rpcr->match('abc') for 1..20},
     fast_x10     => sub{$x->('abc')         for 1..200},
-    P5regex_x100 => sub{ 'abc' =~ /[a|b]b/o for 1..2000},
+    P5regex_x100 => sub{ 'abc' =~ /[a|b](b)/o for 1..2000},
 });
 
 }
 
 __END__
 
-sub capture {
-    # return a labeled capture
-    my $label = shift;
-    my $node = shift;
-    sub {
-        $_[3] = { label => $label };
-        my $match = $node->( @_[0,1,2], $_[3]{match} );
-        $match = $$match if ref($match) eq 'Pugs::Runtime::Match';
-        return unless $match->{bool};
-        ## return if $match->{abort}; - maybe a { return }
-        my $new_match = { %$match };
-        
-        $new_match->{label}   = $label;
-    
-        if ( ! defined $new_match->{capture} ) {
-            if ( defined $match->{tail} ) {
-                my $len = length( $match->{tail} );
-                my $head = $len?substr($_[0], 0, -$len):$_[0];
-                $new_match->{capture} = $head;   # XXX -- array ref not needed
-                #print 'got capture: ',do{use Data::Dumper; Dumper($new_match)};
-            }
-            else {
-                $new_match->{capture} = $_[0];
-            }
-        }
-        $new_match->{match}   = $match ;  # XXX - workaround
-
-        # print "Capturing ", Dumper($_[2]);
-
-        return $_[3] = $new_match;
-    }
-}
-
-# experimental!
-sub try { 
-    my $op = shift;
-    return sub {
-        my $match = $op->( @_ );
-        ### abortable match...
-        $match->{abort} = 0;
-        return $match;
-    };
-};
 
 # experimental!
 sub abort { 
@@ -140,26 +97,6 @@ sub negate {
     };
 };
 
-# experimental!
-=for example
-    # adds an 'before' or 'after' sub call, which may print a debug message 
-    wrap( { 
-            before => sub { print "matching variable: $_[0]\n" },
-            after  => sub { $_[0]->{bool} ? print "matched\n" : print "no match\n" },
-        },
-        \&variable
-    )
-=cut
-sub wrap {
-    my $debug = shift;
-    my $node = shift;
-    sub {
-        $debug->{before}( @_ ) if $debug->{before};
-        my $match = $node->( @_ );
-        $debug->{after}( $match, @_ ) if $debug->{after};
-        return $match;
-    }
-}
 
 sub perl5 {
     my $rx = qr(^($_[0])(.*)$)s;
