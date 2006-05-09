@@ -1,0 +1,18 @@
+#!/usr/bin/perl -w
+use strict;
+use Data::Dumper;
+our %sig;
+our %ret;
+while (<>) {
+	if (/^#define VTABLE_(\w*)\((.*)\)/) {
+		my @params = split(/\s* , \s*/x,$2);
+		my $args = join ',', map {/\w+ \s* \*? \s* (\w+)/x;} split(',',$sig{$1});
+		my $ret = 'int';
+		print "$ret{$1} $1$sig{$1} {\n    return VTABLE_$1($args)\n}\n";
+	} elsif (/^typedef \s* (.*?) \s* \(.*?(\w+?)_method_t\)(.*);$/x) {
+		$sig{$2} = $3;
+		$ret{$2} = $1;
+		#print "method_t: $1 sig:$2\n";
+	}
+}
+
