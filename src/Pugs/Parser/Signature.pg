@@ -1,6 +1,5 @@
 # A set of rules for parsing Signatures in perl6
 
-# XXX invocants are tracked in any sig, not just method and submethod sigs
 # XXX no support for isLValue, isWritable, or isLazy (don't understand isLazy)
 #       described in InternalNames.hs line 798
 
@@ -13,116 +12,105 @@
 grammar Signature {
     # stand-in for bracketing constructs
     # XXX add more or get unicode character classes working
-    token openGroup { <[<({[]> }   # should be Ps and <
-    token closeGroup { <[>)}\]]> } # should be Pe and >
-                           
-    # perl6 sigils in signatures
-    # XXX does this need to handle ^ as a sigil?
-    token sigil { <[$@%&]> }
+    token open_group  { <[<({[]> }   # should be Ps and <
+    token close_group { <[>)}\]]> } # should be Pe and >
+    token close_param { <[,)]> }
 
-    # routine type isn't actually part of the sig
-    # but we need to detect it so that we can catch RETTYPE
-    # declared before the routine
-    token routine { sub | method | submethod }
-    token routineName { <name> }
+    # separator used in multi sigs to separate multiple levels of invocants
+    token tie_break { <[:]> }
     
+    # perl6 sigils in signatures
+    token is_array  { $<context> := <[@]> }
+    token is_scalar { $<context> := <[$]> }
+    token is_code   { $<context> := <[&]> }
+    token is_hash   { $<context> := <[%]> }
+    token sigil     { <is_scalar> | <is_array> | <is_hash> | <is_code> }
+
     # names don't have \d as the first character and have
     # at least one non-_ character
-    # XXX this allows  [_]**{2..*} names.  OK?
-    token paramName    { [ <alpha> | _ ]+ [ <alpha> | \d | _ ]+  }
-    token internal     { <paramName> }
-    token external     { <paramName> }
+    token param_name   { [ <alpha> | _ ]+ [ <alpha> | \d | _ ]+  }
+    token internal     { <param_name> }
+    token external     { <param_name> }
 
     # defaults for arguments can be assigned in the sig
-    rule default { = <expression( terminates => ',' )> }
+    rule default { = $<default> := <expression( terminates => ',' )> }
     
     # types start with an uppercase letter
-    # XXX isn't ^ a [s|tw]igil dealing with meta stuff?  Do I need to recognize it here?
-    token typeName { <upper>+ [ <alpha> | _ | \d ]* }
-    token type     { <typeName> }
-    token retType  { <typeName> }
-    token typeVar  { <typeName> }
-    rule  returns  { \-\-\> <retType> }
+    token type_name { <upper>+ [ <alpha> | _ | \d ]* }
+    token type      { <type_name> }
+    token ret_type  { <type_name> }
+    token type_var  { <type_name> }
+    token ret_arrow { \-\-\> }
+    rule  returns   { <ret_arrow> <ret_type> }
     
     # parse *@x and :$x and mark for slurpy/named
-    # XXX does this need to handle \ at all?
-    token isNamed    { <[:]> }
-    token isSlurpy   { <[*]> }
-    token prefix_mod { [ <isNamed> | <isSlurpy> ] }
+    token is_named    { <[:]> }
+    token is_slurpy   { <[*]> }
+    token prefix_mod  { [ <is_named> | <is_slurpy> ] }
 
     # parse $x! and $x? and mark for required/optional
-    token isOptional  { <[?]> }
-    token isRequired  { <[!]> }
-    token postfix_mod { [ <isOptional> | <isRequired> ] }
+    token is_optional  { <[?]> }
+    token is_required  { <[!]> }
+    token postfix_mod  { [ <is_optional> | <is_required> ] }
 
     # parse $^x and mark it as an implicit.  leave room for other twigils
-    token isImplicit { <[^]> }
-    token twigil     { <isImplicit> }
+    token is_implicit { <[^]> }
+    token twigil      { <is_implicit> }
 
     # traits have the same rules for names as params
-    token traitName := paramName;
-    token trait { is \s+ <traitName> }
+    token trait_name := param_name;
+    token trait { is \s+ <trait_name> }
     
     # this allows specifying a type on a parameter, as well parameterizing that type.
-    rule typeParam { <type> [ \:\: <typeVar> ]? }
+    token dwigil    { [:]**{2} }
+    rule type_param { <type> [ <dwigil> <type_var> ]? }
 
-    # $x, $^x
+    # $x, $^x, $
     rule positional {
-        [ <sigil> <twigil>? $<internal> := <external> ]
+        [ <sigil> <twigil>? $<internal> := <external>? ]
     }
 
-    # :$x and :x($y)
-    # XXX is it possible to have implicit nameds? :$^foo ? :foo($^bar) ?
+    # :$x, :x($y), :$, :$(x)
     rule named {
-        <isNamed>
+        <is_named>
         [
-        | <sigil> <twigil>? $<internal> := <external>
-        | <openGroup> <external> <sigil> <twigil>? <internal> <closeGroup>
+        | <sigil> $<internal> := <external>?
+        | <open_group> <external>? <sigil> <twigil>? <internal> <close_group>
         ]
     }
 
     # [ $x, *@y ]
-    # XXX how should unpacked params be accessed?  in $/<unpacked>?
-    #  in some cases they'll be aliased to something in $/<positional|named>
+    # XXX how should unpacked params be accessed?  in $<unpacked>?
+    #  in some cases they'll be aliased to something in $<positional|named>
     #  in other cases, they'll act as anonymous $<positional>
     rule unpacked {
-        <openGroup> <typeParam>? <positional>+ <trait>* <slurpy>? <closeGroup>
+        <open_group> <type_param>? <positional>+ <trait>* <slurpy>? <close_group>
     }
         
     rule param {
-        <typeParam>?
+        <type_param>?
         [
         | <positional>
         | <named>
         | <unpacked>
         ]
-        <postfix_mod>? <trait>* <default>?
+        <postfix_mod>? <trait>* <default>*
     }
         
     # *@x
     # need to keep slurpies separate from other params because they have to come last
-    # XXX *@^x is possible, right?
     rule slurpy {
-        <typeParam>? <isSlurpy> <sigil> <twigil>? <name> <trait>* <default>?
+        <type_param>? <is_slurpy> <positional>? <trait>* <default>?
     }
 
     # signature for a single dispatch routine
-    # XXX is more than one slurpy allowed?
     rule single_sig {
-        [ <param> <unpacked>? , ]* <slurpy>? <returns>?
+        [ <param> <unpacked>? <close_param> ]* <slurpy>? <returns>?
     }
 
     # sig for multi dispatch routine
     rule multi_sig {
-        <single_sig> [ \: <single_sig> ]*
-        : { @single_sig[*..-2]<is_invocant> >>++ } # thanks audreyt++
-    }
-
-    # general form for signatures
-    # XXX is there some way to parse the fronted RETTYPE without
-    #   matching the rest of this stuff?
-    rule signature {
-        <retType> <routine> <routineName>
-        \( [ <single_sig> | <multi_sig> ] \)
+        <single_sig> [ <tie_break> <single_sig> ]* <tieBreak>?
+        : { @single_sig[ *..+$<tiebreak> ]<is_invocant> >>++ } # thanks audreyt++
     }
 }
