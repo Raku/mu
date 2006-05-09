@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 6 May 2006
+  Last Modified: 8 May 2006
   Number: 2
-  Version: 38
+  Version: 39
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1615,9 +1615,9 @@ since that's a run-time dispatch, and all multis are effectively
 visible at the point of the controlling C<proto> declaration.
 
 Parsing of a bareword function as a provisional call is always done
-the same way list operators are treated.  If a postdeclaration bends
-the syntax to be inconsistent with that, it is an error of the
-inconsistent signature variety.
+the same way list operators are treated.  If a postdeclaration
+bends the syntax to be inconsistent with that, it is an error of
+the inconsistent signature variety.
 
 If the unrecognized subroutine name is followed by C<< postcircumfix:<( )> >>,
 it is compiled as a provisional function call of the parenthesized form.
@@ -1627,6 +1627,31 @@ When in doubt, the attempt is made to parse an argument list.  As with
 any list operator, an immediate postfix operator means there are no
 arguments, whereas anything following whitespace will be interpreted
 as an argument list if possible.
+
+Based on the signature of the subroutine declaration, there are only
+four ways that an argument list can be parsed:
+
+    Signature		# of expected args
+    ()			0
+    ($x)		1
+    ($x?)		0..1
+    (anything else)	0..Inf
+
+That is, a standard subroutine call may be parsed only as a 0-arg term
+(or function call), a 1-mandatory-arg prefix operator (or function
+call), a 1-optional-arg term or prefix operator (or function call), or
+an "infinite-arg" list operator (or function call).  A given signature
+might only accept 2 arguments, but the only number distinctions the
+parser is allowed to make is between void, singular and plural;
+checking that number of arguments supplied matches some number
+larger than one must be done as a separate semantic constraint, not
+as a syntactic constraint.  Perl functions never take N arguments
+off of a list and leave the rest for someone else, except for small
+values of N, where small is defined as not more than 1.  You can get
+fancier using macros, but macros I<always> require predeclaration.
+Since the non-infinite-list forms are essentially behaving as macros,
+those forms also require predeclaration.  Only the infinite-list form
+may be postdeclared (and hence used provisionally).
 
 It is illegal for a provisional subroutine call to be followed by a
 colon postfix, since such a colon is allowed only on an indirect object,
