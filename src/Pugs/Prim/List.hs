@@ -3,7 +3,7 @@
 module Pugs.Prim.List (
     op0Zip, op1Pick, op1Sum,
     op1Min, op1Max, op1Uniq,
-    op2FoldL, op2Fold, op2Grep, op2Map, op2Join,
+    op2ReduceL, op2Reduce, op2Grep, op2Map, op2Join,
     sortByM,
     op1HyperPrefix, op1HyperPostfix, op2Hyper,
 ) where
@@ -155,17 +155,19 @@ op1Uniq v = do
             -- Same here (we need a VBool, not a Var).
             if cond then return . VBool $ cond else elemByM eq y xs
 
-op2FoldL :: Val -> Val -> Eval Val
-op2FoldL sub@(VCode _) list = op2FoldL list sub
-op2FoldL list sub = do
+op2ReduceL :: Val -> Val -> Eval Val
+op2ReduceL sub@(VCode _) list = op2ReduceL list sub
+op2ReduceL list sub = do
     code <- fromVal sub
-    op2Fold list $ VCode code{ subAssoc = "left" }
+    op2Reduce list $ VCode code{ subAssoc = "left" }
 
-op2Fold :: Val -> Val -> Eval Val
-op2Fold sub@(VCode _) list = op2Fold list sub
-op2Fold list sub = do
+op2Reduce :: Val -> Val -> Eval Val
+op2Reduce sub@(VCode _) list = op2Reduce list sub
+op2Reduce list sub = do
     code <- fromVal sub
     args <- fromVal list
+    cxt  <- asks envContext
+    let (reduceM, reduceMn) = getReduceFuncs cxt
     let arity = length $ subParams code
     if arity < 2 then fail "Cannot reduce() using a unary or nullary function." else do
     -- n is the number of *additional* arguments to be passed to the sub.
@@ -181,8 +183,8 @@ op2Fold list sub = do
     case subAssoc code of
         "right" -> do
             let args' = reverse args
-            foldMn args' n (doFold . reverse)
-        "chain" -> if arity /= 2
+            reduceMn args' n (doFold . reverse)
+        "chain" -> if arity /= 2            -- FIXME: incorrect for scans
             then fail
                 "When reducing using a chain-associative sub,\nthe sub must take exactly two arguments."
             else callCC $ \esc -> do
@@ -191,16 +193,30 @@ op2Fold list sub = do
                     case val of
                         VBool False -> esc val
                         _           -> return y
-                foldM doFold' (head args) (tail args)
+                reduceM doFold' (head args) (tail args)
                 return $ VBool True
         "non"   -> fail $ "Cannot reduce over non-associativity"
-        _       -> foldMn args n doFold -- "left", "pre"
+        _       -> reduceMn args n doFold -- "left", "pre"
     where
     -- This is a generalized foldM.
     -- It takes an input list (from which the first elem will be used as start
     -- value), the number of additional arguments, and a reducing function.
     foldMn :: [Val] -> Int -> ([Val] -> Eval Val) -> Eval Val
     foldMn list n f = foldM (\a b -> f (a:b)) (head list) $ list2LoL n $ drop 1 list
+    -- Scan version of foldMn.
+    scanMn :: [Val] -> Int -> ([Val] -> Eval Val) -> Eval Val
+    scanMn list n f = scanM (\a b -> f (a:b)) (head list) $ list2LoL n $ drop 1 list
+    -- The Prelude defines foldM but not scanM.
+    scanM :: (Val -> b -> Eval Val) -> Val -> [b] -> Eval Val
+    scanM f q ls = case ls of
+        []   -> return $ VList [q]
+        x:xs -> do
+            fqx  <- f q x
+            rest <- fromVal =<< scanM f fqx xs
+            return $ VList (q:rest)
+    getReduceFuncs cxt = case cxt of
+        CxtSlurpy _ -> (scanM, scanMn)
+        _           -> (foldM, foldMn)
 
 op2Grep :: Val -> Val -> Eval Val
 op2Grep sub@(VCode _) list = op2Grep list sub

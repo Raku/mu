@@ -12,7 +12,7 @@ import Pugs.AST
 import Pugs.Types
 import Pugs.Embed.Perl5
 import Pugs.Bind
-import Pugs.Prim.List (op2Fold, op1HyperPrefix, op1HyperPostfix, op2Hyper)
+import Pugs.Prim.List (op2Reduce, op1HyperPrefix, op1HyperPostfix, op2Hyper)
 import Pugs.Prim.Param (foldParam)
 import Pugs.Pretty
 import Pugs.Config
@@ -216,7 +216,7 @@ findSub name' invs args = do
             , subReturns  = anyType
             , subBody     = Prim $ \[vs] -> do
                 list_of_args <- fromVal vs
-                op2Fold list_of_args (VCode code)
+                op2Reduce list_of_args (VCode code)
             }
         -- Now we construct the sub. Is there a more simple way to do it?
     possiblyBuildMetaopVCode op' | "&prefix:" `isPrefixOf` op', "\171" `isSuffixOf` op' = do 
