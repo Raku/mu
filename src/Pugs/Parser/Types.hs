@@ -5,7 +5,7 @@ module Pugs.Parser.Types (
     DynParsers(..), ParensOption(..), BracketLevel(..),
     RuleOperator, RuleOperatorTable,
     getRuleEnv, modifyRuleEnv, putRuleEnv, insertIntoPosition,
-    clearDynParsers, enterBracketLevel, getPrevCharClass, charClassOf,
+    clearDynParsers, enterBracketLevel, getCurrCharClass, getPrevCharClass, charClassOf,
 
     -- Alternate Char implementations that keeps track of ruleCharClass
     satisfy, string, oneOf, noneOf, char, hexDigit, octDigit,
@@ -51,6 +51,9 @@ charClassOf c   | isAlphaNum c  = WordClass
                 | isSpace c     = SpaceClass
                 | '_' <- c      = WordClass
                 | otherwise     = SymClass
+
+getCurrCharClass :: RuleParser CharClass
+getCurrCharClass = fmap charClassOf (lookAhead anyToken) <|> return SpaceClass
 
 getPrevCharClass :: RuleParser CharClass
 getPrevCharClass = do

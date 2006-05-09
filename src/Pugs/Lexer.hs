@@ -20,7 +20,7 @@ module Pugs.Lexer (
 
     rule, verbatimRule, literalRule,
     tryRule, tryVerbatimRule,
-    tryChoice, ruleComma,
+    tryChoice, ruleComma, ruleWs,
 
     ruleScope, ruleTrait, ruleTraitName, ruleBareTrait, ruleType,
     verbatimParens, verbatimBrackets, verbatimBraces,
@@ -129,6 +129,18 @@ balanced = do
     contents <- many $ satisfy (/= balancedDelim opendelim)
     char $ balancedDelim opendelim
     return contents
+
+-- The <ws> rule.
+ruleWs :: RuleParser ()
+ruleWs = do
+    prev <- getPrevCharClass
+    case prev of
+        SpaceClass -> whiteSpace
+        _  -> do
+            curr <- getCurrCharClass
+            if prev == curr then mandatoryWhiteSpace else case curr of
+                SpaceClass  -> whiteSpace
+                _           -> return ()
 
 {-|
 Match one or more identifiers, separated internally by the given delimiter.
