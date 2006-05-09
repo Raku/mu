@@ -1,3 +1,5 @@
+- added an initial implementation of ':ratchet' in Pugs::Emitter::Rule::Perl5::Ratchet
+
 - implemented parameters in subrule call (positionals only, constants only)
 
 - '<before ...>', '$'

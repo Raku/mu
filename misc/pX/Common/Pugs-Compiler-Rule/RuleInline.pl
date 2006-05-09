@@ -2,6 +2,10 @@ package Pugs::Runtime::RuleInline;
 
 # - fglock
 #
+
+# this is a program prototype
+# see Pugs::Emitter::Rule::Perl5::Ratchet for the final implementation
+
 use strict;
 use warnings;
 use Data::Dumper;
