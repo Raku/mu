@@ -31,10 +31,13 @@ sub emit {
         "    my \$grammar = shift;\n" .
         "    my \$s = shift;\n" .
         "    my \@match;\n" .
-        "    my \$pos = 0;   # XXX\n" .
+        "    my \$pos = 0;   # XXX - depends on :p\n" .
+        "    my \$from = \$pos;\n" .
+        "    my \$bool = 1;\n" .
         emit_rule( $ast, '    ' ) . 
         "    ;\n" .
-        "    return bless { str => \$s, match => \\\@match }, 'Pugs::Runtime::Match::Ratchet';\n" .
+        "    return bless \\{ str => \$s, from => \$from, to => \$pos, bool => \$bool, match => \\\@match },\n" .
+        "        'Pugs::Runtime::Match::Ratchet';\n" .
         "}\n";
 }
 

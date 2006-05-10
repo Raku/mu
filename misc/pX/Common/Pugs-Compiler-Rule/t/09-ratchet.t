@@ -6,6 +6,8 @@ $Data::Dumper::Indent = 1;
 use_ok( 'Pugs::Compiler::Rule' );
 no warnings qw( once );
 
+use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
+
 {
     package test;
     use base Pugs::Grammar::Base;

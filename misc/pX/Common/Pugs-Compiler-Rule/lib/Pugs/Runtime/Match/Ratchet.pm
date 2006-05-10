@@ -30,9 +30,6 @@ sub from {
 }
 
 sub to {
-    #print 'TO: ', do{use Data::Dumper; Dumper(${$_[0]})};
-    #my $str = _str( ${$_[0]} );
-    #print "TO: $str\n";
     ${$_[0]}->{to};
 }
 
@@ -44,8 +41,9 @@ sub _box_submatch {
 }
 
 sub flat {
-    return '' unless defined ${$_[0]}->{capture};
-    ${$_[0]}->{capture};
+    return ${$_[0]}->{capture} 
+        if defined ${$_[0]}->{capture};
+    return substr( ${$_[0]}->{str}, $_[0]->from, $_[0]->to - $_[0]->from );
 }
 
 # return the capture
@@ -61,8 +59,7 @@ sub capture {
 
 # return the bool value
 sub bool {
-    warn "BOOL";
-    exists ${$_[0]}->{match}[0] ? 1 : 0;
+    ${$_[0]}->{bool};
 }
 
 sub _get_captures {
