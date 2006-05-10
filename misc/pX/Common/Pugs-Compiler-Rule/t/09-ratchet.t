@@ -21,7 +21,7 @@ no warnings qw( once );
     my $rule = Pugs::Compiler::Rule->compile( '((.).)(.)', { ratchet => 1 } );
     my $match = $rule->match( "xyzw" );
     print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( $match?1:0, 1, 'booleanify - unnamed rules are objects' );
     is( "$match", "xyz", 'stringify 1' );
     is( "$match->[0]", "xy", 'stringify 2' );

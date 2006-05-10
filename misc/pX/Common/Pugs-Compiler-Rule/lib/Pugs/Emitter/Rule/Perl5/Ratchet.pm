@@ -16,7 +16,7 @@ sub call_subrule {
     $subrule = "\$_[4]->" . $subrule unless $subrule =~ / :: | \. | -> /x;
     $subrule =~ s/\./->/;   # XXX - source filter
     return 
-        "$tab sub{ \n" .
+        "$tab ... sub{ \n" .
         "$tab     # param: @param \n" .
         "$tab     $subrule( \$_[0], { p => 1, args => [" . join(", ",@param) . "] }, \$_[1] );\n" .
         "$tab }\n";
@@ -27,20 +27,14 @@ sub emit {
     # runtime parameters: $grammar, $string, $state, $arg_list
     # rule parameters: see Runtime::Rule.pm
     return 
-        "do {\n" .
-        "    package Pugs::Runtime::Rule;\n" .
-        "    my \$matcher = \n" . 
-        emit_rule( $ast, '    ' ) . "  ;\n" .
-        "  sub {\n" . 
+        "sub {\n" . 
         "    my \$grammar = shift;\n" .
-        "    my \$tree;\n" .
-        # "    print \"\\nVariables: args[\", join(\",\",\@_) ,\"] \\n\";\n" .
-        # "    print \"         : \@{\$_[2]}} \\n\" if defined \$_[2];\n" .
-        # "    \$_[0] = '' unless defined \$_[0];\n" .
-        "    rule_wrapper( \$_[0], \n" . 
-        "        \$matcher->( \$_[0], \$_[1], \$tree, \$tree, \$grammar, 0, \$_[0], \$_[2] )\n" .
-        "    );\n" .
-        "  }\n" .
+        "    my \$s = shift;\n" .
+        "    my \@match;\n" .
+        "    my \$pos;\n" .
+        emit_rule( $ast, '    ' ) . 
+        "    ;\n" .
+        "    return bless { str => \$s, match => \\\@match }, 'Pugs::Runtime::Match::Ratchet';\n" .
         "}\n";
 }
 
@@ -60,11 +54,20 @@ sub emit_rule {
 #rule nodes
 
 sub capturing_group {
-    return 
-        "$_[1] capture( '',\n" .
-        emit_rule( $_[0], $_[1].'  ' ) . 
-        "$_[1] )\n" .
-        '';
+    return "$_[1] do{ 
+$_[1]     push \@match, { 
+$_[1]       name => '', 
+$_[1]       from => \$pos, 
+$_[1]       match => do{ 
+$_[1]         my \@match;
+" .             emit_rule( $_[0], $_[1].'      ' ) . "
+$_[1]         ;
+$_[1]         \\\@match 
+$_[1]       },
+$_[1]       to => \$pos, 
+$_[1]       # bool => 1, 
+$_[1]     } 
+$_[1] }\n";
 }        
 sub non_capturing_group {
     return emit_rule( $_[0], $_[1] );
@@ -87,7 +90,7 @@ sub quant {
     return emit_rule( $term, $_[1] ) 
         if $sub eq '';
     return 
-        "$_[1] capture( '*quantifier*',\n" . 
+        "$_[1] ... capture( '*quantifier*',\n" . 
         "$_[1]     $sub(\n" .
         emit_rule( $term, $_[1] . ("    "x2) ) . 
         "$_[1]     )\n" .
@@ -114,7 +117,7 @@ sub code {
     return "$_[1] $_[0]\n";  
 }        
 sub dot {
-    return call_subrule( 'any', $_[1] );
+    "$_[1] ++\$pos   # . - TODO - check str boundaries\n"
 }
 sub variable {
     my $name = "$_[0]";
@@ -130,7 +133,7 @@ sub variable {
             #return "$_[1] constant( \$_[7][$index] )\n";
             
             my $code = 
-            "    sub { 
+            "    ... sub { 
                 #print \"Runtime Variable args[\", join(\",\",\@_) ,\"] \$_[7][$index]\\n\";
                 return constant( \$_[7][$index] )->(\@_);
             }";
@@ -145,30 +148,30 @@ sub variable {
     $value = join('', eval $name) if $name =~ /^\@/;
     if ( $name =~ /^%/ ) {
         # XXX - runtime or compile-time interpolation?
-        return "$_[1] hash( \\$name )\n" if $name =~ /::/;
-        return "$_[1] hash( get_variable( '$name' ) )\n";
+        return "$_[1] ... hash( \\$name )\n" if $name =~ /::/;
+        return "$_[1] ... hash( get_variable( '$name' ) )\n";
     }
     die "interpolation of $name not implemented"
         unless defined $value;
 
-    return "$_[1] constant( '" . $value . "' )\n";
+    return "$_[1] ... constant( '" . $value . "' )\n";
 }
 sub special_char {
     my $char = substr($_[0],1);
     for ( qw( r n t e f w d s ) ) {
-        return "$_[1] perl5( '\\$_' )\n" if $char eq $_;
-        return "$_[1] perl5( '[^\\$_]' )\n" if $char eq uc($_);
+        return "$_[1] ... perl5( '\\$_' )\n" if $char eq $_;
+        return "$_[1] ... perl5( '[^\\$_]' )\n" if $char eq uc($_);
     }
     $char = '\\\\' if $char eq '\\';
-    return "$_[1] constant( q!$char! )\n" unless $char eq '!';
-    return "$_[1] constant( q($char) )\n";
+    return "$_[1] ... constant( q!$char! )\n" unless $char eq '!';
+    return "$_[1] ... constant( q($char) )\n";
 }
 sub match_variable {
     my $name = $_[0];
     my $num = substr($name,1);
     #print "var name: ", $num, "\n";
     my $code = 
-    "    sub { 
+    "    ... sub { 
         my \$m = Pugs::Runtime::Match->new( \$_[2] );
         return constant( \"\$m->[$num]\" )->(\@_);
     }";
@@ -190,14 +193,14 @@ sub closure {
     #print "Code: $code\n";
     
     return 
-        "$_[1] sub {\n" . 
+        "$_[1] ... sub {\n" . 
         "$_[1]     $code( \@_ );\n" . 
         "$_[1]     return { bool => 1, tail => \$_[0] }\n" .
         "$_[1] }\n"
         unless $code =~ /return/;
         
     return
-        "$_[1] abort(\n" .
+        "$_[1] ... abort(\n" .
         "$_[1]     sub {\n" . 
         "$_[1]         return { bool => 1, tail => \$_[0], return => sub $code };\n" .
         "$_[1]     }\n" .
@@ -207,29 +210,32 @@ sub named_capture {
     my $name    = $_[0]{ident};
     my $program = $_[0]{rule};
     return 
-        "$_[1] capture( '$name', \n" . 
+        "$_[1] ... capture( '$name', \n" . 
         emit_rule($program, $_[1]) . 
         "$_[1] )\n";
 }
 sub before {
     my $program = $_[0]{rule};
     return 
-        "$_[1] before( \n" . 
+        "$_[1] ... before( \n" . 
         emit_rule($program, $_[1]) . 
         "$_[1] )\n";
 }
 sub colon {
     my $str = $_[0];
-    return "$_[1] alternation( [ null(), fail() ] ) \n"
+    return "$_[1] # : no-op\n"
         if $str eq ':';
-    return "$_[1] end_of_string() \n" 
+    return "$_[1] ( \$pos >= length( \$s ) ) \n" 
         if $str eq '$';
     die "'$str' not implemented";
 }
 sub constant {
-    my $char = $_[0] eq '\\' ? '\\\\' : $_[0];
-    return "$_[1] constant( q!$char! )\n" unless $char =~ /!/;
-    return "$_[1] constant( q($char) )\n";
+    my $const = $_[0] eq '\\' ? '\\\\' : $_[0];
+    my $len = length( $const );
+    '( ( substr( $s, $pos, '.$len.' ) eq \''.$const.'\' ) 
+    ? $pos += '.$len.'
+    : 0
+)'
 }
 sub metasyntax {
     # <cmd>
@@ -238,25 +244,25 @@ sub metasyntax {
     if ( $prefix eq '@' ) {
         # XXX - wrap @array items - see end of Pugs::Grammar::Rule
         return 
-            "$_[1] alternation( \\$cmd )\n";
+            "$_[1] ... alternation( \\$cmd )\n";
     }
     if ( $prefix eq '$' ) {
         if ( $cmd =~ /::/ ) {
             # call method in fully qualified $package::var
             return 
-                "$_[1] sub { $cmd->match( \@_[0, 4], {p => 1}, \$_[1] ) }\n";
+                "$_[1] ... sub { $cmd->match( \@_[0, 4], {p => 1}, \$_[1] ) }\n";
         }
         # call method in lexical $var
         return 
-            "$_[1] sub { \n" . 
+            "$_[1] ... sub { \n" . 
             "$_[1]     my \$r = get_variable( '$cmd' );\n" . 
             "$_[1]     \$r->match( \@_[0, 4], {p => 1}, \$_[1] );\n" .
             "$_[1] }\n";
     }
     if ( $prefix eq q(') ) {   # single quoted literal ' 
         $cmd = substr( $cmd, 1, -1 );
-        return "$_[1] constant( q!$cmd! )\n" unless $cmd =~ /!/;
-        return "$_[1] constant( q($cmd) )\n";
+        return "$_[1] ... constant( q!$cmd! )\n" unless $cmd =~ /!/;
+        return "$_[1] ... constant( q($cmd) )\n";
     }
     if ( $prefix eq q(") ) {   # interpolated literal "
         $cmd = substr( $cmd, 1, -1 );
@@ -272,8 +278,8 @@ sub metasyntax {
 	   }
 	   # XXX <[^a]> means [\^a] instead of [^a] in perl5re
 
-	   return "$_[1] perl5( q!$cmd! )\n" unless $cmd =~ /!/;
-	   return "$_[1] perl5( q($cmd) )\n"; # XXX if $cmd eq '!)'
+	   return "$_[1] ... perl5( q!$cmd! )\n" unless $cmd =~ /!/;
+	   return "$_[1] ... perl5( q($cmd) )\n"; # XXX if $cmd eq '!)'
     }
     if ( $prefix eq '?' ) {   # non_capturing_subrule / code assertion
         $cmd = substr( $cmd, 1 );
@@ -290,7 +296,7 @@ sub metasyntax {
             return;
         }
         return 
-            "$_[1] negate( '$_[0]', \n" .
+            "$_[1] ... negate( '$_[0]', \n" .
             call_subrule( $_[0], $_[1]."  " ) .
             "$_[1] )\n";
     }
@@ -327,7 +333,7 @@ sub metasyntax {
         $param_list = '' unless defined $param_list;
         my @param = split( ',', $param_list );
         return             
-            "$_[1] capture( '$subrule', \n" . 
+            "$_[1] ... capture( '$subrule', \n" . 
             call_subrule( $subrule, $_[1]."  ", @param ) . 
             "$_[1] )\n";
     }
