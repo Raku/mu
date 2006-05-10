@@ -31,7 +31,7 @@ sub emit {
         "    my \$grammar = shift;\n" .
         "    my \$s = shift;\n" .
         "    my \@match;\n" .
-        "    my \$pos;\n" .
+        "    my \$pos = 0;   # XXX\n" .
         emit_rule( $ast, '    ' ) . 
         "    ;\n" .
         "    return bless { str => \$s, match => \\\@match }, 'Pugs::Runtime::Match::Ratchet';\n" .
@@ -54,10 +54,13 @@ sub emit_rule {
 #rule nodes
 
 sub capturing_group {
+    # it seems that Perl5 can't do :from and :to into a single operation
     return "$_[1] do{ 
-$_[1]     push \@match, { 
+$_[1]     my \@tmp = ( 
 $_[1]       name => '', 
 $_[1]       from => \$pos, 
+$_[1]     ); 
+$_[1]     push \@tmp, ( 
 $_[1]       match => do{ 
 $_[1]         my \@match;
 " .             emit_rule( $_[0], $_[1].'      ' ) . "
@@ -66,7 +69,8 @@ $_[1]         \\\@match
 $_[1]       },
 $_[1]       to => \$pos, 
 $_[1]       # bool => 1, 
-$_[1]     } 
+$_[1]     ); 
+$_[1]     push \@match, { \@tmp };
 $_[1] }\n";
 }        
 sub non_capturing_group {
