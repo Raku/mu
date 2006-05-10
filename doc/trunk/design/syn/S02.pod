@@ -494,8 +494,8 @@ structural type of a variable:
     $   scalar
     @   ordered array
     %   unordered hash (associative array)
-    &   code
-    ::  package/module/class/role/subset/enum/type
+    &   code/rule/token/regex
+    ::  package/module/class/role/subset/enum/type/grammar
     @@  multislice view of @
 
 Within a declaration, the C<&> sigil also declares the visibility of the
