@@ -36,9 +36,11 @@ sub emit {
         # "    print \"\\nVariables: args[\", join(\",\",\@_) ,\"] \\n\";\n" .
         # "    print \"         : \@{\$_[2]}} \\n\" if defined \$_[2];\n" .
         # "    \$_[0] = '' unless defined \$_[0];\n" .
+        "    my \$match =\n" .
         "    rule_wrapper( \$_[0], \n" . 
         "        \$matcher->( \$_[0], \$_[1], \$tree, \$tree, \$grammar, 0, \$_[0], \$_[2] )\n" .
         "    );\n" .
+        "    return Pugs::Runtime::Match->new( \$match );\n" .
         "  }\n" .
         "}\n";
 }

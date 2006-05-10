@@ -89,8 +89,8 @@ sub match {
             $state,
             $flags->{args},
         );
-        $match->{from} = 0;
-        return Pugs::Runtime::Match->new( $match ) 
+        $$match->{from} = 0;
+        return $match;  
     }
 
     foreach my $i (0..length($str)) {
@@ -100,9 +100,9 @@ sub match {
             $state,
             $flags->{args},
         );
-        defined $match or next;
-        $match->{from} = $i;
-        return Pugs::Runtime::Match->new( $match ) 
+        $match or next;   
+        $$match->{from} = $i;
+        return $match;  
     }
     return Pugs::Runtime::Match->new( { bool => 0 } );   # XXX - fix?
 }
