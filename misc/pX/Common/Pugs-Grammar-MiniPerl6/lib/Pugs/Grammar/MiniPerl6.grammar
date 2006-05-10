@@ -92,7 +92,7 @@ rule Expr {
 
 rule Return {
     <'return'> <ws> <Expr> \;?
-    { use v5; return "    return \$ " . $<Expr>() }
+    { use v5; return "return \$ " . $<Expr>() }
 }
 
 rule ProductionRule {
