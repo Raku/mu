@@ -1,5 +1,13 @@
 TODO for Pugs::Compiler::Rule (PCR)
 
+Ratchet:
+
+- document what's done
+- more tests
+  - interoperability with non-ratchet
+- separate named/unnamed captures
+- return blocks
+
 Perl 6 parser:
 
 - implement Perl 6 minilanguages (and categories).
