@@ -6,8 +6,10 @@
 # XXX trusting rules to DWIM for whitespace.
 #   Do I have to be explicit in places where whitespace is _not_ allowed?
 #     $ foo # should not be allowed
+#     -- the way to do it is to _not_ write whitespace between the two subrules.
 #   Do I have to be explicit about places where whitespace is required?
 #     $foo is rwis deep # should not be allowed
+#     -- :words will take care of that.
 
 grammar Signature {
     # stand-in for bracketing constructs
