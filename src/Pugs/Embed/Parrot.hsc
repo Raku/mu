@@ -201,40 +201,51 @@ initParrot = do
     parrot_loadbc interp pf
 
     callback    <- mkCompileCallback compileToParrot
-    pugsStr     <- withCString "Pugs" (const_string interp)
+    pugsStr     <- "Pugs" `makeAscii` interp
     parrot_compreg interp pugsStr callback
 
     modifyIORef _GlobalFinalizer (>> parrot_exit 0)
     return interp
 
+makeAscii :: String -> ParrotInterp -> IO ParrotString
+makeAscii str interp = withCString str (const_string interp)
+
+makeUTF8 :: String -> ParrotInterp -> IO ParrotString
+makeUTF8 str interp = withCStringLen str $ \(cstr, len) -> do
+    string_make interp cstr len unicodeCStr 0
+
+{-# NOINLINE unicodeCStr #-}
+unicodeCStr :: CString
+unicodeCStr = unsafePerformIO (newCString "unicode")
+
 loadPGE :: ParrotInterp -> FilePath -> IO (ParrotPMC, ParrotPMC)
 loadPGE interp path = do
-    ns      <- withCString "PGE::Hs" $ const_string interp
-    sym     <- withCString "match" $ const_string interp
+    ns      <- "PGE::Hs"    `makeAscii` interp
+    sym     <- "match"      `makeAscii` interp
     match   <- parrot_find_global interp ns sym
-    sym     <- withCString "add_rule" $ const_string interp
+    sym     <- "add_rule"   `makeAscii` interp
     add     <- parrot_find_global interp ns sym
     if match /= nullPtr then return (match, add) else do
     cwd     <- getCurrentDirectory
     setCurrentDirectory path
-    pge_pbc <- withCString "PGE.pbc" $ const_string interp
-    pge_hs  <- withCString "PGE/Hs.pir" $ const_string interp
+    pge_pbc <- "PGE.pbc"    `makeAscii` interp
+    pge_hs  <- "PGE/Hs.pir" `makeAscii` interp
     parrot_load_bytecode interp pge_pbc
     parrot_load_bytecode interp pge_hs
     setCurrentDirectory cwd
     loadPGE interp path
 
 evalPGE :: FilePath -> String -> String -> [(String, String)] -> IO String
-evalPGE path str pattern subrules = do
+evalPGE path str pat subrules = do
     interp          <- initParrot
     (match, add)    <- loadPGE interp path
     (`mapM_` subrules) $ \(name, rule) -> do
-        s1  <- withCString name $ const_string interp
-        s2  <- withCString rule $ const_string interp
+        s1  <- name `makeUTF8` interp
+        s2  <- rule `makeUTF8` interp
         withCString "SSS" $ \sig -> do
             parrot_call_sub_SSS interp add sig s1 s2
-    s1  <- withCString str $ const_string interp
-    s2  <- withCString pattern $ const_string interp
+    s1  <- str `makeUTF8` interp
+    s2  <- pat `makeUTF8` interp
     s5  <- withCString "SSS" $ \sig -> do
         parrot_call_sub_SSS interp match sig s1 s2
     peekCString =<< parrot_string_to_cstring interp s5
@@ -318,6 +329,9 @@ foreign import ccall "Parrot_call_sub"
 
 foreign import ccall "const_string"
     const_string :: ParrotInterp -> CString -> IO ParrotString
+
+foreign import ccall "string_make"
+    string_make :: ParrotInterp -> CString -> Int -> CString -> CInt -> IO ParrotString
 
 foreign import ccall "Parrot_find_global"
     parrot_find_global :: ParrotInterp -> ParrotString -> ParrotString -> IO ParrotPMC
