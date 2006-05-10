@@ -89,7 +89,7 @@ sub match {
             $state,
             $flags->{args},
         );
-        $$match->{from} = 0;
+        eval { $$match->{from} = 0 };   # XXX
         return $match;  
     }
 
@@ -101,7 +101,7 @@ sub match {
             $flags->{args},
         );
         $match or next;   
-        $$match->{from} = $i;
+        eval { $$match->{from} = $i };   # XXX
         return $match;  
     }
     return Pugs::Runtime::Match->new( { bool => 0 } );   # XXX - fix?
