@@ -19,6 +19,8 @@
 
     getstdin stdin
     getstdout stdout
+    push stdin, 'utf8'
+    push stdout, 'utf8'
     stdin."setbuf"(0)
     stdout."setbuf"(0)
 
