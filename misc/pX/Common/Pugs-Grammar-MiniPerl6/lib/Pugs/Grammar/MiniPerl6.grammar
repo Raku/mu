@@ -13,8 +13,9 @@ rule VariableName {
 }
 
 rule CaptureVariableName {
-    \< <VariableName> \> { use v5; return $<VariableName>() }
+    \< <VariableName> \>  { use v5; return $<VariableName>() }
     | $<cap_num> := (\d+) { use v5; return "capture_" . $<cap_num> }
+    | <VariableName>      { use v5; return $<VariableName>() }
 }
 
 rule Variable {
@@ -95,7 +96,14 @@ rule Return {
     { use v5; return "return \$ " . $<Expr>() }
 }
 
+rule VariableDeclaration {
+    <'my'> <ws> <Variable> <ws>? <'='> <ws>? <Expr> \;
+    { use v5; return "let " . $<Variable>() . " = " . $<Expr>() . " in\n" }
+}
+
 rule ProductionRule {
-    <Return>
+    <VariableDeclaration> <ws>? <ProductionRule>
+    { use v5; return $<VariableDeclaration>() . $<ProductionRule>() }
+    | <Return>
     { use v5; return $<Return>() }
 }

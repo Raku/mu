@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 use lib '../Pugs-Compiler-Rule/lib';
-use Test::More tests => 5;
+use Test::More tests => 6;
 use Pugs::Grammar::MiniPerl6;
 
 sub is_production_match {
@@ -32,3 +32,6 @@ is_production_match('return [ "1" ~ $0, "2" ~ $<sym> ]',
 		    'return $ [("1" ++ capture_0), ("2" ++ sym)]',
 		    'list constructor');
 
+is_production_match('my $a = 1 + 2; return $a - 3;',
+		    "let a = (1 + 2) in\nreturn \$ (a - 3)",
+		    'variable declaration');
