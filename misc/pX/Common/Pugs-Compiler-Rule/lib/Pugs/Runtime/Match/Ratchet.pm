@@ -35,8 +35,8 @@ sub to {
 
 sub _box_submatch {
     my ($match, $submatch) = @_;
-    my $m = { %$submatch };
-    delete $m->{label};
+    my $m = { %$submatch, str => $$match->{str}, bool => 1 };
+    delete $m->{name};
     ref($match)->new($m);
 }
 
@@ -62,27 +62,9 @@ sub bool {
     ${$_[0]}->{bool};
 }
 
-sub _get_captures {
-    my @a;
-    # special case: the whole match is a single capture
-    return ${$_[0]} if exists ${$_[0]}->{label};
-    if ( ref( ${$_[0]}->{match} ) eq 'ARRAY' ) {
-        @a = @{${$_[0]}->{match}};
-    }
-    else {
-        push @a, ${$_[0]}->{match};        
-    }
-    #print Dumper @a;
-    while ( ref $a[-1] && exists $a[-1]{match} && ref( $a[-1]{match} ) eq 'ARRAY' ) {
-        my $t = pop @a;
-        push @a, @{$t->{match}};
-    }
-    return @a;
-}
-
 # as hash
 sub hash {
-    my @a = _get_captures( $_[0] );
+    my @a = @{ ${$_[0]}->{match} };
     my %r;
     for my $m ( @a ) {
         next unless ref $m && exists $m->{label};
@@ -117,18 +99,19 @@ sub hash {
 
 # as array
 sub array {
-    my @a = _get_captures( $_[0] );
+    #print "ARRAY\n";
+    my @a = @{ ${$_[0]}->{match} };
     my @r;
     for my $m ( @a ) {
-        next unless exists $m->{label};
-        if ( $m->{label} eq '*quantifier*' ) {
+        if ( $m->{name} eq '*quantifier*' ) {
             my @m = @{ _box_submatch( $_[0], $m ) };
             push @r, \@m if @m;
             next;
         }
-        next if $m->{label} ne '';
+        next if $m->{name} ne '';
         push @r, _box_submatch( $_[0], $m );                
     }
+    #print "ARRAY: ", Dumper( @r );
     return \@r;
 }
 
