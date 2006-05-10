@@ -22,5 +22,6 @@ t/04-rule.t
 t/05-var.t
 t/06-subrule.t
 t/08-hash.t
+# t/09-ratchet.t --- under development!
 t6/iterator_engine.p6
 TODO
