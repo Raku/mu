@@ -28,9 +28,9 @@ my $href = \%var;
 
 # SCALARS
 
-ok($var ~~ m/$var/, 'Simple scalar interpolation', :todo<feature>);
-ok("zzzzzz{$var}zzzzzz" ~~ m/$var/, 'Nested scalar interpolation', :todo<feature>);
-ok(!( "aaaaab" ~~ m/$var/ ), 'Rulish scalar interpolation');
+ok($var ~~ m/$var/, 'Simple scalar interpolation');
+ok("zzzzzz{$var}zzzzzz" ~~ m/$var/, 'Nested scalar interpolation');
+ok(!( "aaaaab" ~~ m/$var/ ), 'Rulish scalar interpolation', :todo<feature>);
 
 ok('a' ~~ m/$aref[0]/, 'Array ref 0', :todo<feature>);
 ok('a' ~~ m/$aref.[0]/, 'Array ref dot 0', :todo<feature>);

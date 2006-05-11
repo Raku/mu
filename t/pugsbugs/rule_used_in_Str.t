@@ -38,7 +38,7 @@ class Str {
     }
 }
 
-is(Str.new.meth2(),"worked",'m:P5/[^a]/ in method in Str', :todo<bug>);
+is(Str.new.meth2(),"worked",'m:P5/[^a]/ in method in Str');
 
 class Str {
     method meth3 () {

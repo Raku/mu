@@ -23,7 +23,7 @@ ok("abcd" ~~ m/a  $<foo>:=(..)  d/, 'Hypothetical variable capture');
 is($/<foo>, "bc", 'Hypothetical variable captured');
 
 my $foo;
-ok("abcd" ~~ m/a  $foo:=(..)  d/, 'Package variable capture', :todo<feature> );
+ok("abcd" ~~ m/a  $foo:=(..)  d/, 'Package variable capture');
 is($foo, "bc", 'Package variable captured', :todo<feature> );
 
 ok("abcd" ~~ m/a  $1:=(.) $0:=(.) d/, 'Reverse capture');
@@ -37,8 +37,8 @@ is($/<two>, "bc", 'Implicit hypothetical variable captured');
 is($/<foo>, "bc", 'Explicit hypothetical variable captured');
 
 $foo = "";
-ok("abcd" ~~ m/a  $foo:=[<two>]  d/, 'Mixed capture', :todo<feature> );
-is($/<two>, "bc", 'Implicit hypothetical variable captured', :todo<feature> );
+ok("abcd" ~~ m/a  $foo:=[<two>]  d/, 'Mixed capture');
+is($/<two>, "bc", 'Implicit hypothetical variable captured');
 is($foo, "bc", 'Explicit package variable captured', :todo<feature> );
 
 ok("a cat_O_9_tails" ~~ m:w/<alpha> <ident>/, 'Standard captures' );
