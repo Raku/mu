@@ -26,12 +26,12 @@ is($set.insert(4), 1, ".insert()");
 is($set.insert(3), 0, ".insert()");
 is($set.insert($bert), 1, ".insert(\$bert)");
 
-is($set.includes(4), bool::true, ".insert() worked");
+is($set.includes(4), Bool::True, ".insert() worked");
 is($set.member(4),   4,          ".member()");
 
-is($set.includes(5), bool::false, ".includes() - negative");
-is($set.includes(4,5), bool::false, ".includes() - mixed negative");
-is($set.includes(3,4), bool::true, ".includes() - mixed positive");
+is($set.includes(5), Bool::False, ".includes() - negative");
+is($set.includes(4,5), Bool::False, ".includes() - mixed negative");
+is($set.includes(3,4), Bool::True, ".includes() - mixed positive");
 
 is($set.remove($bert), 1, ".remove(\$bert)");
 
@@ -51,7 +51,7 @@ is($set.size(), 0, ".clear()");
 # check some aliases...
 $set.insert(3,4,5);
 is($set.count, 3, ".count()");
-is($set.has(4), bool::true, ".has()");
+is($set.has(4), Bool::True, ".has()");
 
 # well, that's a few basic tests, anyway.  Maybe we need a minimal
 # sub-class test, too - to make sure the interface works if you only

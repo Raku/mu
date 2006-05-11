@@ -111,16 +111,16 @@ submethod BUILD ($class: *%param is copy ) {
     }
     else
     {
-        if defined( %param<start> )  { $start = %param<start>;  $start_is_open = bool::false };
-        if defined( %param<after> )  { $start = %param<after>;  $start_is_open = bool::true };
-        if defined( %param<end> )    { $end =   %param<end>;    $end_is_open =   bool::false };
-        if defined( %param<before> ) { $end =   %param<before>; $end_is_open =   bool::true };
+        if defined( %param<start> )  { $start = %param<start>;  $start_is_open = Bool::False };
+        if defined( %param<after> )  { $start = %param<after>;  $start_is_open = Bool::True };
+        if defined( %param<end> )    { $end =   %param<end>;    $end_is_open =   Bool::False };
+        if defined( %param<before> ) { $end =   %param<before>; $end_is_open =   Bool::True };
 
         if   !defined( $start ) &&  defined( $end ) { $start = -Inf }
         elsif defined( $start ) && !defined( $end ) { $end = Inf }
 
-        $start_is_open = bool::true if $start == -Inf;
-        $end_is_open =   bool::true if $end == Inf;
+        $start_is_open = Bool::True if $start == -Inf;
+        $end_is_open =   Bool::True if $end == Inf;
 
         die "start must be less or equal to end" if $start > $end;
 
@@ -196,19 +196,19 @@ method set_end ($self: Object $end ) {
 }
 
 method start_is_open () returns Bool {
-    return bool::false if $.span.is_empty;
+    return Bool::False if $.span.is_empty;
     return $.span.start_is_open;
 }
 method start_is_closed () returns Bool {
-    return bool::false if $.span.is_empty;
+    return Bool::False if $.span.is_empty;
     return $.span.start_is_closed;
 }
 method end_is_open () returns Bool {
-    return bool::false if $.span.is_empty;
+    return Bool::False if $.span.is_empty;
     return $.span.end_is_open;
 }
 method end_is_closed () returns Bool {
-    return bool::false if $.span.is_empty;
+    return Bool::False if $.span.is_empty;
     return $.span.end_is_closed;
 }
 
@@ -269,7 +269,7 @@ method compare ($self: $span is copy) returns int {
 }
 
 method contains ($self: $span is copy) returns bool {
-    return bool::false if $.span.is_empty;
+    return Bool::False if $.span.is_empty;
     
     my ($span0, $span1) = _normalize_parameter( $self, $span );
     my @union = $span0.union( $span1 );
@@ -277,12 +277,12 @@ method contains ($self: $span is copy) returns bool {
     # XXX this should work
     # my @union = $self.span.union( $span.span );
     
-    return bool::false if @union.elems == 2;
+    return Bool::False if @union.elems == 2;
     return @union[0].compare( $self.span ) == 0;
 }
 
 method intersects ($self: $span is copy) returns bool {
-    return bool::false if $.span.is_empty;
+    return Bool::False if $.span.is_empty;
     
     my ($span0, $span1) = _normalize_parameter( $self, $span );
     my @union = $span0.union( $span1 );

@@ -10,7 +10,7 @@ use HTTP::Query;
 class HTTP::Request::CGI-0.0.1[?::URI_CLASS = URI] {
     is HTTP::Request[::URI_CLASS];
     
-    our Bool $.PARSE_ARGV = bool::false;
+    our Bool $.PARSE_ARGV = Bool::False;
     
     has $.method;
     has $.uri;

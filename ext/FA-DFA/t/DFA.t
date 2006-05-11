@@ -30,8 +30,8 @@ is($nextnode,$nextnode2,"Arcs to defined nodes will be created");
 
 my FA::DFA::Node $node .= new;
 
-$node.final = bool::true;
+$node.final = Bool::True;
 ok($node,"Final can be set on blind nodes");
 
-$dfa.final(bool::true);
+$dfa.final(Bool::True);
 ok($dfa.final,"We can set final flags on nodes");

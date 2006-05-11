@@ -49,9 +49,9 @@ class Perl6::Value::List {
 
     submethod BUILD () {
         $.cis_infinite   //= sub { &{$.celems}() == Inf },
-        $.cis_contiguous //= sub { bool::false }, 
+        $.cis_contiguous //= sub { Bool::False }, 
         $.cstringify     //= sub { &{$.cstart}() ~ '....' ~ &{$.cend}() }, 
-        $.is_lazy        //= bool::true,
+        $.is_lazy        //= Bool::True,
         $.celems         //= ( defined $.cstart || defined $.cend ) ?? 
                              sub { Inf } !! 
                              sub { 0 };
@@ -116,7 +116,7 @@ class Perl6::Value::List {
         $class.new( cstart => sub{ &*shift(@list) },
                     cend =>   sub{ &*pop(@list) },
                     celems => sub{ +@list },
-                    is_lazy => bool::false );
+                    is_lazy => Bool::False );
     }
 
     method from_coro ( $class: $start ) {
@@ -130,7 +130,7 @@ class Perl6::Value::List {
                     cend =>    sub {},
                     celems =>  sub { $size },
                     cis_infinite => sub { $size == Inf },
-                    cis_contiguous => sub { bool::false },
+                    cis_contiguous => sub { Bool::False },
         );
     }
 
@@ -193,7 +193,7 @@ class Perl6::Value::List {
                 cstart => coro {
                         my $x = $ret.shift // yield;
                         unless %seen{$x} { 
-                            %seen{$x} = bool::true; 
+                            %seen{$x} = Bool::True; 
                             yield $x;
                         }                       
                         return;
@@ -201,7 +201,7 @@ class Perl6::Value::List {
                 cend => coro {
                         my $x = $ret.pop // yield;
                         unless %seen{$x} { 
-                            %seen{$x} = bool::true; 
+                            %seen{$x} = Bool::True; 
                             yield $x;
                         }
                         return;

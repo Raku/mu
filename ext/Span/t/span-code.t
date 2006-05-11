@@ -14,7 +14,7 @@ my $universe = Recurrence.new(
     closure_next =>     sub ( $x is copy ) { return -Inf if $_ == -Inf; Inf if $_ ==  Inf; return $x + 1 },
     closure_previous => sub ( $x is copy ) { return  Inf if $_ ==  Inf; return -Inf if $_ == -Inf; return $x - 1 },
     :is_universe(1) );
-my $span = Span::Num.new( start => -Inf, end => Inf, start_is_open => bool::true, end_is_open => bool::true );
+my $span = Span::Num.new( start => -Inf, end => Inf, start_is_open => Bool::True, end_is_open => Bool::True );
 
 my $u = Span::Code.new( recurrence => $universe, span => $span );
 
@@ -26,11 +26,11 @@ is( $u.end  ,  Inf, "end" );
 is( $u.stringify, '-Inf..Inf', "stringify" );
 # XXX - is( $universe.universe.stringify, '-Inf..Inf', "universe accessor" );
 
-is( $u.start_is_open,   bool::false, "start_is_open" );
-is( $u.end_is_open,     bool::false, "end_is_open" );
+is( $u.start_is_open,   Bool::False, "start_is_open" );
+is( $u.end_is_open,     Bool::False, "end_is_open" );
 
-is( $u.start_is_closed, bool::true, "start_is_closed" );
-is( $u.end_is_closed,   bool::true, "end_is_closed" );
+is( $u.start_is_closed, Bool::True, "start_is_closed" );
+is( $u.end_is_closed,   Bool::True, "end_is_closed" );
 
 is( $u.next( 10 ), 11, 'next' );
 is( $u.previous( 10 ), 9, 'previous' );
@@ -90,7 +90,7 @@ is( $odd_numbers.previous( 10 ), 9, 'odd even' );
 {
     # -- intersection with a continuous span
     use Span::Num;
-    my $continuous = Span::Num.new( start => 10, end => Inf, :end_is_open(bool::true) );
+    my $continuous = Span::Num.new( start => 10, end => Inf, :end_is_open(Bool::True) );
     is( $continuous.stringify, '[10,Inf)', 'continuous 10-Inf' );
     my $range = $universe.intersection( $continuous );
     isa_ok( $range, 'Span::Code', 'range from continuous' );
@@ -103,7 +103,7 @@ is( $odd_numbers.previous( 10 ), 9, 'odd even' );
 {
     # -- intersection with a continuous span
     use Span::Num;
-    my $continuous = Span::Num.new( start => -Inf, end => 10, :start_is_open(bool::true) );
+    my $continuous = Span::Num.new( start => -Inf, end => 10, :start_is_open(Bool::True) );
     is( $continuous.stringify, '(-Inf,10]', 'continuous (-Inf,10]' );
     my $range = $universe.intersection( $continuous );
     isa_ok( $range, 'Span::Code', 'range from continuous' );
@@ -116,7 +116,7 @@ is( $odd_numbers.previous( 10 ), 9, 'odd even' );
 {
     # -- intersection of odd numbers with a continuous span
     use Span::Num;
-    my $continuous = Span::Num.new( start => -Inf, end => 10, :start_is_open(bool::true) );
+    my $continuous = Span::Num.new( start => -Inf, end => 10, :start_is_open(Bool::True) );
     # continuous (-Inf,10]
     my $range = $odd_numbers.intersection( $continuous );
     isa_ok( $range, 'Span::Code', 'odd range from continuous' );
@@ -209,7 +209,7 @@ is( $odd_numbers.previous( 10 ), 9, 'odd even' );
     is( $span3.start, -Inf, "start" );
     is( $span3.end  ,   10, "end" );
 
-    is( $span1.intersects( $span3 ), bool::true, 'intersects' );
+    is( $span1.intersects( $span3 ), Bool::True, 'intersects' );
 
     {
         my $span2 = $span1.complement;
@@ -253,14 +253,14 @@ is( $span.size, 2, "real size" );
 # is( $span.size( density => 1 ), 3, "integer size" );
 
 my $span2 = Span::Num.new( 
-    start => 2, end => 4, start_is_open => bool::false, end_is_open => bool::false );
+    start => 2, end => 4, start_is_open => Bool::False, end_is_open => Bool::False );
 
 my $span3 = Span::Num.new( 
-    start => 4, end => 6, start_is_open => bool::false, end_is_open => bool::false );
+    start => 4, end => 6, start_is_open => Bool::False, end_is_open => Bool::False );
 
-is( $span.intersects( $span2 ), bool::true, 'intersects' );
+is( $span.intersects( $span2 ), Bool::True, 'intersects' );
 
-is( $span.intersects( $span3 ), bool::false, 'doesn\'t intersect' );
+is( $span.intersects( $span3 ), Bool::False, 'doesn\'t intersect' );
 
 {
     my @a = $span.complement;

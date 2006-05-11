@@ -28,12 +28,12 @@ my $span3 = Span.new( start => 4, end => 6 );
 # is( $span <=> 10 , -1, 'compare' );
 
 
-is( $span.intersects( 2 ), bool::true, 'intersects object' );
-is( $span.intersects( $span2 ), bool::true, 'intersects span' );
-is( $span.intersects( $span3 ), bool::false, 'doesn\'t intersect span' );
+is( $span.intersects( 2 ), Bool::True, 'intersects object' );
+is( $span.intersects( $span2 ), Bool::True, 'intersects span' );
+is( $span.intersects( $span3 ), Bool::False, 'doesn\'t intersect span' );
 
-is( $span.contains( 2 ), bool::true, 'contains object' );
-is( $span.contains( 9 ), bool::false, 'doesn\'t contain object' );
+is( $span.contains( 2 ), Bool::True, 'contains object' );
+is( $span.contains( 9 ), Bool::False, 'doesn\'t contain object' );
 
 {
     my @a = $span ∩ $span2;

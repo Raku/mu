@@ -149,13 +149,13 @@ method elems () {
 method is_infinite () {
     [||] @.items.map:{
         ($_.isa( 'Perl6::Value::List' ) && $_.is_infinite);
-    }, bool::false;
+    }, Bool::False;
 }
 
 method is_lazy () {
     [||] @.items.map:{
         ($_.isa( 'Perl6::Value::List' ) && $_.is_lazy);
-    }, bool::false;
+    }, Bool::False;
 }
 
 method flatten () { 

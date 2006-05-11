@@ -191,7 +191,7 @@ class HTTP::Cookies-0.0.1 {
     }
     
     # XXX lots of potential `where /.../` clauses here :-)
-    method set_cookie (Num $version, Str $key, Str $val, Str $path, Str $domain, Str $port?, Bool $path_spec = bool::false, Bool $secure = bool::false, Num $maxage?, Bool $discard = bool::false, *%rest) {
+    method set_cookie (Num $version, Str $key, Str $val, Str $path, Str $domain, Str $port?, Bool $path_spec = Bool::False, Bool $secure = Bool::False, Num $maxage?, Bool $discard = Bool::False, *%rest) {
         return $?SELF if $path !~ m,^/, || $key ~~ m,^\$,;
         
         if $port.defined {

@@ -110,7 +110,7 @@ method compare ($self: $span is copy) {
 }
 
 method contains ($self: $span is copy) returns bool {
-    return bool::false if $.span.is_empty;
+    return Bool::False if $.span.is_empty;
     my $span0 = $self.set;
     my $span1 = $self._normalize_parameter( $span );
     my $union = $span0.union( $span1 );

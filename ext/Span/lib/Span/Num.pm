@@ -17,8 +17,8 @@ has bool   $.end_is_open;
 submethod BUILD (
     $.start, 
     $.end, 
-    $.start_is_open? = bool::false, 
-    $.end_is_open?   = bool::false, 
+    $.start_is_open? = Bool::False, 
+    $.end_is_open?   = Bool::False, 
 ) 
 {}
 
@@ -69,23 +69,23 @@ method complement ($self: ) returns List of Span::Num
         return () if $.start == -Inf;
         return $self.new( start => -Inf,
                      end =>   $.start,
-                     start_is_open => bool::true,
+                     start_is_open => Bool::True,
                      end_is_open =>   ! $.start_is_open );
     }
     if ($.start == -Inf) {
         return $self.new( start => $.end,
                      end =>   Inf,
                      start_is_open => ! $.end_is_open,
-                     end_is_open =>   bool::true );
+                     end_is_open =>   Bool::True );
     }
     return (   $self.new( start => -Inf,
                      end =>   $.start,
-                     start_is_open => bool::true,
+                     start_is_open => Bool::True,
                      end_is_open =>   ! $.start_is_open ),
                $self.new( start => $.end,
                      end =>   Inf,
                      start_is_open => ! $.end_is_open,
-                     end_is_open =>   bool::true ) );
+                     end_is_open =>   Bool::True ) );
 }
 
 method union ($self: Span::Num $span ) 
@@ -235,7 +235,7 @@ Span::Num - An object representing a single span, with a simple functional API.
 
   use Span::Num;
 
-  $span = Span::Num.new( start => $start, end => $end, start_is_open => bool::false, end_is_open => bool::false );
+  $span = Span::Num.new( start => $start, end => $end, start_is_open => Bool::False, end_is_open => Bool::False );
 
 = DESCRIPTION
 

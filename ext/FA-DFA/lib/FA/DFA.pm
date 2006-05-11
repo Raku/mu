@@ -15,7 +15,7 @@ multi method next(Str $trigger --> FA::DFA::Node) {
 }
 
 multi method finalize() {
-  $.final=bool::true;
+  $.final=Bool::True;
 }
 
 multi method finalq() {

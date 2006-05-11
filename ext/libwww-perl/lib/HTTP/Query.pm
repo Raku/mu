@@ -57,7 +57,7 @@ class HTTP::Query-0.0.1 {
             }
         }
     
-        return bool::true;
+        return Bool::True;
     }
     
     method parse_keywords (Str $data) {

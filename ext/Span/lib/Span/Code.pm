@@ -65,10 +65,10 @@ method end ($self: ) {
     return $tmp == -Inf ?? undef !! $tmp;
 }
 
-method start_is_closed () { return bool::true }
-method start_is_open   () { return bool::false }
-method end_is_closed   () { return bool::true }
-method end_is_open     () { return bool::false }
+method start_is_closed () { return Bool::True }
+method start_is_open   () { return Bool::False }
+method end_is_closed   () { return Bool::True }
+method end_is_open     () { return Bool::False }
 
 method compare ($self: $set2 is copy) returns int {
     my $set1 = $self.span;
@@ -84,7 +84,7 @@ method contains ($self: $span is copy) returns bool {
 }
 
 method intersects ($self: $span is copy) returns bool {
-    return bool::false if ! $.span.intersects( $span );
+    return Bool::False if ! $.span.intersects( $span );
 
     my $tmp = $self.intersection( $span );
     return ! $tmp.is_empty;

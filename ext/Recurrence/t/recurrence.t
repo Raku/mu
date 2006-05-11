@@ -24,7 +24,7 @@ is( $universe.stringify, '-Inf..Inf', 'stringify' );
 is( $universe.next( 10 ), 11, 'next' );
 is( $universe.previous( 10 ), 9, 'previous' );
 
-is( $universe.intersects( $universe ), bool::true, 'intersects with self' );
+is( $universe.intersects( $universe ), Bool::True, 'intersects with self' );
 
 my $even_numbers = Recurrence.new( 
     closure_next =>     sub { return -Inf if $_ == -Inf; Inf if $_ ==  Inf; return 2 * int( $_ / 2 ) + 2 },
@@ -42,14 +42,14 @@ is( $even_numbers.current( 11.8 ), 10, 'current even' );
 
 {
     # equal()
-    is( $even_numbers.equal( $even_numbers ), bool::true, 'equal self' );
+    is( $even_numbers.equal( $even_numbers ), Bool::True, 'equal self' );
     my $set1 = $even_numbers.union( $universe );
-    is( $universe.equal( $set1 ), bool::true, 'equal from union' );
+    is( $universe.equal( $set1 ), Bool::True, 'equal from union' );
     $set1 = $even_numbers.intersection( $universe );
-    is( $even_numbers.equal( $set1 ), bool::true, 'equal from intersection' );
-    is( $even_numbers.equal( $universe ), bool::false, 'not equal' );
+    is( $even_numbers.equal( $set1 ), Bool::True, 'equal from intersection' );
+    is( $even_numbers.equal( $universe ), Bool::False, 'not equal' );
     $set1 = $even_numbers.complement;
-    is( $even_numbers.equal( $set1.complement ), bool::true, 'equal from complement' );
+    is( $even_numbers.equal( $set1.complement ), Bool::True, 'equal from complement' );
 }
 
 # Test - generate complement using closures + universe
@@ -85,7 +85,7 @@ is( $odd_numbers.previous( 10 ), 9, 'odd even' );
     is( $span3.start, -Inf, "start" );
     is( $span3.end  ,   10, "end" );
 
-    is( $span1.intersects( $span3 ), bool::true, 'intersects' );
+    is( $span1.intersects( $span3 ), Bool::True, 'intersects' );
 
     {
         my $span2 = $span1.complement;
@@ -124,9 +124,9 @@ is( $odd_numbers.previous( 10 ), 9, 'odd even' );
 
 =for later
 
-is( $span.intersects( $span2 ), bool::true, 'intersects' );
+is( $span.intersects( $span2 ), Bool::True, 'intersects' );
 
-is( $span.intersects( $span3 ), bool::false, 'doesn\'t intersect' );
+is( $span.intersects( $span3 ), Bool::False, 'doesn\'t intersect' );
 
 is( $span.intersection( $span2 ).stringify, '[2,3]', 'intersection' );
 

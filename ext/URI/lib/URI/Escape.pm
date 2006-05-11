@@ -24,7 +24,7 @@ module URI::Escape-0.6 {
     }
     
     multi sub uri_escape (Str $string is copy) returns Str is export(:DEFAULT) {
-        $string = uri_escape($string, "A-Za-z0-9\-_.!~*'()", negate => bool::true);
+        $string = uri_escape($string, "A-Za-z0-9\-_.!~*'()", negate => Bool::True);
         
         return $string;
     }

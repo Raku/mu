@@ -14,10 +14,10 @@ method empty_span ($class: $density = 1 ) {
 
 method is_empty        () { ! defined( $.start ) }
 method size            () { $.end - $.start + $.density }
-method start_is_closed () { return bool::true  }
-method start_is_open   () { return bool::false }
-method end_is_closed   () { return bool::true  }
-method end_is_open     () { return bool::false }
+method start_is_closed () { return Bool::True  }
+method start_is_open   () { return Bool::False }
+method end_is_closed   () { return Bool::True  }
+method end_is_open     () { return Bool::False }
 
 method intersects ( Span::Int $span ) returns bool {
     my $i_start = $.start < $span.start ?? $span.start !! $.start;

@@ -84,16 +84,16 @@ method yesterday () returns Date {
 
 sub _is_leap_year (Int $year) returns bool {
     if $year % 400 == 0 {
-        return bool::true;
+        return Bool::True;
     }
     elsif $year % 100 == 0 {
-        return bool::false;
+        return Bool::False;
     }
     elsif $year % 4 == 0 {
-        return bool::true;
+        return Bool::True;
     }
 
-    return bool::false;
+    return Bool::False;
 }
 
 method quarter () returns Int {

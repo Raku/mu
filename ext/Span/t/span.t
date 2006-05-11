@@ -15,7 +15,7 @@ isa_ok( $span, 'Span', 'created a Span' );
 # XXX 'can()' is broken
 # $span.can('start');
 
-is( $span.is_empty, bool::false, 'is not empty' );
+is( $span.is_empty, Bool::False, 'is not empty' );
 
 is( $span.stringify, '[1,3]', 'stringify' );
 
@@ -26,7 +26,7 @@ is( $span.stringify, '[1,3]', 'stringify' );
     isa_ok( $a, 'Span', 'created an empty Span' );
 
     # Testing span truth and stringification appears to hang pugs.
-    is( $a.is_empty, bool::true, 'created an empty Span is_empty' );
+    is( $a.is_empty, Bool::True, 'created an empty Span is_empty' );
 
     is( $a.stringify, '', 'created an empty Span stringify' );
 }
@@ -49,11 +49,11 @@ is( Span.new( object => 1 .. 10 ).stringify, '[1,10]', 'created a Span from a ra
 is( $span.start, 1, "start" );
 is( $span.end  , 3, "end" );
 
-is( $span.start_is_open,   bool::false, "start_is_open" );
-is( $span.end_is_open,     bool::false, "end_is_open" );
+is( $span.start_is_open,   Bool::False, "start_is_open" );
+is( $span.end_is_open,     Bool::False, "end_is_open" );
 
-is( $span.start_is_closed, bool::true, "start_is_closed" );
-is( $span.end_is_closed,   bool::true, "end_is_closed" );
+is( $span.start_is_closed, Bool::True, "start_is_closed" );
+is( $span.end_is_closed,   Bool::True, "end_is_closed" );
 
 is( $span.size, 2, "real size" );
 
@@ -74,12 +74,12 @@ my $span3 = Span.new( start => 4, end => 6 );
 
 is( $span.compare( 10 ), '-1', 'compare' );
 
-is( $span.intersects( 2 ), bool::true, 'intersects object' );
-is( $span.intersects( $span2 ), bool::true, 'intersects span' );
-is( $span.intersects( $span3 ), bool::false, 'doesn\'t intersect span' );
+is( $span.intersects( 2 ), Bool::True, 'intersects object' );
+is( $span.intersects( $span2 ), Bool::True, 'intersects span' );
+is( $span.intersects( $span3 ), Bool::False, 'doesn\'t intersect span' );
 
-is( $span.contains( 2 ), bool::true, 'contains object' );
-is( $span.contains( 9 ), bool::false, 'doesn\'t contain object' );
+is( $span.contains( 2 ), Bool::True, 'contains object' );
+is( $span.contains( 9 ), Bool::False, 'doesn\'t contain object' );
 
 {
     my @a = $span.complement;
