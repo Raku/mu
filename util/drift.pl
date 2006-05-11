@@ -26,6 +26,7 @@ while (<IN>) {
         next;
     }
     /^(?:data)\b(?!.*\bwhere)/ .. /^$/ or next;
+    s/^newtype\b/data/;
     s/--.*$//;
     /\S/ or next;
     print TMP $_;
