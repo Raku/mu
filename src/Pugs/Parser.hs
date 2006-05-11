@@ -1459,7 +1459,7 @@ namedArg = named (pairLiteral <|> complexNamed)
     complexNamed = do
         -- ("a" => 5), with the parens, is not a named arg.
         ok <- option True . try $ do
-            symbol "("
+            many1 (symbol "(")
             doComplexNamed
             return False
         guard ok
@@ -1753,16 +1753,16 @@ pairAdverb = try $ do
         return $ App (Var "&infix:=>") Nothing [Val (VStr key), Var var]
     regularPair = do
         key <- many1 wordAny
-        val <- option (Val $ VInt 1) $ choice [ valueDot, noValue, valueExp ]
+        val <- option (Val $ VBool True) $ choice [ valueDot, noValue, valueExp ]
         return $ if (all isDigit key)
             then App (Var "&Pugs::Internals::base") Nothing [Val (VStr key), val]
             else App (Var "&infix:=>") Nothing [Val (VStr key), val]
     valueDot = do
         ruleDot
-        option (Val $ VInt 1) $ valueExp
+        valueExp
     noValue = do
         mandatoryWhiteSpace
-        return (Val $ VInt 1)
+        return (Val $ VBool True)
     valueExp = lexeme $ choice
         [ verbatimParens ruleBracketedExpression
         , arrayLiteral
