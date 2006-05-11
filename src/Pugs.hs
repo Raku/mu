@@ -46,6 +46,9 @@ arguments and pass them to 'run'.
 pugsMain :: IO ()
 pugsMain = mainWith run
 
+defaultProgramName :: String
+defaultProgramName = "<interactive>"
+
 runFile :: String -> IO ()
 runFile file = do
     withArgs [file] pugsMain
@@ -113,17 +116,24 @@ readStdin = do
 repLoop :: IO ()
 repLoop = do
     initializeShell
-    env <- liftSTM . newTVar . noEnvDebug =<< tabulaRasa "<interactive>"
+    tvEnv <- liftSTM . newTVar . noEnvDebug =<< tabulaRasa defaultProgramName
     fix $ \loop -> do
         command <- getCommand
+        let parseEnv f prog = do
+                env <- liftSTM (readTVar tvEnv)
+                doParse env f defaultProgramName prog
+            resetEnv = do
+                tabulaRasa defaultProgramName
+                env <- fmap noEnvDebug (tabulaRasa defaultProgramName)
+                liftSTM (writeTVar tvEnv env)
         case command of
             CmdQuit           -> putStrLn "Leaving pugs."
-            CmdLoad fn        -> doLoad env fn >> loop
-            CmdRun opts prog  -> doRunSingle env opts prog >> loop
-            CmdParse prog     -> doParse pretty "<interactive>" prog >> loop
-            CmdParseRaw prog  -> doParse show   "<interactive>" prog >> loop
+            CmdLoad fn        -> doLoad tvEnv fn >> loop
+            CmdRun opts prog  -> doRunSingle tvEnv opts prog >> loop
+            CmdParse prog     -> parseEnv pretty prog >> loop
+            CmdParseRaw prog  -> parseEnv show prog >> loop
             CmdHelp           -> printInteractiveHelp >> loop
-            CmdReset          -> tabulaRasa "<interactive>" >>= (liftSTM . writeTVar env) >> loop
+            CmdReset          -> resetEnv >> loop
 
 mainWith :: ([String] -> IO a) -> IO ()
 mainWith run = do
@@ -137,10 +147,12 @@ mainWith run = do
 eval :: String -> IO ()
 eval prog = do
     args <- getArgs
-    runProgramWith id (putStrLn . pretty) "<interactive>" args prog
+    runProgramWith id (putStrLn . pretty) defaultProgramName args prog
 
 parse :: String -> IO ()
-parse = doParse pretty "-"
+parse prog = do
+    env <- tabulaRasa defaultProgramName
+    doParse env pretty "-" prog
 
 dump :: String -> IO ()
 dump = (doParseWith $ \env _ -> print $ envBody env) "-"
@@ -290,9 +302,8 @@ doParseWith f name prog = do
         exitFailure
     f' env = f env name
 
-doParse :: (Exp -> String) -> FilePath -> String -> IO ()
-doParse prettyFunc name prog = do
-    env <- tabulaRasa name
+doParse :: Env -> (Exp -> String) -> FilePath -> String -> IO ()
+doParse env prettyFunc name prog = do
     case envBody $ parseProgram env name (decodeUTF8 prog) of
         (Val err@(VError _ _)) -> putStrLn $ pretty err
         exp -> putStrLn $ prettyFunc exp
@@ -321,12 +332,12 @@ doRunSingle menv opts prog = (`catch` handler) $ do
     where
     parse = do
         env <- liftSTM $ readTVar menv
-        return $ envBody $ parseProgram env "<interactive>" $
+        return $ envBody $ parseProgram env defaultProgramName $
           (dropTrailingSemi $ decodeUTF8 prog)
     dropTrailingSemi = reverse . dropWhile (`elem` " \t\r\n;") . reverse
     theEnv = do
         ref <- if runOptSeparately opts
-                then (liftSTM . newTVar) =<< tabulaRasa "<interactive>"
+                then (liftSTM . newTVar) =<< tabulaRasa defaultProgramName
                 else return menv
         debug <- if runOptDebug opts
                 then fmap Just (liftSTM $ newTVar Map.empty)
