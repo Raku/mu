@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 9 May 2006
+  Last Modified: 11 May 2006
   Number: 3
-  Version: 27
+  Version: 28
 
 =head1 Changes to existing operators
 
@@ -27,6 +27,10 @@ Huffman-code the language, while others have changed precedence.
 
 =item * The string concatenation C<.> becomes C<~>.  Think of it as
 "stitching" the two ends of its arguments together.
+
+=item * All postfix operators that do not start with a dot also have
+an alternate form that does.  (The converse does not hold--just because
+you can write C<x().foo> doesn't mean you can write C<x()foo>.)
 
 =item * Unary C<~> now imposes a string (C<Str>) context on its argument, and
 C<+> imposes a numeric (C<Num>) context (as opposed to being a no-op in Perl
@@ -300,7 +304,10 @@ their ASCII digraphs C<<< >> >>> and C<<< << >>> are used to denote
 "list operations", which operate on each element of two lists (or
 arrays) and return a list (or array) of the results.  Spaces are not
 allowed on the "pointy" end of each "hyper", but are allowed on the
-blunt end. For example:
+blunt end (except for postfix operators, which must still follow postfix
+spacing rules, but do for allow an additional dot before the "hyper").
+
+For example:
 
      (1,1,2,3,5) »+« (1,2,3,5,8);  # (2,3,5,8,13)
 
@@ -312,10 +319,15 @@ When using a unary operator, only put it on the side of the single operand:
 
      @negatives = -« @positives;
 
-     @positions »++;            # Increment all positions
+     @positions»++;            # Increment all positions
 
-     @objects ».run();
-     ("f","oo","bar")».chars;   # (1,2,3)
+     @positions.»++;           # Same thing, dot form
+     @positions».++;           # Same thing, dot form
+     @positions.».++;          # Same thing, dot form
+     @positions\  .»\  .++;    # Same thing, long dot form
+
+     @objects.».run();
+     ("f","oo","bar").>>.chars;   # (1,2,3)
 
 Note that method calls are really postfix operators, not infix, so you
 shouldn't put a C<«> after the dot.
@@ -343,6 +355,9 @@ create a list operator that reduces using that operation:
     [+] 1, 2, 3;      # 1 + 2 + 3 = 6
     my @a = (5,6);
     [*] @a;           # 5 * 6 = 30
+
+As with the all metaoperators, space is not allowed inside.  The whole
+thing parses as a single token.
 
 A reduction operator really is a list operator, and is invoked as one.
 Hence, you maybe implement a reduction operator in one of two ways.  Either
@@ -403,8 +418,8 @@ different ways to handle the one argument case depending on type:
 However, the zero argument case must of necessity be handled by the
 proto version, since there is no type information to dispatch on.
 Operators that wish to specify an identity value should do so by
-specifying the proto listop.  Among the builtin operators, [+]()
-returns 0 and [*]() returns 1, for instance.
+specifying the proto listop.  Among the builtin operators, C<[+]()>
+returns 0 and C<[*]()> returns 1, for instance.
 
 By default, if there is one argument, the built-in reduce operators
 return that one argument.  However, this default doesn't make sense
@@ -876,7 +891,7 @@ I<long dot> syntax:
 Perl 6 has 22 precedence levels (which is fewer than Perl 5):
 
     terms               42 "eek" $x /abc/ (1+2) a(1) :by(2) .meth listop
-    method postfix      . .+ .? .* .() .[] .{} .«» .=
+    method postfix      . .+ .? .* .() .[] .{} .:: .«» .=
     autoincrement       ++ --
     exponentiation      **
     symbolic unary      ! + - ~ ? $ @ % & * ** +^ ~^ ?^ \ ^ =
@@ -890,7 +905,7 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
     tight and           &&
     tight or            || ^^ //
     ternary             ?? !!
-    assignment          = := ::= += -= **= xx= etc. (and also =>)
+    assignment          = := ::= += -= **= xx= .= etc. (and also =>)
     list item separator , ¥
     list op (rightward) <== print push any all true not etc. and ()= rightward
     pipe forward        ==>
