@@ -547,22 +547,12 @@ instance YAML VMatch where
 instance YAML CompUnit where
     fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"MkCompUnit" -> do
-	    let YamlSeq [aa, ab, ac, ad] = e
-	    liftM4 MkCompUnit (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
+	    let YamlSeq [aa, ab, ac] = e
+	    liftM3 MkCompUnit (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkCompUnit"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML (MkCompUnit aa ab ac ad) = asYAMLseq "MkCompUnit"
-	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
-
-instance JSON CompUnit where
-    showJSON (MkCompUnit aa ab ac ad) = showJSHashObj "MkCompUnit"
-	     [("ver", showJSON aa), ("desc", showJSON ab),
-	      ("glob", showJSON ac), ("ast", showJSON ad)]
-
-instance Perl5 CompUnit where
-    showPerl5 (MkCompUnit aa ab ac ad) = showP5HashObj "MkCompUnit"
-	      [("ver", showPerl5 aa) , ("desc", showPerl5 ab) ,
-	       ("glob", showPerl5 ac) , ("ast", showPerl5 ad)]
+    asYAML (MkCompUnit aa ab ac) = asYAMLseq "MkCompUnit"
+	   [asYAML aa, asYAML ab, asYAML ac]
 
 instance YAML Scope where
     fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of

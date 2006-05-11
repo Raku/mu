@@ -16,7 +16,7 @@ genParseHsYAML = do
     pad'        <- fmap (MkPad . Map.fromAscList . catMaybes) . mapM checkPrim $ Map.toAscList pad
     -- munge the glob to filter out prim stuff in it
     main    <- asks envBody
-    yaml    <- liftIO $ toYamlNode (pad', main)
+    yaml    <- liftIO $ toYamlNode $ mkCompUnit "<unused>" pad' main
     return (VStr $ show yaml)
 
 genParseYAML :: Eval Val
@@ -26,7 +26,7 @@ genParseYAML = do
     pad'        <- fmap (MkPad . Map.fromAscList . catMaybes) . mapM checkPrim $ Map.toAscList pad
     -- munge the glob to filter out prim stuff in it
     main    <- asks envBody
-    yaml    <- liftIO $ showYaml (pad', main)
+    yaml    <- liftIO $ showYaml $ mkCompUnit "<unused>" pad' main
     return (VStr yaml)
 
 checkPrim :: (String, PadEntry) -> Eval (Maybe (String, PadEntry))

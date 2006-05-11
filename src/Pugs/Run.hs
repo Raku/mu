@@ -239,14 +239,24 @@ initPreludePC env = do
         , evalError  = EvalErrorFatal
         }
     evalPrelude = runEvalIO env{ envDebug = Nothing } $ opEval style "<prelude>" preludeStr
-    loadPreludePC = do
+    loadPreludePC = do  -- XXX: this so wants to reuse stuff from op1EvalP6Y
         -- print "Parsing yaml..."
         incs <- liftIO $ fmap ("blib6/lib":) getLibs
         yml  <- liftIO $ getYaml incs "Prelude.pm.yml" Str.readFile
         when (nodeElem yml == YamlNil) $ fail ""
+        -- FIXME: this detects an error if a bad version number was found,
+        -- but not if no number was found at all. Then again, if that
+        -- happens surely the fromYAML below will fail?
+        case yml of
+            MkYamlNode{ nodeElem=YamlSeq (v:_) }
+                | MkYamlNode{ nodeElem=YamlStr vnum } <- v
+                , vnum /= (packBuf $ show compUnitVersion) -> do
+                    fail "incompatible version number for compilation unit"
+            _ -> return ()
         -- print "Parsing done!"
         -- print "Loading yaml..."
-        (glob, ast) <- fromYAML yml
+        --(glob, ast) <- fromYAML yml
+        MkCompUnit _ glob ast <- liftIO $ fromYAML yml
         -- print "Loading done!"
         liftSTM $ modifyTVar (envGlobal env) (`unionPads` glob)
         runEnv env{ envBody = ast, envDebug = Nothing }

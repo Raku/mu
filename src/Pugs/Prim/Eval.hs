@@ -114,9 +114,13 @@ op1EvalP6Y fileName = do
     yml  <- liftIO $ (`catch` (return . Left . show)) $
         fmap Right (parseYamlFile fileName')
     case yml of
+        Right MkYamlNode{ nodeElem=YamlSeq (v:_) }
+            | MkYamlNode{ nodeElem=YamlStr vnum } <- v
+            , vnum /= (packBuf $ show compUnitVersion) -> do
+                err "incompatible version number for compilation unit"
         Right yml' -> do
             globTVar    <- asks envGlobal
-            (glob, ast) <- liftIO $ fromYAML yml'
+            MkCompUnit _ glob ast <- liftIO $ fromYAML yml'
             resetT $ do
                 -- Inject the global bindings
                 liftSTM $ do
@@ -124,8 +128,10 @@ op1EvalP6Y fileName = do
                     writeTVar globTVar (glob `unionPads` glob')
                 evl <- asks envEval
                 evl ast
-        x -> local (\e -> e{ envPos = (envPos e){ posName="" } }) $
-            fail $ "failed loading Yaml: " ++ show x
+        x -> err x
+    where
+    err x = local (\e -> e{ envPos = (envPos e){ posName="" } }) $
+        fail $ "failed loading Yaml: " ++ show x
 
 opEval :: EvalStyle -> FilePath -> String -> Eval Val
 opEval style path str = enterCaller $ do

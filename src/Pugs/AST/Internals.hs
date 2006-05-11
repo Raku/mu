@@ -44,7 +44,7 @@ module Pugs.AST.Internals (
     ObjectClass(..), PairClass(..), RuleClass(..), ScalarClass(..),
     ThunkClass(..),
 
-    CompUnit(..), mkCompUnit,
+    CompUnit(..), mkCompUnit, compUnitVersion,
 
     -- MonadEval(..),
 
@@ -1243,14 +1243,16 @@ Serializable compilation unit
 See: docs/notes/precompilation_cache.pod
 -}
 data CompUnit = MkCompUnit
-    { ver  :: Int        -- currently 1
-    , desc :: String     -- e.g., the name of the contained module
-    , glob :: (TVar Pad) -- pad for unit Env
+    { ver  :: Int        -- a version number, currently 1
+    --, desc :: String     -- e.g., the name of the contained module
+    , pad  :: Pad        -- pad for unit Env
     , ast  :: Exp        -- AST of unit
-    } deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, JSON, Perl5!-}
+    } deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos !-}
 
-mkCompUnit :: String -> TVar Pad -> Exp -> CompUnit
-mkCompUnit = MkCompUnit 1
+mkCompUnit :: String -> Pad -> Exp -> CompUnit
+mkCompUnit _ pad ast = MkCompUnit compUnitVersion pad ast
+
+compUnitVersion = 1
 
 {- Eval Monad -}
 -- type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
