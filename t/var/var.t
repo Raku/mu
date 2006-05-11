@@ -12,8 +12,8 @@ ok !eval('module CALLER; 1'), "CALLER is an out of scope name";
 
 
 # L<S04/"The Relationship of Blocks and Declarations">
-ok !eval('my $x; my $x; 1'),       'it is illegal to declare $x twice in the same scope.', :todo<bug>;
-ok !eval('state $x; state $x; 1'), 'it is illegal to declare $x twice in the same scope.', :todo<bug>;
+ok eval('my $x; my $x; 1'),       'it is legal to declare $x twice in the same scope.';
+ok eval('state $x; state $x; 1'), 'it is legal to declare $x twice in the same scope.';
 
 # XXX -- dunno why test test fails, but the next outer test works. --iblech
 { my $a = 1; {
@@ -21,7 +21,7 @@ ok !eval('state $x; state $x; 1'), 'it is illegal to declare $x twice in the sam
       my $a=3;
       is($a, 3,               'get regular a'); 
       is($OUTER::a, 2,        'get $OUTER::a'); 
-      is($OUTER::OUTER::a, 1, 'get $OUTER::OUTER::a', :todo<bug>);
+      is($OUTER::OUTER::a, 1, 'get $OUTER::OUTER::a');
 }}}
 
 {
