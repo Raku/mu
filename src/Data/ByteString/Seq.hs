@@ -273,9 +273,10 @@ import qualified Data.ByteString as P  -- P for packed
 -- Instances of Eq, Ord, Read, Show, Data, Typeable
 --
 newtype ByteString = LPS { unLPS :: S.Seq P.ByteString } -- LPS for lazy packed string
-
 #if defined(__GLASGOW_HASKELL__)
-    deriving (Data, Typeable)
+    deriving (Read, Show, Data, Typeable)
+#else
+    deriving (Read, Show)
 #endif
 
 -- The representation uses lists of packed chunks. When we have to convert from
@@ -362,13 +363,13 @@ unpack (LPS ss) = L.concat (S.toList (fmap P.unpack ss))
 -- | /O(n)/ Convert a '[a]' into a 'ByteString' using some
 -- conversion function
 packWith :: (a -> Word8) -> [a] -> ByteString
-packWith k str = error "XXX" -- LPS $ fmap (P.packWith k) (chunk defaultChunkSize str)
+packWith k str = LPS $ S.fromList (L.map (P.packWith k) (chunk defaultChunkSize str))
 {-# INLINE packWith #-}
 {-# SPECIALIZE packWith :: (Char -> Word8) -> [Char] -> ByteString #-}
 
 -- | /O(n)/ Converts a 'ByteString' to a '[a]', using a conversion function.
 unpackWith :: (Word8 -> a) -> ByteString -> [a]
-unpackWith k (LPS ss) = error "XXX" -- L.concat (fmap (P.unpackWith k) ss)
+unpackWith k (LPS ss) = L.concat (fmap (P.unpackWith k) (S.toList ss))
 {-# INLINE unpackWith #-}
 {-# SPECIALIZE unpackWith :: (Word8 -> Char) -> ByteString -> [Char] #-}
 
@@ -492,11 +493,11 @@ foldr1 f lps = error "FIXME: not yet implemented"
 
 -- | /O(n)/ Concatenate a list of ByteStrings.
 concat :: [ByteString] -> ByteString
-concat lpss = error "XXX" -- LPS (foldl (S.><) S.empty (map unLPS lpss))
+concat lpss = LPS (L.foldl (S.><) S.empty (L.map unLPS lpss))
 
 -- | Map a function over a 'ByteString' and concatenate the results
 concatMap :: (Word8 -> ByteString) -> ByteString -> ByteString
-concatMap f (LPS lps) = error "XXX: net yet implemented" -- LPS (fmap (P.concatMap (\w -> case f w of LPS xs -> concat (S.toList xs))) lps)
+concatMap f (LPS lps) = LPS (fmap (P.concatMap (\w -> case f w of LPS xs -> P.concat (S.toList xs))) lps)
 -- TODO: above seems overly complex and I'm not sure of the chunking behaviour
 
 -- | /O(n)/ Applied to a predicate and a ByteString, 'any' determines if
