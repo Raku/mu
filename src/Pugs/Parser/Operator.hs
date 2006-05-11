@@ -120,16 +120,14 @@ currentTightFunctions :: RuleParser [[String]]
 currentTightFunctions = do
     funs    <- currentFunctions
     let (unary, rest) = (`partition` funs) $ \x -> case x of
-            (_, "pre", [param]) | not (isSlurpy param) -> True
+            (_, "pre", [param@MkParam{ paramContext = CxtItem{}, isNamed = False }]) -> True
             _ -> False
         (maybeNullary, notNullary) = (`partition` funs) $ \x -> case x of
             (_, "pre", []) -> True
             _ -> False
         rest' = (`filter` rest) $ \x -> case x of
             (_, _, (_:_:_)) -> True
-            (_, _, [param])
-                | ('@':_) <- paramName param
-                , isSlurpy param -> True
+            (_, _, [param@MkParam{ paramContext = CxtSlurpy{}, paramName = ('@':_) }]) -> True
             _ -> False
         namesFrom = map (\(name, _, _) -> name)
         restNames = Set.fromList $ namesFrom rest'
