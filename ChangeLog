@@ -1,10 +1,10 @@
-= Changes for 6.28.0 (rXXXX) - May XX, 2006
+= Changes for 6.2.12 (rXXXXX) - May XX, 2006
 
 == Bundled Modules
 
 === New Perl 6 modules
 
-* [ext/Relation/]: Relation type for Perl 6.
+* [ext/Relation/]: Relation type for Perl 6 (incomplete).
 
 === Updated modules
 
@@ -12,7 +12,11 @@
 * [ext/Rosetta/]: Multiple additions and rewrites.
 ** Merged ext/Rosetta-Engine-Native/ in, renamed to ::Example.
 ** Now officially incorporates "The Third Manifesto".
-** Rewrote Language.pod, large updates to some other files.
+** Rewrote half of Language.pod.
+** Updated the DESCRIPTION and class list of Rosetta.pm.
+** Added new core module Rosetta::Shell and example shell.pl.
+** Added new documentation file Rosetta::SeeAlso.
+** Various other documentation additions and edits.
 
 === Experimental modules (in misc/, not installed)
 
