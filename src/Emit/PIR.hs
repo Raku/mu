@@ -957,10 +957,15 @@ preludePIR = emit $
         , InsLabel "split_done"
         ] --> [rv]
 
-    --, namespace "bool" -- Namespaces have bugs in both pugs and parrot.
-    , sub "&bool::true" []
+    , sub "&True" []
         [] --> [lit True]
-    , sub "&bool::false" []
+    , sub "&False" []
+        [] --> [lit False]
+
+    --, namespace "bool" -- Namespaces have bugs in both pugs and parrot.
+    , sub "&Bool::True" []
+        [] --> [lit True]
+    , sub "&Bool::False" []
         [] --> [lit False]
     ]
 

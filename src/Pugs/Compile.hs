@@ -216,7 +216,7 @@ instance Compile Exp PIL_Stmt where
     compile (Syn "loop" [pre, cond, post, (Syn "block" [body])]) = do
         preC    <- compile pre
         -- loop (...; ; ...) {...} ->
-        -- loop (...; bool::true; ...) {...}
+        -- loop (...; True; ...) {...}
         let cond' | unwrap cond == Noop
                   = return $ PStmts (PStmt . PLit . PVal $ VBool True) PNil
                   | otherwise

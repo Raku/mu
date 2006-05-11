@@ -213,7 +213,7 @@ PIL):
        multi run (Pred[$x])   { run($x) - 1 }
        multi run (Succ[$x])   { run($x) + 1 }
        multi run (IsZero[$x]) {
-           run($x) == 0 ?? bool::true !! bool::false;
+           run($x) == 0 ?? Bool::True !! Bool::False;
        }
        multi run (Cond[$cond, $true, $false]) {
            if run($cond) {

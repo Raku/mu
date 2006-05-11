@@ -55,7 +55,7 @@ This behaviour may be confusing at first, especially if you intended to use
 C<&say> to output something:
 
     <you>     ?eval say "hi"
-    <evalbot> hi bool::true     # (the bool::true is say("hi")'s return value)
+    <evalbot> hi Bool::True     # (the Bool::True is say("hi")'s return value)
 
 There're other commands available, too:
 

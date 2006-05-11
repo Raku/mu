@@ -721,7 +721,7 @@ Perl-Compiler Tree
 
 +* Boolean, numeric and bitwise logic:
 
-    $bool = 9 ?| 3; # bool::true
+    $bool = 9 ?| 3; # Bool::True
     $true = 9 +| 3; # 11
     $bits = 9 ~| 3; # ";"
 

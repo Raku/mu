@@ -56,8 +56,10 @@ op0 "&"  = fmap opJuncAll  . mapM fromVal
 op0 "^"  = fmap opJuncOne  . mapM fromVal
 op0 "|"  = fmap opJuncAny  . mapM fromVal
 op0 "want"  = const $ fmap VStr (asks (maybe "Void" envWant . envCaller))
-op0 "bool::true" = const $ return (VBool True)
-op0 "bool::false" = const $ return (VBool False)
+op0 "Bool::True" = const $ return (VBool True)
+op0 "Bool::False" = const $ return (VBool False)
+op0 "True" = const $ return (VBool True)
+op0 "False" = const $ return (VBool False)
 op0 "time"  = const $ do
     clkt <- guardIO getClockTime
     return $ VRat $ fdiff $ diffClockTimes clkt epochClkT
@@ -1805,8 +1807,10 @@ initSyms = mapM primDecl syms
 \\n   IO        pre     Pugs::Internals::openFile               unsafe (Str, Str)\
 \\n   List      pre     Pugs::Internals::caller                 safe (Any, Int, Str)\
 \\n   Any       pre     Pugs::Internals::check_for_io_leak      safe (Code)\
-\\n   Bool      pre     bool::true  safe   ()\
-\\n   Bool      pre     bool::false safe   ()\
+\\n   Bool      pre     Bool::True  safe   ()\
+\\n   Bool      pre     Bool::False safe   ()\
+\\n   Bool      pre     True  safe   ()\
+\\n   Bool      pre     False safe   ()\
 \\n   List      spre    prefix:[,]  safe   (List)\
 \\n   Str       pre     Code::name    safe   (Code:)\
 \\n   Int       pre     Code::arity   safe   (Code:)\

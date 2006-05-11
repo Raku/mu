@@ -9,9 +9,9 @@ Currently, pugs treats ~~ as smartmatch, but !~ as negated string match.
 This leads to craziness like the following:
 
     pugs> not(0 !~ rx:Perl5/0/)
-    bool::false
+    Bool::False
     pugs> not(0 ~~ rx:Perl5/0/)
-    bool::false
+    Bool::False
 
 =cut
 

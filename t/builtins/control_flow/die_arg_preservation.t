@@ -13,7 +13,7 @@ and does not cast its argument as a Str.
 plan 10;
 
 try {
-    my Bool $foo = bool::true;
+    my Bool $foo = Bool::True;
     is( $foo.ref, 'Bool', 'arg to be given as die() arg contains a Bool value' );
     die $foo;
 };

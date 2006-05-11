@@ -268,7 +268,7 @@ flunk("when true is parsefail", :todo<feature>) if $!;
 # given + 0-arg sub
 {
     my $x = 41;
-    sub always_true { bool::true }
+    sub always_true { Bool::True }
     given 1 {
         when &always_true { $x++ }
     }

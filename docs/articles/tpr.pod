@@ -72,7 +72,7 @@ We are now ready to run our canonical first Perl 6 program:
 
   pugs> say "Hello, world!"
   Hello, world!
-  bool::true
+  Bool::True
   pugs>
 
 The C<say> builtin works just like C<print>, but puts a newline at the

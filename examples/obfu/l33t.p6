@@ -164,7 +164,7 @@ method debug_interactive() returns Bool {
     if %!breakpoints{$.ip} {
         say "<6r34k>";
     } elsif !$!step {
-        return bool::true;
+        return Bool::True;
     }
     loop { print "$.ip> " } until (./debug_action(=<>) || $!runnable);
     return $!runnable;
@@ -194,7 +194,7 @@ method debug_help {
 } # : f1x0rz v1m
 
 method debug_action(Str $cmd is copy) returns Bool {
-    $!runnable = bool::false;
+    $!runnable = False;
     $cmd ||= $!last_db_command;
     $!last_db_command = $cmd;
     given $cmd {
@@ -217,23 +217,23 @@ method debug_action(Str $cmd is copy) returns Bool {
         when 'i' {
             say "(urr3nt (0nn3xxx10n: " ~ ($!coninfo // "stdio");
             say "tr4(3 m0de: " ~ ($!trace ?? "0n" !! "0ff");
-            return bool::true;
+            return Bool::True;
         };
         when rx:perl5<i>/^\s*ip\s*(([-+])?\d+)/ {
             if $1 { $.ip += $0 }
             else  { $.ip  = $0 }
             $.ip %= $MEMSIZE;
-            return bool::true;
+            return Bool::True;
         };
         when rx:perl5<i>/^\s*mp\s*(([-+])?\d+)/ {
             if $1 { $.mp += $0 }
             else  { $.mp  = $0 }
             $.mp %= $MEMSIZE;
-            return bool::true;
+            return Bool::True;
         };
         when rx:perl5/^\s*r/ {              # r run
-            $!step     = bool::false;
-            $!runnable = bool::true;
+            $!step     = False;
+            $!runnable = True;
         };
         when rx:perl5<i>/^\s*l\s*(\d+)?/ {  # l list
             my $from = $0 // $.ip;
@@ -244,8 +244,8 @@ method debug_action(Str $cmd is copy) returns Bool {
             }
         };
         when 's' {                          # s step
-            $!step     = bool::true;
-            $!runnable = bool::true;
+            $!step     = True;
+            $!runnable = True;
         };
         when 't' {                          # t trace
             $!trace ^^= 1;
@@ -253,12 +253,12 @@ method debug_action(Str $cmd is copy) returns Bool {
         when 'q' { die "Debugger::QUIT" };  # q quit
         when rx:perl5<i>/^\s*w\s*(.+)/ {    # w write
             ./load($0);
-            return bool::true;
+            return True;
         };
         say "$INSULT: wft iz $_?";
-        return bool::true;
+        return True;
     }
-    return bool::false;
+    return False;
 }
 
 method debug_trace() {

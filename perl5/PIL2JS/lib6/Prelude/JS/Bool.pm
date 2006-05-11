@@ -10,8 +10,11 @@ method JS::Root::not(*@a:) { @a.elems == 0 ?? () # should be: want.Scalar ?? und
                                            !! !@a[0] } # XXX correct?
 method JS::Root::true($a:) { ?$a }
 
-sub bool::true is primitive { ?1 }
-sub bool::false is primitive { ?0 }
+sub Bool::True is primitive { ?1 }
+sub Bool::False is primitive { ?0 }
+
+sub True is primitive { ?1 }
+sub False is primitive { ?0 }
 
 sub prefix:<!>($a) is primitive { $a ?? ?0 !! ?1 }
 
