@@ -96,7 +96,7 @@ instance Pretty VMatch where
         form (s, f) = hang (text s <+> text "=>") defaultIndent (format $ f m)
 
 instance Pretty Bool where
-    format x = text $ if x then "bool::true" else "bool::false"
+    format x = text $ if x then "Bool::True" else "Bool::False"
 
 instance Pretty Int where
     format i = int i
