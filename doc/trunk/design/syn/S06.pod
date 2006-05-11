@@ -1575,7 +1575,7 @@ The C<but I<NAME> (I<DATA>)> syntax specifies run-time properties on values:
     sub system {
         ...
         return $error but false if $error;
-        return 0 but true;
+        return 0 but True;
     }
 
 Properties are predeclared as roles and implemented as mixins--see S12.
