@@ -191,7 +191,8 @@ ruleSubGlobal = tryRule "global subroutine" $ do
 
 ruleRuleDeclaration :: RuleParser Exp
 ruleRuleDeclaration = rule "rule declaration" $ do
-    name    <- try (symbol "rule" >> identifier)
+    -- XXX - fill in default adverbs
+    name    <- try (ruleRegexDeclarator >> identifier)
     adverbs <- ruleAdverbHash
     ch      <- char '{'
     expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
@@ -2110,10 +2111,14 @@ substLiteral = do
     subst   <- qLiteral1 (string [ch]) (string [endch]) qqFlags { qfProtectedChar = endch }
     return $ Syn "subst" [expr, subst, adverbs]
 
+ruleRegexDeclarator :: RuleParser String
+ruleRegexDeclarator = symbol "rule" <|> symbol "token" <|> symbol "regex"
+
 rxLiteral :: RuleParser Exp
 rxLiteral = do
     sym     <- symbol "rx" <|> do { symbol "m"; return "match" } <|> do
-        symbol "rule"
+        -- XXX - fill in default adverbs
+        ruleRegexDeclarator
         lookAhead $ do { ruleAdverbHash; char '{' }
         return "rx"
     adverbs <- ruleAdverbHash

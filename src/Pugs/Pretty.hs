@@ -169,7 +169,7 @@ instance Pretty Val where
     -- format (MVal v) = text $ inlinePerformSTM $ do
     --     val <- readTVar v
     --     return $ pretty val
-    format (VRule _) = text $ "{rule}"
+    format (VRule _) = text $ "{regex}"
     format (VSubst _) = text $ "{subst}"
     format (VType t) = text $ "::" ++ showType t
     format (VObject o) = text $ "{obj:" ++ showType (objType o) ++ "}"
