@@ -152,14 +152,12 @@ be used lightly.  Put it in the category of a "goto".
 =item *
 
 The new C<:s> (C<:sigspace>) modifier causes whitespace sequences
-to be considered "significant".  That is, they are replaced by a
-whitespace matching rule, C<< <?ws> >>.
-
-Anyway,
+to be considered "significant"; they are replaced by a whitespace
+matching rule, C<< <?ws> >>.  That is,
 
      m:s/ next cmd =   <condition>/
 
-Same as:
+is the same as:
 
      m/ <?ws> next <?ws> cmd <?ws> = <?ws> <condition>/
 

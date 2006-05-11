@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
-  Last Modified: 21 Apr 2006
+  Last Modified: 11 May 2006
   Number: 9
-  Version: 9
+  Version: 10
 
 =head1 Overview
 
@@ -308,7 +308,7 @@ dimensionality supported by the implementation.  You may use arrays
 just like scalars -- the main caveat is that you have to use
 binding rather than assignment to set one without copying:
 
-    @b := @a[0..(*):by(2)]
+    @b := @a[0..*:by(2)]
 
 With PDLs in particular, this might alias each of the individual
 elements rather than the array as a whole.  So modifications to @b
@@ -340,7 +340,7 @@ of an array is sliced separately, so we say a subscript is a
 semicolon-separated list of slice specifiers, also known as a multislice.
 A three-dimensional slice might look like this:
 
-    @x[0..10; 1,0; 1..(*):by(2)]
+    @x[0..10; 1,0; 1..*:by(2)]
 
 It is up to the implementation of C<@x> to decide how aggressively
 or lazily this subscript is evaluated, and whether the slice entails
@@ -412,9 +412,9 @@ values from these ranges and "piddle" around with them:
 
     @nums[$min..$max:by(3)]
     @nums[$min..$max]
-    @nums[$min..(*):by(3)]
-    @nums[1..(*):by(2)]		# the odds
-    @nums[0..(*):by(2)]		# the evens
+    @nums[$min..*:by(3)]
+    @nums[1..*:by(2)]		# the odds
+    @nums[0..*:by(2)]		# the evens
 
 That's all just the standard Perl 6 notation for ranges.  Additional
 syntactic relief is always available as long as it's predeclared

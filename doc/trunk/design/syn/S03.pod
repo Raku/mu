@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 11 May 2006
   Number: 3
-  Version: 28
+  Version: 29
 
 =head1 Changes to existing operators
 
@@ -360,7 +360,7 @@ As with the all metaoperators, space is not allowed inside.  The whole
 thing parses as a single token.
 
 A reduction operator really is a list operator, and is invoked as one.
-Hence, you maybe implement a reduction operator in one of two ways.  Either
+Hence, you can implement a reduction operator in one of two ways.  Either
 you can write an explicit list operator:
 
     proto prefix:<[+]> (*@args) {
@@ -674,7 +674,7 @@ These all have their uses and are explained in subsequent Synopses.
 
 Since typeglobs are being removed, unary C<*> may now serve as an
 interpolator, by casting its single operand to a C<Capture> object
-and insert it into the current argument list.
+and inserting it into the current argument list.
 
 It can be used to interpolate an C<Array> or C<Hash> into the current
 call, as positional and named arguments respectively.
@@ -736,6 +736,26 @@ To get an immediate interpolation like Perl 5 does, use unary C<**> instead:
     func(**(1..Inf));   # never terminates
 
 You may use either of them on a scalar iterator to force it to iterate.
+
+The C<*> operator is recognized only if the next character is a sigil
+or an opening bracket, In front of an alphabetic character C<*> will
+always be taken to mean C<GLOBAL::>.  Otherwise it will be assumed
+the C<*> has no argument.  See next section.
+
+To interpolate a function's return value, therefore, you must say one
+of these:
+
+    push *(func())
+    push *[func()]
+    push *&func()
+
+because
+
+    push *func()
+
+means
+
+    push GLOBAL::func()
 
 =item * The "Whatever" operator
 
@@ -891,7 +911,7 @@ I<long dot> syntax:
 Perl 6 has 22 precedence levels (which is fewer than Perl 5):
 
     terms               42 "eek" $x /abc/ (1+2) a(1) :by(2) .meth listop
-    method postfix      . .+ .? .* .() .[] .{} .:: .«» .=
+    method postfix      . .+ .? .* .() .[] .{} .«» .:: .=
     autoincrement       ++ --
     exponentiation      **
     symbolic unary      ! + - ~ ? $ @ % & * ** +^ ~^ ?^ \ ^ =
