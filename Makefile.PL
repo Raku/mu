@@ -39,6 +39,9 @@ use Carp;
 
 use constant WIN32_GHC_HEAPSIZE => "348m";
 
+# Special case for migration - remove old version of Syck
+unlink 'src/Data/Yaml/Syck.hs' if -e 'src/Data/Yaml/Syck.hs';
+
 my @warn;
 my $pugs = "pugs$Config{_exe}";
 my ($fs) = ($Config{sitelib} =~ /([\/\\])/)
