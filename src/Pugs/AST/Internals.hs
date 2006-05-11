@@ -1396,14 +1396,16 @@ findSymRef name pad = do
 findSym :: String -> Pad -> Maybe (TVar VRef)
 findSym name pad = fmap head (lookupPad name pad)
 
-instance MonadEval Eval
-
 instance MonadCont Eval where
     -- callCC :: ((a -> Eval b) -> Eval a) -> Eval a
     callCC f = EvalT . callCCT $ \c -> runEvalT . f $ \a -> EvalT $ c a
 
+{-
+instance MonadEval Eval
+
 class (MonadReader Env m, MonadCont m, MonadIO m, MonadSTM m) => MonadEval m
 --     askGlobal :: m Pad
+-}
 
 {-|
 Retrieve the global 'Pad' from the current evaluation environment.
