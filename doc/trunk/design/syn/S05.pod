@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 24 Apr 2006
+   Last Modified: 11 May 2006
    Number: 5
-   Version: 23
+   Version: 24
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> because they haven't been
@@ -151,10 +151,13 @@ be used lightly.  Put it in the category of a "goto".
 
 =item *
 
-The new C<:w> (C<:words>) modifier causes whitespace sequences to be
-replaced by C<\s*> or C<\s+> subpattern as defined by the C<< <?ws> >> rule.
+The new C<:s> (C<:sigspace>) modifier causes whitespace sequences
+to be considered "significant".  That is, they are replaced by a
+whitespace matching rule, C<< <?ws> >>.
 
-     m:w/ next cmd =   <condition>/
+Anyway,
+
+     m:s/ next cmd =   <condition>/
 
 Same as:
 
@@ -166,17 +169,43 @@ which is effectively the same as:
 
 But in the case of
 
-     m:w { (a|\*) (b|\+) }
+     m:s {(a|\*) (b|\+)}
 
 or equivalently,
 
      m { (a|\*) <?ws> (b|\+) }
 
-C<< <?ws> >> can't decide what to do until it sees the data.  It still does
-the right thing.  If not, define your own C<< <?ws> >> and C<:w> will use that.
+C<< <?ws> >> can't decide what to do until it sees the data.
+It still does the right thing.  If not, define your own C<< <?ws> >>
+and C<:sigspace> will use that.
 
-In general you don't need to use C<:w> within grammars because
+In general you don't need to use C<:sigspace> within grammars because
 the parser rules automatically handle whitespace policy for you.
+In this context, whitespace often includes comments, depending on
+how the grammar chooses to define its whitespace rule.  Although the
+default C<< <?ws> >> subrule recognizes no comment construct, any
+grammar is free to override the rule.  The C<< <?ws> >> rule is not
+intended to mean the same thing everywhere.
+
+It's also possible to pass an argument to C<:sigspace> specifying
+a completely different subrule to apply.  This can be any rule, it
+doesn't have to match whitespace.  When discussing this modifier, it is
+important to distinguish the significant whitespace in the pattern from
+the "whitespace" being matched, so we'll call the pattern's whitespace
+I<sigspace>, and generally reserve I<whitespace> to indicate whatever
+C<< <?ws> >> matches in the current grammar. The correspondence
+between sigspace and whitespace is primarily metaphorical, which is
+why the correspondence is both useful and (potentially) confusing.
+
+The C<:s> modifier is considered sufficiently important that
+match variants are defined for them:
+
+    ms/match some words/			# same as m:sigspace
+    ss/match some words/replace those words/	# same ss s:sigspace
+
+Conjecture: This might become sufficiently idiomatic that C<ms//> would
+be better as a "stuttered" C<mm//> instead, much as C<qq//> became idiomatic.
+It would also match C<ss///> that way.
 
 =item *
 
@@ -311,10 +340,10 @@ certainly a bad idea to fix it by backtracking.
 
 =item *
 
-The C<:i>, C<:w>, C<:Perl5>, and Unicode-level modifiers can be
+The C<:i>, C<:s>, C<:Perl5>, and Unicode-level modifiers can be
 placed inside the regex (and are lexically scoped):
 
-     m/:w alignment = [:i left|right|cent[er|re]] /
+     m/:s alignment = [:i left|right|cent[er|re]] /
 
 =item *
 
@@ -389,7 +418,7 @@ bracket.  Otherwise the comment terminates at the newline.
 =item *
 
 Whitespace is now always metasyntactic, i.e. used only for layout
-and not matched literally (but see the C<:w> modifier described above).
+and not matched literally (but see the C<:sigspace> modifier described above).
 
 =back
 
@@ -604,8 +633,8 @@ The special named assertions include:
      / <before pattern> /    # was /(?=pattern)/
      / <after pattern> /     # was /(?<pattern)/
 
-     / <ws> /                # match whitespace by :w policy
-     / <sp> /                # match a space char
+     / <ws> /                # match whitespace by :s policy
+     / <sp> /                # match the SPACE character (U+0020)
 
      / <at($pos)> /          # match only at a particular StrPos
      			     # short for <?{ .pos == $pos }>
@@ -966,8 +995,8 @@ but only if you interpose whitespace:
 
 If either form needs modifiers, they go before the opening delimiter:
 
-     $regex = regex :g:w:i { my name is (.*) };
-         $regex = rx:g:w:i / my name is (.*) /;    # same thing
+     $regex = regex :g:s:i { my name is (.*) };
+         $regex = rx:g:s:i / my name is (.*) /;    # same thing
 
 Space is necessary after the final modifier if you use any
 bracketing character for the delimiter.  (Otherwise it would be taken as
@@ -978,7 +1007,7 @@ an argument to the modifier.)
 You may not use colons for the delimiter.  Space is allowed between
 modifiers:
 
-     $regex = rx :g :w :i / my name is (.*) /;
+     $regex = rx :g :s :i / my name is (.*) /;
 
 =item *
 
@@ -1072,10 +1101,10 @@ really just short for
 
 The other is the C<rule> declarator, for declaring non-terminal
 productions in a grammar.  Like a C<token>, it also does not backtrack
-by default.  In addition, a C<rule> regex also assumes C<:words>.
+by default.  In addition, a C<rule> regex also assumes C<:sigspace>.
 A C<rule> is really short for:
 
-    regex :ratchet :words { ... }
+    regex :ratchet :sigspace { ... }
 
 =item *
 
@@ -1125,7 +1154,7 @@ without a subsequent C<?> or C<+>.
 Backtracking over a single colon causes the regex engine not to retry
 the preceding atom:
 
-     m:w/ \( <expr> [ , <expr> ]*: \) /
+     ms/ \( <expr> [ , <expr> ]*: \) /
 
 (i.e. there's no point trying fewer C<< <expr> >> matches, if there's
 no closing parenthesis on the horizon)
@@ -1138,7 +1167,7 @@ use C<:ratchet> or C<rule> or C<token>.
 Backtracking over a double colon causes the surrounding group of
 alternations to immediately fail:
 
-     m:w/ [ if :: <expr> <block>
+     ms/ [ if :: <expr> <block>
           | for :: <list> <block>
           | loop :: <loop_controls>? <block>
           ]
@@ -1161,7 +1190,7 @@ outright (no matter where in the regex it occurs):
          | " [<alpha>|_] \w* "
      }
 
-     m:w/ get <ident>? /
+     ms/ get <ident>? /
 
 (i.e. using an unquoted reserved word as an identifier is not permitted)
 
@@ -1173,7 +1202,7 @@ to fail outright, no matter how many subrules down it happens:
      regex subname {
          ([<alpha>|_] \w*) <commit> { fail if %reserved{$0} }
      }
-     m:w/ sub <subname>? <block> /
+     ms/ sub <subname>? <block> /
 
 (i.e. using a reserved word as a subroutine name is instantly fatal
 to the I<surrounding> match as well)
@@ -1271,7 +1300,7 @@ This makes it easier to catch errors like this:
 
 As a special case, however, the first null alternative in a match like
 
-     m:w/ [
+     ms/ [
           | if :: <expr> <block>
           | for :: <list> <block>
           | loop :: <loop_controls>? <block>
@@ -1281,7 +1310,7 @@ As a special case, however, the first null alternative in a match like
 is simply ignored.  Only the first alternative is special that way.
 If you write:
 
-     m:w/ [
+     ms/ [
               if :: <expr> <block>              |
               for :: <list> <block>             |
               loop :: <loop_controls>? <block>  |
@@ -1397,24 +1426,24 @@ This means that these two work the same:
 When used as an array, a C<Match> object pretends to be an array of all
 its positional captures.  Hence
 
-     ($key, $val) = m:w/ (\S+) => (\S+)/;
+     ($key, $val) = ms/ (\S+) => (\S+)/;
 
 can also be written:
 
-     $result = m:w/ (\S+) => (\S+)/;
+     $result = ms/ (\S+) => (\S+)/;
      ($key, $val) = @$result;
 
 To get a single capture into a string, use a subscript:
 
-     $mystring = "{ m:w/ (\S+) => (\S+)/[0] }";
+     $mystring = "{ ms/ (\S+) => (\S+)/[0] }";
 
 To get all the captures into a string, use a I<zen> slice:
 
-     $mystring = "{ m:w/ (\S+) => (\S+)/[] }";
+     $mystring = "{ ms/ (\S+) => (\S+)/[] }";
 
 Or cast it into an array:
 
-     $mystring = "@( m:w/ (\S+) => (\S+)/ )";
+     $mystring = "@( ms/ (\S+) => (\S+)/ )";
 
 Note that, as a scalar variable, C<$/> doesn't automatically flatten
 in list context.  Use C<@()> as a shorthand for C<@($/)> to flatten
@@ -1518,7 +1547,7 @@ I<subpattern>. For example:
         # |       subpattern  subpattern          |
         # |          __/\__    __/\__             |
         # |         |      |  |      |            |
-     m:w/ (I am the (walrus), ( khoo )**{2} kachoo) /;
+     ms/ (I am the (walrus), ( khoo )**{2} kachoo) /;
 
 
 =item *
@@ -1549,7 +1578,7 @@ For example, if the following pattern matched successfully:
         # |         subpat-B  subpat-C            |
         # |          __/\__    __/\__             |
         # |         |      |  |      |            |
-     m:w/ (I am the (walrus), ( khoo )**{2} kachoo) /;
+     ms/ (I am the (walrus), ( khoo )**{2} kachoo) /;
 
 then the C<Match> objects representing the matches made by I<subpat-B>
 and I<subpat-C> would be successively pushed onto the array inside I<subpat-
@@ -1835,7 +1864,7 @@ object. For example:
       # : $/<ident>   :        $/[0]<ident>         : :
       # :   __^__     :           __^__             : :
       # :  |     |    :          |     |            : :
-     m:w/  <ident> \: ( known as <ident> previously ) /
+     ms/  <ident> \: ( known as <ident> previously ) /
 
 
 =back
@@ -1854,7 +1883,7 @@ C<$«bar»>, C<< $<baz> >>, etc.)  So the previous example also implies:
       #    $<ident>             $0<ident>
       #     __^__                 __^__
       #    |     |               |     |
-     m:w/  <ident> \: ( known as <ident> previously ) /
+     ms/  <ident> \: ( known as <ident> previously ) /
 
 =item *
 
@@ -1883,21 +1912,21 @@ Successive matches of the same subrule (whether from separate calls, or
 from a single quantified repetition) append their individual C<Match>
 objects to this array. For example:
 
-     if m:w/ mv <file> <file> / {
+     if ms/ mv <file> <file> / {
          $from = $<file>[0];
          $to   = $<file>[1];
      }
 
 Likewise, with a quantified subrule:
 
-     if m:w/ mv <file>**{2} / {
+     if ms/ mv <file>**{2} / {
          $from = $<file>[0];
          $to   = $<file>[1];
      }
 
 Likewise, with a mixture of both:
 
-     if m:w/ mv <file>+ <file> / {
+     if ms/ mv <file>+ <file> / {
          $to   = pop @{$<file>};
          @from = @{$<file>};
      }
@@ -1908,7 +1937,7 @@ However, if a subrule is explicitly renamed (or aliased -- see L<Aliasing>),
 then only the I<final> name counts when deciding whether it is or isn't
 repeated. For example:
 
-     if m:w/ mv <file> $<dir>:=<file> / {
+     if ms/ mv <file> $<dir>:=<file> / {
          $from = $<file>;  # Only one subrule named <file>, so scalar
          $to   = $<dir>;   # The Capture Formerly Known As <file>
      }
@@ -1918,7 +1947,7 @@ Likewise, neither of the following constructions causes C<< <file> >> to
 produce an array of C<Match> objects, since none of them has two or more
 C<< <file> >> subrules in the same lexical scope:
 
-     if m:w/ (keep) <file> | (toss) <file> / {
+     if ms/ (keep) <file> | (toss) <file> / {
          # Each <file> is in a separate alternation, therefore <file>
          # is not repeated in any one scope, hence $<file> is
          # not an Array object...
@@ -1926,7 +1955,7 @@ C<< <file> >> subrules in the same lexical scope:
          $target = $<file>;
      }
 
-     if m:w/ <file> \: (<file>|none) / {
+     if ms/ <file> \: (<file>|none) / {
          # Second <file> nested in subpattern which confers a
          # different scope...
          $actual  = $/<file>;
@@ -1938,7 +1967,7 @@ C<< <file> >> subrules in the same lexical scope:
 On the other hand, unaliased square brackets don't confer a separate
 scope (because they don't have an associated C<Match> object). So:
 
-     if m:w/ <file> \: [<file>|none] / { # Two <file>s in same scope
+     if ms/ <file> \: [<file>|none] / { # Two <file>s in same scope
          $actual  = $/<file>[0];
          $virtual = $/<file>[1] if $/<file>[1];
      }
@@ -1965,7 +1994,7 @@ If a named scalar alias is applied to a set of I<capturing> parens:
         #          ______/capturing parens\_____
         #         |                             |
         #         |                             |
-     m:w/ $<key>:=( (<[A..E]>) (\d**{3..6}) (X?) ) /;
+     ms/ $<key>:=( (<[A..E]>) (\d**{3..6}) (X?) ) /;
 
 then the outer capturing parens no longer capture into the array of
 C<$/> (like unaliased parens would). Instead the aliased parens capture
@@ -2023,7 +2052,7 @@ If an named scalar alias is applied to a set of I<non-capturing> brackets:
         #          ___/non-capturing brackets\__
         #         |                             |
         #         |                             |
-     m:w/ $<key>:=[ (<[A..E]>) (\d**{3..6}) (X?) ] /;
+     ms/ $<key>:=[ (<[A..E]>) (\d**{3..6}) (X?) ] /;
 
 then the corresponding C<< $/<key> >> object contains only the string
 matched by the non-capturing brackets.
@@ -2083,7 +2112,7 @@ Hence aliasing a subrule I<changes> the destination of the subrule's C<Match>
 object. This is particularly useful for differentiating two or more calls to
 the same subrule in the same scope. For example:
 
-     if m:w/ mv <file>+ $<dir>:=<file> / {
+     if ms/ mv <file>+ $<dir>:=<file> / {
          @from = @{$<file>};
          $to   = $<dir>;
      }
@@ -2241,7 +2270,7 @@ This is useful for creating consistent capture semantics across
 structurally different alternations (by enforcing array captures in all
 branches):
 
-     m:w/ Mr?s? @<names>:=<ident> W\. @<names>:=<ident>
+     ms/ Mr?s? @<names>:=<ident> W\. @<names>:=<ident>
         | Mr?s? @<names>:=<ident>
         /;
 
@@ -2255,7 +2284,7 @@ branches):
 For convenience and consistency, C<< @<key> >> can also be used outside a
 regex, as a shorthand for C<< @{ $/<key> } >>. That is:
 
-     m:w/ Mr?s? @<names>:=<ident> W\. @<names>:=<ident>
+     ms/ Mr?s? @<names>:=<ident> W\. @<names>:=<ident>
         | Mr?s? @<names>:=<ident>
         /;
 
@@ -2289,7 +2318,7 @@ C<Match> object returned by one repetition of the subpattern. That is,
 an array alias on a subpattern flattens and collects all nested
 subpattern captures within the aliased subpattern. For example:
 
-     if m:w/ $<pairs>:=( (\w+) \: (\N+) )+ / {
+     if ms/ $<pairs>:=( (\w+) \: (\N+) )+ / {
          # Scalar alias, so $/<pairs> is assigned an array
          # of Match objects, each of which has its own array
          # of two subcaptures...
@@ -2301,7 +2330,7 @@ subpattern captures within the aliased subpattern. For example:
      }
 
 
-     if m:w/ @<pairs>:=( (\w+) \: (\N+) )+ / {
+     if ms/ @<pairs>:=( (\w+) \: (\N+) )+ / {
          # Array alias, so $/<pairs> is assigned an array
          # of Match objects, each of which is flattened out of
          # the two subcaptures within the subpattern
@@ -2321,7 +2350,7 @@ repetition of the subrule, all flattened into a single array:
 
      rule pair { (\w+) \: (\N+) \n }
 
-     if m:w/ $<pairs>:=<pair>+ / {
+     if ms/ $<pairs>:=<pair>+ / {
          # Scalar alias, so $/<pairs> contains an array of
          # Match objects, each of which is the result of the
          # <pair> subrule call...
@@ -2333,7 +2362,7 @@ repetition of the subrule, all flattened into a single array:
      }
 
 
-     if m:w/ mv @<pairs>:=<pair>+ / {
+     if ms/ mv @<pairs>:=<pair>+ / {
          # Array alias, so $/<pairs> contains an array of
          # Match objects, all flattened down from the
          # nested arrays inside the Match objects returned
@@ -2418,7 +2447,7 @@ C<Match> object is stored:
 
      rule one_to_many {  (\w+) \: (\S+) (\S+) (\S+) }
 
-     if m:w/ %0:=<one_to_many>+ / {
+     if ms/ %0:=<one_to_many>+ / {
          # $/[0] contains a hash, in which each key is provided by
          # the first subcapture within C<one_to_many>, and each
          # value is an  array containing the
@@ -2511,14 +2540,14 @@ As with any multidimensional list, each sublist can be lazy separately.
 
 For example:
 
-     if $text ~~ m:w:g/ (\S+:) <rocks> / {
+     if $text ~~ ms:g/ (\S+:) <rocks> / {
          say 'Full match context is: [$/]';
      }
 
 But the list of individual match objects corresponding to each separate
 match is also available:
 
-     if $text ~~ m:w:g/ (\S+:) <rocks> / {
+     if $text ~~ ms:g/ (\S+:) <rocks> / {
          say "Matched { +@@() } times";    # Note: forced eager here
 
          for @@() -> $m {
