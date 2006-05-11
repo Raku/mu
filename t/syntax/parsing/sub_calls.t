@@ -22,13 +22,13 @@ if $?PUGS_BACKEND ne "BACKEND_PUGS" {
     ok(eval(q/foo;      /), 'call with no args, no parens');
     ok(eval(q/foo();    /), 'call with no args, has parens');
     ok(eval(q/foo.();   /), 'call with no args, has dot and parens');
-    ok(eval(q/foo  .(); /), 'call with no args, has dot, spaces, and parens');
+    ok(eval(q/foo\ .(); /), 'call with no args, has long dot and parens');
 
     ok(eval(q/foo 1;    /), 'call with one arg, no parens');
     ok(eval(q/foo(1);   /), 'call with one arg, has parens');
     ok(eval(q/foo.(1);  /), 'call with one arg, has dot and parens');
-    ok(eval(q/foo  .(1);/), 'call with one arg, has dot, spaces, and parens');
-    ok(eval(q/foo'bar'; /), 'call with one arg, has no space and no parens');
+    ok(eval(q/foo\ .(1);/), 'call with one arg, has long dot and parens');
+    ok(eval(q/foo'bar'; /), 'call with one arg, has no space and no parens', :todo<unspecced>);
 
     ok(eval(q/foo 1, 2; /), 'call with two args, no parens');
     ok(eval(q/foo(1, 2);/), 'call with two args, has parens');
@@ -39,7 +39,7 @@ if $?PUGS_BACKEND ne "BACKEND_PUGS" {
     
     ok(eval(q/foo(:bar);  /), 'call with adverb in parens');
     ok(eval(q/foo.(:bar); /), 'call with adverb in dotted-parens');
-    ok(eval(q/foo .(:bar);/), 'call with adverb in space-dotted parens');
+    ok(eval(q/foo\.(:bar);/), 'call with adverb in long-dotted parens');
 }
 
 
