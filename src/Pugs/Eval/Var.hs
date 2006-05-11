@@ -32,21 +32,41 @@ findVar name = do
 findVarRef :: Var -> Eval (Maybe (TVar VRef))
 findVarRef name
     | Just (package, name') <- breakOnGlue "::" name
-    , Just (sig, "") <- breakOnGlue "CALLER" package = do
-        maybeCaller <- asks envCaller
-        case maybeCaller of
-            Just env -> local (const env) $ do
-                rv <- findVarRef (sig ++ name')
-                return rv
-            Nothing -> retError "cannot access CALLER:: in top level" name
-    | Just (package, name') <- breakOnGlue "::" name
-    , Just (sig, "") <- breakOnGlue "OUTER" package = do
-        maybeOuter <- asks envOuter
-        case maybeOuter of
-            Just env -> local (const env) $ do
-                findVarRef (sig ++ name')
-            Nothing -> retError "cannot access OUTER:: in top level" name
-    | (sig:'+':name') <- name = findVarRef (sig:("CALLER::"++name'))
+    = case () of
+        _ | Just (sig, "") <- breakOnGlue "CALLER" package -> do
+            maybeCaller <- asks envCaller
+            case maybeCaller of
+                Just env -> local (const env) $ do
+                    rv <- findVarRef (sig ++ name')
+                    return rv
+                Nothing -> retError "cannot access CALLER:: in top level" name
+        _ | Just (sig, "") <- breakOnGlue "ENV" package -> fix $ \upLevel -> do
+            maybeCaller <- asks envCaller
+            case maybeCaller of
+                Just env -> local (const env) $ do
+                    rv <- findVarRef (sig ++ name')
+                    if isJust rv then return rv else upLevel
+                Nothing -> do
+                    -- final callback: try an "environment" lookup
+                    -- XXX: how does "@+PATH" differ from "$+PATH"?
+                    -- XXX: how to tell empty env from nonexistent env?
+                    --      should we allow writes?
+                    exists <- evalExp $ App (Var "&exists") (Just (Var "%*ENV")) [Val (VStr name')]
+                    case exists of
+                        VBool False -> do
+                            retError "no such ENV:: variable" name'
+                        _           -> do
+                            rv   <- enterLValue (evalExp $ Syn "{}" [Var "%*ENV", Val (VStr name')])
+                            tvar <- liftSTM . newTVar =<< fromVal rv
+                            return (Just tvar)
+        _ | Just (sig, "") <- breakOnGlue "OUTER" package -> do
+            maybeOuter <- asks envOuter
+            case maybeOuter of
+                Just env -> local (const env) $ do
+                    findVarRef (sig ++ name')
+                Nothing -> retError "cannot access OUTER:: in top level" name
+        _ -> doFindVarRef name
+    | (sig:'+':name') <- name = findVarRef (sig:("ENV::"++name'))
     | (_:'?':_) <- name = do
         rv  <- getMagical name
         case rv of
