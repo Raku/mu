@@ -36,6 +36,11 @@ Word_t    Length;                           // number of bytes in Index
 <A href="#JHSD" >JHSD</A>( Rc_int,  PJHSArray, Index, Length);   // <A href="JudyHS_funcs_3.htm#JudyHSDel">JudyHSDel()</A>
 <A href="#JHSG" >JHSG</A>( PValue,  PJHSArray, Index, Length);   // <A href="JudyHS_funcs_3.htm#JudyHSGet">JudyHSGet()</A>
 <A href="#JHSFA">JHSFA</A>(Rc_word, PJHSArray);                  // <A href="JudyHS_funcs_3.htm#JudyHSFreeArray">JudyHSFreeArray()</A>
+<A href="#JHSF" >JHSF</A>( PValue,  PJHSArray, Index, Length);   // <A href="JudyHS_funcs_3.htm#JudyHSFirst">JudyHSFirst()</A>
+<A href="#JHSN" >JHSN</A>( PValue,  PJHSArray, Index, Length);   // <A href="JudyHS_funcs_3.htm#JudyHSNext">JudyHSNext()</A>
+<A href="#JHSL" >JHSL</A>( PValue,  PJHSArray, Index, Length);   // <A href="JudyHS_funcs_3.htm#JudyHSLast">JudyHSLast()</A>
+<A href="#JHSP" >JHSP</A>( PValue,  PJHSArray, Index, Length);   // <A href="JudyHS_funcs_3.htm#JudyHSPrev">JudyHSPrev()</A>
+<A href="#JHSML">JHSML</A>(Rc_word, PJHSArray);                  // <A href="JudyHS_funcs_3.htm#JudyHSMaxLength">JudyHSMaxLength()</A>
 </PRE></B>
 <!----------------->
 <DT><B>DESCRIPTION</B></DT>
@@ -52,9 +57,9 @@ to degrade the performance.
 <P>
 Since JudyHS is based on a hash method, <B>Indexes</B> are not stored in
 any particular order.  Therefore the JudyHSFirst(), JudyHSNext(),
-JudyHSPrev() and JudyHSLast() neighbor search functions are not
-practical.  The <B>Length</B> of each array-of-bytes can be from 0 to
-the limits of <I>malloc()</I> (about 2GB).  
+JudyHSPrev() and JudyHSLast() neighbor search functions do not provide
+an externally meaningful traversal order.  The <B>Length</B> of each 
+array-of-bytes can be from 0 to the limits of <I>malloc()</I> (about 2GB).  
 <P>
 The hallmark of <B>JudyHS</B> is speed with scalability, but memory
 efficiency is excellent.  The speed is very competitive with the best
@@ -115,6 +120,83 @@ Return <B>PValue</B> set to <B>NULL</B> if the <B>Index</B> was not present.
 Given a pointer to a JudyHS array (<B>PJHSArray</B>), free the entire array.
 <P>
 Return <B>Rc_word</B> set to the number of bytes freed and <B>PJHSArray</B> set to NULL.
+<P>
+<DT><B>JudyHS Search Functions</B></DT>
+<DD>
+The JudyHS search functions allow you to search for indexes in the array.
+You may search inclusively or exclusively,
+in either forward or reverse directions.
+<P>
+If successful,
+<B>Index</B> is returned set to the found index (the buffer is overwritten), 
+<B>Length</B> is returned set to the length of the found index, and
+<B>PValue</B> is returned set to a pointer to <B>Index</B>'s <B>Value</B>.
+If unsuccessful,
+<B>PValue</B> is returned set to <B>NULL</B>,
+and <B>Index</B> and <B>Length</B> contain no useful information.
+<B>PValue</B> must be tested for non-<B>NULL</B> prior
+to using <B>Index</B> and <B>Length</B>,
+since a search failure is possible.
+<P>
+<B>Note</B>:  
+To accomodate all possible returns, the <B>Index</B> buffer must be
+at least as large
+as the largest string stored in the array;
+the function JHSML may be called to determine this maximum length.
+<P>
+<DT><A name="JHSF"><B>JHSF(PValue, PJHSArray, Index, Length)</B></A> // <A href="JudyHS_funcs_3.htm#JudyHSFirst">JudyHSFirst()</A></DT>
+<DD>
+Search (inclusive) for the first index present that is equal to or greater than the
+passed <B>Index</B> string.
+(Start with a 0-length string to find the first index in the array.)
+<B>JHSF()</B> is typically used to <I>begin</I> a hash-order scan of
+the valid indexes in a JudyHS array.
+<PRE>
+Word_t MaxLength;
+uint8_t *Index;
+Word_t Length;
+
+JHSML(MaxLength, PJHSArray);
+Index = malloc(MaxLength);  // or die;
+Length = 0;
+JHSF(PValue, PJHSArray, Index, Length);
+while (PValue) {
+  use(Index, Length, PValue);
+  JHSN(PValue, PJHSArray, Index, Length);
+}
+</PRE>
+<P>
+Return <B>Index</B> pointing to the found index, <B>Length</B> set to its length, and <B>PValue</B> pointing to its <B>Value</B>.
+Return <B>PValue</B> set to <B>NULL</B> if no such index was present.
+<P>
+<DT><A name="JHSN"><B>JHSN(PValue, PJHSArray, Index, Length)</B></A> // <A href="JudyHS_funcs_3.htm#JudyHSNext">JudyHSNext()</A></DT>
+<DD>
+Search (exclusive) for the next index present that is greater than the passed
+<B>Index</B> string.
+<B>JHSN()</B> is typically used to <I>continue</I> a hash-order scan of
+the valid indexes in a JudyHS array, or to locate a "neighbor" of a given
+index.
+<P>
+<DT><A name="JHSL"><B>JHSL(PValue, PJHSArray, Index, Length)</B></A> // <A href="JudyHS_funcs_3.htm#JudyHSLast">JudyHSLast()</A></DT>
+<DD>
+Search (inclusive) for the last index present that is equal to or less
+than the passed <B>Index</B> string.
+(Special case: Start with a 0-length string to look up the last index in the array,
+as there is no particular value guaranteed to be last in the internal hash order.)
+<B>JHSL()</B> is typically used to <I>begin</I> a reverse-hash-order
+scan of the valid indexes in a JudyHS array.
+<P>
+<DT><A name="JHSP"><B>JHSP(PValue, PJHSArray, Index, Length)</B></A> // <A href="JudyHS_funcs_3.htm#JudyHSPrev">JudyHSPrev()</A></DT>
+<DD>
+Search (exclusive) for the previous index present that is less than the
+passed <B>Index</B> string.
+<B>JSLP()</B> is typically used to <I>continue</I> a reverse-hash-order
+scan of the valid indexes in a JudyHS array, or to locate a "neighbor" of
+a given index.
+<P>
+<DT><A name="JHSML"><B>JHSML(Rc_word, PJHSArray)</B></A>             // <A href="JudyHS_funcs_3.htm#JudyHSMaxLength">JudyHSMaxLength()</A></DT>
+<DD>
+Return the maximum length of all strings currently stored in the array.
 <!----------------->
 <P>
 <DT><A name="ERRORS"><B>ERRORS:</B> See: </A><A href="Judy_3.htm#ERRORS">Judy_3.htm#ERRORS</A></DT>
