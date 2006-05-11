@@ -92,6 +92,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 {
     # not-special chars
     my $rule = Pugs::Compiler::Rule->compile( ',', { ratchet => 1 } );
+    #print "Source: ", do{use Data::Dumper; Dumper( $rule->perl5 )};
     my $match = $rule->match( "," );
     is( "$match", ",", 'comma is not a special char' );
 }

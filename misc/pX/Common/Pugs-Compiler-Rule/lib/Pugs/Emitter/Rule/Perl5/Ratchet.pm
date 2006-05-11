@@ -20,6 +20,26 @@ sub call_subrule {
         "$tab     $subrule( \$s, { p => 1, args => [" . join(", ",@param) . "] }, \$_[1] )";
 }
 
+sub call_constant {
+    my $const = $_[0];
+    my $len = length( $const );
+    $const = $_[0] eq '\\' ? '\\\\' : $_[0];  # XXX - generalize
+    return
+    "$_[1] ( ( substr( \$s, \$pos, $len ) eq '$const' ) 
+$_[1]     ? do { \$pos += $len }
+$_[1]     : 0
+$_[1] )";
+}
+
+sub call_perl5 {
+    my $const = $_[0];
+    return
+    "$_[1] ( ( substr( \$s, \$pos ) =~ m/^$const/s )  
+$_[1]     ? do { \$pos += 1 }    # XXX - get pos from regex
+$_[1]     : 0
+$_[1] )";
+}
+
 sub emit {
     my ($grammar, $ast) = @_;
     # runtime parameters: $grammar, $string, $state, $arg_list
@@ -92,7 +112,7 @@ sub alt {
         my $tmp = emit_rule( $_, $_[1] );
         push @s, $tmp if $tmp;   
     }
-    return "$_[1] (\n" . join( "$_[1] ||\n", @s ) . "$_[1] )\n";
+    return "$_[1] (\n" . join( "\n$_[1] ||\n", @s ) . "\n$_[1] )";
 }        
 sub concat {
     my @s;
@@ -100,7 +120,7 @@ sub concat {
         my $tmp = emit_rule( $_, $_[1] );
         push @s, $tmp if $tmp;   
     }
-    return "$_[1] (\n" . join( "$_[1] &&\n", @s ) . "$_[1] )\n";
+    return "$_[1] (\n" . join( "\n$_[1] &&\n", @s ) . "\n$_[1] )";
 }        
 sub code {
     return "$_[1] $_[0]\n";  
@@ -143,17 +163,16 @@ sub variable {
     die "interpolation of $name not implemented"
         unless defined $value;
 
-    return "$_[1] ... constant( '" . $value . "' )\n";
+    return call_constant( $value, $_[1] );
 }
 sub special_char {
     my $char = substr($_[0],1);
     for ( qw( r n t e f w d s ) ) {
-        return "$_[1] ... perl5( '\\$_' )\n" if $char eq $_;
-        return "$_[1] ... perl5( '[^\\$_]' )\n" if $char eq uc($_);
+        return call_perl5(   "\\$_",  $_[1] ) if $char eq $_;
+        return call_perl5( "[^\\$_]", $_[1] ) if $char eq uc($_);
     }
     $char = '\\\\' if $char eq '\\';
-    return "$_[1] ... constant( q!$char! )\n" unless $char eq '!';
-    return "$_[1] ... constant( q($char) )\n";
+    return call_constant( $char, $_[1] );
 }
 sub match_variable {
     my $name = $_[0];
@@ -236,12 +255,7 @@ sub colon {
     die "'$str' not implemented";
 }
 sub constant {
-    my $const = $_[0] eq '\\' ? '\\\\' : $_[0];
-    my $len = length( $const );
-    '( ( substr( $s, $pos, '.$len.' ) eq \''.$const.'\' ) 
-    ? $pos += '.$len.'
-    : 0
-)'
+    call_constant( @_ );
 }
 sub metasyntax {
     # <cmd>
@@ -273,8 +287,7 @@ sub metasyntax {
     }
     if ( $prefix eq q(') ) {   # single quoted literal ' 
         $cmd = substr( $cmd, 1, -1 );
-        return "$_[1] ... constant( q!$cmd! )\n" unless $cmd =~ /!/;
-        return "$_[1] ... constant( q($cmd) )\n";
+        return call_constant( $cmd, $_[1] );
     }
     if ( $prefix eq q(") ) {   # interpolated literal "
         $cmd = substr( $cmd, 1, -1 );
