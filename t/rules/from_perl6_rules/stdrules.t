@@ -56,15 +56,13 @@ ok(!( "\x07"  ~~ m/^<?alpha>$/ ), q{Don't match unrelated alpha as subrule} );
 ok("\x07"  ~~ m/^<!alpha>.$/, q{Match unrelated negated alpha as subrule});
 ok("\x07"  ~~ m/^<-alpha>$/, q{Match unrelated inverted alpha as subrule} , :todo<bug>);
  
-ok("A" ~~ m/^<+<?alpha>>$/, q{Match alpha as charset} , :todo<bug>);
-ok("A" ~~ m/^<[A]+<?alpha>>$/, q{Match compound alpha as charset} , :todo<bug>);
-ok(!( "A" ~~ m/^<-<?alpha>>$/ ), q{Don't match externally inverted alpha as charset} );
-ok(!( "A" ~~ m/^<[A]-<?alpha>>$/ ), q{Don't match compound inverted alpha as charset} );
-ok(!( "A" ~~ m/^<+<-alpha>>$/ ), q{Don't match internally inverted alpha as charset} );
-ok(!( "\x07"  ~~ m/^<+<?alpha>>$/ ), q{Don't match unrelated alpha as charset} );
-ok("\x07"  ~~ m/^<-<?alpha>>$/, q{Match unrelated externally inverted alpha as charset} , :todo<bug>);
-ok("\x07"  ~~ m/^<+<-alpha>>$/, q{Match unrelated internally inverted alpha as charset} , :todo<bug>);
-ok("\x07A" ~~ m/<+<?alpha>>/, q{Match unanchored alpha as charset} , :todo<bug>);
+ok("A" ~~ m/^<+alpha>$/, q{Match alpha as charset} , :todo<bug>);
+ok("A" ~~ m/^<+[A]+alpha>$/, q{Match compound alpha as charset} , :todo<bug>);
+ok(!( "A" ~~ m/^<-alpha>$/ ), q{Don't match inverted alpha as charset} );
+ok(!( "A" ~~ m/^<+[A]-alpha>$/ ), q{Don't match compound inverted alpha as charset} );
+ok(!( "\x07"  ~~ m/^<+alpha>$/ ), q{Don't match unrelated alpha as charset} );
+ok("\x07"  ~~ m/^<-alpha>$/, q{Match inverted alpha as charset} , :todo<bug>);
+ok("\x07A" ~~ m/<+alpha>/, q{Match unanchored alpha as charset} , :todo<bug>);
 
 # space
 
@@ -75,15 +73,14 @@ ok(!( "("  ~~ m/^<?space>$/ ), q{Don't match unrelated space as subrule} );
 ok("("  ~~ m/^<!space>.$/, q{Match unrelated negated space as subrule});
 ok("("  ~~ m/^<-space>$/, q{Match unrelated inverted space as subrule} , :todo<bug>);
 
-ok("\x[9]" ~~ m/^<+<?space>>$/, q{Match space as charset} , :todo<bug>);
-ok("\x[9]" ~~ m/^<[A]+<?space>>$/, q{Match compound space as charset} , :todo<bug>);
-ok(!( "\x[9]" ~~ m/^<-<?space>>$/ ), q{Don't match externally inverted space as charset} );
-ok(!( "\x[9]" ~~ m/^<[A]-<?space>>$/ ), q{Don't match compound inverted space as charset} );
-ok(!( "\x[9]" ~~ m/^<+<-space>>$/ ), q{Don't match internally inverted space as charset} );
-ok(!( "("  ~~ m/^<+<?space>>$/ ), q{Don't match unrelated space as charset} );
-ok("("  ~~ m/^<-<?space>>$/, q{Match unrelated externally inverted space as charset} , :todo<bug>);
-ok("("  ~~ m/^<+<-space>>$/, q{Match unrelated internally inverted space as charset} , :todo<bug>);
-ok("(\x[9]" ~~ m/<+<?space>>/, q{Match unanchored space as charset} , :todo<bug>);
+ok("\x[9]" ~~ m/^<+space>$/, q{Match space as charset} , :todo<bug>);
+ok("\x[9]" ~~ m/^<+[A]+space>$/, q{Match compound space as charset} , :todo<bug>);
+ok(!( "\x[9]" ~~ m/^<-space>$/ ), q{Don't match externally inverted space as charset} );
+ok(!( "\x[9]" ~~ m/^<+[A]-space>$/ ), q{Don't match compound inverted space as charset} );
+ok(!( "\x[9]" ~~ m/^<-space>$/ ), q{Don't match internally inverted space as charset} );
+ok(!( "("  ~~ m/^<+space>$/ ), q{Don't match unrelated space as charset} );
+ok("("  ~~ m/^<-space>$/, q{Match inverted space as charset} , :todo<bug>);
+ok("(\x[9]" ~~ m/<+space>/, q{Match unanchored space as charset} , :todo<bug>);
 
 # digit
 
@@ -94,15 +91,14 @@ ok(!( "\x[C]"  ~~ m/^<?digit>$/ ), q{Don't match unrelated digit as subrule} );
 ok("\x[C]"  ~~ m/^<!digit>.$/, q{Match unrelated negated digit as subrule});
 ok("\x[C]"  ~~ m/^<-digit>$/, q{Match unrelated inverted digit as subrule} , :todo<bug>);
 
-ok("0" ~~ m/^<+<?digit>>$/, q{Match digit as charset} , :todo<bug>);
-ok("0" ~~ m/^<[A]+<?digit>>$/, q{Match compound digit as charset} , :todo<bug>);
-ok(!( "0" ~~ m/^<-<?digit>>$/ ), q{Don't match externally inverted digit as charset} );
-ok(!( "0" ~~ m/^<[A]-<?digit>>$/ ), q{Don't match compound inverted digit as charset} );
-ok(!( "0" ~~ m/^<+<-digit>>$/ ), q{Don't match internally inverted digit as charset} );
-ok(!( "\x[C]"  ~~ m/^<+<?digit>>$/ ), q{Don't match unrelated digit as charset} );
-ok("\x[C]"  ~~ m/^<-<?digit>>$/, q{Match unrelated externally inverted digit as charset} , :todo<bug>);
-ok("\x[C]"  ~~ m/^<+<-digit>>$/, q{Match unrelated internally inverted digit as charset} , :todo<bug>);
-ok("\x[C]0" ~~ m/<+<?digit>>/, q{Match unanchored digit as charset} , :todo<bug>);
+ok("0" ~~ m/^<+digit>$/, q{Match digit as charset} , :todo<bug>);
+ok("0" ~~ m/^<+[A]+digit>$/, q{Match compound digit as charset} , :todo<bug>);
+ok(!( "0" ~~ m/^<-digit>$/ ), q{Don't match externally inverted digit as charset} );
+ok(!( "0" ~~ m/^<+[A]-digit>$/ ), q{Don't match compound inverted digit as charset} );
+ok(!( "0" ~~ m/^<-digit>$/ ), q{Don't match internally inverted digit as charset} );
+ok(!( "\x[C]"  ~~ m/^<+digit>$/ ), q{Don't match unrelated digit as charset} );
+ok("\x[C]"  ~~ m/^<-digit>$/, q{Match inverted digit as charset} , :todo<bug>);
+ok("\x[C]0" ~~ m/<+digit>/, q{Match unanchored digit as charset} , :todo<bug>);
 
 # alnum
 
@@ -113,16 +109,15 @@ ok(!( '{'  ~~ m/^<?alnum>$/ ), q{Don't match unrelated alnum as subrule} );
 ok('{'  ~~ m/^<!alnum>.$/, q{Match unrelated negated alnum as subrule});
 ok('{'  ~~ m/^<-alnum>$/, q{Match unrelated inverted alnum as subrule} , :todo<bug>);
 
-ok("n" ~~ m/^<+<?alnum>>$/, q{Match alnum as charset} , :todo<bug>);
-ok("n" ~~ m/^<[A]+<?alnum>>$/, q{Match compound alnum as charset} , :todo<bug>);
-ok(!( "n" ~~ m/^<-<?alnum>>$/ ), q{Don't match externally inverted alnum as charset} );
-ok(!( "n" ~~ m/^<[A]-<?alnum>>$/ ), q{Don't match compound inverted alnum as charset} );
+ok("n" ~~ m/^<+alnum>$/, q{Match alnum as charset} , :todo<bug>);
+ok("n" ~~ m/^<+[A]+alnum>$/, q{Match compound alnum as charset} , :todo<bug>);
+ok(!( "n" ~~ m/^<-alnum>$/ ), q{Don't match externally inverted alnum as charset} );
+ok(!( "n" ~~ m/^<+[A]-alnum>$/ ), q{Don't match compound inverted alnum as charset} );
 
-ok(!( "n" ~~ m/^<+<-alnum>>$/ ), q{Don't match internally inverted alnum as charset} );
-ok(!( '{'  ~~ m/^<+<?alnum>>$/ ), q{Don't match unrelated alnum as charset} );
-ok('{'  ~~ m/^<-<?alnum>>$/, q{Match unrelated externally inverted alnum as charset} , :todo<bug>);
-ok('{'  ~~ m/^<+<-alnum>>$/, q{Match unrelated internally inverted alnum as charset} , :todo<bug>);
-ok('{n' ~~ m/<+<?alnum>>/, q{Match unanchored alnum as charset} , :todo<bug>);
+ok(!( "n" ~~ m/^<-alnum>$/ ), q{Don't match internally inverted alnum as charset} );
+ok(!( '{'  ~~ m/^<+alnum>$/ ), q{Don't match unrelated alnum as charset} );
+ok('{'  ~~ m/^<-alnum>$/, q{Match inverted alnum as charset} , :todo<bug>);
+ok('{n' ~~ m/<+alnum>/, q{Match unanchored alnum as charset} , :todo<bug>);
 
 # ascii
 
@@ -130,12 +125,12 @@ ok("+" ~~ m/^<?ascii>$/, q{Match ascii as subrule} , :todo<bug>);
 ok(!( "+" ~~ m/^<!ascii>.$/ ), q{Don't match negated ascii as subrule} );
 ok(!( "+" ~~ m/^<-ascii>$/ ), q{Don't match inverted ascii as subrule} );
 
-ok("+" ~~ m/^<+<?ascii>>$/, q{Match ascii as charset} , :todo<bug>);
-ok("+" ~~ m/^<[A]+<?ascii>>$/, q{Match compound ascii as charset} , :todo<bug>);
-ok(!( "+" ~~ m/^<-<?ascii>>$/ ), q{Don't match externally inverted ascii as charset} );
-ok(!( "+" ~~ m/^<[A]-<?ascii>>$/ ), q{Don't match compound inverted ascii as charset} );
-ok(!( "+" ~~ m/^<+<-ascii>>$/ ), q{Don't match internally inverted ascii as charset} );
-ok("+" ~~ m/<+<?ascii>>/, q{Match unanchored ascii as charset} , :todo<bug>);
+ok("+" ~~ m/^<+ascii>$/, q{Match ascii as charset} , :todo<bug>);
+ok("+" ~~ m/^<+[A]+ascii>$/, q{Match compound ascii as charset} , :todo<bug>);
+ok(!( "+" ~~ m/^<-ascii>$/ ), q{Don't match externally inverted ascii as charset} );
+ok(!( "+" ~~ m/^<+[A]-ascii>$/ ), q{Don't match compound inverted ascii as charset} );
+ok(!( "+" ~~ m/^<-ascii>$/ ), q{Don't match inverted ascii as charset} );
+ok("+" ~~ m/<+ascii>/, q{Match unanchored ascii as charset} , :todo<bug>);
 
 # blank
 
@@ -146,15 +141,14 @@ ok(!( "&"  ~~ m/^<?blank>$/ ), q{Don't match unrelated blank as subrule} );
 ok("&"  ~~ m/^<!blank>.$/, q{Match unrelated negated blank as subrule});
 ok("&"  ~~ m/^<-blank>$/, q{Match unrelated inverted blank as subrule} , :todo<bug>);
 
-ok("\x[9]" ~~ m/^<+<?blank>>$/, q{Match blank as charset} , :todo<bug>);
-ok("\x[9]" ~~ m/^<[A]+<?blank>>$/, q{Match compound blank as charset} , :todo<bug>);
-ok(!( "\x[9]" ~~ m/^<-<?blank>>$/ ), q{Don't match externally inverted blank as charset} );
-ok(!( "\x[9]" ~~ m/^<[A]-<?blank>>$/ ), q{Don't match compound inverted blank as charset} );
-ok(!( "\x[9]" ~~ m/^<+<-blank>>$/ ), q{Don't match internally inverted blank as charset} );
-ok(!( "&"  ~~ m/^<+<?blank>>$/ ), q{Don't match unrelated blank as charset} );
-ok("&"  ~~ m/^<-<?blank>>$/, q{Match unrelated externally inverted blank as charset} , :todo<bug>);
-ok("&"  ~~ m/^<+<-blank>>$/, q{Match unrelated internally inverted blank as charset} , :todo<bug>);
-ok("&\x[9]" ~~ m/<+<?blank>>/, q{Match unanchored blank as charset} , :todo<bug>);
+ok("\x[9]" ~~ m/^<+blank>$/, q{Match blank as charset} , :todo<bug>);
+ok("\x[9]" ~~ m/^<+[A]+blank>$/, q{Match compound blank as charset} , :todo<bug>);
+ok(!( "\x[9]" ~~ m/^<-blank>$/ ), q{Don't match externally inverted blank as charset} );
+ok(!( "\x[9]" ~~ m/^<+[A]-blank>$/ ), q{Don't match compound inverted blank as charset} );
+ok(!( "\x[9]" ~~ m/^<-blank>$/ ), q{Don't match internally inverted blank as charset} );
+ok(!( "&"  ~~ m/^<+blank>$/ ), q{Don't match unrelated blank as charset} );
+ok("&"  ~~ m/^<-blank>$/, q{Match inverted blank as charset} , :todo<bug>);
+ok("&\x[9]" ~~ m/<+blank>/, q{Match unanchored blank as charset} , :todo<bug>);
 
 # cntrl
 
@@ -165,15 +159,14 @@ ok(!( "="  ~~ m/^<?cntrl>$/ ), q{Don't match unrelated cntrl as subrule} );
 ok("="  ~~ m/^<!cntrl>.$/, q{Match unrelated negated cntrl as subrule});
 ok("="  ~~ m/^<-cntrl>$/, q{Match unrelated inverted cntrl as subrule} , :todo<bug>);
 
-ok("\x[7F]" ~~ m/^<+<?cntrl>>$/, q{Match cntrl as charset} , :todo<bug>);
-ok("\x[7F]" ~~ m/^<[A]+<?cntrl>>$/, q{Match compound cntrl as charset} , :todo<bug>);
-ok(!( "\x[7F]" ~~ m/^<-<?cntrl>>$/ ), q{Don't match externally inverted cntrl as charset} );
-ok(!( "\x[7F]" ~~ m/^<[A]-<?cntrl>>$/ ), q{Don't match compound inverted cntrl as charset} );
-ok(!( "\x[7F]" ~~ m/^<+<-cntrl>>$/ ), q{Don't match internally inverted cntrl as charset} );
-ok(!( "="  ~~ m/^<+<?cntrl>>$/ ), q{Don't match unrelated cntrl as charset} );
-ok("="  ~~ m/^<-<?cntrl>>$/, q{Match unrelated externally inverted cntrl as charset} , :todo<bug>);
-ok("="  ~~ m/^<+<-cntrl>>$/, q{Match unrelated internally inverted cntrl as charset} , :todo<bug>);
-ok("=\x[7F]" ~~ m/<+<?cntrl>>/, q{Match unanchored cntrl as charset} , :todo<bug>);
+ok("\x[7F]" ~~ m/^<+cntrl>$/, q{Match cntrl as charset} , :todo<bug>);
+ok("\x[7F]" ~~ m/^<+[A]+cntrl>$/, q{Match compound cntrl as charset} , :todo<bug>);
+ok(!( "\x[7F]" ~~ m/^<-cntrl>$/ ), q{Don't match externally inverted cntrl as charset} );
+ok(!( "\x[7F]" ~~ m/^<+[A]-cntrl>$/ ), q{Don't match compound inverted cntrl as charset} );
+ok(!( "\x[7F]" ~~ m/^<-cntrl>$/ ), q{Don't match internally inverted cntrl as charset} );
+ok(!( "="  ~~ m/^<+cntrl>$/ ), q{Don't match unrelated cntrl as charset} );
+ok("="  ~~ m/^<-cntrl>$/, q{Match inverted cntrl as charset} , :todo<bug>);
+ok("=\x[7F]" ~~ m/<+cntrl>/, q{Match unanchored cntrl as charset} , :todo<bug>);
 
 # graph
 
@@ -184,15 +177,14 @@ ok(!( "\x[7F]"  ~~ m/^<?graph>$/ ), q{Don't match unrelated graph as subrule} );
 ok("\x[7F]"  ~~ m/^<!graph>.$/, q{Match unrelated negated graph as subrule});
 ok("\x[7F]"  ~~ m/^<-graph>$/, q{Match unrelated inverted graph as subrule} , :todo<bug>);
 
-ok("V" ~~ m/^<+<?graph>>$/, q{Match graph as charset} , :todo<bug>);
-ok("V" ~~ m/^<[A]+<?graph>>$/, q{Match compound graph as charset} , :todo<bug>);
-ok(!( "V" ~~ m/^<-<?graph>>$/ ), q{Don't match externally inverted graph as charset} );
-ok(!( "V" ~~ m/^<[A]-<?graph>>$/ ), q{Don't match compound inverted graph as charset} );
-ok(!( "V" ~~ m/^<+<-graph>>$/ ), q{Don't match internally inverted graph as charset} );
-ok(!( "\x[7F]"  ~~ m/^<+<?graph>>$/ ), q{Don't match unrelated graph as charset} );
-ok("\x[7F]"  ~~ m/^<-<?graph>>$/, q{Match unrelated externally inverted graph as charset} , :todo<bug>);
-ok("\x[7F]"  ~~ m/^<+<-graph>>$/, q{Match unrelated internally inverted graph as charset} , :todo<bug>);
-ok("\x[7F]V" ~~ m/<+<?graph>>/, q{Match unanchored graph as charset} , :todo<bug>);
+ok("V" ~~ m/^<+graph>$/, q{Match graph as charset} , :todo<bug>);
+ok("V" ~~ m/^<+[A]+graph>$/, q{Match compound graph as charset} , :todo<bug>);
+ok(!( "V" ~~ m/^<-graph>$/ ), q{Don't match externally inverted graph as charset} );
+ok(!( "V" ~~ m/^<+[A]-graph>$/ ), q{Don't match compound inverted graph as charset} );
+ok(!( "V" ~~ m/^<-graph>$/ ), q{Don't match internally inverted graph as charset} );
+ok(!( "\x[7F]"  ~~ m/^<+graph>$/ ), q{Don't match unrelated graph as charset} );
+ok("\x[7F]"  ~~ m/^<-graph>$/, q{Match inverted graph as charset} , :todo<bug>);
+ok("\x[7F]V" ~~ m/<+graph>/, q{Match unanchored graph as charset} , :todo<bug>);
 
 # lower
 
@@ -203,15 +195,14 @@ ok(!( "\x[1E]"  ~~ m/^<?lower>$/ ), q{Don't match unrelated lower as subrule} );
 ok("\x[1E]"  ~~ m/^<!lower>.$/, q{Match unrelated negated lower as subrule});
 ok("\x[1E]"  ~~ m/^<-lower>$/, q{Match unrelated inverted lower as subrule} , :todo<bug>);
 
-ok("a" ~~ m/^<+<?lower>>$/, q{Match lower as charset} , :todo<bug>);
-ok("a" ~~ m/^<[A]+<?lower>>$/, q{Match compound lower as charset} , :todo<bug>);
-ok(!( "a" ~~ m/^<-<?lower>>$/ ), q{Don't match externally inverted lower as charset} );
-ok(!( "a" ~~ m/^<[A]-<?lower>>$/ ), q{Don't match compound inverted lower as charset} );
-ok(!( "a" ~~ m/^<+<-lower>>$/ ), q{Don't match internally inverted lower as charset} );
-ok(!( "\x[1E]"  ~~ m/^<+<?lower>>$/ ), q{Don't match unrelated lower as charset} );
-ok("\x[1E]"  ~~ m/^<-<?lower>>$/, q{Match unrelated externally inverted lower as charset} , :todo<bug>);
-ok("\x[1E]"  ~~ m/^<+<-lower>>$/, q{Match unrelated internally inverted lower as charset} , :todo<bug>);
-ok("\x[1E]a" ~~ m/<+<?lower>>/, q{Match unanchored lower as charset} , :todo<bug>);
+ok("a" ~~ m/^<+lower>$/, q{Match lower as charset} , :todo<bug>);
+ok("a" ~~ m/^<+[A]+lower>$/, q{Match compound lower as charset} , :todo<bug>);
+ok(!( "a" ~~ m/^<-lower>$/ ), q{Don't match externally inverted lower as charset} );
+ok(!( "a" ~~ m/^<+[A]-lower>$/ ), q{Don't match compound inverted lower as charset} );
+ok(!( "a" ~~ m/^<-lower>$/ ), q{Don't match internally inverted lower as charset} );
+ok(!( "\x[1E]"  ~~ m/^<+lower>$/ ), q{Don't match unrelated lower as charset} );
+ok("\x[1E]"  ~~ m/^<-lower>$/, q{Match inverted lower as charset} , :todo<bug>);
+ok("\x[1E]a" ~~ m/<+lower>/, q{Match unanchored lower as charset} , :todo<bug>);
 
 # print
 
@@ -222,15 +213,14 @@ ok(!( "\x[7F]"  ~~ m/^<?print>$/ ), q{Don't match unrelated print as subrule} );
 ok("\x[7F]"  ~~ m/^<!print>.$/, q{Match unrelated negated print as subrule});
 ok("\x[7F]"  ~~ m/^<-print>$/, q{Match unrelated inverted print as subrule} , :todo<bug>);
 
-ok("M" ~~ m/^<+<?print>>$/, q{Match print as charset} , :todo<bug>);
-ok("M" ~~ m/^<[A]+<?print>>$/, q{Match compound print as charset} , :todo<bug>);
-ok(!( "M" ~~ m/^<-<?print>>$/ ), q{Don't match externally inverted print as charset} );
-ok(!( "M" ~~ m/^<[A]-<?print>>$/ ), q{Don't match compound inverted print as charset} );
-ok(!( "M" ~~ m/^<+<-print>>$/ ), q{Don't match internally inverted print as charset} );
-ok(!( "\x[7F]"  ~~ m/^<+<?print>>$/ ), q{Don't match unrelated print as charset} );
-ok("\x[7F]"  ~~ m/^<-<?print>>$/, q{Match unrelated externally inverted print as charset} , :todo<bug>);
-ok("\x[7F]"  ~~ m/^<+<-print>>$/, q{Match unrelated internally inverted print as charset} , :todo<bug>);
-ok("\x[7F]M" ~~ m/<+<?print>>/, q{Match unanchored print as charset} , :todo<bug>);
+ok("M" ~~ m/^<+print>$/, q{Match print as charset} , :todo<bug>);
+ok("M" ~~ m/^<+[A]+print>$/, q{Match compound print as charset} , :todo<bug>);
+ok(!( "M" ~~ m/^<-print>$/ ), q{Don't match externally inverted print as charset} );
+ok(!( "M" ~~ m/^<+[A]-print>$/ ), q{Don't match compound inverted print as charset} );
+ok(!( "M" ~~ m/^<-print>$/ ), q{Don't match internally inverted print as charset} );
+ok(!( "\x[7F]"  ~~ m/^<+print>$/ ), q{Don't match unrelated print as charset} );
+ok("\x[7F]"  ~~ m/^<-print>$/, q{Match inverted print as charset} , :todo<bug>);
+ok("\x[7F]M" ~~ m/<+print>/, q{Match unanchored print as charset} , :todo<bug>);
 
 # punct
 
@@ -241,15 +231,14 @@ ok(!( "F"  ~~ m/^<?punct>$/ ), q{Don't match unrelated punct as subrule} );
 ok("F"  ~~ m/^<!punct>.$/, q{Match unrelated negated punct as subrule});
 ok("F"  ~~ m/^<-punct>$/, q{Match unrelated inverted punct as subrule} , :todo<bug>);
 
-ok("[" ~~ m/^<+<?punct>>$/, q{Match punct as charset} , :todo<bug>);
-ok("[" ~~ m/^<[A]+<?punct>>$/, q{Match compound punct as charset} , :todo<bug>);
-ok(!( "[" ~~ m/^<-<?punct>>$/ ), q{Don't match externally inverted punct as charset} );
-ok(!( "[" ~~ m/^<[A]-<?punct>>$/ ), q{Don't match compound inverted punct as charset} );
-ok(!( "[" ~~ m/^<+<-punct>>$/ ), q{Don't match internally inverted punct as charset} );
-ok(!( "F"  ~~ m/^<+<?punct>>$/ ), q{Don't match unrelated punct as charset} );
-ok("F"  ~~ m/^<-<?punct>>$/, q{Match unrelated externally inverted punct as charset} , :todo<bug>);
-ok("F"  ~~ m/^<+<-punct>>$/, q{Match unrelated internally inverted punct as charset} , :todo<bug>);
-ok("F[" ~~ m/<+<?punct>>/, q{Match unanchored punct as charset} , :todo<bug>);
+ok("[" ~~ m/^<+punct>$/, q{Match punct as charset} , :todo<bug>);
+ok("[" ~~ m/^<+[A]+punct>$/, q{Match compound punct as charset} , :todo<bug>);
+ok(!( "[" ~~ m/^<-punct>$/ ), q{Don't match externally inverted punct as charset} );
+ok(!( "[" ~~ m/^<+[A]-punct>$/ ), q{Don't match compound inverted punct as charset} );
+ok(!( "[" ~~ m/^<-punct>$/ ), q{Don't match internally inverted punct as charset} );
+ok(!( "F"  ~~ m/^<+punct>$/ ), q{Don't match unrelated punct as charset} );
+ok("F"  ~~ m/^<-punct>$/, q{Match inverted punct as charset} , :todo<bug>);
+ok("F[" ~~ m/<+punct>/, q{Match unanchored punct as charset} , :todo<bug>);
 
 # upper
 
@@ -260,16 +249,15 @@ ok(!( "\x[5F]"  ~~ m/^<?upper>$/ ), q{Don't match unrelated upper as subrule} );
 ok("\x[5F]"  ~~ m/^<!upper>.$/, q{Match unrelated negated upper as subrule});
 ok("\x[5F]"  ~~ m/^<-upper>$/, q{Match unrelated inverted upper as subrule} , :todo<bug>);
 
-ok("A" ~~ m/^<+<?upper>>$/, q{Match upper as charset} , :todo<bug>);
-ok("A" ~~ m/^<[A]+<?upper>>$/, q{Match compound upper as charset} , :todo<bug>);
+ok("A" ~~ m/^<+upper>$/, q{Match upper as charset} , :todo<bug>);
+ok("A" ~~ m/^<+[A]+upper>$/, q{Match compound upper as charset} , :todo<bug>);
 
-ok(!( "A" ~~ m/^<-<?upper>>$/ ), q{Don't match externally inverted upper as charset} );
-ok(!( "A" ~~ m/^<[A]-<?upper>>$/ ), q{Don't match compound inverted upper as charset} );
-ok(!( "A" ~~ m/^<+<-upper>>$/ ), q{Don't match internally inverted upper as charset} );
-ok(!( "\x[5F]"  ~~ m/^<+<?upper>>$/ ), q{Don't match unrelated upper as charset} );
-ok("\x[5F]"  ~~ m/^<-<?upper>>$/, q{Match unrelated externally inverted upper as charset} , :todo<bug>);
-ok("\x[5F]"  ~~ m/^<+<-upper>>$/, q{Match unrelated internally inverted upper as charset} , :todo<bug>);
-ok("\x[5F]A" ~~ m/<+<?upper>>/, q{Match unanchored upper as charset} , :todo<bug>);
+ok(!( "A" ~~ m/^<-upper>$/ ), q{Don't match externally inverted upper as charset} );
+ok(!( "A" ~~ m/^<+[A]-upper>$/ ), q{Don't match compound inverted upper as charset} );
+ok(!( "A" ~~ m/^<-upper>$/ ), q{Don't match internally inverted upper as charset} );
+ok(!( "\x[5F]"  ~~ m/^<+upper>$/ ), q{Don't match unrelated upper as charset} );
+ok("\x[5F]"  ~~ m/^<-upper>$/, q{Match inverted upper as charset} , :todo<bug>);
+ok("\x[5F]A" ~~ m/<+upper>/, q{Match unanchored upper as charset} , :todo<bug>);
 
 # word
 
@@ -280,15 +268,14 @@ ok(!( '{'  ~~ m/^<?word>$/ ), q{Don't match unrelated word as subrule} );
 ok('{'  ~~ m/^<!word>.$/, q{Match unrelated negated word as subrule} , :todo<bug>);
 ok('{'  ~~ m/^<-word>$/, q{Match unrelated inverted word as subrule} , :todo<bug>);
 
-ok("b" ~~ m/^<+<?word>>$/, q{Match word as charset} , :todo<bug>);
-ok("b" ~~ m/^<[A]+<?word>>$/, q{Match compound word as charset} , :todo<bug>);
-ok(!( "b" ~~ m/^<-<?word>>$/ ), q{Don't match externally inverted word as charset} );
-ok(!( "b" ~~ m/^<[A]-<?word>>$/ ), q{Don't match compound inverted word as charset} );
-ok(!( "b" ~~ m/^<+<-word>>$/ ), q{Don't match internally inverted word as charset} );
-ok(!( '{'  ~~ m/^<+<?word>>$/ ), q{Don't match unrelated word as charset} );
-ok('{'  ~~ m/^<-<?word>>$/, q{Match unrelated externally inverted word as charset} , :todo<bug>);
-ok('{'  ~~ m/^<+<-word>>$/, q{Match unrelated internally inverted word as charset} , :todo<bug>);
-ok('{b' ~~ m/<+<?word>>/, q{Match unanchored word as charset} , :todo<bug>);
+ok("b" ~~ m/^<+word>$/, q{Match word as charset} , :todo<bug>);
+ok("b" ~~ m/^<+[A]+word>$/, q{Match compound word as charset} , :todo<bug>);
+ok(!( "b" ~~ m/^<-word>$/ ), q{Don't match externally inverted word as charset} );
+ok(!( "b" ~~ m/^<+[A]-word>$/ ), q{Don't match compound inverted word as charset} );
+ok(!( "b" ~~ m/^<-word>$/ ), q{Don't match internally inverted word as charset} );
+ok(!( '{'  ~~ m/^<+word>$/ ), q{Don't match unrelated word as charset} );
+ok('{'  ~~ m/^<-word>$/, q{Match inverted word as charset} , :todo<bug>);
+ok('{b' ~~ m/<+word>/, q{Match unanchored word as charset} , :todo<bug>);
 
 # xdigit
 
@@ -299,13 +286,12 @@ ok(!( "}"  ~~ m/^<?xdigit>$/ ), q{Don't match unrelated xdigit as subrule} );
 ok("}"  ~~ m/^<!xdigit>.$/, q{Match unrelated negated xdigit as subrule});
 ok("}"  ~~ m/^<-xdigit>$/, q{Match unrelated inverted xdigit as subrule} , :todo<bug>);
 
-ok("0" ~~ m/^<+<?xdigit>>$/, q{Match xdigit as charset} , :todo<bug>);
-ok("0" ~~ m/^<[A]+<?xdigit>>$/, q{Match compound xdigit as charset} , :todo<bug>);
-ok(!( "0" ~~ m/^<-<?xdigit>>$/ ), q{Don't match externally inverted xdigit as charset} );
-ok(!( "0" ~~ m/^<[A]-<?xdigit>>$/ ), q{Don't match compound inverted xdigit as charset} );
-ok(!( "0" ~~ m/^<+<-xdigit>>$/ ), q{Don't match internally inverted xdigit as charset} );
-ok(!( "}"  ~~ m/^<+<?xdigit>>$/ ), q{Don't match unrelated xdigit as charset} );
-ok("}"  ~~ m/^<-<?xdigit>>$/, q{Match unrelated externally inverted xdigit as charset} , :todo<bug>);
-ok("}"  ~~ m/^<+<-xdigit>>$/, q{Match unrelated internally inverted xdigit as charset} , :todo<bug>);
-ok("}0" ~~ m/<+<?xdigit>>/, q{Match unanchored xdigit as charset} , :todo<bug>);
+ok("0" ~~ m/^<+xdigit>$/, q{Match xdigit as charset} , :todo<bug>);
+ok("0" ~~ m/^<+[A]+xdigit>$/, q{Match compound xdigit as charset} , :todo<bug>);
+ok(!( "0" ~~ m/^<-xdigit>$/ ), q{Don't match externally inverted xdigit as charset} );
+ok(!( "0" ~~ m/^<+[A]-xdigit>$/ ), q{Don't match compound inverted xdigit as charset} );
+ok(!( "0" ~~ m/^<-xdigit>$/ ), q{Don't match internally inverted xdigit as charset} );
+ok(!( "}"  ~~ m/^<+xdigit>$/ ), q{Don't match unrelated xdigit as charset} );
+ok("}"  ~~ m/^<-xdigit>$/, q{Match inverted xdigit as charset} , :todo<bug>);
+ok("}0" ~~ m/<+xdigit>/, q{Match unanchored xdigit as charset} , :todo<bug>);
 
