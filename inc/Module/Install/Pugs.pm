@@ -216,7 +216,7 @@ sub assert_ghc {
 
     $ghc_version or die << '.';
 *** Cannot find a runnable 'ghc' from path.
-*** Please install GHC from http://haskell.org/ghc/.
+*** Please install GHC (6.4.1 or above) from http://haskell.org/ghc/.
 .
 
     my $ghc_lt_640 = !($ghc_version =~ /^(\d)\.(\d+)/ and $1 >= 6 and $2 >= 4);
