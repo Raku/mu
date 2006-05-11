@@ -493,24 +493,6 @@ instance YAML Exp where
     asYAML (Var aa) = asYAMLseq "Var" [asYAML aa]
     asYAML (NonTerm aa) = asYAMLseq "NonTerm" [asYAML aa]
 
-instance YAML InitDat where
-    fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
-	"MkInitDat" -> do
-	    let YamlSeq [aa] = e
-	    liftM MkInitDat (fromYAML aa)
-	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkInitDat"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
-    asYAML (MkInitDat aa) = asYAMLseq "MkInitDat" [asYAML aa]
-
-instance YAML Pad where
-    fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
-	"MkPad" -> do
-	    let YamlSeq [aa] = e
-	    liftM MkPad (fromYAML aa)
-	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkPad"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
-    asYAML (MkPad aa) = asYAMLseq "MkPad" [asYAML aa]
-
 instance YAML PadEntry where
     fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"MkEntry" -> do
@@ -625,6 +607,15 @@ instance Perl5 Scope where
     showPerl5 (SMy) = showP5Class "SMy"
     showPerl5 (SOur) = showP5Class "SOur"
     showPerl5 (SGlobal) = showP5Class "SGlobal"
+
+instance YAML Pad where
+    fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+	"MkPad" -> do
+	    let YamlSeq [aa] = e
+	    liftM MkPad (fromYAML aa)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkPad"] ++ " in node " ++ show e
+    fromYAML _ = fail "no tag found"
+    asYAML (MkPad aa) = asYAMLseq "MkPad" [asYAML aa]
 
 instance YAML Pos where
     fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of

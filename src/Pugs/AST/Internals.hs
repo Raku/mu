@@ -1133,7 +1133,7 @@ Currently we use this for keeping track of lexical pragma change
 requests, but the possiblyExit mechanism may be refactored to use
 this as well.
 -}
-data InitDat = MkInitDat
+newtype InitDat = MkInitDat
     { initPragmas :: [Pragma]            -- ^ Pragma values being installed
     } deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
@@ -1166,8 +1166,8 @@ The current global and lexical pads are stored in the current 'Env', which
 is stored in the @Reader@-monad component of the current 'Eval' monad.
 -}
 
-data Pad = MkPad !(Map Var PadEntry)
-    deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
+newtype Pad = MkPad { padEntries :: Map Var PadEntry }
+    deriving (Eq, Ord, Typeable)
 
 data PadEntry
     = MkEntry !(TVar Bool, TVar VRef)           -- single entry
@@ -1932,6 +1932,9 @@ instance Typeable1 Tree where typeOf1 _ = typeOf ()
 
 data Scope = SState | SLet | STemp | SEnv | SMy | SOur | SGlobal
     {-!derive: YAML_Pos, JSON, Perl5!-}
+
+data Pad = MkPad { padEntries :: Map Var PadEntry }
+    {-!derive: YAML_Pos!-}
 
 data Pos = MkPos
     { posName           :: !String, posBeginLine      :: !Int
