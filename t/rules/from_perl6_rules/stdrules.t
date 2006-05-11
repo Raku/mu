@@ -13,7 +13,7 @@ be valid perl6.
 
 =cut
 
-plan 222;
+plan 221;
 
 if(!eval('("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
@@ -42,10 +42,10 @@ ok("\n\n" ~~ m/^ (\v+) $/, '\v');
 is($/, "\n\n", 'captured \v');
 ok(!( " \t\n " ~~ m/^ (\v+) $/ ), 'not \v');
 
-flunk "skipped tests - exteral PGE appears to be erratic", :todo<bug>;
-skip_rest "skipped tests - exteral PGE appears to be erratic";
+#flunk "skipped tests - exteral PGE appears to be erratic", :todo<bug>;
+#skip_rest "skipped tests - exteral PGE appears to be erratic";
 
-=begin END
+#=begin END
 
 # alpha
 
@@ -109,9 +109,9 @@ ok("\x[C]0" ~~ m/<+<?digit>>/, q{Match unanchored digit as charset} , :todo<bug>
 ok("n" ~~ m/^<?alnum>$/, q{Match alnum as subrule});
 ok(!( "n" ~~ m/^<!alnum>.$/ ), q{Don't match negated alnum as subrule} );
 ok(!( "n" ~~ m/^<-alnum>$/ ), q{Don't match inverted alnum as subrule} );
-ok(!( "{"  ~~ m/^<?alnum>$/ ), q{Don't match unrelated alnum as subrule} );
-ok("{"  ~~ m/^<!alnum>.$/, q{Match unrelated negated alnum as subrule});
-ok("{"  ~~ m/^<-alnum>$/, q{Match unrelated inverted alnum as subrule} , :todo<bug>);
+ok(!( '{'  ~~ m/^<?alnum>$/ ), q{Don't match unrelated alnum as subrule} );
+ok('{'  ~~ m/^<!alnum>.$/, q{Match unrelated negated alnum as subrule});
+ok('{'  ~~ m/^<-alnum>$/, q{Match unrelated inverted alnum as subrule} , :todo<bug>);
 
 ok("n" ~~ m/^<+<?alnum>>$/, q{Match alnum as charset} , :todo<bug>);
 ok("n" ~~ m/^<[A]+<?alnum>>$/, q{Match compound alnum as charset} , :todo<bug>);
@@ -119,10 +119,10 @@ ok(!( "n" ~~ m/^<-<?alnum>>$/ ), q{Don't match externally inverted alnum as char
 ok(!( "n" ~~ m/^<[A]-<?alnum>>$/ ), q{Don't match compound inverted alnum as charset} );
 
 ok(!( "n" ~~ m/^<+<-alnum>>$/ ), q{Don't match internally inverted alnum as charset} );
-ok(!( "{"  ~~ m/^<+<?alnum>>$/ ), q{Don't match unrelated alnum as charset} );
-ok("{"  ~~ m/^<-<?alnum>>$/, q{Match unrelated externally inverted alnum as charset} , :todo<bug>);
-ok("{"  ~~ m/^<+<-alnum>>$/, q{Match unrelated internally inverted alnum as charset} , :todo<bug>);
-ok("{n" ~~ m/<+<?alnum>>/, q{Match unanchored alnum as charset} , :todo<bug>);
+ok(!( '{'  ~~ m/^<+<?alnum>>$/ ), q{Don't match unrelated alnum as charset} );
+ok('{'  ~~ m/^<-<?alnum>>$/, q{Match unrelated externally inverted alnum as charset} , :todo<bug>);
+ok('{'  ~~ m/^<+<-alnum>>$/, q{Match unrelated internally inverted alnum as charset} , :todo<bug>);
+ok('{n' ~~ m/<+<?alnum>>/, q{Match unanchored alnum as charset} , :todo<bug>);
 
 # ascii
 
@@ -276,19 +276,19 @@ ok("\x[5F]A" ~~ m/<+<?upper>>/, q{Match unanchored upper as charset} , :todo<bug
 ok("b" ~~ m/^<?word>$/, q{Match word as subrule} , :todo<bug>);
 ok(!( "b" ~~ m/^<!word>.$/ ), q{Don't match negated word as subrule} );
 ok(!( "b" ~~ m/^<-word>$/ ), q{Don't match inverted word as subrule} );
-ok(!( "{"  ~~ m/^<?word>$/ ), q{Don't match unrelated word as subrule} );
-ok("{"  ~~ m/^<!word>.$/, q{Match unrelated negated word as subrule} , :todo<bug>);
-ok("{"  ~~ m/^<-word>$/, q{Match unrelated inverted word as subrule} , :todo<bug>);
+ok(!( '{'  ~~ m/^<?word>$/ ), q{Don't match unrelated word as subrule} );
+ok('{'  ~~ m/^<!word>.$/, q{Match unrelated negated word as subrule} , :todo<bug>);
+ok('{'  ~~ m/^<-word>$/, q{Match unrelated inverted word as subrule} , :todo<bug>);
 
 ok("b" ~~ m/^<+<?word>>$/, q{Match word as charset} , :todo<bug>);
 ok("b" ~~ m/^<[A]+<?word>>$/, q{Match compound word as charset} , :todo<bug>);
 ok(!( "b" ~~ m/^<-<?word>>$/ ), q{Don't match externally inverted word as charset} );
 ok(!( "b" ~~ m/^<[A]-<?word>>$/ ), q{Don't match compound inverted word as charset} );
 ok(!( "b" ~~ m/^<+<-word>>$/ ), q{Don't match internally inverted word as charset} );
-ok(!( "{"  ~~ m/^<+<?word>>$/ ), q{Don't match unrelated word as charset} );
-ok("{"  ~~ m/^<-<?word>>$/, q{Match unrelated externally inverted word as charset} , :todo<bug>);
-ok("{"  ~~ m/^<+<-word>>$/, q{Match unrelated internally inverted word as charset} , :todo<bug>);
-ok("{b" ~~ m/<+<?word>>/, q{Match unanchored word as charset} , :todo<bug>);
+ok(!( '{'  ~~ m/^<+<?word>>$/ ), q{Don't match unrelated word as charset} );
+ok('{'  ~~ m/^<-<?word>>$/, q{Match unrelated externally inverted word as charset} , :todo<bug>);
+ok('{'  ~~ m/^<+<-word>>$/, q{Match unrelated internally inverted word as charset} , :todo<bug>);
+ok('{b' ~~ m/<+<?word>>/, q{Match unanchored word as charset} , :todo<bug>);
 
 # xdigit
 
