@@ -43,8 +43,8 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     *test::rule_method3 = Pugs::Compiler::Rule->compile( '.', { ratchet => 1 } )->code;
     *test::rule_method4 = Pugs::Compiler::Rule->compile( '<rule_method3>', { ratchet => 1 } )->code;
     my $match = test->rule_method4( "xyzw" );
-    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    print "Source: ", do{use Data::Dumper; Dumper(Pugs::Compiler::Rule->compile( '<rule_method3>', { ratchet => 1 } )->{perl5})};
+    print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "x", 'a named subrule calls a named subrule in same grammar' );
 }
 

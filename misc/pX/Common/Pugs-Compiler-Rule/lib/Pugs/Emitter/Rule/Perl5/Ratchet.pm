@@ -13,13 +13,11 @@ $Data::Dumper::Indent = 1;
 # XXX - reuse this sub in metasyntax()
 sub call_subrule {
     my ( $subrule, $tab, @param ) = @_;
-    $subrule = "\$_[4]->" . $subrule unless $subrule =~ / :: | \. | -> /x;
+    # TODO - send $pos to subrule
+    $subrule = "\$grammar->" . $subrule unless $subrule =~ / :: | \. | -> /x;
     $subrule =~ s/\./->/;   # XXX - source filter
     return 
-        "$tab ... sub{ \n" .
-        "$tab     # param: @param \n" .
-        "$tab     $subrule( \$_[0], { p => 1, args => [" . join(", ",@param) . "] }, \$_[1] );\n" .
-        "$tab }\n";
+        "$tab     $subrule( \$s, { p => 1, args => [" . join(", ",@param) . "] }, \$_[1] )";
 }
 
 sub emit {
@@ -57,24 +55,10 @@ sub emit_rule {
 #rule nodes
 
 sub capturing_group {
-    # it seems that Perl5 can't do :from and :to into a single operation
-    return "$_[1] do{ 
-$_[1]     my \@tmp = ( 
-$_[1]       name => '', 
-$_[1]       from => \$pos, 
-$_[1]     ); 
-$_[1]     push \@tmp, ( 
-$_[1]       match => do{ 
-$_[1]         my \@match;
-" .             emit_rule( $_[0], $_[1].'      ' ) . "
-$_[1]         ;
-$_[1]         \\\@match 
-$_[1]       },
-$_[1]       to => \$pos, 
-$_[1]       # bool => 1, 
-$_[1]     ); 
-$_[1]     push \@match, { \@tmp };
-$_[1] }\n";
+    return named_capture(
+            { ident => '', rule => $_[0] }, 
+            $_[1],    
+    );
 }        
 sub non_capturing_group {
     return emit_rule( $_[0], $_[1] );
@@ -97,12 +81,10 @@ sub quant {
     return emit_rule( $term, $_[1] ) 
         if $sub eq '';
     return 
-        "$_[1] ... capture( '*quantifier*',\n" . 
-        "$_[1]     $sub(\n" .
-        emit_rule( $term, $_[1] . ("    "x2) ) . 
-        "$_[1]     )\n" .
-        "$_[1] )\n" .
-        '';
+        named_capture( 
+            { ident => '*quantifier*', rule => $term }, 
+            $_[1],
+        );
 }        
 sub alt {
     my @s;
@@ -216,10 +198,27 @@ sub closure {
 sub named_capture {
     my $name    = $_[0]{ident};
     my $program = $_[0]{rule};
-    return 
-        "$_[1] ... capture( '$name', \n" . 
-        emit_rule($program, $_[1]) . 
-        "$_[1] )\n";
+
+    $program = emit_rule( $program, $_[1].'      ' )
+        if ref( $program );
+
+    return "$_[1] do{ 
+$_[1]     my \@tmp = ( 
+$_[1]       name => '$name', 
+$_[1]       from => \$pos, 
+$_[1]     ); 
+$_[1]     push \@tmp, ( 
+$_[1]       match => do{ 
+$_[1]         my \@match;
+" .             $program . "
+$_[1]         ;
+$_[1]         \\\@match 
+$_[1]       },
+$_[1]       to => \$pos, 
+$_[1]       # bool => 1, 
+$_[1]     ); 
+$_[1]     push \@match, { \@tmp };
+$_[1] }\n";
 }
 sub before {
     my $program = $_[0]{rule};
@@ -256,15 +255,21 @@ sub metasyntax {
     if ( $prefix eq '$' ) {
         if ( $cmd =~ /::/ ) {
             # call method in fully qualified $package::var
+            # ...->match( $rule, $str, $grammar, $flags, $state )  
+            # TODO - send $pos to subrule
             return 
-                "$_[1] ... sub { $cmd->match( \@_[0, 4], {p => 1}, \$_[1] ) }\n";
+                "$_[1]         push \@match,\n" . 
+                "$_[1]           $cmd->match( \$s, \$grammar, {p => 1}, undef );\n" .
+                "$_[1]         \$pos = \$match[-1]->to"
         }
         # call method in lexical $var
+        # TODO - send $pos to subrule
         return 
-            "$_[1] ... sub { \n" . 
-            "$_[1]     my \$r = get_variable( '$cmd' );\n" . 
-            "$_[1]     \$r->match( \@_[0, 4], {p => 1}, \$_[1] );\n" .
-            "$_[1] }\n";
+                "$_[1]         { my \$r = Pugs::Runtime::Rule::get_variable( '$cmd' );\n" . 
+                "$_[1]           push \@match,\n" . 
+                "$_[1]             \$r->match( \$s, \$grammar, {p => 1}, undef );\n" .
+                "$_[1]           \$pos = \$match[-1]->to" .
+                "$_[1]         }"
     }
     if ( $prefix eq q(') ) {   # single quoted literal ' 
         $cmd = substr( $cmd, 1, -1 );
@@ -339,10 +344,16 @@ sub metasyntax {
         my ( $subrule, $param_list ) = split( /[\(\)]/, $cmd );
         $param_list = '' unless defined $param_list;
         my @param = split( ',', $param_list );
-        return             
-            "$_[1] ... capture( '$subrule', \n" . 
-            call_subrule( $subrule, $_[1]."  ", @param ) . 
-            "$_[1] )\n";
+        # TODO - send $pos to subrule
+        return named_capture(
+            { ident => $subrule, 
+              rule => 
+                "$_[1]         push \@match,\n" . 
+                    call_subrule( $subrule, $_[1]."      ", @param ) . ";\n" .
+                "$_[1]         \$pos = \$match[-1]->to"
+            }, 
+            $_[1],    
+        );
     }
     die "<$cmd> not implemented";
 }

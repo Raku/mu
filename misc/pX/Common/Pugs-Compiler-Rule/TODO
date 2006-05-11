@@ -7,6 +7,7 @@ Ratchet:
   - interoperability with non-ratchet
 - separate named/unnamed captures
 - return blocks
+- subrules need to know current "$pos"
 
 Perl 6 parser:
 
