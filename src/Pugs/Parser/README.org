@@ -1,0 +1,86 @@
+#+TITLE:     Notes and ToDo items for Perl 6 Grammars in Pugs
+#+AUTHOR:    Austin Frank
+#+EMAIL:     austin.frank@gmail.com
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:nil toc:nil \n:nil @:t ::t |:t ^:t *:t TeX:t
+
+* about .pg files in src/Pugs/Parser/
+
+This file was created in emacs' org-mode.  Feel free to edit it in the
+Pugs source tree.  I'll keep an eye on the formatting.  For more
+information about org-mode, check out the [[http://staff.science.uva.nl/~dominik/Tools/org/][org home page]].
+
+The *.pg files in this directory contain some initial attempts at
+writing Perl 6 Grammars for parsing Perl 6.  These are bare bones
+sketches, and are all sorts of wrong.  
+
+If you've got questions about the files that are already started, or
+decide to start one of your own and have questions about that, please
+feel free to add them here.  Likewise, if you know that some other
+part of Pugs needs a particular grammar built, feel free to make some
+notes on the requirements here.
+
+If you'd like to start working on writing Grammars to parse Perl 6,
+here are some of the things that definitely need attention:
+
+* tasks
+** TODO Grammar for hash indexing and slicing
+   Hash access has a few different sugared forms, using {}, <>, <<>>,
+   and their unicode friends I can't type.  A grammar for hash access
+   should:
+   + put the matched key into $<key>
+   + keep track of the access context (literal quoting, interpolated
+     quoting, curly-hash-constructor)
+*** references
+*** questions
+    + How should key names that need to be interpolated be stored in
+      the match object?  Right now Capture.pg stores them as the
+      concatenation of sigil and variable name.
+
+** TODO Grammar for array indexing and slicing
+   Array indexing and slicing has become a lot more interesting as
+   well, through the introduction of multi dimensional slicing.  A
+   grammar for array access should:
+   + parse single element slices (normal array access)
+   + parse multiple element slices
+   + parse multiple dimension single element and multiple element slices
+
+   I haven't thought much about what the structure of the Match object
+   should be for Array indexing.  You probably want to have something
+   like (the leading colon is just for formatting)
+   : $<dim><0><elem> = 1,2,3 
+*** references
+*** questions
+
+** TODO Grammar for parsing quoted expressions
+   Perl has always had plenty of ways of quoting text.  Perl 6 will be
+   no different.  We need to parse literal quotes and interpolating
+   quotes in their ascii, unicode, and quotelike-operator forms.
+
+   The Match object resulting from parsing a quoted expression should
+   have a $<is_interpolated> flag set based on how the expression was
+   quoted, and should also have a $<quoted> (or some better name) that
+   contains a string representation of whatever was being quoted.
+
+   You could probably pretty easily move on to parsing string
+   concatenations (infix:<~>) from here.
+*** references
+*** questions
+
+** TODO Grammar for parsing start/end punctuation pairs
+   This is a hard one, and so far it has been viciously ignored.  When
+   a group is opened with a punctuation character like '(', it should
+   only be counted as closed if it sees a ')'.  Right now, (...]
+   matches just fine (which is bad).
+
+   This particular issue has been recognized as being pretty
+   complicated.  See the references below for the kinds of things
+   you'll have to think about.
+*** references
+    + [[http://colabti.de/irclogger/irclogger_log/perl6?date=2006-05-09,Tue&sel=625#l962][#perl6 discussion on matching grouping characters]]
+    + [[http://wall.org/~larry/pspe][Larry's page of Ps/Pe unicode charcter classes]]
+    + [[http://www.unicode.org/Public/4.1.0/ucd/BidiMirroring.txt][bidimirroring]]
+    + [[ftp://ftp.unicode.org/Public/UNIDATA/UnicodeData.txt][UnicodeData.txt]]
+*** questions
+
+** TODO Add Synopsis references (and links where possible) to these tasks
