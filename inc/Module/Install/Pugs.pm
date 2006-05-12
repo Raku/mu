@@ -129,6 +129,10 @@ sub pugs_fix_makefile {
     $makefile =~ s/\b(runtests \@ARGV|test_harness\(\$\(TEST_VERBOSE\), )/ENV->{HARNESS_PERL} = q{$full_pugs}; \@ARGV = map glob, \@ARGV; ENV->{PERL6LIB} = q{$full_blib}; $1/;
     $makefile =~ s!("-MExtUtils::Command::MM")!"-I../../inc" "-I../inc" "-Iinc" $1!g;
     $makefile =~ s/\$\(UNINST\)/0/g;
+
+    my $canonical_base = File::Spec->catdir(split(/[\\\/]/, $base));
+
+    $makefile =~ s/^(\t+)cd \.\.$/$1cd $canonical_base/mg;
     close MAKEFILE;
     open MAKEFILE, '> Makefile' or die $!;
     print MAKEFILE $makefile;
