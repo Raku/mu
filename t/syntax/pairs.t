@@ -25,12 +25,12 @@ sub f1 ($a, $b) { ref($a) ~ ref($b) }
 {
     is f1(a     => 42, 23), "IntInt", "'a => 42' is a named";
     is f1("a"   => 42, 23), "IntInt", "'\"a\" => 42' is a named";
-    is f1(("a") => 42, 23), "IntInt", "'(\"a\") => 42' is a named";
     is f1(:a(42),  23),     "IntInt", "':a(42)' is a named";
     is f1(:a,      23),     "BoolInt",  "':a' is a named";
     is f1(:!a,     23),     "BoolInt",  "':!a' is also named";
 
-    is f1((z   => 42), 23), "PairInt", "'(a => 42)' is a pair";
+    is f1(("a") => 42, 23), "PairInt", "'(\"a\") => 42' is a pair";
+    is f1((a   => 42), 23), "PairInt", "'(a => 42)' is a pair";
     is f1(("a" => 42), 23), "PairInt", "'(\"a\" => 42)' is a pair";
     is f1((:a(42)),    23), "PairInt", "'(:a(42))' is a pair";
     is f1((:a),        23), "PairInt",  "'(:a)' is a pair";
@@ -43,7 +43,6 @@ sub f2 (:$a!) { ~ref($a) }
 
     is f2(a     => 42), "Int", "'a => 42' is a named";
     is f2("a"   => 42), "Int", "'\"a\" => 42' is a named";
-    is try({ f2(("a") => 42) }), "Int", "'(\"a\") => 42' is a named";
     is f2(:a(42)),      "Int", "':a(42)' is a named";
     is f2(:a),          "Bool", "':a' is a named";
     
@@ -51,6 +50,7 @@ sub f2 (:$a!) { ~ref($a) }
     is $f2(:a),         "Bool",  "in '\$f2(:a)', ':a' is a named";
     is $f2.(:a),        "Bool",  "in '\$f2.(:a)', ':a' is a named";
 
+    dies_ok { f2(("a") => 42) }, "'(\"a\") => 42' is a pair";
     dies_ok { f2((a   => 42)) }, "'(a => 42)' is a pair";
     dies_ok { f2(("a" => 42)) }, "'(\"a\" => 42)' is a pair";
     dies_ok { f2((:a(42)))    }, "'(:a(42))' is a pair";

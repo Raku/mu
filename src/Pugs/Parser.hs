@@ -1459,13 +1459,7 @@ namedArg = named (pairLiteral <|> complexNamed)
     -- "a" => 5 or @array => 5.
     complexNamed = do
         -- ("a" => 5), with the parens, is not a named arg.
-        ok <- option True . try $ do
-            many1 (symbol "(")
-            doComplexNamed
-            return False
-        guard ok
-        doComplexNamed
-    doComplexNamed = do
+        notFollowedBy (char '(')
         exp <- parseExpWithTightOps
         case unwrap exp of
             (App (Var "&infix:=>") Nothing [_, _]) -> return exp
