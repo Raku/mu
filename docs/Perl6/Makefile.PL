@@ -18,6 +18,7 @@ WritePugs  (5);
 
 sub refresh_specs {
     # okay, we are at author side - refresh Synopses
+    local $@;
     eval { require LWP::Simple } or return;
 
     use vars '$ua';
