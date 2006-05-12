@@ -272,6 +272,12 @@ reduceStmts this rest
     | Noop <- unwrap rest = reduce this
     | Noop <- unwrap this = reduce rest
 
+-- XXX - Hack to get context propagating to "return"
+reduceStmts this@(App (Var "&return") _ _) _ = reduce this
+reduceStmts this@(Ann _ (App (Var "&return") _ _)) _ = reduce this
+reduceStmts this@(App (Var "&yield") _ _) _ = reduce this
+reduceStmts this@(Ann _ (App (Var "&yield") _ _)) _ = reduce this
+
 reduceStmts this rest = do
     val <- enterContext cxtVoid $ reduce this
     trapVal val $ case unwrap rest of
