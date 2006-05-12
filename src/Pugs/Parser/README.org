@@ -10,6 +10,9 @@ This file was created in emacs' org-mode.  Feel free to edit it in the
 Pugs source tree.  I'll keep an eye on the formatting.  For more
 information about org-mode, check out the [[http://staff.science.uva.nl/~dominik/Tools/org/][org home page]].
 
+You can find an html-ized version of this file online at [[http://notebook.aufrank.net/development/p6parsing.html][aufrank's
+site]].
+
 The *.pg files in this directory contain some initial attempts at
 writing Perl 6 Grammars for parsing Perl 6.  These are bare bones
 sketches, and are all sorts of wrong.  
