@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 8 May 2006
+  Last Modified: 12 May 2006
   Number: 2
-  Version: 39
+  Version: 40
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -475,6 +475,41 @@ integers when dealing with positions.  As a limiting case, C<buf8> is
 just an old-school byte string, and the positions are byte positions.
 Note, though, that if you remap a section of C<buf32> memory to be
 C<buf8>, you'll have to multiply all your positions by 4.
+
+=item *
+
+Ordinarily a term beginning with C<*> indicates a global function
+or type name, but by itself, the C<*> term captures the notion of
+"Whatever", which is applied lazily by whatever operator it is an
+argument to.  Generally it can just be thought of as a "glob" that
+gives you everything it can in that argument position.  For instance:
+
+    if $x ~~ 1..* {...}			# if 1 <= $x <= +Inf
+    my ($a,$b,$c) = "foo" xx *;		# an arbitrary long list of "foo"
+    if /foo/ ff * {...}			# a latching flipflop
+    @slice = @x[*;0;*];			# any Int
+    @slice = %x{*;'foo'};		# any keys in domain of 1st dimension
+    @array[*]				# flattens, unlike @array[]
+    (*, *, $x) = (1, 2, 3);		# skip first two elements
+					# (same as lvalue "undef" in Perl 5)
+
+C<Whatever> is an undefined prototype object derived from C<Any>.  As a
+type it is abstract, and may not be instantiated as a defined object.
+If for a particular MMD dispatch, nothing in the MMD system claims it,
+it dispatches to as an C<Any> with an undefined value, and usually
+blows up constructively.  If you say
+
+    say 1 + *;
+
+you should probably not expect it to yield a reasonable answer, unless
+you think an exception is reasonable.  Since the C<Whatever> object
+is effectively immutable, the optimizer is free to recognize C<*>
+and optimize in the context of what operator it is being passed to.
+
+Other uses for C<*> will doubtless suggest themselves over time.  These
+can be given meaning via the MMD system, if not the compiler.  In general
+a C<Whatever> should be interpreted as maximizing the degrees of freedom
+in a dwimmey way, not as a nihilistic "don't care anymore--just shoot me".
 
 =back
 
@@ -982,9 +1017,9 @@ equivalent C<< MyPackage::<$foo> >>.
 =item *
 
 Truly global variables live in the C<*> package: C<$*UID>, C<%*ENV>.
-(The C<*> may generally be omitted if there is no inner declaration
-hiding the global name.)  C<$*foo> is short for C<$*::foo>, suggesting
-that the variable is "wild carded" into every package.
+(The C<*> may be omitted if you import the name from the C<GLOBAL>
+package.)  C<$*foo> is short for C<$*::foo>, suggesting that the
+variable is "wild carded" into every package.
 
 =item *
 
@@ -1483,7 +1518,7 @@ A bare closure also interpolates in double-quotish context.  It may
 not be followed by any dereferencers, since you can always put them
 inside the closure.  The expression inside is evaluated in scalar
 (string) context.  You can force list context on the expression using
-either the C<*> or C<list> operator if necessary.
+either the C<list> operator if necessary.
 
 The following means the same as the previous example.
 
@@ -1850,38 +1885,21 @@ There is a "C<list>" operator which imposes a list context on
 its arguments even if C<list> itself occurs in a scalar context.
 In list context, it flattens lazily.  In a scalar context, it returns
 the resulting list as a single C<List> object.  (So the C<list> operator
-really does exactly the same thing as putting a list in parentheses.
-But it's more readable in some situations.)
+really does exactly the same thing as putting a list in parentheses with
+at least one comma.  But it's more readable in some situations.)
 
 =item *
 
-The C<*> unary operator may be used to force list context on its
+The C<[,]> list operator may be used to force list context on its
 argument and I<also> defeat any scalar argument checking imposed by
 subroutine signature declarations.  This list flattens lazily.
-When applied to a scalar value containing an iterator, C<*> causes
-the iterator's return values be interpolated into the list lazily.
-Note that C<*> is destructive when applied to a scalar iterator,
-but non-destructive when applied to an array, even if that array
-represents an iterator.
-
-There is an argumentless form of C<*> which may be used within a
-multi-dimensional array or hash subscript to indicate all of the
-current set of subscripts available for this dimension.  It actually
-returns a type value of C<Any>, so it can be used in any selector
-where you would use C<Any>.
 
 =item *
 
-To force non-lazy list flattening, use the C<**> unary operator.
+To force non-lazy list flattening, use the C<eager> list operator.
 Don't use it on an infinite generator unless you have a machine with
 infinite memory, and are willing to wait a long time.  It may also
 be applied to a scalar iterator to force immediate iteration to completion.
-
-Argumentless C<**> in a multi-dimensional subscript indicates 0 or
-more dimensions of C<*> where the number of dimension isn't necessarily
-known: C<@foo[1;**;5]>.  It has a value of C<List of Any>, or something
-like that.  The argumentless C<*> and C<**> forms are probably only
-useful in "dimensional" list contexts.
 
 =item *
 
