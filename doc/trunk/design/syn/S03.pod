@@ -305,7 +305,7 @@ their ASCII digraphs C<<< >> >>> and C<<< << >>> are used to denote
 arrays) and return a list (or array) of the results.  Spaces are not
 allowed on the "pointy" end of each "hyper", but are allowed on the
 blunt end (except for postfix operators, which must still follow postfix
-spacing rules, but do for allow an additional dot before the "hyper").
+spacing rules, but do allow for an additional dot before the "hyper").
 
 For example:
 

@@ -1741,9 +1741,6 @@ These will be interpreted as
     :shortkey<string>
     :fookey{ $^a <=> $^b }
 
-But note that C<..> is not a long dot because at least one internal space
-is required to differentiate from the range operator.
-
 =item *
 
 The double-underscore forms are going away:
