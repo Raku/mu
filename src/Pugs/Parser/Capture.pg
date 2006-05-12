@@ -85,7 +85,7 @@ grammar Capture {
     # *$pair
     token is_flattened  { <[*]> }
     token flattened_pair {
-        <is_flattened> <sigil> <twigil>? <name> ]
+        <is_flattened> <sigil> <twigil>? <name>
     }
 
     # hash-access-for-named-args form of named arguments
