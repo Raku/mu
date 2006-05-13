@@ -275,11 +275,13 @@ reduceStmts this rest
 -- XXX - Hack to get context propagating to "return"
 reduceStmts this@(App (Var "&return") _ _) _ = reduce this
 reduceStmts this@(Ann _ (App (Var "&return") _ _)) _ = reduce this
-reduceStmts this@(App (Var "&yield") _ _) _ = reduce this
-reduceStmts this@(Ann _ (App (Var "&yield") _ _)) _ = reduce this
 
 reduceStmts this rest = do
-    val <- enterContext cxtVoid $ reduce this
+    let withCxt = case this of
+            App (Var "&yield") _ _          -> id
+            Ann _ (App (Var "&yield") _ _)  -> id
+            _                               -> enterContext cxtVoid
+    val <- withCxt (reduce this)
     trapVal val $ case unwrap rest of
         (Syn "env" []) -> do
             env <- ask
