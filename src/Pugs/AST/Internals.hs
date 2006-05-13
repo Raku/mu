@@ -222,9 +222,9 @@ class (Typeable n, Show n, Ord n) => Value n where
     fromSV :: PerlSV -> Eval n
     fromSV sv = do
         str <- liftIO $ svToVStr sv
-        fail $ "cannot cast from SV (" ++ str ++ ") to " ++ errType (undefined :: n)
+        fail $ "Cannot cast from SV (" ++ str ++ ") to " ++ errType (undefined :: n)
     castV :: n -> Val
-    castV x = VOpaque (MkOpaque x) -- error $ "cannot cast into Val"
+    castV x = VOpaque (MkOpaque x) -- error $ "Cannot cast into Val"
 
 errType :: (Typeable a) => a -> String
 errType x = show (typeOf x)
@@ -248,10 +248,10 @@ fromObject obj = case objOpaque obj of
         Just x  -> x
 
 castFailM :: forall a b. (Show a, Typeable b) => a -> String -> Eval b
-castFailM v str = fail $ "cannot cast from " ++ show v ++ " to " ++ errType (undefined :: b) ++ " (" ++ str ++ ")"
+castFailM v str = fail $ "Cannot cast from " ++ show v ++ " to " ++ errType (undefined :: b) ++ " (" ++ str ++ ")"
 
 castFail :: forall a b. (Show a, Typeable b) => a -> String -> b
-castFail v str = error $ "cannot cast from " ++ show v ++ " to " ++ errType (undefined :: b) ++ " (" ++ str ++ ")"
+castFail v str = error $ "Cannot cast from " ++ show v ++ " to " ++ errType (undefined :: b) ++ " (" ++ str ++ ")"
 
 instance Value (IVar VScalar) where
     fromVal (VRef (MkRef v@(IScalar _))) = return v
@@ -314,7 +314,7 @@ instance Value VObject where
     fromVal (VObject o) = return o
     fromVal v@(VRef _) = fromVal' v
     fromVal v = do
-        fail $ "cannot cast from " ++ show v ++ " to Object"
+        fail $ "Cannot cast from " ++ show v ++ " to Object"
     doCast v = castFailM v "VObject"
 
 instance Value VHash where
@@ -1470,7 +1470,7 @@ undef = VUndef
 forceRef :: VRef -> Eval Val
 forceRef (MkRef (IScalar sv)) = forceRef =<< fromVal =<< scalar_fetch sv
 forceRef (MkRef (IThunk tv)) = thunk_force tv
-forceRef r = retError "cannot forceRef" r
+forceRef r = retError "Cannot forceRef" r
 
 dumpRef :: VRef -> Eval Val
 dumpRef (MkRef (ICode cv)) = do
@@ -1519,7 +1519,7 @@ writeRef (MkRef (IHash s)) val   = hash_store s =<< fromVHash val
 writeRef (MkRef (ICode s)) val   = code_store s =<< fromVal val
 writeRef (MkRef (IPair s)) val   = pair_storeVal s val
 writeRef (MkRef (IThunk tv)) val = (`writeRef` val) =<< fromVal =<< thunk_force tv
-writeRef r _ = retError "cannot writeRef" r
+writeRef r _ = retError "Cannot writeRef" r
 
 clearRef :: VRef -> Eval ()
 clearRef (MkRef (IScalar s)) = scalar_store s undef
@@ -1527,7 +1527,7 @@ clearRef (MkRef (IArray s))  = array_clear s
 clearRef (MkRef (IHash s))   = hash_clear s
 clearRef (MkRef (IPair s))   = pair_storeVal s undef
 clearRef (MkRef (IThunk tv)) = clearRef =<< fromVal =<< thunk_force tv
-clearRef r = retError "cannot clearRef" r
+clearRef r = retError "Cannot clearRef" r
 
 newObject :: (MonadSTM m) => Type -> m VRef
 newObject typ = case showType typ of
@@ -1535,7 +1535,10 @@ newObject typ = case showType typ of
     "Scalar"    -> liftSTM $ fmap scalarRef $ newTVar undef
     "Array"     -> liftSTM $ fmap arrayRef $ (newTVar IntMap.empty :: STM IArray)
     "Hash"      -> liftSTM $ fmap hashRef $ (newTVar Map.empty :: STM IHash)
-    "Code"      -> liftSTM $ fmap codeRef $ newTVar mkSub
+    "Code"      -> liftSTM $ fmap codeRef $ newTVar mkPrim
+        { subAssoc = ""
+        , subBody  = Prim . const $ fail "Cannot use Undef as a Code object"
+        }
     "Type"      -> liftSTM $ fmap scalarRef $ newTVar undef
     "Pair"      -> do
         key <- newObject (mkType "Scalar")
@@ -1681,13 +1684,13 @@ readIVar (IScalar x) = scalar_fetch x
 readIVar (IPair x)   = pair_fetch x
 readIVar (IArray x)  = array_fetch x
 readIVar (IHash x)   = hash_fetch x
-readIVar _ = error "readIVar"
+readIVar _ = fail "readIVar"
 
 writeIVar :: IVar v -> v -> Eval ()
 writeIVar (IScalar x) = scalar_store x
 writeIVar (IArray x) = array_store x
 writeIVar (IHash x) = hash_store x
-writeIVar _ = error "writeIVar"
+writeIVar _ = fail "writeIVar"
 
 refType :: VRef -> Type
 refType (MkRef x) = object_iType x
@@ -1869,7 +1872,7 @@ instance YAML VRef where
         svC <- asYAML val
         liftIO $ print "====>"
         liftIO $ print svC
-        fail ("not implemented: asYAML \"" ++ showType (refType ref) ++ "\"")
+        fail ("Not implemented: asYAML \"" ++ showType (refType ref) ++ "\"")
     fromYAML MkYamlNode{nodeTag=Just s, nodeElem=YamlSeq [node]}
         | s == packBuf "tag:hs:VCode"   =
             fmap (MkRef . ICode) (fromYAML node :: IO VCode)
@@ -1881,7 +1884,7 @@ instance YAML VRef where
         | s == packBuf "tag:hs:Array"   = newV newArray
         | s == packBuf "tag:hs:Hash"    = newV newHash
         where newV f = fmap MkRef (f =<< fromYAML node)
-    fromYAML node = fail $ "unhandled node: " ++ show node
+    fromYAML node = fail $ "Unhandled YAML node: " ++ show node
 
 instance YAML VControl
 instance YAML (Set Val)
