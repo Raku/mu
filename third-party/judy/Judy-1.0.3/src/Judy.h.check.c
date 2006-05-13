@@ -30,10 +30,13 @@ main()
 	Word_t	 Index	 = 0;
 	PWord_t  PIndex  = &Index;
 	uint8_t *CIndex  = NULL;
+	uint8_t **PCIndex = &CIndex;
 	PPvoid_t PPvoid;
 	Word_t	 myword;
 	Word_t	 Length;
 	int	 myint;
+	Pvoid_t  PIter   = (Pvoid_t) NULL;
+	PPVoid_t PPIter  = &PIter;
 
 // JUDY FUNCTIONS:
 
@@ -85,6 +88,16 @@ main()
         PPvoid = JudyHSGet       ( PArray, CIndex, Length);
         PPvoid = JudyHSIns       (PPArray, CIndex, Length,      PJE0);
         myint  = JudyHSDel       (PPArray, CIndex, Length,      PJE0);
+	myword = JudyHSFreeArray (PPArray,			PJE0);
+	PPvoid = JudyHSFirst	 ( PArray, CIndex, &Index,      PJE0);
+	PPvoid = JudyHSNext	 ( PArray, CIndex, &Index,      PJE0);
+	PPvoid = JudyHSLast	 ( PArray, CIndex, &Index,      PJE0);
+	PPvoid = JudyHSPrev	 ( PArray, CIndex, &Index,      PJE0);
+	myword = JudyHSFreeArray ( PArray,			PJE0);
+	PPvoid = JudyHSIterFirst ( PArray, PPIter, &CIndex, &Index, PJE0);
+	PPvoid = JudyHSIterNext	 ( PArray, PPIter, &CIndex, &Index, PJE0);
+	PPvoid = JudyHSIterLast	 ( PArray, PPIter, &CIndex, &Index, PJE0);
+	PPvoid = JudyHSIterPrev	 ( PArray, PPIter, &CIndex, &Index, PJE0);
 
 
 // MACRO EQUIVALENTS:
@@ -133,6 +146,17 @@ main()
         JHSI  (PPvoid, PArray, CIndex, Length);
         JHSG  (PPvoid, PArray, CIndex, Length);
         JHSD  (myint,  PArray, CIndex, Length);
+	JHSFA (myword, PArray);
+	JHSF  (PPvoid, PArray, CIndex, Length);
+	JHSN  (PPvoid, PArray, CIndex, Length);
+	JHSL  (PPvoid, PArray, CIndex, Length);
+	JHSP  (PPvoid, PArray, CIndex, Length);
+	JHSML (myword, PArray);
+	JHSIF (PPvoid, PArray, PIter, CIndex, Length);
+	JHSIN (PPvoid, PArray, PIter, CIndex, Length);
+	JHSIL (PPvoid, PArray, PIter, CIndex, Length);
+	JHSIP (PPvoid, PArray, PIter, CIndex, Length);
+	JHSFI (myword, PIter);
 
         return(0);
 

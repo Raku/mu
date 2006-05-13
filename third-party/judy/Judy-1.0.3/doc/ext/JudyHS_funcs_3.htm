@@ -25,13 +25,13 @@ as a <B>Value</B>.
 <B><PRE>
 PPvoid_t <A href="#JudyHSIns"      >JudyHSIns</A>(PPvoid_t PPJHS, const uint8_t *Index, Word_t Length, PJError_t PJError);
 int      <A href="#JudyHSDel"      >JudyHSDel</A>(PPvoid_t PPJHS, const uint8_t *Index, Word_t Length, PJError_t PJError);
-PPvoid_t <A href="#JudyHSGet"      >JudyHSGet</A>(Pcvoid_t  PJHS, const uint8_t *Index, Word_t Length, PJError_t PJError);
+PPvoid_t <A href="#JudyHSGet"      >JudyHSGet</A>(Pcvoid_t  PJHS, const uint8_t *Index, Word_t Length);
 Word_t   <A href="#JudyHSFreeArray">JudyHSFreeArray</A>(PPvoid_t PPJHS, PJError_t PJError);
 PPvoid_t <A href="#JudyHSFirst"    >JudyHSFirst</A>(Pcvoid_t  PJHS,     uint8_t *Index, Word_t *PLength, PJError_t PJError);
 PPvoid_t <A href="#JudyHSNext"     >JudyHSNext</A>(Pcvoid_t  PJHS,      uint8_t *Index, Word_t *PLength, PJError_t PJError);
 PPvoid_t <A href="#JudyHSLast"     >JudyHSLast</A>(Pcvoid_t  PJHS,      uint8_t *Index, Word_t *PLength, PJError_t PJError);
 PPvoid_t <A href="#JudyHSPrev"     >JudyHSPrev</A>(Pcvoid_t  PJHS,      uint8_t *Index, Word_t *PLength, PJError_t PJError);
-Word_t   <A href="#JudyHSMaxLength">JudyHSMaxLength</A>(Pcvoid_t PPJHS, PJError_t PJError);
+Word_t   <A href="#JudyHSMaxLength">JudyHSMaxLength</A>(Pcvoid_t  PJHS, PJError_t PJError);
 PPvoid_t <A href="#JudyHSIterFirst">JudyHSIterFirst</A>(Pcvoid_t  PJHS, PPvoid_t PPJHSI, uint8_t **Index, Word_t *PLength, PJError_t PJError);
 PPvoid_t <A href="#JudyHSIterNext" >JudyHSIterNext</A>(Pcvoid_t  PJHS,  PPvoid_t PPJHSI, uint8_t **Index, Word_t *PLength, PJError_t PJError);
 PPvoid_t <A href="#JudyHSIterLast" >JudyHSIterLast</A>(Pcvoid_t  PJHS,  PPvoid_t PPJHSI, uint8_t **Index, Word_t *PLength, PJError_t PJError);
@@ -91,11 +91,11 @@ Notice the placement of the <B>&amp;</B> in the different functions.
 
 </PRE>
 <P>
-<DT><A name="JudyHSGet"><B>JudyHSGet(PJHS, Index, Length, &amp;JError)</B></A></DT>
+<DT><A name="JudyHSGet"><B>JudyHSGet(PJHS, Index, Length)</B></A></DT>
 <DD>
 <PRE>
 #define JHSG(PValue, PJHS, Index, Length) \
-   PValue = JudyHSGet(PJHS, Index, Length, PJE0)
+   PValue = JudyHSGet(PJHS, Index, Length)
 
 </PRE>
 <P>

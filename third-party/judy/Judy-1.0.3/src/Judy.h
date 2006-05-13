@@ -244,15 +244,15 @@ extern int      Judy1NextEmpty(  Pcvoid_t  PArray, Word_t * PIndex,  P_JE);
 extern int      Judy1LastEmpty(  Pcvoid_t  PArray, Word_t * PIndex,  P_JE);
 extern int      Judy1PrevEmpty(  Pcvoid_t  PArray, Word_t * PIndex,  P_JE);
 
+// ****************************************************************************
+// JUDYL FUNCTIONS:
+
 extern PPvoid_t j__udyLGet(      Pvoid_t   Pjpm,   Word_t    Index);
 extern PPvoid_t JudyLGet(        Pcvoid_t  PArray, Word_t    Index,  P_JE);
 extern PPvoid_t JudyLIns(        PPvoid_t PPArray, Word_t    Index,  P_JE);
 extern int      JudyLInsArray(   PPvoid_t PPArray, Word_t    Count,
                                              const Word_t * const PIndex,
                                              const Word_t * const PValue,
-
-// ****************************************************************************
-// JUDYL FUNCTIONS:
                                                                      P_JE);
 extern int      JudyLDel(        PPvoid_t PPArray, Word_t    Index,  P_JE);
 extern Word_t   JudyLCount(      Pcvoid_t  PArray, Word_t    Index1,
@@ -285,12 +285,22 @@ extern PPvoid_t JudySLLast(      Pcvoid_t,       uint8_t * Index, P_JE);
 extern PPvoid_t JudySLPrev(      Pcvoid_t,       uint8_t * Index, P_JE);
 
 // ****************************************************************************
-// JUDYHSL FUNCTIONS:
+// JUDYHS FUNCTIONS:
 
-extern PPvoid_t JudyHSGet(       Pcvoid_t,  void *, Word_t);
-extern PPvoid_t JudyHSIns(       PPvoid_t,  void *, Word_t, P_JE);
-extern int      JudyHSDel(       PPvoid_t,  void *, Word_t, P_JE);
-extern Word_t   JudyHSFreeArray( PPvoid_t,                  P_JE);
+extern PPvoid_t JudyHSGet(       Pcvoid_t,      const uint8_t *, Word_t,   P_JE);
+extern PPvoid_t JudyHSIns(       PPvoid_t,      const uint8_t *, Word_t,   P_JE);
+extern int      JudyHSDel(       PPvoid_t,      const uint8_t *, Word_t,   P_JE);
+extern Word_t   JudyHSFreeArray( PPvoid_t,                                 P_JE);
+extern PPvoid_t JudyHSFirst(     Pcvoid_t,            uint8_t *, Word_t *, P_JE);
+extern PPvoid_t JudyHSNext(      Pcvoid_t,            uint8_t *, Word_t *, P_JE);
+extern PPvoid_t JudyHSLast(      Pcvoid_t,            uint8_t *, Word_t *, P_JE);
+extern PPvoid_t JudyHSPrev(      Pcvoid_t,            uint8_t *, Word_t *, P_JE);
+extern Word_t   JudyHSMaxLength( Pcvoid_t,                                 P_JE);
+extern PPvoid_t JudyHSIterFirst( Pcvoid_t, PPvoid_t, uint8_t **, Word_t *, P_JE);
+extern PPvoid_t JudyHSIterNext(  Pcvoid_t, PPvoid_t, uint8_t **, Word_t *, P_JE);
+extern PPvoid_t JudyHSIterLast(  Pcvoid_t, PPvoid_t, uint8_t **, Word_t *, P_JE);
+extern PPvoid_t JudyHSIterPrev(  Pcvoid_t, PPvoid_t, uint8_t **, Word_t *, P_JE);
+extern Word_t   JudyHSFreeIter(  PPvoid_t,                                 P_JE);
 
 extern const char *Judy1MallocSizes;
 extern const char *JudyLMallocSizes;
@@ -416,6 +426,9 @@ extern void   JudyFreeVirtual(Pvoid_t, Word_t); // free, size in words.
 #define J_2P(PV,PArray,Index,Arg2,Func,FuncName) \
         { (PV) = (Pvoid_t) Func(PArray, Index, Arg2, PJE0); }
 
+#define J_3P(PV,PArray,Iter,Index,Arg3,Func,FuncName) \
+        { (PV) = (Pvoid_t) Func(PArray, Iter, Index, Arg3, PJE0); }
+
 // Variations for Judy*Set/InsArray functions:
 
 #define J_2AI(Rc,PArray,Count,PIndex,Func,FuncName) \
@@ -495,6 +508,13 @@ extern void   JudyFreeVirtual(Pvoid_t, Word_t); // free, size in words.
         {                                                               \
             JError_t J_Error;                                           \
             if (((PV) = (Pvoid_t) Func(PArray, Index, Arg2, &J_Error))  \
+                == PJERR) J_E(FuncName, &J_Error);                      \
+        }
+
+#define J_3P(PV,PArray,Iter,Index,Arg3,Func,FuncName)                   \
+        {                                                               \
+            JError_t J_Error;                                           \
+            if (((PV) = (Pvoid_t) Func(PArray, Iter, Index, Arg3, &J_Error))  \
                 == PJERR) J_E(FuncName, &J_Error);                      \
         }
 
@@ -715,9 +735,29 @@ extern void   JudyFreeVirtual(Pvoid_t, Word_t); // free, size in words.
 #define JHSG(PV,    PArray,   PIndex,   Count)                          \
         (PV) = (Pvoid_t) JudyHSGet(PArray, PIndex, Count)
 #define JHSD(Rc,    PArray,   PIndex,   Count)                          \
-        J_2I(Rc, (&(PArray)), PIndex, Count, JudyHSDel, "JudyHSDel")
-#define JHSFA(Rc,    PArray)                                            \
+        J_2I(Rc, (&(PArray)), PIndex,   Count, JudyHSDel, "JudyHSDel")
+#define JHSFA(Rc,   PArray)                                             \
         J_0I(Rc, (&(PArray)), JudyHSFreeArray, "JudyHSFreeArray")
+#define JHSF(PV,    PArray,   Index,    Length)                         \
+        J_2P(PV,    PArray,   Index,  &(Length), JudyHSFirst, "JudyHSFirst")
+#define JHSN(PV,    PArray,   Index,    Length)                         \
+        J_2P(PV,    PArray,   Index,  &(Length), JudyHSNext, "JudyHSNext")
+#define JHSL(PV,    PArray,   Index,    Length)                         \
+        J_2P(PV,    PArray,   Index,  &(Length), JudyHSLast, "JudyHSLast")
+#define JHSP(PV,    PArray,   Index,    Length)                         \
+        J_2P(PV,    PArray,   Index,  &(Length), JudyHSPrev, "JudyHSPrev")
+#define JHSML(Rc,   PArray)                                             \
+	(Rc) = JudyHSMaxLength(PArray)
+#define JHSIF(PV,   PArray,   PIter,    Index,    Length)               \
+        J_3P( PV,   PArray, &(PIter), &(Index), &(Length), JudyHSIterFirst, "JudyHSIterFirst")
+#define JHSIN(PV,   PArray,   PIter,    Index,    Length)               \
+        J_3P( PV,   PArray, &(PIter), &(Index), &(Length), JudyHSIterNext, "JudyHSIterNext")
+#define JHSIL(PV,   PArray,   PIter,    Index,    Length)               \
+        J_3P( PV,   PArray, &(PIter), &(Index), &(Length), JudyHSIterLast, "JudyHSIterLast")
+#define JHSIP(PV,   PArray,   PIter,    Index,    Length)               \
+        J_3P( PV,   PArray, &(PIter), &(Index), &(Length), JudyHSIterPrev, "JudyHSIterPrev")
+#define JHSFI(Rc,   PIter)                                              \
+        J_0I(Rc, (&(PIter)), JudyHSFreeIter, "JudyHSFreeIter")
 
 #define JSLG( PV,    PArray,   Index)                                   \
         J_1P( PV,    PArray,   Index, JudySLGet,   "JudySLGet")
