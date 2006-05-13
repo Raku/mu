@@ -14,7 +14,7 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 11 May 2006
+   Last Modified: 13 May 2006
    Number: 5
    Version: 24
 
@@ -1172,11 +1172,12 @@ alternations to immediately fail:
      /
 
 (i.e. there's no point trying to match a different keyword if one was
-already found but failed).  Note that you can still back into such an
-alternation, so you may also need to put C<:> after it if you also
-want to disable that.  If a an explicit or implicit C<:ratchet> has
-disabled backtracking, you need to put C<:+> after the alternation
-to enable backing into another alternative if the first pick fails.
+already found but failed).  Note that you can still back into such
+an alternation, so you may also need to put C<:> after it if you
+also want to disable that.  If an explicit or implicit C<:ratchet>
+has disabled backtracking by supplying an implicit C<:>, you need to
+put an explicit C<:+> after the alternation to enable backing into
+another alternative if the first pick fails.
 
 =item *
 
