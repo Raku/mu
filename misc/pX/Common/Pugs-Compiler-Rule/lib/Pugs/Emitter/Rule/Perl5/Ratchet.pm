@@ -271,6 +271,8 @@ sub metasyntax {
             # call method in fully qualified $package::var
             # ...->match( $rule, $str, $grammar, $flags, $state )  
             # TODO - send $pos to subrule
+
+	    # ??? should this be enclosed by do {} ?
             return 
                 "$_[1]         push \@match,\n" . 
                 "$_[1]           $cmd->match( \$s, \$grammar, {p => 1}, undef );\n" .
@@ -279,7 +281,7 @@ sub metasyntax {
         # call method in lexical $var
         # TODO - send $pos to subrule
         return 
-                "$_[1]         { my \$r = Pugs::Runtime::Rule::get_variable( '$cmd' );\n" . 
+                "$_[1]         do { my \$r = Pugs::Runtime::Rule::get_variable( '$cmd' );\n" . 
                 "$_[1]           push \@match,\n" . 
                 "$_[1]             \$r->match( \$s, \$grammar, {p => 1}, undef );\n" .
                 "$_[1]           \$pos = \$match[-1]->to" .
