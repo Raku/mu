@@ -1452,18 +1452,7 @@ named parser = try $ do
         _                                          -> fail "internal error--was expecting a pair"
 
 namedArg :: RuleParser Exp
-namedArg = named (pairLiteral <|> complexNamed)
-    where
-    -- complexNamed parses a pair literal which has a complex expression (as
-    -- opposed to a simply identifier) as its LHS, e.g.
-    -- "a" => 5 or @array => 5.
-    complexNamed = do
-        -- ("a" => 5), with the parens, is not a named arg.
-        notFollowedBy (char '(')
-        exp <- parseExpWithTightOps
-        case unwrap exp of
-            (App (Var "&infix:=>") Nothing [_, _]) -> return exp
-            _ -> fail "internal error--was expecting a pair"
+namedArg = named pairLiteral
 
 namedArgOr :: RuleParser Exp -> RuleParser Exp
 namedArgOr other = try namedArg <|> other

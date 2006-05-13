@@ -24,11 +24,11 @@ plan 39;
 sub f1 ($a, $b) { ref($a) ~ ref($b) }
 {
     is f1(a     => 42, 23), "IntInt", "'a => 42' is a named";
-    is f1("a"   => 42, 23), "IntInt", "'\"a\" => 42' is a named";
     is f1(:a(42),  23),     "IntInt", "':a(42)' is a named";
     is f1(:a,      23),     "BoolInt",  "':a' is a named";
     is f1(:!a,     23),     "BoolInt",  "':!a' is also named";
 
+    is f1("a"   => 42, 23), "PairInt", "'\"a\" => 42' is a named";
     is f1(("a") => 42, 23), "PairInt", "'(\"a\") => 42' is a pair";
     is f1((a   => 42), 23), "PairInt", "'(a => 42)' is a pair";
     is f1(("a" => 42), 23), "PairInt", "'(\"a\" => 42)' is a pair";
@@ -42,7 +42,6 @@ sub f2 (:$a!) { ~ref($a) }
     my $f2 = &f2;
 
     is f2(a     => 42), "Int", "'a => 42' is a named";
-    is f2("a"   => 42), "Int", "'\"a\" => 42' is a named";
     is f2(:a(42)),      "Int", "':a(42)' is a named";
     is f2(:a),          "Bool", "':a' is a named";
     
@@ -50,6 +49,7 @@ sub f2 (:$a!) { ~ref($a) }
     is $f2(:a),         "Bool",  "in '\$f2(:a)', ':a' is a named";
     is $f2.(:a),        "Bool",  "in '\$f2.(:a)', ':a' is a named";
 
+    dies_ok { f2("a"   => 42) }, "'\"a\" => 42' is a pair";
     dies_ok { f2(("a") => 42) }, "'(\"a\") => 42' is a pair";
     dies_ok { f2((a   => 42)) }, "'(a => 42)' is a pair";
     dies_ok { f2(("a" => 42)) }, "'(\"a\" => 42)' is a pair";
@@ -98,30 +98,26 @@ sub f6 ($a) { ~ref($a) }
     is f6(*%hash_of_pairs), "Str",  '...but *%hash is', :todo<feature>;
 }
 
-# Per L<"http://www.nntp.perl.org/group/perl.perl6.language/23532">, the keys of
-# syntactical pairs should get stringified.
 sub f7 (:$bar!) { ~ref($bar) }
 {
     my $bar = "bar";
 
-    is f7($bar => 42), "Int",
-        "the keys of syntactical pairs are stringified (1)";
+    dies_ok { f7($bar => 42) },
+        "variables cannot be keys of syntactical pairs (1)";
 }
 
 sub f8 (:$bar!) { ~ref($bar) }
 {
     my @array = <bar>;
-    # @array's stringification is "bar". This is important for this test.
 
-    is f8(@array => 42), "Int",
-        "the keys of syntactical pairs are stringified (2)";
+    dies_ok { f8(@array => 42) },
+        "variables cannot be keys of syntactical pairs (2)";
 }
 
 sub f9 (:$bar!) { ~ref($bar) }
 {
     my $arrayref = <bar>;
-    # $arrayref's stringification is "bar". This is important for this test.
 
-    is try { f9($arrayref => 42) }, "Int",
-        "the keys of syntactical pairs are stringified (3)";
+    dies_ok { f9($arrayref => 42) },
+        "variables cannot be keys of syntactical pairs (3)";
 }
