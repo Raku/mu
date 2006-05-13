@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 12 May 2006
   Number: 3
-  Version: 30
+  Version: 31
 
 =head1 Changes to existing operators
 
@@ -293,8 +293,16 @@ of the same name are handled.  The C<.=> operator does inplace modification
 of the object on the left.  The C<.^> operator calls a class metamethod;
 C<foo.^bar> is short for C<foo.meta.bar>.
 
-=item * Unary C<=> reads lines from a filehandle or filename, or in general
-iterates an iterator.
+=item * Unary C<=> reads lines from a filehandle or filename, or
+iterates an iterator, or in general causes a scalar to explode its guts
+when it would otherwise not.  How it does that is context senstive.
+For instance, C<=$iterator> is scalar/list sensitive and will
+produce one value in scalar context but many values in list context.
+(Use C<@$iterator> to force a fetch of all the values even in scalar
+context, and C<$$iterator> to force a fetch of a single value even
+in list context.)  On the other hand, C<=$capture> interpolates all
+parts of the capture that makes sense in the current list context,
+depending on what controls that list context.
 
 =back
 
@@ -487,6 +495,7 @@ Builtin reduce operators return the following identity operations:
     [||]()      # Bool::False
     [^^]()      # Bool::False
     [//]()      # undef
+    [=]()       # undef    (same for all assignment operators)
     [,]()       # ()
     [¥]()       # []
 
@@ -763,6 +772,24 @@ operator:
 To interpolate a function's return value, you must say:
 
     push [,] func()
+
+Within the argument list of a C<[,]>, function return values are
+automatically exploded into their various parts, as if you'd said:
+
+    \$capture := func();
+    push [,] $$capture: @$capture, %$capture;
+
+or some such.  The C<[,]> then handles the various zones appropriately
+depending on the context.  An invocant only makes sense as the first
+argument to the outer function call.  An invocant inserted anywhere
+else just becomes a positional argument at the front of its list,
+as if its colon changed back to a comma.
+
+If you already have a capture variable, you can interpolated all of its
+bits at once using the C<< prefix:<=> >> operator.  The above is equivalent to
+
+    \$capture := func();
+    push [,] =$capture;
 
 =head1 Piping operators
 

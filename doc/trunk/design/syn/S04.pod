@@ -757,7 +757,7 @@ separate entries for lists.
 
     $_      $x        Type of Match Implied    Matching Code
     ======  =====     =====================    =============
-    Any     Code<$>   scalar sub truth         match if $x($_)
+    Any     Code:($)   scalar sub truth         match if $x($_)
     Hash    Hash      hash keys identical      match if $_.keys.sort »eq« $x.keys.sort
     Hash    any(Hash) hash key intersection    match if $_{any(Hash.keys)}
     Hash    Array     hash value slice truth   match if $_{any(@$x)}
@@ -776,7 +776,7 @@ separate entries for lists.
     Num     NumRange  in numeric range         match if $min <= $_ <= $max
     Str     StrRange  in string range          match if $min le $_ le $max
     Capture Signature parameter binding        match if $cap can bind to $sig
-    Any     Code<>    simple closure truth*    match if $x() (ignoring $_)
+    Any     Code:()    simple closure truth*    match if $x() (ignoring $_)
     Any     Class     class membership         match if $_.does($x)
     Any     Role      role playing             match if $_.does($x)
     Any     Num       numeric equality         match if $_ == $x
