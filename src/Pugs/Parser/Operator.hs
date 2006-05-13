@@ -113,6 +113,7 @@ currentFunctions = do
     relevantToParsing "pre" SubPrim      = True
     relevantToParsing _     SubPrim      = False
     relevantToParsing _     SubMethod    = False
+    relevantToParsing ""    _            = False
     relevantToParsing _     _            = True
 
 -- read just the current state
