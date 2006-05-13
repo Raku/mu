@@ -118,7 +118,7 @@ instance YAML VRef where
         svC <- asYAML val
         liftIO $ print "====>"
         liftIO $ print svC
-        fail ("not implemented: asYAML \"" ++ showType (refType ref) ++ "\"")
+        fail ("Not implemented: asYAML \"" ++ showType (refType ref) ++ "\"")
     fromYAML MkYamlNode{nodeTag=Just s, nodeElem=YamlSeq [node]}
         | s == packBuf "tag:hs:VCode"   =
             fmap (MkRef . ICode) (fromYAML node :: IO VCode)
@@ -130,7 +130,7 @@ instance YAML VRef where
         | s == packBuf "tag:hs:Array"   = newV newArray
         | s == packBuf "tag:hs:Hash"    = newV newHash
         where newV f = fmap MkRef (f =<< fromYAML node)
-    fromYAML node = fail $ "unhandled node: " ++ show node
+    fromYAML node = fail $ "Unhandled YAML node: " ++ show node
 
 instance YAML VControl
 instance YAML (Set Val)
