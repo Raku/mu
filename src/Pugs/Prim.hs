@@ -165,7 +165,9 @@ op1 "--"   = \mv -> do
     op1 "post:--" mv
     fromVal mv
 op1 "-"    = op1Numeric negate
-op1 "item" = return -- XXX refify?
+op1 "item" = \v -> return $ case v of
+    VList vs    -> VRef . arrayRef $ vs
+    _           -> v
 op1 "sort" = \v -> do
     args    <- fromVal v
     (valList, sortBy) <- case args of
@@ -187,19 +189,12 @@ op1 "sort" = \v -> do
                 int <- fromVal rv
                 return (int <= (0 :: Int))
             returnList sorted
+op1 "Scalar::reverse" = \v -> do
+    str     <- fromVal v
+    return (VStr $ reverse str)
 op1 "reverse" = \v -> do
-    case v of
-        (VRef _) -> do
-            ifValTypeIsa v "Scalar"
-                (do ref     <- fromVal v
-                    val     <- readRef ref
-                    str     <- fromVal val
-                    return (VStr $ reverse str))
-                (do ref     <- fromVal v
-                    vals    <- readRef ref
-                    vlist   <- fromVal vals
-                    return (VList $ reverse vlist))
-        _ -> op1Cast (VList . reverse) v
+    vlist <- fromVal v
+    return (VList $ reverse vlist)
 op1 "list" = op1Cast VList
 op1 "pair" = op1Cast $ VList . (map $ \(k, v) -> castV ((VStr k, v) :: VPair))
 op1 "~"    = op1Cast VStr
@@ -1530,7 +1525,7 @@ initSyms = mapM primDecl syms
 \\n   Hash      pre     hash    safe   (List)\
 \\n   List      pre     pair    safe   (List)\
 \\n   Scalar    pre     item    safe   (Scalar)\
-\\n   Any       pre     reverse safe   (rw!Any)\
+\\n   Any       pre     Scalar::reverse safe   (Scalar)\
 \\n   Any       pre     reverse safe   (List)\
 \\n   Int       spre    +^      safe   (Int)\
 \\n   Int       spre    ~^      safe   (Str)\
