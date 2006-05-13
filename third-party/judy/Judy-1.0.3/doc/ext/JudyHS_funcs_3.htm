@@ -32,6 +32,11 @@ PPvoid_t <A href="#JudyHSNext"     >JudyHSNext</A>(Pcvoid_t  PJHS,      uint8_t 
 PPvoid_t <A href="#JudyHSLast"     >JudyHSLast</A>(Pcvoid_t  PJHS,      uint8_t *Index, Word_t *PLength, PJError_t PJError);
 PPvoid_t <A href="#JudyHSPrev"     >JudyHSPrev</A>(Pcvoid_t  PJHS,      uint8_t *Index, Word_t *PLength, PJError_t PJError);
 Word_t   <A href="#JudyHSMaxLength">JudyHSMaxLength</A>(Pcvoid_t PPJHS, PJError_t PJError);
+PPvoid_t <A href="#JudyHSIterFirst">JudyHSIterFirst</A>(Pcvoid_t  PJHS, PPvoid_t PPJHSI, uint8_t **Index, Word_t *PLength, PJError_t PJError);
+PPvoid_t <A href="#JudyHSIterNext" >JudyHSIterNext</A>(Pcvoid_t  PJHS,  PPvoid_t PPJHSI, uint8_t **Index, Word_t *PLength, PJError_t PJError);
+PPvoid_t <A href="#JudyHSIterLast" >JudyHSIterLast</A>(Pcvoid_t  PJHS,  PPvoid_t PPJHSI, uint8_t **Index, Word_t *PLength, PJError_t PJError);
+PPvoid_t <A href="#JudyHSIterPrev" >JudyHSIterPrev</A>(Pcvoid_t  PJHS,  PPvoid_t PPJHSI, uint8_t **Index, Word_t *PLength, PJError_t PJError);
+Word_t   <A href="#JudyHSFreeIter">JudyHSFreeIter</A>(PPvoid_t PPJHSI, PJError_t PJError);
 </PRE></B>
 <!----------------->
 <P>
@@ -142,6 +147,47 @@ Notice the placement of the <B>&amp;</B> in the different functions.
    Rc_word = JudyHSMaxLength(PJHS, PJE0)
 
 </PRE>
+<DT><A name="JudyHSIterFirst"><B>JudyHSIterFirst(PJHS, &amp;PJHSI, &amp;Index, &amp;Length, &amp;JError)</B></A></DT>
+<DD>
+<PRE>
+#define JHSIF(PValue, PJHS, PJHSI, Index, Length) \
+   PValue = JudyHSIterFirst(PJHS, &amp;PJHSI, &amp;Index, &amp;Length, PJE0)
+
+</PRE>
+<P>
+<DT><A name="JudyHSIterNext"><B>JudyHSIterNext(PJHS, &amp;PJHSI, &amp;Index, &amp;Length, &amp;JError)</B></A></DT>
+<DD>
+<PRE>
+#define JHSIN(PValue, PJHS, PJHSI, Index, Length) \
+   PValue = JudyHSIterNext(PJHS, &amp;PJHSI, &amp;Index, &amp;Length, PJE0)
+
+</PRE>
+<P>
+<DT><A name="JudyHSIterLast"><B>JudyHSIterLast(PJHS, &amp;PJHSI, &amp;Index, &amp;Length, &amp;JError)</B></A></DT>
+<DD>
+<PRE>
+#define JHSIL(PValue, PJHS, PJHSI, Index, Length) \
+   PValue = JudyHSIterLast(PJHS, &amp;PJHSI, &amp;Index, &amp;Length, PJE0)
+
+</PRE>
+<P>
+<DT><A name="JudyHSIterPrev"><B>JudyHSIterPrev(PJHS, &amp;PJHSI, &amp;Index, &amp;Length, &amp;JError)</B></A></DT>
+<DD>
+<PRE>
+#define JHSIP(PValue, PJHS, PJHSI, Index, Length) \
+   PValue = JudyHSIterPrev(PJHS, &amp;PJHSI, &amp;Index, &amp;Length, PJE0)
+
+</PRE>
+<P>
+<DT><A name="JudyHSFreeIter"><B>JudyHSFreeIter(&amp;PJHSI &amp;JError)</B></A></DT>
+<DD>
+<PRE>
+#define JHSFI(Rc_word, PJHSI) \
+   Rc_word = JudyHSFreeIter(&amp;PJHSI, PJE0)
+
+</PRE>
+</DL>
+<P>
 </DL>
 <P>
 Definitions for all the Judy functions, the types
@@ -161,7 +207,7 @@ and
 <B>PJE0</B>
 are provided in the <B>Judy.h</B> header file
 (/usr/include/Judy.h).
-<B>Note</B>:  Callers should define JudyHS arrays as type <B>Pvoid_t</B>,
+<B>Note</B>:  Callers should define JudyHS arrays and iterators as type <B>Pvoid_t</B>,
 which can be passed by value to functions that take
 <B>Pcvoid_t</B> (constant <B>Pvoid_t</B>),
 and also by address to functions that take <B>PPvoid_t</B>.

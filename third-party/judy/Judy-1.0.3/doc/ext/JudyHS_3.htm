@@ -31,6 +31,7 @@ Word_t    Rc_word;                          // full word return value
 Pvoid_t   PJHSArray = (Pvoid_t) NULL;       // initialize JudyHS array
 uint8_t * Index;                            // array-of-bytes pointer
 Word_t    Length;                           // number of bytes in Index
+Pvoid_t   PJHSIter = (Pvoid_t) NULL;        // initialize JudyHSIter
 
 <A href="#JHSI" >JHSI</A>( PValue,  PJHSArray, Index, Length);   // <A href="JudyHS_funcs_3.htm#JudyHSIns">JudyHSIns()</A>
 <A href="#JHSD" >JHSD</A>( Rc_int,  PJHSArray, Index, Length);   // <A href="JudyHS_funcs_3.htm#JudyHSDel">JudyHSDel()</A>
@@ -41,6 +42,11 @@ Word_t    Length;                           // number of bytes in Index
 <A href="#JHSL" >JHSL</A>( PValue,  PJHSArray, Index, Length);   // <A href="JudyHS_funcs_3.htm#JudyHSLast">JudyHSLast()</A>
 <A href="#JHSP" >JHSP</A>( PValue,  PJHSArray, Index, Length);   // <A href="JudyHS_funcs_3.htm#JudyHSPrev">JudyHSPrev()</A>
 <A href="#JHSML">JHSML</A>(Rc_word, PJHSArray);                  // <A href="JudyHS_funcs_3.htm#JudyHSMaxLength">JudyHSMaxLength()</A>
+<A href="#JHSIF" >JHSIF</A>( PValue,  PJHSArray, PJHSIter, Index, Length);   // <A href="JudyHS_funcs_3.htm#JudyHSIterFirst">JudyHSIterFirst()</A>
+<A href="#JHSIN" >JHSIN</A>( PValue,  PJHSArray, PJHSIter, Index, Length);   // <A href="JudyHS_funcs_3.htm#JudyHSIterNext">JudyHSNIterext()</A>
+<A href="#JHSIL" >JHSIL</A>( PValue,  PJHSArray, PJHSIter, Index, Length);   // <A href="JudyHS_funcs_3.htm#JudyHSIterLast">JudyHSLIterast()</A>
+<A href="#JHSIP" >JHSIP</A>( PValue,  PJHSArray, PJHSIter, Index, Length);   // <A href="JudyHS_funcs_3.htm#JudyHSIterPrev">JudyHSPIterrev()</A>
+<A href="#JHSFI">JHSFI</A>(Rc_word, PJHSIter);                   // <A href="JudyHS_funcs_3.htm#JudyHSFreeIter">JudyHSFreeIter()</A>
 </PRE></B>
 <!----------------->
 <DT><B>DESCRIPTION</B></DT>
@@ -121,7 +127,7 @@ Given a pointer to a JudyHS array (<B>PJHSArray</B>), free the entire array.
 <P>
 Return <B>Rc_word</B> set to the number of bytes freed and <B>PJHSArray</B> set to NULL.
 <P>
-<DT><B>JudyHS Search Functions</B></DT>
+<DT><B>JudyHS Search Functions</B>, Version 1</DT>
 <DD>
 The JudyHS search functions allow you to search for indexes in the array.
 You may search inclusively or exclusively,
@@ -190,13 +196,97 @@ scan of the valid indexes in a JudyHS array.
 <DD>
 Search (exclusive) for the previous index present that is less than the
 passed <B>Index</B> string.
-<B>JSLP()</B> is typically used to <I>continue</I> a reverse-hash-order
+<B>JHSP()</B> is typically used to <I>continue</I> a reverse-hash-order
 scan of the valid indexes in a JudyHS array, or to locate a "neighbor" of
 a given index.
 <P>
 <DT><A name="JHSML"><B>JHSML(Rc_word, PJHSArray)</B></A>             // <A href="JudyHS_funcs_3.htm#JudyHSMaxLength">JudyHSMaxLength()</A></DT>
 <DD>
-Return the maximum length of all strings currently stored in the array.
+Return the maximum length of all strings currently stored in the array.  May be
+used to size a buffer that will be able to hold any key returned by the JudyHS 
+search functions.
+<P>
+<DT><B>JudyHS Search Functions</B>, Version 2: <B>JudyHSIter</B></DT>
+<DD>
+The JudyHSIter search functions allow you to search for indexes in the array,
+using an opaque iterator to hold search state.
+You may search inclusively or exclusively,
+in either forward or reverse directions.
+<P>
+If successful,
+<B>Index</B> is returned set to a pointer to the found index (in a read-only 
+buffer within the iterator which will be overwritten by later search operations), 
+<B>Length</B> is returned set to the length of the found index, and
+<B>PValue</B> is returned set to a pointer to <B>Index</B>'s <B>Value</B>.
+If unsuccessful,
+<B>PValue</B> is returned set to <B>NULL</B>,
+and <B>Index</B> and <B>Length</B> contain no useful information.
+<B>PValue</B> must be tested for non-<B>NULL</B> prior
+to using <B>Index</B> and <B>Length</B>,
+since a search failure is possible.
+<P>
+A JudyHS iterator is allocated with a <B>NULL</B> pointer
+<PRE>
+Pvoid_t PJHSIter = (Pvoid_t) NULL;
+</PRE>
+<P>
+<DT><A name="JHSIF"><B>JHSIF(PValue, PJHSArray, PJHSIter, Index, Length)</B></A> // <A href="JudyHS_funcs_3.htm#JudyHSIterFirst">JudyHSIterFirst()</A></DT>
+<DD>
+Search (inclusive) for the first index present that is equal to or greater than the
+passed <B>Index</B> string.
+(Start with a 0-length string to find the first index in the array.)
+<B>JHSIF()</B> is typically used to <I>begin</I> a hash-order scan of
+the valid indexes in a JudyHS array.
+<PRE>
+Pvoid_t PJHSIter;
+uint8_t *Index;
+Word_t Length;
+Word_t Rc_word;
+
+PJHSIter = (Pvoid_t) NULL;
+Index = (uint8_t) NULL;
+Length = 0;
+JHSIF(PValue, PJHSArray, PJHSIter, Index, Length);
+while (PValue) {
+  use(Index, Length, PValue);
+  JHSIN(PValue, PJHSArray, PJHSIter, Index, Length);
+}
+JHSIX(Rc_word, PJHSIter);
+</PRE>
+<P>
+Return <B>Index</B> pointing to the found index, <B>Length</B> set to its length, and <B>PValue</B> pointing to its <B>Value</B>.
+Return <B>PValue</B> set to <B>NULL</B> if no such index was present.
+<P>
+<DT><A name="JHSIN"><B>JHSIN(PValue, PJHSArray, PJHSIter, Index, Length)</B></A> // <A href="JudyHS_funcs_3.htm#JudyHSIterNext">JudyHSIterNext()</A></DT>
+<DD>
+Search (exclusive) for the next index present that is greater than the passed
+<B>Index</B> string.
+<B>JHSIN()</B> is typically used to <I>continue</I> a hash-order scan of
+the valid indexes in a JudyHS array, or to locate a "neighbor" of a given
+index.
+<P>
+<DT><A name="JHSIL"><B>JHSIL(PValue, PJHSArray, PJHSIter, Index, Length)</B></A> // <A href="JudyHS_funcs_3.htm#JudyHSIterLast">JudyHSIterLast()</A></DT>
+<DD>
+Search (inclusive) for the last index present that is equal to or less
+than the passed <B>Index</B> string.
+(Special case: Start with a 0-length string to look up the last index in the array,
+as there is no particular value guaranteed to be last in the internal hash order.)
+<B>JHSIL()</B> is typically used to <I>begin</I> a reverse-hash-order
+scan of the valid indexes in a JudyHS array.
+<P>
+<DT><A name="JHSIP"><B>JHSIP(PValue, PJHSArray, PJHSIter, Index, Length)</B></A> // <A href="JudyHS_funcs_3.htm#JudyHSIterPrev">JudyHSIterPrev()</A></DT>
+<DD>
+Search (exclusive) for the previous index present that is less than the
+passed <B>Index</B> string.
+<B>JHSIP()</B> is typically used to <I>continue</I> a reverse-hash-order
+scan of the valid indexes in a JudyHS array, or to locate a "neighbor" of
+a given index.
+<P>
+<DT><A name="JHSFI"><B>JHSFI(Rc_word, PJHSIter)</B></A> // <A href="JudyHS_funcs_3.htm#JudyHSFreeIter">JudyHSFreeIter()</A></DT>
+<DD>
+Given a pointer to a JudyHS iterator (<B>PJHSIter</B>), free the entire iterator.
+<P>
+Return <B>Rc_word</B> set to the number of bytes freed and <B>PJHSIter</B> set to NULL.
 <!----------------->
 <P>
 <DT><A name="ERRORS"><B>ERRORS:</B> See: </A><A href="Judy_3.htm#ERRORS">Judy_3.htm#ERRORS</A></DT>
@@ -248,7 +338,7 @@ main()
             *PValue = LineNumb;         // store Line number
         }
     }
-    printf("%lu Duplicates, free JudyHS array of %lu Lines\n", 
+    printf("%lu Duplicates, JudyHS array of %lu Lines\n", 
                     Dups, LineNumb - Dups);
     JHSFA(Bytes, PJArray);              // free JudyHS array
     printf("JudyHSFreeArray() free'ed %lu bytes of memory\n", Bytes);
