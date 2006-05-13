@@ -91,11 +91,11 @@ method not_equal (Relation $other!) returns Bool {
 
 method rename (Mapping(Str) of Str $mapping!) returns Relation {
 
-    die "Some keys of :$mapping! do not match this relation's attributes."
+    die "Some keys of $mapping! do not match this relation's attributes."
         if !(all( $mapping.keys ) === any( $!heading ));
-    die "Some values of :$mapping! duplicate each other."
+    die "Some values of $mapping! duplicate each other."
         if +all( $mapping.values ) != +$mapping.values;
-    die "Some values of :$mapping! duplicate attribute names of this"
+    die "Some values of $mapping! duplicate attribute names of this"
             ~ " relation that aren't being renamed."
         if any( $mapping.values )
             === any( $!heading.difference( all( $mapping.keys ) ) );
@@ -112,27 +112,6 @@ method rename (Mapping(Str) of Str $mapping!) returns Relation {
 
 ###########################################################################
 
-method restrict (Code $predicate!) returns Relation {
-    return Relation.new(
-        heading => $!heading,
-        body => set( $!body.values.grep:{ $predicate( $_ ) }),
-    );
-}
-
-&where ::= &restrict;
-&grep  ::= &restrict;
-
-method delete (Code $predicate!) returns Relation {
-    return Relation.new(
-        heading => $!heading,
-        body => set( $!body.values.grep:{ !$predicate( $_ ) }),
-    );
-}
-
-&delete_where ::= &delete;
-
-###########################################################################
-
 method project (Set of Str $attrs!) returns Relation {
 
     if ($attrs.size() == 0) {
@@ -143,7 +122,7 @@ method project (Set of Str $attrs!) returns Relation {
         return $?SELF;
     }
 
-    die "Some members of :$attrs! do not match this relation's attributes."
+    die "Some members of $attrs! do not match this relation's attributes."
         if !(all( $attrs ) === any( $!heading ));
 
     return Relation.new(
@@ -161,6 +140,56 @@ method project_all_but (Set of Str $attrs!) returns Relation {
 }
 
 &select_all_but ::= &project_all_but;
+
+###########################################################################
+
+method extend (Mapping(Str) of Code $attrs!) returns Relation {
+
+    if ($attrs.size() == 0) {
+        return $?SELF;
+    }
+
+    die "Some keys of $attrs! duplicate attribute names of this relation."
+        if any( $attrs ) === any( $!heading );
+
+    return Relation.new(
+        heading => $!heading.union( set( $attrs.keys ) ),
+        body => set( $!body.values.map:{
+            mapping( $_.pairs,
+                $attrs.pairs.map:{ $_.key => $_.value.( CALLER::<$_> ) } )
+        }),
+    );
+}
+
+###########################################################################
+
+method map (Set of Str $heading!, Code $replacements!) returns Relation {
+    return Relation.new(
+        heading => $heading,
+        body => set( $!body.values.map:{ $replacements.( $_ ) }),
+    );
+}
+
+###########################################################################
+
+method restrict (Code $predicate!) returns Relation {
+    return Relation.new(
+        heading => $!heading,
+        body => set( $!body.values.grep:{ $predicate.( $_ ) }),
+    );
+}
+
+&where ::= &restrict;
+&grep  ::= &restrict;
+
+method delete (Code $predicate!) returns Relation {
+    return Relation.new(
+        heading => $!heading,
+        body => set( $!body.values.grep:{ !$predicate( $_ ) }),
+    );
+}
+
+&delete_where ::= &delete;
 
 ###########################################################################
 
@@ -344,27 +373,6 @@ Relation attribute names, or any C<$mapping> values duplicate each other,
 or duplicate attribute names that aren't being renamed.  This method
 supports renaming attributes to each others' names.
 
-=item C<restrict (Code $predicate!) returns Relation>
-
-This method is a generic relational operator that returns a new Relation
-which has a subset of the original's tuples; that subset is those for which
-the the Bool-returning anonymous function in the argument C<$predicate>
-returns True when given the tuple/Mapping as its sole read-only argument.
-The new Relation has all of the same attributes as the original.  Trivial
-cases are where C<$predicate> simply returns True or False regardless of
-its argument, in which case the new Relation has either all of the tuples
-of the original, or has zero tuples, respectively.  This method has aliases
-named C<where> and C<grep>.
-
-=item C<delete (Code $predicate!) returns Relation>
-
-This method is the same as C<restrict> but that the returned Relation has
-the complement subset of the original's tuples to what C<restrict> would
-return given the same C<$predicate>.  This method has an alias named
-C<delete_where>.  This method is conceptually the same as the C<delete>
-statement of SQL, but that it isn't a mutator; to have the same affect as
-SQL, you say C<$r = $r.delete_where( $predicate );>.
-
 =item C<project (Set of Str $attrs!) returns Relation>
 
 This method is a generic relational operator that returns a new Relation
@@ -384,6 +392,60 @@ This method is the same as C<project> but that the returned Relation has
 the complement subset of the original's attributes to what C<project> would
 return given the same C<$attrs>.  This method has an alias named
 C<select_all_but>.
+
+=item C<extend (Mapping(Str) of Code $attrs!) returns Relation>
+
+This method is a generic relational operator that returns a new Relation
+which has a superset of the original's attributes; the new Relation has as
+many additional attributes as there are pairs in the argument C<$attrs>,
+where the keys of C<$attrs> provide the names of the new attributes, and
+the values provide values applied to each tuple.  The new Relation has all
+of the tuples of the original (or rather, the corresponding extension of
+each tuple).  Each value of C<$attrs> is an anonymous function that, when
+given each original tuple/Mapping as its sole read-only argument, returns a
+value that is optionally a calculation using original attribute values as
+inputs.  As a trivial case, if C<$attrs> is empty, the output relation is
+identical to the invocant.  This method will fail if any keys of C<$attrs>
+duplicate attribute names of the invocant Relation.
+
+=item C<map (Set of Str $heading!, Code $transformer!) returns Relation>
+
+This method is a short-hand or alternative for the functionality provided
+by the 3 generic relational operators [C<extend>, C<project>, C<rename>],
+applied in that order, and it works like Perl's standard C<map> operator.
+It returns a new Relation whose attributes (provided in C<$heading>) may or
+may not resemble those of the original.  The anonymous function in the
+argument C<$transformer> is invoked for each original tuple/Mapping in
+turn, which it gets as its sole read-only argument, and it must return a
+new tuple/Mapping whose attributes match those of C<$heading>.  The new
+Relation has all of the tuples of the original (or rather, the
+corresponding transformation of each tuple), but that any duplicates
+following the transformation have been eliminated.  Trivial cases are where
+C<$transformer> returns either an empty tuple/Mapping or a tuple that is
+identical to the original, in which case this method returns the
+identity-one Relation or the invocant relation, respectively.
+
+=item C<restrict (Code $predicate!) returns Relation>
+
+This method is a generic relational operator that returns a new Relation
+which has a subset of the original's tuples, and it works like Perl's
+standard C<grep> operator; that subset is those for which the the
+Bool-returning anonymous function in the argument C<$predicate> returns
+True when given the tuple/Mapping as its sole read-only argument. The new
+Relation has all of the same attributes as the original.  Trivial cases are
+where C<$predicate> simply returns True or False regardless of its
+argument, in which case the new Relation has either all of the tuples of
+the original, or has zero tuples, respectively.  This method has aliases
+named C<where> and C<grep>.
+
+=item C<delete (Code $predicate!) returns Relation>
+
+This method is the same as C<restrict> but that the returned Relation has
+the complement subset of the original's tuples to what C<restrict> would
+return given the same C<$predicate>.  This method has an alias named
+C<delete_where>.  This method is conceptually the same as the C<delete>
+statement of SQL, but that it isn't a mutator; to have the same affect as
+SQL, you say C<$r = $r.delete_where( $predicate );>.
 
 =back
 
