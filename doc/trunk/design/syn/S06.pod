@@ -13,7 +13,7 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 12 May 2006
+  Last Modified: 13 May 2006
   Number: 6
   Version: 34
 
@@ -149,7 +149,7 @@ bare block.
 It also behaves like a block with respect to control exceptions.  If you
 C<return> from within a pointy sub, it will return from the innermost
 enclosing C<sub> or C<method>, not the block itself.  It is referenced
-by C<&?BLOCK>, not C<&?SUB>.
+by C<&?BLOCK>, not C<&?ROUTINE>.
 
 =head2 Stub declarations
 
@@ -1861,7 +1861,7 @@ To return from other types of code structures, the C<leave> function is used:
 
     leave;                      # return from innermost block of any kind
     leave Method;               # return from innermost calling method
-    leave &?SUB <== 1,2,3;      # Return from current sub. Same as: return 1,2,3
+    leave &?ROUTINE <== 1,2,3;  # Return from current sub. Same as: return 1,2,3
     leave &foo <== 1,2,3;       # Return from innermost surrounding call to &foo
     leave Loop where { .label eq 'COUNT' };  # Same as: last COUNT;
 
