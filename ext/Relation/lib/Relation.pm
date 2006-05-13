@@ -182,14 +182,96 @@ method restrict (Code $predicate!) returns Relation {
 &where ::= &restrict;
 &grep  ::= &restrict;
 
-method delete (Code $predicate!) returns Relation {
+###########################################################################
+
+method union (Relation *@others) returns Relation {
+
+    for @others -> $other {
+        die "The heading of at least one given relation in @others does"
+                ~ " not match the heading of the invocant relation."
+            if !($other!heading === $!heading);
+    }
+
+    Relation $result = $?SELF;
+
+    for @others -> $other {
+        $result = Relation.new(
+            heading => $!heading,
+            body => $result!body.union( $other!body ),
+        );
+    }
+
+    return $result;
+}
+
+&plus ::= &union;
+
+###########################################################################
+
+method exclusion (Relation *@others) returns Relation {
+
+    for @others -> $other {
+        die "The heading of at least one given relation in @others does"
+                ~ " not match the heading of the invocant relation."
+            if !($other!heading === $!heading);
+    }
+
+    Relation $result = $?SELF;
+
+    for @others -> $other {
+        $result = Relation.new(
+            heading => $!heading,
+            body => $result!body.symmetric_difference( $other!body ),
+        );
+    }
+
+    return $result;
+}
+
+&disjoint_union       ::= &exclusion;
+&d_union              ::= &exclusion;
+&symmetric_difference ::= &exclusion;
+
+###########################################################################
+
+method intersection (Relation *@others) returns Relation {
+
+    for @others -> $other {
+        die "The heading of at least one given relation in @others does"
+                ~ " not match the heading of the invocant relation."
+            if !($other!heading === $!heading);
+    }
+
+    Relation $result = $?SELF;
+
+    for @others -> $other {
+        $result = Relation.new(
+            heading => $!heading,
+            body => $result!body.intersection( $other!body ),
+        );
+    }
+
+    return $result;
+}
+
+&intersect ::= &intersection;
+
+###########################################################################
+
+method difference (Relation $other!) returns Relation {
+
+    die "The heading of at the relation in $other does"
+            ~ " not match the heading of the invocant relation."
+        if !($other!heading === $!heading);
+
     return Relation.new(
         heading => $!heading,
-        body => set( $!body.values.grep:{ !$predicate( $_ ) }),
+        body => $!body.difference( $other!body ),
     );
 }
 
-&delete_where ::= &delete;
+&minus  ::= &difference;
+&except ::= &difference;
 
 ###########################################################################
 
@@ -438,14 +520,40 @@ argument, in which case the new Relation has either all of the tuples of
 the original, or has zero tuples, respectively.  This method has aliases
 named C<where> and C<grep>.
 
-=item C<delete (Code $predicate!) returns Relation>
+=item C<union (Relation *@others) returns Relation>
 
-This method is the same as C<restrict> but that the returned Relation has
-the complement subset of the original's tuples to what C<restrict> would
-return given the same C<$predicate>.  This method has an alias named
-C<delete_where>.  This method is conceptually the same as the C<delete>
-statement of SQL, but that it isn't a mutator; to have the same affect as
-SQL, you say C<$r = $r.delete_where( $predicate );>.
+This method is a generic relational operator that takes any number of
+Relations as its C<@others> argument, where every C<@others> member has the
+same heading as the invocant Relation, and combines all of said Relations
+into a new Relation that has the same heading and whose body contains all
+the tuples of the source Relations, including one copy each of any
+duplicated tuples.  This method will fail if any relations in C<@others> do
+not have identical headers to the invocant relation.  A trivial case is
+where C<@others> is an empty list, in which case the returned Relation is
+identical to the invocant.  This method has an alias named C<plus>.
+
+=item C<exclusion (Relation *@others) returns Relation>
+
+This method is a generic relational operator that is like C<union> except
+that the returned Relation contains only tuples that are in exactly one of
+the source Relations.  This method has aliases named C<disjoint_union>,
+C<d_union>, and C<symmetric_difference>.
+
+=item C<intersection (Relation *@others) returns Relation>
+
+This method is a generic relational operator that is like C<union> except
+that the returned Relation contains only tuples that are in all of the
+source Relations.  This method has an alias named C<intersect>.
+
+=item C<difference (Relation $other!) returns Relation>
+
+This method is a generic relational operator that takes a single Relation
+in its C<$other> argument, where <$other> has the same heading as the
+invocant Relation, and returns a new Relation that has the same heading and
+whose body contains all of the tuples that are in the invocant Relation but
+that aren't in C<$other>.  This method will fail if C<$other> does not have
+an identical header to the invocant relation.  This method has aliases
+named C<minus> and C<except>.
 
 =back
 
