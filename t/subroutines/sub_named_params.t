@@ -11,7 +11,7 @@ plan 41;
 = DESCRIPITION
 
 These tests test named parmaeters. L<S06/"Named parameters">
-# 23:48 <autrijus> sub foo (+$x) { $x }  foo( 'x' => 4 )
+# 23:48 <autrijus> sub foo (+$x) { $x }  foo( x => 4 )
 # 23:48 <autrijus> is the canonical example
 # 23:48 <autrijus> +$x makes it addressable only by name
 # 23:48 <autrijus> positional args can also optionally be addressed by name.
@@ -38,7 +38,7 @@ is simple_pos_param(:x(3)),  3, "positional param may be addressed by name (2)";
 # L<S06/"Named parameters" /marked by a \+/>
 sub simple_pos_params (:$x) { $x }
 
-is(simple_pos_params( 'x' => 4 ), 4, "simple named param");
+is(simple_pos_params( x => 4 ), 4, "simple named param");
 
 
 sub foo (:$x = 3) { $x }
@@ -46,7 +46,7 @@ sub foo (:$x = 3) { $x }
 is(foo(), 3, "not specifying named params that aren't mandatory works");
 dies_ok({foo(4)}, "using a named as a positional fails", :todo<bug>);
 
-is(foo( 'x' => 5), 5, "naming named param also works");
+is(foo( x => 5), 5, "naming named param also works");
 is(foo( :x<5> ), 5, "naming named param adverb-style also works");
 
 sub foo2 (:$x = 3, :$y = 5) { $x + $y }
@@ -54,24 +54,24 @@ sub foo2 (:$x = 3, :$y = 5) { $x + $y }
 is(foo2(), 8, "not specifying named params that aren't mandatory works (foo2)");
 dies_ok({foo2(4)}, "using a named as a positional fails (foo2)", :todo<bug>);
 dies_ok({foo2(4, 10)}, "using a named as a positional fails (foo2)", :todo<bug>);
-is(foo2( 'x' => 5), 10, "naming named param x also works (foo2)");
-is(foo2( 'y' => 3), 6, "naming named param y also works (foo2)");
-is(foo2( 'x' => 10, 'y' => 10), 20, "naming named param x & y also works (foo2)");
+is(foo2( x => 5), 10, "naming named param x also works (foo2)");
+is(foo2( y => 3), 6, "naming named param y also works (foo2)");
+is(foo2( x => 10, y => 10), 20, "naming named param x & y also works (foo2)");
 is(foo2( :x(5) ), 10, "naming named param x adverb-style also works (foo2)");
 is(foo2( :y(3) ), 6, "naming named param y adverb-style also works (foo2)");
 is(foo2( :x(10), :y(10) ), 20, "naming named params x & y adverb-style also works (foo2)");
-is(foo2( 'x' => 10, :y(10) ), 20, "mixing fat-comma and adverb naming styles also works for named params (foo2)");
-is(foo2( :x(10), 'y' => 10 ), 20, "mixing adverb and fat-comma naming styles also works for named params (foo2)");
+is(foo2( x => 10, :y(10) ), 20, "mixing fat-comma and adverb naming styles also works for named params (foo2)");
+is(foo2( :x(10), y => 10 ), 20, "mixing adverb and fat-comma naming styles also works for named params (foo2)");
 
 
 sub assign_based_on_named_positional ($x, :$y = $x) { $y } 
 
 
 is(assign_based_on_named_positional(5), 5, "When we don't explicitly specify, we get the original value");
-is(assign_based_on_named_positional(5, "y"=> 2), 2, "When we explicitly specify, we get our value");
 is(assign_based_on_named_positional(5, y => 2), 2, "When we explicitly specify, we get our value");
+is(assign_based_on_named_positional('y'=>2), ('y'=>2), "When we explicitly specify, we get our value");
 my $var = "y";
-is(assign_based_on_named_positional(5, $var => 2), 2,
+is(assign_based_on_named_positional($var => 2), ("y"=>2),
    "When we explicitly specify, we get our value");
 
 # L<S06/"Named parameters" /a \+\+ prefix.*?required/>
@@ -80,14 +80,14 @@ sub mandatory (:$param!) {
     return $param;
 }
 
-is(mandatory('param' => 5) , 5, "named mandatory parameter is returned");
+is(mandatory(param => 5) , 5, "named mandatory parameter is returned");
 is(try { mandatory() }, undef, "not specifying a mandatory parameter fails");
 
 sub mandatory_by_trait (:$param is required) {
     return $param;
 }
 
-is(mandatory_by_trait('param' => 5) , 5, "named mandatory parameter is returned");
+is(mandatory_by_trait(param => 5) , 5, "named mandatory parameter is returned");
 is(try { mandatory_by_trait() }, undef, "not specifying a mandatory parameter fails");
 
 
