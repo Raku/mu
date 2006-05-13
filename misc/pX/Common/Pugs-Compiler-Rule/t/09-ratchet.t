@@ -32,6 +32,18 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 }
 
 {
+    my $rule = Pugs::Compiler::Rule->compile( 'ab|c', { ratchet => 1 } );
+    my $match = $rule->match("ac");
+    ok( !$match, "basic alternative" );
+}
+
+{
+    my $rule = Pugs::Compiler::Rule->compile( 'ab|ac', { ratchet => 1 } );
+    my $match = $rule->match("ac");
+    ok( !$match, "alternation no backtracking" );
+}
+
+{
     # named rules are methods
     *test::rule_method = Pugs::Compiler::Rule->compile( '((.).)(.)', { ratchet => 1 } )->code;
     my $match = test->rule_method( "xyzw" );
