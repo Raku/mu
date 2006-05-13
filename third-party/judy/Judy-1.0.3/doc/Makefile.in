@@ -594,7 +594,7 @@ man/man3/JudyHS:
 	cd man/man3; ln -s JudyHS JHSIN
 	cd man/man3; ln -s JudyHS JHSIL
 	cd man/man3; ln -s JudyHS JHSIP
-	cd man/man3; ln -s JudyHS JHSFI`
+	cd man/man3; ln -s JudyHS JHSFI
 
 man/man3/JudyHS_funcs:
 	../tool/jhton ext/JudyHS_funcs_3.htm | grep -v '^[   ]*$$' | sed -e 's/\.C//' > man/man3/JudyHS_funcs

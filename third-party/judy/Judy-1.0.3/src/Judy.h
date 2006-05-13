@@ -287,7 +287,7 @@ extern PPvoid_t JudySLPrev(      Pcvoid_t,       uint8_t * Index, P_JE);
 // ****************************************************************************
 // JUDYHS FUNCTIONS:
 
-extern PPvoid_t JudyHSGet(       Pcvoid_t,      const uint8_t *, Word_t,   P_JE);
+extern PPvoid_t JudyHSGet(       Pcvoid_t,      const uint8_t *, Word_t);
 extern PPvoid_t JudyHSIns(       PPvoid_t,      const uint8_t *, Word_t,   P_JE);
 extern int      JudyHSDel(       PPvoid_t,      const uint8_t *, Word_t,   P_JE);
 extern Word_t   JudyHSFreeArray( PPvoid_t,                                 P_JE);
