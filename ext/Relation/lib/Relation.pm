@@ -112,6 +112,27 @@ method rename (Mapping(Str) of Str $mapping!) returns Relation {
 
 ###########################################################################
 
+method restrict (Code $predicate!) returns Relation {
+    return Relation.new(
+        heading => $!heading,
+        body => set( $!body.values.grep:{ $predicate( $_ ) }),
+    );
+}
+
+&where ::= &restrict;
+&grep  ::= &restrict;
+
+method delete (Code $predicate!) returns Relation {
+    return Relation.new(
+        heading => $!heading,
+        body => set( $!body.values.grep:{ !$predicate( $_ ) }),
+    );
+}
+
+&delete_where ::= &delete;
+
+###########################################################################
+
 method project (Set of Str $attrs!) returns Relation {
 
     if ($attrs.size() == 0) {
@@ -133,9 +154,13 @@ method project (Set of Str $attrs!) returns Relation {
     );
 }
 
+&select ::= &project;
+
 method project_all_but (Set of Str $attrs!) returns Relation {
     return $?SELF.project( $!heading.difference( $attrs ) );
 }
+
+&select_all_but ::= &project_all_but;
 
 ###########################################################################
 
@@ -262,14 +287,14 @@ This is the main Relation constructor method:
 
 =over
 
-=item C<new( Set of Str :$heading?, Set of Mapping(Str) of Any :$body? )>
+=item C<new (Set of Str :$heading?, Set of Mapping(Str) of Any :$body?)>
 
 This method creates and returns a new Relation object, whose Heading and
 Body attributes are set respectively from the optional named parameters
-$heading and $body.  If $heading is undefined or an empty Set, the Relation
-has zero attributes.  If $body is undefined or an empty Set, the Relation
-has zero tuples.  If a Relation has zero attributes, then $body may be an
-Set with a single member that is an empty Mapping.
+C<$heading> and C<$body>.  If C<$heading> is undefined or an empty Set, the
+Relation has zero attributes.  If C<$body> is undefined or an empty Set,
+the Relation has zero tuples.  If a Relation has zero attributes, then
+C<$body> may be an Set with a single member that is an empty Mapping.
 
 =back
 
@@ -277,67 +302,88 @@ A Relation object has these methods:
 
 =over
 
-=item C<export_as_hash()>
+=item C<export_as_hash () returns Hash>
 
 This method returns a deep copy of this Relation as a Hash ref of 2
-elements, which correspond to the 2 named parameters of new().
+elements, which correspond to the 2 named parameters of C<new>.
 
-=item C<heading()>
+=item C<heading () returns Set of Str>
 
 This method returns this Relation's heading.
 
-=item C<body()>
+=item C<body () returns Set of Mapping(Str) of Any>
 
 This method returns this Relation's body.
 
-=item C<size()>
+=item C<size () returns Int>
 
 This method returns a count of this Relation's member tuples as an Int.
 
-=item C<exists( Mapping(Str) of Any $tuple! )>
+=item C<exists (Mapping(Str) of Any $tuple!) returns Bool>
 
-This method returns a Bool indicating whether the argument $tuple exists in
-/ is a member of this Relation.
+This method returns a Bool indicating whether the argument C<$tuple> exists
+in / is a member of this Relation.
 
-=item C<equal( Relation $other! )>
+=item C<equal (Relation $other!) returns Bool>
 
 This method returns a Bool indicating whether the immutable identity of the
-argument $other equals the immutable identity of the invocant.
+argument C<$other> equals the immutable identity of the invocant.
 
-=item C<not_equal( Relation $other! )>
+=item C<not_equal (Relation $other!) returns Bool>
 
-This method returns the complement of equal() with the same argument.
+This method returns the complement of C<equal> with the same argument.
 
-=item C<rename( Mapping(Str) of Str $mapping! )>
+=item C<rename ( Mapping(Str) of Str $mapping! ) returns Relation>
 
 This method is a generic relational operator that returns a new Relation
 which is the same as the invocant Relation but that some of its attributes
-are renamed.  The argument $mapping says which attributes are being
+are renamed.  The argument C<$mapping> says which attributes are being
 renamed, with its keys being the old names and its values the new names.
-This method will fail if any $mapping keys do not match invocant Relation
-attribute names, or any $mapping values duplicate each other, or duplicate
-attribute names that aren't being renamed.  This method supports renaming
-attributes to each others' names.
+This method will fail if any C<$mapping> keys do not match invocant
+Relation attribute names, or any C<$mapping> values duplicate each other,
+or duplicate attribute names that aren't being renamed.  This method
+supports renaming attributes to each others' names.
 
-=item C<project( Set of Str $attrs! )>
+=item C<restrict (Code $predicate!) returns Relation>
+
+This method is a generic relational operator that returns a new Relation
+which has a subset of the original's tuples; that subset is those for which
+the the Bool-returning anonymous function in the argument C<$predicate>
+returns True when given the tuple/Mapping as its sole read-only argument.
+The new Relation has all of the same attributes as the original.  Trivial
+cases are where C<$predicate> simply returns True or False regardless of
+its argument, in which case the new Relation has either all of the tuples
+of the original, or has zero tuples, respectively.  This method has aliases
+named C<where> and C<grep>.
+
+=item C<delete (Code $predicate!) returns Relation>
+
+This method is the same as C<restrict> but that the returned Relation has
+the complement subset of the original's tuples to what C<restrict> would
+return given the same C<$predicate>.  This method has an alias named
+C<delete_where>.  This method is conceptually the same as the C<delete>
+statement of SQL, but that it isn't a mutator; to have the same affect as
+SQL, you say C<$r = $r.delete_where( $predicate );>.
+
+=item C<project (Set of Str $attrs!) returns Relation>
 
 This method is a generic relational operator that returns a new Relation
 which has a subset of the original's attributes; that subset is the same as
-those attribute names in the argument $attrs.  The new Relation has all of
-the tuples of the original (or rather, the corresponding projection of each
-tuple), but that any duplicates following the projection have been
-eliminated.  Trivial cases are where $attrs is either empty or equal to the
-invocant Relation's header, in which case it returns the identity-one
+those attribute names in the argument C<$attrs>.  The new Relation has all
+of the tuples of the original (or rather, the corresponding projection of
+each tuple), but that any duplicates following the projection have been
+eliminated.  Trivial cases are where C<$attrs> is either empty or equal to
+the invocant Relation's header, in which case it returns the identity-one
 Relation or the invocant Relation respectively.  This method will fail if
-any members of $attrs do not match attribute names of the invocant
-Relation.  Note that some implementations of the relational model use the
-keyword 'select' to mean 'project'.
+any members of C<$attrs> do not match attribute names of the invocant
+Relation.  This method has an alias named C<select>.
 
-=item C<project_all_but( Set of Str $attrs! )>
+=item C<project_all_but (Set of Str $attrs!) returns Relation>
 
-This method is the same as project() but that the returned Relation has the
-complement subset of the original's attributes to what project() would
-return given the same $attrs;
+This method is the same as C<project> but that the returned Relation has
+the complement subset of the original's attributes to what C<project> would
+return given the same C<$attrs>.  This method has an alias named
+C<select_all_but>.
 
 =back
 
