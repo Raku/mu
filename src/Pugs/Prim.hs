@@ -199,9 +199,7 @@ op1 "reverse" = \v -> do
                     vals    <- readRef ref
                     vlist   <- fromVal vals
                     return (VList $ reverse vlist))
-        _ -> ifListContext
-            (op1Cast (VList . reverse) v)
-            (op1Cast (VStr . reverse) v)
+        _ -> op1Cast (VList . reverse) v
 op1 "list" = op1Cast VList
 op1 "pair" = op1Cast $ VList . (map $ \(k, v) -> castV ((VStr k, v) :: VPair))
 op1 "~"    = op1Cast VStr

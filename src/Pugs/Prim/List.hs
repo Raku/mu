@@ -166,8 +166,8 @@ op2Reduce sub@(VCode _) list = op2Reduce list sub
 op2Reduce list sub = do
     code <- fromVal sub
     args <- fromVal list
-    cxt  <- asks envContext
-    let (reduceM, reduceMn) = getReduceFuncs cxt
+    -- cxt  <- asks envContext
+    let (reduceM, reduceMn) = (foldM, foldMn) -- getReduceFuncs cxt
     let arity = length $ subParams code
     if arity < 2 then fail "Cannot reduce() using a unary or nullary function." else do
     -- n is the number of *additional* arguments to be passed to the sub.
