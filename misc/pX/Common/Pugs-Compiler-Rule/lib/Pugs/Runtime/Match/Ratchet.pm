@@ -26,11 +26,13 @@ sub new {
 }
 
 sub from {
-    ${$_[0]}->{from} || 0;
+    my $v = ${$_[0]}->{from} || 0;
+    ref $v ? $$v : $v;
 }
 
 sub to {
-    ${$_[0]}->{to};
+    my $v = ${$_[0]}->{to};
+    ref $v ? $$v : $v;
 }
 
 sub _box_submatch {
@@ -41,21 +43,21 @@ sub _box_submatch {
 }
 
 sub flat {
-    return ${$_[0]}->{capture} 
-        if defined ${$_[0]}->{capture};
+    return ${ ${$_[0]}->{capture} }
+        if defined ${ ${$_[0]}->{capture} };
     return substr( ${$_[0]}->{str}, $_[0]->from, $_[0]->to - $_[0]->from );
 }
 
 # return the capture
 sub code {
-    my $c = ${$_[0]}->{capture};
+    my $c = $_[0]->flat;
     return sub { $c };
 }
 
 # return the capture
-sub capture {
-    ${$_[0]}->{capture};
-}
+#sub capture {
+#    ${ ${$_[0]}->{capture} };
+#}
 
 # return the bool value
 sub bool {

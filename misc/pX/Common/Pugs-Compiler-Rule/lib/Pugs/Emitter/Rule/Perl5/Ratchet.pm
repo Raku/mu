@@ -52,10 +52,16 @@ sub emit {
         "    my \$pos = 0;   # XXX - depends on :p\n" .
         "    my \$from = \$pos;\n" .
         "    my \$bool = 1;\n" .
+        "    my \$capture;\n" .
+        "    my \$m = bless \\{ \n" .
+        "      str => \$s, from => \\\$from, to => \\\$pos, \n" .
+        "      bool => \\\$bool, match => \\\@match, \n" .
+        "      capture => \\\$capture, \n" .
+        "    }, 'Pugs::Runtime::Match::Ratchet';\n" .
+        "    \$bool = 0 unless\n" .
         emit_rule( $ast, '    ' ) . 
         "    ;\n" .
-        "    return bless \\{ str => \$s, from => \$from, to => \$pos, bool => \$bool, match => \\\@match },\n" .
-        "        'Pugs::Runtime::Match::Ratchet';\n" .
+        "    return \$m;\n" .
         "}\n";
 }
 
@@ -201,18 +207,12 @@ sub closure {
     #print "Code: $code\n";
     
     return 
-        "$_[1] ... sub {\n" . 
-        "$_[1]     $code( \@_ );\n" . 
-        "$_[1]     return { bool => 1, tail => \$_[0] }\n" .
-        "$_[1] }\n"
+        "$_[1] ( sub $code->( \$m ) || 1 )" 
         unless $code =~ /return/;
         
     return
-        "$_[1] ... abort(\n" .
-        "$_[1]     sub {\n" . 
-        "$_[1]         return { bool => 1, tail => \$_[0], return => sub $code };\n" .
-        "$_[1]     }\n" .
-        "$_[1] )\n";
+        "$_[1] ( ( \$capture = sub $code->( \$m ) ) 
+$_[1]   && return \$m )";
 }
 sub named_capture {
     my $name    = $_[0]{ident};

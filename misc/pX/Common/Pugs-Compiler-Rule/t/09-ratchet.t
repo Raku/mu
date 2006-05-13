@@ -22,8 +22,8 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     # unnamed rules are objects
     my $rule = Pugs::Compiler::Rule->compile( '((.).)(.)', { ratchet => 1 } );
     my $match = $rule->match( "xyzw" );
-    print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( $match?1:0, 1, 'booleanify - unnamed rules are objects' );
     is( "$match", "xyz", 'stringify 1' );
     is( "$match->[0]", "xy", 'stringify 2' );
@@ -43,8 +43,8 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     *test::rule_method3 = Pugs::Compiler::Rule->compile( '.', { ratchet => 1 } )->code;
     *test::rule_method4 = Pugs::Compiler::Rule->compile( '<rule_method3>', { ratchet => 1 } )->code;
     my $match = test->rule_method4( "xyzw" );
-    print "Source: ", do{use Data::Dumper; Dumper(Pugs::Compiler::Rule->compile( '<rule_method3>', { ratchet => 1 } )->{perl5})};
-    print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #print "Source: ", do{use Data::Dumper; Dumper(Pugs::Compiler::Rule->compile( '<rule_method3>', { ratchet => 1 } )->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "x", 'a named subrule calls a named subrule in same grammar' );
 }
 
@@ -115,6 +115,8 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     # escaped chars
     my $rule = Pugs::Compiler::Rule->compile( '\d', { ratchet => 1 } );
     my $match = $rule->match( "abc123" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->perl5)};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "1", 'escaped char \\d' );
 }
 
@@ -141,6 +143,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     # 1) spaces should not make difference
     # 2) the other way, it should be as /[a?[bg]]?/
     my $rule = Pugs::Compiler::Rule->compile( 'a?bg?', { ratchet => 1 } );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->perl5)};
     my $match = $rule->match("cdtbprw");
     is("$match","b",'"a?bg?" equals "a? b g?".');
 }
@@ -148,7 +151,10 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 {
     # capture
     my $rule = Pugs::Compiler::Rule->compile('some (text) { return { a => $_[0][0]() ,} } ', { ratchet => 1 });
+    #my $rule = Pugs::Compiler::Rule->compile('some (text) { return { a => $_[0][0] ,} } ', { ratchet => 1 });
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->perl5)};
     my $match = $rule->match("sometext");
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
     my $capture = $match->();
     is(ref($capture),'HASH','Capture is a hashref');
     is($capture->{a},'text','$capture->{a}');

@@ -6,8 +6,10 @@ Ratchet:
 - more tests
   - interoperability with non-ratchet
 - separate named/unnamed captures
-- return blocks
 - subrules need to know current "$pos"
+- 'a?' should not capture (same problem in non-ratchet rules?)
+- named captures
+- is :ratchet allowed at runtime?
 
 Perl 6 parser:
 

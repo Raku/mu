@@ -1,4 +1,5 @@
-- added an initial implementation of ':ratchet' in Pugs::Emitter::Rule::Perl5::Ratchet
+- added an initial implementation of ':ratchet'. 
+  several tests are still failing (t/09-ratchet.t)
 
 - implemented parameters in subrule call (positionals only, constants only)
 
