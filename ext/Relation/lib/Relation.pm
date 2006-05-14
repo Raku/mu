@@ -186,22 +186,22 @@ method restrict (Code $predicate!) returns Relation {
 
 method union (Relation *@others) returns Relation {
 
-    for @others -> $other {
+    for @others -> $r2 {
         die "The heading of at least one given relation in @others does"
                 ~ " not match the heading of the invocant relation."
-            if !($other!heading === $!heading);
+            if !($r2!heading === $!heading);
     }
 
-    Relation $result = $?SELF;
+    Relation $r1 = $?SELF;
 
-    for @others -> $other {
-        $result = Relation.new(
+    for @others -> $r2 {
+        $r1 = Relation.new(
             heading => $!heading,
-            body => $result!body.union( $other!body ),
+            body => $r1!body.union( $r2!body ),
         );
     }
 
-    return $result;
+    return $r1;
 }
 
 &plus ::= &union;
@@ -210,22 +210,22 @@ method union (Relation *@others) returns Relation {
 
 method exclusion (Relation *@others) returns Relation {
 
-    for @others -> $other {
+    for @others -> $r2 {
         die "The heading of at least one given relation in @others does"
                 ~ " not match the heading of the invocant relation."
-            if !($other!heading === $!heading);
+            if !($r2!heading === $!heading);
     }
 
-    Relation $result = $?SELF;
+    Relation $r1 = $?SELF;
 
-    for @others -> $other {
-        $result = Relation.new(
+    for @others -> $r2 {
+        $r1 = Relation.new(
             heading => $!heading,
-            body => $result!body.symmetric_difference( $other!body ),
+            body => $r1!body.symmetric_difference( $r2!body ),
         );
     }
 
-    return $result;
+    return $r1;
 }
 
 &disjoint_union       ::= &exclusion;
@@ -236,22 +236,22 @@ method exclusion (Relation *@others) returns Relation {
 
 method intersection (Relation *@others) returns Relation {
 
-    for @others -> $other {
+    for @others -> $r2 {
         die "The heading of at least one given relation in @others does"
                 ~ " not match the heading of the invocant relation."
-            if !($other!heading === $!heading);
+            if !($r2!heading === $!heading);
     }
 
-    Relation $result = $?SELF;
+    Relation $r1 = $?SELF;
 
-    for @others -> $other {
-        $result = Relation.new(
+    for @others -> $r2 {
+        $r1 = Relation.new(
             heading => $!heading,
-            body => $result!body.intersection( $other!body ),
+            body => $r1!body.intersection( $r2!body ),
         );
     }
 
-    return $result;
+    return $r1;
 }
 
 &intersect ::= &intersection;
@@ -272,6 +272,139 @@ method difference (Relation $other!) returns Relation {
 
 &minus  ::= &difference;
 &except ::= &difference;
+
+###########################################################################
+
+method join (Relation *@others) returns Relation {
+
+    Relation $r1 = $?SELF;
+
+    for @others -> $r2 {
+        if (+$r1!body.values == 0 or +$r2!body.values == 0) {
+            # Trivial case: a source has no tuples, so dest has no tuples.
+            $r1 = Relation.new(
+                heading => $r1!heading.union( $r2!heading ),
+                body => set(),
+            );
+        }
+
+        # If we get here, both sources have at least 1 tuple each.
+
+        elsif (+$r1!heading.values == 0) {
+            # Trivial case: the first source is the identity-one relation,
+            # and so the result of the join is the second source.
+            $r1 = $r2;
+        }
+        elsif (+$r2!heading.values == 0) {
+            # Trivial case: the second source is the identity-one relation,
+            # and so the result of the join is the first source.
+            # No-op: $r1 = $r1;
+        }
+
+        # If we get here, both sources have at least 1 attribute and
+        # at least 1 tuple each.
+
+        elsif (all( $r1!heading ) === all( $r2!heading )) {
+            # Both sources have identical headings, so this join
+            # degenerates into an intersection (a special case of join).
+            $r1 = $r1.intersection( $r2 );
+        }
+
+        elsif (all( $r1!heading ) === none( $r2!heading )) {
+            # Both sources have exclusive headings, so this join
+            # takes the form of a cross-product.
+            $r1 = Relation.new(
+                heading => $r1!heading.union( $r2!heading ),
+                body => set( gather {
+                    for $r1!body.values -> $t1 {
+                        for $r2!body.values -> $t2 {
+                            take mapping( $t1.pairs, $t2.pairs );
+                        }
+                    }
+                } ),
+            );
+        }
+
+        else {
+            # Both sources have overlapping headings, so this join
+            # takes the form of a natural-join or semijoin.
+
+            Set $combined_h = $r1!heading.union( $r2!heading );
+            Set $common_h = $r1!heading.intersection( $r2!heading );
+            Set $r1only_h = $r1!heading.difference( $r2!heading );
+            Set $r2only_h = $r2!heading.difference( $r1!heading );
+
+            if (+$r2only_h.values == 0) {
+                # The second source's heading is a proper subset of the
+                # first source's heading, so simplify to a semijoin.
+                $r1 = Relation.new(
+                    heading => $r1!heading,
+                    body => set( $r1!body.values.grep:{
+                        mapping( $_.pairs.map:{
+                            $_.key === any( $r2!heading )
+                        } ) === any( $r2!body.values )
+                    } ),
+                );
+            }
+
+            elsif (+$r1only_h.values == 0) {
+                # The first source's heading is a proper subset of the
+                # second source's heading, so simplify to a semijoin.
+                $r1 = Relation.new(
+                    heading => $r2!heading,
+                    body => set( $r2!body.values.grep:{
+                        mapping( $_.pairs.map:{
+                            $_.key === any( $r1!heading )
+                        } ) === any( $r1!body.values )
+                    } ),
+                );
+            }
+
+            else {
+                # This form takes the form of an ordinary natural join,
+                # where some source attributes are in common, and each
+                # source has attributes not in the other.
+
+                if (+$r1!body.values > +$r2!body.values) {
+                    # In case it is faster for outer loop to have fewer
+                    # iterations rather than the inner loop having fewer.
+                    ($r1, $r2) = ($r2, $r1);
+                }
+
+                $r1 = Relation.new(
+                    heading => $combined_heading,
+                    body => set( gather {
+                        for $r1!body.values -> $t1 {
+                            $t1common_m = mapping( $t1.pairs.map:{
+                                $_.key === any( $common_h )
+                            } )
+                            $t1only_m = mapping( $t1.pairs.map:{
+                                $_.key === any( $r1only_h )
+                            } )
+                            for $r2!body.values -> $t2 {
+                                $t2common_m = mapping( $t2.pairs.map:{
+                                    $_.key === any( $common_h )
+                                } )
+                                if ($t2common_m === $t1common_m) {
+                                    $t2only_m = mapping( $t2.pairs.map:{
+                                        $_.key === any( $r2only_h )
+                                    } )
+                                    take mapping(
+                                        $t1only_m.pairs,
+                                        $t1common_m.pairs,
+                                        $t2only_m.pairs,
+                                    );
+                                }
+                            }
+                        }
+                    } ),
+                );
+            }
+        }
+    }
+
+    return $r1;
+}
 
 ###########################################################################
 
@@ -527,10 +660,12 @@ Relations as its C<@others> argument, where every C<@others> member has the
 same heading as the invocant Relation, and combines all of said Relations
 into a new Relation that has the same heading and whose body contains all
 the tuples of the source Relations, including one copy each of any
-duplicated tuples.  This method will fail if any relations in C<@others> do
-not have identical headers to the invocant relation.  A trivial case is
-where C<@others> is an empty list, in which case the returned Relation is
-identical to the invocant.  This method has an alias named C<plus>.
+duplicated tuples.  The sequence in which any two source relations are
+combined is inconsequential.  This method will fail if any relations in
+C<@others> do not have identical headers to the invocant relation.  A
+trivial case is where C<@others> is an empty list, in which case the
+returned Relation is identical to the invocant.  This method has an alias
+named C<plus>.
 
 =item C<exclusion (Relation *@others) returns Relation>
 
@@ -554,6 +689,32 @@ whose body contains all of the tuples that are in the invocant Relation but
 that aren't in C<$other>.  This method will fail if C<$other> does not have
 an identical header to the invocant relation.  This method has aliases
 named C<minus> and C<except>.
+
+=item C<join (Relation *@others) returns Relation>
+
+This method is a generic relational operator that takes any number of
+Relations as its C<@others> argument and combines all of those Relations,
+along with the invocant relation, into a new Relation, such that all common
+attribute names and corresponding common tuple values are aligned and
+merged.  The heading of the new relation is the union of all the headings
+of the source relations.  The body of the new relation is the result of
+first pairwise-matching every tuple of each source relation with every
+tuple of each other source relation, then where each member of a tuple pair
+has attribute names in common, eliminating pairs where the values of those
+attributes differ and unioning the remaining said tuple pairs, then
+eliminating any result tuples that duplicate others.  The sequence in which
+any two source relations are combined is inconsequential.  A trivial case
+is where C<@others> is an empty list, in which case the returned Relation
+is identical to the invocant.  Another trivial case is where any any source
+relation has zero tuples, in which case the result does too.  Another
+trivial case is if any source relation is the identity-one relation (zero
+attributes, one tuple), the result is as if it wasn't there at all.  In any
+situation where a pair of source relations have identical headings, for
+these a C<join> degenerates to a C<intersection>.  In any situation where a
+pair of source relations have zero attributes in common, their joining is a
+cross-product.  In any situation where the heading of one source relation
+is a full subset of another, the result degenerates to a C<restrict> of the
+second where attribute values match those in the first.
 
 =back
 
