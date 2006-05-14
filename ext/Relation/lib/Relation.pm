@@ -192,7 +192,7 @@ method union (Relation *@others) returns Relation {
             if !($r2!heading === $!heading);
     }
 
-    Relation $r1 = $?SELF;
+    my Relation $r1 = $?SELF;
 
     for @others -> $r2 {
         $r1 = Relation.new(
@@ -216,7 +216,7 @@ method exclusion (Relation *@others) returns Relation {
             if !($r2!heading === $!heading);
     }
 
-    Relation $r1 = $?SELF;
+    my Relation $r1 = $?SELF;
 
     for @others -> $r2 {
         $r1 = Relation.new(
@@ -242,7 +242,7 @@ method intersection (Relation *@others) returns Relation {
             if !($r2!heading === $!heading);
     }
 
-    Relation $r1 = $?SELF;
+    my Relation $r1 = $?SELF;
 
     for @others -> $r2 {
         $r1 = Relation.new(
@@ -260,7 +260,7 @@ method intersection (Relation *@others) returns Relation {
 
 method difference (Relation $other!) returns Relation {
 
-    die "The heading of at the relation in $other does"
+    die "The heading of the relation in $other does"
             ~ " not match the heading of the invocant relation."
         if !($other!heading === $!heading);
 
@@ -277,7 +277,11 @@ method difference (Relation $other!) returns Relation {
 
 method join (Relation *@others) returns Relation {
 
-    Relation $r1 = $?SELF;
+    # TODO: optimize this method by pairing up the sources whose
+    # combination is the least expensive first (eg, semijoins, natural
+    # joins), and most expensive last (eg, cross-products).
+
+    my Relation $r1 = $?SELF;
 
     for @others -> $r2 {
         if (+$r1!body.values == 0 or +$r2!body.values == 0) {
@@ -405,6 +409,46 @@ method join (Relation *@others) returns Relation {
 
     return $r1;
 }
+
+&natural_join ::= &join;
+
+###########################################################################
+
+method product (Relation *@others) returns Relation {
+
+    if (+@others == 0) {
+        return $?SELF;
+    }
+
+    my Relation @sources = ($?SELF, *@others);
+    while (my $r1 = @sources.shift()) {
+        foreach @sources -> $r2 {
+            die "The heading of at least one given relation in @others has"
+                    ~ " attributes in common with either other relations"
+                    ~ " in @others or with the invocant."
+                if any( $r2!heading ) === any( $r1.heading );
+        }
+    }
+
+    return $?SELF.join( @others );
+}
+
+&cartesian_product ::= &product;
+&cross_product     ::= &product;
+&cross_join        ::= &product;
+
+###########################################################################
+
+method semijoin (Relation $other!) returns Relation {
+
+    die "The heading of the relation in $other is not a full subset"
+            ~ " of the heading of the invocant relation."
+        if !(all( $other!heading ) === any( $!heading ));
+
+    return $?SELF.join( $other );
+}
+
+&matching ::= &semijoin;
 
 ###########################################################################
 
@@ -710,11 +754,68 @@ relation has zero tuples, in which case the result does too.  Another
 trivial case is if any source relation is the identity-one relation (zero
 attributes, one tuple), the result is as if it wasn't there at all.  In any
 situation where a pair of source relations have identical headings, for
-these a C<join> degenerates to a C<intersection>.  In any situation where a
-pair of source relations have zero attributes in common, their joining is a
-cross-product.  In any situation where the heading of one source relation
-is a full subset of another, the result degenerates to a C<restrict> of the
-second where attribute values match those in the first.
+these their joining degenerates to a C<intersection>.  In any situation where a
+pair of source relations have zero attributes in common, their joining degenerates 
+to a C<product>.  In any situation where the heading of one source relation
+is a full subset of another, the result degenerates to a C<semijoin>.  This method has an
+alias named C<natural_join>.
+
+=item C<product (Relation *@others) returns Relation>
+
+This method is a generic relational operator that is identical to C<join>
+except that this method will fail if any of its source Relations have
+attributes in common; it will only accept inputs that would result in a
+cross-product when joined.  This method has aliases named
+C<cartesian_product>, C<cross_product>, C<cross_join>.
+
+=item C<semijoin (Relation $other!) returns Relation>
+
+This method is a generic relational operator that takes a single Relation
+in its C<$other> argument, where the heading of <$other> is a subset of the
+heading of the invocant Relation, and returns a new Relation that has the
+same heading as the invocant and whose body contains the subset of the
+invocant's tuples whose common attributes with the tuples of C<$other> have
+the same values.  This method has an alias named C<matching>.
+
+=item C<semidifference>
+
+I<TODO.>  Aliases: C<not_matching>.
+
+=item C<compose>
+
+I<TODO.>
+
+=item C<summarize>
+
+I<TODO.>
+
+=item C<group>
+
+I<TODO.>
+
+=item C<ungroup>
+
+I<TODO.>
+
+=item C<substitute>
+
+I<TODO.>
+
+=item C<wrap>
+
+I<TODO.>
+
+=item C<unwrap>
+
+I<TODO.>
+
+=item C<divide>
+
+I<TODO.>
+
+=item C<transitive_closure>
+
+I<TODO.>  Aliases: C<tclose>.
 
 =back
 
