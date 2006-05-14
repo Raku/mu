@@ -115,10 +115,16 @@ sub quant {
 sub alt {
     my @s;
     for ( @{$_[0]} ) { 
-        my $tmp = emit_rule( $_, $_[1] );
+        my $tmp = emit_rule( $_, $_[1].'  ' );
         push @s, $tmp if $tmp;   
     }
-    return "$_[1] (\n" . join( "\n$_[1] ||\n", @s ) . "\n$_[1] )";
+    return 
+        "$_[1] do {
+$_[1]   my \$pos1 = \$pos;
+$_[1]   do {
+" . join( "\n$_[1]   } || do { \$pos = \$pos1;\n", @s ) . "
+$_[1]   }
+$_[1] }";
 }        
 sub concat {
     my @s;

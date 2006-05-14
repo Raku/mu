@@ -31,9 +31,8 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     is( "$match->[1]", "z", 'stringify 4' );
 }
 
-TODO: {
-    local $TODO = "alternation no-match should reset \$pos";
-    my $rule = Pugs::Compiler::Rule->compile( 'ab|c', { ratchet => 1 } );
+{
+    my $rule = Pugs::Compiler::Rule->compile( 'ab|c', { ratchet => 1, p => 1 } );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     my $match = $rule->match("ac");
     #print "Match: ", do{use Data::Dumper; Dumper($match)};

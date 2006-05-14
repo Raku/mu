@@ -30,6 +30,7 @@ sub compile {
     # XXX - should use user's lexical pad instead?
     $self->{grammar} = delete $param->{grammar} || 'Pugs::Grammar::Base';
     $self->{ratchet} = delete $param->{ratchet} || 0;
+    $self->{p}       = delete $param->{p} || 0;
 
     #print 'rule source: ', $self->{source}, "\n";
     $self->{ast} = Pugs::Grammar::Rule->rule( 
@@ -70,7 +71,7 @@ sub match {
     #print "match: grammar $rule->{grammar}, $_[0], $flags\n";
     #print "match: Variables: ", Dumper ( $flags->{args} ) if defined $flags->{args};
 
-    if ( $flags->{p} ) {
+    if ( $flags->{p} || $rule->{p} ) {
         #print "flag p";
         #print "match: grammar $rule->{grammar}, $str, %$flags\n";
         #print $rule->{code};

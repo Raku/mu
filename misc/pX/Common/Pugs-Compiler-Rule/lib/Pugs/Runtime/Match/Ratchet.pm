@@ -61,7 +61,8 @@ sub code {
 
 # return the bool value
 sub bool {
-    ${$_[0]}->{bool};
+    my $b = ${$_[0]}->{bool};
+    $$b if ref $b;
 }
 
 # as hash
