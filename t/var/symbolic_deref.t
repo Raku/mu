@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 22;
+plan 21;
 
 # See L<"http://www.nntp.perl.org/group/perl.perl6.language/22858"> --
 # previously, "my $a; say $::("a")" died (you had to s/my/our/). Now, it was
