@@ -27,10 +27,14 @@ sub compile {
 
     my $self = { source => $rule_source };
 
-    # XXX - should use user's lexical pad instead?
+    # XXX - should use user's lexical pad instead of an explicit grammar?
     $self->{grammar} = delete $param->{grammar} || 'Pugs::Grammar::Base';
     $self->{ratchet} = delete $param->{ratchet} || 0;
     $self->{p}       = delete $param->{p} || 0;
+    $self->{sigspace} = delete $param->{sigspace} || 0;
+
+    warn ":sigspace not implemented"
+        if $self->{sigspace};
 
     #print 'rule source: ', $self->{source}, "\n";
     $self->{ast} = Pugs::Grammar::Rule->rule( 
@@ -67,6 +71,10 @@ sub code {
 
 sub match {
     my ( $rule, $str, $grammar, $flags, $state ) = @_; 
+    
+    return Pugs::Runtime::Match->new( { bool => 0 } )
+        unless defined $str;   # XXX - fix?
+        
     $grammar ||= $rule->{grammar};
     #print "match: grammar $rule->{grammar}, $_[0], $flags\n";
     #print "match: Variables: ", Dumper ( $flags->{args} ) if defined $flags->{args};
