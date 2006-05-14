@@ -769,3 +769,111 @@ JudyHSFreeArray(PPvoid_t PPArray,       // ^ to JudyHashArray struct
 
     return(bytes_total);                // return bytes freed
 }
+
+//===========================
+//        JudyHSIter
+//===========================
+/*
+ * What's going on here:
+ *
+ *   TBSupplied
+ */
+
+// HSIter structure:
+//   Contains Word_t's for length, hash, and successive hunks of the index string:
+//   just the indexes needed, in order, to index the tree of JudyL arrays that
+//   make up a JudyHS array.
+//   
+//   Only room for the first hunk string appears here; on entrance to a JHSI function
+//   without an iterator allocated, find out the max length of index in this array
+//   and malloc(WORDSIZE * HSI_WORDLEN(maxlength)), so that we'll have
+//   room for this header and the string, accessed a Word_t at a time.
+
+typedef struct HSI_TER
+{
+    Word_t   hsi_Length;              // Length of index string
+#ifndef DONOTUSEHASH
+    Word_t   hsi_Hash;                // Hash of index string
+#endif // DONOTUSEHASH
+    uint8_t  hsi_String[WORDSIZE];    // First hunk of index string
+} hsi_t, *Phsi_t;
+
+#define HSI_STRUCTHEADSIZE (sizeof(hsi_t) - WORDSIZE)
+
+// Calculate size of hsi_t including a buffer of size LEN.
+// 
+#define HSI_WORDLEN(LEN)   (((LEN) + HSI_STRUCTHEADSIZE + WORDSIZE - 1) / WORDSIZE)
+
+//=========================
+// The JudyHSIter routines
+//=========================
+
+// Find first string, at or after (index, length) if any, in JudyHS structure, 
+// using or allocating JudyHSIter structure for state.
+// Return pvalue and updated index, length, and state.
+
+PPvoid_t
+JudyHSIterFirst(Pcvoid_t PArray,             // pointer to array
+		PPvoid_t PPIter,              // pointer to pointer to state structure
+		void ** PStr,                // pointer to pointer to index
+		Word_t * PLen,               // pointer to length of index
+		PJError_t PJError            // optional, for returning error info
+	       )
+{
+	...
+}
+
+// Find next string, after (index, length) if any, in JudyHS structure, 
+// using or allocating JudyHSIter structure for state.
+// Return pvalue and updated index, length, and state.
+
+PPvoid_t
+JudyHSIterNext (Pcvoid_t PArray,             // pointer to array
+		PPvoid_t PPIter,              // pointer to pointer to state structure
+		void ** PStr,                // pointer to pointer to index
+		Word_t * PLen,               // pointer to length of index
+		PJError_t PJError            // optional, for returning error info
+	       )
+{
+	...
+}
+
+// Find last string, at or before (index, length) if any, in JudyHS structure, 
+// using or allocating JudyHSIter structure for state.
+// Return pvalue and updated index, length, and state.
+
+PPvoid_t
+JudyHSIterLast (Pcvoid_t PArray,             // pointer to array
+		PPvoid_t PPIter,              // pointer to pointer to state structure
+		void ** PStr,                // pointer to pointer to index
+		Word_t * PLen,               // pointer to length of index
+		PJError_t PJError            // optional, for returning error info
+	       )
+{
+	...
+}
+
+// Find previous string, before (index, length) if any, in JudyHS structure, 
+// using or allocating JudyHSIter structure for state.
+// Return pvalue and updated index, length, and state.
+
+PPvoid_t
+JudyHSIterPrev (Pcvoid_t PArray,             // pointer to array
+		PPvoid_t PPIter,              // pointer to pointer to state structure
+		void ** PStr,                // pointer to pointer to index
+		Word_t * PLen,               // pointer to length of index
+		PJError_t PJError            // optional, for returning error info
+	       )
+{
+	...
+}
+
+// Free JudyHSIter structure
+
+Word_t                                       // bytes freed
+JudyHSFreeIter(PPvoid_t PPIter,              // pointer to pointer to JudyHSIter struct
+               PJError_t PJError             // optional, for returning error info
+	      )
+{
+	...
+}
