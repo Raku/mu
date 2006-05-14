@@ -1,5 +1,5 @@
 
-use Test::More tests => 26;
+use Test::More tests => 27;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -32,21 +32,23 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 }
 
 TODO: {
-    local $TODO = "parsing error: [ab]|c instead of a[b|c]";
+    local $TODO = "alternation no-match should reset \$pos";
     my $rule = Pugs::Compiler::Rule->compile( 'ab|c', { ratchet => 1 } );
-    my $match = $rule->match("ac");
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    my $match = $rule->match("ac");
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     ok( !$match, "basic alternative" );
+    my $match = $rule->match("ab");
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    ok( $match, "basic alternative - 2" );
 }
 
-TODO: {
-    local $TODO = "parsing error: [ab]|[ac] instead of a[b|a]c";
+{
     my $rule = Pugs::Compiler::Rule->compile( 'ab|ac', { ratchet => 1 } );
-    my $match = $rule->match("ac");
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    my $match = $rule->match("ac");
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
-    ok( !$match, "alternation no backtracking" );
+    ok( $match, "alternation no backtracking" );
 }
 
 {
