@@ -25,7 +25,7 @@ We really need the stat() function in order to test this.
 
 =cut
 
-plan 18;
+plan 19;
 
 if $*OS eq "browser" {
   skip_rest "Programs running in browsers don't have access to regular IO.";
@@ -43,9 +43,9 @@ if($*OS eq any <MSWin32 mingw msys cygwin>) {
     my @result = chmod 0, $file;
     is +@result, 1, "One file successfully changed";
     is @result[0], $file, "name of the file returned", :todo;
-    ok !-r $file, "not readable after 0";
-    ok !-w $file, "not writabel after 0";
-    ok !-x $file, "not executable after 0";
+    ok !(-r $file), "not readable after 0";
+    ok !(-w $file), "not writabel after 0";
+    ok !(-x $file), "not executable after 0";
     remove_file($file);
 }
 
@@ -84,7 +84,9 @@ sub create_temporary_file {
 }
 sub remove_file ($file) {
     unlink $file;
-    ok(! -e $file, "Test file was successfully removed");
+    ok(!(-e $file), "Test file was successfully removed");
 }
+
+ok(try { !-e "nonesuch" }, "!-e syntax works", :todo);
 
 
