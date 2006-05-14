@@ -1,5 +1,5 @@
 
-use Test::More tests => 23;
+use Test::More tests => 26;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -31,15 +31,21 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     is( "$match->[1]", "z", 'stringify 4' );
 }
 
-{
+TODO: {
+    local $TODO = "parsing error: [ab]|c instead of a[b|c]";
     my $rule = Pugs::Compiler::Rule->compile( 'ab|c', { ratchet => 1 } );
     my $match = $rule->match("ac");
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
     ok( !$match, "basic alternative" );
 }
 
-{
+TODO: {
+    local $TODO = "parsing error: [ab]|[ac] instead of a[b|a]c";
     my $rule = Pugs::Compiler::Rule->compile( 'ab|ac', { ratchet => 1 } );
     my $match = $rule->match("ac");
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
     ok( !$match, "alternation no backtracking" );
 }
 
@@ -83,21 +89,26 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 {
     # calling unnamed subrules
     my $match;
-    eval {
     my $rule2 = Pugs::Compiler::Rule->compile( '.', { ratchet => 1 } );
+    eval {
     *test::rule_method6 = Pugs::Compiler::Rule->compile( '<$rule2>', { ratchet => 1 } )->code;
     $match = test->rule_method6( "xyzw" );
     };
     warn "# *** Please check if CPAN module 'PadWalker' is properly installed\n",
          "# *** This is the resulting error: $@"
         if $@;
+    #print "Source: ", do{use Data::Dumper; Dumper( Pugs::Compiler::Rule->compile( '<$rule2>', { ratchet => 1 } )->perl5 )};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "x", 'a named subrule calls a lexical unnamed subrule' );
 }
 
-{
+TODO: {
+    local $TODO = "quantifiers not implemented yet";
     # generated rules
     my $rule = Pugs::Compiler::Rule->compile( '<alpha>+', { ratchet => 1 } );
     my $match = $rule->match( "xy12" );
+    #print "Source: ", do{use Data::Dumper; Dumper( $rule->perl5 ) };
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "xy", 'built-in rule <alpha>' );
 }
 
@@ -123,7 +134,8 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     is( "$match", "\n", 'escaped char \\n' );
 }
 
-{
+TODO: {
+    local $TODO = ":!p not implemented yet";
     # escaped chars
     my $rule = Pugs::Compiler::Rule->compile( '\d', { ratchet => 1 } );
     my $match = $rule->match( "abc123" );
@@ -132,7 +144,8 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     is( "$match", "1", 'escaped char \\d' );
 }
 
-{
+TODO: {
+    local $TODO = ":!p not implemented yet";
     # escaped chars
     my $rule = Pugs::Compiler::Rule->compile( '\D', { ratchet => 1 } );
     my $match = $rule->match( "123abc" );
@@ -148,7 +161,8 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     is( "$match", "x", 'escaped char \\N #2' );
 }
 
-{
+TODO: {
+    local $TODO = "quantifiers not implemented yet";
     # ambiguous rule /a?bg?/
     # XXX - is this /a? [bg]?/ or /a? b g?/
     # --- It should the same as /a? b g?/
@@ -181,3 +195,13 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     my $capture = $match->();
     is($capture->{a},'sometext','simple capture');
 }
+
+{
+    # alternation
+    my $rule = Pugs::Compiler::Rule->compile('[a|b](b)', { ratchet => 1 } );
+    my $match = $rule->match( "bb" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "bb", 'alternation' );
+}
+

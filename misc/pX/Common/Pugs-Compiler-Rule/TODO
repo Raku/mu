@@ -5,10 +5,12 @@ Ratchet:
 - document what's done
 - more tests
   - interoperability with non-ratchet
-- separate named/unnamed captures
+- separate named/positional captures
 - subrules need to know current "$pos"
 - 'a?' should not capture (same problem in non-ratchet rules?)
-- named captures
+- named captures 
+- quantifiers
+- match with :!p switch
 - is :ratchet allowed at runtime?
 
 Perl 6 parser:

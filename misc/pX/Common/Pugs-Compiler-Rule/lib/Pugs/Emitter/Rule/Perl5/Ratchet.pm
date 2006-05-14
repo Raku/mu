@@ -222,21 +222,26 @@ sub named_capture {
         if ref( $program );
 
     return "$_[1] do{ 
+$_[1]     my \$bool = 1;
 $_[1]     my \@tmp = ( 
 $_[1]       name => '$name', 
 $_[1]       from => \$pos, 
-$_[1]     ); 
-$_[1]     push \@tmp, ( 
-$_[1]       match => do{ 
+$_[1]     );
+$_[1]     push \@tmp, (
+$_[1]       match => do{
 $_[1]         my \@match;
+$_[1]         \$bool = 0 unless
 " .             $program . "
 $_[1]         ;
 $_[1]         \\\@match 
 $_[1]       },
+$_[1]     );
+$_[1]     push \@tmp, ( 
+$_[1]       bool => \$bool, 
 $_[1]       to => \$pos, 
-$_[1]       # bool => 1, 
 $_[1]     ); 
 $_[1]     push \@match, { \@tmp };
+$_[1]     \$bool;
 $_[1] }\n";
 }
 sub before {
@@ -271,20 +276,21 @@ sub metasyntax {
             # call method in fully qualified $package::var
             # ...->match( $rule, $str, $grammar, $flags, $state )  
             # TODO - send $pos to subrule
-
-	    # ??? should this be enclosed by do {} ?
             return 
-                "$_[1]         push \@match,\n" . 
-                "$_[1]           $cmd->match( \$s, \$grammar, {p => 1}, undef );\n" .
-                "$_[1]         \$pos = \$match[-1]->to"
+                "$_[1]         do {\n" .
+                "$_[1]           push \@match,\n" . 
+                "$_[1]             $cmd->match( \$s, \$grammar, {p => 1}, undef );\n" .
+                "$_[1]           \$pos = \$match[-1]->to;\n" .
+                "$_[1]         }"
         }
         # call method in lexical $var
         # TODO - send $pos to subrule
         return 
-                "$_[1]         do { my \$r = Pugs::Runtime::Rule::get_variable( '$cmd' );\n" . 
+                "$_[1]         do {\n" .
+                "$_[1]           my \$r = Pugs::Runtime::Rule::get_variable( '$cmd' );\n" . 
                 "$_[1]           push \@match,\n" . 
                 "$_[1]             \$r->match( \$s, \$grammar, {p => 1}, undef );\n" .
-                "$_[1]           \$pos = \$match[-1]->to" .
+                "$_[1]           \$pos = \$match[-1]->to;\n" .
                 "$_[1]         }"
     }
     if ( $prefix eq q(') ) {   # single quoted literal ' 
