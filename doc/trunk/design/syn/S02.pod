@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 12 May 2006
+  Last Modified: 14 May 2006
   Number: 2
-  Version: 40
+  Version: 41
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -505,6 +505,12 @@ you should probably not expect it to yield a reasonable answer, unless
 you think an exception is reasonable.  Since the C<Whatever> object
 is effectively immutable, the optimizer is free to recognize C<*>
 and optimize in the context of what operator it is being passed to.
+
+A variant of C<*> is the C<**> term.  It is generally understood to
+be a multidimension form of C<*> when that makes sense.
+
+The C<***> variant serves as the insertion point of a list of pipes.
+That insertion point may be targeted by piping to C<*>.  See S06.
 
 Other uses for C<*> will doubtless suggest themselves over time.  These
 can be given meaning via the MMD system, if not the compiler.  In general

@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 13 May 2006
+  Last Modified: 14 May 2006
   Number: 6
-  Version: 34
+  Version: 35
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -860,6 +860,25 @@ If the operand on the sharp end of a pipe is not a call to a variadic
 operation, it must be something else that can be interpreted as a
 list receiver.
 
+Any list operator is considered a variadic operation, so ordinarily
+a list operator adds any piped input to the end of its list.
+But sometimes you want to interpolate elsewhere, so the C<***> term
+may be used to indicating the target of a pipe without the use of a
+temporary array:
+
+    foo() ==> say ***, " is what I meant";
+    bar() ==> ***.baz();
+
+Piping to the C<*> "whatever" term is considered a pipe to the lexically
+following C<***> term:
+
+    0..*       ==> *;
+    'a'..*     ==> *;
+    pidigits() ==> *;
+
+    # outputs "(0, 'a', 3)\n"...
+    for zip(***) { .perl.say }
+
 You may use a variable (or variable declaration) as a receiver, in
 which case the list value is bound as the "todo" of the variable.
 Do not think of it as an assignment, nor as an ordinary binding.
@@ -979,19 +998,8 @@ In list context the C<@@foo> notation is really a shorthand for C<[;](@@foo)>.
 In particular, you can use C<@@foo> to interpolate a multidimensional slice
 in an array or hash subscript.
 
-Every lexical scope can use its own implicitly declared C<@_> variable
-as the default receiver.  So instead of using C<@@foo> above you can
-just say
-
-    0..*       ==> ;
-    'a'..*     ==> ;
-    pidigits() ==> ;
-
-    # outputs "(0, 'a', 3)\n"...
-    for zip(@@_) { .perl.say }
-
-If C<@@_> is currently empty, then C<for zip(@@_) {...}> would act on a
-zero-dimensional slice (i.e. C<for (zip) {...}>), and output nothing
+If C<@@foo> is currently empty, then C<for zip(@@foo) {...}> acts on a
+zero-dimensional slice (i.e. C<for (zip) {...}>), and outputs nothing
 at all.
 
 Note that with the current definition, the order of pipes is preserved
@@ -999,14 +1007,14 @@ left to right in general regardless of the position of the receiver.
 
 So
 
-    ('a'..*; 0..*) ==> ;
-     for zip(@@_ <== @foo) -> [$a, $i, $x] { ...}
+    ('a'..*; 0..*) ==> *;
+     for zip(*** <== @foo) -> [$a, $i, $x] { ...}
 
 is the same as
 
-    'a'..* ==> ;
-     0..*  ==> ;
-     for zip(@@_ <== @foo) -> [$a, $i, $x] { ...}
+    'a'..* ==> *;
+     0..*  ==> *;
+     for zip(*** <== @foo) -> [$a, $i, $x] { ...}
 
 which is the same as
 
@@ -1014,14 +1022,14 @@ which is the same as
 
 And
 
-    @foo ==> ;
-    0..* ==> ;
-    for each(@@_) -> $x, $i { ...}
+    @foo ==> *;
+    0..* ==> *;
+    for each(***) -> $x, $i { ...}
 
 is the same as
 
-    0..* ==> ;
-    for each(@foo; @@_) -> $x, $i { ...}
+    0..* ==> *;
+    for each(@foo; ***) -> $x, $i { ...}
 
 which is the same as
 
