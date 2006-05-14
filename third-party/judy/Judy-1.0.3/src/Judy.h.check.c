@@ -89,11 +89,6 @@ main()
         PPvoid = JudyHSIns       (PPArray, CIndex, Length,      PJE0);
         myint  = JudyHSDel       (PPArray, CIndex, Length,      PJE0);
 	myword = JudyHSFreeArray (PPArray,			PJE0);
-	PPvoid = JudyHSFirst	 ( PArray, CIndex, &Index,      PJE0);
-	PPvoid = JudyHSNext	 ( PArray, CIndex, &Index,      PJE0);
-	PPvoid = JudyHSLast	 ( PArray, CIndex, &Index,      PJE0);
-	PPvoid = JudyHSPrev	 ( PArray, CIndex, &Index,      PJE0);
-	myword = JudyHSFreeArray ( PArray,			PJE0);
 	PPvoid = JudyHSIterFirst ( PArray, PPIter, &CIndex, &Index, PJE0);
 	PPvoid = JudyHSIterNext	 ( PArray, PPIter, &CIndex, &Index, PJE0);
 	PPvoid = JudyHSIterLast	 ( PArray, PPIter, &CIndex, &Index, PJE0);
@@ -147,11 +142,6 @@ main()
         JHSG  (PPvoid, PArray, CIndex, Length);
         JHSD  (myint,  PArray, CIndex, Length);
 	JHSFA (myword, PArray);
-	JHSF  (PPvoid, PArray, CIndex, Length);
-	JHSN  (PPvoid, PArray, CIndex, Length);
-	JHSL  (PPvoid, PArray, CIndex, Length);
-	JHSP  (PPvoid, PArray, CIndex, Length);
-	JHSML (myword, PArray);
 	JHSIF (PPvoid, PArray, PIter, CIndex, Length);
 	JHSIN (PPvoid, PArray, PIter, CIndex, Length);
 	JHSIL (PPvoid, PArray, PIter, CIndex, Length);

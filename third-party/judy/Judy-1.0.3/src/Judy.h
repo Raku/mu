@@ -291,11 +291,6 @@ extern PPvoid_t JudyHSGet(       Pcvoid_t,      const uint8_t *, Word_t);
 extern PPvoid_t JudyHSIns(       PPvoid_t,      const uint8_t *, Word_t,   P_JE);
 extern int      JudyHSDel(       PPvoid_t,      const uint8_t *, Word_t,   P_JE);
 extern Word_t   JudyHSFreeArray( PPvoid_t,                                 P_JE);
-extern PPvoid_t JudyHSFirst(     Pcvoid_t,            uint8_t *, Word_t *, P_JE);
-extern PPvoid_t JudyHSNext(      Pcvoid_t,            uint8_t *, Word_t *, P_JE);
-extern PPvoid_t JudyHSLast(      Pcvoid_t,            uint8_t *, Word_t *, P_JE);
-extern PPvoid_t JudyHSPrev(      Pcvoid_t,            uint8_t *, Word_t *, P_JE);
-extern Word_t   JudyHSMaxLength( Pcvoid_t,                                 P_JE);
 extern PPvoid_t JudyHSIterFirst( Pcvoid_t, PPvoid_t, uint8_t **, Word_t *, P_JE);
 extern PPvoid_t JudyHSIterNext(  Pcvoid_t, PPvoid_t, uint8_t **, Word_t *, P_JE);
 extern PPvoid_t JudyHSIterLast(  Pcvoid_t, PPvoid_t, uint8_t **, Word_t *, P_JE);
@@ -738,16 +733,6 @@ extern void   JudyFreeVirtual(Pvoid_t, Word_t); // free, size in words.
         J_2I(Rc, (&(PArray)), PIndex,   Count, JudyHSDel, "JudyHSDel")
 #define JHSFA(Rc,   PArray)                                             \
         J_0I(Rc, (&(PArray)), JudyHSFreeArray, "JudyHSFreeArray")
-#define JHSF(PV,    PArray,   Index,    Length)                         \
-        J_2P(PV,    PArray,   Index,  &(Length), JudyHSFirst, "JudyHSFirst")
-#define JHSN(PV,    PArray,   Index,    Length)                         \
-        J_2P(PV,    PArray,   Index,  &(Length), JudyHSNext, "JudyHSNext")
-#define JHSL(PV,    PArray,   Index,    Length)                         \
-        J_2P(PV,    PArray,   Index,  &(Length), JudyHSLast, "JudyHSLast")
-#define JHSP(PV,    PArray,   Index,    Length)                         \
-        J_2P(PV,    PArray,   Index,  &(Length), JudyHSPrev, "JudyHSPrev")
-#define JHSML(Rc,   PArray)                                             \
-	(Rc) = JudyHSMaxLength(PArray)
 #define JHSIF(PV,   PArray,   PIter,    Index,    Length)               \
         J_3P( PV,   PArray, &(PIter), &(Index), &(Length), JudyHSIterFirst, "JudyHSIterFirst")
 #define JHSIN(PV,   PArray,   PIter,    Index,    Length)               \

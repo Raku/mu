@@ -27,11 +27,6 @@ PPvoid_t <A href="#JudyHSIns"      >JudyHSIns</A>(PPvoid_t PPJHS, const uint8_t 
 int      <A href="#JudyHSDel"      >JudyHSDel</A>(PPvoid_t PPJHS, const uint8_t *Index, Word_t Length, PJError_t PJError);
 PPvoid_t <A href="#JudyHSGet"      >JudyHSGet</A>(Pcvoid_t  PJHS, const uint8_t *Index, Word_t Length);
 Word_t   <A href="#JudyHSFreeArray">JudyHSFreeArray</A>(PPvoid_t PPJHS, PJError_t PJError);
-PPvoid_t <A href="#JudyHSFirst"    >JudyHSFirst</A>(Pcvoid_t  PJHS,     uint8_t *Index, Word_t *PLength, PJError_t PJError);
-PPvoid_t <A href="#JudyHSNext"     >JudyHSNext</A>(Pcvoid_t  PJHS,      uint8_t *Index, Word_t *PLength, PJError_t PJError);
-PPvoid_t <A href="#JudyHSLast"     >JudyHSLast</A>(Pcvoid_t  PJHS,      uint8_t *Index, Word_t *PLength, PJError_t PJError);
-PPvoid_t <A href="#JudyHSPrev"     >JudyHSPrev</A>(Pcvoid_t  PJHS,      uint8_t *Index, Word_t *PLength, PJError_t PJError);
-Word_t   <A href="#JudyHSMaxLength">JudyHSMaxLength</A>(Pcvoid_t  PJHS, PJError_t PJError);
 PPvoid_t <A href="#JudyHSIterFirst">JudyHSIterFirst</A>(Pcvoid_t  PJHS, PPvoid_t PPJHSI, uint8_t **Index, Word_t *PLength, PJError_t PJError);
 PPvoid_t <A href="#JudyHSIterNext" >JudyHSIterNext</A>(Pcvoid_t  PJHS,  PPvoid_t PPJHSI, uint8_t **Index, Word_t *PLength, PJError_t PJError);
 PPvoid_t <A href="#JudyHSIterLast" >JudyHSIterLast</A>(Pcvoid_t  PJHS,  PPvoid_t PPJHSI, uint8_t **Index, Word_t *PLength, PJError_t PJError);
@@ -106,47 +101,7 @@ Notice the placement of the <B>&amp;</B> in the different functions.
    Rc_word = JudyHSFreeArray(&amp;PJHS, PJE0)
 
 </PRE>
-</DL>
 <P>
-<DT><A name="JudyHSFirst"><B>JudyHSFirst(PJHS, Index, &amp;Length, &amp;JError)</B></A></DT>
-<DD>
-<PRE>
-#define JHSF(PValue, PJHS, Index, Length) \
-   PValue = JudyHSFirst(PJHS, Index, &amp;Length, PJE0)
-
-</PRE>
-<P>
-<DT><A name="JudyHSNext"><B>JudyHSNext(PJHS, Index, &amp;Length, &amp;JError)</B></A></DT>
-<DD>
-<PRE>
-#define JHSN(PValue, PJHS, Index, Length) \
-   PValue = JudyHSNext(PJHS, Index, &amp;Length, PJE0)
-
-</PRE>
-<P>
-<DT><A name="JudyHSLast"><B>JudyHSLast(PJHS, Index, &amp;Length, &amp;JError)</B></A></DT>
-<DD>
-<PRE>
-#define JHSL(PValue, PJHS, Index, Length) \
-   PValue = JudyHSLast(PJHS, Index, &amp;Length, PJE0)
-
-</PRE>
-<P>
-<DT><A name="JudyHSPrev"><B>JudyHSPrev(PJHS, Index, &amp;Length, &amp;JError)</B></A></DT>
-<DD>
-<PRE>
-#define JHSP(PValue, PJHS, Index, Length) \
-   PValue = JudyHSPrev(PJHS, Index, &amp;Length, PJE0)
-
-</PRE>
-<P>
-<DT><A name="JudyHSMaxLength"><B>JudyHSMaxLength(PJHS, &amp;JError)</B></A></DT>
-<DD>
-<PRE>
-#define JHSML(Rc_word, PJHS) \
-   Rc_word = JudyHSMaxLength(PJHS, PJE0)
-
-</PRE>
 <DT><A name="JudyHSIterFirst"><B>JudyHSIterFirst(PJHS, &amp;PJHSI, &amp;Index, &amp;Length, &amp;JError)</B></A></DT>
 <DD>
 <PRE>

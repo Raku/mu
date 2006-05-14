@@ -245,11 +245,6 @@ man3_MANS = man/man3/Judy \
 	    man/man3/JHSI \
 	    man/man3/JHSD \
 	    man/man3/JHSFA \
-	    man/man3/JHSF \
-	    man/man3/JHSN \
-	    man/man3/JHSL \
-	    man/man3/JHSP \
-	    man/man3/JHSML \
 	    man/man3/JHSIF \
 	    man/man3/JHSIN \
 	    man/man3/JHSIL \
@@ -259,11 +254,6 @@ man3_MANS = man/man3/Judy \
 	    man/man3/JudyHSIns \
 	    man/man3/JudyHSDel \
 	    man/man3/JudyHSFreeArray \
-	    man/man3/JudyHSFirst \
-	    man/man3/JudyHSNext \
-	    man/man3/JudyHSLast \
-	    man/man3/JudyHSPrev \
-	    man/man3/JudyHSMaxLength \
 	    man/man3/JudyHSIterFirst \
 	    man/man3/JudyHSIterNext \
 	    man/man3/JudyHSIterLast \
@@ -585,11 +575,6 @@ man/man3/JudyHS:
 	cd man/man3; ln -s JudyHS JHSI
 	cd man/man3; ln -s JudyHS JHSD
 	cd man/man3; ln -s JudyHS JHSFA
-	cd man/man3; ln -s JudyHS JHSF
-	cd man/man3; ln -s JudyHS JHSN
-	cd man/man3; ln -s JudyHS JHSL
-	cd man/man3; ln -s JudyHS JHSP
-	cd man/man3; ln -s JudyHS JHSML
 	cd man/man3; ln -s JudyHS JHSIF
 	cd man/man3; ln -s JudyHS JHSIN
 	cd man/man3; ln -s JudyHS JHSIL
@@ -602,11 +587,6 @@ man/man3/JudyHS_funcs:
 	cd man/man3; ln -s JudyHS_funcs JudyHSIns
 	cd man/man3; ln -s JudyHS_funcs JudyHSDel
 	cd man/man3; ln -s JudyHS_funcs JudyHSFreeArray
-	cd man/man3; ln -s JudyHS_funcs JudyHSFirst
-	cd man/man3; ln -s JudyHS_funcs JudyHSNext
-	cd man/man3; ln -s JudyHS_funcs JudyHSLast
-	cd man/man3; ln -s JudyHS_funcs JudyHSPrev
-	cd man/man3; ln -s JudyHS_funcs JudyHSMaxLength
 	cd man/man3; ln -s JudyHS_funcs JudyHSIterFirst
 	cd man/man3; ln -s JudyHS_funcs JudyHSIterNext
 	cd man/man3; ln -s JudyHS_funcs JudyHSIterLast
