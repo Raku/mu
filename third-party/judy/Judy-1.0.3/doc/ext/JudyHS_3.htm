@@ -275,7 +275,7 @@ main()
 	
         JHSIF(PValue, PJHSArray, PJHSIter, Index2, Length2);
         while (PValue) {
-            printf(" line %lu: %*s", *PValue, Index2, Length2);
+            printf(" line %lu: %*.*s", *PValue, Index2, Length2, Length2);
             JHSIN(PValue, PJHSArray, PJHSIter, Index2, Length2);
         }
 	JHSFI(IterBytes, PJHSIter);
