@@ -69,7 +69,7 @@ method body () returns Set of Mapping(Str) of Any {
 }
 
 method size () returns Int {
-    return +$!body.values;
+    return $!body.size();
 }
 
 method exists (Mapping(Str) of Any $tuple!) returns Bool {
@@ -275,16 +275,122 @@ method difference (Relation $other!) returns Relation {
 
 ###########################################################################
 
+method semidifference (Relation $other!) returns Relation {
+    return $?SELF.difference( $?SELF.semijoin( $other ) );
+}
+
+&semiminus    ::= &semidifference;
+&not_matching ::= &semidifference;
+
+###########################################################################
+
+method semijoin (Relation $other!) returns Relation {
+
+    die "The heading of the relation in $other is not a full subset"
+            ~ " of the heading of the invocant relation."
+        if !(all( $other!heading ) === any( $!heading ));
+
+    # First look for trivial cases that are more efficient to do different.
+    if ($!body.size() == 0 or $other!body.size() == 0) {
+        # Both sources have zero tuples; so does result.
+        return Relation.new( heading => $!heading, body => set() );
+    }
+    if ($other!heading.size() == 0) {
+        # Second source is identity-one tuple; result is first source.
+        return $?SELF;
+    }
+    if ($other!heading === $!heading) {
+        # Both sources have identical headings; result is src intersection.
+        return $?SELF.intersection( $other );
+    }
+
+    # Now, the standard case of a semijoin.
+    return Relation.new(
+        heading => $!heading,
+        body => set( $!body.values.grep:{
+            mapping( $_.pairs.map:{
+                $_.key === any( $other!heading )
+            } ) === any( $other!body.values )
+        } ),
+    );
+}
+
+&matching ::= &semijoin;
+
+###########################################################################
+
+method product (Relation *@others) returns Relation {
+
+    if (+@others == 0) {
+        return $?SELF;
+    }
+
+    my Relation @sources = ($?SELF, *@others);
+    while (my $r1 = @sources.shift()) {
+        for @sources -> $r2 {
+            die "The heading of at least one given relation in @others has"
+                    ~ " attributes in common with either other relations"
+                    ~ " in @others or with the invocant."
+                if any( $r2!heading ) === any( $r1.heading );
+        }
+    }
+
+    return $?SELF.join( @others );
+}
+
+&cartesian_product ::= &product;
+&cross_product     ::= &product;
+&cross_join        ::= &product;
+
+###########################################################################
+
 method join (Relation *@others) returns Relation {
 
-    # TODO: optimize this method by pairing up the sources whose
-    # combination is the least expensive first (eg, semijoins, natural
-    # joins), and most expensive last (eg, cross-products).
+    # First do some optimizing of the order that source relations are
+    # combined, so to try and make the least expensive kinds of combining
+    # occur first, and most expensive later.
+    if (+@others == 0) {
+        return $?SELF;
+    }
 
-    my Relation $r1 = $?SELF;
+    my Relation @sources = ($?SELF, *@others);
+    my Relation @r_with_zero_tuples;
+    my Relation @r_with_shared_attrs;
+    my Relation @r_with_disjoint_attrs;
+    while (my $r1 = @sources.shift()) {
+        if ($r1!body.size() == 0) {
+            @r_with_zero_tuples.push( $r1 );
+        }
+        elsif ($r1!heading.size() == 0) {
+            # identity-one tuples can be discarded as they have no effect
+        }
+        else {
+            SWITCH:
+            {
+                for @sources -> $r2 {
+                    if (any( $r2!heading ) === any( $r1.heading )) {
+                        @r_with_shared_attrs.push( $r1 );
+                        last SWITCH;
+                    }
+                }
+                @r_with_disjoint_attrs.push( $r1 );
+            }
+        }
+    }
+    @r_with_shared_attrs = @r_with_shared_attrs.sort:{
+            $^b.heading.size() <=> $^a.heading.size()
+        }; # sort widest to narrowest, to help get more semijoins
+    @sources = (@r_with_zero_tuples, @r_with_shared_attrs,
+        @r_with_disjoint_attrs);
 
-    for @others -> $r2 {
-        if (+$r1!body.values == 0 or +$r2!body.values == 0) {
+    # TODO: more or better optimization.
+
+    # Now do the actual combination work.
+    # Start with identity-one relation and join all sources to it.
+    my Relation $r1 .= new( heading => set(), body => set( mapping() ) );
+
+    for @sources -> $r2 {
+        if ($r2!body.size() == 0) {
             # Trivial case: a source has no tuples, so dest has no tuples.
             $r1 = Relation.new(
                 heading => $r1!heading.union( $r2!heading ),
@@ -294,21 +400,18 @@ method join (Relation *@others) returns Relation {
 
         # If we get here, both sources have at least 1 tuple each.
 
-        elsif (+$r1!heading.values == 0) {
+        elsif ($r1!heading.size() == 0) {
             # Trivial case: the first source is the identity-one relation,
             # and so the result of the join is the second source.
             $r1 = $r2;
         }
-        elsif (+$r2!heading.values == 0) {
-            # Trivial case: the second source is the identity-one relation,
-            # and so the result of the join is the first source.
-            # No-op: $r1 = $r1;
-        }
+        # No need to check $r2 for identity-one tuples, as they were
+        # filtered from the sources earlier.
 
         # If we get here, both sources have at least 1 attribute and
         # at least 1 tuple each.
 
-        elsif (all( $r1!heading ) === all( $r2!heading )) {
+        elsif ($r2!heading === $r1!heading) {
             # Both sources have identical headings, so this join
             # degenerates into an intersection (a special case of join).
             $r1 = $r1.intersection( $r2 );
@@ -329,81 +432,58 @@ method join (Relation *@others) returns Relation {
             );
         }
 
-        else {
-            # Both sources have overlapping headings, so this join
-            # takes the form of a natural-join or semijoin.
+        # Both sources have overlapping non-identical headings.
 
-            Set $combined_h = $r1!heading.union( $r2!heading );
+        elsif (all( $r2!heading ) === any( $r1!heading )) {
+            # The second source's heading is a proper subset of the
+            # first source's heading, so simplify to a semijoin.
+            $r1 = $r1.semijoin( $r2 );
+        }
+
+        else {
+            # This form takes the form of an ordinary natural join,
+            # where some source attributes are in common, and each
+            # source has attributes not in the other.
+
+            if ($r1!body.size() > $r2!body.size()) {
+                # Another optimization:
+                # In case it is faster for outer loop to have fewer
+                # iterations rather than the inner loop having fewer.
+                ($r1, $r2) = ($r2, $r1);
+            }
+
             Set $common_h = $r1!heading.intersection( $r2!heading );
             Set $r1only_h = $r1!heading.difference( $r2!heading );
             Set $r2only_h = $r2!heading.difference( $r1!heading );
 
-            if (+$r2only_h.values == 0) {
-                # The second source's heading is a proper subset of the
-                # first source's heading, so simplify to a semijoin.
-                $r1 = Relation.new(
-                    heading => $r1!heading,
-                    body => set( $r1!body.values.grep:{
-                        mapping( $_.pairs.map:{
-                            $_.key === any( $r2!heading )
-                        } ) === any( $r2!body.values )
-                    } ),
-                );
-            }
-
-            elsif (+$r1only_h.values == 0) {
-                # The first source's heading is a proper subset of the
-                # second source's heading, so simplify to a semijoin.
-                $r1 = Relation.new(
-                    heading => $r2!heading,
-                    body => set( $r2!body.values.grep:{
-                        mapping( $_.pairs.map:{
-                            $_.key === any( $r1!heading )
-                        } ) === any( $r1!body.values )
-                    } ),
-                );
-            }
-
-            else {
-                # This form takes the form of an ordinary natural join,
-                # where some source attributes are in common, and each
-                # source has attributes not in the other.
-
-                if (+$r1!body.values > +$r2!body.values) {
-                    # In case it is faster for outer loop to have fewer
-                    # iterations rather than the inner loop having fewer.
-                    ($r1, $r2) = ($r2, $r1);
-                }
-
-                $r1 = Relation.new(
-                    heading => $combined_heading,
-                    body => set( gather {
-                        for $r1!body.values -> $t1 {
-                            $t1common_m = mapping( $t1.pairs.map:{
+            $r1 = Relation.new(
+                heading => $r1!heading.union( $r2!heading ),
+                body => set( gather {
+                    for $r1!body.values -> $t1 {
+                        $t1common_m = mapping( $t1.pairs.map:{
+                            $_.key === any( $common_h )
+                        } )
+                        $t1only_m = mapping( $t1.pairs.map:{
+                            $_.key === any( $r1only_h )
+                        } )
+                        for $r2!body.values -> $t2 {
+                            $t2common_m = mapping( $t2.pairs.map:{
                                 $_.key === any( $common_h )
                             } )
-                            $t1only_m = mapping( $t1.pairs.map:{
-                                $_.key === any( $r1only_h )
-                            } )
-                            for $r2!body.values -> $t2 {
-                                $t2common_m = mapping( $t2.pairs.map:{
-                                    $_.key === any( $common_h )
+                            if ($t2common_m === $t1common_m) {
+                                $t2only_m = mapping( $t2.pairs.map:{
+                                    $_.key === any( $r2only_h )
                                 } )
-                                if ($t2common_m === $t1common_m) {
-                                    $t2only_m = mapping( $t2.pairs.map:{
-                                        $_.key === any( $r2only_h )
-                                    } )
-                                    take mapping(
-                                        $t1only_m.pairs,
-                                        $t1common_m.pairs,
-                                        $t2only_m.pairs,
-                                    );
-                                }
+                                take mapping(
+                                    $t1only_m.pairs,
+                                    $t1common_m.pairs,
+                                    $t2only_m.pairs,
+                                );
                             }
                         }
-                    } ),
-                );
-            }
+                    }
+                } ),
+            );
         }
     }
 
@@ -411,44 +491,6 @@ method join (Relation *@others) returns Relation {
 }
 
 &natural_join ::= &join;
-
-###########################################################################
-
-method product (Relation *@others) returns Relation {
-
-    if (+@others == 0) {
-        return $?SELF;
-    }
-
-    my Relation @sources = ($?SELF, *@others);
-    while (my $r1 = @sources.shift()) {
-        foreach @sources -> $r2 {
-            die "The heading of at least one given relation in @others has"
-                    ~ " attributes in common with either other relations"
-                    ~ " in @others or with the invocant."
-                if any( $r2!heading ) === any( $r1.heading );
-        }
-    }
-
-    return $?SELF.join( @others );
-}
-
-&cartesian_product ::= &product;
-&cross_product     ::= &product;
-&cross_join        ::= &product;
-
-###########################################################################
-
-method semijoin (Relation $other!) returns Relation {
-
-    die "The heading of the relation in $other is not a full subset"
-            ~ " of the heading of the invocant relation."
-        if !(all( $other!heading ) === any( $!heading ));
-
-    return $?SELF.join( $other );
-}
-
-&matching ::= &semijoin;
 
 ###########################################################################
 
@@ -734,6 +776,32 @@ that aren't in C<$other>.  This method will fail if C<$other> does not have
 an identical header to the invocant relation.  This method has aliases
 named C<minus> and C<except>.
 
+=item C<semidifference (Relation $other!) returns Relation>
+
+This method is a generic relational operator that returns the complement of
+C<semijoin> with the same argument.  This method has aliases named
+C<semiminus> and C<not_matching>.
+
+=item C<semijoin (Relation $other!) returns Relation>
+
+This method is a generic relational operator that takes a single Relation
+in its C<$other> argument, where the heading of <$other> is a subset of the
+heading of the invocant Relation, and returns a new Relation that has the
+same heading as the invocant and whose body contains all of the tuples that
+are in the invocant Relation and that match any tuples of C<$other> along
+their common attributes.  This method will fail if the heading of <$other>
+is not a subset of the heading of the invocant Relation.  This method
+degenerates into an C<intersection> if the two source headings are
+identical.  This method has an alias named C<matching>.
+
+=item C<product (Relation *@others) returns Relation>
+
+This method is a generic relational operator that is identical to C<join>
+except that this method will fail if any of its source Relations have
+attributes in common; it will only accept inputs that would result in a
+cross-product when joined.  This method has aliases named
+C<cartesian_product>, C<cross_product>, C<cross_join>.
+
 =item C<join (Relation *@others) returns Relation>
 
 This method is a generic relational operator that takes any number of
@@ -754,32 +822,11 @@ relation has zero tuples, in which case the result does too.  Another
 trivial case is if any source relation is the identity-one relation (zero
 attributes, one tuple), the result is as if it wasn't there at all.  In any
 situation where a pair of source relations have identical headings, for
-these their joining degenerates to a C<intersection>.  In any situation where a
-pair of source relations have zero attributes in common, their joining degenerates 
-to a C<product>.  In any situation where the heading of one source relation
-is a full subset of another, the result degenerates to a C<semijoin>.  This method has an
-alias named C<natural_join>.
-
-=item C<product (Relation *@others) returns Relation>
-
-This method is a generic relational operator that is identical to C<join>
-except that this method will fail if any of its source Relations have
-attributes in common; it will only accept inputs that would result in a
-cross-product when joined.  This method has aliases named
-C<cartesian_product>, C<cross_product>, C<cross_join>.
-
-=item C<semijoin (Relation $other!) returns Relation>
-
-This method is a generic relational operator that takes a single Relation
-in its C<$other> argument, where the heading of <$other> is a subset of the
-heading of the invocant Relation, and returns a new Relation that has the
-same heading as the invocant and whose body contains the subset of the
-invocant's tuples whose common attributes with the tuples of C<$other> have
-the same values.  This method has an alias named C<matching>.
-
-=item C<semidifference>
-
-I<TODO.>  Aliases: C<not_matching>.
+these their joining degenerates to a C<intersection>.  In any situation
+where a pair of source relations have zero attributes in common, their
+joining degenerates to a C<product>.  In any situation where the heading of
+one source relation is a full subset of another, the result degenerates to
+a C<semijoin>.  This method has an alias named C<natural_join>.
 
 =item C<compose>
 
