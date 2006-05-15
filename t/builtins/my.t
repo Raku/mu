@@ -26,6 +26,15 @@ if (1) { # create a new lexical scope
 }
 is($c, 2, '$c is available, and the outer value has been changed');
 
+# This next test is inconsistent with the spirit of S04 (5 May 2006).
+# L<S04/"The Relationship of Blocks and Declarations" /prior to the first declaration/>
+# "If you've referred to $x prior to the first declaration, and the
+#  compiler tentatively bound it to $OUTER::x, then it's an error to
+#  declare it, and the compiler is allowed to complain at that point."
+# A fully conformant compiler will fail this test.  At best,
+#   is($d, 1, '$d is still the outer $d');
+# passes "tentatively", and the subsequent my is an uncomplained error.
+
 # shadowing a lexical with a new lexical of the same name
 # and that lexical does not leak out into the outer scope
 
