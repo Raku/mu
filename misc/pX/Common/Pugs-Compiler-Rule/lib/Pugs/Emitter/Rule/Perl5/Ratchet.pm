@@ -17,7 +17,7 @@ sub call_subrule {
     $subrule = "\$grammar->" . $subrule unless $subrule =~ / :: | \. | -> /x;
     $subrule =~ s/\./->/;   # XXX - source filter
     return 
-        "$tab     $subrule( \$s, { p => 1, args => [" . join(", ",@param) . "] }, \$_[1] )";
+        "$tab     $subrule( \$s, { p => \$pos, args => {" . join(", ",@param) . "} }, \$_[1] )";
 }
 
 sub call_constant {
@@ -49,7 +49,11 @@ sub emit {
         "    my \$grammar = shift;\n" .
         "    my \$s = shift;\n" .
         "    my \@match;\n" .
-        "    my \$pos = 0;   # XXX - depends on :p\n" .
+        #"    print \"match arg_list = \$_[1]\n\";\n" .
+        #"    print \"match arg_list = \@{[\%{\$_[1]} ]}\n\" if defined \$_[1];\n" .
+        "    my \$pos = \$_[1]{p};\n" .
+        "    \$pos = 0 unless defined \$pos;   # TODO - .*? \$match \n" .
+        #"    print \"match pos = \$pos\n\";\n" .
         "    my \$from = \$pos;\n" .
         "    my \$bool = 1;\n" .
         "    my \$capture;\n" .
@@ -310,7 +314,7 @@ sub metasyntax {
             return 
                 "$_[1]         do {\n" .
                 "$_[1]           push \@match,\n" . 
-                "$_[1]             $cmd->match( \$s, \$grammar, {p => 1}, undef );\n" .
+                "$_[1]             $cmd->match( \$s, \$grammar, {p => \$pos}, undef );\n" .
                 "$_[1]           \$pos = \$match[-1]->to;\n" .
                 "$_[1]         }"
         }
@@ -320,7 +324,7 @@ sub metasyntax {
                 "$_[1]         do {\n" .
                 "$_[1]           my \$r = Pugs::Runtime::Rule::get_variable( '$cmd' );\n" . 
                 "$_[1]           push \@match,\n" . 
-                "$_[1]             \$r->match( \$s, \$grammar, {p => 1}, undef );\n" .
+                "$_[1]             \$r->match( \$s, \$grammar, {p => \$pos}, undef );\n" .
                 "$_[1]           \$pos = \$match[-1]->to;\n" .
                 "$_[1]         }"
     }

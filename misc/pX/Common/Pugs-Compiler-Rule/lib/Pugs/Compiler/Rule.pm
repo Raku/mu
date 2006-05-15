@@ -28,10 +28,16 @@ sub compile {
     my $self = { source => $rule_source };
 
     # XXX - should use user's lexical pad instead of an explicit grammar?
-    $self->{grammar}  = delete $param->{grammar} || 'Pugs::Grammar::Base';
-    $self->{ratchet}  = delete $param->{ratchet} || 0;
-    $self->{p}        = delete $param->{p} || 0;
-    $self->{sigspace} = delete $param->{sigspace} || 0;
+    $self->{grammar}  = delete $param->{grammar}  || 
+                        'Pugs::Grammar::Base';
+    $self->{ratchet}  = delete $param->{ratchet}  || 
+                        0;
+    $self->{p}        = delete $param->{pos};
+    $self->{p}        = delete $param->{p}    unless defined $self->{p};
+                        # default = undef;
+    $self->{sigspace} = delete $param->{sigspace} ||
+                        delete $param->{s}        || 
+                        0;
 
     warn "Error in rule: unknown parameter '$_'" 
         for keys %$param;
@@ -82,7 +88,11 @@ sub match {
     #print "match: grammar $rule->{grammar}, $_[0], $flags\n";
     #print "match: Variables: ", Dumper ( $flags->{args} ) if defined $flags->{args};
 
-    if ( $flags->{p} || $rule->{p} ) {
+    my $p = defined $flags->{p} 
+            ? $flags->{p} 
+            : $rule->{p};
+
+    if ( defined $p ) {
         #print "flag p";
         #print "match: grammar $rule->{grammar}, $str, %$flags\n";
         #print $rule->{code};
@@ -95,11 +105,15 @@ sub match {
             die "Error in evaluation: $@\nSource:\n$rule->{perl5}\n" if $@;
         }
         
+        my %args;
+        %args = %{$flags->{args}} if defined $flags && defined $flags->{args};
+        $args{p} = $p;
+        
         my $match = $rule->{code}( 
             $grammar,
             $str, 
             $state,
-            $flags->{args},
+            \%args,
         );
         eval { $$match->{from} = 0 };   # XXX
         return $match;  
@@ -119,12 +133,17 @@ sub match {
     return Pugs::Runtime::Match->new( { bool => 0 } );   # XXX - fix?
 }
 
+sub _str { defined $_[0] ? $_[0] : 'undef' }
+
 sub perl5 {
     my $self = shift;
     return "bless {\n" . 
-        "  grammar => q(" . $self->{grammar} . "),\n" . 
-        "  code => "    . $self->{perl5} . ",\n" . 
-        "  perl5 => q(" . $self->{perl5} . ") }, " . 
+        "  grammar "  .  "=> q(" . _str( $self->{grammar} )  . "),\n" . 
+        "  ratchet "  .  "=> q(" . _str( $self->{ratchet} )  . "),\n" . 
+        "  p "        .  "=> q(" . _str( $self->{p} )        . "),\n" . 
+        "  sigspace " .  "=> q(" . _str( $self->{sigspace} ) . "),\n" . 
+        "  code "     .  "=> "   . $self->{perl5}    . ",\n" . 
+        "  perl5 "    .  "=> q(" . $self->{perl5}    . "), }, " . 
         "q(" . __PACKAGE__ . ")";
 }
 

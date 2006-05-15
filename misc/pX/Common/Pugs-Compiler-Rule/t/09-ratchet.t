@@ -32,7 +32,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( 'ab|c', { ratchet => 1, p => 1 } );
+    my $rule = Pugs::Compiler::Rule->compile( 'ab|c', { ratchet => 1, p => 0 } );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     my $match = $rule->match("ac");
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -53,6 +53,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 {
     # named rules are methods
     *test::rule_method = Pugs::Compiler::Rule->compile( '((.).)(.)', { ratchet => 1 } )->code;
+    #print "Source: ", do{use Data::Dumper; Dumper(Pugs::Compiler::Rule->compile( '((.).)(.)', { ratchet => 1 } )->{perl5})};
     my $match = test->rule_method( "xyzw" );
     is( "$match", "xyz", 'named rules are methods' );
 }
@@ -61,8 +62,8 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     # calling named subrules
     *test::rule_method3 = Pugs::Compiler::Rule->compile( '.', { ratchet => 1 } )->code;
     *test::rule_method4 = Pugs::Compiler::Rule->compile( '<rule_method3>', { ratchet => 1 } )->code;
-    my $match = test->rule_method4( "xyzw" );
     #print "Source: ", do{use Data::Dumper; Dumper(Pugs::Compiler::Rule->compile( '<rule_method3>', { ratchet => 1 } )->{perl5})};
+    my $match = test->rule_method4( "xyzw" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "x", 'a named subrule calls a named subrule in same grammar' );
 }

@@ -1,3 +1,6 @@
+- the 'p' argument should now be specified as 'p => 0' instead of 'p => 1'.
+  The default is 'p => undef'.
+
 - added an initial implementation of ':ratchet'. 
   several tests are still failing (t/09-ratchet.t)
 

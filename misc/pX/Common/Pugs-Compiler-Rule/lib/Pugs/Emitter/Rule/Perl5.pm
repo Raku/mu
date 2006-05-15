@@ -17,7 +17,7 @@ sub call_subrule {
     return 
         "$tab sub{ \n" .
         "$tab     # param: @param \n" .
-        "$tab     $subrule( \$_[0], { p => 1, args => [" . join(", ",@param) . "] }, \$_[1] );\n" .
+        "$tab     $subrule( \$_[0], { p => 1, args => {" . join(", ",@param) . "} }, \$_[1] );\n" .
         "$tab }\n";
 }
 
