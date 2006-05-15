@@ -6,19 +6,19 @@ Sigspace:
 
 Ratchet:
 
+- subrules need to know current "$pos"
+- match with :!p switch
 - document what's done
 - more tests
   - interoperability with non-ratchet
 - separate named/positional captures
-- subrules need to know current "$pos"
 - named captures 
 - quantifiers
-  - infinite loop in + and *
   - implement ?? +? *?
   - implement captures to Array inside quantifiers
-- match with :!p switch
-- is :ratchet allowed at runtime?
-
+- is :ratchet allowed as a runtime switch?
+  - are there runtime switches?
+  
 Perl 6 parser:
 
 - implement Perl 6 minilanguages (and categories).

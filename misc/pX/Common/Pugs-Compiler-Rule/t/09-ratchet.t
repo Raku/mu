@@ -103,8 +103,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     is( "$match", "x", 'a named subrule calls a lexical unnamed subrule' );
 }
 
-SKIP: {
-    skip "Infinite loop in '+' quantifier", 1;
+{
     # generated rules
     my $rule = Pugs::Compiler::Rule->compile( '<alpha>+', { ratchet => 1 } );
     my $match = $rule->match( "xy12" );

@@ -99,11 +99,6 @@ sub quant {
     # *  +  ?
     # TODO: *? +? ??
     # TODO: quantifier + capture creates Array
-    
-    #print "$quantifier ", Dumper( $term ), 
-    #    emit_rule( $term, $_[1] ), "\n";
-    #print Dumper( $term ),
-    #    emit_rule( $term, $_[1] ), "\n";
     return 
         "$_[1] (\n$rul\n" .
         "$_[1] ||\n" .
@@ -111,12 +106,12 @@ sub quant {
         "$_[1] )"
         if $quantifier eq '?';
     return 
-        "$_[1] do { while (\n$rul ) {} }"
+        "$_[1] do { while \n$rul {}; 1 }"
         if $quantifier eq '*';
     return
         "$_[1] (\n$rul\n" .
         "$_[1] &&\n" .
-        "$_[1]   do { while (\n$rul ) {} }\n" .
+        "$_[1]   do { while \n$rul {}; 1 }\n" .
         "$_[1] )"
         if $quantifier eq '+';
     die "quantifier not implemented: $quantifier";
@@ -277,6 +272,27 @@ sub colon {
 sub constant {
     call_constant( @_ );
 }
+
+use vars qw( %char_class );
+BEGIN {
+    %char_class = map { $_ => 1 } qw( 
+alpha
+alnum
+ascii
+blank
+cntrl
+digit
+graph
+lower
+print
+punct
+space
+upper
+word
+xdigit
+);
+}
+
 sub metasyntax {
     # <cmd>
     my $cmd = $_[0];   
@@ -374,6 +390,14 @@ sub metasyntax {
         if ( $cmd eq 'null' ) {
             warn "<$cmd> not implemented";
             return;
+        }
+        if ( exists $char_class{$cmd} ) {
+            # XXX - inlined char classes are not inheritable, but this should be ok
+            return
+                "$_[1] ( ( substr( \$s, \$pos, 1 ) =~ /[[:$cmd:]]/ ) 
+$_[1]     ? ++\$pos
+$_[1]     : 0
+$_[1] )";
         }
         # capturing subrule
         # <subrule ( param, param ) >
