@@ -861,7 +861,8 @@ op2 "err"= op2 "//"
 op2 "grep" = op2Grep
 op2 "map"  = op2Map
 op2 "join" = op2Join
-op2 "reduce" = op2ReduceL
+op2 "reduce" = op2ReduceL False
+op2 "produce" = op2ReduceL True
 op2 "kill" = \s v -> do
     sig  <- fromVal s
     pids <- fromVals v
@@ -1562,11 +1563,13 @@ initSyms = mapM primDecl syms
 \\n   List      pre     grep    safe   (Code, List)\
 \\n   List      pre     sort    safe   (Code, List)\
 \\n   List      pre     reduce  safe   (Code, List)\
+\\n   List      pre     produce safe   (Code, List)\
 \\n   List      pre     sort    safe   (Array)\
 \\n   List      pre     map     safe   (Array: Code)\
 \\n   List      pre     grep    safe   (Array: Code)\
 \\n   List      pre     sort    safe   (Array: Code)\
 \\n   List      pre     reduce  safe   (Array: Code)\
+\\n   List      pre     produce safe   (Array: Code)\
 \\n   Any       pre     splice  safe   (rw!Array, ?Int=0)\
 \\n   Any       pre     splice  safe   (rw!Array, Int, Int)\
 \\n   Any       pre     splice  safe   (rw!Array, Int, Int, List)\

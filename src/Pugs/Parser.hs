@@ -1407,13 +1407,14 @@ ruleApplySub isFolded = do
 ruleFoldOp :: RuleParser String
 ruleFoldOp = verbatimRule "reduce metaoperator" $ try $ do
     char '['
+    keep <- option "" $ string "\\"
     [_, _, _, _, _, infixOps] <- currentTightFunctions
     -- name <- choice $ ops (try . string) (addHyperInfix $ infixOps ++ defaultInfixOps)
     name <- verbatimRule "infix operator" $ do
         choice $ ops (try . string) (addHyperInfix $ infixOps ++ defaultInfixOps)
     char ']'
     possiblyHyper <- option "" ((char '\171' >> return "<<") <|> (string "<<"))
-    return $ "&prefix:[" ++ name ++ "]" ++ possiblyHyper
+    return $ "&prefix:[" ++ keep ++ name ++ "]" ++ possiblyHyper
     where
     defaultInfixOps = words $ concat
         [ " ** * / % x xx +& +< +> ~& ~< ~> "

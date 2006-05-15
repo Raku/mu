@@ -218,15 +218,17 @@ findSub name' invs args = do
                     _       -> VList (map PerlSV rv)
             }
     possiblyBuildMetaopVCode :: String -> Eval (Maybe VCode)
-    possiblyBuildMetaopVCode op' | "&prefix:[" `isPrefixOf` op', "]" `isSuffixOf` op' = do 
+    possiblyBuildMetaopVCode op'' | "&prefix:[" `isPrefixOf` op'', "]" `isSuffixOf` op'' = do 
         -- Strip the trailing "]" from op
-        let op = drop 9 (init op')
+        let op' = drop 9 (init op'')
+        let (op, keep) | '\\':real <- op' = (real, True)
+                       | otherwise        = (op', False)
         -- We try to find the userdefined sub.
         -- We use the first two elements of invs as invocants, as these are the
         -- types of the op.
             rv = fmap (either (const Nothing) Just) $ findSub ("&infix:" ++ op) Nothing (take 2 $ args ++ [Val undef, Val undef])
         maybeM rv $ \code -> return $ mkPrim
-            { subName     = "&prefix:[" ++ op ++ "]"
+            { subName     = "&prefix:[" ++ (if keep then "\\" else "") ++ op ++ "]"
             , subType     = SubPrim
             , subAssoc    = "spre"
             , subParams   = makeParams $
@@ -236,7 +238,7 @@ findSub name' invs args = do
             , subReturns  = anyType
             , subBody     = Prim $ \[vs] -> do
                 list_of_args <- fromVal vs
-                op2Reduce list_of_args (VCode code)
+                op2Reduce keep list_of_args (VCode code)
             }
         -- Now we construct the sub. Is there a more simple way to do it?
     possiblyBuildMetaopVCode op' | "&prefix:" `isPrefixOf` op', "\171" `isSuffixOf` op' = do 

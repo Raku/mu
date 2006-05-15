@@ -155,19 +155,19 @@ op1Uniq v = do
             -- Same here (we need a VBool, not a Var).
             if cond then return . VBool $ cond else elemByM eq y xs
 
-op2ReduceL :: Val -> Val -> Eval Val
-op2ReduceL sub@(VCode _) list = op2ReduceL list sub
-op2ReduceL list sub = do
+op2ReduceL :: Bool -> Val -> Val -> Eval Val
+op2ReduceL keep sub@(VCode _) list = op2ReduceL keep list sub
+op2ReduceL keep list sub = do
     code <- fromVal sub
-    op2Reduce list $ VCode code{ subAssoc = "left" }
+    op2Reduce keep list $ VCode code{ subAssoc = "left" }
 
-op2Reduce :: Val -> Val -> Eval Val
-op2Reduce sub@(VCode _) list = op2Reduce list sub
-op2Reduce list sub = do
+op2Reduce :: Bool -> Val -> Val -> Eval Val
+op2Reduce keep sub@(VCode _) list = op2Reduce keep list sub
+op2Reduce keep list sub = do
     code <- fromVal sub
     args <- fromVal list
     -- cxt  <- asks envContext
-    let (reduceM, reduceMn) = (foldM, foldMn) -- getReduceFuncs cxt
+    let (reduceM, reduceMn) = if keep then (scanM, scanMn) else (foldM, foldMn)
     let arity = length $ subParams code
     if arity < 2 then fail "Cannot reduce() using a unary or nullary function." else do
     -- n is the number of *additional* arguments to be passed to the sub.
@@ -214,9 +214,6 @@ op2Reduce list sub = do
             fqx  <- f q x
             rest <- fromVal =<< scanM f fqx xs
             return $ VList (q:rest)
-    getReduceFuncs cxt = case cxt of
-        CxtSlurpy _ -> (scanM, scanMn)
-        _           -> (foldM, foldMn)
 
 op2Grep :: Val -> Val -> Eval Val
 op2Grep sub@(VCode _) list = op2Grep list sub
