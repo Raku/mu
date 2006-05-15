@@ -1,5 +1,5 @@
 
-use Test::More tests => 27;
+use Test::More tests => 29;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -136,7 +136,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 }
 
 TODO: {
-    local $TODO = ":!p not implemented yet";
+    local $TODO = "usage of :!p in token is not specified";
     # escaped chars
     my $rule = Pugs::Compiler::Rule->compile( '\d', { ratchet => 1 } );
     my $match = $rule->match( "abc123" );
@@ -146,10 +146,26 @@ TODO: {
 }
 
 TODO: {
-    local $TODO = ":!p not implemented yet";
+    local $TODO = "usage of :!p in token is not specified";
     # escaped chars
     my $rule = Pugs::Compiler::Rule->compile( '\D', { ratchet => 1 } );
     my $match = $rule->match( "123abc" );
+    is( "$match", "a", 'escaped char \\D' );
+}
+
+{
+    # escaped chars
+    my $rule = Pugs::Compiler::Rule->compile( '\d', { ratchet => 1 } );
+    my $match = $rule->match( "123" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->perl5)};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "1", 'escaped char \\d' );
+}
+
+{
+    # escaped chars
+    my $rule = Pugs::Compiler::Rule->compile( '\D', { ratchet => 1 } );
+    my $match = $rule->match( "abc" );
     is( "$match", "a", 'escaped char \\D' );
 }
 
