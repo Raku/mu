@@ -93,24 +93,33 @@ sub quant {
     my $term = $_[0]->{'term'};
     my $quantifier = $_[0]->{quant};
     $quantifier = '' unless defined $quantifier;
-    my $sub = { 
-            '*' =>'greedy_star',     
-            '+' =>'greedy_plus',
-            '*?'=>'non_greedy_star', 
-            '+?'=>'non_greedy_plus',
-            '?' =>'optional',
-            '??'=>'null_or_optional',
-            ''  => '',
-        }->{$quantifier};
-    die "quantifier not implemented: $quantifier" 
-        unless defined $sub;
-    return emit_rule( $term, $_[1] ) 
-        if $sub eq '';
+    my $rul = emit_rule( $term, $_[1] . "  " );
+    return $rul
+        if $quantifier eq '';
+    # *  +  ?
+    # TODO: *? +? ??
+    # TODO: quantifier + capture creates Array
+    
+    #print "$quantifier ", Dumper( $term ), 
+    #    emit_rule( $term, $_[1] ), "\n";
+    #print Dumper( $term ),
+    #    emit_rule( $term, $_[1] ), "\n";
     return 
-        named_capture( 
-            { ident => '*quantifier*', rule => $term }, 
-            $_[1],
-        );
+        "$_[1] (\n$rul\n" .
+        "$_[1] ||\n" .
+        "$_[1]   1\n" .
+        "$_[1] )"
+        if $quantifier eq '?';
+    return 
+        "$_[1] do { while (\n$rul ) {} }"
+        if $quantifier eq '*';
+    return
+        "$_[1] (\n$rul\n" .
+        "$_[1] &&\n" .
+        "$_[1]   do { while (\n$rul ) {} }\n" .
+        "$_[1] )"
+        if $quantifier eq '+';
+    die "quantifier not implemented: $quantifier";
 }        
 sub alt {
     my @s;
@@ -248,7 +257,7 @@ $_[1]       to => \$pos,
 $_[1]     ); 
 $_[1]     push \@match, { \@tmp };
 $_[1]     \$bool;
-$_[1] }\n";
+$_[1] }";
 }
 sub before {
     my $program = $_[0]{rule};

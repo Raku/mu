@@ -28,12 +28,15 @@ sub compile {
     my $self = { source => $rule_source };
 
     # XXX - should use user's lexical pad instead of an explicit grammar?
-    $self->{grammar} = delete $param->{grammar} || 'Pugs::Grammar::Base';
-    $self->{ratchet} = delete $param->{ratchet} || 0;
-    $self->{p}       = delete $param->{p} || 0;
+    $self->{grammar}  = delete $param->{grammar} || 'Pugs::Grammar::Base';
+    $self->{ratchet}  = delete $param->{ratchet} || 0;
+    $self->{p}        = delete $param->{p} || 0;
     $self->{sigspace} = delete $param->{sigspace} || 0;
 
-    warn ":sigspace not implemented"
+    warn "Error in rule: unknown parameter '$_'" 
+        for keys %$param;
+
+    warn "Error in rule: 'sigspace' not implemented"
         if $self->{sigspace};
 
     #print 'rule source: ', $self->{source}, "\n";
