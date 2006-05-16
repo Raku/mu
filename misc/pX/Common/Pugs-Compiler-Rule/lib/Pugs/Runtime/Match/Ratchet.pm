@@ -106,12 +106,12 @@ sub array {
     my @a = @{ ${$_[0]}->{match} };
     my @r;
     for my $m ( @a ) {
-        if ( $m->{name} eq '*quantifier*' ) {
-            my @m = @{ _box_submatch( $_[0], $m ) };
-            push @r, \@m if @m;
-            next;
-        }
-        next if $m->{name} ne '';
+        #if ( $m->{name} eq '*quantifier*' ) {
+        #    my @m = @{ _box_submatch( $_[0], $m ) };
+        #    push @r, \@m if @m;
+        #    next;
+        #}
+        #next if $m->{name} ne '';
         push @r, _box_submatch( $_[0], $m );                
     }
     #print "ARRAY: ", Dumper( @r );

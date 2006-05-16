@@ -13,7 +13,7 @@ Abstract Syntax Tree (AST) for Rules.
 
 =cut
  
-rule p6ws     :P5 {^((?:\s|\#(?-s:.)*)+)}
+rule ws     :P5 {^((?:\s|\#(?-s:.)*)+)}
 
 rule variable :P5 {^([\$\%\@](?:(?:\:\:)?[_[:alnum:]]+)+)}
 
@@ -35,7 +35,7 @@ rule num_variable :P5 {^(?:\$[[:digit:]]+)}
     unshift @rule_terms, 'dot';
     
     rule plain_text {
-        <alnum> | \, | \; | \_ | \/ | \~
+        <alnum> | \, | \; | \_ | \/ | \~ | \" | \'
             
         { return { 'constant' => $() ,} }
     }
@@ -78,7 +78,7 @@ rule num_variable :P5 {^(?:\$[[:digit:]]+)}
     unshift @rule_terms, 'match_variable';
     
     rule named_capture {
-        \$ \< <ident> \> <?p6ws>? \:\= <?p6ws>? \( <rule> \) 
+        \$ \< <ident> \> <?ws>? \:\= <?ws>? \( <rule> \) 
         
         { return { named_capture => {
                 ident => $_[0]{ident}(),
@@ -89,7 +89,7 @@ rule num_variable :P5 {^(?:\$[[:digit:]]+)}
     unshift @rule_terms, 'named_capture';
         
     rule before {
-        \< before <?p6ws> <rule> \> 
+        \< before <?ws> <rule> \> 
         
         { return { before => {
                 rule  => $_[0]{rule}(),
@@ -121,9 +121,9 @@ rule num_variable :P5 {^(?:\$[[:digit:]]+)}
 
 
 rule quantifier {
-    <?p6ws>?
+    <?ws>?
     $<term> := (<@Pugs::Grammar::Rule::rule_terms>)
-    <?p6ws>?
+    <?ws>?
     $<quant> := (
         [ 
             [ \?\? ] |
@@ -134,7 +134,7 @@ rule quantifier {
             \+
         ]?
     )
-    <?p6ws>?
+    <?ws>?
     
     { return {  
             term =>  $_[0]{term}(),

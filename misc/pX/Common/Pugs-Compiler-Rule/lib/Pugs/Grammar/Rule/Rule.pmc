@@ -2,11 +2,11 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0xF6DE2CB7 or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0x57D91B5B or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
 use base 'Pugs::Grammar::Base';
-*{'Pugs::Grammar::Rule::p6ws'} = sub {
+*{'Pugs::Grammar::Rule::ws'} = sub {
     my $grammar = shift;
     #warn "rule argument is undefined" unless defined $_[0];
     $_[0] = "" unless defined $_[0];
@@ -105,6 +105,10 @@ sub {
                 constant( "\/" )
               ,
                 constant( "\~" )
+              ,
+                constant( "\"" )
+              ,
+                constant( "\'" )
               ,
           ] )
         ,
@@ -246,7 +250,7 @@ sub {
           constant( "\>" )
         ,
           optional(
-              sub{ $grammar->p6ws(@_) }
+              sub{ $grammar->ws(@_) }
             ,
           )
         ,
@@ -255,7 +259,7 @@ sub {
           constant( "\=" )
         ,
           optional(
-              sub{ $grammar->p6ws(@_) }
+              sub{ $grammar->ws(@_) }
             ,
           )
         ,
@@ -291,7 +295,7 @@ sub {
         ,
           constant( "before" )
         ,
-          sub{ $grammar->p6ws(@_) }
+          sub{ $grammar->ws(@_) }
         ,
           capture( 'rule', sub{ $grammar->rule(@_) } )
         ,
@@ -399,7 +403,7 @@ sub {
     rule_wrapper( $_[0], (
         concat(
           optional(
-              sub{ $grammar->p6ws(@_) }
+              sub{ $grammar->ws(@_) }
             ,
           )
         ,
@@ -409,7 +413,7 @@ sub {
           )
         ,
           optional(
-              sub{ $grammar->p6ws(@_) }
+              sub{ $grammar->ws(@_) }
             ,
           )
         ,
@@ -447,7 +451,7 @@ sub {
           )
         ,
           optional(
-              sub{ $grammar->p6ws(@_) }
+              sub{ $grammar->ws(@_) }
             ,
           )
         ,

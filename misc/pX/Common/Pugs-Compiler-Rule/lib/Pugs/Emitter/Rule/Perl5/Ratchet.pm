@@ -13,11 +13,10 @@ $Data::Dumper::Indent = 1;
 # XXX - reuse this sub in metasyntax()
 sub call_subrule {
     my ( $subrule, $tab, @param ) = @_;
-    # TODO - send $pos to subrule
     $subrule = "\$grammar->" . $subrule unless $subrule =~ / :: | \. | -> /x;
     $subrule =~ s/\./->/;   # XXX - source filter
     return 
-        "$tab     $subrule( \$s, { p => \$pos, args => {" . join(", ",@param) . "} }, \$_[1] )";
+        "$tab     $subrule( \$s, { p => \$pos, args => {" . join(", ",@param) . "} }, \$_[3] )";
 }
 
 sub call_constant {
@@ -46,25 +45,25 @@ sub emit {
     # rule parameters: see Runtime::Rule.pm
     return 
         "sub {\n" . 
-        "    my \$grammar = shift;\n" .
-        "    my \$s = shift;\n" .
-        "    my \@match;\n" .
+        "    my \$grammar = \$_[0];\n" .
+        "    my \$s = \$_[1];\n" .
+        "    my \$pos = \$_[2]{p};\n" .
         #"    print \"match arg_list = \$_[1]\n\";\n" .
         #"    print \"match arg_list = \@{[\%{\$_[1]} ]}\n\" if defined \$_[1];\n" .
-        "    my \$pos = \$_[1]{p};\n" .
         "    \$pos = 0 unless defined \$pos;   # TODO - .*? \$match \n" .
         #"    print \"match pos = \$pos\n\";\n" .
+        "    my \@match;\n" .
+        "    my \%named;\n" .
         "    my \$from = \$pos;\n" .
         "    my \$bool = 1;\n" .
         "    my \$capture;\n" .
         "    my \$m = bless \\{ \n" .
         "      str => \$s, from => \\\$from, to => \\\$pos, \n" .
-        "      bool => \\\$bool, match => \\\@match, \n" .
+        "      bool => \\\$bool, match => \\\@match, named => \\\%named, \n" .
         "      capture => \\\$capture, \n" .
         "    }, 'Pugs::Runtime::Match::Ratchet';\n" .
         "    \$bool = 0 unless\n" .
-        emit_rule( $ast, '    ' ) . 
-        "    ;\n" .
+        emit_rule( $ast, '    ' ) . ";\n" .
         "    return \$m;\n" .
         "}\n";
 }
@@ -85,10 +84,26 @@ sub emit_rule {
 #rule nodes
 
 sub capturing_group {
-    return named_capture(
-            { ident => '', rule => $_[0] }, 
-            $_[1],    
-    );
+    my $program = $_[0];
+
+    $program = emit_rule( $program, $_[1].'      ' )
+        if ref( $program );
+
+    return "$_[1] do{ 
+$_[1]     my \$bool = 1;
+$_[1]     my \@tmp = ( from => \$pos, );
+$_[1]     push \@tmp, (
+$_[1]       match => do{
+$_[1]         my \@match;
+$_[1]         \$bool = 0 unless
+" .             $program . "
+$_[1]         ;
+$_[1]         \\\@match 
+$_[1]       },
+$_[1]     );
+$_[1]     push \@match, { \@tmp, bool => \$bool, to => \$pos };
+$_[1]     \$bool;
+$_[1] }";
 }        
 sub non_capturing_group {
     return emit_rule( $_[0], $_[1] );
@@ -146,7 +161,7 @@ sub code {
     return "$_[1] $_[0]\n";  
 }        
 sub dot {
-    "$_[1] ++\$pos   # . - TODO - check str boundaries\n"
+    "$_[1] do { \$pos <= length( \$s ) ? ++\$pos : 0 }"
 }
 sub variable {
     my $name = "$_[0]";
@@ -237,10 +252,7 @@ sub named_capture {
 
     return "$_[1] do{ 
 $_[1]     my \$bool = 1;
-$_[1]     my \@tmp = ( 
-$_[1]       name => '$name', 
-$_[1]       from => \$pos, 
-$_[1]     );
+$_[1]     my \@tmp = ( from => \$pos, );
 $_[1]     push \@tmp, (
 $_[1]       match => do{
 $_[1]         my \@match;
@@ -250,11 +262,7 @@ $_[1]         ;
 $_[1]         \\\@match 
 $_[1]       },
 $_[1]     );
-$_[1]     push \@tmp, ( 
-$_[1]       bool => \$bool, 
-$_[1]       to => \$pos, 
-$_[1]     ); 
-$_[1]     push \@match, { \@tmp };
+$_[1]     \$named{'$name'} = { \@tmp, bool => \$bool, to => \$pos };
 $_[1]     \$bool;
 $_[1] }";
 }
@@ -412,9 +420,13 @@ $_[1] )";
         return named_capture(
             { ident => $subrule, 
               rule => 
-                "$_[1]         push \@match,\n" . 
-                    call_subrule( $subrule, $_[1]."      ", @param ) . ";\n" .
-                "$_[1]         \$pos = \$match[-1]->to"
+                "$_[1]         do {\n" . 
+                "$_[1]           push \@match,\n" . 
+                    call_subrule( $subrule, $_[1]."        ", @param ) . ";\n" .
+                "$_[1]           \$pos = \$match[-1]->to;\n" .
+                #"print !\$match[-1], ' ', Dumper \$match[-1];\n" .
+                "$_[1]           !\$match[-1] != 1;\n" .
+                "$_[1]         }"
             }, 
             $_[1],    
         );

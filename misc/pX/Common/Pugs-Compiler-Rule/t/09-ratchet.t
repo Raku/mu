@@ -1,5 +1,5 @@
 
-use Test::More tests => 29;
+use Test::More tests => 31;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -228,3 +228,15 @@ TODO: {
     is( "$match", "bb", 'alternation' );
 }
 
+TODO:
+{
+    local $TODO = ":p broken in subrule call";
+    
+    # basic named capture
+    my $rule = Pugs::Compiler::Rule->compile('a<ws>', { ratchet => 1 } );
+    my $match = $rule->match( "a b" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "a ", 'named capture str' );
+    is( $match{'ws'}, " ", 'named capture - 2' );
+}

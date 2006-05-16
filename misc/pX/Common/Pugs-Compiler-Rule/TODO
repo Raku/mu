@@ -12,7 +12,7 @@ Ratchet:
 - more tests
   - interoperability with non-ratchet
 - separate named/positional captures
-- named captures 
+- named captures (%named)
 - quantifiers
   - implement ?? +? *?
   - implement captures to Array inside quantifiers
