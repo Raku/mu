@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 12 May 2006
+  Last Modified: 15 May 2006
   Number: 3
-  Version: 31
+  Version: 32
 
 =head1 Changes to existing operators
 
@@ -923,10 +923,10 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
     tight or            || ^^ //
     ternary             ?? !!
     assignment          = := ::= += -= **= xx= .= etc. (and also =>)
-    list item separator , ¥
-    list op (rightward) <== print push any all true not etc. and ()= rightward
-    pipe forward        ==>
-    loose and           and
-    loose or            or xor err
+    loose unary         true not
+    list item separator ,
+    list op (rightward) print push any all etc. and ()= rightward
+    list infix          ¥ <== ==> and
+    logic infix         or xor err
     expr terminator     ; {} as control block, statement modifiers
 
