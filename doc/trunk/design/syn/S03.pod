@@ -924,9 +924,11 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
     ternary             ?? !!
     assignment          = := ::= += -= **= xx= .= etc. (and also =>)
     loose unary         true not
-    list item separator ,
-    list op (rightward) print push any all etc. and ()= rightward
-    list infix          ¥ <== ==> and
-    logic infix         or xor err
+    list ops            , print push any all etc. and ()= rightward
+    list infix          ¥ <== ==>
+    loose and           and
+    loose or            or xor err
     expr terminator     ; {} as control block, statement modifiers
 
+Comma is the only listop that is allowed to occur where an operator is
+expected.  All other listops function as a term within the list to the left.
