@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 14 May 2006
+  Last Modified: 15 May 2006
   Number: 2
-  Version: 41
+  Version: 42
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -2043,7 +2043,7 @@ Here are the current grammatical categories:
 
     term:<...>                                  $x = {...}
     quote:<qX>                                  qX/foo/
-    prefix:<+>                                  +$x
+    prefix:<!>                                  !$x (and $x.! if no postfix:<!>)
     infix:<+>                                   $x + $y
     postfix:<++>                                $x++
     circumfix:<[ ]>                             [ @x ]

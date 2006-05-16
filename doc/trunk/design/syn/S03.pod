@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 15 May 2006
   Number: 3
-  Version: 32
+  Version: 33
 
 =head1 Changes to existing operators
 
@@ -30,7 +30,10 @@ Huffman-code the language, while others have changed precedence.
 
 =item * All postfix operators that do not start with a dot also have
 an alternate form that does.  (The converse does not hold--just because
-you can write C<x().foo> doesn't mean you can write C<x()foo>.)
+you can write C<x().foo> doesn't mean you can write C<x()foo>.)  In the
+absence of a postfix interpretation, the dot form will call the corresponding
+prefix operator instead.  So C<x().!> will call C<!x()> unless someone
+defines a postfix C<!> operator.
 
 =item * Unary C<~> now imposes a string (C<Str>) context on its
 argument, and C<+> imposes a numeric (C<Num>) context (as opposed
@@ -911,7 +914,7 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
     method postfix      . .+ .? .* .() .[] .{} .«» .:: .=
     autoincrement       ++ --
     exponentiation      **
-    symbolic unary      ! + - ~ ? $ @ % & * ** +^ ~^ ?^ \ ^ =
+    symbolic unary      ! + - ~ ? $ @ % & +^ ~^ ?^ \ ^ =
     multiplicative      * / % x xx +& +< +> ~& ~< ~>
     additive            + - ~ +| +^ ~| ~^
     junctive and (all)  &
