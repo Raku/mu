@@ -12,4 +12,4 @@ lives_ok {
 
 dies_ok {
   &New::Package::foo();
-}, "...but invoking it should die", :todo<bug>;
+}, "...but invoking it should die";
