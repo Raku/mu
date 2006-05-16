@@ -96,8 +96,7 @@ $_[1]     push \@tmp, (
 $_[1]       match => do{
 $_[1]         my \@match;
 $_[1]         \$bool = 0 unless
-" .             $program . "
-$_[1]         ;
+" .             $program . ";
 $_[1]         \\\@match 
 $_[1]       },
 $_[1]     );
@@ -257,8 +256,7 @@ $_[1]     push \@tmp, (
 $_[1]       match => do{
 $_[1]         my \@match;
 $_[1]         \$bool = 0 unless
-" .             $program . "
-$_[1]         ;
+" .             $program . ";
 $_[1]         \\\@match 
 $_[1]       },
 $_[1]     );

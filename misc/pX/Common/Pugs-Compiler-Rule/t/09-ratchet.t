@@ -235,7 +235,7 @@ TODO:
     # basic named capture
     my $rule = Pugs::Compiler::Rule->compile('a<ws>', { ratchet => 1 } );
     my $match = $rule->match( "a b" );
-    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "a ", 'named capture str' );
     is( $match{'ws'}, " ", 'named capture - 2' );
