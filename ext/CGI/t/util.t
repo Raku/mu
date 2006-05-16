@@ -12,8 +12,8 @@ is make_attribute({ baz => "quux", foo => "bar" }), <baz="quux" foo="bar">, 'two
 is make_attribute({ foo => "bar", baz => "quux" }), <baz="quux" foo="bar">, 'two attributes (in alphabetical order)';
 
 is make_attribute({ foo => q/bar"bar/ }), <foo="bar"bar">, 'no escaping';
-is make_attribute({ foo => q/bar<bar/ }), eval('<foo="bar<bar">'), 'no escaping';
-is make_attribute({ foo => q/bar>bar/ }), <foo="bar\>bar">, 'no escaping';
+is make_attribute({ foo => q/bar<bar/ }), ['foo="bar<bar"'], 'no escaping';
+is make_attribute({ foo => q/bar>bar/ }), ['foo="bar>bar"'], 'no escaping';
 is make_attribute({ foo => q/bar&bar/ }), <foo="bar&bar">, 'no escaping';
 
 is make_attribute({ foo => q/bar"bar/ }, escape => 1), <foo="bar&quot;bar">, 'escaping';
