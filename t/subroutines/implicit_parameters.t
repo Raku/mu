@@ -14,8 +14,8 @@ plan 14;
     is({ 42 }.(), 42,                   'no implicit $_ usage checking');
     is({ 42 }.('Goodbye'), 42,          '$_ gets assigned but isn\'t used');
 
-    is({ $_ }.arity, 1,                 '{$_} is arity 1, of course');
-    is({ 42 }.arity, 1,                 'Even blocks that don\'t use $_ have arity 1');
+    is(({ $_ }.arity), 1,                 '{$_} is arity 1, of course');
+    is(({ 42 }.arity), 1,                 'Even blocks that don\'t use $_ have arity 1');
 }
 
 {
