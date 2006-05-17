@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 30;
+plan 29;
 # L<S12/Enums>
 {
     my %hash; eval '%hash = enum «:Mon(1) Tue Wed Thu Fri Sat Sun»';
@@ -73,7 +73,9 @@ is %hash.values, <A B C D E>, '...and the right values are assigned', :todo<feat
 
 %hash = ();
 
+eval q[
 lives_ok { %hash = enum <<:Alpha<A> Bravo Charlie Delta Echo>>; }, 'specifying a string up front works (Texas quotes)', :todo<feature>;
+];
 
 is %hash.keys, <Alpha Bravo Charlie Delta Echo>, '...and the right keys are assigned', :todo<feature>;
 
