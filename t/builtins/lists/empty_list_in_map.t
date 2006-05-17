@@ -8,7 +8,7 @@ plan 6;
 # Test was primarily aimed at PIL2JS, which did not pass this test (fixed now).
 {
   my @array  = <a b c d>;
-  my @result = map { () }, @array;
+  my @result = map { (), }, @array;
 
   is +@result, 0, "map works with the map body returning an empty list";
 }
