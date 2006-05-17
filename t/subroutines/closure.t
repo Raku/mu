@@ -1,7 +1,7 @@
 #!/usr/bin/pugs
 
 use Test;
-plan 10;
+plan 8;
 
 diag "Testing for calling block bindings...";
 eval_ok q{
