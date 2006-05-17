@@ -19,7 +19,7 @@ if(!eval('("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
-rule abc { a b c }
+rule abc { <null> a b c }  # coredumps without the <null> for some reason
 
 my $var = "";
 ok("aaabccc" ~~ m/aa <{ $var ?? $var !! rx{abc} }> cc/, 'Rule block second', :todo<feature>);
