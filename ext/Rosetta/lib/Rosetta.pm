@@ -155,7 +155,7 @@ code; instead refer to other above-named packages in this file.>
 
     # Instantiate a Rosetta DBMS / virtual machine.
     my Rosetta::Interface::DBMS $dbms .= new(
-        'engine_name' => 'Rosetta::Engine::Example' );
+        engine_name => 'Rosetta::Engine::Example' );
 
     # TODO: Create or connect to a repository and work with it.
 
@@ -375,7 +375,7 @@ code; instead refer to other above-named packages in this file.>
         # Prompt user for details of 3 people and add them to the database.
         $prh_add_person.prepare();
         for 1..3 {
-            my Rosetta::Interface::Row $new_person .= new( 'payload' => {
+            my Rosetta::Interface::Row $new_person .= new( payload => {
                 'id' => ask_user_for_id(),
                 'name' => ask_user_for_name(),
                 'sex' => ask_user_for_sex(),
@@ -396,7 +396,7 @@ code; instead refer to other above-named packages in this file.>
         $fnh_get_person.prepare();
         for 1..3 {
             my Rosetta::Interface::Scalar $person_id
-                .= new( 'payload' => ask_user_for_id() );
+                .= new( payload => ask_user_for_id() );
             $fnh_get_person.bind_arg( 'person_id', $person_id );
             my Rosetta::Interface::Row $fetched_person = try {
                 $fnh_get_person.execute();

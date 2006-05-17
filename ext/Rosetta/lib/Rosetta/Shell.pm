@@ -28,35 +28,35 @@ module Rosetta::Shell-0.1.2 {
 sub main (Str :$engine_name!, Str :@user_lang_prefs? = 'en') {
 
     $translator .= new(
-        'set_names'    => [
+        set_names    => [
                 'Rosetta::Shell::L::',
                 'Rosetta::L::',
                 'Rosetta::Model::L::',
                 'Locale::KeyedText::L::',
                 $engine_name ~ '::L::',
             ],
-        'member_names' => @user_lang_prefs,
+        member_names => @user_lang_prefs,
     );
 
     _show_message( Locale::KeyedText::Message.new(
-        'msg_key' => 'ROS_S_HELLO' ) );
+        msg_key => 'ROS_S_HELLO' ) );
 
     try {
         $dbms = Rosetta::Interface::DBMS.new(
-            'engine_name' => $engine_name );
+            engine_name => $engine_name );
     };
     if ($!) {
         _show_message( Locale::KeyedText::Message.new(
-            'msg_key'  => 'ROS_S_DBMS_INIT_FAIL',
-            'msg_vars' => {
+            msg_key  => 'ROS_S_DBMS_INIT_FAIL',
+            msg_vars => {
                 'ENGINE_NAME' => $engine_name,
             },
         ) );
     }
     else {
         _show_message( Locale::KeyedText::Message.new(
-            'msg_key'  => 'ROS_S_DBMS_INIT_SUCCESS',
-            'msg_vars' => {
+            msg_key  => 'ROS_S_DBMS_INIT_SUCCESS',
+            msg_vars => {
                 'ENGINE_NAME' => $engine_name,
             },
         ) );
@@ -64,7 +64,7 @@ sub main (Str :$engine_name!, Str :@user_lang_prefs? = 'en') {
     }
 
     _show_message( Locale::KeyedText::Message.new(
-        'msg_key' => 'ROS_S_GOODBYE' ) );
+        msg_key => 'ROS_S_GOODBYE' ) );
 
     return;
 }
@@ -75,7 +75,7 @@ my sub _command_loop () {
 #    INPUT_LINE:
     while (1) {
         _show_message( Locale::KeyedText::Message.new(
-            'msg_key' => 'ROS_S_PROMPT' ) );
+            msg_key => 'ROS_S_PROMPT' ) );
 
         my Str $user_input = =$*IN;
 
@@ -86,7 +86,7 @@ my sub _command_loop () {
 
         try {
             _show_message( Locale::KeyedText::Message.new(
-                'msg_key' => 'ROS_S_TODO_RESULT' ) );
+                msg_key => 'ROS_S_TODO_RESULT' ) );
         };
         _show_message( $! )
             if $!; # input error, detected by library

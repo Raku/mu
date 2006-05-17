@@ -45,7 +45,7 @@ submethod BUILD (Hash :@root_nodes? = []) {
     @!all_nodes  = [];
     @!root_nodes = [];
     for @root_nodes -> $root_node {
-        Rosetta::Model::Node.new( 'document' => $?SELF, *%{$root_node} );
+        Rosetta::Model::Node.new( document => $?SELF, *%{$root_node} );
     }
 
     return;
@@ -64,7 +64,7 @@ method export_as_hash () returns Hash {
 my method _die_with_msg (Str $msg_key!, Any %msg_vars? is ref = {}) {
     %msg_vars{'CLASS'} = 'Rosetta::Model::Document';
     die Locale::KeyedText::Message.new(
-        'msg_key' => $msg_key, 'msg_vars' => %msg_vars );
+        msg_key => $msg_key, msg_vars => %msg_vars );
 }
 
 my method _assert_arg_rt_nd_aoh (Str $meth!, Str $arg!, Str @val!) {
@@ -149,8 +149,8 @@ submethod BUILD (
     @!child_nodes = [];
     for @child_nodes -> $child_node {
         $?CLASS.new(
-            'document'    => $document,
-            'parent_node' => $?SELF,
+            document    => $document,
+            parent_node => $?SELF,
             *%{$child_node},
         );
     }
@@ -173,7 +173,7 @@ method export_as_hash () returns Hash {
 my method _die_with_msg (Str $msg_key!, Any %msg_vars? is ref = {}) {
     %msg_vars{'CLASS'} = 'Rosetta::Model::Node';
     die Locale::KeyedText::Message.new(
-        'msg_key' => $msg_key, 'msg_vars' => %msg_vars );
+        msg_key => $msg_key, msg_vars => %msg_vars );
 }
 
 my method _assert_arg_str (Str $meth!, Str $arg!, Str $val!) {
@@ -345,7 +345,7 @@ Some sample usage:
     my Rosetta::Model::Document $document .= new();
 
     my Rosetta::Model::Document $document2 .= new(
-        'root_nodes' => [
+        root_nodes => [
             {
                 'node_type'  => 'data_sub_type',
                 'attributes' => { 'predef_base_type' => 'BOOLEAN' },
@@ -461,8 +461,8 @@ Some sample usage:
 
     # Declare a unsigned 32-bit integer data type.
     my Rosetta::Model::Node $dt_uint32 .= new(
-        'node_type'  => 'data_sub_type',
-        'attributes' => {
+        node_type  => 'data_sub_type',
+        attributes => {
             'predef_base_type' => 'NUMERIC',
             'num_precision'    => 2**32,
             'num_scale'        => 1,
@@ -472,13 +472,13 @@ Some sample usage:
 
     # Declare an enumerated ('F','M') character value data type.
     my Rosetta::Model::Node $dt_sex .= new(
-        'node_type'   => 'data_sub_type',
-        'attributes'  => {
+        node_type   => 'data_sub_type',
+        attributes  => {
             'predef_base_type' => 'CHAR_STR',
             'char_max_length'  => 1,
             'char_repertoire'  => 'UNICODE',
         },
-        'child_nodes' => [
+        child_nodes => [
             {
                 'node_type'  => 'data_sub_type_value',
                 'attributes' => { 'value' => 'F' },
@@ -512,7 +512,7 @@ parameters of Node.new(); you need to supply its $document and optional
 $parent_node though; you can produce a direct clone like this:
 
     my $cloned_node = Rosetta::Model::Document.new(
-        'document' => $document, *%{$original_node.export_as_hash()} );
+        document => $document, *%{$original_node.export_as_hash()} );
 
 Or, to demonstrate the use of a persistence solution:
 
@@ -523,7 +523,7 @@ Or, to demonstrate the use of a persistence solution:
     # When restoring.
     my $hash_was_saved = MyPersist.get();
     my $cloned_node = Rosetta::Model::Document.new(
-        'document' => $document, *%{$hash_was_saved} );
+        document => $document, *%{$hash_was_saved} );
 
 =back
 

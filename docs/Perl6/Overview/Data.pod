@@ -211,10 +211,10 @@ C<@foo.concat(@bar)> in other languages.))
 
 =head3 Constructors (all anonymous)
 
-    :key            # 'key' => 1
-    :key{'value'}   # 'key' => 'value'
+    :key            # key => 1
+    :key{'value'}   # key => 'value'
     \__ thus: :key<>, :key<<>>
-    key => 'value'  # 'key' => 'value' (LHS auto-quoted)
+    key => 'value'  # key => 'value' (LHS auto-quoted)
 
 =head2 Things with blocks
 

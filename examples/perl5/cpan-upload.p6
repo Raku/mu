@@ -138,7 +138,7 @@ sub ftp_upload_files (*@files) {
         if $config.ftp_proxy {
             _debug("  establishing connection via proxy",
                      $config.ftp_proxy, "\n");
-            push(@new_args, 'Firewall' => $config.ftp_proxy);
+            push(@new_args, Firewall => $config.ftp_proxy);
         }
         else {
             _debug("  establishing connection\n");
@@ -148,7 +148,7 @@ sub ftp_upload_files (*@files) {
     #-------------------------------------------------------------------
     # ... and then we actually make the connection and log in
     #-------------------------------------------------------------------
-    $ftp = Net::FTP.new(@new_args);
+    $ftp = Net::FTP.new([,] @new_args);
     if (!$ftp) {
         die "failed to connect to remote server: $!\n";
     }

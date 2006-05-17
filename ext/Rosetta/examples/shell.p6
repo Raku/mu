@@ -11,5 +11,5 @@ $engine_name //= 'Rosetta::Engine::Example';
 @user_lang_prefs = 'en'
     if @user_lang_prefs == 0;
 
-Rosetta::Shell::main( 'engine_name' => $engine_name,
-    'user_lang_prefs' => @user_lang_prefs );
+Rosetta::Shell::main( engine_name => $engine_name,
+    user_lang_prefs => @user_lang_prefs );

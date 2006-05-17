@@ -91,7 +91,7 @@ method as_debug_string () returns Str {
 my method _die_with_msg (Str $msg_key!, Any %msg_vars? is ref = {}) {
     %msg_vars{'CLASS'} = 'Locale::KeyedText::Message';
     die Locale::KeyedText::Message.new(
-        'msg_key' => $msg_key, 'msg_vars' => %msg_vars );
+        msg_key => $msg_key, msg_vars => %msg_vars );
 }
 
 my method _assert_arg_str (Str $meth!, Str $arg!, Str $val!) {
@@ -314,7 +314,7 @@ method interpolate_vars_into_template_text
 my method _die_with_msg (Str $msg_key!, Any %msg_vars? is ref = {}) {
     %msg_vars{'CLASS'} = 'Locale::KeyedText::Translator';
     die Locale::KeyedText::Message.new(
-        'msg_key' => $msg_key, 'msg_vars' => %msg_vars );
+        msg_key => $msg_key, msg_vars => %msg_vars );
 }
 
 my method _assert_arg_str (Str $meth!, Str $arg!, Str $val!) {
@@ -400,9 +400,9 @@ your code; instead refer to other above-named packages in this file.>
     sub main () {
         # Create a translator.
         my Locale::KeyedText::Translator $translator .= new(
-            'set_names' => ['MyLib::Lang::', 'MyApp::Lang::'],
+            set_names => ['MyLib::Lang::', 'MyApp::Lang::'],
                 # set package prefixes for localized app components
-            'member_names' => ['Eng', 'Fr', 'De', 'Esp'],
+            member_names => ['Eng', 'Fr', 'De', 'Esp'],
                 # set list of available languages in order of preference
         );
 
@@ -410,7 +410,7 @@ your code; instead refer to other above-named packages in this file.>
         # languages that has a matching template available.
         print $translator.translate_message(
             Locale::KeyedText::Message.new(
-                'msg_key' => 'MYAPP_PROMPT' ) );
+                msg_key => 'MYAPP_PROMPT' ) );
 
         # Read two numbers from the user.
         my Num ($first, $second) = =$*IN;
@@ -429,8 +429,8 @@ your code; instead refer to other above-named packages in this file.>
         # the first possible language.  For example, if the user
         # inputs '3' and '4', it the output will be '3 plus 4 equals 7'.
         print $translator.translate_message(
-            Locale::KeyedText::Message.new( 'msg_key' => 'MYLIB_RESULT',
-                'msg_vars' => { 'FIRST' => $first, 'SECOND' => $second,
+            Locale::KeyedText::Message.new( msg_key => 'MYLIB_RESULT',
+                msg_vars => { 'FIRST' => $first, 'SECOND' => $second,
                 'RESULT' => $sum } ) );
     }
 
@@ -661,10 +661,10 @@ provided (it defaults to empty if the argument is not provided).
 Some example usage:
 
     my Locale::KeyedText::Message $message .= new(
-        'msg_key' => 'FOO_GOT_NO_ARGS' );
+        msg_key => 'FOO_GOT_NO_ARGS' );
     my Locale::KeyedText::Message $message2 .= new(
-        'msg_key' => 'TABLE_COL_NO_EXIST',
-        'msg_vars' => {
+        msg_key => 'TABLE_COL_NO_EXIST',
+        msg_vars => {
             'GIVEN_TABLE_NAME' => $table_name,
             'GIVEN_COL_NAME' => $col_name,
         } );
@@ -842,10 +842,10 @@ The Set Names property of the new object is set from the named parameter
 Some example usage:
 
     my Locale::KeyedText::Translator $translator .= new(
-        'set_names' => ['Foo::L::','Bar::L::'],
-        'member_names' => ['Eng', 'Fre', 'Ger'] );
+        set_names => ['Foo::L::','Bar::L::'],
+        member_names => ['Eng', 'Fre', 'Ger'] );
     my Locale::KeyedText::Translator $translator2 .= new(
-        'set_names' => ['Foo::L::'], 'member_names' => ['Eng'] );
+        set_names => ['Foo::L::'], member_names => ['Eng'] );
 
 Note that a Translator object does not permit changes to its attributes;
 they must all be set when the object is constructed.  If you want to

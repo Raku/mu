@@ -15,17 +15,17 @@ sub main () {
         if @user_lang_prefs == 0;
 
     my Locale::KeyedText::Translator $translator .= new(
-        'set_names'    => ['MyApp::L::', 'MyLib::L::'],
-        'member_names' => @user_lang_prefs,
+        set_names    => ['MyApp::L::', 'MyLib::L::'],
+        member_names => @user_lang_prefs,
     );
 
     show_message( $translator, Locale::KeyedText::Message.new(
-        'msg_key' => 'MYAPP_HELLO' ) );
+        msg_key => 'MYAPP_HELLO' ) );
 
 #    INPUT_LINE:
     while (1) {
         show_message( $translator, Locale::KeyedText::Message.new(
-            'msg_key' => 'MYAPP_PROMPT' ) );
+            msg_key => 'MYAPP_PROMPT' ) );
 
         my Str $user_input = =$*IN;
 
@@ -37,8 +37,8 @@ sub main () {
         try {
             my Num $result = MyLib::my_invert( $user_input );
             show_message( $translator, Locale::KeyedText::Message.new(
-                'msg_key'  => 'MYAPP_RESULT',
-                'msg_vars' => {
+                msg_key  => 'MYAPP_RESULT',
+                msg_vars => {
                     'ORIGINAL' => $user_input,
                     'INVERTED' => $result,
                 },
@@ -49,7 +49,7 @@ sub main () {
     }
 
     show_message( $translator, Locale::KeyedText::Message.new(
-        'msg_key' => 'MYAPP_GOODBYE' ) );
+        msg_key => 'MYAPP_GOODBYE' ) );
 
     return;
 }

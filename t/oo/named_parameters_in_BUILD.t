@@ -13,7 +13,7 @@ class Foo {
     }
 }
 
-my $obj = Foo.new( 'value' => 'bar' );
+my $obj = Foo.new( value => 'bar' );
 
 is( $value_from_BUILD, 'bar', 
     'BUILD arg declared as named and invoked with literal pair should'

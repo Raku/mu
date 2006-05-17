@@ -32,8 +32,8 @@ sub whole (@names, %flags) {
     }
 }
 my @stuff = ('array', 'elements');
-my %flags = ('hash' => 'elements', 'are' => 'pairs');
-whole(@stuff, %flags);
+my %flags = (hash => 'elements', are => 'pairs');
+whole([,] @stuff, %flags);
 
 sub optional ($required, $optional?) {
     my $second_arg = $optional // 'Told you it was optional!';
