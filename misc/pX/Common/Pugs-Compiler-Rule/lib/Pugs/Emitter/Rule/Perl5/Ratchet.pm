@@ -58,7 +58,7 @@ sub emit {
         "    my \$bool = 1;\n" .
         "    my \$capture;\n" .
         "    my \$m = bless \\{ \n" .
-        "      str => \$s, from => \\\$from, to => \\\$pos, \n" .
+        "      str => \\\$s, from => \\\$from, to => \\\$pos, \n" .
         "      bool => \\\$bool, match => \\\@match, named => \\\%named, \n" .
         "      capture => \\\$capture, \n" .
         "    }, 'Pugs::Runtime::Match::Ratchet';\n" .
@@ -83,27 +83,6 @@ sub emit_rule {
 
 #rule nodes
 
-sub capturing_group {
-    my $program = $_[0];
-
-    $program = emit_rule( $program, $_[1].'      ' )
-        if ref( $program );
-
-    return "$_[1] do{ 
-$_[1]     my \$bool = 1;
-$_[1]     my \@tmp = ( from => \$pos, );
-$_[1]     push \@tmp, (
-$_[1]       match => do{
-$_[1]         my \@match;
-$_[1]         \$bool = 0 unless
-" .             $program . ";
-$_[1]         \\\@match 
-$_[1]       },
-$_[1]     );
-$_[1]     push \@match, { \@tmp, bool => \$bool, to => \$pos };
-$_[1]     \$bool;
-$_[1] }";
-}        
 sub non_capturing_group {
     return emit_rule( $_[0], $_[1] );
 }        
@@ -242,34 +221,66 @@ sub closure {
         "$_[1] ( ( \$capture = sub $code->( \$m ) ) 
 $_[1]   && return \$m )";
 }
-sub named_capture {
-    my $name    = $_[0]{ident};
-    my $program = $_[0]{rule};
+sub capturing_group {
+    my $program = $_[0];
 
     $program = emit_rule( $program, $_[1].'      ' )
         if ref( $program );
-
     return "$_[1] do{ 
-$_[1]     my \$bool = 1;
-$_[1]     my \@tmp = ( from => \$pos, );
-$_[1]     push \@tmp, (
-$_[1]       match => do{
-$_[1]         my \@match;
-$_[1]         \$bool = 0 unless
+$_[1]     my \$hash = do {
+$_[1]       my \$bool = 1;
+$_[1]       my \$from = \$pos;
+$_[1]       my \@match;
+$_[1]       my \%named;
+$_[1]       my \$capture;
+$_[1]       \$bool = 0 unless
 " .             $program . ";
-$_[1]         \\\@match 
-$_[1]       },
-$_[1]     );
-$_[1]     \$named{'$name'} = { \@tmp, bool => \$bool, to => \$pos };
+$_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \$bool, to => \\\$pos, capture => \\\$capture }
+$_[1]     };
+$_[1]     my \$bool = \$hash->{'bool'};
+$_[1]     push \@match, bless \\\$hash, 'Pugs::Runtime::Match::Ratchet';
+$_[1]     \$bool;
+$_[1] }";
+}        
+sub named_capture {
+    my $name    = $_[0]{ident};
+    my $program = $_[0]{rule};
+    $program = emit_rule( $program, $_[1].'        ' )
+        if ref( $program );
+    # TODO - repeated captures create an Array
+    return "$_[1] do{ 
+$_[1]     my \$hash = do {
+$_[1]       my \$bool = 1;
+$_[1]       my \$from = \$pos;
+$_[1]       my \@match;
+$_[1]       my \%named;
+$_[1]       my \$capture;
+$_[1]       \$bool = 0 unless
+" .             $program . ";
+$_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \$bool, to => \\\$pos, capture => \\\$capture }
+$_[1]     };
+$_[1]     my \$bool = \$hash->{'bool'};
+$_[1]     \$named{'$name'} = bless \\\$hash, 'Pugs::Runtime::Match::Ratchet';
 $_[1]     \$bool;
 $_[1] }";
 }
 sub before {
     my $program = $_[0]{rule};
-    return 
-        "$_[1] ... before( \n" . 
-        emit_rule($program, $_[1]) . 
-        "$_[1] )\n";
+    $program = emit_rule( $program, $_[1].'        ' )
+        if ref( $program );
+    return "$_[1] do{ 
+$_[1]     my \$pos1 = \$pos;
+$_[1]     do {
+$_[1]       my \$pos = \$pos1;
+$_[1]       my \$from = \$pos;
+$_[1]       my \@match;
+$_[1]       my \%named;
+$_[1]       my \$capture;
+$_[1]       \$bool = 0 unless
+" .             $program . ";
+$_[1]       \$bool;
+$_[1]     };
+$_[1] }";
 }
 sub colon {
     my $str = $_[0];
@@ -277,6 +288,8 @@ sub colon {
         if $str eq ':';
     return "$_[1] ( \$pos >= length( \$s ) ) \n" 
         if $str eq '$';
+    return "$_[1] ( \$pos == 0 ) \n" 
+        if $str eq '^';
     die "'$str' not implemented";
 }
 sub constant {

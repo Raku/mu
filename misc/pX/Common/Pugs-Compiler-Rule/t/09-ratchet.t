@@ -1,5 +1,5 @@
 
-use Test::More tests => 31;
+use Test::More tests => 40;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -228,6 +228,16 @@ TODO: {
     is( "$match", "bb", 'alternation' );
 }
 
+{
+    # basic named capture
+    my $rule = Pugs::Compiler::Rule->compile('$<cap> := (<ws>)', { ratchet => 1 } );
+    my $match = $rule->match( " " );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", " ", 'named capture' );
+    is( $match->{'cap'}, " ", 'named capture - 2' );
+}
+
 TODO:
 {
     local $TODO = ":p broken in subrule call";
@@ -235,8 +245,57 @@ TODO:
     # basic named capture
     my $rule = Pugs::Compiler::Rule->compile('a<ws>', { ratchet => 1 } );
     my $match = $rule->match( "a b" );
-    print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
-    is( "$match", "a ", 'named capture str' );
+    is( "$match", "a ", 'named capture from subrule' );
     is( $match{'ws'}, " ", 'named capture - 2' );
+}
+
+{
+    # before
+    my $rule = Pugs::Compiler::Rule->compile('a<before b>', { ratchet => 1 } );
+    my $match = $rule->match( "ab" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "a", 'before' );
+
+    $match = $rule->match( "ac" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "", 'not before' );
+
+    # TODO: <!before b>
+}
+
+{
+    # $
+    my $rule = Pugs::Compiler::Rule->compile('a$', { ratchet => 1 } );
+    my $match = $rule->match( "ab" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "", 'not end-of-str' );
+
+    $match = $rule->match( "a" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "a", 'end-of-str' );
+}
+
+{
+    # .
+    my $rule = Pugs::Compiler::Rule->compile('a..', { ratchet => 1 } );
+    my $match = $rule->match( "ab" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "", 'dot underflow' );
+
+    $match = $rule->match( "abc" );
+    print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "abc", 'dot' );
+
+    $match = $rule->match( "abcd" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "abc", 'dot overflow' );
 }
