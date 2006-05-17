@@ -50,3 +50,10 @@ plan 6;
 
   is +@result, 4, "map works with the map body returning an undefined variable";
 }
+
+{
+  my @array  = <a b c d>;
+  my @result = eval 'map { () }, @array';
+
+  is +@result, 0, "map works with the map body returning ()", :todo<bug>;
+}
