@@ -500,7 +500,7 @@ ruleVarDeclaration :: RuleParser Exp
 ruleVarDeclaration = rule "variable declaration" $ do
     scope       <- ruleScope
     typename    <- choice
-        [ lexeme ruleQualifiedIdentifier
+        [ lexeme (optional (string "::") >> ruleQualifiedIdentifier)
         , return ""
         ]  -- Type
     (decl, lhs) <- choice
