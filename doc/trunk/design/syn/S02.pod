@@ -353,7 +353,7 @@ the same performance issues they have in Perl 5.
 
 Built-in object types start with an uppercase letter. This includes
 immutable types (e.g. C<Int>, C<Num>, C<Complex>, C<Rational>, C<Str>,
-C<Bit>, C<Regex>, C<Set>, C<Junction>, C<Code>, B<Block>, C<List>,
+C<Bit>, C<Regex>, C<Set>, C<Junction>, C<Code>, C<Block>, C<List>,
 C<Seq>), as well as mutable (container) types, such as C<Scalar>,
 C<Array>, C<Hash>, C<Buf>, C<Routine>, C<Module>, etc.
 
