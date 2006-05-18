@@ -135,8 +135,9 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     is( "$match", "\n", 'escaped char \\n' );
 }
 
-TODO: {
-    local $TODO = "usage of :!p in token is not specified";
+#TODO: 
+{
+    #local $TODO = "usage of :!p in token is not specified";
     # escaped chars
     my $rule = Pugs::Compiler::Rule->compile( '\d', { ratchet => 1 } );
     my $match = $rule->match( "abc123" );
@@ -145,8 +146,9 @@ TODO: {
     is( "$match", "1", 'escaped char \\d' );
 }
 
-TODO: {
-    local $TODO = "usage of :!p in token is not specified";
+#TODO: 
+{
+    #local $TODO = "usage of :!p in token is not specified";
     # escaped chars
     my $rule = Pugs::Compiler::Rule->compile( '\D', { ratchet => 1 } );
     my $match = $rule->match( "123abc" );
@@ -290,8 +292,8 @@ TODO:
     is( "$match", "", 'dot underflow' );
 
     $match = $rule->match( "abc" );
-    print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "abc", 'dot' );
 
     $match = $rule->match( "abcd" );

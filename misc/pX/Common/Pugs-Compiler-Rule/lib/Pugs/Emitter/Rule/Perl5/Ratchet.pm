@@ -10,6 +10,8 @@ use warnings;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
+my $direction = "+";
+
 # XXX - reuse this sub in metasyntax()
 sub call_subrule {
     my ( $subrule, $tab, @param ) = @_;
@@ -25,7 +27,7 @@ sub call_constant {
     $const = $_[0] eq '\\' ? '\\\\' : $_[0];  # XXX - generalize
     return
     "$_[1] ( ( substr( \$s, \$pos, $len ) eq '$const' ) 
-$_[1]     ? do { \$pos += $len }
+$_[1]     ? do { \$pos $direction= $len }
 $_[1]     : 0
 $_[1] )";
 }
@@ -34,7 +36,7 @@ sub call_perl5 {
     my $const = $_[0];
     return
     "$_[1] ( ( substr( \$s, \$pos ) =~ m/^$const/s )  
-$_[1]     ? do { \$pos += 1 }    # XXX - get pos from regex
+$_[1]     ? do { \$pos $direction= 1 }    # XXX - get pos from regex
 $_[1]     : 0
 $_[1] )";
 }
@@ -58,7 +60,7 @@ sub emit {
         "    my \$bool = 1;\n" .
         "    my \$capture;\n" .
         "    my \$m = bless \\{ \n" .
-        "      str => \\\$s, from => \\\$from, to => \\\$pos, \n" .
+        "      str => \\\$s, from => \\\$from, to => \\(\$pos), \n" .
         "      bool => \\\$bool, match => \\\@match, named => \\\%named, \n" .
         "      capture => \\\$capture, \n" .
         "    }, 'Pugs::Runtime::Match::Ratchet';\n" .
@@ -139,7 +141,12 @@ sub code {
     return "$_[1] $_[0]\n";  
 }        
 sub dot {
-    "$_[1] do { \$pos <= length( \$s ) ? ++\$pos : 0 }"
+    if ( $direction eq '+' ) {
+        "$_[1] do { \$pos < length( \$s ) ? ++\$pos : 0 }"
+    }
+    else {
+        "$_[1] do { \$pos >= 0 ? do{ --\$pos; 1 } : 0 }"
+    }
 }
 sub variable {
     my $name = "$_[0]";
@@ -235,7 +242,7 @@ $_[1]       my \%named;
 $_[1]       my \$capture;
 $_[1]       \$bool = 0 unless
 " .             $program . ";
-$_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \$bool, to => \\\$pos, capture => \\\$capture }
+$_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \$bool, to => \\(0+\$pos), capture => \\\$capture }
 $_[1]     };
 $_[1]     my \$bool = \$hash->{'bool'};
 $_[1]     push \@match, bless \\\$hash, 'Pugs::Runtime::Match::Ratchet';
@@ -257,7 +264,7 @@ $_[1]       my \%named;
 $_[1]       my \$capture;
 $_[1]       \$bool = 0 unless
 " .             $program . ";
-$_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \$bool, to => \\\$pos, capture => \\\$capture }
+$_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \$bool, to => \\(0+\$pos), capture => \\\$capture }
 $_[1]     };
 $_[1]     my \$bool = \$hash->{'bool'};
 $_[1]     \$named{'$name'} = bless \\\$hash, 'Pugs::Runtime::Match::Ratchet';
@@ -418,7 +425,7 @@ sub metasyntax {
             # XXX - inlined char classes are not inheritable, but this should be ok
             return
                 "$_[1] ( ( substr( \$s, \$pos, 1 ) =~ /[[:$cmd:]]/ ) 
-$_[1]     ? ++\$pos
+$_[1]     ? $direction$direction\$pos
 $_[1]     : 0
 $_[1] )";
         }

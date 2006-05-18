@@ -24,7 +24,7 @@ sub new {
     bless $self, $class;
 }
 
-sub from  {  print Dumper($_[0]); ${${$_[0]}->{from}} }
+sub from  {  ${${$_[0]}->{from}} }
 sub to    {  ${${$_[0]}->{to}}   }
 sub bool  {  ${${$_[0]}->{bool}} }
 sub hash  {  ${$_[0]}->{named}   }

@@ -115,7 +115,7 @@ sub match {
             $state,
             \%args,
         );
-        eval { $$match->{from} = 0 };   # XXX
+        eval { $$match->{from} = 0 unless defined $$match->{from} };   # XXX
         return $match;  
     }
 
@@ -127,7 +127,7 @@ sub match {
             $flags->{args},
         );
         $match or next;   
-        eval { $$match->{from} = $i };   # XXX
+        eval { $$match->{from} = $i unless defined $$match->{from} };   # XXX
         return $match;  
     }
     return Pugs::Runtime::Match->new( { bool => 0 } );   # XXX - fix?
