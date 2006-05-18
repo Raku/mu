@@ -10,7 +10,7 @@ This file was created in emacs' org-mode.  Feel free to edit it in the
 Pugs source tree.  I'll keep an eye on the formatting.  For more
 information about org-mode, check out the [[http://staff.science.uva.nl/~dominik/Tools/org/][org home page]].
 
-You can find an html-ized version of this file online at [[http://notebook.aufrank.net/development/p6parsing.html][aufrank's site]].
+You can find an html-ized version of this file online at [[http://notes.aufrank.net/development/perl6/p6parsing.html][aufrank's site]].
 
 The *.pg files in this directory contain some initial attempts at
 writing Perl 6 Grammars for parsing Perl 6.  These are bare bones
@@ -26,22 +26,6 @@ If you'd like to start working on writing Grammars to parse Perl 6,
 here are some of the things that definitely need attention:
 
 * tasks
-** TODO [,]-ify Capture.pg
-   thanks to TimToady++, [,] has taken the place of unary *, and list
-   context eager has taken the place of unary **.  These changes need
-   to be implemented in the named argument handling of Capture.pg
-*** references
-    perl svn doc repo, r9216
-
-** TODO Resync Capture.pg with Synopsis 6
-   audreyt++ checked in a bunch of changes to make named argument
-   parsing simpler.  These need to be implemented.  Off the top of my
-   head, this includes not treating 'foo' => bar as a named argument,
-   and restricting named arguments to using the fat comma pair
-   constructor.
-*** refernences
-    perl6 svn doc repo, r9222
-
 ** TODO Grammar for hash indexing and slicing
    Hash access has a few different sugared forms, using {}, <>, <<>>,
    and their unicode friends I can't type.  A grammar for hash access
@@ -102,3 +86,33 @@ here are some of the things that definitely need attention:
 *** questions
 
 ** TODO Add Synopsis references (and links where possible) to these tasks
+** TODO Find out how to import grammars
+   This should be just like use'ing a module, but I don't know where
+   in the Syns it's described.  Not in S05 or S12, from what I can
+   tell.
+** TODO Set $<context> on unpacked parameters
+   This should be based on which bracketing characters are used for
+   the unpacking: [] = @ context, {} = % context, :() = & context (I
+   think).
+
+* Archived Notes
+
+** DONE(<2006-05-18 Thu 02:44>) [,]-ify Capture.pg
+   CLOSED: [2006-05-18 Thu 02:44]
+   thanks to TimToady++, [,] has taken the place of unary *, and list
+   context eager has taken the place of unary **.  These changes need
+   to be implemented in the named argument handling of Capture.pg
+*** references
+    perl svn doc repo, r9216
+
+
+** DONE(<2006-05-18 Thu 02:44>) Resync Capture.pg with Synopsis 6
+   CLOSED: [2006-05-18 Thu 02:44]
+   audreyt++ checked in a bunch of changes to make named argument
+   parsing simpler.  These need to be implemented.  Off the top of my
+   head, this includes not treating 'foo' => bar as a named argument,
+   and restricting named arguments to using the fat comma pair
+   constructor.
+*** refernences
+    perl6 svn doc repo, r9222
+

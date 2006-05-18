@@ -3,15 +3,46 @@
 # XXX no support for isLValue, isWritable, or isLazy (don't understand isLazy)
 #       described in InternalNames.hs line 798
 
+# ??? does (terminates => *) work with any named rule?  
+#       Can I do <param(terminates => ',')>?
+#       What about [ <foo> <bar> ](terminates => *)
+
 grammar Signature {
 
+    # XXX add unicode alternatives
+    token open_q      { <[<]> } 
+    token close_q     { <[>]> }
+    token open_qq     { <[<]**{2}> } # ??? is this syntax right?
+    token close_qq    { <[>]**{2}> }
+    token open_paren  { <[(]> }
+    token close_paren { <[)]> }
+    token open_curly  { <[{]> }
+    token close_curly { <[}]> }
+    token open_array  { <[[]> }
+    token close_array { <[\]]> }
+    
     # stand-in for bracketing constructs
     # XXX add more or get unicode character classes working
     # XXX after matching an open_group symbol, only count the
     #       appropriate close_group as a match
-    
-    token open_group  { <[<({[]> }   # should be Ps and <
-    token close_group { <[>)}\]]> } # should be Pe and >
+    token open_group  {
+        [
+        | <open_q>
+        | <open_qq>
+        | <open_paren>
+        | <open_curly>
+        | <open_array>
+        ]
+    }
+    token close_group  {
+        [
+        | <close_q>
+        | <close_qq>
+        | <close_paren>
+        | <close_curly>
+        | <close_array>
+        ]
+    }
     token close_param { <[,)]> }
 
     # separator used in multi sigs to separate multiple levels of invocants
@@ -84,9 +115,9 @@ grammar Signature {
     }
 
     # [ $x, *@y ]
-    # XXX how should unpacked params be accessed?  in $<unpacked>?
-    #  in some cases they'll be aliased to something in $<positional|named>
-    #  in other cases, they'll act as anonymous $<positional>
+    # ??? how should unpacked params be accessed?  in $<unpacked>?
+    #   in some cases they'll be aliased to something in $<positional|named>
+    #   in other cases, they'll act as anonymous $<positional>
     token unpacked {
         <open_group> <?ws>* <declarator>? <type_param>? <positional>+ <trait>* <slurpy>* <?ws>* <close_group>
     }
@@ -102,7 +133,7 @@ grammar Signature {
     }
         
     # signature for a single dispatch routine
-    # XXX does this definition backtrack
+    # ??? does this definition backtrack
     rule single_sig {
         [ <param> <unpacked>? <close_param> ]* <slurpy>* <returns>?
     }
