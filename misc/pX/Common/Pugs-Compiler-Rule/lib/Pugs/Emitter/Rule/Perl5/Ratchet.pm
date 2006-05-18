@@ -105,12 +105,12 @@ sub quant {
         "$_[1] )"
         if $quantifier eq '?';
     return 
-        "$_[1] do { while \n$rul {}; 1 }"
+        "$_[1] do { while (\n$rul) {}; 1 }"
         if $quantifier eq '*';
     return
         "$_[1] (\n$rul\n" .
         "$_[1] &&\n" .
-        "$_[1]   do { while \n$rul {}; 1 }\n" .
+        "$_[1]   do { while (\n$rul) {}; 1 }\n" .
         "$_[1] )"
         if $quantifier eq '+';
     die "quantifier not implemented: $quantifier";
