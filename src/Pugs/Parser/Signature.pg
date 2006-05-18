@@ -65,6 +65,7 @@ grammar Signature {
     
     # this allows specifying a type on a parameter, as well parameterizing that type.
     token dwigil    { [:]**{2} }
+    rule declarator { my | our | has | env | state | constant }
     rule type_param { <type> [ <dwigil> <type_var> ]? }
 
     # $x, $^x, $
@@ -83,7 +84,7 @@ grammar Signature {
 
     # *@x
     rule slurpy {
-        <type_param>? <is_slurpy> <positional>? <trait>* <default>?
+        <declarator>? <type_param>? <is_slurpy> <positional>? <trait>* <default>?
     }
 
     # [ $x, *@y ]
@@ -91,11 +92,11 @@ grammar Signature {
     #  in some cases they'll be aliased to something in $<positional|named>
     #  in other cases, they'll act as anonymous $<positional>
     rule unpacked {
-        <open_group> <type_param>? <positional>+ <trait>* <slurpy>* <close_group>
+        <open_group> <declarator>? <type_param>? <positional>+ <trait>* <slurpy>* <close_group>
     }
         
     rule param {
-        <type_param>?
+        <declarator>? <type_param>?
         [
         | <positional>
         | <named>
