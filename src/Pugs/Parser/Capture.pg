@@ -3,29 +3,24 @@
 ### ??? is please answer
 ### XXX is please do ;)
 
-# ??? should adverbs be considered a specialized form of pairs?
-#     ( token adverb would change to token adverbial_pair )
-
-# ??? what's valid on the LHS of a fat comma?
-#       [ <expression> | <bareword> ] is the idea right now
-# ??? what's valid as the RHS of a pair?
-#       <expression> and <.> are the ideas right now
-
 # ??? when capturing values that will be interpolated,
-#      is a string the right representation>
+#      is a string the right representation?
 #      ( e.g. $<value> = "%" ~ "hash" ~ "<a>" )
 
 # ??? any twigils possible in flattened pairs?
 # ??? any twigils possible in hash-access-for-named-args?
 
-# ??? is it possible to pull a key and a value out of a flattened pair during the parse?
-#       if not, just leave $<key> and $<value> blank?
+# ??? is it possible to pull a key and a value out of a flattened pair
+#       during the parse?  if not, just leave $<key> and $<value>
+#       blank?
 
 # XXX need a generalized <hash_index> subrule
 #       should include different brace semantics
 
 # XXX need a generalized <quoted_value> subrule
 #       should include qq{*} and friends
+
+# XXX general pair handling should be moved to a separate grammar
 
 grammar Capture {
 
@@ -35,14 +30,14 @@ grammar Capture {
     token close_group { <[>)}\]]> } # should be Pe and >
                            
     # perl6 sigils in captures
-    # ??? this is probably the wrong place to define context, no?
+    # ??? define context here, or later in the parse?
     token is_array  { $<context> := <[@]> }
     token is_scalar { $<context> := <[$]> }
     token is_code   { $<context> := <[&]> }
     token is_hash   { $<context> := <[%]> }
     token sigil     { <is_scalar> | <is_array> | <is_hash> | <is_code> }
     token name      { [ <alpha> | _ ]+ [ <alpha> | \d | _ ]+  }
-    token value     { <.> }
+    token value     { <expression> }
     
     # the colon appears in a few different positions to indicate named-ness
     token is_named   { <[:]> }
@@ -64,26 +59,39 @@ grammar Capture {
 
     # anonymous pair form of named arguments
     # foo => bar, 'foo' => bar, and 'foo', 'bar'
-    # XXX this mistakenly allows foo, bar.
-    #       barewords should only be allowed with fat commas
+    # XXX same problem as bracketing characters: need character
+    #       classes and smart open/close behavior
+    
     token open_quote       { <['"]> } 
     token close_quote      { <['"]> } 
     token fat_comma        { =\> }
     token pair_constructor { <fat_comma> | <[,]> }
-    token pair_rhs         { <expression> }
-    token pair_lhs         {
+    token pair_value       { <expression( terminates => ',' )> }
+    token bareword_key     { <name> }
+    token quoted_key       { <open_quote> <name> <close_quote> }
+    token complex_key      { <expression> }
+    token pair_key {
         [
-        | <open_quote>? <name> <close_quote>? # quoted or bareword
-        | <expression>                            # anything else?
+        | <bareword_key>
+        | <quoted_key>
+        | <complex_key>
         ]
     }
+
+    # only args with bareword keys are parsed as named
+    # ??? should this be turned into some sort of check on a general
+    #       pair match?
+    rule bareword_pair {
+         [ $<key> := <bareword_key> ] <fat_comma> [ $<value> := <pair_value> ]
+    }
+    
     rule  anonymous_pair    { 
-        [ $<key> := <pair_lhs> ] <pair_constructor> [ <$value> := <pair_rhs> ] 
+        [ $<key> := <pair_key> ] <pair_constructor> [ $<value> := <pair_value> ] 
     }
     
     # flattened pair form of named arguments
     # *$pair
-    token is_flattened  { <[*]> }
+    token is_flattened  { <[\[,\]]> }
     token flattened_pair {
         <is_flattened> <sigil> <twigil>? <name>
     }
@@ -95,8 +103,8 @@ grammar Capture {
     #       and factored out into a more general grammar
     token is_hash { <[%]> }
     token hashed_pair { 
-        <is_hash> <name> <is_named> <open_group> <pair_lhs> <close_group>
-        : { $<key>   := $<pair_lhs> }
+        <is_hash> <name> <is_named> <open_group> <pair_key> <close_group>
+        : { $<key>   := $<pair_key> }
         : { $<value> := $<is_hash> ~ $<name> ~ $<open_group> ~ $<key> ~ $<close_group> }
     }
 
@@ -112,8 +120,19 @@ grammar Capture {
 
     # integrating all forms of named arguments into one token
     token named_arg {
-          | <pair>
-          : $<arg_name>  := $<key>
-          : $<arg_value> := $<value>
+         | <bareword_pair>
+         | <adverbial_pair>
+         | <hashed_pair>
+         : $<arg_name>  := $<key>
+         : $<arg_value> := $<value>
+    }
+
+    token positional { <expression( terminates => ',' )> }
+
+    rule capture {
+        [
+        | <named>
+        | <positional>
+        ]*
     }
 }
