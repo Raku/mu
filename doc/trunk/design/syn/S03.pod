@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 15 May 2006
+  Last Modified: 18 May 2006
   Number: 3
-  Version: 33
+  Version: 34
 
 =head1 Changes to existing operators
 
@@ -59,7 +59,10 @@ as a single huge integer.
 
 =item * C<x> splits into two operators: C<x> (which concatenates repetitions 
 of a string to produce a single string), and C<xx> (which creates a list of 
-repetitions of a list or scalar).
+repetitions of a list or scalar).  C<"foo" xx *> represents an arbitrary
+number of copies, useful for initializing lists.  The left side of
+an C<xx> is evaluated only once.  (To call a block repeatedly, use a C<map>
+instead.)
 
 =item * Trinary C<? :> becomes C<?? !!>.  It is a syntax error to use an
 operator in the middle that binds looser in precedence, such as C<=>.
