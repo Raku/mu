@@ -3,17 +3,13 @@
 # XXX no support for isLValue, isWritable, or isLazy (don't understand isLazy)
 #       described in InternalNames.hs line 798
 
-# XXX trusting rules to DWIM for whitespace.
-#   Do I have to be explicit in places where whitespace is _not_ allowed?
-#     $ foo # should not be allowed
-#     -- the way to do it is to _not_ write whitespace between the two subrules.
-#   Do I have to be explicit about places where whitespace is required?
-#     $foo is rwis deep # should not be allowed
-#     -- :words will take care of that.
-
 grammar Signature {
+
     # stand-in for bracketing constructs
     # XXX add more or get unicode character classes working
+    # XXX after matching an open_group symbol, only count the
+    #       appropriate close_group as a match
+    
     token open_group  { <[<({[]> }   # should be Ps and <
     token close_group { <[>)}\]]> } # should be Pe and >
     token close_param { <[,)]> }
@@ -35,7 +31,7 @@ grammar Signature {
     token external     { <param_name> }
 
     # defaults for arguments can be assigned in the sig
-    rule default { = $<default> := <expression( terminates => ',' )> }
+    token default { = <?ws>? $<default> := <expression( terminates => ',' )> }
     
     # types start with an uppercase letter
     token type_name { <upper>+ [ <alpha> | _ | \d ]* }
@@ -43,7 +39,7 @@ grammar Signature {
     token ret_type  { <type_name> }
     token type_var  { <type_name> }
     token ret_arrow { \-\-\> }
-    rule  returns   { <ret_arrow> <ret_type> }
+    token returns   { <ret_arrow> <?ws>* <ret_type> }
     
     # parse *@x and :$x and mark for slurpy/named
     token is_named    { <[:]> }
@@ -61,20 +57,20 @@ grammar Signature {
 
     # traits have the same rules for names as params
     token trait_name := param_name;
-    token trait { is \s+ <trait_name> }
+    token trait { is <?ws>+ <trait_name> }
     
     # this allows specifying a type on a parameter, as well parameterizing that type.
     token dwigil    { [:]**{2} }
-    rule declarator { my | our | has | env | state | constant }
-    rule type_param { <type> [ <dwigil> <type_var> ]? }
+    token declarator { my | our | has | env | state | constant }
+    token type_param { <type> <?ws>+ [ <dwigil> <?ws>* <type_var> ]? }
 
     # $x, $^x, $
-    rule positional {
+    token positional {
         [ <sigil> <twigil>? $<internal> := <external>? ]
     }
 
     # :$x, :x($y), :$, :$(x)
-    rule named {
+    token named {
         <is_named>
         [
         | <sigil> $<internal> := <external>?
@@ -83,7 +79,7 @@ grammar Signature {
     }
 
     # *@x
-    rule slurpy {
+    token slurpy {
         <declarator>? <type_param>? <is_slurpy> <positional>? <trait>* <default>?
     }
 
@@ -91,8 +87,8 @@ grammar Signature {
     # XXX how should unpacked params be accessed?  in $<unpacked>?
     #  in some cases they'll be aliased to something in $<positional|named>
     #  in other cases, they'll act as anonymous $<positional>
-    rule unpacked {
-        <open_group> <declarator>? <type_param>? <positional>+ <trait>* <slurpy>* <close_group>
+    token unpacked {
+        <open_group> <?ws>* <declarator>? <type_param>? <positional>+ <trait>* <slurpy>* <?ws>* <close_group>
     }
         
     rule param {
@@ -117,4 +113,3 @@ grammar Signature {
         : { @single_sig[ *..( +$<tiebreak> - 1 ) ]<is_invocant> >>++ } # thanks audreyt++
     }
 }
-xs
