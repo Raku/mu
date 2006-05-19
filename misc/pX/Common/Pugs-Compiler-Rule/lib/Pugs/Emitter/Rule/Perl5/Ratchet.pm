@@ -10,7 +10,7 @@ use warnings;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
-my $direction = "+";
+our $direction = "+";  # XXX make lexical
 
 # XXX - reuse this sub in metasyntax()
 sub call_subrule {
@@ -27,7 +27,7 @@ sub call_constant {
     $const = $_[0] eq '\\' ? '\\\\' : $_[0];  # XXX - generalize
     return
     "$_[1] ( ( substr( \$s, \$pos, $len ) eq '$const' ) 
-$_[1]     ? do { \$pos $direction= $len }
+$_[1]     ? do { \$pos $direction= $len; 1 }
 $_[1]     : 0
 $_[1] )";
 }
@@ -36,7 +36,7 @@ sub call_perl5 {
     my $const = $_[0];
     return
     "$_[1] ( ( substr( \$s, \$pos ) =~ m/^$const/s )  
-$_[1]     ? do { \$pos $direction= 1 }    # XXX - get pos from regex
+$_[1]     ? do { \$pos $direction= 1; 1 }    # XXX - get pos from regex
 $_[1]     : 0
 $_[1] )";
 }
@@ -47,26 +47,25 @@ sub emit {
     # rule parameters: see Runtime::Rule.pm
     return 
         "sub {\n" . 
-        "    my \$grammar = \$_[0];\n" .
-        "    my \$s = \$_[1];\n" .
-        "    my \$pos = \$_[2]{p};\n" .
-        #"    print \"match arg_list = \$_[1]\n\";\n" .
-        #"    print \"match arg_list = \@{[\%{\$_[1]} ]}\n\" if defined \$_[1];\n" .
-        "    \$pos = 0 unless defined \$pos;   # TODO - .*? \$match \n" .
-        #"    print \"match pos = \$pos\n\";\n" .
-        "    my \@match;\n" .
-        "    my \%named;\n" .
-        "    my \$from = \$pos;\n" .
-        "    my \$bool = 1;\n" .
-        "    my \$capture;\n" .
-        "    my \$m = bless \\{ \n" .
-        "      str => \\\$s, from => \\\$from, to => \\(\$pos), \n" .
-        "      bool => \\\$bool, match => \\\@match, named => \\\%named, \n" .
-        "      capture => \\\$capture, \n" .
-        "    }, 'Pugs::Runtime::Match::Ratchet';\n" .
-        "    \$bool = 0 unless\n" .
-        emit_rule( $ast, '    ' ) . ";\n" .
-        "    return \$m;\n" .
+        "  my \$grammar = \$_[0];\n" .
+        "  my \$s = \$_[1];\n" .
+        "  my \$pos = \$_[3]{p};\n" .
+        #"  print \"match arg_list = \$_[1]\n\";\n" .
+        #"  print \"match arg_list = \@{[\%{\$_[1]} ]}\n\" if defined \$_[1];\n" .
+        "  \$pos = 0 unless defined \$pos;   # TODO - .*? \$match \n" .
+        #"  print \"match pos = \$pos\n\";\n" .
+        "  my \@match;\n" .
+        "  my \%named;\n" .
+        #"  my \$from = \$pos;\n" .
+        "  my \$bool = 1;\n" .
+        "  my \$capture;\n" .
+        "  my \$m = bless \\{ \n" .
+        "    str => \\\$s, from => \\(0+\$pos), to => \\(\$pos), \n" .
+        "    bool => \\\$bool, match => \\\@match, named => \\\%named, capture => \\\$capture, \n" .
+        "  }, 'Pugs::Runtime::Match::Ratchet';\n" .
+        "  \$bool = 0 unless\n" .
+        emit_rule( $ast, ' ' ) . ";\n" .
+        "  return \$m;\n" .
         "}\n";
 }
 
@@ -92,11 +91,13 @@ sub quant {
     my $term = $_[0]->{'term'};
     my $quantifier = $_[0]->{quant};
     $quantifier = '' unless defined $quantifier;
-    my $rul = emit_rule( $term, $_[1] . "  " );
-    return $rul
+    # TODO: fix grammar to not emit empty quantifier
+    return emit_rule( $term, $_[1] )
         if $quantifier eq '';
+    my $rul = emit_rule( $term, $_[1] . "  " );
     # *  +  ?
     # TODO: *? +? ??
+    # TODO: *+ ++ ?+
     # TODO: quantifier + capture creates Array
     return 
         "$_[1] (\n$rul\n" .
@@ -135,6 +136,7 @@ sub concat {
         my $tmp = emit_rule( $_, $_[1] );
         push @s, $tmp if $tmp;   
     }
+    @s = reverse @s if $direction eq '-';
     return "$_[1] (\n" . join( "\n$_[1] &&\n", @s ) . "\n$_[1] )";
 }        
 sub code {
@@ -289,6 +291,25 @@ $_[1]       \$bool;
 $_[1]     };
 $_[1] }";
 }
+sub after {
+    local $direction = "-";
+    my $program = $_[0]{rule};
+    $program = emit_rule( $program, $_[1].'        ' )
+        if ref( $program );
+    return "$_[1] do{ 
+$_[1]     my \$pos1 = \$pos;
+$_[1]     do {
+$_[1]       my \$pos = \$pos1 - 1;
+$_[1]       my \$from = \$pos;
+$_[1]       my \@match;
+$_[1]       my \%named;
+$_[1]       my \$capture;
+$_[1]       \$bool = 0 unless
+" .             $program . ";
+$_[1]       \$bool;
+$_[1]     };
+$_[1] }";
+}
 sub colon {
     my $str = $_[0];
     return "$_[1] # : no-op\n"
@@ -342,6 +363,7 @@ sub metasyntax {
                 "$_[1]           push \@match,\n" . 
                 "$_[1]             $cmd->match( \$s, \$grammar, {p => \$pos}, undef );\n" .
                 "$_[1]           \$pos = \$match[-1]->to;\n" .
+                "$_[1]           !\$match[-1] != 1;\n" .
                 "$_[1]         }"
         }
         # call method in lexical $var
@@ -352,6 +374,7 @@ sub metasyntax {
                 "$_[1]           push \@match,\n" . 
                 "$_[1]             \$r->match( \$s, \$grammar, {p => \$pos}, undef );\n" .
                 "$_[1]           \$pos = \$match[-1]->to;\n" .
+                "$_[1]           !\$match[-1] != 1;\n" .
                 "$_[1]         }"
     }
     if ( $prefix eq q(') ) {   # single quoted literal ' 
@@ -399,12 +422,7 @@ sub metasyntax {
             return;
     }
     if ( $prefix =~ /[_[:alnum:]]/ ) {  
-        # "before" is handled in a separate rule, because it requires compilation
-        # if ( $cmd =~ /^before\s+(.*)/s ) {
-        if ( $cmd =~ /^after\s+(.*)/s ) {
-            warn "<after ...> not implemented";
-            return;
-        }
+        # "before" and "after" are handled in a separate rule
         if ( $cmd eq 'cut' ) {
             warn "<$cmd> not implemented";
             return;
@@ -425,7 +443,7 @@ sub metasyntax {
             # XXX - inlined char classes are not inheritable, but this should be ok
             return
                 "$_[1] ( ( substr( \$s, \$pos, 1 ) =~ /[[:$cmd:]]/ ) 
-$_[1]     ? $direction$direction\$pos
+$_[1]     ? do { $direction$direction\$pos; 1 }
 $_[1]     : 0
 $_[1] )";
         }

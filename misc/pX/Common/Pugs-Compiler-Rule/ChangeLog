@@ -1,10 +1,12 @@
+- '<after ...>' - in :ratchet mode only
+
 - the 'p' argument should now be specified as 'p => 0' instead of 'p => 1'.
   The default is 'p => undef'.
 
 - added an initial implementation of ':ratchet'. 
-  several tests are still failing (t/09-ratchet.t)
+  some tests are still failing (t/09-ratchet.t)
 
-- implemented parameters in subrule call (positionals only, constants only)
+- implemented parameters in subrule call (named only, constants only)
 
 - '<before ...>', '$'
 

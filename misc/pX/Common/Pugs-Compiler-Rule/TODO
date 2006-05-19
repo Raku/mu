@@ -7,18 +7,20 @@ Sigspace:
 Ratchet:
 
 - subrules need to know current "$pos"
-- match with :!p switch
+- fix match with :!p switch in Compiler::Rule and non-ratchet
 - document what's done
 - more tests
   - interoperability with non-ratchet
-- separate named/positional captures
-- named captures (%named)
 - quantifiers
   - implement ?? +? *?
+  - implement ?+ ++ *+
   - implement captures to Array inside quantifiers
 - is :ratchet allowed as a runtime switch?
   - are there runtime switches?
-  
+  - is :+ the non-ratchet specifier?
+- implement <%hash> using trie
+- char classes
+
 Perl 6 parser:
 
 - implement Perl 6 minilanguages (and categories).
@@ -29,7 +31,7 @@ Perl 6 parser:
 Priorities:
 
 - features used in PGE P6 Grammar
-- <after ...>
+- <after ...> in non-ratchet
 - char classes
 
 - make PadWalker optional, as most distros don't hold PW 1.0
@@ -79,6 +81,8 @@ Categories:
 
 Tests:
 
+- unify ratchet/non-ratchet tests
+
 - add categories looser/tighter than current boundaries
 
 - backtracking control ':' 
@@ -90,6 +94,7 @@ Tests:
 Related projects:
 
 - implement (optional?) PCR in pugs
+- implement PCR using pugs
 
 - use PCR in lrep
   - merge the 'dual engine' in PCR (used by the lrep-compiled grammar)
@@ -103,7 +108,7 @@ Other:
 
 - migrate Pugs::Grammar::Rule::Rule compilation to PCR
 
-- cleanup the engine: it is both returning the match, and building the match tree.
+- cleanup the non-ratchet engine: it is both returning the match, and building the match tree.
   There is no need to return the match.
 
 - closures should be called on the Match object

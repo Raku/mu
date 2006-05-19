@@ -2,6 +2,7 @@ package Pugs::Grammar::Base;
 use Pugs::Runtime::Match;
 
 # This class defines <ws>, unicode character classes, etc
+# runtime parameters are: $grammar, $string, $flags, $state
 
 # internal methods - not in spec
 
@@ -10,30 +11,33 @@ sub no_match {
 }
 
 sub any {
-    my $class = shift;
-    return $class->no_match unless $_[0];
+    my $grammar = shift;
+    return $grammar->no_match unless $_[0];
+    my $pos = $_[1]{p} || 0;
     return Pugs::Runtime::Match->new( { 
         bool  => 1,
         match => $1,
         tail  => $2,
     } )
-        if $_[0] =~ /^(.)(.*)$/s;
-    return $class->no_match;
+        if $_[0] =~ /^.{$pos}(.)(.*)$/s;
+    return $grammar->no_match;
 };
 
 # specced methods
 
 sub ws {
-    my $class = shift;
-    return $class->no_match unless $_[0];
+    my $grammar = shift;
+    return $grammar->no_match unless $_[0];
+    my $pos = $_[1]{p} || 0;
+    #print "POS $pos ";
     return Pugs::Runtime::Match->new( { 
         bool  => 1,
         match => $1,
         tail  => $2,
         capture => $1,
     } )
-        if $_[0] =~ /^(\s+)(.*)$/s;
-    return $class->no_match;
+        if $_[0] =~ /^.{$pos}(\s+)(.*)$/s;
+    return $grammar->no_match;
 };
 
 BEGIN {
@@ -54,10 +58,11 @@ upper
 word
 xdigit
 ) ) {
-        my $rx = qr(^([[:$char_class:]])(.*)$);
+        #my $rx = qr(^.{$pos}([[:$char_class:]])(.*)$);
         *{$char_class} = sub {
-            my $class = shift;
-            return $class->no_match unless $_[0];
+            my $grammar = shift;
+            return $grammar->no_match unless $_[0];
+            my $pos = $_[1]{p} || 0;
             #my ($test, $tail) = $_[0] =~ /$rx/;
             #warn "Matching $char_class in [$_[0]] == [$test,$tail]";
             return Pugs::Runtime::Match->new( { 
@@ -66,8 +71,9 @@ xdigit
                 tail  => $2,
                 capture => $1,
             } )
-                if $_[0] =~ /$rx/;
-            return $class->no_match;
+                if $_[0] =~ # /$rx/;
+                    /^.{$pos}([[:$char_class:]])(.*)$/;
+            return $grammar->no_match;
         };
     }
 }

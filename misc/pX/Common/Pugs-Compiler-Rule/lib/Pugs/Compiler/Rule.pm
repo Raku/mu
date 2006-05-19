@@ -115,7 +115,7 @@ sub match {
             $state,
             \%args,
         );
-        eval { $$match->{from} = 0 unless defined $$match->{from} };   # XXX
+        eval { $$match->{from} = 0 };   # XXX
         return $match;  
     }
 

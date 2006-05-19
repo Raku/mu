@@ -98,6 +98,16 @@ rule num_variable :P5 {^(?:\$[[:digit:]]+)}
     }
     unshift @rule_terms, 'before';
         
+    rule after {
+        \< after <?ws> <rule> \> 
+        
+        { return { after => {
+                rule  => $_[0]{rule}(),
+            }, } 
+        }
+    }
+    unshift @rule_terms, 'after';
+        
     rule capturing_group {
         \( <rule> \)
             

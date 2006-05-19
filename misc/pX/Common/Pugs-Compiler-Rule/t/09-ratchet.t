@@ -1,5 +1,5 @@
 
-use Test::More tests => 40;
+use Test::More tests => 42;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -242,7 +242,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 TODO:
 {
-    local $TODO = ":p broken in subrule call";
+    local $TODO = ":p broken in non-ratchet subrule call";
     
     # basic named capture
     my $rule = Pugs::Compiler::Rule->compile('a<ws>', { ratchet => 1 } );
@@ -300,4 +300,22 @@ TODO:
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "abc", 'dot overflow' );
+}
+
+{
+    # after
+    my $rule1 = Pugs::Compiler::Rule->compile('<after xyz>a', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Rule->compile('...<$rule1>', { ratchet => 1 } );
+    my $match = $rule->match( "xyzab" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Source: ", do{use Data::Dumper; Dumper($rule1->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "xyza", 'after' );
+
+    $match = $rule->match( "xyyac" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "", 'not after' );
+
+    # TODO: <!after b>
 }

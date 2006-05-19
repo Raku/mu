@@ -17,7 +17,7 @@ sub call_subrule {
     return 
         "$tab sub{ \n" .
         "$tab     # param: @param \n" .
-        "$tab     $subrule( \$_[0], { p => 1, args => {" . join(", ",@param) . "} }, \$_[1] );\n" .
+        "$tab     $subrule( \$_[0], { p => 0, args => {" . join(", ",@param) . "} }, \$_[1] );\n" .
         "$tab }\n";
 }
 
@@ -33,11 +33,14 @@ sub emit {
         "  sub {\n" . 
         "    my \$grammar = shift;\n" .
         "    my \$tree;\n" .
+        "    my \$pos = \$_[2]{p};\n" .
+        "    \$pos = 0 unless defined \$pos;   # TODO - .*? \$match \n" .
+        "    my \$s = \$_[0]; # TODO - substr( \$_[0], \$pos );\n" .
         # "    print \"\\nVariables: args[\", join(\",\",\@_) ,\"] \\n\";\n" .
         # "    print \"         : \@{\$_[2]}} \\n\" if defined \$_[2];\n" .
         # "    \$_[0] = '' unless defined \$_[0];\n" .
         "    my \$match = rule_wrapper( \$_[0], \n" . 
-        "        \$matcher->( \$_[0], \$_[1], \$tree, \$tree, \$grammar, 0, \$_[0], \$_[2] )\n" .
+        "        \$matcher->( \$s, \$_[1], \$tree, \$tree, \$grammar, 0, \$s, \$_[2] )\n" .
         "    );\n" .
         "    return Pugs::Runtime::Match->new( \$match );\n" .
         "  }\n" .
@@ -249,13 +252,13 @@ sub metasyntax {
         if ( $cmd =~ /::/ ) {
             # call method in fully qualified $package::var
             return 
-                "$_[1] sub { $cmd->match( \@_[0, 4], {p => 1}, \$_[1] ) }\n";
+                "$_[1] sub { $cmd->match( \@_[0, 4], {p => 0}, \$_[1] ) }\n";
         }
         # call method in lexical $var
         return 
             "$_[1] sub { \n" . 
             "$_[1]     my \$r = get_variable( '$cmd' );\n" . 
-            "$_[1]     \$r->match( \@_[0, 4], {p => 1}, \$_[1] );\n" .
+            "$_[1]     \$r->match( \@_[0, 4], {p => 0}, \$_[1] );\n" .
             "$_[1] }\n";
     }
     if ( $prefix eq q(') ) {   # single quoted literal ' 
