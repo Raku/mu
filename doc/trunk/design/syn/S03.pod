@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 18 May 2006
+  Last Modified: 19 May 2006
   Number: 3
-  Version: 34
+  Version: 35
 
 =head1 Changes to existing operators
 
@@ -326,7 +326,7 @@ For example:
 
      (1,1,2,3,5) »+« (1,2,3,5,8);  # (2,3,5,8,13)
 
-If one argument is insufficiently dimensioned, Perl "upgrades" it:
+If either argument is insufficiently dimensioned, Perl "upgrades" it:
 
      (3,8,2,9,3,8) >>-<< 1;          # (2,7,1,8,2,7)
 
@@ -354,11 +354,26 @@ Hyper operators are defined recursively on arrays, so:
     [[1, 2], 3] »+« [4, [5, 6]]  #    [[1,2] »+« 4, 3 »+« [5, 6]]
                                  # == [[5, 6], [8, 9]]
 
-You are not allowed to define your own hyper operators, because they are
-supposed to have consistent semantics derivable entirely from the modified
-scalar operator.  If you're looking for a mathematical vector product, this
-isn't where you'll find it.  A hyperoperator is one of the ways that you
-can promise to the optimizer that your code is parallelizable.
+More generally, hyper operators work recursively for any object
+matching the C<Each> role even if the object itself doesn't support
+the operator in question:
+
+    Bag(3,8,[2,Seq(9,3]],8) >>-<< 1;         # Bag(2,7,[1,Seq(8,2)],7)
+    Bag(3,8,[2,Seq(9,3)],8) >>-<< (1,1,1,1); # Bag(2,7,[1,Seq(8,2)],7)
+    Bag(3,8,[2,Seq(9,3)],8) >>-<< (1,1,2,1); # Bag(2,7,[2,Seq(9,3)],7)
+
+In particular, tree node types with C<Each> semantics enable visitation:
+
+    $tree.».foo;		# short for $tree.each: { .foo }
+
+You are not allowed to define your own hyper operators, because they
+are supposed to have consistent semantics derivable entirely from
+the modified scalar operator.  If you're looking for a mathematical
+vector product, this isn't where you'll find it.  A hyperoperator
+is one of the ways that you can promise to the optimizer that your
+code is parallelizable.  (The tree visitation above is allowed to
+have side effects, but it is erroneous for the meaning of those side
+effects to depend on the order of visitation.)
 
 =head1 Reduction operators
 
