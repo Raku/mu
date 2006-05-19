@@ -330,7 +330,13 @@ If either argument is insufficiently dimensioned, Perl "upgrades" it:
 
      (3,8,2,9,3,8) >>-<< 1;          # (2,7,1,8,2,7)
 
-When using a unary operator, only put it on the side of the single operand:
+In fact, this is the I<only> form that will work for an unordered type
+such as a Bag:
+
+     Bag(3,8,2,9,3,8) >>-<< 1;       # Bag(2,7,1,8,2,7) ~~ Bag(1,2,2,7,7,8)
+
+When using a unary operator, only put the "hyper" on the side of the
+single operand:
 
      @negatives = -« @positives;
 
@@ -358,13 +364,18 @@ More generally, hyper operators work recursively for any object
 matching the C<Each> role even if the object itself doesn't support
 the operator in question:
 
-    Bag(3,8,[2,Seq(9,3]],8) >>-<< 1;         # Bag(2,7,[1,Seq(8,2)],7)
-    Bag(3,8,[2,Seq(9,3)],8) >>-<< (1,1,1,1); # Bag(2,7,[1,Seq(8,2)],7)
-    Bag(3,8,[2,Seq(9,3)],8) >>-<< (1,1,2,1); # Bag(2,7,[0,Seq(7,1)],7)
+    Bag(3,8,[2,Seq(9,3)],8) >>-<< 1;         # Bag(2,7,[1,Seq(8,2)],7)
+    Seq(3,8,[2,Seq(9,3)],8) >>-<< (1,1,2,1); # Seq(2,7,[0,Seq(7,1)],7)
 
 In particular, tree node types with C<Each> semantics enable visitation:
 
-    $tree.».foo;		# short for $tree.each: { .?foo; .».foo }
+    $tree.».foo;	# short for $tree.foo, $tree.each: { .».foo }
+
+If not all nodes support the operation, you need a form of it that
+specifies the call is optional:
+
+    $tree.».?foo;	# short for $tree.?foo, $tree.each: { .».?foo }
+    $tree.».*foo;	# short for $tree.*foo, $tree.each: { .».*foo }
 
 You are not allowed to define your own hyper operators, because they
 are supposed to have consistent semantics derivable entirely from
@@ -373,7 +384,9 @@ vector product, this isn't where you'll find it.  A hyperoperator
 is one of the ways that you can promise to the optimizer that your
 code is parallelizable.  (The tree visitation above is allowed to
 have side effects, but it is erroneous for the meaning of those side
-effects to depend on the order of visitation.)
+effects to depend on the order of visitation.  [Conjecture: we could
+allow dependencies that assume top-down visitation and only leaves
+sibling calls unordered.])
 
 =head1 Reduction operators
 
