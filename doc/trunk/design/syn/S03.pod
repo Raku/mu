@@ -360,11 +360,11 @@ the operator in question:
 
     Bag(3,8,[2,Seq(9,3]],8) >>-<< 1;         # Bag(2,7,[1,Seq(8,2)],7)
     Bag(3,8,[2,Seq(9,3)],8) >>-<< (1,1,1,1); # Bag(2,7,[1,Seq(8,2)],7)
-    Bag(3,8,[2,Seq(9,3)],8) >>-<< (1,1,2,1); # Bag(2,7,[2,Seq(9,3)],7)
+    Bag(3,8,[2,Seq(9,3)],8) >>-<< (1,1,2,1); # Bag(2,7,[0,Seq(7,1)],7)
 
 In particular, tree node types with C<Each> semantics enable visitation:
 
-    $tree.».foo;		# short for $tree.each: { .foo }
+    $tree.».foo;		# short for $tree.each: { .?foo; .».foo }
 
 You are not allowed to define your own hyper operators, because they
 are supposed to have consistent semantics derivable entirely from
