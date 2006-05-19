@@ -459,9 +459,10 @@ $_[1] )";
                 "$_[1]         do {\n" . 
                 "$_[1]           push \@match,\n" . 
                     call_subrule( $subrule, $_[1]."        ", @param ) . ";\n" .
-                "$_[1]           \$pos = \$match[-1]->to;\n" .
+                "$_[1]           my \$bool = (!\$match[-1] != 1);\n" .
+                "$_[1]           \$pos = \$match[-1]->to if \$bool;\n" .
                 #"print !\$match[-1], ' ', Dumper \$match[-1];\n" .
-                "$_[1]           !\$match[-1] != 1;\n" .
+                "$_[1]           \$bool;\n" .
                 "$_[1]         }"
             }, 
             $_[1],    

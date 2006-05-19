@@ -18,6 +18,7 @@ sub any {
         bool  => 1,
         match => $1,
         tail  => $2,
+        from  => $pos,
     } )
         if $_[0] =~ /^.{$pos}(.)(.*)$/s;
     return $grammar->no_match;
