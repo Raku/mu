@@ -1,3 +1,6 @@
+
+0.03  2006-05-20
+
 - '<after ...>' - in :ratchet mode only
 
 - the 'p' switch should now be specified as 'p => 0' instead of 'p => 1'.
