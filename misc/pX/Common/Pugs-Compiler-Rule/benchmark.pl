@@ -65,13 +65,25 @@ use Benchmark;
 use Pugs::Compiler::Rule;
 my $rpcr = Pugs::Compiler::Rule->compile('[a|b](b)');
 my $rpcr2 = Pugs::Compiler::Rule->compile('[a|b](b)', { ratchet => 1 } );
-print $rpcr2->perl5;
-print "Benchmark:\n";
-Benchmark::cmpthese(500, {
-    PCR_x1         => sub{ $rpcr->match('abc')  for 1..40},
-    PCR_ratchet_x1 => sub{ $rpcr2->match('abc') for 1..40},
-    fast_x10       => sub{ $x->('abc')          for 1..400},
-    P5regex_x100   => sub{ 'abc' =~ /[a|b](b)/o for 1..4000},
-});
+print $rpcr2->perl5, "\n";
+
+{
+    print "P5 regex benchmark:\n";
+    my $s = 'abcdefg';
+    Benchmark::cmpthese(500, {
+        substr         => sub{ substr($s,3,1) eq 'd' for 1..1000},
+        regex          => sub{ $s =~ /^.{3}d/os      for 1..1000},
+    });
+}
+
+{
+    print "Benchmark:\n";
+    Benchmark::cmpthese(500, {
+        PCR_x1         => sub{ $rpcr->match('abc')  for 1..40},
+        PCR_ratchet_x1 => sub{ $rpcr2->match('abc') for 1..40},
+        fast_x10       => sub{ $x->('abc')          for 1..400},
+        P5regex_x100   => sub{ 'abc' =~ /[a|b](b)/o for 1..4000},
+    });
+}
 
 }

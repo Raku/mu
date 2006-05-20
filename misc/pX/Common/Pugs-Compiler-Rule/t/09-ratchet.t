@@ -92,6 +92,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     # calling unnamed subrules
     my $match;
     my $rule2 = Pugs::Compiler::Rule->compile( '.', { ratchet => 1 } );
+    #print "Source: ", do{use Data::Dumper; Dumper( $rule2->perl5 )};
     eval {
     *test::rule_method6 = Pugs::Compiler::Rule->compile( '<$rule2>', { ratchet => 1 } )->code;
     $match = test->rule_method6( "xyzw" );
@@ -124,7 +125,9 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 {
     # escaped chars
     my $rule = Pugs::Compiler::Rule->compile( '\(', { ratchet => 1 } );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->perl5)};
     my $match = $rule->match( "(xy12)" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "(", 'escaped char' );
 }
 
@@ -240,9 +243,9 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     is( $match->{'cap'}, " ", 'named capture - 2' );
 }
 
-TODO:
+#TODO:
 {
-    local $TODO = ":p broken in non-ratchet subrule call";
+    #local $TODO = ":p broken in non-ratchet subrule call";
     
     # basic named capture
     my $rule = Pugs::Compiler::Rule->compile('a<ws>', { ratchet => 1 } );
@@ -250,7 +253,7 @@ TODO:
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "a ", 'named capture from subrule' );
-    is( $match{'ws'}, " ", 'named capture - 2' );
+    is( $match->{'ws'}, " ", 'named capture - 2' );
 }
 
 {
