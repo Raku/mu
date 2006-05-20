@@ -222,6 +222,50 @@ typedef struct L_EAFSTRING
 
 #endif // JU_32BIT
 
+
+// Copy 4 bytes from a Word_t to a string
+// NOTE: the copy is in little-endian order, as above,
+// for compactness of indices with short strings.
+// (This is used for building the returned index string
+// in the JudyHSIter routines.)
+// 
+#define COPYWORD4toSTRING(STR,WORD)             \
+{                                               \
+    Word_t MYWORD = (WORD);                     \
+    uint8_t *MYSTR = (STR);                     \
+    *MYSTR++ = MYWORD & 0xff; MYWORD >>= 8;     \
+    *MYSTR++ = MYWORD & 0xff; MYWORD >>= 8;     \
+    *MYSTR++ = MYWORD & 0xff; MYWORD >>= 8;     \
+    *MYSTR++ = MYWORD & 0xff; MYWORD >>= 8;     \
+}
+
+#ifdef JU_64BIT
+
+// Copy 8 bytes from a Word_t to a string
+//
+#define COPYWORD8toSTRING(STR,WORD)             \
+{                                               \
+    Word_t MYWORD = (WORD);                     \
+    uint8_t *MYSTR = (STR);                     \
+    *MYSTR++ = MYWORD & 0xff; MYWORD >>= 8;     \
+    *MYSTR++ = MYWORD & 0xff; MYWORD >>= 8;     \
+    *MYSTR++ = MYWORD & 0xff; MYWORD >>= 8;     \
+    *MYSTR++ = MYWORD & 0xff; MYWORD >>= 8;     \
+    *MYSTR++ = MYWORD & 0xff; MYWORD >>= 8;     \
+    *MYSTR++ = MYWORD & 0xff; MYWORD >>= 8;     \
+    *MYSTR++ = MYWORD & 0xff; MYWORD >>= 8;     \
+    *MYSTR++ = MYWORD & 0xff; MYWORD >>= 8;     \
+}
+
+#define COPYWORDtoSTRING COPYWORD8toSTRING
+
+#else  // JU_32BIT
+
+#define COPYWORDtoSTRING COPYWORD4toSTRING
+
+#endif // JU_32BIT
+
+
 // set JError_t locally
 
 #define JU_SET_ERRNO(PJERROR, JERRNO)           \
@@ -770,6 +814,7 @@ JudyHSFreeArray(PPvoid_t PPArray,       // ^ to JudyHashArray struct
     return(bytes_total);                // return bytes freed
 }
 
+
 //===========================
 //        JudyHSIter
 //===========================
@@ -780,17 +825,18 @@ JudyHSFreeArray(PPvoid_t PPArray,       // ^ to JudyHashArray struct
  */
 
 // HSIter structure:
-//   Contains Word_t's for length, hash, and successive hunks of the index string:
-//   just the indexes needed, in order, to index the tree of JudyL arrays that
-//   make up a JudyHS array.
+//   Contains Word_t's for length, hash, followed by space for the index string:
+//   the data needed to index the tree of JudyL arrays that make up a JudyHS array.
+//   The string space is updated as the tree is scanned.
 //   
 //   Only room for the first hunk string appears here; on entrance to a JHSI function
-//   without an iterator allocated, find out the max length of index in this array
-//   and malloc(WORDSIZE * HSI_WORDLEN(maxlength)), so that we'll have
-//   room for this header and the string, accessed a Word_t at a time.
+//   without an iterator allocated, space is allocated for a byte array of the 
+//   maximum length of string in the JudyJS array.
 
-typedef struct HSI_TER
+typedef struct HS_I_TER
 {
+    Word_t   hsi_Alloc;               // allocated size of structure
+    // here follow indices for the tree of JudyL arrays:
     Word_t   hsi_Length;              // Length of index string
 #ifndef DONOTUSEHASH
     Word_t   hsi_Hash;                // Hash of index string
@@ -798,11 +844,11 @@ typedef struct HSI_TER
     uint8_t  hsi_String[WORDSIZE];    // First hunk of index string
 } hsi_t, *Phsi_t;
 
-#define HSI_STRUCTHEADSIZE (sizeof(hsi_t) - WORDSIZE)
+#define HSI_STRUCTHEADSIZE (sizeof(hsi_t) - sizeof(hsi_String))
 
-// Calculate size of hsi_t including a buffer of size LEN.
-// 
-#define HSI_WORDLEN(LEN)   (((LEN) + HSI_STRUCTHEADSIZE + WORDSIZE - 1) / WORDSIZE)
+// Size of hsi_t including a buffer of size LEN
+#define HSI_SIZE(LEN)   (HSI_STRUCTHEADSIZE + ((((LEN) + WORDSIZE - 1) / WORDSIZE) * WORDSIZE))
+
 
 //=========================
 // The JudyHSIter routines
@@ -811,69 +857,504 @@ typedef struct HSI_TER
 // Find first string, at or after (index, length) if any, in JudyHS structure, 
 // using or allocating JudyHSIter structure for state.
 // Return pvalue and updated index, length, and state.
-
 PPvoid_t
 JudyHSIterFirst(Pcvoid_t PArray,             // pointer to array
-		PPvoid_t PPIter,              // pointer to pointer to state structure
+		PPvoid_t PPIter,             // pointer to pointer to state structure
 		void ** PStr,                // pointer to pointer to index
 		Word_t * PLen,               // pointer to length of index
 		PJError_t PJError            // optional, for returning error info
 	       )
 {
-	...
+    <decls>
+    
+    if (PPIter == NULL) { 
+        maxlength = like JudyLLast(PArray, -1, ...);
+        iter_size = HSI_SIZE(maxlength);
+	PIter = (Phsi_t)JudyMalloc(iter_size);
+	if (PIter == NULL)
+        {
+            JU_SET_ERRNO(PJError, JU_ERRNO_NOMEM);
+	    return (PPJERR);
+	}
+	memset(PIter, 0, iter_size);
+	PIter->hsi_Alloc = iter_size;
+	*PPIter = PIter;
+    }
+    
+    if (*PStr == Piter->hsi_String) {
+        // optimization: use PIter as is
+    } else {
+        uint32_t HValue;
+        PIter->hsi_Length = *PLen;
+#ifndef DONOTUSEHASH
+	JUDYHASHSTR(HValue, *PStr, *PLen);
+	PIter->hsi_Hash = (Word_t)HValue;
+#endif // DONOTUSEHASH
+	memcpy(PIter->hsi_String, *PStr, *PLen);
+    }
+    
+    /* more to come ... */
 }
 
 // Find next string, after (index, length) if any, in JudyHS structure, 
 // using or allocating JudyHSIter structure for state.
 // Return pvalue and updated index, length, and state.
-
 PPvoid_t
-JudyHSIterNext (Pcvoid_t PArray,             // pointer to array
-		PPvoid_t PPIter,              // pointer to pointer to state structure
-		void ** PStr,                // pointer to pointer to index
-		Word_t * PLen,               // pointer to length of index
-		PJError_t PJError            // optional, for returning error info
+JudyHSIterNext (Pcvoid_t PArray,               // pointer to array
+		PPvoid_t PPIter,               // pointer to pointer to state structure
+		void ** PStr,                  // pointer to pointer to index
+		Word_t * PLen,                 // pointer to length of index
+		PJError_t PJError              // optional, for returning error info
 	       )
 {
-	...
+    /* stub */
 }
 
 // Find last string, at or before (index, length) if any, in JudyHS structure, 
 // using or allocating JudyHSIter structure for state.
 // Return pvalue and updated index, length, and state.
-
 PPvoid_t
-JudyHSIterLast (Pcvoid_t PArray,             // pointer to array
-		PPvoid_t PPIter,              // pointer to pointer to state structure
-		void ** PStr,                // pointer to pointer to index
-		Word_t * PLen,               // pointer to length of index
-		PJError_t PJError            // optional, for returning error info
+JudyHSIterLast (Pcvoid_t PArray,               // pointer to array
+		PPvoid_t PPIter,               // pointer to pointer to state structure
+		void ** PStr,                  // pointer to pointer to index
+		Word_t * PLen,                 // pointer to length of index
+		PJError_t PJError              // optional, for returning error info
 	       )
 {
-	...
+    /* stub */
 }
 
 // Find previous string, before (index, length) if any, in JudyHS structure, 
 // using or allocating JudyHSIter structure for state.
 // Return pvalue and updated index, length, and state.
-
 PPvoid_t
-JudyHSIterPrev (Pcvoid_t PArray,             // pointer to array
-		PPvoid_t PPIter,              // pointer to pointer to state structure
-		void ** PStr,                // pointer to pointer to index
-		Word_t * PLen,               // pointer to length of index
-		PJError_t PJError            // optional, for returning error info
+JudyHSIterPrev (Pcvoid_t PArray,               // pointer to array
+		PPvoid_t PPIter,               // pointer to pointer to state structure
+		void ** PStr,                  // pointer to pointer to index
+		Word_t * PLen,                 // pointer to length of index
+		PJError_t PJError              // optional, for returning error info
 	       )
 {
-	...
+    /* stub */
 }
 
-// Free JudyHSIter structure
 
-Word_t                                       // bytes freed
-JudyHSFreeIter(PPvoid_t PPIter,              // pointer to pointer to JudyHSIter struct
-               PJError_t PJError             // optional, for returning error info
+// find First in tree of JudyL arrays
+// returns NULL if not in this tree (so caller should find Next)
+// or updates String and returns PValue.
+static Pvoid_t
+findFirstLeaf(uint8_t *String,                 // string
+              Word_t Len,                      // length of string
+	      Pcvoid_t PTree                   // pointer to bucket entry
+             )
+{
+    <decls>
+    
+    if (Len > WORDSIZE)
+    {
+        if (IS_PLS(PTree))                     // pointer to ls_t?
+        {
+            Pls_t Pls = (Pls_t) CLEAR_PLS(PTree);           // demangle pointer
+	    int cmp = memcmp(Pls->ls_String, String, Len);  // compare 
+	    if (cmp < 0) {                     // less: not in this leaf,
+                memset(String, 0, Len);        // update string: clear tail
+                return(NULL);                  // tell caller to find next
+	    }
+	    else
+            {                                  // equal or greater: found First
+                memcpy(String, Pls->ls_String, Len);  // update string: new tail
+	                                       // length and hash are still good
+	        return(&Pls->ls_Value);        // return found PValue
+	    }
+        }
+        else
+        {
+            COPYSTRINGtoWORD(Index, String, WORDSIZE);
+	    JLG(PPEntry, PTree, Index);
+	    if (PPEntry != NULL)
+            {
+                PValue = findFirstLeaf(String + WORDSIZE, Len - WORDSIZE, *PPEntry);
+		if (PValue != NULL)            // found
+                {
+		    return(PValue);
+		    // ??
+		}
+	    }
+            memset(String, 0, Len);            // update string: back out
+            JLN(PPEntry, PTree, Index);
+	    if (PPEntry != NULL)               // found next index: find lowest in its tree
+            {
+                COPYWORDtoSTRING(String, Index);  // update string: next hunk
+		PValue = findLowestLeaf(String + WORDSIZE, Len - WORDSIZE, **PPEntry);
+                return(PValue);
+		// ??
+            }
+	    else                               // nothing in rest of this tree:
+            {
+                return(NULL);                  // caller find next
+	    }
+	}
+    }
+    else
+    {
+        COPYSTRINGtoWORD(Index, String, Len);
+	JLF(PPEntry, PTree, Index);
+	if (PPEntry != NULL)
+        {
+            COPYWORDtoSTRING(String, Index);   // update string: last hunk
+	    return(PValue);
+	}
+	else
+        {
+            memset(String, 0, Len);            // update string: back out
+            return(NULL);
+	}
+    }
+}
+
+// find Next in tree of JudyL arrays
+// returns NULL if not in this tree (so caller should find Next)
+// or updates String and returns PValue.
+static Pvoid_t
+findNextLeaf(uint8_t *String,                  // string
+              Word_t Len,                      // length of string
+	      Pcvoid_t PTree                   // pointer to bucket entry
+             )
+{
+    <decls>
+    
+    if (Len > WORDSIZE)
+    {
+        if (IS_PLS(PTree))                     // pointer to ls_t?
+        {
+            Pls_t Pls = (Pls_t) CLEAR_PLS(PTree);           // demangle pointer
+	    int cmp = memcmp(Pls->ls_String, String, Len);  // compare 
+            if (cmp <= 0) {                    // less or equal: not this leaf,
+                memset(String, 0, Len);
+                return(NULL);                  // tell caller to find next
+	    }
+	    else
+            {                                  // greater: found Next
+                memcpy(String, Pls->ls_String, Len);  // update string
+	                                       // length and hash are still good
+	        return(&Pls->ls_Value);        // return found PValue
+	    }
+        }
+        else
+        {
+            COPYSTRINGtoWORD(Index, String, WORDSIZE);
+	    JLG(PPEntry, PTree, Index);
+	    if (PPEntry != NULL)
+            {
+                PValue = findNextLeaf(String + WORDSIZE, Len - WORDSIZE, *PPEntry);
+		if (PValue != NULL)            // found
+                {
+		    return(PValue);
+		    // ??
+		}
+	    }
+            memset(String, 0, Len);
+            JLN(PPEntry, PTree, Index);
+	    if (PPEntry != NULL)               // found next index: find lowest in its tree
+            {
+                COPYWORDtoSTRING(String, Index);
+		PValue = findLowestLeaf(String + WORDSIZE, Len - WORDSIZE, **PPEntry);
+                return(PValue);
+		// ??
+            }
+	    else                               // nothing in rest of this tree:
+            {
+                return(NULL);                  // caller find next
+	    }
+	}
+    }
+    else
+    {
+        COPYSTRINGtoWORD(Index, String, Len);
+	JLN(PPEntry, PTree, Index);
+	if (PPEntry != NULL)
+        {
+            COPYWORDtoSTRING(String, Index);
+	    return(PValue);
+	}
+	else
+        {
+            memset(String, 0, Len);
+            return(NULL);
+	}
+    }
+}
+
+// find Lowest in tree of JudyL arrays (ie, First from beginning)
+// updates String and returns PValue.
+// if none found (but how could this be?), returns NULL.
+static Pvoid_t
+findLowestLeaf(uint8_t *String,                // string
+               Word_t Len,                     // length of string
+	       Pcvoid_t PTree                  // pointer to bucket entry
+              )
+{
+    <decls>
+    
+    if (Len > WORDSIZE)
+    {
+        if (IS_PLS(PTree))                     // pointer to ls_t?
+        {
+            Pls_t Pls = (Pls_t) CLEAR_PLS(PTree);     // demangle pointer
+            memcpy(String, Pls->ls_String, Len);      // update string: new tail
+	                                       // length and hash are still good
+	    return(&Pls->ls_Value);            // return found PValue
+        }
+        else
+        {
+	    JLF(PPEntry, PTree, 0);
+	    if (PPEntry != NULL)               // found next index: find lowest in its tree
+            {
+                COPYWORDtoSTRING(String, Index);  // update string: next hunk
+		PValue = findLowestLeaf(String + WORDSIZE, Len - WORDSIZE, **PPEntry);
+                return(PValue);
+		// ??
+            }
+	    else                               // nothing in this tree (should not happen):
+            {
+                return(NULL);                  // caller find next
+	    }
+	}
+    }
+    else
+    {
+	JLF(PPEntry, PTree, 0);
+	if (PPEntry != NULL)
+        {
+            COPYWORDtoSTRING(String, Index);   // update string: last hunk
+	    return(PValue);
+	}
+	else                                   // nothing in this tree (should not happen):
+        {
+            return(NULL);                      // caller find next
+	}
+    }
+}
+
+// find Last in tree of JudyL arrays
+// returns NULL if not in this tree (so caller should find Prev)
+// or updates String and returns PValue.
+static Pvoid_t
+findLastLeaf(uint8_t *String,                  // string
+              Word_t Len,                      // length of string
+	      Pcvoid_t PTree                   // pointer to bucket entry
+             )
+{
+    <decls>
+    
+    if (Len > WORDSIZE)
+    {
+        if (IS_PLS(PTree))                     // pointer to ls_t?
+        {
+            Pls_t Pls = (Pls_t) CLEAR_PLS(PTree);           // demangle pointer
+	    int cmp = memcmp(Pls->ls_String, String, Len);  // compare 
+            if (cmp > 0) {                     // greater: not this leaf,
+                memset(String, 0, Len);
+                return(NULL);                  // tell caller to find prev
+	    }
+	    else
+            {                                  // equal or less: found Last
+                memcpy(String, Pls->ls_String, Len);  // update string
+	                                       // length and hash are still good
+	        return(&Pls->ls_Value);        // return found PValue
+	    }
+        }
+        else
+        {
+            COPYSTRINGtoWORD(Index, String, WORDSIZE);
+	    JLG(PPEntry, PTree, Index);
+	    if (PPEntry != NULL)
+            {
+                PValue = findLastLeaf(String + WORDSIZE, Len - WORDSIZE, *PPEntry);
+		if (PValue != NULL)            // found
+                {
+		    return(PValue);
+		    // ??
+		}
+	    }
+            memset(String, 0, Len);
+            JLP(PPEntry, PTree, Index);
+	    if (PPEntry != NULL)               // found prev index: find highest in its tree
+            {
+                COPYWORDtoSTRING(String, Index);
+		PValue = findHighestLeaf(String + WORDSIZE, Len - WORDSIZE, **PPEntry);
+                return(PValue);
+		// ??
+            }
+	    else                               // nothing in rest of this tree:
+            {
+                return(NULL);                  // caller find prev
+	    }
+	}
+    }
+    else
+    {
+        COPYSTRINGtoWORD(Index, String, Len);
+	JLL(PPEntry, PTree, Index);
+	if (PPEntry != NULL)
+        {
+            COPYWORDtoSTRING(String, Index);
+	    return(PValue);
+	}
+	else
+        {
+            memset(String, 0, Len);
+            return(NULL);
+	}
+    }
+}
+
+// find Prev in tree of JudyL arrays
+// returns NULL if not in this tree (so caller should find Prev)
+// or updates String and returns PValue.
+static Pvoid_t
+findPrevLeaf(uint8_t *String,                  // string
+              Word_t Len,                      // length of string
+	      Pcvoid_t PTree                   // pointer to bucket entry
+             )
+{
+    <decls>
+    
+    if (Len > WORDSIZE)
+    {
+        if (IS_PLS(PTree))                     // pointer to ls_t?
+        {
+            Pls_t Pls = (Pls_t) CLEAR_PLS(PTree);           // demangle pointer
+	    int cmp = memcmp(Pls->ls_String, String, Len);  // compare 
+            if (cmp >= 0) {                    // greater or equal: not this leaf,
+                memset(String, 0, Len);
+                return(NULL);                  // tell caller to find prev
+	    }
+	    else
+            {                                  // less: found Prev
+                memcpy(String, Pls->ls_String, Len);  // update string
+	                                       // length and hash are still good
+	        return(&Pls->ls_Value);        // return found PValue
+	    }
+        }
+        else
+        {
+            COPYSTRINGtoWORD(Index, String, WORDSIZE);
+	    JLG(PPEntry, PTree, Index);
+	    if (PPEntry != NULL)
+            {
+                PValue = findPrevLeaf(String + WORDSIZE, Len - WORDSIZE, *PPEntry);
+		if (PValue != NULL)            // found
+                {
+		    return(PValue);
+		    // ??
+		}
+	    }
+            memset(String, 0, Len);
+            JLP(PPEntry, PTree, Index);
+	    if (PPEntry != NULL)               // found prev index: find highest in its tree
+            {
+                COPYWORDtoSTRING(String, Index);
+		PValue = findHighestLeaf(String + WORDSIZE, Len - WORDSIZE, **PPEntry);
+                return(PValue);
+		// ??
+            }
+	    else                               // nothing in rest of this tree:
+            {
+                return(NULL);                  // caller find prev
+	    }
+	}
+    }
+    else
+    {
+        COPYSTRINGtoWORD(Index, String, Len);
+	JLP(PPEntry, PTree, Index);
+	if (PPEntry != NULL)
+        {
+            COPYWORDtoSTRING(String, Index);
+	    return(PValue);
+	}
+	else
+        {
+            memset(String, 0, Len);
+            return(NULL);
+	}
+    }
+}
+
+// find Highest in tree of JudyL arrays (ie, Last from end)
+// updates String and returns PValue.
+// if none found (but how could this be?), returns NULL.
+static Pvoid_t
+findHighestLeaf(uint8_t *String,               // string
+                Word_t Len,                    // length of string
+	        Pcvoid_t PTree                 // pointer to bucket entry
+               )
+{
+    <decls>
+    
+    if (Len > WORDSIZE)
+    {
+        if (IS_PLS(PTree))                     // pointer to ls_t?
+        {
+            Pls_t Pls = (Pls_t) CLEAR_PLS(PTree);     // demangle pointer
+            memcpy(String, Pls->ls_String, Len);      // update string: new tail
+	                                       // length and hash are still good
+	    return(&Pls->ls_Value);            // return found PValue
+        }
+        else
+        {
+	    JLL(PPEntry, PTree, -1);
+	    if (PPEntry != NULL)               // found next index: find lowest in its tree
+            {
+                COPYWORDtoSTRING(String, Index);  // update string: next hunk
+		PValue = findHighestLeaf(String + WORDSIZE, Len - WORDSIZE, **PPEntry);
+                return(PValue);
+		// ??
+            }
+	    else                               // nothing in this tree (should not happen):
+            {
+                return(NULL);                  // caller find next
+	    }
+	}
+    }
+    else
+    {
+	JLL(PPEntry, PTree, -1);
+	if (PPEntry != NULL)
+        {
+            COPYWORDtoSTRING(String, Index);   // update string: last hunk
+	    return(PValue);
+	}
+	else                                   // nothing in this tree (should not happen):
+        {
+            return(NULL);                      // caller find next
+	}
+    }
+}
+
+
+// Free JudyHSIter structure, return number of bytes freed
+Word_t                                         // bytes freed
+JudyHSFreeIter(PPvoid_t PPIter,                // pointer to pointer to JudyHSIter struct
+               PJError_t PJError               // optional, for returning error info
 	      )
 {
-	...
+    Word_t bytes_total = 0;
+    Word_t bytes_freed = 0;
+    Phsi_t PIter;                              // pointer to JudyHSIter struct
+    Phsit_t PTrail;
+    
+    if (PPIter == NULL) {                      // user error, but ok
+        return(0);                             // just return 0
+    }
+    PIter = (Phsi_t)*PPIter;
+    if (PIter == NULL) {                       // unused or already freed:
+        return(0);                             // return 0
+    }
+    bytes_freed = PIter->hsi_Alloc;            // actual size of struct
+    JudyFree((Pvoid_t)PIter, bytes_freed/WORDSIZE); // free it
+    bytes_total += bytes_freed;
+    *PPIter = NULL;                            // clear the rest of the world's reference to it
+    return(bytes_total);                       // return how much we freed
 }
