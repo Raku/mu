@@ -1,16 +1,14 @@
 TODO for Pugs::Compiler::Rule (PCR)
 
-Sigspace:
+Sigspace switch:
 
 - not implemented
 
-Ratchet:
+Ratchet switch:
 
-- subrules need to know current "$pos"
-- fix match with :!p switch in Compiler::Rule and non-ratchet
-- document what's done
 - more tests
   - interoperability with non-ratchet
+  - non-ratchet subrules need to know current "$pos"
 - quantifiers
   - implement ?? +? *?
   - implement ?+ ++ *+
@@ -18,8 +16,10 @@ Ratchet:
 - is :ratchet allowed as a runtime switch?
   - are there runtime switches?
   - is :+ the non-ratchet specifier?
-- implement <%hash> using trie
-- char classes
+
+Pos switch:
+
+- test in non-ratchet rules
 
 Perl 6 parser:
 
@@ -29,6 +29,8 @@ Perl 6 parser:
 - implement the main tokenizer using the minilanguages as terms
 
 Priorities:
+
+- implement <%hash> using trie
 
 - features used in PGE P6 Grammar
 - <after ...> in non-ratchet
@@ -61,7 +63,7 @@ Bugs:
  * <[^a]> should be [\^a]
  * fix <[!)]>
 
-Categories:
+Categories (some things belong to P::C::Perl6) :
 
 - see "Syntactic categories" in S05 (extensibility)
 
@@ -119,19 +121,19 @@ Other:
 - incomplete rule syntax (see Pugs::Compiler::Rule pod); 
 - more escaped chars
 
-- Switches (:p is implemented)
+- More switches (:p, :ratchet are implemented)
 
 - 'Pugs::Grammar::Rule' - old p5 code... -- 'use' in P:G:R
 
-- optimization: inline code in the Engine; 
+- optimization: inline code in the non-ratchet Engine; 
 - "pre-generate" engine output?
-- see "RuleInline.pl"
+- see "benchmark.pl"
 
 - cached precompiled variable rules, per S05
 
 - bug: can only access parameters through $^a $^b...
 - bug: parameters must be constants
 
-Implementation notes:
+API:
 
 - maybe change PCR->code() to PCR->as_method()

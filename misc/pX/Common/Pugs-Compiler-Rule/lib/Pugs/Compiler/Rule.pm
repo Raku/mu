@@ -236,6 +236,7 @@ to several other modules:
  <?subrule>
  <!subrule>
  <before ...>
+ <after ...>         -- implemented in :ratchet mode only
  <subrule('param')>  -- constant parameters only
 
  %hash
@@ -255,6 +256,8 @@ to several other modules:
  $0 $1
  \n \N
  $^a $^b            -- positional parameters (must start with $^a)
+ ^ $
+ :
 
 =head2 Unimplemented or untested features
 
@@ -263,18 +266,17 @@ to several other modules:
  $/<0> $/<1>
  $/0 $/1
  <"literal">
- ^ ^^ $ $$
+ ^^ $$
  <unicode-class> <+unicode-class> <+unicode-class+unicode-class>
  <&var> 
  <%var>
  **{n..m}
- : :: :::   (commit)
+ :: :::   (commit)
  $var := [non-capture]
  $var := <rule>
  <(closure-assertion)> <{code-returns-rule}>
  <<character-class>> <[character-class]>
  :flag :flag() :flag[]
- <after ...>
  \x0a \0123 ...
  &    
  $1      - lvalue match variables
@@ -282,7 +284,7 @@ to several other modules:
 
 =head1 METHODS
 
-=head2 compile (Str $rule_source)
+=head2 compile (Str $rule_source, \%options )
 
 Class method.  Returns a compiled rule object, or throws an exception on
 invalid rule syntax.
@@ -291,6 +293,10 @@ options:
 
 =item * grammar => $class - Specify which namespace (Grammar) the rule 
 belongs to.
+
+=item * ratchet => 1 - Disable backtracking. Match faster.
+
+=item * pos => $pos - Specify a string position to match. Starts in zero.
 
 =head2 match (Str $match_against)
 
@@ -302,15 +308,15 @@ Instance method.  Returns a string that can be eval'ed into a rule object.
 
 =head1 CAVEATS
 
-This is an experimental development version.  There are currently no support
-for match flags, and the API is still in flux.
+This is an experimental development version.  The API is still in flux.
 
-It is currently unsuitable for just about any use other than Pugs development.
-Please join us on irc.freenode.net #perl6 if you'd like to participate. :-)
+The set of implemented features depends on the C<ratchet> switch.
 
 =head1 AUTHORS
 
 The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+Please join us on irc.freenode.net #perl6 if you'd like to participate.
 
 =head1 SEE ALSO
 

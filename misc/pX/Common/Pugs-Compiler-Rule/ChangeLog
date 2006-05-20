@@ -1,10 +1,10 @@
 - '<after ...>' - in :ratchet mode only
 
-- the 'p' argument should now be specified as 'p => 0' instead of 'p => 1'.
-  The default is 'p => undef'.
+- the 'p' switch should now be specified as 'p => 0' instead of 'p => 1'.
+  'p => 1' now matches at the second character in the string.
+  The default is 'p => undef' - matches anywhere in the string.
 
-- added an initial implementation of ':ratchet'. 
-  some tests are still failing (t/09-ratchet.t)
+- added ':ratchet' switch. 
 
 - implemented parameters in subrule call (named only, constants only)
 
@@ -12,7 +12,7 @@
 
 - new class 'Pugs::Grammar::Category'
 
-- implemented '%hash'
+- implemented '%hash', but it doesn't use a trie yet.
 
 - fixed subrule backtracking
 
