@@ -1,5 +1,5 @@
 
-use Test::More tests => 42;
+use Test::More tests => 53;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -55,6 +55,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     *test::rule_method = Pugs::Compiler::Rule->compile( '((.).)(.)', { ratchet => 1 } )->code;
     #print "Source: ", do{use Data::Dumper; Dumper(Pugs::Compiler::Rule->compile( '((.).)(.)', { ratchet => 1 } )->{perl5})};
     my $match = test->rule_method( "xyzw" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "xyz", 'named rules are methods' );
 }
 
@@ -321,4 +322,66 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     is( "$match", "", 'not after' );
 
     # TODO: <!after b>
+}
+
+{
+    # quantified capture ?
+    my $rule = Pugs::Compiler::Rule->compile('a(b)?c', { ratchet => 1 } );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    
+    my $match = $rule->match( "ac" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( $match->[0][0], undef, 'quantifier ? empty match' );
+    
+    $match = $rule->match( "abc" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match->[0][0]", "b", 'quantifier ? one match' );
+
+    $match = $rule->match( "abbbc" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "", 'quantifier ? no match' );
+}
+
+{
+    # quantified capture *
+    my $rule = Pugs::Compiler::Rule->compile('a(b)*c', { ratchet => 1 } );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    
+    my $match = $rule->match( "ac" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( $match->[0][0], undef, 'quantifier * empty match' );
+    
+    $match = $rule->match( "abc" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match->[0][0]", "b", 'quantifier * one match' );
+
+    $match = $rule->match( "abbbc" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match->[0][1]", "b", 'quantifier * many match' );
+
+    $match = $rule->match( "abbbd" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "", 'quantifier * no match' );
+}
+
+{
+    # quantified capture +
+    my $rule = Pugs::Compiler::Rule->compile('a(b)+c', { ratchet => 1 } );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    
+    my $match = $rule->match( "ac" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "", 'quantifier + no match' );
+    
+    $match = $rule->match( "abc" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match->[0][0]", "b", 'quantifier + one match' );
+
+    $match = $rule->match( "abbbc" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match->[0][1]", "b", 'quantifier + many match' );
+
+    $match = $rule->match( "abbbd" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "", 'quantifier + no match' );
 }

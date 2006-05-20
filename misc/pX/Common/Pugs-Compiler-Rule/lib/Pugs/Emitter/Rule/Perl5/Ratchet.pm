@@ -54,11 +54,13 @@ sub emit {
         #"  print \"match arg_list = \@{[\%{\$_[1]} ]}\n\" if defined \$_[1];\n" .
         "  \$pos = 0 unless defined \$pos;   # TODO - .*? \$match \n" .
         #"  print \"match pos = \$pos\n\";\n" .
+        "  my \%index;\n" . 
         "  my \@match;\n" .
         "  my \%named;\n" .
         #"  my \$from = \$pos;\n" .
         "  my \$bool = 1;\n" .
         "  my \$capture;\n" .
+        "  my \$quantified;\n" .
         "  my \$m = bless \\{ \n" .
         "    str => \\\$s, from => \\(0+\$pos), to => \\(\$pos), \n" .
         "    bool => \\\$bool, match => \\\@match, named => \\\%named, capture => \\\$capture, \n" .
@@ -100,19 +102,20 @@ sub quant {
     # TODO: *+ ++ ?+
     # TODO: quantifier + capture creates Array
     return 
-        "$_[1] (\n$rul\n" .
+        "$_[1] do { my \$quantified = 1; (\n$rul\n" .
         "$_[1] ||\n" .
         "$_[1]   1\n" .
-        "$_[1] )"
+        "$_[1] ) }"
         if $quantifier eq '?';
     return 
-        "$_[1] do { while (\n$rul) {}; 1 }"
+        "$_[1] do { my \$quantified = 1; while (\n$rul) {}; 1 }"
         if $quantifier eq '*';
     return
+        "$_[1] do { my \$quantified = 1;\n" . 
         "$_[1] (\n$rul\n" .
         "$_[1] &&\n" .
         "$_[1]   do { while (\n$rul) {}; 1 }\n" .
-        "$_[1] )"
+        "$_[1] ) }"
         if $quantifier eq '+';
     die "quantifier not implemented: $quantifier";
 }        
@@ -235,6 +238,7 @@ sub capturing_group {
 
     $program = emit_rule( $program, $_[1].'      ' )
         if ref( $program );
+    my $rnd = rand;
     return "$_[1] do{ 
 $_[1]     my \$hash = do {
 $_[1]       my \$bool = 1;
@@ -242,12 +246,34 @@ $_[1]       my \$from = \$pos;
 $_[1]       my \@match;
 $_[1]       my \%named;
 $_[1]       my \$capture;
+$_[1]       my \$quantified;
 $_[1]       \$bool = 0 unless
 " .             $program . ";
 $_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \$bool, to => \\(0+\$pos), capture => \\\$capture }
 $_[1]     };
 $_[1]     my \$bool = \$hash->{'bool'};
-$_[1]     push \@match, bless \\\$hash, 'Pugs::Runtime::Match::Ratchet';
+$_[1]     \$index{$rnd} = \$#match+1 unless defined \$index{$rnd};
+$_[1]     if ( \$quantified ) {
+$_[1]       if ( \$bool ) {
+$_[1]         push \@{ \$match[\$index{$rnd}] }, bless \\\$hash, 'Pugs::Runtime::Match::Ratchet';
+$_[1]       }
+$_[1]       else {
+$_[1]         \@{ \$match[\$index{$rnd}] } = () 
+$_[1]           if ! defined \$match[\$index{$rnd}];
+$_[1]       }
+$_[1]     }
+$_[1]     else {
+$_[1]       if ( ! defined \$match[\$index{$rnd}] ) {
+$_[1]         \$match[\$index{$rnd}] = bless \\\$hash, 'Pugs::Runtime::Match::Ratchet';
+$_[1]       }
+$_[1]       elsif ( ref( \$match[\$index{$rnd}] ) ne 'ARRAY' ) {
+$_[1]         \$match[\$index{$rnd}] = [ \$match[\$index{$rnd}], bless \\\$hash, 'Pugs::Runtime::Match::Ratchet' ];
+$_[1]       }
+$_[1]       else {
+$_[1]         push \@{ \$match[\$index{$rnd}] }, bless \\\$hash, 'Pugs::Runtime::Match::Ratchet';
+$_[1]       }
+$_[1]       #unshift \@{ \$match[\$index{$rnd}] } unless \$bool;
+$_[1]     }
 $_[1]     \$bool;
 $_[1] }";
 }        
