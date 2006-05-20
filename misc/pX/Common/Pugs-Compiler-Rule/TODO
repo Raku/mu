@@ -1,5 +1,9 @@
 TODO for Pugs::Compiler::Rule (PCR)
 
+Unicode:
+
+- \v \h \V \H
+
 Sigspace switch:
 
 - not implemented

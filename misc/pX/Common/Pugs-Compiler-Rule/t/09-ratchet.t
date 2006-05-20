@@ -1,5 +1,5 @@
 
-use Test::More tests => 53;
+use Test::More tests => 61;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -384,4 +384,83 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     $match = $rule->match( "abbbd" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "", 'quantifier + no match' );
+}
+
+{
+    # S05 example
+    my $rule = Pugs::Compiler::Rule->compile(
+           #   $0--     $1------
+           #   |   |    |       |
+           ' [ (\w+) \: (\w+ \ *)* \n ]* ',
+        { ratchet => 1 } );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    
+    my $text = "foo:food fool\nbar:bard barb\n";
+    my $match = $rule->match( $text );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    
+    #       [ Match.new(str=>'foo'), Match.new(str=>'bar') ]
+    #
+    # and $1 contains the equivalent of:
+    #
+    #       [ Match.new(str=>'food '),
+    #         Match.new(str=>'fool' ),
+    #         Match.new(str=>'bard '),
+    #         Match.new(str=>'barb' ),
+    #       ]
+    #print "Match: ", do{use Data::Dumper; Dumper(@a)};
+    is( 0+@{$match->[0]}, 2, 'non-capturing with captures inside' );
+    is( 0+@{$match->[1]}, 4, 'non-capturing with captures inside - 2' );
+    
+    my $a = join( ",", @{$match->[0]} );
+    my $b = join( ",", @{$match->[1]} );
+    #print "Match: ", do{use Data::Dumper; Dumper(@a)};
+    is( $a, 'foo,bar', 'non-capturing with captures inside - 3' );
+    is( $b, 'food ,fool,bard ,barb', 'non-capturing with captures inside - 4' );
+}
+
+{
+    # S05 example
+    my $rule = Pugs::Compiler::Rule->compile(
+           # $0-----------------------
+           # |                        |
+           # | $0[0]    $0[1]---      |
+           # | |   |    |       |     |
+       '     ( (\w+) \: (\w+ \ *)* \n )*   ',
+        { ratchet => 1 } );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    
+    my $text = "foo:food fool\nbar:bard barb\n";
+    my $match = $rule->match( $text );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    
+     # Because it's in a quantified capturing block,
+     # $0 contains the equivalent of:
+     #
+     #       [ Match.new( str=>"foo:food fool\n",
+     #                    arr=>[ Match.new(str=>'foo'),
+     #                           [
+     #                               Match.new(str=>'food '),
+     #                               Match.new(str=>'fool'),
+     #                           ]
+     #                         ],
+     #                  ),
+     #         Match.new( str=>'bar:bard barb',
+     #                    arr=>[ Match.new(str=>'bar'),
+     #                           [
+     #                               Match.new(str=>'bard '),
+     #                               Match.new(str=>'barb'),
+     #                           ]
+     #                         ],
+     #                  ),
+     #       ]
+     #
+     # and there is no $1
+     
+    #print "Match: ", do{use Data::Dumper; Dumper(@a)};
+    is( 0+@{$match->[0]}, 2, 'capturing with captures inside' );
+    is( 0+@{$match->[1]}, 0, 'capturing with captures inside - 2' );
+    
+    is( "$match->[0][0]", "foo:food fool\n", 'capturing with captures inside - 3' );
+    is( "$match->[0][1]", "bar:bard barb\n", 'capturing with captures inside - 4' );
 }
