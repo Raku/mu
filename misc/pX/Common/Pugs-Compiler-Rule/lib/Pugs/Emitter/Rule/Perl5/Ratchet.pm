@@ -430,7 +430,13 @@ sub metasyntax {
             warn "code assertion not implemented";
             return;
         }
-        return call_subrule( $cmd, $_[1] );
+        return
+	    "$_[1] do { my \$match =\n" .
+	    call_subrule( $cmd, $_[1] . "          " ) . ";\n" .
+	    "$_[1]      my \$bool = (!\$match != 1);\n" .
+	    "$_[1]      \$pos = \$match->to if \$bool;\n" .
+	    "$_[1]      \$bool;\n" .
+	    "$_[1] }";
     }
     if ( $prefix eq '!' ) {   # negated_subrule / code assertion 
         $cmd = substr( $cmd, 1 );
