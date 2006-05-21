@@ -53,7 +53,7 @@ source code string or a parse-tree.
 =head1 Routine modifiers
 
 B<Multimethods> (keyword: C<multi>) are routines that can have multiple
-variants that shares the same name, selected by arity, types, or some
+variants that share the same name, selected by arity, types, or some
 other constraints.  They may have multliple invocants.
 
 B<Prototypes> (keyword: C<proto>) specify the commonalities (such
