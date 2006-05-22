@@ -26,7 +26,7 @@ is(@a[0], "oof", 'the string was reversed');
 @a = list(reverse("foo"));
 is(@a[0], "oof", 'the string was reversed even under list context');
 
-@a = item(reverse("foo", "bar"));
+@a = reverse(~("foo", "bar"));
 is(@a[0], "rab oof", 'the stringified array was reversed (stringwise)');
 @a = list reverse "foo", "bar";
 is(+@a, 2, 'the reversed list has two elements');
