@@ -1,3 +1,6 @@
+- new modules Pugs::Compiler::Token, Pugs::Compiler::Regex
+- fixed Pugs::Compiler::Rule default switches to :ratchet, :sigspace.
+
 - implemented 'sigspace' switch - in :ratchet mode only
 
 0.03  2006-05-20
