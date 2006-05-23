@@ -63,9 +63,12 @@ print "Tail, Match:\n", Dumper( $x->("abc") );
 
 use Benchmark;
 use Pugs::Compiler::Rule;
-my $rpcr = Pugs::Compiler::Rule->compile('[a|b](b)');
-my $rpcr2 = Pugs::Compiler::Rule->compile('[a|b](b)', { ratchet => 1 } );
-print $rpcr2->perl5, "\n";
+use Pugs::Compiler::Token;
+use Pugs::Compiler::Regex;
+my $rpc_rule = Pugs::Compiler::Rule->compile('[a|b](b)');
+my $rpc_token = Pugs::Compiler::Token->compile('[a|b](b)' );
+my $rpc_regex = Pugs::Compiler::Regex->compile('[a|b](b)' );
+print $rpc_token->perl5, "\n";
 
 {
     print "P5 regex benchmark:\n";
@@ -79,8 +82,9 @@ print $rpcr2->perl5, "\n";
 {
     print "Benchmark:\n";
     Benchmark::cmpthese(500, {
-        PCR_x1         => sub{ $rpcr->match('abc')  for 1..40},
-        PCR_ratchet_x1 => sub{ $rpcr2->match('abc') for 1..40},
+        PCR_Rule_x1         => sub{ $rpc_rule->match('abc')  for 1..40},
+        PCR_Token_x1         => sub{ $rpc_token->match('abc')  for 1..40},
+        PCR_Regex_x1         => sub{ $rpc_regex->match('abc')  for 1..40},
         fast_x10       => sub{ $x->('abc')          for 1..400},
         P5regex_x100   => sub{ 'abc' =~ /[a|b](b)/o for 1..4000},
     });
