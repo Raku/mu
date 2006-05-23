@@ -295,7 +295,21 @@ $_[1]       \$bool = 0 unless
 $_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \$bool, to => \\(0+\$pos), capture => \\\$capture }
 $_[1]     };
 $_[1]     my \$bool = \$hash->{'bool'};
-$_[1]     \$named{'$name'} = bless \\\$hash, 'Pugs::Runtime::Match::Ratchet';
+$_[1]     if ( \$bool ) {
+$_[1]       my \$match = bless \\\$hash, 'Pugs::Runtime::Match::Ratchet';
+$_[1]       if ( \$quantified ) {
+$_[1]         \$named{'$name'} = [] if ! defined \$named{'$name'};
+$_[1]         push \@{\$named{'$name'}}, \$match;
+$_[1]       } else {
+$_[1]         if ( ! defined \$named{'$name'} ){
+$_[1]           \$named{'$name'} = \$match;
+$_[1]         } elsif ( ref ( \$named{'$name'} ) ne 'ARRAY' ){
+$_[1]           \$named{'$name'} = [\$named{'$name'}, \$match];
+$_[1]         } else {
+$_[1]           push \@{ \$named{'$name'} }, \$match;
+$_[1]         }
+$_[1]       }
+$_[1]     }
 $_[1]     \$bool;
 $_[1] }";
 }
@@ -421,8 +435,7 @@ sub metasyntax {
 	   }
 	   # XXX <[^a]> means [\^a] instead of [^a] in perl5re
 
-	   return "$_[1] ... perl5( q!$cmd! )\n" unless $cmd =~ /!/;
-	   return "$_[1] ... perl5( q($cmd) )\n"; # XXX if $cmd eq '!)'
+	   return call_perl5($cmd, $_[1]);
     }
     if ( $prefix eq '?' ) {   # non_capturing_subrule / code assertion
         $cmd = substr( $cmd, 1 );
