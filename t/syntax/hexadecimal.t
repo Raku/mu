@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 6;
+plan 7;
 
 =kwid
 
@@ -17,3 +17,4 @@ is("\x[20]", ' ', '\x[20] normal space');
 is("\x[a0]", chr(0xa0), '\x[a0] non-breaking space');
 is("\x[263a]", '☺', '\x{263a} wide hex character (SMILEY)');
 is("\x[41,42,43]", 'ABC', '\x[list]');
+is("\x41,42,43", 'A,42,43', '\xlist not valid');
