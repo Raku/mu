@@ -1,8 +1,9 @@
 
-use Test::More tests => 67;
+use Test::More tests => 68;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
+use_ok( 'Pugs::Compiler::Token' );
 use_ok( 'Pugs::Compiler::Rule' );
 no warnings qw( once );
 
@@ -20,7 +21,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # unnamed rules are objects
-    my $rule = Pugs::Compiler::Rule->compile( '((.).)(.)', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile( '((.).)(.)' );
     my $match = $rule->match( "xyzw" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -32,7 +33,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( 'ab|c', { ratchet => 1, p => 0 } );
+    my $rule = Pugs::Compiler::Regex->compile( 'ab|c', { ratchet => 1, p => 0 } );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     my $match = $rule->match("ac");
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -43,7 +44,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( 'ab|ac', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile( 'ab|ac' );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     my $match = $rule->match("ac");
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -52,7 +53,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # named rules are methods
-    *test::rule_method = Pugs::Compiler::Rule->compile( '((.).)(.)', { ratchet => 1 } )->code;
+    *test::rule_method = Pugs::Compiler::Token->compile( '((.).)(.)' )->code;
     #print "Source: ", do{use Data::Dumper; Dumper(Pugs::Compiler::Rule->compile( '((.).)(.)', { ratchet => 1 } )->{perl5})};
     my $match = test->rule_method( "xyzw" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -61,9 +62,9 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # calling named subrules
-    *test::rule_method3 = Pugs::Compiler::Rule->compile( '.', { ratchet => 1 } )->code;
-    *test::rule_method4 = Pugs::Compiler::Rule->compile( '<rule_method3>', { ratchet => 1 } )->code;
-    #print "Source: ", do{use Data::Dumper; Dumper(Pugs::Compiler::Rule->compile( '<rule_method3>', { ratchet => 1 } )->{perl5})};
+    *test::rule_method3 = Pugs::Compiler::Token->compile( '.' )->code;
+    *test::rule_method4 = Pugs::Compiler::Token->compile( '<rule_method3>' )->code;
+    #print "Source: ", do{use Data::Dumper; Dumper(Pugs::Compiler::Token->compile( '<rule_method3>' )->{perl5})};
     my $match = test->rule_method4( "xyzw" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "x", 'a named subrule calls a named subrule in same grammar' );
@@ -71,8 +72,8 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # calling named subrules in other grammars
-    *test2::rule_method = Pugs::Compiler::Rule->compile( '.', { ratchet => 1 } )->code;
-    *test::rule_method5 = Pugs::Compiler::Rule->compile( '<test2.rule_method>', { ratchet => 1 } )->code;
+    *test2::rule_method = Pugs::Compiler::Token->compile( '.', { ratchet => 1 } )->code;
+    *test::rule_method5 = Pugs::Compiler::Token->compile( '<test2.rule_method>', { ratchet => 1 } )->code;
     my $match = test->rule_method5( "xyzw" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -82,7 +83,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 {
     # calling unnamed subrules
     $test2::rule2 = Pugs::Compiler::Rule->compile( '.' );
-    *test::rule_method2 = Pugs::Compiler::Rule->compile( '<$test2::rule2>', { ratchet => 1 } )->code;
+    *test::rule_method2 = Pugs::Compiler::Token->compile( '<$test2::rule2>', { ratchet => 1 } )->code;
     my $match = test->rule_method2( "xyzw" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -92,23 +93,23 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 {
     # calling unnamed subrules
     my $match;
-    my $rule2 = Pugs::Compiler::Rule->compile( '.', { ratchet => 1 } );
+    my $rule2 = Pugs::Compiler::Token->compile( '.', { ratchet => 1 } );
     #print "Source: ", do{use Data::Dumper; Dumper( $rule2->perl5 )};
     eval {
-    *test::rule_method6 = Pugs::Compiler::Rule->compile( '<$rule2>', { ratchet => 1 } )->code;
+    *test::rule_method6 = Pugs::Compiler::Token->compile( '<$rule2>', { ratchet => 1 } )->code;
     $match = test->rule_method6( "xyzw" );
     };
     warn "# *** Please check if CPAN module 'PadWalker' is properly installed\n",
          "# *** This is the resulting error: $@"
         if $@;
-    #print "Source: ", do{use Data::Dumper; Dumper( Pugs::Compiler::Rule->compile( '<$rule2>', { ratchet => 1 } )->perl5 )};
+    #print "Source: ", do{use Data::Dumper; Dumper( Pugs::Compiler::Token->compile( '<$rule2>', { ratchet => 1 } )->perl5 )};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "x", 'a named subrule calls a lexical unnamed subrule' );
 }
 
 {
     # generated rules
-    my $rule = Pugs::Compiler::Rule->compile( '<alpha>+', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile( '<alpha>+', { ratchet => 1 } );
     my $match = $rule->match( "xy12" );
     #print "Source: ", do{use Data::Dumper; Dumper( $rule->perl5 ) };
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -117,7 +118,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # not-special chars
-    my $rule = Pugs::Compiler::Rule->compile( ',', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile( ',', { ratchet => 1 } );
     #print "Source: ", do{use Data::Dumper; Dumper( $rule->perl5 )};
     my $match = $rule->match( "," );
     is( "$match", ",", 'comma is not a special char' );
@@ -125,7 +126,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # escaped chars
-    my $rule = Pugs::Compiler::Rule->compile( '\(', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile( '\(', { ratchet => 1 } );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->perl5)};
     my $match = $rule->match( "(xy12)" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -134,7 +135,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # escaped chars
-    my $rule = Pugs::Compiler::Rule->compile( '\n', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile( '\n', { ratchet => 1 } );
     my $match = $rule->match( "\nxy12" );
     is( "$match", "\n", 'escaped char \\n' );
 }
@@ -143,7 +144,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 {
     #local $TODO = "usage of :!p in token is not specified";
     # escaped chars
-    my $rule = Pugs::Compiler::Rule->compile( '\d', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile( '\d', { ratchet => 1 } );
     my $match = $rule->match( "abc123" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->perl5)};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -154,14 +155,14 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 {
     #local $TODO = "usage of :!p in token is not specified";
     # escaped chars
-    my $rule = Pugs::Compiler::Rule->compile( '\D', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile( '\D', { ratchet => 1 } );
     my $match = $rule->match( "123abc" );
     is( "$match", "a", 'escaped char \\D' );
 }
 
 {
     # escaped chars
-    my $rule = Pugs::Compiler::Rule->compile( '\d', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile( '\d', { ratchet => 1 } );
     my $match = $rule->match( "123" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->perl5)};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -170,14 +171,14 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # escaped chars
-    my $rule = Pugs::Compiler::Rule->compile( '\D', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile( '\D', { ratchet => 1 } );
     my $match = $rule->match( "abc" );
     is( "$match", "a", 'escaped char \\D' );
 }
 
 {
     # escaped chars
-    my $rule = Pugs::Compiler::Rule->compile( '\N', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile( '\N', { ratchet => 1 } );
     my $match = $rule->match( "\n\n" );
     is( "$match", "", 'escaped char \\N' );
     $match = $rule->match( "xy12" );
@@ -191,7 +192,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     # --- It should the same as /a? b g?/
     # 1) spaces should not make difference
     # 2) the other way, it should be as /[a?[bg]]?/
-    my $rule = Pugs::Compiler::Rule->compile( 'a?bg?', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile( 'a?bg?', { ratchet => 1 } );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->perl5)};
     
     my $match = $rule->match("bprw");
@@ -205,7 +206,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # capture
-    my $rule = Pugs::Compiler::Rule->compile('some (text) { return { a => $_[0][0] ,} } ', { ratchet => 1 });
+    my $rule = Pugs::Compiler::Token->compile('some (text) { return { a => $_[0][0] ,} } ', { ratchet => 1 });
     #print "Source: ", do{use Data::Dumper; Dumper($rule->perl5)};
     my $match = $rule->match("sometext");
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -217,7 +218,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 {
     # XXX - is $() working?
     # capture
-    my $rule = Pugs::Compiler::Rule->compile('some (text) { return { a => $() ,} } ', { ratchet => 1 });
+    my $rule = Pugs::Compiler::Token->compile('some (text) { return { a => $() ,} } ', { ratchet => 1 });
     my $match = $rule->match("sometext");
     #print Dumper($match);
     my $capture = $match->();
@@ -226,7 +227,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # alternation
-    my $rule = Pugs::Compiler::Rule->compile('[a|b](b)', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile('[a|b](b)', { ratchet => 1 } );
     my $match = $rule->match( "bb" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -235,7 +236,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # basic named capture
-    my $rule = Pugs::Compiler::Rule->compile('$<cap> := (<ws>)', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile('$<cap> := (<ws>)', { ratchet => 1 } );
     my $match = $rule->match( " " );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -248,7 +249,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     #local $TODO = ":p broken in non-ratchet subrule call";
     
     # basic named capture
-    my $rule = Pugs::Compiler::Rule->compile('a<ws>', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile('a<ws>', { ratchet => 1 } );
     my $match = $rule->match( "a b" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -258,7 +259,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # before
-    my $rule = Pugs::Compiler::Rule->compile('a<before b>', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile('a<before b>', { ratchet => 1 } );
     my $match = $rule->match( "ab" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -274,7 +275,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # $
-    my $rule = Pugs::Compiler::Rule->compile('a$', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile('a$', { ratchet => 1 } );
     my $match = $rule->match( "ab" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -288,7 +289,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # .
-    my $rule = Pugs::Compiler::Rule->compile('a..', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile('a..', { ratchet => 1 } );
     my $match = $rule->match( "ab" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -307,8 +308,8 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # after
-    my $rule1 = Pugs::Compiler::Rule->compile('<after xyz>a', { ratchet => 1 } );
-    my $rule = Pugs::Compiler::Rule->compile('...<$rule1>', { ratchet => 1 } );
+    my $rule1 = Pugs::Compiler::Token->compile('<after xyz>a', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile('...<$rule1>', { ratchet => 1 } );
     my $match = $rule->match( "xyzab" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Source: ", do{use Data::Dumper; Dumper($rule1->{perl5})};
@@ -325,7 +326,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # quantified capture ?
-    my $rule = Pugs::Compiler::Rule->compile('a(b)?c', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile('a(b)?c', { ratchet => 1 } );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     
     my $match = $rule->match( "ac" );
@@ -343,7 +344,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # quantified capture *
-    my $rule = Pugs::Compiler::Rule->compile('a(b)*c', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile('a(b)*c', { ratchet => 1 } );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     
     my $match = $rule->match( "ac" );
@@ -365,7 +366,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # quantified capture +
-    my $rule = Pugs::Compiler::Rule->compile('a(b)+c', { ratchet => 1 } );
+    my $rule = Pugs::Compiler::Token->compile('a(b)+c', { ratchet => 1 } );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     
     my $match = $rule->match( "ac" );
@@ -387,7 +388,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # S05 example
-    my $rule = Pugs::Compiler::Rule->compile(
+    my $rule = Pugs::Compiler::Token->compile(
            #   $0--     $1------
            #   |   |    |       |
            ' [ (\w+) \: (\w+ \ *)* \n ]* ',
@@ -420,7 +421,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # S05 example
-    my $rule = Pugs::Compiler::Rule->compile(
+    my $rule = Pugs::Compiler::Token->compile(
            # $0-----------------------
            # |                        |
            # | $0[0]    $0[1]---      |
@@ -470,7 +471,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     # XXX - double <ws> doesn't work
     #my $rule = Pugs::Compiler::Rule->compile('a (b) * c', { ratchet => 1, s => 1 } );
     
-    my $rule = Pugs::Compiler::Rule->compile('a (b )*c', { ratchet => 1, s => 1 } );
+    my $rule = Pugs::Compiler::Rule->compile('a (b )*c' );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     
     my $match = $rule->match( "ac" );

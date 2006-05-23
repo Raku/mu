@@ -5,20 +5,20 @@ use strict;
 use warnings;
 no warnings 'once';
 
-use_ok( 'Pugs::Compiler::Rule' );
+use_ok( 'Pugs::Compiler::Regex' );
 
 {
-    my $rule = Pugs::Compiler::Rule->compile('\w');
+    my $rule = Pugs::Compiler::Regex->compile('\w');
     my $rule2 = eval $rule->perl5;
     warn $@ if $@;
-    is( ref($rule2), 'Pugs::Compiler::Rule', "a rule object");
+    is( ref($rule2), 'Pugs::Compiler::Regex', "a Regex object");
     my $match = $rule2->match("abc");
     is( "$match",'a',"perl5 returns eval'able code");
 }
 
 {
-    local *Test123::rule1 = Pugs::Compiler::Rule->compile('\w')->code();
-    local *Test123::rule2 = Pugs::Compiler::Rule->compile('(<rule1>)*')->code();
+    local *Test123::rule1 = Pugs::Compiler::Regex->compile('\w')->code();
+    local *Test123::rule2 = Pugs::Compiler::Regex->compile('(<rule1>)*')->code();
     my $match = Test123->rule2("abc");
     #print Dumper( $$match );
     is($match,'abc',"Matched...");
@@ -30,8 +30,8 @@ use_ok( 'Pugs::Compiler::Rule' );
 }
 
 {
-    local *Test123::rule1 = Pugs::Compiler::Rule->compile('\w')->code();
-    local *Test123::rule2 = Pugs::Compiler::Rule->compile('<rule1>*')->code();
+    local *Test123::rule1 = Pugs::Compiler::Regex->compile('\w')->code();
+    local *Test123::rule2 = Pugs::Compiler::Regex->compile('<rule1>*')->code();
     my $match = Test123->rule2("abc");
     is($match,'abc',"Matched...");
     is(ref($match->{rule1}),"ARRAY",'$<rule1> is an array...');
@@ -42,8 +42,8 @@ use_ok( 'Pugs::Compiler::Rule' );
 }
 
 {
-    local *Test123::rule1 = Pugs::Compiler::Rule->compile('\w')->code();
-    local *Test123::rule2 = Pugs::Compiler::Rule->compile('<rule1><rule1>')->code();
+    local *Test123::rule1 = Pugs::Compiler::Regex->compile('\w')->code();
+    local *Test123::rule2 = Pugs::Compiler::Regex->compile('<rule1><rule1>')->code();
     my $match = Test123->rule2("abc");
     is($match,'ab',"Matched...");
     is(ref($match->{rule1}),"ARRAY",'$<rule1> is an array...');
@@ -54,8 +54,8 @@ use_ok( 'Pugs::Compiler::Rule' );
 
 {
     # backtracking into subrules
-    my $rule1 = Pugs::Compiler::Rule->compile('(\w)+');
-    my $rule2 = Pugs::Compiler::Rule->compile('a<$rule1>z');
+    my $rule1 = Pugs::Compiler::Regex->compile('(\w)+');
+    my $rule2 = Pugs::Compiler::Regex->compile('a<$rule1>z');
 
     #print $rule1->perl5;
     #print $rule2->perl5;
@@ -72,7 +72,7 @@ use_ok( 'Pugs::Compiler::Rule' );
 
 {
     # before
-    my $rule = Pugs::Compiler::Rule->compile('(a)<before z>');
+    my $rule = Pugs::Compiler::Regex->compile('(a)<before z>');
     #print $rule->perl5;
     
     my $match = $rule->match("az");
@@ -90,7 +90,7 @@ use_ok( 'Pugs::Compiler::Rule' );
 SKIP:
 {
     skip "named parameters don't parse correctly", 1;
-    my $subrule = Pugs::Compiler::Rule->compile(' .* $^a{to} ');
+    my $subrule = Pugs::Compiler::Regex->compile(' .* $^a{to} ');
     #print $subrule->perl5;
 
     {
@@ -99,7 +99,7 @@ SKIP:
         *subrule = $subrule->code;
     }
     
-    my $rule = Pugs::Compiler::Rule->compile(' \[ <Test.subrule(to=>"]")> ');
+    my $rule = Pugs::Compiler::Regex->compile(' \[ <Test.subrule(to=>"]")> ');
     my $match = $rule->match("[abc]");
     #print Dumper $match;
     #print $match->(), "\n";
@@ -109,7 +109,7 @@ SKIP:
 SKIP: {
     skip "failing optional quantifier - subrule + param\n", 1;
 
-    my $subrule = Pugs::Compiler::Rule->compile(' .*? $^a ');
+    my $subrule = Pugs::Compiler::Regex->compile(' .*? $^a ');
     #print $subrule->perl5;
 
     {
@@ -118,7 +118,7 @@ SKIP: {
         *subrule2 = $subrule->code;
     }
     
-    my $rule = Pugs::Compiler::Rule->compile(' \[ <Test.subrule2("]")> ');
+    my $rule = Pugs::Compiler::Regex->compile(' \[ <Test.subrule2("]")> ');
     my $match = $rule->match("[abc]");
     #print Dumper $match;
     #print $match->(), "\n";

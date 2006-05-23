@@ -2,46 +2,46 @@
 use Test::More tests => 33;
 use Data::Dumper;
 
-use_ok( 'Pugs::Compiler::Rule' );
+use_ok( 'Pugs::Compiler::Regex' );
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( '.' );
+    my $rule = Pugs::Compiler::Regex->compile( '.' );
     my $match = $rule->match( "xyzw" );
     is( "$match", "x", 'stringify 1' );
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( '.|.' );
+    my $rule = Pugs::Compiler::Regex->compile( '.|.' );
     my $match = $rule->match( "xyzw" );
     is( "$match", "x", 'stringify 2' );
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( '.*' );
+    my $rule = Pugs::Compiler::Regex->compile( '.*' );
     my $match = $rule->match( "xyzw" );
     is( "$match", "xyzw", 'stringify 4' );
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( '.|.|.' );
+    my $rule = Pugs::Compiler::Regex->compile( '.|.|.' );
     my $match = $rule->match( "xyzw" );
     is( "$match", "x", 'stringify 5' );
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( '..|..' );
+    my $rule = Pugs::Compiler::Regex->compile( '..|..' );
     my $match = $rule->match( "xyzw" );
     is( "$match", "xy", 'stringify 6' );
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( '.:.' );
+    my $rule = Pugs::Compiler::Regex->compile( '.:.' );
     my $match = $rule->match( "xyzw" );
     is( "$match", "xy", 'stringify 7' );
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( '((.).)(.)' );
+    my $rule = Pugs::Compiler::Regex->compile( '((.).)(.)' );
     my $match = $rule->match( "xyzw" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "xyz", 'stringify 1' );
@@ -51,7 +51,7 @@ use_ok( 'Pugs::Compiler::Rule' );
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( '((.).)' );
+    my $rule = Pugs::Compiler::Regex->compile( '((.).)' );
     my $match = $rule->match( "xyz" );
     is( "$match", "xy", 'stringify 1' );
     is( "$match->[0]", "xy", 'stringify 2' );
@@ -59,7 +59,7 @@ use_ok( 'Pugs::Compiler::Rule' );
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( '(.)(.)' );
+    my $rule = Pugs::Compiler::Regex->compile( '(.)(.)' );
     my $match = $rule->match( "abc" );
     my $ret = ['a', 'b'];
     is_deeply( [@$match], $ret, 'return match 1' );
@@ -69,13 +69,13 @@ use_ok( 'Pugs::Compiler::Rule' );
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( '..' );
+    my $rule = Pugs::Compiler::Regex->compile( '..' );
     my $match = $rule->match( "xyz" );
     is( "$match", "xy", 'concat stringify' );
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( '$<z> := (.) { return { x => { %{$_[0]} } ,} } ' );
+    my $rule = Pugs::Compiler::Regex->compile( '$<z> := (.) { return { x => { %{$_[0]} } ,} } ' );
     my $match = $rule->match( "abc" );
     ok( $match, 'true match' );
     my $ret = $match->();
@@ -83,7 +83,7 @@ use_ok( 'Pugs::Compiler::Rule' );
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( '$<x> := (.)  $<y> := (.)');
+    my $rule = Pugs::Compiler::Regex->compile( '$<x> := (.)  $<y> := (.)');
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     my $match = $rule->match( "123" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -96,7 +96,7 @@ use_ok( 'Pugs::Compiler::Rule' );
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( 'b' );
+    my $rule = Pugs::Compiler::Regex->compile( 'b' );
     my $match = $rule->match( "b" );
     is( $match?1:0, 1, 'boolean true');    
     is( $match->from, 0, 'match->from');

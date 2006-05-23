@@ -441,7 +441,7 @@ sub _preprocess_hash {
             return { bool => 1, match => '', tail => $_[0] };
         };
     } 
-    if ( ref($h) eq 'Pugs::Compiler::Rule') {
+    if ( UNIVERSAL::isa( $h, 'Pugs::Compiler::Regex') ) {
         #print "compiling subrule\n";
         #return $h->code;
         return sub { 

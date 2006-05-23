@@ -19,12 +19,12 @@ use_ok( 'Pugs::Compiler::Rule' );
     my %test = (
         if =>    2,        # fail (number, not '1')
         iff =>   1,        # match (longer than 'if')
-        until => Pugs::Compiler::Rule->compile('(a.a)'),  
+        until => Pugs::Compiler::Regex->compile('(a.a)'),  
                            # subrule - match "until(aa)"
         use =>   sub { $v = 1 },   
                            # closure - print "use()"
     );   
-    $rule1 = Pugs::Compiler::Rule->compile('%test 123');
+    $rule1 = Pugs::Compiler::Regex->compile('%test 123');
     
     $match = $rule1->match("iff123");
     is($match,'iff123',"Matched hash{iff}");
@@ -46,10 +46,10 @@ use_ok( 'Pugs::Compiler::Rule' );
 {
     my $match;
     my %test = (
-        rule1 => Pugs::Compiler::Rule->compile('xx %test yy'),  
-        rule2 => Pugs::Compiler::Rule->compile('abc'),   
+        rule1 => Pugs::Compiler::Regex->compile('xx %test yy'),  
+        rule2 => Pugs::Compiler::Regex->compile('abc'),   
     );   
-    $rule1 = Pugs::Compiler::Rule->compile('%test 123');
+    $rule1 = Pugs::Compiler::Regex->compile('%test 123');
     #print $rule1->perl5;
     $match = $rule1->match("rule1xxrule2abcyy123");
     is($match,'rule1xxrule2abcyy123',"Matched hash inside hash");

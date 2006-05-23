@@ -3,7 +3,7 @@ use Test::More tests => 23;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
-use_ok( 'Pugs::Compiler::Rule' );
+use_ok( 'Pugs::Compiler::Regex' );
 no warnings qw( once );
 
 {
@@ -18,7 +18,7 @@ no warnings qw( once );
 
 {
     # unnamed rules are objects
-    my $rule = Pugs::Compiler::Rule->compile( '((.).)(.)' );
+    my $rule = Pugs::Compiler::Regex->compile( '((.).)(.)' );
     my $match = $rule->match( "xyzw" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -31,15 +31,15 @@ no warnings qw( once );
 
 {
     # named rules are methods
-    *test::rule_method = Pugs::Compiler::Rule->compile( '((.).)(.)' )->code;
+    *test::rule_method = Pugs::Compiler::Regex->compile( '((.).)(.)' )->code;
     my $match = test->rule_method( "xyzw" );
     is( "$match", "xyz", 'named rules are methods' );
 }
 
 {
     # calling named subrules
-    *test::rule_method3 = Pugs::Compiler::Rule->compile( '.' )->code;
-    *test::rule_method4 = Pugs::Compiler::Rule->compile( '<rule_method3>' )->code;
+    *test::rule_method3 = Pugs::Compiler::Regex->compile( '.' )->code;
+    *test::rule_method4 = Pugs::Compiler::Regex->compile( '<rule_method3>' )->code;
     my $match = test->rule_method4( "xyzw" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -48,8 +48,8 @@ no warnings qw( once );
 
 {
     # calling named subrules in other grammars
-    *test2::rule_method = Pugs::Compiler::Rule->compile( '.' )->code;
-    *test::rule_method5 = Pugs::Compiler::Rule->compile( '<test2.rule_method>' )->code;
+    *test2::rule_method = Pugs::Compiler::Regex->compile( '.' )->code;
+    *test::rule_method5 = Pugs::Compiler::Regex->compile( '<test2.rule_method>' )->code;
     my $match = test->rule_method5( "xyzw" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -58,8 +58,8 @@ no warnings qw( once );
 
 {
     # calling unnamed subrules
-    $test2::rule2 = Pugs::Compiler::Rule->compile( '.' );
-    *test::rule_method2 = Pugs::Compiler::Rule->compile( '<$test2::rule2>' )->code;
+    $test2::rule2 = Pugs::Compiler::Regex->compile( '.' );
+    *test::rule_method2 = Pugs::Compiler::Regex->compile( '<$test2::rule2>' )->code;
     my $match = test->rule_method2( "xyzw" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
@@ -70,8 +70,8 @@ no warnings qw( once );
     # calling unnamed subrules
     my $match;
     eval {
-    my $rule2 = Pugs::Compiler::Rule->compile( '.' );
-    *test::rule_method6 = Pugs::Compiler::Rule->compile( '<$rule2>' )->code;
+    my $rule2 = Pugs::Compiler::Regex->compile( '.' );
+    *test::rule_method6 = Pugs::Compiler::Regex->compile( '<$rule2>' )->code;
     $match = test->rule_method6( "xyzw" );
     };
     warn "# *** Please check if CPAN module 'PadWalker' is properly installed\n",
@@ -82,49 +82,49 @@ no warnings qw( once );
 
 {
     # generated rules
-    my $rule = Pugs::Compiler::Rule->compile( '<alpha>+' );
+    my $rule = Pugs::Compiler::Regex->compile( '<alpha>+' );
     my $match = $rule->match( "xy12" );
     is( "$match", "xy", 'built-in rule <alpha>' );
 }
 
 {
     # not-special chars
-    my $rule = Pugs::Compiler::Rule->compile( ',' );
+    my $rule = Pugs::Compiler::Regex->compile( ',' );
     my $match = $rule->match( "," );
     is( "$match", ",", 'comma is not a special char' );
 }
 
 {
     # escaped chars
-    my $rule = Pugs::Compiler::Rule->compile( '\(' );
+    my $rule = Pugs::Compiler::Regex->compile( '\(' );
     my $match = $rule->match( "(xy12)" );
     is( "$match", "(", 'escaped char' );
 }
 
 {
     # escaped chars
-    my $rule = Pugs::Compiler::Rule->compile( '\n' );
+    my $rule = Pugs::Compiler::Regex->compile( '\n' );
     my $match = $rule->match( "\nxy12" );
     is( "$match", "\n", 'escaped char \\n' );
 }
 
 {
     # escaped chars
-    my $rule = Pugs::Compiler::Rule->compile( '\d' );
+    my $rule = Pugs::Compiler::Regex->compile( '\d' );
     my $match = $rule->match( "abc123" );
     is( "$match", "1", 'escaped char \\d' );
 }
 
 {
     # escaped chars
-    my $rule = Pugs::Compiler::Rule->compile( '\D' );
+    my $rule = Pugs::Compiler::Regex->compile( '\D' );
     my $match = $rule->match( "123abc" );
     is( "$match", "a", 'escaped char \\D' );
 }
 
 {
     # escaped chars
-    my $rule = Pugs::Compiler::Rule->compile( '\N' );
+    my $rule = Pugs::Compiler::Regex->compile( '\N' );
     my $match = $rule->match( "\n\n" );
     is( "$match", "", 'escaped char \\N' );
     $match = $rule->match( "xy12" );
@@ -137,14 +137,14 @@ no warnings qw( once );
     # --- It should the same as /a? b g?/
     # 1) spaces should not make difference
     # 2) the other way, it should be as /[a?[bg]]?/
-    my $rule = Pugs::Compiler::Rule->compile( 'a?bg?');
+    my $rule = Pugs::Compiler::Regex->compile( 'a?bg?');
     my $match = $rule->match("cdtbprw");
     is("$match","b",'"a?bg?" equals "a? b g?".');
 }
 
 {
     # capture
-    my $rule = Pugs::Compiler::Rule->compile('some (text) { return { a => $_[0][0]() ,} } ');
+    my $rule = Pugs::Compiler::Regex->compile('some (text) { return { a => $_[0][0]() ,} } ');
     my $match = $rule->match("sometext");
     my $capture = $match->();
     is(ref($capture),'HASH','Capture is a hashref');
@@ -154,7 +154,7 @@ no warnings qw( once );
 {
     # XXX - is $() working?
     # capture
-    my $rule = Pugs::Compiler::Rule->compile('some (text) { return { a => $() ,} } ');
+    my $rule = Pugs::Compiler::Regex->compile('some (text) { return { a => $() ,} } ');
     my $match = $rule->match("sometext");
     #print Dumper($match);
     my $capture = $match->();
