@@ -287,15 +287,15 @@ extern PPvoid_t JudySLPrev(      Pcvoid_t,       uint8_t * Index, P_JE);
 // ****************************************************************************
 // JUDYHS FUNCTIONS:
 
-extern PPvoid_t JudyHSGet(       Pcvoid_t,      const uint8_t *, Word_t);
-extern PPvoid_t JudyHSIns(       PPvoid_t,      const uint8_t *, Word_t,   P_JE);
-extern int      JudyHSDel(       PPvoid_t,      const uint8_t *, Word_t,   P_JE);
-extern Word_t   JudyHSFreeArray( PPvoid_t,                                 P_JE);
-extern PPvoid_t JudyHSIterFirst( Pcvoid_t, PPvoid_t, uint8_t **, Word_t *, P_JE);
-extern PPvoid_t JudyHSIterNext(  Pcvoid_t, PPvoid_t, uint8_t **, Word_t *, P_JE);
-extern PPvoid_t JudyHSIterLast(  Pcvoid_t, PPvoid_t, uint8_t **, Word_t *, P_JE);
-extern PPvoid_t JudyHSIterPrev(  Pcvoid_t, PPvoid_t, uint8_t **, Word_t *, P_JE);
-extern Word_t   JudyHSFreeIter(  PPvoid_t,                                 P_JE);
+extern PPvoid_t JudyHSGet(       Pcvoid_t,           void *,  Word_t);
+extern PPvoid_t JudyHSIns(       PPvoid_t,           void *,  Word_t,   P_JE);
+extern int      JudyHSDel(       PPvoid_t,           void *,  Word_t,   P_JE);
+extern Word_t   JudyHSFreeArray( PPvoid_t,                              P_JE);
+extern PPvoid_t JudyHSIterFirst( Pcvoid_t, PPvoid_t, void **, Word_t *, P_JE);
+extern PPvoid_t JudyHSIterNext(  Pcvoid_t, PPvoid_t, void **, Word_t *, P_JE);
+extern PPvoid_t JudyHSIterLast(  Pcvoid_t, PPvoid_t, void **, Word_t *, P_JE);
+extern PPvoid_t JudyHSIterPrev(  Pcvoid_t, PPvoid_t, void **, Word_t *, P_JE);
+extern Word_t   JudyHSFreeIter(  PPvoid_t,                              P_JE);
 
 extern const char *Judy1MallocSizes;
 extern const char *JudyLMallocSizes;
