@@ -280,10 +280,22 @@ $_[1] }";
 sub named_capture {
     my $name    = $_[0]{ident};
     my $program = $_[0]{rule};
+    my $flat    = $_[0]{flat};
     $program = emit_rule( $program, $_[1].'        ' )
         if ref( $program );
     # TODO - repeated captures create an Array
-    return "$_[1] do{ 
+
+    my($try_match, $gen_match, $post_match);
+    if ( $flat ) {
+        $try_match = <<"."
+$_[1]     my \$bool = 1;
+$_[1]     \$bool = 0 unless
+.
+.            $program . ";\n";
+        $gen_match = "\$match[-1]";
+	$post_match = "\$#match--;";
+    } else {
+        $try_match = <<"." ;
 $_[1]     my \$hash = do {
 $_[1]       my \$bool = 1;
 $_[1]       my \$from = \$pos;
@@ -291,12 +303,19 @@ $_[1]       my \@match;
 $_[1]       my \%named;
 $_[1]       my \$capture;
 $_[1]       \$bool = 0 unless
-" .             $program . ";
+$program;
 $_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \$bool, to => \\(0+\$pos), capture => \\\$capture }
 $_[1]     };
 $_[1]     my \$bool = \$hash->{'bool'};
+.
+        $gen_match = "bless \\\$hash, 'Pugs::Runtime::Match::Ratchet'";
+	$post_match = "";
+    }
+
+    return "$_[1] do{ 
+$try_match
 $_[1]     if ( \$bool ) {
-$_[1]       my \$match = bless \\\$hash, 'Pugs::Runtime::Match::Ratchet';
+$_[1]       my \$match = $gen_match;
 $_[1]       if ( \$quantified ) {
 $_[1]         \$named{'$name'} = [] if ! defined \$named{'$name'};
 $_[1]         push \@{\$named{'$name'}}, \$match;
@@ -310,6 +329,7 @@ $_[1]           push \@{ \$named{'$name'} }, \$match;
 $_[1]         }
 $_[1]       }
 $_[1]     }
+$_[1]     $post_match
 $_[1]     \$bool;
 $_[1] }";
 }
@@ -508,7 +528,8 @@ $_[1] )";
                 "$_[1]           \$pos = \$match[-1]->to if \$bool;\n" .
                 #"print !\$match[-1], ' ', Dumper \$match[-1];\n" .
                 "$_[1]           \$bool;\n" .
-                "$_[1]         }"
+                "$_[1]         }",
+	      flat => 1
             }, 
             $_[1],    
         );

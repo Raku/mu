@@ -205,8 +205,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     # capture
-    my $rule = Pugs::Compiler::Rule->compile('some (text) { return { a => $_[0][0]() ,} } ', { ratchet => 1 });
-    #my $rule = Pugs::Compiler::Rule->compile('some (text) { return { a => $_[0][0] ,} } ', { ratchet => 1 });
+    my $rule = Pugs::Compiler::Rule->compile('some (text) { return { a => $_[0][0] ,} } ', { ratchet => 1 });
     #print "Source: ", do{use Data::Dumper; Dumper($rule->perl5)};
     my $match = $rule->match("sometext");
     #print "Match: ", do{use Data::Dumper; Dumper($match)};

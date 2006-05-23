@@ -115,7 +115,7 @@ sub match {
             $state,
             \%args,
         );
-        eval { $$match->{from} = 0 };   # XXX
+        eval { $$match->{from} = \(0+$p) };   # XXX
         return $match;  
     }
 
