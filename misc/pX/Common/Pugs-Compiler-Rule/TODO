@@ -6,7 +6,11 @@ Unicode:
 
 Sigspace switch:
 
-- not implemented
+- 'doubled' <ws> doesn't work
+  my $rule = Pugs::Compiler::Rule->compile('a (b) * c', { ratchet => 1, s => 1 } );
+  - but this works:  
+  my $rule = Pugs::Compiler::Rule->compile('a (b )*c', { ratchet => 1, s => 1 } );
+- implement, test in non-ratchet rules
 
 Ratchet switch:
 

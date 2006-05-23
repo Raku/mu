@@ -11,6 +11,7 @@ use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
 our $direction = "+";  # XXX make lexical
+our $sigspace = 0;
 
 # XXX - reuse this sub in metasyntax()
 sub call_subrule {
@@ -42,9 +43,10 @@ $_[1] )";
 }
 
 sub emit {
-    my ($grammar, $ast) = @_;
+    my ($grammar, $ast, $param) = @_;
     # runtime parameters: $grammar, $string, $state, $arg_list
     # rule parameters: see Runtime::Rule.pm
+    local $sigspace = $param->{sigspace};   # XXX - $sigspace should be lexical
     return 
         "sub {\n" . 
         "  my \$grammar = \$_[0];\n" .
@@ -92,11 +94,18 @@ sub non_capturing_group {
 sub quant {
     my $term = $_[0]->{'term'};
     my $quantifier = $_[0]->{quant};
+    #print "QUANT: ",Dumper($_[0]);
     $quantifier = '' unless defined $quantifier;
     # TODO: fix grammar to not emit empty quantifier
-    return emit_rule( $term, $_[1] )
+    my $tab = ( $quantifier eq '' ) ? $_[1] : $_[1] . "  ";
+    my $ws = metasyntax( '?ws', $tab );
+    my $ws3 = ( $sigspace && $_[0]->{ws3} ne '' ) ? " &&\n$ws" : '';
+    my $rul = emit_rule( $term, $tab );
+    $rul = "$ws &&\n$rul" if $sigspace && $_[0]->{ws1} ne '';
+    $rul = "$rul &&\n$ws" if $sigspace && $_[0]->{ws2} ne '';
+    #print $rul;
+    return $rul 
         if $quantifier eq '';
-    my $rul = emit_rule( $term, $_[1] . "  " );
     # *  +  ?
     # TODO: *? +? ??
     # TODO: *+ ++ ?+
@@ -105,17 +114,17 @@ sub quant {
         "$_[1] do { my \$quantified = 1; (\n$rul\n" .
         "$_[1] ||\n" .
         "$_[1]   1\n" .
-        "$_[1] ) }"
+        "$_[1] ) }$ws3"
         if $quantifier eq '?';
     return 
-        "$_[1] do { my \$quantified = 1; while (\n$rul) {}; 1 }"
+        "$_[1] do { my \$quantified = 1; while (\n$rul) {}; 1 }$ws3"
         if $quantifier eq '*';
     return
         "$_[1] do { my \$quantified = 1;\n" . 
         "$_[1] (\n$rul\n" .
         "$_[1] &&\n" .
         "$_[1]   do { while (\n$rul) {}; 1 }\n" .
-        "$_[1] ) }"
+        "$_[1] ) }$ws3"
         if $quantifier eq '+';
     die "quantifier not implemented: $quantifier";
 }        

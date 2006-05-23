@@ -2,7 +2,7 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0x99D3BF04 or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0xA10F88C4 or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
 use base 'Pugs::Grammar::Base';
@@ -109,6 +109,8 @@ sub {
                 constant( "\"" )
               ,
                 constant( "\'" )
+              ,
+                constant( "\=" )
               ,
           ] )
         ,
@@ -390,6 +392,18 @@ sub {
                   concat(
                     constant( "\:" )
                   ,
+                    constant( "\?" )
+                  ,
+                  ),
+                  concat(
+                    constant( "\:" )
+                  ,
+                    constant( "\+" )
+                  ,
+                  ),
+                  concat(
+                    constant( "\:" )
+                  ,
                     constant( "\:" )
                   ,
                   ),
@@ -433,8 +447,11 @@ sub {
     package Pugs::Runtime::Rule;
     rule_wrapper( $_[0], (
         concat(
-          optional(
-              sub{ $grammar->ws(@_) }
+          capture( 'ws1', 
+              optional(
+                  sub{ $grammar->ws(@_) }
+                ,
+              )
             ,
           )
         ,
@@ -443,8 +460,11 @@ sub {
             ,
           )
         ,
-          optional(
-              sub{ $grammar->ws(@_) }
+          capture( 'ws2', 
+              optional(
+                  sub{ $grammar->ws(@_) }
+                ,
+              )
             ,
           )
         ,
@@ -481,16 +501,22 @@ sub {
             ,
           )
         ,
-          optional(
-              sub{ $grammar->ws(@_) }
+          capture( 'ws3', 
+              optional(
+                  sub{ $grammar->ws(@_) }
+                ,
+              )
             ,
           )
         ,
           Pugs::Runtime::Rule::abort(
               sub {
                   return { bool => 1, tail => $_[0], return => sub { return {  
-            term =>  $_[0]{term}(),
+            term  => $_[0]{term}(),
             quant => $_[0]{quant}(),
+            ws1   => $_[0]{ws1}(),
+            ws2   => $_[0]{ws2}(),
+            ws3   => $_[0]{ws3}(),
         } 
     } };
               }

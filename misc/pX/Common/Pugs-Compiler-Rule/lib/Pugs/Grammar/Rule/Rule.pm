@@ -35,8 +35,8 @@ rule num_variable :P5 {^(?:\$[[:digit:]]+)}
     unshift @rule_terms, 'dot';
     
     rule plain_text {
-        <alnum> | \, | \; | \_ | \/ | \~ | \" | \'
-            
+        <alnum> | \, | \; | \_ | \/ | \~ | \" | \' | \=
+
         { return { 'constant' => $() ,} }
     }
     unshift @rule_terms, 'plain_text';
@@ -118,6 +118,8 @@ rule num_variable :P5 {^(?:\$[[:digit:]]+)}
     rule colon {
         ( 
             [ \:\:\: ] | 
+            [ \:\? ]   | 
+            [ \:\+ ]   | 
             [ \:\: ]   | \: |
             [ \$\$ ]   | \$ |
             [ \^\^ ]   | \^
@@ -131,9 +133,9 @@ rule num_variable :P5 {^(?:\$[[:digit:]]+)}
 
 
 rule quantifier {
-    <?ws>?
-    $<term> := (<@Pugs::Grammar::Rule::rule_terms>)
-    <?ws>?
+    $<ws1>   := (<?ws>?)
+    $<term>  := (<@Pugs::Grammar::Rule::rule_terms>)
+    $<ws2>   := (<?ws>?)
     $<quant> := (
         [ 
             [ \?\? ] |
@@ -144,11 +146,14 @@ rule quantifier {
             \+
         ]?
     )
-    <?ws>?
+    $<ws3>   := (<?ws>?)
     
     { return {  
-            term =>  $_[0]{term}(),
+            term  => $_[0]{term}(),
             quant => $_[0]{quant}(),
+            ws1   => $_[0]{ws1}(),
+            ws2   => $_[0]{ws2}(),
+            ws3   => $_[0]{ws3}(),
         } 
     }
 }

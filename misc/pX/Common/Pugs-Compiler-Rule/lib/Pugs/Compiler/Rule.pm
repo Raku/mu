@@ -42,9 +42,6 @@ sub compile {
     warn "Error in rule: unknown parameter '$_'" 
         for keys %$param;
 
-    warn "Error in rule: 'sigspace' not implemented"
-        if $self->{sigspace};
-
     #print 'rule source: ', $self->{source}, "\n";
     $self->{ast} = Pugs::Grammar::Rule->rule( 
         $self->{source} );
@@ -53,11 +50,11 @@ sub compile {
 
     if ( $self->{ratchet} ) {
         $self->{perl5} = Pugs::Emitter::Rule::Perl5::Ratchet::emit( 
-            $self->{grammar}, $self->{ast}{capture} );
+            $self->{grammar}, $self->{ast}{capture}, $self );
     }
     else {
         $self->{perl5} = Pugs::Emitter::Rule::Perl5::emit( 
-            $self->{grammar}, $self->{ast}{capture} );
+            $self->{grammar}, $self->{ast}{capture}, $self );
     }
     #print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
 
@@ -115,7 +112,8 @@ sub match {
             $state,
             \%args,
         );
-        eval { $$match->{from} = \(0+$p) };   # XXX
+        $p = 0 if $p eq 'undef';  # XXX - bug - 'undef' as string in t\06-subrule.t
+        eval { $$match->{from} = \(0 + $p) };   # XXX
         return $match;  
     }
 

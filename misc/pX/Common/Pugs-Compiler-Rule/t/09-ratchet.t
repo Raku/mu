@@ -1,5 +1,5 @@
 
-use Test::More tests => 61;
+use Test::More tests => 67;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -462,4 +462,35 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     
     is( "$match->[0][0]", "foo:food fool\n", 'capturing with captures inside - 3' );
     is( "$match->[0][1]", "bar:bard barb\n", 'capturing with captures inside - 4' );
+}
+
+{
+    # sigspace
+    
+    # XXX - double <ws> doesn't work
+    #my $rule = Pugs::Compiler::Rule->compile('a (b) * c', { ratchet => 1, s => 1 } );
+    
+    my $rule = Pugs::Compiler::Rule->compile('a (b )*c', { ratchet => 1, s => 1 } );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    
+    my $match = $rule->match( "ac" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "", 'sigspace no match' );
+
+    my $match = $rule->match( "a c" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "a c", 'sigspace match' );
+    is( $match->[0][0], undef, 'sigspace empty match' );
+    
+    $match = $rule->match( "a b c" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match->[0][0]", "b ", 'sigspace one match' );
+
+    $match = $rule->match( "a b b b c" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match->[0][1]", "b ", 'sigspace many match' );
+
+    $match = $rule->match( "a b b b d" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "", 'sigspace no match' );
 }
