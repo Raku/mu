@@ -68,11 +68,21 @@ to several other modules:
 
 =over 4
 
+* Front-end Modules
+
+=item * L<Pugs::Compiler::Rule> compiles Perl 6 Rules to Perl 5.
+
+=item * L<Pugs::Compiler::Token> compiles Perl 6 Tokens to Perl 5.
+
+=item * L<Pugs::Compiler::Regex> compiles Perl 6 Regexes to Perl 5.
+
 * Runtime Classes
 
 =item * L<Pugs::Runtime::Rule> provides the runtime engine for Rules.
 
 =item * L<Pugs::Runtime::Match> represents a B<Match> object.
+
+=item * L<Pugs::Runtime::Match::Ratchet> represents a B<Match> object matched with C<:ratchet>.
 
 =item * L<Pugs::Runtime::Grammar> represents a B<Grammar> class / object.
 
@@ -166,17 +176,19 @@ options:
 =item * grammar => $class - Specify which namespace (Grammar) the rule 
 belongs to.
 
-=item * ratchet => 1 - Disable backtracking. Match faster.
+=item * ratchet => 1 - Disable backtracking. Match faster. Defaults to 1 in Rules and Tokens.
 
-=item * pos => $pos - Specify a string position to match. Starts in zero.
+=item * pos => $pos - Specify a string position to match. Starts in zero. Defaults to C<undef>.
+
+=item * sigspace => 1 - Whitespace is significant. Defaults to 1 in Rules.
 
 =head2 match (Str $match_against)
 
-Instance method.  Returns a L<Pugs::Runtime::Match> object.
+Instance method.  Returns a L<Pugs::Runtime::Match> object (or L<Pugs::Runtime::Match::Ratchet>).
 
 =head2 perl5
 
-Instance method.  Returns a string that can be eval'ed into a rule object.
+Instance method.  Returns a string that can be eval'ed into a rule/token/regex object.
 
 =head1 CAVEATS
 
