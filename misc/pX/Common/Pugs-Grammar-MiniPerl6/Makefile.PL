@@ -21,6 +21,7 @@ utime $mtime, $mtime, $pm;
 
 name('Pugs-Grammar-MiniPerl6');
 all_from('lib/Pugs/Grammar/MiniPerl6.pm');
+clean_files('lib/Pugs/Grammar/MiniPerl6.pm ');
 
 &WriteAll;
 
