@@ -13,7 +13,7 @@ use base 'Pugs::Grammar::Base';
 	my $body = substr($<block>, 1, -1);
 	$body =~ s/\\\\/\\\\\\\\/g;  # duplicate every single backslashes
 	return "*" . $<rule_name> . " = Pugs::Compiler::Rule->compile(q(" .
-	$body . "))->code;"
+	$body . "), { s => 0, ratchet => 0 } )->code;"
     }))->code;
 *grammar = Pugs::Compiler::Rule->compile(q(<'grammar'> <grammar_name>\;[<?ws>?<rule>]*{
         return "package " . "$<grammar_name>" .
