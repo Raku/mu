@@ -6,24 +6,20 @@ package Grammar::Compiler;
 use Pugs::Compiler::Rule;
 use base 'Pugs::Grammar::Base';
 
-*grammar_name = Pugs::Compiler::Rule->compile(q( [\w|\d|\:]+ ), { ratchet => 1 })->code;
-*rule_name = Pugs::Compiler::Rule->compile(q( \w+ ), { ratchet => 1 })->code;
-*block = Pugs::Compiler::Rule->compile(q( \{ [<block>|<-[}]>|\\\\\}]* \} ), { ratchet => 1 })->code;
-*rule = Pugs::Compiler::Rule->compile(q(
-    <'rule'> <?ws> <rule_name> <?ws>? <block>
-    {
+*grammar_name = Pugs::Compiler::Rule->compile(q([\w|\d|\:]+))->code;
+*rule_name = Pugs::Compiler::Rule->compile(q(\w+))->code;
+*block = Pugs::Compiler::Rule->compile(q(\{[<block>|<-[}]>|\\\\\}]*\}))->code;
+*rule = Pugs::Compiler::Rule->compile(q(<'rule'> <rule_name><?ws>?<block>{
 	my $body = substr($<block>, 1, -1);
 	$body =~ s/\\\\/\\\\\\\\/g;  # duplicate every single backslashes
 	return "*" . $<rule_name> . " = Pugs::Compiler::Rule->compile(q(" .
 	$body . "))->code;"
-    }
-), { ratchet => 1 })->code;
-*grammar = Pugs::Compiler::Rule->compile(q(
-    <'grammar'> <?ws> <grammar_name>\; [<?ws>? <rule>]*
-    { return "package " . "$<grammar_name>" .
+    }))->code;
+*grammar = Pugs::Compiler::Rule->compile(q(<'grammar'> <grammar_name>\;[<?ws>?<rule>]*{
+        return "package " . "$<grammar_name>" .
 	    ";\nuse Pugs::Compiler::Rule;\nuse base 'Pugs::Grammar::Base';\n\n" .
 	    join("\n", map { "$_" } @{$<rule>} ) . "\n" }
-), { ratchet => 1 })->code;
+))->code;
 
 package main;
 use IO::File;
