@@ -17,7 +17,8 @@ use base 'Pugs::Grammar::Base';
     }))->code;
 *grammar = Pugs::Compiler::Rule->compile(q(<'grammar'> <grammar_name>\;[<?ws>?<rule>]*{
         return "package " . "$<grammar_name>" .
-	    ";\nuse Pugs::Compiler::Rule;\nuse base 'Pugs::Grammar::Base';\n\n" .
+	    ";\nuse Pugs::Compiler::Rule;\nuse base 'Pugs::Grammar::Base';\n" .
+        "use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???\n\n" .
 	    join("\n", map { "$_" } @{$<rule>} ) . "\n" }
 ))->code;
 
