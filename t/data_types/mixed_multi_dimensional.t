@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 62;
+plan 77;
 
 =pod
 
@@ -14,6 +14,8 @@ These tests don't go any more than two levels deep
 (AoH, AoP) in most cases because I know these won't
 work yet in Pugs. When we have this support, then 
 this test should be added too more.
+
+Some deeper tests were already added.
 
 =cut
 
@@ -153,3 +155,35 @@ this test should be added too more.
     my $h = { a => [ 1,2,3 ] };
     is($h<a>.ref, 'Array', "array nested in hashref in one declaration");
 }
+
+{ # structures deeper than 2 levels
+    my @array;
+    @array[0][0][0][0][0] = 5;
+    isa_ok(@array, 'Array');
+    isa_ok(@array[0], 'Array');
+    isa_ok(@array[0][0], 'Array');
+    isa_ok(@array[0][0][0], 'Array');
+    isa_ok(@array[0][0][0][0], 'Array');
+    is(@array[0][0][0][0][0], 5, "5 level deep arrays only structure");
+
+    @array[1]<two>[0]<four>[0]<six> = 6;
+    isa_ok(@array, 'Array');
+    isa_ok(@array[1], 'Hash');
+    isa_ok(@array[1]<two>, 'Array');
+    isa_ok(@array[1]<two>[0], 'Hash');
+    is(+@array[1]<two>[0], 1, "one key at level 4");
+    isa_ok(@array[1]<two>[0]<four>, 'Array');
+    isa_ok(@array[1]<two>[0]<four>[0], 'Hash');
+    is(@array[1]<two>[0]<four>[0]<six>, 6, "6 level deep mixed structure");
+
+
+    @array[2]<two>[0]<f><other> = 5;
+    isa_ok(@array[1]<two>[0], 'Hash');
+    #isa_ok(@array[1]<two>[0]<f>, 'Hash');
+    #is(+@array[1]<two>[0], 2, "two keys at level 4");
+    #is(@array[1]<two>[0]<f><other>, 5, "more keys at level 4");
+}   
+    # the 3 commented tests above fail
+
+
+
