@@ -1,5 +1,5 @@
 package Pugs::Compiler::Rule;
-$Pugs::Compiler::Rule::VERSION = '0.03';
+$Pugs::Compiler::Rule::VERSION = '0.04';
 
 # Documentation in the __END__
 use 5.006;
@@ -97,6 +97,8 @@ to several other modules:
 * Code Emitters
 
 =item * L<Pugs::Emitter::Rule::Perl5> converts parsed Rules to Perl 5 code.
+
+=item * L<Pugs::Emitter::Rule::Perl5::Ratchet> converts parsed :ratchet Rules to Perl 5 code.
 
 =back
 

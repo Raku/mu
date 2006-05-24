@@ -34,8 +34,8 @@ sub compile {
                         'Pugs::Grammar::Base';
     $self->{ratchet}  = delete $param->{ratchet}  || 
                         0;
-    $self->{p}        = delete $param->{pos};
-    $self->{p}        = delete $param->{p}    unless defined $self->{p};
+    $self->{p}        = delete $param->{pos}      ||
+                        delete $param->{p};
                         # default = undef;
     $self->{sigspace} = delete $param->{sigspace} ||
                         delete $param->{s}        || 
