@@ -6,6 +6,8 @@ package Grammar::Compiler;
 use Pugs::Compiler::Rule;
 use base 'Pugs::Grammar::Base';
 
+# XXX - added { s => 0, ratchet => 0 } until MiniPerl6.grammar can be compiled with 'token'
+
 *grammar_name = Pugs::Compiler::Rule->compile(q([\w|\d|\:]+))->code;
 *rule_name = Pugs::Compiler::Rule->compile(q(\w+))->code;
 *block = Pugs::Compiler::Rule->compile(q(\{[<block>|<-[}]>|\\\\\}]*\}))->code;
