@@ -2,12 +2,12 @@
 use lib '../Pugs-Compiler-Rule/lib';
 use Test::More tests => 6;
 use Pugs::Grammar::MiniPerl6;
+use Pugs::Runtime::Match::Ratchet;
 
 sub is_production_match {
     my ($input, $output, @arg) = @_;
-    @_ = (Pugs::Grammar::MiniPerl6->ProductionRule($input)->(),
-	  $output, @arg);
-    print "$_[0]\n";
+    my $got = Pugs::Grammar::MiniPerl6->ProductionRule($input);
+    @_ = ("$got", $output, @arg);
     goto \&is;
 }
 
