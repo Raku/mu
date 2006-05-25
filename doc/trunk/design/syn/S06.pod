@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 14 May 2006
+  Last Modified: 24 May 2006
   Number: 6
-  Version: 35
+  Version: 36
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -288,7 +288,7 @@ Operator names can be any sequence of non-whitespace characters
 including Unicode characters. For example:
 
     sub infix:<(c)> ($text, $owner) { return $text but Copyright($owner) }
-    method prefix:<±> (Num $x) returns Num { return +$x | -$x }
+    method prefix:<±> (Num $x --> Num) { return +$x | -$x }
     multi sub postfix:<!> (Int $n) { $n < 2 ?? 1 !! $n*($n-1)! }
     macro circumfix:«<!-- -->» ($text) is parsed / .*? / { "" }
 
@@ -1238,7 +1238,7 @@ instead, and fail if no such variable is declared.
 
 Note that unlike a sub declaration, a regex-embedded signature has no
 associated "returns" syntactic slot, so you have to use C<< --> >>
-within the signature to specify the type of the signature, or match as
+within the signature to specify the C<of> type of the signature, or match as
 an arglist:
 
     :(Num, Num --> Coord)
@@ -1395,14 +1395,20 @@ Objects with these types have distinct C<.id> values.
 Explicit types are optional. Perl variables have two associated types:
 their "value type" and their "implementation type".  (More generally, any
 container has an implementation type, including subroutines and modules.)
+The value type is stored as its C<of> property, while the implementation
+type of the container is just the object type of the container itself.
 
 The value type specifies what kinds of values may be stored in the
-variable. A value type is given as a prefix or with the C<returns> or
-C<of> keywords:
+variable. A value type is given as a prefix or with the C<of> keyword:
 
     my Dog $spot;
-    my $spot returns Dog;
     my $spot of Dog;
+
+In either case this sets the C<of> property of the container to C<Dog>.
+Subroutines have a variant of the C<of> property, C<returns>, that
+sets the C<returns> property instead.  The C<returns> property specifies
+a constraint to be checked upon calling C<return> that, unlike the C<of>
+property, is not advertized as the type of the routine:
 
     our Animal sub get_pet() {...}
     sub get_pet() returns Animal {...}
@@ -1431,6 +1437,13 @@ declaration time, and for performance reasons may not be tied with a
 run-time C<tie> statement unless the variable is explicitly declared
 with an implementation type that does the C<Tieable> role.
 
+However, package variables are always considered C<Tieable> by default.
+As a consequence, all named packages are also C<Tieable> by default.
+Classes and modules may be viewed as differently tied packages.
+Looking at it from the other direction, classes and modules that
+wish to be bound to a global package name must be able to do the
+C<Package> role.
+
 =head2 Hierarchical types
 
 A non-scalar type may be qualified, in order to specify what type of
@@ -1449,19 +1462,16 @@ type on its left. Parametric types are named using square brackets, so:
 
 actually means:
 
-    my Hash[returns => Array[returns => Recipe]] %book; 
+    my Hash[of => Array[of => Recipe]] %book; 
 
 Because the actual variable can be hard to find when complex types are
 specified, there is a postfix form as well:
 
     my Hash of Array of Recipe %book;           # HoHoAoRecipe
     my %book of Hash of Array of Recipe;        # same thing
-    my %book returns Hash of Array of Recipe;   # same thing
 
-The C<returns> form is more commonly seen in subroutines:
+The C<returns> form may be used in subroutines:
 
-    my Hash of Array of Recipe sub get_book ($key) {...}
-    my sub get_book ($key) of Hash of Array of Recipe {...}
     my sub get_book ($key) returns Hash of Array of Recipe {...}
 
 Alternately, the return type may be specified within the signature:
@@ -1469,8 +1479,14 @@ Alternately, the return type may be specified within the signature:
     my sub get_book ($key --> Hash of Array of Recipe) {...}
 
 There is a slight difference, insofar as the type inferencer will
-ignore a C<returns> but pay attention to C<< --> >> or prefix type declarations.
-Only the inside of the subroutine pays attention to C<returns>.
+ignore a C<returns> but pay attention to C<< --> >> or prefix type
+declarations, also known as the C<of> type.  Only the inside of the
+subroutine pays attention to C<returns>.
+
+You may also specify the C<of> type as the C<of> trait:
+
+    my Hash of Array of Recipe sub get_book ($key) {...}
+    my sub get_book ($key) of Hash of Array of Recipe {...}
 
 =head2 Polymorphic types
 
@@ -1524,42 +1540,53 @@ the same signature must unify compatibly if they have the same name:
 =head2 Return types
 
 On a scoped subroutine, a return type can be specified before or
-after the name:
+after the name.  We call all return types "return types", but distinguish
+two kinds of return type, the C<where> type from the C<of> type, because
+the C<of> type must be an "official" named type, while the C<where> type
+is merely applied as a constraint to what may be returned by the routine.
 
-    our Egg sub lay {...}
-    our sub lay returns Egg {...}
+    our Egg sub lay {...}		# of type
+    our sub lay returns Egg {...}	# where type
+    our sub lay of Egg {...}		# of type
+    our sub lay (--> Egg) {...}		# of type
 
-    my Rabbit sub hat {...}
-    my sub hat returns Rabbit {...}
+    my Rabbit sub hat {...}		# of type
+    my sub hat returns Rabbit {...}	# where type
+    my sub hat of Rabbit {...}		# of type
+    my sub hat (--> Rabbit) {...}	# of type
 
 If a subroutine is not explicitly scoped, it belongs to the current
 namespace (module, class, grammar, or package), as if it's scoped with
 the C<our> scope modifier. Any return type must go after the name:
 
-    sub lay returns Egg {...}
+    sub lay returns Egg {...}		# where type
+    sub lay of Egg {...}		# of type
+    sub lay (--> Egg) {...}		# of type
 
 On an anonymous subroutine, any return type can only go after the C<sub>
 keyword:
 
-    $lay = sub returns Egg {...};
+    $lay = sub returns Egg {...};	# where type
+    $lay = sub of Egg {...};		# of type
+    $lay = sub (--> Egg) {...};		# of type
 
-but you can use a scope modifier to introduce a return type:
+but you can use a scope modifier to introduce an C<of> prefix type:
 
-    $lay = my Egg sub {...};
-    $hat = my Rabbit sub {...};
+    $lay = my Egg sub {...};		# of type
+    $hat = my Rabbit sub {...};		# of type
 
 Because they are anonymous, you can change the C<my> modifier to C<our>
 without affecting the meaning.
 
-The return type may also be specified after a C<< --> >> token within the
-signature.  This doesn't mean exactly the same thing as C<returns>.  The
-arrow form is an "official" return type, and may be used to do type
-inferencing outside the sub.  The C<returns> form only makes the return
-type available to the internals of the sub so that the C<return> statement
-can know its context, but outside the sub we don't know anything
-about the return value, as if no return type had been declared.  The prefix
-form actually corresponds to the C<< --> >> semantics rather than the
-C<returns> semantics, so the return type of
+The return type may also be specified after a C<< --> >> token within
+the signature.  This doesn't mean exactly the same thing as C<returns>.
+The C<of> type is the "official" return type, and may therefore be
+used to do type inferencing outside the sub.  The C<where> type only
+makes the return type available to the internals of the sub so that
+the C<return> statement can know its context, but outside the sub we
+don't know anything about the return value, as if no return type had
+been declared.  The prefix form specifies the C<of> type rather than
+the C<where> type, so the return type of
 
     my Fish sub wanda ($x) { ... }
 
@@ -1571,7 +1598,7 @@ not as if you'd said
 
     my sub wanda ($x) returns Fish { ... }
 
-It is possible for the outer type to disagree with the inner type:
+It is possible for the C<of> type to disagree with the C<where> type:
 
     my Squid sub wanda ($x) returns Fish { ... }
 
@@ -1623,7 +1650,11 @@ parameter list and/or return type.
 
 =item C<returns>/C<is returns>
 
-The type returned by a subroutine.
+The C<where> type constraint that a routine imposes in its return value.
+
+=item C<of>/C<is of>
+
+The C<of> type that is the official return type of the routine.
 
 =item C<will do>
 
