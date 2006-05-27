@@ -835,7 +835,8 @@ JudyHSFreeArray(PPvoid_t PPArray,       // ^ to JudyHashArray struct
 
 typedef struct HS_I_TER
 {
-    Word_t   hsi_Alloc;               // allocated size of structure
+    Word_t   hsi_Alloc;               // allocated size of structure, for freeing
+    Word_t   hsi_MaxLength;           // maximum length of index in tree, for sizing hsi_String
     // here follow indices for the tree of JudyL arrays:
     Word_t   hsi_Length;              // Length of index string
 #ifndef DONOTUSEHASH
@@ -844,7 +845,7 @@ typedef struct HS_I_TER
     uint8_t  hsi_String[WORDSIZE];    // First hunk of index string
 } hsi_t, *Phsi_t;
 
-#define HSI_STRUCTHEADSIZE (sizeof(Word_t) * 3)
+#define HSI_STRUCTHEADSIZE (sizeof(hsi_t) - WORDSIZE)
 
 // Size of hsi_t including a buffer of size LEN
 #define HSI_SIZE(LEN)   (HSI_STRUCTHEADSIZE + ((((LEN) + WORDSIZE - 1) / WORDSIZE) * WORDSIZE))
@@ -854,12 +855,43 @@ typedef struct HS_I_TER
 // The JudyHSIter routines
 //=========================
 
+static Phsi_t makeIter(Pcvoid_t, PJError_t);
 static Pvoid_t findFirstLeaf  (Pcvoid_t, uint8_t *, Word_t, PJError_t);
 static Pvoid_t findNextLeaf   (Pcvoid_t, uint8_t *, Word_t, PJError_t);
 static Pvoid_t findLastLeaf   (Pcvoid_t, uint8_t *, Word_t, PJError_t);
 static Pvoid_t findPrevLeaf   (Pcvoid_t, uint8_t *, Word_t, PJError_t);
 static Pvoid_t findLowestLeaf (Pcvoid_t, uint8_t *, Word_t, PJError_t);
 static Pvoid_t findHighestLeaf(Pcvoid_t, uint8_t *, Word_t, PJError_t);
+
+static Phsi_t
+makeIter(Pcvoid_t PArray,
+         PJError_t PJError
+        )
+{
+    Phsi_t PIter;
+    Word_t maxLength;
+    Word_t iterSize;
+    PPvoid_t PValue;
+
+    maxLength = -1;
+    PValue = JudyLLast(PArray, &maxLength, PJError);
+    if (PValue == PPJERR)
+    {
+        JU_SET_ERRNO(PJError, 0);
+        return (NULL);
+    }
+    iterSize = HSI_SIZE(maxLength);
+    PIter = (Phsi_t)JudyMalloc(iterSize/WORDSIZE);
+    if (PIter == NULL)
+    {
+        JU_SET_ERRNO(PJError, JU_ERRNO_NOMEM);
+        return (NULL);
+    }
+    memset(PIter, 0, iterSize);
+    PIter->hsi_Alloc = iterSize;
+    PIter->hsi_MaxLength = maxLength;
+    return (PIter);
+}
 
 
 // Find first string, at or after (index, length) if any, in JudyHS structure, 
@@ -874,26 +906,17 @@ JudyHSIterFirst(Pcvoid_t PArray,             // pointer to array
 	       )
 {
     Phsi_t PIter;
+    uint8_t * String;
+    Word_t Length;
+    uint32_t HValue;
     
     if (PPIter == NULL)
     {
-        PPvoid_t PValue;
-        Word_t maxLength;
-	Word_t iterSize;
-
-	maxLength = -1;
-	PValue = JudyLLast(PArray, &maxLength, PJError);
-	if (PValue == PPJERR) return(PPJERR);  // ??
-	
-        iterSize = HSI_SIZE(maxLength);
-	PIter = (Phsi_t)JudyMalloc(iterSize/WORDSIZE);
+	PIter = makeIter(PArray, PJError);
 	if (PIter == NULL)
         {
-            JU_SET_ERRNO(PJError, JU_ERRNO_NOMEM);
-	    return (PPJERR);
+            return (PPJERR);
 	}
-	memset(PIter, 0, iterSize);
-	PIter->hsi_Alloc = iterSize;
 	*PPIter = PIter;
     }
     else
@@ -901,17 +924,37 @@ JudyHSIterFirst(Pcvoid_t PArray,             // pointer to array
         PIter = *PPIter;
     }
     
-    if (*PStr == PIter->hsi_String) {
+    if (PStr == NULL || PLen == NULL)
+    {
+        JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
+	return (PPJERR);
+    }
+    String = *PStr;
+    Length = *PLen;
+    if (String == PIter->hsi_String && Length == PIter->hsi_Length)
+    {
         // optimization: use PIter as is
-    } else {
-        uint32_t HValue;
-	
-        PIter->hsi_Length = *PLen;
 #ifndef DONOTUSEHASH
-	JUDYHASHSTR(HValue, *PStr, *PLen);
-	PIter->hsi_Hash = (Word_t)HValue;
+	if (Length > WORDSIZE)
+        {
+            HValue = PIter->hsi_Hash;
+	}
 #endif // DONOTUSEHASH
-	memcpy(PIter->hsi_String, *PStr, *PLen);
+    } else {
+        if (String == NULL && Length != 0UL)
+	{
+            JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
+	    return (PPJERR);
+	}
+        PIter->hsi_Length = Length;
+#ifndef DONOTUSEHASH
+	if (Length > WORDSIZE)
+	{
+            JUDYHASHSTR(HValue, String, Length);
+	    PIter->hsi_Hash = (Word_t)HValue;
+	}
+#endif // DONOTUSEHASH
+	memcpy(PIter->hsi_String, String, Length);
     }
     
     /* more to come ... */
@@ -929,26 +972,17 @@ JudyHSIterNext (Pcvoid_t PArray,               // pointer to array
 	       )
 {
     Phsi_t PIter;
+    uint8_t * String;
+    Word_t Length;
+    uint32_t HValue;
     
     if (PPIter == NULL)
     {
-        PPvoid_t PValue;
-        Word_t maxLength;
-	Word_t iterSize;
-
-	maxLength = -1;
-	PValue = JudyLLast(PArray, &maxLength, PJError);
-	if (PValue == PPJERR) return(PPJERR);  // ??
-	
-        iterSize = HSI_SIZE(maxLength);
-	PIter = (Phsi_t)JudyMalloc(iterSize/WORDSIZE);
+	PIter = makeIter(PArray, PJError);
 	if (PIter == NULL)
         {
-            JU_SET_ERRNO(PJError, JU_ERRNO_NOMEM);
-	    return (PPJERR);
+            return (PPJERR);
 	}
-	memset(PIter, 0, iterSize);
-	PIter->hsi_Alloc = iterSize;
 	*PPIter = PIter;
     }
     else
@@ -956,20 +990,40 @@ JudyHSIterNext (Pcvoid_t PArray,               // pointer to array
         PIter = *PPIter;
     }
     
-    if (*PStr == PIter->hsi_String) {
+    if (PStr == NULL || PLen == NULL)
+    {
+        JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
+	return (PPJERR);
+    }
+    String = *PStr;
+    Length = *PLen;
+    if (String == PIter->hsi_String && Length == PIter->hsi_Length)
+    {
         // optimization: use PIter as is
-    } else {
-        uint32_t HValue;
-	
-        PIter->hsi_Length = *PLen;
 #ifndef DONOTUSEHASH
-	JUDYHASHSTR(HValue, *PStr, *PLen);
-	PIter->hsi_Hash = (Word_t)HValue;
+	if (Length > WORDSIZE)
+        {
+            HValue = PIter->hsi_Hash;
+	}
 #endif // DONOTUSEHASH
-	memcpy(PIter->hsi_String, *PStr, *PLen);
+    } else {
+        if (String == NULL && Length != 0UL)
+	{
+            JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
+	    return (PPJERR);
+	}
+        PIter->hsi_Length = Length;
+#ifndef DONOTUSEHASH
+	if (Length > WORDSIZE)
+	{
+            JUDYHASHSTR(HValue, String, Length);
+	    PIter->hsi_Hash = (Word_t)HValue;
+	}
+#endif // DONOTUSEHASH
+	memcpy(PIter->hsi_String, String, Length);
     }
     
-    /* stub */
+    /* more to come ... */
 }
 
 // Find last string, at or before (index, length) if any, in JudyHS structure, 
@@ -984,26 +1038,17 @@ JudyHSIterLast (Pcvoid_t PArray,               // pointer to array
 	       )
 {
     Phsi_t PIter;
+    uint8_t * String;
+    Word_t Length;
+    uint32_t HValue;
     
     if (PPIter == NULL)
     {
-        PPvoid_t PValue;
-        Word_t maxLength;
-	Word_t iterSize;
-
-	maxLength = -1;
-	PValue = JudyLLast(PArray, &maxLength, PJError);
-	if (PValue == PPJERR) return(PPJERR);  // ??
-	
-        iterSize = HSI_SIZE(maxLength);
-	PIter = (Phsi_t)JudyMalloc(iterSize/WORDSIZE);
+	PIter = makeIter(PArray, PJError);
 	if (PIter == NULL)
         {
-            JU_SET_ERRNO(PJError, JU_ERRNO_NOMEM);
-	    return (PPJERR);
+            return (PPJERR);
 	}
-	memset(PIter, 0, iterSize);
-	PIter->hsi_Alloc = iterSize;
 	*PPIter = PIter;
     }
     else
@@ -1011,20 +1056,40 @@ JudyHSIterLast (Pcvoid_t PArray,               // pointer to array
         PIter = *PPIter;
     }
     
-    if (*PStr == PIter->hsi_String) {
+    if (PStr == NULL || PLen == NULL)
+    {
+        JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
+	return (PPJERR);
+    }
+    String = *PStr;
+    Length = *PLen;
+    if (String == PIter->hsi_String && Length == PIter->hsi_Length)
+    {
         // optimization: use PIter as is
-    } else {
-        uint32_t HValue;
-	
-        PIter->hsi_Length = *PLen;
 #ifndef DONOTUSEHASH
-	JUDYHASHSTR(HValue, *PStr, *PLen);
-	PIter->hsi_Hash = (Word_t)HValue;
+	if (Length > WORDSIZE)
+        {
+            HValue = PIter->hsi_Hash;
+	}
 #endif // DONOTUSEHASH
-	memcpy(PIter->hsi_String, *PStr, *PLen);
+    } else {
+        if (String == NULL && Length != 0UL)
+	{
+            JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
+	    return (PPJERR);
+	}
+        PIter->hsi_Length = Length;
+#ifndef DONOTUSEHASH
+	if (Length > WORDSIZE)
+	{
+            JUDYHASHSTR(HValue, String, Length);
+	    PIter->hsi_Hash = (Word_t)HValue;
+	}
+#endif // DONOTUSEHASH
+	memcpy(PIter->hsi_String, String, Length);
     }
     
-    /* stub */
+    /* more to come ... */
 }
 
 // Find previous string, before (index, length) if any, in JudyHS structure, 
@@ -1039,26 +1104,17 @@ JudyHSIterPrev (Pcvoid_t PArray,               // pointer to array
 	       )
 {
     Phsi_t PIter;
+    uint8_t * String;
+    Word_t Length;
+    uint32_t HValue;
     
     if (PPIter == NULL)
     {
-        PPvoid_t PValue;
-        Word_t maxLength;
-	Word_t iterSize;
-
-	maxLength = -1;
-	PValue = JudyLLast(PArray, &maxLength, PJError);
-	if (PValue == PPJERR) return(PPJERR);  // ??
-	
-        iterSize = HSI_SIZE(maxLength);
-	PIter = (Phsi_t)JudyMalloc(iterSize/WORDSIZE);
+	PIter = makeIter(PArray, PJError);
 	if (PIter == NULL)
         {
-            JU_SET_ERRNO(PJError, JU_ERRNO_NOMEM);
-	    return (PPJERR);
+            return (PPJERR);
 	}
-	memset(PIter, 0, iterSize);
-	PIter->hsi_Alloc = iterSize;
 	*PPIter = PIter;
     }
     else
@@ -1066,20 +1122,40 @@ JudyHSIterPrev (Pcvoid_t PArray,               // pointer to array
         PIter = *PPIter;
     }
     
-    if (*PStr == PIter->hsi_String) {
+    if (PStr == NULL || PLen == NULL)
+    {
+        JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
+	return (PPJERR);
+    }
+    String = *PStr;
+    Length = *PLen;
+    if (String == PIter->hsi_String && Length == PIter->hsi_Length)
+    {
         // optimization: use PIter as is
-    } else {
-        uint32_t HValue;
-	
-        PIter->hsi_Length = *PLen;
 #ifndef DONOTUSEHASH
-	JUDYHASHSTR(HValue, *PStr, *PLen);
-	PIter->hsi_Hash = (Word_t)HValue;
+	if (Length > WORDSIZE)
+        {
+            HValue = PIter->hsi_Hash;
+	}
 #endif // DONOTUSEHASH
-	memcpy(PIter->hsi_String, *PStr, *PLen);
+    } else {
+        if (String == NULL && Length != 0UL)
+	{
+            JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
+	    return (PPJERR);
+	}
+        PIter->hsi_Length = Length;
+#ifndef DONOTUSEHASH
+	if (Length > WORDSIZE)
+	{
+            JUDYHASHSTR(HValue, String, Length);
+	    PIter->hsi_Hash = (Word_t)HValue;
+	}
+#endif // DONOTUSEHASH
+	memcpy(PIter->hsi_String, String, Length);
     }
     
-    /* stub */
+    /* more to come ... */
 }
 
 
