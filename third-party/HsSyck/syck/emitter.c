@@ -2,7 +2,7 @@
  * emitter.c
  *
  * $Author: why $
- * $Date: 2005-09-20 14:20:40 +0800 (二, 20  9 2005) $
+ * $Date: 2006-05-09 12:03:50 +0800 (二, 09  5 2006) $
  *
  * Copyright (C) 2003 why the lucky stiff
  * 
@@ -312,7 +312,6 @@ syck_emitter_write( SyckEmitter *e, char *str, long len )
      */
     S_MEMCPY( e->marker, str, char, len );
     e->marker += len;
-    e->marker[0] = '\0';
 }
 
 /*
@@ -359,6 +358,7 @@ syck_emit( SyckEmitter *e, st_data_t n )
     char *anchor_name = NULL;
     int indent = 0;
     long x = 0;
+    SyckLevel *parent;
     SyckLevel *lvl = syck_emitter_current_level( e );
     
     /*
@@ -386,6 +386,7 @@ syck_emit( SyckEmitter *e, st_data_t n )
         indent = lvl->spaces + e->indent;
     }
     syck_emitter_add_level( e, indent, syck_lvl_open );
+    parent = lvl;
     lvl = syck_emitter_current_level( e );
 
     /* Look for anchor */
@@ -402,6 +403,13 @@ syck_emit( SyckEmitter *e, st_data_t n )
         {
             char *an = S_ALLOC_N( char, strlen( anchor_name ) + 3 );
             sprintf( an, "&%s ", anchor_name );
+
+            /* Complex key */
+            if ( parent->status == syck_lvl_map && parent->ncount % 2 == 1) {
+                syck_emitter_write( e, "? ", 2 );
+                parent->status = syck_lvl_mapx;
+            }
+
             syck_emitter_write( e, an, strlen( anchor_name ) + 2 );
             free( an );
 
@@ -665,7 +673,7 @@ void syck_emit_scalar( SyckEmitter *e, char *tag, enum scalar_style force_style,
     if ( syck_tagcmp( tag, implicit ) != 0 && syck_tagcmp( tag, "tag:yaml.org,2002:str" ) == 0 ) {
         force_style = scalar_2quote;
     } else {
-        /* complex key -- disabled by Audrey Tang -/
+        /* complex key */
         if ( parent->status == syck_lvl_map && parent->ncount % 2 == 1 &&
              ( !( tag == NULL || 
              ( implicit != NULL && syck_tagcmp( tag, implicit ) == 0 && e->explicit_typing == 0 ) ) ) ) 
@@ -673,7 +681,6 @@ void syck_emit_scalar( SyckEmitter *e, char *tag, enum scalar_style force_style,
             syck_emitter_write( e, "? ", 2 );
             parent->status = syck_lvl_mapx;
         }
-        */
         syck_emit_tag( e, tag, implicit );
     }
     S_FREE( implicit );
@@ -1001,6 +1008,17 @@ void syck_emit_seq( SyckEmitter *e, char *tag, enum seq_style style )
 {
     SyckLevel *parent = syck_emitter_parent_level( e );
     SyckLevel *lvl = syck_emitter_current_level( e );
+
+    /* complex key
+     * There should also be the check "&& style == seq_none",
+     * but unfortunately syck cannot parse flow collections as simple keys
+     * now, so we will make a complex key.
+     * Add the check when syck is able to parse "[]: foo" */
+    if ( parent->status == syck_lvl_map && parent->ncount % 2 == 1 ) {
+        syck_emitter_write( e, "? ", 2 );
+        parent->status = syck_lvl_mapx;
+    }
+
     syck_emit_tag( e, tag, "tag:yaml.org,2002:seq" );
     if ( style == seq_inline || ( parent->status == syck_lvl_imap || parent->status == syck_lvl_iseq ) ) {
         syck_emitter_write( e, "[", 1 );
@@ -1017,6 +1035,17 @@ void syck_emit_map( SyckEmitter *e, char *tag, enum map_style style )
 {
     SyckLevel *parent = syck_emitter_parent_level( e );
     SyckLevel *lvl = syck_emitter_current_level( e );
+
+    /* complex key
+     * There should also be the check "&& style == map_none",
+     * but unfortunately syck cannot parse flow collections as simple keys
+     * now, so we will make a complex key.
+     * Add the check when syck is able to parse "{}: foo". */
+    if ( parent->status == syck_lvl_map && parent->ncount % 2 == 1 ) {
+        syck_emitter_write( e, "? ", 2 );
+        parent->status = syck_lvl_mapx;
+    }
+
     syck_emit_tag( e, tag, "tag:yaml.org,2002:map" );
     if ( style == map_inline || ( parent->status == syck_lvl_imap || parent->status == syck_lvl_iseq ) ) {
         syck_emitter_write( e, "{", 1 );
@@ -1040,15 +1069,11 @@ void syck_emit_item( SyckEmitter *e, st_data_t n )
             SyckLevel *parent = syck_emitter_parent_level( e );
 
             /* seq-in-map shortcut */
-            if ( parent->status == syck_lvl_map && lvl->ncount == 0 ) {
-                /* complex key */
-                if ( parent->ncount % 2 == 1 ) {
-                    syck_emitter_write( e, "?", 1 );
-                    parent->status = syck_lvl_mapx;
+            if ( parent->status == syck_lvl_mapx && lvl->ncount == 0 ) {
                 /* shortcut -- the lvl->anctag check should be unneccesary but
                  * there is a nasty shift/reduce in the parser on this point and
                  * i'm not ready to tickle it. */
-                } else if ( lvl->anctag == 0 ) { 
+                if ( parent->ncount % 2 == 0 && lvl->anctag == 0 ) {
                     lvl->spaces = parent->spaces;
                 }
             }
@@ -1082,15 +1107,6 @@ void syck_emit_item( SyckEmitter *e, st_data_t n )
         case syck_lvl_map:
         {
             SyckLevel *parent = syck_emitter_parent_level( e );
-
-            /* map-in-map */
-            if ( parent->status == syck_lvl_map && lvl->ncount == 0 ) {
-                /* complex key */
-                if ( parent->ncount % 2 == 1 ) {
-                    syck_emitter_write( e, "?", 1 );
-                    parent->status = syck_lvl_mapx;
-                }
-            }
 
             /* map-in-seq shortcut */
             if ( lvl->anctag == 0 && parent->status == syck_lvl_seq && lvl->ncount == 0 ) {
@@ -1169,21 +1185,27 @@ void syck_emit_end( SyckEmitter *e )
         break;
 
         case syck_lvl_iseq:
-            syck_emitter_write( e, "]\n", 1 );
+            syck_emitter_write( e, "]", 1 );
+            if ( parent->status == syck_lvl_mapx ) {
+                syck_emitter_write( e, "\n", 1 );
+            }
         break;
 
         case syck_lvl_map:
             if ( lvl->ncount == 0 ) {
                 syck_emitter_write( e, "{}\n", 3 );
             } else if ( lvl->ncount % 2 == 1 ) {
-                syck_emitter_write( e, ":\n", 1 );
+                syck_emitter_write( e, ":", 1 );
             } else if ( parent->status == syck_lvl_mapx ) {
                 syck_emitter_write( e, "\n", 1 );
             }
         break;
 
         case syck_lvl_imap:
-            syck_emitter_write( e, "}\n", 1 );
+            syck_emitter_write( e, "}", 1 );
+            if ( parent->status == syck_lvl_mapx ) {
+                syck_emitter_write( e, "\n", 1 );
+            }
         break;
 
         default: break;
