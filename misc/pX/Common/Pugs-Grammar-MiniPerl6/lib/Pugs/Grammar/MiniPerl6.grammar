@@ -1,109 +1,87 @@
 grammar Pugs::Grammar::MiniPerl6;
 
-rule EscapeChar {
+token EscapeChar {
     \\ | \"
 }
 
-rule String {
-    \" [ <-[\"]> | \\ <EscapeChar> ]* \"
+token String {
+    \" [ <-[\\"]> | \\ <?EscapeChar> ]* \"
 }
 
-rule VariableName {
+token VariableName {
     \w+
 }
 
-rule CaptureVariableName {
-    \< <VariableName> \>  { use v5; return $<VariableName>() }
+token CaptureVariableName {
+    \< <VariableName> \>  { use v5; return $<VariableName> }
     | $<cap_num> := (\d+) { use v5; return "capture_" . $<cap_num> }
-    | <VariableName>      { use v5; return $<VariableName>() }
+    | <VariableName>      { use v5; return $<VariableName> }
 }
 
-rule Variable {
+token Variable {
     \$ <CaptureVariableName>
-    { use v5; return $<CaptureVariableName>() }
+    { use v5; return $<CaptureVariableName> }
 }
 
-rule Constants {
+token Constants {
     <String>
     | \d+
 }
 
-rule ArrayTail {
-    \]
-    | , <ws>* <Expr> <ws>* <ArrayTail>
-    {
+rule ArrayTail {\]|,<?ws>?<Expr><?ws>?<ArrayTail>{
       use v5;
-      return ', ' . $<Expr>() . $<ArrayTail>();
+      return ', ' . $<Expr> . $<ArrayTail>;
     }
 }
 
-rule ArrayRef {
-    \[ <ws>* <Expr> <ws>* <ArrayTail>
-    {
+rule ArrayRef {\[<?ws>?<Expr><?ws>?<ArrayTail>{
       use v5;
-      return '[' . $<Expr>() . $<ArrayTail>();
+      return '[' . $<Expr> . $<ArrayTail>;
     }
 }
 
-rule FunctionName { <VariableName> }
+token FunctionName { <VariableName> }
 
-rule Parameters {
-    <Expr> <ws>? [ , <ws>? $<param> := (<Parameters>) <ws>? ]?
-    { use v5;
-      if($<param>[0]){
-        return $<Expr>() . " " . $<param>[0];
+rule Parameters {<Expr>[<?ws>?,<?ws>?<Parameters>]?{ use v5;
+      if($<Parameters>[0]){
+        return $<Expr> . " " . $<Parameters>[0];
       }else{
-        return $<Expr>();
+        return $<Expr>;
       }
     }
 }
 
-rule FunctionAppExpr {
-    <Variable> { use v5; return $<Variable>() }
-    | <Constants> { use v5; return $<Constants>() }
-    | <ArrayRef> { use v5; return $<ArrayRef>() }
-    | <FunctionName> [ <ws>? <'('> <ws>? $<param> := (<Parameters>) <')'> ]?
-    {
+rule FunctionAppExpr {<Variable>{ use v5; return $<Variable>
+    }|<Constants>{ use v5; return $<Constants>
+    }|<ArrayRef>{ use v5; return $<ArrayRef>
+    }|<FunctionName>[<?ws>?<'('><?ws>?<Parameters><')'>]?{
       use v5;
-      if($<param>[0]){
-	return "(" . $<FunctionName>() . " " . $<param>[0] . ")";
+      if($<Parameters>[0]){
+	return "(" . $<FunctionName> . " " . $<Parameters>[0] . ")";
       }else{
-	return $<FunctionName>();
+	return $<FunctionName>;
       }
-    }
-}
+}}
 
-rule AdditiveExpr {
-    <FunctionAppExpr> <ws>?
-    [ $<op> := (\+ | \- | ~) <ws>?
-      $<rhs> := (<AdditiveExpr>) <ws>? ]?
-    { use v5;
+rule AdditiveExpr {<FunctionAppExpr><?ws>?[$<op>:=(\+|\-|~)<?ws>?<AdditiveExpr>]?{
+      use v5;
       if($<op>[0]){
 	  my $op = $<op>[0] eq '~' ? '++' : $<op>[0];
-	  return "(" . $<FunctionAppExpr>() . " " . $op . " " . $<rhs>[0] . ")";
+	  return "(" . $<FunctionAppExpr> . " " . $op . " " . $<AdditiveExpr>[0] . ")";
       }else{
-	  return $<FunctionAppExpr>();
+	  return $<FunctionAppExpr>;
       }
-    }
-}
+}}
 
-rule Expr {
-    <AdditiveExpr> { use v5; return $<AdditiveExpr>() }
-}
+rule Expr {<AdditiveExpr>{ use v5; return $<AdditiveExpr> }}
 
-rule Return {
-    <'return'> <ws> <Expr> \;?
-    { use v5; return "return \$ " . $<Expr>() }
-}
+rule Return {<'return'> <Expr>\;?{ use v5; return "return \$ " . $<Expr> }}
 
-rule VariableDeclaration {
-    <'my'> <ws> <Variable> <ws>? <'='> <ws>? <Expr> \;
-    { use v5; return "let " . $<Variable>() . " = " . $<Expr>() . " in\n" }
-}
+rule VariableDeclaration {<'my'> <Variable><?ws>?<'='><?ws>?<Expr>\;{
+	use v5; return "let " . $<Variable> . " = " . $<Expr> . " in\n"
+}}
 
-rule ProductionRule {
-    <VariableDeclaration> <ws>? <ProductionRule>
-    { use v5; return $<VariableDeclaration>() . $<ProductionRule>() }
-    | <Return>
-    { use v5; return $<Return>() }
-}
+rule ProductionRule :p {<?ws>?<VariableDeclaration><?ws>?<ProductionRule>{
+	use v5; return $<VariableDeclaration> . $<ProductionRule>
+    }|<?ws>?<Return>{ use v5; return $<Return>
+}}

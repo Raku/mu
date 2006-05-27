@@ -4,25 +4,46 @@
 
 package Grammar::Compiler;
 use Pugs::Compiler::Rule;
+use Pugs::Compiler::Token;
+use Pugs::Compiler::Regex;
 use base 'Pugs::Grammar::Base';
 
 # XXX - added { s => 0, ratchet => 0 } until MiniPerl6.grammar can be compiled with 'token'
 
-*grammar_name = Pugs::Compiler::Rule->compile(q([\w|\d|\:]+))->code;
-*rule_name = Pugs::Compiler::Rule->compile(q(\w+))->code;
+*grammar_name = Pugs::Compiler::Token->compile(q( [ \w | \d | \: ]+ ))->code;
+*rule_name = Pugs::Compiler::Token->compile(q( \w+ ))->code;
 *block = Pugs::Compiler::Rule->compile(q(\{[<block>|<-[}]>|\\\\\}]*\}))->code;
-*rule = Pugs::Compiler::Rule->compile(q(<'rule'> <rule_name><?ws>?<block>{
+*mod = Pugs::Compiler::Rule->compile(q(\:<rule_name>{ return $<rule_name> . " => 0" }))->code;
+*rule = Pugs::Compiler::Rule->compile(q(<'rule'> <rule_name><?ws>?<mod>*<?ws>?<block>{
 	my $body = substr($<block>, 1, -1);
+	my $mod = $<mod>[0] ? ", { " . join(", ", @{$<mod>}) . " }" : "";
 	$body =~ s/\\\\/\\\\\\\\/g;  # duplicate every single backslashes
 	return "*" . $<rule_name> . " = Pugs::Compiler::Rule->compile(q(" .
-	$body . "), { s => 0, ratchet => 0 } )->code;"
+	$body . ")$mod)->code;"
     }))->code;
-*grammar = Pugs::Compiler::Rule->compile(q(<'grammar'> <grammar_name>\;[<?ws>?<rule>]*{
+*token = Pugs::Compiler::Rule->compile(q(<'token'> <rule_name><?ws>?<mod>*<?ws>?<block>{
+	my $body = substr($<block>, 1, -1);
+	my $mod = $<mod>[0] ? ", { " . join(", ", @{$<mod>}) . " }" : "";
+	$body =~ s/\\\\/\\\\\\\\/g;  # duplicate every single backslashes
+	return "*" . $<rule_name> . " = Pugs::Compiler::Token->compile(q(" .
+	$body . ")$mod)->code;"
+    }))->code;
+*regex = Pugs::Compiler::Rule->compile(q(<'regex'> <rule_name><?ws>?<mod>*<?ws>?<block>{
+	my $body = substr($<block>, 1, -1);
+	my $mod = $<mod>[0] ? ", { " . join(", ", @{$<mod>}) . " }" : "";
+	$body =~ s/\\\\/\\\\\\\\/g;  # duplicate every single backslashes
+	return "*" . $<rule_name> . " = Pugs::Compiler::Regex->compile(q(" .
+	$body . ")$mod)->code;"
+    }))->code;
+*grammar = Pugs::Compiler::Rule->compile(q(<'grammar'> <grammar_name>\;[<?ws>?[<rule>|<token>|<regex>]]*{
         return "package " . "$<grammar_name>" .
-	    ";\nuse Pugs::Compiler::Rule;\nuse base 'Pugs::Grammar::Base';\n" .
+	    ";\nuse Pugs::Compiler::Rule;\nuse Pugs::Compiler::Token;\n" .
+	    "use Pugs::Compiler::Regex;\nuse base 'Pugs::Grammar::Base';\n" .
         "use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???\n\n" .
-	    join("\n", map { "$_" } @{$<rule>} ) . "\n" }
-))->code;
+	    join("\n", (map { "$_" } @{$<regex>},
+			map { "$_" } @{$<token>},
+			map { "$_" } @{$<rule>})) . "\n"
+    }))->code;
 
 package main;
 use IO::File;
