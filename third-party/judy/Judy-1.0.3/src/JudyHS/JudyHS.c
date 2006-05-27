@@ -844,7 +844,7 @@ typedef struct HS_I_TER
     uint8_t  hsi_String[WORDSIZE];    // First hunk of index string
 } hsi_t, *Phsi_t;
 
-#define HSI_STRUCTHEADSIZE (sizeof(hsi_t) - sizeof(hsi_String))
+#define HSI_STRUCTHEADSIZE (sizeof(Word_t) * 3)
 
 // Size of hsi_t including a buffer of size LEN
 #define HSI_SIZE(LEN)   (HSI_STRUCTHEADSIZE + ((((LEN) + WORDSIZE - 1) / WORDSIZE) * WORDSIZE))
@@ -877,12 +877,13 @@ JudyHSIterFirst(Pcvoid_t PArray,             // pointer to array
     
     if (PPIter == NULL)
     {
+        PPvoid_t PValue;
         Word_t maxLength;
 	Word_t iterSize;
 
 	maxLength = -1;
 	PValue = JudyLLast(PArray, &maxLength, PJError);
-	if (PValue == PPJERR) return(JERR);  // ??
+	if (PValue == PPJERR) return(PPJERR);  // ??
 	
         iterSize = HSI_SIZE(maxLength);
 	PIter = (Phsi_t)JudyMalloc(iterSize/WORDSIZE);
@@ -900,7 +901,7 @@ JudyHSIterFirst(Pcvoid_t PArray,             // pointer to array
         PIter = *PPIter;
     }
     
-    if (*PStr == Piter->hsi_String) {
+    if (*PStr == PIter->hsi_String) {
         // optimization: use PIter as is
     } else {
         uint32_t HValue;
@@ -931,12 +932,13 @@ JudyHSIterNext (Pcvoid_t PArray,               // pointer to array
     
     if (PPIter == NULL)
     {
+        PPvoid_t PValue;
         Word_t maxLength;
 	Word_t iterSize;
 
 	maxLength = -1;
 	PValue = JudyLLast(PArray, &maxLength, PJError);
-	if (PValue == PPJERR) return(JERR);  // ??
+	if (PValue == PPJERR) return(PPJERR);  // ??
 	
         iterSize = HSI_SIZE(maxLength);
 	PIter = (Phsi_t)JudyMalloc(iterSize/WORDSIZE);
@@ -954,7 +956,7 @@ JudyHSIterNext (Pcvoid_t PArray,               // pointer to array
         PIter = *PPIter;
     }
     
-    if (*PStr == Piter->hsi_String) {
+    if (*PStr == PIter->hsi_String) {
         // optimization: use PIter as is
     } else {
         uint32_t HValue;
@@ -985,12 +987,13 @@ JudyHSIterLast (Pcvoid_t PArray,               // pointer to array
     
     if (PPIter == NULL)
     {
+        PPvoid_t PValue;
         Word_t maxLength;
 	Word_t iterSize;
 
 	maxLength = -1;
 	PValue = JudyLLast(PArray, &maxLength, PJError);
-	if (PValue == PPJERR) return(JERR);  // ??
+	if (PValue == PPJERR) return(PPJERR);  // ??
 	
         iterSize = HSI_SIZE(maxLength);
 	PIter = (Phsi_t)JudyMalloc(iterSize/WORDSIZE);
@@ -1008,7 +1011,7 @@ JudyHSIterLast (Pcvoid_t PArray,               // pointer to array
         PIter = *PPIter;
     }
     
-    if (*PStr == Piter->hsi_String) {
+    if (*PStr == PIter->hsi_String) {
         // optimization: use PIter as is
     } else {
         uint32_t HValue;
@@ -1039,12 +1042,13 @@ JudyHSIterPrev (Pcvoid_t PArray,               // pointer to array
     
     if (PPIter == NULL)
     {
+        PPvoid_t PValue;
         Word_t maxLength;
 	Word_t iterSize;
 
 	maxLength = -1;
 	PValue = JudyLLast(PArray, &maxLength, PJError);
-	if (PValue == PPJERR) return(JERR);  // ??
+	if (PValue == PPJERR) return(PPJERR);  // ??
 	
         iterSize = HSI_SIZE(maxLength);
 	PIter = (Phsi_t)JudyMalloc(iterSize/WORDSIZE);
@@ -1062,7 +1066,7 @@ JudyHSIterPrev (Pcvoid_t PArray,               // pointer to array
         PIter = *PPIter;
     }
     
-    if (*PStr == Piter->hsi_String) {
+    if (*PStr == PIter->hsi_String) {
         // optimization: use PIter as is
     } else {
         uint32_t HValue;
@@ -1124,7 +1128,7 @@ findFirstLeaf(Pcvoid_t PTree,                  // pointer to bucket entry
 	    }
             memset(String, 0, Len);            // update string: back out
 	    PPEntry = JudyLNext(PTree, &Index, PJError);
-	    if (PPEntry == PPJERR) return(JERR);
+	    if (PPEntry == PPJERR) return(PPJERR);
 	    if (PPEntry != NULL)               // found next index: find lowest in its tree
             {
                 COPYWORDtoSTRING(String, Index);  // update string: next hunk
@@ -1141,7 +1145,7 @@ findFirstLeaf(Pcvoid_t PTree,                  // pointer to bucket entry
     {
         COPYSTRINGtoWORD(Index, String, Len);
 	PPEntry = JudyLFirst(PTree, &Index, PJError);
-	if (PPEntry == PPJERR) return(JERR);
+	if (PPEntry == PPJERR) return(PPJERR);
 	if (PPEntry != NULL)
         {
             COPYWORDtoSTRING(String, Index);   // update string: last hunk
@@ -1200,7 +1204,7 @@ findNextLeaf(Pcvoid_t PTree,                   // pointer to bucket entry
 	    }
             memset(String, 0, Len);
             PPEntry = JudyLNext(PTree, &Index, PJError);
-	    if (PPEntry == PPJERR) return(JERR);
+	    if (PPEntry == PPJERR) return(PPJERR);
 	    if (PPEntry != NULL)               // found next index: find lowest in its tree
             {
                 COPYWORDtoSTRING(String, Index);
@@ -1217,7 +1221,7 @@ findNextLeaf(Pcvoid_t PTree,                   // pointer to bucket entry
     {
         COPYSTRINGtoWORD(Index, String, Len);
 	PPEntry = JudyLNext(PTree, &Index, PJError);
-	if (PPEntry == PPJERR) return(JERR);
+	if (PPEntry == PPJERR) return(PPJERR);
 	if (PPEntry != NULL)
         {
             COPYWORDtoSTRING(String, Index);
@@ -1276,7 +1280,7 @@ findLastLeaf(Pcvoid_t PTree,                   // pointer to bucket entry
 	    }
             memset(String, 0, Len);
             PPEntry = JudyLPrev(PTree, &Index, PJError);
-	    if (PPEntry == PPJERR) return(JERR);
+	    if (PPEntry == PPJERR) return(PPJERR);
 	    if (PPEntry != NULL)               // found prev index: find highest in its tree
             {
                 COPYWORDtoSTRING(String, Index);
@@ -1293,7 +1297,7 @@ findLastLeaf(Pcvoid_t PTree,                   // pointer to bucket entry
     {
         COPYSTRINGtoWORD(Index, String, Len);
 	PPEntry = JudyLLast(PTree, &Index, PJError);
-	if (PPEntry == PPJERR) return(JERR);
+	if (PPEntry == PPJERR) return(PPJERR);
 	if (PPEntry != NULL)
         {
             COPYWORDtoSTRING(String, Index);
@@ -1352,7 +1356,7 @@ findPrevLeaf(Pcvoid_t PTree,                   // pointer to bucket entry
 	    }
             memset(String, 0, Len);
             PPEntry = JudyLPrev(PTree, &Index, PJError);
-	    if (PPEntry == PPJERR) return(JERR);
+	    if (PPEntry == PPJERR) return(PPJERR);
 	    if (PPEntry != NULL)               // found prev index: find highest in its tree
             {
                 COPYWORDtoSTRING(String, Index);
@@ -1369,7 +1373,7 @@ findPrevLeaf(Pcvoid_t PTree,                   // pointer to bucket entry
     {
         COPYSTRINGtoWORD(Index, String, Len);
 	PPEntry = JudyLPrev(PTree, &Index, PJError);
-	if (PPEntry == PPJERR) return(JERR);
+	if (PPEntry == PPJERR) return(PPJERR);
 	if (PPEntry != NULL)
         {
             COPYWORDtoSTRING(String, Index);
@@ -1410,7 +1414,7 @@ findLowestLeaf(Pcvoid_t PTree,                 // pointer to bucket entry
         {
             Index = 0;
 	    PPEntry = JudyLFirst(PTree, &Index, PJError);
-	    if (PPEntry == PPJERR) return(JERR);
+	    if (PPEntry == PPJERR) return(PPJERR);
 	    if (PPEntry != NULL)               // found next index: find lowest in its tree
             {
                 COPYWORDtoSTRING(String, Index);  // update string: next hunk
@@ -1427,7 +1431,7 @@ findLowestLeaf(Pcvoid_t PTree,                 // pointer to bucket entry
     {
         Index = 0;
 	PPEntry = JudyLFirst(PTree, &Index, PJError);
-	if (PPEntry == PPJERR) return(JERR);
+	if (PPEntry == PPJERR) return(PPJERR);
 	if (PPEntry != NULL)
         {
             COPYWORDtoSTRING(String, Index);   // update string: last hunk
@@ -1467,7 +1471,7 @@ findHighestLeaf(Pcvoid_t PTree,                // pointer to bucket entry
         {
             Index = -1;
 	    PPEntry = JudyLLast(PTree, &Index, PJError);
-	    if (PPEntry == PPJERR) return(JERR);
+	    if (PPEntry == PPJERR) return(PPJERR);
 	    if (PPEntry != NULL)               // found next index: find lowest in its tree
             {
                 COPYWORDtoSTRING(String, Index);  // update string: next hunk
@@ -1484,7 +1488,7 @@ findHighestLeaf(Pcvoid_t PTree,                // pointer to bucket entry
     {
 	Index = -1;
 	PPEntry = JudyLLast(PTree, &Index, PJError);
-	if (PPEntry == PPJERR) return(JERR);
+	if (PPEntry == PPJERR) return(PPJERR);
 	if (PPEntry != NULL)
         {
             COPYWORDtoSTRING(String, Index);   // update string: last hunk
