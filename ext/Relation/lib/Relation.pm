@@ -163,6 +163,18 @@ method extend (Mapping(Str) of Code $attrs!) returns Relation {
 
 ###########################################################################
 
+method wrap ( Mapping(Str) of Set of Str $mapping! ) returns Relation {
+    # TODO.
+}
+
+###########################################################################
+
+method unwrap ( Set of Str $attrs! ) returns Relation {
+    # TODO.
+}
+
+###########################################################################
+
 method map (Set of Str $heading!, Code $replacements!) returns Relation {
     return Relation.new(
         heading => $heading,
@@ -709,6 +721,40 @@ inputs.  As a trivial case, if C<$attrs> is empty, the output relation is
 identical to the invocant.  This method will fail if any keys of C<$attrs>
 duplicate attribute names of the invocant Relation.
 
+=item C<wrap ( Mapping(Str) of Set of Str $mapping! ) returns Relation>
+
+I<TODO.  This method has not yet been implemented.>
+
+This method is a generic relational operator that returns a new Relation
+which is the same as the invocant Relation but that some of its attributes
+have been combined/wrapped into tuple/Mapping-valued attributes.  The
+argument C<$mapping> says which attributes are being combined/wrapped, with
+its keys being the new tuple-valued attribute names and each of its values
+the set of old attribute names that are being wrapped.  This method will
+fail if any C<$mapping> keys duplicate attribute names that aren't being
+wrapped, or any C<$mapping> value set members do not match invocant
+Relation attribute names, or duplicate any other value set members.  This
+method supports having the new attributes having the same names as old
+attributes that become wrapped, and it supports having new tuple-valued
+attributes which wrap zero old attributes (they are effectively just an
+extension of the relation).
+
+=item C<unwrap ( Set of Str $attrs! ) returns Relation>
+
+I<TODO.  This method has not yet been implemented.>
+
+This method is a generic relational operator that returns a new Relation
+which is the same as the invocant Relation but that some of its
+tuple/Mapping-valued attributes have been split/unwrapped into other
+attributes.  The members of the argument C<$attrs> are the names of the
+invocant's attributes to split/unwrap.  This method will fail if any of the
+named attributes are not tuple-valued attributes, or if any attribute names
+in one unwrapped tuple-valued attribute are the same as those of another,
+or are the same as the unaffected invocant's attributes.  This method
+supports having the new attributes having the same names as old attributes
+that were wrapped, and it supports having old tuple-valued attributes which
+have zero attributes (they just vanish).
+
 =item C<map (Set of Str $heading!, Code $transformer!) returns Relation>
 
 This method is a short-hand or alternative for the functionality provided
@@ -832,10 +878,6 @@ a C<semijoin>.  This method has an alias named C<natural_join>.
 
 I<TODO.>
 
-=item C<summarize>
-
-I<TODO.>
-
 =item C<group>
 
 I<TODO.>
@@ -844,15 +886,11 @@ I<TODO.>
 
 I<TODO.>
 
+=item C<summarize>
+
+I<TODO.>
+
 =item C<substitute>
-
-I<TODO.>
-
-=item C<wrap>
-
-I<TODO.>
-
-=item C<unwrap>
 
 I<TODO.>
 
