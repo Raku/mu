@@ -153,7 +153,7 @@ markYamlNode freeze emitter node = do
 
 outputCallbackPS :: IORef [Buf] -> SyckEmitter -> CString -> CLong -> IO ()
 outputCallbackPS out emitter buf len = do
-    let str = Buf.copyCStringLen (buf, fromEnum len)
+    str <- Buf.copyCStringLen (buf, fromEnum len)
     str `seq` modifyIORef out (str:)
 
 outputCallback :: SyckEmitter -> CString -> CLong -> IO ()
@@ -165,9 +165,6 @@ outputCallback emitter buf len = do
 
 emitterCallback :: (YamlNode -> IO SyckNodePtr) -> SyckEmitter -> Ptr () -> IO ()
 emitterCallback f e vp = emitNode f e =<< thawNode vp
-
-{-# NOINLINE _tildeLiteral #-}
-_tildeLiteral = Buf.packByte 0x7E -- '~'
 
 emitNode :: (YamlNode -> IO SyckNodePtr) -> SyckEmitter -> YamlNode -> IO ()
 emitNode _ e n@(MkYamlNode{nodeElem = YamlNil}) = do
@@ -288,10 +285,11 @@ _colonLiteral = packBuf ":"
 syckNodeTag :: SyckNode -> IO (Maybe Buf)
 syckNodeTag syckNode = do
     tag <- #{peek SyckNode, type_id} syckNode
-    if (tag == nullPtr) then (return Nothing) else return $!
-        case Buf.breakFirst 0x2F (Buf.copyCString tag) of -- '/'
-            Just (pre, post) -> Just $
-                Buf.concat [_tagLiteral, pre, _colonLiteral, post]
+    if (tag == nullPtr) then (return Nothing) else do
+        p <- Buf.copyCString tag
+        return $! case Buf.elemIndex 0x2F p of -- '/'
+            Just n -> let { pre = Buf.take n p; post = Buf.drop (n+1) p } in
+                Just $ Buf.concat [_tagLiteral, pre, _colonLiteral, post]
             Nothing -> Nothing
 
 syckNodeKind :: SyckNode -> IO SyckKind
@@ -325,9 +323,9 @@ parseNode SyckSeq parser syckNode len = do
 parseNode SyckStr _ syckNode len = do
     tag   <- syckNodeTag syckNode
     cstr  <- syck_str_read syckNode
-    let buf  = Buf.copyCStringLen (cstr, fromEnum len)
-        node = nilNode{ nodeElem = YamlStr buf, nodeTag = tag }
-    if buf == _tildeLiteral && tag == Nothing
+    buf   <- Buf.copyCStringLen (cstr, fromEnum len)
+    let node = nilNode{ nodeElem = YamlStr buf, nodeTag = tag }
+    if tag == Nothing && Buf.length buf == 1 && Buf.index buf 0 == 0x7E
         then do
             style <- syck_str_style syckNode
             if style == scalarPlain
