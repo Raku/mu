@@ -37,7 +37,7 @@ sub call_perl5 {
     my $const = $_[0];
     return
     "$_[1] ( ( substr( \$s, \$pos ) =~ m/^$const/s )  
-$_[1]     ? do { \$pos $direction= 1; 1 }    # XXX - get pos from regex
+$_[1]     ? do { \$pos $direction= length \$&; 1 }
 $_[1]     : 0
 $_[1] )";
 }
@@ -315,7 +315,7 @@ $_[1]       \$bool = 0 unless
 $program;
 $_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \\\$bool, to => \\(0+\$pos), capture => \\\$capture }
 $_[1]     };
-$_[1]     my \$bool = \$hash->{'bool'};
+$_[1]     my \$bool = \${\$hash->{'bool'}};
 .
         $gen_match = "bless \\\$hash, 'Pugs::Runtime::Match::Ratchet'";
 	$post_match = "";
