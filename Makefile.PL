@@ -61,7 +61,7 @@ print "*** Probing configuration (please ignore any warnings)...\n\n";
 name            ('Perl6-Pugs');
 version_from    ('lib/Perl6/Pugs.pm');
 abstract_from   ('lib/Perl6/Pugs.pm');
-author          ('Audrey Tang <autrijus@autrijus.org>');
+author          ('Audrey Tang <cpan@audreyt.org>');
 license         ('perl');
 install_script  ($pugs);
 install_script  (glob('script/*'));
