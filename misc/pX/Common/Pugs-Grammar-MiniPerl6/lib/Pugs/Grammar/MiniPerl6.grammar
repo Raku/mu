@@ -9,13 +9,13 @@ token String {
 }
 
 token VariableName {
-    \w+
+    [<alpha> | <'_'>] \w*
 }
 
 token CaptureVariableName {
     \< <VariableName> \>  { use v5; return $<VariableName> }
-    | $<cap_num> := (\d+) { use v5; return "capture_" . $<cap_num> }
     | <VariableName>      { use v5; return $<VariableName> }
+    | $<cap_num> := (\d+) { use v5; return "capture_" . $<cap_num> }
 }
 
 token Variable {
