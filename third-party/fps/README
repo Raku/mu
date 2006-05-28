@@ -6,6 +6,10 @@ This library provides the Data.ByteString library: byte arrays
 manipulable as strings, providing very time and space efficient string
 and IO operations.
 
+For very large data requirements, or constraints on heap size,
+Data.ByteString.Lazy is provided, a lazy list of bytestring chunks.
+Efficient processing of multi-gigabyte data can be achieved this way.
+
 Requirements:
         > Cabal
         > GHC 6.4 or greater, or hugs Mar-2005
@@ -18,13 +22,13 @@ Building:
 
 After installation, you can run the testsuite as follows:
     
-        > cd tests ; runghc Quick.hs
+        > cd tests ; runhaskell Properties.hs
     or
-        > cd tests ; runhugs Quick.hs
+        > cd tests ; runhugs -98 Properties.hs
 
 For the full test and benchmark suite, you need GHC:
 
-        > cd tests ; chmod +x logpp ; make ; make run
+        > cd tests ; chmod +x logpp ; make ; make everything
 
 You may need to edit the Makefile if your version of the m4 preprocessor isn't 'gm4'
 
@@ -43,15 +47,15 @@ from various string libraries.
 
 Size of test data: 21256k, Linux 3.2Ghz P4
 
-                          FPS6       SPS     PS      [a]    
-++                        0.032      !       !       1.288   
+                          FPS7       SPS     PS      [a]    
+++                        0.028      !       !       1.288   
 length                    0.000      0.000   0.000   0.131   
 pack                      0.303      0.502   0.337   -       
 unpack                    3.319*     1.630   7.445   -       
 compare                   0.000      0.000   0.000   0.000   
 index                     0.000      0.000   0.000   0.000   
 map                       2.762*     2.917   4.813   7.286   
-filter                    0.260      2.805   0.954   0.305   
+filter                    0.304      2.805   0.954   0.305   
 take                      0.000      0.000   0.024   0.005   
 drop                      0.000      0.000   11.768  0.130   
 takeWhile                 0.000      1.498   0.000   0.000   
@@ -59,9 +63,9 @@ dropWhile                 0.000      1.985   8.447   0.130
 span                      0.000      9.289   11.144  0.131   
 break                     0.000      9.383   11.268  0.133   
 lines                     0.052      1.114   1.367   2.790   
-unlines                   0.120      !       !       10.950  
-words                     1.583      2.128   5.644   4.184   
-unwords                   0.058      !       !       1.305   
+unlines                   0.048      !       !       10.950  
+words                     1.344      2.128   5.644   4.184   
+unwords                   0.016      !       !       1.305   
 reverse                   0.024      12.997  13.018  1.622   
 concat                    0.000      12.701  11.459  1.163   
 cons                      0.016      2.064   8.358   0.131   
@@ -73,21 +77,24 @@ last                      0.000      -       -       0.143
 init                      0.000      -       -       1.147   
 inits                     0.414      -       -       !       
 tails                     0.460      -       -       1.136   
-intersperse               0.070*     -       -       10.517  
+intersperse               0.040      -       -       10.517  
 any                       0.000      -       -       0.000   
 all                       0.000      -       -       0.000   
-sort                     13.985      -       -       !
+sort                      0.168      -       -       !
 maximum                   0.024      -       -       0.183
 minimum                   0.025      -       -       0.185
 replicate                 0.000      -       -       0.053   
-find                      0.259      -       -       0.000   
+findIndex                 0.096
+find                      0.120      -       -       0.000   
 elemIndex                 0.000      -       -       0.000   
-elemIndicies              0.010      -       -       0.314   
+elemIndicies              0.008      -       -       0.314   
+foldl                     0.148
+spanEnd                   0.000
+snoc                      0.016
 filterChar                0.031      
-filterNotChar             0.202      
-join                      0.029      
-split                     0.071      
-snoc                      0.017
+filterNotChar             0.124
+join                      0.016      
+split                     0.032      
 findIndices               0.408      
 splitAt                   0.000      
 lineIndices               0.029      
@@ -97,7 +104,7 @@ splitWith                 0.329
 dropSpace                 0.000 
 dropSpaceEnd              0.000 
 joinWithChar              0.017
-join /                    0.030 
+join /                    0.016 
 zip                       0.960 
 zipWith                   0.892 
 isSubstringOf             0.039 
@@ -115,81 +122,85 @@ Key: FPS6 = FPS 0.6
 
 ------------------------------------------------------------------------
 
-Question:
-    Can I manipulate 1G strings in Haskell?
+== Stress testing really big strings
 
-Short answer:
-    Yes! Mostly.
-
-Doing some stress testing of FPS, here are some results for 1G strings.
+Doing some stress testing of FPS, here are some results for 0.5G strings.
 
 3.2Ghz box, 2G physical mem.
-Size of input string: 1G
 
-N.B. 2G of physical ram is not enough when trying to benchmark functions
-that copy 1G strings around :)
+Size of test data: 524288k
+Size of test data: 524288k
+                Char8   Word8
 
-    Function        Time in seconds
+Effectively O(1) or O(m) where m < n
+    all             0.000   0.000   
+    any             0.000   0.004   
+    break           0.000   0.000   
+    breakChar       0.000   0.000   
+    breakSpace      0.000   
+    compare         0.000   
+    concat          0.000   
+    drop            0.000   
+    dropSpace       0.000   
+    dropSpaceEnd    0.000   
+    dropWhile       0.000   0.000   
+    elem            0.000   0.000   
+    elemIndex       0.000   0.000   
+    elemIndexLast   0.000   0.000   
+    empty           0.000   
+    head            0.000   0.000   
+    index           0.000   0.000   
+    init            0.000   
+    last            0.000   0.000   
+    length          0.000   
+    notElem         0.000   0.000   
+    span            0.000   0.000   
+    spanChar        0.000   0.000   
+    spanEnd         0.000   0.000   
+    splitAt         0.000   
+    tail            0.000   
+    take            0.000   
+    takeWhile       0.000   0.000   
+    isPrefixOf      0.000   
+    isSuffixOf      0.000   
+    addr1           0.000   
+    addr2           0.000   
 
-All O(1) functions:
-    length          O
-    index           0
-    head            0
-    tail            0
-    last            0
-    init            0
+O(n)
+    ++              0.676   
+    map             6.080   5.868   
+    cons            0.396   0.396   
+    snoc            0.400   0.400   
+    find            3.240   
+    split           1.204   1.200   
+    lines           2.000   
+    foldl           3.804   
+    unwords         0.552   
+    reverse         0.884   
+    findIndex       3.128   
+    filterChar      0.756   0.732   
+    filter/='f'     8.265   7.012   
+    filterNotChar   4.456   3.388   
+    join            0.400   
+    sort            4.344   
+    maximum         0.776   0.764   
+    minimum         0.772   0.776   
+    replicate       0.008   0.000   
+    elemIndices     0.240   0.240   
+    lineIndices     1.092   
+    joinWithChar    0.400   0.400   
+    isSubstringOf   0.052   
+    count           0.748   
 
-O(n) , but answer found early on:
-    compare         0           
-    any             0
-    all             0
-    elem            0
-    elemIndex       0
+slow O(n)
+    words           38.722  
+    group           77.261  
+    groupBy         96.226  
+    inits           32.430  
+    tails           23.225  
+    findIndices     13.841  15.825  
+    splitWith       18.445  19.225  
+    zip             33.926  
+    zipWith         33.562  
 
-O(n) mostly:
-    maximum         3.855    
-    minimum         4.666   
-    filterChar      8.084   
-    elemIndicies    11.504  
-    lines           12.247  
-    find            14.046  
-    tails           27.328
-    inits           33.620  
-    words           100.963
-    map toUpper     143.871
-
-Failed due to memory exhaustion. 
-Almost made it though, just need a tad more ram than I had.
-
-    filter          !     
-    unlines         !
-    unwords         !
-    reverse         !           -- copy
-    cons            !           -- copy
-    snoc            !           -- involves a copy
-    ++              !           -- can't concat two 1G strings on this box
-
-    sort            ? taking too long, but space was ok.
-
-[Char] functions are much more costly.
-    pack            !           -- constructing 1G [Char] is not ok.
-    unpack          !            
-
-Transforming 1 0.5G string into another requires holding both in memory:
-
-Fine:
-    filter          7.264
-    unwords         1.715
-    reverse         1.980
-    cons            0.976
-    snoc            0.689
-    ++              2.845
-
-Still wouldn't work at 0.5G
-    unlines         !
-    concat          !
-
-Lesssons, you can play with 1G strings in Haskell. Having more than 2G
-ram is useful though. Replacing higher order functions with hard coded
-first order equivalents can help.
 
