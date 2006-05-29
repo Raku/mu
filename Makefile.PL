@@ -156,6 +156,17 @@ sub set_postamble {
     # Add GHC to PATH
     local $ENV{PATH} = dirname($ghc) . $Config{path_sep} . $ENV{PATH};
 
+    if (try_compile("import Data.ByteString\n"
+                   ."main :: IO ()\n"
+                   ."main = main\n", $ghc, qw(-hide-all-packages -package base))) {
+        # We have native ByteString; dummy the fps out
+        copy "third-party/fps/fps.cabal.dummy" => "third-party/fps/fps.cabal";
+    }
+    else {
+        # Use bundled ByteString
+        copy "third-party/fps/fps.cabal.in" => "third-party/fps/fps.cabal";
+    }
+
     print "*** Building dependencies.  Please wait...\n\n";
     foreach my $module (qw< fps HsSyck >) {
         chdir "third-party/$module";
@@ -182,17 +193,6 @@ sub set_postamble {
     $ghc_flags .= " +RTS -M$heap -RTS" if $heap;
     # $ghc_flags .= ' -dcore-lint';
     # $ghc_flags .= " -keep-tmp-files";
-
-    if (try_compile("import Data.ByteString\n"
-                   ."main :: IO ()\n"
-                   ."main = main\n", $ghc, qw(-hide-all-packages -package base))) {
-        # We have native ByteString; dummy the fps out
-        copy "third-party/fps/fps.cabal.dummy" => "third-party/fps/fps.cabal";
-    }
-    else {
-        # Use bundled ByteString
-        copy "third-party/fps/fps.cabal.in" => "third-party/fps/fps.cabal";
-    }
 
     if (has_ghc_package('plugins')
         and  try_compile("import System.Eval\n"
