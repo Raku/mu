@@ -63,7 +63,7 @@ new = do
 
 
 -- | set a bit and return its old state
-set :: BitSet -> WordPtr -> Bool -> IO Bool
+set :: BitSet -> Value -> Bool -> IO Bool
 set (BitSet j) wp True = withForeignPtr j $ \j ->  do
     r <- judy1Set j wp judyError
     return $ r == 0
@@ -72,21 +72,21 @@ set (BitSet j) wp False = withForeignPtr j $ \j -> do
     return $ r /= 0
 
 {-# INLINE get #-}
-get :: BitSet -> WordPtr -> IO Bool
+get :: BitSet -> Value -> IO Bool
 get (BitSet j) wp = do
     jj <- withForeignPtr j peek
     r <- judy1Test jj wp judyError
     return $ r /= 0
 
 -- | count bits from i1 to i2 (inclusive)
-count :: BitSet -> WordPtr -> WordPtr -> IO WordPtr
+count :: BitSet -> Value -> Value -> IO Value
 count (BitSet j) i1 i2 = withForeignPtr j $ \j -> do
     jj <- peek j
     r <- judy1Count jj i1 i2 judyError
     return $ r
 
 -- | toListIO 
-toListIO :: BitSet -> IO [WordPtr]
+toListIO :: BitSet -> IO [Value]
 toListIO (BitSet j) = do
     jj <- withForeignPtr j peek
     alloca $ \wp -> do
@@ -99,7 +99,7 @@ toListIO (BitSet j) = do
         r <- judy1Last jj wp judyError
         f r []
 
-setList :: [WordPtr] -> Bool -> BitSet  ->  IO ()
+setList :: [Value] -> Bool -> BitSet  ->  IO ()
 setList ws True (BitSet bs) = withForeignPtr bs $ \j -> mapM_ (\w -> judy1Set j w judyError) ws
 setList ws False (BitSet bs) = withForeignPtr bs $ \j -> mapM_ (\w -> judy1Unset j w judyError) ws
 
@@ -107,7 +107,7 @@ setList ws False (BitSet bs) = withForeignPtr bs $ \j -> mapM_ (\w -> judy1Unset
 clear :: BitSet -> IO ()
 clear (BitSet j) = withForeignPtr j $ \j -> judy1FreeArray j judyError >> return ()
 
-fromListIO :: [WordPtr] -> IO BitSet
+fromListIO :: [Value] -> IO BitSet
 fromListIO ws = do
     bs <- new
     setList ws True bs
@@ -122,20 +122,20 @@ freezeBitSet bs = do
     swapBitSets bs nbs
     return (Frozen nbs)
 
-member :: WordPtr -> Frozen BitSet -> Bool
+member :: Value -> Frozen BitSet -> Bool
 member wp (Frozen bs) = unsafePerformIO $ get bs wp
 
-fromList :: [WordPtr] -> Frozen BitSet
+fromList :: [Value] -> Frozen BitSet
 fromList ws = Frozen $ unsafePerformIO $ do
     bs <- new
     setList ws True bs
     return bs
 
-toList :: Frozen BitSet -> [WordPtr]
+toList :: Frozen BitSet -> [Value]
 toList = toListFrom 0
 
 
-toListFrom :: WordPtr -> Frozen BitSet -> [WordPtr]
+toListFrom :: Value -> Frozen BitSet -> [Value]
 toListFrom iwp (Frozen (BitSet bs)) = unsafePerformIO $ do
         jj <- withForeignPtr bs peek
         (r,v) <- alloca $ \wp -> do
@@ -156,10 +156,10 @@ toListFrom iwp (Frozen (BitSet bs)) = unsafePerformIO $ do
         return (f r v)
 
 
-toRevList :: Frozen BitSet -> [WordPtr]
+toRevList :: Frozen BitSet -> [Value]
 toRevList = toRevListFrom (-1)
 
-toRevListFrom :: WordPtr -> Frozen BitSet -> [WordPtr]
+toRevListFrom :: Value -> Frozen BitSet -> [Value]
 toRevListFrom iwp (Frozen (BitSet bs)) = unsafePerformIO $ do
     withForeignPtr bs $ \j -> do
         jj <- peek j
