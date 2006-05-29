@@ -2,6 +2,7 @@ module Judy.BitSet(
     new,
     set,
     get,
+    count,
     swapBitSets,
     toListIO,
     setList,
@@ -33,7 +34,7 @@ import Judy.Freeze
 --mallocForeignPtr = malloc
 --addForeignPtrFinalizer _ _ = return ()
 
-newtype BitSet = BitSet (ForeignPtr Judy)
+newtype BitSet = BitSet (ForeignPtr Judy1)
     deriving(Eq,Ord,Typeable)
 
 
@@ -52,6 +53,7 @@ swapBitSets (BitSet bs1) (BitSet bs2) = do
             poke p1 v2
             poke p2 v1
 
+-- | create a bitset
 new :: IO BitSet
 new = do
     fp <- mallocForeignPtr
@@ -76,6 +78,14 @@ get (BitSet j) wp = do
     r <- judy1Test jj wp judyError
     return $ r /= 0
 
+-- | count bits from i1 to i2 (inclusive)
+count :: BitSet -> WordPtr -> WordPtr -> IO WordPtr
+count (BitSet j) i1 i2 = withForeignPtr j $ \j -> do
+    jj <- peek j
+    r <- judy1Count jj i1 i2 judyError
+    return $ r
+
+-- | toListIO 
 toListIO :: BitSet -> IO [WordPtr]
 toListIO (BitSet j) = do
     jj <- withForeignPtr j peek

@@ -1,0 +1,16 @@
+# NOW
+- Filling in Judy/Private.hsc with low-level FFI bindings, try to be in sync
+  with spinclad's third-party/judy.
+- Make sanity checks to see if it's all working right.
+- Cabalize HsJudy. 
+
+
+# NEXT
+- Discuss APIs
+
+- Document this work.
+- Create a LICENSE file (I think BSD3) and put license info in the
+  necessary files.
+- Check for Language Shootout entries that could benefit from HsJudy,
+  and take Shootout times for them.
+- Remember to test RBR with HsJudy. =)

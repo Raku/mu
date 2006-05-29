@@ -1,0 +1,87 @@
+I pasted my summer of code application, which describes roughly what's this
+going to be. As time pass it'll become more proper README file =)
+
+------8<--------
+
+Fast Mutable Collection Types for Haskell
+=========================================
+
+# Synopsis
+Develop Judy[1] bindings (a C library that implements fast sparse dynamic
+arrays) for Haskell presenting APIs conforming as much as possible to the
+existent Haskell library interfaces, like Data.Map and Data.Array.MArray.
+
+
+# Benefits to the community
+Creating Judy bindings was suggested in the Haskell mailing list[2], and all
+Haskell software that uses common data structures like Maps and Arrays would
+benefit from a faster implementation.
+
+The project idea[3] was suggested by a Pugs (Perl 6 implementation in Haskell)
+developer, so these bindings could also benefit the Perl6 community.
+
+
+# Deliverables
+A binding for the Judy library, including all its four types: mapping from
+words to bits (Judy1), from words to values (JudyL), from strings to values
+(JudyHS) and from array-of-bytes to values (JudyHS).
+
+The API for the binding will match existing APIs of similar functionality in
+Haskell libraries, allowing minimal effort to change a program to use these new
+implementations. When possible, try to reduce this effort to just changing an
+import clause in the Haskell program.
+
+
+# Project Details
+Some work[4] has already been done in Judy1 (mapping from words to bits)
+bindings for Haskell, and this would be a good place to start. The project
+divides naturally in three phases:
+
+* Implement communication between Haskell and the library. This involves
+using the Haskell's foreign function interface (FFI). The binding should
+allow Haskell data types to be used as values.
+
+* Design an API based on existing Haskell libraries. This involves studying the
+Haskell API and seeing which ones would have Judy-based support, good
+candidates are Map, IntSet and IntMap. Doing an interface for DiffArray was
+suggested, too. It's possible that no Haskell API matches some
+functionalities (like 'unbounded' Arrays); in that case new interfaces will
+be created.
+
+* Benchmark. Measure speed of the new bindings against that of previous
+implementations. Other nice tests would be measuring the performance impact
+in any entries of 'The Great Computer Language Shootout'[5], in the Pugs[6]
+project and in RBR[7] (bioinformatics related software).
+
+
+# Bio
+I'm a 5th-year computer engineering undergraduate at Campinas State University
+(Unicamp), in Brazil. I've been involved with free software for almost 10 years
+now, beginning as a Linux user and progressing from there.
+
+In 2006 I started to study the Haskell programming language on my own, reading
+tutorials and articles, the mailing list and spending time on Haskell's IRC
+channel. This semester I'm developing a Compiler Construction Lab project in
+Haskell.
+
+The school semester ends by early July, so until then I'll be splitting my time
+between the project and some university courses. Once 'summer' vacation
+(actually here in Brazil it will be winter) begins I'll be able to fully
+dedicate myself to the project.
+
+I have already begun studying Haskell and doing some experiments with
+Haskell<->C FFI. This project would be a great opportunity for me to learn more
+about the language, which I consider to be one of the most elegant, and
+possibly contribute something very concrete to the Haskell community.
+
+
+# References
+[1]: http://judy.sf.net
+[2]: 'Re: [Haskell-cafe] Re: Hashtable woes', by John Tromp, 25 Jan 2006.
+[3]: http://hackage.haskell.org/trac/summer-of-code/ticket/61
+[4]: http://repetae.net/repos/HsJudy/
+[5]: http://haskell.org/hawiki/KnucleotideEntry
+[6]: http://www.pugscode.org
+[7]: http://www.ii.uib.no/~ketil/bioinformatics/tools.html
+
+
