@@ -202,7 +202,7 @@ multi method union (Relation $other!) returns Relation {
             ~ " not match the heading of the invocant relation."
         if !($other!heading === $!heading);
 
-    return $?SELF._union( $other );
+    return $?SELF!_union( $other );
 }
 
 multi method union (Relation *@others) returns Relation {
@@ -216,7 +216,7 @@ multi method union (Relation *@others) returns Relation {
     my Relation $r1 = $?SELF;
 
     for @others -> $r2 {
-        $r1 = $r1._union( $r2 );
+        $r1 = $r1!_union( $r2 );
     }
 
     return $r1;
@@ -232,7 +232,7 @@ multi method exclusion (Relation $other!) returns Relation {
             ~ " not match the heading of the invocant relation."
         if !($other!heading === $!heading);
 
-    return $?SELF._exclusion( $other );
+    return $?SELF!_exclusion( $other );
 }
 
 multi method exclusion (Relation *@others) returns Relation {
@@ -246,7 +246,7 @@ multi method exclusion (Relation *@others) returns Relation {
     my Relation $r1 = $?SELF;
 
     for @others -> $r2 {
-        $r1 = $r1._exclusion( $r2 );
+        $r1 = $r1!_exclusion( $r2 );
     }
 
     return $r1;
@@ -264,7 +264,7 @@ multi method intersection (Relation $other!) returns Relation {
             ~ " not match the heading of the invocant relation."
         if !($other!heading === $!heading);
 
-    return $?SELF._intersection( $other );
+    return $?SELF!_intersection( $other );
 }
 
 multi method intersection (Relation *@others) returns Relation {
@@ -278,7 +278,7 @@ multi method intersection (Relation *@others) returns Relation {
     my Relation $r1 = $?SELF;
 
     for @others -> $r2 {
-        $r1 = $r1._intersection( $r2 );
+        $r1 = $r1!_intersection( $r2 );
     }
 
     return $r1;
@@ -332,11 +332,11 @@ method semijoin (Relation $other!) returns Relation {
 
     if ($other!heading === $!heading) {
         # Both sources have identical headings; result is src intersection.
-        return $?SELF._intersection( $other );
+        return $?SELF!_intersection( $other );
     }
 
     # Now, the standard case of a semijoin.
-    return $?SELF._semijoin( $other );
+    return $?SELF!_semijoin( $other );
 }
 
 &matching ::= &semijoin;
@@ -367,7 +367,7 @@ multi method product (Relation $other!) returns Relation {
     }
 
     # Now, the standard case of a cross-join.
-    return $?SELF._product( $other );
+    return $?SELF!_product( $other );
 }
 
 multi method product (Relation *@others) returns Relation {
@@ -416,12 +416,12 @@ multi method join (Relation $other!) returns Relation {
 
     if ($other!heading === $!heading) {
         # Both sources have identical headings; result is src intersection.
-        return $?SELF._intersection( $other );
+        return $?SELF!_intersection( $other );
     }
 
     if (all( $!heading ) === none( $other!heading )) {
         # Both sources have exclusive headings; result is cross-product.
-        return $?SELF._product( $other );
+        return $?SELF!_product( $other );
     }
 
     # Both sources have overlapping non-identical headings.
@@ -429,16 +429,16 @@ multi method join (Relation $other!) returns Relation {
     if (all( $other!heading ) === any( $!heading )) {
         # The second source's heading is a proper subset of the
         # first source's heading, so simplify to a semijoin.
-        return $?SELF._semijoin( $other );
+        return $?SELF!_semijoin( $other );
     }
     if (all( $!heading ) === any( $other!heading )) {
         # The first source's heading is a proper subset of the
         # second source's heading, so simplify to a semijoin.
-        return $other._semijoin( $?SELF );
+        return $other!_semijoin( $?SELF );
     }
 
     # Now, the standard case of a inner join.
-    return $?SELF._inner_join( $other );
+    return $?SELF!_inner_join( $other );
 }
 
 multi method join (Relation *@others) returns Relation {
