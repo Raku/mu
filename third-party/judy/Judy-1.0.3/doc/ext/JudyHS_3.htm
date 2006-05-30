@@ -132,8 +132,9 @@ new active structure to be allocated; thereafter, passing the structure, index
 and length as last returned into the next call will optimally continue the 
 search; when done searching, free the iterator structure with <B>JHSFI</B>.
 Supplying a null pointer for the index string, and a 0 length, causes the search
-to begin at the start (for <B>JHSIF</B> and <B>JHSIN</B>) or end (for 
-<B>JHSIL</B> and <B>JHSIP</B>) of the internal hash order.
+to begin at the start of the internal hash order; 
+supplying a null pointer for the index string, and a length of -1 (very large), 
+causes the search to begin at the end of the internal hash order.
 You may search inclusively or exclusively,
 in either forward or reverse directions.
 <P>
@@ -177,7 +178,7 @@ JHSFI(Rc_word, PJHSIter);
 <DD>
 Search (inclusive) for the first index present that is equal to or greater than the
 passed <B>Index</B> string in the internal hash order.
-(Start with a 0-length <B>NULL</B>string to find the first index in the array.)
+(Use a <B>NULL</B> string and a Length of 0 to find the first index in the array.)
 <B>JHSIF()</B> is typically used to <I>begin</I> a hash-order scan of
 the valid indexes in a JudyHS array.
 <P>
@@ -193,8 +194,7 @@ index in the internal hash order.
 <DD>
 Search (inclusive) for the last index present that is equal to or less
 than the passed <B>Index</B> string.
-(Start with a 0-length <B>NULL</B>string to look up the last index in the array,
-as there is no particular value guaranteed to be last in the internal hash order.)
+(Use a <B>NULL</B> string and a Length of -1 to find the last index in the array.)
 <B>JHSIL()</B> is typically used to <I>begin</I> a reverse-hash-order
 scan of the valid indexes in a JudyHS array.
 <P>
@@ -270,13 +270,14 @@ main()
     {
 	Pvoid_t PJHSIter = (Pvoid_t) NULL;  // JudyHS iterator
         uint8_t *Index2 = (uint8_t) NULL;   // JudyHS key: line
-        Word_t Length2 = 0;                 // length of key
+	Word_t Length2 = 0;                 // length of key
+	PWord_t PValue2;                    // pointer to value
         Word_t IterBytes;                   // size of iterator
 	
-        JHSIF(PValue, PJHSArray, PJHSIter, Index2, Length2);
-        while (PValue) {
-            printf(" line %lu: %*.*s", *PValue, Index2, Length2, Length2);
-            JHSIN(PValue, PJHSArray, PJHSIter, Index2, Length2);
+        JHSIF(PValue2, PJHSArray, PJHSIter, Index2, Length2);
+        while (PValue2) {
+            printf(" line %lu: %*.*s", *PValue2, Index2, Length2, Length2);
+            JHSIN(PValue2, PJHSArray, PJHSIter, Index2, Length2);
         }
 	JHSFI(IterBytes, PJHSIter);
 	printf("JudyHSFreeIter() freed %lu bytes of memory\n", IterBytes);
