@@ -278,6 +278,22 @@ typedef struct L_EAFSTRING
     }                                           \
 }
 
+
+// USEHASH constant:
+//     if (USEHASH)
+//     {
+//         ...
+//     }
+// is equivalent to 
+//     #ifndef DONOTUSEHASH
+//         ...
+//     #endif // DONOTUSEHASH
+#ifndef DONOTUSEHASH
+ #define USEHASH 1
+#else
+ #define USEHASH 0
+#endif // DONOTUSEHASH
+
 //=======================================================================
 // This routine must hash string to 24..32 bits.  The "goodness" of
 // the hash is not as important as its speed.
@@ -866,12 +882,14 @@ static PPvoid_t findNextByLength (Pcvoid_t, Phsi_t, PJError_t);
 static PPvoid_t findLastByLength (Pcvoid_t, Phsi_t, PJError_t);
 static PPvoid_t findPrevByLength (Pcvoid_t, Phsi_t, PJError_t);
 
+#ifndef DONOTUSEHASH
 static PPvoid_t findFirstByHash  (Pcvoid_t, Phsi_t, PJError_t);
 static PPvoid_t findNextByHash   (Pcvoid_t, Phsi_t, PJError_t);
 static PPvoid_t findLastByHash   (Pcvoid_t, Phsi_t, PJError_t);
 static PPvoid_t findPrevByHash   (Pcvoid_t, Phsi_t, PJError_t);
 static PPvoid_t findLowestByHash (Pcvoid_t, Phsi_t, PJError_t);
 static PPvoid_t findHighestByHash(Pcvoid_t, Phsi_t, PJError_t);
+#endif // DONOTUSEHASH
 
 static PPvoid_t findFirstByString  (Pcvoid_t, uint8_t *, Word_t, PJError_t);
 static PPvoid_t findNextByString   (Pcvoid_t, uint8_t *, Word_t, PJError_t);
@@ -884,7 +902,6 @@ static PPvoid_t findHighestByString(Pcvoid_t, uint8_t *, Word_t, PJError_t);
 // Find first string, at or after (index, length) if any, in JudyHS structure, 
 // using or allocating JudyHSIter structure for state.
 // Return ppvalue and updated index, length, and state.
-#ifndef DONOTUSEHASH
 #define defineJudyHSIterXX(JudyHSIterXX, findXXByLength)                            \
 PPvoid_t                                                                            \
 JudyHSIterXX(Pcvoid_t PArray,      /* pointer to array */                           \
@@ -952,90 +969,13 @@ JudyHSIterXX(Pcvoid_t PArray,      /* pointer to array */                       
 	}                                                                           \
 	String = PIter->hsi_String;                                                 \
     }                                                                               \
-    if (Length > WORDSIZE)         /* lengthy string: get its hash */               \
+    if (USEHASH)                   /* if using hash table layer: */                 \
     {                                                                               \
-        JUDYHASHSTR(HValue, String, Length);                                        \
-	PIter->hsi_Hash = (Word_t)HValue;                                           \
-    }                                                                               \
-                                                                                    \
-	                           /* find <first> entry */                         \
-    PPValue = findXXByLength(PArray, PIter, PJError);                               \
-    if (PPValue == PPJERR)         /* error */                                      \
-    {                                                                               \
-        JU_SET_ERRNO(PJError, 0);                                                   \
-	return (PPJERR);                                                            \
-    }                                                                               \
-    *PStr = PIter->hsi_String;     /* return new string and length as lvalues */    \
-    *PLen = Length;                                                                 \
-    return (PPValue);              /* and ponter to value cell */                   \
-}
-#else  // DONOTUSEHASH
-#define defineJudyHSIterXX(JudyHSIterXX, findXXByLength)                            \
-PPvoid_t                                                                            \
-JudyHSIterXX(Pcvoid_t PArray,      /* pointer to array */                           \
-             PPvoid_t PPIter,      /* pointer to pointer to state structure */      \
-             void ** PStr,         /* pointer to pointer to index */                \
-             Word_t * PLen,        /* pointer to length of index */                 \
-             PJError_t PJError     /* optional, for returning error info */         \
-	    )                                                                       \
-{                                                                                   \
-    Phsi_t PIter;                  /* pointer to iterator structure */              \
-    uint8_t * String;              /* pointer to index string */                    \
-    Word_t Length;                 /* length of index string */                     \
-    uint32_t HValue;               /* hash of index string */                       \
-    PPvoid_t PPValue;              /* pointer to pointer to value cell */           \
-                                                                                    \
-    if (PPIter == NULL)            /* get iter structure: */                        \
-    {                                                                               \
-	PIter = makeIter(PArray, PJError); /* new */                                \
-	if (PIter == PJERR)                                                         \
+        if (Length > WORDSIZE)         /* lengthy string: get its hash */           \
         {                                                                           \
-            return (PPJERR);                                                        \
-	}                                                                           \
-	*PPIter = PIter;                                                            \
-    }                                                                               \
-    else                                                                            \
-    {                                                                               \
-        PIter = *PPIter;           /* or existing */                                \
-    }                                                                               \
-                                                                                    \
-    if (PStr == NULL || PLen == NULL)  /* lvalue arguments must not be NULL */      \
-    {                                                                               \
-        JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);                                 \
-	return (PPJERR);                                                            \
-    }                                                                               \
-    String = *PStr;                                                                 \
-    Length = *PLen;                                                                 \
-    if (String == PIter->hsi_String && Length == PIter->hsi_Length)                 \
-    {                                                                               \
-        /* continuing where we left off: use PIter as is */                         \
-    }                                                                               \
-    else                                                                            \
-    {                                                                               \
-        if (String == NULL)        /* NULL string: two special cases */             \
-	{                                                                           \
-            switch (Length)                                                         \
-	    {                                                                       \
-                case 0UL:          /* 0 Length means start of array */              \
-                    Length = PIter->hsi_Length = 0;                                 \
-		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);             \
-		    break;                                                          \
-                case (Word_t)-1:   /* -1 Length means end of array */               \
-		    Length = PIter->hsi_Length = (Word_t)-1;                        \
-		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);             \
-		    break;                                                          \
-                default:                                                            \
-		    JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);                     \
-		    return (PPJERR);                                                \
-	    }                                                                       \
-	}                                                                           \
-	else                                                                        \
-	{                          /* new string: copy into iter structure */       \
-            PIter->hsi_Length = Length;                                             \
-	    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);                     \
-	    memcpy(PIter->hsi_String, String, Length);                              \
-	}                                                                           \
-	String = PIter->hsi_String;                                                 \
+            JUDYHASHSTR(HValue, String, Length);                                    \
+	    PIter->hsi_Hash = (Word_t)HValue;                                       \
+        }                                                                           \
     }                                                                               \
                                                                                     \
 	                           /* find <first> entry */                         \
@@ -1049,7 +989,6 @@ JudyHSIterXX(Pcvoid_t PArray,      /* pointer to array */                       
     *PLen = Length;                                                                 \
     return (PPValue);              /* and ponter to value cell */                   \
 }
-#endif  // DONOTUSEHASH
 // #define defineJudyHSIterXX(JudyHSIterXX, findXXByLength)
 
 // Find first string, at or after (index, length) if any, in JudyHS structure, 
@@ -1137,7 +1076,6 @@ makeIter(Pcvoid_t PArray,
 // find <First> (<Next>, <Last>, <Prev>) in Length array
 // returns NULL if not in this tree
 // or updates Length (and Hash, and String) and returns PPValue.
-#ifndef DONOTUSEHASH
 #define defineFindFNLPByLength(findXXByLength, findXXByHash, findXXByString, JudyLYY, findZZByHash, findZZByString) \
 static PPvoid_t                                                                      \
 findXXByLength(Pcvoid_t PArray,    /* pointer to array */                            \
@@ -1152,9 +1090,9 @@ findXXByLength(Pcvoid_t PArray,    /* pointer to array */                       
     Length = PIter->hsi_Length;                                                      \
                                                                                      \
     JLG(PPEntry, PArray, Length);  /* get entry for strings of Length */             \
-    if (PPEntry != NULL)                                                             \
+    if (PPEntry != NULL)           /* found: find <first> in entry */                \
     {                                                                                \
-        if (Length > WORDSIZE)     /* find <first> in entry */                       \
+        if (USEHASH && Length > WORDSIZE) /* (if hash layer and lengthy string) */   \
         {                                                                            \
             PPValue = findXXByHash(*PPEntry, PIter, PJError);                        \
         }                                                                            \
@@ -1178,7 +1116,7 @@ findXXByLength(Pcvoid_t PArray,    /* pointer to array */                       
     if (PPEntry != NULL)           /* found <next> length: */                        \
     {                                                                                \
         PIter->hsi_Length = Length;/* update length */                               \
-        if (Length > WORDSIZE)     /* and find <lowest> there */                     \
+        if (USEHASH && Length > WORDSIZE) /* and find <lowest> there */              \
         {                                                                            \
 	    PPValue = findZZByHash(*PPEntry, PIter, PJError);                        \
 	}                                                                            \
@@ -1198,56 +1136,6 @@ findXXByLength(Pcvoid_t PArray,    /* pointer to array */                       
         return (NULL);             /* end of iteration */                            \
     }                                                                                \
 }
-#else // DONOTUSEHASH
-#define defineFindFNLPByLength(findXXByLength, findXXByHash, findXXByString, JudyLYY, findZZByHash, findZZByString) \
-static PPvoid_t                                                                      \
-findXXByLength(Pcvoid_t PArray,    /* pointer to array */                            \
-              Phsi_t PIter,        /* pointer to iterator */                         \
-              PJError_t PJError                                                      \
-             )                                                                       \
-{                                                                                    \
-    Word_t Length;                                                                   \
-    PPvoid_t PPEntry;                                                                \
-    PPvoid_t PPValue;                                                                \
-                                                                                     \
-    Length = PIter->hsi_Length;                                                      \
-                                                                                     \
-    JLG(PPEntry, PArray, Length);  /* get hash table for strings of Length */        \
-    if (PPEntry != NULL)                                                             \
-    {                                                                                \
-                                   /* find <first> in entry */                       \
-        PPValue = findXXByString(*PPEntry, PIter->hsi_String, Length, PJError);      \
-	if (PPValue != NULL)       /* found (or error) */                            \
-	{                                                                            \
-            return (PPValue);                                                        \
-	}                                                                            \
-    }                                                                                \
-                                   /* not found:  find <lowest> in <next> Length */  \
-    memset(PIter->hsi_String, 0, Length); /* update string: back entire string out */ \
-    PPEntry = JudyLYY(PArray, &Length, PJError); /* get hash table for <next> Length */ \
-    if (PPEntry == PPJERR)         /* error */                                       \
-    {                                                                                \
-        JU_SET_ERRNO(PJError, 0);                                                    \
-        return (PPJERR);                                                             \
-    }                                                                                \
-    if (PPEntry != NULL)           /* found <next> length: */                        \
-    {                                                                                \
-        PIter->hsi_Length = Length; /* update length */                              \
-                                   /* and find <lowest> there */                     \
-        PPValue = findZZByString(*PPEntry, PIter->hsi_String, Length, PJError);      \
-        if (PPValue == PPJERR)     /* error */                                       \
-        {                                                                            \
-            JU_SET_ERRNO(PJError, 0);                                                \
-            return (PPJERR);                                                         \
-	}                                                                            \
-	return (PPValue);          /* found */                                       \
-    }                                                                                \
-    else                           /* no <next> length: */                           \
-    {                                                                                \
-        return (NULL);             /* end of iteration */                            \
-    }                                                                                \
-}
-#endif
 // #define defineFindFNLPByLength(findXXByLength, findXXByHash, findXXByString, 
 //                                       JudyLYY, findZZByHash, findZZByString) \
 
