@@ -9,7 +9,7 @@ token String {
 }
 
 token VariableName {
-    [<alpha> | <'_'>] \w*
+    [<alpha> | _] [<alpha> | _ | \d]*
 }
 
 token CaptureVariableName {
