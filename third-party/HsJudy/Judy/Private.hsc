@@ -4,6 +4,7 @@ module Judy.Private where
 import Foreign
 import Data.Word
 import Foreign.C.Types
+import Foreign.C.String
 
 #include <Judy.h>
 #include <stdlib.h>
@@ -24,7 +25,7 @@ pjerr :: Value
 pjerr = (#const PJERR)
 
 
--- what do we gain from doing that newtype instead of simply doing: type Judy1Array = ()
+-- what do we gain from doing that newtype instead of simply doing: type Judy1Array = () ?
 newtype Judy1Array = Judy1Array Judy1Array
 
 type Judy1 = Ptr Judy1Array
@@ -57,6 +58,7 @@ foreign import ccall unsafe "Judy1NextEmpty" judy1NextEmpty :: Judy1 -> Ptr Valu
 foreign import ccall unsafe "Judy1LastEmpty" judy1LastEmpty :: Judy1 -> Ptr Value -> JError -> IO CInt
 foreign import ccall unsafe "Judy1PrevEmpty" judy1PrevEmpty :: Judy1 -> Ptr Value -> JError -> IO CInt
 
+
 newtype JudyLArray = JudyLArray JudyLArray
 type JudyL = Ptr JudyLArray
 
@@ -84,4 +86,27 @@ foreign import ccall unsafe "JudyLLastEmpty" judyLLastEmpty :: JudyL -> Ptr Valu
 foreign import ccall unsafe "JudyLPrevEmpty" judyLPrevEmpty :: JudyL -> Ptr Value -> JError -> IO CInt
 
 
+newtype JudySLArray = JudySLArray JudySLArray
+type JudySL = Ptr JudySLArray
+
+
+#def void judySL_free(void *ptr) { JudySLFreeArray(ptr, PJE0); }
+
+#def void j_fill(char *p, char x, int len) { int i; for (i=len-1; i!=0; i--) *(p++) = x; p = '\0'; }
+#def void j_null(char *p) { p = '\0'; }
+
+--foreign import ccall "j_fill" j_fill :: CString -> CChar -> CInt -> IO ()
+foreign import ccall "j_null" j_null :: CString -> IO ()
+
+foreign import ccall "&judySL_free" judySL_free_ptr :: FunPtr (Ptr JudySL -> IO ())
+
+foreign import ccall "JudySLIns" judySLIns :: Ptr JudySL -> CString -> JError -> IO (Ptr Value)
+foreign import ccall "JudySLDel" judySLDel :: Ptr JudySL -> CString -> JError -> IO CInt
+foreign import ccall "JudySLGet" judySLGet :: JudySL -> CString -> JError -> IO (Ptr Value)
+foreign import ccall "JudySLFreeArray" judySLFreeArray :: Ptr JudySL -> JError -> Value
+
+foreign import ccall unsafe "JudySLFirst" judySLFirst :: JudySL -> CString -> JError -> IO (Ptr Value)
+foreign import ccall unsafe "JudySLNext" judySLNext :: JudySL -> CString -> JError -> IO (Ptr Value)
+foreign import ccall unsafe "JudySLLast" judySLLast :: JudySL -> CString -> JError -> IO (Ptr Value)
+foreign import ccall unsafe "JudySLPrev" judySLPrev :: JudySL -> CString -> JError -> IO (Ptr Value)
 

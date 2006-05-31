@@ -10,7 +10,52 @@
 
 - Document this work.
 - Create a LICENSE file (I think BSD3) and put license info in the
-  necessary files.
+  necessary files. Mention that John Meacham as original author (how?).
 - Check for Language Shootout entries that could benefit from HsJudy,
   and take Shootout times for them.
 - Remember to test RBR with HsJudy. =)
+
+
+# THINGS TO CONSIDER
+
+## API SUGGESTIONS
+
+Bulat: "Judy implements _mutable_ array/map/set, so closest interfaces for your
+lib will be MArray and HashTable. DiffArray is a general way to make IArray
+(interface) on the base of MArray (interface), that is usable with any
+datastructure implementing MArray interface"
+
+- Implementations for unboxed values like Int and Double.
+- Data.HashTable 
+- Unbounded Arrays. Bulat is working on this and will publish it soon(?).
+
+
+## STABLEPTR POSSIBLE OVERHEAD
+
+StablePtr is used to store references of Haskell objects in external
+datastructures. Maybe GHC isn't very efficient dealing with a lot of
+StablePtrs, if that's true three obvious ways are:
+ - GHC 6.5/6 is better at this.
+ - Turn GHC better at this (wow!).
+ - Find another way to do it (without StablePtr).
+
+
+## COLLECTIONS PACKAGE
+
+darcs get --partial http://darcs.haskell.org/packages/collections/
+
+Bernardy is working in a Collections package described as:
+"This package provides a suite of data structures types, with a consistent API.
+It is intended as an evolution of the data structures in the @base@ package."
+
+It contains only immutable datastructures, BUT would be interesting to look
+at the API they use when designing HsJudy.
+
+
+## REEVALUATE BENEFITS?
+
+> all Haskell software that uses common data structures like Maps and
+> Arrays would benefit from a faster implementation
+
+Bulat says "sorry, i don't think so. especially for Arrays ;)"
+
