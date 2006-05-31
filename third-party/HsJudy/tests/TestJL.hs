@@ -29,9 +29,9 @@ new = do
 
 ins j wp v = withForeignPtr j $ \j -> do
     r <- judyLIns j wp judyError
-    -- FIXME: check for error, depends on all that PJERR stuff =P
-    poke r v
-    return ()
+    if r == pjerr
+        then error "not enough memory"
+        else poke r v >> return ()
 
 get j wp = do
     jj <- withForeignPtr j peek

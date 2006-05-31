@@ -21,9 +21,13 @@ newtype Frozen a = Frozen a
 -- FIXME: I don't think this is the right type as I'll be comparing this with
 -- results which are Ptr Value. const seems to return a number and i didnt found
 -- a way to create Ptr Value =P
-pjerr :: Value
-pjerr = (#const PJERR)
+--pjerr :: Value
+--pjerr = (#const PJERR)
 
+-- Not sure if it's the best way to get this pointer, but works.
+#def void *j_pjerr(void) { return PJERR; }
+foreign import ccall unsafe "j_pjerr" j_pjerr :: IO (Ptr Value)
+pjerr = unsafePerformIO j_pjerr
 
 -- what do we gain from doing that newtype instead of simply doing: type Judy1Array = () ?
 newtype Judy1Array = Judy1Array Judy1Array

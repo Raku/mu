@@ -14,6 +14,7 @@ import Judy.Private
 
 main = do
     putStrLn "# JudySL tests:"
+--    testOutOfMemory
     sequence [testSimple, testUpdate, testDelete, testNonASCII, testList]
 
 check l = do
@@ -34,9 +35,9 @@ ins j str v = withForeignPtr j $ \j -> do
     -- TODO: check if this is better than creating CString manually
     withCAString str $ \cstr -> do
         r <- judySLIns j cstr judyError
-        poke r v
-        return ()
-        -- FIXME: check for error, depends on all that PJERR stuff =P
+        if r == pjerr
+            then error "not enough memory =("
+            else poke r v >> return () 
 
 get j str = do
     jj <- withForeignPtr j peek
@@ -135,3 +136,11 @@ testList = do
     d <- toListIO j
     check [a == [], b == [("test",42),("haha",42),("funk",42)],
            c, d == [("test",42),("funk",42)]]
+
+
+{-testOutOfMemory = do
+    putStrLn "out_of_mem: \t"
+    j <- new
+    sequence_ $ map (\x -> ins j ("haha ahhaahahhahahahahhahahahahahhahahahahahha" ++ show x) x) [1..100000]
+    l <- toListIO j
+    putStrLn $ show l -}
