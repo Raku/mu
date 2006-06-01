@@ -1,3 +1,6 @@
+- new module Pugs::Compiler::RegexPerl5 - wraps a perl5 regex into a method that
+  returns a Match object.
+
 0.04  2006-05-24
 
 - new modules Pugs::Compiler::Token, Pugs::Compiler::Regex
