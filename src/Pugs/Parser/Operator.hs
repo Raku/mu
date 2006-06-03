@@ -222,7 +222,7 @@ makeOp1 prec sigil con name = prec $ try $ do
         ]
     parseFileTestOp = do
         rv <- oneOf fileTestOperatorNames
-        ruleWs
+        lookAhead (satisfy (not . isWordAny))
         return rv
     fullName
         | isAlpha (head name)
