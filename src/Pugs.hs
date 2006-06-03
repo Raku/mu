@@ -152,7 +152,7 @@ eval prog = do
 parse :: String -> IO ()
 parse prog = do
     env <- tabulaRasa defaultProgramName
-    doParse env pretty "-" prog
+    doParse env (encodeUTF8 . pretty) "-" prog
 
 dump :: String -> IO ()
 dump = (doParseWith $ \env _ -> print $ envBody env) "-"

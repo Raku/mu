@@ -199,7 +199,7 @@ symbol s
         whiteSpace
         return rv
     where
-    aheadWord x  '=' = not $ x `elem` (decodeUTF8 "xY¥")
+    aheadWord x  '=' = not $ x `elem` "xY\xA5" -- ¥
     aheadWord _  y   = not $ isWordAny y
     aheadSym '-' '>' = False -- XXX hardcode
     aheadSym '!' '~' = False -- XXX hardcode

@@ -1418,7 +1418,7 @@ ruleFoldOp = verbatimRule "reduce metaoperator" $ try $ do
     where
     defaultInfixOps = words $ concat
         [ " ** * / % x xx +& +< +> ~& ~< ~> "
-        , " + - ~ +| +^ ~| ~^ ?| , "
+        , " + - ~ +| +^ ~| ~^ ?| , Y \xA5 "
         , " & ^ | "
         , " => = "
         , " != == < <= > >= ~~ !~ "

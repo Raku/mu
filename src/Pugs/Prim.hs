@@ -74,8 +74,8 @@ op0 "times"  = const $ do
     ProcessTimes _ u s cu cs <- guardIO getProcessTimes
     return . VList $ map (castV . (% (clocksPerSecond :: VInt)) . toInteger . fromEnum)
         [u, s, cu, cs]
-op0 "¥" = op0Zip
-op0 "Y" = op0 "¥"
+op0 "\xA5" = op0Zip -- ¥
+op0 "Y" = op0 "\xA5"
 op0 "File::Spec::cwd" = const $ do
     cwd <- guardIO getCurrentDirectory
     return $ VStr cwd
@@ -1383,36 +1383,36 @@ primOp sym assoc prms ret isSafe =
         , subReturns  = mkType ret
         , subBody     = Prim $! if safe then f else unsafe
         }
-    symStr = encodeUTF8 sym
+    symStr = sym
     unsafe :: [Val] -> Eval Val
     unsafe _ = fail $ "Unsafe function '" ++ sym ++ "' called under safe mode"
     f :: [Val] -> Eval Val
-    f    = case (arity :: Integer) of
-        0 -> \x -> op0 symStr x
-        1 -> \x     -> case x of
+    f    = case arity of
+        Arity0 -> op0 symStr
+        Arity1 -> \x -> case x of
             [a]       -> op1 symName a
             [a,b]     -> op2 symStr a b
             [a,b,c]   -> op3 symStr a b c
             [a,b,c,d] -> op4 symStr a b c d
             a         -> op0 symStr a
-        2 -> \[x,y] -> op2 symStr x y
-        3 -> \[x,y,z] -> op3 symStr x y z
-        4 -> \[x,y,z,w] -> op4 symStr x y z w
-        _ -> error (show arity)
+        Arity2 -> \[x,y] -> op2 symStr x y
     symName = if modify then assoc ++ ":" ++ symStr else symStr
     -- prefix symName with post, circum or other (not yet used)
     -- to disambiguate, for example, &*prefix:++ and &*postfix:++ in 'op0'
     (arity, fixity, modify) = case assoc of
-        "pre"       -> (1, "prefix", False)
-        "spre"      -> (1, "prefix", False)
-        "post"      -> (1, "postfix", True)
-        "circum"    -> (1, "circumfix", True)
-        "left"      -> (2, "infix", False)
-        "right"     -> (2, "infix", False)
-        "non"       -> (2, "infix", False)
-        "chain"     -> (2, "infix", False)
-        "list"      -> (0, "infix", False)
-        other       -> (0, other, True)
+        "pre"       -> (Arity1, "prefix", False)
+        "spre"      -> (Arity1, "prefix", False)
+        "post"      -> (Arity1, "postfix", True)
+        "circum"    -> (Arity1, "circumfix", True)
+        "left"      -> (Arity2, "infix", False)
+        "right"     -> (Arity2, "infix", False)
+        "non"       -> (Arity2, "infix", False)
+        "chain"     -> (Arity2, "infix", False)
+        "list"      -> (Arity0, "infix", False)
+        other       -> (Arity0, other, True)
+
+data Arity = Arity0 | Arity1 | Arity2
+    deriving (Show, Eq, Ord, Typeable)
 
 -- |Produce a Pad update transaction with 'primOp' from a string description
 primDecl :: String -> STM PadMutator
@@ -1487,7 +1487,7 @@ doPrettyVal v = return (pretty v)
 initSyms :: STM [PadMutator]
 initSyms = mapM primDecl syms
     where
-    syms = filter (not . null) . lines $ decodeUTF8 "\
+    syms = filter (not . null) . lines $ "\
 \\n   Bool      spre    !       safe   (Bool)\
 \\n   Num       spre    +       safe   (Num)\
 \\n   Num       pre     abs     safe   (?Num=$_)\
@@ -1760,7 +1760,7 @@ initSyms = mapM primDecl syms
 \\n   Scalar    left    //      safe   (Bool, ~Bool)\
 \\n   Scalar    left    .[]     safe   (Array, Int)\
 \\n   Scalar    left    .{}     safe   (Hash, Str)\
-\\n   List      list    ¥       safe   (Array)\
+\\n   List      list    \xA5    safe   (Array)\
 \\n   List      list    Y       safe   (Array)\
 \\n   List      spre    <==     safe   (List)\
 \\n   List      left    ==>     safe   (List, Code)\

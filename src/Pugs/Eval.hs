@@ -108,7 +108,7 @@ debug key fun str a = do
                 return val
             when (length val > 100) $ do
                 trace "*** Warning: deep recursion" return ()
-            trace ("***" ++ val ++ str ++ pretty a) return ()
+            trace ("***" ++ val ++ str ++ encodeUTF8 (pretty a)) return ()
 
 evaluateMain :: Exp -> Eval Val
 evaluateMain exp = do
