@@ -104,6 +104,8 @@ clean_files     (map fixpaths($_),
     temp-ex* unlink-test* Prelude Pugs.cabal Setup.hi Setup.o
     .setup-config .installed-pkg-config
     temp-test.*.*-out tempfile.*.* create_this_file create_this_file2
+    third-party/*/*.hi third-party/*/*.o
+    third-party/*/dist
     )
 );
 
