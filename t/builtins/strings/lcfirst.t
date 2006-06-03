@@ -19,7 +19,7 @@ is $str.lcfirst,    "some String",          "simple.lcfirst on scalar variable";
 is "Other String".lcfirst,  "other String", ".lcfirst on  literal string";
 
 $_ = "HELLO WORLD";
-my $x = lcfirst;
+my $x = .lcfirst;
 is $x, "hELLO WORLD", 'lcfirst uses $_ as default'
 
 
