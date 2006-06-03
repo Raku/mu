@@ -20,6 +20,7 @@ module Pugs.Shell (
 import Pugs.Internals
 
 #ifdef PUGS_HAVE_READLINE
+{-# INCLUDE "readline/readline.h" #-}
 import qualified System.Console.Readline as Readline
 #endif
 
@@ -67,7 +68,9 @@ parseCommandLine str            = CmdRun (RunOpts False False True) str
 initializeShell :: IO ()
 initializeShell = do
 #ifdef PUGS_HAVE_READLINE
+#ifdef RL_READLINE_VERSION
     Readline.setCatchSignals False
+#endif
     Readline.initialize
 #endif
     return ()

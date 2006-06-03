@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp -fno-warn-deprecations #-}
 
 {-|
     Evaluation and reduction engine.
