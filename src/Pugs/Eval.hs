@@ -578,8 +578,9 @@ reduceSyn ":=" [var, vexp] = do
         expand e = Syn "," [e]
     reduce (Syn ":=" [expand var, expand vexp])
 
-reduceSyn "*" exps = do
-    let [exp] = exps
+reduceSyn "*" [] = return (VNum (1/0))
+
+reduceSyn "*" [exp] = do
     val <- enterRValue $ enterEvalContext cxtSlurpyAny exp
     return . VList =<< fromVal val
     -- vals <- fromVals val

@@ -35,7 +35,7 @@ tightOperators = do
     , postOps   (words " ++ -- ")
       ++ preOps (words " ++ -- ")                               -- Auto-Increment
     , rightOps  (words " ** ")                                  -- Exponentiation
-    , preSyn    ["*"]                                           -- Symbolic Unary
+    , optPreSyn ["*"]                                           -- Symbolic Unary
       ++ preOps (words " = ! + - ** ~ ? +^ ~^ ?^ \\ ^")
       ++ preSymOps preUnary
       ++ postOps postUnary
@@ -162,6 +162,8 @@ fileTestOperatorNames = "rwxoRWXOezsfdlpSbctugkTBMAC"
 
 preSyn      :: [String] -> [RuleOperator Exp]
 preSyn      = ops $ makeOp1 Prefix "" Syn
+optPreSyn   :: [String] -> [RuleOperator Exp]
+optPreSyn   = ops $ makeOp1 OptionalPrefix "" Syn
 preOps      :: [String] -> [RuleOperator Exp]
 preOps      = (ops $ makeOp1 Prefix "&prefix:" doApp) . addHyperPrefix
 preSymOps   :: [String] -> [RuleOperator Exp]
