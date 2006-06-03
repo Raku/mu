@@ -40,12 +40,17 @@ if($*OS eq any <MSWin32 mingw msys cygwin>) {
 
 {
     my $file = create_temporary_file;
-    my @result = chmod 0, $file;
+    my @result = chmod 0o000, $file;
     is +@result, 1, "One file successfully changed";
     is @result[0], $file, "name of the file returned", :todo;
-    ok !(-r $file), "not readable after 0";
-    ok !(-w $file), "not writabel after 0";
-    ok !(-x $file), "not executable after 0";
+    if ($*EUID) {
+        ok !(-r $file), "not readable after 0";
+        ok !(-w $file), "not writabel after 0";
+        ok !(-x $file), "not executable after 0";
+    }
+    else {
+        skip 3, "-r -w -x can accidentally work with root permission";
+    }
     remove_file($file);
 }
 
