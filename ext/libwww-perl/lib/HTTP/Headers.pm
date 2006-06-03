@@ -91,7 +91,7 @@ method remove_header (Str *@fields) {
   my @values;
 
   for @fields -> $field is copy {
-    $field ~~ tr/_/-/ if not $field ~~ /^\:/ and $TRANSLATE_UNDERSCORE;
+    $field.trans(('_' => '-')) if not $field ~~ /^\:/ and $TRANSLATE_UNDERSCORE;
     my $v = %!headers.delete($field.lc);
     push @values, $v ~~ Array ?? @$v !! $v if defined $v;
   }
