@@ -105,13 +105,16 @@ op1 "chop" = \x -> do
     if null str
         then return $ VStr str
         else return $ VStr $ init str
-op1 "chomp" = \x -> do
+op1 "Scalar::chomp" = \x -> do
     str <- fromVal x
     if null str || last str /= '\n'
         then return $ VStr str
         else do
             -- writeRef ref $ VStr (init str)
             return $ VStr $ init str
+op1 "chomp" = \v -> do
+    vlist <- fromVal v
+    fmap VList $ forM vlist (op1 "Scalar::chomp")
 op1 "Str::split" = op1Cast (castV . words)
 op1 "lc" = op1Cast (VStr . map toLower)
 op1 "lcfirst" = op1StrFirst toLower
@@ -1539,7 +1542,8 @@ initSyms = mapM primDecl syms
 \\n   Any       pre     undef     safe   ()\
 \\n   Any       pre     undefine  safe   (?rw!Any)\
 \\n   Str       pre     chop    safe   (Str)\
-\\n   Str       pre     chomp   safe   (Str)\
+\\n   Str       pre     Scalar::chomp   safe   (Scalar)\
+\\n   Any       pre     chomp   safe   (List)\
 \\n   Any       right   =       safe   (rw!Any, Any)\
 \\n   Int       pre     index   safe   (Str, Str, ?Int=0)\
 \\n   Int       pre     rindex  safe   (Str, Str, ?Int)\

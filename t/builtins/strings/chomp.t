@@ -80,7 +80,7 @@ Basic tests for the chomp() builtin
 
 # chomp in list context
 {
-    is_deeply(chomp(()), (), "chomp on empty list");
+    is_deeply(chomp(()), [], "chomp on empty list");
     is_deeply(chomp(("abc\n")), ("abc"), "one element list");
     is_deeply(chomp(("abc\n", "bcd\n")), ("abc", "bcd"), "two element list");
     is_deeply(("abc\n", "bcd\n").chomp, ("abc", "bcd"), "two element list");
