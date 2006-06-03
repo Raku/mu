@@ -9,7 +9,8 @@ import Foreign.C.String
 #include <Judy.h>
 #include <stdlib.h>
 
-type Value = (#type Word_t)
+--type Value = (#type Word_t)
+type Value = WordPtr
 
 newtype JError = JError (Ptr ())
 --foreign import ccall unsafe "judy_error" judyError :: JError

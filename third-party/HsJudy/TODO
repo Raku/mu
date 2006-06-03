@@ -1,8 +1,7 @@
 # NOW
-- Filling in Judy/Private.hsc with low-level FFI bindings, try to be in sync
-  with spinclad's third-party/judy.
-- Make sanity checks to see if it's all working right.
+- HSIter isn't working yet.
 - Add malloc error check for BitSet/Judy1 (it uses JERR not PJERR).
+- working on "BitSet a".
 - Cabalize HsJudy. 
 
 
