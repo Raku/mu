@@ -124,14 +124,12 @@ my $x = eval "%ENV";
 ok $! ~~ m:P5/Undeclared/, '%ENV not visible by default', :todo<bug>;
 
 # following doesn't parse yet
-eval q{
-    {
-	# It must be importable
-	use GLOBAL <%ENV>;
-	ok +%ENV.keys, 'imported %ENV has keys';
-    }
-    # Importation must be lexical
-    $x = eval "%ENV";
-    ok $! ~~ /Undeclared/, '%ENV not visible by after lexical import scope';
-    1;
-} or skip_rest 'GLOBAL import not yet available';
+{
+    # It must be importable
+    use GLOBAL <%ENV>;
+    ok +%ENV.keys, 'imported %ENV has keys';
+}
+# Importation must be lexical
+$x = eval "%ENV";
+ok $! ~~ m:P5/Undeclared/, '%ENV not visible by after lexical import scope', :todo<bug>;
+1;
