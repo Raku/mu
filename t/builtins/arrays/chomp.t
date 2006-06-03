@@ -27,12 +27,12 @@ Basic tests for the chomp() builtin working on an array of strings
     is(@foo[1], "bar\n", '2nd element was not yet chomped');
     is(@foo[2], "baz\n", '3rd element was not yet chomped');
     @foo .= chomp;
-    is(@foo[0], 'foo', '1st element chomped correctly', :todo<feature>);
-    is(@foo[1], 'bar', '2nd element chomped correctly', :todo<feature>);
-    is(@foo[2], 'baz', '3rd element chomped correctly', :todo<feature>);
+    is(@foo[0], 'foo', '1st element chomped correctly');
+    is(@foo[1], 'bar', '2nd element chomped correctly');
+    is(@foo[2], 'baz', '3rd element chomped correctly');
     @foo .= chomp;
-    is(@foo[0], 'foo', '1st element is chomped again with no effect', :todo<feature>);
-    is(@foo[1], 'bar', '2nd element is chomped again with no effect', :todo<feature>);
-    is(@foo[2], 'baz', '3rd element is chomped again with no effect', :todo<feature>);
+    is(@foo[0], 'foo', '1st element is chomped again with no effect');
+    is(@foo[1], 'bar', '2nd element is chomped again with no effect');
+    is(@foo[2], 'baz', '3rd element is chomped again with no effect');
 }
 
