@@ -73,7 +73,7 @@ my ($one, $two);
 # }>/whatever, but a Code should surely not support hash access).
 # Additionally, a smart compiler will detect thus errors at compile-time, so I
 # added an eval().  --iblech
-try { eval '{$one = 1} {$two = 2}' };
+try { eval '{$one = 1}{$two = 2}' };
 is($one, undef, 'two blocks ({} {}) no semicolon after either,.. first block does not execute');
 is($two, 2, '... but second block does (parsed as hash subscript)');
 
