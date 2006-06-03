@@ -534,7 +534,12 @@ reduceSyn "=" [lhs, rhs] = do
             | otherwise = cxtItem $ takeWhile (/= ':') . show $ refType ref
     val <- enterRValue $ enterEvalContext cxt rhs
     writeRef ref val
-    ifListContext (readRef ref) (retVal refVal)
+    lv      <- asks envLValue
+    if lv then retVal refVal else
+        ifListContext (readRef ref) $
+            if cxt == cxtSlurpyAny
+                then retVal refVal
+                else readRef ref
 
 reduceSyn "::=" exps = reduce (Syn ":=" exps)
 
