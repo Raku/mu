@@ -1491,29 +1491,29 @@ initSyms = mapM primDecl syms
     syms = filter (not . null) . lines $ "\
 \\n   Bool      spre    !       safe   (Bool)\
 \\n   Num       spre    +       safe   (Num)\
-\\n   Num       pre     abs     safe   (?Num=$_)\
-\\n   Int       pre     Pugs::Internals::truncate safe   (?Num=$_)\
-\\n   Int       pre     Pugs::Internals::round    safe   (?Num=$_)\
-\\n   Int       pre     Pugs::Internals::floor    safe   (?Num=$_)\
-\\n   Int       pre     Pugs::Internals::ceiling  safe   (?Num=$_)\
+\\n   Num       pre     abs     safe   (Num)\
+\\n   Int       pre     Pugs::Internals::truncate safe   (Num)\
+\\n   Int       pre     Pugs::Internals::round    safe   (Num)\
+\\n   Int       pre     Pugs::Internals::floor    safe   (Num)\
+\\n   Int       pre     Pugs::Internals::ceiling  safe   (Num)\
 \\n   Num       pre     atan    safe   (Num)\
 \\n   Num       pre     atan    safe   (Num, Num)\
-\\n   Num       pre     cos     safe   (?Num=$_)\
-\\n   Num       pre     sin     safe   (?Num=$_)\
-\\n   Num       pre     tan     safe   (?Num=$_)\
+\\n   Num       pre     cos     safe   (Num)\
+\\n   Num       pre     sin     safe   (Num)\
+\\n   Num       pre     tan     safe   (Num)\
 \\n   Any       pre     pi      safe   ()\
 \\n   Any       pre     self    safe   ()\
 \\n   Bool      pre     nothing safe   ()\
-\\n   Num       pre     exp     safe   (?Num=$_, ?Num)\
-\\n   Num       pre     sqrt    safe   (?Num=$_)\
-\\n   Bool      spre    -r      unsafe (?Str=$_)\
-\\n   Bool      spre    -w      unsafe (?Str=$_)\
-\\n   Bool      spre    -x      unsafe (?Str=$_)\
-\\n   Bool      spre    -e      unsafe (?Str=$_)\
-\\n   Bool      spre    -z      unsafe (?Str=$_)\
-\\n   Int       spre    -s      unsafe (?Str=$_)\
-\\n   Bool      spre    -f      unsafe (?Str=$_)\
-\\n   Bool      spre    -d      unsafe (?Str=$_)\
+\\n   Num       pre     exp     safe   (Num, ?Num)\
+\\n   Num       pre     sqrt    safe   (Num)\
+\\n   Bool      spre    -r      unsafe (Str)\
+\\n   Bool      spre    -w      unsafe (Str)\
+\\n   Bool      spre    -x      unsafe (Str)\
+\\n   Bool      spre    -e      unsafe (Str)\
+\\n   Bool      spre    -z      unsafe (Str)\
+\\n   Int       spre    -s      unsafe (Str)\
+\\n   Bool      spre    -f      unsafe (Str)\
+\\n   Bool      spre    -d      unsafe (Str)\
 \\n   Num       spre    -       safe   (Num)\
 \\n   Str       spre    ~       safe   (Str)\
 \\n   Bool      spre    ?       safe   (Bool)\
@@ -1522,7 +1522,7 @@ initSyms = mapM primDecl syms
 \\n   Str       pre     readline unsafe (?IO)\
 \\n   List      pre     readline unsafe (?IO)\
 \\n   Str       pre     getc     unsafe (?IO)\
-\\n   Int       pre     int     safe   (?Int=$_)\
+\\n   Int       pre     int     safe   (Int)\
 \\n   List      pre     list    safe   (List)\
 \\n   Hash      pre     hash    safe   (List)\
 \\n   List      pre     pair    safe   (List)\
@@ -1538,17 +1538,17 @@ initSyms = mapM primDecl syms
 \\n   List      post    ...     safe   (Scalar)\
 \\n   Any       pre     undef     safe   ()\
 \\n   Any       pre     undefine  safe   (?rw!Any)\
-\\n   Str       pre     chop    safe   (?Str=$_)\
-\\n   Str       pre     chomp   safe   (?Str=$_)\
+\\n   Str       pre     chop    safe   (Str)\
+\\n   Str       pre     chomp   safe   (Str)\
 \\n   Any       right   =       safe   (rw!Any, Any)\
 \\n   Int       pre     index   safe   (Str, Str, ?Int=0)\
 \\n   Int       pre     rindex  safe   (Str, Str, ?Int)\
 \\n   Int       pre     substr  safe   (rw!Str, Int, ?Int, ?Str)\
-\\n   Str       pre     lc      safe   (?Str=$_)\
-\\n   Str       pre     lcfirst safe   (?Str=$_)\
-\\n   Str       pre     uc      safe   (?Str=$_)\
-\\n   Str       pre     ucfirst safe   (?Str=$_)\
-\\n   Str       pre     capitalize safe   (?Str=$_)\
+\\n   Str       pre     lc      safe   (Str)\
+\\n   Str       pre     lcfirst safe   (Str)\
+\\n   Str       pre     uc      safe   (Str)\
+\\n   Str       pre     ucfirst safe   (Str)\
+\\n   Str       pre     capitalize safe   (Str)\
 \\n   Str       post    ++      safe   (rw!Str)\
 \\n   Str       post    --      safe   (rw!Str)\
 \\n   Num       post    ++      safe   (rw!Num)\
@@ -1611,10 +1611,10 @@ initSyms = mapM primDecl syms
 \\n   Any       pre     Pugs::Internals::eval_yaml    safe   (Str)\
 \\n   Any       pre     Pugs::Internals::emit_yaml    unsafe   (rw!Any)\
 \\n   Str       pre     yaml    safe   (rw!Any|Junction|Pair)\
-\\n   Any       pre     Pugs::Internals::require unsafe (?Str=$_)\
-\\n   Any       pre     Pugs::Internals::use     unsafe (?Str=$_)\
-\\n   Any       pre     require unsafe (?Str=$_)\
-\\n   Any       pre     use     unsafe (?Str=$_)\
+\\n   Any       pre     Pugs::Internals::require unsafe (Str)\
+\\n   Any       pre     Pugs::Internals::use     unsafe (Str)\
+\\n   Any       pre     require unsafe (Str)\
+\\n   Any       pre     use     unsafe (Str)\
 \\n   Any       pre     require_haskell unsafe (Str)\
 \\n   Any       pre     require_parrot  unsafe (Str)\
 \\n   Any       pre     require_perl5   unsafe (Str)\
@@ -1654,7 +1654,7 @@ initSyms = mapM primDecl syms
 \\n   Socket    pre     listen  unsafe (Int)\
 \\n   Socket    pre     connect unsafe (Str, Int)\
 \\n   Any       pre     accept  unsafe (Any)\
-\\n   List      pre     slurp   unsafe (?Str=$_)\
+\\n   List      pre     slurp   unsafe (Str)\
 \\n   List      pre     slurp   unsafe (Handle)\
 \\n   List      pre     readdir unsafe (Str)\
 \\n   Bool      pre     Pugs::Internals::exec    unsafe (Str, Bool, List)\
@@ -1675,15 +1675,15 @@ initSyms = mapM primDecl syms
 \\n   Junction  pre     one     safe   (List)\
 \\n   Junction  pre     none    safe   (List)\
 \\n   Bool      pre     sleep   unsafe (Int)\
-\\n   Bool      pre     rmdir   unsafe (?Str=$_)\
+\\n   Bool      pre     rmdir   unsafe (Str)\
 \\n   Bool      pre     mkdir   unsafe (Str)\
 \\n   Bool      pre     chdir   unsafe (Str)\
 \\n   Int       pre     elems   safe   (Array)\
 \\n   Int       pre     List::end     safe   (Array)\
-\\n   Int       pre     graphs  safe   (?Str=$_)\
-\\n   Int       pre     codes   safe   (?Str=$_)\
-\\n   Int       pre     chars   safe   (?Str=$_)\
-\\n   Int       pre     bytes   safe   (?Str=$_)\
+\\n   Int       pre     graphs  safe   (Str)\
+\\n   Int       pre     codes   safe   (Str)\
+\\n   Int       pre     chars   safe   (Str)\
+\\n   Int       pre     bytes   safe   (Str)\
 \\n   Int       pre     chmod   unsafe (Int, List)\
 \\n   Scalar    pre     key     safe   (rw!Pair)\
 \\n   Scalar    pre     value   safe   (rw!Pair)\
@@ -1769,9 +1769,9 @@ initSyms = mapM primDecl syms
 \\n   Scalar    left    or      safe   (Bool, ~Bool)\
 \\n   Scalar    left    xor     safe   (Bool, Bool)\
 \\n   Scalar    left    err     safe   (Bool, ~Bool)\
-\\n   Str       pre     chr     safe   (?Int=$_)\
-\\n   Int       pre     ord     safe   (?Str=$_)\
-\\n   Str       pre     oct     safe   (?Str=$_)\
+\\n   Str       pre     chr     safe   (Int)\
+\\n   Int       pre     ord     safe   (Str)\
+\\n   Str       pre     oct     safe   (Str)\
 \\n   Int       pre     from    safe   (Match)\
 \\n   Int       pre     to      safe   (Match)\
 \\n   List      pre     matches safe   (Match)\
