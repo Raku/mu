@@ -5,7 +5,7 @@ use Test::PIL::Bootstrap;
 
 check_pil();
 
-my $classes = q:to/CLASSES/
+my $classes = q[
 
 ^Foo := ^Class.new({});
 ^Foo.set_superclasses([ ^Object ]);
@@ -25,7 +25,7 @@ my $classes = q:to/CLASSES/
     'Baz::foo('`concat($x)`concat(') -> ')`concat(&?NEXT`($x)) 
 });
 
-CLASSES;
+];
 
 pil_is_eq($classes ~ q:to/CODE/
 $bar := ^Bar.new({});
@@ -43,7 +43,7 @@ CODE,
 
 # a variation on the above
 
-my $classes2 = q:to/CLASSES2/
+my $classes2 = q[
 
 ^Foo := ^Class.new({});
 ^Foo.set_superclasses([ ^Object ]);
@@ -63,7 +63,7 @@ my $classes2 = q:to/CLASSES2/
     'Baz::foo('`concat($x)`concat(') -> ')`concat(&?NEXT`($x`increment())) 
 });
 
-CLASSES2;
+];
 
 pil_is_eq($classes2 ~ q:to/CODE/
 $bar := ^Bar.new({});
