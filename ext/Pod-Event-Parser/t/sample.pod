@@ -28,4 +28,4 @@ This is regular text again
 
 =cut
 
-this is ingored
+this is ignored

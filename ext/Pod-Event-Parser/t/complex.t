@@ -22,7 +22,7 @@ my $start = 0;
 my $fh = open($file_path);
 for =$fh -> $line {
     $start = 1 if $line ~~ rx:perl5/^=pod/;
-    if $start { $expected_output ~= $line }    
+    if $start { $expected_output ~= "$line\n" }    
     $start = 0 if $line ~~ rx:perl5/^=cut/;    
 }
 $fh.close();
