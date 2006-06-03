@@ -31,8 +31,10 @@ plan 67;
     (@a[0,1]) = @a[1,0];
     is(@a[0], 2, "slice assignment swapping two element in the same array");
     is(@a[1], 1, "slice assignment swapping two element in the same array");
+
+    # "slice assignment requires parenthesis"
     eval '@a[0,1] = @a[1,0]';
-    ok($!, "lvalue slice without parens fails");
+    ok($!, "lvalue slice without parens fails", :todo<bug>);
 };
 
 {
@@ -65,15 +67,15 @@ plan 67;
     my @a;
     (@a[1, 2, 3]) = 100, 200, 300;
     is(@a[1], 100, "assigned correct value from list to sliced array");
-    is(@a[2], 200, "... and second");
-    is(@a[3], 300, "... and third");
+    is(@a[2], 200, "... and second", :todo<feature>);
+    is(@a[3], 300, "... and third", :todo<feature>);
     is(@a[0], undef, "won't modify unassigned one");
 
     my @b;
     (@b[2, 1, 0]) = 401, 201, 1;
     is(@b[0], 1, "assigned correct value from list to unsorted sliced array");
-    is(@b[1], 201, "... and second");
-    is(@b[2], 401, "... and third");
+    is(@b[1], 201, "... and second", :todo<feature>);
+    is(@b[2], 401, "... and third", :todo<feature>);
     
 }
 
@@ -93,7 +95,6 @@ plan 67;
     $t = %h;
     is($s, $t, "chained $ = % = list assignment");
 }
-
 {
     # (@b, @a) = (@a, @b) assignment
     my (@a, @b);
