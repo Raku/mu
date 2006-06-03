@@ -32,7 +32,12 @@ ok -w $*PROGRAM_NAME, "-w returns true on writable files";
 if($*OS eq any <MSWin32 mingw msys cygwin>) {
   skip 2, "win32 doesn't have -x";
 } else {
-  ok -x 'pugs', "-x returns true on executable files";
+  if -e $*EXECUTABLE_NAME {
+    ok -x $*EXECUTABLE_NAME, "-x returns true on executable files";
+  }
+  else {
+    skip 1, "'$*EXECUTABLE_NAME' is not present (interactive mode?)";
+  }
   ok -x 't',    "-x returns true on cwd()able directories";
 }
 
