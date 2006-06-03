@@ -1,46 +1,20 @@
 #!/usr/bin/pugs
 
-# taken mostly from Perl 5.8.7-tobe
 use v6;
-
 use Test;
-plan 14;
 
-# not() tests
-# expected values for not() taken from 
-# L<"http://www.nntp.perl.org/group/perl.perl6.language/19397">
+plan 10;
 
-my $not = not();
-my @not = not();
+is(not 1,     False, "not 1 is false");
+is(not -1,    False, "not -1 is false");
+is(!(not 0),  False, "!not 0 is false");
+is(not sub{}, False, 'not sub{} is false');
+is(not "x",   False, 'not "x" is false');
 
-ok ! defined($not), "not() returns undef in scalar context";
-ok ! $not, "not() returns false";
+my $a = 1; is(not $a,    False, 'not $not_var is false');
+my $b = 0; is(!(not $b), False, 'not $false_var is not false');
 
-is(ref @not, "Array", "not() returns Array in array context");
-ok ! @not, "not() returns empty array";
+is( not(not 42), True, "not(not 42) is true");
+is(!not(not  0), True, "not(not  0) is true");
 
-# Various other checks for ! and not
-ok((not 1) == (! 1), "Check not 1 == ! 1");
-ok((not 0) == (! 0), "Check not 0 == ! 0");
-
-# Test the not 1 equals the various falses. Check not 0 too.
-# TODO: add undef below
-
-my $not0 = not 0;
-my $not1 = not 1;
-
-ok $not1 eq '', "'' is false";
-ok $not1 == (), "() is false";
-ok $not1 == 0, "0 is false";
-ok $not0 == 1, "1 is true";
-
-# Test the ! 1 equals the various falses.  Check ! 0 too.
-# TODO: add undef below
-
-$not0 = ! 0;
-$not1 = ! 1;
-
-ok $not1 eq '', "'' is false";
-ok $not1 == (), "() is false";
-ok $not1 == 0, "0 is false";
-ok $not0 == 1, "1 is true";
+is(not True, False, "bare 'True' is not false");
