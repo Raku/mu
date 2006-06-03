@@ -223,6 +223,7 @@ makeOp1 prec sigil con name = prec $ try $ do
     parseFileTestOp = do
         rv <- oneOf fileTestOperatorNames
         lookAhead (satisfy (not . isWordAny))
+        whiteSpace
         return rv
     fullName
         | isAlpha (head name)
