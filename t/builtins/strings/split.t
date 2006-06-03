@@ -57,39 +57,39 @@ split_test split($delimiter, "Perl6::Pugs::Test"),
            q{split $delimiter, Str};
 
 # split with a reg-exp
-split_test split(rx:perl5{,}, "split,me"),
+split_test split(rx:Perl5{,}, "split,me"),
            qw/split me/,
-           q(split rx:perl5{,}, Str);
+           q(split rx:Perl5{,}, Str);
 
 # split on multiple space characters
-split_test split(rx:perl5{\s+}, "Hello World    Goodbye   Mars"),
+split_test split(rx:Perl5{\s+}, "Hello World    Goodbye   Mars"),
            qw/Hello World Goodbye Mars/,
-           q(split rx:perl5{\s+}, Str);
+           q(split rx:Perl5{\s+}, Str);
 
-split_test split(rx:perl5{(\s+)}, "Hello test"),
-           ('Hello', ' ', 'test'),
-           q/split rx:perl5{(\s+)}, Str/;
+split_test split(rx:Perl5{(\s+)}, "Hello test"),
+           ('Hello', ("Hello test" ~~ rx:Perl5{(\s+)}), 'test'),
+           q/split rx:Perl5{(\s+)}, Str/;
 
 split_test "to be || ! to be".split(' '),
            qw/to be || ! to be/,
            q/Str.split(' ')/;
 
-split_test "this will be split".split(rx:perl5{ }),
+split_test "this will be split".split(rx:Perl5{ }),
            qw/this will be split/,
-           q/Str.split(rx:perl5{ })/;
+           q/Str.split(rx:Perl5{ })/;
 
 # split on multiple space characters
-split_test split(rx:perl5{\s+}, "Hello World    Goodbye   Mars", 3),
+split_test split(rx:Perl5{\s+}, "Hello World    Goodbye   Mars", 3),
            ( qw/Hello World/, "Goodbye   Mars" ),
-           q(split rx:perl5{\s+}, Str, limit);
+           q(split rx:Perl5{\s+}, Str, limit);
 
 split_test split(" ", "Hello World    Goodbye   Mars", 3),
            ( qw/Hello World/, "   Goodbye   Mars" ),
            q(split " ", Str, limit);
 
-split_test  "Hello World    Goodbye   Mars".split(rx:perl5{\s+}, 3),
+split_test  "Hello World    Goodbye   Mars".split(rx:Perl5{\s+}, 3),
            ( qw/Hello World/, "Goodbye   Mars" ),
-           q/Str.split(rx:perl5{\s+}, limit)/;
+           q/Str.split(rx:Perl5{\s+}, limit)/;
 
 split_test  "Hello World    Goodbye   Mars".split(" ", 3),
            ( qw/Hello World/, "   Goodbye   Mars" ),
