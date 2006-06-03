@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -cpp -fno-warn-orphans #-}
+{-# OPTIONS_GHC -cpp -fno-warn-orphans -fasm #-}
 --
 -- Module      : Data.ByteString.Lazy.Char8
 -- Copyright   : (c) Don Stewart 2006
