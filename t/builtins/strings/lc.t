@@ -13,7 +13,7 @@ is(lc("ÅÄÖ"), "åäö", "some finnish non-ascii chars");
 is(lc("ÓÒÚÙ"), "óòúù", "accented chars");
 
 $_ = "Hello World"; 
-my $x = lc;
+my $x = .lc;
 is($x, "hello world", 'lc uses $_ as default');
 
 { # test invocant syntax for lc

@@ -54,8 +54,8 @@ for(0, 0.0, 1, 50, 60.0, 99.99, 0.4, 0.6,
     -1, -50, -60.0, -99.99
     ) {
     my $int = __int($_);
-    is(int(), $int, "integral value for $_ is $int");
-    isa_ok(int(), "Int");
+    is(.int, $int, "integral value for $_ is $int");
+    isa_ok(.int, "Int");
 }
 
 # Special values

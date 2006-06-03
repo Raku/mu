@@ -22,7 +22,7 @@ is "ab cD Ef".capitalize,      "Ab Cd Ef",       "works on ordenary string";
 
 
 $_ = "puGS Is cOOl!";
-is capitalize(), "Pugs Is Cool!", 'capitalize() uses \$_ as default';
+is .capitalize, "Pugs Is Cool!", 'capitalize() uses \$_ as default';
 
 # Non-ASCII chars:
 is capitalize("äöü abcä"), "Äöü Abcä", "capitalize() works on non-ASCII chars";

@@ -15,7 +15,7 @@ is(uc("óòúù"), "ÓÒÚÙ", "accented chars");
 
 # given does not return proper value yet
 $_ = "Hello World";
-my $x = uc;
+my $x = .uc;
 is $x, "HELLO WORLD", 'uc uses the default $_';
 
 {   
