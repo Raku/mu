@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 use lib '../Pugs-Compiler-Rule/lib';
-use Test::More tests => 6;
+use Test::More tests => 7;
 use Pugs::Grammar::MiniPerl6;
 use Pugs::Runtime::Match::Ratchet;
 
@@ -35,3 +35,15 @@ is_production_match('return [ "1" ~ $0, "2" ~ $<sym> ]',
 is_production_match('my $a = 1 + 2; return $a - 3;',
 		    "let a = (1 + 2) in\nreturn \$ (a - 3)",
 		    'variable declaration');
+
+is_production_match(q#
+   my $yada = doYada( $<sym> );
+   my $err = Val( VStr( $<sym> ~ " - not yet implemented") );
+   return App(
+    Var( $yada ),
+    Nothing,
+    [ $err, $0 ]
+   )
+#, q#let yada = (doYada sym) in
+let err = (Val (VStr (sym ++ " - not yet implemented"))) in
+return $ (App (Var yada) Nothing [err, capture_0])#, 'full yada example');
