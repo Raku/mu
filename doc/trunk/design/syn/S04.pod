@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 5 May 2006
+  Last Modified: 3 June 2006
   Number: 4
-  Version: 20
+  Version: 21
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -638,18 +638,18 @@ postcircumfix is fine, though.)  Any block with whitespace
 in front of it will be taken as terminating the conditional, even if
 the conditional expression could take another argument.  Therefore
 
-    if -e { say "exists" } { extra() }
-    if -e -> $x { say "exists" } { extra() }
+    if rand { say "exists" } { extra() }
+    if rand -> $x { say "exists" } { extra() }
 
 is always parsed as
 
-    if (-e) { say "exists" }; { extra() }
-    if (-e) -> $x { say "exists" }; { extra() }
+    if (rand) { say "exists" }; { extra() }
+    if (rand) -> $x { say "exists" }; { extra() }
 
 rather than
 
-    if (-e { say "exists" }) { extra() }
-    if (-e (-> $x { say "exists" })) { extra() }
+    if (rand { say "exists" }) { extra() }
+    if (rand (-> $x { say "exists" })) { extra() }
 
 Apart from that, it is illegal to use a bare closure where an
 operator is expected.  (Remove the whitespace if you wish it to be
