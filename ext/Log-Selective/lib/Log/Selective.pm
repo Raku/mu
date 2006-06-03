@@ -26,7 +26,7 @@ sub note(*@msg is copy, *%tags is copy) is export {
 			@msg.push(" at $caller.file() line $caller.line().\n");
 		}
 		print $ERR: @msg;
-		return [~]@msg #but true;
+		return [~] @msg #but true;
 	}
 	return;
 }
