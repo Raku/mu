@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -cpp -fffi -fglasgow-exts -fno-warn-incomplete-patterns -fasm #-}
+{-# OPTIONS_GHC -cpp -fffi -fglasgow-exts -fno-warn-incomplete-patterns -optc-O1 #-}
 --
 -- Module      : ByteString.Lazy
 -- Copyright   : (c) Don Stewart 2006
