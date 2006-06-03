@@ -46,7 +46,7 @@ tightOperators = do
     , listOps   (words " ^ | ")                                 -- Junctive Or
     , optOps optionary                                          -- Named Unary
       ++ preOps (filter (\x -> (x /= "true") && (x /= "not")) namedUnary)
-      ++ optSymOps (map (\x -> ['-', x]) "rwxoRWXOezsfdlpSbctugkTBMAC")
+      ++ optSymOps (map (\x -> ['-', x]) fileTestOperatorNames)
     , noneSyn   (words " is but does ")                         -- Traits
       ++ noneOps (words " cmp <=> .. ^.. ..^ ^..^ till ^till till^ ")  -- Non-chaining Binary
       ++ postOps (words "...")                                  -- Infinite range
@@ -123,14 +123,14 @@ currentTightFunctions :: RuleParser [[String]]
 currentTightFunctions = do
     funs    <- currentFunctions
     let (unary, rest) = (`partition` funs) $ \x -> case x of
-            (_, "pre", [param@MkParam{ paramContext = CxtItem{}, isNamed = False }]) -> True
+            (_, "pre", [MkParam{ paramContext = CxtItem{}, isNamed = False }]) -> True
             _ -> False
         (maybeNullary, notNullary) = (`partition` funs) $ \x -> case x of
             (_, "pre", []) -> True
             _ -> False
         rest' = (`filter` rest) $ \x -> case x of
             (_, _, (_:_:_)) -> True
-            (_, _, [param@MkParam{ paramContext = CxtSlurpy{}, paramName = ('@':_) }]) -> True
+            (_, _, [MkParam{ paramContext = CxtSlurpy{}, paramName = ('@':_) }]) -> True
             _ -> False
         namesFrom = map (\(name, _, _) -> name)
         restNames = Set.fromList $ namesFrom rest'
@@ -156,6 +156,9 @@ currentTightFunctions = do
     -- compilers required to define), because else basic function application
     -- (foo(1,2,3) will get parsed as foo(&infix:<,>(1,&infix:<,>(2,3))) (bad).
     return $ map nub [nullary, optionary, namedUnary, preUnary, postUnary, infixOps]
+
+fileTestOperatorNames :: String
+fileTestOperatorNames = "rwxoRWXOezsfdlpSbctugkTBMAC"
 
 preSyn      :: [String] -> [RuleOperator Exp]
 preSyn      = ops $ makeOp1 Prefix "" Syn
@@ -195,29 +198,42 @@ ops f = map (f . tail) . sort . map (\x -> (chr (0x10FFFF - length x):x))
 
 -- chainOps    = ops $ makeOpChained
 
-makeOp1 :: (RuleParser (Exp -> a) -> b) -> 
+makeOp1 :: (RuleParser (Exp -> Exp) -> RuleOperator Exp) -> 
         String -> 
-        (String -> [Exp] -> a) -> 
+        (String -> [Exp] -> Exp) -> 
         String -> 
-        b
+        RuleOperator Exp
 makeOp1 prec sigil con name = prec $ try $ do
     symbol name
     -- `int(3)+4` should not be parsed as `int((3)+4)`
-    when (isWordAny $ last name) $ try $ choice
-        [ do { char '('; unexpected "(" } 
-        , do { string "=>"; unexpected "=>" } 
-        , return ()
-        ]
-    return $ \x -> con fullName $ case x of
-        Syn "" []   -> []
-        _           -> [x]
+    lookAheadLiterals
     where
+    lookAheadLiterals
+        | "-" <- name =
+            -- Horrible, horrible kluge to make "-e" etc work across prec levels.
+            (try parseFileTestOp >>= makeFileTestOp)
+                <|> conOp fullName
+        | isWordAny (last name) = choice autoquoters
+        | otherwise = conOp fullName
+    autoquoters = 
+        [ char '(' >> unexpected "(" 
+        , string "=>" >> unexpected "=>"
+        , conOp fullName
+        ]
+    parseFileTestOp = do
+        rv <- oneOf fileTestOperatorNames
+        ruleWs
+        return rv
     fullName
         | isAlpha (head name)
-        , sigil == "&prefix:"
+        , "&prefix:" <- sigil
         = ('&':name)
         | otherwise
         = sigil ++ name
+    makeFileTestOp ch = conOp ("&prefix:-" ++ [ch])
+    conOp name = return $ \x -> case x of
+        Syn "" []   -> con name []
+        _           -> con name [x]
 
 -- Just for the ".=" rewriting
 makeOp2Rewrite :: Assoc -> 
@@ -225,7 +241,7 @@ makeOp2Rewrite :: Assoc ->
            (String -> [Exp] -> Exp) -> 
            String -> 
            RuleOperator Exp
-makeOp2Rewrite prec sigil con name = (`Infix` prec) $ do
+makeOp2Rewrite prec _ con name = (`Infix` prec) $ do
     symbol name
     insertIntoPosition '.' -- "$x .= foo" becomes "$x .= .foo"
     return $ \invExp argExp -> case argExp of

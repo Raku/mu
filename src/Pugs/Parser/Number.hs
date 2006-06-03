@@ -11,14 +11,15 @@ parseNatOrRat :: String -> Either ParseError (Either Integer (Ratio Integer))
 parseNatOrRat s = runParser naturalOrRat () "" s
 
 naturalOrRat :: GenParser Char st (Either Integer (Ratio Integer))
-naturalOrRat  = (<?> "number") $ do
-    sig <- sign
-    num <- natRat
+naturalOrRat  = natRat <?> "number"
+    -- sig <- sign
+    {-
     return $ if sig
         then num
         else case num of
             Left i  -> Left $ -i
             Right d -> Right $ -d
+    -}
     where
     natRat = do
             try (char '0' >> zeroNumRat)

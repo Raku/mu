@@ -488,7 +488,7 @@ fraction        = do{ char '.'
                     op d f    = (f + fromIntegral (digitToInt d))/10.0
                     
 exponent'       = do{ oneOf "eE"
-                    ; f <- sign
+                    ; f <- sign'
                     ; e <- decimal <?> "exponent"
                     ; return (power (f e))
                     }
@@ -499,13 +499,15 @@ exponent'       = do{ oneOf "eE"
 
 
 -- integers and naturals
-int             = do{ f <- lexeme sign
+int             = nat 
+{-do{ f <- lexeme sign
                     ; n <- nat
                     ; return (f n)
                     }
+                    -}
                     
 -- sign            :: CharParser st (Integer -> Integer)
-sign            =   (char '-' >> return negate) 
+sign'           =   (char '-' >> return negate) 
                 <|> (char '+' >> return id)     
                 <|> return id
 
