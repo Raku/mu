@@ -40,11 +40,11 @@ tightOperators = do
       ++ postOps postUnary
     , leftOps   (words " * / % x xx +& +< +> ~& ~< ~> ")        -- Multiplicative
     , leftOps   (words " + - ~ +| +^ ~| ~^ ?| ")                -- Additive
-      ++ leftOps infixOps                                       -- User defined ops
+      ++ leftOps (filter (/= ",") infixOps)                     -- User defined ops
     , listOps   ["&"]                                           -- Junctive And
     , listOps   (words " ^ | ")                                 -- Junctive Or
     , optOps optionary                                          -- Named Unary
-      ++ preOps namedUnary
+      ++ preOps (filter (\x -> (x /= "true") && (x /= "not")) namedUnary)
       ++ optSymOps (map (\x -> ['-', x]) "rwxoRWXOezsfdlpSbctugkTBMAC")
     , noneSyn   (words " is but does ")                         -- Traits
       ++ noneOps (words " cmp <=> .. ^.. ..^ ^..^ till ^till till^ ")  -- Non-chaining Binary
@@ -61,6 +61,7 @@ tightOperators = do
                " = := ::= " ++
                " ~= += -= *= /= %= x= Y= \xA5= **= xx= ||= &&= //= ^^= " ++
                " +<= +>= ~<= ~>= +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= "))
+    , preOps ["true", "not"]                                    -- Loose unary
     ]
 
 looseOperators :: RuleParser (RuleOperatorTable Exp)
@@ -153,9 +154,7 @@ currentTightFunctions = do
     -- Hack: Filter out &infix:<,> (which are most Preludes for PIL -> *
     -- compilers required to define), because else basic function application
     -- (foo(1,2,3) will get parsed as foo(&infix:<,>(1,&infix:<,>(2,3))) (bad).
-    return $ map (filter (/= ",") . nub) $
-        [nullary, optionary, namedUnary, preUnary, postUnary, infixOps]
-
+    return $ map nub [nullary, optionary, namedUnary, preUnary, postUnary, infixOps]
 
 preSyn      :: [String] -> [RuleOperator Exp]
 preSyn      = ops $ makeOp1 Prefix "" Syn

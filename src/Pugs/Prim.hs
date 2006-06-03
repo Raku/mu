@@ -211,6 +211,7 @@ op1 "\\"   = \v -> do
         _           -> VRef . scalarRef $ v
 op1 "^" = op2RangeExclRight (VNum 0)
 op1 "post:..."  = op1Range
+op1 "not"  = op1 "!"
 op1 "true" = op1 "?"
 op1 "any"  = op1Cast opJuncAny
 op1 "all"  = op1Cast opJuncAll
@@ -1556,7 +1557,7 @@ initSyms = mapM primDecl syms
 \\n   Str       spre    --      safe   (rw!Str)\
 \\n   Num       spre    ++      safe   (rw!Num)\
 \\n   Num       spre    --      safe   (rw!Num)\
-\\n   Bool      pre     not     safe   (List)\
+\\n   Bool      pre     not     safe   (Bool)\
 \\n   Bool      pre     true    safe   (Bool)\
 \\n   List      pre     gather  safe   (Code)\
 \\n   List      pre     map     safe   (Code, List)\
