@@ -9,11 +9,11 @@ has @.spans;
 submethod BUILD ( @.spans ) {}
 
 method empty_set ($class: ) returns Set::Infinite::Functional {
-    $class.new( spans => () );
+    $class.new( spans => [] );
 }
 
 method universal_set ($class: ) returns Set::Infinite::Functional {
-    $class.new( spans => Span.new( start => -Inf, end => Inf ) );
+    $class.new( spans => [Span.new( start => -Inf, end => Inf )] );
 }
 
 method is_empty () returns bool { return ! @.spans }
