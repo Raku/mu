@@ -2,30 +2,30 @@
 module Pugs.Parser.Number (
     parseNatOrRat,
     naturalOrRat,
+    signedNaturalOrRat,
 ) where
 import Pugs.Internals
 import Pugs.Rule
 import Text.ParserCombinators.Parsec.Char
 
 parseNatOrRat :: String -> Either ParseError (Either Integer (Ratio Integer))
-parseNatOrRat s = runParser naturalOrRat () "" s
+parseNatOrRat s = runParser signedNaturalOrRat () "" s
+
+signedNaturalOrRat :: GenParser Char st (Either Integer (Ratio Integer))
+signedNaturalOrRat = do
+    sig <- sign
+    if sig then naturalOrRat else do
+        num <- naturalOrRat
+        return $ case num of
+            Left i  -> Left (-i)
+            Right d -> Right (-d)
 
 naturalOrRat :: GenParser Char st (Either Integer (Ratio Integer))
-naturalOrRat  = natRat <?> "number"
-    -- sig <- sign
-    {-
-    return $ if sig
-        then num
-        else case num of
-            Left i  -> Left $ -i
-            Right d -> Right $ -d
-    -}
+naturalOrRat = (<?> "number") $ do
+        try (char '0' >> zeroNumRat)
+    <|> decimalRat
+    <|> fractRatOnly
     where
-    natRat = do
-            try (char '0' >> zeroNumRat)
-        <|> decimalRat
-        <|> fractRatOnly
-
     zeroNumRat = do
             n <- hexadecimal <|> decimal <|> octalBad <|> octal <|> binary
             return (Left n)
@@ -74,10 +74,6 @@ naturalOrRat  = natRat <?> "number"
         power e | e < 0      = 1 % (10^abs(e))
                 | otherwise  = (10^e) % 1
 
-    sign            =   (char '-' >> return False)
-                    <|> (char '+' >> return True)
-                    <|> return True
-
     decimalLiteral         = number 10
     hexadecimal     = do{ char 'x'; number 16  }
     decimal         = do{ char 'd'; number 10  }
@@ -106,4 +102,10 @@ naturalOrRat  = natRat <?> "number"
             | c >= 'a' && c <= 'z'  = fromEnum c - fromEnum 'a' + 10
             | c >= 'A' && c <= 'Z'  = fromEnum c - fromEnum 'A' + 10
             | otherwise             = error "b36DigitToInt: not a base 36 digit"
+
+sign :: GenParser Char st Bool
+sign = (char '-' >> return False)
+   <|> (char '+' >> return True)
+   <|> return True
+
 
