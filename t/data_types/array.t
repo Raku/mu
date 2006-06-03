@@ -9,7 +9,7 @@ Arrays
 
 =cut
 
-plan 67;
+plan 66;
 
 # array of strings
 
