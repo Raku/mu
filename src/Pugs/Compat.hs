@@ -68,13 +68,14 @@ import qualified System.Posix.Signals
 doesExist :: FilePath -> IO Bool
 doesExist = fileExist
 
+testStatusWith :: (FileStatus -> Bool) -> FilePath -> IO Bool
+testStatusWith t f = fmap t (getFileStatus f) `catch` const (return False)
+
 doesFileExist :: FilePath -> IO Bool
-doesFileExist f = do
-    rv <- (fmap isRegularFile . getFileStatus) f
-    return rv
+doesFileExist = testStatusWith isRegularFile
 
 doesDirectoryExist :: FilePath -> IO Bool
-doesDirectoryExist = fmap isDirectory . getFileStatus
+doesDirectoryExist = testStatusWith isDirectory
 
 getCurrentDirectory :: IO FilePath
 getCurrentDirectory = getWorkingDirectory
