@@ -23,7 +23,7 @@ exportSym scope ('&':subname) ref = do
             mkSym = Sym scope (mkMulti name) mkExp
         doExport scope mkSym
     return $ case scope of
-        SMy -> Pad SMy (foldl unionPads (mkPad []) [ pad | Pad SMy pad _ <- exps ]) emptyExp
+        SMy -> Pad SState (foldl unionPads (mkPad []) [ pad | Pad SMy pad _ <- exps ]) emptyExp
         _   -> emptyExp 
 exportSym _ _ _ = fail "notyet"
 --exportSym' scope name sym = other vars...
