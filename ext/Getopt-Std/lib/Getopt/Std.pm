@@ -1,6 +1,6 @@
 use v6;
 
-class Getopt::Std-0.01;
+class Getopt::Std-0.0.1;
 
 sub getopts (Str $spec, @args? is rw = @*ARGS) is export {
     my @skipped;
