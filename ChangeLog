@@ -1,10 +1,24 @@
-= Changes for 6.2.12 (rXXXXX) - May XX, 2006
+= Changes for 6.2.12 (rXXXXX) - June XX, 2006 *** up to r9800 excluding updates to misc/ ***
 
 == Bundled Modules
+
+=== New Perl 5 modules
+
+* `v6.pm`: `use v6; say "Perl 6"; no v6; print "Perl 5"`
+* Module::Compile - precompile Perl 5 modules transparently
+* Pugs::Compiler::Rule - Compiler for Perl 6 Rules
+
 
 === New Perl 6 modules
 
 * [ext/Relation/]: Relation type for Perl 6 (incomplete).
+* Getopt::Std - simple command-line parsing
+
+
+=== New Haskell modules
+
+* `HsSyck` - Haskell bindings to `syck` 0.61, a fast YAML library in c.
+* `HsJudy` - Haskell bindings to `Judy` 1/0/3, a fast collections library in c
 
 === Updated modules
 
@@ -20,16 +34,42 @@
 
 === Experimental modules (in misc/, not installed)
 
+== pX effort [XXX: please putter, fglock, etc., fill this in]
 
 == Test, Examples and Documentations
 
 * Restored this ChangeLog's entries for v6.0.0 thru v6.0.8, which were
 truncated in r8916, apparently from gnome's copy-paste buffer limit.
+* [docs/Perl6/Doc] hierarchy, installable `Perl6::Doc`.
+* Gaal's OSDC talk "A Peek into Pugs Internals" in `docs/talks/peek.spork`.
+* Juerd's talk "Perl 6 Myths" in `/docs/talks/p6myths2.html`.
+
+
 
 == Feature Changes
 
+=== Shared components
+
+* Pugs builds in a single pass.
+* Use `Data.ByteString` instead of `Data.FastPackedString` for fast
+  string representation
+* Compile `Prelude.pm`, and possibly additional modules, to YAML bytecode
+  for faster loading
+** `pugs -CParse-YAML -e '$your_oneliner' > precomp.yml` backend
+* Broke down Parser.hs and AST.Internals.hs to smaller files, making
+  rebuilds faster.
+* q:code {...} gives ASTs in macros
+* readline and =$fh autochomp: they are now complements to &say, not &print.
+* `make upload-smoke` now uploads smoke test automatically.
+
 
 == Bug Fixes
+
+* @foo.perl works correctly when @foo is recursive
+* slurp utf8 files correctly
+* openFile now turns the autoflushing bit on with a file, as
+  otherwise it doesn't get closed upon program exit.
+* short-circuit operators didn't. Fixed.
 
 
 == Backends
