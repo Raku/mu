@@ -27,12 +27,14 @@ module Data.ByteString.Base (
         unsafeDrop,             -- :: Int -> ByteString -> ByteString
 
         -- * Low level introduction and elimination
-        generate,               -- :: Int -> (Ptr Word8 -> IO Int) -> IO ByteString
-        create,                 -- :: Int -> (Ptr Word8 -> IO ()) -> ByteString
-        mallocByteString,
+        create,                 -- :: Int -> (Ptr Word8 -> IO ()) -> IO ByteString
+        createAndTrim,          -- :: Int -> (Ptr Word8 -> IO Int) -> IO  ByteString
+        createAndTrim',         -- :: Int -> (Ptr Word8 -> IO (Int, Int, a)) -> IO (ByteString, a)
+
+        unsafeCreate,           -- :: Int -> (Ptr Word8 -> IO ()) ->  ByteString
+
         fromForeignPtr,         -- :: ForeignPtr Word8 -> Int -> ByteString
         toForeignPtr,           -- :: ByteString -> (ForeignPtr Word8, Int, Int)
-        skipIndex,              -- :: ByteString -> Int
 
 #if defined(__GLASGOW_HASKELL__)
         packCStringFinalizer,   -- :: Ptr Word8 -> Int -> IO () -> IO ByteString
@@ -47,7 +49,7 @@ module Data.ByteString.Base (
         countOccurrences,           -- :: (Storable a, Num a) => Ptr a -> Ptr Word8 -> Int -> IO ()
 
         -- * Standard C Functions
-        c_strlen,                   -- :: CString -> CInt
+        c_strlen,                   -- :: CString -> IO CInt
         c_malloc,                   -- :: CInt -> IO (Ptr Word8)
         c_free,                     -- :: Ptr Word8 -> IO ()
 
@@ -55,17 +57,18 @@ module Data.ByteString.Base (
         c_free_finalizer,           -- :: FunPtr (Ptr Word8 -> IO ())
 #endif
 
-        memchr,                     -- :: Ptr Word8 -> Word8 -> CSize -> Ptr Word8
+        memchr,                     -- :: Ptr Word8 -> Word8 -> CSize -> IO Ptr Word8
         memcmp,                     -- :: Ptr Word8 -> Ptr Word8 -> CSize -> IO CInt
         memcpy,                     -- :: Ptr Word8 -> Ptr Word8 -> CSize -> IO ()
+        memmove,                    -- :: Ptr Word8 -> Ptr Word8 -> CSize -> IO ()
         memset,                     -- :: Ptr Word8 -> Word8 -> CSize -> IO (Ptr Word8)
 
         -- * cbits functions
         c_reverse,                  -- :: Ptr Word8 -> Ptr Word8 -> CInt -> IO ()
         c_intersperse,              -- :: Ptr Word8 -> Ptr Word8 -> CInt -> Word8 -> IO ()
-        c_maximum,                  -- :: Ptr Word8 -> CInt -> Word8
-        c_minimum,                  -- :: Ptr Word8 -> CInt -> Word8
-        c_count,                    -- :: Ptr Word8 -> CInt -> Word8 -> CInt
+        c_maximum,                  -- :: Ptr Word8 -> CInt -> IO Word8
+        c_minimum,                  -- :: Ptr Word8 -> CInt -> IO Word8
+        c_count,                    -- :: Ptr Word8 -> CInt -> Word8 -> IO CInt
 
         -- * Internal GHC magic
 #if defined(__GLASGOW_HASKELL__)
@@ -140,14 +143,16 @@ data ByteString = PS {-# UNPACK #-} !(ForeignPtr Word8)
 -- check for the empty case, so there is an obligation on the programmer
 -- to provide a proof that the ByteString is non-empty.
 unsafeHead :: ByteString -> Word8
-unsafeHead (PS x s _) = inlinePerformIO $ withForeignPtr x $ \p -> peekByteOff p s
+unsafeHead (PS x s l) = assert (l > 0) $
+    inlinePerformIO $ withForeignPtr x $ \p -> peekByteOff p s
 {-# INLINE unsafeHead #-}
 
 -- | A variety of 'tail' for non-empty ByteStrings. 'unsafeTail' omits the
 -- check for the empty case. As with 'unsafeHead', the programmer must
 -- provide a separate proof that the ByteString is non-empty.
 unsafeTail :: ByteString -> ByteString
-unsafeTail (PS ps s l) = PS ps (s+1) (l-1)
+unsafeTail (PS ps s l) = assert (l > 0) $
+    PS ps (s+1) (l-1)
 {-# INLINE unsafeTail #-}
 
 -- | Unsafe 'ByteString' index (subscript) operator, starting from 0, returning a 'Word8'
@@ -155,7 +160,8 @@ unsafeTail (PS ps s l) = PS ps (s+1) (l-1)
 -- obligation on the programmer to ensure the bounds are checked in some
 -- other way.
 unsafeIndex :: ByteString -> Int -> Word8
-unsafeIndex (PS x s _) i = inlinePerformIO $ withForeignPtr x $ \p -> peekByteOff p (s+i)
+unsafeIndex (PS x s l) i = assert (i >= 0 && i < l) $
+    inlinePerformIO $ withForeignPtr x $ \p -> peekByteOff p (s+i)
 {-# INLINE unsafeIndex #-}
 
 -- | A variety of 'take' which omits the checks on @n@ so there is an
@@ -183,66 +189,55 @@ fromForeignPtr fp l = PS fp 0 l
 toForeignPtr :: ByteString -> (ForeignPtr Word8, Int, Int)
 toForeignPtr (PS ps s l) = (ps, s, l)
 
--- | /O(1)/ 'skipIndex' returns the internal skipped index of the
--- current 'ByteString' from any larger string it was created from, as
--- an 'Int'.
-skipIndex :: ByteString -> Int
-skipIndex (PS _ s _) = s
-{-# INLINE skipIndex #-}
+-- | A way of creating ByteStrings outside the IO monad. The @Int@
+-- argument gives the final size of the ByteString. Unlike
+-- 'createAndTrim' the ByteString is not reallocated if the final size
+-- is less than the estimated size.
+unsafeCreate :: Int -> (Ptr Word8 -> IO ()) -> ByteString
+unsafeCreate l f = unsafePerformIO (create l f)
+{-# INLINE unsafeCreate #-}
 
--- | A way of creating ForeignPtrs outside the IO monad. The @Int@
--- argument gives the final size of the ByteString. Unlike 'generate'
--- the ByteString is not reallocated if the final size is less than the
--- estimated size. Also, unlike 'generate' ByteString's created this way
--- are managed on the Haskell heap.
-create :: Int -> (Ptr Word8 -> IO ()) -> ByteString
-create l write_ptr = inlinePerformIO $ do
-    fp <- mallocByteString (l+1)
-    withForeignPtr fp $ \p -> write_ptr p
-    return $ PS fp 0 l
-{-# INLINE create #-}
+-- | Wrapper of mallocForeignPtrBytes. Any ByteString allocated this way
+-- is padded with a null byte. 
+create :: Int -> (Ptr Word8 -> IO ()) -> IO ByteString
+create l f = do
+    fp <- mallocForeignPtrBytes (l+1)
+    withForeignPtr fp $ \p -> do
+        f p
+        pokeByteOff p l (0::Word8) -- i.e. touch the last cache line last
+        return $! PS fp 0 l
 
 -- | Given the maximum size needed and a function to make the contents
--- of a ByteString, generate makes the 'ByteString'. The generating
+-- of a ByteString, createAndTrim makes the 'ByteString'. The generating
 -- function is required to return the actual final size (<= the maximum
 -- size), and the resulting byte array is realloced to this size.  The
 -- string is padded at the end with a null byte.
 --
--- generate is the main mechanism for creating custom, efficient
+-- createAndTrim is the main mechanism for creating custom, efficient
 -- ByteString functions, using Haskell or C functions to fill the space.
 --
-generate :: Int -> (Ptr Word8 -> IO Int) -> IO ByteString
-generate i f = do
-    fp      <- mallocByteString i
-    (ptr,n) <- withForeignPtr fp $ \p -> do
-        i' <- f p
-        if i' == i
-            then return (fp,i')
-            else do fp_ <- mallocByteString i'      -- realloc
-                    withForeignPtr fp_ $ \p' -> memcpy p' p (fromIntegral i')
-                    return (fp_,i')
-    return (PS ptr 0 n)
+createAndTrim :: Int -> (Ptr Word8 -> IO Int) -> IO ByteString
+createAndTrim len f = do
+    fp <- mallocForeignPtrBytes (len+1)
+    withForeignPtr fp $ \p -> do
+        len' <- f p
+        if assert (len' <= len) $ len' >= len
+            then do poke (p `plusPtr` len) (0::Word8)
+                    return $! PS fp 0 len
+            else create len' $ \p' ->
+                    memcpy p' p (fromIntegral len')
 
--- Wrapper of mallocForeignPtrArray. Any ByteString allocated this way
--- is padded with a null byte.
-mallocByteString :: Int -> IO (ForeignPtr Word8)
-mallocByteString l = do
-    fp <- mallocForeignPtrArray (l+1)
-    withForeignPtr fp $ \p -> poke (p `plusPtr` l) (0::Word8)
-    return fp
-
-{-
---
--- On the C malloc heap. Less fun.
---
-generate i f = do
-    p <- mallocArray (i+1)
-    i' <- f p
-    p' <- reallocArray p (i'+1)
-    poke (p' `plusPtr` i') (0::Word8)    -- XXX so CStrings work
-    fp <- newForeignFreePtr p'
-    return $ PS fp 0 i'
--}
+createAndTrim' :: Int -> (Ptr Word8 -> IO (Int, Int, a)) -> IO (ByteString, a)
+createAndTrim' len f = do
+    fp <- mallocForeignPtrBytes (len+1)
+    withForeignPtr fp $ \p -> do
+        (off, len', res) <- f p
+        if assert (len' <= len) $ len' >= len
+            then do poke (p `plusPtr` len) (0::Word8)
+                    return $! (PS fp 0 len, res)
+            else do ps <- create len' $ \p' ->
+                            memcpy p' (p `plusPtr` off) (fromIntegral len')
+                    return $! (ps, res)
 
 #if defined(__GLASGOW_HASKELL__)
 -- | /O(n)/ Pack a null-terminated sequence of bytes, pointed to by an
@@ -262,7 +257,8 @@ generate i f = do
 packAddress :: Addr# -> ByteString
 packAddress addr# = inlinePerformIO $ do
     p <- newForeignPtr_ cstr
-    return $ PS p 0 (fromIntegral $ c_strlen cstr)
+    l <- c_strlen cstr
+    return $ PS p 0 (fromIntegral l)
   where
     cstr = Ptr addr#
 {-# INLINE packAddress #-}
@@ -364,7 +360,7 @@ countOccurrences counts str l = go 0
 --
 
 foreign import ccall unsafe "string.h strlen" c_strlen
-    :: CString -> CInt
+    :: CString -> IO CInt
 
 foreign import ccall unsafe "stdlib.h malloc" c_malloc
     :: CInt -> IO (Ptr Word8)
@@ -378,12 +374,15 @@ foreign import ccall unsafe "static stdlib.h &free" c_free_finalizer
 #endif
 
 foreign import ccall unsafe "string.h memchr" memchr
-    :: Ptr Word8 -> Word8 -> CSize -> Ptr Word8
+    :: Ptr Word8 -> Word8 -> CSize -> IO (Ptr Word8)
 
 foreign import ccall unsafe "string.h memcmp" memcmp
     :: Ptr Word8 -> Ptr Word8 -> CSize -> IO CInt
 
 foreign import ccall unsafe "string.h memcpy" memcpy
+    :: Ptr Word8 -> Ptr Word8 -> CSize -> IO ()
+
+foreign import ccall unsafe "string.h memmove" memmove
     :: Ptr Word8 -> Ptr Word8 -> CSize -> IO ()
 
 foreign import ccall unsafe "string.h memset" memset
@@ -402,13 +401,13 @@ foreign import ccall unsafe "static fpstring.h intersperse" c_intersperse
     :: Ptr Word8 -> Ptr Word8 -> CInt -> Word8 -> IO ()
 
 foreign import ccall unsafe "static fpstring.h maximum" c_maximum
-    :: Ptr Word8 -> CInt -> Word8
+    :: Ptr Word8 -> CInt -> IO Word8
 
 foreign import ccall unsafe "static fpstring.h minimum" c_minimum
-    :: Ptr Word8 -> CInt -> Word8
+    :: Ptr Word8 -> CInt -> IO Word8
 
 foreign import ccall unsafe "static fpstring.h count" c_count
-    :: Ptr Word8 -> CInt -> Word8 -> CInt
+    :: Ptr Word8 -> CInt -> Word8 -> IO CInt
 
 -- ---------------------------------------------------------------------
 -- MMap

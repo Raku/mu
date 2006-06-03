@@ -11,9 +11,8 @@
 --
 -- | Functional array fusion for ByteStrings. 
 --
--- From the Data Parallel Haskell project, 
+-- Originally based on code from the Data Parallel Haskell project, 
 --      <http://www.cse.unsw.edu.au/~chak/project/dph>
---
 --
 module Data.ByteString.Fusion (
 
@@ -26,6 +25,14 @@ module Data.ByteString.Fusion (
     -- | This replaces 'loopU' with 'loopUp'
     -- and adds several further special cases of loops.
     loopUp, loopDown, loopNoAcc, loopMap, loopFilter,
+    loopWrapper, sequenceLoops,
+    doUpLoop, doDownLoop, doNoAccLoop, doMapLoop, doFilterLoop,
+
+    -- | These are the special fusion cases for combining each loop form perfectly. 
+    fuseAccAccEFL, fuseAccNoAccEFL, fuseNoAccAccEFL, fuseNoAccNoAccEFL,
+    fuseMapAccEFL, fuseAccMapEFL, fuseMapNoAccEFL, fuseNoAccMapEFL,
+    fuseMapMapEFL, fuseAccFilterEFL, fuseFilterAccEFL, fuseNoAccFilterEFL,
+    fuseFilterNoAccEFL, fuseFilterFilterEFL, fuseMapFilterEFL, fuseFilterMapEFL,
 
     -- * Strict pairs and sums
     PairS(..), MaybeS(..)
@@ -39,6 +46,7 @@ import Foreign.Ptr
 import Foreign.Storable         (Storable(..))
 
 import Data.Word                (Word8)
+import System.IO.Unsafe         (unsafePerformIO)
 
 -- -----------------------------------------------------------------------------
 --
@@ -57,7 +65,7 @@ infixl 2 :*:
 data PairS a b = !a :*: !b deriving (Eq,Ord,Show)
 
 -- |Strict Maybe
-data MaybeS a = NothingS | JustS !a
+data MaybeS a = NothingS | JustS !a deriving (Eq,Ord,Show)
 
 -- |Data type for accumulators which can be ignored. The rewrite rules rely on
 -- the fact that no bottoms of this type are ever constructed; hence, we can
@@ -99,15 +107,26 @@ fuseEFL f g (acc1 :*: acc2) e1 =
 -- 
 
 -- | Element function expressing a mapping only
+#if !defined(LOOPNOACC_FUSION)
 mapEFL :: (Word8 -> Word8) -> AccEFL NoAcc
 mapEFL f = \_ e -> (NoAcc :*: (JustS $ f e))
+#else
+mapEFL :: (Word8 -> Word8) -> NoAccEFL
+mapEFL f = \e -> JustS (f e)
+#endif
 #if defined(__GLASGOW_HASKELL__)
 {-# INLINE [1] mapEFL #-}
 #endif
 
 -- | Element function implementing a filter function only
+#if !defined(LOOPNOACC_FUSION)
 filterEFL :: (Word8 -> Bool) -> AccEFL NoAcc
 filterEFL p = \_ e -> if p e then (NoAcc :*: JustS e) else (NoAcc :*: NothingS)
+#else
+filterEFL :: (Word8 -> Bool) -> NoAccEFL
+filterEFL p = \e -> if p e then JustS e else NothingS
+#endif
+
 #if defined(__GLASGOW_HASKELL__)
 {-# INLINE [1] filterEFL #-}
 #endif
@@ -187,17 +206,12 @@ loopU :: AccEFL acc                 -- ^ mapping & folding, once per elem
       -> ByteString                 -- ^ input ByteString
       -> (PairS acc ByteString)
 
-loopU f start (PS z s i) = inlinePerformIO $ withForeignPtr z $ \a -> do
-    fp          <- mallocByteString i
-    (ptr,n,acc) <- withForeignPtr fp $ \p -> do
-        (acc :*: i') <- go (a `plusPtr` s) p start
-        if i' == i
-            then return (fp,i',acc)                 -- no realloc for map
-            else do fp_ <- mallocByteString i'      -- realloc
-                    withForeignPtr fp_ $ \p' -> memcpy p' p (fromIntegral i')
-                    return (fp_,i',acc)
+loopU f start (PS z s i) = unsafePerformIO $ withForeignPtr z $ \a -> do
+    (ps, acc) <- createAndTrim' i $ \p -> do
+      (acc' :*: i') <- go (a `plusPtr` s) p start
+      return (0, i', acc')
+    return (acc :*: ps)
 
-    return (acc :*: PS ptr 0 n)
   where
     go p ma = trans 0 0
         where
@@ -222,12 +236,6 @@ loopU f start (PS z s i) = inlinePerformIO $ withForeignPtr z $ \a -> do
 "loop/loop fusion!" forall em1 em2 start1 start2 arr.
   loopU em2 start2 (loopArr (loopU em1 start1 arr)) =
     loopSndAcc (loopU (em1 `fuseEFL` em2) (start1 :*: start2) arr)
-
-"loopArr/loopSndAcc" forall x.
-  loopArr (loopSndAcc x) = loopArr x
-
-"seq/NoAcc" forall (u::NoAcc) e.
-  u `seq` e = e
 
   #-}
 
@@ -268,177 +276,30 @@ The point in doing this split is that we might be able to fuse multiple
 loops into a single wrapper. This would save reallocating another buffer.
 It should also give better cache locality by reusing the buffer.
 
-However, just at the moment we're having troubles with ghc RULES.
-Try this module as a test case:
+Note that this stuff needs ghc-6.5 from May 26 or later for the RULES to
+really work reliably.
 
-> module Fuse where
-> import Data.Word (Word8)
-> import qualified Data.ByteString as B
-
-> f :: Word8 -> Word8
-> f x = x
-> {-# NOINLINE f #-}
-
-> foo :: B.ByteString -> B.ByteString
-> foo = B.map f . B.map f . B.map f . B.map f
-
-and compile it using:
-> ghc -c fuse.hs -O -ddump-simpl-stats
-
-We get:
-9 RuleFired
-    3 loop/loop wrapper elimination
-    3 loopArr/loopSndAcc
-    3 up/up loop fusion
-
-which is great, but if you trace which phases these RULES are firing in the
-picture becomes less joyous.
-> ghc -c fuse.hs -O -ddump-simpl-stats -ddump-simpl-iterations | less
-
-==================== Simplifier phase 2, iteration 2 out of 4 ====================
-7 RuleFired
-    3 loop/loop wrapper elimination
-    3 loopArr/loopSndAcc
-    1 up/up loop fusion
-
-Oh no! We're not getting all the up/up loop fusions in the first go.
-
-==================== Simplifier phase 2, iteration 3 out of 4 ====================
-1 RuleFired
-    1 up/up loop fusion
-
-==================== Simplifier phase 2, iteration 4 out of 4 ====================
-1 RuleFired
-    1 up/up loop fusion
-
-Now because this is a small test case we end up with all the loop fusion
-happening in phase 2. However for longer piplines of map . filer . etc
-we would end up with those leaking into the next phase which is bad. It's
-bad because in the next phase we want to start inlining other stuff and doing
-that other inlining would then prevent the fusion rule from firing. We need
-to get the loop fusion rules to happen all in one go as happens with the
-wrapper elimination (by using the helper rule loopArr/loopSndAcc).
-
-It's not clear to me at the moment why the loop fusion rules are not firing.
-I would expect that each one would expose the next in the pipeline and so
-by exhaustively applying the rule we would get them all in one iteration of
-the simplifier. In the wrapper elimination we need the helper rule to be able
-to do it all in one iteration. So perhaps all we need is to find a similar
-helper rule. However from looking at the core I can't see an obvious
-transformation that would expose an opportunity for the rule to match. Indeed
-I can't actually see why the rule doesn't match at the moment. Reading core
-is hard! :-) The expression is rather larger than I expected:
-
-Remember our function 'foo':
-
-foo = B.map f . B.map f . B.map f . B.map f
-
-Here's what the core looks like after the wrapper elimination and one loop
-fusion. We can see that there are two instances of sequenceLoops left. We
-want to know why these didn't match the loop fusion rule:
-
-"up/up loop fusion" forall f1 f2 acc1 acc2.
-  sequenceLoops (doUpLoop f1 acc1) (doUpLoop f2 acc2) =
-    doUpLoop (f1 `fuseAccAccEFL` f2) (acc1 :*: acc2)
-
-anyway, here's the core (slightly tidied up to shorten long names etc)
-
-Fuse.foo =
-  \ (x :: ByteString) ->
-     loopArr
-       @ (PairS (PairS (PairS NoAcc NoAcc) NoAcc) NoAcc)
-       @ ByteString
-       (loopWrapper
-          @ (PairS (PairS (PairS NoAcc NoAcc) NoAcc) NoAcc)
-          (sequenceLoops
-             @ (PairS (PairS NoAcc NoAcc) NoAcc)
-             @ NoAcc
-             (sequenceLoops
-                @ (PairS NoAcc NoAcc)
-                @ NoAcc
-                (let {
-                   f1 :: NoAcc -> Word8 -> PairS NoAcc (MaybeS Word8)
-                   [Arity 2]
-                   f1 = mapEFL Fuse.f } in
-                 let {
-                   f2 :: NoAcc -> Word8 -> PairS NoAcc (MaybeS Word8)
-                   [Arity 2]
-                   f2 = mapEFL Fuse.f
-                 } in
-                   doUpLoop
-                     @ (PairS NoAcc NoAcc)
-                     (fuseAccAccEFL
-                        @ NoAcc @ NoAcc f1 f2)
-                     (:*:
-                        @ NoAcc
-                        @ NoAcc
-                        NoAcc
-                        NoAcc))
-                (doUpLoop
-                   @ NoAcc
-                   (mapEFL Fuse.f)
-                   NoAcc))
-             (doUpLoop
-                @ NoAcc
-                (mapEFL Fuse.f)
-                NoAcc))
-          x)
-
-So here's the thing then, it looks like the rule doesn't match because
-it is not exactly of the form:
-
-sequenceLoops (doUpLoop f1 acc1) (doUpLoop f2 acc2)
-
-it's actually of the form
-
-sequenceLoops (doUpLoop f1 acc1)
-              (let f2 = ...
-                   f3 = ...
-                in doUpLoop (fuseAccAccEFL f2 f3) acc2)
-
-but this is still an ok form we just need to have the rule matching
-look at the body of the let.
-
-But we're saved! This is exactly the
-problem in the rule matching that Simon Peyton Jones fixed in ghc HEAD
-
-Thu May 25 08:44:47 PDT 2006  simonpj@microsoft.com
-  * Make rule-matching robust to lets
-
-  Consider a RULE like
-        forall arr. splitD (joinD arr) = arr
-
-  Until now, this rule would not match code of form
-        splitD (let { d = ... } in joinD (...d...))
-  because the 'let' got in the way.
-
-  This patch makes the rule-matcher robust to lets.  See comments with
-  the Let case of Rules.match.
-
-  This improvement is highly desirable in the fusion rules for NDP
-  stuff that Roman is working on, where we are doing fusion of *overloaded*
-  functions (which may look lazy).  The let expression that Roman tripped
-  up on was a dictioary binding.
-
-And indeed if we test this example and many more complex ones using ghc HEAD
-with the above patch included then we appear to be getting perfect fusion
-and it's all happening in the appropriate phase of the simlifier. Yay!
 -}
 
 loopUp :: AccEFL acc -> acc -> ByteString -> PairS acc ByteString
 loopUp f a arr = loopWrapper (doUpLoop f a) arr
+{-# INLINE loopUp #-}
 
 loopDown :: AccEFL acc -> acc -> ByteString -> PairS acc ByteString
 loopDown f a arr = loopWrapper (doDownLoop f a) arr
+{-# INLINE loopDown #-}
 
 loopNoAcc :: NoAccEFL -> ByteString -> PairS NoAcc ByteString
 loopNoAcc f arr = loopWrapper (doNoAccLoop f NoAcc) arr
+{-# INLINE loopNoAcc #-}
 
 loopMap :: MapEFL -> ByteString -> PairS NoAcc ByteString
 loopMap f arr = loopWrapper (doMapLoop f NoAcc) arr
+{-# INLINE loopMap #-}
 
 loopFilter :: FilterEFL -> ByteString -> PairS NoAcc ByteString
 loopFilter f arr = loopWrapper (doFilterLoop f NoAcc) arr
+{-# INLINE loopFilter #-}
 
 -- The type of imperitive loops that fill in a destination array by
 -- reading a source array. They may not fill in the whole of the dest
@@ -450,26 +311,22 @@ type ImperativeLoop acc =
     Ptr Word8          -- pointer to the start of the source byte array
  -> Ptr Word8          -- pointer to ther start of the destination byte array
  -> Int                -- length of the source byte array
- -> IO (PairS acc Int) -- result and length of destination that was filled
+ -> IO (PairS (PairS acc Int) Int) -- result and offset, length of dest that was filled
 
 loopWrapper :: ImperativeLoop acc -> ByteString -> PairS acc ByteString
-loopWrapper body (PS srcFPtr srcOffset srcLen) =
-  inlinePerformIO $ withForeignPtr srcFPtr $ \srcPtr -> do
-    destFPtr <- mallocByteString srcLen
-    withForeignPtr destFPtr $ \destPtr -> do
-      (acc :*: destLen) <- body (srcPtr `plusPtr` srcOffset) destPtr srcLen
-      if destLen == srcLen
-          then return (acc :*: PS destFPtr 0 destLen)   -- no realloc for map
-          else do destFPtr' <- mallocByteString destLen -- realloc
-                  withForeignPtr destFPtr' $ \destPtr' ->
-                    memcpy destPtr' destPtr (fromIntegral destLen)
-                  return (acc :*: PS destFPtr' 0 destLen)
+loopWrapper body (PS srcFPtr srcOffset srcLen) = unsafePerformIO $
+    withForeignPtr srcFPtr $ \srcPtr -> do
+    (ps, acc) <- createAndTrim' srcLen $ \destPtr -> do
+        (acc :*: destOffset :*: destLen) <-
+          body (srcPtr `plusPtr` srcOffset) destPtr srcLen
+        return (destOffset, destLen, acc)
+    return (acc :*: ps)
 
 doUpLoop :: AccEFL acc -> acc -> ImperativeLoop acc
 doUpLoop f acc0 src dest len = loop 0 0 acc0
   where STRICT3(loop)
         loop src_off dest_off acc
-            | src_off >= len = return (acc :*: dest_off)
+            | src_off >= len = return (acc :*: 0 :*: dest_off)
             | otherwise      = do
                 x <- peekByteOff src src_off
                 case f acc x of
@@ -481,8 +338,8 @@ doDownLoop :: AccEFL acc -> acc -> ImperativeLoop acc
 doDownLoop f acc0 src dest len = loop (len-1) (len-1) acc0
   where STRICT3(loop)
         loop src_off dest_off acc
-            | src_off <  0 = return (acc :*: dest_off)
-            | otherwise    = do
+            | src_off < 0 = return (acc :*: dest_off + 1 :*: len - (dest_off + 1))
+            | otherwise   = do
                 x <- peekByteOff src src_off
                 case f acc x of
                   (acc' :*: NothingS) -> loop (src_off-1) dest_off acc'
@@ -493,7 +350,7 @@ doNoAccLoop :: NoAccEFL -> noAcc -> ImperativeLoop noAcc
 doNoAccLoop f noAcc src dest len = loop 0 0
   where STRICT2(loop)
         loop src_off dest_off
-            | src_off >= len = return (noAcc :*: dest_off)
+            | src_off >= len = return (noAcc :*: 0 :*: dest_off)
             | otherwise      = do
                 x <- peekByteOff src src_off
                 case f x of
@@ -502,20 +359,20 @@ doNoAccLoop f noAcc src dest len = loop 0 0
                            >> loop (src_off+1) (dest_off+1)
 
 doMapLoop :: MapEFL -> noAcc -> ImperativeLoop noAcc
-doMapLoop f noAcc src dest len = loop 0 0
-  where STRICT2(loop)
-        loop src_off dest_off
-            | src_off >= len = return (noAcc :*: len)
+doMapLoop f noAcc src dest len = loop 0
+  where STRICT1(loop)
+        loop n
+            | n >= len = return (noAcc :*: 0 :*: len)
             | otherwise      = do
-                x <- peekByteOff src src_off
-                pokeByteOff dest dest_off (f x)
-                loop (src_off+1) (dest_off+1)
+                x <- peekByteOff src n
+                pokeByteOff dest n (f x)
+                loop (n+1) -- offset always the same, only pass 1 arg
 
 doFilterLoop :: FilterEFL -> noAcc -> ImperativeLoop noAcc
 doFilterLoop f noAcc src dest len = loop 0 0
   where STRICT2(loop)
         loop src_off dest_off
-            | src_off >= len = return (noAcc :*: dest_off)
+            | src_off >= len = return (noAcc :*: 0 :*: dest_off)
             | otherwise      = do
                 x <- peekByteOff src src_off
                 if f x
@@ -525,93 +382,76 @@ doFilterLoop f noAcc src dest len = loop 0 0
 
 -- run two loops in sequence,
 -- think of it as: loop1 >> loop2
-sequenceLoops :: ImperativeLoop acc -> ImperativeLoop acc' -> ImperativeLoop (PairS acc acc')
-sequenceLoops loop1 loop2 src dest len = do
-  (acc  :*: len')  <- loop1 src  dest len
-  (acc' :*: len'') <- loop2 dest dest len'
-  return ((acc  :*: acc') :*: len'')
-  -- note that we are using src == dest for the second loop
-  -- yes, we are mutating the dest array in-place!
+sequenceLoops :: ImperativeLoop acc1
+              -> ImperativeLoop acc2
+              -> ImperativeLoop (PairS acc1 acc2)
+sequenceLoops loop1 loop2 src dest len0 = do
+  (acc1 :*: off1 :*: len1) <- loop1 src dest len0
+  (acc2 :*: off2 :*: len2) <-
+    let src'  = dest `plusPtr` off1
+        dest' = src' -- note that we are using dest == src
+                     -- for the second loop as we are
+                     -- mutating the dest array in-place!
+     in loop2 src' dest' len1
+  return ((acc1  :*: acc2) :*: off1 + off2 :*: len2)
 
   -- TODO: prove that this is associative! (I think it is)
   -- since we can't be sure how the RULES will combine loops.
 
-{-# INLINE loopUp #-}
-{-# INLINE loopDown #-}
-{-# INLINE loopNoAcc #-}
-{-# INLINE loopMap #-}
-{-# INLINE loopFilter #-}
-
 #if defined(__GLASGOW_HASKELL__)
 
-{-# INLINE [1] doUpLoop     #-}
-{-# INLINE [1] doDownLoop   #-}
-{-# INLINE [1] doNoAccLoop  #-}
-{-# INLINE [1] doMapLoop    #-}
-{-# INLINE [1] doFilterLoop #-}
+{-# INLINE [1] doUpLoop             #-}
+{-# INLINE [1] doDownLoop           #-}
+{-# INLINE [1] doNoAccLoop          #-}
+{-# INLINE [1] doMapLoop            #-}
+{-# INLINE [1] doFilterLoop         #-}
 
-{-# INLINE [1] loopWrapper   #-}
-{-# INLINE [1] sequenceLoops #-}
+{-# INLINE [1] loopWrapper          #-}
+{-# INLINE [1] sequenceLoops        #-}
 
-{-# INLINE [1] fuseAccAccEFL #-}
-{-# INLINE [1] fuseAccNoAccEFL #-}
-{-# INLINE [1] fuseNoAccAccEFL #-}
-{-# INLINE [1] fuseNoAccNoAccEFL #-}
-{-# INLINE [1] fuseMapAccEFL #-}
-{-# INLINE [1] fuseAccMapEFL #-}
-{-# INLINE [1] fuseMapNoAccEFL #-}
-{-# INLINE [1] fuseNoAccMapEFL #-}
-{-# INLINE [1] fuseMapMapEFL #-}
-{-# INLINE [1] fuseAccFilterEFL #-}
-{-# INLINE [1] fuseFilterAccEFL #-}
-{-# INLINE [1] fuseNoAccFilterEFL #-}
-{-# INLINE [1] fuseFilterNoAccEFL #-}
-{-# INLINE [1] fuseFilterFilterEFL #-}
-{-# INLINE [1] fuseMapFilterEFL #-}
-{-# INLINE [1] fuseFilterMapEFL #-}
+{-# INLINE [1] fuseAccAccEFL        #-}
+{-# INLINE [1] fuseAccNoAccEFL      #-}
+{-# INLINE [1] fuseNoAccAccEFL      #-}
+{-# INLINE [1] fuseNoAccNoAccEFL    #-}
+{-# INLINE [1] fuseMapAccEFL        #-}
+{-# INLINE [1] fuseAccMapEFL        #-}
+{-# INLINE [1] fuseMapNoAccEFL      #-}
+{-# INLINE [1] fuseNoAccMapEFL      #-}
+{-# INLINE [1] fuseMapMapEFL        #-}
+{-# INLINE [1] fuseAccFilterEFL     #-}
+{-# INLINE [1] fuseFilterAccEFL     #-}
+{-# INLINE [1] fuseNoAccFilterEFL   #-}
+{-# INLINE [1] fuseFilterNoAccEFL   #-}
+{-# INLINE [1] fuseFilterFilterEFL  #-}
+{-# INLINE [1] fuseMapFilterEFL     #-}
+{-# INLINE [1] fuseFilterMapEFL     #-}
 
 #endif
 
 {-# RULES
 
+"loopArr/loopSndAcc" forall x.
+  loopArr (loopSndAcc x) = loopArr x
+
+"seq/NoAcc" forall (u::NoAcc) e.
+  u `seq` e = e
+
 "loop/loop wrapper elimination" forall loop1 loop2 arr.
   loopWrapper loop2 (loopArr (loopWrapper loop1 arr)) =
     loopSndAcc (loopWrapper (sequenceLoops loop1 loop2) arr)
 
+--
+-- n.b in the following, when reading n/m fusion, recall sequenceLoops
+-- is monadic, so its really n >> m fusion (i.e. m.n), not n . m fusion.
+--
 
 "up/up loop fusion" forall f1 f2 acc1 acc2.
   sequenceLoops (doUpLoop f1 acc1) (doUpLoop f2 acc2) =
     doUpLoop (f1 `fuseAccAccEFL` f2) (acc1 :*: acc2)
 
-"down/down loop fusion" forall f1 f2 acc1 acc2.
-  sequenceLoops (doDownLoop f1 acc1) (doDownLoop f2 acc2) =
-    doDownLoop (f1 `fuseAccAccEFL` f2) (acc1 :*: acc2)
-
-"noAcc/noAcc loop fusion" forall f1 f2 acc1 acc2.
-  sequenceLoops (doNoAccLoop f1 acc1) (doNoAccLoop f2 acc2) =
-    doNoAccLoop (f1 `fuseNoAccNoAccEFL` f2) (acc1 :*: acc2)
-
-
-"noAcc/up loop fusion" forall f1 f2 acc1 acc2.
-  sequenceLoops (doNoAccLoop f1 acc1) (doUpLoop f2 acc2) =
-    doUpLoop (f1 `fuseNoAccAccEFL` f2) (acc1 :*: acc2)
-
-"up/noAcc loop fusion" forall f1 f2 acc1 acc2.
-  sequenceLoops (doUpLoop f1 acc1) (doNoAccLoop f2 acc2) =
-    doUpLoop (f1 `fuseAccNoAccEFL` f2) (acc1 :*: acc2)
-
-"noAcc/down loop fusion" forall f1 f2 acc1 acc2.
-  sequenceLoops (doNoAccLoop f1 acc1) (doDownLoop f2 acc2) =
-    doDownLoop (f1 `fuseNoAccAccEFL` f2) (acc1 :*: acc2)
-
-"down/noAcc loop fusion" forall f1 f2 acc1 acc2.
-  sequenceLoops (doDownLoop f1 acc1) (doNoAccLoop f2 acc2) =
-    doDownLoop (f1 `fuseAccNoAccEFL` f2) (acc1 :*: acc2)
-
-
 "map/map loop fusion" forall f1 f2 acc1 acc2.
   sequenceLoops (doMapLoop f1 acc1) (doMapLoop f2 acc2) =
-    doMapLoop (f2 `fuseMapMapEFL` f1) (acc1 :*: acc2)
+    doMapLoop (f1 `fuseMapMapEFL` f2) (acc1 :*: acc2)
 
 "filter/filter loop fusion" forall f1 f2 acc1 acc2.
   sequenceLoops (doFilterLoop f1 acc1) (doFilterLoop f2 acc2) =
@@ -625,15 +465,6 @@ sequenceLoops loop1 loop2 src dest len = do
   sequenceLoops (doFilterLoop f1 acc1) (doMapLoop f2 acc2) =
     doNoAccLoop (f1 `fuseFilterMapEFL` f2) (acc1 :*: acc2)
 
-
-"map/noAcc loop fusion" forall f1 f2 acc1 acc2.
-  sequenceLoops (doMapLoop f1 acc1) (doNoAccLoop f2 acc2) =
-    doNoAccLoop (f1 `fuseMapNoAccEFL` f2) (acc1 :*: acc2)
-
-"noAcc/map loop fusion" forall f1 f2 acc1 acc2.
-  sequenceLoops (doNoAccLoop f1 acc1) (doMapLoop f2 acc2) =
-    doNoAccLoop (f1 `fuseNoAccMapEFL` f2) (acc1 :*: acc2)
-
 "map/up loop fusion" forall f1 f2 acc1 acc2.
   sequenceLoops (doMapLoop f1 acc1) (doUpLoop f2 acc2) =
     doUpLoop (f1 `fuseMapAccEFL` f2) (acc1 :*: acc2)
@@ -641,23 +472,6 @@ sequenceLoops loop1 loop2 src dest len = do
 "up/map loop fusion" forall f1 f2 acc1 acc2.
   sequenceLoops (doUpLoop f1 acc1) (doMapLoop f2 acc2) =
     doUpLoop (f1 `fuseAccMapEFL` f2) (acc1 :*: acc2)
-
-"map/down fusion" forall f1 f2 acc1 acc2.
-  sequenceLoops (doMapLoop f1 acc1) (doDownLoop f2 acc2) =
-    doDownLoop (f1 `fuseMapAccEFL` f2) (acc1 :*: acc2)
-
-"down/map loop fusion" forall f1 f2 acc1 acc2.
-  sequenceLoops (doDownLoop f1 acc1) (doMapLoop f2 acc2) =
-    doDownLoop (f1 `fuseAccMapEFL` f2) (acc1 :*: acc2)
-
-
-"filter/noAcc loop fusion" forall f1 f2 acc1 acc2.
-  sequenceLoops (doFilterLoop f1 acc1) (doNoAccLoop f2 acc2) =
-    doNoAccLoop (f1 `fuseFilterNoAccEFL` f2) (acc1 :*: acc2)
-
-"noAcc/filter loop fusion" forall f1 f2 acc1 acc2.
-  sequenceLoops (doNoAccLoop f1 acc1) (doFilterLoop f2 acc2) =
-    doNoAccLoop (f1 `fuseNoAccFilterEFL` f2) (acc1 :*: acc2)
 
 "filter/up loop fusion" forall f1 f2 acc1 acc2.
   sequenceLoops (doFilterLoop f1 acc1) (doUpLoop f2 acc2) =
@@ -667,6 +481,18 @@ sequenceLoops loop1 loop2 src dest len = do
   sequenceLoops (doUpLoop f1 acc1) (doFilterLoop f2 acc2) =
     doUpLoop (f1 `fuseAccFilterEFL` f2) (acc1 :*: acc2)
 
+"down/down loop fusion" forall f1 f2 acc1 acc2.
+  sequenceLoops (doDownLoop f1 acc1) (doDownLoop f2 acc2) =
+    doDownLoop (f1 `fuseAccAccEFL` f2) (acc1 :*: acc2)
+
+"map/down fusion" forall f1 f2 acc1 acc2.
+  sequenceLoops (doMapLoop f1 acc1) (doDownLoop f2 acc2) =
+    doDownLoop (f1 `fuseMapAccEFL` f2) (acc1 :*: acc2)
+
+"down/map loop fusion" forall f1 f2 acc1 acc2.
+  sequenceLoops (doDownLoop f1 acc1) (doMapLoop f2 acc2) =
+    doDownLoop (f1 `fuseAccMapEFL` f2) (acc1 :*: acc2)
+
 "filter/down fusion" forall f1 f2 acc1 acc2.
   sequenceLoops (doFilterLoop f1 acc1) (doDownLoop f2 acc2) =
     doDownLoop (f1 `fuseFilterAccEFL` f2) (acc1 :*: acc2)
@@ -675,22 +501,51 @@ sequenceLoops loop1 loop2 src dest len = do
   sequenceLoops (doDownLoop f1 acc1) (doFilterLoop f2 acc2) =
     doDownLoop (f1 `fuseAccFilterEFL` f2) (acc1 :*: acc2)
 
+"noAcc/noAcc loop fusion" forall f1 f2 acc1 acc2.
+  sequenceLoops (doNoAccLoop f1 acc1) (doNoAccLoop f2 acc2) =
+    doNoAccLoop (f1 `fuseNoAccNoAccEFL` f2) (acc1 :*: acc2)
 
-"loopArr/loopSndAcc" forall x.
-  loopArr (loopSndAcc x) = loopArr x
+"noAcc/up loop fusion" forall f1 f2 acc1 acc2.
+  sequenceLoops (doNoAccLoop f1 acc1) (doUpLoop f2 acc2) =
+    doUpLoop (f1 `fuseNoAccAccEFL` f2) (acc1 :*: acc2)
 
-"seq/NoAcc" forall (u::NoAcc) e.
-  u `seq` e = e
+"up/noAcc loop fusion" forall f1 f2 acc1 acc2.
+  sequenceLoops (doUpLoop f1 acc1) (doNoAccLoop f2 acc2) =
+    doUpLoop (f1 `fuseAccNoAccEFL` f2) (acc1 :*: acc2)
+
+"map/noAcc loop fusion" forall f1 f2 acc1 acc2.
+  sequenceLoops (doMapLoop f1 acc1) (doNoAccLoop f2 acc2) =
+    doNoAccLoop (f1 `fuseMapNoAccEFL` f2) (acc1 :*: acc2)
+
+"noAcc/map loop fusion" forall f1 f2 acc1 acc2.
+  sequenceLoops (doNoAccLoop f1 acc1) (doMapLoop f2 acc2) =
+    doNoAccLoop (f1 `fuseNoAccMapEFL` f2) (acc1 :*: acc2)
+
+"filter/noAcc loop fusion" forall f1 f2 acc1 acc2.
+  sequenceLoops (doFilterLoop f1 acc1) (doNoAccLoop f2 acc2) =
+    doNoAccLoop (f1 `fuseFilterNoAccEFL` f2) (acc1 :*: acc2)
+
+"noAcc/filter loop fusion" forall f1 f2 acc1 acc2.
+  sequenceLoops (doNoAccLoop f1 acc1) (doFilterLoop f2 acc2) =
+    doNoAccLoop (f1 `fuseNoAccFilterEFL` f2) (acc1 :*: acc2)
+
+"noAcc/down loop fusion" forall f1 f2 acc1 acc2.
+  sequenceLoops (doNoAccLoop f1 acc1) (doDownLoop f2 acc2) =
+    doDownLoop (f1 `fuseNoAccAccEFL` f2) (acc1 :*: acc2)
+
+"down/noAcc loop fusion" forall f1 f2 acc1 acc2.
+  sequenceLoops (doDownLoop f1 acc1) (doNoAccLoop f2 acc2) =
+    doDownLoop (f1 `fuseAccNoAccEFL` f2) (acc1 :*: acc2)
 
   #-}
 
 {-
 
-up = up loop
-down = down loop
-noAcc = noAcc undirectional loop
-map = map special case
-filter = filter special case
+up      = up loop
+down    = down loop
+map     = map special case
+filter  = filter special case
+noAcc   = noAcc undirectional loop (unused)
 
 heirarchy:
   up     down
@@ -746,43 +601,45 @@ down/filter   --> down   fuseAccFilterEFL
 
 fuseAccAccEFL :: AccEFL acc1 -> AccEFL acc2 -> AccEFL (PairS acc1 acc2)
 fuseAccAccEFL f g (acc1 :*: acc2) e1 =
-  case f acc1 e1 of
-    acc1' :*: NothingS -> (acc1' :*: acc2) :*: NothingS
-    acc1' :*: JustS e2 ->
-      case g acc2 e2 of
-        acc2' :*: res -> (acc1' :*: acc2') :*: res
-
+    case f acc1 e1 of
+        acc1' :*: NothingS -> (acc1' :*: acc2) :*: NothingS
+        acc1' :*: JustS e2 ->
+            case g acc2 e2 of
+                acc2' :*: res -> (acc1' :*: acc2') :*: res
 
 fuseAccNoAccEFL :: AccEFL acc -> NoAccEFL -> AccEFL (PairS acc noAcc)
 fuseAccNoAccEFL f g (acc :*: noAcc) e1 =
-  case f acc e1 of
-    acc' :*: NothingS -> (acc' :*: noAcc) :*: NothingS
-    acc' :*: JustS e2 -> (acc' :*: noAcc) :*: g e2
+    case f acc e1 of
+        acc' :*: NothingS -> (acc' :*: noAcc) :*: NothingS
+        acc' :*: JustS e2 -> (acc' :*: noAcc) :*: g e2
 
 fuseNoAccAccEFL :: NoAccEFL -> AccEFL acc -> AccEFL (PairS noAcc acc)
 fuseNoAccAccEFL f g (noAcc :*: acc) e1 =
-  case f e1 of
-    NothingS -> (noAcc :*: acc) :*: NothingS
-    JustS e2 ->
-      case g acc e2 of
-        acc' :*: res -> (noAcc :*: acc') :*: res
+    case f e1 of
+        NothingS -> (noAcc :*: acc) :*: NothingS
+        JustS e2 ->
+            case g acc e2 of
+                acc' :*: res -> (noAcc :*: acc') :*: res
 
 fuseNoAccNoAccEFL :: NoAccEFL -> NoAccEFL -> NoAccEFL
 fuseNoAccNoAccEFL f g e1 =
-  case f e1 of
-    NothingS -> NothingS
-    JustS e2 -> g e2
+    case f e1 of
+        NothingS -> NothingS
+        JustS e2 -> g e2
 
 fuseMapAccEFL :: MapEFL -> AccEFL acc -> AccEFL (PairS noAcc acc)
-fuseMapAccEFL f g (noAcc :*: acc) e1 = 
-  case g acc (f e1) of
-    (acc' :*: res) -> (noAcc :*: acc') :*: res
+fuseMapAccEFL f g (noAcc :*: acc) e1 =
+    case g acc (f e1) of
+        (acc' :*: res) -> (noAcc :*: acc') :*: res
 
 fuseAccMapEFL :: AccEFL acc -> MapEFL -> AccEFL (PairS acc noAcc)
 fuseAccMapEFL f g (acc :*: noAcc) e1 =
     case f acc e1 of
         (acc' :*: NothingS) -> (acc' :*: noAcc) :*: NothingS
         (acc' :*: JustS e2) -> (acc' :*: noAcc) :*: JustS (g e2)
+
+fuseMapMapEFL :: MapEFL -> MapEFL -> MapEFL
+fuseMapMapEFL   f g e1 = g (f e1)     -- n.b. perfect fusion
 
 fuseMapNoAccEFL :: MapEFL -> NoAccEFL -> NoAccEFL
 fuseMapNoAccEFL f g e1 = g (f e1)
@@ -793,54 +650,51 @@ fuseNoAccMapEFL f g e1 =
         NothingS -> NothingS
         JustS e2 -> JustS (g e2)
 
-fuseMapMapEFL :: MapEFL -> MapEFL -> MapEFL
-fuseMapMapEFL f g e1 = g (f e1)
-
 fuseAccFilterEFL :: AccEFL acc -> FilterEFL -> AccEFL (PairS acc noAcc)
 fuseAccFilterEFL f g (acc :*: noAcc) e1 =
-  case f acc e1 of
-    acc' :*: NothingS -> (acc' :*: noAcc) :*: NothingS
-    acc' :*: JustS e2 ->
-      case g e2 of
-        False -> (acc' :*: noAcc) :*: NothingS
-        True  -> (acc' :*: noAcc) :*: JustS e2
+    case f acc e1 of
+        acc' :*: NothingS -> (acc' :*: noAcc) :*: NothingS
+        acc' :*: JustS e2 ->
+            case g e2 of
+                False -> (acc' :*: noAcc) :*: NothingS
+                True  -> (acc' :*: noAcc) :*: JustS e2
 
 fuseFilterAccEFL :: FilterEFL -> AccEFL acc -> AccEFL (PairS noAcc acc)
 fuseFilterAccEFL f g (noAcc :*: acc) e1 =
-  case f e1 of
-    False -> (noAcc :*: acc) :*: NothingS
-    True  ->
-      case g acc e1 of
-        acc' :*: res -> (noAcc :*: acc') :*: res
+    case f e1 of
+        False -> (noAcc :*: acc) :*: NothingS
+        True  ->
+            case g acc e1 of
+                acc' :*: res -> (noAcc :*: acc') :*: res
 
 fuseNoAccFilterEFL :: NoAccEFL -> FilterEFL -> NoAccEFL
 fuseNoAccFilterEFL f g e1 =
-  case f e1 of
-    NothingS -> NothingS
-    JustS e2 ->
-      case g e2 of
-        False -> NothingS
-        True  -> JustS e2
+    case f e1 of
+        NothingS -> NothingS
+        JustS e2 ->
+            case g e2 of
+                False -> NothingS
+                True  -> JustS e2
 
 fuseFilterNoAccEFL :: FilterEFL -> NoAccEFL -> NoAccEFL
 fuseFilterNoAccEFL f g e1 =
-  case f e1 of
-    False -> NothingS
-    True  -> g e1
+    case f e1 of
+        False -> NothingS
+        True  -> g e1
 
 fuseFilterFilterEFL :: FilterEFL -> FilterEFL -> FilterEFL
 fuseFilterFilterEFL f g e1 = f e1 && g e1
 
-
 fuseMapFilterEFL :: MapEFL -> FilterEFL -> NoAccEFL
 fuseMapFilterEFL f g e1 =
-  case f e1 of
-    e2 -> case g e2 of
+    case f e1 of
+        e2 -> case g e2 of
             False -> NothingS
             True  -> JustS e2
 
 fuseFilterMapEFL :: FilterEFL -> MapEFL -> NoAccEFL
 fuseFilterMapEFL f g e1 =
-  case f e1 of
-    False -> NothingS
-    True  -> JustS (g e1)
+    case f e1 of
+        False -> NothingS
+        True  -> JustS (g e1)
+
