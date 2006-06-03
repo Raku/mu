@@ -203,24 +203,30 @@ ruleRuleDeclaration = rule "rule declaration" $ do
 rulePackageBlockDeclaration :: RuleParser Exp
 rulePackageBlockDeclaration = rule "package block declaration" $ do
     -- scope <- option Nothing $ fmap Just ruleScope
-    (_, kind, pkgVal, env) <- try $ do
+    rv <- try $ do
         optional ruleScope -- XXX - not handled yet
         rv <- rulePackageHead
         lookAhead (char '{')
         return rv
-    body <- verbatimBraces ruleBlockBody
-    env' <- ask
-    putRuleEnv env'{ envPackage = envPackage env }
-    return $ Syn "namespace" [kind, pkgVal, body]
+    case rv of 
+        Right (_, kind, pkgVal, env) -> do
+            body <- verbatimBraces ruleBlockBody
+            env' <- ask
+            putRuleEnv env'{ envPackage = envPackage env }
+            return $ Syn "namespace" [kind, pkgVal, body]
+        Left err -> fail err
 
 rulePackageDeclaration :: RuleParser Exp
-rulePackageDeclaration = rule "package declaration" $ try $ do
+rulePackageDeclaration = rule "package declaration" $ do
     -- scope <- option Nothing $ fmap Just ruleScope
-    optional ruleScope -- XXX - not handled yet
-    (_, kind, pkgVal, _) <- rulePackageHead
-    return $ Syn "package" [kind, pkgVal]
+    rv <- try $ do
+        optional ruleScope -- XXX - not handled yet
+        rulePackageHead
+    case rv of
+        Right (_, kind, pkgVal, _) -> return $ Syn "package" [kind, pkgVal]
+        Left err -> fail err
 
-rulePackageHead :: RuleParser (String, Exp, Exp, Env)
+rulePackageHead :: RuleParser (Either String (String, Exp, Exp, Env))
 rulePackageHead = do
     scope <- option Nothing $ fmap Just ruleScope
     sym <- choice $ map symbol (words "package module class role grammar")
@@ -241,13 +247,17 @@ rulePackageHead = do
                        "role"    -> "Class" -- XXX - Wrong - need metamodel
                        "grammar" -> "Grammar"
                        _ -> fail "bug"
-    unsafeEvalExp (newPackage pkgClass newName $ nub ("Object":traits))
-    env <- ask
-    putRuleEnv env{ envPackage = newName,
-                    envClasses = envClasses env `addNode` mkType newName }
-    let pkgVal = Val . VStr $ newName
-        kind   = Val . VStr $ sym
-    return (newName, kind, pkgVal, env)
+        parentClasses = nub ("Object":traits)
+    if (elem name parentClasses)
+        then return (Left $ "Circular inheritance detected for " ++ sym ++ " '" ++ name ++ "'")
+        else do
+            unsafeEvalExp (newPackage pkgClass newName parentClasses)
+            env <- ask
+            putRuleEnv env{ envPackage = newName,
+                            envClasses = envClasses env `addNode` mkType newName }
+            let pkgVal = Val . VStr $ newName
+                kind   = Val . VStr $ sym
+            return $ Right (newName, kind, pkgVal, env)
 
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do

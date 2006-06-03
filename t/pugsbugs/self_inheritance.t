@@ -13,9 +13,6 @@ audreyt I suspect compile time is the correct answer
 
 =cut
 
-dies_ok { role RA does RA { };},
-	"Testing `role A does A`";
-
-dies_ok { class CA is CA { };},
-	"Testing `class A is A`";
+ok(!eval('role RA does RA { }; 1'), "Testing `role A does A`");
+ok(!eval('class CA is CA { }; 1'), "Testing `class A is A`");
 
