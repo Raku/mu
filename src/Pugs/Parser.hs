@@ -686,22 +686,18 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
     let pkg = concat (intersperse "::" names)
     env <- ask
     when use $ do   -- for &no, don't load code
-        val <- unsafeEvalExp $
-            if lang == "perl5"
-                then Stmts (Sym SGlobal (':':'*':pkg)
-                        (Syn ":=" [ Var (':':'*':pkg)
-                                  , App (Var "&require_perl5") Nothing [Val $ VStr pkg] ]))
-                        (Syn "env" [])
-                else Stmts (App (Var "&use") Nothing [Val $ VStr pkg])
-                           (App (Var "&unshift")
-                                (Just (Var ("@" ++ envPackage env ++ "::END")))
-                                [Var ("@" ++ pkg ++ "::END")])
-        case val of
-            Val (VControl (ControlEnv env')) -> putRuleEnv env
-                { envClasses = envClasses env' `addNode` mkType pkg
-                , envGlobal  = envGlobal env'
-                }
-            _  -> error $ pretty val
+        env' <- unsafeEvalEnv $ if lang == "perl5"
+            then Sym SGlobal (':':'*':pkg)
+                     (Syn ":=" [ Var (':':'*':pkg)
+                               , App (Var "&require_perl5") Nothing [Val $ VStr pkg] ])
+            else Stmts (App (Var "&use") Nothing [Val $ VStr pkg])
+                       (App (Var "&unshift")
+                            (Just (Var ("@" ++ envPackage env ++ "::END")))
+                            [Var ("@" ++ pkg ++ "::END")])
+        putRuleEnv env
+            { envClasses = envClasses env' `addNode` mkType pkg
+            , envGlobal  = envGlobal env'
+            }
     try (do { verbatimParens whiteSpace ; return emptyExp}) <|> do
         imp <- option emptyExp ruleExpression
         let sub = Var $ ('&':pkg) ++ if use then "::import" else "::unimport"

@@ -31,9 +31,14 @@ data EvalStyle = MkEvalStyle
                , evalResult :: EvalResult
                }
 
+
+specialPackageNames :: [String]
+specialPackageNames = ["MY", "OUR", "GLOBAL", "OUTER", "CALLER", "ENV", "SUPER", "COMPILING"]
+
 opRequire :: Bool -> Val -> Eval Val
 opRequire dumpEnv v = do
     mod         <- fromVal v
+    if elem mod specialPackageNames then return (VBool True) else do
     incs        <- fromVal =<< readVar "@*INC"
     glob        <- askGlobal
     seen        <- findSymRef "%*INC" glob
