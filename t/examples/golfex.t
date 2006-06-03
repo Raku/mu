@@ -23,8 +23,8 @@ sub build_file (Str $fname, Str $data) {
 }
 
 my @examples = (
-    '(=<>).reverse.print',
-    '[=<>].reverse.print'
+    '(=<>).reverse.map:{.say}',
+    '[=<>].reverse.map:{.say}'
 );
 
 plan +@examples * 4;
