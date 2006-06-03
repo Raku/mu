@@ -10,8 +10,8 @@ plan 8;
 diag('Test for class attribute initializement');
 
 {
-	class T1 { ... }
-	class T2 { ... }
+	class T1 { }
+	class T2 { }
 	eval_ok q|class T1 { has $.t = 1 }; 1|,
 		"Try to initialize public attribute",
 		:todo<unspecced>;

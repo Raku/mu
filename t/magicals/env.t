@@ -121,7 +121,7 @@ ok !%*ENV.exists("does_not_exist"), "exists() returns false on a not defined env
 
 # %ENV must not be imported by default
 my $x = eval "%ENV";
-ok $! ~~ /Undeclared/, '%ENV not visible by default';
+ok $! ~~ m:P5/Undeclared/, '%ENV not visible by default', :todo<bug>;
 
 # following doesn't parse yet
 eval q{
@@ -133,4 +133,5 @@ eval q{
     # Importation must be lexical
     $x = eval "%ENV";
     ok $! ~~ /Undeclared/, '%ENV not visible by after lexical import scope';
-};
+    1;
+} or skip_rest 'GLOBAL import not yet available';
