@@ -73,9 +73,9 @@ plan 67;
 
     my @b;
     (@b[2, 1, 0]) = 401, 201, 1;
-    is(@b[0], 1, "assigned correct value from list to unsorted sliced array");
+    is(@b[0], 1, "assigned correct value from list to unsorted sliced array", :todo<feature>);
     is(@b[1], 201, "... and second", :todo<feature>);
-    is(@b[2], 401, "... and third", :todo<feature>);
+    is(@b[2], 401, "... and third");
     
 }
 
