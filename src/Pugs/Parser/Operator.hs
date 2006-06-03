@@ -18,7 +18,8 @@ operators = do
     loose <- looseOperators
     return $ concat $
         [ tight
-        , [ listSyn [","], listOps ["Y", "\xA5"] ]           -- Comma
+        , [ listSyn [","] ]                             -- List constructor
+        , [ listOps ["Y", "\xA5", "==>", "<=="] ]       -- List infix
         , loose
     --  , [ listSyn  " ; " ]                            -- Terminator
         ]
