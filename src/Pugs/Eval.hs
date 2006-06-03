@@ -791,13 +791,6 @@ reduceApp (Var "&return") Nothing [arg] = op1Return $ shiftT . const $ evalExp a
 reduceApp (Var "&return") invs args = op1Return $ shiftT . const . evalExp $
     Syn "," (maybeToList invs ++ args)
 
--- XXX absolutely evil bloody hack for "not"
-reduceApp (Var "&not") Nothing [] = retEmpty
-
-reduceApp (Var "&not") invs args = do
-    bool <- fromVal =<< evalExp (last $ maybeToList invs ++ args)
-    retVal $ VBool (not bool)
-
 -- XXX absolutely evil bloody hack for "goto"
 reduceApp (Var "&goto") (Just subExp) args = do
     vsub <- enterEvalContext (cxtItem "Code") subExp
