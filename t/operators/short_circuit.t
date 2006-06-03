@@ -121,7 +121,8 @@ plan 30;
 
 {
     my $x0 = 0;
-    my @a0 = () and $x0 = 1;
+    my @a0;
+    (@a0 = ()) and $x0 = 1;
     is($x0, 0,    "'and' operator seems to be short circuiting");
     ok(+@a0 == 0, "'and' operator seems to be working with list assignment");
     # cmp_ok(+@a0, '==', 0, "'or' operator seems to be working with list assignment");
@@ -129,7 +130,8 @@ plan 30;
 
 {
     my $x0 = 0;
-    my @a0 = () or $x0 = 1;
+    my @a0;
+    (@a0 = ()) or $x0 = 1;
     is($x0,  1, "'or' operator seems to be short circuiting");
     is(+@a0, 0, "'or' operator seems to be working with list assignment", :todo);
 }

@@ -18,6 +18,8 @@ implementations.
 =cut
 
 plan 4;
+skip_rest '"Rul" builtin support is now not part of Prelude anymore';
+exit;
 
 my $r = Rul.new(:f( sub ($s) { 3 } ));
 
