@@ -1252,6 +1252,7 @@ data CompUnit = MkCompUnit
 mkCompUnit :: String -> Pad -> Exp -> CompUnit
 mkCompUnit _ pad ast = MkCompUnit compUnitVersion pad ast
 
+compUnitVersion :: Int
 compUnitVersion = 1
 
 {- Eval Monad -}

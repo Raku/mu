@@ -58,10 +58,7 @@ fileTestIsExecutable :: FilePath -> IO Val
 fileTestIsExecutable = testPerms $ liftM2 (||) executable searchable
 
 fileTestExists :: FilePath -> IO Val
-fileTestExists f = do
-    b1 <- doesFileExist f
-    b2 <- doesDirectoryExist f
-    return $ valFromBool f (b1 || b2)
+fileTestExists f = doesExist f >>= return . (valFromBool f)
 
 fileTestIsFile :: FilePath -> IO Val
 fileTestIsFile f = doesFileExist f >>= return . (valFromBool f)

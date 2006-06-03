@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse -fno-warn-deprecations #-}
 
 {-|
     Internal utilities and library imports.
@@ -14,45 +14,45 @@
 -}
 
 module Pugs.Internals (
-    module UTF8,
+    module Control.Concurrent,
+    module Control.Concurrent.STM,
+    module Control.Exception,
+    module Control.Monad.Error,
+    module Control.Monad.RWS,
+    module Data.Array,
+    module Data.Bits,
+    module Data.Char,
+    module Data.Complex,
+    module Data.Dynamic,
+    module Data.Either,
+    module Data.FunctorM,
+    module Data.IntMap,
+    module Data.List,
+    module Data.Map,
+    module Data.Maybe,
+    module Data.Ratio,
+    module Data.Set,
+    module Data.Tree,
+    module Data.Unique,
+    module Data.Word,
+    module Debug.Trace,
+    module Network,
     module Pugs.Compat,
     module RRegex,
     module RRegex.Syntax,
-    module Data.Char,
-    module Data.Dynamic,
-    module Data.Unique,
-    module Data.FunctorM,
-    module Control.Exception,
-    module System.Environment,
-    module System.Random,
-    module System.IO,
-    module System.IO.Unsafe,
-    module System.IO.Error,
-    module System.Exit,
-    module System.Time,
-    module System.Directory,
     module System.Cmd,
-    module System.Process,
+    module System.Directory,
+    module System.Environment,
+    module System.Exit,
+    module System.IO,
+    module System.IO.Error,
+    module System.IO.Unsafe,
     module System.Mem,
     module System.Mem.Weak,
-    module Control.Monad.RWS,
-    module Control.Monad.Error,
-    module Control.Concurrent,
-    module Control.Concurrent.STM,
-    module Data.Array,
-    module Data.Bits,
-    module Data.List,
-    module Data.Either,
-    module Data.Word,
-    module Data.Ratio,
-    module Data.Tree,
-    module Data.Maybe,
-    module Data.Complex,
-    module Data.Set,
-    module Data.Map,
-    module Data.IntMap,
-    module Debug.Trace,
-    module Network,
+    module System.Process,
+    module System.Random,
+    module System.Time,
+    module UTF8,
     internalError,
     split,
     split_n,
@@ -97,9 +97,9 @@ import System.IO (
     )
 import System.IO.Unsafe
 import System.IO.Error (ioeGetErrorString, isUserError)
-import System.Directory
 import System.Mem
 import System.Mem.Weak
+import System.Directory (Permissions(..), getPermissions, getTemporaryDirectory, createDirectory, removeDirectory, removeFile, getDirectoryContents)
 import Control.Exception (catchJust, errorCalls)
 import Control.Monad.RWS
 import Control.Monad.Error (MonadError(..))

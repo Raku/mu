@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fvia-C -optc-w -fno-warn-orphans -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -fvia-C -optc-w -fno-warn-orphans -cpp -fno-warn-deprecations #-}
 
 {-|
     POSIX calls and emulations.
@@ -42,15 +42,20 @@ module Pugs.Compat (
     rewindDirStream,
     closeDirStream,
     executeFile',        -- the prime signifies we changed signature.
+    getCurrentDirectory,
+    setCurrentDirectory,
+    doesFileExist,
+    doesDirectoryExist,
+    doesExist,
 ) where
 
 import Foreign
 import System.Posix.Types
 
 #ifdef PUGS_HAVE_POSIX
+import System.Posix.Files
 import System.Posix.Process
 import System.Posix.Env hiding (getEnvironment)
-import System.Posix.Files
 import System.Posix.Directory
 import System.Posix.User
 import System.Exit
@@ -59,6 +64,23 @@ import Foreign.C.Types
 import Foreign.C.String
 import Data.Typeable
 import qualified System.Posix.Signals
+
+doesExist :: FilePath -> IO Bool
+doesExist = fileExist
+
+doesFileExist :: FilePath -> IO Bool
+doesFileExist f = do
+    rv <- (fmap isRegularFile . getFileStatus) f
+    return rv
+
+doesDirectoryExist :: FilePath -> IO Bool
+doesDirectoryExist = fmap isDirectory . getFileStatus
+
+getCurrentDirectory :: IO FilePath
+getCurrentDirectory = getWorkingDirectory
+
+setCurrentDirectory :: FilePath -> IO ()
+setCurrentDirectory = changeWorkingDirectory
 
 executeFile' :: FilePath -> Bool -> [String] -> Maybe [(String, String)] -> IO ExitCode
 executeFile' prog search args env = do
@@ -86,6 +108,7 @@ instance Typeable DirStream where
 
 import Debug.Trace
 import qualified System.Environment
+import System.Directory (getCurrentDirectory, setCurrentDirectory, doesFileExist, doesDirectoryExist)
 import IO
 import System.IO
 import System.Cmd
@@ -243,6 +266,11 @@ executeFile' :: FilePath -> Bool -> [String] -> Maybe [(String, String)] -> IO E
 executeFile' prog True args Nothing = do
     rawSystem prog args
 executeFile' _ _ _ _ = failWithIncomplete "executeFile"
+
+doesExist :: FilePath -> IO Bool
+doesExist f = do
+    rv <- doesFileExist f
+    if rv then return rv else doesDirectoryExist f
 
 #endif
 

@@ -16,12 +16,8 @@ import Pugs.Internals
 import Pugs.Pretty
 import Pugs.Config
 import Pugs.Prim.Keyed
-import qualified Data.ByteString as Str
 import DrIFT.YAML
 import Data.Yaml.Syck
-
--- type Str = Str.ByteString
-
 
 data EvalError = EvalErrorFatal
                | EvalErrorUndef
