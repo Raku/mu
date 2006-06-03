@@ -14,38 +14,38 @@ is Getopt::Std::hashify("ab:c:").perl, (a=>0, b=>1, c=>1).perl, "mixed options";
 
 {
     my @cmdline = <-a -b -c -- leavemealone>;
-    is getopts("abcd", @cmdline).perl, {a=>1, b=>1, c=>1}.perl, "basic getopts";
+    is_deeply getopts("abcd", @cmdline), {a=>1, b=>1, c=>1}, "basic getopts";
     is +@cmdline, 1, "consumed input up to --";
 }
 
 {
     my @cmdline = <-ac -b -- leavemealone>;
-    is getopts("abcd", @cmdline).perl, {a=>1, b=>1, c=>1}.perl, "clustered getopts";
+    is_deeply getopts("abcd", @cmdline), {a=>1, b=>1, c=>1}, "clustered getopts";
     is +@cmdline, 1, "consumed input up to --";
 }
 
 {
     my @cmdline = <-ac -b -- leavemealone>;
-    is getopts("a:bd", @cmdline).perl, {a=>"c", b=>1}.perl, "getopts with opt (no space)";
+    is_deeply getopts("a:bd", @cmdline), {a=>"c", b=>1}, "getopts with opt (no space)";
     is +@cmdline, 1, "consumed input up to --";
 }
 
 {
     my @cmdline = <-a c -b -- leavemealone>;
-    is getopts("a:bd", @cmdline).perl, {a=>"c", b=>1}.perl, "getopts with opt (space)";
+    is_deeply getopts("a:bd", @cmdline), {a=>"c", b=>1}, "getopts with opt (space)";
     is +@cmdline, 1, "consumed input up to --";
 }
 
 {
     my @cmdline = <-a -c -b -- leavemealone>;
-    is getopts("a:bd", @cmdline).perl, {a=>"-c", b=>1}.perl,
+    is_deeply getopts("a:bd", @cmdline), {a=>"-c", b=>1},
                "getopts with opt that looks like a switch but isn't";
     is +@cmdline, 1, "consumed input up to --";
 }
 
 {
     @*ARGS = <-a -b -c -- leavemealone>;
-    is getopts("abcd").perl, {a=>1, b=>1, c=>1}.perl, "basic getopts defaults to @*ARGS";
+    is_deeply getopts("abcd"), {a=>1, b=>1, c=>1}, "basic getopts defaults to @*ARGS";
     is +@*ARGS, 1, "consumed @*ARGS up to --";
 }
 
