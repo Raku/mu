@@ -30,8 +30,7 @@ plan 21;
 {   my @array  = <a b c d>;
     my @slice := @array[1,2];
     is ~(@slice = <A B C D>), "A B",
-        "assigning a slice too many items yields a correct return value",
-        :todo<bug>;
+        "assigning a slice too many items yields a correct return value";
 }
 
 # Binding on array slices
