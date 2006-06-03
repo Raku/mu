@@ -48,8 +48,8 @@ David Kahn, I<The Codebreakers - The Story of Secret Writing>, 1967. ISBN 068483
 use Cipher;
 class Cipher::Caesar-0.01 is Cipher;
 
-my @upper is constant = map {ord}, "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
-my @lower is constant = map {ord}, "abcdefghijklmnopqrstuvwxyz".split('');
+my @upper is constant = map &ord, "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+my @lower is constant = map &ord, "abcdefghijklmnopqrstuvwxyz".split('');
 
 has byte %.table;
 

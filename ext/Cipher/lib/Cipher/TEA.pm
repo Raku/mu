@@ -9,7 +9,7 @@ submethod BUILD($key) {
         @.key = $?SELF!fusebytes($key);
     }
     else {
-        @.key = $?SELF!fusebytes(map {ord}, $key);
+        @.key = $?SELF!fusebytes(map &ord, $key);
     }
 }
 
