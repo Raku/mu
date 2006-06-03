@@ -1,7 +1,6 @@
-
-
 LDLIBS= -L/usr/local/lib -lJudy
 CC=ghc 
+TESTS=testbs testjl testjsl testjhs
 
 CFLAGS= -O
 
@@ -19,7 +18,7 @@ HSFLAGS= $(HSF) -O2 -fffi -I/usr/local/include -fglasgow-exts -I. -IJudy '-\#inc
 	hsc2hs -C "-I/usr/local/include" -C "$(CFLAGS)" -o $@ $<
 
 
-all: try testbs testjl testjsl
+all: try $(TESTS)
 
 Judy_hsc.c: Judy_hsc.h
 
@@ -32,6 +31,9 @@ testjl: tests/TestJL.hs Judy/Private.hs Judy/Private_hsc.o
 testjsl: tests/TestJSL.hs Judy/Private.hs Judy/Private_hsc.o 
 	ghc $(HSFLAGS) --make $< Judy/Private_hsc.o -o $@
 
+testjhs: tests/TestJHS.hs Judy/Private.hs Judy/Private_hsc.o 
+	ghc $(HSFLAGS) --make $< Judy/Private_hsc.o -o $@
+
 try: Try.hs Judy/Private.hs Judy/BitSet.hs Judy/Private_hsc.o
 	ghc $(HSFLAGS) --make $< Judy/Private_hsc.o -o $@
 
@@ -40,14 +42,9 @@ trybench: TryBench.hs Judy/Private.hs Judy/BitSet.hs Judy/Private_hsc.o
 
 .PHONY: test clean
 
-test: testbs testjl testjsl
+test: $(TESTS)
 	@echo
-	@./testbs
-	@echo
-	@./testjl
-	@echo
-	@./testjsl
-	@echo
+	@for i in $(TESTS); do ./$$i ; echo ; done
 
 clean:
-	rm -f try testbs testjl testjsl Judy/Private.hs Judy/*_hsc.c Judy/*_hsc.h Judy/*.hi Judy/*.o *.hi *.o tests/*.hi tests/*.o
+	rm -f try $(TESTS) Judy/Private.hs Judy/*_hsc.c Judy/*_hsc.h Judy/*.hi Judy/*.o *.hi *.o tests/*.hi tests/*.o

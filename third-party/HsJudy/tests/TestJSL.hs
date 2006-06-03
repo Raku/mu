@@ -66,21 +66,15 @@ toListIO j = do
     -- FIXME: get a better place for this constant
     allocaBytes 1000 $ \cstr -> do
         j_null cstr
-        -- FIXME: ugly, unclear
-        let f xs = do
-                v <- peekCAString cstr
-                r <- judySLNext jj cstr judyError
-                g r xs
-            g r xs =
-              if r == nullPtr
-                  then return xs
-                  else do
-                      v <- peekCAString cstr
-                      d <- peek r
-                      f ((v,d):xs)
-        r <- judySLFirst jj cstr judyError
-        g r []
-
+        let f act xs = do
+                r <- act jj cstr judyError
+                if r == nullPtr
+                    then return xs
+                    else do
+                        v <- peekCAString cstr
+                        d <- peek r
+                        f judySLNext ((v,d):xs)
+        f judySLFirst []
 
 -- tests
 
