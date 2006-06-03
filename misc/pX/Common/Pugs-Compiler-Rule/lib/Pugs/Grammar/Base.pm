@@ -64,7 +64,8 @@ sub ws {
         from  => $pos,
         to    => $pos+length $1,
     } )
-        if $_[0] =~ /^.{$pos}(\s+)(.*)$/s;
+        if $_[0] =~ /^.{$pos}((?:(?<!\w)|(?!\w)|\s)\s*)/s;
+        #if $_[0] =~ /^.{$pos}(\s+)(.*)$/s;
     return $grammar->no_match;
 };
 

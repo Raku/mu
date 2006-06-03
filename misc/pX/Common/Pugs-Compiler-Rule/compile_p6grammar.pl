@@ -12,30 +12,36 @@ use base 'Pugs::Grammar::Base';
 
 *grammar_name = Pugs::Compiler::Token->compile(q( [ \w | \d | \: ]+ ))->code;
 *rule_name = Pugs::Compiler::Token->compile(q( \w+ ))->code;
-*block = Pugs::Compiler::Rule->compile(q(\{[<block>|<-[}]>|\\\\\}]*\}))->code;
-*mod = Pugs::Compiler::Rule->compile(q(\:<rule_name>{ return $<rule_name> . " => 0" }))->code;
-*rule = Pugs::Compiler::Rule->compile(q(<'rule'> <rule_name><?ws>?<mod>*<?ws>?<block>{
+*block = Pugs::Compiler::Token->compile(q( \{ [ <block> | <-[}]> | \\\\\} ]* \} ))->code;
+*mod = Pugs::Compiler::Token->compile(q( \: <rule_name> { return $<rule_name> . " => 0" } ))->code;
+*rule = Pugs::Compiler::Rule->compile(q(<'rule'> <rule_name> <mod>* <block>
+    {
 	my $body = substr($<block>, 1, -1);
 	my $mod = $<mod>[0] ? ", { " . join(", ", @{$<mod>}) . " }" : "";
 	$body =~ s/\\\\/\\\\\\\\/g;  # duplicate every single backslashes
 	return "*" . $<rule_name> . " = Pugs::Compiler::Rule->compile(q(" .
 	$body . ")$mod)->code;"
-    }))->code;
-*token = Pugs::Compiler::Rule->compile(q(<'token'> <rule_name><?ws>?<mod>*<?ws>?<block>{
+    }
+))->code;
+*token = Pugs::Compiler::Rule->compile(q(<'token'> <rule_name> <mod>* <block>
+    {
 	my $body = substr($<block>, 1, -1);
 	my $mod = $<mod>[0] ? ", { " . join(", ", @{$<mod>}) . " }" : "";
 	$body =~ s/\\\\/\\\\\\\\/g;  # duplicate every single backslashes
 	return "*" . $<rule_name> . " = Pugs::Compiler::Token->compile(q(" .
 	$body . ")$mod)->code;"
-    }))->code;
-*regex = Pugs::Compiler::Rule->compile(q(<'regex'> <rule_name><?ws>?<mod>*<?ws>?<block>{
+    }
+))->code;
+*regex = Pugs::Compiler::Rule->compile(q(<'regex'> <rule_name> <mod>* <block>
+    {
 	my $body = substr($<block>, 1, -1);
 	my $mod = $<mod>[0] ? ", { " . join(", ", @{$<mod>}) . " }" : "";
 	$body =~ s/\\\\/\\\\\\\\/g;  # duplicate every single backslashes
 	return "*" . $<rule_name> . " = Pugs::Compiler::Regex->compile(q(" .
 	$body . ")$mod)->code;"
-    }))->code;
-*grammar = Pugs::Compiler::Rule->compile(q(<'grammar'> <grammar_name>\;[<?ws>?[<rule>|<token>|<regex>]]*{
+    }
+))->code;
+*grammar = Pugs::Compiler::Rule->compile(q(<'grammar'> <grammar_name> \;[ [<rule>|<token>|<regex>]]*{
         return "package " . "$<grammar_name>" .
 	    ";\nuse Pugs::Compiler::Rule;\nuse Pugs::Compiler::Token;\n" .
 	    "use Pugs::Compiler::Regex;\nuse base 'Pugs::Grammar::Base';\n" .
