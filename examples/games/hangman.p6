@@ -103,8 +103,8 @@ $msg";
 }
 
 ## main loop
-unshift @*INC, 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec/lib';
-require File::Spec;
+use lib 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec/lib';
+use File::Spec;
 
 my $progdir    = splitpath($*PROGRAM_NAME)[1] || ".";
 my $dict       = canonpath("$progdir/../../AUTHORS");
