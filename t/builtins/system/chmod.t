@@ -52,7 +52,7 @@ if($*OS eq any <MSWin32 mingw msys cygwin>) {
 
 {
     my $file = create_temporary_file;
-    my @result = chmod 700, $file;
+    my @result = chmod 0o700, $file;
     is +@result, 1, "One file successfully changed";
     is @result[0], $file, "name of the file returned", :todo;
 
@@ -65,12 +65,12 @@ if($*OS eq any <MSWin32 mingw msys cygwin>) {
 
 {
     my $file = create_temporary_file;
-    my @result = chmod 777, $file;
+    my @result = chmod 0o777, $file;
     is +@result, 1, "One file successfully changed";
     is @result[0], $file, "name of the file returned", :todo;
 
     ok -r $file, "readable after 777";
-    ok -w $file, "writabel after 777";
+    ok -w $file, "writable after 777";
     ok -x $file, "executable after 777";
     remove_file($file);
 }
@@ -87,6 +87,6 @@ sub remove_file ($file) {
     ok(!(-e $file), "Test file was successfully removed");
 }
 
-ok(try { !-e "nonesuch" }, "!-e syntax works", :todo);
+ok(try { !-e "nonesuch" }, "!-e syntax works");
 
 
