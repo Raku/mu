@@ -68,7 +68,7 @@ Level 0                 0 | A |                (more specialized)
 
 =cut
 
-pil_is_eq(q:to/EXAMPLE/
+pil_is_eq(q[
 ^F := ^Class.new({ '$!name' => 'F', '@!superclasses' => [ ^Object ] });
 ^E := ^Class.new({ '$!name' => 'E', '@!superclasses' => [ ^Object ] });
 ^D := ^Class.new({ '$!name' => 'D', '@!superclasses' => [ ^Object ] });
@@ -76,7 +76,7 @@ pil_is_eq(q:to/EXAMPLE/
 ^B := ^Class.new({ '$!name' => 'B', '@!superclasses' => [ ^D, ^E ] });
 ^A := ^Class.new({ '$!name' => 'A', '@!superclasses' => [ ^B, ^C ] });
 -> $c { $c.name() }`do_for(^A.MRO());
-EXAMPLE,
+],
 '["A", "B", "C", "D", "E", "F", "Object"]',
 '... got the right MRO');
 
@@ -115,7 +115,7 @@ Level 0                0 | A |
 
 =cut
 
-pil_is_eq(q:to/EXAMPLE/
+pil_is_eq(q[
 ^F := ^Class.new({ '$!name' => 'F', '@!superclasses' => [ ^Object ] });
 ^E := ^Class.new({ '$!name' => 'E', '@!superclasses' => [ ^Object ] });
 ^D := ^Class.new({ '$!name' => 'D', '@!superclasses' => [ ^Object ] });
@@ -123,7 +123,7 @@ pil_is_eq(q:to/EXAMPLE/
 ^B := ^Class.new({ '$!name' => 'B', '@!superclasses' => [ ^E, ^D ] });
 ^A := ^Class.new({ '$!name' => 'A', '@!superclasses' => [ ^B, ^C ] });
 -> $c { $c.name() }`do_for(^A.MRO());
-EXAMPLE,
+],
 '["A", "B", "E", "C", "D", "F", "Object"]',
 '... got the right MRO');
 
@@ -139,13 +139,13 @@ B     C
 
 =cut
 
-pil_is_eq(q:to/EXAMPLE/
+pil_is_eq(q[
 ^D := ^Class.new({ '$!name' => 'D', '@!superclasses' => [ ^Object ] });
 ^C := ^Class.new({ '$!name' => 'C', '@!superclasses' => [ ^D ] });
 ^B := ^Class.new({ '$!name' => 'B', '@!superclasses' => [ ^D ] });
 ^A := ^Class.new({ '$!name' => 'A', '@!superclasses' => [ ^B, ^C ] });
 -> $c { $c.name() }`do_for(^A.MRO());
-EXAMPLE,
+],
 '["A", "B", "C", "D", "Object"]',
 '... got the right MRO');
 

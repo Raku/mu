@@ -30,7 +30,7 @@ above the Perl6::MetaModel equivalents
 
 =cut
 
-my $point = q:to/POINT/
+my $point = q[
 ^Point := ^Class.new({});
 ^Point.set_name("Point");
 ^Point.set_superclasses([ ^Object ]);
@@ -47,7 +47,7 @@ my $point = q:to/POINT/
 });
 
 $point := ^Point.new({ '$x' => 1, '$y' => 3 });
-POINT;
+];
 
 pil_is_eq($point ~ '$point.isa("Point")', 'true', '... $point.isa(Point)');
 
@@ -75,7 +75,7 @@ CODE,
 
 =cut
 
-my $point3d = $point ~ q:to/POINT3D/
+my $point3d = $point ~ q[
 ^Point3D := ^Class.new({});
 ^Point3D.set_name("Point3D");
 ^Point3D.set_superclasses([ ^Point ]);
@@ -89,7 +89,7 @@ my $point3d = $point ~ q:to/POINT3D/
 });
 
 $point3d := ^Point3D.new({ '$x' => 2, '$y' => 3, '$!z' => 4 });
-POINT3D;
+];
 
 pil_is_eq($point3d ~ '$point3d.isa("Point")', 'true', '... $point3d.isa(Point)');
 pil_is_eq($point3d ~ '$point3d.isa("Point3D")', 'true', '... $point3d.isa(Point3D)');
