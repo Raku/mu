@@ -50,6 +50,7 @@ $ENV{PERL6LIB}      = join $Config{path_sep},
         qw<ext/Test/lib blib6/lib>, $ENV{PERL6LIB}||"";
 
 my @yaml_harness_args;
+push(@yaml_harness_args,'--concurrent', PugsBuild::Config->lookup('smoke_concurrent') || 1);
 push(@yaml_harness_args,'--exclude','Disabled,^ext\b')
     if $ENV{PUGS_SMOKE_EXCLUDE_EXT}
         or ($ENV{PUGS_RUNTIME} and ($ENV{PUGS_RUNTIME} eq 'JS' or
