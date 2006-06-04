@@ -1427,9 +1427,10 @@ primDecl str = primOp sym assoc params ret (safe == "safe")
 setFinalization :: Val -> Eval Val
 setFinalization obj = do
     env <- ask
+    -- XXX - Not sure if this can break guarantees in STM or not; disable for now
     if envAtomic env
-        then liftIO $ obj `setFinalizationIn` env
-        else return obj -- XXX - Can't set finalizers in STM
+        then return obj -- liftSTM $ unsafeIOToSTM (obj `setFinalization` env)
+        else liftIO $ obj `setFinalizationIn` env
     where
     setFinalizationIn obj env = do
         objRef <- mkWeakPtr obj . Just $ do
