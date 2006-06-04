@@ -158,10 +158,13 @@ sub set_postamble {
     # Add GHC to PATH
     local $ENV{PATH} = dirname($ghc) . $Config{path_sep} . $ENV{PATH};
 
+    my $native_fps;
+
     if (try_compile("import Data.ByteString\n"
                    ."main :: IO ()\n"
                    ."main = main\n", $ghc, qw(-hide-all-packages -package base))) {
         # We have native ByteString; dummy the fps out
+        $native_fps = 1;
         copy "third-party/fps/fps.cabal.dummy" => "third-party/fps/fps.cabal";
     }
     else {
@@ -172,7 +175,7 @@ sub set_postamble {
     print "*** Building dependencies.  Please wait...\n\n";
     foreach my $module (qw< fps HsSyck >) {
         chdir "third-party/$module";
-        system("../../Setup$Config{_exe}", 'configure', '-p', '--user', '--prefix', "$pwd/dist");
+        system("../../Setup$Config{_exe}", 'configure', ($native_fps ? ('-p') : ()), '--user', '--prefix', "$pwd/dist");
 
         print "*** Building the '$module' dependency.  Please wait...\n\n";
 
