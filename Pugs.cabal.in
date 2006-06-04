@@ -20,4 +20,4 @@ extra-lib-dirs: __LIB_DIRS__
 extensions: ForeignFunctionInterface
 include-dirs: __INCLUDE_DIRS__
 other-modules: Data.DeepSeq DrIFT.JSON DrIFT.Perl5 DrIFT.YAML RRegex RRegex.PCRE RRegex.Syntax System.FilePath UTF8
-ghc-options: __OPTIONS__ -smp +RTS -N2 -RTS
+ghc-options: __OPTIONS__
