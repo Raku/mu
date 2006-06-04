@@ -147,7 +147,7 @@ sub test1{
 }
 
 sub test2 (Hash %hash) returns Void{
-    is(%hash.ref,'Hash','%hash is a Hash',:todo<bug>);
+    is(%hash.ref,'Hash','%hash is a Hash');
 }
 
 my %h = hash (a => 'b');
@@ -155,12 +155,13 @@ my %h = hash (a => 'b');
 #sanity: Hash created in a sub is a Hash 
 test1;
 
-#XXX Hash passed to a sub becomes a List 
 test2 %h;
 
 # See thread "Hash creation with duplicate keys" on p6l started by Ingo
 # Blechschmidt: L<"http://www.nntp.perl.org/group/perl.perl6.language/22401">
-{
-  my %dupl = (a => 1, b => 2, a => 3);
-  is %dupl<a>, 1, "hash creation with duplicate keys works correctly", :todo<bug>;
-}
+#
+# 20060604: Now that defaulting works the other way around, hashes resume
+# the bias-to-the-right behaviour, consistent with Perl 5.
+#
+my %dupl = (a => 1, b => 2, a => 3);
+is %dupl<a>, 3, "hash creation with duplicate keys works correctly";
