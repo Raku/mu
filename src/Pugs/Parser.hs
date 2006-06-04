@@ -1695,7 +1695,7 @@ numLiteral = do
 
 ruleBracketedExpression :: RuleParser Exp
 ruleBracketedExpression = enterBracketLevel ParensBracket $
-    ruleExpression <|> do { whiteSpace; return emptyExp }
+    ruleExpression <|> do { whiteSpace; return (Syn "," []) }
 
 arrayLiteral :: RuleParser Exp
 arrayLiteral = try $ do
