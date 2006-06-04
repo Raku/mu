@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 26;
+plan 27;
 
 # basic my() lexicals
 

@@ -4,7 +4,7 @@ use v6;
 
 use Test;
 
-plan 41;
+plan 47;
 
 =kwid
 

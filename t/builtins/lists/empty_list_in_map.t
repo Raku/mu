@@ -53,7 +53,7 @@ plan 7;
 
 {
   my @array  = <a b c d>;
-  my @result = eval 'map { () }, @array';
+  my @result = map { () }, @array;
 
-  is +@result, 0, "map works with the map body returning ()", :todo<bug>;
+  is +@result, 0, "map works with the map body returning ()";
 }

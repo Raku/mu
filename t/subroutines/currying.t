@@ -13,7 +13,7 @@ Tests curried subs as defined by L<S06/Currying>
 
 =cut
 
-plan 9;
+plan 10;
 
 package main; # XXX PIL2JS namespace bug
 

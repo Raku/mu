@@ -123,7 +123,7 @@ plan 30;
     my $x0 = 0;
     my @a0 = () and $x0 = 1;
     is($x0, 0,    "'and' operator seems to be short circuiting");
-    ok(+@a0 == 0, "'and' operator seems to be working with list assignment", :todo);
+    ok(+@a0 == 0, "'and' operator seems to be working with list assignment");
 }
 
 {
