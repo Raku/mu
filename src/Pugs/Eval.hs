@@ -249,10 +249,10 @@ reduceVal v = retVal v
 
 -- Reduction for variables
 reduceVar :: Var -> Eval Val
-reduceVar (sigil:'.':name) = enterContext (cxtOfSigil sigil) $
-    reduceSyn "{}" [Var "$?SELF", Val (VStr name)]
-reduceVar (sigil:'!':name@(_:_)) = enterContext (cxtOfSigil sigil) $
-    reduceSyn "{}" [Var "$?SELF", Val (VStr name)]
+reduceVar (sigil:'.':name) = reduceSyn (sigil:"{}")
+    [ Syn "{}" [Var "$?SELF", Val (VStr name)] ]
+reduceVar (sigil:'!':name@(_:_)) = reduceSyn (sigil:"{}")
+    [ Syn "{}" [Var "$?SELF", Val (VStr name)] ]
 reduceVar name = do
     let cxt = case name of
             ('$':_) -> enterContext (CxtItem $ mkType "Scalar")
