@@ -1020,7 +1020,7 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
     expToVal MkParam{ isLazy = thunk, isLValue = lv, paramContext = cxt, paramName = name, isWritable = rw } exp = do
         env <- ask -- freeze environment at this point for thunks
         let eval = local (const env{ envLValue = lv }) $ do
-                enterEvalContext (cxtOfSigil $ head name) exp
+                enterEvalContext cxt exp
             thunkify = do
                 -- typ <- inferExpType exp
                 return . VRef . thunkRef $ MkThunk eval (anyType)
@@ -1034,8 +1034,12 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
                 (True, False)   -> do
                     --- not scalarRef! -- use the new "transparent IType" thing!
                     case showType (typeOfSigil $ head name) of
-                        "Hash"  -> fmap (VRef . hashRef) (fromVal v :: Eval VHash)
-                        "Array" -> fmap (VRef . arrayRef) (fromVal v :: Eval VArray)
+                        "Hash"  -> case v of
+                            VRef (MkRef (IHash h)) -> return (VRef $ hashRef h) 
+                            _ -> fmap (VRef . hashRef) (fromVal v :: Eval VHash)
+                        "Array" -> case v of
+                            VRef (MkRef (IArray a)) -> return (VRef $ arrayRef a) 
+                            _ -> fmap (VRef . arrayRef) (fromVal v :: Eval VArray)
                         _       -> case v of
                             VRef (MkRef (IScalar _)) -> return (VRef $ scalarRef v) 
                             VRef _ -> return v -- XXX - preserving ref
