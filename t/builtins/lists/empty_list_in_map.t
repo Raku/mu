@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 6;
+plan 7;
 
 # Test was primarily aimed at PIL2JS, which did not pass this test (fixed now).
 {
