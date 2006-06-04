@@ -59,17 +59,17 @@ is try { ($c,$d,$e)  = sm_ok_in_count3() }, 42,
   "want.count() works correct if three return values are expected (smartmatch-form)", :todo<feature>;
   
 # Test the identity of want() across function calls:
-sub wants_array( @got ) { return @got };
+sub wants_array( *@got ) { return @got };
 sub gives_array() { return want };
 my @a = gives_array;
 @a = wants_array( @a );
 my @b = wants_array(gives_array());
+
 is( substr(@a, 0, 4), substr(@b, 0, 4), "want() context propagates consistently" ); 
 like( @a[0], rx:P5/Item/, "The context is Item", :todo<bug> );
 like( @b[0], rx:P5/Item/, "... on both subs", :todo<bug> );
 
 # Test the identity again, via splice(), a builtin:
-sub wants_array( @got ) { return @got };
 my @tmp = (1..10);
 @a = splice(@tmp, 8, 1);
 @tmp = (1..10);
