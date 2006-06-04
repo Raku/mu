@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 186;
+plan 188;
 
 my $five = abs(-5);
 
