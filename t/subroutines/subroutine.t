@@ -88,7 +88,7 @@ sub argShifter (@a is rw) {
 }
 
 is argShifter([1]), 1,    "use shift on an array argument";
-is argShifter([3..5]), 3, "use shift on multiple array arguments", :todo<buf>;
+is argShifter([3..5]), 3, "use shift on multiple array arguments";
 
 eval 'sub unpack_array ([$first, *@rest]) { return $first; }';
 
