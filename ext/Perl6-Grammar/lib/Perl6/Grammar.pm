@@ -6,7 +6,7 @@ Perl 6's grammar written as a Perl 6 rules.  A prerequisite for self hosting.
 
 use v6;
 
-grammar Perl6::Grammar;
+grammar Perl6::Grammar-0.0.1;
 
 # Top level structures
 

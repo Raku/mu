@@ -13,6 +13,10 @@ Testing self hosting rules.
 
 plan 25;
 
+if(!eval('("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+} else {
+
 # Testing the parsing of verious forms of numbers
 
 is(?("1"  ~~ /^<Int>$/),Bool::True,"1 is parsed as an integer");
@@ -51,3 +55,5 @@ is(?('@foo' ~~ /^<variable>$/),Bool::True,"arrays are parsed as variables");
 is(?('%foo' ~~ /^<variable>$/),Bool::True,"hashes are parsed as variables");
 is(?('&foo' ~~ /^<variable>$/),Bool::True,"subs are parsed as variables");
 is(?('sub () {}' ~~ /^<anonsub>$/),Bool::True,"Anon subs parsing");
+
+}
