@@ -132,7 +132,7 @@ Where SIMPLE is defined as
     ?TERM	# any single term coerced to boolean
     !TERM	# any single term coerced to boolean
     @a[SIMPLE]	# any of these simples used as subscript recursively
-    %a[SIMPLE]	# any of these simples used as subscript recursively
+    %a{SIMPLE}	# any of these simples used as subscript recursively
 
 We also include:
 
