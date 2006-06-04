@@ -5,7 +5,7 @@ use Test;
 
 plan 1;
 
-sub func(@m)
+sub func(*@m)
 {
     @m.shift;
     return @m;
@@ -13,5 +13,5 @@ sub func(@m)
 
 
 # TEST
-is_deeply(func(5), [], "Shift from an array function argument works");
+is_deeply(func(5), [], "Shift from an array function argument works", :todo<bug>);
 
