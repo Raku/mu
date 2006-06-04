@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 8 May 2006
+  Last Modified: 3 Jun 2006
   Number: 12
-  Version: 15
+  Version: 16
 
 =head1 Overview
 
@@ -360,14 +360,26 @@ ordinary variables.  Instead of C<my>, use C<has>:
 Public attributes have a secondary sigil of "dot", indicating
 the automatic generation of an accessor method of the same name.
 Private attributes use an exclamation to indicate that no public accessor is
-generated.  The exclamation is optional, so these are identical in effect:
+generated.
 
         has $!brain;
-        has $brain;
 
-And any later references to the private variable may either use or
-omit the exclamation, as you wish to emphasize or ignore the privacy
-of the variable.
+The "true name" of the private variable always has the exclamation, but
+much like with C<our> variables, you may declare a lexically scoped alias
+to the private variable by saying:
+
+        has $brain;	# also declares $!brain;
+
+And any later references to the private variable within the same block
+may either use or omit the exclamation, as you wish to emphasize or
+ignore the privacy of the variable.  Outside the block, you must use
+the C<!> form.  If you declare with the C<!> form, you must use that
+form consistently everywhere.  If you declare with the C<.> form, you
+also get the private C<!> form as a non-virtual name for the actual
+storage location, and you may use either C<!> or C<.> form anywhere
+within the class, even if the class is reopened.  Outside the class
+you must use the public C<.> form, or rely on a method call (which
+can be a private method call, but only for trusted classes).
 
 For public attributes, some traits are copied to the accessor method.
 The C<rw> trait causes the generated accessor to be declared C<rw>,
