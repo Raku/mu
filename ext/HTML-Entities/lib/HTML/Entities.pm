@@ -293,12 +293,12 @@ multi sub decode_entities($string is rw) is export
     return $result;
 }
 
-multi sub decode_entities(@strings is rw) is export
+multi sub decode_entities(*@strings is rw) is export
 {
-    decode_entities(*@strings);
+    decode_entities(@strings);
 }
 
-multi sub decode_entities(*@strings is rw) is export
+multi sub decode_entities(@strings is rw) is export
 {
     @strings;
     
