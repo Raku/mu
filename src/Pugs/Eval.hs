@@ -60,6 +60,7 @@ emptyEnv name genPad = liftSTM $ do
     syms <- initSyms
     glob <- newTVar (combine (pad ++ syms) $ mkPad [])
     init <- newTVar $ MkInitDat { initPragmas=[] }
+    maxi <- newTVar 1
     return $ MkEnv
         { envContext = CxtVoid
         , envLexical = mkPad []
@@ -72,13 +73,13 @@ emptyEnv name genPad = liftSTM $ do
         , envCaller  = Nothing
         , envOuter   = Nothing
         , envDepth   = 0
-        -- XXX see AST/Internals.hs
-        --, envID      = uniq
         , envBody    = Val undef
         , envDebug   = Just ref -- Set to "Nothing" to disable debugging
         , envPos     = MkPos name 1 1 1 1
         , envPragmas = []
         , envInitDat = init
+        , envMaxId   = maxi
+        , envAtomic  = False
         }
 
 -- Evaluation ---------------------------------------------------------------
@@ -124,7 +125,6 @@ evaluateMain exp = do
     endSubs  <- fromVals endAV
     enterContext CxtVoid $ do
         mapM_ evalExp [ App (Val sub) Nothing [] | sub <- endSubs ]
-    liftIO $ performGC
     return val
 
 {-|

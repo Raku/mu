@@ -172,7 +172,7 @@ sub set_postamble {
     print "*** Building dependencies.  Please wait...\n\n";
     foreach my $module (qw< fps HsSyck >) {
         chdir "third-party/$module";
-        system("../../Setup$Config{_exe}", 'configure', '--user', '--prefix', "$pwd/dist");
+        system("../../Setup$Config{_exe}", 'configure', '-p', '--user', '--prefix', "$pwd/dist");
 
         print "*** Building the '$module' dependency.  Please wait...\n\n";
 
@@ -644,7 +644,7 @@ pili : pil$Config{_exe}
 	$ghc --interactive -fglasgow-exts -isrc -isrc/cbits -Isrc -Isrc/cbits -L. -static -fno-warn-name-shadowing src/PIL.hs $pcre @cbits
 
 tags : @srcfiles
-	$hasktags -c @srcfiles
+	$hasktags -c @{[ grep { !/PIL/ } @srcfiles ]}
 	sort tags > tags.tmp
 	mv tags.tmp tags
 

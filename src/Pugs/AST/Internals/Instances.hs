@@ -51,6 +51,7 @@ _FakeEnv = unsafePerformIO $ liftSTM $ do
     ref  <- newTVar Map.empty
     glob <- newTVar $ MkPad Map.empty
     init <- newTVar $ MkInitDat { initPragmas=[] }
+    maxi <- newTVar 1
     return $ MkEnv
         { envContext = CxtVoid
         , envLexical = MkPad Map.empty
@@ -63,22 +64,24 @@ _FakeEnv = unsafePerformIO $ liftSTM $ do
         , envCaller  = Nothing
         , envOuter   = Nothing
         , envDepth   = 0
-        -- XXX see AST/Internals.hs
-        --, envID      = uniq
         , envBody    = Val undef
         , envDebug   = Just ref -- Set to "Nothing" to disable debugging
         , envPos     = MkPos "<null>" 1 1 1 1
         , envPragmas = []
         , envInitDat = init
+        , envMaxId   = maxi
+        , envAtomic  = False
         }
 
 fakeEval :: MonadIO m => Eval Val -> m Val
 fakeEval = liftIO . runEvalIO _FakeEnv
 
-
 instance YAML ([Val] -> Eval Val) where
     asYAML _ = return nilNode
     fromYAML _ = return (const $ return VUndef)
+instance YAML ObjectId where
+    asYAML (MkObjectId x) = asYAML x
+    fromYAML x = fmap MkObjectId (fromYAML x)
 instance YAML (Maybe Env) where
     asYAML _ = return nilNode
     fromYAML _ = return Nothing

@@ -24,7 +24,6 @@ import Pugs.Version (versnum)
 import Pugs.Lexer
 import Pugs.Rule
 import Pugs.Rule.Expr
-import Pugs.Pretty
 
 import Pugs.Parser.Types
 import Pugs.Parser.Number

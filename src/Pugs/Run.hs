@@ -53,6 +53,7 @@ runEvalMain :: Env -> Eval Val -> IO Val
 runEvalMain env eval = withSocketsDo $ do
     val     <- runEvalIO env eval
     -- freePerl5 my_perl
+    liftIO performGC
     return val
 
 runEnv :: Env -> IO Val
@@ -111,7 +112,7 @@ prepareEnv name args = do
     errSV   <- newScalar (VStr "")
     defSV   <- newScalar undef
     autoSV  <- newScalar undef
-    classes <- initClassObjects [] initTree
+    classes <- initClassObjects (-1) [] initTree
 #if defined(PUGS_HAVE_HSPLUGINS)
     hspluginsSV <- newScalar (VInt 1)
 #else
@@ -176,14 +177,14 @@ prepareEnv name args = do
     where
     hideInSafemode x = if safeMode then MkRef $ constScalar undef else x
 
-initClassObjects :: [Type] -> ClassTree -> IO [STM PadMutator]
-initClassObjects parent (Node typ children) = do
-    obj     <- createObject (mkType "Class") $
+initClassObjects :: ObjectId -> [Type] -> ClassTree -> IO [STM PadMutator]
+initClassObjects uniq parent (Node typ children) = do
+    obj     <- createObjectRaw uniq Nothing (mkType "Class")
         [ ("name",   castV $ showType typ)
         , ("traits", castV $ map showType parent)
         ]
     objSV   <- newScalar (VObject obj)
-    rest    <- mapM (initClassObjects [typ]) children
+    rest    <- mapM (initClassObjects (pred uniq) [typ]) children
     let sym = genSym (':':'*':showType typ) $ MkRef objSV
     return (sym:concat rest)
 

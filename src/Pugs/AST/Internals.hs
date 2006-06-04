@@ -32,6 +32,7 @@ module Pugs.AST.Internals (
     VCode(..), SubType(..), -- uses Pad, Exp, Type
     VJunc(..), JuncType(..), -- uss Val
     VObject(..), -- uses VType, IHash, Unique
+    ObjectId(..),
     VType, -- uses Type
     VRule(..), -- uses Val
 
@@ -65,9 +66,10 @@ module Pugs.AST.Internals (
     buildParam, defaultArrayParam, defaultHashParam, defaultScalarParam,
     emptyExp,
     isSlurpy, envWant,
-    extractPlaceholderVars, fromObject, createObject,
+    extractPlaceholderVars, fromObject, createObject, createObjectRaw,
     doPair, doHash, doArray,
     unwrap, -- Unwrap(..) -- not used in this file, suitable for factoring out
+    newObjectId,
     
     expToEvalVal, -- Hack, should be removed once it's figured out how
 ) where
@@ -229,17 +231,30 @@ class (Typeable n, Show n, Ord n) => Value n where
 errType :: (Typeable a) => a -> String
 errType x = show (typeOf x)
 
-createObject :: (MonadIO m) => VType -> [(VStr, Val)] -> m VObject
-createObject typ attrList = liftIO $ do
+createObject :: VType -> [(VStr, Val)] -> Eval VObject
+createObject typ attrList = do
+    uniq    <- newObjectId
+    createObjectRaw uniq Nothing typ attrList
+
+createObjectRaw :: (MonadSTM m)
+    => ObjectId -> Maybe Dynamic -> VType -> [(VStr, Val)] -> m VObject
+createObjectRaw uniq opaq typ attrList = do
     attrs   <- liftSTM . newTVar . Map.map lazyScalar $ Map.fromList attrList
-    uniq    <- newUnique
     return $ MkObject
         { objType   = typ
         , objId     = uniq
         , objAttrs  = attrs
-        , objOpaque = Nothing
+        , objOpaque = opaq
         }
 
+newObjectId :: Eval ObjectId
+newObjectId = do
+    tv <- asks envMaxId
+    liftSTM $ do
+        rv <- readTVar tv
+        writeTVar tv (succ rv)
+        return rv
+        
 fromObject :: forall a. (Typeable a) => VObject -> a
 fromObject obj = case objOpaque obj of
     Nothing     -> castFail obj "VObject without opaque"
@@ -1120,6 +1135,8 @@ data Env = MkEnv
     , envPos     :: !Pos                 -- ^ Source position range
     , envPragmas :: ![Pragma]            -- ^ List of pragmas in effect
     , envInitDat :: !(TVar InitDat)      -- ^ BEGIN result information
+    , envMaxId   :: !(TVar ObjectId)     -- ^ Current max object id
+    , envAtomic  :: !Bool                -- ^ Are we in an atomic transaction?
     } 
     deriving (Show, Eq, Ord, Typeable) -- don't derive YAML for now
 
@@ -1177,11 +1194,14 @@ data PadEntry
 data IHashEnv = MkHashEnv deriving (Show, Typeable) {-!derive: YAML_Pos!-}
 data IScalarCwd = MkScalarCwd deriving (Show, Typeable) {-!derive: YAML_Pos!-}
 
+newtype ObjectId = MkObjectId { unObjectId :: Int }
+    deriving (Show, Eq, Ord, Num, Enum, Typeable) {-!derive: YAML_Pos!-}
+
 data VObject = MkObject
     { objType   :: !VType
     , objAttrs  :: !IHash
     , objOpaque :: !(Maybe Dynamic)
-    , objId     :: !Unique
+    , objId     :: !ObjectId
     }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
@@ -1253,7 +1273,7 @@ mkCompUnit :: String -> Pad -> Exp -> CompUnit
 mkCompUnit _ pad ast = MkCompUnit compUnitVersion pad ast
 
 compUnitVersion :: Int
-compUnitVersion = 1
+compUnitVersion = 2
 
 {- Eval Monad -}
 -- type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
@@ -1261,7 +1281,7 @@ type Eval = EvalT (ContT Val (ReaderT Env SIO))
 newtype EvalT m a = EvalT { runEvalT :: m a }
 
 runEvalSTM :: Env -> Eval Val -> STM Val
-runEvalSTM env = runSTM . (`runReaderT` env) . (`runContT` return) . runEvalT
+runEvalSTM env = runSTM . (`runReaderT` env { envAtomic = True }) . (`runContT` return) . runEvalT
 
 runEvalIO :: Env -> Eval Val -> IO Val
 runEvalIO env = runIO . (`runReaderT` env) . (`runContT` return) . runEvalT
@@ -1366,7 +1386,7 @@ guardIO io = do
 {-|
 Like @guardIO@, perform an IO action and raise an exception if it fails.
 
-If the failure matches one of the IOErrors in the 'safetyNet' list,
+If t
 supress the exception and return an associated value instead.
 -}
 guardIOexcept :: [((IOError -> Bool), a)] -> IO a -> Eval a
@@ -1382,9 +1402,12 @@ guardIOexcept safetyNet io = do
         | otherwise = catcher e safetyNets
 
 instance MonadSTM Eval where
-    -- XXX: Should be this:
     -- liftSTM stm = EvalT (lift . lift . liftSTM $ stm)
-    liftSTM stm = EvalT (lift . lift . liftIO . liftSTM $ stm)
+    liftSTM stm = do
+        atom <- asks envAtomic
+        if atom
+            then EvalT (lift . lift . liftSTM $ stm)
+            else EvalT (lift . lift . liftIO . liftSTM $ stm)
 
 instance MonadReader Env Eval where
     ask       = lift ask
@@ -1806,6 +1829,7 @@ _FakeEnv = unsafePerformIO $ liftSTM $ do
     ref  <- newTVar Map.empty
     glob <- newTVar $ MkPad Map.empty
     init <- newTVar $ MkInitDat { initPragmas=[] }
+    maxi <- newTVar 1
     return $ MkEnv
         { envContext = CxtVoid
         , envLexical = MkPad Map.empty
@@ -1818,22 +1842,24 @@ _FakeEnv = unsafePerformIO $ liftSTM $ do
         , envCaller  = Nothing
         , envOuter   = Nothing
         , envDepth   = 0
-        -- XXX see AST/Internals.hs
-        --, envID      = uniq
         , envBody    = Val undef
         , envDebug   = Just ref -- Set to "Nothing" to disable debugging
         , envPos     = MkPos "<null>" 1 1 1 1
         , envPragmas = []
         , envInitDat = init
+        , envMaxId   = maxi
+        , envAtomic  = False
         }
 
 fakeEval :: MonadIO m => Eval Val -> m Val
 fakeEval = liftIO . runEvalIO _FakeEnv
 
-
 instance YAML ([Val] -> Eval Val) where
     asYAML _ = return nilNode
     fromYAML _ = return (const $ return VUndef)
+instance YAML ObjectId where
+    asYAML (MkObjectId x) = asYAML x
+    fromYAML x = fmap MkObjectId (fromYAML x)
 instance YAML (Maybe Env) where
     asYAML _ = return nilNode
     fromYAML _ = return Nothing

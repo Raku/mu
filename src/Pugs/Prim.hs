@@ -98,7 +98,7 @@ op1 "!"    = op1Cast (VBool . not)
 op1 "id" = \x -> do
     val <- fromVal x
     case val of
-        VObject o   -> return . castV . hashUnique $ objId o
+        VObject o   -> return . castV . unObjectId $ objId o
         _           -> return undef
 op1 "chop" = \x -> do
     str <- fromVal x
@@ -281,6 +281,9 @@ op1 "Pugs::Internals::eval_perl5" = \v -> do
 op1 "Pugs::Internals::eval_p6y" = op1EvalP6Y
 op1 "Pugs::Internals::eval_haskell" = op1EvalHaskell
 op1 "Pugs::Internals::eval_yaml" = evalYaml
+op1 "atomically" = \v -> do
+    env <- ask
+    liftSTM . runEvalSTM env . evalExp $ App (Val v) Nothing []
 op1 "try" = \v -> do
     sub <- fromVal v
     val <- resetT $ evalExp (App (Val $ VCode sub) Nothing [])
@@ -492,6 +495,7 @@ op1 "async" = \v -> do
         { threadId      = tid
         , threadLock    = lock
         }
+    return undef
 op1 "listen" = \v -> do
     port    <- fromVal v
     socket  <- guardIO $ listenOn (PortNumber $ fromInteger port)
@@ -1095,7 +1099,7 @@ op3 "Object::new" = \t n p -> do
     named   <- fromVal n
     attrs   <- liftSTM $ newTVar Map.empty
     writeIVar (IHash attrs) named
-    uniq    <- liftIO $ newUnique
+    uniq    <- newObjectId
     unless (positionals == VList []) (fail "Must only use named arguments to new() constructor")
     let obj = VObject $ MkObject
             { objType   = typ
@@ -1106,23 +1110,14 @@ op3 "Object::new" = \t n p -> do
     -- Now start calling BUILD for each of parent classes (if defined)
     op2 "BUILDALL" obj $ (VRef . hashRef) named
     -- Register finalizers by keeping weakrefs somehow
-    env <- ask
-    liftIO $ obj `setFinalizationIn` env
-    where
-    setFinalizationIn obj env = do
-        objRef <- mkWeakPtr obj . Just $ do
-            runEvalIO env $ do
-                evalExp $ App (Var "&DESTROYALL") (Just $ Val obj) []
-            return ()
-        modifyIORef _GlobalFinalizer (>> finalize objRef)
-        return obj
-        
+    setFinalization obj
+
 op3 "Object::clone" = \t n _ -> do
     named <- fromVal n
     (VObject o) <- fromVal t
     attrs   <- readIVar (IHash $ objAttrs o)
     attrs'  <- liftSTM $ newTVar Map.empty
-    uniq    <- liftIO $ newUnique
+    uniq    <- newObjectId
     writeIVar (IHash attrs') (named `Map.union` attrs)
     return $ VObject o{ objAttrs = attrs', objId = uniq }
 
@@ -1429,6 +1424,19 @@ primDecl str = primOp sym assoc params ret (safe == "safe")
     prms'' = foldr foldParam [] prms'
     params = map (\p -> p{ isWritable = isLValue p }) prms''
 
+setFinalization :: a -> Eval a
+setFinalization obj = do
+    env <- ask
+    -- liftIO $ obj `setFinalizationIn` env
+    return obj
+    where
+    setFinalizationIn obj env = do
+        objRef <- mkWeakPtr obj . Just $ do
+            runEvalIO env $ do
+                evalExp $ App (Var "&DESTROYALL") (Just $ Val obj) []
+            return ()
+        modifyIORef _GlobalFinalizer (>> finalize objRef)
+        return obj
 
 -- op1 "perl"
 prettyVal :: (?seen :: IntSet.IntSet, ?recur :: TVar Bool) => Val -> Eval VStr
@@ -1606,6 +1614,7 @@ initSyms = mapM primDecl syms
 \\n   Str       pre     perl    safe   (rw!Any|Junction|Pair)\
 \\n   Any       pre     try     safe   (Code)\
 \\n   Any       pre     lazy    safe   (Code)\
+\\n   Any       pre     atomically     safe   (Code)\
 \\n   Any       pre     Pugs::Internals::eval    safe   (Str)\
 \\n   Any       pre     evalfile     unsafe (Str)\
 \\n   Any       pre     Pugs::Internals::eval_parrot  unsafe (Str)\

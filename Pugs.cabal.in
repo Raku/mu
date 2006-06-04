@@ -4,7 +4,7 @@ license: GPL
 license-file: LICENSE
 copyright: 2005-2006, Audrey Tang
 maintainer: Audrey Tang <autrijus@autrijus.org>
-build-depends: fps -any, HsSyck -any, QuickCheck -any, base -any, mtl -any, stm -any, haskell98 -any, parsec -any, network -any, template-haskell -any__DEPENDS__
+build-depends: fps -any, HsSyck -any, QuickCheck -any, base -any, mtl -any, stm -any, haskell98 -any, parsec -any, network -any, haskell98 -any, template-haskell -any__DEPENDS__
 stability: experimental
 homepage: http://pugscode.org/
 synopsis: A Perl 6 Implementation
@@ -20,4 +20,4 @@ extra-lib-dirs: __LIB_DIRS__
 extensions: ForeignFunctionInterface
 include-dirs: __INCLUDE_DIRS__
 other-modules: Data.DeepSeq DrIFT.JSON DrIFT.Perl5 DrIFT.YAML RRegex RRegex.PCRE RRegex.Syntax System.FilePath UTF8
-ghc-options: __OPTIONS__
+ghc-options: __OPTIONS__ -smp +RTS -N2 -RTS
