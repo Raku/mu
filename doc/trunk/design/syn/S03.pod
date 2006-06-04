@@ -39,7 +39,7 @@ defines a postfix C<!> operator.
 argument, and C<+> imposes a numeric (C<Num>) context (as opposed
 to being a no-op in Perl 5).  Along the same lines, C<?> imposes
 a boolean (C<Bool>) context, and the C<[,]> list operator imposes
-an function-arguments (C<Capture>) context on its argumetns.
+an function-arguments (C<Capture>) context on its arguments.
 Unary sigils impose the container context implied by their sigil.
 As with Perl 5, however, C<$$foo[bar]> parses as C<$($foo)[bar]>,
 so you need C<$($foo[bar])> to mean the other way.
