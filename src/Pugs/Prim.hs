@@ -283,7 +283,7 @@ op1 "Pugs::Internals::eval_haskell" = op1EvalHaskell
 op1 "Pugs::Internals::eval_yaml" = evalYaml
 op1 "atomically" = \v -> do
     env <- ask
-    liftSTM . runEvalSTM env . evalExp $ App (Val v) Nothing []
+    guardSTM . runEvalSTM env . evalExp $ App (Val v) Nothing []
 op1 "try" = \v -> do
     sub <- fromVal v
     val <- resetT $ evalExp (App (Val $ VCode sub) Nothing [])
@@ -320,7 +320,7 @@ op1 "sign" = \v -> withDefined [v] $
 
 op1 "rand"  = \v -> do
     x    <- fromVal v
-    rand <- guardIO $ randomRIO (0, if x == 0 then 1 else x)
+    rand <- guardSTM . unsafeIOToSTM $ randomRIO (0, if x == 0 then 1 else x)
     return $ VNum rand
 op1 "say" = op2 "IO::say" (VHandle stdout)
 op1 "print" = op2 "IO::print" (VHandle stdout)
@@ -583,8 +583,8 @@ op1 "gather" = \v -> do
     evl <- asks envEval
     evl (Syn "gather" [Val v])
 op1 "Thread::yield" = const $ do
-    ok <- tryIO False $ do { yield ; return True } -- change to guardIO?
-    return $ VBool ok
+    guardSTM . unsafeIOToSTM $ yield
+    return $ VBool True
 op1 "DESTROYALL" = \x -> cascadeMethod id "DESTROY" x VUndef
 -- [,] is a noop -- It simply returns the input list
 op1 "prefix:[,]" = return
@@ -1057,7 +1057,7 @@ op3 "Pugs::Internals::caller" = \x y z -> do
         _        -> fromVal x
     skip <- fromVal y
     when (skip < 0) $ do
-        liftIO $ fail "Pugs::Internals::caller called with negative skip"
+        fail "Pugs::Internals::caller called with negative skip"
     label <- fromVal z
     op3Caller kind skip label
 op3 "index" = \x y z -> do
@@ -1424,11 +1424,12 @@ primDecl str = primOp sym assoc params ret (safe == "safe")
     prms'' = foldr foldParam [] prms'
     params = map (\p -> p{ isWritable = isLValue p }) prms''
 
-setFinalization :: a -> Eval a
+setFinalization :: Val -> Eval Val
 setFinalization obj = do
     env <- ask
-    -- liftIO $ obj `setFinalizationIn` env
-    return obj
+    if envAtomic env
+        then liftIO $ obj `setFinalizationIn` env
+        else return obj -- XXX - Can't set finalizers in STM
     where
     setFinalizationIn obj env = do
         objRef <- mkWeakPtr obj . Just $ do

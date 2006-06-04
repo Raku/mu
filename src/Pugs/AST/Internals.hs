@@ -50,7 +50,7 @@ module Pugs.AST.Internals (
     -- MonadEval(..),
 
     runEvalSTM, runEvalIO, shiftT, resetT, callCC,
-    undef, defined, tryIO, guardIO, guardIOexcept,
+    undef, defined, tryIO, guardSTM, guardIO, guardIOexcept,
     readRef, writeRef, clearRef, dumpRef, forceRef,
     askGlobal, writeVar, readVar,
     findSymRef, findSym,
@@ -1372,6 +1372,13 @@ instance Functor Eval where
 
 instance MonadIO Eval where
     liftIO io = EvalT (liftIO io)
+
+guardSTM :: STM a -> Eval a
+guardSTM stm = do
+    rv <- liftSTM $ fmap Right stm `catchSTM` (return . Left)
+    case rv of
+        Left e -> fail (show e)
+        Right v -> return v
     
 {-|
 Perform an IO action and raise an exception if it fails.

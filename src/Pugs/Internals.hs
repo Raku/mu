@@ -72,6 +72,7 @@ module Pugs.Internals (
     warn,
     die,
     _GlobalFinalizer,
+    unsafeIOToSTM,
 ) where
 
 import UTF8
@@ -125,6 +126,7 @@ import Data.IntMap (IntMap)
 import Debug.Trace
 import GHC.Base (realWorld#)
 import GHC.IOBase (IO(..))
+import GHC.Conc (unsafeIOToSTM)
 
 -- Instances.
 instance Show Unique where
