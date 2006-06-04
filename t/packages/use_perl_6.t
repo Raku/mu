@@ -5,4 +5,5 @@
 use Perl-6;
 use Test;
 
+plan 1;
 ok "'use Perl-6' works (and means the same as 'use v6')";
