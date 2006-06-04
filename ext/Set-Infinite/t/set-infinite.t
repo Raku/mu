@@ -44,9 +44,9 @@ is( $set1.end_is_closed,   Bool::True, "end_is_closed" );
 is( $set1.size, 2, "real size" );
 # XXX is( $set1.size( density => 1 ), 3, "integer size" );
 
-is( try { $set1.intersects( $set2 ) }, Bool::True, 'intersects', :todo<bug> );
+is( try { $set1.intersects( $set2 ) }, Bool::True, 'intersects');
 
-is( try { $set1.intersects( $set3 ) }, Bool::False, "doesn't intersect" );
+is( try { $set1.intersects( $set3 ) }, Bool::False, "doesn't intersect", :todo<bug> );
 
 is( try { $set1.intersection( $set2 ).stringify }, '[2,3]', 'intersection', :todo<bug> );
 

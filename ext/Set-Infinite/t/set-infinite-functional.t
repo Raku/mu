@@ -48,8 +48,8 @@ is( $set1.end_is_closed,   Bool::True, "end_is_closed" );
 is( $set1.size, 2, "real size" );
 # XXX is( $set1.size( density => 1 ), 3, "integer size" );
 
-flunk "union() unimplemented and intersectino() fails", :todo<bug>;
-skip_rest "union() unimplemented and intersectino() fails";
+flunk "union() unimplemented and intersection() fails", :todo<bug>;
+skip_rest "union() unimplemented and intersection() fails";
 exit;
 
 is( $set1.intersects( $set2 ), Bool::True, 'intersects' );

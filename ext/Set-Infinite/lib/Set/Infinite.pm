@@ -71,16 +71,19 @@ submethod BUILD ($class: *%param ) {
     }
     # TODO - use reduce()
     $.set = Set::Infinite::Functional.empty_set();
-    $.set = $.set.union( Set::Infinite::Functional.new( spans => $_ ) ) for @spans;
+    $.set = $.set.union( Set::Infinite::Functional.new( spans => [$_] ) ) for @spans;
 }
 
 method universal_set ($class: ) returns Set::Infinite { 
-    $class.new( spans => Span.new( start => -Inf, end => Inf ) );
+    $class.new( spans => [Span.new( start => -Inf, end => Inf )] );
 }
 
 method empty_set ($class: ) returns Set::Infinite { $class.new() }
 
-method spans ()         returns List of Span { return $.set.spans }
+method spans ()         returns List of Span {
+    my $set = $.set;
+    return $set.spans;
+}
 method is_empty ()      returns bool   { return $.set.is_empty }
 method is_infinite ()   returns bool   { return $.set.is_infinite }
 method start ()         returns Object { return $.set.start }
@@ -171,7 +174,7 @@ method remove ($self: $span ) {
 
 method next ( $x ) { 
     # TODO - simplify this 
-    for @.set.spans {
+    for $.set.spans {
         my $result = $_.next( $x );
         return $result if $result != Inf;
     }
@@ -180,7 +183,7 @@ method next ( $x ) {
 
 method previous ( $x ) { 
     # TODO - simplify this 
-    my @a = @.set.spans;
+    my @a = $.set.spans;
     @a = reverse @a;
     for @a {
         my $result = $_.previous( $x );
@@ -222,7 +225,7 @@ class Set::Infinite::Iterator
     submethod BUILD ( $.set ) {}
     method next ($self: ) {
         # TODO - simplify this
-        my @spans = @.set.spans;
+        my @spans = $.set.spans;
         loop {
             if defined $.current {
                 my $span = @spans[$.current_span];
@@ -248,7 +251,7 @@ class Set::Infinite::Iterator
     }
     method previous ($self: ) {
         # TODO - simplify this
-        my @spans = @.set.spans;
+        my @spans = $.set.spans;
         loop {
             if defined $.current {
                 my $span = @spans[$.current_span];
