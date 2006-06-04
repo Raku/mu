@@ -1,5 +1,6 @@
 import qualified Judy.BitSet2 as BS
 import Foreign.StablePtr
+import Judy.Private (Value)
 
 main = do
     putStrLn "# BitSet tests:"
@@ -13,7 +14,7 @@ check l = do
 
 testSimple = do
     putStr "simple: \t"
-    s <- BS.new
+    s <- newIntSet
     BS.set s 3 True
     BS.set s 10 True
     BS.set s 30 True
@@ -25,11 +26,14 @@ testSimple = do
 
 data Useless a = A a | B a a deriving (Show, Eq)
 
+instance BS.Hashable a => BS.Hashable (Useless a) where
+    hash _ = return 1
+
 testGet2 = do
     putStr "testGet2: \t"
     let x = A 1
         y = B 42 59
-    s <- BS.new 
+    s <- BS.new :: IO (BS.BitSet (Useless Integer))
     BS.set s x True
     a <- BS.get s x
     b <- BS.get s (A 2)
@@ -38,9 +42,13 @@ testGet2 = do
     d <- BS.get s (B 42 59)
     check [a, not b, c, d]
 
+
+newIntSet :: IO (BS.BitSet Int)
+newIntSet = BS.new
+
 testGet = do
     putStr "testGet: \t"
-    s <- BS.new
+    s <- newIntSet
     a <- BS.get s 2
     BS.set s 1 True
     b <- BS.get s 1
@@ -55,8 +63,8 @@ testGet = do
 
 testSwapBitSets = do
     putStr "swapBitSets: \t"
-    s1 <- BS.new
-    s2 <- BS.new
+    s1 <- newIntSet
+    s2 <- newIntSet
     BS.set s1 1 True
     BS.set s2 2 True
     BS.swapBitSets s1 s2
@@ -68,7 +76,7 @@ testSwapBitSets = do
 -- FIXME: GHC actually creates different StablePtrs for same data sometimes.
 testSetList = do
     putStr "setList: \t"
-    s <- BS.new
+    s <- newIntSet
     BS.setList [1..10] True s
     j <- newStablePtr 10
     j1 <- newStablePtr 10
@@ -88,7 +96,7 @@ testSetList = do
 
 testSetList' = do
     putStr "setList': \t"
-    s <- BS.new
+    s <- newIntSet
     BS.setList [1,2,3,4,5,6,7,8,9,10] True s
     a <- BS.get s 10
     BS.setList [2,3,4,5,6,7,8,9,10] False s

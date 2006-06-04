@@ -7,12 +7,24 @@ import Foreign.Storable
 import Foreign.Ptr
 import Foreign.StablePtr
 import System.IO.Unsafe
+import Data.HashTable (hashString)
 
 import Judy.Private
 import Judy.Freeze
 
+class Hashable a where
+    hash :: (a -> IO Value)
 
-newtype BitSet a = BitSet (ForeignPtr Judy1)
+instance Hashable Value where
+    hash = return
+
+instance Hashable Int where
+    hash = return . toEnum
+
+instance Hashable Integer where
+    hash = return . fromIntegral . hashString . show
+
+newtype Hashable a => BitSet a = BitSet { judy :: ForeignPtr Judy1 }
     deriving (Eq, Ord, Typeable)
 
 instance Show (BitSet a) where
@@ -37,31 +49,31 @@ new = do
     return $ BitSet fp
 
 -- | set a bit and return its old state
-set :: BitSet a -> a -> Bool -> IO Bool
+set :: Hashable a => BitSet a -> a -> Bool -> IO Bool
 set (BitSet j) v True = withForeignPtr j $ \j ->  do
-    vp <- newStablePtr v
-    r <- judy1Set j (ptrToWordPtr (castStablePtrToPtr vp)) judyError
+    vp <- hash v
+    r <- judy1Set j vp judyError
     return $ r == 0
 set (BitSet j) v False = withForeignPtr j $ \j -> do
-    vp <- newStablePtr v
-    r <- judy1Unset j (ptrToWordPtr (castStablePtrToPtr vp)) judyError
+    vp <- hash v
+    r <- judy1Unset j vp judyError
     return $ r /= 0
 
 
 -- this inline was in Meacham original BitSet
 -- {-# INLINE get #-}
-get :: BitSet a -> a -> IO Bool
+get :: Hashable a => BitSet a -> a -> IO Bool
 get (BitSet j) v = do
     jj <- withForeignPtr j peek
-    vp <- newStablePtr v
-    r <- judy1Test jj (ptrToWordPtr (castStablePtrToPtr vp)) judyError
+    vp <- hash v
+    r <- judy1Test jj vp judyError
     return $ r /= 0
 
 clear :: BitSet a -> IO ()
 clear (BitSet j) = withForeignPtr j $ \j -> judy1FreeArray j judyError >> return ()
 
 
-toListIO :: BitSet a -> IO [a]
+toListIO :: Hashable a => BitSet a -> IO [a]
 toListIO (BitSet j) = do
     jj <- withForeignPtr j peek
     alloca $ \vp -> do
@@ -103,7 +115,7 @@ setList vs False (BitSet bs) = withForeignPtr bs $ \j -> mapM_ (\v -> do
 
 -}
 
-setList :: [a] -> Bool -> BitSet a -> IO ()
+setList :: Hashable a => [a] -> Bool -> BitSet a -> IO ()
 setList vs t j = mapM_ (\x -> set j x t) vs
 
 
