@@ -58,7 +58,7 @@ is(@a[1], "foo", 'the list was reversed properly');
 	};
 
 	is(~@cxt_log, ~("List (Any)" xx 4), "contexts were passed correctly around masak's bug", :todo<bug>);
-	is(+@n, 3, "list context reverse in masak's bug", :todo<bug>);
+	is(+@n, 3, "list context reverse in masak's bug");
 	is(~@n, "3 2 1", "elements seem reversed");
 }
 
