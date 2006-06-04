@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 19 May 2006
+  Last Modified: 3 Jun 2006
   Number: 3
-  Version: 35
+  Version: 36
 
 =head1 Changes to existing operators
 
@@ -109,22 +109,35 @@ since list assignment operators are of assignment precedence to their left.
 
     loop ($a = 1, $b = 2; ; $a++, $b++) {...}
 
-still works fine.  The distinction between scalar and list assignment
-is similar to the way Perl 5 does it.  If there are parens around
-the left side, or if the variable is an array or hash, it's a list
-assignment.  Otherwise it's a scalar assignment.  One difference from
-Perl 5 is that Perl 6 does not attempt to intuit whether an lvalue
-slice is meant to be one element or several, so you must use parens
-in that case.  This is true even if you put something that is obviously
-a list as the subscript:
+still works fine.  The distinction between scalar and list
+assignment is similar to the way Perl 5 does it, but has to be a
+little different because we can no longer decide on the basis of
+the sigil.  The following forms are defined as "obviously simple",
+and imply scalar assignment:
 
-    @x[1,2,3] = 4,5,6;		# WRONG
-    (@x[1,2,3]) = 4,5,6;	# correct
+    $a		# simple scalar variable
+    @a[123]	# single literal subscript
+    %a{'x'}	# single literal subscript
+    %a<x>	# single literal subscript
+    @a[+TERM]	# single term coerced to numeric for array
+    %a{~TERM}	# single term coerced to string for hash
+    @a[SIMPLE]	# any of these simples used as subscript recursively
+    %a[SIMPLE]	# any of these simples used as subscript recursively
 
-These parens actually apply list context on both sides:
+All other forms imply list assignment, and will evaluate both sides
+of the assignment in list context (eventually).   However, this is
+primarily a syntactic distinction, and no semantic or type information
+is used, since it influences subsequent parsing.  In particular, even
+if a function is known to return a scalar value from its declaration,
+you must use C<+> or or C<~> to use it as a scalar within a subscript:
 
-    @x[foo()] = bar();		# foo() and bar() both in scalar context
-    (@x[foo()]) = bar();	# foo() and bar() both in list context
+    @a[foo()] = bar();		# foo() and bar() called in list context
+    @a[+foo()] = bar();		# foo() and bar() called in scalar context
+
+(But note that the first form still works fine if C<foo()> and C<bar()>
+are scalar functions that are not context sensitive.  The difference
+in parsing is only an issue if C<bar()> is followed by a comma or
+some such.)
 
 =item * List operators are all parsed consistently.  As in Perl 5,
 to the left they look like terms, while to the right they look like
