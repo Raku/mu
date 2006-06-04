@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 3 Jun 2006
+  Last Modified: 4 Jun 2006
   Number: 3
-  Version: 36
+  Version: 37
 
 =head1 Changes to existing operators
 
@@ -33,13 +33,15 @@ an alternate form that does.  (The converse does not hold--just because
 you can write C<x().foo> doesn't mean you can write C<x()foo>.)  In the
 absence of a postfix interpretation, the dot form will call the corresponding
 prefix operator instead.  So C<x().!> will call C<!x()> unless someone
-defines a postfix C<!> operator.
+defines a postfix C<!> operator.  In particular, you can say things like
+C<$array.@> and C<$filename.-e.-r>, but you can't say C<$fh.=> because
+there's a C<.=> operator already.
 
 =item * Unary C<~> now imposes a string (C<Str>) context on its
 argument, and C<+> imposes a numeric (C<Num>) context (as opposed
 to being a no-op in Perl 5).  Along the same lines, C<?> imposes
 a boolean (C<Bool>) context, and the C<[,]> list operator imposes
-an function-arguments (C<Capture>) context on its arguments.
+a function-arguments (C<Capture>) context on its arguments.
 Unary sigils impose the container context implied by their sigil.
 As with Perl 5, however, C<$$foo[bar]> parses as C<$($foo)[bar]>,
 so you need C<$($foo[bar])> to mean the other way.
@@ -116,9 +118,9 @@ the sigil.  The following forms are defined as "obviously simple",
 and imply scalar assignment:
 
     $a		# simple scalar variable
-    @a[SIMPLE]	# single simple subscript
-    %a{SIMPLE}	# single simple subscript
-    %a<x>	# single literal subscript
+    ANY[SIMPLE]	# single simple subscript
+    ANY{SIMPLE}	# single simple subscript
+    ANY<x>	# single literal subscript
 
 Where SIMPLE is defined as 
 
@@ -131,8 +133,8 @@ Where SIMPLE is defined as
     ~TERM	# any single term coerced to string
     ?TERM	# any single term coerced to boolean
     !TERM	# any single term coerced to boolean
-    @a[SIMPLE]	# any of these simples used as subscript recursively
-    %a{SIMPLE}	# any of these simples used as subscript recursively
+    ANY[SIMPLE]	# any of these simples used as subscript recursively
+    ANY{SIMPLE}	# any of these simples used as subscript recursively
 
 We also include:
 
