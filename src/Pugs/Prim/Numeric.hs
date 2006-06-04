@@ -97,5 +97,5 @@ op2Modulus x y
     where
     err = fail "Illegal modulus zero"
     fmod :: RealFrac a => a -> a -> a
-    fmod x y = let mod = x - (fromIntegral (truncate (x/y)) * y) in
+    fmod x y = let mod = x - (fromIntegral (truncate (x/y) :: Integer) * y) in
         if signum y * signum mod < 0 then mod + y else mod
