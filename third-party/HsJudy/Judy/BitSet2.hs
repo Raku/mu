@@ -44,12 +44,10 @@ instance HashIO Integer where
 newtype HashIO a => BitSet a = BitSet { judy :: ForeignPtr Judy1 }
     deriving (Eq, Ord, Typeable)
 
-
 instance Show (BitSet a) where
-    show (BitSet j) = "<BitSet " ++ show j ++ ">"
+    show (BitSet bs) = "<BitSet " ++ show bs ++ ">"
 
-
--- | O(1) - swap contents of two bitsets
+-- | Swap contents of two sets.
 swapBitSets :: BitSet a -> BitSet a -> IO ()
 swapBitSets (BitSet bs1) (BitSet bs2) = do
     withForeignPtr bs1 $ \p1 ->  do
@@ -59,7 +57,7 @@ swapBitSets (BitSet bs1) (BitSet bs2) = do
             poke p1 v2
             poke p2 v1
 
--- | create a bitset
+-- | Create a set.
 new :: HashIO a => IO (BitSet a)
 new = do
     fp <- mallocForeignPtr
@@ -67,7 +65,21 @@ new = do
     withForeignPtr fp $ flip poke nullPtr
     return $ BitSet fp
 
--- | set a bit and return its old state
+-- | Add a value to the set.
+insert :: HashIO a => BitSet a -> a -> IO ()
+insert (BitSet bs) v = withForeignPtr bs $ \bs' -> do
+    v' <- hashIO v
+    judy1Set bs' v' judyError
+    return ()
+
+-- | Delete a value in the set.
+delete :: HashIO a => BitSet a -> a -> IO ()
+delete (BitSet bs) v = withForeignPtr bs $ \bs' -> do
+    v' <- hashIO v
+    judy1Unset bs' v' judyError
+    return ()
+
+-- | Set value in or out the set and return its old value.
 set :: HashIO a => BitSet a -> a -> Bool -> IO Bool
 set (BitSet j) v True = withForeignPtr j $ \j ->  do
     vp <- hashIO v
@@ -88,9 +100,32 @@ get (BitSet j) v = do
     r <- judy1Test jj vp judyError
     return $ r /= 0
 
+-- | Is the value a member of the set? 
+member :: HashIO a => BitSet a -> a -> IO Bool
+member (BitSet bs) v = do
+    bs' <- withForeignPtr bs peek
+    v' <- hashIO v
+    r <- judy1Test bs' v' judyError
+    return $ r /= 0
+
+-- | Is the set empty?
+null :: BitSet a -> IO Bool
+null (BitSet bs) = do
+    bs' <- withForeignPtr bs peek
+    return $ bs' == nullPtr
+
+-- | Cardinality of the set.
+size :: BitSet a -> IO Int
+size (BitSet bs) = do
+    bs' <- withForeignPtr bs peek
+    r <- judy1Count bs' 0 (-1) judyError
+    return $ fromEnum r
+
+-- | Make the set empty.
 clear :: HashIO a => BitSet a -> IO ()
 clear (BitSet j) = withForeignPtr j $ \j -> judy1FreeArray j judyError >> return ()
 
+-- | Convert the set to a list of elements.
 toList :: ReversibleHashIO a => BitSet a -> IO [a]
 toList (BitSet j) = do
     jj <- withForeignPtr j peek
@@ -105,6 +140,13 @@ toList (BitSet j) = do
         r <- judy1Last jj vp judyError
         f r []
 
+-- | Create a set from a list of elements.
+fromList :: HashIO a => [a] -> BitSet a -> IO ()
+fromList vs bs = mapM_ (\v -> insert bs v) vs
+
+
+
+-- FIXME: Is this other implementation faster than mapM_?
 {-setList :: [a] -> Bool -> BitSet a ->  IO ()
 setList vs True (BitSet bs) = withForeignPtr bs $ \j -> mapM_ (\v -> do
                                                                  vp <- newStablePtr v
@@ -117,8 +159,7 @@ setList vs False (BitSet bs) = withForeignPtr bs $ \j -> mapM_ (\v -> do
 
 -}
 
-setList :: HashIO a => [a] -> Bool -> BitSet a -> IO ()
-setList vs t j = mapM_ (\x -> set j x t) vs
+
 
 
 {-

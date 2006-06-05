@@ -5,7 +5,8 @@ import Judy.Private (Value)
 main = do
     putStrLn "# BitSet tests:"
     -- FIXME: A better way to do this must exist...
-    sequence [testIntSimple, testIntGet, testIntSwapBitSets, testIntSetList]
+    sequence [testIntSimple, testIntGet, testIntSwapBitSets, testIntSetList,
+              testIntNullMember, testIntSize, testIntInsertDelete]
     sequence [testUselessSimple, testUselessGet, testUselessSwapBitSets, testUselessSetList]
 
 check l = do
@@ -55,15 +56,60 @@ testIntSwapBitSets = do
     check [xs == [2], ys == [1]]
 
 testIntSetList = do
-    putStr "int setList: \t"
+    putStr "int fromList: \t"
     s <- newIntSet
-    BS.setList [1..10] True s
+    BS.fromList [1..10] s
     a <- BS.get s 10
-    BS.setList [2..10] False s
+    BS.set s 10 False
     b <- BS.get s 10
     c <- BS.get s 1
     check [a, not b, c]
 
+testIntNullMember = do
+    putStr "int nullmember:\t"
+    s <- newIntSet
+    a <- BS.null s
+    b <- BS.member s 3
+    BS.fromList [1..10] s
+    c <- BS.member s 3
+    d <- BS.null s
+    check [a, not b, c, not d]
+
+testIntSize = do
+    putStr "int size:  \t"
+    s <- newIntSet
+    a <- BS.size s
+    BS.fromList [1..10] s
+    b <- BS.size s
+    BS.clear s
+    c <- BS.size s
+    BS.set s 3 True
+    BS.set s 2 True
+    d <- BS.size s
+    check [a == 0, b == 10, c == 0, d == 2]
+
+testIntInsertDelete = do
+    putStr "int ins/del: \t"
+    s <- newIntSet
+    BS.insert s 1
+    a <- BS.toList s
+    BS.delete s 1
+    b <- BS.toList s
+    BS.insert s 1
+    BS.insert s 2
+    BS.insert s 42
+    c <- BS.toList s
+    BS.insert s 1
+    d <- BS.toList s
+    BS.delete s 1
+    BS.delete s 2
+    e <- BS.toList s
+    BS.delete s 1
+    f <- BS.toList s
+    check [a == [1], b == [], c == [1,2,42],
+           d == c, e == [42], f == [42]]
+
+    
 
 {- Tests for Useless type -- an enumerable type -}
 newUselessSet :: IO (BS.BitSet Useless)
@@ -117,11 +163,11 @@ testUselessSwapBitSets = do
     check [xs == [B,C], ys == [A]]
 
 testUselessSetList = do
-    putStr "ul setList: \t"
+    putStr "ul fromList: \t"
     s <- newUselessSet
-    BS.setList [A,B,C,D] True s
+    BS.fromList [A,B,C,D] s
     a <- BS.get s D
-    BS.setList [B,C,D] False s
+    BS.set s D False
     b <- BS.get s D
     c <- BS.get s A
     check [a, not b, c]
