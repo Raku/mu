@@ -705,10 +705,20 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
             , App sub (Just $ Val $ VStr $ pkg) [imp]
             , emptyExp
             ]
-        -- for now, export everthing to the package.
-        -- TODO: lexdiff stuff, and import protocol.
-        Val (VList exportList) <- unsafeEvalExp $
-            App (Var "&kv") (Just $ Var ('%':pkg ++ "::EXPORTS")) []
+
+        Val (VList exportList) <- unsafeEvalExp $ case lang of
+            -- map { ~$_, [::Pkg.can($_)] }, @importlist
+            "perl5" -> App (Var "&map") Nothing [Syn "sub"
+                [ Val . VCode $ mkSub
+                    { subBody   = Syn ","
+                        [ App (Var "&prefix:<~>") (Just $ Var "$_") []
+                        , Syn "\\[]" [ App (Var "&can") (Just $ Var (':':pkg)) [Var "$_"] ]
+                        ]
+                    , subParams = [defaultScalarParam]
+                    }
+                ], imp ]
+            -- %Pkg::EXPORTS.kv
+            _ -> App (Var "&kv") (Just $ Var ('%':pkg ++ "::EXPORTS")) []
 
         let hardcodedScopeFixme = SMy
             doExportList [] = []
