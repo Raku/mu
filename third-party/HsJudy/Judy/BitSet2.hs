@@ -12,23 +12,42 @@ import Data.HashTable (hashString)
 import Judy.Private
 import Judy.Freeze
 
-class Hashable a where
-    hash :: (a -> IO Value)
 
-instance Hashable Value where
-    hash = return
+class Enum a => HashIO a where
+    hashIO :: a -> IO Value
+    -- Two step conversion, first from a -> Int then Int -> Value
+    hashIO = return . toEnum . fromEnum
+class HashIO a => UniqueHashIO a
+class UniqueHashIO a => ReversibleHashIO a where
+    unHashIO :: Value -> IO a
+    -- Two step conversion, first from Value -> Int then Int -> a
+    unHashIO = return . toEnum . fromEnum
 
-instance Hashable Int where
-    hash = return . toEnum
 
-instance Hashable Integer where
-    hash = return . fromIntegral . hashString . show
+instance HashIO Value where
+    hashIO = return
+instance UniqueHashIO Value
+instance ReversibleHashIO Value where
+    unHashIO = return
 
-newtype Hashable a => BitSet a = BitSet { judy :: ForeignPtr Judy1 }
+
+instance HashIO Int where
+    hashIO = return . toEnum
+instance UniqueHashIO Int
+instance ReversibleHashIO Int where
+    unHashIO = return . fromEnum
+
+instance HashIO Integer where
+    hashIO = return . fromIntegral . hashString . show
+
+
+newtype HashIO a => BitSet a = BitSet { judy :: ForeignPtr Judy1 }
     deriving (Eq, Ord, Typeable)
+
 
 instance Show (BitSet a) where
     show (BitSet j) = "<BitSet " ++ show j ++ ">"
+
 
 -- | O(1) - swap contents of two bitsets
 swapBitSets :: BitSet a -> BitSet a -> IO ()
@@ -41,7 +60,7 @@ swapBitSets (BitSet bs1) (BitSet bs2) = do
             poke p2 v1
 
 -- | create a bitset
-new :: IO (BitSet a)
+new :: HashIO a => IO (BitSet a)
 new = do
     fp <- mallocForeignPtr
     addForeignPtrFinalizer judy1_free_ptr fp
@@ -49,59 +68,42 @@ new = do
     return $ BitSet fp
 
 -- | set a bit and return its old state
-set :: Hashable a => BitSet a -> a -> Bool -> IO Bool
+set :: HashIO a => BitSet a -> a -> Bool -> IO Bool
 set (BitSet j) v True = withForeignPtr j $ \j ->  do
-    vp <- hash v
+    vp <- hashIO v
     r <- judy1Set j vp judyError
     return $ r == 0
 set (BitSet j) v False = withForeignPtr j $ \j -> do
-    vp <- hash v
+    vp <- hashIO v
     r <- judy1Unset j vp judyError
     return $ r /= 0
 
 
 -- this inline was in Meacham original BitSet
 -- {-# INLINE get #-}
-get :: Hashable a => BitSet a -> a -> IO Bool
+get :: HashIO a => BitSet a -> a -> IO Bool
 get (BitSet j) v = do
     jj <- withForeignPtr j peek
-    vp <- hash v
+    vp <- hashIO v
     r <- judy1Test jj vp judyError
     return $ r /= 0
 
-clear :: BitSet a -> IO ()
+clear :: HashIO a => BitSet a -> IO ()
 clear (BitSet j) = withForeignPtr j $ \j -> judy1FreeArray j judyError >> return ()
 
-
-toListIO :: Hashable a => BitSet a -> IO [a]
-toListIO (BitSet j) = do
+toList :: ReversibleHashIO a => BitSet a -> IO [a]
+toList (BitSet j) = do
     jj <- withForeignPtr j peek
     alloca $ \vp -> do
         poke vp (-1)
         let f 0 xs = return xs
             f _ xs = do
                 v <- peek vp
-                v' <- deRefStablePtr $ castPtrToStablePtr $ wordPtrToPtr v
+                v' <- unHashIO v
                 r <- judy1Prev jj vp judyError
                 f r (v':xs)
         r <- judy1Last jj vp judyError
         f r []
-
-toListIOp :: BitSet a -> IO [Value]
-toListIOp (BitSet j) = do
-     jj <- withForeignPtr j peek
-     alloca $ \vp -> do
-         poke vp (-1)
-         let f 0 xs = return xs
-             f _ xs = do
-                 v <- peek vp
-                 r <- judy1Prev jj vp judyError
-                 f r (v:xs)
-         r <- judy1Last jj vp judyError
-         f r []
-
-
-
 
 {-setList :: [a] -> Bool -> BitSet a ->  IO ()
 setList vs True (BitSet bs) = withForeignPtr bs $ \j -> mapM_ (\v -> do
@@ -115,7 +117,7 @@ setList vs False (BitSet bs) = withForeignPtr bs $ \j -> mapM_ (\v -> do
 
 -}
 
-setList :: Hashable a => [a] -> Bool -> BitSet a -> IO ()
+setList :: HashIO a => [a] -> Bool -> BitSet a -> IO ()
 setList vs t j = mapM_ (\x -> set j x t) vs
 
 

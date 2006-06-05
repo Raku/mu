@@ -4,50 +4,33 @@ import Judy.Private (Value)
 
 main = do
     putStrLn "# BitSet tests:"
-    testSetList
---    sequence [testSimple, testGet, testGet2, testSwapBitSets, testSetList, testSetList']
+    -- FIXME: A better way to do this must exist...
+    sequence [testIntSimple, testIntGet, testIntSwapBitSets, testIntSetList]
+    sequence [testUselessSimple, testUselessGet, testUselessSwapBitSets, testUselessSetList]
 
 check l = do
     if and l
         then putStrLn "ok"
         else putStrLn "bad"
 
-testSimple = do
-    putStr "simple: \t"
+
+{- Tests for Int type -}
+newIntSet :: IO (BS.BitSet Int)
+newIntSet = BS.new
+
+testIntSimple = do
+    putStr "int simple: \t"
     s <- newIntSet
     BS.set s 3 True
     BS.set s 10 True
     BS.set s 30 True
-    xs <- BS.toListIO s
+    xs <- BS.toList s
     BS.clear s
-    ys <- BS.toListIO s
+    ys <- BS.toList s
     check [xs == [3,10,30], ys == []]
 
-
-data Useless a = A a | B a a deriving (Show, Eq)
-
-instance BS.Hashable a => BS.Hashable (Useless a) where
-    hash _ = return 1
-
-testGet2 = do
-    putStr "testGet2: \t"
-    let x = A 1
-        y = B 42 59
-    s <- BS.new :: IO (BS.BitSet (Useless Integer))
-    BS.set s x True
-    a <- BS.get s x
-    b <- BS.get s (A 2)
-    BS.set s y True
-    c <- BS.get s y
-    d <- BS.get s (B 42 59)
-    check [a, not b, c, d]
-
-
-newIntSet :: IO (BS.BitSet Int)
-newIntSet = BS.new
-
-testGet = do
-    putStr "testGet: \t"
+testIntGet = do
+    putStr "int get: \t"
     s <- newIntSet
     a <- BS.get s 2
     BS.set s 1 True
@@ -60,47 +43,85 @@ testGet = do
     e <- BS.get s 1
     check [not a, b, c, not d, not e]
 
-
-testSwapBitSets = do
-    putStr "swapBitSets: \t"
+testIntSwapBitSets = do
+    putStr "int swapBS: \t"
     s1 <- newIntSet
     s2 <- newIntSet
     BS.set s1 1 True
     BS.set s2 2 True
     BS.swapBitSets s1 s2
-    xs <- BS.toListIO s1
-    ys <- BS.toListIO s2
+    xs <- BS.toList s1
+    ys <- BS.toList s2
     check [xs == [2], ys == [1]]
 
-
--- FIXME: GHC actually creates different StablePtrs for same data sometimes.
-testSetList = do
-    putStr "setList: \t"
+testIntSetList = do
+    putStr "int setList: \t"
     s <- newIntSet
     BS.setList [1..10] True s
-    j <- newStablePtr 10
-    j1 <- newStablePtr 10
     a <- BS.get s 10
-    xs <- BS.toListIOp s
-    BS.set s 10 True
-    ys <- BS.toListIOp s
     BS.setList [2..10] False s
     b <- BS.get s 10
     c <- BS.get s 1
-    putStr $ (show a) ++ "," ++ (show b) ++ "," ++ (show c) ++ " => "
     check [a, not b, c]
-    putStrLn $ "\t" ++ (show xs)
-    putStrLn $ "\t" ++ (show ys)
-    putStrLn $ "\t" ++ (show (j == j1))
 
 
-testSetList' = do
-    putStr "setList': \t"
-    s <- newIntSet
-    BS.setList [1,2,3,4,5,6,7,8,9,10] True s
-    a <- BS.get s 10
-    BS.setList [2,3,4,5,6,7,8,9,10] False s
-    b <- BS.get s 10
-    c <- BS.get s 1
-    putStr $ (show a) ++ "," ++ (show b) ++ "," ++ (show c) ++ " => "
+{- Tests for Useless type -- an enumerable type -}
+newUselessSet :: IO (BS.BitSet Useless)
+newUselessSet = BS.new
+
+data Useless = A | B | C | D deriving (Show, Eq, Enum)
+
+-- FIXME: Is this really necessary? Useless already derives Enum
+instance BS.HashIO Useless
+instance BS.UniqueHashIO Useless
+instance BS.ReversibleHashIO Useless
+
+testUselessSimple = do
+    putStr "ul simple: \t"
+    s <- newUselessSet
+    BS.set s A True
+    BS.set s B True
+    xs <- BS.toList s
+    BS.clear s
+    ys <- BS.toList s
+    BS.set s D True
+    BS.set s C True
+    BS.set s D False
+    zs <- BS.toList s
+    check [xs == [A,B], ys == [], zs == [C]]
+
+testUselessGet = do
+    putStr "ul get: \t"
+    s <- newUselessSet
+    a <- BS.get s C
+    BS.set s D True
+    b <- BS.get s D
+    BS.set s A True
+    c <- BS.get s A
+    BS.set s A False
+    d <- BS.get s A
+    BS.clear s
+    e <- BS.get s D
+    check [not a, b, c, not d, not e]
+
+testUselessSwapBitSets = do
+    putStr "ul swapBS: \t"
+    s1 <- newUselessSet
+    s2 <- newUselessSet
+    BS.set s1 A True
+    BS.set s2 B True
+    BS.set s2 C True
+    BS.swapBitSets s1 s2
+    xs <- BS.toList s1
+    ys <- BS.toList s2
+    check [xs == [B,C], ys == [A]]
+
+testUselessSetList = do
+    putStr "ul setList: \t"
+    s <- newUselessSet
+    BS.setList [A,B,C,D] True s
+    a <- BS.get s D
+    BS.setList [B,C,D] False s
+    b <- BS.get s D
+    c <- BS.get s A
     check [a, not b, c]
