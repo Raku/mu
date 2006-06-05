@@ -36,6 +36,23 @@
 
 == pX effort [XXX: please putter, fglock, etc., fill this in]
 
+* misc/pX/Common is a place where people can collaboratively hack
+* lrep - a bootstrapped, very minimal Perl 6 compiler written in Perl 6
+** compiles itself to Perl 5 code - does not depend on pugs or parrot.
+** still depends on Perl 5 for unimplemented parts.
+** supports simple macros.
+** 'lrep-compiler' is the development version.
+* Pugs-Compiler-Rule - a compiler for Perl 6 Rules - published in CPAN
+** uses Module::Install 'pmc' magic for executing Perl 6 from plain Perl 5.
+** the "Rule" grammar is written in Perl 6, and it is compiled to Perl 5 using 'lrep'.
+* Pugs-Compiler-Precedence - an operator precedence parser, built around Parse::Yapp
+* Inline-Parrot - a C version of Inline-Parrot - uses nci for data exchange.
+* Pugs-Grammar-Perl6 - a Perl 6 parser - parses Test.pm!
+* re-override - moved to /perl5/re-override - swaps in an alternate regexp engine:
+  `./perl -we 'use Regexp::Perl6; print "a" =~ /<word>**{1}/;'`
+* Pugs-Grammar-MiniPerl6 - translate Perl 6 rules into haskell Parsec, such that
+  Parser.hs can be generated from the Perl 6 grammar.
+
 == Test, Examples and Documentations
 
 * Restored this ChangeLog's entries for v6.0.0 thru v6.0.8, which were
