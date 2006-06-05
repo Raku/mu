@@ -16,8 +16,6 @@ unless try({ eval("1", :lang<perl5>) }) {
 }
 
 eval q[
-
-use perl5:Digest::MD5;
-ok(md5("foo\n") eq "d3b07384d113edec49eaa6238ad5ff00", "import p5 module");
-
-];
+use perl5:Text::Wrap 'wrap';
+is(wrap('foo', 'bar', 'baz'), 'foobaz', "import p5 module");
+] or die $!.perl;
