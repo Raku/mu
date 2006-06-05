@@ -76,14 +76,19 @@ rule num_variable :P5 {^(?:\$[[:digit:]]+)}
         { return { match_variable => $_[0]{num_variable}() ,} }
     }
     unshift @rule_terms, 'match_variable';
+
+    rule named_capture_body {
+          [ \( <rule> \) { return { rule => $_[0]{rule}(), } } ]
+        | [ \[ <rule> \] { return { rule => $_[0]{rule}(), } } ]
+        | [ <metasyntax> { return { rule => $_[0]{metasyntax}(), } } ]
+    }
     
     rule named_capture {
-        \$ \< <ident> \> <?ws>? \:\= <?ws>? \( <rule> \) 
+        \$ \< <ident> \> <?ws>? \:\= <?ws>? <named_capture_body>
         
-        { return { named_capture => {
-                ident => $_[0]{ident}(),
-                rule  => $_[0]{rule}(),
-            }, } 
+        { my $body = $_[0]{named_capture_body}();
+          $body->{ident} = $_[0]{ident}();
+          return { named_capture => $body, } 
         }
     }
     unshift @rule_terms, 'named_capture';

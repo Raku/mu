@@ -1,5 +1,5 @@
 
-use Test::More tests => 68;
+use Test::More tests => 74;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -494,4 +494,25 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     $match = $rule->match( "a b b b d" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "", 'sigspace no match' );
+}
+
+{
+    my $rule = Pugs::Compiler::Rule->compile( '$<z> := (.)' );
+    my $match = $rule->match( "abc" );
+    ok( $match, 'true match' );
+    is( "$match->{z}", "a", 'named capture on parentheses' );
+}
+
+{
+    my $rule = Pugs::Compiler::Rule->compile( '$<z> := [.]' );
+    my $match = $rule->match( "abc" );
+    ok( $match, 'true match' );
+    is( "$match->{z}", "a", 'named capture on square brackets' );
+}
+
+{
+    my $rule = Pugs::Compiler::Rule->compile( '$<z> := <any>' );
+    my $match = $rule->match( "abc" );
+    ok( $match, 'true match' );
+    is( "$match->{z}", "a", 'named capture on subrule' );
 }

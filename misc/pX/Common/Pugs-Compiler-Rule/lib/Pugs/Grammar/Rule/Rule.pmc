@@ -2,7 +2,7 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0xA10F88C4 or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0x1D6399E1 or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
 use base 'Pugs::Grammar::Base';
@@ -236,6 +236,56 @@ sub {
     )
 };
     unshift @Pugs::Grammar::Rule::rule_terms, 'match_variable';
+*{'Pugs::Grammar::Rule::named_capture_body'} = 
+sub {
+    my $grammar = shift;
+    $_[0] = '' unless defined $_[0];
+    package Pugs::Runtime::Rule;
+    rule_wrapper( $_[0], (
+          alternation( [
+              concat(
+                constant( "\(" )
+              ,
+                capture( 'rule', sub{ $grammar->rule(@_) } )
+              ,
+                constant( "\)" )
+              ,
+                Pugs::Runtime::Rule::abort(
+                    sub {
+                        return { bool => 1, tail => $_[0], return => sub { return { rule => $_[0]{rule}(), } } };
+                    }
+                )
+              ,
+              ),
+              concat(
+                constant( "\[" )
+              ,
+                capture( 'rule', sub{ $grammar->rule(@_) } )
+              ,
+                constant( "\]" )
+              ,
+                Pugs::Runtime::Rule::abort(
+                    sub {
+                        return { bool => 1, tail => $_[0], return => sub { return { rule => $_[0]{rule}(), } } };
+                    }
+                )
+              ,
+              ),
+              concat(
+                capture( 'metasyntax', sub{ $grammar->metasyntax(@_) } )
+              ,
+                Pugs::Runtime::Rule::abort(
+                    sub {
+                        return { bool => 1, tail => $_[0], return => sub { return { rule => $_[0]{metasyntax}(), } } };
+                    }
+                )
+              ,
+              ),
+          ] )
+        ,
+        )->( @_ )
+    )
+};
 *{'Pugs::Grammar::Rule::named_capture'} = 
 sub {
     my $grammar = shift;
@@ -265,18 +315,13 @@ sub {
             ,
           )
         ,
-          constant( "\(" )
-        ,
-          capture( 'rule', sub{ $grammar->rule(@_) } )
-        ,
-          constant( "\)" )
+          capture( 'named_capture_body', sub{ $grammar->named_capture_body(@_) } )
         ,
           Pugs::Runtime::Rule::abort(
               sub {
-                  return { bool => 1, tail => $_[0], return => sub { return { named_capture => {
-                ident => $_[0]{ident}(),
-                rule  => $_[0]{rule}(),
-            }, } 
+                  return { bool => 1, tail => $_[0], return => sub { my $body = $_[0]{named_capture_body}();
+          $body->{ident} = $_[0]{ident}();
+          return { named_capture => $body, } 
         } };
               }
           )
