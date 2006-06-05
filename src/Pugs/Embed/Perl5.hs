@@ -65,6 +65,7 @@ mkSV :: IO PerlSV -> IO PerlSV
 mkSV = id
 
 #else
+#undef RETURN
 
 {-# INCLUDE "../../perl5/p5embed.h" #-}
 {-# INCLUDE "../../perl5/pugsembed.h" #-}
@@ -80,7 +81,7 @@ type PerlInterpreter = Ptr ()
 type PerlSV = Ptr ()
 type PugsVal = Ptr ()
 
-foreign import ccall "perl.h perl_alloc"
+foreign import ccall "EXTERN.h perl_alloc"
     perl_alloc :: IO PerlInterpreter
 foreign import ccall "perl.h perl_construct"
     perl_construct :: PerlInterpreter -> IO ()
