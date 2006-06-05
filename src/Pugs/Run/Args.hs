@@ -173,7 +173,18 @@ desugarDashE ((Switch 'n'):args) = desugarDashE $
 -- internally:
 --   "-e foo bar.p6" executes "foo" with @*ARGS[0] eq "bar.p6",
 --   "-E foo bar.p6" executes "foo" and then bar.p6.
-desugarDashE ((Opt "-M" mod):args) = desugarDashE ((Opt "-E" (";use " ++ mod ++ ";\n")):args)
+desugarDashE ((Opt "-M" mod):args)
+    | (mod', (_:args)) <- break (== '=') mod
+    = useWith $ mod' ++ " '" ++ escape args ++ "'.split(',')"
+    | otherwise
+    = useWith mod
+    where
+    useWith mod = desugarDashE ((Opt "-E" (";use " ++ mod ++ ";\n")):args)
+    escape [] = []
+    escape ('\'':xs) = '\\':'\'':escape xs
+    escape ('\\':xs) = '\\':'\\':escape xs
+    escape (x:xs) = x:escape xs
+
 
 -- Preserve the curious Perl5 behaviour:
 --   perl -e 'print CGI->VERSION' -MCGI     # works
