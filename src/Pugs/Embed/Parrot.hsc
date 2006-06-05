@@ -131,6 +131,7 @@ _DoCompile = Nothing
 #else
 {-# OPTIONS_GHC -#include "parrot/embed.h" #-}
 {-# OPTIONS_GHC -#include "parrot/extend.h" #-}
+{-# INCLUDE "../../pge/parrotembed.c" #-}
 
 #include <parrot/packfile.h>
 #include <parrot/interpreter.h>
@@ -205,7 +206,14 @@ initParrot = do
     parrot_compreg interp pugsStr callback
 
     modifyIORef _GlobalFinalizer (>> parrot_exit 0)
+
     return interp
+    where
+    parrotFinalize = do
+        interp <- readIORef _ParrotInterp
+        if interp == nullPtr then return () else do
+        writeIORef _ParrotInterp nullPtr
+        parrot_exit 0
 
 makeAscii :: String -> ParrotInterp -> IO ParrotString
 makeAscii str interp = withCString str (const_string interp)
@@ -239,16 +247,20 @@ evalPGE :: FilePath -> String -> String -> [(String, String)] -> IO String
 evalPGE path str pat subrules = do
     interp          <- initParrot
     (match, add)    <- loadPGE interp path
+    -- set error handler here
     (`mapM_` subrules) $ \(name, rule) -> do
         s1  <- name `makeUTF8` interp
         s2  <- rule `makeUTF8` interp
-        withCString "SSS" $ \sig -> do
-            parrot_call_sub_SSS interp add sig s1 s2
+        callSubSSS interp add s1 s2
     s1  <- str `makeUTF8` interp
     s2  <- pat `makeUTF8` interp
-    s5  <- withCString "SSS" $ \sig -> do
-        parrot_call_sub_SSS interp match sig s1 s2
-    peekCString =<< parrot_string_to_cstring interp s5
+    s5  <- callSubSSS interp match s1 s2
+    if s5 == nullPtr
+        then do
+            parrot_init interp
+            parrot_imcc_init interp
+            fail "*** Running embedded 'parrot' failed"
+        else peekCString =<< parrot_string_to_cstring interp s5
 
 evalParrotFile :: FilePath -> IO ()
 evalParrotFile file = do
@@ -361,6 +373,11 @@ foreign import ccall "imcc_init"
 
 foreign import ccall "imcc_compile_pir"
     parrot_imcc_compile_pir :: ParrotInterp -> CString -> IO ParrotPMC
+
+#def void* Pugs_callSubSSS(void *i, void *p, void *x, void *y)
+
+foreign import ccall "Pugs_callSubSSS"
+    callSubSSS :: ParrotInterp -> ParrotPMC -> ParrotString -> ParrotString -> IO ParrotString
 
 #def void imcc_init(Parrot_Interp interpreter)
 #def PMC * imcc_compile_pir(Parrot_Interp interp, const char *s)
