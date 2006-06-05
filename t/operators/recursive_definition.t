@@ -3,11 +3,14 @@
 use v6;
 use Test;
 
-plan 1;
+plan 2;
 
-sub postfix:<!>($arg) {
-	if ($arg == 0) { 1;}
-	else { ($arg-1)! * $arg;}
-}
+eval q{{
+    sub postfix:<!>($arg) {
+	    if ($arg == 0) { 1;}
+	    else { ($arg-1)! * $arg;}
+    }
 
-ok(5! == 120, "recursive factorial works");
+    ok(5! == 120, "recursive factorial works");
+}};
+is($!, undef, "recursive factorial parses");
