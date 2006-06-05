@@ -1,5 +1,5 @@
 
-use Test::More tests => 74;
+use Test::More tests => 77;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -38,7 +38,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     my $match = $rule->match("ac");
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     ok( !$match, "basic alternative" );
-    my $match = $rule->match("ab");
+    $match = $rule->match("ab");
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     ok( $match, "basic alternative - 2" );
 }
@@ -459,7 +459,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
      
     #print "Match: ", do{use Data::Dumper; Dumper(@a)};
     is( 0+@{$match->[0]}, 2, 'capturing with captures inside' );
-    is( 0+@{$match->[1]}, 0, 'capturing with captures inside - 2' );
+    is( $match->[1], undef, 'capturing with captures inside - 2' );
     
     is( "$match->[0][0]", "foo:food fool\n", 'capturing with captures inside - 3' );
     is( "$match->[0][1]", "bar:bard barb\n", 'capturing with captures inside - 4' );
@@ -478,7 +478,7 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "", 'sigspace no match' );
 
-    my $match = $rule->match( "a c" );
+    $match = $rule->match( "a c" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "a c", 'sigspace match' );
     is( $match->[0][0], undef, 'sigspace empty match' );
@@ -497,22 +497,25 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( '$<z> := (.)' );
+    my $rule = Pugs::Compiler::Rule->compile( '$<z> := (.)(.)' );
     my $match = $rule->match( "abc" );
     ok( $match, 'true match' );
     is( "$match->{z}", "a", 'named capture on parentheses' );
+    is( "$match->[0]", "b", 'named capture on parentheses not positioned' );
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( '$<z> := [.]' );
+    my $rule = Pugs::Compiler::Rule->compile( '$<z> := [.](.)' );
     my $match = $rule->match( "abc" );
     ok( $match, 'true match' );
     is( "$match->{z}", "a", 'named capture on square brackets' );
+    is( "$match->[0]", "b", 'named capture on square brackets not positioned' );
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( '$<z> := <any>' );
+    my $rule = Pugs::Compiler::Rule->compile( '$<z> := <any>(.)' );
     my $match = $rule->match( "abc" );
     ok( $match, 'true match' );
     is( "$match->{z}", "a", 'named capture on subrule' );
+    is( "$match->[0]", "b", 'named capture on subrule not positioned' );
 }

@@ -1,5 +1,5 @@
 
-use Test::More tests => 33;
+use Test::More tests => 37;
 use Data::Dumper;
 
 use_ok( 'Pugs::Compiler::Regex' );
@@ -76,6 +76,22 @@ use_ok( 'Pugs::Compiler::Regex' );
 
 {
     my $rule = Pugs::Compiler::Regex->compile( '$<z> := (.) { return { x => { %{$_[0]} } ,} } ' );
+    my $match = $rule->match( "abc" );
+    ok( $match, 'true match' );
+    my $ret = $match->();
+    is( $ret->{x}{z}, "a", 'returns correct struct' );
+}
+
+{
+    my $rule = Pugs::Compiler::Regex->compile( '$<z> := [.] { return { x => { %{$_[0]} } ,} } ' );
+    my $match = $rule->match( "abc" );
+    ok( $match, 'true match' );
+    my $ret = $match->();
+    is( $ret->{x}{z}, "a", 'returns correct struct' );
+}
+
+{
+    my $rule = Pugs::Compiler::Regex->compile( '$<z> := <any> { return { x => { %{$_[0]} } ,} } ' );
     my $match = $rule->match( "abc" );
     ok( $match, 'true match' );
     my $ret = $match->();
