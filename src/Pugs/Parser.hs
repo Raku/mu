@@ -271,6 +271,9 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     formal  <- option Nothing $ ruleSubParameters ParensMandatory
     typ''   <- option typ' $ try $ ruleBareTrait "returns"
     traits  <- many $ ruleTrait
+
+    -- XXX - We have the prototype now; install it immediately?
+
     -- bodyPos <- getPosition
     body    <- ruleBlock
     let (fun, names, params) = doExtract styp formal body
