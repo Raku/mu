@@ -93,10 +93,10 @@ my @bases = ();
 ok("GATTACA" ~~ m/ @bases:=[A|C|G|T]+ /, 'All your bases...');
 is("@bases", "G A T T A C A", '...are belong to us');
 
-@bases = ();
-ok("GATTACA" ~~ m/ @bases:=[A|C|G|T]**{4} (@bases+) /, 'Array reinterpolation');
-is("@bases[]", "G A T T", '...are belong to...');
-is("$0", "A", '...A');
+#@bases = ();
+#ok("GATTACA" ~~ m/ @bases:=[A|C|G|T]**{4} (@bases+) /, 'Array reinterpolation');
+#is("@bases[]", "G A T T", '...are belong to...');
+#is("$0", "A", '...A');
 
 }
 
