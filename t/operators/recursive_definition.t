@@ -12,5 +12,5 @@ eval q{{
     }
 
     ok(5! == 120, "recursive factorial works");
-}};
+}} or flunk("recursive factorial works", :todo<feature>);
 is($!, undef, "recursive factorial parses", :todo<feature>);
