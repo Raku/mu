@@ -1,6 +1,6 @@
 {-# OPTIONS -fallow-undecidable-instances -fallow-incoherent-instances #-}
 
-module Judy.BitSet2 where
+module Judy.BitSet where
 
 import Data.Typeable
 import Foreign.ForeignPtr

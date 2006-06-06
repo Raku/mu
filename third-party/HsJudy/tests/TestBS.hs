@@ -1,4 +1,4 @@
-import qualified Judy.BitSet2 as BS
+import qualified Judy.BitSet as BS
 import Judy.Freeze
 
 main = do

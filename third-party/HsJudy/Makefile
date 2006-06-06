@@ -1,6 +1,6 @@
 LDLIBS= -L/usr/local/lib -lJudy
 CC=ghc 
-TESTS=testbs2 testjl testjsl testjhs
+TESTS=testbs testjl testjsl testjhs
 
 CFLAGS= -O
 
@@ -22,7 +22,7 @@ all: try $(TESTS)
 
 Judy_hsc.c: Judy_hsc.h
 
-testbs2: tests/TestBS2.hs Judy/Private.hs Judy/BitSet2.hs Judy/Private_hsc.o
+testbs: tests/TestBS.hs Judy/Private.hs Judy/BitSet.hs Judy/Private_hsc.o
 	ghc $(HSFLAGS) --make $< Judy/Private_hsc.o -o $@
 
 testjl: tests/TestJL.hs Judy/Private.hs Judy/Private_hsc.o 
