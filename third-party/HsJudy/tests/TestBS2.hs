@@ -117,11 +117,6 @@ newUselessSet = BS.new
 
 data Useless = A | B | C | D deriving (Show, Eq, Enum)
 
--- FIXME: Is this really necessary? Useless already derives Enum
-instance BS.HashIO Useless
-instance BS.UniqueHashIO Useless
-instance BS.ReversibleHashIO Useless
-
 testUselessSimple = do
     putStr "ul simple: \t"
     s <- newUselessSet
