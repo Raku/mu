@@ -917,18 +917,20 @@ JudyHSIterXX(Pcvoid_t PArray,      /* pointer to array */                       
     uint32_t HValue;               /* hash of index string */                       \
     PPvoid_t PPValue;              /* pointer to pointer to value cell */           \
                                                                                     \
-    if (PPIter == NULL)            /* get iter structure: */                        \
+    if (PPIter == NULL)            /* lvalue arguments must not be NULL */          \
     {                                                                               \
-	PIter = makeIter(PArray, PJError); /* new */                                \
+        JU_SET_ERRNO(PJError, JU_ERRNO_NULLPPARRAY);  /* XXX NULLPPITER really */   \
+        return(PPJERR);                                                             \
+    }                                                                               \
+    PIter = *PPIter;               /* get iter structure */                         \
+    if (PIter == NULL)                                                              \
+    {                                                                               \
+	PIter = makeIter(PArray, PJError); /* or make new one */                    \
 	if (PIter == PJERR)                                                         \
         {                                                                           \
             return (PPJERR);                                                        \
 	}                                                                           \
 	*PPIter = PIter;                                                            \
-    }                                                                               \
-    else                                                                            \
-    {                                                                               \
-        PIter = *PPIter;           /* or existing */                                \
     }                                                                               \
                                                                                     \
     if (PStr == NULL || PLen == NULL)  /* lvalue arguments must not be NULL */      \
