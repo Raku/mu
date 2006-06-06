@@ -1,4 +1,4 @@
-{-# OPTIONS -fallow-undecidable-instances -fallow-overlapping-instances -fallow-incoherent-instances #-}
+{-# OPTIONS -fallow-undecidable-instances -fallow-incoherent-instances #-}
 
 module Judy.BitSet2 where
 
@@ -7,7 +7,6 @@ import Foreign.ForeignPtr
 import Foreign.Marshal.Alloc
 import Foreign.Storable
 import Foreign.Ptr
-import Foreign.StablePtr
 import System.IO.Unsafe
 import Data.HashTable (hashString)
 
@@ -16,12 +15,13 @@ import Judy.Freeze
 
 
 class HashIO a where
-    hashIO :: a -> IO Value
     -- Two step conversion, first from a -> Int then Int -> Value
+    hashIO :: a -> IO Value
 class HashIO a => UniqueHashIO a
 class UniqueHashIO a => ReversibleHashIO a where
-    unHashIO :: Value -> IO a
     -- Two step conversion, first from Value -> Int then Int -> a
+    unHashIO :: Value -> IO a
+
 
 instance Enum a => UniqueHashIO a where
 instance Enum a => HashIO a where
@@ -29,14 +29,17 @@ instance Enum a => HashIO a where
 instance Enum a => ReversibleHashIO a where
     unHashIO = return . toEnum . fromEnum
 
+
 instance HashIO Value where
     hashIO = return
 instance UniqueHashIO Value
 instance ReversibleHashIO Value where
     unHashIO = return
 
+
 instance HashIO Integer where
     hashIO = return . fromIntegral . hashString . show
+
 
 newtype HashIO a => BitSet a = BitSet { judy :: ForeignPtr Judy1 }
     deriving (Eq, Ord, Typeable)
@@ -44,11 +47,12 @@ newtype HashIO a => BitSet a = BitSet { judy :: ForeignPtr Judy1 }
 instance Show (BitSet a) where
     show (BitSet bs) = "<BitSet " ++ show bs ++ ">"
 
+
 -- | Swap contents of two sets.
 swapBitSets :: BitSet a -> BitSet a -> IO ()
-swapBitSets (BitSet bs1) (BitSet bs2) = do
-    withForeignPtr bs1 $ \p1 ->  do
-        withForeignPtr bs2 $ \p2 ->  do
+swapBitSets (BitSet j1) (BitSet j2) = do
+    withForeignPtr j1 $ \p1 ->  do
+        withForeignPtr j2 $ \p2 ->  do
             v1 <- peek p1
             v2 <- peek p2
             poke p1 v2
@@ -63,17 +67,17 @@ new = do
     return $ BitSet fp
 
 -- | Add a value to the set.
-insert :: HashIO a => BitSet a -> a -> IO ()
-insert (BitSet bs) v = withForeignPtr bs $ \bs' -> do
+insert :: HashIO a => a -> BitSet a -> IO ()
+insert v (BitSet j) = withForeignPtr j $ \j' -> do
     v' <- hashIO v
-    judy1Set bs' v' judyError
+    judy1Set j' v' judyError
     return ()
 
 -- | Delete a value in the set.
-delete :: HashIO a => BitSet a -> a -> IO ()
-delete (BitSet bs) v = withForeignPtr bs $ \bs' -> do
+delete :: HashIO a => a -> BitSet a -> IO ()
+delete v (BitSet j) = withForeignPtr j $ \j' -> do
     v' <- hashIO v
-    judy1Unset bs' v' judyError
+    judy1Unset j' v' judyError
     return ()
 
 -- | Set value in or out the set and return its old value.
@@ -98,48 +102,48 @@ get (BitSet j) v = do
     return $ r /= 0
 
 -- | Is the value a member of the set? 
-member :: HashIO a => BitSet a -> a -> IO Bool
-member (BitSet bs) v = do
-    bs' <- withForeignPtr bs peek
+member :: HashIO a => a -> BitSet a -> IO Bool
+member v (BitSet j) = do
+    j' <- withForeignPtr j peek
     v' <- hashIO v
-    r <- judy1Test bs' v' judyError
+    r <- judy1Test j' v' judyError
     return $ r /= 0
 
 -- | Is the set empty?
 null :: BitSet a -> IO Bool
-null (BitSet bs) = do
-    bs' <- withForeignPtr bs peek
-    return $ bs' == nullPtr
+null (BitSet j) = do
+    j' <- withForeignPtr j peek
+    return $ j' == nullPtr
 
 -- | Cardinality of the set.
 size :: BitSet a -> IO Int
-size (BitSet bs) = do
-    bs' <- withForeignPtr bs peek
-    r <- judy1Count bs' 0 (-1) judyError
+size (BitSet j) = do
+    j' <- withForeignPtr j peek
+    r <- judy1Count j' 0 (-1) judyError
     return $ fromEnum r
 
 -- | Make the set empty.
 clear :: HashIO a => BitSet a -> IO ()
-clear (BitSet j) = withForeignPtr j $ \j -> judy1FreeArray j judyError >> return ()
+clear (BitSet j) = withForeignPtr j $ \j' -> judy1FreeArray j' judyError >> return ()
 
 -- | Convert the set to a list of elements.
 toList :: ReversibleHashIO a => BitSet a -> IO [a]
 toList (BitSet j) = do
-    jj <- withForeignPtr j peek
+    j' <- withForeignPtr j peek
     alloca $ \vp -> do
         poke vp (-1)
         let f 0 xs = return xs
             f _ xs = do
                 v <- peek vp
                 v' <- unHashIO v
-                r <- judy1Prev jj vp judyError
+                r <- judy1Prev j' vp judyError
                 f r (v':xs)
-        r <- judy1Last jj vp judyError
+        r <- judy1Last j' vp judyError
         f r []
 
 -- | Create a set from a list of elements.
 fromList :: HashIO a => [a] -> BitSet a -> IO ()
-fromList vs bs = mapM_ (\v -> insert bs v) vs
+fromList vs bs = mapM_ (\v -> insert v bs) vs
 
 
 
@@ -159,34 +163,49 @@ setList vs False (BitSet bs) = withForeignPtr bs $ \j -> mapM_ (\v -> do
 
 
 
-{-
-fromListIO :: [Value] -> IO BitSet
-fromListIO ws = do
-    bs <- new
-    setList ws True bs
-    return bs
 
--- Pure access routines
+-- Pure access routines from original BitSet code
 
--- | create a frozen, immutable version of a bitset, the original mutable version is cleared.
-freezeBitSet :: BitSet -> IO (Frozen BitSet)
+instance HashIO a => Freezable (BitSet a) where
+    freeze = freezeBitSet
+
+-- | Create a frozen, immutable version of a bitset, the original mutable version is cleared.
+freezeBitSet :: HashIO a => BitSet a -> IO (Frozen (BitSet a))
 freezeBitSet bs = do
     nbs <- new
     swapBitSets bs nbs
     return (Frozen nbs)
 
-member :: Value -> Frozen BitSet -> Bool
-member wp (Frozen bs) = unsafePerformIO $ get bs wp
+memberF :: HashIO a => a -> Frozen (BitSet a) -> Bool
+memberF v (Frozen bs) = unsafePerformIO $ get bs v
 
-fromList :: [Value] -> Frozen BitSet
-fromList ws = Frozen $ unsafePerformIO $ do
+fromListF :: HashIO a => [a] -> Frozen (BitSet a)
+fromListF vs = Frozen $ unsafePerformIO $ do
     bs <- new
-    setList ws True bs
+    fromList vs bs
     return bs
 
-toList :: Frozen BitSet -> [Value]
-toList = toListFrom 0
+toListF :: ReversibleHashIO a => Frozen (BitSet a) -> [a]
+toListF (Frozen (BitSet j)) = unsafePerformIO $ do
+    j' <- withForeignPtr j peek
+    alloca $ \vp -> do
+        poke vp (-1)
+        let f 0 xs = return xs
+            f _ xs = do
+                v <- peek vp
+                v' <- unHashIO v
+                r <- judy1Prev j' vp judyError
+                f r (v':xs)
+        r <- judy1Last j' vp judyError
+        f r []
 
+
+-- TODO: See if ListFrom and RevList are needed
+-- compare my toListF with toListFrom (it have more unsafePerformIO's =P)
+
+{-
+toList :: Frozen (BitSet a) -> [Value]
+toList = toListFrom 0
 
 toListFrom :: Value -> Frozen BitSet -> [Value]
 toListFrom iwp (Frozen (BitSet bs)) = unsafePerformIO $ do
@@ -233,9 +252,5 @@ toRevListFrom iwp (Frozen (BitSet bs)) = unsafePerformIO $ do
                 return (f r v)
         return (f r v)
 
-
-instance Freezable BitSet where
-    freeze = freezeBitSet
-
-
 -}
+

@@ -1,21 +1,21 @@
 import qualified Judy.BitSet2 as BS
-import Foreign.StablePtr
-import Judy.Private (Value)
+import Judy.Freeze
 
 main = do
     putStrLn "# BitSet tests:"
     -- FIXME: A better way to do this must exist...
     sequence [testIntSimple, testIntGet, testIntSwapBitSets, testIntSetList,
-              testIntNullMember, testIntSize, testIntInsertDelete]
+              testIntNullMember, testIntSize, testIntInsertDelete, testIntFreeze,
+              testIntFromListF, testIntToListF]
     sequence [testUselessSimple, testUselessGet, testUselessSwapBitSets, testUselessSetList]
 
 check l = do
     if and l
         then putStrLn "ok"
-        else putStrLn "bad"
+        else putStrLn "BAD"
 
 
-{- Tests for Int type -}
+-- Tests for Int type. Uses default implementation for Enum types.
 newIntSet :: IO (BS.BitSet Int)
 newIntSet = BS.new
 
@@ -69,9 +69,9 @@ testIntNullMember = do
     putStr "int nullmember:\t"
     s <- newIntSet
     a <- BS.null s
-    b <- BS.member s 3
+    b <- BS.member 3 s
     BS.fromList [1..10] s
-    c <- BS.member s 3
+    c <- BS.member 3 s
     d <- BS.null s
     check [a, not b, c, not d]
 
@@ -91,31 +91,77 @@ testIntSize = do
 testIntInsertDelete = do
     putStr "int ins/del: \t"
     s <- newIntSet
-    BS.insert s 1
+    BS.insert 1 s
     a <- BS.toList s
-    BS.delete s 1
+    BS.delete 1 s
     b <- BS.toList s
-    BS.insert s 1
-    BS.insert s 2
-    BS.insert s 42
+    BS.insert 1 s 
+    BS.insert 2 s
+    BS.insert 42 s
     c <- BS.toList s
-    BS.insert s 1
+    BS.insert 1 s
     d <- BS.toList s
-    BS.delete s 1
-    BS.delete s 2
+    BS.delete 1 s
+    BS.delete 2 s
     e <- BS.toList s
-    BS.delete s 1
+    BS.delete 1 s
     f <- BS.toList s
     check [a == [1], b == [], c == [1,2,42],
            d == c, e == [42], f == [42]]
 
+testIntFreeze = do
+    putStr "int freeze: \t"
+    s <- newIntSet
+    BS.insert 1 s
+    BS.insert 2 s
+    ice <- freeze s
+    let a = BS.memberF 1 ice
+        b = BS.memberF 2 ice
+        c = BS.memberF 42 ice
+    check [a, b, not c]
+
+testIntFromListF = do
+    putStr "int fromF: \t"
+    let ice = BS.fromListF [42, 59] :: Frozen (BS.BitSet Int)
+        a = BS.memberF 42 ice
+        b = BS.memberF 1 ice
+        c = BS.memberF 59 ice
+        d = BS.memberF 2 ice
+    check [a, not b, c, not d]
+
+testIntToListF = do
+    putStr "int toF: \t"
+    s <- newIntSet
+    BS.insert 1 s
+    BS.insert 59 s
+    ice <- freeze s
+    let xs = BS.toListF ice
+        a = BS.memberF 1 ice
+        b = BS.memberF 2 ice
+    check [xs == [1,59], a, not b]
     
 
-{- Tests for Useless type -- an enumerable type -}
+
+-- Tests for Useless type.
 newUselessSet :: IO (BS.BitSet Useless)
 newUselessSet = BS.new
 
 data Useless = A | B | C | D deriving (Show, Eq, Enum)
+
+-- Enum types can provide own implementation if needed
+
+instance BS.HashIO Useless where
+    hashIO A = return 10
+    hashIO B = return 20
+    hashIO C = return 30
+    hashIO D = return 40
+instance BS.UniqueHashIO Useless where
+instance BS.ReversibleHashIO Useless where
+    unHashIO 10 = return A
+    unHashIO 20 = return B
+    unHashIO 30 = return C 
+    unHashIO 40 = return D
+
 
 testUselessSimple = do
     putStr "ul simple: \t"
