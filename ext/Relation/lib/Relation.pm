@@ -30,6 +30,11 @@ class Relation-0.0.1 {
         # of one of this Relation's attributes and the value corresponding
         # to that is the value for that attribute for that tuple.
         # Note that it is valid for a Relation to have zero tuples.
+    has Bool $!is_mutable;
+        # Bool
+        # Says whether this Relation is mutable or not;
+        # depending on the implementing class, it can default to True or 
+        # False, but once it has a value of False, it can not be changed.
 
 ###########################################################################
 
@@ -43,8 +48,9 @@ submethod BUILD (Set of Str :$heading? = set(),
             if !(all( $tuple.keys ) === $heading);
     }
 
-    $!heading = $heading;
-    $!body    = $body;
+    $!heading    = $heading;
+    $!body       = $body;
+    $!is_mutable = Bool::False;
 
     return;
 }
@@ -56,6 +62,12 @@ method export_as_hash () returns Hash {
         'heading' => $!heading,
         'body'    => $!body,
     };
+}
+
+###########################################################################
+
+method is_mutable () returns Bool {
+    return $!is_mutable;
 }
 
 ###########################################################################
@@ -689,7 +701,7 @@ same object with the same arguments; they do not interact with the outside
 environment at all.
 
 A Relation object has 2 main attributes (implementation details subject to
-change):
+change) plus 1 extra attribute:
 
 =over
 
@@ -706,6 +718,17 @@ the Relation; each Set member is a Mapping whose keys and values are
 attribute names and values.  Each Mapping key of a Body tuple must match a
 Set member of Heading, and the value of every tuple in Body must be
 mutually distinct.
+
+=item C<$!is_mutable> - B<Relation Is Mutable>
+
+Bool - This attribute is True if the Relation is allowed to and/or has the
+ability to mutate, and it is false if not.  Looking forward to the near
+future where "Relation" is a Role rather than a Class, and some
+implementations are immutable rather than mutable, this property and/or
+same-named accessor method can be used to see if a Relation-doing object
+can mutate.  Depending on the implementing class, it can default to True or
+False, but once it has a value of False, it can not be further changed;
+this class defaults it to False.
 
 =back
 
@@ -732,6 +755,10 @@ A Relation object has these methods:
 
 This method returns a deep copy of this Relation as a Hash ref of 2
 elements, which correspond to the 2 named parameters of C<new>.
+
+=item C<is_mutable () returns Bool>
+
+This method returns this Relation's "is mutable" boolean attribute.
 
 =item C<heading () returns Set of Str>
 
