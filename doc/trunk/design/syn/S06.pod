@@ -2107,9 +2107,9 @@ It returns a C<Code> object that implements the same behaviour
 as the original subroutine, but has the values passed to C<.assuming>
 already bound to the corresponding parameters:
 
-    $all  = $textfrom(0);   # same as: $all  = substr($text,0,Inf);
-    $some = $textfrom(50);  # same as: $some = substr($text,50,Inf);
-    $last = $textfrom(-1);  # same as: $last = substr($text,-1,Inf);
+    $all  = textfrom(0);   # same as: $all  = substr($text,0,Inf);
+    $some = textfrom(50);  # same as: $some = substr($text,50,Inf);
+    $last = textfrom(-1);  # same as: $last = substr($text,-1,Inf);
 
 The result of a C<use> statement is a (compile-time) object that also has
 an C<.assuming> method, allowing the user to bind parameters in all the
