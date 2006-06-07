@@ -899,119 +899,383 @@ static PPvoid_t findLowestByString (Pcvoid_t, uint8_t *, Word_t, PJError_t);
 static PPvoid_t findHighestByString(Pcvoid_t, uint8_t *, Word_t, PJError_t);
 
 
-// Find first string, at or after (index, length) if any, in JudyHS structure, 
+// Find <first> (<next>, <last>, <prev>) string, <at or after> (index, length) if any, 
+// in JudyHS structure, 
 // using or allocating JudyHSIter structure for state.
 // Return ppvalue and updated index, length, and state.
-#define defineJudyHSIterXX(JudyHSIterXX, findXXByLength)                            \
-PPvoid_t                                                                            \
-JudyHSIterXX(Pcvoid_t PArray,      /* pointer to array */                           \
-             PPvoid_t PPIter,      /* pointer to pointer to state structure */      \
-             void ** PStr,         /* pointer to pointer to index */                \
-             Word_t * PLen,        /* pointer to length of index */                 \
-             PJError_t PJError     /* optional, for returning error info */         \
-	    )                                                                       \
-{                                                                                   \
-    Phsi_t PIter;                  /* pointer to iterator structure */              \
-    uint8_t * String;              /* pointer to index string */                    \
-    Word_t Length;                 /* length of index string */                     \
-    uint32_t HValue;               /* hash of index string */                       \
-    PPvoid_t PPValue;              /* pointer to pointer to value cell */           \
-                                                                                    \
-    if (PPIter == NULL)            /* lvalue arguments must not be NULL */          \
-    {                                                                               \
-        JU_SET_ERRNO(PJError, JU_ERRNO_NULLPPARRAY);  /* XXX NULLPPITER really */   \
-        return(PPJERR);                                                             \
-    }                                                                               \
-    PIter = *PPIter;               /* get iter structure */                         \
-    if (PIter == NULL)                                                              \
-    {                                                                               \
-	PIter = makeIter(PArray, PJError); /* or make new one */                    \
-	if (PIter == PJERR)                                                         \
-        {                                                                           \
-            return (PPJERR);                                                        \
-	}                                                                           \
-	*PPIter = PIter;                                                            \
-    }                                                                               \
-                                                                                    \
-    if (PStr == NULL || PLen == NULL)  /* lvalue arguments must not be NULL */      \
-    {                                                                               \
-        JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);                                 \
-	return (PPJERR);                                                            \
-    }                                                                               \
-    String = *PStr;                                                                 \
-    Length = *PLen;                                                                 \
-    if (String == PIter->hsi_String && Length == PIter->hsi_Length)                 \
-    {                                                                               \
-        /* continuing where we left off: use PIter as is */                         \
-    }                                                                               \
-    else                                                                            \
-    {                                                                               \
-        if (String == NULL)        /* NULL string: two special cases */             \
-	{                                                                           \
-            switch (Length)                                                         \
-	    {                                                                       \
-                case 0UL:          /* 0 Length means start of array */              \
-                    Length = PIter->hsi_Length = 0;                                 \
-		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);             \
-		    break;                                                          \
-                case (Word_t)-1:   /* -1 Length means end of array */               \
-		    Length = PIter->hsi_Length = (Word_t)-1;                        \
-		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);             \
-		    break;                                                          \
-                default:                                                            \
-		    JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);                     \
-		    return (PPJERR);                                                \
-	    }                                                                       \
-	}                                                                           \
-	else                                                                        \
-	{                          /* new string: copy into iter structure */       \
-            PIter->hsi_Length = Length;                                             \
-	    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);                     \
-	    memcpy(PIter->hsi_String, String, Length);                              \
-	}                                                                           \
-	String = PIter->hsi_String;                                                 \
-    }                                                                               \
-    if (USEHASH)                   /* if using hash table layer: */                 \
-    {                                                                               \
-        if (Length > WORDSIZE)         /* lengthy string: get its hash */           \
-        {                                                                           \
-            JUDYHASHSTR(HValue, String, Length);                                    \
-	    PIter->hsi_Hash = (Word_t)HValue;                                       \
-        }                                                                           \
-    }                                                                               \
-                                                                                    \
-	                           /* find <first> entry */                         \
-    PPValue = findXXByLength(PArray, PIter, PJError);                               \
-    if (PPValue == PPJERR)         /* error */                                      \
-    {                                                                               \
-        JU_SET_ERRNO(PJError, 0);                                                   \
-	return (PPJERR);                                                            \
-    }                                                                               \
-    *PStr = PIter->hsi_String;     /* return new string and length as lvalues */    \
-    *PLen = Length;                                                                 \
-    return (PPValue);              /* and ponter to value cell */                   \
-}
-// #define defineJudyHSIterXX(JudyHSIterXX, findXXByLength)
+
 
 // Find first string, at or after (index, length) if any, in JudyHS structure, 
 // using or allocating JudyHSIter structure for state.
 // Return ppvalue and updated index, length, and state.
-defineJudyHSIterXX(JudyHSIterFirst, findFirstByLength)
+PPvoid_t
+JudyHSIterFirst(Pcvoid_t PArray,      /* pointer to array */
+             PPvoid_t PPIter,      /* pointer to pointer to state structure */
+             void ** PStr,         /* pointer to pointer to index */
+             Word_t * PLen,        /* pointer to length of index */
+             PJError_t PJError     /* optional, for returning error info */
+	    )
+{
+    Phsi_t PIter;                  /* pointer to iterator structure */
+    uint8_t * String;              /* pointer to index string */
+    Word_t Length;                 /* length of index string */
+    uint32_t HValue;               /* hash of index string */
+    PPvoid_t PPValue;              /* pointer to pointer to value cell */
+    
+    if (PPIter == NULL)            /* lvalue arguments must not be NULL */
+    {
+        JU_SET_ERRNO(PJError, JU_ERRNO_NULLPPARRAY);  /* XXX NULLPPITER really */
+        return(PPJERR);
+    }
+    PIter = *PPIter;               /* get iter structure */
+    if (PIter == NULL)
+    {
+	PIter = makeIter(PArray, PJError); /* or make new one */
+	if (PIter == PJERR)
+        {
+            return (PPJERR);
+	}
+	*PPIter = PIter;
+    }
+    
+    if (PStr == NULL || PLen == NULL)  /* lvalue arguments must not be NULL */
+    {
+        JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
+	return (PPJERR);
+    }
+    String = *PStr;
+    Length = *PLen;
+    if (String == PIter->hsi_String && Length == PIter->hsi_Length)
+    {
+        /* continuing where we left off: use PIter as is */
+    }
+    else
+    {
+        if (String == NULL)        /* NULL string: two special cases */
+	{
+            switch (Length)
+	    {
+                case 0UL:          /* 0 Length means start of array */
+                    PIter->hsi_Length = 0;
+		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+		    break;
+                case (Word_t)-1:   /* -1 Length means end of array */
+		    PIter->hsi_Length = (Word_t)-1;
+		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+		    break;
+                default:
+		    JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
+		    return (PPJERR);
+	    }
+	}
+	else
+	{                          /* new string: copy into iter structure */
+            PIter->hsi_Length = Length;
+	    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+	    memcpy(PIter->hsi_String, String, Length);
+	}
+	String = PIter->hsi_String;
+    }
+    if (USEHASH)                   /* if using hash table layer: */
+    {
+        if (Length > WORDSIZE)         /* lengthy string: get its hash */
+        {
+            JUDYHASHSTR(HValue, String, Length);
+	    PIter->hsi_Hash = (Word_t)HValue;
+        }
+    }
+    
+	                           /* find <first> entry */
+    PPValue = findFirstByLength(PArray, PIter, PJError);
+    if (PPValue == PPJERR)         /* error */
+    {
+        JU_SET_ERRNO(PJError, 0);
+	return (PPJERR);
+    }
+    *PStr = PIter->hsi_String;     /* return new string and length as lvalues */
+    *PLen = Length;
+    return (PPValue);              /* and ponter to value cell */
+}
+
 
 // Find next string, after (index, length) if any, in JudyHS structure, 
 // using or allocating JudyHSIter structure for state.
 // Return ppvalue and updated index, length, and state.
-defineJudyHSIterXX(JudyHSIterNext,  findNextByLength)
+PPvoid_t
+JudyHSIterNext(Pcvoid_t PArray,      /* pointer to array */
+             PPvoid_t PPIter,      /* pointer to pointer to state structure */
+             void ** PStr,         /* pointer to pointer to index */
+             Word_t * PLen,        /* pointer to length of index */
+             PJError_t PJError     /* optional, for returning error info */
+	    )
+{
+    Phsi_t PIter;                  /* pointer to iterator structure */
+    uint8_t * String;              /* pointer to index string */
+    Word_t Length;                 /* length of index string */
+    uint32_t HValue;               /* hash of index string */
+    PPvoid_t PPValue;              /* pointer to pointer to value cell */
+    
+    if (PPIter == NULL)            /* lvalue arguments must not be NULL */
+    {
+        JU_SET_ERRNO(PJError, JU_ERRNO_NULLPPARRAY);  /* XXX NULLPPITER really */
+        return(PPJERR);
+    }
+    PIter = *PPIter;               /* get iter structure */
+    if (PIter == NULL)
+    {
+	PIter = makeIter(PArray, PJError); /* or make new one */
+	if (PIter == PJERR)
+        {
+            return (PPJERR);
+	}
+	*PPIter = PIter;
+    }
+    
+    if (PStr == NULL || PLen == NULL)  /* lvalue arguments must not be NULL */
+    {
+        JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
+	return (PPJERR);
+    }
+    String = *PStr;
+    Length = *PLen;
+    if (String == PIter->hsi_String && Length == PIter->hsi_Length)
+    {
+        /* continuing where we left off: use PIter as is */
+    }
+    else
+    {
+        if (String == NULL)        /* NULL string: two special cases */
+	{
+            switch (Length)
+	    {
+                case 0UL:          /* 0 Length means start of array */
+                    PIter->hsi_Length = 0;
+		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+		    break;
+                case (Word_t)-1:   /* -1 Length means end of array */
+		    PIter->hsi_Length = (Word_t)-1;
+		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+		    break;
+                default:
+		    JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
+		    return (PPJERR);
+	    }
+	}
+	else
+	{                          /* new string: copy into iter structure */
+            PIter->hsi_Length = Length;
+	    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+	    memcpy(PIter->hsi_String, String, Length);
+	}
+	String = PIter->hsi_String;
+    }
+    if (USEHASH)                   /* if using hash table layer: */
+    {
+        if (Length > WORDSIZE)         /* lengthy string: get its hash */
+        {
+            JUDYHASHSTR(HValue, String, Length);
+	    PIter->hsi_Hash = (Word_t)HValue;
+        }
+    }
+    
+	                           /* find <first> entry */
+    PPValue = findNextByLength(PArray, PIter, PJError);
+    if (PPValue == PPJERR)         /* error */
+    {
+        JU_SET_ERRNO(PJError, 0);
+	return (PPJERR);
+    }
+    *PStr = PIter->hsi_String;     /* return new string and length as lvalues */
+    *PLen = Length;
+    return (PPValue);              /* and ponter to value cell */
+}
+
 
 // Find last string, at or before (index, length) if any, in JudyHS structure, 
 // using or allocating JudyHSIter structure for state.
 // Return ppvalue and updated index, length, and state.
-defineJudyHSIterXX(JudyHSIterLast,  findLastByLength)
+PPvoid_t
+JudyHSIterLast(Pcvoid_t PArray,      /* pointer to array */
+             PPvoid_t PPIter,      /* pointer to pointer to state structure */
+             void ** PStr,         /* pointer to pointer to index */
+             Word_t * PLen,        /* pointer to length of index */
+             PJError_t PJError     /* optional, for returning error info */
+	    )
+{
+    Phsi_t PIter;                  /* pointer to iterator structure */
+    uint8_t * String;              /* pointer to index string */
+    Word_t Length;                 /* length of index string */
+    uint32_t HValue;               /* hash of index string */
+    PPvoid_t PPValue;              /* pointer to pointer to value cell */
+    
+    if (PPIter == NULL)            /* lvalue arguments must not be NULL */
+    {
+        JU_SET_ERRNO(PJError, JU_ERRNO_NULLPPARRAY);  /* XXX NULLPPITER really */
+        return(PPJERR);
+    }
+    PIter = *PPIter;               /* get iter structure */
+    if (PIter == NULL)
+    {
+	PIter = makeIter(PArray, PJError); /* or make new one */
+	if (PIter == PJERR)
+        {
+            return (PPJERR);
+	}
+	*PPIter = PIter;
+    }
+    
+    if (PStr == NULL || PLen == NULL)  /* lvalue arguments must not be NULL */
+    {
+        JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
+	return (PPJERR);
+    }
+    String = *PStr;
+    Length = *PLen;
+    if (String == PIter->hsi_String && Length == PIter->hsi_Length)
+    {
+        /* continuing where we left off: use PIter as is */
+    }
+    else
+    {
+        if (String == NULL)        /* NULL string: two special cases */
+	{
+            switch (Length)
+	    {
+                case 0UL:          /* 0 Length means start of array */
+                    PIter->hsi_Length = 0;
+		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+		    break;
+                case (Word_t)-1:   /* -1 Length means end of array */
+		    PIter->hsi_Length = (Word_t)-1;
+		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+		    break;
+                default:
+		    JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
+		    return (PPJERR);
+	    }
+	}
+	else
+	{                          /* new string: copy into iter structure */
+            PIter->hsi_Length = Length;
+	    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+	    memcpy(PIter->hsi_String, String, Length);
+	}
+	String = PIter->hsi_String;
+    }
+    if (USEHASH)                   /* if using hash table layer: */
+    {
+        if (Length > WORDSIZE)         /* lengthy string: get its hash */
+        {
+            JUDYHASHSTR(HValue, String, Length);
+	    PIter->hsi_Hash = (Word_t)HValue;
+        }
+    }
+    
+	                           /* find <first> entry */
+    PPValue = findLastByLength(PArray, PIter, PJError);
+    if (PPValue == PPJERR)         /* error */
+    {
+        JU_SET_ERRNO(PJError, 0);
+	return (PPJERR);
+    }
+    *PStr = PIter->hsi_String;     /* return new string and length as lvalues */
+    *PLen = Length;
+    return (PPValue);              /* and ponter to value cell */
+}
+
 
 // Find previous string, before (index, length) if any, in JudyHS structure, 
 // using or allocating JudyHSIter structure for state.
 // Return ppvalue and updated index, length, and state.
-defineJudyHSIterXX(JudyHSIterPrev,  findPrevByLength)
+PPvoid_t
+JudyHSIterPrev(Pcvoid_t PArray,      /* pointer to array */
+             PPvoid_t PPIter,      /* pointer to pointer to state structure */
+             void ** PStr,         /* pointer to pointer to index */
+             Word_t * PLen,        /* pointer to length of index */
+             PJError_t PJError     /* optional, for returning error info */
+	    )
+{
+    Phsi_t PIter;                  /* pointer to iterator structure */
+    uint8_t * String;              /* pointer to index string */
+    Word_t Length;                 /* length of index string */
+    uint32_t HValue;               /* hash of index string */
+    PPvoid_t PPValue;              /* pointer to pointer to value cell */
+    
+    if (PPIter == NULL)            /* lvalue arguments must not be NULL */
+    {
+        JU_SET_ERRNO(PJError, JU_ERRNO_NULLPPARRAY);  /* XXX NULLPPITER really */
+        return(PPJERR);
+    }
+    PIter = *PPIter;               /* get iter structure */
+    if (PIter == NULL)
+    {
+	PIter = makeIter(PArray, PJError); /* or make new one */
+	if (PIter == PJERR)
+        {
+            return (PPJERR);
+	}
+	*PPIter = PIter;
+    }
+    
+    if (PStr == NULL || PLen == NULL)  /* lvalue arguments must not be NULL */
+    {
+        JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
+	return (PPJERR);
+    }
+    String = *PStr;
+    Length = *PLen;
+    if (String == PIter->hsi_String && Length == PIter->hsi_Length)
+    {
+        /* continuing where we left off: use PIter as is */
+    }
+    else
+    {
+        if (String == NULL)        /* NULL string: two special cases */
+	{
+            switch (Length)
+	    {
+                case 0UL:          /* 0 Length means start of array */
+                    PIter->hsi_Length = 0;
+		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+		    break;
+                case (Word_t)-1:   /* -1 Length means end of array */
+		    PIter->hsi_Length = (Word_t)-1;
+		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+		    break;
+                default:
+		    JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
+		    return (PPJERR);
+	    }
+	}
+	else
+	{                          /* new string: copy into iter structure */
+            PIter->hsi_Length = Length;
+	    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+	    memcpy(PIter->hsi_String, String, Length);
+	}
+	String = PIter->hsi_String;
+    }
+    if (USEHASH)                   /* if using hash table layer: */
+    {
+        if (Length > WORDSIZE)         /* lengthy string: get its hash */
+        {
+            JUDYHASHSTR(HValue, String, Length);
+	    PIter->hsi_Hash = (Word_t)HValue;
+        }
+    }
+    
+	                           /* find <first> entry */
+    PPValue = findPrevByLength(PArray, PIter, PJError);
+    if (PPValue == PPJERR)         /* error */
+    {
+        JU_SET_ERRNO(PJError, 0);
+	return (PPJERR);
+    }
+    *PStr = PIter->hsi_String;     /* return new string and length as lvalues */
+    *PLen = Length;
+    return (PPValue);              /* and ponter to value cell */
+}
+
 
 
 // Free JudyHSIter structure, return number of bytes freed
@@ -1054,13 +1318,18 @@ makeIter(Pcvoid_t PArray,
     Word_t iterSize;
     PPvoid_t PPValue;
 
-    maxLength = -1;
+    maxLength = -1;                            // find last length
     PPValue = JudyLLast(PArray, &maxLength, PJError);
     if (PPValue == PPJERR)
     {
         JU_SET_ERRNO(PJError, 0);
         return ((Phsi_t)PJERR);
     }
+    if (PPValue == NULL)                       // if array was empty,
+    {
+        maxLength = 0;                         // max length is 0
+    }
+    
     iterSize = HSI_SIZE(maxLength);
     PIter = (Phsi_t)JudyMalloc(iterSize/WORDSIZE);
     if (PIter == NULL)
@@ -1078,416 +1347,1088 @@ makeIter(Pcvoid_t PArray,
 // find <First> (<Next>, <Last>, <Prev>) in Length array
 // returns NULL if not in this tree
 // or updates Length (and Hash, and String) and returns PPValue.
-#define defineFindFNLPByLength(findXXByLength, findXXByHash, findXXByString, JudyLYY, findZZByHash, findZZByString) \
-static PPvoid_t                                                                      \
-findXXByLength(Pcvoid_t PArray,    /* pointer to array */                            \
-              Phsi_t PIter,        /* pointer to iterator */                         \
-              PJError_t PJError                                                      \
-             )                                                                       \
-{                                                                                    \
-    Word_t Length;                                                                   \
-    PPvoid_t PPEntry;                                                                \
-    PPvoid_t PPValue;                                                                \
-                                                                                     \
-    Length = PIter->hsi_Length;                                                      \
-                                                                                     \
-    JLG(PPEntry, PArray, Length);  /* get entry for strings of Length */             \
-    if (PPEntry != NULL)           /* found: find <first> in entry */                \
-    {                                                                                \
-        if (USEHASH && Length > WORDSIZE) /* (if hash layer and lengthy string) */   \
-        {                                                                            \
-            PPValue = findXXByHash(*PPEntry, PIter, PJError);                        \
-        }                                                                            \
-        else                       /* (no hash table for short strings) */           \
-        {                                                                            \
-            PPValue = findXXByString(*PPEntry, PIter->hsi_String, Length, PJError);  \
-        }                                                                            \
-	if (PPValue != NULL)       /* found (or error) */                            \
-	{                                                                            \
-            return (PPValue);                                                        \
-	}                                                                            \
-    }                                                                                \
-                                   /* not found:  find <lowest> in <next> Length */  \
-    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength); /* update string: back entire string out */ \
-    PPEntry = JudyLYY(PArray, &Length, PJError); /* get hash table for <next> Length */ \
-    if (PPEntry == PPJERR)         /* error */                                       \
-    {                                                                                \
-        JU_SET_ERRNO(PJError, 0);                                                    \
-        return (PPJERR);                                                             \
-    }                                                                                \
-    if (PPEntry != NULL)           /* found <next> length: */                        \
-    {                                                                                \
-        PIter->hsi_Length = Length;/* update length */                               \
-        if (USEHASH && Length > WORDSIZE) /* and find <lowest> there */              \
-        {                                                                            \
-	    PPValue = findZZByHash(*PPEntry, PIter, PJError);                        \
-	}                                                                            \
-        else                       /* (no hash table for short strings) */           \
-        {                                                                            \
-            PPValue = findZZByString(*PPEntry, PIter->hsi_String, Length, PJError);  \
-	}                                                                            \
-        if (PPValue == PPJERR)     /* error */                                       \
-        {                                                                            \
-            JU_SET_ERRNO(PJError, 0);                                                \
-            return (PPJERR);                                                         \
-	}                                                                            \
-	return (PPValue);          /* found */                                       \
-    }                                                                                \
-    else                           /* no <next> length: */                           \
-    {                                                                                \
-        return (NULL);             /* end of iteration */                            \
-    }                                                                                \
-}
-// #define defineFindFNLPByLength(findXXByLength, findXXByHash, findXXByString, 
-//                                       JudyLYY, findZZByHash, findZZByString) \
+
 
 // find First in Length array
 // returns NULL if not in this tree
 // or updates Length (and Hash, and String) and returns PPValue.
-defineFindFNLPByLength(findFirstByLength, findFirstByHash, findFirstByString, 
-		               JudyLNext, findLowestByHash,  findLowestByString)
+static PPvoid_t
+findFirstByLength(Pcvoid_t PArray,    /* pointer to array */
+              Phsi_t PIter,        /* pointer to iterator */
+              PJError_t PJError
+             )
+{
+    Word_t Length;
+    PPvoid_t PPEntry;
+    PPvoid_t PPValue;
+    
+    Length = PIter->hsi_Length;
+    
+    JLG(PPEntry, PArray, Length);  /* get entry for strings of Length */
+    if (PPEntry != NULL)           /* found: find <first> in entry */
+    {
+        if (USEHASH && Length > WORDSIZE) /* (if hash layer and lengthy string) */
+        {
+            PPValue = findFirstByHash(*PPEntry, PIter, PJError);
+        }
+        else                       /* (no hash table for short strings) */
+        {
+            PPValue = findFirstByString(*PPEntry, PIter->hsi_String, Length, PJError);
+        }
+	if (PPValue != NULL)       /* found (or error) */
+	{
+            return (PPValue);
+	}
+    }
+                                   /* not found:  find <lowest> in <next> Length */
+    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength); /* update string: back entire string out */
+    PPEntry = JudyLNext(PArray, &Length, PJError); /* get hash table for <next> Length */
+    if (PPEntry == PPJERR)         /* error */
+    {
+        JU_SET_ERRNO(PJError, 0);
+        return (PPJERR);
+    }
+    if (PPEntry != NULL)           /* found <next> length: */
+    {
+        PIter->hsi_Length = Length; /* update length */
+        if (USEHASH && Length > WORDSIZE) /* and find <lowest> there */
+        {
+	    PPValue = findLowestByHash(*PPEntry, PIter, PJError);
+	}
+        else                       /* (no hash table for short strings) */
+        {
+            PPValue = findLowestByString(*PPEntry, PIter->hsi_String, Length, PJError);
+	}
+        if (PPValue == PPJERR)     /* error */
+        {
+            JU_SET_ERRNO(PJError, 0);
+            return (PPJERR);
+	}
+	return (PPValue);          /* found */
+    }
+    else                           /* no <next> length: */
+    {
+        return (NULL);             /* end of iteration */
+    }
+}
+
 
 // find Next in Length array
 // returns NULL if not in this tree
 // or updates Length (and Hash, and String) and returns PPValue.
-defineFindFNLPByLength(findNextByLength,  findNextByHash,  findNextByString,  
-		               JudyLNext, findLowestByHash,  findLowestByString)
+static PPvoid_t
+findNextByLength(Pcvoid_t PArray,    /* pointer to array */
+              Phsi_t PIter,        /* pointer to iterator */
+              PJError_t PJError
+             )
+{
+    Word_t Length;
+    PPvoid_t PPEntry;
+    PPvoid_t PPValue;
+    
+    Length = PIter->hsi_Length;
+    
+    JLG(PPEntry, PArray, Length);  /* get entry for strings of Length */
+    if (PPEntry != NULL)           /* found: find <first> in entry */
+    {
+        if (USEHASH && Length > WORDSIZE) /* (if hash layer and lengthy string) */
+        {
+            PPValue = findNextByHash(*PPEntry, PIter, PJError);
+        }
+        else                       /* (no hash table for short strings) */
+        {
+            PPValue = findNextByString(*PPEntry, PIter->hsi_String, Length, PJError);
+        }
+	if (PPValue != NULL)       /* found (or error) */
+	{
+            return (PPValue);
+	}
+    }
+                                   /* not found:  find <lowest> in <next> Length */
+    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength); /* update string: back entire string out */
+    PPEntry = JudyLNext(PArray, &Length, PJError); /* get hash table for <next> Length */
+    if (PPEntry == PPJERR)         /* error */
+    {
+        JU_SET_ERRNO(PJError, 0);
+        return (PPJERR);
+    }
+    if (PPEntry != NULL)           /* found <next> length: */
+    {
+        PIter->hsi_Length = Length; /* update length */
+        if (USEHASH && Length > WORDSIZE) /* and find <lowest> there */
+        {
+	    PPValue = findLowestByHash(*PPEntry, PIter, PJError);
+	}
+        else                       /* (no hash table for short strings) */
+        {
+            PPValue = findLowestByString(*PPEntry, PIter->hsi_String, Length, PJError);
+	}
+        if (PPValue == PPJERR)     /* error */
+        {
+            JU_SET_ERRNO(PJError, 0);
+            return (PPJERR);
+	}
+	return (PPValue);          /* found */
+    }
+    else                           /* no <next> length: */
+    {
+        return (NULL);             /* end of iteration */
+    }
+}
+
 
 // find Last in Length array
 // returns NULL if not in this tree
 // or updates Length (and Hash, and String) and returns PPValue.
-defineFindFNLPByLength(findLastByLength,  findLastByHash,  findLastByString,  
-		               JudyLPrev, findHighestByHash, findHighestByString)
+static PPvoid_t
+findLastByLength(Pcvoid_t PArray,    /* pointer to array */
+              Phsi_t PIter,        /* pointer to iterator */
+              PJError_t PJError
+             )
+{
+    Word_t Length;
+    PPvoid_t PPEntry;
+    PPvoid_t PPValue;
+    
+    Length = PIter->hsi_Length;
+    
+    JLG(PPEntry, PArray, Length);  /* get entry for strings of Length */
+    if (PPEntry != NULL)           /* found: find <first> in entry */
+    {
+        if (USEHASH && Length > WORDSIZE) /* (if hash layer and lengthy string) */
+        {
+            PPValue = findLastByHash(*PPEntry, PIter, PJError);
+        }
+        else                       /* (no hash table for short strings) */
+        {
+            PPValue = findLastByString(*PPEntry, PIter->hsi_String, Length, PJError);
+        }
+	if (PPValue != NULL)       /* found (or error) */
+	{
+            return (PPValue);
+	}
+    }
+                                   /* not found:  find <lowest> in <next> Length */
+    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength); /* update string: back entire string out */
+    PPEntry = JudyLPrev(PArray, &Length, PJError); /* get hash table for <next> Length */
+    if (PPEntry == PPJERR)         /* error */
+    {
+        JU_SET_ERRNO(PJError, 0);
+        return (PPJERR);
+    }
+    if (PPEntry != NULL)           /* found <next> length: */
+    {
+        PIter->hsi_Length = Length; /* update length */
+        if (USEHASH && Length > WORDSIZE) /* and find <lowest> there */
+        {
+	    PPValue = findHighestByHash(*PPEntry, PIter, PJError);
+	}
+        else                       /* (no hash table for short strings) */
+        {
+            PPValue = findHighestByString(*PPEntry, PIter->hsi_String, Length, PJError);
+	}
+        if (PPValue == PPJERR)     /* error */
+        {
+            JU_SET_ERRNO(PJError, 0);
+            return (PPJERR);
+	}
+	return (PPValue);          /* found */
+    }
+    else                           /* no <next> length: */
+    {
+        return (NULL);             /* end of iteration */
+    }
+}
+
 
 // find Prev in Length array
 // returns NULL if not in this tree
 // or updates Length (and Hash, and String) and returns PPValue.
-defineFindFNLPByLength(findPrevByLength,  findPrevByHash,  findPrevByString,  
-		               JudyLPrev, findHighestByHash, findHighestByString)
+static PPvoid_t
+findPrevByLength(Pcvoid_t PArray,    /* pointer to array */
+              Phsi_t PIter,        /* pointer to iterator */
+              PJError_t PJError
+             )
+{
+    Word_t Length;
+    PPvoid_t PPEntry;
+    PPvoid_t PPValue;
+    
+    Length = PIter->hsi_Length;
+    
+    JLG(PPEntry, PArray, Length);  /* get entry for strings of Length */
+    if (PPEntry != NULL)           /* found: find <first> in entry */
+    {
+        if (USEHASH && Length > WORDSIZE) /* (if hash layer and lengthy string) */
+        {
+            PPValue = findPrevByHash(*PPEntry, PIter, PJError);
+        }
+        else                       /* (no hash table for short strings) */
+        {
+            PPValue = findPrevByString(*PPEntry, PIter->hsi_String, Length, PJError);
+        }
+	if (PPValue != NULL)       /* found (or error) */
+	{
+            return (PPValue);
+	}
+    }
+                                   /* not found:  find <lowest> in <next> Length */
+    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength); /* update string: back entire string out */
+    PPEntry = JudyLPrev(PArray, &Length, PJError); /* get hash table for <next> Length */
+    if (PPEntry == PPJERR)         /* error */
+    {
+        JU_SET_ERRNO(PJError, 0);
+        return (PPJERR);
+    }
+    if (PPEntry != NULL)           /* found <next> length: */
+    {
+        PIter->hsi_Length = Length; /* update length */
+        if (USEHASH && Length > WORDSIZE) /* and find <lowest> there */
+        {
+	    PPValue = findHighestByHash(*PPEntry, PIter, PJError);
+	}
+        else                       /* (no hash table for short strings) */
+        {
+            PPValue = findHighestByString(*PPEntry, PIter->hsi_String, Length, PJError);
+	}
+        if (PPValue == PPJERR)     /* error */
+        {
+            JU_SET_ERRNO(PJError, 0);
+            return (PPJERR);
+	}
+	return (PPValue);          /* found */
+    }
+    else                           /* no <next> length: */
+    {
+        return (NULL);             /* end of iteration */
+    }
+}
+
 
 
 #ifndef DONOTUSEHASH
 // find <First> (<Next>, <Last>, <Prev>) in Hash array
 // returns NULL if not in this tree (so caller should find <Lowest> in <Next>)
 // or updates Hash (and String) and returns PPValue.
-#define defineFindFNLPByHash(findXXByHash, findXXByString, JudyLYY, findZZByString)  \
-static PPvoid_t                                                                      \
-findXXByHash(Pcvoid_t PArray,      /* pointer to hash array */                       \
-             Phsi_t PIter,         /* poniter to iterator */                         \
-	     PJError_t PJError                                                       \
-	    )                                                                        \
-{                                                                                    \
-    Word_t Hash;                                                                     \
-    PPvoid_t PPEntry;                                                                \
-    PPvoid_t PPValue;                                                                \
-                                                                                     \
-    Hash = PIter->hsi_Hash;                                                          \
-                                                                                     \
-    JLG(PPEntry, PArray, Hash);    /* get string tree for strings of hash Hash */    \
-    if (PPEntry != NULL)                                                             \
-    {                                                                                \
-                                   /* find <first> in entry */                       \
-        PPValue = findXXByString(*PPEntry, PIter->hsi_String, PIter->hsi_Length, PJError); \
-	if (PPValue != NULL)       /* found (or error) */                            \
-	{                                                                            \
-            return (PPValue);                                                        \
-	}                                                                            \
-    }                                                                                \
-                                   /* not found:  find <lowest> in <next> Hash */    \
-    PPEntry = JudyLYY(PArray, &Hash, PJError); /* get string tree for <next> Hash */ \
-    if (PPEntry == PPJERR)         /* error */                                       \
-    {                                                                                \
-        JU_SET_ERRNO(PJError, 0);                                                    \
-        return (PPJERR);                                                             \
-    }                                                                                \
-    if (PPEntry != NULL)           /* found <next> Hash: */                          \
-    {                                                                                \
-        PIter->hsi_Hash = Hash;    /* update Hash */                                 \
-                                   /* and find <lowest> there */                     \
-        PPValue = findZZByString(*PPEntry, PIter->hsi_String, PIter->hsi_Length, PJError); \
-        if (PPValue == PPJERR)     /* error */                                       \
-        {                                                                            \
-            JU_SET_ERRNO(PJError, 0);                                                \
-            return (PPJERR);                                                         \
-	}                                                                            \
-	return (PPValue);          /* found */                                       \
-    }                                                                                \
-    else                           /* no <next> Hash: */                             \
-    {                                                                                \
-        return (NULL);             /* caller find next */                            \
-    }                                                                                \
-}
-// #define defineFindFNLPByHash(findXXByHash, findXXByString, JudyLYY, findZZByString)
+
 
 // find First in Hash array
 // returns NULL if not in this tree (so caller should find Lowest in Next)
 // or updates Hash (and String) and returns PPValue.
-defineFindFNLPByHash(findFirstByHash, findFirstByString, JudyLNext, findLowestByString)
+static PPvoid_t
+findFirstByHash(Pcvoid_t PArray,      /* pointer to hash array */
+             Phsi_t PIter,         /* poniter to iterator */
+	     PJError_t PJError
+	    )
+{
+    Word_t Hash;
+    PPvoid_t PPEntry;
+    PPvoid_t PPValue;
+    
+    Hash = PIter->hsi_Hash;
+    
+    JLG(PPEntry, PArray, Hash);    /* get string tree for strings of hash Hash */
+    if (PPEntry != NULL)
+    {
+                                   /* find <first> in entry */
+        PPValue = findFirstByString(*PPEntry, PIter->hsi_String, PIter->hsi_Length, PJError);
+	if (PPValue != NULL)       /* found (or error) */
+	{
+            return (PPValue);
+	}
+    }
+                                   /* not found:  find <lowest> in <next> Hash */
+    PPEntry = JudyLNext(PArray, &Hash, PJError); /* get string tree for <next> Hash */
+    if (PPEntry == PPJERR)         /* error */
+    {
+        JU_SET_ERRNO(PJError, 0);
+        return (PPJERR);
+    }
+    if (PPEntry != NULL)           /* found <next> Hash: */
+    {
+        PIter->hsi_Hash = Hash;    /* update Hash */
+                                   /* and find <lowest> there */
+        PPValue = findLowestByString(*PPEntry, PIter->hsi_String, PIter->hsi_Length, PJError);
+        if (PPValue == PPJERR)     /* error */
+        {
+            JU_SET_ERRNO(PJError, 0);
+            return (PPJERR);
+	}
+	return (PPValue);          /* found */
+    }
+    else                           /* no <next> Hash: */
+    {
+        return (NULL);             /* caller find next */
+    }
+}
+
 
 // find Next in Hash array
 // returns NULL if not in this tree (so caller should find Lowest in Next)
 // or updates Hash (and String) and returns PPValue.
-defineFindFNLPByHash(findNextByHash,  findNextByString,  JudyLNext, findLowestByString)
+static PPvoid_t
+findNextByHash(Pcvoid_t PArray,      /* pointer to hash array */
+             Phsi_t PIter,         /* poniter to iterator */
+	     PJError_t PJError
+	    )
+{
+    Word_t Hash;
+    PPvoid_t PPEntry;
+    PPvoid_t PPValue;
+    
+    Hash = PIter->hsi_Hash;
+    
+    JLG(PPEntry, PArray, Hash);    /* get string tree for strings of hash Hash */
+    if (PPEntry != NULL)
+    {
+                                   /* find <first> in entry */
+        PPValue = findNextByString(*PPEntry, PIter->hsi_String, PIter->hsi_Length, PJError);
+	if (PPValue != NULL)       /* found (or error) */
+	{
+            return (PPValue);
+	}
+    }
+                                   /* not found:  find <lowest> in <next> Hash */
+    PPEntry = JudyLNext(PArray, &Hash, PJError); /* get string tree for <next> Hash */
+    if (PPEntry == PPJERR)         /* error */
+    {
+        JU_SET_ERRNO(PJError, 0);
+        return (PPJERR);
+    }
+    if (PPEntry != NULL)           /* found <next> Hash: */
+    {
+        PIter->hsi_Hash = Hash;    /* update Hash */
+                                   /* and find <lowest> there */
+        PPValue = findLowestByString(*PPEntry, PIter->hsi_String, PIter->hsi_Length, PJError);
+        if (PPValue == PPJERR)     /* error */
+        {
+            JU_SET_ERRNO(PJError, 0);
+            return (PPJERR);
+	}
+	return (PPValue);          /* found */
+    }
+    else                           /* no <next> Hash: */
+    {
+        return (NULL);             /* caller find next */
+    }
+}
+
 
 // find Last in Hash array
 // returns NULL if not in this tree (so caller should find Highest in Prev)
 // or updates Hash (and String) and returns PPValue.
-defineFindFNLPByHash(findLastByHash,  findLastByString,  JudyLPrev, findHighestByString)
+static PPvoid_t
+findLastByHash(Pcvoid_t PArray,      /* pointer to hash array */
+             Phsi_t PIter,         /* poniter to iterator */
+	     PJError_t PJError
+	    )
+{
+    Word_t Hash;
+    PPvoid_t PPEntry;
+    PPvoid_t PPValue;
+    
+    Hash = PIter->hsi_Hash;
+    
+    JLG(PPEntry, PArray, Hash);    /* get string tree for strings of hash Hash */
+    if (PPEntry != NULL)
+    {
+                                   /* find <first> in entry */
+        PPValue = findLastByString(*PPEntry, PIter->hsi_String, PIter->hsi_Length, PJError);
+	if (PPValue != NULL)       /* found (or error) */
+	{
+            return (PPValue);
+	}
+    }
+                                   /* not found:  find <lowest> in <next> Hash */
+    PPEntry = JudyLPrev(PArray, &Hash, PJError); /* get string tree for <next> Hash */
+    if (PPEntry == PPJERR)         /* error */
+    {
+        JU_SET_ERRNO(PJError, 0);
+        return (PPJERR);
+    }
+    if (PPEntry != NULL)           /* found <next> Hash: */
+    {
+        PIter->hsi_Hash = Hash;    /* update Hash */
+                                   /* and find <lowest> there */
+        PPValue = findHighestByString(*PPEntry, PIter->hsi_String, PIter->hsi_Length, PJError);
+        if (PPValue == PPJERR)     /* error */
+        {
+            JU_SET_ERRNO(PJError, 0);
+            return (PPJERR);
+	}
+	return (PPValue);          /* found */
+    }
+    else                           /* no <next> Hash: */
+    {
+        return (NULL);             /* caller find next */
+    }
+}
+
 
 // find Prev in Hash array
 // returns NULL if not in this tree (so caller should find Highest in Prev)
 // or updates Hash (and String) and returns PPValue.
-defineFindFNLPByHash(findPrevByHash,  findPrevByString,  JudyLPrev, findHighestByString)
+static PPvoid_t
+findPrevByHash(Pcvoid_t PArray,      /* pointer to hash array */
+             Phsi_t PIter,         /* poniter to iterator */
+	     PJError_t PJError
+	    )
+{
+    Word_t Hash;
+    PPvoid_t PPEntry;
+    PPvoid_t PPValue;
+    
+    Hash = PIter->hsi_Hash;
+    
+    JLG(PPEntry, PArray, Hash);    /* get string tree for strings of hash Hash */
+    if (PPEntry != NULL)
+    {
+                                   /* find <first> in entry */
+        PPValue = findPrevByString(*PPEntry, PIter->hsi_String, PIter->hsi_Length, PJError);
+	if (PPValue != NULL)       /* found (or error) */
+	{
+            return (PPValue);
+	}
+    }
+                                   /* not found:  find <lowest> in <next> Hash */
+    PPEntry = JudyLPrev(PArray, &Hash, PJError); /* get string tree for <next> Hash */
+    if (PPEntry == PPJERR)         /* error */
+    {
+        JU_SET_ERRNO(PJError, 0);
+        return (PPJERR);
+    }
+    if (PPEntry != NULL)           /* found <next> Hash: */
+    {
+        PIter->hsi_Hash = Hash;    /* update Hash */
+                                   /* and find <lowest> there */
+        PPValue = findHighestByString(*PPEntry, PIter->hsi_String, PIter->hsi_Length, PJError);
+        if (PPValue == PPJERR)     /* error */
+        {
+            JU_SET_ERRNO(PJError, 0);
+            return (PPJERR);
+	}
+	return (PPValue);          /* found */
+    }
+    else                           /* no <next> Hash: */
+    {
+        return (NULL);             /* caller find next */
+    }
+}
+
 
 
 // find <Lowest> (<Highest>) in Hash array
 // updates Hash (and String) and returns PPValue.
 // if none found (but how could this be?), returns NULL.
-#define defineFindLHestByHash(findXXByHash, YYHash, JudyLYY, findZZByString)         \
-static PPvoid_t                                                                      \
-findXXByHash(Pcvoid_t PArray,      /* pointer to hash array */                       \
-             Phsi_t PIter,         /* poniter to iterator */                         \
-	     PJError_t PJError                                                       \
-	    )                                                                        \
-{                                                                                    \
-    Word_t Hash;                                                                     \
-    PPvoid_t PPEntry;                                                                \
-    PPvoid_t PPValue;                                                                \
-                                                                                     \
-    Hash = YYHash;                                                                   \
-                                   /* find <lowest> in <first> Hash */               \
-    PPEntry = JudyLYY(PArray, &Hash, PJError); /* get string tree for <lowest> Hash */ \
-    if (PPEntry == PPJERR)         /* error */                                       \
-    {                                                                                \
-        JU_SET_ERRNO(PJError, 0);                                                    \
-        return (PPJERR);                                                             \
-    }                                                                                \
-    if (PPEntry != NULL)           /* found <first> Hash: */                         \
-    {                                                                                \
-        PIter->hsi_Hash = Hash;    /* update Hash */                                 \
-                                   /* and find <lowest> there */                     \
-        PPValue = findZZByString(*PPEntry, PIter->hsi_String, PIter->hsi_Length, PJError); \
-        if (PPValue == PPJERR)     /* error */                                       \
-        {                                                                            \
-            JU_SET_ERRNO(PJError, 0);                                                \
-            return (PPJERR);                                                         \
-	}                                                                            \
-	return (PPValue);          /* found */                                       \
-    }                                                                                \
-    else                           /* no <first> Hash (should not happen): */        \
-    {                                                                                \
-        return (NULL);             /* "caller find next" */                          \
-    }                                                                                \
-}
-// #define defineFindLHestByHash(findXXByHash, YYHash, JudyLYY, findZZByString)
+
 
 // find Lowest in Hash array
 // updates Hash (and String) and returns PPValue.
 // if none found (but how could this be?), returns NULL.
-defineFindLHestByHash(findLowestByHash,   0, JudyLFirst, findLowestByString)
+static PPvoid_t
+findLowestByHash(Pcvoid_t PArray,      /* pointer to hash array */
+             Phsi_t PIter,         /* poniter to iterator */
+	     PJError_t PJError
+	    )
+{
+    Word_t Hash;
+    PPvoid_t PPEntry;
+    PPvoid_t PPValue;
+    
+    Hash = 0;
+                                   /* find <lowest> in <first> Hash */
+    PPEntry = JudyLFirst(PArray, &Hash, PJError); /* get string tree for <lowest> Hash */
+    if (PPEntry == PPJERR)         /* error */
+    {
+        JU_SET_ERRNO(PJError, 0);
+        return (PPJERR);
+    }
+    if (PPEntry != NULL)           /* found <first> Hash: */
+    {
+        PIter->hsi_Hash = Hash;    /* update Hash */
+                                   /* and find <lowest> there */
+        PPValue = findLowestByString(*PPEntry, PIter->hsi_String, PIter->hsi_Length, PJError);
+        if (PPValue == PPJERR)     /* error */
+        {
+            JU_SET_ERRNO(PJError, 0);
+            return (PPJERR);
+	}
+	return (PPValue);          /* found */
+    }
+    else                           /* no <first> Hash (should not happen): */
+    {
+        return (NULL);             /* "caller find next" */
+    }
+}
+
 
 // find Highest in Hash array
 // updates Hash (and String) and returns PPValue.
 // if none found (but how could this be?), returns NULL.
-defineFindLHestByHash(findHighestByHash, -1, JudyLLast,  findHighestByString)
+static PPvoid_t
+findHighestByHash(Pcvoid_t PArray,      /* pointer to hash array */
+             Phsi_t PIter,         /* poniter to iterator */
+	     PJError_t PJError
+	    )
+{
+    Word_t Hash;
+    PPvoid_t PPEntry;
+    PPvoid_t PPValue;
+    
+    Hash = -1;
+                                   /* find <lowest> in <first> Hash */
+    PPEntry = JudyLLast(PArray, &Hash, PJError); /* get string tree for <lowest> Hash */
+    if (PPEntry == PPJERR)         /* error */
+    {
+        JU_SET_ERRNO(PJError, 0);
+        return (PPJERR);
+    }
+    if (PPEntry != NULL)           /* found <first> Hash: */
+    {
+        PIter->hsi_Hash = Hash;    /* update Hash */
+                                   /* and find <lowest> there */
+        PPValue = findHighestByString(*PPEntry, PIter->hsi_String, PIter->hsi_Length, PJError);
+        if (PPValue == PPJERR)     /* error */
+        {
+            JU_SET_ERRNO(PJError, 0);
+            return (PPJERR);
+	}
+	return (PPValue);          /* found */
+    }
+    else                           /* no <first> Hash (should not happen): */
+    {
+        return (NULL);             /* "caller find next" */
+    }
+}
+
 #endif  // DONOTUSEHASH
 
 
 // find <First> (<Next>, <Last>, <Prev>) in tree of JudyL arrays
 // returns NULL if not in this tree (so caller should find <Lowest> in <Next>)
 // or updates String and returns PPValue.
-#define defineFindFNLPByString(findXXByString, RELOP, JudyLXX, JudyLYY, findZZByString) \
-static PPvoid_t                                                                      \
-findXXByString(Pcvoid_t PTree,     /* pointer to bucket entry */                     \
-           uint8_t *String,        /* string */                                      \
-           Word_t Len,             /* length of string */                            \
-	   PJError_t PJError                                                         \
-	  )                                                                          \
-{                                                                                    \
-    Word_t Index;                                                                    \
-    PPvoid_t PPEntry;                                                                \
-    PPvoid_t PPValue;                                                                \
-                                                                                     \
-    if (Len > WORDSIZE)            /* lengthy substring: */                          \
-    {                                                                                \
-        if (IS_PLS(PTree))         /* leaf pointer: */                               \
-        {                                                                            \
-            Pls_t Pls = (Pls_t) CLEAR_PLS(PTree);   /* demangle pointer */           \
-	    if (memcmp(String, Pls->ls_String, Len) RELOP 0)                         \
-	    {                      /* <first> is not in this leaf: */                \
-                memset(String, 0, Len); /* update string: clear tail */              \
-                return (NULL);     /* tell caller to find next */                    \
-	    }                                                                        \
-	    else                                                                     \
-            {                      /* found <first> entry: */                        \
-                memcpy(String, Pls->ls_String, Len);  /* update string: new tail */  \
-	                           /* length and hash are still good */              \
-	        return ((PPvoid_t) (&Pls->ls_Value));  /* return found PPValue */    \
-	    }                                                                        \
-        }                                                                            \
-        else                                                                         \
-        {                                                                            \
-            COPYSTRINGtoWORD(Index, String, WORDSIZE);                               \
-	    JLG(PPEntry, PTree, Index); /* check <this> subtree: */                  \
-	    if (PPEntry != NULL)                                                     \
-            {                      /* find <first> in subtree */                     \
-                PPValue = findXXByString(*PPEntry, String + WORDSIZE, Len - WORDSIZE, PJError); \
-                if (PPValue == PPJERR) /* error */                                   \
-                {                                                                    \
-                    return (PPJERR);                                                 \
-		}                                                                    \
-		if (PPValue != NULL) /* found */                                     \
-                {                                                                    \
-		    return (PPValue);                                                \
-		}                                                                    \
-	    }                                                                        \
-		                   /* no subtree here or no <first>: */              \
-		                   /*  find <lowest> in <next> subtree */            \
-            memset(String, 0, Len); /* update string: back out */                    \
-	    PPEntry = JudyLYY(PTree, &Index, PJError);  /* find <next> subtree */    \
-	    if (PPEntry == PPJERR) /* error */                                       \
-	    {                                                                        \
-                return (PPJERR);                                                     \
-	    }                                                                        \
-	    if (PPEntry != NULL)   /* found <next>: */                               \
-            {                                                                        \
-                COPYWORDtoSTRING(String, Index); /* update string: next hunk */      \
-                                   /* find <lowest> in <next> subtree */             \
-		PPValue = findZZByString(*PPEntry, String + WORDSIZE, Len - WORDSIZE, PJError); \
-                if (PPValue == PPJERR) /* error */                                   \
-                {                                                                    \
-                    return (PPJERR);                                                 \
-		}                                                                    \
-                return (PPValue);  /* found */                                       \
-            }                                                                        \
-	    else                   /* no <next> subtree: */                          \
-            {                                                                        \
-                return (NULL);     /* caller find next */                            \
-	    }                                                                        \
-	}                                                                            \
-    }                                                                                \
-    else                           /* tail of string, no more levels of tree: */     \
-    {                                                                                \
-        COPYSTRINGtoWORD(Index, String, Len);                                        \
-	PPEntry = JudyLXX(PTree, &Index, PJError); /* find <first> entry */          \
-	if (PPEntry == PPJERR)     /* error */                                       \
-	{                                                                            \
-            return (PPJERR);                                                         \
-	}                                                                            \
-	if (PPEntry != NULL)       /* found: */                                      \
-        {                                                                            \
-            COPYWORDtoSTRING(String, Index); /* update string: last hunk */          \
-	    return (PPEntry);                                                        \
-	}                                                                            \
-	else                                                                         \
-        {                                                                            \
-            memset(String, 0, Len); /* update string: back out */                    \
-            return (NULL);         /* and caller find next */                        \
-	}                                                                            \
-    }                                                                                \
-}
-// #define defineFindFNLPByString(findXXByString, RELOP, JudyLXX, JudyLYY, findZZByString)
+
 
 // find First (at or after index String) in tree of JudyL arrays
 // returns NULL if not in this tree (so caller should find Lowest in Next)
 // or updates String and returns PPValue.
-defineFindFNLPByString(findFirstByString, >,  JudyLFirst, JudyLNext, findLowestByString)
+static PPvoid_t
+findFirstByString(Pcvoid_t PTree,     /* pointer to bucket entry */
+           uint8_t *String,        /* string */
+           Word_t Len,             /* length of string */
+	   PJError_t PJError
+	  )
+{
+    Word_t Index;
+    PPvoid_t PPEntry;
+    PPvoid_t PPValue;
+    
+    if (Len > WORDSIZE)            /* lengthy substring: */
+    {
+        if (IS_PLS(PTree))         /* leaf pointer: */
+        {
+            Pls_t Pls = (Pls_t) CLEAR_PLS(PTree);   /* demangle pointer */
+	    if (memcmp(String, Pls->ls_String, Len) > 0)
+	    {                      /* <first> is not in this leaf: */
+                memset(String, 0, Len); /* update string: clear tail */
+                return (NULL);     /* tell caller to find next */
+	    }
+	    else
+            {                      /* found <first> entry: */
+                memcpy(String, Pls->ls_String, Len);  /* update string: new tail */
+	                           /* length and hash are still good */
+	        return ((PPvoid_t) (&Pls->ls_Value));  /* return found PPValue */
+	    }
+        }
+        else
+        {
+            COPYSTRINGtoWORD(Index, String, WORDSIZE);
+	    JLG(PPEntry, PTree, Index); /* check <this> subtree: */
+	    if (PPEntry != NULL)
+            {                      /* find <first> in subtree */
+                PPValue = findFirstByString(*PPEntry, String + WORDSIZE, Len - WORDSIZE, PJError);
+                if (PPValue == PPJERR) /* error */
+                {
+                    return (PPJERR);
+		}
+		if (PPValue != NULL) /* found */
+                {
+		    return (PPValue);
+		}
+	    }
+		                   /* no subtree here or no <first>: */
+		                   /*  find <lowest> in <next> subtree */
+            memset(String, 0, Len); /* update string: back out */
+	    PPEntry = JudyLNext(PTree, &Index, PJError);  /* find <next> subtree */
+	    if (PPEntry == PPJERR) /* error */
+	    {
+                return (PPJERR);
+	    }
+	    if (PPEntry != NULL)   /* found <next>: */
+            {
+                COPYWORDtoSTRING(String, Index); /* update string: next hunk */
+                                   /* find <lowest> in <next> subtree */
+		PPValue = findLowestByString(*PPEntry, String + WORDSIZE, Len - WORDSIZE, PJError);
+                if (PPValue == PPJERR) /* error */
+                {
+                    return (PPJERR);
+		}
+                return (PPValue);  /* found */
+            }
+	    else                   /* no <next> subtree: */
+            {
+                return (NULL);     /* caller find next */
+	    }
+	}
+    }
+    else                           /* tail of string, no more levels of tree: */
+    {
+        COPYSTRINGtoWORD(Index, String, Len);
+	PPEntry = JudyLFirst(PTree, &Index, PJError); /* find <first> entry */
+	if (PPEntry == PPJERR)     /* error */
+	{
+            return (PPJERR);
+	}
+	if (PPEntry != NULL)       /* found: */
+        {
+            COPYWORDtoSTRING(String, Index); /* update string: last hunk */
+	    return (PPEntry);
+	}
+	else
+        {
+            memset(String, 0, Len); /* update string: back out */
+            return (NULL);         /* and caller find next */
+	}
+    }
+}
+
 
 // find Next (after index String) in tree of JudyL arrays
 // returns NULL if not in this tree (so caller should find Lowest in Next)
 // or updates String and returns PPValue.
-defineFindFNLPByString(findNextByString,  >=, JudyLNext,  JudyLNext, findLowestByString)
+static PPvoid_t
+findNextByString(Pcvoid_t PTree,     /* pointer to bucket entry */
+           uint8_t *String,        /* string */
+           Word_t Len,             /* length of string */
+	   PJError_t PJError
+	  )
+{
+    Word_t Index;
+    PPvoid_t PPEntry;
+    PPvoid_t PPValue;
+    
+    if (Len > WORDSIZE)            /* lengthy substring: */
+    {
+        if (IS_PLS(PTree))         /* leaf pointer: */
+        {
+            Pls_t Pls = (Pls_t) CLEAR_PLS(PTree);   /* demangle pointer */
+	    if (memcmp(String, Pls->ls_String, Len) >= 0)
+	    {                      /* <first> is not in this leaf: */
+                memset(String, 0, Len); /* update string: clear tail */
+                return (NULL);     /* tell caller to find next */
+	    }
+	    else
+            {                      /* found <first> entry: */
+                memcpy(String, Pls->ls_String, Len);  /* update string: new tail */
+	                           /* length and hash are still good */
+	        return ((PPvoid_t) (&Pls->ls_Value));  /* return found PPValue */
+	    }
+        }
+        else
+        {
+            COPYSTRINGtoWORD(Index, String, WORDSIZE);
+	    JLG(PPEntry, PTree, Index); /* check <this> subtree: */
+	    if (PPEntry != NULL)
+            {                      /* find <first> in subtree */
+                PPValue = findNextByString(*PPEntry, String + WORDSIZE, Len - WORDSIZE, PJError);
+                if (PPValue == PPJERR) /* error */
+                {
+                    return (PPJERR);
+		}
+		if (PPValue != NULL) /* found */
+                {
+		    return (PPValue);
+		}
+	    }
+		                   /* no subtree here or no <first>: */
+		                   /*  find <lowest> in <next> subtree */
+            memset(String, 0, Len); /* update string: back out */
+	    PPEntry = JudyLNext(PTree, &Index, PJError);  /* find <next> subtree */
+	    if (PPEntry == PPJERR) /* error */
+	    {
+                return (PPJERR);
+	    }
+	    if (PPEntry != NULL)   /* found <next>: */
+            {
+                COPYWORDtoSTRING(String, Index); /* update string: next hunk */
+                                   /* find <lowest> in <next> subtree */
+		PPValue = findLowestByString(*PPEntry, String + WORDSIZE, Len - WORDSIZE, PJError);
+                if (PPValue == PPJERR) /* error */
+                {
+                    return (PPJERR);
+		}
+                return (PPValue);  /* found */
+            }
+	    else                   /* no <next> subtree: */
+            {
+                return (NULL);     /* caller find next */
+	    }
+	}
+    }
+    else                           /* tail of string, no more levels of tree: */
+    {
+        COPYSTRINGtoWORD(Index, String, Len);
+	PPEntry = JudyLNext(PTree, &Index, PJError); /* find <first> entry */
+	if (PPEntry == PPJERR)     /* error */
+	{
+            return (PPJERR);
+	}
+	if (PPEntry != NULL)       /* found: */
+        {
+            COPYWORDtoSTRING(String, Index); /* update string: last hunk */
+	    return (PPEntry);
+	}
+	else
+        {
+            memset(String, 0, Len); /* update string: back out */
+            return (NULL);         /* and caller find next */
+	}
+    }
+}
+
 
 // find Last (at or before index String) in tree of JudyL arrays
 // returns NULL if not in this tree (so caller should find Highest in Prev)
 // or updates String and returns PPValue.
-defineFindFNLPByString(findLastByString,  <,  JudyLLast,  JudyLPrev, findHighestByString)
+static PPvoid_t
+findLastByString(Pcvoid_t PTree,     /* pointer to bucket entry */
+           uint8_t *String,        /* string */
+           Word_t Len,             /* length of string */
+	   PJError_t PJError
+	  )
+{
+    Word_t Index;
+    PPvoid_t PPEntry;
+    PPvoid_t PPValue;
+    
+    if (Len > WORDSIZE)            /* lengthy substring: */
+    {
+        if (IS_PLS(PTree))         /* leaf pointer: */
+        {
+            Pls_t Pls = (Pls_t) CLEAR_PLS(PTree);   /* demangle pointer */
+	    if (memcmp(String, Pls->ls_String, Len) < 0)
+	    {                      /* <first> is not in this leaf: */
+                memset(String, 0, Len); /* update string: clear tail */
+                return (NULL);     /* tell caller to find next */
+	    }
+	    else
+            {                      /* found <first> entry: */
+                memcpy(String, Pls->ls_String, Len);  /* update string: new tail */
+	                           /* length and hash are still good */
+	        return ((PPvoid_t) (&Pls->ls_Value));  /* return found PPValue */
+	    }
+        }
+        else
+        {
+            COPYSTRINGtoWORD(Index, String, WORDSIZE);
+	    JLG(PPEntry, PTree, Index); /* check <this> subtree: */
+	    if (PPEntry != NULL)
+            {                      /* find <first> in subtree */
+                PPValue = findLastByString(*PPEntry, String + WORDSIZE, Len - WORDSIZE, PJError);
+                if (PPValue == PPJERR) /* error */
+                {
+                    return (PPJERR);
+		}
+		if (PPValue != NULL) /* found */
+                {
+		    return (PPValue);
+		}
+	    }
+		                   /* no subtree here or no <first>: */
+		                   /*  find <lowest> in <next> subtree */
+            memset(String, 0, Len); /* update string: back out */
+	    PPEntry = JudyLPrev(PTree, &Index, PJError);  /* find <next> subtree */
+	    if (PPEntry == PPJERR) /* error */
+	    {
+                return (PPJERR);
+	    }
+	    if (PPEntry != NULL)   /* found <next>: */
+            {
+                COPYWORDtoSTRING(String, Index); /* update string: next hunk */
+                                   /* find <lowest> in <next> subtree */
+		PPValue = findHighestByString(*PPEntry, String + WORDSIZE, Len - WORDSIZE, PJError);
+                if (PPValue == PPJERR) /* error */
+                {
+                    return (PPJERR);
+		}
+                return (PPValue);  /* found */
+            }
+	    else                   /* no <next> subtree: */
+            {
+                return (NULL);     /* caller find next */
+	    }
+	}
+    }
+    else                           /* tail of string, no more levels of tree: */
+    {
+        COPYSTRINGtoWORD(Index, String, Len);
+	PPEntry = JudyLLast(PTree, &Index, PJError); /* find <first> entry */
+	if (PPEntry == PPJERR)     /* error */
+	{
+            return (PPJERR);
+	}
+	if (PPEntry != NULL)       /* found: */
+        {
+            COPYWORDtoSTRING(String, Index); /* update string: last hunk */
+	    return (PPEntry);
+	}
+	else
+        {
+            memset(String, 0, Len); /* update string: back out */
+            return (NULL);         /* and caller find next */
+	}
+    }
+}
+
 
 // find Prev (before index String) in tree of JudyL arrays
 // returns NULL if not in this tree (so caller should find Highest in Prev)
 // or updates String and returns PPValue.
-defineFindFNLPByString(findPrevByString,  <=, JudyLPrev,  JudyLPrev, findHighestByString)
+static PPvoid_t
+findPrevByString(Pcvoid_t PTree,     /* pointer to bucket entry */
+           uint8_t *String,        /* string */
+           Word_t Len,             /* length of string */
+	   PJError_t PJError
+	  )
+{
+    Word_t Index;
+    PPvoid_t PPEntry;
+    PPvoid_t PPValue;
+    
+    if (Len > WORDSIZE)            /* lengthy substring: */
+    {
+        if (IS_PLS(PTree))         /* leaf pointer: */
+        {
+            Pls_t Pls = (Pls_t) CLEAR_PLS(PTree);   /* demangle pointer */
+	    if (memcmp(String, Pls->ls_String, Len) <= 0)
+	    {                      /* <first> is not in this leaf: */
+                memset(String, 0, Len); /* update string: clear tail */
+                return (NULL);     /* tell caller to find next */
+	    }
+	    else
+            {                      /* found <first> entry: */
+                memcpy(String, Pls->ls_String, Len);  /* update string: new tail */
+	                           /* length and hash are still good */
+	        return ((PPvoid_t) (&Pls->ls_Value));  /* return found PPValue */
+	    }
+        }
+        else
+        {
+            COPYSTRINGtoWORD(Index, String, WORDSIZE);
+	    JLG(PPEntry, PTree, Index); /* check <this> subtree: */
+	    if (PPEntry != NULL)
+            {                      /* find <first> in subtree */
+                PPValue = findPrevByString(*PPEntry, String + WORDSIZE, Len - WORDSIZE, PJError);
+                if (PPValue == PPJERR) /* error */
+                {
+                    return (PPJERR);
+		}
+		if (PPValue != NULL) /* found */
+                {
+		    return (PPValue);
+		}
+	    }
+		                   /* no subtree here or no <first>: */
+		                   /*  find <lowest> in <next> subtree */
+            memset(String, 0, Len); /* update string: back out */
+	    PPEntry = JudyLPrev(PTree, &Index, PJError);  /* find <next> subtree */
+	    if (PPEntry == PPJERR) /* error */
+	    {
+                return (PPJERR);
+	    }
+	    if (PPEntry != NULL)   /* found <next>: */
+            {
+                COPYWORDtoSTRING(String, Index); /* update string: next hunk */
+                                   /* find <lowest> in <next> subtree */
+		PPValue = findHighestByString(*PPEntry, String + WORDSIZE, Len - WORDSIZE, PJError);
+                if (PPValue == PPJERR) /* error */
+                {
+                    return (PPJERR);
+		}
+                return (PPValue);  /* found */
+            }
+	    else                   /* no <next> subtree: */
+            {
+                return (NULL);     /* caller find next */
+	    }
+	}
+    }
+    else                           /* tail of string, no more levels of tree: */
+    {
+        COPYSTRINGtoWORD(Index, String, Len);
+	PPEntry = JudyLPrev(PTree, &Index, PJError); /* find <first> entry */
+	if (PPEntry == PPJERR)     /* error */
+	{
+            return (PPJERR);
+	}
+	if (PPEntry != NULL)       /* found: */
+        {
+            COPYWORDtoSTRING(String, Index); /* update string: last hunk */
+	    return (PPEntry);
+	}
+	else
+        {
+            memset(String, 0, Len); /* update string: back out */
+            return (NULL);         /* and caller find next */
+	}
+    }
+}
+
 
 
 // find <Lowest> (<Highest>) in tree of JudyL arrays
 // updates String and returns PPValue.
 // if none found (but how could this be?), returns NULL.
-#define defineFindLHestByString(findXXByString, YYIndex, JudyLYY, findZZByString)    \
-static PPvoid_t                                                                      \
-findXXByString(Pcvoid_t PTree,     /* pointer to bucket entry */                     \
-              uint8_t *String,     /* string */                                      \
-              Word_t Len,          /* length of string */                            \
-	      PJError_t PJError                                                      \
-             )                                                                       \
-{                                                                                    \
-    Word_t Index;                                                                    \
-    PPvoid_t PPEntry;                                                                \
-    PPvoid_t PPValue;                                                                \
-                                                                                     \
-    if (Len > WORDSIZE)            /* lengthy string: */                             \
-    {                                                                                \
-        if (IS_PLS(PTree))         /* leaf pointer: found */                         \
-        {                                                                            \
-            Pls_t Pls = (Pls_t) CLEAR_PLS(PTree);  /* demangle pointer */            \
-            memcpy(String, Pls->ls_String, Len);   /* update string: new tail */     \
-	                           /* length and hash are still good */              \
-	    return ((PPvoid_t) (&Pls->ls_Value));  /* return found PPValue */        \
-        }                                                                            \
-        else                       /* subtree: */                                    \
-        {                                                                            \
-            Index = YYIndex;       /* Index = <Start> */                             \
-                                   /* get <First> from <Start> */                    \
-	    PPEntry = JudyLYY(PTree, &Index, PJError);                               \
-	    if (PPEntry == PPJERR) /* error */                                       \
-	    {                                                                        \
-                return (PPJERR);                                                     \
-	    }                                                                        \
-	    if (PPEntry != NULL)   /* found <first>: */                              \
-            {                                                                        \
-                COPYWORDtoSTRING(String, Index);  /* update string: next hunk */     \
-                                   /* find <lowest> in <first> subtree */            \
-		PPValue = findZZByString(*PPEntry, String + WORDSIZE, Len - WORDSIZE, PJError); \
-                if (PPValue == PPJERR) /* error */                                   \
-                {                                                                    \
-                    return (PPJERR);                                                 \
-		}                                                                    \
-                return (PPValue);  /* found */                                       \
-            }                                                                        \
-	    else                   /* nothing in this tree (should not happen): */   \
-            {                                                                        \
-                return (NULL);     /* "caller find next" but will actually end iteration */ \
-	    }                                                                        \
-	}                                                                            \
-    }                                                                                \
-    else                           /* final tail: */                                 \
-    {                                                                                \
-        Index = YYIndex;           /* Index = <Start> */                             \
-                                   /* find <First> from <Start> */                   \
-	PPEntry = JudyLYY(PTree, &Index, PJError);                                   \
-	if (PPEntry == PPJERR)     /* error */                                       \
-	{                                                                            \
-            return (PPJERR);                                                         \
-	}                                                                            \
-	if (PPEntry != NULL)       /* found */                                       \
-        {                                                                            \
-            COPYWORDtoSTRING(String, Index);  /* update string: last hunk */         \
-	    return (PPEntry);                                                        \
-	}                                                                            \
-	else                       /* nothing in this tree (should not happen): */   \
-        {                                                                            \
-            return (NULL);         /* "caller find next" */                          \
-	}                                                                            \
-    }                                                                                \
-}
-// #define defineFindLHestByString(findXXByString, YYIndex, JudyLYY, findZZByString)
+
 
 // find Lowest (ie, First from start) in tree of JudyL arrays
 // updates String and returns PPValue.
 // if none found (but how could this be?), returns NULL.
-defineFindLHestByString(findLowestByString,   0, JudyLFirst, findLowestByString)
+static PPvoid_t
+findLowestByString(Pcvoid_t PTree,     /* pointer to bucket entry */
+              uint8_t *String,     /* string */
+              Word_t Len,          /* length of string */
+	      PJError_t PJError
+             )
+{
+    Word_t Index;
+    PPvoid_t PPEntry;
+    PPvoid_t PPValue;
+    
+    if (Len > WORDSIZE)            /* lengthy string: */
+    {
+        if (IS_PLS(PTree))         /* leaf pointer: found */
+        {
+            Pls_t Pls = (Pls_t) CLEAR_PLS(PTree);  /* demangle pointer */
+            memcpy(String, Pls->ls_String, Len);   /* update string: new tail */
+	                           /* length and hash are still good */
+	    return ((PPvoid_t) (&Pls->ls_Value));  /* return found PPValue */
+        }
+        else                       /* subtree: */
+        {
+            Index = 0;       /* Index = <Start> */
+                                   /* get <First> from <Start> */
+	    PPEntry = JudyLFirst(PTree, &Index, PJError);
+	    if (PPEntry == PPJERR) /* error */
+	    {
+                return (PPJERR);
+	    }
+	    if (PPEntry != NULL)   /* found <first>: */
+            {
+                COPYWORDtoSTRING(String, Index);  /* update string: next hunk */
+                                   /* find <lowest> in <first> subtree */
+		PPValue = findLowestByString(*PPEntry, String + WORDSIZE, Len - WORDSIZE, PJError);
+                if (PPValue == PPJERR) /* error */
+                {
+                    return (PPJERR);
+		}
+                return (PPValue);  /* found */
+            }
+	    else                   /* nothing in this tree (should not happen): */
+            {
+                return (NULL);     /* "caller find next" but will actually end iteration */
+	    }
+	}
+    }
+    else                           /* final tail: */
+    {
+        Index = 0;           /* Index = <Start> */
+                                   /* find <First> from <Start> */
+	PPEntry = JudyLFirst(PTree, &Index, PJError);
+	if (PPEntry == PPJERR)     /* error */
+	{
+            return (PPJERR);
+	}
+	if (PPEntry != NULL)       /* found */
+        {
+            COPYWORDtoSTRING(String, Index);  /* update string: last hunk */
+	    return (PPEntry);
+	}
+	else                       /* nothing in this tree (should not happen): */
+        {
+            return (NULL);         /* "caller find next" */
+	}
+    }
+}
+
 
 // find Highest (ie, Last from end) in tree of JudyL arrays
 // updates String and returns PPValue.
 // if none found (but how could this be?), returns NULL.
-defineFindLHestByString(findHighestByString, -1, JudyLLast,  findHighestByString)
+static PPvoid_t
+findHighestByString(Pcvoid_t PTree,     /* pointer to bucket entry */
+              uint8_t *String,     /* string */
+              Word_t Len,          /* length of string */
+	      PJError_t PJError
+             )
+{
+    Word_t Index;
+    PPvoid_t PPEntry;
+    PPvoid_t PPValue;
+    
+    if (Len > WORDSIZE)            /* lengthy string: */
+    {
+        if (IS_PLS(PTree))         /* leaf pointer: found */
+        {
+            Pls_t Pls = (Pls_t) CLEAR_PLS(PTree);  /* demangle pointer */
+            memcpy(String, Pls->ls_String, Len);   /* update string: new tail */
+	                           /* length and hash are still good */
+	    return ((PPvoid_t) (&Pls->ls_Value));  /* return found PPValue */
+        }
+        else                       /* subtree: */
+        {
+            Index = -1;       /* Index = <Start> */
+                                   /* get <First> from <Start> */
+	    PPEntry = JudyLLast(PTree, &Index, PJError);
+	    if (PPEntry == PPJERR) /* error */
+	    {
+                return (PPJERR);
+	    }
+	    if (PPEntry != NULL)   /* found <first>: */
+            {
+                COPYWORDtoSTRING(String, Index);  /* update string: next hunk */
+                                   /* find <lowest> in <first> subtree */
+		PPValue = findHighestByString(*PPEntry, String + WORDSIZE, Len - WORDSIZE, PJError);
+                if (PPValue == PPJERR) /* error */
+                {
+                    return (PPJERR);
+		}
+                return (PPValue);  /* found */
+            }
+	    else                   /* nothing in this tree (should not happen): */
+            {
+                return (NULL);     /* "caller find next" but will actually end iteration */
+	    }
+	}
+    }
+    else                           /* final tail: */
+    {
+        Index = -1;           /* Index = <Start> */
+                                   /* find <First> from <Start> */
+	PPEntry = JudyLLast(PTree, &Index, PJError);
+	if (PPEntry == PPJERR)     /* error */
+	{
+            return (PPJERR);
+	}
+	if (PPEntry != NULL)       /* found */
+        {
+            COPYWORDtoSTRING(String, Index);  /* update string: last hunk */
+	    return (PPEntry);
+	}
+	else                       /* nothing in this tree (should not happen): */
+        {
+            return (NULL);         /* "caller find next" */
+	}
+    }
+}
 
