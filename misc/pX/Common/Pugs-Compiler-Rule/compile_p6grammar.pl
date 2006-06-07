@@ -2,53 +2,77 @@
 # The .pm file is in Perl 6 syntax
 # The .pmc file is in Perl 5 Pugs::Compiler::Rule syntax
 
-package Grammar::Compiler;
+# TODO - in order to Grammar.pm to self-compile:
+#    unshift @rule_terms, 'dot';
+
+package Pugs::Compiler::Grammar;
+
 use Pugs::Compiler::Rule;
 use Pugs::Compiler::Token;
 use Pugs::Compiler::Regex;
 use base 'Pugs::Grammar::Base';
 
-# XXX - added { s => 0, ratchet => 0 } until MiniPerl6.grammar can be compiled with 'token'
+*pod = Pugs::Compiler::Token->compile(q(
+  \= <'cut'> \N* [\n|$] |
+  \N* [ $ | \n <pod> ]
+))->code;
+
+# space, comments or pod 
+*ws = Pugs::Compiler::Token->compile(q(
+  [  
+    \# \N* [\n|$] |
+    [^|\n] \= \N* [\n|$] <pod> |
+    \s
+  ]*
+))->code;
 
 *grammar_name = Pugs::Compiler::Token->compile(q( [ \w | \d | \: ]+ ))->code;
+
 *rule_name = Pugs::Compiler::Token->compile(q( \w+ ))->code;
+
 *block = Pugs::Compiler::Token->compile(q( \{ [ <block> | <-[}]> | \\\\\} ]* \} ))->code;
-*mod = Pugs::Compiler::Token->compile(q( \: <rule_name> { return $<rule_name> . " => 0" } ))->code;
+
+*mod = Pugs::Compiler::Token->compile(q( \: <rule_name> { return $<rule_name> . " => 1" } ))->code;
+
 *rule = Pugs::Compiler::Rule->compile(q(<'rule'> <rule_name> <mod>* <block>
     {
-	my $body = substr($<block>, 1, -1);
-	my $mod = $<mod>[0] ? ", { " . join(", ", @{$<mod>}) . " }" : "";
-	$body =~ s/\\\\/\\\\\\\\/g;  # duplicate every single backslashes
-	return "*" . $<rule_name> . " = Pugs::Compiler::Rule->compile(q(" .
-	$body . ")$mod)->code;"
+        my $body = substr($<block>, 1, -1);
+        my $mod = $<mod>[0] ? ", { " . join(", ", @{$<mod>}) . " }" : "";
+        $body =~ s/\\\\/\\\\\\\\/g;  # duplicate every single backslashes
+        return "*" . $<rule_name> . " = Pugs::Compiler::Rule->compile(q(" .
+        $body . ")$mod)->code;"
     }
 ))->code;
 *token = Pugs::Compiler::Rule->compile(q(<'token'> <rule_name> <mod>* <block>
     {
-	my $body = substr($<block>, 1, -1);
-	my $mod = $<mod>[0] ? ", { " . join(", ", @{$<mod>}) . " }" : "";
-	$body =~ s/\\\\/\\\\\\\\/g;  # duplicate every single backslashes
-	return "*" . $<rule_name> . " = Pugs::Compiler::Token->compile(q(" .
-	$body . ")$mod)->code;"
+        my $body = substr($<block>, 1, -1);
+        my $mod = $<mod>[0] ? ", { " . join(", ", @{$<mod>}) . " }" : "";
+        $body =~ s/\\\\/\\\\\\\\/g;  # duplicate every single backslashes
+        return "*" . $<rule_name> . " = Pugs::Compiler::Token->compile(q(" .
+        $body . ")$mod)->code;"
     }
 ))->code;
 *regex = Pugs::Compiler::Rule->compile(q(<'regex'> <rule_name> <mod>* <block>
     {
-	my $body = substr($<block>, 1, -1);
-	my $mod = $<mod>[0] ? ", { " . join(", ", @{$<mod>}) . " }" : "";
-	$body =~ s/\\\\/\\\\\\\\/g;  # duplicate every single backslashes
-	return "*" . $<rule_name> . " = Pugs::Compiler::Regex->compile(q(" .
-	$body . ")$mod)->code;"
+        my $body = substr($<block>, 1, -1);
+        my $mod = $<mod>[0] ? ", { " . join(", ", @{$<mod>}) . " }" : "";
+        $body =~ s/\\\\/\\\\\\\\/g;  # duplicate every single backslashes
+        return "*" . $<rule_name> . " = Pugs::Compiler::Regex->compile(q(" .
+        $body . ")$mod)->code;"
     }
 ))->code;
-*grammar = Pugs::Compiler::Rule->compile(q(<'grammar'> <grammar_name> \;[ [<rule>|<token>|<regex>]]*{
-        return "package " . "$<grammar_name>" .
-	    ";\nuse Pugs::Compiler::Rule;\nuse Pugs::Compiler::Token;\n" .
-	    "use Pugs::Compiler::Regex;\nuse base 'Pugs::Grammar::Base';\n" .
-        "use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???\n\n" .
-	    join("\n", (map { "$_" } @{$<regex>},
-			map { "$_" } @{$<token>},
-			map { "$_" } @{$<rule>})) . "\n"
+*grammar = Pugs::Compiler::Rule->compile(q( <'grammar'> <grammar_name> \;[ [<rule>|<token>|<regex>]]* {
+        return "package $<grammar_name>\n" .
+            "use Pugs::Compiler::Rule;\n" .
+            "use Pugs::Compiler::Token;\n" .
+            "use Pugs::Compiler::Regex;\n" .
+            "use base 'Pugs::Grammar::Base';\n" .
+            "use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???\n\n" .
+            join("\n", ( 
+                map { "$_" } @{$<regex>},
+                map { "$_" } @{$<token>},
+                map { "$_" } @{$<rule>},
+            )) . "\n"
     }))->code;
 
 package main;
@@ -57,7 +81,7 @@ use Pugs::Runtime::Match::Ratchet;
 
 my $source_file = shift(@ARGV);
 my $source = slurp($source_file);
-my $match  = Grammar::Compiler->grammar($source);
+my $match  = Pugs::Compiler::Grammar->grammar($source);
 print "$match";
 
 sub slurp {
