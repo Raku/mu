@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 3 June 2006
+  Last Modified: 7 June 2006
   Number: 4
-  Version: 21
+  Version: 22
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -311,7 +311,9 @@ useful for the do-once block, since it is offically a loop and can take
 therefore loop control statements.
 
 Although a bare block is no longer a do-once loop, it still executes
-immediately as in Perl 5.  If you wish to return a closure from a
+immediately as in Perl 5, as if it were immediately dereferenced with
+a C<.()> postfix, so within such a block C<CALLER::> refers to the
+scope surrounding the block.  If you wish to return a closure from a
 function, you must use an explicit prefix such as C<return> or C<sub>
 or C<< -> >>.  (Use of a placeholder parameter is deemed insufficiently
 explicit because it's not out front where it can be seen.  You can, of
