@@ -958,10 +958,18 @@ JudyHSIterFirst(Pcvoid_t PArray,      /* pointer to array */
                 case 0UL:          /* 0 Length means start of array */
                     PIter->hsi_Length = 0;
 		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+		    if (USEHASH)
+		    {
+		        PIter->hsi_Hash = 0;
+		    }
 		    break;
                 case (Word_t)-1:   /* -1 Length means end of array */
 		    PIter->hsi_Length = (Word_t)-1;
-		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+		    memset(PIter->hsi_String, 0xff, PIter->hsi_MaxLength);
+		    if (USEHASH)
+		    {
+		        PIter->hsi_Hash = (Word_t)-1;
+		    }
 		    break;
                 default:
 		    JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
@@ -973,16 +981,16 @@ JudyHSIterFirst(Pcvoid_t PArray,      /* pointer to array */
             PIter->hsi_Length = Length;
 	    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
 	    memcpy(PIter->hsi_String, String, Length);
+	    if (USEHASH)          /* if using hash table layer: */
+	    {
+	        if (Length > WORDSIZE)  /* length string: get its hash */
+		{
+		    JUDYHASHSTR(HValue, String, Length);
+		    PIter->hsi_Hash = (Word_t)HValue;
+		}
+	    }
 	}
 	String = PIter->hsi_String;
-    }
-    if (USEHASH)                   /* if using hash table layer: */
-    {
-        if (Length > WORDSIZE)         /* lengthy string: get its hash */
-        {
-            JUDYHASHSTR(HValue, String, Length);
-	    PIter->hsi_Hash = (Word_t)HValue;
-        }
     }
     
 	                           /* find <first> entry */
@@ -993,7 +1001,7 @@ JudyHSIterFirst(Pcvoid_t PArray,      /* pointer to array */
 	return (PPJERR);
     }
     *PStr = PIter->hsi_String;     /* return new string and length as lvalues */
-    *PLen = Length;
+    *PLen = PIter->hsi_Length;
     return (PPValue);              /* and ponter to value cell */
 }
 
@@ -1051,10 +1059,18 @@ JudyHSIterNext(Pcvoid_t PArray,      /* pointer to array */
                 case 0UL:          /* 0 Length means start of array */
                     PIter->hsi_Length = 0;
 		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+		    if (USEHASH)
+		    {
+		        PIter->hsi_Hash = 0;
+		    }
 		    break;
                 case (Word_t)-1:   /* -1 Length means end of array */
 		    PIter->hsi_Length = (Word_t)-1;
-		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+		    memset(PIter->hsi_String, 0xff, PIter->hsi_MaxLength);
+		    if (USEHASH)
+		    {
+		        PIter->hsi_Hash = (Word_t)-1;
+		    }
 		    break;
                 default:
 		    JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
@@ -1066,16 +1082,16 @@ JudyHSIterNext(Pcvoid_t PArray,      /* pointer to array */
             PIter->hsi_Length = Length;
 	    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
 	    memcpy(PIter->hsi_String, String, Length);
+	    if (USEHASH)          /* if using hash table layer: */
+	    {
+	        if (Length > WORDSIZE)  /* length string: get its hash */
+		{
+		    JUDYHASHSTR(HValue, String, Length);
+		    PIter->hsi_Hash = (Word_t)HValue;
+		}
+	    }
 	}
 	String = PIter->hsi_String;
-    }
-    if (USEHASH)                   /* if using hash table layer: */
-    {
-        if (Length > WORDSIZE)         /* lengthy string: get its hash */
-        {
-            JUDYHASHSTR(HValue, String, Length);
-	    PIter->hsi_Hash = (Word_t)HValue;
-        }
     }
     
 	                           /* find <first> entry */
@@ -1086,7 +1102,7 @@ JudyHSIterNext(Pcvoid_t PArray,      /* pointer to array */
 	return (PPJERR);
     }
     *PStr = PIter->hsi_String;     /* return new string and length as lvalues */
-    *PLen = Length;
+    *PLen = PIter->hsi_Length;
     return (PPValue);              /* and ponter to value cell */
 }
 
@@ -1144,10 +1160,18 @@ JudyHSIterLast(Pcvoid_t PArray,      /* pointer to array */
                 case 0UL:          /* 0 Length means start of array */
                     PIter->hsi_Length = 0;
 		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+		    if (USEHASH)
+		    {
+		        PIter->hsi_Hash = 0;
+		    }
 		    break;
                 case (Word_t)-1:   /* -1 Length means end of array */
 		    PIter->hsi_Length = (Word_t)-1;
-		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+		    memset(PIter->hsi_String, 0xff, PIter->hsi_MaxLength);
+		    if (USEHASH)
+		    {
+		        PIter->hsi_Hash = (Word_t)-1;
+		    }
 		    break;
                 default:
 		    JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
@@ -1159,16 +1183,16 @@ JudyHSIterLast(Pcvoid_t PArray,      /* pointer to array */
             PIter->hsi_Length = Length;
 	    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
 	    memcpy(PIter->hsi_String, String, Length);
+	    if (USEHASH)          /* if using hash table layer: */
+	    {
+	        if (Length > WORDSIZE)  /* length string: get its hash */
+		{
+		    JUDYHASHSTR(HValue, String, Length);
+		    PIter->hsi_Hash = (Word_t)HValue;
+		}
+	    }
 	}
 	String = PIter->hsi_String;
-    }
-    if (USEHASH)                   /* if using hash table layer: */
-    {
-        if (Length > WORDSIZE)         /* lengthy string: get its hash */
-        {
-            JUDYHASHSTR(HValue, String, Length);
-	    PIter->hsi_Hash = (Word_t)HValue;
-        }
     }
     
 	                           /* find <first> entry */
@@ -1179,7 +1203,7 @@ JudyHSIterLast(Pcvoid_t PArray,      /* pointer to array */
 	return (PPJERR);
     }
     *PStr = PIter->hsi_String;     /* return new string and length as lvalues */
-    *PLen = Length;
+    *PLen = PIter->hsi_Length;
     return (PPValue);              /* and ponter to value cell */
 }
 
@@ -1237,10 +1261,18 @@ JudyHSIterPrev(Pcvoid_t PArray,      /* pointer to array */
                 case 0UL:          /* 0 Length means start of array */
                     PIter->hsi_Length = 0;
 		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+		    if (USEHASH)
+		    {
+		        PIter->hsi_Hash = 0;
+		    }
 		    break;
                 case (Word_t)-1:   /* -1 Length means end of array */
 		    PIter->hsi_Length = (Word_t)-1;
-		    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
+		    memset(PIter->hsi_String, 0xff, PIter->hsi_MaxLength);
+		    if (USEHASH)
+		    {
+		        PIter->hsi_Hash = (Word_t)-1;
+		    }
 		    break;
                 default:
 		    JU_SET_ERRNO(PJError, JU_ERRNO_NULLPINDEX);
@@ -1252,16 +1284,16 @@ JudyHSIterPrev(Pcvoid_t PArray,      /* pointer to array */
             PIter->hsi_Length = Length;
 	    memset(PIter->hsi_String, 0, PIter->hsi_MaxLength);
 	    memcpy(PIter->hsi_String, String, Length);
+	    if (USEHASH)          /* if using hash table layer: */
+	    {
+	        if (Length > WORDSIZE)  /* length string: get its hash */
+		{
+		    JUDYHASHSTR(HValue, String, Length);
+		    PIter->hsi_Hash = (Word_t)HValue;
+		}
+	    }
 	}
 	String = PIter->hsi_String;
-    }
-    if (USEHASH)                   /* if using hash table layer: */
-    {
-        if (Length > WORDSIZE)         /* lengthy string: get its hash */
-        {
-            JUDYHASHSTR(HValue, String, Length);
-	    PIter->hsi_Hash = (Word_t)HValue;
-        }
     }
     
 	                           /* find <first> entry */
@@ -1272,7 +1304,7 @@ JudyHSIterPrev(Pcvoid_t PArray,      /* pointer to array */
 	return (PPJERR);
     }
     *PStr = PIter->hsi_String;     /* return new string and length as lvalues */
-    *PLen = Length;
+    *PLen = PIter->hsi_Length;
     return (PPValue);              /* and ponter to value cell */
 }
 

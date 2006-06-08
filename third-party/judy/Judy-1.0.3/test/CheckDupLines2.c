@@ -48,14 +48,32 @@ main() {
 	{
 		Pvoid_t PJHSIter = (Pvoid_t) NULL;  // JudyHS iterator
 		uint8_t *Index2 = (uint8_t) NULL;   // JudyHS key: line
-		Word_t Length2 = 0;                 // length of key
+		Word_t Length2 = 0;                 // length of key: start at 0
 		PWord_t PValue2;                    // pointer to value
 		Word_t IterBytes;                   // size of iterator
 
 		JHSIF(PValue2, PJArray, PJHSIter, Index2, Length2);
 		while (PValue2) {
-			printf(" line %lu: %*.*s", *PValue2, Index2, Length2, Length2);
+			printf(" line %lu: %*.*s", *PValue2, Length2, Length2, Index2);
 			JHSIN(PValue2, PJArray, PJHSIter, Index2, Length2);
+		}
+		JHSFI(IterBytes, PJHSIter);
+		printf("JudyHSFreeIter() freed %lu bytes of memory\n", IterBytes);
+	}
+
+	// dump lines in reverse hash order
+	printf("Lines in reverse hash order:\n");
+	{
+		Pvoid_t PJHSIter = (Pvoid_t) NULL;  // JudyHS iterator
+		uint8_t *Index2 = (uint8_t) NULL;   // JudyHS key: line
+		Word_t Length2 = -1;                // length of key: start at maxuint
+		PWord_t PValue2;                    // pointer to value
+		Word_t IterBytes;                   // size of iterator
+
+		JHSIL(PValue2, PJArray, PJHSIter, Index2, Length2);
+		while (PValue2) {
+			printf(" line %lu: %*.*s", *PValue2, Length2, Length2, Index2);
+			JHSIP(PValue2, PJArray, PJHSIter, Index2, Length2);
 		}
 		JHSFI(IterBytes, PJHSIter);
 		printf("JudyHSFreeIter() freed %lu bytes of memory\n", IterBytes);
