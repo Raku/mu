@@ -23,30 +23,30 @@ my %relative_precedences = (
 my %rule_templates = (
     prefix_non =>        
         "'name' exp         \n" .
-        "\t{ \$_[0]->{out}= {op1 => \$_[1], exp1 => \$_[2],} }", 
+        "\t{ \$_[0]->{out}= {fixity => 'prefix', op1 => \$_[1], exp1 => \$_[2],} }", 
     circumfix_non =>     
         "'name' exp 'name2' \n" .
-        "\t{ \$_[0]->{out}= {op1 => \$_[1], op2 => 'name2', exp1 => \$_[2],} }\n" .  
+        "\t{ \$_[0]->{out}= {fixity => 'circumfix', op1 => \$_[1], op2 => \$_[3], exp1 => \$_[2],} }\n" .  
         "\t | 'name' 'name2' \n" .
-        "\t{ \$_[0]->{out}= {op1 => \$_[1], op2 => 'name2' } }",  
+        "\t{ \$_[0]->{out}= {fixity => 'circumfix', op1 => \$_[1], op2 => \$_[2] } }",  
     infix_right =>       
         "exp 'name' exp     \n" .
-        "\t{ \$_[0]->{out}= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }",
+        "\t{ \$_[0]->{out}= {fixity => 'infix', op1 => \$_[2], exp1 => \$_[1], exp2 => \$_[3],} }",
     postfix_non =>       
         "exp 'name'         \n" .
-        "\t{ \$_[0]->{out}= {op1 => \$_[2], exp1 => \$_[1],} }", 
+        "\t{ \$_[0]->{out}= {fixity => 'postfix', op1 => \$_[2], exp1 => \$_[1],} }", 
     postcircumfix_non => 
         "exp 'name' exp 'name2' \n" .
-        "\t{ \$_[0]->{out}= {op1 => 'name', op2 => 'name2', exp1 => \$_[1], exp2 => \$_[3],} }", 
+        "\t{ \$_[0]->{out}= {fixity => 'postcircumfix', op1 => \$_[2], op2 => \$_[4], exp1 => \$_[1], exp2 => \$_[3],} }", 
     infix_left =>        
         "exp 'name' exp     \n" .
-        "\t{ \$_[0]->{out}= {op1 => \$_[2], exp1 => \$_[1], exp2 => \$_[3],} }", 
+        "\t{ \$_[0]->{out}= {fixity => 'infix', op1 => \$_[2], exp1 => \$_[1], exp2 => \$_[3],} }", 
     infix_non =>         
         "exp 'name' exp     \n" .
-        "\t{ \$_[0]->{out}= {op1 => \$_[2], exp1 => \$_[1], exp2 => \$_[3],} }", 
+        "\t{ \$_[0]->{out}= {fixity => 'infix', op1 => \$_[2], exp1 => \$_[1], exp2 => \$_[3],} }", 
     ternary_non =>       
         "exp 'name' exp 'name2' exp \n" .
-        "\t{ \$_[0]->{out}= {op1 => 'name', op2 => 'name2', exp1 => \$_[1], exp2 => \$_[3], exp3 => \$_[5],} }",
+        "\t{ \$_[0]->{out}= {fixity => 'ternary', op1 => \$_[2], op2 => \$_[4], exp1 => \$_[1], exp2 => \$_[3], exp3 => \$_[5],} }",
         
     # XXX
     #infix_chain =>       
@@ -177,7 +177,7 @@ sub emit_yapp {
     }
     $s .= ";\n" .
         "%%\n";
-    print $s;
+    #print $s;
     return $s;
 }
 
@@ -185,8 +185,8 @@ sub emit_grammar_perl5 {
     my $self = shift;
     my $g = $self->emit_yapp();
     #print $g;
-    my($p)=new Parse::Yapp(input => $g);
-    return $p->Output(classname => $self->{grammar} );
+    my $p = Parse::Yapp->new( input => $g );
+    return $p->Output( classname => $self->{grammar} );
 }
 
 sub exists_op { die "not implemented" };

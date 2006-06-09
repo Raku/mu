@@ -1,5 +1,9 @@
 TODO file for Pugs-Compiler-Precedence
 
+- Pugs::Grammar::Precedence and Pugs-Compiler-Precedence/ should have the same name
+
+- add Makefile.PL, MANIFEST
+
 - needs to use category identifiers, like INFIX
   maybe INFIX_004 for category+precedence?
 

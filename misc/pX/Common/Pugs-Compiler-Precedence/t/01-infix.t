@@ -1,11 +1,11 @@
-use Test::More tests => 2;
+use Test::More tests => 3;
 use strict;
 use warnings;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
+use_ok( "Parse::Yapp" );   # test if prerequisite module is there
 use_ok( "Pugs::Grammar::Precedence" );
-use Parse::Yapp;
 
 {
     my $cat = Pugs::Grammar::Precedence->new( grammar => 'test' );
@@ -48,26 +48,36 @@ use Parse::Yapp;
     my $out=$p->YYParse;
     #print Dumper $out;
     
-    my $expected = {
-      'exp2' => {
-        'exp2' => {
-          'num' => '4'
-        },
-        'exp1' => {
-          'num' => '3'
-        },
-        'op1' => '*'
-      },
+    my $expected = 
+    {
       'exp1' => {
-        'exp2' => {
-          'num' => '2'
-        },
         'exp1' => {
           'num' => '1'
         },
-        'op1' => '*'
+        'exp2' => {
+          'num' => '2'
+        },
+        'fixity' => 'infix',
+        'op1' => {
+          'op' => '*'
+        }
       },
-      'op1' => '+'
+      'exp2' => {
+        'exp1' => {
+          'num' => '3'
+        },
+        'exp2' => {
+          'num' => '4'
+        },
+        'fixity' => 'infix',
+        'op1' => {
+          'op' => '*'
+        }
+      },
+      'fixity' => 'infix',
+      'op1' => {
+        'op' => '+'
+      }
     };
 
     is_deeply( $out, $expected, '1*2+3*4' );

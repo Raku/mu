@@ -5,7 +5,6 @@ use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
 use_ok( "Pugs::Grammar::Precedence" );
-use Parse::Yapp;
 
 {
     my $cat = Pugs::Grammar::Precedence->new( 
@@ -102,30 +101,45 @@ use Parse::Yapp;
     my $out=$p->YYParse;
     #print Dumper $out;
     
-    my $expected = {
-      'exp2' => {
-        'op2' => ')',
-        'exp1' => {
-          'exp2' => {
-            'num' => '4'
-          },
-          'exp1' => {
-            'num' => '3'
-          },
-          'op1' => '*'
-        },
-        'op1' => '('
-      },
+    my $expected = 
+    {
       'exp1' => {
-        'exp2' => {
-          'num' => '2'
-        },
         'exp1' => {
           'num' => '1'
         },
-        'op1' => '*'
+        'exp2' => {
+          'num' => '2'
+        },
+        'fixity' => 'infix',
+        'op1' => {
+          'op' => '*'
+        }
       },
-      'op1' => '+'
+      'exp2' => {
+        'exp1' => {
+          'exp1' => {
+            'num' => '3'
+          },
+          'exp2' => {
+            'num' => '4'
+          },
+          'fixity' => 'infix',
+          'op1' => {
+            'op' => '+'
+          }
+        },
+        'fixity' => 'circumfix',
+        'op1' => {
+          'op' => '('
+        },
+        'op2' => {
+          'op' => ')'
+        }
+      },
+      'fixity' => 'infix',
+      'op1' => {
+        'op' => '-'
+      }
     };
 
     is_deeply( $out, $expected, "parse $expr" );
