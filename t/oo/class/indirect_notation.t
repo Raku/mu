@@ -24,12 +24,14 @@ class T1
     }
 }
 
+{
 my T1 $o .= new;
 ok( "Still alive after new" );
 
 is( $o.a(), 'test', "The indirect object notation call without argument 1" );
 is( (a $o:), 'test', "The indirect object notation call without arguments 2" );
 is( (a $o), 'test', "The indirect object notation call without arguments 3" );
+}
 
 ##### With arguments
 class T2
@@ -40,9 +42,10 @@ class T2
     }
 }
 
+{
 my T2 $o .= new;
 ok( "Still alive after new" );
 my $seed = rand(1000);
 is( $o.a( $seed ), $seed, "The indirect object notation call with argument 1" );
 is( (a $o: $seed), $seed, "The indirect object notation call with arguments 2" );
-
+}
