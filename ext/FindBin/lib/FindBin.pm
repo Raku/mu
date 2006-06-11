@@ -3,19 +3,12 @@ module FindBin-6.0.0;
 use v6;
 use File::Spec;
 
-my Str $Bin;
-my Str $Dir;
-my Str $Script;
-my Str $RealBin;
-my Str $RealDir;
-my Str $RealScript;
-
-$FindBin::Bin        ::= $Bin;
-$FindBin::Dir        ::= $Dir;
-$FindBin::Script     ::= $Script;
-$FindBin::RealBin    ::= $RealBin;
-$FindBin::RealDir    ::= $RealDir;
-$FindBin::RealScript ::= $RealScript;
+our Str $Bin;
+our Str $Dir;
+our Str $Script;
+our Str $RealBin;
+our Str $RealDir;
+our Str $RealScript;
 
 sub init {
     $Dir := $Bin;
