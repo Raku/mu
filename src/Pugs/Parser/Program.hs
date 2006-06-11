@@ -8,12 +8,13 @@ import Pugs.AST
 import Pugs.Parser
 import Pugs.Rule
 import Text.ParserCombinators.Parsec.Error (showErrorMessages, errorMessages)
+import qualified Data.Map as Map
 
 parseProgram :: Env -> FilePath -> String -> Env
 parseProgram = flip runRule ruleProgram
 
 makeState :: Env -> RuleState
-makeState env = MkRuleState env MkDynParsersEmpty StatementBracket ' ' "" 0
+makeState env = MkRuleState env MkDynParsersEmpty StatementBracket ' ' "" 0 Map.empty
 
 runRule :: Env -> RuleParser Env -> FilePath -> String -> Env
 runRule env p name str =

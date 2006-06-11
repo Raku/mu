@@ -8,22 +8,29 @@ import Pugs.Lexer
 import Pugs.Rule
 
 import Pugs.Parser.Types
+import qualified Data.Map as Map
 
 fixities :: [String]
 fixities = ["prefix_circumfix_meta_operator:","infix_circumfix_meta_operator:","prefix_postfix_meta_operator:","postfix_prefix_meta_operator:","infix_postfix_meta_operator:","statement_modifier:","statement_control:","scope_declarator:","trait_auxiliary:","trait_verb:","regex_mod_external:","regex_mod_internal:","regex_assertion:","regex_backslash:","regex_metachar:","postcircumfix:","circumfix:","postfix:","infix:","prefix:","quote:","term:"]
 
 -- around a block body we save the package and the current lexical pad
 -- at the start, so that they can be restored after parsing the body
-localEnv :: RuleParser a -> RuleParser a
+localEnv :: RuleParser Exp -> RuleParser Exp
 localEnv m = do
-    env     <- getRuleEnv
+    state   <- get
+    let env = ruleEnv state
+    put state { ruleBlockPads = Map.empty }
     rv      <- m
-    env'    <- getRuleEnv
-    putRuleEnv env'
-        { envPackage = envPackage env
-        , envLexical = envLexical env
+    state'  <- get
+    put state
+        { ruleEnv = (ruleEnv state')
+            { envPackage = envPackage env
+            , envLexical = envLexical env
+            }
         }
-    return rv
+    -- Hoist all pad-declared entries into this block
+    -- XXX - Handle "state" and "constant" here.
+    return $ Map.foldWithKey Pad rv (ruleBlockPads state')
 
 ruleParamList :: ParensOption -> RuleParser a -> RuleParser (Maybe [[a]])
 ruleParamList wantParens parse = rule "parameter list" $ do
