@@ -2,11 +2,11 @@
 
 module Pugs.Parser.Types (
     RuleParser, RuleState(..), CharClass(..),
-    DynParsers(..), ParensOption(..), BracketLevel(..),
+    DynParsers(..), ParensOption(..), FormalsOption(..), BracketLevel(..),
     RuleOperator, RuleOperatorTable,
     getRuleEnv, modifyRuleEnv, putRuleEnv, insertIntoPosition,
     clearDynParsers, enterBracketLevel, getCurrCharClass, getPrevCharClass, charClassOf,
-
+    addBlockPad,
     -- Alternate Char implementations that keeps track of ruleCharClass
     satisfy, string, oneOf, noneOf, char, hexDigit, octDigit,
     digit, upper, anyChar,
@@ -16,6 +16,7 @@ import Pugs.Rule
 import Pugs.Rule.Expr
 import Pugs.Internals
 import Text.ParserCombinators.Parsec.Pos
+import qualified Data.Map as Map
 
 satisfy :: (Char -> Bool) -> RuleParser Char
 satisfy f = do
@@ -108,6 +109,8 @@ data RuleState = MkRuleState
     , ruleChar          :: !Char       -- ^ What the previous character contains
     , ruleName          :: !String     -- ^ Capture name
     , rulePos           :: !Int        -- ^ Capture position
+    , ruleBlockPads     :: !(Map Scope Pad)
+                                       -- ^ Hoisted pad for this block
     }
 
 data BracketLevel
@@ -125,6 +128,9 @@ data CharClass = WordClass | SpaceClass | SymClass
     deriving (Show, Eq)
 
 data ParensOption = ParensMandatory | ParensOptional
+    deriving (Show, Eq)
+
+data FormalsOption = FormalsSimple | FormalsComplex
     deriving (Show, Eq)
 
 instance MonadReader Env RuleParser where
@@ -167,8 +173,15 @@ getRuleEnv = gets ruleEnv
 {-|
 Update the 'Pugs.AST.Internals.Env' in the parser's state by applying a transformation function.
 -}
-modifyRuleEnv :: (MonadState RuleState m) => (Env -> Env) -> m ()
+modifyRuleEnv :: (Env -> Env) -> RuleParser ()
 modifyRuleEnv f = modify $ \state -> state{ ruleEnv = f (ruleEnv state) }
+
+{-|
+Update the 'ruleBlockPostProcessor' in the parser's state by applying a transformation function.
+-}
+addBlockPad :: Scope -> Pad -> RuleParser ()
+addBlockPad scope pad = modify $ \state ->
+    state{ ruleBlockPads = Map.insertWith unionPads scope pad (ruleBlockPads state) }
 
 {-|
 Replace the 'Pugs.AST.Internals.Env' in the parser's state with a new one.
