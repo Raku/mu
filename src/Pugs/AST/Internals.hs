@@ -387,6 +387,7 @@ instance Value VBool where
     doCast (VMatch m)  = return $ matchOk m
     doCast (VBool b)   = return $ b
     doCast VUndef      = return $ False
+    doCast VType{}     = return $ False
     doCast (VStr "")   = return $ False
     doCast (VStr "0")  = return $ False
     doCast (VInt 0)    = return $ False
@@ -448,6 +449,7 @@ instance Value VNum where
     castV = VNum
     fromSV sv = liftIO $ svToVNum sv
     doCast VUndef       = return $ 0
+    doCast VType{}      = return $ 0
     doCast (VBool b)    = return $ if b then 1 else 0
     doCast (VInt i)     = return $ fromIntegral i
     doCast (VRat r)     = return $ realToFrac r
@@ -501,6 +503,7 @@ instance Value VStr where
                       return $ unlines lns
                 | otherwise -> fromVal' v
     doCast VUndef        = return ""
+    doCast VType{}       = return ""
     doCast (VStr s)      = return s
     doCast (VBool b)     = return $ if b then "1" else ""
     doCast (VInt i)      = return $ show i
@@ -512,7 +515,7 @@ instance Value VStr where
     doCast (VThread t)   = return $ takeWhile isDigit $ dropWhile (not . isDigit) $ show t
     doCast (VHandle h)   = return $ "<" ++ "VHandle (" ++ (show h) ++ ">"
     doCast (VMatch m)    = return $ matchStr m
-    doCast (VType typ)   = return $ showType typ -- "::" ++ showType typ
+ -- doCast (VType typ)   = return $ showType typ -- "::" ++ showType typ
     doCast (VObject o)   = return $ "<obj:" ++ showType (objType o) ++ ">"
     doCast x             = return $ "<" ++ showType (valType x) ++ ">"
 
@@ -732,7 +735,7 @@ valType (VControl _)    = mkType "Control"
 valType (VRule    _)    = mkType "Pugs::Internals::VRule"
 valType (VSubst   _)    = mkType "Subst"
 valType (VMatch   _)    = mkType "Match"
-valType (VType    _)    = mkType "Type"
+valType (VType    t)    = t
 valType (VObject  o)    = objType o
 valType (VOpaque  _)    = mkType "Object"
 valType (PerlSV   _)    = mkType "Scalar::Perl5"
@@ -1098,7 +1101,7 @@ buildParam typ sigil name e = MkParam
     , paramDefault  = e
     }
     where
-    typ' = if null typ then typeOfSigil (head name) else mkType typ
+    typ' = if null typ then anyType else mkType typ
 
 defaultArrayParam :: Param
 defaultHashParam :: Param
@@ -1493,6 +1496,7 @@ retError str a = fail $ str ++ ": " ++ show a
 
 defined :: VScalar -> Bool
 defined VUndef  = False
+defined VType{} = False
 defined _       = True
 -- | Produce an undefined Perl 6 value (i.e. 'VUndef').
 undef :: VScalar
