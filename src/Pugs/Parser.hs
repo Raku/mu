@@ -1258,14 +1258,17 @@ ruleVarDecl = rule "variable declaration" $ do
     addBlockPad scope lexDiff
     return exp
     where
+    deSigil (sig:'!':rest) = (sig:rest)
+    deSigil (sig:'.':rest) = (sig:rest)
+    deSigil x              = x
     oneDecl = do
         param <- ruleFormalParam FormalsSimple
-        let name = paramName param
+        let name = deSigil (paramName param)
         return ([name], Var name)
     manyDecl = do
         params <- verbatimParens . enterBracketLevel ParensBracket $
             ruleFormalParam FormalsComplex `sepBy1` ruleComma
-        let names = map paramName params
+        let names = map (deSigil . paramName) params
         return (names, Syn "," $ map Var names)
 
 parseTerm :: RuleParser Exp
