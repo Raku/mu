@@ -136,7 +136,6 @@ ruleBlockDeclaration = rule "block declaration" $ choice
 ruleDeclaration :: RuleParser Exp
 ruleDeclaration = rule "declaration" $ choice
     [ rulePackageDeclaration
---  , ruleVarDeclaration
     , ruleMemberDeclaration
     , ruleTraitDeclaration
     , ruleUseDeclaration
@@ -515,6 +514,7 @@ parseExpWithCachedParser f = do
         setState state{ ruleDynParsers = opParsers }
         f opParsers
 
+{-
 ruleVarDeclaration :: RuleParser Exp
 ruleVarDeclaration = rule "variable declaration" $ do
     scope       <- ruleScope
@@ -586,6 +586,7 @@ ruleVarDeclaration = rule "variable declaration" $ do
     --unnestPad (Pad SMy lex (Syn "=" [v,Pad SMy lex' (Syn "=" [v',x])])) = Pad SMy lex (Stmts Noop (Pad SMy lex' (Syn "=" [v,(Syn "=" [v',unnestPad x])])))
     unnestPad (Pad scope1 lex (Syn "=" [v,Stmts Noop (Pad scope2 lex' (Syn "=" [v',x]))])) = Pad scope1 lex (Stmts Noop (Pad scope2 lex' (Syn "=" [v,(Syn "=" [v',unnestPad x])])))
     unnestPad x@_ = x
+-}
 
 {-|
 Match a @no@ declaration, i.e. the opposite of @use@ (see
