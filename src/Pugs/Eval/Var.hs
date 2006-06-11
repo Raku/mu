@@ -416,22 +416,27 @@ isSimpleExp _               = False
 Return the context that an expression bestows upon a hash or array
 subscript. See 'reduce' for @\{\}@ and @\[\]@.
 -}
+inferExpCxt :: Exp -> Eval Cxt
+inferExpCxt exp = return $ if isScalarLValue exp
+    then cxtItemAny
+    else cxtSlurpyAny
+{-
 inferExpCxt :: Exp -- ^ Expression to find the context of
          -> Eval Cxt
-inferExpCxt (Ann (Pos _) exp)            = inferExpCxt exp
+inferExpCxt (Ann (Pos {}) exp)           = inferExpCxt exp
 inferExpCxt (Ann (Cxt cxt) _)            = return cxt
 inferExpCxt (Syn "," _)            = return cxtSlurpyAny
 inferExpCxt (Syn "[]" [_, exp])    = inferExpCxt exp
 inferExpCxt (Syn "{}" [_, exp])    = inferExpCxt exp
 inferExpCxt (Syn (sigil:"{}") _) = return $ cxtOfSigil sigil
-inferExpCxt (Val (VList _))        = return cxtSlurpyAny
+inferExpCxt (Val (VList {}))       = return cxtSlurpyAny
 inferExpCxt (Val (VRef ref))       = do
     cls <- asks envClasses
     let typ = refType ref
     return $ if isaType cls "List" typ
         then cxtSlurpyAny
         else CxtItem typ
-inferExpCxt (Val _)                 = return cxtItemAny
+inferExpCxt (Val {})                = return cxtItemAny
 inferExpCxt (Var (sigil:_))         = return $ cxtOfSigil sigil
 inferExpCxt (App (Var "&list") _ _) = return cxtSlurpyAny
 inferExpCxt (App (Var "&item") _ _) = return cxtSlurpyAny
@@ -445,6 +450,7 @@ inferExpCxt (App (Var name) invs args)   = do
             -> CxtItem (subReturns sub)
         _ -> cxtSlurpyAny
 inferExpCxt _                      = return cxtSlurpyAny
+-}
 
 {-|
 Evaluate the \'magical\' variable associated with a given name. Returns 
