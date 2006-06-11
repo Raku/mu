@@ -136,7 +136,7 @@ ruleBlockDeclaration = rule "block declaration" $ choice
 ruleDeclaration :: RuleParser Exp
 ruleDeclaration = rule "declaration" $ choice
     [ rulePackageDeclaration
-    , ruleVarDeclaration
+--  , ruleVarDeclaration
     , ruleMemberDeclaration
     , ruleTraitDeclaration
     , ruleUseDeclaration
@@ -348,7 +348,8 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             return emptyExp
         _ -> do
             lexDiff <- unsafeEvalLexDiff $ mkSym nameQualified
-            return $ Pad scope lexDiff $ mkExp name
+            addBlockPad scope lexDiff
+            return $ mkExp name
     clearDynParsers
     return rv
 
@@ -383,15 +384,15 @@ ruleOperatorName = verbatimRule "operator name" $ do
 
 ruleSubParameters :: ParensOption -> RuleParser (Maybe [Param])
 ruleSubParameters wantParens = rule "subroutine parameters" $ do
-    rv <- ruleParamList wantParens ruleFormalParam
+    rv <- ruleParamList wantParens (ruleFormalParam FormalsComplex)
     case rv of
         Just (invs:args:_)  -> return . Just $ map setInv invs ++ args
         _                   -> return Nothing
     where
     setInv e = e { isInvocant = True }
 
-ruleFormalParam :: RuleParser Param
-ruleFormalParam = rule "formal parameter" $ do
+ruleFormalParam :: FormalsOption -> RuleParser Param
+ruleFormalParam opt = rule "formal parameter" $ do
     typ     <- option "" $ ruleType
     optional $ char '\\'  -- XXX hack to parse arglist (\$foo)
     sigil1  <- option "" $ choice . map symbol $ words " : * "
@@ -403,21 +404,27 @@ ruleFormalParam = rule "formal parameter" $ do
     --  :$foo             --> ?:$foo
     --  :$foo!            --> !:$foo
     --  :$foo is required --> !:$foo
-    isDefaultSpecified <- option False $ do
-        lookAhead $ symbol "="
-        return True
+    isDefaultSpecified <- case opt of
+        FormalsSimple  -> return False
+        FormalsComplex -> option False $ do
+            lookAhead $ symbol "="
+            return True
     let isOptional = isDefaultSpecified
                   || sigil2 == "?"
                   || sigil1 == ":" && sigil2 /= "!" && "required" `notElem` traits
                   || "optional" `elem` traits
     let sigil'   = (if isOptional then '?' else '!'):sigil1
-    exp <- ruleParamDefault (not isOptional)
-    optional $ do
-        symbol "-->"
-        ruleParamList ParensOptional $ choice
-            [ ruleType
-            , do { ruleFormalParam; return "" }
-            ]
+    exp <- case opt of
+        FormalsSimple -> return Noop
+        FormalsComplex -> do
+            rv <- ruleParamDefault (not isOptional)
+            optional $ do
+                symbol "-->"
+                ruleParamList ParensOptional $ choice
+                    [ ruleType
+                    , do { ruleFormalParam FormalsComplex; return "" }
+                    ]
+            return rv
     return $ foldr appTrait (buildParam typ sigil' name exp) traits
     where
     appTrait "rw"   x = x { isWritable = True }
@@ -1241,10 +1248,30 @@ was: parseLitOp
 parseExpWithItemOps :: RuleParser Exp
 parseExpWithItemOps = parseExpWithCachedParser dynParseLitOp
 
+ruleVarDecl :: RuleParser Exp
+ruleVarDecl = rule "variable declaration" $ do
+    scope        <- ruleScope
+    (names, exp) <- oneDecl <|> manyDecl
+    lexDiff <- unsafeEvalLexDiff (combine (map (Sym scope) names) emptyExp)
+    -- Now hoist the lexDiff to the current block
+    addBlockPad scope lexDiff
+    return exp
+    where
+    oneDecl = do
+        param <- ruleFormalParam FormalsSimple
+        let name = paramName param
+        return ([name], Var name)
+    manyDecl = do
+        params <- verbatimParens . enterBracketLevel ParensBracket $
+            ruleFormalParam FormalsComplex `sepBy1` ruleComma
+        let names = map paramName params
+        return (names, Syn "," $ map Var names)
+
 parseTerm :: RuleParser Exp
 parseTerm = rule "term" $ do
     term <- choice
         [ ruleDereference
+        , ruleVarDecl
         , ruleVar
         , ruleApply True    -- Folded metaoperators
         , ruleLit
