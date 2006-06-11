@@ -636,7 +636,6 @@ reduceSyn "[...]" [listExp, indexExp] = do
     idx     <- fromVal idxVal
     listVal <- enterRValue $ enterEvalContext (cxtItem "Array") listExp
     list    <- fromVal listVal
-    -- error $ show list
     -- elms    <- mapM fromVal list -- flatten
     retVal $ VList (drop idx $ list)
 

@@ -13,7 +13,6 @@ import Pugs.AST
 import Pugs.Parser.Types
 import Pugs.Parser.Unsafe
 import Pugs.Lexer (isWordAlpha)
-import Pugs.Types (cxtSlurpyAny)
 
 exportSym :: Scope -> String -> Val -> RuleParser Exp
 exportSym scope ('&':subname) ref = do
