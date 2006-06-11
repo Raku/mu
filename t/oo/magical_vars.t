@@ -56,7 +56,7 @@ class SimpleClass does Bar {}
   my $class = $bar.get_class_normal;
   my $package = $bar.get_package_normal;
 
-  is( $package, SimpleClass, '$?PACKAGE should be the package name', :todo<bug> );
+  is( $package, SimpleClass, '$?PACKAGE should be the package name' );
 
   is $class ~~ ::SimpleClass, 'the thing returned by $?CLASS in our role smartmatches against our class', :todo<bug>;
   my $forty_two;

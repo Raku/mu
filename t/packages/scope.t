@@ -28,7 +28,7 @@ is($?PACKAGE, "main", 'no declarations broke main $?PACKAGE');
 # block level
 is(Test1::ns, "Test1", "block-level package declarations");
 is(Test1::pkg, "Test1", 'block-level $?PACKAGE var');
-ok((Test1::pkg() === ::Test1), '$?PACKAGE is a type object', :todo<bug>);
+ok((Test1::pkg() === ::Test1), '$?PACKAGE is a type object');
 dies_ok { test1_export() }, "export was not imported implicitly";
 
 # declared packages
@@ -37,12 +37,11 @@ is(Test2::pkg, "Test2", 'declared package $?PACKAGE');
 
 # string eval'ed packages
 is(Test3::pkg, "Test3", 'eval\'ed package $?PACKAGE');
-ok(Test3::pkg() === ::Test3, 'eval\'ed package type object', :todo<bug>);
+ok(Test3::pkg() === ::Test3, 'eval\'ed package type object');
 
 # this one came from t/packages/Test.pm
 is(t::packages::Test::ns, "t::packages::Test", "loaded package");
-ok(t::packages::Test::pkg() === ::t::packages::Test, 'loaded package $?PACKAGE object',
-   :todo<bug>);
+ok(t::packages::Test::pkg() === ::t::packages::Test, 'loaded package $?PACKAGE object');
 my $x;
 lives_ok { $x = test_export() }, "export was imported successfully";
 is($x, "party island", "exported OK");

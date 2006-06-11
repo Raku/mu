@@ -19,4 +19,4 @@ lives_ok {
 #isa_ok($test1, "Class", "It's a class");
 
 my $x = eval 'Foo';
-is($x, ::Foo, "Foo is now a valid class literal", :todo<feature>);
+is($x, ::Foo, "Foo is now a valid class literal");
