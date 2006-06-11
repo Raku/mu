@@ -485,7 +485,7 @@ instance Value VStr where
     fromVal (VList l)    = return . unwords =<< mapM fromVal l
     fromVal v@(PerlSV _) = fromVal' v
     fromVal VUndef       = return ""
-    fromVal VType {}     = return ""
+    fromVal (VType t)    = return (showType t)
     fromVal v = do
         vt  <- evalValType v
         case showType vt of
