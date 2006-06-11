@@ -996,9 +996,9 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
     tight and           &&
     tight or            || ^^ //
     ternary             ?? !!
-    assignment          = := ::= += -= **= xx= .= etc. (and also =>)
+    assignment          => := ::= += -= **= xx= .= etc. (also = with simple lvalues)
     loose unary         true not
-    list ops            , print push any all etc. and ()= rightward
+    list ops            , print push any all etc. (also = with non-simple lvalues)
     list infix          ¥ <== ==>
     loose and           and
     loose or            or xor err
