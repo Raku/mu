@@ -36,6 +36,7 @@ data Operator t st a      = Infix (GenParser t st (a -> a -> a)) Assoc
                           | Postfix (GenParser t st (a -> a))
                           | InfixList (GenParser t st ([a] -> a)) Assoc
                           | OptionalPrefix (GenParser t st (a -> a))
+                          | DependentPostfix (a -> GenParser t st a)
 
 type OperatorTable t st a = [[Operator t st a]]
 
@@ -51,15 +52,16 @@ buildExpressionParser operators simpleExpr emptyExpr
     where
       makeParser term ops
         = let (rassoc,lassoc,nassoc
-               ,prefix,postfix,optPrefix,listAssoc) = foldr splitOp ([],[],[],[],[],[],[]) ops
+               ,prefix,postfix,optPrefix,listAssoc,depPostfix) = foldr splitOp ([],[],[],[],[],[],[],[]) ops
 
-              rassocOp   = choice rassoc
-              lassocOp   = choice lassoc
-              nassocOp   = choice nassoc
-              prefixOp   = choice prefix <?> ""
-              postfixOp  = choice postfix <?> ""
-              optPrefixOp= choice optPrefix <?> ""
-              listAssocOp= choice listAssoc
+              rassocOp  = choice rassoc
+              lassocOp  = choice lassoc
+              nassocOp  = choice nassoc
+              prefixOp  = choice prefix <?> ""
+              postfixOp = choice postfix <?> ""
+              optPrefixOp       = choice optPrefix <?> ""
+              listAssocOp       = choice listAssoc
+              depPostfixOp x    = choice (map ($ x) depPostfix) <?> ""
 
               ambigious assoc op= try $
                                   do{ op; fail ("ambiguous use of a " ++ assoc
@@ -80,8 +82,12 @@ buildExpressionParser operators simpleExpr emptyExpr
                     else case last pres of
                         Left _ -> term
                         _ -> option emptyExpr term
+                x' <- depPostP x
                 posts   <- many postfixOp
-                return $ foldOp posts $ foldOp (map (either id id) pres) x
+                return $ foldOp posts $ foldOp (map (either id id) pres) x'
+              depPostP x = (<|> return x) $ do
+                x' <- depPostfixOp x 
+                depPostP x'
 
               rassocP x  = do{ f <- rassocOp
                              ; y  <- do{ z <- termP; rassocP1 z }
@@ -129,24 +135,27 @@ buildExpressionParser operators simpleExpr emptyExpr
                  }
 
 
-      splitOp (Infix op assoc) (rassoc,lassoc,nassoc,prefix,postfix,optPrefix,listAssoc)
+      splitOp (Infix op assoc) (rassoc,lassoc,nassoc,prefix,postfix,optPrefix,listAssoc,depPostfix)
         = case assoc of
-            AssocNone  -> (rassoc,lassoc,op:nassoc,prefix,postfix,optPrefix,listAssoc)
-            AssocLeft  -> (rassoc,op:lassoc,nassoc,prefix,postfix,optPrefix,listAssoc)
-            AssocRight -> (op:rassoc,lassoc,nassoc,prefix,postfix,optPrefix,listAssoc)
+            AssocNone  -> (rassoc,lassoc,op:nassoc,prefix,postfix,optPrefix,listAssoc,depPostfix)
+            AssocLeft  -> (rassoc,op:lassoc,nassoc,prefix,postfix,optPrefix,listAssoc,depPostfix)
+            AssocRight -> (op:rassoc,lassoc,nassoc,prefix,postfix,optPrefix,listAssoc,depPostfix)
             _          -> error "splitOp: unimplemented assoc type."
 
-      splitOp (InfixList op assoc) (rassoc,lassoc,nassoc,prefix,postfix,optPrefix,listAssoc)
+      splitOp (InfixList op assoc) (rassoc,lassoc,nassoc,prefix,postfix,optPrefix,listAssoc,depPostfix)
         = case assoc of
-            AssocList  -> (rassoc,lassoc,nassoc,prefix,postfix,optPrefix,op:listAssoc)
+            AssocList  -> (rassoc,lassoc,nassoc,prefix,postfix,optPrefix,op:listAssoc,depPostfix)
             -- FIXME: add AssocChain
             _          -> error "splitOp: unimplemented assoc type."
 
-      splitOp (Prefix op) (rassoc,lassoc,nassoc,prefix,postfix,optPrefix,listAssoc)
-        = (rassoc,lassoc,nassoc,op:prefix,postfix,optPrefix,listAssoc)
+      splitOp (Prefix op) (rassoc,lassoc,nassoc,prefix,postfix,optPrefix,listAssoc,depPostfix)
+        = (rassoc,lassoc,nassoc,op:prefix,postfix,optPrefix,listAssoc,depPostfix)
 
-      splitOp (Postfix op) (rassoc,lassoc,nassoc,prefix,postfix,optPrefix,listAssoc)
-        = (rassoc,lassoc,nassoc,prefix,op:postfix,optPrefix,listAssoc)
+      splitOp (Postfix op) (rassoc,lassoc,nassoc,prefix,postfix,optPrefix,listAssoc,depPostfix)
+        = (rassoc,lassoc,nassoc,prefix,op:postfix,optPrefix,listAssoc,depPostfix)
 
-      splitOp (OptionalPrefix op) (rassoc,lassoc,nassoc,prefix,postfix,optPrefix,listAssoc)
-        = (rassoc,lassoc,nassoc,prefix,postfix,op:optPrefix,listAssoc)
+      splitOp (OptionalPrefix op) (rassoc,lassoc,nassoc,prefix,postfix,optPrefix,listAssoc,depPostfix)
+        = (rassoc,lassoc,nassoc,prefix,postfix,op:optPrefix,listAssoc,depPostfix)
+
+      splitOp (DependentPostfix op) (rassoc,lassoc,nassoc,prefix,postfix,optPrefix,listAssoc,depPostfix)
+        = (rassoc,lassoc,nassoc,prefix,postfix,optPrefix,listAssoc,op:depPostfix)
