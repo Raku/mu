@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 4 Jun 2006
+  Last Modified: 11 Jun 2006
   Number: 3
-  Version: 37
+  Version: 38
 
 =head1 Changes to existing operators
 
@@ -114,15 +114,18 @@ since list assignment operators are of assignment precedence to their left.
 still works fine.  The distinction between scalar and list
 assignment is similar to the way Perl 5 does it, but has to be a
 little different because we can no longer decide on the basis of
-the sigil.  The following forms are defined as "obviously simple",
+the sigil.  The following forms are defined as "simple lvalues",
 and imply scalar assignment:
 
     $a		# simple scalar variable
+    $(ANY)      # scalar dereference (including $$a)
+    $::(ANY)    # symbolic scalar dereference
     ANY[SIMPLE]	# single simple subscript
     ANY{SIMPLE}	# single simple subscript
     ANY<x>	# single literal subscript
 
-Where SIMPLE is defined as 
+Where SIMPLE is (recursively) defined as one of the forms above,
+plus the following forms:
 
     123		# single literal
     'x'		# single literal
@@ -133,8 +136,6 @@ Where SIMPLE is defined as
     ~TERM	# any single term coerced to string
     ?TERM	# any single term coerced to boolean
     !TERM	# any single term coerced to boolean
-    ANY[SIMPLE]	# any of these simples used as subscript recursively
-    ANY{SIMPLE}	# any of these simples used as subscript recursively
 
 We also include:
 
