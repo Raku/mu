@@ -335,7 +335,8 @@ op1 "Pugs::Safe::safe_print" = \v -> do
     return $ VBool True
 op1 "die" = \v -> do
     pos <- asks envPos
-    shiftT . const . return $ VError (errmsg v) [pos]
+    v'  <- fromVal $! v
+    shiftT . const . return $! VError (errmsg $! v') [pos]
     where
     errmsg VUndef      = VStr "Died"
     errmsg (VStr "")   = VStr "Died"
