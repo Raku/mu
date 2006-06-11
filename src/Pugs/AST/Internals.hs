@@ -195,6 +195,7 @@ retEmpty = do
 evalValType :: Val -> Eval Type
 evalValType (VRef (MkRef (IScalar sv))) = scalar_type sv
 evalValType (VRef r) = return $ refType r
+evalValType (VType t) = return t
 evalValType val = return $ valType val
 
 fromVal' :: (Value a) => Val -> Eval a
@@ -483,25 +484,26 @@ instance Value VStr where
     fromSV sv = liftIO $ svToVStr sv
     fromVal (VList l)    = return . unwords =<< mapM fromVal l
     fromVal v@(PerlSV _) = fromVal' v
+    fromVal VUndef       = return ""
+    fromVal VType {}     = return ""
     fromVal v = do
         vt  <- evalValType v
-        case () of
-            _
+        case showType vt of
+            "Pair" -> do
                 -- Special case for pairs: "$pair" eq
                 -- "$pair.key()\t$pair.value()"
-                | vt == mkType "Pair" -> do
-                      (k,v) <- join $ doPair v pair_fetch
-                      k' <- fromVal k
-                      v' <- fromVal v
-                      return $ k' ++ "\t" ++ v'
-                | vt == mkType "Hash" -> do
-                      --- XXX special case for Hash -- need to Objectify
-                      hv      <- join $ doHash v hash_fetch
-                      lns     <- forM (Map.assocs hv) $ \(k, v) -> do
-                          str <- fromVal v
-                          return $ k ++ "\t" ++ str
-                      return $ unlines lns
-                | otherwise -> fromVal' v
+                (k, v)  <- join $ doPair v pair_fetch
+                k'      <- fromVal k
+                v'      <- fromVal v
+                return $ k' ++ "\t" ++ v'
+            "Hash" -> do
+                --- XXX special case for Hash -- need to Objectify
+                hv      <- join $ doHash v hash_fetch
+                lns     <- forM (Map.assocs hv) $ \(k, v) -> do
+                    str <- fromVal v
+                    return $ k ++ "\t" ++ str
+                return $ unlines lns
+            _ -> fromVal' v
     doCast VUndef        = return ""
     doCast VType{}       = return ""
     doCast (VStr s)      = return s
