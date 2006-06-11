@@ -13,7 +13,7 @@ my $fail_test = Test::Builder::Test::Fail.new(
         description => 'first test description'
         );
 
-is( $fail_test.ref, 'Test::Builder::Test::Fail',
+is( $fail_test.ref, ::Test::Builder::Test::Fail,
     'new() should return a Test::Builder::Test::Fail instance' );
 
 is( $fail_test.number(), 1, 'number() should return the provided test number' );

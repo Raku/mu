@@ -10,7 +10,7 @@ use Test::Builder::TestPlan;
 
 my $ok;
 my $Test = Test::Builder.new();
-is( $Test.ref, 'Test::Builder', 'new() should return a Test::Builder object' );
+is( $Test.ref, ::Test::Builder, 'new() should return a Test::Builder object' );
 
 {
     my $Test2 = Test::Builder.new();

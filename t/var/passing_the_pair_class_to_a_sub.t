@@ -6,7 +6,7 @@ use Test;
 plan 2;
 
 {
-    my sub foo ($x) { defined $x }
+    my sub foo ($x) { $x.perl }
 
     my $pair = (a => 1);
     my $Pair = $pair.ref;
@@ -16,7 +16,7 @@ plan 2;
 
 # But this works:
 {
-    my sub foo ($x) { defined $x }
+    my sub foo ($x) { $x.perl }
 
     my $int = 42;
     my $Int = $int.ref;

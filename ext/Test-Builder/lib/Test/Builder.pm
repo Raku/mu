@@ -4,14 +4,14 @@ use Test::Builder::Test;
 use Test::Builder::Output;
 use Test::Builder::TestPlan;
 
-my  Test::Builder           $!singleton;
+my  Test::Builder           $singleton;
 has Test::Builder::Output   $.output handles 'diag';
 has Test::Builder::TestPlan $.testplan;
 has                         @!results;
 
 method new ( Test::Builder $Class: $plan?, $output? )
 {
-    return $!singleton //= $Class.SUPER::new(
+    return $singleton //= $Class.SUPER::new(
         testplan => $plan, output => $output
     );
 }
