@@ -100,7 +100,9 @@ debug :: Pretty a => String -> (String -> String) -> String -> a -> Eval ()
 debug key fun str a = do
     rv <- asks envDebug
     case rv of
-        Nothing -> return ()
+        Nothing -> do
+            -- trace ("***" ++ str ++ encodeUTF8 (pretty a)) return ()
+            return ()
         Just ref -> do
             val <- liftSTM $ do
                 fm <- readTVar ref
@@ -623,9 +625,6 @@ reduceSyn "[]" exps
         let [listExp, indexExp] = exps
         varVal  <- enterLValue $ enterEvalContext (cxtItem "Array") listExp
         idxCxt  <- inferExpCxt indexExp 
-        {- if envLValue env
-            then inferExpCxt indexExp else return (envContext env)
-        -}
         idxVal  <- enterRValue $ enterEvalContext idxCxt indexExp
         lv      <- asks envLValue
         doFetch (mkFetch $ doArray varVal array_fetchElem)
@@ -673,9 +672,6 @@ reduceSyn (sigil:"::()") exps = do
 reduceSyn "{}" [listExp, indexExp] = do
     varVal  <- enterLValue $ enterEvalContext (cxtItem "Hash") listExp
     idxCxt  <- inferExpCxt indexExp 
-    {- if envLValue env
-        then inferExpCxt indexExp else return (envContext env)
-    -}
     idxVal  <- enterRValue $ enterEvalContext idxCxt indexExp
     lv      <- asks envLValue
     doFetch (mkFetch $ doHash varVal hash_fetchElem)
