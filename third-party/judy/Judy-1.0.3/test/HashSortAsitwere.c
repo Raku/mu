@@ -33,7 +33,7 @@ main() {
 			fprintf(stderr, "Out of memory -- exit\n");
 			exit(1);
 		}
-		PPJ1Array = PValue;         // in the value cell we have a Judy1 bitset
+		PPJ1Array = (PPvoid_t)PValue;         // in the value cell we have a Judy1 bitset
 		if (*PPJ1Array != NULL)               // check if duplicate
 		{
 			Dups++;
@@ -61,7 +61,7 @@ main() {
 		JHSIF(PValue2, PJArray, PJHSIter, Index2, Length2);
 		while (PValue2)
 		{
-			PPvoid_t PPJ1Array2 = PValue2;  // points to bitset of line numbers
+			PPvoid_t PPJ1Array2 = (PPvoid_t)PValue2;  // points to bitset of line numbers
 			Word_t LineNumb2 = 0;
 			Word_t J1Value2;
 			
@@ -89,7 +89,7 @@ main() {
 		JHSIL(PValue2, PJArray, PJHSIter, Index2, Length2);
 		while (PValue2)
 		{
-			PPvoid_t PPJ1Array2 = PValue2;  // points to bitset of line numbers
+			PPvoid_t PPJ1Array2 = (PPvoid_t)PValue2;  // points to bitset of line numbers
 			Word_t LineNumb2 = -1;
 			Word_t J1Value2;
 			
@@ -117,7 +117,7 @@ main() {
 		JHSIF(PValue2, PJArray, PJHSIter, Index2, Length2);
 		while (PValue2)
 		{
-			PPvoid_t PPJ1Array2 = PValue2;  // value points to bitset
+			PPvoid_t PPJ1Array2 = (PPvoid_t)PValue2;  // value points to bitset
 			Word_t J1Bytes;             // size of this bitset
 			
 			J1FA(J1Bytes, *PPJ1Array2);
