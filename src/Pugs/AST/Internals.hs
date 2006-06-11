@@ -1273,7 +1273,7 @@ mkCompUnit :: String -> Pad -> Exp -> CompUnit
 mkCompUnit _ pad ast = MkCompUnit compUnitVersion pad ast
 
 compUnitVersion :: Int
-compUnitVersion = 2
+compUnitVersion = 3
 
 {- Eval Monad -}
 -- type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
