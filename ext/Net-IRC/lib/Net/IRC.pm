@@ -121,10 +121,10 @@ sub new_bot(
     my ($chan, $topic) = split " ", $event<rest>;
     $topic = strip_colon($topic);
 
-    %channels{normalize $chan}<topic> = $topic;
+    %channels{~normalize($chan)}<topic> = $topic;
   }];
   %handler<TOPIC> = [-> $event {
-    %channels{normalize $event<object>}<topic> = $event<rest>;
+    %channels{~normalize($event<object>)}<topic> = $event<rest>;
   }];
 
   # /NAMES response
@@ -177,8 +177,8 @@ sub new_bot(
       debug "Joined channel \"$event<object>\".";
     }
 
-    %channels{normalize $event<object>}<users>{$event<from_nick>}++;
-    %users{normalize $event<from_nick>}<channels>{normalize $event<object>}++;
+    %channels{~normalize($event<object>)}<users>{$event<from_nick>}++;
+    %users{~normalize($event<from_nick>)}<channels>{~normalize($event<object>)}++;
   }];
 
   # Somebody left a channel. Update %channels and %users accordingly.
@@ -194,8 +194,8 @@ sub new_bot(
       debug "Left channel \"$chan\".";
     } else {
       %channels{$chan}<users>.delete(normalize $event<from_nick>);
-      %users{normalize $event<from_nick>}<channels>.delete($chan)
-        if %users{normalize $event<from_nick>}<channels>;
+      %users{~normalize($event<from_nick>)}<channels>.delete($chan)
+        if %users{~normalize($event<from_nick>)}<channels>;
     }
   }];
 
@@ -214,8 +214,8 @@ sub new_bot(
       debug "Was kicked from channel \"$chan\" by \"$event<from>\" (\"$reason\").";
     } else {
       %channels{$chan}<users>.delete(normalize $kickee);
-      %users{normalize $kickee}<channels>.delete($chan)
-        if %users{normalize $kickee}<channels>;
+      %users{~normalize($kickee)}<channels>.delete($chan)
+        if %users{~normalize($kickee)}<channels>;
     }
   }];
 
@@ -227,14 +227,14 @@ sub new_bot(
       debug "Was killed by \"$event<from>\" (\"$reason\").";
     }
 
-    my @chans = %users{normalize $killee}<channels>.keys;
-    %channels{$_}<users>.delete(normalize $killee) for @chans;
+    my @chans = %users{~normalize($killee)}<channels>.keys;
+    %channels{$_}<users>.delete(~normalize($killee)) for @chans;
     %users.delete(normalize $killee);
   }];
 
   # Somebody quit. Remove him/her from %users and %channels.
   %handler<QUIT> = [-> $event {
-    my @chans = %users{normalize $event<from_nick>}<channels>.keys;
+    my @chans = %users{~normalize($event<from_nick>)}<channels>.keys;
     %channels{$_}<users>.delete(normalize $event<from_nick>) for @chans;
     %users.delete(normalize $event<from_nick>);
   }];
@@ -277,8 +277,8 @@ sub new_bot(
     last_traffic  => { $last_traffic },
     last_autoping => { $last_autoping },
     channels      => { $chans.members },
-    channel       => -> Str $channel { %channels{normalize $channel} },
-    user          => -> Str $nick    { %users{normalize $nick} },
+    channel       => -> Str $channel { %channels{~normalize($channel)} },
+    user          => -> Str $nick    { %users{~normalize($nick)} },
 
     # Main handler register method
     add_handler => -> Str $code, Code $cb { %handler{$code}.push($cb) },
