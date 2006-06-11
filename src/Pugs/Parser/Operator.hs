@@ -10,6 +10,7 @@ import Pugs.Rule.Expr
 import qualified Data.Set as Set
 
 import Pugs.Parser.Types
+import Pugs.Parser.Unsafe
 
 operators :: (?parseExpWithTightOps :: RuleParser Exp) =>
     RuleParser (RuleOperatorTable Exp)
@@ -56,14 +57,32 @@ tightOperators = do
     , leftOps  (words " || ^^ // ")                             -- Tight Or
     , [ternOp "??" "!!" "if"]                                   -- Ternary
     -- Assignment
-    , rightOps ["=>"]                                           -- Pair constructor
+    , (DependentPostfix listAssignment :) $
+      (DependentPostfix immediateBinding :) $
+      rightOps ["=>"]                                           -- Pair constructor
       ++ rightRewriteSyn [".="]
       ++ rightSyn (words (
-               " = := ::= " ++
+               " = := " ++
                " ~= += -= *= /= %= x= Y= \xA5= **= xx= ||= &&= //= ^^= " ++
                " +<= +>= ~<= ~>= +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= "))
     , preOps ["true", "not"]                                    -- Loose unary
     ]
+
+listAssignment :: (?parseExpWithTightOps :: RuleParser Exp) => Exp -> RuleParser Exp
+listAssignment x = do
+    try $ do
+        lookAhead (char '=')
+        guard (not (isScalarLValue x))
+        symbol "="
+    ys <- ?parseExpWithTightOps `sepEndBy1` ruleComma
+    return (Syn "=" [x, Syn "," ys])
+
+immediateBinding :: (?parseExpWithTightOps :: RuleParser Exp) => Exp -> RuleParser Exp
+immediateBinding x = do
+    symbol "::="
+    y <- ?parseExpWithTightOps
+    unsafeEvalExp (Syn ":=" [x, y])
+    return x
 
 looseOperators :: RuleParser (RuleOperatorTable Exp)
 looseOperators = do
