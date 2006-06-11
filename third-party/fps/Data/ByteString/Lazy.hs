@@ -1,4 +1,6 @@
-{-# OPTIONS_GHC -cpp -fffi -fglasgow-exts -fno-warn-incomplete-patterns -optc-O1 #-}
+{-# OPTIONS_GHC -cpp -optc-O1 -fffi -fglasgow-exts -fno-warn-incomplete-patterns #-}
+--
+-- -optc-O2 breaks with 4.0.4 gcc on debian
 --
 -- Module      : ByteString.Lazy
 -- Copyright   : (c) Don Stewart 2006
@@ -250,6 +252,14 @@ newtype ByteString = LPS [P.ByteString] -- LPS for lazy packed string
 #endif
              )
 
+--
+-- hmm, what about getting the PS constructor unpacked into the cons cell?
+--
+-- data List = Nil | Cons {-# UNPACK #-} !P.ByteString List
+--
+-- Would avoid one indirection per chunk.
+--
+
 unLPS :: ByteString -> [P.ByteString]
 unLPS (LPS xs) = xs
 {-# INLINE unLPS #-}
@@ -478,6 +488,7 @@ reverse (LPS xs) = LPS (L.reverse . L.map P.reverse $ xs)
 -- Lists.
 intersperse :: Word8 -> ByteString -> ByteString
 intersperse = error "FIXME: not yet implemented"
+
 {-intersperse c (LPS [])     = LPS []
 intersperse c (LPS (x:xs)) = LPS (P.intersperse c x : L.map intersperse')
   where intersperse' c ps@(PS x s l) =
@@ -485,6 +496,7 @@ intersperse c (LPS (x:xs)) = LPS (P.intersperse c x : L.map intersperse')
                 poke p c
                 c_intersperse (p `plusPtr` 1) (f `plusPtr` s) l c
 -}
+
 -- | The 'transpose' function transposes the rows and columns of its
 -- 'ByteString' argument.
 transpose :: [ByteString] -> [ByteString]
@@ -1131,12 +1143,13 @@ hGetN :: Int -> Handle -> Int -> IO ByteString
 hGetN _ _ 0 = return empty
 hGetN k h n = readChunks n >>= return . LPS
   where
+    STRICT1(readChunks)
     readChunks i = do
         ps <- P.hGet h (min k i)
         case P.length ps of
             0          -> return []
             m | m == i -> return [ps]
-            m          -> do pss <- readChunks $! i - m
+            m          -> do pss <- readChunks (i - m)
                              return (ps : pss)
 
 #if defined(__GLASGOW_HASKELL__)

@@ -217,6 +217,8 @@ module Data.ByteString (
         hGetContents,           -- :: Handle -> IO ByteString
         hGet,                   -- :: Handle -> Int -> IO ByteString
         hPut,                   -- :: Handle -> ByteString -> IO ()
+        hPutStr,                -- :: Handle -> ByteString -> IO ()
+        hPutStrLn,              -- :: Handle -> ByteString -> IO ()
 
         -- * Fusion utilities
 #if defined(__GLASGOW_HASKELL__)
@@ -339,7 +341,7 @@ compareBytes (PS x1 s1 l1) (PS x2 s2 l2)
         withForeignPtr x1 $ \p1 ->
         withForeignPtr x2 $ \p2 -> do
             i <- memcmp (p1 `plusPtr` s1) (p2 `plusPtr` s2) (fromIntegral $ min l1 l2)
-            return $ case i `compare` 0 of
+            return $! case i `compare` 0 of
                         EQ  -> l1 `compare` l2
                         x   -> x
 {-# INLINE compareBytes #-}
@@ -562,8 +564,8 @@ snoc (PS x s l) c = unsafeCreate (l+1) $ \p -> withForeignPtr x $ \f -> do
 -- | /O(1)/ Extract the first element of a ByteString, which must be non-empty.
 -- An exception will be thrown in the case of an empty ByteString.
 head :: ByteString -> Word8
-head ps@(PS x s _)
-    | null ps   = errorEmptyList "head"
+head (PS x s l)
+    | l <= 0    = errorEmptyList "head"
     | otherwise = inlinePerformIO $ withForeignPtr x $ \p -> peekByteOff p s
 {-# INLINE head #-}
 
@@ -1229,7 +1231,7 @@ elemIndex :: Word8 -> ByteString -> Maybe Int
 elemIndex c (PS x s l) = inlinePerformIO $ withForeignPtr x $ \p -> do
     let p' = p `plusPtr` s
     q <- memchr p' c (fromIntegral l)
-    return $ if q == nullPtr then Nothing else Just $! q `minusPtr` p'
+    return $! if q == nullPtr then Nothing else Just $! q `minusPtr` p'
 {-# INLINE elemIndex #-}
 
 -- | /O(n)/ The 'elemIndexEnd' function returns the last index of the
@@ -1266,7 +1268,7 @@ elemIndices w (PS x s l) = inlinePerformIO $ withForeignPtr x $ \p -> do
                         then []
                         else let i = q `minusPtr` ptr
                              in i : loop (i+1)
-    return (loop 0)
+    return $! loop 0
 {-# INLINE elemIndices #-}
 
 {-
@@ -1378,7 +1380,7 @@ filter' k ps@(PS x s l)
     | null ps   = ps
     | otherwise = unsafePerformIO $ createAndTrim l $ \p -> withForeignPtr x $ \f -> do
         t <- go (f `plusPtr` s) p (f `plusPtr` (s + l))
-        return (t `minusPtr` p) -- actual length
+        return $! t `minusPtr` p -- actual length
     where
         STRICT3(go)
         go f t end | f == end  = return t
@@ -1448,7 +1450,7 @@ isPrefixOf (PS x1 s1 l1) (PS x2 s2 l2)
     | otherwise = inlinePerformIO $ withForeignPtr x1 $ \p1 ->
         withForeignPtr x2 $ \p2 -> do
             i <- memcmp (p1 `plusPtr` s1) (p2 `plusPtr` s2) (fromIntegral l1)
-            return (i == 0)
+            return $! i == 0
 
 -- | /O(n)/ The 'isSuffixOf' function takes two ByteStrings and returns 'True'
 -- iff the first is a suffix of the second.
@@ -1466,7 +1468,7 @@ isSuffixOf (PS x1 s1 l1) (PS x2 s2 l2)
     | otherwise = inlinePerformIO $ withForeignPtr x1 $ \p1 ->
         withForeignPtr x2 $ \p2 -> do
             i <- memcmp (p1 `plusPtr` s1) (p2 `plusPtr` s2 `plusPtr` (l2 - l1)) (fromIntegral l1)
-            return (i == 0)
+            return $! i == 0
 
 -- | Check whether one string is a substring of another. @isSubstringOf
 -- p s@ is equivalent to @not (null (findSubstrings p s))@.
@@ -1574,10 +1576,6 @@ sort (PS x s l) = unsafeCreate l $ \p -> withForeignPtr x $ \f -> do
         c_qsort p l -- inplace
 -}
 
-{-
-sort = pack . List.sort . unpack
--}
-
 -- | The 'sortBy' function is the non-overloaded version of 'sort'.
 --
 -- Try some linear sorts: radix, counting
@@ -1596,7 +1594,7 @@ packCString :: CString -> ByteString
 packCString cstr = unsafePerformIO $ do
     fp <- newForeignPtr_ (castPtr cstr)
     l <- c_strlen cstr
-    return $ PS fp 0 (fromIntegral l)
+    return $! PS fp 0 (fromIntegral l)
 
 -- | /O(1)/ Build a @ByteString@ from a @CStringLen@. This value will
 -- have /no/ finalizer associated with it. This operation has /O(1)/
@@ -1605,7 +1603,7 @@ packCString cstr = unsafePerformIO $ do
 packCStringLen :: CStringLen -> ByteString
 packCStringLen (ptr,len) = unsafePerformIO $ do
     fp <- newForeignPtr_ (castPtr ptr)
-    return $ PS fp 0 (fromIntegral len)
+    return $! PS fp 0 (fromIntegral len)
 
 -- | /O(n)/ Build a @ByteString@ from a malloced @CString@. This value will
 -- have a @free(3)@ finalizer associated to it.
@@ -1613,7 +1611,7 @@ packMallocCString :: CString -> ByteString
 packMallocCString cstr = unsafePerformIO $ do
     fp <- newForeignFreePtr (castPtr cstr)
     len <- c_strlen cstr
-    return $ PS fp 0 (fromIntegral len)
+    return $! PS fp 0 (fromIntegral len)
 
 -- | /O(n) construction/ Use a @ByteString@ with a function requiring a null-terminated @CString@.
 --   The @CString@ should not be freed afterwards. This is a memcpy(3).
@@ -1623,8 +1621,8 @@ useAsCString (PS ps s l) = bracket alloc (c_free.castPtr)
       alloc = withForeignPtr ps $ \p -> do
                 buf <- c_malloc (fromIntegral l+1)
                 memcpy (castPtr buf) (castPtr p `plusPtr` s) (fromIntegral l)
-                poke (buf `plusPtr` l) (0::Word8)
-                return $ castPtr buf
+                poke (buf `plusPtr` l) (0::Word8) -- n.b.
+                return $! castPtr buf
 
 -- | /O(1) construction/ Use a @ByteString@ with a function requiring a @CString@.
 -- Warning: modifying the @CString@ will affect the @ByteString@.
@@ -1655,14 +1653,12 @@ copyCString cstr = do
 
 -- | /O(n)/ Same as copyCString, but saves a strlen call when the length is known.
 copyCStringLen :: CStringLen -> IO ByteString
-copyCStringLen (cstr, len) = 
-    create len $ \p -> memcpy p (castPtr cstr) (fromIntegral len)
+copyCStringLen (cstr, len) = create len $ \p ->
+    memcpy p (castPtr cstr) (fromIntegral len)
 
 -- | /O(1) construction/ Use a @ByteString@ with a function requiring a @CStringLen@.
 -- Warning: modifying the @CStringLen@ will affect the @ByteString@.
--- This is analogous to unsafeUseAsCString, and comes with the same
--- safety requirements.
---
+-- This is analogous to unsafeUseAsCString, and comes with the same safety requirements.
 unsafeUseAsCStringLen :: ByteString -> (CStringLen -> IO a) -> IO a
 unsafeUseAsCStringLen (PS ps s l) ac = withForeignPtr ps $ \p -> ac (castPtr p `plusPtr` s,l)
 
@@ -1747,7 +1743,7 @@ hGetLine h = wantReadableHandle "Data.ByteString.hGetLine" h $ \ handle_ -> do
 mkPS :: RawBuffer -> Int -> Int -> IO ByteString
 mkPS buf start end =
     let len = end - start
-     in create len $ \p -> do
+    in create len $ \p -> do
         memcpy_ptr_baoff p buf (fromIntegral start) (fromIntegral len)
         return ()
 
@@ -1765,14 +1761,23 @@ hPut :: Handle -> ByteString -> IO ()
 hPut _ (PS _  _ 0) = return ()
 hPut h (PS ps s l) = withForeignPtr ps $ \p-> hPutBuf h (p `plusPtr` s) l
 
+-- | A synonym for @hPut@, for compatibility 
+hPutStr :: Handle -> ByteString -> IO ()
+hPutStr = hPut
+
+-- | Write a ByteString to a handle, appending a newline byte
+hPutStrLn :: Handle -> ByteString -> IO ()
+hPutStrLn h ps
+    | length ps < 1024 = hPut h (ps `snoc` 0x0a)
+    | otherwise        = hPut h ps >> hPut h (singleton (0x0a)) -- don't copy
+
 -- | Write a ByteString to stdout
 putStr :: ByteString -> IO ()
 putStr = hPut stdout
 
 -- | Write a ByteString to stdout, appending a newline byte
 putStrLn :: ByteString -> IO ()
-putStrLn ps = hPut stdout ps >> hPut stdout nl
-    where nl = singleton 0x0a
+putStrLn = hPutStrLn stdout
 
 -- | Read a 'ByteString' directly from the specified 'Handle'.  This
 -- is far more efficient than reading the characters into a 'String'
@@ -1807,7 +1812,7 @@ hGetContents h = do
     if i < start_size
         then do p' <- reallocArray p i
                 fp <- newForeignFreePtr p'
-                return $ PS fp 0 i
+                return $! PS fp 0 i
         else f p start_size
     where
         f p s = do
@@ -1818,7 +1823,7 @@ hGetContents h = do
                 then do let i' = s + i
                         p'' <- reallocArray p' i'
                         fp  <- newForeignFreePtr p''
-                        return $ PS fp 0 i'
+                        return $! PS fp 0 i'
                 else f p' s'
 
 -- | getContents. Equivalent to hGetContents stdin
@@ -1862,7 +1867,7 @@ appendFile f txt = bracket (openBinaryFile f AppendMode) hClose
 -- On systems without mmap, this is the same as a readFile.
 --
 mmapFile :: FilePath -> IO ByteString
-mmapFile f = mmap f >>= \(fp,l) -> return $ PS fp 0 l
+mmapFile f = mmap f >>= \(fp,l) -> return $! PS fp 0 l
 
 mmap :: FilePath -> IO (ForeignPtr Word8, Int)
 mmap f = do
@@ -1886,6 +1891,8 @@ mmap f = do
                      else do
                           -- The munmap leads to crashes on OpenBSD.
                           -- maybe there's a use after unmap in there somewhere?
+                          -- Bulat suggests adding the hClose to the
+                          -- finalizer, excellent idea.
 #if !defined(__OpenBSD__)
                              let unmap = c_munmap p l >> return ()
 #else

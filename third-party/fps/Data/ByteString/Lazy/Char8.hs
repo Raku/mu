@@ -1,4 +1,6 @@
-{-# OPTIONS_GHC -cpp -fno-warn-orphans -optc-O1 #-}
+{-# OPTIONS_GHC -cpp -optc-O1 -fno-warn-orphans #-}
+--
+-- -optc-O2 breaks with 4.0.4 gcc on debian
 --
 -- Module      : Data.ByteString.Lazy.Char8
 -- Copyright   : (c) Don Stewart 2006
@@ -153,6 +155,9 @@ module Data.ByteString.Lazy.Char8 (
         -- * Ordered ByteStrings
 --        sort,                   -- :: ByteString -> ByteString
 
+        -- * Reading from ByteStrings
+        readInt,
+
         -- * I\/O with 'ByteString's
 
         -- ** Standard input and output
@@ -183,7 +188,8 @@ import Data.ByteString.Lazy
 
 -- Functions we need to wrap.
 import qualified Data.ByteString.Lazy as L
-
+import qualified Data.ByteString as B
+import qualified Data.ByteString.Base as B
 import Data.ByteString.Base (w2c, c2w, isSpaceWord8)
 
 import Data.Int (Int64)
@@ -196,6 +202,12 @@ import Prelude hiding
         ,unwords,words,maximum,minimum,all,concatMap,scanl,scanl1,foldl1,foldr1
         ,readFile,writeFile,replicate,getContents,getLine,putStr,putStrLn
         ,zip,zipWith,unzip,notElem,repeat)
+
+#define STRICT1(f) f a | a `seq` False = undefined
+#define STRICT2(f) f a b | a `seq` b `seq` False = undefined
+#define STRICT3(f) f a b c | a `seq` b `seq` c `seq` False = undefined
+#define STRICT4(f) f a b c d | a `seq` b `seq` c `seq` d `seq` False = undefined
+#define STRICT5(f) f a b c d e | a `seq` b `seq` c `seq` d `seq` e `seq` False = undefined
 
 ------------------------------------------------------------------------
 
@@ -520,13 +532,55 @@ zipWith f = L.zipWith ((. w2c) . f . w2c)
 -- newline Chars. The resulting strings do not contain newlines.
 --
 lines :: ByteString -> [ByteString]
-lines ps
-    | null ps = []
-    | otherwise = case search ps of
-             Nothing -> [ps]
-             Just n  -> take n ps : lines (drop (n+1) ps)
-    where search = elemIndex '\n'
-{-# INLINE lines #-}
+lines (LPS [])     = []
+lines (LPS (x:xs)) = loop0 x xs
+    where
+    -- this is a really performance sensitive function but the
+    -- chunked representation makes the general case a bit expensive
+    -- however assuming a large chunk size and normalish line lengths
+    -- we will find line endings much more frequently than chunk
+    -- endings so it makes sense to optimise for that common case.
+    -- So we partition into two special cases depending on whether we
+    -- are keeping back a list of chunks that will eventually be output
+    -- once we get to the end of the current line.
+
+    -- the common special case where we have no existing chunks of
+    -- the current line
+    loop0 :: B.ByteString -> [B.ByteString] -> [ByteString]
+    STRICT2(loop0)
+    loop0 ps pss =
+        case B.elemIndex (c2w '\n') ps of
+            Nothing -> case pss of
+                           []  | B.null ps ->            []
+                               | otherwise -> LPS [ps] : []
+                           (ps':pss')
+                               | B.null ps -> loop0 ps'      pss'
+                               | otherwise -> loop  ps' [ps] pss'
+
+            Just n | n /= 0    -> LPS [B.unsafeTake n ps]
+                                : loop0 (B.unsafeDrop (n+1) ps) pss
+                   | otherwise -> loop0 (B.unsafeTail ps) pss
+
+    -- the general case when we are building a list of chunks that are
+    -- part of the same line
+    loop :: B.ByteString -> [B.ByteString] -> [B.ByteString] -> [ByteString]
+    STRICT3(loop)
+    loop ps line pss =
+        case B.elemIndex (c2w '\n') ps of
+            Nothing ->
+                case pss of
+                    [] -> let ps' | B.null ps = P.reverse line
+                                  | otherwise = P.reverse (ps : line)
+                           in ps' `seq` (LPS ps' : [])
+
+                    (ps':pss')
+                        | B.null ps -> loop ps'       line  pss'
+                        | otherwise -> loop ps' (ps : line) pss'
+
+            Just n ->
+                let ps' | n == 0    = P.reverse line
+                        | otherwise = P.reverse (B.unsafeTake n ps : line)
+                 in ps' `seq` (LPS ps' : loop0 (B.unsafeDrop (n+1) ps) pss)
 
 -- | 'unlines' is an inverse operation to 'lines'.  It joins lines,
 -- after appending a terminating newline to each.
@@ -548,4 +602,37 @@ words = L.tokens isSpaceWord8
 unwords :: [ByteString] -> ByteString
 unwords = join (singleton ' ')
 {-# INLINE unwords #-}
+
+-- | readInt reads an Int from the beginning of the ByteString.  If
+-- there is no integer at the beginning of the string, it returns
+-- Nothing, otherwise it just returns the int read, and the rest of the
+-- string.
+readInt :: ByteString -> Maybe (Int, ByteString)
+readInt (LPS [])     = Nothing
+readInt (LPS (x:xs)) =
+        case w2c (B.unsafeHead x) of
+            '-' -> loop True  0 0 (B.unsafeTail x) xs
+            '+' -> loop False 0 0 (B.unsafeTail x) xs
+            _   -> loop False 0 0 x xs
+
+    where loop :: Bool -> Int -> Int -> B.ByteString -> [B.ByteString] -> Maybe (Int, ByteString)
+          STRICT5(loop)
+          loop neg i n ps pss
+              | B.null ps = case pss of
+                                []         -> end  neg i n ps  pss
+                                (ps':pss') -> loop neg i n ps' pss'
+              | otherwise =
+                  case B.unsafeHead ps of
+                    w | w >= 0x30
+                     && w <= 0x39 -> loop neg (i+1)
+                                          (n * 10 + (fromIntegral w - 0x30))
+                                          (B.unsafeTail ps) pss
+                      | otherwise -> end neg i n ps pss
+
+          end _   0 _ _  _   = Nothing
+          end neg _ n ps pss = let n'  | neg       = negate n
+                                       | otherwise = n
+                                   ps' | B.null ps =    pss
+                                       | otherwise = ps:pss
+                                in n' `seq` ps' `seq` Just $! (n', LPS ps')
 
