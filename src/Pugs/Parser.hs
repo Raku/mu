@@ -421,7 +421,7 @@ ruleFormalParam opt = rule "formal parameter" $ do
                 symbol "-->"
                 ruleParamList ParensOptional $ choice
                     [ ruleType
-                    , do { ruleFormalParam FormalsComplex; return "" }
+                    , ruleFormalParam FormalsComplex >> return ""
                     ]
             return rv
     return $ foldr appTrait (buildParam typ sigil' name exp) traits
@@ -454,7 +454,7 @@ ruleTraitDeclaration = try $ do
     trait   <- ruleTrait
     lookAhead (eof <|> (oneOf ";}" >> return ()))
     env     <- ask
-    let pkg = Var (':':envPackage env)
+    let pkg = Var (':':'*':envPackage env)
     return $ Syn "=" [Syn "{}" [pkg, Val (VStr "traits")], Syn "," [Syn "@{}" [Syn "{}" [pkg, Val (VStr "traits")]], Val (VStr trait)]]
 
 ruleMemberDeclaration :: RuleParser Exp
@@ -723,7 +723,7 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
                 [ Val . VCode $ mkSub
                     { subBody   = Syn ","
                         [ App (Var "&prefix:<~>") (Just $ Var "$_") []
-                        , Syn "\\[]" [ App (Var "&can") (Just $ Var (':':pkg)) [Var "$_"] ]
+                        , Syn "\\[]" [ App (Var "&can") (Just $ Var (':':'*':pkg)) [Var "$_"] ]
                         ]
                     , subParams = [defaultScalarParam]
                     }
@@ -1251,9 +1251,16 @@ parseExpWithItemOps = parseExpWithCachedParser dynParseLitOp
 
 ruleVarDecl :: RuleParser Exp
 ruleVarDecl = rule "variable declaration" $ do
-    scope        <- ruleScope
-    (names, exp) <- oneDecl <|> manyDecl
-    lexDiff <- unsafeEvalLexDiff (combine (map (Sym scope) names) emptyExp)
+    scope           <- ruleScope
+    (cxtNames, exp) <- oneDecl <|> manyDecl
+    let makeBinding (nam, cxt)
+            | typ == anyType    = mkSym
+            | otherwise         = mkSym . bindSym
+            where
+            mkSym   = Sym scope nam
+            bindSym = Stmts (Syn "=" [Var nam, Val (VType typ)])
+            typ     = typeOfCxt cxt
+    lexDiff <- unsafeEvalLexDiff $ combine (map makeBinding cxtNames) emptyExp
     -- Now hoist the lexDiff to the current block
     addBlockPad scope lexDiff
     return exp
@@ -1264,12 +1271,13 @@ ruleVarDecl = rule "variable declaration" $ do
     oneDecl = do
         param <- ruleFormalParam FormalsSimple
         let name = deSigil (paramName param)
-        return ([name], Var name)
+        return ([(name, paramContext param)], Var name)
     manyDecl = do
         params <- verbatimParens . enterBracketLevel ParensBracket $
             ruleFormalParam FormalsComplex `sepBy1` ruleComma
         let names = map (deSigil . paramName) params
-        return (names, Syn "," $ map Var names)
+            types = map paramContext params
+        return (names `zip` types, Syn "," $ map Var names)
 
 parseTerm :: RuleParser Exp
 parseTerm = rule "term" $ do

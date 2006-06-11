@@ -19,6 +19,7 @@ import Pugs.Config
 import Pugs.Monads
 
 findVar :: Var -> Eval (Maybe VRef)
+findVar (':':x:_) | x /= '*' = return Nothing
 findVar name = do
     rv <- findVarRef name
     case rv of
@@ -376,7 +377,7 @@ inferExpType (Val val) = fromVal val
 inferExpType (App (Val val) _ _) = do
     sub <- fromVal val
     return $ subReturns sub
-inferExpType (App (Var "&new") (Just (Var (':':name))) _) = return $ mkType name
+inferExpType (App (Var "&new") (Just (Val (VType typ))) _) = return typ
 inferExpType (App (Var name) invs args) = do
     sub <- findSub name invs args
     case sub of
