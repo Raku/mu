@@ -10,12 +10,12 @@ my Str $RealBin;
 my Str $RealDir;
 my Str $RealScript;
 
-our Str $FindBin::Bin        := $Bin;
-our Str $FindBin::Dir        := $Dir;
-our Str $FindBin::Script     := $Script;
-our Str $FindBin::RealBin    := $RealBin;
-our Str $FindBin::RealDir    := $RealDir;
-our Str $FindBin::RealScript := $RealScript;
+$FindBin::Bin        ::= $Bin;
+$FindBin::Dir        ::= $Dir;
+$FindBin::Script     ::= $Script;
+$FindBin::RealBin    ::= $RealBin;
+$FindBin::RealDir    ::= $RealDir;
+$FindBin::RealScript ::= $RealScript;
 
 sub init {
     $Dir := $Bin;
