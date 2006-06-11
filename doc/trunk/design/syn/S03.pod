@@ -147,8 +147,9 @@ where C<OP> is includes any standard scalar operators in the five
 precedence levels autoincrement, exponentiation, symbolic unary,
 multiplicative, and additive; but these are limited to standard
 operators that are known to return numbers, strings, or booleans.
-(Operators that imply list operations are excluded: C<$>, C<@>,
-and C<xx>, for instance.  Hyper operators are also excluded.)
+(Operators that imply list operations are excluded: C<@>, C<%>,
+and C<xx>, for instance.  Hyper operators are also excluded, but
+post-assigment forms such as C<SIMPLE += SIMPLE> is allowed.)
 
 All other forms imply list assignment, and will evaluate both sides
 of the assignment in list context (eventually).   However, this is
