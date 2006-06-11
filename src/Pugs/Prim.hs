@@ -339,6 +339,7 @@ op1 "die" = \v -> do
     shiftT . const . return $! VError (errmsg $! v') [pos]
     where
     errmsg VUndef      = VStr "Died"
+    errmsg VType{}     = VStr "Died"
     errmsg (VStr "")   = VStr "Died"
     errmsg (VList [])  = VStr "Died"
     errmsg (VList [x]) = x
@@ -360,6 +361,7 @@ op1 "fail_" = \v -> do
     shiftT . const . return . VRef . thunkRef $ MkThunk die anyType
     where
     errmsg VUndef      = VStr "Failed"
+    errmsg VType{}     = VStr "Failed"
     errmsg (VStr "")   = VStr "Failed"
     errmsg (VList [])  = VStr "Failed"
     errmsg (VList [x]) = x
@@ -662,6 +664,7 @@ cascadeMethod f meth v args = do
     pkgs    <- fmap f (pkgParents $ showType typ)
     named   <- case args of
         VUndef -> return Map.empty
+        VType{}-> return Map.empty
         _      -> join $ doHash args hash_fetch
     forM_ pkgs $ \pkg -> do
         let sym = ('&':pkg) ++ "::" ++ meth
@@ -1190,7 +1193,7 @@ op4 "substr" = \x y z w -> do
         rep <- fromVal new
         writeRef var (VStr $ concat [pre, rep, post])
     -- If the replacement is given in w, change the str.
-    when (defined w && result /= VUndef) $ change w
+    when (defined w && not (defined result)) $ change w
     -- Return a proxy which will modify the str if assigned to.
     return $ VRef . MkRef $ proxyScalar (return result) change
     where
@@ -1355,7 +1358,8 @@ input args in the same order/position to us.
 -}
 withDefined :: (Monad m) => [Val] -> m a -> m a
 withDefined [] c = c
-withDefined (VUndef:_) _ = fail "use of uninitialized value"
+withDefined (VUndef:_) _  = fail "use of uninitialized value"
+withDefined (VType{}:_) _ = fail "use of uninitialized value"
 withDefined (_:xs) c = withDefined xs c
 
 -- |Returns a transaction to install a primitive operator using

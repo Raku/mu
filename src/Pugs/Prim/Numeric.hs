@@ -15,6 +15,8 @@ op2Numeric :: (forall a. (Num a) => a -> a -> a) -> Val -> Val -> Eval Val
 op2Numeric f x y
     | VUndef <- x = op2Numeric f (VInt 0) y
     | VUndef <- y = op2Numeric f x (VInt 0)
+    | VType{} <- x = op2Numeric f (VInt 0) y
+    | VType{} <- y = op2Numeric f x (VInt 0)
     | (VInt x', VInt y') <- (x, y)  = return $ VInt $ f x' y'
     | (VRat x', VInt y') <- (x, y)  = return $ VRat $ f x' (y' % 1)
     | (VInt x', VRat y') <- (x, y)  = return $ VRat $ f (x' % 1) y'
@@ -45,6 +47,7 @@ op1Round f v = do
 
 op1Numeric :: (forall a. (Num a) => a -> a) -> Val -> Eval Val
 op1Numeric f VUndef     = return . VInt $ f 0
+op1Numeric f VType{}    = return . VInt $ f 0
 op1Numeric f (VInt x)   = return . VInt $ f x
 op1Numeric f l@(VList _)= fmap (VInt . f) (fromVal l)
 op1Numeric f (VRat x)   = return . VRat $ f x
