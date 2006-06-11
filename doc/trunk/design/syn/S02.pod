@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 23 May 2006
+  Last Modified: 11 Jun 2006
   Number: 2
-  Version: 43
+  Version: 44
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -629,21 +629,22 @@ the sigil.
 =item *
 
 The context in which a subscript is evaluated is no longer controlled
-by the sigil either.  Subscripts are always evaluated in scalar context
-when used as a lvalue, and list context when used as a rvalue.
+by the sigil either.  Subscripts are always evaluated in list context.
 
 If you need to force inner context to scalar, we now have convenient
 single-character context specifiers such as + for numbers and ~ for strings.
 Conversely, put parenthesis around the lvalue expression to force inner
 context to list:
 
-    @x[f()]   = g();      # scalar context for f() and g()
-    @x[f()]   = @y[g()];  # scalar context for f(), list context for g()
-    @x[f()]   = @y[+g()]; # scalar context for f() and g()
+    @x[f()]   =  g();       # list context for f() and g()
+    @x[f()]   = +g();       # list context for f(), scalar context for g()
+    @x[+f()]  =  g();       # scalar context for f() and g()
+                            # -- see S03 for "SIMPLE" lvalues
 
-    (@x[f()]) = g();      # list context for f() and g()
-    (@x[f()]) = @y[g()];  # list context for f() and g()
-    (@x[f()]) = @y[+g()]; # list context for f(), scalar context for g()
+    @x[f()]   =  @y[g()];   # list context for f() and g()
+    @x[f()]   = +@y[g()];   # list context for f() and g()
+    @x[+f()]  =  @y[g()];   # scalar context for f(), list context for g()
+    @x[f()]   =  @y[+g()];  # list context for f(), scalar context for g()
 
 =item *
 
