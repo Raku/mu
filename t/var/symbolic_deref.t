@@ -39,7 +39,7 @@ plan 21;
 }
 
 {
-  my $pugs::is::cool = 42;
+  $pugs::is::cool = 42;
   my $cool = "cool";
 
   is $::("pugs")::is::($cool), 42, 'not so basic symbolic dereferentiation works';
