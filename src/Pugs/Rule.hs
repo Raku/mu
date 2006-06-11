@@ -17,7 +17,6 @@ module Pugs.Rule (
     module Pugs.Rule,
 ) where
 
-import Data.Char
 import Pugs.Rule.Expr
 import Text.ParserCombinators.Parsec hiding (
     token       ,
