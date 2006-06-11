@@ -17,5 +17,5 @@ This leads to craziness like the following:
 
 plan 1;
 
-my $opposites = not(0 ~~ rx:Perl5/0/) xor not(0 !~ rx:Perl5/0/);
+my $opposites = (not(0 ~~ rx:Perl5/0/) xor not(0 !~ rx:Perl5/0/));
 ok($opposites, "~~ and !~ are opposites");
