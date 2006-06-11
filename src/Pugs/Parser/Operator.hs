@@ -71,9 +71,10 @@ tightOperators = do
 listAssignment :: (?parseExpWithTightOps :: RuleParser Exp) => Exp -> RuleParser Exp
 listAssignment x = do
     try $ do
-        lookAhead (char '=')
+        char '='
         guard (not (isScalarLValue x))
-        symbol "="
+        notFollowedBy (oneOf "=>" <|> (char ':' >> char '='))
+        whiteSpace
     ys <- ?parseExpWithTightOps `sepEndBy1` ruleComma
     return (Syn "=" [x, Syn "," ys])
 
