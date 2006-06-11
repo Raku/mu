@@ -20,7 +20,7 @@ class Foo {
 try {
   class Baz {
     method bar() { 42 }
-    &baz ::= &bar;
+    our &baz ::= &bar;
   }
 };
 
@@ -29,6 +29,6 @@ try {
   lives_ok {
     my $baz = Baz.new;
     $ret    = $baz.baz();
-  }, "calling an aliased method worked", :todo<feature>;
-  is $ret, 42, "the aliased method returned the right thing", :todo<feature>;
+  }, "calling an aliased method worked";
+  is $ret, 42, "the aliased method returned the right thing";
 }
