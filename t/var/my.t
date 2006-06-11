@@ -29,8 +29,8 @@ plan 11;
 
 {
   my $ret = 42;
-  lives_ok { $ret = my($x) ~ $x }, 'my() variable is visible (1)', :todo<bug>;
-  is $ret, "",                     'my() variable is visible (2)', :todo<bug>;
+  lives_ok { $ret = my($x) ~ $x }, 'my() variable is visible (1)';
+  is $ret, "",                     'my() variable is visible (2)';
 }
 
 {

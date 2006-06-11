@@ -74,21 +74,21 @@ plan 198;
     my @a;
     @a[1, 2, 3] = 100, 200, 300;
     is(@a[1], 100, "assigned correct value from list to sliced array");
-    is(@a[2], 200, "... and second", :todo<feature>);
-    is(@a[3], 300, "... and third", :todo<feature>);
+    is(@a[2], 200, "... and second");
+    is(@a[3], 300, "... and third");
     is(@a[0], undef, "won't modify unassigned one");
 
     my @b;
     (@b[2, 1, 0]) = 401, 201, 1;
-    is(@b[0], 1, "assigned correct value from list to unsorted sliced array", :todo<feature>);
-    is(@b[1], 201, "... and second", :todo<feature>);
+    is(@b[0], 1, "assigned correct value from list to unsorted sliced array");
+    is(@b[1], 201, "... and second");
     is(@b[2], 401, "... and third");
     
     my @c;
     my @d;
     (@c[1, 2], @c[3], @d) = 100, 200, 300, 400, 500;
     is(@c[1], 100, "assigned correct value from list to slice-in-list");
-    is(@c[2], 200, "... and second", :todo<feature>);
+    is(@c[2], 200, "... and second");
     is(@c[3], 300, "... and third", :todo<feature>);
     is(@d[0], 400, "... and fourth", :todo<feature>);
     is(@d[1], 500, "... and fifth", :todo<feature>);

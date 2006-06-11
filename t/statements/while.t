@@ -49,8 +49,7 @@ is($k, 0, 'while $var {...} works');
   eval_is(
     'my $y; while( (my $x = 2) == 2 ) { $y = $x; last; } $y',
     2,
-    "'my' variable within 'while' conditional",
-  :todo<bug>);
+    "'my' variable within 'while' conditional");
 }
 
 # while ... -> $x {...}

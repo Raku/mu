@@ -122,7 +122,7 @@ is((1 && 0 ?? 2 !! 3), 3, "&& binds tighter than ??");
     my @c = 1, 2, 3;
     is(@c, (1), "= binds tighter than , (*sigh*)", :todo);
     my @a = (1, 3) ¥ (2, 4);
-    is(@a, [1, 3], "= binds tighter than yen", :todo);
+    is(@a, [1, 3], "= binds tighter than yen");
 };
 
 {

@@ -103,8 +103,7 @@ is $foo, 1, "die should stop execution immediately.";
     eval_is(
         'if( ( my $x = 2 ) == 2 ) { $x; }',
         2,
-        "'my' variable within 'if' conditional",
-    :todo<feature>);
+        "'my' variable within 'if' conditional");
 }
 
 {

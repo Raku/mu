@@ -109,7 +109,7 @@ plan 12;
         $a(); $a();         # $svar == 44
         $b = $gen()();      # $svar == 42
     ';
-    is $b, 42, "state() and parens", :todo<feature>; # svar == 43
+    is $b, 42, "state() and parens"; # svar == 43
 }
 
 # state() inside regular expressions
