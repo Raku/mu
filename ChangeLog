@@ -34,7 +34,7 @@
 
 === Experimental modules (in misc/, not installed)
 
-== pX effort [XXX: please putter, fglock, etc., fill this in]
+== pX effort
 
 * misc/pX/Common is a place where people can collaboratively hack
 * lrep - a bootstrapped, very minimal Perl 6 compiler written in Perl 6
