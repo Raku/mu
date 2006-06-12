@@ -55,9 +55,9 @@ dies_ok  { $pkg = Our::Package::pkg },
     "Can't see `our' packages out of scope", :todo<feature>;
 lives_ok { $pkg = t::packages::Test::get_our_pkg },
     "Package in scope can see `our' package declarations";
-is($pkg, "Our::Package", 'correct $?PACKAGE');
+is($pkg, Our::Package, 'correct $?PACKAGE');
 ok(!($pkg === ::Our::Package),
-   'not the same as global type object');
+   'not the same as global type object', :todo<feature>);
 
 # oh no, how do we get to that object, then?
 # perhaps %t::packages::Test::<Our::Package> ?
