@@ -1432,7 +1432,9 @@ findSymRef name pad = do
         Nothing  -> fail $ "Cannot find variable: " ++ show name
 
 findSym :: String -> Pad -> Maybe (TVar VRef)
-findSym name pad = fmap head (lookupPad name pad)
+findSym name pad = case lookupPad name pad of
+    Just (x:_)  -> Just x
+    _           -> Nothing
 
 instance MonadCont Eval where
     -- callCC :: ((a -> Eval b) -> Eval a) -> Eval a
@@ -1975,7 +1977,7 @@ instance Typeable1 Tree where typeOf1 _ = typeOf ()
 
 {- !!! For DrIFT -- Don't delete !!!
 
-data Scope = SState | SLet | STemp | SEnv | SMy | SOur | SGlobal
+data Scope = SState | SLet | STemp | SEnv | SMy | SParam | SOur | SGlobal
     {-!derive: YAML_Pos, JSON, Perl5!-}
 
 data Pad = MkPad { padEntries :: Map Var PadEntry }
