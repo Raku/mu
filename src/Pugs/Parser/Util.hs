@@ -29,6 +29,7 @@ localEnv m = do
         { ruleEnv = (ruleEnv state')
             { envPackage = envPackage env
             , envLexical = envLexical env
+            , envOuter   = envOuter env
             }
         }
     -- Hoist all pad-declared entries into this block
