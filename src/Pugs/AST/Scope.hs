@@ -11,7 +11,6 @@ data Scope = SState  -- ^ Persistent across calls
            | STemp   -- ^ Temporary (reverted at scope exit)
            | SEnv    -- ^ Environment (declared with @env@)
            | SMy     -- ^ Lexical
-           | SParam  -- ^ Parameter
            | SOur    -- ^ Package
            | SGlobal -- ^ Global
     deriving (Show, Eq, Ord, Enum, Typeable)

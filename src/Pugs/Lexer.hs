@@ -385,7 +385,7 @@ ruleTraitName trait = rule "named trait" $ do
     ruleQualifiedIdentifier
 
 ruleBareTrait :: String -> RuleParser String
-ruleBareTrait trait = tryRule "bare trait" $ do
+ruleBareTrait trait = rule "bare trait" $ do
     choice [ ruleTraitName trait
            , do symbol trait
                 str <- ruleQualifiedIdentifier

@@ -39,17 +39,14 @@ import qualified Data.Map as Map
 -- Lexical units --------------------------------------------------
 
 ruleBlock :: RuleParser Exp
-ruleBlock = ruleBlockWithParams []
-
-ruleBlockWithParams :: [Param] -> RuleParser Exp
-ruleBlockWithParams params = do
+ruleBlock = do
     lvl <- gets ruleBracketLevel
     case lvl of
-        StatementBracket    -> ruleStatementBlock
-        _                   -> lexeme (ruleVerbatimBlockWithParams params)
+        StatementBracket    -> ruleBlock'
+        _                   -> lexeme ruleVerbatimBlock
     where
-    ruleStatementBlock = do
-        rv <- ruleVerbatimBlockWithParams params
+    ruleBlock' = do
+        rv <- ruleVerbatimBlock
         -- Implementation of 'line-ending } terminates statement'
         -- See L<S04/Statement-ending blocks>.
         -- We are now at end of closing '}'. Mark the position...
@@ -64,11 +61,8 @@ ruleBlockWithParams params = do
         return rv
 
 ruleVerbatimBlock :: RuleParser Exp
-ruleVerbatimBlock = ruleVerbatimBlockWithParams []
-
-ruleVerbatimBlockWithParams :: [Param] -> RuleParser Exp
-ruleVerbatimBlockWithParams params = verbatimRule "block" $ do
-    body <- verbatimBraces (ruleBlockBodyWithParams params)
+ruleVerbatimBlock = verbatimRule "block" $ do
+    body <- verbatimBraces ruleBlockBody
     return $ Syn "block" [body]
 
 ruleEmptyExp :: RuleParser Exp
@@ -77,14 +71,8 @@ ruleEmptyExp = expRule $ do
     return emptyExp
 
 ruleBlockBody :: RuleParser Exp
-ruleBlockBody = ruleBlockBodyWithParams []
-
-ruleBlockBodyWithParams :: [Param] -> RuleParser Exp
-ruleBlockBodyWithParams params = localEnv $ do
-    unless (null params) $ do
-        lexDiff <- unsafeEvalLexDiff $
-            combine [Sym SParam (paramName p) | p <- params ] emptyExp
-        addBlockPad SParam lexDiff
+ruleBlockBody =
+  localEnv $ do
     whiteSpace
     pre     <- many ruleEmptyExp
     body    <- option emptyExp ruleStatementList
@@ -131,17 +119,18 @@ ruleStatementList = rule "statements" .
         return (exp, terminate)
     sepLoop rule = do
         whiteSpace
-        (eof >> return emptyExp) <|> do
+        (eof >> return Noop) <|> do
             (exp, terminate) <- rule
             if terminate then return exp else do
-            rest <- option emptyExp (sepLoop rule)
+            rest <- option Noop (sepLoop rule)
             return $ exp `mergeStmts` rest
 
 -- Declarations ------------------------------------------------
 
 ruleBlockDeclaration :: RuleParser Exp
 ruleBlockDeclaration = rule "block declaration" $ choice
-    [ ruleClosureTrait False
+    [ ruleSubDeclaration
+    , ruleClosureTrait False
     , ruleRuleDeclaration
     , rulePackageBlockDeclaration
     ]
@@ -157,6 +146,48 @@ ruleDeclaration = rule "declaration" $ choice
     , ruleRequireDeclaration
     , ruleTrustsDeclaration
     ]
+
+ruleSubHead :: RuleParser (Bool, SubType, String)
+ruleSubHead = rule "subroutine head" $ do
+    isMulti <- option False $ do { symbol "multi" ; return True }
+    -- You're allowed to omit the "sub":
+    --   multi sub foo (...) {...}      # legal
+    --         sub foo (...) {...}      # legal, too
+    let implicitSub | isMulti == True = return SubRoutine
+                    | otherwise       = pzero
+    styp    <- choice
+        [ do symbol "sub"
+             return SubRoutine
+        , do symbol "coro"
+             return SubCoroutine
+        , do (symbol "submethod" <|> symbol "method")
+             return SubMethod
+        , do symbol "macro"
+             return SubMacro
+        ] <|> implicitSub
+    name    <- ruleSubName
+    return (isMulti, styp, name)
+
+-- | Scope, context, isMulti, styp, name
+type SubDescription = (Scope, String, Bool, SubType, String)
+
+ruleSubScopedWithContext :: RuleParser SubDescription
+ruleSubScopedWithContext = tryRule "scoped subroutine with context" $ do
+    scope   <- ruleScope
+    cxt     <- identifier
+    (isMulti, styp, name) <- ruleSubHead
+    return (scope, cxt, isMulti, styp, name)
+
+ruleSubScoped :: RuleParser SubDescription
+ruleSubScoped = tryRule "scoped subroutine" $ do
+    scope <- ruleScope
+    (isMulti, styp, name) <- ruleSubHead
+    return (scope, "Any", isMulti, styp, name)
+
+ruleSubGlobal :: RuleParser SubDescription
+ruleSubGlobal = tryRule "global subroutine" $ do
+    (isMulti, styp, name) <- ruleSubHead
+    return (SGlobal, "Any", isMulti, styp, name)
 
 ruleRuleDeclaration :: RuleParser Exp
 ruleRuleDeclaration = rule "rule declaration" $ do
@@ -208,7 +239,7 @@ rulePackageHead = do
         Just SOur -> return $ envPackage env ++ "::" ++ name
         Nothing   -> return name
         _         -> fail "I only know about package- and global-scoped classes. Sorry."
-    traits  <- many ruleTrait
+    traits  <- many $ ruleTrait
     let pkgClass = case sym of
                        "package" -> "Package"
                        "module"  -> "Module"
@@ -231,6 +262,102 @@ rulePackageHead = do
             let pkgVal = Val . VStr $ newName
                 kind   = Val . VStr $ sym
             return $ Right (newName, kind, pkgVal, env)
+
+ruleSubDeclaration :: RuleParser Exp
+ruleSubDeclaration = rule "subroutine declaration" $ do
+    namePos <- getPosition
+    (scope, typ, isMulti, styp, name) <- choice
+        [ ruleSubScopedWithContext
+        , ruleSubScoped
+        , ruleSubGlobal
+        ]
+    optional $ do { symbol "handles"; ruleExpression }
+    typ'    <- option typ $ try $ ruleBareTrait "returns"
+    formal  <- option Nothing $ ruleSubParameters ParensMandatory
+    typ''   <- option typ' $ try $ ruleBareTrait "returns"
+    traits  <- many $ ruleTrait
+
+    -- XXX - We have the prototype now; install it immediately?
+
+    -- bodyPos <- getPosition
+    body    <- ruleBlock
+    let (fun, names, params) = doExtract styp formal body
+    -- Check for placeholder vs formal parameters
+    when (isJust formal && (not.null) names) $
+        fail "Cannot mix placeholder variables with formal parameters"
+    env <- ask
+    let sub = VCode $ MkCode
+            { isMulti       = isMulti
+            , subName       = nameQualified
+            , subEnv        = Just env
+            , subType       = if "primitive" `elem` traits
+                then SubPrim else styp
+            , subAssoc      = "pre"
+            , subReturns    = mkType typ''
+            , subLValue     = "rw" `elem` traits
+            , subParams     = self ++ paramsFor styp formal params
+            , subBindings   = []
+            , subSlurpLimit = []
+            , subBody       = fun
+            , subCont       = Nothing
+            }
+        pkg = envPackage env
+        nameQualified | ':' `elem` name     = name
+                      | scope <= SMy        = name
+                      | isGlobal            = name
+                      | isBuiltin           = (head name:'*':tail name)
+                      | otherwise           = (head name:pkg) ++ "::" ++ tail name
+        self :: [Param]
+        self | styp > SubMethod = []
+             | (prm:_) <- params, isInvocant prm = []
+             | otherwise = [selfParam $ envPackage env]
+        mkExp n = Syn ":=" [Var n, Syn "sub" [Val sub]]
+        mkSym n = Sym scope (mkMulti n) (mkExp n)
+        -- Horrible hack! Sym "&&" is the multi form.
+        mkMulti | isMulti   = ('&':)
+                | otherwise = id
+        isGlobal = '*' `elem` name
+        isBuiltin = ("builtin" `elem` traits)
+        isExported = ("export" `elem` traits)
+        
+    -- XXX this belongs in semantic analysis, not in the parser
+    -- also, maybe we should only warn when you try to export an
+    -- operator that is "standard"
+    -- XXX I can't figure out how to do this without trace
+    when (isExported && isOperatorName name) $
+        trace 
+            ("You probably don't want to export an operator name; instead\n\
+  define a new variant on the new operator (eg. multi sub *infix:<+>): "
+                ++ show name ++ " at " ++ show namePos)
+            (return ())
+            
+    -- Don't add the sub if it's unsafe and we're in safemode.
+    if "unsafe" `elem` traits && safeMode then return emptyExp else do
+    rv <- case scope of
+        SGlobal | isExported -> do
+            -- we mustn't perform the export immediately upon parse, because
+            -- then only the first consumer of a module will see it. Instead,
+            -- make a note of this symbol being exportable, and defer the
+            -- actual symbol table manipulation to opEval.
+            unsafeEvalExp $ mkSym nameQualified
+            -- push %*INC<This::Package><exports><&this_sub>, expression-binding-&this_sub
+            --    ==>
+            -- push %This::Package::EXPORTS<&this_sub>, expression-binding-&this_sub
+            -- (a singleton list for subs, a full list of subs for multis)
+            return $
+                App (Var "&push")
+                    (Just (Syn "{}" [Var ("%" ++ pkg ++ "::EXPORTS"), Val $ VStr name]))
+                    [Val sub]
+        SGlobal -> do
+            unsafeEvalExp $ mkSym nameQualified
+            return emptyExp
+        _ -> do
+            lexDiff <- unsafeEvalLexDiff $ mkSym nameQualified
+            addBlockPad scope lexDiff
+            return $ mkExp name
+    clearDynParsers
+    return rv
+
 
 ruleSubNamePossiblyWithTwigil :: RuleParser String
 ruleSubNamePossiblyWithTwigil = verbatimRule "subroutine name" $ try $ do
@@ -293,14 +420,14 @@ ruleFormalParam opt = rule "formal parameter" $ do
                   || "optional" `elem` traits
     let sigil'   = (if isOptional then '?' else '!'):sigil1
     exp <- case opt of
-        FormalsSimple -> return emptyExp
+        FormalsSimple -> return Noop
         FormalsComplex -> do
             rv <- ruleParamDefault (not isOptional)
             optional $ do
                 symbol "-->"
                 ruleParamList ParensOptional $ choice
-                    [ ruleType >> return ()
-                    , ruleFormalParam FormalsComplex >> return ()
+                    [ ruleType
+                    , ruleFormalParam FormalsComplex >> return ""
                     ]
             return rv
     return $ foldr appTrait (buildParam typ sigil' name exp) traits
@@ -311,8 +438,8 @@ ruleFormalParam opt = rule "formal parameter" $ do
     appTrait _      x = x -- error "unknown trait"
 
 ruleParamDefault :: Bool -> RuleParser Exp
-ruleParamDefault True  = return emptyExp
-ruleParamDefault False = rule "default value" $ option emptyExp $ do
+ruleParamDefault True  = return Noop
+ruleParamDefault False = rule "default value" $ option Noop $ do
     symbol "="
     parseExpWithItemOps
 
@@ -348,7 +475,7 @@ ruleMemberDeclaration = do
             | (isAlpha twigil) || twigil == '_'
                     -> return (x:'!':xs)
         _           -> fail $ "Invalid member variable name '" ++ attr ++ "'"
-    traits  <- many ruleTrait
+    traits  <- many $ ruleTrait
     optional $ do { symbol "handles"; ruleExpression }
     env     <- ask
     -- manufacture an accessor
@@ -783,13 +910,13 @@ ruleClosureTrait rhs = rule "closure trait" $ do
                 App (Var "&unshift")
                     (Just (Var end))
                     [Val code]
-            return emptyExp
+            return Noop
         "BEGIN" -> do
             -- We've to exit if the user has written code like BEGIN { exit }.
             val <- possiblyExit =<< unsafeEvalExp (checkForIOLeak fun)
             -- And install any pragmas they've requested.
             env <- ask
-            let idat = unsafePerformSTM . readTVar $ envInitDat env
+            let idat = inlinePerformSTM . readTVar $ envInitDat env
             install $ initPragmas idat
             clearDynParsers
             return val
@@ -832,7 +959,7 @@ possiblyExit (Val (VControl (ControlExit exit))) = do
             ]
         ]
     -- ...and then exit.
-    return $ unsafePerformIO $ exitWith exit
+    return $ inlinePerformIO $ exitWith exit
 possiblyExit x = return x
 
 vcode2firstBlock :: Val -> RuleParser Exp
@@ -1033,7 +1160,7 @@ rulePostIterate = rule "postfix iteration" $ do
     cond <- choice $ map symbol ["for"]
     exp <- ruleExpression
     return $ \body -> do
-        block <- retBlock SubBlock Nothing Nothing [] body
+        block <- retBlock SubBlock Nothing False body
         return $ Syn cond [exp, block]
 
 ruleBareOrPointyBlockLiteral :: RuleParser Exp
@@ -1042,52 +1169,21 @@ ruleBareOrPointyBlockLiteral = rule "bare or pointy block construct" $
 
 ruleBlockLiteral :: RuleParser Exp
 ruleBlockLiteral = rule "block construct" $
-    ruleBlockVariants [ ruleBlockFormalPointy, ruleSubHead ]
+    ruleBlockVariants [ ruleBlockFormalPointy, ruleBlockFormalStandard ]
 
-ruleBlockVariants :: [RuleParser SubDescription] -> RuleParser Exp
+ruleBlockVariants :: [RuleParser (SubType, Maybe [Param], Bool)] -> RuleParser Exp
 ruleBlockVariants variants = do
-    (isMulti, typ, maybeName, formal, traits) <- option (False, SubBlock, Nothing, Nothing, [])
+    (typ, formal, lvalue) <- option (SubBlock, Nothing, False)
         $ choice variants
-    body    <- ruleBlockWithParams (maybe [] id formal)
-    rv      <- retBlock typ maybeName formal traits body
-    case maybeName of
-        Just name   -> registerSubName isMulti SOur name traits rv
-        _           -> return rv
+    body <- ruleBlock
+    retBlock typ formal lvalue body
 
-registerSubName :: Bool -> Scope -> Var -> Traits -> Exp -> RuleParser Exp
-registerSubName isMulti scope name traits exp = do
-    -- Don't add the sub if it's unsafe and we're in safemode.
-    if "unsafe" `elem` traits && safeMode then return emptyExp else do
-    lexDiff <- unsafeEvalLexDiff $
-        Sym scope ((if isMulti then ('&':) else id) name) emptyExp
-    addBlockPad scope lexDiff
-    rv  <- unsafeEvalExp $! Syn ":=" [Var name, exp]
-    pkg <- asks envPackage
-    when (scope == SOur || scope == SGlobal) $ do
-        let qualifiedName = (head name:pkg) ++ (':':':':tail name)
-        unsafeEvalExp $! Syn ":=" [Var qualifiedName, rv]
-        return ()
-    when ("export" `elem` traits) $ do
-        when (isOperatorName name) $ do
-            namePos <- getPosition
-            trace ("You probably don't want to export an operator name; instead\n\
-    define a new variant on the new operator (eg. multi sub *infix:<+>): "
-                    ++ show name ++ " at " ++ show namePos)
-                (return ())
-        unsafeEvalExp $!
-            App (Var "&push")
-                (Just (Syn "{}" [Var ("%" ++ pkg ++ "::EXPORTS"), Val $ VStr name]))
-                [rv]
-        return ()
-    -- Now handle exports and push the sub into namedness
-    return rv
+retBlock :: SubType -> Maybe [Param] -> Bool -> Exp -> RuleParser Exp
+retBlock SubBlock Nothing _ exp | Just hashExp <- extractHash (unwrap exp) = return $ Syn "\\{}" [hashExp]
+retBlock typ formal lvalue body = retVerbatimBlock typ formal lvalue body
 
-retBlock :: SubType -> Maybe Var -> Maybe [Param] -> Traits -> Exp -> RuleParser Exp
-retBlock SubBlock _ Nothing _ exp | Just hashExp <- extractHash (unwrap exp) = return $ Syn "\\{}" [hashExp]
-retBlock typ maybeName formal traits body = retVerbatimBlock typ maybeName formal traits body
-
-retVerbatimBlock :: SubType -> Maybe Var -> Maybe [Param] -> Traits -> Exp -> RuleParser Exp
-retVerbatimBlock styp maybeName formal traits body = expRule $ do
+retVerbatimBlock :: SubType -> Maybe [Param] -> Bool -> Exp -> RuleParser Exp
+retVerbatimBlock styp formal lvalue body = expRule $ do
     let (fun, names, params) = doExtract styp formal body
     -- Check for placeholder vs formal parameters
     when (isJust formal && (not.null) names) $
@@ -1095,70 +1191,37 @@ retVerbatimBlock styp maybeName formal traits body = expRule $ do
     env <- ask
     let sub = MkCode
             { isMulti       = False
-            , subName       = maybe "<anon>" qualify maybeName
+            , subName       = "<anon>"
             , subEnv        = Just env
-            , subType       = if "primitive" `elem` traits
-                then SubPrim else styp
+            , subType       = styp
             , subAssoc      = "pre"
             , subReturns    = anyType
-            , subLValue     = "rw" `elem` traits
-            , subParams     = self ++ paramsFor styp formal params
+            , subLValue     = lvalue
+            , subParams     = paramsFor styp formal params
             , subBindings   = []
             , subSlurpLimit = []
             , subBody       = fun
             , subCont       = Nothing
             }
-        pkg = envPackage env
-        qualify name | ':' `elem` name     = name
-                     | '*' `elem` name     = name
-                     | isBuiltin           = (head name:'*':tail name)
-                     | otherwise           = (head name:pkg) ++ "::" ++ tail name
-        self :: [Param]
-        self | styp > SubMethod = []
-             | (prm:_) <- params, isInvocant prm = []
-             | otherwise = [selfParam $ envPackage env]
-        isBuiltin = "builtin" `elem` traits
     return (Syn "sub" [Val $ VCode sub])
 
-type Traits = [String]
-
-type IsMulti = Bool
-type MaybeName = Maybe Var
-type SubDescription = (IsMulti, SubType, MaybeName, Maybe [Param], Traits)
-
-ruleSubHead :: RuleParser SubDescription
-ruleSubHead = rule "subroutine head" $ do
-    isMulti <- option False $ do { symbol "multi" ; return True }
-    -- You're allowed to omit the "sub":
-    --   multi sub foo (...) {...}      # legal
-    --         sub foo (...) {...}      # legal, too
-    let implicitSub | isMulti == True = return SubRoutine
-                    | otherwise       = pzero
-    styp    <- choice
-        [ do symbol "sub"
-             return SubRoutine
-        , do symbol "coro"
-             return SubCoroutine
-        , do (symbol "submethod" <|> symbol "method")
-             return SubMethod
-        , do symbol "macro"
-             return SubMacro
-        ] <|> implicitSub
-    name   <- option Nothing $ fmap Just (lexeme ruleSubName)
+ruleBlockFormalStandard :: RuleParser (SubType, Maybe [Param], Bool)
+ruleBlockFormalStandard = rule "standard block parameters" $ do
+    styp <- choice
+        [ do { symbol "sub";   return SubRoutine }
+        , do { symbol "coro";  return SubCoroutine }
+        , do { symbol "macro"; return SubMacro }
+        ]
     params <- option Nothing $ ruleSubParameters ParensMandatory
-    optional $ ruleBareTrait "returns"
-    traits <- many ruleTrait
-    optional $ ruleBareTrait "returns"
-    return (isMulti, styp, name, params, traits)
+    traits <- many $ ruleTrait
+    return $ (styp, params, "rw" `elem` traits)
 
-ruleBlockFormalPointy :: RuleParser SubDescription
+ruleBlockFormalPointy :: RuleParser (SubType, Maybe [Param], Bool)
 ruleBlockFormalPointy = rule "pointy block parameters" $ do
     symbol "->"
     params <- ruleSubParameters ParensOptional
-    optional $ ruleBareTrait "returns"
-    traits <- many ruleTrait
-    optional $ ruleBareTrait "returns"
-    return $ (False, SubPointy, Nothing, params, traits)
+    traits <- many $ ruleTrait
+    return $ (SubPointy, params, "rw" `elem` traits)
 
 
 
@@ -1199,32 +1262,23 @@ was: parseLitOp
 parseExpWithItemOps :: RuleParser Exp
 parseExpWithItemOps = parseExpWithCachedParser dynParseLitOp
 
-ruleScopedRoutine :: Scope -> SubDescription -> RuleParser Exp
-ruleScopedRoutine scope (isMulti, styp, maybeName, params, traits) = do
-    body    <- ruleBlockWithParams $ maybe [] id params
-    rv      <- retBlock styp maybeName params traits body
-    case maybeName of
-        Just name   -> registerSubName isMulti scope name traits rv
-        _           -> return rv
-
-ruleScopedDeclaration :: RuleParser Exp
-ruleScopedDeclaration = rule "variable declaration" $ do
+ruleVarDecl :: RuleParser Exp
+ruleVarDecl = rule "variable declaration" $ do
     scope           <- ruleScope
-    (ruleSubHead >>= ruleScopedRoutine scope) <|> do
-        (cxtNames, exp) <- oneDecl <|> manyDecl
-        let makeBinding (name, cxt)
-                | ('$':_) <- name, typ /= anyType   = mkSym . bindSym
-                | otherwise                         = mkSym
-                where
-                mkSym   = Sym scope name
-                bindSym = Stmts (Syn "=" [Var name, Val (VType typ)])
-                typ     = typeOfCxt cxt
-        lexDiff <- unsafeEvalLexDiff $ combine (map makeBinding cxtNames) emptyExp
-        -- Now hoist the lexDiff to the current block
-        addBlockPad scope lexDiff
-        return exp
+    (cxtNames, exp) <- oneDecl <|> manyDecl
+    let makeBinding (nam, cxt)
+            | typ == anyType    = mkSym
+            | otherwise         = mkSym . bindSym
+            where
+            mkSym   = Sym scope nam
+            bindSym = Stmts (Syn "=" [Var nam, Val (VType typ)])
+            typ     = typeOfCxt cxt
+    lexDiff <- unsafeEvalLexDiff $ combine (map makeBinding cxtNames) emptyExp
+    -- Now hoist the lexDiff to the current block
+    addBlockPad scope lexDiff
+    return exp
     where
-    deSigil (sig:'!':rest@(_:_)) = (sig:rest)
+    deSigil (sig:'!':rest) = (sig:rest)
     deSigil (sig:'.':rest) = (sig:rest)
     deSigil x              = x
     oneDecl = do
@@ -1242,13 +1296,15 @@ parseTerm :: RuleParser Exp
 parseTerm = rule "term" $ do
     term <- choice
         [ ruleDereference
-        , ruleScopedDeclaration
+        , ruleVarDecl
         , ruleVar
         , ruleApply True    -- Folded metaoperators
         , ruleLit
+--      , ruleBarewordMethod
         , ruleClosureTrait True
         , ruleCodeQuotation
         , ruleTypeVar
+--      , ruleTypeLiteral
         , ruleApply False   -- Normal application
         , verbatimParens ruleBracketedExpression
         ]
@@ -1259,6 +1315,14 @@ parseTerm = rule "term" $ do
             -- rulePostTerm returns an (Exp -> Exp) that we apply to the original term
             fs <- many rulePostTerm
             return (combine (reverse fs) term)
+
+{-
+ruleBarewordMethod :: RuleParser Exp
+ruleBarewordMethod = try $ do
+    name <- identifier
+    lookAhead (char '.' >> ruleSubName)
+    return $ Var (':':name)
+-}
 
 ruleTypeVar :: RuleParser Exp
 ruleTypeVar = rule "type" $ do
@@ -1399,6 +1463,7 @@ ruleApplySub isFolded = do
     name    <- if isFolded
         then ruleFoldOp
         else ruleSubNameWithoutPostfixModifier
+
     (paramListInv, args) <- choice $
         [ (ruleDot `tryLookAhead` char '(') >> parseHasParenParamList
         , parseParenParamList
@@ -1406,6 +1471,19 @@ ruleApplySub isFolded = do
         , return (Nothing, [])
         ]
     possiblyApplyMacro $ App (Var name) paramListInv args
+{-
+    -- True for `foo. .($bar)`-style applications
+    let takeArguments = do
+            (paramListInv, args) <- choice $
+                [ (ruleDot `tryLookAhead` char '(') >> parseHasParenParamList
+                , parseParenParamList
+                , mandatoryWhiteSpace >> parseNoParenParamList
+                ] ++ (if isFolded then [return (Nothing, [])] else [])
+            possiblyApplyMacro $ App (Var name) paramListInv args
+    takeArguments
+        <|> possiblyTypeLiteral name
+        <|> possiblyApplyMacro (App (Var name) Nothing [])
+-}
 
 ruleFoldOp :: RuleParser String
 ruleFoldOp = verbatimRule "reduce metaoperator" $ try $ do
@@ -1573,10 +1651,7 @@ ruleParamName = literalRule "parameter name" $ do
     if sigil == "&"
         then ruleSubNamePossiblyWithTwigil
         else do twigil <- ruleTwigil
-                name   <- case twigil of
-                    ""  -> many1 wordAny <|> string "/"
-                    "!" -> many wordAny
-                    _   -> many1 wordAny
+                name   <- many1 wordAny
                 return $ sigil ++ twigil ++ name
 
 ruleVarName :: RuleParser String
@@ -1606,16 +1681,15 @@ ruleDereference = try $ do
     return $ Syn (sigil:"{}") [exp]
 
 ruleSigiledVar :: RuleParser Exp
-ruleSigiledVar = (<|> ruleSymbolicDeref) $ do
+ruleSigiledVar = (<|> ruleSymbolicDeref) . try $ do
     name <- ruleVarNameString
-    let (sigil, rest) = span (`elem` "$@%&:") name
+    let (sigil, rest) = break isWordAny name
     case rest of
-        []                              -> return (makeVar name)
-        _ | any (not . isWordAny) rest  -> return (makeVar name)
-        _ | all isDigit rest            -> return (makeVar name)
-        "_"                             -> return (makeVar name)
+        [] -> return (makeVar name)
+        _ | any (not . isWordAny) rest -> return (makeVar name)
+        _ | all isDigit rest           -> return (makeVar name)
         -- XXX - Required by Test::Harness which uses @INC instead @*INC
-        "INC" | "@" <- sigil            -> return (makeVar name)
+        "INC" | "@" <- sigil           -> return (makeVar name)
         _ -> do
             -- Plain and simple variable -- do a lexical check
             state <- get
@@ -1626,14 +1700,9 @@ ruleSigiledVar = (<|> ruleSymbolicDeref) $ do
                 inTopLevel  = isNothing (envOuter (ruleEnv state))
             -- If it's visible in the total lexical scope, yet not
             -- defined in the current scope, then generate OUTER.
-            case (lexVisible, curVisible) of
-                (True, False) | not inTopLevel
-                    -> return (Var $ sigil ++ "OUTER::" ++ rest)
-                (False, False)
-                    -> unexpected $
-                            "global symbol \"" ++ name
-                            ++ "\" requires explicit package name"
-                _   -> return (makeVar name)
+            if lexVisible && not curVisible && not inTopLevel
+                then return (Var $ sigil ++ "OUTER::" ++ rest)
+                else return (makeVar name)
 
 ruleVar :: RuleParser Exp
 ruleVar = ruleSigiledVar

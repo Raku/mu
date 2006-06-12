@@ -306,7 +306,6 @@ reducePos pos exp = do
         evalExp exp
 
 reducePad :: Scope -> Pad -> Exp -> Eval Val
-reducePad SParam _ exp = evalExp exp
 reducePad SEnv lex@(MkPad lex') exp = do
     local (\e -> e{ envImplicit = Map.map (const ()) lex' `Map.union` envImplicit e }) $
         reducePad SMy lex exp
@@ -345,19 +344,12 @@ reduceSym :: Scope -> String -> Exp -> Eval Val
 -- Special case: my (undef) is no-op
 reduceSym _ "" exp = evalExp exp
 
-reduceSym SParam name exp = do
-    let sym (MkPad map) = MkPad $ Map.insert name (MkEntryMulti []) map
-    enterLex [sym] $ evalExp exp
-
-reduceSym scope name exp | scope < SGlobal = do
+reduceSym scope name exp | scope <= SMy = do
     ref <- newObject (typeOfSigil $ head name)
     let (gen, name') = case name of
             ('&':n@('&':_)) -> (genMultiSym, n)
             _               -> (genSym, name)
     sym <- gen name' ref
-    when (scope == SOur) $ do
-        qn  <- toQualified name'
-        addGlobalSym =<< gen qn ref
     enterLex [ sym ] $ evalExp exp
 
 reduceSym _ name exp = do

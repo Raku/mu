@@ -569,20 +569,17 @@ instance YAML Scope where
 	    return SEnv
 	"SMy" -> do
 	    return SMy
-	"SParam" -> do
-	    return SParam
 	"SOur" -> do
 	    return SOur
 	"SGlobal" -> do
 	    return SGlobal
-	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["SState","SLet","STemp","SEnv","SMy","SParam","SOur","SGlobal"] ++ " in node " ++ show e
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["SState","SLet","STemp","SEnv","SMy","SOur","SGlobal"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (SState) = asYAMLcls "SState"
     asYAML (SLet) = asYAMLcls "SLet"
     asYAML (STemp) = asYAMLcls "STemp"
     asYAML (SEnv) = asYAMLcls "SEnv"
     asYAML (SMy) = asYAMLcls "SMy"
-    asYAML (SParam) = asYAMLcls "SParam"
     asYAML (SOur) = asYAMLcls "SOur"
     asYAML (SGlobal) = asYAMLcls "SGlobal"
 
@@ -592,7 +589,6 @@ instance JSON Scope where
     showJSON (STemp) = showJSScalar "STemp"
     showJSON (SEnv) = showJSScalar "SEnv"
     showJSON (SMy) = showJSScalar "SMy"
-    showJSON (SParam) = showJSScalar "SParam"
     showJSON (SOur) = showJSScalar "SOur"
     showJSON (SGlobal) = showJSScalar "SGlobal"
 
@@ -602,7 +598,6 @@ instance Perl5 Scope where
     showPerl5 (STemp) = showP5Class "STemp"
     showPerl5 (SEnv) = showP5Class "SEnv"
     showPerl5 (SMy) = showP5Class "SMy"
-    showPerl5 (SParam) = showP5Class "SParam"
     showPerl5 (SOur) = showP5Class "SOur"
     showPerl5 (SGlobal) = showP5Class "SGlobal"
 
