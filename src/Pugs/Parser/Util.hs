@@ -19,7 +19,10 @@ localEnv :: RuleParser Exp -> RuleParser Exp
 localEnv m = do
     state   <- get
     let env = ruleEnv state
-    put state { ruleBlockPads = Map.empty }
+    put state
+        { ruleBlockPads = Map.empty
+        , ruleEnv = env { envOuter = Just env }
+        }
     rv      <- m
     state'  <- get
     put state
