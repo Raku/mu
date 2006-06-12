@@ -28,7 +28,7 @@ method shake(Str $what) {
     }
 }
 }
-ok(::Pet, "role and class definition worked");
+ok(Pet.new, "role and class definition worked");
 
 my $a;
 ok(($a = General.new()),      "basic class instantiation works");

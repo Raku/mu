@@ -178,7 +178,7 @@ Perl6-specific tests
     ok(!defined($a_hash), "my Hash");
     ok(try { !defined($a_hash<blergh>) }, "my Hash subscript - undef");
     ok(try { !defined($a_hash<blergh>) }, "my Hash subscript - undef, no autovivification happened");
-    $a_hash<blergh> = 1;
+    try { $a_hash<blergh> = 1 };
     ok(try { defined($a_hash.delete("blergh")) }, "delete");
     ok(try { !defined($a_hash.delete("blergh")) }, " - once only", :todo);
 

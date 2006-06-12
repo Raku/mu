@@ -14,13 +14,13 @@ plan 11;
 }
 
 {
-  is(eval('$x; my $x = 42'), undef, 'my() variable not yet visible (2)');
+  is(eval('$x; my $x = 42'), undef, 'my() variable not yet visible (2)', :todo<bug>);
   is(eval('my $x = 42; $x'), 42, 'my() variable is visible now (2)');
 }
 
 {
   my $ret = 42;
-  is(eval('$ret = $x ~ my $x; 1'), undef, 'my() variable not yet visible (1)');
+  is(eval('$ret = $x ~ my $x; 1'), undef, 'my() variable not yet visible (1)', :todo<bug>);
   is $ret, 42,                   'my() variable not yet visible (2)';
 }
 

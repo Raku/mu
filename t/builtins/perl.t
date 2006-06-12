@@ -43,7 +43,7 @@ my @tests = (
 );
 
 plan 7 + 2*@tests;
-force_todo 45, 47, 49, 94, 96;
+force_todo 8, 45, 47, 49, 94, 96;
 
 unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
   skip_rest "eval() not yet implemented in $?PUGS_BACKEND.";
@@ -61,7 +61,7 @@ unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
     for @tests -> $obj {
         is ~$obj.perl.eval, ~$obj,
             "($obj.perl()).perl returned something whose eval()ed stringification is unchanged";
-        is $obj.perl.eval.ref, $obj.ref,
+        is ~$obj.perl.eval.ref, ~$obj.ref,
             "($obj.perl()).perl returned something whose eval()ed .ref is unchanged";
     }
 }

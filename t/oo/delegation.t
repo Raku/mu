@@ -16,7 +16,7 @@ Delegation tests from L<S12/"Delegation">
 class Backend1 { method hi() { 42 } method cool() { 1337 } }
 class Backend2 { method hi() { 23 } method cool() {  539 } }
 class Frontend { has $.backend is rw handles "hi" }
-ok ::Backend1, "class definition worked";
+ok Backend1.new, "class definition worked";
 
 is eval('Backend1.new.hi'), 42, "basic sanity (1)";
 is eval('Backend2.new.hi'), 23, "basic sanity (2)";
@@ -42,7 +42,7 @@ is eval('Backend2.new.hi'), 23, "basic sanity (2)";
 
 # L<S12/"Delegation" /Any other kind of argument to handles is considered to be a smartmatch selector for methods/>
 class ReFrontend { has $.backend is rw handles /^hi/ };
-ok ::ReFrontend, "class definition using a smartmatch handle worked";
+ok ReFrontend.new, "class definition using a smartmatch handle worked";
 
 {
   my $a;
@@ -56,7 +56,7 @@ ok ::ReFrontend, "class definition using a smartmatch handle worked";
 
 # L<S12/"Delegation" /If you say/>
 class ClassFrontend { has $.backend is rw handles Backend2 };
-ok ::ClassFrontend, "class definition using a Class handle worked";
+ok ClassFrontend.new, "class definition using a Class handle worked";
 {
   my $a;
   ok ($a = ClassFrontend.new), "basic instantiation worked (4)";
@@ -70,7 +70,7 @@ ok ::ClassFrontend, "class definition using a Class handle worked";
 
 # L<S12/"Delegation" /You can specify multiple method names:/>
 class MultiFrontend { has $.backend is rw handles <hi cool> }
-ok ::MultiFrontend, "class definition using multiple method names worked";
+ok MultiFrontend.new, "class definition using multiple method names worked";
 {
   my $a;
   ok ($a = MultiFrontend.new), "basic instantiation worked (5)";
@@ -89,7 +89,7 @@ class MyArray {
     method concat handles <chars bytes graphs codes> { .join("") }
 }
 
-ok ::MyArray, "class with attribute and return value delegation";
+ok MyArray.new, "class with attribute and return value delegation";
 {
   my $a;
   ok ($a = MyArray.new(elems => [1..5])), "basic instantiation worked";
