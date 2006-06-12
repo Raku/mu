@@ -86,7 +86,7 @@ sub run_pugs ($c) {
 for @urls -> $t_url {
   my $url = $t_url;
   $url ~~ s:perl5/%s/$base_url/;
-  my $inc = map {qq! "-I$_"!}, @INC;
+  my $inc = map {qq! "-I$_"!}, @*INC;
 
   # Will block forever
   # my $output = run_pugs(qq! $inc -MLWP::Simple -e "getprint('$url')" !);
