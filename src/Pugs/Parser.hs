@@ -752,9 +752,9 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
             doExportList (VStr name:ex:xs) = 
                 (exportSym hardcodedScopeFixme name ex : doExportList xs)
             doExportList x = error $ "doExportList x: " ++ show x
-        syms <- sequence $ doExportList exportList
+        sequence_ $ doExportList exportList
         clearDynParsers
-        return $ foldl mergeStmts Noop syms
+        return emptyExp
 
 {-|
 Match a JSAN module name, returning an appropriate
@@ -1698,7 +1698,7 @@ ruleSigiledVar = (<|> ruleSymbolicDeref) . try $ do
             -- defined in the current scope, then generate OUTER.
             if lexVisible && not curVisible
                 then return (Var $ sigil ++ "OUTER::" ++ rest)
-                else return (Var name)
+                else return (makeVar name)
 
 ruleVar :: RuleParser Exp
 ruleVar = ruleSigiledVar
