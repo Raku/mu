@@ -10,7 +10,7 @@ BEGIN {
       chdir 't'
         or die "Couldn't chdir into 't/' : $!";
     };
-    unshift @INC, '../lib';
+    unshift @*INC, '../lib';
     # XXX this could be further munged to enable some parts on other
     # platforms
     #unless ($^O =~ /^MSWin/) {
