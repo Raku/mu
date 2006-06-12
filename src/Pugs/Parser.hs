@@ -1695,10 +1695,12 @@ ruleSigiledVar = (<|> ruleSymbolicDeref) $ do
     name <- ruleVarNameString
     let (sigil, rest) = span (`elem` "$@%&:^") name
     case rest of
-        [] -> return (makeVar name)
-        _ | any (not . isWordAny) rest -> return (makeVar name)
-        _ | all isDigit rest -> return (makeVar name)
-        "_" -> return (makeVar name)
+        []                              -> return (makeVar name)
+        _ | any (not . isWordAny) rest  -> return (makeVar name)
+        _ | all isDigit rest            -> return (makeVar name)
+        "_"                             -> return (makeVar name)
+        -- XXX - Required by Test::Harness which uses @INC instead @*INC
+        "INC" | "@" <- sigil            -> return (makeVar name)
         _ -> do
             -- Plain and simple variable -- do a lexical check
             state <- get
