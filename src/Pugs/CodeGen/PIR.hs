@@ -64,6 +64,7 @@ instance Translate PIL_Stmts [Stmt] where
 instance Translate PIL_Stmt Stmt where
     trans PNoop = return (StmtComment "")
     trans (PStmt (PLit (PVal VUndef))) = return $ StmtComment ""
+    trans (PStmt (PLit (PVal VType{}))) = return $ StmtComment ""
     trans (PStmt exp) = do
         expC    <- trans exp
         return $ StmtIns $ InsExp expC
@@ -78,6 +79,9 @@ instance Translate PIL_Expr Expression where
     trans (PRawName name) = fmap ExpLV $ genName name
     trans (PExp exp) = fmap ExpLV $ trans exp
     trans (PLit (PVal VUndef)) = do
+        pmc     <- genScalar "undef"
+        return $ ExpLV pmc
+    trans (PLit (PVal VType{})) = do
         pmc     <- genScalar "undef"
         return $ ExpLV pmc
     trans (PLit lit) = do
