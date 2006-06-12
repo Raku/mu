@@ -15,7 +15,7 @@ is($dc1.mode, "deciphering", "mode check 3");
 
 is($ec1.cipher("foo"), "headE1E1E1", "enciphering 1");
 is($ec1.cipher("foo"), "E2E2E2", "1 keeps state");
-is($ec2.num_invocations, 0, "2 not affected by 1");
+is(+$ec2.num_invocations, 0, "2 not affected by 1");
 is($ec2.cipher("foo"), "headE1E1E1", "2 ciphers properly");
 is($dc1.cipher("foo"), "headD1D1D1", "deciphering 1");
 

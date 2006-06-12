@@ -171,15 +171,15 @@ class Perl6::Value::List {
                 cstart => coro {
                         my @ret;
                         my $x = $ret.shift // yield;
-                        &*unshift(@ret, &$code($x)); 
-                        yield &*shift(@ret) while @ret;
+                        &*unshift(@ret: &$code($x)); 
+                        yield @ret.shift while @ret;
                         return;
                 },
                 cend => coro {
                         my @ret; 
                         my $x = $ret.pop // yield;
                         &*push(@ret, &$code($x));
-                        yield &*pop(@ret) while @ret;
+                        yield @ret.pop while @ret;
                         return;
                 },
                 # TODO - signal end of data using 'elems()'
