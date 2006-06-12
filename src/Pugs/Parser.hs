@@ -438,8 +438,8 @@ ruleFormalParam opt = rule "formal parameter" $ do
     appTrait _      x = x -- error "unknown trait"
 
 ruleParamDefault :: Bool -> RuleParser Exp
-ruleParamDefault True  = return Noop
-ruleParamDefault False = rule "default value" $ option Noop $ do
+ruleParamDefault True  = return emptyExp
+ruleParamDefault False = rule "default value" $ option emptyExp $ do
     symbol "="
     parseExpWithItemOps
 
@@ -475,7 +475,7 @@ ruleMemberDeclaration = do
             | (isAlpha twigil) || twigil == '_'
                     -> return (x:'!':xs)
         _           -> fail $ "Invalid member variable name '" ++ attr ++ "'"
-    traits  <- many $ ruleTrait
+    traits  <- many ruleTrait
     optional $ do { symbol "handles"; ruleExpression }
     env     <- ask
     -- manufacture an accessor
@@ -910,13 +910,13 @@ ruleClosureTrait rhs = rule "closure trait" $ do
                 App (Var "&unshift")
                     (Just (Var end))
                     [Val code]
-            return Noop
+            return emptyExp
         "BEGIN" -> do
             -- We've to exit if the user has written code like BEGIN { exit }.
             val <- possiblyExit =<< unsafeEvalExp (checkForIOLeak fun)
             -- And install any pragmas they've requested.
             env <- ask
-            let idat = inlinePerformSTM . readTVar $ envInitDat env
+            let idat = unsafePerformSTM . readTVar $ envInitDat env
             install $ initPragmas idat
             clearDynParsers
             return val
@@ -959,7 +959,7 @@ possiblyExit (Val (VControl (ControlExit exit))) = do
             ]
         ]
     -- ...and then exit.
-    return $ inlinePerformIO $ exitWith exit
+    return $ unsafePerformIO $ exitWith exit
 possiblyExit x = return x
 
 vcode2firstBlock :: Val -> RuleParser Exp
@@ -1267,8 +1267,8 @@ ruleVarDecl = rule "variable declaration" $ do
     scope           <- ruleScope
     (cxtNames, exp) <- oneDecl <|> manyDecl
     let makeBinding (nam, cxt)
-            | typ == anyType    = mkSym
-            | otherwise         = mkSym . bindSym
+            | ('$':_) <- name, typ /= anyType   = mkSym . bindSym
+            | otherwise                         = mkSym
             where
             mkSym   = Sym scope nam
             bindSym = Stmts (Syn "=" [Var nam, Val (VType typ)])
@@ -1278,7 +1278,7 @@ ruleVarDecl = rule "variable declaration" $ do
     addBlockPad scope lexDiff
     return exp
     where
-    deSigil (sig:'!':rest) = (sig:rest)
+    deSigil (sig:'!':rest@(_:_)) = (sig:rest)
     deSigil (sig:'.':rest) = (sig:rest)
     deSigil x              = x
     oneDecl = do
@@ -1683,7 +1683,7 @@ ruleDereference = try $ do
 ruleSigiledVar :: RuleParser Exp
 ruleSigiledVar = (<|> ruleSymbolicDeref) . try $ do
     name <- ruleVarNameString
-    let (sigil, rest) = break isWordAny name
+    let (sigil, rest) = span (`elem` "$@%&:") name
     case rest of
         [] -> return (makeVar name)
         _ | any (not . isWordAny) rest -> return (makeVar name)
