@@ -34,6 +34,8 @@ import Pugs.Parser.Doc
 import Pugs.Parser.Literal
 import Pugs.Parser.Util
 
+import qualified Data.Map as Map
+
 -- Lexical units --------------------------------------------------
 
 ruleBlock :: RuleParser Exp
@@ -1679,9 +1681,24 @@ ruleDereference = try $ do
     return $ Syn (sigil:"{}") [exp]
 
 ruleSigiledVar :: RuleParser Exp
-ruleSigiledVar = try ruleNormalVar <|> ruleSymbolicDeref
-    where
-    ruleNormalVar = ruleVarNameString >>= return . makeVar
+ruleSigiledVar = (<|> ruleSymbolicDeref) . try $ do
+    name <- ruleVarNameString
+    let (sigil, rest) = break isWordAny name
+    case rest of
+        [] -> return (makeVar name)
+        _ | any (not . isWordAny) rest -> return (makeVar name)
+        _ -> do
+            -- Plain and simple variable -- do a lexical check
+            state <- get
+            let lexPad      = envLexical (ruleEnv state)
+                lexVisible  = isJust (lookupPad name lexPad)
+                curPads     = Map.elems (ruleBlockPads state)
+                curVisible  = any (Map.member name . padEntries) curPads
+            -- If it's visible in the total lexical scope, yet not
+            -- defined in the current scope, then generate OUTER.
+            if lexVisible && not curVisible
+                then return (Var $ sigil ++ "OUTER::" ++ rest)
+                else return (Var name)
 
 ruleVar :: RuleParser Exp
 ruleVar = ruleSigiledVar
@@ -1709,12 +1726,6 @@ makeVar (s:rest) | all (`elem` "1234567890") rest =
     makeVarWithSigil s $ Syn "[]" [Var "$/", Val $ VInt (read rest)]
 makeVar (s:'<':name) =
     makeVarWithSigil s $ Syn "{}" [Var "$/", doSplitStr (init name)]
-{- moved to Eval.Var.findVar
-makeVar (sigil:'.':name) =
-    Ann (Cxt (cxtOfSigil sigil)) (Syn "{}" [Var "$?SELF", Val (VStr name)])
-makeVar (sigil:'!':name) | not (null name) =
-    Ann (Cxt (cxtOfSigil sigil)) (Syn "{}" [Var "$?SELF", Val (VStr name)])
--}
 makeVar var = Var var
 
 makeVarWithSigil :: Char -> Exp -> Exp
