@@ -127,7 +127,7 @@ plan 25;
     ';
 
     ok(!$lived, "did not live past uncaught throw in try");
-    ok(ref($!), '$! is an object');
+    ok(~ref($!), '$! is an object');
     is(eval('ref($!)'), Dandy, ".. of the right class", :todo<bug>);
 };
 
