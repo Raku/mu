@@ -75,8 +75,13 @@ listAssignment x = do
         guard (not (isScalarLValue x))
         notFollowedBy (oneOf "=>" <|> (char ':' >> char '='))
         whiteSpace
-    ys <- ?parseExpWithTightOps `sepEndBy1` ruleComma
-    return (Syn "=" [x, Syn "," ys])
+    y   <- ?parseExpWithTightOps
+    rhs <- option y $ do
+        -- If we see comma, then convert this to a Syn ",".
+        ruleComma
+        ys <- ?parseExpWithTightOps `sepEndBy` ruleComma
+        return (Syn "," (y:ys))
+    return (Syn "=" [x, rhs])
 
 immediateBinding :: (?parseExpWithTightOps :: RuleParser Exp) => Exp -> RuleParser Exp
 immediateBinding x = do
