@@ -66,5 +66,5 @@ dies_ok { $pkg = t::packages::Test::cant_see_pkg() },
     "can't see package declared out of scope", :todo<feature>;
 lives_ok { $pkg = t::packages::Test::my_pkg() },
     "can see package declared in same scope";
-is($pkg, "My::Package", 'correct $?PACKAGE');
-ok(!($pkg === ::My::Package), 'not the same as global type object');
+is($pkg, ::My::Package, 'correct $?PACKAGE');
+ok(!($pkg === ::*My::Package), 'not the same as global type object');
