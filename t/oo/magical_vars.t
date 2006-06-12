@@ -35,9 +35,9 @@ class SimpleClass does Bar {}
   my $foo_obj = Foo.new;
   my $class   = $foo_obj.get_class_normal;
   my $package = $foo_obj.get_package_normal;
-  is( $package, 'Foo', '$?PACKAGE should be the package name' );
+  is( $package, Foo, '$?PACKAGE should be the package name' );
 
-  ok( $class ~~ 'Foo', 'the thing returned by $?CLASS in our class smartmatches against our class' );
+  ok( $class ~~ Foo, 'the thing returned by $?CLASS in our class smartmatches against our class' );
   my $forty_two;
   lives_ok { my $obj = $class.new; $forty_two = $obj.dummy },
     'the class returned by $?CLASS in our class was really our class (1)';
@@ -56,7 +56,7 @@ class SimpleClass does Bar {}
   my $class = $bar.get_class_normal;
   my $package = $bar.get_package_normal;
 
-  is( $package, SimpleClass, '$?PACKAGE should be the package name' );
+  is( $package, SimpleClass, '$?PACKAGE should be the package name', :todo<bug> );
 
   is $class ~~ ::SimpleClass, 'the thing returned by $?CLASS in our role smartmatches against our class', :todo<bug>;
   my $forty_two;
