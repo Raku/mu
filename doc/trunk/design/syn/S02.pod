@@ -632,9 +632,7 @@ The context in which a subscript is evaluated is no longer controlled
 by the sigil either.  Subscripts are always evaluated in list context.
 
 If you need to force inner context to scalar, we now have convenient
-single-character context specifiers such as + for numbers and ~ for strings.
-Conversely, put parenthesis around the lvalue expression to force inner
-context to list:
+single-character context specifiers such as + for numbers and ~ for strings:
 
     @x[f()]   =  g();       # list context for f() and g()
     @x[f()]   = +g();       # list context for f(), scalar context for g()
