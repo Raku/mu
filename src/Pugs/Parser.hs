@@ -1694,7 +1694,7 @@ ruleSigiledVar = (<|> ruleSymbolicDeref) . try $ do
                 lexVisible  = isJust (lookupPad name lexPad)
                 curPads     = Map.elems (ruleBlockPads state)
                 curVisible  = any (Map.member name . padEntries) curPads
-                inTopLevel  = isNothing (envOuter (ruleEnv State))
+                inTopLevel  = isNothing (envOuter (ruleEnv state))
             -- If it's visible in the total lexical scope, yet not
             -- defined in the current scope, then generate OUTER.
             if lexVisible && not curVisible && not inTopLevel
