@@ -1266,12 +1266,12 @@ ruleVarDecl :: RuleParser Exp
 ruleVarDecl = rule "variable declaration" $ do
     scope           <- ruleScope
     (cxtNames, exp) <- oneDecl <|> manyDecl
-    let makeBinding (nam, cxt)
+    let makeBinding (name, cxt)
             | ('$':_) <- name, typ /= anyType   = mkSym . bindSym
             | otherwise                         = mkSym
             where
-            mkSym   = Sym scope nam
-            bindSym = Stmts (Syn "=" [Var nam, Val (VType typ)])
+            mkSym   = Sym scope name
+            bindSym = Stmts (Syn "=" [Var name, Val (VType typ)])
             typ     = typeOfCxt cxt
     lexDiff <- unsafeEvalLexDiff $ combine (map makeBinding cxtNames) emptyExp
     -- Now hoist the lexDiff to the current block
