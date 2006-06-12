@@ -1651,7 +1651,10 @@ ruleParamName = literalRule "parameter name" $ do
     if sigil == "&"
         then ruleSubNamePossiblyWithTwigil
         else do twigil <- ruleTwigil
-                name   <- many1 wordAny
+                name   <- case twigil of
+                    ""  -> many1 wordAny <|> string "/"
+                    "!" -> many wordAny
+                    _   -> many1 wordAny
                 return $ sigil ++ twigil ++ name
 
 ruleVarName :: RuleParser String
