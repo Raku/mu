@@ -30,6 +30,8 @@ svn-commit\.tmp$
 ^debian/
 ^t_disabled/
 ^t/builtins/system/
+^third-party/HsJudy
+^third-party/judy
 ^Setup(?!\.lhs)
 ^DrIFT
 ^throw_away/
