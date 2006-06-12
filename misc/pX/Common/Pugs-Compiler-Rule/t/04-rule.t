@@ -1,5 +1,5 @@
 
-use Test::More tests => 23;
+use Test::More tests => 25;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -14,6 +14,30 @@ no warnings qw( once );
 {
     package test2;
     use base Pugs::Grammar::Base;
+}
+
+SKIP: 
+{
+    skip "alpha constant parser error", 1;
+
+    # alpha constant
+    my $rule = Pugs::Compiler::Regex->compile( 'xxx' . "\n" . '\n' );
+    my $match = $rule->match( "xxx\n" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "xxx\n", 'constant' );
+}
+
+SKIP: 
+{
+    skip "newline parser error", 1;
+
+    # \n is whitespace
+    my $rule = Pugs::Compiler::Regex->compile( '\n x' . "\n" . '\n' );
+    my $match = $rule->match( "\nx\n" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "\nx\n", 'constant' );
 }
 
 {
