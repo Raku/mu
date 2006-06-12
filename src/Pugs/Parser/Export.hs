@@ -28,7 +28,7 @@ exportSym scope ('&':subname) ref = do
                     mkSym   = Sym scope (mkMulti name) mkExp
                 doExport scope mkSym
             case scope of
-                SMy -> addBlockPad SState 
+                SMy -> addBlockPad SState
                     (foldl unionPads (mkPad []) [ pad | Pad SMy pad _ <- exps ])
                 _   -> return () 
         _ -> fail $ "Invalid export list: " ++ show rv

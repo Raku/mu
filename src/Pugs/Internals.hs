@@ -66,6 +66,7 @@ module Pugs.Internals (
     modifyTVar,
     inlinePerformIO,
     inlinePerformSTM,
+    unsafePerformSTM,
     possiblyFixOperatorName,
     maybeM,
     safeMode,
@@ -243,6 +244,10 @@ inlinePerformIO (IO m) = case m realWorld# of (# _, r #) -> r
 {-# INLINE inlinePerformSTM #-}
 inlinePerformSTM :: STM a -> a
 inlinePerformSTM m = inlinePerformIO (atomically m)
+
+{-# NOINLINE unsafePerformSTM #-}
+unsafePerformSTM :: STM a -> a
+unsafePerformSTM m = unsafePerformIO (atomically m)
 
 {-|
 Read an STM variable, apply some transformation function to it, and write the
