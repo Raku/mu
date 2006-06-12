@@ -7,14 +7,14 @@
 
 use v6;
 
-multi sub postfix:<!> ($x) { [*] 1..$x };
-multi sub postfix:<!> (@x) { [*] @x };
+multi postfix:<!> ($x) { [*] 1..$x };
+multi postfix:<!> (@x) { [*] @x };
 
-multi sub infix:<z> (@x,@y) { zip @x,@y };
-multi sub infix:<z> ($x,$y) { $x ~ $y };
+multi infix:<z> (@x, @y) { zip @x,@y };
+multi infix:<z> (Str $x, Str $y) { $x ~ $y };
 
-my @x = (1..5);
-my @y = (6..10);
+my @x = 1..5;
+my @y = 6..10;
 
 (@x z @y).perl.say;
 my $test = "hello" z "goodbye";
