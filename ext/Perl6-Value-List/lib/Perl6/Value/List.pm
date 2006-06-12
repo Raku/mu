@@ -112,9 +112,9 @@ class Perl6::Value::List {
         );
     }
 
-    method from_single ( $class: @list is copy ) {
-        $class.new( cstart => sub{ &*shift(@list) },
-                    cend =>   sub{ &*pop(@list) },
+    method from_single ( $class: *@list is copy ) {
+        $class.new( cstart => sub{ @list.shift },
+                    cend =>   sub{ @list.pop },
                     celems => sub{ +@list },
                     is_lazy => Bool::False );
     }
