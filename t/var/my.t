@@ -10,20 +10,17 @@ use Test;
 plan 11;
 
 {
-  is(eval('my $x; my $x; 1'), undef, "test declare my() variable twice in same scope", :todo<bug>);
+  is(eval('my $x; my $x; 1'), 1, "test declare my() variable twice in same scope");
 }
 
 {
-  dies_ok { $x }, 'my() variable not yet visible (2)';
-
-  my $x = 42;
-
-  is $x, 42, 'my() variable is visible now (2)';
+  is(eval('$x; my $x = 42'), undef, 'my() variable not yet visible (2)');
+  is(eval('my $x = 42; $x'), 42, 'my() variable is visible now (2)');
 }
 
 {
   my $ret = 42;
-  dies_ok { $ret = $x ~ my $x }, 'my() variable not yet visible (1)';
+  is(eval('$ret = $x ~ my $x; 1'), undef, 'my() variable not yet visible (1)');
   is $ret, 42,                   'my() variable not yet visible (2)';
 }
 
