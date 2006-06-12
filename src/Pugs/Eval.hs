@@ -599,7 +599,7 @@ reduceSyn "val" [exp] = do
     enterRValue $ evalExp exp
 
 reduceSyn "\\{}" [exp] = do
-    v   <- enterRValue $ enterEvalContext cxtSlurpyAny exp
+    v   <- enterRValue . enterBlock $ enterEvalContext cxtSlurpyAny exp
     hv  <- newObject (mkType "Hash")
     writeRef hv v
     retVal $ VRef hv
@@ -913,7 +913,7 @@ applyThunk styp bound@(arg:_) thunk = do
     -- introduce $?SELF and $_ as the first invocant.
     inv     <- case styp of
         SubPointy               -> aliased ["$_"]
-        _ | styp <= SubMethod   -> aliased ["$?SELF", "$_"]
+        _ | styp <= SubMethod   -> aliased ["$?SELF"] -- , "$_"]
         _                       -> return []
     pad <- formal
     enterLex (inv ++ pad) $ thunk_force thunk
