@@ -125,8 +125,8 @@ my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
     eval 'class Cat {}';
     eval 'class Chiwawa is Dog {}'; # i'm afraid class Pugs will get in the way ;-)
 
-    ok(eval('(Chiwawa ~~ Dog)'), "chiwawa isa dog", :todo);
-    ok(eval('!(Chiwawa ~~ Cat)'), "chiwawa is not a cat", :todo);
+    ok(eval('(Chiwawa ~~ Dog)'), "chiwawa isa dog");
+    ok(eval('!(Chiwawa ~~ Cat)'), "chiwawa is not a cat");
 };
 
 #Any     Role      role playing             match if \$_.does(\$x)

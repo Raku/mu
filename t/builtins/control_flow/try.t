@@ -126,9 +126,9 @@ plan 25;
         $lived = 1;
     ';
 
-    ok(!$lived, "did not live past uncaught throw in try", :todo);
+    ok(!$lived, "did not live past uncaught throw in try");
     ok(ref($!), '$! is an object');
-    is(eval('ref($!)'), "Dandy", ".. of the right class", :todo);
+    is(eval('ref($!)'), Dandy, ".. of the right class", :todo<bug>);
 };
 
 # return inside try{}-blocks
