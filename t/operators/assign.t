@@ -130,9 +130,9 @@ plan 198;
     @a = (1);
     @b = (2);
     (@b, @a) = @a, @b;
-    is(@a[0], undef, "(@b, @a) = @a, @b assignment \@a[0] == undef", :todo<bug>);
-    is(@b[0], 1,     "(@b, @a) = @a, @b assignment \@b[0]", :todo<bug>);
-    is(@b[1], 2,     "(@b, @a) = @a, @b assignment \@b[1]", :todo<bug>);
+    is(@a[0], undef, "(@b, @a) = @a, @b assignment \@a[0] == undef");
+    is(@b[0], 1,     "(@b, @a) = @a, @b assignment \@b[0]");
+    is(@b[1], 2,     "(@b, @a) = @a, @b assignment \@b[1]");
 }
 
 {
