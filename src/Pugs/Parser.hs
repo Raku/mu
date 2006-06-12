@@ -1696,11 +1696,14 @@ ruleSigiledVar = (<|> ruleSymbolicDeref) . try $ do
         _ -> do
             -- Plain and simple variable -- do a lexical check
             state <- get
-            let outerLexPad     = envLexical (fromJust (envOuter (ruleEnv state)))
+            let outerLexPad     = envLexical (fromJust outerEnv)
                 outerVisible    = isJust (lookupPad name outerLexPad)
                 curPads         = Map.elems (ruleBlockPads state)
                 curVisible      = any (Map.member name . padEntries) curPads
-                inTopLevel      = isNothing (envOuter (ruleEnv state))
+                outerEnv        = envOuter (ruleEnv state)
+                inTopLevel      = case outerEnv of
+                    Just env -> isNothing (envOuter env)
+                    _        -> True
             -- If it's visible in the outer lexical scope, yet not
             -- defined in the current scope, then generate OUTER.
             if not inTopLevel && outerVisible && not curVisible
