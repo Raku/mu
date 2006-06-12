@@ -277,16 +277,16 @@ for %entity_to_char.kv -> $key, $value {
 
 # Fill in missing entities
 for 0 .. 255 -> $ascii_val {
-    %char_to_entity{chr($ascii_val)} //= "&#$ascii_val;";
+    %char_to_entity{~chr($ascii_val)} //= "&#$ascii_val;";
 }
 
 multi sub decode_entities($string is rw) is export
 {
     my $result = $string;
     
-    $result ~~ s:perl5:g/&\#(\d+);?/{chr($0)}/;
-    $result ~~ s:perl5:g/(&\#[xX]([0-9a-fA-F]+);?)/{my $c = :16($1); $c < 256 ?? chr($c) !! $0}/;
-    $result ~~ s:perl5:g/(&(\w+);?)/{%entity_to_char{$1} // $0}/;
+    $result ~~ s:Perl5:g/&\#(\d+);?/{chr($0)}/;
+    $result ~~ s:Perl5:g/(&\#[xX]([0-9a-fA-F]+);?)/{my $c = :16($1); $c < 256 ?? chr($c) !! $0}/;
+    $result ~~ s:Perl5:g/(&(\w+);?)/{%entity_to_char{$1} // $0}/;
     
     $string = $result;
     
@@ -295,16 +295,12 @@ multi sub decode_entities($string is rw) is export
 
 multi sub decode_entities(*@strings is rw) is export
 {
-    decode_entities(@strings);
+    @strings.map: -> $string is copy { decode_entities($string); };
 }
 
 multi sub decode_entities(@strings is rw) is export
 {
-    @strings;
-    
-    my @results = @strings.map: -> $string is copy { decode_entities($string); };
-    
-    return @results;
+    @strings.map: -> $string is copy { decode_entities($string); };
 }
 
 sub encode_entities_numeric (Str $string) returns Str is export
@@ -334,7 +330,7 @@ sub encode_entities (Str $string is rw, $unsafe_chars?) is export
         #    ) if $!;
         #}
         #%subst{$unsafe_chars}($string);
-        $result ~~ s:perl5:g/([$unsafe_chars])/{
+        $result ~~ s:Perl5:g/([$unsafe_chars])/{
             %char_to_entity.exists($0)
                 ?? %char_to_entity{$0}
                 !! num_entity($0)
