@@ -863,10 +863,8 @@ ruleRequireDeclaration = rule "require declaration" $ do
 ruleDoBlock :: RuleParser Exp
 ruleDoBlock = rule "do block" $ do
     symbol "do"
-    choice
-        -- do { STMTS }
-        [ try $ verbatimBraces ruleBlockBody
-        -- do STMTS
+    enterBracketLevel StatementBracket $ choice
+        [ ruleVerbatimBlock
         , ruleBlockDeclaration
         , ruleDeclaration
         , ruleConstruct
