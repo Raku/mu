@@ -149,10 +149,10 @@ multiplicative, and additive; but these are limited to standard
 operators that are known to return numbers, strings, or booleans.
 (Operators that imply list operations are excluded: C<@>, C<%>,
 and C<xx>, for instance.  Hyper operators are also excluded, but
-post-assigment forms such as C<SIMPLE += SIMPLE> is allowed.)
+post-assigment forms such as C<SIMPLE += SIMPLE> are allowed.
 
 All other forms imply list assignment, and will evaluate both sides
-of the assignment in list context (eventually).   However, this is
+of the assignment in list context at runtime.  However, this is
 primarily a syntactic distinction, and no semantic or type information
 is used, since it influences subsequent parsing.  In particular, even
 if a function is known to return a scalar value from its declaration,
