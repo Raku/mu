@@ -83,58 +83,64 @@ class Perl6::Container::Array-0.01
     has Array @.items;
 
 method from_list ( $class: *@items ) { 
-    $class.new( items => @items ); 
+    $class.new( items => [@items] ); 
 }
 
-method _shift_n ($array: Int $length ) returns List {
+method _shift_n (Int $length ) returns List {
     my @ret;
-    my @tmp = $array.items;
+    my @tmp = @.items;
     if $length == Inf {
-        $array.items = ();
+        @.items = ();
         return @tmp;
     }    
     while @tmp {
         last if @ret >= $length;
-        if ! @tmp[0].isa('Perl6::Value::List') {
-            &*push( @ret, &*shift(@tmp) );
+        unless @tmp[0].isa(Perl6::Value::List) {
+            &*push( @ret: @tmp.shift );
             next;
         }
         my $i = @tmp[0].shift;
         if defined $i {
-            &*push(@ret, $i);
+            &*push( @ret: $i);
             last if @ret >= $length;
         }
+        elsif @tmp.end > 0 {
+            &*shift( @tmp );
+        }
         else {
-            &*shift(@tmp);
+            @tmp = ();
         }
     };
-    $array.items = @tmp;    
+    @.items = @tmp;
     return @ret;
 }
 
-method _pop_n ($array: Int $length ) returns List {
+method _pop_n (Int $length ) returns List {
     my @ret;
-    my @tmp = $array.items;
+    my @tmp = @.items;
     if $length == Inf {
-        $array.items = ();
+        @.items = ();
         return @tmp;
     }    
     while @tmp {
         last if @ret >= $length;
-        if ! @tmp[-1].isa('Perl6::Value::List') {
-            &*unshift(@ret, &*pop(@tmp));
+        unless @tmp[-1].isa(Perl6::Value::List) {
+            &*unshift(@ret: @tmp.pop);
             next;
         }
         my $i = @tmp[-1].pop;
         if defined $i {
-            &*unshift(@ret, $i);
+            &*unshift(@ret: $i);
             last if @ret >= $length;
         }
-        else {
+        elsif @tmp.end > 0 {
             &*pop(@tmp);
         }
+        else {
+            @tmp = ();
+        }
     };
-    $array.items = @tmp;    
+    @.items = @tmp;    
     return @ret;
 }
 
@@ -166,7 +172,6 @@ method flatten () {
 }
 
 method splice ( 
-    Perl6::Container::Array $array: 
     $offset? = 0, 
     $length? = Inf, 
     *@list 
@@ -174,22 +179,22 @@ method splice (
     returns Perl6::Container::Array 
 { 
     my ( @head, @body, @tail );
-    # say "items: ", $array.items, " splice: $offset, $length, ", @list;
+    # say "items: ", @.items, " splice: $offset, $length, ", @list;
     # say 'insert: ', $_, ' ', $_.ref for @list;
     if $offset >= 0 {
-        @head = $array._shift_n( $offset );
+        @head = self._shift_n( $offset );
         if $length >= 0 {
-            @body = $array._shift_n( $length ); 
-            @tail = $array._shift_n( Inf ); 
+            @body = self._shift_n( $length ); 
+            @tail = self._shift_n( Inf ); 
         }
         else {
-            @tail = $array._pop_n( -$length ); 
-            @body = $array._shift_n( Inf ); 
+            @tail = self._pop_n( -$length ); 
+            @body = self._shift_n( Inf ); 
         }
     }
     else {
-        @tail = $array._pop_n( -$offset );
-        @head = $array._shift_n( Inf );
+        @tail = self._pop_n( -$offset );
+        @head = self._shift_n( Inf );
         if $length >= 0 {
             # make $#body = $length
             while @tail {
@@ -206,62 +211,62 @@ method splice (
         }
     };
     #say 'head: ',@head, ' body: ',@body, ' tail: ',@tail, ' list: ',@list;
-    $array.items = ( @head, @list, @tail );
+    @.items = ( @head, @list, @tail );
     return Perl6::Container::Array.from_list( @body );
 }
 
-method shift ( $array: ) {
-    $array._shift_n( 1 )[0]
+method shift () {
+    self._shift_n( 1 )[0]
 }
 
-method pop ( $array: ) {
-    $array._pop_n( 1 )[0] 
+method pop () {
+    self._pop_n( 1 )[0] 
 }
 
-method unshift ( $array: *@item ) {
-    &*unshift($array.items, @item);
-    return $array; 
+method unshift ( *@item ) {
+    &*unshift(@.items: @item);
+    return self;
 }
 
-method push ( $array: *@item ) {
-    &*push($array.items, @item);
-    return $array; 
+method push ( *@item ) {
+    &*push(@.items: @item);
+    return self;
 }
 
-method end  ( $array: ) {
-    my @x = $array.pop;
-    $array.push( @x[0] ) if @x;
+method end () {
+    my @x = self.pop;
+    self.push( @x[0] ) if @x;
     return @x[0];
 }
 
-method fetch ( $array: Int $pos ) {
+method fetch ( Int $pos ) {
     # XXX - this is very inefficient
     # see also: slice()
-    my $ret = $array.splice( $pos, 1 );
-    $array.splice( $pos, 0, [$ret.items] ); 
+    my $ret = self.splice( $pos, 1 );
+    self.splice( $pos, 0, [$ret.items] ); 
     return $ret.items;
 }
 
-method store ( $array: Int $pos, $item ) {
+method store ( Int $pos, $item ) {
     # TODO - $pos could be a lazy list of pairs!
-    $array.splice( $pos, 1, [$item] );
-    return $array; 
+    self.splice( $pos, 1, [$item] );
+    return self;
 }
 
 # XXX - if you use this, you get: "cannot next() outside a loop"
-# method next     ( Perl6::Container::Array $array: ) { $array.shift } 
-# method previous ( Perl6::Container::Array $array: ) { $array.pop }    # just in case 
+# method next     () { $array.shift } 
+# method previous () { $array.pop }    # just in case 
 
-method reverse ( $array: ) { 
-    my $rev = &*reverse($array.items);
-    $rev = $rev.map:{
-            $_.isa('Perl6::Value::List') ?? $_.Perl6::Value::List::reverse !! $_
-        };
-    return Perl6::Container::Array.from_list( @{$rev} );
+method reverse () { 
+    return Perl6::Container::Array.from_list(
+        &*reverse(@.items).map:{
+            .isa(Perl6::Value::List) ?? .Perl6::Value::List::reverse !! $_
+        }
+    );
 }
 
-method to_list ( $array: ) { 
-    my $ret = $array.clone; 
+method to_list () { 
+    my $ret = self.clone;
     # TODO - optimization - return the internal list object, if there is one
     return Perl6::Value::List.new(
             cstart => sub { $ret.shift },
