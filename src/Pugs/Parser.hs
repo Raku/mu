@@ -250,9 +250,13 @@ rulePackageHead = do
         then return (Left $ "Circular inheritance detected for " ++ sym ++ " '" ++ name ++ "'")
         else do
             unsafeEvalExp (newPackage pkgClass newName parentClasses)
-            env <- ask
-            putRuleEnv env{ envPackage = newName,
-                            envClasses = envClasses env `addNode` mkType newName }
+            modify $ \state -> state
+                { ruleEnv = (ruleEnv state)
+                    { envPackage = newName
+                    , envClasses = envClasses env `addNode` mkType newName
+                    }
+                , ruleDynParsers = MkDynParsersEmpty
+                }
             let pkgVal = Val . VStr $ newName
                 kind   = Val . VStr $ sym
             return $ Right (newName, kind, pkgVal, env)
@@ -507,10 +511,15 @@ parseExpWithCachedParser f = do
         ops         <- operators
         opsTight    <- tightOperators
         opsLit      <- litOperators
+        nullary:_   <- currentTightFunctions
         let [parse, parseTight, parseLit] = map
                 (expRule . (\o -> buildExpressionParser o parseTerm (Syn "" [])))
                 [ops, opsTight, opsLit]
-            opParsers = MkDynParsers parse parseTight parseLit
+            opParsers = MkDynParsers parse parseTight parseLit parseNullary
+            parseNullary = try $ do
+                name <- choice . map symbol $ nullary
+                notFollowedBy (char '(' <|> (char ':' >> char ':'))
+                possiblyApplyMacro $ App (Var ('&':name)) Nothing []
         setState state{ ruleDynParsers = opParsers }
         f opParsers
 
@@ -694,19 +703,23 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
     -- author and version get thrown away for now
     (names, _, _) <- rulePackageFullName
     let pkg = concat (intersperse "::" names)
-    env <- ask
     when use $ do   -- for &no, don't load code
+        env  <- ask
         env' <- unsafeEvalEnv $ if lang == "perl5"
-            then Sym SGlobal (':':'*':pkg)
-                     (Syn ":=" [ Var (':':'*':pkg)
-                               , App (Var "&require_perl5") Nothing [Val $ VStr pkg] ])
+            then Stmts (Sym SGlobal (':':'*':pkg)
+                            (Syn ":=" [ Var (':':'*':pkg)
+                               , App (Var "&require_perl5") Nothing [Val $ VStr pkg] ]))
+                       (newType pkg)
             else Stmts (App (Var "&use") Nothing [Val $ VStr pkg])
                        (App (Var "&unshift")
                             (Just (Var ("@" ++ envPackage env ++ "::END")))
                             [Var ("@" ++ pkg ++ "::END")])
-        putRuleEnv env
-            { envClasses = envClasses env' `addNode` mkType pkg
-            , envGlobal  = envGlobal env'
+        modify $ \state -> state
+            { ruleEnv = env
+                { envClasses = envClasses env' `addNode` mkType pkg
+                , envGlobal  = envGlobal env'
+                }
+            , ruleDynParsers = MkDynParsersEmpty
             }
     try (do { verbatimParens whiteSpace ; return emptyExp}) <|> do
         imp <- option emptyExp ruleExpression
@@ -1289,7 +1302,7 @@ parseTerm = rule "term" $ do
         , ruleClosureTrait True
         , ruleCodeQuotation
         , ruleTypeVar
-        , ruleTypeLiteral
+--      , ruleTypeLiteral
         , ruleApply False   -- Normal application
         , verbatimParens ruleBracketedExpression
         ]
@@ -1449,15 +1462,26 @@ ruleApplySub isFolded = do
         then ruleFoldOp
         else ruleSubNameWithoutPostfixModifier
 
-    -- True for `foo. .($bar)`-style applications
-    (paramListInv, args) <- choice
+    (paramListInv, args) <- choice $
         [ (ruleDot `tryLookAhead` char '(') >> parseHasParenParamList
         , parseParenParamList
         , mandatoryWhiteSpace >> parseNoParenParamList
         , return (Nothing, [])
         ]
-
     possiblyApplyMacro $ App (Var name) paramListInv args
+{-
+    -- True for `foo. .($bar)`-style applications
+    let takeArguments = do
+            (paramListInv, args) <- choice $
+                [ (ruleDot `tryLookAhead` char '(') >> parseHasParenParamList
+                , parseParenParamList
+                , mandatoryWhiteSpace >> parseNoParenParamList
+                ] ++ (if isFolded then [return (Nothing, [])] else [])
+            possiblyApplyMacro $ App (Var name) paramListInv args
+    takeArguments
+        <|> possiblyTypeLiteral name
+        <|> possiblyApplyMacro (App (Var name) Nothing [])
+-}
 
 ruleFoldOp :: RuleParser String
 ruleFoldOp = verbatimRule "reduce metaoperator" $ try $ do
@@ -1718,11 +1742,7 @@ ruleLit = do
         ])
 
 nullaryLiteral :: RuleParser Exp
-nullaryLiteral = try $ do
-    (nullary:_) <- currentTightFunctions
-    name <- choice . map symbol $ nullary
-    notFollowedBy (char '(')
-    possiblyApplyMacro $ App (Var ('&':name)) Nothing []
+nullaryLiteral = parseExpWithCachedParser dynParseNullary
 
 {-|
 Match the literal @undef@, returning an expression representing the undefined

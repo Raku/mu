@@ -35,17 +35,17 @@ namedLiteral :: String -- Literal string to match
              -> RuleParser Exp
 namedLiteral n v = do { symbol n; return $ Val v }
 
-ruleTypeLiteral :: RuleParser Exp
-ruleTypeLiteral = rule "type" $ try $ do
-    name <- fmap (concat . intersperse "::") $ ruleDelimitedIdentifier "::"
+possiblyTypeLiteral :: Var -> RuleParser Exp
+possiblyTypeLiteral name = do
     env  <- getRuleEnv
     let prefix = envPackage env ++ "::"
         classes = [ showType c | c <- flatten $ envClasses env ]
         packageClasses = concatMap (maybeToList . removePrefix prefix) classes
-    case () of
-        () | name `elem` packageClasses -> return . Var $ ':':(prefix ++ name)
-           | name `elem` classes        -> return . Var $ ':':name
-           | otherwise                  -> fail "not a class name"
+    if name `elem` packageClasses
+        then return . Var $ ':':(prefix ++ name)
+        else if name `elem` classes
+            then return . Var $ ':':name
+            else fail "not a class name"
     where
     removePrefix :: (Eq a) => [a] -> [a] -> Maybe [a]
     removePrefix pre str

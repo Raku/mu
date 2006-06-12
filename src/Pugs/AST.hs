@@ -16,7 +16,7 @@ module Pugs.AST (
     genMultiSym, genSym,
     strRangeInf, strRange, strInc,
     mergeStmts, isEmptyParams,
-    newPackage, isScalarLValue,
+    newPackage, newType, typeSub, isScalarLValue,
 
     module Pugs.AST.Internals,
     module Pugs.AST.Prag,
@@ -190,17 +190,43 @@ isEmptyParams [x] | [_, '_'] <- paramName x = True
 isEmptyParams _ = False
 
 newPackage :: String -> String -> [String] -> Exp
-newPackage cls name traits = Sym SGlobal (':':'*':name) $ Syn ":="
-    [ Var (':':'*':name)
-    , App (Var "&Object::new")
-        (Just $ Val (VType $ mkType cls))
-        [ Syn "named"
-            [ Val (VStr "traits")
-            , Val (VList $ map VStr traits)
-            ]
-        , Syn "named"
-            [ Val (VStr "name")
-            , Val (VStr name)
+newPackage cls name traits = Stmts metaObj (newType name)
+    where
+    metaObj = Sym SGlobal (':':'*':name) $! Syn ":="
+        [ Var (':':'*':name)
+        , App (Var "&Object::new")
+            (Just $ Val (VType $ mkType cls))
+            [ Syn "named"
+                [ Val (VStr "traits")
+                , Val (VList $ map VStr traits)
+                ]
+            , Syn "named"
+                [ Val (VStr "name")
+                , Val (VStr name)
+                ]
             ]
         ]
+
+newType :: String -> Exp
+newType name = Sym SGlobal ('&':'&':'*':name) $! Syn ":="
+    [ Var ('&':'*':name)
+    , Syn "sub" [Val (VCode $ typeSub name)]
     ]
+
+typeSub :: String -> VCode
+typeSub name = MkCode
+    { isMulti       = True
+    , subName       = name
+    , subEnv        = Nothing
+    , subType       = SubPrim
+    , subAssoc      = "pre"
+    , subReturns    = typ
+    , subLValue     = False
+    , subParams     = []
+    , subBindings   = []
+    , subSlurpLimit = []
+    , subBody       = Val (VType typ)
+    , subCont       = Nothing
+    }
+    where
+    typ = mkType name

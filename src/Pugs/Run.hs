@@ -185,8 +185,10 @@ initClassObjects uniq parent (Node typ children) = do
         ]
     objSV   <- newScalar (VObject obj)
     rest    <- mapM (initClassObjects (pred uniq) [typ]) children
-    let sym = genSym (':':'*':showType typ) $ MkRef objSV
-    return (sym:concat rest)
+    let metaSym = genSym (':':'*':name) $ MkRef objSV
+        codeSym = genMultiSym ('&':'*':name) $ codeRef (typeSub name)
+        name    = showType typ
+    return (metaSym:codeSym:concat rest)
 
 {-|
 Combine @%*ENV\<PERL6LIB\>@, -I, 'Pugs.Config.config' values and \".\" into the

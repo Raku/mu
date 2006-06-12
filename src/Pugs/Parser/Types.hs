@@ -94,6 +94,7 @@ data DynParsers = MkDynParsersEmpty | MkDynParsers
     { dynParseOp       :: !(RuleParser Exp)
     , dynParseTightOp  :: !(RuleParser Exp)
     , dynParseLitOp    :: !(RuleParser Exp)
+    , dynParseNullary  :: !(RuleParser Exp)
     }
 
 {-|
