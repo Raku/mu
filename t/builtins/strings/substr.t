@@ -63,7 +63,7 @@ skip 4, "more discussion needed";
     is($str, "gloop ding", "lvalue assignment modified original string");
 
     my $r = \substr($str, 0, 5);
-    ok(ref($r), '$r is a reference');
+    ok(~ref($r), '$r is a reference');
     is($$r, "gloop", '$r referent is eq to the substring');
 
     $$r = "boing";
