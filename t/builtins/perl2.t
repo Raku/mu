@@ -6,7 +6,7 @@ use Test;
 # L<S02/Names and Variables /To get a Perlish representation of any data value/>
 
 plan 95;
-force_todo 8;
+force_todo 8, 44, 46, 48;
 
 unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
   skip_rest "eval() not yet implemented in $?PUGS_BACKEND.";
