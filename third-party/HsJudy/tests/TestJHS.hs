@@ -9,9 +9,11 @@ import System.IO.Unsafe
 
 import Judy.Private
 
+import Data.List (sort)
+
 main = do
     putStrLn "# JudyHS tests:"
-    sequence [testSimple, testUpdate, testDelete, testList]
+    sequence [testSimple, testUpdate, testDelete, testList, testMixList]
 
 check l = do
     if and l
@@ -71,8 +73,7 @@ toListIO j = do
                         f judyHSIterNext ((v,d):xs)
         f judyHSIterFirst []
 
--- TODO: test swapping between two iterators.
-
+mixList :: ForeignPtr JudyHS -> ForeignPtr JudyHS -> IO [(String, Value)]
 mixList j1 j2 = do
     j1' <- withForeignPtr j1 peek
     j2' <- withForeignPtr j2 peek
@@ -83,7 +84,7 @@ mixList j1 j2 = do
         let f (jj,ii) (jj',ii') act nact xs = do
                r <- act jj ii cp len judyError
                if r == nullPtr
-                   then f (jj',ii') (jj,ii) nact judyHSIterNext xs
+                   then return xs
                    else do
                        l <- peek len
                        c <- peek cp
@@ -135,8 +136,20 @@ testList = do
     b <- toListIO j
     c <- del j "hahaha"
     d <- toListIO j
-    check [a == [], b == [("test",42),("hahaha",42),("funk",42)],
-           c, d == [("test",42),("funk",42)]]
+    check [a == [],
+           sort b == sort [("test",42),("hahaha",42),("funk",42)],
+           c,
+           sort d == sort [("test",42),("funk",42)]]
 
-
-
+testMixList = do
+    putStr "mixlist: \t"
+    j1 <- new
+    j2 <- new
+    mapM_ (\x -> ins j1 ("A" ++ (show x)) 1111) [1..10]
+    mapM_ (\x -> ins j2 ("B" ++ (show x)) 2222) [1..10]
+    a <- toListIO j1
+    b <- toListIO j2
+    c <- mixList j1 j2
+    check [c == mix b a] -- The list is filled in inverse order at mixList
+    where mix [] _ = []
+          mix (x:xs) (y:ys) = x:y:(mix xs ys)

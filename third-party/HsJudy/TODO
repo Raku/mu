@@ -1,8 +1,7 @@
 # NOW
-- HSIter isn't working yet.
+- Test BitSet with Pugs.Prim
 - Add malloc error check for BitSet/Judy1 (it uses JERR not PJERR).
-- working on "BitSet a" => almost done
-- Cabalize HsJudy. 
+- free stablePtrs when using Haskell data as Values..
 
 
 # NEXT
@@ -18,7 +17,7 @@
 
 # THINGS TO CONSIDER
 
-FILL THIS WITH FEEDBACK FROM HASKELL-CAFE
+FILL THIS WITH NEW FEEDBACK FROM HASKELL-CAFE
 
 ## API SUGGESTIONS
 

@@ -1,0 +1,16 @@
+name:                HsJudy
+version:             0.1
+description:         Judy bindings, and some nice APIs
+license:             BSD3
+license-file:        LICENSE
+author:              Caio Marcelo de Oliveira Filho <cmarcelo@gmail.com>, John Meacham
+maintainer:          Caio Marcelo de Oliveira Filho <cmarcelo@gmail.com>
+build-depends:       base
+exposed-modules:     Judy.BitSet Judy.Freeze
+other-modules:       Judy.Private
+extensions:          ForeignFunctionInterface
+ghc-options:         -fglasgow-exts -O2
+include-dirs:        .
+-- FIXME: make Cabal work nicely with _hsc files, now I think it works, but doesnt clean _hsc files
+c-sources:           Judy/Private_hsc.c
+extra-libraries:     Judy
