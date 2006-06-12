@@ -349,12 +349,15 @@ reduceSym SParam name exp = do
     let sym (MkPad map) = MkPad $ Map.insert name (MkEntryMulti []) map
     enterLex [sym] $ evalExp exp
 
-reduceSym scope name exp | scope <= SMy = do
+reduceSym scope name exp | scope < SGlobal = do
     ref <- newObject (typeOfSigil $ head name)
     let (gen, name') = case name of
             ('&':n@('&':_)) -> (genMultiSym, n)
             _               -> (genSym, name)
     sym <- gen name' ref
+    when (scope == SOur) $ do
+        qn  <- toQualified name'
+        addGlobalSym =<< gen qn ref
     enterLex [ sym ] $ evalExp exp
 
 reduceSym _ name exp = do
