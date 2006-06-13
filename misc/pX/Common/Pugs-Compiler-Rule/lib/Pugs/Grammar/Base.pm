@@ -101,10 +101,10 @@ xdigit
                 tail  => $2,
                 capture => $1,
                 from  => $pos,
-                to    => $pos+1,
+                to    => $pos+length $1,
             } )
                 if $_[0] =~ # /$rx/;
-                    /^.{$pos}([[:$char_class:]])(.*)$/;
+                    /^.{$pos}([[:$char_class:]])(.*)$/s;
             return $grammar->no_match;
         };
     }

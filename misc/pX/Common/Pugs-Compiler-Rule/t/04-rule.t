@@ -16,9 +16,9 @@ no warnings qw( once );
     use base Pugs::Grammar::Base;
 }
 
-SKIP: 
+#SKIP: 
 {
-    skip "alpha constant parser error", 1;
+    #skip "alpha constant parser error", 1;
 
     # alpha constant
     my $rule = Pugs::Compiler::Regex->compile( 'xxx' . "\n" . '\n' );
@@ -28,9 +28,9 @@ SKIP:
     is( "$match", "xxx\n", 'constant' );
 }
 
-SKIP: 
+#SKIP: 
 {
-    skip "newline parser error", 1;
+    #skip "newline parser error", 1;
 
     # \n is whitespace
     my $rule = Pugs::Compiler::Regex->compile( '\n x' . "\n" . '\n' );
