@@ -71,6 +71,8 @@ Bugs:
  * <[^a]> should be [\^a]
  * fix <[!)]>
 
+- ratchet rules can't call non-ratchet rules
+
 Categories (some things belong to P::C::Perl6) :
 
 - see "Syntactic categories" in S05 (extensibility)

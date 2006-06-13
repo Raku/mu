@@ -1,5 +1,10 @@
+0.05  2006-06-13
+
+- fixed internal <alpha> rule
+
 - new module Pugs::Compiler::RegexPerl5 - wraps a perl5 regex into a method that
-  returns a Match object.
+  returns a Match object. Note that this module doesn't provide backtracking to 
+  caller rules.
 
 0.04  2006-05-24
 
