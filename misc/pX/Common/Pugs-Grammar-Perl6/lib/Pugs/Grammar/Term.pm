@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use base qw(Pugs::Grammar::BaseCategory);
 use Pugs::Runtime::Match;
+use Pugs::Compiler::Token;
 
 # TODO - implement the "magic hash" dispatcher
 # TODO - term:<...>  - yada-yada-yada
@@ -20,24 +21,13 @@ sub pair {
         bool  => 1,
         match => $1,
         tail  => $3,
-        capture => { pair => { key => { single_quoted => $1 }, value => { single_quoted => $2 } } },
+        capture => { 
+            pair => { key => { single_quoted => $1 }, value => { single_quoted => $2 } } 
+        },
     } )
         if $_[0] =~ /^([_\w]+):<(.*?)>(.*)$/s;
     return $class->no_match;
 };
-
-#~ sub sub_call {
-    #~ my $class = shift;
-    #~ return $class->no_match unless $_[0];
-    #~ return Pugs::Runtime::Match->new( { 
-        #~ bool  => 1,
-        #~ match => $1,
-        #~ tail  => $2,
-        #~ capture => { op => 'CALL', name => { single_quoted => $1 }, },
-    #~ } )
-        #~ if $_[0] =~ /^ ([_\w]+) \.? \( (.*)$/sx;
-    #~ return $class->no_match;
-#~ };
 
 sub cpan_bareword {
     my $class = shift;
@@ -51,32 +41,6 @@ sub cpan_bareword {
         if $_[0] =~ /^ ([_\w\d]+ \- [_\w\d\-\.]+) ( (?: \(|\;|\s|$ ) .*)$/sx;
     return $class->no_match;
 };
-
-#sub bareword {
-#    my $class = shift;
-#    return $class->no_match unless $_[0];
-#    return Pugs::Runtime::Match->new( { 
-#        bool  => 1,
-#        match => $1,
-#        tail  => $2,
-#        capture => { bareword => $1 },
-#    } )
-#        if $_[0] =~ /^ ([_\w\d-]+) ( (?: \(|\;|\s|$ ) .*)$/sx;
-#    return $class->no_match;
-#};
-
-#~ sub sub_call_no_paren {
-    #~ my $class = shift;
-    #~ return $class->no_match unless $_[0];
-    #~ return Pugs::Runtime::Match->new( { 
-        #~ bool  => 1,
-        #~ match => $1,
-        #~ tail  => $2,
-        #~ capture => { op => 'CALL_NO_PAREN', name => { single_quoted => $1 }, },
-    #~ } )
-        #~ if $_[0] =~ /^ ([_\w]+) (?:\s|$|;) (.*)$/sx;
-    #~ return $class->no_match;
-#~ };
 
 sub single_quoted {
     my $grammar = shift;
@@ -117,46 +81,34 @@ sub angle_quoted {
     } );
 }
 
-sub ident {
-    my $grammar = shift;
-    $_[0] = "" unless defined $_[0];
-    my $bool = $_[0] =~ /^(
-            \!     # $!
-        |
-            \??    # $?CALLER
-
-            (?:\*)?
-            (?:  (?:\:\:)?
-                 [_[:alnum:]]+
-            )+
-        )(.*)$/sx;
-    #print "ident match: [$1]\n";
-    return {
-        bool  => $bool,
-        match => $1,
-        tail  => $2,
-        capture => $1,   # { bareword => $1 },
-    }
-};
+*ident = Pugs::Compiler::Regex->compile( '
+        \!      # $!
+    |   \??     # $?CALLER
+        \*?     # $*x
+        [
+            [ \:\: ]?
+            [ _ | <?alnum> ]+
+        ]+
+' )->code;
 
 sub recompile {
     my $class = shift;
     %hash = (
         '$' => Pugs::Compiler::Regex->compile( q(
-                <Pugs::Grammar::Term.ident>
-                { return { scalar => '$' . $_[0]->{'Pugs::Grammar::Term.ident'} ,} }
+                <?Pugs::Grammar::Term.ident>
+                { return { scalar => '$' . $_[0]->() ,} }
             ) ),
         '@' => Pugs::Compiler::Regex->compile( q(
-                <Pugs::Grammar::Term.ident>
-                { return { array => "\@" . $_[0]->{'Pugs::Grammar::Term.ident'} ,} }
+                <?Pugs::Grammar::Term.ident>
+                { return { array => "\@" . $_[0]->() ,} }
             ) ),
         '%' => Pugs::Compiler::Regex->compile( q(
-                <Pugs::Grammar::Term.ident>
-                { return { hash  => "\%" . $_[0]->{'Pugs::Grammar::Term.ident'} ,} }
+                <?Pugs::Grammar::Term.ident>
+                { return { hash  => "\%" . $_[0]->() ,} }
             ) ),
         '&' => Pugs::Compiler::Regex->compile( q(
-                <Pugs::Grammar::Term.ident>
-                { return { code  => "\&" . $_[0]->{'Pugs::Grammar::Term.ident'} ,} }
+                <?Pugs::Grammar::Term.ident>
+                { return { code  => "\&" . $_[0]->() ,} }
             ) ),
 
         '...' => Pugs::Compiler::Regex->compile( q(
