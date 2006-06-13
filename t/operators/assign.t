@@ -328,9 +328,9 @@ my sub W () { substr(want, 0, 1) }
 
 {
     my $a;
-    my @z = (($a) = W, W, W);
-    is($a, 'L', 'lhs dwims ($a) as list', :todo<bug>);
-    is(@z, "L", 'lhs dwims ($a) as list', :todo<bug>);
+    my @z = (($a,) = W, W, W);
+    is($a, 'L', 'lhs dwims ($a) as list');
+    is(@z, "L", 'lhs dwims ($a) as list');
 }
 
 {
