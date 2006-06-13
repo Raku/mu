@@ -12,6 +12,7 @@ use Pugs::Grammar::Rule;
 use Pugs::Runtime::Match;
 use Pugs::Emitter::Rule::Perl5;
 use Pugs::Emitter::Rule::Perl5::Ratchet;
+use Pugs::Compiler::RegexPerl5;
 
 use Data::Dumper;
 
@@ -24,6 +25,9 @@ sub compile {
     # $class->compile( $source, { signature => $sig } ) -- TODO
 
     my ( $class, $rule_source, $param ) = @_;
+
+    return Pugs::Compiler::RegexPerl5->compile( $rule_source, $param )
+        if exists $param->{P5} || exists $param->{Perl5};
 
     my $self = { source => $rule_source };
 

@@ -76,6 +76,8 @@ to several other modules:
 
 =item * L<Pugs::Compiler::Regex> compiles Perl 6 Regexes to Perl 5.
 
+=item * L<Pugs::Compiler::RegexPerl5> wraps Perl 5 Regexes to return a B<Match> object.
+
 * Runtime Classes
 
 =item * L<Pugs::Runtime::Rule> provides the runtime engine for Rules.
@@ -183,6 +185,8 @@ belongs to.
 =item * pos => $pos - Specify a string position to match. Starts in zero. Defaults to C<undef>.
 
 =item * sigspace => 1 - Whitespace is significant. Defaults to 1 in Rules.
+
+=item * Perl5 => 1 - Use Perl 5 grammar and semantics for Regex.
 
 =head2 match (Str $match_against)
 

@@ -11,6 +11,8 @@ use base 'Pugs::Compiler::Regex';
 sub compile {
     my ( $class, $rule_source, $param ) = @_;
     $param = ref $param ? { %$param } : {}; 
+    delete $param->{P5};
+    delete $param->{Perl5};
     warn "Error in rule: unknown parameter '$_'" 
         for keys %$param;
     my $self = { source => $rule_source };
@@ -55,6 +57,8 @@ Pugs::Compiler::RegexPerl5 - Compiler for Perl 6 style "Perl5" regex
 This module provides an implementation for Perl 6 regexes that use the "Perl5" switch:
 
     :Perl5 /.*/
+
+    :P5 /.*/
 
 See L<Pugs::Compiler::Rule> for documentation.
 
