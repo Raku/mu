@@ -1,7 +1,8 @@
 ﻿package Pugs::Grammar::BaseCategory;
 use strict;
 use warnings;
-use Pugs::Compiler::Rule;
+#use Pugs::Compiler::Rule;
+use Pugs::Compiler::Regex;
 use base qw(Pugs::Grammar::Base);
 
 # from Rule.pmc
@@ -20,9 +21,9 @@ sub ws {
 sub add_rule {
     my ( $class, $key, $rule ) = @_;
     no strict qw( refs );
-    ${"${class}::hash"}{$key} = Pugs::Compiler::Rule->compile( 
+    ${"${class}::hash"}{$key} = Pugs::Compiler::Regex->compile( 
         $rule, 
-        grammar => $class,
+        { grammar => $class },
     );
 }
 
@@ -35,7 +36,7 @@ sub recompile {
     my ( $class ) = @_;
     no strict qw( refs );
     #print "creating ${class}::parse()\n";
-    *{"${class}::parse"} = Pugs::Compiler::Rule->compile( '
+    *{"${class}::parse"} = Pugs::Compiler::Regex->compile( '
         %' . $class . '::hash
         { return Pugs::Grammar::BaseCategory::capture( $/ ) }
     ' )->code;

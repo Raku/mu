@@ -3,7 +3,7 @@ package Pugs::Grammar::Expression;
 use strict;
 use warnings;
 
-use Pugs::Compiler::Rule;
+#use Pugs::Compiler::Rule;
 use Pugs::Grammar::Precedence;
 use Pugs::Grammar::Term;
 use Pugs::Grammar::Operator;

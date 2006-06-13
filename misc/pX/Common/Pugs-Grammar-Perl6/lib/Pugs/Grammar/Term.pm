@@ -142,58 +142,58 @@ sub ident {
 sub recompile {
     my $class = shift;
     %hash = (
-        '$' => Pugs::Compiler::Rule->compile( q(
+        '$' => Pugs::Compiler::Regex->compile( q(
                 <Pugs::Grammar::Term.ident>
                 { return { scalar => '$' . $_[0]->{'Pugs::Grammar::Term.ident'} ,} }
             ) ),
-        '@' => Pugs::Compiler::Rule->compile( q(
+        '@' => Pugs::Compiler::Regex->compile( q(
                 <Pugs::Grammar::Term.ident>
                 { return { array => "\@" . $_[0]->{'Pugs::Grammar::Term.ident'} ,} }
             ) ),
-        '%' => Pugs::Compiler::Rule->compile( q(
+        '%' => Pugs::Compiler::Regex->compile( q(
                 <Pugs::Grammar::Term.ident>
                 { return { hash  => "\%" . $_[0]->{'Pugs::Grammar::Term.ident'} ,} }
             ) ),
-        '&' => Pugs::Compiler::Rule->compile( q(
+        '&' => Pugs::Compiler::Regex->compile( q(
                 <Pugs::Grammar::Term.ident>
                 { return { code  => "\&" . $_[0]->{'Pugs::Grammar::Term.ident'} ,} }
             ) ),
 
-        '...' => Pugs::Compiler::Rule->compile( q(
+        '...' => Pugs::Compiler::Regex->compile( q(
             { 
                 return { die => "not implemented" } 
             }
         ) ),
-        Inf => Pugs::Compiler::Rule->compile( q(
+        Inf => Pugs::Compiler::Regex->compile( q(
             { return { num => 'Inf' ,} } 
         ) ),
-        NaN => Pugs::Compiler::Rule->compile( q(
+        NaN => Pugs::Compiler::Regex->compile( q(
             { return { num => 'NaN' ,} } 
         ) ),
-        'bool::true' => Pugs::Compiler::Rule->compile( q(
+        'bool::true' => Pugs::Compiler::Regex->compile( q(
             { return { bool => 1 ,} } 
         ) ),
-        'bool::false' => Pugs::Compiler::Rule->compile( q(
+        'bool::false' => Pugs::Compiler::Regex->compile( q(
             { return { bool => 0 ,} } 
         ) ),
-        q(') => Pugs::Compiler::Rule->compile( q(
+        q(') => Pugs::Compiler::Regex->compile( q(
             <Pugs::Grammar::Term.single_quoted>
             { return { single_quoted => $/{'Pugs::Grammar::Term.single_quoted'}->() ,} }
         ) ),
-        q(") => Pugs::Compiler::Rule->compile( q(
+        q(") => Pugs::Compiler::Regex->compile( q(
             <Pugs::Grammar::Term.double_quoted>
             { return { double_quoted => $/{'Pugs::Grammar::Term.double_quoted'}->() ,} }
         ) ),
         # angle is handled by the lexer
-        #q(<) => Pugs::Compiler::Rule->compile( q(
+        #q(<) => Pugs::Compiler::Regex->compile( q(
         #    <Pugs::Grammar::Term.angle_quoted>
         #    { return { angle_quoted => $/{'Pugs::Grammar::Term.angle_quoted'}->() ,} }
         #) ),
-        #~ q(.) => Pugs::Compiler::Rule->compile( q(
+        #~ q(.) => Pugs::Compiler::Regex->compile( q(
             #~ <Pugs::Grammar::Term.bareword>
             #~ { return { method => $/{'Pugs::Grammar::Term.bareword'}->() ,} }
         #~ ) ),
-        q() => Pugs::Compiler::Rule->compile( q!
+        q() => Pugs::Compiler::Regex->compile( q!
                 ### floating point
                 \d+\.\d+ { return { num => $() ,} } 
             |
