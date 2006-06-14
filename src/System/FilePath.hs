@@ -1,15 +1,17 @@
 {-# OPTIONS_GHC -fglasgow-exts -cpp #-}
+{- module Distribution.Compat.FilePath -}
 module System.FilePath
          ( -- * File path
            FilePath
          , splitFileName
          , splitFileExt
          , splitFilePath
+         , baseName
+         , dirName
          , joinFileName
          , joinFileExt
-         , joinPaths
+         , joinPaths         
          , changeFileExt
-         , dropFileExt
          , isRootedPath
          , isAbsolutePath
          , dropAbsolutePrefix
@@ -17,9 +19,7 @@ module System.FilePath
          , dropPrefix
 
          , pathParents
-         -- , commonParent
-         , dirname
-         , basename
+         , commonParent
 
          -- * Search path
          , parseSearchPath
@@ -29,12 +29,21 @@ module System.FilePath
          , isPathSeparator
          , pathSeparator
          , searchPathSeparator
+         , platformPath
 
-	 -- * Filename extensions
-	 , exeExtension
-	 , objExtension
-	 , dllExtension
+         -- * Filename extensions
+         , exeExtension
+         , objExtension
+         , dllExtension
          ) where
+
+#if __GLASGOW_HASKELL__ && __GLASGOW_HASKELL__ < 604
+#if __GLASGOW_HASKELL__ < 603
+#include "config.h"
+#else
+#include "ghcconfig.h"
+#endif
+#endif
 
 import Data.List(intersperse)
 
@@ -66,7 +75,7 @@ import Data.List(intersperse)
 -- This is a special case because the \"\\\\\" path doesn\'t refer to
 -- an object (file or directory) which resides within a directory.
 splitFileName :: FilePath -> (String, String)
-#ifdef mingw32_HOST_OS
+#if mingw32_HOST_OS || mingw32_TARGET_OS
 splitFileName p = (reverse (path2++drive), reverse fname)
   where
     (path,drive) = case p of
@@ -86,8 +95,8 @@ splitFileName p = (reverse path1, reverse fname1)
     path1 = case path of
       "" -> "."
       _  -> case dropWhile isPathSeparator path of
-	"" -> [pathSeparator]
-	p  -> p
+        "" -> [pathSeparator]
+        p  -> p
     fname1 = case fname of
       "" -> "."
       _  -> fname
@@ -103,11 +112,13 @@ splitFileName p = (reverse path1, reverse fname1)
 -- > splitFileExt "."       == (".",   "")
 -- > splitFileExt ".."      == ("..",  "")
 -- > splitFileExt "foo.bar."== ("foo.bar.", "")
+-- > splitFileExt "foo.tar.gz" == ("foo.tar","gz")
+
 splitFileExt :: FilePath -> (String, String)
 splitFileExt p =
   case break (== '.') fname of
-	(suf@(_:_),_:pre) -> (reverse (pre++path), reverse suf)
-	_                 -> (p, [])
+        (suf@(_:_),_:pre) -> (reverse (pre++path), reverse suf)
+        _                 -> (p, [])
   where
     (fname,path) = break isPathSeparator (reverse p)
 
@@ -124,6 +135,12 @@ splitFilePath path = case break (== '.') (reverse basename) of
     (ext_r, _:name_r) -> (dir, reverse name_r, reverse ext_r)
   where
     (dir, basename) = splitFileName path
+
+baseName :: FilePath -> FilePath
+baseName = snd . splitFileName
+dirName :: FilePath -> FilePath
+dirName  = fst . splitFileName
+
 
 -- | The 'joinFileName' function is the opposite of 'splitFileName'. 
 -- It joins directory and file names to form a complete file path.
@@ -142,9 +159,6 @@ joinFileName :: String -> String -> FilePath
 joinFileName ""  fname = fname
 joinFileName "." fname = fname
 joinFileName dir ""    = dir
-joinFileName dir ('.':chr:fname)
-  | isPathSeparator chr = joinFileName dir fname
-  | chr == '.' && not (null fname) && isPathSeparator (head fname) = joinFileName (reverse $ dropWhile (not . isPathSeparator) $ reverse dir) (tail fname)
 joinFileName dir fname
   | isPathSeparator (last dir) = dir++fname
   | otherwise                  = dir++pathSeparator:fname
@@ -170,7 +184,7 @@ joinPaths :: FilePath -> FilePath -> FilePath
 joinPaths path1 path2
   | isRootedPath path2 = path2
   | otherwise          = 
-#ifdef mingw32_HOST_OS
+#if mingw32_HOST_OS || mingw32_TARGET_OS
         case path2 of
           d:':':path2' | take 2 path1 == [d,':'] -> path1 `joinFileName` path2'
                        | otherwise               -> path2
@@ -178,13 +192,7 @@ joinPaths path1 path2
 #else
         path1 `joinFileName` path2
 #endif
-
---
--- drop  the extension of a file path.
---
-dropFileExt :: FilePath -> FilePath
-dropFileExt = fst . splitFileExt
-
+  
 -- | Changes the extension of a file path.
 changeFileExt :: FilePath           -- ^ The path information to modify.
           -> String                 -- ^ The new extension (without a leading period).
@@ -201,7 +209,7 @@ changeFileExt path ext = joinFileExt name ext
 -- the drive letter and the full file path.
 isRootedPath :: FilePath -> Bool
 isRootedPath (c:_) | isPathSeparator c = True
-#ifdef mingw32_HOST_OS
+#if mingw32_HOST_OS || mingw32_TARGET_OS
 isRootedPath (_:':':c:_) | isPathSeparator c = True  -- path with drive letter
 #endif
 isRootedPath _ = False
@@ -209,7 +217,7 @@ isRootedPath _ = False
 -- | Returns 'True' if this path\'s meaning is independent of any OS
 -- \"working directory\", or 'False' if it isn\'t.
 isAbsolutePath :: FilePath -> Bool
-#ifdef mingw32_HOST_OS
+#if mingw32_HOST_OS || mingw32_TARGET_OS
 isAbsolutePath (_:':':c:_) | isPathSeparator c = True
 #else
 isAbsolutePath (c:_)       | isPathSeparator c = True
@@ -221,7 +229,7 @@ isAbsolutePath _ = False
 -- Unix the prefix is always \"\/\".
 dropAbsolutePrefix :: FilePath -> FilePath
 dropAbsolutePrefix (c:cs) | isPathSeparator c = cs
-#ifdef mingw32_HOST_OS
+#if mingw32_HOST_OS || mingw32_TARGET_OS
 dropAbsolutePrefix (_:':':c:cs) | isPathSeparator c = cs  -- path with drive letter
 dropAbsolutePrefix (_:':':cs)                       = cs
 #endif
@@ -277,7 +285,7 @@ pathParents :: FilePath -> [FilePath]
 pathParents p =
     root'' : map ((++) root') (dropEmptyPath $ inits path')
     where
-#ifdef mingw32_HOST_OS
+#if mingw32_HOST_OS || mingw32_TARGET_OS
        (root,path) = case break (== ':') p of
           (path,    "") -> ("",path)
           (root,_:path) -> (root++":",path)
@@ -303,18 +311,17 @@ pathParents p =
               (pre,"")    -> (pre, "")
               (pre,_:suf) -> (pre,suf)
 
-{- XXX: gaal: commented out because of many warnings. we don't use it anyway.
 -- | Given a list of file paths, returns the longest common parent.
 commonParent :: [FilePath] -> Maybe FilePath
 commonParent []           = Nothing
 commonParent paths@(p:ps) = 
   case common Nothing "" p ps of
-#ifdef mingw32_HOST_OS
+#if mingw32_HOST_OS || mingw32_TARGET_OS
     Nothing | all (not . isAbsolutePath) paths -> 
       let
-	 getDrive (d:':':_) ds 
-      	   | not (d `elem` ds) = d:ds
-    	 getDrive _         ds = ds
+         getDrive (d:':':_) ds 
+           | not (d `elem` ds) = d:ds
+         getDrive _         ds = ds
       in
       case foldr getDrive [] paths of
         []  -> Just "."
@@ -348,24 +355,6 @@ commonParent paths@(p:ps) =
     removeChar i acc c cs pacc ((c1:p):ps)
       | c == c1                            = removeChar i acc c cs (p:pacc) ps
     removeChar i acc c cs pacc ps          = i
--}
-
--- | dirname : return the directory portion of a file path
--- if null, return "."
---
-dirname :: FilePath -> FilePath
-dirname p  =
-  case reverse $ dropWhile (not . isPathSeparator) $ reverse p of
-    [] -> "."
-    p' -> p'
-
---
--- | basename : return the filename portion of a path
---
-basename :: FilePath -> FilePath
-basename p =
-    reverse $ takeWhile (not . isPathSeparator) $ reverse p
-
 
 --------------------------------------------------------------
 -- * Search path
@@ -374,15 +363,22 @@ basename p =
 -- | The function splits the given string to substrings
 -- using the 'searchPathSeparator'.
 parseSearchPath :: String -> [FilePath]
-parseSearchPath path = split searchPathSeparator path
+parseSearchPath path = split path
   where
-    split :: Char -> String -> [String]
-    split c s =
-      case rest of
-        []      -> [chunk] 
-        _:rest' -> chunk : split c rest'
+    split :: String -> [String]
+    split s =
+      case rest' of
+        []     -> [chunk] 
+        _:rest -> chunk : split rest
       where
-        (chunk, rest) = break (==c) s
+        chunk = 
+          case chunk' of
+#ifdef mingw32_HOST_OS
+            ('\"':xs@(_:_)) | last xs == '\"' -> init xs
+#endif
+            _                                 -> chunk'
+
+        (chunk', rest') = break (==searchPathSeparator) s
 
 -- | The function concatenates the given paths to form a
 -- single string where the paths are separated with 'searchPathSeparator'.
@@ -400,7 +396,7 @@ mkSearchPath paths = concat (intersperse [searchPathSeparator] paths)
 -- checks for it on this platform, too.
 isPathSeparator :: Char -> Bool
 isPathSeparator ch =
-#ifdef mingw32_HOST_OS
+#if mingw32_HOST_OS || mingw32_TARGET_OS
   ch == '/' || ch == '\\'
 #else
   ch == '/'
@@ -411,7 +407,7 @@ isPathSeparator ch =
 -- separator is a slash (@\"\/\"@) on Unix and Macintosh, and a backslash
 -- (@\"\\\"@) on the Windows operating system.
 pathSeparator :: Char
-#ifdef mingw32_HOST_OS
+#if mingw32_HOST_OS || mingw32_TARGET_OS
 pathSeparator = '\\'
 #else
 pathSeparator = '/'
@@ -421,17 +417,27 @@ pathSeparator = '/'
 -- environment variables. The separator is a colon (\":\") on Unix and Macintosh, 
 -- and a semicolon (\";\") on the Windows operating system.
 searchPathSeparator :: Char
-#ifdef mingw32_HOST_OS
+#if mingw32_HOST_OS || mingw32_TARGET_OS
 searchPathSeparator = ';'
 #else
 searchPathSeparator = ':'
+#endif
+
+-- |Convert Unix-style path separators to the path separators for this platform.
+platformPath :: FilePath -> FilePath
+#if mingw32_HOST_OS || mingw32_TARGET_OS
+platformPath = map slash
+  where slash '/' = '\\'
+        slash c = c
+#else
+platformPath = id
 #endif
 
 -- ToDo: This should be determined via autoconf (AC_EXEEXT)
 -- | Extension for executable files
 -- (typically @\"\"@ on Unix and @\"exe\"@ on Windows or OS\/2)
 exeExtension :: String
-#ifdef mingw32_HOST_OS
+#if mingw32_HOST_OS || mingw32_TARGET_OS
 exeExtension = "exe"
 #else
 exeExtension = ""
@@ -446,7 +452,7 @@ objExtension = "o"
 -- | Extension for dynamically linked (or shared) libraries
 -- (typically @\"so\"@ on Unix and @\"dll\"@ on Windows)
 dllExtension :: String
-#ifdef mingw32_HOST_OS
+#if mingw32_HOST_OS || mingw32_TARGET_OS
 dllExtension = "dll"
 #else
 dllExtension = "so"
