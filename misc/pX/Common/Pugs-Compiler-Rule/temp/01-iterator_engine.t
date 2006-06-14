@@ -71,7 +71,7 @@ my ( $rule, $match );
 
 {
   $rule = 
-        Pugs::Runtime::Rule::capture( 
+        Pugs::Runtime::Rule::named( 
             'const', 
             Pugs::Runtime::Rule::constant( 'a' ) 
         );
@@ -193,6 +193,50 @@ my ( $rule, $match );
   $rule->( 'aacaab', undef, $match, $match, undef, 0, undef, undef );
   ok ( $match, "/[a|c]+ab/ with backtracking" );
   # print "test: ",Dumper( $match );
+}
+
+
+{
+  $rule = 
+    Pugs::Runtime::Rule::concat(
+        Pugs::Runtime::Rule::named( 
+            'const1', 
+            Pugs::Runtime::Rule::constant( 'a' ) 
+        ),
+        Pugs::Runtime::Rule::named( 
+            'const2', 
+            Pugs::Runtime::Rule::constant( 'b' ) 
+        ),
+        Pugs::Runtime::Rule::named( 
+            'const3', 
+            Pugs::Runtime::Rule::constant( 'c' ) 
+        ),
+    );
+  $rule->( 'abc123', undef, $match, $match, undef, 0, undef, undef );
+  print Dumper( $match );
+  ok ( $match, "/(a)(b)(c)/ named #1" );
+  is ( $match->{const}, 'a', "named var" );
+  # print Dumper( $match );
+}
+
+{
+  $rule = 
+    Pugs::Runtime::Rule::concat(
+        Pugs::Runtime::Rule::positional(  
+            Pugs::Runtime::Rule::constant( 'a' ) 
+        ),
+        Pugs::Runtime::Rule::positional( 
+            Pugs::Runtime::Rule::constant( 'b' ) 
+        ),
+        Pugs::Runtime::Rule::positional(  
+            Pugs::Runtime::Rule::constant( 'c' ) 
+        ),
+    );
+  $rule->( 'abc123', undef, $match, $match, undef, 0, undef, undef );
+  print Dumper( $match );
+  ok ( $match, "/(a)(b)(c)/ positional #1" );
+  is ( $match->{const}, 'a', "named var" );
+  # print Dumper( $match );
 }
 
 __END__

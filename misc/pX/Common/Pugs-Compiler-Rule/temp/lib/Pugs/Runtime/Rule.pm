@@ -139,8 +139,8 @@ sub null {
     }
 };
 
-sub capture {
-    # return a labeled capture
+sub named {
+    # return a named capture
     my $label = shift;
     my $node = shift;
     sub {
@@ -153,6 +153,24 @@ sub capture {
                 to    => \( $match->to ),
                 named => { $label => $match },
                 match => [],
+            }, 'Pugs::Runtime::Match::Ratchet';
+    }
+}
+
+sub positional {
+    # return a positional capture
+    # my $num = shift;   TODO?
+    my $node = shift;
+    sub {
+        my $match;
+        $node->( @_[0,1,2], $match, @_[4,5,6,7] );
+        $_[3] = bless \{ 
+                bool  => \( $match->bool ),
+                str   => \$_[0],
+                from  => \( $match->from ),
+                to    => \( $match->to ),
+                named => {},
+                match => [ $match ],
             }, 'Pugs::Runtime::Match::Ratchet';
     }
 }
