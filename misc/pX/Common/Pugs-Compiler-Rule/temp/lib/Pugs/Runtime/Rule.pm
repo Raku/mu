@@ -41,27 +41,24 @@ sub concat {
     return sub {
         # print "concat state in: ",Dumper($_[1]);
         my @state = $_[1] ? ( @{$_[1]} ) : ( 0, 0 );
-        while (1) {
+        do {
             $nodes[0]->( $_[0], $state[0], @_[2,3,4,5,6,7] );
             # print "concat 1: ", Dumper $_[3];
             if ( ! $_[3] || ${$_[3]}->{abort} ) {
-                ${$_[3]}->{state} = undef; # [ ${$_[3]}->{state}, undef ];
+                ${$_[3]}->{state} = undef;
                 return;
             }
             $_[3] = { match => [ $_[3] ] };
-            $nodes[1]->( $_[0], $state[1], $_[2], $_[3]{match}[1], 
-                         $_[4], $_[3]{match}[0]->to, @_[6,7] );
+            $nodes[1]->( $_[0], $state[1], $_[2], $_[3]->{match}[1], 
+                         $_[4], $_[3]->{match}[0]->to, @_[6,7] );
             # print "concat 2: ", Dumper $_[3];
-            @state = ( ${$_[3]{match}[0]}->{state}, ${$_[3]{match}[1]}->{state} );
+            $state[1] = ${$_[3]->{match}[1]}->{state};
+            $state[0] = ${$_[3]->{match}[0]}->{state} unless $state[1];
             # print "concat - state: ",Dumper @state;
-            if ( ! $_[3]{match}[1] && ! ${$_[3]{match}[1]}->{abort} ) {
-                if ( ! defined( ${$_[3]{match}[1]}->{state} ) ) {
-                    return unless defined ${$_[3]{match}[0]}->{state};
-                }
-                # print "backtracking - state: ",Dumper @state;
-                next;
-            }
-            $_[3] = bless \{
+        } while !   $_[3]->{match}[1] && 
+                ! ${$_[3]->{match}[1]}->{abort} &&
+                ( $state[1] || $state[0] );
+        $_[3] = bless \{
                 bool  => \$_[3]{match}[1]->bool,
                 str   => \$_[0],
                 from  => \$_[3]{match}[0]->from,
@@ -71,10 +68,8 @@ sub concat {
                 capture => ${$_[3]{match}[1]}->{capture},
                 state   => \@state,
                 abort   => ${$_[3]{match}[1]}->{abort},
-            }, 'Pugs::Runtime::Match::Ratchet';
-            # print "concat: ", Dumper $_[3];
-            return;
-        }
+        }, 'Pugs::Runtime::Match::Ratchet';
+        # print "concat: ", Dumper $_[3];
     }
 }
 

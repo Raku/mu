@@ -192,7 +192,7 @@ my ( $rule, $match );
     );
   $rule->( 'aacaab', undef, $match, $match, undef, 0, undef, undef );
   ok ( $match, "/[a|c]+ab/ with backtracking" );
-  print "test: ",Dumper( $match );
+  # print "test: ",Dumper( $match );
 }
 
 __END__
