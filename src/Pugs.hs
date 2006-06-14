@@ -37,7 +37,7 @@ import Pugs.CodeGen
 import Pugs.Embed
 import qualified Data.Map as Map
 import Data.IORef
-import System.FilePath
+import System.FilePath (joinFileName, splitFileName)
 
 {-|
 The entry point of Pugs. Uses 'Pugs.Run.runWithArgs' to normalise the command-line
