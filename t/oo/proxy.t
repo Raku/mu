@@ -58,6 +58,9 @@ sub lvalue_test2() is rw {
     is $foo, 4,        "basic sanity (3)";
     is $was_inside, 0, "basic sanity (4)";
 
+    skip_rest 'XXX - lvalue vars not available - incoherent test results';
+    exit;
+
     eval_is 'lvalue_test2()',        14, "getting var through Proxy (4)", :todo<feature>;
     # No todo_is here to avoid unexpected succeeds
     is      $was_inside,              1, "lvalue_test2() was called (4)";
