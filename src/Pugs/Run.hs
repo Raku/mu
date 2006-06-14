@@ -30,13 +30,13 @@ import Pugs.Prim.Eval
 import Pugs.Embed
 import Pugs.Prelude 
 import Data.IORef
-import System.FilePath
 import qualified Data.Map as Map
 import qualified Data.ByteString as Str
 import DrIFT.YAML
 import Data.Yaml.Syck
 --import Data.Generics.Schemes
 import System.IO
+import System.FilePath (joinFileName)
 
 
 {-|
