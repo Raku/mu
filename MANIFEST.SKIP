@@ -32,6 +32,7 @@ svn-commit\.tmp$
 ^t/builtins/system/
 ^third-party/HsJudy
 ^third-party/judy
+^third-party/TextRegexLazy
 ^Setup(?!\.lhs)
 ^DrIFT
 ^throw_away/
