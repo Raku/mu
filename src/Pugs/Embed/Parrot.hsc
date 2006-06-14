@@ -205,7 +205,7 @@ initParrot = do
     pugsStr     <- "Pugs" `makeAscii` interp
     parrot_compreg interp pugsStr callback
 
-    modifyIORef _GlobalFinalizer (>> parrot_exit 0)
+    modifyIORef _GlobalFinalizer (>> parrotFinalize)
 
     return interp
     where
