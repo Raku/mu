@@ -18,23 +18,16 @@ sub alternation {
     # note: the list in @$nodes can be modified at runtime
     my $nodes = shift;
     return sub {
-        my $str   = $_[0];
-        my $state = $_[1] ? [ @{$_[1]} ] : [ 0, 0 ];
+        my @state = $_[1] ? ( @{$_[1]} ) : ( 0, 0 );
         $_[3] = bless \{ bool => \0 }, 'Pugs::Runtime::Match::Ratchet';
-        while ( $state->[0] <= $#$nodes ) {
+        while ( $state[0] <= $#$nodes ) {
             ### alternation string to match: "$str - (node,state)=@$state"
-            $nodes->[ $state->[0] ]->( $str, $state->[1], $_[2], $_[3], @_[4,5,6,7] );
-            # $match = $$match if ref($match) eq 'Pugs::Runtime::Match';
-            if ( ${$_[3]}->{state} ) {
-                $state->[1] = ${$_[3]}->{state};
-            }
-            else
-            {
-                $state->[0]++;
-                $state->[1] = 0;
-            }
-            ${$_[3]}->{state} = $state;
+            $nodes->[ $state[0] ]->( $_[0], $state[1], @_[2,3,4,5,6,7] );
+            $state[1] = ${$_[3]}->{state};
+            $state[0]++ unless $state[1];
+            ${$_[3]}->{state} = \@state;
             # print "alt: ",Dumper($_[3]);
+            # print "alt state: ",Dumper(@state);
             last if $_[3] || ${$_[3]}->{abort};
         }
     }
@@ -49,7 +42,7 @@ sub concat {
         my @state = $_[1] ? ( @{$_[1]} ) : ( 0, 0 );
         while (1) {
             
-            $nodes[0]->( $_[0], $state[0], $_[2], $_[3], @_[4,5,6,7] );
+            $nodes[0]->( $_[0], $state[0], @_[2,3,4,5,6,7] );
             # $matches[0] = ${$matches[0]} if ref($matches[0]) eq 'Pugs::Runtime::Match';
             #print "concat 1: ", Dumper $_[3];
             return if ! $_[3] || ${$_[3]}->{abort};
@@ -217,7 +210,7 @@ sub non_greedy_plus {
     # XXX - needs optimization for faster backtracking, less stack usage
     return sub {
         my $state = $_[1] || [ undef, $node ];
-        $state->[1]->( $_[0], undef, $_[2], $_[3], @_[4..7] );
+        $state->[1]->( $_[0], undef, @_[2..7] );
         #return unless $_[3];
         ${$_[3]}->{state} = [
             ${$_[3]}->{state},
