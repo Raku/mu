@@ -253,6 +253,7 @@ sub set_postamble {
     my @syck      = $o->(@syck_c);
 
     my @prereqs = ($pcre, @syck, @cbits);
+    my @derived_srcfiles = qw< src/Pugs/Embed/Parrot.hs src/Pugs/pugs_config.h src/Pugs/pugs_version.h src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/CodeGen/PIR/Prelude.hs >;
 
     my $embed_flags = "";
     my $hsc2hs_flags = "";
@@ -636,7 +637,7 @@ smoke-perl5 : $pugs util/run-smoke.pl all
 	\$(PERL) -e "ENV->{PUGS_RUNTIME}=q+PERL5+; exec qw+$^X util/run-smoke.pl . smoke-perl5.html -BPERL5+"
 
 
-ghci : @prereqs
+ghci : @prereqs @derived_srcfiles
 	$ghc $ghc_flags $ghc_output --make -O0 -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Prereqs.hs @prereqs
 	$ghc $ghc_flags $ghc_output --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
 
