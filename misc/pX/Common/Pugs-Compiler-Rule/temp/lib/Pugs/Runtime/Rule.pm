@@ -6,7 +6,7 @@ package Pugs::Runtime::Rule;
 
 use strict;
 use warnings;
-#use Smart::Comments; for debugging, look also at Filtered-Comments.pm
+#use Smart::Comments; #for debugging, look also at Filtered-Comments.pm
 use Data::Dumper;
 use PadWalker qw( peek_my );  # peek_our ); ???
 
@@ -18,10 +18,10 @@ sub alternation {
     # note: the list in @$nodes can be modified at runtime
     my $nodes = shift;
     return sub {
+        # print "alt state in: ",Dumper($_[1]);
         my @state = $_[1] ? ( @{$_[1]} ) : ( 0, 0 );
         $_[3] = bless \{ bool => \0 }, 'Pugs::Runtime::Match::Ratchet';
         while ( $state[0] <= $#$nodes ) {
-            ### alternation string to match: "$str - (node,state)=@$state"
             $nodes->[ $state[0] ]->( $_[0], $state[1], @_[2,3,4,5,6,7] );
             $state[1] = ${$_[3]}->{state};
             $state[0]++ unless $state[1];
@@ -39,40 +39,28 @@ sub concat {
         if @_ > 2;
     my @nodes = @_;
     return sub {
+        # print "concat state in: ",Dumper($_[1]);
         my @state = $_[1] ? ( @{$_[1]} ) : ( 0, 0 );
         while (1) {
-            
             $nodes[0]->( $_[0], $state[0], @_[2,3,4,5,6,7] );
-            # $matches[0] = ${$matches[0]} if ref($matches[0]) eq 'Pugs::Runtime::Match';
-            #print "concat 1: ", Dumper $_[3];
-            return if ! $_[3] || ${$_[3]}->{abort};
-
+            # print "concat 1: ", Dumper $_[3];
+            if ( ! $_[3] || ${$_[3]}->{abort} ) {
+                ${$_[3]}->{state} = undef; # [ ${$_[3]}->{state}, undef ];
+                return;
+            }
             $_[3] = { match => [ $_[3] ] };
-            # $_[3]{capture} = $_[3]{match}[0]{capture};
-            #print "Matched concat 0, tree:", Dumper($_[2]);
-
             $nodes[1]->( $_[0], $state[1], $_[2], $_[3]{match}[1], 
                          $_[4], $_[3]{match}[0]->to, @_[6,7] );
-            #print "concat 2: ", Dumper $_[3];
-            # $matches[1] = ${$matches[1]} if ref($matches[1]) eq 'Pugs::Runtime::Match';
+            # print "concat 2: ", Dumper $_[3];
+            @state = ( ${$_[3]{match}[0]}->{state}, ${$_[3]{match}[1]}->{state} );
+            # print "concat - state: ",Dumper @state;
             if ( ! $_[3]{match}[1] && ! ${$_[3]{match}[1]}->{abort} ) {
                 if ( ! defined( ${$_[3]{match}[1]}->{state} ) ) {
                     return unless defined ${$_[3]{match}[0]}->{state};
-                    @state = ( ${$_[3]{match}[0]}->{state}, 0 );
                 }
-                ### backtracking - state: @state
+                # print "backtracking - state: ",Dumper @state;
                 next;
             }
-            #print "Matched concat 1, tree:", Dumper($_[2]) if defined $_[2];
-
-            my $succ;
-            if ( ! defined( ${$_[3]{match}[1]}->{state} ) ) {
-                $succ = [ ${$_[3]{match}[0]}->{state}, 0 ] if defined ${$_[3]{match}[0]}->{state};
-            }
-            else {
-                $succ = [ $_[3]{match}[0], ${$_[3]{match}[1]}->{state} ];
-            }
-            # print Dumper $_[3];
             $_[3] = bless \{
                 bool  => \$_[3]{match}[1]->bool,
                 str   => \$_[0],
@@ -81,7 +69,7 @@ sub concat {
                 named => { %{$_[3]{match}[0]}, %{$_[3]{match}[1]} },
                 match => [ @{$_[3]{match}[0]}, @{$_[3]{match}[1]} ],
                 capture => ${$_[3]{match}[1]}->{capture},
-                state   => $succ,
+                state   => \@state,
                 abort   => ${$_[3]{match}[1]}->{abort},
             }, 'Pugs::Runtime::Match::Ratchet';
             # print "concat: ", Dumper $_[3];
