@@ -71,14 +71,6 @@ Perl
 How to get Perl 6
 into Production?
 ----
-Perl 6's Motto
-----
-Reconciling
-the Irreconcilable
-----
-Reconceiving
-the Inconceivable
-----
 Parrot's Philosophy:
 Make them come to us...
 ---- 
@@ -275,60 +267,196 @@ Pugs::Compiler::Rule
 Regex
 Objects
 ----
+ use v6-pugs;
+ my $txt = 'Car=ModelT,1909';
+ my $pat = rx{
+     Car -
+         [ ( Ferrari )
+         | ( ModelT , (\d\d\d\d) )
+         ]
+ };
+ $txt ~~ $pat err fail "Cannot match";
+----
  use v5;
+ use Pugs::Compiler::Regex;
+ my $pat = Pugs::Compiler::Regex->compile(q(
+     Car -
+         [ ( Ferrari )
+         | ( ModelT , (\d\d\d\d) )
+         ]
+ ));
+ $pat->match($txt) or die "Cannot match";
+----
+Match
+Objects
+----
+ use v6-pugs;
+ my $pat = rx{
+     Car = [ ( Ferrari ) | ( ModelT , (\d\d\d\d) ) ]
+ };
+
+ my $match = ('Car=ModelT,1909' ~~ $pat);
+ say $match;            # "Car=ModelT,1909"
+ say $match[0];         # undef
+ say $match[1];         # "ModelT,1909"
+ say $match[1][1];      # "1909"
+ say $match[1][1].from; # 11
+ say $match[1][1].to;   # 15
+----
+ use v5;
+ use Pugs::Compiler::Regex;
+ my $pat = Pugs::Compiler::Regex->compile(q(
+ my $pat = rx{
+     Car = [ ( Ferrari ) | ( ModelT , (\d\d\d\d) ) ]
+ };
+ use feature qw( say );
+ my $match = $pat->match('Car=ModelT,1909');
+ say $match;                # "Car=ModelT,1909"
+ say $match->[0];           # undef
+ say $match->[1];           # "ModelT,1909"
+ say $match->[1][1];        # "1909"
+ say $match->[1][1]->from;  # 11
+ say $match->[1][1]->to;    # 15
+----
+Named
+Captures
+----
+ use v6-pugs;
+  
+ my $pat = rx{
+     Car = [ ( Ferrari ) | ( ModelT , $&lt;year>:=[\d\d\d\d] ) ]
+ };
+ my $match = ('Car=ModelT,1909' ~~ $pat);
+ say $match;                    # "Car=ModelT,1909"
+ say $match[1];                 # "ModelT,1909"
+ say $match[1]&lt;year>;        # "1909"
+ say $match[1]&lt;year>.from;   # 11
+ say $match[1]&lt;year>.to;     # 15
+----
+ use v5;
+ use Pugs::Compiler::Regex;
+ my $pat = Pugs::Compiler::Regex->compile(q(
+     Car = [ ( Ferrari ) | ( ModelT , $&lt;year>:=[\d\d\d\d] ) ]
+ };
+ use feature qw( say );
+ my $match = $pat->match('Car=ModelT,1909');
+ say $match;                    # "Car=ModelT,1909"
+ say $match->[1];               # "ModelT,1909"
+ say $match->[1]{year};         # "1909"
+ say $match->[1]{year}->from;   # 11
+ say $match->[1]{year}->to;     # 15
+----
+Grammar
+Modules
+----
+ use v6-pugs;
+
+ grammar CarInfo;
+
+ regex car {
+     Car = [ ( Ferrari ) | ( ModelT , &lt;year> ) ]
+ } 
+ regex year {
+     \d\d\d\d
+ } 
+ 
+ module Main;
+ my $match = ('Car=ModelT,1909' ~~ CarInfo.car);
+----
+ use v5;
+ use Pugs::Compiler::Regex;
+ package CarInfo;
+ use base 'Pugs::Grammar::Base';
+ *car = Pugs::Compiler::Regex->compile(q(
+     Car = [ ( Ferrari ) | ( ModelT , &lt;year> ) ]
+ ))->code;
+ *year = Pugs::Compiler::Regex->compile(q(
+     \d\d\d\d
+ ))->code;
+
+ package main;
+ my $match = CarInfo->car('Car=ModelT,1909');
+----
+Result
+Objects
+----
+ # Typical Perl5 code
+ use v5;
+ my $txt = 'Car=ModelT,1909';
+ my $pat = qr{
+     Car = (?: ( Ferrari ) | ( ModelT , (\d\d\d\d) ) )
+ }x;
  my $obj;
- my $txt = 'Car=ModelT2005';
- my $pat = qr/Car=(?:(Ferrari)|(ModelT)(\d\d\d\d))/;
  if ($txt =~ $pat) {
      if ($1) {
-         $obj = Car->new({color => "red", ... });
-         ...
+         $obj = Car->new(color => "red");
      } elsif ($2) {
-         $obj = Car->new({color => "black", year => $3});
-         ...
+         $obj = Car->new(color => "black", year => $3);
      }
  }
 ----
  use v6-pugs;
- my $txt = 'Car=ModelT2005';
+ my $txt = 'Car=ModelT,1909';
  my $pat = rx{
-     Car =
-         [ Ferrari
-           : { return Car.new(:color&lt;red>) }
-         | ModelT $&lt;year>:=(\d\d\d\d)
-           : { return Car.new(:color&lt;black> :$&lt;year>) }
-         ]
+     Car = [ Ferrari
+             { return Car.new(:color&lt;red>) }
+           | ModelT , $&lt;year>:=[\d\d\d\d]
+             { return Car.new(:color&lt;black> :$&lt;year>) }
+           ]
  };
  my $obj = $($txt ~~ $pat);
 ----
  use v5;
  use Pugs::Compiler::Regex;
- my $pat = Pugs::Compiler::Regex->compile(
-     Car =
-         [ Ferrari
-           : { return Car->new(color => 'red') }
-         | ModelT $&lt;year>:=(\d\d\d\d)
-           : { return Car->new(color => 'black', year => $&lt;year>) }
-         ]
- );
- my $obj = $regex->match( 'Car=ModelT2005' )->();
-----
-Match
-Objects
-----
-Result
-Objects
-----
-Grammar
-Modules
+ my $txt = 'Car=ModelT,1909';
+ my $pat = Pugs::Compiler::Regex->compile(q(
+     Car = [ Ferrari
+             { return Car->new(color => 'red') }
+           | ModelT , $&lt;year>:=[\d\d\d\d]
+             { return Car->new(color => 'black', year => $&lt;year>) }
+           ]
+ ));
+ my $obj = $pat->match($txt)->();
+ print $obj->{year}; # 1909
 ----
 Backtrack
 Control
 ----
+ use v6-pugs;
+ "ModelT2005" ~~ regex {
+     Car = ModelT \d* ;
+ };
+----
+ use v5;
+ "ModelT2005" =~ qr{
+     Car = ModelT \d* ;
+ }x;
+----
+ use v6-pugs;
+ "ModelT2005" ~~ token {
+     Car = ModelT \d* ;
+ }
+----
+ use v5;
+ "ModelT2005" =~ qr{
+     Car = ModelT (?> \d* ) ;
+ }
+----
+ use v6-pugs;
+ "ModelT2005" ~~ rule {
+     Car = ModelT \d* ;
+ }
+----
+ use v5;
+ "ModelT2005" =~ qr{
+     Car \s* = \s* ModelT \s+ (?> \d* ) \s* ;
+ }
+----
 Module::Compile
 ☯
 ----
-Everyone hates Spiffy
+Everyone
+hates Spiffy
 ----
   use Spiffy -Base;
   my sub private {
@@ -351,7 +479,7 @@ IO::All uses Spiffy
 ----
 Kwiki uses IO::All
 ----
-Ergo:
+Ergo...
 ----
 Everyone hates Ingy
 ----
@@ -485,28 +613,69 @@ v6.pm
 Write Perl 6
 compile to Perl 5
 ----
-XXX
-- The Next Step
-    - Write Perl 6, compile to Perl 5
-        - v6.pm
-        - How it works
-        - Pugs::Compiler::Rule.pmc
-            - (show some code)
-    - Multiversioning
-        - only.pm
-    - Object Space
-        - Intrinsic Types
-        - Moose::Autobox
-    - Calling convention
-        - Signature and Capture
-        - Data::Bind
-    - Translators
-        - MAD
-        - Moosify Perl5 backend
-        - Sage's work
-    - CPAN Toolchain
-        - Multiversioning
-    - You can help!
+Takes
+Rule.pm
+----
+ use v6-pugs;
+ 
+ grammar Pugs::Grammar::Rule;
+ rule ws :P5 {
+     ^((?:\s|\#(?-s:.)*)+
+ )}
+ ...
+----
+Generates
+Rule.pmc
+----
+ # Generated file - do not edit!
+ ##################((( 32-bit Checksum Validator )))##################
+ BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
+ or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
+ == 0x1D6399E1 or die "Checksum failed for outdated .pmc file: ${F}c"}
+ #####################################################################
+ package Pugs::Grammar::Rule;
+ use base 'Pugs::Grammar::Base';
+ *{'Pugs::Grammar::Rule::ws'} = sub {
+     my $grammar = shift;
+     #warn "rule argument is undefined" unless defined $_[0];
+     $_[0] = "" unless defined $_[0];
+     my $bool = $_[0] =~ /^((?:\s|\#(?-s:.)*)+)(.*)$/sx;
+     return {
+         bool  => $bool,
+         match => $1,
+         tail  => $2,
+         #capture => $1,
+     }
+ };
+ ...
+----
+Still needs work!
+----
+In Progress
+----
+Intrinsic Objects
+Moose::Autobox
+----
+Builtin Objects
+Pugs::Runtime::*
+----
+Calling Convention
+Data::Bind
+----
+Even More Sugar
+re::override
+----
+Translators
+MAD.pm
+----
+Multiversioning
+----
+only.pm
+----
+CPAN Toolchain
+JIB.pm
+----
+Commits welcome!
 ----
 {{#q|Thank you!}}
 {{#c|☺}}
