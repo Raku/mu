@@ -1,6 +1,6 @@
 LDLIBS= -L/usr/local/lib -lJudy
 CC=ghc 
-TESTS=testbs testjl testjsl testjhs
+TESTS=testbs testjl testjsl testjhs testmap
 
 CFLAGS= -O
 
@@ -22,6 +22,8 @@ all: try $(TESTS)
 
 Judy_hsc.c: Judy_hsc.h
 
+# fixme: DRY
+
 testbs: tests/TestBS.hs Judy/Private.hs Judy/BitSet.hs Judy/Private_hsc.o
 	ghc $(HSFLAGS) --make $< Judy/Private_hsc.o -o $@
 
@@ -32,6 +34,9 @@ testjsl: tests/TestJSL.hs Judy/Private.hs Judy/Private_hsc.o
 	ghc $(HSFLAGS) --make $< Judy/Private_hsc.o -o $@
 
 testjhs: tests/TestJHS.hs Judy/Private.hs Judy/Private_hsc.o 
+	ghc $(HSFLAGS) --make $< Judy/Private_hsc.o -o $@
+
+testmap: tests/TestMap.hs Judy/Map.hs Judy/Private.hs Judy/Private_hsc.o
 	ghc $(HSFLAGS) --make $< Judy/Private_hsc.o -o $@
 
 try: Try.hs Judy/Private.hs Judy/BitSet.hs Judy/Private_hsc.o

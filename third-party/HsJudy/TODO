@@ -1,11 +1,17 @@
 # NOW
-- Test BitSet with Pugs.Prim
 - Add malloc error check for BitSet/Judy1 (it uses JERR not PJERR).
 - free stablePtrs when using Haskell data as Values..
+- Collections-like API. At least CollectionM and MapM seem to be interesting.
+- Use Judy to implement Pugs IHash substitute
 
 
 # NEXT
+- Use ByteString
 - Discuss APIs
+-- Data.HashTable
+-- Implementations specific to unboxed values like Int and Double
+-- Unbounded arrays: see Bulat work on this
+
 
 - Document this work.
 - Create a LICENSE file (I think BSD3) and put license info in the
@@ -17,7 +23,8 @@
 
 # THINGS TO CONSIDER
 
-FILL THIS WITH NEW FEEDBACK FROM HASKELL-CAFE
+nice mail from Bulat:
+http://www.haskell.org/pipermail/haskell-cafe/2006-May/015915.html
 
 ## API SUGGESTIONS
 
@@ -25,10 +32,6 @@ Bulat: "Judy implements _mutable_ array/map/set, so closest interfaces for your
 lib will be MArray and HashTable. DiffArray is a general way to make IArray
 (interface) on the base of MArray (interface), that is usable with any
 datastructure implementing MArray interface"
-
-- Implementations for unboxed values like Int and Double.
-- Data.HashTable 
-- Unbounded Arrays. Bulat is working on this and will publish it soon(?).
 
 
 ## STABLEPTR POSSIBLE OVERHEAD
@@ -39,18 +42,6 @@ StablePtrs, if that's true three obvious ways are:
  - GHC 6.5/6 is better at this.
  - Turn GHC better at this (wow!).
  - Find another way to do it (without StablePtr).
-
-
-## COLLECTIONS PACKAGE
-
-darcs get --partial http://darcs.haskell.org/packages/collections/
-
-Bernardy is working in a Collections package described as:
-"This package provides a suite of data structures types, with a consistent API.
-It is intended as an evolution of the data structures in the @base@ package."
-
-It contains only immutable datastructures, BUT would be interesting to look
-at the API they use when designing HsJudy.
 
 
 ## REEVALUATE BENEFITS?
