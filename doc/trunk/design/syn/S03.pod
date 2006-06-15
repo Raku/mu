@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 11 Jun 2006
+  Last Modified: 15 Jun 2006
   Number: 3
-  Version: 38
+  Version: 39
 
 =head1 Changes to existing operators
 
@@ -429,6 +429,30 @@ have side effects, but it is erroneous for the meaning of those side
 effects to depend on the order of visitation.  [Conjecture: we could
 allow dependencies that assume top-down visitation and only leaves
 sibling calls unordered.])
+
+Even in the absence of hardware that can do parallel processing,
+hyperoperators may be faster than the corresponding scalar operators
+if they can factor out looping overhead to lower-level code, or
+can apply loop-unrolling optimizations, or can factor out some or
+all of the MMD dispatch overhead, based on the known types of the
+operands (and also based on the fact that hyper operators promise
+no interaction among the "iterations", whereas the corresponding
+scalar operator in a loop cannot make the same promise unless all
+the operations within the loop are known to be side-effect free.)
+
+In particular, infix hyperops on two C<int> or C<num> arrays need
+only do a single MMD dispatch to find the correct function to call for
+all pairs, and can further bypass any type-checking or type-coercion
+entry points to such functions when there are known to be low-level
+entry points of the appropriate type.  (And similarly for unary C<int>
+or C<num> ops.)
+
+Application-wide analysis of finalizable object types may also enable
+such optimizations to be applied to C<Int>, C<Num>, and such.  In the
+absence of that, run-time analysis of partial MMD dispatch may save
+some MMD searching overhead.  Or particular object arrays might even
+keep track of their own run-time type purity and cache partical MMD
+dispatch tables when they know they're likely to be used in hyperops.
 
 =head1 Reduction operators
 
