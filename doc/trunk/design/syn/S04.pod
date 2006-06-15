@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 7 June 2006
+  Last Modified: 15 June 2006
   Number: 4
-  Version: 22
+  Version: 23
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -472,6 +472,30 @@ control structures, hence the sub's lexical scope was I<always>
 the innermost dynamic scope, so the preference to the lexical scope
 in the current sub was implicit.  For Perl 6 we have to make this
 preference explicit.)
+
+Warnings are produced in Perl 6 by throwing a resumable control
+exception to the outermost scope, which by default prints the
+warning and resumes the exception by extracting a resume continuation
+from the exception, which must be supplied by the warn() function
+(or equivalent).  Exceptions are not resumable in Perl 6 unless
+the exception object does the C<Resumable> role.  (Note that fatal
+exception types can do the C<Resumable> role even if thrown via
+C<fail()>--when uncaught they just hit the outermost fatal handler
+instead of the outermost warning handler, so some inner scope has to
+explicitly treat them as warnings and resume them.)
+
+Since warnings are processed using the standard control exception
+mechanism, they may be intercepted and either suppressed or fatalized
+anywhere within the dynamic scope by supplying a suitable C<CONTROL>
+block.  This dynamic control is orthogonal to any lexically scoped
+warning controls, which merely decide whether to call C<warn()>
+in the first place.
+
+As with calls to C<return>, the warning control exception is an
+abstraction that the compiler is free to optimize away (along with the
+associated continuation) when the compiler or runtime can determine
+that the semantics would be preserved by merely printing out the
+error and going on.
 
 =head1 The goto statement
 
