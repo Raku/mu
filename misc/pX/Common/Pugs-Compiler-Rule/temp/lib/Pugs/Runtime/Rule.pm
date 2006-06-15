@@ -44,12 +44,12 @@ sub alternation {
         my @state = $_[1] ? ( @{$_[1]} ) : ( 0, 0 );
         $_[3] = bless \{ bool => \0 }, 'Pugs::Runtime::Match::Ratchet';
         while ( $state[0] <= $#$nodes ) {
-            $nodes->[ $state[0] ]->( $_[0], $state[1], @_[2,3,4,5,6,7] );
-            $state[1] = ${$_[3]}->{state};
+            $state[1] = $nodes->[ $state[0] ]->( $_[0], $state[1], @_[2,3,4,5,6,7] );
             $state[0]++ unless $state[1];
-            ${$_[3]}->{state} = \@state;
             last if $_[3] || ${$_[3]}->{abort};
         }
+        return unless $_[3];
+        return \@state;
     }
 }
 
@@ -62,18 +62,14 @@ sub concat {
         # print "concat state in: ",Dumper($_[1]);
         my @state = $_[1] ? ( @{$_[1]} ) : ( 0, 0 );
         do {
-            $nodes[0]->( $_[0], $state[0], @_[2,3,4,5,6,7] );
+            my $st = $nodes[0]->( $_[0], $state[0], @_[2,3,4,5,6,7] );
             # print "concat 1: ", Dumper $_[3];
-            if ( ! $_[3] || ${$_[3]}->{abort} ) {
-                ${$_[3]}->{state} = undef;
-                return;
-            }
+            return if ! $_[3] || ${$_[3]}->{abort};
             $_[3] = { match => [ $_[3] ] };
-            $nodes[1]->( $_[0], $state[1], $_[2], $_[3]->{match}[1], 
+            $state[1] = $nodes[1]->( $_[0], $state[1], $_[2], $_[3]->{match}[1], 
                          $_[4], $_[3]->{match}[0]->to, @_[6,7] );
             # print "concat 2: ", Dumper $_[3];
-            $state[1] = ${$_[3]->{match}[1]}->{state};
-            $state[0] = ${$_[3]->{match}[0]}->{state} unless $state[1];
+            $state[0] = $st unless $state[1];
             # print "concat - state: ",Dumper @state;
         } while !   $_[3]->{match}[1] && 
                 ! ${$_[3]->{match}[1]}->{abort} &&
@@ -86,10 +82,10 @@ sub concat {
                 named => { %{$_[3]{match}[0]}, %{$_[3]{match}[1]} },
                 match => [ @{$_[3]{match}[0]}, @{$_[3]{match}[1]} ],
                 capture => ${$_[3]{match}[1]}->{capture},
-                state   => \@state,
                 abort   => ${$_[3]{match}[1]}->{abort},
         }, 'Pugs::Runtime::Match::Ratchet';
         # print "concat: ", Dumper $_[3];
+        return \@state;
     }
 }
 
@@ -106,7 +102,8 @@ sub constant {
                 to    => \($_[5] + $lconst),
                 named => {},
                 match => [],
-            }, 'Pugs::Runtime::Match::Ratchet'
+            }, 'Pugs::Runtime::Match::Ratchet';
+        return;
     }
 }
 
@@ -122,7 +119,8 @@ sub perl5 {
                 to    => \($_[5] + length $1),
                 named => {},
                 match => [],
-            }, 'Pugs::Runtime::Match::Ratchet'
+            }, 'Pugs::Runtime::Match::Ratchet';
+        return;
     };
 }
 
@@ -135,7 +133,8 @@ sub null {
                 to    => \(0 + $_[5]),
                 named => {},
                 match => [],
-            }, 'Pugs::Runtime::Match::Ratchet'
+            }, 'Pugs::Runtime::Match::Ratchet';
+        return;
     }
 };
 
@@ -154,6 +153,7 @@ sub named {
                 named => { $label => $match },
                 match => [],
             }, 'Pugs::Runtime::Match::Ratchet';
+        return;
     }
 }
 
@@ -172,6 +172,7 @@ sub positional {
                 named => {},
                 match => [ $match ],
             }, 'Pugs::Runtime::Match::Ratchet';
+        return;
     }
 }
 
@@ -188,6 +189,7 @@ sub before {
                 named => {},
                 match => [],
             }, 'Pugs::Runtime::Match::Ratchet';
+        return;
     };
 }
 
@@ -228,14 +230,9 @@ sub non_greedy_plus {
     my $node = shift;
     # XXX - needs optimization for faster backtracking, less stack usage
     return sub {
-        my $state = $_[1] || [ undef, $node ];
-        $state->[1]->( $_[0], undef, @_[2..7] );
-        #return unless $_[3];
-        ${$_[3]}->{state} = [
-            ${$_[3]}->{state},
-            concat( $node, $state->[1] ),
-        ];
-        # print "non_greedy_plus ", Dumper $_[3];
+        my $state = $_[1] || $node;
+        my $st = $state->( $_[0], undef, @_[2..7] );
+        return concat( $node, $state );
     }
 }
 
@@ -341,11 +338,12 @@ sub hash {
 
 sub end_of_string {
     return sub {
-        return $_[3] = { 
+        $_[3] = { 
             bool  => ($_[0] eq ''),
             match => '',
             #tail  => $_[0],
         };
+        return;
     };
 }
 
