@@ -219,7 +219,6 @@ Constraints
 ----
   use v6-pugs;
   class CheckingAccount;
-  use Moose;
   
   is BankAccount;
   
@@ -238,7 +237,6 @@ Constraints
   use v5;
   package CheckingAccount;
   use Moose;
-  
   extends 'BankAccount';
   
   has overdraft_account => (isa => 'BankAccount', is => 'rw');	
@@ -253,13 +251,87 @@ Constraints
       
   };
 ----
-Laziness - XXX
+Laziness
+----
+  use v6-pugs;
+  class BinaryTree is rw;
+
+  has Any $.node;
+  has BinaryTree $.parent handles { parent_node => 'node' };
+  has BinaryTree $.left  = { lazy { BinaryTree.new( parent => self ) } };
+  has BinaryTree $.right = { lazy { BinaryTree.new( parent => self ) } };
+----
+  use v5;
+  package BinaryTree;
+  use Moose;
+  
+  has node => (is => 'rw', isa => 'Any');
+  has parent => (
+      is        => 'rw',
+      isa       => 'BinaryTree',
+      handles   => { parent_node => 'node' },
+      weak_ref  => 1,
+  );
+  has left => (
+      is        => 'rw',	
+      isa       => 'BinaryTree',
+      default   => sub { BinaryTree->new(parent => $_[0]) },       
+      lazy      => 1,
+  );
+  has right => (
+      is        => 'rw',	
+      isa       => 'BinaryTree',
+      default   => sub { BinaryTree->new(parent => $_[0]) },       
+      lazy      => 1,
+  );
 ----
 Subtypes
 ----
-Roles
-----
+  use v6-pugs;
+  class Address;
+  use perl5:Locale::US;
+  use perl5:Regexp::Common &lt;zip $RE>;
+  
+  my $STATES = Locale::US.new;
+  subset US_State of Str where {
+      $STATES{any(&lt;code2state state2code>)}{.uc};
+  };
 
+  has Str       $.street is rw;
+  has Str       $.city   is rw;
+  has US_State  $.state is rw;
+  has Str       $.zip_code is rw where {
+      $_ ~~ $RE&lt;zip>&lt;<US>{'-extended' => 'allow'}
+  };
+----
+  use v5;
+  package Address;
+  use Moose;
+  use Moose::Util::TypeConstraints;
+  use Locale::US;
+  use Regexp::Common 'zip';
+  
+  my $STATES = Locale::US->new;
+  subtype USState => as Str => where {
+      $STATES->{code2state}{uc($_)}
+   or $STATES->{state2code}{uc($_)};
+  }
+
+  has street   => (is => 'rw', isa => 'Str');
+  has city     => (is => 'rw', isa => 'Str');
+  has state    => (is => 'rw', isa => 'USState');
+  has zip_code => (
+      is  => 'rw',
+      isa => subtype Str => where {
+          /$RE{zip}{US}{-extended => 'allow'}/
+      },
+  );
+----
+More features
+----
+- Roles
+- Coercion
+- Metaclasses
 ----
 Pugs::Compiler::Rule
 ☯
