@@ -64,7 +64,7 @@ my $str = '';
 
 sub outer {  
     my $s = -> { 
-        is($?SUBNAME, '&main::outer', 'pointy still sees outer\'s $?SUBNAME'); 
+        is(&?ROUTINE.name, '&main::outer', 'pointy still sees outer\'s &?ROUTINE'); 
 
         $str ~= 'inner'; 
         return 'inner ret'; 

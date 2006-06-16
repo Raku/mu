@@ -631,7 +631,13 @@ rulePerlVersion :: RuleParser String
 rulePerlVersion = rule "perl version" $ do
     optional (string "v" <|> string "Perl-")
     version <- many1 (choice [ digit, char '.' ])
-    optional ruleAuthorPart
+    optional $ do
+        variant <- ruleAuthorPart
+        {-
+        when (map toLower variant /= "pugs") $ do
+            pos <- getPosition
+            error $ "Perl implementation " ++ tail variant ++ " required--this is only Pugs v" ++ versnum ++ ", stopped at " ++ (show pos)
+        -}
     return version
 
 {-|
