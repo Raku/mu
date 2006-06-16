@@ -205,13 +205,13 @@ then we have:
     @a[foo()] = bar();		# @a[1] = [<a b c>]
 
     sub foo { return (1) }
-    @a[foo()] = bar();		# (@a[1,2,3]) = <a b c>
+    @a[foo()] = bar();		# (@a[1]) = <a b c>
 
     sub foo { return 1 }
-    @a[foo(),] = bar();		# (@a[1,2,3]) = <a b c>
+    @a[foo(),] = bar();		# (@a[1]) = <a b c>
 
     sub foo { return 1 }
-    (@a[foo()]) = bar();	# (@a[1,2,3]) = <a b c>
+    (@a[foo()]) = bar();	# (@a[1]) = <a b c>
 
 Those are all parsed as list assignments, but we get different run-time
 behaviors based on the run-time type of the left side.
