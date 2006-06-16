@@ -543,7 +543,7 @@ op1 "readline" = \v -> op1Read v getLines getLine
     getLine :: VHandle -> Eval Val
     getLine fh = guardIOexcept [(isEOFError, undef)] $ do
         line <- hGetLine fh
-        return $! VStr $! decodeUTF8 $! last line `seq` line
+        return $! VStr $! decodeUTF8 $! length line `seq` line
 op1 "getc"     = \v -> op1Read v (getChar) (getChar)
     where
     getChar :: VHandle -> Eval Val
