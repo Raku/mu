@@ -410,7 +410,7 @@ op1 "slurp" = \v -> do
         (do h <- fromVal v
             ifListContext (op1 "=" v) $ do
                 content <- guardIO $ hGetContents h
-                return $! VStr $! decodeUTF8 $! last content `seq` content)
+                return $! VStr $! decodeUTF8 $! length content `seq` content)
         (do
             fileName    <- fromVal v
             ifListContext
@@ -420,7 +420,7 @@ op1 "slurp" = \v -> do
     slurpList file = op1 "=" (VList [VStr file])
     slurpScalar file = do
         content <- guardIO (readFile file)
-        return $! VStr $! decodeUTF8 $! last content `seq` content
+        return $! VStr $! decodeUTF8 $! length content `seq` content
 op1 "opendir" = \v -> do
     str <- fromVal v
     dir <- guardIO $ openDirStream str
