@@ -163,7 +163,7 @@ result in a list assignment at run time.  (See below.) However, this is
 exclusively a syntactic distinction, and no semantic or type information
 is used, since it influences subsequent parsing.  In particular, even
 if a function is known to return a scalar value from its declaration,
-you must use C<+> or or C<~> if you wish to force scalar parsing from
+you must use C<+> or C<~> if you wish to force scalar parsing from
 within a subscript:
 
     @a[foo()] = bar();		# foo() and bar() called in list context
@@ -180,11 +180,14 @@ the right side is treated as a single scalar value, as if the right
 side had been evaluated in list context (which is indeed the case)
 but coerced into scalar context.
 
-If the left side returns a list, however, then regardless of whether the
-list contains a single or multiple values, the right side is bound
-as in a list assignment, and any extra values are discarded.  To force
-list assignment even if the function returns a non-list, either put
-parens around the entire lvalue, or use a comma within the subscript.
+If the left side returns a list, however, then regardless of whether
+the list contains a single or multiple values, the right side values
+are assigned one by one as in any other list assignment, discarding any
+extra values if the right side is too long, or assigning undef if the
+right side is too short.  To force list assignment when a subscript
+would return a non-list, either put parens around the entire lvalue,
+or use a comma within the subscript.  (A semicolon in the subscript
+also works to indicate multidimensional slices.)
 
 Assuming
 
