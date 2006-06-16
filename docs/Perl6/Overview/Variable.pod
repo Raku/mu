@@ -63,10 +63,8 @@ Perl6::Overview::Magic - Magical Variables
     ::?ROLE        # current role (as package name)
     $?ROLE         # current role (as variable)
     @?ROLE         # current roles
-    &?SUB          # current sub (itself, see S06)
-    @?SUB          # current subs (themselves)
-    $?SUBNAME      # name of current sub (see S06)
-    @?SUBNAME      # names of current subs
+    &?ROUTINE      # current sub or method (itself, see S06)
+    @?ROUTINE      # current subs or methods (themselves)
     $*UID          # system user id
 
 There were threads on p6l about unifying all variables which concern the OS or
