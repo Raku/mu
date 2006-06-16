@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 16 Jun 2006
   Number: 3
-  Version: 40
+  Version: 41
 
 =head1 Changes to existing operators
 
@@ -111,10 +111,10 @@ since list assignment operators are of assignment precedence to their left.
 
     loop ($a = 1, $b = 2; ; $a++, $b++) {...}
 
-still works fine.  The distinction between scalar and list
-assignment is similar to the way Perl 5 does it, but has to be a
+still works fine.  The syntactic distinction between scalar and list
+assignment is similar to the way Perl 5 defines it, but has to be a
 little different because we can no longer decide on the basis of
-the sigil.  The following forms are defined as "simple lvalues",
+the sigil.  The following forms are parsed as "simple lvalues",
 and imply scalar assignment:
 
     $a		# simple scalar variable
@@ -138,6 +138,10 @@ plus the following forms:
     !TERM	# any single term coerced to boolean
     (SIMPLE)	# any simple expression in circumfix parens
 
+Note that circumfix parens are considered simple only when used as
+part of a subscript.  Putting parens around the entire lvalue still
+implies list context as in Perl 5.
+
 We also include:
 
     OP SIMPLE	
@@ -154,24 +158,64 @@ prefix C<%> and infix C<xx>, for instance.  Hyper operators are
 also excluded, but post-assigment forms such as C<SIMPLE += SIMPLE>
 are allowed.
 
-All other forms imply list assignment, and will evaluate both sides
-of the assignment in list context at runtime.  However, this is
-primarily a syntactic distinction, and no semantic or type information
+All other forms imply parsing as a list assignment, which may or may not
+result in a list assignment at run time.  (See below.) However, this is
+exclusively a syntactic distinction, and no semantic or type information
 is used, since it influences subsequent parsing.  In particular, even
 if a function is known to return a scalar value from its declaration,
-you must use C<+> or or C<~> to use it as a scalar within a subscript:
+you must use C<+> or or C<~> if you wish to force scalar parsing from
+within a subscript:
 
     @a[foo()] = bar();		# foo() and bar() called in list context
     @a[+foo()] = bar();		# foo() and bar() called in scalar context
 
-(But note that the first form still works fine if C<foo()> and C<bar()>
+But note that the first form still works fine if C<foo()> and C<bar()>
 are scalar functions that are not context sensitive.  The difference
 in parsing is only an issue if C<bar()> is followed by a comma or
-some such.)
+some such.
 
-Note that circumfix parens are considered simple only when used as
-part of a subscript.  Putting parens around the entire lvalue still
-implies list context as in Perl 5.
+For non-simple lvalues, at run time, both sides are evaluated in list
+context, but if the left side results in a single non-list scalar,
+the right side is treated as a single scalar value, as if the right
+side had been evaluated in list context (which is indeed the case)
+but coerced into scalar context.
+
+If the left side returns a list, however, then regardless of whether the
+list contains a single or multiple values, the right side is bound
+as in a list assignment, and any extra values are discarded.  To force
+list assignment even if the function returns a non-list, either put
+parens around the entire lvalue, or use a comma within the subscript.
+
+Assuming
+
+    sub bar { return <a b c> }
+
+then we have:
+
+    sub foo { return 1,2,3 }
+    @a[foo()] = bar();		# (@a[1,2,3]) = <a b c>
+
+    sub foo { return 1 }
+    @a[foo()] = bar();		# @a[1] = [<a b c>]
+
+    sub foo { return(1) }
+    @a[foo()] = bar();		# @a[1] = [<a b c>]
+
+    sub foo { return (1) }
+    @a[foo()] = bar();		# (@a[1,2,3]) = <a b c>
+
+    sub foo { return 1 }
+    @a[foo(),] = bar();		# (@a[1,2,3]) = <a b c>
+
+    sub foo { return 1 }
+    (@a[foo()]) = bar();	# (@a[1,2,3]) = <a b c>
+
+Those are all parsed as list assignments, but we get different run-time
+behaviors based on the run-time type of the left side.
+
+In general, this will all just do what the user expects most of the time.
+The rest of the time scalar or list behavior can be forced with minimal
+syntax.
 
 =item * List operators are all parsed consistently.  As in Perl 5,
 to the left they look like terms, while to the right they look like
