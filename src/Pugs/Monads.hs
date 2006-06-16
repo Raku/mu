@@ -270,7 +270,7 @@ enterSub sub action
                 }
         | otherwise = do
             subRec <- sequence
-                [ genSym "&?ROUTINE" (codeRef (orig sub))
+                [ genSym "&?ROUTINE" (codeRef (orig sub)) ]
             -- retRec    <- genSubs env "&return" retSub
             callerRec <- genSubs env "&?CALLER_CONTINUATION" (ccSub cc)
             return $ \e -> e
