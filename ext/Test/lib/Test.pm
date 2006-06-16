@@ -265,7 +265,7 @@ sub report_failure (Str $todo?, Str $got?, Str $expected?, Bool $negate?) return
 
     # As PIL2JS doesn't support junctions yet, skip the junction part when
     # running under PIL2JS.
-    if (index('&Test::is &Test::isnt &Test::cmp_ok &Test::eval_is &Test::isa_ok &Test::is_deeply &Test::todo_is &Test::todo_isnt &Test::todo_cmp_ok &Test::todo_eval_is &Test::todo_isa_ok ', $?CALLER::CALLER::SUBNAME ~ ' ') >= 0) {
+    if (index('&Test::is &Test::isnt &Test::cmp_ok &Test::eval_is &Test::isa_ok &Test::is_deeply &Test::todo_is &Test::todo_isnt &Test::todo_cmp_ok &Test::todo_eval_is &Test::todo_isa_ok ', &?CALLER::CALLER::ROUTINE.name ~ ' ') >= 0) {
         Test::diag("  $wanted: '" ~ ($expected.defined ?? $expected !! "undef") ~ "'");
         Test::diag("    Actual: '" ~ ($got.defined ?? $got !! "undef") ~ "'");
     }
