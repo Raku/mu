@@ -1,5 +1,12 @@
 = Changes for 6.2.12 (rXXXXX) - June XX, 2006 *** up to r9800 excluding updates to misc/ ***
 
+== Licensing Changes
+
+* The src/ tree and the `pugs` executable are now released under the
+  permissive MIT license, in addition to Artistic and GPL.
+* A new third-party/ tree to hold bundled prerequisites originated
+  from non-Pugs projects.
+
 == Bundled Modules
 
 === New Perl 5 modules
@@ -7,13 +14,12 @@
 * `v6.pm`: `use v6; say "Perl 6"; no v6; print "Perl 5"`
 * Module::Compile - precompile Perl 5 modules transparently
 * Pugs::Compiler::Rule - Compiler for Perl 6 Rules
-
+* Data::Bind - Implement Perl 6's calling/binding convention on Perl 5
 
 === New Perl 6 modules
 
 * [ext/Relation/]: Relation type for Perl 6 (incomplete).
 * Getopt::Std - simple command-line parsing
-
 
 === New Haskell modules
 
@@ -31,10 +37,11 @@
 ** Added new core module Rosetta::Shell and example shell.pl.
 ** Added new documentation file Rosetta::SeeAlso.
 ** Various other documentation additions and edits.
+* [ext/Test/]: Avoid the use of junctions to make Parrot/Perl6's life easier.
 
 === Experimental modules (in misc/, not installed)
 
-== pX effort
+== pX effort (Perl 6 on Perl 5)
 
 * misc/pX/Common is a place where people can collaboratively hack
 * lrep - a bootstrapped, very minimal Perl 6 compiler written in Perl 6
@@ -46,7 +53,7 @@
 ** uses Module::Install 'pmc' magic for executing Perl 6 from plain Perl 5.
 ** the "Rule" grammar is written in Perl 6, and it is compiled to Perl 5 using 'lrep'.
 * Pugs-Compiler-Precedence - an operator precedence parser, built around Parse::Yapp
-* Inline-Parrot - a C version of Inline-Parrot - uses nci for data exchange.
+* Inline-Parrot - a C version of Inline-Parrot - uses NCI for data exchange.
 * Pugs-Grammar-Perl6 - a Perl 6 parser - parses Test.pm!
 * re-override - moved to /perl5/re-override - swaps in an alternate regexp engine:
   `./perl -we 'use Regexp::Perl6; print "a" =~ /<word>**{1}/;'`
@@ -60,16 +67,18 @@ truncated in r8916, apparently from gnome's copy-paste buffer limit.
 * [docs/Perl6/Doc] hierarchy, installable `Perl6::Doc`.
 * Gaal's OSDC talk "A Peek into Pugs Internals" in `docs/talks/peek.spork`.
 * Juerd's talk "Perl 6 Myths" in `/docs/talks/p6myths2.html`.
-
-
+* [examples/qotw/]: Added the QOTW 8 Expert solution.
+* [docs/Perl6/FAQ/Capture.pod] - FAQ on the new Signature/Capture calling convention.
+* [docs/Perl6/FAQ/FUD.pod] - Fears, Uncertainties and Doubts about Perl 6.
 
 == Feature Changes
 
 === Shared components
 
-* Pugs builds in a single pass.
+* Pugs now builds in a single pass.
+* Removed support for GHC 6.4.0 and added support for GHC 6.5.
 * Use `Data.ByteString` instead of `Data.FastPackedString` for fast
-  string representation
+  string representation.
 * Compile `Prelude.pm`, and possibly additional modules, to YAML bytecode
   for faster loading
 ** `pugs -CParse-YAML -e '$your_oneliner' > precomp.yml` backend
@@ -78,7 +87,16 @@ truncated in r8916, apparently from gnome's copy-paste buffer limit.
 * q:code {...} gives ASTs in macros
 * readline and =$fh autochomp: they are now complements to &say, not &print.
 * `make upload-smoke` now uploads smoke test automatically.
-
+* Support for bracketed comments: #(...), #<<< ... >>>, etc.
+* Support for long dot syntax: $foo\   .blah
+* More helpful diagnostics when calling unsafe builtins such as `system` under safe mode.
+* &?SUB is replaced with &?ROUTINE; $?SUBNAME is replaced with &?ROUTINE.name.
+* `:!foo` is now a shorthand for `foo => False`.
+* The parser is now non-backtracking and supports whitespace disambiguation:
+    if %ENV{ 3 } { 4 }	# hash lookup on %ENV
+    if %ENV { 3 } { 4 }	# %ENV by itself
+* Support for Unicode bracket characters for quotelike operators
+* The rx_ macros in Prelude for user-defined rule handlers has been discontinued.
 
 == Bug Fixes
 
@@ -87,7 +105,13 @@ truncated in r8916, apparently from gnome's copy-paste buffer limit.
 * openFile now turns the autoflushing bit on with a file, as
   otherwise it doesn't get closed upon program exit.
 * short-circuit operators didn't. Fixed.
-
+* (1.3 % 1) was evaluating to 0 like Perl 5 does.  Now it evaluates
+  to 0.3 like everybody else.
+* Statement-level bare blocks now runs under all contexts: (sub { { 3 } }).()
+* Implicit variables ($^x) is no longer allowed in statemeent-level bare blocks.
+* `1.` was parsed as a valid integer, causing ambiguities; it's now invalid.
+* `sign` and `<=>` now fails on underfined arguments, instead of returning undef.
+* Implicit variables following a declarator was broken: `{my $x; $^y}.(42)` 
 
 == Backends
 
