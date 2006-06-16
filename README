@@ -91,8 +91,10 @@ The "Locale-KeyedText" library is released by Darren R. Duncan under
 the GNU Lesser General Public License (LGPL), version 2.1 or later.
 See LICENSE/LGPL-2.1.
 
-The "Rosetta" library is released by Darren R. Duncan under the GNU
-General Public License (GPL), version 2 or later.  See LICENSE/GPL-2.
+The "Rosetta" library is released by Darren R. Duncan under the GNU General
+Public License (GPL), version 2 or later, but with a special exception that
+gives you permission to link Rosetta with other free software such that the
+other software can retain its original licenses.  See LICENSE/GPL-2.
 
 The "WTemplate" library is released by Andras Barthazi under any
 version of the GNU General Public License (GPL).  See LICENSE/GPL-2.
