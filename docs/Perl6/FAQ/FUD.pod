@@ -219,11 +219,13 @@ If you keep using the same modules over and over, you can make a module that use
 of those modules, and still end up with the things getting exported to teh right place.
 Individual authors, communities, or style guides could have their own sets.
 Most languages with the possible exception of your $language_of_choice have numberus
-misdesissions. In Perl 6 due to the dynamic grammar you can change them.
+misdecisions.
 
-use Style:jrandom
-use Style:pbp
-use Style:gnu
+In Perl 6 due to the dynamic grammar you can change them.
+
+use Style::JRandom;
+use Style::PBP;
+use Style::GNU;
 
 =head2 Perl 6 will split into multiple incompatible dialects!
 
