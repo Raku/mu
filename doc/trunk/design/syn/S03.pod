@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 15 Jun 2006
+  Last Modified: 16 Jun 2006
   Number: 3
-  Version: 39
+  Version: 40
 
 =head1 Changes to existing operators
 
@@ -136,6 +136,7 @@ plus the following forms:
     ~TERM	# any single term coerced to string
     ?TERM	# any single term coerced to boolean
     !TERM	# any single term coerced to boolean
+    (SIMPLE)	# any simple expression in circumfix parens
 
 We also include:
 
@@ -167,6 +168,10 @@ you must use C<+> or or C<~> to use it as a scalar within a subscript:
 are scalar functions that are not context sensitive.  The difference
 in parsing is only an issue if C<bar()> is followed by a comma or
 some such.)
+
+Note that circumfix parens are considered simple only when used as part of a 
+subscript.  Parens around the entire lvalue still imples list context as in
+Perl 5.
 
 =item * List operators are all parsed consistently.  As in Perl 5,
 to the left they look like terms, while to the right they look like
