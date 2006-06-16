@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 198;
+plan 208;
 
 # tests various assignment styles
 
@@ -465,27 +465,27 @@ my sub W () { substr(want, 0, 1) }
 {
     my @a;
     my $b = 0;
-    sub foo { \@a }
+    my sub foo { \@a }
     my @z = eval '(foo()[$b] = W, W)';
-    is(@a, 'S',    'lhs dwims foo()[$b] as scalar', :todo<bug>);
-    is(@z[0], 'S', 'lhs dwims foo()[$b] as scalar', :todo<bug>);
-    is(@z[1], 'L', 'lhs dwims foo()[$b] as scalar', :todo<bug>);
+    is(@a, 'S',    'lhs dwims foo()[$b] as scalar');
+    is(@z[0], 'S', 'lhs dwims foo()[$b] as scalar');
+    is(@z[1], 'L', 'lhs dwims foo()[$b] as scalar');
 }
 
 {
     my @a;
     my $b = 0;
-    sub foo { \@a }
+    my sub foo { \@a }
     my @z = eval '(foo()[$b,] = W, W)';
-    is(@a, 'L',      'lhs dwims foo()[$b,] as list', :todo<bug>);
-    is(@z[0], 'L',   'lhs dwims foo()[$b,] as list', :todo<bug>);
+    is(@a, 'L',      'lhs dwims foo()[$b,] as list');
+    is(@z[0], 'L',   'lhs dwims foo()[$b,] as list');
     is(@z[1], undef, 'lhs dwims foo()[$b,] as list');
 }
 
 {
     my @a;
     my $b = 0;
-    sub foo { \@a }
+    my sub foo { \@a }
     my @z = (@a[foo()[$b]] = W, W);
     is(@a, 'S',    'lhs dwims @a[foo()[$b]] as scalar');
     is(@z[0], 'S', 'lhs dwims @a[foo()[$b]] as scalar');
@@ -495,7 +495,7 @@ my sub W () { substr(want, 0, 1) }
 {
     my @a;
     my $b = 0;
-    sub foo { \@a }
+    my sub foo { \@a }
     my @z = (@a[foo()[$b,]] = W, W);
     is(@a, 'L',      'lhs dwims @a[foo()[$b,]] as list');
     is(@z[0], 'L',   'lhs dwims @a[foo()[$b,]] as list');
@@ -504,7 +504,7 @@ my sub W () { substr(want, 0, 1) }
 
 {
     my @a;
-    sub foo { 0 }
+    my sub foo { 0 }
     my @z = (@a[+foo()] = W, W);
     is(@a, 'S',    'lhs dwims @a[+foo()] as scalar');
     is(@z[0], 'S', 'lhs dwims @a[+foo()] as scalar');
@@ -513,7 +513,7 @@ my sub W () { substr(want, 0, 1) }
 
 {
     my @a;
-    sub foo { '0' }
+    my sub foo { '0' }
     my @z = (@a[~foo()] = W, W);
     is(@a, 'S',    'lhs dwims @a[~foo()] as scalar');
     is(@z[0], 'S', 'lhs dwims @a[~foo()] as scalar');
@@ -522,7 +522,7 @@ my sub W () { substr(want, 0, 1) }
 
 {
     my @a;
-    sub foo { 0 }
+    my sub foo { 0 }
     my @z = (@a[?foo()] = W, W);
     is(@a, 'S',    'lhs dwims @a[?foo()] as scalar');
     is(@z[0], 'S', 'lhs dwims @a[?foo()] as scalar');
@@ -531,9 +531,9 @@ my sub W () { substr(want, 0, 1) }
 
 {
     my @a;
-    sub foo { 1 }
+    my sub foo { 1 }
     my @z = (@a[!foo()] = W, W);
-    is(@a, 'S',    'lhs dwims @a[!foo()] as scalar', :todo<bug>);
+    is(@a, 'S',    'lhs dwims @a[!foo()] as scalar');
     is(@z[0], 'S', 'lhs dwims @a[!foo()] as scalar');
     is(@z[1], 'L', 'lhs dwims @a[!foo()] as scalar');
 }
@@ -541,16 +541,26 @@ my sub W () { substr(want, 0, 1) }
 {
     my @a;
     my $b = 0;
-    sub foo { 0 }
+    my sub foo { 0 }
     my @z = (@a[foo()] = W, W);
-    is(@a, 'L',      'lhs dwims @a[foo()] as list');
-    is(@z[0], 'L',   'lhs dwims @a[foo()] as list');
-    is(@z[1], undef, 'lhs dwims @a[foo()] as list');
+    is(@a, 'L L',    'lhs dwims @a[foo()] as run-time scalar');
+    is(@z[0], 'L L', 'lhs dwims @a[foo()] as run-time scalar');
+    is(@z[1], undef, 'lhs dwims @a[foo()] as run-time scalar');
+}
+
+{
+    my @a;
+    my $b = 0;
+    my sub foo { 0,1 }
+    my @z = (@a[foo()] = W, W);
+    is(@a, 'L L',  'lhs dwims @a[foo()] as run-time list');
+    is(@z[0], 'L', 'lhs dwims @a[foo()] as run-time list');
+    is(@z[1], 'L', 'lhs dwims @a[foo()] as run-time list');
 }
 
 {
     my %a;
-    sub foo { 0 }
+    my sub foo { 0 }
     my @z = (%a{+foo()} = W, W);
     is(%a, 'S',    'lhs dwims %a{+foo()} as scalar', :todo<bug>);
     is(@z[0], 'S', 'lhs dwims %a{+foo()} as scalar');
@@ -559,7 +569,7 @@ my sub W () { substr(want, 0, 1) }
 
 {
     my %a;
-    sub foo { '0' }
+    my sub foo { '0' }
     my @z = (%a{~foo()} = W, W);
     is(%a, 'S',    'lhs dwims %a{~foo()} as scalar', :todo<bug>);
     is(@z[0], 'S', 'lhs dwims %a{~foo()} as scalar');
@@ -568,7 +578,7 @@ my sub W () { substr(want, 0, 1) }
 
 {
     my %a;
-    sub foo { 0 }
+    my sub foo { 0 }
     my @z = (%a{?foo()} = W, W);
     is(%a, 'S',    'lhs dwims %a{?foo()} as scalar', :todo<bug>);
     is(@z[0], 'S', 'lhs dwims %a{?foo()} as scalar');
@@ -577,7 +587,7 @@ my sub W () { substr(want, 0, 1) }
 
 {
     my %a;
-    sub foo { 1 }
+    my sub foo { 1 }
     my @z = (%a{!foo()} = W, W);
     is(%a, 'S',    'lhs dwims %a{!foo()} as scalar', :todo<bug>);
     is(@z[0], 'S', 'lhs dwims %a{!foo()} as scalar');
@@ -587,11 +597,22 @@ my sub W () { substr(want, 0, 1) }
 {
     my %a;
     my $b = 0;
-    sub foo { 0 }
+    my sub foo { 0 }
     my @z = (%a{foo()} = W, W);
-    is(%a{0}, 'L',      'lhs dwims %a{foo()} as list');
-    is(@z[0], 'L',   'lhs dwims %a{foo()} as list');
-    is(@z[1], undef, 'lhs dwims %a{foo()} as list');
+    is(%a{0}, 'L L', 'lhs dwims %a{foo()} as run-time scalar');
+    is(@z[0], 'L L', 'lhs dwims %a{foo()} as run-time scalar');
+    is(@z[1], undef, 'lhs dwims %a{foo()} as run-time scalar');
+}
+
+{
+    my %a;
+    my $b = 0;
+    my sub foo { 0,1 }
+    my @z = (%a{foo()} = W, W);
+    is(%a{0}, 'L', 'lhs dwims %a{foo()} as run-time list');
+    is(%a{1}, 'L', 'lhs dwims %a{foo()} as run-time list');
+    is(@z[0], 'L', 'lhs dwims %a{foo()} as run-time list');
+    is(@z[1], 'L', 'lhs dwims %a{foo()} as run-time list');
 }
 
 {
@@ -655,9 +676,17 @@ my sub W () { substr(want, 0, 1) }
 {
     my @a;
     my @z = (@a[rand 1] = W, W);
-    is(@a, 'L',      'lhs dwims @a[rand 1] as list');
-    is(@z[0], 'L',   'lhs dwims @a[rand 1] as list');
-    is(@z[1], undef, 'lhs dwims @a[rand 1] as list');
+    is(@a, 'L L',    'lhs dwims @a[rand 1] as run-time scalar');
+    is(@z[0], 'L L', 'lhs dwims @a[rand 1] as run-time scalar');
+    is(@z[1], undef, 'lhs dwims @a[rand 1] as run-time scalar');
+}
+
+{
+    my @a;
+    my @z = (@a[rand 1,] = W, W);
+    is(@a, 'L',      'lhs dwims @a[rand 1,] as list');
+    is(@z[0], 'L',   'lhs dwims @a[rand 1,] as list');
+    is(@z[1], undef, 'lhs dwims @a[rand 1,] as list');
 }
 
 {
