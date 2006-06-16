@@ -639,6 +639,7 @@ rulePerlVersion = rule "perl version" $ do
             pos <- getPosition
             error $ "Perl implementation " ++ tail variant ++ " required--this is only Pugs v" ++ versnum ++ ", stopped at " ++ (show pos)
     -}
+        return variant
     return version
 
 {-|
