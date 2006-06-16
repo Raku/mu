@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 11 Jun 2006
+  Last Modified: 16 Jun 2006
   Number: 2
-  Version: 44
+  Version: 45
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1074,10 +1074,8 @@ Here are some possibilities:
     $?GRAMMAR   Which grammar am I in?
     @?GRAMMAR   Which grammars am I in?
     $?PARSER    Which Perl grammar was used to parse this statement?
-    &?SUB       Which sub am I in?
-    @?SUB       Which subs am I in?
-    $?SUBNAME   Which sub name am I in?
-    @?SUBNAME   Which sub names am I in?
+    &?ROUTINE   Which routine am I in?
+    @?ROUTINE   Which routines am I in?
     &?BLOCK     Which block am I in?
     @?BLOCK     Which blocks am I in?
     $?LABEL     Which block label am I in?
@@ -1804,9 +1802,9 @@ pod comes as a separate array element.  You have to split it into lines
 yourself.  Each chunk has a C<.linenum> property that indicates its
 starting line within the source file.
 
-There is also a new C<$?SUBNAME> variable containing the name of current
-lexical sub.  The lexical sub itself is C<&?SUB>.  The current block
-is C<&?BLOCK>.  If the block has a label, that shows up in C<$?BLOCKLABEL>.
+The lexical routine itself is C<&?ROUTINE>; you can get its name with
+C<&ROUTINE.name>.  The current block is C<&?BLOCK>.  If the block has a label,
+that shows up in C<&?BLOCK.label>.
 
 =item *
 
