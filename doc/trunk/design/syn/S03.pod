@@ -169,9 +169,9 @@ are scalar functions that are not context sensitive.  The difference
 in parsing is only an issue if C<bar()> is followed by a comma or
 some such.)
 
-Note that circumfix parens are considered simple only when used as part of a 
-subscript.  Parens around the entire lvalue still imples list context as in
-Perl 5.
+Note that circumfix parens are considered simple only when used as
+part of a subscript.  Putting parens around the entire lvalue still
+implies list context as in Perl 5.
 
 =item * List operators are all parsed consistently.  As in Perl 5,
 to the left they look like terms, while to the right they look like
