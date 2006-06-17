@@ -2198,8 +2198,12 @@ substLiteral = do
     subst   <- qLiteral1 (string [ch]) (string [endch]) qqFlags { qfProtectedChar = endch }
     return $ Syn "subst" [expr, subst, adverbs]
 
-ruleRegexDeclarator :: RuleParser String
-ruleRegexDeclarator = symbol "rule" <|> symbol "token" <|> symbol "regex"
+ruleRegexDeclarator :: RuleParser [String]
+ruleRegexDeclarator = choice
+    [ symbol "rule"     >> return ["ratchet", "sigspace"]
+    , symbol "token"    >> return ["ratchet"]
+    , symbol "regex"    >> return []
+    ]
 
 rxLiteral :: RuleParser Exp
 rxLiteral = do
