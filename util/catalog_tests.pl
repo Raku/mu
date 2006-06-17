@@ -1,4 +1,9 @@
 #!/usr/bin/perl
+# XXX: smoke creates hyperlinks to the the test directory rather than 
+# to the default output directory t_index 
+# TODO: Maybe create nicer index files, especially for the design documents
+#  and show the number of referring tests
+
 use warnings;
 use strict;
 use File::Find;
@@ -18,29 +23,42 @@ use YAML qw(LoadFile);
 use Cwd;
 
 use HTML::Template;
+use Getopt::Long;
 
-$|++;
+$| = 1;
 my $start = time;
-() = <<__NOTES__;
 
-Strategy: iterate through all tests first.  Collect links and format as HTML
+my $_PERL6_DOC   =  'http://svn.perl.org/perl6/doc/trunk/';
+my $_PERL6_BIBLE =  'http://tpe.freepan.org/repos/iblech/Perl6-Bible/';
+sub usage {
+    my $usage_err = shift;
+    print <<__HELP__;
+$0 - Build html test catalog and synopses with hyperlinks to corresponding tests
+
+  Options:
+    --p6design_dir  Directory containing the perl6 design docs apo/exe/syn
+    --output_dir    Directory to put the html files, defaults to ./t_index
+    --test_dir      Directory containing the tests, defaults to ./t
+    --help        Show this help
+
+  Perl6 Documentation:
+    You will need the Synopses checked out; try
+
+    cd ..
+    svn co $_PERL6_DOC ../perl6_doc
+      or
+    svn co $_PERL6_BIBLE ../Perl6-Bible
+
+  Strategy:
+    Iterate through all tests first.  Collect links and format as HTML
 as we go.  Then get the design docs, and format those as HTML, linking to 
 the links, and inserting a names where needed.
 
-__NOTES__
+__HELP__
 
+    exit ($usage_err ? 1 : 0);
+}
 
-
-# You will need the Synopses checked out. Do this:
-#   cd ..
-#
-#   svn co $PERL6_DOC ;  mv trunk perl6_doc
-# or 
-#   svn co $PERL6-BIBLE
-#
-# where:
-#   $PERL6_DOC   =  http://svn.perl.org/perl6/doc/trunk/
-#   $PERL6-BIBLE =  http://tpe.freepan.org/repos/iblech/Perl6-Bible/
 
 my $syn_src_dir; # The root directory for Synopsis POD
 my $t_dir;       # The root directory of the test tree.
@@ -54,20 +72,32 @@ my $link_info;
 my $total_links;
 my $total_files;
 
-($syn_src_dir, $t_dir, $output_dir)=@ARGV;
-if  ( $syn_src_dir ) {
-    die "Synopsis POD directory not found!" unless -d $syn_src_dir;
-} else {
-    $syn_src_dir = catdir($t_dir, 'Synopsis');
-    unless ( -f catfile($syn_src_dir, "S12.pod") ) {
-        $syn_src_dir = catdir('..', 'perl6_doc', 'design' );
-        $syn_src_dir = catdir('..', 'Perl6-Bible', 'lib', 'Perl6', 'Bible') 
-                        unless -f catfile($syn_src_dir, 'syn', "S12.pod");
-    }
+my $help;
+GetOptions('test_dir=s' => \$t_dir,
+	   'output_dir=s' => \$output_dir,
+	   'p6design_dir=s' => \$syn_src_dir,
+           'help' => \$help) || usage(1);
+usage(0) if $help;
+
+# Compatiblity to revision < 10728 (so eric can still use it)
+($syn_src_dir, $t_dir, $output_dir)=@ARGV
+    unless ($t_dir || $output_dir || $syn_src_dir);
+if(! $syn_src_dir) {
+    $syn_src_dir = catdir('..', 'Perl6-Bible', 'lib', 'Perl6', 'Bible');
+    $syn_src_dir = catdir('..', 'perl6_doc', 'design' )
+	unless -f catfile($syn_src_dir, 'syn', "S12.pod"); 
 }
 
+# Defaults and fallback
+$syn_src_dir = catdir($syn_src_dir, 'design') 
+    unless -f catfile($syn_src_dir, 'syn', "S12.pod"); 
 $t_dir      ||= 't';
 $output_dir ||= 't_index';
+
+die("P6 design docs (syn/S12.pod) not found in '$syn_src_dir'. Try --help. ") 
+    unless -d $syn_src_dir && -f catfile($syn_src_dir, 'syn', "S12.pod");
+die("Test directory '$t_dir' does not exist. Try --help. ")
+    unless -d $t_dir;
 
 $t_dir       = rel2abs($t_dir);
 $output_dir  = rel2abs($output_dir);
