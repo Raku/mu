@@ -32,9 +32,9 @@ ok("====c=====" ~~ m/%var/, 'Nested hash interpolation (c)');
 ok(!( "====d=====" ~~ m/%var/ ), 'Nested hash interpolation (d)');
 ok(!( "abca" ~~ m/^%var$/ ), 'Simple hash non-matching');
 
-ok(!( "a b c a" ~~ m:w/^ [ %var]+ $/ ), 'Simple hash repeated nonmatching (a)');
-ok(!( "d b c d" ~~ m:w/^ [ %var]+ $/ ), 'Simple hash repeated nonmatching (d)');
-ok("c b c c" ~~ m:w/^ [ %var]+ $/, 'Simple hash repeated matching');
+ok(!( "a b c a" ~~ m:s/^ [ %var]+ $/ ), 'Simple hash repeated nonmatching (a)');
+ok(!( "d b c d" ~~ m:s/^ [ %var]+ $/ ), 'Simple hash repeated nonmatching (d)');
+ok("c b c c" ~~ m:s/^ [ %var]+ $/, 'Simple hash repeated matching');
 
 
 # HASHES WITH KEYMATCH AND VALUEMATCH
@@ -53,10 +53,10 @@ ok(!( "====a1=====" ~~ m/%var2/ ), 'Nested hash interpolation (a)');
 ok("====c3=====" ~~ m/%var2/, 'Nested hash interpolation (c)');
 ok(!( "====d3=====" ~~ m/%var2/ ), 'Nested hash interpolation (d)');
 
-ok(!( "b2 b3 c3 e3" ~~ m:w/^[ %var2]+$/ ),
+ok(!( "b2 b3 c3 e3" ~~ m:s/^[ %var2]+$/ ),
     'Simple hash repeated nonmatching (b2 b3 c3 e3)');
 
-ok("c3 e3 e3 c3" ~~ m:w/^[ %var2]+$/,
+ok("c3 e3 e3 c3" ~~ m:s/^[ %var2]+$/,
     'Simple hash repeated matching (c3 e3 e3 c3)');
 
 }

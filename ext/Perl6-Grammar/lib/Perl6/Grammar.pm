@@ -18,26 +18,26 @@ rule block { <[{]> <code> <[}]> } # a block of code
 
 # subs and sub-like structures
 
-rule lexicalsub :w { # from A06
+rule lexicalsub { # from A06
         <lexscope> <type>?
         <submodifer>? <subintro> <subname> <psignature>?
         <trait>*
         <block>
 }
 
-rule lexicalsub :w { # from A06
+rule lexicalsub { # from A06
         <lexscope> <type>?
         <submodifer>? <subintro> <subname> <psignature>?
         <trait>*
         <block>
 }
-rule packagesub :w { # from A06
+rule packagesub { # from A06
         <submodifer> <subintro> <subname> <psignature>?
         <trait>*
         <block>
 }
 
-rule anonsub :w {
+rule anonsub {
         <subintro> <psignature>?
         <trait>*
         <block>
@@ -45,7 +45,7 @@ rule anonsub :w {
 
 # Pointy subs
 
-rule pointysub :w { # from A06
+rule pointysub { # from A06
         -\> <signature> <block>
 }
 
@@ -58,7 +58,7 @@ rule variable { <sigil> <nameZZ> [ \( <siglet> \) ]? }
 # Bare subs
 # from A06
 
-#rule baresub :w {
+#rule baresub {
 #        <block> { .find_placeholders() }
 #}
 
@@ -108,11 +108,11 @@ rule Num { Int | Rat | binary | hex | oct  };
 
 # Siglets
 
-rule siglet :w {
+rule siglet {
         [<paramlet> [<[,:]> <paramlet> ]* ]?
 }
 
-#rule paramlet :w {
+#rule paramlet {
 #        [ <type> <zone>? <varlet>? <trait>*     # require type
 #        | <zone> <varlet>? <trait>*             # or zone
 #        | <varlet> <trait>*                     # or varlet
@@ -120,7 +120,7 @@ rule siglet :w {
 #        ]
 #}
 # comments appear to be poisonous - 2005 Jul 31
-rule paramlet :w {
+rule paramlet {
         [ <type> <zone>? <varlet>? <trait>*
         | <zone> <varlet>? <trait>*
         | <varlet> <trait>*
@@ -128,13 +128,13 @@ rule paramlet :w {
         ]
 }
 
-rule varlet :w {
+rule varlet {
         <sigil> [ \( <siglet> \) ]?
 }
 
 # Defaults
 
-rule defval :w { \= <item> }
+rule defval { \= <item> }
 
 # Placeholders
 
@@ -142,13 +142,13 @@ rule placeholder { <sigil> \^ <identZZ> }
 
 # Formal parameter syntax
 
-#rule parameter :w {
+#rule parameter {
 #        [ <type>? <zone>? <variable> <trait>* <defval>?
 #        | \[ <signature> \]     # treat single array ref as an arg list
 #        ]
 #}
 # comments appear to be poisonous - 2005 Jul 31
-rule parameter :w {
+rule parameter {
          [ <type>? <zone>? <variable> <trait>* <defval>?
          | \[ <signature> \]
          ]
@@ -158,7 +158,7 @@ rule parameter :w {
 rule type { yada type }
 rule zone { yada zone }
 
-rule signature :w {
+rule signature {
         [<parameter> [<[,:]> <parameter> ]* ]?
 }
 
@@ -170,19 +170,19 @@ rule lexscope { my | our }
 
 rule submodifer { multi }
 
-rule psignature :w { \( <signature> \) }
+rule psignature { \( <signature> \) }
 
-rule psiglet :w { \( <siglet> \) }
+rule psiglet { \( <siglet> \) }
 
-rule scopedsubvar :w {
+rule scopedsubvar {
         <lexscope> <type>? &<subname> <psiglet>? <trait>*
 }
 
-rule unscopedsubvar :w {
+rule unscopedsubvar {
         &<subname> <psiglet>? <trait>*
 }
 
-rule trait :w {
+rule trait {
           is <identZZ>[\( <traitparam> \)]?
         | will <identZZ> <closure>
         | of <type>

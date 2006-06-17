@@ -903,7 +903,7 @@ sub parse_ws_lit {
 
 .sub "p6analyze" :method
     .param pmc pad
-    $I0 = pad[":w"]
+    $I0 = pad[":s"]
     if $I0 goto ws
     null $P0
     .return ($P0)
@@ -922,11 +922,11 @@ sub parse_ws_lit {
     .local pmc exp
     mname = self["mname"]
     value = self["value"]
-    if mname == ":words" goto words
+    if mname == ":sigspace" goto words
     if mname == ":ignorecase" goto ignorecase
     goto setpad
   words:
-    mname = ":w"
+    mname = ":s"
     goto setpad
   ignorecase:
     mname = ":i"

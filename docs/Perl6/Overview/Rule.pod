@@ -30,7 +30,7 @@ Perl6::Overview::Rule - Grammar Rules
 
     Used as adverbial modifiers:
 
-        "foO bar" ~~ m:w:ignorecase:g/[o | r] ./
+        "foO bar" ~~ m:s:ignorecase:g/[o | r] ./
 
     and can appear within rules
     
@@ -55,20 +55,20 @@ Perl6::Overview::Rule - Grammar Rules
                         overlapping; return all matches in list context,
                         disjunction in item context
     :rw                 Claim string for modification, instead of copy-on-write
-    :w, :words          Replaces every sequence of literal whitespace in
+    :s, :sigspace       Replaces every sequence of literal whitespace in
                         pattern with \s+ or \s* according to <?ws> rule
     :x(N)               Repetition -- find N times (N is an integer)
 
     [:ex vs :ov could use clarification.  see
      http://www.nntp.perl.org/group/perl.perl6.language/20985 ]
-    [re :w, except where there is already an explict space rule]
+    [re :s, except where there is already an explict space rule]
 
 =head2 Built-in assertions
 
     <'...'>             Matches ... as a literal string
     <"...">             Matches ... as a literal string (after interpolation)
     <sp>                Matches a literal space
-    <ws>                Matches any sequence of whitespace, like the :w modifier
+    <ws>                Matches any sequence of whitespace, like the :s modifier
     <dot>               Matches a literal . (same as <'.'>)
     <lt>                Matches a literal < (same as <'<'>)
     <gt>                Matches a literal > (same as <'>'>)

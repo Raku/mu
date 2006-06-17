@@ -685,14 +685,14 @@ reduceSyn "rx" [exp, adverbs] = do
     p5flags <- fromAdverb hv ["P5", "Perl5", "perl5"]
     flag_g  <- fromAdverb hv ["g", "global"]
     flag_i  <- fromAdverb hv ["i", "ignorecase"]
-    flag_w  <- fromAdverb hv ["w", "words"]
-    flag_s  <- fromAdverb hv ["stringify"] -- XXX hack
+    flag_s  <- fromAdverb hv ["s", "sigspace"]
+    flag_tilde  <- fromAdverb hv ["stringify"] -- XXX hack
     adverbHash <- reduce adverbs
     -- XXX - this fix for :global PCRE rules awaits someone with
     --  the Haskell'Fu to write the ns line below.
-    -- let rx | p5 = MkRulePCRE p5re g ns flag_s str adverbHash
-    let rx | p5 = MkRulePCRE p5re g 1 flag_s str adverbHash
-           | otherwise = MkRulePGE p6re g flag_s adverbHash
+    -- let rx | p5 = MkRulePCRE p5re g ns flag_tilde str adverbHash
+    let rx | p5 = MkRulePCRE p5re g 1 flag_tilde str adverbHash
+           | otherwise = MkRulePGE p6re g flag_tilde adverbHash
         g = ('g' `elem` p5flags || flag_g)
         p5re = mkRegexWithPCRE (encodeUTF8 str) $
                     [ pcreUtf8
@@ -701,10 +701,10 @@ reduceSyn "rx" [exp, adverbs] = do
                     , ('s' `elem` p5flags) `implies` pcreDotall
                     , ('x' `elem` p5flags) `implies` pcreExtended
                     ]
-        p6re = if not flag_w then str
+        p6re = if not flag_s then str
                else case str of
-                      ':':_ -> ":w"   ++ str
-                      _     -> ":w::" ++ str
+                      ':':_ -> ":s"   ++ str
+                      _     -> ":s::" ++ str
         -- ns <- liftIO $ PCRE.numSubs p5re
     retVal $ VRule rx
     where

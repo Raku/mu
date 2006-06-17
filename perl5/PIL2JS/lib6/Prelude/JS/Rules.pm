@@ -56,7 +56,7 @@ sub JS::Root::rx_helper_(%mods0, Str $pat0, Str $qo, Str $qc) is primitive {
     }
     else {
       my $msg = "Unknown modifier :$k will probably be ignored.";
-      $msg ~= "  Perhaps you meant :i:w ?" if $k eq ("iw"|"wi");
+      $msg ~= "  Perhaps you meant :i:s ?" if $k eq ("is"|"si");
       warning $msg;
     }
   }

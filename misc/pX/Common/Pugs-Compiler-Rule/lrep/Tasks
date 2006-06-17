@@ -70,7 +70,7 @@ Other interesting things to do (low priority):
 - pluggable emitters
 - emit Pugs-compatible YAML 
 - import Pugs-generated YAML precompiled code
-- regex options :w :perl5 ...
+- regex options :s :Perl5 ...
 
 Possible difficult problems to fix (all untested):
 - package-wide lexical variables (incremental compilation and execution doesn't work with lexicals)

@@ -68,7 +68,7 @@ my @art  = qw(an);
 my @prep = qw(like);
 
 ok( "time flies like an arrow" ~~
-    m:w:ex/^    [
+    m:s:ex/^    [
                 $<adj>  := (@adj)
                 $<subj> := (@noun)
                 $<verb> := (@verb)
@@ -117,7 +117,7 @@ rule art   { an? }
 rule prep  { like }
 
 ok("time   flies   like    an     arrow" ~~
-    m:w:ex/^ [ <adj>  <subj> <verb> <art> <obj>
+    m:s:ex/^ [ <adj>  <subj> <verb> <art> <obj>
                  | <subj> <verb> <prep> <art> <noun> 
                  | <verb> <obj>  <prep> <art> <noun>
                  ]

@@ -23,7 +23,7 @@ my $var = rx/a+b/;
 
 my @var = (rx/a/, rx/b/, rx/c/, rx/\w/);
 
-my %var = (a=>rx:w/ 4/, b=>rx:w/ cos/, c=>rx:w/ \d+/);
+my %var = (a=>rx:s/ 4/, b=>rx:s/ cos/, c=>rx:s/ \d+/);
 
 
 # SCALARS
@@ -57,7 +57,7 @@ ok("====a 4=====" ~~ m/%var/, 'Nested hash interpolation (a)');
 ok(!( "abca" ~~ m/^%var$/ ), 'Simple hash non-matching');
 
 
-ok("a 4 b cos c 99  a 4" ~~ m:w/^[ %var]+$/, 'Simple hash repeated matching');
+ok("a 4 b cos c 99  a 4" ~~ m:s/^[ %var]+$/, 'Simple hash repeated matching');
 
 }
 

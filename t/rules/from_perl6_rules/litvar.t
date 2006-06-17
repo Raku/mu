@@ -70,7 +70,7 @@ ok(!( "d" ~~ m/%var/ ), 'Simple hash interpolation (d)');
 ok("====a=====" ~~ m/%var/, 'Nested hash interpolation (a)', :todo<feature>);
 ok(!( "abca" ~~ m/^%var$/ ), 'Simple hash non-matching');
 
-ok("a b c a" ~~ m:w/^[ %var]+$/, 'Simple hash repeated matching', :todo<feature>);
+ok("a b c a" ~~ m:s/^[ %var]+$/, 'Simple hash repeated matching', :todo<feature>);
 
 }
 

@@ -18,7 +18,7 @@ grammar Perl6::Rx;
 rule flag_parsetree   { <':parsetree'> }
 rule flag_exhaustive  { <':exhaustive'> | <':ex'> }
 rule flag_overlap     { <':overlap'> | <':ov'> }
-rule flag_words       { <':words'> | <':w'> }
+rule flag_words       { <':sigspace'> | <':s'> }
 # XXX - there are more.  Useful short-term. Eventually not needed,
 # once macro rxmodinternal:<x> etc works.
 
@@ -40,17 +40,17 @@ rule conjunction     { <non_conjunction> \& <non_alternation>+? }
 rule non_conjunction { <repetition> | <alias> | <simple_term> }
 
 rule repetition  { <simple_term> <quantifier> }
-rule quantifier  {:w \*\* {<[\d\.]>+}(\??) | <[\?\*\+]>(\??) }
+rule quantifier  { \*\* {<[\d\.]>+}(\??) | <[\?\*\+]>(\??) }
 
 rule alias  { <named_scalar_alias>|<numbered_scalar_alias>|<array_alias>|<hash_alias>|<external_scalar_alias>|<external_array_alias>|<external_hash_alias> }
-rule named_scalar_alias     {:w  \$\<<name>\>  \:\=  <construct>  }
-rule array_alias            {:w  \@\<<name>\>  \:\=  <construct>  }
-rule hash_alias             {:w  \%\<<name>\>  \:\=  <construct>  }
-rule numbered_scalar_alias  {:w  \$<number>    \:\=  <construct>  }
+rule named_scalar_alias     {  \$\<<name>\>  \:\=  <construct>  }
+rule array_alias            {  \@\<<name>\>  \:\=  <construct>  }
+rule hash_alias             {  \%\<<name>\>  \:\=  <construct>  }
+rule numbered_scalar_alias  {  \$<number>    \:\=  <construct>  }
 rule number  { \d+ }
-rule external_scalar_alias  {:w  \$<name>      \:\=  <construct>  }
-rule external_array_alias   {:w  \@<name>      \:\=  <construct>  }
-rule external_hash_alias    {:w  \%<name>      \:\=  <construct>  }
+rule external_scalar_alias  {  \$<name>      \:\=  <construct>  }
+rule external_array_alias   {  \@<name>      \:\=  <construct>  }
+rule external_hash_alias    {  \%<name>      \:\=  <construct>  }
 rule construct  { <construct_but_not_alias>|<alias> }
 rule construct_but_not_alias { <subrule>|<capturing_group>|<noncapturing_group>|<quantified_construct> }
 rule quantified_construct  {  <construct_but_not_alias> <quantifier>  }
