@@ -2,7 +2,7 @@ module Judy.Map (
     Stringable (..),
     Map (..),
     new, insert, Judy.Map.lookup, member, delete,
-    elems, keys
+    elems, keys, toList, fromList
 ) where
 
 import Data.Typeable
@@ -105,6 +105,33 @@ newIter = do
     addForeignPtrFinalizer judyHSIter_free_ptr fp
     withForeignPtr fp $ flip poke nullPtr
     return $ MapIter fp 
+
+fromList :: Stringable k => [(k,a)] -> IO (Map k a)
+fromList xs = do
+    m <- new
+    mapM_ (\(k,a) -> insert k a m) xs
+    return m
+
+-- FIXME: DRY
+
+toList :: Stringable k => Map k a -> IO [(k,a)]
+toList (Map j) = do
+    jj <- withForeignPtr j peek
+    (MapIter i) <- newIter
+    withForeignPtr i $ \ii -> alloca $ \cp -> alloca $ \len -> do
+        let f act xs = do
+                r <- act jj ii cp len judyError
+                if r == nullPtr
+                    then return xs
+                    else do
+                        l <- peek len
+                        c <- peek cp
+                        v <- peekCAStringLen (c, fromIntegral l)
+                        d <- peek r
+                        d' <- deRefStablePtr (castPtrToStablePtr (wordPtrToPtr d))
+                        f judyHSIterNext ((fromString v, d'):xs)
+        f judyHSIterFirst []
+
 
 elems :: Map k a -> IO [a]
 elems (Map j) = do
