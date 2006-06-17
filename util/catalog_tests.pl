@@ -15,6 +15,7 @@ use Tie::RefHash;
 use List::Util 'first';
 use Data::Dumper;
 use YAML qw(LoadFile);
+use Cwd;
 
 use HTML::Template;
 
@@ -44,6 +45,7 @@ __NOTES__
 my $syn_src_dir; # The root directory for Synopsis POD
 my $t_dir;       # The root directory of the test tree.
 my $output_dir;  # The root directory of the output tree.
+my $start_dir = cwd;
 
 # ref to hash of information about links that we mean to insert.
 # Top level index is file, second level is an array ref of hash refs.
@@ -216,7 +218,7 @@ sub handle_t_file {
   my $outfile = IO::File->new($output_path, ">:utf8")
                          or die "Can't open output test file $output_path: $!";
                          
-  my $template = HTML::Template->new(filename => '/home/eric256/pugs/util/catalog_tmpl/code.tmpl');  
+  my $template = HTML::Template->new(filename => catdir $start_dir, 'util/catalog_tmpl/code.tmpl');  
   $template->param("file" => $file);
   my $output = ""; 
   
