@@ -37,3 +37,14 @@ svn-commit\.tmp$
 ^DrIFT
 ^throw_away/
 .hs-drift$
+^perl5/Data-Bind/
+^perl5/Module-Compile/
+^perl5/PIL-Run/
+^perl5/Perl6-Container/
+^perl5/Perl6-MetaModel/
+^perl5/Perl6-ObjectSpace/
+^perl5/Perl6-Value/
+^perl5/Pugs-Compiler-Rule/
+^perl5/README
+^perl5/re-override/
+^perl5/re-override-PCRE/
