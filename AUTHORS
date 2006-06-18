@@ -3,169 +3,168 @@ log and the mailing list archives.  These people have either submitted
 patches or suggestions, or their bug reports or comments have inspired
 the appropriate patches.  Corrections, additions, deletions welcome:
 
-"Aankhen"
-Adam "alias" Kennedy             (ADAMK)     
-Adam Preble                                  
+Aankhola Encorporated            (AANKHEN)
+Adam "alias" Kennedy             (ADAMK)
+Adam Preble
 Adrian "adehohum" Taylor
 AEvar Arnfjord Bjarmason         (AVAR)      Ævar Arnfjörð Bjarmason
-Aldo "dada" Calpini              (ACALPINI)  
-Alin "alinbsp" Iacob             (ALIN)      
+Aldo "dada" Calpini              (ACALPINI)
+Alin "alinbsp" Iacob             (ALIN)
 Allison Randal                   (ARANDAL)
 Amir "lightstep" Livine Bar-On               עמיר ליבנה בר-און
 Amos Robinson
 Andras Barthazi                              András Bártházi
 Andres "kosmikus" Loeh                       Andres Löh
 Andres Kievsky                   (ANK)
-Andrew Savige                    (ASAVIGE)   
-Anton "tobez" Berezin            (GRUBER)    
+Andrew Savige                    (ASAVIGE)
+Anton "tobez" Berezin            (GRUBER)
 Arthur "sky" Bergman             (ABERGMAN)
 Ashley "jql" Winters             (AWIN)
-Audrey "autrijus" Tang           (AUTRIJUS)  唐鳳
+Audrey Tang                      (AUDREYT)   唐鳳
 Austin "aufrank" Frank
-Balint "szbalint" Szilakszi                  Bálint Szilakszi
+Balint Szilakszi                 (SZBALINT)  Bálint Szilakszi
 Beau E. Cox                      (BEAU)
-Benjamin "integral" Smith        (BSMITH)    
+Benjamin "integral" Smith        (BSMITH)
 Bestian Tang                                 唐宗浩
-Brad "bsb" Bowman                (BOWMANBS)  
+Brad "bsb" Bowman                (BOWMANBS)
 Brandon Michael "skew" Moore
-Bryan Donlan                     (BDONLAN)   
+Bryan Donlan                     (BDONLAN)
 Bryan "mrborisguy" Burgers
 Caio Marcelo de Oliveira Filho
-Carey "revdiablo" Tilden         (CBTILDEN)  
-Carl "fireartist" Franks         (CFRANKS)   
-Carl Masak                       (MASAK)     
+Carey "revdiablo" Tilden         (CBTILDEN)
+Carl "fireartist" Franks         (CFRANKS)
+Carl Masak                       (MASAK)
 Cheng-Lung Sung                  (CLSUNG)    宋政隆
 Chia-Liang Kao                   (CLKAO)     高嘉良
-Chip Salzenberg                  (CHIPS)     
+Chip Salzenberg                  (CHIPS)
 Christopher Malon
-Christopher Pruden
-chromatic                        (CHROMATIC) 
+Christopher "cpruden" Pruden
+chromatic                        (CHROMATIC)
 Colin Paul Adams
 Chuck "sproingie" Adams
-Curtis "ovid" Poe                (OVID)      
-"cpruden"
-Damian Conway                    (DCONWAY)   
-Dan "broquaint" Brook            (BROQ)      
+Curtis "ovid" Poe                (OVID)
+Damian Conway                    (DCONWAY)
+Dan "broquaint" Brook            (BROQ)
 Dan Kogai                        (DANKOGAI)  小飼弾
-Darren Duncan                    (DUNCAND)   
+Darren Duncan                    (DUNCAND)
 Dave "autarch" Rolsky            (DROLSKY)
-David "machack666" Christensen   (DWC)       
-David "autark" Ranvig
-David Vergin                     (DVERGIN)   
+David "machack666" Christensen   (DWC)
+David "autark" Ranvig            (DAVIDRA)
+David Vergin                     (DVERGIN)
 David "qtplatypus" Formosa
-Dimitry Golubovsky                           
+Dimitry Golubovsky
 Don "dons" Stewart
-Dudley Flanders                           
-Edwin Steiner                              
+Dudley Flanders
+Edwin Steiner
 Elizabeth Mattijsen              (ELIZABETH)
-Eric "eric256" Hodges                      
+Eric "eric256" Hodges
 Fayland Lam                      (FAYLAND)   林道
 Flavio S. Glock                  (FGLOCK)    Flávio S. Glock
 Florian "rafl" Ragwitz           (FLORA)
 Gaal Yahas                       (GAAL)      גל יחס
 Gabor Szabo                      (SZABGAB)   Gábor Szabó גאבור סבו
-Garret Rooney                    (ROONEG)    
+Garret Rooney                    (ROONEG)
 "gcomnz"
-Geoffrey Broadwell
-Gianni "dakkar" Ceccarelli
+Geoffrey Broadwell               (GJB)
+Gianni Ceccarelli                (DAKKAR)
 Hsin-Chan Chien                  (HCCHIEN)   簡信昌
 Ian "Igloo" Lynagh
 Ilmari "wolverian" Vacklin
-Ingo "iblech" Blechschmidt                   
+Ingo "iblech" Blechschmidt
 Ingy dot Net                     (INGY)      Ingy döt Net / 應吉大聶
-Isaac "SyntaxNinja" Jones                    
-James "theorbtwo" Mastros        (JMASTROS)  
-Jeff Horwitz                     (JHORWITZ)  
+Isaac "SyntaxNinja" Jones
+James "theorbtwo" Mastros        (JMASTROS)
+Jeff Horwitz                     (JHORWITZ)
 Jens "jrieks" Rieks
 Jeremy "jvoorhis" Voorhis
 Jerry "particle" Gay             (PARTICLE)
-Jesse "obra" Vincent             (JESSE)     
+Jesse "obra" Vincent             (JESSE)
 Joao Fernando Ferreira           (JOAO)      João Fernando Ferreira
-Jody Belka                       (KNEW)      
+Jody Belka                       (KNEW)
 John van Krieken                 (VLADTZ)
 John "js0000" Saylor
-Jonathan Scott "PerlJam" Duff    (DUFF)      
-Jonathan Worthington             (JONATHAN)  
+Jonathan Scott "PerlJam" Duff    (DUFF)
+Jonathan Worthington             (JONATHAN)
 Jos Boumans                      (KANE)
 Joshua "rbysamppi" Choi
-Joshua "Limbic_Region" Gatcomb   (JGATCOMB)  
-Juerd Waalboer                   (JUERD)     
-Julian Fondren                   (AYRNIEU)   
+Joshua "Limbic_Region" Gatcomb   (JGATCOMB)
+Juerd Waalboer                   (JUERD)
+Julian Fondren                   (AYRNIEU)
 Kang-Min Liu                     (GUGOD)     劉康民
 Kevin "puetzk" Puetz
 Kiran "mkirank" Kumar M.
 Kuang-Che "kcwu" Wu                          吳光哲
-Larry "TimToady" Wall            (LWALL)     
+Larry "TimToady" Wall            (LWALL)
 Leopold Toetsch                  (LTOETSCH)  Leopold Tötsch
 Liang-Qi "viirya" Xie                        謝良奇
 Lola Lee
-Luke "luqui" Palmer              (LPALMER)   
-Mark "ninereasons" McConnell
-Mark Stosberg                                
-Markus "malaire" Laire                       
+Luke "luqui" Palmer              (LPALMER)
+Mark "ninereasons" McConnell     (MISCHKE)
+Mark Stosberg                    (MARKSTOS)
+Markus "malaire" Laire
 "mattc"
 Matt Diephouse
-Max Maischein                    (CORION)    
-Michael G Schwern                (MSCHWERN)  
+Max Maischein                    (CORION)
+Michael G Schwern                (MSCHWERN)
 Michal "rootmj" Jurosz
 Mike "xgl" Li                                李曉光
 Mikhael Goikhman                 (MIGO)
 Miroslav "Shillo" Silovic
 Mitchell N "putter" Charity
-Nathan "kolibrie" Gray           (KOLIBRIE)  
-Nicholas Clark                   (NWCLARK)   
-Norman Nunley, Jr                (NNUNLEY)   
+Nathan "kolibrie" Gray           (KOLIBRIE)
+Nicholas Clark                   (NWCLARK)
+Norman Nunley, Jr                (NNUNLEY)
 Offer Kaye
 Oleg Kiselyov
 Paolo "xerox" Martini
-Patrick R. "pmichaud" Michaud                
+Patrick R. "pmichaud" Michaud
 Paul Fenwick                     (PJF)
 Pawel "pmurias" Murias                      Paweł Murias
 Per "pernod" Christian Nodtvedt
 Peter Makholm
 Philip Crow                      (PHILCROW)
-Piers "pdcawley" Cawley          (PDCAWLEY)        
+Piers "pdcawley" Cawley          (PDCAWLEY)
 Rafael "rgs" Garcia-Suarez       (RGARCIA)   Rafaël Garcia-Suarez
-Ran Eliam i                      (EILARA)    
-Randal L. Schwartz               (MERLYN)    
-Richard "crysflame" Soderberg    (RSOD)      
-Rob "dragonchild" Kinyon         (RKINYON)   
+Ran Eliam i                      (EILARA)
+Randal L. Schwartz               (MERLYN)
+Richard "crysflame" Soderberg    (RSOD)
+Rob "dragonchild" Kinyon         (RKINYON)
 Rob Zinkov
-Robin "elmex" Redeker                        
-Rod Adams                                    
+Robin "elmex" Redeker
+Rod Adams
 Roger "spinclad" Hale
 Roie "roie_m" Marianer                       רועי מריאנר
 Ronny "r0nny" Pfannschmidt
 Sage LaTorra                     (SAGE)
 Salvador Ortiz Garcia
-Sam "mugwump" Vilain             (SAMV)      
+Sam "mugwump" Vilain             (SAMV)
 Samuel "SamB" Bronson
 Scott "flounder99" Fitzenrider
-Scott McWhirter                  (KUNGFUFTR) 
+Scott McWhirter                  (KUNGFUFTR)
 Sebastian "sri" Riedel           (SRI)
-Shae "shapr" Matijs Erisson                  
-Shawn Sorichetti                 (SSORICHE)  
+Shae "shapr" Matijs Erisson
+Shawn Sorichetti                 (SSORICHE)
 Shlomi "rindolf" Fish            (SHLOMIF)   שלומי פיש
 Shmarya "shmar" Rubenstein	 (SHMARYA)
 Shu-Chun "scw" Weng                          翁書鈞
 Simon "lathos" Cozens            (SIMON)
 Simon "JeffaCake" Marlow
 Solomon "colomon" Foster
-Stefano Rodighiero               (LARSEN)    
+Stefano Rodighiero               (LARSEN)
 Steffen "renormalist" Schwigon   (SCHWIGON)
 Stephane "cognominal" Payrard    (STEF)      Stéphane Payrard
-Stevan "stevan" Little           (STEVAN)    
-Steve Peters                     (SMPETERS)  
+Stevan "stevan" Little           (STEVAN)
+Steve Peters                     (SMPETERS)
 Stuart "scook0" Cook
 Syed Uzair Aqeel
-Terrence "metaperl" Brannon      (TBONE)     
+Terrence "metaperl" Brannon      (TBONE)
 Thomas Sandlass                              Thomas Sandlaß
-Thomas Yeh                                   
+Thomas Yeh
 Ting "tiw" Wang
 Tom Moertel                      (TMOERTEL)
 Uri Guttman                      (URI)
 Vadim Konovalov                  (VKON)
-Will "Coke" Coleda                           
+Will Coleda                      (COKE)
 Yiyi "xinming" Hu                            鹄驿懿
 Yuan-Chen "ycheng" Cheng                     鄭原真
 Yung-Chung Lin                   (XERN)      林永忠
