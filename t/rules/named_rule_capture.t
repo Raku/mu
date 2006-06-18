@@ -22,7 +22,7 @@ if(!eval('("a" ~~ /a/)')) {
 }
 
 {
-  rule fishy { (.*)shark };
+  regex fishy { (.*)shark };
   "whaleshark" ~~ m/<fishy>/;
   eval_is('$/<fishy>[0]', "whale", "named rule ordinal capture");
   eval_is('$<fishy>[0]', "whale", "named rule ordinal capture with abbreviated variable");
@@ -30,7 +30,7 @@ if(!eval('("a" ~~ /a/)')) {
 
 {
   my $not_really_a_mammal;
-  rule fishy2 { $not_really_a_mammal := (.*)shark };
+  regex fishy2 { $not_really_a_mammal := (.*)shark };
   "whaleshark" ~~ m/<fishy2>/;
   eval_is('$/<fishy2><not_really_a_mammal>', "whale", "named rule named capture", :todo<bug>);
   eval_is('$<fishy2><not_really_a_mammal>', "whale", "named rule named capture with abbreviated variable", :todo<bug>);

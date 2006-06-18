@@ -20,7 +20,7 @@ if(!eval('("a" ~~ /a/)')) {
   exit;
 }
 
-rule dotdot { (.)(.) };
+regex dotdot { (.)(.) };
 
 ok("zzzabcdefzzz" ~~ m/(a.)<?dotdot>(..)/, 'Match');
 ok($/, 'Matched');
