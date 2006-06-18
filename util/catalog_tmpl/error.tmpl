@@ -1,12 +1,12 @@
 <hmtl>
 <head>
-<title>Test Catalog and Documentation cross reference.</title>
+<title>Test Catalog and Documentation cross reference - Unresolved Errors</title>
 </head>
 <body>
 <TMPL_IF name='unresolved'><h2>Unresolved Errors</h2>
 <ul>
 <TMPL_LOOP name="unresolved">
-    <li><a href='t/<TMPL_VAR name="relative">'><TMPL_VAR name="relative"></a> - 
+    <li><a href='<TMPL_VAR name="relative">'><TMPL_VAR name="relative"></a> - 
         <TMPL_VAR name="target"> - <TMPL_VAR name="heading">
    </li>
 </TMPL_LOOP>

@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 # XXX: smoke creates hyperlinks to the the test directory rather than 
 # to the default output directory t_index 
-# TODO: Maybe create nicer index files, especially for the design documents
+
+# TODO: Maybe create nicer index files for the design documents
 #  and show the number of referring tests
 
 use warnings;
@@ -36,10 +37,10 @@ sub usage {
 $0 - Build html test catalog and synopses with hyperlinks to corresponding tests
 
   Options:
-    --p6design_dir  Directory containing the perl6 design docs apo/exe/syn
-    --output_dir    Directory to put the html files, defaults to ./t_index
-    --test_dir      Directory containing the tests, defaults to ./t
-    --help        Show this help
+    --p6design_dir Directory containing the perl6 design docs apo/exe/syn
+    --output_dir   Output Directory to put the html files (Default: ./t_index)
+    --test_dirs    Directories containing the tests (Default: take tests from ./tests.yaml)
+    --help         Show this help
 
   Perl6 Documentation:
     You will need the Synopses checked out; try
@@ -54,14 +55,19 @@ $0 - Build html test catalog and synopses with hyperlinks to corresponding tests
 as we go.  Then get the design docs, and format those as HTML, linking to 
 the links, and inserting a names where needed.
 
+See also:
+   util/yaml_harness.pl  - produce the data for this tool
+   util/testgraph.pl     - Generates an HTML summary of a YAML test run
+   util/run-smome.pl     - automate the smoke process
+
 __HELP__
 
     exit ($usage_err ? 1 : 0);
 }
 
 
-my $syn_src_dir; # The root directory for Synopsis POD
-my $t_dir;       # The root directory of the test tree.
+my $syn_src_dir; # The root directory for perl6 Design POD 
+my @t_dirs=();      # Test root directories
 my $output_dir;  # The root directory of the output tree.
 my $start_dir = cwd;
 
@@ -73,15 +79,12 @@ my $total_links;
 my $total_files;
 
 my $help;
-GetOptions('test_dir=s' => \$t_dir,
+GetOptions('test_dirs=s@' => \@t_dirs,
 	   'output_dir=s' => \$output_dir,
 	   'p6design_dir=s' => \$syn_src_dir,
            'help' => \$help) || usage(1);
 usage(0) if $help;
 
-# Compatiblity to revision < 10728 (so eric can still use it)
-($syn_src_dir, $t_dir, $output_dir)=@ARGV
-    unless ($t_dir || $output_dir || $syn_src_dir);
 if(! $syn_src_dir) {
     $syn_src_dir = catdir('..', 'Perl6-Bible', 'lib', 'Perl6', 'Bible');
     $syn_src_dir = catdir('..', 'perl6_doc', 'design' )
@@ -91,15 +94,15 @@ if(! $syn_src_dir) {
 # Defaults and fallback
 $syn_src_dir = catdir($syn_src_dir, 'design') 
     unless -f catfile($syn_src_dir, 'syn', "S12.pod"); 
-$t_dir      ||= 't';
 $output_dir ||= 't_index';
 
 die("P6 design docs (syn/S12.pod) not found in '$syn_src_dir'. Try --help. ") 
     unless -d $syn_src_dir && -f catfile($syn_src_dir, 'syn', "S12.pod");
-die("Test directory '$t_dir' does not exist. Try --help. ")
-    unless -d $t_dir;
+for(@t_dirs) {
+    die("Test directory '$_' does not exist. Try --help. ") unless -d $_;
+}
 
-$t_dir       = rel2abs($t_dir);
+@t_dirs      = map rel2abs,@t_dirs;
 $output_dir  = rel2abs($output_dir);
 $syn_src_dir = rel2abs($syn_src_dir);
 
@@ -110,17 +113,22 @@ my @syn = map { m|^.*/(\D\d\d).pod$|; $1 }
 my $syn_indexs = {};
 for (@syn) {
     m/^(\D)/;
-    push @{$syn_indexs->{$1}}, 
+    $syn_indexs->{$1} ||= {};
+    $syn_indexs->{$1}{$_} = 
             {  file => $_ . ".html",
                name => $_,
             };
 }
 
 print "Synopsis: $syn_src_dir\n";
-print "Tests   : $t_dir\n";
+if($#t_dirs >= 0) {
+    print "Tests   : @t_dirs\n";
+} else {
+    print "Tests   : Processing tests from tests.yaml\n";
+}
 print "Output  : $output_dir\n";
 print "\n";
-  
+
 my $quotable = qr/\w+|$RE{delimited}{-delim=>'"'}/;
 my $link     = qr{(.*?)                                     # Leading bit
                   (L <+
@@ -141,12 +149,14 @@ my (@unresolved, @bad_regex, @bad_heading);
 my $tests = LoadFile("tests.yml");
 my $files = {};
 $files->{$_->{file}} = $_ for @{ $tests->{meat}->{test_files} };
-
-
-find(\&handle_t_file, $t_dir);
+# INFO - $files is mapping from test-file-name to test-record
+if($#t_dirs < 0) {
+    for(keys %$files) { handle_t_file($_); }
+} else {
+    for(@t_dirs) { find(\&handle_t_file, $_); }
+}
 
 infest_syns($link_info);
-
 my @dirs = sort keys %{$index->{_dirs}};
 my $index_file = catfile($output_dir,"index.html");
 open( my $fh,'>',  $index_file) or die "Failed to open $index_file: $!";
@@ -165,14 +175,15 @@ close $fh;
 my $syn_index = catfile($output_dir,"Synopsis", "index.html");
 open( $fh, ">",  $syn_index) or die "Failed to open $syn_index: $!";
 $template = HTML::Template->new(filename => 'util/catalog_tmpl/Synopsis.tmpl');
-$template->param("syn", [ @{$syn_indexs->{S}} ]);
-$template->param("exe", [ @{$syn_indexs->{E}} ]);
-$template->param("apo", [ @{$syn_indexs->{A}} ]);
+
+$template->param("syn", [ sort { $a->{name} cmp $b->{name} } (values %{ $syn_indexs->{S} }) ] ); 
+$template->param("exe", [ sort { $a->{name} cmp $b->{name} } (values %{ $syn_indexs->{E} }) ] ); 
+$template->param("apo", [ sort { $a->{name} cmp $b->{name} } (values %{ $syn_indexs->{A} }) ] );
 print $fh $template->output();
 close $fh;
 
 for (@dirs) {
-    build_indexes(catdir("t",$_), $index->{_dirs}->{$_});
+    build_indexes($_, $index->{_dirs}->{$_});
 }
 
 sub build_indexes {
@@ -180,14 +191,17 @@ sub build_indexes {
     my $index    = shift;
     
     return unless exists $index->{_dirs} or exists $index->{_files};
-    
-    my $index_file = catfile($output_dir, $path, "index.html");
+    my $output_path = catfile($output_dir, $path);
+    my $index_file =  catfile($output_path,"index.html");
+    eval { mkpath( $output_path ) };
+    die "Failed to create directory $output_path" if $@;
     open (my $fh,'>', $index_file) or die "Failed to open $index_file: $!";
     my @dirs  = sort keys %{$index->{_dirs}};
-    my @files = sort @{$index->{_files}};
+    my @files = (exists $index->{_files} ? sort @{$index->{_files}} : ());
     my $template = HTML::Template->new(filename => 'util/catalog_tmpl/directory.tmpl');
     my $i = 0;
     my $c = int((@dirs+1) / 3) +1;
+    $template->param(directory => $path);
     $template->param(directories => [ map { { 
                                             title => $_,
                                             wrap  => !(++$i % $c),
@@ -208,19 +222,20 @@ $template->param(unresolved => \@unresolved);
 print $error $template->output;
 close $error;
 print "Took: " . (time - $start) . " sec(s)\n";
+
 # Note: this is intended to be called from File::Find::find as a wanted
-# routine, so takes odd parameters.
+# routine, so takes odd parameters. (modifies $index)
 sub handle_t_file {
   return unless /\.t$/;
   my $input_path    = rel2abs($_);
-  my $relative_file = abs2rel($input_path,$t_dir);
+  my $relative_file = abs2rel($input_path,$start_dir); 
   $relative_file =~ s/t$/html/;
   my $output_path   = inpath_to_outpath($input_path);
-  my ($path, $file) = $input_path =~ m|^$t_dir/(.*)/(.*)\.t$|;
+  my ($path, $file) = $input_path =~ m|^$start_dir/(.*)/(.*)\.t$|; 
   my $links = 0;
 #  die Dumper( $files->{"t/" . abs2rel($input_path,$t_dir)} );
   mkpath(dirname $output_path);
-  my $test_results = $files->{"t/" . abs2rel($input_path,$t_dir)};
+  my $test_results = $files->{ abs2rel($input_path,$start_dir)}; 
   my $lines = {};
   for my $test (@{$test_results->{events}} ) {
       next unless defined $test->{pos};
@@ -234,11 +249,16 @@ sub handle_t_file {
          @lines = ($start);
       }
       next unless $start;
-      for (@lines) {
-          if (exists $lines->{$_}) {
-              $lines->{$_} = 0 if $test->{ok} == 0;
-          } else {
-              $lines->{$_} = $test->{ok};
+      for my $line (@lines) {
+          if (exists $lines->{$line}) {
+              $lines->{$line} = 0 if $test->{ok}||0 == 0;
+          } else { 
+              # skipped tests do not carry the a line number, so leave them out for now
+	      if($test->{todo}||0 == 1) {
+		  $lines->{$line} = 2;
+	      } else {
+		  $lines->{$line} = ($test->{ok}||0 ==1 ? 1 : 0);
+	      }
           }
       }
   }
@@ -304,6 +324,7 @@ sub handle_t_file {
                       0 => 'test_fail',
                       1 => 'test_pass',
                       2 => 'test_todo',
+                      3 => 'test_skip',
                     };
       my $class = 'non_test';
       if (exists $lines->{$.}) {
@@ -322,7 +343,7 @@ sub handle_t_file {
         ok     => $test_results->{results}->{ok},
         todo   => $test_results->{results}->{todo},
         failed => ($test_results->{results}->{seen} || 0) -
-                  ($test_results->{results}->{ok} || 0),
+	          ($test_results->{results}->{ok} || 0)
   };
   my (@paths) = splitdir($path);
   my $loc  = 'push @{$index';
@@ -441,8 +462,9 @@ sub infest_syns {
                 my $t = HTML::Element->new('sup');
                 $t->push_content('T');
                 $backlink->push_content($t);
+                my $syn_ref = $syn_indexs->{ substr($syn,0,1) }{$syn};
+		$syn_ref->{tests}++;
 
-                
                 my $found;
                 if ($regex) {
                     # we're skipping forward till we find a regex
@@ -506,8 +528,8 @@ sub infest_syns {
 
 sub inpath_to_outpath {
     my $inpath  = shift;
-    my $outpath = abs2rel($inpath, $t_dir);
-    $outpath    = rel2abs(catfile("t", $outpath), $output_dir);
+    my $outpath = abs2rel($inpath, $start_dir); 
+    $outpath    = rel2abs($outpath, $output_dir);
     $outpath    =~ s/\.t$/\.html/;
     return $outpath;
 }

@@ -3,21 +3,28 @@
    <TITLE>SAE</TITLE>
  </HEAD>
  <BODY>
+   <h1> Apokryphon, Exegesis and Synopsis, cross referenced </h1>
+   <p> The superscript numbers in square brackets denote the number of referencing unit tests
+       in the pugs test suite </p>
    <table>
     <tr valign="top">
     
       <td>
         <ul>
         <TMPL_LOOP name="apo">
-            <li><a href='<TMPL_VAR name="file">'><TMPL_VAR name="name"></a></li>
+            <li><a href='<TMPL_VAR name="file">'><TMPL_VAR name="name">
+		  <TMPL_IF name="tests"> <sup >[ #<TMPL_VAR name="tests"> ]</sup> </TMPL_IF>
+	    </a></li>
         </TMPL_LOOP>
         </ul>
       </td>
-      
+
       <td>
         <ul>
         <TMPL_LOOP name="exe">
-            <li><a href='<TMPL_VAR name="file">'><TMPL_VAR name="name"></a></li>
+            <li><a href='<TMPL_VAR name="file">'><TMPL_VAR name="name">
+		  <TMPL_IF name="tests"> <sup >[ #<TMPL_VAR name="tests"> ]</sup> </TMPL_IF>		  
+	    </a></li>
         </TMPL_LOOP>
         </ul>
       </td>
@@ -25,7 +32,9 @@
       <td>
         <ul>
         <TMPL_LOOP name="syn">
-            <li><a href='<TMPL_VAR name="file">'><TMPL_VAR name="name"></a></li>
+            <li><a href='<TMPL_VAR name="file">'><TMPL_VAR name="name">
+		  <TMPL_IF name="tests"> <sup >[ #<TMPL_VAR name="tests"> ]</sup> </TMPL_IF>
+	    </a></li>
         </TMPL_LOOP>
         </ul>
       </td>

@@ -16,12 +16,13 @@
        
 </head>
 <body>
+<h1> <TMPL_VAR name="directory"> </h1>
 <TMPL_IF name='directories'><h2>Sub-Directories</h2>
 <table>
 <tr valign="top">
 <td>
 <TMPL_LOOP name="directories">
-    <a href='<TMPL_VAR name="title">'><TMPL_VAR name="title"></a><br />
+    <a href='<TMPL_VAR name="title">/index.html'><TMPL_VAR name="title"></a><br />
     <TMPL_IF name="wrap"></td><td></TMPL_IF>
 </TMPL_LOOP>
 </td></tr>
