@@ -1,6 +1,6 @@
 =pod
 
-Perl 6's grammar written as a Perl 6 rules.  A prerequisite for self hosting.
+Perl 6's grammar written as a Perl 6 regexs.  A prerequisite for self hosting.
 
 =cut
 
@@ -10,11 +10,11 @@ grammar Perl6::Grammar-0.0.1;
 
 # Top level structures
 
-rule code { <-[{}]>* } # a section of code
+token code { <-[{}]>* } # a section of code
 
-#rule block { \{ <code> \} } # a block of code
+#regex block { \{ <code> \} } # a block of code
 # pugs parsing problem? - 2005 Jul 31
-rule block { <[{]> <code> <[}]> } # a block of code
+token block { <[{]> <code> <[}]> } # a block of code
 
 # subs and sub-like structures
 
@@ -52,8 +52,8 @@ rule pointysub { # from A06
 # Variables 
 # From A06
 
-rule sigil { <[$@%&]> <[*.?^]>? }   # "What is that, swearing?"
-rule variable { <sigil> <nameZZ> [ \( <siglet> \) ]? }
+regex sigil { <[$@%&]> <[*.?^]>? }   # "What is that, swearing?"
+regex variable { <sigil> <nameZZ> [ \( <siglet> \) ]? }
 
 # Bare subs
 # from A06
@@ -64,9 +64,9 @@ rule variable { <sigil> <nameZZ> [ \( <siglet> \) ]? }
 
 # Identifiers
 
-rule name_sec { <-[0..9:.]> <-[:]>* };
+regex name_sec { <-[0..9:.]> <-[:]>* };
 
-rule nameZZ {  <name_sec>
+regex nameZZ {  <name_sec>
              | [\:\: <name_sec> ]+
              | <name_sec> [\:\: <name_sec> ]+};
 
@@ -74,35 +74,35 @@ rule nameZZ {  <name_sec>
 ## A06 doesn't tell me even though it uses them.  These are guesses
 ## until we are enlightened.
 
-rule subname { \*? <nameZZ> };
+regex subname { \*? <nameZZ> };
 
-rule identZZ { <nameZZ> };
+regex identZZ { <nameZZ> };
 
 # Numbers
 
 # base 10
 
-rule natural { <digit> [_* <digit> _*]* };
+regex natural { <digit> [_* <digit> _*]* };
 
-rule Int {[\+|\-]? <natural>};
+regex Int {[\+|\-]? <natural>};
 
-rule decimal { <Int> [\. <natural>? ]?
+regex decimal { <Int> [\. <natural>? ]?
               | [\+|\-]? \. <natural>
              };
 
-rule Rat  { <decimal> [ [e|E] <Int>]? };
+regex Rat  { <decimal> [ [e|E] <Int>]? };
 
 # base N
 
-rule binary { 0b <[01]>+ };
+regex binary { 0b <[01]>+ };
 
-rule hex    { 0x <[0..9a..fA..F]>+};
+regex hex    { 0x <[0..9a..fA..F]>+};
 
-rule oct    { 0o <[0..7]>+};
+regex oct    { 0o <[0..7]>+};
 
 # any perl style number
 
-rule Num { Int | Rat | binary | hex | oct  };
+regex Num { Int | Rat | binary | hex | oct  };
 
 # these are defined in A06
 
@@ -138,7 +138,7 @@ rule defval { \= <item> }
 
 # Placeholders
 
-rule placeholder { <sigil> \^ <identZZ> }
+regex placeholder { <sigil> \^ <identZZ> }
 
 # Formal parameter syntax
 
@@ -155,8 +155,8 @@ rule parameter {
 }
 
 
-rule type { yada type }
-rule zone { yada zone }
+regex type { yada type }
+regex zone { yada zone }
 
 rule signature {
         [<parameter> [<[,:]> <parameter> ]* ]?
@@ -164,11 +164,11 @@ rule signature {
 
 # The sub form
 
-rule subintro { sub | method | submethod | rule | macro }
+regex subintro { sub | method | submethod | regex | macro }
 
-rule lexscope { my | our }
+regex lexscope { my | our }
 
-rule submodifer { multi }
+regex submodifer { multi }
 
 rule psignature { \( <signature> \) }
 
@@ -189,6 +189,6 @@ rule trait {
         | returns <type>
 }
 
-rule traitparam { yada traitparam }
-rule closure { yada closure }
+regex traitparam { yada traitparam }
+regex closure { yada closure }
 
