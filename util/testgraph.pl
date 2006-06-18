@@ -7,7 +7,7 @@ use YAML qw/Load Dump/;
 use Getopt::Long;
 use Test::TAP::HTMLMatrix;
 use Test::TAP::Model::Visual;
-
+use File::Spec;
 
 GetOptions \our %Config, qw(inlinecss|e cssfile|c=s help|h);
 $Config{cssfile} ||= Test::TAP::HTMLMatrix->css_file();
@@ -67,7 +67,7 @@ USAGE
         my $self = shift;
         my $link = $self->SUPER::link;
         $link =~ s/\.t$/.html/;
-        $link;
+        File::Spec->catdir("t_index",$link);
     }
 
     package My::Subtest;
@@ -76,6 +76,6 @@ USAGE
         my $self = shift;
         my $link = $self->SUPER::link;
         $link =~ s/\.t(?=#line|$)/.html/;
-        $link;
+        File::Spec->catdir("t_index",$link);
     }
 }
