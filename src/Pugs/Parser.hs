@@ -191,9 +191,10 @@ ruleSubGlobal = tryRule "global subroutine" $ do
 
 ruleRuleDeclaration :: RuleParser Exp
 ruleRuleDeclaration = rule "rule declaration" $ do
-    -- XXX - fill in default adverbs
-    name    <- try (ruleRegexDeclarator >> identifier)
-    adverbs <- ruleAdverbHash
+    (withAdvs, name) <- try $ do
+        advs <- ruleRegexDeclarator
+        fmap ((,) advs) identifier
+    adverbs <- fmap withAdvs ruleAdverbHash
     ch      <- char '{'
     expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
     let exp = Syn ":=" [Var ('<':'*':name), Syn "rx" [expr, adverbs]]
@@ -2179,7 +2180,6 @@ rxLiteral6 :: Char -- ^ Opening delimiter
 rxLiteral6 delimStart delimEnd = qLiteral1 (string [delimStart]) (string [delimEnd]) $
     rxP6Flags { qfProtectedChar = delimStart }
 
-
 ruleAdverbHash :: RuleParser Exp
 ruleAdverbHash = do
     pairs <- many pairAdverb
@@ -2198,24 +2198,30 @@ substLiteral = do
     subst   <- qLiteral1 (string [ch]) (string [endch]) qqFlags { qfProtectedChar = endch }
     return $ Syn "subst" [expr, subst, adverbs]
 
-ruleRegexDeclarator :: RuleParser [String]
+ruleRegexDeclarator :: RuleParser (Exp -> Exp)
 ruleRegexDeclarator = choice
-    [ symbol "rule"     >> return ["ratchet", "sigspace"]
-    , symbol "token"    >> return ["ratchet"]
-    , symbol "regex"    >> return []
+    [ symbol "rule"     >> return (adv "ratchet" . adv "sigspace")
+    , symbol "token"    >> return (adv "ratchet")
+    , symbol "regex"    >> return id
     ]
+    where
+    adv x (Syn "\\{}" [Syn "," pairs]) = Syn "\\{}"
+        [Syn "," (App (Var "&infix:=>") Nothing [Val (VStr x), Val (VBool True)] : pairs)]
+    adv _ _ = internalError "unexpected regex adverb specifier"
 
 rxLiteral :: RuleParser Exp
 rxLiteral = do
-    sym     <- symbol "rx" <|> do { symbol "m"; return "match" } <|> do
-        -- XXX - fill in default adverbs
-        ruleRegexDeclarator
-        lookAhead $ do { ruleAdverbHash; char '{' }
-        return "rx"
-    adverbs <- ruleAdverbHash
+    (withAdvs, decl) <- choice
+        [ symbol "rx" >> return (id, "rx")
+        , symbol "m"  >> return (id, "match")
+        , do advs <- ruleRegexDeclarator
+             lookAhead (ruleAdverbHash >> char '{')
+             return (advs, "rx")
+        ]
+    adverbs <- fmap withAdvs ruleAdverbHash
     ch      <- anyChar
     expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
-    return $ Syn sym [expr, adverbs]
+    return $ Syn decl [expr, adverbs]
 
 rxLiteralBare :: RuleParser Exp
 rxLiteralBare = do

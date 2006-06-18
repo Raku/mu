@@ -13,10 +13,24 @@ import qualified RRegex.PCRE as PCRE
 import qualified Data.Map as Map
 import qualified Data.Array as Array
 
+-- XXX - kluge: before we figure out the parrot calling convention,
+--       we'll simply inline the adverbs into the regex.
+ruleWithAdverbs :: VRule -> Eval VStr
+ruleWithAdverbs MkRulePGE{ rxRule = re, rxAdverbs = advs } = do
+    when (null re) $
+        fail "Null patterns are invalid; use <?null> or an empty string instead"
+    hv      <- join $ doHash advs hash_fetch
+    advs    <- forM (Map.assocs hv) $ \(k, v) -> do
+        str <- case v of
+            VBool True  -> return "1"
+            VBool False -> return "0"
+            _           -> fromVal v
+        return $ \x -> ":" ++ k ++ "(" ++ str ++ ")[" ++ x ++ "]"
+    return $ combine advs re
+ruleWithAdverbs _ = fail "PCRE regexes can't be compiled to PGE regexes"
+
 doMatch :: String -> VRule -> Eval VMatch
--- Work around PGE bug on Parrot 0.3.1 -- empty rules are errors
-doMatch _ MkRulePGE{ rxRule = "" } = fail "Null patterns are invalid; use <?null> or an empty string instead"
-doMatch cs MkRulePGE{ rxRule = re } = do
+doMatch cs rule@MkRulePGE{ rxRule = ruleStr } = do
     let pwd1 = getConfig "installarchlib" ++ "/CORE/pugs/pge"
         pwd2 = getConfig "sourcedir" ++ "/src/pge"
     hasSrc <- liftIO $ doesDirectoryExist pwd2
@@ -24,10 +38,12 @@ doMatch cs MkRulePGE{ rxRule = re } = do
     glob    <- askGlobal
     let syms = [ (name, tvar) | (('<':'*':name), [(_, tvar)]) <- padToList glob ]
     subrules <- forM syms $ \(name, tvar) -> do
-        ref  <- liftSTM $ readTVar tvar
-        (VRule rule) <- fromVal =<< readRef ref
-        return (name, rxRule rule)
-    pge <- liftIO $ evalPGE pwd (encodeUTF8 cs) (encodeUTF8 re) subrules
+        ref         <- liftSTM $ readTVar tvar
+        VRule rule  <- fromVal =<< readRef ref
+        text        <- ruleWithAdverbs rule
+        return (name, text)
+    text <- ruleWithAdverbs rule
+    pge  <- liftIO $ evalPGE pwd (encodeUTF8 cs) (encodeUTF8 text) subrules
             `catch` (\e -> return $ ioeGetErrorString e)
     rv  <- tryIO Nothing $ fmap Just (readIO $ decodeUTF8 pge)
     let matchToVal PGE_Fail = VMatch mkMatchFail
@@ -42,7 +58,7 @@ doMatch cs MkRulePGE{ rxRule = re } = do
     case rv of
         Just m  -> fromVal (matchToVal m)
         Nothing -> do
-            liftIO $ putStrLn ("*** Cannot parse PGE: " ++ re ++ "\n*** Error: " ++ pge)
+            liftIO $ putStrLn ("*** Cannot parse PGE: " ++ ruleStr ++ "\n*** Error: " ++ pge)
             return mkMatchFail
 
 doMatch csChars MkRulePCRE{ rxRegex = re } = do
