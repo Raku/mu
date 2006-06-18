@@ -11,6 +11,7 @@ import Foreign.C.String
 
 --type Value = (#type Word_t)
 type Value = WordPtr
+--type Value = CULong
 
 newtype JError = JError (Ptr ())
 --foreign import ccall unsafe "judy_error" judyError :: JError
@@ -108,7 +109,7 @@ foreign import ccall "&judySL_free" judySL_free_ptr :: FunPtr (Ptr JudySL -> IO 
 foreign import ccall "JudySLIns" judySLIns :: Ptr JudySL -> CString -> JError -> IO (Ptr Value)
 foreign import ccall "JudySLDel" judySLDel :: Ptr JudySL -> CString -> JError -> IO CInt
 foreign import ccall "JudySLGet" judySLGet :: JudySL -> CString -> JError -> IO (Ptr Value)
-foreign import ccall "JudySLFreeArray" judySLFreeArray :: Ptr JudySL -> JError -> Value
+foreign import ccall "JudySLFreeArray" judySLFreeArray :: Ptr JudySL -> JError -> IO Value
 
 foreign import ccall unsafe "JudySLFirst" judySLFirst :: JudySL -> CString -> JError -> IO (Ptr Value)
 foreign import ccall unsafe "JudySLNext" judySLNext :: JudySL -> CString -> JError -> IO (Ptr Value)
@@ -141,11 +142,11 @@ foreign import ccall "&judyHSIter_free" judyHSIter_free_ptr :: FunPtr (Ptr JudyH
 foreign import ccall "JudyHSIns" judyHSIns :: Ptr JudyHS -> Ptr CChar -> CULong -> JError -> IO (Ptr Value)
 foreign import ccall "JudyHSDel" judyHSDel :: Ptr JudyHS -> Ptr CChar -> Value -> JError -> IO CInt
 foreign import ccall "JudyHSGet" judyHSGet :: JudyHS -> Ptr CChar -> Value -> IO (Ptr Value)
-foreign import ccall "JudyHSFreeArray" judyHSFreeArray :: Ptr JudyHS -> JError -> Value
+foreign import ccall "JudyHSFreeArray" judyHSFreeArray :: Ptr JudyHS -> JError -> IO Value
 
 foreign import ccall "JudyHSIterFirst" judyHSIterFirst :: JudyHS -> Ptr JudyHSIter -> Ptr CString -> Ptr Value -> JError -> IO (Ptr Value)
 foreign import ccall "JudyHSIterNext" judyHSIterNext :: JudyHS -> Ptr JudyHSIter -> Ptr CString -> Ptr Value -> JError -> IO (Ptr Value) 
 foreign import ccall "JudyHSIterLast" judyHSIterLast :: JudyHS -> Ptr JudyHSIter -> Ptr CString -> Ptr Value -> JError -> IO (Ptr Value) 
 foreign import ccall "JudyHSIterPrev" judyHSIterPrev :: JudyHS -> Ptr JudyHSIter -> Ptr CString -> Ptr Value -> JError -> IO (Ptr Value) 
-foreign import ccall "JudyHSFreeIter" judyHSFreeIter :: Ptr JudyHSIter -> JError -> Value
+foreign import ccall "JudyHSFreeIter" judyHSFreeIter :: Ptr JudyHSIter -> JError -> IO Value
 

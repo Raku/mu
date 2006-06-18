@@ -1,9 +1,10 @@
 # NOW
 - Add malloc error check for BitSet/Judy1 (it uses JERR not PJERR).
-- free stablePtrs when using Haskell data as Values..
-- Collections-like API. At least CollectionM and MapM seem to be interesting.
-- Use Judy to implement Pugs IHash substitute
+- Free stablePtrs when using Haskell data as Values.
+- Use Judy to implement Pugs IHash substitute.
+- CollectionsM: complete the subset of MapM and uncomment/complete CollectionM.
 
+? Find something other than WordPtr (ghc 6.5) that works in GHC stable
 
 # NEXT
 - Use ByteString
