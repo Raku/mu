@@ -149,7 +149,7 @@ isScalarLValue x = case x of
             -> op `elem` simpleInfixOps && isSIMPLE y && isSIMPLE z
         App (Var ('&':'i':'n':'f':'i':'x':':':op)) (Just y) [z]
             -> op `elem` simpleInfixOps && isSIMPLE y && isSIMPLE z
-        _               -> isSIMPLE x
+        _               -> isScalarLValue x
     coercePrefixOps =
         [ "!","+","-","~","?","$" ]
     simplePrefixOps =
