@@ -439,11 +439,14 @@ instance YAML Ann where
 	"Prag" -> do
 	    let YamlSeq [aa] = e
 	    liftM Prag (fromYAML aa)
-	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["Cxt","Pos","Prag"] ++ " in node " ++ show e
+	"Parens" -> do
+	    return Parens
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["Cxt","Pos","Prag","Parens"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (Cxt aa) = asYAMLseq "Cxt" [asYAML aa]
     asYAML (Pos aa) = asYAMLseq "Pos" [asYAML aa]
     asYAML (Prag aa) = asYAMLseq "Prag" [asYAML aa]
+    asYAML (Parens) = asYAMLcls "Parens"
 
 instance YAML Exp where
     fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of

@@ -223,11 +223,13 @@ reduce (Ann (Prag prag) exp) = reducePrag prag exp
 
 reduce (Ann (Pos pos) exp) = reducePos pos exp
 
+reduce (Ann (Cxt cxt) exp) = reduceCxt cxt exp
+
+reduce (Ann Parens exp) = reduce exp
+
 reduce (Pad scope lexEnv exp) = reducePad scope lexEnv exp
 
 reduce (Sym scope name exp) = reduceSym scope name exp
-
-reduce (Ann (Cxt cxt) exp) = reduceCxt cxt exp
 
 -- Reduction for no-operations
 reduce Noop = retEmpty
@@ -376,6 +378,8 @@ Theoretically, 'Syn' will one day be deprecated when 'App' becomes powerful
 enough to make it redundant.
 -}
 reduceSyn :: String -> [Exp] -> Eval Val
+
+reduceSyn "()" [exp] = reduce exp
 
 reduceSyn "env" [] = do
     env <- ask

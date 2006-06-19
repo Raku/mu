@@ -122,28 +122,34 @@ Tests whether an expression is /simple/, per the definition of S03.
 On the LHS of assignment, those expressions incurs a scalar context.
 -}
 isScalarLValue :: Exp -> Bool
-isScalarLValue x = case unwrap x of
+isScalarLValue x = case x of
+    Ann Parens _    -> False
+    Ann _ exp       -> isScalarLValue exp
+    Pad _ _ exp     -> isScalarLValue exp
+    Sym _ _ exp     -> isScalarLValue exp
     Var ('$':_)     -> True
-    Syn "${}" _     -> True
+    Syn "${}" _     -> True -- XXX - Change tp App("&prefix:<$>") later
     Syn "$::()" _   -> True
-    Syn "[]" [_, y] -> isScalarLValue y
-    Syn "{}" [_, y] -> isScalarLValue y
-    Val (VList _)   -> False
-    Val _           -> True
-    App (Var ('&':'p':'r':'e':'f':'i':'x':':':op)) Nothing [y]
-        -> op `elem` coercePrefixOps || (op `elem` simplePrefixOps && isScalarLValue y)
-    App (Var ('&':'p':'r':'e':'f':'i':'x':':':op)) (Just y) []
-        -> op `elem` coercePrefixOps || (op `elem` simplePrefixOps && isScalarLValue y)
-    App (Var ('&':'p':'o':'s':'t':'f':'i':'x':':':op)) Nothing [y]
-        -> op `elem` simplePostfixOps && isScalarLValue y
-    App (Var ('&':'p':'o':'s':'t':'f':'i':'x':':':op)) (Just y) []
-        -> op `elem` simplePostfixOps && isScalarLValue y
-    App (Var ('&':'i':'n':'f':'i':'x':':':op)) Nothing [y, z]
-        -> op `elem` simpleInfixOps && isScalarLValue y && isScalarLValue z
-    App (Var ('&':'i':'n':'f':'i':'x':':':op)) (Just y) [z]
-        -> op `elem` simpleInfixOps && isScalarLValue y && isScalarLValue z
+    Syn "[]" [_, y] -> isSIMPLE y
+    Syn "{}" [_, y] -> isSIMPLE y
+    Val VList{}     -> False
+    Val{}           -> True
     _               -> False
     where
+    isSIMPLE x = case unwrap x of
+        App (Var ('&':'p':'r':'e':'f':'i':'x':':':op)) Nothing [y]
+            -> op `elem` coercePrefixOps || (op `elem` simplePrefixOps && isSIMPLE y)
+        App (Var ('&':'p':'r':'e':'f':'i':'x':':':op)) (Just y) []
+            -> op `elem` coercePrefixOps || (op `elem` simplePrefixOps && isSIMPLE y)
+        App (Var ('&':'p':'o':'s':'t':'f':'i':'x':':':op)) Nothing [y]
+            -> op `elem` simplePostfixOps && isSIMPLE y
+        App (Var ('&':'p':'o':'s':'t':'f':'i':'x':':':op)) (Just y) []
+            -> op `elem` simplePostfixOps && isSIMPLE y
+        App (Var ('&':'i':'n':'f':'i':'x':':':op)) Nothing [y, z]
+            -> op `elem` simpleInfixOps && isSIMPLE y && isSIMPLE z
+        App (Var ('&':'i':'n':'f':'i':'x':':':op)) (Just y) [z]
+            -> op `elem` simpleInfixOps && isSIMPLE y && isSIMPLE z
+        _               -> isSIMPLE x
     coercePrefixOps =
         [ "!","+","-","~","?","$" ]
     simplePrefixOps =

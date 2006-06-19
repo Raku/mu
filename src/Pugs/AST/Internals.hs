@@ -927,6 +927,7 @@ data Ann
     = Cxt !Cxt                -- ^ Context
     | Pos !Pos                -- ^ Position
     | Prag ![Pragma]          -- ^ Lexical pragmas
+    | Parens                  -- ^ Parenthesized
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 {- Expressions
@@ -1977,7 +1978,7 @@ instance Typeable1 Tree where typeOf1 _ = typeOf ()
 
 {- !!! For DrIFT -- Don't delete !!!
 
-data Scope = SState | SLet | STemp | SEnv | SMy | SParam | SOur | SGlobal
+data Scope = SState | SLet | STemp | SEnv | SMy | SOur | SGlobal
     {-!derive: YAML_Pos, JSON, Perl5!-}
 
 data Pad = MkPad { padEntries :: Map Var PadEntry }

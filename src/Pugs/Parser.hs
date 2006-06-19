@@ -1314,9 +1314,9 @@ parseTerm = rule "term" $! do
         , ruleTypeVar
 --      , ruleTypeLiteral
         , ruleApply False   -- Normal application
-        -- Hack - use an empty symbol to defeat isScalarLValue checking
+        -- Hack - use an empty Syn to defeat isScalarLValue checking
         --        so that ($x) = f() gives list context.
-        , fmap (Sym SMy "") (verbatimParens ruleBracketedExpression)
+        , fmap (Ann Parens) (verbatimParens ruleBracketedExpression)
         ] 
     cls  <- getPrevCharClass
     case cls of
