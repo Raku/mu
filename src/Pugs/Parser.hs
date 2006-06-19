@@ -1301,7 +1301,7 @@ ruleVarDecl = rule "variable declaration" $ do
         return (names `zip` types, Syn "," $ map Var names)
 
 parseTerm :: RuleParser Exp
-parseTerm = rule "term" $ do
+parseTerm = rule "term" $! do
     term <- choice
         [ ruleDereference
         , ruleVarDecl
@@ -1314,15 +1314,17 @@ parseTerm = rule "term" $ do
         , ruleTypeVar
 --      , ruleTypeLiteral
         , ruleApply False   -- Normal application
-        , verbatimParens ruleBracketedExpression
-        ]
+        -- Hack - use an empty symbol to defeat isScalarLValue checking
+        --        so that ($x) = f() gives list context.
+        , fmap (Sym SMy "") (verbatimParens ruleBracketedExpression)
+        ] 
     cls  <- getPrevCharClass
     case cls of
         SpaceClass -> return term
         _ -> do
             -- rulePostTerm returns an (Exp -> Exp) that we apply to the original term
             fs <- many rulePostTerm
-            return (combine (reverse fs) term)
+            return $! combine (reverse fs) term
 
 {-
 ruleBarewordMethod :: RuleParser Exp
