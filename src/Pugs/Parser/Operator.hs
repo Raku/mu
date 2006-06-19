@@ -81,7 +81,16 @@ listAssignment x = do
         ruleComma
         ys <- ?parseExpWithTightOps `sepEndBy` ruleComma
         return (Syn "," (y:ys))
-    return (Syn "=" [x, rhs])
+    return (Syn "=" [forceParens x, rhs])
+    where
+    -- XXX - Special casing ($x) = 1,2,3 to ($x,) = 1,2,3
+    forceParens exp@(Ann Parens inner)
+        | Syn "," _ <- unwrap exp   = exp
+        | otherwise                 = Ann Parens (Syn "," [inner])
+    forceParens (Ann x inner)       = Ann x (forceParens inner)
+    forceParens (Sym x y inner)     = Sym x y (forceParens inner)
+    forceParens (Pad x y inner)     = Pad x y (forceParens inner)
+    forceParens exp                 = exp
 
 immediateBinding :: (?parseExpWithTightOps :: RuleParser Exp) => Exp -> RuleParser Exp
 immediateBinding x = do
