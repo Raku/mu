@@ -668,9 +668,9 @@ my sub W () { substr(want, 0, 1) }
 {
     my @a;
     my @z = (@a[0==1] = W, W);
-    is(@a, 'L',      'lhs dwims @a[0==1] as list');
-    is(@z[0], 'L',   'lhs dwims @a[0==1] as list');
-    is(@z[1], undef, 'lhs dwims @a[0==1] as list');
+    is(@a, 'L L',    'lhs dwims @a[0==1] as list (but coerce rhs list to one thing)');
+    is(@z[0], 'L L', 'lhs dwims @a[0==1] as list (but coerce rhs list to one thing)');
+    is(@z[1], undef, 'lhs dwims @a[0==1] as list (but coerce rhs list to one thing)');
 }
 
 {
@@ -684,8 +684,8 @@ my sub W () { substr(want, 0, 1) }
 {
     my @a;
     my @z = (@a[rand 1,] = W, W);
-    is(@a, 'L',      'lhs dwims @a[rand 1,] as list');
-    is(@z[0], 'L',   'lhs dwims @a[rand 1,] as list');
+    is(@a, 'L L',    'lhs dwims @a[rand 1,] as list');
+    is(@z[0], 'L L', 'lhs dwims @a[rand 1,] as list');
     is(@z[1], undef, 'lhs dwims @a[rand 1,] as list');
 }
 
