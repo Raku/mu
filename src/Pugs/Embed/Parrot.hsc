@@ -205,18 +205,16 @@ initParrot = do
     pugsStr     <- "Pugs" `makeAscii` interp
     parrot_compreg interp pugsStr callback
 
---    modifyIORef _GlobalFinalizer (>> parrotFinalize)
-    modifyIORef _GlobalFinalizer (>> parrot_exit 0)
+    modifyIORef _GlobalFinalizer (>> parrotFinalize)
+    -- modifyIORef _GlobalFinalizer (>> parrot_exit 0)
 
     return interp
-{-
     where
     parrotFinalize = do
         interp <- readIORef _ParrotInterp
         if interp == nullPtr then return () else do
         writeIORef _ParrotInterp nullPtr
         parrot_exit 0
--}
 
 makeAscii :: String -> ParrotInterp -> IO ParrotString
 makeAscii str interp = withCString str (const_string interp)
