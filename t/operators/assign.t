@@ -329,8 +329,8 @@ my sub W () { substr(want, 0, 1) }
 {
     my $a;
     my @z = (($a) = W, W, W);
-    is($a, 'L', 'lhs dwims ($a) as list');
-    is(@z, "L", 'lhs dwims ($a) as list');
+    is($a, 'L', 'lhs dwims ($a) as list - i.e. emulate as ($a,)');
+    is(@z, "L", 'lhs dwims ($a) as list - i.e. emulate as ($a,)');
 }
 
 {
@@ -684,16 +684,16 @@ my sub W () { substr(want, 0, 1) }
 {
     my @a;
     my @z = (@a[rand 1,] = W, W);
-    is(@a, 'L L',    'lhs dwims @a[rand 1,] as list');
-    is(@z[0], 'L L', 'lhs dwims @a[rand 1,] as list');
+    is(@a, 'L',      'lhs dwims @a[rand 1,] as list');
+    is(@z[0], 'L',   'lhs dwims @a[rand 1,] as list');
     is(@z[1], undef, 'lhs dwims @a[rand 1,] as list');
 }
 
 {
     my @a;
     my @z = (@a[(0|0).pick] = W, W);
-    is(@a, 'L',      'lhs dwims @a[(0|0).pick] as list');
-    is(@z[0], 'L',   'lhs dwims @a[(0|0).pick] as list');
+    is(@a, 'L L',    'lhs dwims @a[(0|0).pick] as list');
+    is(@z[0], 'L L', 'lhs dwims @a[(0|0).pick] as list');
     is(@z[1], undef, 'lhs dwims @a[(0|0).pick] as list');
 }
 
