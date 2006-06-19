@@ -629,7 +629,9 @@ reduceSyn "[]" exps
         lv      <- asks envLValue
         doFetch (mkFetch $ doArray varVal array_fetchElem)
                 (mkFetch $ doArray varVal array_fetchVal)
-                (fromVal idxVal) lv (not (isSlurpyCxt idxCxt))
+                (fromVal idxVal) lv $ case idxVal of
+                    VList {} -> False
+                    _        -> True
 
 reduceSyn "[...]" [listExp, indexExp] = do
     idxVal  <- enterRValue $ enterEvalContext (cxtItem "Int") indexExp
@@ -675,7 +677,9 @@ reduceSyn "{}" [listExp, indexExp] = do
     lv      <- asks envLValue
     doFetch (mkFetch $ doHash varVal hash_fetchElem)
             (mkFetch $ doHash varVal hash_fetchVal)
-            (fromVal idxVal) lv (not (isSlurpyCxt idxCxt))
+            (fromVal idxVal) lv $ case idxVal of
+                VList {} -> False
+                _        -> True
 
 reduceSyn "rx" [exp, adverbs] = do
     hv      <- fromVal =<< evalExp adverbs
