@@ -1,5 +1,5 @@
 
-# perl -Ilib perl6.pl hello_world.pl
+# perl -Ilib hello_world.pl
 
 use P6;
 
