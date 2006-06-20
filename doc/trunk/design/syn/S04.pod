@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 15 June 2006
+  Last Modified: 20 June 2006
   Number: 4
-  Version: 23
+  Version: 24
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -355,7 +355,7 @@ The default case:
 
 is exactly equivalent to
 
-    when true {...}
+    when * {...}
 
 Because C<when> statements are executed in order, the default must
 come last.  You don't have to use an explicit default--you can just
@@ -766,89 +766,6 @@ get a syntax error when you say:
     print if $foo
 
 since C<< prefix:<if> >> would hide C<< statement_modifier:<if> >>.
-
-=head1 Smart matching
-
-Here is the current table of smart matches (which probably belongs in
-S03).  The list is intended to reflect forms that can be recognized at
-compile time.  If none of these forms is recognized at compile time, it
-falls through to do MMD to C<< infix:<~~>() >>, which presumably
-reflects similar semantics, but can finesse things that aren't exact
-type matches.  Note that all types are scalarized here.  Both C<~~>
-and C<given>/C<when> provide scalar contexts to their arguments.
-(You can always hyperize C<~~> explicitly, though.)  So both C<$_>
-and C<$x> here are potentially references to container objects.
-And since lists promote to arrays in scalar context, there need be no
-separate entries for lists.
-
-    $_      $x        Type of Match Implied    Matching Code
-    ======  =====     =====================    =============
-    Any     Code:($)   scalar sub truth         match if $x($_)
-    Hash    Hash      hash keys identical      match if $_.keys.sort »eq« $x.keys.sort
-    Hash    any(Hash) hash key intersection    match if $_{any(Hash.keys)}
-    Hash    Array     hash value slice truth   match if $_{any(@$x)}
-    Hash    any(list) hash key slice existence match if exists $_{any(list)}
-    Hash    all(list) hash key slice existence match if exists $_{all(list)}
-    Hash    Regex     hash key grep            match if any($_.keys) ~~ /$x/
-    Hash    Any       hash entry existence     match if exists $_{$x}
-    Hash    .{Any}    hash element truth*      match if $_{Any}
-    Hash    .<string> hash element truth*      match if $_<string>
-    Array   Array     arrays are identical     match if $_ »~~« $x
-    Array   any(list) list intersection        match if any(@$_) ~~ any(list)
-    Array   Regex     array grep               match if any(@$_) ~~ /$x/
-    Array   Num       array contains number    match if any($_) == $x
-    Array   Str       array contains string    match if any($_) eq $x
-    Array   .[number] array element truth*     match if $_[number]
-    Num     NumRange  in numeric range         match if $min <= $_ <= $max
-    Str     StrRange  in string range          match if $min le $_ le $max
-    Capture Signature parameter binding        match if $cap can bind to $sig
-    Any     Code:()    simple closure truth*    match if $x() (ignoring $_)
-    Any     Class     class membership         match if $_.does($x)
-    Any     Role      role playing             match if $_.does($x)
-    Any     Num       numeric equality         match if $_ == $x
-    Any     Str       string equality          match if $_ eq $x
-    Any     .method   method truth*            match if $_.method
-    Any     Regex     pattern match            match if $_ ~~ /$x/
-    Any     subst     substitution match*      match if $_ ~~ subst
-    Any     boolean   simple expression truth* match if true given $_
-    Any     undef     undefined                match unless defined $_
-    Any     Any       run-time dispatch        match if infix:<~~>($_, $x)
-
-Matches marked with * are non-reversible, typically because C<~~> takes
-its left side as the topic for the right side, and sets the topic to a
-private instance of C<$_> for its right side, so C<$_> means something
-different on either side.  Such non-reversible constructs can be made
-reversible by putting the leading term into a closure to defer the
-binding of C<$_>.  For example:
-
-    $x ~~ .does(Storeable)	# okay
-    .does(Storeable) ~~ $x	# not okay--gets wrong $_ on left
-    { .does(Storeable) } ~~ $x	# okay--closure binds its $_ to $x
-
-Exactly the same consideration applies to C<given> and C<when>:
-
-    given $x { when .does(Storeable) {...} }      # okay
-    given .does(Storeable) { when $x {...} }      # not okay
-    given { .does(Storeable) } { when $x {...} }  # okay
-
-Boolean expressions are those known to return a boolean value, such
-as comparisons, or the unary C<?> operator.  They may reference C<$_>
-explicitly or implicitly.  If they don't reference C<$_> at all, that's
-okay too--in that case you're just using the switch structure as a more
-readable alternative to a string of elsifs.
-
-The primary use of the C<~~> operator is to return a boolean value in
-a boolean context.  However, for certain operands such as regular
-expressions, use of the operator within scalar or list context transfers
-the context to that operand, so that, for instance, a regular expression
-can return a list of matched substrings, as in Perl 5.  The complete
-list of such operands is TBD.
-
-It has not yet been determined if run-time dispatch of C<~~> will
-attempt to emulate the compile-time precedence table before reverting
-to MMD, or just go directly to MMD.  There are good arguments for
-both sides, and we can decide when we see more examples of how
-it'll work out.
 
 =head1 Definition of Success
 
