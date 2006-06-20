@@ -17,6 +17,7 @@ module Pugs.AST (
     strRangeInf, strRange, strInc,
     mergeStmts, isEmptyParams,
     newPackage, newType, typeSub, isScalarLValue,
+    filterPrim,
 
     module Pugs.AST.Internals,
     module Pugs.AST.Prag,
@@ -236,3 +237,32 @@ typeSub name = MkCode
     }
     where
     typ = mkType name
+
+{- utilities for filtering out primitives from an environmet, useful for
+ - CodeGen and Pugs::Internals::emit_yaml -}
+
+filterPrim :: (TVar Pad) -> Eval Pad
+filterPrim glob = do
+    MkPad pad   <- liftSTM $ readTVar glob
+    fmap (MkPad . Map.fromAscList . catMaybes) . mapM checkPrim $ Map.toAscList pad
+
+checkPrim :: (String, PadEntry) -> Eval (Maybe (String, PadEntry))
+checkPrim ((':':'*':_), _) = return Nothing
+checkPrim e@((_, MkEntry (_, tv))) = do
+    rv <- isPrim tv
+    return $ if rv then Nothing else Just e
+checkPrim (key, MkEntryMulti xs) = do
+    xs' <- filterM (fmap not . isPrim . snd) xs
+    return $ if null xs' then Nothing else Just (key, MkEntryMulti xs')
+
+isPrim :: TVar VRef -> Eval Bool
+isPrim tv = do
+    vref <- liftSTM $ readTVar tv
+    case vref of
+        MkRef (ICode cv)    -> fmap (isPrimVal . VCode) (code_fetch cv)
+        MkRef (IScalar sv)  -> fmap isPrimVal (scalar_fetch sv)
+        _                   -> return False
+    where
+    isPrimVal (VCode MkCode{ subBody = Prim _ }) = True
+    isPrimVal _ = False
+
