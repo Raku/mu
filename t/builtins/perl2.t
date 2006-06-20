@@ -36,7 +36,7 @@ sub desc_ref ($obj) {
     # tests 7,8
     for (sqrt(2)) -> $obj {
         is ~$obj.perl.eval    , ~$obj    , desc_perl($obj);
-        is ~$obj.perl.eval.ref, ~$obj.ref, desc_ref($obj);
+        is ~$obj.perl.eval.ref, ~$obj.ref, desc_ref($obj), :todo<bug>;
     }
     
     # tests 9-16
@@ -57,7 +57,7 @@ sub desc_ref ($obj) {
 
     for (rx:Perl5{foo}, rx:Perl5{}, rx:Perl5{^.*$},) -> $obj {
         is ~$obj.perl.eval    , ~$obj    , desc_perl($obj), :todo<bug>;
-        is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
+        is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj), :todo<bug>;
     }
 
     for (\42, \Inf, \-Inf, \NaN, \"string", \"", \?1, \?0, \undef,) -> $obj {
