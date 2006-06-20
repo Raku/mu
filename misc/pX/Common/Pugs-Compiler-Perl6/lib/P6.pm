@@ -44,5 +44,6 @@ use warnings;
     print FILE $p6->{perl5}, "\n";
 
     # print "created .pmc file: $^X $out \n";
-    exec $^X, $out;
+    exec $^X, $out 
+        unless $filename =~ /\.pm$/;
 1;
