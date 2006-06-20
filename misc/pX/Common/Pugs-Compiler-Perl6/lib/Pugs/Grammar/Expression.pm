@@ -9,6 +9,7 @@ use Pugs::Grammar::Term;
 use Pugs::Grammar::Operator;
 use Pugs::Grammar::StatementControl;
 use base 'Pugs::Grammar::Base';
+use Carp;
 
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
@@ -141,7 +142,7 @@ sub ast {
         #print "expect NUM \n" if grep { $_ eq 'NUM' } @expect;
         #print "expect '/' \n" if grep { $_ eq '/' }   @expect;
 
-        print "token: $$t[0] ", Dumper( $$t[1] );
+        # print "token: $$t[0] ", Dumper( $$t[1] );
         # print "expect: ", Dumper( @expect );
 
         return($$t[0],$$t[1]);
@@ -151,7 +152,9 @@ sub ast {
 
     $p = Pugs::Grammar::Operator->new(
         yylex => $lex, 
-        yyerror => sub { warn "error in expression: ..." . substr($match,0,30) . "... "; },
+        yyerror => sub { 
+            local $Carp::CarpLevel = 2;
+            carp "parsing error in Expression: ..." . substr($match,0,30) . "... "; },
     );
 
     my $out=$p->YYParse;

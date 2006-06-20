@@ -4,7 +4,7 @@ use lib
     '../Pugs-Compiler-Precedence/lib',
 ;
 
-use Test::More 'no_plan';
+use Test::More tests => 2;
 
 use Pugs::Compiler::Rule;
 use Pugs::Grammar::Precedence;
@@ -12,20 +12,46 @@ use Pugs::Grammar::Term;
 use Pugs::Grammar::Operator;
 
 use Pugs::Grammar::Expression;
+use Pugs::Grammar::Perl6;
 
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
 
 {
-    my $match = Pugs::Grammar::Expression->ast( q(10) );
+    my $match = Pugs::Grammar::Perl6->parse( q(10;) );
     #print Dumper $match->();
     is_deeply(
         $match->(),
-        { num => 10 },
+        { 
+          int => 10,
+          pos => 2, 
+        },
         'term 1'
     );
 }
+
+TODO:
+{
+    local $TODO = "expression without trailing ';'";
+    my $match;
+    eval {
+        $match = Pugs::Grammar::Perl6->parse( q(10) );
+    };
+    #print Dumper $match->();
+    is_deeply(
+        $match->(),
+        { 
+          int => 10,
+          pos => 2, 
+        },
+        'term 1'
+    );
+}
+
+__END__
+
+# TODO - update
 
 {
     my $match = Pugs::Grammar::Expression->ast( q(10+20) );
