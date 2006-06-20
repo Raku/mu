@@ -1,4 +1,4 @@
-package P6-pugs;
+package P6;
 
 # invokes the Perl6-to-Perl5 compiler and creates a .pmc file
 
@@ -19,7 +19,7 @@ use strict;
 use warnings;
 
 sub import {
-    print "P6-pugs\n";
+    print "P6 loaded\n";
 }
 
 warn caller;
