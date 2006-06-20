@@ -20,7 +20,7 @@ sub emit {
 sub _emit {
     my $n = $_[0];
     my $tab = $_[1] . '  ';
-    # print "emit_rule: ", Dumper( $n );
+    #print "_emit: ", Dumper( $n );
     die "unknown node: ", Dumper( $n )
         unless ref( $n ) eq 'HASH';
 
@@ -57,11 +57,11 @@ sub assoc_none {
 sub sub_call {
     my $n = $_[0];
     my $tab = $_[1] . '  ';
-    print "call: ", Dumper( $n );
+    #print "call: ", Dumper( $n );
 
     if ( $n->{call}{sub}{bareword} eq 'use' &&
-        $n->{call}{param}{cpan_bareword} eq 'v6-pugs' ) {
-        return "$tab # use v6-pugs";
+        $n->{call}{param}{call}{sub}{bareword} eq 'P6' ) {
+        return "$tab # use P6";
     }
 
     # XXX
@@ -75,7 +75,7 @@ sub sub_call {
 sub method_call {
     my $n = $_[0];
     my $tab = $_[1] . '  ';
-    print "method call: ", Dumper( $n );
+    #print "method call: ", Dumper( $n );
 
     if ( $n->{method_call}{method}{bareword} eq 'say' &&
         $n->{method_call}{self}{double_quoted} ) {
