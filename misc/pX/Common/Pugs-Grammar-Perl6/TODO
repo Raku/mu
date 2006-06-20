@@ -1,9 +1,18 @@
-﻿TODO list for Pugs-Compiler-Tokenizer
+﻿TODO list for Pugs-Compiler-Perl6
 
-Priorities
+(jun/2006)
+
+- Makefile.PL
+- Run & fix test suite
+- make a 'hello world'
+- rename distro to Pugs-Compiler-Perl6
+- cache compiled code, use .pmc
+- cache YAPP code to speed up program loading
+
+Priorities (old)
 
 - Things that are not giving error messages:
-    (1 if 1)           # 'if' is an op
+    (1 if 1)           # 'if' is an op - I think this is now legal 
     sub sub xxx ...    # 'multi' and 'sub' are parsed the same way
 
 - parse ext/Test/lib/Test.pm
@@ -158,3 +167,4 @@ P::C::R BUGS
 
 - cleanup Pugs::AST::Expression (no longer used?)
 
+- Token/Rule/Regex have problems calling each other

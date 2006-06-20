@@ -91,7 +91,10 @@ stmt:
 exp: 
       NUM                 
         { $_[0]->{out}= $_[1] }
-        
+
+    | '@' '{' exp '}' 
+        { $_[0]->{out}= { array_context => $_[3], } }
+
     | BAREWORD            
         { $_[0]->{out}= { call => { sub => $_[1], } } }
 

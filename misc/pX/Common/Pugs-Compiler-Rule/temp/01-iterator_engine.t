@@ -57,10 +57,10 @@ my ( $rule, $match );
 
 {
   $rule = 
-      Pugs::Runtime::Rule::concat( 
+      Pugs::Runtime::Rule::concat( [
         Pugs::Runtime::Rule::constant( 'a' ), 
         Pugs::Runtime::Rule::constant( 'c' ), 
-      );
+      ] );
   $rule->( 'ac123', undef, $match, $match, undef, 0, undef, undef );
   ok ( $match, "/ac/ #1" );
   is ( $match->to, 2, "tail is ok" );
@@ -84,12 +84,12 @@ my ( $rule, $match );
 
 {
   $rule = 
-      Pugs::Runtime::Rule::concat( 
+      Pugs::Runtime::Rule::concat( [
         Pugs::Runtime::Rule::constant( 'a' ), 
         Pugs::Runtime::Rule::before( 
             Pugs::Runtime::Rule::constant( 'c' )
         ),
-      );
+      ] );
   $rule->( 'ac123', undef, $match, $match, undef, 0, undef, undef );
   ok ( $match, "/a<before c>/ #1" );
   # print Dumper( $match );
@@ -116,12 +116,12 @@ my ( $rule, $match );
 {
   # alternation backtracking
   $rule = 
-      Pugs::Runtime::Rule::concat( 
+      Pugs::Runtime::Rule::concat( [
         Pugs::Runtime::Rule::optional( 
             Pugs::Runtime::Rule::constant( 'a' ), 
         ),
         Pugs::Runtime::Rule::constant( 'd' ), 
-      );
+      ] );
   $rule->( 'ad123', undef, $match, $match, undef, 0, undef, undef );
   #print Dumper( $match );
   ok ( $match, "/a?d/ #1" );
@@ -135,14 +135,14 @@ my ( $rule, $match );
 {
   # concat backtracking
   $rule = 
-      Pugs::Runtime::Rule::concat( 
+      Pugs::Runtime::Rule::concat( [
         Pugs::Runtime::Rule::non_greedy_plus( 
           Pugs::Runtime::Rule::alternation( [
             Pugs::Runtime::Rule::constant( 'a' ), 
             Pugs::Runtime::Rule::constant( 'c' ), 
           ] ) ),
         Pugs::Runtime::Rule::constant( 'd' ), 
-      );
+      ] );
   $rule->( 'ad123', undef, $match, $match, undef, 0, undef, undef );
   #print Dumper( $match );
   ok ( $match, "/[a|c]+?d/ #1" );
@@ -181,7 +181,7 @@ my ( $rule, $match );
 
 {
   $rule = 
-    Pugs::Runtime::Rule::concat(
+    Pugs::Runtime::Rule::concat( [
       Pugs::Runtime::Rule::greedy_plus( 
         Pugs::Runtime::Rule::alternation( [
           Pugs::Runtime::Rule::constant( 'a' ), 
@@ -189,7 +189,7 @@ my ( $rule, $match );
         ] ),
       ),
       Pugs::Runtime::Rule::constant( 'ab' )
-    );
+    ] );
   $rule->( 'aacaab', undef, $match, $match, undef, 0, undef, undef );
   ok ( $match, "/[a|c]+ab/ with backtracking" );
   # print "test: ",Dumper( $match );
@@ -198,7 +198,7 @@ my ( $rule, $match );
 
 {
   $rule = 
-    Pugs::Runtime::Rule::concat(
+    Pugs::Runtime::Rule::concat( [
         Pugs::Runtime::Rule::named( 
             'const1', 
             Pugs::Runtime::Rule::constant( 'a' ) 
@@ -211,7 +211,7 @@ my ( $rule, $match );
             'const3', 
             Pugs::Runtime::Rule::constant( 'c' ) 
         ),
-    );
+    ] );
   $rule->( 'abc123', undef, $match, $match, undef, 0, undef, undef );
   print Dumper( $match );
   ok ( $match, "/(a)(b)(c)/ named #1" );
@@ -221,7 +221,7 @@ my ( $rule, $match );
 
 {
   $rule = 
-    Pugs::Runtime::Rule::concat(
+    Pugs::Runtime::Rule::concat( [
         Pugs::Runtime::Rule::positional(  
             Pugs::Runtime::Rule::constant( 'a' ) 
         ),
@@ -231,7 +231,7 @@ my ( $rule, $match );
         Pugs::Runtime::Rule::positional(  
             Pugs::Runtime::Rule::constant( 'c' ) 
         ),
-    );
+    ] );
   $rule->( 'abc123', undef, $match, $match, undef, 0, undef, undef );
   print Dumper( $match );
   ok ( $match, "/(a)(b)(c)/ positional #1" );
@@ -258,7 +258,7 @@ __END__
 
 {
   $rule = 
-    Pugs::Runtime::Rule::concat(
+    Pugs::Runtime::Rule::concat( [
       Pugs::Runtime::Rule::non_greedy_plus( 
         Pugs::Runtime::Rule::alternation( [
           Pugs::Runtime::Rule::constant( 'a' ), 
@@ -266,7 +266,7 @@ __END__
         ] ),
       ),
       Pugs::Runtime::Rule::constant( 'cb' )
-    );
+    ] );
   ( $stat, $assertion, $match, $tail ) = $rule->( 'aacacb' );
   ok ( defined $match, "/[a|c]+?ab/ with backtracking" );
   #print Dumper( $match );
@@ -278,15 +278,15 @@ __END__
   my $rule = 
     Pugs::Runtime::Rule::constant( 'a' );
   my $alt = 
-    Pugs::Runtime::Rule::concat(
+    Pugs::Runtime::Rule::concat( [
         $rule,
         Pugs::Runtime::Rule::optional (
-            Pugs::Runtime::Rule::concat(
+            Pugs::Runtime::Rule::concat( [
                 Pugs::Runtime::Rule::constant( '|' ),
                 $rule
-            )
+            ] )
         )
-    );
+    ] );
   ( $stat, $assertion, $match, $tail ) = $alt->( 'a' );
   ok ( defined $match, "/a|a/ #1" );
   ( $stat, $assertion, $match, $tail ) = $alt->( 'a|a' );

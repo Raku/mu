@@ -155,6 +155,12 @@ BEGIN {
         precedence => 'equal',
         other => '=',
     );
+    __PACKAGE__->add_rule( 
+        name => '=~',
+        assoc => 'right',
+        precedence => 'equal',
+        other => '=',
+    );
     
     __PACKAGE__->add_rule( 
         name => 'Y',

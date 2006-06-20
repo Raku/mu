@@ -37,7 +37,9 @@ my %rule_templates = (
         "\t{ \$_[0]->{out}= {fixity => 'postfix', op1 => \$_[2], exp1 => \$_[1],} }", 
     postcircumfix_non => 
         "exp 'name' exp 'name2' \n" .
-        "\t{ \$_[0]->{out}= {fixity => 'postcircumfix', op1 => \$_[2], op2 => \$_[4], exp1 => \$_[1], exp2 => \$_[3],} }", 
+        "\t{ \$_[0]->{out}= {fixity => 'postcircumfix', op1 => \$_[2], op2 => \$_[4], exp1 => \$_[1], exp2 => \$_[3],} } \n" . 
+        "\t | exp 'name' 'name2' \n" .
+        "\t{ \$_[0]->{out}= {fixity => 'postcircumfix', op1 => \$_[2], op2 => \$_[3], exp1 => \$_[1], } }", 
     infix_left =>        
         "exp 'name' exp     \n" .
         "\t{ \$_[0]->{out}= {fixity => 'infix', op1 => \$_[2], exp1 => \$_[1], exp2 => \$_[3],} }", 

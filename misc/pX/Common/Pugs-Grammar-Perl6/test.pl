@@ -27,6 +27,8 @@ if ( @ARGV ) {
 #use Test::More 'no_plan';
 print q(#if key:<val> {10 + $a / "abc"}),"\n";
 my $match = Pugs::Grammar::Perl6->parse(<<'PERL6');
+say 1 ?? 2 :: 3;
+
 if key:<val> {
     10 + $a / "abc"
 }

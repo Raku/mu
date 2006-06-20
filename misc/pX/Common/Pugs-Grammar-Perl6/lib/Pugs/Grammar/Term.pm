@@ -42,6 +42,22 @@ sub cpan_bareword {
     return $class->no_match;
 };
 
+sub substitution {
+    my $grammar = shift;
+    return $grammar->no_match unless $_[0];
+    my ($extracted,$remainder) = Text::Balanced::extract_delimited( "/" . $_[0], "/" );
+    $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
+    my $extracted2;
+    ($extracted2,$remainder) = Text::Balanced::extract_delimited( "/" . $remainder, "/" );
+    $extracted2 = substr( $extracted2, 1, -1 ) if length($extracted2) > 1;
+    return Pugs::Runtime::Match->new( { 
+        bool  => 1, # ( $extracted ne '' ),
+        match => $extracted,
+        tail  => $remainder,
+        capture => [ $extracted, $extracted2 ],
+    } );
+};
+
 sub single_quoted {
     my $grammar = shift;
     return $grammar->no_match unless $_[0];
@@ -81,7 +97,7 @@ sub angle_quoted {
     } );
 }
 
-*ident = Pugs::Compiler::Regex->compile( '
+*ident = Pugs::Compiler::Regex->compile( q(
         \!      # $!
     |   \??     # $?CALLER
         \*?     # $*x
@@ -89,7 +105,9 @@ sub angle_quoted {
             [ \:\: ]?
             [ _ | <?alnum> ]+
         ]+
-' )->code;
+    |   <before \< | \[ | \{ >   # $<thing> == $/<thing>; $[thing] = $/[thing]
+    |   \/      # $/
+) )->code;
 
 sub recompile {
     my $class = shift;
@@ -135,6 +153,14 @@ sub recompile {
         q(") => Pugs::Compiler::Regex->compile( q(
             <Pugs::Grammar::Term.double_quoted>
             { return { double_quoted => $/{'Pugs::Grammar::Term.double_quoted'}->() ,} }
+        ) ),
+        q(s:g/) => Pugs::Compiler::Regex->compile( q(
+            <Pugs::Grammar::Term.substitution>
+            { return { 
+                    substitution => $/{'Pugs::Grammar::Term.substitution'}->(),
+                    options => { g => 1 },
+                } 
+            }
         ) ),
         # angle is handled by the lexer
         #q(<) => Pugs::Compiler::Regex->compile( q(

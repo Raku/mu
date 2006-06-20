@@ -36,12 +36,12 @@ use warnings;
 use Data::Dumper;
 use PadWalker qw( peek_my );  # peek_our ); ???
 
+# note: alternation is first match (not longest). 
+# note: the list in @$nodes can be modified at runtime
 sub alternation {
-    # note: alternation is first match (not longest). 
-    # note: the list in @$nodes can be modified at runtime
     my $nodes = shift;
     return sub {
-        my @state = $_[1] ? ( @{$_[1]} ) : ( 0, 0 );
+        my @state = $_[1] ? @{$_[1]} : ( 0, 0 );
         $_[3] = bless \{ bool => \0 }, 'Pugs::Runtime::Match::Ratchet';
         while ( $state[0] <= $#$nodes ) {
             $state[1] = $nodes->[ $state[0] ]->( $_[0], $state[1], @_[2,3,4,5,6,7] );
@@ -54,26 +54,23 @@ sub alternation {
 }
 
 sub concat {
-    # note: the list in @nodes can NOT be modified at runtime    
-    return concat( +shift, concat( @_ ) )
-        if @_ > 2;
-    my @nodes = @_;
+    my $nodes = shift;
     return sub {
-        # print "concat state in: ",Dumper($_[1]);
-        my @state = $_[1] ? ( @{$_[1]} ) : ( 0, 0 );
+        my @state = $_[1] ? @{$_[1]} : ();
         do {
-            my $st = $nodes[0]->( $_[0], $state[0], @_[2,3,4,5,6,7] );
-            # print "concat 1: ", Dumper $_[3];
+            my $st = $nodes->[0]->( $_[0], $state[0], @_[2,3,4,5,6,7] );
             return if ! $_[3] || ${$_[3]}->{abort};
+            
+            
             $_[3] = { match => [ $_[3] ] };
-            $state[1] = $nodes[1]->( $_[0], $state[1], $_[2], $_[3]->{match}[1], 
+            $state[1] = $nodes->[1]->( $_[0], $state[1], $_[2], $_[3]->{match}[1], 
                          $_[4], $_[3]->{match}[0]->to, @_[6,7] );
-            # print "concat 2: ", Dumper $_[3];
             $state[0] = $st unless $state[1];
-            # print "concat - state: ",Dumper @state;
+            
+            
         } while !   $_[3]->{match}[1] && 
                 ! ${$_[3]->{match}[1]}->{abort} &&
-                ( $state[1] || $state[0] );
+                $state[0]; 
         $_[3] = bless \{
                 bool  => \$_[3]{match}[1]->bool,
                 str   => \$_[0],
@@ -84,7 +81,6 @@ sub concat {
                 capture => ${$_[3]{match}[1]}->{capture},
                 abort   => ${$_[3]{match}[1]}->{abort},
         }, 'Pugs::Runtime::Match::Ratchet';
-        # print "concat: ", Dumper $_[3];
         return \@state;
     }
 }
@@ -206,10 +202,10 @@ sub null_or_optional {
 sub greedy_plus { 
     my $node = shift;
     my $alt;
-    $alt = concat( 
+    $alt = concat( [
         $node, 
         optional( sub{ goto $alt } ),  
-    );
+    ] );
     return $alt;
 }
 
@@ -232,7 +228,7 @@ sub non_greedy_plus {
     return sub {
         my $state = $_[1] || $node;
         my $st = $state->( $_[0], undef, @_[2..7] );
-        return concat( $node, $state );
+        return concat( [ $node, $state ] );
     }
 }
 
@@ -328,10 +324,10 @@ sub hash {
     my @keys = sort {length $b <=> length $a } keys %hash;
     #print "hash keys: @keys\n";
     @keys = map {
-        concat(
+        concat( [
             constant( $_ ),
             _preprocess_hash( $hash{$_} ),
-        )
+        ] )
     } @keys;
     return alternation( \@keys );
 }
