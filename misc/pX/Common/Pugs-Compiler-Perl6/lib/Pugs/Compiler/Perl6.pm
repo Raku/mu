@@ -38,6 +38,12 @@ sub compile {
     };
     carp "Error in perl 5 emitter: $@\nSource:\n$self->{perl5}\n" if $@;
     #print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
+    bless $self, $class;
+}
+
+1;
+
+__END__
 
     $self->{code} = eval 
         $self->{perl5};
