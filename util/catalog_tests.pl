@@ -1,3 +1,4 @@
+
 #!/usr/bin/perl
 
 # Generate .html from .t and test results 
@@ -47,7 +48,7 @@ $0 - Build html test catalog and synopses with hyperlinks to corresponding tests
 
   Options:
     --p6design_dir  Directory containing the perl6 design docs apo/exe/syn
-    --no-designdocs Do not generate html files for the perl6 design docs (faster)
+    --no_designdocs Do not generate html files for the perl6 design docs (faster)
     --output_dir    Output Directory to put the html files (Default: ./t_index)
     --test_dirs     Directories containing the tests (Default: take tests from ./tests.yaml)
     --help          Show this help
@@ -268,9 +269,10 @@ sub handle_t_file {
   my $relative_file = abs2rel($input_path,$start_dir); 
   $relative_file =~ s/t$/html/;
   my $output_path   = inpath_to_outpath($input_path);
-  my ($path, $file) = $input_path =~ m|^$start_dir/(.*)/(.*)\.t$|; 
+  my $path = dirname($relative_file);
+  my $file = basename($relative_file);
   my $links = 0;
-#  die Dumper( $files->{"t/" . abs2rel($input_path,$t_dir)} );
+
   mkpath(dirname $output_path);
   my $test_results = $files->{ abs2rel($input_path,$start_dir)}; 
   my $lines = {};
@@ -305,7 +307,8 @@ sub handle_t_file {
   my $outfile = IO::File->new($output_path, ">:utf8")
                          or die "Can't open output test file $output_path: $!";
                          
-  my $template = HTML::Template->new(filename => catdir $start_dir, 'util/catalog_tmpl/code.tmpl');  
+  my $template = HTML::Template->new(filename => catdir $start_dir, 
+				     'util','catalog_tmpl','code.tmpl');  
   $template->param("file" => $file);
   my $output = ""; 
   
