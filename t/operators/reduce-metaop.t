@@ -130,7 +130,7 @@ is(try { [more_than_plus] 1, 2, 3 }, 8, "[...] reduce metaop works on user defin
   is($a, 3, '[=] assigns successfully (1)', :todo<feature>);
   is($b, 3, '[=] assigns successfully (2)', :todo<feature>);
 
-  ok try { ([=] $a, $b, 4) = 5 }, '[=] lvalue context restored (1)', :todo<feature>;
+  ok try { ([=] $a, $b, 4) = 5 }, '[=] lvalue context restored (1)';
   is($a, 5, '[=] lvalue context restored (2)', :todo<feature>);
   is($b, 4, '[=] lvalue context restored (3)', :todo<feature>);
 
