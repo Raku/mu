@@ -2,8 +2,6 @@ package P6;
 
 # invokes the Perl6-to-Perl5 compiler and creates a .pmc file
 
-# TODO!
-
 use FindBin '$Bin';
 use lib
     "$Bin/lib",
@@ -13,12 +11,30 @@ use lib
     "$Bin/../Pugs-Compiler-Precedence/lib",
 ;
 
-use Pugs::Compiler::Perl6;
-use Data::Dumper;
 use strict;
 use warnings;
 
     my $filename = (caller)[1];
+
+    my $pmc = $filename;
+    $pmc =~ s/\.(pl|pm)$/\.pmc/;
+    die "this is not a .pl or .pm file"
+        unless $pmc =~ /\.pmc/;
+
+    # test file dates
+    my $pmc_is_uptodate = (-s $pmc and (-M $pmc <= -M $filename));
+    # print "up to date: $pmc_is_uptodate\n";
+
+    if ( $pmc_is_uptodate ) {
+        exec $^X, $pmc 
+            unless $filename =~ /\.pm$/;
+        exit;
+    }
+
+    # delays use'ing until we need it
+    use Pugs::Compiler::Perl6;
+    use Data::Dumper;
+
     # print "P6 loaded from '$filename'\n";
     open FILE, "<", $filename
         or die "can't open $filename for compilation";
@@ -33,17 +49,12 @@ use warnings;
     # print "tail: ", substr( ${$match}->{tail}, 0, 20 ),"...\n";
     #print "P5: ",$p6->{perl5}, "\n";
 
-    my $out = $filename;
-    $out =~ s/\.(pl|pm)$/\.pmc/;
-    die "this is not a .pl or .pm file"
-        unless $out =~ /\.pmc/;
-
-    open FILE, ">", $out
-        or die "can't open $out for writing";
+    open FILE, ">", $pmc
+        or die "can't open $pmc for writing";
 
     print FILE $p6->{perl5}, "\n";
 
-    # print "created .pmc file: $^X $out \n";
-    exec $^X, $out 
+    # print "created .pmc file: $^X $pmc \n";
+    exec $^X, $pmc 
         unless $filename =~ /\.pm$/;
 1;
