@@ -18,7 +18,7 @@ $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
 
 {
-    my $match = Pugs::Grammar::Expression->parse( q(10) );
+    my $match = Pugs::Grammar::Expression->ast( q(10) );
     #print Dumper $match->();
     is_deeply(
         $match->(),
@@ -28,7 +28,7 @@ $Data::Dumper::Sortkeys = 1;
 }
 
 {
-    my $match = Pugs::Grammar::Expression->parse( q(10+20) );
+    my $match = Pugs::Grammar::Expression->ast( q(10+20) );
     #print Dumper $match->();
     is_deeply(
         $match->(),
@@ -46,7 +46,7 @@ $Data::Dumper::Sortkeys = 1;
 }
 
 {
-    my $match = Pugs::Grammar::Expression->parse( q(10,20) );
+    my $match = Pugs::Grammar::Expression->ast( q(10,20) );
     #print Dumper $match->();
     is_deeply(
         $match->(),
@@ -66,7 +66,7 @@ $Data::Dumper::Sortkeys = 1;
 }
 
 {
-    my $match = Pugs::Grammar::Expression->parse( q(10 + $a / "abc") );
+    my $match = Pugs::Grammar::Expression->ast( q(10 + $a / "abc") );
     #print Dumper $match->();
     
     is_deeply(
@@ -93,7 +93,7 @@ $Data::Dumper::Sortkeys = 1;
 }
 
 {
-    my $match = Pugs::Grammar::Expression->parse( q(1,2,3) );
+    my $match = Pugs::Grammar::Expression->ast( q(1,2,3) );
     #print Dumper $match->();
     is_deeply(
         $match->(),
@@ -116,7 +116,7 @@ $Data::Dumper::Sortkeys = 1;
 }
 
 {
-    my $match = Pugs::Grammar::Expression->parse( q(1,2 Y 3) );
+    my $match = Pugs::Grammar::Expression->ast( q(1,2 Y 3) );
     #print Dumper $match->();
     is_deeply(
         $match->(),
