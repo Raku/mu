@@ -2,18 +2,6 @@ package P6;
 
 # invokes the Perl6-to-Perl5 compiler and creates a .pmc file
 
-use FindBin '$Bin';
-use lib
-    "$Bin/lib",
-    "$Bin/../../../../lib",
-    "$Bin/../Pugs-Compiler-Rule/lib",
-    "$Bin/../Pugs-Utils/lib",
-    "$Bin/../Pugs-Compiler-Precedence/lib",
-;
-
-use strict;
-use warnings;
-
     my $filename = (caller)[1];
 
     my $pmc = $filename;
@@ -32,6 +20,19 @@ use warnings;
     }
 
     # delays use'ing until we need it
+eval q(
+    use FindBin '$Bin';
+    use lib
+        "$Bin/lib",
+        "$Bin/../../../../lib",
+        "$Bin/../Pugs-Compiler-Rule/lib",
+        "$Bin/../Pugs-Utils/lib",
+        "$Bin/../Pugs-Compiler-Precedence/lib",
+    ;
+
+    use strict;
+    use warnings;
+
     use Pugs::Compiler::Perl6;
     use Data::Dumper;
 
@@ -57,4 +58,7 @@ use warnings;
     # print "created .pmc file: $^X $pmc \n";
     exec $^X, $pmc 
         unless $filename =~ /\.pm$/;
+);
+warn $@ if $@;
+
 1;
