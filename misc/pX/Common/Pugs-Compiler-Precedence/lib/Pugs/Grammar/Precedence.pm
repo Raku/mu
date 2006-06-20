@@ -97,7 +97,7 @@ sub add_to_list {
     my ( $op, $x, $y ) = @_;
     my @x = ($x);
     @x = @{$x->{list}} if exists $x->{list} && $x->{op1} eq $op;
-    return { op1 => $op, list => [ @x, $y ] };
+    return { op1 => $op, list => [ @x, $y ], assoc => 'list' };
 }
 
 sub emit_yapp {

@@ -8,6 +8,8 @@ use warnings;
 
 use base 'Pugs::Compiler::Regex';
 use Pugs::Grammar::Perl6;
+use Pugs::Emitter::Perl6::Perl5;
+use Carp;
 
 use Data::Dumper;
 
@@ -19,22 +21,27 @@ sub compile {
                         'Pugs::Grammar::Perl6';
     $self->{p}        = delete $param->{pos}      ||
                         delete $param->{p};
-    warn "Error in rule: unknown parameter '$_'" 
+    warn "Error in compile: unknown parameter '$_'" 
         for keys %$param;
     #print 'rule source: ', $self->{source}, "\n";
-    $self->{ast} = Pugs::Grammar::Perl6->rule( 
-        $self->{source} );
-    die "Error in rule: '$rule_source' at: '$self->{ast}{tail}'\n" if $self->{ast}{tail};
-    #print 'rule ast: ', do{use Data::Dumper; Dumper($self->{ast}{capture})};
+    local $@;
+    eval {
+        $self->{ast} = Pugs::Grammar::Perl6->parse( $self->{source} );
+    };
+    carp "Error in perl 6 parser: '$rule_source' at: '$self->{ast}{tail}'\n" 
+        if $self->{ast}{tail} || $@;
+    #print 'rule ast: ', do{use Data::Dumper; Dumper( $self->{ast}() )};
 
-    $self->{perl5} = Pugs::Emitter::Perl6::Perl5::emit( 
-        $self->{grammar}, $self->{ast}{capture}, $self );
+    eval {
+        $self->{perl5} = Pugs::Emitter::Perl6::Perl5::emit( 
+            $self->{grammar}, $self->{ast}(), $self );
+    };
+    carp "Error in perl 5 emitter: $@\nSource:\n$self->{perl5}\n" if $@;
     #print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
 
-    local $@;
     $self->{code} = eval 
         $self->{perl5};
-    die "Error in evaluation: $@\nSource:\n$self->{perl5}\n" if $@;
+    carp "Error in perl 5 evaluation: $@\nSource:\n$self->{perl5}\n" if $@;
 
     bless $self, $class;
 }

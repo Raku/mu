@@ -87,7 +87,8 @@ sub ast {
         last if ( $m );
         $m = Pugs::Grammar::Term->parse( $match, { p => 1 } );
         last if ( $m );
-        print "unrecognized token '",substr($match,0,10),"'\n";
+        local $Carp::CarpLevel = 2;
+        carp "unrecognized token '",substr($match,0,10),"'\n";
       } # /for
 
         my $ast = $m->();

@@ -7,21 +7,27 @@ use lib
     "$Bin/../Pugs-Compiler-Precedence/lib",
 ;
 
-use Pugs::Grammar::Perl6;
-use Pugs::Utils::Dump;
+use Pugs::Compiler::Perl6;
+#use Pugs::Utils::Dump;
+use Data::Dumper;
 use strict;
 use warnings;
 
 if ( @ARGV ) {
     my @a=<>;
     my $src = join('', @a);
-    my $match = Pugs::Grammar::Perl6->parse( $src );
+    my $p6 = Pugs::Compiler::Perl6->compile( $src );
     #use YAML;
     #print Dump $match->();
-    print dump_tree $match->();
-    print "tail: ", substr( ${$match}->{tail}, 0, 20 ),"...\n";
+    #print dump_tree $p6;
+    #print Dumper $p6;
+    # print "tail: ", substr( ${$match}->{tail}, 0, 20 ),"...\n";
+    print "P5: ",$p6->{perl5}, "\n";
     exit;
 }
+
+warn "no code";
+__END__
 
 #use Test::More 'no_plan';
 print q(#if key:<val> {10 + $a / "abc"}),"\n";
