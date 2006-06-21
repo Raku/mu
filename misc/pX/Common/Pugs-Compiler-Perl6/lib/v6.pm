@@ -32,7 +32,7 @@ sub pmc_compile {
         my $pmc = $file.'c';
         my $pmc_is_uptodate = (-s $pmc and (-M $pmc <= -M $file));
         if ($pmc_is_uptodate) {
-            do $pmc; die $! if $!; exit 0;
+            local $@; do $pmc; die $@ if $@; exit 0;
         }
     }
 
