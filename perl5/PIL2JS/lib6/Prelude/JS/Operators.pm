@@ -134,7 +134,7 @@ for «
   $eval ~= "
     sub prefix:«[$op]» (*\@things) is primitive \{
       if \@things \{
-        reduce \{ \$^a $op \$^b \} \@things;
+        reduce \{ \$^a $op \$^b \}, \@things;
       \} else \{
         # We should fail() here, but as &fail isn't yet implemented...
         undef;
