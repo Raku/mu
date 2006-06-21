@@ -86,6 +86,9 @@ sub default {
     }
     
     if ( $n->{op1} eq 'method_call' ) {    
+        if ( $n->{method}{bareword} eq 'print' ) {
+            return $tab . ' print ' . _emit( $n->{self}, '  ' );
+        }
         if ( $n->{method}{bareword} eq 'say' ) {
             return $tab . ' print ' . _emit( $n->{self}, '  ' ) . ', "\n"';
         }
