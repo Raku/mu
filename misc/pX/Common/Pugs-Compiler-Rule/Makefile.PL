@@ -28,7 +28,8 @@ utime $mtime, $mtime, $pmc;
 
     name('Pugs-Compiler-Rule');
 all_from('lib/Pugs/Compiler/Rule.pm');
-requires(PadWalker => '1.0');
+requires('Parse::Yapp' => '0');
+requires('PadWalker' => '1.0');
 
 &WriteAll;
 

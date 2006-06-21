@@ -147,3 +147,23 @@ Other:
 API:
 
 - maybe change PCR->code() to PCR->as_method()
+
+
+TODO for Pugs-Compiler-Precedence
+
+- Pugs::Grammar::Precedence and Pugs-Compiler-Precedence/ should have the same name
+
+- add Makefile.PL, MANIFEST
+
+- needs to use category identifiers, like INFIX
+  maybe INFIX_004 for category+precedence?
+
+- \s{ is an expression terminator if the parser is expecting an operator
+
+- add is-parsed to the appropriate category in op-precedence and tokenizer
+
+- PCP needs to return a Match object?
+  (maybe a match-like object is more appropriate?)
+
+- The P::Yapp 'expect' state can be verified inside
+    %{$self->{STATES}[$self->{STACK}[-1][0]]{ACTIONS}}
