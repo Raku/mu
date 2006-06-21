@@ -1,4 +1,4 @@
-package P6;
+package v6;
 
 # invokes the Perl6-to-Perl5 compiler and creates a .pmc file
 
@@ -16,7 +16,8 @@ my $pmc_is_uptodate = (-s $pmc and (-M $pmc <= -M $filename));
 if ( $pmc_is_uptodate ) {
     do $pmc 
         unless $filename =~ /\.pm$/;
-    return 1;
+    exit 0;
+    # return 1;
 }
 
 my $p6;
@@ -63,5 +64,6 @@ eval
 warn "compilation error: ", $@ if $@;
 eval $p6->{perl5}  
     unless $filename =~ /\.pm$/;
+exit 0;
 
 1;

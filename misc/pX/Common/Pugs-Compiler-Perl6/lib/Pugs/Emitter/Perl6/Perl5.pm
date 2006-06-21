@@ -75,8 +75,8 @@ sub default {
     
     if ( $n->{op1} eq 'call' ) {
         if ( $n->{sub}{bareword} eq 'use' &&
-            $n->{param}{sub}{bareword} eq 'P6' ) {
-            return "$tab # use P6";
+            $n->{param}{cpan_bareword} eq 'v6-pugs' ) {
+            return "$tab # use v6-pugs";
         }
         return $tab . $n->{sub}{bareword} . ' ' . _emit( $n->{param}, '  ' ) 
             if $n->{sub}{bareword} eq 'print';
