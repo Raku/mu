@@ -12,13 +12,6 @@ BEGIN { $bin = ((dirname(__FILE__) || '.') . "/..") };
 use lib (
     "$bin/lib",
     "$bin/../Pugs-Compiler-Rule/lib",
-    "$bin/../Pugs-Utils/lib",
-    #"$bin/../Pugs-Compiler-Precedence/lib",
-    
-    "$bin/../lib",
-    "$bin/../../Pugs-Compiler-Rule/lib",
-    "$bin/../../Pugs-Utils/lib",
-    #"$bin/../../Pugs-Compiler-Precedence/lib",
 );
 
 sub pmc_can_output { 1 }
@@ -38,14 +31,6 @@ sub pmc_compile {
 
     require Pugs::Compiler::Perl6;
     my $p6 = Pugs::Compiler::Perl6->compile( $source );
-
-    #use Data::Dumper;
-    #use YAML;
-    #print Dump $match->();
-    #print dump_tree $p6;
-    #print Dumper $p6;
-    # print "tail: ", substr( ${$match}->{tail}, 0, 20 ),"...\n";
-    #print "P5: ",$p6->{perl5}, "\n";
 
     $p6->{perl5} =~ s/do\{(.*)\}/$1/s;
     return $p6->{perl5}."\n";
