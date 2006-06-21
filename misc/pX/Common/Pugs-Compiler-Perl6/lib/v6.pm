@@ -29,11 +29,10 @@ sub pmc_compile {
     my $file = (caller(4))[1];
     if ($file !~ /\.pm$/i) {
         # Do the freshness check ourselves
-        my $pmc = $file;
-        $pmc =~ s/\.(pl|pm|t)$/\.pmc/;
+        my $pmc = $file.'c';
         my $pmc_is_uptodate = (-s $pmc and (-M $pmc <= -M $file));
         if ($pmc_is_uptodate) {
-            do $pmc; die $! if $!; exit;
+            do $pmc; die $! if $!; exit 0;
         }
     }
 
