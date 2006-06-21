@@ -93,7 +93,7 @@ nodeNamer indent = do{count indent space;
                             "junk"          -> Junk
                             "opener"        -> Opener
                             "openquote"     -> Openquote
-                            "oeprator"      -> Operator
+                            "operator"      -> Operator
                             "punct"         -> Punct
                             "sigil"         -> Sigil
                             "text"          -> Text
