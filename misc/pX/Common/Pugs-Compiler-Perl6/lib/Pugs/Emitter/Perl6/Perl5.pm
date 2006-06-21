@@ -48,6 +48,8 @@ sub _emit {
         if exists $n->{fixity} && $n->{fixity} eq 'infix';
     return prefix( $n, $tab )
         if exists $n->{fixity} && $n->{fixity} eq 'prefix';
+    return postfix( $n, $tab )
+        if exists $n->{fixity} && $n->{fixity} eq 'postfix';
     return circumfix( $n, $tab )
         if exists $n->{fixity} && $n->{fixity} eq 'circumfix';
     return default( $n, $tab );
@@ -137,14 +139,31 @@ sub circumfix {
 sub prefix {
     my $n = $_[0];
     my $tab = $_[1];
-    # print "infix: ", Dumper( $n );
+    # print "prefix: ", Dumper( $n );
     
     if ( $n->{op1}{op} eq 'my' ||
          $n->{op1}{op} eq 'our' ) {
         return $n->{op1}{op} . ' ' . _emit( $n->{exp1}, $tab );
     }
+    if ( $n->{op1}{op} eq '++' ||
+         $n->{op1}{op} eq '--' ) {
+        return $n->{op1}{op} . _emit( $n->{exp1}, $tab );
+    }
     
     return "$tab die 'not implemented prefix: " . Dumper( $n ) . "'";
+}
+
+sub postfix {
+    my $n = $_[0];
+    my $tab = $_[1];
+    # print "postfix: ", Dumper( $n );
+
+    if ( $n->{op1}{op} eq '++' ||
+         $n->{op1}{op} eq '--' ) {
+        return _emit( $n->{exp1}, $tab ) . $n->{op1}{op};
+    }
+    
+    return "$tab die 'not implemented postfix: " . Dumper( $n ) . "'";
 }
 
 1;
