@@ -1,5 +1,5 @@
 
-use Test::More tests => 37;
+use Test::More tests => 46;
 use Data::Dumper;
 
 use_ok( 'Pugs::Compiler::Regex' );
@@ -113,6 +113,23 @@ use_ok( 'Pugs::Compiler::Regex' );
 
 {
     my $rule = Pugs::Compiler::Regex->compile( 'b' );
+    my $match = $rule->match( "b" );
+    is( $match?1:0, 1, 'boolean true');    
+    is( $match->from, 0, 'match->from');
+    is( $match->to, 1, 'match->to');
+    $match = $rule->match( "xby" );
+    is( $match?1:0, 1, 'boolean true (non-anchored match)');    
+    is( $match->from, 1, 'match->from');
+    is( $match->to, 2, 'match->to');
+    $match = $rule->match( "x" );
+    is( $match?1:0, 0, 'boolean false');    
+}
+
+# Now, try from and to on P::C::Rule instead of P::C::Regex:
+use_ok( 'Pugs::Compiler::Rule' );
+use_ok( 'Pugs::Runtime::Match::Ratchet' );
+{
+    my $rule = Pugs::Compiler::Rule->compile( 'b' );
     my $match = $rule->match( "b" );
     is( $match?1:0, 1, 'boolean true');    
     is( $match->from, 0, 'match->from');
