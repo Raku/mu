@@ -87,17 +87,19 @@ nodeNamer indent = do{count indent space;
                         string "uni: ";
                         uni <- (uniBlock (indent +4) <?> "uni string/block"); --Uniblock deals with the various types of yaml blocks
                         --This block is very ugly, but for some reason I can't get it to work any other way. Changes welcome. -Sage
-                        if(name == "closer") then return (Closer enc uni) else
-                         if(name == "closequote") then return (Closequote enc uni) else
-                          if(name == "junk") then return (Junk enc uni) else
-                           if(name == "opener") then return (Opener enc uni) else 
-                            if(name == "openquote") then return (Openquote enc uni) else 
-                             if(name == "operator") then return (Operator enc uni) else
-                              if(name == "punct") then return (Punct enc uni) else
-                               if(name == "sigil") then return (Sigil enc uni) else
-                                if(name == "text") then return (Text enc uni) else
-                                 if(name == "token") then return (Token enc uni) else
-                                  return (Unknown enc uni)
+                        return $ (case name of
+                            "closer"        -> Closer
+                            "closequote"    -> Closequote
+                            "junk"          -> Junk
+                            "opener"        -> Opener
+                            "openquote"     -> Openquote
+                            "oeprator"      -> Operator
+                            "punct"         -> Punct
+                            "sigil"         -> Sigil
+                            "text"          -> Text
+                            "token"         -> Token
+                            _               -> Unknown 
+                        ) enc uni
                         }
                     }
 
