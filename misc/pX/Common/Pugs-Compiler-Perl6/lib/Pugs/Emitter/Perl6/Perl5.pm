@@ -78,6 +78,14 @@ sub assoc_list {
     return "$tab die 'not implemented list-op: " . $n->{op1} . "'";
 }
 
+sub _emit_parameter_binding {
+    return ''
+        unless defined $_[0];
+    my $sig = $_[0];
+    my $tab = $_[1];
+    return " # XXX - no signature yet\n";
+}
+
 sub default {
     my $n = $_[0];
     my $tab = $_[1];
@@ -123,8 +131,10 @@ sub default {
         #warn "sub: ",Dumper $n;
         return $tab . $n->{op1}{stmt} . 
                 ' ' . $n->{name}{bareword} . 
-                '{' . _emit( $n->{block} ) . '}' .
-                " # XXX - no signature yet \n";
+                '{' . 
+                    _emit_parameter_binding( $n->{signature} ) .
+                    _emit( $n->{block} ) . 
+                '}';
     }
 
     return "$tab die 'not implemented syntax: " . Dumper( $n ) . "'";
