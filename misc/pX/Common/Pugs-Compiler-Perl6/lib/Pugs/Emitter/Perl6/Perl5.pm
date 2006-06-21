@@ -21,6 +21,7 @@ sub _emit {
     my $n = $_[0];
     my $tab = $_[1];
     #print "_emit: ", Dumper( $n );
+    #warn "fixity: $n->{fixity}\n" if exists $n->{fixity};
     die "unknown node: ", Dumper( $n )
         unless ref( $n ) eq 'HASH';
         

@@ -114,9 +114,9 @@ exp:
     | stmt                
         { $_[0]->{out}= $_[1] }
     | stmt exp            
-        { $_[0]->{out}= [ $_[1], $_[2] ] }
+        { $_[0]->{out}= { op1 => ';', assoc => 'list', list => [ $_[1], $_[2] ] } }
     | exp ';' stmt        
-        { $_[0]->{out}= [ $_[1], $_[3] ] }
+        { $_[0]->{out}= { op1 => ';', assoc => 'list', list => [ $_[1], $_[3] ] } }
 !,
     );
     # print "created operator table\n";
