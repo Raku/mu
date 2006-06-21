@@ -29,12 +29,12 @@ eval
         "$Bin/lib",
         "$Bin/../Pugs-Compiler-Rule/lib",
         "$Bin/../Pugs-Utils/lib",
-        "$Bin/../Pugs-Compiler-Precedence/lib",
+        #"$Bin/../Pugs-Compiler-Precedence/lib",
         
         "$Bin/../lib",
         "$Bin/../../Pugs-Compiler-Rule/lib",
         "$Bin/../../Pugs-Utils/lib",
-        "$Bin/../../Pugs-Compiler-Precedence/lib",
+        #"$Bin/../../Pugs-Compiler-Precedence/lib",
     ;
 
     use Pugs::Compiler::Perl6;
