@@ -1,5 +1,5 @@
 import Text.ParserCombinators.Parsec
-import IO
+import IO hiding (try)
 {------------------
 The P5AST structure represents the abstract syntax tree
 of a perl 5 program. Nodes with kids store kids in a list,
@@ -44,94 +44,99 @@ nodeNamer is parsec parser that parses nodes,
 recursivley parsing child nodes. It has two distinct cases,
 one for nodes with kids, one for all other nodes.
 ---------------}
-nodeNamer:: Int -> Parser P5AST
-nodeNamer indent = do{count indent space;
-                     do{
-                        Text.ParserCombinators.Parsec.try(string "- !perl/P5AST::") <?> "P5AST decleration";
-                        name <- manyTill anyChar space;
-                        newline;
-                        spaces;
-                        string "Kids: " <?> "Kids";
-                        modifier <- manyTill anyChar newline;
-                        kids <- if (modifier == "[]") then do{newline <?> "newline"; return []} else
-                                 do{kids <- many (Text.ParserCombinators.Parsec.try(nodeNamer (indent+4))); return kids};
-                        --This block is very ugly, but for some reason I can't get it to work any other way. Changes welcome. -Sage
-                        if (name == "condmod") then return (Condmod kids) else
-                         if (name == "listelem") then return (Listelem kids) else 
-                          if (name == "nothing") then return (PNothing kids) else 
-                           if(name == "op_aassign") then return (Op_aassign kids) else
-                            if(name == "op_chdir") then return (Op_chdir kids) else  
-                             if(name == "op_const") then return (Op_const kids) else
-                              if(name == "op_ftdir") then return (Op_ftdir kids) else
-                               if(name == "op_helem") then return (Op_helem kids) else
-                                if(name == "op_leave") then return (Op_leave kids) else
-                                 if(name == "op_list") then return (Op_list kids) else
-                                  if(name == "op_null") then return (Op_null kids) else
-                                   if(name == "op_rv2av") then return (Op_rv2av kids) else
-                                    if(name == "op_rv2hv") then return (Op_rv2hv kids) else
-                                     if(name == "op_rv2sv") then return (Op_rv2sv kids) else
-                                      if(name == "op_sassign") then return (Op_sassign kids) else
-                                       if(name == "op_subst") then return (Op_subst kids) else
-                                        if(name == "package") then return (Package kids) else
-                                         if(name == "peg") then return (Peg kids) else
-                                          if(name == "statement") then return (Statement kids) else
-                                           return (Unknown "1" "AST")
-                       }<|>do{ 
-                        string "- !perl/p5::" <?> "p5 decleration";
-                        name <- manyTill anyChar space;
-                        manyTill anyToken newline;
-                        spaces;
-                        string "enc: ";
-                        enc <- manyTill anyChar newline <?> "enc string";
-                        spaces;
-                        string "uni: ";
-                        uni <- (uniBlock (indent +4) <?> "uni string/block"); --Uniblock deals with the various types of yaml blocks
-                        --This block is very ugly, but for some reason I can't get it to work any other way. Changes welcome. -Sage
-                        return $ (case name of
-                            "closer"        -> Closer
-                            "closequote"    -> Closequote
-                            "junk"          -> Junk
-                            "opener"        -> Opener
-                            "openquote"     -> Openquote
-                            "operator"      -> Operator
-                            "punct"         -> Punct
-                            "sigil"         -> Sigil
-                            "text"          -> Text
-                            "token"         -> Token
-                            _               -> Unknown 
-                        ) enc uni
-                        }
-                    }
+nodeNamer :: Int -> Parser P5AST
+nodeNamer indent = do
+    count indent space
+    withKids indent <|> noKids indent
+
+withKids :: Int -> Parser P5AST
+withKids indent = do
+    try (string "- !perl/P5AST::") <?> "P5AST decleration";
+    name <- manyTill anyChar space
+    newline
+    spaces
+    string "Kids: " <?> "Kids"
+    modifier <- manyTill anyChar newline
+    kids <- case modifier of
+        "[]"    -> (newline <?> "newline") >> return []
+        _       -> many . try $ nodeNamer (indent+4)
+    let con = case name of
+            "condmod"       -> Condmod
+            "listelem"      -> Listelem
+            "nothing"       -> PNothing
+            "op_aassign"    -> Op_aassign
+            "op_chdir"      -> Op_chdir
+            "op_const"      -> Op_const
+            "op_ftdir"      -> Op_ftdir
+            "op_helem"      -> Op_helem
+            "op_leave"      -> Op_leave
+            "op_list"       -> Op_list
+            "op_null"       -> Op_null
+            "op_rv2av"      -> Op_rv2av
+            "op_rv2hv"      -> Op_rv2hv
+            "op_rv2sv"      -> Op_rv2sv
+            "op_sassign"    -> Op_sassign
+            "op_subst"      -> Op_subst
+            "package"       -> Package
+            "peg"           -> Peg
+            "statement"     -> Statement
+            _               -> const (Unknown "1" "AST")
+    return $ con kids
+
+noKids :: Int -> Parser P5AST
+noKids indent = do
+    string "- !perl/p5::" <?> "p5 decleration"
+    name <- manyTill anyChar space
+    manyTill anyToken newline
+    spaces
+    string "enc: "
+    enc <- manyTill anyChar newline <?> "enc string"
+    spaces
+    string "uni: "
+    --Uniblock deals with the various types of yaml blocks
+    uni <- uniBlock (indent + 4) <?> "uni string/block"
+    let con = case name of
+            "closer"        -> Closer
+            "closequote"    -> Closequote
+            "junk"          -> Junk
+            "opener"        -> Opener
+            "openquote"     -> Openquote
+            "operator"      -> Operator
+            "punct"         -> Punct
+            "sigil"         -> Sigil
+            "text"          -> Text
+            "token"         -> Token
+            _               -> Unknown 
+    return $ con enc uni
 
 {-
 Uniblock handles the various types of yaml blocks used, those being a literal string (i.e. "...")
 A block "|\n ..." or a block with a chomp modifier "|+\n ..."
 -}
 uniBlock :: Int -> Parser String
-uniBlock indent = do{ Text.ParserCombinators.Parsec.try(string "|\n"); 
-                      uni <- manyTill (manyTill anyToken newline) (Text.ParserCombinators.Parsec.try(newline)) <?> "uni block";
-                      return (unlines (map (drop indent) uni))
-                    }<|>
-                  do{ Text.ParserCombinators.Parsec.try(string "|+");
-                      newline;
-                      uni <- manyTill (manyTill anyToken newline) (Text.ParserCombinators.Parsec.try(newline)) <?> "uni block with chomp modifier";
-                      return (unlines (map (drop indent) uni))
-                    }<|>
-                  do{ uni <- manyTill anyToken newline <?> "uni string";
-                      --If the field is in quotes, strip the quotes by stripping the first character, 
-                      --reversing the string, stripping the first character, then reversing again
-                      if (or [((head uni)=='"'), ((head uni)=='\'')]) then return (reverse (tail (reverse (tail uni)))) else
-                       return uni
-                    }
+uniBlock indent = choice
+    [do try $ string "|\n"
+        uni <- manyTill (manyTill anyToken newline) (try(newline)) <?> "uni block";
+        return (unlines (map (drop indent) uni))
+    ,do try $ string "|+"
+        newline;
+        uni <- manyTill (manyTill anyToken newline) (try(newline)) <?> "uni block with chomp modifier";
+        return (unlines (map (drop indent) uni))
+    ,do uni <- manyTill anyToken newline <?> "uni string";
+        --If the field is in quotes, strip the quotes by stripping the first character, 
+        --reversing the string, stripping the first character, then reversing again
+        return $ if (head uni `elem` "\"'")
+            then reverse (tail (reverse (tail uni)))
+            else uni
+    ]
 
 --A wrapper for nodeNamer, to handle the junk at the beginning of the file.
 parseInput :: Parser [P5AST]
-parseInput = do manyTill anyToken newline;
-                manyTill anyToken newline;
-                manyTill anyToken newline;
-                names <- many (nodeNamer 2)
-                eof 
-                return names
+parseInput = do
+    sequence_ (replicate 3 $ manyTill anyToken newline)
+    names <- many (nodeNamer 2)
+    eof 
+    return names
 
 {- A big big messy function to print all the different node types
 There has to be a case to everything, unfortunately, so this function is very large
@@ -217,17 +222,18 @@ A main function to parse a file containing a tree and output the contents to ano
 Useage: mainParse inFile outFile
 -}
 mainParse :: FilePath -> FilePath -> IO ()
-mainParse inName outName= do inHandle <- openFile inName ReadMode
-                             input <- hGetContents inHandle
-                             outHandle <- openFile outName WriteMode
-                             -- putStrLn ("DEBUG: got input " ++ input)
-                             let dirs = case parse parseInput "stdin" input of
-                                             Left err -> error $ "Input:\n" ++ show input ++ 
-                                                                 "\nError:\n" ++ show err
-                                             Right result -> result
-                             putStrLn "DEBUG: parsed:"; 
-                             print (P5AST dirs);
-                             hClose inHandle;
-                             printTree outHandle (P5AST dirs);
-                             hClose outHandle;
-                             putStrLn "Finished"
+mainParse inName outName = do
+    inHandle    <- openFile inName ReadMode
+    input       <- hGetContents inHandle
+    outHandle   <- openFile outName WriteMode
+    -- putStrLn ("DEBUG: got input " ++ input)
+    let dirs = case parse parseInput "stdin" input of
+            Left err -> error $ "Input:\n" ++ show input ++ 
+                                "\nError:\n" ++ show err
+            Right result -> result
+    putStrLn "DEBUG: parsed:";
+    print (P5AST dirs)
+    hClose inHandle
+    printTree outHandle (P5AST dirs)
+    hClose outHandle
+    putStrLn "Finished"
