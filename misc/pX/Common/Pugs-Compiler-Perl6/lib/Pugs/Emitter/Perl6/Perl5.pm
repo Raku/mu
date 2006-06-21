@@ -78,8 +78,10 @@ sub default {
             $n->{param}{sub}{bareword} eq 'P6' ) {
             return "$tab # use P6";
         }
-        return $tab . $n->{sub}{bareword} . _emit( $n->{param}, '  ' ) 
+        return $tab . $n->{sub}{bareword} . ' ' . _emit( $n->{param}, '  ' ) 
             if $n->{sub}{bareword} eq 'print';
+        return $tab . 'print ' . _emit( $n->{param}, '  ' ) . ', "\n"'
+            if $n->{sub}{bareword} eq 'say';
         return $tab . $n->{sub}{bareword} . '(' . _emit( $n->{param}, '  ' ) . ')';
     }
     
@@ -103,7 +105,13 @@ sub infix {
     my $tab = $_[1];
     # print "infix: ", Dumper( $n );
     
-    if ( $n->{op1}{op} eq '+' ) {
+    if ( $n->{op1}{op} eq '~' ) {
+        return _emit( $n->{exp1}, $tab ) . ' . ' . _emit( $n->{exp2}, $tab );
+    }
+    if ( $n->{op1}{op} eq '+'  ||
+         $n->{op1}{op} eq '-'  ||
+         $n->{op1}{op} eq '==' ||
+         $n->{op1}{op} eq '=' ) {
         return _emit( $n->{exp1}, $tab ) . $n->{op1}{op} . _emit( $n->{exp2}, $tab );
     }
     

@@ -7,8 +7,8 @@ use warnings;
 
 my $filename = (caller)[1];
 my $pmc = $filename;
-$pmc =~ s/\.(pl|pm)$/\.pmc/;
-die "this is not a .pl or .pm file"
+$pmc =~ s/\.(pl|pm|t)$/\.pmc/;
+die "this is not a .pl, .t or .pm file"
     unless $pmc =~ /\.pmc/;
 # test file dates
 my $pmc_is_uptodate = (-s $pmc and (-M $pmc <= -M $filename));
@@ -26,10 +26,14 @@ eval
     use FindBin '$Bin';
     use lib
         "$Bin/lib",
-        "$Bin/../../../../lib",
         "$Bin/../Pugs-Compiler-Rule/lib",
         "$Bin/../Pugs-Utils/lib",
         "$Bin/../Pugs-Compiler-Precedence/lib",
+        
+        "$Bin/../lib",
+        "$Bin/../../Pugs-Compiler-Rule/lib",
+        "$Bin/../../Pugs-Utils/lib",
+        "$Bin/../../Pugs-Compiler-Precedence/lib",
     ;
 
     use Pugs::Compiler::Perl6;
