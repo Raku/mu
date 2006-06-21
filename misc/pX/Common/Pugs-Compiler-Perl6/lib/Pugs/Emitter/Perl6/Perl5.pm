@@ -77,6 +77,7 @@ sub default {
     #print "emit: ", Dumper( $n );
     
     if ( $n->{op1} eq 'call' ) {
+        #warn "call: ",Dumper $n;
         if ( $n->{sub}{bareword} eq 'use' &&
             $n->{param}{cpan_bareword} eq 'v6-pugs' ) {
             return "$tab # use v6-pugs";
@@ -109,6 +110,14 @@ sub default {
                 '{' . _emit( $n->{exp2} ) . '}' .
                 ' else ' .
                 '{' . _emit( $n->{exp3} ) . '}';
+    }
+
+    if ( ref( $n->{op1} ) && $n->{op1}{stmt} eq 'sub' ) {
+        #warn "sub: ",Dumper $n;
+        return $tab . $n->{op1}{stmt} . 
+                ' ' . $n->{name}{bareword} . 
+                '{' . _emit( $n->{block} ) . '}' .
+                " # XXX - no signature yet \n";
     }
 
     return "$tab die 'not implemented syntax: " . Dumper( $n ) . "'";
@@ -144,6 +153,8 @@ sub circumfix {
     
     if ( $n->{op1}{op} eq '(' &&
          $n->{op2}{op} eq ')' ) {
+        return '()'
+            unless defined  $n->{exp1};
         return '(' . _emit( $n->{exp1}, $tab ) . ')';
     }
     
