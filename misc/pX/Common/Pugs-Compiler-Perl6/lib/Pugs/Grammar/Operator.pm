@@ -92,24 +92,24 @@ exp:
       NUM                 
         { $_[0]->{out}= $_[1] }
 
-    | '@' '{' exp '}' 
-        { $_[0]->{out}= { array_context => $_[3], } }
+    | '@' '(' exp ')' 
+        { $_[0]->{out}= { op1 => 'array_context', exp1 => $_[3], } }
 
     | BAREWORD            
-        { $_[0]->{out}= { call => { sub => $_[1], } } }
+        { $_[0]->{out}= { op1 => 'call', sub => $_[1], } }
 
     | BAREWORD 'IF' exp   %prec P003 
         { $_[0]->{out}= { op1 => $_[2], exp1 => $_[3], 
             exp2 => { call => { sub => $_[1], } } } }
 
     | BAREWORD exp   %prec P003
-        { $_[0]->{out}= { call => { sub => $_[1], param => $_[2], } } }
+        { $_[0]->{out}= { op1 => 'call', sub => $_[1], param => $_[2], } }
     | exp '.' BAREWORD    %prec P003
-        { $_[0]->{out}= { method_call => { self => $_[1], method => $_[3], } } }
+        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[3], } }
     | exp '.' BAREWORD '(' exp ')'  %prec P003
-        { $_[0]->{out}= { method_call => { self => $_[1], method => $_[3], param => $_[5], } } }
+        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[3], param => $_[5], } }
     | exp '.' BAREWORD exp   %prec P003
-        { $_[0]->{out}= { method_call => { self => $_[1], method => $_[3], param => $_[4], } } }
+        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[3], param => $_[4], } }
         
     | stmt                
         { $_[0]->{out}= $_[1] }

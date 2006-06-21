@@ -19,77 +19,121 @@ sub emit {
 
 sub _emit {
     my $n = $_[0];
-    my $tab = $_[1] . '  ';
+    my $tab = $_[1];
     #print "_emit: ", Dumper( $n );
     die "unknown node: ", Dumper( $n )
         unless ref( $n ) eq 'HASH';
+        
+    return $n->{int} 
+        if exists $n->{int};
+        
+    return $n->{scalar} 
+        if exists $n->{scalar};
+        
+    return $n->{array} 
+        if exists $n->{array};
+        
+    return $n->{hash} 
+        if exists $n->{hash};
+        
+    return '"' . $n->{double_quoted} . '"' 
+        if exists $n->{double_quoted};
+            
+    return '\'' . $n->{single_quoted} . '\'' 
+        if exists $n->{single_quoted};
+            
+    return assoc_list( $n, $tab )
+        if exists $n->{assoc} && $n->{assoc} eq 'list';
+    return infix( $n, $tab )
+        if exists $n->{fixity} && $n->{fixity} eq 'infix';
+    return prefix( $n, $tab )
+        if exists $n->{fixity} && $n->{fixity} eq 'prefix';
+    return circumfix( $n, $tab )
+        if exists $n->{fixity} && $n->{fixity} eq 'circumfix';
+    return default( $n, $tab );
+}
 
-    if ( $n->{assoc} eq 'list' ) {
-        return assoc_list( $n, $tab );
-    }
-    if ( $n->{call} ) {
-        return sub_call( $n, $tab );
-    }
-    if ( $n->{method_call} ) {
-        return method_call( $n, $tab );
-    }
-    return assoc_none( $n, $tab );
-}
 sub assoc_list {
     my $n = $_[0];
-    my $tab = $_[1] . '  ';
-    #print "list emit_rule: ", Dumper( $n );
+    my $tab = $_[1];
+    # print "list emit_rule: ", Dumper( $n );
 
-    if ( $n->{op1} eq ';' ) {
-        return join ( ";\n", 
-            map { _emit( $_ ) } @{$n->{list}} 
+    if ( $n->{op1} eq ';' ||
+         $n->{op1} eq ',' ) {
+        return join ( $n->{op1} . "\n", 
+            map { _emit( $_, $tab ) } @{$n->{list}} 
         );
     }
-
+    
     return "$tab die 'not implemented list-op: " . $n->{op1} . "'";
-}
-sub assoc_none {
-    my $n = $_[0];
-    my $tab = $_[1] . '  ';
-    #print "none emit_rule: ", Dumper( $n );
-    return "$tab die 'not implemented op: " . $n->{op1} . "'";
-}
-sub sub_call {
-    my $n = $_[0];
-    my $tab = $_[1] . '  ';
-    #print "call: ", Dumper( $n );
+}
 
-    if ( $n->{call}{sub}{bareword} eq 'use' &&
-        $n->{call}{param}{call}{sub}{bareword} eq 'P6' ) {
-        return "$tab # use P6";
+sub default {
+    my $n = $_[0];
+    my $tab = $_[1];
+    #print "emit: ", Dumper( $n );
+    
+    if ( $n->{op1} eq 'call' ) {
+        if ( $n->{sub}{bareword} eq 'use' &&
+            $n->{param}{sub}{bareword} eq 'P6' ) {
+            return "$tab # use P6";
+        }
+        return $tab . $n->{sub}{bareword} . _emit( $n->{param}, '  ' ) 
+            if $n->{sub}{bareword} eq 'print';
+        return $tab . $n->{sub}{bareword} . '(' . _emit( $n->{param}, '  ' ) . ')';
+    }
+    
+    if ( $n->{op1} eq 'method_call' ) {    
+        if ( $n->{method}{bareword} eq 'say' ) {
+            return $tab . ' print ' . _emit( $n->{self}, '  ' ) . ', "\n"';
+        }
+        return $tab . $n->{sub}{bareword} .
+            '(' .
+            join ( ";\n", 
+                map { _emit( $_, $tab ) } @{$n->{param}} 
+            ) .
+            ')';
     }
 
-    # XXX
-    return $tab . $n->{call}{sub}{bareword} .
-        '(' .
-        join ( ";\n", 
-            map { _emit( $_ ) } @{$n->{call}{param}} 
-        ) .
-        ')';
-}
-sub method_call {
+    return "$tab die 'not implemented syntax: " . Dumper( $n ) . "'";
+}
+
+sub infix {
     my $n = $_[0];
-    my $tab = $_[1] . '  ';
-    #print "method call: ", Dumper( $n );
-
-    if ( $n->{method_call}{method}{bareword} eq 'say' &&
-        $n->{method_call}{self}{double_quoted} ) {
-        return $tab . ' print "' .
-            $n->{method_call}{self}{double_quoted} .
-            '", "\n"';
+    my $tab = $_[1];
+    # print "infix: ", Dumper( $n );
+    
+    if ( $n->{op1}{op} eq '+' ) {
+        return _emit( $n->{exp1}, $tab ) . $n->{op1}{op} . _emit( $n->{exp2}, $tab );
     }
+    
+    return "$tab die 'not implemented infix: " . Dumper( $n ) . "'";
+}
 
-    # XXX
-    return $tab . $n->{method_call}{sub}{bareword} .
-        '(' .
-        join ( ";\n", 
-            map { _emit( $_ ) } @{$n->{method_call}{param}} 
-        ) .
-        ')';
-}
+sub circumfix {
+    my $n = $_[0];
+    my $tab = $_[1]; 
+    # print "infix: ", Dumper( $n );
+    
+    if ( $n->{op1}{op} eq '(' &&
+         $n->{op2}{op} eq ')' ) {
+        return '(' . _emit( $n->{exp1}, $tab ) . ')';
+    }
+    
+    return "$tab die 'not implemented circumfix: " . Dumper( $n ) . "'";
+}
+
+sub prefix {
+    my $n = $_[0];
+    my $tab = $_[1];
+    # print "infix: ", Dumper( $n );
+    
+    if ( $n->{op1}{op} eq 'my' ||
+         $n->{op1}{op} eq 'our' ) {
+        return $n->{op1}{op} . ' ' . _emit( $n->{exp1}, $tab );
+    }
+    
+    return "$tab die 'not implemented prefix: " . Dumper( $n ) . "'";
+}
+
 1;

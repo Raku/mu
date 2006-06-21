@@ -1,9 +1,9 @@
 use FindBin '$Bin';
 use lib
-    "$Bin/lib",
-    "$Bin/../../../../lib",
-    "$Bin/../Pugs-Compiler-Rule/lib",
-    "$Bin/../Pugs-Compiler-Precedence/lib",
+    "$Bin/../lib",
+    # "$Bin/../../../../lib",
+    "$Bin/../../Pugs-Compiler-Rule/lib",
+    "$Bin/../../Pugs-Compiler-Precedence/lib",
 ;
 
 use Pugs::Grammar::Perl6;
