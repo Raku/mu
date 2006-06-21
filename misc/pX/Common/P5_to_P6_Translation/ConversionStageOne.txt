@@ -1,0 +1,55 @@
+Perl 5 Parser/Perl 6 Output: Stage One - Simple Translations
+
+-Based on http://svn.perl.org/perl6/pugs/trunk/modules/PORTING_HOWTO
+
+Input: Input will be in the form of an abstract syntax tree of a Perl 5 program. All changes made will maintain the same form until the abstract syntax tree is parsed back into a text file (to be interpreted/compiled later as a Perl 6 file).
+
+Output: A text file ready to be interpreted/compiled as Perl 6 code.
+
+Structure: An abstract syntax tree will be obtained from the existing Perl 5 parser. Changes to the tree will be handeled by subroutines for each type of change needed, while preserving the structure of the tree. After all translations, the tree will be outputed as a text file. Since the only requirement for the final output is that the input be an abstract syntax tree, any number of conversions can occur between the original parse and the final output as long as the structure is preserved.
+
+Processing:
+The body of the code will apply the following translations to the input syntax tree.
+
+First stage translations for Perl5->Perl6
+
+-Arrays with indices: $array[i] -> @array[i]
+
+-Hashes with keys: $hash{$key} -> %hash{$key}
+
+-Hash with constant key: $hash{word} -> %hash<word>
+
+-Hash referenceing multiple keys: @hash{'a','b','c'} -> %hash<a b c>
+
+-Array in interprative context: "@array" -> "@array[]"
+
+-Hash in interprative context: "%hash" -> "%hash{}" (also @{[...]} -> {...})
+
+-Forced scalar value of array: scalar @foo -> +@foo # or @foo.elems
+
+-Conditional return: a ? b : c -> a ?? b !! c
+
+-Regular expresion (external considerations): $x =~ s/.../.../g -> $x ~~ s:P5:g/.../.../
+
+-Conditional assignment: $foo = "bar" unless defined $foo -> $foo //= "bar" 
+
+-Compound statements: if($foo eq "a" or $foo eq "b" or $foo eq "c") {...} -> if $foo eq "a"|"b"|"c" {...}
+
+-Loop over all values: foreach my $foo (@baz) {...} -> for @baz -> $foo {...} (also need to handle without 'my')
+
+-Length of string: length("foo") -> "foo".chars
+
+-Splitting on a regular experssion: split(m/;/, $foo) -> split(/;/, $foo)
+					split('\s+') -> split(/\s+/)
+					split(FOO) -> .split(FOO)
+   					split(FOO,$bar) -> $bar.split(FOO)
+
+
+-Split on space: split(' ', $foo) -> $foo.words
+
+-Heredocs: <<END -> qq:to/END/ (and other friends)
+
+
+-Closing files (Optional translation, good for OO paradigm)(Need to add user pref for this): close($file) -> $file.close
+
+-Read from file: <FH> -> $fh.readline
