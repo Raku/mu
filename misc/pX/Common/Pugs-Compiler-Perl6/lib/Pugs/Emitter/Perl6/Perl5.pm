@@ -102,6 +102,14 @@ sub default {
             ')';
     }
 
+    if ( ref( $n->{op1} ) && $n->{op1}{stmt} eq 'if' ) {
+        return $tab . $n->{op1}{stmt} . 
+                '(' . _emit( $n->{exp1} ) . ')' .
+                '{' . _emit( $n->{exp2} ) . '}' .
+                ' else ' .
+                '{' . _emit( $n->{exp3} ) . '}';
+    }
+
     return "$tab die 'not implemented syntax: " . Dumper( $n ) . "'";
 }
 
