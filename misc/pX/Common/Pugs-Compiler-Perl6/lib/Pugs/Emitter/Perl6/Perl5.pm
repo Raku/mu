@@ -81,9 +81,10 @@ sub assoc_list {
 sub _emit_parameter_binding {
     return ''
         unless defined $_[0];
-    my $sig = $_[0];
+    my $n = $_[0];
     my $tab = $_[1];
-    return " # XXX - no signature yet\n";
+    #warn "parameter list: ",Dumper $n;
+    return " # XXX - " . (scalar @$n) . " parameters\n";
 }
 
 sub default {

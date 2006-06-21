@@ -35,7 +35,7 @@ signature:
     |   exp  signature
         { $_[0]->{out}= { 
             signature => [ 
-                [ $_[1] ],
+                $_[1],
                 @{$_[2]{signature}}, 
             ], 
         } }
