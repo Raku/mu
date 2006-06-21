@@ -116,8 +116,13 @@ sub infix {
     if ( $n->{op1}{op} eq '+'  ||
          $n->{op1}{op} eq '-'  ||
          $n->{op1}{op} eq '==' ||
+         $n->{op1}{op} eq '!=' ||
+         $n->{op1}{op} eq 'ne' ||
+         $n->{op1}{op} eq 'eq' ||
+         $n->{op1}{op} eq '&&' ||
+         $n->{op1}{op} eq '||' ||
          $n->{op1}{op} eq '=' ) {
-        return _emit( $n->{exp1}, $tab ) . $n->{op1}{op} . _emit( $n->{exp2}, $tab );
+        return _emit( $n->{exp1}, $tab ) . ' ' . $n->{op1}{op} . ' ' . _emit( $n->{exp2}, $tab );
     }
     
     return "$tab die 'not implemented infix: " . Dumper( $n ) . "'";
