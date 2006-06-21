@@ -157,7 +157,7 @@ that could also have been written:
 
 To find the number of elements in an array, use the C<elems> method:
 
-    say @mixed.elems;       # last element, prints 1.23
+    say @mixed.elems;       # prints 3
 
 To get multiple values from an array:
 
