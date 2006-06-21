@@ -282,8 +282,10 @@ op1 "Pugs::Internals::eval_p6y" = op1EvalP6Y
 op1 "Pugs::Internals::eval_haskell" = op1EvalHaskell
 op1 "Pugs::Internals::eval_yaml" = evalYaml
 op1 "atomically" = \v -> do
-    env <- ask
-    guardSTM . runEvalSTM env . evalExp $ App (Val v) Nothing []
+    genSymPrim "&retry" (const $ guardSTM retry) $ \symRetry -> do
+        enterLex [symRetry] $ do
+            env <- ask
+            guardSTM . runEvalSTM env . evalExp $ App (Val v) Nothing []
 op1 "try" = \v -> do
     sub <- fromVal v
     val <- resetT $ evalExp (App (Val $ VCode sub) Nothing [])
@@ -597,6 +599,11 @@ op1 "Code::name"  = op1CodeName
 op1 "Code::arity" = op1CodeArity
 op1 "Code::body"  = op1CodeBody
 op1 "Code::pos"   = op1CodePos
+op1 "Code::retry_with" = \vs -> do
+    cs  <- fromVals vs
+    env <- ask
+    let runInSTM v = runEvalSTM env . evalExp $ App (Val v) Nothing []
+    guardSTM $ foldl1 orElse (map runInSTM cs)
 op1 "IO::tell"    = \v -> do
     h <- fromVal v
     res <- guardIO $ hTell h
@@ -1835,6 +1842,7 @@ initSyms = mapM primDecl syms
 \\n   Str       pre     Code::assoc   safe   (Code:)\
 \\n   Code::Exp pre     Code::body    safe   (Code:)\
 \\n   Str       pre     Code::pos     safe   (Code:)\
+\\n   Any       pre     Code::retry_with    safe   (List)\
 \\n   IO::Dir   pre     opendir    unsafe (Str)\
 \\n   Str       pre     IO::Dir::readdir    unsafe (IO::Dir)\
 \\n   List      pre     IO::Dir::readdir    unsafe (IO::Dir)\
