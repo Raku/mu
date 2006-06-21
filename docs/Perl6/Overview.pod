@@ -571,7 +571,7 @@ Note that those variables are numbered from 0 not 1;
 
     # a cheap and nasty way to break an email address up into parts
 
-    if ($email =~ /([^@]+)@(.+)/) {
+    if ($email ~~ /(<-[@]>+)@(.+)/) {
         print "Username is $0\n";
         print "Hostname is $1\n";
     }
