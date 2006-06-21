@@ -22,6 +22,11 @@ sub _emit {
     my $tab = $_[1];
     #print "_emit: ", Dumper( $n );
     #warn "fixity: $n->{fixity}\n" if exists $n->{fixity};
+    
+    # 'undef' example: parameter list, in a sub call without parameters
+    return ''
+        unless defined $n;
+    
     die "unknown node: ", Dumper( $n )
         unless ref( $n ) eq 'HASH';
         
@@ -44,7 +49,8 @@ sub _emit {
         if exists $n->{single_quoted};
             
     return assoc_list( $n, $tab )
-        if exists $n->{assoc} && $n->{assoc} eq 'list';
+        if exists $n->{assoc}  && $n->{assoc}  eq 'list';
+        
     return infix( $n, $tab )
         if exists $n->{fixity} && $n->{fixity} eq 'infix';
     return prefix( $n, $tab )
@@ -53,6 +59,7 @@ sub _emit {
         if exists $n->{fixity} && $n->{fixity} eq 'postfix';
     return circumfix( $n, $tab )
         if exists $n->{fixity} && $n->{fixity} eq 'circumfix';
+        
     return default( $n, $tab );
 }
 
