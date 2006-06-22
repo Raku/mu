@@ -1,4 +1,4 @@
-= Changes for 6.2.12 (rXXXXX) - June XX, 2006 *** up to r10207 excluding updates to misc/ ***
+= Changes for 6.2.12 (rXXXXX) - June XX, 2006 *** up to r10312 excluding updates to misc/ ***
 
 == Licensing Changes
 
@@ -72,6 +72,7 @@ truncated in r8916, apparently from gnome's copy-paste buffer limit.
 * [examples/concurrency/]: Added sample usage on Software Transactional Memory.
 * [docs/Perl6/FAQ/Capture.pod] - FAQ on the new Signature/Capture calling convention.
 * [docs/Perl6/FAQ/FUD.pod] - Fears, Uncertainties and Doubts about Perl 6.
+* [src/Pugs/Parser] - Perl 6 grammars for Capture.pg and Signature.pg 
 
 == Feature Changes
 
@@ -81,11 +82,10 @@ truncated in r8916, apparently from gnome's copy-paste buffer limit.
 * Removed support for GHC 6.4.0 and added support for GHC 6.5.
 * Use `Data.ByteString` instead of `Data.FastPackedString` for fast
   string representation.
-* Compile `Prelude.pm`, and possibly additional modules, to YAML bytecode
-  for faster loading
-** `pugs -CParse-YAML -e '$your_oneliner' > precomp.yml` backend
-* Broke down Parser.hs and AST.Internals.hs to smaller files, making
-  rebuilds faster.
+* Compile `Prelude.pm`, and possibly additional modules, to YAML bytecode for faster loading
+* YAML bytecode is now versioned to reduce incompatibilities
+* New AST-dumping backends: `Parse-Pretty`, `Parse-YAML`, `Parse-HsYAML`
+* Broke down Parser.hs and AST.Internals.hs to smaller files, making rebuilds faster.
 * q:code {...} gives ASTs in macros
 * readline and =$fh autochomp: they are now complements to &say, not &print.
 * `make upload-smoke` now uploads smoke test automatically.
@@ -104,6 +104,13 @@ truncated in r8916, apparently from gnome's copy-paste buffer limit.
 * Support for implicit-topic dereferences such as `.[0]` and `.<foo>`
 * Multiline support in the interactive shell now recognizes unrecoverable parsefails
 * Array and hash sigilled match variables, such as `@0`, `@<foo>` and `%<bar>`
+* Two `my $x` declarations in the same scope is now no-op instead of an error
+* Quotelike constructs such as `rx` and `qq` no longer takes `#` as delimiter
+* Support for controlled backtracking and whitespace sensitivity via distinct `token`/`regex`/`rule` delecarators
+* In the interactive shell, :d and :D (dump parse tree) now continues the parse from the current environment; use :reset to reset the environment.
+* Support for environmental variables such as `$ENV::PWD` and `$+PATH`
+* `bool::true` and `bool::false` are renamed to `Bool::True` and `Bool::False`
+* Arguments beginning in parens, such as `f ('x')=>1`, is now always positional
 
 == Bug Fixes
 
@@ -121,6 +128,10 @@ truncated in r8916, apparently from gnome's copy-paste buffer limit.
 * Implicit variables following a declarator was broken: `{my $x; $^y}.(42)` 
 * The bogus comma-less block argument form `map {$_} 1,2,3` is no longer supported
 * In `(@x, @y) = (1,2,3)`, the `@y` is now cleared into an empty list
+* Strings outside ASCII range no longer raises exceptions at the PGE/Parrot bridge
+* Statement-level bare blocks now counts as one scope for `OUTER`, not two
+* Named-only subs such as `sub f (:$x!) {}` is no longer parsed as unary positional
+* Statement-level `return` and `yield` now propagates contexts instead of resetting it to void
 
 == Backends
 
