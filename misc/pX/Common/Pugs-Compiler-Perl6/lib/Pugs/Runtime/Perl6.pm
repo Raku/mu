@@ -6,6 +6,22 @@ use warnings;
 
 # TODO - see Pugs::Runtime::Grammar for metaclass stuff
 
+package Pugs::Runtime::Perl6::Alias::Scalar;
+
+sub TIESCALAR {
+    my $class = shift;
+    my $var_ref = shift;
+    return bless $var_ref, $class;
+}
+sub FETCH {
+    my $self = shift;
+    $$self;
+}
+sub STORE {
+    my $self = shift;
+    $$self = shift;
+  }
+
 1;
 
 __END__

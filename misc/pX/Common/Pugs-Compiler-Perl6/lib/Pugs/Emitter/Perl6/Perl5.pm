@@ -11,10 +11,10 @@ sub emit {
     my ($grammar, $ast) = @_;
     # runtime parameters: $grammar, $string, $state, $arg_list
     # rule parameters: see Runtime::Rule.pm
-    return 
-        "do{\n" .
-        _emit( $ast, '    ' ) . "\n" .
-        "}";
+    return _emit( $ast, '' );
+        #"do{\n" .
+        #_emit( $ast, '    ' ) . "\n" .
+        #"}";
 }
 
 sub _emit {
@@ -100,33 +100,41 @@ sub _emit_parameter_binding {
 sub default {
     my $n = $_[0];
     my $tab = $_[1] || '';
-    #print "emit: ", Dumper( $n );
+    #warn "emit: ", Dumper( $n );
+    
+    if ( exists $n->{END} ) {
+        return "$tab END {\n" . _emit( $n->{END}, $tab . '  ' ) . "\n$tab }";
+    }
     
     if ( $n->{op1} eq 'call' ) {
-        #warn "call: ",Dumper $n;
+        # warn "call: ",Dumper $n;
         if ( $n->{sub}{bareword} eq 'use' ) {
             # use v6-pugs
-            if ( $n->{param}{cpan_bareword} eq 'v6-pugs' ) {
+            if ( exists $n->{param}{cpan_bareword} &&
+                 $n->{param}{cpan_bareword} eq 'v6-pugs' ) {
                 return "$tab # use v6-pugs";
             }
             # use module::name 'param'
             return "$tab use " . _emit( $n->{param} );
         }
-        return $tab . $n->{sub}{bareword} . ' ' . _emit( $n->{param}, '  ' ) 
-            if $n->{sub}{bareword} eq 'print';
-        return $tab . 'print ' . _emit( $n->{param}, '  ' ) . ', "\n"'
+        return "$tab " . $n->{sub}{bareword} . " '', " . _emit( $n->{param}, '  ' ) 
+            if $n->{sub}{bareword} eq 'print' ||
+               $n->{sub}{bareword} eq 'warn';
+        return "$tab print '', " . _emit( $n->{param}, '  ' ) . ";\n" .
+            "$tab print " . '"\n"'
             if $n->{sub}{bareword} eq 'say';
         return $tab . $n->{sub}{bareword} . '(' . _emit( $n->{param}, '  ' ) . ')';
     }
     
     if ( $n->{op1} eq 'method_call' ) {    
-        if ( $n->{method}{bareword} eq 'print' ) {
-            return $tab . ' print ' . _emit( $n->{self}, '  ' );
+        if ( $n->{method}{bareword} eq 'print' ||
+             $n->{method}{bareword} eq 'warn' ) {
+            return "$tab print '', " . _emit( $n->{self}, '  ' );
         }
         if ( $n->{method}{bareword} eq 'say' ) {
-            return $tab . ' print ' . _emit( $n->{self}, '  ' ) . ', "\n"';
+            return "$tab print '', " . _emit( $n->{self}, '  ' ) . ', "\n"';
         }
-        return $tab . $n->{sub}{bareword} .
+        return "$tab " . $n->{sub}{bareword} .
             '(' .
             join ( ";\n", 
                 map { _emit( $_, $tab ) } @{$n->{param}} 
@@ -135,16 +143,16 @@ sub default {
     }
 
     if ( ref( $n->{op1} ) && $n->{op1}{stmt} eq 'if' ) {
-        return $tab . $n->{op1}{stmt} . 
+        return  "$tab " . $n->{op1}{stmt} . 
                 '(' . _emit( $n->{exp1} ) . ')' .
-                '{' . _emit( $n->{exp2} ) . '}' .
-                ' else ' .
-                '{' . _emit( $n->{exp3} ) . '}';
+                " {\n" . _emit( $n->{exp2}, $tab . '  ' ) . "\n$tab }\n" .
+                "$tab else" .
+                " {\n" . _emit( $n->{exp3}, $tab . '  ' ) . "\n$tab }";
     }
 
     if ( ref( $n->{op1} ) && $n->{op1}{stmt} eq 'sub' ) {
         #warn "sub: ",Dumper $n;
-        return $tab . $n->{op1}{stmt} . 
+        return  "$tab " . $n->{op1}{stmt} . 
                 ' ' . $n->{name}{bareword} . 
                 " {\n" . 
                     _emit_parameter_binding( $n->{signature}, $tab . '  ' ) .
@@ -163,6 +171,14 @@ sub infix {
     if ( $n->{op1}{op} eq '~' ) {
         return _emit( $n->{exp1}, $tab ) . ' . ' . _emit( $n->{exp2}, $tab );
     }
+    
+    if ( $n->{op1}{op} eq ':=' ) {
+        #warn "bind: ", Dumper( $n );
+        return "$tab tie " . _emit( $n->{exp1}, $tab ) . 
+            ", 'Pugs::Runtime::Perl6::Alias::Scalar', " .
+            "\\" . _emit( $n->{exp2}, $tab );
+    }
+
     if ( $n->{op1}{op} eq '+'  ||
          $n->{op1}{op} eq '-'  ||
          $n->{op1}{op} eq '==' ||
