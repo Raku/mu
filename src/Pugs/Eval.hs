@@ -225,7 +225,7 @@ reduce (Ann (Pos pos) exp) = reducePos pos exp
 
 reduce (Ann (Cxt cxt) exp) = reduceCxt cxt exp
 
-reduce (Ann Parens exp) = reduce exp
+reduce (Ann _ exp) = reduce exp
 
 reduce (Pad scope lexEnv exp) = reducePad scope lexEnv exp
 

@@ -1284,7 +1284,7 @@ ruleVarDecl = rule "variable declaration" $ do
     lexDiff <- unsafeEvalLexDiff $ combine (map makeBinding cxtNames) emptyExp
     -- Now hoist the lexDiff to the current block
     addBlockPad scope lexDiff
-    return exp
+    return (Ann (Decl scope) exp)
     where
     deSigil (sig:'!':rest@(_:_)) = (sig:rest)
     deSigil (sig:'.':rest) = (sig:rest)

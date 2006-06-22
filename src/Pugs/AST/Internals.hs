@@ -927,6 +927,7 @@ data Ann
     = Cxt !Cxt                -- ^ Context
     | Pos !Pos                -- ^ Position
     | Prag ![Pragma]          -- ^ Lexical pragmas
+    | Decl !Scope             -- ^ Within an declarator
     | Parens                  -- ^ Parenthesized
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 

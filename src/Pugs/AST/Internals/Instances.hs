@@ -439,13 +439,17 @@ instance YAML Ann where
 	"Prag" -> do
 	    let YamlSeq [aa] = e
 	    liftM Prag (fromYAML aa)
+	"Decl" -> do
+	    let YamlSeq [aa] = e
+	    liftM Decl (fromYAML aa)
 	"Parens" -> do
 	    return Parens
-	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["Cxt","Pos","Prag","Parens"] ++ " in node " ++ show e
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["Cxt","Pos","Prag","Decl","Parens"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (Cxt aa) = asYAMLseq "Cxt" [asYAML aa]
     asYAML (Pos aa) = asYAMLseq "Pos" [asYAML aa]
     asYAML (Prag aa) = asYAMLseq "Prag" [asYAML aa]
+    asYAML (Decl aa) = asYAMLseq "Decl" [asYAML aa]
     asYAML (Parens) = asYAMLcls "Parens"
 
 instance YAML Exp where

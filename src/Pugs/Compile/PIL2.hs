@@ -134,8 +134,8 @@ instance Compile Exp PIL_Stmts where
     -- XXX: pragmas?
     compile (Ann Pos{} rest) = compile rest -- fmap (PPos pos rest) $ compile rest
     compile (Ann Prag{} rest) = compile rest -- fmap (PPos pos rest) $ compile rest
-    compile (Ann Parens{} rest) = compile rest
     compile (Ann (Cxt cxt) rest) = enter cxt $ compile rest
+    compile (Ann _ rest) = compile rest
     compile (Sym _ "" rest) = compile rest
     compile (Stmts (Pad SOur _ exp) rest) = do
         compile $ mergeStmts exp rest
@@ -196,7 +196,7 @@ instance Compile Exp PIL_Stmt where
     compile (Ann (Cxt cxt) rest) = enter cxt $ compile rest
     -- XXX: pragmas?
     compile (Ann Prag{} rest) = compile rest -- fmap (PPos pos rest) $ compile rest
-    compile (Ann Parens{} rest) = compile rest
+    compile (Ann _ rest) = compile rest
     compile (Sym _ "" rest) = compile rest
     compile Noop = return PNoop
     compile (Val val) = do
@@ -272,8 +272,8 @@ instance (Compile a b, Compile a c, Compile a d) => Compile [a] (b, c, d) where
 instance Compile Exp PIL_LValue where
     compile (Ann Pos{} rest) = compile rest -- fmap (PPos pos rest) $ compile rest
     compile (Ann Prag{} rest) = compile rest
-    compile (Ann Parens{} rest) = compile rest
     compile (Ann (Cxt cxt) rest) = enter cxt $ compile rest
+    compile (Ann _ rest) = compile rest
     compile (Sym _ "" rest) = compile rest
     -- XXX: pragmas?
     compile (Var name) = return $ PVar name
@@ -371,8 +371,8 @@ compConditional exp = compError exp
 instance Compile Exp PIL_Expr where
     compile (Ann Pos{} rest) = compile rest -- fmap (PPos pos rest) $ compile rest
     compile (Ann Prag{} rest) = compile rest
-    compile (Ann Parens{} rest) = compile rest
     compile (Ann (Cxt cxt) rest) = enter cxt $ compile rest
+    compile (Ann _ rest) = compile rest
     compile (Sym _ "" rest) = compile rest
     -- XXX: pragmas?
     compile (Var name) = return . PExp $ PVar name
