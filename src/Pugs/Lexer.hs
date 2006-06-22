@@ -397,7 +397,7 @@ ruleBareTrait trait = rule "bare trait" $ do
 ruleType :: RuleParser String
 ruleType = literalRule "context" $ do
     -- Valid type names: Foo, Bar::Baz, ::Grtz, ::?CLASS, but not :Foo
-    lead    <- count 1 wordAlpha <|> string "::"
+    lead    <- count 1 wordAlpha <|> (string "::" >> return [])
     rest    <- many (wordAny <|> oneOf ":&|?")
     return (lead ++ rest)
 
