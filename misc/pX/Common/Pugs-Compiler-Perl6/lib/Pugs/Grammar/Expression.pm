@@ -56,7 +56,7 @@ sub ast {
                 #print "checking angle quote ... [$whitespace_before]\n";
                 $m = Pugs::Grammar::Term->angle_quoted( substr($match, 1), { p => 1 } );
                 if ( $m ) {
-                    print "Match: ",Dumper $m->();
+                    #print "Match: ",Dumper $m->();
                     if ( grep { $_ eq 'NUM' } @expect ) {
                         # expects a term
                         $m = Pugs::Runtime::Match->new( { 
@@ -65,7 +65,7 @@ sub ast {
                             tail  => $$m->{tail},
                             capture => { angle_quoted => $m->() },
                         } );
-                        print "Match: ",Dumper $m->();
+                        #print "Match: ",Dumper $m->();
                         last;
                     }
                     # expects an op
@@ -78,7 +78,7 @@ sub ast {
                             tail  => $$m->{tail},
                             capture => { op => "ANGLE", angle_quoted => $m->() },
                         } );
-                        print "Match: ",Dumper $m->();
+                        #print "Match: ",Dumper $m->();
                         last;
                     }
                 }
@@ -123,7 +123,7 @@ sub ast {
                 && defined $$m->{tail}
                 && $$m->{tail} =~ /^[_[:alnum:]]/ 
             ) {
-                print "mismatched name: $name\n";
+                #print "mismatched name: $name\n";
                 $m = Pugs::Grammar::Term->parse( $match, { p => 1 } );
                 $ast = $m->();
             }

@@ -197,6 +197,17 @@ sub statement {
     }
 
     if ( $n->{op1}{stmt} eq 'for' ) {
+        #warn "sub: ",Dumper $n->{exp1};
+        if ( exists $n->{exp1}{op1} &&
+             $n->{exp1}{op1}{op} eq '->' ) {
+            return  "$tab " . $n->{op1}{stmt} . 
+                    ' my ' . _emit( $n->{exp1}{exp2} ) . '' . 
+                    ' (' . _emit( $n->{exp1}{exp1} ) . ')' . 
+                    " {\n" . 
+                        # _emit_parameter_binding( $n->{signature}, $tab . '  ' ) .
+                        _emit( $n->{exp2}, $tab . '  ' ) . 
+                    "\n$tab }";
+        }
         return  "$tab " . $n->{op1}{stmt} . 
                 ' (' . _emit( $n->{exp1} ) . ')' . 
                 " {\n" . 
