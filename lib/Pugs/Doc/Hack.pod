@@ -284,8 +284,8 @@ is the name of the Perl 5 interpreter.
 =head2 Editing
 
 There is a F<util/perl6.vim> Vim syntax file.  There is an
-F<util/cperl6-mode.el> Emacs mode. If you don't use it, then perl-mode
-works better than cperl-mode.
+enhanced F<util/cperl-mode.el> Emacs mode. If you don't use it,
+then original perl-mode works better than original cperl-mode.
 
 Where applicable, conventions documented in Damian Conway's "Perl Best
 Practices" book (O'Reilly, 2005) should be followed by default.  At the very
@@ -303,11 +303,11 @@ C<< <Tab> >>.  The equivalent settings for Emacs are:
     c-basic-offset: 4
     indent-tabs-mode: nil
 
-If you use Emacs with cperl6-mode, you can set these code conventions
-in your config file with:
+If you use Emacs with the enhanced F<util/cperl-mode.el>,
+you can set these code conventions in your config file with:
 
-     (add-hook 'cperl6-mode-hook
-               '(lambda () (cperl6-set-style "Pugs")))
+     (add-hook 'cperl-mode-hook
+               '(lambda () (cperl-set-style "Pugs")))
 
 If you use BBEdit, you can configure it to auto-expand tabs like this:
 
