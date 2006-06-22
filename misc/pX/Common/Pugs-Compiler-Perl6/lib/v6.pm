@@ -6,6 +6,7 @@ use strict;
 use warnings;
 use Module::Compile-base;
 use File::Basename;
+use Pugs::Runtime::Perl6;
 
 my $bin;
 BEGIN { $bin = ((dirname(__FILE__) || '.') . "/..") };
@@ -32,7 +33,12 @@ sub pmc_compile {
     require Pugs::Compiler::Perl6;
     my $p6 = Pugs::Compiler::Perl6->compile( $source );
 
-    $p6->{perl5} =~ s/do\{(.*)\}/$1/s;
+    # $p6->{perl5} =~ s/do\{(.*)\}/$1/s;
+    $p6->{perl5} = 
+        "use Pugs::Runtime::Perl6;\n" . 
+        "use strict;\n" . 
+        $p6->{perl5};
+    
     return $p6->{perl5}."\n";
 }
 
