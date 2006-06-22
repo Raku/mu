@@ -2,7 +2,7 @@
 
 use v6-pugs;
 
-say "1..6"; 
+say "1..6";  
 
 my @array = <a b c>;
 

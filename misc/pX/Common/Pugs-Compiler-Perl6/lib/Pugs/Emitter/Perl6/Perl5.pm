@@ -137,9 +137,17 @@ sub default {
         # warn "call: ",Dumper $n;
         if ( $n->{sub}{bareword} eq 'use' ) {
             # use v6-pugs
-            if ( exists $n->{param}{cpan_bareword} &&
-                 $n->{param}{cpan_bareword} eq 'v6-pugs' ) {
-                return "$tab # use v6-pugs";
+            if ( exists $n->{param}{cpan_bareword} ) {
+                if ( $n->{param}{cpan_bareword} eq 'v6-pugs' ) {
+                    return "$tab # use v6-pugs\n";
+                }
+            }
+            #warn "call: ",Dumper $n;
+            if ( $n->{param}{sub}{bareword} eq 'v5' ) {
+                return "$tab warn 'use v5 - not implemented'";
+            }
+            if ( $n->{param}{sub}{bareword} eq 'v6' ) {
+                return "$tab # use v6\n";
             }
             # use module::name 'param'
             return "$tab use " . _emit( $n->{param} );
