@@ -17,6 +17,11 @@ sub _var_name {
     return $s;
 }
 
+sub _not_implemented {
+    my ( $n, $what, $tab ) = @_;
+    return "$tab die q(not implemented $what: " . Dumper( $n ) . ")";
+}
+
 sub emit {
     my ($grammar, $ast) = @_;
     # runtime parameters: $grammar, $string, $state, $arg_list
@@ -87,7 +92,7 @@ sub assoc_list {
         );
     }
     
-    return "$tab die 'not implemented list-op: " . $n->{op1} . "'";
+    return _not_implemented( $n->{op1}, "list-op", $tab );
 }
 
 sub _emit_parameter_binding {
@@ -178,7 +183,7 @@ sub default {
                 "\n$tab }";
     }
 
-    return "$tab die 'not implemented syntax: " . Dumper( $n ) . "'";
+    return _not_implemented( $n, "syntax", $tab );
 }
 
 sub infix {
@@ -209,7 +214,7 @@ sub infix {
         return _emit( $n->{exp1}, $tab ) . ' ' . $n->{op1}{op} . ' ' . _emit( $n->{exp2}, $tab );
     }
     
-    return "$tab die 'not implemented infix: " . Dumper( $n ) . "'";
+    return _not_implemented( $n, "infix", $tab );
 }
 
 sub circumfix {
@@ -224,7 +229,7 @@ sub circumfix {
         return '(' . _emit( $n->{exp1}, $tab ) . ')';
     }
     
-    return "$tab die 'not implemented circumfix: " . Dumper( $n ) . "'";
+    return _not_implemented( $n, "circumfix", $tab );
 }
 
 sub postcircumfix {
@@ -239,7 +244,7 @@ sub postcircumfix {
         return _emit( $n->{exp1}, $tab ) . '[' . _emit( $n->{exp2}, $tab ) . ']';
     }
     
-    return "$tab die 'not implemented postcircumfix: " . Dumper( $n ) . "'";
+    return _not_implemented( $n, "postcircumfix", $tab );
 }
 
 sub prefix {
@@ -260,7 +265,7 @@ sub prefix {
         return $n->{op1}{op} . _emit( $n->{exp1}, $tab );
     }
     
-    return "$tab die 'not implemented prefix: " . Dumper( $n ) . "'";
+    return _not_implemented( $n, "prefix", $tab );
 }
 
 sub postfix {
@@ -273,7 +278,7 @@ sub postfix {
         return _emit( $n->{exp1}, $tab ) . $n->{op1}{op};
     }
     
-    return "$tab die 'not implemented postfix: " . Dumper( $n ) . "'";
+    return _not_implemented( $n, "postfix", $tab );
 }
 
 1;
