@@ -1,4 +1,4 @@
-= Changes for 6.2.12 (rXXXXX) - June XX, 2006 *** up to r9800 excluding updates to misc/ ***
+= Changes for 6.2.12 (rXXXXX) - June XX, 2006 *** up to r10207 excluding updates to misc/ ***
 
 == Licensing Changes
 
@@ -68,6 +68,8 @@ truncated in r8916, apparently from gnome's copy-paste buffer limit.
 * Gaal's OSDC talk "A Peek into Pugs Internals" in `docs/talks/peek.spork`.
 * Juerd's talk "Perl 6 Myths" in `/docs/talks/p6myths2.html`.
 * [examples/qotw/]: Added the QOTW 8 Expert solution.
+* [examples/rules/]: Added a sample BASIC parser.
+* [examples/concurrency/]: Added sample usage on Software Transactional Memory.
 * [docs/Perl6/FAQ/Capture.pod] - FAQ on the new Signature/Capture calling convention.
 * [docs/Perl6/FAQ/FUD.pod] - Fears, Uncertainties and Doubts about Perl 6.
 
@@ -96,7 +98,12 @@ truncated in r8916, apparently from gnome's copy-paste buffer limit.
     if %ENV{ 3 } { 4 }	# hash lookup on %ENV
     if %ENV { 3 } { 4 }	# %ENV by itself
 * Support for Unicode bracket characters for quotelike operators
-* The rx_ macros in Prelude for user-defined rule handlers has been discontinued.
+* The rx_ macros in Prelude for user-defined rule handlers has been discontinued
+* Proper desugaring of `.=` expressions, such as `@a .= map(&sqrt)`
+* If a block ends on a line by itself, an implicit semicolon is assumed if possible
+* Support for implicit-topic dereferences such as `.[0]` and `.<foo>`
+* Multiline support in the interactive shell now recognizes unrecoverable parsefails
+* Array and hash sigilled match variables, such as `@0`, `@<foo>` and `%<bar>`
 
 == Bug Fixes
 
@@ -112,6 +119,8 @@ truncated in r8916, apparently from gnome's copy-paste buffer limit.
 * `1.` was parsed as a valid integer, causing ambiguities; it's now invalid.
 * `sign` and `<=>` now fails on underfined arguments, instead of returning undef.
 * Implicit variables following a declarator was broken: `{my $x; $^y}.(42)` 
+* The bogus comma-less block argument form `map {$_} 1,2,3` is no longer supported
+* In `(@x, @y) = (1,2,3)`, the `@y` is now cleared into an empty list
 
 == Backends
 
