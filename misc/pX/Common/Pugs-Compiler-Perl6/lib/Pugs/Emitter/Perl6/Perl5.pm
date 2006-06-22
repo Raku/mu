@@ -69,6 +69,8 @@ sub _emit {
         if exists $n->{fixity} && $n->{fixity} eq 'postfix';
     return circumfix( $n, $tab )
         if exists $n->{fixity} && $n->{fixity} eq 'circumfix';
+    return postcircumfix( $n, $tab )
+        if exists $n->{fixity} && $n->{fixity} eq 'postcircumfix';
         
     return default( $n, $tab );
 }
@@ -225,6 +227,21 @@ sub circumfix {
     return "$tab die 'not implemented circumfix: " . Dumper( $n ) . "'";
 }
 
+sub postcircumfix {
+    my $n = $_[0];
+    my $tab = $_[1]; 
+    # print "postcircumfix: ", Dumper( $n );
+    
+    if ( $n->{op1}{op} eq '[' &&
+         $n->{op2}{op} eq ']' ) {
+        #return '()'
+        #    unless defined  $n->{exp1};
+        return _emit( $n->{exp1}, $tab ) . '[' . _emit( $n->{exp2}, $tab ) . ']';
+    }
+    
+    return "$tab die 'not implemented postcircumfix: " . Dumper( $n ) . "'";
+}
+
 sub prefix {
     my $n = $_[0];
     my $tab = $_[1];
@@ -238,7 +255,8 @@ sub prefix {
         return 'eval ' . _emit( $n->{exp1}, $tab ) . "; \$::_EXCL_ = \$@;";
     }
     if ( $n->{op1}{op} eq '++' ||
-         $n->{op1}{op} eq '--' ) {
+         $n->{op1}{op} eq '--' ||
+         $n->{op1}{op} eq '+'  ) {
         return $n->{op1}{op} . _emit( $n->{exp1}, $tab );
     }
     
