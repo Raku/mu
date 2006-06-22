@@ -79,24 +79,38 @@ sub assoc_list {
 }
 
 sub _emit_parameter_binding {
-    return ''
-        unless defined $_[0];
     my $n = $_[0];
-    my $tab = $_[1];
-    #warn "parameter list: ",Dumper $n;
+    my $tab = $_[1] || '';
+    
+    # no parameters
+    return ''
+        unless defined $n;
+        
+    # warn "parameter list: ",Dumper $n;
+    
+    if ( @$n == 1 ) {
+        # just one parameter
+        my $param = _emit( $n->[0] );
+        return "$tab my $param = \$_[0];\n";
+    }
+    
     return " # XXX - " . (scalar @$n) . " parameters\n";
 }
 
 sub default {
     my $n = $_[0];
-    my $tab = $_[1];
+    my $tab = $_[1] || '';
     #print "emit: ", Dumper( $n );
     
     if ( $n->{op1} eq 'call' ) {
         #warn "call: ",Dumper $n;
-        if ( $n->{sub}{bareword} eq 'use' &&
-            $n->{param}{cpan_bareword} eq 'v6-pugs' ) {
-            return "$tab # use v6-pugs";
+        if ( $n->{sub}{bareword} eq 'use' ) {
+            # use v6-pugs
+            if ( $n->{param}{cpan_bareword} eq 'v6-pugs' ) {
+                return "$tab # use v6-pugs";
+            }
+            # use module::name 'param'
+            return "$tab use " . _emit( $n->{param} );
         }
         return $tab . $n->{sub}{bareword} . ' ' . _emit( $n->{param}, '  ' ) 
             if $n->{sub}{bareword} eq 'print';
@@ -132,10 +146,10 @@ sub default {
         #warn "sub: ",Dumper $n;
         return $tab . $n->{op1}{stmt} . 
                 ' ' . $n->{name}{bareword} . 
-                '{' . 
-                    _emit_parameter_binding( $n->{signature} ) .
-                    _emit( $n->{block} ) . 
-                '}';
+                " {\n" . 
+                    _emit_parameter_binding( $n->{signature}, $tab . '  ' ) .
+                    _emit( $n->{block}, $tab . '  ' ) . 
+                "\n$tab }";
     }
 
     return "$tab die 'not implemented syntax: " . Dumper( $n ) . "'";
