@@ -1,4 +1,4 @@
-= Changes for 6.2.12 (rXXXXX) - June XX, 2006 *** up to r10312 excluding updates to misc/ ***
+= Changes for 6.2.12 (rXXXXX) - June XX, 2006 *** up to r10835
 
 == Licensing Changes
 
@@ -62,6 +62,7 @@
   `./perl -we 'use Regexp::Perl6; print "a" =~ /<word>**{1}/;'`
 * Pugs-Grammar-MiniPerl6 - translate Perl 6 rules into haskell Parsec, such that
   Parser.hs can be generated from the Perl 6 grammar.
+* P5_to_P6_Translation - beginning of a Perl 5.9 MAD tree parser and translater to Perl 6
 
 == Test, Examples and Documentations
 
@@ -78,8 +79,6 @@ truncated in r8916, apparently from gnome's copy-paste buffer limit.
 * [src/Pugs/Parser] - Perl 6 grammars for Capture.pg and Signature.pg 
 
 == Feature Changes
-
-=== Shared components
 
 * Pugs now builds in a single pass.
 * Removed support for GHC 6.4.0 and added support for GHC 6.5.
@@ -118,6 +117,19 @@ truncated in r8916, apparently from gnome's copy-paste buffer limit.
 * Support for scan metaoperators: `[\+] 1,2,3` evaluates to `(1, 3, 6)`
 * Builtin functions no longer defaults to `$_`; write `.ord` instead of `ord`
 * `&not` is now unary instead of a list operator
+* `require ::Class::Literal` is no longer supported
+* The postfix infinite-range operator is no more; write `1..*` instead of `1...`
+* Experimental support for Software Transactional Memory and atomic blocks; the syntax is subject to change
+* Hash initializers now revert to bias-to-left behavior as in Perl 5: In `{X => 1, X => 2}`, the value of X is 2, not 1
+* The `-M` command line switch can take import arguments: `pugs -Mlib=foo`
+* Using libraries from embedded Perl 5 can import functions now
+* Declarators no longer take qualified names: `our $Foo::x` is invalid
+* Assignment with non-obviously-scalar left-hand side is now in list context: `@a = 1,2,3` now parses as `@a = (1,2,3)`
+* Parse-time binding `::=` is now fully supported 
+* Declarators can now occur at expression position: `my $x + my $y` works
+* `my $!x` is now recognized as an alternative spelling for `my $x` 
+* Prototype objects: `my Dog $fifo` now assigns `::Foo` into `$fido`
+* Declarators are now strictly lexical: `{ $x++ unless my $x }` increments `$OUTER::x`
 
 == Bug Fixes
 
@@ -142,21 +154,12 @@ truncated in r8916, apparently from gnome's copy-paste buffer limit.
 * An uninitialized Code is no longer considered nullary: `my &f; f 1` is not a parsefail
 * `&slurp` and `&readline` now evaluates eagerly an no longer races breaks with e.g. an `&unlink` afterward 
 * Lexical imports use the `state` instead of `my` storage class now, so they are are no longer discarded upon block reentry 
-
-== Backends
-
-=== JavaScript backend
-
-
-=== Parrot backend
-
-
-=== PIL^N backend
-
-
-=== Perl6-ObjectSpace
-
-
+* Chained assignments now return lvalues properly: `$x = %y = (1,2,3,4);`
+* `sub f (@x) {}` no longer confer slurpy context to its argument, so `f([1,2,3])` works now
+* `f(())` now passes `&f` an empty list, not `undef`
+* `%.foo` and `@.foo` now always flattens in argument lists
+* Invalid rules in embedded Parrot no longer triggers an uncatchable `exit`
+* Method invocant is `self` and `$?SELF` but no longer `$_`
 
 = Changes for 6.2.11 (r8934) - Feb 1, 2006
 
