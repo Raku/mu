@@ -2,6 +2,13 @@ package v6;
 
 # invokes the Perl6-to-Perl5 compiler and creates a .pmc file
 
+# Command line:
+#   perl v6.pm -e "some perl 6 code"
+
+# Script or module:
+#   use v6-pugs;
+#   "hello, world".say;
+
 use strict;
 use warnings;
 use Module::Compile-base;
