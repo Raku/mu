@@ -11,9 +11,11 @@
 
 === New Perl 5 modules
 
-* `v6.pm`: `use v6; say "Perl 6"; no v6; print "Perl 5"`
+* `v6.pm`: `use v6-pugs; say "Perl 6"; use v5; print "Perl 5"`
 * Module::Compile - precompile Perl 5 modules transparently
 * Pugs::Compiler::Rule - Compiler for Perl 6 Rules
+* Pugs::Compiler::Perl6 - Compiler for Perl 6 (implements 'v6')
+** Still fails many of the sanity tests, as well as nearly all of the other tests
 * Data::Bind - Implement Perl 6's calling/binding convention on Perl 5
 
 === New Perl 6 modules
@@ -52,6 +54,7 @@
 * Pugs-Compiler-Rule - a compiler for Perl 6 Rules - published in CPAN
 ** uses Module::Install 'pmc' magic for executing Perl 6 from plain Perl 5.
 ** the "Rule" grammar is written in Perl 6, and it is compiled to Perl 5 using 'lrep'.
+* Pugs::Compiler::Perl6 - Compiler for Perl 6 (implements 'v6')
 * Pugs-Compiler-Precedence - an operator precedence parser, built around Parse::Yapp
 * Inline-Parrot - a C version of Inline-Parrot - uses NCI for data exchange.
 * Pugs-Grammar-Perl6 - a Perl 6 parser - parses Test.pm!
