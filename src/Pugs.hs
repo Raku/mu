@@ -74,9 +74,9 @@ run ("-c":"-e":prog:_)          = doCheck "-e" prog
 run ("-c":file:_)               = readFile file >>= doCheck file
 
 -- -CPIL1.Perl5 outputs PIL formatted as Perl 5.
-run ("-C":backend:args) | map toLower backend == "js" = do
+run ("-C":backend:args) | (== map toLower backend) `any` ["js","perl5","js-perl5"] = do
     exec <- getArg0
-    doHelperRun "JS" ("--compile-only":("--pugs="++exec):args)
+    doHelperRun backend ("--compile-only":("--pugs="++exec):args)
 run ("-C":backend:"-e":prog:_)           = doCompileDump backend "-e" prog
 run ("-C":backend:file:_)                = readFile file >>= doCompileDump backend file
 
@@ -236,7 +236,7 @@ doHelperRun backend args =
         "js"    -> if (args' == [])
                    then (doExecuteHelper "jspugs.pl"  args)
                    else (doExecuteHelper "runjs.pl"   args)
-        "perl5" ->       doExecuteHelper "perl6.pl" args
+        "perl5" ->       doExecuteHelper "v6.pm" args
         "js-perl5" -> doExecuteHelper "runjs.pl" (jsPerl5Args ++ args)
         _       ->       fail ("unknown backend: " ++ backend)
     where
@@ -259,7 +259,7 @@ doExecuteHelper helper args = do
     where
     suffixes =
         [ []
-        , ["misc", "pX", "Common", "Pugs-Grammar-Perl6"]
+        , ["misc", "pX", "Common", "Pugs-Compiler-Perl6", "lib"]
         , ["perl5", "PIL2JS"]      --  $sourcedir/perl5/PIL2JS/jspugs.pl
         , ["perl5", "PIL-Run"]     --  $sourcedir/perl5/PIL-Run/pugs-p5.pl
         , ["perl5", "lib"]         --  $pugslibdir/perl5/lib/jspugs.pl
