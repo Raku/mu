@@ -2,6 +2,14 @@ use warnings;
 use strict;
 
 {
+  package PIL::VType;
+  sub fixup { $_[0] }
+  sub as_js {
+    return "new PIL2JS.Box.Constant(undefined)";
+  }
+}
+
+{
   package PIL::PVal;
 
   sub fixup { $_[0] }

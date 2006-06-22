@@ -67,8 +67,9 @@ sub JS::Root::map(Code $code, *@array is rw) is primitive {
   $arity ||= 1;
 
   my @res;
+  my @args;
   while +@array > 0 {
-    my @args = ();
+    @args = ();
     my $i; loop ($i = 0; $i < $arity; $i++) {
       # Slighly hacky
       push @args: undef;
