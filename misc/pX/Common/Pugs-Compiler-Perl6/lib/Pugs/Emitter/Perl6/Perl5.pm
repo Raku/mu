@@ -63,6 +63,9 @@ sub _emit {
     return '\'' . $n->{single_quoted} . '\'' 
         if exists $n->{single_quoted};
             
+    return 'qw(' . $n->{angle_quoted} . ')' 
+        if exists $n->{angle_quoted};
+            
     return assoc_list( $n, $tab )
         if exists $n->{assoc}  && $n->{assoc}  eq 'list';
         
@@ -76,7 +79,10 @@ sub _emit {
         if exists $n->{fixity} && $n->{fixity} eq 'circumfix';
     return postcircumfix( $n, $tab )
         if exists $n->{fixity} && $n->{fixity} eq 'postcircumfix';
-        
+
+    return statement( $n, $tab )
+        if ref $n->{op1} && exists $n->{op1}{stmt};
+
     return default( $n, $tab );
 }
 
@@ -163,9 +169,16 @@ sub default {
             ')';
     }
 
-    #warn "emit: ", Dumper( $n );
-    if ( ref( $n->{op1} ) && 
-         ( $n->{op1}{stmt} eq 'if' || $n->{op1}{stmt} eq 'unless' ) ) {
+    return _not_implemented( $n, "syntax", $tab );
+}
+
+sub statement {
+    my $n = $_[0];
+    my $tab = $_[1] || '';
+    #warn "statement: ", Dumper( $n );
+    
+    if ( $n->{op1}{stmt} eq 'if'     || 
+         $n->{op1}{stmt} eq 'unless' ) {
         return  "$tab " . $n->{op1}{stmt} . 
                 '(' . _emit( $n->{exp1} ) . ')' .
                 " {\n" . _emit( $n->{exp2}, $tab . '  ' ) . "\n$tab }\n" .
@@ -173,7 +186,7 @@ sub default {
                 " {\n" . _emit( $n->{exp3}, $tab . '  ' ) . "\n$tab }";
     }
 
-    if ( ref( $n->{op1} ) && $n->{op1}{stmt} eq 'sub' ) {
+    if ( $n->{op1}{stmt} eq 'sub' ) {
         #warn "sub: ",Dumper $n;
         return  "$tab " . $n->{op1}{stmt} . 
                 ' ' . $n->{name}{bareword} . 
@@ -183,7 +196,16 @@ sub default {
                 "\n$tab }";
     }
 
-    return _not_implemented( $n, "syntax", $tab );
+    if ( $n->{op1}{stmt} eq 'for' ) {
+        return  "$tab " . $n->{op1}{stmt} . 
+                ' (' . _emit( $n->{exp1} ) . ')' . 
+                " {\n" . 
+                    # _emit_parameter_binding( $n->{signature}, $tab . '  ' ) .
+                    _emit( $n->{exp2}, $tab . '  ' ) . 
+                "\n$tab }";
+    }
+
+    return _not_implemented( $n, "statement", $tab );
 }
 
 sub infix {
