@@ -50,6 +50,7 @@ module Pugs.Compat (
 ) where
 
 import Foreign
+import System.Cmd
 import System.Posix.Types
 
 #ifdef PUGS_HAVE_POSIX
@@ -84,9 +85,11 @@ setCurrentDirectory :: FilePath -> IO ()
 setCurrentDirectory = changeWorkingDirectory
 
 executeFile' :: FilePath -> Bool -> [String] -> Maybe [(String, String)] -> IO ExitCode
+executeFile' prog True args Nothing = rawSystem prog args
 executeFile' prog search args env = do
-	executeFile prog search args env
-	return $ ExitFailure 1            -- if we got here, it failed.
+    print (prog, search, args, env)
+    executeFile prog search args env
+    return $ ExitFailure 1            -- if we got here, it failed.
 
 statFileSize :: FilePath -> IO Integer
 statFileSize f = do
@@ -112,7 +115,6 @@ import qualified System.Environment
 import System.Directory (getCurrentDirectory, setCurrentDirectory, doesFileExist, doesDirectoryExist)
 import IO
 import System.IO
-import System.Cmd
 import System.Exit
 import Foreign.C.String
 import Foreign.Ptr
@@ -264,8 +266,7 @@ signalProcess :: Int -> Int -> IO ()
 signalProcess _ _ = failWith "kill"
 
 executeFile' :: FilePath -> Bool -> [String] -> Maybe [(String, String)] -> IO ExitCode
-executeFile' prog True args Nothing = do
-    rawSystem prog args
+executeFile' prog True args Nothing = rawSystem prog args
 executeFile' _ _ _ _ = failWithIncomplete "executeFile"
 
 doesExist :: FilePath -> IO Bool
