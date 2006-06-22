@@ -1,6 +1,6 @@
-#!/usr/bin/pugs
+# #!/usr/bin/pugs
 
-use v6;
+use v6-pugs;
 
 say "1..4";
 
@@ -15,3 +15,4 @@ unless $!        { say "ok 3" } else { say "not ok 3" }
 
 try { die "bar\n" };
 if $! eq "bar\n" { say "ok 4" } else { say "not ok 4" }
+

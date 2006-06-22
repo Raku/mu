@@ -112,6 +112,12 @@ BEGIN {
         precedence => 'equal',
         other => 'infix:<IF>',
     );
+    __PACKAGE__->add_rule(
+        name => 'try',
+        assoc => 'non',
+        precedence => 'equal',
+        other => 'infix:<IF>',
+    );
 
     #for ( qw( print use push pop ) ) {
     #    __PACKAGE__->add_rule(

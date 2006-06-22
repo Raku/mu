@@ -7,6 +7,16 @@ use warnings;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
+sub _var_name {
+    my $s = shift;
+    substr($s,1) =~ s/\$/_DOLLAR_/g;
+    $s =~ s/\!/_EXCL_/g;
+    
+    # globals
+    $s = '$::_EXCL_' if $s eq '$_EXCL_';  
+    return $s;
+}
+
 sub emit {
     my ($grammar, $ast) = @_;
     # runtime parameters: $grammar, $string, $state, $arg_list
@@ -20,7 +30,7 @@ sub emit {
 sub _emit {
     my $n = $_[0];
     my $tab = $_[1];
-    #print "_emit: ", Dumper( $n );
+    #warn "_emit: ", Dumper( $n );
     #warn "fixity: $n->{fixity}\n" if exists $n->{fixity};
     
     # 'undef' example: parameter list, in a sub call without parameters
@@ -33,7 +43,7 @@ sub _emit {
     return $n->{int} 
         if exists $n->{int};
         
-    return $n->{scalar} 
+    return _var_name( $n->{scalar} )
         if exists $n->{scalar};
         
     return $n->{array} 
@@ -106,6 +116,10 @@ sub default {
         return "$tab END {\n" . _emit( $n->{END}, $tab . '  ' ) . "\n$tab }";
     }
     
+    if ( exists $n->{bare_block} ) {
+        return  "$tab {\n" . _emit( $n->{bare_block}, $tab . '  ' ) . "\n$tab }\n";
+    }
+
     if ( $n->{op1} eq 'call' ) {
         # warn "call: ",Dumper $n;
         if ( $n->{sub}{bareword} eq 'use' ) {
@@ -142,7 +156,9 @@ sub default {
             ')';
     }
 
-    if ( ref( $n->{op1} ) && $n->{op1}{stmt} eq 'if' ) {
+    #warn "emit: ", Dumper( $n );
+    if ( ref( $n->{op1} ) && 
+         ( $n->{op1}{stmt} eq 'if' || $n->{op1}{stmt} eq 'unless' ) ) {
         return  "$tab " . $n->{op1}{stmt} . 
                 '(' . _emit( $n->{exp1} ) . ')' .
                 " {\n" . _emit( $n->{exp2}, $tab . '  ' ) . "\n$tab }\n" .
@@ -217,6 +233,9 @@ sub prefix {
     if ( $n->{op1}{op} eq 'my' ||
          $n->{op1}{op} eq 'our' ) {
         return $n->{op1}{op} . ' ' . _emit( $n->{exp1}, $tab );
+    }
+    if ( $n->{op1}{op} eq 'try' ) {
+        return 'eval ' . _emit( $n->{exp1}, $tab ) . "; \$::_EXCL_ = \$@;";
     }
     if ( $n->{op1}{op} eq '++' ||
          $n->{op1}{op} eq '--' ) {

@@ -28,72 +28,89 @@ sub ast {
         my $m;
         my $whitespace_before = 0;
 
-      for ( 1 ) {
-        $m = Pugs::Grammar::BaseCategory->ws( $match );
-        # <ws> is nonstandard in that it returns a hashref instead of a Match
-        # print "match is ",Dumper($m),"\n";
-        if ( $m->{bool} ) {
-            $match = $m->{tail};
-            $whitespace_before = 1;
-        }
-        my @expect = $p->YYExpect;  # XXX is this expensive?
-        
-        # print "tail $match \n"; 
-
-        # XXX @expect should use symbolic names; better use TABLE instead of 'literal'
-        #print " @{[ sort @expect ]} \n";
-        # if ( grep { $_ eq '++' || $_ eq '{' } @expect ) {
-        $m = Pugs::Grammar::StatementControl->parse( $match, { p => 1 } );
-        last if ( $m );
-        #}
-
-        # XXX temporary hack - matching options in 'expected' order should fix this
-        if ( $match =~ /^</ ) {   # && ! $whitespace_before ) {
-            # XXX - angle quotes are always tried even if it were expecting a simple '<'
-
-            # after whitespace means '<' (default)
-            # without whitespace means '<str>'
-            print "checking angle quote ... [$whitespace_before]\n";
-            $m = Pugs::Grammar::Term->angle_quoted( substr($match, 1), { p => 1 } );
-            if ( $m ) {
-                print "Match: ",Dumper $m->();
-                if ( grep { $_ eq 'NUM' } @expect ) {
-                    # expects a term
-                    $m = Pugs::Runtime::Match->new( { 
-                        bool  => 1,
-                        match => $m,
-                        tail  => $$m->{tail},
-                        capture => { angle_quoted => $m->() },
-                    } );
+        for ( 1 ) {
+            $m = Pugs::Grammar::BaseCategory->ws( $match );
+            # <ws> is nonstandard in that it returns a hashref instead of a Match
+            # print "match is ",Dumper($m),"\n";
+            if ( $m->{bool} ) {
+                $match = $m->{tail};
+                $whitespace_before = 1;
+            }
+            my @expect = $p->YYExpect;  # XXX is this expensive?
+            
+            # print "tail $match \n"; 
+            
+            # XXX @expect should use symbolic names; better use TABLE instead of 'literal'
+            #print " @{[ sort @expect ]} \n";
+            # if ( grep { $_ eq '++' || $_ eq '{' } @expect ) {
+            $m = Pugs::Grammar::StatementControl->parse( $match, { p => 1 } );
+            last if ( $m );
+            #}
+            
+            # XXX temporary hack - matching options in 'expected' order should fix this
+            if ( $match =~ /^</ ) {   # && ! $whitespace_before ) {
+                # XXX - angle quotes are always tried even if it were expecting a simple '<'
+            
+                # after whitespace means '<' (default)
+                # without whitespace means '<str>'
+                #print "checking angle quote ... [$whitespace_before]\n";
+                $m = Pugs::Grammar::Term->angle_quoted( substr($match, 1), { p => 1 } );
+                if ( $m ) {
                     print "Match: ",Dumper $m->();
-                    last;
+                    if ( grep { $_ eq 'NUM' } @expect ) {
+                        # expects a term
+                        $m = Pugs::Runtime::Match->new( { 
+                            bool  => 1,
+                            match => $m,
+                            tail  => $$m->{tail},
+                            capture => { angle_quoted => $m->() },
+                        } );
+                        print "Match: ",Dumper $m->();
+                        last;
+                    }
+                    # expects an op
+                    # x < 1  --- less than
+                    # x<1    --- starts angle-quote
+                    unless ( $whitespace_before ) {
+                        $m = Pugs::Runtime::Match->new( { 
+                            bool  => 1,
+                            match => $m,
+                            tail  => $$m->{tail},
+                            capture => { op => "ANGLE", angle_quoted => $m->() },
+                        } );
+                        print "Match: ",Dumper $m->();
+                        last;
+                    }
                 }
-                # expects an op
-                # x < 1  --- less than
-                # x<1    --- starts angle-quote
-                unless ( $whitespace_before ) {
+            }
+            
+            # XXX temporary hack - matching options in 'expected' order should fix this
+            if ( $match =~ /^{/ ) {
+                # after whitespace means block-start
+                #print "checking { ... [$whitespace_before]\n";
+                if ( $whitespace_before ) {
                     $m = Pugs::Runtime::Match->new( { 
                         bool  => 1,
-                        match => $m,
-                        tail  => $$m->{tail},
-                        capture => { op => "ANGLE", angle_quoted => $m->() },
+                        match => '{',
+                        tail  => substr( $match, 1 ),
+                        capture => { stmt => '{' },
                     } );
-                    print "Match: ",Dumper $m->();
+                    #print "Match: ",Dumper $m->();
                     last;
                 }
             }
-        }
-        $m = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
-        last if ( $m );
-        $m = Pugs::Grammar::Term->parse( $match, { p => 1 } );
-        last if ( $m );
-        
-        local $Carp::CarpLevel = 2;
-        carp "unrecognized token '",substr($match,0,10),"'\n"
-            if $match;
-        
-      } # /for
 
+            $m = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
+            last if ( $m );
+            $m = Pugs::Grammar::Term->parse( $match, { p => 1 } );
+            last if ( $m );
+            
+            local $Carp::CarpLevel = 2;
+            carp "unrecognized token '",substr($match,0,10),"'\n"
+                if $match;
+            
+        } # /for
+            
         my $ast = $m->();
 
         {
@@ -127,6 +144,9 @@ sub ast {
             }
             elsif ( $ast->{stmt} eq 'sub' or $ast->{stmt} eq 'multi' ) {
                 $t = [ 'SUB' => $ast ]
+            }
+            elsif ( $ast->{stmt} eq '{' ) {
+                $t = [ 'BLOCK_START' => $ast ]
             }
             else {
                 $t = [ $ast->{stmt} => $ast ]

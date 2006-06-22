@@ -42,28 +42,28 @@ signature:
     ;
 
 stmt:  
-      IF exp '{' exp '}' 
+      IF exp 'BLOCK_START' exp '}' 
         { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[4] } }
-    | IF exp '{' exp '}' 'else' '{' exp '}'
+    | IF exp 'BLOCK_START' exp '}' 'else' 'BLOCK_START' exp '}'
         { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[4], exp3 => $_[8] } }
-    | IF exp '{' exp '}' 'elsif' exp '{' exp '}' 'else' '{' exp '}'
+    | IF exp 'BLOCK_START' exp '}' 'elsif' exp 'BLOCK_START' exp '}' 'else' 'BLOCK_START' exp '}'
         { $_[0]->{out}= { 
             op1 => $_[1], exp1 => $_[2], exp2 => $_[4], 
                           exp3 => $_[7], exp4 => $_[9],
                           exp5 => $_[13],
         } }
-    | IF exp '{' exp '}' 'elsif' exp '{' exp '}' 
+    | IF exp 'BLOCK_START' exp '}' 'elsif' exp 'BLOCK_START' exp '}' 
         { $_[0]->{out}= { 
             op1 => $_[1], exp1 => $_[2], exp2 => $_[4], 
                           exp3 => $_[7], exp4 => $_[9],
         } }
 
-    | 'for' exp '{' exp '}'
+    | 'for' exp 'BLOCK_START' exp '}'
         { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[4], } }
-        
-    | SUB BAREWORD             attr '{' exp '}' 
+
+    | SUB BAREWORD             attr 'BLOCK_START' exp '}' 
         { $_[0]->{out}= { op1 => $_[1], name => $_[2], block => $_[5], %{$_[3]} } }
-    | SUB BAREWORD '(' signature ')' attr '{' exp '}' 
+    | SUB BAREWORD '(' signature ')' attr 'BLOCK_START' exp '}' 
         {
             #print "parse-time define sub: ", Dumper( $_[2] );
             #push @subroutine_names, $_[2]->{bareword};
@@ -71,9 +71,9 @@ stmt:
             $_[0]->{out}= { op1 => $_[1], name => $_[2], block => $_[8], %{$_[4]}, %{$_[6]} } 
         }
     
-    | SUB SUB BAREWORD             attr '{' exp '}' 
+    | SUB SUB BAREWORD             attr 'BLOCK_START' exp '}' 
         { $_[0]->{out}= { op1 => $_[2], name => $_[3], block => $_[6], %{$_[4]} } }
-    | SUB SUB BAREWORD '(' signature ')' attr '{' exp '}' 
+    | SUB SUB BAREWORD '(' signature ')' attr 'BLOCK_START' exp '}' 
         {
             #print "parse-time define sub: ", Dumper( $_[2] );
             #push @subroutine_names, $_[2]->{bareword};
@@ -81,11 +81,11 @@ stmt:
             $_[0]->{out}= { op1 => $_[2], name => $_[3], block => $_[9], %{$_[5]}, %{$_[7]} } 
         }
 
-    | '{' exp '}'        
+    | 'BLOCK_START' exp '}'        
         { $_[0]->{out}= { 'bare_block' => $_[2] } }
-    | 'BEGIN' '{' exp '}'        
+    | 'BEGIN' 'BLOCK_START' exp '}'        
         { $_[0]->{out}= { 'BEGIN' => $_[3] } }
-    | 'END' '{' exp '}'        
+    | 'END' 'BLOCK_START' exp '}'        
         { $_[0]->{out}= { 'END' => $_[3] } }
     ;
 exp: 
