@@ -1,0 +1,333 @@
+PERL_XMLDUMP='t55/TestInit.pm.xml' /home/larry/src/p55/perl  -I lib t55/TestInit.pm 2>t55/TestInit.pm.err
+--- !perl/P5AST 
+Kids: 
+  - !perl/P5AST::op_leave 
+    Kids: 
+      - !perl/P5AST::nothing 
+        Kids: 
+          - !perl/p5::punct 
+            enc: 1
+            uni: ''
+      - !perl/P5AST::package 
+        Kids: 
+          - !perl/p5::junk 
+            enc: 1
+            uni: |+
+              # This is a replacement for the old BEGIN preamble which heads (or
+              # should head) up every core test program to prepare it for running.
+              # Now instead of:
+              #
+              # BEGIN {
+              #   chdir 't' if -d 't';
+              #   @INC = '../lib';
+              # }
+              #
+              # t/TEST will use -MTestInit.  You may "use TestInit" in the test
+              # programs but it is not required.
+              #
+              # P.S. This documentation is not in POD format in order to avoid
+              # problems when there are fundamental bugs in perl.
+              
+
+          - !perl/p5::operator 
+            enc: 1
+            uni: package
+          - !perl/P5AST::op_const 
+            Kids: 
+              - !perl/p5::junk 
+                enc: 1
+                uni: " "
+              - !perl/p5::token 
+                enc: 1
+                uni: TestInit
+          - !perl/p5::punct 
+            enc: 1
+            uni: ;
+          - !perl/p5::junk 
+            enc: 1
+            uni: |
+              
+
+      - !perl/P5AST::statement 
+        Kids: 
+          - !perl/P5AST::op_sassign 
+            Kids: 
+              - !perl/P5AST::op_rv2sv 
+                Kids: 
+                  - !perl/p5::junk 
+                    enc: 1
+                    uni: |
+                      
+
+                  - !perl/p5::sigil 
+                    enc: 1
+                    uni: $VERSION
+              - !perl/p5::junk 
+                enc: 1
+                uni: " "
+              - !perl/p5::operator 
+                enc: 1
+                uni: =
+              - !perl/P5AST::op_const 
+                Kids: 
+                  - !perl/p5::junk 
+                    enc: 1
+                    uni: " "
+                  - !perl/p5::token 
+                    enc: 1
+                    uni: 1.01
+          - !perl/p5::punct 
+            enc: 1
+            uni: ;
+          - !perl/p5::junk 
+            enc: 1
+            uni: |
+              
+
+      - !perl/P5AST::statement 
+        Kids: 
+          - !perl/P5AST::condmod 
+            Kids: 
+              - !perl/P5AST::op_chdir 
+                Kids: 
+                  - !perl/p5::junk 
+                    enc: 1
+                    uni: |
+                      
+
+                  - !perl/p5::operator 
+                    enc: 1
+                    uni: chdir
+                  - !perl/P5AST::op_const 
+                    Kids: 
+                      - !perl/p5::junk 
+                        enc: 1
+                        uni: " "
+                      - !perl/p5::openquote 
+                        enc: 1
+                        uni: "'"
+                      - !perl/p5::text 
+                        enc: 1
+                        uni: t
+                      - !perl/p5::closequote 
+                        enc: 1
+                        uni: "'"
+              - !perl/p5::junk 
+                enc: 1
+                uni: " "
+              - !perl/p5::token 
+                enc: 1
+                uni: if
+              - !perl/P5AST::op_ftdir 
+                Kids: 
+                  - !perl/p5::junk 
+                    enc: 1
+                    uni: " "
+                  - !perl/p5::operator 
+                    enc: 1
+                    uni: "-d "
+                  - !perl/P5AST::op_const 
+                    Kids: 
+                      - !perl/p5::openquote 
+                        enc: 1
+                        uni: "'"
+                      - !perl/p5::text 
+                        enc: 1
+                        uni: t
+                      - !perl/p5::closequote 
+                        enc: 1
+                        uni: "'"
+          - !perl/p5::punct 
+            enc: 1
+            uni: ;
+          - !perl/p5::junk 
+            enc: 1
+            uni: |
+              
+
+      - !perl/P5AST::statement 
+        Kids: 
+          - !perl/P5AST::op_aassign 
+            Kids: 
+              - !perl/P5AST::op_list 
+                Kids: 
+                  - !perl/P5AST::op_rv2av 
+                    Kids: 
+                      - !perl/p5::sigil 
+                        enc: 1
+                        uni: "@INC"
+              - !perl/p5::junk 
+                enc: 1
+                uni: " "
+              - !perl/p5::operator 
+                enc: 1
+                uni: =
+              - !perl/P5AST::op_list 
+                Kids: 
+                  - !perl/P5AST::op_const 
+                    Kids: 
+                      - !perl/p5::junk 
+                        enc: 1
+                        uni: " "
+                      - !perl/p5::openquote 
+                        enc: 1
+                        uni: "'"
+                      - !perl/p5::text 
+                        enc: 1
+                        uni: ../lib
+                      - !perl/p5::closequote 
+                        enc: 1
+                        uni: "'"
+          - !perl/p5::punct 
+            enc: 1
+            uni: ;
+          - !perl/p5::junk 
+            enc: 1
+            uni: |
+              
+
+      - !perl/P5AST::statement 
+        Kids: 
+          - !perl/P5AST::condmod 
+            Kids: 
+              - !perl/P5AST::op_sassign 
+                Kids: 
+                  - !perl/P5AST::op_helem 
+                    Kids: 
+                      - !perl/P5AST::op_rv2hv 
+                        Kids: 
+                          - !perl/p5::junk 
+                            enc: 1
+                            uni: |
+                              
+                              # Don't interfere with the taintedness of %ENV, this could perturbate tests
+
+                          - !perl/p5::sigil 
+                            enc: 1
+                            uni: $ENV
+                      - !perl/p5::opener 
+                        enc: 1
+                        uni: "{"
+                      - !perl/P5AST::op_const 
+                        Kids: 
+                          - !perl/p5::token 
+                            enc: 1
+                            uni: PERL_CORE
+                      - !perl/p5::closer 
+                        enc: 1
+                        uni: "}"
+                  - !perl/p5::junk 
+                    enc: 1
+                    uni: " "
+                  - !perl/p5::operator 
+                    enc: 1
+                    uni: =
+                  - !perl/P5AST::op_const 
+                    Kids: 
+                      - !perl/p5::junk 
+                        enc: 1
+                        uni: " "
+                      - !perl/p5::token 
+                        enc: 1
+                        uni: 1
+              - !perl/p5::junk 
+                enc: 1
+                uni: " "
+              - !perl/p5::token 
+                enc: 1
+                uni: unless
+              - !perl/P5AST::op_rv2sv 
+                Kids: 
+                  - !perl/p5::junk 
+                    enc: 1
+                    uni: " "
+                  - !perl/p5::sigil 
+                    enc: 1
+                    uni: ${^TAINT}
+          - !perl/p5::punct 
+            enc: 1
+            uni: ;
+          - !perl/p5::junk 
+            enc: 1
+            uni: |
+              
+
+      - !perl/P5AST::statement 
+        Kids: 
+          - !perl/P5AST::op_subst 
+            Kids: 
+              - !perl/P5AST::op_rv2sv 
+                Kids: 
+                  - !perl/p5::junk 
+                    enc: 1
+                    uni: |
+                      
+
+                  - !perl/p5::sigil 
+                    enc: 1
+                    uni: $0
+              - !perl/p5::junk 
+                enc: 1
+                uni: " "
+              - !perl/p5::operator 
+                enc: 1
+                uni: =~
+              - !perl/p5::junk 
+                enc: 1
+                uni: " "
+              - !perl/p5::openquote 
+                enc: 1
+                uni: s/
+              - !perl/p5::text 
+                enc: 1
+                uni: \.dp$
+              - !perl/p5::closequote 
+                enc: 1
+                uni: /
+              - !perl/P5AST::listelem 
+                Kids: 
+                  - !perl/p5::punct 
+                    enc: 1
+                    uni: ''
+                  - !perl/P5AST::op_const 
+                    Kids: 
+                      - !perl/p5::token 
+                        enc: 1
+                        uni: ''
+              - !perl/p5::token 
+                enc: 1
+                uni: /
+          - !perl/p5::punct 
+            enc: 1
+            uni: ;
+          - !perl/p5::junk 
+            enc: 1
+            uni: " # for the test.deparse make target\n"
+      - !perl/P5AST::statement 
+        Kids: 
+          - !perl/P5AST::op_const 
+            Kids: 
+              - !perl/p5::token 
+                enc: 1
+                uni: 1
+          - !perl/P5AST::op_null 
+            Kids: []
+
+          - !perl/p5::punct 
+            enc: 1
+            uni: ;
+          - !perl/p5::junk 
+            enc: 1
+            uni: |
+              
+
+      - !perl/P5AST::peg 
+        Kids: 
+          - !perl/p5::junk 
+            enc: 1
+            uni: |
+              
+
+          - !perl/p5::token 
+            enc: 1
+            uni: ''
