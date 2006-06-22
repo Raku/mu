@@ -1,0 +1,85 @@
+This translator uses an AST produced by Larry Wall's P5 parser. For testing purposes, I've included the file containing the tree for TestInit.pm (more of the /t directory of the core Perl dist will be added for further testing).
+
+This file describes the AST in more detail, in particular the node types. This is both for other coders and to aid my underdstanding. If you think something's not right, change it or comment (#...) on it.
+
+All node type names start with an upper case character, they are all lowercase in the yaml tree files.
+
+Node Types:
+
+P5AST - This node is used only as the root of the tree. It only has a list of kids (presumably non-empty, but you never know).
+
+Closer - This node contains a closer (such as '}' or ')'). This is different from the Closequote node in that it does not end quotes, it just matches with an opener to control blocks, precedence, etc. Has enc and uni.
+
+Closequote - Anything that closes a quote, such as ', ", or / (for regexs). Has enc and uni.
+
+Condmod - Used for statements with a conditional modifier, such as "unless." Has kids.
+
+Condstate - Conditional statements, such as "if." Has kids.
+
+Declarator - Anything used to declare, such as 'my' or 'our.' May even be blank, in the case of a sub. Has enc and uni.
+
+Junk - Everything and anything that doesn't change the runtime behaviour of the program. Comments, optional whitespace, etc. Has enc and uni. Often stores uni in a yaml block (i.e. "uni: |") sometimes with a chomp modifier (i.e. "+").
+
+Listelem - Kids from this node are elements of a list (which may be empty, watch for kids that are actually ''). Has kids.
+
+PNothing - This corresponds to the "nothing" node in the yaml file, renamed to avoid namespace conflicts with ghc. Like the name says, holds non-ops, things like whitespace and comments (when they can't be part of something else). Has kids (which are usually Junk)
+
+Op_aassign - Array assignment. Any operation (usually '=') that assigns to an array. Has kids (one of which will usually be operator "=").
+
+Op_chdir - Change directory operation. Has kids, one of which is usually operator "chdir."
+
+Op_const - Something that returns a constant, such as quoted strings. Has kids.
+
+Op_entersub - Any operation that enters a sub, obviously 
+
+Op_ftdir - Operations on a directory, such as -d. Has kids.
+
+Op_helem - Anything that returns a single has element, usually "$hash{$key}" or "$hash{constkey}". Has kids.
+
+Op_leave - The kids of this node make up a given scope (so most files start with an op_leave, with subs having their own op_leave). Has kids.
+
+Op_lineseq - The kids of this node make up a block. Most often seen in a sub. Has kids.
+
+Op_list - Anything that returns a list of values. Has kids.
+
+Op_match - Matching using a regex (also includes not matchins, !~). Has kids.
+
+Op_method - Used when a method is called, such as import. Has kids.
+
+Op_null - Used to denote a null op. Does nothing, but represents an actual non operation, as opposed to Junk which just represents useless info. Has kids (which are usually []).
+
+Op_require - A require operation (such as "require blah"). Has kids.
+
+Op_rv2av - Right value to array value. Used in assignment operations when storing something into an array. Has kids.
+
+Op_rv2hv - Right value to hash value. Used when assigning to a hash. Has kids.
+
+Op_rv2sv - Right value to scalar value. Used when assigning to a scalar. Has kids.
+
+Op_sassign - Assignment of a single value (as opposed to Op_aassign, assignment of an array of values). Has kids.
+
+Op_subst - Substitution using a regex. Has kids (which should include the regex itself).
+
+Opener - All openers for groupings, such as (, {, or any other openers. Has enc and uni. 
+
+Openquote - ', ", or anything else that opens a quote (including s/, for regexs). Has enc and uni.
+
+Package - Decleration of a package (i.e. "Package Whateva"). Kids usually include the package operator, often also ends up holding the junk (comments) associated with describing the package.
+
+Peg - The use of this node is a bit unclear, but it appears to be an end token. Has kids.
+
+Punct - Punctuation, most notably ";" Has enc and uni.
+
+Sigil - Anything that carries a sigil. $, %, or @ plus the name that follows (such as %ENV or @INC). Does not include the key for referencing an array or hash value.
+
+Statement - Any statement, that is some combination of operations followed by a ';'. Has (lots of) kids.
+
+Sub - The kids of this node make up a subroutine. Has kids.
+
+Text - Literal text. Has enc and uni.
+
+Token - Basic elements such as "if" and numbers, as well as package names. Has enc and uni.
+
+UnknownLit - This isn't really a node type, it's just a way of handling unexpected node types, since my list of node types at any given time may not be exhaustive. Has enc and uni.
+
+UnknownAbs - The equivalent of Unknown for nodes with kids. Has kids.
