@@ -9,4 +9,6 @@ all_from('lib/Pugs/Compiler/Perl6.pm');
 requires('Pugs::Compiler::Rule' => '0');
 requires('Module::Compile' => '0');
 
+recommends('Perl::Tidy' => 0);
+
 &WriteAll;
