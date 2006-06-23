@@ -1,6 +1,6 @@
-#!/usr/bin/pugs
-
-use v6;
+# #!/usr/bin/pugs
+ 
+use v6-pugs;
 
 say "1..3";
 

@@ -35,7 +35,7 @@ sub emit {
 sub _emit {
     my $n = $_[0];
     my $tab = $_[1];
-    #warn "_emit: ", Dumper( $n );
+    #die "_emit: ", Dumper( $n ); 
     #warn "fixity: $n->{fixity}\n" if exists $n->{fixity};
     
     # 'undef' example: parameter list, in a sub call without parameters
@@ -45,8 +45,17 @@ sub _emit {
     die "unknown node: ", Dumper( $n )
         unless ref( $n ) eq 'HASH';
         
+    return $n->{bareword} 
+        if exists $n->{bareword};
+        
+    return $n->{code} 
+        if exists $n->{code};
+        
     return $n->{int} 
         if exists $n->{int};
+        
+    return $n->{num} 
+        if exists $n->{num};
         
     return _var_name( $n->{scalar} )
         if exists $n->{scalar};
@@ -107,17 +116,22 @@ sub _emit_parameter_binding {
     
     # no parameters
     return ''
-        unless defined $n;
+        if  ! defined $n ||
+            @$n == 0;
+    
+    # XXX - $n should be hashref?
+    #warn "parameter list: ",Dumper $n->[0];
+    
+    my $param = _emit( $n->[0] );
+    return "$tab my ($param) = \@_;\n";
         
-    # warn "parameter list: ",Dumper $n;
-    
-    if ( @$n == 1 ) {
-        # just one parameter
-        my $param = _emit( $n->[0] );
-        return "$tab my $param = \$_[0];\n";
-    }
-    
-    return " # XXX - " . (scalar @$n) . " parameters\n";
+    #if ( @$n == 1 ) {
+    #    # just one parameter
+    #    my $param = _emit( $n->[0] );
+    #    return "$tab my $param = \$_[0];\n";
+    #}
+    #
+    #return " # XXX - " . (scalar @$n) . " parameters\n";
 }
 
 sub default {
@@ -169,6 +183,28 @@ sub default {
         if ( $n->{method}{bareword} eq 'say' ) {
             return "$tab print '', " . _emit( $n->{self}, '  ' ) . ', "\n"';
         }
+        #warn "method_call: ", Dumper( $n );
+        
+        # "autobox"
+        
+        if ( exists $n->{self}{code} ) {
+            # &code.goto;
+            return 
+                "$tab \@_ = (" . _emit( $n->{param}, '  ' ) . ");\n" .
+                "$tab " . _emit( $n->{method}, '  ' ) . " " .
+                    _emit( $n->{self}, '  ' );
+        }
+        
+        if ( exists $n->{self}{scalar} ) {
+            # $scalar.++;
+            return 
+                "$tab Pugs::Runtime::Perl6::Scalar::" . _emit( $n->{method}, '  ' ) . 
+                "(" . _emit( $n->{self}, '  ' ) .
+                ", " . _emit( $n->{param}, '  ' ) . ")" ;
+        }
+        
+        # normal methods
+        
         return "$tab " . $n->{sub}{bareword} .
             '(' .
             join ( ";\n", 
@@ -239,23 +275,18 @@ sub infix {
     if ( $n->{op1}{op} eq ':=' ) {
         #warn "bind: ", Dumper( $n );
         return "$tab tie " . _emit( $n->{exp1}, $tab ) . 
-            ", 'Pugs::Runtime::Perl6::Alias::Scalar', " .
+            ", 'Pugs::Runtime::Perl6::Scalar::Alias', " .
             "\\" . _emit( $n->{exp2}, $tab );
     }
 
-    if ( $n->{op1}{op} eq '+'  ||
-         $n->{op1}{op} eq '-'  ||
-         $n->{op1}{op} eq '==' ||
-         $n->{op1}{op} eq '!=' ||
-         $n->{op1}{op} eq 'ne' ||
-         $n->{op1}{op} eq 'eq' ||
-         $n->{op1}{op} eq '&&' ||
-         $n->{op1}{op} eq '||' ||
-         $n->{op1}{op} eq '=' ) {
-        return _emit( $n->{exp1}, $tab ) . ' ' . $n->{op1}{op} . ' ' . _emit( $n->{exp2}, $tab );
+    if ( exists $n->{exp2}{bare_block} ) {
+        # $a = { 42 } 
+        return "$tab " . _emit( $n->{exp1}, $tab ) . ' ' . 
+            $n->{op1}{op} . ' ' . "sub " . _emit( $n->{exp2}, $tab );
     }
-    
-    return _not_implemented( $n, "infix", $tab );
+
+    return _emit( $n->{exp1}, $tab ) . ' ' . 
+        $n->{op1}{op} . ' ' . _emit( $n->{exp2}, $tab );
 }
 
 sub circumfix {

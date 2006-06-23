@@ -6,7 +6,17 @@ use warnings;
 
 # TODO - see Pugs::Runtime::Grammar for metaclass stuff
 
-package Pugs::Runtime::Perl6::Alias::Scalar;
+package Pugs::Runtime::Perl6::Scalar;
+
+sub isa {
+    my $self = $_[0];
+    return 1 if $_[1] eq 'Str'  && defined $_[0];
+    return 1 if $_[1] eq 'Num'  && defined $_[0];
+    return 1 if $_[1] eq 'Code' && ref($_[0]) eq 'CODE';
+    return 0;
+}
+
+package Pugs::Runtime::Perl6::Scalar::Alias;
 
 sub TIESCALAR {
     my $class = shift;

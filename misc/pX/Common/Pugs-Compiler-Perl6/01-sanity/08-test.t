@@ -1,8 +1,8 @@
-#!/usr/bin/pugs
+# #!/usr/bin/pugs
 
 # Checking that testing is sane: Test.pm
 
-use v6;
+use v6-pugs;
 use Test;
 
 plan 1;
