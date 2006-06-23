@@ -41,7 +41,6 @@ sub pmc_compile {
     }
 
     require Pugs::Compiler::Perl6;
-    require Perl::Tidy;
 
     my $p6 = Pugs::Compiler::Perl6->compile( $source );
     my $perl5 = $p6->{perl5};
@@ -52,13 +51,19 @@ sub pmc_compile {
         "use strict;\n" . 
         $perl5 . "\n";
 
-    my $perl5_tidy;
     {
-    local @ARGV = ();  # "You may not specify any filenames ... - Perl::Tidy.pm
-    Perl::Tidy::perltidy( source => \$perl5, destination => \$perl5_tidy );
+      # Perl::Tidy is used if available
+      local $@;   # don't care if there are errors here
+      local @ARGV = ();  # "You may not specify any filenames ... - Perl::Tidy.pm
+      eval {
+        require Perl::Tidy;
+        my $perl5_tidy;
+        Perl::Tidy::perltidy( source => \$perl5, destination => \$perl5_tidy );
+        $perl5 = $perl5_tidy;
+      }
     }
 
-    return $perl5_tidy;
+    return $perl5;
 }
 
 if (@ARGV and !caller) {
