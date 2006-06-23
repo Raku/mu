@@ -50,7 +50,11 @@ instance YAML Decl where
 	    let YamlMap assocs = e
 	    let [aa] = map snd assocs
 	    liftM DeclInc (fromYAML aa)
-	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["DeclSub","DeclNS","DeclInc"] ++ " in node " ++ show e
+	"DeclHLL" -> do
+	    let YamlMap assocs = e
+	    let [aa, ab] = map snd assocs
+	    liftM2 DeclHLL (fromYAML aa) (fromYAML ab)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["DeclSub","DeclNS","DeclInc","DeclHLL"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (DeclSub aa ab ac) = asYAMLmap "DeclSub"
 	   [("dsName", asYAML aa), ("dsFlags", asYAML ab),
@@ -58,6 +62,8 @@ instance YAML Decl where
     asYAML (DeclNS aa ab) = asYAMLmap "DeclNS"
 	   [("dnPackage", asYAML aa), ("dnBody", asYAML ab)]
     asYAML (DeclInc aa) = asYAMLmap "DeclInc" [("diFile", asYAML aa)]
+    asYAML (DeclHLL aa ab) = asYAMLmap "DeclHLL"
+	   [("dhLang", asYAML aa), ("dhGroup", asYAML ab)]
 
 instance YAML Stmt where
     fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of

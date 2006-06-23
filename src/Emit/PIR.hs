@@ -38,6 +38,10 @@ data Decl
     | DeclInc
         { diFile    :: !FilePath
         } -- ^ @.include@ directive
+    | DeclHLL
+        { dhLang    :: !String
+        , dhGroup   :: !String
+        } -- ^ @HLL@ directive
     deriving (Show, Eq, Typeable)
 
 data Stmt
@@ -119,6 +123,7 @@ instance Emit Decl where
         , emit ".namespace" <+> brackets (quotes $ emit "main")
         ]
     emit (DeclInc name) = emit ".include" <+> (quotes $ emit name)
+    emit (DeclHLL lang group) = emit ".HLL" <+> commaSep (map (quotes . text) [lang, group])
     -- Perform λ-lifting here
     emit (DeclSub name styps stmts)
         =  (emit ".sub" <+> doubleQuotes (emit $ quoted name) <+> commaSep styps)
@@ -254,6 +259,8 @@ infixl 4 .&
 
 {-| @.include@ directive. -}
 include :: PkgName -> Decl
+{-| @.HLL@ directive. -}
+hll :: String -> String -> Decl
 {-| Short for 'InsBind' (binding). -}
 (<:=) :: LValue -> Expression -> Ins
 {-| Short for 'InsAssign'. -}
@@ -268,6 +275,7 @@ include :: PkgName -> Decl
 (.&) :: Expression -> [Expression] -> Ins
 
 include = DeclInc
+hll = DeclHLL
 
 (<:=) = InsBind
 (<==) = InsAssign
@@ -646,7 +654,8 @@ escaped = concatMap esc
 {-| The Prelude, defining primitives like @&say@, @&infix:+@, etc. -}
 preludePIR :: Doc
 preludePIR = emit $
-    [ include "iglobals.pasm"
+    [ hll "Perl" "perl_group"
+    , include "iglobals.pasm"
     , include "errors.pasm"
     -- Control flowy
     , sub "&return" [slurpy arg0]

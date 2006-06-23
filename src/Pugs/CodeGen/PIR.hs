@@ -397,20 +397,9 @@ genPIR = genPIRWith $ \globPIR mainPIR penv -> do
             , StmtIns $ "set_args" .- sigList [MkSig [] lit0]
             , StmtIns $ "invokecc" .- [tempPMC]
             ]
-        , DeclSub "main" [SubANON] (concatMap vivifySub globPIR ++ mainPIR) ]
-        , emit globPIR ] ]
-
--- XXX - This is TOTALLY UNNECCESSARY for Parrot 0.4.2 and later.
-vivifySub :: Decl -> [Stmt]
-vivifySub (DeclNS "main" decls) = concatMap vivifySub decls
-vivifySub (DeclSub name@('&':c:_') [SubOUTER "main"] _)
-    | c /= '*'
-    = map StmtIns
-        [ tempPMC <-- "find_name" $ [lit name]
-        , tempPMC <-- "newclosure" $ [tempPMC]
-        , "store_global" .- [lit "main", lit name, tempPMC]
+--      , DeclSub "main" [SubANON] (concatMap vivifySub globPIR ++ mainPIR) ]
         ]
-vivifySub _ = []
+        , emit globPIR ] ]
 
 genPIRWith :: ([Decl] -> [Stmt] -> PIL_Environment -> Eval a) -> Eval a
 genPIRWith f = do
