@@ -398,7 +398,6 @@ genPIR = genPIRWith $ \globPIR mainPIR penv -> do
             , StmtIns $ "invokecc" .- [tempPMC]
             ]
         , DeclSub "main" [SubANON] mainPIR ]
-        ]
         , emit globPIR ] ]
 
 genPIRWith :: ([Decl] -> [Stmt] -> PIL_Environment -> Eval a) -> Eval a
