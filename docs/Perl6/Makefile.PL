@@ -60,8 +60,10 @@ sub refresh_specs {
     for my $num (sort keys %Spec) {
         my $file = $Spec{$num};
         print "  $num --> Spec/$file\n";
+        use File::Basename;
+        my $dir = (dirname(__FILE__) || '.');
         LWP::Simple::mirror(
-            "$BaseURI/$num.pod" => "Spec/$file.pod"
+            "$BaseURI/S$num.pod" => "$dir/Spec/$file.pod"
         );
     }
 
