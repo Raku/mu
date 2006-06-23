@@ -1027,18 +1027,23 @@ vcode2initOrCheckBlock magicalVar allowIOLeak code = do
 
 ruleConstruct :: RuleParser Exp
 ruleConstruct = rule "construct" $ choice
-    [ ruleLoopConstruct
+    [ ruleForConstruct
+    , ruleLoopConstruct
     , ruleCondConstruct
-    , ruleCondLoopConstruct
+    , ruleWhileUntilConstruct
 --  , ruleStandaloneBlock
+    , ruleGivenConstruct
+    , ruleWhenConstruct
+    , ruleDefaultConstruct
     , yadaLiteral
     ]
 
 ruleForConstruct :: RuleParser Exp
 ruleForConstruct = rule "for construct" $ do
     symbol "for"
-    list  <- ruleCondPart
-    block <- enterBracketLevel ParensBracket ruleBlockLiteral
+    list  <- maybeParens ruleExpression
+    optional ruleComma
+    block <- ruleBlockLiteral <|> parseExpWithItemOps
     return $ Syn "for" [list, block]
 
 ruleLoopConstruct :: RuleParser Exp
@@ -1091,12 +1096,26 @@ ruleElseConstruct = rule "else or elsif construct" $
         symbol "elsif"
         ruleCondBody "if"
 
-ruleCondLoopConstruct :: RuleParser Exp
-ruleCondLoopConstruct = rule "while/until/for/given/when construct" $ do
-    sym     <- choice (map symbol ["while", "until", "for", "given", "when"])
-    cond    <- ruleCondPart
-    block   <- enterBracketLevel ParensBracket ruleBlockLiteral
-    return $ Syn sym [ cond, block ]
+ruleWhileUntilConstruct :: RuleParser Exp
+ruleWhileUntilConstruct = rule "while/until construct" $ do
+    sym <- choice [ symbol "while", symbol "until" ]
+    cond <- ruleCondPart
+    body <- ruleBlock
+    return $ Syn sym [ cond, body ]
+
+ruleGivenConstruct :: RuleParser Exp
+ruleGivenConstruct = rule "given construct" $ do
+    sym <- symbol "given"
+    topic <- ruleCondPart
+    body <- ruleBlock
+    return $ Syn sym [ topic, body ]
+
+ruleWhenConstruct :: RuleParser Exp
+ruleWhenConstruct = rule "when construct" $ do
+    sym <- symbol "when"
+    match <- ruleCondPart
+    body <- ruleBlock
+    return $ Syn sym [ match, body ]
 
 -- XXX: make this translate into when true, when smartmatch
 -- against true works
