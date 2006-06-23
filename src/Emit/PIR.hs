@@ -433,8 +433,8 @@ data ArgFlag
 argVal :: ArgFlag -> Int
 argVal MkArgFlatten      = 0x08
 argVal MkArgSlurpyArray  = 0x08
-argVal MkArgMaybeFlatten = 0x10
 argVal MkArgOptional     = 0x20
+argVal MkArgMaybeFlatten = 0x40
 
 maybeFlatten :: Doc
 maybeFlatten = emit [MkArgMaybeFlatten]
