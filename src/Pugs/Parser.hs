@@ -1075,7 +1075,7 @@ ruleCondBody :: String -> RuleParser Exp
 ruleCondBody csym = rule "conditional expression" $ do
     cond     <- ruleCondPart
     enterBracketLevel ParensBracket $ do
-        body     <- ruleBlock
+        body     <- ruleBlockLiteral
         bodyElse <- option emptyExp ruleElseConstruct
         return $ Syn csym [cond, body, bodyElse]
 

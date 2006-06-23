@@ -424,11 +424,11 @@ reduceSyn name [cond, bodyIf, bodyElse]
     where
     doCond :: (Bool -> Bool) -> Eval Val
     doCond f = do
-        vbool     <- enterEvalContext (cxtItem "Bool") cond
-        vb        <- fromVal vbool
-        if (f vb)
-            then reduce bodyIf
-            else reduce bodyElse
+        vbool   <- enterEvalContext (cxtItem "Bool") cond
+        vb      <- fromVal vbool
+        vsub    <- enterRValue . enterEvalContext (cxtItem "Code") $
+                    if f vb then bodyIf else bodyElse
+        reduce (App (Val vsub) (Just $ Val vbool) [])
 
 reduceSyn "for" [list, body] = do
     av    <- enterLValue $ enterEvalContext cxtSlurpyAny list
