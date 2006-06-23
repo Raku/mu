@@ -38,15 +38,21 @@ sub pmc_compile {
     }
 
     require Pugs::Compiler::Perl6;
-    my $p6 = Pugs::Compiler::Perl6->compile( $source );
+    require Perl::Tidy;
 
-    # $p6->{perl5} =~ s/do\{(.*)\}/$1/s;
-    $p6->{perl5} = 
+    my $p6 = Pugs::Compiler::Perl6->compile( $source );
+    my $perl5 = $p6->{perl5};
+
+    # $perl5 =~ s/do\{(.*)\}/$1/s;
+    $perl5 = 
         "use Pugs::Runtime::Perl6;\n" . 
         "use strict;\n" . 
-        $p6->{perl5};
-    
-    return $p6->{perl5}."\n";
+        $perl5 . "\n";
+
+    my $perl5_tidy;
+    Perl::Tidy::perltidy( source => \$perl5, destination => \$perl5_tidy );
+
+    return $perl5_tidy;
 }
 
 if (@ARGV and !caller) {
