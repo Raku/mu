@@ -1,18 +1,24 @@
 # NOW
-- Add malloc error check for BitSet/Judy1 (it uses JERR not PJERR).
-- Free stablePtrs when using Haskell data as Values.
+- Some system to manage/collect StablePtrs, then Finalizers 
 - Use Judy to implement Pugs IHash substitute.
 - CollectionsM: complete the subset of MapM and uncomment/complete CollectionM.
+- Refeable vs. HashIO => unify?
+
+- Bug on HSIter stuff when use a lot of memory 
+- Dummy/Refeable Bug: need to ask in #haskell
+
+- Add malloc error check for BitSet/Judy1 (it uses JERR not PJERR).
+- Other missing malloc error checking
 
 ? Find something other than WordPtr (ghc 6.5) that works in GHC stable
 
 # NEXT
-- Use ByteString
+- Use ByteString (seems to be trivial with Stringable, just instantiate Stringable?)
+- Better testing
 - Discuss APIs
 -- Data.HashTable
 -- Implementations specific to unboxed values like Int and Double
 -- Unbounded arrays: see Bulat work on this
-
 
 - Document this work.
 - Create a LICENSE file (I think BSD3) and put license info in the

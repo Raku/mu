@@ -2,10 +2,10 @@
 
 module Judy.Map (
     Stringable (..),
-    Refeable (..),
     Map (..),
---    {-new,-} insert, --Judy.Map.lookup, --member, -- delete,
-    elems, keys, toList, fromList
+
+    -- FIXME: need to move to MapM api
+    elems, keys
 ) where
 
 import Data.Typeable
@@ -15,11 +15,13 @@ import Foreign.ForeignPtr
 import Foreign.Marshal.Alloc
 import Foreign.Ptr
 import Foreign.Storable
-import Foreign.StablePtr
 
 import Judy.Private
 import qualified Judy.CollectionsM as CM
+import Judy.Refeable
 
+-- ATTENTION:
+-- Refeable is now in Judy/Refeable.hs
 
 instance (Stringable k, Refeable a) => CM.MapM (Map k a) k a IO where
     new = new_
@@ -27,14 +29,15 @@ instance (Stringable k, Refeable a) => CM.MapM (Map k a) k a IO where
     member = member_
     lookup = lookup_
     alter = insert_
+    fromList = fromList_
+    toList = toList_
 
-
--- TODO: use ByteString
--- TODO: instantiate CollectionM, MapM
 
 -- TODO: Work on Storable to let any Storable type be
 -- "stringable" i.e., used as Key.
--- FIXME: odd!
+
+-- TODO: Support using ByteStrings, seems to be trivial with Stringable, just instantiate?
+
 class Stringable k where
     toString :: k -> String
     fromString :: String -> k
@@ -43,39 +46,14 @@ instance Stringable String where
     toString = id
     fromString = id
 
-class Refeable a where
-    toRef :: a -> IO Value
-    fromRef :: Value -> IO a
-    -- freeRef will be used in finalizer
-    -- freeRef :: a -> IO ()
 
-
--- FIXME: It results in an illegal instruction if I drop the Dummy instance.
--- Maybe something arch related, dunno. =P
-
-class Dummy a
-instance Dummy a
-
-instance Dummy a => Refeable a where
-    toRef a = do
-        a' <- newStablePtr a
-        return (ptrToWordPtr (castStablePtrToPtr a'))
-    fromRef v = do
-        a <- deRefStablePtr (castPtrToStablePtr (wordPtrToPtr v))
-        return a
-
--- Don't need to StablePtr "simple" things like Int
-instance Refeable Int where
-    toRef i = return $ toEnum i
-    fromRef v = return $ fromEnum v
-
- 
 
 --instance Stringable Int where
 --    toString = show
 --    fromString = read
 
-newtype Stringable k => Map k a = Map { judy :: ForeignPtr JudyHS }
+-- FIXME: really necessary/useful restrict types here?
+newtype (Stringable k, Refeable a) => Map k a = Map { judy :: ForeignPtr JudyHS }
     deriving (Eq, Ord, Typeable)
 
 instance Show (Map k a) where
@@ -136,9 +114,9 @@ member_ k (Map j) = do
         return $ r /= nullPtr
 
 delete_ :: Stringable k => k -> Map k a -> IO Bool
-delete_ k (Map j) = withForeignPtr j $ \j -> do
+delete_ k (Map j) = withForeignPtr j $ \j' -> do
     withCAStringLen (toString k) $ \(cp, len) -> do
-        r <- judyHSDel j cp (fromIntegral len) judyError
+        r <- judyHSDel j' cp (fromIntegral len) judyError
         -- TODO: must free the stableptr
         return $ r /= 0
 
@@ -157,16 +135,16 @@ newIter = do
     withForeignPtr fp $ flip poke nullPtr
     return $ MapIter fp
 
-fromList :: (Stringable k, Refeable a) => [(k,a)] -> IO (Map k a)
-fromList xs = do
+fromList_ :: (Stringable k, Refeable a) => [(k,a)] -> IO (Map k a)
+fromList_ xs = do
     m <- new_
     mapM_ (\(k,a) -> insert_ k a m) xs
     return m
 
 -- FIXME: DRY
 
-toList :: (Stringable k, Refeable a) => Map k a -> IO [(k,a)]
-toList (Map j) = do
+toList_ :: (Stringable k, Refeable a) => Map k a -> IO [(k,a)]
+toList_ (Map j) = do
     jj <- withForeignPtr j peek
     (MapIter i) <- newIter
     withForeignPtr i $ \ii -> alloca $ \cp -> alloca $ \len -> do

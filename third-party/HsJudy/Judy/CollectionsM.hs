@@ -36,13 +36,17 @@ class Monad m => MapM c k a m | c -> k a m where
     --alter :: (Maybe a -> Maybe a) -> k -> c -> m ()
     alter :: k -> a -> c -> m ()
 
+    -- Generalize more... (fromFoldable, fromListWith, and both)
+    --fromFoldableWith :: Foldable l (k,a) => (a -> a -> a) -> l -> m c
+    fromList :: [(k,a)] -> m c
+    toList :: c -> m [(k,a)]
+
     --union :: c -> c -> m c
     --intersection :: c -> c -> m c
     --difference :: c -> c -> c
     --isSubset :: c -> c -> m Bool
 
     --insertWith :: (a -> a -> a) -> k -> a -> c -> m ()
-    --fromFoldableWith :: Foldable l (k,a) => (a -> a -> a) -> l -> m c
     
     -- FIXME: create a new structure? or delete inplace? or have both?
     --mapWithKey :: (k -> a -> a) -> c -> m c

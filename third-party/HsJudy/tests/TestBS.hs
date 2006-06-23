@@ -1,4 +1,5 @@
 import qualified Judy.BitSet as BS
+import Judy.HashIO
 import Judy.Freeze
 
 main = do
@@ -150,13 +151,13 @@ data Useless = A | B | C | D deriving (Show, Eq, Enum)
 
 -- Enum types can provide own implementation if needed
 
-instance BS.HashIO Useless where
+instance HashIO Useless where
     hashIO A = return 10
     hashIO B = return 20
     hashIO C = return 30
     hashIO D = return 40
-instance BS.UniqueHashIO Useless where
-instance BS.ReversibleHashIO Useless where
+instance UniqueHashIO Useless where
+instance ReversibleHashIO Useless where
     unHashIO 10 = return A
     unHashIO 20 = return B
     unHashIO 30 = return C 

@@ -1,7 +1,7 @@
 #GHC=ghc-6.4.2 
 GHC=ghc
 CC=$(GHC)
-TESTS=testbs testjl testjsl testjhs testmap
+TESTS=testbs testjl testjsl testjhs testmap testmap2
 
 CFLAGS= -O2
 
@@ -47,6 +47,9 @@ testjhs: tests/TestJHS.hs Judy/Private.hs Judy/Private_hsc.o
 	$(GHC) $(HSFLAGS) --make $< Judy/Private_hsc.o -o $@
 
 testmap: tests/TestMap.hs Judy/Map.hs Judy/Private.hs Judy/Private_hsc.o
+	$(GHC) $(HSFLAGS) --make $< Judy/Private_hsc.o -o $@
+
+testmap2: tests/TestMap2.hs Judy/Map2.hs Judy/Private.hs Judy/Private_hsc.o
 	$(GHC) $(HSFLAGS) --make $< Judy/Private_hsc.o -o $@
 
 try: Try.hs Judy/Private.hs Judy/BitSet.hs Judy/Private_hsc.o

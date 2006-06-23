@@ -13,7 +13,7 @@ main = do
     -- FIXME: A better way to organize this tests must exist...
  
     -- KILLER SEQUENCE:
---    putStrLn $ show $ last $ take 100000 [1..]
+    --putStrLn $ show $ last $ take 100000 [1..]
     testElems
 
 
@@ -92,6 +92,8 @@ testKeys = do
 instance JMap.Stringable Int where
     toString = show
     fromString = read
+
+
 
 testIntKey = do
     putStr "int-key map: \t"
