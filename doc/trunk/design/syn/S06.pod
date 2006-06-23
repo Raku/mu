@@ -142,7 +142,7 @@ bare block.
 
     $sq = -> $val { $val**2 };  # Same as: $sq = sub ($val) { $val**2 };
 
-    for @list -> $elem {        # Same as: for @list, sub ($elem) {
+    for @list -> $elem {        # Same as: for @list sub ($elem) {
         print "$elem\n";        #              print "$elem\n";
     }                           #          }
 
