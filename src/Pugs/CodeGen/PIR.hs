@@ -178,6 +178,11 @@ instance Translate PIL_LValue LValue where
         tellLabel globL
         tell [StmtRaw (text "errorson .PARROT_ERRORS_GLOBALS_FLAG")]
         return pmc
+    -- XXX - hack to erase OUTER before we have proper pad uplevel support
+    trans (PVar name)
+        | Just (package, name') <- breakOnGlue "::" name
+        , Just (sig, "") <- breakOnGlue "OUTER" package
+        = trans $ PVar (sig ++ name')
     trans (PVar name) = do
         pmc     <- genScalar "lex"
         tellIns $ pmc <-- "find_name" $ [lit $ possiblyFixOperatorName name]
