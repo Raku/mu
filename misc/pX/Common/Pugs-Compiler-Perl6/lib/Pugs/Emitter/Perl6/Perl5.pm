@@ -18,8 +18,8 @@ sub _var_name {
 }
 
 sub _not_implemented {
-    my ( $n, $what, $tab ) = @_;
-    return "$tab die q(not implemented $what: " . Dumper( $n ) . ")";
+    my ( $n, $what ) = @_;
+    return "die q(not implemented $what: " . Dumper( $n ) . ")";
 }
 
 sub emit {
@@ -34,7 +34,6 @@ sub emit {
 
 sub _emit {
     my $n = $_[0];
-    my $tab = $_[1];
     #die "_emit: ", Dumper( $n ); 
     #warn "fixity: $n->{fixity}\n" if exists $n->{fixity};
     
@@ -75,44 +74,42 @@ sub _emit {
     return 'qw(' . $n->{angle_quoted} . ')' 
         if exists $n->{angle_quoted};
             
-    return assoc_list( $n, $tab )
+    return assoc_list( $n )
         if exists $n->{assoc}  && $n->{assoc}  eq 'list';
         
-    return infix( $n, $tab )
+    return infix( $n )
         if exists $n->{fixity} && $n->{fixity} eq 'infix';
-    return prefix( $n, $tab )
+    return prefix( $n )
         if exists $n->{fixity} && $n->{fixity} eq 'prefix';
-    return postfix( $n, $tab )
+    return postfix( $n )
         if exists $n->{fixity} && $n->{fixity} eq 'postfix';
-    return circumfix( $n, $tab )
+    return circumfix( $n )
         if exists $n->{fixity} && $n->{fixity} eq 'circumfix';
-    return postcircumfix( $n, $tab )
+    return postcircumfix( $n )
         if exists $n->{fixity} && $n->{fixity} eq 'postcircumfix';
 
-    return statement( $n, $tab )
+    return statement( $n )
         if ref $n->{op1} && exists $n->{op1}{stmt};
 
-    return default( $n, $tab );
+    return default( $n );
 }
 
 sub assoc_list {
     my $n = $_[0];
-    my $tab = $_[1];
     # print "list emit_rule: ", Dumper( $n );
 
     if ( $n->{op1} eq ';' ||
          $n->{op1} eq ',' ) {
         return join ( $n->{op1} . "\n", 
-            map { _emit( $_, $tab ) } @{$n->{list}} 
+            map { _emit( $_ ) } @{$n->{list}} 
         );
     }
     
-    return _not_implemented( $n->{op1}, "list-op", $tab );
+    return _not_implemented( $n->{op1}, "list-op" );
 }
 
 sub _emit_parameter_binding {
     my $n = $_[0];
-    my $tab = $_[1] || '';
     
     # no parameters
     return ''
@@ -123,12 +120,12 @@ sub _emit_parameter_binding {
     #warn "parameter list: ",Dumper $n->[0];
     
     my $param = _emit( $n->[0] );
-    return "$tab my ($param) = \@_;\n";
+    return "my ($param) = \@_;\n";
         
     #if ( @$n == 1 ) {
     #    # just one parameter
     #    my $param = _emit( $n->[0] );
-    #    return "$tab my $param = \$_[0];\n";
+    #    return "my $param = \$_[0];\n";
     #}
     #
     #return " # XXX - " . (scalar @$n) . " parameters\n";
@@ -136,15 +133,14 @@ sub _emit_parameter_binding {
 
 sub default {
     my $n = $_[0];
-    my $tab = $_[1] || '';
     #warn "emit: ", Dumper( $n );
     
     if ( exists $n->{END} ) {
-        return "$tab END {\n" . _emit( $n->{END}, $tab . '  ' ) . "\n$tab }";
+        return "END {\n" . _emit( $n->{END} ) . "\n }";
     }
     
     if ( exists $n->{bare_block} ) {
-        return  "$tab {\n" . _emit( $n->{bare_block}, $tab . '  ' ) . "\n$tab }\n";
+        return  "{\n" . _emit( $n->{bare_block} ) . "\n }\n";
     }
 
     if ( $n->{op1} eq 'call' ) {
@@ -153,35 +149,35 @@ sub default {
             # use v6-pugs
             if ( exists $n->{param}{cpan_bareword} ) {
                 if ( $n->{param}{cpan_bareword} eq 'v6-pugs' ) {
-                    return "$tab # use v6-pugs\n";
+                    return " # use v6-pugs\n";
                 }
             }
             #warn "call: ",Dumper $n;
             if ( $n->{param}{sub}{bareword} eq 'v5' ) {
-                return "$tab warn 'use v5 - not implemented'";
+                return "warn 'use v5 - not implemented'";
             }
             if ( $n->{param}{sub}{bareword} eq 'v6' ) {
-                return "$tab # use v6\n";
+                return " # use v6\n";
             }
             # use module::name 'param'
-            return "$tab use " . _emit( $n->{param} );
+            return "use " . _emit( $n->{param} );
         }
-        return "$tab " . $n->{sub}{bareword} . " '', " . _emit( $n->{param}, '  ' ) 
+        return " " . $n->{sub}{bareword} . " '', " . _emit( $n->{param}, '  ' ) 
             if $n->{sub}{bareword} eq 'print' ||
                $n->{sub}{bareword} eq 'warn';
-        return "$tab print '', " . _emit( $n->{param}, '  ' ) . ";\n" .
-            "$tab print " . '"\n"'
+        return " print '', " . _emit( $n->{param}, '  ' ) . ";\n" .
+            " print " . '"\n"'
             if $n->{sub}{bareword} eq 'say';
-        return $tab . $n->{sub}{bareword} . '(' . _emit( $n->{param}, '  ' ) . ')';
+        return ' ' . $n->{sub}{bareword} . '(' . _emit( $n->{param}, '  ' ) . ')';
     }
     
     if ( $n->{op1} eq 'method_call' ) {    
         if ( $n->{method}{bareword} eq 'print' ||
              $n->{method}{bareword} eq 'warn' ) {
-            return "$tab print '', " . _emit( $n->{self}, '  ' );
+            return " print '', " . _emit( $n->{self}, '  ' );
         }
         if ( $n->{method}{bareword} eq 'say' ) {
-            return "$tab print '', " . _emit( $n->{self}, '  ' ) . ', "\n"';
+            return " print '', " . _emit( $n->{self}, '  ' ) . ', "\n"';
         }
         #warn "method_call: ", Dumper( $n );
         
@@ -190,167 +186,161 @@ sub default {
         if ( exists $n->{self}{code} ) {
             # &code.goto;
             return 
-                "$tab \@_ = (" . _emit( $n->{param}, '  ' ) . ");\n" .
-                "$tab " . _emit( $n->{method}, '  ' ) . " " .
+                " \@_ = (" . _emit( $n->{param}, '  ' ) . ");\n" .
+                " " . _emit( $n->{method}, '  ' ) . " " .
                     _emit( $n->{self}, '  ' );
         }
         
         if ( exists $n->{self}{scalar} ) {
             # $scalar.++;
             return 
-                "$tab Pugs::Runtime::Perl6::Scalar::" . _emit( $n->{method}, '  ' ) . 
+                " Pugs::Runtime::Perl6::Scalar::" . _emit( $n->{method}, '  ' ) . 
                 "(" . _emit( $n->{self}, '  ' ) .
                 ", " . _emit( $n->{param}, '  ' ) . ")" ;
         }
         
         # normal methods
         
-        return "$tab " . $n->{sub}{bareword} .
+        return " " . $n->{sub}{bareword} .
             '(' .
             join ( ";\n", 
-                map { _emit( $_, $tab ) } @{$n->{param}} 
+                map { _emit( $_ ) } @{$n->{param}} 
             ) .
             ')';
     }
 
-    return _not_implemented( $n, "syntax", $tab );
+    return _not_implemented( $n, "syntax" );
 }
 
 sub statement {
     my $n = $_[0];
-    my $tab = $_[1] || '';
     #warn "statement: ", Dumper( $n );
     
     if ( $n->{op1}{stmt} eq 'if'     || 
          $n->{op1}{stmt} eq 'unless' ) {
-        return  "$tab " . $n->{op1}{stmt} . 
+        return  " " . $n->{op1}{stmt} . 
                 '(' . _emit( $n->{exp1} ) . ')' .
-                " {\n" . _emit( $n->{exp2}, $tab . '  ' ) . "\n$tab }\n" .
-                "$tab else" .
-                " {\n" . _emit( $n->{exp3}, $tab . '  ' ) . "\n$tab }";
+                " {\n" . _emit( $n->{exp2} ) . "\n }\n" .
+                " else" .
+                " {\n" . _emit( $n->{exp3} ) . "\n }";
     }
 
     if ( $n->{op1}{stmt} eq 'sub' ) {
         #warn "sub: ",Dumper $n;
-        return  "$tab " . $n->{op1}{stmt} . 
+        return  " " . $n->{op1}{stmt} . 
                 ' ' . $n->{name}{bareword} . 
                 " {\n" . 
-                    _emit_parameter_binding( $n->{signature}, $tab . '  ' ) .
-                    _emit( $n->{block}, $tab . '  ' ) . 
-                "\n$tab }";
+                    _emit_parameter_binding( $n->{signature} ) .
+                    _emit( $n->{block} ) . 
+                "\n }";
     }
 
     if ( $n->{op1}{stmt} eq 'for' ) {
         #warn "sub: ",Dumper $n->{exp1};
         if ( exists $n->{exp1}{op1} &&
              $n->{exp1}{op1}{op} eq '->' ) {
-            return  "$tab " . $n->{op1}{stmt} . 
+            return  " " . $n->{op1}{stmt} . 
                     ' my ' . _emit( $n->{exp1}{exp2} ) . '' . 
                     ' (' . _emit( $n->{exp1}{exp1} ) . ')' . 
                     " {\n" . 
-                        # _emit_parameter_binding( $n->{signature}, $tab . '  ' ) .
-                        _emit( $n->{exp2}, $tab . '  ' ) . 
-                    "\n$tab }";
+                        # _emit_parameter_binding( $n->{signature} ) .
+                        _emit( $n->{exp2} ) . 
+                    "\n }";
         }
-        return  "$tab " . $n->{op1}{stmt} . 
+        return  " " . $n->{op1}{stmt} . 
                 ' (' . _emit( $n->{exp1} ) . ')' . 
                 " {\n" . 
-                    # _emit_parameter_binding( $n->{signature}, $tab . '  ' ) .
-                    _emit( $n->{exp2}, $tab . '  ' ) . 
-                "\n$tab }";
+                    # _emit_parameter_binding( $n->{signature} ) .
+                    _emit( $n->{exp2} ) . 
+                "\n }";
     }
 
-    return _not_implemented( $n, "statement", $tab );
+    return _not_implemented( $n, "statement" );
 }
 
 sub infix {
     my $n = $_[0];
-    my $tab = $_[1];
     # print "infix: ", Dumper( $n );
     
     if ( $n->{op1}{op} eq '~' ) {
-        return _emit( $n->{exp1}, $tab ) . ' . ' . _emit( $n->{exp2}, $tab );
+        return _emit( $n->{exp1} ) . ' . ' . _emit( $n->{exp2} );
     }
     
     if ( $n->{op1}{op} eq ':=' ) {
         #warn "bind: ", Dumper( $n );
-        return "$tab tie " . _emit( $n->{exp1}, $tab ) . 
+        return " tie " . _emit( $n->{exp1} ) . 
             ", 'Pugs::Runtime::Perl6::Scalar::Alias', " .
-            "\\" . _emit( $n->{exp2}, $tab );
+            "\\" . _emit( $n->{exp2} );
     }
 
     if ( exists $n->{exp2}{bare_block} ) {
         # $a = { 42 } 
-        return "$tab " . _emit( $n->{exp1}, $tab ) . ' ' . 
-            $n->{op1}{op} . ' ' . "sub " . _emit( $n->{exp2}, $tab );
+        return " " . _emit( $n->{exp1} ) . ' ' . 
+            $n->{op1}{op} . ' ' . "sub " . _emit( $n->{exp2} );
     }
 
-    return _emit( $n->{exp1}, $tab ) . ' ' . 
-        $n->{op1}{op} . ' ' . _emit( $n->{exp2}, $tab );
+    return _emit( $n->{exp1} ) . ' ' . 
+        $n->{op1}{op} . ' ' . _emit( $n->{exp2} );
 }
 
 sub circumfix {
     my $n = $_[0];
-    my $tab = $_[1]; 
     # print "infix: ", Dumper( $n );
     
     if ( $n->{op1}{op} eq '(' &&
          $n->{op2}{op} eq ')' ) {
         return '()'
             unless defined  $n->{exp1};
-        return '(' . _emit( $n->{exp1}, $tab ) . ')';
+        return '(' . _emit( $n->{exp1} ) . ')';
     }
     
-    return _not_implemented( $n, "circumfix", $tab );
+    return _not_implemented( $n, "circumfix" );
 }
 
 sub postcircumfix {
     my $n = $_[0];
-    my $tab = $_[1]; 
     # print "postcircumfix: ", Dumper( $n );
     
     if ( $n->{op1}{op} eq '[' &&
          $n->{op2}{op} eq ']' ) {
         #return '()'
         #    unless defined  $n->{exp1};
-        return _emit( $n->{exp1}, $tab ) . '[' . _emit( $n->{exp2}, $tab ) . ']';
+        return _emit( $n->{exp1} ) . '[' . _emit( $n->{exp2} ) . ']';
     }
     
-    return _not_implemented( $n, "postcircumfix", $tab );
+    return _not_implemented( $n, "postcircumfix" );
 }
 
 sub prefix {
     my $n = $_[0];
-    my $tab = $_[1];
     # print "prefix: ", Dumper( $n );
     
     if ( $n->{op1}{op} eq 'my' ||
          $n->{op1}{op} eq 'our' ) {
-        return $n->{op1}{op} . ' ' . _emit( $n->{exp1}, $tab );
+        return $n->{op1}{op} . ' ' . _emit( $n->{exp1} );
     }
     if ( $n->{op1}{op} eq 'try' ) {
-        return 'eval ' . _emit( $n->{exp1}, $tab ) . "; \$::_EXCL_ = \$@;";
+        return 'eval ' . _emit( $n->{exp1} ) . "; \$::_EXCL_ = \$@;";
     }
     if ( $n->{op1}{op} eq '++' ||
          $n->{op1}{op} eq '--' ||
          $n->{op1}{op} eq '+'  ) {
-        return $n->{op1}{op} . _emit( $n->{exp1}, $tab );
+        return $n->{op1}{op} . _emit( $n->{exp1} );
     }
     
-    return _not_implemented( $n, "prefix", $tab );
+    return _not_implemented( $n, "prefix" );
 }
 
 sub postfix {
     my $n = $_[0];
-    my $tab = $_[1];
     # print "postfix: ", Dumper( $n );
 
     if ( $n->{op1}{op} eq '++' ||
          $n->{op1}{op} eq '--' ) {
-        return _emit( $n->{exp1}, $tab ) . $n->{op1}{op};
+        return _emit( $n->{exp1} ) . $n->{op1}{op};
     }
     
-    return _not_implemented( $n, "postfix", $tab );
+    return _not_implemented( $n, "postfix" );
 }
 
 1;
