@@ -17,7 +17,7 @@ module Pugs.AST (
     strRangeInf, strRange, strInc,
     mergeStmts, isEmptyParams,
     newPackage, newType, typeSub, isScalarLValue,
-    filterPrim,
+    filterPrim, filterUserDefinedPad,
 
     module Pugs.AST.Internals,
     module Pugs.AST.Prag,
@@ -232,7 +232,7 @@ typeSub name = MkCode
     , subParams     = []
     , subBindings   = []
     , subSlurpLimit = []
-    , subBody       = Val (VType typ)
+    , subBody       = Prim (const $ return (VType typ))
     , subCont       = Nothing
     }
     where
@@ -265,4 +265,14 @@ isPrim tv = do
     where
     isPrimVal (VCode MkCode{ subBody = Prim _ }) = True
     isPrimVal _ = False
+
+filterUserDefinedPad :: Pad -> Pad
+filterUserDefinedPad (MkPad pad) = MkPad $ Map.filterWithKey doFilter pad
+    where
+    doFilter key _ = not (key `elem` reserved)
+    reserved = words $
+        "@*ARGS @*INC %*INC $*PUGS_HAS_HSPLUGINS $*EXECUTABLE_NAME " ++
+        "$*PROGRAM_NAME $*PID $*UID $*EUID $*GID $*EGID @*CHECK @*INIT $*IN " ++
+        "$*OUT $*ERR $*ARGS $/ %*ENV $*CWD @=POD $=POD $?PUGS_VERSION " ++
+        "$*OS &?BLOCK_EXIT %?CONFIG $*_ $*AUTOLOAD"
 

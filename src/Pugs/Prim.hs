@@ -654,7 +654,7 @@ op1 "Pugs::Internals::caller_pragma_value" = \v -> do
 op1 "**"    = \v -> return $ deepSeq v v
 op1 "Pugs::Internals::emit_yaml" = \v -> do
     glob <- filterPrim =<< asks envGlobal
-    yml  <- liftIO $ showYaml (glob, v)
+    yml  <- liftIO $ showYaml (filterUserDefinedPad glob, v)
     return $ VStr yml
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 

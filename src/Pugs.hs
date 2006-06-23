@@ -163,17 +163,7 @@ globalFinalize = join $ readIORef _GlobalFinalizer
 dumpGlob :: String -> IO ()
 dumpGlob = (doParseWith $ \env _ -> do
     glob <- liftSTM $ readTVar $ envGlobal env
-    print $ userDefined glob) "-"
-
-userDefined :: Pad -> Pad
-userDefined (MkPad pad) = MkPad $ Map.filterWithKey doFilter pad
-    where
-    doFilter key _ = not (key `elem` reserved)
-    reserved = words $
-        "@*ARGS @*INC %*INC $*PUGS_HAS_HSPLUGINS $*EXECUTABLE_NAME " ++
-        "$*PROGRAM_NAME $*PID $*UID $*EUID $*GID $*EGID @*CHECK @*INIT $*IN " ++
-        "$*OUT $*ERR $*ARGS $/ %*ENV $*CWD @=POD $=POD $?PUGS_VERSION " ++
-        "$*OS &?BLOCK_EXIT %?CONFIG $*_ $*AUTOLOAD"
+    print $ filterUserDefinedPad glob) "-"
 
 {-|
 Create a \'blank\' 'Env' for our program to execute in. Of course,
@@ -198,7 +188,7 @@ doCompile :: String -> FilePath -> String -> IO String
 doCompile backend = doParseWith $ \env _ -> do
     globRef <- liftSTM $ do
         glob <- readTVar $ envGlobal env
-        newTVar $ userDefined glob
+        newTVar $ filterUserDefinedPad glob
     codeGen backend env{ envGlobal = globRef }
 
 initCompile :: IO ()
