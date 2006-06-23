@@ -5,6 +5,9 @@ package v6;
 # Command line:
 #   perl v6.pm -e "some perl 6 code"
 
+# Compile-only:
+#   perl -Ilib lib/v6.pm --compile-only -e '<hello>.say;'
+
 # Script or module:
 #   use v6-pugs;
 #   "hello, world".say;
