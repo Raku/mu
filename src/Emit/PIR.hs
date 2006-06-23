@@ -431,10 +431,10 @@ data ArgFlag
     deriving (Show, Eq, Typeable)
 
 argVal :: ArgFlag -> Int
-argVal MkArgFlatten      = 0x08
-argVal MkArgSlurpyArray  = 0x08
-argVal MkArgOptional     = 0x20
+argVal MkArgFlatten      = 0x20
+argVal MkArgSlurpyArray  = 0x20
 argVal MkArgMaybeFlatten = 0x40
+argVal MkArgOptional     = 0x80
 
 maybeFlatten :: Doc
 maybeFlatten = emit [MkArgMaybeFlatten]
