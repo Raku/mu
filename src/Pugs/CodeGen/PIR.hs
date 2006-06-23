@@ -397,7 +397,7 @@ genPIR = genPIRWith $ \globPIR mainPIR penv -> do
             , StmtIns $ "set_args" .- sigList [MkSig [] lit0]
             , StmtIns $ "invokecc" .- [tempPMC]
             ]
---      , DeclSub "main" [SubANON] (concatMap vivifySub globPIR ++ mainPIR) ]
+        , DeclSub "main" [SubANON] mainPIR ]
         ]
         , emit globPIR ] ]
 
