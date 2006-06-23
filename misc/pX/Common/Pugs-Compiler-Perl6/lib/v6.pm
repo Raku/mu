@@ -50,7 +50,10 @@ sub pmc_compile {
         $perl5 . "\n";
 
     my $perl5_tidy;
+    {
+    local @ARGV = ();  # "You may not specify any filenames ... - Perl::Tidy.pm
     Perl::Tidy::perltidy( source => \$perl5, destination => \$perl5_tidy );
+    }
 
     return $perl5_tidy;
 }
