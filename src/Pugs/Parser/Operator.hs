@@ -57,13 +57,13 @@ tightOperators = do
     , leftOps  (words " || ^^ // ")                             -- Tight Or
     , [ternOp "??" "!!" "if"]                                   -- Ternary
     -- Assignment
-    , (DependentPostfix listAssignment :) $
-      (DependentPostfix immediateBinding :) $
-      rightOps ["=>"]                                           -- Pair constructor
-      ++ rightRewriteSyn [".="]
-      ++ rightSyn (words (
-               " = := " ++
-               " ~= += -= *= /= %= x= Y= \xA5= **= xx= ||= &&= //= ^^= " ++
+    , (rightOps ["=>"] ++) .                                    -- Pair constructor
+      (DependentPostfix listAssignment :) .
+      (DependentPostfix immediateBinding :) .
+      (rightAssignSyn :) .
+      (rightDotAssignSyn :) $
+      rightSyn (words (
+               " := ~= += -= *= /= %= x= Y= \xA5= **= xx= ||= &&= //= ^^= " ++
                " +<= +>= ~<= ~>= +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= "))
     , preOps ["true", "not"]                                    -- Loose unary
     ]
@@ -73,7 +73,7 @@ listAssignment x = do
     try $ do
         char '='
         guard (not (isScalarLValue x))
-        notFollowedBy (oneOf "=>" <|> (char ':' >> char '='))
+        notFollowedBy (char '=' <|> (char ':' >> char '='))
         whiteSpace
     y   <- ?parseExpWithTightOps
     rhs <- option y $ do
@@ -224,8 +224,10 @@ noneSyn     :: [String] -> [RuleOperator Exp]
 noneSyn     = ops $ makeOp2 AssocNone "" Syn
 listSyn     :: [String] -> [RuleOperator Exp]
 listSyn     = ops $ makeOp0 AssocList "" Syn
-rightRewriteSyn :: [String] -> [RuleOperator Exp]
-rightRewriteSyn = ops $ makeOp2Rewrite AssocRight "" Syn
+rightAssignSyn :: RuleOperator Exp
+rightAssignSyn = makeOp2Assign AssocRight "" Syn
+rightDotAssignSyn :: RuleOperator Exp
+rightDotAssignSyn = makeOp2DotAssign AssocRight "" Syn
 
 -- 0x10FFFF is the max number "chr" can take.
 ops :: (String -> a) -> [String] -> [a]
@@ -272,17 +274,39 @@ makeOp1 prec sigil con name = prec $ try $ do
         Syn "" []   -> con name []
         _           -> con name [x]
 
+-- Just for the "state $foo = 1" rewriting
+makeOp2Assign :: Assoc -> String -> (String -> [Exp] -> Exp) -> RuleOperator Exp
+makeOp2Assign prec _ con = (`Infix` prec) $ do
+    symbol "="
+    return $ \invExp argExp -> stateAssignHack (con "=" [invExp, argExp])
+
+stateAssignHack :: Exp -> Exp
+stateAssignHack exp@(Syn "=" [lhs, _]) | isStateAssign lhs = 
+    let pad = unsafePerformSTM $! do
+                state_first_run <- newTVar =<< (fmap scalarRef $! newTVar (VInt 0))
+                state_fresh     <- newTVar False
+                return $! mkPad [("$?STATE_FIRST_RUN", [(state_fresh, state_first_run)])] in
+    Syn "block"
+        [ Pad SState pad $!
+            Syn "if"
+                [ App (Var "&postfix:++") Nothing [Var "$?STATE_FIRST_RUN"]
+                , lhs
+                , exp
+                ]
+        ]
+    where
+    isStateAssign (Ann (Decl SState) _) = True
+    isStateAssign (Ann _ exp)           = isStateAssign exp
+    isStateAssign _                     = False
+stateAssignHack others = others
+
 -- Just for the ".=" rewriting
-makeOp2Rewrite :: Assoc -> 
-           String -> 
-           (String -> [Exp] -> Exp) -> 
-           String -> 
-           RuleOperator Exp
-makeOp2Rewrite prec _ con name = (`Infix` prec) $ do
-    symbol name
+makeOp2DotAssign :: Assoc -> String -> (String -> [Exp] -> Exp) -> RuleOperator Exp
+makeOp2DotAssign prec _ con = (`Infix` prec) $ do
+    symbol ".="
     insertIntoPosition '.' -- "$x .= foo" becomes "$x .= .foo"
     return $ \invExp argExp -> case argExp of
-        App meth _ args -> con "=" [invExp, App meth (Just invExp) args]
+        App meth _ args -> stateAssignHack (con "=" [invExp, App meth (Just invExp) args])
         _               -> Val (VError (VStr "the right-hand-side of .= must be a function application") [])
 
 makeOp2 :: Assoc -> 
@@ -390,3 +414,4 @@ ternOp pre post syn = (`Infix` AssocRight) $ do
     y <- ?parseExpWithTightOps
     symbol post
     return $ \x z -> Syn syn [x, y, z]
+
