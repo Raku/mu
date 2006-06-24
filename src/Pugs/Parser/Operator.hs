@@ -73,7 +73,7 @@ listAssignment x = do
     try $ do
         char '='
         guard (not (isScalarLValue x))
-        notFollowedBy (char '=' <|> (char ':' >> char '='))
+        notFollowedBy (oneOf "=>" <|> (char ':' >> char '='))
         whiteSpace
     y   <- ?parseExpWithTightOps
     rhs <- option y $ do
