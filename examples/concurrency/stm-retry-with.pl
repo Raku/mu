@@ -1,6 +1,6 @@
 my $a = 0;
 my $still_running = 2;
-async {
+my $thr1 = async {
     say "Thread 1 started";
     atomically {
         $a > 5 or retry;
@@ -10,7 +10,7 @@ async {
     say 'Thread 1 finished: $a is >5 and reset to -1000';
 }
 
-async {
+my $thr2 = async {
     say "Thread 2 started";
     atomically {
         { $a > 100 or retry }\
@@ -24,3 +24,5 @@ while ($still_running) {
     sleep 1;
     atomically { $a++; }
 }
+$thr1.join;
+$thr2.join;
