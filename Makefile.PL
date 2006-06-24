@@ -176,6 +176,7 @@ sub set_postamble {
     foreach my $module (qw< fps HsSyck >) {
         chdir "third-party/$module";
         system("../../Setup$Config{_exe}", 'configure', ($native_fps ? ('-p') : ()), '--user', '--prefix', "$pwd/dist");
+        system("../../Setup$Config{_exe}", 'unregister', '--user');
 
         print "*** Building the '$module' dependency.  Please wait...\n\n";
 
