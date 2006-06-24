@@ -201,12 +201,14 @@ BEGIN {
         precedence => 'looser',
         other => 'or',
     );
-    __PACKAGE__->add_rule( 
-        name => '->',
-        assoc => 'non',
-        precedence => 'equal',
-        other => ';',
-    );
+    
+    # '->' is not an operator
+    #__PACKAGE__->add_rule( 
+    #    name => '->',
+    #    assoc => 'non',
+    #    precedence => 'equal',
+    #    other => ';',
+    #);
 
     # experimental
     __PACKAGE__->add_rule( 

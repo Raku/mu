@@ -2,14 +2,22 @@
 
 (jun/2006)
 
-- Makefile.PL
-- Run & fix test suite
-- make a 'hello world'
-- rename distro to Pugs-Compiler-Perl6
-- cache compiled code, use .pmc
-- cache YAPP code to speed up program loading
+- Run & fix test suite; migrate /01-sanity to /t
+- cache compiled YAPP and Rule code, use Module::Compile
+- write POD
+    - v6.pm 
+    - Pugs::Compiler::Perl6->compile
+    - Pugs::Grammar::Perl6->parse
+- add an option to emit ast
 
-Priorities (old)
+Possible Backend Modules
+
+- Moose, Moose::Meta
+- Class::Multimethods::Pure
+
+(older TODO - needs a revision)
+
+Priorities 
 
 - Things that are not giving error messages:
     (1 if 1)           # 'if' is an op - I think this is now legal 
@@ -67,7 +75,7 @@ TODO
 - Implement /rule/ and '/'
     - see expect... in Expression.pm
 
-    <fglock> TimToady: is the lexer the right place to make the '<'/'<a>' distinction? (it is not user-modifyable)
+<fglock> TimToady: is the lexer the right place to make the '<'/'<a>' distinction? (it is not user-modifyable)
 
 <TimToady> fglock: that depends on what you count as part of the lexer.  
     The bottom-up parser knows when it's looking for a <%infix> vs <%prefix> vs <%postfix>, so only those tokens are active that would be valid at that spot.
@@ -163,7 +171,7 @@ P::C::R BUGS
 
 - needs character classes
 
-- needs <after...>
+- needs <after...> (update: implemented in :ratchet)
 
 - cleanup Pugs::AST::Expression (no longer used?)
 

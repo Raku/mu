@@ -77,17 +77,19 @@ sub _emit {
     return assoc_list( $n )
         if exists $n->{assoc}  && $n->{assoc}  eq 'list';
         
-    return infix( $n )
-        if exists $n->{fixity} && $n->{fixity} eq 'infix';
-    return prefix( $n )
-        if exists $n->{fixity} && $n->{fixity} eq 'prefix';
-    return postfix( $n )
-        if exists $n->{fixity} && $n->{fixity} eq 'postfix';
-    return circumfix( $n )
-        if exists $n->{fixity} && $n->{fixity} eq 'circumfix';
-    return postcircumfix( $n )
-        if exists $n->{fixity} && $n->{fixity} eq 'postcircumfix';
-
+    if ( exists $n->{fixity} ) {
+        return infix( $n )
+            if $n->{fixity} eq 'infix';
+        return prefix( $n )
+            if $n->{fixity} eq 'prefix';
+        return postfix( $n )
+            if $n->{fixity} eq 'postfix';
+        return circumfix( $n )
+            if $n->{fixity} eq 'circumfix';
+        return postcircumfix( $n )
+            if $n->{fixity} eq 'postcircumfix';
+    }
+    
     return statement( $n )
         if ref $n->{op1} && exists $n->{op1}{stmt};
 
@@ -236,15 +238,14 @@ sub statement {
     }
 
     if ( $n->{op1}{stmt} eq 'for' ) {
-        #warn "sub: ",Dumper $n->{exp1};
-        if ( exists $n->{exp1}{op1} &&
-             $n->{exp1}{op1}{op} eq '->' ) {
+        #warn "sub: ",Dumper $n;
+        if ( exists $n->{exp2}{pointy_block} ) {
             return  " " . $n->{op1}{stmt} . 
-                    ' my ' . _emit( $n->{exp1}{exp2} ) . '' . 
-                    ' (' . _emit( $n->{exp1}{exp1} ) . ')' . 
+                    ' my ' . _emit( $n->{exp2}{signature} ) . '' . 
+                    ' (' . _emit( $n->{exp1} ) . ')' . 
                     " {\n" . 
                         # _emit_parameter_binding( $n->{signature} ) .
-                        _emit( $n->{exp2} ) . 
+                        _emit( $n->{exp2}{pointy_block} ) . 
                     "\n }";
         }
         return  " " . $n->{op1}{stmt} . 

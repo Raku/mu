@@ -17,6 +17,13 @@ BEGIN {
     $operator = Pugs::Grammar::Precedence->new( 
         grammar => 'Pugs::Grammar::Operator',
         header  => q!
+block:
+        '->' exp 'BLOCK_START' exp '}'        
+        { $_[0]->{out}= { 'pointy_block' => $_[4], signature => $_[2], } }
+    |   'BLOCK_START' exp '}'        
+        { $_[0]->{out}= { 'bare_block' => $_[2] } }
+    ;
+    
 attr:
         #empty  
         { $_[0]->{out}= { attribute => [] } }
@@ -42,28 +49,28 @@ signature:
     ;
 
 stmt:  
-      IF exp 'BLOCK_START' exp '}' 
-        { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[4] } }
-    | IF exp 'BLOCK_START' exp '}' 'else' 'BLOCK_START' exp '}'
-        { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[4], exp3 => $_[8] } }
-    | IF exp 'BLOCK_START' exp '}' 'elsif' exp 'BLOCK_START' exp '}' 'else' 'BLOCK_START' exp '}'
+      IF exp block 
+        { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[3] } }
+    | IF exp block 'else' block
+        { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[3], exp3 => $_[5] } }
+    | IF exp block 'elsif' exp block 'else' block
         { $_[0]->{out}= { 
-            op1 => $_[1], exp1 => $_[2], exp2 => $_[4], 
-                          exp3 => $_[7], exp4 => $_[9],
-                          exp5 => $_[13],
+            op1 => $_[1], exp1 => $_[2], exp2 => $_[3], 
+                          exp3 => $_[5], exp4 => $_[6],
+                          exp5 => $_[8],
         } }
-    | IF exp 'BLOCK_START' exp '}' 'elsif' exp 'BLOCK_START' exp '}' 
+    | IF exp block 'elsif' exp block 
         { $_[0]->{out}= { 
-            op1 => $_[1], exp1 => $_[2], exp2 => $_[4], 
-                          exp3 => $_[7], exp4 => $_[9],
+            op1 => $_[1], exp1 => $_[2], exp2 => $_[3], 
+                          exp3 => $_[5], exp4 => $_[6],
         } }
 
-    | 'for' exp 'BLOCK_START' exp '}'
-        { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[4], } }
+    | 'for' exp block
+        { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[3], } }
 
-    | SUB BAREWORD             attr 'BLOCK_START' exp '}' 
+    | SUB BAREWORD             attr block 
         { $_[0]->{out}= { op1 => $_[1], name => $_[2], block => $_[5], %{$_[3]} } }
-    | SUB BAREWORD '(' signature ')' attr 'BLOCK_START' exp '}' 
+    | SUB BAREWORD '(' signature ')' attr block 
         {
             #print "parse-time define sub: ", Dumper( $_[2] );
             #push @subroutine_names, $_[2]->{bareword};
@@ -71,9 +78,9 @@ stmt:
             $_[0]->{out}= { op1 => $_[1], name => $_[2], block => $_[8], %{$_[4]}, %{$_[6]} } 
         }
     
-    | SUB SUB BAREWORD             attr 'BLOCK_START' exp '}' 
+    | SUB SUB BAREWORD             attr block 
         { $_[0]->{out}= { op1 => $_[2], name => $_[3], block => $_[6], %{$_[4]} } }
-    | SUB SUB BAREWORD '(' signature ')' attr 'BLOCK_START' exp '}' 
+    | SUB SUB BAREWORD '(' signature ')' attr block 
         {
             #print "parse-time define sub: ", Dumper( $_[2] );
             #push @subroutine_names, $_[2]->{bareword};
@@ -81,13 +88,14 @@ stmt:
             $_[0]->{out}= { op1 => $_[2], name => $_[3], block => $_[9], %{$_[5]}, %{$_[7]} } 
         }
 
-    | 'BLOCK_START' exp '}'        
-        { $_[0]->{out}= { 'bare_block' => $_[2] } }
-    | 'BEGIN' 'BLOCK_START' exp '}'        
-        { $_[0]->{out}= { 'BEGIN' => $_[3] } }
-    | 'END' 'BLOCK_START' exp '}'        
-        { $_[0]->{out}= { 'END' => $_[3] } }
+    | block        
+        { $_[0]->{out}= $_[1] }
+    | 'BEGIN' block     
+        { $_[0]->{out}= { 'BEGIN' => $_[2]{bare_block} } }
+    | 'END' block
+        { $_[0]->{out}= { 'END' => $_[2]{bare_block} } }
     ;
+    
 exp: 
       NUM                 
         { $_[0]->{out}= $_[1] }

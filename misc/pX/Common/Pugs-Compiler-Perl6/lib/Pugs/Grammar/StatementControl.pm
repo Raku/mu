@@ -42,6 +42,8 @@ BEGIN {
     __PACKAGE__->add_rule(
         '}' => q( { return { stmt => '}'} } ));
     __PACKAGE__->add_rule(
+        '->' => q( { return { stmt => '->'} } ));
+    __PACKAGE__->add_rule(
         '.' => q( <before <Pugs::Grammar::Term.ident> > { return { stmt => '.'} } ));
     for ( qw( 
         for 
