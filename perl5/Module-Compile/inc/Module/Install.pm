@@ -172,7 +172,7 @@ sub load_extensions {
     unshift @INC, $self->{prefix}
         unless grep { $_ eq $self->{prefix} } @INC;
 
-    #local @INC = ($path, @INC);
+    local @INC = ($path, @INC);
     foreach my $rv ($self->find_extensions($path)) {
         my ($file, $pkg) = @{$rv};
         next if $self->{pathnames}{$pkg};

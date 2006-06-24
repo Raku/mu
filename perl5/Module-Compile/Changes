@@ -1,7 +1,23 @@
 ---
-version: 0.13
-date:    Mon Mar 13 2006
+version: 0.15
+date:    Sun Mar 26 12:34:58 PST 2006
 changes:
+- Added ability to fold out potentially conflicting code.
+- Added a context block to pass more info to compilers.
+
+---
+version: 0.14
+date:    Tue Mar 14 13:02:11 PST 2006
+changes:
+- Added Module::Install support for pmc
+- Lots of nice changes by audreyt
+
+---
+version: 0.13
+date:    Mon Mar 13 06:49:18 PST 2006
+changes:
+- Applied a freshness_check patch from audreyt
+- Added a ToDo list
 - Apostrophe is a package delimiter.
 
 ---

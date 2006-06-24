@@ -1,5 +1,9 @@
 package Foo;
 
+=head1 Tricksy
+__END__
+=cut
+
 use Indented;
 
 sub greetings:

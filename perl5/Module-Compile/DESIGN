@@ -27,3 +27,52 @@ For instance:
         1
 
 I don't want my Inline code to be filtered.
+
+=== Parse and Dispatch Algorithm
+
+Module::Compile breaks source code into blocks and the dispatches
+compilers on those blocks. This section discusses how the code is broken
+down and then what order the compilers are invoked.
+
+Note, all boundaries are specified in terms of lines. This makes the
+process easier to grok and get right, because then granularity is not
+that fine.
+
+The code parsing and dispatch is determined by the first 'use MyCompiler'
+statement in the program. Although that compiler might choose any scheme it
+wishes, this document describes the default process.
+
+First the file is broken up into a tree of blocks:
+
+    File:
+        Global Code (before first package)
+        Packages:
+            Subs
+            Blocks
+            Heredocs
+            Comments
+            Pod
+        DATA Section
+
+Next all the code is scan for 'use/no Compiler' lines. No use statement
+can go past the end of it's containing block.
+
+An event stack is built such that innermost compilers are called first.o
+
+Dispatch proceeds. When a section is about to be comiled, the class is asked
+which parts of the source it wishes to see. Code, strings, comments, etc.
+Pieces that are not to be seen are turned into tokens that will likely not be
+reparsed.
+
+After the compilation the result is saved. The class is asked whether it want
+other classes to be able to reparse it. If not it is turned into a token.
+
+A token is a Hexadecimal MD5 sum of the original text, perhaps in quotes.
+
+After compilation, the parsing steps should be rerun on the result. Maybe.
+This is a very edge case.
+
+The next outer scope compiler is called until everything is parsed. Then the
+tree is walked and results are substituted back in for the toens.
+
+Done.
