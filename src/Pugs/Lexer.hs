@@ -130,6 +130,16 @@ balanced = do
     char $ balancedDelim opendelim
     return contents
 
+-- The \b rule.
+ruleWordBoundary :: RuleParser ()
+ruleWordBoundary = do
+    prev <- getPrevCharClass
+    case prev of
+        SpaceClass -> return ()
+        _  -> do
+            curr <- getCurrCharClass
+            guard (prev /= curr)
+
 -- The <ws> rule.
 ruleWs :: RuleParser ()
 ruleWs = do
