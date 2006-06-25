@@ -30,18 +30,18 @@ my $b;
 for 0 .. 5 -> $_ { $b = $b ~ $_; };
 is($b, '012345', 'for 0 .. 5 -> {} works');
 
-# ... with , sub
+# ... with sub
 
 my $c;
-for (0 .. 5), sub { $c = $c ~ $_; };
-is($c, '012345', 'for 0 .. 5, sub {} works');
+for (0 .. 5) sub { $c = $c ~ $_; };
+is($c, '012345', 'for 0 .. 5 sub {} works');
 
 # ... with referential sub
 
 my $d;
 sub some_sub_1 ($arg) { $d = $d ~ $arg; }
-for (0 .. 5), &some_sub_1;
-is($d, '012345', 'for 0 .. 5, &some_sub works');
+for (0 .. 5) { .some_sub_1 };
+is($d, '012345', 'for 0 .. 5 { .some_sub } works');
 
 ## and now with parens around the range operator
 
@@ -58,15 +58,15 @@ is($f, '012345', 'for () -> {} works');
 # ... with sub
 
 my $g;
-for (0 .. 5), sub { $g = $g ~ $_; };
-is($g, '012345', 'for (0 .. 5), sub {} works');
+for (0 .. 5) sub { $g = $g ~ $_; };
+is($g, '012345', 'for (0 .. 5) sub {} works');
 
 # ... with referential sub
 
 my $h;
 sub some_sub_2 ($arg) { $h = $h ~ $arg; }
-for (0 .. 5), &some_sub_2;
-is($h, '012345', 'for (0 .. 5), &some_sub works');
+for (0 .. 5) { .some_sub_2 };
+is($h, '012345', 'for (0 .. 5) { .some_sub } works');
 
 # ... with implicit topic
 
@@ -110,20 +110,20 @@ my $l;
 for @array_l -> $_ { $l = $l ~ $_; };
 is($l, '012345', 'for @array -> {} works');
 
-# ... with , sub
+# ... with sub
 
 my @array_m = (0 .. 5);
 my $m;
-for (@array_m), sub { $m = $m ~ $_; };
-is($m, '012345', 'for @array, sub {} works');
+for (@array_m) sub { $m = $m ~ $_; };
+is($m, '012345', 'for @array sub {} works');
 
 # ... with referential sub
 
 my @array_n = (0 .. 5);
 my $n;
 sub some_sub_3 ($arg) { $n = $n ~ $arg; }
-for (@array_n), &some_sub_3;
-is($n, '012345', 'for @array, &some_sub works');
+for (@array_n) { .some_sub_3 };
+is($n, '012345', 'for @array { .some_sub } works');
 
 ## and now with parens around the @array
 
@@ -143,16 +143,16 @@ is($p, '012345', 'for (@array) -> {} works');
 
 my @array_q = (0 .. 5);
 my $q;
-for (@array_q), sub { $q ~= $_; };
-is($q, '012345', 'for (@array), sub {} works');
+for (@array_q) sub { $q ~= $_; };
+is($q, '012345', 'for (@array) sub {} works');
 
 # ... with referential sub
 
 my @array_r = (0 .. 5);
 my $r;
 sub some_sub_4 ($arg) { $r ~= $arg; }
-for (@array_r), &some_sub_4;
-is($r, '012345', 'for (@array), &some_sub works');
+for (@array_r) { .some_sub_4 };
+is($r, '012345', 'for (@array) { .some_sub } works');
 
 
 my @elems = <a b c d e>;
