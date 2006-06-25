@@ -1,4 +1,4 @@
-Name:                HsSyck
+Name:                pugs-HsSyck
 Version:             0.1
 Description:         Fast, lightweight YAML loader and dumper
 -- License is really "MIT", but Cabal allows no such field
@@ -6,7 +6,7 @@ License:             BSD3
 License-file:        LICENSE
 Author:              Audrey Tang
 Maintainer:          audreyt@audreyt.org
-Build-Depends:       base, fps
+Build-Depends:       base, pugs-fps
 Exposed-modules:     Data.Yaml.Syck
 extensions:          ForeignFunctionInterface
 ghc-options:         -fglasgow-exts -O -optc-O2 -optc-w -funbox-strict-fields -fno-warn-orphans
