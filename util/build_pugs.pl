@@ -169,7 +169,7 @@ sub build_exe {
     #my @o = qw( src/pcre/pcre.o src/syck/bytecode.o src/syck/emitter.o src/syck/gram.o src/syck/handler.o src/syck/implicit.o src/syck/node.o src/syck/syck.o src/syck/syck_st.o src/syck/token.o src/syck/yaml2byte.o src/cbits/fpstring.o );
     #push @o, 'src/UnicodeC.o' if grep /WITH_UNICODEC/, @_;
     #system $ghc, '--make', @_, @o, '-o' => 'pugs', 'src/Main.hs';
-    my @pkgs = qw(-hide-all-packages -package stm -package network -package mtl -package template-haskell -package base -package fps -package HsSyck );
+    my @pkgs = qw(-hide-all-packages -package stm -package network -package mtl -package template-haskell -package base -package pugs-fps -package pugs-HsSyck );
     if ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) {
         push @pkgs, -package => 'Win32' unless $ghc_version =~ /^6.4(?:.0)?$/;
     }
@@ -249,7 +249,7 @@ sub write_buildinfo {
             s/hs-source-dir/hs-source-dirs/;
         }
         else {
-            s/fps -any, HsSyck -any, //;
+            s/pugs-fps -any, pugs-HsSyck -any, //;
         }
         s/__OPTIONS__/@_/;
         s/__VERSION__/$version/;
