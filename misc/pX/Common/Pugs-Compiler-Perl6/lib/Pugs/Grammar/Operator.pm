@@ -90,10 +90,8 @@ stmt:
 
     | block        
         { $_[0]->{out}= $_[1] }
-    | 'BEGIN' block     
-        { $_[0]->{out}= { 'BEGIN' => $_[2]{bare_block} } }
-    | 'END' block
-        { $_[0]->{out}= { 'END' => $_[2]{bare_block} } }
+    | 'TRAIT' block     
+        { $_[2]{trait} = $_[1]{trait}; $_[0]->{out}= $_[2] }
     ;
     
 exp: 

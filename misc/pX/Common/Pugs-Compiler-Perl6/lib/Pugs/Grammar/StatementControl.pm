@@ -54,11 +54,25 @@ BEGIN {
         __PACKAGE__->add_rule(
             $_ =>  qq( <before \\s> { return { stmt => '$_' } } ));
     }
-    for ( qw( 
-        BEGIN END 
+    for ( qw(
+          BEGIN
+          CHECK
+           INIT
+            END
+          FIRST
+          ENTER
+          LEAVE
+           KEEP
+           UNDO
+           NEXT
+           LAST
+            PRE
+           POST
+          CATCH
+        CONTROL
     ) ) {
         __PACKAGE__->add_rule(
-            $_ =>  qq( { return { stmt => '$_' } } ));
+            $_ =>  qq( { return { stmt => 'TRAIT', trait => '$_' } } ));
     }
     __PACKAGE__->recompile;
 }

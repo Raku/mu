@@ -136,11 +136,11 @@ sub default {
     my $n = $_[0];
     #warn "emit: ", Dumper( $n );
     
-    if ( exists $n->{END} ) {
-        return "END {\n" . _emit( $n->{END} ) . "\n }";
-    }
-    
     if ( exists $n->{bare_block} ) {
+        if ( exists $n->{trait} ) {
+            # BEGIN/END
+            return $n->{trait} . " {\n" . _emit( $n->{bare_block} ) . "\n }";
+        }
         return  "{\n" . _emit( $n->{bare_block} ) . "\n }\n";
     }
 
@@ -320,6 +320,11 @@ sub prefix {
         return $n->{op1}{op} . ' ' . _emit( $n->{exp1} );
     }
     if ( $n->{op1}{op} eq 'try' ) {
+        #warn "try: ", Dumper( $n );
+        #if ( exists $n->{trait} ) {
+        #    # CATCH/CONTROL
+        #    return $n->{trait} . " {\n" . _emit( $n->{bare_block} ) . "\n }";
+        #}
         return 'eval ' . _emit( $n->{exp1} ) . "; " . 
             _mangle_var( '$!' ) . " = \$@;";
     }
@@ -328,10 +333,9 @@ sub prefix {
             'do { ' . 
             'use Pugs::Compiler::Perl6; ' . # XXX - load at start
             'local $@; ' .
-            'my @result; ' .    # XXX - test want()
             # call Perl::Tidy here? - see v6.pm ???
             'my $p6 = Pugs::Compiler::Perl6->compile( ' . _emit( $n->{exp1} ) . ' ); ' .
-            'eval $p6->{perl5}; ' .
+            'my @result = eval $p6->{perl5}; ' .     # XXX - test want()
             _mangle_var( '$!' ) . ' = $@; ' .
             '@result }';  # /do
     }

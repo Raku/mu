@@ -1,6 +1,8 @@
-# #!/usr/bin/pugs
 
 use v6-pugs;
+
+my $has_run = 0;
+try {
 
 say "1..2";
 
@@ -14,3 +16,12 @@ multi foo ($arg1, $arg2) {
 
 foo "only_one_arg";
 foo "arg1", "arg2";
+
+$has_run = 1;
+
+}
+
+unless $has_run {
+    say 'not ok 1 # TODO emit multis';
+    say 'not ok 2 # TODO emit multis';
+}
