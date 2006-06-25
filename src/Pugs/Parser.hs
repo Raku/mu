@@ -1041,10 +1041,9 @@ ruleConstruct = rule "construct" $ choice
 ruleForConstruct :: RuleParser Exp
 ruleForConstruct = rule "for construct" $ do
     symbol "for"
-    list  <- maybeParens ruleExpression
-    optional ruleComma
-    block <- ruleBlockLiteral <|> parseExpWithItemOps
-    return $ Syn "for" [list, block]
+    cond    <- ruleCondPart
+    body    <- enterBracketLevel ParensBracket $ ruleBlockLiteral
+    return $ Syn "for" [cond, body]
 
 ruleLoopConstruct :: RuleParser Exp
 ruleLoopConstruct = rule "loop construct" $ do
