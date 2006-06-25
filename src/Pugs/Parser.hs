@@ -719,7 +719,7 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
             then Stmts (Sym SGlobal (':':'*':pkg)
                             (Syn ":=" [ Var (':':'*':pkg)
                                , App (Var "&require_perl5") Nothing [Val $ VStr pkg] ]))
-                       (newType pkg)
+                       (newMetaType pkg) -- Perl5's ::CGI is same as ::CGI.meta
             else Stmts (App (Var "&use") Nothing [Val $ VStr pkg])
                        (App (Var "&unshift")
                             (Just (Var ("@" ++ envPackage env ++ "::END")))

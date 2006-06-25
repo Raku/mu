@@ -16,7 +16,7 @@ module Pugs.AST (
     genMultiSym, genSym,
     strRangeInf, strRange, strInc,
     mergeStmts, isEmptyParams,
-    newPackage, newType, typeSub, isScalarLValue,
+    newPackage, newType, newMetaType, typeSub, isScalarLValue,
     filterPrim, filterUserDefinedPad,
 
     module Pugs.AST.Internals,
@@ -218,6 +218,15 @@ newType :: String -> Exp
 newType name = Sym SGlobal ('&':'&':'*':name) $! Syn ":="
     [ Var ('&':'*':name)
     , Syn "sub" [Val (VCode $ typeSub name)]
+    ]
+
+newMetaType :: String -> Exp
+newMetaType name = Sym SGlobal ('&':'&':'*':name) $! Syn ":="
+    [ Var ('&':'*':name)
+    , Syn "sub" [Val . VCode $ (typeSub name)
+        { subBody = Prim . const . expToEvalVal $ Var (':':'*':name)
+        , subType = SubMacro
+        }]
     ]
 
 typeSub :: String -> VCode
