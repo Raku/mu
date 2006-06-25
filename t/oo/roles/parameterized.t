@@ -97,6 +97,6 @@ ok eval('$c.meta.does(InitialAttribType)'),
 ok eval('$d.meta.does(InitialAttribType["type1"])'),
   ".meta.does gives correct information (4-2)", :todo<feature>;
 ok eval('!$d.meta.does(InitialAttribType["type1", "name1"])'),
-  ".meta.does gives correct information (4-3)", :todo<feature>;
+  ".meta.does gives correct information (4-3)";
 is try { $d.type }, "type1", ".type works correctly", :todo<feature>;
 is try { $d.name }, "name1", ".name works correctly", :todo<feature>;
