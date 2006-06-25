@@ -49,6 +49,9 @@ import Pugs.Prim.Param
 import qualified Data.IntSet as IntSet
 import DrIFT.YAML
 
+constMacro :: Exp -> [Val] -> Eval Val
+constMacro = const . expToEvalVal
+
 -- |Implementation of 0-ary and variadic primitive operators and functions
 -- (including list ops).
 op0 :: String -> [Val] -> Eval Val
@@ -56,10 +59,10 @@ op0 "&"  = fmap opJuncAll  . mapM fromVal
 op0 "^"  = fmap opJuncOne  . mapM fromVal
 op0 "|"  = fmap opJuncAny  . mapM fromVal
 op0 "want"  = const $ fmap VStr (asks (maybe "Void" envWant . envCaller))
-op0 "Bool::True" = const $ return (VBool True)
-op0 "Bool::False" = const $ return (VBool False)
-op0 "True" = const $ return (VBool True)
-op0 "False" = const $ return (VBool False)
+op0 "Bool::True" = const . return $ VBool True
+op0 "Bool::False" = const . return $ VBool False
+op0 "True" = constMacro . Val $ VBool True
+op0 "False" = constMacro . Val $ VBool False
 op0 "time"  = const $ do
     clkt <- guardIO getClockTime
     return $ VRat $ fdiff $ diffClockTimes clkt epochClkT
@@ -82,14 +85,14 @@ op0 "File::Spec::cwd" = const $ do
 op0 "File::Spec::tmpdir" = const $ do
     tmp <- guardIO getTemporaryDirectory
     return $ VStr tmp
-op0 "pi" = const $ return (VNum pi)
-op0 "self" = const $ evalExp $ Var "$?SELF"
+op0 "pi" = constMacro . Val $ VNum pi
+op0 "self" = const $ expToEvalVal (Var "$?SELF")
 op0 "say" = const $ op1 "IO::say" (VHandle stdout)
 op0 "print" = const $ op1 "IO::print" (VHandle stdout)
 op0 "return" = const $ op1Return (shiftT . const $ retEmpty)
 op0 "yield" = const $ op1Yield (shiftT . const $ retEmpty)
 op0 "take" = const $ retEmpty
-op0 "nothing" = const $ return $ VBool True
+op0 "nothing" = const . return $ VBool True
 op0 other = const $ fail ("Unimplemented listOp: " ++ other)
 
 -- |Implementation of unary primitive operators and functions
@@ -1392,8 +1395,8 @@ withDefined (_:xs) c = withDefined xs c
 -- the default is 'op0'.
 -- The Pad symbol name is prefixed with \"&*\" for functions and
 -- \"&*\" ~ fixity ~ \":\" for operators.
-primOp :: String -> String -> Params -> String -> Bool -> STM (PadMutator)
-primOp sym assoc prms ret isSafe =
+primOp :: String -> String -> Params -> String -> Bool -> Bool -> STM (PadMutator)
+primOp sym assoc prms ret isSafe isMacro =
     -- In safemode, we filter all prims marked as "unsafe".
     genMultiSym name (sub (isSafe || not safeMode))
     where
@@ -1402,28 +1405,34 @@ primOp sym assoc prms ret isSafe =
          = "&*" ++ sym
          | otherwise
          = "&*" ++ fixity ++ (':':sym)
+    pkg = do
+        (_, pre) <- breakOnGlue "::" (reverse sym)
+        return $ dropWhile (not . isAlphaNum) (reverse pre)
     sub safe = codeRef $! mkPrim
         { subName     = sym
-        , subType     = if sym == "Object::new" then SubMethod else SubPrim
+        , subType     = case pkg of
+            Nothing | isMacro       -> SubMacro
+                    | otherwise     -> SubPrim
+            Just "Pugs::Internals"  -> SubPrim
+            _                       -> SubMethod
         , subAssoc    = assoc
         , subParams   = prms
         , subReturns  = mkType ret
         , subBody     = Prim $! if safe then f else unsafe
         }
-    symStr = sym
     unsafe :: [Val] -> Eval Val
     unsafe _ = fail $ "Unsafe function '" ++ sym ++ "' called under safe mode"
     f :: [Val] -> Eval Val
     f    = case arity of
-        Arity0 -> op0 symStr
+        Arity0 -> op0 sym
         Arity1 -> \x -> case x of
             [a]       -> op1 symName a
-            [a,b]     -> op2 symStr a b
-            [a,b,c]   -> op3 symStr a b c
-            [a,b,c,d] -> op4 symStr a b c d
-            a         -> op0 symStr a
-        Arity2 -> \[x,y] -> op2 symStr x y
-    symName = if modify then assoc ++ ":" ++ symStr else symStr
+            [a,b]     -> op2 sym a b
+            [a,b,c]   -> op3 sym a b c
+            [a,b,c,d] -> op4 sym a b c d
+            a         -> op0 sym a
+        Arity2 -> \[x,y] -> op2 sym x y
+    symName = if modify then assoc ++ ":" ++ sym else sym
     -- prefix symName with post, circum or other (not yet used)
     -- to disambiguate, for example, &*prefix:++ and &*postfix:++ in 'op0'
     (arity, fixity, modify) = case assoc of
@@ -1443,7 +1452,7 @@ data Arity = Arity0 | Arity1 | Arity2
 
 -- |Produce a Pad update transaction with 'primOp' from a string description
 primDecl :: String -> STM PadMutator
-primDecl str = primOp sym assoc params ret (safe == "safe")
+primDecl str = primOp sym assoc params ret ("safe" `isPrefixOf` safe) ("macro" `isSuffixOf` safe)
     where
     (ret:assoc:sym:safe:prms) = words str
     takeWord = takeWhile isWord . dropWhile (not . isWord)
@@ -1542,8 +1551,8 @@ initSyms = mapM primDecl syms
 \\n   Num       pre     cos     safe   (Num)\
 \\n   Num       pre     sin     safe   (Num)\
 \\n   Num       pre     tan     safe   (Num)\
-\\n   Any       pre     pi      safe   ()\
-\\n   Any       pre     self    safe   ()\
+\\n   Any       pre     pi      safe,macro   ()\
+\\n   Any       pre     self    safe,macro   ()\
 \\n   Bool      pre     nothing safe   ()\
 \\n   Num       pre     exp     safe   (Num, ?Num)\
 \\n   Num       pre     sqrt    safe   (Num)\
@@ -1852,8 +1861,8 @@ initSyms = mapM primDecl syms
 \\n   Any       pre     Pugs::Internals::check_for_io_leak      safe (Code)\
 \\n   Bool      pre     Bool::True  safe   ()\
 \\n   Bool      pre     Bool::False safe   ()\
-\\n   Bool      pre     True  safe   ()\
-\\n   Bool      pre     False safe   ()\
+\\n   Bool      pre     True  safe,macro   ()\
+\\n   Bool      pre     False safe,macro   ()\
 \\n   List      spre    prefix:[,]  safe   (List)\
 \\n   Str       pre     Code::name    safe   (Code:)\
 \\n   Int       pre     Code::arity   safe   (Code:)\
