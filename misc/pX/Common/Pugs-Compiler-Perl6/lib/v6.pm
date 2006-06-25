@@ -1,17 +1,8 @@
 package v6;
+$v6::VERSION = '0.01_001';
 
-# invokes the Perl6-to-Perl5 compiler and creates a .pmc file
-
-# Command line:
-#   perl v6.pm -e "some perl 6 code"
-
-# Compile-only:
-#   perl -Ilib lib/v6.pm --compile-only -e '<hello>.say;'
-
-# Script or module:
-#   use v6-pugs;
-#   "hello, world".say;
-
+# Documentation in the __END__
+use 5.006;
 use strict;
 use warnings;
 use Module::Compile-base;
@@ -99,3 +90,64 @@ if (@ARGV and !caller) {
 }
 
 1;
+
+__END__
+
+=head1 NAME 
+
+v6 - an experimental Perl 6 implementation (under way)
+
+=head1 SYNOPSIS
+
+Command line:
+
+    $ perl -Ilib lib/v6.pm -e ' for 1,2,3 -> $x { say $x }'
+
+Compile-only:
+
+    $ perl -Ilib lib/v6.pm --compile-only -e ' <hello>.say; '
+
+Script or module:
+
+    # file: hello_world.pl
+    use v6-pugs;
+    "hello, world".say;
+
+    $ perl hello_world.pl
+
+=head1 DESCRIPTION
+
+The C<v6> module is a front-end to the experimental Perl6-to-Perl5 compiler.
+
+The current state of this compiler implementation only provide a small sample of
+Perl 6 syntax and semantics.
+
+Although running C<v6> requires the installation of a lot of Perl 5 modules,
+it is completely independent of Pugs or Parrot. 
+
+=head2 Other Perl 6 implementations
+
+The Pugs/Haskell Perl 6 is currently the most complete implementation. 
+Pugs currently has some issues with Perl 5 interoperability.
+
+Parrot Perl 6 is the best performing implementation by far.
+The Parrot implementation is currently at a comparable state as v6.pm.
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 SEE ALSO
+
+The Perl 6 Synopsis: L<http://dev.perl.org/perl6/doc/synopsis.html>
+
+=head1 COPYRIGHT
+
+Copyright 2006 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=cut
