@@ -68,10 +68,46 @@ plan 25;
     ok($caught, "exception caught", :todo);
 };
 
+# return inside try{}-blocks
+# PIL2JS *seems* to work, but it does not, actually:
+# The "return 42" works without problems, and the caller actually sees the
+# return value 42. But when the end of the test is reached, &try will
+# **resume after the return**, effectively running the tests twice.
+# (Therefore I moved the tests to the end, so not all tests are rerun).
+{
+    my $was_in_foo;
+    sub foo {
+        $was_in_foo++;
+        try { return 42 };
+        $was_in_foo++;
+        return 23;
+    }
+    is foo(), 42,      'return() inside try{}-blocks works (1)', :todo<bug>;
+    is $was_in_foo, 1, 'return() inside try{}-blocks works (2)', :todo<bug>;
+}
+
+{
+    my sub test1 {
+        try { return 42 };
+        return 23;
+    }
+
+    my sub test2 {
+        test1();
+        die 42;
+    }
+
+    dies_ok { test2() },
+        "return() inside a try{}-block should cause following exceptions to really die";
+}
+
+unless (eval 'Exception.new') {
+    skip_rest "No Exception objects"; exit
+}
 
 {
     # exception classes
-    eval 'class Naughty is Exception {}';
+    class Naughty is Exception {};
 
     my ($not_died, $caught);
     eval 'try {
@@ -90,8 +126,8 @@ plan 25;
 
 {
     # exception superclass
-    eval 'class Naughty::Specific is Naughty {}';
-    eval 'class Naughty::Other is Naughty {}';
+    class Naughty::Specific is Naughty {};
+    class Naughty::Other is Naughty {};
 
     my ($other, $naughty);
     eval 'try {
@@ -131,35 +167,3 @@ plan 25;
     is(eval('ref($!)'), Dandy, ".. of the right class", :todo<bug>);
 };
 
-# return inside try{}-blocks
-# PIL2JS *seems* to work, but it does not, actually:
-# The "return 42" works without problems, and the caller actually sees the
-# return value 42. But when the end of the test is reached, &try will
-# **resume after the return**, effectively running the tests twice.
-# (Therefore I moved the tests to the end, so not all tests are rerun).
-{
-    my $was_in_foo;
-    sub foo {
-        $was_in_foo++;
-        try { return 42 };
-        $was_in_foo++;
-        return 23;
-    }
-    is foo(), 42,      'return() inside try{}-blocks works (1)', :todo<bug>;
-    is $was_in_foo, 1, 'return() inside try{}-blocks works (2)', :todo<bug>;
-}
-
-{
-    my sub test1 {
-        try { return 42 };
-        return 23;
-    }
-
-    my sub test2 {
-        test1();
-        die 42;
-    }
-
-    dies_ok { test2() },
-        "return() inside a try{}-block should cause following exceptions to really die";
-}

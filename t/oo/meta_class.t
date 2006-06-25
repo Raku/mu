@@ -11,16 +11,16 @@ Very basic meta-class tests from L<S12/"Introspection">
 
 =cut
 
-eval 'class Foo-0.0.1 { method bar ($param) returns Str { return "baz" ~ $param } }';
+class Foo-0.0.1 { method bar ($param) returns Str { return "baz" ~ $param } };
 
 # L<S12/"Introspection" /should be called through the meta object\:/>
 
 eval_ok("Foo.meta.can('bar')", '... Foo can bar', :todo<feature>);
-eval_ok("Foo.meta.isa(Foo)", '... Foo is-a Foo (of course)', :todo<feature>);
+eval_ok("Foo.meta.isa(Foo)", '... Foo is-a Foo (of course)');
 
 # L<S12/"Introspection" /Class traits may include\:/>
 
-eval_ok("Foo.meta.name() eq 'Foo'", '... the name() property is Foo', :todo<feature>);
+eval_ok("Foo.meta.name() eq 'Foo'", '... the name() property is Foo');
 eval_ok("Foo.meta.version() == 0.0.1", '... the version() property is 0.0.1', :todo<feature>);
 eval_ok("(Foo.meta.isa())[0] ~~ Foo", '... the isa() property returns Foo as the first parent class', :todo<feature>);
 
