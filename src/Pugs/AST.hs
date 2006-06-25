@@ -16,7 +16,7 @@ module Pugs.AST (
     genMultiSym, genSym,
     strRangeInf, strRange, strInc,
     mergeStmts, isEmptyParams,
-    newPackage, newType, newMetaType, typeSub, isScalarLValue,
+    newPackage, newType, newMetaType, typeMacro, isScalarLValue,
     filterPrim, filterUserDefinedPad,
 
     module Pugs.AST.Internals,
@@ -217,31 +217,28 @@ newPackage cls name traits = Stmts metaObj (newType name)
 newType :: String -> Exp
 newType name = Sym SGlobal ('&':'&':'*':name) $! Syn ":="
     [ Var ('&':'*':name)
-    , Syn "sub" [Val (VCode $ typeSub name)]
+    , typeMacro name (Val . VType . mkType $ name)
     ]
 
 newMetaType :: String -> Exp
 newMetaType name = Sym SGlobal ('&':'&':'*':name) $! Syn ":="
     [ Var ('&':'*':name)
-    , Syn "sub" [Val . VCode $ (typeSub name)
-        { subBody = Prim . const . expToEvalVal $ Var (':':'*':name)
-        , subType = SubMacro
-        }]
+    , typeMacro name (Var (':':'*':name))
     ]
 
-typeSub :: String -> VCode
-typeSub name = MkCode
+typeMacro :: String -> Exp -> Exp
+typeMacro name exp = Syn "sub" . (:[]) . Val . VCode $ MkCode
     { isMulti       = True
     , subName       = name
     , subEnv        = Nothing
-    , subType       = SubPrim
+    , subType       = SubMacro
     , subAssoc      = "pre"
     , subReturns    = typ
     , subLValue     = False
     , subParams     = []
     , subBindings   = []
     , subSlurpLimit = []
-    , subBody       = Prim (const $ return (VType typ))
+    , subBody       = Prim . const . expToEvalVal $ exp
     , subCont       = Nothing
     }
     where

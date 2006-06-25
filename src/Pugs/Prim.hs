@@ -656,6 +656,21 @@ op1 "Pugs::Internals::emit_yaml" = \v -> do
     glob <- filterPrim =<< asks envGlobal
     yml  <- liftIO $ showYaml (filterUserDefinedPad glob, v)
     return $ VStr yml
+op1 "Object::meta" = \v -> do
+    typ     <- evalValType v
+    evalExp $ Var (':':'*':showType typ)
+op1 "Class::name" = \v -> do
+    cls     <- fromVal v
+    meta    <- readRef =<< fromVal cls
+    fetch   <- doHash meta hash_fetchVal
+    str     <- fromVal =<< fetch "name"
+    return str
+op1 "Class::traits" = \v -> do
+    cls     <- fromVal v
+    meta    <- readRef =<< fromVal cls
+    fetch   <- doHash meta hash_fetchVal
+    str     <- fromVal =<< fetch "traits"
+    return str
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 op1IO :: Value a => (Handle -> IO a) -> Val -> Eval Val
@@ -1816,6 +1831,9 @@ initSyms = mapM primDecl syms
 \\n   Object    pre     DESTROYALL safe   (Object)\
 \\n   Code      pre     TEMP    safe   (rw!Any)\
 \\n   Object    pre     Object::clone   safe   (Object: Named)\
+\\n   Class     pre     Object::meta    safe   (Object)\
+\\n   Str       pre     Class::name    safe   (Class)\
+\\n   Hash      pre     Class::traits  safe   (Class)\
 \\n   Object    pre     id      safe   (Any)\
 \\n   Int       pre     Rat::numerator   safe   (Rat:)\
 \\n   Int       pre     Rat::denominator safe   (Rat:)\
