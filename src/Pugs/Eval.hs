@@ -989,8 +989,17 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
                                 thunk <- liftSTM $ readTVar tvar
                                 applyThunk (subType sub) realBound thunk
                             Nothing     -> applyExp (subType sub) realBound fun
-                retVal val
+                case typ of 
+                    SubMacro    -> applyMacroResult val 
+                    _           -> retVal val
     where
+    applyMacroResult :: Val -> Eval Val
+    applyMacroResult (VObject o)
+        | objType o == mkType "Code::Exp" = reduce (fromObject o)
+    applyMacroResult code@VStr{}    = reduceApp (Var "&eval") (Just $ Val code) []
+    applyMacroResult code@VCode{}   = reduceApp (Val code) Nothing []
+    applyMacroResult VUndef         = retEmpty
+    applyMacroResult _              = fail "Macro did not return an AST, a Str or a Code!"
     enterScope :: Eval Val -> Eval Val
     enterScope
         | typ >= SubBlock = id

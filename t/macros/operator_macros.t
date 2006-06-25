@@ -3,17 +3,11 @@
 use v6;
 use Test;
 
-plan 2;
+plan 1;
 
-{
-  my $was_in_macro;
-
-  macro postfix:<!> (Int $n) {
-    $was_in_macro++;
+macro postfix:<!> (Int $n) {
     my $factorial = [*] 1..$n;
     return "$factorial + 0";
-  }
-
-  ok $was_in_macro, :todo<feature>;
-  is 3!, 6, "macro postfix:<!> works", :todo<feature>;
 }
+
+is 3!, 6, "macro postfix:<!> works";

@@ -102,6 +102,7 @@ State object that gets passed around during the parsing process.
 -}
 data RuleState = MkRuleState
     { ruleEnv           :: !Env
+    , ruleParseProgram  :: !(Env -> FilePath -> String -> Env)
     , ruleDynParsers    :: !DynParsers -- ^ Cache for dynamically-generated
                                        --     parsers
     , ruleBracketLevel  :: !BracketLevel

@@ -149,7 +149,14 @@ instance Pretty Val where
 -}
     format (VRef x) = format x
     format (VList x) = format x
-    format (VCode _) = text "sub {...}"
+    format (VCode x) = text . (++ "{...}") $ case subType x of
+        SubMacro        -> "macro "
+        SubRoutine      -> "sub "
+        SubMethod       -> "method "
+        SubCoroutine    -> "coro "
+        SubPointy       -> "->"
+        SubBlock        -> ""
+        SubPrim         -> ""
     format (VBlock _) = text "{...}"
     format (VError x posList)
         -- Is this correct? Does this work on win32, too?
