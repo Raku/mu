@@ -26,7 +26,7 @@ sub compile {
     #print 'rule source: ', $self->{source}, "\n";
     local $@;
     eval {
-        $self->{ast} = Pugs::Grammar::Perl6->parse( $self->{source} );
+        $self->{ast} = Pugs::Grammar::Perl6->parse( $self->{source} . ';' );
     };
     carp "Error in perl 6 parser: '$rule_source' at: '$self->{ast}{tail}'\n" 
         if $self->{ast}{tail} || $@;

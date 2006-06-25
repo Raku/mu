@@ -323,6 +323,18 @@ sub prefix {
     if ( $n->{op1}{op} eq 'try' ) {
         return 'eval ' . _emit( $n->{exp1} ) . "; \$::_EXCL_ = \$@;";
     }
+    if ( $n->{op1}{op} eq 'eval' ) {
+        return 
+            'do { ' . 
+            'use Pugs::Compiler::Perl6; ' . # XXX - load at start
+            'local $@; ' .
+            'my @result; ' .    # XXX - test want()
+            # call Perl::Tidy here? - see v6.pm ???
+            'my $p6 = Pugs::Compiler::Perl6->compile( ' . _emit( $n->{exp1} ) . ' ); ' .
+            'eval $p6->{perl5}; ' .
+            '$::_EXCL_ = \$@; ' .
+            '@result }';  # /do
+    }
     if ( $n->{op1}{op} eq '++' ||
          $n->{op1}{op} eq '--' ||
          $n->{op1}{op} eq '+'  ) {
