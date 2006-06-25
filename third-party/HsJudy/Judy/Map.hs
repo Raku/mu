@@ -76,7 +76,7 @@ finalize j = do
 new_ :: IO (Map k a)
 new_ = do
     fp <- mallocForeignPtr
-    putStr $ " (NEW on " ++ (show fp) ++ ") "
+--    putStr $ " (NEW on " ++ (show fp) ++ ") "
 --    finalize' <- mkFin finalize
 --    addForeignPtrFinalizer finalize' fp 
     withForeignPtr fp $ flip poke nullPtr

@@ -1,6 +1,8 @@
 {-# OPTIONS -fallow-undecidable-instances -fallow-incoherent-instances #-}
 
-import qualified Judy.Map as JMap
+--import qualified Judy.MapSL as JM
+import qualified Judy.Map as JM
+import Judy.Map (Stringable (..))
 
 import Data.List (sort)
 import Judy.CollectionsM --as CM
@@ -17,7 +19,7 @@ main = do
     testElems
 
 
---    sequence $ take 1000 $ repeat testSimple
+    --sequence $ take 1000 $ repeat testSimple
     sequence [testSimple, testDelete, testOverwrite, testMember, testElems, testKeys, testIntKey]
 
 check l = do
@@ -25,9 +27,15 @@ check l = do
         then putStrLn "ok"
         else putStrLn "BAD"
 
+--newStringInt = new :: IO (JM.MapSL String Int)
+--newIntString = new :: IO (JM.MapSL Int String)
+
+newStringInt = new :: IO (JM.Map String Int)
+newIntString = new :: IO (JM.Map Int String)
+
 testSimple = do
     putStr "simple: \t"
-    s <- new :: IO (JMap.Map String Int)
+    s <- newStringInt
     a <- lookup "haha" s
     alter "haha" 42 s
     b <- lookup "haha" s
@@ -35,7 +43,7 @@ testSimple = do
 
 testDelete = do
     putStr "delete: \t"
-    s <- new :: IO (JMap.Map String Int)
+    s <- newStringInt
     a <- lookup "haha" s
     alter "haha" 42 s
     b <- lookup "haha" s
@@ -47,7 +55,7 @@ testDelete = do
 
 testOverwrite = do
     putStr "overwrite: \t"
-    s <- new :: IO (JMap.Map String Int)
+    s <- newStringInt
     alter "haha" 1234 s
     alter "dois" 1234 s
     alter "haha" 42 s
@@ -57,7 +65,7 @@ testOverwrite = do
 
 testMember = do
     putStr "member: \t"
-    s <- new :: IO (JMap.Map String Int)
+    s <- newStringInt
     a <- member "haha" s
     alter "haha" 42 s
     b <- member "ahoy" s
@@ -68,41 +76,40 @@ testMember = do
 
 testElems = do
     putStr "elems:  \t"
-    s <- new :: IO (JMap.Map String Int)
-    a <- JMap.elems s
+    s <- newStringInt
+    a <- JM.elems s
     alter "haha" 42 s
     alter "ahoy" 1 s
     alter "nop" 2 s
-    b <- JMap.elems s
+    b <- JM.elems s
     check [a == [], (sort b) == [1,2,42]]
 
 testKeys = do
     putStr "keys:   \t"
-    s <- new :: IO (JMap.Map String Int)
-    a <- JMap.keys s
+    s <- newStringInt
+    a <- JM.keys s
     alter "haha" 42 s
     alter "ahoy" 1 s
     alter "nop" 2 s
-    b <- JMap.keys s
+    b <- JM.keys s
     delete "ahoy" s
     delete "nada" s
-    c <- JMap.keys s
+    c <- JM.keys s
     check [a == [], (sort b) == ["ahoy", "haha", "nop"], (sort c) == ["haha", "nop"]]
 
-instance JMap.Stringable Int where
+instance Stringable Int where
     toString = show
     fromString = read
 
 
-
 testIntKey = do
     putStr "int-key map: \t"
-    s <- new :: IO (JMap.Map Int String)
-    a <- JMap.keys s
+    s <- newIntString
+    a <- JM.keys s
     alter 22 "string" s
     alter 59 "i am not a number" s
-    b <- JMap.keys s
-    c <- JMap.elems s
+    b <- JM.keys s
+    c <- JM.elems s
     d <- member 22 s
     delete 22 s
     e <- member 22 s

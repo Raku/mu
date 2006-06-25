@@ -86,10 +86,6 @@ member_ k (Map2 j) = do
     r <- judyLGet j' k' judyError
     return $ r /= nullPtr
 
-del j wp = withForeignPtr j $ \j -> do
-    r <- judyLDel j wp judyError
-    return $ r /= 0
-
 delete_ :: ReversibleHashIO k => k -> Map2 k a -> IO Bool
 delete_ k (Map2 j) = withForeignPtr j $ \j' -> do
     k' <- hashIO k
