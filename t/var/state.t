@@ -35,7 +35,7 @@ plan 12;
     $a(); $a();     # $svar == 44
     my $b = $gen(); # $svar == 44
 
-    is $b(), 44, "state() works inside coderefs", :todo<bug>;
+    is $b(), 44, "state() works inside coderefs";
 }
 
 # state() inside for-loops
