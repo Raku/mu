@@ -4,7 +4,7 @@ use inc::Module::Install (
     -d '../../../../misc/pX' ? (prefix => '../../../../inc') : ()
 );
 
-    name('v6');
+    name('v6-pugs');
 all_from('lib/v6.pm');
 requires('Pugs::Compiler::Rule' => '0');
 requires('Module::Compile' => '0');

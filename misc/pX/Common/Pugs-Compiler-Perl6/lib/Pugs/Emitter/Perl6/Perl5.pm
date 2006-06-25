@@ -7,13 +7,12 @@ use warnings;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
-sub _var_name {
+sub _mangle_var {
     my $s = shift;
-    substr($s,1) =~ s/\$/_DOLLAR_/g;
-    $s =~ s/\!/_EXCL_/g;
-    
     # globals
-    $s = '$::_EXCL_' if $s eq '$_EXCL_';  
+    return '$::_EXCL_' if $s eq '$!';  
+
+    substr($s,1)   =~ s/ ([^a-zA-Z0-9_:]) / '_'.ord($1).'_' /xge;
     return $s;
 }
 
@@ -56,7 +55,7 @@ sub _emit {
     return $n->{num} 
         if exists $n->{num};
         
-    return _var_name( $n->{scalar} )
+    return _mangle_var( $n->{scalar} )
         if exists $n->{scalar};
         
     return $n->{array} 
@@ -321,7 +320,8 @@ sub prefix {
         return $n->{op1}{op} . ' ' . _emit( $n->{exp1} );
     }
     if ( $n->{op1}{op} eq 'try' ) {
-        return 'eval ' . _emit( $n->{exp1} ) . "; \$::_EXCL_ = \$@;";
+        return 'eval ' . _emit( $n->{exp1} ) . "; " . 
+            _mangle_var( '$!' ) . " = \$@;";
     }
     if ( $n->{op1}{op} eq 'eval' ) {
         return 
@@ -332,7 +332,7 @@ sub prefix {
             # call Perl::Tidy here? - see v6.pm ???
             'my $p6 = Pugs::Compiler::Perl6->compile( ' . _emit( $n->{exp1} ) . ' ); ' .
             'eval $p6->{perl5}; ' .
-            '$::_EXCL_ = \$@; ' .
+            _mangle_var( '$!' ) . ' = $@; ' .
             '@result }';  # /do
     }
     if ( $n->{op1}{op} eq '++' ||
