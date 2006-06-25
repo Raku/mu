@@ -13,6 +13,7 @@ Parameterized traits tests, see L<S12/"Traits">.
 
 # L<S12/"Traits">
 # Basic definition
+my $role_works;
 eval_ok 'role cool {
   has $.cool;
 
@@ -20,7 +21,12 @@ eval_ok 'role cool {
     $.cool = $val;
     $container does cool($val);
   }
+  $role_works = 1;
 ', "role definition works", :todo<feature>;
+
+unless ($role_works) {
+    skip_rest 'role definition is broken'; exit;
+}
 
 my $a = 42;
 is           $a, 42, "basic sanity (1)";
