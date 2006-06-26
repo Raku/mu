@@ -47,7 +47,7 @@ is($foo.noargs(), 42, "... parentheses after method");
         #eval '$val = $foo.noargs.()';
         #die $! if $!;
         die 'cannot parse "val = $foo.noargs.()"'
-    }, "... '.' + parentheses after method", :todo<hardfail>;
+    }, "... '.' + parentheses after method", :todo<bug>;
     is($val, 42, '... we got the value correctly', :todo<feature>);
 }
 
@@ -57,7 +57,7 @@ is($foo.noargs(), 42, "... parentheses after method");
         #eval '$val = $foo.noargs .()';
         #die $! if $!;
         die 'cannot parse "$foo.noargs .()"'
-    }, "... <space> + '.' + parentheses after method", :todo<hardfail>;
+    }, "... <space> + '.' + parentheses after method", :todo<bug>;
     is($val, 42, '... we got the value correctly', :todo<feature>);
 }
 

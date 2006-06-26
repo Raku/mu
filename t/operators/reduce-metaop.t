@@ -46,14 +46,14 @@ plan 50;
     ok (not [!=] 4, 4, 4),    "[!=] works (2)";
 
     # these all fail now, until produced chains are figured out and implemented
-    is ([~] [\<]  1, 2, 3, 4), "1 1 1 1", "[\\<] works (1)", :todo<spec>;
-    is ([~] [\<]  1, 3, 2, 4), "1 1 0 0", "[\\<] works (2)", :todo<spec>;
-    is ([~] [\>]  4, 3, 2, 1), "1 1 1 1", "[\\>] works (1)", :todo<spec>;
-    is ([~] [\>]  4, 2, 3, 1), "1 1 0 0", "[\\>] works (2)", :todo<spec>;
-    is ([~] [\==]  4, 4, 4),   "1 1 1",   "[\\==] works (1)", :todo<spec>;
-    is ([~] [\==]  4, 5, 4),   "1 0 0",   "[\\==] works (2)", :todo<spec>;
-    is ([~] [\!=]  4, 5, 6),   "1 1 1",   "[\\!=] works (1)", :todo<spec>;
-    is ([~] [\!=]  4, 5, 4),   "1 0 0",   "[\\!=] works (2)", :todo<spec>;
+    is ([~] [\<]  1, 2, 3, 4), "1 1 1 1", "[\\<] works (1)", :todo<unspecced>;
+    is ([~] [\<]  1, 3, 2, 4), "1 1 0 0", "[\\<] works (2)", :todo<unspecced>;
+    is ([~] [\>]  4, 3, 2, 1), "1 1 1 1", "[\\>] works (1)", :todo<unspecced>;
+    is ([~] [\>]  4, 2, 3, 1), "1 1 0 0", "[\\>] works (2)", :todo<unspecced>;
+    is ([~] [\==]  4, 4, 4),   "1 1 1",   "[\\==] works (1)", :todo<unspecced>;
+    is ([~] [\==]  4, 5, 4),   "1 0 0",   "[\\==] works (2)", :todo<unspecced>;
+    is ([~] [\!=]  4, 5, 6),   "1 1 1",   "[\\!=] works (1)", :todo<unspecced>;
+    is ([~] [\!=]  4, 5, 4),   "1 0 0",   "[\\!=] works (2)", :todo<unspecced>;
 }
 
 {
