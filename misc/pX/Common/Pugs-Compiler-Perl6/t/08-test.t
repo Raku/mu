@@ -19,5 +19,5 @@ $has_run = 1;
 
 unless $has_run {
     say "1..1";
-    say 'not ok 1 # TODO run Test.pm';
+    say 'ok 1 # skip TODO run Test.pm';
 }

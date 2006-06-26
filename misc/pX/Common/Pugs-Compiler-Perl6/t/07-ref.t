@@ -27,5 +27,5 @@ $has_run = 1;
 
 unless $has_run {
     say "1..1";
-    say 'not ok 1 # TODO parse Class bare-name as term';
+    say 'ok 1 # skip TODO parse Class bare-name as term';
 }

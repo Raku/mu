@@ -22,6 +22,6 @@ $has_run = 1;
 }
 
 unless $has_run {
-    say 'not ok 1 # TODO emit multis';
-    say 'not ok 2 # TODO emit multis';
+    say 'ok 1 # skip TODO emit multis';
+    say 'ok 2 # skip TODO emit multis';
 }
