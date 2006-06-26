@@ -1,13 +1,10 @@
 use strict;
-use lib '../../../..', '../../../../inc';
-use inc::Module::Install (
-    -d '../../../../misc/pX' ? (prefix => '../../../../inc') : ()
-);
+use inc::Module::Install;
 
     name('v6-pugs');
 all_from('lib/v6.pm');
 requires('Pugs::Compiler::Rule' => '0.06');
-requires('Module::Compile' => '0');
+requires('Module::Compile' => '0.16');
 
 recommends('Perl::Tidy' => 0);
 

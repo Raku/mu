@@ -1,5 +1,5 @@
 package v6;
-$v6::VERSION = '0.01_001';
+$v6::VERSION = '0.001';
 
 # Documentation in the __END__
 use 5.006;
@@ -40,7 +40,7 @@ sub pmc_compile {
     $perl5 = 
         "use Pugs::Runtime::Perl6;\n" . 
         "use strict;\n" . 
-        #"no warnings 'array';\n" . 
+        "no warnings 'void';\n" .   # t/07-try.t, t/07-ref.t
         $perl5 . "\n";
 
     {

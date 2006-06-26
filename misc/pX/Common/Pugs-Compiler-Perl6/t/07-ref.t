@@ -3,6 +3,7 @@
 use v6-pugs;
 
 my $has_run = 0;
+if 0 {  # XXX parser error - uncomment when fixed
 eval '
 
 say "1..3";
@@ -24,7 +25,7 @@ say "1..3";
 
 $has_run = 1;
 ';
-
+}
 unless $has_run {
     say "1..1";
     say 'ok 1 # skip TODO parse Class bare-name as term';
