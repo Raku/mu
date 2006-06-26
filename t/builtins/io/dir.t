@@ -77,7 +77,7 @@ ok(closedir($dir), "as does closedir");
 my $dh = opendir('.');
 isa_ok($dh, 'IO::Dir', "opendir worked");
 my @files_once_more = $dh.readdir;
-is_deeply(\@files_once_more, @files, 'same list of files,after reopen');
+is_deeply([sort @files_once_more], [sort @files], 'same list of files,after reopen');
 ok($dir.closedir, 'closedir usinf $dir.closedir format');
 
 
