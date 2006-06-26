@@ -111,6 +111,7 @@ sub freshness_check {
         local $/;
         open my $fh, "<", $module
           or die "Cannot open $module: $!";
+        binmode($fh, ':crlf'); # normalize CRLF for consistent checksum
         unpack('%32N*', <$fh>);
     });
     return << "...";
