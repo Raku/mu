@@ -140,11 +140,13 @@ pointy sub does not require parentheses, and a pointy sub may not be
 given traits.  Syntactically a pointy sub is parsed exactly like a
 bare block.
 
-    $sq = -> $val { $val**2 };  # Same as: $sq = sub ($val) { $val**2 };
+    my $sq = -> $val { $val**2 };
+    say $sq(10); # 100
 
-    for @list -> $elem {        # Same as: for @list sub ($elem) {
-        print "$elem\n";        #              print "$elem\n";
-    }                           #          }
+    my @list = 1..3;
+    for @list -> $elem {
+        say $elem; # prints "1\n2\n3\n"
+    }
 
 It also behaves like a block with respect to control exceptions.  If you
 C<return> from within a pointy sub, it will return from the innermost
