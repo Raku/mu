@@ -120,7 +120,7 @@ Script or module:
 
 The C<v6> module is a front-end to the experimental Perl6-to-Perl5 compiler.
 
-The current state of this compiler implementation only provide a small sample of
+The current state of this compiler implementation only provides a small sample of
 Perl 6 syntax and semantics.
 
 =head2 Other Perl 6 implementations
