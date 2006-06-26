@@ -110,17 +110,16 @@ sub quote_pugs {
 
 1;
 
-=head1 AUTHORS
-
-Audrey Tang C<E<lt>audreyt@audreyt.orgE<gt>>
-
 =head1 COPYRIGHT
 
-The author disclaims copyright to this source code.  In place of a legal
-notice, here is a blessing:
+Pugs is Copyright 2005-2006, The Pugs Contributors.
 
-    May you do good and not evil.
-    May you find forgiveness for yourself and forgive others.
-    May you share freely, never taking more than you give.
+Pugs is a joint work of authorship by the Pugs Contributors.
+
+Pugs is free software; you can redistribute it and/or modify it under
+the terms of either:
+
+    a) the GNU General Public License, version 2, or
+    b) the Artistic License, version 2.0beta5.
 
 =cut

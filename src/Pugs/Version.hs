@@ -21,7 +21,7 @@
 #endif
 
 module Pugs.Version (
-    name, versnum, date, version, copyright, revnum, revision, disclaimer,
+    name, versnum, date, version, copyright, revnum, revision,
 ) where
 
 name :: String
@@ -33,7 +33,7 @@ date       = PUGS_DATE
 version :: String
 version    = name ++ ", version " ++ versnum ++ ", " ++ date ++ revision
 copyright :: String
-copyright  = "Copyright 2005, 2006 by Audrey Tang"
+copyright  = "Copyright 2005-2006, The Pugs Contributors"
 revnum :: String
 revnum     = show(PUGS_SVN_REVISION :: Integer)
 revision :: String
@@ -43,9 +43,3 @@ revision
     = " (r" ++ rev ++ ")"
     | otherwise
     = ""
-disclaimer :: String
-disclaimer =
-    "This software is distributed under the terms of the " ++
-    "GNU Public Licence.\n" ++
-    "NO WARRANTY WHATSOEVER IS PROVIDED. " ++
-    "See the details in the documentation."

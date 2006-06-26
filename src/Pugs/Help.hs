@@ -13,7 +13,7 @@
 
 module Pugs.Help (printInteractiveHelp, printCommandLineHelp,
              banner, versnum, version, revnum,
-             copyright, disclaimer, intro) where
+             copyright, intro) where
 import Pugs.Version
 import Pugs.CodeGen (backends)
 import Data.List (sort)

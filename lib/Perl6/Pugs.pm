@@ -10,7 +10,7 @@ Perl6::Pugs - A Perl 6 Implementation
 
 =head1 VERSION
 
-This document describes version 6.2.12 of Pugs, released June 14, 2006.
+This document describes version 6.2.12 of Pugs, released June 26, 2006.
 
 =head1 SYNOPSIS
 
@@ -86,17 +86,16 @@ L<http://news.gmane.org/gmane.comp.lang.perl.perl6.compiler>.
 
 Please submit bug reports to C<E<lt>pugsbugs@perl.orgE<gt>>.
 
-=head1 AUTHORS
-
-Audrey Tang C<E<lt>audreyt@audreyt.orgE<gt>>
-
 =head1 COPYRIGHT
 
-The author disclaims copyright to this source code.  In place of a legal
-notice, here is a blessing:
+Pugs is Copyright 2005-2006, The Pugs Contributors.
 
-    May you do good and not evil.
-    May you find forgiveness for yourself and forgive others.
-    May you share freely, never taking more than you give.
+Pugs is a joint work of authorship by the Pugs Contributors.
+
+Pugs is free software; you can redistribute it and/or modify it under
+the terms of either:
+
+    a) the GNU General Public License, version 2, or
+    b) the Artistic License, version 2.0beta5.
 
 =cut
