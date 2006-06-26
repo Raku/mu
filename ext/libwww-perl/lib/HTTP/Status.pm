@@ -59,7 +59,7 @@ module HTTP::Status-0.0.1 {
         &HTTP::Status::("RC_" ~ $message) is export(:MANDATORY);
     }
     
-    our &RC_MOVED_TEMPORARILY is export(:MANDATORY) ::= &RC_FOUND;
+    our &RC_MOVED_TEMPORARILY is export(:MANDATORY) := &RC_FOUND;
     
     sub status_message ($code) { %StatusCode{$code} }
     
