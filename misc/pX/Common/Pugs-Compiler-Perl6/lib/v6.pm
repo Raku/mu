@@ -140,7 +140,13 @@ The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
 
 =head1 SEE ALSO
 
-The Perl 6 Synopsis: L<http://dev.perl.org/perl6/doc/synopsis.html>
+The Perl 6 homepage at L<http://dev.perl.org/perl6>.
+
+- the Perl 6 Synopsis: L<http://dev.perl.org/perl6/doc/synopsis.html>.
+
+The Pugs homepage at L<http://pugscode.org/>.
+
+The Parrot homepage at L<http://www.parrotcode.org>.
 
 =head1 COPYRIGHT
 
