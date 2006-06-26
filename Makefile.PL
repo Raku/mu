@@ -668,6 +668,7 @@ pure_all :: build_perl5
 	\$(PERLRUN) util/src_to_blib.pl
 
 register ::
+	\$(PERLRUN) util/ghc_setup.pl copy --copy-prefix=\$(DESTDIR)
 	\$(PERLRUN) util/ghc_setup.pl register --prefix=\$(DESTDIR)
 
 pure_site_install ::
@@ -679,7 +680,7 @@ pure_site_install ::
 		\$(INST6_MAN1DIR) \$(DESTDIR)$config->{installsiteman1dir} \\
 		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installsiteman3dir} \\
 		\$(INSTPUGS_LIB) \$(DESTDIR)$config->{sitelib}/auto/pugs
-        #\$(PERLRUN) util/ghc_setup.pl copy --copy-prefix=\$(DESTDIR)
+#	\$(PERLRUN) util/ghc_setup.pl copy --copy-prefix=\$(DESTDIR)
 
 pure_vendor_install ::
 	\$(NOECHO) \$(MOD_INSTALL) \\
@@ -690,7 +691,7 @@ pure_vendor_install ::
 		\$(INST6_MAN1DIR) \$(DESTDIR)$config->{installman1dir} \\
 		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installman3dir} \\
 		\$(INSTPUGS_LIB) \$(DESTDIR)$config->{privlib}/auto/pugs
-        #\$(PERLRUN) util/ghc_setup.pl copy --copy-prefix=\$(DESTDIR)
+#	\$(PERLRUN) util/ghc_setup.pl copy --copy-prefix=\$(DESTDIR)
 .
 }
 
