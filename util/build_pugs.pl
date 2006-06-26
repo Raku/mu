@@ -91,6 +91,9 @@ sub build_lib {
     my $ar = $Config{full_ar};
     my $a_file = File::Spec->rel2abs("dist/build/libHSPugs-$version.a");
 
+    # Add GHC to PATH
+    local $ENV{PATH} = dirname($ghc) . $Config{path_sep} . $ENV{PATH};
+
     unlink $a_file;
     $run_setup->('build');
     die "Build failed: $?" unless -e $a_file;
