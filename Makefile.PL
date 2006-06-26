@@ -153,24 +153,8 @@ sub set_postamble {
 .
     }
 
-    my $pwd = cwd();
-
     # Add GHC to PATH
     local $ENV{PATH} = dirname($ghc) . $Config{path_sep} . $ENV{PATH};
-
-    print "*** Building dependencies.  Please wait...\n\n";
-    foreach my $module (qw< fps HsSyck >) {
-        chdir "third-party/$module";
-        system("../../Setup$Config{_exe}", 'configure', '--user', '--prefix', "$pwd/dist");
-        system("../../Setup$Config{_exe}", 'unregister', '--user');
-
-        print "*** Building the '$module' dependency.  Please wait...\n\n";
-
-        system("../../Setup$Config{_exe}", 'build');
-        system("../../Setup$Config{_exe}", 'install', '--user');
-        chdir $pwd;
-    }
-    print "*** Finished building dependencies.\n\n";
 
     my $heap;
 
