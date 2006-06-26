@@ -153,7 +153,7 @@ uniBlock indent = choice
         --If the field is in quotes, strip the quotes by stripping the first character, 
         --reversing the string, stripping the first character, then reversing again
         return $ if (head uni `elem` "\"'")
-            then reverse (tail (reverse (tail uni)))
+            then (makeLiterals (reverse (tail (reverse (tail uni)))))
             else uni
     ]
 
@@ -164,6 +164,13 @@ parseInput = do
     names <- many (nodeNamer 2)
     eof 
     return names
+
+makeLiterals :: String -> String
+makeLiterals [] = []
+makeLiterals inSt = if ((head inSt)=='\\') then if (head (tail inSt) == '"') then ('\"':(makeLiterals(drop 2 inSt))) else
+                                                   if (head (tail inSt) == 'n') then ('\n':(makeLiterals(drop 2 inSt))) else
+                                                    ('\\':(makeLiterals(drop 2 inSt)))
+                      else ((head inSt):(makeLiterals (tail inSt)))
 
 {- No longer a big big messy function to print all the different node types, 
 now a slim function to print everything to a file.
@@ -177,6 +184,57 @@ printTree outFile (LiteralNode _ _ uni) = hPutStr outFile uni
 printTree outFile (AbstractNode _ []) = hPutStr outFile ""
 printTree outFile (AbstractNode _ kids) = do{ printTree outFile (head kids);
                                               printTree outFile (AbstractNode P5AST (tail kids))}
+
+--Wrapper function to apply all translations in order
+translate :: P5AST -> P5AST
+translate tree = (hashConstKey (regexSubstitutionTranslation tree))
+
+regexSubstitutionTranslation :: P5AST -> P5AST
+regexSubstitutionTranslation (AbstractNode Op_subst kids) = if (isIn (LiteralNode Closequote "1" "/g") kids) then (AbstractNode Op_subst (map equalTildeToTildeTilde (map substitutionGlobal kids)))
+                                                               else (AbstractNode Op_subst (map equalTildeToTildeTilde kids))
+regexSubstitutionTranslation (AbstractNode atype kids) = (AbstractNode atype (map regexSubstitutionTranslation kids))
+regexSubstitutionTranslation (LiteralNode atype enc uni) = (LiteralNode atype enc uni) 
+
+
+{-Translates =~ -> ~~ for using regexs with s/ in P6
+The name of the function is a bit long, but it won't be called often
+and at least it's very descriptive -}
+equalTildeToTildeTilde :: P5AST -> P5AST
+equalTildeToTildeTilde (LiteralNode Operator enc "=~") = (LiteralNode Operator enc "~~")
+equalTildeToTildeTilde (AbstractNode atype kids) = (AbstractNode atype kids)
+equalTildeToTildeTilde (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+substitutionGlobal :: P5AST -> P5AST
+substitutionGlobal (LiteralNode Openquote enc "s/") = (LiteralNode Openquote enc "s:P5:g/")
+substitutionGlobal (LiteralNode Closequote enc "/g") = (LiteralNode Closequote enc "/")
+substitutionGlobal (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+substitutionGlobal (AbstractNode atype kids) = (AbstractNode atype kids)
+
+hashConstKey :: P5AST -> P5AST
+hashConstKey (AbstractNode Op_helem kids) = if (and [(isIn (AbstractNode Op_rv2hv []) kids), (isIn (LiteralNode Opener "1" "{") kids), (isIn (LiteralNode Closer "1" "}") kids), (isIn (AbstractNode Op_const []) kids)]) 
+                                              then (AbstractNode Op_helem (map constHashChanges kids)) else (AbstractNode Op_helem (map hashConstKey kids)) 
+hashConstKey (AbstractNode atype kids) = (AbstractNode atype (map hashConstKey kids))
+hashConstKey (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+constHashChanges :: P5AST -> P5AST
+constHashChanges (LiteralNode Opener enc "{") = (LiteralNode Opener enc "<")
+constHashChanges (LiteralNode Closer enc "}") = (LiteralNode Closer enc ">")
+constHashChanges (AbstractNode Op_rv2hv kids) = (AbstractNode Op_rv2hv (map singleSigilToHashSigil kids))
+constHashChanges (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+constHashChanges (AbstractNode atype kids) = (AbstractNode atype kids)
+
+singleSigilToHashSigil :: P5AST -> P5AST
+singleSigilToHashSigil (LiteralNode Sigil enc uni) = (LiteralNode Sigil enc ('%':(tail uni)))
+singleSigilToHashSigil (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+isIn :: P5AST -> [P5AST] -> Bool
+isIn _ [] = False
+isIn node list = if (matchWithoutEnc (head list) node) then True else (isIn node (tail list))
+
+matchWithoutEnc :: P5AST -> P5AST -> Bool
+matchWithoutEnc (LiteralNode type1 _ uni1) (LiteralNode type2 _ uni2) = if (and [(uni1==uni2), (type1==type2)]) then True else False
+matchWithoutEnc (AbstractNode type1 kids1) (AbstractNode type2 kids2) = if (type1 == type2) then True else False
+matchWithoutEnc _ _ = False
 
 
 {-
@@ -196,6 +254,6 @@ mainParse inName outName = do
     putStrLn "DEBUG: parsed:";
     print (AbstractNode P5AST dirs)
     hClose inHandle
-    printTree outHandle (AbstractNode P5AST dirs)
+    printTree outHandle (translate (AbstractNode P5AST dirs))
     hClose outHandle
     putStrLn "Finished"
