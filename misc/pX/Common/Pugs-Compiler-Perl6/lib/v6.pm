@@ -96,7 +96,7 @@ __END__
 
 =head1 NAME 
 
-v6 - an experimental Perl 6 implementation (under way)
+v6-pugs - an experimental Perl 6 implementation (under way)
 
 =head1 SYNOPSIS
 

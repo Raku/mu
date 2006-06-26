@@ -1,8 +1,11 @@
 ﻿TODO list for Pugs-Compiler-Perl6
 
-(jun/2006)
+- block parsing:
+  t/ref.t: if $string.ref eq Str { say "ok 1 # TODO" }
+  <audreyt> for map {},@x { .say }
 
-- Run & fix test suite; migrate /01-sanity to /t
+pre-release - jun/2006
+
 - cache compiled YAPP and Rule code, use Module::Compile
 - write POD
     - v6.pm 
