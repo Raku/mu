@@ -1,4 +1,4 @@
-= Changes for 6.2.12 (rXXXXX) - June XX, 2006 *** up to r10835
+= Changes for 6.2.12 (rXXXXX) - June XX, 2006 *** up to r10905
 
 == Licensing Changes
 
@@ -54,7 +54,7 @@
 * Pugs-Compiler-Rule - a compiler for Perl 6 Rules - published in CPAN
 ** uses Module::Install 'pmc' magic for executing Perl 6 from plain Perl 5.
 ** the "Rule" grammar is written in Perl 6, and it is compiled to Perl 5 using 'lrep'.
-* Pugs::Compiler::Perl6 - Compiler for Perl 6 (implements 'v6')
+* Pugs::Compiler::Perl6 - Compiler for Perl 6 (implements 'use v6-pugs')
 * Pugs-Compiler-Precedence - an operator precedence parser, built around Parse::Yapp
 * Inline-Parrot - a C version of Inline-Parrot - uses NCI for data exchange.
 * Pugs-Grammar-Perl6 - a Perl 6 parser - parses Test.pm!
@@ -77,11 +77,13 @@ truncated in r8916, apparently from gnome's copy-paste buffer limit.
 * [docs/Perl6/FAQ/Capture.pod] - FAQ on the new Signature/Capture calling convention.
 * [docs/Perl6/FAQ/FUD.pod] - Fears, Uncertainties and Doubts about Perl 6.
 * [src/Pugs/Parser] - Perl 6 grammars for Capture.pg and Signature.pg 
+* [util/cperl-mode.el] - Emacs mode for Perl 6
 
 == Feature Changes
 
 * Pugs now builds in a single pass.
 * Removed support for GHC 6.4.0 and added support for GHC 6.5.
+* Removed support for Parrot 0.4.4 or below and added support for GHC 0.4.5.
 * Use `Data.ByteString` instead of `Data.FastPackedString` for fast
   string representation.
 * Compile `Prelude.pm`, and possibly additional modules, to YAML bytecode for faster loading
@@ -96,7 +98,8 @@ truncated in r8916, apparently from gnome's copy-paste buffer limit.
 * More helpful diagnostics when calling unsafe builtins such as `system` under safe mode.
 * &?SUB is replaced with &?ROUTINE; $?SUBNAME is replaced with &?ROUTINE.name.
 * `:!foo` is now a shorthand for `foo => False`.
-* The parser is now non-backtracking and supports whitespace disambiguation:
+* The parser is now much faster by being mostly predictive (non-backtracking)
+* Whitespace disambiguation implemented on `if`, `unless` and `for`:
     if %ENV{ 3 } { 4 }	# hash lookup on %ENV
     if %ENV { 3 } { 4 }	# %ENV by itself
 * Support for Unicode bracket characters for quotelike operators
@@ -218,12 +221,14 @@ truncated in r8916, apparently from gnome's copy-paste buffer limit.
 * [util/run-smoke.pl] - Support for `PUGS_SMOKE_EXCLUDE_EXT` environment variable
 * [util/catalog_tests.pl] - Annotate smoke reports with colored sources/specs
 
-== Feature Changes
+== New Features
 
 * Adverbial number forms: `:16<deadbeef>` and `:16[14,15]`
 ** This change obsoletes `hex()` and `oct()`
 * Calling private methods with `self!method`
-* Deep eager sequential evaluation (aka /steamroll/) operator `&prefix:<**>`
+* Deep eager sequential evaluation list operator `eager`
+* Access to the class metaobject with `.meta`
+* Macros can now be called and reinterpolated at runtime
 * Multisub declarations in the same scope can now be exported selectively
 * Named arguments are now decided at parse time, not as runtime Pair objects
 * New YAML tree-dump backends: `-C Parse-YAML`, `-C PIR-YAML`, `-C PIL1-YAML`
