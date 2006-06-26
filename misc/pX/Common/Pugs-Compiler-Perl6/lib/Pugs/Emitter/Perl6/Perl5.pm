@@ -299,12 +299,23 @@ sub circumfix {
 
 sub postcircumfix {
     my $n = $_[0];
-    # print "postcircumfix: ", Dumper( $n );
+    #print "postcircumfix: ", Dumper( $n );
     
     if ( $n->{op1}{op} eq '[' &&
          $n->{op2}{op} eq ']' ) {
         #return '()'
         #    unless defined  $n->{exp1};
+        
+        # avoid p5 warning - "@a[1] better written as $a[1]"
+        if (   (  exists $n->{exp2}{int} 
+               || exists $n->{exp2}{scalar} 
+               ) 
+               && exists $n->{exp1}{array} ) {
+            my $name = _emit( $n->{exp1} );
+            $name =~ s/^\@/\$/;
+            return $name . '[' . _emit( $n->{exp2} ) . ']';
+        }
+        
         return _emit( $n->{exp1} ) . '[' . _emit( $n->{exp2} ) . ']';
     }
     

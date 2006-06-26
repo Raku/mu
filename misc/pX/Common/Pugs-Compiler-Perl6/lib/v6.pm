@@ -40,6 +40,7 @@ sub pmc_compile {
     $perl5 = 
         "use Pugs::Runtime::Perl6;\n" . 
         "use strict;\n" . 
+        #"no warnings 'array';\n" . 
         $perl5 . "\n";
 
     {
