@@ -69,23 +69,23 @@ stmt:
         { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[3], } }
 
     | SUB BAREWORD             attr block 
-        { $_[0]->{out}= { op1 => $_[1], name => $_[2], block => $_[5], %{$_[3]} } }
+        { $_[0]->{out}= { op1 => $_[1], name => $_[2], block => $_[4], %{$_[3]} } }
     | SUB BAREWORD '(' signature ')' attr block 
         {
             #print "parse-time define sub: ", Dumper( $_[2] );
             #push @subroutine_names, $_[2]->{bareword};
             #print "Subroutines: @subroutine_names\n";
-            $_[0]->{out}= { op1 => $_[1], name => $_[2], block => $_[8], %{$_[4]}, %{$_[6]} } 
+            $_[0]->{out}= { op1 => $_[1], name => $_[2], block => $_[7], %{$_[4]}, %{$_[6]} } 
         }
     
     | SUB SUB BAREWORD             attr block 
-        { $_[0]->{out}= { op1 => $_[2], name => $_[3], block => $_[6], %{$_[4]} } }
+        { $_[0]->{out}= { op1 => $_[2], name => $_[3], block => $_[5], %{$_[4]} } }
     | SUB SUB BAREWORD '(' signature ')' attr block 
         {
             #print "parse-time define sub: ", Dumper( $_[2] );
             #push @subroutine_names, $_[2]->{bareword};
             #print "Subroutines: @subroutine_names\n";
-            $_[0]->{out}= { op1 => $_[2], name => $_[3], block => $_[9], %{$_[5]}, %{$_[7]} } 
+            $_[0]->{out}= { op1 => $_[2], name => $_[3], block => $_[8], %{$_[5]}, %{$_[7]} } 
         }
 
     | block        

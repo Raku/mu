@@ -1,4 +1,3 @@
-# #!/usr/bin/pugs
 
 # Checking that testing is sane: subroutines
 
