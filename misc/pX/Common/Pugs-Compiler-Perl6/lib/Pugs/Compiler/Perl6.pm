@@ -58,7 +58,7 @@ __END__
 
 =head1 NAME 
 
-Pugs::Compiler::Perl6 - Compiler for Perl 6
+Pugs::Compiler::Perl6 - An experimental compiler for Perl 6
 
 =head1 DESCRIPTION
 
