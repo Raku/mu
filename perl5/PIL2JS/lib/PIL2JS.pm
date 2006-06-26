@@ -111,10 +111,7 @@ sub run_pugs {
   my @args = @_;
   local $_;
 
-  # XXX use hack -- &use is no longer a Pugs.Prim, but a macro, defined in the
-  # src/perl6/Prelude.pm.
   # -CPIL1 doesn't load the Prelude, though, so we have to kludge around this.
-  unshift @args, '-e', 'macro use ($mod) is builtin { Pugs::Internals::use($mod) }';
   @args = map { /^-M(.+)$/ ? ('-e', "use $1;") : ($_) } @args;
 
   diag "$cfg{pugs} @args";
