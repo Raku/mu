@@ -579,6 +579,8 @@ jssmoke : smoke-js
 
 test :: blib6/lib/Test.pm.yml
 
+pure_all :: blib6/lib/Test.pm.yml
+
 test-all : test test-js test-pir test-perl5
 
 test-pir : 
@@ -590,7 +592,7 @@ test-js :
 test-perl5 :
 	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B PERL5+; system qq+$Config{make}+, q+test+"
 
-blib6/lib/Test.pm.yml :
+blib6/lib/Test.pm.yml :: ext/Test/lib/Test.pm
 	\$(NOECHO) \$(ECHO) "Precompiling Test.pm..."
 	$thispugs -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml 
 
