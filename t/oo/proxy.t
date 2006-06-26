@@ -18,6 +18,9 @@ use Test;
 
 plan 18;
 
+flunk 'XXX - Proxy not implemented', :todo<feature>;
+skip_rest; exit;
+
 my $foo        = 42;
 my $was_inside = 0;
 
