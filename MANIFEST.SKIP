@@ -48,3 +48,4 @@ svn-commit\.tmp$
 ^perl5/README
 ^perl5/re-override/
 ^perl5/re-override-PCRE/
+^docs/Perl6/Makefile.PL
