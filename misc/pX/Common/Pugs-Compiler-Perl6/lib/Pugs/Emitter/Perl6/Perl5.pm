@@ -200,7 +200,18 @@ sub default {
                 ", " . _emit( $n->{param}, '  ' ) . ")" ;
         }
         
-        # normal methods
+        if ( exists $n->{self}{op1} ) {
+            # %var<item>.++;
+            #warn "method: ", Dumper( $n );
+            return " " . _emit( $n->{method} ) .
+                '(' .
+                join ( ",\n", 
+                    map { _emit( $_ ) } ( $n->{self}, $n->{param} )
+                ) .
+                ')';
+        }
+            
+        # normal methods or subs
         
         return " " . $n->{sub}{bareword} .
             '(' .
@@ -303,9 +314,12 @@ sub postcircumfix {
     
     if ( $n->{op1}{op} eq '[' &&
          $n->{op2}{op} eq ']' ) {
-        #return '()'
-        #    unless defined  $n->{exp1};
-        
+
+        if ( ! exists $n->{exp2} ) {
+            # $array[]
+            return '@{ ' . _emit( $n->{exp1} ) . ' }';
+        }
+                
         # avoid p5 warning - "@a[1] better written as $a[1]"
         if (   (  exists $n->{exp2}{int} 
                || exists $n->{exp2}{scalar} 
@@ -367,7 +381,13 @@ sub postfix {
          $n->{op1}{op} eq '--' ) {
         return _emit( $n->{exp1} ) . $n->{op1}{op};
     }
-    
+
+    if ( $n->{op1}{op} eq 'ANGLE' ) {
+        my $name = _emit( $n->{exp1} );
+        $name =~ s/^\%/\$/;
+        return $name . '{ \'' . $n->{op1}{angle_quoted} . '\' }';
+    }
+
     return _not_implemented( $n, "postfix" );
 }
 
