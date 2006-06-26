@@ -1,168 +1,147 @@
-= Changes for 6.2.12 (rXXXXX) - June XX, 2006 *** up to r10905
+= Changes for 6.2.12 (r10910) - June 25, 2006
 
 == Licensing Changes
 
-* The src/ tree and the `pugs` executable are now released under the
-  permissive MIT license, in addition to Artistic and GPL.
-* A new third-party/ tree to hold bundled prerequisites originated
-  from non-Pugs projects.
+* The [src/] tree and the `pugs` executable are now released under the
+permissive MIT license, in addition to Artistic and GPL
+* A new [third-party/] tree to hold bundled prerequisites originated
+from non-Pugs projects
 
-== Bundled Modules
+== New Perl 6 modules
 
-=== New Perl 5 modules
+* [ext/Relation/] - Relation type for Perl 6 (incomplete)
+* [ext/Getopt-Std/] - Simple command-line parsing
 
-* `v6.pm`: `use v6-pugs; say "Perl 6"; use v5; print "Perl 5"`
-* Module::Compile - precompile Perl 5 modules transparently
-* Pugs::Compiler::Rule - Compiler for Perl 6 Rules
-* Pugs::Compiler::Perl6 - Compiler for Perl 6 (implements 'v6')
-** Still fails many of the sanity tests, as well as nearly all of the other tests
-* Data::Bind - Implement Perl 6's calling/binding convention on Perl 5
+== Updated modules
 
-=== New Perl 6 modules
+* [ext/Locale-KeyedText/] - Added export_as_hash() methods
+* [ext/Rosetta/]: Multiple additions and rewrites
+** Merged ext/Rosetta-Engine-Native/ in, renamed to ::Example
+** Now officially incorporates "The Third Manifesto"
+** Rewrote half of Language.pod
+** Updated the DESCRIPTION and class list of Rosetta.pm
+** Added new core module Rosetta::Shell and example shell.pl
+** Added new documentation file Rosetta::SeeAlso
+** Various other documentation additions and edits
+* [ext/Test/]: Avoid the use of junctions to make Parrot/Perl6's life easier
 
-* [ext/Relation/]: Relation type for Perl 6 (incomplete).
-* Getopt::Std - simple command-line parsing
+== Perl 6 on Perl 5 (under [misc/pX/Common/])
 
-=== New Haskell modules
-
-* `HsSyck` - Haskell bindings to `syck` 0.61, a fast YAML library in c.
-* `HsJudy` - Haskell bindings to `Judy` 1/0/3, a fast collections library in c
-
-=== Updated modules
-
-* [ext/Locale-KeyedText/] - Added export_as_hash() methods.
-* [ext/Rosetta/]: Multiple additions and rewrites.
-** Merged ext/Rosetta-Engine-Native/ in, renamed to ::Example.
-** Now officially incorporates "The Third Manifesto".
-** Rewrote half of Language.pod.
-** Updated the DESCRIPTION and class list of Rosetta.pm.
-** Added new core module Rosetta::Shell and example shell.pl.
-** Added new documentation file Rosetta::SeeAlso.
-** Various other documentation additions and edits.
-* [ext/Test/]: Avoid the use of junctions to make Parrot/Perl6's life easier.
-
-=== Experimental modules (in misc/, not installed)
-
-== pX effort (Perl 6 on Perl 5)
-
-* misc/pX/Common is a place where people can collaboratively hack
-* lrep - a bootstrapped, very minimal Perl 6 compiler written in Perl 6
-** compiles itself to Perl 5 code - does not depend on pugs or parrot.
-** still depends on Perl 5 for unimplemented parts.
-** supports simple macros.
-** 'lrep-compiler' is the development version.
-* Pugs-Compiler-Rule - a compiler for Perl 6 Rules - published in CPAN
-** uses Module::Install 'pmc' magic for executing Perl 6 from plain Perl 5.
-** the "Rule" grammar is written in Perl 6, and it is compiled to Perl 5 using 'lrep'.
-* Pugs::Compiler::Perl6 - Compiler for Perl 6 (implements 'use v6-pugs')
-* Pugs-Compiler-Precedence - an operator precedence parser, built around Parse::Yapp
-* Inline-Parrot - a C version of Inline-Parrot - uses NCI for data exchange.
-* Pugs-Grammar-Perl6 - a Perl 6 parser - parses Test.pm!
-* re-override - moved to /perl5/re-override - swaps in an alternate regexp engine:
-  `./perl -we 'use Regexp::Perl6; print "a" =~ /<word>**{1}/;'`
-* Pugs-Grammar-MiniPerl6 - translate Perl 6 rules into haskell Parsec, such that
-  Parser.hs can be generated from the Perl 6 grammar.
+* Data-Bind - Implement Perl 6's calling/binding convention on Perl 5
+* Inline-Parrot - a C version of Inline-Parrot - uses NCI for data exchange
+* Module-Compile - precompile Perl 5 modules transparently
 * P5_to_P6_Translation - beginning of a Perl 5.9 MAD tree parser and translater to Perl 6
+* Pugs-Compiler-Perl6 - Compiler for Perl 6 (implements 'use v6-pugs'):
+    use v6-pugs; say "Perl 6"; use v5; print "Perl 5"
+* Pugs-Compiler-Precedence - an operator precedence parser, built around Parse::Yapp
+* Pugs-Compiler-Rule - Compiler for Perl 6 Rules
+* Pugs-Grammar-MiniPerl6 - translate Perl 6 rules into haskell Parsec
+* Pugs-Grammar-Perl6 - a Perl 6 parser - parses Test.pm!
+* lrep - a bootstrapped, very minimal Perl 6 compiler written in Perl 6
+* re-override - Swaps in an alternate regexp engine:
+    ./perl -we 'use re::override-perl6; print "a" =~ /<word>**{1}/;'
 
 == Test, Examples and Documentations
 
 * Restored this ChangeLog's entries for v6.0.0 thru v6.0.8, which were
-truncated in r8916, apparently from gnome's copy-paste buffer limit.
-* [docs/Perl6/Doc] hierarchy, installable `Perl6::Doc`.
-* Gaal's OSDC talk "A Peek into Pugs Internals" in `docs/talks/peek.spork`.
-* Juerd's talk "Perl 6 Myths" in `/docs/talks/p6myths2.html`.
-* [examples/qotw/]: Added the QOTW 8 Expert solution.
-* [examples/rules/]: Added a sample BASIC parser.
-* [examples/concurrency/]: Added sample usage on Software Transactional Memory.
-* [docs/Perl6/FAQ/Capture.pod] - FAQ on the new Signature/Capture calling convention.
-* [docs/Perl6/FAQ/FUD.pod] - Fears, Uncertainties and Doubts about Perl 6.
+truncated in r8916, apparently from gnome's copy-paste buffer limit
+* [docs/Perl6/Doc] hierarchy, installable `Perl6::Doc`
+* [docs/Perl6/FAQ/Capture.pod] - FAQ on the new Signature/Capture convention
+* [docs/Perl6/FAQ/FUD.pod] - Fears, Uncertainties and Doubts about Perl 6
+* [docs/talks/p6myths2.html]: Juerd's talk "Perl 6 Myths"
+* [docs/talks/peek.spork]: Gaal's OSDC talk "A Peek into Pugs Internals"
+* [examples/concurrency/]: Added sample usage on Software Transactional Memory
+* [examples/qotw/]: Added the QOTW 8 Expert solution
+* [examples/rules/]: Added a sample BASIC parser
 * [src/Pugs/Parser] - Perl 6 grammars for Capture.pg and Signature.pg 
 * [util/cperl-mode.el] - Emacs mode for Perl 6
 
 == Feature Changes
 
-* Pugs now builds in a single pass.
-* Removed support for GHC 6.4.0 and added support for GHC 6.5.
-* Removed support for Parrot 0.4.4 or below and added support for GHC 0.4.5.
-* Use `Data.ByteString` instead of `Data.FastPackedString` for fast
-  string representation.
-* Compile `Prelude.pm`, and possibly additional modules, to YAML bytecode for faster loading
-* YAML bytecode is now versioned to reduce incompatibilities
-* New AST-dumping backends: `Parse-Pretty`, `Parse-YAML`, `Parse-HsYAML`
-* Broke down Parser.hs and AST.Internals.hs to smaller files, making rebuilds faster.
-* q:code {...} gives ASTs in macros
-* readline and =$fh autochomp: they are now complements to &say, not &print.
-* `make upload-smoke` now uploads smoke test automatically.
-* Support for bracketed comments: #(...), #<<< ... >>>, etc.
-* Support for long dot syntax: $foo\   .blah
-* More helpful diagnostics when calling unsafe builtins such as `system` under safe mode.
-* &?SUB is replaced with &?ROUTINE; $?SUBNAME is replaced with &?ROUTINE.name.
-* `:!foo` is now a shorthand for `foo => False`.
-* The parser is now much faster by being mostly predictive (non-backtracking)
-* Whitespace disambiguation implemented on `if`, `unless` and `for`:
-    if %ENV{ 3 } { 4 }	# hash lookup on %ENV
-    if %ENV { 3 } { 4 }	# %ENV by itself
-* Support for Unicode bracket characters for quotelike operators
-* The rx_ macros in Prelude for user-defined rule handlers has been discontinued
-* Proper desugaring of `.=` expressions, such as `@a .= map(&sqrt)`
-* If a block ends on a line by itself, an implicit semicolon is assumed if possible
-* Support for implicit-topic dereferences such as `.[0]` and `.<foo>`
-* Multiline support in the interactive shell now recognizes unrecoverable parsefails
-* Array and hash sigilled match variables, such as `@0`, `@<foo>` and `%<bar>`
-* Two `my $x` declarations in the same scope is now no-op instead of an error
-* Quotelike constructs such as `rx` and `qq` no longer takes `#` as delimiter
-* Support for controlled backtracking and whitespace sensitivity via distinct `token`/`regex`/`rule` delecarators
-* In the interactive shell, :d and :D (dump parse tree) now continues the parse from the current environment; use :reset to reset the environment.
-* Support for environmental variables such as `$ENV::PWD` and `$+PATH`
-* `bool::true` and `bool::false` are renamed to `Bool::True` and `Bool::False`
+* Pugs now builds in a single pass
+* Removed support for GHC 6.4.0 and added support for GHC 6.5
+* Removed support for Parrot 0.4.4 or below and added support for GHC 0.4.5
+* &?SUB is replaced with &?ROUTINE; $?SUBNAME is replaced with &?ROUTINE.name
 * Arguments beginning in parens, such as `f ('x')=>1`, is now always positional
-* Names of named arguments must always be a bareword now, such as `f(name=>1)` or `f(:name(1))`
-* Support for scan metaoperators: `[\+] 1,2,3` evaluates to `(1, 3, 6)`
+* Array and hash sigilled match variables, such as `@0`, `@<foo>` and `%<bar>`
+* Assignment with non-obviously-scalar left-hand side is now in list context:
+** `@a = 1,2,3` now parses as `@a = (1,2,3)`
+* Broke down Parser and AST.Internals to smaller files so rebuilds are faster
 * Builtin functions no longer defaults to `$_`; write `.ord` instead of `ord`
-* `&not` is now unary instead of a list operator
-* `require ::Class::Literal` is no longer supported
-* The postfix infinite-range operator is no more; write `1..*` instead of `1...`
-* Experimental support for Software Transactional Memory and atomic blocks; the syntax is subject to change
-* Hash initializers now revert to bias-to-left behavior as in Perl 5: In `{X => 1, X => 2}`, the value of X is 2, not 1
-* The `-M` command line switch can take import arguments: `pugs -Mlib=foo`
-* Using libraries from embedded Perl 5 can import functions now
-* Declarators no longer take qualified names: `our $Foo::x` is invalid
-* Assignment with non-obviously-scalar left-hand side is now in list context: `@a = 1,2,3` now parses as `@a = (1,2,3)`
-* Parse-time binding `::=` is now fully supported 
+* Compile `Prelude.pm` and `Test.pm`, to YAML bytecode for faster loading
+* Declarators are now lexical: `{ $x++ unless my $x }` increments `$OUTER::x`
 * Declarators can now occur at expression position: `my $x + my $y` works
-* `my $!x` is now recognized as an alternative spelling for `my $x` 
+* Declarators no longer take qualified names: `our $Foo::x` is invalid
+* Experimental support for Software Transactional Memory and atomic blocks
+* Hash initializers now revert to bias-to-left behavior as in Perl 5
+** In `{X => 1, X => 2}`, the value of X is 2, not 1
+* If a block ends on a line by itself, an implicit `;` is assumed if possible
+* In the interactive shell, :d and :D (dump parse tree) now continues the parse
+from the current environment; use :reset to reset the environment
+* More helpful diagnostics when calling unsafe builtins under safe mode
+* Multiline support in the interactive shell reports unrecoverable parsefails
+* Names of named arguments must always be a bareword now, such as:
+    f(name=>1); f(:name(1));
+* New AST-dumping backends: `Parse-Pretty`, `Parse-YAML`, `Parse-HsYAML`
+* Parse-time binding `::=` is now fully supported 
+* Proper desugaring of `.=` expressions, such as `@a .= map(&sqrt)`
 * Prototype objects: `my Dog $fifo` now assigns `::Foo` into `$fido`
-* Declarators are now strictly lexical: `{ $x++ unless my $x }` increments `$OUTER::x`
+* Removed support for `require ::Class::Literal`
+* Removed support for `rx_` macros in Prelude for user-defined rule handlers
+* Quotelike constructs such as `rx` and `qq` no longer takes `#` as delimiter
+* Support for Unicode bracket characters for quotelike operators
+* Support for bracketed comments: #(...), #<<< ... >>>, etc
+* Support for controlled backtracking and whitespace sensitivity via distinct
+`token`/`regex`/`rule` delecarators
+* Support for environmental variables such as `$ENV::PWD` and `$+PATH`
+* Support for implicit-topic dereferences such as `.[0]` and `.<foo>`
+* Support for long dot syntax: $foo\   .blah
+* Support for scan metaoperators: `[\+] 1,2,3` evaluates to `(1, 3, 6)`
+* The `-M` command line switch can take import arguments: `pugs -Mlib=foo`
+* The parser is now much faster by being mostly predictive (non-backtracking)
+* The postfix infiniterange is no more; write `1..*` instead of `1...`
+* Two `my $x` declarations in the same scope is now no-op instead of an error
+* Use `Data.ByteString` for fast string representation
+* Using libraries from embedded Perl 5 can import functions now
+* Whitespace disambiguation implemented on `if`, `unless` and `for`:
+   if %ENV{ 3 } { 4 }   # hash lookup on %ENV
+   if %ENV { 3 } { 4 }  # %ENV by itself
+* YAML bytecode is now versioned to reduce incompatibilities
+* `&not` is now unary instead of a list operator
+* `:!foo` is now a shorthand for `foo => False`
+* `bool::true` and `bool::false` are renamed to `Bool::True` and `Bool::False`
+* `make upload-smoke` now uploads smoke test automatically
+* `my $!x` is now recognized as an alternative spelling for `my $x` 
+* `q:code {...}` gives ASTs in macros
+* `readline` and `=$fh` now autochomps
 
 == Bug Fixes
 
-* @foo.perl works correctly when @foo is recursive
-* slurp utf8 files correctly
-* openFile now turns the autoflushing bit on with a file, as
-  otherwise it doesn't get closed upon program exit.
-* short-circuit operators didn't. Fixed.
-* (1.3 % 1) was evaluating to 0 like Perl 5 does.  Now it evaluates
-  to 0.3 like everybody else.
-* Statement-level bare blocks now runs under all contexts: (sub { { 3 } }).()
-* Implicit variables ($^x) is no longer allowed in statemeent-level bare blocks.
-* `1.` was parsed as a valid integer, causing ambiguities; it's now invalid.
-* `sign` and `<=>` now fails on underfined arguments, instead of returning undef.
-* Implicit variables following a declarator was broken: `{my $x; $^y}.(42)` 
-* The bogus comma-less block argument form `map {$_} 1,2,3` is no longer supported
-* In `(@x, @y) = (1,2,3)`, the `@y` is now cleared into an empty list
-* Strings outside ASCII range no longer raises exceptions at the PGE/Parrot bridge
-* Statement-level bare blocks now counts as one scope for `OUTER`, not two
-* Named-only subs such as `sub f (:$x!) {}` is no longer parsed as unary positional
-* Statement-level `return` and `yield` now propagates contexts instead of resetting it to void
-* An uninitialized Code is no longer considered nullary: `my &f; f 1` is not a parsefail
-* `&slurp` and `&readline` now evaluates eagerly an no longer races breaks with e.g. an `&unlink` afterward 
-* Lexical imports use the `state` instead of `my` storage class now, so they are are no longer discarded upon block reentry 
+* (1.3 % 1) was evaluating to 0; now it evaluates to 0.3 like everybody else
+* An uninitialized Code is no longer nullary: `my &f; f 1` is not a parsefail
 * Chained assignments now return lvalues properly: `$x = %y = (1,2,3,4);`
-* `sub f (@x) {}` no longer confer slurpy context to its argument, so `f([1,2,3])` works now
-* `f(())` now passes `&f` an empty list, not `undef`
-* `%.foo` and `@.foo` now always flattens in argument lists
+* Implicit variables ($^x) is no longer allowed in statemeent-level bare blocks
+* Implicit variables following a declarator was broken: `{my $x; $^y}.(42)` 
+* In `(@x, @y) = (1,2,3)`, the `@y` is now cleared into an empty list
 * Invalid rules in embedded Parrot no longer triggers an uncatchable `exit`
+* Lexical imports are no longer discarded upon block reentry 
 * Method invocant is `self` and `$?SELF` but no longer `$_`
+* Named-only subs such as `sub f (:$x!) {}` no longer parse as unary positional
+* Opening a file for writing now turns autoflushing on by default
+* Short-circuit operators now works again
+* Statement-level `return` and `yield` now propagates contexts correctly
+* Statement-level bare blocks now counts as one scope for `OUTER`, not two
+* Statement-level bare blocks now runs under all contexts: (sub { { 3 } }).()
+* Strings outside ASCII range no longer raises exceptions at the PGE/Parrot bridge
+* The bogus comma-less block argument form `map {$_} 1,2,3` is no longer supported
+* `%.foo` and `@.foo` now always flattens in argument lists
+* `&slurp` and `&readline` evaluates eagerly and no longer races with `&unlink`
+* `1.` was parsed as a valid integer, causing ambiguities; it's now invalid
+* `@foo.perl` works correctly when `@foo` is recursive
+* `f(())` now passes `&f` an empty list, not `undef`
+* `sign` and `<=>` now fails on undefined arguments, instead of returning undef
+* `slurp` works correctly on UTF-8 files
+* `sub f (@x) {}; f([1,2,3])` now works as it's no longer under slurpy context
 
 = Changes for 6.2.11 (r8934) - Feb 1, 2006
 
