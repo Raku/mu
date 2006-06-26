@@ -37,7 +37,7 @@ tightOperators = do
       ++ preOps (words " ++ -- ")                               -- Auto-Increment
     , rightOps  (words " ** ")                                  -- Exponentiation
     , optPreSyn ["*"]                                           -- Symbolic Unary
-      ++ preOps (words " = ! + - ** ~ ? +^ ~^ ?^ \\ ^")
+      ++ preOps (words " = ! + - ~ ? +^ ~^ ?^ \\ ^")
       ++ preSymOps preUnary
       ++ postOps postUnary
     , leftOps   (words " * / % x xx +& +< +> ~& ~< ~> ")        -- Multiplicative

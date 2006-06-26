@@ -654,7 +654,9 @@ op1 "Pugs::Internals::caller_pragma_value" = \v -> do
     case caller of
         Just env -> local (const env) (op1 "Pugs::Internals::current_pragma_value" v)
         _        -> return $ VUndef
-op1 "**"    = \v -> return $ deepSeq v v
+op1 "eager" = \v -> do
+    vlist <- fromVal v
+    return $! VList $! deepSeq vlist vlist
 op1 "Pugs::Internals::emit_yaml" = \v -> do
     glob <- filterPrim =<< asks envGlobal
     yml  <- liftIO $ showYaml (filterUserDefinedPad glob, v)
@@ -1579,6 +1581,7 @@ initSyms = mapM primDecl syms
 \\n   Scalar    pre     item    safe   (Scalar)\
 \\n   Any       pre     Scalar::reverse safe   (Scalar)\
 \\n   Any       pre     reverse safe   (List)\
+\\n   List      pre     eager   safe   (List)\
 \\n   Int       spre    +^      safe   (Int)\
 \\n   Int       spre    ~^      safe   (Str)\
 \\n   Bool      spre    ?^      safe   (Bool)\
@@ -1774,7 +1777,6 @@ initSyms = mapM primDecl syms
 \\n   Str       left    ~&      safe   (Str, Str)\
 \\n   Str       left    ~<      safe   (Str, Str)\
 \\n   Str       left    ~>      safe   (Str, Str)\
-\\n   Any       spre    **      safe   (Any)\
 \\n   Num       right   **      safe   (Num, Num)\
 \\n   Num       left    +       safe   (Num, Num)\
 \\n   Num       left    -       safe   (Num, Num)\
