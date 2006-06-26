@@ -2,7 +2,6 @@
 
 use v6;
 use Test;
-use perl5:CGI;
 
 plan(2);
 
@@ -12,11 +11,12 @@ unless try({ eval("1", :lang<perl5>) }) {
 }
 
 {
-    my $q;
     lives_ok {
-    eval q| $q = CGI.new; |
+        eval q|
+            use perl5:CGI;
+            my $q = CGI.new;
+            is $q.isa(CGI), 1, "Correct isa";
+        |
         or die $!;
     }, "perl5:CLASS.new";
-
-    is $q.isa(CGI), 1, "Correct isa";
 }

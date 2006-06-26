@@ -36,7 +36,7 @@ my @diff = @end >>-<< @start;
 my $total = [+] @diff;
 ok( $total <= $end - $start, "Total time accounted is less than or equal wallclock time");
 
-cmp_ok(@diff[0], &infix:«<=», 2, "Spent more than 2 seconds in user space")
+cmp_ok(@diff[0], &infix:«<», 3, "Spent more than 2 seconds in user space")
   or do {
     diag "Start: "~ @start;
     diag "End:   "~ @end;
