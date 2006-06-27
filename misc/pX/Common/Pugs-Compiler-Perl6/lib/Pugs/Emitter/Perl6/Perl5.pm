@@ -148,10 +148,20 @@ sub default {
         # warn "call: ",Dumper $n;
 
         if ( $n->{sub}{bareword} eq 'class' ) {
+            # Moose: package xxx; use Moose;
             # class Point;
             #warn "class: ",Dumper $n;
             return 'package ' . _emit( $n->{param}{sub} ) . ';' .
                 'use Moose;';
+        }
+
+        if ( $n->{sub}{bareword} eq 'has' ) {
+            # Moose: has 'xxx';
+            # has $x;
+            #warn "has: ",Dumper $n;
+            my $name = _emit( $n->{param} );
+            $name =~ s/^.//;  # remove sigil
+            return "has '$name'";
         }
 
         if ( $n->{sub}{bareword} eq 'use' ) {
@@ -356,6 +366,7 @@ sub prefix {
          $n->{op1}{op} eq 'our' ) {
         return $n->{op1}{op} . ' ' . _emit( $n->{exp1} );
     }
+
     if ( $n->{op1}{op} eq 'try' ) {
         #warn "try: ", Dumper( $n );
         #if ( exists $n->{trait} ) {
