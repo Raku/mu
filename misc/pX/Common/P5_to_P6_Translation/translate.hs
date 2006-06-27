@@ -23,6 +23,7 @@ data AbsType
     | Listelem
     | PNothing
     | Op_aassign
+    | Op_aelem
     | Op_chdir
     | Op_const
     | Op_entersub
@@ -92,6 +93,7 @@ withKids indent = do
             "listelem"      -> Listelem
             "nothing"       -> PNothing
             "op_aassign"    -> Op_aassign
+            "op_aelem"      -> Op_aelem
             "op_chdir"      -> Op_chdir
             "op_const"      -> Op_const
             "op_ftdir"      -> Op_ftdir
@@ -153,7 +155,7 @@ uniBlock indent = choice
         --If the field is in quotes, strip the quotes by stripping the first character, 
         --reversing the string, stripping the first character, then reversing again
         return $ if (head uni `elem` "\"'")
-            then reverse (tail (reverse (tail uni)))
+            then (makeLiterals (reverse (tail (reverse (tail uni)))))
             else uni
     ]
 
@@ -164,6 +166,16 @@ parseInput = do
     names <- many (nodeNamer 2)
     eof 
     return names
+
+{-Function to handle escaped characters in a string scanned from input
+For example, if the string "blah\n" is scanned, it ends up being represented as
+"blah\\n". This function parses that newline into a literal newline.-}
+makeLiterals :: String -> String
+makeLiterals [] = []
+makeLiterals inSt = if ((head inSt)=='\\') then if (head (tail inSt) == '"') then ('\"':(makeLiterals(drop 2 inSt))) else
+                                                   if (head (tail inSt) == 'n') then ('\n':(makeLiterals(drop 2 inSt))) else
+                                                    ('\\':(makeLiterals(drop 2 inSt)))
+                      else ((head inSt):(makeLiterals (tail inSt)))
 
 {- No longer a big big messy function to print all the different node types, 
 now a slim function to print everything to a file.
@@ -180,15 +192,104 @@ printTree outFile (AbstractNode _ kids) = do{ printTree outFile (head kids);
 
 --Wrapper function to apply all translations in order
 translate :: P5AST -> P5AST
-translate tree = ((equalTildeToTildeTilde tree))
+translate tree = (arrayKey (hashKey (regexSubstitutionTranslation tree)))
 
-{-Translates =~ -> ~~ for using regexs in P6
+{-Translations for substitution regexs.-}
+regexSubstitutionTranslation :: P5AST -> P5AST
+regexSubstitutionTranslation (AbstractNode Op_subst kids) = if (isIn (LiteralNode Closequote "1" "/g") kids) then (AbstractNode Op_subst (map equalTildeToTildeTilde (map substitutionGlobal kids)))
+                                                               else (AbstractNode Op_subst (map equalTildeToTildeTilde kids))
+regexSubstitutionTranslation (AbstractNode atype kids) = (AbstractNode atype (map regexSubstitutionTranslation kids))
+regexSubstitutionTranslation (LiteralNode atype enc uni) = (LiteralNode atype enc uni) 
+
+
+{-Translates =~ -> ~~ for using regexs with s/ in P6
 The name of the function is a bit long, but it won't be called often
 and at least it's very descriptive -}
 equalTildeToTildeTilde :: P5AST -> P5AST
 equalTildeToTildeTilde (LiteralNode Operator enc "=~") = (LiteralNode Operator enc "~~")
-equalTildeToTildeTilde (AbstractNode atype kids) = (AbstractNode atype (map equalTildeToTildeTilde  kids))
+equalTildeToTildeTilde (AbstractNode atype kids) = (AbstractNode atype kids)
 equalTildeToTildeTilde (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+{-Added changes for when a substitution is global -}
+substitutionGlobal :: P5AST -> P5AST
+substitutionGlobal (LiteralNode Openquote enc "s/") = (LiteralNode Openquote enc "s:P5:g/")
+substitutionGlobal (LiteralNode Closequote enc "/g") = (LiteralNode Closequote enc "/")
+substitutionGlobal (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+substitutionGlobal (AbstractNode atype kids) = (AbstractNode atype kids)
+
+{-Changes to arrays with keys, namely $array[i] -> @array[i]-}
+arrayKey :: P5AST -> P5AST
+arrayKey (AbstractNode Op_aelem kids) = if (isIn (AbstractNode Op_rv2av []) kids) then (AbstractNode Op_aelem (map arrayKeyChanges kids))
+                                           else (AbstractNode Op_aelem (map arrayKey kids))
+arrayKey (AbstractNode atype kids) = (AbstractNode atype (map arrayKey kids))
+arrayKey (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+{-Actually applies the changes needed for the arrayKey function-}
+arrayKeyChanges :: P5AST -> P5AST
+arrayKeyChanges (AbstractNode Op_rv2av kids) = (AbstractNode Op_rv2av (map scalarSigilToArraySigil kids))
+arrayKeyChanges (LiteralNode Sigil enc uni) = (scalarSigilToArraySigil (LiteralNode Sigil enc uni))
+arrayKeyChanges (AbstractNode atype kids) = (AbstractNode atype kids)
+arrayKeyChanges (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+{-$something->@something, used by the arrayKeyChanges function-}
+scalarSigilToArraySigil :: P5AST -> P5AST
+scalarSigilToArraySigil (LiteralNode Sigil enc uni) = (LiteralNode Sigil enc ('@':(tail uni)))
+scalarSigilToArraySigil (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+{-Do changes to hashes with keys, such as $hash{word}->%hash<word> 
+and $hash{$var}->%hash{$var}-}
+hashKey :: P5AST -> P5AST
+hashKey (AbstractNode Op_helem kids) = if (isInOrder [(AbstractNode Op_rv2hv []), (LiteralNode Opener "1" "{"), (AbstractNode Op_const []), (LiteralNode Closer "1" "}")] kids) 
+                                              then (AbstractNode Op_helem (map constHashChanges kids)) else
+                                              if (isInOrder [(AbstractNode Op_rv2hv []), (LiteralNode Opener "1" "{"), (LiteralNode Closer "1" "}")] kids)
+                                                then (AbstractNode Op_helem (map hashChanges kids)) 
+                                                else (AbstractNode Op_helem (map hashKey kids)) 
+hashKey (AbstractNode atype kids) = (AbstractNode atype (map hashKey kids))
+hashKey (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+{-Actually applie changes for hashKey-}
+hashChanges :: P5AST -> P5AST
+hashChanges (AbstractNode Op_rv2hv kids) = (AbstractNode Op_rv2hv (map scalarSigilToHashSigil kids))
+hashChanges (AbstractNode atype kids) = (AbstractNode atype kids)
+hashChanges (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+{-Additional changes for when a has has a constant key ({word}-><word>)-}
+constHashChanges :: P5AST -> P5AST
+constHashChanges (LiteralNode Opener enc "{") = (LiteralNode Opener enc "<")
+constHashChanges (LiteralNode Closer enc "}") = (LiteralNode Closer enc ">")
+constHashChanges (AbstractNode Op_rv2hv kids) = (AbstractNode Op_rv2hv (map scalarSigilToHashSigil kids))
+constHashChanges (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+constHashChanges (AbstractNode atype kids) = (AbstractNode atype kids)
+
+{-Function to change the sigil from a scalar ($something) to a hash (%something)-}
+scalarSigilToHashSigil :: P5AST -> P5AST
+scalarSigilToHashSigil (LiteralNode Sigil enc uni) = (LiteralNode Sigil enc ('%':(tail uni)))
+scalarSigilToHashSigil (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+{-A simple search convenience function, returns true when the given node is in the list
+matches based on type (Abstract or Literal) subtype (Junk, Op_leave, Sigil, etc.) and, in
+the case of literal nodes, the uni part of the node.-}
+isIn :: P5AST -> [P5AST] -> Bool
+isIn _ [] = False
+isIn node list = if (matchWithoutEnc (head list) node) then True else (isIn node (tail list))
+
+{-Searches for the given list of nodes in another list
+allows any number of nodes between the nodes being searched for
+matches like isIn
+Useage: isInOrder [NodesBeingSearchedFor] [SearchTarget]-}
+isInOrder :: [P5AST] -> [P5AST] -> Bool
+isInOrder [] [] = True
+isInOrder _ [] = False
+isInOrder [] _ = True
+isInOrder nodes list = if (matchWithoutEnc (head list) (head nodes)) then (isInOrder (tail nodes) (tail list)) else (isInOrder nodes (tail list))
+
+{-Matches nodes based on type (Abstract or Literal) subtype (Junk, Op_leave, PNothing, etc)
+and (in the case of literal nodes) on the uni field. Used in the above search functions.-}
+matchWithoutEnc :: P5AST -> P5AST -> Bool
+matchWithoutEnc (LiteralNode type1 _ uni1) (LiteralNode type2 _ uni2) = if (and [(uni1==uni2), (type1==type2)]) then True else False
+matchWithoutEnc (AbstractNode type1 kids1) (AbstractNode type2 kids2) = if (type1 == type2) then True else False
+matchWithoutEnc _ _ = False
+
 
 {-
 A main function to parse a file containing a tree and output the contents to another file
