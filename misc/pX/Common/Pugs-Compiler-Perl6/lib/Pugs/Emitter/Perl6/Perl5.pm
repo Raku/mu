@@ -164,14 +164,6 @@ sub default {
             return "has '$name' => (is => 'rw',)";
         }
 
-        if ( $n->{sub}{bareword} eq 'method' ) {
-            # Moose: sub clear { my $self = shift;';
-            # method clear {
-            #warn "method: ",Dumper $n;
-            return "sub " . _emit( $n->{param}{sub} ) .
-                " { my \$self = shift; " . _emit( $n->{param}{param} ) . "}";
-        }
-
         if ( $n->{sub}{bareword} eq 'use' ) {
             # use v6-pugs
             if ( exists $n->{param}{cpan_bareword} ) {
@@ -276,6 +268,18 @@ sub statement {
                     _emit( $n->{block} ) . 
                 "\n }";
     }
+
+    if ( $n->{op1}{stmt} eq 'method' ) {
+        # Moose: sub clear { my $self = shift;';
+        # method clear {
+        #warn "method: ",Dumper $n;
+        return "sub " . _emit( $n->{name} ) .
+            " { my \$self = shift; " . 
+                _emit_parameter_binding( $n->{signature} ) .
+                _emit( $n->{block} ) . 
+            "\n }";
+    }
+
 
     if ( $n->{op1}{stmt} eq 'for' ) {
         #warn "sub: ",Dumper $n;

@@ -49,7 +49,7 @@ BEGIN {
         for 
         if else elsif unless
         while 
-        sub multi
+        sub multi method submethod
     ) ) {
         __PACKAGE__->add_rule(
             $_ =>  qq( <before \\s> { return { stmt => '$_' } } ));
