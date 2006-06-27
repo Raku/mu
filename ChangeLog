@@ -86,7 +86,7 @@ truncated in r8916, apparently from gnome's copy-paste buffer limit
 
 * Pugs now builds in a single pass
 * Removed support for GHC 6.4.0 and added support for GHC 6.5
-* Removed support for Parrot 0.4.4 or below and added support for GHC 0.4.5
+* Removed support for Parrot 0.4.4 or below and added support for Parrot 0.4.5
 * &?SUB is replaced with &?ROUTINE; $?SUBNAME is replaced with &?ROUTINE.name
 * Arguments beginning in parens, such as `f ('x')=>1`, is now always positional
 * Array and hash sigilled match variables, such as `@0`, `@<foo>` and `%<bar>`
