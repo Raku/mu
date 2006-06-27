@@ -161,7 +161,15 @@ sub default {
             #warn "has: ",Dumper $n;
             my $name = _emit( $n->{param} );
             $name =~ s/^.//;  # remove sigil
-            return "has '$name'";
+            return "has '$name' => (is => 'rw',)";
+        }
+
+        if ( $n->{sub}{bareword} eq 'method' ) {
+            # Moose: sub clear { my $self = shift;';
+            # method clear {
+            #warn "method: ",Dumper $n;
+            return "sub " . _emit( $n->{param}{sub} ) .
+                " { my \$self = shift; " . _emit( $n->{param}{param} ) . "}";
         }
 
         if ( $n->{sub}{bareword} eq 'use' ) {
