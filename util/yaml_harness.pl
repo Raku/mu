@@ -17,7 +17,7 @@ package Test::Harness::YAML;
 use strict;
 
 use Getopt::Long;
-use Best [ [ qw/YAML::Syck YAML/] qw/LoadFile DumpFile/ ];
+use Best [ [ qw/YAML::Syck YAML/], qw/LoadFile DumpFile/ ];
 use Test::Harness;
 use Test::TAP::Model;
 use File::Spec;
