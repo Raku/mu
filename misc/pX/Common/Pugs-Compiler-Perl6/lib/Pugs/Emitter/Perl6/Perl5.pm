@@ -155,15 +155,6 @@ sub default {
                 'use Moose;';
         }
 
-        if ( $n->{sub}{bareword} eq 'has' ) {
-            # Moose: has 'xxx';
-            # has $x;
-            #warn "has: ",Dumper $n;
-            my $name = _emit( $n->{param} );
-            $name =~ s/^\$//;  # remove sigil
-            return "has '$name' => (is => 'rw',)";
-        }
-
         if ( $n->{sub}{bareword} eq 'use' ) {
             # use v6-pugs
             if ( exists $n->{param}{cpan_bareword} ) {
@@ -376,7 +367,28 @@ sub prefix {
     
     if ( $n->{op1}{op} eq 'my' ||
          $n->{op1}{op} eq 'our' ) {
+        die "not implemented 'attribute'",Dumper $n
+            if @{$n->{attribute}};
         return $n->{op1}{op} . ' ' . _emit( $n->{exp1} );
+    }
+
+    if ( $n->{op1}{op} eq 'has' ) {
+            # Moose: has 'xxx';
+            # has $x;
+
+            #warn "has: ",Dumper $n;
+            #die "not implemented 'attribute'",Dumper $n
+            #    if $n->{attribute};
+
+            my $attr = join( ', ', 
+                map { 
+                    join( ' => ', map { "'" . _emit($_) . "'" } @$_ )
+                } @{$n->{attribute}}
+            );
+
+            my $name = _emit( $n->{exp1} );
+            $name =~ s/^\$//;  # remove sigil
+            return $n->{op1}{op} . " '$name' => ( $attr )";
     }
 
     if ( $n->{op1}{op} eq 'try' ) {

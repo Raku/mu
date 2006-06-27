@@ -148,6 +148,11 @@ sub ast {
                 || $ast->{stmt} eq 'method') {
                 $t = [ 'SUB' => $ast ]
             }
+            elsif ( $ast->{stmt} eq 'my' 
+                || $ast->{stmt} eq 'our' 
+                || $ast->{stmt} eq 'has' ) {
+                $t = [ 'MY' => $ast ]
+            }
             elsif ( $ast->{stmt} eq '{' ) {
                 $t = [ 'BLOCK_START' => $ast ]
             }

@@ -8,19 +8,15 @@ method clear () {
     $.y = 0;
 }
 
-=pod
-
-use v5;
-package Point;
-use Moose;
-
-has x => (is => 'rw');
-has y => (is => 'ro');
-
-sub clear {
-  my $self = shift;
-   $self‐>{x} = 0;
-  $self‐>y(0);
-}
-
-=cut
+# use v5;
+# package Point;
+# use Moose;
+#
+# has x => (is => 'rw');
+# has y => (is => 'ro');
+#
+# sub clear {
+#  my $self = shift;
+# #  $self‐>{x} = 0;
+#  $self‐>y(0);
+# }
