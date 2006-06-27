@@ -1,9 +1,9 @@
-
 #!/usr/bin/perl
 
 # Generate .html from .t and test results 
 # Generate cross-referenced html for p6 design docs (optional)
-# TODO: refactor :), Make nicer .tmpl files (CSS ?)
+# FIXOTHERS (smoke): t/01-sanity and others have no pos field
+# FIXOTHERS (smoke): skipped tests have pos point to the test library
 
 use warnings;
 use strict;
@@ -23,8 +23,8 @@ use Regexp::Common qw/balanced delimited/;
 use Pod::Simple::HTML;
 use Pod::PlainText;
 use Tie::RefHash;
-use Data::Dumper;
-use Best [ [qw/YAML::Syck YAML/] qw/LoadFile/ ];
+use Best qw/YAML::Syck YAML/;
+
 
 $| = 1;
 my $start = time;
@@ -72,7 +72,7 @@ __HELP__
 
 # Input parameters
 my $syn_src_dir; # The root directory for perl6 Design POD 
-my @t_dirs=();      # Test root directories
+my @t_dirs;      # Test root directories (if used)
 my $output_dir;  # The root directory of the output tree.
 my $start_dir = cwd;
 
@@ -92,7 +92,7 @@ GetOptions('test_dirs=s@' => \@t_dirs,
        'p6design_dir=s' => \$syn_src_dir,
        'no_designdocs' => \$no_designdocs,
         'help' => \&usage) || usage(1);
-@t_dirs = split(/,/,join(',',@t_dirs));
+@t_dirs = split(/,/,join(',',@t_dirs||()));
 
 
 # Find design doc directory, check
@@ -103,7 +103,7 @@ unless($no_designdocs) {
         $syn_src_dir = $_ and last if -f catfile($_, 'syn', "S12.pod"); 
     };
     unless($syn_src_dir && -f catfile($syn_src_dir, 'syn', "S12.pod"))  {
-        print ("*** (syn/S12.pod) not found in '$syn_src_dir'. Setting --no-designdocs.\n");
+        print ("*** Could not locate (syn/S12.pod). Setting --no-designdocs.\n");
         $no_designdocs = 1;
     }
 }
@@ -112,9 +112,9 @@ $output_dir ||= 't_index';
 for(@t_dirs) {
     die("Test directory '$_' does not exist. Try --help. ") unless -d $_;
 }
-
 $_ = rel2abs($_) for (@t_dirs,$output_dir,$syn_src_dir); 
 
+# Print status
 if($no_designdocs) {
     print "P6 design documents   : Won't generate cross-referenced P6 design documents\n";
 } else {    
@@ -153,8 +153,8 @@ my $tests = LoadFile("tests.yml");
 my $files = {}; # mapping from test-file-name to test-record
 $files->{$_->{file}} = $_ for @{ $tests->{meat}->{test_files} };
 
-if($#t_dirs < 0) {
-    for(keys %$files) { handle_t_file($_); }
+if($#t_dirs < 0) {    
+    for(keys %$files) { handle_t_file( catdir(split /\/+/, $_) ); }
 } else {
     for(@t_dirs) { find(\&handle_t_file, $_); }
 }
@@ -190,6 +190,7 @@ unless($no_designdocs) {
     print $fh $template->output();
     close $fh;
 }
+
 # Generating directory indices
 for (@dirs) {
     build_indexes($_, $index->{_dirs}->{$_});
@@ -229,16 +230,20 @@ sub build_indexes {
     my $index    = shift;
     
     return unless exists $index->{_dirs} or exists $index->{_files};
+    collapse_isolated_dirs($index);
+    
     my $output_path = catfile($output_dir, $path);
     my $index_file =  catfile($output_path,"index.html");
     eval { mkpath( $output_path ) };
     die "Failed to create directory $output_path" if $@;
     open (my $fh,'>', $index_file) or die "Failed to open $index_file: $!";
-    my @dirs  = sort keys %{$index->{_dirs}};
+    my @dirs  = sort keys %{$index->{_dirs}};    
+
     my @files = (exists $index->{_files} ? sort @{$index->{_files}} : ());
     my $template = HTML::Template->new(filename => 'util/catalog_tmpl/directory.tmpl');
     my $i = 0;
     my $c = int((@dirs+1) / 3) +1;
+    $template->param(parent => $index->{_parent} || "../");
     $template->param(directory => $path);
     $template->param(directories => [ map { { 
                                             title => $_,
@@ -257,14 +262,22 @@ sub handle_t_file {
   return unless /\.t$/;
   my $input_path    = rel2abs($_);
   my $relative_file = abs2rel($input_path,$start_dir); 
+
+  # Path seperator hack
+  my $file_key =  $relative_file;
+  $file_key =~ s#\\#/#g;
+
   $relative_file =~ s/t$/html/;
+  
   my $output_path   = inpath_to_outpath($input_path);
   my $path = dirname($relative_file);
   my $file = basename($relative_file);
   my $links = 0;
 
   mkpath(dirname $output_path);
-  my $test_results = $files->{ abs2rel($input_path,$start_dir)}; 
+  
+  my $test_results = $files->{$file_key}; 
+
   my $lines = {};
   for my $test (@{$test_results->{events}} ) {
       next unless defined $test->{pos};
@@ -298,7 +311,7 @@ sub handle_t_file {
                          or die "Can't open output test file $output_path: $!";
                          
   my $template = HTML::Template->new(filename => catdir $start_dir, 
-				     'util','catalog_tmpl','code.tmpl');  
+                     'util','catalog_tmpl','code.tmpl');  
   $template->param("file" => $file);
   my $output = ""; 
   
@@ -367,19 +380,22 @@ sub handle_t_file {
      $output .= "\n";
   }
   $template->param("tests", $output);
+  my $tres = $test_results->{results};
   my $data = { 
         file   => $file, 
         links  => $links,
-        ok     => $test_results->{results}->{ok},
-        todo   => $test_results->{results}->{todo},
-        failed => ($test_results->{results}->{seen} || 0) -
-              ($test_results->{results}->{ok} || 0)
+        ok     => $tres->{ok} - $tres->{todo} - $tres->{skip},
+        todo   => $tres->{todo},
+	skipped   => $tres->{skip},
+        failed => ($tres->{seen} || 0) -
+              ($tres->{ok} || 0)
   };
   my (@paths) = splitdir($path);
   my $loc  = 'push @{$index';
-  $loc .= "->{_dirs}->{" . $_ . "}" for @paths;
+  $loc .= "->{_dirs}->{'" . $_ . "'}" for @paths;
   $loc .= "->{_files}} , \$data";
   eval $loc;
+  warn "*** Unfortunately $path will not be available in the index (eval $loc failed: $@)" if $@;
   $total_links += $links;
   $total_files++;
   $outfile->print($template->output);
@@ -463,7 +479,7 @@ sub infest_syns {
             # create a representation that is like the $html->as_text
             $heading = $p->interpolate($heading);
             $heading =~ s/^\s+|\s+$//g;;
-            $heading =~ tr/`'//d;
+            $heading =~ tr/`'//d; #`# DELME: emacs repair
 
             if ($heading) {
                 my $heading_re = qr/^\Q$heading\E$/i;
@@ -563,4 +579,24 @@ sub inpath_to_outpath {
     $outpath    = rel2abs($outpath, $output_dir);
     $outpath    =~ s/\.t$/\.html/;
     return $outpath;
+}
+
+
+# Takes one hash argument which is modified
+# try to 'collapse' useless directory entries
+sub collapse_isolated_dirs {
+    my $dir_index = shift;
+    # For all directory entries: while the entry only has one subdirectory and no files, collapse
+    for my $subdir (keys %{$dir_index->{_dirs}}) {
+	my $val = $dir_index->{_dirs}->{$subdir};
+	while( ( exists $val->{_dirs} && scalar %{$val->{_dirs}}||0 == 1 ) &&  ! exists $val->{_files} ) {
+	    my $subsubdir = (keys %{$val->{_dirs}})[0];
+
+	    # Update the argument
+	    delete $dir_index->{_dirs}->{$subdir};	    
+	    $dir_index->{_dirs}->{$subdir . "/" . $subsubdir } = $val->{_dirs}->{$subsubdir};	    
+	    $val->{_dirs}->{$subsubdir}->{_parent} = ($val->{_parent} || "../")  . "../";
+	    $val = $val->{_dirs}->{$subsubdir};	    
+	}
+    }
 }

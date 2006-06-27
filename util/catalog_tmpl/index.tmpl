@@ -1,11 +1,11 @@
 <hmtl>
 <head>
-<title>Test Catalog and Documentation cross reference.</title>
+<title>Pugs Test Catalog and Perl6 Documentation Cross-reference</title>
 </head>
 <body>
 <table>
 <tr valign="top"><td valign="top">
-<h1> Test Directories </h1>
+<h2> Pugs Test Directories </h2>
 <TMPL_LOOP name="directories">
     <a href='<TMPL_VAR name="title">/index.html'><TMPL_VAR name="title"></a><br />
     <TMPL_IF name="wrap"></td><td></TMPL_IF>
@@ -13,9 +13,9 @@
 </td></tr>
 </table>
 <br />
-<h1> Other Related Documents </h1>
+<h2> Other Related Documents </h2>
+<a href="Synopsis/index.html">Perl6 Design Documents (with crossreferences to tests)</a><br />
 <a href="error.html">Errors in document cross references</a><br />
-<a href="Synopsis/index.html">Synopsis (with crossreferences to tests)</a><br />
 <br />
 Test Files: <TMPL_VAR name="files"><br />
 Links: <TMPL_VAR name="links"><br />
