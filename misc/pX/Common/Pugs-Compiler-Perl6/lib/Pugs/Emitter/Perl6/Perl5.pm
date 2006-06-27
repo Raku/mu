@@ -160,7 +160,7 @@ sub default {
             # has $x;
             #warn "has: ",Dumper $n;
             my $name = _emit( $n->{param} );
-            $name =~ s/^.//;  # remove sigil
+            $name =~ s/^\$//;  # remove sigil
             return "has '$name' => (is => 'rw',)";
         }
 
