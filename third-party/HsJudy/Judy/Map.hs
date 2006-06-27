@@ -131,7 +131,7 @@ instance Show MapIter where
 newIter :: IO (MapIter)
 newIter = do
     fp <- mallocForeignPtr
-    addForeignPtrFinalizer judyHSIter_free_ptr fp
+--    addForeignPtrFinalizer judyHSIter_free_ptr fp
     withForeignPtr fp $ flip poke nullPtr
     return $ MapIter fp
 
@@ -148,6 +148,8 @@ toList_ (Map j) = do
     jj <- withForeignPtr j peek
     (MapIter i) <- newIter
     withForeignPtr i $ \ii -> alloca $ \cp -> alloca $ \len -> do
+        poke len 0
+        jp_null cp
         let f act xs = do
                 r <- act jj ii cp len judyError
                 if r == nullPtr
@@ -167,6 +169,8 @@ elems (Map j) = do
     jj <- withForeignPtr j peek
     (MapIter i) <- newIter
     withForeignPtr i $ \ii -> alloca $ \cp -> alloca $ \len -> do
+        poke len 0
+        jp_null cp
         let f act xs = do
                 r <- act jj ii cp len judyError
                 if r == nullPtr
@@ -182,6 +186,8 @@ keys (Map j) = do
     jj <- withForeignPtr j peek
     (MapIter i) <- newIter
     withForeignPtr i $ \ii -> alloca $ \cp -> alloca $ \len -> do
+        poke len 0
+        jp_null cp
         let f act xs = do
                 r <- act jj ii cp len judyError
                 if r == nullPtr

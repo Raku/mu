@@ -98,7 +98,7 @@ type JudySL = Ptr JudySLArray
 
 #def void judySL_free(void *ptr) { JudySLFreeArray(ptr, PJE0); }
 
-#def void j_fill(char *p, char x, int len) { int i; for (i=len-1; i!=0; i--) *(p++) = x; p = '\0'; }
+-- #def void j_fill(char *p, char x, int len) { int i; for (i=len-1; i!=0; i--) *(p++) = x; p = '\0'; }
 #def void j_null(char *p) { p = '\0'; }
 
 --foreign import ccall "j_fill" j_fill :: CString -> CChar -> CInt -> IO ()
@@ -123,18 +123,14 @@ type JudyHS = Ptr JudyHSArray
 #def void judyHS_free(void *ptr) { JudyHSFreeArray(ptr, PJE0); }
 #def void judyHSIter_free(void *ptr) { JudyHSFreeIter(ptr, PJE0); }
 
+
+#def void jp_null(char **p) { p = NULL; }
+foreign import ccall "jp_null" jp_null :: Ptr CString -> IO ()
+
+
+
 newtype JudyHSIterType = JudyHSIterType JudyHSIterType
 type JudyHSIter = Ptr JudyHSIterType
-
-{-
-Word_t  * PValue;                           // JudyHS array element
-int       Rc_int;                           // return flag
-Word_t    Rc_word;                          // full word return value
-Pvoid_t   PJHSArray = (Pvoid_t) NULL;       // initialize JudyHS array
-uint8_t * Index;                            // array-of-bytes pointer
-Word_t    Length;                           // number of bytes in Index
-Pvoid_t   PJHSIter = (Pvoid_t) NULL;        // initialize JudyHSIter
--}
 
 foreign import ccall "&judyHS_free" judyHS_free_ptr :: FunPtr (Ptr JudyHS -> IO ())
 foreign import ccall "&judyHSIter_free" judyHSIter_free_ptr :: FunPtr (Ptr JudyHSIter -> IO ())
