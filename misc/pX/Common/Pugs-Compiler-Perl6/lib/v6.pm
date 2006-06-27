@@ -96,7 +96,7 @@ __END__
 
 =head1 NAME 
 
-v6-pugs - an experimental Perl 6 implementation (under way)
+v6-pugs - an experimental Perl 6 implementation
 
 =head1 SYNOPSIS
 
@@ -118,7 +118,7 @@ Script or module:
 
 =head1 DESCRIPTION
 
-The C<v6> module is a front-end to the experimental Perl6-to-Perl5 compiler.
+The C<v6-pugs> module is a front-end to the experimental Perl6-to-Perl5 compiler.
 
 The current state of this compiler implementation only provides a small sample of
 Perl 6 syntax and semantics.
@@ -131,7 +131,7 @@ Pugs currently has some issues with Perl 5 interoperability.
 Parrot Perl 6 is the best performing implementation by far.
 The Parrot implementation is currently at a comparable state as v6.pm.
 
-Although running C<v6> requires the installation of a lot of Perl 5 modules,
+Although running C<v6-pugs> requires the installation of a lot of Perl 5 modules,
 it is completely independent of Pugs or Parrot. 
 
 =head1 AUTHORS

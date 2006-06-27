@@ -180,6 +180,9 @@ sub default {
         if ( $n->{method}{bareword} eq 'say' ) {
             return " print '', " . _emit( $n->{self}, '  ' ) . ', "\n"';
         }
+        if ( $n->{method}{bareword} eq 'perl' ) {
+            return 'Pugs::Runtime::Perl6::perl(' . _emit( $n->{self} ) . ")\n";
+        }
         #warn "method_call: ", Dumper( $n );
         
         # "autobox"

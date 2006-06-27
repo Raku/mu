@@ -4,7 +4,14 @@ package Pugs::Runtime::Perl6;
 use strict;
 use warnings;
 
+use Data::Dumper;
+
 # TODO - see Pugs::Runtime::Grammar for metaclass stuff
+
+sub perl {
+    local $Data::Dumper::Terse = 1;
+    return join( ', ', Data::Dumper::Dumper( @_ ) );
+}
 
 package Pugs::Runtime::Perl6::Scalar;
 
