@@ -118,14 +118,14 @@ exp:
         { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[3], param => $_[4], } }
         
 
-    | MY exp attr
+    | MY NUM attr 
         { $_[0]->{out}= { 
             op1 => { op => $_[1]{stmt} }, 
             fixity => 'prefix', 
             exp1 => $_[2],
             %{$_[3]}, } }
-    | MY exp 
-        { $_[0]->{out}= { op1 => { op => $_[1]{stmt} }, fixity => 'prefix', exp1 => $_[2] } }
+    #| MY NUM   
+    #    { $_[0]->{out}= { op1 => { op => $_[1]{stmt} }, fixity => 'prefix', exp1 => $_[2] } }
 
     | stmt                
         { $_[0]->{out}= $_[1] }
