@@ -156,6 +156,20 @@ sub set_postamble {
     # Add GHC to PATH
     local $ENV{PATH} = dirname($ghc) . $Config{path_sep} . $ENV{PATH};
 
+    my $native_fps;
+
+    if (try_compile("import Data.ByteString\n"
+            ."main :: IO ()\n"
+            ."main = main\n", $ghc, qw(-hide-all-packages -package base))) {
+        # We have native ByteString; dummy the fps out
+        $native_fps = 1;
+        copy "third-party/fps/fps.cabal.dummy" => "third-party/fps/fps.cabal";
+    } else {
+        # Use bundled ByteString
+        copy "third-party/fps/fps.cabal.in" => "third-party/fps/fps.cabal";
+    }
+
+
     my $heap;
 
     # Win32 GHC is a memory hog.  We need to provide it with a memory sty.
