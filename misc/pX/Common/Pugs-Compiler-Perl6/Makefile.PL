@@ -7,5 +7,6 @@ requires    'Pugs::Compiler::Rule' => '0.06';
 requires    'Module::Compile' => '0.16';
 
 recommends  'Perl::Tidy' => 0;
+recommends  'Moose' => 0;
 
 WriteAll;

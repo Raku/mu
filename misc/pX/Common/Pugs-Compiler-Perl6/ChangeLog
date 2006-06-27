@@ -1,3 +1,10 @@
+
+- Makefile.PL recommends 'Moose'
+
+- added t/01-pod.t
+
+- added a default '.perl' implementation, calls perl5 Dumper()
+
 0.001  2006-06-26
 
 - initial CPAN release

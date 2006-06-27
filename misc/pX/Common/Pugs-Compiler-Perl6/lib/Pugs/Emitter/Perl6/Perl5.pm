@@ -146,6 +146,14 @@ sub default {
 
     if ( $n->{op1} eq 'call' ) {
         # warn "call: ",Dumper $n;
+
+        if ( $n->{sub}{bareword} eq 'class' ) {
+            # class Point;
+            #warn "class: ",Dumper $n;
+            return 'package ' . _emit( $n->{param}{sub} ) . ';' .
+                'use Moose;';
+        }
+
         if ( $n->{sub}{bareword} eq 'use' ) {
             # use v6-pugs
             if ( exists $n->{param}{cpan_bareword} ) {
@@ -163,6 +171,7 @@ sub default {
             # use module::name 'param'
             return "use " . _emit( $n->{param} );
         }
+
         return " " . $n->{sub}{bareword} . " '', " . _emit( $n->{param}, '  ' ) 
             if $n->{sub}{bareword} eq 'print' ||
                $n->{sub}{bareword} eq 'warn';
