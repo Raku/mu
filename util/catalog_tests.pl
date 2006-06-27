@@ -8,16 +8,6 @@
 use warnings;
 use strict;
 
-sub load_yaml { # use YAML::Syck if possible, >40 times speedup
-    my $option_str=shift;
-    eval("use YAML::Syck qw/$option_str/");
-    if($@) { # Fallback
-        warn "*** YAML:Syck not found; using YAML\n";
-        eval("use YAML qw/$option_str/");
-        die "Could not load YAML qw/$option_str/" if($@); # failed
-    }
-}
-
 use Cwd;
 use File::Find;
 use File::Spec::Functions ':ALL';
@@ -34,7 +24,7 @@ use Pod::Simple::HTML;
 use Pod::PlainText;
 use Tie::RefHash;
 use Data::Dumper;
-load_yaml('LoadFile');
+use Best [ [qw/YAML::Syck YAML/] qw/LoadFile/ ];
 
 $| = 1;
 my $start = time;

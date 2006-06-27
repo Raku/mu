@@ -10,7 +10,7 @@ use lib File::Spec->catdir($FindBin::Bin, "..", "inc");
 use PugsBuild::Config;
 
 my $failed = 0;
-for (qw/YAML Test::TAP::Model Test::TAP::HTMLMatrix/) {
+for (qw/YAML Test::TAP::Model Test::TAP::HTMLMatrix Best/) {
     check_prereq($_) or $failed++;
 }
 
@@ -18,6 +18,8 @@ die <<"EOF" if $failed;
 
 You don't seem to have the required modules installed.
 Please install it from the CPAN and try again.
+
+A bundle is available to install at Bundle::Pugs::SmokeKit.
 EOF
 #'
 

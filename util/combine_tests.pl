@@ -3,13 +3,13 @@
 use strict;
 use warnings;
 
-use YAML;
+use Best [ [qw/YAML::Syck YAML/] qw/Dump LoadFile/ ];
 #my @data = map { YAML::LoadFile($_) } @ARGV;
 #
 #my $combined = combine_tests(@data);
 #
 #print YAML::Dump($combined);
-print YAML::Dump(combine_tests(map { YAML::LoadFile($_) } @ARGV));
+print Dump(combine_tests(map { LoadFile($_) } @ARGV));
 #
 # Annotates the last test tree with the earlier one's
 # and returns the modified reference.
