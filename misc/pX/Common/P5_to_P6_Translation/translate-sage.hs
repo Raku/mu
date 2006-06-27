@@ -253,7 +253,7 @@ hashChanges (AbstractNode Op_rv2hv kids) = (AbstractNode Op_rv2hv (map scalarSig
 hashChanges (AbstractNode atype kids) = (AbstractNode atype kids)
 hashChanges (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 
-{-Additional changes for when a has has a constant key ({word}-><word>)
+{-Additional changes for when a has has a constant key ({word}-><word>)-}
 constHashChanges :: P5AST -> P5AST
 constHashChanges (LiteralNode Opener enc "{") = (LiteralNode Opener enc "<")
 constHashChanges (LiteralNode Closer enc "}") = (LiteralNode Closer enc ">")
