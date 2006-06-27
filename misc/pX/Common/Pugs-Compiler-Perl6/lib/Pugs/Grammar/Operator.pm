@@ -124,8 +124,6 @@ exp:
             fixity => 'prefix', 
             exp1 => $_[2],
             %{$_[3]}, } }
-    #| MY NUM   
-    #    { $_[0]->{out}= { op1 => { op => $_[1]{stmt} }, fixity => 'prefix', exp1 => $_[2] } }
 
     | stmt                
         { $_[0]->{out}= $_[1] }

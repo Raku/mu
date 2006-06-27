@@ -101,7 +101,7 @@ sub angle_quoted {
         \!      # $!
     |   \??     # $?CALLER
         \*?     # $*x
-        \.?     # $.x
+        # \.?     # $.x  - XXX causes problems with 1..5 for some reason
         \:?     # $:x
         [
             [ \:\: ]?
@@ -117,6 +117,10 @@ sub recompile {
         '$' => Pugs::Compiler::Regex->compile( q(
                 <?Pugs::Grammar::Term.ident>
                 { return { scalar => '$' . $_[0]->() ,} }
+            ) ),
+        '$.' => Pugs::Compiler::Regex->compile( q(
+                <?Pugs::Grammar::Term.ident>
+                { return { scalar => '$.' . $_[0]->() ,} }
             ) ),
         '@' => Pugs::Compiler::Regex->compile( q(
                 <?Pugs::Grammar::Term.ident>
