@@ -1,3 +1,7 @@
+
+# this is needed by v6.pm (perl6-in-perl5)
+use v6-pugs;
+
 module Test-0.0.6;
 
 ### CONSTANTS
