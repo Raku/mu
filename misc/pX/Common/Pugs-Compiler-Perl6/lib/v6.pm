@@ -135,6 +135,13 @@ The Parrot implementation is currently at a comparable state as v6.pm.
 Although running C<v6-pugs> requires the installation of a lot of Perl 5 modules,
 it is completely independent of Pugs or Parrot. 
 
+=head1 BUGS
+
+C<Can't locate object method "compile" via package "Pugs::Compiler::Perl6">
+
+- This may be happen if your perl was compiled without PMC support.
+Please see L<http://rt.cpan.org/Public/Bug/Display.html?id=20152>
+
 =head1 AUTHORS
 
 The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
