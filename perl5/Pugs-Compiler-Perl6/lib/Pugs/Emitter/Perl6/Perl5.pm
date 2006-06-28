@@ -19,6 +19,8 @@ sub _mangle_var {
     
     # perl6 => perl5 variables
     return '%::ENV'    if $s eq '%*ENV';  
+    return '$^O'       if $s eq '$*OS';  
+    
     # special variables
     return '$::_EXCL_' if $s eq '$!';
 
@@ -358,6 +360,13 @@ sub infix {
     if ( $n->{op1}{op} eq '~' ) {
         return _emit( $n->{exp1} ) . ' . ' . _emit( $n->{exp2} );
     }
+    if ( $n->{op1}{op} eq '~=' ) {
+        return _emit( $n->{exp1} ) . ' .= ' . _emit( $n->{exp2} );
+    }
+    if ( $n->{op1}{op} eq '//' ) {
+        return ' do { my $_tmp_ = ' . _emit( $n->{exp1} ) . 
+            '; defined $_tmp_ ? $_tmp_ : ' . _emit( $n->{exp2} ) . '}';
+    }
     
     if ( $n->{op1}{op} eq ':=' ) {
         #warn "bind: ", Dumper( $n );
@@ -421,6 +430,10 @@ sub postcircumfix {
 sub prefix {
     my $n = $_[0];
     # print "prefix: ", Dumper( $n );
+    
+    if ( $n->{op1}{op} eq ':' ) {
+        return _emit( $n->{exp1} ) . "  # XXX :\$var not implemented\n";
+    }
     
     if ( $n->{op1}{op} eq 'my' ||
          $n->{op1}{op} eq 'our' ) {
