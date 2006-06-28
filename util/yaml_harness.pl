@@ -100,7 +100,7 @@ sub shuffle {
 # concurrency temp-file. FIXME: use a real temp file?
 sub emit_chunk {
     my($self) = @_;
-    YAML::DumpFile("tests.$$.yml", $self->structure);
+    DumpFile("tests.$$.yml", $self->structure);
 }
 
 sub emit {
@@ -108,7 +108,7 @@ sub emit {
     $self->{_timing}{end} = time;
     $self->{_timing}{duration} =
         $self->{_timing}{end} - $self->{_timing}{start};
-    YAML::DumpFile($Config{"output-file"}, {
+    DumpFile($Config{"output-file"}, {
             meat => $self->structure,
             map { $_ => $self->{"_$_"} } qw{
                 build_info smoker config revision timing
@@ -152,8 +152,8 @@ sub _init {
 sub get_smoker {
     my($self) = @_;
     if (!$Config{anonymous}) {
-        $self->{_smoker} = eval { YAML::LoadFile($SMOKERFILE) } ||
-            eval { YAML::LoadFile(($ENV{HOME}||'')."/$SMOKERFILE") };
+        $self->{_smoker} = eval { LoadFile($SMOKERFILE) } ||
+            eval { LoadFile(($ENV{HOME}||'')."/$SMOKERFILE") };
         if (!$self->{_smoker}) {
             warn<<"AD";
 Smoker info not found. Please create a file named $SMOKERFILE
@@ -240,7 +240,7 @@ sub gather_results {
         my $file = "tests.$pid.yml";
         warn sprintf "waiting for chunk #%d...\n", ++$kid; 
         waitpid($pid, 0) or die "waitpid: $!";
-        my $chunk = YAML::LoadFile($file) or die "can't parse chunk ($file)";
+        my $chunk = LoadFile($file) or die "can't parse chunk ($file)";
         push @{ $self->{meat}{test_files} }, @{$chunk->{test_files}};
         unlink $file or die "unlink: $!";
     }
