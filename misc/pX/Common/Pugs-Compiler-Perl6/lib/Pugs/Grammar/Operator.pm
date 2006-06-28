@@ -137,7 +137,7 @@ exp:
 
     | BAREWORD 'IF' exp   %prec P003 
         { $_[0]->{out}= { op1 => $_[2], exp1 => $_[3], 
-            exp2 => { call => { sub => $_[1], } } } }
+            exp2 => { op1 => 'call', sub => $_[1], } } }
 
     | BAREWORD exp   %prec P003
         { $_[0]->{out}= { op1 => 'call', sub => $_[1], param => $_[2], } }

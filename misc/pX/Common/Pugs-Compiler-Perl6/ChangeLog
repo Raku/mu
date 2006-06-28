@@ -1,4 +1,6 @@
 
+- 'expr unless/if expr;'
+
 0.002  2006-06-28
 
 - added REQUIREMENTS section in v6.pm pod

@@ -341,8 +341,18 @@ sub statement {
 
 sub infix {
     my $n = $_[0];
-    # print "infix: ", Dumper( $n );
+    #print "infix: ", Dumper( $n );
     
+    # XXX - parser bug - this should be a statement
+    if ( exists $n->{op1}{stmt} && (
+           $n->{op1}{stmt} eq 'if'     ||
+           $n->{op1}{stmt} eq 'unless' ) ) {
+        #warn "IF: ", Dumper( $n );
+        return _emit( $n->{exp1} ) . 
+            " $n->{op1}{stmt} " .
+            _emit( $n->{exp2} );
+    }
+
     if ( $n->{op1}{op} eq '~' ) {
         return _emit( $n->{exp1} ) . ' . ' . _emit( $n->{exp2} );
     }
