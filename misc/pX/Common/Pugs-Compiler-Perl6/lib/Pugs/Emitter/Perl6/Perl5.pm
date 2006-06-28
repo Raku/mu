@@ -19,6 +19,8 @@ sub _mangle_var {
     
     # perl6 => perl5 variables
     return '%::ENV'    if $s eq '%*ENV';  
+    # special variables
+    return '$::_EXCL_' if $s eq '$!';
 
     substr($s,1) =~ s/ ([^a-zA-Z0-9_:]) / '_'.ord($1).'_' /xge;
     return $s;
