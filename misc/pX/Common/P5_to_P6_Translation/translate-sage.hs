@@ -26,6 +26,7 @@ data AbsType
     | Op_aelem
     | Op_chdir
     | Op_const
+    | Op_cond_expr
     | Op_entersub
     | Op_ftdir
     | Op_helem
@@ -45,6 +46,7 @@ data AbsType
     | Peg
     | Statement
     | Sub
+    | Ternary
     | UnknownAbs
     deriving (Show, Eq, Read)
 
@@ -95,6 +97,7 @@ withKids indent = do
             "op_aassign"    -> Op_aassign
             "op_aelem"      -> Op_aelem
             "op_chdir"      -> Op_chdir
+            "op_cond_expr"  -> Op_cond_expr
             "op_const"      -> Op_const
             "op_ftdir"      -> Op_ftdir
             "op_helem"      -> Op_helem
@@ -109,6 +112,7 @@ withKids indent = do
             "package"       -> Package
             "peg"           -> Peg
             "statement"     -> Statement
+            "ternary"       -> Ternary
             _               -> UnknownAbs
     return $AbstractNode con kids
 
@@ -139,7 +143,7 @@ noKids indent = do
     return $ LiteralNode con enc uni
 
 {-
-Uniblock handles the various types of yaml blocks used, those being a literal string (i.e. "...")
+Uniblock handles the various types of yaml blocks used, those being a literal string (i.e. "..." or even just ...)
 A block "|\n ..." or a block with a chomp modifier "|+\n ..."
 -}
 uniBlock :: Int -> Parser String
@@ -174,6 +178,7 @@ makeLiterals :: String -> String
 makeLiterals [] = []
 makeLiterals inSt = if ((head inSt)=='\\') then if (head (tail inSt) == '"') then ('\"':(makeLiterals(drop 2 inSt))) else
                                                    if (head (tail inSt) == 'n') then ('\n':(makeLiterals(drop 2 inSt))) else
+                                                     if (head (tail inSt) == 't') then ('\t':(makeLiterals(drop 2 inSt))) else
                                                     ('\\':(makeLiterals(drop 2 inSt)))
                       else ((head inSt):(makeLiterals (tail inSt)))
 
@@ -192,7 +197,7 @@ printTree outFile (AbstractNode _ kids) = do{ printTree outFile (head kids);
 
 --Wrapper function to apply all translations in order
 translate :: P5AST -> P5AST
-translate tree = (arrayKey (hashKey (regexSubstitutionTranslation tree)))
+translate tree = (conditionalExpression (arrayKey (hashKey (regexSubstitutionTranslation tree))))
 
 {-Translations for substitution regexs.-}
 regexSubstitutionTranslation :: P5AST -> P5AST
@@ -216,6 +221,15 @@ substitutionGlobal (LiteralNode Openquote enc "s/") = (LiteralNode Openquote enc
 substitutionGlobal (LiteralNode Closequote enc "/g") = (LiteralNode Closequote enc "/")
 substitutionGlobal (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 substitutionGlobal (AbstractNode atype kids) = (AbstractNode atype kids)
+
+
+{- Function that converts conditional return statements (i.e. "a ? b : c") into a P5 form
+a ?? b !! c.  No Context needed, if ? or : is ever a P5 operator, it's in one of these statements-}
+conditionalExpression :: P5AST -> P5AST
+conditionalExpression (LiteralNode Punct enc "?") = (LiteralNode Punct enc "??")
+conditionalExpression (LiteralNode Punct enc ":") = (LiteralNode Punct enc "!!")
+conditionalExpression (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+conditionalExpression (AbstractNode atype kids) = (AbstractNode atype (map conditionalExpression kids))
 
 {-Changes to arrays with keys, namely $array[i] -> @array[i]-}
 arrayKey :: P5AST -> P5AST
