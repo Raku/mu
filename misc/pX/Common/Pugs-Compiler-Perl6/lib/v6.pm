@@ -1,5 +1,5 @@
 package v6;
-$v6::VERSION = '0.001';
+$v6::VERSION = '0.002';
 
 # Documentation in the __END__
 use 5.006;
@@ -11,10 +11,6 @@ use Pugs::Runtime::Perl6;
 
 my $bin;
 BEGIN { $bin = ((dirname(__FILE__) || '.') . "/..") };
-use lib (
-    "$bin/lib",
-    "$bin/../Pugs-Compiler-Rule/lib",
-);
 
 sub pmc_can_output { 1 }
 
@@ -135,11 +131,44 @@ The Parrot implementation is currently at a comparable state as v6.pm.
 Although running C<v6-pugs> requires the installation of a lot of Perl 5 modules,
 it is completely independent of Pugs or Parrot. 
 
-=head1 BUGS
+=head1 REQUIREMENTS
 
-C<Can't locate object method "compile" via package "Pugs::Compiler::Perl6">
+- The source file header must be valid perl5 I<and> perl6 code.
 
-- This may be happen if your perl was compiled without PMC support.
+This is a valid header:
+
+    #!/usr/bin/perl
+    use v6-pugs;
+
+* it executes perl5
+
+* perl5 will call the C<v6.pm> module.
+
+This is an invalid header:
+
+    #!/usr/bin/pugs
+    use v6;
+
+* it tells perl5 to execute C</usr/bin/pugs>.
+
+* it tells perl5 that Perl v6.0.0 required.
+
+- The C<Pugs::Compiler::Rule> module must be properly installed.
+
+An improperly installed C<Pugs::Compiler::Rule> module would prevent the Perl 6 compiler
+from bootstrapping. 
+
+If that is the case, running C<Makefile.PL> and C<make> in
+C<Pugs::Compiler::Rule> should fix the problem.
+
+- The perl5 executable must have PMC support. 
+
+PMC support is required for loading precompiled Perl 6 files.
+
+If you see the error below, it may happen that your perl was compiled without PMC support.
+
+  Can't locate object method "compile" via package "Pugs::Compiler::Perl6"
+
 Please see L<http://rt.cpan.org/Public/Bug/Display.html?id=20152>
 
 =head1 AUTHORS
