@@ -13,7 +13,55 @@ my Str $EMPTY_STR is readonly = q{};
 ###########################################################################
 ###########################################################################
 
-class Relation-0.0.1 {
+subset Relation::MainType-0.1.0 of Str where { $^n eq any( 'Scalar', 'Tuple', 'Relation' ) };
+
+###########################################################################
+###########################################################################
+
+role Relation::Heading-0.1.0 {
+
+###########################################################################
+
+
+
+
+###########################################################################
+
+} # role Relation::Heading
+
+###########################################################################
+###########################################################################
+
+role Relation::Tuple-0.1.0 {
+
+###########################################################################
+
+
+
+
+###########################################################################
+
+} # role Relation::Tuple
+
+###########################################################################
+###########################################################################
+
+role Relation-0.1.0 {
+
+###########################################################################
+
+
+
+
+###########################################################################
+
+} # role Relation
+
+###########################################################################
+###########################################################################
+=x
+
+class Relation-0.1.0 {
 
     # External packages used by the Relation class, that do export symbols:
     # (None Yet)
@@ -33,7 +81,7 @@ class Relation-0.0.1 {
     has Bool $!is_mutable;
         # Bool
         # Says whether this Relation is mutable or not;
-        # depending on the implementing class, it can default to True or 
+        # depending on the implementing class, it can default to True or
         # False, but once it has a value of False, it can not be changed.
 
 ###########################################################################
@@ -604,6 +652,7 @@ my method _inner_join (Relation $other!) returns Relation {
 
 } # class Relation
 
+=cut
 ###########################################################################
 ###########################################################################
 
@@ -618,7 +667,10 @@ Relations for Perl 6
 
 =head1 VERSION
 
-This document describes Relation version 0.0.1.
+This document describes Relation version 0.1.0.
+
+It also describes the same-number versions of Relation::MainType
+("MainType"), Relation::Heading ("Heading") and Relation::Tuple ("Tuple").
 
 =head1 SYNOPSIS
 
@@ -628,11 +680,28 @@ I<This documentation is pending.>
 
 =head1 DESCRIPTION
 
-This class implements a Relation data type that corresponds to the
-"relation" of logic and mathematics and philosophy ("a predicate ranging
-over more than one argument"), which is also the basis of the relational
-data model proposed by Edgar. F. Codd, upon which anything in the world can
-be modelled.
+This library provides a partial implementation, in the form of several
+roles, for a Relation data type that corresponds to the "relation" of logic
+and mathematics and philosophy ("a predicate ranging over more than one
+argument"), which is also the basis of the relational data model proposed
+by Edgar. F. Codd, upon which anything in the world can be modelled.
+
+The provided roles (Relation, Tuple, Heading) are intended to be composed
+into separate (and usually third-party) classes, which at the very least
+must determine the storage representation of the roles' attributes (eg,
+volatile or persistent) and provide accessors to them.  The Relation
+library provides full generic implementations of all other necessary
+operators (over said accessors), which can be employed when objects of
+multiple different Relation-implementing classes are used together, and
+each doesn't know the others' internals.  Implementing classes can
+optionally override these operators with versions that are more specific to
+their own objects, for efficiency, and they can optionally extend the
+Relation library's interface.
+
+See also the bundled L<Relation::Example>, which provides a minimal in-RAM
+storage implementation for the Relation library.
+
+I<TODO: REWRITE THE FOLLOWING.>
 
 A relation is essentially a set of mappings, or a set of logical tuples; a
 picture of one can look like a table, where each tuple is a row and each
@@ -872,13 +941,13 @@ This method is a short-hand or alternative for the functionality provided
 by the 5 generic relational operators [C<extend>, C<project>, C<rename>,
 C<wrap>, C<unwrap>], applied in that order, and it works like Perl's
 standard C<map> operator. It returns a new Relation whose attributes
-(provided in C<$heading>) may or may not resemble those of the original. 
+(provided in C<$heading>) may or may not resemble those of the original.
 The anonymous function in the argument C<$transformer> is invoked for each
 original tuple/Mapping in turn, which it gets as its sole read-only
 argument, and it must return a new tuple/Mapping whose attributes match
 those of C<$heading>.  The new Relation has all of the tuples of the
 original (or rather, the corresponding transformation of each tuple), but
-that any duplicates following the transformation have been eliminated. 
+that any duplicates following the transformation have been eliminated.
 Trivial cases are where C<$transformer> returns either an empty
 tuple/Mapping or a tuple that is identical to the original, in which case
 this method returns the identity-one Relation or the invocant relation,
@@ -983,7 +1052,7 @@ This multi-method is a generic binary relational operator that takes
 another Relation as its C<$other> argument and combines it with the
 invocant relation into a new Relation, such that all common attribute names
 and corresponding common tuple values are aligned and merged.  The heading
-of the new relation is the union of the invocant and <$other> headings. 
+of the new relation is the union of the invocant and <$other> headings.
 The body of the new relation is the result of first pairwise-matching every
 tuple of the invocant relation with every tuple of the <$other> relation,
 then where each member of a tuple pair has attribute names in common,
@@ -1065,7 +1134,11 @@ None reported.
 
 =head1 SEE ALSO
 
-L<Set>.
+The Perl 6 package L<Relation::Example> is bundled with Relation and
+provides a reference implementation of a Relation class.
+
+These other Perl 6 packages also work in the problem domain of managing
+data or data definitions or connections to databases: L<Set>, L<Rosetta>.
 
 =head1 BUGS AND LIMITATIONS
 

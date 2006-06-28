@@ -2,7 +2,7 @@
 use v6;
 
 # External packages used by packages in this file, that don't export symbols:
-# (None Yet)
+use Relation-(0.1.0);
 
 ###########################################################################
 ###########################################################################
@@ -13,27 +13,91 @@ my Str $EMPTY_STR is readonly = q{};
 ###########################################################################
 ###########################################################################
 
-class Relation-0.0.1 {
+class Relation::Example::Heading-0.1.0 {
+    does Relation::Heading;
 
-    # External packages used by the Relation class, that do export symbols:
+    # External packages used by the Relation::Example::Heading class, that do export symbols:
     # (None Yet)
 
-    # Attributes of every Relation object:
+    # Attributes of every Relation::Example::Heading object:
+    # (None Yet)
+
+###########################################################################
+
+
+
+
+###########################################################################
+
+} # class Relation::Example::Heading
+
+###########################################################################
+###########################################################################
+
+class Relation::Example::Tuple-0.1.0 {
+    does Relation::Tuple;
+
+    # External packages used by the Relation::Example::Tuple class, that do export symbols:
+    # (None Yet)
+
+    # Attributes of every Relation::Example::Tuple object:
+    # (None Yet)
+
+###########################################################################
+
+
+
+
+###########################################################################
+
+} # class Relation::Example::Tuple
+
+###########################################################################
+###########################################################################
+
+class Relation::Example-0.1.0 {
+    does Relation;
+
+    # External packages used by the Relation::Example class, that do export symbols:
+    # (None Yet)
+
+    # Attributes of every Relation::Example object:
+    # (None Yet)
+
+###########################################################################
+
+
+
+
+###########################################################################
+
+} # class Relation::Example
+
+###########################################################################
+###########################################################################
+=x
+
+class Relation::Example-0.1.0 {
+
+    # External packages used by the Relation::Example class, that do export symbols:
+    # (None Yet)
+
+    # Attributes of every Relation::Example object:
     has Set of Str $!heading;
         # Set of Str
-        # Each Set member is a name of one of this Relation's attributes.
-        # Note that it is valid for a Relation to have zero attributes.
+        # Each Set member is a name of one of this Relation::Example's attributes.
+        # Note that it is valid for a Relation::Example to have zero attributes.
     has Set of Mapping(Str) of Any $!body;
         # Set of Mapping(Str) of Any
-        # Each Set member is a tuple of this Relation, where the tuple
+        # Each Set member is a tuple of this Relation::Example, where the tuple
         # is represented as a Mapping; each key of that Mapping is the name
-        # of one of this Relation's attributes and the value corresponding
+        # of one of this Relation::Example's attributes and the value corresponding
         # to that is the value for that attribute for that tuple.
-        # Note that it is valid for a Relation to have zero tuples.
+        # Note that it is valid for a Relation::Example to have zero tuples.
     has Bool $!is_mutable;
         # Bool
-        # Says whether this Relation is mutable or not;
-        # depending on the implementing class, it can default to True or 
+        # Says whether this Relation::Example is mutable or not;
+        # depending on the implementing class, it can default to True or
         # False, but once it has a value of False, it can not be changed.
 
 ###########################################################################
@@ -90,18 +154,18 @@ method exists (Mapping(Str) of Any $tuple!) returns Bool {
 
 ###########################################################################
 
-method equal (Relation $other!) returns Bool {
+method equal (Relation::Example $other!) returns Bool {
     return $other!heading === $?SELF!heading
         and $other!body === $?SELF!body;
 }
 
-method not_equal (Relation $other!) returns Bool {
+method not_equal (Relation::Example $other!) returns Bool {
     return !$?SELF.equal( $other );
 }
 
 ###########################################################################
 
-method rename (Mapping(Str) of Str $mapping!) returns Relation {
+method rename (Mapping(Str) of Str $mapping!) returns Relation::Example {
 
     die "Some keys of $mapping! do not match this relation's attributes."
         if !(all( $mapping.keys ) === any( $!heading ));
@@ -114,7 +178,7 @@ method rename (Mapping(Str) of Str $mapping!) returns Relation {
 
     my %full_map = { $!heading.values.map:{ $_ => $_ }, $mapping.pairs };
 
-    return Relation.new(
+    return Relation::Example.new(
         heading => set( %full_map.values ),
         body => set( $!body.values.map:{
             mapping( $_.pairs.map:{ %full_map{$_.key} => $_.value } )
@@ -124,10 +188,10 @@ method rename (Mapping(Str) of Str $mapping!) returns Relation {
 
 ###########################################################################
 
-method project (Set of Str $attrs!) returns Relation {
+method project (Set of Str $attrs!) returns Relation::Example {
 
     if ($attrs.size() == 0) {
-        return Relation.new( heading => set(), body => set( mapping() ) );
+        return Relation::Example.new( heading => set(), body => set( mapping() ) );
     }
 
     if ($attrs === $!heading) {
@@ -137,7 +201,7 @@ method project (Set of Str $attrs!) returns Relation {
     die "Some members of $attrs! do not match this relation's attributes."
         if !(all( $attrs ) === any( $!heading ));
 
-    return Relation.new(
+    return Relation::Example.new(
         heading => $attrs,
         body => set( $!body.values.map:{
             mapping( $_.pairs.grep:{ $_.key === any( $attrs ) } )
@@ -147,7 +211,7 @@ method project (Set of Str $attrs!) returns Relation {
 
 &select ::= &project;
 
-method project_all_but (Set of Str $attrs!) returns Relation {
+method project_all_but (Set of Str $attrs!) returns Relation::Example {
     return $?SELF.project( $!heading.difference( $attrs ) );
 }
 
@@ -155,7 +219,7 @@ method project_all_but (Set of Str $attrs!) returns Relation {
 
 ###########################################################################
 
-method extend (Mapping(Str) of Code $attrs!) returns Relation {
+method extend (Mapping(Str) of Code $attrs!) returns Relation::Example {
 
     if ($attrs.size() == 0) {
         return $?SELF;
@@ -164,7 +228,7 @@ method extend (Mapping(Str) of Code $attrs!) returns Relation {
     die "Some keys of $attrs! duplicate attribute names of this relation."
         if any( $attrs ) === any( $!heading );
 
-    return Relation.new(
+    return Relation::Example.new(
         heading => $!heading.union( set( $attrs.keys ) ),
         body => set( $!body.values.map:{
             mapping( $_.pairs,
@@ -175,20 +239,20 @@ method extend (Mapping(Str) of Code $attrs!) returns Relation {
 
 ###########################################################################
 
-method wrap ( Mapping(Str) of Set of Str $mapping! ) returns Relation {
+method wrap ( Mapping(Str) of Set of Str $mapping! ) returns Relation::Example {
     # TODO.
 }
 
 ###########################################################################
 
-method unwrap ( Set of Str $attrs! ) returns Relation {
+method unwrap ( Set of Str $attrs! ) returns Relation::Example {
     # TODO.
 }
 
 ###########################################################################
 
-method map (Set of Str $heading!, Code $replacements!) returns Relation {
-    return Relation.new(
+method map (Set of Str $heading!, Code $replacements!) returns Relation::Example {
+    return Relation::Example.new(
         heading => $heading,
         body => set( $!body.values.map:{ $replacements.( $_ ) }),
     );
@@ -196,8 +260,8 @@ method map (Set of Str $heading!, Code $replacements!) returns Relation {
 
 ###########################################################################
 
-method restrict (Code $predicate!) returns Relation {
-    return Relation.new(
+method restrict (Code $predicate!) returns Relation::Example {
+    return Relation::Example.new(
         heading => $!heading,
         body => set( $!body.values.grep:{ $predicate.( $_ ) }),
     );
@@ -208,7 +272,7 @@ method restrict (Code $predicate!) returns Relation {
 
 ###########################################################################
 
-multi method union (Relation $other!) returns Relation {
+multi method union (Relation::Example $other!) returns Relation::Example {
 
     die "The heading of the relation in $other does"
             ~ " not match the heading of the invocant relation."
@@ -217,7 +281,7 @@ multi method union (Relation $other!) returns Relation {
     return $?SELF!_union( $other );
 }
 
-multi method union (Relation *@others) returns Relation {
+multi method union (Relation::Example *@others) returns Relation::Example {
 
     for @others -> $r2 {
         die "The heading of at least one given relation in @others does"
@@ -225,7 +289,7 @@ multi method union (Relation *@others) returns Relation {
             if !($r2!heading === $!heading);
     }
 
-    my Relation $r1 = $?SELF;
+    my Relation::Example $r1 = $?SELF;
 
     for @others -> $r2 {
         $r1 = $r1!_union( $r2 );
@@ -238,7 +302,7 @@ multi method union (Relation *@others) returns Relation {
 
 ###########################################################################
 
-multi method exclusion (Relation $other!) returns Relation {
+multi method exclusion (Relation::Example $other!) returns Relation::Example {
 
     die "The heading of the relation in $other does"
             ~ " not match the heading of the invocant relation."
@@ -247,7 +311,7 @@ multi method exclusion (Relation $other!) returns Relation {
     return $?SELF!_exclusion( $other );
 }
 
-multi method exclusion (Relation *@others) returns Relation {
+multi method exclusion (Relation::Example *@others) returns Relation::Example {
 
     for @others -> $r2 {
         die "The heading of at least one given relation in @others does"
@@ -255,7 +319,7 @@ multi method exclusion (Relation *@others) returns Relation {
             if !($r2!heading === $!heading);
     }
 
-    my Relation $r1 = $?SELF;
+    my Relation::Example $r1 = $?SELF;
 
     for @others -> $r2 {
         $r1 = $r1!_exclusion( $r2 );
@@ -270,7 +334,7 @@ multi method exclusion (Relation *@others) returns Relation {
 
 ###########################################################################
 
-multi method intersection (Relation $other!) returns Relation {
+multi method intersection (Relation::Example $other!) returns Relation::Example {
 
     die "The heading of the relation in $other does"
             ~ " not match the heading of the invocant relation."
@@ -279,7 +343,7 @@ multi method intersection (Relation $other!) returns Relation {
     return $?SELF!_intersection( $other );
 }
 
-multi method intersection (Relation *@others) returns Relation {
+multi method intersection (Relation::Example *@others) returns Relation::Example {
 
     for @others -> $r2 {
         die "The heading of at least one given relation in @others does"
@@ -287,7 +351,7 @@ multi method intersection (Relation *@others) returns Relation {
             if !($r2!heading === $!heading);
     }
 
-    my Relation $r1 = $?SELF;
+    my Relation::Example $r1 = $?SELF;
 
     for @others -> $r2 {
         $r1 = $r1!_intersection( $r2 );
@@ -300,13 +364,13 @@ multi method intersection (Relation *@others) returns Relation {
 
 ###########################################################################
 
-method difference (Relation $other!) returns Relation {
+method difference (Relation::Example $other!) returns Relation::Example {
 
     die "The heading of the relation in $other does"
             ~ " not match the heading of the invocant relation."
         if !($other!heading === $!heading);
 
-    return Relation.new(
+    return Relation::Example.new(
         heading => $!heading,
         body => $!body.difference( $other!body ),
     );
@@ -317,7 +381,7 @@ method difference (Relation $other!) returns Relation {
 
 ###########################################################################
 
-method semidifference (Relation $other!) returns Relation {
+method semidifference (Relation::Example $other!) returns Relation::Example {
     return $?SELF.difference( $?SELF.semijoin( $other ) );
 }
 
@@ -326,7 +390,7 @@ method semidifference (Relation $other!) returns Relation {
 
 ###########################################################################
 
-method semijoin (Relation $other!) returns Relation {
+method semijoin (Relation::Example $other!) returns Relation::Example {
 
     die "The heading of the relation in $other is not a full subset"
             ~ " of the heading of the invocant relation."
@@ -335,7 +399,7 @@ method semijoin (Relation $other!) returns Relation {
     # First look for trivial cases that are more efficient to do different.
     if ($!body.size() == 0 or $other!body.size() == 0) {
         # Both sources have zero tuples; so does result.
-        return Relation.new( heading => $!heading, body => set() );
+        return Relation::Example.new( heading => $!heading, body => set() );
     }
     if ($other!heading.size() == 0) {
         # Second source is identity-one tuple; result is first source.
@@ -355,7 +419,7 @@ method semijoin (Relation $other!) returns Relation {
 
 ###########################################################################
 
-multi method product (Relation $other!) returns Relation {
+multi method product (Relation::Example $other!) returns Relation::Example {
 
     die "The relation in $other has attributes in common with the invocant"
             ~ " relation."
@@ -364,7 +428,7 @@ multi method product (Relation $other!) returns Relation {
     # First look for trivial cases that are more efficient to do different.
     if ($!body.size() == 0 or $other!body.size() == 0) {
         # Both sources have zero tuples; so does result.
-        return Relation.new(
+        return Relation::Example.new(
             heading => $!heading.union( $other!heading ),
             body => set()
         );
@@ -382,13 +446,13 @@ multi method product (Relation $other!) returns Relation {
     return $?SELF!_product( $other );
 }
 
-multi method product (Relation *@others) returns Relation {
+multi method product (Relation::Example *@others) returns Relation::Example {
 
     if (+@others == 0) {
         return $?SELF;
     }
 
-    my Relation @sources = ($?SELF, *@others);
+    my Relation::Example @sources = ($?SELF, *@others);
     while (my $r1 = @sources.shift()) {
         for @sources -> $r2 {
             die "The heading of at least one given relation in @others has"
@@ -407,12 +471,12 @@ multi method product (Relation *@others) returns Relation {
 
 ###########################################################################
 
-multi method join (Relation $other!) returns Relation {
+multi method join (Relation::Example $other!) returns Relation::Example {
 
     # First look for trivial cases that are more efficient to do different.
     if ($!body.size() == 0 or $other!body.size() == 0) {
         # Both sources have zero tuples; so does result.
-        return Relation.new(
+        return Relation::Example.new(
             heading => $!heading.union( $other!heading ),
             body => set()
         );
@@ -453,7 +517,7 @@ multi method join (Relation $other!) returns Relation {
     return $?SELF!_inner_join( $other );
 }
 
-multi method join (Relation *@others) returns Relation {
+multi method join (Relation::Example *@others) returns Relation::Example {
 
     # First do some optimizing of the order that source relations are
     # combined, so to try and make the least expensive kinds of combining
@@ -462,10 +526,10 @@ multi method join (Relation *@others) returns Relation {
         return $?SELF;
     }
 
-    my Relation @sources = ($?SELF, *@others);
-    my Relation @r_with_zero_tuples;
-    my Relation @r_with_shared_attrs;
-    my Relation @r_with_disjoint_attrs;
+    my Relation::Example @sources = ($?SELF, *@others);
+    my Relation::Example @r_with_zero_tuples;
+    my Relation::Example @r_with_shared_attrs;
+    my Relation::Example @r_with_disjoint_attrs;
     while (my $r1 = @sources.shift()) {
         if ($r1!body.size() == 0) {
             @r_with_zero_tuples.push( $r1 );
@@ -496,7 +560,7 @@ multi method join (Relation *@others) returns Relation {
 
     # Now do the actual combination work.
     # Start with identity-one relation and join all sources to it.
-    my Relation $r1 .= new( heading => set(), body => set( mapping() ) );
+    my Relation::Example $r1 .= new( heading => set(), body => set( mapping() ) );
 
     for @sources -> $r2 {
         $r1 = $r1.join( $r2 );
@@ -509,29 +573,29 @@ multi method join (Relation *@others) returns Relation {
 
 ###########################################################################
 
-my method _union (Relation $other!) returns Relation {
-    return Relation.new(
+my method _union (Relation::Example $other!) returns Relation::Example {
+    return Relation::Example.new(
         heading => $!heading,
         body => $!body.union( $other!body ),
     );
 }
 
-my method _exclusion (Relation $other!) returns Relation {
-    return Relation.new(
+my method _exclusion (Relation::Example $other!) returns Relation::Example {
+    return Relation::Example.new(
         heading => $!heading,
         body => $!body.symmetric_difference( $other!body ),
     );
 }
 
-my method _intersection (Relation $other!) returns Relation {
-    return Relation.new(
+my method _intersection (Relation::Example $other!) returns Relation::Example {
+    return Relation::Example.new(
         heading => $!heading,
         body => $!body.intersection( $other!body ),
     );
 }
 
-my method _semijoin (Relation $other!) returns Relation {
-    return Relation.new(
+my method _semijoin (Relation::Example $other!) returns Relation::Example {
+    return Relation::Example.new(
         heading => $!heading,
         body => set( $!body.values.grep:{
             mapping( $_.pairs.map:{
@@ -541,8 +605,8 @@ my method _semijoin (Relation $other!) returns Relation {
     );
 }
 
-my method _product (Relation $other!) returns Relation {
-    return Relation.new(
+my method _product (Relation::Example $other!) returns Relation::Example {
+    return Relation::Example.new(
         heading => $!heading.union( $other!heading ),
         body => set( gather {
             for $!body.values -> $t1 {
@@ -554,7 +618,7 @@ my method _product (Relation $other!) returns Relation {
     );
 }
 
-my method _inner_join (Relation $other!) returns Relation {
+my method _inner_join (Relation::Example $other!) returns Relation::Example {
     # This form takes the form of an ordinary natural join,
     # where some source attributes are in common, and each
     # source has attributes not in the other.
@@ -570,7 +634,7 @@ my method _inner_join (Relation $other!) returns Relation {
     Set $r1only_h = $!heading.difference( $other!heading );
     Set $r2only_h = $other!heading.difference( $!heading );
 
-    return Relation.new(
+    return Relation::Example.new(
         heading => $!heading.union( $other!heading ),
         body => set( gather {
             for $!body.values -> $t1 {
@@ -602,8 +666,9 @@ my method _inner_join (Relation $other!) returns Relation {
 
 ###########################################################################
 
-} # class Relation
+} # class Relation::Example
 
+=cut
 ###########################################################################
 ###########################################################################
 
@@ -613,38 +678,40 @@ my method _inner_join (Relation $other!) returns Relation {
 
 =head1 NAME
 
-Relation -
-Relations for Perl 6
+Relation::Example -
+Simple in-memory implementation of the Relation role
 
 =head1 VERSION
 
-This document describes Relation version 0.0.1.
+This document describes Relation::Example version 0.1.0.
+
+It also describes the same-number versions of Relation::Example::Heading
+and Relation::Example::Tuple.
 
 =head1 SYNOPSIS
 
-    use Relation;
+    use Relation::Example;
 
 I<This documentation is pending.>
 
 =head1 DESCRIPTION
 
-This class implements a Relation data type that corresponds to the
-"relation" of logic and mathematics and philosophy ("a predicate ranging
-over more than one argument"), which is also the basis of the relational
-data model proposed by Edgar. F. Codd, upon which anything in the world can
-be modelled.
+Relation::Example provides a minimal in-RAM
+storage implementation for the L<Relation> library.
+
+I<TODO: REWRITE THE FOLLOWING.>
 
 A relation is essentially a set of mappings, or a set of logical tuples; a
 picture of one can look like a table, where each tuple is a row and each
 relation/tuple attribute is a column, but it is not the same as a table.
 
 The intended interface and use of this class in Perl programs is similar to
-the intended use of a L<Set> class; a Relation is like a Set that exists
-over N dimensions rather than one.  The Relation operators are somewhat of
+the intended use of a L<Set> class; a Relation::Example is like a Set that exists
+over N dimensions rather than one.  The Relation::Example operators are somewhat of
 a superset of the Set operators.
 
-Like the Set data type, the Relation data type is immutable.  The value of
-a Relation object is determined when it is constructed, and the object can
+Like the Set data type, the Relation::Example data type is immutable.  The value of
+a Relation::Example object is determined when it is constructed, and the object can
 not be changed afterwards.
 
 If you want something similar but that is more mutable, you can accomplish
@@ -652,210 +719,210 @@ that manually using a set of mappings, or a multi-dimensional object Hash,
 or various combinations of other data types.
 
 While the implementation can be changed greatly (it isn't what's important;
-the interface/behaviour is), this Relation data type is proposed to be
+the interface/behaviour is), this Relation::Example data type is proposed to be
 generally useful, and very basic, and worthy of inclusion in the Perl 6
 core, at least as worthy as a Set data type is.
 
 =head1 INTERFACE
 
-The interface of Relation is entirely object-oriented; you use it by
+The interface of Relation::Example is entirely object-oriented; you use it by
 creating objects from its member classes, usually invoking C<new()> on the
 appropriate class name, and then invoking methods on those objects.  All of
 their class/object attributes are private, so you must use accessor
-methods.  Relation does not declare any subroutines or export such.
+methods.  Relation::Example does not declare any subroutines or export such.
 
-The usual way that Relation indicates a failure is to throw an exception;
+The usual way that Relation::Example indicates a failure is to throw an exception;
 most often this is due to invalid input.  If an invoked routine simply
 returns, you can assume that it has succeeded.
 
-=head2 The Relation Class
+=head2 The Relation::Example Class
 
-A Relation object is an unordered set of tuples, each of which is an
-unordered set of named attributes; all tuples in a Relation are of the same
+A Relation::Example object is an unordered set of tuples, each of which is an
+unordered set of named attributes; all tuples in a Relation::Example are of the same
 degree, and the attribute names of each tuple are all the same as those of
 all the other tuples.
 
-For purposes of the Relation class' API, a tuple is represented by a Perl
+For purposes of the Relation::Example class' API, a tuple is represented by a Perl
 Mapping where each Mapping key is an attribute name and each Mapping value
 is the corresponding attribute value.
 
-Every Relation attribute has a name that is distinct from the other
+Every Relation::Example attribute has a name that is distinct from the other
 attributes, though several attributes may store values of the same class;
-every Relation tuple must be distinct from the other tuples.  All Relation
+every Relation::Example tuple must be distinct from the other tuples.  All Relation::Example
 attributes may be individually addressed only by their names, and all
-Relation tuples may be individually addressed only by their values; neither
+Relation::Example tuples may be individually addressed only by their values; neither
 may be addressed by any ordinal value.
 
-Note that it is valid for a Relation to have zero tuples.  It is also valid
-for a Relation to have zero attributes, though such a Relation can have no
-more than a single tuple.  A zero-attribute Relation with zero tuples or
+Note that it is valid for a Relation::Example to have zero tuples.  It is also valid
+for a Relation::Example to have zero attributes, though such a Relation::Example can have no
+more than a single tuple.  A zero-attribute Relation::Example with zero tuples or
 one tuple respectively have a special meaning in relational algebra which
 is analagous to what the identity numbers 0 and 1 mean to normal algebra.
 
-A picture of a Relation can look like a table, where each of its tuples is
-a row, and each attribute is a column, but a Relation is not a table.
+A picture of a Relation::Example can look like a table, where each of its tuples is
+a row, and each attribute is a column, but a Relation::Example is not a table.
 
-The Relation class is pure and deterministic, such that all of its class
+The Relation::Example class is pure and deterministic, such that all of its class
 and object methods will each return the same result when invoked on the
 same object with the same arguments; they do not interact with the outside
 environment at all.
 
-A Relation object has 2 main attributes (implementation details subject to
+A Relation::Example object has 2 main attributes (implementation details subject to
 change) plus 1 extra attribute:
 
 =over
 
-=item C<$!heading> - B<Relation Heading>
+=item C<$!heading> - B<Relation::Example Heading>
 
-Set of Str - This contains zero or more Relation attribute names that
-define the heading of this Relation.  Each attribute name is a character
+Set of Str - This contains zero or more Relation::Example attribute names that
+define the heading of this Relation::Example.  Each attribute name is a character
 string.
 
-=item C<$!body> - B<Relation Body>
+=item C<$!body> - B<Relation::Example Body>
 
 Set of Mapping(Str) of Any - This contains zero or more member tuples of
-the Relation; each Set member is a Mapping whose keys and values are
+the Relation::Example; each Set member is a Mapping whose keys and values are
 attribute names and values.  Each Mapping key of a Body tuple must match a
 Set member of Heading, and the value of every tuple in Body must be
 mutually distinct.
 
-=item C<$!is_mutable> - B<Relation Is Mutable>
+=item C<$!is_mutable> - B<Relation::Example Is Mutable>
 
-Bool - This attribute is True if the Relation is allowed to and/or has the
+Bool - This attribute is True if the Relation::Example is allowed to and/or has the
 ability to mutate, and it is false if not.  Looking forward to the near
-future where "Relation" is a Role rather than a Class, and some
+future where "Relation::Example" is a Role rather than a Class, and some
 implementations are immutable rather than mutable, this property and/or
-same-named accessor method can be used to see if a Relation-doing object
+same-named accessor method can be used to see if a Relation::Example-doing object
 can mutate.  Depending on the implementing class, it can default to True or
 False, but once it has a value of False, it can not be further changed;
 this class defaults it to False.
 
 =back
 
-This is the main Relation constructor method:
+This is the main Relation::Example constructor method:
 
 =over
 
 =item C<new (Set of Str :$heading?, Set of Mapping(Str) of Any :$body?)>
 
-This method creates and returns a new Relation object, whose Heading and
+This method creates and returns a new Relation::Example object, whose Heading and
 Body attributes are set respectively from the optional named parameters
 C<$heading> and C<$body>.  If C<$heading> is undefined or an empty Set, the
-Relation has zero attributes.  If C<$body> is undefined or an empty Set,
-the Relation has zero tuples.  If a Relation has zero attributes, then
+Relation::Example has zero attributes.  If C<$body> is undefined or an empty Set,
+the Relation::Example has zero tuples.  If a Relation::Example has zero attributes, then
 C<$body> may be an Set with a single member that is an empty Mapping.
 
 =back
 
-A Relation object has these methods:
+A Relation::Example object has these methods:
 
 =over
 
 =item C<export_as_hash () returns Hash>
 
-This method returns a deep copy of this Relation as a Hash ref of 2
+This method returns a deep copy of this Relation::Example as a Hash ref of 2
 elements, which correspond to the 2 named parameters of C<new>.
 
 =item C<is_mutable () returns Bool>
 
-This method returns this Relation's "is mutable" boolean attribute.
+This method returns this Relation::Example's "is mutable" boolean attribute.
 
 =item C<heading () returns Set of Str>
 
-This method returns this Relation's heading.
+This method returns this Relation::Example's heading.
 
 =item C<body () returns Set of Mapping(Str) of Any>
 
-This method returns this Relation's body.
+This method returns this Relation::Example's body.
 
 =item C<size () returns Int>
 
-This method returns a count of this Relation's member tuples as an Int.
+This method returns a count of this Relation::Example's member tuples as an Int.
 
 =item C<exists (Mapping(Str) of Any $tuple!) returns Bool>
 
 This method returns a Bool indicating whether the argument C<$tuple> exists
-in / is a member of this Relation.
+in / is a member of this Relation::Example.
 
-=item C<equal (Relation $other!) returns Bool>
+=item C<equal (Relation::Example $other!) returns Bool>
 
 This method returns a Bool indicating whether the immutable identity of the
 argument C<$other> equals the immutable identity of the invocant.
 
-=item C<not_equal (Relation $other!) returns Bool>
+=item C<not_equal (Relation::Example $other!) returns Bool>
 
 This method returns the complement of C<equal> with the same argument.
 
-=item C<rename ( Mapping(Str) of Str $mapping! ) returns Relation>
+=item C<rename ( Mapping(Str) of Str $mapping! ) returns Relation::Example>
 
-This method is a generic relational operator that returns a new Relation
-which is the same as the invocant Relation but that some of its attributes
+This method is a generic relational operator that returns a new Relation::Example
+which is the same as the invocant Relation::Example but that some of its attributes
 are renamed.  The argument C<$mapping> says which attributes are being
 renamed, with its keys being the old names and its values the new names.
 This method will fail if any C<$mapping> keys do not match invocant
-Relation attribute names, or any C<$mapping> values duplicate each other,
+Relation::Example attribute names, or any C<$mapping> values duplicate each other,
 or duplicate attribute names that aren't being renamed.  This method
 supports renaming attributes to each others' names.
 
-=item C<project (Set of Str $attrs!) returns Relation>
+=item C<project (Set of Str $attrs!) returns Relation::Example>
 
-This method is a generic relational operator that returns a new Relation
+This method is a generic relational operator that returns a new Relation::Example
 which has a subset of the original's attributes; that subset is the same as
-those attribute names in the argument C<$attrs>.  The new Relation has all
+those attribute names in the argument C<$attrs>.  The new Relation::Example has all
 of the tuples of the original (or rather, the corresponding projection of
 each tuple), but that any duplicates following the projection have been
 eliminated.  Trivial cases are where C<$attrs> is either empty or equal to
-the invocant Relation's header, in which case it returns the identity-one
-Relation or the invocant Relation respectively.  This method will fail if
+the invocant Relation::Example's header, in which case it returns the identity-one
+Relation::Example or the invocant Relation::Example respectively.  This method will fail if
 any members of C<$attrs> do not match attribute names of the invocant
-Relation.  This method has an alias named C<select>.
+Relation::Example.  This method has an alias named C<select>.
 
-=item C<project_all_but (Set of Str $attrs!) returns Relation>
+=item C<project_all_but (Set of Str $attrs!) returns Relation::Example>
 
-This method is the same as C<project> but that the returned Relation has
+This method is the same as C<project> but that the returned Relation::Example has
 the complement subset of the original's attributes to what C<project> would
 return given the same C<$attrs>.  This method has an alias named
 C<select_all_but>.
 
-=item C<extend (Mapping(Str) of Code $attrs!) returns Relation>
+=item C<extend (Mapping(Str) of Code $attrs!) returns Relation::Example>
 
-This method is a generic relational operator that returns a new Relation
-which has a superset of the original's attributes; the new Relation has as
+This method is a generic relational operator that returns a new Relation::Example
+which has a superset of the original's attributes; the new Relation::Example has as
 many additional attributes as there are pairs in the argument C<$attrs>,
 where the keys of C<$attrs> provide the names of the new attributes, and
-the values provide values applied to each tuple.  The new Relation has all
+the values provide values applied to each tuple.  The new Relation::Example has all
 of the tuples of the original (or rather, the corresponding extension of
 each tuple).  Each value of C<$attrs> is an anonymous function that, when
 given each original tuple/Mapping as its sole read-only argument, returns a
 value that is optionally a calculation using original attribute values as
 inputs.  As a trivial case, if C<$attrs> is empty, the output relation is
 identical to the invocant.  This method will fail if any keys of C<$attrs>
-duplicate attribute names of the invocant Relation.
+duplicate attribute names of the invocant Relation::Example.
 
-=item C<wrap ( Mapping(Str) of Set of Str $mapping! ) returns Relation>
+=item C<wrap ( Mapping(Str) of Set of Str $mapping! ) returns Relation::Example>
 
 I<TODO.  This method has not yet been implemented.>
 
-This method is a generic relational operator that returns a new Relation
-which is the same as the invocant Relation but that some of its attributes
+This method is a generic relational operator that returns a new Relation::Example
+which is the same as the invocant Relation::Example but that some of its attributes
 have been combined/wrapped into tuple/Mapping-valued attributes.  The
 argument C<$mapping> says which attributes are being combined/wrapped, with
 its keys being the new tuple-valued attribute names and each of its values
 the set of old attribute names that are being wrapped.  This method will
 fail if any C<$mapping> keys duplicate attribute names that aren't being
 wrapped, or any C<$mapping> value set members do not match invocant
-Relation attribute names, or duplicate any other value set members.  This
+Relation::Example attribute names, or duplicate any other value set members.  This
 method supports having the new attributes having the same names as old
 attributes that become wrapped, and it supports having new tuple-valued
 attributes which wrap zero old attributes (they are effectively just an
 extension of the relation).
 
-=item C<unwrap ( Set of Str $attrs! ) returns Relation>
+=item C<unwrap ( Set of Str $attrs! ) returns Relation::Example>
 
 I<TODO.  This method has not yet been implemented.>
 
-This method is a generic relational operator that returns a new Relation
-which is the same as the invocant Relation but that some of its
+This method is a generic relational operator that returns a new Relation::Example
+which is the same as the invocant Relation::Example but that some of its
 tuple/Mapping-valued attributes have been split/unwrapped into other
 attributes.  The members of the argument C<$attrs> are the names of the
 invocant's attributes to split/unwrap.  This method will fail if any of the
@@ -866,106 +933,106 @@ supports having the new attributes having the same names as old attributes
 that were wrapped, and it supports having old tuple-valued attributes which
 have zero attributes (they just vanish).
 
-=item C<map (Set of Str $heading!, Code $transformer!) returns Relation>
+=item C<map (Set of Str $heading!, Code $transformer!) returns Relation::Example>
 
 This method is a short-hand or alternative for the functionality provided
 by the 5 generic relational operators [C<extend>, C<project>, C<rename>,
 C<wrap>, C<unwrap>], applied in that order, and it works like Perl's
-standard C<map> operator. It returns a new Relation whose attributes
-(provided in C<$heading>) may or may not resemble those of the original. 
+standard C<map> operator. It returns a new Relation::Example whose attributes
+(provided in C<$heading>) may or may not resemble those of the original.
 The anonymous function in the argument C<$transformer> is invoked for each
 original tuple/Mapping in turn, which it gets as its sole read-only
 argument, and it must return a new tuple/Mapping whose attributes match
-those of C<$heading>.  The new Relation has all of the tuples of the
+those of C<$heading>.  The new Relation::Example has all of the tuples of the
 original (or rather, the corresponding transformation of each tuple), but
-that any duplicates following the transformation have been eliminated. 
+that any duplicates following the transformation have been eliminated.
 Trivial cases are where C<$transformer> returns either an empty
 tuple/Mapping or a tuple that is identical to the original, in which case
-this method returns the identity-one Relation or the invocant relation,
+this method returns the identity-one Relation::Example or the invocant relation,
 respectively.
 
-=item C<restrict (Code $predicate!) returns Relation>
+=item C<restrict (Code $predicate!) returns Relation::Example>
 
-This method is a generic relational operator that returns a new Relation
+This method is a generic relational operator that returns a new Relation::Example
 which has a subset of the original's tuples, and it works like Perl's
 standard C<grep> operator; that subset is those for which the the
 Bool-returning anonymous function in the argument C<$predicate> returns
 True when given the tuple/Mapping as its sole read-only argument. The new
-Relation has all of the same attributes as the original.  Trivial cases are
+Relation::Example has all of the same attributes as the original.  Trivial cases are
 where C<$predicate> simply returns True or False regardless of its
-argument, in which case the new Relation has either all of the tuples of
+argument, in which case the new Relation::Example has either all of the tuples of
 the original, or has zero tuples, respectively.  This method has aliases
 named C<where> and C<grep>.
 
-=item C<union (Relation $other!) returns Relation>
+=item C<union (Relation::Example $other!) returns Relation::Example>
 
 This multi-method is a generic binary relational operator that takes a single
-Relation in its C<$other> argument, where <$other> has the same heading as
-the invocant Relation, and returns a new Relation that has the same heading
+Relation::Example in its C<$other> argument, where <$other> has the same heading as
+the invocant Relation::Example, and returns a new Relation::Example that has the same heading
 and whose body contains all of the tuples that are in either or both of the
-invocant Relation and C<$other>; any duplicated tuples appear only once in
+invocant Relation::Example and C<$other>; any duplicated tuples appear only once in
 the result.  With any 2 relations, the result is the same regardless of
 which is the invocant and which is the argument.  This method will fail if
 C<$other> does not have an identical header to the invocant relation.  This
 method has an alias named C<plus>.
 
-=item C<union (Relation *@others) returns Relation>
+=item C<union (Relation::Example *@others) returns Relation::Example>
 
 This multi-method is the N-ary version of the aforementioned binary union()
 operator, and the order of its arguments is not significant to the result;
-the new Relation contains all the tuples of the source Relations, including
+the new Relation::Example contains all the tuples of the source Relations, including
 one copy each of any duplicated tuples.
 
-=item C<exclusion (Relation $other!) returns Relation>
+=item C<exclusion (Relation::Example $other!) returns Relation::Example>
 
 This multi-method is a generic binary relational operator that is like
-C<union> except that the returned Relation contains only tuples that are in
+C<union> except that the returned Relation::Example contains only tuples that are in
 exactly one of the source Relations.  This method has aliases named
 C<disjoint_union>, C<d_union>, and C<symmetric_difference>.
 
-=item C<exclusion (Relation *@others) returns Relation>
+=item C<exclusion (Relation::Example *@others) returns Relation::Example>
 
 This multi-method is the N-ary version of the aforementioned.
 
-=item C<intersection (Relation $other!) returns Relation>
+=item C<intersection (Relation::Example $other!) returns Relation::Example>
 
 This multi-method is a generic binary relational operator that is like
-C<union> except that the returned Relation contains only tuples that are in
+C<union> except that the returned Relation::Example contains only tuples that are in
 all of the source Relations.  This method has an alias named C<intersect>.
 
-=item C<intersection (Relation *@others) returns Relation>
+=item C<intersection (Relation::Example *@others) returns Relation::Example>
 
 This multi-method is the N-ary version of the aforementioned.
 
-=item C<difference (Relation $other!) returns Relation>
+=item C<difference (Relation::Example $other!) returns Relation::Example>
 
-This method is a generic relational operator that takes a single Relation
+This method is a generic relational operator that takes a single Relation::Example
 in its C<$other> argument, where <$other> has the same heading as the
-invocant Relation, and returns a new Relation that has the same heading and
-whose body contains all of the tuples that are in the invocant Relation but
+invocant Relation::Example, and returns a new Relation::Example that has the same heading and
+whose body contains all of the tuples that are in the invocant Relation::Example but
 that aren't in C<$other>.  This method will fail if C<$other> does not have
 an identical header to the invocant relation.  This method has aliases
 named C<minus> and C<except>.
 
-=item C<semidifference (Relation $other!) returns Relation>
+=item C<semidifference (Relation::Example $other!) returns Relation::Example>
 
 This method is a generic relational operator that returns the complement of
 C<semijoin> with the same argument.  This method has aliases named
 C<semiminus> and C<not_matching>.
 
-=item C<semijoin (Relation $other!) returns Relation>
+=item C<semijoin (Relation::Example $other!) returns Relation::Example>
 
-This method is a generic relational operator that takes a single Relation
+This method is a generic relational operator that takes a single Relation::Example
 in its C<$other> argument, where the heading of <$other> is a subset of the
-heading of the invocant Relation, and returns a new Relation that has the
+heading of the invocant Relation::Example, and returns a new Relation::Example that has the
 same heading as the invocant and whose body contains all of the tuples that
-are in the invocant Relation and that match any tuples of C<$other> along
+are in the invocant Relation::Example and that match any tuples of C<$other> along
 their common attributes.  This method will fail if the heading of <$other>
-is not a subset of the heading of the invocant Relation.  This method
+is not a subset of the heading of the invocant Relation::Example.  This method
 degenerates into an C<intersection> if the two source headings are
 identical.  This method has an alias named C<matching>.
 
-=item C<product (Relation $other!) returns Relation>
+=item C<product (Relation::Example $other!) returns Relation::Example>
 
 This multi-method is a generic binary relational operator that is identical
 to C<join> except that this method will fail if any of its source Relations
@@ -973,17 +1040,17 @@ have attributes in common; it will only accept inputs that would result in
 a cross-product when joined.  This method has aliases named
 C<cartesian_product>, C<cross_product>, C<cross_join>.
 
-=item C<product (Relation *@others) returns Relation>
+=item C<product (Relation::Example *@others) returns Relation::Example>
 
 This multi-method is the N-ary version of the aforementioned.
 
-=item C<join (Relation $other!) returns Relation>
+=item C<join (Relation::Example $other!) returns Relation::Example>
 
 This multi-method is a generic binary relational operator that takes
-another Relation as its C<$other> argument and combines it with the
-invocant relation into a new Relation, such that all common attribute names
+another Relation::Example as its C<$other> argument and combines it with the
+invocant relation into a new Relation::Example, such that all common attribute names
 and corresponding common tuple values are aligned and merged.  The heading
-of the new relation is the union of the invocant and <$other> headings. 
+of the new relation is the union of the invocant and <$other> headings.
 The body of the new relation is the result of first pairwise-matching every
 tuple of the invocant relation with every tuple of the <$other> relation,
 then where each member of a tuple pair has attribute names in common,
@@ -991,7 +1058,7 @@ eliminating pairs where the values of those attributes differ and unioning
 the remaining said tuple pairs, then eliminating any result tuples that
 duplicate others.  The sequence in which any two source relations are
 combined is inconsequential.  A trivial case is where C<@others> is an
-empty list, in which case the returned Relation is identical to the
+empty list, in which case the returned Relation::Example is identical to the
 invocant.  Another trivial case is where any any source relation has zero
 tuples, in which case the result does too.  Another trivial case is if any
 source relation is the identity-one relation (zero attributes, one tuple),
@@ -1003,11 +1070,11 @@ C<product>.  In any situation where the heading of one source relation is a
 full subset of another, the result degenerates to a C<semijoin>.  This
 method has an alias named C<natural_join>.
 
-=item C<join (Relation *@others) returns Relation>
+=item C<join (Relation::Example *@others) returns Relation::Example>
 
 This multi-method is the N-ary version of the aforementioned binary join()
 operator, and the order of its arguments is not significant to the result;
-the new Relation is the result of combining all of the source Relations,
+the new Relation::Example is the result of combining all of the source Relations,
 such that all common attribute names and corresponding common tuple values
 are aligned and merged.  The heading of the new relation is the union of
 all the headings of the source relations.  The body of the new relation is
@@ -1059,13 +1126,16 @@ I<This documentation is pending.>
 
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
+It also requires these Perl 6 classes that are in the current distribution:
+L<Relation-(0.1.0)|Relation>.
+
 =head1 INCOMPATIBILITIES
 
 None reported.
 
 =head1 SEE ALSO
 
-L<Set>.
+Go to L<Relation> for the majority of references.
 
 =head1 BUGS AND LIMITATIONS
 
@@ -1081,11 +1151,10 @@ This file is part of the Relation library.
 
 Relation is Copyright (c) 2006, Darren R. Duncan.
 
-Relation is free software; you can redistribute it and/or modify it under
-the same terms as Perl 6 itself.
+See the LICENCE AND COPYRIGHT of L<Relation> for details.
 
 =head1 ACKNOWLEDGEMENTS
 
-None yet.
+The ACKNOWLEDGEMENTS in L<Relation> apply to this file too.
 
 =cut

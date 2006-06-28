@@ -3,9 +3,12 @@ use v6;
 
 use Test;
 
-plan( 2 );
+plan( 4 );
 
-#use Relation; pass "(dummy instead of broken use_ok)";
-flunk( q{use Relation ... prerequisites still missing}, :todo<feature> );
-skip( 1, q{is( Relation.meta.identifier.version, 0.0.1,
+use Relation; pass "(dummy instead of broken use_ok)";
+skip( 1, q{is( Relation.meta.identifier.version, 0.1.0,
     'Relation is the correct version' );} );
+
+use Relation::Example; pass "(dummy instead of broken use_ok)";
+skip( 1, q{is( Relation::Example.meta.identifier.version, 0.1.0,
+    'Relation::Example is the correct version' );} );
