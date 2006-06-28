@@ -9,8 +9,10 @@ $Data::Dumper::Indent = 1;
 
 sub _mangle_var {
     my $s = shift;
-    # globals
-    return '$::_EXCL_' if $s eq '$!';  
+    #warn "mangle: $s";
+    
+    # perl6 => perl5 variables
+    return '%::ENV'    if $s eq '%*ENV';  
 
     substr($s,1)   =~ s/ ([^a-zA-Z0-9_:]) / '_'.ord($1).'_' /xge;
     return $s;
@@ -58,10 +60,10 @@ sub _emit {
     return _mangle_var( $n->{scalar} )
         if exists $n->{scalar};
         
-    return $n->{array} 
+    return _mangle_var( $n->{array} )
         if exists $n->{array};
         
-    return $n->{hash} 
+    return _mangle_var( $n->{hash} )
         if exists $n->{hash};
         
     return '"' . $n->{double_quoted} . '"' 
@@ -147,12 +149,21 @@ sub default {
     if ( $n->{op1} eq 'call' ) {
         # warn "call: ",Dumper $n;
 
-        if ( $n->{sub}{bareword} eq 'class' ) {
+        if ( $n->{sub}{bareword} eq 'class'  ||
+             $n->{sub}{bareword} eq 'module' ) {
             # Moose: package xxx; use Moose;
             # class Point;
             #warn "class: ",Dumper $n;
-            return 'package ' . _emit( $n->{param}{sub} ) . ';' .
-                'use Moose;';
+            my $id;
+            $id = exists $n->{param}{cpan_bareword} 
+                  ? $n->{param}{cpan_bareword} 
+                  : _emit( $n->{param}{sub} );
+            my @a = split "-", $id;
+            my $version = ( @a > 1 && $a[-1] =~ /^[0-9]/ ? $a[-1] : '' );
+            return 'package ' . $a[0] .
+                ( $version ? ";\$$a[0]::VERSION = '$version'" : '' ) .
+                ( $n->{sub}{bareword} eq 'class' ? ';use Moose' : '' ) .
+                ";use Exporter 'import';our \@EXPORT";
         }
 
         if ( $n->{sub}{bareword} eq 'use' ) {
@@ -173,22 +184,31 @@ sub default {
             return "use " . _emit( $n->{param} );
         }
 
-        return " " . $n->{sub}{bareword} . " '', " . _emit( $n->{param}, '  ' ) 
+        return " " . $n->{sub}{bareword} . " '', " . _emit( $n->{param} ) 
             if $n->{sub}{bareword} eq 'print' ||
                $n->{sub}{bareword} eq 'warn';
-        return " print '', " . _emit( $n->{param}, '  ' ) . ";\n" .
+        return " print '', " . _emit( $n->{param} ) . ";\n" .
             " print " . '"\n"'
             if $n->{sub}{bareword} eq 'say';
-        return ' ' . $n->{sub}{bareword} . '(' . _emit( $n->{param}, '  ' ) . ')';
+        return ' ' . $n->{sub}{bareword} . '(' . _emit( $n->{param} ) . ')';
     }
     
     if ( $n->{op1} eq 'method_call' ) {    
+        #warn "method_call: ", Dumper( $n );
         if ( $n->{method}{bareword} eq 'print' ||
              $n->{method}{bareword} eq 'warn' ) {
-            return " print '', " . _emit( $n->{self}, '  ' );
+            my $s = _emit( $n->{self} );
+            if ( $s eq _mangle_var('$*ERR') ) {  
+                return " print STDERR '', " . _emit( $n->{param} );
+            }
+            return " print '', $s";
         }
         if ( $n->{method}{bareword} eq 'say' ) {
-            return " print '', " . _emit( $n->{self}, '  ' ) . ', "\n"';
+            my $s = _emit( $n->{self} );
+            if ( $s eq _mangle_var('$*ERR') ) { 
+                return " print STDERR '', " . _emit( $n->{param} ) . ', "\n"';
+            }
+            return " print '', $s" . ', "\n"';
         }
         if ( $n->{method}{bareword} eq 'perl' ) {
             return 'Pugs::Runtime::Perl6::perl(' . _emit( $n->{self} ) . ")\n";
@@ -252,7 +272,23 @@ sub statement {
 
     if ( $n->{op1}{stmt} eq 'sub' ) {
         #warn "sub: ",Dumper $n;
-        return  " " . $n->{op1}{stmt} . 
+        
+        #my $attr = join( ', ', 
+        #    map { 
+        #        join( ' => ', map { "'" . _emit($_) . "'" } @$_ )
+        #    } @{$n->{attribute}}
+        #);
+        
+        my $export = '';
+        for my $attr ( @{$n->{attribute}} ) {
+            if ( $attr->[0]{bareword} eq 'is' &&
+                 $attr->[1]{bareword} eq 'export' ) {
+                $export = "push \@EXPORT, '$n->{name}{bareword}';";
+            }
+        }
+
+        return  $export .
+                " " . $n->{op1}{stmt} . 
                 ' ' . $n->{name}{bareword} . 
                 " {\n" . 
                     _emit_parameter_binding( $n->{signature} ) .

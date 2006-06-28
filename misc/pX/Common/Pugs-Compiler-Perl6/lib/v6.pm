@@ -41,7 +41,8 @@ sub pmc_compile {
         "use Pugs::Runtime::Perl6;\n" . 
         "use strict;\n" . 
         "no warnings 'void';\n" .   # t/07-try.t, t/07-ref.t
-        $perl5 . "\n";
+        $perl5 . "\n" .
+        "; 1;\n";
 
     {
       # Perl::Tidy is used if available
