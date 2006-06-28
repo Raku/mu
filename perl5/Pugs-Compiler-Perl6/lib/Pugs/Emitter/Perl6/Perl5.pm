@@ -100,6 +100,8 @@ sub _emit {
             if $n->{fixity} eq 'circumfix';
         return postcircumfix( $n )
             if $n->{fixity} eq 'postcircumfix';
+        return ternary( $n )
+            if $n->{fixity} eq 'ternary';
     }
     
     return statement( $n )
@@ -462,6 +464,9 @@ sub prefix {
             _mangle_var( '$!' ) . ' = $@; ' .
             '@result }';  # /do
     }
+    if ( $n->{op1}{op} eq '~' ) {
+        return ' "" . ' . _emit( $n->{exp1} );
+    }
     if ( $n->{op1}{op} eq '++' ||
          $n->{op1}{op} eq '--' ||
          $n->{op1}{op} eq '+'  ) {
@@ -489,4 +494,17 @@ sub postfix {
     return _not_implemented( $n, "postfix" );
 }
 
+sub ternary {
+    my $n = $_[0];
+    # print "ternary: ", Dumper( $n );
+
+    if ( $n->{op1}{op} eq '??' ||
+         $n->{op2}{op} eq '!!' ) {
+        return _emit( $n->{exp1} ) . 
+            ' ? ' . _emit( $n->{exp2} ) .
+            ' : ' . _emit( $n->{exp3} ) ;
+    }
+
+    return _not_implemented( $n, "ternary" );
+}
 1;
