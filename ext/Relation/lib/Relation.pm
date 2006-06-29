@@ -13,11 +13,6 @@ my Str $EMPTY_STR is readonly = q{};
 ###########################################################################
 ###########################################################################
 
-subset Relation::MainType-0.1.0 of Str where { $^n eq any( 'Scalar', 'Tuple', 'Relation' ) };
-
-###########################################################################
-###########################################################################
-
 role Relation::Heading-0.1.0 {
 
 ###########################################################################
@@ -669,8 +664,8 @@ Relations for Perl 6
 
 This document describes Relation version 0.1.0.
 
-It also describes the same-number versions of Relation::MainType
-("MainType"), Relation::Heading ("Heading") and Relation::Tuple ("Tuple").
+It also describes the same-number versions of Relation::Heading ("Heading")
+and Relation::Tuple ("Tuple").
 
 =head1 SYNOPSIS
 
