@@ -1,0 +1,94 @@
+#!/usr/bin/perl
+use strict;
+package Emit::Perl5;
+use Data::Dumper;
+my $debugging = $ARGV[0];
+use YAML;
+sub emit {
+	my $out = '';
+	while (my ($node,$args) = each %{$_[0]}) {
+		print "$_[1]:emit($node,".Dumper($args).")\n" if $debugging;
+		no strict 'refs';
+		my $resault = $Emit::Perl5::{$node}->($args);
+		print "code($out) .= $resault\n" if $debugging > 2;
+		$out .= $resault;
+	}
+	return $out;
+}
+sub if {
+	my $body = emit($_[0]{block},'if{block}');
+	my $exp = emit($_[0]{exp},'if{exp}');
+	return "if ($exp) {$body}";
+}
+sub num {
+	return $_[0]+0;
+}
+sub scalar {
+	return $_[0];
+}
+sub double_quoted {
+	return $_[0];
+}
+sub while {
+	my $body = emit($_[0]{block});
+	my $exp = emit($_[0]{exp});
+	return "while ($exp) {$body}";
+}
+my $statements=0;
+sub statements {
+	return join ';',map {emit($_,"statement$statements")} @{$_[0]};
+}
+
+our %op1;
+
+$op1{'+'} = sub {
+	my $exp1 = emit($_[0]{exp1},'infix:<+> exp1');
+	my $exp2 = emit($_[0]{exp2},'infix:<+> exp2');
+	return "$exp1 + $exp2";
+};
+$op1{'/'} = sub {
+	my $exp1 = emit($_[0]{exp1});
+	my $exp2 = emit($_[0]{exp2});
+	return "$exp1 / $exp2";
+};
+
+sub expression {
+	$op1{$_[0]{op1}}->($_[0]);
+}
+
+
+
+
+
+#the ast is hand modified to contain an expresion node
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
+
+print q{example 1: if (1) {10+$a/"abc"}},"\n";
+print emit(Load(<<'...'), 'main');
+---
+statements:
+  - if:
+      block:
+        statements:
+          - expression:
+              exp1:
+                  num: 10
+              exp2:
+                expression:
+                  exp1:
+                    scalar: '$a '
+                  exp2:
+                    double_quoted: '"abc"'
+                  op1: /
+              op1: +
+      exp:
+        num: 1
+...
+
+print "\nexample 2:1\n";
+print emit(Load(<<'...'), 'main');
+---
+statements:
+  - num: 1
+...
