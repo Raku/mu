@@ -48,6 +48,7 @@ use base 'Pugs::Grammar::Base';
         my $body = substr($<block>, 1, -1);
         my $mod = $<mod>[0] ? ", { " . join(", ", @{$<mod>}) . " }" : "";
         $body =~ s/\\\\/\\\\\\\\/g;  # duplicate every single backslashes
+        $body =~ s/([\(\)])/\\\\$1/g;  # escape ( and ) as we are in q()
         return "*" . $<rule_name> . " = Pugs::Compiler::Token->compile(q(" .
         $body . ")$mod)->code;"
     }
