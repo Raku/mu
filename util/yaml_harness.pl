@@ -17,7 +17,7 @@ package Test::Harness::YAML;
 use strict;
 
 use Getopt::Long;
-use Best [ [ qw/YAML::Syck YAML/], qw/LoadFile DumpFile/ ];
+use Best 0.05 [ [ qw/YAML::Syck YAML/], qw/LoadFile DumpFile/ ];
 use Test::Harness;
 use Test::TAP::Model;
 use File::Spec;
@@ -40,7 +40,7 @@ $Config{"recurse"} = 1 if not defined $Config{"recurse"};
 $Config{"pugs-path"} = $ENV{HARNESS_PERL};
 push @{$Config{"exclude"}}, 'Disabled' if not $Config{"exclude"} or not @{$Config{"exclude"}};
 if(!@ARGV) {
-    @ARGV = sort map glob, "t/*/*.t", "t/*/*/*.t", "ext/*/t/*.t"
+    @ARGV = sort map glob, "t/var/*.t"
 }
 
 help() if $Config{help};

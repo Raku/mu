@@ -23,7 +23,7 @@ use Regexp::Common qw/balanced delimited/;
 use Pod::Simple::HTML;
 use Pod::PlainText;
 use Tie::RefHash;
-use Best qw/YAML::Syck YAML/;
+use Best 0.05 qw/YAML::Syck YAML/;
 
 
 $| = 1;

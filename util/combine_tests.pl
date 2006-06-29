@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Best [ [qw/YAML::Syck YAML/], qw/Dump LoadFile/ ];
+use Best 0.05 [ [qw/YAML::Syck YAML/], qw/Dump LoadFile/ ];
 #my @data = map { YAML::LoadFile($_) } @ARGV;
 #
 #my $combined = combine_tests(@data);
