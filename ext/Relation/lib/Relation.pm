@@ -13,13 +13,13 @@ my Str $EMPTY_STR is readonly = q{};
 ###########################################################################
 ###########################################################################
 
-subtype Relation::AttrName of Str where { $^n ne $EMPTY_STR };
+subset Relation::AttrName of Str where { $^n ne $EMPTY_STR };
 
-subtype Relation::LaxAttrScalarSubType of Any where {
+subset Relation::LaxAttrScalarSubType of Any where {
     .does(Package) or (.does(Str) and $^n ne $EMPTY_STR)
 };
 
-subtype Relation::LaxPairAttrType of Pair where {
+subset Relation::LaxPairAttrType of Pair where {
     .key.does(Str) and (
         (.key eq 'Scalar' and .value.does(Relation::LaxAttrScalarSubType))
         or (.key eq 'Tuple'|'Relation'
@@ -27,7 +27,7 @@ subtype Relation::LaxPairAttrType of Pair where {
     )
 };
 
-subtype Relation::LaxAttrList of Mapping{Relation::AttrName}
+subset Relation::LaxAttrList of Mapping{Relation::AttrName}
     of Relation::LaxPairAttrType|Relation::LaxAttrScalarSubType;
 
 ###########################################################################
