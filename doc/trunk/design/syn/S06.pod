@@ -2158,6 +2158,15 @@ reversible, so things like syntax highlighters can get back to the
 original language and know which parts of the derived program come
 from which parts of the user's view of the program.
 
+If you call a macro at runtime, the result of the macro is automatically
+evaluated again, so the two calls below prints the same thing:
+
+    macro f { '1 + 1' }
+    say f();    # compile-time call to &f
+    say &f();   # runtime call to &f
+
+=head2 Quasiquoting
+
 In aid of returning syntax tree, Perl provides a "quasiquoting"
 mechanism using the quote C<q:code>, followed by a block intended to
 represent an AST:
