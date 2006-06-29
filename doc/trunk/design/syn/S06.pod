@@ -471,7 +471,7 @@ A method invocant may be specified as the first parameter in the parameter
 list, with a colon (rather than a comma) immediately after it:
 
     method get_name ($self:) {...}
-    method set_name ($me: $newname) {...}
+    method set_name ($_: $newname) {...}
 
 The corresponding argument (the invocant) is evaluated in scalar context
 and is passed as the left operand of the method call operator:

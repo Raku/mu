@@ -153,7 +153,7 @@ are also private by default.
 
 =head1 Methods
 
-Methods are subroutines declared in a class with the C<method> keyword:
+Methods are routines declared in a class with the C<method> keyword:
 
     method doit ($a, $b, $c) { ... }
     method doit ($self: $a, $b, $c) { ... }
@@ -169,6 +169,14 @@ that would probably be a bad thing for proper polymorphism.  You may
 explicitly type the invocant with the lexical type, but any check for
 that will be optimized away.  (The current lexically-determined class
 may always be named as C<::?CLASS> even in anonymous classes or roles.)
+
+To mark an explicit invocant, just put a colon after it:
+
+    method doit ($x: $a, $b, $c) { ... }
+
+This is true also for multi methods:
+
+    multi method doit ($x: $a; $b; $c) { ... }
 
 Private methods are declared using C<my>:
 
@@ -533,7 +541,7 @@ variable of a known type:
 
 For any method name, there may be some number of candidate methods
 that could handle the request: typically, inherited methods or
-multimethod variants.  The ordinary "dot" operator dispatches
+multi variants.  The ordinary "dot" operator dispatches
 to a method in the standard fashion.  There are also "dot" variants
 that call some number of methods with the same name:
 
@@ -555,7 +563,7 @@ The C<WALK> pseudo-class takes these arguments:
     :ascendant      # most-derived first, like destruction order
     :descendant     # least-derived first, like construction order
     :preorder       # like Perl 5 dispatch
-    :breadth        # like multimethod dispatch
+    :breadth        # like multi dispatch
 
     :super              # only immediate parent classes
     :method<name>       # only classes containing method declaration
@@ -622,9 +630,9 @@ with the same short name can come from several different namespaces
 provided their long names differ and their short names aren't hidden
 by a non-multi declaration in some intermediate scope.
 
-When you call a subroutine with a particular short name, if there
-are multiple visible long names, they are all considered candidates.
-They are sorted into an order according to how close the actual types
+When you call a routine with a particular short name, if there are
+multiple visible long names, they are all considered candidates.
+They are sorted into an order according to how close the run-time types
 of the arguments match up with the declared types of the parameters of
 each candidate.  The best candidate is called, unless there's a tie,
 in which case the tied candidates are redispatched using any additional
@@ -636,44 +644,44 @@ are no default routines, or if the available defaults are also tied,
 a final tie-breaking proto sub is called, if there is one (see above).
 Otherwise an exception is thrown.
 
-Ordinarily all the parameters of a multi sub are considered invocants.
-Here's a declaration for an integer range operator with two invocants:
+Ordinarily all the parameters of a multi sub are considered for dispatch.
+Here's a declaration for an integer range operator with two parameters
+in its long name:
 
     multi sub infix:<..>(Int $min, Int $max) {...}
 
-Sometimes you want to have optional parameters that aren't counted
-as part of the long name.  For instance, if you want to allow an
-optional "step" parameter to your range operator, but not count it
-as an invocant, put a colon instead of a comma at the end of the
-invocant list:
+Sometimes you want to have parameters that aren't counted as part of the
+long name.  For instance, if you want to allow an optional "step" parameter
+to your range operator, but not consider it for multi dispatch, then put a
+semicolon instead of a comma before it:
 
-    multi sub infix:<..>(Int $min, Int $max: Int $by = 1) {...}
+    multi sub infix:<..>(Int $min, Int $max; Int $by = 1) {...}
 
-The final colon, if any, determines the complete long name of a multi.
+The final semicolon, if any, determines the complete long name of a multi.
 However, a given multi may advertise multiple long names, some
 of which are shorter than the complete long name.  This is done by
-putting a colon after each advertised long name (replacing the comma,
+putting a semicolon after each advertised long name (replacing the comma,
 if present).  The initial dispatch is always to the shortest advertised
 long name.  Since the shorter long name does not guarantee uniqueness,
 if that shorter long name is chosen for dispatch, and a tie would be
 declared for that dispatch, the next longer set of long names may be
 used to break ties, for those candidates that supply longer names.
-(As a limiting case, marking every parameter as the end of a long
-name produces dispatch semantics like Common Lisp.)
+(As a limiting case, putting a semicolon after every parameter produces
+dispatch semantics like Common Lisp.)
 
 Within a class, C<multi submethod> is visible to both method-dispatch
 and subroutine-dispatch.  A C<multi method> never participates in the
 subroutine-dispatch process.  It is dispatched just like a normal
 method, then the tie-breaking rules of the previous paragraph are applied.
 That is, the shortest long name of a multi method includes I<only> the
-single invocant, and any additional colons may only indicate long names
+single invocant, and any additional semicolons may only indicate long names
 to be used as tiebreakers.
 
 Conjecture: In order to specify dispatch that includes the return
-type context, it is necessary to place a colon after the return type:
+type context, it is necessary to place a semicolon after the return type:
 
-    multi infix:<..>(Int $min, Int $max: Int $by = 1 --> Iterator:) {...}
-    multi infix:<..>(Int $min, Int $max: Int $by = 1 --> Selector:) {...}
+    multi infix:<..>(Int $min, Int $max; Int $by = 1 --> Iterator;) {...}
+    multi infix:<..>(Int $min, Int $max; Int $by = 1 --> Selector;) {...}
 
 Note that such a declaration might have to delay dispatch until the
 actual desired type is known!  (Generally, you might just consider
@@ -826,10 +834,10 @@ Roles may have attributes:
     }
 
 If you want to parameterize the initial value of a role attribute,
-be sure to put a colon if you don't want the parameter to be considered
+be sure to put a semicolon if you don't want the parameter to be considered
 part of the long name:
 
-    role Pet[::ID: $tag] {
+    role Pet[::ID; $tag] {
 	has ID $.collar .= new($tag);
     }
 
@@ -1044,8 +1052,8 @@ more multisubs into a property role like this:
 
     role xxx {
 	has Int $.xxx;
-	multi trait_auxiliary:is(xxx $trait, Class $container: $arg?) {...}
-	multi trait_auxiliary:is(xxx $trait, Any $container: $arg?) {...}
+	multi trait_auxiliary:is(xxx $trait, Class $container; $arg?) {...}
+	multi trait_auxiliary:is(xxx $trait, Any $container; $arg?) {...}
     }
 
 Then it can function as a trait.  A well-behaved trait handler will say
@@ -1057,19 +1065,19 @@ Since a class can function as a role when it comes to parameter type
 matching, you can also say:
 
     class MyBase {
-	multi trait_auxiliary:is(MyBase $base, Class $class: $arg?) {...}
-	multi trait_auxiliary:is(MyBase $tied, Any $container: $arg?) {...}
+	multi trait_auxiliary:is(MyBase $base, Class $class; $arg?) {...}
+	multi trait_auxiliary:is(MyBase $tied, Any $container; $arg?) {...}
     }
 
 These capture control if C<MyBase> wants to capture control of how it gets
 used by any class or container.  But usually you can just let it call
 the generic defaults:
 
-    multi *trait_auxiliary:is(Class $base, Class $class: $arg?) {...}
+    multi *trait_auxiliary:is(Class $base, Class $class; $arg?) {...}
 
 which adds C<$base> to the "isa" list of C<$class>, or
 
-    multi *trait_auxiliary:is(Class $tied, Any $container: $arg?) {...}
+    multi *trait_auxiliary:is(Class $tied, Any $container; $arg?) {...}
 
 which sets the "tie" type of the container to the implementation type
 in C<$tied>.
@@ -1080,7 +1088,7 @@ or "C<should>", or "C<does>".  We call these helping verbs "trait
 auxiliaries". Here's "C<will>", which (being syntactic sugar) merely
 delegates to back to "is":
 
-    multi sub *trait_auxiliary:will($trait, $container: &arg) {
+    multi sub *trait_auxiliary:will($trait, $container; &arg) {
 	trait_auxiliary:is($trait, $container, &arg);
     }
 
@@ -1090,7 +1098,7 @@ is defined something like this:
 
     role returns {
 	has ReturnType $.returns;
-	multi sub trait_verb:returns($container: ReturnType $arg) {
+	multi sub trait_verb:returns($container; ReturnType $arg) {
 	    $container does returns($arg);
 	}
 	...
@@ -1278,8 +1286,8 @@ Subtype constraints are used as tiebreakers in multiple dispatch:
 	print $MESG_LOG: $mesg;
     }
 
-A multimethod with a matching constraint is preferred over an
-equivalent one with no constraint.  So the first C<mesg> above is
+For multi dispatch, a long name with a matching constraint is preferred over
+an equivalent one with no constraint.  So the first C<mesg> above is
 preferred if the constraint matches, and otherwise the second is
 preferred.
 
@@ -1555,7 +1563,7 @@ Unlike in Perl 5 where C<.can> returns a single C<Code> object,
 Perl 6's version of C<.meta.can> returns a "WALK" iterator for a
 set of routines that match the name, including all autoloaded and
 wildcarded possibilities.  In particular, C<.can> interrogates
-any class package's C<CANDO> multimethod for names that are to be considered autoloadable methods
+any class package's C<CANDO> method for names that are to be considered autoloadable methods
 in the class, even if they haven't been declared yet.  Role composition
 sometimes relies on this ability to determine whether a superclass supplies
 a method of a particular name if it's required and hasn't been supplied
