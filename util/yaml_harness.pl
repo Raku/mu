@@ -40,7 +40,7 @@ $Config{"recurse"} = 1 if not defined $Config{"recurse"};
 $Config{"pugs-path"} = $ENV{HARNESS_PERL};
 push @{$Config{"exclude"}}, 'Disabled' if not $Config{"exclude"} or not @{$Config{"exclude"}};
 if(!@ARGV) {
-    @ARGV = sort map glob, "t/var/*.t"
+    @ARGV = sort map glob, "t/*/*.t", "t/*/*/*.t", "ext/*/t/*.t"
 }
 
 help() if $Config{help};
