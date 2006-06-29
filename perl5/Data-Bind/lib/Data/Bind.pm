@@ -32,17 +32,24 @@ sub sig {
     my $class = shift;
     my $now_named = 0;
     my ($named, $positional, $named_slurpy) = ({}, []);
+    my $invocant;
 
     for my $param (@_) {
 	my $db_param = Data::Bind::Param->new
 	    ({ container_var => $param->{var},
-               named_only => $param->{named_only},
-               is_writable => $param->{is_rw},
-               is_slurpy => $param->{is_slurpy},
-	       p5type => substr($param->{var}, 0, 1),
-	       name => substr($param->{var}, 1) });
+               named_only    => $param->{named_only},
+               is_writable   => $param->{is_rw},
+               is_slurpy     => $param->{is_slurpy},
+	       invocant      => $param->{invocant},
+	       p5type        => substr($param->{var}, 0, 1),
+	       name          => substr($param->{var}, 1) });
 
-	if ($param->{named_only}) {
+	if ($param->{invocant}) {
+	    $db_param->is_optional(1)
+		unless $param->{required};
+	    $invocant = $db_param;
+	}
+	elsif ($param->{named_only}) {
 	    if ($db_param->is_slurpy) {
 		$named_slurpy = $db_param;
 		next;
@@ -66,6 +73,7 @@ sub sig {
 
     return Data::Bind::Sig->new
 	({ named => $named, positional => $positional,
+	   invocant => $invocant,
 	   named_slurpy => $named_slurpy });
 }
 
@@ -88,7 +96,8 @@ sub sub_signature {
 sub arg_bind {
     local $Carp::CarpLevel = 1;
     my $cv = _get_cv(caller_cv(1));
-    *$cv->{sig}->bind({ positional => $_[1][0], named => $_[1][1] }, 2);
+    my $invocant  = ref($_[1][0]) && ref($_[1][0]) eq 'ARRAY' ? undef : shift @{$_[1]};
+    *$cv->{sig}->bind({ invocant => $invocant, positional => $_[1][0], named => $_[1][1] }, 2);
 }
 
 =head1 NAME
@@ -144,7 +153,7 @@ See L<http://www.perl.com/perl/misc/Artistic.html>
 
 package Data::Bind::Sig;
 use base 'Class::Accessor::Fast';
-__PACKAGE__->mk_accessors(qw(positional named named_slurpy));
+__PACKAGE__->mk_accessors(qw(positional invocant named named_slurpy));
 use Carp qw(croak);
 use PadWalker qw(peek_my);
 
@@ -155,6 +164,18 @@ sub bind {
 
     my $pad = peek_my($lv);
     my $named_arg = $args->{named};
+
+    if ($self->invocant) {
+	croak 'invocant missing'
+	    if !defined $args->{invocant};
+
+	$self->invocant->bind(\$args->{invocant}, $lv, $pad);
+    }
+    else {
+	croak 'unexpected invocant'
+	    if defined $args->{invocant};
+    }
+
     for my $param_name (keys %{$self->named || {}}) {
 	my $param = $self->named->{$param_name};
 	if (my $current = delete $named_arg->{$param_name}) {

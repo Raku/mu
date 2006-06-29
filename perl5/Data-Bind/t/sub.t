@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use Test::More tests => 7;
+use Test::More tests => 9;
 use Data::Bind;
 use Data::Dumper;
 use Test::Exception;
@@ -55,5 +55,34 @@ throws_ok {
 } qr/extra/;
 
 }
+
+package Something;
+
+# sub db_iformalize($self: $title, :$case, :$justify) {...}
+Data::Bind->sub_signature
+    (\&db_iformalize,
+     { var => '$self', invocant => 1 },
+     { var => '$title' },
+     { var => '$subtitle', optional => 1 },
+     { var => '$case', named_only => 1 },
+     { var => '$justify', named_only => 1, required => 1});
+
+use Scalar::Util qw(blessed);
+
+sub db_iformalize {
+  my ($self, $title, $subtitle, $case, $justify);
+  Data::Bind->arg_bind(\@_);
+  no warnings 'uninitialized';
+  return join(':', $title, $self, $justify);
+}
+
+package main;
+
+throws_ok {
+    Something::db_iformalize([\'this is title'], { justify => \'blah'});
+} qr/invocant missing/;
+
+is(Something->db_iformalize([\'this is title'], { justify => \'blah'}),
+   'this is title:Something:blah');
 
 1;
