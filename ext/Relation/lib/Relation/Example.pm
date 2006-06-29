@@ -20,12 +20,13 @@ class Relation::Example::Heading-0.1.0 {
     # (None Yet)
 
     # Attributes of every Relation::Example::Heading object:
-    # (None Yet)
+    has Hash %!attrs;
 
 ###########################################################################
 
-
-
+submethod BUILD (Hash :%attrs!) {
+    %!attrs = %attrs;
+}
 
 ###########################################################################
 

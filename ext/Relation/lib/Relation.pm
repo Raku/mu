@@ -17,8 +17,49 @@ role Relation::Heading-0.1.0 {
 
 ###########################################################################
 
-
-
+submethod new (Hash :%attrs? = {}) {
+    my %attrs_normalized;
+    for %attrs.pairs -> $attr {
+        my $at_name = $attr.key;
+        die "An %attrs key is not a non-empty Str."
+            if !$at_name.does( Str ) or $at_name eq $EMPTY_STR;
+        my ($at_main_type, $at_sub_type);
+        if ($attr.value.does( Pair )) {
+            ($at_main_type, $at_sub_type) = $attr.value.kv;
+            die "An %attrs value is a Pair whose key is not a"
+                    ~ " Str of value 'Scalar'|'Tuple'|'Relation'."
+                if !$at_main_type( Str )
+                    or $at_main_type ne 'Scalar'|'Tuple'|'Relation';
+            if ($at_main_type eq 'Scalar') {
+                die "An %attrs value is a Pair whose key is a Str of value"
+                        ~ " 'Scalar' but whose value is not a Package|Str"
+                        ~ " or is empty"
+                    if !$at_sub_type.does( Package|Str )
+                        or $at_sub_type eq $EMPTY_STR;
+            }
+            else { # $at_main_type eq 'Tuple'|'Relation'
+                if (!$at_sub_type.does( Relation::Heading )) {
+                    die "An %attrs value is a Pair whose key is a Str of"
+                            ~ " value 'Tuple'|'Relation' but whose value"
+                            ~ " is not a Relation::Heading|Hash"
+                        if !$at_sub_type.does( Hash );
+                    # Convert the details of this attribute's data type
+                    # definition from a Hash to a Relation::Heading.
+                    $at_sub_type = $?CLASS->new( :attrs<$at_sub_type> );
+                }
+            }
+        }
+        else {
+            ($at_main_type, $at_sub_type) = ('Scalar', $attr.value);
+            die "An %attrs value is not a Pair and is not a Package|Str"
+                    ~ " or is empty"
+                if !$at_sub_type.does( Package|Str )
+                    or $at_sub_type eq $EMPTY_STR;
+        }
+        %attrs_normalized{$at_name} = ($at_main_type => $at_sub_type);
+    }
+    return $?CLASS->bless( :attrs<%attrs_normalized> );
+}
 
 ###########################################################################
 
