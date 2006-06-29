@@ -777,7 +777,7 @@ It is, of course, a failure to leave the block by propagating an error
 exception, though returning a defined value after catching an exception
 is okay.
 
-In the absence of exception propagation, a successful exit is one that
+In the absence of error exception propagation, a successful exit is one that
 returns a defined value in scalar context, or any number of values
 in list context as long as the length is defined.  (A length of +Inf
 is considered a defined length.  A length of 0 is also a defined length,

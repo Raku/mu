@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 28 Jun 2006
+  Last Modified: 29 Jun 2006
   Number: 12
-  Version: 17
+  Version: 18
 
 =head1 Overview
 
@@ -661,8 +661,9 @@ The final semicolon, if any, determines the complete long name of a multi.
 However, a given multi may advertise multiple long names, some
 of which are shorter than the complete long name.  This is done by
 putting a semicolon after each advertised long name (replacing the comma,
-if present).  The initial dispatch is always to the shortest advertised
-long name.  Since the shorter long name does not guarantee uniqueness,
+if present).  The initial dispatch starts by pretending that the shortest
+advertised long name is the complete long name (and likewise across the entire
+set of candidates).  Since the shorter long name does not guarantee uniqueness,
 if that shorter long name is chosen for dispatch, and a tie would be
 declared for that dispatch, the next longer set of long names may be
 used to break ties, for those candidates that supply longer names.
