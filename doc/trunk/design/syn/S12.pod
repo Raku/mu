@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 20 Jun 2006
+  Last Modified: 28 Jun 2006
   Number: 12
-  Version: 16
+  Version: 17
 
 =head1 Overview
 
@@ -1295,39 +1295,45 @@ preferred.
 
 An enum is a low-level class that can function as a role or property.
 A given enum value can function as a subtype, a method, or as an ordinary
-value (an argumentless sub).  The values are specified as a list:
+value (an argumentless sub).  The names of the values are specified as a list:
 
-    my enum day ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    my enum day <Sun Mon Tue Wed Thu Fri Sat>;
+    my enum Day ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    my enum Day <Sun Mon Tue Wed Thu Fri Sat>;
 
-The default return type is C<int> or C<str> depending on the type of
-the first value.  The type can be specified:
+If the first value is unspecified, it defaults to 0.  To specify the
+first value, use pair notation (see below).
+
+If the declared type name begins with an uppercase letter, the default
+type is C<Int> or C<Str>, depending on the type of the first value.
+If the declared type is lowercase, the default return type is C<int> or C<buf>.
+
+The type can be specified:
 
     my bit enum maybe <no yes>;
-    my int enum day ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    my enum day of int <Sun Mon Tue Wed Thu Fri Sat>;
-    my enum day returns int <Sun Mon Tue Wed Thu Fri Sat>;
+    my Int enum day ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    my enum day of uint4 <Sun Mon Tue Wed Thu Fri Sat>;
 
 An anonymous enum just makes sure each string turns into a pair with
 sequentially increasing values, so:
 
-    %enum = enum < ook! ook. ook? >;
+    %e = enum < ook! ook. ook? >;
 
 is equivalent to:
 
-    %enum = ();
-    %enum<ook!> = 0;
-    %enum<ook.> = 1;
-    %enum<ook?> = 2;
+    %e = ();
+    %e<ook!> = 0;
+    %e<ook.> = 1;
+    %e<ook?> = 2;
 
 The enum installer inspects list values for pairs, where the value
 of the pair sets the next value explicitly.  Non-pairs C<++> the
-previous value.  Since the C<«...»> quoter automatically recognizes
+previous value.  (Str and buf types increment like Perl 5 strings.)
+Since the C<«...»> quoter automatically recognizes
 pair syntax along with interpolations, we can simply say:
 
     my enum DayOfWeek «:Sun(1) Mon Tue Wed Thu Fri Sat»;
 
-    our str enum Phonetic «:Alpha<A> Bravo Charlie Delta
+    our Str enum Phonetic «:Alpha<A> Bravo Charlie Delta
 			    Echo Foxtrot Golf Hotel India Juliet
 			    Kilo Lima Mike November Oscar Papa
 			    Quebec Romeo Sierra Tango Uniform
