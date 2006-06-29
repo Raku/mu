@@ -9,7 +9,8 @@ Pugs needs Parrot 0.4.5 or above to support Perl 6 Rules and PIR evaluation.
 To install Parrot, follow the instructions at http://www.parrotcode.org/.
 
 http://www.jwcs.net/~jonathan/perl6/ and http://pxperl.com/ both have 
-binary builds for Win32.  If you'd like to build Pugs by hand,
+binary builds for Win32, and http://www.unobe.com/packages/ has binary
+builds for Mac OS X on PowerPC.  If you'd like to build Pugs by hand,
 http://wiki.kn.vutbr.cz/mj/?Perl%206%20and%20Parrot has some instructions.
 
 For dynamic loading/inlining of Haskell modules, you should install the
