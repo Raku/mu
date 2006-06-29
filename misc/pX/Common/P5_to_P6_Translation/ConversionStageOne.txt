@@ -13,11 +13,11 @@ The body of the code will apply the following translations to the input syntax t
 
 First stage translations for Perl5->Perl6
 
--Arrays with indices: $array[i] -> @array[i]
+(DONE)-Arrays with indices: $array[i] -> @array[i]
 
--Hashes with keys: $hash{$key} -> %hash{$key}
+(DONE)-Hashes with keys: $hash{$key} -> %hash{$key}
 
--Hash with constant key: $hash{word} -> %hash<word>
+(DONE)-Hash with constant key: $hash{word} -> %hash<word>
 
 -Hash referenceing multiple keys: @hash{'a','b','c'} -> %hash<a b c>
 
@@ -27,9 +27,9 @@ First stage translations for Perl5->Perl6
 
 -Forced scalar value of array: scalar @foo -> +@foo # or @foo.elems
 
--Conditional return: a ? b : c -> a ?? b !! c
+(DONE)-Conditional return: a ? b : c -> a ?? b !! c
 
--Regular expresion (external considerations): $x =~ s/.../.../g -> $x ~~ s:P5:g/.../.../
+(DONE)-Regular expresion (external considerations): $x =~ s/.../.../g -> $x ~~ s:P5:g/.../.../
 
 -Conditional assignment: $foo = "bar" unless defined $foo -> $foo //= "bar" 
 
