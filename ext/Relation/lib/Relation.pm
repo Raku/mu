@@ -13,52 +13,85 @@ my Str $EMPTY_STR is readonly = q{};
 ###########################################################################
 ###########################################################################
 
+subtype Relation::AttrName of Str where { $^n ne $EMPTY_STR };
+
+subtype Relation::LaxAttrScalarSubType of Any where {
+    .does(Package) or (.does(Str) and $^n ne $EMPTY_STR)
+};
+
+subtype Relation::LaxPairAttrType of Pair where {
+    .key.does(Str) and (
+        (.key eq 'Scalar' and .value.does(Relation::LaxAttrScalarSubType))
+        or (.key eq 'Tuple'|'Relation'
+            and .value.does(Relation::Heading|Relation::LaxAttrList))
+    )
+};
+
+subtype Relation::LaxAttrList of Mapping{Relation::AttrName}
+    of Relation::LaxPairAttrType|Relation::LaxAttrScalarSubType;
+
+###########################################################################
+###########################################################################
+
 role Relation::Heading-0.1.0 {
 
 ###########################################################################
 
-submethod new (Hash :%attrs? = {}) {
-    my %attrs_normalized;
-    for %attrs.pairs -> $attr {
-        my $at_name = $attr.key;
-        die "An %attrs key is not a non-empty Str."
-            if !$at_name.does( Str ) or $at_name eq $EMPTY_STR;
-        my ($at_main_type, $at_sub_type);
-        if ($attr.value.does( Pair )) {
-            ($at_main_type, $at_sub_type) = $attr.value.kv;
-            die "An %attrs value is a Pair whose key is not a"
-                    ~ " Str of value 'Scalar'|'Tuple'|'Relation'."
-                if !$at_main_type( Str )
-                    or $at_main_type ne 'Scalar'|'Tuple'|'Relation';
-            if ($at_main_type eq 'Scalar') {
-                die "An %attrs value is a Pair whose key is a Str of value"
-                        ~ " 'Scalar' but whose value is not a Package|Str"
-                        ~ " or is empty"
-                    if !$at_sub_type.does( Package|Str )
-                        or $at_sub_type eq $EMPTY_STR;
-            }
-            else { # $at_main_type eq 'Tuple'|'Relation'
-                if (!$at_sub_type.does( Relation::Heading )) {
-                    die "An %attrs value is a Pair whose key is a Str of"
-                            ~ " value 'Tuple'|'Relation' but whose value"
-                            ~ " is not a Relation::Heading|Hash"
-                        if !$at_sub_type.does( Hash );
-                    # Convert the details of this attribute's data type
-                    # definition from a Hash to a Relation::Heading.
-                    $at_sub_type = $?CLASS->new( :attrs<$at_sub_type> );
-                }
-            }
+submethod new (Relation::LaxAttrList :%attrs? = {}) {
+    return $?CLASS->bless( attrs =>
+        { %attrs.pairs.map:{ ( .key => 
+            (.value.does(Pair)
+                ?? ( .value.key =>
+                    (.value.value.does(Relation::Heading)
+                        ?? .value.value
+                        !! $?CLASS.new( :attrs<.value.value> )
+                    )
+                )
+                !! ( 'Scalar' => .value )
+            )
+        ) } }
+    );
+}
+
+###########################################################################
+
+proto method export_attrs of Relation::LaxAttrList () {...}
+
+proto method export_attr_names of List of Relation::AttrName () {...}
+
+proto method export_attr_type of Relation::LaxPairAttrType
+    (Relation::AttrName $attr_name) {...}
+
+proto method attr_name_exists of Bool (Relation::AttrName $attr_name) {...}
+
+###########################################################################
+
+method size of Int () {
+    return +$?SELF.export_attr_names();
+}
+
+###########################################################################
+
+method all_names_exist of Bool (Relation::AttrName *@attr_names) {
+    for @attr_names -> $attr_name {
+        if (!$?SELF.attr_name_exists( $attr_name )) {
+            return Bool::false;
         }
-        else {
-            ($at_main_type, $at_sub_type) = ('Scalar', $attr.value);
-            die "An %attrs value is not a Pair and is not a Package|Str"
-                    ~ " or is empty"
-                if !$at_sub_type.does( Package|Str )
-                    or $at_sub_type eq $EMPTY_STR;
-        }
-        %attrs_normalized{$at_name} = ($at_main_type => $at_sub_type);
     }
-    return $?CLASS->bless( :attrs<%attrs_normalized> );
+    return Bool::true;
+}
+
+method any_names_exist of Bool (Relation::AttrName *@attr_names) {
+    for @attr_names -> $attr_name {
+        if ($?SELF.attr_name_exists( $attr_name )) {
+            return Bool::true;
+        }
+    }
+    return Bool::false;
+}
+
+method no_names_exist of Bool (Relation::AttrName *@attr_names) {
+    return !$?SELF.all_exist( *@attr_names );
 }
 
 ###########################################################################
