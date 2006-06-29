@@ -1,12 +1,9 @@
+#!/usr/bin/perl
+
 use strict;
-#use lib '../..', '../../inc';
-#use inc::Module::Install (
-#    -d '../../misc/pX' ? (prefix => '../../inc') : ()
-#);
-use lib '../../../..', '../../../../inc';
-use inc::Module::Install (
-    -d '../../../../misc/pX' ? (prefix => '../../../../inc') : ()
-);
+use warnings;
+use lib '../..', '../../inc';
+use inc::Module::Install prefix => '../../inc';
 use Cwd qw< abs_path cwd >;
 
 my $cwd = cwd();
@@ -42,4 +39,3 @@ config ::
 \t-\$(NOECHO) \$(TOUCH) $pmc
 .
 }
-
