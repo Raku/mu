@@ -50,13 +50,13 @@ ruleParamList wantParens parse = rule "parameter list" $ do
         ParensOptional  -> maybeParensBool
         ParensMandatory -> \x -> do rv <- parens x; return (rv, True)
     invColon = do
-        string ":"
+        ch <- oneOf ":;"
         -- Compare:
         --   sub foo (: $a)   # vs.
         --   sub foo (:$a)
         lookAhead $ (many1 space <|> string ")")
         whiteSpace
-        return ":"
+        return ch
         
 maybeParensBool :: RuleParser a -> RuleParser (a, Bool)
 maybeParensBool p = choice
