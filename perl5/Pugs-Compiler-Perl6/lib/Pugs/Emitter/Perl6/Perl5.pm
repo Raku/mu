@@ -7,6 +7,8 @@ use warnings;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
+our %env;
+
 sub _mangle_ident {
     my $s = shift;
     $s =~ s/ ([^a-zA-Z0-9_:]) / '_'.ord($1).'_' /xge;
@@ -14,7 +16,7 @@ sub _mangle_ident {
 }
 
 sub _mangle_var {
-    my $s = shift;
+    my $s = $_[0];
     #warn "mangle: $s";
     
     # perl6 => perl5 variables
@@ -28,6 +30,28 @@ sub _mangle_var {
     return $s;
 }
 
+sub _var_get {
+    my $s = $_[0];
+    
+    return $env{$s}{get}
+        if exists $env{$s}{get};
+    
+    # default
+    return _mangle_var( $s );
+}
+
+sub _var_set {
+    my $s = $_[0];
+    
+    #warn "emit: set $s - ", Dumper %env;
+    
+    return $env{$s}{set}
+        if exists $env{$s}{set};
+    
+    # default
+    return sub { _mangle_var( $s ) . " = " . _emit( $_[0] ) };
+}
+
 sub _not_implemented {
     my ( $n, $what ) = @_;
     return "die q(not implemented $what: " . Dumper( $n ) . ")";
@@ -36,6 +60,7 @@ sub _not_implemented {
 sub emit {
     
     # <audreyt> %Namespace:: = ();  # clear stash
+    local %env;
     
     my ($grammar, $ast) = @_;
     # runtime parameters: $grammar, $string, $state, $arg_list
@@ -171,6 +196,8 @@ sub default {
             # Moose: package xxx; use Moose;
             # class Point;
             #warn "class: ",Dumper $n;
+            local %env;
+
             my $id;
             $id = exists $n->{param}{cpan_bareword} 
                   ? _mangle_ident( $n->{param}{cpan_bareword} )
@@ -375,6 +402,16 @@ sub infix {
             "\\" . _emit( $n->{exp2} );
     }
 
+    if ( $n->{op1}{op} eq '=' ) {
+        #warn "{'='}: ", Dumper( $n );
+        if ( exists $n->{exp1}{scalar} ) {
+            #warn "set $n->{exp1}{scalar}";
+            return _var_set( $n->{exp1}{scalar} )->( $n->{exp2} );
+        }
+        return _emit( $n->{exp1} ) . 
+            " = " . _emit( $n->{exp2} );
+    }
+
     if ( exists $n->{exp2}{bare_block} ) {
         # $a = { 42 } 
         return " " . _emit( $n->{exp1} ) . ' ' . 
@@ -446,14 +483,28 @@ sub prefix {
             # Moose: has 'xxx';
             # has $x;
             #warn "has: ",Dumper $n;
+            
+            my $name = _emit( $n->{exp1} );
+            #my $name = _emit( $n->{exp1} );
+            $name =~ s/^\$//;  # remove sigil
+            
+            my $raw_name;
+            $raw_name = $n->{exp1}{scalar} if exists $n->{exp1}{scalar};
+            $env{$raw_name}{set} = sub { "\$self->$name(" . _emit($_[0]) . ")" };
+            $env{$raw_name}{get} = "\$self->{'$name'}";
+            # is rw?
+            #warn Dumper @{$n->{attribute}};
+            my $is_rw = grep { $_->[0]{bareword} eq 'is' &&
+                               $_->[1]{bareword} eq 'rw' } @{$n->{attribute}};
+            $env{$raw_name}{set} = sub { "\$self->{'$name'} = " . _emit($_[0]) }
+                if $is_rw;
+            
             my $attr = join( ', ', 
                 map { 
                     join( ' => ', map { "'" . _emit($_) . "'" } @$_ )
                 } @{$n->{attribute}}
             );
 
-            my $name = _emit( $n->{exp1} );
-            $name =~ s/^\$//;  # remove sigil
             return $n->{op1}{op} . " '$name' => ( $attr )";
     }
 
