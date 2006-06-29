@@ -137,23 +137,23 @@ do partial inference on the variants:
 So to make a proto where the multimethods are free to decide what kinds
 of parameters they will take:
 
-    proto foo(Any $invocant: None $param) {...}
+    proto foo(Any $longname; None $param) {...}
 
 And this call will never typecheck (because C<None> never accepts any
 values); however if there is a variant in scope:
 
-    multi foo(Str $invocant: Int $param) {...}
+    multi foo(Str $longname; Int $param) {...}
 
-Then if the compiler can prove that the invocant is a subtype of Str, it
-is guaranteed that the param is a supertype of Int, and it is thus safe
-to pass an Int.
+Then if the compiler can prove that the longname parameter is a subtype
+of Str, it is guaranteed that the param is a supertype of Int, and
+it is thus safe to pass an Int.
 
 We get to infer C<< infix:<=> >> now, but we have to assume the
 existence of a Sink reference that accepts writes but not reads.  Since
 you're assigning, you only need a Sink.
 
-    multi infix:<=> (Sink[Num] $dest: Num $src) {...}
-    multi infix:<=> (Sink[Int] $dest: Int $src) {...}
+    multi infix:<=> (Sink[Num] $dest; Num $src) {...}
+    multi infix:<=> (Sink[Int] $dest; Int $src) {...}
 
 Note that Sink[a] <: Sink[b] exactly when b <: a.  In order for this to
 be well behaved, the following has to be true:

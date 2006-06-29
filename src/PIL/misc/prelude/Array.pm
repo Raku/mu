@@ -13,7 +13,7 @@ class Array is List does rArray;
 # signature from S29draft.pod r8593.
 # XXX Prim.hs has this as (rw!Array).  Why rw?
 # \\n   List      pre     keys    safe   (rw!Array)\
-multi Array::keys   (@array : MatchTest *@indextests --> Int|List )
+multi Array::keys   (@array ; MatchTest *@indextests --> Int|List )
 {
     my @ret;
     for @array.kv -> ($k, $v) {
@@ -23,7 +23,7 @@ multi Array::keys   (@array : MatchTest *@indextests --> Int|List )
 }
 # signature from S29draft.pod r8593.
 # Prim.hs defines this as List::kv.  And with rw!Array.
-multi Array::kv     (@array : MatchTest *@indextests --> Int|List )
+multi Array::kv     (@array ; MatchTest *@indextests --> Int|List )
 {
     my @ret;
     for @array.keys -> $k {
@@ -35,8 +35,8 @@ multi Array::kv     (@array : MatchTest *@indextests --> Int|List )
 # XXX Prim.hs has this as (rw!Array).  Why rw?
 # \\n   List      pre     pairs   safe   (rw!Array)\
 # signature doesnt parse. using simplified one.
-#multi Array::pairs  (@array : MatchTest *@indextests --> Int|(List of Pair) )
-multi Array::pairs  (@array : MatchTest *@indextests )
+#multi Array::pairs  (@array ; MatchTest *@indextests --> Int|(List of Pair) )
+multi Array::pairs  (@array ; MatchTest *@indextests )
 {
     my @ret;
     for @array.keys -> $k {
@@ -47,7 +47,7 @@ multi Array::pairs  (@array : MatchTest *@indextests )
 # signature from S29draft.pod r8593.
 # XXX Prim.hs has this as (rw!Array).  Why rw?
 # \\n   List      pre     values  safe   (rw!Array)\
-multi Array::values (@array : MatchTest *@indextests --> Int|List )
+multi Array::values (@array ; MatchTest *@indextests --> Int|List )
 {
     my @ret;
     for @array.keys -> $k {
@@ -97,7 +97,7 @@ multi Array::pop (  ) {
 }
 
 # copied from S29draft.pod r8593.
-multi Array::push (@array is rw : *@values --> Int ) {
+multi Array::push (@array is rw ; *@values --> Int ) {
     Array::splice(@array, @array.elems, 0, @values);
     @array.elems;
 }
@@ -201,7 +201,7 @@ multi Array::splice (       @array is rw
 
 
 # copied from S29draft.pod r8593.
-multi Array::unshift (@array is rw : *@values --> Int ) {
+multi Array::unshift (@array is rw ; *@values --> Int ) {
     Array::splice(@array, 0, 0, @values);
     @array.elems;
 }
@@ -249,7 +249,7 @@ sub prefix:<[.[]]> (*$head is copy, *@rest is copy) {
 
 
 # signature from S29draft.pod 8651.  In the List section.
-multi Array::grep (@values :      Code *&test   --> Lazy )
+multi Array::grep (@values ;      Code *&test   --> Lazy )
 {
     gather {
 	for @values -> $x {
@@ -258,19 +258,19 @@ multi Array::grep (@values :      Code *&test   --> Lazy )
     }
 }
 # signature from S29draft.pod 8655.  In the List section.
-multi Array::grep (@values :  MatchTest $test   --> Lazy )
+multi Array::grep (@values ;  MatchTest $test   --> Lazy )
 {
     List::grep $test, *@values;
 }
 
 # signature from S29draft.pod 8655.  In the List section.
-multi Array::join (@values :  Str $delimiter --> Str )
+multi Array::join (@values ;  Str $delimiter --> Str )
 {
     List::join $delimiter, *@values;
 }
 
 # signature from S29draft.pod 8655.  In the List section.
-multi Array::map (@values :  Code $expression --> Lazy ) 
+multi Array::map (@values ;  Code $expression --> Lazy ) 
 {
     List::map $expression, *@values;
 }
@@ -278,7 +278,7 @@ multi Array::map (@values :  Code $expression --> Lazy )
 # signature from S29draft.pod 8651.  In the List section.
 # Prim.hs has a different return type.  List instead of Scalar.
 # \\n   List      pre     reduce  safe   (Array: Code)\
-multi Array::reduce (@values : Code *&expression --> Scalar )
+multi Array::reduce (@values ; Code *&expression --> Scalar )
 {
     List::reduce *&expression, *@values;
 }
@@ -291,12 +291,12 @@ multi Array::reverse (   @values --> Lazy|Str) {
 
 # derived from PIL2JS Array.pm r8593.
 # not in S29draft, but test cases exist.
-multi Array::min(@self: Code $cmp = &infix:«<=>» --> Scalar) {
+multi Array::min(@self; Code $cmp = &infix:«<=>» --> Scalar) {
     List::min $cmp, *@self;
 }
 # derived from PIL2JS Array.pm r8593.
 # not in S29draft, but test cases exist.
-multi Array::max(@self: Code $cmp = &infix:«<=>» --> Scalar) {
+multi Array::max(@self; Code $cmp = &infix:«<=>» --> Scalar) {
     List::max $cmp, *@self;
 }
 

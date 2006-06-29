@@ -6,7 +6,7 @@ role List--Perl6;
 # what is below is ripped straight out of S29.  I think most of these
 # actually belong on "Map"
 
- multi sub grep (Any|Junction $test : *@values) returns List {
+ multi sub grep (Any|Junction $test ; *@values) returns List {
    gather {
      for @values -> $x {
        take $x if $x ~~ $test;
@@ -14,7 +14,7 @@ role List--Perl6;
    }
  }
 
- multi sub join (Str $delimiter : *@values) returns List {
+ multi sub join (Str $delimiter ; *@values) returns List {
    my $str = ~@values[0];
    for 1..@values.end {
      $str ~= $delimiter ~ @values[$_];
@@ -23,7 +23,7 @@ role List--Perl6;
  }
  &join<> := &join<Str>.assuming:delimiter(' ');
 
- multi sub map (Code $expression : *@values) returns List {
+ multi sub map (Code $expression ; *@values) returns List {
    gather {
      while @values {
        take $expression
@@ -32,7 +32,7 @@ role List--Perl6;
    }
  }
 
- multi sub reduce (Code $expression : *@values) returns List {
+ multi sub reduce (Code $expression ; *@values) returns List {
    my $res;
    for @values -> $cur {
         FIRST {$res = $cur; next;}
@@ -49,7 +49,7 @@ role List--Perl6;
    %result;
  }
 
- multi sub reverse (: *@values) returns List|Str {
+ multi sub reverse (; *@values) returns List|Str {
    given want {
      when List {
        gather {
@@ -62,8 +62,8 @@ role List--Perl6;
    }
  }
 
- multi sub sort(Criterion @by : *@values) returns List
- multi sub sort(Criterion $by : *@values) returns List
+ multi sub sort(Criterion @by ; *@values) returns List
+ multi sub sort(Criterion $by ; *@values) returns List
  &sort<> := &sort<Criterion>.assuming(by => &infix:<cmp>);
 
  type KeyExtractor ::= Code(Any) returns Any;

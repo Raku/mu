@@ -56,7 +56,7 @@ package Math::Basic {}
  multi int(Num $x = CALLER::<$_> --> Int) { Num::int($x) }
 
 
- multi  Num::exp (  Num  $exponent             : Num :$base --> Num )
+ multi  Num::exp (  Num  $exponent             ; Num :$base --> Num )
  {
      Math::Basic::exp($exponent, $base);
  }
@@ -67,7 +67,7 @@ package Math::Basic {}
  }
 
 
- multi  Num::log (  Num  $x             : Num :$base --> Num )
+ multi  Num::log (  Num  $x             ; Num :$base --> Num )
  {
      Math::Basic::log($x,$base);
  }
@@ -126,7 +126,7 @@ package Math::Trig {}
 
 macro trig_func($func) {
     '
- multi Num::'~$func~' (  Num  $x             : :$base --> Num )
+ multi Num::'~$func~' (  Num  $x             ; :$base --> Num )
  {
      Math::Trig::'~$func~'($x,$base);
  }
@@ -173,7 +173,7 @@ trig_func 'acosech';
 trig_func 'acotanh';
 
 
- multi Math::Trig::atan (Num $y, Num $x : Num :$base --> Num )
+ multi Math::Trig::atan (Num $y, Num $x ; Num :$base --> Num )
  {
      Pugs::Internals::atan2($y,$x);
  }
@@ -190,11 +190,11 @@ multi Math::Unspecced::e ( --> Num ) {
     # http://www.research.att.com/~njas/sequences/A001113
 }
 
- multi method Array::delete (@array : *@indices --> List )
+ multi method Array::delete (@array ; *@indices --> List )
  { ... } # XXX
 
 
- multi method Array::exists (@array : Int *@indices --> Bool )
+ multi method Array::exists (@array ; Int *@indices --> Bool )
  { ... } # XXX
  
 
@@ -205,7 +205,7 @@ multi Math::Unspecced::e ( --> Num ) {
  }
 
 
- multi Array::push (@array is rw : *@values --> Int ) {
+ multi Array::push (@array is rw ; *@values --> Int ) {
    Array::splice(@array, @array.elems, 0, @values);
    @array.elems;
  }
@@ -297,17 +297,17 @@ multi Math::Unspecced::e ( --> Num ) {
 }
 
 
- multi Array::unshift (@array is rw : *@values --> Int ) {
+ multi Array::unshift (@array is rw ; *@values --> Int ) {
    Array::splice(@array, 0, 0, @values);
    @array.elems;
  }
 
 
 # XXX - todo: define these all in terms of kv, and leave kv a stub {...}.
- multi Array::keys   (@array : MatchTest *@indextests --> Int|List )
- multi Array::kv     (@array : MatchTest *@indextests --> Int|List )
- multi Array::pairs  (@array : MatchTest *@indextests --> Int|(List of Pair) )
- multi Array::values (@array : MatchTest *@indextests --> Int|List )
+ multi Array::keys   (@array ; MatchTest *@indextests --> Int|List )
+ multi Array::kv     (@array ; MatchTest *@indextests --> Int|List )
+ multi Array::pairs  (@array ; MatchTest *@indextests --> Int|(List of Pair) )
+ multi Array::values (@array ; MatchTest *@indextests --> Int|List )
 
 Iterates the elements of C<@array>, in order. 
 
@@ -335,9 +335,9 @@ been iterated.
 
 =item grep
 
- multi Array::grep (@values :      Code *&test   --> Lazy )
+ multi Array::grep (@values ;      Code *&test   --> Lazy )
  multi Array::grep (@values,   MatchTest $test   --> Lazy )
- multi  List::grep (MatchTest $test :   *@values --> Lazy ) {
+ multi  List::grep (MatchTest $test ;   *@values --> Lazy ) {
    gather {
      for @values -> $x {
        take $x if $x ~~ $test;
@@ -349,7 +349,7 @@ been iterated.
 =item join
 
  multi Array::join (@values,   Str $delimiter --> Str )
- multi  List::join (Str $delimiter : *@values --> Str ) {
+ multi  List::join (Str $delimiter ; *@values --> Str ) {
    my $str = ~@values[0];
    for 1..@values.end {
      $str ~= $delimiter ~ @values[$_];
@@ -362,7 +362,7 @@ been iterated.
 =item map 
 
  multi Array::map (@values,   Code $expression --> Lazy ) 
- multi  List::map (Code $expression : *@values --> Lazy ) {
+ multi  List::map (Code $expression ; *@values --> Lazy ) {
    gather {
      while @values {
        take $expression
@@ -374,8 +374,8 @@ been iterated.
 
 =item reduce
 
- multi Array::reduce (@values : Code *&expression --> Scalar )
- multi  List::reduce (Code $expression : *@values --> Scalar ) {
+ multi Array::reduce (@values ; Code *&expression --> Scalar )
+ multi  List::reduce (Code $expression ; *@values --> Scalar ) {
    my $res;
    for @values -> $cur {
         FIRST {$res = $cur; next;}
@@ -420,21 +420,21 @@ been iterated.
 
  multi Array::sort(                 @values is rw,
                                               *&by
-                              :           Bit :$inplace
+                              ;           Bit :$inplace
                              --> Array )
 
  multi Array::sort(                 @values is rw,
                                 SortCriterion  @by
-                              :           Bit :$inplace
+                              ;           Bit :$inplace
                              --> Array )
 
  multi Array::sort(                 @values is rw
-                              : SortCriterion :$by = &infix:<cmp>,
+                              ; SortCriterion :$by = &infix:<cmp>,
                                           Bit :$inplace
                              --> Array )
 
  multi  List::sort(  SortCriterion  @by
-                              :               *@values
+                              ;               *@values
                              --> List )
 
  multi  List::sort( SortCriterion  $by = &infix:<cmp>,
@@ -550,10 +550,10 @@ An unary form is expected. See Hash::delete
 
 =item values
 
- multi Hash::keys   (%hash : MatchTest *@keytests --> Int|List )
- multi Hash::kv     (%hash : MatchTest *@keytests --> Int|List )
- multi Hash::pairs  (%hash : MatchTest *@keytests --> Int|(List of Pair) )
- multi Hash::values (%hash : MatchTest *@keytests --> Int|List )
+ multi Hash::keys   (%hash ; MatchTest *@keytests --> Int|List )
+ multi Hash::kv     (%hash ; MatchTest *@keytests --> Int|List )
+ multi Hash::pairs  (%hash ; MatchTest *@keytests --> Int|(List of Pair) )
+ multi Hash::values (%hash ; MatchTest *@keytests --> Int|List )
  
 Iterates the elements of C<%hash> in no apparent order, but the order
 will be the same between successive calls to these functions, as long as
@@ -692,8 +692,8 @@ Needs to be in terms of StrPos, not Int.
 
  multi Str::split (  Str $delimiter ,  Str $input = CALLER::<$_>, Int $limit = inf --> List )
  multi Str::split ( Rule $delimiter ,  Str $input = CALLER::<$_>, Int $limit = inf --> List )
- multi Str::split (      Str $input :  Str $delimiter          , Int $limit = inf --> List )
- multi Str::split (      Str $input : Rule $delimiter          , Int $limit = inf --> List )
+ multi Str::split (      Str $input ;  Str $delimiter          , Int $limit = inf --> List )
+ multi Str::split (      Str $input ; Rule $delimiter          , Int $limit = inf --> List )
  &split<> := &split<Str>.assuming:delimiter(' ');
 
 String delimiters must not be treated as rules but as constants.  The
@@ -701,11 +701,11 @@ default is no longer ' ' since that would be interpreted as a constant.
 
 # sprintf # XXX - see Prelude.pm  And p5's sv.c
 
- multi substr(Str $s, StrPos $start  : StrPos $end,      $replace)
+ multi substr(Str $s, StrPos $start  ; StrPos $end,      $replace)
 { Pugs::Internals::substr($s,undef,$start,undef,$end,$replace) }
- multi substr(Str $s, StrPos $start,   StrLen $length  : $replace)
+ multi substr(Str $s, StrPos $start,   StrLen $length  ; $replace)
 { Pugs::Internals::substr($s,undef,$start,$length,undef,$replace) }
- multi substr(Str $s, StrLen $offset : StrLen $length,   $replace)
+ multi substr(Str $s, StrLen $offset ; StrLen $length,   $replace)
 { Pugs::Internals::substr($s,$offset,undef,$length,undef,$replace) }
 
 
@@ -722,7 +722,7 @@ package Control::Basic {}
 }
 
 
- multi Control::Basic::evalfile (Str $filename : Grammar :$lang = Perl6)
+ multi Control::Basic::evalfile (Str $filename ; Grammar :$lang = Perl6)
 {
     eval(slurp($filename),$lang);
 }

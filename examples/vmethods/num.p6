@@ -6,15 +6,15 @@
 
 use v6;
 
-multi sub zeros ( Int $value: ) {
+multi sub zeros ( Int $value ) {
     return '0' x $value;
 }
 
-multi sub spaces ( Int $value: ) {
+multi sub spaces ( Int $value ) {
     return ' ' x $value;
 }
 
-multi sub fill_with ( Int $value: Int $string ) {
+multi sub fill_with ( Int $value; Int $string ) {
     return substr( $string ~ $value, -$string.chars );
 }
 

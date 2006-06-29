@@ -17,7 +17,7 @@ my $role_works;
 eval_ok 'role cool {
   has $.cool;
 
-  multi sub trait_auxiliary:<is>(cool $trait, Any $container: $val) {
+  multi sub trait_auxiliary:<is>(cool $trait, Any $container; $val) {
     $.cool = $val;
     $container does cool($val);
   }

@@ -1,7 +1,7 @@
 
 
 # copied from S29draft.pod 8651.
-multi  List::grep (MatchTest $test :   *@values --> Lazy ) {
+multi  List::grep (MatchTest $test ;   *@values --> Lazy ) {
     gather {
 	for @values -> $x {
 	    take $x if $x ~~ $test;
@@ -11,7 +11,7 @@ multi  List::grep (MatchTest $test :   *@values --> Lazy ) {
 
 
 # copied from S29draft.pod 8651.
-multi  List::join (Str $delimiter : *@values --> Str ) {
+multi  List::join (Str $delimiter ; *@values --> Str ) {
     my $str = ~@values[0];
     for 1..@values.end {
 	$str ~= $delimiter ~ @values[$_];
@@ -23,7 +23,7 @@ multi  List::join (Str $delimiter : *@values --> Str ) {
 
 
 # copied from S29draft.pod 8651.
-multi  List::map (Code $expression : *@values --> Lazy ) {
+multi  List::map (Code $expression ; *@values --> Lazy ) {
     gather {
 	while @values {
 	    take $expression
@@ -34,7 +34,7 @@ multi  List::map (Code $expression : *@values --> Lazy ) {
 
 
 # copied from S29draft.pod 8651.
-multi  List::reduce (Code $expression : *@values --> Scalar ) {
+multi  List::reduce (Code $expression ; *@values --> Scalar ) {
     my $res;
     for @values -> $cur {
         FIRST {$res = $cur; next;}
@@ -69,24 +69,24 @@ type SortCriterion ::= KeyExtractor
 # signature from S29draft.pod 8651.
  multi Array::sort(                 @values is rw,
                                               *&by
-                              :           Bit :$inplace
+                              ;           Bit :$inplace
                              --> Array )
 {...}
 # signature from S29draft.pod 8651.
  multi Array::sort(                 @values is rw,
                                 SortCriterion  @by
-                              :           Bit :$inplace
+                              ;           Bit :$inplace
                              --> Array )
 {...}
 # signature from S29draft.pod 8651.
  multi Array::sort(                 @values is rw
-                              : SortCriterion :$by = &infix:<cmp>,
+                              ; SortCriterion :$by = &infix:<cmp>,
                                           Bit :$inplace
                              --> Array )
 {...}
 # signature from S29draft.pod 8651.
  multi  List::sort(  SortCriterion  @by
-                              :               *@values
+                              ;               *@values
                              --> List )
 {...}
 # signature from S29draft.pod 8651.

@@ -108,9 +108,9 @@ Multi-dispatch governs cases where multiple subroutines or methods share
 the same name, relying on the arity and types of tie-breaking I<parameters>
 in their parameter list (Signature):
 
-    multi f ($x: $z)             { say 'A' }
-    multi f (Int $x, Int $y: $z) { say 'B' }
-    multi f (Str $x, Str $y: $z) { say 'C' }
+    multi f ($x; $z)             { say 'A' }
+    multi f (Int $x, Int $y; $z) { say 'B' }
+    multi f (Str $x, Str $y; $z) { say 'C' }
 
     f(1, 2);            # goes to A
     f(1, 2, 3);         # goes to B

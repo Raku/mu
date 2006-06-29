@@ -6,23 +6,23 @@
 
 use v6;
 
-multi sub is_even (Int $value:) {
+multi sub is_even (Int $value) {
     $value % 2 == 1;
 }
 
-multi sub is_odd (Int $value:) {
+multi sub is_odd (Int $value) {
     $value % 2 == 0;
 }
 
-multi sub is_factor_of (Int $self: Int $num) {
+multi sub is_factor_of (Int $self; Int $num) {
     $num % $self == 0;
 }
 
-multi sub is_divisible_by (Int $self: Int $num) {
+multi sub is_divisible_by (Int $self; Int $num) {
     $self % $num == 0;
 }
 
-multi sub is_prime(Int $value:) {
+multi sub is_prime(Int $value) {
     ?none(2..sqrt($value)).is_factor_of($value);
 }
 
