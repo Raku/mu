@@ -35,13 +35,17 @@ data AbsType
     | Op_list
     | Op_match
     | Op_method
+    | Op_not
     | Op_null
+    | Op_print
+    | Op_pushmark
     | Op_require
     | Op_rv2av
     | Op_rv2hv
     | Op_rv2sv
     | Op_sassign
     | Op_subst
+    | Op_stringify
     | Package
     | Peg
     | Statement
@@ -77,7 +81,7 @@ one for nodes with kids, one for all other nodes.
 nodeNamer :: Int -> Parser P5AST
 nodeNamer indent = do
     count indent space
-    withKids indent <|> noKids indent
+    withKids indent <|> noKids indent -- <|> hereDoc indent --hereDoc not ready yet
 
 withKids :: Int -> Parser P5AST
 withKids indent = do
@@ -92,6 +96,7 @@ withKids indent = do
         _       -> many . try $ nodeNamer (indent+4)
     let con = case name of
             "condmod"       -> Condmod
+            "condstate"     -> Condstate
             "listelem"      -> Listelem
             "nothing"       -> PNothing
             "op_aassign"    -> Op_aassign
@@ -102,16 +107,24 @@ withKids indent = do
             "op_ftdir"      -> Op_ftdir
             "op_helem"      -> Op_helem
             "op_leave"      -> Op_leave
+            "op_lineseq"    -> Op_lineseq
             "op_list"       -> Op_list
+            "op_match"      -> Op_match
+            "op_method"     -> Op_method
+            "op_not"        -> Op_not
             "op_null"       -> Op_null
+            "op_print"      -> Op_print
+            "op_pushmark"   -> Op_pushmark
             "op_rv2av"      -> Op_rv2av
             "op_rv2hv"      -> Op_rv2hv
             "op_rv2sv"      -> Op_rv2sv
             "op_sassign"    -> Op_sassign
             "op_subst"      -> Op_subst
+            "op_stringify"  -> Op_stringify
             "package"       -> Package
             "peg"           -> Peg
             "statement"     -> Statement
+            "sub"           -> Sub
             "ternary"       -> Ternary
             _               -> UnknownAbs
     return $AbstractNode con kids
@@ -131,6 +144,7 @@ noKids indent = do
     let con = case name of
             "closer"        -> Closer
             "closequote"    -> Closequote
+            "declarator"    -> Declarator
             "junk"          -> Junk
             "opener"        -> Opener
             "openquote"     -> Openquote
@@ -141,7 +155,17 @@ noKids indent = do
             "token"         -> Token
             _               -> UnknownLit 
     return $ LiteralNode con enc uni
-
+{-------- hereDoc not ready yet
+hereDoc :: Int -> Parser P5AST
+hereDoc indent = do
+    try (string "- !perl/P5AST::") <?> "P5AST decleration";
+    name <- manyTill anyChar space
+    newline
+    spaces
+    string "doc: "
+    
+---------}
+    
 {-
 Uniblock handles the various types of yaml blocks used, those being a literal string (i.e. "..." or even just ...)
 A block "|\n ..." or a block with a chomp modifier "|+\n ..."
@@ -190,6 +214,13 @@ For an abstract node, recursivley call printTree on the kids (if there are any).
 All output is to a file
 -}
 printTree :: Handle -> P5AST -> IO ()
+{------------ Uncomment this section to help find Unknown Nodes
+printTree outFile (LiteralNode UnknownLit _ uni) = do{ hPutStr outFile "UnknownLit";
+                                                       hPutStr outFile uni}
+printTree outFile (AbstractNode UnknownAbs kids) = do{ hPutStr outFile "UnknownAbs";
+                                                       printTree outFile (head kids);
+                                                       printTree outFile (AbstractNode P5AST (tail kids))}
+-------------------------------------------------------------}
 printTree outFile (LiteralNode _ _ uni) = hPutStr outFile uni
 printTree outFile (AbstractNode _ []) = hPutStr outFile ""
 printTree outFile (AbstractNode _ kids) = do{ printTree outFile (head kids);
