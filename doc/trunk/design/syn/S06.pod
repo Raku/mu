@@ -226,10 +226,10 @@ C<FETCH> and C<STORE> methods:
 
     sub checklastval ($passwd) is rw {
         return new Proxy:
-                FETCH => sub ($self) {
+                FETCH => method {
                             return lastval();
                          },
-                STORE => sub ($self, $val) {
+                STORE => method ($val) {
                             die unless check($passwd);
                             lastval() = $val;
                          };
