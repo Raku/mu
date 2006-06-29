@@ -39,7 +39,7 @@ localEnv m = do
 ruleParamList :: ParensOption -> RuleParser a -> RuleParser (Maybe [[a]])
 ruleParamList wantParens parse = rule "parameter list" $ do
     (formal, hasParens) <- f $
-        (((try parse) `sepEndBy` ruleComma) `sepEndBy` invColon)
+        (((try parse) `sepEndBy` lexeme (oneOf ",;")) `sepEndBy` invColon)
     case formal of
         [[]]   -> return $ if hasParens then Just [[], []] else Nothing
         [args] -> return $ Just [[], args]
