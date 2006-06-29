@@ -2,7 +2,7 @@ This translator uses an AST produced by Larry Wall's P5 parser. For testing purp
 
 This file describes the AST in more detail, in particular the node types. This is both for other coders and to aid my underdstanding. If you think something's not right, change it or comment (#...) on it.
 
-All node type names start with an upper case character, they are all lowercase in the yaml tree files.
+All node type names start with an upper case character (since they're haskell data types), they are all lowercase in the yaml tree files.
 
 Node Types:
 
@@ -26,11 +26,15 @@ PNothing - This corresponds to the "nothing" node in the yaml file, renamed to a
 
 Op_aassign - Array assignment. Any operation (usually '=') that assigns to an array. Has kids (one of which will usually be operator "=").
 
+Op_aelem - Array element. Has kids (usuallu including '[' and ']').
+
 Op_chdir - Change directory operation. Has kids, one of which is usually operator "chdir."
 
 Op_const - Something that returns a constant, such as quoted strings. Has kids.
 
-Op_entersub - Any operation that enters a sub, obviously 
+Op_cond_expr - Conditional expression. Has kids.
+
+Op_entersub - Any operation that enters a sub, obviously. 
 
 Op_ftdir - Operations on a directory, such as -d. Has kids.
 
@@ -46,7 +50,13 @@ Op_match - Matching using a regex (also includes not matchins, !~). Has kids.
 
 Op_method - Used when a method is called, such as import. Has kids.
 
+Op_not - The not operator (!). Has kids (the things being not-ed).
+
 Op_null - Used to denote a null op. Does nothing, but represents an actual non operation, as opposed to Junk which just represents useless info. Has kids (which are usually []).
+
+Op_print - Print operations. Has kids. 
+
+Op_pushmark - 
 
 Op_require - A require operation (such as "require blah"). Has kids.
 
@@ -64,6 +74,8 @@ Opener - All openers for groupings, such as (, {, or any other openers. Has enc 
 
 Openquote - ', ", or anything else that opens a quote (including s/, for regexs). Has enc and uni.
 
+Operator - Any operator, such as the math operators (+-*/ etc) equality operators, pattern match operators, logic operators, etc. 
+
 Package - Decleration of a package (i.e. "Package Whateva"). Kids usually include the package operator, often also ends up holding the junk (comments) associated with describing the package.
 
 Peg - The use of this node is a bit unclear, but it appears to be an end token. Has kids.
@@ -75,6 +87,8 @@ Sigil - Anything that carries a sigil. $, %, or @ plus the name that follows (su
 Statement - Any statement, that is some combination of operations followed by a ';'. Has (lots of) kids.
 
 Sub - The kids of this node make up a subroutine. Has kids.
+
+Ternary - Ternary operations. Has kids.
 
 Text - Literal text. Has enc and uni.
 
