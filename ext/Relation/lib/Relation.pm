@@ -15,6 +15,18 @@ my Str $EMPTY_STR is readonly = q{};
 
 subset Relation::AttrName of Str where { $^n ne $EMPTY_STR };
 
+subset Relation::AttrNameList of Set{Relation::AttrName};
+
+subset Relation::AttrType of Pair where {
+    .key.does(Str) and (
+        (.key eq 'Scalar' and .value.does(Package))
+        or (.key eq 'Tuple'|'Relation' and .value.does(Relation::Heading))
+    )
+};
+
+subset Relation::AttrList of Mapping{Relation::AttrName}
+    of Relation::AttrType;
+
 subset Relation::LaxAttrScalarSubType of Any where {
     .does(Package) or (.does(Str) and $^n ne $EMPTY_STR)
 };
@@ -38,8 +50,8 @@ role Relation::Heading-0.1.0 {
 ###########################################################################
 
 submethod new (Relation::LaxAttrList :%attrs? = {}) {
-    return $?CLASS->bless( attrs =>
-        { %attrs.pairs.map:{ ( .key => 
+    return $?CLASS.bless( attrs =>
+        { all(%attrs.pairs).map:{ ( .key => 
             (.value.does(Pair)
                 ?? ( .value.key =>
                     (.value.value.does(Relation::Heading)
@@ -55,14 +67,15 @@ submethod new (Relation::LaxAttrList :%attrs? = {}) {
 
 ###########################################################################
 
-proto method export_attrs of Relation::LaxAttrList () {...}
+proto method export_attrs of Relation::AttrList () {...}
 
-proto method export_attr_names of List of Relation::AttrName () {...}
+proto method export_attr_names of Relation::AttrNameList () {...}
 
-proto method export_attr_type of Relation::LaxPairAttrType
-    (Relation::AttrName $attr_name) {...}
+proto method export_attr_type of Relation::AttrType
+    (Relation::AttrName $attr_name!) {...}
 
-proto method attr_name_exists of Bool (Relation::AttrName $attr_name) {...}
+proto method attr_name_exists of Bool
+    (Relation::AttrName $attr_name!) {...}
 
 ###########################################################################
 
@@ -73,25 +86,35 @@ method size of Int () {
 ###########################################################################
 
 method all_names_exist of Bool (Relation::AttrName *@attr_names) {
-    for @attr_names -> $attr_name {
+    for all(@attr_names) -> $attr_name {
         if (!$?SELF.attr_name_exists( $attr_name )) {
-            return Bool::false;
+            return Bool::False;
         }
     }
-    return Bool::true;
+    return Bool::True;
 }
 
 method any_names_exist of Bool (Relation::AttrName *@attr_names) {
-    for @attr_names -> $attr_name {
+    for all(@attr_names) -> $attr_name {
         if ($?SELF.attr_name_exists( $attr_name )) {
-            return Bool::true;
+            return Bool::True;
         }
     }
-    return Bool::false;
+    return Bool::False;
 }
 
 method no_names_exist of Bool (Relation::AttrName *@attr_names) {
     return !$?SELF.all_exist( *@attr_names );
+}
+
+###########################################################################
+
+method equal of Bool (Relation::Heading $other!) {
+    return $?SELF.export_attrs() === $other.export_attrs();
+}        
+
+method not_equal of Bool (Relation::Heading $other!) {
+    return !$?SELF.equal( $other );
 }
 
 ###########################################################################

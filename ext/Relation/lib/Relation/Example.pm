@@ -20,30 +20,30 @@ class Relation::Example::Heading-0.1.0 {
     # (None Yet)
 
     # Attributes of every Relation::Example::Heading object:
-    has Mapping %!attrs;
+    has Relation::AttrList %!attrs;
 
 ###########################################################################
 
-submethod BUILD (Mapping :%attrs!) {
+submethod BUILD (Relation::AttrList :%attrs!) {
     %!attrs = %attrs;
 }
 
 ###########################################################################
 
-method export_attrs of Relation::LaxAttrList () {
+method export_attrs of Relation::AttrList () {
     return %!attrs;
 }
 
-method export_attr_names of List of Relation::AttrName () {
-    return %!attrs.keys;
+method export_attr_names of Relation::AttrNameList () {
+    return all(%!attrs.keys);
 }
 
-method export_attr_type of Relation::LaxPairAttrType
-        (Relation::AttrName $attr_name) {
+method export_attr_type of Relation::AttrType
+        (Relation::AttrName $attr_name!) {
     return %!attrs{$attr_name};
 }
 
-method attr_name_exists of Bool (Relation::AttrName $attr_name) {
+method attr_name_exists of Bool (Relation::AttrName $attr_name!) {
     return %!attrs.exists($attr_name);
 }
 
