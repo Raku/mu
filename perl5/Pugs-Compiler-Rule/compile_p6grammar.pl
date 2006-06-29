@@ -62,7 +62,7 @@ use base 'Pugs::Grammar::Base';
     }
 ))->code;
 *grammar = Pugs::Compiler::Rule->compile(q( <'grammar'> <grammar_name> \;[ [<rule>|<token>|<regex>]]* {
-        return "package $<grammar_name>\n" .
+        return "package $<grammar_name>;\n" .
             "use Pugs::Compiler::Rule;\n" .
             "use Pugs::Compiler::Token;\n" .
             "use Pugs::Compiler::Regex;\n" .
