@@ -30,7 +30,8 @@ $| = 1;
 $ENV{TEST_ALWAYS_CALLER} = 1;
 
 GetOptions \our %Config, qw(--output-file|o=s --dry|n --concurrent|j=i
-        --shuffle|s --recurse|r --ext=s@ --anonymous|a --exclude|X=s@);
+        --shuffle|s --recurse|r --include=s@ --anonymous|a --exclude|X=s@
+        --help|h);
 fixup_concurrency();
 $Test::Harness::Verbose  = 1;
 $Config{"output-file"} ||= "tests.yml";
@@ -42,7 +43,9 @@ if(!@ARGV) {
     @ARGV = sort map glob, "t/*/*.t", "t/*/*/*.t", "ext/*/t/*.t"
 }
 
-_build_ext_re();
+help() if $Config{help};
+
+_build_include_re();
 _build_exclude_re();
 
 my $s = __PACKAGE__->new;
@@ -78,7 +81,7 @@ sub all_in {
             if ( -d $currfile ) {
                 push( @hits, all_in( $currfile ) ) if $Config{recurse};
             } else {
-                push( @hits, $currfile ) if $currfile =~ $Config{ext_regex};
+                push( @hits, $currfile ) if $currfile =~ $Config{include_re};
             }
         }
     } else {
@@ -128,12 +131,12 @@ sub _build_exclude_re {
     $Config{exclude_re} = qr/($excl)/ if $excl;
 }
 
-sub _build_ext_re {
-    my @ext = map { split /,/ } @{ $Config{ext} };
-    s/^\.// foreach @ext;
-    @ext = ("t") unless @ext;
-    my $ext_regex = join( "|", map { quotemeta } @ext );
-    $Config{ext_regex} = qr/\.($ext_regex)$/;
+sub _build_include_re {
+    my @include = map { split /,/ } @{ $Config{include} };
+    s/^\.// for @include;
+    @include = ("t") unless @include;
+    my $include_re = join( "|", map { quotemeta } @include );
+    $Config{include_re} = qr/\.($include_re)$/;
 }
 
 sub _init {
@@ -257,4 +260,21 @@ sub run_test {
         $self->SUPER::run_test($test, @rest);
     } );
     warn "    ".timestr($t)."\n";
+}
+
+sub help {
+    print <<".";
+$0 - run tests and store results in YAML
+
+Usage: $0 [OPTIONS]
+    --output-file=FILE, -o  Store results in FILE [default: $Config{"output-file"}]
+    --dry, -n               Show which tests would be run but don't run them
+    --concurrent=N, -j      Run N test jobs concurrently (unavailable on MSWin)
+    --shuffle, -s           Run tests in random order
+    --recurse, -r           Recurse into directories on test include list
+    --incude=I1,[I2,...]    Include files
+    --exclude=E1,[E2,...]   Exclude files
+    --anonymous, -a         Do not include ~/.smoker.yml data in report
+.
+    exit 0;
 }
