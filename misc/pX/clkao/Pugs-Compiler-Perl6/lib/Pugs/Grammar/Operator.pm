@@ -28,7 +28,7 @@ attr:
         #empty  
         { $_[0]->{out}= { attribute => [] } }
     |   BAREWORD  BAREWORD  attr
-        { $_[0]->{out}= { 
+        { $_[0]->{out}= {
             attribute => [ 
                 [$_[1], $_[2],],
                 @{$_[3]{attribute}}, 
@@ -51,7 +51,7 @@ signature_term:
     |   ':' signature_term
         { $_[0]->{out}= { named_only => 1, %{$_[2]} } }
     |   '*' signature_term
-        { $_[0]->{out}= { splat => 1, %{$_[2]} } }
+        { $_[0]->{out}= { is_slurpy => 1, %{$_[2]} } }
     |   signature_term '?'
         { $_[0]->{out}= { optional => 1, %{$_[1]} } }
         
@@ -66,18 +66,29 @@ signature_term:
     ;
 
 signature:
-        #empty  
-        { $_[0]->{out}= { signature => [] } }
-    |   signature_term 
-        { $_[0]->{out}= { signature => [ $_[1] ] } }
-    |   signature ',' signature
-        { $_[0]->{out}= { 
-            signature => [ 
-                @{$_[1]{signature}}, 
-                @{$_[3]{signature}}, 
-            ], 
-        } }
+        invocant parameter
+        { $_[0]->{out}= {
+            signature => {
+              invocant => $_[1],
+              parameter => $_[2],
+        } } }
     ;
+
+invocant:
+        #empty
+        { $_[0]->{out}= undef }
+    |   signature_term ':'
+        { $_[0]->{out}= $_[1] }
+    ;
+
+parameter:
+         #empty
+         { $_[0]->{out}= [] }
+     |   signature_term
+         { $_[0]->{out}= [ $_[1] ] }
+     |   parameter ',' parameter
+         { $_[0]->{out}= [ @{$_[1]}, @{$_[3]} ] }
+     ;
 
 stmt:  
       IF exp block 

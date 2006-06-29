@@ -126,13 +126,38 @@ sub assoc_list {
     return _not_implemented( $n->{op1}, "list-op" );
 }
 
+sub _emit_parameter_signature {
+    my $n = $_[0];
+#     { var => '$self', invocant => 1 },
+#     { var => '$title' },
+#     { var => '$subtitle', optional => 1 },
+#     { var => '$case', named_only => 1 },
+#     { var => '$justify', named_only => 1, required => 1});
+
+    my @params = @{$n->{parameter}};
+    unshift @params, $n->{invocant} if $n->{invocant};
+    return join(",\n         ", map {_emit_data_bind_param_spec($_) } @params);
+
+
+}
+
+sub _emit_data_bind_param_spec {
+    my %param = %{$_[0]};
+    # XXX: translate other attributes
+    $param{var} = delete $param{scalar};
+    my $dumped = Dumper(\%param);
+    $dumped =~ s/^\$VAR1 = //g;
+    $dumped =~ s/\n//mg;
+    return $dumped;
+}
+
 sub _emit_parameter_binding {
     my $n = $_[0];
-    
+    my $parameters = 
     # no parameters
     return ''
-        if  ! defined $n ||
-            @$n == 0;
+        if ! defined $n ||
+            (@{$n->{parameter}} == 0 && !$n->{invocant});
     
     #warn "parameter list: ",Dumper $n;
 
@@ -142,13 +167,17 @@ sub _emit_parameter_binding {
     #    'type' => {             Str $v
     #      'bareword' => 'Str',
     #    }
-    #    'splat' => 1,           *$v
+    #    'is_slurpy' => 1,           *$v
     #    'attribute' => \@attr   $v is rw
 
+    my @params = @{$n->{parameter}};
+#    warn Dumper(\@params);
+    unshift @params, $n->{invocant} if $n->{invocant};
     my $param = join( ',' , 
-        map { _emit( $_ ) } @$n
+        map { _emit( $_ ) } @params
     );
-    return "my ($param) = \@_;\n";
+    return "  my ($param);\n".
+           "  Data::Bind->arg_bind(\\\@_)\n";
 }
 
 sub default {
@@ -288,7 +317,7 @@ sub statement {
     }
 
     if ( $n->{op1}{stmt} eq 'sub' ) {
-        #warn "sub: ",Dumper $n;
+        warn "sub: ",Dumper $n;
 
         my $name = _mangle_ident( $n->{name}{bareword} );
 
@@ -306,7 +335,10 @@ sub statement {
                 " {\n" . 
                     _emit_parameter_binding( $n->{signature} ) .
                     _emit( $n->{block} ) . 
-                "\n }";
+                "\n }\n" .
+                "## Signature for $name\n" .
+                " Data::Bind->sub_signature\n".
+                " (\\&$name, ". _emit_parameter_signature ( $n->{signature} ) . ");\n";
     }
 
     if ( $n->{op1}{stmt} eq 'method' ) {
