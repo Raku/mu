@@ -69,12 +69,12 @@ signature_term:
             ], %{$_[1]} } }
     ;
 
-signature:
+signature_no_invocant:
         #empty  
         { $_[0]->{out}= { signature => [] } }
     |   signature_term 
         { $_[0]->{out}= { signature => [ $_[1] ] } }
-    |   signature ',' signature
+    |   signature_no_invocant ',' signature_no_invocant
         { $_[0]->{out}= { 
             signature => [ 
                 @{$_[1]{signature}}, 
@@ -83,6 +83,18 @@ signature:
         } }
     ;
 
+signature:
+        signature_term ':' 
+        { $_[0]->{out}= { invocant => $_[1] } }
+    |   signature_term ':' signature_no_invocant
+        { $_[0]->{out}= { 
+            invocant => $_[1],
+            %{$_[3]},
+        } }
+    |   signature_no_invocant
+        { $_[0]->{out}= $_[1] }
+    ;
+    
 stmt:  
       IF exp block 
         { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[3] } }
