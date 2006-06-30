@@ -93,6 +93,8 @@ op0 "return" = const $ op1Return (shiftT . const $ retEmpty)
 op0 "yield" = const $ op1Yield (shiftT . const $ retEmpty)
 op0 "take" = const $ retEmpty
 op0 "nothing" = const . return $ VBool True
+op0 "Pugs::Safe::safe_getc" = const . op1Getc $ VHandle stdin
+op0 "Pugs::Safe::safe_readline" = const . op1Readline $ VHandle stdin
 op0 other = const $ fail ("Unimplemented listOp: " ++ other)
 
 -- |Implementation of unary primitive operators and functions
@@ -535,41 +537,9 @@ op1 "values" = valuesFromVal
 op1 "="        = \v -> case v of
     VObject _   -> evalExp $ App (Var "&shift") (Just $ Val v) []
     _           -> op1 "readline" v
-op1 "readline" = \v -> op1Read v getLines getLine
-    where
-    getLines :: VHandle -> Eval Val
-    getLines fh = do
-        line <- getLine fh
-        if defined $! line
-            then do
-                VList rest <- getLines fh
-                return (rest `seq` VList (line:rest))
-            else return $! VList $! []
-    getLine :: VHandle -> Eval Val
-    getLine fh = guardIOexcept [(isEOFError, undef)] $ do
-        line <- hGetLine fh
-        return $! VStr $! decodeUTF8 $! length line `seq` line
-op1 "getc"     = \v -> op1Read v (getChar) (getChar)
-    where
-    getChar :: VHandle -> Eval Val
-    getChar fh = guardIOexcept [(isEOFError, undef)] $ do
-        char <- hGetChar fh
-        str  <- getChar' fh char
-        return $ VStr $ decodeUTF8 str
-    -- We may have to read more than one byte, as one utf-8 char can span
-    -- multiple bytes.
-    getChar' :: VHandle -> Char -> IO String
-    getChar' fh char
-        | ord char < 0x80 = return [char]
-        | ord char < 0xE0 = readNmore 1
-        | ord char < 0xEE = readNmore 2
-        | ord char < 0xF5 = readNmore 3
-        | otherwise       = fail "Invalid utf-8 read by getc()"
-        where
-        readNmore :: Int -> IO String
-        readNmore n = do
-            new <- sequence $ replicate n (hGetChar fh)
-            return $ char:new
+op1 "readline" = op1Readline
+
+op1 "getc"     = op1Getc
 
 op1 "ref"   = fmap VType . evalValType
 op1 "List::pop"   = \x -> join $ doArray x array_pop -- monadic join
@@ -751,6 +721,48 @@ op1StrFirst f = op1Cast $ VStr .
         []      -> []
         (c:cs)  -> (f c:cs)
 
+-- op1Readline and op1Getc are precisely the implementation of op1 "readline"
+-- and op1 "getc", but those may be hidden in safe mode. We still want to use
+-- the functionality with the safe variants, hence these functions.
+op1Readline :: Val -> Eval Val
+op1Readline = \v -> op1Read v getLines getLine
+    where
+    getLines :: VHandle -> Eval Val
+    getLines fh = do
+        line <- getLine fh
+        if defined $! line
+            then do
+                VList rest <- getLines fh
+                return (rest `seq` VList (line:rest))
+            else return $! VList $! []
+    getLine :: VHandle -> Eval Val
+    getLine fh = guardIOexcept [(isEOFError, undef)] $ do
+        line <- hGetLine fh
+        return $! VStr $! decodeUTF8 $! length line `seq` line
+
+op1Getc :: Val -> Eval Val
+op1Getc = \v -> op1Read v (getChar) (getChar)
+    where
+    getChar :: VHandle -> Eval Val
+    getChar fh = guardIOexcept [(isEOFError, undef)] $ do
+        char <- hGetChar fh
+        str  <- getChar' fh char
+        return $ VStr $ decodeUTF8 str
+    -- We may have to read more than one byte, as one utf-8 char can span
+    -- multiple bytes.
+    getChar' :: VHandle -> Char -> IO String
+    getChar' fh char
+        | ord char < 0x80 = return [char]
+        | ord char < 0xE0 = readNmore 1
+        | ord char < 0xEE = readNmore 2
+        | ord char < 0xF5 = readNmore 3
+        | otherwise       = fail "Invalid utf-8 read by getc()"
+        where
+        readNmore :: Int -> IO String
+        readNmore n = do
+            new <- sequence $ replicate n (hGetChar fh)
+            return $ char:new
+
 {-|
 Read a char or a line from a handle.
 -}
@@ -760,13 +772,13 @@ op1Read :: Val                   -- ^ The handle to read from (packed in a 'Val'
         -> Eval Val              -- ^ The return value (a list of strings or a
                                  --   string, packed in a 'Val')
 op1Read v fList fScalar = do
-    -- XXX: primOp doesn't filter this prim, dunno why.
-    if safeMode then fail "Can't use readline() or getc() in safemode." else do
     fh  <- handleOf v
     ifListContext
         (fList fh)
         (fScalar fh)
     where
+    handleOf x | safeMode, (VHandle h) <- x, h /= stdin = fail "Evil handle detected"
+    handleOf x | safeMode = return stdin
     handleOf VUndef = handleOf (VList [])
     handleOf (VList []) = do
         argsGV  <- readVar "$*ARGS"
@@ -1574,6 +1586,8 @@ initSyms = mapM primDecl syms
 \\n   Str       pre     readline unsafe (?IO)\
 \\n   List      pre     readline unsafe (?IO)\
 \\n   Str       pre     getc     unsafe (?IO)\
+\\n   Str       pre     Pugs::Safe::safe_getc      safe ()\
+\\n   Str       pre     Pugs::Safe::safe_readline  safe ()\
 \\n   Int       pre     int     safe   (Int)\
 \\n   List      pre     list    safe   (List)\
 \\n   Hash      pre     hash    safe   (List)\
