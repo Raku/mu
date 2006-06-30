@@ -39,6 +39,7 @@ data AbsType
     | Op_null
     | Op_print
     | Op_pushmark
+    | Op_readline
     | Op_require
     | Op_rv2av
     | Op_rv2hv
@@ -115,6 +116,8 @@ withKids indent = do
             "op_null"       -> Op_null
             "op_print"      -> Op_print
             "op_pushmark"   -> Op_pushmark
+            "op_readline"   -> Op_readline
+            "op_require"    -> Op_require
             "op_rv2av"      -> Op_rv2av
             "op_rv2hv"      -> Op_rv2hv
             "op_rv2sv"      -> Op_rv2sv
@@ -228,7 +231,16 @@ printTree outFile (AbstractNode _ kids) = do{ printTree outFile (head kids);
 
 --Wrapper function to apply all translations in order
 translate :: P5AST -> P5AST
-translate tree = (conditionalExpression (arrayKey (hashKey (regexSubstitutionTranslation tree))))
+translate tree = (readlineTranslate (conditionalExpression (arrayKey (hashKey (regexSubstitutionTranslation tree)))))
+
+readlineTranslate :: P5AST -> P5AST
+readlineTranslate (AbstractNode Op_readline kids) = (AbstractNode Op_readline [(LiteralNode Sigil "1" ('$':(tail (reverse (tail (reverse (extractUni (head kids)))))))), (LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "readline")])])])
+readlineTranslate (AbstractNode atype kids) = (AbstractNode atype (map readlineTranslate kids))
+readlineTranslate (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+extractUni :: P5AST -> String
+extractUni (LiteralNode _ _ uni) = uni
+extractUni (AbstractNode _ _) = "" 
 
 {-Translations for substitution regexs.-}
 regexSubstitutionTranslation :: P5AST -> P5AST
