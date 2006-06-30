@@ -3,17 +3,11 @@ use v6-pugs;
 use lib './t', '.';
 use moose1;
 
-say '1..1';
-say '1 ok # use Moose';
+say '1..2';
+say 'ok 1 # use Moose';
 
-=begin
-use v6-pugs;
-class Point;
+my $p = Point.new;
+$p.x(10);
 
-has $.x is rw;  # instance attributes
-has $.y;        # default "is readonly" 
-method clear () {
-    $.x = 0;  # accessible within the class
-    $.y = 0;
-}
-=end
+$p.x != 10 and print 'not ';
+say 'ok 2 # set x'; 
