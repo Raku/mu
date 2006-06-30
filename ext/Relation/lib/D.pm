@@ -13,37 +13,178 @@ my Str $EMPTY_STR is readonly = q{};
 ###########################################################################
 ###########################################################################
 
-subset Relation::AttrName of Str where { $^n ne $EMPTY_STR };
-
-subset Relation::AttrNameList of Set{Relation::AttrName};
-
-subset Relation::AttrType of Pair where {
-    .key.does(Str) and (
-        (.key eq 'Scalar' and .value.does(Package))
-        or (.key eq 'Tuple'|'Relation' and .value.does(Relation::Heading))
-    )
-};
-
-subset Relation::AttrList of Mapping{Relation::AttrName}
-    of Relation::AttrType;
-
-subset Relation::LaxAttrScalarSubType of Any where {
-    .does(Package) or (.does(Str) and $^n ne $EMPTY_STR)
-};
-
-subset Relation::LaxPairAttrType of Pair where {
-    .key.does(Str) and (
-        (.key eq 'Scalar' and .value.does(Relation::LaxAttrScalarSubType))
-        or (.key eq 'Tuple'|'Relation'
-            and .value.does(Relation::Heading|Relation::LaxAttrList))
-    )
-};
-
-subset Relation::LaxAttrList of Mapping{Relation::AttrName}
-    of Relation::LaxPairAttrType|Relation::LaxAttrScalarSubType;
+package D-0.1.0 {
+    # Note: This given version applies to all of this file's packages.
+} # package D
 
 ###########################################################################
 ###########################################################################
+
+subset D::AttrName of Str where {
+    D::Util::Str_looks_like_AttrName( $^n )
+};
+
+subset D::AttrNameList of Set where {
+    D::Util::Set_looks_like_AttrNameList( $^n )
+};
+
+subset D::AttrType of Pair where {
+    D::Util::Pair_looks_like_AttrType( $^n )
+};
+
+subset D::Heading of Mapping where {
+    D::Util::Mapping_looks_like_Heading( $^n )
+};
+
+subset D::TupleBody of Mapping where {
+    D::Util::Mapping_looks_like_TupleBody( $^n )
+};
+
+subset D::Tuple of Pair where {
+    D::Util::Pair_looks_like_Tuple( $^n )
+};
+
+subset D::RelationBody of Set where {
+    D::Util::Set_looks_like_RelationBody( $^n )
+};
+
+subset D::Relation of Pair where {
+    D::Util::Pair_looks_like_Relation( $^n )
+};
+
+###########################################################################
+###########################################################################
+
+module D::Util {
+
+###########################################################################
+
+sub Str_looks_like_AttrName of Bool (Str $subject!) {
+    return $subject ne $EMPTY_STR;
+}
+
+###########################################################################
+
+sub Set_looks_like_AttrNameList of Bool (Set $subject!) {
+    return all($subject.members).does(D::AttrName);
+}
+
+###########################################################################
+
+sub Pair_looks_like_AttrType of Bool (Pair $subject!) {
+    my ($major_type, $minor_type) = $subject.kv;
+    if (!$major_type.does(Str)) {
+        return Bool::False;
+    }
+    return $major_type eq 'Scalar'   ?? $minor_type.does(Package)
+        !! $major_type eq 'Tuple'    ?? $minor_type.does(D::Heading)
+        !! $major_type eq 'Relation' ?? $minor_type.does(D::Heading)
+        !!                              Bool::False
+        ;
+}
+
+###########################################################################
+
+sub Mapping_looks_like_Heading of Bool (Mapping $subject!) {
+    for all($subject.pairs).kv -> $attr_name, $attr_type {
+        if (!$attr_name.does(D::AttrName)
+                or !$attr_type.does(D::AttrType)) {
+            return Bool::False;
+        }
+    }
+    return Bool::True;
+}
+
+###########################################################################
+
+sub Mapping_looks_like_TupleBody of Bool (Mapping $subject!) {
+    for all($subject.keys) -> $attr_name {
+        if (!$attr_name.does(D::AttrName)) {
+            return Bool::False;
+        }
+    }
+    return Bool::True;
+}
+
+###########################################################################
+
+sub Pair_looks_like_Tuple of Bool (Pair $subject!) {
+    my ($heading, $body) = $subject.kv;
+    if (!$heading.does(D::Heading) or !$body.does(D::TupleBody)) {
+        return Bool::False;
+    }
+    return D::Util::TupleBody_valid_for_Heading( $heading, $body );
+}
+
+sub TupleBody_valid_for_Heading of Bool
+        (D::Heading $heading!, D::TupleBody $body!) {
+    if (!(all($heading.keys) === all($body.keys))) {
+        return Bool::False;
+    }
+    for all($heading.pairs).kv -> $attr_name, $attr_type {
+        my ($major_type, $minor_type) = $attr_type.kv;
+        my $attr_value = $body{$attr_name};
+        if ($major_type eq 'Scalar') {
+            if (!$attr_value.does($minor_type)) {
+                return Bool::False;
+            }
+        }
+        elsif ($major_type eq 'Tuple') {
+            if (!$attr_value.does(D::TupleBody)) {
+                return Bool::False;
+            }
+            if (!D::Util::TupleBody_valid_for_Heading(
+                    $minor_type, $attr_value )) {
+                return Bool::False;
+            }
+        }
+        elsif ($major_type eq 'Relation') {
+            if (!$attr_value.does(D::RelationBody)) {
+                return Bool::False;
+            }
+            if (!D::Util::RelationBody_valid_for_Heading(
+                    $minor_type, $attr_value )) {
+                return Bool::False;
+            }
+        }
+    }
+    return Bool::True;
+}
+
+###########################################################################
+
+sub Set_looks_like_RelationBody of Bool (Set $subject!) {
+    for all($subject.members) -> $tuple_body {
+        if (!$tuple_body.does(D::TupleBody)) {
+            return Bool::False;
+        }
+    }
+    return Bool::True;
+}
+
+###########################################################################
+
+sub Pair_looks_like_Relation of Bool (Pair $subject!) {
+    my ($heading, $body) = $subject.kv;
+    if (!$heading.does(D::Heading) or !$body.does(D::RelationBody)) {
+        return Bool::False;
+    }
+    for all($body.members) -> $tuple_body {
+        if (!D::Util::TupleBody_valid_for_Heading(
+                $heading, $tuple_body )) {
+            return Bool::False;
+        }
+    }
+    return Bool::True;
+}
+
+###########################################################################
+
+} # module D::Util
+
+###########################################################################
+###########################################################################
+=x
 
 role Relation::Heading-0.1.0 {
 
@@ -754,23 +895,22 @@ my method _inner_join (Relation $other!) returns Relation {
 
 =head1 NAME
 
-Relation -
+D -
 Relations for Perl 6
 
 =head1 VERSION
 
-This document describes Relation version 0.1.0.
-
-It also describes the same-number versions of Relation::Heading ("Heading")
-and Relation::Tuple ("Tuple").
+This document describes D version 0.1.0.
 
 =head1 SYNOPSIS
 
-    use Relation;
+    use D;
 
 I<This documentation is pending.>
 
 =head1 DESCRIPTION
+
+I<TODO: REWRITE THE FOLLOWING.>
 
 This library provides a partial implementation, in the form of several
 roles, for a Relation data type that corresponds to the "relation" of logic
