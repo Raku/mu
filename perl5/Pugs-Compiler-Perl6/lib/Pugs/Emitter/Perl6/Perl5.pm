@@ -31,10 +31,21 @@ sub _mangle_var {
 }
 
 sub _var_get {
-    my $s = $_[0];
+    my $n = $_[0];
     
+    if ( ! exists $n->{scalar} ) {
+        if ( exists $n->{bare_block} ) {
+            # TODO - check if it is a comma-delimited list
+            return ' sub ' . _emit( $n );
+        }
+        return _emit( $n );
+    }
+
+    my $s = $n->{scalar};
+
     return $env{$s}{get}
-        if exists $env{$s}{get};
+        if exists $env{$s} &&
+           exists $env{$s}{get};
     
     # default
     return "\$self->{'" . substr($s,2) . "'}"
@@ -51,7 +62,7 @@ sub _var_set {
         if exists $env{$s}{set};
     
     # default
-    return sub { _mangle_var( $s ) . " = " . _emit( $_[0] ) };
+    return sub { _mangle_var( $s ) . " = " . $_[0] };
 }
 
 sub _not_implemented {
@@ -97,7 +108,7 @@ sub _emit {
     return $n->{num} 
         if exists $n->{num};
         
-    return _var_get( $n->{scalar} )
+    return _var_get( $n )
         if exists $n->{scalar};
         
     return _mangle_var( $n->{array} )
@@ -452,7 +463,7 @@ sub infix {
         #warn "{'='}: ", Dumper( $n );
         if ( exists $n->{exp1}{scalar} ) {
             #warn "set $n->{exp1}{scalar}";
-            return _var_set( $n->{exp1}{scalar} )->( $n->{exp2} );
+            return _var_set( $n->{exp1}{scalar} )->( _var_get( $n->{exp2} ) );
         }
         if ( exists $n->{exp1}{op1}  &&
              $n->{exp1}{op1}{op} eq 'has' ) {
@@ -466,7 +477,7 @@ sub infix {
             return _emit( $n->{exp1} );
         }
         return _emit( $n->{exp1} ) . 
-            " = " . _emit( $n->{exp2} );
+            " = " . _var_get( $n->{exp2} );
     }
 
     if ( $n->{op1}{op} eq '+=' ) {
@@ -474,12 +485,14 @@ sub infix {
         if ( exists $n->{exp1}{scalar} ) {
             #warn "set $n->{exp1}{scalar}";
             return _var_set( $n->{exp1}{scalar} )->( 
-                {
+                _emit(
+                  {
                     fixity => 'infix',
                     op1 => { op => '+' },
                     exp1 => $n->{exp1},
                     exp2 => $n->{exp2},
-                }
+                  }
+                )
             );
         }
         return _emit( $n->{exp1} ) . 
@@ -575,14 +588,14 @@ sub prefix {
             my $raw_name;
             $raw_name = $n->{exp1}{scalar} if exists $n->{exp1}{scalar};
             $env{$raw_name}{set} = sub { 
-                "\$self->" . substr($raw_name,2) . "(" . _emit($_[0]) . ")" 
+                "\$self->" . substr($raw_name,2) . "(" . $_[0] . ")" 
             };
             # is rw?
             #warn Dumper @{$n->{attribute}};
             my $is_rw = grep { $_->[0]{bareword} eq 'is' &&
                                $_->[1]{bareword} eq 'rw' } @{$n->{attribute}};
             $env{$raw_name}{set} = sub { 
-                "\$self->{'" . substr($raw_name,2) . "'} = " . _emit($_[0]) 
+                "\$self->{'" . substr($raw_name,2) . "'} = " . $_[0] 
             }
                 if $is_rw;
             
