@@ -309,6 +309,12 @@ sub default {
         }
         
         if ( exists $n->{self}{scalar} ) {
+            # $.scalar.method(@param)
+            return " " . _emit( $n->{self} ) . '->' .
+                _emit( $n->{method} ) .
+                '(' . _emit( $n->{param} ) . ')'
+                if $n->{self}{scalar} =~ /^\$\./;
+            
             # $scalar.++;
             return 
                 " Pugs::Runtime::Perl6::Scalar::" . _emit( $n->{method}, '  ' ) . 
@@ -331,7 +337,7 @@ sub default {
         
         return " " . _mangle_ident( $n->{sub}{bareword} ) .
             '(' .
-            join ( ";\n", 
+            join ( ";\n",   # XXX
                 map { _emit( $_ ) } @{$n->{param}} 
             ) .
             ')';
@@ -506,8 +512,18 @@ sub circumfix {
 
 sub postcircumfix {
     my $n = $_[0];
-    #print "postcircumfix: ", Dumper( $n );
+    #warn "postcircumfix: ", Dumper( $n );
     
+    if ( $n->{op1}{op} eq '(' &&
+         $n->{op2}{op} eq ')' ) {
+        # warn "postcircumfix:<( )> ", Dumper( $n );
+        # $.scalar(@param)
+        return " " . _emit( $n->{exp1} ) . 
+            '->(' . _emit( $n->{exp2} ) . ')'
+            if exists $n->{exp1}{scalar} &&
+               $n->{exp1}{scalar} =~ /^\$\./;
+    }
+            
     if ( $n->{op1}{op} eq '[' &&
          $n->{op2}{op} eq ']' ) {
 

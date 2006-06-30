@@ -147,12 +147,12 @@ exp:
         { $_[0]->{out}= { op1 => 'call', sub => $_[1], param => $_[3], } }
     | BAREWORD exp   %prec P003
         { $_[0]->{out}= { op1 => 'call', sub => $_[1], param => $_[2], } }
-    | exp '.' BAREWORD    %prec P003
-        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[3], } }
     | exp '.' BAREWORD '(' exp ')'  %prec P003
         { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[3], param => $_[5], } }
     | exp '.' BAREWORD exp   %prec P003
         { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[3], param => $_[4], } }
+    | exp '.' BAREWORD    %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[3], } }
         
 
     | MY NUM attr 
