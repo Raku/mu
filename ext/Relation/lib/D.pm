@@ -116,6 +116,29 @@ sub Pair_looks_like_Tuple of Bool (Pair $subject!) {
     return D::Util::TupleBody_valid_for_Heading( $heading, $body );
 }
 
+###########################################################################
+
+sub Set_looks_like_RelationBody of Bool (Set $subject!) {
+    for all($subject.members) -> $tuple_body {
+        if (!$tuple_body.does(D::TupleBody)) {
+            return Bool::False;
+        }
+    }
+    return Bool::True;
+}
+
+###########################################################################
+
+sub Pair_looks_like_Relation of Bool (Pair $subject!) {
+    my ($heading, $body) = $subject.kv;
+    if (!$heading.does(D::Heading) or !$body.does(D::RelationBody)) {
+        return Bool::False;
+    }
+    return D::Util::RelationBody_valid_for_Heading( $heading, $body );
+}
+
+###########################################################################
+
 sub TupleBody_valid_for_Heading of Bool
         (D::Heading $heading!, D::TupleBody $body!) {
     if (!(all($heading.keys) === all($body.keys))) {
@@ -153,22 +176,8 @@ sub TupleBody_valid_for_Heading of Bool
 
 ###########################################################################
 
-sub Set_looks_like_RelationBody of Bool (Set $subject!) {
-    for all($subject.members) -> $tuple_body {
-        if (!$tuple_body.does(D::TupleBody)) {
-            return Bool::False;
-        }
-    }
-    return Bool::True;
-}
-
-###########################################################################
-
-sub Pair_looks_like_Relation of Bool (Pair $subject!) {
-    my ($heading, $body) = $subject.kv;
-    if (!$heading.does(D::Heading) or !$body.does(D::RelationBody)) {
-        return Bool::False;
-    }
+sub RelationBody_valid_for_Heading of Bool
+        (D::Heading $heading!, D::RelationBody $body!) {
     for all($body.members) -> $tuple_body {
         if (!D::Util::TupleBody_valid_for_Heading(
                 $heading, $tuple_body )) {
