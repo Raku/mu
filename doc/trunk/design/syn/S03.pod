@@ -949,6 +949,8 @@ and code declarators:
     submethod foo
     multi foo
     proto foo
+    macro foo
+    quote qX
     regex foo
     rule foo
     token foo

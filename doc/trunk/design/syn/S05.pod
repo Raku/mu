@@ -16,7 +16,7 @@ Allison Randal <al@shadowed.net>
    Date: 24 Jun 2002
    Last Modified: 30 June 2006
    Number: 5
-   Version: 26
+   Version: 27
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> because they haven't been
@@ -557,7 +557,8 @@ is matched as if it were an alternation of its elements:
 As with a scalar variable, each element is matched as a literal
 unless it happens to be a C<Regex> object, in which case it is matched
 as a subrule.  As with scalar subrules, a tainted subrule always fails.
-All values pay attention to the current C<:ignorecase> setting.
+All string values pay attention to the current C<:ignorecase> setting,
+while C<Regex> values use their own C<:ignorecase> settings.
 
 =item *
 
@@ -611,11 +612,15 @@ C<:ignorecase> setting.  (Subrules maintain their own case settings.)
 
 =head1 Extensible metasyntax (C<< <...> >>)
 
+Both C<< < >> and C<< > >> are metacharacters, and are usually (but not
+always) used in matched pairs.  (Some combinations of metacharacters
+function as standalone tokens, and these may include angles.  These are
+describe below.)
+
+For matched pairs, the first character after C<< < >> determines the
+behavior of the assertion:
+
 =over
-
-=item *
-
-The first character after C<< < >> determines the behavior of the assertion.
 
 =item *
 
@@ -799,27 +804,6 @@ The C<do> block is unlikely to run unless the string ends with "C<bar>".
 
 =item *
 
-A leading C<(> indicates the start of a result capture:
-
-    / foo <( \d+ )> bar /
-
-is equivalent to:
-
-    / <after foo> \d+ <before bar> /
-
-except that the scan for "C<foo>" can be done in the forward direction,
-while a lookbehind assertion would presumably scan for C<\d+> and then
-match "C<foo>" backwards.  The use of C<< <(...)> >> affects only the
-meaning of the I<result object> and the positions of the beginning and
-ending of the match.  That is, after the match above, C<$()> contains
-only the digits matched, and C<.pos> is pointing to after the digits.
-Other captures (named or numbered) are unaffected and may be accessed
-through C<$/>.
-
-It is a syntax error to use an unbalanced C<< <( >> or C<< )> >>.
-
-=item *
-
 A leading C<[> or C<+> indicates an enumerated character class.  Ranges
 in enumerated character classes are indicated with C<..>.
 
@@ -858,6 +842,24 @@ A leading C<"> indicates a literal match after interpolation:
 
 =item *
 
+In general, any general quoting form such as C<q> or C<qq> will be
+recognized as if it had curlies around it.  This includes quotes
+declared with the C<quote> declarator:
+
+    quote qX = q:x:c;
+    /<qX[cat -n {$foo}]>/
+
+same as
+
+    /<{ qX[cat -n {$foo}] }>/
+
+This hides any qX rule that might be defined in the gramma.  Note that
+this means that the language parser has to pass the current list
+of quote forms into the regex parser since it needs to be known at
+compile time.
+
+=item *
+
 The special assertion C<< <.> >> matches any logical grapheme
 (including a Unicode combining character sequences):
 
@@ -876,13 +878,43 @@ A leading C<!> indicates a negated meaning (always a zero-width assertion):
 Note that C<< <!alpha> >> is different from C<< <-alpha> >> because the
 latter matches C</./> when it is not an alpha.
 
+=back
+
+The following tokens include angles but are not required to balance:
+
+=over
+
 =item *
 
-Conjecture: Multiple opening angles are matched by a corresponding
-number of closing angles, and otherwise function as single angles.
-This can be used to visually isolate unmatched angles inside:
+A C<< <( >> token indicates the start of a result capture, while the
+corresponding C<< )> >> token indicates its endpoint.  When matched,
+these behave as assertions that are always true, but have the side
+effect of setting the C<.from> and C<.to> attributes of the match
+object.  That is:
 
-    <<<Ccode: a >> 1>>>
+    / foo <( \d+ )> bar /
+
+is equivalent to:
+
+    / <after foo> \d+ <before bar> /
+
+except that the scan for "C<foo>" can be done in the forward direction,
+while a lookbehind assertion would presumably scan for C<\d+> and then
+match "C<foo>" backwards.  The use of C<< <(...)> >> affects only the
+meaning of the I<result object> and the positions of the beginning and
+ending of the match.  That is, after the match above, C<$()> contains
+only the digits matched, and C<.pos> is pointing to after the digits.
+Other captures (named or numbered) are unaffected and may be accessed
+through C<$/>.
+
+=item *
+
+A C<«> or C<<< << >>> token indicates a left word boundary.  A C<»> or
+C<<< >> >>> token indicates a right word boundary.  (As separate tokens,
+these need not be balanced.)  Perl 5's C<\b> is replaced by a C<< <?wb> >>
+"word boundary" assertion, while C<\B> becomes C<< <!wb> >>.  (None of
+these are dependent on the definition of C<< <ws> >>, but only on the C<\s>
+definition of whitespace.)
 
 =back
 
