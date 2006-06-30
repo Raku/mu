@@ -889,7 +889,6 @@ to include:
     my $foo		# ordinary lexically scoped variable
     our $foo		# lexically scoped alias to package variable
     has $foo		# object attribute
-    env $foo		# environmental lexical
     state $foo		# persistent lexical (cloned with closures)
     constant $foo	# lexically scoped compile-time constant
 

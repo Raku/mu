@@ -1991,7 +1991,7 @@ the temporizing scope to restore the subroutine to its pre-C<temp> state:
 Hypothetical variables use the same mechanism, except that the restoring
 closure is called only on failure.
 
-Note that "env" variables may be a better solution than temporized
+Note that contextual variables may be a better solution than temporized
 globals in the face of multithreading.
 
 =head2 Wrapping
@@ -2348,13 +2348,13 @@ namespace.  Or maybe it's the other way around...
 
 C<< CALLER::<$varname> >> specifies the C<$varname> visible in
 the dynamic scope from which the current block/closure/subroutine
-was called, provided that variable is declared with the "C<env>"
-declarator.  (Implicit lexicals such as C<$_> are automatically
-assumed to be environmental.)
+was called, provided that variable is declared with the "C<is context>"
+trait.  (Implicit lexicals such as C<$_> are automatically
+assumed to be contextual.)
 
-C<< ENV::<$varname> >> specifies the C<$varname> visible in the
-innermost dynamic scope that declares the variable with the "C<env>"
-declarator.
+C<< CONTEXT::<$varname> >> specifies the C<$varname> visible in the
+innermost dynamic scope that declares the variable with the "C<is context>"
+trait.
 
 C<< MY::<$varname> >> specifies the lexical C<$varname> declared in the current
 lexical scope.

@@ -570,7 +570,7 @@ is subject to:
     $.foo       object attribute accessor
     $^foo       self-declared formal parameter
     $*foo       global variable
-    $+foo       environmental variable
+    $+foo       contextual variable
     $?foo       compiler hint variable
     $=foo       pod variable
     $<foo>      match variable, short for $/{'foo'}
@@ -578,9 +578,7 @@ is subject to:
 
 Most variables with twigils are implicitly declared or assumed to
 be declared in some other scope, and don't need a "my" or "our".
-Attribute variables are declared with C<has>, though, and environment
-variables are declared somewhere in the dynamic scope with the C<env>
-declarator.
+Attribute variables are declared with C<has>, though.
 
 =item *
 
@@ -839,7 +837,7 @@ The following pseudo-package names are reserved in the first position:
     GLOBAL
     OUTER
     CALLER
-    ENV
+    CONTEXT
     SUPER
     COMPILING
 
@@ -960,43 +958,48 @@ by reference, to add symbols to a lexical scope that is done compiling.
 The C<CALLER> package refers to the lexical scope of the (dynamically
 scoped) caller.  The caller's lexical scope is allowed to hide any
 variable except C<$_> from you.  In fact, that's the default, and a
-lexical variable must be declared using "C<env>" rather than C<my> to be
+lexical variable must have the trait "C<is context>" to be
 visible via C<CALLER>.  (C<$_>, C<$!> and C<$/> are always
-environmental.) If the variable is not visible in the caller, it returns
+contextual.) If the variable is not visible in the caller, it returns
 failure.
 
-An explicit C<env> declaration is implicitly readonly.  You may add
-C<is rw> to allow subroutines from modifying your value.  C<$_> is
-C<rw> by default.  In any event, your lexical scope can access the
-variable as if it were an ordinary C<my>; the restriction on writing
-applies only to subroutines.
+Any lexical declared with the C<is context> trait is by default
+considered readonly outside the current lexical scope.  You may add
+C<is rw> to allow called routines to modify your value.  C<$_>,
+C<$!> and C<$/> are C<rw> by default.  In any event, your lexical
+scope can always access the variable as if it were an ordinary C<my>;
+the restriction on writing applies only to called subroutines.
 
 =item *
 
-The C<ENV> pseudo-package is just like C<CALLER> except that it scans
-outward through all dynamic scopes until it finds an environmental
-variable of that name in that caller's lexical scope.  (Use of C<$+FOO>
-is equivalent to ENV::<$FOO> or $ENV::FOO.)  If after scanning all
-the lexical scopes of each dynamic scope, there is no variable of
-that name, it looks in the C<*> package.  If there is no variable in
-the C<*> package, it looks in C<%*ENV> for the name, that is, in the
-environment variables passed to program.  If the value is not found
-there, it returns failure.  Note that C<$+_> is always the same as
-CALLER::<$_> since all callers have a C<$_> that is automatically
-considered environmental.  Note also that C<ENV> and C<$+> always
-skip the current scope, since you can always name the variable
-directly without the C<ENV> or C<+> if it's been declared C<env>
-in the current lexical scope.
+The C<CONTEXT> pseudo-package is just like C<CALLER> except that
+it scans outward through all dynamic scopes until it finds a
+contextual variable of that name in that caller's lexical scope.
+(Use of C<$+FOO> is equivalent to CONTEXT::<$FOO> or $CONTEXT::FOO.)
+If after scanning all the lexical scopes of each dynamic scope,
+there is no variable of that name, it looks in the C<*> package.
+If there is no variable in the C<*> package and the variable is
+a scalar, it then looks in C<%*ENV> for the identifier of the variable,
+that is, in the environment variables passed to program.  If the
+value is not found there, it returns failure.  Note that C<$+_> is
+always the same as CALLER::<$_> since all callers have a C<$_> that
+is automatically considered environmental.  Note also that C<CONTEXT>
+and C<$+> always skip the current scope, since you can always name
+the variable directly without the C<CONTEXT> or C<+> if it's been
+declared in the current lexical scope.
 
-Subprocesses are passed only the global C<%*ENV> values.  They do not
-see any lexical variables or their values.  The C<ENV> package is only
-for internal overriding of environmental parameters.  Change C<%*ENV>
-to change what subprocesses see.  [Conjecture: This might be suboptimal
-in the abstract, but it would be difficult to track the current set of
-environment variable names unless we actually passed around a list.
-The alternative seems to be to walk the entire dynamic scope and
-reconstruct %*ENV for each subprogram call, and then we only slow
-down subprogram calls.]
+The C<CONTEXT> package is only for internal overriding of contextual
+information, modelled on how environmental variables work among
+processes.  Despite the fact that the C<CONTEXT> package reflects the
+current process's environment variables, at least where those are not
+hidden by lower-level declarations, the C<CONTEXT> package should not
+be considered isomorphic to the current set of environment variables.
+Subprocesses are passed only the global C<%*ENV> values.  They do
+not see any lexical variables or their values, unless you copy those
+values into C<%*ENV> to change what subprocesses see:
+
+    temp %*ENV{LANG} = $+LANG;		# may be modifed by parent
+    system "greet";
 
 =item *
 

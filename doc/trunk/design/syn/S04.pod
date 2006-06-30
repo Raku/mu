@@ -529,7 +529,7 @@ C<$!> to mark the exception as I<handled>, and acts as a harmless C<Undef>
 value thereafter.  Any other use of the C<Failure> will throw its associated
 exception immediately.
 
-Because the C<env> variable C<$!> contains all exceptions collected in the
+Because the contextual variable C<$!> contains all exceptions collected in the
 current lexical scope, saying C<die $!> will throw all exceptions,
 whether they were handled or not.  A bare C<die>/C<fail> takes C<$!> as the
 default argument.

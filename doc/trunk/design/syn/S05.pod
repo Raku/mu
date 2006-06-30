@@ -1340,7 +1340,7 @@ case matching the null string:
 =item *
 
 A match always returns a Match object, which is also available
-as C<$/>, which is an environmental lexical declared in the outer
+as C<$/>, which is a contextual lexical declared in the outer
 subroutine that is calling the regex.  (A closure lexically embedded
 in a regex does not redeclare C<$/>, so C<$/> always refers to the
 current match, not any prior submatch done within the closure).
