@@ -14,7 +14,6 @@ token speaker { [\w|\s]+ }
 module Main;
 
 use v6-pugs;
-use yapc_schedule;
 
 my $content = slurp @*ARGS[0];
 
