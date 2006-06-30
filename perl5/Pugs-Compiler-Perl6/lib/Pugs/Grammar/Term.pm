@@ -25,7 +25,7 @@ sub pair {
             pair => { key => { single_quoted => $1 }, value => { single_quoted => $2 } } 
         },
     } )
-        if $_[0] =~ /^([_\w]+):<(.*?)>(.*)$/s;
+        if $_[0] =~ /^:([_\w]+)<(.*?)>(.*)$/s;
     return $class->no_match;
 };
 
