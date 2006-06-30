@@ -37,6 +37,8 @@ sub _var_get {
         if exists $env{$s}{get};
     
     # default
+    return "\$self->{'" . substr($s,2) . "'}"
+        if substr($s,1,1) eq '.';
     return _mangle_var( $s );
 }
 
@@ -541,13 +543,16 @@ sub prefix {
             
             my $raw_name;
             $raw_name = $n->{exp1}{scalar} if exists $n->{exp1}{scalar};
-            $env{$raw_name}{set} = sub { "\$self->$name(" . _emit($_[0]) . ")" };
-            $env{$raw_name}{get} = "\$self->{'$name'}";
+            $env{$raw_name}{set} = sub { 
+                "\$self->" . substr($raw_name,2) . "(" . _emit($_[0]) . ")" 
+            };
             # is rw?
             #warn Dumper @{$n->{attribute}};
             my $is_rw = grep { $_->[0]{bareword} eq 'is' &&
                                $_->[1]{bareword} eq 'rw' } @{$n->{attribute}};
-            $env{$raw_name}{set} = sub { "\$self->{'$name'} = " . _emit($_[0]) }
+            $env{$raw_name}{set} = sub { 
+                "\$self->{'" . substr($raw_name,2) . "'} = " . _emit($_[0]) 
+            }
                 if $is_rw;
             
             my $attr = join( ', ', 
@@ -556,7 +561,7 @@ sub prefix {
                 } @{$n->{attribute}}
             );
 
-            return $n->{op1}{op} . " '$name' => ( $attr )";
+            return $n->{op1}{op} . " '" . substr($raw_name,2) . "' => ( $attr )";
     }
 
     if ( $n->{op1}{op} eq 'try' ) {
