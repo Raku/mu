@@ -54,46 +54,77 @@ data Param = MkParam
     , paramTypes        :: [Type]       -- Static pieces of inferencer-food
     , paramConstraints  :: [Code]       -- Dynamic pieces of runtime-mood
     , paramUnpacking    :: Maybe Signature
+    , paramDefault      :: Maybe Expression
+    , paramLabel        :: Identifier
     }
 
-type Label = Str -- where /^ <alpha+[_]> \w* $/
+data Variable
+    = VarLexical
+        { varName     :: Identifier
+        , callerCount :: Int
+        , outerCount  :: Int
+        }
+    | VarDynamic
+        { varName     :: Identifier
+        , packageName :: [Identifier]
+        }
+    | VarMagick Magick
 
-data PositionalParam a where
-    MkPositionalParam
-        { paramLabel    :: Label
-        , paramParam    :: Param
-        } :: PositionalParam Required
-    MkPositionalOptionalParam
-        { paramLabel    :: Label
-        , paramParam    :: Param
-        , paramDefault  :: Expression
-        } :: PositionalParam Optional
+data Expression
+    = ExpVariable Variable
+    | ExpValue    Value
+    | ExpBind
+    | ExpAssign
+    | ExpCall
+    | ExpApply
+    -- The Army Of Decompile {-
+    | ExpCond
+    | ExpGoto
+    | ExpCall
+    | ExpWhile
+    | ExpBlahBlahBlah
+    | ExpDeref
+    -- -}
+    --
+--if 1 { 2 } else { 3 }
+&statement_control:<if>.(1,2,3)
 
-data Required -- phantom
-data Optional -- phantom
-    
+%h<1>
+
+
+
+    &statement_control<if>.wrap(...)
+    &statement_control<if> <== ...
+
+
+-- Anything but $?SELF -- See S02
+data Magick
+    | MagickClass
+    | MagickOS
+    | MagickVersion
+    | MagickMushroom
 
 data Signature
     = MkSignatureMethSingle
         { invocant                  :: Param
-        , requiredPositionalList    :: PositionalParam Required
-        , optionalPositionalList    :: PositionalParam Optional
-        , requiredNamedSet          ::
-        , optionalNamedSet          ::
-        , slurpyScalarList          ::
-        , slurpyArray               ::
-        , slurpyHash                ::
-        , slurpyCode                ::
+        , requiredPositionalCount   :: Int
+        , requiredNames             :: Set Identifier
+        , positionalList            :: [Param]
+        , namedSet                  :: Map Identifier Param
+        , slurpyScalarList          :: [Param]
+        , slurpyArray               :: Maybe Param
+        , slurpyHash                :: Maybe Param
+        , slurpyCode                :: Maybe Param
         }
     | MkSignatureSubSingle
-        { requiredPositionalList    ::
-        , optionalPositionalList    ::
-        , requiredNamedSet          ::
-        , optionalNamedSet          ::
-        , slurpyScalarList          ::
-        , slurpyArray               ::
-        , slurpyHash                ::
-        , slurpyCode                ::
+        { requiredPositionalCount   :: Int
+        , requiredNames             :: Set Identifier
+        , positionalList            :: [Param]
+        , namedSet                  :: Map Identifier Param
+        , slurpyScalarList          :: [Param]
+        , slurpyArray               :: Maybe Param
+        , slurpyHash                :: Maybe Param
+        , slurpyCode                :: Maybe Param
         }
 
 data Code
