@@ -2,15 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>ColorProfile</key>
-	<dict>
-		<key>cmykName</key>
-		<string>Generic CMYK Profile</string>
-		<key>grayName</key>
-		<string>Generic Gray Profile</string>
-		<key>rgbName</key>
-		<string>Generic RGB Profile</string>
-	</dict>
 	<key>CreationDate</key>
 	<string>2006-06-29 13:28:39 -0500</string>
 	<key>Creator</key>
@@ -85,7 +76,7 @@
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -97,7 +88,7 @@
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{20, 18}, {377, 40}}</string>
+					<string>{{185, 579}, {377, 40}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -126,7 +117,7 @@
 						<key>Align</key>
 						<integer>0</integer>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
@@ -177,7 +168,7 @@ This work is licensed under the Creative Commons Attribution 2.5 License. To vie
 			<key>GridInfo</key>
 			<dict/>
 			<key>HPages</key>
-			<integer>1</integer>
+			<integer>2</integer>
 			<key>IsPalette</key>
 			<string>NO</string>
 			<key>KeepToScale</key>
@@ -287,7 +278,7 @@ This work is licensed under the Creative Commons Attribution 2.5 License. To vie
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -347,7 +338,7 @@ This work is licensed under the Creative Commons Attribution 2.5 License. To vie
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -409,7 +400,7 @@ This work is licensed under the Creative Commons Attribution 2.5 License. To vie
 						<key>Align</key>
 						<integer>0</integer>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
@@ -467,7 +458,7 @@ This work is licensed under the Creative Commons Attribution 2.5 License. To vie
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -592,7 +583,7 @@ Object Space}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -647,7 +638,7 @@ Object Space}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -811,7 +802,7 @@ Target Code}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -870,7 +861,7 @@ Runtime}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -943,7 +934,7 @@ Code}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -985,7 +976,7 @@ Code}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -997,7 +988,7 @@ Code}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{31.1734, 8.21429}, {377, 40}}</string>
+					<string>{{182, 762.886}, {377, 40}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FontInfo</key>
@@ -1026,7 +1017,7 @@ Code}</string>
 						<key>Align</key>
 						<integer>0</integer>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
@@ -1123,7 +1114,7 @@ This work is licensed under the Creative Commons Attribution 2.5 License. To vie
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -1167,7 +1158,7 @@ This work is licensed under the Creative Commons Attribution 2.5 License. To vie
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fmodern\fcharset77 CourierNewPS-BoldMT;}
 {\colortbl;\red255\green255\blue255;\red26\green64\blue116;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -1262,7 +1253,7 @@ This work is licensed under the Creative Commons Attribution 2.5 License. To vie
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -1364,7 +1355,7 @@ AST}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -1418,7 +1409,7 @@ AST}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -1611,7 +1602,7 @@ Target Code}</string>
 							<key>Text</key>
 							<dict>
 								<key>Text</key>
-								<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+								<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -1654,33 +1645,12 @@ Target Code}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
 \f0\fs24 \cf0 Code generator}</string>
-					</dict>
-				</dict>
-				<dict>
-					<key>Class</key>
-					<string>LineGraphic</string>
-					<key>ID</key>
-					<integer>211</integer>
-					<key>Points</key>
-					<array>
-						<string>{293.322, 35.2181}</string>
-						<string>{329.697, 35.2181}</string>
-					</array>
-					<key>Style</key>
-					<dict>
-						<key>stroke</key>
-						<dict>
-							<key>HeadArrow</key>
-							<string>FilledArrow</string>
-							<key>TailArrow</key>
-							<string>0</string>
-						</dict>
 					</dict>
 				</dict>
 				<dict>
@@ -1710,7 +1680,7 @@ Target Code}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -1777,7 +1747,7 @@ analyzer}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -1812,7 +1782,7 @@ analyzer}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -1929,7 +1899,7 @@ analyzer}</string>
 	<key>ModificationDate</key>
 	<string>2006-06-30 01:35:44 -0500</string>
 	<key>Modifier</key>
-	<string>George Walton Wood</string>
+	<string>Audrey Tang</string>
 	<key>NotesVisible</key>
 	<string>NO</string>
 	<key>OriginVisible</key>
@@ -2050,7 +2020,7 @@ analyzer}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -2095,7 +2065,7 @@ Interleaved Parse Execution Cycle}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -2162,7 +2132,7 @@ Doctrine of separate compilation}</string>
 							<key>Text</key>
 							<dict>
 								<key>Text</key>
-								<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+								<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -2222,7 +2192,7 @@ Doctrine of separate compilation}</string>
 							<key>Text</key>
 							<dict>
 								<key>Text</key>
-								<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+								<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -2282,7 +2252,7 @@ Doctrine of separate compilation}</string>
 								<key>Align</key>
 								<integer>0</integer>
 								<key>Text</key>
-								<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+								<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
@@ -2356,7 +2326,7 @@ Doctrine of separate compilation}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -2465,7 +2435,7 @@ source.p6}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -2479,7 +2449,7 @@ source.p6}</string>
 			<key>GridInfo</key>
 			<dict/>
 			<key>HPages</key>
-			<integer>1</integer>
+			<integer>2</integer>
 			<key>IsPalette</key>
 			<string>NO</string>
 			<key>KeepToScale</key>
@@ -2587,7 +2557,7 @@ source.p6}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -2642,7 +2612,7 @@ Target Code}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -2705,7 +2675,7 @@ Target Code}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fmodern\fcharset77 Courier-Bold;}
 {\colortbl;\red255\green255\blue255;\red26\green64\blue116;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -2718,7 +2688,7 @@ perl6.pbc}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{44, 61}, {237, 14}}</string>
+					<string>{{37.9472, 14.5738}, {406, 25}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FitText</key>
@@ -2750,12 +2720,12 @@ perl6.pbc}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\f0\fs24 \cf0 Parrot instantiation of the abstract diagram}</string>
+\f0\fs42 \cf0 Parrot instantiation of the abstract diagram}</string>
 					</dict>
 					<key>Wrap</key>
 					<string>NO</string>
@@ -2794,7 +2764,7 @@ perl6.pbc}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;\red255\green0\blue0;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -2832,7 +2802,7 @@ http://svn.perl.org/parrot/trunk/languages/perl6}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -2893,7 +2863,7 @@ Syntax Tree}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fmodern\fcharset77 Courier-Bold;}
 {\colortbl;\red255\green255\blue255;\red20\green126\blue28;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -2939,7 +2909,7 @@ Syntax Tree}</string>
 						<key>Align</key>
 						<integer>0</integer>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
@@ -3106,7 +3076,7 @@ from a shell}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fmodern\fcharset77 Courier-Bold;}
 {\colortbl;\red255\green255\blue255;\red128\green0\blue128;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -3183,7 +3153,7 @@ src/parse.pir}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fmodern\fcharset77 Courier-Bold;}
 {\colortbl;\red255\green255\blue255;\red128\green0\blue128;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -3245,7 +3215,7 @@ src/grammar_sub.pg}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fmodern\fcharset77 Courier-Bold;}
 {\colortbl;\red255\green255\blue255;\red20\green126\blue28;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -3257,7 +3227,7 @@ src/grammar_sub.pg}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{171.322, 445.083}, {133, 14}}</string>
+					<string>{{151.695, 447.043}, {133, 14}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FitText</key>
@@ -3317,7 +3287,7 @@ src/grammar_sub.pg}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fmodern\fcharset77 Courier-Bold;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -3330,7 +3300,7 @@ src/past2post.pir}</string>
 				</dict>
 				<dict>
 					<key>Bounds</key>
-					<string>{{171.322, 301.504}, {126, 14}}</string>
+					<string>{{153.322, 301.504}, {126, 14}}</string>
 					<key>Class</key>
 					<string>ShapedGraphic</string>
 					<key>FitText</key>
@@ -3385,7 +3355,7 @@ src/past2post.pir}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fmodern\fcharset77 Courier-Bold;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -3457,7 +3427,7 @@ src/pge2post.pir}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fmodern\fcharset77 Courier-Bold;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -3611,7 +3581,7 @@ src/grammar_gen.pir}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fmodern\fcharset77 Courier-Bold;}
 {\colortbl;\red255\green255\blue255;\red20\green126\blue28;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -3685,7 +3655,7 @@ src/grammar_gen.pir}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;\red20\green126\blue28;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -3721,7 +3691,7 @@ Tree Grammar Compiler}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -3791,7 +3761,7 @@ Tree Grammar Compiler}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fmodern\fcharset77 Courier-Bold;}
 {\colortbl;\red255\green255\blue255;\red20\green126\blue28;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -3866,7 +3836,7 @@ src/pge2post.tg}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;\red20\green126\blue28;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -3941,7 +3911,7 @@ Tree Grammar Compiler}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fmodern\fcharset77 Courier-Bold;}
 {\colortbl;\red255\green255\blue255;\red128\green0\blue128;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -4018,7 +3988,7 @@ src/grammar_optok.pg}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fmodern\fcharset77 Courier-Bold;}
 {\colortbl;\red255\green255\blue255;\red128\green0\blue128;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -4063,7 +4033,7 @@ src/grammar_rules.pg}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -4107,7 +4077,7 @@ src/grammar_rules.pg}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -4131,7 +4101,7 @@ src/grammar_rules.pg}</string>
 					<integer>306</integer>
 					<key>Points</key>
 					<array>
-						<string>{119.822, 125.699}</string>
+						<string>{119.322, 125.718}</string>
 						<string>{153.322, 124.43}</string>
 					</array>
 					<key>Style</key>
@@ -4216,7 +4186,7 @@ src/grammar_rules.pg}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;\red128\green0\blue128;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -4252,7 +4222,7 @@ Parse Grammar Compiler}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -4287,7 +4257,7 @@ Parse Grammar Compiler}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -4322,7 +4292,7 @@ Parse Grammar Compiler}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -4377,7 +4347,7 @@ Syntax Tree}</string>
 					<key>Name</key>
 					<string>Layer 1</string>
 					<key>Print</key>
-					<string>YES</string>
+					<string>NO</string>
 					<key>View</key>
 					<string>YES</string>
 				</dict>
@@ -4506,7 +4476,7 @@ Syntax Tree}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -4565,7 +4535,7 @@ Moose::Autobox}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -4591,7 +4561,7 @@ Data::Bind}</string>
 						<key>NSKern</key>
 						<real>0.0</real>
 						<key>Size</key>
-						<real>12</real>
+						<real>24</real>
 					</dict>
 					<key>ID</key>
 					<integer>331</integer>
@@ -4736,7 +4706,7 @@ Pugs::Emitter}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -4791,7 +4761,7 @@ Target Code}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -4979,303 +4949,141 @@ Perl::Generate}</string>
 					<integer>299</integer>
 					<key>Points</key>
 					<array>
-						<string>{161.118, 208.829}</string>
-						<string>{198.96, 190.054}</string>
+						<string>{0, 1}</string>
+						<string>{0, -1}</string>
+						<string>{1, 0}</string>
+						<string>{-1, 0}</string>
 					</array>
-					<key>Style</key>
-					<dict>
-						<key>stroke</key>
-						<dict>
-							<key>HeadArrow</key>
-							<string>0</string>
-							<key>TailArrow</key>
-							<string>0</string>
-						</dict>
-					</dict>
-					<key>Tail</key>
-					<dict>
-						<key>ID</key>
-						<integer>298</integer>
-					</dict>
-				</dict>
-				<dict>
-					<key>Class</key>
-					<string>LineGraphic</string>
-					<key>Head</key>
-					<dict>
-						<key>ID</key>
-						<integer>292</integer>
-					</dict>
-					<key>ID</key>
-					<integer>297</integer>
-					<key>Points</key>
-					<array>
-						<string>{172.691, 190.326}</string>
-						<string>{198.364, 190.06}</string>
-					</array>
-					<key>Style</key>
-					<dict>
-						<key>stroke</key>
-						<dict>
-							<key>HeadArrow</key>
-							<string>0</string>
-							<key>TailArrow</key>
-							<string>0</string>
-						</dict>
-					</dict>
-				</dict>
-				<dict>
-					<key>Class</key>
-					<string>LineGraphic</string>
-					<key>Head</key>
-					<dict>
-						<key>ID</key>
-						<integer>292</integer>
-					</dict>
-					<key>ID</key>
-					<integer>304</integer>
-					<key>Points</key>
-					<array>
-						<string>{173.572, 167.987}</string>
-						<string>{198.96, 190.054}</string>
-					</array>
-					<key>Style</key>
-					<dict>
-						<key>stroke</key>
-						<dict>
-							<key>HeadArrow</key>
-							<string>0</string>
-							<key>TailArrow</key>
-							<string>0</string>
-						</dict>
-					</dict>
-					<key>Tail</key>
-					<dict>
-						<key>ID</key>
-						<integer>303</integer>
-					</dict>
-				</dict>
-				<dict>
-					<key>Bounds</key>
-					<string>{{223.864, 204.259}, {104, 14}}</string>
-					<key>Class</key>
-					<string>ShapedGraphic</string>
-					<key>FitText</key>
-					<string>YES</string>
-					<key>Flow</key>
-					<string>Resize</string>
-					<key>FontInfo</key>
-					<dict>
-						<key>Color</key>
-						<dict>
-							<key>b</key>
-							<string>0.5</string>
-							<key>g</key>
-							<string>0</string>
-							<key>r</key>
-							<string>0.5</string>
-						</dict>
-						<key>Font</key>
-						<string>Courier-Bold</string>
-						<key>NSKern</key>
-						<real>0.0</real>
-						<key>Size</key>
-						<real>12</real>
-					</dict>
-					<key>ID</key>
-					<integer>291</integer>
-					<key>Link</key>
-					<dict>
-						<key>url</key>
-						<string>http://svn.perl.org/parrot/trunk/languages/perl6/src/parse.pir</string>
-					</dict>
 					<key>Shape</key>
-					<string>Rectangle</string>
+					<string>Cylinder</string>
 					<key>Style</key>
 					<dict>
-						<key>fill</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-							<key>GradientColor</key>
-							<dict>
-								<key>w</key>
-								<string>0.666667</string>
-							</dict>
-						</dict>
 						<key>shadow</key>
 						<dict>
-							<key>Draws</key>
-							<string>NO</string>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0</string>
+								<key>g</key>
+								<string>0</string>
+								<key>r</key>
+								<string>1</string>
+							</dict>
 						</dict>
 						<key>stroke</key>
 						<dict>
-							<key>Draws</key>
-							<string>NO</string>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0</string>
+								<key>g</key>
+								<string>0</string>
+								<key>r</key>
+								<string>1</string>
+							</dict>
 						</dict>
 					</dict>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
-{\fonttbl\f0\fmodern\fcharset77 Courier-Bold;}
-{\colortbl;\red255\green255\blue255;\red128\green0\blue128;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
-
-\f0\b\fs24 \cf2 \expnd0\expndtw0\kerning0
-src/parse.pir}</string>
-					</dict>
-					<key>Wrap</key>
-					<string>NO</string>
-				</dict>
-				<dict>
-					<key>Bounds</key>
-					<string>{{21.1178, 198.718}, {140, 14}}</string>
-					<key>Class</key>
-					<string>ShapedGraphic</string>
-					<key>FitText</key>
-					<string>YES</string>
-					<key>Flow</key>
-					<string>Resize</string>
-					<key>FontInfo</key>
-					<dict>
-						<key>Color</key>
-						<dict>
-							<key>b</key>
-							<string>0.5</string>
-							<key>g</key>
-							<string>0</string>
-							<key>r</key>
-							<string>0.5</string>
-						</dict>
-						<key>Font</key>
-						<string>Courier-Bold</string>
-						<key>NSKern</key>
-						<real>0.0</real>
-						<key>Size</key>
-						<real>12</real>
-					</dict>
-					<key>ID</key>
-					<integer>298</integer>
-					<key>Link</key>
-					<dict>
-						<key>url</key>
-						<string>http://svn.perl.org/parrot/trunk/languages/perl6/src/grammar_sub.pg</string>
-					</dict>
-					<key>Magnets</key>
-					<array>
-						<string>{0.505517, 0.224687}</string>
-					</array>
-					<key>Shape</key>
-					<string>Rectangle</string>
-					<key>Style</key>
-					<dict>
-						<key>fill</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-							<key>GradientColor</key>
-							<dict>
-								<key>w</key>
-								<string>0.666667</string>
-							</dict>
-						</dict>
-						<key>shadow</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-						</dict>
-						<key>stroke</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-						</dict>
-					</dict>
-					<key>Text</key>
-					<dict>
-						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
-{\fonttbl\f0\fmodern\fcharset77 Courier-Bold;}
-{\colortbl;\red255\green255\blue255;\red128\green0\blue128;}
-\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
-
-\f0\b\fs24 \cf2 \expnd0\expndtw0\kerning0
-src/grammar_sub.pg}</string>
-					</dict>
-					<key>Wrap</key>
-					<string>NO</string>
-				</dict>
-				<dict>
-					<key>Bounds</key>
-					<string>{{198.364, 179.668}, {147, 14}}</string>
-					<key>Class</key>
-					<string>ShapedGraphic</string>
-					<key>FitText</key>
-					<string>YES</string>
-					<key>Flow</key>
-					<string>Resize</string>
-					<key>FontInfo</key>
-					<dict>
-						<key>Color</key>
-						<dict>
-							<key>b</key>
-							<string>0</string>
-							<key>g</key>
-							<string>0</string>
-							<key>r</key>
-							<string>0</string>
-						</dict>
-						<key>Font</key>
-						<string>Courier-Bold</string>
-						<key>NSKern</key>
-						<real>0.0</real>
-						<key>Size</key>
-						<real>12</real>
-					</dict>
-					<key>ID</key>
-					<integer>292</integer>
-					<key>Magnets</key>
-					<array>
-						<string>{-0.495946, 0.241838}</string>
-					</array>
-					<key>Shape</key>
-					<string>Rectangle</string>
-					<key>Style</key>
-					<dict>
-						<key>fill</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-							<key>GradientColor</key>
-							<dict>
-								<key>w</key>
-								<string>0.666667</string>
-							</dict>
-						</dict>
-						<key>shadow</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-						</dict>
-						<key>stroke</key>
-						<dict>
-							<key>Draws</key>
-							<string>NO</string>
-						</dict>
-					</dict>
-					<key>Text</key>
-					<dict>
-						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
-{\fonttbl\f0\fmodern\fcharset77 Courier-Bold;}
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
+{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\f0\b\fs24 \cf0 \expnd0\expndtw0\kerning0
-src/grammar_gen.pir}</string>
+\f0\fs24 \cf0 CGI.pmc\
+Target Code}</string>
 					</dict>
-					<key>Wrap</key>
-					<string>NO</string>
+				</dict>
+				<dict>
+					<key>Bounds</key>
+					<string>{{363.322, 615.86}, {84.9895, 54}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>329</integer>
+					<key>Magnets</key>
+					<array>
+						<string>{0, 1}</string>
+						<string>{0, -1}</string>
+						<string>{1, 0}</string>
+						<string>{-1, 0}</string>
+					</array>
+					<key>Shape</key>
+					<string>Cylinder</string>
+					<key>Style</key>
+					<dict>
+						<key>shadow</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.556863</string>
+								<key>g</key>
+								<string>0.792157</string>
+								<key>r</key>
+								<string>0.376471</string>
+							</dict>
+						</dict>
+						<key>stroke</key>
+						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.556863</string>
+								<key>g</key>
+								<string>0.792157</string>
+								<key>r</key>
+								<string>0.376471</string>
+							</dict>
+						</dict>
+					</dict>
+					<key>Text</key>
+					<dict>
+						<key>Text</key>
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
+{\fonttbl\f0\fswiss\fcharset77 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+
+\f0\fs24 \cf0 Main.pmc\
+Target Code}</string>
+					</dict>
+				</dict>
+				<dict>
+					<key>Bounds</key>
+					<string>{{284.695, 443.752}, {99.75, 54}}</string>
+					<key>Class</key>
+					<string>ShapedGraphic</string>
+					<key>ID</key>
+					<integer>310</integer>
+					<key>Magnets</key>
+					<array>
+						<string>{0, 1}</string>
+						<string>{0, -1}</string>
+						<string>{1, 0}</string>
+						<string>{-1, 0}</string>
+					</array>
+					<key>Shape</key>
+					<string>Rectangle</string>
+					<key>Style</key>
+					<dict>
+						<key>stroke</key>
+						<dict>
+							<key>CornerRadius</key>
+							<real>5</real>
+						</dict>
+					</dict>
+					<key>Text</key>
+					<dict>
+						<key>Text</key>
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
+{\fonttbl\f0\fswiss\fcharset77 Helvetica-Oblique;}
+{\colortbl;\red255\green255\blue255;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
+
+\f0\i\fs24 \cf0 Perl::Generate}</string>
+					</dict>
 				</dict>
 				<dict>
 					<key>Bounds</key>
@@ -5343,13 +5151,13 @@ src/grammar_gen.pir}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fmodern\fcharset77 Courier-Bold;}
 {\colortbl;\red255\green255\blue255;\red128\green0\blue128;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
 \f0\b\fs24 \cf2 \expnd0\expndtw0\kerning0
-src/grammar_optok.pg}</string>
+Pugs::Grammar::Operator}</string>
 					</dict>
 					<key>Wrap</key>
 					<string>NO</string>
@@ -5420,13 +5228,13 @@ src/grammar_optok.pg}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fmodern\fcharset77 Courier-Bold;}
 {\colortbl;\red255\green255\blue255;\red128\green0\blue128;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
 \f0\b\fs24 \cf2 \expnd0\expndtw0\kerning0
-src/grammar_rules.pg}</string>
+Pugs::Grammar::Perl6}</string>
 					</dict>
 					<key>Wrap</key>
 					<string>NO</string>
@@ -5473,7 +5281,7 @@ src/grammar_rules.pg}</string>
 					<integer>312</integer>
 					<key>Points</key>
 					<array>
-						<string>{119.822, 125.714}</string>
+						<string>{119.322, 125.718}</string>
 						<string>{153.322, 125.43}</string>
 					</array>
 					<key>Style</key>
@@ -5558,13 +5366,12 @@ src/grammar_rules.pg}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;\red128\green0\blue128;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\f0\fs24 \cf2 pg\cf0 c\
-Parse Grammar Compiler}</string>
+\f0\fs24 \cf2 Pugs::Compiler::Rule}</string>
 					</dict>
 				</dict>
 				<dict>
@@ -5594,7 +5401,7 @@ Parse Grammar Compiler}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -5651,7 +5458,7 @@ Parse Grammar Compiler}</string>
 					<key>Text</key>
 					<dict>
 						<key>Text</key>
-						<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+						<string>{\rtf1\mac\ansicpg10002\cocoartf824\cocoasubrtf390
 {\fonttbl\f0\fswiss\fcharset77 Helvetica;}
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
@@ -5664,7 +5471,7 @@ PUGS::AST::*}</string>
 			<key>GridInfo</key>
 			<dict/>
 			<key>HPages</key>
-			<integer>1</integer>
+			<integer>2</integer>
 			<key>IsPalette</key>
 			<string>NO</string>
 			<key>KeepToScale</key>
@@ -5702,7 +5509,7 @@ PUGS::AST::*}</string>
 			<key>UniqueID</key>
 			<integer>3</integer>
 			<key>VPages</key>
-			<integer>1</integer>
+			<integer>2</integer>
 		</dict>
 	</array>
 	<key>SmartAlignmentGuidesActive</key>
@@ -5730,7 +5537,7 @@ PUGS::AST::*}</string>
 		<key>ShowStatusBar</key>
 		<true/>
 		<key>VisibleRegion</key>
-		<string>{{-15, -38}, {625, 824}}</string>
+		<string>{{-1, 0}, {1046, 628}}</string>
 		<key>Zoom</key>
 		<string>1</string>
 	</dict>
