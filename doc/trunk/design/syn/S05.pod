@@ -615,7 +615,7 @@ C<:ignorecase> setting.  (Subrules maintain their own case settings.)
 Both C<< < >> and C<< > >> are metacharacters, and are usually (but not
 always) used in matched pairs.  (Some combinations of metacharacters
 function as standalone tokens, and these may include angles.  These are
-describe below.)
+described below.)
 
 For matched pairs, the first character after C<< < >> determines the
 behavior of the assertion:
