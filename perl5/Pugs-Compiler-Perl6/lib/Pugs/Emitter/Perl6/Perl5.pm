@@ -197,7 +197,6 @@ sub default {
             # class Point;
             #warn "class: ",Dumper $n;
             local %env;
-
             my $id;
             $id = exists $n->{param}{cpan_bareword} 
                   ? _mangle_ident( $n->{param}{cpan_bareword} )
@@ -210,6 +209,24 @@ sub default {
                 ";use Exporter 'import';our \@EXPORT";
         }
 
+        if ( $n->{sub}{bareword} eq 'is' ) {
+            # is Point;
+            #warn "inheritance: ",Dumper $n;
+            my $id;
+            $id = exists $n->{param}{cpan_bareword} 
+                  ? _mangle_ident( $n->{param}{cpan_bareword} )
+                  : _emit( $n->{param}{sub} );
+            my @a = split "-", $id;
+            my $version = ( @a > 1 && $a[-1] =~ /^[0-9]/ ? $a[-1] : '' );
+            return "extends '" . $a[0] . "'";
+        }
+        
+        if ( $n->{sub}{bareword} eq 'call' ) {
+            # call;
+            #warn "super call: ",Dumper $n;
+            return "super";  # param list?
+        }
+        
         if ( $n->{sub}{bareword} eq 'use' ) {
             # use v6-pugs
             if ( exists $n->{param}{cpan_bareword} ) {
