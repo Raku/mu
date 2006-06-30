@@ -1811,14 +1811,17 @@ that shows up in C<&?BLOCK.label>.
 Heredocs are no longer written with C<<< << >>>, but with an adverb on
 any other quote construct:
 
-    print qq:to/END/
+    print qq:to/END/;
         Give $amount to the man behind curtain number $curtain.
         END
 
-Other adverbs are also allowed:
+Other adverbs are also allowed, as are multiple heredocs within the same
+expression:
 
-    print q:c:to/END/
+    print q:c:to/END/, q:to/END/;
         Give $100 to the man behind curtain number {$curtain}.
+        END
+        Here is a $non-interpolated string
         END
 
 =item *
