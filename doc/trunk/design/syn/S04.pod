@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 20 June 2006
+  Last Modified: 30 June 2006
   Number: 4
-  Version: 24
+  Version: 25
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.

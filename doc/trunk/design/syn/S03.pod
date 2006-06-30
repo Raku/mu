@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 20 Jun 2006
+  Last Modified: 30 Jun 2006
   Number: 3
-  Version: 42
+  Version: 43
 
 =head1 Changes to existing operators
 

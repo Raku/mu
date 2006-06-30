@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 26 May 2006
+  Last Modified: 30 June 2006
   Number: 6
-  Version: 37
+  Version: 38
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
