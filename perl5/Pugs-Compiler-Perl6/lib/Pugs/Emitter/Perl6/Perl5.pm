@@ -155,7 +155,7 @@ sub assoc_list {
 
 sub _emit_parameter_binding {
     my $n = $_[0];
-    
+
     # no parameters
     return ''
         if  ! defined $n ||
@@ -172,16 +172,31 @@ sub _emit_parameter_binding {
     #    'splat' => 1,           *$v
     #    'attribute' => \@attr   $v is rw
 
-    my $param = join( ',' , 
-        map { _emit( $_ ) } @$n
-    );
-    return "my ($param) = \@_;\n";
+    # XXX: This is ugly, but nessary to support lexical subs passed it.
+    # This will go away along with Data::Bind integration, hopefully.
+    my $bind_code = '';
+    for (@$n) {
+	if ( exists $_->{type} && $_->{type}{bareword} eq 'Code' ) {
+	    my $name = _emit($_);
+	    $name =~ s/^&//;
+	    $bind_code .= "   local *$name = shift;\n";
+	}
+	else {
+	    $bind_code .= "   my "._emit( $_ )." = shift;\n";
+	}
+    }
+    return $bind_code;
 }
 
 sub default {
     my $n = $_[0];
     #warn "emit: ", Dumper( $n );
     
+    if ( exists $n->{pointy_block} ) {
+	# XXX: no signature yet
+        return  "sub {\n" . _emit( $n->{pointy_block} ) . "\n }\n";
+    }
+
     if ( exists $n->{bare_block} ) {
         if ( exists $n->{trait} ) {
             # BEGIN/END

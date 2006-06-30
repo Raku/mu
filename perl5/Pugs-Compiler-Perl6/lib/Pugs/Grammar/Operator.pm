@@ -20,6 +20,8 @@ BEGIN {
 block:
         '->' exp 'BLOCK_START' exp '}'        
         { $_[0]->{out}= { 'pointy_block' => $_[4], signature => $_[2], } }
+    |   '->' 'BLOCK_START' exp '}'        
+        { $_[0]->{out}= { 'pointy_block' => $_[4], signature => undef, } }
     |   'BLOCK_START' exp '}'        
         { $_[0]->{out}= { 'bare_block' => $_[2] } }
     ;
