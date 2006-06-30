@@ -155,6 +155,13 @@ exp:
             fixity => 'prefix', 
             exp1 => $_[2],
             %{$_[3]}, } }
+    | MY BAREWORD NUM attr 
+        { $_[0]->{out}= { 
+            op1 => { op => $_[1]{stmt} }, 
+            fixity => 'prefix', 
+            exp1 => $_[3],
+            type => { bareword => $_[2], },
+            %{$_[4]}, } }
 
     | stmt                
         { $_[0]->{out}= $_[1] }

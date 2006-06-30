@@ -105,6 +105,18 @@ BEGIN {
         other => 'eq',
     );
     __PACKAGE__->add_rule( 
+        name => '+=',
+        assoc => 'left',
+        precedence => 'equal',
+        other => 'eq',
+    );
+    __PACKAGE__->add_rule( 
+        name => '-=',
+        assoc => 'left',
+        precedence => 'equal',
+        other => 'eq',
+    );
+    __PACKAGE__->add_rule( 
         name => '<',
         assoc => 'left',
         precedence => 'equal',
@@ -203,6 +215,12 @@ BEGIN {
     
     __PACKAGE__->add_rule( 
         name => 'or',
+        assoc => 'left',
+        precedence => 'looser',
+        other => 'and',
+    );
+    __PACKAGE__->add_rule( 
+        name => 'err',
         assoc => 'left',
         precedence => 'looser',
         other => 'and',

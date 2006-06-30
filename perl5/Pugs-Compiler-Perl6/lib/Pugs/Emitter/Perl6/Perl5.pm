@@ -407,7 +407,8 @@ sub infix {
     if ( $n->{op1}{op} eq '~=' ) {
         return _emit( $n->{exp1} ) . ' .= ' . _emit( $n->{exp2} );
     }
-    if ( $n->{op1}{op} eq '//' ) {
+    if ( $n->{op1}{op} eq '//'  ||
+         $n->{op1}{op} eq 'err' ) {
         return ' do { my $_tmp_ = ' . _emit( $n->{exp1} ) . 
             '; defined $_tmp_ ? $_tmp_ : ' . _emit( $n->{exp2} ) . '}';
     }
