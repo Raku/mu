@@ -213,17 +213,22 @@ sub recompile {
     );
     $class->SUPER::recompile;
 
-    # operator-precedence
-    my $g = $operator->emit_yapp;
-    #print $g;
-    my $p = $operator->emit_grammar_perl5;
-
-    # create a local variable '$out' inside the parser
-    # $p =~ s/my\(\$self\)=/my \$out; my\(\$self\)=/;
-
-    #print $p;
-    eval $p;
-    die "$@\n" if $@;
+    {
+        #no warnings 'recursion'; # doesn't seem to work here
+        local $SIG{'__WARN__'} =
+            sub { 
+                warn $_[0] if $_[0] !~ /recursion/ 
+            };
+        #warn 'compiling grammar';
+        # operator-precedence
+        my $g = $operator->emit_yapp;
+        #print $g;
+        my $p;
+        $p = $operator->emit_grammar_perl5;
+        #print $p;
+        eval $p;
+        #warn 'compiled grammar';
+    }
 }
 
 BEGIN {
