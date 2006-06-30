@@ -15,26 +15,115 @@ data Value
     | VCapture   Capture     -- \(...)
     | VSignature Signature   -- :(...)
 
-multi ( Int $x, What $y ; Str $z ; Str $w )
-multi ( Int $x, Num $y  ; Str $z ; Str $w )
+package Main;
+
+sub f (constant $x = 1) { ... }
+
+f(); # $x retains last value
+
+submethod BUILD (has $x) { ... }
+submethod BUILD ($.x) { ... }
+$Main::x
+
+
+positional named named_slurpy
+
+method f (Moose $self where {...}: ...)
+
+
+(@a [$x, $y, *@rest [*, *, *, $z]]  ) := [1,2,3]
+
+
+sub f (:v($verbose), :$verbose, :$v) {
+    say $verbose;
+}
+
+f(v=>1);
+f(verbose=>1);
+
+
+
+Any $self (\)
+
+sub f ($x, $x, $x) { }
+
+method f ($x, $y) {}
+
+data Param = MkParam
+    { paramVariable     :: Identifier
+    , paramTypes        :: [Type]       -- Static pieces of inferencer-food
+    , paramConstraints  :: [Code]       -- Dynamic pieces of runtime-mood
+    , paramUnpacking    :: Maybe Signature
+    }
+
+type Label = Str -- where /^ <alpha+[_]> \w* $/
+
+data PositionalParam a where
+    MkPositionalParam
+        { paramLabel    :: Label
+        , paramParam    :: Param
+        } :: PositionalParam Required
+    MkPositionalOptionalParam
+        { paramLabel    :: Label
+        , paramParam    :: Param
+        , paramDefault  :: Expression
+        } :: PositionalParam Optional
+
+data Required -- phantom
+data Optional -- phantom
+    
 
 data Signature
-    = MkSignatureMeth
-        { invocant :: Expression
-        , 
+    = MkSignatureMethSingle
+        { invocant                  :: Param
+        , requiredPositionalList    :: PositionalParam Required
+        , optionalPositionalList    :: PositionalParam Optional
+        , requiredNamedSet          ::
+        , optionalNamedSet          ::
+        , slurpyScalarList          ::
+        , slurpyArray               ::
+        , slurpyHash                ::
+        , slurpyCode                ::
         }
-    | MkSignatureSub
-        {
+    | MkSignatureSubSingle
+        { requiredPositionalList    ::
+        , optionalPositionalList    ::
+        , requiredNamedSet          ::
+        , optionalNamedSet          ::
+        , slurpyScalarList          ::
+        , slurpyArray               ::
+        , slurpyHash                ::
+        , slurpyCode                ::
         }
 
 data Code
-    = MkCode
-        { signature  :: Signature
-        , body       :: [Statement]
-        , pad        :: Map Identifier PadEntry
-        , attributes :: Map Identifier Value
-        }
-    | MkMulti (Map Signature Code) -- Map from full long names to Code
+    = MkSingle SingleCode
+    | MkMulti (Set MultiVariant)
+
+data SingleCode = MkSingleCode
+    { signature  :: Signature
+    , body       :: [Statement]
+    , pad        :: Map Identifier PadEntry
+    , attributes :: Map Identifier Value
+    }
+    
+data MultiVariant = MkMultiVariant 
+    { semicolonOffsets          :: IntSet
+    , theThingYouActuallyCall   :: SingleCode
+    }
+
+
+my multi g () { ... }
+{
+    my multi f ($x) { ... }
+    my multi f ($x, $y) { ... }
+    &g.variants.push(&f);
+}
+
+(IntSet, Code)) -- Map from full long names to Code
+                     -- {2,3,4}
+                     -- ^ The cursors, think of the ncurses (n. slang)!
+                     -- $pun, $gun; $way; $too; $far
 
 multi f (Int $x; Int $y) {...}
 multi f (Int $x) {...}
