@@ -1,5 +1,11 @@
 ﻿TODO list for Pugs-Compiler-Perl6
 
+- parse ext/Test/lib/Test.pm
+  - &?CALLER::ROUTINE
+  - runtime support for caller().package and &?ROUTTINE.name
+  - named arg binding with Data::Bind
+  - $TEST::foo in Test.pm needs to be mangled as well like the namespace.
+
 - block parsing:
   t/ref.t: if $string.ref eq Str { say "ok 1 # TODO" }
   <audreyt> for map {},@x { .say }
@@ -26,7 +32,6 @@ Priorities
     (1 if 1)           # 'if' is an op - I think this is now legal 
     sub sub xxx ...    # 'multi' and 'sub' are parsed the same way
 
-- parse ext/Test/lib/Test.pm
 - failures:
     - it is trying to parse the examples in the pod
 - workarounds:
