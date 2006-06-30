@@ -853,7 +853,7 @@ same as
 
     /<{ qX[cat -n {$foo}] }>/
 
-This hides any qX rule that might be defined in the gramma.  Note that
+This hides any C<qX> rule that might be defined in the grammar.  Note that
 this means that the language parser has to pass the current list
 of quote forms into the regex parser since it needs to be known at
 compile time.
