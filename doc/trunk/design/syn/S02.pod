@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
   Last Modified: 30 Jun 2006
   Number: 2
-  Version: 46
+  Version: 47
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1344,21 +1344,50 @@ Generalized quotes may now take adverbs:
     :f          :function       Interpolate & calls
     :c          :closure        Interpolate {...} expressions
     :b          :backslash      Interpolate \n, \t, etc. (implies :q at least)
+                :code           Quasiquoting
 
-[Conjectural: Ordinarily the colon is required on adverbs, but the
-"quote" declarator allows you to combine any of the existing adverbial
-forms above without an intervening colon:
+Ordinarily the colon is required on adverbs, but the C<quote> declarator
+allows you to combine any of the existing adverbial forms above
+without an intervening colon:
 
-    quote qw;           # declare a P5-esque qw//
-    quote qqx;          # equivalent to P5's qx//
-    quote qn;           # completely raw quote qn//
-    quote qnc;          # interpolate only closures
-    quote qqxwto;       # qq:x:w:to//
+    quote qw;                   # declare a P5-esque qw// meaning q:w
+    quote qn;                   # completely raw quote qn//
+    quote qnc;                  # q:n:c//, interpolate only closures
 
-]
+If you want to abbreviate further, you may also give an explicit
+definition as either a string or quasiquote:
+
+    quote qx = 'qq:x';          # equivalent to P5's qx//
+    quote qTO = 'qq:x:w:to';    # qq:x:w:to//
+    quote circumfix:<❰ ❱> = q:code { .quoteharder };  # or some such...
+
+In particular, these forms disable the lookahead for an adverbial argument,
+so while
+
+    q:n($foo)
+
+will misinterpret C<$foo> as the C<:n> argument,
+
+    qn(stuff)
+
+has the advantage of misinterpreting it as the argument to the C<qn()>
+function instead.  C<:)>
+
+But parens are special that way.  Other bracketing characters are special
+only if they can be mistaken for adverbial arguments, so
+
+    qn[stuff]
+
+is fine, while
+
+    q:n[stuff]
+
+is not.  Basically, just don't use parens for quote delimiters, and always
+put a space after your adverbs.
 
 If this is all too much of a hardship, you can define your own quote
-adverbs and operators.  All the uppercase adverbs are reserved for
+adverbs and operators as standard macros.
+All the uppercase adverbs are reserved for
 user-defined quotes.  All of Unicode above Latin-1 is reserved for
 user-defined quotes.
 
