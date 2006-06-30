@@ -95,7 +95,7 @@ sub _emit {
     return $n->{num} 
         if exists $n->{num};
         
-    return _mangle_var( $n->{scalar} )
+    return _var_get( $n->{scalar} )
         if exists $n->{scalar};
         
     return _mangle_var( $n->{array} )
@@ -251,6 +251,11 @@ sub default {
         return " print '', " . _emit( $n->{param} ) . ";\n" .
             " print " . '"\n"'
             if $n->{sub}{bareword} eq 'say';
+            
+        # ???
+        $n->{sub}{bareword} = 'die'
+            if $n->{sub}{bareword} eq 'fail';
+            
         return ' ' . _mangle_ident( $n->{sub}{bareword} ) . '(' . _emit( $n->{param} ) . ')';
     }
     
@@ -425,6 +430,34 @@ sub infix {
         if ( exists $n->{exp1}{scalar} ) {
             #warn "set $n->{exp1}{scalar}";
             return _var_set( $n->{exp1}{scalar} )->( $n->{exp2} );
+        }
+        if ( exists $n->{exp1}{op1}  &&
+             $n->{exp1}{op1}{op} eq 'has' ) {
+            #warn "{'='}: ", Dumper( $n );
+            # XXX - changes the AST
+            push @{ $n->{exp1}{attribute} },
+                 [  { bareword => 'default' }, 
+                    $n->{exp2} 
+                 ]; 
+            #warn "{'='}: ", Dumper( $n );
+            return _emit( $n->{exp1} );
+        }
+        return _emit( $n->{exp1} ) . 
+            " = " . _emit( $n->{exp2} );
+    }
+
+    if ( $n->{op1}{op} eq '+=' ) {
+        #warn "{'='}: ", Dumper( $n );
+        if ( exists $n->{exp1}{scalar} ) {
+            #warn "set $n->{exp1}{scalar}";
+            return _var_set( $n->{exp1}{scalar} )->( 
+                {
+                    fixity => 'infix',
+                    op1 => { op => '+' },
+                    exp1 => $n->{exp1},
+                    exp2 => $n->{exp2},
+                }
+            );
         }
         return _emit( $n->{exp1} ) . 
             " = " . _emit( $n->{exp2} );
