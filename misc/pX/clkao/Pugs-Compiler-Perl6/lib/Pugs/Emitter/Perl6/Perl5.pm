@@ -185,6 +185,7 @@ sub _emit_data_bind_param_spec {
     $param{var} = delete $param{scalar};
     my $dumped = Dumper(\%param);
     $dumped =~ s/^\$VAR1 = //g;
+    $dumped =~ s/;$//;
     $dumped =~ s/\n//mg;
     return $dumped;
 }
@@ -215,7 +216,7 @@ sub _emit_parameter_binding {
         map { _emit( $_ ) } @params
     );
     return "  my ($param);\n".
-           "  Data::Bind->arg_bind(\\\@_)\n";
+           "  Data::Bind->arg_bind(\\\@_);\n";
 }
 
 sub default {
