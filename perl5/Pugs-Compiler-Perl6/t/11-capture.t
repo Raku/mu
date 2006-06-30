@@ -1,6 +1,5 @@
-# #!/usr/bin/pugs
+
 use v6-pugs;
-use Test;
 
 say "1..2";
 
