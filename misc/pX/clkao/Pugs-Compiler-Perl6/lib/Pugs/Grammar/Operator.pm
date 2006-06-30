@@ -20,6 +20,8 @@ BEGIN {
 block:
         '->' exp 'BLOCK_START' exp '}'        
         { $_[0]->{out}= { 'pointy_block' => $_[4], signature => $_[2], } }
+    |   '->' 'BLOCK_START' exp '}'        
+        { $_[0]->{out}= { 'pointy_block' => $_[4], signature => undef, } }
     |   'BLOCK_START' exp '}'        
         { $_[0]->{out}= { 'bare_block' => $_[2] } }
     ;
@@ -143,21 +145,25 @@ exp:
     | '@' '(' exp ')' 
         { $_[0]->{out}= { op1 => 'array_context', exp1 => $_[3], } }
 
-    | BAREWORD            
+    | BAREWORD
         { $_[0]->{out}= { op1 => 'call', sub => $_[1], } }
 
     | BAREWORD 'IF' exp   %prec P003 
         { $_[0]->{out}= { op1 => $_[2], exp1 => $_[3], 
             exp2 => { op1 => 'call', sub => $_[1], } } }
 
+    | BAREWORD '(' ')'  %prec P003
+        { $_[0]->{out}= { op1 => 'call', sub => $_[1], param => undef, } }
+    | BAREWORD '(' exp ')'  %prec P003
+        { $_[0]->{out}= { op1 => 'call', sub => $_[1], param => $_[3], } }
     | BAREWORD exp   %prec P003
         { $_[0]->{out}= { op1 => 'call', sub => $_[1], param => $_[2], } }
-    | exp '.' BAREWORD    %prec P003
-        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[3], } }
     | exp '.' BAREWORD '(' exp ')'  %prec P003
         { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[3], param => $_[5], } }
     | exp '.' BAREWORD exp   %prec P003
         { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[3], param => $_[4], } }
+    | exp '.' BAREWORD    %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[3], } }
         
 
     | MY NUM attr 
@@ -166,6 +172,13 @@ exp:
             fixity => 'prefix', 
             exp1 => $_[2],
             %{$_[3]}, } }
+    | MY BAREWORD NUM attr 
+        { $_[0]->{out}= { 
+            op1 => { op => $_[1]{stmt} }, 
+            fixity => 'prefix', 
+            exp1 => $_[3],
+            type => { bareword => $_[2], },
+            %{$_[4]}, } }
 
     | stmt                
         { $_[0]->{out}= $_[1] }
@@ -211,17 +224,22 @@ sub recompile {
     );
     $class->SUPER::recompile;
 
-    # operator-precedence
-    my $g = $operator->emit_yapp;
-    #print $g;
-    my $p = $operator->emit_grammar_perl5;
-
-    # create a local variable '$out' inside the parser
-    # $p =~ s/my\(\$self\)=/my \$out; my\(\$self\)=/;
-
-    #print $p;
-    eval $p;
-    die "$@\n" if $@;
+    {
+        #no warnings 'recursion'; # doesn't seem to work here
+        local $SIG{'__WARN__'} =
+            sub { 
+                warn $_[0] if $_[0] !~ /recursion/ 
+            };
+        #warn 'compiling grammar';
+        # operator-precedence
+        my $g = $operator->emit_yapp;
+        #print $g;
+        my $p;
+        $p = $operator->emit_grammar_perl5;
+        #print $p;
+        eval $p;
+        #warn 'compiled grammar';
+    }
 }
 
 BEGIN {

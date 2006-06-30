@@ -3,7 +3,7 @@
 
 use v6-pugs;
 
-say '1..4';
+say '1..5';
 
 sub ok($num) {
     say "ok $num";
@@ -20,3 +20,12 @@ sub ok_auto {
 
 ok_auto();
 ok_auto;
+
+sub run_sub(Code &code) {
+    code();
+}
+
+
+run_sub( -> $blah {  say "ok 5"; }
+       );
+

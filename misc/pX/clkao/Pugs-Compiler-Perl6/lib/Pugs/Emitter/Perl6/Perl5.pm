@@ -7,6 +7,8 @@ use warnings;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
+our %env;
+
 sub _mangle_ident {
     my $s = shift;
     $s =~ s/ ([^a-zA-Z0-9_:]) / '_'.ord($1).'_' /xge;
@@ -14,7 +16,7 @@ sub _mangle_ident {
 }
 
 sub _mangle_var {
-    my $s = shift;
+    my $s = $_[0];
     #warn "mangle: $s";
     
     # perl6 => perl5 variables
@@ -28,6 +30,41 @@ sub _mangle_var {
     return $s;
 }
 
+sub _var_get {
+    my $n = $_[0];
+    
+    if ( ! exists $n->{scalar} ) {
+        if ( exists $n->{bare_block} ) {
+            # TODO - check if it is a comma-delimited list
+            return ' sub ' . _emit( $n );
+        }
+        return _emit( $n );
+    }
+
+    my $s = $n->{scalar};
+
+    return $env{$s}{get}
+        if exists $env{$s} &&
+           exists $env{$s}{get};
+    
+    # default
+    return "\$self->{'" . substr($s,2) . "'}"
+        if substr($s,1,1) eq '.';
+    return _mangle_var( $s );
+}
+
+sub _var_set {
+    my $s = $_[0];
+    
+    #warn "emit: set $s - ", Dumper %env;
+    
+    return $env{$s}{set}
+        if exists $env{$s}{set};
+    
+    # default
+    return sub { _mangle_var( $s ) . " = " . $_[0] };
+}
+
 sub _not_implemented {
     my ( $n, $what ) = @_;
     return "die q(not implemented $what: " . Dumper( $n ) . ")";
@@ -36,6 +73,7 @@ sub _not_implemented {
 sub emit {
     
     # <audreyt> %Namespace:: = ();  # clear stash
+    local %env;
     
     my ($grammar, $ast) = @_;
     # runtime parameters: $grammar, $string, $state, $arg_list
@@ -70,7 +108,7 @@ sub _emit {
     return $n->{num} 
         if exists $n->{num};
         
-    return _mangle_var( $n->{scalar} )
+    return _var_get( $n )
         if exists $n->{scalar};
         
     return _mangle_var( $n->{array} )
@@ -184,6 +222,11 @@ sub default {
     my $n = $_[0];
     #warn "emit: ", Dumper( $n );
     
+    if ( exists $n->{pointy_block} ) {
+	# XXX: no signature yet
+        return  "sub {\n" . _emit( $n->{pointy_block} ) . "\n }\n";
+    }
+
     if ( exists $n->{bare_block} ) {
         if ( exists $n->{trait} ) {
             # BEGIN/END
@@ -200,6 +243,7 @@ sub default {
             # Moose: package xxx; use Moose;
             # class Point;
             #warn "class: ",Dumper $n;
+            local %env;
             my $id;
             $id = exists $n->{param}{cpan_bareword} 
                   ? _mangle_ident( $n->{param}{cpan_bareword} )
@@ -212,6 +256,24 @@ sub default {
                 ";use Exporter 'import';our \@EXPORT";
         }
 
+        if ( $n->{sub}{bareword} eq 'is' ) {
+            # is Point;
+            #warn "inheritance: ",Dumper $n;
+            my $id;
+            $id = exists $n->{param}{cpan_bareword} 
+                  ? _mangle_ident( $n->{param}{cpan_bareword} )
+                  : _emit( $n->{param}{sub} );
+            my @a = split "-", $id;
+            my $version = ( @a > 1 && $a[-1] =~ /^[0-9]/ ? $a[-1] : '' );
+            return "extends '" . $a[0] . "'";
+        }
+        
+        if ( $n->{sub}{bareword} eq 'call' ) {
+            # call;
+            #warn "super call: ",Dumper $n;
+            return "super";  # param list?
+        }
+        
         if ( $n->{sub}{bareword} eq 'use' ) {
             # use v6-pugs
             if ( exists $n->{param}{cpan_bareword} ) {
@@ -236,6 +298,11 @@ sub default {
         return " print '', " . _emit( $n->{param} ) . ";\n" .
             " print " . '"\n"'
             if $n->{sub}{bareword} eq 'say';
+            
+        # ???
+        $n->{sub}{bareword} = 'die'
+            if $n->{sub}{bareword} eq 'fail';
+            
         return ' ' . _mangle_ident( $n->{sub}{bareword} ) . '(' . _emit( $n->{param} ) . ')';
     }
     
@@ -272,6 +339,12 @@ sub default {
         }
         
         if ( exists $n->{self}{scalar} ) {
+            # $.scalar.method(@param)
+            return " " . _emit( $n->{self} ) . '->' .
+                _emit( $n->{method} ) .
+                '(' . _emit( $n->{param} ) . ')'
+                if $n->{self}{scalar} =~ /^\$\./;
+            
             # $scalar.++;
             return 
                 " Pugs::Runtime::Perl6::Scalar::" . _emit( $n->{method}, '  ' ) . 
@@ -294,7 +367,7 @@ sub default {
         
         return " " . _mangle_ident( $n->{sub}{bareword} ) .
             '(' .
-            join ( ";\n", 
+            join ( ";\n",   # XXX
                 map { _emit( $_ ) } @{$n->{param}} 
             ) .
             ')';
@@ -395,7 +468,8 @@ sub infix {
     if ( $n->{op1}{op} eq '~=' ) {
         return _emit( $n->{exp1} ) . ' .= ' . _emit( $n->{exp2} );
     }
-    if ( $n->{op1}{op} eq '//' ) {
+    if ( $n->{op1}{op} eq '//'  ||
+         $n->{op1}{op} eq 'err' ) {
         return ' do { my $_tmp_ = ' . _emit( $n->{exp1} ) . 
             '; defined $_tmp_ ? $_tmp_ : ' . _emit( $n->{exp2} ) . '}';
     }
@@ -405,6 +479,46 @@ sub infix {
         return " tie " . _emit( $n->{exp1} ) . 
             ", 'Pugs::Runtime::Perl6::Scalar::Alias', " .
             "\\" . _emit( $n->{exp2} );
+    }
+
+    if ( $n->{op1}{op} eq '=' ) {
+        #warn "{'='}: ", Dumper( $n );
+        if ( exists $n->{exp1}{scalar} ) {
+            #warn "set $n->{exp1}{scalar}";
+            return _var_set( $n->{exp1}{scalar} )->( _var_get( $n->{exp2} ) );
+        }
+        if ( exists $n->{exp1}{op1}  &&
+             $n->{exp1}{op1}{op} eq 'has' ) {
+            #warn "{'='}: ", Dumper( $n );
+            # XXX - changes the AST
+            push @{ $n->{exp1}{attribute} },
+                 [  { bareword => 'default' }, 
+                    $n->{exp2} 
+                 ]; 
+            #warn "{'='}: ", Dumper( $n );
+            return _emit( $n->{exp1} );
+        }
+        return _emit( $n->{exp1} ) . 
+            " = " . _var_get( $n->{exp2} );
+    }
+
+    if ( $n->{op1}{op} eq '+=' ) {
+        #warn "{'='}: ", Dumper( $n );
+        if ( exists $n->{exp1}{scalar} ) {
+            #warn "set $n->{exp1}{scalar}";
+            return _var_set( $n->{exp1}{scalar} )->( 
+                _emit(
+                  {
+                    fixity => 'infix',
+                    op1 => { op => '+' },
+                    exp1 => $n->{exp1},
+                    exp2 => $n->{exp2},
+                  }
+                )
+            );
+        }
+        return _emit( $n->{exp1} ) . 
+            " = " . _emit( $n->{exp2} );
     }
 
     if ( exists $n->{exp2}{bare_block} ) {
@@ -433,8 +547,18 @@ sub circumfix {
 
 sub postcircumfix {
     my $n = $_[0];
-    #print "postcircumfix: ", Dumper( $n );
+    #warn "postcircumfix: ", Dumper( $n );
     
+    if ( $n->{op1}{op} eq '(' &&
+         $n->{op2}{op} eq ')' ) {
+        # warn "postcircumfix:<( )> ", Dumper( $n );
+        # $.scalar(@param)
+        return " " . _emit( $n->{exp1} ) . 
+            '->(' . _emit( $n->{exp2} ) . ')'
+            if exists $n->{exp1}{scalar} &&
+               $n->{exp1}{scalar} =~ /^\$\./;
+    }
+            
     if ( $n->{op1}{op} eq '[' &&
          $n->{op2}{op} eq ']' ) {
 
@@ -478,15 +602,32 @@ sub prefix {
             # Moose: has 'xxx';
             # has $x;
             #warn "has: ",Dumper $n;
+            
+            my $name = _emit( $n->{exp1} );
+            #my $name = _emit( $n->{exp1} );
+            $name =~ s/^\$//;  # remove sigil
+            
+            my $raw_name;
+            $raw_name = $n->{exp1}{scalar} if exists $n->{exp1}{scalar};
+            $env{$raw_name}{set} = sub { 
+                "\$self->" . substr($raw_name,2) . "(" . $_[0] . ")" 
+            };
+            # is rw?
+            #warn Dumper @{$n->{attribute}};
+            my $is_rw = grep { $_->[0]{bareword} eq 'is' &&
+                               $_->[1]{bareword} eq 'rw' } @{$n->{attribute}};
+            $env{$raw_name}{set} = sub { 
+                "\$self->{'" . substr($raw_name,2) . "'} = " . $_[0] 
+            }
+                if $is_rw;
+            
             my $attr = join( ', ', 
                 map { 
                     join( ' => ', map { "'" . _emit($_) . "'" } @$_ )
                 } @{$n->{attribute}}
             );
 
-            my $name = _emit( $n->{exp1} );
-            $name =~ s/^\$//;  # remove sigil
-            return $n->{op1}{op} . " '$name' => ( $attr )";
+            return $n->{op1}{op} . " '" . substr($raw_name,2) . "' => ( $attr )";
     }
 
     if ( $n->{op1}{op} eq 'try' ) {

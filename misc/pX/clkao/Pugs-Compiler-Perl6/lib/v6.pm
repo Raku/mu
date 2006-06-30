@@ -32,6 +32,9 @@ sub pmc_compile {
     my $p6 = Pugs::Compiler::Perl6->compile( $source );
     my $perl5 = $p6->{perl5};
 
+    # Don't write when we failed to compile, otherwise it never recompiles!
+    die unless length $perl5;
+
     # $perl5 =~ s/do\{(.*)\}/$1/s;
     $perl5 = 
         "use Pugs::Runtime::Perl6;\n" . 
