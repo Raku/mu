@@ -132,13 +132,17 @@ exp:
     | '@' '(' exp ')' 
         { $_[0]->{out}= { op1 => 'array_context', exp1 => $_[3], } }
 
-    | BAREWORD            
+    | BAREWORD
         { $_[0]->{out}= { op1 => 'call', sub => $_[1], } }
 
     | BAREWORD 'IF' exp   %prec P003 
         { $_[0]->{out}= { op1 => $_[2], exp1 => $_[3], 
             exp2 => { op1 => 'call', sub => $_[1], } } }
 
+    | BAREWORD '(' ')'  %prec P003
+        { $_[0]->{out}= { op1 => 'call', sub => $_[1], param => undef, } }
+    | BAREWORD '(' exp ')'  %prec P003
+        { $_[0]->{out}= { op1 => 'call', sub => $_[1], param => $_[3], } }
     | BAREWORD exp   %prec P003
         { $_[0]->{out}= { op1 => 'call', sub => $_[1], param => $_[2], } }
     | exp '.' BAREWORD    %prec P003

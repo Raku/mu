@@ -189,7 +189,7 @@ sub ast {
             carp "parsing error in Expression: ..." . substr($match,0,30) . "... "; },
     );
 
-    my $out=$p->YYParse;
+    my $out=$p->YYParse;#(yydebug => 0x01);
     #print Dumper $out;
     return ( $out, $match );
 }
