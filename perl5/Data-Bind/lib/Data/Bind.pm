@@ -94,10 +94,17 @@ sub sub_signature {
 }
 
 sub arg_bind {
-    local $Carp::CarpLevel = 1;
     my $cv = _get_cv(caller_cv(1));
     my $invocant  = ref($_[1][0]) && ref($_[1][0]) eq 'ARRAY' ? undef : shift @{$_[1]};
-    *$cv->{sig}->bind({ invocant => $invocant, positional => $_[1][0], named => $_[1][1] }, 2);
+    my $install_local = *$cv->{sig}->bind({ invocant => $invocant, positional => $_[1][0], named => $_[1][1] }, 2);
+    # We have to install the locals here, otherwise there can be
+    # side-effects when it's too many levels away.
+    for (@$install_local) {
+	my ($name, $code) = @$_;
+	no strict 'refs';
+	*{$name} = $code;
+	Data::Bind::_forget_unlocal(2);
+    }
 }
 
 =head1 NAME
@@ -159,17 +166,19 @@ use PadWalker qw(peek_my);
 
 sub bind {
     my ($self, $args, $lv) = @_;
+    local $Carp::CarpLevel = 2;
     $lv ||= 1;
     my %bound;
 
     my $pad = peek_my($lv);
     my $named_arg = $args->{named};
+    my @ret;
 
     if ($self->invocant) {
 	croak 'invocant missing'
 	    if !defined $args->{invocant};
 
-	$self->invocant->bind(\$args->{invocant}, $lv, $pad);
+	push @ret, $self->invocant->bind(\$args->{invocant}, $lv, $pad);
     }
     else {
 	croak 'unexpected invocant'
@@ -180,7 +189,7 @@ sub bind {
 	my $param = $self->named->{$param_name};
 	if (my $current = delete $named_arg->{$param_name}) {
 	    # XXX: handle array concating
-	    $param->bind($current, $lv, $pad);
+	    push @ret, $param->bind($current, $lv, $pad);
 	    $bound{$param_name}++;
 	}
 	elsif ($param->named_only) {
@@ -190,7 +199,7 @@ sub bind {
     }
 
     if ($self->named_slurpy) {
-	$self->named_slurpy->slurpy_bind($named_arg, $lv, $pad);
+	push @ret, $self->named_slurpy->slurpy_bind($named_arg, $lv, $pad);
     }
     else {
 	# XXX: report extra incoming named args
@@ -199,7 +208,7 @@ sub bind {
     my $pos_arg = $args->{positional};
     for my $param (@{$self->positional || []}) {
 	if ($param->is_slurpy && $param->p5type ne '$') {
-	    $param->slurpy_bind($pos_arg, $lv, $pad);
+	    push @ret, $param->slurpy_bind($pos_arg, $lv, $pad);
 	    $pos_arg = [];
 	    last;
 	}
@@ -209,11 +218,11 @@ sub bind {
 	    last if $param->is_optional;
 	    croak "positional argument ".$param->name." is required";
 	}
-	$param->bind($current, $lv, $pad);
+	push @ret, $param->bind($current, $lv, $pad);
     }
     # XXX: report extra incoming positional args
 
-    return;
+    return \@ret;
 }
 
 package Data::Bind::Param;
@@ -252,6 +261,9 @@ sub bind {
     my ($self, $var, $lv, $pad) = @_;
     $lv++;
 
+    if ($self->p5type eq '&') {
+	return [ 'main::'.$self->name => $$var ];
+    }
     my $ref = $pad->{$self->container_var} or Carp::confess $self->container_var;
     if ($self->p5type eq '$') {
 	# XXX: check $var type etc, take additional ref

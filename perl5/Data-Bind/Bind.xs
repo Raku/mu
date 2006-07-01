@@ -2,7 +2,6 @@
 #include "perl.h"
 #include "XSUB.h"
 
-
 static int
 alias_mg_get(pTHX_ SV *sv, MAGIC *mg)
 {
@@ -134,6 +133,16 @@ MGVTBL alias_vtbl = {
 typedef SV *SVREF;
 
 MODULE = Data::Bind                PACKAGE = Data::Bind
+
+void
+_forget_unlocal(IV howmany)
+  CODE:
+{
+    int lv;
+    for(lv=1; lv <= howmany; ++lv) {
+        PL_scopestack[PL_scopestack_ix - (lv + 1)] = PL_savestack_ix;
+    }
+}
 
 void
 _av_store(SV *av_ref, I32 key, SV *val)
