@@ -73,19 +73,19 @@ data Variable
 data Expression
     = ExpVariable Variable
     | ExpValue    Value
-    | ExpBind
-    | ExpAssign
-    | ExpCall
-    | ExpApply
-    -- The Army Of Decompile {-
-    | ExpCond
-    | ExpGoto
-    | ExpCall
-    | ExpWhile
-    | ExpBlahBlahBlah
-    | ExpDeref
-    -- -}
-    --
+    | ExpDeref    Variable
+    | ExpBind     Expression Expression
+    | ExpAssign   Expression Expression
+    | ExpControl  Control
+
+data Control
+    = ContCall                           -- lookup a routine, call it
+    | ContApply                          -- apply a Code immediately
+    | ContCond                           -- statement_control:<if>
+    | ContGoto                           -- statement_control:<goto>
+    | ContWhile                          -- statement_control:<while>
+    | ContForeign                        -- statement_control:<mycontrol>
+
 --if 1 { 2 } else { 3 }
 &statement_control:<if>.(1,2,3)
 
