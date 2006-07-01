@@ -12,14 +12,17 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 30 Jun 2006
+  Last Modified: 1 Jul 2006
   Number: 3
-  Version: 43
+  Version: 44
 
 =head1 Changes to existing operators
 
 Several operators have been given new names to increase clarity and better
-Huffman-code the language, while others have changed precedence.
+Huffman-code the language, while others have changed precedence.  (If an
+operator is not mentioned in this Synopsis, assume that it remains the
+same as in Perl 5.  And if that doesn't make sense, assume this document
+is faulty. :)
 
 =over
 
@@ -379,14 +382,16 @@ If applied to a type name, it indicates the metaclass instance instead,
 so C<^Moose> is short for C<Moose.meta>.  It still kinda means "what
 is this thing's domain" in an abstract sort of way.
 
-=item * The C<...> prefix operator is the
-"yada, yada, yada" operator, which is used as the body in function
-prototypes.  It complains bitterly (by calling C<fail>) if it is
-ever executed.  Variant C<???> calls C<warn>, and C<!!!> calls C<die>.
-The argument is optional, but if provided, is passed onto the C<warn>,
-C<fail>, or C<die>.  Otherwise the system will make up a message for
-you based on the context.  We can't be responsible for what it might
-say.
+=item * The C<...> operator is the "yada, yada, yada" list operator,
+which is used as the body in function prototypes.  It complains
+bitterly (by calling C<fail>) if it is ever executed.  Variant C<???>
+calls C<warn>, and C<!!!> calls C<die>.  The argument is optional,
+but if provided, is passed onto the C<fail>, C<warn>, or C<die>.
+Otherwise the system will make up a message for you based on the
+context, indicating that you tried to execute something that is
+stubbed out.  (This message differs from what C<fail>, C<warn>, and
+C<die> would say by default, since the latter operators typically point
+out bad data or programming rather than just an incomplete design.)
 
 =item * In addition to the ordinary C<.> method invocation, there are
 variants C<.*>, C<.?>, and C<.+> to control how multiple related methods
@@ -809,9 +814,9 @@ reduction of C<< infix:<x> >>.  This is deemed to be an insignificant problem.
 
 =head1 Junctive operators
 
-C<|>, C<&>, and C<^> are no longer bitwise operators (see L</Operator
-Renaming>) but now serve a much higher cause: they are now the
-junction constructors.
+C<|>, C<&>, and C<^> are no longer bitwise operators (see
+L</Changes to existing operators>) but now serve a much higher cause:
+they are now the junction constructors.
 
 A junction is a single value that is equivalent to multiple values. They
 thread through operations, returning another junction representing the
@@ -892,8 +897,9 @@ to include:
     state $foo		# persistent lexical (cloned with closures)
     constant $foo	# lexically scoped compile-time constant
 
-Variable declarators such as C<my> now take a C<Signature> as their
-argument.  The parentheses around the signature may be omitted for a
+Variable declarators such as C<my> now take a I<signature> as their
+argument.  (The syntax of function signatures is described more fully in S06.)
+The parentheses around the signature may be omitted for a
 simple declaration that declares a single variable, along with its
 associated type and traits.  Parentheses must always be used when
 declaring multiple parameters:
@@ -902,17 +908,30 @@ declaring multiple parameters:
     my ($b, $c);	# okay
     my $b, $c;		# wrong: "Use of undeclared variable: $c"
 
-The syntax for a C<Signature> when one isn't expected is:
+[XXX the following probably belongs in S06.]
+The syntax for constructing a C<Signature> object when the parser isn't already
+expecting one is:
 
     :(Dog $a, *@c)
 
-The colon (and sometimes the parens) may be omitted within declarators
-where a signature is expected, for instance in the formal list of a loop
-block:
+This might be used like this:
+
+    my $sig = :(Dog $a, *@c);
+
+Signatures are expected after declarators such as C<my>, C<sub>, C<method>,
+C<rule>, etc.  In such declarators the colon may be omitted.  But it's
+also legal to use it:
+
+    my :($b, $c);		# okay
+    sub foo :($a,$b) {...}	# okay
+
+The C<< -> >> "pointy sub" token also introduces a signature, but
+in this case you must omit both the colon and the parens.  For instance,
+if you're defining the "loop variable" of a loop block:
 
     for @dogpound -> Dog $fido { ... }
 
-If a C<Signature> is assigned to (whether declared or colon form), the
+If a signature is assigned to (whether declared or colon form), the
 signature is converted to a list of lvalue variables and the ordinary
 rules of assignment apply, except that the evaluation of the right
 side and the assignment happens at time determined by the declarator.
@@ -924,10 +943,10 @@ same scalar/list distinction as ordinary assignment, so
     my $a = foo();	# foo in scalar context
     my ($a) = foo();	# foo in list context
 
-If a C<Signature> is bound to an argument list, then the binding of the
-arguments proceeds as if the C<Signature> were the formal parameters for
+If a signature is bound to an argument list, then the binding of the
+arguments proceeds as if the signature were the formal parameters for
 a function, except that, unlike in a function call, the parameters
-are bound C<rw> by default rather than C<readonly>.  See Binding below.
+are bound C<rw> by default rather than C<readonly>.  See Binding above.
 
 Note that C<temp> and C<let> are I<not> variable declarators, because
 their effects only take place at runtime.  Therefore, they take an ordinary
@@ -972,7 +991,7 @@ Note that those arguments still must comply with the subroutine's
 signature, but the presence of C<[,]> defers that test until run time for
 that argument (and for any subsequent arguments):
 
-    my @args = (scalar @foo, @bar);
+    my @args = \@foo, @bar;
     push [,] @args;
 
 is equivalent to:
@@ -1001,13 +1020,19 @@ flattens the C<Array> object into a list argument.
 Note that those two forms also allow you to specify list context on
 assignment:
 
-    @$bar = (1,2,3);
-    $bar[] = (1,2,3);
+    @$bar = 1,2,3;
+    $bar[] = 1,2,3;
 
-The last is particularly useful at the end of a long name naming an
-array attribute:
+Some lvalues can be rather lengthy, so that second form can help keep
+the "arrayness" of the lvalue close to the assignment operator:
 
     $foo.bar.baz.bletch.whatever.attr[] = 1,2,3;
+
+Otherwise you'd have to write:
+
+    @($foo.bar.baz.bletch.whatever.attr) = 1,2,3;
+
+and remember the C<@> at the front until you get to the C<=>.
 
 The empty C<[]> and C<.[]> postfix operators are interpreted as
 zero-dimensional slices returning the entire array, not null slices
@@ -1029,7 +1054,7 @@ To interpolate a function's return value, you must say:
 Within the argument list of a C<[,]>, function return values are
 automatically exploded into their various parts, as if you'd said:
 
-    \$capture := func();
+    my \$capture := func();
     push [,] $$capture: @$capture, %$capture;
 
 or some such.  The C<[,]> then handles the various zones appropriately
@@ -1038,10 +1063,12 @@ argument to the outer function call.  An invocant inserted anywhere
 else just becomes a positional argument at the front of its list,
 as if its colon changed back to a comma.
 
-If you already have a capture variable, you can interpolated all of its
-bits at once using the C<< prefix:<=> >> operator.  The above is equivalent to
+If you already have a capture variable, you can interpolate all of
+its bits at once using the C<< prefix:<=> >> operator, which serves
+to iterate or dereference a scalar that would otherwise stay packed
+into its scalar value.  The above is equivalent to:
 
-    \$capture := func();
+    my \$capture := func();
     push [,] =$capture;
 
 =head1 Piping operators
@@ -1053,7 +1080,7 @@ work with functions that accept and return lists.  For example,
                  grep { /^ \d+ $/ },
                    @data;
 
-Can also now be written:
+can also now be written:
 
      @data ==> grep { /^ \d+ $/ }
            ==> map { floor($^x / 2) }
@@ -1101,7 +1128,7 @@ If you want both meanings of colon, you have to put it twice:
 
 (For similar reasons it's best to put whitespace after the colon of a label.)
 
-=head1 C<zip>
+=head1 Traversing arrays in parallel
 
 In order to support parallel iteration over multiple arrays, Perl 6 has
 a C<zip> function that builds C<Seq> objects from the elements of two or more
@@ -1131,14 +1158,23 @@ wish to skip missing entries:
     }
 
 To read arrays serially rather than in parallel, use C<cat(@x;@y)>.
+This wins a "useless use of cat award" in this case since you could
+always just write C<(@x,@y)> to mean the same thing.  But sometimes
+it's nice to be explicit about that:
+
+    @foo := [[1,2,3],[4,5,6]]; say cat([;] @foo); # 1,2,3,4,5,6
 
 =head1 Minimal whitespace DWIMmery
 
 Whitespace is no longer allowed before the opening bracket of an array
-or hash accessor.  That is:
+or hash subscript, or the opening parenthesis of an argument list.  That is:
 
-    %monsters{'cookie'} = Monster.new;  # Valid Perl 6
-    %people  {'john'}   = Person.new;   # Not valid Perl 6
+    @deadbeef[$x]         # okay
+    @a       [$b]         # WRONG
+    %monsters{'cookie'}   # okay
+    %people  {'john'}     # WRONG
+    saymewant('cookie')   # okay
+    mewant   ('cookie')   # WRONG
 
 One of the several useful side-effects of this restriction is that
 parentheses are no longer required around the condition of control
@@ -1147,12 +1183,13 @@ constructs:
     if $value eq $target {
         print "Bullseye!";
     }
-    while 0 < $i { $i++ }
+    while $i < 10 { $i++ }
 
-It is, however, still possible to align accessors by explicitly using the
-I<long dot> syntax:
+It is, however, still possible to align subscripts and other postfix
+operators by explicitly using the I<long dot> syntax (see S02):
 
      %monsters.{'cookie'} = Monster.new;
+     %beatles\.{'ringo'}  = Beatle.new;
      %people\ .{'john'}   = Person.new;
      %cats\   .{'fluffy'} = Cat.new;
 
@@ -1160,7 +1197,7 @@ I<long dot> syntax:
 
 Perl 6 has 22 precedence levels (which is fewer than Perl 5):
 
-    terms               42 "eek" $x /abc/ (1+2) a(1) :by(2) .meth listop
+    terms               42 3.14 "eek" $x /abc/ (1+2) a(1) :by(2) .meth listop
     method postfix      . .+ .? .* .() .[] .{} .<> .«» .:: .=
     autoincrement       ++ --
     exponentiation      **
@@ -1177,7 +1214,7 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
     ternary             ?? !!
     assignment          => := ::= += -= **= xx= .= etc. (also = with simple lvalues)
     loose unary         true not
-    list ops            , print push any all etc. (also = with non-simple lvalues)
+    list ops            , print push any all '...' etc. (also list assignment)
     list infix          ¥ <== ==>
     loose and           and
     loose or            or xor err
