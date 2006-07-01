@@ -18,13 +18,13 @@ BEGIN {
         grammar => 'Pugs::Grammar::Operator',
         header  => q!
 block:
-        '->' exp 'BLOCK_START' exp '}'        
+        '->' exp 'BLOCK_START' exp 'BLOCK_END'        
         { $_[0]->{out}= { 'pointy_block' => $_[4], signature => $_[2], } }
-    |   '->' 'BLOCK_START' exp '}'        
+    |   '->' 'BLOCK_START' exp 'BLOCK_END'        
         { $_[0]->{out}= { 'pointy_block' => $_[4], signature => undef, } }
-    |   'BLOCK_START' exp '}'        
+    |   'BLOCK_START' exp 'BLOCK_END'        
         { $_[0]->{out}= { 'bare_block' => $_[2] } }
-    |   'BLOCK_START' '}'        
+    |   'BLOCK_START' 'BLOCK_END'        
         { $_[0]->{out}= { 'bare_block' => undef } }
     ;
     
@@ -168,6 +168,12 @@ exp:
     | exp '.' BAREWORD    %prec P003
         { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[3], } }
         
+    | '.' BAREWORD '(' exp ')'  %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => { 'scalar' => '$_' }, method => $_[2], param => $_[4], } }
+    | '.' BAREWORD exp   %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => { 'scalar' => '$_' }, method => $_[2], param => $_[3], } }
+    | '.' BAREWORD    %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => { 'scalar' => '$_' }, method => $_[2], } }
 
     | MY NUM attr 
         { $_[0]->{out}= { 

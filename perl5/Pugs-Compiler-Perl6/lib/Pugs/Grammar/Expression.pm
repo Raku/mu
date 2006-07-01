@@ -24,10 +24,15 @@ sub ast {
     # print "Grammar::Expression::AST '$match' \n";
     my $p;
     my $last = length( $match );
+    
+    my $block_open_count = 0;
+    
     my $lex = sub {
         my $m;
         my $whitespace_before = 0;
 
+        my @expect = $p->YYExpect;  # XXX is this expensive?
+        
         for ( 1 ) {
             $m = Pugs::Grammar::BaseCategory->ws( $match );
             # <ws> is nonstandard in that it returns a hashref instead of a Match
@@ -36,7 +41,6 @@ sub ast {
                 $match = $m->{tail};
                 $whitespace_before = 1;
             }
-            my @expect = $p->YYExpect;  # XXX is this expensive?
             
             # print "tail $match \n"; 
             
@@ -175,7 +179,12 @@ sub ast {
                 $t = [ 'MY' => $ast ]
             }
             elsif ( $ast->{stmt} eq '{' ) {
+                $block_open_count++;
                 $t = [ 'BLOCK_START' => $ast ]
+            }
+            elsif ( $ast->{stmt} eq '}' ) {
+                $block_open_count--;
+                $t = [ 'BLOCK_END' => $ast ]
             }
             else {
                 $t = [ $ast->{stmt} => $ast ]
@@ -192,10 +201,26 @@ sub ast {
         }
         $t=['',''] unless $match; # defined($t);
 
+        # 'BLOCK_END' doesn't show in @expect 
+        #    my $expect_close = grep { $_ eq 'BLOCK_END' } @expect;
+        #    warn "[ @expect ]\n";
+        #    warn "expect BLOCK_END\n" if $expect_close;
+        #    
+        #    # '}' == end of parse
+        #    #return ('', '') 
+        #    #    if $match =~ /^}/ && ! $expect_close;
+
+        # warn "BLOCK - $block_open_count\n";
+        if ( $block_open_count < 0 ) {
+            # '}' == end of parse
+            $match = '}' . $match;
+            $t=['',''];
+        }
+
         #print "expect NUM \n" if grep { $_ eq 'NUM' } @expect;
         #print "expect '/' \n" if grep { $_ eq '/' }   @expect;
 
-        # print "token: $$t[0] ", Dumper( $$t[1] );
+        # print "token: $$t[0] ", Dumper( $$t[1] ), $match;
         # print "expect: ", Dumper( @expect );
 
         return($$t[0],$$t[1]);
@@ -207,7 +232,8 @@ sub ast {
         yylex => $lex, 
         yyerror => sub { 
             local $Carp::CarpLevel = 2;
-            carp "parsing error in Expression: ..." . substr($match,0,30) . "... "; },
+            carp "parsing error in Expression: ..." . substr($match,0,30) . "... "; 
+        },
     );
 
     my $out=$p->YYParse;#(yydebug => 0x01);

@@ -1,11 +1,5 @@
 ﻿TODO list for Pugs-Compiler-Perl6
 
-- Grammar problems:
-  - :a<foo> parses as : a<foo> which gives :( a( 'foo' ) )
-    instead of pair( 'a', 'foo' )
-    see: t/11-capture.t
-  - '...' doesn't parse
-
 - parse ext/Test/lib/Test.pm
   - &?CALLER::ROUTINE
   - runtime support for caller().package and &?ROUTTINE.name

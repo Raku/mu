@@ -12,6 +12,9 @@ sub parse {
     my $class = shift;
     my $src = shift;
     my ( $ast, $tail ) = Pugs::Grammar::Expression::ast( $src );
+    if ( length( $tail ) ) {
+        $src = substr( $src, 0, - length( $tail ) );
+    }
     return Pugs::Runtime::Match->new( { 
         bool  =>   1,
         match =>   $src,
