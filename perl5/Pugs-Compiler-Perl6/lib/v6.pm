@@ -17,13 +17,15 @@ sub pmc_can_output { 1 }
 sub pmc_compile {
     my ($class, $source) = @_;
 
-    my $file = (caller(4))[1];
+    my ($package, $file) = caller(4);
     if (defined $file and $file !~ /\.pm$/i) {
         # Do the freshness check ourselves
         my $pmc = $file.'c';
         my $pmc_is_uptodate = (-s $pmc and (-M $pmc <= -M $file));
         if ($pmc_is_uptodate) {
-            local $@; do $pmc; die $@ if $@; exit 0;
+            local $@;
+            eval "package $package; do \$pmc";
+            die $@ if $@; exit 0;
         }
     }
 
@@ -37,6 +39,7 @@ sub pmc_compile {
 
     # $perl5 =~ s/do\{(.*)\}/$1/s;
     $perl5 = 
+        "package $package;\n" .
         "use Pugs::Runtime::Perl6;\n" . 
         "use strict;\n" . 
         "no warnings 'void';\n" .   # t/07-try.t, t/07-ref.t
