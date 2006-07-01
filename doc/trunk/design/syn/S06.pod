@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 30 June 2006
+  Last Modified: 1 July 2006
   Number: 6
-  Version: 38
+  Version: 39
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -2156,10 +2156,13 @@ on the other hand tends to yield error messages that are opaque to
 the user.  Syntax trees are also better in general because they are
 reversible, so things like syntax highlighters can get back to the
 original language and know which parts of the derived program come
-from which parts of the user's view of the program.
+from which parts of the user's view of the program.  Nevertheless,
+it's difficult to return a syntax tree for an unbalanced construct,
+and in such cases a textual macro may be a clearer expression of the
+evil thing you're trying to do.
 
 If you call a macro at runtime, the result of the macro is automatically
-evaluated again, so the two calls below prints the same thing:
+evaluated again, so the two calls below print the same thing:
 
     macro f { '1 + 1' }
     say f();    # compile-time call to &f
@@ -2261,7 +2264,9 @@ results in the expectation of an operator following the variable.
 else.)  Of course, the macro definition as a whole can expect
 whatever it likes afterwards, according to its syntactic category.
 (Generally, a term expects a following postfix or infix operator,
-and an operator expects a following term or prefix operator.)
+and an operator expects a following term or prefix operator.  This
+does not matter for textual macros, however, since the reparse of
+the text determines subsequent expectations.)
 
 Quasiquotes default to hygienic lexical scoping, just like closures.
 The visibility of lexical variables is limited to the q:code expression

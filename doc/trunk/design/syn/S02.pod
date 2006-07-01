@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 30 Jun 2006
+  Last Modified: 1 July 2006
   Number: 2
-  Version: 47
+  Version: 48
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1361,8 +1361,8 @@ definition as either a string or quasiquote:
     quote qTO = 'qq:x:w:to';    # qq:x:w:to//
     quote circumfix:<❰ ❱> = q:code { .quoteharder };  # or some such...
 
-In particular, these forms disable the lookahead for an adverbial argument,
-so while
+In particular, all these forms disable the lookahead for an adverbial argument,
+as if there were a space after the keyword.  So although
 
     q:n($foo)
 
@@ -1373,23 +1373,42 @@ will misinterpret C<$foo> as the C<:n> argument,
 has the advantage of misinterpreting it as the argument to the C<qn()>
 function instead.  C<:)>
 
-But parens are special that way.  Other bracketing characters are special
-only if they can be mistaken for adverbial arguments, so
+But parens are special that way.  (Even C<q()> is assumed to be a
+function call rather than a quote.)  Other bracketing characters are
+special only if they can be mistaken for adverbial arguments, so
 
     qn[stuff]
 
-is fine, while
+is fine, and means
+
+    q:n /stuff/
+
+while
 
     q:n[stuff]
 
-is not.  Basically, just don't use parens for quote delimiters, and always
-put a space after your adverbs.
+is not so fine, if the user intended "stuff" to be the string rather
+than an argument to C<:n>.  Basically, you'll be fine if you just
+never use parens for quote delimiters, and always put a space after
+your adverbs.
 
 If this is all too much of a hardship, you can define your own quote
-adverbs and operators as standard macros.
-All the uppercase adverbs are reserved for
-user-defined quotes.  All of Unicode above Latin-1 is reserved for
-user-defined quotes.
+adverbs and operators as standard macros.  The main difference is that,
+unlike
+
+    quote qn = 'q:n';
+
+declaring something like
+
+    macro qn { 'q:n' }
+
+does I<not> disable the subsequent search for an argument to C<:n>.  To
+get the equivalent, you need to add a space:
+
+    macro qn { 'q:n ' }
+
+All the uppercase adverbs are reserved for user-defined quotes.
+All Unicode delimiters above Latin-1 are reserved for user-defined quotes.
 
 =item *
 
