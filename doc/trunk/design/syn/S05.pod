@@ -14,18 +14,18 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 30 June 2006
+   Last Modified: 1 July 2006
    Number: 5
-   Version: 27
+   Version: 28
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> because they haven't been
 regular expressions for a long time.  When referring to their use in
 a grammar, the term I<rule> is preferred.
 
-=head1 New match state and capture variables
+=head1 New match result and capture variables
 
-The underlying match state object is now available as the C<$/>
+The underlying match result object is now available as the C<$/>
 variable, which is implicitly lexically scoped.  All access to the
 current (or most recent) match is through this variable, even when
 it doesn't look like it.  The individual capture variables (such as C<$0>,
