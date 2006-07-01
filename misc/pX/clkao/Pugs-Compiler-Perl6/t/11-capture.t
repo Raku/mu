@@ -1,7 +1,7 @@
 
 use v6-pugs;
 
-say "1..2";
+say "1..3";
 
 my $a;
 
@@ -16,5 +16,5 @@ sub set_a ($new_a) {
 set_a("foo1");
 if $a eq "foo1" { say "ok 2" } else { say "not ok 2" }
 
-set_a(:a<foo2>);
+set_a(:new_a<foo2>);
 if $a eq "foo2" { say "ok 3" } else { say "not ok 3" }

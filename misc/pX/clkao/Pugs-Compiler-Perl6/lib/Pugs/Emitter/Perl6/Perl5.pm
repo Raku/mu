@@ -333,6 +333,11 @@ sub default {
             if $n->{sub}{bareword} eq 'fail';
             
 
+	# XXX: builtins
+	my $subname = $n->{sub}{bareword};
+	if ($subname eq 'defined' || $subname eq 'substr' || $subname eq 'split' || $subname eq 'die') {
+	    return ' ' . _mangle_ident( $n->{sub}{bareword} ) . '(' . _emit( $n->{param} ) . ')';
+	}
         return ' ' . _mangle_ident( $n->{sub}{bareword} ) . '(' . _emit_parameter_capture( $n->{param} ) . ')';
     }
     
