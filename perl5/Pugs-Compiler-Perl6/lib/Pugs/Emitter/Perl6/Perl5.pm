@@ -108,6 +108,9 @@ sub _emit {
     return $n->{num} 
         if exists $n->{num};
         
+    return '{' . _emit( $n->{pair}{key} ) . '=>' . _emit( $n->{pair}{value} ) . '}'
+        if exists $n->{pair};
+        
     return _var_get( $n )
         if exists $n->{scalar};
         
@@ -203,8 +206,12 @@ sub default {
     my $n = $_[0];
     #warn "emit: ", Dumper( $n );
     
+    if ( exists $n->{die} ) {
+        return  "do { die '" . $n->{die} . "' }";
+    }
+
     if ( exists $n->{pointy_block} ) {
-	# XXX: no signature yet
+        # XXX: no signature yet
         return  "sub {\n" . _emit( $n->{pointy_block} ) . "\n }\n";
     }
 
@@ -307,6 +314,7 @@ sub default {
         if ( $n->{method}{bareword} eq 'perl' ) {
             return 'Pugs::Runtime::Perl6::perl(' . _emit( $n->{self} ) . ")\n";
         }
+        
         #warn "method_call: ", Dumper( $n );
         
         # "autobox"
@@ -319,6 +327,7 @@ sub default {
                     _emit( $n->{self}, '  ' );
         }
         
+        #warn "method: ", Dumper( $n );
         if ( exists $n->{self}{scalar} ) {
             # $.scalar.method(@param)
             return " " . _emit( $n->{self} ) . '->' .
@@ -327,15 +336,34 @@ sub default {
                 if $n->{self}{scalar} =~ /^\$\./;
             
             # $scalar.++;
+            # runtime decision - method or lib call
             return 
-                " Pugs::Runtime::Perl6::Scalar::" . _emit( $n->{method}, '  ' ) . 
-                "(" . _emit( $n->{self}, '  ' ) .
-                ", " . _emit( $n->{param}, '  ' ) . ")" ;
+                "( Scalar::Util::blessed " . _emit( $n->{self} ) . " ? " .
+            
+                    _emit( $n->{self} ) . "->" . 
+                    _emit( $n->{method} ) . "(" . _emit( $n->{param} ) . ")" .
+                
+                " : " .
+                
+                    " Pugs::Runtime::Perl6::Scalar::" . _emit( $n->{method}, '  ' ) . 
+                    "(" . _emit( $n->{self} ) .
+                    ", " . _emit( $n->{param} ) . ")" .
+                
+                " )";
         }
         
         if ( exists $n->{self}{op1} ) {
             # %var<item>.++;
             #warn "method: ", Dumper( $n );
+            
+            if ( $n->{self}{op1} eq 'call' ) {
+                # XXX misparsed Point.new 
+                my $self = $n->{self}{sub}{bareword};
+                return
+                    $self . "->" . 
+                    _emit( $n->{method} ) . "(" . _emit( $n->{param} ) . ")";
+            }
+            
             return " " . _emit( $n->{method} ) .
                 '(' .
                 join ( ",\n", 

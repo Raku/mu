@@ -40,6 +40,7 @@ sub pmc_compile {
     # $perl5 =~ s/do\{(.*)\}/$1/s;
     $perl5 = 
         "package $package;\n" .
+        "use Scalar::Util;\n" .
         "use Pugs::Runtime::Perl6;\n" . 
         "use strict;\n" . 
         "no warnings 'void';\n" .   # t/07-try.t, t/07-ref.t

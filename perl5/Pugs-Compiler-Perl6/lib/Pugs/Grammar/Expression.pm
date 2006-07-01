@@ -100,10 +100,31 @@ sub ast {
                 }
             }
 
-            $m = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
-            last if ( $m );
-            $m = Pugs::Grammar::Term->parse( $match, { p => 1 } );
-            last if ( $m );
+            my $m1 = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
+            my $m2 = Pugs::Grammar::Term->parse( $match, { p => 1 } );
+            #warn "m1 = " . Dumper($m1->()) . "m2 = " . Dumper($m2->());
+            #warn "m1 = " . Dumper($$m1->{tail}) . "m2 = " . Dumper($$m2->{tail});
+            #$m = $m1 || $m2;
+
+            # longest token
+            if ( $m1 && $m2 ) {
+                if ( length($$m1->{tail}) > length($$m2->{tail}) ) {
+                    $m = $m2
+                }
+                else {
+                    $m = $m1
+                }
+            }
+            else {
+                $m = $m1 if $m1;
+                $m = $m2 if $m2;
+            }
+            last if $m;
+            
+            #$m = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
+            #last if ( $m );
+            #$m = Pugs::Grammar::Term->parse( $match, { p => 1 } );
+            #last if ( $m );
             
             local $Carp::CarpLevel = 2;
             carp "unrecognized token '",substr($match,0,10),"'\n"
