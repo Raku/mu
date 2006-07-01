@@ -183,6 +183,7 @@ sub _emit_data_bind_param_spec {
     my %param = %{$_[0]};
     # XXX: translate other attributes
     $param{var} = delete $param{scalar};
+    $param{var} = delete $param{code} if $param{code};
     my $dumped = Dumper(\%param);
     $dumped =~ s/^\$VAR1 = //g;
     $dumped =~ s/;$//;
@@ -217,6 +218,26 @@ sub _emit_parameter_binding {
     );
     return (length($param) ? "  my ($param);\n" : '').
            "  Data::Bind->arg_bind(\\\@_);\n";
+}
+
+sub _emit_parameter_capture {
+    my $n = $_[0];
+    return '' unless $n;
+
+    return _emit_parameter_capture({ assoc => 'list', list => [$n], op => ',' })
+	if !($n->{assoc} && $n->{assoc} eq 'list');
+
+    my (@named, @positional);
+    for (@{$n->{list}}) {
+	if (my $pair = $_->{pair}) {
+	    push @named, $pair->{key}{single_quoted}.' => \\'._emit($pair->{value});
+	}
+	else {
+	    push @positional, '\\'._emit($_);
+	}
+    }
+
+    return '['.join(',', @positional).'], {'.join(',', @named).'}';
 }
 
 sub default {
@@ -304,7 +325,8 @@ sub default {
         $n->{sub}{bareword} = 'die'
             if $n->{sub}{bareword} eq 'fail';
             
-        return ' ' . _mangle_ident( $n->{sub}{bareword} ) . '(' . _emit( $n->{param} ) . ')';
+
+        return ' ' . _mangle_ident( $n->{sub}{bareword} ) . '(' . _emit_parameter_capture( $n->{param} ) . ')';
     }
     
     if ( $n->{op1} eq 'method_call' ) {    
@@ -334,7 +356,7 @@ sub default {
         if ( exists $n->{self}{code} ) {
             # &code.goto;
             return 
-                " \@_ = (" . _emit( $n->{param}, '  ' ) . ");\n" .
+                " \@_ = (" . _emit_parameter_capture( $n->{param}, '  ' ) . ");\n" .
                 " " . _emit( $n->{method}, '  ' ) . " " .
                     _emit( $n->{self}, '  ' );
         }
@@ -391,7 +413,7 @@ sub statement {
     }
 
     if ( $n->{op1}{stmt} eq 'sub' ) {
-        warn "sub: ",Dumper $n;
+        #warn "sub: ",Dumper $n;
 
         my $name = _mangle_ident( $n->{name}{bareword} );
 

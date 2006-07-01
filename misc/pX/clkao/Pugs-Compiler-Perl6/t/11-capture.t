@@ -5,7 +5,7 @@ say "1..2";
 
 my $a;
 
-(+$a) := (:a<foo>);
+#(+$a) := (:a<foo>);
 
 if $a eq "foo" { say "ok 1" } else { say "not ok 1" }
 
