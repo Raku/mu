@@ -39,7 +39,7 @@ sub pmc_compile {
 
     # $perl5 =~ s/do\{(.*)\}/$1/s;
     $perl5 = 
-        "package $package;\n" .
+        ( $package ? "package $package;\n" : "# no package name\n" ).
         "use Scalar::Util;\n" .
         "use Pugs::Runtime::Perl6;\n" . 
         "use strict;\n" . 
