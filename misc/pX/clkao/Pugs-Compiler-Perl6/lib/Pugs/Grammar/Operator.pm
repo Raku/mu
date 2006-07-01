@@ -24,6 +24,8 @@ block:
         { $_[0]->{out}= { 'pointy_block' => $_[4], signature => undef, } }
     |   'BLOCK_START' exp '}'        
         { $_[0]->{out}= { 'bare_block' => $_[2] } }
+    |   'BLOCK_START' '}'        
+        { $_[0]->{out}= { 'bare_block' => undef } }
     ;
     
 attr:
@@ -67,31 +69,32 @@ signature_term:
             ], %{$_[1]} } }
     ;
 
+signature_no_invocant:
+        #empty  
+        { $_[0]->{out}= { parameter => [] } }
+    |   signature_term 
+        { $_[0]->{out}= { parameter => [ $_[1] ] } }
+    |   signature_no_invocant ',' signature_no_invocant
+        { $_[0]->{out}= { 
+            parameter => [ 
+                @{$_[1]{parameter}}, 
+                @{$_[3]{parameter}}, 
+            ], 
+        } }
+    ;
+
 signature:
-        invocant parameter
-        { $_[0]->{out}= {
-            signature => {
-              invocant => $_[1],
-              parameter => $_[2],
-        } } }
+        signature_term ':' 
+        { $_[0]->{out}= { signature => { invocant => $_[1] } } }
+    |   signature_term ':' signature_no_invocant
+        { $_[0]->{out}= { 
+            signature => {invocant => $_[1],
+                          %{$_[3]} }
+        } }
+    |   signature_no_invocant
+        { $_[0]->{out}= { signature => $_[1] } }
     ;
-
-invocant:
-        #empty
-        { $_[0]->{out}= undef }
-    |   signature_term ':'
-        { $_[0]->{out}= $_[1] }
-    ;
-
-parameter:
-         #empty
-         { $_[0]->{out}= [] }
-     |   signature_term
-         { $_[0]->{out}= [ $_[1] ] }
-     |   parameter ',' parameter
-         { $_[0]->{out}= [ @{$_[1]}, @{$_[3]} ] }
-     ;
-
+    
 stmt:  
       IF exp block 
         { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[3] } }

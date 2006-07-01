@@ -165,7 +165,7 @@ sub assoc_list {
 }
 
 sub _emit_parameter_signature {
-    my $n = $_[0];
+    my $n = $_[0] or return '';
 #     { var => '$self', invocant => 1 },
 #     { var => '$title' },
 #     { var => '$subtitle', optional => 1 },
@@ -213,9 +213,9 @@ sub _emit_parameter_binding {
 #    warn Dumper(\@params);
     unshift @params, $n->{invocant} if $n->{invocant};
     my $param = join( ',' , 
-        map { _emit( $_ ) } @params
+        map { _emit( $_ ) } grep { !exists $_->{type} || $_->{type}{bareword} ne 'Code' } @params
     );
-    return "  my ($param);\n".
+    return (length($param) ? "  my ($param);\n" : '').
            "  Data::Bind->arg_bind(\\\@_);\n";
 }
 
