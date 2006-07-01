@@ -2,9 +2,12 @@
 
 - parse ext/Test/lib/Test.pm
   - &?CALLER::ROUTINE
+  - s:P5:g/foo/bar/;
+  - :$flag in capture
   - runtime support for caller().package and &?ROUTTINE.name
-  - named arg binding with Data::Bind
   - $TEST::foo in Test.pm needs to be mangled as well like the namespace.
+
+  - named arg binding with Data::Bind - (done on the pX/clkao branch)
 
 - block parsing:
   t/ref.t: if $string.ref eq Str { say "ok 1 # TODO" }
