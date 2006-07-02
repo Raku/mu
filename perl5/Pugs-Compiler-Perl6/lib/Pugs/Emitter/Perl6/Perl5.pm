@@ -500,9 +500,18 @@ sub infix {
     
     if ( $n->{op1}{op} eq ':=' ) {
         #warn "bind: ", Dumper( $n );
-        return " tie " . _emit( $n->{exp1} ) . 
-            ", 'Pugs::Runtime::Perl6::Scalar::Alias', " .
-            "\\" . _emit( $n->{exp2} );
+	if ( exists $n->{exp2}{scalar} ) {
+	    return " tie " . _emit( $n->{exp1} ) . 
+		", 'Pugs::Runtime::Perl6::Scalar::Alias', " .
+		"\\" . _emit( $n->{exp2} );
+	}
+	else {
+	    # XXX: for now, should use data::bind
+	    return _emit( $n->{exp1}).' = '._emit( $n->{exp2});
+	}
+    }
+    if ( $n->{op1}{op} eq '~~' ) {
+        return _emit( $n->{exp1} ) . ' =~ (ref(' . _emit( $n->{exp2} ).') eq "REGEX" ? '._emit($n->{exp2}).' : quotemeta('._emit($n->{exp2}).'))';
     }
 
     if ( $n->{op1}{op} eq '=' ) {
