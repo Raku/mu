@@ -6,7 +6,7 @@
 package Pugs::Grammar::Rule;
 use strict;
 use warnings;
-no  warnings qw( once redefine );
+no  warnings qw( once redefine uninitialized );
 
 use Text::Balanced; 
 use Data::Dumper;
