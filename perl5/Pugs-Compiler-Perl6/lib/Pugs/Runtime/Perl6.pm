@@ -28,6 +28,10 @@ sub name {
     return '&'.$cv->GV->STASH->NAME . '::' . $cv->GV->NAME;
 }
 
+sub package {
+    $_[0]->{cv}->GV->STASH->NAME;
+}
+
 package Pugs::Runtime::Perl6::Scalar;
 
 sub isa {

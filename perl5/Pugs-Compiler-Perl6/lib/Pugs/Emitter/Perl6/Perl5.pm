@@ -304,6 +304,10 @@ sub default {
         return " print '', " . _emit( $n->{param} ) . ";\n" .
             " print " . '"\n"'
             if $n->{sub}{bareword} eq 'say';
+
+	# XXX: handle args
+	return "Pugs::Runtime::Perl6::Routine->new(Devel::Caller::caller_cv(1))"
+            if $n->{sub}{bareword} eq 'caller';
             
         # ???
         $n->{sub}{bareword} = 'die'
