@@ -15,6 +15,7 @@ requires('Pugs::Compiler::Rule' => '0.06');
 requires('Module::Compile' => '0.16');
 requires('Scalar::Util' => 0);
 requires('Devel::Caller' => 0);
+requires('Data::Bind' => 0);
 
 recommends('Perl::Tidy' => 0);
 recommends('Moose' => 0);

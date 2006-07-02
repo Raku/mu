@@ -7,7 +7,7 @@ my $a;
 
 #(+$a) := (:a<foo>);
 
-if $a eq "foo" { say "ok 1" } else { say "not ok 1" }
+if $a eq "foo" { say "ok 1" } else { say "not ok 1 # TODO: binding not yet" }
 
 sub set_a ($new_a) {
     $a = $new_a;
