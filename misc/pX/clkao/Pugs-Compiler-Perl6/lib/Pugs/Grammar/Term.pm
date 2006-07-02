@@ -132,7 +132,9 @@ sub recompile {
             ) ),
         '&' => Pugs::Compiler::Regex->compile( q(
                 <?Pugs::Grammar::Term.ident>
-                { return { code  => "\&" . $_[0]->() ,} }
+                # XXX: this is wrong, but this makes &?ROUTINE.name
+                # works for the current emitter. fix me along with emitter fix
+                { return { op1 => 'call', code  => "\&" . $_[0]->() ,} }
             ) ),
 
         '...' => Pugs::Compiler::Regex->compile( q(
