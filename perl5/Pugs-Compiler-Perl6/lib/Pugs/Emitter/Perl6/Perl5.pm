@@ -87,10 +87,14 @@ sub emit {
 sub _emit_code {
     my $code = $_[0];
     if (substr($code, 1,1) eq '?') {
+	my $caller_level = 0;
+	while ($code =~ s/^&\?CALLER::/&?/) {
+	    ++$caller_level;
+	}
 	my $name = substr($code, 2);
 	# special!
 	if ($name eq 'ROUTINE') {
-	    return 'Pugs::Runtime::Perl6::Routine->new(Devel::Caller::caller_cv(0))';
+	    return "Pugs::Runtime::Perl6::Routine->new(Devel::Caller::caller_cv($caller_level))";
 	}
 	die 'unhandled magic variable';
     }
