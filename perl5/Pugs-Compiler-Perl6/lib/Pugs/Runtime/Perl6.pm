@@ -13,6 +13,21 @@ sub perl {
     return join( ', ', Data::Dumper::Dumper( @_ ) );
 }
 
+package Pugs::Runtime::Perl6::Routine;
+use B ();
+use Devel::Caller ();
+
+sub new {
+    my ($class, $cv) = @_;
+    bless { cv => B::svref_2object($cv) }, $class;
+}
+
+sub name {
+    my $self = shift;
+    my $cv = $self->{cv};
+    return '&'.$cv->GV->STASH->NAME . '::' . $cv->GV->NAME;
+}
+
 package Pugs::Runtime::Perl6::Scalar;
 
 sub isa {

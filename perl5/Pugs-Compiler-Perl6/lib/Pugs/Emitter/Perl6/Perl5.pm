@@ -84,6 +84,20 @@ sub emit {
         #"}";
 }
 
+sub _emit_code {
+    my $code = $_[0];
+    if (substr($code, 1,1) eq '?') {
+	my $name = substr($code, 2);
+	# special!
+	if ($name eq 'ROUTINE') {
+	    return 'Pugs::Runtime::Perl6::Routine->new(Devel::Caller::caller_cv(0))';
+	}
+	die 'unhandled magic variable';
+    }
+
+    return $code;
+}
+
 sub _emit {
     my $n = $_[0];
     #die "_emit: ", Dumper( $n ); 
@@ -99,7 +113,7 @@ sub _emit {
     return _mangle_ident( $n->{bareword} )
         if exists $n->{bareword};
         
-    return $n->{code} 
+    return _emit_code($n->{code})
         if exists $n->{code};
         
     return $n->{int} 
@@ -319,7 +333,7 @@ sub default {
         
         # "autobox"
         
-        if ( exists $n->{self}{code} ) {
+        if ( exists $n->{self}{code} && $n->{method}{bareword} eq 'goto') {
             # &code.goto;
             return 
                 " \@_ = (" . _emit( $n->{param}, '  ' ) . ");\n" .
@@ -327,7 +341,6 @@ sub default {
                     _emit( $n->{self}, '  ' );
         }
         
-        #warn "method: ", Dumper( $n );
         if ( exists $n->{self}{scalar} ) {
             # $.scalar.method(@param)
             return " " . _emit( $n->{self} ) . '->' .
@@ -358,7 +371,7 @@ sub default {
             
             if ( $n->{self}{op1} eq 'call' ) {
                 # XXX misparsed Point.new 
-                my $self = $n->{self}{sub}{bareword};
+                my $self = _emit($n->{self});
                 return
                     $self . "->" . 
                     _emit( $n->{method} ) . "(" . _emit( $n->{param} ) . ")";
@@ -372,8 +385,9 @@ sub default {
                 ')';
         }
             
+
         # normal methods or subs
-        
+
         return " " . _mangle_ident( $n->{sub}{bareword} ) .
             '(' .
             join ( ";\n",   # XXX
