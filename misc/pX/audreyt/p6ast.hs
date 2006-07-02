@@ -68,7 +68,7 @@ data Variable
         { varName     :: Identifier
         , packageName :: [Identifier]
         }
-    | VarMagick Magick
+    | VarMagic Magic
 
 data Expression
     = ExpVariable Variable
@@ -86,6 +86,15 @@ data Control
     | ContWhile                          -- statement_control:<while>
     | ContForeign                        -- statement_control:<mycontrol>
 
+data Statement = MkStatment
+    { label      :: Identifier
+    , pragmas    :: Map Identifier Value
+    , expression :: Expression
+    }
+
+
+
+
 --if 1 { 2 } else { 3 }
 &statement_control:<if>.(1,2,3)
 
@@ -98,11 +107,28 @@ data Control
 
 
 -- Anything but $?SELF -- See S02
-data Magick
-    | MagickClass
-    | MagickOS
-    | MagickVersion
-    | MagickMushroom
+data Magic
+    = MagicOS            -- $?OS        Which os am I compiled for?
+    | MagicOSVer         -- $?OSVER     Which os version am I compiled for?
+    | MagicPerlVer       -- $?PERLVER   Which Perl version am I compiled for?
+    | MagicFile          -- $?FILE      Which file am I in?
+    | MagicLine          -- $?LINE      Which line am I at?
+    | MagicScalarPackage -- $?PACKAGE   Which package am I in?
+    | MagicArrayPackages -- @?PACKAGE   Which packages am I in?
+    | MagicScalarModule  -- $?MODULE    Which module am I in?
+    | MagicArrayModules  -- @?MODULE    Which modules am I in?
+    | MagicScalarClass   -- $?CLASS     Which class am I in? (as variable)
+    | MagicArrayClasses  -- @?CLASS     Which classes am I in?
+    | MagicScalarRole    -- $?ROLE      Which role am I in? (as variable)
+    | MagicArrayRoles    -- @?ROLE      Which roles am I in?
+    | MagicScalarGrammar -- $?GRAMMAR   Which grammar am I in?
+    | MagicArrayGrammars -- @?GRAMMAR   Which grammars am I in?
+    | MagicParser        -- $?PARSER    Which Perl grammar was used to parse this statement?
+    | MagicScalarRoutine -- &?ROUTINE   Which routine am I in?
+    | MagicArrayRoutines -- @?ROUTINE   Which routines am I in?
+    | MagicScalarBlock   -- &?BLOCK     Which block am I in?
+    | MagicArrayBlocks   -- @?BLOCK     Which blocks am I in?
+
 
 data Signature
     = MkSignatureMethSingle
