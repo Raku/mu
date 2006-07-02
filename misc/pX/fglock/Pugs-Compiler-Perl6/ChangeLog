@@ -1,0 +1,24 @@
+
+- 'expr unless/if expr;'
+
+0.002  2006-06-28
+
+- added REQUIREMENTS section in v6.pm pod
+-- see http://rt.cpan.org/Public/Bug/Display.html?id=20152
+
+- uses Moose.pm as the runtime for classes
+-- implemented 'module' and 'class'
+-- very basic support for 'has', 'method', and parameter list
+-- Makefile.PL recommends 'Moose' 
+
+- properly parses pod
+-- added t/01-pod.t 
+
+- more operators
+-- added a default '.perl' implementation, which calls perl5 Dumper()
+
+- v6.pm no longer searches in development lib directories
+
+0.001  2006-06-26
+
+- initial CPAN release
