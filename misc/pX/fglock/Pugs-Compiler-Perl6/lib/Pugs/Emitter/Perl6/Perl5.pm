@@ -107,6 +107,9 @@ sub _emit {
 
     return _mangle_ident( $n->{bareword} )
         if exists $n->{bareword};
+
+    return _mangle_ident( $n->{dot_bareword} )
+        if exists $n->{dot_bareword};
         
     return $n->{code} 
         if exists $n->{code};
@@ -308,22 +311,22 @@ sub default {
     
     if ( $n->{op1} eq 'method_call' ) {    
         #warn "method_call: ", Dumper( $n );
-        if ( $n->{method}{bareword} eq 'print' ||
-             $n->{method}{bareword} eq 'warn' ) {
+        if ( $n->{method}{dot_bareword} eq 'print' ||
+             $n->{method}{dot_bareword} eq 'warn' ) {
             my $s = _emit( $n->{self} );
             if ( $s eq _mangle_var('$*ERR') ) {  
                 return " print STDERR '', " . _emit( $n->{param} );
             }
             return " print '', $s";
         }
-        if ( $n->{method}{bareword} eq 'say' ) {
+        if ( $n->{method}{dot_bareword} eq 'say' ) {
             my $s = _emit( $n->{self} );
             if ( $s eq _mangle_var('$*ERR') ) { 
                 return " print STDERR '', " . _emit( $n->{param} ) . ', "\n"';
             }
             return " print '', $s" . ', "\n"';
         }
-        if ( $n->{method}{bareword} eq 'perl' ) {
+        if ( $n->{method}{dot_bareword} eq 'perl' ) {
             return 'Pugs::Runtime::Perl6::perl(' . _emit( $n->{self} ) . ")\n";
         }
         
@@ -502,7 +505,7 @@ sub infix {
     }
 
     if ( $n->{op1}{op} eq '=' ) {
-        #warn "{'='}: ", Dumper( $n );
+        # warn "{'='}: ", Dumper( $n );
         if ( exists $n->{exp1}{scalar} ) {
             #warn "set $n->{exp1}{scalar}";
             return _var_set( $n->{exp1}{scalar} )->( _var_get( $n->{exp2} ) );

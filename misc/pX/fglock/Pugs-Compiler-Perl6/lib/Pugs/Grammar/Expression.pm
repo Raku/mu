@@ -150,13 +150,13 @@ sub ast {
         my $tail = $$m->{tail};
 
         # method call
-        if ( defined $tail && $tail =~ /^\./ ) {
-                # TODO - long dot
-                my $meth = Pugs::Grammar::Term->parse( $tail, { p => 1 } );
-                $meth->()->{self} = $m->();
-                $m = $meth;
-                $tail = $$m->{tail};
-                #print "Method: ",Dumper $m->();
+ #       if ( defined $tail && $tail =~ /^\./ ) {
+ #               # TODO - long dot
+ #               my $meth = Pugs::Grammar::Term->parse( $tail, { p => 1 } );
+ #               $meth->()->{self} = $m->();
+ #               $m = $meth;
+ #               $tail = $$m->{tail};
+ #               #print "Method: ",Dumper $m->();
 
 # TODO -
 # <fglock> like: ( name 1, 2 or 3 ) - is it parsed as name(1,2 or 3) or (name(1,2) or 3)
@@ -165,7 +165,7 @@ sub ast {
 # <TimToady> but it will fail compilation if name is not supplied by CHECK time.
 # <TimToady> it will also fail if name is declared as a unary or 0-ary func.
 
-        }
+  #      }
 
 
         {
@@ -202,6 +202,9 @@ sub ast {
         }
         elsif ( exists $ast->{bareword} ) {
             $t = [ 'BAREWORD' => $ast ]
+        }
+        elsif ( exists $ast->{dot_bareword} ) {
+            $t = [ 'DOT_BAREWORD' => $ast ]
         }
         else {
             $t = [ 'NUM' => $ast ]

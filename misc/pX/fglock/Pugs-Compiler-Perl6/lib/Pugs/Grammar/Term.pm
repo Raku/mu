@@ -164,28 +164,16 @@ sub recompile {
                 { return { code  => "\&" . $_[0]->() ,} }
             ) ),
 
-        '.' => Pugs::Compiler::Regex->compile( q(
-                (<?Pugs::Grammar::Term.ident>)
-                [
-                    <'\('> <Pugs::Grammar::Term.parenthesis>
-                    { return { 
-                       op1    => 'method_call',
-                       method => { bareword => $_[0][0]->() },
-                       param  => $_[0]{'Pugs::Grammar::Term.parenthesis'}->(),
-                    } }
-                |
-                    { return { 
-                       op1    => 'method_call',
-                       method => { bareword => $_[0][0]->() },
-                   } }
-                ]
-            ) ),
-
         '(' => Pugs::Compiler::Regex->compile( q(
                 <Pugs::Grammar::Term.parenthesis>
                 { return $_[0]{'Pugs::Grammar::Term.parenthesis'}->() }
             ) ),
 
+        '.' => Pugs::Compiler::Regex->compile( q(
+                # .method op
+                <?Pugs::Grammar::Term.ident>
+                { return { dot_bareword  => $_[0]->() ,} }
+            ) ),
         '...' => Pugs::Compiler::Regex->compile( q(
             { 
                 return { die => "not implemented" } 

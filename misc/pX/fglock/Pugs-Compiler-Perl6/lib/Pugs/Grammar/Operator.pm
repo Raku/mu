@@ -34,19 +34,19 @@ exp:
         { $_[0]->{out}= { op1 => 'call', sub => $_[1], param => $_[3], } }
     | BAREWORD exp   %prec P003
         { $_[0]->{out}= { op1 => 'call', sub => $_[1], param => $_[2], } }
-    | exp '.' BAREWORD '(' exp ')'  %prec P003
-        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[3], param => $_[5], } }
-    | exp '.' BAREWORD exp   %prec P003
-        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[3], param => $_[4], } }
-    | exp '.' BAREWORD    %prec P003
-        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[3], } }
+    | exp DOT_BAREWORD '(' exp ')'  %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[2], param => $_[4], } }
+    | exp DOT_BAREWORD exp   %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[2], param => $_[3], } }
+    | exp DOT_BAREWORD    %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[2], } }
         
-    | '.' BAREWORD '(' exp ')'  %prec P003
-        { $_[0]->{out}= { op1 => 'method_call', self => { 'scalar' => '$_' }, method => $_[2], param => $_[4], } }
-    | '.' BAREWORD exp   %prec P003
-        { $_[0]->{out}= { op1 => 'method_call', self => { 'scalar' => '$_' }, method => $_[2], param => $_[3], } }
-    | '.' BAREWORD    %prec P003
-        { $_[0]->{out}= { op1 => 'method_call', self => { 'scalar' => '$_' }, method => $_[2], } }
+    | DOT_BAREWORD '(' exp ')'  %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => { 'scalar' => '$_' }, method => $_[1], param => $_[3], } }
+    | DOT_BAREWORD exp   %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => { 'scalar' => '$_' }, method => $_[1], param => $_[2], } }
+    | DOT_BAREWORD    %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => { 'scalar' => '$_' }, method => $_[1], } }
 
     | MY NUM attr 
         { $_[0]->{out}= { 
