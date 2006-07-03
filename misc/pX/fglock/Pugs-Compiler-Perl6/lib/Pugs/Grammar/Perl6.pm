@@ -15,8 +15,12 @@ use Data::Dumper;
 
 sub perl6_expression {
     my $class = shift;
-    my $src = shift;
-    my ( $ast, $tail ) = Pugs::Grammar::Expression::ast( $src );
+    my $src   = shift;
+    my $param = shift;
+
+    #warn "perl6_expression param: ", Dumper @_;
+
+    my ( $ast, $tail ) = Pugs::Grammar::Expression::ast( $src, $param );
     if ( length( $tail ) ) {
         $src = substr( $src, 0, - length( $tail ) );
     }
@@ -36,7 +40,7 @@ sub perl6_expression {
     |
     \-\> : 
         [
-            <?ws>? <perl6_expression> <?ws>? 
+            <?ws>? <perl6_expression('no_blocks',0)> <?ws>? 
             \{ <?ws>? <statements_or_null> <?ws>? \}
             { return { 
                 pointy_block => $_[0]{statements_or_null}->(),
@@ -57,7 +61,7 @@ sub perl6_expression {
 
 *if = Pugs::Compiler::Regex->compile( q(
     (if|unless) : <?ws>? 
-    $<exp1> := <perl6_expression> <?ws>?
+    $<exp1> := <perl6_expression('no_blocks',0)> <?ws>?
     $<exp2> := <block>        
         [
             <?ws>? else <?ws>? 
@@ -70,7 +74,7 @@ sub perl6_expression {
                 } }
         |
             <?ws>? elsif <?ws>? 
-            $<exp3> := <perl6_expression> <?ws>?
+            $<exp3> := <perl6_expression('no_blocks',0)> <?ws>?
             $<exp4> := <block>
             [
                 <?ws>? else <?ws>? 
@@ -108,7 +112,7 @@ sub perl6_expression {
 
 *for = Pugs::Compiler::Regex->compile( q(
     (for|while) : <?ws>? 
-    $<exp1> := <perl6_expression> <?ws>?
+    $<exp1> := <perl6_expression('no_blocks',0)> <?ws>?
     $<exp2> := <block>        
         { return { 
                     statement => $_[0][0]->(),

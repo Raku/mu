@@ -46,13 +46,13 @@ BEGIN {
         precedence => 'tighter',
         other => 'prefix:<++>',
     );
-    __PACKAGE__->add_rule( 
-        name => '{',
-        name2 => '}',
-        assoc => 'non',
-        precedence => 'equal',
-        other => 'postcircumfix:<[ ]>',
-    );
+    #__PACKAGE__->add_rule( 
+    #    name => '{',
+    #    name2 => '}',
+    #    assoc => 'non',
+    #    precedence => 'equal',
+    #    other => 'postcircumfix:<[ ]>',
+    #);
     __PACKAGE__->recompile;
 }
 

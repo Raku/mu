@@ -18,7 +18,15 @@ $Data::Dumper::Sortkeys = 1;
 # XXX - PCR is not calling this
 *ws = &Pugs::Grammar::BaseCategory::ws;
 
-my $rx_end = qr/
+my $rx_end_with_blocks = qr/
+                ^ \s* (?: 
+                            [});] 
+                          | if \s 
+                          | unless \s
+                          | $
+                        )
+            /xs;
+my $rx_end_no_blocks = qr/
                 ^
                 (?: 
                     \s+ {
@@ -34,6 +42,14 @@ my $rx_end = qr/
 
 sub ast {
     my $match = shift;
+    my $param = shift;
+
+    my $no_blocks = exists $param->{args}{no_blocks} ? 1 : 0;
+    # warn "don't parse blocks: $no_blocks ";
+    my $rx_end = $no_blocks 
+                ? $rx_end_no_blocks
+                : $rx_end_with_blocks;
+
     $match .= '';
     if ( $match =~ /$rx_end/ ) {
         # end of parse
@@ -108,20 +124,20 @@ sub ast {
             }
             
             # XXX temporary hack - matching options in 'expected' order should fix this
-            if ( $match =~ /^{/ ) {
-                # after whitespace means block-start
-                #print "checking { ... [$whitespace_before]\n";
-                if ( $whitespace_before ) {
-                    $m = Pugs::Runtime::Match->new( { 
-                        bool  => 1,
-                        match => '{',
-                        tail  => substr( $match, 1 ),
-                        capture => { stmt => '{' },
-                    } );
-                    #print "Match: ",Dumper $m->();
-                    last;
-                }
-            }
+            #if ( $match =~ /^{/ ) {
+            #    # after whitespace means block-start
+            #    #print "checking { ... [$whitespace_before]\n";
+            #    if ( $whitespace_before ) {
+            #        $m = Pugs::Runtime::Match->new( { 
+            #            bool  => 1,
+            #            match => '{',
+            #            tail  => substr( $match, 1 ),
+            #            capture => { stmt => '{' },
+            #        } );
+            #        #print "Match: ",Dumper $m->();
+            #        last;
+            #    }
+            #}
 
             my $m1 = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
             my $m2 = Pugs::Grammar::Term->parse( $match, { p => 1 } );

@@ -168,6 +168,13 @@ sub recompile {
                 <Pugs::Grammar::Term.parenthesis>
                 { return $_[0]{'Pugs::Grammar::Term.parenthesis'}->() }
             ) ),
+        '{' => Pugs::Compiler::Regex->compile( q(
+                <?ws>? <Pugs::Grammar::Perl6.statements_or_null> <?ws>? <'}'>
+                { 
+                  return { 
+                    bare_block => $_[0]{'Pugs::Grammar::Perl6.statements_or_null'}->(),
+                } }
+            ) ),
 
         '.' => Pugs::Compiler::Regex->compile( q(
                 # .method op
