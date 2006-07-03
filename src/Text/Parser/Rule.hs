@@ -8,7 +8,7 @@ import qualified Prelude (last, length)
 import Text.Parser.OpTable
 import Text.Parser.PArrow
 import Text.Parser.PArrow.MD (MD(..), Label(..), label, Monoid(..))
-import Data.FastPackedString hiding (concatMap, concat, elem, foldl, foldl1, map, foldr, foldr1)
+import Data.ByteString hiding (concatMap, concat, elem, foldl, foldl1, map, foldr, foldr1)
 import Text.Parser.PArrow.CharSet
 import Data.Set (Set, isSubsetOf)
 import Data.Seq (Seq, toList, fromList, (<|), (|>), (><))
@@ -19,7 +19,7 @@ import Data.Char (isSpace)
 import Data.Dynamic
 import Control.Arrow
 import System.IO (stdout)
-import qualified Data.FastPackedString as Str
+import qualified Data.ByteString as Str
 import qualified Data.Seq as Seq
 import qualified Data.Map as Map
 import qualified Data.Set as Set
@@ -306,7 +306,7 @@ instance Compilable RuleTerm where
         eol (PS p s l) = (l == 0) || head (PS p (succ s) l) == '\n'
     comp x = error ("can't compile: " ++ show x)
 
-instance Compilable ([Char], FastString -> Bool) where
+instance Compilable ([Char], ByteString -> Bool) where
     comp (name, f) = (MDyn (mkLabel $ pack name) $ \s -> if f s
         then Just (take 0 s, s)
         else Nothing) >>^ (MatchStr . fst)

@@ -3,14 +3,14 @@ module Text.Parser.PArrow.Prim (runParser, Res(..), PErr) where
 
 import Text.Parser.PArrow.CharSet
 import Text.Parser.PArrow.MD
-import Data.FastPackedString (FastString(..), idx)
+import Data.ByteString (ByteString(..), idx)
 import Data.Seq ((|>))
 import qualified Data.Seq as Seq
-import qualified Data.FastPackedString as Str
+import qualified Data.ByteString as Str
 import Data.IntMap (IntMap, singleton, empty, unionWith)
 import Data.Generics
 
-newtype ParseState = MkParseState { psInput :: FastString }
+newtype ParseState = MkParseState { psInput :: ByteString }
     deriving (Show, Eq, Ord, Typeable, Data)
 
 data Res r
@@ -29,7 +29,7 @@ err i p = PErr (singleton (psIndex i) (label p))
 psIndex :: ParseState -> Int
 psIndex = idx . psInput
 
-psEmptyMatch :: ParseState -> FastString
+psEmptyMatch :: ParseState -> ByteString
 psEmptyMatch MkParseState{ psInput = (PS p s _) } = PS p s 0
 
 matcher :: forall i o. MD i o -> PSF o
@@ -113,5 +113,5 @@ backtrack (MSeq a b@(MPure{})) i = do
 backtrack _ _ = Nothing
 
 -- | Run a parser producing either a list of error messages or output.
-runParser :: Show o => MD i o -> FastString -> Res o
+runParser :: Show o => MD i o -> ByteString -> Res o
 runParser md input = optM md (MkParseState{psInput = input})

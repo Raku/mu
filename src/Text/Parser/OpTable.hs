@@ -6,7 +6,7 @@ module Text.Parser.OpTable where
 import Prelude hiding (length, lookup, null, drop, span)
 import qualified Data.Map as Map
 import qualified Data.Seq as Seq
-import qualified Data.FastPackedString as Str
+import qualified Data.ByteString as Str
 import qualified Data.List as List
 import Data.Ratio
 import Data.Generics hiding (Prefix, Infix)
@@ -14,7 +14,7 @@ import Data.Char (isDigit)
 import Data.List (find)
 import Data.Seq (Seq, fromList)
 import Data.Map (Map, insert, lookup, toAscList, (!))
-import Data.FastPackedString (empty, pack, null, drop, dropSpace, length, isPrefixOf, span, FastString(..), lineIdxs)
+import Data.ByteString (empty, pack, null, drop, dropSpace, length, isPrefixOf, span, ByteString(..), lineIdxs)
 import GHC.Prim(unsafeCoerce#)
 
 data Op
@@ -109,7 +109,7 @@ data OpTable r = MkOpTable
 emptyTable :: OpTable r
 emptyTable = MkOpTable Map.empty Map.empty Map.empty Map.empty Map.empty
 
-type Str = Str.FastString
+type Str = Str.ByteString
 type EntryMap a = Map Op (Token a)
 type TokenMap a = Map TokenName (Token a)
 

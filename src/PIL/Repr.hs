@@ -7,7 +7,7 @@ import PIL.Repr.P6Opaque as P6Opaque
 import PIL.Native.Types
 import Data.Typeable
 import qualified Data.Map as Map
-import qualified Data.FastPackedString as Str
+import qualified Data.ByteString as Str
 
 data Repr
     = P6Nil

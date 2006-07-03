@@ -92,7 +92,7 @@ grammar Signature {
     
     # this allows specifying a type on a parameter, as well parameterizing that type.
     token dwigil    { [:]**{2} }
-    token declarator { my | our | has | env | state | constant }
+    token declarator { my | our | has | state | constant }
     token type_param { <type> <?ws>+ [ <dwigil> <?ws>* <type_var> ]? }
 
     # $x, $^x, $

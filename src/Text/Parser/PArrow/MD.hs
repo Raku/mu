@@ -5,7 +5,7 @@ module Text.Parser.PArrow.MD (
 ) where
 
 import Control.Arrow
-import Data.FastPackedString (FastString, pack, cons, snoc, unpack)
+import Data.ByteString.Char8 (ByteString, pack, cons, snoc, unpack)
 import Data.List(intersperse, unzip)
 import GHC.Prim(unsafeCoerce#)
 import Text.Parser.PArrow.CharSet
@@ -16,15 +16,15 @@ import Data.Monoid
 import Data.Generics
 
 data Label = MkLabel
-    { expects   :: !(Set FastString)
-    , unexpects :: !(Set FastString)
+    { expects   :: !(Set ByteString)
+    , unexpects :: !(Set ByteString)
     }
     deriving (Eq, Ord, Data, Typeable)
 
 instance Show Label where
     show (MkLabel es us) = showSet (\x -> "<!" ++ x ++ ">") us ++ showSet id es
 
-showSet :: (String -> String) -> Set FastString -> String
+showSet :: (String -> String) -> Set ByteString -> String
 showSet f s = case Set.toAscList s of
     []  -> ""
     [x] -> f (unpack x)
@@ -37,7 +37,7 @@ instance Monoid Label where
         where
         (es, us) = unzip [ (e, u) | MkLabel e u <- xs ]
 
-mkLabel :: FastString -> Label
+mkLabel :: ByteString -> Label
 mkLabel s = MkLabel (singleton s) Set.empty
 
 label :: MD i o -> Label
@@ -54,18 +54,18 @@ label (MJoin x y)     = mappend (label x) (label y)
 label (MGreedy _ _ x) = label x
 label (MLazy _ _ x)   = label x
 
-type MStarRes o = Either FastString (Seq o)
+type MStarRes o = Either ByteString (Seq o)
 
 #ifndef HADDOCK
 data MD i o where 
     MNot    :: MD i o -> MD i o
     MChoice :: [MD i o] -> MD i o
-    MEqual  :: FastString -> MD i FastString
+    MEqual  :: ByteString -> MD i ByteString
     MSeq    :: MD i t -> MD t o -> MD i o
     MEmpty  :: MD i o
-    MDyn    :: Label -> (FastString -> Maybe (o, FastString)) -> MD i (FastString, o)
+    MDyn    :: Label -> (ByteString -> Maybe (o, ByteString)) -> MD i (ByteString, o)
     MPure   :: Label -> (i->o) -> MD i o
-    MCSet   :: CharSet -> MD i FastString
+    MCSet   :: CharSet -> MD i ByteString
     MParWire:: MD i1 o1 -> MD i2 o2 -> MD (i1,i2) (o1,o2)
     MJoin   :: MD i o1  -> MD i o2  -> MD i (o1,o2)
     -- Quantifiers

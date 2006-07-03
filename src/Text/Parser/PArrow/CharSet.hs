@@ -3,7 +3,7 @@ module Text.Parser.PArrow.CharSet where
 
 import Data.Char
 import Data.Generics
-import qualified Data.FastPackedString as Str
+import qualified Data.ByteString.Char8 as Str
 
 -- | Character sets
 data CharSet = CS_Any        -- ^ All characters
@@ -16,7 +16,7 @@ data CharSet = CS_Any        -- ^ All characters
              | CS_Ascii      -- ^ <=127
              | CS_Lower      -- ^ Lower
              | CS_Upper      -- ^ Upper
-             | CS_Enum !Str.FastString -- ^ Enumeration
+             | CS_Enum !Str.ByteString -- ^ Enumeration
              | CS_Negated !CharSet
             deriving (Eq, Ord, Data, Typeable)
 

@@ -8,7 +8,7 @@ import Data.Dynamic
 import Data.Typeable
 import qualified Data.Map as Map
 import qualified Data.Seq as Seq
-import qualified Data.FastPackedString as Str
+import qualified Data.ByteString as Str
 
 {-| 
 
