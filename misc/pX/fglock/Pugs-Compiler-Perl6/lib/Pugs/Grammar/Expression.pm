@@ -157,6 +157,14 @@ sub ast {
                 $m = $meth;
                 $tail = $$m->{tail};
                 #print "Method: ",Dumper $m->();
+
+# TODO -
+# <fglock> like: ( name 1, 2 or 3 ) - is it parsed as name(1,2 or 3) or (name(1,2) or 3)
+# <TimToady> it will be taken provisionally as a listop, with listop precedence
+# <TimToady> so name(1,2) or 3
+# <TimToady> but it will fail compilation if name is not supplied by CHECK time.
+# <TimToady> it will also fail if name is declared as a unary or 0-ary func.
+
         }
 
 
