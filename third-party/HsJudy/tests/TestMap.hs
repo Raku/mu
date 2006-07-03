@@ -2,6 +2,7 @@
 
 --import qualified Judy.MapSL as JM
 import qualified Judy.Map as JM
+
 import Judy.Map (Stringable (..))
 
 import Data.List (sort)

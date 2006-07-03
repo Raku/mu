@@ -2,7 +2,7 @@
 
 module Judy.Map2 (
     Map2 (..),
-    keys, elems
+    keys, elems, map
 ) where
 
 import Data.Typeable
@@ -18,6 +18,8 @@ import Judy.Private
 import qualified Judy.CollectionsM as CM
 import Judy.Refeable
 import Judy.HashIO
+
+import Prelude hiding (map)
 
 instance (ReversibleHashIO k, Refeable a) => CM.MapM (Map2 k a) k a IO where
     new = new_
@@ -103,56 +105,39 @@ fromList_ xs = do
 --    r <- judyLCount jj i1 i2 judyError
 --    return $ r
 
+map_ :: (Ptr Value -> Ptr Value -> IO b) -> Map2 k a -> IO [b]
+map_ f (Map2 j) = do
+    jj <- withForeignPtr j peek
+    alloca $ \vp -> do
+        poke vp (-1)
+        let loop act xs = do
+            r <- act jj vp judyError
+            if r == nullPtr
+                then return xs
+                else do x <- f r vp
+                        loop judyLPrev (x:xs)
+        loop judyLLast []
 
--- FIXME: DRY
+map :: (ReversibleHashIO k, Refeable a) => (k -> a -> b) -> Map2 k a -> IO [b]
+map f = map_ $ \r vp -> do
+    k <- peek vp
+    k' <- unHashIO k
+    v <- peek r
+    v' <- fromRef v
+    return $ f k' v'
 
 toList_ :: (ReversibleHashIO k, Refeable a) => Map2 k a -> IO [(k,a)]
-toList_ (Map2 j) = do
-    jj <- withForeignPtr j peek
-    alloca $ \vp -> do
-        poke vp (-1)
-        let f act xs = do
-                r <- act jj vp judyError
-                if r == nullPtr
-                    then return xs
-                    else do
-                        k <- peek vp
-                        k' <- unHashIO k
-                        v <- peek r
-                        v' <- fromRef v
-                        f judyLPrev ((k', v'):xs)
-        f judyLLast []
-
+toList_ = map $ \k a -> (k,a)
 
 keys :: ReversibleHashIO k => Map2 k a -> IO [k]
-keys (Map2 j) = do
-    jj <- withForeignPtr j peek
-    alloca $ \vp -> do
-        poke vp (-1)
-        let f act xs = do
-                r <- act jj vp judyError
-                if r == nullPtr
-                    then return xs
-                    else do
-                        k <- peek vp
-                        k' <- unHashIO k
-                        f judyLPrev (k':xs)
-        f judyLLast []
+keys = map_ $ \_ vp -> do
+    k <- peek vp
+    unHashIO k
 
 elems :: Refeable a => Map2 k a -> IO [a]
-elems (Map2 j) = do
-    jj <- withForeignPtr j peek
-    alloca $ \vp -> do
-        poke vp (-1)
-        let f act xs = do
-                r <- act jj vp judyError
-                if r == nullPtr
-                    then return xs
-                    else do
-                        v <- peek r
-                        v' <- fromRef v
-                        f judyLPrev (v':xs)
-        f judyLLast []
+elems = map_ $ \r _ -> do
+    v <- peek r
+    fromRef v
 
 
 

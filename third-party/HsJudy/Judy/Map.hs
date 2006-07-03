@@ -147,83 +147,41 @@ fromList_ xs = do
     mapM_ (\(k,a) -> insert_ k a m) xs
     return m
 
--- FIXME: DRY
-
-toList_ :: (Stringable k, Refeable a) => Map k a -> IO [(k,a)]
-toList_ (Map j) = do
+map_ :: (Ptr Value -> Ptr CString -> Ptr Value -> IO b) -> Map k a -> IO [b]
+map_ f (Map j) = do
     jj <- withForeignPtr j peek
     (MapIter i) <- newIter
     withForeignPtr i $ \ii -> alloca $ \cp -> alloca $ \len -> do
         poke len 0
         jp_null cp
-        let f act xs = do
-                r <- act jj ii cp len judyError
-                if r == nullPtr
-                    then return xs
-                    else do
-                        l <- peek len
-                        c <- peek cp
-                        v <- peekCAStringLen (c, fromIntegral l)
-                        d <- peek r
-                        d' <- fromRef d
-                        f judyHSIterNext ((fromString v, d'):xs)
-        f judyHSIterFirst []
-
+        let loop act xs = do
+            r <- act jj ii cp len judyError
+            if r == nullPtr
+                then return xs
+                else do x <- f r cp len
+                        loop judyHSIterNext (x:xs)
+        loop judyHSIterFirst []
 
 map :: (Stringable k, Refeable a) => (k -> a -> b) -> Map k a -> IO [b]
-map fun (Map j) = do
-    jj <- withForeignPtr j peek
-    (MapIter i) <- newIter
-    withForeignPtr i $ \ii -> alloca $ \cp -> alloca $ \len -> do
-        poke len 0
-        jp_null cp
-        let f act xs = do
-                r <- act jj ii cp len judyError
-                if r == nullPtr
-                    then return xs
-                    else do
-                        l <- peek len
-                        c <- peek cp
-                        v <- peekCAStringLen (c, fromIntegral l)
-                        d <- peek r
-                        d' <- fromRef d
-                        f judyHSIterNext ((fun (fromString v) d'):xs)
-        f judyHSIterFirst []
+map f = map_ $ \r cp len -> do
+    l <- peek len
+    c <- peek cp
+    v <- peekCAStringLen (c, fromIntegral l)
+    d <- peek r
+    d' <- fromRef d
+    return $ f (fromString v) d'
 
-
-
+toList_ :: (Stringable k, Refeable a) => Map k a -> IO [(k,a)]
+toList_ = map $ \k a -> (k, a)
 
 elems :: Refeable a => Map k a -> IO [a]
-elems (Map j) = do
-    jj <- withForeignPtr j peek
-    (MapIter i) <- newIter
-    withForeignPtr i $ \ii -> alloca $ \cp -> alloca $ \len -> do
-        poke len 0
-        jp_null cp
-        let f act xs = do
-                r <- act jj ii cp len judyError
-                if r == nullPtr
-                    then return xs
-                    else do
-                        d <- peek r
-                        d' <- fromRef d
-                        f judyHSIterNext (d':xs)
-        f judyHSIterFirst []
+elems = map_ $ \r _ _ -> do
+    d <- peek r
+    fromRef d
 
 keys :: Stringable k => Map k a -> IO [k]
-keys (Map j) = do
-    jj <- withForeignPtr j peek
-    (MapIter i) <- newIter
-    withForeignPtr i $ \ii -> alloca $ \cp -> alloca $ \len -> do
-        poke len 0
-        jp_null cp
-        let f act xs = do
-                r <- act jj ii cp len judyError
-                if r == nullPtr
-                    then return xs
-                    else do
-                        l <- peek len
-                        c <- peek cp
-                        v <- peekCAStringLen (c, fromIntegral l)
-                        f judyHSIterNext ((fromString v):xs)
-        f judyHSIterFirst []
+keys = map_ $ \_ cp len -> do
+    l <- peek len
+    c <- peek cp
+    v <- peekCAStringLen (c, fromIntegral l)
+    return $ fromString v

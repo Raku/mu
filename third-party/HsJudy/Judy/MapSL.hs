@@ -100,71 +100,37 @@ fromList_ xs = do
     mapM_ (\(k,a) -> insert_ k a m) xs
     return m
 
--- FIXME: DRY
-
-toList_ :: (Stringable k, Refeable a) => MapSL k a -> IO [(k,a)]
-toList_ (MapSL j) = do
+map_ :: (Ptr Value -> CString -> IO b) -> MapSL k a -> IO [b]
+map_ f (MapSL j) = do
     jj <- withForeignPtr j peek
     alloca $ \vp -> do
         poke vp (-1)
-        let f act xs = do
-                r <- act jj vp judyError
-                if r == nullPtr
-                    then return xs
-                    else do
-                        k <- peekCAString vp
-                        let k' = fromString k
-                        v <- peek r
-                        v' <- fromRef v
-                        f judySLPrev ((k', v'):xs)
-        f judySLLast []
+        let loop act xs = do
+            r <- act jj vp judyError
+            if r == nullPtr
+                then return xs
+                else do x <- f r vp
+                        loop judySLPrev (x:xs)
+        loop judySLLast []
 
 map :: (Stringable k, Refeable a) => (k -> a -> b) -> MapSL k a -> IO [b]
-map fun (MapSL j) = do
-    jj <- withForeignPtr j peek
-    alloca $ \vp -> do
-        poke vp (-1)
-        let f act xs = do
-                r <- act jj vp judyError
-                if r == nullPtr
-                    then return xs
-                    else do
-                        k <- peekCAString vp
-                        let k' = fromString k
-                        v <- peek r
-                        v' <- fromRef v
-                        f judySLPrev ((fun k' v'):xs)
-        f judySLLast []
+map f = map_ $ \r vp -> do
+    k <- peekCAString vp
+    v <- peek r
+    v' <- fromRef v
+    return $ f (fromString k) v'
+
+toList_ :: (Stringable k, Refeable a) => MapSL k a -> IO [(k,a)]
+toList_ = map $ \k a -> (k,a)
+
 
 keys :: Stringable k => MapSL k a -> IO [k]
-keys (MapSL j) = do
-    jj <- withForeignPtr j peek
-    alloca $ \vp -> do
-        poke vp (-1)
-        let f act xs = do
-                r <- act jj vp judyError
-                if r == nullPtr
-                    then return xs
-                    else do
-                        k <- peekCAString vp
-                        let k' = fromString k
-                        f judySLPrev (k':xs)
-        f judySLLast []
+keys = map_ $ \_ vp -> do
+    k <- peekCAString vp
+    return $ fromString k
 
 elems :: Refeable a => MapSL k a -> IO [a]
-elems (MapSL j) = do
-    jj <- withForeignPtr j peek
-    alloca $ \vp -> do
-        poke vp (-1)
-        let f act xs = do
-                r <- act jj vp judyError
-                if r == nullPtr
-                    then return xs
-                    else do
-                        v <- peek r
-                        v' <- fromRef v
-                        f judySLPrev (v':xs)
-        f judySLLast []
-
-
+elems = map_ $ \r _ -> do
+    v <- peek r
+    fromRef v
 
