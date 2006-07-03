@@ -28,8 +28,8 @@ newtype Frozen a = Frozen a
 
 -- Not sure if it's the best way to get this pointer, but works.
 #def void *j_pjerr(void) { return PJERR; }
-foreign import ccall unsafe "j_pjerr" j_pjerr :: IO (Ptr Value)
-pjerr = unsafePerformIO j_pjerr
+foreign import ccall unsafe "j_pjerr" pjerr :: Ptr Value
+
 
 -- what do we gain from doing that newtype instead of simply doing: type Judy1Array = () ?
 newtype Judy1Array = Judy1Array Judy1Array

@@ -13,14 +13,7 @@ main = do
     putStrLn "# Map tests:"
     
     -- FIXME: A better way to organize this tests must exist...
- 
-    -- KILLER SEQUENCE:
-    --putStrLn $ show $ last $ take 100000 [1..]
-    testElems
-
-
-    --sequence $ take 1000 $ repeat testSimple
-    sequence [testSimple, testDelete, testOverwrite, testMember, testElems, testKeys, testIntKey]
+    sequence [testSimple, testDelete, testOverwrite, testMember, testElems, testKeys, testIntKey, testLotsOfMem]
 
 check l = do
     if and l
@@ -117,5 +110,17 @@ testIntKey = do
     check [a == [], (sort b) == [22,59],
            (sort c) == ["i am not a number", "string"],
            d, not e, f == Just "i am not a number"]
+
+testLotsOfMem = do
+    putStrLn $ "# " ++ (show $ last $ take 100000 [1..])
+    putStr "lots of mem:  \t"
+    s <- newStringInt
+    a <- JM.elems s
+    alter "haha" 42 s
+    alter "ahoy" 1 s
+    alter "nop" 2 s
+    b <- JM.elems s
+    check [a == [], (sort b) == [1,2,42]]
+
 
 

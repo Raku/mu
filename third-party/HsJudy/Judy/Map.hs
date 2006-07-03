@@ -5,7 +5,7 @@ module Judy.Map (
     Map (..),
 
     -- FIXME: need to move to MapM api
-    elems, keys
+    elems, keys, map
 ) where
 
 import Data.Typeable
@@ -20,7 +20,9 @@ import Judy.Private
 import qualified Judy.CollectionsM as CM
 import Judy.Refeable
 
--- ATTENTION:
+import Prelude hiding (map)
+
+
 -- Refeable is now in Judy/Refeable.hs
 
 instance (Stringable k, Refeable a) => CM.MapM (Map k a) k a IO where
@@ -65,20 +67,23 @@ instance Show (Map k a) where
 -- used by some other structure (you can't just free, need some refcounting
 -- or use some newUniqueStablePtr, dunno yet)!
 
-{-foreign import ccall "wrapper" mkFin :: (Ptr JudyHS -> IO ()) -> IO (FunPtr (Ptr JudyHS -> IO ()))
+-- Plan: make a mini-GC of my own.
+
+foreign import ccall "wrapper" mkFin :: (Ptr JudyHS -> IO ()) -> IO (FunPtr (Ptr JudyHS -> IO ()))
 
 finalize :: Ptr JudyHS -> IO ()
 finalize j = do
     v <- judyHSFreeArray j judyError
-    putStrLn $ "\n (FINALIZER CALLED FOR "++ (show j) ++  ": " ++ (show v) ++ ") "
+    --putStrLn $ "\n(FINALIZER CALLED FOR "++ (show j) ++  ": " ++ (show v) ++ ")\n"
     return ()
--}
+
 new_ :: IO (Map k a)
 new_ = do
     fp <- mallocForeignPtr
 --    putStr $ " (NEW on " ++ (show fp) ++ ") "
 --    finalize' <- mkFin finalize
 --    addForeignPtrFinalizer finalize' fp 
+    addForeignPtrFinalizer judyHS_free_ptr fp 
     withForeignPtr fp $ flip poke nullPtr
     return $ Map fp
 
@@ -93,6 +98,7 @@ insert_ k v (Map j) = withForeignPtr j $ \j' -> do
                 v' <- toRef v
                 poke r v'
                 return ()
+
 
 lookup_ :: (Stringable k, Refeable a) => k -> Map k a -> IO (Maybe a)
 lookup_ k (Map j) = do
@@ -162,6 +168,29 @@ toList_ (Map j) = do
                         d' <- fromRef d
                         f judyHSIterNext ((fromString v, d'):xs)
         f judyHSIterFirst []
+
+
+map :: (Stringable k, Refeable a) => (k -> a -> b) -> Map k a -> IO [b]
+map fun (Map j) = do
+    jj <- withForeignPtr j peek
+    (MapIter i) <- newIter
+    withForeignPtr i $ \ii -> alloca $ \cp -> alloca $ \len -> do
+        poke len 0
+        jp_null cp
+        let f act xs = do
+                r <- act jj ii cp len judyError
+                if r == nullPtr
+                    then return xs
+                    else do
+                        l <- peek len
+                        c <- peek cp
+                        v <- peekCAStringLen (c, fromIntegral l)
+                        d <- peek r
+                        d' <- fromRef d
+                        f judyHSIterNext ((fun (fromString v) d'):xs)
+        f judyHSIterFirst []
+
+
 
 
 elems :: Refeable a => Map k a -> IO [a]
