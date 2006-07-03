@@ -176,6 +176,25 @@ sub recompile {
                 } }
             ) ),
 
+
+        '->' => Pugs::Compiler::Regex->compile( q( 
+        [
+            <?ws>? <Pugs::Grammar::Perl6.perl6_expression('no_blocks',0)> <?ws>? 
+            \{ <?ws>? <Pugs::Grammar::Perl6.statements_or_null> <?ws>? \}
+            { return { 
+                pointy_block => $_[0]{'Pugs::Grammar::Perl6.statements_or_null'}->(),
+                signature    => $_[0]{'Pugs::Grammar::Perl6.perl6_expression'}->(),
+            } }
+        |
+            <?ws>?
+            \{ <?ws>? <Pugs::Grammar::Perl6.statements_or_null> <?ws>? \}
+            { return { 
+                pointy_block => $_[0]{'Pugs::Grammar::Perl6.statements_or_null'}->(),
+                signature    => undef,
+            } }
+        ]
+            ) ),
+
         '.' => Pugs::Compiler::Regex->compile( q(
                 # .method op
                 <?Pugs::Grammar::Term.ident>

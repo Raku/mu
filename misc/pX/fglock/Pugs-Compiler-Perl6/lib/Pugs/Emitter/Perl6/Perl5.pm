@@ -439,7 +439,11 @@ sub statement {
         return  $export .
                 " sub " . $name . 
                 " {\n" .
-                    " my \$self = \$_[0]; " .  # default binding 
+                    (
+                        $n->{statement} =~ /method/
+                        ? " my \$self = shift; "   # default invocant 
+                        : ""
+                    ) .
                     _emit_parameter_binding( $n->{signature} ) .
                     _emit( $n->{block} ) . 
                 "\n }";

@@ -164,7 +164,7 @@ sub perl6_expression {
 
 
 *signature_term_ident = Pugs::Compiler::Regex->compile( q(
-        (  ( <'$'>|<'%'>|<'@'>|<'&'> )  <alnum>+ )
+        (  ( <'$'>|<'%'>|<'@'>|<'&'> )  <alpha>  [<alnum>|_]* )
             { return $_[0][0]->() }
 ),
     { grammar => __PACKAGE__ }
