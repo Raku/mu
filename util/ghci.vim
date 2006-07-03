@@ -50,9 +50,10 @@ endif
 " ignore banner and empty lines, 
 " fetch file/line-info from error message
 setlocal errorformat=%-GCompiling%.%#,
-                    \%E%f:%l%c:,
-                    \%+C\ \ %#%m,
                     \%E%f:%l:%c:\ %m,
+                    \%E%f:%l:%c:%m,
+                    \%E%f:%l:%c:,
+                    \%+C\ \ %#%m,
                     \%+C\ \ %#%m
                     "\%+GFailed,\ %m,
                     "\%+GOk,\ %m,
