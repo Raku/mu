@@ -610,8 +610,8 @@ sub prefix {
     
     if ( $n->{op1}{op} eq 'my' ||
          $n->{op1}{op} eq 'our' ) {
-        die "not implemented 'attribute'",Dumper $n
-            if @{$n->{attribute}};
+        #die "not implemented 'attribute'",Dumper $n
+        #    if @{$n->{attribute}};
         return $n->{op1}{op} . ' ' . _emit( $n->{exp1} );
     }
 

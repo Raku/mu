@@ -32,13 +32,13 @@ sub add_rule {
 
 
 BEGIN {
-    __PACKAGE__->add_rule( 
-        name => '(',
-        name2 => ')',
-        assoc => 'non',
-        precedence => 'equal',
-        other => 'circumfix:<( )>',
-    );
+    #__PACKAGE__->add_rule( 
+    #    name => '(',
+    #    name2 => ')',
+    #    assoc => 'non',
+    #    precedence => 'equal',
+    #    other => 'circumfix:<( )>',
+    #);
     __PACKAGE__->add_rule( 
         name => '[',
         name2 => ']',

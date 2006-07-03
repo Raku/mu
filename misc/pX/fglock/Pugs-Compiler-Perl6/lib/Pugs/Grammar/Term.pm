@@ -105,7 +105,8 @@ sub angle_quoted {
         \:?     # $:x
         [
             [ \:\: ]?
-            [ _ | <?alnum> ]+
+            [ _ | <?alpha> ]
+            [ _ | <?alnum> ]*
         ]+
     |   <before \< | \[ | \{ >   # $<thing> == $/<thing>; $[thing] = $/[thing]
     |   \/      # $/
@@ -133,6 +134,13 @@ sub recompile {
         '&' => Pugs::Compiler::Regex->compile( q(
                 <?Pugs::Grammar::Term.ident>
                 { return { code  => "\&" . $_[0]->() ,} }
+            ) ),
+
+        '(' => Pugs::Compiler::Regex->compile( q(
+                # <Pugs::Grammar::Term.ident>
+                <Pugs::Grammar::Perl6.perl6_expression> 
+                <'\)'>
+                { return $_[0]{'Pugs::Grammar::Perl6.perl6_expression'}->() }
             ) ),
 
         '...' => Pugs::Compiler::Regex->compile( q(
