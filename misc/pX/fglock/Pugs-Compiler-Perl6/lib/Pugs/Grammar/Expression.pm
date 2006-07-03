@@ -197,13 +197,8 @@ sub ast {
         $ast->{pos} = $last - length( $match );
         my $t;
         if ( exists $ast->{stmt} ) {
-
-            if ( $ast->{stmt} eq 'my' 
-                || $ast->{stmt} eq 'our' 
-                || $ast->{stmt} eq 'has' ) {
-                $t = [ 'MY' => $ast ]
-            }
-            elsif ( $ast->{stmt} eq '{' ) {
+            # unused!
+            if ( $ast->{stmt} eq '{' ) {
                 $t = [ 'BLOCK_START' => $ast ]
             }
             elsif ( $ast->{stmt} eq '}' ) {
@@ -214,7 +209,14 @@ sub ast {
             }
         }
         elsif ( exists $ast->{op} ) {
-            $t = [ $ast->{op} => $ast ]
+            if (  $ast->{op} eq 'my' 
+               || $ast->{op} eq 'our' 
+               || $ast->{op} eq 'has' ) {
+                $t = [ 'MY' => $ast ]
+            }
+            else {
+                $t = [ $ast->{op} => $ast ];
+            }
         }
         elsif ( exists $ast->{bareword} ) {
             $t = [ 'BAREWORD' => $ast ]
@@ -231,7 +233,7 @@ sub ast {
         #print "expect NUM \n" if grep { $_ eq 'NUM' } @expect;
         #print "expect '/' \n" if grep { $_ eq '/' }   @expect;
 
-        # print "token: $$t[0] ", Dumper( $$t[1] ); #, $match;
+        #print "token: $$t[0] ", Dumper( $$t[1] ); #, $match;
         #print "expect: ", Dumper( @expect );
 
         return($$t[0],$$t[1]);

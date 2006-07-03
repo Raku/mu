@@ -331,15 +331,23 @@ sub default {
         }
         
         #warn "method_call: ", Dumper( $n );
-        
+
+        # constructor
+        if ( exists $n->{self}{bareword} ) {
+            # Str.new;
+            return 
+                " " . _emit( $n->{self} ) . "->" . _emit( $n->{method} ) . 
+                "(" . _emit( $n->{param} ) . ") ";
+        }
+    
         # "autobox"
         
         if ( exists $n->{self}{code} ) {
             # &code.goto;
             return 
-                " \@_ = (" . _emit( $n->{param}, '  ' ) . ");\n" .
-                " " . _emit( $n->{method}, '  ' ) . " " .
-                    _emit( $n->{self}, '  ' );
+                " \@_ = (" . _emit( $n->{param} ) . ");\n" .
+                " " . _emit( $n->{method} ) . " " .
+                    _emit( $n->{self} );
         }
         
         #warn "method: ", Dumper( $n );
@@ -429,9 +437,9 @@ sub statement {
         }
 
         return  $export .
-                " " . $n->{statement} . 
-                ' ' . $name . 
-                " {\n" . 
+                " sub " . $name . 
+                " {\n" .
+                    " my \$self = \$_[0]; " .  # default binding 
                     _emit_parameter_binding( $n->{signature} ) .
                     _emit( $n->{block} ) . 
                 "\n }";

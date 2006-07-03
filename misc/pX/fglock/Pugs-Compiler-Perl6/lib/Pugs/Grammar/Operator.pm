@@ -17,7 +17,19 @@ BEGIN {
     $operator = Pugs::Grammar::Precedence->new( 
         grammar => 'Pugs::Grammar::Operator',
         header  => q!
-        
+  
+attr:
+        #empty  
+        { $_[0]->{out}= { attribute => [] } }
+    |   BAREWORD  BAREWORD  attr
+        { $_[0]->{out}= { 
+            attribute => [ 
+                [$_[1], $_[2],],
+                @{$_[3]{attribute}}, 
+            ], 
+        } }
+    ;
+      
 exp: 
       NUM                 
         { $_[0]->{out}= $_[1] }
@@ -34,11 +46,19 @@ exp:
         { $_[0]->{out}= { op1 => 'call', sub => $_[1], param => $_[3], } }
     | BAREWORD exp   %prec P003
         { $_[0]->{out}= { op1 => 'call', sub => $_[1], param => $_[2], } }
+
     | exp DOT_BAREWORD '(' exp ')'  %prec P003
         { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[2], param => $_[4], } }
     | exp DOT_BAREWORD exp   %prec P003
         { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[2], param => $_[3], } }
     | exp DOT_BAREWORD    %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[2], } }
+        
+    | BAREWORD DOT_BAREWORD '(' exp ')'  %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[2], param => $_[4], } }
+    | BAREWORD DOT_BAREWORD exp   %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[2], param => $_[3], } }
+    | BAREWORD DOT_BAREWORD    %prec P003
         { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[2], } }
         
     | DOT_BAREWORD '(' exp ')'  %prec P003
@@ -50,13 +70,13 @@ exp:
 
     | MY NUM attr 
         { $_[0]->{out}= { 
-            op1 => { op => $_[1]{stmt} }, 
+            op1 => { op => $_[1]{op} }, 
             fixity => 'prefix', 
             exp1 => $_[2],
             %{$_[3]}, } }
     | MY BAREWORD NUM attr 
         { $_[0]->{out}= { 
-            op1 => { op => $_[1]{stmt} }, 
+            op1 => { op => $_[1]{op} }, 
             fixity => 'prefix', 
             exp1 => $_[3],
             type => { bareword => $_[2], },
