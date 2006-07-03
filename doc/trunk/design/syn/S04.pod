@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 30 June 2006
+  Last Modified: 3 July 2006
   Number: 4
-  Version: 25
+  Version: 26
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -77,7 +77,7 @@ If you declare a lexical twice in the same scope, it is the same lexical:
 
 If you've referred to C<$x> prior to the first declaration, and the compiler
 tentatively bound it to C<$OUTER::x>, then it's an error to declare it, and
-the compiler is allowed to complain at that point.  If such use can't
+the compiler is required to complain at that point.  If such use can't
 be detected because it is hidden in an eval, then it is erroneous, since
 the C<eval()> compiler might bind to either C<$OUTER::x> or the subsequently
 declared "C<my $x>".
@@ -117,6 +117,9 @@ causes C<$x> to start with its current value.  Use
     temp undefine $x;
 
 to get the Perl 5 behavior.
+
+Note that temporizations that are undone upon scope exit must be
+prepared to be redone if a continuation within that scope is taken.
 
 =head1 Statement-ending blocks
 
@@ -409,6 +412,17 @@ To ignore all unhandled exceptions, use an empty C<default> case.
 of the C<CATCH> block.  Handled exceptions break out past this implicit
 rethrow.)
 
+A C<CATCH> block sees the lexical scope in which it defined, but the
+dynamic scope in which it is called, that is, as if it were called
+from the dynamic location that threw the exception.  That is, the
+stack is not unwound until some exception handler chooses to
+unwind it by "handling" the exception in question.  So logically,
+if the C<CATCH> block throws its own exception, you would expect the
+C<CATCH> block to catch its own exception recursively forever.  However,
+a C<CATCH> must not behave that way, so we say that a C<CATCH> block
+never attempts to handle any exception thrown within its own dynamic scope.
+(Otherwise the C<die> in the previous paragraph would never work.)
+
 =head1 Control Exceptions
 
 All abnormal control flow is, in the general case, handled by the
@@ -495,7 +509,9 @@ As with calls to C<return>, the warning control exception is an
 abstraction that the compiler is free to optimize away (along with the
 associated continuation) when the compiler or runtime can determine
 that the semantics would be preserved by merely printing out the
-error and going on.
+error and going on.  Since all exception handlers run in the dynamic
+context of the throw, that reduces to simply returning from the C<warn>
+function most of the time.
 
 =head1 The goto statement
 
