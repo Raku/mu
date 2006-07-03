@@ -35,29 +35,21 @@ my $rx_end = qr/
 sub ast {
     my $match = shift;
     $match .= '';
-    
     if ( $match =~ /$rx_end/ ) {
         # end of parse
         return (undef, $match);
     }
-
     #print "Grammar::Expression::ast '$match' \n";
     my $p;
     my $last = length( $match );
     
-    my $block_open_count = 0;
-    
     my $lex = sub {
-
         #print "Grammar::Expression::ast::lex '$match' \n";
-        
         if ( $match =~ /$rx_end/ ) {
             #warn "end of expression at: [",substr($match,0,10),"]";
             return ('', '');
         }
-        
         #print "still here\n";
-
         my $m;
         my $whitespace_before = 0;
 
@@ -134,8 +126,6 @@ sub ast {
             my $m1 = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
             my $m2 = Pugs::Grammar::Term->parse( $match, { p => 1 } );
             #warn "m1 = " . Dumper($m1->()) . "m2 = " . Dumper($m2->());
-            #warn "m1 = " . Dumper($$m1->{tail}) . "m2 = " . Dumper($$m2->{tail});
-            #$m = $m1 || $m2;
 
             # longest token
             if ( $m1 && $m2 ) {
@@ -152,18 +142,13 @@ sub ast {
             }
             last if $m;
             
-            #$m = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
-            #last if ( $m );
-            #$m = Pugs::Grammar::Term->parse( $match, { p => 1 } );
-            #last if ( $m );
-            
             local $Carp::CarpLevel = 2;
             carp "unrecognized token '",substr($match,0,10),"'\n"
-                if $match;
-            
+                if $match;            
         } # /for
             
         #print Dumper $m;
+        #print $match;
         my $ast = $m->();
 
         {
@@ -198,11 +183,9 @@ sub ast {
                 $t = [ 'MY' => $ast ]
             }
             elsif ( $ast->{stmt} eq '{' ) {
-                $block_open_count++;
                 $t = [ 'BLOCK_START' => $ast ]
             }
             elsif ( $ast->{stmt} eq '}' ) {
-                $block_open_count--;
                 $t = [ 'BLOCK_END' => $ast ]
             }
             else {
@@ -221,31 +204,14 @@ sub ast {
         #warn "T ",Dumper($t), "MATCH $match\n";
         $t=['',''] unless $ast;  #$match; # defined($t);
 
-        # 'BLOCK_END' doesn't show in @expect 
-        #    my $expect_close = grep { $_ eq 'BLOCK_END' } @expect;
-        #    warn "[ @expect ]\n";
-        #    warn "expect BLOCK_END\n" if $expect_close;
-        #    
-        #    # '}' == end of parse
-        #    #return ('', '') 
-        #    #    if $match =~ /^}/ && ! $expect_close;
-
-        # warn "BLOCK - $block_open_count\n";
-#        if ( $block_open_count < 0 ) {
-#            # '}' == end of parse
-#            $match = '}' . $match;
-#            $t=['',''];
-#        }
         #print "expect NUM \n" if grep { $_ eq 'NUM' } @expect;
         #print "expect '/' \n" if grep { $_ eq '/' }   @expect;
 
-        #print "token: $$t[0] ", Dumper( $$t[1] ); #, $match;
+        # print "token: $$t[0] ", Dumper( $$t[1] ); #, $match;
         # print "expect: ", Dumper( @expect );
 
         return($$t[0],$$t[1]);
     };
-
-    # TODO - check for remaining whitespace!
 
     $p = Pugs::Grammar::Operator->new(
         yylex => $lex, 
