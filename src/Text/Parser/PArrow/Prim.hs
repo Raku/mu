@@ -3,10 +3,10 @@ module Text.Parser.PArrow.Prim (runParser, Res(..), PErr) where
 
 import Text.Parser.PArrow.CharSet
 import Text.Parser.PArrow.MD
-import Data.ByteString (ByteString(..), idx)
+import Data.ByteString.Base (ByteString(..))
 import Data.Seq ((|>))
 import qualified Data.Seq as Seq
-import qualified Data.ByteString as Str
+import qualified Data.ByteString.Char8 as Str
 import Data.IntMap (IntMap, singleton, empty, unionWith)
 import Data.Generics
 
@@ -27,7 +27,7 @@ err :: ParseState -> MD i o -> Res o'
 err i p = PErr (singleton (psIndex i) (label p))
 
 psIndex :: ParseState -> Int
-psIndex = idx . psInput
+psIndex MkParseState{ psInput = (PS _ s _) } = s
 
 psEmptyMatch :: ParseState -> ByteString
 psEmptyMatch MkParseState{ psInput = (PS p s _) } = PS p s 0

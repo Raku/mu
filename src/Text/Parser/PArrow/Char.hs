@@ -3,7 +3,7 @@ module Text.Parser.PArrow.Char where
 
 import Text.Parser.PArrow.CharSet
 import Text.Parser.PArrow.MD
-import Data.ByteString (ByteString, pack)
+import Data.ByteString.Char8 (ByteString, pack)
 
 -- | Match a single given character and return it.
 char :: Char -> MD i ByteString

@@ -14,7 +14,9 @@ import Data.Char (isDigit)
 import Data.List (find)
 import Data.Seq (Seq, fromList)
 import Data.Map (Map, insert, lookup, toAscList, (!))
-import Data.ByteString (empty, pack, null, drop, dropSpace, length, isPrefixOf, span, ByteString(..), lineIdxs)
+import Data.ByteString (elemIndex)
+import Data.ByteString.Base (ByteString(..))
+import Data.ByteString.Char8 (empty, pack, null, drop, dropSpace, length, isPrefixOf, span, ByteString)
 import GHC.Prim(unsafeCoerce#)
 
 data Op
@@ -46,7 +48,7 @@ data DynResult
 
 instance Data DynResult where
     gunfold = error "gunfold"
-        :: (forall r. c (Str -> r) -> c r) -> (forall r . r -> c r) -> Constr -> c DynResult
+--      :: (forall r. c (Str -> r) -> c r) -> (forall r . r -> c r) -> Constr -> c DynResult
     toConstr = error "gfoldl"
     dataTypeOf = error "dataTypeOf"
 
@@ -464,3 +466,11 @@ instance (OpClass ((String -> Token r -> [r] -> r) -> (Str -> Op) -> String -> [
 splitWords :: String -> [String]
 splitWords [] = [""]
 splitWords x  = List.words x
+
+-- a set of positions where newline occurs
+lineIdxs :: ByteString -> [Int]
+lineIdxs ps@(PS _ idx _)
+    | null ps = []
+    | otherwise = case elemIndex 0x0A ps of
+             Nothing -> []
+             Just n  -> (n + idx:lineIdxs (drop (n+1) ps))
