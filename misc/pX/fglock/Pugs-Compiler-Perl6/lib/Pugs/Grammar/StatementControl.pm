@@ -22,8 +22,6 @@ sub register_sub {
 
 BEGIN {
     __PACKAGE__->add_rule(
-        ';' => q( { return { stmt => ';'} } ));
-    __PACKAGE__->add_rule(
         '{' => q( { return { stmt => '{'} } ));
     __PACKAGE__->add_rule(
         '}' => q( { return { stmt => '}'} } ));

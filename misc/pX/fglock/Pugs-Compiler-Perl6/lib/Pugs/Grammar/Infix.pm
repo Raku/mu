@@ -226,12 +226,12 @@ BEGIN {
         other => 'and',
     );
     
-    __PACKAGE__->add_rule( 
-        name => ';',
-        assoc => 'list',
-        precedence => 'looser',
-        other => 'or',
-    );
+    #__PACKAGE__->add_rule( 
+    #    name => ';',
+    #    assoc => 'list',
+    #    precedence => 'looser',
+    #    other => 'or',
+    #);
     
     # '->' is not an operator
     #__PACKAGE__->add_rule( 
@@ -242,12 +242,12 @@ BEGIN {
     #);
 
     # experimental
-    __PACKAGE__->add_rule( 
-        name => 'IF',
-        assoc => 'non',
-        precedence => 'tighter',
-        other => ';',
-    );
+    #__PACKAGE__->add_rule( 
+    #    name => 'IF',
+    #    assoc => 'non',
+    #    precedence => 'tighter',
+    #    other => ';',
+    #);
 
     __PACKAGE__->recompile;
 }

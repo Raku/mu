@@ -137,10 +137,31 @@ sub recompile {
             ) ),
 
         '(' => Pugs::Compiler::Regex->compile( q(
-                # <Pugs::Grammar::Term.ident>
-                <Pugs::Grammar::Perl6.perl6_expression> 
+                <?ws>? <Pugs::Grammar::Perl6.perl6_expression> <?ws>? 
                 <'\)'>
-                { return $_[0]{'Pugs::Grammar::Perl6.perl6_expression'}->() }
+                { return {
+                    op1 => { op => "(" },
+                    op2 => { op => ")" },
+                    fixity => "circumfix",
+                    exp1 => $_[0]{'Pugs::Grammar::Perl6.perl6_expression'}->() 
+                } }
+            |
+                <?ws>? <Pugs::Grammar::Perl6.block> <?ws>? 
+                <'\)'>
+                { return {
+                    op1 => { op => "(" },
+                    op2 => { op => ")" },
+                    fixity => "circumfix",
+                    exp1 => $_[0]{'Pugs::Grammar::Perl6.block'}->() 
+                } }
+            |
+                <?ws>? 
+                <'\)'>
+                { return {
+                    op1 => { op => "(" },
+                    op2 => { op => ")" },
+                    fixity => "circumfix",
+                } }
             ) ),
 
         '...' => Pugs::Compiler::Regex->compile( q(

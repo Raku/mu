@@ -100,7 +100,8 @@ sub _emit {
 
     return join ( ";\n", 
             map { _emit( $_ ) } @{$n->{statements}} 
-        )
+        ) ||
+        " # empty block\n"
         if exists $n->{statements};
     
 

@@ -55,7 +55,7 @@ sub pmc_compile {
         require Perl::Tidy;
         my $perl5_tidy;
         Perl::Tidy::perltidy( source => \$perl5, destination => \$perl5_tidy );
-        $perl5 = $perl5_tidy;
+        $perl5 = $perl5_tidy unless $@;
       }
     }
 

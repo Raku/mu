@@ -160,7 +160,7 @@ sub perl6_expression {
 
 
 *signature_term_ident = Pugs::Compiler::Regex->compile( q(
-        (  ( <'$'>|<'%'>|<'@'> )  <alnum>+ )
+        (  ( <'$'>|<'%'>|<'@'>|<'&'> )  <alnum>+ )
             { return $_[0][0]->() }
 ),
     { grammar => __PACKAGE__ }
@@ -168,7 +168,7 @@ sub perl6_expression {
 
 
 *signature_term = Pugs::Compiler::Regex->compile( q(
-        <signature_term_type> <?ws> 
+        <signature_term_type> <?ws>?
         (<':'>?)
         (<'*'>?)
         <signature_term_ident>
@@ -238,7 +238,7 @@ sub perl6_expression {
 *sub_decl_name = Pugs::Compiler::Regex->compile( q(
     ( multi | <''> ) <?ws>?
     ( submethod | method | sub ) <?ws>? 
-    ( <alnum>* ) 
+    ( [<alnum>|_]* ) 
         { return { 
             multi      => $_[0][0]->(),
             statement  => $_[0][1]->(),
@@ -246,7 +246,7 @@ sub perl6_expression {
         } }
     |
     ( multi ) <?ws>?
-    ( <alnum>* )
+    ( [<alnum>|_]* )
         { return { 
             multi      => $_[0][0]->(),
             statement  => 'sub',
@@ -360,20 +360,27 @@ sub perl6_expression {
 )->code;
 
 *statements = Pugs::Compiler::Regex->compile( q(
-    <statement> :
+    [ ; <?ws>? ]*
     [
-        <?ws>? [ \; <?ws>? ]?
-        <statements> 
-        { return {
-            statements => [
-                    $_[0]{statement}->(),
-                    @{ $_[0]{statements}->()->{statements} },
-                ]
+        <statement> :
+        [
+            <?ws>? [ ; <?ws>? ]*
+            <statements> 
+            { return {
+                statements => [
+                        $_[0]{statement}->(),
+                        @{ $_[0]{statements}->()->{statements} },
+                    ]
+                }
             }
-        }
+        |
+            { return {
+                statements => [ $_[0]{statement}->() ],
+            } }
+        ]
     |
         { return {
-            statements => [ $_[0]{statement}->() ],
+            statements => [],
         } }
     ]
 ),
