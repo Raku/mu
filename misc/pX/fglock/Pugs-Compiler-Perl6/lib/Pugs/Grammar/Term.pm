@@ -112,31 +112,7 @@ sub angle_quoted {
     |   \/      # $/
 ) )->code;
 
-sub recompile {
-    my $class = shift;
-    %hash = (
-        '$' => Pugs::Compiler::Regex->compile( q(
-                <?Pugs::Grammar::Term.ident>
-                { return { scalar => '$' . $_[0]->() ,} }
-            ) ),
-        '$.' => Pugs::Compiler::Regex->compile( q(
-                <?Pugs::Grammar::Term.ident>
-                { return { scalar => '$.' . $_[0]->() ,} }
-            ) ),
-        '@' => Pugs::Compiler::Regex->compile( q(
-                <?Pugs::Grammar::Term.ident>
-                { return { array => "\@" . $_[0]->() ,} }
-            ) ),
-        '%' => Pugs::Compiler::Regex->compile( q(
-                <?Pugs::Grammar::Term.ident>
-                { return { hash  => "\%" . $_[0]->() ,} }
-            ) ),
-        '&' => Pugs::Compiler::Regex->compile( q(
-                <?Pugs::Grammar::Term.ident>
-                { return { code  => "\&" . $_[0]->() ,} }
-            ) ),
-
-        '(' => Pugs::Compiler::Regex->compile( q(
+*parenthesis = Pugs::Compiler::Regex->compile( q(
                 <?ws>? <Pugs::Grammar::Perl6.perl6_expression> <?ws>? 
                 <'\)'>
                 { return {
@@ -162,6 +138,52 @@ sub recompile {
                     op2 => { op => ")" },
                     fixity => "circumfix",
                 } }
+) )->code;
+
+sub recompile {
+    my $class = shift;
+    %hash = (
+        '$' => Pugs::Compiler::Regex->compile( q(
+                <?Pugs::Grammar::Term.ident>
+                { return { scalar => '$' . $_[0]->() ,} }
+            ) ),
+        '$.' => Pugs::Compiler::Regex->compile( q(
+                <?Pugs::Grammar::Term.ident>
+                { return { scalar => '$.' . $_[0]->() ,} }
+            ) ),
+        '@' => Pugs::Compiler::Regex->compile( q(
+                <?Pugs::Grammar::Term.ident>
+                { return { array => "\@" . $_[0]->() ,} }
+            ) ),
+        '%' => Pugs::Compiler::Regex->compile( q(
+                <?Pugs::Grammar::Term.ident>
+                { return { hash  => "\%" . $_[0]->() ,} }
+            ) ),
+        '&' => Pugs::Compiler::Regex->compile( q(
+                <?Pugs::Grammar::Term.ident>
+                { return { code  => "\&" . $_[0]->() ,} }
+            ) ),
+
+        '.' => Pugs::Compiler::Regex->compile( q(
+                (<?Pugs::Grammar::Term.ident>)
+                [
+                    <'\('> <Pugs::Grammar::Term.parenthesis>
+                    { return { 
+                       op1    => 'method_call',
+                       method => { bareword => $_[0][0]->() },
+                       param  => $_[0]{'Pugs::Grammar::Term.parenthesis'}->(),
+                    } }
+                |
+                    { return { 
+                       op1    => 'method_call',
+                       method => { bareword => $_[0][0]->() },
+                   } }
+                ]
+            ) ),
+
+        '(' => Pugs::Compiler::Regex->compile( q(
+                <Pugs::Grammar::Term.parenthesis>
+                { return $_[0]{'Pugs::Grammar::Term.parenthesis'}->() }
             ) ),
 
         '...' => Pugs::Compiler::Regex->compile( q(
@@ -181,7 +203,8 @@ sub recompile {
         'bool::false' => Pugs::Compiler::Regex->compile( q(
             { return { bool => 0 ,} } 
         ) ),
-        q(') => Pugs::Compiler::Regex->compile( q(
+        q(') =>       # ' 
+          Pugs::Compiler::Regex->compile( q(
             <Pugs::Grammar::Term.single_quoted>
             { return { single_quoted => $/{'Pugs::Grammar::Term.single_quoted'}->() ,} }
         ) ),

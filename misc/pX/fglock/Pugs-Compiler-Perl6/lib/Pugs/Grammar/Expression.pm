@@ -147,31 +147,28 @@ sub ast {
                 if $match;            
         } # /for
             
-        #print Dumper $m;
-        #print $match;
-        my $ast = $m->();
+        my $tail = $$m->{tail};
 
-        {
-            # XXX temporary hack - check if an alphanumeric-ending token is actually 
-            #     a longer-token bareword
-            #     'ne' vs. ':negate'
-            my $name = $ast->{op};
-            if (   defined $name 
-                && $name =~ /[[:alnum:]]$/ 
-                && defined $$m->{tail}
-                && $$m->{tail} =~ /^[_[:alnum:]]/ 
-            ) {
-                #print "mismatched name: $name\n";
-                $m = Pugs::Grammar::Term->parse( $match, { p => 1 } );
-                $ast = $m->();
-            }
-        }        
+        # method call
+        if ( defined $tail && $tail =~ /^\./ ) {
+                # TODO - long dot
+                my $meth = Pugs::Grammar::Term->parse( $tail, { p => 1 } );
+                $meth->()->{self} = $m->();
+                $m = $meth;
+                $tail = $$m->{tail};
+                #print "Method: ",Dumper $m->();
+        }
+
 
         {
             # trim tail
-            my $tmp = $$m->{tail};
+            my $tmp = $tail;
             $match = $tmp if defined $tmp;  # match failure doesn't kill $match (PCR "bug")
         }
+
+        #print Dumper $m;
+        #print $match;
+        my $ast = $m->();
 
         $ast->{pos} = $last - length( $match );
         my $t;
