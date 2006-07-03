@@ -8,7 +8,7 @@ import qualified Prelude (last, length)
 import Text.Parser.OpTable
 import Text.Parser.PArrow
 import Text.Parser.PArrow.MD (MD(..), Label(..), label, Monoid(..))
-import Data.ByteString hiding (concatMap, concat, elem, foldl, foldl1, map, foldr, foldr1)
+import Data.ByteString.Char8 hiding (concatMap, concat, elem, foldl, foldl1, map, foldr, foldr1)
 import Text.Parser.PArrow.CharSet
 import Data.Set (Set, isSubsetOf)
 import Data.Seq (Seq, toList, fromList, (<|), (|>), (><))
@@ -19,7 +19,8 @@ import Data.Char (isSpace)
 import Data.Dynamic
 import Control.Arrow
 import System.IO (stdout)
-import qualified Data.ByteString as Str
+import Data.ByteString.Base (ByteString(..))
+import qualified Data.ByteString.Char8 as Str
 import qualified Data.Seq as Seq
 import qualified Data.Map as Map
 import qualified Data.Set as Set
@@ -33,19 +34,19 @@ data Grammar = MkGrammar
     }
     deriving (Show, Eq, Typeable)
 
+(!!!) :: (Show a, Ord a) => Map a b -> a -> b
+m !!! k = case Map.lookup k m  of
+    Just v -> v
+    _      -> error $ "Cannot find key in grammar: " ++ show k
+
 infixl 1 ~~
 infixl ~:~
 infixl ~&~
 infixl .<>
-infixl !
-
-(!) :: (Show a, Ord a) => Map a b -> a -> b
-m ! k = case Map.lookup k m  of
-    Just v -> v
-    _      -> error $ "Cannot find key in grammar: " ++ show k
+infixl !!!
 
 (.<>) :: Grammar -> String -> CompiledRule
-grammar .<> name = grammarRules grammar ! pack name
+grammar .<> name = grammarRules grammar !!! pack name
 
 (~:~) :: String -> String -> (Str, Rule)
 name ~:~ rule = (pack name, parseOptimized rule)
@@ -68,10 +69,10 @@ parseGrammar text = case text ~~ defaultGrammar .<> "p6grammar" of
 parseRules :: MatchRule -> [(Str, Rule)]
 parseRules m = map parseRule (Seq.toList nameds)
     where
-    MatchSeq nameds = matchSubNam m ! pack "p6namedrule"
+    MatchSeq nameds = matchSubNam m !!! pack "p6namedrule"
     parseRule mr = (parseRuleName mr, parseRuleBody mr)
     parseRuleName mr = (matchStr $ Seq.index (matchSubPos mr) 0)
-    parseRuleBody mr = fromDyn (matchDynamic (matchSubNam mr ! pack "p6rule")) (error "no parse")
+    parseRuleBody mr = fromDyn (matchDynamic (matchSubNam mr !!! pack "p6rule")) (error "no parse")
 
 grammar :: [(Str, Rule)] -> Grammar
 grammar rules = MkGrammar empty (Map.map comp normMap)
@@ -296,7 +297,10 @@ instance Compilable RuleTerm where
     comp (TermGroup (CaptureNam n) r) = comp r >>^ MatchNam n
     comp (TermGroup (CaptureSubrule n) r) = comp r >>^ mkMatchObj >>^ MatchNam n
     comp (TermEnum x) = comp x
-    comp (TermAnchor AnchorBegin) = comp ("beginning of input", (==0) . idx)
+    comp (TermAnchor AnchorBegin) = comp ("beginning of input", beg)
+        where
+        beg (PS _ 0 _)  = True
+        beg _           = False
     comp (TermAnchor AnchorBeginLine) = comp ("beginning of line", bol)
         where
         bol (PS p s l) = (s == 0) || head (PS p (pred s) l) == '\n'
@@ -431,7 +435,6 @@ instance Eq DynamicTerm where x == y = dynLabel x == dynLabel y
 instance Ord DynamicTerm where compare x y = dynLabel x `compare` dynLabel y
 instance Data Dynamic where
     gunfold = error "gunfold"
-        :: (forall r. c (Str -> r) -> c r) -> (forall r . r -> c r) -> Constr -> c Dynamic
     toConstr = error "gfoldl"
     dataTypeOf = error "dataTypeOf"
 
@@ -482,13 +485,13 @@ ruleTable = mkOpTable
         | res@(pre, _) <- span isSpace str, not (null pre) = Just res
         | res@(pre, _) <- splitAt 1 str, not (isMetaChar (head pre)) = Just res
         | otherwise = Nothing
-    scanWith f str 
+    scanWith f str@(PS _ strIdx _)
         | null str = Nothing
         | otherwise = do
-            post <- f str
+            post@(PS _ idx _) <- f str
             -- The "- 2" below is to subtract the "]>" part.
-            let cur = idx post
-                pre = take (cur - idx str - 2) str
+            let cur = idx
+                pre = take (cur - strIdx - 2) str
             return (pre, post)
     doScanEnum, doScanVerbatim:: Str -> Maybe (Str)
     doScanEnum str

@@ -6,9 +6,10 @@ import Control.Arrow
 import Control.Exception
 import Data.Dynamic
 import Data.Typeable
+import Data.ByteString.Base (ByteString(..))
 import qualified Data.Map as Map
 import qualified Data.Seq as Seq
-import qualified Data.ByteString as Str
+import qualified Data.ByteString.Char8 as Str
 
 {-| 
 
@@ -82,19 +83,21 @@ instance IsPlural NativeStr NativeInt NativeStr where
     isEmpty    = Str.null
     size       = Str.length
     empty      = Str.empty
-    exists (Str.PS _ _ l) n = (n >= 0) && (n < l)
+    exists (PS _ _ l) n = (n >= 0) && (n < l)
     indices    = \x -> [0 .. (Str.length x - 1)]
-    elems      = Str.elems
+    elems (PS _ _ 0) = []
+    elems (PS x s l) = (PS x s 1:elems (PS x (s+1) (l-1)))
+    {-# INLINE elems #-}
     append     = Str.append
     reversed   = Str.reverse
     push       = \x xs -> Str.concat (x:Seq.toList xs)
     assocs     = zip [0..] . elems
     fromAssocs = Str.concat . map snd -- XXX wrong
     splice     = flip Str.drop
-    fetch (Str.PS p s l) n
+    fetch (PS p s l) n
         | n < 0     = fail "negative index"
         | n >= l    = fail "index out of bounds"
-        | otherwise = return $ Str.PS p (s + n) 1
+        | otherwise = return $ PS p (s + n) 1
     delete     = error "It doesn't make sense to delete from a string"
     insert     = error "XXX str.insert"
 
@@ -184,7 +187,7 @@ instance IsNative NativeInt where
 
 instance IsNative NativeStr where
     toNative = NStr
-    toString = Str.unpackFromUTF8
+    toString = Str.unpack -- unpackFromUTF8
     fromNative (NError {})  = empty
     fromNative (NBit x)     = if x then mkStr "1" else mkStr "0"
     fromNative (NInt x)     = mkStr $ toString x
@@ -248,7 +251,7 @@ instance IsNative (Either Integer Double) where
 
 instance IsNative String where
     toNative = toNative . mkStr
-    fromNative = Str.unpackFromUTF8 . fromNative
+    fromNative = Str.unpack . fromNative -- unpackFromUTF8 . fromNative
 
 instance IsNative [Native] where
     toNative = NSeq . mkSeq
