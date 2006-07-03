@@ -185,8 +185,6 @@ instance Data a => Data (Seq a) where
 
 	dataTypeOf _	= seqDataType
 
-	dataCast1	= error ""
-
 emptyConstr = mkConstr seqDataType "empty" [] Prefix
 consConstr  = mkConstr seqDataType "<|" [] Infix
 seqDataType = mkDataType "Data.Sequence.Seq" [emptyConstr, consConstr]
