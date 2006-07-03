@@ -4,7 +4,7 @@ say "1..1";
 
 my $has_run = 0;
 
-eval '
+#eval '
 
 =begin
 
@@ -15,7 +15,7 @@ something
 
 $has_run = 1;
 
-';
+#';
 
 
 if $has_run {
