@@ -198,13 +198,15 @@ sub _emit_parameter_binding {
     # XXX: This is ugly, but nessary to support lexical subs passed it.
     # This will go away along with Data::Bind integration, hopefully.
     my $bind_code = '';
+    #warn "binding ", Dumper $n;
     for (@$n) {
         #warn "binding ", Dumper $_;
-	if ( exists $_->{type} && $_->{type} eq 'Code' ) {
-	    my $name = $_->{name};
-	    $name =~ s/^&//;
-	    $bind_code .= "   local *$name = shift;\n";
-	}
+        next unless ref $_;
+        if ( exists $_->{type} && $_->{type} eq 'Code' ) {
+            my $name = $_->{name};
+            $name =~ s/^&//;
+            $bind_code .= "   local *$name = shift;\n";
+        }
 	else {
 	    $bind_code .= "   my ".$_->{name}." = shift;\n";
 	}
