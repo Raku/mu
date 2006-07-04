@@ -414,6 +414,7 @@ EOD
         my $rpath_blib = parrot_config($base, $parrot_config, 'rpath_blib');
         my $build_dir = parrot_config($base, $parrot_config, 'top_builddir', 'build_dir');
         my $is_shared = parrot_config($base, $parrot_config, 'parrot_is_shared');
+        my $parrot_libdir = parrot_config($base, $parrot_config, 'lib_dir');
 
         # Convert flags to -optc-*,etc, to pass through ghc. c/ompiler l/inker
         $ldflags =~ s/(^|\s)-/$1-optl-/g;
@@ -425,7 +426,10 @@ EOD
 
         $embed_flags .= " -I$base/include -L$base/lib -L$base/blib/lib -DPUGS_HAVE_PARROT -L/usr/local/lib $ldflags ";
         $ghc_output .= " -lparrot $libs $icuflags ";
-        my $config = "$build_dir/src/install_config$Config{_o}";
+        my $config = $parrot_libdir."parrot/confg/install_config$Config{_o}";
+        $config = $parrot_libdir."parrot/confg/parrot_config$Config{_o}" unless -e $config;
+        $config = $parrot_libdir."parrot/confg/null_config$Config{_o}" unless -e $config;
+        $config = "$build_dir/src/install_config$Config{_o}" unless -e $config;
         $config = "$build_dir/src/parrot_config$Config{_o}" unless -e $config;
         $config = "$build_dir/src/null_config$Config{_o}" unless -e $config;
 
