@@ -259,8 +259,9 @@ sub default {
     if ( $n->{op1} eq 'call' ) {
         # warn "call: ",Dumper $n;
 
-        if ( $n->{sub}{bareword} eq 'class'  ||
-             $n->{sub}{bareword} eq 'module' ) {
+        if ( $n->{sub}{bareword} eq 'grammar'  ||
+             $n->{sub}{bareword} eq 'class'    ||
+             $n->{sub}{bareword} eq 'module'   ) {
             # Moose: package xxx; use Moose;
             # class Point;
             #warn "class: ",Dumper $n;
