@@ -143,6 +143,18 @@ sub ast {
             my $m2 = Pugs::Grammar::Term->parse( $match, { p => 1 } );
             #warn "m1 = " . Dumper($m1->()) . "m2 = " . Dumper($m2->());
 
+            # term() is high-precedence
+            if ( $m2 && $$m2->{tail} && $$m2->{tail} =~ /^\(/ ) {
+                my $paren = Pugs::Grammar::Term->parse( $$m2->{tail}, { p => 1 } );
+                if ( $m2->()->{dot_bareword} ) {
+                    $$m2->{capture}{param} = $paren->();
+                }
+                else {
+                    $$paren->{capture} = { op1 => 'call', sub => $m2->(), param => $paren->(), };
+                    $m2 = $paren;
+                }
+            }
+
             # longest token
             if ( $m1 && $m2 ) {
                 if ( length($$m1->{tail}) > length($$m2->{tail}) ) {

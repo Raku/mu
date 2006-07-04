@@ -32,4 +32,4 @@ if ($foo eq '&main::foo2') { say "ok 2" } else { say "not ok 2" }
 # XXX: caller_cv doesn't work right with top-level main fake_cv
 $foo = foo3wrap();
 
-if ($foo eq 'main') { say "ok 2" } else { say "not ok 2" }
+if ($foo eq 'main') { say "ok 3" } else { say "not ok 3" }
