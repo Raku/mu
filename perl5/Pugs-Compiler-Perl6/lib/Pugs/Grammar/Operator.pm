@@ -17,17 +17,7 @@ BEGIN {
     $operator = Pugs::Grammar::Precedence->new( 
         grammar => 'Pugs::Grammar::Operator',
         header  => q!
-block:
-        '->' exp 'BLOCK_START' exp 'BLOCK_END'        
-        { $_[0]->{out}= { 'pointy_block' => $_[4], signature => $_[2], } }
-    |   '->' 'BLOCK_START' exp 'BLOCK_END'        
-        { $_[0]->{out}= { 'pointy_block' => $_[4], signature => undef, } }
-    |   'BLOCK_START' exp 'BLOCK_END'        
-        { $_[0]->{out}= { 'bare_block' => $_[2] } }
-    |   'BLOCK_START' 'BLOCK_END'        
-        { $_[0]->{out}= { 'bare_block' => undef } }
-    ;
-    
+  
 attr:
         #empty  
         { $_[0]->{out}= { attribute => [] } }
@@ -39,108 +29,7 @@ attr:
             ], 
         } }
     ;
-
-type:
-        BAREWORD
-        { $_[0]->{out}= $_[1] }
-    |   BAREWORD '|' type
-        { $_[0]->{out}= { op1 => $_[2], exp1 => $_[1], exp2 => $_[3] } }
-    ;
-    
-signature_term:
-        NUM 
-        { $_[0]->{out}= $_[1] }
-    |   type signature_term
-        { $_[0]->{out}= { type => $_[1], %{$_[2]} } }
-    |   ':' signature_term
-        { $_[0]->{out}= { named_only => 1, %{$_[2]} } }
-    |   '*' signature_term
-        { $_[0]->{out}= { splat => 1, %{$_[2]} } }
-    |   signature_term '?'
-        { $_[0]->{out}= { optional => 1, %{$_[1]} } }
-        
-    # XXX - infinite loop
-    # |   signature_term attr
-    #     { $_[0]->{out}= { %{$_[2]}, %{$_[1]} } }
-    
-    |   signature_term BAREWORD BAREWORD
-        { $_[0]->{out}= { attribute => [
-                [$_[2], $_[3],],
-            ], %{$_[1]} } }
-    ;
-
-signature_no_invocant:
-        #empty  
-        { $_[0]->{out}= { signature => [] } }
-    |   signature_term 
-        { $_[0]->{out}= { signature => [ $_[1] ] } }
-    |   signature_no_invocant ',' signature_no_invocant
-        { $_[0]->{out}= { 
-            signature => [ 
-                @{$_[1]{signature}}, 
-                @{$_[3]{signature}}, 
-            ], 
-        } }
-    ;
-
-signature:
-        signature_term ':' 
-        { $_[0]->{out}= { invocant => $_[1] } }
-    |   signature_term ':' signature_no_invocant
-        { $_[0]->{out}= { 
-            invocant => $_[1],
-            %{$_[3]},
-        } }
-    |   signature_no_invocant
-        { $_[0]->{out}= $_[1] }
-    ;
-    
-stmt:  
-      IF exp block 
-        { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[3] } }
-    | IF exp block 'else' block
-        { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[3], exp3 => $_[5] } }
-    | IF exp block 'elsif' exp block 'else' block
-        { $_[0]->{out}= { 
-            op1 => $_[1], exp1 => $_[2], exp2 => $_[3], 
-                          exp3 => $_[5], exp4 => $_[6],
-                          exp5 => $_[8],
-        } }
-    | IF exp block 'elsif' exp block 
-        { $_[0]->{out}= { 
-            op1 => $_[1], exp1 => $_[2], exp2 => $_[3], 
-                          exp3 => $_[5], exp4 => $_[6],
-        } }
-
-    | 'for' exp block
-        { $_[0]->{out}= { op1 => $_[1], exp1 => $_[2], exp2 => $_[3], } }
-
-    | SUB BAREWORD             attr block 
-        { $_[0]->{out}= { op1 => $_[1], name => $_[2], block => $_[4], %{$_[3]} } }
-    | SUB BAREWORD '(' signature ')' attr block 
-        {
-            #print "parse-time define sub: ", Dumper( $_[2] );
-            #push @subroutine_names, $_[2]->{bareword};
-            #print "Subroutines: @subroutine_names\n";
-            $_[0]->{out}= { op1 => $_[1], name => $_[2], block => $_[7], %{$_[4]}, %{$_[6]} } 
-        }
-    
-    | SUB SUB BAREWORD             attr block 
-        { $_[0]->{out}= { op1 => $_[2], name => $_[3], block => $_[5], %{$_[4]} } }
-    | SUB SUB BAREWORD '(' signature ')' attr block 
-        {
-            #print "parse-time define sub: ", Dumper( $_[2] );
-            #push @subroutine_names, $_[2]->{bareword};
-            #print "Subroutines: @subroutine_names\n";
-            $_[0]->{out}= { op1 => $_[2], name => $_[3], block => $_[8], %{$_[5]}, %{$_[7]} } 
-        }
-
-    | block        
-        { $_[0]->{out}= $_[1] }
-    | 'TRAIT' block     
-        { $_[2]{trait} = $_[1]{trait}; $_[0]->{out}= $_[2] }
-    ;
-    
+      
 exp: 
       NUM                 
         { $_[0]->{out}= $_[1] }
@@ -151,50 +40,48 @@ exp:
     | BAREWORD
         { $_[0]->{out}= { op1 => 'call', sub => $_[1], } }
 
-    | BAREWORD 'IF' exp   %prec P003 
-        { $_[0]->{out}= { op1 => $_[2], exp1 => $_[3], 
-            exp2 => { op1 => 'call', sub => $_[1], } } }
-
     | BAREWORD '(' ')'  %prec P003
         { $_[0]->{out}= { op1 => 'call', sub => $_[1], param => undef, } }
     | BAREWORD '(' exp ')'  %prec P003
         { $_[0]->{out}= { op1 => 'call', sub => $_[1], param => $_[3], } }
     | BAREWORD exp   %prec P003
         { $_[0]->{out}= { op1 => 'call', sub => $_[1], param => $_[2], } }
-    | exp '.' BAREWORD '(' exp ')'  %prec P003
-        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[3], param => $_[5], } }
-    | exp '.' BAREWORD exp   %prec P003
-        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[3], param => $_[4], } }
-    | exp '.' BAREWORD    %prec P003
-        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[3], } }
+
+    | exp DOT_BAREWORD '(' exp ')'  %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[2], param => $_[4], } }
+    | exp DOT_BAREWORD exp   %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[2], param => $_[3], } }
+    | exp DOT_BAREWORD    %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[2], } }
         
-    | '.' BAREWORD '(' exp ')'  %prec P003
-        { $_[0]->{out}= { op1 => 'method_call', self => { 'scalar' => '$_' }, method => $_[2], param => $_[4], } }
-    | '.' BAREWORD exp   %prec P003
-        { $_[0]->{out}= { op1 => 'method_call', self => { 'scalar' => '$_' }, method => $_[2], param => $_[3], } }
-    | '.' BAREWORD    %prec P003
-        { $_[0]->{out}= { op1 => 'method_call', self => { 'scalar' => '$_' }, method => $_[2], } }
+    | BAREWORD DOT_BAREWORD '(' exp ')'  %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[2], param => $_[4], } }
+    | BAREWORD DOT_BAREWORD exp   %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[2], param => $_[3], } }
+    | BAREWORD DOT_BAREWORD    %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => $_[1], method => $_[2], } }
+        
+    | DOT_BAREWORD '(' exp ')'  %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => { 'scalar' => '$_' }, method => $_[1], param => $_[3], } }
+    | DOT_BAREWORD exp   %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => { 'scalar' => '$_' }, method => $_[1], param => $_[2], } }
+    | DOT_BAREWORD    %prec P003
+        { $_[0]->{out}= { op1 => 'method_call', self => { 'scalar' => '$_' }, method => $_[1], } }
 
     | MY NUM attr 
         { $_[0]->{out}= { 
-            op1 => { op => $_[1]{stmt} }, 
+            op1 => { op => $_[1]{op} }, 
             fixity => 'prefix', 
             exp1 => $_[2],
             %{$_[3]}, } }
     | MY BAREWORD NUM attr 
         { $_[0]->{out}= { 
-            op1 => { op => $_[1]{stmt} }, 
+            op1 => { op => $_[1]{op} }, 
             fixity => 'prefix', 
             exp1 => $_[3],
             type => { bareword => $_[2], },
             %{$_[4]}, } }
 
-    | stmt                
-        { $_[0]->{out}= $_[1] }
-    | stmt exp            
-        { $_[0]->{out}= { op1 => ';', assoc => 'list', list => [ $_[1], $_[2] ] } }
-    | exp ';' stmt        
-        { $_[0]->{out}= { op1 => ';', assoc => 'list', list => [ $_[1], $_[3] ] } }
 !,
     );
     # print "created operator table\n";

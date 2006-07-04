@@ -26,10 +26,15 @@ sub compile {
     #print 'rule source: ', $self->{source}, "\n";
     local $@;
     eval {
-        $self->{ast} = Pugs::Grammar::Perl6->parse( $self->{source} . ';' );
+        $self->{ast} = Pugs::Grammar::Perl6->parse( $self->{source} );
     };
-    carp "Error in perl 6 parser: '$rule_source' at: '$self->{ast}{tail}'\n" 
-        if $self->{ast}{tail} || $@;
+    carp "Error in perl 6 parser: $@\nSource:\n'" .
+         substr( $rule_source, 0, 30 ) . "...\n" 
+        if $@;
+    carp "Error in perl 6 parser:\nSource:\n'" .
+         substr( $rule_source, 0, 30 ) . "...\nat:\n'" .
+         substr( $self->{ast}{tail}, 0, 30 ) . "...\n" 
+        if $self->{ast}{tail};
     #print 'rule ast: ', do{use Data::Dumper; Dumper( $self->{ast}() )};
 
     eval {

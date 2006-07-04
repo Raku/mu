@@ -18,16 +18,54 @@ $Data::Dumper::Sortkeys = 1;
 # XXX - PCR is not calling this
 *ws = &Pugs::Grammar::BaseCategory::ws;
 
+my $rx_end_with_blocks = qr/
+                ^ \s* (?: 
+                            [});] 
+                          | if \s 
+                          | unless \s
+                          | $
+                        )
+            /xs;
+my $rx_end_no_blocks = qr/
+                ^
+                (?: 
+                    \s+ {
+                  | \s* (?: 
+                            [});] 
+                          | if \s 
+                          | unless \s
+                          | -> 
+                          | $
+                        )  
+                )
+            /xs;
+
 sub ast {
     my $match = shift;
+    my $param = shift;
+
+    my $no_blocks = exists $param->{args}{no_blocks} ? 1 : 0;
+    # warn "don't parse blocks: $no_blocks ";
+    my $rx_end = $no_blocks 
+                ? $rx_end_no_blocks
+                : $rx_end_with_blocks;
+
     $match .= '';
-    # print "Grammar::Expression::AST '$match' \n";
+    if ( $match =~ /$rx_end/ ) {
+        # end of parse
+        return (undef, $match);
+    }
+    #print "Grammar::Expression::ast '$match' \n";
     my $p;
     my $last = length( $match );
     
-    my $block_open_count = 0;
-    
     my $lex = sub {
+        #print "Grammar::Expression::ast::lex '$match' \n";
+        if ( $match =~ /$rx_end/ ) {
+            #warn "end of expression at: [",substr($match,0,10),"]";
+            return ('', '');
+        }
+        #print "still here\n";
         my $m;
         my $whitespace_before = 0;
 
@@ -47,9 +85,6 @@ sub ast {
             # XXX @expect should use symbolic names; better use TABLE instead of 'literal'
             #print " @{[ sort @expect ]} \n";
             # if ( grep { $_ eq '++' || $_ eq '{' } @expect ) {
-            $m = Pugs::Grammar::StatementControl->parse( $match, { p => 1 } );
-            last if ( $m );
-            #}
             
             # XXX temporary hack - matching options in 'expected' order should fix this
             if ( $match =~ /^</ ) {   # && ! $whitespace_before ) {
@@ -89,26 +124,24 @@ sub ast {
             }
             
             # XXX temporary hack - matching options in 'expected' order should fix this
-            if ( $match =~ /^{/ ) {
-                # after whitespace means block-start
-                #print "checking { ... [$whitespace_before]\n";
-                if ( $whitespace_before ) {
-                    $m = Pugs::Runtime::Match->new( { 
-                        bool  => 1,
-                        match => '{',
-                        tail  => substr( $match, 1 ),
-                        capture => { stmt => '{' },
-                    } );
-                    #print "Match: ",Dumper $m->();
-                    last;
-                }
-            }
+            #if ( $match =~ /^{/ ) {
+            #    # after whitespace means block-start
+            #    #print "checking { ... [$whitespace_before]\n";
+            #    if ( $whitespace_before ) {
+            #        $m = Pugs::Runtime::Match->new( { 
+            #            bool  => 1,
+            #            match => '{',
+            #            tail  => substr( $match, 1 ),
+            #            capture => { stmt => '{' },
+            #        } );
+            #        #print "Match: ",Dumper $m->();
+            #        last;
+            #    }
+            #}
 
             my $m1 = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
             my $m2 = Pugs::Grammar::Term->parse( $match, { p => 1 } );
             #warn "m1 = " . Dumper($m1->()) . "m2 = " . Dumper($m2->());
-            #warn "m1 = " . Dumper($$m1->{tail}) . "m2 = " . Dumper($$m2->{tail});
-            #$m = $m1 || $m2;
 
             # longest token
             if ( $m1 && $m2 ) {
@@ -125,65 +158,50 @@ sub ast {
             }
             last if $m;
             
-            #$m = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
-            #last if ( $m );
-            #$m = Pugs::Grammar::Term->parse( $match, { p => 1 } );
-            #last if ( $m );
-            
             local $Carp::CarpLevel = 2;
             carp "unrecognized token '",substr($match,0,10),"'\n"
-                if $match;
-            
+                if $match;            
         } # /for
             
-        my $ast = $m->();
+        my $tail = $$m->{tail};
 
-        {
-            # XXX temporary hack - check if an alphanumeric-ending token is actually 
-            #     a longer-token bareword
-            #     'ne' vs. ':negate'
-            my $name = $ast->{op};
-            if (   defined $name 
-                && $name =~ /[[:alnum:]]$/ 
-                && defined $$m->{tail}
-                && $$m->{tail} =~ /^[_[:alnum:]]/ 
-            ) {
-                #print "mismatched name: $name\n";
-                $m = Pugs::Grammar::Term->parse( $match, { p => 1 } );
-                $ast = $m->();
-            }
-        }        
+        # method call
+ #       if ( defined $tail && $tail =~ /^\./ ) {
+ #               # TODO - long dot
+ #               my $meth = Pugs::Grammar::Term->parse( $tail, { p => 1 } );
+ #               $meth->()->{self} = $m->();
+ #               $m = $meth;
+ #               $tail = $$m->{tail};
+ #               #print "Method: ",Dumper $m->();
+
+# TODO -
+# <fglock> like: ( name 1, 2 or 3 ) - is it parsed as name(1,2 or 3) or (name(1,2) or 3)
+# <TimToady> it will be taken provisionally as a listop, with listop precedence
+# <TimToady> so name(1,2) or 3
+# <TimToady> but it will fail compilation if name is not supplied by CHECK time.
+# <TimToady> it will also fail if name is declared as a unary or 0-ary func.
+
+  #      }
+
 
         {
             # trim tail
-            my $tmp = $$m->{tail};
+            my $tmp = $tail;
             $match = $tmp if defined $tmp;  # match failure doesn't kill $match (PCR "bug")
         }
+
+        #print Dumper $m;
+        #print $match;
+        my $ast = $m->();
 
         $ast->{pos} = $last - length( $match );
         my $t;
         if ( exists $ast->{stmt} ) {
-
-            if ( $ast->{stmt} eq 'if' or $ast->{stmt} eq 'unless' ) {
-                $t = [ 'IF' => $ast ]
-            }
-            elsif ( $ast->{stmt} eq 'sub' 
-                || $ast->{stmt} eq 'multi' 
-                || $ast->{stmt} eq 'submethod' 
-                || $ast->{stmt} eq 'method') {
-                $t = [ 'SUB' => $ast ]
-            }
-            elsif ( $ast->{stmt} eq 'my' 
-                || $ast->{stmt} eq 'our' 
-                || $ast->{stmt} eq 'has' ) {
-                $t = [ 'MY' => $ast ]
-            }
-            elsif ( $ast->{stmt} eq '{' ) {
-                $block_open_count++;
+            # unused!
+            if ( $ast->{stmt} eq '{' ) {
                 $t = [ 'BLOCK_START' => $ast ]
             }
             elsif ( $ast->{stmt} eq '}' ) {
-                $block_open_count--;
                 $t = [ 'BLOCK_END' => $ast ]
             }
             else {
@@ -191,42 +209,35 @@ sub ast {
             }
         }
         elsif ( exists $ast->{op} ) {
-            $t = [ $ast->{op} => $ast ]
+            if (  $ast->{op} eq 'my' 
+               || $ast->{op} eq 'our' 
+               || $ast->{op} eq 'has' ) {
+                $t = [ 'MY' => $ast ]
+            }
+            else {
+                $t = [ $ast->{op} => $ast ];
+            }
         }
         elsif ( exists $ast->{bareword} ) {
             $t = [ 'BAREWORD' => $ast ]
         }
+        elsif ( exists $ast->{dot_bareword} ) {
+            $t = [ 'DOT_BAREWORD' => $ast ]
+        }
         else {
             $t = [ 'NUM' => $ast ]
         }
-        $t=['',''] unless $match; # defined($t);
-
-        # 'BLOCK_END' doesn't show in @expect 
-        #    my $expect_close = grep { $_ eq 'BLOCK_END' } @expect;
-        #    warn "[ @expect ]\n";
-        #    warn "expect BLOCK_END\n" if $expect_close;
-        #    
-        #    # '}' == end of parse
-        #    #return ('', '') 
-        #    #    if $match =~ /^}/ && ! $expect_close;
-
-        # warn "BLOCK - $block_open_count\n";
-        if ( $block_open_count < 0 ) {
-            # '}' == end of parse
-            $match = '}' . $match;
-            $t=['',''];
-        }
+        #warn "T ",Dumper($t), "MATCH $match\n";
+        $t=['',''] unless $ast;  #$match; # defined($t);
 
         #print "expect NUM \n" if grep { $_ eq 'NUM' } @expect;
         #print "expect '/' \n" if grep { $_ eq '/' }   @expect;
 
-        # print "token: $$t[0] ", Dumper( $$t[1] ), $match;
-        # print "expect: ", Dumper( @expect );
+        #print "token: $$t[0] ", Dumper( $$t[1] ); #, $match;
+        #print "expect: ", Dumper( @expect );
 
         return($$t[0],$$t[1]);
     };
-
-    # TODO - check for remaining whitespace!
 
     $p = Pugs::Grammar::Operator->new(
         yylex => $lex, 

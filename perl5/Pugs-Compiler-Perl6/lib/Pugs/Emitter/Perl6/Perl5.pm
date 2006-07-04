@@ -78,7 +78,8 @@ sub emit {
     my ($grammar, $ast) = @_;
     # runtime parameters: $grammar, $string, $state, $arg_list
     # rule parameters: see Runtime::Rule.pm
-    return _emit( $ast, '' );
+    #warn "Perl5::emit: ", Dumper( $ast ); 
+    return _emit( $ast );
         #"do{\n" .
         #_emit( $ast, '    ' ) . "\n" .
         #"}";
@@ -87,16 +88,16 @@ sub emit {
 sub _emit_code {
     my $code = $_[0];
     if (substr($code, 1,1) eq '?') {
-	my $caller_level = 0;
-	while ($code =~ s/^&\?CALLER::/&?/) {
-	    ++$caller_level;
-	}
-	my $name = substr($code, 2);
-	# special!
-	if ($name eq 'ROUTINE') {
-	    return "Pugs::Runtime::Perl6::Routine->new(Devel::Caller::caller_cv($caller_level))";
-	}
-	die 'unhandled magic variable';
+        my $caller_level = 0;
+        while ($code =~ s/^&\?CALLER::/&?/) {
+            ++$caller_level;
+        }
+        my $name = substr($code, 2);
+        # special!
+        if ($name eq 'ROUTINE') {
+            return "Pugs::Runtime::Perl6::Routine->new(Devel::Caller::caller_cv($caller_level))";
+        }
+        die 'unhandled magic variable';
     }
 
     return $code;
@@ -105,7 +106,7 @@ sub _emit_code {
 sub _emit {
     my $n = $_[0];
     #die "_emit: ", Dumper( $n ); 
-    #warn "fixity: $n->{fixity}\n" if exists $n->{fixity};
+    #warn "_emit: ", Dumper( $n ); 
     
     # 'undef' example: parameter list, in a sub call without parameters
     return ''
@@ -113,9 +114,20 @@ sub _emit {
     
     die "unknown node: ", Dumper( $n )
         unless ref( $n ) eq 'HASH';
-        
+
+
+    return join ( ";\n", 
+            map { _emit( $_ ) } @{$n->{statements}} 
+        ) ||
+        " # empty block\n"
+        if exists $n->{statements};
+    
+
     return _mangle_ident( $n->{bareword} )
         if exists $n->{bareword};
+
+    return _mangle_ident( $n->{dot_bareword} )
+        if exists $n->{dot_bareword};
         
     return _emit_code($n->{code})
         if exists $n->{code};
@@ -166,7 +178,7 @@ sub _emit {
     }
     
     return statement( $n )
-        if ref $n->{op1} && exists $n->{op1}{stmt};
+        if exists $n->{statement};
 
     return default( $n );
 }
@@ -195,7 +207,7 @@ sub _emit_parameter_binding {
     
     #warn "parameter list: ",Dumper $n;
 
-    #    'scalar' => '$desc',    $v
+    #    'name' => '$desc',      $v
     #    'optional' => 1,        $v?
     #    'named_only' => 1,      :$v
     #    'type' => {             Str $v
@@ -207,15 +219,18 @@ sub _emit_parameter_binding {
     # XXX: This is ugly, but nessary to support lexical subs passed it.
     # This will go away along with Data::Bind integration, hopefully.
     my $bind_code = '';
+    #warn "binding ", Dumper $n;
     for (@$n) {
-	if ( exists $_->{type} && $_->{type}{bareword} eq 'Code' ) {
-	    my $name = _emit($_);
-	    $name =~ s/^&//;
-	    $bind_code .= "   local *$name = shift;\n";
-	}
-	else {
-	    $bind_code .= "   my "._emit( $_ )." = shift;\n";
-	}
+        #warn "binding ", Dumper $_;
+        next unless ref $_;
+        if ( exists $_->{type} && $_->{type} eq 'Code' ) {
+            my $name = $_->{name};
+            $name =~ s/^&//;
+            $bind_code .= "   local *$name = shift;\n";
+        }
+        else {
+            $bind_code .= "   my ".$_->{name}." = shift;\n";
+        }
     }
     return $bind_code;
 }
@@ -304,11 +319,11 @@ sub default {
         return " print '', " . _emit( $n->{param} ) . ";\n" .
             " print " . '"\n"'
             if $n->{sub}{bareword} eq 'say';
-
-	# XXX: handle args
-	return "Pugs::Runtime::Perl6::Routine->new(Devel::Caller::caller_cv(1))"
-            if $n->{sub}{bareword} eq 'caller';
             
+        # XXX: handle args
+        return "Pugs::Runtime::Perl6::Routine->new(Devel::Caller::caller_cv(1))"
+            if $n->{sub}{bareword} eq 'caller';
+
         # ???
         $n->{sub}{bareword} = 'die'
             if $n->{sub}{bareword} eq 'fail';
@@ -318,37 +333,52 @@ sub default {
     
     if ( $n->{op1} eq 'method_call' ) {    
         #warn "method_call: ", Dumper( $n );
-        if ( $n->{method}{bareword} eq 'print' ||
-             $n->{method}{bareword} eq 'warn' ) {
+        if ( $n->{method}{dot_bareword} eq 'print' ||
+             $n->{method}{dot_bareword} eq 'warn' ) {
             my $s = _emit( $n->{self} );
             if ( $s eq _mangle_var('$*ERR') ) {  
                 return " print STDERR '', " . _emit( $n->{param} );
             }
             return " print '', $s";
         }
-        if ( $n->{method}{bareword} eq 'say' ) {
+        if ( $n->{method}{dot_bareword} eq 'say' ) {
             my $s = _emit( $n->{self} );
             if ( $s eq _mangle_var('$*ERR') ) { 
                 return " print STDERR '', " . _emit( $n->{param} ) . ', "\n"';
             }
             return " print '', $s" . ', "\n"';
         }
-        if ( $n->{method}{bareword} eq 'perl' ) {
+        if ( $n->{method}{dot_bareword} eq 'perl' ) {
             return 'Pugs::Runtime::Perl6::perl(' . _emit( $n->{self} ) . ")\n";
         }
         
         #warn "method_call: ", Dumper( $n );
-        
+
+        # constructor
+        if ( exists $n->{self}{bareword} ) {
+            # Str.new;
+            return 
+                " " . _emit( $n->{self} ) . "->" . _emit( $n->{method} ) . 
+                "(" . _emit( $n->{param} ) . ") ";
+        }
+    
         # "autobox"
         
-        if ( exists $n->{self}{code} && $n->{method}{bareword} eq 'goto') {
+        if ( exists $n->{self}{code} && $n->{method}{dot_bareword} eq 'goto') {
             # &code.goto;
             return 
-                " \@_ = (" . _emit( $n->{param}, '  ' ) . ");\n" .
-                " " . _emit( $n->{method}, '  ' ) . " " .
-                    _emit( $n->{self}, '  ' );
+                " \@_ = (" . _emit( $n->{param} ) . ");\n" .
+                " " . _emit( $n->{method} ) . " " .
+                    _emit( $n->{self} );
+        }
+        if ( exists $n->{self}{code} ) {
+            # &?ROUTINE.name;
+            return 
+                _emit( $n->{self} ) . "->" .
+                _emit( $n->{method} ) . "(" . _emit( $n->{param} ) . ")"
         }
         
+        #warn "method: ", Dumper( $n );
         if ( exists $n->{self}{scalar} ) {
             # $.scalar.method(@param)
             return " " . _emit( $n->{self} ) . '->' .
@@ -378,10 +408,10 @@ sub default {
             #warn "method: ", Dumper( $n );
             
             if ( $n->{self}{op1} eq 'call' ) {
-                # XXX misparsed Point.new 
-                my $self = _emit($n->{self});
+                # # XXX misparsed Point.new 
+                # # my $self = $n->{self}{sub}{bareword};
                 return
-                    $self . "->" . 
+                    _emit( $n->{self} ) . "->" . 
                     _emit( $n->{method} ) . "(" . _emit( $n->{param} ) . ")";
             }
             
@@ -393,9 +423,8 @@ sub default {
                 ')';
         }
             
-
         # normal methods or subs
-
+        
         return " " . _mangle_ident( $n->{sub}{bareword} ) .
             '(' .
             join ( ";\n",   # XXX
@@ -411,19 +440,21 @@ sub statement {
     my $n = $_[0];
     #warn "statement: ", Dumper( $n );
     
-    if ( $n->{op1}{stmt} eq 'if'     || 
-         $n->{op1}{stmt} eq 'unless' ) {
-        return  " " . $n->{op1}{stmt} . 
+    if ( $n->{statement} eq 'if'     || 
+         $n->{statement} eq 'unless' ) {
+        return  " " . $n->{statement} . 
                 '(' . _emit( $n->{exp1} ) . ')' .
                 " {\n" . _emit( $n->{exp2} ) . "\n }\n" .
                 " else" .
                 " {\n" . _emit( $n->{exp3} ) . "\n }";
     }
 
-    if ( $n->{op1}{stmt} eq 'sub' ) {
+    if ( $n->{statement} eq 'sub'       ||
+         $n->{statement} eq 'submethod' ||
+         $n->{statement} eq 'method'     ) {
         #warn "sub: ",Dumper $n;
 
-        my $name = _mangle_ident( $n->{name}{bareword} );
+        my $name = _mangle_ident( $n->{name} );
 
         my $export = '';
         for my $attr ( @{$n->{attribute}} ) {
@@ -434,30 +465,34 @@ sub statement {
         }
 
         return  $export .
-                " " . $n->{op1}{stmt} . 
-                ' ' . $name . 
-                " {\n" . 
+                " sub " . $name . 
+                " {\n" .
+                    (
+                        $n->{statement} =~ /method/
+                        ? " my \$self = shift; "   # default invocant 
+                        : ""
+                    ) .
                     _emit_parameter_binding( $n->{signature} ) .
                     _emit( $n->{block} ) . 
                 "\n }";
     }
 
-    if ( $n->{op1}{stmt} eq 'method' ) {
-        # Moose: sub clear { my $self = shift;';
-        # method clear {
-        #warn "method: ",Dumper $n;
-        return "sub " . _emit( $n->{name} ) .
-            " { my \$self = shift; " . 
-                _emit_parameter_binding( $n->{signature} ) .
-                _emit( $n->{block} ) . 
-            "\n }";
-    }
+    #if ( $n->{statement} eq 'method' ) {
+    #    # Moose: sub clear { my $self = shift;';
+    #    # method clear {
+    #    #warn "method: ",Dumper $n;
+    #    return "sub " . _emit( $n->{name} ) .
+    #        " { my \$self = shift; " . 
+    #            _emit_parameter_binding( $n->{signature} ) .
+    #            _emit( $n->{block} ) . 
+    #        "\n }";
+    #}
 
 
-    if ( $n->{op1}{stmt} eq 'for' ) {
+    if ( $n->{statement} eq 'for' ) {
         #warn "sub: ",Dumper $n;
         if ( exists $n->{exp2}{pointy_block} ) {
-            return  " " . $n->{op1}{stmt} . 
+            return  " " . $n->{statement} . 
                     ' my ' . _emit( $n->{exp2}{signature} ) . '' . 
                     ' (' . _emit( $n->{exp1} ) . ')' . 
                     " {\n" . 
@@ -465,7 +500,7 @@ sub statement {
                         _emit( $n->{exp2}{pointy_block} ) . 
                     "\n }";
         }
-        return  " " . $n->{op1}{stmt} . 
+        return  " " . $n->{statement} . 
                 ' (' . _emit( $n->{exp1} ) . ')' . 
                 " {\n" . 
                     # _emit_parameter_binding( $n->{signature} ) .
@@ -481,14 +516,14 @@ sub infix {
     #print "infix: ", Dumper( $n );
     
     # XXX - parser bug - this should be a statement
-    if ( exists $n->{op1}{stmt} && (
-           $n->{op1}{stmt} eq 'if'     ||
-           $n->{op1}{stmt} eq 'unless' ) ) {
-        #warn "IF: ", Dumper( $n );
-        return _emit( $n->{exp1} ) . 
-            " $n->{op1}{stmt} " .
-            _emit( $n->{exp2} );
-    }
+    #if ( exists $n->{op1}{stmt} && (
+    #       $n->{op1}{stmt} eq 'if'     ||
+    #       $n->{op1}{stmt} eq 'unless' ) ) {
+    #    #warn "IF: ", Dumper( $n );
+    #    return _emit( $n->{exp1} ) . 
+    #        " $n->{op1}{stmt} " .
+    #        _emit( $n->{exp2} );
+    #}
 
     if ( $n->{op1}{op} eq '~' ) {
         return _emit( $n->{exp1} ) . ' . ' . _emit( $n->{exp2} );
@@ -504,22 +539,22 @@ sub infix {
     
     if ( $n->{op1}{op} eq ':=' ) {
         #warn "bind: ", Dumper( $n );
-	if ( exists $n->{exp2}{scalar} ) {
-	    return " tie " . _emit( $n->{exp1} ) . 
-		", 'Pugs::Runtime::Perl6::Scalar::Alias', " .
-		"\\" . _emit( $n->{exp2} );
-	}
-	else {
-	    # XXX: for now, should use data::bind
-	    return _emit( $n->{exp1}).' = '._emit( $n->{exp2});
-	}
+        if ( exists $n->{exp2}{scalar} ) {
+            return " tie " . _emit( $n->{exp1} ) . 
+                ", 'Pugs::Runtime::Perl6::Scalar::Alias', " .
+                "\\" . _emit( $n->{exp2} );
+        }
+        else {
+            # XXX: for now, should use data::bind
+            return _emit( $n->{exp1}).' = '._emit( $n->{exp2});
+        }
     }
     if ( $n->{op1}{op} eq '~~' ) {
         return _emit( $n->{exp1} ) . ' =~ (ref(' . _emit( $n->{exp2} ).') eq "REGEX" ? '._emit($n->{exp2}).' : quotemeta('._emit($n->{exp2}).'))';
     }
 
     if ( $n->{op1}{op} eq '=' ) {
-        #warn "{'='}: ", Dumper( $n );
+        # warn "{'='}: ", Dumper( $n );
         if ( exists $n->{exp1}{scalar} ) {
             #warn "set $n->{exp1}{scalar}";
             return _var_set( $n->{exp1}{scalar} )->( _var_get( $n->{exp2} ) );
@@ -630,8 +665,8 @@ sub prefix {
     
     if ( $n->{op1}{op} eq 'my' ||
          $n->{op1}{op} eq 'our' ) {
-        die "not implemented 'attribute'",Dumper $n
-            if @{$n->{attribute}};
+        #die "not implemented 'attribute'",Dumper $n
+        #    if @{$n->{attribute}};
         return $n->{op1}{op} . ' ' . _emit( $n->{exp1} );
     }
 
