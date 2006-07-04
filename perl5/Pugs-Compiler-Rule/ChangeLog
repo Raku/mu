@@ -1,6 +1,10 @@
-0.07  2006-07-04
+0.08  2006-07-04
 
 - clear a warning in Pugs::Grammar::Rule - audreyt++
+
+0.07  2006-07-04
+
+- updated Module::Install
 
 0.06  2006-06-26
 

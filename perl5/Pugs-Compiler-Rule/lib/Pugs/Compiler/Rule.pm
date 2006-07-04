@@ -1,5 +1,5 @@
 package Pugs::Compiler::Rule;
-$Pugs::Compiler::Rule::VERSION = '0.07';
+$Pugs::Compiler::Rule::VERSION = '0.08';
 
 # Documentation in the __END__
 use 5.006;
