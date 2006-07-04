@@ -197,42 +197,76 @@ sub assoc_list {
     return _not_implemented( $n->{op1}, "list-op" );
 }
 
+sub _emit_parameter_signature {
+    my $n = $_[0] or return '';
+    return unless @$n;
+#     { var => '$self', invocant => 1 },
+#     { var => '$title' },
+#     { var => '$subtitle', optional => 1 },
+#     { var => '$case', named_only => 1 },
+#     { var => '$justify', named_only => 1, required => 1});
+
+    return join(",\n         ", map { _emit_data_bind_param_spec($_) } @$n );
+
+
+}
+
+sub _emit_data_bind_param_spec {
+    my %param = %{$_[0]};
+    # XXX: translate other attributes
+    $param{var} = delete $param{name};
+    $param{var} = delete $param{code} if $param{code};
+    my $dumped = Dumper(\%param);
+    $dumped =~ s/^\$VAR1 = //g;
+    $dumped =~ s/;$//;
+    $dumped =~ s/\n//mg;
+    return $dumped;
+}
+
 sub _emit_parameter_binding {
     my $n = $_[0];
-
     # no parameters
     return ''
-        if  ! defined $n ||
-            @$n == 0;
-    
+        unless defined $n;
     #warn "parameter list: ",Dumper $n;
 
     #    'name' => '$desc',      $v
     #    'optional' => 1,        $v?
     #    'named_only' => 1,      :$v
-    #    'type' => {             Str $v
-    #      'bareword' => 'Str',
-    #    }
-    #    'splat' => 1,           *$v
+    #    'type' => 'Str'         Str $v
+    #    'is_slurpy' => 1,           *$v
     #    'attribute' => \@attr   $v is rw
 
-    # XXX: This is ugly, but nessary to support lexical subs passed it.
-    # This will go away along with Data::Bind integration, hopefully.
-    my $bind_code = '';
-    #warn "binding ", Dumper $n;
-    for (@$n) {
-        #warn "binding ", Dumper $_;
-        next unless ref $_;
-        if ( exists $_->{type} && $_->{type} eq 'Code' ) {
-            my $name = $_->{name};
-            $name =~ s/^&//;
-            $bind_code .= "   local *$name = shift;\n";
-        }
-        else {
-            $bind_code .= "   my ".$_->{name}." = shift;\n";
-        }
+    my @params = @$n or return;
+    my $param = join( ',' , 
+        map { _emit( {%$_, scalar => $_->{name}} ) } grep { !exists $_->{type} || $_->{type} ne 'Code' } @params
+    );
+    return (length($param) ? "  my ($param);\n" : '').
+           "  Data::Bind->arg_bind(\\\@_);\n";
+}
+
+sub _emit_parameter_capture {
+    my $n = $_[0];
+    return '' unless $n;
+
+    # XXX: gah i am lazy
+    if ( exists $n->{fixity} && $n->{fixity} eq 'circumfix') {
+        $n = $n->{exp1} or return '';
     }
-    return $bind_code;
+    $n = { list => [$n] }
+        if !($n->{assoc} && $n->{assoc} eq 'list');
+
+    my (@named, @positional);
+    for (@{$n->{list}}) {
+	if (my $pair = $_->{pair}) {
+	    push @named, $pair->{key}{single_quoted}.' => \\'._emit($pair->{value});
+	}
+	else {
+	    push @positional, '\\'._emit($_);
+	}
+    }
+
+    return '['.join(',', @positional).'], {'.join(',', @named).'}';
 }
 
 sub default {
@@ -271,7 +305,7 @@ sub default {
                   # ? _mangle_ident( $n->{param}{cpan_bareword} )
                   ? $n->{param}{cpan_bareword} 
                   : _emit( $n->{param}{sub} );
-            my @a = split "-", $id;
+            my @a = split "_", $id;
             my $version = ( @a > 1 && $a[-1] =~ /^[0-9]/ ? $a[-1] : '' );
             return 'package ' . $a[0] .
                 ( $version ? ";\$$a[0]::VERSION = '$version'" : '' ) .
@@ -282,7 +316,7 @@ sub default {
                 ( $n->{sub}{bareword} eq 'class' 
                     ? ';use Moose' 
                     : '' ) .
-                ";use Exporter 'import';our \@EXPORT";
+                ";use Exporter 'import'; push our \@ISA, 'Exporter' ;our \@EXPORT";
         }
 
         if ( $n->{sub}{bareword} eq 'is' ) {
@@ -340,7 +374,13 @@ sub default {
         $n->{sub}{bareword} = 'die'
             if $n->{sub}{bareword} eq 'fail';
             
-        return ' ' . _mangle_ident( $n->{sub}{bareword} ) . '(' . _emit( $n->{param} ) . ')';
+
+	# XXX: builtins
+	my $subname = $n->{sub}{bareword};
+	if ($subname eq 'defined' || $subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return') {
+	    return ' ' . _mangle_ident( $n->{sub}{bareword} ) . '(' . _emit( $n->{param} ) . ')';
+	}
+        return ' ' . _mangle_ident( $n->{sub}{bareword} ) . '(' . _emit_parameter_capture( $n->{param} ) . ')';
     }
     
     if ( $n->{op1} eq 'method_call' ) {    
@@ -383,7 +423,7 @@ sub default {
         if ( exists $n->{self}{code} && $n->{method}{dot_bareword} eq 'goto') {
             # &code.goto;
             return 
-                " \@_ = (" . _emit( $n->{param} ) . ");\n" .
+                " \@_ = (" . _emit_parameter_capture( $n->{param} ) . ");\n" .
                 " " . _emit( $n->{method} ) . " " .
                     _emit( $n->{self} );
         }
@@ -436,6 +476,10 @@ sub default {
             ')';
     }
 
+    if ( exists $n->{substitution}) {
+        return 'XXXX';
+    }
+
     return _not_implemented( $n, "syntax" );
 }
 
@@ -477,7 +521,10 @@ sub statement {
                     ) .
                     _emit_parameter_binding( $n->{signature} ) .
                     _emit( $n->{block} ) . 
-                "\n }";
+                "\n }\n" .
+                "## Signature for $name\n" .
+                " Data::Bind->sub_signature\n".
+                " (\\&$name, ". _emit_parameter_signature ( $n->{signature} ) . ");\n";
     }
 
     if ( $n->{statement} eq 'for' ) {
@@ -528,6 +575,13 @@ sub infix {
         }
     }
     if ( $n->{op1}{op} eq '~~' ) {
+        if ( my $subs = $n->{exp2}{substitution} ) {
+	    # XXX: escape
+            return _emit( $n->{exp1} ) . ' =~ s/' . $n->subs->[0], '/', $n->subs->[1] .'/' .
+		( $n->{exp2}{option}{g} ? 'g' : '' )
+		if $n->{exp2}{option}{p5};
+            return _not_implemented( $n, "rule" );
+        }
         return _emit( $n->{exp1} ) . ' =~ (ref(' . _emit( $n->{exp2} ).') eq "REGEX" ? '._emit($n->{exp2}).' : quotemeta('._emit($n->{exp2}).'))';
     }
 

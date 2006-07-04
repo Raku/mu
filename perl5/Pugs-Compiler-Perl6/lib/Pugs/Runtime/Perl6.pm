@@ -5,6 +5,7 @@ use strict;
 use warnings;
 
 use Data::Dumper;
+use Data::Bind;
 
 # TODO - see Pugs::Runtime::Grammar for metaclass stuff
 
@@ -33,6 +34,8 @@ sub package {
 }
 
 package Pugs::Runtime::Perl6::Scalar;
+
+sub defined { CORE::defined(@_) }
 
 sub isa {
     my $self = $_[0];

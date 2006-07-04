@@ -279,7 +279,7 @@ sub ast {
         },
     );
 
-    my $out=$p->YYParse;#(yydebug => 0x01);
+    my $out=$p->YYParse(yydebug => 0);
     #print Dumper $out;
     return ( $out, $match );
 }
