@@ -105,10 +105,39 @@ sub angle_quoted {
         \:?     # $:x
         [
             [ \:\: ]?
-            [ _ | <?alnum> ]+
+            [ _ | <?alpha> ]
+            [ _ | <?alnum> ]*
         ]+
     |   <before \< | \[ | \{ >   # $<thing> == $/<thing>; $[thing] = $/[thing]
     |   \/      # $/
+) )->code;
+
+*parenthesis = Pugs::Compiler::Regex->compile( q(
+                <?ws>? <Pugs::Grammar::Perl6.perl6_expression> <?ws>? 
+                <'\)'>
+                { return {
+                    op1 => { op => "(" },
+                    op2 => { op => ")" },
+                    fixity => "circumfix",
+                    exp1 => $_[0]{'Pugs::Grammar::Perl6.perl6_expression'}->() 
+                } }
+            |
+                <?ws>? <Pugs::Grammar::Perl6.block> <?ws>? 
+                <'\)'>
+                { return {
+                    op1 => { op => "(" },
+                    op2 => { op => ")" },
+                    fixity => "circumfix",
+                    exp1 => $_[0]{'Pugs::Grammar::Perl6.block'}->() 
+                } }
+            |
+                <?ws>? 
+                <'\)'>
+                { return {
+                    op1 => { op => "(" },
+                    op2 => { op => ")" },
+                    fixity => "circumfix",
+                } }
 ) )->code;
 
 sub recompile {
@@ -132,11 +161,45 @@ sub recompile {
             ) ),
         '&' => Pugs::Compiler::Regex->compile( q(
                 <?Pugs::Grammar::Term.ident>
-                # XXX: this is wrong, but this makes &?ROUTINE.name
-                # works for the current emitter. fix me along with emitter fix
-                { return { op1 => 'call', code  => "\&" . $_[0]->() ,} }
+                { return { code  => "\&" . $_[0]->() ,} }
             ) ),
 
+        '(' => Pugs::Compiler::Regex->compile( q(
+                <Pugs::Grammar::Term.parenthesis>
+                { return $_[0]{'Pugs::Grammar::Term.parenthesis'}->() }
+            ) ),
+        '{' => Pugs::Compiler::Regex->compile( q(
+                <?ws>? <Pugs::Grammar::Perl6.statements_or_null> <?ws>? <'}'>
+                { 
+                  return { 
+                    bare_block => $_[0]{'Pugs::Grammar::Perl6.statements_or_null'}->(),
+                } }
+            ) ),
+
+
+        '->' => Pugs::Compiler::Regex->compile( q( 
+        [
+            <?ws>? <Pugs::Grammar::Perl6.perl6_expression('no_blocks',0)> <?ws>? 
+            \{ <?ws>? <Pugs::Grammar::Perl6.statements_or_null> <?ws>? \}
+            { return { 
+                pointy_block => $_[0]{'Pugs::Grammar::Perl6.statements_or_null'}->(),
+                signature    => $_[0]{'Pugs::Grammar::Perl6.perl6_expression'}->(),
+            } }
+        |
+            <?ws>?
+            \{ <?ws>? <Pugs::Grammar::Perl6.statements_or_null> <?ws>? \}
+            { return { 
+                pointy_block => $_[0]{'Pugs::Grammar::Perl6.statements_or_null'}->(),
+                signature    => undef,
+            } }
+        ]
+            ) ),
+
+        '.' => Pugs::Compiler::Regex->compile( q(
+                # .method op
+                <?Pugs::Grammar::Term.ident>
+                { return { dot_bareword  => $_[0]->() ,} }
+            ) ),
         '...' => Pugs::Compiler::Regex->compile( q(
             { 
                 return { die => "not implemented" } 
@@ -154,7 +217,8 @@ sub recompile {
         'bool::false' => Pugs::Compiler::Regex->compile( q(
             { return { bool => 0 ,} } 
         ) ),
-        q(') => Pugs::Compiler::Regex->compile( q(
+        q(') =>       # ' 
+          Pugs::Compiler::Regex->compile( q(
             <Pugs::Grammar::Term.single_quoted>
             { return { single_quoted => $/{'Pugs::Grammar::Term.single_quoted'}->() ,} }
         ) ),

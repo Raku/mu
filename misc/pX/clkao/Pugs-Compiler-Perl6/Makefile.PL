@@ -20,4 +20,6 @@ requires('Data::Bind' => 0);
 recommends('Perl::Tidy' => 0);
 recommends('Moose' => 0);
 
+clean_files('t/*.tc', 't/*.pmc');
+
 &WriteAll;
