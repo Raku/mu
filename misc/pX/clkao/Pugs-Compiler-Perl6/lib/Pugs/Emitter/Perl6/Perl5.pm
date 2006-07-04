@@ -303,12 +303,12 @@ sub default {
             $id = exists $n->{param}{cpan_bareword} 
                   ? _mangle_ident( $n->{param}{cpan_bareword} )
                   : _emit( $n->{param}{sub} );
-            my @a = split "-", $id;
+            my @a = split "_", $id;
             my $version = ( @a > 1 && $a[-1] =~ /^[0-9]/ ? $a[-1] : '' );
             return 'package ' . $a[0] .
                 ( $version ? ";\$$a[0]::VERSION = '$version'" : '' ) .
                 ( $n->{sub}{bareword} eq 'class' ? ';use Moose' : '' ) .
-                ";use Exporter 'import';our \@EXPORT";
+                ";use Exporter 'import'; push our \@ISA, 'Exporter' ;our \@EXPORT";
         }
 
         if ( $n->{sub}{bareword} eq 'is' ) {

@@ -35,6 +35,8 @@ sub package {
 
 package Pugs::Runtime::Perl6::Scalar;
 
+sub defined { CORE::defined(@_) }
+
 sub isa {
     my $self = $_[0];
     return 1 if $_[1] eq 'Str'  && defined $_[0];
