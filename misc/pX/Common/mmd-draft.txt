@@ -26,8 +26,7 @@ contender.  However, if at some position, all the initial contenders
 have a semi-colon before the position, then the set of candidates is
 reduced to just those contenders.  A semi-colon appearing in a multi
 signature is thus a hint that "if there is a single contender at this
-point, then I don't require further checks for ambiguity against other
-candidates".
+point, then I don't care about ambiguity in subsequent positions".
 
 The distance between two types is the number of steps in the type
 compatibility path connecting them.  Distances along unrelated paths
