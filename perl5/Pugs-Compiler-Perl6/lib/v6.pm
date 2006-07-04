@@ -29,6 +29,7 @@ sub pmc_compile {
     my ($package, $file) = caller(4);
     $perl5 = 
         ( $package ? "package $package;\n" : "# no package name\n" ).
+        "BEGIN { use lib \$ENV{PERL6LIB} }\n" .
         "use Scalar::Util;\n" .
         "use Pugs::Runtime::Perl6;\n" . 
         "use strict;\n" . 

@@ -259,10 +259,10 @@ sub _emit_parameter_capture {
     my (@named, @positional);
     for (@{$n->{list}}) {
 	if (my $pair = $_->{pair}) {
-	    push @named, $pair->{key}{single_quoted}.' => \\'._emit($pair->{value});
+	    push @named, $pair->{key}{single_quoted}.' => \\('._emit($pair->{value}).')';
 	}
 	else {
-	    push @positional, '\\'._emit($_);
+	    push @positional, '\\('._emit($_).')';
 	}
     }
 
