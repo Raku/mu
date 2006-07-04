@@ -275,7 +275,13 @@ sub default {
             my $version = ( @a > 1 && $a[-1] =~ /^[0-9]/ ? $a[-1] : '' );
             return 'package ' . $a[0] .
                 ( $version ? ";\$$a[0]::VERSION = '$version'" : '' ) .
-                ( $n->{sub}{bareword} eq 'class' ? ';use Moose' : '' ) .
+                ( $n->{sub}{bareword} eq 'grammar' 
+                    ? ';use Pugs::Compiler::Rule' .
+                      ';use base \'Pugs::Grammar::Base\'' 
+                    : '' ) .
+                ( $n->{sub}{bareword} eq 'class' 
+                    ? ';use Moose' 
+                    : '' ) .
                 ";use Exporter 'import';our \@EXPORT";
         }
 
