@@ -9,6 +9,14 @@ Additionally, the Cabal framework is needed, see <http://haskell.org/cabal/>.
 Pugs needs Parrot 0.4.5 or above to support Perl 6 Rules and PIR evaluation.
 To install Parrot, follow the instructions at http://www.parrotcode.org/.
 
+v6-pugs (see <http://perlmonks.org/?node_id=559083>) needs the CPAN modules
+Devel::Caller, Module::Compile and Pugs::Compiler::Rule. The first one is
+dependent on Module::Build with C_support, so install ExtUtils::CBuilder and
+ExtUtils::ParseXS first. Satisfy all with one command:
+
+    $ sudo cpan ExtUtils::CBuilder ExtUtils::ParseXS Module::Build \
+          Devel::Caller Module::Compile Pugs::Compiler::Rule
+
 http://www.jwcs.net/~jonathan/perl6/ and http://pxperl.com/ both have 
 binary builds for Win32, and http://www.unobe.com/packages/ has binary
 builds for Mac OS X on PowerPC.  If you'd like to build Pugs by hand,
