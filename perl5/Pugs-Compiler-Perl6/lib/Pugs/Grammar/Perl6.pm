@@ -130,11 +130,11 @@ sub perl6_expression {
         [
             <?ws> <attribute>
             { return [
-                    [ $_[0][0]->() , $_[0][1]->() ], 
+                    [ { bareword => $_[0][0]->() }, { bareword => $_[0][1]->() } ], 
                     @{$<attribute>->()},
             ] }
         |
-            { return [[ $_[0][0]->() , $_[0][1]->() ]] }
+            { return [[ { bareword => $_[0][0]->() }, { bareword => $_[0][1]->() } ]] }
         ]
     |
         { return [] }
