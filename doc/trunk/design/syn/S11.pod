@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 22 Apr 2006
+  Last Modified: 4 Jul 2006
   Number: 11
-  Version: 12
+  Version: 13
 
 =head1 Overview
 
@@ -272,10 +272,10 @@ Perl is the default module name, so
 means the same thing.  As a variant of that, the current Perl 5
 incantation to switch to Perl 6 parsing is
 
-    use v6-pugs;
+    use v6-**;
 
 (though in Perl 5 this actually ends up calling the v6.pm module with a
-'-pugs' argument for insane-but-useful reasons.)
+C<-**> argument for insane-but-useful reasons.)
 
 For wildcards any valid smartmatch selector works:
 
