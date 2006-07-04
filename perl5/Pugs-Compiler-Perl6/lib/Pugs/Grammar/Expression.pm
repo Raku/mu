@@ -124,38 +124,56 @@ sub ast {
                     }
                 }
             }
-            
-            # XXX temporary hack - matching options in 'expected' order should fix this
-            #if ( $match =~ /^{/ ) {
-            #    # after whitespace means block-start
-            #    #print "checking { ... [$whitespace_before]\n";
-            #    if ( $whitespace_before ) {
-            #        $m = Pugs::Runtime::Match->new( { 
-            #            bool  => 1,
-            #            match => '{',
-            #            tail  => substr( $match, 1 ),
-            #            capture => { stmt => '{' },
-            #        } );
-            #        #print "Match: ",Dumper $m->();
-            #        last;
-            #    }
-            #}
 
             my $m1 = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
             my $m2 = Pugs::Grammar::Term->parse( $match, { p => 1 } );
             #warn "m1 = " . Dumper($m1->()) . "m2 = " . Dumper($m2->());
 
+        while(1) {
+            # term.meth() is high-precedence
+            if ( $m2 && $$m2->{tail} && $$m2->{tail} =~ /^\.[^.]/ ) {
+                my $meth = Pugs::Grammar::Term->parse( $$m2->{tail}, { p => 1 } );
+                $$meth->{capture} = { 
+                    op1  => 'method_call', 
+                    self => $m2->(), 
+                    method => $meth->(),
+                    param => undef,
+                };
+                $m2 = $meth;
+                next;
+            }
             # term() is high-precedence
             if ( $m2 && $$m2->{tail} && $$m2->{tail} =~ /^\(/ ) {
                 my $paren = Pugs::Grammar::Term->parse( $$m2->{tail}, { p => 1 } );
-                if ( $m2->()->{dot_bareword} ) {
-                    $$m2->{capture}{param} = $paren->();
+                if ( exists $m2->()->{dot_bareword} ) {
+                    $$paren->{capture} = { 
+                        op1 => 'method_call', 
+                        self => { 'scalar' => '$_' }, 
+                        method => $m2->(), 
+                        param => $paren->(), 
+                    };
+                }
+                elsif ( exists $m2->()->{op1} 
+                     && $m2->()->{op1} eq 'method_call'
+                     && ! defined $m2->()->{param} 
+                ) {
+                    $$paren->{capture} = { 
+                        %{$m2->()}, 
+                        param => $paren->(), 
+                    };
                 }
                 else {
-                    $$paren->{capture} = { op1 => 'call', sub => $m2->(), param => $paren->(), };
-                    $m2 = $paren;
+                    $$paren->{capture} = { 
+                        op1 => 'call', 
+                        sub => $m2->(), 
+                        param => $paren->(), 
+                    };
                 }
+                $m2 = $paren;
+                next;
             }
+            last;
+        }
 
             # longest token
             if ( $m1 && $m2 ) {
