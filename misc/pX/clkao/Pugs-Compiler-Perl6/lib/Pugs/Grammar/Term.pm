@@ -22,10 +22,10 @@ sub pair {
         match => $1,
         tail  => $3,
         capture => { 
-            pair => { key => { single_quoted => $1 }, value => { single_quoted => $2 } } 
+            pair => { key => { single_quoted => $1 }, value => defined $2 ? { single_quoted => $2 } : { int => 1 } }
         },
     } )
-        if $_[0] =~ /^:([_\w]+)<(.*?)>(.*)$/s;
+        if $_[0] =~ /^:([_\w]+)(?:<(.*?)>)?(.*)$/s;
     return $class->no_match;
 };
 
