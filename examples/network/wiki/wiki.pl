@@ -1,4 +1,4 @@
-#!/usr/local/bin/pugs
+#!/usr/bin/pugs
 BEGIN {unshift @*INC, "/home/eric256/auto/pugs/ext/CGI/lib" };
 use CGI;
 #use perl5:HTML::Template;
