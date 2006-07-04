@@ -468,6 +468,10 @@ sub default {
             ')';
     }
 
+    if ( exists $n->{substitution}) {
+        return 'XXXX';
+    }
+
     return _not_implemented( $n, "syntax" );
 }
 
@@ -563,6 +567,13 @@ sub infix {
         }
     }
     if ( $n->{op1}{op} eq '~~' ) {
+        if ( my $subs = $n->{exp2}{substitution} ) {
+	    # XXX: escape
+            return _emit( $n->{exp1} ) . ' =~ s/' . $n->subs->[0], '/', $n->subs->[1] .'/' .
+		( $n->{exp2}{option}{g} ? 'g' : '' )
+		if $n->{exp2}{option}{p5};
+            return _not_implemented( $n, "rule" );
+        }
         return _emit( $n->{exp1} ) . ' =~ (ref(' . _emit( $n->{exp2} ).') eq "REGEX" ? '._emit($n->{exp2}).' : quotemeta('._emit($n->{exp2}).'))';
     }
 
