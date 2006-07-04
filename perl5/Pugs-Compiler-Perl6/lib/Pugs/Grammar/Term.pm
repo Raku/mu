@@ -45,6 +45,12 @@ sub cpan_bareword {
 sub substitution {
     my $grammar = shift;
     return $grammar->no_match unless $_[0];
+    my $options;
+    while ($_[0] =~ s/^:(\w+)//) {
+	$options->{lc($1)} = 1;
+    }
+    return $grammar->no_match unless substr($_[0], 0 , 1) eq '/';
+    substr($_[0], 0, 1, '');
     my ($extracted,$remainder) = Text::Balanced::extract_delimited( "/" . $_[0], "/" );
     $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
     my $extracted2;
@@ -54,7 +60,7 @@ sub substitution {
         bool  => 1, # ( $extracted ne '' ),
         match => $extracted,
         tail  => $remainder,
-        capture => [ $extracted, $extracted2 ],
+        capture => { options => $options, substitution => [$extracted, $extracted2] },
     } );
 };
 
@@ -226,11 +232,10 @@ sub recompile {
             <Pugs::Grammar::Term.double_quoted>
             { return { double_quoted => $/{'Pugs::Grammar::Term.double_quoted'}->() ,} }
         ) ),
-        q(s:g/) => Pugs::Compiler::Regex->compile( q(
+        q(s) => Pugs::Compiler::Regex->compile( q(
             <Pugs::Grammar::Term.substitution>
             { return { 
                     substitution => $/{'Pugs::Grammar::Term.substitution'}->(),
-                    options => { g => 1 },
                 } 
             }
         ) ),

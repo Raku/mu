@@ -305,9 +305,10 @@ sub default {
                   # ? _mangle_ident( $n->{param}{cpan_bareword} )
                   ? $n->{param}{cpan_bareword} 
                   : _emit( $n->{param}{sub} );
-            my @a = split "_", $id;
+warn $id;
+            my @a = split "-", $id;
             my $version = ( @a > 1 && $a[-1] =~ /^[0-9]/ ? $a[-1] : '' );
-            return 'package ' . $a[0] .
+            return 'package ' . $a[0].';' .
                 ( $version ? ";\$$a[0]::VERSION = '$version'" : '' ) .
                 ( $n->{sub}{bareword} eq 'grammar' 
                     ? ';use Pugs::Compiler::Rule' .
@@ -576,10 +577,11 @@ sub infix {
     }
     if ( $n->{op1}{op} eq '~~' ) {
         if ( my $subs = $n->{exp2}{substitution} ) {
+	    # XXX: use Pugs::Compiler::RegexPerl5
 	    # XXX: escape
-            return _emit( $n->{exp1} ) . ' =~ s/' . $n->subs->[0], '/', $n->subs->[1] .'/' .
-		( $n->{exp2}{option}{g} ? 'g' : '' )
-		if $n->{exp2}{option}{p5};
+            return _emit( $n->{exp1} ) . ' =~ s{' . $subs->{substitution}[0]. '}{'. $subs->{substitution}->[1] .'}' .
+		( $subs->{options}{g} ? 'g' : '' )
+		if $subs->{options}{p5};
             return _not_implemented( $n, "rule" );
         }
         return _emit( $n->{exp1} ) . ' =~ (ref(' . _emit( $n->{exp2} ).') eq "REGEX" ? '._emit($n->{exp2}).' : quotemeta('._emit($n->{exp2}).'))';
