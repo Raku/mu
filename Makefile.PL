@@ -108,6 +108,7 @@ clean_files     (map fixpaths($_),
     .setup-config .installed-pkg-config
     temp-test.*.*-out tempfile.*.* create_this_file create_this_file2
     third-party/*/*.hi third-party/*/*.o
+    third-party/*/dist
     )
 );
 
