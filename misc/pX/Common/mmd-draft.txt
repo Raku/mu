@@ -9,10 +9,10 @@ signature most closely matches the call's arguments.  If no variant is
 unambiguously closer, an error is raised.
 
 Variants incompatible with the call's capture are ignored.  Among the
-rest, closeness is determined by examining positional parameters
+rest, closeness is determined by examining parameter positions,
 individually, left to right, and comparing the type distances between
 the argument, and the parameter of each candidate variant.  A variant
-remains a contender for "unambiguously closer", only if it is at least
+remains a contender for "unambiguously closer" only if it is at least
 as close as any other candidate variant is.  If, after all parameters
 are examined, exactly one contender remains, that contender handles
 the call.  Otherwise, an error is raised.
@@ -22,11 +22,12 @@ contenders is incrementally narrowed.  Candidates which are no longer
 contenders act as spoilers - they only affect dispatch if they
 establish ambigity.  That is, by having some parameter whose type
 distance is either smaller than, or incomparable with, that of a
-contender.  However, if all contenders have a semi-colon before a
-parameter, then the set of candidates is first reduced to just those
-contenders.  A semi-colon appearing in a multi signature is thus a
-hint that "if there is a single contender at this point, then I don't
-require further checks for ambiguity against other candidates".
+contender.  However, if at some position, all the initial contenders
+have a semi-colon before the position, then the set of candidates is
+reduced to just those contenders.  A semi-colon appearing in a multi
+signature is thus a hint that "if there is a single contender at this
+point, then I don't require further checks for ambiguity against other
+candidates".
 
 The distance between two types is the number of steps in the type
 compatibility path connecting them.  Distances along unrelated paths
