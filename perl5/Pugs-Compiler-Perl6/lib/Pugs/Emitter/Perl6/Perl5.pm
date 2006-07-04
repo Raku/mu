@@ -319,6 +319,10 @@ sub default {
         return " print '', " . _emit( $n->{param} ) . ";\n" .
             " print " . '"\n"'
             if $n->{sub}{bareword} eq 'say';
+
+        # TODO - other builtins
+        return " (defined " . _emit( $n->{param} ) . ")"
+            if $n->{sub}{bareword} eq 'defined';
             
         # XXX: handle args
         return "Pugs::Runtime::Perl6::Routine->new(Devel::Caller::caller_cv(1))"
@@ -350,6 +354,10 @@ sub default {
         }
         if ( $n->{method}{dot_bareword} eq 'perl' ) {
             return 'Pugs::Runtime::Perl6::perl(' . _emit( $n->{self} ) . ")\n";
+        }
+        # TODO: other builtins
+        if ( $n->{method}{dot_bareword} eq 'defined' ) {
+            return '(defined ' . _emit( $n->{self} ) . ")\n";
         }
         
         #warn "method_call: ", Dumper( $n );
