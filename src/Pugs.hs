@@ -249,7 +249,8 @@ doExecuteHelper helper args = do
     where
     suffixes =
         [ []
-        , ["misc", "pX", "Common", "Pugs-Compiler-Perl6", "lib"]
+        , ["perl5", "Pugs-Compiler-Perl6", "lib"]
+                                   --  $sourcedir/perl5/Pugs-Compiler-Perl6/v6.pm
         , ["perl5", "PIL2JS"]      --  $sourcedir/perl5/PIL2JS/jspugs.pl
         , ["perl5", "PIL-Run"]     --  $sourcedir/perl5/PIL-Run/pugs-p5.pl
         , ["perl5", "lib"]         --  $pugslibdir/perl5/lib/jspugs.pl
