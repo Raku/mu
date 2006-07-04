@@ -10,7 +10,7 @@ license    ('perl');
 
 WritePugs  (6);
 
-#!pugs
+#!/usr/bin/pugs
 #use v6;
 #
 #require Perl6::MakeMaker;
