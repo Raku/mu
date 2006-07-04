@@ -353,7 +353,7 @@ warn $id;
                 return " # use v6\n";
             }
             # use module::name 'param'
-            return "use " . _emit( $n->{param} );
+            return "use " . _emit( $n->{param}{sub} );
         }
 
         return " " . $n->{sub}{bareword} . " '', " . _emit( $n->{param} ) 
