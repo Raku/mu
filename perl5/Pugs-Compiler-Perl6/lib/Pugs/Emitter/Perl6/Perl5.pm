@@ -405,22 +405,9 @@ sub default {
         
         if ( exists $n->{self}{op1} ) {
             # %var<item>.++;
-            #warn "method: ", Dumper( $n );
-            
-            if ( $n->{self}{op1} eq 'call' ) {
-                # # XXX misparsed Point.new 
-                # # my $self = $n->{self}{sub}{bareword};
-                return
-                    _emit( $n->{self} ) . "->" . 
-                    _emit( $n->{method} ) . "(" . _emit( $n->{param} ) . ")";
-            }
-            
-            return " " . _emit( $n->{method} ) .
-                '(' .
-                join ( ",\n", 
-                    map { _emit( $_ ) } ( $n->{self}, $n->{param} )
-                ) .
-                ')';
+            return
+                _emit( $n->{self} ) . "->" . 
+                _emit( $n->{method} ) . "(" . _emit( $n->{param} ) . ")";
         }
             
         # normal methods or subs
