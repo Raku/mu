@@ -9,8 +9,8 @@ signature most closely matches the call's arguments.  If no variant is
 unambiguously closer, an error is raised.
 
 Variants incompatible with the call's capture are ignored.  Among the
-rest, closeness is determined by examining individual positional
-parameters, left to right, and comparing the type distances between
+rest, closeness is determined by examining positional parameters
+individually, left to right, and comparing the type distances between
 the argument, and the parameter of each candidate variant.  A variant
 remains a contender for "unambiguously closer", only if it is at least
 as close as any other candidate variant is.  If, after all parameters
