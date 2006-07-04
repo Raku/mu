@@ -1,60 +1,42 @@
-Here is a zeroth-draft description of the new MMD algorithm for S06.
-The concepts should reflect current understanding as of this evening.
-The writing needs work, but as it's quite late, that's for another day.
-Comments and questions encouraged.
+Here is a first-draft description of the new MMD algorithm for S06.
 
-
-A multi is a set of variants.  A variant is a Code, with a Signature.
 
 Multi(sub/method) Dispatch
 
-A multi chooses which variant will handle a call based on how closely
-the call's arguments matches the variants' signatures.  Ambiguity is
-an error.
+A multi is a set of variants.  Each variant is a Code, with its own
+Signature.  A normal call to a multi is handled by the variant whose
+signature most closely matches the call's arguments.  If no variant is
+unambiguously closer, an error is raised.
 
-The chosen variant will be compatible with the arguments.  The type
-distances between the chosen variant's parameters, and the arguments,
-will, individually, be no worse than those of any other variant
-candidate (or recently reject candidate) still being considered at
-that position.  Currently, named parameters are only used to check
-compatibility, and their type distances are ignored.
+Variants incompatible with the call's capture are ignored.  Among the
+rest, closeness is determined by examining individual positional
+parameters, left to right, and comparing the type distances between
+the argument, and the parameter of each candidate variant.  A variant
+remains a contender for "unambiguously closer", only if it is at least
+as close as any other candidate variant is.  If, after all parameters
+are examined, exactly one contender remains, that contender handles
+the call.  Otherwise, an error is raised.
 
-Semi-colons are hints that "if there is a single candidate at this
-point, I don't need further checks for ambiguity against rejected
-candidates".  Depending on the rejected candidates, you may get them
-anyway.
-
-The reference algorithm:
-
- 1) The variants are filtered for compatibility with the arguments.
- 2) Both positional and named parameters are checked for compatibility.
- 3) Variants with incompatible signatures are ignored.
- 4) The rest become candidates.
- 5) The positions are considered individually, from left to right.
- 6) In addition to the candidate set, there is a reject set, initially empty. 
- 7) For each position, we measure the distances from the argument's type
-    to each signature's parameter type.
- 8) Both candidates and rejected variants are considered.
- 9) Any variants with a distance greater than the minimum distance seen,
-    are moved from the candidate set to the reject set.
-10) If distances of any two variants cannot be compared with each others,
-    both are moved to the reject set.
-11) Then, if all remaining candidate signatures have a semi-colon
-    after this position, the rejected variants are discarded.
-    (A signature with no semicolos is considered to have a semi at the end.)
-12) After all positions are processed, if the candidate set has exactly one
-    variant, the dispatch succeeds.  If zero, or more than one remains,
-    it fails as ambiguous.
+By default, the set of candidates remains constant, while the set if
+contenders is incrementally narrowed.  Candidates which are no longer
+contenders act as spoilers - they only affect dispatch if they
+establish ambigity.  That is, by having some parameter whose type
+distance is either smaller than, or incomparable with, that of a
+contender.  However, if all contenders have a semi-colon before a
+parameter, then the set of candidates is first reduced to just those
+contenders.  A semi-colon appearing in a multi signature is thus a
+hint that "if there is a single contender at this point, then I don't
+require further checks for ambiguity against other candidates".
 
 The distance between two types is the number of steps in the type
-compatibility path connecting them.  Distances from unrelated paths
-cannot be compared.  Only when one path is an extension of the other,
-can their distances be compared.  A path's distance is a hierarchical
-quantity.  Most significant is the total number of implicit
-conversions required.  Next, the number of upcasts done (the
-inheritance distance).  Finally, the number of subsets encountered.  A
-junction of types is treated as whichever type results in the smallest
-distance.  The same for a conjunction of types.
+compatibility path connecting them.  Distances along unrelated paths
+cannot be compared; only when one path is an extension of the other.
+A path's distance is a hierarchical quantity.  Most significant is the
+total number of implicit conversions required.  Next, the number of
+upcasts done (the inheritance distance).  Finally, the number of
+subsets encountered.  A junction of types is treated as whichever type
+results in the smallest distance.  The same for a conjunction of
+types.
 
 ------------------------------------------------------------
 Backstory and discussion:
