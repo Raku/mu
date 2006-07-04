@@ -250,10 +250,11 @@ sub _emit_parameter_capture {
     return '' unless $n;
 
     # XXX: gah i am lazy
-    die unless $n->{fixity}  eq 'circumfix';
-    $n = $n->{exp1};
+    if ( exists $n->{fixity} && $n->{fixity} eq 'circumfix') {
+        $n = $n->{exp1} or return '';
+    }
     $n = { list => [$n] }
-	if !($n->{assoc} && $n->{assoc} eq 'list');
+        if !($n->{assoc} && $n->{assoc} eq 'list');
 
     my (@named, @positional);
     for (@{$n->{list}}) {
