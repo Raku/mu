@@ -1,0 +1,56 @@
+Here is a zeroth-draft description of the new MMD algorithm for S06.
+The concepts should reflect current understanding as of this evening.
+The writing needs work, but as it's quite late, that's for another day.
+Comments and questions encouraged.
+
+
+A multi is a set of variants.  A variant is a Code, with a Signature.
+
+Multi(sub/method) Dispatch
+
+A multi chooses which variant will handle a call based on how closely
+the call's capture matches the variants' signatures.  Ambiguity is in
+an error.
+
+The chosen variant will be compatible with the capture.  And the type
+distances between the chosen variant's parameters, and the capture
+arguments, will, individually, be no worse than those of any other
+variant candidate (or recently reject candidate) still being
+considered at that position.  Currently, named parameters are only
+used to check compatibility, and their type distances are ignored.
+
+Semi-colons are hints that "if there is a single candidate at this
+point, I don't need further checks for ambiguity against rejected
+candidates".  Depending on the rejected candidates, you may get them
+anyway.
+
+The reference algorithm: (1) The variants are filtered for
+compatibility with the capture.  Variants with incompatible signatures
+are ignored.  The rest become candidates.  Both positional and named
+parameters are checked for compatibility.  (2) The positions are
+considered individually, from left to right.  In addition to the
+candidate set, there is a reject set, initially empty.  For each
+position, we measure the distances from the capture argument's type,
+to each signature's parameter type.  Both candidate and rejected
+variants are considered.  If any of the distances cannot be compared
+with the others, the dispatch fails.  Any variants with a distance
+greater than the minimum distance seen, are moved from the candidate
+set to the reject set.  Then, if all remaining candidate signatures
+have a semi-colon after this position, the rejected variants are
+discarded.  A signature with no semis is considered to have a semi at
+the end.  After all positions are processed, if the candidate set has
+exactly one variant, the dispatch succeeds.  If zero, or more than
+one, it fails as ambiguous.
+
+The distance between two types is the number of steps in the type
+compatibility path connecting them.  Distances from unrelated paths
+cannot be compared.  Only when one path is an extension of the other,
+can their distances be compared.  A path's distance is a hierarchical
+quantity.  Most significant is the total number of implicit
+conversions required.  Next, the number of upcasts done (the
+inheritance distance).  Finally, the number of subsets encountered.  A
+junction of types is treated as whichever type results in the smallest
+distance.  The same for a conjunction of types.
+
+------------------------------------------------------------
+Backstory and discussion:
