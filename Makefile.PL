@@ -146,17 +146,6 @@ sub set_postamble {
         $hsc2hs =~ s{(.*)ghc}{$1hsc2hs};
     }
 
-    unlink("Setup$Config{_exe}");
-    unlink("Setup.o");
-    unlink("Setup.hi");
-    my $rv = system($ghc, '--make', '-o' => $setup, 'Setup.lhs');
-    unless (-s "Setup$Config{_exe}") {
-        die << ".";
-*** Building Setup$Config{_exe} failed (exit code $rv)
-    Please check your GHC and Cabal installation.
-.
-    }
-
     preprocess(
             File::Spec->catfile('util', 'runcompiler.hs.in'),
             File::Spec->catfile('util', 'runcompiler.hs'),
@@ -172,33 +161,9 @@ sub set_postamble {
     # set up install path for third-party modules
     mkdir File::Spec->catdir('third-party', 'installed');
 
-    unlink($_) for map { File::Spec->catfile("util", "ghc-pkg-wrapper" . $_) } (
-            $Config{_exe},
-            '.o',
-            '.hi',
-    );
-    $rv = system($ghc, '--make', '-o' => $ghc_pkg_wrapper,
-             File::Spec->catfile('util', 'ghc-pkg-wrapper.hs'));
-    unless (-s $ghc_pkg_wrapper) {
-        die << ".";
-*** Building $ghc_pkg_wrapper failed (exit code $rv)
-    Please check your GHC installation.
-.
-    }
-
-    unlink($_) for map { File::Spec->catfile('util', 'runcompiler'. $_) } (
-            $Config{_exe},
-            '.o',
-            '.hi',
-    );
-    system($ghc, '--make', '-o' => $ghc_wrapper,
-            File::Spec->catfile('util', 'runcompiler.hs'));
-    unless (-s $ghc_pkg_wrapper) {
-        die << ".";
-*** Building $ghc_wrapper failed (exit code $rv)
-    Please check your GHC installation.
-.
-    }
+    compile_hs($ghc, 'Setup', $setup);
+    compile_hs($ghc, File::Spec->catfile('util', 'ghc-pkg-wrapper'), $ghc_pkg_wrapper);
+    compile_hs($ghc, File::Spec->catfile('util', 'runcompiler'), $ghc_wrapper);
 
     $ghc = $ghc_wrapper;
     $ghc_pkg = $ghc_pkg_wrapper;
@@ -841,4 +806,24 @@ sub preprocess {
 
     close OUT;
     close IN;
+}
+
+sub compile_hs {
+    my ($ghc, $prefix, $out) = @_;
+
+    unlink($prefix . $_) for (
+        $Config{_exe},
+        '.o',
+        '.hi',
+    );
+
+    my $rv = system($ghc, '--make', '-o' => $out,
+        (-e $prefix. '.hs') ? $prefix.'.hs' : $prefix.'.lhs'
+    );
+    unless (-s $out) {
+        die << ".";
+*** Building Setup$Config{_exe} failed (exit code $rv)
+    Please check your GHC and Cabal installation.
+.
+    }
 }
