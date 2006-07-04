@@ -187,8 +187,8 @@ sub perl6_expression {
                 splat      => $_[0][1]->(),
                 optional   => $_[0][2]->(),
             } }
-    |
-        { return undef }
+    #|
+    #    { return undef }
 ),
     { grammar => __PACKAGE__ }
 )->code;
