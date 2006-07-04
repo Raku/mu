@@ -148,6 +148,13 @@ BEGIN {
         precedence => 'looser',
         other => 'eq',
     );
+
+    __PACKAGE__->add_rule( 
+        name => '~~',
+        assoc => 'left',
+        precedence => 'equal',
+        other => 'eq',
+    );
     
     __PACKAGE__->add_rule( 
         name => '||',
