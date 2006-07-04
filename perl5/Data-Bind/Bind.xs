@@ -183,7 +183,7 @@ _alias_a_to_b(SVREF a, SVREF b, int read_only)
     assert(SvNVX(a) == 0.0);
     assert(SvPVX(a) == NULL);
 
-    if (type > SVt_PV) {
+    if (type >= SVt_PVMG) {
         switch (type) {
             case SVt_PVHV:
             case SVt_PVAV: {
@@ -205,7 +205,7 @@ _alias_a_to_b(SVREF a, SVREF b, int read_only)
                 break;
 	    }
             default:
-                croak("don't know what to do yet");
+                croak("don't know what to do yet for %d", type);
         }
     }
     else {

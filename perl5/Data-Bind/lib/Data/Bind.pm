@@ -1,7 +1,7 @@
 package Data::Bind;
 use 5.008;
 use strict;
-our $VERSION = '0.24';
+our $VERSION = '0.24_01';
 
 use base 'Exporter';
 our @EXPORT = qw(bind_op bind_op2);
@@ -127,6 +127,7 @@ Data::Bind - Bind and alias variables
   Data::Bind->sub_signature
     (\&formalize,
      { var => '$title' },
+     { var => '&code'},
      { var => '$subtitle', optional => 1 },
      { var => '$case', named_only => 1 },
      { var => '$justify', named_only => 1 });
@@ -135,7 +136,7 @@ Data::Bind - Bind and alias variables
     Data::Bind->arg_bind(\@_);
   }
 
-  formalize([\'this is title'], # positional
+  formalize([\'this is title', sub { "some code" } ], # positional
             { subtitle => \'hello'} ); #named
 
 =head1 DESCRIPTION
@@ -166,7 +167,7 @@ use PadWalker qw(peek_my);
 
 sub bind {
     my ($self, $args, $lv) = @_;
-    local $Carp::CarpLevel = 2;
+#    local $Carp::CarpLevel = 2;
     $lv ||= 1;
     my %bound;
 
@@ -300,3 +301,18 @@ sub FETCHSIZE {
 }
 
 1;
+
+=head1 AUTHORS
+
+Chia-liang Kao E<lt>clkao@clkao.orgE<gt>
+
+=head1 COPYRIGHT
+
+Copyright 2006 by Chia-liang Kao and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=cut
