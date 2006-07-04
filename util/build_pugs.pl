@@ -46,8 +46,8 @@ sub build {
     
     print "Build configuration:\n" . PugsBuild::Config->pretty_print;
 
-    my ($version, $ghc, $ghc_version, $setup, @args) = @{$opts->{GHC}};
-    write_buildinfo($version, $ghc, $ghc_version, @args);
+    my ($version, $ghc, $ghc_pkg, $ghc_version, $setup, @args) = @{$opts->{GHC}};
+    write_buildinfo($version, $ghc, $ghc_pkg, $ghc_version, @args);
 
     my $pwd = cwd();
 
@@ -57,19 +57,25 @@ sub build {
 
     foreach my $module (qw< fps HsSyck >) {
         chdir "third-party/$module";
-        system("../../Setup$Config{_exe}", 'configure', '--user', '--prefix', "$pwd/dist");
-        system("../../Setup$Config{_exe}", 'unregister', '--user');
+        system("../../Setup$Config{_exe}", 'configure',
+                '--with-compiler' => File::Spec->catfile('..', '..', 'util', 'runcompiler'),
+                '--with-hc-pkg'   => File::Spec->catfile('..', '..', 'util', 'ghc-pkg-wrapper'),
+                '--prefix'        => File::Spec->rel2abs('../installed/'));
+        system("../../Setup$Config{_exe}", 'unregister');
 
         print "*** Building the '$module' dependency.  Please wait...\n\n";
 
         system("../../Setup$Config{_exe}", 'build');
-        system("../../Setup$Config{_exe}", 'install', '--user');
+        system("../../Setup$Config{_exe}", 'install');
         chdir $pwd;
     }
     print "*** Finished building dependencies.\n\n";
 
     $run_setup = sub { system($setup, @_) };
-    $run_setup->('configure', '--user', grep !/^--.*=$/, @{$opts->{SETUP}});
+    $run_setup->('configure',
+            '--with-compiler' => File::Spec->catfile('..', '..', 'util', 'runcompiler'),
+            '--with-hc-pkg'   => File::Spec->catfile('..', '..', 'util', 'ghc-pkg-wrapper'),
+            grep !/^--.*=$/, @{$opts->{SETUP}});
 
     my $pm = "src/perl6/Prelude.pm";
     my $ppc_hs = "src/Pugs/Prelude.hs";
@@ -220,6 +226,7 @@ sub build_exe {
 sub write_buildinfo { 
     my $version = shift;
     my $ghc = shift;
+    my $ghc_pkg = shift;
     my $ghc_version = shift;
 
     open IN, "< Pugs.cabal.in" or die $!;
@@ -263,8 +270,6 @@ sub write_buildinfo {
     my @libs = map substr($_, 2), grep /^-l/, @_;
     #push @libs, grep /\.(?:a|o(?:bj)?)$/, @_;
 
-    my $ghc_pkg = $ghc;
-    $ghc_pkg =~ s/(.*ghc)/$1-pkg/;
     my $has_new_cabal = (`$ghc_pkg describe Cabal` =~ /version: 1\.[1-9]/i);
 
     while (<IN>) {

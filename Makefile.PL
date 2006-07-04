@@ -96,16 +96,18 @@ clean_files     (map fixpaths($_),
     (map {"$_/*.hpp"} @srcdirs),
     "pugs$Config{_exe}", "pil$Config{_exe}",
     "src/gen_prelude$Config{_exe}",
-    "Setup$Config{_exe}", qw(
+    "Setup$Config{_exe}", "util/ghc-pkg-wrapper$Config{_exe}",
+    "util/runcompiler$Config{_exe}", qw(
     src/Pugs/pugs_config.h src/Pugs/Config.hs blib6 dist
     src/Pugs/Prelude.hs src/Pugs/CodeGen/PIR/Prelude.hs test.log
     src/Pugs/Embed/Parrot.hs src/Pugs/Embed/Parrot_hsc.*
     src/Pugs/Run/Perl5_stub.*
+    util/ghc-pkg-wrapper.hs util/ghc-pkg-wrapper.hi util/ghc-pkg-wrapper.o
+    util/runcompiler.hs util/runcompiler.hi util/runcompiler.o
     temp-ex* unlink-test* Prelude Pugs.cabal Setup.hi Setup.o
     .setup-config .installed-pkg-config
     temp-test.*.*-out tempfile.*.* create_this_file create_this_file2
     third-party/*/*.hi third-party/*/*.o
-    third-party/*/dist
     )
 );
 
@@ -136,6 +138,8 @@ sub set_postamble {
     my ($ghc, $ghc_version, $ghc_flags, $ghc_pkg) = assert_ghc();
     my $hsc2hs = $ENV{HSC2HS};
     my $setup = File::Spec->catfile(".", "Setup$Config{_exe}");
+    my $ghc_wrapper = File::Spec->catfile(".", "util", "runcompiler$Config{_exe}");
+    my $ghc_pkg_wrapper = File::Spec->catfile(".", "util", "ghc-pkg-wrapper$Config{_exe}");
 
     if (!$hsc2hs) {
         $hsc2hs = $ghc;
@@ -152,6 +156,52 @@ sub set_postamble {
     Please check your GHC and Cabal installation.
 .
     }
+
+    preprocess(
+            File::Spec->catfile('util', 'runcompiler.hs.in'),
+            File::Spec->catfile('util', 'runcompiler.hs'),
+            CONFIG_PATH => File::Spec->catfile(cwd(), 'third-party', 'installed', 'packages.conf'),
+            GHC => $ghc,
+    );
+    preprocess(
+            File::Spec->catfile('util', 'ghc-pkg-wrapper.hs.in'),
+            File::Spec->catfile('util', 'ghc-pkg-wrapper.hs'),
+            CONFIG_PATH => File::Spec->catfile(cwd(), 'third-party', 'installed', 'packages.conf'),
+    );
+
+    # set up install path for third-party modules
+    mkdir File::Spec->catdir('third-party', 'installed');
+
+    unlink($_) for map { File::Spec->catfile("util", "ghc-pkg-wrapper" . $_) } (
+            $Config{_exe},
+            '.o',
+            '.hi',
+    );
+    $rv = system($ghc, '--make', '-o' => $ghc_pkg_wrapper,
+             File::Spec->catfile('util', 'ghc-pkg-wrapper.hs'));
+    unless (-s $ghc_pkg_wrapper) {
+        die << ".";
+*** Building $ghc_pkg_wrapper failed (exit code $rv)
+    Please check your GHC installation.
+.
+    }
+
+    unlink($_) for map { File::Spec->catfile('util', 'runcompiler'. $_) } (
+            $Config{_exe},
+            '.o',
+            '.hi',
+    );
+    system($ghc, '--make', '-o' => $ghc_wrapper,
+            File::Spec->catfile('util', 'runcompiler.hs'));
+    unless (-s $ghc_pkg_wrapper) {
+        die << ".";
+*** Building $ghc_wrapper failed (exit code $rv)
+    Please check your GHC installation.
+.
+    }
+
+    $ghc = $ghc_wrapper;
+    $ghc_pkg = $ghc_pkg_wrapper;
 
     # Add GHC to PATH
     local $ENV{PATH} = dirname($ghc) . $Config{path_sep} . $ENV{PATH};
@@ -550,7 +600,7 @@ dist/doc/html :
 pugs_requirements : src/Emit/PIR/Instances.hs src/Pugs/AST/Internals/Instances.hs src/Pugs/PIL1/Instances.hs src/Pugs/PIL2/Instances.hs src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm src/Pugs/Prelude.hs
 
 profiled :: pugs_requirements
-	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_version $setup --make -O -auto-all -prof $threaded $profiled_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O -auto-all -prof $threaded $profiled_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 pugs.prof :: profiled
 	find t -type f | grep -v D | grep -v R | grep -v pugsrun | ./pugs +RTS -p -RTS -e 'my sub exit {}; for =\$\$*IN -> \$\$t is copy { \$\$t .= chomp; require \$\$t }'
@@ -558,15 +608,15 @@ pugs.prof :: profiled
 optimised :: optimized
 
 optimized :: pugs_requirements
-	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_version $setup --make -O $threaded $ghc_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O $threaded $ghc_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 unoptimised :: unoptimized
 
 unoptimized :: pugs_requirements
-	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_version $setup --make -O0 $threaded $ghc_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O0 $threaded $ghc_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 $pugs : pugs_requirements
-	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_version $setup --make __optimization__ $threaded $ghc_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make __optimization__ $threaded $ghc_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 
 pirtest : test-pir
@@ -653,11 +703,13 @@ build_perl5 ::
 ")]}
 
 clean ::
+	\@\$(PERL) -MFile::Path -e "rmtree q,third-party/installed/,"
 @{[for_perl5("
 	-cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) clean
 ")]}
 
 realclean ::
+	\@\$(PERL) -MFile::Path -e "rmtree q,third-party/installed/,"
 @{[for_perl5("
 	-cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) realclean
 ")]}
@@ -768,4 +820,21 @@ sub which {
         return $full_name if -e $full_name;
     }
     return undef;    
+}
+
+sub preprocess {
+    my ($infile, $outfile, %substitutions) = @_;
+
+    open IN, '<', $infile or die "failed to open $infile ($!)";
+    open OUT, '>', $outfile or die "failed to open $outfile ($!)";
+
+    while (<IN>) {
+        while (my ($pat, $subst) = each(%substitutions)) {
+            s/__${pat}__/$subst/g
+        }
+        print OUT $_;
+    }
+
+    close OUT;
+    close IN;
 }
