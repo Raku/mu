@@ -47,7 +47,7 @@ t/07-for.t
 t/07-isa.t
 t/07-range.t
 t/07-ref.t
-t/07-simple-multisubs.t
+# t/07-simple-multisubs.t
 t/07-split.t
 t/07-substr.t
 t/07-tailcall.t
