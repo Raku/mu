@@ -8,6 +8,9 @@ Pugs::Doc::Hack - How to hack on Pugs
     $ svn co http://svn.openfoundry.org/pugs
     $ cd pugs
 
+    # review build options controlled by env variables
+    $ $PAGER ./INSTALL
+
     # Configure Pugs
     $ perl Makefile.PL
 
