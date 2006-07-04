@@ -493,7 +493,10 @@ sub statement {
         #warn "sub: ",Dumper $n;
         if ( exists $n->{exp2}{pointy_block} ) {
             return  " " . $n->{statement} . 
-                    ' my ' . _emit( $n->{exp2}{signature} ) . '' . 
+                    ( $n->{exp2}{signature} 
+                      ? ' my ' . _emit( $n->{exp2}{signature} ) 
+                      : '' 
+                    ) . 
                     ' (' . _emit( $n->{exp1} ) . ')' . 
                     " {\n" . 
                         # _emit_parameter_binding( $n->{signature} ) .
@@ -502,10 +505,7 @@ sub statement {
         }
         return  " " . $n->{statement} . 
                 ' (' . _emit( $n->{exp1} ) . ')' . 
-                " {\n" . 
-                    # _emit_parameter_binding( $n->{signature} ) .
-                    _emit( $n->{exp2} ) . 
-                "\n }";
+                _emit( $n->{exp2} );
     }
 
     return _not_implemented( $n, "statement" );
