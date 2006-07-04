@@ -31,9 +31,11 @@ dispatch allVariants args = tryLevel 1 allCandidates
 
     -- A winner is someone who loses to nobody.
     getWinnersForLevel count candidates =
-        let arg         = args `idx` count 
-            losesTo x y = calculateLosesTo arg (paramIdx x) (paramIdx y)
+        let arg    = args `idx` count 
+            ge x y = greaterOrEqualTo arg (paramIdx x) (paramIdx y)
             paramIdx x  = variantParams x `idx` count
-        [ null [ c `losesTo` c' | c' <- candidates ] | c <- candidates ]
+        [ c | c <- candidates, all (\c' -> c `ge` c') candidates ]
 
-    calculateLosesTo arg param1 param2 = ...
+    -- Incomparable pair = False,False
+    -- Comparable equivs = True,True
+    greaterOrEqualTo arg param1 param2 = ...
