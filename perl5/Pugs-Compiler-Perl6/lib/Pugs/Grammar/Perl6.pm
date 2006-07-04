@@ -347,7 +347,7 @@ sub perl6_expression {
     |
     <perl6_expression> 
         [
-            <?ws>? (if|unless) <?ws>?
+            <?ws>? (if|unless|for) <?ws>?
             $<exp1> := <perl6_expression> 
             { return {
                 statement => $_[0][0]->(),

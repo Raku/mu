@@ -477,35 +477,20 @@ sub statement {
                 "\n }";
     }
 
-    #if ( $n->{statement} eq 'method' ) {
-    #    # Moose: sub clear { my $self = shift;';
-    #    # method clear {
-    #    #warn "method: ",Dumper $n;
-    #    return "sub " . _emit( $n->{name} ) .
-    #        " { my \$self = shift; " . 
-    #            _emit_parameter_binding( $n->{signature} ) .
-    #            _emit( $n->{block} ) . 
-    #        "\n }";
-    #}
-
-
     if ( $n->{statement} eq 'for' ) {
-        #warn "sub: ",Dumper $n;
+        #warn "for: ",Dumper $n;
         if ( exists $n->{exp2}{pointy_block} ) {
             return  " " . $n->{statement} . 
                     ( $n->{exp2}{signature} 
                       ? ' my ' . _emit( $n->{exp2}{signature} ) 
                       : '' 
                     ) . 
-                    ' (' . _emit( $n->{exp1} ) . ')' . 
-                    " {\n" . 
-                        # _emit_parameter_binding( $n->{signature} ) .
-                        _emit( $n->{exp2}{pointy_block} ) . 
-                    "\n }";
+                    ' ( ' . _emit( $n->{exp1} ) . ' )' . 
+                    " { " . _emit( $n->{exp2}{pointy_block} ) . " }";
         }
         return  " " . $n->{statement} . 
-                ' (' . _emit( $n->{exp1} ) . ')' . 
-                _emit( $n->{exp2} );
+                ' ( ' . _emit( $n->{exp1} ) . ' )' . 
+                " { " . _emit( $n->{exp2} ) . " }";
     }
 
     return _not_implemented( $n, "statement" );
@@ -514,16 +499,6 @@ sub statement {
 sub infix {
     my $n = $_[0];
     #print "infix: ", Dumper( $n );
-    
-    # XXX - parser bug - this should be a statement
-    #if ( exists $n->{op1}{stmt} && (
-    #       $n->{op1}{stmt} eq 'if'     ||
-    #       $n->{op1}{stmt} eq 'unless' ) ) {
-    #    #warn "IF: ", Dumper( $n );
-    #    return _emit( $n->{exp1} ) . 
-    #        " $n->{op1}{stmt} " .
-    #        _emit( $n->{exp2} );
-    #}
 
     if ( $n->{op1}{op} eq '~' ) {
         return _emit( $n->{exp1} ) . ' . ' . _emit( $n->{exp2} );

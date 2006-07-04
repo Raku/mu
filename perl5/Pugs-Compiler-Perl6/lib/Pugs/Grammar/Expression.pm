@@ -23,6 +23,7 @@ my $rx_end_with_blocks = qr/
                             [});] 
                           | if \s 
                           | unless \s
+                          | for \s 
                           | $
                         )
             /xs;
@@ -34,6 +35,7 @@ my $rx_end_no_blocks = qr/
                             [});] 
                           | if \s 
                           | unless \s
+                          | for \s 
                           | -> 
                           | $
                         )  
