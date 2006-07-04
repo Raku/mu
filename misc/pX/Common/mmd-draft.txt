@@ -15,7 +15,8 @@ the argument, and the parameter of each candidate variant.  A variant
 remains a contender for "unambiguously closer" only if it is at least
 as close as any other candidate variant is.  If, after all parameters
 are examined, exactly one contender remains, that contender handles
-the call.  Otherwise, an error is raised.
+the call.  Otherwise, an error is raised.  Named parameters, while
+checked for compatibility, do not currently affect closeness.
 
 By default, the set of candidates remains constant, while the set if
 contenders is incrementally narrowed.  Candidates which are no longer
