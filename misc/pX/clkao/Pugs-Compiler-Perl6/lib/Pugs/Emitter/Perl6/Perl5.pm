@@ -249,7 +249,10 @@ sub _emit_parameter_capture {
     my $n = $_[0];
     return '' unless $n;
 
-    return _emit_parameter_capture({ assoc => 'list', list => [$n], op => ',' })
+    # XXX: gah i am lazy
+    die unless $n->{fixity}  eq 'circumfix';
+    $n = $n->{exp1};
+    $n = { list => [$n] }
 	if !($n->{assoc} && $n->{assoc} eq 'list');
 
     my (@named, @positional);
