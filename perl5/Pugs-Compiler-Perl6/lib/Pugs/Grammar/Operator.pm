@@ -121,7 +121,7 @@ sub recompile {
         #print $g;
         my $p;
         $p = $operator->emit_grammar_perl5;
-        print $p;
+        #print $p;
         eval $p;
         #warn 'compiled grammar';
     }
