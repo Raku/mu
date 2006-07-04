@@ -1,7 +1,7 @@
 package Data::Bind;
 use 5.008;
 use strict;
-our $VERSION = '0.24_01';
+our $VERSION = '0.24_02';
 
 use base 'Exporter';
 our @EXPORT = qw(bind_op bind_op2);
