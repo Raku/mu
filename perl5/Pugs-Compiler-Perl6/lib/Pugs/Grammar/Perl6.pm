@@ -124,6 +124,18 @@ sub perl6_expression {
 )->code;
 
 
+*try = Pugs::Compiler::Regex->compile( q(
+    (try) : <?ws>? <block>        
+        { return { 
+                    fixity => 'prefix',
+                    op1 => { op => 'try' },
+                    exp1 => $_[0]{block}->(),
+        } }
+),
+    { grammar => __PACKAGE__ }
+)->code;
+
+
 *attribute = Pugs::Compiler::Regex->compile( q(
         (<alnum>+) <?ws> 
         (<alnum>+)
@@ -343,6 +355,10 @@ sub perl6_expression {
     |
     <for>
         { return $_[0]{for}->();
+        }
+    |
+    <try>   # this actually don't belong here
+        { return $_[0]{try}->();
         }
     |
     <perl6_expression> 
