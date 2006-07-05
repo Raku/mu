@@ -25,7 +25,8 @@ sub call_subrule {
 sub call_constant {
     my $const = $_[0];
     my $len = length( eval "'$const'" );
-    $const = $_[0] eq '\\' ? '\\\\' : $_[0];  # XXX - generalize
+    $const = ( $_[0] eq $_ ? "chr(".ord($_).")" : $_[0] )
+        for qw( \ ' );     # '
     return
     "$_[1] ( ( substr( \$s, \$pos, $len ) eq '$const' ) 
 $_[1]     ? do { \$pos $direction= $len; 1 }
