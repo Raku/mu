@@ -1,6 +1,5 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
-use v6;
 use Test;
 
 # References point to containers, not cells or even values

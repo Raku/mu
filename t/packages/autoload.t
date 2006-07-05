@@ -1,6 +1,5 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
-use v6;
 use Test;
 
 # various tests derived from L<S10/Autoloading>

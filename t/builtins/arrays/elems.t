@@ -1,6 +1,5 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
-use v6;
 use Test;
 
 # L<A02/"RFC 212: Make C<length(@array)> Work">

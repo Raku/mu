@@ -1,4 +1,4 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
 # Tests for lazy lists
 #
@@ -11,7 +11,6 @@
 # TODO - add test for zip()
 # TODO - add test for 2D array
 
-use v6;
 use Test;
 
 plan( 32 );

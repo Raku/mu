@@ -1,4 +1,4 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
 # This file has been generated from re_tests-file (in perl5-sources).
 # Since then, this file is edited manually.
@@ -17,7 +17,6 @@
 #     tests to behave differently. Currently such places are written
 #     as $0[-1], but this is yet to decide. 
 
-use v6;
 use Test;
 
 plan 683;

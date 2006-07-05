@@ -1,3 +1,5 @@
+use v6-pugs;
+
 module Dummy;
 use v6;
 

@@ -1,6 +1,5 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
-use v6;
 use Test;
 
 # This test is primarily aimed at PIL2JS.

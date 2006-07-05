@@ -1,5 +1,5 @@
-#!/usr/bin/pugs
-use v6;
+use v6-pugs;
+
 use Test;
 
 # Based Heavily on the t/op/time.t test from Perl5.8.6

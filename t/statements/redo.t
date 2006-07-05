@@ -1,6 +1,5 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
-use v6;
 use Test;
 # L<S04/"Loop statements" /work as in Perl 5/>
 plan 10;

@@ -1,6 +1,5 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
-use v6;
 use Test;
 
 # XXX - this needs to be updated when Str.split(Str) works again

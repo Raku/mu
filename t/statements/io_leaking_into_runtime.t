@@ -1,6 +1,5 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
-use v6;
 use Test;
 
 if $?PUGS_BACKEND ne "BACKEND_PUGS" {

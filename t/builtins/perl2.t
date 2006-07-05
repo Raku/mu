@@ -1,6 +1,5 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
-use v6;
 use Test;
 
 # L<S02/Names and Variables /To get a Perlish representation of any data value/>

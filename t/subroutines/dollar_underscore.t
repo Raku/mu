@@ -1,9 +1,8 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
 # Tests for a bug uncovered when Jesse Vincent was testing 
 # functionality for Patrick Michaud
 
-use v6;
 
 use Test;
 

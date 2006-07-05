@@ -1,6 +1,5 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
-use v6;
 use Test;
 
 =kwid
@@ -21,7 +20,6 @@ is(value_v, 10, "default sub called");
 
 package MyPack;
 
-use v6;
 
 sub double($x) { return 2 * $x }
 

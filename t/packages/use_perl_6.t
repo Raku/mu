@@ -1,4 +1,4 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
 # L<S11/"Versioning" /which is short for/>
 

@@ -1,6 +1,5 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
-use v6;
 use Test;
 
 # XXX: 20 tests should be run, but because of the various eval()s dieing too

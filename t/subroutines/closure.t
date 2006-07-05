@@ -1,4 +1,4 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
 use Test;
 plan 8;

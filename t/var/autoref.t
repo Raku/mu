@@ -1,6 +1,5 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
-use v6;
 use Test;
 
 # Tests testing that automatical referentiation (e.g. $arrayref = @array)

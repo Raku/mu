@@ -1,3 +1,5 @@
+use v6-pugs;
+
 package Foo;
 
 sub bar {

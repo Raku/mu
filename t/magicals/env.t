@@ -1,8 +1,7 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
 # Tests for magic variables
 
-use v6;
 use Test;
 # L<S02/"Names" /environment variables passed to program/>
 plan 14;

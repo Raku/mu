@@ -1,4 +1,4 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
 BEGIN {
 	unless try({ eval("1", :lang<perl5>) }) {
@@ -6,7 +6,6 @@ BEGIN {
 	}
 	eval('unshift @INC, "t/perl5/TestFiles";',:lang<perl5>);
 }
-use v6;
 use Test;
 plan 1;
 

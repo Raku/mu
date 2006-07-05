@@ -1,3 +1,5 @@
+use v6-pugs;
+
 module pragma::Demo-0.01;
 
 sub import (Str $pkg, Int $arg = 0 is copy) returns Void {

@@ -1,6 +1,5 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
-use v6;
 use Test;
 
 # L<S04/"Statement parsing" /or try \{\.\.\.}\./>

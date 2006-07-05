@@ -1,6 +1,5 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
-use v6;
 use Test;
 
 # See thread "Demagicalizing pair" on p6l started by Luke Palmer,

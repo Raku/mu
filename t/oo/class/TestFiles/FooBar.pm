@@ -1,4 +1,5 @@
-use v6;
+use v6-pugs;
+
 use Bar;
 
 class FooBar is ::Bar;

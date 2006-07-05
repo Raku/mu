@@ -1,6 +1,5 @@
-#!/usr/bin/pugs
+use v6-pugs;
 
-use v6;
 use Test;
 
 # XXX -- Lists are not real datatypes, but I haven't found a better location
