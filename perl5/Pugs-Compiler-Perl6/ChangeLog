@@ -4,6 +4,11 @@
 - uses Data::Bind for calling convention
 - 'expr unless/if expr;'
 
+0.003 - 0.004
+
+- "Changed everything to make Test.pm compile"
+- grammar rewrite; now uses Parse::Yapp for expressions only
+
 0.002  2006-06-28
 
 - added REQUIREMENTS section in v6.pm pod
