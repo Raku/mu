@@ -22,8 +22,8 @@ Pugs::Doc::Hack - How to hack on Pugs
 
     # or instead of Test, Smoke:
 
-    # do the following three only once
-    $ sudo cpan Bundle::Pugs::SmokeKit Module::Install PadWalker
+    # do the following only once
+    $ sudo cpan Task::Smoke
     $ cp util/smoker-example.yml ~/.smoker.yml
     $ $EDITOR ~/.smoker.yml
 

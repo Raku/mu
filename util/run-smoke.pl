@@ -17,9 +17,11 @@ for (qw/YAML Test::TAP::Model Test::TAP::HTMLMatrix Best/) {
 die <<"EOF" if $failed;
 
 You don't seem to have the required modules installed.
-Please install it from the CPAN and try again.
+Please install them from the CPAN and try again.
 
-A bundle is available to install at Bundle::Pugs::SmokeKit.
+This can be accomplished in one go by running:
+
+  cpan Task::Smoke
 EOF
 #'
 

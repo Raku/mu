@@ -450,8 +450,8 @@ EOD
 *** You do not appear to have a Smoke Kit installed. You can still build
     Pugs and even run `make test', but you won't be able to run the more
     modern `make smoke' target to produce nice graphs and send them to the
-    public smoke server. Installing Bundle::Pugs::SmokeKit from CPAN will
-    bring in the necessary dependencies.
+    public smoke server. Installing Task::Smoke from CPAN will bring in
+    the necessary dependencies.
 
 .
     # XXX - hsplugins doesn't build with profiles
