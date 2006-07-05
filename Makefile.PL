@@ -407,7 +407,7 @@ EOD
 EOD
 
         $ghc_output .= " $config ";
-        $ccdlflags .= " $rpath_blib ";
+        $ccdlflags .= " $rpath_blib " if -d $build_dir;
 
         # parrot include paths for hsc2hs
         $hsc2hs_flags .= " -DPUGS_HAVE_PARROT -I$base/include ";

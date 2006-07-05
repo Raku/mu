@@ -1,25 +1,24 @@
-pugs (6.2.11-1) unstable; urgency=low
+pugs (6.2.12-1) unstable; urgency=low
 
-  * New upstream release.
-
- -- Florian Ragwitz <rafl@debian.org>  Tue, 31 Jan 2006 08:32:01 +0100
-
-pugs (6.2.10-5) unstable; urgency=low
-
+  * New upstream version (Closes: #351945).
   * Added libghc6-plugins-dev build dependency to enable haskell eval support.
   * Added libparrot-dev build dependency to enable runtime evaluation of
     parrot code as well as the parrot backend for running Perl 6 code
-    (-BParrot)
+    (-BPIR)
   * Removed dependency to pugs from pugs-modules to remove a circular
     dependnecy (Closes: #340022).
   * Use (= ${Source-Version}) instead of (>= ${Source-Version}) in the
     dependency from pugs to pugs-modules.
-  * Backported some recent changes for Makefile.PL from svn to the last
-    release so that pugs will work well with parrot. This involved removing
-    Makefile.PL changes from the 30cabal patch.
-  * Changed my Maintainer address.
+  * Use my @debian.org address for the Maintainer field.
+  * I'm not sure if pugs still builds with ghc-cvs. Removing the
+    build-dependency therefor.
+  * Recompile against ghc6 6.4.2, thus bump up the versioned build-dependency.
+  * Use the new upload-smoke target in debian/rules.
+  * Re-add perl6.vim (Closes: #343565).
+  * Remove libghc6-pugs-dev.
+  * Bump up Standards version to 3.7.2.
 
- -- Florian Ragwitz <rafl@debian.org>  Sun, 20 Nov 2005 15:00:55 +0100
+ -- Florian Ragwitz <rafl@debian.org>  Wed,  5 Jul 2006 03:00:20 +0200
 
 pugs (6.2.10-4) unstable; urgency=low
 
