@@ -7,6 +7,8 @@ use warnings;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
+use Pugs::Emitter::Rule::Perl5::Ratchet;
+
 our %env;
 
 sub _mangle_ident {
@@ -560,13 +562,15 @@ sub statement {
             }
         }
 
+        my $perl5 = Pugs::Emitter::Rule::Perl5::Ratchet::emit( 
+            'Pugs::Grammar::Base', 
+            $n->{block}, 
+            {},   # options
+        );
+        $perl5 =~ s/^sub/sub $name/ if $name;
+        # TODO - _emit_parameter_binding( $n->{signature} ) .
         return  $export .
-                " sub " . $name . 
-                " {\n" .
-                    _emit_parameter_binding( $n->{signature} ) .
-                    "die '$n->{statement} not implemented';" . 
-                    #_emit( $n->{block} ) . 
-                "\n }\n" .
+                $perl5 .
                 "## Signature for $name\n" .
                 " Data::Bind->sub_signature\n".
                 " (\\&$name, ". _emit_parameter_signature ( $n->{signature} ) . ");\n";
