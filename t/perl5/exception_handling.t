@@ -1,15 +1,15 @@
 use v6-pugs;
 
-BEGIN {
-	unless try({ eval("1", :lang<perl5>) }) {
-		exit;
-	}
-	eval('unshift @INC, "t/perl5/TestFiles";',:lang<perl5>);
-}
 use Test;
 plan 1;
 
 
-use perl5:Foo;
+BEGIN {
+unless try({ eval("1", :lang<perl5>) }) {
+    skip_rest('no perl 5 support'); exit;
+}
+}
 
-lives_ok(try({ Foo.bar() }),"Perl 5 exception (die) caught",:todo<bug>);
+use perl5:Carp;
+
+lives_ok({ try{ Carp.croak()}  },"Perl 5 exception (die) caught",:todo<bug>);
