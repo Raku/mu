@@ -1,4 +1,7 @@
+0.005  2006-07-05
 
+- all sanity tests, up and includes Test.pm from Pugs test suite, now passes
+- uses Data::Bind for calling convention
 - 'expr unless/if expr;'
 
 0.002  2006-06-28
