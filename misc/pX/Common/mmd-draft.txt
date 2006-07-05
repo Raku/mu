@@ -8,12 +8,17 @@ Signature.  A normal call to a multi is handled by the variant whose
 signature most closely matches the call's arguments.  If no variant is
 unambiguously closer, an error is raised.
 
-Variants incompatible with the call's capture are ignored.  Among the
+Variants incompatible with the call's arguments are ignored.  Among the
 rest, closeness is determined by examining parameter positions,
 individually, left to right, and comparing the type distances between
-the argument, and the parameter of each candidate variant.  A variant
-remains a contender for "unambiguously closer" only if it is at least
-as close as any other candidate variant is.  If, after all parameters
+the argument, and the parameter of each candidate variant.
+
+However, for any candidate variants with one or more semicolons in the
+signature list, parameters after the final semicolon are ignored; i.e.,
+they are treated as if they had no constraints on them.
+
+A variant remains a contender for "unambiguously closer" only if it is at
+least as close as any other candidate variant is.  If, after all parameters
 are examined, exactly one contender remains, that contender handles
 the call.  Otherwise, an error is raised.  Named parameters, while
 checked for compatibility, do not currently affect closeness.
