@@ -420,8 +420,19 @@ sub metasyntax {
     my $prefix = substr( $cmd, 0, 1 );
     if ( $prefix eq '@' ) {
         # XXX - wrap @array items - see end of Pugs::Grammar::Rule
+        # TODO - param list
         return 
-            "$_[1] ... alternation( \\$cmd )\n";
+            "$_[1] do {\n" . 
+            "$_[1]    my \$match;\n" . 
+            "$_[1]    for my \$subrule ( $cmd ) {\n" . 
+            "$_[1]        \$match = " . 
+                call_subrule( '$subrule', '', () ) . ";\n" .
+            "$_[1]        last if \$match;\n" . 
+            "$_[1]    }\n" .
+            "$_[1]    my \$bool = (!\$match != 1);\n" . 
+            "$_[1]    \$pos = \$match->to if \$bool;\n" . 
+            "$_[1]    \$bool;\n" . 
+            "$_[1] }";
     }
     if ( $prefix eq '$' ) {
         if ( $cmd =~ /::/ ) {

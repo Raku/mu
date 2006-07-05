@@ -1,5 +1,5 @@
 
-use Test::More tests => 77;
+use Test::More tests => 78;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -518,4 +518,19 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     ok( $match, 'true match' );
     is( "$match->{z}", "a", 'named capture on subrule' );
     is( "$match->[0]", "b", 'named capture on subrule not positioned' );
+}
+
+
+{
+    my $match;
+    Pugs::Compiler::Rule->install('Test::rule1' => 'xxyy'),  
+    Pugs::Compiler::Rule->install('Test::rule2' => 'abc'),   
+    @Test::test = (
+        'Test::rule1',  
+        'Test::rule2',   
+    );   
+    $rule1 = Pugs::Compiler::Rule->compile('<@Test::test> 123');
+    #print $rule1->perl5;
+    $match = $rule1->match("abc 123");
+    is($match,'abc 123',"array of rules");
 }
