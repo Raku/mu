@@ -78,7 +78,7 @@ sub emit {
     my ($grammar, $ast) = @_;
     # runtime parameters: $grammar, $string, $state, $arg_list
     # rule parameters: see Runtime::Rule.pm
-    warn Dumper( $ast )
+    warn Pugs::Runtime::Perl6::perl( $ast )
         if $ENV{V6DUMPAST}; 
     return _emit( $ast );
         #"do{\n" .
