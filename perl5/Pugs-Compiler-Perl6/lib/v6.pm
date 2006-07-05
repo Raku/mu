@@ -40,7 +40,7 @@ sub pmc_compile {
     my ($package, $file) = caller(4);
     $perl5 = 
         ( $package ? "package $package;\n" : "# no package name\n" ).
-        (($package and ($package eq 'main')) ? (
+        ((!$package or ($package eq 'main')) ? (
             "use Config;\n".
             "use lib split(/\\Q\$Config{path_sep}/, \$ENV{PERL6LIB} || '');\n"
         ) : '').
