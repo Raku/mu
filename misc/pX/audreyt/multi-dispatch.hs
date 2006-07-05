@@ -21,10 +21,11 @@ dispatch allVariants args = tryLevel 1 allCandidates
     doLevel count candidates = case getWinnersUpToLevel count candidates of
         [] -> die "Ambiguous tiebreaking at count" count
         winners
-            | all (count `elem` . variantBoundaries) winners    -- #2
+            | all (count `elem` . variantBoundaries) winners 
             -> tryLevel (count + 1) winners
-            | otherwise
-            -> tryLevel (count + 1) candidates
+            | losers   <- candidates `difference` winners
+            , spoilers <- filter (not . (count `member`) . variantBoundaries) losers
+            -> tryLevel (count + 1) (winners `union` spoilers)
 
     getWinnersUpToLevel count candidates
         = foldl1 intersection [ getWinnersForLevel l candidates | l <- 1..count ]
