@@ -309,6 +309,20 @@ sub perl6_expression {
 )->code;
 
 
+*rule_decl = Pugs::Compiler::Regex->compile( q(
+    (rule|regex|token)  
+    # TODO: sig
+    # TODO: attr
+    # TODO: name
+    <?ws> <'{'> <'}'>
+    { return { 
+        rule => $/[0]->(),
+    } }
+),
+    { grammar => __PACKAGE__ }
+)->code;
+
+
 *begin_block = Pugs::Compiler::Regex->compile( q(
     (          
    BEGIN 
@@ -359,6 +373,10 @@ sub perl6_expression {
     |
     <try>   # this actually don't belong here
         { return $_[0]{try}->();
+        }
+    |
+    <rule_decl>
+        { return $_[0]{rule_decl}->();
         }
     |
     <perl6_expression> 
