@@ -565,7 +565,7 @@ Stevan "stevan" Little (misc. ugly hacks to make things work for now)
 
 =head1 SEE ALSO
 
-L<Relation>.
+L<Set::Relation>.
 
 You might want to read the tests of Set.
 

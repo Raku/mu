@@ -6,7 +6,7 @@
 
 == Updated modules
 
-
+* [ext/Set-Relation/] - Renamed from ext/Relation/
 
 == Perl 6 on Perl 5 (under [misc/pX/Common/])
 
