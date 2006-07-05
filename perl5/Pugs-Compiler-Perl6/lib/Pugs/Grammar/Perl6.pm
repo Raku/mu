@@ -254,7 +254,7 @@ sub perl6_expression {
 *sub_decl_name = Pugs::Compiler::Regex->compile( q(
     ( multi | <''> ) <?ws>?
     ( submethod | method | sub ) <?ws>? 
-    ( [<alnum>|_]* ) 
+    ( <?Pugs::Grammar::Term.ident>? ) 
         { return { 
             multi      => $_[0][0]->(),
             statement  => $_[0][1]->(),
@@ -262,7 +262,7 @@ sub perl6_expression {
         } }
     |
     ( multi ) <?ws>?
-    ( [<alnum>|_]* )
+    ( <?Pugs::Grammar::Term.ident>? ) 
         { return { 
             multi      => $_[0][0]->(),
             statement  => 'sub',
@@ -309,14 +309,36 @@ sub perl6_expression {
 )->code;
 
 
+*rule_decl_name = Pugs::Compiler::Regex->compile( q(
+    ( rule | regex | token ) <?ws>?
+    ( <?Pugs::Grammar::Term.ident>? ) 
+        { return { 
+            multi      => '',       # ??? 'multi rule' exists?
+            statement  => $_[0][0]->(),
+            name       => $_[0][1]->(),
+        } }
+),
+    { grammar => __PACKAGE__ }
+)->code;
+
+
 *rule_decl = Pugs::Compiler::Regex->compile( q(
-    (rule|regex|token)  
+    <rule_decl_name> <?ws>?   
     # TODO: sig
     # TODO: attr
-    # TODO: name
-    <?ws> <'{'> <'}'>
+    <'{'> 
+        <?ws>?
+        <Pugs::Grammar::Rule.rule>     # call PCR parser
+        <?ws>?
+    <'}'>
     { return { 
-        rule => $/[0]->(),
+            multi      => $_[0]{rule_decl_name}->()->{multi},
+            statement  => $_[0]{rule_decl_name}->()->{statement},
+            name       => $_[0]{rule_decl_name}->()->{name},
+            
+            #attribute  => $_[0]{attribute}->(),
+            #signature  => $_[0]{signature}->(),
+            #block      => $_[0]{block}->(),
     } }
 ),
     { grammar => __PACKAGE__ }
