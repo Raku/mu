@@ -545,6 +545,33 @@ sub statement {
                 " { " . _emit( $n->{exp2} ) . " }";
     }
 
+    if ( $n->{statement} eq 'rule'  ||
+         $n->{statement} eq 'token' ||
+         $n->{statement} eq 'regex' ) {
+        #warn "rule: ",Dumper $n;
+
+        my $name = _mangle_ident( $n->{name} );
+
+        my $export = '';
+        for my $attr ( @{$n->{attribute}} ) {
+            if ( $attr->[0]{bareword} eq 'is' &&
+                 $attr->[1]{bareword} eq 'export' ) {
+                $export = "push \@EXPORT, '$name';";
+            }
+        }
+
+        return  $export .
+                " sub " . $name . 
+                " {\n" .
+                    _emit_parameter_binding( $n->{signature} ) .
+                    "die '$n->{statement} not implemented';" . 
+                    #_emit( $n->{block} ) . 
+                "\n }\n" .
+                "## Signature for $name\n" .
+                " Data::Bind->sub_signature\n".
+                " (\\&$name, ". _emit_parameter_signature ( $n->{signature} ) . ");\n";
+    }
+
     return _not_implemented( $n, "statement" );
 }
 

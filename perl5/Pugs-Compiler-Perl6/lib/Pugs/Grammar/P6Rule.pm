@@ -1,6 +1,9 @@
 # this file was extracted from the P6 version in Pugs-Compiler-Rule
 
 package  Pugs::Grammar::P6Rule;
+use strict;
+use warnings;
+
 use Pugs::Compiler::Rule;
 use Pugs::Compiler::Token;
 use Pugs::Compiler::Regex;
@@ -8,6 +11,18 @@ use base 'Pugs::Grammar::Base';
 use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 our @rule_terms;
+
+# reuse some subs
+  use Pugs::Grammar::Rule; 
+  # XXX - this doesn't work:
+  #       "Can't call method "no_match" on an undefined value"
+  #*code       = &Pugs::Grammar::Rule::code;
+  #*literal    = &Pugs::Grammar::Rule::literal;
+  #*metasyntax = &Pugs::Grammar::Rule::metasyntax;
+  sub code       { Pugs::Grammar::Rule::code(@_) }
+  sub literal    { Pugs::Grammar::Rule::literal(@_) }
+  sub metasyntax { Pugs::Grammar::Rule::metasyntax(@_) }
+  push @rule_terms, 'metasyntax';
 
 *ws = Pugs::Compiler::RegexPerl5->compile(q(^((?:\\s|\\#(?-s:.)*)+)), { P5 => 0 })->code;
 *variable = Pugs::Compiler::RegexPerl5->compile(q(^([\\$\\%\\@](?:(?:\\:\\:)?[_[:alnum:]]+)+)), { P5 => 0 })->code;
