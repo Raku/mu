@@ -50,16 +50,16 @@ Named rules are methods in a Grammar:
     use Pugs::Compiler::Rule;
     use base 'Pugs::Grammar::Base';
 
-    *rule = Pugs::Compiler::Rule->compile( '((.).).' )->code;
+    Pugs::Compiler::Rule->install( rule => '((.).).' );
     my $match = MyGrammar->rule( 'abc' );
 
 Rules may have parameters:
 
-    *subrule = $grammar->compile( $source, { signature => $sig } )->code;
+    $grammar->install(subrule => $source, { signature => $sig } );
 
-    *rule = $grammar->compile( '
+    $grammar->install(rule => q{
             <subrule: param1, param2>
-        ' )->code;
+    });
 
 =head1 DESCRIPTION
 
@@ -106,95 +106,120 @@ to several other modules:
 
 =head2 Implemented Features
 
- <ws> 
- #comment\n 
- . 
- ? * + *? +? ??
- literal
- [] 
- ()     
- |
-
- <'literal'>
- <subrule>
- <namespace::subrule>
- <$var>      
- <?subrule>
- <!subrule>
- <before ...>
- <after ...>         -- implemented in :ratchet mode only
- <subrule('param')>  -- constant parameters only
-
- %hash
-
- <@var>             -- special-cased for array-of-rule (but not Rule|Str)
- \char              -- not all chars implemented
- {code}             -- non-capturing closure
-                    -- perl5 syntax inside closure
-                    -- $/ doesn't work yet
- { return code }    -- capturing closure
-                    -- perl5 syntax inside closure
-                    -- $/ works
- $var := (capture)  -- capture aliasing
- $<> $/<>           -- special variables can't be used inside a match yet
- $/ 
- $<0> $<1>
- $0 $1
- \n \N
- $^a $^b            -- positional parameters (must start with $^a)
- ^ $
- :
+  <ws> 
+  #comment\n 
+  . 
+  ? * + *? +? ??
+  literal
+  [] 
+  ()     
+  |
+ 
+  <'literal'>
+  <subrule>
+  <namespace::subrule>
+  <$var>      
+  <?subrule>
+  <!subrule>
+  <before ...>
+  <after ...>         -- implemented in :ratchet mode only
+  <subrule('param')>  -- constant parameters only
+ 
+  %hash
+ 
+  <@var>             -- special-cased for array-of-rule (but not Rule|Str)
+  \char              -- not all chars implemented
+  {code}             -- non-capturing closure
+                     -- perl5 syntax inside closure
+                     -- $/ doesn't work yet
+  { return code }    -- capturing closure
+                     -- perl5 syntax inside closure
+                     -- $/ works
+  $var := (capture)  -- capture aliasing
+  $<> $/<>           -- special variables can't be used inside a match yet
+  $/ 
+  $<0> $<1>
+  $0 $1
+  \n \N
+  $^a $^b            -- positional parameters (must start with $^a)
+  ^ $
+  :
 
 =head2 Unimplemented or untested features
 
- $variable 
- @variable
- $/<0> $/<1>
- $/0 $/1
- <"literal">
- ^^ $$
- <unicode-class> <+unicode-class> <+unicode-class+unicode-class>
- <&var> 
- <%var>
- **{n..m}
- :: :::   (commit)
- $var := [non-capture]
- $var := <rule>
- <(closure-assertion)> <{code-returns-rule}>
- <<character-class>> <[character-class]>
- :flag :flag() :flag[]
- \x0a \0123 ...
- &    
- $1      - lvalue match variables
- $/ $()  - global match variables 
+  $variable 
+  @variable
+  $/<0> $/<1>
+  $/0 $/1
+  <"literal">
+  ^^ $$
+  <unicode-class> <+unicode-class> <+unicode-class+unicode-class>
+  <&var> 
+  <%var>
+  **{n..m}
+  :: :::   (commit)
+  $var := [non-capture]
+  $var := <rule>
+  <(closure-assertion)> <{code-returns-rule}>
+  <<character-class>> <[character-class]>
+  :flag :flag() :flag[]
+  \x0a \0123 ...
+  &    
+  $1      - lvalue match variables
+  $/ $()  - global match variables 
 
 =head1 METHODS
 
-=head2 compile (Str $rule_source, \%options )
+=over
+
+=item compile (Str $rule_source, \%options)
 
 Class method.  Returns a compiled rule object, or throws an exception on
 invalid rule syntax.
 
 options:
 
-=item * grammar => $class - Specify which namespace (Grammar) the rule 
-belongs to.
+=over
 
-=item * ratchet => 1 - Disable backtracking. Match faster. Defaults to 1 in Rules and Tokens.
+=item grammar => $class
 
-=item * pos => $pos - Specify a string position to match. Starts in zero. Defaults to C<undef>.
+Specify which namespace (Grammar) the rule belongs to.
 
-=item * sigspace => 1 - Whitespace is significant. Defaults to 1 in Rules.
+=item * ratchet => 1
 
-=item * Perl5 => 1 - Use Perl 5 grammar and semantics for Regex.
+Disable backtracking. Match faster. Defaults to 1 in Rules and Tokens.
 
-=head2 match (Str $match_against)
+=item * pos => $pos
 
-Instance method.  Returns a L<Pugs::Runtime::Match> object (or L<Pugs::Runtime::Match::Ratchet>).
+Specify a string position to match. Starts in zero. Defaults to C<undef>.
 
-=head2 perl5
+=item * sigspace => 1
 
-Instance method.  Returns a string that can be eval'ed into a rule/token/regex object.
+Whitespace is significant. Defaults to 1 in Rules.
+
+=item * Perl5 => 1
+
+Use Perl 5 grammar and semantics for Regex.
+
+=back
+
+=item match (Str $match_against)
+
+Instance method.  Returns a L<Pugs::Runtime::Match> object (or
+L<Pugs::Runtime::Match::Ratchet>).
+
+=item install (Str $name, Str $rule_source, \%options)
+
+Install a rule into the method C<$name>. If C<$name> is fully qualified
+then it will be installed into that path e.g C<MyGrammar::rulename>,
+otherwise it will install it into the current package.
+
+=item perl5
+
+Instance method.  Returns a string that can be eval'ed into a
+rule/token/regex object.
+
+=back
 
 =head1 CAVEATS
 
@@ -204,7 +229,7 @@ The set of implemented features depends on the C<ratchet> switch.
 
 =head1 AUTHORS
 
-The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+The Pugs Team C<< <perl6-compiler@perl.org> >>.
 
 Please join us on irc.freenode.net #perl6 if you'd like to participate.
 

@@ -1,5 +1,5 @@
 
-use Test::More tests => 25;
+use Test::More tests => 29;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -58,6 +58,38 @@ no warnings qw( once );
     *test::rule_method = Pugs::Compiler::Regex->compile( '((.).)(.)' )->code;
     my $match = test->rule_method( "xyzw" );
     is( "$match", "xyz", 'named rules are methods' );
+}
+
+{
+    # Install a new rule inside the test package.
+    package test;
+    Pugs::Compiler::Regex->install( installed_rule => '((.).)(.)' );
+    my $match = test->installed_rule( "xyzw" );
+    ::is( "$match", "xyz", 'named rules are methods' );
+}
+
+{
+    # Install a new rule outside the test package.
+    Pugs::Compiler::Regex->install( 'test::installed_rule2' => '((.).)(.)' );
+    my $match = test->installed_rule2( "xyzw" );
+    is( "$match", "xyz", 'named rules are methods' );
+}
+
+{
+    # Attempt to install an existing rule with an unqualified name.
+    package test;
+    local $@;
+    eval { Pugs::Compiler::Regex->install( installed_rule => '' ) };
+    ::like $@, qr/Can't install regex 'installed_rule' as 'test::installed_rule' already exists/,
+           'Died as expected when installing an existing unqualified rule';
+}
+
+{
+    # Attempt to install an existing rule with a fully qualified name.
+    local $@;
+    eval { Pugs::Compiler::Regex->install( 'test::installed_rule' => '' ) };
+    like $@, qr/Can't install regex 'test::installed_rule' as 'test::installed_rule' already exists/,
+           'Died as expected when installing an existing qualified rule';
 }
 
 {

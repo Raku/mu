@@ -14,7 +14,9 @@ use Pugs::Emitter::Rule::Perl5;
 use Pugs::Emitter::Rule::Perl5::Ratchet;
 use Pugs::Compiler::RegexPerl5;
 
+use Carp 'croak';
 use Data::Dumper;
+use Symbol 'qualify_to_ref';
 
 sub new { $_[0] }
 
@@ -135,6 +137,19 @@ sub match {
         return $match;  
     }
     return Pugs::Runtime::Match->new( { bool => 0 } );   # XXX - fix?
+}
+
+sub install {
+  my($class, $name, @etc) = @_;
+
+  ## If we have a fully qualified name, use that, otherwise extrapolate.
+  my $rule = index($name, '::') > -1 ? $name : scalar(caller)."::$name";
+  my $slot = qualify_to_ref($rule);
+
+  croak "Can't install regex '$name' as '$rule' already exists"
+    if *$slot{CODE};
+
+  *$slot = $class->compile(@etc)->code;
 }
 
 sub _str { defined $_[0] ? $_[0] : 'undef' }
