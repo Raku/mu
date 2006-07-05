@@ -332,7 +332,7 @@ sub perl6_expression {
         <?ws>?
         # call PCR parser
         #   XXX - Pugs::Grammar::Rule.rule doesn't work yet
-        <Pugs::Grammar::Rule.metasyntax>     
+        <Pugs::Grammar::Rule.rule>     
         <?ws>?
     <'}'>
     { return { 
@@ -342,7 +342,7 @@ sub perl6_expression {
             
             #attribute  => $_[0]{attribute}->(),
             #signature  => $_[0]{signature}->(),
-            block      => $_[0]{'Pugs::Grammar::Rule.metasyntax'}->(),
+            block      => $_[0]{'Pugs::Grammar::Rule.rule'},
     } }
 ),
     { grammar => __PACKAGE__ }
