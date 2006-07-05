@@ -80,9 +80,12 @@ sub emit_rule {
     die "unknown node: ", Dumper( $n )
         unless ref( $n ) eq 'HASH';
     #print "NODE ", Dumper($n);
-    my ( $k, $v ) = each %$n;
+    my ($k) = keys %$n;
+    my $v = $$n{$k};
+    #my ( $k, $v ) = each %$n;
     # XXX - use real references
     no strict 'refs';
+    print "NODE ", Dumper($k), ", ", Dumper($v);
     my $code = &$k( $v, $tab );
     return $code;
 }
