@@ -305,7 +305,6 @@ sub default {
                   # ? _mangle_ident( $n->{param}{cpan_bareword} )
                   ? $n->{param}{cpan_bareword} 
                   : _emit( $n->{param}{sub} );
-warn $id;
             my @a = split "-", $id;
             my $version = ( @a > 1 && $a[-1] =~ /^[0-9]/ ? $a[-1] : '' );
             return 'package ' . $a[0].';' .
