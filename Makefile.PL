@@ -800,6 +800,7 @@ sub preprocess {
 
     while (<IN>) {
         while (my ($pat, $subst) = each(%substitutions)) {
+            $subst =~ s{\\}{\\\\}g;
             s/__${pat}__/$subst/g
         }
         print OUT $_;
