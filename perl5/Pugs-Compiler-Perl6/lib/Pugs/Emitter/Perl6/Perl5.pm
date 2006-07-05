@@ -78,7 +78,8 @@ sub emit {
     my ($grammar, $ast) = @_;
     # runtime parameters: $grammar, $string, $state, $arg_list
     # rule parameters: see Runtime::Rule.pm
-    #warn "Perl5::emit: ", Dumper( $ast ); 
+    warn Dumper( $ast )
+        if $ENV{V6DUMPAST}; 
     return _emit( $ast );
         #"do{\n" .
         #_emit( $ast, '    ' ) . "\n" .

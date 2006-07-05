@@ -328,7 +328,7 @@ sub perl6_expression {
     # TODO: attr
     <'{'> 
         <?ws>?
-        <Pugs::Grammar::Rule.rule>     # call PCR parser
+        #<Pugs::Grammar::Rule.rule>     # call PCR parser
         <?ws>?
     <'}'>
     { return { 
