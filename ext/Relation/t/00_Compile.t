@@ -3,16 +3,8 @@ use v6;
 
 use Test;
 
-plan( 6 );
+plan( 2 );
 
-use D; pass "(dummy instead of broken use_ok)";
-skip( 1, q{is( D.meta.identifier.version, 0.1.0,
-    'D is the correct version' );} );
-
-use Relation; pass "(dummy instead of broken use_ok)";
-skip( 1, q{is( Relation.meta.identifier.version, 0.1.0,
-    'Relation is the correct version' );} );
-
-use Relation::Example; pass "(dummy instead of broken use_ok)";
-skip( 1, q{is( Relation::Example.meta.identifier.version, 0.1.0,
-    'Relation::Example is the correct version' );} );
+use Set::Relation; pass "(dummy instead of broken use_ok)";
+skip( 1, q{is( Set::Relation.meta.identifier.version, 0.1.0,
+    'Set::Relation is the correct version' );} );

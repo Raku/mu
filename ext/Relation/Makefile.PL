@@ -4,9 +4,9 @@ use warnings;
 use lib '../..', '../../inc';
 use inc::Module::Install prefix => '../../inc';
 
-name       ('Relation');
-version    ('0.1.0'); # 'VERSION_FROM' => 'lib/Relation.pm'
-abstract   ('Relation Perl 6 extension');
+name       ('Set::Relation');
+version    ('0.1.0'); # 'VERSION_FROM' => 'lib/Set/Relation.pm'
+abstract   ('A true Relation data type');
 author     ('Darren R. Duncan <perl@DarrenDuncan.net>');
 license    ('perl');
 
