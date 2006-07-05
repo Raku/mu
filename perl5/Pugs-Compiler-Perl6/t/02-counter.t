@@ -2,7 +2,7 @@
 
 # Checking that testing is sane: counted tests
 
-use v6-pugs;
+use v6-**;
 
 say '1..4';
 

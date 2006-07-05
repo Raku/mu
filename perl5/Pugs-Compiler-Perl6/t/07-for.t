@@ -1,5 +1,5 @@
 
-use v6-pugs;
+use v6-**;
 
 say "1..6";  
 

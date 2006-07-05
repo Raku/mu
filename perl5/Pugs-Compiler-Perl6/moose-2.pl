@@ -1,4 +1,4 @@
-  use v6-pugs;
+  use v6-**;
   class Point3D;
   is Point;
   has $.z;

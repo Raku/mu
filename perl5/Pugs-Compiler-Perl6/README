@@ -1,5 +1,5 @@
 NAME
-    v6-pugs - an experimental Perl 6 implementation (under way)
+    v6 - an experimental Perl 6 implementation
 
 SYNOPSIS
     Command line:
@@ -13,7 +13,7 @@ SYNOPSIS
     Script or module:
 
         # file: hello_world.pl
-        use v6-pugs;
+        use v6-**;
         "hello, world".say;
 
         $ perl hello_world.pl
@@ -22,7 +22,7 @@ DESCRIPTION
     The "v6" module is a front-end to the experimental Perl6-to-Perl5
     compiler.
 
-    The current state of this compiler implementation only provide a small
+    The current state of this compiler implementation only provides a small
     sample of Perl 6 syntax and semantics.
 
   Other Perl 6 implementations
@@ -35,11 +35,57 @@ DESCRIPTION
     Although running "v6" requires the installation of a lot of Perl 5
     modules, it is completely independent of Pugs or Parrot.
 
+REQUIREMENTS
+    - The source file header must be valid perl5 *and* perl6 code.
+
+    This is a valid header:
+
+        #!/usr/bin/perl
+        use v6-**;
+
+    * it executes perl5
+
+    * perl5 will call the "v6.pm" module.
+
+    This is an invalid header:
+
+        #!/usr/bin/pugs
+        use v6;
+
+    * it tells perl5 to execute "/usr/bin/pugs".
+
+    * it tells perl5 that Perl v6.0.0 required.
+
+    - The "Pugs::Compiler::Rule" module must be properly installed.
+
+    An improperly installed "Pugs::Compiler::Rule" module would prevent the
+    Perl 6 compiler from bootstrapping.
+
+    If that is the case, running "Makefile.PL" and "make" in
+    "Pugs::Compiler::Rule" should fix the problem.
+
+    - The perl5 executable must have PMC support.
+
+    PMC support is required for loading precompiled Perl 6 files.
+
+    If you see the error below, it may happen that your perl was compiled
+    without PMC support.
+
+      Can't locate object method "compile" via package "Pugs::Compiler::Perl6"
+
+    Please see <http://rt.cpan.org/Public/Bug/Display.html?id=20152>
+
 AUTHORS
     The Pugs Team <perl6-compiler@perl.org>.
 
 SEE ALSO
-    The Perl 6 Synopsis: <http://dev.perl.org/perl6/doc/synopsis.html>
+    The Perl 6 homepage at <http://dev.perl.org/perl6>.
+
+    - the Perl 6 Synopsis: <http://dev.perl.org/perl6/doc/synopsis.html>.
+
+    The Pugs homepage at <http://pugscode.org/>.
+
+    The Parrot homepage at <http://www.parrotcode.org>.
 
 COPYRIGHT
     Copyright 2006 by Flavio Soibelmann Glock and others.

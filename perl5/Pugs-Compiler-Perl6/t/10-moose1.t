@@ -1,4 +1,4 @@
-use v6-pugs;
+use v6-**;
 
 use lib './t', '.';
 use moose1;

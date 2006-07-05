@@ -1,5 +1,5 @@
 
-use v6-pugs;
+use v6-**;
 say "1..1";
 
 my $has_run = 0;

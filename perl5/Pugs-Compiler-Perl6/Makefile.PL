@@ -2,14 +2,18 @@
 
 use strict;
 use warnings;
-my $inc;
+my @inc;
 BEGIN {
-$inc = -e '../../inc' ? '../../inc' : '../../../../inc';
+    @inc = (-e '../../inc')
+        ? (prefix => '../../inc')
+        : (-e '../../../../inc')
+        ? (prefix => '../../../../inc')
+        : ()
 }
-use lib '../..', $inc;
-use inc::Module::Install prefix => $inc;
+use lib '../..', (@inc ? $inc[-1] : ());
+use inc::Module::Install @inc;
 
-    name('v6-pugs');
+    name('v6');
 all_from('lib/v6.pm');
 requires('Pugs::Compiler::Rule' => '0.06');
 requires('Module::Compile' => '0.16');
