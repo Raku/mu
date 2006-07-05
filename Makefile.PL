@@ -392,9 +392,9 @@ EOD
 
         $embed_flags .= " -I$base/include -L$base/lib -L$base/blib/lib -DPUGS_HAVE_PARROT -L/usr/local/lib $ldflags ";
         $ghc_output .= " -lparrot $libs $icuflags ";
-        my $config = $parrot_libdir."parrot/confg/install_config$Config{_o}";
-        $config = $parrot_libdir."parrot/confg/parrot_config$Config{_o}" unless -e $config;
-        $config = $parrot_libdir."parrot/confg/null_config$Config{_o}" unless -e $config;
+        my $config = $parrot_libdir."/parrot/config/install_config$Config{_o}";
+        $config = $parrot_libdir."/parrot/config/parrot_config$Config{_o}" unless -e $config;
+        $config = $parrot_libdir."/parrot/config/null_config$Config{_o}" unless -e $config;
         $config = "$build_dir/src/install_config$Config{_o}" unless -e $config;
         $config = "$build_dir/src/parrot_config$Config{_o}" unless -e $config;
         $config = "$build_dir/src/null_config$Config{_o}" unless -e $config;
