@@ -328,10 +328,12 @@ sub perl6_expression {
     <rule_decl_name> : <?ws>?   
     # TODO: sig
     # TODO: attr
-    <'{'> 
+    <'{'>  
         <?ws>?
         # call PCR parser
         #   XXX - Pugs::Grammar::Rule.rule doesn't work yet
+    [
+
         <Pugs::Grammar::P6Rule.rule>     
         <?ws>?
     <'}'>
@@ -342,8 +344,15 @@ sub perl6_expression {
             
             #attribute  => $_[0]{attribute}->(),
             #signature  => $_[0]{signature}->(),
+
+            # pass the match tree to the emitter
             block      => $_[0]{'Pugs::Grammar::P6Rule.rule'}->(),
     } }
+    
+    |
+        # XXX better error messages
+        { die "invalid rule syntax" }
+    ]
 ),
     { grammar => __PACKAGE__ }
 )->code;
