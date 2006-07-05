@@ -1,6 +1,8 @@
+- 'install()' creates a rule in current namespace - implemented by broquaint
+
 0.08  2006-07-04
 
-- clear a warning in Pugs::Grammar::Rule - audreyt++
+- clear a warning in Pugs::Grammar::Rule - fixed by audreyt
 
 0.07  2006-07-04
 
