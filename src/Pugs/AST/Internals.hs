@@ -370,7 +370,7 @@ instance Value VCode where
         , subBody     = Prim $ \(args:_) -> do
             svs     <- fromVals args
             env     <- ask
-            rv      <- liftIO $ do
+            rv      <- guardIO $ do
                 envSV   <- mkVal (VControl $ ControlEnv env)
                 invokePerl5 sv nullSV svs envSV (enumCxt $ envContext env)
             return $ case rv of

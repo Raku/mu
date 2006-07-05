@@ -210,7 +210,7 @@ findSub name' invs args = do
                     else canPerl5 sv "AUTOLOAD"
                 if not found' then evalExp (App (Var name) Nothing (map (Val . PerlSV) (sv:svs))) else do
                 env     <- ask
-                rv      <- liftIO $ do
+                rv      <- guardIO $ do
                     envSV   <- mkVal (VControl $ ControlEnv env)
                     subSV   <- vstrToSV $ tail name
                     invokePerl5 subSV sv svs envSV (enumCxt $ envContext env)

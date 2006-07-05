@@ -357,18 +357,21 @@ perl5_apply(SV *sub, SV *inv, SV** args, void *env, int cxt)
     PUTBACK;
 
     if (inv != NULL) {
-        count = call_method(SvPV_nolen(sub), cxt);
+        count = call_method(SvPV_nolen(sub), cxt|G_EVAL);
     }
     else {
-        count = call_sv(sub, cxt);
+        count = call_sv(sub, cxt|G_EVAL);
     }
 
     SPAGAIN;
 
-    Newz(42, out, count+1, SV*);
+    Newz(42, out, count+2, SV*);
+
+    /* The first slot is the errsv */
+    out[0] = (SvTRUE(ERRSV) ? ERRSV : NULL);
 
     for (i=0; i<count; ++i) {
-        out[i] = newSVsv(POPs);
+        out[i+1] = newSVsv(POPs);
     }
     out[count] = NULL;
 

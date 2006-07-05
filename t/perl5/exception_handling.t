@@ -1,7 +1,7 @@
 use v6-pugs;
 
 use Test;
-plan 1;
+plan 2;
 
 
 BEGIN {
@@ -12,4 +12,6 @@ unless try({ eval("1", :lang<perl5>) }) {
 
 use perl5:Carp;
 
-lives_ok({ try{ Carp.croak()}  },"Perl 5 exception (die) caught",:todo<bug>);
+my $err;
+lives_ok({ try{ Carp.croak() }; $err = $! }, "Perl 5 exception (die) caught");
+like($err, rx:Perl5{Carp}, "Exception is propagated to Perl 6 land");

@@ -178,8 +178,15 @@ vnumToSV int = perl5_newSVnv (realToFrac int)
 invokePerl5 :: PerlSV -> PerlSV -> [PerlSV] -> PugsVal -> CInt -> IO [PerlSV]
 invokePerl5 sub inv args env cxt = do
     withArray0 nullPtr args $ \argv -> do
-        rv <- perl5_apply sub inv argv env cxt
-        peekArray0 nullPtr rv
+        rv  <- perl5_apply sub inv argv env cxt
+        svs <- peekArray0 nullPtr rv
+
+        -- If it's empty, no error occured (see p5embed.c on out[0]).
+        -- Otherwise, the first slot is the error.
+        case svs of
+            []      -> peekArray0 nullPtr (rv `plusPtr` 1)
+            (err:_) -> fail =<< svToVStr err
+            
 
 canPerl5 :: PerlSV -> String -> IO Bool
 canPerl5 sv meth = withCString meth $ \cstr -> perl5_can sv cstr
