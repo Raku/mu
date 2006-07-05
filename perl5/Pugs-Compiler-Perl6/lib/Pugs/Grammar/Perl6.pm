@@ -8,6 +8,8 @@ use Pugs::Grammar::Pod;
 
 use Pugs::Compiler::Rule;
 use Pugs::Runtime::Match;
+use Pugs::Grammar::Rule;
+
 use Data::Dumper;
 
 # TODO - redefine <ws> to test Pod.pm after each \n
@@ -323,12 +325,14 @@ sub perl6_expression {
 
 
 *rule_decl = Pugs::Compiler::Regex->compile( q(
-    <rule_decl_name> <?ws>?   
+    <rule_decl_name> : <?ws>?   
     # TODO: sig
     # TODO: attr
     <'{'> 
         <?ws>?
-        #<Pugs::Grammar::Rule.rule>     # call PCR parser
+        # call PCR parser
+        #   XXX - Pugs::Grammar::Rule.rule doesn't work yet
+        <Pugs::Grammar::Rule.metasyntax>     
         <?ws>?
     <'}'>
     { return { 
@@ -338,7 +342,7 @@ sub perl6_expression {
             
             #attribute  => $_[0]{attribute}->(),
             #signature  => $_[0]{signature}->(),
-            #block      => $_[0]{block}->(),
+            block      => $_[0]{'Pugs::Grammar::Rule.metasyntax'}->(),
     } }
 ),
     { grammar => __PACKAGE__ }
@@ -377,6 +381,10 @@ sub perl6_expression {
         { return $_[0]{begin_block}->();
         }
     |
+    <rule_decl>
+        { return $_[0]{rule_decl}->();
+        }
+    |
     <sub_decl>
         { return $_[0]{sub_decl}->();
         }
@@ -395,10 +403,6 @@ sub perl6_expression {
     |
     <try>   # this actually don't belong here
         { return $_[0]{try}->();
-        }
-    |
-    <rule_decl>
-        { return $_[0]{rule_decl}->();
         }
     |
     <perl6_expression> 
