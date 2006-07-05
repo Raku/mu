@@ -1,5 +1,6 @@
 - 'install()' creates a rule in current namespace - implemented by broquaint
 - fixed quoting in emitted :ratchet code
+- implemented '<@rules>' in :ratchet mode
 
 0.08  2006-07-04
 
