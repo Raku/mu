@@ -42,7 +42,7 @@ sub pmc_compile {
         ( $package ? "package $package;\n" : "# no package name\n" ).
         ($package eq 'main' ? (
             "use Config;\n".
-            "use lib split(/\\Q\$Config{path_sep}/, \$ENV{PERL6LIB});\n"
+            "use lib split(/\\Q\$Config{path_sep}/, \$ENV{PERL6LIB} || '');\n"
         ) : '').
         "use Scalar::Util;\n" .
         "use Pugs::Runtime::Perl6;\n" . 
