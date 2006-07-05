@@ -23,3 +23,6 @@ recommends('Moose' => 0);
 clean_files('t/*.tc', 't/*.pmc');
 
 &WriteAll;
+
+# Evil hack to add PERL6LIB path to Makefile
+system($^X, '-p', '-i.old', '-e', 's,PERL_DL_NONLAZY=1,PERL6LIB=../../ext/Test/lib,g', 'Makefile');
