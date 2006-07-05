@@ -233,22 +233,9 @@ sub recompile {
             { return { double_quoted => $/{'Pugs::Grammar::Term.double_quoted'}->() ,} }
         ) ),
         q(s) => Pugs::Compiler::Regex->compile( q(
-            # TODO: multiple options
-            <?ws>? <':'> <Pugs::Grammar::Term.ident> 
-            <?ws>? <'/'> <Pugs::Grammar::Term.substitution>
+            <Pugs::Grammar::Term.substitution>
             { return { 
                     substitution => $/{'Pugs::Grammar::Term.substitution'}->(),
-                    options => [ 
-                        { $/{'Pugs::Grammar::Term.ident'}->() => 1 }
-                    ],
-                } 
-            }
-        |
-            # no options
-            <?ws>? <'/'> <Pugs::Grammar::Term.substitution>
-            { return { 
-                    substitution => $/{'Pugs::Grammar::Term.substitution'}->(),
-                    options => [],
                 } 
             }
         ) ),
