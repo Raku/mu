@@ -130,26 +130,25 @@ our @rule_terms;
                 $_[0]{q2}(),
             ] ,} 
         } 
-    
-    ]?
-    
-    { return { quant => $_[0]{q1}() ,} } 
+    |    
+        { return { quant => $_[0]{q1}() ,} } 
+    ]
 ))->code;
 *rule = Pugs::Compiler::Regex->compile(q(
     $<q1> := (<concat>) 
     [
-        \\| $<q2> := (<rule>) 
+        $<q2> := (<rule>) 
 
         { return { alt => [ 
                 $_[0]{q1}(), 
                 $_[0]{q2}(),
             ] ,} 
         }
-    
-    ]?
-            
-    { return $_[0]{q1}() } 
+    |           
+        { return $_[0]{q1}() } 
+    ]
 ))->code;
+
 unshift @rule_terms, 'dot';
 unshift @rule_terms, 'plain_text';
 unshift @rule_terms, 'special_char';
@@ -162,3 +161,18 @@ unshift @rule_terms, 'before';
 unshift @rule_terms, 'after';
 unshift @rule_terms, 'capturing_group';
 push @rule_terms, 'colon';
+
+    # XXX - currying should be made automatically by <@xxx> runtime
+    # curry @rule_terms with Grammar
+    @rule_terms = map { 
+        my $method = $_;
+        sub{ 
+            # warn "Trying $method\n";
+            my $match = Pugs::Grammar::Rule->$method(@_);
+            #warn "Match $method ".Dumper($match) if $match->{bool};
+            return $match;
+        }
+    }
+    @rule_terms;
+
+1;

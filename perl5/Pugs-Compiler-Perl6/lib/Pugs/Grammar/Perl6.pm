@@ -8,7 +8,7 @@ use Pugs::Grammar::Pod;
 
 use Pugs::Compiler::Rule;
 use Pugs::Runtime::Match;
-use Pugs::Grammar::Rule;
+use Pugs::Grammar::P6Rule; # our local version of Grammar::Rule.pm
 
 use Data::Dumper;
 
@@ -332,7 +332,7 @@ sub perl6_expression {
         <?ws>?
         # call PCR parser
         #   XXX - Pugs::Grammar::Rule.rule doesn't work yet
-        <Pugs::Grammar::Rule.rule>     
+        <Pugs::Grammar::P6Rule.rule>     
         <?ws>?
     <'}'>
     { return { 
@@ -342,7 +342,7 @@ sub perl6_expression {
             
             #attribute  => $_[0]{attribute}->(),
             #signature  => $_[0]{signature}->(),
-            block      => $_[0]{'Pugs::Grammar::Rule.rule'},
+            block      => $_[0]{'Pugs::Grammar::P6Rule.rule'}->(),
     } }
 ),
     { grammar => __PACKAGE__ }
