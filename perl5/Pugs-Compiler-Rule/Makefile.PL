@@ -1,5 +1,17 @@
+#!/usr/bin/perl
+
 use strict;
-use inc::Module::Install;
+use warnings;
+my @inc;
+BEGIN {
+    @inc = (-e '../../inc' and -e '../../VICTUALS')
+        ? (prefix => '../../inc')
+        : (-e '../../../../inc' and -e '../../../../VICTUALS')
+        ? (prefix => '../../../../inc')
+        : ()
+}
+use lib '../..', (@inc ? $inc[-1] : ());
+use inc::Module::Install @inc;
 
 use Cwd qw< abs_path cwd >;
 
