@@ -26,6 +26,16 @@ sub pair {
         },
     } )
         if $_[0] =~ /^:([_\w]+)(?:<(.*?)>)?(.*)$/s;
+    # :$foo
+    return Pugs::Runtime::Match->new( { 
+        bool  => 1,
+        match => $1,
+        tail  => $2,
+        capture => { 
+            pair => { key => { single_quoted => $1 }, value => { scalar => '$'.$1 } }
+        },
+    } )
+        if $_[0] =~ /^:\$([_\w]+)(.*)$/s;
     return $class->no_match;
 };
 
