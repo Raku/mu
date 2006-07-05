@@ -62,7 +62,17 @@ use base 'Pugs::Grammar::Base';
         $body . ")$mod)->code;"
     }
 ))->code;
-*grammar = Pugs::Compiler::Rule->compile(q( <'grammar'> <grammar_name> \;[ [<rule>|<token>|<regex>]]* {
+
+# --- compile Rule.pm internal stuff
+*p6_stuff = Pugs::Compiler::Rule->compile(q((unshift|push) <[@]>(\w+), <[']>(\w+)<[']>;
+    {
+        return $/[0] . ' @' . $/[1] . ", '" . $/[2] . "';";
+    }
+))->code;
+
+# ---
+
+*grammar = Pugs::Compiler::Rule->compile(q( <'grammar'> <grammar_name> \;[ [<rule>|<token>|<regex>|<p6_stuff>]]* {
         return "package $<grammar_name>;\n" .
             "use Pugs::Compiler::Rule;\n" .
             "use Pugs::Compiler::Token;\n" .
@@ -73,6 +83,7 @@ use base 'Pugs::Grammar::Base';
                 map { "$_" } @{$<regex>},
                 map { "$_" } @{$<token>},
                 map { "$_" } @{$<rule>},
+                map { "$_" } @{$<p6_stuff>},
             )) . "\n"
     }))->code;
 
