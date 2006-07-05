@@ -199,7 +199,7 @@ sub assoc_list {
 
 sub _emit_parameter_signature {
     my $n = $_[0] or return '';
-    return unless @$n;
+    return '' unless @$n;
 #     { var => '$self', invocant => 1 },
 #     { var => '$title' },
 #     { var => '$subtitle', optional => 1 },
