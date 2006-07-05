@@ -6,11 +6,9 @@ import System.Directory
 import System.Environment
 
 main = do
-	let config_path = "__CONFIG_PATH__"
-	createInstallPath config_path
+	createInstallPath "__CONFIG_PATH__"
 	args <- getArgs
-	let ghc = "__GHC__ -package-conf " ++ config_path
-	exitcode <- system (foldl (\x y -> x ++ " " ++ y) ghc args)
+	exitcode <- rawSystem "__GHC__" ("-package-conf":"__CONFIG_PATH__":args)
 	exitWith exitcode
 
 createInstallPath path = do
