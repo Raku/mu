@@ -4,9 +4,9 @@ use strict;
 use warnings;
 my @inc;
 BEGIN {
-    @inc = (-e '../../inc')
+    @inc = (-e '../../inc' and -e '../../VICTUALS')
         ? (prefix => '../../inc')
-        : (-e '../../../../inc')
+        : (-e '../../../../inc' and -e '../../../../VICTUALS')
         ? (prefix => '../../../../inc')
         : ()
 }
@@ -29,4 +29,9 @@ clean_files('t/*.tc', 't/*.pmc');
 &WriteAll;
 
 # Evil hack to add PERL6LIB path to Makefile
-system($^X, '-p', '-i.old', '-e', 's,PERL_DL_NONLAZY=1,PERL6LIB=../../ext/Test/lib,g', 'Makefile');
+if (@inc) {
+    system($^X, '-p', '-i.old', '-e', 's,PERL_DL_NONLAZY=1,PERL6LIB=../../ext/Test/lib,g', 'Makefile');
+}
+else {
+    system($^X, '-p', '-i.old', '-e', 's,PERL_DL_NONLAZY=1,PERL6LIB=./t,g', 'Makefile');
+}

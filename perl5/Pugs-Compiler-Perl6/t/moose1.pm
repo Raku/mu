@@ -1,4 +1,4 @@
-use v6-**;
+use v6-pugs;
 class Point;
 
 has $.x is rw;  # instance attributes

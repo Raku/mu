@@ -1,4 +1,4 @@
-use v6-**;
+use v6-pugs;
 
 say "1..3";
 

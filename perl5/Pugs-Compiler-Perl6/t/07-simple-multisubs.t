@@ -1,5 +1,5 @@
 
-use v6-**;
+use v6-pugs;
 
 my $has_run = 0;
 try {

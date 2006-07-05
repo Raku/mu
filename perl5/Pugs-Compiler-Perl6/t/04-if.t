@@ -2,7 +2,7 @@
 
 # Checking that testing is sane: if
 
-use v6-**;
+use v6-pugs;
 
 say '1..2';
 

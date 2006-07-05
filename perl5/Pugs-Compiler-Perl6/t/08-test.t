@@ -2,7 +2,7 @@
 
 # Checking that testing is sane: Test.pm
 
-use v6-**;
+use v6-pugs;
 use Test;
 
 my $has_run = 0;

@@ -53,5 +53,6 @@ t/07-substr.t
 t/07-tailcall.t
 t/07-try.t
 t/08-test.t
+t/Test.pm
 
 TODO

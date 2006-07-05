@@ -1,7 +1,7 @@
 
 # Checking that testing is sane: subroutines
 
-use v6-**;
+use v6-pugs;
 
 say '1..5';
 

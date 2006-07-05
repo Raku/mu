@@ -2,7 +2,7 @@
 
 # Checking that testing is sane: equality and inequality
 
-use v6-**;
+use v6-pugs;
 
 say '1..4';
 

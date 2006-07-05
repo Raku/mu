@@ -1,6 +1,6 @@
 # #!/usr/bin/pugs
 
-use v6-**;
+use v6-pugs;
 
 my $has_run = 0;
 if 0 {  # XXX parser error - uncomment when fixed
