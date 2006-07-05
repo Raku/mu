@@ -164,6 +164,7 @@ data SingleCode = MkSingleCode
     , attributes :: Map Identifier Value
     }
     
+
 data MultiVariant = MkMultiVariant 
     { semicolonOffsets          :: IntSet
     , theThingYouActuallyCall   :: SingleCode
@@ -220,4 +221,64 @@ data Arglist = MkArglist
     { positional :: [Exp]
     , named      :: Map Str [Expression]
     }
+
+
+$x = 'moose';
+$x = $x ~ 'elk';
+
+class ClassyExample does Scalar {
+    STORE
+    FETCH
+}
+
+    scalar_store(castMut(Object(meta=ClassyExample,slots={})), castV(Str('moose')))
+
+my $y is ClassyExample;
+$y = "moose"; # now with style!
+
+
+data Val
+    = Pure VPure
+    | Mut VMut
+    | IO VIO
+
+
+data VIO
+    = VISocket Socket
+
+data VMut
+    = VMScalar (TVar Val)
+
+data VPure
+    = VPInt Int
+
+instance ScalarClass a where
+    doScalarFetch :: a -> Eval Val
+    doScalarStore :: a -> Eval Val
+
+$x = @a;
+
+scalar_fetch :: Val -> Eval Val
+scalar_fetch v@Pure{} = return v
+scalar_fetch v@(Mut m) = case m of
+    VMScalar s  -> doScalarFetch s
+    VMArray{}   -> v
+    _           -> fail ""
+
+instance ScalarClass (TVar Val) where
+    -- vivify?
+    doScalarFetch t = do
+        lv <- asks envLValue
+        case lv of
+            RValue -> liftSTM (readTVar t)
+            LValue typ -> do
+                rv <- readTVar t
+                case rv of
+                    Pure VPUndef -> do
+                        writeTVar t =<< fmap Mut (newLValue typ)
+                    _ -> return rv
+
+# This is a mutable capture and totally offtopic
+my $x = Match(blah => 2);
+$x[1] = 2;
 
