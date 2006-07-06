@@ -8,7 +8,8 @@ import System.Environment
 main = do
 	createInstallPath "__CONFIG_PATH__"
 	args <- getArgs
-	exitcode <- rawSystem "__GHC__" ("-package-conf":"__CONFIG_PATH__":args)
+	let args' = filter (/= "--global") args
+	exitcode <- rawSystem "__GHC__" ("-package-conf":"__CONFIG_PATH__":args')
 	exitWith exitcode
 
 createInstallPath path = do

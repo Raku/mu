@@ -58,8 +58,8 @@ sub build {
     foreach my $module (qw< fps HsSyck >) {
         chdir "third-party/$module";
         system("../../Setup$Config{_exe}", 'configure',
-                '--with-compiler' => File::Spec->catfile('..', '..', 'util', 'runcompiler'),
-                '--with-hc-pkg'   => File::Spec->catfile('..', '..', 'util', 'ghc-pkg-wrapper'),
+                '--with-compiler' => File::Spec->rel2abs("../../util/runcompiler$Config{_exe}"),
+                '--with-hc-pkg'   => File::Spec->rel2abs("../../util/ghc-pkg-wrapper$Config{_exe}"),
                 '--prefix'        => File::Spec->rel2abs('../installed/'));
         system("../../Setup$Config{_exe}", 'unregister');
 
