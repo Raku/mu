@@ -184,7 +184,7 @@ invokePerl5 sub inv args env cxt = do
         -- If it's empty, no error occured (see p5embed.c on out[0]).
         -- Otherwise, the first slot is the error.
         case svs of
-            []      -> peekArray0 nullPtr (rv `plusPtr` 1)
+            []      -> peekArray0 nullPtr (rv `advancePtr` 1)
             (err:_) -> fail =<< svToVStr err
             
 

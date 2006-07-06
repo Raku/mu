@@ -1,10 +1,10 @@
 use v6-pugs;
 
 use Test;
-plan 2;
 
 
 BEGIN {
+plan 2;
 unless try({ eval("1", :lang<perl5>) }) {
     skip_rest('no perl 5 support'); exit;
 }
