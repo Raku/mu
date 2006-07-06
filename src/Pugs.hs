@@ -314,7 +314,9 @@ doRunSingle menv opts prog = (`catch` handler) $ do
     rv      <- runImperatively env (evaluate exp)
     result  <- case rv of
         VControl (ControlEnv env') -> do
-            ref <- liftSTM $ findSymRef "$*_" =<< readTVar (envGlobal env')
+            ref <- liftSTM $ do
+                pad <- readTVar (envGlobal env')
+                readTVar $ fromJust (findSym "$*_" pad)
             val <- runEvalIO env' $ readRef ref
             liftSTM $ writeTVar menv env'
             return val

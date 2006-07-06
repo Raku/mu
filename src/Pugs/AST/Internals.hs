@@ -1428,7 +1428,7 @@ instance MonadReader Env Eval where
     ask       = lift ask
     local f m = EvalT $ local f (runEvalT m)
 
-findSymRef :: (MonadSTM m) => String -> Pad -> m VRef
+findSymRef :: String -> Pad -> Eval VRef
 findSymRef name pad = do
     case findSym name pad of
         Just ref -> liftSTM $ readTVar ref
