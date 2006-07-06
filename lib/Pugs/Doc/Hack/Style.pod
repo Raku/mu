@@ -19,9 +19,8 @@ Avoid punning data type names and data constructors. If you have code like:
   data Exp = Val Val | ...
   data Val = Int Int | String String | ...
 
-Then readers of code that uses these types may get confused about when
-you are using Val, Int, and String as concrete types and when you are
-constructing a value.
+Then readers your code may get confused about when you are using Val,
+Int, and String as concrete types and when you are constructing a value.
 
 The following convention is proposed. It can help against this problem,
 and also deflect the namespace clashes that occur when two different
@@ -55,6 +54,7 @@ defines an alias. So the above is really:
 Record types are also under convention keyed by dominating types, both
 in constructor and in field names:
 
+   -- Aliases always refer to toplevel name, so not "StorageVal" here
    type EntryStorage = TVar Val
 
    data PadEntry = MkEntry                   -- Single variant: Mk + given
@@ -62,11 +62,12 @@ in constructor and in field names:
       , e_storage    :: EntryStorage         --   first letter + underscore
       }
 
-Multiple variant records can drop the C<Mk> prefix and start with the
+Multiple variant records drop the C<Mk> prefix and start with the
 given name:
 
-   type ObjClass   = Class
    type MutClass   = Class
+   type ObjClass   = Class           -- Again, refer to toplevel directly
+
    type ObjId      = Native
    type ObjSlots   = TVar (Map Ident Val)
    type ObjPayload = Dynamic
