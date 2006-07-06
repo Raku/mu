@@ -1395,7 +1395,7 @@ guardIO :: IO a -> Eval a
 guardIO io = do
     rv <- liftIO $ try io
     case rv of
-        Left e -> fail (show e)
+        Left e -> fail (ioeGetErrorString e)
         Right v -> return v
 
 {-|
