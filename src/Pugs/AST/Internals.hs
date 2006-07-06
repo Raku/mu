@@ -110,6 +110,7 @@ import qualified Data.Map       as Map
 #include "../Types/Pair.hs"
 #include "../Types/Object.hs"
 
+
 errIndex :: Show a => Maybe b -> a -> Eval b
 errIndex (Just v) _ = return v
 errIndex _ idx =

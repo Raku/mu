@@ -116,7 +116,7 @@ class (Typeable a) => ArrayClass a where
 
 instance ArrayClass IArraySlice where
     array_iType = const $ mkType "Array::Slice"
-    array_store av vals = mapM_ (uncurry writeIVar) (zip av vals)
+    array_store av vals = mapM_ (uncurry writeIVar) (zip av (vals ++ repeat undef))
     array_fetchSize = return . length
     array_fetchElem av idx = getIndex idx Nothing (return av) Nothing
     array_storeSize _ _ = return () -- XXX error?
