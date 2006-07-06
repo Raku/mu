@@ -240,12 +240,12 @@ sub _emit_parameter_binding {
     #    'is_slurpy' => 1,           *$v
     #    'attribute' => \@attr   $v is rw
 
-    my @params = @$n or return;
+    my @params = @$n or return '';
     my $param = join( ',' , 
         map { _emit( {%$_, scalar => $_->{name}} ) } grep { !exists $_->{type} || $_->{type} ne 'Code' } @params
     );
-    return (length($param) ? "  my ($param);\n" : '').
-           "  Data::Bind->arg_bind(\\\@_);\n";
+    return((length($param) ? "  my ($param);\n" : '').
+           "  Data::Bind->arg_bind(\\\@_);\n");
 }
 
 sub _emit_parameter_capture {
@@ -341,10 +341,10 @@ sub default {
         }
         
         if ( $n->{sub}{bareword} eq 'use' ) {
-            # use v6-pugs
+            # use v6-alpha
             if ( exists $n->{param}{cpan_bareword} ) {
                 if ( $n->{param}{cpan_bareword} =~ /^v6-/ ) {
-                    return " # use v6-pugs\n";
+                    return " # use v6-alpha\n";
                 }
             }
             #warn "call: ",Dumper $n;
