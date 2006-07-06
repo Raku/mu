@@ -133,10 +133,7 @@ _DoCompile = Nothing
 {-# OPTIONS_GHC -#include "parrot/extend.h" #-}
 {-# INCLUDE "../../pge/parrotembed.c" #-}
 
-#include <parrot/packfile.h>
-#include <parrot/interpreter.h>
-#include <parrot/register.h>
-#include <parrot/string_funcs.h>
+#include <parrot/parrot.h>
 
 module Pugs.Embed.Parrot where
 
