@@ -5,11 +5,16 @@ data Variant = MkVariant
     }
 
 dispatch :: [Variant] -> [Arg] -> Variant
-dispatch allVariants args = tryLevel 1 allCandidates
+dispatch allVariants args = tryLevel 1 (map dropIrrelevantConstraints allCandidates)
     where
     allCandidates   = filter (isCompatibleWith args . variantParams) allVariants
     maxBoundary     = max allBoundaries
     allBoundaries   = union (map variantBoundaries allCandidates)
+
+    dropIrrelevantConstraints variant = 
+        let (relevant, irrelevant) = variantParams variant `splitAt` finalSemicolon
+            finalSemicolon         = (max $ variantBoundaries variant)
+         in variant{ variantParams = relevant ++ map dropConstraints irrelevant }
 
     tryLevel count []                   = die "No candidates match at count" count
     tryLevel count [candidate]          = candidate
