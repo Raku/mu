@@ -156,7 +156,8 @@ sub build_lib {
             # warn "*** Found more than one '$basename' -- using the first one. \n";
         }
         elsif (@candidates == 0) {
-            die "*** Wasn't able to find '$basename', aborting...\n";
+            warn "*** Wasn't able to find '$basename' (this may be a problem)...\n";
+            return;
         }
 
         unless( File::Spec->canonpath($candidates[0]) eq $target ) {
