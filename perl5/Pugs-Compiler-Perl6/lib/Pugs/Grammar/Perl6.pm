@@ -139,8 +139,7 @@ sub perl6_expression {
 
 
 *attribute = Pugs::Compiler::Regex->compile( q(
-        (<alnum>+) <?ws> 
-        (<alnum>+)
+        (<alnum>+) <?ws> (<alnum>+)
         [
             <?ws> <attribute>
             { return [
@@ -149,6 +148,17 @@ sub perl6_expression {
             ] }
         |
             { return [[ { bareword => $_[0][0]->() }, { bareword => $_[0][1]->() } ]] }
+        ]
+    |
+        (\\:<alnum>+)
+        [
+            <?ws>? <attribute>
+            { return [
+                    [ { bareword => $_[0][0]->() }, { num => 1 } ], 
+                    @{$<attribute>->()},
+            ] }
+        |
+            { return [[ { bareword => $_[0][0]->() }, { num => 1 } ]] }
         ]
     |
         { return [] }
@@ -275,11 +285,21 @@ sub perl6_expression {
     { grammar => __PACKAGE__ }
 )->code;
 
+*sub_signature = Pugs::Compiler::Regex->compile( q(
+        # (sig)
+        <'('> : <?ws>? <signature> <?ws>? <')'>
+        { return $_[0]{signature}->() }
+    |
+        { return [] }
+),
+    { grammar => __PACKAGE__ }
+)->code;
+
+
 *sub_decl = Pugs::Compiler::Regex->compile( q(
     <sub_decl_name> <?ws>? 
-    [
         # (sig)
-        <'('> : <?ws>? <signature> <?ws>? <')'> <?ws>?
+        <sub_signature> <?ws>? 
         # attr
         <attribute> <?ws>?
         <block>        
@@ -289,35 +309,22 @@ sub perl6_expression {
             name       => $_[0]{sub_decl_name}->()->{name},
             
             attribute  => $_[0]{attribute}->(),
-            signature  => $_[0]{signature}->(),
+            signature  => $_[0]{sub_signature}->(),
             block      => $_[0]{block}->(),
         } }
-    |
-        # no-(sig)
-        # attr
-        <attribute> <?ws>?
-        <block>        
-        { return { 
-            multi      => $_[0]{sub_decl_name}->()->{multi},
-            statement  => $_[0]{sub_decl_name}->()->{statement},
-            name       => $_[0]{sub_decl_name}->()->{name},
-            
-            attribute  => $_[0]{attribute}->(),
-            block      => $_[0]{block}->(),
-        } }
-    ]
 ),
     { grammar => __PACKAGE__ }
 )->code;
 
 
 *rule_decl_name = Pugs::Compiler::Regex->compile( q(
+    ( multi | <''> ) <?ws>?
     ( rule | regex | token ) <?ws>?
     ( <?Pugs::Grammar::Term.ident>? ) 
         { return { 
-            multi      => '',       # ??? 'multi rule' exists?
-            statement  => $_[0][0]->(),
-            name       => $_[0][1]->(),
+            multi      => $_[0][0]->(),
+            statement  => $_[0][1]->(),
+            name       => $_[0][2]->(),
         } }
 ),
     { grammar => __PACKAGE__ }
@@ -326,14 +333,13 @@ sub perl6_expression {
 
 *rule_decl = Pugs::Compiler::Regex->compile( q(
     <rule_decl_name> : <?ws>?   
-    # TODO: sig
-    # TODO: attr
+        # (sig)
+        <sub_signature> <?ws>? 
+        # attr
+        <attribute> <?ws>?
     <'{'>  
         <?ws>?
-        # call PCR parser
-        #   XXX - Pugs::Grammar::Rule.rule doesn't work yet
     [
-
         <Pugs::Grammar::P6Rule.rule>     
         <?ws>?
     <'}'>
@@ -342,8 +348,8 @@ sub perl6_expression {
             statement  => $_[0]{rule_decl_name}->()->{statement},
             name       => $_[0]{rule_decl_name}->()->{name},
             
-            #attribute  => $_[0]{attribute}->(),
-            #signature  => $_[0]{signature}->(),
+            attribute  => $_[0]{attribute}->(),
+            signature  => $_[0]{sub_signature}->(),
 
             # pass the match tree to the emitter
             block      => $_[0]{'Pugs::Grammar::P6Rule.rule'}->(),
