@@ -57,10 +57,15 @@ sub build {
 
     foreach my $module (qw< fps HsSyck >) {
         chdir "third-party/$module";
+        print join ' ', ("../../Setup$Config{_exe}", 'configure',
+                '--with-compiler=' . File::Spec->rel2abs("../../util/runcompiler$Config{_exe}"),
+                '--with-hc-pkg='   . File::Spec->rel2abs("../../util/ghc-pkg-wrapper$Config{_exe}"),
+                '--prefix='        . File::Spec->rel2abs('../installed/'));
+            exit;
         system("../../Setup$Config{_exe}", 'configure',
-                '--with-compiler' => File::Spec->rel2abs("../../util/runcompiler$Config{_exe}"),
-                '--with-hc-pkg'   => File::Spec->rel2abs("../../util/ghc-pkg-wrapper$Config{_exe}"),
-                '--prefix'        => File::Spec->rel2abs('../installed/'));
+                '--with-compiler=' . File::Spec->rel2abs("../../util/runcompiler$Config{_exe}"),
+                '--with-hc-pkg='   . File::Spec->rel2abs("../../util/ghc-pkg-wrapper$Config{_exe}"),
+                '--prefix='        . File::Spec->rel2abs('../installed/'));
         system("../../Setup$Config{_exe}", 'unregister');
 
         print "*** Building the '$module' dependency.  Please wait...\n\n";

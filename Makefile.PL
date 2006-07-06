@@ -157,6 +157,8 @@ sub set_postamble {
     preprocess(
             File::Spec->catfile('util', 'ghc-pkg-wrapper.hs.in'),
             File::Spec->catfile('util', 'ghc-pkg-wrapper.hs'),
+            GHC => $ghc,
+            GHC_PKG => $ghc_pkg,
             CONFIG_PATH => File::Spec->catfile(cwd(), 'third-party', 'installed', 'packages.conf'),
     );
 
