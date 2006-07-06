@@ -45,6 +45,7 @@ data AbsType
     | Op_rv2hv
     | Op_rv2sv
     | Op_sassign
+    | Op_split
     | Op_subst
     | Op_stringify
     | Package
@@ -68,6 +69,7 @@ data LitType
     | Openquote
     | Operator
     | Punct
+    | Remod
     | Sigil
     | Text
     | Token
@@ -122,6 +124,7 @@ withKids indent = do
             "op_rv2hv"      -> Op_rv2hv
             "op_rv2sv"      -> Op_rv2sv
             "op_sassign"    -> Op_sassign
+            "op_split"      -> Op_split
             "op_subst"      -> Op_subst
             "op_stringify"  -> Op_stringify
             "package"       -> Package
@@ -153,6 +156,7 @@ noKids indent = do
             "openquote"     -> Openquote
             "operator"      -> Operator
             "punct"         -> Punct
+            "remod"         -> Remod
             "sigil"         -> Sigil
             "text"          -> Text
             "token"         -> Token
@@ -231,7 +235,20 @@ printTree outFile (AbstractNode _ kids) = do{ printTree outFile (head kids);
 
 --Wrapper function to apply all translations in order
 translate :: P5AST -> P5AST
-translate tree = (readlineTranslate (conditionalExpression (arrayKey (hashKey (regexSubstitutionTranslation tree)))))
+translate tree = (splitOnMatchTranslate (readlineTranslate (conditionalExpression (arrayKey (hashKey (regexSubstitutionTranslation tree))))))
+
+{-Translates split calls on a regex with an explicit match (i.e. split(/blah/m, $something) to no longer
+use the /m which now happens immediately. -}
+splitOnMatchTranslate :: P5AST -> P5AST
+splitOnMatchTranslate (AbstractNode Op_split kids) = (AbstractNode Op_split (map removeMModifier kids))
+splitOnMatchTranslate (AbstractNode atype kids) = (AbstractNode atype (map splitOnMatchTranslate kids))
+splitOnMatchTranslate (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+{-Removes the m modifier from a regex-}
+removeMModifier :: P5AST -> P5AST
+removeMModifier (LiteralNode Remod enc "m") = (LiteralNode Junk enc "")
+removeMModifier (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+removeMModifier (AbstractNode atype kids) = (AbstractNode atype kids)
 
 readlineTranslate :: P5AST -> P5AST
 readlineTranslate (AbstractNode Op_readline kids) = (AbstractNode Op_readline [(LiteralNode Sigil "1" ('$':(tail (reverse (tail (reverse (extractUni (head kids)))))))), (LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "readline")])])])
