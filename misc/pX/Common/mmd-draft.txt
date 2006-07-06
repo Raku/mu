@@ -28,11 +28,12 @@ contenders is incrementally narrowed.  Candidates which are no longer
 contenders act as spoilers - they only affect dispatch if they
 establish ambigity.  That is, by having some parameter whose type
 distance is either smaller than, or incomparable with, that of a
-contender.  However, if at some position, all the initial contenders
-have a semi-colon before the position, then the set of candidates is
-reduced to just those contenders.  A semi-colon appearing in a multi
-signature is thus a hint that "if there is a single contender at this
-point, then I don't care about ambiguity in subsequent positions".
+contender.
+
+However, if at some position, all the contenders have a semi-colon
+before the position, then the set of candidates is reduced to just
+those contenders.  Otherwise, the spoilers that have a semi-colon
+before the position are eliminated from the dispatch.
 
 The distance between two types is the number of steps in the type
 compatibility path connecting them.  Distances along unrelated paths
