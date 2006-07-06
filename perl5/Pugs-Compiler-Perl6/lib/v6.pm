@@ -104,17 +104,17 @@ __END__
 
 =head1 NAME 
 
-v6 - an experimental Perl 6 implementation
+v6 - An experimental Perl 6 implementation
 
 =head1 SYNOPSIS
 
 Command line:
 
-    $ perl -Ilib lib/v6.pm -e ' for 1,2,3 -> $x { say $x }'
+    $ perl -Ilib lib/v6.pm -e 'for 1,2,3 -> $x { say $x }'
 
 Compile-only:
 
-    $ perl -Ilib lib/v6.pm --compile-only -e ' <hello>.say; '
+    $ perl -Ilib lib/v6.pm --compile-only -e '<hello>.say;'
 
 Script or module:
 
@@ -136,8 +136,8 @@ Perl 6 syntax and semantics.
 The Pugs/Haskell Perl 6 is currently the most complete implementation. 
 Pugs currently has some issues with Perl 5 interoperability.
 
-Parrot Perl 6 is the best performing implementation by far.
-The Parrot implementation is currently at a comparable state as v6.pm.
+Parrot Perl 6 aims to become the best performing implementation, but
+currently is less complete than both C<v6.pm> and Pugs/Haskell.
 
 Although running C<v6.pm> requires the installation of a lot of Perl 5 modules,
 it is completely independent of Pugs or Parrot. 

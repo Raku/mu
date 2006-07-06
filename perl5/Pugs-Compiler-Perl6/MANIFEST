@@ -53,11 +53,8 @@ t/07-substr.t
 t/07-tailcall.t
 t/07-try.t
 t/08-test.t
-t/10-moose1.t
-t/11-capture.t
 t/12-caller.t
 t/13-match.t
-t/14-anon-sub.t
 t/Test.pm
 
 TODO
