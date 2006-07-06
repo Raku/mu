@@ -39,10 +39,10 @@ First stage translations for Perl5->Perl6
 
 -Length of string: length("foo") -> "foo".chars
 
--Splitting on a regular experssion: split(m/;/, $foo) -> split(/;/, $foo)
-					split('\s+') -> split(/\s+/)
-					split(FOO) -> .split(FOO)
-   					split(FOO,$bar) -> $bar.split(FOO)
+-Splitting on a regular experssion: (DONE) split(m/;/, $foo) -> split(/;/, $foo)
+					   split('\s+') -> split(/\s+/)
+					   split(FOO) -> .split(FOO)
+   					   split(FOO,$bar) -> $bar.split(FOO)
 
 
 -Split on space: split(' ', $foo) -> $foo.words
@@ -52,4 +52,4 @@ First stage translations for Perl5->Perl6
 
 -Closing files (Optional translation, good for OO paradigm)(Need to add user pref for this): close($file) -> $file.close
 
--Read from file: <FH> -> $fh.readline
+(DONE)-Read from file: <FH> -> $fh.readline
