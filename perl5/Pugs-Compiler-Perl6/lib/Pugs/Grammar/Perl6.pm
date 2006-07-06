@@ -357,7 +357,7 @@ sub perl6_expression {
     
     |
         # XXX better error messages
-        { die "invalid rule syntax" }
+        { return { die "invalid rule syntax" } }
     ]
 ),
     { grammar => __PACKAGE__ }
