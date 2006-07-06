@@ -1,4 +1,6 @@
-Here is a first-draft description of the new MMD algorithm for S06.
+Here is a zeroth-draft description of the new MMD algorithm for S06.
+It needs a much rewrite, but my objective is to dump the concepts of the
+current algorithm proposal, before stumbling off to long-delayed sleep.
 
 
 Multi(sub/method) Dispatch
@@ -6,44 +8,69 @@ Multi(sub/method) Dispatch
 A multi is a set of variants.  Each variant is a Code, with its own
 Signature.  A normal call to a multi is handled by the variant whose
 signature most closely matches the call's arguments.  If no variant is
-unambiguously closer, an error is raised.
+the unambiguous best fit, an error is raised.
 
-Variants incompatible with the call's arguments are ignored.  Among the
-rest, closeness is determined by examining parameter positions,
-individually, left to right, and comparing the type distances between
-the argument, and the parameter of each candidate variant.
+There are two phases, compatability and choice.
 
-However, for any candidate variants with one or more semicolons in the
-signature list, parameters after the final semicolon are ignored; i.e.,
-they are treated as if they had no constraints on them.
+Variants incompatible with the call's arguments are ignored.
 
-A variant remains a contender for "unambiguously closer" only if it is at
-least as close as any other candidate variant is.  If, after all parameters
-are examined, exactly one contender remains, that contender handles
-the call.  Otherwise, an error is raised.  Named parameters, while
-checked for compatibility, do not currently affect closeness.
+Among the rest, fit is determined by examining parameter positions,
+individually, left to right, and comparing the type tightness between
+the argument, and the parameter of each candidate variant.  Named
+parameters, while checked for compatibility, do not currently affect
+fit.
 
-By default, the set of candidates remains constant, while the set if
-contenders is incrementally narrowed.  Candidates which are no longer
-contenders act as spoilers - they only affect dispatch if they
-establish ambigity.  That is, by having some parameter whose type
-distance is either smaller than, or incomparable with, that of a
-contender.
+Variants can be in three states: contender for being chosen, spoiler,
+and disregarded.  Chosen|spoiler = alive.  All start out as
+contenders.  Are disqualified for being chosen, thus becoming
+spoilers, by being insufficiently tight in some position, when
+compared against all chosen+spoilers.  By two semi-colon related
+mechanisms, spoilers can become disregarded.  If there is exactly one
+contender left after all the positions are processed, then it is
+chosen.  Otherwise an ambiguity error is raised.
 
-However, if at some position, all the contenders have a semi-colon
-before the position, then the set of candidates is reduced to just
-those contenders.  Otherwise, the spoilers that have a semi-colon
-before the position are eliminated from the dispatch.
+Consider a single variant.  We move left to right over positional
+arguments.  If we are to be chosen, each parameter examined must be at
+least as tight as that of any other alive (ie, non-disregarded)
+variant.  Otherwise it ceases to be a contender.  At each semicolon,
+if it is the only contender, we are done.  Or equivalently, all
+spoilers become disregarded, so nothing can change in subsequent
+positions.  Thus, other, already disqualified variants, do not get a
+chance to disqualify us on later, "less significant (because after a
+semi)", positions.  If we reach our variant's finial semi, which
+preceeds the "not at all significant" positions, and we are still not
+the only contender, then we cease to be a contender.  We become a
+spoiler, but in a bit of oddity, one with subsequent parameter types
+treated as Any.  Our only role at this point is to establish ambiguity
+[wait, we cant do that as a spoiler], if the contending variants
+[... wait, puzzle here.  figure it in the morning].  There are thus
+two ways to cease being a contender.
 
-The distance between two types is the number of steps in the type
-compatibility path connecting them.  Distances along unrelated paths
-cannot be compared; only when one path is an extension of the other.
-A path's distance is a hierarchical quantity.  Most significant is the
-total number of implicit conversions required.  Next, the number of
-upcasts done (the inheritance distance).  Finally, the number of
-subsets encountered.  A junction of types is treated as whichever type
-results in the smallest distance.  The same for a conjunction of
-types.
+If we cease being a contender due to insufficiently tight (or
+incomparable) position fit, then our only role is to disqualify other
+contenders, and the only question is how long we can do this before
+being disregarded.  We become disregarded the first time we hit one of
+our own semis (because the subsequent parameters are "less
+significant"), or at any position, if all of the contenders at that
+point have a semi.  (Currently called the sepecu and execution rules).
+The execution rule is the multiple variant version of the "reach a
+semi as only contender" rule.  The motivating idea is to be able to
+make one variant into several, disambiguated after the semi, without
+opening them up for disqualification from spoilers, who were
+disqualified in the single variant case by the "semi as only
+contender" rule, which obviously wont fire in the when the there are
+two related variants.  If all contender variants have a semi in the
+same place, all spoilers become disregarded.  And that's it.
+
+The type fit between two types is: for each type, find the [which?]
+type converstion path between them, and make a set of any roles, any
+class, all ancestors of the class, any subsets.  A set is tighter if
+it has a superset of classes and subsets.  Types which are roles are
+considered to be class Any.  If the sets of classes are the same, then
+we do the same thing with roles.  If the sets of classes are not the
+same, but neither is a superset of the other, then the fits are
+incomparable.  But if this happens for rules, the fits are considered
+equivalent. [needs a lot of work and description of motivations/impacts]
 
 ------------------------------------------------------------
 Backstory and discussion:
