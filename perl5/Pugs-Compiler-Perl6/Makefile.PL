@@ -13,16 +13,17 @@ BEGIN {
 use lib '../..', (@inc ? $inc[-1] : ());
 use inc::Module::Install @inc;
 
-    name('v6-pugs');
+    name('v6-alpha');
 all_from('lib/v6.pm');
-requires('Pugs::Compiler::Rule' => '0.06');
-requires('Module::Compile' => '0.16');
-requires('Scalar::Util' => 0);
-requires('Devel::Caller' => '0.09');
-requires('Data::Bind' => '0.24');
 
-recommends('Perl::Tidy' => 0);
-recommends('Moose' => 0);
+requires('Pugs::Compiler::Rule' => '0.06');
+requires('Module::Compile'      => '0.17');
+requires('Scalar::Util'         => '0');
+requires('Devel::Caller'        => '0.10');
+requires('Data::Bind'           => '0.25');
+requires('Moose'                => '0.10');
+
+recommends('Perl::Tidy'         => '0');
 
 clean_files('t/*.tc', 't/*.pmc');
 

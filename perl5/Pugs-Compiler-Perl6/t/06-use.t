@@ -2,7 +2,7 @@
 
 # Checking that testing is sane: use
 
-use v6-pugs;
+use v6-alpha;
 
 # We've to output the TAP header at begin time to ensure it is outputted,
 # as the use() below might not work, causing this program to not even compile,

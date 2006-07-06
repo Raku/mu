@@ -1,3 +1,11 @@
+0.006  2006-07-06
+
+- we now no longer use Parse::Yapp
+- all expression parsing is done with Perl 6 grrammar
+- regex/token/rule declarations in Perl 6 are parsed
+- uses Moose 0.10 for Perl 6 classes and objects
+- squash warnings
+
 0.005  2006-07-05
 
 - all sanity tests, up and includes Test.pm from Pugs test suite, now passes

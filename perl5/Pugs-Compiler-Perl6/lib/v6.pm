@@ -1,5 +1,5 @@
 package v6;
-$v6::VERSION = '0.005';
+$v6::VERSION = '0.006';
 
 # Documentation in the __END__
 use 5.006;
@@ -104,7 +104,7 @@ __END__
 
 =head1 NAME 
 
-v6-pugs - an experimental Perl 6 implementation
+v6 - an experimental Perl 6 implementation
 
 =head1 SYNOPSIS
 
@@ -119,14 +119,14 @@ Compile-only:
 Script or module:
 
     # file: hello_world.pl
-    use v6-pugs;
+    use v6-alpha;
     "hello, world".say;
 
     $ perl hello_world.pl
 
 =head1 DESCRIPTION
 
-The C<v6-pugs> module is a front-end to the experimental Perl6-to-Perl5 compiler.
+The C<v6> module is a front-end to the experimental Perl6-to-Perl5 compiler.
 
 The current state of this compiler implementation only provides a small sample of
 Perl 6 syntax and semantics.
@@ -139,7 +139,7 @@ Pugs currently has some issues with Perl 5 interoperability.
 Parrot Perl 6 is the best performing implementation by far.
 The Parrot implementation is currently at a comparable state as v6.pm.
 
-Although running C<v6-pugs> requires the installation of a lot of Perl 5 modules,
+Although running C<v6.pm> requires the installation of a lot of Perl 5 modules,
 it is completely independent of Pugs or Parrot. 
 
 =head1 REQUIREMENTS
@@ -149,7 +149,7 @@ it is completely independent of Pugs or Parrot.
 This is a valid header:
 
     #!/usr/bin/perl
-    use v6-pugs;
+    use v6-alpha;
 
 * it executes perl5
 
