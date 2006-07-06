@@ -1,33 +1,36 @@
 
+import qualified Data.Version
+import qualified Network.URI
+
 import Pugs.MOP.Instances
 
 pugsMetaModelVersion :: [Int]
 pugsMetaModelVersion = [0, 0, 1]
 
-{- data types for Package, Module, Class, Grammar, and Role -}
+{-| data types for Package, Module, Class, Grammar, and Role -}
 
 data Package = MkPackage
-    { packageName     :: Ident
-    , packageParent   :: Maybe Package
+    { p_name     :: Ident
+    , p_parent   :: Maybe Package
     }
 
 data Module = MkModule
-    { moduleVersion   :: Data.Version
-    , moduleAuthority :: Network.URI
+    { m_version   :: Data.Version
+    , m_authority :: Network.URI
     }
 
 data Class = MkClass
-    { classModule              :: Module
-    , classSuperClasses        :: [Class]
-    , classRuntimeSuperClasses :: Eval [Class] -- list of runtime-added superclasses
-    , classMethodTable         :: Map Ident Code
-    , classRuntimeMethodtable  :: Eval (Map Ident Code)
-    , classRuntimeSlots        :: Eval (Map Ident (TVar Val))
+    { c_module              :: Module
+    , c_superClasses        :: [Class]
+    , c_runtimeSuperClasses :: Eval [Class] -- list of runtime-added superclasses
+    , c_methodTable         :: Map Ident Code
+    , c_runtimeMethodtable  :: Eval (Map Ident Code)
+    , c_runtimeSlots        :: Eval (Map Ident (TVar Val))
     }
 
-newtype Grammar = MkGrammar { grammarClass :: Class }
+newtype Grammar = MkGrammar { g_class :: Class }
 
-newtype Role    = MkRole    { grammarRole  :: Class }
+newtype Role    = MkRole    { r_role  :: Class }
 
 
 class Boxable a where
@@ -46,28 +49,28 @@ packageMeta = MkPackage "Class" (Just packageRoot)
 
 moduleMeta :: Module
 moduleMeta = MkModule
-    { moduleVersion   = pugsMetaModelVersion []
-    , moduleAuthority = parseURI "urn:Pugs"
-    , modelePackage   = packageMeta
+    { m_version   = pugsMetaModelVersion []
+    , m_authority = parseURI "urn:Pugs"
+    , m_package   = packageMeta
     }
 
 classMeta, classObject :: Class
 classMeta = MkClass
-    { classModule              = moduleMeta
-    , classSuperClasses        = [classObject]
-    , classRuntimeSuperClasses = return []
-    , classMethodTable         = -- stevan xx Inf
-    , classRuntimeMethodtable  = return empty
-    , classRuntimeSlots        = return -- stevan
+    { c_module              = moduleMeta
+    , c_superClasses        = [classObject]
+    , c_runtimeSuperClasses = return []
+    , c_methodTable         = -- stevan xx Inf
+    , c_runtimeMethodtable  = return empty
+    , c_runtimeSlots        = return -- stevan
     }
 
 classObject = MkClass
-    { classModule              = moduleObject
-    , classSuperClasses        = []
-    , classRuntimeSuperClasses = return []
-    , classMethodTable         = --stevan
-    , classRuntimeMethodtable  = return empty
-    , classRuntimeSlots        = return --punt
+    { c_module              = moduleObject
+    , c_superClasses        = []
+    , c_runtimeSuperClasses = return []
+    , c_methodTable         = --stevan
+    , c_runtimeMethodtable  = return empty
+    , c_runtimeSlots        = return --punt
     }
 
 
@@ -89,16 +92,16 @@ getClass = mkClass
 
 mkClass :: String -> Class
 mkClass name = MkClass
-    { classModule = mkMod'
-    , classSuperClasses = classMeta
-    , classRuntimeSuperClasses = return []
-    , classMethodTable = -- ??
-    , classRuntimeMethodtable = return empty
-    , classRuntimeSlots = return -- punt
+    { c_module = mkMod'
+    , c_superClasses = classMeta
+    , c_runtimeSuperClasses = return []
+    , c_methodTable = -- ??
+    , c_runtimeMethodtable = return empty
+    , c_runtimeSlots = return -- punt
     }
     where
-    mkMod' = moduleMeta{ modulePackage = mkPkg' }
-    mkPkg' = MkPackage{ packageName = name, packageParent = Just packageMeta }
+    mkMod' = moduleMeta{ m_package = mkPkg' }
+    mkPkg' = MkPackage{ p_name = name, p_parent = Just packageMeta }
 
 mkGrammar :: String -> Grammar
 mkGrammar = MkGrammar . mkClass

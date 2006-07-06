@@ -310,8 +310,6 @@ showNum x
 valToStr :: Val -> Eval VStr
 valToStr = fromVal
 
-type VScalar = Val
-
 intCast :: Num b => Val -> Eval b
 intCast x = fmap fromIntegral (fromVal x :: Eval VInt)
 
@@ -746,10 +744,13 @@ instance (Typeable a) => Show (TVar a) where
 
 type Ident = Str -- XXX wrong
 
+-- | General purpose mapping from identifiers to values.
+type Table = Map Ident Val
+
 -- | AST for a statement. The top level of an AST is a list of Stmt.
 data Stmt = MkStmt
     { label      :: Maybe Ident
-    , pragmas    :: Map Ident Val
+    , pragmas    :: Table
     , expression :: Exp
     } deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
@@ -759,34 +760,33 @@ nextStmt MkStmt{ pragmas=prag } exp = MkStmt{ label=Nothing, pragmas=prag, expre
 
 -- | AST for an expression.
 data Exp
-    = Noop                               -- ^ No-op
-    | ExpVar      Var                    -- ^ Variable
-    | ExpVal      Val                    -- ^ Value
-    | ExpDeref    Var                    -- ^ Dereference
-    | ExpBind     Exp  Exp               -- ^ Bind, i.e., :=
-    | ExpAssign   Exp  Exp               -- ^ Assignment, =
-    | ExpControl  Cont                   -- ^ Control structure, e.g. if, while
-    | ExpFlatten  [Exp]                  -- ^ Wrapper for expressions forced into
-                                         --   slurpy context
+    = ENoop                            -- ^ No-op
+    | EVar      ExpVar                 -- ^ Variable
+    | EVal      ExpVal                 -- ^ Value
+    | EDeref    ExpVar                 -- ^ Dereference
+    | EBind     Exp  Exp               -- ^ Bind, i.e., :=
+    | EAssign   Exp  Exp               -- ^ Assignment, =
+    | EControl  ExpControl             -- ^ Control structure, e.g. if, while
+    | EFlatten  [Exp]                  -- ^ Wrapper for expressions forced into
+                                       --   slurpy context
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
-    -- ???| Prim !([Val] -> Eval Val)         -- ^ Primitive
 
 
 -- | Control statement, such as "if".
-data Control
-    = ContCall        Exp  Capt            -- ^ lookup a routine, call it
-    | ContApply       Code Capt            -- ^ apply a Code immediately
-    | ContCond        Exp  Code            -- ^ 2 if 1
-    | ContTrenaryCond Exp  Code  Code      -- ^ 1 ?? 2 !! 3
-    | ContCondBlock   (Exp, Code) [(Exp, Code)] (Maybe Code)
-                                           -- ^ if 1 { 2 } else { 3 } or in general,
-                                           --   if 1 { 2 } elsif 3 { 4 } elsif 5 { 6 } 7
-                                           -- ^ &statement_control:<if>
-    | ContGoto        Ident                -- ^ &statement_control:<goto>
-    | ContWhile       Exp  Code            -- ^ &statement_control:<while>
-    | ContGiven       Exp  Code            -- ^ given
-    | ContWhen        Exp  Code            -- ^ when
-    | ContForeign                          -- ^ &statement_control:<mycontrol>
+data ExpControl
+    = CCall        Exp  Capt            -- ^ lookup a routine, call it
+    | CApply       Code Capt            -- ^ apply a Code immediately
+    | CCond        Exp  Code            -- ^ 2 if 1
+    | CTrenaryCond Exp  Code  Code      -- ^ 1 ?? 2 !! 3
+    | CCondBlock   (Exp, Code) [(Exp, Code)] (Maybe Code)
+                                        -- ^ if 1 { 2 } else { 3 } or in general,
+                                        --   if 1 { 2 } elsif 3 { 4 } elsif 5 { 6 } 7
+                                        -- ^ &statement_control:<if>
+    | CGoto        Ident                -- ^ &statement_control:<goto>
+    | CWhile       Exp  Code            -- ^ &statement_control:<while>
+    | CGiven       Exp  Code            -- ^ given
+    | CWhen        Exp  Code            -- ^ when
+    | CForeign                          -- ^ &statement_control:<mycontrol>
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
 -- | Single parameter for a function/method, e.g.:
@@ -798,19 +798,19 @@ These represent declared parameters; don't confuse them with actual argument
 values.
 -}
 data Param = MkParam
-    { paramVariable    :: Ident         -- ^ E.g. $m above
-    , paramTypes       :: [Type]        -- ^ Static pieces of inferencer-food
-                                        --   E.g. Elk above
-    , paramConstraints :: [Code]        -- ^ Dynamic pieces of runtime-mood
-                                        --   E.g. where {...} above
-    , paramUnpacking   :: Maybe Sig     -- ^ E.g. BinTree $t (Left $l, Right $r)
-    , paramDefault     :: Maybe Exp     -- ^ E.g. $answer? = 42
-    , paramLabel       :: Ident         -- ^ E.g. :mode
-    , paramSlots       :: Map Ident Val -- ^ Any additional attrib not
-                                        --   explicitly mentioned below
-    , paramHasAccess   :: ParamAccess   -- ^ is ro, is rw, is copy
-    , paramIsRef       :: Bool
-    , paramIsLazy      :: Bool
+    { p_variable    :: Ident         -- ^ E.g. $m above
+    , p_types       :: [Type]        -- ^ Static pieces of inferencer-food
+                                     --   E.g. Elk above
+    , p_constraints :: [Code]        -- ^ Dynamic pieces of runtime-mood
+                                     --   E.g. where {...} above
+    , p_unpacking   :: Maybe Sig     -- ^ E.g. BinTree $t (Left $l, Right $r)
+    , p_default     :: Maybe Exp     -- ^ E.g. $answer? = 42
+    , p_label       :: Ident         -- ^ E.g. :mode
+    , p_slots       :: Table         -- ^ Any additional attrib not
+                                     --   explicitly mentioned below
+    , p_hasAccess   :: ParamAccess   -- ^ is ro, is rw, is copy
+    , p_isRef       :: Bool
+    , p_isLazy      :: Bool
     } deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
 data ParamAccess
@@ -831,7 +831,7 @@ data Assoc
 -- | AST for function signature. Separated to method and function variants
 --   for ease of pattern matching.
 data Sig
-    = MkSigMethSingle
+    = SigMethSingle
         { sigInvocant               :: Param
         , requiredPositionalCount   :: Int
         , requiredNames             :: Set Ident
@@ -843,7 +843,7 @@ data Sig
         , slurpyCode                :: Maybe Param
         , slurpyCapture             :: Maybe Param
         }
-    | MkSigSubSingle
+    | SigSubSingle
         { requiredPositionalCount   :: Int
         , requiredNames             :: Set Ident
         , positionalList            :: [Param]
@@ -864,11 +864,11 @@ newtype CodeWrapping
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
 data Routine
-    = MkSingleRoutine
+    = RoutineSimple
         { wrappings       :: CodeWrapping
         , routineCode     :: Code
         }
-    | MkMultiRoutine
+    | RoutineMulti
         { wrappings       :: CodeWrapping
         , routineVariants :: Set MultiVariant
         }
@@ -881,124 +881,138 @@ data Routine
 
 -- | AST for a primitive Code object
 data Code
-    = MkCode
-        { signature    :: Sig
-        , body         :: [Stmt]                -- ^ AST of "do" block
-        , pad          :: Pad                   -- ^ Storage for lexical vars
-        , codeTraits   :: Map Ident Val         -- ^ Any additional trait not
-                                                --   explicitly mentioned below
-        , codeIsRW     :: Bool
-        , codeIsCached :: Bool
-        , codeIsSafe   :: Bool
-        , precedence   :: Rational
-        , assoc        :: Assoc
-        , preBlocks    :: [Code]
-        , postBlocks   :: [Code]
-        , firstBlocks  :: [Code]
-        , lastBlocks   :: [Code]
-        , nextBlocks   :: [Code]
-        , keepBlocks   :: [Code]
-        , undoBlocks   :: [Code]
+    = CodePerl
+        { c_signature         :: Sig
+        , c_precedence        :: Rational
+        , c_assoc             :: Assoc
+        , c_isRW              :: Bool
+        , c_isSafe            :: Bool
+        , c_isCached          :: Bool
+        , c_body              :: [Stmt]    -- ^ AST of "do" block
+        , c_pad               :: Pad       -- ^ Storage for lexical vars
+        , c_traits            :: Table     -- ^ Any additional trait not
+                                           --   explicitly mentioned below
+        , c_preBlocks         :: [Code]
+        , c_postBlocks        :: [Code]
+        , c_firstBlocks       :: [Code]
+        , c_lastBlocks        :: [Code]
+        , c_nextBlocks        :: [Code]
+        , c_keepBlocks        :: [Code]
+        , c_undoBlocks        :: [Code]
         }
-    | MkPrim
-        { signature    :: Sig
-        , precedence   :: Rational
-        , assoc        :: Assoc
-        , codeIsRW     :: Bool
-        , codeIsSafe   :: Bool
+    | CodePrim
+        { c_signature         :: Sig
+        , c_precedence        :: Rational
+        , c_assoc             :: Assoc
+        , c_isRW              :: Bool
+        , c_isSafe            :: Bool
         }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
     
 data MultiVariant = MkMultiVariant 
-    { semicolonOffsets              :: IntSet
-    , callable                      :: Code  -- ^ Thing actually called
-    , extraWrappinhs                :: Maybe CodeWrapping
-    } deriving (Show, Eq, Ord, Data, Ty) {-!derive: YAML_Pos, Perl5, JSON!-}
+    { m_semicolonOffsets              :: IntSet
+    , m_callable                      :: Code  -- ^ Thing actually called
+    , m_extraWrappings                :: Maybe CodeWrapping
+    } deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
--- | Storage cell for a lexical variabl
-data PadEntry = MkPadEntry
-    { cellType :: StorageType    -- ^ m etc.
-    , cellVar  :: TVar Val       -- ^ stored value
+
+-- | Storage cell for a lexical variable: @EntryDeclarator@, @EntryStorage@, @PadEntry@
+type EntryStorage = TVar Val
+
+data EntryDeclarator
+    = DeclMy
+    | DeclOur
+    | DeclHas
+    | DeclState
+    | DeclConstant
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
+
+data PadEntry = MkEntry
+    { e_declarator :: EntryDeclarator   -- ^ my etc.
+    , e_storage    :: EntryStorage      -- ^ stored value
     }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
 type Bit = Bool     -- XXX: correct?
 
-type ObjectId = Native
+type ObjId      = Native
+type ObjSlots   = TVar Table
+type ObjClass   = Class
+type ObjPayload = Dynamic
 
-type MMap = TVar (Map Ident Val)
-
-data Object
-    = MkObject
-        { objId       :: !ObjectId           -- ^ our unique id
-        , objMeta     :: !Class              -- ^ id of our metaobj/type
-        , objSlots    :: !MMap               -- ^ storage for explicit fields
+data MutObject
+    = ObjInstance
+        { o_id       :: !ObjId      -- ^ our unique id
+        , o_meta     :: !ObjClass   -- ^ id of our metaobj/type
+        , o_slots    :: !ObjSlots   -- ^ storage for explicit fields
         }
     | MkForeign
-        { objId       :: !ObjectId           -- ^ our unique id
-        , objMeta     :: !Class              -- ^ id of our metaobj/type
-        , objOpaque   :: !Dynamic            -- ^ storage for opaque wrapped obj
+        { o_id       :: !ObjectId   -- ^ our unique id
+        , o_meta     :: !ObjClass   -- ^ id of our metaobj/type
+        , o_payload  :: !ObjPayload -- ^ storage for opaque wrapped obj
         }
     | MkPrototype
-        { objId       :: !ObjectId           -- ^ our unique id
-        , objMeta     :: !Class              -- ^ id of our metaobj/type
+        { o_id       :: !ObjId      -- ^ our unique id
+        , o_meta     :: !ObjClass   -- ^ id of our metaobj/type
         }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
+-- | Capture.
 data Capt
-    = MkCaptMeth
-        { captInvocant :: Exp
-        , argstack     :: [Arglist]
+    = CaptMeth
+        { c_invocant :: Exp
+        , c_argstack :: [Arglist]
         }
-    | MkCaptSub
-        { argstack     :: [Arglist]
+    | CaptSub
+        { c_argstack :: [Arglist]
         }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
 data Arglist = MkArglist
-    { positional :: [Exp]
-    , named      :: Map Str [Exp]
+    { a_positional :: [Exp]
+    , a_named      :: Map Str [Exp]
     }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
 data Var
     = VarLexical
-        { varName     :: Ident
-        , callerCount :: Int
-        , outerCount  :: Int
+        { v_name        :: Ident
+        , v_callerCount :: Int
+        , v_outerCount  :: Int
         }
     | VarDynamic
-        { varName     :: Ident
-        , packageName :: [Ident]
+        { v_name        :: Ident
+        , v_packageName :: [Ident]
         }
-    | VarMagic Magic
+    | VarMagic
+        { v_magic       :: Magic
+        }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
 data Magic
-    = MagicOS               -- ^ $?OS        Which os am I compiled for?
-    | MagicOSVer            -- ^ $?OSVER     Which os version am I compiled for?
-    | MagicPerlVer          -- ^ $?PERLVER   Which Perl version am I compiled for?
-    | MagicFile             -- ^ $?FILE      Which file am I in?
-    | MagicLine             -- ^ $?LINE      Which line am I at?
-    | MagicScalarPackage    -- ^ $?PACKAGE   Which package am I in?
-    | MagicArrayPackages    -- ^ @?PACKAGE   Which packages am I in?
-    | MagicScalarModule     -- ^ $?MODULE    Which module am I in?
-    | MagicArrayModules     -- ^ @?MODULE    Which modules am I in?
-    | MagicScalarClass      -- ^ $?CLASS     Which class am I in? (as variable)
-    | MagicArrayClasses     -- ^ @?CLASS     Which classes am I in?
-    | MagicScalarRole       -- ^ $?ROLE      Which role am I in? (as variable)
-    | MagicArrayRoles       -- ^ @?ROLE      Which roles am I in?
-    | MagicScalarGrammar    -- ^ $?GRAMMAR   Which grammar am I in?
-    | MagicArrayGrammars    -- ^ @?GRAMMAR   Which grammars am I in?
-    | MagicParser           -- ^ $?PARSER    Which Perl grammar was used to
-                            -- ^                   parse this statement?
-    | MagicScalarRoutine    -- ^ &?ROUTINE   Which routine am I in?
-    | MagicArrayRoutines    -- ^ @?ROUTINE   Which routines am I in?
-    | MagicScalarBlock      -- ^ &?BLOCK     Which block am I in?
-    | MagicArrayBlocks      -- ^ @?BLOCK     Which blocks am I in?
+    = MOS               -- ^ $?OS        Which os am I compiled for?
+    | MOSVer            -- ^ $?OSVER     Which os version am I compiled for?
+    | MPerlVer          -- ^ $?PERLVER   Which Perl version am I compiled for?
+    | MFile             -- ^ $?FILE      Which file am I in?
+    | MLine             -- ^ $?LINE      Which line am I at?
+    | MScalarPackage    -- ^ $?PACKAGE   Which package am I in?
+    | MArrayPackages    -- ^ @?PACKAGE   Which packages am I in?
+    | MScalarModule     -- ^ $?MODULE    Which module am I in?
+    | MArrayModules     -- ^ @?MODULE    Which modules am I in?
+    | MScalarClass      -- ^ $?CLASS     Which class am I in? (as variable)
+    | MArrayClasses     -- ^ @?CLASS     Which classes am I in?
+    | MScalarRole       -- ^ $?ROLE      Which role am I in? (as variable)
+    | MArrayRoles       -- ^ @?ROLE      Which roles am I in?
+    | MScalarGrammar    -- ^ $?GRAMMAR   Which grammar am I in?
+    | MArrayGrammars    -- ^ @?GRAMMAR   Which grammars am I in?
+    | MParser           -- ^ $?PARSER    Which Perl grammar was used to
+                        -- ^                   parse this statement?
+    | MScalarRoutine    -- ^ &?ROUTINE   Which routine am I in?
+    | MArrayRoutines    -- ^ @?ROUTINE   Which routines am I in?
+    | MScalarBlock      -- ^ &?BLOCK     Which block am I in?
+    | MArrayBlocks      -- ^ @?BLOCK     Which blocks am I in?
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
-data StorageType -- XXX: is this the same as today's data Scope?
 
 
 {- FIXME: Figure out how to get this working without a monad, and make it castV -}
@@ -1437,10 +1451,10 @@ retControl c = do
 retError :: (Show a) => VStr -> a -> Eval b
 retError str a = fail $ str ++ ": " ++ show a
 
-defined :: VScalar -> Bool
+defined :: Val -> Bool
 defined VUndef  = False
-defined VType{} = False
 defined _       = True
+
 -- | Produce an undefined Perl 6 value (i.e. 'VUndef').
 undef :: VScalar
 undef = VUndef
