@@ -15,10 +15,12 @@ variant whose signature is incompatable with the call is ignored.
 The second step is to choose among the compatible variants.  Named
 parameters, while checked for compatibility, do not currently affect
 choice.  Positional parameters can be separated by commas, semicolons,
-or a double semicolon (which can appear at most once).  Parameters
-separated by commas are "equally important".  Parameters after a
-semicolon are "less important" than those preceeding it.  Parameters
-after a double semicolon are "minimally important".
+or a double semicolon (which must appear after all semicolons, and can
+appear at most once).
+
+Parameters separated by commas are "equally important".
+Parameters after a semicolon are "less important" than those preceeding it.
+Parameters after a double semicolon are "minimally important".
 
 The choice process consists of examining parameter positions,
 individually, left to right, and comparing the type narrowness of the
