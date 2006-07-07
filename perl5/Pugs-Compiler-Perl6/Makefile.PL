@@ -31,8 +31,8 @@ clean_files('t/*.tc', 't/*.pmc');
 
 # Evil hack to add PERL6LIB path to Makefile
 if (@inc) {
-    system($^X, '-p', '-i.old', '-e', 's,PERL_DL_NONLAZY=1,PERL6LIB=../../ext/Test/lib,g', 'Makefile');
+    system($^X, '-p', '-i.old', '-e', 's+(?=test_harness)+%ENV=(%ENV,qw( PERL6LIB ../../ext/Test/lib) );+g', 'Makefile');
 }
 else {
-    system($^X, '-p', '-i.old', '-e', 's,PERL_DL_NONLAZY=1,PERL6LIB=./t,g', 'Makefile');
+    system($^X, '-p', '-i.old', '-e', 's+(?=test_harness)+%ENV=(%ENV,qw( PERL6LIB ./t) );+g', 'Makefile');
 }
