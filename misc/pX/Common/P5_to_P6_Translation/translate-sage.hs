@@ -31,6 +31,7 @@ data AbsType
     | Op_ftdir
     | Op_helem
     | Op_leave
+    | Op_length
     | Op_lineseq
     | Op_list
     | Op_match
@@ -110,6 +111,7 @@ withKids indent = do
             "op_ftdir"      -> Op_ftdir
             "op_helem"      -> Op_helem
             "op_leave"      -> Op_leave
+            "op_length"     -> Op_length
             "op_lineseq"    -> Op_lineseq
             "op_list"       -> Op_list
             "op_match"      -> Op_match
@@ -235,7 +237,17 @@ printTree outFile (AbstractNode _ kids) = do{ printTree outFile (head kids);
 
 --Wrapper function to apply all translations in order
 translate :: P5AST -> P5AST
-translate tree = (splitOnMatchTranslate (readlineTranslate (conditionalExpression (arrayKey (hashKey (regexSubstitutionTranslation tree))))))
+translate tree = (lengthToMethod (splitOnMatchTranslate (readlineTranslate (conditionalExpression (arrayKey (hashKey (regexSubstitutionTranslation tree)))))))
+
+lengthToMethod :: P5AST -> P5AST
+lengthToMethod (AbstractNode Op_length kids) = (toCharMethod kids)
+lengthToMethod (AbstractNode atype kids) = (AbstractNode atype (map lengthToMethod kids))
+lengthToMethod (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+toCharMethod :: [P5AST] -> P5AST
+toCharMethod [] = (AbstractNode UnknownAbs [])
+toCharMethod kids = if (matchWithoutEnc (head kids) (LiteralNode Opener "1" "(")) then (AbstractNode Op_length [(head (tail kids)), (LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "chars")])])]) else
+                     (toCharMethod (tail kids))
 
 {-Translates split calls on a regex with an explicit match (i.e. split(/blah/m, $something) to no longer
 use the /m which now happens immediately. -}
@@ -246,7 +258,7 @@ splitOnMatchTranslate (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 
 {-Removes the m modifier from a regex-}
 removeMModifier :: P5AST -> P5AST
-removeMModifier (LiteralNode Remod enc "m") = (LiteralNode Junk enc "")
+removeMModifier (LiteralNode Openquote enc "m/") = (LiteralNode Openquote enc "/")
 removeMModifier (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 removeMModifier (AbstractNode atype kids) = (AbstractNode atype kids)
 
