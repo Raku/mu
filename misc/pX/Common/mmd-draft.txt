@@ -62,6 +62,12 @@ contender" rule, which obviously wont fire in the when the there are
 two related variants.  If all contender variants have a semi in the
 same place, all spoilers become disregarded.  And that's it.
 
+At the beginning of pairwise comparison, first we measure the minimal
+number of implicit coercions ("punnitude") the argument has to go through
+toward each of them.  If one side is more serious (i.e. have a smaller
+punnitude) than the other, then it wins automatically.  Otherwise,
+it plays a card game with the other side.
+
 The type fit between two types is: for each type, find the [which?]
 type converstion path between them, and make a set of any roles, any
 class, all ancestors of the class, any subsets.  A set is tighter if
