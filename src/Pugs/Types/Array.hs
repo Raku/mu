@@ -265,9 +265,10 @@ perl5EvalApply code args = do
         envSV <- mkVal env
         subSV <- evalPerl5 code envSV (enumCxt cxtItemAny)
         invokePerl5 subSV nullSV args envSV (enumCxt cxtItemAny)
-    return $ case rv of
-        [sv]    -> PerlSV sv
-        _       -> VList (map PerlSV rv)
+    case rv of
+        Right [x]   -> return $ PerlSV x
+        Right xs    -> return $ VList (map PerlSV xs)
+        Left err    -> throwError $ PerlSV err
 
 instance ArrayClass PerlSV where
     array_iType = const $ mkType "Array::Perl"

@@ -40,6 +40,12 @@ See Also:
 -}
 
 -- | Natives are "unboxed" runtime-allocated values.
+--
+data NativeError
+    = EFoo {
+        f_blah :: !ErrorFoo
+    }
+
 data Native
     = NError    !NativeError
 --------------------------------- Singulars

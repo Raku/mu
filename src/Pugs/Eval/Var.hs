@@ -214,9 +214,10 @@ findSub name' invs args = do
                     envSV   <- mkVal (VControl $ ControlEnv env)
                     subSV   <- vstrToSV $ tail name
                     invokePerl5 subSV sv svs envSV (enumCxt $ envContext env)
-                return $ case rv of
-                    [sv]    -> PerlSV sv
-                    _       -> VList (map PerlSV rv)
+                case rv of
+                    Right [x]   -> return $ PerlSV x
+                    Right xs    -> return $ VList (map PerlSV xs)
+                    Left err    -> throwError $ PerlSV err
             }
     possiblyBuildMetaopVCode :: String -> Eval (Maybe VCode)
     possiblyBuildMetaopVCode op'' | "&prefix:[" `isPrefixOf` op'', "]" `isSuffixOf` op'' = do 

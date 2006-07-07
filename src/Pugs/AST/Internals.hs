@@ -374,9 +374,10 @@ instance Value VCode where
             rv      <- guardIO $ do
                 envSV   <- mkVal (VControl $ ControlEnv env)
                 invokePerl5 sv nullSV svs envSV (enumCxt $ envContext env)
-            return $ case rv of
-                [sv]    -> PerlSV sv
-                _       -> VList (map PerlSV rv)
+            case rv of
+                Right [x]   -> return $ PerlSV x
+                Right xs    -> return $ VList (map PerlSV xs)
+                Left err    -> throwError $ PerlSV err
         }
     doCast (VCode b) = return b
     doCast (VList [VCode b]) = return b -- XXX Wrong
@@ -1380,6 +1381,12 @@ instance Functor Eval where
 
 instance MonadIO Eval where
     liftIO io = EvalT (liftIO io)
+
+instance MonadError Val Eval where
+    throwError err = do
+        pos <- asks envPos
+        shiftT . const . return $ VError err [pos]
+    catchError _ _ = fail "catchError unimplemented"
 
 guardSTM :: STM a -> Eval a
 guardSTM stm = do
