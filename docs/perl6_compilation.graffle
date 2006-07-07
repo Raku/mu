@@ -3365,7 +3365,7 @@ analyzer}</string>
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2006-07-04 23:53:14 -0500</string>
+	<string>2006-07-07 00:27:37 -0500</string>
 	<key>Modifier</key>
 	<string>George Walton Wood</string>
 	<key>NotesVisible</key>
@@ -13420,8 +13420,7 @@ src/Pugs/Eval.hs}</string>
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\f0\fs24 \cf0 Language.TH.\
-Syntax}</string>
+\f0\fs24 \cf0 Pugs.AST.hs}</string>
 					</dict>
 				</dict>
 				<dict>
@@ -25108,16 +25107,15 @@ Parse Grammar Compiler}</string>
 								<integer>0</integer>
 								<key>Text</key>
 								<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
-{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica-Oblique;\f2\fswiss\fcharset77 Helvetica;
-}
-{\colortbl;\red255\green255\blue255;}
+{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red92\green0\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
 \f0\b\fs24 \cf0 APL\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
-\f1\i\b0 \cf0 APL
-\f2\i0  on Parrot}</string>
+\fs28 \cf2 APL
+\f1\b0\fs24 \cf0  on Parrot}</string>
 							</dict>
 						</dict>
 						<dict>
@@ -25166,7 +25164,7 @@ Will Coleda (coke)}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{46.5, 171}, {159.5, 28}}</string>
+							<string>{{46.5, 171}, {159.5, 33}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -25200,21 +25198,20 @@ Will Coleda (coke)}</string>
 								<integer>0</integer>
 								<key>Text</key>
 								<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
-{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica-Oblique;\f2\fswiss\fcharset77 Helvetica;
-}
-{\colortbl;\red255\green255\blue255;}
+{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red92\green0\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
 \f0\b\fs24 \cf0 PHEME\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
-\f1\i\b0 \cf0 Scheme
-\f2\i0  on Parrot}</string>
+\fs28 \cf2 Scheme
+\f1\b0\fs24 \cf0  on Parrot}</string>
 							</dict>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{206, 171}, {144, 28}}</string>
+							<string>{{206, 171}, {144, 33}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -25257,7 +25254,7 @@ Will Coleda (coke)}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{206, 199}, {144, 28}}</string>
+							<string>{{206, 204}, {144, 36}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -25300,7 +25297,7 @@ Will Coleda (coke)}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{46.5, 199}, {159.5, 28}}</string>
+							<string>{{46.5, 204}, {159.5, 36}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -25334,21 +25331,20 @@ Will Coleda (coke)}</string>
 								<integer>0</integer>
 								<key>Text</key>
 								<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
-{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica-Oblique;\f2\fswiss\fcharset77 Helvetica;
-}
-{\colortbl;\red255\green255\blue255;}
+{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red92\green0\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
 \f0\b\fs24 \cf0 Perl6\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
-\f1\i\b0 \cf0 Perl 6
-\f2\i0  on Parrot}</string>
+\fs28 \cf2 Perl 6
+\f1\b0\fs24 \cf0  on Parrot}</string>
 							</dict>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{46.5, 227}, {159.5, 32}}</string>
+							<string>{{46.5, 240}, {159.5, 32}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -25384,20 +25380,21 @@ Will Coleda (coke)}</string>
 								<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
 {\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fswiss\fcharset77 Helvetica-Oblique;
 }
-{\colortbl;\red255\green255\blue255;}
+{\colortbl;\red255\green255\blue255;\red92\green0\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
 \f0\b\fs24 \cf0 Pirate
 \f1\b0 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
-\f2\i \cf0 Python 
+\f0\b\fs28 \cf2 Python
+\f2\i\b0\fs24 \cf0  
 \f1\i0 on Parrot}</string>
 							</dict>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{206, 227}, {144, 32}}</string>
+							<string>{{206, 240}, {144, 32}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -25441,7 +25438,7 @@ Michal Wallace}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{369, 171}, {88.5, 28}}</string>
+							<string>{{369, 171}, {88.5, 33}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -25484,7 +25481,7 @@ Michal Wallace}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{369, 199}, {88.5, 28}}</string>
+							<string>{{369, 204}, {88.5, 36}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -25613,7 +25610,7 @@ Michal Wallace}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{369, 227}, {88.5, 32}}</string>
+							<string>{{369, 240}, {88.5, 32}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -25742,7 +25739,7 @@ Michal Wallace}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{457.5, 227}, {87, 32}}</string>
+							<string>{{457.5, 240}, {87, 32}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -25778,7 +25775,7 @@ Michal Wallace}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{457.5, 199}, {87, 28}}</string>
+							<string>{{457.5, 204}, {87, 36}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -25814,7 +25811,7 @@ Michal Wallace}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{457.5, 171}, {87, 28}}</string>
+							<string>{{457.5, 171}, {87, 33}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -25850,7 +25847,7 @@ Michal Wallace}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{206, 259}, {144, 28}}</string>
+							<string>{{206, 272}, {144, 33}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -25893,7 +25890,7 @@ Michal Wallace}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{457.5, 259}, {87, 28}}</string>
+							<string>{{457.5, 272}, {87, 33}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -25929,7 +25926,7 @@ Michal Wallace}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{369, 259}, {88.5, 28}}</string>
+							<string>{{369, 272}, {88.5, 33}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -25972,7 +25969,7 @@ Michal Wallace}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{46.5, 259}, {159.5, 28}}</string>
+							<string>{{46.5, 272}, {159.5, 33}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26006,21 +26003,20 @@ Michal Wallace}</string>
 								<integer>0</integer>
 								<key>Text</key>
 								<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
-{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica-Oblique;\f2\fswiss\fcharset77 Helvetica;
-}
-{\colortbl;\red255\green255\blue255;}
+{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red92\green0\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
 \f0\b\fs24 \cf0 ParTcl\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
-\f1\i\b0 \cf0 Tcl
-\f2\i0  on Parrot}</string>
+\fs28 \cf2 Tcl
+\f1\b0\fs24 \cf0  on Parrot}</string>
 							</dict>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{206, 287}, {144, 28}}</string>
+							<string>{{206, 305}, {144, 35}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26063,7 +26059,7 @@ Michal Wallace}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{369, 287}, {88.5, 28}}</string>
+							<string>{{369, 305}, {88.5, 35}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26106,7 +26102,7 @@ Michal Wallace}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{457.5, 287}, {87, 28}}</string>
+							<string>{{457.5, 305}, {87, 35}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26142,7 +26138,7 @@ Michal Wallace}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{46.5, 287}, {159.5, 28}}</string>
+							<string>{{46.5, 305}, {159.5, 35}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26176,21 +26172,20 @@ Michal Wallace}</string>
 								<integer>0</integer>
 								<key>Text</key>
 								<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
-{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica-Oblique;\f2\fswiss\fcharset77 Helvetica;
-}
-{\colortbl;\red255\green255\blue255;}
+{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red92\green0\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
 \f0\b\fs24 \cf0 Punie\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
-\f1\i\b0 \cf0 Perl 1
-\f2\i0  on Parrot}</string>
+\fs28 \cf2 Perl 1 
+\f1\b0\fs24 \cf0 on Parrot}</string>
 							</dict>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{369, 315}, {88.5, 79}}</string>
+							<string>{{369, 340}, {88.5, 91}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26233,7 +26228,7 @@ Michal Wallace}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{457.5, 315}, {87, 79}}</string>
+							<string>{{457.5, 340}, {87, 91}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26269,7 +26264,7 @@ Michal Wallace}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{206, 315}, {144, 79}}</string>
+							<string>{{206, 340}, {144, 91}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26318,7 +26313,7 @@ See Pugs AUTHORS file}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{46.5, 315}, {159.5, 79}}</string>
+							<string>{{46.5, 340}, {159.5, 91}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26352,31 +26347,30 @@ See Pugs AUTHORS file}</string>
 								<integer>0</integer>
 								<key>Text</key>
 								<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
-{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fswiss\fcharset77 Helvetica-Oblique;
-}
-{\colortbl;\red255\green255\blue255;}
+{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red92\green0\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
 \f0\b\fs24 \cf0 Pugs
 \f1\b0 \
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
-\f2\i \cf0 Perl 6
-\f1\i0  on Perl 5\
+\f0\b\fs28 \cf2 Perl 6
+\f1\b0\fs24 \cf0  on Perl 5\
 
-\f2\i Perl 6
-\f1\i0  on Haskell\
+\f0\b\fs28 \cf2 Perl 6
+\f1\b0\fs24 \cf0  on Haskell\
 
-\f2\i Perl 6
-\f1\i0  on JavaScript\
+\f0\b\fs28 \cf2 Perl 6 
+\f1\b0\fs24 \cf0 on JavaScript\
 
-\f2\i Perl 6
-\f1\i0  on Parrot}</string>
+\f0\b\fs28 \cf2 Perl 6
+\f1\b0\fs24 \cf0  on Parrot}</string>
 							</dict>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{369, 394}, {88.5, 28}}</string>
+							<string>{{369, 431}, {88.5, 28}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26419,7 +26413,7 @@ See Pugs AUTHORS file}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{206, 394}, {144, 28}}</string>
+							<string>{{206, 431}, {144, 28}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26467,7 +26461,7 @@ See Pugs AUTHORS file}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{46.5, 394}, {159.5, 28}}</string>
+							<string>{{46.5, 431}, {159.5, 28}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26515,7 +26509,7 @@ See Pugs AUTHORS file}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{457.5, 394}, {87, 28}}</string>
+							<string>{{457.5, 431}, {87, 28}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26551,7 +26545,7 @@ See Pugs AUTHORS file}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{369, 422}, {88.5, 40}}</string>
+							<string>{{369, 459}, {88.5, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26594,7 +26588,7 @@ See Pugs AUTHORS file}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{206, 422}, {144, 40}}</string>
+							<string>{{206, 459}, {144, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26637,7 +26631,7 @@ See Pugs AUTHORS file}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{46.5, 422}, {159.5, 40}}</string>
+							<string>{{46.5, 459}, {159.5, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26680,7 +26674,7 @@ See Pugs AUTHORS file}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{457.5, 422}, {87, 40}}</string>
+							<string>{{457.5, 459}, {87, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26716,7 +26710,7 @@ See Pugs AUTHORS file}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{206, 462}, {144, 40}}</string>
+							<string>{{206, 499}, {144, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26760,7 +26754,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{369, 462}, {88.5, 40}}</string>
+							<string>{{369, 499}, {88.5, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26803,7 +26797,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{457.5, 462}, {87, 40}}</string>
+							<string>{{457.5, 499}, {87, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26839,7 +26833,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{46.5, 462}, {159.5, 40}}</string>
+							<string>{{46.5, 499}, {159.5, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26873,21 +26867,20 @@ Allison Randal}</string>
 								<integer>0</integer>
 								<key>Text</key>
 								<string>{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
-{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica-Oblique;\f2\fswiss\fcharset77 Helvetica;
-}
-{\colortbl;\red255\green255\blue255;}
+{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red92\green0\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
 \f0\b\fs24 \cf0 Ponie 2.0\
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
-\f1\i\b0 \cf0 Perl 5
-\f2\i0  on Parrot}</string>
+\fs28 \cf2 Perl 5
+\f1\b0\fs24 \cf0  on Parrot}</string>
 							</dict>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{350, 227}, {19, 32}}</string>
+							<string>{{350, 240}, {19, 32}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26935,7 +26928,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{350, 315}, {19, 79}}</string>
+							<string>{{350, 340}, {19, 91}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -26983,7 +26976,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{350, 394}, {19, 28}}</string>
+							<string>{{350, 431}, {19, 28}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -27031,7 +27024,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{350, 462}, {19, 40}}</string>
+							<string>{{350, 499}, {19, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -27079,7 +27072,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{350, 171}, {19, 28}}</string>
+							<string>{{350, 171}, {19, 33}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -27175,7 +27168,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{350, 287}, {19, 28}}</string>
+							<string>{{350, 305}, {19, 35}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -27223,7 +27216,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{350, 422}, {19, 40}}</string>
+							<string>{{350, 459}, {19, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -27271,7 +27264,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{350, 199}, {19, 28}}</string>
+							<string>{{350, 204}, {19, 36}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -27367,7 +27360,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{350, 259}, {19, 28}}</string>
+							<string>{{350, 272}, {19, 33}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -27415,7 +27408,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{206, 502}, {144, 40}}</string>
+							<string>{{206, 539}, {144, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -27451,7 +27444,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{369, 502}, {88.5, 40}}</string>
+							<string>{{369, 539}, {88.5, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -27494,7 +27487,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{350, 502}, {19, 40}}</string>
+							<string>{{350, 539}, {19, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -27542,7 +27535,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{457.5, 502}, {87, 40}}</string>
+							<string>{{457.5, 539}, {87, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -27578,7 +27571,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{46.5, 502}, {159.5, 40}}</string>
+							<string>{{46.5, 539}, {159.5, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -27614,7 +27607,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{350, 542}, {19, 40}}</string>
+							<string>{{350, 579}, {19, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -27662,7 +27655,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{206, 542}, {144, 40}}</string>
+							<string>{{206, 579}, {144, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -27698,7 +27691,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{369, 542}, {88.5, 40}}</string>
+							<string>{{369, 579}, {88.5, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -27741,7 +27734,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{457.5, 542}, {87, 40}}</string>
+							<string>{{457.5, 579}, {87, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -27777,7 +27770,7 @@ Allison Randal}</string>
 						</dict>
 						<dict>
 							<key>Bounds</key>
-							<string>{{46.5, 542}, {159.5, 40}}</string>
+							<string>{{46.5, 579}, {159.5, 40}}</string>
 							<key>Class</key>
 							<string>ShapedGraphic</string>
 							<key>ID</key>
@@ -28053,7 +28046,7 @@ Allison Randal}</string>
 		<key>FitInWindow</key>
 		<false/>
 		<key>Frame</key>
-		<string>{{387, 15}, {1053, 869}}</string>
+		<string>{{438, 69}, {1053, 869}}</string>
 		<key>ShowRuler</key>
 		<false/>
 		<key>ShowStatusBar</key>
