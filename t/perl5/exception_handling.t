@@ -25,8 +25,7 @@ sub new {
 
 sub error {
 	my $error = Foo->new;
-	$@ = $error;
-	die;
+	die $error;
 }
 
 sub test { "1" }
@@ -34,4 +33,7 @@ sub test { "1" }
 
 my $foo = eval("Foo",:lang<perl5>);
 try { $foo.error };
-lives_ok( $!.test, " accessing Perl5 method doesn't die");
+lives_ok( {
+    my $err = $!;
+    $err.test;
+}, " accessing Perl5 method doesn't die");
