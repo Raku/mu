@@ -14,7 +14,9 @@
 
 == Test, Examples and Documentations
 
-
+* Updated all tests and examples to remove the #/usr/bin/pugs shebangs, and 
+similarly updated some documentation.
+* Replaced all "use v6-pugs;" with "use v6-alpha;" in the same places.
 
 == Feature Changes
 

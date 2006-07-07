@@ -265,10 +265,11 @@ always be unset, even for test files.
 
 =head2 Shebang lines
 
-All test files should use C<#!/usr/bin/pugs> as the shebang line (first line of
-the script). There're no real technical reasons for this convention, it's just
-for consistency. Remember to put a C<use v6> in the beginning of your Perl 6
-programs, too, to keep perl5 from accidentally running Perl 6 code.
+All test files should not use any shebang line, as they specify a single
+runtime for the code but Perl 6 code should run under multiple runtimes,
+Pugs and the v6 Perl 5 module to name two.  Remember to put a C<use v6> in
+the beginning of your Perl 6 programs, too, to keep perl5 from accidentally
+running Perl 6 code.
 
 =head2 Naming conventions
 

@@ -19,7 +19,6 @@ This document describes version 6.2.12 of Pugs, released June 26, 2006.
 
 With Perl 5 embedding support (also note the C<--> in the C<#!> line):
 
-    #!/usr/bin/pugs --
     use v6;
     use perl5:DBI;
     my $dbh = DBI.connect('dbi:SQLite:dbname=test.db');
