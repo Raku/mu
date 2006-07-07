@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 use v6;
 
 unshift @*INC, 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec/lib';

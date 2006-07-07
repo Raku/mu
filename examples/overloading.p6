@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 # plays with some fun operator overloading.
 #
 # Please remember to update t/examples/examples.t and rename

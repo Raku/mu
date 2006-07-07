@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 use v6;
 use Test;
 
@@ -24,9 +22,7 @@ is( $Test3.testplan.id, $custom_plan.id, '... allowing plan setting' );
 
 # now launch an external process to test DESTROY() the smart way
 
-my $destroy_test = '#!/usr/bin/pugs
-
-use Test::Builder;
+my $destroy_test = 'use Test::Builder;
 use Test::Builder::TestPlan;
 
 class Test::Builder::CustomPlan is Test::Builder::NullPlan

@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 # -----------------------------------------------
 #  Copyright (C) 2005 by Andras Barthazi
 #  This code is totally free, use it as you want

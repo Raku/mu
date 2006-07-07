@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 # Regular QOTW #9
 # http://perl.plover.com/qotw/r/solution/009
 

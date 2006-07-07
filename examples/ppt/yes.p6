@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 use v6;
 
 my $VERSION = '0.1';

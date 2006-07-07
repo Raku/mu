@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 # as seen on perl monks: http://www.perlmonks.org/?node_id=488867
 use v6;
 

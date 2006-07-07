@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 =head1 NAME
 
 nondet_sudoku.p6 - A non deterministic sudoku solver

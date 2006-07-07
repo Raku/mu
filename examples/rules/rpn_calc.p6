@@ -1,6 +1,3 @@
-#!/usr/bin/pugs
-
-
 use v6;
 
 grammar rpn_data {

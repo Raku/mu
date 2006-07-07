@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 # Expert QOTW #7
 # http://perl.plover.com/qotw/e/solution/007
 

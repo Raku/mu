@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 use v6;
 
 # version 0.1, michael scherer, misc@zarb.org

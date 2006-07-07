@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 use v6;
 
 # This function multiplies the squaring factors of $n and $m to receive

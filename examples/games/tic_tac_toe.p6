@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 use v6;
 
 sub print_board (@b) returns Void {

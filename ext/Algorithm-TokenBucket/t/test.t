@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 use Test;
 use Algorithm::TokenBucket;
 plan 8;

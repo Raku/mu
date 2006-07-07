@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 # a little script to run multiple tests, re-using the loaded Test
 # suite.
 

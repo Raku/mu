@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 # this test tests that the output (text output and return code) of
 # test scripts are correct.
 

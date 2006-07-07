@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 use v6;
 
 ## declare global variables (globals RULE dude!)

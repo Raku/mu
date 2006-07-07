@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 # Modules
 BEGIN { print $*ERR: "evalbot6 started. Loading " }
 use v6;

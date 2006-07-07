@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 sub combinations returns Array  (@list is rw) {
   return () unless @list.elems;
   my @ans;

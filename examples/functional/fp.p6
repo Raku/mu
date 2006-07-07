@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 use v6;
 
 # This test demonstrates the use of perl 6 multi-subs to 

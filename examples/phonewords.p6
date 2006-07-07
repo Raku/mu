@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 # Generates all the combinations of letters that can be made from all
 # the combinations of the last 4 digits of a phone number.
 #

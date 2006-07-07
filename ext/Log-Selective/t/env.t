@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 use Test;
 
 plan 4;

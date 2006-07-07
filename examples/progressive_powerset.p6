@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 use v6;
 
 sub iter_powerset ( *@factor ) returns Ref {

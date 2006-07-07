@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 use v6;
 
 my $pugs = (($*OS ~~ any <MSWin32 cygwin msys>) ?? "pugs.exe" !! "./pugs");

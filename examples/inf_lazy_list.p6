@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 use v6;
 
 # See http://perlmonks.org/?node_id=440531 and 441347 for details

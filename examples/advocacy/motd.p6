@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 use v6;
 
 #XXX just so that File:;Spec can be used w/o being installed

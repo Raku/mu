@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 =pod
 
 Expects to be passed a comma-separated list of colors and descriptions,

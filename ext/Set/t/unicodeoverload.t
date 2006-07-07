@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 # It's the Unicode overload!
 
 use v6;

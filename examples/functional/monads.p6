@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 # Definition:
 #   Haskell:   IO a
 #   Perl 6:    { a }
