@@ -1,4 +1,4 @@
-use v6-pugs;
+use v6-alpha;
 module Pugs::Runtime::Rule;
 
 # iterator_engine.p6 - fglock

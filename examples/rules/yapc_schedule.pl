@@ -13,7 +13,7 @@ token speaker { [\w|\s]+ }
 ### extract.p6
 module Main;
 
-use v6-pugs;
+use v6-alpha;
 
 my $content = slurp @*ARGS[0];
 

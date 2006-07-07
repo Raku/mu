@@ -1,4 +1,4 @@
-  use v6-pugs;
+  use v6-alpha;
   class BankAccount;
   
   has Int $.balance is rw = 0;

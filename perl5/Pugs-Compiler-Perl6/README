@@ -13,7 +13,7 @@ SYNOPSIS
     Script or module:
 
         # file: hello_world.pl
-        use v6-pugs;
+        use v6-alpha;
         "hello, world".say;
 
         $ perl hello_world.pl
@@ -41,7 +41,7 @@ REQUIREMENTS
     This is a valid header:
 
         #!/usr/bin/perl
-        use v6-pugs;
+        use v6-alpha;
 
     * it executes perl5
 

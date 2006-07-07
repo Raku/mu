@@ -105,7 +105,7 @@ Moose.pm
 Objects
 With Class
 ----
-  use v6-pugs;
+  use v6-alpha;
   class Point;
   
                   
@@ -135,7 +135,7 @@ With Class
 ----
 Subclassing
 ----
-  use v6-pugs;
+  use v6-alpha;
   class Point3D;
   
   
@@ -179,7 +179,7 @@ Subclassing
 ----
 Constraints
 ----
-  use v6-pugs;
+  use v6-alpha;
   class BankAccount;
   
   
@@ -217,7 +217,7 @@ Constraints
       $self->balance($current_balance - $amount);
   }
 ----
-  use v6-pugs;
+  use v6-alpha;
   class CheckingAccount;
   
   is BankAccount;
@@ -253,7 +253,7 @@ Constraints
 ----
 Laziness
 ----
-  use v6-pugs;
+  use v6-alpha;
   class BinaryTree is rw;
 
   has Any $.node;
@@ -287,7 +287,7 @@ Laziness
 ----
 Subtypes
 ----
-  use v6-pugs;
+  use v6-alpha;
   class Address;
   use perl5:Locale::US;
   use perl5:Regexp::Common &lt;zip $RE>;
@@ -339,7 +339,7 @@ Pugs::Compiler::Rule
 Regex
 Objects
 ----
- use v6-pugs;
+ use v6-alpha;
  my $txt = 'Car=ModelT,1909';
  my $pat = rx{
      Car -
@@ -362,7 +362,7 @@ Objects
 Match
 Objects
 ----
- use v6-pugs;
+ use v6-alpha;
  my $pat = rx{
      Car = [ ( Ferrari ) | ( ModelT , (\d\d\d\d) ) ]
  };
@@ -393,7 +393,7 @@ Objects
 Named
 Captures
 ----
- use v6-pugs;
+ use v6-alpha;
   
  my $pat = rx{
      Car = [ ( Ferrari ) | ( ModelT , $&lt;year>:=[\d\d\d\d] ) ]
@@ -421,7 +421,7 @@ Captures
 Grammar
 Modules
 ----
- use v6-pugs;
+ use v6-alpha;
 
  grammar CarInfo;
 
@@ -467,7 +467,7 @@ Objects
      }
  }
 ----
- use v6-pugs;
+ use v6-alpha;
  my $txt = 'Car=ModelT,1909';
  my $pat = rx{
      Car = [ Ferrari
@@ -494,7 +494,7 @@ Objects
 Backtrack
 Control
 ----
- use v6-pugs;
+ use v6-alpha;
  "ModelT2005" ~~ regex {
      Car = ModelT \d* ;
  };
@@ -504,7 +504,7 @@ Control
      Car = ModelT \d* ;
  }x;
 ----
- use v6-pugs;
+ use v6-alpha;
  "ModelT2005" ~~ token {
      Car = ModelT \d* ;
  }
@@ -514,7 +514,7 @@ Control
      Car = ModelT (?> \d* ) ;
  }
 ----
- use v6-pugs;
+ use v6-alpha;
  "ModelT2005" ~~ rule {
      Car = ModelT \d* ;
  }
@@ -678,7 +678,7 @@ Dependencies
 So, what's this got to do
 with deploying Perl 6?
 ----
- use v6-pugs;
+ use v6-alpha;
 ----
 v6.pm
 ----
@@ -688,7 +688,7 @@ compile to Perl 5
 Takes
 Rule.pm
 ----
- use v6-pugs;
+ use v6-alpha;
  
  grammar Pugs::Grammar::Rule;
  rule ws :P5 {
