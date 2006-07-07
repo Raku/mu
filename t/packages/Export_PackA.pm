@@ -1,4 +1,4 @@
-use v6-pugs;
+use v6-alpha;
 
 module t::packages::Export_PackA {
   sub exported_foo () is export {

@@ -1,4 +1,4 @@
-use v6-pugs;
+use v6-alpha;
 
 # L<S11/"Versioning" /which is short for/>
 

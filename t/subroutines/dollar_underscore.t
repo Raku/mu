@@ -1,4 +1,4 @@
-use v6-pugs;
+use v6-alpha;
 
 # Tests for a bug uncovered when Jesse Vincent was testing 
 # functionality for Patrick Michaud

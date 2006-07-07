@@ -1,4 +1,4 @@
-use v6-pugs;
+use v6-alpha;
 
 use Test;
 # L<S04/"Loop statements" /work as in Perl 5/>

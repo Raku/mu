@@ -1,4 +1,4 @@
-use v6-pugs;
+use v6-alpha;
 
 # This file has been generated from re_tests-file (in perl5-sources).
 # Since then, this file is edited manually.

@@ -1,4 +1,4 @@
-use v6-pugs;
+use v6-alpha;
 
 # "module Foo; ..." is equivalent to "module Foo {...}", so it returns the Foo
 # module object, see thread "What do use and require evaluate to?" on p6l

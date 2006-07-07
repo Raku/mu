@@ -1,4 +1,4 @@
-use v6-pugs;
+use v6-alpha;
 
 # Checking that testing is sane: subroutines
 
