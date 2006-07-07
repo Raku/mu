@@ -132,7 +132,7 @@ mkType str
     = MkType (Buf.pack str)
 
 -- | Variable name.
-type Var   = String
+--type Var   = String
 -- | Uses Haskell's underlying representation for strings.
 type VStr  = String
 -- | Uses Haskell's underlying representation for booleans.

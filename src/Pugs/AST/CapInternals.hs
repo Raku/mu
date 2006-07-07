@@ -90,7 +90,6 @@ import qualified Data.ByteString     as Str
 import qualified Data.IntSet         as IntSet
 import qualified Data.Generics.Twins as Twins
 
-
 import Pugs.Parser.Number
 import Pugs.AST.Prag
 import Pugs.AST.Pos
@@ -101,7 +100,6 @@ import Pugs.Embed.Perl5
 type Str = Str.ByteString
 type IntSet = IntSet.IntSet
 type SeqOf = Seq.Seq
-type ObjectSpace = SeqOf (Weak VObject)
 
 {- <DrIFT> Imports for the DrIFT
 import Pugs.AST.Scope
@@ -353,80 +351,89 @@ data VRule
 
 -- | Represents a value.
 data Val
-    = Native VNative
-    | Undef  VUndef
-    | Pure   VPure
-    | Mut    VMut
-    | IO     VIO
+    = VNative ValNative          -- ^ Native, unboxed values
+    | VUndef  ValUndef           -- ^ Various undefined values
+    | VPure   ValPure            -- ^ Immutable (or "pure") values
+    | VMut    ValMut             -- ^ Mutable variables (in STM monad)
+    | VIO     ValIO              -- ^ I/O handles (in IO monad)
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
--- | Unboxed or native values. They have their own .ids
+-- | Unboxed or native values. They have themselves as their .id.
+type ValNative = Native
 data Native
-    = UInt !Int      -- 3
-    | UNum !Float    -- 4.2
-    | UStr !Str      -- 'aloha'
-    | UBit !Bool     -- True
+    = NBit  !NativeBit     -- ^ 0
+    | NInt  !NativeInt     -- ^ -3
+    | NUint !NativeInt     -- ^ 7
+    | NBuf  !NativeBuf     -- ^ (a raw chunk of ints or uints)
+    | NNum  !NativeNum     -- ^ 4.2
+    | NCplx !NativeComplex -- ^ (45 - 9i)
+    | NStr  !NativeStr     -- ^ 'aloha'
+    | NBool !NativeBool    -- ^ True (same underlying storage as NBit + True/False)
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
 -- | L<S06/"Undefined types">
-data VUndef
-    = VUUndef
-    | VUFailure    !ObjectId
-    | VUWhatever
+data ValUndef
+    = UndefUnit                -- ^ e.g., "my $x" with out further assignment
+    | UndefWhatever
+    | UndefFailure    !ObjId
 
-type VBit  = Bool
-type VBool = Bool
+type NativeBit   = Bool
+type NativeBool  = Bool
 
 data Sign
-    = Positive
-    | Negative
+    = SPositive
+    | SNegative
 
-data VInt 
-    = Finite      !Integer
-    | Infinite    !Sign
-    | NotANumber
+data NativeInt
+    = IFinite      !Integer
+    | IInfinite    !Sign
+    | INotANumber
 
-data VNum
-    = VNRational  !Rational
-    = VNFloat     !Float
+data NativeNum
+    = NRational  !Rational
+    = NFloat     !Float
 
-type VPStr = Str
+type NativeStr = Str
 
 -- Inf or NaN if either part is Inf or NaN.
-data VComplex = MkComplex
-    { real      :: !VNum
-    , imaginary :: !VNum
+data NativeComplex = MkComplex
+    { real      :: !NNum
+    , imaginary :: !NNum
     }
 
-data VList = MkList
-    { listSeq   :: !VSeq
-    , listRange :: !VRange
+data PureList = MkList
+    { l_seq   :: !PureSeq
+    , l_range :: !PureRange
     }
 
-type VSeq = Seq
+type PureSeq = Seq
 
-data VRange = MkRange
-    { rangeFrom :: Val  -- ??
-    , rangeTo   :: Val  -- ??
-    , rangeNext :: Code -- ??
+data PureRange = MkRange
+    { r_from :: Val  -- ??
+    , r_to   :: Val  -- ??
+    , r_next :: Code -- ??
     }
 
-data VSet = Set Val
+type Buf = IOUArray Word64 Word8
+type NativeBuf = Buf
+type PureBuf   = Buf
+
+data PureSet = Set Val
 
 {-|
 Represents a junction value.
 
 Note that @VJunc@ is also a pun for a 'Val' constructor /containing/ a 'VJunc'.
 -}
-data VJunc = MkJunc
-    { juncType :: !JuncType -- ^ 'JAny', 'JAll', 'JNone' or 'JOne'
-    , juncDup  :: !(Set Val)
+data PureJunc = MkJunc
+    { j_type :: !JuncType -- ^ 'JAny', 'JAll', 'JNone' or 'JOne'
+    , j_dup  :: !(Set Val)
     -- ^ Only used for @one()@ junctions. Contains those values
     --     that appear more than once (the actual count is
     --     irrelevant), since matching any of these would
     --     automatically violate the 'match /only/ one value'
     --     junctive semantics.
-    , juncSet  :: !(Set Val)
+    , j_set  :: !(Set Val)
     -- ^ Set of values that make up the junction. In @one()@
     --     junctions, contains the set of values that appear exactly
     --     /once/.
@@ -439,67 +446,65 @@ data JuncType = JAny  -- ^ Matches if /at least one/ member matches
               | JOne  -- ^ Matches if /exactly one/ member matches
     deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
-data VPair = MkPair -- ?? or is this more efficient? data Pair (Val, Val)
-    { pairKey :: Val
-    , pairVal :: Val
+data PurePair = MkPair -- ?? or is this more efficient? data Pair (Val, Val)
+    { p_key :: Val
+    , p_val :: Val
     }
 
-data VMapping = Map Val Val -- XXX what about ordered mappings?
+data PureMapping = Map Val Val -- XXX what about ordered mappings?
 
 -- | L<S06/"Immutable types">
-data VPure
-    = VPBit       !VBit
-    | VPInt       !VInt
-    | VPStr       !VStr
-    | VPNum       !VNum
-    | VPComplex   !VComplex
-    | VPBool      !VBool
-    | VPException !VException -- XXX
-    | VPCode      !Code
-    | VPBlock     !Code -- XXX: or more primitive type?
-    | VPList      !VList
-    | VPSeq       !VSeq
-    | VPRange     !VRange
-    | VPSet       !VSet
-    | VPJunc      !VJunc
-    | VPPair      !VPair
-    | VPMapping   !VMapping
-    | VSignature  !Sig
-    | VCapture    !Capt
+data ValPure
+    = PBit       !PureBit
+    | PInt       !PureInt
+    | PStr       !PureStr
+    | PNum       !PureNum
+    | PComplex   !PureComplex
+    | PBool      !PureBool
+    | PException !PureException -- XXX
+    | PCode      !PureCode
+    | PBlock     !PureCode -- XXX: or more primitive type?
+    | PList      !PureList
+    | PSeq       !PureSeq
+    | PRange     !PureRange
+    | PSet       !PureSet
+    | PJunc      !PureJunc
+    | PPair      !PurePair
+    | PMapping   !PureMapping
+    | PSignature !PureSig
+    | PCapture   !PureCapt
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
-
-type Buf = IOUArray Word64 Word8
 
 -- | L<S06/"Mutable types"> minus IO types
 --   Computations on these types take place in the STM monad.
-data VMut
-    = VMScalar    !Scalar
-    | VMArray     !Array
-    | VMHash      !Hash
-    | VMBuf       !Buf
-    | VMRoutine   !Routine
-    | VMSub       !Routine -- ?
-    | VMMethod    !Routine -- ?
-    | VMSubmethod !Routine -- ?
-    | VMMacro     -- ???
-    | VMRegex     !VRule -- XXX: maybe move to pure
-    | VMMatch     !VMatch
-    | VMPackage   !Package
-    | VMModule    !Module
-    | VMClass     !Class
-    | VMRole      !Role
-    | VMGrammar   !Grammar
-    | VMObject    !Object  -- ? or ObjectId?
-    | VMForeign   ...?
+data ValMut
+    = MScalar    !MutScalar
+    | MArray     !MutArray
+    | MHash      !MutHash
+    | MBuf       !MutBuf
+    | MRoutine   !MutRoutine
+    | MSub       !MutRoutine -- ?
+    | MMethod    !MutRoutine -- ?
+    | MSubmethod !MutRoutine -- ?
+    | MMacro     -- ???
+    | MRegex     !MutVRule -- XXX: maybe move to pure
+    | MMatch     !MutVMatch
+    | MPackage   !MutPackage
+    | MModule    !MutModule
+    | MClass     !MutClass
+    | MRole      !MutRole
+    | MGrammar   !MutGrammar
+    | MObject    !MutObject  -- ? or ObjectId?
+    | MForeign   ...?
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 -- | Obviously side-effectual types such as file handles.
 --   Computations on these types must take place in the IO monad.
-data VIO
-    = VHandle   !VHandle     -- ^ File handle
-    | VSocket   !VSocket     -- ^ Socket handle
-    | VThread   !(VThread Val)
-    | VProcess  !VProcess    -- ^ PID value
+data ValIO
+    = IHandle   !IOHandle         -- ^ File handle
+    | ISocket   !IOSocket         -- ^ Socket handle
+    | IThread   !(IOThread Val)   -- ^ Thread handle
+    | IProcess  !IOProcess        -- ^ PID value
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 instance ScalarClass a where
@@ -799,7 +804,7 @@ values.
 -}
 data Param = MkParam
     { p_variable    :: Ident         -- ^ E.g. $m above
-    , p_types       :: [Type]        -- ^ Static pieces of inferencer-food
+    , p_types       :: [Class]       -- ^ Static pieces of inferencer-food
                                      --   E.g. Elk above
     , p_constraints :: [Code]        -- ^ Dynamic pieces of runtime-mood
                                      --   E.g. where {...} above
@@ -832,35 +837,34 @@ data Assoc
 --   for ease of pattern matching.
 data Sig
     = SigMethSingle
-        { sigInvocant               :: Param
-        , requiredPositionalCount   :: Int
-        , requiredNames             :: Set Ident
-        , positionalList            :: [Param]
-        , namedSet                  :: Map Ident Param
-        , slurpyScalarList          :: [Param]
-        , slurpyArray               :: Maybe Param
-        , slurpyHash                :: Maybe Param
-        , slurpyCode                :: Maybe Param
-        , slurpyCapture             :: Maybe Param
+        { s_invocant                  :: Param
+        , s_requiredPositionalCount   :: Int
+        , s_requiredNames             :: Set Ident
+        , s_positionalList            :: [Param]
+        , s_namedSet                  :: Map Ident Param
+        , s_slurpyScalarList          :: [Param]
+        , s_slurpyArray               :: Maybe Param
+        , s_slurpyHash                :: Maybe Param
+        , s_slurpyCode                :: Maybe Param
+        , s_slurpyCapture             :: Maybe Param
         }
     | SigSubSingle
-        { requiredPositionalCount   :: Int
-        , requiredNames             :: Set Ident
-        , positionalList            :: [Param]
-        , namedSet                  :: Map Ident Param
-        , slurpyScalarList          :: [Param]
-        , slurpyArray               :: Maybe Param
-        , slurpyHash                :: Maybe Param
-        , slurpyCode                :: Maybe Param
-        , slurpyCapture             :: Maybe Param
+        { s_requiredPositionalCount   :: Int
+        , s_requiredNames             :: Set Ident
+        , s_positionalList            :: [Param]
+        , s_namedSet                  :: Map Ident Param
+        , s_slurpyScalarList          :: [Param]
+        , s_slurpyArray               :: Maybe Param
+        , s_slurpyHash                :: Maybe Param
+        , s_slurpyCode                :: Maybe Param
+        , s_slurpyCapture             :: Maybe Param
         }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
 
-newtype CodeWrapping
-    = MkCodeWrapping
-        { codeWrappings :: TVar IntMap Routine
-        }
+newtype CodeWrapping = MkWrapping
+    { w_wrappings :: TVar IntMap Routine
+    }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
 data Routine
@@ -916,7 +920,29 @@ data MultiVariant = MkMultiVariant
     } deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
 
--- | Storage cell for a lexical variable: @EntryDeclarator@, @EntryStorage@, @PadEntry@
+-- | Storage cell for a lexical variable: @Pad@, @EntryDeclarator@, @EntryStorage@, @PadEntry@
+
+{- Pad -}
+{-|
+A 'Pad' keeps track of the names of all currently-bound symbols, and
+associates them with the things they actually represent.
+
+It is represented as a mapping from names to /lists/ of bound items.
+This is to allow for multi subs, because we will need to keep
+/multiple/ subs associated with one symbol. In other cases, the list
+should just contain a single value. See 'Pugs.AST.genSym' and 'Pugs.AST.genMultiSym' for
+more details.
+
+@TVar@ indicates that the mapped-to items are STM transactional variables.
+
+Pads are stored in the current 'Code', and lexical lookups proceed through
+progressively outer scopes until an item is found. For dynamic variables
+(e.g., "our"), the pad holding the items is located in the package.
+-}
+
+newtype Pad = MkPad { padEntries :: Map Var PadEntry }
+    deriving (Eq, Ord, Show, Typeable) {-!derive: YAML_Pos!-}
+
 type EntryStorage = TVar Val
 
 data EntryDeclarator
@@ -1083,10 +1109,10 @@ buildParam :: String -- ^ Type of the parameter
            -> Exp    -- ^ Expression for the param's default value
            -> Param
 buildParam name def = MkParam
-    { paramHasAccess  = ParamAccessRW -- caller should override
-    , paramIsLazy     = False
-    , paramVariable   = name
-    , paramDefault    = def
+    { p_hasAccess  = ParamAccessRW -- caller should override
+    , p_isLazy     = False
+    , p_variable   = name
+    , p_default    = def
     }
 
 defaultCaptureSig, defaultArrayParam, defaultHashParam, defaultScalarParam :: Param
@@ -1105,25 +1131,25 @@ The current environment is stored in the @Reader@ monad inside the current
 if you just want a single field.
 -}
 data Env = MkEnv
-    { envContext :: !Cxt                 -- ^ Current context
-                                         -- ('CxtVoid', 'CxtItem' or 'CxtSlurpy')
-    , envLValue  :: !Bool                -- ^ Are we in an LValue context?
-    , envLexical :: !Pad                 -- ^ Lexical pad for variable lookup
-    , envImplicit:: !(Map Var ())        -- ^ Set of implicit variables
-    , envGlobal  :: !(TVar Pad)          -- ^ Global pad for variable lookup
-    , envPackage :: !String              -- ^ Current package
-    , envClasses :: !ClassTree           -- ^ Current class tree
-    , envEval    :: !(Exp -> Eval Val)   -- ^ Active evaluator
-    , envCaller  :: !(Maybe Env)         -- ^ Caller's "env" pad
-    , envOuter   :: !(Maybe Env)         -- ^ Outer block's env
-    , envBody    :: !Exp                 -- ^ Current AST expression
-    , envDepth   :: !Int                 -- ^ Recursion depth
-    , envDebug   :: !DebugInfo           -- ^ Debug info map
-    , envPos     :: !Pos                 -- ^ Source position range
-    , envPragmas :: ![Pragma]            -- ^ List of pragmas in effect
-    , envInitDat :: !(TVar InitDat)      -- ^ BEGIN result information
-    , envMaxId   :: !(TVar ObjectId)     -- ^ Current max object id
-    , envAtomic  :: !Bool                -- ^ Are we in an atomic transaction?
+    { e_context :: !Cxt                 -- ^ Current context
+                                        -- ('CxtVoid', 'CxtItem' or 'CxtSlurpy')
+    , e_lValue  :: !Bool                -- ^ Are we in an LValue context?
+    , e_lexical :: !Pad                 -- ^ Lexical pad for variable lookup
+    , e_implicit:: !(Map Var ())        -- ^ Set of implicit variables
+    , e_global  :: !(TVar Pad)          -- ^ Global pad for variable lookup
+    , e_package :: !String              -- ^ Current package
+    , e_classes :: !ClassTree           -- ^ Current class tree
+    , e_eval    :: !(Exp -> Eval Val)   -- ^ Active evaluator
+    , e_caller  :: !(Maybe Env)         -- ^ Caller's "env" pad
+    , e_outer   :: !(Maybe Env)         -- ^ Outer block's env
+    , e_body    :: !Exp                 -- ^ Current AST expression
+    , e_depth   :: !Int                 -- ^ Recursion depth
+    , e_debug   :: !DebugInfo           -- ^ Debug info map
+    , e_pos     :: !Pos                 -- ^ Source position range
+    , e_pragmas :: ![Pragma]            -- ^ List of pragmas in effect
+    , e_initDat :: !(TVar InitDat)      -- ^ BEGIN result information
+    , e_maxId   :: !(TVar ObjectId)     -- ^ Current max object id
+    , e_atomic  :: !Bool                -- ^ Are we in an atomic transaction?
     } 
     deriving (Show, Eq, Ord, Typeable) -- don't derive YAML for now
 
@@ -1149,41 +1175,17 @@ envWant env =
     showCxt (CxtItem typ)   = "Scalar (" ++ showType typ ++ ")"
     showCxt (CxtSlurpy typ) = "List (" ++ showType typ ++ ")"
 
-{- Pad -}
-{-|
-A 'Pad' keeps track of the names of all currently-bound symbols, and
-associates them with the things they actually represent.
-
-It is represented as a mapping from names to /lists/ of bound items.
-This is to allow for multi subs, because we will need to keep
-/multiple/ subs associated with one symbol. In other cases, the list
-should just contain a single value. See 'Pugs.AST.genSym' and 'Pugs.AST.genMultiSym' for
-more details.
-
-@TVar@ indicates that the mapped-to items are STM transactional variables.
-
-The @Bool@ is a \'freshness\' flag used to ensure that @my@ variable slots
-are re-generated each time we enter their scope; see the
-'Pugs.Eval.reduce' entry for ('Pad' 'SMy' ... ).
-
-The current global and lexical pads are stored in the current 'Env', which
-is stored in the @Reader@-monad component of the current 'Eval' monad.
--}
-
-newtype Pad = MkPad { padEntries :: Map Var PadEntry }
-    deriving (Eq, Ord, Show, Typeable)
-
 data IHashEnv = MkHashEnv deriving (Show, Typeable) {-!derive: YAML_Pos!-}
 data IScalarCwd = MkScalarCwd deriving (Show, Typeable) {-!derive: YAML_Pos!-}
 
 -- | A '$/' object, the return of a rx match operation.
-data VMatch = MkMatch
-    { matchOk           :: !VBool   -- success?
-    , matchFrom         :: !Int     -- .from
-    , matchTo           :: !Int     -- .to
-    , matchStr          :: !VStr    -- captured str
-    , matchSubPos       :: !VList   -- positional submatches
-    , matchSubNamed     :: !VHash   -- named submatches
+data MutMatch = MkMatch
+    { m_ok           :: !VBool   -- success?
+    , m_from         :: !Int     -- .from
+    , m_to           :: !Int     -- .to
+    , m_str          :: !VStr    -- captured str
+    , m_subPos       :: !VList   -- positional submatches
+    , m_subNamed     :: !VHash   -- named submatches
     }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
@@ -1220,10 +1222,11 @@ Serializable compilation unit
 
 See: docs/notes/precompilation_cache.pod
 -}
-data CompUnit = MkCompUnit
-    { ver  :: Int        -- a version number, currently 1
-    --, desc :: String     -- e.g., the name of the contained module
-    , ast  :: Exp        -- AST of unit
+data CompUnit = MkUnit
+    { u_ver  :: Int    -- ^ version number for this structure, @compUnitVersion@
+    --, desc :: String -- ^ e.g., the name of the contained module
+    , u_ast  :: Exp    -- ^ AST of unit, typically a binding:
+                       --   &compunit = module { ... };
     } deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos !-}
 
 mkCompUnit :: String -> Exp -> CompUnit
@@ -1378,7 +1381,7 @@ instance MonadReader Env Eval where
     local f m = EvalT $ local f (runEvalT m)
 
 -- XXX: transition: renamed from findSymRef
-readSym :: (MonadSTM m) => String -> Pad -> m Val
+readSym :: String -> Pad -> Eval Val
 readSym name pad = do
     case findSym name pad of
         Just tv -> liftSTM $ readTVar tv
@@ -1457,7 +1460,7 @@ defined _       = True
 
 -- | Produce an undefined Perl 6 value (i.e. 'VUndef').
 undef :: VScalar
-undef = VUndef
+undef = UndefUnit
 
 {- transition: do we need a Val -> Val pure form?
 readRef :: VRef -> Eval Val
@@ -1891,18 +1894,11 @@ instance Perl5 Val where
 instance Typeable Unique where typeOf _ = typeOf ()
 instance Typeable ProcessHandle where typeOf _ = typeOf ()
 instance Typeable Regex where typeOf _ = typeOf ()
-#if __GLASGOW_HASKELL__ <= 604
-instance Typeable1 Tree where typeOf1 _ = typeOf ()
-#endif
-
 
 {- !!! For DrIFT -- Don't delete !!!
 
 data Scope = SState | SLet | STemp | SEnv | SMy | SOur | SGlobal
     {-!derive: YAML_Pos, JSON, Perl5!-}
-
-newtype Pad = MkPad { padEntries :: Map Var PadEntry }
-    {-!derive: YAML_Pos!-}
 
 data Pos = MkPos
     { posName           :: !String, posBeginLine      :: !Int
@@ -1910,12 +1906,6 @@ data Pos = MkPos
     , posEndLine        :: !Int
     , posEndColumn      :: !Int
     }
-    {-!derive: YAML_Pos, JSON, Perl5!-}
-
-data Type
-    = MkType !String      -- ^ A regular type
-    | TypeOr  !Type !Type -- ^ The disjunction (|) of two types
-    | TypeAnd !Type !Type -- ^ The conjunction (&) of two types
     {-!derive: YAML_Pos, JSON, Perl5!-}
 
 data Val
