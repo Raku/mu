@@ -1,5 +1,5 @@
-Here is a negative-first-draft description of the new MMD algorithm for S06.
-Actually, not so much a draft, as an overhaul in progress.
+Here is a zeroth-draft description of the new MMD algorithm for S06.
+
 
 Multi(sub/method) Dispatch
 
@@ -10,33 +10,61 @@ the unambiguous best fit, an error is raised.
 
 Variants may have arbitrarily different signatures.  The first step in
 dispatch is to check for compatibility with the call's arguments.  Any
-variant whose signature is incompatable with the call is ignored.
+variant whose signature is incompatable with the call is ignored.  The
+second and final step is to choose among the compatible variants.
+Named parameters, while checked for compatibility, do not currently
+affect choice.
 
-The second step is to choose among the compatible variants.  Named
-parameters, while checked for compatibility, do not currently affect
-choice.  Positional parameters can be separated by commas, semicolons,
-or a double semicolon (which must appear after all semicolons, and can
-appear at most once).
-
-Parameters separated by commas are "equally important".
-Parameters after a semicolon are "less important" than those preceeding it.
-Parameters after a double semicolon are "minimally important".
+Positional parameters can be separated by commas, semicolons, or a
+double semicolon (which may appear at most once, after all
+semicolons).  Parameters separated by commas are "equally important".
+Parameters after a semicolon are "less important" than those
+preceeding it.  Parameters after a double semicolon are "unimportant",
+incidental to choice.
 
 The choice process consists of examining parameter positions,
-individually, left to right, and comparing the type narrowness of the
-parameter of each active variant.  A variant is immediately
-disqualified from being chosen if it fails to be at least as narrow as
-any other active candidate.  Variants can be in one of three states:
-contender for being chosen, spoiler (together called active), and
-inactive.  All start out as contenders.  They are disqualified for
-being chosen, becoming spoilers, if they are insufficiently narrow in
-some position, when compared against the variants still active at that
-position..  Spoilers become inactive if they enounter a single
-semicolon in their own signature, or if all the active variants
-simultaneously encounter a semicolon (single or double), thereby
-inactivating all spoilers.  If there is exactly one contender left
-after all the positions are processed, then it is chosen.  Otherwise
-an ambiguity error is raised.
+individually, left to right, and filtering the set of contenders.
+After all the positions are processed, if there is exactly one
+contender left, then it is chosen.  Otherwise an ambiguity error is
+raised.
+
+Variants can be either a contender or noncontender, and either active
+or inactive.  Four states.  Contender variants are contenders for
+being chosen, noncontenders are not.  Active variants help disqualify,
+that is filter, the remaining contenders. Inactive variants have no
+further affect on contenders.  The choice process begins with all
+compatible variants as active contenders.
+
+At any position, a contender becomes a noncontender (of the same
+activeness) if the type narrowness of its current parameter's type is
+not at least as narrow as that of any other active variant's parameter
+type.  So unabigious best fit is a sudden death competition against
+all the still active variants, contender or noncontender.
+
+At any position, an active variant becomes a inactive (of the same
+contenderness) if it reaches a double semicolon.  As the variant's
+later parameters are thus "unimportant", the variant "has nothing more
+to say".  Inactive contenders wait passively, hoping not to be
+disqualified by some active variant, until the process ends.  Inactive
+noncontenders are irrelevant, entirely gone from the process.
+
+There is also a second way to become inactive.  If all contenders
+reach a semi-colon at the same time, any active noncontenders become
+inactive.  Basically, the contender variants are of concensus that the
+following parameters are less important than preceeding ones.  So the
+noncontenders disqualified by the preceeding ones no longer have
+anything interesting to say about the remaining parameters.  But a
+single contender without a semicolon prevents any of this from
+occuring.  It wants the contenders, including itself, to continue to
+be subject to disqualification by the current noncontenders.  [The
+effect continues even if the dissenter is itself disqualified at the
+very next position.  The moment has been lost, and the other
+contenders, which were themselves in agreement, nonetheless remain
+subject to noncontenders they consider irrelevant.  Is this the right
+thing?]
+
+Concequently, if a variant is the only contender, and it reaches a
+semicolon, single or double, it will be chosen.
 
 Parameter types are compared by their relative type narrowness.  If
 implicit type conversions were needed on the type compatibility path
@@ -44,51 +72,18 @@ between a parameter type and the argument type, then the parameter
 with the fewest such conversions is narrower, and we are done.  If a
 parameter type is all roles, then class Any is added.  Then we
 recursively add all roles, superclasses, and subtypes.  All
-anonyoumous subtypes ("where" clauses) are distinct.  We now have the
-full set of the type constraints implied by a parameter's type.  If
-one set is a superset of the other, it is narrower (more constraints
-listed).  Identical sets are equivalent.  If neither is a superset,
-then the roles are removed, and we try again.  [explain why] If there
-is still no superset relation, then the parameter types are
-incomparable.  Neither can then be contenders, because we can't say
-they either is at least as narrow as the other.  Junctive types are
-treated as their narrowest alternative.[yes?]
-
-------------------------------------------------------------
-Cruft
-
-At a semicolon, if we are the only contender, we win and
-are chosen.  Or equivalently, all spoilers become inactive, so nothing
-can change in subsequent positions.  Thus, other, already disqualified
-variants, do not get a chance to disqualify us on later, less
-important positions.  If there are other contenders to, and we all
-have a semicolon, then again,
-
-
-If we reach our variant's finial semi, which preceeds the "not at all
-significant" positions, and we are still not the only contender, then
-we cease to be a contender.  We become a spoiler, but in a bit of
-oddity, one with subsequent parameter types treated as Any.  Our only
-role at this point is to establish ambiguity [wait, we cant do that as
-a spoiler], if the contending variants [... wait, puzzle here.  figure
-it in the morning].  There are thus two ways to cease being a
-contender.
-
-If we cease being a contender due to insufficiently tight (or
-incomparable) position fit, then our only role is to disqualify other
-contenders, and the only question is how long we can do this before
-being disregarded.  We become disregarded the first time we hit one of
-our own semis (because the subsequent parameters are "less
-significant"), or at any position, if all of the contenders at that
-point have a semi.  (Currently called the sepecu and execution rules).
-The execution rule is the multiple variant version of the "reach a
-semi as only contender" rule.  The motivating idea is to be able to
-make one variant into several, disambiguated after the semi, without
-opening them up for disqualification from spoilers, who were
-disqualified in the single variant case by the "semi as only
-contender" rule, which obviously wont fire in the when the there are
-two related variants.  If all contender variants have a semi in the
-same place, all spoilers become disregarded.  And that's it.
+anonyoumous subtypes ("where" clauses) are considered distinct.  We
+now have the full set of the type constraints, which are all
+conceptually predicates, implied by a parameter's type.  If one set is
+a superset of the other, it is narrower (more constraints listed).
+Identical sets are equivalent.  If neither is a superset, then the
+roles are removed, and we try again.  This is so roles listed in the
+parameter types, but not associated with a listed class, are still
+comparable, and all equivalently narrow.  If there is still no
+superset relation, then the parameter types are incomparable.  Neither
+can then be contenders, because we can't say that either one is at
+least as narrow as the other.  Junctive types are treated as their
+narrowest alternative.
 
 ------------------------------------------------------------
 Backstory and discussion:
