@@ -10,7 +10,7 @@ the unambiguous best fit, an error is raised.
 
 Variants may have arbitrarily different signatures.  The first step in
 dispatch is to check for compatibility with the call's arguments.  Any
-variant whose signature is incompatable with the call is ignored.  The
+variant whose signature is incompatible with the call is ignored.  The
 second and final step is to choose among the compatible variants.
 Named parameters, while checked for compatibility, do not currently
 affect choice.
@@ -18,53 +18,50 @@ affect choice.
 Positional parameters can be separated by commas, semicolons, or a
 double semicolon (which may appear at most once, after all
 semicolons).  Parameters separated by commas are "equally important".
-Parameters after a semicolon are "less important" than those
-preceeding it.  Parameters after a double semicolon are "unimportant",
-incidental to choice.
+Parameters after a semicolon are "of secondary importance" compared to
+those before it.  Parameters after a double semicolon are
+"unimportant", incidental to choice.
 
-The choice process consists of examining parameter positions,
-individually, left to right, and filtering the set of contenders.
-After all the positions are processed, if there is exactly one
-contender left, then it is chosen.  Otherwise an ambiguity error is
-raised.
+All compatible variants begin the choice process as "qualified" to be
+chosen, and "voting" (able to disqualify other variants).  Each
+variant keeps its own score card of who is qualified and who is
+voting.  Initially everyone agrees, but as semicolons are encountered,
+world views may diverge.
 
-Variants can be either a contender or noncontender, and either active
-or inactive.  Four states.  Contender variants are contenders for
-being chosen, noncontenders are not.  Active variants help disqualify,
-that is filter, the remaining contenders. Inactive variants have no
-further affect on contenders.  The choice process begins with all
-compatible variants as active contenders.
+The choice process examines each parameter position individually, from
+left to right.  Parameter types are compared for type narrowness.  A
+qualified variant whose parameter type is not at least as narrow as
+that of each voting variant is disqualified. So unambiguous best fit is
+a sudden death competition.  But different variants may have different
+views of which variants are still qualified and voting.  So the choice
+process broadcasts "everyone who still believes variant x is voting,
+should now mark variant y as disqualified".
 
-At any position, a contender becomes a noncontender (of the same
-activeness) if the type narrowness of its current parameter's type is
-not at least as narrow as that of any other active variant's parameter
-type.  So unabigious best fit is a sudden death competition against
-all the still active variants, contender or noncontender.
+When a variant encounters a double semicolon in its own signature, it
+tells everyone to mark it non-voting.  Its following parameters are
+"unimportant", so it doesn't want anyone disqualified by them.
 
-At any position, an active variant becomes a inactive (of the same
-contenderness) if it reaches a double semicolon.  As the variant's
-later parameters are thus "unimportant", the variant "has nothing more
-to say".  Inactive contenders wait passively, hoping not to be
-disqualified by some active variant, until the process ends.  Inactive
-noncontenders are irrelevant, entirely gone from the process.
+When a variant encounters a single semicolon in its own signature, all
+non-qualified variants on its own score card, only, are marked as also
+non-voting.  The following parameters are "of secondary importance",
+so it doesn't care about conflicts with variants which have already
+been disqualified, by the strictly more important preceding
+parameters.  This is the "No!  I'm NOT disqualified!  Their vote
+doesn't matter!"  rule.
 
-There is also a second way to become inactive.  If all contenders
-reach a semi-colon at the same time, any active noncontenders become
-inactive.  Basically, the contender variants are of concensus that the
-following parameters are less important than preceeding ones.  So the
-noncontenders disqualified by the preceeding ones no longer have
-anything interesting to say about the remaining parameters.  But a
-single contender without a semicolon prevents any of this from
-occuring.  It wants the contenders, including itself, to continue to
-be subject to disqualification by the current noncontenders.  [The
-effect continues even if the dissenter is itself disqualified at the
-very next position.  The moment has been lost, and the other
-contenders, which were themselves in agreement, nonetheless remain
-subject to noncontenders they consider irrelevant.  Is this the right
-thing?]
+After all the positions are processed, if all variants consider a
+single unique variant to be qualified, it is chosen.  Otherwise an
+ambiguity error is raised.
 
-Concequently, if a variant is the only contender, and it reaches a
-semicolon, single or double, it will be chosen.
+Semicolons reduce the frequency of ambiguity.  The unambiguous best
+fit policy, with its sudden death "if any parameter type isn't at
+least as narrow as that of the competition, just once, anywhere, then
+you are not qualified to be chosen", tends to disqualify everyone.
+Single semicolons provide a way of saying "variants already
+disqualified on the left, are now ineligible to disqualify ME on the
+right".  But different variants may have semicolons in different
+places.  So the requirement is every variant's vision of importance
+must yield the same result.
 
 Parameter types are compared by their relative type narrowness.  If
 implicit type conversions were needed on the type compatibility path
@@ -72,7 +69,7 @@ between a parameter type and the argument type, then the parameter
 with the fewest such conversions is narrower, and we are done.  If a
 parameter type is all roles, then class Any is added.  Then we
 recursively add all roles, superclasses, and subtypes.  All
-anonyoumous subtypes ("where" clauses) are considered distinct.  We
+anonymous subtypes ("where" clauses) are considered distinct.  We
 now have the full set of the type constraints, which are all
 conceptually predicates, implied by a parameter's type.  If one set is
 a superset of the other, it is narrower (more constraints listed).
