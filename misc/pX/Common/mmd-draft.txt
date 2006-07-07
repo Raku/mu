@@ -1,50 +1,76 @@
-Here is a zeroth-draft description of the new MMD algorithm for S06.
-It needs a much rewrite, but my objective is to dump the concepts of the
-current algorithm proposal, before stumbling off to long-delayed sleep.
-
+Here is a negative-first-draft description of the new MMD algorithm for S06.
+Actually, not so much a draft, as an overhaul in progress.
 
 Multi(sub/method) Dispatch
 
 A multi is a set of variants.  Each variant is a Code, with its own
 Signature.  A normal call to a multi is handled by the variant whose
-signature most closely matches the call's arguments.  If no variant is
+signature most tightly matches the call's arguments.  If no variant is
 the unambiguous best fit, an error is raised.
 
-There are two phases, compatability and choice.
+Variants may have arbitrarily different signatures.  The first step in
+dispatch is to check for compatibility with the call's arguments.  Any
+variant whose signature is incompatable with the call is ignored.
 
-Variants incompatible with the call's arguments are ignored.
-
-Among the rest, fit is determined by examining parameter positions,
-individually, left to right, and comparing the type tightness between
-the argument, and the parameter of each candidate variant.  Named
+The second step is to choose among the compatible variants.  Named
 parameters, while checked for compatibility, do not currently affect
-fit.
+choice.  Positional parameters can be separated by commas, semicolons,
+or a double semicolon (which can appear at most once).  Parameters
+separated by commas are "equally important".  Parameters after a
+semicolon are "less important" than those preceeding it.  Parameters
+after a double semicolon are "minimally important".
 
-Variants can be in three states: contender for being chosen, spoiler,
-and disregarded.  Chosen|spoiler = alive.  All start out as
-contenders.  Are disqualified for being chosen, thus becoming
-spoilers, by being insufficiently tight in some position, when
-compared against all chosen+spoilers.  By two semi-colon related
-mechanisms, spoilers can become disregarded.  If there is exactly one
-contender left after all the positions are processed, then it is
-chosen.  Otherwise an ambiguity error is raised.
+The choice process consists of examining parameter positions,
+individually, left to right, and comparing the type narrowness of the
+parameter of each active variant.  A variant is immediately
+disqualified from being chosen if it fails to be at least as narrow as
+any other active candidate.  Variants can be in one of three states:
+contender for being chosen, spoiler (together called active), and
+inactive.  All start out as contenders.  They are disqualified for
+being chosen, becoming spoilers, if they are insufficiently narrow in
+some position, when compared against the variants still active at that
+position..  Spoilers become inactive if they enounter a single
+semicolon in their own signature, or if all the active variants
+simultaneously encounter a semicolon (single or double), thereby
+inactivating all spoilers.  If there is exactly one contender left
+after all the positions are processed, then it is chosen.  Otherwise
+an ambiguity error is raised.
 
-Consider a single variant.  We move left to right over positional
-arguments.  If we are to be chosen, each parameter examined must be at
-least as tight as that of any other alive (ie, non-disregarded)
-variant.  Otherwise it ceases to be a contender.  At each semicolon,
-if it is the only contender, we are done.  Or equivalently, all
-spoilers become disregarded, so nothing can change in subsequent
-positions.  Thus, other, already disqualified variants, do not get a
-chance to disqualify us on later, "less significant (because after a
-semi)", positions.  If we reach our variant's finial semi, which
-preceeds the "not at all significant" positions, and we are still not
-the only contender, then we cease to be a contender.  We become a
-spoiler, but in a bit of oddity, one with subsequent parameter types
-treated as Any.  Our only role at this point is to establish ambiguity
-[wait, we cant do that as a spoiler], if the contending variants
-[... wait, puzzle here.  figure it in the morning].  There are thus
-two ways to cease being a contender.
+Parameter types are compared by their relative type narrowness.  If
+implicit type conversions were needed on the type compatibility path
+between a parameter type and the argument type, then the parameter
+with the fewest such conversions is narrower, and we are done.  If a
+parameter type is all roles, then class Any is added.  Then we
+recursively add all roles, superclasses, and subtypes.  All
+anonyoumous subtypes ("where" clauses) are distinct.  We now have the
+full set of the type constraints implied by a parameter's type.  If
+one set is a superset of the other, it is narrower (more constraints
+listed).  Identical sets are equivalent.  If neither is a superset,
+then the roles are removed, and we try again.  [explain why] If there
+is still no superset relation, then the parameter types are
+incomparable.  Neither can then be contenders, because we can't say
+they either is at least as narrow as the other.  Junctive types are
+treated as their narrowest alternative.[yes?]
+
+------------------------------------------------------------
+Cruft
+
+At a semicolon, if we are the only contender, we win and
+are chosen.  Or equivalently, all spoilers become inactive, so nothing
+can change in subsequent positions.  Thus, other, already disqualified
+variants, do not get a chance to disqualify us on later, less
+important positions.  If there are other contenders to, and we all
+have a semicolon, then again,
+
+
+If we reach our variant's finial semi, which preceeds the "not at all
+significant" positions, and we are still not the only contender, then
+we cease to be a contender.  We become a spoiler, but in a bit of
+oddity, one with subsequent parameter types treated as Any.  Our only
+role at this point is to establish ambiguity [wait, we cant do that as
+a spoiler], if the contending variants [... wait, puzzle here.  figure
+it in the morning].  There are thus two ways to cease being a
+contender.
 
 If we cease being a contender due to insufficiently tight (or
 incomparable) position fit, then our only role is to disqualify other
@@ -62,21 +88,6 @@ contender" rule, which obviously wont fire in the when the there are
 two related variants.  If all contender variants have a semi in the
 same place, all spoilers become disregarded.  And that's it.
 
-At the beginning of pairwise comparison, first we measure the minimal
-number of implicit coercions ("punnitude") the argument has to go through
-toward each of them.  If one side is more serious (i.e. have a smaller
-punnitude) than the other, then it wins automatically.  Otherwise,
-it plays a card game with the other side.
-
-The type fit between two types is: for each type, find the [which?]
-type converstion path between them, and make a set of any roles, any
-class, all ancestors of the class, any subsets.  A set is tighter if
-it has a superset of classes and subsets.  Types which are roles are
-considered to be class Any.  If the sets of classes are the same, then
-we do the same thing with roles.  If the sets of classes are not the
-same, but neither is a superset of the other, then the fits are
-incomparable.  But if this happens for rules, the fits are considered
-equivalent. [needs a lot of work and description of motivations/impacts]
-
 ------------------------------------------------------------
 Backstory and discussion:
+
