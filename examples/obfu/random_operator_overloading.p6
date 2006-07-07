@@ -1,4 +1,3 @@
-#!/usr/bin/pugs
 # This is a *evil* example of random operator overloading.
 
 use v6;

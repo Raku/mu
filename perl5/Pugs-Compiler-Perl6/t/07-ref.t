@@ -1,5 +1,3 @@
-# #!/usr/bin/pugs
-
 use v6-alpha;
 
 my $has_run = 0;

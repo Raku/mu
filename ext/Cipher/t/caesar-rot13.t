@@ -1,4 +1,3 @@
-#!/usr/bin/pugs
 # Tests of Cipher::Caesar in rot13 mode
 
 use Test;

@@ -41,7 +41,6 @@ Newton - performs one dimensional Newton's method
 
 =head1 SYNOPSIS
 
-    #!/usr/bin/pugs
     use v6;
 
     use Newton;

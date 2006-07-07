@@ -14,7 +14,6 @@ CGI::Server - A CGI module to getting information about the server
 
 =head1 SYNOPSIS
 
-    #!/usr/bin/pugs
     use v6;
     require CGI-0.0.1;
     require CGI::Server-0.0.1;

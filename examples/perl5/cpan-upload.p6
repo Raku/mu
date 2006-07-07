@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-#
 # cpan-upload - upload one or more file to CPAN (via PAUSE)
 #
 # $Id: cpan-upload,v 2.2 2002/07/02 21:44:10 neilb Exp $

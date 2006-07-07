@@ -38,7 +38,6 @@ Benchmark - Benchmark running time of Perl 6 code
 
 =head1 SYNOPSIS
 
-    #!/usr/bin/pugs
     use v6;
     use Benchmark;
 

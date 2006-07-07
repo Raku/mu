@@ -1,5 +1,3 @@
-# #!/usr/bin/pugs
-
 # Checking that testing is sane: Test.pm
 
 use v6-alpha;

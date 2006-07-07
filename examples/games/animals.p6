@@ -1,4 +1,3 @@
-#!/usr/bin/pugs
 # Animal guessing game, based on http://www.perlmonks.org/?node_id=10368
 
 use v6;

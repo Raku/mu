@@ -1,4 +1,3 @@
-#!/usr/bin/pugs
 # Please remember to update examples/output/vmethods/escape if you change this
 # file so its output will change.
 

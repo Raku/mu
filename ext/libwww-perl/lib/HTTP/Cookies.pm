@@ -1,4 +1,3 @@
-#!/usr/bin/pugs
 use v6;
 
 # XXX LWP::Debug to debug things :-)

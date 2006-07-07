@@ -20,4 +20,4 @@ eval '
   $line = =$fh;
 ';
 
-is($line, "#!/usr/bin/pugs", "first line was chomped");
+is($line, "use v6-alpha;", "first line was chomped");

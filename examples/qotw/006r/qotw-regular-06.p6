@@ -1,4 +1,3 @@
-#!/usr/bin/pugs
 # This is a Perl 6 solution to QoTW regular #6, see
 # http://perl.plover.com/qotw/r/solution/006.
 

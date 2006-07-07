@@ -1,4 +1,3 @@
-#!/usr/bin/pugs
 use v6;
 
 # vim:ft=perl:sw=4:

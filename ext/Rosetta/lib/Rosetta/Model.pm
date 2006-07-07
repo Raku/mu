@@ -1,4 +1,3 @@
-#!/usr/bin/pugs
 use v6;
 
 # External packages used by packages in this file, that don't export symbols:

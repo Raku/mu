@@ -1,4 +1,3 @@
-#!/usr/bin/pugs
 use v6;
 
 # naive version of perldoc implemented in and for perl6

@@ -1,5 +1,3 @@
-# #!/usr/bin/pugs
-
 # Checking that testing is sane: equality and inequality
 
 use v6-alpha;

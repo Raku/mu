@@ -1,4 +1,3 @@
-#!/usr/bin/pugs
 use v6;
 
 use lib <t/lib ext/Locale-KeyedText/t/lib>;

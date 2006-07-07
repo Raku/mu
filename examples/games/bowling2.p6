@@ -1,4 +1,3 @@
-#!/usr/bin/pugs
 use v6;
 
 print "How many bowlers are on your team?";

@@ -1,4 +1,3 @@
-#!/usr/bin/pugs
 # translated from CPAN module Getopt::Long 2.34
 # http://search.cpan.org/src/JV/Getopt-Long-2.34/t/gol-linkage.t
 use v6;

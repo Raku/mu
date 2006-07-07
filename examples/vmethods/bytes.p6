@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-#
 # Please remember to update examples/output/vmethods/bytes if you change this
 # file so its output will change.
 #

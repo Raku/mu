@@ -1,4 +1,3 @@
-#!/usr/bin/pugs
 use v6;
 
 print "5x5 matrix in one line: " unless @*ARGS;

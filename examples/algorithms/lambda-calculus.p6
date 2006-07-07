@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-#
 # $Id: lambda-calculus.p6,v 0.1 2005/09/05 12:16:18 dankogai Exp dankogai $
 #
 # Please remember to update t/examples/examples.t and rename

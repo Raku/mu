@@ -129,8 +129,6 @@ banner_bgcolor: lightblue
 * `examples/advocacy/motd.p6`
 
 .perl
-#!/usr/bin/pugs
-
 use v6;
 
 #XXX just so that File:;Spec can be used w/o being installed

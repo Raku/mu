@@ -3,7 +3,7 @@ use v6-alpha;
 use Test;
 
 plan 3;
-my $destroy_test = '#!/usr/bin/pugs
+my $destroy_test = 'use v6-alpha;
 
 class Foo
 {

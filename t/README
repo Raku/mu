@@ -50,7 +50,7 @@ written in Perl 6 and implements the TAP protocol (and so can be used with
 Test::Harness). The module has its own documentation and I encourage you to 
 read it. 
 
-- Pugs tests should have a she-bang line of #!/usr/bin/pugs.
+- Pugs tests should have a non-she-bang line of "use v6-alpha;".
 
 This line helps both Test::Harness as well as the 'prove' utility when 
 running Pugs tests. 

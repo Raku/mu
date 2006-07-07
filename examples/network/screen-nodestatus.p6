@@ -1,4 +1,3 @@
-#!/usr/bin/pugs
 # This is a small handy utility for screen(1) users.
 # To "install" it, add the following lines to your ~/.screenrc:
 #   hardstatus alwayslastline        # Always display the status line

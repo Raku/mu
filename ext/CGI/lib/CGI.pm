@@ -314,7 +314,6 @@ CGI - A module for programming CGI
 
 =head1 SYNOPSIS
 
-    #!/usr/bin/pugs
     use v6;
     require CGI-0.0.1;
     

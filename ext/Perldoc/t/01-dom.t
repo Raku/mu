@@ -1,4 +1,3 @@
-#!/usr/bin/pugs
 #  -*- perl -*-
 
 use v6;
