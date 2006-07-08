@@ -7,7 +7,7 @@ plan 2;
 # The difference between test1 and test2 is that "my $var = Bar.new"
 # is basically "my Any $var = Bar.new", so the Scalar container knows no
 # constraint, and will not attempt to do any validation.
-# "my Bar $var .= new" on the other hand, is really "my Bar $var = Bar.new",
+# "my Bar $var .= new" on the other hand, is really "my Bar $var = $var.new",
 # so Bar acts both as the initial value of $var, and as the constraint that
 # the variable($var) Scalar object holds on.
 
