@@ -245,7 +245,7 @@ sub is_compatible {
     local *Data::Bind::Array::bind = sub {};
     my $invocant  = ref($_[0]) && ref($_[0]) eq 'ARRAY' ? undef : shift;
     local $@;
-    eval { $self->bind({ invocant => $invocant, positional => $_[0], named => $_[1] }, 0)};
+    eval { $self->bind({ invocant => $invocant, positional => [@{$_[0]}], named => {%{$_[1]}} }, 0)};
     return $@ ? 0 : 1;
 }
 
