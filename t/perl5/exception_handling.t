@@ -36,4 +36,4 @@ try { $foo.error };
 lives_ok( {
     my $err = $!;
     $err.test;
-}, " accessing Perl5 method doesn't die");
+}, "Accessing Perl5 method doesn't die");
