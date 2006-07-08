@@ -415,7 +415,7 @@ op1 "readdir" = \v -> do
 op1 "slurp" = \v -> do
     ifValTypeIsa v "IO"
         (do h <- fromVal v
-            ifListContext (op1 "=" v) $ do
+            ifListContext (strictify $! op1 "=" v) $ do
                 content <- guardIO $ hGetContents h
                 return $! VStr $! decodeUTF8 $! length content `seq` content)
         (do
@@ -424,7 +424,10 @@ op1 "slurp" = \v -> do
                 (slurpList fileName)
                 (slurpScalar fileName))
     where
-    slurpList file = op1 "=" (VList [VStr file])
+    strictify action = do
+        VList lines <- action
+        return $ VList (length lines `seq` lines)
+    slurpList file = strictify $! op1 "=" (VList [VStr file])
     slurpScalar file = do
         content <- guardIO (readFile file)
         return $! VStr $! decodeUTF8 $! length content `seq` content
@@ -729,16 +732,22 @@ op1Readline = \v -> op1Read v getLines getLine
     where
     getLines :: VHandle -> Eval Val
     getLines fh = do
-        line <- getLine fh
-        if defined $! line
-            then do
+        line <- liftIO . unsafeInterleaveIO $ doGetLine fh
+        case line of
+            Just str -> do
                 VList rest <- getLines fh
-                return (rest `seq` VList (line:rest))
-            else return $! VList $! []
+                return $ VList (VStr str:rest)
+            _ -> return (VList [])
     getLine :: VHandle -> Eval Val
-    getLine fh = guardIOexcept [(isEOFError, undef)] $ do
+    getLine fh = do
+        line <- liftIO $! doGetLine fh
+        case line of
+            Just str    -> return $! VStr $! (length str `seq` str)
+            _           -> return undef
+    doGetLine :: VHandle -> IO (Maybe VStr)
+    doGetLine fh = guardIOexcept [(isEOFError, Nothing)] $ do
         line <- hGetLine fh
-        return $! VStr $! decodeUTF8 $! length line `seq` line
+        return . Just . decodeUTF8 $ line
 
 op1Getc :: Val -> Eval Val
 op1Getc = \v -> op1Read v (getChar) (getChar)
