@@ -45,7 +45,7 @@ if($*OS eq any(<MSWin32 mingw msys cygwin>)) {
 sub nonce () { return (".$*PID." ~ int rand 1000) }
 for @examples -> $ex {
   my $fn = <temp-ex-output> ~ nonce;
-  my $command = "$pugs examples/$ex.p6 $redir $fn";
+  my $command = "$pugs examples/$ex.pl $redir $fn";
   diag $command;
   system $command;
 
@@ -53,5 +53,5 @@ for @examples -> $ex {
   my $got      = slurp $fn;
   unlink $fn;
 
-  is $got, $expected, "$ex.p6 worked";
+  is $got, $expected, "$ex.pl worked";
 }

@@ -16,7 +16,7 @@ my @t_good = map &flatten, (
   any('-C')
     ~ any('Pugs', 'pUGs')
     ~ ' '
-    ~ any('-e1', map { "examples/$_.p6" }, <
+    ~ any('-e1', map { "examples/$_.pl" }, <
   functional/fp
   algorithms/hanoi
   junctions/1
@@ -28,7 +28,7 @@ my @t_good = map &flatten, (
   any('-C')
     ~ any('PIR', 'pir')
     ~ ' '
-    ~ any('-e1', map {"examples/$_.p6"}, <
+    ~ any('-e1', map {"examples/$_.pl"}, <
   junctions/1
   junctions/any-any
   junctions/any-any2
