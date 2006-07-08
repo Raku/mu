@@ -61,7 +61,7 @@ sub sig {
 	}
 	else {
 	    unless ($db_param->is_slurpy) {
-		Carp::carp "positional argument after named ones" if $now_named;
+		Carp::carp("positional argument after named ones") if $now_named;
 	    }
 	    $db_param->is_optional(1)
 		if $param->{optional};
