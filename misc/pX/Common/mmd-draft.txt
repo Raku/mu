@@ -73,14 +73,16 @@ anonymous subtypes ("where" clauses) are considered distinct.  We
 now have the full set of the type constraints, which are all
 conceptually predicates, implied by a parameter's type.  If one set is
 a superset of the other, it is narrower (more constraints listed).
-Identical sets are equivalent.  If neither is a superset, then the
-roles are removed, and we try again.  This is so roles listed in the
-parameter types, but not associated with a listed class, are still
-comparable, and all equivalently narrow.  If there is still no
-superset relation, then the parameter types are incomparable.  Neither
-can then be contenders, because we can't say that either one is at
-least as narrow as the other.  Junctive types are treated as their
-narrowest alternative.
+Identical sets are equivalent.
+
+If neither is a superset, then we check if their differences consist entirely
+of roles.  If so, they are considered equivalently narrow.  (This is so roles
+listed in the parameter types, but not associated with a listed class, are
+still comparable.)  Otherwise, the parameter types are incomparable: Neither
+can then be contenders, because we can't say that either one is at least as
+narrow as the other.
+
+Junctive types are treated as their narrowest alternative. # XXX not so
 
 ------------------------------------------------------------
 Backstory and discussion:
