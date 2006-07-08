@@ -41,6 +41,7 @@ sub sig {
                is_writable   => $param->{is_rw},
                is_slurpy     => $param->{is_slurpy},
 	       invocant      => $param->{invocant},
+               constraint    => $param->{constraint},
 	       p5type        => substr($param->{var}, 0, 1),
 	       name          => substr($param->{var}, 1) });
 
@@ -252,7 +253,7 @@ sub is_compatible {
 
 package Data::Bind::Param;
 use base 'Class::Accessor::Fast';
-__PACKAGE__->mk_accessors(qw(name p5type is_optional is_writable is_slurpy container_var named_only));
+__PACKAGE__->mk_accessors(qw(name p5type is_optional is_writable is_slurpy container_var named_only constraint));
 use Devel::LexAlias qw(lexalias);
 
 sub slurpy_bind {
