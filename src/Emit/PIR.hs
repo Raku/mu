@@ -873,10 +873,10 @@ preludePIR = emit $
         , tempPMC2 <-- "compile" $ [tempPMC, tempSTR]
         ] --> [tempPMC2]
     , sub "&eval_pir" [arg0]
-        [ tempPMC   <-- "open" $ [lit "temp.p6", lit ">"]
+        [ tempPMC   <-- "open" $ [lit "temp.pl", lit ">"]
         , "print"   .- [tempPMC, arg0]
         , "close"   .- [tempPMC]
-        , tempPMC   <-- "open" $ [lit "pugs -CPIR temp.p6", lit "-|"]
+        , tempPMC   <-- "open" $ [lit "pugs -CPIR temp.pl", lit "-|"]
         , InsNew rv PerlScalar
         , rv        <:= lit ""
         , InsLabel "eval_pir_read_pre_next"

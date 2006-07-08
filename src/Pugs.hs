@@ -93,8 +93,8 @@ run ("--external":mod:file:_)         = readFile file >>= doExternal mod file
 run (("-e"):prog:args)          = do doRun "-e" args prog
 -- -E is like -e, but not accessible as a normal parameter and used only
 -- internally:
---   "-e foo bar.p6" executes "foo" with @*ARGS[0] eq "bar.p6",
---   "-E foo bar.p6" executes "foo" and then bar.p6.
+--   "-e foo bar.pl" executes "foo" with @*ARGS[0] eq "bar.pl",
+--   "-E foo bar.pl" executes "foo" and then bar.pl.
 -- XXX - Wrong -- Need to preserve environment across -E runs
 run (("-E"):prog:rest)          = run ("-e":prog:[]) >> run rest
 run ("-":args)                  = do doRun "-" args =<< readStdin

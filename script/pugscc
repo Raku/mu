@@ -10,7 +10,7 @@ use File::Glob 'bsd_glob';
 use IPC::Open2;
 
 if (!@ARGV || grep /^--help$/, @ARGV) {
-    die "Usage: $0 [--run] [--pugs|--haskell|--pir] [ source[.p6] | -e oneliner ]\n";
+    die "Usage: $0 [--run] [--pugs|--haskell|--pir] [ source[.pl] | -e oneliner ]\n";
 }
 
 my $run;
