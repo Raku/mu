@@ -1,16 +1,24 @@
 {-# OPTIONS_GHC -fglasgow-exts -cpp #-}
 
 #ifndef PUGS_HAVE_PERL5
-module Pugs.Embed.Perl5 where
+module Pugs.Embed.Perl5 
+    ( InvokePerl5Result(..),
+    , svToVBool, svToVInt, svToVNum, svToVStr, vstrToSV, vintToSV, svToVal,
+    , vnumToSV, mkValRef , mkVal, PerlSV, nullSV, evalPerl5, invokePerl5,
+    )
+where
 import Foreign.C.Types
 import Data.Typeable
 
 type PerlInterpreter = ()
-data InvokePerl5Result = MkInvokePerl5Result -- phantom type
-    deriving (Show, Eq, Ord, Typeable)
 data PerlSV = MkPerlSV -- phantom type
     deriving (Show, Eq, Ord, Typeable)
 type PugsVal = PerlSV
+
+data InvokePerl5Result
+    = Perl5ReturnValues [PerlSV]
+    | Perl5ErrorString String
+    | Perl5ErrorObject PerlSV
 
 constFail :: a -> IO b
 constFail = const $ fail "perl5 not embedded"
