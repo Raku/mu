@@ -127,14 +127,14 @@ sub on_privmsg($event) {
 }
 
 sub evalhelper(Str $code) {
-  # Find the location of evalhelper.p5.
+  # Find the location of evalhelper-p5.pl.
   my $evalhelper = INIT {
-    print $*ERR: "evalhelper.p5...";
+    print $*ERR: "evalhelper-p5.pl...";
     my @path_parts = splitpath $*PROGRAM_NAME;
     my $progdir = @path_parts[1];
     $progdir = "." if $progdir ~~ rx:Perl5/^\s*$/;
     print $*ERR: "done.\n";
-    "$progdir/evalhelper.p5";
+    "$progdir/evalhelper-p5.pl";
   };
 
   # Prevent possible abuse.
@@ -142,7 +142,7 @@ sub evalhelper(Str $code) {
   return "No code to eval given."
     if bytes($code) == 0 or $code ~~ rx:Perl5/^\s*$/;
 
-  # Set the necessary environment vars for evalhelper.p5.
+  # Set the necessary environment vars for evalhelper-p5.pl.
   my $tmpfile = "temp-evalbot-$*PID";
   %*ENV<EVALBOT_CODE>    = $code;
   %*ENV<EVALBOT_TMPFILE> = $tmpfile;

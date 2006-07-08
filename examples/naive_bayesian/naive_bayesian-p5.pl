@@ -13,8 +13,8 @@ use strict;
 my %words;
 
 sub load_db {
-    return unless -e 'words.db.p5';
-    open DB, "<words.db.p5" || die "Cannot open the words.db.p5 file: $!";
+    return unless -e 'words.db-p5.pl';
+    open DB, "<words.db-p5.pl" || die "Cannot open the words.db-p5.pl file: $!";
     while (my $line = <DB>) {
         $line .= chomp;
         my ($key, $value) = split(/\t/, $line);
@@ -24,7 +24,7 @@ sub load_db {
 }
 
 sub save_db {
-    open DB, ">words.db.p5" || die "Cannot open the words.db.p5 file: $!";
+    open DB, ">words.db-p5.pl" || die "Cannot open the words.db-p5.pl file: $!";
     foreach my $key (keys %words) {
         print DB "$key\t$words{$key}\n";
     }

@@ -17,7 +17,8 @@
 * Updated all tests and examples to remove the #/usr/bin/pugs shebangs, and 
 similarly updated some documentation.
 * Replaced all "use v6-pugs;" with "use v6-alpha;" in the same places.
-* Renamed some Perl scripts from *.p6 to *.pl ... TODO: the rest of them.
+* Renamed all Perl scripts from *.p6 to *.pl and from *.p5 to *-p5.pl;
+all references to them, except in talks, were likewise updated.
 
 == Feature Changes
 

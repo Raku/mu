@@ -9,9 +9,9 @@ This is a small IRC bot using C<Net::IRC> to C<eval()> commands.
 =head1 ARCHITECTURE
 
 C<evalbot.pl> is the main bot, written in Perl 6. To run a command, it spawns
-C<evalhelper.p5>, a Perl 5 program. This sets up the necessary environment
+C<evalhelper-p5.pl>, a Perl 5 program. This sets up the necessary environment
 (C<PUGS_SAFEMODE>, redirection of C<STDOUT> and C<STDERR> to a temporary file,
-resource limits, etc.). Finally, C<evalhelper.p5> runs C<pugs>.
+resource limits, etc.). Finally, C<evalhelper-p5.pl> runs C<pugs>.
 
 =head1 INSTALLATION
 
@@ -23,7 +23,7 @@ supply a nick and an IRC server to connect to:
 You don't have to restart C<evalbot.pl> when you install a new Pugs, as a new
 C<pugs> is spawned on each command to eval.
 
-C<evalhelper.p5> needs the C<BSD::Resource> module to be able to set
+C<evalhelper-p5.pl> needs the C<BSD::Resource> module to be able to set
 appropriate resource limits, so you can't run Evalbot under Win32.
 
 =head1 REMOTE CONTROL
