@@ -270,10 +270,7 @@ sub _emit_parameter_capture {
     }
 
     my $positional = '';
-    if (@positional == 1) {
-        $positional = "\\@positional";
-    }
-    elsif (@positional > 1) {
+    if (@positional) {
         $positional = "\\(".join(', ', @positional).")";
     }
 
