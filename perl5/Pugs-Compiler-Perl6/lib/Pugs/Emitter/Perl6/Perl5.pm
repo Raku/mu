@@ -265,11 +265,19 @@ sub _emit_parameter_capture {
 	    push @named, $pair->{key}{single_quoted}.' => \\('._emit($pair->{value}).')';
 	}
 	else {
-	    push @positional, '\\('._emit($_).')';
+	    push @positional, _emit($_);
 	}
     }
 
-    return '['.join(',', @positional).'], {'.join(',', @named).'}';
+    my $positional = '';
+    if (@positional == 1) {
+        $positional = "\\@positional";
+    }
+    elsif (@positional > 1) {
+        $positional = "\\(".join(', ', @positional).")";
+    }
+
+    return "[$positional], {".join(',', @named).'}';
 }
 
 sub _emit_closure {
