@@ -85,3 +85,29 @@ narrowest alternative.
 ------------------------------------------------------------
 Backstory and discussion:
 
+
+nothingmuch rants on named params:
+
+I think that named arguments could work quite easily if they are treated as
+unordered (no left to right ordering - make it completely symmetrical (and
+sadly more ambiguous)) between instances of semicolons.
+
+Additionally (this may be crazy), if there is a lexical ordering in the caller
+(and *ONLY* lexical ordering, e.g. f( x => 1, y => 2 ), and *NOT*
+f([,] %args)), the order may be used for tie breaking.
+
+Another idea is that instead of making non voting a boolean, it's a counter,
+that is decremented. In this scenario you have multiple levels of things, and
+you could splice up named arguments into more finely grained priority groups.
+
+
+
+
+nothingmuch rants disambiguation strategies:
+
+1. explicitly state variant using fully qualified addressing (symbol entry, and
+   variant address within multi - either by index, or by name -- must be able to
+   give variants "inner" names)
+
+2. annotate "important" roles/types in your given args (partial or full
+   signature in caller): f( Storable x => $x ); # more important than another role
