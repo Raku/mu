@@ -4,7 +4,7 @@ PIL2-JSON simple Perl 6 code emitter
 by fglock
 
   ../../pugs -CPIL2-JSON -e ' say "hello" ' | \
-    ../../pugs pil2_json_emit_p6.p6
+    ../../pugs pil2_json_emit_p6.pl
 
   #! /usr/bin/pugs
   use v6;
@@ -14,13 +14,13 @@ by fglock
 Other examples:
 
   ../../pugs -Cpil2-json -e ' my Int $x; ($x~"a")( "a",1,$x,$x+1); { say 1 } ' | \
-    ../../pugs pil2_json_emit_p6.p6
+    ../../pugs pil2_json_emit_p6.pl
 
 The code created by this example has syntax errors, but I'm not sure if these things are
 really forbidden in p6:
 
   ../../pugs -Cpil2-json -e 'my ($x,$y)=(1,2); sub infix:<aaa>($a,$b){$a+1} 1 aaa 2;' | \
-    ../../pugs pil2_json_emit_p6.p6
+    ../../pugs pil2_json_emit_p6.pl
 
 =cut
 

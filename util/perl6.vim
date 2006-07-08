@@ -6,8 +6,8 @@
 " This is a big undertaking. Perl 6 is the sort of language that only Perl
 " can parse. But I'll do my best to get vim to.
 "
-" You can associate the extension ".p6" with the filetype "perl6" by setting
-"     autocmd BufNewFile,BufRead *.p6 setf perl6
+" You can associate the extension ".pl" with the filetype "perl6" by setting
+"     autocmd BufNewFile,BufRead *.pl setf perl6
 " in your ~/.vimrc.
 
 " Die if there's already a defined syntax

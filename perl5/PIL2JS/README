@@ -24,7 +24,7 @@ Alternatively, you can use the compiler directly:
 
   $ cd perl5/PIL2JS
   $ ./pil2js.pl -o Prelude.js lib6/Prelude/JS.pm  # Precompile the Prelude
-  $ ./pil2js.pl -o output.js input.p6             # Compile the actual prog
+  $ ./pil2js.pl -o output.js input.pl             # Compile the actual prog
   $ ./pil2js.pl \                                 # Generate a .html
       --link=html \
       -o output.html \

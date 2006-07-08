@@ -101,7 +101,7 @@ Commands available from the prompt:
 :c <exp>                = ditto
 :e <exp>                = compile expression and run it
 :js <exp>               = compile expression and show it
-:l filename.p6          = compile file and save as HTML
+:l filename.pl          = compile file and save as HTML
 USAGE
 
 sub command_conf {

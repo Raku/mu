@@ -3,7 +3,7 @@
 export PATH=/bin PERL6LIB=/lib6
 export PUGS_PARROT_OPTS="-j"
 
-pugs -w /welcome.p6
+pugs -w /welcome.pl
 pugs
 
 echo

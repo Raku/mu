@@ -1,5 +1,5 @@
 # PIL2 simple tokenizer & pretty-printer
-# ../../pugs -CPIL2 -e ' say "hello" ' | ../../pugs pil2_tokenizer.p6
+# ../../pugs -CPIL2 -e ' say "hello" ' | ../../pugs pil2_tokenizer.pl
 
 use v6;
 

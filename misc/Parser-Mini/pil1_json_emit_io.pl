@@ -4,7 +4,7 @@ PIL2-JSON Forth-like code emitter
 by fglock
 
   ../../pugs -CPIL2-JSON -e ' say "hello "; say 1 + 1 ' | \
-    ../../pugs pil2_json_emit_forth.p6
+    ../../pugs pil2_json_emit_forth.pl
 
   #! /usr/bin/forth
   : &*END ;

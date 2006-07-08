@@ -9,7 +9,7 @@
 #       eval( '...', :lang<perl5>);
 # - anything that is too low-level to go into a real Module
 # - anything that does not directly alters the Perl 6 Grammar
-#   (these go into the p6prelude.p6 file)
+#   (these go into the p6prelude.pl file)
 
 grammar grammar1;
         

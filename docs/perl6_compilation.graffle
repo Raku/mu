@@ -878,7 +878,7 @@ This work is licensed under the Creative Commons Attribution 2.5 License. To vie
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
-\f0\fs24 \cf0 Main.p6}</string>
+\f0\fs24 \cf0 Main.pl}</string>
 							</dict>
 							<key>TextPlacement</key>
 							<integer>0</integer>
@@ -9219,7 +9219,7 @@ Target Code}</string>
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\f0\fs24 \cf0 Output of main.p6}</string>
+\f0\fs24 \cf0 Output of main.pl}</string>
 					</dict>
 				</dict>
 				<dict>
@@ -9554,7 +9554,7 @@ Target Code}</string>
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\f0\fs24 \cf0 use CGI.p6}</string>
+\f0\fs24 \cf0 use CGI.pl}</string>
 							</dict>
 						</dict>
 						<dict>
@@ -9614,7 +9614,7 @@ Target Code}</string>
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
-\f0\fs24 \cf0 Main.p6}</string>
+\f0\fs24 \cf0 Main.pl}</string>
 							</dict>
 							<key>TextPlacement</key>
 							<integer>0</integer>
@@ -9688,7 +9688,7 @@ Target Code}</string>
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\f0\fs24 \cf0 Output of main.p6}</string>
+\f0\fs24 \cf0 Output of main.pl}</string>
 					</dict>
 				</dict>
 				<dict>
@@ -10062,7 +10062,7 @@ Target Code}</string>
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\f0\fs24 \cf0 use CGI.p6}</string>
+\f0\fs24 \cf0 use CGI.pl}</string>
 							</dict>
 						</dict>
 						<dict>
@@ -10122,7 +10122,7 @@ Target Code}</string>
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
-\f0\fs24 \cf0 Main.p6}</string>
+\f0\fs24 \cf0 Main.pl}</string>
 							</dict>
 							<key>TextPlacement</key>
 							<integer>0</integer>
@@ -10196,7 +10196,7 @@ Target Code}</string>
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\f0\fs24 \cf0 Output of main.p6}</string>
+\f0\fs24 \cf0 Output of main.pl}</string>
 					</dict>
 				</dict>
 				<dict>
@@ -10610,7 +10610,7 @@ Target Code}</string>
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\f0\fs24 \cf0 use CGI.p6}</string>
+\f0\fs24 \cf0 use CGI.pl}</string>
 					</dict>
 				</dict>
 				<dict>
@@ -10670,7 +10670,7 @@ Target Code}</string>
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
-\f0\fs24 \cf0 Main.p6}</string>
+\f0\fs24 \cf0 Main.pl}</string>
 					</dict>
 					<key>TextPlacement</key>
 					<integer>0</integer>
@@ -10740,7 +10740,7 @@ Target Code}</string>
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\f0\fs24 \cf0 Output of main.p6}</string>
+\f0\fs24 \cf0 Output of main.pl}</string>
 					</dict>
 				</dict>
 				<dict>
@@ -11101,7 +11101,7 @@ Parrot}</string>
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
-\f0\fs24 \cf0 Main.p6}</string>
+\f0\fs24 \cf0 Main.pl}</string>
 							</dict>
 							<key>TextPlacement</key>
 							<integer>0</integer>
@@ -13192,7 +13192,7 @@ Syntax Tree}</string>
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
-\f0\fs24 \cf0 Main.p6}</string>
+\f0\fs24 \cf0 Main.pl}</string>
 							</dict>
 							<key>TextPlacement</key>
 							<integer>0</integer>
@@ -13529,7 +13529,7 @@ Target Code}</string>
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\f0\fs24 \cf0 Main.p6.yml\
+\f0\fs24 \cf0 Main.pl.yml\
 Target Code}</string>
 					</dict>
 				</dict>
@@ -14843,7 +14843,7 @@ Pugs Intermediate Language}</string>
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
-\f0\fs24 \cf0 Main.p6}</string>
+\f0\fs24 \cf0 Main.pl}</string>
 							</dict>
 							<key>TextPlacement</key>
 							<integer>0</integer>
@@ -15180,7 +15180,7 @@ Target Code}</string>
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\f0\fs24 \cf0 Main.p6.yml\
+\f0\fs24 \cf0 Main.pl.yml\
 Target Code}</string>
 					</dict>
 				</dict>
@@ -16530,7 +16530,7 @@ Monkey}</string>
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural\pardirnatural
 
-\f0\fs24 \cf0 Main.p6}</string>
+\f0\fs24 \cf0 Main.pl}</string>
 							</dict>
 							<key>TextPlacement</key>
 							<integer>0</integer>
@@ -16812,7 +16812,7 @@ src/Pugs/Eval.hs}</string>
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\f0\fs24 \cf0 CGI.p6\
+\f0\fs24 \cf0 CGI.pl\
 Target Code}</string>
 					</dict>
 				</dict>
@@ -16867,7 +16867,7 @@ Target Code}</string>
 {\colortbl;\red255\green255\blue255;}
 \pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\qc\pardirnatural
 
-\f0\fs24 \cf0 Main.p6\
+\f0\fs24 \cf0 Main.pl\
 Target Code}</string>
 					</dict>
 				</dict>

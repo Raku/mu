@@ -21,7 +21,7 @@ lib/Pugs/Grammar/Rule/Rule.pmc
 lib/Pugs/Runtime/Grammar.pm
 lib/Pugs/Runtime/Match.pm
 lib/Pugs/Runtime/Match/Ratchet.pm
-lib/Pugs/Runtime/Rule.p6
+lib/Pugs/Runtime/Rule.pl
 lib/Pugs/Runtime/Rule.pm
 Makefile.PL
 MANIFEST

@@ -4,7 +4,7 @@ Precompilation cache in Pugs
 
 =head1 DESCRIPTION
 
-Rather than parse every .p6 or .pm file pugs sees over and over again as
+Rather than parse every .pl or .pm file pugs sees over and over again as
 they are needed, pugs stores the results of compilation in a cache. This
 gives the benefit of speed without the awkwardness of an opaque object
 file.

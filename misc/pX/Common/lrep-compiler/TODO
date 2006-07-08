@@ -10,12 +10,12 @@ The problem is in the rule's closures... the capture is not ok.
 THE REAL MISSION IS TO SELF-HOST LREP
 
 Already in Perl 6:
-./lrep.p6
-./Grammar/Perl6.p6
-./Grammar/Perl6Primitives.p6
+./lrep.pl
+./Grammar/Perl6.pl
+./Grammar/Perl6Primitives.pl
 
 Still in Perl 5:
-Rule Closures in ./Grammar/Perl6.p6 are just filtered, not compiled
+Rule Closures in ./Grammar/Perl6.pl are just filtered, not compiled
 Grammar/Perl6Init.pm
 ./Emitter/Perl5.pm
 P::C::R must be translated also

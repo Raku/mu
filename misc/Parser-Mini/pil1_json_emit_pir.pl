@@ -4,7 +4,7 @@ PIL2-JSON Parrot-like code emitter
 by fglock
 
   ../../pugs -CPIL2-JSON -e ' say "hello "; say 1 + 1 ' | \
-    ../../pugs pil2_json_emit_pir.p6
+    ../../pugs pil2_json_emit_pir.pl
 
   #! /usr/bin/parrot
   ... TODO

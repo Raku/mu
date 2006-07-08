@@ -7,7 +7,7 @@ compile_p6grammar-token.pl
 compile_p6grammar.pl
 grammar.pl
 benchmark.pl
-t6/iterator_engine.p6
+t6/iterator_engine.pl
 
 ^blib/
 ^Makefile$

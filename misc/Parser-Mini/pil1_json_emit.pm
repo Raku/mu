@@ -3,10 +3,10 @@
 PIL2-JSON generic code emitter
 by fglock
 
-This is a non-runnable module - use 'pil2_json_emit_<language>.p6' instead
+This is a non-runnable module - use 'pil2_json_emit_<language>.pl' instead
 
   ../../pugs -CPIL2-JSON -e ' say "hello" ' | \
-    ../../pugs pil2_json_emit_p6.p6
+    ../../pugs pil2_json_emit_p6.pl
 
   #! /usr/bin/pugs
   use v6;

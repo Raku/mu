@@ -143,7 +143,7 @@ if(!@ARGV || $ARGV[0] eq '-h'){
     -s            # List supported features
     -d            # Dump debugging information
     p5_source.pl  # Convert the file. The script appends
-                  # '.p6' to the original name
+                  # '.pl' to the original name
 
 HELP
 }
@@ -220,8 +220,8 @@ else {
 }
 
 if($srcfile){
-    open my $f, '>', "${srcfile}.p6"
-        or "Couldn't open file ${srcfile}.p6 for writing";
+    open my $f, '>', "${srcfile}.pl"
+        or "Couldn't open file ${srcfile}.pl for writing";
     print {$f} $src;
 }
 else {

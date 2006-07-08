@@ -58,7 +58,7 @@ my $bash         = "/bin/bash";
 my $inputrc      = "/etc/inputrc";
 my $terminfo     = "/etc/terminfo/l/linux";
 my $linuxrc      = "linuxrc";
-my $welcome_p6   = "welcome.p6";
+my $welcome_p6   = "welcome.pl";
 my $splashscreen = "splashscreen.txt";
 my $lib6         = "../../blib6/lib";
 my $initrd_gz    = "initrd.gz";
@@ -311,10 +311,10 @@ HELP
     [$inputrc              => "$initrd_mnt/etc/inputrc"],
     [$terminfo             => "$initrd_mnt/etc/terminfo/l/linux"],
     [$linuxrc              => "$initrd_mnt/linuxrc"],
-    [$welcome_p6           => "$initrd_mnt/welcome.p6"],
+    [$welcome_p6           => "$initrd_mnt/welcome.pl"],
   );
   step
-    descr  => "Copying Pugs, Parrot, Bash, inputrc, the terminfo description, linuxrc, and welcome.p6 to the initrd",
+    descr  => "Copying Pugs, Parrot, Bash, inputrc, the terminfo description, linuxrc, and welcome.pl to the initrd",
     help   => "Note: You might want to strip pugs and parrot to save space.",
     ensure => sub {
       for(@files) {

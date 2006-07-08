@@ -209,7 +209,7 @@ my $x5 = def_stmt_prim('bs_infix_decl','\s*multi\s+(infix:<(.+?)>)\s+\([^\)]*\)\
 
 my $Perl_prog = def_rule('prog','<statement>*');
 
-my $source = `cat parser_spike_target.p6`;
+my $source = `cat parser_spike_target.pl`;
 my $m = match($Perl_prog,$source);
 
 $Data::Dumper::Indent=1;
