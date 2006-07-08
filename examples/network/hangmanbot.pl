@@ -16,7 +16,7 @@ debug "To change any of these parameters, restart $*PROGRAM_NAME";
 debug "and supply appropriate arguments:";
 debug "  $*PROGRAM_NAME nick host[:port] max_bad_guesses";
 
-# Copied from examples/games/hangman.p6.
+# Copied from examples/games/hangman.pl.
 sub get_committer_list(Str $dict_file) returns List {
   my @committers;
   my $dict = open($dict_file) err

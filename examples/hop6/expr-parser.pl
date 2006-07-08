@@ -4,7 +4,7 @@ use v6;
 
 use Parser;# :all;
 use Lexer;# :all;
-require 'it2stream.p6';
+require 'it2stream.pl';
 
 ## SETUP PARSER
 my $expression;
@@ -50,7 +50,7 @@ if ?$result {
 
 =head1 NAME
 
-expr-parser.p6 - A simple expression parser from Mark Jason Dominus' "Higher
+expr-parser.pl - A simple expression parser from Mark Jason Dominus' "Higher
 Order Perl"
 
 =head1 DESCRIPTION

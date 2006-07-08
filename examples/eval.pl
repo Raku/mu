@@ -75,7 +75,7 @@ quit();
 
 =head1 NAME
 
-eval.p6 - simple read-eval-print loop implementation
+eval.pl - simple read-eval-print loop implementation
 
 =head1 DESCRIPTION
 

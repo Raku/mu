@@ -17,9 +17,9 @@ print(('-' x 80), "\n");
 print "Testing perl6 naive bayesian script with $test_file\n";
 print(('-' x 80), "\n");
 
-if (! -e "words.db.p6") {
-    system("pugs naive_bayesian.p6 add apples apples");
-    system("pugs naive_bayesian.p6 add oranges oranges");
-    system("pugs naive_bayesian.p6 add grapes grapes");
+if (! -e "words.db.pl") {
+    system("pugs naive_bayesian.pl add apples apples");
+    system("pugs naive_bayesian.pl add oranges oranges");
+    system("pugs naive_bayesian.pl add grapes grapes");
 }
-system("pugs naive_bayesian.p6 classify $test_file");
+system("pugs naive_bayesian.pl classify $test_file");

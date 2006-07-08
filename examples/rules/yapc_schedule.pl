@@ -10,7 +10,7 @@ token talk { \<small\> <speaker> \</small\> }
 
 token speaker { [\w|\s]+ }
 
-### extract.p6
+### extract.pl
 module Main;
 
 use v6-alpha;

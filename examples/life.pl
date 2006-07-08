@@ -1,6 +1,6 @@
 use v6;
 
-# life.p6 adopted for perl6 after:
+# life.pl adopted for perl6 after:
 #
 # // life.cola
 # //

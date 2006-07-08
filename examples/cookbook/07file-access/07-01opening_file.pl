@@ -8,7 +8,7 @@ You want to read or write a file from Perl.
 
 =cut
 
-my $path = "07-01opening_file.p6";
+my $path = "07-01opening_file.pl";
 
 my $input = open($path, :r)
     err die "Could not open $path for reading $!\n";

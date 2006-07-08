@@ -70,13 +70,13 @@ Add all the unicode character values together
 
 =head1 Example Script 1
 
-A simple checksum script example: checksump.p6
+A simple checksum script example: checksump.pl
 
     #!/usr/bin/perl6
     
     use v6;
     
-    # checksum.p6 - compute 16-bit checksum of all input files
+    # checksum.pl - compute 16-bit checksum of all input files
     my $checksum = 0;
     for =<> -> $line { 
          # XXX unpack not documented yet
@@ -87,7 +87,7 @@ A simple checksum script example: checksump.p6
 
 Usage:
 
-    $ checksum.p6 /etc/termcap
+    $ checksum.pl /etc/termcap
     1510
 
 Compare results with the common sum command.
@@ -97,7 +97,7 @@ Compare results with the common sum command.
 
 =head1 Example Script 2
 
-An on-screen line printer example: slowcat.p6
+An on-screen line printer example: slowcat.pl
 
 -- XXX following is bad code, for a start it'll do the wrong thing on some 
 inputs i don't really think it should be left this way, but i'm sticking to 

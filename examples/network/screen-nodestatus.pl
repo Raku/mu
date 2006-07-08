@@ -2,9 +2,9 @@
 # To "install" it, add the following lines to your ~/.screenrc:
 #   hardstatus alwayslastline        # Always display the status line
 #   hardstatus string "... [%40`]"   # The format of the status line
-#   backtick 40 0 0 /path/to/screen-nodestatus.p6 computer1:C:10 router:R:20
-#     # This runs screen-nodestatus.p6 with the args "computer1:C:10
-#       router:R:20", meaning that screen-nodestatus.p6 will ping(1)
+#   backtick 40 0 0 /path/to/screen-nodestatus.pl computer1:C:10 router:R:20
+#     # This runs screen-nodestatus.pl with the args "computer1:C:10
+#       router:R:20", meaning that screen-nodestatus.pl will ping(1)
 #       "computer1" every 10s and "router" every 20s. If the node was
 #       reachable, "C" respectively "R" will be displayed, else "c"
 #       respectively "r".
@@ -21,7 +21,7 @@
 # But as screen(1) will only ever display the last line, you have a nice view
 # on the status of your computers! :)
 # Note: You might need to change &ping (at the end of this file).
-# See a screenshot of screen-nodestatus.p6 in action at
+# See a screenshot of screen-nodestatus.pl in action at
 # http://m19s28.vlinux.de/iblech/screen-nodestatus.png (look at the bottom
 # right corner).
 

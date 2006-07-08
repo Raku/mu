@@ -5,13 +5,13 @@ outputs.
 
 Just for getting the idea:
 
-bytes.p6
+bytes.pl
 
     5.bytes                   == 5
     1.megabyte                == 1048576
     etc.
     
-time.p6
+time.pl
 
     1.second                  == 1
     2.seconds                 == 2
@@ -25,7 +25,7 @@ time.p6
     10.minutes.until(x)       == x-600
     10.minutes.since(x)       == x+600
     
-escape.p6
+escape.pl
 
     "1<2".escape(:lang<html>) == "1&lt;2"
     

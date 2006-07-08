@@ -3,8 +3,8 @@ use v6;
 my %words;
 
 sub load_db returns Void {
-    return() unless -e "words.db.p6";
-    my $db = open("words.db.p6") err die "Cannot open the words.db.p6 file: $!";
+    return() unless -e "words.db.pl";
+    my $db = open("words.db.pl") err die "Cannot open the words.db.pl file: $!";
     for (=$db) -> $_line {
         my $line = $_line;
         my ($key, $value) = split("\t", $line);
@@ -14,7 +14,7 @@ sub load_db returns Void {
 }
 
 sub save_db returns Void {
-    my $db = open("words.db.p6", :w) err die "Cannot open the words.db.p6 file: $!";
+    my $db = open("words.db.pl", :w) err die "Cannot open the words.db.pl file: $!";
     for (%words.kv) -> $key, $value {
         $db.say($key ~ "\t" ~ $value);
     }

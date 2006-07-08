@@ -54,7 +54,7 @@ while (any(@board) eq one(1..9) ) {
 
 =head1 NAME
 
-tic_tac_toe.p6 - Tic-Tac-Toe
+tic_tac_toe.pl - Tic-Tac-Toe
 
 =head1 DESCRIPTION
 

@@ -227,7 +227,7 @@ Subversion repository to IRC.
 
 =head1 SYNOPSIS
 
-  $ ./svnbot.p6 nick host[:port] interval repository show_branch sep_header
+  $ ./svnbot.pl nick host[:port] interval repository show_branch sep_header
 
 where
 
@@ -249,7 +249,7 @@ specifies whether a separate header line should be outputted (C<true>|C<false>).
 
 =head1 INSTALLATION
 
-There's no separate installation step needed, simply run C<svnbot.p6> and
+There's no separate installation step needed, simply run C<svnbot.pl> and
 supply appropriate options.
 
 =head1 FAQ
@@ -261,7 +261,7 @@ If you look at svnbot's source, you'll see that it really I<tries> to check the
 SVN repository after I<n> seconds elapsed. The problem is, that svnbot doesn't
 have a chance to check, because C<Net::IRC> is busy reading from the socket to
 the IRC server. Unfortunately, the call to C<.readline> C<Net::IRC> issues is
-I<blocking>, meaning that the operating system will suspend C<svnbot.p6> until
+I<blocking>, meaning that the operating system will suspend C<svnbot.pl> until
 it receives some data from the IRC server.
 
 In Perl 5, the problem would be easy to remedy, as perl5 allows you to set

@@ -1,6 +1,6 @@
 =head1 NAME
 
-nondet_sudoku.p6 - A non deterministic sudoku solver
+nondet_sudoku.pl - A non deterministic sudoku solver
 
 =head1 DESCRIPTION
 

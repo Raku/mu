@@ -1,4 +1,4 @@
-# $Id: lambda-calculus.p6,v 0.1 2005/09/05 12:16:18 dankogai Exp dankogai $
+# $Id: lambda-calculus.pl,v 0.1 2005/09/05 12:16:18 dankogai Exp dankogai $
 #
 # Please remember to update t/examples/examples.t and rename
 # examples/output/algorithms/lambda-calculus if you rename/move this file.

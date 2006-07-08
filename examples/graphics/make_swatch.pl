@@ -7,7 +7,7 @@ Outputs an SVG file.
 
 Example:
 
-  cat colors.txt | pugs make_swatch.p6 | display
+  cat colors.txt | pugs make_swatch.pl | display
 
 =cut
 

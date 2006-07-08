@@ -14,8 +14,8 @@ my $PUGS = 'pugs';
 
 sub usage {
     print
-"usage: $PUGS tsanta.p6
-   or: $PUGS tsanta.p6 pugscmd head.p6 tail.p6 rev.p6 mid.p6 wc.p6
+"usage: $PUGS tsanta.pl
+   or: $PUGS tsanta.pl pugscmd head.pl tail.pl rev.pl mid.pl wc.pl
 ";
     exit(1);
 }
@@ -194,11 +194,11 @@ sub check_wc (Str $scr) {
 
 # -----------------------------------------------------
 
-my $head = 'head.p6';
-my $tail = 'tail.p6';
-my $rev  = 'rev.p6';
-my $mid  = 'mid.p6';
-my $wc   = 'wc.p6';
+my $head = 'head.pl';
+my $tail = 'tail.pl';
+my $rev  = 'rev.pl';
+my $mid  = 'mid.pl';
+my $wc   = 'wc.pl';
 if @*ARGS {
     +@*ARGS == 6 or usage();
     $PUGS = @*ARGS.shift();

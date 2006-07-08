@@ -18,7 +18,7 @@ if ( @*ARGS[0] ) {
     $conf_fp = @*ARGS[0];
     $path = splitpath( $conf_fp )[1];
 } else {    
-    $conf_fp = "$path/conf.p6";
+    $conf_fp = "$path/conf.pl";
 }
 say ~$path if $dg;
 
@@ -29,10 +29,10 @@ say ~$path if $dg;
 
 my %conf = {
     index => [
-#       { src => './tut_src/hello-world.p6',    dest_dir => 'base',  },
-#       { src => './tut_src/hello-world-ad.p6', dest_dir => 'base',  },
+#       { src => './tut_src/hello-world.pl',    dest_dir => 'base',  },
+#       { src => './tut_src/hello-world-ad.pl', dest_dir => 'base',  },
 #       { src => './tut_src/',                  dest_dir => 'tut',   },
-      <hello-world.p6 hello-world-ad.p6>
+      <hello-world.pl hello-world-ad.pl>
     ],
     add_others=> 1,
 
@@ -44,7 +44,7 @@ my %conf = {
     each_line => 0,
 
     # temprorary files
-    temp_fp => './tut-temp.p6',      
+    temp_fp => './tut-temp.pl',      
     temp_out_fp => './tut-temp.out',
 
     # html
@@ -269,7 +269,7 @@ if %conf<add_others> {
         #next unless -f $each;
         #next if exists %index{$fn};
         
-        if ( ( $each ~~ rx:perl5{\.p6$} ) && ( -f catfile(%conf<f_tut_src_dir>, $each) ) && ( not %index{$each} ) ) {
+        if ( ( $each ~~ rx:perl5{\.pl$} ) && ( -f catfile(%conf<f_tut_src_dir>, $each) ) && ( not %index{$each} ) ) {
             push @prep_index, $each;
         }
     }

@@ -9,7 +9,7 @@ use strict;
 use BSD::Resource;
 
 my ($code, $tmpfile, $pugs) = @ENV{qw<EVALBOT_CODE EVALBOT_TMPFILE EVALBOT_PUGS>};
-die "This program should only be run from evalbot.p6.\n" unless
+die "This program should only be run from evalbot.pl.\n" unless
   defined $code and defined $tmpfile and defined $pugs;
 
 # 5s-7s CPU time, 100 MiB RAM, maximum of 500 bytes output.

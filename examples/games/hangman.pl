@@ -142,7 +142,7 @@ while ($letter = =$*IN) {
 
 =head1 NAME
 
-hangman.p6 - Hangman (with the Pugs AUTHORS list)
+hangman.pl - Hangman (with the Pugs AUTHORS list)
 
 =head1 DESCRIPTION
 

@@ -45,7 +45,7 @@ sub start_pugs {
         return;
     }
     else {
-        exec "./pugs examples/network/evalbot/evalbot.p6 " .
+        exec "./pugs examples/network/evalbot/evalbot.pl " .
              "'=$pipe' irc.freenode.net 900 " . join(' ', map { "'$_'" } @channels)
                 or exit;
     }
