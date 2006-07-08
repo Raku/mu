@@ -1,11 +1,18 @@
-
-abstract: ~
+abstract: Bind and alias variables
+author: Chia-liang Kao <clkao@clkao.org>
 distribution_type: module
-generated_by: Module::Install version 0.61
-license: unknown
+generated_by: Module::Install version 0.63
+license: perl
 name: Data-Bind
 no_index: 
   directory: 
     - inc
     - t
-version: undef
+requires: 
+  Class::Accessor::Fast: 0
+  Devel::Caller: 0.10
+  Devel::LexAlias: 0
+  PadWalker: 0
+  Test::Exception: 0
+  perl: 5.8.0
+version: 0.26
