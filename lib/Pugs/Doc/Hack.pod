@@ -52,8 +52,8 @@ The Pugs source tree includes several major sections:
     |-- perl5        Internal Perl 5 modules for Pugs (compiler backends)
     |-- script       pugscc, the Pugs Compiler Collection
     |-- src          Source code for Pugs itself
-    |-- t            Perl 6 test suite
-    |-- t_disabled   Temporarily disabled tests
+    |-- t            Perl 6 general test suite, for all implementations
+    |-- t_pugs       Tests specific to the Pugs implementation of Perl 6
     `-- util         Utilities for hacking and testing Pugs
 
 Expanding this one level deeper:
@@ -203,11 +203,13 @@ Expanding this one level deeper:
     |   |-- pge                Import of PGE (Parrot Grammer Engine) source
     |   `-- syck               Import of Syck source
     |
-    |-- t                  Pugs/Perl 6 test library
+    |-- t                  Perl 6 general test suite, for all implementations
     |   |-- 01-sanity          Sanity checks that testing can proceed
+    |   |-- Dialects           Perl 6 non-standard dialects
     |   |-- Synopsis           Pointers to online AES docs and tests
     |   |-- Test-Less          Test index for test-less utility
     |   |-- builtins           Builtin function tests
+    |   |-- bugs               Uncategorized tests for known broken behavior
     |   |-- data_types         Basic data type tests
     |   |-- examples           Make examples/ tree act as tests
     |   |-- general            Miscellaneous tests
@@ -217,23 +219,22 @@ Expanding this one level deeper:
     |   |-- oo                 Object Oriented programming tests
     |   |-- operators          Operator tests
     |   |-- packages           Tests for packages
-    |   |-- pugsbugs           Uncategorized tests for known broken behavior
-    |   |-- pugsrun            Tests for pugs (as opposed to Perl 6)
     |   |-- rules              Perl 6 rule and Perl 5 regex tests
     |   |-- statements         Statement-level construct tests
     |   |-- subroutines        Block/Code/Sub/etc. tests
     |   |-- syntax             Basic syntax tests
     |   |-- types              Tests for types
-    |   |-- unspecced          Tests for Pugs extensions to Perl 6
+    |   |-- unspecced          Tests for unspecced extensions to Perl 6
     |   `-- var                Variable declaration tests
     |
-    |-- t_disabled         Disabled tests
-    |   |-- Dialects           Perl 6 non-standard dialects
-    |   |-- builtins           Problems with system() and strings with spaces
-    |   `-- rules              Port of tests from CPAN module Perl6::Rules
+    |-- t_pugs             Tests specific to the Pugs implementation of Perl 6
+    |   `-- invocation         Tests for pugs command-line arguments
     |
     `-- util               Utilities for hacking and testing Pugs
         `-- livecd             Tool to create a minimalistic Pugs Live CD
+
+
+
 
 =head2 Subversion properties
 

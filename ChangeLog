@@ -21,6 +21,8 @@ the same places.
 * With any such 'use' lines that appeared below other code, moved upwards.
 * Renamed all Perl scripts from *.p6 to *.pl and from *.p5 to *-p5.pl;
 all references to them, except in talks, were likewise updated.
+* Merged t_disabled/ into t/, and split t_pugs/ from t/.
+* Did some rearranging/renaming in t/ so the tests scale better.
 
 == Feature Changes
 
