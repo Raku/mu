@@ -558,7 +558,9 @@ sub statement {
 	}
     }
 
-    if ( $n->{statement} eq 'for' ) {
+    if ( $n->{statement} eq 'for'   ||
+         $n->{statement} eq 'while' ||
+         $n->{statement} eq 'until' ) {
         #warn "for: ",Dumper $n;
         if ( exists $n->{exp2}{pointy_block} ) {
             return  " " . $n->{statement} . 
@@ -760,6 +762,10 @@ sub prefix {
          $n->{op1}{op} eq 'our' ) {
         #die "not implemented 'attribute'",Dumper $n
         #    if @{$n->{attribute}};
+        return $n->{op1}{op} . ' ' . _emit( $n->{exp1} );
+    }
+
+    if ( $n->{op1}{op} eq 'do' ) {
         return $n->{op1}{op} . ' ' . _emit( $n->{exp1} );
     }
 

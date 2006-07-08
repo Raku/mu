@@ -113,7 +113,7 @@ sub perl6_expression {
 
 
 *for = Pugs::Compiler::Regex->compile( q(
-    (for|while) : <?ws>? 
+    (for|while|until) : <?ws>? 
     $<exp1> := <perl6_expression('no_blocks',0)> <?ws>?
     $<exp2> := <block>        
         { return { 
@@ -422,7 +422,7 @@ sub perl6_expression {
     |
     <perl6_expression> 
         [
-            <?ws>? (if|unless|for) <?ws>?
+            <?ws>? (if|unless|for|while|until) <?ws>?
             $<exp1> := <perl6_expression> 
             { return {
                 statement => $_[0][0]->(),
