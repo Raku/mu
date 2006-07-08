@@ -52,7 +52,6 @@ showType (TypeAnd t1 t2) = showType t1 ++ "&" ++ showType t2
 
 type ClassTree = Tree Type
 
-
 data Cxt = CxtVoid         -- ^ Context that isn't expecting any values
          | CxtItem !Type   -- ^ Context expecting a value of the specified type
          | CxtSlurpy !Type -- ^ Context expecting multiple values of the

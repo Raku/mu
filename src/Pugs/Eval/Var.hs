@@ -208,16 +208,11 @@ findSub name' invs args = do
                 found'  <- liftIO $ if found
                     then return found
                     else canPerl5 sv "AUTOLOAD"
-                if not found' then evalExp (App (Var name) Nothing (map (Val . PerlSV) (sv:svs))) else do
-                env     <- ask
-                rv      <- guardIO $ do
-                    envSV   <- mkVal (VControl $ ControlEnv env)
-                    subSV   <- vstrToSV $ tail name
-                    invokePerl5 subSV sv svs envSV (enumCxt $ envContext env)
-                case rv of
-                    Right [x]   -> return $ PerlSV x
-                    Right xs    -> return $ VList (map PerlSV xs)
-                    Left err    -> throwError $ PerlSV err
+                if not found'
+                    then evalExp (App (Var name) Nothing (map (Val . PerlSV) (sv:svs)))
+                    else do
+                        subSV   <- liftIO . vstrToSV $ tail name
+                        runInvokePerl5 subSV sv svs
             }
     possiblyBuildMetaopVCode :: String -> Eval (Maybe VCode)
     possiblyBuildMetaopVCode op'' | "&prefix:[" `isPrefixOf` op'', "]" `isSuffixOf` op'' = do 

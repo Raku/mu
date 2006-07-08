@@ -309,7 +309,16 @@ perl5_SvTRUE ( SV * sv )
 {
     bool rv;
     rv = SvTRUE(sv);
-    return rv;
+    return(rv ? 1 : 0);
+}
+
+bool
+perl5_SvROK ( SV * sv )
+{
+    bool rv;
+    sv_dump(sv);
+    rv = SvROK(sv);
+    return(rv ? 1 : 0);
 }
 
 SV *
@@ -365,15 +374,28 @@ perl5_apply(SV *sub, SV *inv, SV** args, void *env, int cxt)
 
     SPAGAIN;
 
-    Newz(42, out, count+2, SV*);
-
-    /* The first slot is the errsv */
-    out[0] = (SvTRUE(ERRSV) ? ERRSV : NULL);
-
-    for (i=0; i<count; ++i) {
-        out[i+1] = newSVsv(POPs);
+    if (SvTRUE(ERRSV)) {
+        Newz(42, out, 3, SV*);
+        if (SvROK(ERRSV)) {
+            out[0] = newSVsv(ERRSV);
+            out[1] = NULL;
+        }
+        else {
+            out[0] = ERRSV;
+            out[1] = ERRSV; /* for Haskell-side to read PV */
+        }
+        out[2] = NULL;
     }
-    out[count+1] = NULL;
+    else {
+        Newz(42, out, count+2, SV*);
+
+        out[0] = NULL;
+
+        for (i=0; i<count; ++i) {
+            out[i+1] = newSVsv(POPs);
+        }
+        out[count+1] = NULL;
+    }
 
     PUTBACK;
     FREETMPS;

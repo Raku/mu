@@ -6,6 +6,8 @@ import Foreign.C.Types
 import Data.Typeable
 
 type PerlInterpreter = ()
+data InvokePerl5Result = MkInvokePerl5Result -- phantom type
+    deriving (Show, Eq, Ord, Typeable)
 data PerlSV = MkPerlSV -- phantom type
     deriving (Show, Eq, Ord, Typeable)
 type PugsVal = PerlSV
@@ -52,7 +54,7 @@ vintToSV = constFail
 vnumToSV :: (Real a) => a -> IO PerlSV
 vnumToSV = constFail
 
-invokePerl5 :: PerlSV -> PerlSV -> [PerlSV] -> PerlSV -> CInt -> IO [PerlSV]
+invokePerl5 :: PerlSV -> PerlSV -> [PerlSV] -> PugsVal -> CInt -> IO InvokePerl5Result
 invokePerl5 _ _ _ _ = constFail
 
 canPerl5 :: PerlSV -> String -> IO Bool
@@ -63,6 +65,9 @@ nullSV = error "perl5 not embedded"
 
 mkSV :: IO PerlSV -> IO PerlSV
 mkSV = id
+
+perl5_SvROK :: IO PerlSV -> IO Bool
+perl5_SvROK _ = False
 
 #else
 #undef RETURN
@@ -103,6 +108,8 @@ foreign import ccall "../../perl5/p5embed.h perl5_SvNV"
     perl5_SvNV :: PerlSV -> IO CDouble
 foreign import ccall "../../perl5/p5embed.h perl5_SvTRUE"
     perl5_SvTRUE :: PerlSV -> IO Bool
+foreign import ccall "../../perl5/p5embed.h perl5_SvROK"
+    perl5_SvROK :: PerlSV -> IO Bool
 foreign import ccall "../../perl5/p5embed.h perl5_newSVpv"
     perl5_newSVpv :: CString -> IO PerlSV
 foreign import ccall "../../perl5/p5embed.h perl5_newSViv"
@@ -175,19 +182,26 @@ vintToSV int = perl5_newSViv (fromIntegral int)
 vnumToSV :: (Real a) => a -> IO PerlSV
 vnumToSV int = perl5_newSVnv (realToFrac int)
 
-invokePerl5 :: PerlSV -> PerlSV -> [PerlSV] -> PugsVal -> CInt -> IO (Either PerlSV [PerlSV])
+data InvokePerl5Result
+    = Perl5ReturnValues [PerlSV]
+    | Perl5ErrorString String
+    | Perl5ErrorObject PerlSV
+
+invokePerl5 :: PerlSV -> PerlSV -> [PerlSV] -> PugsVal -> CInt -> IO InvokePerl5Result
 invokePerl5 sub inv args env cxt = do
     withArray0 nullPtr args $ \argv -> do
         rv  <- perl5_apply sub inv argv env cxt
         svs <- peekArray0 nullPtr rv
 
         -- If it's empty, no error occured (see p5embed.c on out[0]).
-        -- Otherwise, the first slot is the error.
+        -- Otherwise, the second slot may be a stringified version we should use.
         case svs of
-            []      -> fmap Right (peekArray0 nullPtr (rv `advancePtr` 1))
-            (err:_) -> return $ Left err
+            []      -> fmap Perl5ReturnValues (peekArray0 nullPtr (rv `advancePtr` 1))
+            [err]   -> return $ Perl5ErrorObject err
+            (_:x:_) -> do
+                str <- svToVStr x
+                return $ Perl5ErrorString str
             
-
 canPerl5 :: PerlSV -> String -> IO Bool
 canPerl5 sv meth = withCString meth $ \cstr -> perl5_can sv cstr
 

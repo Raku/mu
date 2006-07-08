@@ -69,7 +69,7 @@ module Pugs.AST.Internals (
     extractPlaceholderVars, fromObject, createObject, createObjectRaw,
     doPair, doHash, doArray,
     unwrap, -- Unwrap(..) -- not used in this file, suitable for factoring out
-    newObjectId,
+    newObjectId, runInvokePerl5,
     
     expToEvalVal, -- Hack, should be removed once it's figured out how
 ) where
@@ -370,18 +370,23 @@ instance Value VCode where
         , subReturns  = mkType "Scalar::Perl5"
         , subBody     = Prim $ \(args:_) -> do
             svs     <- fromVals args
-            env     <- ask
-            rv      <- guardIO $ do
-                envSV   <- mkVal (VControl $ ControlEnv env)
-                invokePerl5 sv nullSV svs envSV (enumCxt $ envContext env)
-            case rv of
-                Right [x]   -> return $ PerlSV x
-                Right xs    -> return $ VList (map PerlSV xs)
-                Left err    -> throwError $ PerlSV err
+            runInvokePerl5 sv nullSV svs
         }
     doCast (VCode b) = return b
     doCast (VList [VCode b]) = return b -- XXX Wrong
     doCast v = castFailM v "VCode"
+
+runInvokePerl5 :: PerlSV -> PerlSV -> [PerlSV] -> Eval Val
+runInvokePerl5 sub inv args = do 
+    env     <- ask
+    rv      <- liftIO $ do
+        envSV   <- mkVal (VControl $ ControlEnv env)
+        invokePerl5 sub inv args envSV (enumCxt $ envContext env)
+    case rv of
+        Perl5ReturnValues [x]   -> return $ PerlSV x
+        Perl5ReturnValues xs    -> return $ VList (map PerlSV xs)
+        Perl5ErrorString str    -> fail str
+        Perl5ErrorObject err    -> throwError (PerlSV err)
 
 instance Value VBool where
     castV = VBool
@@ -689,7 +694,7 @@ data Val
     | VNum      !VNum        -- ^ Number (i.e. a double)
     | VComplex  !VComplex    -- ^ Complex number value
     | VStr      !VStr        -- ^ String value
-    | VList     !VList       -- ^ List value
+    | VList     VList        -- ^ List value
     | VType     !VType       -- ^ Type value (e.g. @Int@ or @Type@)
     | VJunc     !VJunc       -- ^ Junction value
     | VError    !Val ![Pos]  -- ^ Error
@@ -1411,7 +1416,7 @@ Like @guardIO@, perform an IO action and raise an exception if it fails.
 If t
 supress the exception and return an associated value instead.
 -}
-guardIOexcept :: [((IOError -> Bool), a)] -> IO a -> Eval a
+guardIOexcept :: MonadIO m => [((IOError -> Bool), a)] -> IO a -> m a
 guardIOexcept safetyNet io = do
     rv <- liftIO $ try io
     case rv of
