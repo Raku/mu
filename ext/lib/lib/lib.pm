@@ -1,5 +1,5 @@
 module lib-0.0.1;
-use v6;
+use v6-alpha;
 
 our @ORIG_INC = @*INC;  # take a copy of the original
 

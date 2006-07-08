@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 say "*** Fetching from the Jerk It (tm) RSS feed...";
 

@@ -1,5 +1,5 @@
 
-use v6;
+use v6-alpha;
 module Pod::Event::Handler::POD-0.0.1;
 
 multi sub pod2pod (Str $buffer is rw) returns Hash is export {
@@ -118,7 +118,7 @@ Pod::Event::Handler::POD - A collection of POD event handlers for Pod::Event::Pa
 
 =head1 SYNOPSIS
 
-  use v6;
+  use v6-alpha;
   use Pod::Event::Parser;
   use Pod::Event::Handler::POD;
   

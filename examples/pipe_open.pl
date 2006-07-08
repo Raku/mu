@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 my $pugs = (($*OS ~~ any <MSWin32 cygwin msys>) ?? "pugs.exe" !! "./pugs");
 #say "using $pugs";

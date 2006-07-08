@@ -1,6 +1,6 @@
 # Animal guessing game, based on http://www.perlmonks.org/?node_id=10368
 
-use v6;
+use v6-alpha;
 
 sub try(Any $this) {
   if ($this ~~ Hash) {

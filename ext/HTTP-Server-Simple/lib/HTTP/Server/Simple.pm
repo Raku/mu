@@ -1,6 +1,6 @@
 module HTTP::Server::Simple-6.00;
 
-use v6;
+use v6-alpha;
 
 has Int $.port;
 has IO  $.socket;

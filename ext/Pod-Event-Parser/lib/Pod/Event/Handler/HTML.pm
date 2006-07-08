@@ -1,5 +1,5 @@
 
-use v6;
+use v6-alpha;
 module Pod::Event::Handler::HTML-0.0.1;
 
 multi sub pod2html (Str $buffer is rw) returns Hash is export {
@@ -192,7 +192,7 @@ Pod::Event::Handler::HTML - A collection of HTML event handlers for Pod::Event::
 
 =head1 SYNOPSIS
 
-  use v6;
+  use v6-alpha;
   use Pod::Event::Parser;
   use Pod::Event::Handler::HTML;
   

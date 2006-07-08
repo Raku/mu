@@ -1,6 +1,6 @@
 module Text::Glob-6.0.0;
 
-use v6;
+use v6-alpha;
 
 has Int $.debug;
 has Int $.strict_leading_dot;

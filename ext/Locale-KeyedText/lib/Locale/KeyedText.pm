@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 # External packages used by packages in this file, that don't export symbols:
 # (None Yet)

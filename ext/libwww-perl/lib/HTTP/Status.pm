@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 module HTTP::Status-0.0.1 {
     my %StatusCode = (

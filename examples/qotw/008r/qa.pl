@@ -1,7 +1,7 @@
 # Regular QOTW #8
 # http://perl.plover.com/qotw/r/solution/008
 
-use v6;
+use v6-alpha;
 
 my $SEG_LENGTH = 4;
 

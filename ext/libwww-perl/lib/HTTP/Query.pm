@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 use URI::Escape <uri_unescape>;
 

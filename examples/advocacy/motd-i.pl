@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 unshift @*INC, 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec/lib';
 

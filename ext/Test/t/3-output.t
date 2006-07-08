@@ -1,7 +1,7 @@
 # this test tests that the output (text output and return code) of
 # test scripts are correct.
 
-use v6;
+use v6-alpha;
 use Test;
 
 plan 1;

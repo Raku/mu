@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 =head1 NAME
 
@@ -70,7 +70,7 @@ Add all the unicode character values together
 
 A simple checksum script example: checksump.pl
 
-    use v6;
+    use v6-alpha;
     
     # checksum.pl - compute 16-bit checksum of all input files
     my $checksum = 0;
@@ -99,7 +99,7 @@ An on-screen line printer example: slowcat.pl
 inputs i don't really think it should be left this way, but i'm sticking to 
 the original examples for the moment --gcomnz
 
-    use v6;
+    use v6-alpha;
     
     # emulate a   s l o w   line printer
     # usage: slowcat [-DELAY] [files ...]

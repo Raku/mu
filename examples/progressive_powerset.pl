@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 sub iter_powerset ( *@factor ) returns Ref {
     my $end = @factor.elems - 1;

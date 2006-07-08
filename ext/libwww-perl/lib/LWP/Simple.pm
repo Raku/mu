@@ -1,5 +1,5 @@
 module LWP::Simple-0.0.1;
-use v6;
+use v6-alpha;
 
 # use vars qw($ua %loop_check $FULL_LWP @EXPORT @EXPORT_OK $VERSION);
 # .. we won't need these

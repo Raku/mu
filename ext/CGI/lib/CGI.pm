@@ -1,5 +1,5 @@
 module CGI-0.0.1;
-use v6;
+use v6-alpha;
 
 ## set up all the globals (which will eventually be object attributes)
 
@@ -314,7 +314,7 @@ CGI - A module for programming CGI
 
 =head1 SYNOPSIS
 
-    use v6;
+    use v6-alpha;
     require CGI-0.0.1;
     
     print header;

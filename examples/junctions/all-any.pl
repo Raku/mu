@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 # Please remember to update t/examples/examples.t and rename
 # examples/output/junctions/all-any if you rename/move this file.

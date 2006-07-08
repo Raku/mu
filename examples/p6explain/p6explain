@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 use File::Spec;
 
 my $dat = splitpath($*PROGRAM_NAME)[1] ~ "/p6explain.dat";

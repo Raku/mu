@@ -4,7 +4,7 @@
 # Please remember to update t/examples/examples.t and rename
 # examples/output/cashiers if you rename/move this file.
 
-use v6;
+use v6-alpha;
 
 sub gen_cashier () {
     # This variable corresponds to a class variable.

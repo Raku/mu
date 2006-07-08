@@ -1,5 +1,5 @@
 module CGI::Server-0.0.1;
-use v6;
+use v6-alpha;
 
 sub server_name     returns Str is export { %*ENV<SERVER_NAME>     || 'localhost' }
 sub server_software returns Str is export { %*ENV<SERVER_SOFTWARE> || 'cmdline'   }
@@ -14,7 +14,7 @@ CGI::Server - A CGI module to getting information about the server
 
 =head1 SYNOPSIS
 
-    use v6;
+    use v6-alpha;
     require CGI-0.0.1;
     require CGI::Server-0.0.1;
     

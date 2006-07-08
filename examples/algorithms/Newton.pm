@@ -1,6 +1,6 @@
 package Newton;
 
-use v6;
+use v6-alpha;
 
 sub update_guess(Num $guess is rw, Num $target, Code $f, Code $fprime) {
     $guess += ($target - $f($guess)) / $fprime($guess);
@@ -41,7 +41,7 @@ Newton - performs one dimensional Newton's method
 
 =head1 SYNOPSIS
 
-    use v6;
+    use v6-alpha;
 
     use Newton;
 

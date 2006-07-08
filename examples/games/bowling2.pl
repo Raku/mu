@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 print "How many bowlers are on your team?";
 my $bowlers = =$*IN;

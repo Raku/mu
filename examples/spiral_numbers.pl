@@ -1,5 +1,5 @@
 # as seen on perl monks: http://www.perlmonks.org/?node_id=488867
-use v6;
+use v6-alpha;
 
 # The width of our square
 # ($ARGV[0] or 5 if no arguments given):

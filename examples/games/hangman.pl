@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 ## declare global variables (globals RULE dude!)
 

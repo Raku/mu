@@ -1,7 +1,7 @@
 # Expert QOTW #7
 # http://perl.plover.com/qotw/e/solution/007
 
-use v6;
+use v6-alpha;
 
 my $EMPTY = ' ';
 my $VAPOR = '.';

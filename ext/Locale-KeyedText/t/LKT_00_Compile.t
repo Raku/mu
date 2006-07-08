@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 use lib <t/lib ext/Locale-KeyedText/t/lib>;
 

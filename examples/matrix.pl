@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 print "5x5 matrix in one line: " unless @*ARGS;
 my $matrix = @*ARGS[0] || =<>;

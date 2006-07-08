@@ -2,8 +2,6 @@ use v6-alpha;
 
 module Dummy;
 
-use v6;
-
 
 
 sub load_test () is export {

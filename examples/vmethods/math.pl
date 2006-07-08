@@ -2,7 +2,7 @@
 # file so its output will change.
 #
 
-use v6;
+use v6-alpha;
 
 multi sub is_even (Int $value) {
     $value % 2 == 1;

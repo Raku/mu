@@ -1,5 +1,5 @@
 module CGI::Remote-0.0.1;
-use v6;
+use v6-alpha;
 
 sub remote_host     returns Str is export { %*ENV<REMOTE_HOST> || %*ENV<REMOTE_ADDR> || 'localhost' }
 sub remote_address  returns Str is export { %*ENV<REMOTE_ADDR> || '127.0.0.1' }
@@ -15,7 +15,7 @@ CGI::Remote - A CGI module to getting information about the remote user
 
 =head1 SYNOPSIS
 
-    use v6;
+    use v6-alpha;
     require CGI-0.0.1;
     require CGI::Remote-0.0.1;
     

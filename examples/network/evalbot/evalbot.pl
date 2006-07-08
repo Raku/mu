@@ -1,6 +1,6 @@
 # Modules
 BEGIN { print $*ERR: "evalbot6 started. Loading " }
-use v6;
+use v6-alpha;
 BEGIN { print $*ERR: "Net::IRC... " }
 use Net::IRC;
 BEGIN { print $*ERR: "File::Spec... " }

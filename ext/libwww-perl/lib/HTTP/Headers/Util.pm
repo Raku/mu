@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 module HTTP::Headers::Util-0.2;
 

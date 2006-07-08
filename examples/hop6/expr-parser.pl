@@ -1,6 +1,6 @@
 ## Chapter 8 section 4
 
-use v6;
+use v6-alpha;
 
 use Parser;# :all;
 use Lexer;# :all;

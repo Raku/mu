@@ -313,7 +313,7 @@ Test - Test support module for perl6
 
 = SYNOPSIS
 
-  use v6;
+  use v6-alpha;
   require Test;
 
   plan 10;

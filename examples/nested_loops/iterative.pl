@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 ############################################################
 # Iterative solution by Limbic~Region (Joshua Gatcomb)     #

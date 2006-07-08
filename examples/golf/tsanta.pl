@@ -2,7 +2,7 @@
 # This is a simple translation of p5 tsanta.pl to p6.
 # See comments in tsanta.pl for more information.
 
-use v6;
+use v6-alpha;
 
 sub nonce () { return (".$*PID." ~ int rand 1000) }
 my $intmp  = 'insanta'  ~ nonce();

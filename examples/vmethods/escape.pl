@@ -1,7 +1,7 @@
 # Please remember to update examples/output/vmethods/escape if you change this
 # file so its output will change.
 
-use v6;
+use v6-alpha;
 
 multi sub escape (Str $source is copy, Str $lang) {
   given $lang {

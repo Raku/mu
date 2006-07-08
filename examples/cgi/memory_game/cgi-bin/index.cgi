@@ -5,7 +5,7 @@
 #  !!WARNING!!  UGLY, NON-COMMENTED  !!WARNING!!
 # -----------------------------------------------
 
-use v6;
+use v6-alpha;
 require CGI-0.0.1; set_url_encoding('utf-8');
 require 'General.pl';
 require 'Cookie.pl';

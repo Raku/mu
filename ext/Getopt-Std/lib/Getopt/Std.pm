@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 class Getopt::Std-0.0.1;
 

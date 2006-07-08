@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 # See http://perlmonks.org/?node_id=440531 and 441347 for details
 # Produces an infinite streams of merged primes that is evaluated lazily

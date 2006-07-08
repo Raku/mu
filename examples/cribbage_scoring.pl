@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 # Brute force proof that every cribbage hand with a 5 is >= 2 points
 # See http://perlmonks.org/index.pl?node_id=458728 for details

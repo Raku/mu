@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 use Span;
 # Set::Symbols is defined in the Recurrence.pm package

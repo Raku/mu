@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 # naive version of perldoc implemented in and for perl6
 

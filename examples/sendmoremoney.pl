@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 my $timer;
 sub start_timer() {

@@ -1,6 +1,6 @@
 # translated from CPAN module Getopt::Long 2.34
 # http://search.cpan.org/src/JV/Getopt-Long-2.34/t/gol-basic.t
-use v6;
+use v6-alpha;
 use Test;
 plan 9;
 

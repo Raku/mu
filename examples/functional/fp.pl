@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 # This test demonstrates the use of perl 6 multi-subs to 
 # mimic the pattern matching style of functional programming

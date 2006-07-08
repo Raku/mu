@@ -3,7 +3,7 @@
 # Please remember to update t/examples/examples.t and rename
 # examples/output/algorithms/lambda-calculus if you rename/move this file.
 
-use v6;
+use v6-alpha;
 
 =for reference
 

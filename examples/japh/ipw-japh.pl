@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 # this JAPH was written for the t-shirt of the Second Italian Perl Workshop
 # author: dakkar (with help from autrijus)
 

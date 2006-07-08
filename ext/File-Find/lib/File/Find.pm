@@ -1,6 +1,6 @@
 module File::Find-6.0.0;
 
-use v6;
+use v6-alpha;
 use File::Spec;
 
 has Int   $.debug;

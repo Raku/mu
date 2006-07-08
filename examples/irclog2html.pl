@@ -1,7 +1,7 @@
 # This is a simple IRC log to HTML converter.
 # It accepts only logfiles in ilogger2 format, such as those provided by
 # http://colabti.de/irclogger/irclogger_logs/perl6 (click on "raw text").
-use v6;
+use v6-alpha;
 
 # This is our class which calculates the colors of the nicks.
 class Chat {

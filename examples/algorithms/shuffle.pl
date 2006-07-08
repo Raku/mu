@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 sub fisher_yates_shuffle (@copy is copy) returns Array {
    for  0..@copy-1  -> $i {

@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 my $port = @*ARGS[0] // 8080;
 my $sock = listen($port);

@@ -10,7 +10,7 @@ module Net::IRC::OO-0.05;
 # Note that this is *not* a port of Perl 5's Net::IRC.
 # See the POD of this document for more documentation.
 
-use v6;
+use v6-alpha;
 use Algorithm::TokenBucket;
 use Set;
 

@@ -1,5 +1,5 @@
 
-use v6;
+use v6-alpha;
 
 class Tree::Visitor-0.0.1;
 

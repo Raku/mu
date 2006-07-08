@@ -1,5 +1,5 @@
 module Config::Tiny-0.01;
-use v6;
+use v6-alpha;
 
 # Config::Tiny has already been ported to Perl6 at
 # http://tpe.freepan.org/repos/adamk/Config-Tiny/lib/Config/Tiny.pm

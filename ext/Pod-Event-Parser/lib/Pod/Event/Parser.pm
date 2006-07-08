@@ -1,5 +1,5 @@
 
-use v6;
+use v6-alpha;
 module Pod::Event::Parser-0.0.2;
 
 my @EVENTS = (
@@ -154,7 +154,7 @@ Pod::Event::Parser - A simple event based POD parser
 
 =head1 SYNOPSIS
 
-  use v6;
+  use v6-alpha;
   use Pod::Event::Parser;
   
   parse("path/to/file.pod", %event_handlers);

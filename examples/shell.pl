@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 # A simple shell written in Perl6
 

@@ -25,7 +25,7 @@
 # http://m19s28.vlinux.de/iblech/screen-nodestatus.png (look at the bottom
 # right corner).
 
-use v6;
+use v6-alpha;
 
 # Mapping hostname => status letter.
 my %letter;

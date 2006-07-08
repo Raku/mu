@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 #XXX just so that File:;Spec can be used w/o being installed
 unshift @*INC, 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec/lib';

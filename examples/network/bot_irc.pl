@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 # version 0.1, michael scherer, misc@zarb.org
 # some additions by:

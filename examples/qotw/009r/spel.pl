@@ -6,7 +6,7 @@
 # ".spel". So, for instance, a filename of "dominus.spel" is considered
 # a ".spel file"
 
-use v6;
+use v6-alpha;
 
 my @speldirs = split /\:+/, %*ENV<SPELWORDS> || "%*ENV<HOME>:.";
 my @spelfiles;

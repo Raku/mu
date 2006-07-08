@@ -11,7 +11,7 @@ Example:
 
 =cut
 
-use v6;
+use v6-alpha;
 
 my $columns = 3; # how many color squares across
 my $rows = 5;    # how many color squares down

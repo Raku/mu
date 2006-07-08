@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 =head1 Making Perl Report Filenames in Error Messages
 

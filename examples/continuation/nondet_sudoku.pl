@@ -24,7 +24,7 @@ See http://www.perl.com/perl/misc/Artistic.html
 
 =cut
 
-use v6;
+use v6-alpha;
 
 sub callcc (Code &block) { &block(&?CALLER_CONTINUATION) }
 

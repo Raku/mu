@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 # Todo list:
 # - There must be a cleaner way of presenting .perl without a leading \.

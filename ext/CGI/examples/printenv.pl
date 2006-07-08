@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 require CGI-0.0.1;
 
 print header();

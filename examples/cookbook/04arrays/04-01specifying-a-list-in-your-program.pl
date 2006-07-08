@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 =head1 Specifying a list in your program
 

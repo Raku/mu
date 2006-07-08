@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 # XXX LWP::Debug to debug things :-)
 #use LWP::Debug;

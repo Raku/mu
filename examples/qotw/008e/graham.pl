@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 # This function multiplies the squaring factors of $n and $m to receive
 # the squaring factors of ($n*$m)

@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 use Set::Symbols;  # unicode operators
 use Span;          # stringify()

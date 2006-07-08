@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 # based loosely on http://www.perlmonks.org/?node_id=199499 
 # domm@zsi.at
 
