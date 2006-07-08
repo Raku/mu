@@ -272,6 +272,14 @@ sub _emit_parameter_capture {
     return '['.join(',', @positional).'], {'.join(',', @named).'}';
 }
 
+sub _emit_closure {
+    my ($signature, $block) = @_;
+    return " Data::Bind->sub_signature( sub {" .
+	_emit_parameter_binding( $signature ) .
+	_emit( $block ) .
+    "\n }, "._emit_parameter_signature( $signature ).")\n";
+}
+
 sub default {
     my $n = $_[0];
     #warn "emit: ", Dumper( $n );
@@ -295,6 +303,10 @@ sub default {
 
     if ( $n->{op1} eq 'call' ) {
         # warn "call: ",Dumper $n;
+
+	if ($n->{sub}{scalar}) {
+            return _emit($n->{sub}). '->(' . _emit_parameter_capture( $n->{param} ) . ')';
+	}
 
         if ( $n->{sub}{bareword} eq 'grammar'  ||
              $n->{sub}{bareword} eq 'class'    ||
@@ -358,6 +370,11 @@ sub default {
             return "use " . _emit( $n->{param}{sub} ) .
                    (exists $n->{param}{param} ? _emit($n->{param}{param}) : '' );
         }
+
+	if ($n->{sub}{bareword} eq 'sub') {
+	    # defining anonymous sub.  XXX: this shouldn't be here. fix the parser.
+	    return _emit_closure($n->{signature}, $n->{param}{bare_block});
+	}
 
         return " " . $n->{sub}{bareword} . " '', " . _emit( $n->{param} ) 
             if $n->{sub}{bareword} eq 'print' ||
@@ -515,7 +532,8 @@ sub statement {
             }
         }
 
-        return  $export .
+	if (length $name) {
+	    return  $export .
                 " sub " . $name . 
                 " {\n" .
                     (
@@ -529,6 +547,10 @@ sub statement {
                 "## Signature for $name\n" .
                 " Data::Bind->sub_signature\n".
                 " (\\&$name, ". _emit_parameter_signature ( $n->{signature} ) . ");\n";
+	}
+	else {
+	    return _emit_closure($n->{signature}, $n->{block});
+	}
     }
 
     if ( $n->{statement} eq 'for' ) {
