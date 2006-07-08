@@ -434,9 +434,7 @@ reduceSyn "for" [list, body] = do
     av    <- enterLValue $ enterEvalContext cxtSlurpyAny list
     vsub  <- enterRValue $ enterEvalContext (cxtItem "Code") body
     -- XXX this is wrong -- should use Array.next
-    sz    <- join $ doArray av array_fetchSize
-    fetch <- doArray av array_fetchElem
-    elms  <- mapM fetch [0..sz-1]
+    elms  <- join $ doArray av array_fetchElemAll
     sub' <- fromVal vsub
     sub  <- case sub' of
         VCode s -> return s

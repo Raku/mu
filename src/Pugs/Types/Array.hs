@@ -17,6 +17,10 @@ class (Typeable a) => ArrayClass a where
     array_fetchKeys av = do
         svList <- array_fetch av
         return $ zipWith const [0..] svList
+    array_fetchElemAll :: a -> Eval [IVar VScalar]
+    array_fetchElemAll av = do
+        size <- array_fetchSize av
+        mapM (array_fetchElem av) [0..size-1]
     array_fetchElem   :: a -> ArrayIndex -> Eval (IVar VScalar) -- autovivify
     array_fetchElem av idx = do
         return $ proxyScalar (array_fetchVal av idx) (array_storeVal av idx)
@@ -236,11 +240,13 @@ instance ArrayClass VArray where
     array_fetch = return
     array_fetchSize = return . length
     array_fetchVal av idx = getIndex idx (Just undef) (return av) Nothing
+    array_fetchElemAll av = return $ map constScalar av
     array_fetchElem av idx = do
         val <- array_fetchVal av idx
         return $ constScalar val
     array_storeVal _ _ _ = retConstError undef
     array_storeElem _ _ _ = retConstError undef
+    array_existsElem av idx = return . not . null $ drop idx av
 
 instance ArrayClass (IVar VPair) where
     array_iType = const $ mkType "Pair"
@@ -260,15 +266,10 @@ instance ArrayClass (IVar VPair) where
 
 perl5EvalApply :: String -> [PerlSV] -> Eval Val
 perl5EvalApply code args = do
-    env <- ask
-    rv  <- liftIO $ do
-        envSV <- mkVal env
-        subSV <- evalPerl5 code envSV (enumCxt cxtItemAny)
-        invokePerl5 subSV nullSV args envSV (enumCxt cxtItemAny)
-    case rv of
-        Right [x]   -> return $ PerlSV x
-        Right xs    -> return $ VList (map PerlSV xs)
-        Left err    -> throwError $ PerlSV err
+    env     <- ask
+    envSV   <- mkVal env
+    subSV   <- evalPerl5 code envSV (enumCxt cxtItemAny)
+    runInvokePerl5 subSV nullSV args
 
 instance ArrayClass PerlSV where
     array_iType = const $ mkType "Array::Perl"
