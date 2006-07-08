@@ -1,6 +1,10 @@
 use v6-alpha;
 use Test;
 
+plan 1;
+skip_rest "This file was in t_disabled/.  Remove this SKIP of it now works.";
+exit;
+
 # Avoiding accidental multiple execution 
 # as occurs in C's defines and lisp macros
 # This can also ensure a correct order of evaluation

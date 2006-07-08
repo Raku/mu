@@ -5,6 +5,9 @@ exit;
 
 plan 16;
 
+skip_rest "This file was in t_disabled/.  Remove this SKIP of it now works.";
+exit;
+
 #todo_fail("FIXME parsefail");
 say "1 not ok - FIXME parsefail # TODO";
 

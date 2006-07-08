@@ -5,6 +5,9 @@ exit;
 
 plan 1;
 
+skip_rest "This file was in t_disabled/.  Remove this SKIP of it now works.";
+exit;
+
 my $foo = 2;
 eval '
     for $foo <-> $bar {

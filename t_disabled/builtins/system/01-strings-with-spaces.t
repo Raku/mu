@@ -5,6 +5,9 @@ use Test;
 
 plan 1+322;
 
+skip_rest "This file was in t_disabled/.  Remove this SKIP of it now works.";
+exit;
+
 if ($?OS ne 'MSWin32') {
    skip_rest;
    exit;

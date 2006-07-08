@@ -13,6 +13,9 @@ be valid perl6.
 
 plan 2349;
 
+skip_rest "This file was in t_disabled/.  Remove this SKIP of it now works.";
+exit;
+
 if(!eval('("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
