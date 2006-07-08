@@ -1,5 +1,5 @@
 
-use v6;
+use v6-alpha;
 
 # this is a super-class for Arrays, Hashes, Sets and other collections
 # like Bags, ordered hashes and so on.

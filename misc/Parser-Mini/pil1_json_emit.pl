@@ -1,7 +1,7 @@
 # PIL2-JSON simple tokenizer, parser, and code emitter
 # ../../pugs -CPIL2-JSON -e ' say "hello" ' | ../../pugs pil2_json_emit.pl
 
-use v6;
+use v6-alpha;
 
 # tokenizer
 

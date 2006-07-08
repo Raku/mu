@@ -1,28 +1,3 @@
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/Relation.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/D.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/Rosetta.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/HTTP/Status.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/HTTP/Date.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/HTTP/Request.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/HTTP/Query.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/HTTP/Cookies.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/HTTP/Response.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/HTTP/Request/CGI.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/Locale/KeyedText.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/Locale/KeyedText/L/en.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/Relation/Example.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/Rosetta/Model.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/Rosetta/Shell.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/Rosetta/Validator.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/Rosetta/Engine/Example.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/Rosetta/Engine/Example/L/en.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/Rosetta/Model/L/en.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/Rosetta/Validator/L/en.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/Rosetta/Shell/L/en.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/Rosetta/L/en.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/Test/Pil.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/Test/PIL/Bootstrap.pm #!/usr/bin/pugs
-pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/URI/Escape.pm #!/usr/bin/pugs
 pugs-modules: script-not-executable ./usr/share/perl6/5.8/auto/pugs/perl5/lib/jspugs.pl
 pugs-modules: script-not-executable ./usr/share/perl6/5.8/auto/pugs/perl5/lib/pil2js.pl
 pugs-modules: script-not-executable ./usr/share/perl6/5.8/auto/pugs/perl5/lib/pugs-smokejs.pl

@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 our Int multi Num::round_half_up_symmetric ( Num $x ) {
     my $x_round;

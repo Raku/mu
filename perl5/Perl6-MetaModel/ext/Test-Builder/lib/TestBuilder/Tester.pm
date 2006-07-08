@@ -11,7 +11,7 @@ __END__
 
 module Test::Builder::Tester-0.2.1;
 
-use v6;
+use v6-alpha;
 
 use Test::Builder;
 use Test::Builder::Output;

@@ -7,7 +7,7 @@ by fglock
     ../../pugs pil2_json_emit_p6.pl
 
   #! /usr/bin/pugs
-  use v6;
+  use v6-alpha;
   &*END () {  }
   (&say("hello"));
 
@@ -24,13 +24,13 @@ really forbidden in p6:
 
 =cut
 
-use v6;
+use v6-alpha;
 
 # -- Language specific
 
 sub emit_Main ( $global, $main ) {
     "#! /usr/bin/pugs\n" ~
-    "use v6;\n" ~
+    "use v6-alpha;\n" ~
     $global ~ $main
 }
 sub emit_Stmt ( $s ) { $s ~ '; ' }

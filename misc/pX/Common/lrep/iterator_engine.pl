@@ -9,7 +9,7 @@
 #use warnings;
 #use Smart::Comments; for debugging, look also at Filtered-Comments.pm
 
-use v6;
+use v6-alpha;
 
 =pod
 

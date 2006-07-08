@@ -1,6 +1,6 @@
 # pX/Common/p6rule.t - fglock
 
-use v6;
+use v6-alpha;
 use Pugs::Runtime::Rule;
 #use strict;
 #use warnings;

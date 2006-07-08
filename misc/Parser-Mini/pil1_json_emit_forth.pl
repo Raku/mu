@@ -13,7 +13,7 @@ by fglock
 
 =cut
 
-use v6;
+use v6-alpha;
 
 # -- Language specific
 

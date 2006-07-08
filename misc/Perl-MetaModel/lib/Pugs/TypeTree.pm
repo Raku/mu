@@ -2,7 +2,7 @@
 # NOTE:
 # this tree was taken from src/Pugs/Context.hs (~ line 89)
 
-use v6;
+use v6-alpha;
 
 class Perl::TypeTree-0.0.1;
 

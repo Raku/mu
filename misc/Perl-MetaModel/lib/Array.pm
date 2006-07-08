@@ -1,5 +1,5 @@
 
-use v6;
+use v6-alpha;
 
 role Array--Perl6;
 

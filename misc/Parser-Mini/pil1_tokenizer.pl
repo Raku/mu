@@ -1,7 +1,7 @@
 # PIL2 simple tokenizer & pretty-printer
 # ../../pugs -CPIL2 -e ' say "hello" ' | ../../pugs pil2_tokenizer.pl
 
-use v6;
+use v6-alpha;
 
 my @pil2 = =<>;
 my $pil2 = @pil2.join('');

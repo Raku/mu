@@ -1,4 +1,4 @@
-use v6;
+use v6-alpha;
 
 # perl 5's Class::Publisher redone for all the Perl 6 OOP goodness
 

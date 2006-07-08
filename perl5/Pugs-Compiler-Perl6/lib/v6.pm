@@ -158,7 +158,7 @@ This is a valid header:
 This is an invalid header:
 
     #!/usr/bin/pugs
-    use v6;
+    use v6-alpha;
 
 * it tells perl5 to execute C</usr/bin/pugs>.
 

@@ -1,5 +1,5 @@
 
-use v6;
+use v6-alpha;
 
 role Hash--Perl6 does Map--Perl6;
 

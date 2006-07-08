@@ -1,7 +1,7 @@
 # a simple p6 parser
 # by fglock
 
-use v6;
+use v6-alpha;
 
 # globals
 

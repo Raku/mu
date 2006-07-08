@@ -14,9 +14,11 @@
 
 == Test, Examples and Documentations
 
-* Updated all tests and examples to remove the #/usr/bin/pugs shebangs, and 
-similarly updated some documentation.
-* Replaced all "use v6-pugs;" with "use v6-alpha;" in the same places.
+* Updated all tests and examples plus in some docs and other files to
+remove the #/usr/bin/pugs shebangs and variants thereof.
+* Replaced all "use v6-pugs;" and "use v6;" with "use v6-alpha;" in mostly
+the same places.
+* With any such 'use' lines that appeared below other code, moved upwards.
 * Renamed all Perl scripts from *.p6 to *.pl and from *.p5 to *-p5.pl;
 all references to them, except in talks, were likewise updated.
 

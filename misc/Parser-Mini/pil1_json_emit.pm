@@ -9,13 +9,13 @@ This is a non-runnable module - use 'pil2_json_emit_<language>.pl' instead
     ../../pugs pil2_json_emit_p6.pl
 
   #! /usr/bin/pugs
-  use v6;
+  use v6-alpha;
   &*END () {  }
   (&say("hello"));
 
 =cut
 
-use v6;
+use v6-alpha;
 
 #package PIL2;
 
