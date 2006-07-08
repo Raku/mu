@@ -67,7 +67,7 @@ mkSV :: IO PerlSV -> IO PerlSV
 mkSV = id
 
 perl5_SvROK :: IO PerlSV -> IO Bool
-perl5_SvROK _ = False
+perl5_SvROK _ = return False
 
 #else
 #undef RETURN
