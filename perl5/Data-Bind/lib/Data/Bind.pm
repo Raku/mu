@@ -226,6 +226,20 @@ sub bind {
     return \@ret;
 }
 
+
+sub is_compatible {
+    my $self = shift;
+    no warnings 'redefine';
+    local *Data::Bind::Param::slurpy_bind = sub {};
+    local *Data::Bind::Param::bind = sub {};
+    local *Data::Bind::Array::bind = sub {};
+    my $invocant  = ref($_[0]) && ref($_[0]) eq 'ARRAY' ? undef : shift;
+    local $@;
+    eval { $self->bind({ invocant => $invocant, positional => $_[0], named => $_[1] }, 0)};
+    return $@ ? 0 : 1;
+}
+
+
 package Data::Bind::Param;
 use base 'Class::Accessor::Fast';
 __PACKAGE__->mk_accessors(qw(name p5type is_optional is_writable is_slurpy container_var named_only));
