@@ -81,7 +81,17 @@ sub sig {
 
 sub _get_cv {
     my $sub = shift;
-    return B::svref_2object($sub)->GV->object_2svref;
+    my $gv = B::svref_2object($sub)->GV;
+
+    if ($gv->SAFENAME eq '__ANON__') {
+        # vivify a GV here
+        no strict 'refs';
+        my $nonce = "__ANON__::$sub";
+        return B::svref_2object(\*$nonce)->object_2svref;
+    }
+    else {
+        return $gv->object_2svref;
+    }
 }
 
 # store sig in the sig slot of the cv's gv

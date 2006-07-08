@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use Test::More tests => 9;
+use Test::More tests => 10;
 use Data::Bind;
 use Data::Dumper;
 use Test::Exception;
@@ -84,5 +84,13 @@ throws_ok {
 
 is(Something->db_iformalize([\'this is title'], { justify => \'blah'}),
    'this is title:Something:blah');
+
+my $cv1 = Data::Bind->sub_signature(sub { 1 }, { var => '$other'});
+my $cv2 = Data::Bind->sub_signature(sub { 2 }, { var => '$self'});
+
+my $meta1 = Data::Bind::_get_cv($cv1);
+my $meta2 = Data::Bind::_get_cv($cv2);
+
+isnt(*$meta1->{sig}, *$meta2->{sig}, "anonymous subs have varying sigs");
 
 1;
