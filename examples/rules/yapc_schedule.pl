@@ -11,9 +11,9 @@ token talk { \<small\> <speaker> \</small\> }
 token speaker { [\w|\s]+ }
 
 ### extract.pl
-module Main;
-
 use v6-alpha;
+
+module Main;
 
 my $content = slurp @*ARGS[0];
 

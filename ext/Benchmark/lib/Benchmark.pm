@@ -1,5 +1,5 @@
-module Benchmark-0.1;
 use v6-alpha;
+module Benchmark-0.1;
 
 sub timeit ($count, $code is copy) is export {
     $code = eval "sub \{ $code \}" unless $code.isa("Code");

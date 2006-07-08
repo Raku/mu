@@ -1,5 +1,5 @@
-module CGI::Server-0.0.1;
 use v6-alpha;
+module CGI::Server-0.0.1;
 
 sub server_name     returns Str is export { %*ENV<SERVER_NAME>     || 'localhost' }
 sub server_software returns Str is export { %*ENV<SERVER_SOFTWARE> || 'cmdline'   }

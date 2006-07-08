@@ -1,6 +1,7 @@
+use v6-alpha;
+
 module FindBin-6.0.0;
 
-use v6-alpha;
 use File::Spec;
 
 our Str $Bin;

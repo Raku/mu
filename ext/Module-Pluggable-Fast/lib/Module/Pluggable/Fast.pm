@@ -1,6 +1,7 @@
+use v6-alpha;
+
 module Module::Pluggable::Fast-6.0.0;
 
-use v6-alpha;
 use File::Spec;
 use File::Find;
 

@@ -1,6 +1,6 @@
-package Newton;
-
 use v6-alpha;
+
+package Newton;
 
 sub update_guess(Num $guess is rw, Num $target, Code $f, Code $fprime) {
     $guess += ($target - $f($guess)) / $fprime($guess);

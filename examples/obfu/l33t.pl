@@ -1,6 +1,6 @@
-class l33t-0.0.3;
-
 use v6-alpha;
+
+class l33t-0.0.3;
 
 =kwid
 

@@ -1,5 +1,5 @@
-module CGI-0.0.1;
 use v6-alpha;
+module CGI-0.0.1;
 
 ## set up all the globals (which will eventually be object attributes)
 

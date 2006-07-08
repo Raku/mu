@@ -1,5 +1,5 @@
-module HTML::Entities-0.2;
 use v6-alpha;
+module HTML::Entities-0.2;
 
 #@EXPORT = qw(encode_entities decode_entities _decode_entities);
 #@EXPORT_OK = qw(%entity_to_char %char_to_entity encode_entities_numeric);
