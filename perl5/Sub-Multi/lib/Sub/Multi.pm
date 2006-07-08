@@ -11,7 +11,7 @@ Sub::Multi - Data::Bind-based multi-sub dispatch
 
  my $wrapper = Sub::Multi->new($sub1, $sub2, $sub3);
 
- $wrapper->([\1,\3], { named => \'name'});
+ $wrapper->([\(1, 2, 3)], { named => \'value' });
 
 =head1 DESCRIPTION
 
