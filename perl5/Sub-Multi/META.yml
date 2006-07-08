@@ -1,0 +1,14 @@
+abstract: Data::Bind-based multi-sub dispatch
+author: Chia-liang Kao <clkao@clkao.org>
+distribution_type: module
+generated_by: Module::Install version 0.63
+license: perl
+name: Sub-Multi
+no_index: 
+  directory: 
+    - inc
+    - t
+requires: 
+  Data::Bind: 0.26
+  Test::Exception: 0
+version: 0.001_1
