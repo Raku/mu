@@ -79,6 +79,12 @@ if (@ARGV and !caller) {
     shift(@ARGV) if $ARGV[0] =~ /^-Bperl5$/i;
     splice(@ARGV, 0, 2) if $ARGV[0] =~ /^-B$/;
 
+    while (@ARGV and $ARGV[0] =~ /^-(\w)(.+)/) {
+        use Config;
+        $ENV{PERL6LIB} = "$2$Config{path_sep}$ENV{PERL6LIB}" if $1 eq 'I';
+        shift @ARGV;
+    }
+
     if (@ARGV and $ARGV[0] =~ s/^-e//) {
         $code = (length($ARGV[0]) ? $ARGV[0] : $ARGV[1]);
     }
