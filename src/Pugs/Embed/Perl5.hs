@@ -5,6 +5,7 @@ module Pugs.Embed.Perl5
     ( InvokePerl5Result(..),
     , svToVBool, svToVInt, svToVNum, svToVStr, vstrToSV, vintToSV, svToVal,
     , vnumToSV, mkValRef , mkVal, PerlSV, nullSV, evalPerl5, invokePerl5,
+    , initPerl5, freePerl5
     )
 where
 import Foreign.C.Types
