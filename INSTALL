@@ -14,7 +14,7 @@ Devel::Caller, Module::Compile and Pugs::Compiler::Rule. The first one is
 dependent on Module::Build with C_support, so install ExtUtils::CBuilder and
 ExtUtils::ParseXS first. Satisfy all with one command:
 
-    $ sudo cpan ExtUtils::CBuilder ExtUtils::ParseXS Module::Build \
+    $ sudo cpan -fi ExtUtils::CBuilder ExtUtils::ParseXS Module::Build \
           Devel::Caller Module::Compile Pugs::Compiler::Rule
 
 http://www.jwcs.net/~jonathan/perl6/ and http://pxperl.com/ both have 
