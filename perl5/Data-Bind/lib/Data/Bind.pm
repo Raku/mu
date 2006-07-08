@@ -1,7 +1,7 @@
 package Data::Bind;
 use 5.008;
 use strict;
-our $VERSION = '0.25';
+our $VERSION = '0.26';
 
 use base 'Exporter';
 our @EXPORT = qw(bind_op bind_op2);
@@ -90,7 +90,7 @@ sub sub_signature {
     my $sub = shift;
     my $cv = _get_cv($sub);
     *$cv->{sig} = Data::Bind->sig(@_);
-    return;
+    return $sub;
 }
 
 sub arg_bind {
