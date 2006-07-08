@@ -1,5 +1,3 @@
-#!/usr/bin/perl6
-
 use v6;
 
 =head1 Interpolating Functions or Expressions within Strings

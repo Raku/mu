@@ -1,5 +1,3 @@
-#!/usr/bin/perl6
-
 use v6;
 
 =head1 Opening Files with Unusal Filenames

@@ -1,5 +1,3 @@
-#!/usr/bin/perl6
-
 use v6;
 
 =head1 Specifying a list in your program

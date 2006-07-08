@@ -1,5 +1,3 @@
-#!/usr/bin/perl6
-
 use v6;
 
 =head1 NAME
@@ -72,8 +70,6 @@ Add all the unicode character values together
 
 A simple checksum script example: checksump.pl
 
-    #!/usr/bin/perl6
-    
     use v6;
     
     # checksum.pl - compute 16-bit checksum of all input files
@@ -103,8 +99,6 @@ An on-screen line printer example: slowcat.pl
 inputs i don't really think it should be left this way, but i'm sticking to 
 the original examples for the moment --gcomnz
 
-    #!/usr/bin/perl6
-    
     use v6;
     
     # emulate a   s l o w   line printer
