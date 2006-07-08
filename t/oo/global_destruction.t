@@ -24,11 +24,11 @@ my $foo    = Foo.new();
 my $parent = Parent.new();
 my $child  = Child.new();';
 
-my $out = open('destroy_test.p6', :w);
+my $out = open('destroy_test.pl', :w);
 
 unless $out
 {
-    diag( "Could not write destroy_test.p6" );
+    diag( "Could not write destroy_test.pl" );
     exit;
 }
 
@@ -54,7 +54,7 @@ sub run_pugs ($c) {
   return $res;
 }
 
-my $output  = run_pugs("destroy_test.p6");
+my $output  = run_pugs("destroy_test.pl");
 
 like( $output, rx:P5/Foo goes away/,
     'global destruction should collect objects...' );
@@ -67,6 +67,6 @@ END
 {
     if ! %*ENV<TEST_DEBUG_FILES>
     {
-        unlink 'destroy_test.p6';
+        unlink 'destroy_test.pl';
     }
 }

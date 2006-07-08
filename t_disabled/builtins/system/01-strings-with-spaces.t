@@ -38,7 +38,7 @@ $cwdb ~~ s:P5:g,/,\\,;
 
 my $testdir = "t/builtins/system/t e s t";
 my $exename = "showav";
-my $plxname = "showargv.p6";
+my $plxname = "showargv.pl";
 
 my $exe = "$testdir/$exename";
 my $exex = $exe ~ ".exe";

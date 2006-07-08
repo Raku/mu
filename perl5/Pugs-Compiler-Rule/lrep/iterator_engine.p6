@@ -1,4 +1,4 @@
-# iterator_engine.p6 - fglock
+# iterator_engine.pl - fglock
 #
 
 # *** NOTE ***

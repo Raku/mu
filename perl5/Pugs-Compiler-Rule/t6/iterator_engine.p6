@@ -5,7 +5,7 @@ use Pugs::Runtime::Rule;
 #use strict;
 #use warnings;
 
-#require 'iterator_engine.p6';
+#require 'iterator_engine.pl';
 
 #use Test;  -- errors?
 sub ok($val,$comment) { 

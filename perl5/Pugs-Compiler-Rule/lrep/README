@@ -16,7 +16,7 @@ It is an experimental implementation of:
 
 - a 'Perl6' parser and perl5 emitter (p6compiler.pl)
 
-- a Perl6 'grammar' grammar (p6prelude.p6)
+- a Perl6 'grammar' grammar (p6prelude.pl)
 
 
 
@@ -24,13 +24,13 @@ Tests: (paste this in the command line to run all tests)
 
   perl iterator_engine.t
 
-  perl p6compiler.pl p6sample.p6
+  perl p6compiler.pl p6sample.pl
 
-  perl p6compiler.pl p6compiler.p6t
+  perl p6compiler.pl p6compiler.plt
 
 
 
-  pugs iterator_engine.p6t
+  pugs iterator_engine.plt
 
 
 

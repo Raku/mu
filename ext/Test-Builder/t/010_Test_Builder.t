@@ -36,10 +36,10 @@ class Test::Builder::CustomPlan is Test::Builder::NullPlan
 my $custom_plan = Test::Builder::CustomPlan.new();
 my $Test        = Test::Builder.new( plan => $custom_plan );';
 
-my $out = open('destroy_test.p6', :w);
+my $out = open('destroy_test.pl', :w);
 unless $out
 {
-    diag( "Could not write destroy_test.p6" );
+    diag( "Could not write destroy_test.pl" );
     exit;
 }
 
@@ -70,12 +70,12 @@ sub run_pugs (Str $filename)
     return $res;
 }
   
-my $output       = run_pugs( 'destroy_test.p6' );
+my $output       = run_pugs( 'destroy_test.pl' );
 
 is( $output, "custom plan output\n",
     'DESTROY() should write plan footer, if it exists' );
 
 END
 {
-    unlink 'destroy_test.p6' unless %*ENV<TEST_DEBUG_FILES>;
+    unlink 'destroy_test.pl' unless %*ENV<TEST_DEBUG_FILES>;
 }

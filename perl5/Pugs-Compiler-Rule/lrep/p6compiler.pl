@@ -71,16 +71,16 @@ RESTART:
       if ( -f "$prelude_file-cached.pl" ) {
         $recompile = 
             -M "$prelude_file-cached.pl" > 
-            -M "$prelude_file.p6";
+            -M "$prelude_file.pl";
       }
       else {
         $recompile = 1;
       }
       if ( 0 ) {   # $recompile ) {
         local $/ = undef; 
-        warn "* precompiling Prelude: $prelude_file.p6\n";
-        open( FILE, "<", "$prelude_file.p6" ) or 
-            die "can't open prelude file: $prelude_file.p6 - $!";
+        warn "* precompiling Prelude: $prelude_file.pl\n";
+        open( FILE, "<", "$prelude_file.pl" ) or 
+            die "can't open prelude file: $prelude_file.pl - $!";
         my $prelude = <FILE>;
         # print "Prelude:$prelude\n";
         my $perl5;

@@ -7,7 +7,7 @@
 # - anything that does *not* contain a statement like:
 #       eval( '...', :lang<perl5>);
 # - anything that directly alters the Perl 6 Grammar
-# - everything else go into the p6primitives.p6 file, or into
+# - everything else go into the p6primitives.pl file, or into
 #   a Module
 
 # this is a comment - putter++ for writing the comment regex

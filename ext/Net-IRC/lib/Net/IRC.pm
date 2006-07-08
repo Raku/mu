@@ -792,8 +792,8 @@ slowly sent to the server.
 
 =head1 EXAMPLES
 
-See F<examples/network/seenbot.p6>, F<examples/network/logbot.p6> and
-F<examples/network/svnbot.p6> in the L<Pugs Subversion
+See F<examples/network/seenbot.pl>, F<examples/network/logbot.pl> and
+F<examples/network/svnbot.pl> in the L<Pugs Subversion
 Repository|svn.openfoundry.org/pugs/> for example bots using C<Net::IRC>.
 
 =head1 AUTHOR

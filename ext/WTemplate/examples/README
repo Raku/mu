@@ -6,7 +6,7 @@ WTemplate Examples
 Installation
 ~~~~~~~~~~~~
 
-This directory contains two examples. helloworld.p6 (with
+This directory contains two examples. helloworld.pl (with
 helloworld.tpl) is a command line based example, you don't
 need to install it, just run it with Perl 6 / Pugs.
 

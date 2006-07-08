@@ -126,7 +126,7 @@ grammars
     # TODO - rule comment { \# .*? [<newline>|$$] }
 =cut
 
---- from file p6prelude.p6
+--- from file p6prelude.pl
 
 =for TODO
     reimplement print(), warn ... using 'sub'

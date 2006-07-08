@@ -16,7 +16,7 @@ my @tests = (
   "-I$dir -MDummy -e load_test",
   "-e load_test -MDummy -I$dir",
 # temporarily run below
-#  "-I$dir -MDummy $dir/10-dash-uppercase-m.p6"
+#  "-I$dir -MDummy $dir/10-dash-uppercase-m.pl"
 );
 
 plan 4;
@@ -52,4 +52,4 @@ for @tests -> $test {
 };
 
 # when this works, delete this line, and uncomment this case in the list above.
-is(run_pugs("-I$dir -MDummy $dir/10-dash-uppercase-m.p6"), "Module Dummy.pm was loaded\n", "Module was loaded", :todo<bug>);
+is(run_pugs("-I$dir -MDummy $dir/10-dash-uppercase-m.pl"), "Module Dummy.pm was loaded\n", "Module was loaded", :todo<bug>);

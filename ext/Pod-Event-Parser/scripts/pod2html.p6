@@ -9,7 +9,7 @@ use Pod::Event::Parser;
 use Pod::Event::Handler::HTML;
 
 die "usage:
-    pod2html.p6 <POD file>
+    pod2html.pl <POD file>
 " unless @*ARGS;
 
 my $file = @*ARGS[0];

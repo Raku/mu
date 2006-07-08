@@ -329,7 +329,7 @@ CGI - A module for programming CGI
     }
     
     # you can also test it on the command line too
-    % pugs -I lib/ examples/test.p6 "greetings=hello world"    
+    % pugs -I lib/ examples/test.pl "greetings=hello world"    
 
 =head1 DESCRIPTION
 

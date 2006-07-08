@@ -33,16 +33,7 @@ L<http://pugscode.org/>.
 Having done so, you can run your Perl 6 program from the command line as
 follows:
 
-    pugs myprogram.p6
-
-Alternatively, you may specify the pugs interpreter to use in the first
-line of your script, like this:
-
-    #!/usr/bin/env pugs
-
-... then run your program as:
-
-    ./myprogram.p6
+    pugs myprogram.pl
 
 To run one-liners from the command-line, use the -e flag:
 
