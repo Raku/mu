@@ -331,8 +331,8 @@ op1 "rand"  = \v -> do
     return $ VNum rand
 op1 "say" = op2 "IO::say" (VHandle stdout)
 op1 "print" = op2 "IO::print" (VHandle stdout)
-op1 "IO::say" = \v -> op2 "IO::say" v =<< readVar "$_"
-op1 "IO::print" = \v -> op2 "IO::print" v =<< readVar "$_"
+op1 "IO::say" = \v -> op2 "IO::say" v $ VList []
+op1 "IO::print" = \v -> op2 "IO::print" v $ VList []
 op1 "IO::next" = \v -> do
     fh  <- fromVal v
     guardIO $ fmap (VStr . (++ "\n") . decodeUTF8) (hGetLine fh)
