@@ -23,6 +23,10 @@ the same places.
 all references to them, except in talks, were likewise updated.
 * Merged t_disabled/ into t/, and split t_pugs/ from t/.
 * Did some rearranging/renaming in t/ so the tests scale better.
+* Copied ext/Test/t/* to t/02-test-pm/*, moved t/01-sanity/08-test.t to the 
+latter as well ... so 01-sanity doesn't use Test.pm, 02-test-pm checks that 
+Test.pm itself works, and subsequent t/* use Test.pm
+... TODO: remove duplicate tests from ext/Test/t/* if not also needed.
 
 == Feature Changes
 
