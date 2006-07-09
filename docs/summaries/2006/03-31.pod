@@ -4,7 +4,7 @@
 
 =head2 Compiler (perl6-compiler)
 
-=head2 Internals (parrot-porters)
+=head2 Internals (perl6-internals)
 
 =head2 Language (perl6-language)
 

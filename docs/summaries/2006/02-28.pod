@@ -56,7 +56,7 @@ also worked for chromatic, who had experienced the same problem.
 
 L<http://xrl.us/oxoc>
 
-=head2 Internals (parrot-porters)
+=head2 Internals (perl6-internals)
 
 =head3 Reading data from STDIN
 
@@ -459,5 +459,9 @@ L<http://blog.perlfoundation.org/>
 =item * Perl 6 Development
 
 L<http://dev.perl.org/perl6>
+
+=item * Planet Perl Six
+
+L<http://planetsix.perl.org/>
 
 =back
