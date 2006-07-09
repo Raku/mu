@@ -81,6 +81,18 @@ lib/Pugs/Emitter/Perl6/Perl5.pm
 lib/Pugs/Runtime/Perl6.pm
 -- provides routines and objects that help emulate perl 6 semantics.
 
+* Writing new tests 
+
+For consistency, we share tests with the Haskell implementation.  Instead of
+duplicating the tests in our tree, we copy the tests over when "perl
+Makefile.PL" is run. This is done by analyzing the MANIFEST to decide which
+files to copy. 
+
+The exceptions are when we need to modify a test script to be different,
+perhaps because the feature needs to be marked TODO in this implementation
+but not the other. 
+
+As of 07/09/06, this test suite is still in transistion to this model.  
 
 =head1 COPYRIGHT
 
