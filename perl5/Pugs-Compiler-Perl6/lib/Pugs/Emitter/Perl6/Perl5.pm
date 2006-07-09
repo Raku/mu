@@ -568,8 +568,10 @@ sub statement {
 		$name .= '_'.md5_hex($sigs);
 		$multi_sub = "BEGIN { Sub::Multi->add_multi('$wrapper_name', \\&$name) }\n";
 	    }
+	    # XXX: check incompatible attributes
 	    return  $export .
-                " sub " . $name . 
+                ($n->{my} ? "local *$name = sub"
+                          : " sub " . $name ). 
                 " {\n" .
                     (
                         $n->{statement} =~ /method/
@@ -578,7 +580,7 @@ sub statement {
                     ) .
                     _emit_parameter_binding( $n->{signature} ) .
                     _emit( $n->{block} ) . 
-                "\n }\n" .
+                "\n };\n" . # ; required when assigning to local
                 "## Signature for $name\n" .
                 " Data::Bind->sub_signature\n".
                 " (\\&$name, $sigs);\n$multi_sub";

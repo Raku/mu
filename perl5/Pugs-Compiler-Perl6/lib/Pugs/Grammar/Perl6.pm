@@ -264,13 +264,15 @@ sub perl6_expression {
 )->code;
 
 *sub_decl_name = Pugs::Compiler::Regex->compile( q(
+    ( my | <''> ) <?ws>?
     ( multi | <''> ) <?ws>?
     ( submethod | method | sub ) <?ws>? 
     ( <?Pugs::Grammar::Term.ident>? ) 
         { return { 
-            multi      => $_[0][0]->(),
-            statement  => $_[0][1]->(),
-            name       => $_[0][2]->(),
+            my         => $_[0][0]->(),
+            multi      => $_[0][1]->(),
+            statement  => $_[0][2]->(),
+            name       => $_[0][3]->(),
         } }
     |
     ( multi ) <?ws>?
@@ -305,6 +307,7 @@ sub perl6_expression {
         <block>        
         { return { 
             multi      => $_[0]{sub_decl_name}->()->{multi},
+            my         => $_[0]{sub_decl_name}->()->{my},
             statement  => $_[0]{sub_decl_name}->()->{statement},
             name       => $_[0]{sub_decl_name}->()->{name},
             
