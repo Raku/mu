@@ -1,5 +1,11 @@
 ﻿TODO list for Pugs-Compiler-Perl6
 
+- replace 'Regex' matching with 'Token' - needs fixing Pugs::Compiler::Rule: interoperation of :ratchet/non-ratchet rules; implementation of non-ratchet hash-based dispatch.
+
+- implement hash and array
+
+- implement statement and operation classes in the grammar; implement macros (see lrep for an existing implementation).
+
 - parse ext/Test/lib/Test.pm
   - &?CALLER::ROUTINE
   - s:P5:g/foo/bar/;
