@@ -1602,7 +1602,7 @@ initSyms = mapM primDecl syms
 \\n   Hash      pre     hash    safe   (List)\
 \\n   List      pre     pair    safe   (List)\
 \\n   Scalar    pre     item    safe   (Scalar)\
-\\n   Any       pre     Scalar::reverse safe   (Scalar)\
+\\n   Str       pre     Scalar::reverse safe   (Scalar)\
 \\n   Any       pre     reverse safe   (List)\
 \\n   List      pre     eager   safe   (List)\
 \\n   Int       spre    +^      safe   (Int)\
