@@ -6,10 +6,21 @@ use warnings;
 use URI::Find;
 use WWW::Shorten 'Metamark';
 
+my ( $conversion, $needs_conversion );
+
+if ( $ARGV[0] eq "-u" ) {
+	shift @ARGV;
+	$conversion = \&makealongerlink;
+	$needs_conversion = qr/xrl\.us/;
+} else {
+	$conversion = \&makeashorterlink;
+	$needs_conversion = qr/groups\.google\.com|gmane/;
+}
+
 sub maybe_shorten {
 	my $uri = shift;
 
-	$uri = makeashorterlink($uri) if $uri =~ /groups\.google\.com|gmane/;
+	$uri = $conversion->($uri) if $uri =~ $needs_conversion;
 
 	return "<$uri>";
 }
