@@ -47,7 +47,8 @@ t/01-sanity/07-end-blocks.t
 t/01-sanity/07-for.t
 t/01-sanity/07-isa.t
 t/01-sanity/07-range.t
-t/01-sanity/07-ref.t
+# don't copy one. We have a modified version. 
+# t/01-sanity/07-ref.t
 t/01-sanity/07-split.t
 t/01-sanity/07-substr.t
 t/01-sanity/07-tailcall.t
@@ -56,5 +57,6 @@ t/01-sanity/08-test.t
 t/01-sanity/12-caller.t
 t/01-sanity/13-match.t
 t/Test.pm
+t/data_types/hash.t
 
 TODO
