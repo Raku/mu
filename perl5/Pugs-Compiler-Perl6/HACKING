@@ -1,5 +1,11 @@
 Pugs::Compiler::Perl6
 
+* Environment
+
+  V6DUMPAST=1  - tells the emitter to dump the syntax tree to STDOUT
+
+  PERL6LIB=dir;dir  - same usage as PERL5LIB
+
 * Compilation cycle:
 
   Source file ->
