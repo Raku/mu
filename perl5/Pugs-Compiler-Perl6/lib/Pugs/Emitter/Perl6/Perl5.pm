@@ -37,8 +37,11 @@ sub _var_get {
     
     if ( ! exists $n->{scalar} ) {
         if ( exists $n->{bare_block} ) {
+            my $block = _emit( $n );
             # TODO - check if it is a comma-delimited list
-            return ' sub ' . _emit( $n );
+            # print "block: [$block]\n";
+            return $block if $block =~ /# hash\n$/s;
+            return ' sub ' . $block;
         }
         return _emit( $n );
     }
@@ -302,6 +305,25 @@ sub default {
         if ( exists $n->{trait} ) {
             # BEGIN/END
             return $n->{trait} . " {\n" . _emit( $n->{bare_block} ) . "\n }";
+        }
+        #<audreyt> If the closure
+        #<audreyt> appears to delimit nothing but a comma-separated list starting with
+        #<audreyt> a pair (counting a single pair as a list of one element), the closure
+        #<audreyt> will be immediately executed as a hash composer.
+        #<audreyt> also, {} is a hash
+        #warn "block: ",Dumper $n;
+        if ( exists $n->{bare_block}{statements} ) {
+            if ( @{$n->{bare_block}{statements}} == 0 ) {
+                return "{}  # hash\n";
+            }
+            if (
+                @{$n->{bare_block}{statements}} == 1        &&
+                exists $n->{bare_block}{statements}[0]{op1} &&
+                $n->{bare_block}{statements}[0]{op1} eq ','
+                # TODO -   && is it a pair?
+            ) {
+                return  "{\n" . _emit( $n->{bare_block}{statements}[0] ) . "\n }  # hash\n";
+            }
         }
         return  "{\n" . _emit( $n->{bare_block} ) . "\n }\n";
     }
