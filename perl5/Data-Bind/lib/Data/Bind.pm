@@ -1,7 +1,7 @@
 package Data::Bind;
 use 5.008;
 use strict;
-our $VERSION = '0.26';
+our $VERSION = '0.27';
 
 use base 'Exporter';
 our @EXPORT = qw(bind_op bind_op2);
@@ -253,6 +253,10 @@ sub is_compatible {
     return $@ ? 0 : 1;
 }
 
+sub arity {
+    my $self = shift;
+    scalar grep { !$_->is_optional }values %{$self->named};
+}
 
 package Data::Bind::Param;
 use base 'Class::Accessor::Fast';

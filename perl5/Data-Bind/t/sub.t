@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use Test::More tests => 11;
+use Test::More tests => 13;
 use Data::Bind;
 use Data::Dumper;
 use Test::Exception;
@@ -13,6 +13,7 @@ my $db_formalize_sig = Data::Bind->sig
      { var => '$case', named_only => 1 },
      { var => '$justify', named_only => 1 });
 
+is($db_formalize_sig->arity, 2);
 #warn Dumper($db_formalize_sig);
 
 sub db_formalize {
@@ -37,6 +38,8 @@ $db_formalize_sig = Data::Bind->sig
      { var => '$subtitle', optional => 1 },
      { var => '$case', named_only => 1 },
      { var => '$justify', named_only => 1, required => 1});
+
+is($db_formalize_sig->arity, 2);
 
 is(db_formalize([\'this is title'], { justify => \'blah'}),
    'this is title::blah');
