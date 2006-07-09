@@ -107,7 +107,7 @@ sub _emit_code {
         die 'unhandled magic variable';
     }
 
-    return $code;
+    return "Pugs::Runtime::Perl6::Routine->new(\\$code)";
 }
 
 sub _emit {
@@ -473,8 +473,8 @@ sub default {
             # &code.goto;
             return 
                 " \@_ = (" . _emit_parameter_capture( $n->{param} ) . ");\n" .
-                " " . _emit( $n->{method} ) . " " .
-                    _emit( $n->{self} );
+                " " . _emit( $n->{method} ) . "( " .
+                    _emit( $n->{self} ) . "->code )";
         }
         if ( exists $n->{self}{code} ) {
             # &?ROUTINE.name;
@@ -569,9 +569,9 @@ sub statement {
 		$multi_sub = "BEGIN { Sub::Multi->add_multi('$wrapper_name', \\&$name) }\n";
 	    }
 	    # XXX: check incompatible attributes
-	    return  $export .
-                ($n->{my} ? "local *$name = sub"
-                          : " sub " . $name ). 
+	    return "local *$name = "._emit_closure($n->{signature}, $n->{block}) if $n->{my};
+
+	    return  $export . " sub " . $name . 
                 " {\n" .
                     (
                         $n->{statement} =~ /method/

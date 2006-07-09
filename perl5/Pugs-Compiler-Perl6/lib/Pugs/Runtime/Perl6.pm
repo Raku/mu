@@ -24,6 +24,10 @@ sub new {
     bless { cv => B::svref_2object($cv) }, $class;
 }
 
+sub code {
+    $_[0]->{cv}->object_2svref;
+}
+
 sub name {
     my $self = shift;
     my $cv = $self->{cv};
@@ -32,6 +36,12 @@ sub name {
 
 sub package {
     $_[0]->{cv}->GV->STASH->NAME;
+}
+
+sub arity {
+    my $cv = Data::Bind::_get_cv($_[0]->code);
+    use Data::Dumper;
+    return *$cv->{sig} ? *$cv->{sig}->arity : 0;
 }
 
 package Pugs::Runtime::Perl6::Scalar;
