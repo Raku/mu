@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use URI::Find;
+use WWW::Shorten 'Metamark';
+
+sub maybe_shorten {
+	my $uri = shift;
+
+	$uri = makeashorterlink($uri) if $uri =~ /groups\.google\.com|gmane/;
+
+	return "<$uri>";
+}
+
+my $f = URI::Find->new(\&maybe_shorten);
+
+while (<>) {
+	$f->find(\$_);
+	print;
+}
+
+
