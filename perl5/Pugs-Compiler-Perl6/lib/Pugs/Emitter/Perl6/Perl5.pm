@@ -361,7 +361,7 @@ sub default {
                 ";use Exporter 'import'; push our \@ISA, 'Exporter' ;our \@EXPORT";
         }
 
-        if ( $n->{sub}{bareword} eq 'is' ) {
+        if ( 0 && $n->{sub}{bareword} eq 'is' ) { # XXX: this is wrong, consider is() from Test.pm
             # is Point;
             #warn "inheritance: ",Dumper $n;
             my $id;
