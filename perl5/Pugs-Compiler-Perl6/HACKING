@@ -1,8 +1,18 @@
 v6.pm hacking how-to
 
+* links
+
+The development repository is:
+http://svn.openfoundry.org/pugs/perl5/
+
+The CPAN distribution is:
+http://search.cpan.org/dist/v6-alpha/
+
+The irc channel for development is:
+#perl6 on freenode
+
 * #perl6 jargon
 
-#perl6 - the freenode irc channel
 PCR - the Pugs::Compiler::Rule module - implements Perl 6 parser tools: rule, token, regex, P5 regex, and precedence parser.
 PCP6 or v6.pm or v6 - Pugs::Compiler::Perl6
 lrep - an older version of v6.pm
