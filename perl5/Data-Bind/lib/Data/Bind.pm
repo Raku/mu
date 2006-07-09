@@ -178,7 +178,7 @@ use PadWalker qw(peek_my);
 
 sub bind {
     my ($self, $args, $lv) = @_;
-#    local $Carp::CarpLevel = 2;
+    local $Carp::CarpLevel = 2;
     $lv ||= 1;
     my %bound;
 
@@ -232,7 +232,10 @@ sub bind {
 	}
 	push @ret, $param->bind($current, $lv, $pad);
     }
-    # XXX: report extra incoming positional args
+    # extra incoming positional args
+    if (@$pos_arg) {
+	croak "extra positional argument.";
+    }
 
     return \@ret;
 }

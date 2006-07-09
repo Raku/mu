@@ -76,7 +76,6 @@ is ((foo3 [\4000], {n => \20, y => \300}), 4000,
 }
 
 sub {
-local $TODO = 'unbound arg should die';
 #my sub foo ($n, *%h) { };
 my $foo = sub { my ($n, %h); Data::Bind->arg_bind(\@_) };
 Data::Bind->sub_signature($foo, { var => '$n' },

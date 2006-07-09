@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use Test::More tests => 10;
+use Test::More tests => 11;
 use Data::Bind;
 use Data::Dumper;
 use Test::Exception;
@@ -55,6 +55,10 @@ throws_ok {
 } qr/extra/;
 
 }
+
+throws_ok {
+    db_formalize([\('this is title', 'yyy', 'zzz')], { justify => \'zz'});
+} qr/extra/;
 
 package Something;
 
