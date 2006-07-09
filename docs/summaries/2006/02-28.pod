@@ -56,7 +56,7 @@ also worked for chromatic, who had experienced the same problem.
 
 L<http://xrl.us/oxoc>
 
-=head2 Internals (perl6-internals)
+=head2 Internals (parrot-porters)
 
 This mailing list has been previously called perl6-internals. It is now known
 as parrot-porters, but the perl6-internals name will remain as an alias for now.
@@ -468,3 +468,4 @@ L<http://dev.perl.org/perl6>
 L<http://planetsix.perl.org/>
 
 =back
+
