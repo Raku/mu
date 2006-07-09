@@ -15,6 +15,31 @@ sub perl {
     return join( ', ', Data::Dumper::Dumper( @_ ) );
 }
 
+sub eval {
+    my ($string, $lang);
+    Data::Bind->arg_bind(\@_);
+    $lang ||= 'perl6';
+    my $eval_string;
+    Data::Bind::bind_op2(\$eval_string, \$string);
+    if ($lang eq 'perl6') {
+	require Pugs::Compiler::Perl6;
+	my $p6 = Pugs::Compiler::Perl6->compile( $string );
+	Data::Bind::bind_op2(\$eval_string, \$p6->{perl5});
+    }
+    elsif ($lang ne 'perl5') {
+	die;
+    }
+
+    local $@;
+    no warnings;
+    my @result = eval $eval_string;      # XXX - test want()
+    $::_EXCL__ = $@;
+    return @result;
+
+}
+
+Data::Bind->sub_signature(\&eval, { var => '$string' }, { var => '$lang', optional => 1});
+
 package Pugs::Runtime::Perl6::Routine;
 use B ();
 use Devel::Caller ();

@@ -429,6 +429,11 @@ sub default {
 	if ($subname eq 'defined' || $subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return') {
 	    return ' ' . _mangle_ident( $n->{sub}{bareword} ) . '(' . _emit( $n->{param} ) . ')';
 	}
+	# runtime thunked builtins
+	if ($subname eq 'eval') {
+	    return 'Pugs::Runtime::Perl6::eval('. _emit_parameter_capture( $n->{param} ) . ');';
+	}
+
         return ' ' . _mangle_ident( $n->{sub}{bareword} ) . '(' . _emit_parameter_capture( $n->{param} ) . ')';
     }
     
@@ -841,17 +846,6 @@ sub prefix {
         #}
         return 'eval ' . _emit( $n->{exp1} ) . "; " . 
             _mangle_var( '$!' ) . " = \$@;";
-    }
-    if ( $n->{op1}{op} eq 'eval' ) {
-        return 
-            'do { ' . 
-            'use Pugs::Compiler::Perl6; ' . # XXX - load at start
-            'local $@; ' .
-            # call Perl::Tidy here? - see v6.pm ???
-            'my $p6 = Pugs::Compiler::Perl6->compile( ' . _emit( $n->{exp1} ) . ' ); ' .
-            'my @result = eval $p6->{perl5}; ' .     # XXX - test want()
-            _mangle_var( '$!' ) . ' = $@; ' .
-            '@result }';  # /do
     }
     if ( $n->{op1}{op} eq '~' ) {
         return ' "" . ' . _emit( $n->{exp1} );
