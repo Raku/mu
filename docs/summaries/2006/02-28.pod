@@ -1,3 +1,4 @@
+=encoding utf8
 
 =head1 The Perl 6 summary for the weeks of 2006-02-13 through 2006-02-28
 
@@ -83,7 +84,7 @@ L<http://xrl.us/oxog>
 
 =head3 imcc segfault
 
-JŸrgen Bšmmels reported an imcc segfault, which Leopold Toetsch answered
+JÃ¼rgen BÃ¶mmels reported an imcc segfault, which Leopold Toetsch answered
 questions and resolved the ticket (#20839).  Others also made suggestions.
 
 L<http://xrl.us/oxv8>
@@ -297,12 +298,12 @@ Several patches were applied:
 
 L<http://xrl.us/oxw4>
 
-=item * macro expansion in imcc by JŸrgen Bšmmels, following 
+=item * macro expansion in imcc by JÃ¼rgen BÃ¶mmels, following 
 a lengthy discussion
 
 L<http://xrl.us/oxw5>
 
-=item * Macros in imcc from JŸrgen Bšmmels
+=item * Macros in imcc from JÃ¼rgen BÃ¶mmels
 
 L<http://xrl.us/oxw6>
 
