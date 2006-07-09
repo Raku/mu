@@ -13,22 +13,30 @@ The irc channel for development is:
 
 * #perl6 jargon
 
-PCR - the Pugs::Compiler::Rule module - implements Perl 6 parser tools: rule, token, regex, P5 regex, and precedence parser.
-PCP6 or v6.pm or v6 - Pugs::Compiler::Perl6
-lrep - an older version of v6.pm
+PCR 
+-- the Pugs::Compiler::Rule module - implements Perl 6 parser tools: rule, token, regex, P5 regex, and precedence parser.
 
-* Environment variables
+PCP6 or v6.pm or v6 or v6-alpha 
+-- the perl6-on-perl6 implementation
+
+lrep 
+-- an older version of v6.pm
+-- lrep is still used to compile the Rule grammar in the Pugs::Compiler::Rule module.
+
+* v6 Environment variables
 
   V6DUMPAST=1  - tells the code emitter to dump the syntax tree to STDOUT before processing
 
   PERL6LIB=dir;dir  - same usage as PERL5LIB
 
-* Compilation cycle:
+* v6 Compilation cycle:
 
   Source file ->
   Parser -> 
   Emitter ->
   Execute
+
+There is currently no intermediate AST processing phase - the match capture is sent directly to the emitter.
 
 * Implementing new syntax
 
@@ -44,6 +52,8 @@ lib/v6.pm
 -- provides compatibility with other perl 6 implementations, by implementing "use v6-alpha;"
 
 -- provides pre-compilation through Module::Compile
+
+-- the compiled code is post-processed with Perl::Tidy, if it is available.
 
 lib/Pugs/Compiler/Perl6
 -- subclasses Pugs::Compiler::Rule to implement the "perl 6 compiler"
@@ -92,7 +102,7 @@ The exceptions are when we need to modify a test script to be different,
 perhaps because the feature needs to be marked TODO in this implementation
 but not the other. 
 
-As of 07/09/06, this test suite is still in transistion to this model.  
+As of 07/09/06, this test suite is still in transition to this model.  
 
 =head1 COPYRIGHT
 
