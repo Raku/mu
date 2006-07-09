@@ -9,12 +9,16 @@ use Config;
 use File::Copy qw(copy);
 use File::Path qw(mkpath);
 
+my @pmc_files;
+
 {
 #   copy_all('src', 'blib6/arch/CORE/pugs');
     copy_all("$_/blib/", 'blib6/pugs/perl5') for <perl5/*>;
     copy_all("$_/blib6/", 'blib6/pugs/perl6') for <perl5/*>;
     copy_all("$_/blibjs/", 'blib6/pugs/js') for <perl5/*>;
 }
+sleep 1;
+utime undef, undef, @pmc_files;
 
 print "*** Successfully built!  Type '$Config{make} install' to install.\n";
 
@@ -38,5 +42,6 @@ sub copy_all {
         if (-d $src_path) {
             copy_all($src_path, $dest_path);
         }
+	push @pmc_files, $dest_path if $node =~ m/\.pmc$/;
     }
 }
