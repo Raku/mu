@@ -58,6 +58,9 @@ L<http://xrl.us/oxoc>
 
 =head2 Internals (perl6-internals)
 
+This mailing list has been previously called perl6-internals. It is now known
+as parrot-porters, but the perl6-internals name will remain as an alias for now.
+
 =head3 Reading data from STDIN
 
 Earlier, it was asked how to read data from STDIN for a PASM application.
