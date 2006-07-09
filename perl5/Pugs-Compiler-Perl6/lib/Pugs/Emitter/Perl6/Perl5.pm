@@ -844,8 +844,8 @@ sub prefix {
         #    # CATCH/CONTROL
         #    return $n->{trait} . " {\n" . _emit( $n->{bare_block} ) . "\n }";
         #}
-        return 'eval ' . _emit( $n->{exp1} ) . "; " . 
-            _mangle_var( '$!' ) . " = \$@;";
+        return 'do { my @__ret = eval ' . _emit( $n->{exp1} ) . "; " . 
+            _mangle_var( '$!' ) . " = \$@; \@__ret }";
     }
     if ( $n->{op1}{op} eq '~' ) {
         return ' "" . ' . _emit( $n->{exp1} );

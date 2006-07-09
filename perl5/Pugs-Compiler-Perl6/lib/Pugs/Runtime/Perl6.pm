@@ -32,9 +32,15 @@ sub eval {
 
     local $@;
     no warnings;
-    my @result = eval $eval_string;      # XXX - test want()
+    my @result;
+    if (wantarray) {
+	@result = eval $eval_string;
+    }
+    else {
+	$result[0] = eval $eval_string;
+    }
     $::_EXCL__ = $@;
-    return @result;
+    return wantarray ? @result : $result[0];
 
 }
 
