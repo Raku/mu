@@ -1,5 +1,9 @@
 Pugs::Compiler::Perl6
 
+* Implementing new syntax
+
+...
+
 * Environment
 
   V6DUMPAST=1  - tells the emitter to dump the syntax tree to STDOUT
@@ -26,10 +30,22 @@ lib/Pugs/Compiler/Perl6
 * Parsing
 
 lib/Pugs/Grammar/*
+-- Perl6.pm
+  - statements
+-- Term.pm
+  - number, string, :a<b>
+-- Expression.pm 
+  - detects end-of-expresion
+  - parses some terms, like method calls
+-- Operator, Infix, Prefix, ...
+  - operator tables
+-- P6Rule.pm
+  - parser for rules (almost a duplicate of the one in Pugs::Runtime::Rule)
 
 * Emitter
 
-lib/Pugs/Emitter/*
+lib/Pugs/Emitter/Perl6/Perl5.pm
+-- gets a syntax tree and generates Perl5 code
 
 * Execute
 
