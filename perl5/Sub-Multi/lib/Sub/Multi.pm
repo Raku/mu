@@ -21,7 +21,17 @@ Sub::Multi - Data::Bind-based multi-sub dispatch
 
 sub new {
     my ($class, @subs) = @_;
-    return sub { $class->dispatch(\@subs, @_) };
+    return bless sub { $class->dispatch(\@subs, @_) }, 'Sub::Multi::Method';
+}
+
+sub add_multi {
+    my ($class, $name, $sub) = @_;
+    my $pkg = ((caller)[0]);
+    no strict 'refs';
+    my $subs = ${$pkg."::SUB_MULTI_REGISTRY"} ||= [];
+    push @$subs, $sub;
+    no warnings 'redefine';
+    *{$pkg."::$name"} = $class->new(@$subs);
 }
 
 sub dispatch {
