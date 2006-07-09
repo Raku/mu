@@ -1,12 +1,19 @@
 Pugs::Compiler::Perl6
 
+* #perl6 jargon
+
+#perl6 - the freenode irc channel
+PCR - the Pugs::Compiler::Rule module - implements Perl 6 parser tools: rule, token, regex, P5 regex, and precedence parser.
+PCP6 or v6.pm or v6 - Pugs::Compiler::Perl6
+lrep - an older version of v6.pm
+
 * Implementing new syntax
 
 ...
 
 * Environment
 
-  V6DUMPAST=1  - tells the emitter to dump the syntax tree to STDOUT
+  V6DUMPAST=1  - tells the code emitter to dump the syntax tree to STDOUT before processing
 
   PERL6LIB=dir;dir  - same usage as PERL5LIB
 
@@ -29,6 +36,10 @@ lib/Pugs/Compiler/Perl6
 
 * Parsing
 
+The syntax is mostly implemented using Pugs::Compiler::Rule.
+
+A few terms are implemented using perl 5 modules, such as Pugs::Grammar::Precedence (called from Expression.pm), and Text::Balanced (called from Term.pm)
+
 lib/Pugs/Grammar/*
 -- Perl6.pm
   - statements
@@ -38,7 +49,7 @@ lib/Pugs/Grammar/*
   - detects end-of-expresion
   - parses some terms, like method calls
 -- Operator, Infix, Prefix, ...
-  - operator tables
+  - operator tables; most of the work is done by Pugs::Grammar::Precedence
 -- P6Rule.pm
   - parser for rules (almost a duplicate of the one in Pugs::Runtime::Rule)
 
@@ -49,4 +60,5 @@ lib/Pugs/Emitter/Perl6/Perl5.pm
 
 * Execute
 
-lib/Pugs/Runtime/*
+lib/Pugs/Runtime/Perl6.pm
+-- provides routines and objects that help emulate perl 6 semantics.
