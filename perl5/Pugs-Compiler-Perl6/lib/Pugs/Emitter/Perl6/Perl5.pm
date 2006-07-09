@@ -8,6 +8,7 @@ use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
 use Pugs::Emitter::Rule::Perl5::Ratchet;
+use Digest::MD5 'md5_hex';
 
 our %env;
 
@@ -560,6 +561,13 @@ sub statement {
         }
 
 	if (length $name) {
+	    my $wrapper_name = $name;
+	    my $multi_sub = '';
+	    my $sigs = _emit_parameter_signature ( $n->{signature} ) ;
+	    if ($n->{multi}) {
+		$name .= '_'.md5_hex($sigs);
+		$multi_sub = "BEGIN { Sub::Multi->add_multi('$wrapper_name', \\&$name) }\n";
+	    }
 	    return  $export .
                 " sub " . $name . 
                 " {\n" .
@@ -573,7 +581,7 @@ sub statement {
                 "\n }\n" .
                 "## Signature for $name\n" .
                 " Data::Bind->sub_signature\n".
-                " (\\&$name, ". _emit_parameter_signature ( $n->{signature} ) . ");\n";
+                " (\\&$name, $sigs);\n$multi_sub";
 	}
 	else {
 	    return _emit_closure($n->{signature}, $n->{block});

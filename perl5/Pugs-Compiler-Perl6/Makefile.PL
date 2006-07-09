@@ -21,6 +21,7 @@ requires('Module::Compile'      => '0.17');
 requires('Scalar::Util'         => '0');
 requires('Devel::Caller'        => '0.10');
 requires('Data::Bind'           => '0.26');
+requires('Sub::Multi'           => '0');
 requires('Moose'                => '0.10');
 
 recommends('Perl::Tidy'         => '0');

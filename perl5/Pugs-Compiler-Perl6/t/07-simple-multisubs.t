@@ -1,9 +1,6 @@
 
 use v6-alpha;
 
-my $has_run = 0;
-try {
-
 say "1..2";
 
 multi foo ($only_one_arg) {
@@ -16,12 +13,3 @@ multi foo ($arg1, $arg2) {
 
 foo "only_one_arg";
 foo "arg1", "arg2";
-
-$has_run = 1;
-
-}
-
-unless $has_run {
-    say 'ok 1 # skip TODO emit multis';
-    say 'ok 2 # skip TODO emit multis';
-}

@@ -6,6 +6,7 @@ use warnings;
 
 use Data::Dumper;
 use Data::Bind;
+use Sub::Multi;
 
 # TODO - see Pugs::Runtime::Grammar for metaclass stuff
 
