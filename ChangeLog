@@ -21,7 +21,7 @@ the same places.
 * With any such 'use' lines that appeared below other code, moved upwards.
 * Renamed all Perl scripts from *.p6 to *.pl and from *.p5 to *-p5.pl;
 all references to them, except in talks, were likewise updated.
-* Merged t_disabled/ into t/, and split t_pugs/ from t/.
+* Merged t_disabled/ into t/.
 * Did some rearranging/renaming in t/ so the tests scale better.
 * Copied ext/Test/t/* to t/02-test-pm/*, moved t/01-sanity/08-test.t to the 
 latter as well ... so 01-sanity doesn't use Test.pm, 02-test-pm checks that 

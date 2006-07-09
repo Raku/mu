@@ -23,8 +23,8 @@ Skills: understand this paragraph. can say it more clearly.
 
 * Rearrange t/ so that it is suited for reuse with multiple Perl 6
 implementations.  The generic Perl 6 tests, suitable to all Perl 6
-implementations, go in t/, while those suitable only to specific
-implementations go in t_<impl-name>/, eg t_pugs/.
+implementations, go in t/, and if any tests seem to be implementation
+specific, then perhaps this indicates the standard needs updating.
 
 * Remove all unconditional SKIP/TODO flags from t/, either replacing them
 with conditionals that only SKIP if the current Perl 6 implementation's

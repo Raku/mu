@@ -28,7 +28,6 @@ src/Pugs/Prelude.hs$
 src/pugs_version\.h$
 svn-commit\.tmp$
 ^debian/
-^t_pugs/
 ^t/builtins/system/
 ^third-party/HsJudy
 ^third-party/judy

@@ -53,7 +53,6 @@ The Pugs source tree includes several major sections:
     |-- script       pugscc, the Pugs Compiler Collection
     |-- src          Source code for Pugs itself
     |-- t            Perl 6 general test suite, for all implementations
-    |-- t_pugs       Tests specific to the Pugs implementation of Perl 6
     `-- util         Utilities for hacking and testing Pugs
 
 Expanding this one level deeper:
@@ -204,12 +203,12 @@ Expanding this one level deeper:
     |   `-- syck               Import of Syck source
     |
     |-- t                  Perl 6 general test suite, for all implementations
-    |   |-- 01-sanity          Sanity checks that testing can proceed
+    |   |-- 01-sanity          Basic lang features needed to run Test.pm
+    |   |-- 02-test-pm         Checks that Test.pm itself works (parts dup ext/Test/t/*)
     |   |-- Dialects           Perl 6 non-standard dialects
     |   |-- Synopsis           Pointers to online AES docs and tests
     |   |-- Test-Less          Test index for test-less utility
     |   |-- builtins           Builtin function tests
-    |   |-- bugs               Uncategorized tests for known broken behavior
     |   |-- data_types         Basic data type tests
     |   |-- examples           Make examples/ tree act as tests
     |   |-- general            Miscellaneous tests
@@ -219,22 +218,20 @@ Expanding this one level deeper:
     |   |-- oo                 Object Oriented programming tests
     |   |-- operators          Operator tests
     |   |-- packages           Tests for packages
+    |   |-- perl5
+    |   |-- pil
     |   |-- rules              Perl 6 rule and Perl 5 regex tests
+    |   |-- run                Tests for pugs command-line arguments
     |   |-- statements         Statement-level construct tests
     |   |-- subroutines        Block/Code/Sub/etc. tests
     |   |-- syntax             Basic syntax tests
     |   |-- types              Tests for types
     |   |-- unspecced          Tests for unspecced extensions to Perl 6
-    |   `-- var                Variable declaration tests
-    |
-    |-- t_pugs             Tests specific to the Pugs implementation of Perl 6
-    |   `-- invocation         Tests for pugs command-line arguments
+    |   |-- var                Variable declaration tests
+    |   `-- xx-uncategorized   Uncategorized tests for known broken behavior
     |
     `-- util               Utilities for hacking and testing Pugs
         `-- livecd             Tool to create a minimalistic Pugs Live CD
-
-
-
 
 =head2 Subversion properties
 
