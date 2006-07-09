@@ -17,6 +17,13 @@ use Pugs::Compiler::RegexPerl5;
 use Carp 'croak';
 use Data::Dumper;
 use Symbol 'qualify_to_ref';
+use Digest::MD5 'md5_hex';
+
+my $cache;
+eval {
+    require Cache::FileCache;
+    $cache = new Cache::FileCache( { 'namespace' => 'v6-rules' } );
+};
 
 sub new { $_[0] }
 
@@ -30,6 +37,7 @@ sub compile {
 
     return Pugs::Compiler::RegexPerl5->compile( $rule_source, $param )
         if exists $param->{P5} || exists $param->{Perl5};
+#warn length($rule_source);
 
     my $self = { source => $rule_source };
 
@@ -50,21 +58,32 @@ sub compile {
     warn "Error in rule: unknown parameter '$_'" 
         for keys %$param;
 
-    #print 'rule source: ', $self->{source}, "\n";
-    $self->{ast} = Pugs::Grammar::Rule->rule( 
-        $self->{source} );
-    die "Error in rule: '$rule_source' at: '$self->{ast}{tail}'\n" if $self->{ast}{tail};
-    #print 'rule ast: ', do{use Data::Dumper; Dumper($self->{ast}{capture})};
+    my $digest = md5_hex(Dumper($self));
+    my $cached;
 
-    if ( $self->{ratchet} ) {
-        $self->{perl5} = Pugs::Emitter::Rule::Perl5::Ratchet::emit( 
-            $self->{grammar}, $self->{ast}{capture}, $self );
+    if ($cache && ($cached = $cache->get($digest))) {
+	$self->{perl5} = $cached;
     }
     else {
-        $self->{perl5} = Pugs::Emitter::Rule::Perl5::emit( 
-            $self->{grammar}, $self->{ast}{capture}, $self );
+
+        #print 'rule source: ', $self->{source}, "\n";
+        $self->{ast} = Pugs::Grammar::Rule->rule( 
+            $self->{source} );
+        die "Error in rule: '$rule_source' at: '$self->{ast}{tail}'\n" if $self->{ast}{tail};
+        #print 'rule ast: ', do{use Data::Dumper; Dumper($self->{ast}{capture})};
+
+        if ( $self->{ratchet} ) {
+            $self->{perl5} = Pugs::Emitter::Rule::Perl5::Ratchet::emit( 
+                 $self->{grammar}, $self->{ast}{capture}, $self );
+        }
+        else {
+            $self->{perl5} = Pugs::Emitter::Rule::Perl5::emit( 
+                $self->{grammar}, $self->{ast}{capture}, $self );
+        }
+        #print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
+
+        $cache->set($digest, $self->{perl5}, 'never') if $cache;
     }
-    #print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
 
     local $@;
     $self->{code} = eval 
