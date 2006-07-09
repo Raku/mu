@@ -334,6 +334,14 @@ sub FETCHSIZE {
 
 1;
 
+=head1 SEE ALSO
+
+L<Sub::Multi>
+
+B<TODO: > Add a good reference to Perl6 multiple dispatch here. 
+
+B<TODO: > Add a good reference to Perl6 variable binding semantics
+
 =head1 AUTHORS
 
 Chia-liang Kao E<lt>clkao@clkao.orgE<gt>
