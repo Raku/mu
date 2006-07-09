@@ -1,4 +1,4 @@
-Pugs::Compiler::Perl6
+v6.pm hacking how-to
 
 * #perl6 jargon
 
@@ -7,7 +7,7 @@ PCR - the Pugs::Compiler::Rule module - implements Perl 6 parser tools: rule, to
 PCP6 or v6.pm or v6 - Pugs::Compiler::Perl6
 lrep - an older version of v6.pm
 
-* Environment
+* Environment variables
 
   V6DUMPAST=1  - tells the code emitter to dump the syntax tree to STDOUT before processing
 
@@ -52,17 +52,33 @@ lib/Pugs/Grammar/*
 -- Expression.pm 
   - detects end-of-expresion
   - parses some terms, like method calls
--- Operator, Infix, Prefix, ...
+-- Operator, BaseCategory.pm
+  - Infrastructure for operator tables
+-- Infix, Prefix, Postfix, Postcircumfix, Circumfix, Ternary
   - operator tables; most of the work is done by Pugs::Grammar::Precedence
 -- P6Rule.pm
   - parser for rules (almost a duplicate of the one in Pugs::Runtime::Rule)
 
-* Emitter
+-- StatementControl.pm and Pod.pm are currently not used
+
+* Code Emitter
 
 lib/Pugs/Emitter/Perl6/Perl5.pm
 -- gets a syntax tree and generates Perl5 code
 
-* Execute
+* Execute (Runtime)
 
 lib/Pugs/Runtime/Perl6.pm
 -- provides routines and objects that help emulate perl 6 semantics.
+
+
+=head1 COPYRIGHT
+
+Copyright 2006 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=cut
