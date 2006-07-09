@@ -167,7 +167,8 @@ sub emit_yapp {
                             "        { \$_[0]->{out}= Pugs::Grammar::Precedence::add_to_list( '$op->{name}', \$_[1], \$_[3] ) } \n" ;
                         $s .= 
                             "    |  exp '$op->{name}'    %prec $prec\n" .
-                            "        { \$_[0]->{out}= \$_[1] } \n" ;
+                            "        { \$_[0]->{out}= Pugs::Grammar::Precedence::add_to_list( '$op->{name}', \$_[1], { null => 1 } ) } \n" ;
+                            # "        { \$_[0]->{out}= \$_[1] } \n" ;
                         next;
                     }
                     my $t = $rule_templates{"$op->{fixity}_$op->{assoc}"};
