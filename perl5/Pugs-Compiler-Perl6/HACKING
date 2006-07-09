@@ -1,0 +1,19 @@
+Pugs::Compiler::Perl6
+
+Compilation cycle:
+
+  Source file ->
+  Parser -> Emitter ->
+  Execute
+
+Detailed compilation cycle:
+
+  ...
+
+File structure:
+
+lib/v6.pm 
+- provides compatibility with other perl 6 implementations, by implementing "use v6-alpha;"
+
+lib/Pugs/Compiler/Perl6
+- subclasses Pugs::Compiler::Rule to implement the "perl 6 compiler"
