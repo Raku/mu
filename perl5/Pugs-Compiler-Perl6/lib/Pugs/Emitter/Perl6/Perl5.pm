@@ -197,7 +197,10 @@ sub assoc_list {
     if ( $n->{op1} eq ';' ||
          $n->{op1} eq ',' ) {
         return join ( $n->{op1} . "\n", 
-            map { _emit( $_ ) } @{$n->{list}} 
+            map { exists $_->{null}
+                ? ()
+                : _emit( $_ ) 
+            } @{$n->{list}} 
         );
     }
     
