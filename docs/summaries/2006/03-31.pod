@@ -1,0 +1,28 @@
+=encoding utf8
+
+=head1 The Perl 6 summary for the weeks of 2006-03-01 through 2006-03-31
+
+=head2 Compiler (perl6-compiler)
+
+=head2 Internals (parrot-porters)
+
+=head2 Language (perl6-language)
+
+=head2 See also
+
+=over 4
+
+=item * Perl Foundation activities
+
+L<http://blog.perlfoundation.org/>
+
+=item * Perl 6 Development
+
+L<http://dev.perl.org/perl6>
+
+=item * Planet Perl Six
+
+L<http://planetsix.perl.org/>
+
+=back
+
