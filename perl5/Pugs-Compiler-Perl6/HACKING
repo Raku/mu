@@ -40,9 +40,9 @@ lib/Pugs/Compiler/Perl6
 
 * Parsing
 
-The syntax is mostly implemented using Pugs::Compiler::Rule.
+The syntax is mostly implemented using perl 6 rules, which are provided by the Pugs::Compiler::Rule module.
 
-A few terms are implemented using perl 5 modules, such as Pugs::Grammar::Precedence (called from Expression.pm), and Text::Balanced (called from Term.pm)
+A few "terms" are implemented using perl 5 modules, such as Pugs::Grammar::Precedence (called from Expression.pm), and Text::Balanced (called from Term.pm)
 
 lib/Pugs/Grammar/*
 -- Perl6.pm
