@@ -1,4 +1,5 @@
-use v6-alpha;
+# the v6 line is commented out due to bootstraping problem.
+#use v6-alpha;
 
 grammar Pugs::Grammar::Rule;
 

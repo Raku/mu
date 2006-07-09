@@ -2,7 +2,7 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0x1D6399E1 or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0x1EC5D393 or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
 use base 'Pugs::Grammar::Base';

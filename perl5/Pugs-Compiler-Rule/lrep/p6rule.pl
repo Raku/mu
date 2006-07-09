@@ -8,7 +8,7 @@ use warnings;
 
 use Data::Dumper;
 
-require 'iterator_engine.pl';
+require 'iterator_engine-p5.pl';
 require 'p6rule_lib.pl';
 require 'p5hacks.pl';
 
