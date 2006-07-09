@@ -37,11 +37,11 @@ sub sig {
     for my $param (@_) {
 	my $db_param = Data::Bind::Param->new
 	    ({ container_var => $param->{var},
-               named_only    => $param->{named_only},
-               is_writable   => $param->{is_rw},
-               is_slurpy     => $param->{is_slurpy},
+	       named_only    => $param->{named_only},
+	       is_writable   => $param->{is_rw},
+	       is_slurpy     => $param->{is_slurpy},
 	       invocant      => $param->{invocant},
-               constraint    => $param->{constraint},
+	       constraint    => $param->{constraint},
 	       p5type        => substr($param->{var}, 0, 1),
 	       name          => substr($param->{var}, 1) });
 
