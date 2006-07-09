@@ -53,6 +53,7 @@ The Pugs source tree includes several major sections:
     |-- script       pugscc, the Pugs Compiler Collection
     |-- src          Source code for Pugs itself
     |-- t            Perl 6 general test suite, for all implementations
+    |-- third-party  Third party dependencies of Pugs, bundled for convenience
     `-- util         Utilities for hacking and testing Pugs
 
 Expanding this one level deeper:
@@ -81,11 +82,14 @@ Expanding this one level deeper:
     |
     |-- docs               Documentation relating to Pugs/Perl 6/Haskell
     |   |-- AES                Drafts of Perl6::Bible chapters
-    |   |-- class              Object system sketches (XXXX: out of date?)
+    |   |-- Perl6
+    |   |-- articles
+    |   |-- feather
     |   |-- notes              Misc design notes and musings
     |   |-- other              Misc tips to day-to-day development
     |   |-- quickref           Perl 6 quick reference pages
     |   |-- src                Junction implementation sketch (XXXX: ood?)
+    |   |-- summaries
     |   |-- talks              Slides for Pugs and Perl 6 talks
     |   |-- zh-cn              Simplified Chinese doc translations
     |   `-- zh-tw              Traditional Chinese doc translations
@@ -94,12 +98,15 @@ Expanding this one level deeper:
     |   |-- advocacy           Pugs/Perl 6-advocacy MOTD generator
     |   |-- algorithms         Basic algorithms
     |   |-- cgi                CGI scripts and applications
+    |   |-- concurrency
     |   |-- continuation       Fun with continuations
     |   |-- cookbook           Perl 6 idiomatic Perl Cookbook
     |   |-- functional         Functional programming concepts
     |   |-- games              Playable games
     |   |-- golf               Minimal (key)stroke puzzle solutions
+    |   |-- graphics
     |   |-- hashes             Use of Perl 6 hashes
+    |   |-- hop6
     |   |-- japh               JAPHs using various idioms
     |   |-- junctions          Fun with junctions
     |   |-- naive_bayesian     Naive Bayesian Text Classification
@@ -109,9 +116,12 @@ Expanding this one level deeper:
     |   |-- output             Expected example outputs, for testing
     |   |-- p6explain          Incomplete tool which explains Perl 6 constructs
     |   |-- perl5              Programs that use Perl 5 modules
+    |   |-- piln
     |   |-- poetry             Perl 6 poetry
     |   |-- ppt                Perl 6 Power Tools, ports of *nix userland
     |   |-- qotw               Perl 6 solutions to plover's Quiz Of The Week
+    |   |-- rpn
+    |   |-- rules
     |   |-- slurpy-list-parms  Use of Perl 6 slurpy lists (XXXX: -> t/?)
     |   |-- tutorial_gen       Tutorial generator (XXXX: huh?)
     |   `-- vmethods           Add virtual methods to existing types
@@ -120,6 +130,7 @@ Expanding this one level deeper:
     |   |-- Algorithm-TokenBucket  Token bucket rate limiting
     |   |-- Benchmark          Benchmark runtime of Perl 6 code
     |   |-- CGI                CGI author's helper module
+    |   |-- Cipher             Perl 6 Cipher API
     |   |-- Config-Tiny        Pre-Pugs-OO .ini file reader
     |   |-- DateTime           Port of Perl 5 DateTime, with API changes
     |   |-- DateTime-Set       Port of Perl 5 DateTime::Set/Span/SpanSet
@@ -127,21 +138,29 @@ Expanding this one level deeper:
     |   |-- File-Find          Traverse a directory tree
     |   |-- File-Spec          Portable File handling
     |   |-- FindBin            Find directory of Perl script
+    |   |-- Getopt-Long
+    |   |-- Getopt-Process
+    |   |-- Getopt-Std         Simple commandline processing for Perl 6
     |   |-- HTML-Entities      Encode/decode HTML entities
     |   |-- HTTP-Server-Simple Base class for simple CGI-capable HTTP servers
     |   |-- Kwid-Event-Parser  Event-based API (like XML SAX) for Kwid
+    |   |-- Locale-KeyedText   Refer to user messages in programs by keys
+    |   |-- Log-Selective      Selectively choose what to log
     |   |-- MIME-Base64        Base64 encode/decode (not a Perl 5 port)
     |   |-- Module-Pluggable-Fast  Find and load plugin modules
     |   |-- Net-IRC            IRC protocol implementation
+    |   |-- Parse-Rule         Perl 6 port of the Parrot Grammar Engine
     |   |-- Perl-Compiler      A Perl 6 port of Pugs
     |   |-- Perl6-Container-Array  Perl 6 implementation of Perl 6 lazy arrays
+    |   |-- Perl6-Grammar      Perl 6 Grammar
     |   |-- Perl6-Value-List   Perl 6 implementation of Perl 6 lazy lists
     |   |-- Perldoc            Event-based API for Perldoc DOM
     |   |-- Pod-Event-Parser   Event-based API (like XML SAX) for POD
     |   |-- Recurrence         Recurrence operations
-    |   |-- Rosetta-Incubator  Rigorous Database Portability
+    |   |-- Rosetta            Rigorous Database Portability
     |   |-- Set                Set calculus operations
     |   |-- Set-Infinite       Infinite set operations
+    |   |-- Set-Relation       Relation data type for Perl
     |   |-- Span               Span operations
     |   |-- Test               Testing support library
     |   |-- Test-Builder       Backend for building test libraries
@@ -161,7 +180,7 @@ Expanding this one level deeper:
     |-- lib                Pugs- and Perl 6-related Perl 5 modules
     |   |-- Inline             Inline::Pugs
     |   |-- Perl6              Perl6::MakeMaker, Perl6::Pugs
-    |   `-- pugs               POD docs for Pugs itself
+    |   `-- Pugs               POD docs for Pugs itself
     |
     |-- misc               Other modules, not directly used by Pugs
     |   |-- Blondie            Intermediate language and compiler collection
@@ -170,32 +189,49 @@ Expanding this one level deeper:
     |   |-- Class-Events       Redesign of Perl 5's Class::Publisher
     |   |-- Date               Date/calendar calculations
     |   |-- Grammars           Perl 6 grammar written as Perl 6 rules
+    |   |-- IDE-support
     |   |-- JavaScript-FrontEnd  JavaScript Frontend
-    |   |-- org.perl6.metamodel  Prototype Perl 6 metaclass model: Java
+    |   |-- POE                Beginning of an experimental port of Perl 5 POE
+    |   |-- Parser-Mini
     |   |-- Perl-MetaModel     Prototype Perl 6 metaclass model: Perl 5,
     |   |                      version 1.0
-    |   |-- POE                Beginning of an experimental port of Perl 5 POE
+    |   |-- Sample-Module
     |   |-- T2-Perl6           T2 (Tangram::Schema redesign) -> Perl6::Class
-    |   |-- XML-Sax            Simple API for XML
+    |   |-- XML-SAX            Simple API for XML
+    |   |-- org.perl6.metamodel  Prototype Perl 6 metaclass model: Java
+    |   |-- pX
+    |   |-- pilrun2-leftovers
+    |   `-- sixpan
     |
     |-- perl5              Internal Perl 5 modules for Pugs (compiler backends)
+    |   |-- Data-Bind
+    |   |-- PIL-Run            PIL virtual machine in Perl 5
+    |   |-- PIL2JS             PIL to JavaScript compiler
     |   |-- Perl6-Container    Perl 6 containers implemented using the Perl 5
     |   |                      metamodel
     |   |-- Perl6-MetaModel    Prototype Perl 6 metaclass model: Perl 5,
     |   |                      version 2.0
+    |   |-- Perl6-ObjectSpace
     |   |-- Perl6-Value        Perl 6 values implemented using the Perl 5
     |   |                      metamodel
-    |   |-- PIL-Run            PIL virtual machine in Perl 5
-    |   `-- PIL2JS             PIL to JavaScript compiler
+    |   |-- Pugs-Compiler-Perl6
+    |   |-- Pugs-Compiler-Rule
+    |   |-- Pugs-Grammar-MiniPerl6
+    |   |-- Sub-Multi
+    |   |-- re-override
+    |   `-- re-override-PCRE
     |
     |-- script             pugscc, the Pugs Compiler Collection
     |
     |-- src                Haskell source for pugs itself
     |   |-- Data               Syck-based YAML parser
+    |   |-- DrIFT
     |   |-- Emit               Parrot PIR backend
     |   |-- PIL                PIL2 implementation
     |   |-- Pugs               Core Pugs engine
     |   |-- RRegex             PCRE-based regular expressions support
+    |   |-- System
+    |   |-- Text
     |   |-- pcre               Import of PCRE source
     |   |-- perl5              Perl 5 bidirectional call support
     |   |-- perl6              The Perl 6 prelude (definition of builtins)
@@ -230,8 +266,17 @@ Expanding this one level deeper:
     |   |-- var                Variable declaration tests
     |   `-- xx-uncategorized   Uncategorized tests for known broken behavior
     |
+    |-- third-party        Third party dependencies of Pugs, bundled for convenience
+    |   |-- HsJudy
+    |   |-- HsSyck
+    |   |-- TextRegexLazy
+    |   |-- fps
+    |   `-- judy
+    |
     `-- util               Utilities for hacking and testing Pugs
-        `-- livecd             Tool to create a minimalistic Pugs Live CD
+        |-- catalog_tmpl
+        |-- livecd             Tool to create a minimalistic Pugs Live CD
+        `-- smokeserv
 
 =head2 Subversion properties
 
