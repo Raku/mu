@@ -147,7 +147,7 @@ Data::Bind - Bind and alias variables
     Data::Bind->arg_bind(\@_);
   }
 
-  formalize([\'this is title', sub { "some code" } ], # positional
+  formalize([\('this is title', sub { "some code" }) ], # positional
             { subtitle => \'hello'} ); #named
 
 =head1 DESCRIPTION
@@ -255,7 +255,7 @@ sub is_compatible {
 
 sub arity {
     my $self = shift;
-    scalar grep { !$_->is_optional }values %{$self->named};
+    scalar grep { !$_->is_optional } values %{$self->named};
 }
 
 package Data::Bind::Param;
