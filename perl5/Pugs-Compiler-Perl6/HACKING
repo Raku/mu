@@ -7,10 +7,6 @@ PCR - the Pugs::Compiler::Rule module - implements Perl 6 parser tools: rule, to
 PCP6 or v6.pm or v6 - Pugs::Compiler::Perl6
 lrep - an older version of v6.pm
 
-* Implementing new syntax
-
-...
-
 * Environment
 
   V6DUMPAST=1  - tells the code emitter to dump the syntax tree to STDOUT before processing
@@ -24,7 +20,15 @@ lrep - an older version of v6.pm
   Emitter ->
   Execute
 
-* Source file reading:
+* Implementing new syntax
+
+-- set the V6DUMPAST environment variable 
+-- try a simple test with the new syntax:
+  perl -Ilib lib/v6.pm --compile-only ' say 42 '
+-- if the syntax tree looks ok, the new syntax can be implemented in the emitter file - see the Emitter section below.
+-- in order to implement of fix syntax tree nodes, see the Parsing section for choosing which file to edit.
+
+* Source file processors:
 
 lib/v6.pm 
 -- provides compatibility with other perl 6 implementations, by implementing "use v6-alpha;"
