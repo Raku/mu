@@ -3,6 +3,8 @@
 - replace 'Regex' matching with 'Token' - needs fixing Pugs::Compiler::Rule: interoperation of :ratchet/non-ratchet rules; implementation of non-ratchet hash-based dispatch.
 
 - implement hash and array
+- hash composer:
+    $ perl -Ilib lib\v6.pm --compile-only -e " %a = { }; %b = { 1, 2 }; %c = { $a }; %d = { $pair, }; %e = {3=>4}; %f = { :x<y> }; "
 
 - implement statement and operation classes in the grammar; implement macros (see lrep for an existing implementation).
 
