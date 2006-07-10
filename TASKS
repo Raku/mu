@@ -15,12 +15,6 @@ Skills: basic p6.
   are familiar are correctly described.  Skills: be famaliar with some
   system. ;)
 
-* Add a note to lib/pugs/hack.pod mentioning that under
-http://rt.openfoundry.org/Foundry/Project/Source/index.html/pugs/browse/
-the "(history of this directory)" lists the revisions which affected
-the directory you are currently looking at (all the subdirs to of course).
-Skills: understand this paragraph. can say it more clearly.
-
 * Rearrange t/ so that it is suited for reuse with multiple Perl 6
 implementations.  The generic Perl 6 tests, suitable to all Perl 6
 implementations, go in t/, and if any tests seem to be implementation

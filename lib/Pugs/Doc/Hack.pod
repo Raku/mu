@@ -433,6 +433,9 @@ signature, name, etc.
 Browsable Pugs VCS.  You sometimes get a blank page the first time you access a
 URL (a timeout) - just click again.
 
+Follow the link titled "(history of this directory)" to see an SVN log excerpt.
+It will list all changes from that directory and its subdirectories only.
+
 =item L<http://svn.perl.org/perl6/pugs/trunk/>
 
 Mirror of Pugs VCS head.  Usually faster and more reliable than the OpenFoundry
