@@ -62,7 +62,7 @@ eval 'print < 3';
 ok($!, 'print < 3 parsefail');
 
 my $z = eval 'reverse<1 2 3>';
-is($z, reverse()<1,2,3>, 'reverse<1 2 3> is hash subscript');
+ok($!, 'reverse<1 2 3> parsefail');
 
 eval ':foo <1 2 3>';
 ok($!, ':foo <1 2 3> parsefail');
