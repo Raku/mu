@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 1 July 2006
+  Last Modified: 10 July 2006
   Number: 2
-  Version: 48
+  Version: 49
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1713,8 +1713,8 @@ it is compiled as a provisional function call of the parenthesized form.
 If it is not, it is compiled as a provisional function call of
 the list operator form, which may or may not have an argument list.
 When in doubt, the attempt is made to parse an argument list.  As with
-any list operator, an immediate postfix operator means there are no
-arguments, whereas anything following whitespace will be interpreted
+any list operator, an immediate postfix operator is illegal unless it is a
+form of parentheses, whereas anything following whitespace will be interpreted
 as an argument list if possible.
 
 Based on the signature of the subroutine declaration, there are only
@@ -1747,16 +1747,16 @@ colon postfix, since such a colon is allowed only on an indirect object,
 or a method call in dot form.  (It is also allowed on a label when a
 statement is expected.) So for any undeclared identifier "C<foo>":
 
-    foo.bar		# foo().bar	-- postfix prevents args
+    foo.bar		# foo().bar	-- illegal postfix, must use foo().bar
     foo .bar		# foo($_.bar)	-- no postfix starts with whitespace
-    foo\ .bar		# foo().bar	-- long dot, so postfix
-    foo++		# foo()++	-- postfix
+    foo\ .bar		# foo().bar	-- illegal long dot, use foo()\ .bar
+    foo++		# foo()++	-- illegal postfix, must use foo()++
     foo 1,2,3		# foo(1,2,3)	-- args always expected after listop
     foo + 1		# foo(+1)	-- term always expected after listop
     foo;		# foo();	-- no postfix, but no args either
     foo:		#   label	-- must be label at statement boundary.
 					-- illegal otherwise
-    foo: bar:		#   two labels in a row
+    foo: bar:		#   two labels in a row, okay
     .foo:		# $_.foo: 1 	-- must be "dot" method with : args
     .foo(1)		# $_.foo(1) 	-- must be "dot" method with () args
     .foo		# $_.foo() 	-- must be "dot" method with no args

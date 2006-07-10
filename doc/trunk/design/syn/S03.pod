@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 1 Jul 2006
+  Last Modified: 10 Jul 2006
   Number: 3
-  Version: 44
+  Version: 45
 
 =head1 Changes to existing operators
 
@@ -224,18 +224,23 @@ The rest of the time scalar or list behavior can be forced with minimal
 syntax.
 
 =item * List operators are all parsed consistently.  As in Perl 5,
-to the left they look like terms, while to the right they look like
-operators that are looser than comma.  Unlike in Perl 5, the difference
+to the left a list operator look like term, while to the right it looks like
+an operator that is looser than comma.  Unlike in Perl 5, the difference
 between the list operator form and the function form is consistently
 indicated via whitespace between the list operator and the first
 argument.  If there is whitespace, it is always a list operator,
-and the next token will be taken as the first term of the list.
-If there is no whitespace, the parser is biased towards taking the
-next token as an operator if at all possible.  If the next token
-can be taken as either an infix or a postfix operator, it indicates
-that the list operator has no arguments.  (Or more precisely, no
-extra arguments that aren't supplied the operator, since C<.()>
-is a postfix that supplies arguments to the preceding function.)
+and the next token will be taken as the first term of the list (or
+if there are no terms, as the expression terminator).
+
+If there is no whitespace, the operator is never taken as a list
+operator, but always as a functional operator.  Postfixes are
+specifically disallowed right after the operator except for the
+parenthetical forms delimiting the argument list.  The parentheses
+are optional if and only if there are no arguments.  If there are
+parentheses, they may be followed by any postfix operator.  Unlike
+postfix operators, infix operators and expression terminators are
+allowed without intervening whitespace, and will be taken to indicate
+that the operator is a function with no arguments.
 
 Examples:
 
@@ -244,18 +249,18 @@ Examples:
     say foo ($bar+1),$baz		say(foo($bar+1, $baz));
     say foo .($bar+1),$baz		say(foo($_.($bar+1), $baz));
 
-    say foo[$bar+1],$baz		say((foo[$bar+1]), $baz);
-    say foo.[$bar+1],$baz		say((foo[$bar+1]), $baz);
+    say foo[$bar+1],$baz		illegal, need foo()[]
+    say foo.[$bar+1],$baz		illegal, need foo().[]
     say foo [$bar+1],$baz		say(foo([$bar+1], $baz));
     say foo .[$bar+1],$baz		say(foo($_.[$bar+1], $baz));
 
-    say foo{$bar+1},$baz		say((foo{$bar+1}), $baz);
-    say foo.{$bar+1},$baz		say((foo{$bar+1}), $baz);
+    say foo{$bar+1},$baz		illegal, need foo(){}
+    say foo.{$bar+1},$baz		illegal, need foo().{}
     say foo {$bar+1},$baz		say(foo({$bar+1}, $baz));
     say foo .{$bar+1},$baz		say(foo($_.{$bar+1}, $baz));
 
-    say foo<$bar+1>,$baz		say((foo<$bar+1>), $baz);
-    say foo.<$bar+1>,$baz		say((foo<$bar+1>), $baz);
+    say foo<$bar+1>,$baz		illegal, need foo()<>
+    say foo.<$bar+1>,$baz		illegal, need foo().<>
     say foo <$bar+1>,$baz		say(foo(<$bar+1>, $baz));
     say foo .<$bar+1>,$baz		say(foo($_.<$bar+1>, $baz));
 
@@ -263,10 +268,10 @@ Note that Perl 6 is making a consistent three-way distinction between
 term vs postfix vs infix, and will interpret an overloaded character
 like C<< < >> accordingly:
 
-    any <a b c>				any('a','b','c')	# term
-    any<a b c>				(any).{'a','b','c'}	# postfix
-    any()<a b c>			(any).{'a','b','c'}	# postfix
-    any() < $x				(any) < $x		# infix
+    any <a b c>			any('a','b','c')	# term
+    any()<a b c>		(any).{'a','b','c'}	# postfix
+    any() < $x			(any) < $x		# infix
+    any<a b c>			    [syntax error]	# illegal postfix
 
 This will seem unfamiliar and "undwimmy" to Perl 5 programmers, who
 are used to a grammar that sloppily hardwires a few postfix operators
@@ -277,6 +282,18 @@ of postfix operators.
 =item * A list operator's arguments are also terminated by a closure
 that is not followed by a comma or colon.  (And a semicolon is implied if
 the closure is the final thing on a line.)
+
+=item * A function predeclared as 0-ary is never considered list
+operator, though it allows an optional set of empty parentheses.
+Unlike functions and list operators with arguments (see above),
+a 0-ary function does not require parentheses even if followed
+immediately by a postfix.
+
+=item * A non-multi sub predeclared with an arity of exactly 1 parses
+as a named unary in precedence.  All other subs with arguments
+parse as list operators.  (In other words, a named unary operator
+may be declared to take extra arguments only if they are named-only
+arguments.)
 
 =back
 
