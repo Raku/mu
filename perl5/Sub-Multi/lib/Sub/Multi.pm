@@ -1,7 +1,7 @@
 package Sub::Multi;
-our $VERSION = '0.001_1';
+our $VERSION = '0.001_2';
 use base 'Class::Multimethods::Pure';
-use Data::Bind 0.26;
+use Data::Bind 0.27;
 
 =head1 NAME
 
