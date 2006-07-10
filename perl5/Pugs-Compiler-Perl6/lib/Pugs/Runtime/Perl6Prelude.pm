@@ -14,7 +14,7 @@ module Perl6::Internals;
 
 sub compile_pir($code) { ... }
 sub exit($status) { eval("exit($status)", :lang<perl5>); }
-sub sleep($seconds) { eval("sleep($seconds)", lang<perl5>); }
+sub sleep($seconds) { eval("sleep($seconds)", :lang<perl5>); }
 
 
 module Pugs::Internals;
