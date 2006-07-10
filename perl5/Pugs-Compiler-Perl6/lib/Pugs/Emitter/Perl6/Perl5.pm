@@ -388,6 +388,7 @@ sub default {
                 my $name = _emit( $n->{param}{sub} );
                 my @param = eval _emit( $n->{param}{param} );
                 return 
+                    "do { " .
                     "{ package ${name}; require Exporter; " .
                     " our \@ISA = qw(Exporter);" .
                     " our \@EXPORT = (" . ( join ",", map {
@@ -397,7 +398,8 @@ sub default {
                         " sub $param[$_] { $_ } "; 
                     } 0 .. $#param ) .
                     "}" .
-                    " ${name}->import(); ";
+                    " ${name}->import(); " .
+                    "1 } "; # /do -- t/oo/enums.t depends on enum returning true
             }
         }
 
