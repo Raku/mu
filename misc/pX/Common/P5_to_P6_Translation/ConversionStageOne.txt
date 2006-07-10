@@ -37,15 +37,15 @@ First stage translations for Perl5->Perl6
 
 -Loop over all values: foreach my $foo (@baz) {...} -> for @baz -> $foo {...} (also need to handle without 'my')
 
--Length of string: length("foo") -> "foo".chars
+(DONE)-Length of string: length("foo") -> "foo".chars
 
 -Splitting on a regular experssion: (DONE) split(m/;/, $foo) -> split(/;/, $foo)
-					   split('\s+') -> split(/\s+/)
+				    (DONE) split('\s+') -> split(/\s+/)
 					   split(FOO) -> .split(FOO)
    					   split(FOO,$bar) -> $bar.split(FOO)
 
 
--Split on space: split(' ', $foo) -> $foo.words
+(DONE)-Split on space: split(' ', $foo) -> $foo.words
 
 -Heredocs: <<END -> qq:to/END/ (and other friends)
 
