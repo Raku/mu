@@ -24,7 +24,7 @@ plan 12;
     my $gen = {
         # Note: The following line is only executed once, because it's equivalent
         # to
-        #   state $svar will first{ 42 };
+        #   state $svar will first { 42 };
         # See L<S04/"Closure traits" /emantics to any initializer, so this also works/>
         state $svar = 42;
         my $ret = { $svar++ };
@@ -50,7 +50,7 @@ plan 12;
     }
 }
 
-# state will first{...}
+# state will first {...}
 {
     my ($a, $b);
     eval '
@@ -63,7 +63,7 @@ plan 12;
         $b = $gen()();  # $svar == 44
     ';
 
-    is $b, 44, 'state will first{...} works', :todo<feature>;
+    is $b, 44, 'state will first {...} works', :todo<feature>;
 }
 
 # Return of a reference to a state() var

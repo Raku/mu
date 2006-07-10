@@ -152,13 +152,17 @@ method grep ($set: Code $select ) {
     return $set.new( 
         closure_next =>
             sub ($x is copy) { 
-                loop{ $x = &{ $set.closure_next }($x); 
-                      return $x if $x==Inf || $select($x) } 
+                loop {
+		    $x = &{ $set.closure_next }($x); 
+		    return $x if $x==Inf || $select($x)
+		} 
             },
         closure_previous =>
             sub ($x is copy) { 
-                loop{ $x = &{ $set.closure_previous }($x); 
-                      return $x if $x==-Inf || $select($x) } 
+                loop {
+		    $x = &{ $set.closure_previous }($x); 
+		    return $x if $x==-Inf || $select($x)
+		} 
             },
         # -- use the default generated closures
         # complement_next =>     sub ($x) {...},

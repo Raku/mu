@@ -89,11 +89,11 @@ ok(approx(tan(7/4*$PI), -1));
 ok(approx(tan(8/4*$PI), 0));
 
 # asin
-ok(approx(try{asin(0)},            0));
-ok(approx(try{asin(1/2*sqrt(2))},  1/4*$PI), :todo<feature>);
-ok(approx(try{asin(1)},            2/4*$PI), :todo<feature>);
+ok(approx(try {asin(0)},            0));
+ok(approx(try {asin(1/2*sqrt(2))},  1/4*$PI), :todo<feature>);
+ok(approx(try {asin(1)},            2/4*$PI), :todo<feature>);
 
 # acos
-ok(approx(try{acos(0)},            2/4*$PI), :todo<feature>);
-ok(approx(try{acos(1/2*sqrt(2))},  1/4*$PI), :todo<feature>);
-ok(approx(try{acos(1)},            0/4*$PI));
+ok(approx(try {acos(0)},            2/4*$PI), :todo<feature>);
+ok(approx(try {acos(1/2*sqrt(2))},  1/4*$PI), :todo<feature>);
+ok(approx(try {acos(1)},            0/4*$PI));

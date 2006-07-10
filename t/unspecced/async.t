@@ -6,7 +6,7 @@ use Test;
 
 = DESCRIPTION
 
-This test tests the interaction of C<async{}> and
+This test tests the interaction of C<async {}> and
 C<system>. Ideally, while a C<system> call is in progress,
 C<async> blocks are still being executed.
 

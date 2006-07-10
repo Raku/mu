@@ -6,7 +6,7 @@ use Test;
 
 = DESCRIPTION
 
-This test tests the interaction of C<async{}> and
+This test tests the interaction of C<async {}> and
 C<sleep>. Ideally, while a C<sleep> call is in progress
 in one thread, other C<async> blocks are still being
 executed.

@@ -21,7 +21,7 @@ role List--Perl6;
    }
    $str;
  }
- &join<> := &join<Str>.assuming:delimiter(' ');
+ &join := &join:(Str).assuming:delimiter(' ');
 
  multi sub map (Code $expression ; *@values) returns List {
    gather {
@@ -64,7 +64,7 @@ role List--Perl6;
 
  multi sub sort(Criterion @by ; *@values) returns List
  multi sub sort(Criterion $by ; *@values) returns List
- &sort<> := &sort<Criterion>.assuming(by => &infix:<cmp>);
+ &sort := &sort:(Criterion).assuming(by => &infix:<cmp>);
 
  type KeyExtractor ::= Code(Any) returns Any;
  type Comparator   ::= Code(Any, Any) returns Int;

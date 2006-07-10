@@ -10,7 +10,7 @@ does List;
 
 
 
-&Array::pop<Array> := &Array::splice<Array>.assuming(:offset(-1) :length(1));
+&Array::pop:(Array) := &Array::splice:(Array).assuming(:offset(-1) :length(1));
 
 multi sub Array::pop () returns Scalar {
     pop @CALLER::_;
@@ -20,7 +20,7 @@ multi sub Array::pop () returns Scalar {
    Array::splice(@array, @array.elems, 0, @values);
    @array.elems;
  }
- &Array::shift<Array> := &Array::splice<Array>.assuming(:offset(0) :length(1));
+ &Array::shift:(Array) := &Array::splice:(Array).assuming(:offset(0) :length(1));
 
  multi sub Array::shift () returns Scalar {
    Array::shift @CALLER::_;
@@ -52,7 +52,7 @@ multi sub Array::pop () returns Scalar {
    }
    $str;
  }
- &join<> := &join<Str>.assuming:delimiter(' ');
+ &join := &join:(Str).assuming:delimiter(' ');
 
  multi sub Array::map (@values,   Code $expression) returns Lazy 
  multi sub  Perl6::List::map (Code $expression ; *@values) returns Lazy {

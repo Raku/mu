@@ -84,7 +84,7 @@ sub Pugs::Internals::log_base(Num $x, Num $base) {
 }
 
 
- &log10<> := &log<>.assuming:base(10);
+ &log10 := &log.assuming:base(10);
 
 
  multi Math::Basic::rand ( Num $x = 1 --> Num )
@@ -356,7 +356,7 @@ been iterated.
    }
    $str;
  }
- &join<> := &join<Str>.assuming:delimiter(' ');
+ &join := &join:(Str).assuming:delimiter(' ');
 
 
 =item map 
@@ -694,7 +694,7 @@ Needs to be in terms of StrPos, not Int.
  multi Str::split ( Rule $delimiter ,  Str $input = CALLER::<$_>, Int $limit = inf --> List )
  multi Str::split (      Str $input ;  Str $delimiter          , Int $limit = inf --> List )
  multi Str::split (      Str $input ; Rule $delimiter          , Int $limit = inf --> List )
- &split<> := &split<Str>.assuming:delimiter(' ');
+ &split := &split:(Str).assuming:delimiter(' ');
 
 String delimiters must not be treated as rules but as constants.  The
 default is no longer ' ' since that would be interpreted as a constant.

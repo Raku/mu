@@ -95,7 +95,7 @@ Tests the given block, as defined in L<S04/"Switch statements">
         when 1 {$b_one = 1}
         when 2 {$b_two = 1}
         when 3 {$b_three = 1}
-        default{$panic =1}
+        default {$panic =1}
     }
         ok($b_one, "first iteration");
         ok($b_two, "second iteration");

@@ -13,7 +13,7 @@ multi sub log (; Num ?$x = $CALLER::_, Num :$base where { $base > 0 })
     returns Num { ... }
 
 # mmm, curry!
-&log10<> := &log<>.assuming:base(10);
+&log10 := &log.assuming:base(10);
 
 multi sub rand (; Num ?$x = 1, Num :$seed )
     returns Num { ... }
