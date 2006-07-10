@@ -859,7 +859,8 @@ sub prefix {
     }
     if ( $n->{op1}{op} eq '++' ||
          $n->{op1}{op} eq '--' ||
-         $n->{op1}{op} eq '+'  ) {
+         $n->{op1}{op} eq '+'  ||
+         $n->{op1}{op} eq '-'  ) {
         return $n->{op1}{op} . _emit( $n->{exp1} );
     }
     
