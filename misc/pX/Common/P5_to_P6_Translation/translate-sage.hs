@@ -188,7 +188,11 @@ uniBlock indent = choice
         newline;
         uni <- manyTill (manyTill anyToken newline) (try(newline)) <?> "uni block with chomp modifier";
         return (unlines (map (drop indent) uni))
-    ,do uni <- manyTill anyToken newline <?> "uni string";
+    ,do try $ string "\""
+        uni <- manyTill anyToken (try(string("\"\n")))
+        return uni
+        --return (makeLiterals (unlines ((head (lines uni))++(map (drop indent) (tail (lines uni))))))
+    ,do uni <- manyTill anyToken newline <?> "uni string"
         --If the field is in quotes, strip the quotes by stripping the first character, 
         --reversing the string, stripping the first character, then reversing again
         return $ if (head uni `elem` "\"'")
@@ -236,8 +240,46 @@ printTree outFile (AbstractNode _ kids) = do{ printTree outFile (head kids);
                                               printTree outFile (AbstractNode P5AST (tail kids))}
 
 --Wrapper function to apply all translations in order
-translate :: P5AST -> P5AST
-translate tree = (lengthToMethod (splitOnMatchTranslate (readlineTranslate (conditionalExpression (arrayKey (hashKey (regexSubstitutionTranslation tree)))))))
+translate :: P5AST -> String -> P5AST
+translate tree options= if (options == "Oo") then (toWords (lengthToMethod (splitOnMatchTranslate (splitQuotes(readlineTranslate (conditionalExpression (arrayKey (hashKey (regexSubstitutionTranslation tree))))))))) else
+                                                    (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (regexSubstitutionTranslation tree)))))))
+
+toWords :: P5AST -> P5AST
+toWords (AbstractNode Op_split kids) = if (isInOrder [(LiteralNode Openquote "1" "/"), (LiteralNode Text "1" " "), (LiteralNode Closequote "1" "/")] kids) then (AbstractNode Op_split [(getSecondArg kids), (LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "words")])])])
+                                          else (AbstractNode Op_split (map toWords kids))
+toWords (AbstractNode atype kids) = (AbstractNode atype (map toWords kids))
+toWords (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+getSecondArg :: [P5AST] -> P5AST
+getSecondArg [] = (AbstractNode UnknownAbs [])
+getSecondArg list = if (matchWithoutEnc (head list) (AbstractNode Listelem [])) then (dropComma (head list)) else (getSecondArg (tail list))
+
+dropComma :: P5AST -> P5AST
+dropComma (AbstractNode Listelem kids) = (head (tail kids))
+dropComma (AbstractNode atype kids) = (AbstractNode atype kids)
+dropComma (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+splitQuotes :: P5AST -> P5AST
+splitQuotes (AbstractNode Op_split kids) = (AbstractNode Op_split (join (map toSlashQuotes kids)))
+splitQuotes (AbstractNode atype kids) = (AbstractNode atype (map splitQuotes kids))
+splitQuotes (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+toSlashQuotes :: P5AST -> [P5AST]
+toSlashQuotes (AbstractNode Op_const kids) = [(LiteralNode Openquote "1" "/"), (extractText kids),(LiteralNode Closequote "1" "/")]
+toSlashQuotes (LiteralNode atype enc uni) = [(LiteralNode atype enc uni)]
+toSlashQuotes (AbstractNode atype kids) = [(AbstractNode atype kids)]
+
+extractText :: [P5AST] -> P5AST
+extractText [] = (LiteralNode Text "1" "")
+extractText kids = if ((getLType (head kids))==Text) then (head kids) else (extractText (tail kids)) 
+
+getLType :: P5AST -> LitType
+getLType (AbstractNode sometype kids) = UnknownLit
+getLType (LiteralNode sometype enc uni) = sometype
+
+join :: [[P5AST]] -> [P5AST]
+join [] = []
+join lists = (head lists)++(join (tail lists))
 
 lengthToMethod :: P5AST -> P5AST
 lengthToMethod (AbstractNode Op_length kids) = (toCharMethod kids)
@@ -379,21 +421,22 @@ matchWithoutEnc _ _ = False
 
 {-
 A main function to parse a file containing a tree and output the contents to another file
-Useage: mainParse inFile outFile
+Useage: mainParse inFile outFile options
+options is a string with optional information, the only current option is "Oo" which applies more Object-oriented
+translations then are strictly needed, such as $fh.close instead of close($fh)
 -}
-mainParse :: FilePath -> FilePath -> IO ()
-mainParse inName outName = do
+mainParse :: FilePath -> FilePath -> String-> IO ()
+mainParse inName outName options= do
     inHandle    <- openFile inName ReadMode
     input       <- hGetContents inHandle
     outHandle   <- openFile outName WriteMode
     -- putStrLn ("DEBUG: got input " ++ input)
     let dirs = case parse parseInput "stdin" input of
-            Left err -> error $ "Input:\n" ++ show input ++ 
-                                "\nError:\n" ++ show err
+            Left err -> error $ "\nError:\n" ++ show err
             Right result -> result
     putStrLn "DEBUG: parsed:";
     print (AbstractNode P5AST dirs)
     hClose inHandle
-    printTree outHandle (translate (AbstractNode P5AST dirs))
+    printTree outHandle (translate (AbstractNode P5AST dirs) options)
     hClose outHandle
     putStrLn "Finished"
