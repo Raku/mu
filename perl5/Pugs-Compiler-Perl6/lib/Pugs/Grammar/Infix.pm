@@ -63,6 +63,24 @@ BEGIN {
         precedence => 'looser',
         other => '+',
     );
+    __PACKAGE__->add_rule( 
+        name => 'cmp',
+        assoc => 'left',
+        precedence => 'equal',
+        other => '..',
+    );
+    __PACKAGE__->add_rule( 
+        name => 'does',
+        assoc => 'left',
+        precedence => 'equal',
+        other => '..',
+    );
+    __PACKAGE__->add_rule( 
+        name => 'but',
+        assoc => 'left',
+        precedence => 'equal',
+        other => '..',
+    );
     
     __PACKAGE__->add_rule( 
         name => '|',
