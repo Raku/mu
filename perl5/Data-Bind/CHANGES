@@ -1,3 +1,9 @@
+[Changes for 0.27  - 9 Jul, 2006]
+
+* Doc fixes.
+* Data::Bind::Sig->arity.
+* Throw exception when there's extra positional argument.
+
 [Changes for 0.26 - 8 Jul, 2006]
 
 * Fix compilation on blead perl.
