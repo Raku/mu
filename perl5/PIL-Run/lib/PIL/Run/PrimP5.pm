@@ -372,7 +372,7 @@ sub help_require_use { # XXX - getting crufty...
     }
     die "Don't see $name in \@INC (".join(" ",@incdirs).")";
 }
-MULTI SUB Pugs::Internals::eval ($xx) {PIL::Run::EvalX::p6_eval(p6_to_s($xx))};
+MULTI SUB Pugs::Internals::eval_perl6 ($xx) {PIL::Run::EvalX::p6_eval(p6_to_s($xx))};
 MULTI SUB evalfile ($xx) {PIL::Run::EvalX::p6_eval_file(p6_to_s($xx))};
 MULTI SUB Pugs::Internals::eval_perl5 ($xx) {p6_from_x(eval(p6_to_s($xx)))};
 MULTI SUB Pugs::Internals::eval_haskell ($xx) {...};

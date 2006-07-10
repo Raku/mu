@@ -268,7 +268,7 @@ op1 "require" = opRequire False
 
 op1 "Pugs::Internals::use" = opRequire True
 op1 "Pugs::Internals::require" = opRequire False
-op1 "Pugs::Internals::eval" = \v -> do
+op1 "Pugs::Internals::eval_perl6" = \v -> do
     str <- fromVal v
     opEval quiet "<eval>" str
     where quiet = MkEvalStyle{evalResult=EvalResultLastValue
@@ -1680,7 +1680,7 @@ initSyms = mapM primDecl syms
 \\n   Any       pre     try     safe   (Code)\
 \\n   Any       pre     lazy    safe   (Code)\
 \\n   Any       pre     atomically     safe   (Code)\
-\\n   Any       pre     Pugs::Internals::eval    safe   (Str)\
+\\n   Any       pre     Pugs::Internals::eval_perl6    safe   (Str)\
 \\n   Any       pre     evalfile     unsafe (Str)\
 \\n   Any       pre     Pugs::Internals::eval_parrot  unsafe (Str)\
 \\n   Any       pre     Pugs::Internals::eval_perl5   unsafe (Str)\

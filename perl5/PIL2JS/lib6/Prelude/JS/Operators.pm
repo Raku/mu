@@ -184,7 +184,7 @@ sub __hyper (Code $op, Array @a is copy, Array @b is copy) {
 
 # From here on, most normal things won't work any longer, as all the standard
 # operators are overloaded with calls to JS::inline.
-Pugs::Internals::eval $eval;
+Pugs::Internals::eval_perl6 $eval;
 die $! if $!;
 
 

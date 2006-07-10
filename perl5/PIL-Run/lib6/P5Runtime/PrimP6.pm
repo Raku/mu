@@ -102,7 +102,7 @@ multi sub eval($code,:$langpair = undef) {
     my $lang = "Perl6";
     try { $lang = $langpair.value }; # XXX - pilrun multi-bug workaround
     $lang = lc $lang;
-    if $lang eq "perl6" { Pugs::Internals::eval($code) }
+    if $lang eq "perl6" { Pugs::Internals::eval_perl6($code) }
     elsif $lang eq "perl5" { Pugs::Internals::eval_perl5($code) }
     else { die "Language \"$lang\" unknown."; }
 }

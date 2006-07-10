@@ -718,7 +718,7 @@ package Control::Basic {}
 
  multi Control::Basic::eval ( Str $code = CALLER::<$_>, Grammar :$lang = CALLER::<$?PARSER>)
 {
-    Pugs::Internals::eval($code,$lang);
+    Pugs::Internals::eval_perl6($code,$lang);
 }
 
 

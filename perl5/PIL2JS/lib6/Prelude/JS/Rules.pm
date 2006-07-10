@@ -219,7 +219,7 @@ method JS::Root::matcher (Rul $rule:) {
   JS::inline('(function (rul) { return rul.matcher })')($rule);
 }
 for <ok from to str subpos subnamed> -> $attr {
-  Pugs::Internals::eval "method JS::Root::$attr (Match \$match:) \{
+  Pugs::Internals::eval_perl6 "method JS::Root::$attr (Match \$match:) \{
     JS::inline('(function (match) \{ return match.$attr \})')(\$match);
   \}";
 }
