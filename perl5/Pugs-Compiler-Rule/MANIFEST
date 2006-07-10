@@ -23,6 +23,7 @@ lib/Pugs/Runtime/Match.pm
 lib/Pugs/Runtime/Match/Ratchet.pm
 lib/Pugs/Runtime/Rule.pl
 lib/Pugs/Runtime/Rule.pm
+lib/Pugs/Runtime/Common.pm
 Makefile.PL
 MANIFEST
 MANIFEST.SKIP
