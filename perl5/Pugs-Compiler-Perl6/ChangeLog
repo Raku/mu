@@ -1,3 +1,6 @@
+- named enums
+- bool::True, bool::False, true()
+
 0.006  2006-07-06
 
 - we now no longer use Parse::Yapp

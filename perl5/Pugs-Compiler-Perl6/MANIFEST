@@ -29,6 +29,7 @@ lib/Pugs/Grammar/StatementControl.pm
 lib/Pugs/Grammar/Term.pm
 lib/Pugs/Grammar/Ternary.pm
 lib/Pugs/Runtime/Perl6.pm
+lib/Pugs/Runtime/Perl6Prelude.pm
 lib/v6.pm
 Makefile.PL
 MANIFEST			This list of files
