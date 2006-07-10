@@ -1,5 +1,6 @@
 - named enums
 - bool::True, bool::False, true()
+- unless, while
 
 0.006  2006-07-06
 
