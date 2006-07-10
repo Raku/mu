@@ -279,7 +279,7 @@ sub ast {
         yylex => $lex, 
         yyerror => sub { 
             local $Carp::CarpLevel = 2;
-            carp "parsing error in Expression: ..." . substr($match,0,30) . "... "; 
+            croak "parsing error in Expression: ..." . substr($match,0,30) . "... "; 
         },
     );
 
