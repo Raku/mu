@@ -4,6 +4,6 @@ module main;
 
 enum bool <False True>;
 
-sub true {
+sub true is export {
     $_[0] ?? bool::True !! bool::False
 }
