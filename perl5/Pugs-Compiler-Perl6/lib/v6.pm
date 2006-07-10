@@ -47,6 +47,7 @@ sub pmc_compile {
         ) : '').
         "use Scalar::Util;\n" .
         "use Pugs::Runtime::Perl6;\n" . 
+        "use Pugs::Runtime::Perl6Prelude;\n" . 
         "use strict;\n" . 
         "no warnings 'void';\n" .   # t/07-try.t, t/07-ref.t
         $perl5 . "\n" .

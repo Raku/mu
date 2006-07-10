@@ -1,5 +1,7 @@
 use v6-alpha;
 
+module main;
+
 enum bool <False True>;
 
 sub true {
