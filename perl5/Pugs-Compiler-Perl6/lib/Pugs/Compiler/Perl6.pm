@@ -10,7 +10,7 @@ use base 'Pugs::Compiler::Regex';
 use Pugs::Grammar::Perl6;
 use Pugs::Emitter::Perl6::Perl5;
 use Carp;
-
+use Scalar::Util 'blessed';
 use Data::Dumper;
 
 sub compile {
@@ -37,12 +37,17 @@ sub compile {
         if $self->{ast}{tail};
     #print 'rule ast: ', do{use Data::Dumper; Dumper( $self->{ast}() )};
 
-    eval {
-        $self->{perl5} = Pugs::Emitter::Perl6::Perl5::emit( 
-            $self->{grammar}, $self->{ast}(), $self );
-    };
-    carp "Error in perl 5 emitter: $@\nSource:\n$self->{perl5}\n" if $@;
-    #print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
+    if ( blessed $self->{ast} ) {
+        eval {
+            $self->{perl5} = Pugs::Emitter::Perl6::Perl5::emit( 
+                $self->{grammar}, $self->{ast}(), $self );
+        };
+        {
+            no warnings 'uninitialized';
+            carp "Error in perl 5 emitter: $@\nSource:\n$self->{perl5}\n" if $@;
+        }
+        #print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
+    }
     bless $self, $class;
 }
 

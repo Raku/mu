@@ -34,7 +34,8 @@ sub pmc_compile {
     my $perl5 = $p6->{perl5};
 
     # Don't write when we failed to compile, otherwise it never recompiles!
-    die unless length $perl5;
+    die unless defined $perl5 
+            && length  $perl5;
 
     # $perl5 =~ s/do\{(.*)\}/$1/s;
     my ($package, $file) = caller(4);
