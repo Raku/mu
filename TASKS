@@ -65,10 +65,6 @@ on #perl6.  Skills: polite nagging.
 in PATH, but doesn't check.  It would be nice if it checked.  You can
 check if parrot is there with can_run('parrot').  Skills: basic perl5.
 
-* docs/notes contains context_coercion.pod (audreyt's) and
-context_coersion.pod [sic] (luqui's).  Name (one of?) them something
-more reasonable.  Skills: taste.
-
 * ./pugs -V doesn't mention / is sloppy about a lot of stuff:
   Note also  say %?CONFIG.perl;
   Skills: p5, build system.

@@ -1,6 +1,6 @@
 =head1 NAME
 
-Context and Coersion - The interplay of the method call and the call chain
+Context and Coercion - The interplay of the method call and the call chain
 
 =head1 DESCRIPTION
 
@@ -9,7 +9,7 @@ equivalent.  In this proposal, they are not, but every context is also a
 type.  It is also a runtime concept, except when we can optimize it away
 (like in the case of a known signature for a method).  Context is a
 argument that is passed in along with a call.  For now, until we get to
-coersion, the return type of that call must be covariantly compatible
+coercion, the return type of that call must be covariantly compatible
 (i.e. a subtype of) the context.   This will allow us to overload
 multimethods based on return type, but it will sidestep the paradoxes
 that are often associated with that.
@@ -235,7 +235,7 @@ By cases:
     if C <: cxt and cxt <: D then C <: D
     C <: cxt and D <: cxt was a goal
 
-=head2 Coersion
+=head2 Coercion
 
 We defined what scalars and arrays do in the two base contexts
 C<Singular> and C<Plural>.  But what happens when the context is more

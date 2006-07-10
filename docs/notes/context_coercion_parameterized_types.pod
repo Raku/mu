@@ -5,7 +5,7 @@ Context and Coercion - The interplay of the method call and the call chain
 =head1 DESCRIPTION
 
 (This is Audrey's proposal that implements a similar system to
-C<context_coersion.pod>, but use normal parameterized types instead
+C<context_coercion_traits.pod>, but use normal parameterized types instead
 of a special trait to encode contexts.)
 
 "Context" is implemented as type coercion calls, implicitly inserted
