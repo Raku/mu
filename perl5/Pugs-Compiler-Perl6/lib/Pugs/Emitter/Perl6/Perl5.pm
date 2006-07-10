@@ -387,9 +387,17 @@ sub default {
             if ( exists $n->{param}{sub} ) {
                 my $name = _emit( $n->{param}{sub} );
                 my @param = eval _emit( $n->{param}{param} );
-                return join "\n", map {
-                    " sub ${name}::$param[$_] { $_ } "; 
-                } 0 .. $#param;
+                return 
+                    "{ package ${name}; require Exporter; " .
+                    " our \@ISA = qw(Exporter);" .
+                    " our \@EXPORT = (" . ( join ",", map {
+                        "'$_'"
+                    } @param ) . "); " .
+                    ( join "\n", map {
+                        " sub $param[$_] { $_ } "; 
+                    } 0 .. $#param ) .
+                    "}" .
+                    " ${name}->import(); ";
             }
         }
 
