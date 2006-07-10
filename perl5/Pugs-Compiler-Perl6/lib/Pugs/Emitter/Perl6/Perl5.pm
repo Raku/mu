@@ -8,30 +8,10 @@ use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
 use Pugs::Emitter::Rule::Perl5::Ratchet;
+use Pugs::Runtime::Common;
 use Digest::MD5 'md5_hex';
 
 our %env;
-
-sub _mangle_ident {
-    my $s = shift;
-    $s =~ s/ ([^a-zA-Z0-9_:]) / '_'.ord($1).'_' /xge;
-    return $s;
-}
-
-sub _mangle_var {
-    my $s = $_[0];
-    #warn "mangle: $s";
-    
-    # perl6 => perl5 variables
-    return '%::ENV'    if $s eq '%*ENV';  
-    return '$^O'       if $s eq '$*OS';  
-    
-    # special variables
-    return '$::_EXCL_' if $s eq '$!';
-
-    substr($s,1) =~ s/ ([^a-zA-Z0-9_:]) / '_'.ord($1).'_' /xge;
-    return $s;
-}
 
 sub _var_get {
     my $n = $_[0];
@@ -56,7 +36,7 @@ sub _var_get {
     # default
     return "\$self->{'" . substr($s,2) . "'}"
         if substr($s,1,1) eq '.';
-    return _mangle_var( $s );
+    return Pugs::Runtime::Common::mangle_var( $s );
 }
 
 sub _var_set {
@@ -68,7 +48,7 @@ sub _var_set {
         if exists $env{$s}{set};
     
     # default
-    return sub { _mangle_var( $s ) . " = " . $_[0] };
+    return sub { Pugs::Runtime::Common::mangle_var( $s ) . " = " . $_[0] };
 }
 
 sub _not_implemented {
@@ -130,10 +110,10 @@ sub _emit {
         if exists $n->{statements};
     
 
-    return _mangle_ident( $n->{bareword} )
+    return Pugs::Runtime::Common::mangle_ident( $n->{bareword} )
         if exists $n->{bareword};
 
-    return _mangle_ident( $n->{dot_bareword} )
+    return Pugs::Runtime::Common::mangle_ident( $n->{dot_bareword} )
         if exists $n->{dot_bareword};
         
     return _emit_code($n->{code})
@@ -151,10 +131,10 @@ sub _emit {
     return _var_get( $n )
         if exists $n->{scalar};
         
-    return _mangle_var( $n->{array} )
+    return Pugs::Runtime::Common::mangle_var( $n->{array} )
         if exists $n->{array};
         
-    return _mangle_var( $n->{hash} )
+    return Pugs::Runtime::Common::mangle_var( $n->{hash} )
         if exists $n->{hash};
         
     return '"' . $n->{double_quoted} . '"' 
@@ -348,7 +328,7 @@ sub default {
             local %env;
             my $id;
             $id = exists $n->{param}{cpan_bareword} 
-                  # ? _mangle_ident( $n->{param}{cpan_bareword} )
+                  # ? Pugs::Runtime::Common::mangle_ident( $n->{param}{cpan_bareword} )
                   ? $n->{param}{cpan_bareword} 
                   : _emit( $n->{param}{sub} );
             my @a = split "-", $id;
@@ -370,7 +350,7 @@ sub default {
             #warn "inheritance: ",Dumper $n;
             my $id;
             $id = exists $n->{param}{cpan_bareword} 
-                  ? _mangle_ident( $n->{param}{cpan_bareword} )
+                  ? Pugs::Runtime::Common::mangle_ident( $n->{param}{cpan_bareword} )
                   : _emit( $n->{param}{sub} );
             my @a = split "-", $id;
             my $version = ( @a > 1 && $a[-1] =~ /^[0-9]/ ? $a[-1] : '' );
@@ -430,14 +410,14 @@ sub default {
 	# XXX: builtins
 	my $subname = $n->{sub}{bareword};
 	if ($subname eq 'defined' || $subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return') {
-	    return ' ' . _mangle_ident( $n->{sub}{bareword} ) . '(' . _emit( $n->{param} ) . ')';
+	    return ' ' . Pugs::Runtime::Common::mangle_ident( $n->{sub}{bareword} ) . '(' . _emit( $n->{param} ) . ')';
 	}
 	# runtime thunked builtins
 	if ($subname eq 'eval') {
 	    return 'Pugs::Runtime::Perl6::eval('. _emit_parameter_capture( $n->{param} ) . ');';
 	}
 
-        return ' ' . _mangle_ident( $n->{sub}{bareword} ) . '(' . _emit_parameter_capture( $n->{param} ) . ')';
+        return ' ' . Pugs::Runtime::Common::mangle_ident( $n->{sub}{bareword} ) . '(' . _emit_parameter_capture( $n->{param} ) . ')';
     }
     
     if ( $n->{op1} eq 'method_call' ) {    
@@ -445,14 +425,14 @@ sub default {
         if ( $n->{method}{dot_bareword} eq 'print' ||
              $n->{method}{dot_bareword} eq 'warn' ) {
             my $s = _emit( $n->{self} );
-            if ( $s eq _mangle_var('$*ERR') ) {  
+            if ( $s eq Pugs::Runtime::Common::mangle_var('$*ERR') ) {  
                 return " print STDERR '', " . _emit( $n->{param} );
             }
             return " print '', $s";
         }
         if ( $n->{method}{dot_bareword} eq 'say' ) {
             my $s = _emit( $n->{self} );
-            if ( $s eq _mangle_var('$*ERR') ) { 
+            if ( $s eq Pugs::Runtime::Common::mangle_var('$*ERR') ) { 
                 return " print STDERR '', " . _emit( $n->{param} ) . ', "\n"';
             }
             return " print '', $s" . ', "\n"';
@@ -525,7 +505,7 @@ sub default {
             
         # normal methods or subs
         
-        return " " . _mangle_ident( $n->{sub}{bareword} ) .
+        return " " . Pugs::Runtime::Common::mangle_ident( $n->{sub}{bareword} ) .
             '(' .
             join ( ";\n",   # XXX
                 map { _emit( $_ ) } @{$n->{param}} 
@@ -558,7 +538,7 @@ sub statement {
          $n->{statement} eq 'method'     ) {
         #warn "sub: ",Dumper $n;
 
-        my $name = _mangle_ident( $n->{name} );
+        my $name = Pugs::Runtime::Common::mangle_ident( $n->{name} );
 
         my $export = '';
         for my $attr ( @{$n->{attribute}} ) {
@@ -621,7 +601,7 @@ sub statement {
          $n->{statement} eq 'regex' ) {
         #warn "rule: ",Dumper $n;
 
-        my $name = _mangle_ident( $n->{name} );
+        my $name = Pugs::Runtime::Common::mangle_ident( $n->{name} );
 
         my $export = '';
         for my $attr ( @{$n->{attribute}} ) {
@@ -848,7 +828,7 @@ sub prefix {
         #    return $n->{trait} . " {\n" . _emit( $n->{bare_block} ) . "\n }";
         #}
         return 'do { my @__ret = eval ' . _emit( $n->{exp1} ) . "; " . 
-            _mangle_var( '$!' ) . " = \$@; \@__ret }";
+            Pugs::Runtime::Common::mangle_var( '$!' ) . " = \$@; \@__ret }";
     }
     if ( $n->{op1}{op} eq '~' ) {
         return ' "" . ' . _emit( $n->{exp1} );
