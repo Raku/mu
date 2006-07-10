@@ -1,6 +1,7 @@
 - named enums
 - bool::True, bool::False, true()
 - unless, while
+- setting $ENV{V6DUMPAST} can be used for debugging the syntax tree
 
 0.006  2006-07-06
 
