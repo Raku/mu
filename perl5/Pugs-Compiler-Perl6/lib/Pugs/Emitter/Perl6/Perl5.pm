@@ -382,6 +382,17 @@ sub default {
                    (exists $n->{param}{param} ? _emit($n->{param}{param}) : '' );
         }
 
+        if ( $n->{sub}{bareword} eq 'enum' ) {
+            # enum name list;
+            if ( exists $n->{param}{sub} ) {
+                my $name = _emit( $n->{param}{sub} );
+                my @param = eval _emit( $n->{param}{param} );
+                return join "\n", map {
+                    " sub ${name}::$param[$_] { $_ } "; 
+                } 0 .. $#param;
+            }
+        }
+
 	if ($n->{sub}{bareword} eq 'sub') {
 	    # defining anonymous sub.  XXX: this shouldn't be here. fix the parser.
 	    return _emit_closure($n->{signature}, $n->{param}{bare_block});
