@@ -72,7 +72,7 @@ my ( $rule, $match );
 
 {
   $rule = 
-    Pugs::Runtime::Rule::concat(
+    Pugs::Runtime::Rule::concat( [
       Pugs::Runtime::Rule::greedy_plus( 
         Pugs::Runtime::Rule::alternation( [
           Pugs::Runtime::Rule::constant( 'a' ), 
@@ -80,7 +80,7 @@ my ( $rule, $match );
         ] ),
       ),
       Pugs::Runtime::Rule::constant( 'ab' )
-    );
+    ] );
   $rule->( 'aacaab', undef, {}, $match );
   ok ( $match->bool, "/[a|c]+ab/ with backtracking" );
   # print Dumper( $match );
