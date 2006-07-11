@@ -72,7 +72,12 @@ sub build {
         my $ar = $Config{full_ar};
         if (!$ar) { $ar = $ghc; $ar =~ s{(.*)ghc}{$1ar}; }
 
-        foreach my $archive (glob("third-party/installed/lib/pugs-$module-*/*.a")) {
+        my $archive_dir = glob("third-party/installed/lib/pugs-$module-*");
+        foreach my $archive (
+            glob("$archive/*.a"),
+            glob("$archive/*/*.a"),
+            glob("$archive/*/*/*.a"),
+        ) {
             system($ar, s => $archive);
         }
     }
