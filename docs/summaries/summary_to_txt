@@ -1,0 +1,35 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+{
+	package Pod::Simple::Text::ShortenLinksInHead;
+
+	use base qw/Pod::Simple::Text/;
+	use WWW::Shorten 'Metamark';
+
+	sub start_L {
+		my ( $self, $link ) = @_;
+		$self->{_link} = "http:/" . $link->{section}
+	}
+
+	sub end_L {
+		my $self = shift;
+	   	my $link = $self->{_link} || return;
+		my $short = $self->shorten_uri( $link );
+		$self->handle_text( sprintf " <${short}>" )
+	}
+
+	sub shorten_uri {
+		my ( $self, $link ) = @_;
+
+		if ( $link =~ /groups\.google|gmane/ || length($link) >= 40 ) {
+			return makeashorterlink($link);
+		} else {
+			return $link;
+		}
+	}
+}
+
+exit Pod::Simple::Text::ShortenLinksInHead->filter(shift)->any_errata_seen;
