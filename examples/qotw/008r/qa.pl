@@ -9,11 +9,11 @@ my %wordmap;
 for =<> -> $word is copy {
     next if $word ~~ /\W/;
     my $w = lc;
-    my %w = map -> $i { substr($word,$i,$SEG_LENGTH)=>1 },
+    my %w = map -> $i { substr($w,$i,$SEG_LENGTH)=>1 },
                    0..$word.chars-$SEG_LENGTH;
 
     for keys %w -> $w { 
-        %wordmap{$w} = %wordmap{$w} ?? undef !! $word; 
+        %wordmap{$w} = %wordmap.exists($w) ?? undef !! $word; 
     }
 }
 
