@@ -35,6 +35,7 @@ use warnings;
 #use Smart::Comments; #for debugging, look also at Filtered-Comments.pm
 use Data::Dumper;
 use PadWalker qw( peek_my );  # peek_our ); ???
+use Pugs::Runtime::Match::Ratchet;
 
 # note: alternation is first match (not longest). 
 # note: the list in @$nodes can be modified at runtime
@@ -154,6 +155,7 @@ sub named {
         return;
     }
 }
+sub capture { named(@_) } # backwards compat
 
 sub positional {
     # return a positional capture
@@ -173,6 +175,14 @@ sub positional {
         return;
     }
 }
+
+sub abort { 
+    my $op = shift;
+    return sub {
+        $op->( @_ );
+        ${ $_[3] }->{abort} = 1;
+    };
+};
 
 sub before { 
     my $op = shift;
@@ -238,6 +248,10 @@ sub non_greedy_plus {
 # - creates a 'capture', unless it detects a 'return block'
 sub rule_wrapper {
     my ( $str, $match ) = @_;
+    return $match;
+
+    # obsolete...
+
     $match = $$match if ref($match) eq 'Pugs::Runtime::Match::Ratchet';
     return unless $match->{bool};
     if ( $match->{return} ) {
@@ -400,18 +414,9 @@ sub try {
     };
 };
 
-# experimental!
-sub abort { 
-    my $op = shift;
-    return sub {
-        #print __PACKAGE__ . "->abort\n";
-        #print caller;
-        my $match = $op->( @_ );
-        ### aborting match: $match
-        $match->{abort} = 1;
-        return $match;
-    };
-};
+=cut
+
+=for later
 
 sub fail { 
     return abort( 

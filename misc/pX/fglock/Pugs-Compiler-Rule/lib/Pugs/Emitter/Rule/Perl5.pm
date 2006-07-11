@@ -42,7 +42,8 @@ sub emit {
         "    my \$match = rule_wrapper( \$_[0], \n" . 
         "        \$matcher->( \$s, \$_[1], \$tree, \$tree, \$grammar, 0, \$s, \$_[2] )\n" .
         "    );\n" .
-        "    return Pugs::Runtime::Match->new( \$match );\n" .
+        "    return \$match;\n" .
+        #"    return Pugs::Runtime::Match->new( \$match );\n" .
         "  }\n" .
         "}\n";
 }
