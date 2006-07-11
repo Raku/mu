@@ -70,7 +70,15 @@ sub build {
         chdir $pwd;
 
         my $ar = $Config{full_ar};
-        system($ar, s => $_) for glob("third-party/installed/lib/pugs-$module/*/*.a");
+        if (!$ar) { $ar = $ghc; $ar =~ s{(.*)ghc}{$1ar}; }
+        print STDERR "=============> Running $ar on third-party/installed/lib/pugs-$module/*/*.a\n";
+        sleep 1;
+
+        foreach my $archive (glob("third-party/installed/lib/pugs-$module/*/*.a")) {
+            system($ar, s => $archive);
+            print STDERR "=========> Archive is $archive, RV is $?\n";
+            sleep 1;
+        }
     }
 
 
