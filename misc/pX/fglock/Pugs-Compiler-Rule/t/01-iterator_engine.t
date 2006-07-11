@@ -11,8 +11,21 @@ $Data::Dumper::Indent = 1;
 $Data::Dumper::Pad = '# ';
 
 use_ok( 'Pugs::Runtime::Rule' );
+use Pugs::Runtime::Match::Ratchet;
 
 my ( $rule, $match );
+
+{
+  $rule = Pugs::Runtime::Rule::constant( 'a' );
+  $rule->( 'a123', undef, {capture=>1}, $match );
+  #print Dumper( $match );
+  ok ( $match->bool, "a =~ /a/ #1" );
+  is ( $match->tail, '123', "tail is ok" );
+  $rule->( 'c', undef, {capture=>1}, $match );
+  ok ( ! $match->bool, "c =~ /a/ #2" );
+  #is ( $match->tail, 'c123', "tail is ok" );
+  #print Dumper( $match );
+}
 
 {
   $rule = 
@@ -22,12 +35,12 @@ my ( $rule, $match );
         Pugs::Runtime::Rule::constant( 'c' ), 
       ] ),
     );
-  $match = $rule->( 'a123', undef, {capture=>1} );
-  ok ( $match->{bool}, "/[a|c]/ #1" );
-  is ( $match->{tail}, '123', "tail is ok" );
-  $match = $rule->( 'c123', undef, {capture=>1} );
-  ok ( $match->{bool}, "/[a|c]/ #2" );
-  is ( $match->{tail}, '123', "tail is ok" );
+  $rule->( 'a123', undef, {capture=>1}, $match );
+  ok ( $match->bool, "/[a|c]/ #1" );
+  is ( $match->tail, '123', "tail is ok" );
+  $rule->( 'c123', undef, {capture=>1}, $match );
+  ok ( $match->bool, "/[a|c]/ #2" );
+  is ( $match->tail, '123', "tail is ok" );
   #print Dumper( $match );
 }
 
@@ -37,12 +50,12 @@ my ( $rule, $match );
       Pugs::Runtime::Rule::constant( 'a' ) 
     );
   is ( ref $rule, "CODE", "rule 'a*' is a coderef" );
-  $match = $rule->( 'aa' );
-  # print Dumper( $match );
-  ok ( $match->{bool}, "/a*/" );
+  $rule->( 'aa', undef, {}, $match );
   #print Dumper( $match );
-  $match = $rule->( '' );
-  ok ( $match->{bool}, "matches 0 occurrences" );
+  ok ( $match->bool, "/a*/" );
+  #print Dumper( $match );
+  $rule->( '', undef, {}, $match );
+  ok ( $match->bool, "matches 0 occurrences" );
   #print Dumper( $match );
 }
 
@@ -51,10 +64,10 @@ my ( $rule, $match );
     Pugs::Runtime::Rule::greedy_plus( 
       Pugs::Runtime::Rule::constant( 'a' ) 
     );
-  $match = $rule->( 'aa' );
-  ok ( $match->{bool}, "/a+/" );
-  $match = $rule->( '!!' );
-  ok ( ! $match->{bool}, "rejects unmatching text" );
+  $rule->( 'aa', undef, {}, $match );
+  ok ( $match->bool, "/a+/" );
+  $rule->( '!!', undef, {}, $match );
+  ok ( ! $match->bool, "rejects unmatching text" );
 }
 
 {
@@ -68,8 +81,8 @@ my ( $rule, $match );
       ),
       Pugs::Runtime::Rule::constant( 'ab' )
     );
-  $match = $rule->( 'aacaab' );
-  ok ( $match->{bool}, "/[a|c]+ab/ with backtracking" );
+  $rule->( 'aacaab', undef, {}, $match );
+  ok ( $match->bool, "/[a|c]+ab/ with backtracking" );
   # print Dumper( $match );
 }
 

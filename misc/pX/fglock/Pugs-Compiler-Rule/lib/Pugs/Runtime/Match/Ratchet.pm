@@ -36,6 +36,16 @@ sub flat {
     return substr( ${${$_[0]}->{str}}, $_[0]->from, $_[0]->to - $_[0]->from );
 }
 
+sub str {
+    return substr( ${${$_[0]}->{str}}, $_[0]->from, $_[0]->to - $_[0]->from );
+}
+
+# tail() for backwards compatibility
+# - doesn't work on failed matches
+sub tail {
+    return substr( ${${$_[0]}->{str}}, $_[0]->to );
+}
+
 # return the capture
 sub code {
     my $c = $_[0]->flat;
