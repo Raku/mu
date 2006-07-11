@@ -33,3 +33,18 @@ use warnings;
 }
 
 exit Pod::Simple::Text::ShortenLinksInHead->filter(shift)->any_errata_seen;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+summary_to_txt - convert the POD summaries into plain text, including URI
+shortening, etc.
+
+=head1 SYNOPSIS
+
+	perl summary_to_txt summary.pod > summary.txt
+
+=cut
