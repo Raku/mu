@@ -146,6 +146,9 @@ sub _emit {
     return 'qw(' . $n->{angle_quoted} . ')' 
         if exists $n->{angle_quoted};
             
+    return $n->{perl5source}  
+        if exists $n->{perl5source};
+        
     return assoc_list( $n )
         if exists $n->{assoc}  && $n->{assoc}  eq 'list';
         

@@ -395,6 +395,11 @@ sub perl6_expression {
 
 
 *statement = Pugs::Compiler::Regex->compile( q(
+    use <?ws> v5 <?ws>?; ((.)*?) ; <?ws>? use <?ws> v6 (.)*? ; 
+        { return { 
+            perl5source => $_[0][0]->() 
+        } }
+    |
     <begin_block>
         { return $_[0]{begin_block}->();
         }
