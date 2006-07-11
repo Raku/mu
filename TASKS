@@ -1,16 +1,3 @@
-
-* Implement the Math::Basic rounding suite.  Go through
- An introduction to different rounding algorithms
- http://www.pldesignline.com/howto/showArticle.jhtml?articleID=175801189
-implementing each rounding algorithm in p6.  Names as given, but with
-underscores (round_whatever).  Signatures of
-  our Int multi Num::round_whatever ( Num $x ) {
-    ...
-  }
-You can use floor, ceiling, abs, sign, etc, etc.
-Place them in a new file, misc/S29_round.pl , or just announce the work on irc.
-Skills: basic p6.
-
 * BROADCAST TASK - Check ./STATUS and see if systems with which you
   are familiar are correctly described.  Skills: be famaliar with some
   system. ;)
@@ -69,3 +56,15 @@ check if parrot is there with can_run('parrot').  Skills: basic perl5.
 ** Some of the data lifted from `perl -V` at build time is bogus; for
    example, `archname` on my system is i486-linux-gnu-thread-multi
    because that's where debian's perl came from.
+
+* Add function aliases in misc/S29_round.pl. Will increase Google juice.
+Skill: know how to make a p6 function alias
+FIXME native english: 'toward' or 'towards'? the article uses both...
+    round_half_up_symmetric => round_matlab
+    round_half_up_asymmetric => round_java
+    round_half_even => round_bankers
+    round_half_even => round_vb
+    round_random => round_stochastic
+    round_ceiling => round_towards_positive_infinity
+    round_floor => round_towards_negative_infinity
+    round_toward_zero => round_fix
