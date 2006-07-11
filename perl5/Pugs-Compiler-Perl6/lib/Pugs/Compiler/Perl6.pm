@@ -25,6 +25,11 @@ sub compile {
         for keys %$param;
     #print 'rule source: ', $self->{source}, "\n";
     local $@;
+
+    # TODO: in order to reduce memory footprint:
+    #       loop parsing '<ws> <statement>'; 
+    #       keep the grammar tree and discard the match
+
     eval {
         $self->{ast} = Pugs::Grammar::Perl6->parse( $self->{source} );
     };
