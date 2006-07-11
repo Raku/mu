@@ -175,6 +175,8 @@ sub get_tests {
     @ARGV = File::Spec->curdir unless @ARGV;
     push( @tests, -d $_ ? all_in( $_ ) : $_ ) for @ARGV;
 
+    @tests = grep { $_ !~ $Config{exclude_re} } @tests if $Config{exclude_re};
+
     if ( @tests ) {
         if ($Config{shuffle}) {
             shuffle(@tests)
