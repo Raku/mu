@@ -68,7 +68,12 @@ sub build {
         system("../../Setup$Config{_exe}", 'build');
         system("../../Setup$Config{_exe}", 'install');
         chdir $pwd;
+
+        my $ar = $Config{full_ar};
+        system($ar, s => $_) for glob("third-party/installed/lib/pugs-$module/*/*.a");
     }
+
+
     print "*** Finished building dependencies.\n\n";
 
     $run_setup = sub { system($setup, @_) };
