@@ -271,12 +271,12 @@ Roger Browne announced this release.
 
 
 
-=head3 L<Applied patches|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/4a2c19c3eb655a8e/afb17c4ee56434c4#afb17c4ee56434c4>
+=head3 Applied patches
 
 
 =over 4
 
-=item * Tabs removed in nativecall.pl
+=item * L<Tabs removed in nativecall.pl|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/4a2c19c3eb655a8e/afb17c4ee56434c4#afb17c4ee56434c4>
 
 Brad Bowman submitted a patch L<[perl #38476]|http://rt.perl.org/rt3/Ticket/Display.html?id=38476> to normalize indentation
 in nativecall.pl.
