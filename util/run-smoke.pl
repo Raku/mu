@@ -47,8 +47,11 @@ $ENV{HARNESS_PERL}  = "$^X $FindBin::Bin/../perl5/PIL2JS/pugs-smokejs.pl ./pugs 
 # XXX: hack to be identified by smokeserv
 $ENV{HARNESS_PERL}  = "$^X -I/tmp/JSPERL5 $FindBin::Bin/../perl5/PIL2JS/pugs-smokejs.pl ./pugs $optional_args"
     if $ENV{PUGS_RUNTIME} and $ENV{PUGS_RUNTIME} eq 'JSPERL5';
-$ENV{HARNESS_PERL}  = "$^X $FindBin::Bin/../perl5/Pugs-Compiler-Perl6/lib/v6.pm"
-    if $ENV{PUGS_RUNTIME} and $ENV{PUGS_RUNTIME} eq 'PERL5';
+if ($ENV{PUGS_RUNTIME} and $ENV{PUGS_RUNTIME} eq 'PERL5') {
+    $ENV{PERL5LIB} = 'blib6/pugs/perl5/lib:blib6/pugs/perl5/arch';
+    $ENV{HARNESS_PERL} = $^X;
+#    $ENV{HARNESS_PERL_SWITCHES} = "blib6/pugs/perl5/lib/v6.pm";
+}
 
 $ENV{PERL6LIB}      = join $Config{path_sep},
         qw<ext/Test/lib blib6/lib>, $ENV{PERL6LIB}||"";
