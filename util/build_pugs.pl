@@ -72,11 +72,8 @@ sub build {
         my $ar = $Config{full_ar};
         if (!$ar) { $ar = $ghc; $ar =~ s{(.*)ghc}{$1ar}; }
 
-        print STDERR "============> Instrumentation: $ar\n";
-        print STDERR "=========> glob: ", "third-party/installed/lib/pugs-$module-*/*/*.a", $/;
-        foreach my $archive (glob("third-party/installed/lib/pugs-$module-*/*/*.a")) {
+        foreach my $archive (glob("third-party/installed/lib/pugs-$module-*/*.a")) {
             system($ar, s => $archive);
-            print STDERR "============> Ranlib on $archive (returns $?)\n";
         }
     }
 
