@@ -1,0 +1,169 @@
+TODO for Pugs::Compiler::Rule (PCR)
+
+Unicode:
+
+- \v \h \V \H
+
+Sigspace switch:
+
+- 'doubled' <ws> doesn't work
+  my $rule = Pugs::Compiler::Rule->compile('a (b) * c' );
+  - but this works:  
+  my $rule = Pugs::Compiler::Rule->compile('a (b )*c' );
+- implement, test in non-ratchet rules
+
+Ratchet switch:
+
+- more tests
+  - interoperability with non-ratchet
+  - non-ratchet subrules need to know current "$pos"
+- quantifiers
+  - implement ?? +? *?
+  - implement ?+ ++ *+
+  - implement captures to Array inside quantifiers
+- is :ratchet allowed as a runtime switch?
+  - are there runtime switches?
+  - is :+ the non-ratchet specifier?
+
+Pos switch:
+
+- test in non-ratchet rules
+
+Perl 6 parser:
+
+- implement Perl 6 minilanguages (and categories).
+  each language generate entries for the tokenizer hash
+  <%statement_control|%prefix|%term>
+- implement the main tokenizer using the minilanguages as terms
+
+Priorities:
+
+- implement <%hash> using trie
+
+- features used in PGE P6 Grammar
+- <after ...> in non-ratchet
+- char classes
+
+- make PadWalker optional, as most distros don't hold PW 1.0
+
+- move files to /perl5; fix paths in Makefile.PL
+
+- Match: .from and .to not implemented in subrules
+
+- '%var := xxx'; '@var := xxx'; %<var> := ; @<var> :=
+
+- rule parameters 
+
+- :P5 rules
+
+- add placeholder 'not implemented' messages in the right places
+
+- make Emitter::Rule::Perl5 subclassable - such that closures can be 
+  parsed/compiled by a custom parser
+- make the 'return' block functionally detectable (instead of regex)
+- cleanup any remaining source filtering
+
+Bugs:
+
+- $variable should look into the user pad
+
+- in Pugs::Emitter::Rule::Perl5.pm
+ * <[^a]> should be [\^a]
+ * fix <[!)]>
+
+- ratchet rules can't call non-ratchet rules
+
+Categories (some things belong to P::C::Perl6) :
+
+- see "Syntactic categories" in S05 (extensibility)
+
+- finish documenting add_op( %options )
+
+- return AST
+
+- memoize/recompile dynamically
+
+- special cases (test):
+  <tight> <op>+ [<tight> <op>+]* <tight>?
+  1;;;2  - ignore extra ;;?
+  1,,2
+  1, 2,
+  1 Y 2 Y 
+  loop ($a;;$b) { ... } - special form via macro?
+
+Tests:
+
+- unify ratchet/non-ratchet tests
+
+- add categories looser/tighter than current boundaries
+
+- backtracking control ':' 
+
+- <'... <?... <!...
+
+- more tests (port from lrep)
+  
+Related projects:
+
+- implement (optional?) PCR in pugs
+- implement PCR using pugs
+
+- use PCR in lrep
+  - merge the 'dual engine' in PCR (used by the lrep-compiled grammar)
+
+- implement Pugs::Compiler::PILN ?
+  - not a priority - p5 could load ready-made YAML from Pugs
+
+Other:
+
+- see 'not implemented' messages in Pugs::Emitter::Rule::Perl5
+
+- migrate Pugs::Grammar::Rule::Rule compilation to PCR
+
+- cleanup the non-ratchet engine: it is both returning the match, and building the match tree.
+  There is no need to return the match.
+
+- closures should be called on the Match object
+
+- rule documentation (shorter than S05)
+- examples of use
+
+- incomplete rule syntax (see Pugs::Compiler::Rule pod); 
+- more escaped chars
+
+- More switches (:p, :ratchet, :sigspace are implemented)
+
+- 'Pugs::Grammar::Rule' - old p5 code... -- 'use' in P:G:R
+
+- optimization: inline code in the non-ratchet Engine; 
+- "pre-generate" engine output?
+- see "benchmark.pl"
+
+- cached precompiled variable rules, per S05
+
+- bug: can only access parameters through $^a $^b...
+- bug: parameters must be constants
+
+API:
+
+- maybe change PCR->code() to PCR->as_method()
+
+
+TODO for Pugs-Compiler-Precedence
+
+- Pugs::Grammar::Precedence and Pugs-Compiler-Precedence/ should have the same name
+
+- add Makefile.PL, MANIFEST
+
+- needs to use category identifiers, like INFIX
+  maybe INFIX_004 for category+precedence?
+
+- \s{ is an expression terminator if the parser is expecting an operator
+
+- add is-parsed to the appropriate category in op-precedence and tokenizer
+
+- PCP needs to return a Match object?
+  (maybe a match-like object is more appropriate?)
+
+- The P::Yapp 'expect' state can be verified inside
+    %{$self->{STATES}[$self->{STACK}[-1][0]]{ACTIONS}}

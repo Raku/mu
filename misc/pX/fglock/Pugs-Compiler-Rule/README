@@ -1,0 +1,107 @@
+NAME
+    Pugs::Compiler::Rule - Compiler for Perl 6 Rules
+
+SYNOPSIS
+        use Pugs::Compiler::Rule;
+
+        my $rule = Pugs::Compiler::Rule->compile( '((.).).' );
+        my $match = $rule->match( 'abc' );
+
+        if ($match) {               # true
+            print $match;           # "abc"
+            print $match->from;     # 0
+            print $match->to;       # 3
+            print $match->[0];      # "ab"
+            print $match->[0][0];   # "a"
+        }
+
+DESCRIPTION
+    This module provides an implementation for Perl 6 Rules. It is a
+    front-end to several other modules:
+
+    * Pugs::Grammar::Rule parses the Rules syntax.
+    * Pugs::Grammar::Rule::Rule specifies the Rules syntax with Rules.
+    * Pugs::Emitter::Rule::Perl5 converts parsed Rules to Perl 5 code.
+    * Pugs::Runtime::Rule provides the runtime engine for Rules.
+    * Pugs::Runtime::Match represents a Match object.
+
+  Implemented Features
+     . ? * + *? +? ??
+     \char <ws> <word> literal
+     $variable @variable
+     <'literal'>
+     [] 
+     ()     
+     <subrule>
+     <namespace::subrule>
+     <?subrule>
+     <!subrule>
+     |
+     <@var>             -- special-cased for array-of-rule (but not Rule|Str)
+     {code}             -- non-capturing closure
+                        -- perl5 syntax inside closure
+                        -- $/ doesn't work yet
+     { return code }    -- capturing closure
+                        -- perl5 syntax inside closure
+                        -- $/ works
+     $var := (capture)  -- capture aliasing
+     $<> $/<>           -- special variables can't be used inside a match yet
+     $/ 
+     $<0> $<1>
+     <$var>             -- untested
+
+  Unimplemented Features
+     $/<0> $/<1>
+     $/0 $/1
+     $0 $1
+     <"literal">
+     ^ ^^ $ $$
+     <unicode-class> <+unicode-class> <+unicode-class+unicode-class>
+     <&var> 
+     <%var>
+     **{n..m}
+     : :: :::   (commit)
+     $var := [non-capture]
+     $var := <rule>
+     <(closure-assertion)> <{code-returns-rule}>
+     <<character-class>> <[character-class]>
+     :flag :flag() :flag[]
+     lookahead lookbehind
+     #comment\n
+     \x0a \0123 ...
+     <?ws>                      -- optional whitespace ???
+     &    
+     <!abc>                     -- is this !<abc> or !abc ?
+     \n \N
+
+METHODS
+  compile (Str $rule_source)
+    Class method. Returns a compiled rule object, or throws an exception on
+    invalid rule syntax.
+
+  match (Str $match_against)
+    Instance method. Returns a Pugs::Runtime::Match object.
+
+CAVEATS
+    This is an experimental development version. There are currently no
+    support for match flags, and the API is still in flux.
+
+    It is currently unsuitable for just about any use other than Pugs
+    development. Please join us on irc.freenode.net #perl6 if you'd like to
+    participate. :-)
+
+AUTHORS
+    The Pugs Team <perl6-compiler@perl.org>.
+
+SEE ALSO
+    The Perl 6 Rules Spec:
+    <http://dev.perl.org/perl6/doc/design/syn/S05.html>
+
+COPYRIGHT
+    Copyright 2006 by Flavio Soibelmann Glock and others.
+
+    This program is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+    See <http://www.perl.com/perl/misc/Artistic.html>
+
