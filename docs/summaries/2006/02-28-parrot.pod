@@ -41,7 +41,7 @@ owned.
 =head3 L<Request for a clean bailout mechanism|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/fb225a9efc659093/494794969e869671#494794969e869671>
 
 
-In December, Joshua Hoblitt created a ticket [perl #37930] requesting a 
+In December, Joshua Hoblitt created a ticket L<[perl #37930]|http://rt.perl.org/rt3/Ticket/Display.html?id=37930> requesting a 
 clean way for a step to signal a failure.  As of February's r11568, 
 all configuration steps were modified.
 
@@ -65,7 +65,7 @@ Leopold Toetsch changed the syntax for registers in r11581.
 
 =head3 L<Punie test failures in set_node method on Solaris/SPARC|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/a122de6c2bb28a84/d0cbc9de8125b458#d0cbc9de8125b458>
 
-Allison Randal passed on a reported failure on Solaris/SPARC [perl #38584].
+Allison Randal passed on a reported failure on Solaris/SPARC L<[perl #38584]|http://rt.perl.org/rt3/Ticket/Display.html?id=38584>.
 
 In L<another thread|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/8a62c2a856f8f082/491e99ef81569e4b#491e99ef81569e4b>, Andy Dougherty looked into the problem and gave his test results.
 
@@ -101,7 +101,7 @@ would be removed soon.  As of r11602, they were removed.
 
 
 Leopold Toetsch related a short list of desired JIT compiler improvements 
-from [perl #38593].
+from L<[perl #38593]|http://rt.perl.org/rt3/Ticket/Display.html?id=38593>.
 
 
 
@@ -130,7 +130,7 @@ for the methods, Leopold Toetsch decided they should remain.
 =head3 L<Configure dependencies fix bug closed|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/c226ff6a47f6d425/082405f8b9d507c4#082405f8b9d507c4>
 
 
-Joshua Hoblitt closed a ticket [perl #31138] which was not addressed
+Joshua Hoblitt closed a ticket L<[perl #31138]|http://rt.perl.org/rt3/Ticket/Display.html?id=31138> which was not addressed
 and was no longer applicable.
 
 
@@ -147,8 +147,8 @@ describing the behavior of the routine.
 =head3 L<Deprecated --expnetwork in Configure.pl |http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/38b3680ddaaafd76/d7dfa4e23138f5cb#d7dfa4e23138f5cb>
 
 
-In October, Will Coleda noted that --expnetwork from Configure.pl
-was an unused option which should probably be removed [perl #37388].
+In October, Will Coleda noted that C<--expnetwork> from Configure.pl
+was an unused option which should probably be removed L<[perl #37388]|http://rt.perl.org/rt3/Ticket/Display.html?id=37388>.
 More recently, Joshua Hoblitt requested clarification and Leopold
 Toetsch agreed with the removal.
 
@@ -157,7 +157,7 @@ Toetsch agreed with the removal.
 =head3 L<Performance-adding profiling build options|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/4ee0df19308da7c3/84fa5334940e9ec1#84fa5334940e9ec1>
 
 
-Joshua Hoblitt inquired as to whether [perl #31156] was worth implementing.
+Joshua Hoblitt inquired as to whether L<[perl #31156]|http://rt.perl.org/rt3/Ticket/Display.html?id=31156> was worth implementing.
 Leopold Toetsch asked how to add CFLAGS from a perl Configure.pl
 command, and Joshua replied.
 
@@ -166,7 +166,7 @@ command, and Joshua replied.
 =head3 L<Truncating results of factorial test on Parrot examples page|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/965b026dbd247636/93fdbc899b709c12#93fdbc899b709c12>
 
 
-Back in September 2005, James Ghofulpo asked in [perl #31980] if the 
+Back in September 2005, James Ghofulpo asked in L<[perl #31980]|http://rt.perl.org/rt3/Ticket/Display.html?id=31980> if the 
 factorial example was meant to truncate results.  Bernhard Schmalhofer 
 confirmed that he got incorrect results running the example.  Leopold 
 Toetsch noted that most of the examples are outdated.  There was a 
@@ -179,7 +179,7 @@ been removed because it was broken.
 =head3 L<undef != undef|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/be20bf0fff3e446a/bd2cc5870ee293c8#bd2cc5870ee293c8>
 
 
-As long ago as December 2004, Simon Glover created a ticket [perl #33603]
+As long ago as December 2004, Simon Glover created a ticket L<[perl #33603]|http://rt.perl.org/rt3/Ticket/Display.html?id=33603>
 noting that undef != undef.  Leopold Toetsch tried to explain why undefs
 have to be distinct currently.  A patch was proposed, but rejected, and
 in February Joshua Hoblitt asked for some resolution on the issue.
@@ -210,7 +210,7 @@ list and offered suggestions.  Nick Glencross also offered advice.
 =head3 L<m4.pm versus M4.pm causes problems on case-insensitive filesystems|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/57964674e12dfc10/a0def0bc8f862f74#a0def0bc8f862f74>
 
 
-Chris Dolan reported [perl #38604] that Mac OS X had a problem with these
+Chris Dolan reported L<[perl #38604]|http://rt.perl.org/rt3/Ticket/Display.html?id=38604> that Mac OS X had a problem with these
 two files.  Bernhard Schmalhofer indicated that this was due to an svn move, 
 which caused problems with svn update on case-insensitive filesystems.
 
@@ -278,7 +278,7 @@ Roger Browne announced this release.
 
 =item * Tabs removed in nativecall.pl
 
-Brad Bowman submitted a patch [perl #38476] to normalize indentation
+Brad Bowman submitted a patch L<[perl #38476]|http://rt.perl.org/rt3/Ticket/Display.html?id=38476> to normalize indentation
 in nativecall.pl.
 
 
@@ -286,7 +286,7 @@ in nativecall.pl.
 =item * L<Reduce memory consumption of F<t/pmc/resizeablebooleanarray_17.pasm>|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/611c80142c381e32/d8772fc119d9c7b3#d8772fc119d9c7b3>
 
 Andy Dougherty suggested cutting cutting the memory use in half
-[perl #38577] because his system PANICs from the RAM allocation request.
+L<[perl #38577]|http://rt.perl.org/rt3/Ticket/Display.html?id=38577> because his system PANICs from the RAM allocation request.
 The patch was applied, but it was noted that there was a
 suspected bug in the ResizeableBooleanArray PMC.
 
@@ -294,7 +294,7 @@ suspected bug in the ResizeableBooleanArray PMC.
 =item * L<DETAIL_MEMORY_DEBUG changes|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/eec872a277365c95/ba8e3b9afa6ee90d#ba8e3b9afa6ee90d>
 
 Andy Dougherty was not satisfied with DETAIL_MEMORY_DEBUG in src/memory.c
-[perl #38576] when he tried to use it to debug an out of memory PANIC.
+L<[perl #38576]|http://rt.perl.org/rt3/Ticket/Display.html?id=38576> when he tried to use it to debug an out of memory PANIC.
 He modified it to use STDERR instead of STDOUT and put in a guard against
 calling free(0).  Leopold Toetsch complimented the quality of Andy's
 patches and told him to just apply them in the future.
@@ -303,7 +303,7 @@ patches and told him to just apply them in the future.
 =item * L<Accept return values via a continuation|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/6ae7424bda10d7ea/85963bde99de6864#85963bde99de6864>
 
 In January, Bob Rogers proposed that Exception_Handler inherit
-from Continuations [perl #38348].  Leopold Toetsch applied the patch in 
+from Continuations L<[perl #38348]|http://rt.perl.org/rt3/Ticket/Display.html?id=38348>.  Leopold Toetsch applied the patch in 
 r11379.  Discussion continued until mid-February, and there were addition
 commits: r11616, and r11612.
 
@@ -317,7 +317,7 @@ is no record of it being applied.
 
 =item * L<PIR examples, libraries and tests migrated to new subroutine attributes|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/2c558446f3c0c402/33950c1f58cfc564#33950c1f58cfc564>
 
-In [perl #38598], chromatic noted that some modifications were needed to
+In L<[perl #38598]|http://rt.perl.org/rt3/Ticket/Display.html?id=38598>, chromatic noted that some modifications were needed to
 bring documentation and tests up-to-date.  He applied some patches
 (11755, 11756 and 11758).
 
