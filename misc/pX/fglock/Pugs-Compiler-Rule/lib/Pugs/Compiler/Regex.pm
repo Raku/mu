@@ -37,7 +37,7 @@ sub compile {
 
     return Pugs::Compiler::RegexPerl5->compile( $rule_source, $param )
         if exists $param->{P5} || exists $param->{Perl5};
-#warn length($rule_source);
+    #warn length($rule_source);
 
     my $self = { source => $rule_source };
 
@@ -62,9 +62,11 @@ sub compile {
     my $cached;
 
     if ($cache && ($cached = $cache->get($digest))) {
-	$self->{perl5} = $cached;
+        #warn "USING CACHED RULE\n";
+        $self->{perl5} = $cached;
     }
     else {
+        #warn "COMPILING RULE\n";
 
         #print 'rule source: ', $self->{source}, "\n";
         $self->{ast} = Pugs::Grammar::Rule->rule( 

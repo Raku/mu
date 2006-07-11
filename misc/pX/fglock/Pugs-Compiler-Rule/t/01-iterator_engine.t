@@ -5,18 +5,18 @@ use warnings;
 
 #require 'iterator_engine.pl';
 
-use Test::More tests => 22;
+use Test::More tests => 23;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Pad = '# ';
 
-use_ok( 'Pugs::Runtime::Rule' );
+use_ok( 'Pugs::Runtime::Regex' );
 use Pugs::Runtime::Match::Ratchet;
 
 my ( $rule, $match );
 
 {
-  $rule = Pugs::Runtime::Rule::constant( 'a' );
+  $rule = Pugs::Runtime::Regex::constant( 'a' );
   $rule->( 'a123', undef, {capture=>1}, $match );
   #print Dumper( $match );
   ok ( $match->bool, "a =~ /a/ #1" );
@@ -29,10 +29,10 @@ my ( $rule, $match );
 
 {
   $rule = 
-    Pugs::Runtime::Rule::non_greedy_plus( 
-      Pugs::Runtime::Rule::alternation( [
-        Pugs::Runtime::Rule::constant( 'a' ), 
-        Pugs::Runtime::Rule::constant( 'c' ), 
+    Pugs::Runtime::Regex::non_greedy_plus( 
+      Pugs::Runtime::Regex::alternation( [
+        Pugs::Runtime::Regex::constant( 'a' ), 
+        Pugs::Runtime::Regex::constant( 'c' ), 
       ] ),
     );
   $rule->( 'a123', undef, {capture=>1}, $match );
@@ -46,8 +46,8 @@ my ( $rule, $match );
 
 {
   $rule = 
-    Pugs::Runtime::Rule::greedy_star( 
-      Pugs::Runtime::Rule::constant( 'a' ) 
+    Pugs::Runtime::Regex::greedy_star( 
+      Pugs::Runtime::Regex::constant( 'a' ) 
     );
   is ( ref $rule, "CODE", "rule 'a*' is a coderef" );
   $rule->( 'aa', undef, {}, $match );
@@ -61,8 +61,8 @@ my ( $rule, $match );
 
 {
   $rule = 
-    Pugs::Runtime::Rule::greedy_plus( 
-      Pugs::Runtime::Rule::constant( 'a' ) 
+    Pugs::Runtime::Regex::greedy_plus( 
+      Pugs::Runtime::Regex::constant( 'a' ) 
     );
   $rule->( 'aa', undef, {}, $match );
   ok ( $match->bool, "/a+/" );
@@ -72,14 +72,14 @@ my ( $rule, $match );
 
 {
   $rule = 
-    Pugs::Runtime::Rule::concat( 
-      Pugs::Runtime::Rule::greedy_plus( 
-        Pugs::Runtime::Rule::alternation( [
-          Pugs::Runtime::Rule::constant( 'a' ), 
-          Pugs::Runtime::Rule::constant( 'c' ), 
+    Pugs::Runtime::Regex::concat( 
+      Pugs::Runtime::Regex::greedy_plus( 
+        Pugs::Runtime::Regex::alternation( [
+          Pugs::Runtime::Regex::constant( 'a' ), 
+          Pugs::Runtime::Regex::constant( 'c' ), 
         ] ),
       ),
-      Pugs::Runtime::Rule::constant( 'ab' )
+      Pugs::Runtime::Regex::constant( 'ab' )
      );
   $rule->( 'aacaab', undef, {}, $match );
   ok ( $match->bool, "/[a|c]+ab/ with backtracking" );
@@ -88,10 +88,10 @@ my ( $rule, $match );
 
 {
   $rule = 
-    Pugs::Runtime::Rule::non_greedy_plus( 
-      Pugs::Runtime::Rule::alternation( [
-        Pugs::Runtime::Rule::constant( 'a' ), 
-        Pugs::Runtime::Rule::constant( 'c' ), 
+    Pugs::Runtime::Regex::non_greedy_plus( 
+      Pugs::Runtime::Regex::alternation( [
+        Pugs::Runtime::Regex::constant( 'a' ), 
+        Pugs::Runtime::Regex::constant( 'c' ), 
       ] ),
     );
   $rule->( 'aacaab', undef, {capture=>1}, $match );
@@ -102,14 +102,14 @@ my ( $rule, $match );
 
 {
   $rule = 
-    Pugs::Runtime::Rule::concat(
-      Pugs::Runtime::Rule::non_greedy_plus( 
-        Pugs::Runtime::Rule::alternation( [
-          Pugs::Runtime::Rule::constant( 'a' ), 
-          Pugs::Runtime::Rule::constant( 'c' ), 
+    Pugs::Runtime::Regex::concat(
+      Pugs::Runtime::Regex::non_greedy_plus( 
+        Pugs::Runtime::Regex::alternation( [
+          Pugs::Runtime::Regex::constant( 'a' ), 
+          Pugs::Runtime::Regex::constant( 'c' ), 
         ] ),
       ),
-      Pugs::Runtime::Rule::constant( 'cb' )
+      Pugs::Runtime::Regex::constant( 'cb' )
     );
   $rule->( 'aacacb', undef, {capture=>1}, $match );
   ok ( defined $match, "/[a|c]+?ab/ with backtracking" );
@@ -120,13 +120,13 @@ my ( $rule, $match );
   # tests for a problem found in the '|' implementation in p6rule parser
   
   my $rule = 
-    Pugs::Runtime::Rule::constant( 'a' );
+    Pugs::Runtime::Regex::constant( 'a' );
   my $alt = 
-    Pugs::Runtime::Rule::concat(
+    Pugs::Runtime::Regex::concat(
         $rule,
-        Pugs::Runtime::Rule::optional (
-            Pugs::Runtime::Rule::concat(
-                Pugs::Runtime::Rule::constant( '|' ),
+        Pugs::Runtime::Regex::optional (
+            Pugs::Runtime::Regex::concat(
+                Pugs::Runtime::Regex::constant( '|' ),
                 $rule
             )
         )
@@ -139,11 +139,11 @@ my ( $rule, $match );
   # adding '*' caused a deep recursion error (fixed)
 
   $alt = 
-    Pugs::Runtime::Rule::concat(
+    Pugs::Runtime::Regex::concat(
         $rule,
-        Pugs::Runtime::Rule::greedy_star(
-          Pugs::Runtime::Rule::concat(
-              Pugs::Runtime::Rule::constant( '|' ),
+        Pugs::Runtime::Regex::greedy_star(
+          Pugs::Runtime::Regex::concat(
+              Pugs::Runtime::Regex::constant( '|' ),
               $rule
           )
         )
@@ -157,3 +157,10 @@ my ( $rule, $match );
 
 }
 
+{
+  Pugs::Runtime::Regex::rule_wrapper( $_[0], 
+       Pugs::Runtime::Regex::constant( "a" )->( 'aa', undef, {capture=>1}, $match )
+    );
+  ok ( $match, "wrapper /a/" );
+  #print Dumper( $match );
+}

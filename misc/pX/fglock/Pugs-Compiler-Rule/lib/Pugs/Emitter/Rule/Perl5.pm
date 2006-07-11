@@ -35,15 +35,9 @@ sub emit {
         "    my \$tree;\n" .
         "    my \$pos = \$_[2]{p};\n" .
         "    \$pos = 0 unless defined \$pos;   # TODO - .*? \$match \n" .
-        "    my \$s = \$_[0]; # TODO - substr( \$_[0], \$pos );\n" .
-        # "    print \"\\nVariables: args[\", join(\",\",\@_) ,\"] \\n\";\n" .
-        # "    print \"         : \@{\$_[2]}} \\n\" if defined \$_[2];\n" .
-        # "    \$_[0] = '' unless defined \$_[0];\n" .
-        "    my \$match = rule_wrapper( \$_[0], \n" . 
-        "        \$matcher->( \$s, \$_[1], \$tree, \$tree, \$grammar, 0, \$s, \$_[2] )\n" .
-        "    );\n" .
-        "    return \$match;\n" .
-        #"    return Pugs::Runtime::Match->new( \$match );\n" .
+        "    my \$s = \$_[0]; \n" . 
+        "    \$matcher->( \$s, \$_[1], \$tree, \$tree, \$grammar, 0, \$s, \$_[2] );\n" .
+        "    return \$tree;\n" .
         "  }\n" .
         "}\n";
 }
