@@ -74,9 +74,9 @@ sub build {
 
         my $archive_dir = glob("third-party/installed/lib/pugs-$module-*");
         foreach my $archive (
-            glob("$archive/*.a"),
-            glob("$archive/*/*.a"),
-            glob("$archive/*/*/*.a"),
+            glob("$archive_dir/*.a"),
+            glob("$archive_dir/*/*.a"),
+            glob("$archive_dir/*/*/*.a"),
         ) {
             system($ar, s => $archive);
         }
