@@ -38,6 +38,13 @@ BEGIN {
         other => '*',
     );
 
+    __PACKAGE__->add_rule(
+        name => '**',
+        assoc => 'left',
+        precedence => 'tighter',
+        other => 'infix:<*>',
+    );
+    
     __PACKAGE__->add_rule( 
         name => '+',
         assoc => 'left',

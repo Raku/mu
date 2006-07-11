@@ -6,7 +6,7 @@ use Pugs::Runtime::Match;
 use Pugs::Compiler::Token;
 
 # TODO - implement the "magic hash" dispatcher
-# TODO - term:<...>  - yada-yada-yada
+# TODO - term:<...> !!! ??? 
 # moose=>1
 # moose:<elk>
 # moose:{antler()}
@@ -62,14 +62,16 @@ sub substitution {
     return $grammar->no_match unless substr($_[0], 0 , 1) eq '/';
     substr($_[0], 0, 1, '');
     my ($extracted,$remainder) = Text::Balanced::extract_delimited( "/" . $_[0], "/" );
-    $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
+    return $grammar->no_match unless length($extracted) > 0;
+    $extracted = substr( $extracted, 1, -1 );
     my $extracted2;
     ($extracted2,$remainder) = Text::Balanced::extract_delimited( "/" . $remainder, "/" );
-    $extracted2 = substr( $extracted2, 1, -1 ) if length($extracted2) > 1;
+    return $grammar->no_match unless length($extracted2) > 0;
+    $extracted2 = substr( $extracted2, 1, -1 );
     return Pugs::Runtime::Match->new( { 
-        bool  => 1, # ( $extracted ne '' ),
-        match => $extracted,
-        tail  => $remainder,
+        bool    => 1,,
+        match   => $extracted,
+        tail    => $remainder,
         capture => { options => $options, substitution => [$extracted, $extracted2] },
     } );
 };
@@ -78,11 +80,12 @@ sub single_quoted {
     my $grammar = shift;
     return $grammar->no_match unless $_[0];
     my ($extracted,$remainder) = Text::Balanced::extract_delimited( "'" . $_[0], "'" );
-    $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
+    return $grammar->no_match unless length($extracted) > 0;
+    $extracted = substr( $extracted, 1, -1 );
     return Pugs::Runtime::Match->new( { 
-        bool  => 1, # ( $extracted ne '' ),
-        match => $extracted,
-        tail  => $remainder,
+        bool    => 1,,
+        match   => $extracted,
+        tail    => $remainder,
         capture => $extracted,
     } );
 }
@@ -91,11 +94,12 @@ sub double_quoted {
     my $grammar = shift;
     return $grammar->no_match unless $_[0];
     my ($extracted,$remainder) = Text::Balanced::extract_delimited( '"' . $_[0], '"' );
-    $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
+    return $grammar->no_match unless length($extracted) > 0;
+    $extracted = substr( $extracted, 1, -1 );
     return Pugs::Runtime::Match->new( { 
-        bool  => 1, # ( $extracted ne '' ),
-        match => $extracted,
-        tail  => $remainder,
+        bool    => 1, 
+        match   => $extracted,
+        tail    => $remainder,
         capture => $extracted,
     } );
 }
@@ -104,11 +108,12 @@ sub angle_quoted {
     my $grammar = shift;
     return $grammar->no_match unless $_[0];
     my ($extracted,$remainder) = Text::Balanced::extract_bracketed( '<' . $_[0], '<..>' );
-    $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
+    return $grammar->no_match unless length($extracted) > 0;
+    $extracted = substr( $extracted, 1, -1 );
     return Pugs::Runtime::Match->new( { 
-        bool  => 1, # ( $extracted ne '' ),
-        match => $extracted,
-        tail  => $remainder,
+        bool    => 1,
+        match   => $extracted,
+        tail    => $remainder,
         capture => $extracted,
     } );
 }
@@ -220,18 +225,6 @@ sub recompile {
             { 
                 return { die => "not implemented" } 
             }
-        ) ),
-        Inf => Pugs::Compiler::Regex->compile( q(
-            { return { num => 'Inf' ,} } 
-        ) ),
-        NaN => Pugs::Compiler::Regex->compile( q(
-            { return { num => 'NaN' ,} } 
-        ) ),
-        'bool::true' => Pugs::Compiler::Regex->compile( q(
-            { return { bool => 1 ,} } 
-        ) ),
-        'bool::false' => Pugs::Compiler::Regex->compile( q(
-            { return { bool => 0 ,} } 
         ) ),
         q(') =>       # ' 
           Pugs::Compiler::Regex->compile( q(

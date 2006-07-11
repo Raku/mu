@@ -8,6 +8,9 @@ sub true is export {
     $_[0] ?? bool::True !! bool::False
 }
 
+sub Inf { Pugs::Runtime::Perl6::Inf }
+sub NaN { Pugs::Runtime::Perl6::NaN }
+
 sub slurp { ... } # Slurps in an entire file
 
 module Perl6::Internals;
