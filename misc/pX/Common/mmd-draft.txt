@@ -82,7 +82,10 @@ still comparable.)  Otherwise, the parameter types are incomparable: Neither
 can then be contenders, because we can't say that either one is at least as
 narrow as the other.
 
-Junctive types are treated as their narrowest alternative. # XXX not so
+Union types types such as (Dog|Cat) is considered comparable to Dog and Cat,
+but both Dog and Cat are more specific than (Dog|Cat).  That is, "Dog" can
+imply (Dog|Cat), but not the other way around.  However, if "Dog" is a subset
+of "Cat", then (Dog|Cat) is first flattened to "Cat" before comparison.
 
 ------------------------------------------------------------
 Backstory and discussion:
