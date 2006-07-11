@@ -13,8 +13,8 @@ sub slurp { ... } # Slurps in an entire file
 module Perl6::Internals;
 
 sub compile_pir($code) { ... }
-sub exit($status) { eval("exit($status)", :lang<perl5>); }
-sub sleep($seconds) { eval("sleep($seconds)", :lang<perl5>); }
+sub exit($status)   { use v5; exit($status); use v6; }
+sub sleep($seconds) { use v5; sleep($seconds); use v6; }
 
 
 module Pugs::Internals;
