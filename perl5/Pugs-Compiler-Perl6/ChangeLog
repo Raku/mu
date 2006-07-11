@@ -6,7 +6,7 @@
 0.006  2006-07-06
 
 - we now no longer use Parse::Yapp
-- all expression parsing is done with Perl 6 grrammar
+- all expression parsing is done with Perl 6 grammar
 - regex/token/rule declarations in Perl 6 are parsed
 - uses Moose 0.10 for Perl 6 classes and objects
 - squash warnings
