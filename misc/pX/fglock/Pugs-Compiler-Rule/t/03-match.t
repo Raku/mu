@@ -6,7 +6,7 @@ use_ok( 'Pugs::Compiler::Regex' );
 
 {
     my $rule = Pugs::Compiler::Regex->compile( '.' );
-    # print $rule->{perl5};
+    print $rule->{perl5};
     my $match = $rule->match( "xyzw" );
     is( "$match", "x", 'stringify 1' );
 }

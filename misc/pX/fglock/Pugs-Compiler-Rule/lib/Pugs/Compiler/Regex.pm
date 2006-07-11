@@ -14,6 +14,8 @@ use Pugs::Emitter::Rule::Perl5;
 use Pugs::Emitter::Rule::Perl5::Ratchet;
 use Pugs::Compiler::RegexPerl5;
 
+use Pugs::Runtime::Regex;
+
 use Carp 'croak';
 use Data::Dumper;
 use Symbol 'qualify_to_ref';

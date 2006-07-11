@@ -27,7 +27,7 @@ sub emit {
     # rule parameters: see Runtime::Rule.pm
     return 
         "do {\n" .
-        "    package Pugs::Runtime::Rule;\n" .
+        "    package Pugs::Runtime::Regex;\n" .
         "    my \$matcher = \n" . 
         emit_rule( $ast, '    ' ) . "  ;\n" .
         "  sub {\n" . 
