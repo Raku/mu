@@ -237,13 +237,13 @@ sub non_greedy_plus {
 # - creates a 'capture', unless it detects a 'return block'
 sub rule_wrapper {
     my ( $str, $match ) = @_;
-    $match = $$match if ref($match) eq 'Pugs::Runtime::Match';
+    $match = $$match if ref($match) eq 'Pugs::Runtime::Match::Ratchet';
     return unless $match->{bool};
     if ( $match->{return} ) {
         #warn 'pre-return: ', Dumper( $match );
         my %match2 = %$match;
         $match2{capture} = $match->{return}( 
-            Pugs::Runtime::Match->new( $match ) 
+            Pugs::Runtime::Match::Ratchet->new( $match ) 
         );
         #warn "return ",ref($match2{capture});
         #warn 'post-return: ', Dumper( $match2{capture} );
