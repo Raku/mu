@@ -5,7 +5,7 @@ use warnings;
 
 #require 'iterator_engine.pl';
 
-use Test::More qw(no_plan);
+use Test::More tests => 22;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Pad = '# ';
@@ -86,9 +86,6 @@ my ( $rule, $match );
   # print Dumper( $match );
 }
 
-print "# XXX other tests disabled due to a big API change\n";
-__END__
-
 {
   $rule = 
     Pugs::Runtime::Rule::non_greedy_plus( 
@@ -97,9 +94,9 @@ __END__
         Pugs::Runtime::Rule::constant( 'c' ), 
       ] ),
     );
-  ( $stat, $assertion, $match, $tail ) = $rule->( 'aacaab', undef, {capture=>1} );
-  ok ( defined $match, "/[a|c]+/" );
-  is ( $tail, 'acaab', "tail is ok" );
+  $rule->( 'aacaab', undef, {capture=>1}, $match );
+  ok ( $match, "/[a|c]+/" );
+  is ( $match->tail, 'acaab', "tail is ok" );
   #print Dumper( $match );
 }
 
@@ -114,7 +111,7 @@ __END__
       ),
       Pugs::Runtime::Rule::constant( 'cb' )
     );
-  ( $stat, $assertion, $match, $tail ) = $rule->( 'aacacb' );
+  $rule->( 'aacacb', undef, {capture=>1}, $match );
   ok ( defined $match, "/[a|c]+?ab/ with backtracking" );
   #print Dumper( $match );
 }
@@ -134,9 +131,9 @@ __END__
             )
         )
     );
-  ( $stat, $assertion, $match, $tail ) = $alt->( 'a' );
+  $alt->( 'a', undef, {capture=>1}, $match );
   ok ( defined $match, "/a|a/ #1" );
-  ( $stat, $assertion, $match, $tail ) = $alt->( 'a|a' );
+  $alt->( 'a|a', undef, {capture=>1}, $match );
   ok ( defined $match, "/a|a/ #2" );
 
   # adding '*' caused a deep recursion error (fixed)
@@ -151,42 +148,12 @@ __END__
           )
         )
     );
-  ( $stat, $assertion, $match, $tail ) = $alt->( 'a' );
-  ok ( defined $match, "/a [ |a ]*/ #1" );
-  ( $stat, $assertion, $match, $tail ) = $alt->( 'a|a' );
-  ok ( defined $match, "/a [ |a ]*/ #2" );
-  ( $stat, $assertion, $match, $tail ) = $alt->( 'a|a|a' );
-  ok ( defined $match, "/a [ |a ]*/ #3" );
+  $alt->( 'a', undef, {capture=>1}, $match );
+  ok ( $match, "/a [ |a ]*/ #1" );
+  $alt->( 'a|a', undef, {capture=>1}, $match );
+  ok ( $match, "/a [ |a ]*/ #2" );
+  $alt->( 'a|a|a', undef, {capture=>1}, $match );
+  ok ( $match, "/a [ |a ]*/ #3" );
 
 }
 
-__END__
-
-# old tests 
-
-print "word\n", Dumper( 
-  &{'rule::<word>'}( 0, qw(b a a ! !) ) 
-);
-print "word concat\n", Dumper( 
-  rule::concat( \&{'rule::<word>'}, \&{'rule::<ws>'} )->( 0, qw(b a ),' ' ) 
-);
-print "non_greedy + backtracking\n", Dumper( 
-  rule::concat(
-    rule::non_greedy( rule::constant('a') ),
-    rule::constant('ab')
-  )->( 0, qw(a a a a b) ) 
-);
-print "alternation + backtracking\n", Dumper( 
-  rule::concat(
-    rule::alternation( rule::constant('a'), rule::constant('ab') ),
-    rule::constant('ab')
-  )->( 0, qw(a b a b) ) 
-);
-print "alternation + greedy + backtracking -- (ab,a,ab)(ab)\n", Dumper( 
-  rule::concat(
-    rule::greedy(
-      rule::alternation( rule::constant('a'), rule::constant('ab') )
-    ),
-    rule::constant('ab')
-  )->( 0, qw(a b a a b a b) ) 
-);

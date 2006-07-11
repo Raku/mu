@@ -181,7 +181,7 @@ sub abort {
     return sub {
         $op->( @_ );
         ${ $_[3] }->{abort} = 1;
-        # print "ABORT: ",Dumper( $_[3] );
+        print "ABORT: ",Dumper( $_[3] );
     };
 };
 
