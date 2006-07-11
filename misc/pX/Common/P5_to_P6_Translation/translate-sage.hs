@@ -25,12 +25,16 @@ data AbsType
     | Op_aassign
     | Op_aelem
     | Op_chdir
+    | Op_close
     | Op_const
     | Op_cond_expr
     | Op_entersub
     | Op_ftdir
+    | Op_gv
     | Op_helem
+    | Op_iter
     | Op_leave
+    | Op_leaveloop
     | Op_length
     | Op_lineseq
     | Op_list
@@ -43,6 +47,7 @@ data AbsType
     | Op_readline
     | Op_require
     | Op_rv2av
+    | Op_rv2gv
     | Op_rv2hv
     | Op_rv2sv
     | Op_sassign
@@ -85,7 +90,12 @@ one for nodes with kids, one for all other nodes.
 nodeNamer :: Int -> Parser P5AST
 nodeNamer indent = do
     count indent space
-    withKids indent <|> noKids indent -- <|> hereDoc indent --hereDoc not ready yet
+    withKids indent <|> noKids indent <|> blank indent-- <|> hereDoc indent --hereDoc not ready yet
+
+blank :: Int -> Parser P5AST
+blank indent = do
+    try (string "- ''") <?> "Empty entry";
+    return (LiteralNode Junk "1" "")
 
 withKids :: Int -> Parser P5AST
 withKids indent = do
@@ -106,11 +116,15 @@ withKids indent = do
             "op_aassign"    -> Op_aassign
             "op_aelem"      -> Op_aelem
             "op_chdir"      -> Op_chdir
+            "op_close"      -> Op_close
             "op_cond_expr"  -> Op_cond_expr
             "op_const"      -> Op_const
             "op_ftdir"      -> Op_ftdir
+            "op_gv"         -> Op_gv
             "op_helem"      -> Op_helem
+            "op_iter"       -> Op_iter
             "op_leave"      -> Op_leave
+            "op_leaveloop"  -> Op_leaveloop
             "op_length"     -> Op_length
             "op_lineseq"    -> Op_lineseq
             "op_list"       -> Op_list
@@ -123,6 +137,7 @@ withKids indent = do
             "op_readline"   -> Op_readline
             "op_require"    -> Op_require
             "op_rv2av"      -> Op_rv2av
+            "op_rv2gv"      -> Op_rv2gv
             "op_rv2hv"      -> Op_rv2hv
             "op_rv2sv"      -> Op_rv2sv
             "op_sassign"    -> Op_sassign
@@ -190,8 +205,8 @@ uniBlock indent = choice
         return (unlines (map (drop indent) uni))
     ,do try $ string "\""
         uni <- manyTill anyToken (try(string("\"\n")))
-        return uni
-        --return (makeLiterals (unlines ((head (lines uni))++(map (drop indent) (tail (lines uni))))))
+        --return uni
+        return $ if ((length (lines uni))==1) then (makeLiterals uni) else (makeLiterals (joinString ((head (lines (getRidOfExtraSlashes uni))):(map (drop indent) (tail (lines (getRidOfExtraSlashes uni)))))))
     ,do uni <- manyTill anyToken newline <?> "uni string"
         --If the field is in quotes, strip the quotes by stripping the first character, 
         --reversing the string, stripping the first character, then reversing again
@@ -208,6 +223,10 @@ parseInput = do
     eof 
     return names
 
+getRidOfExtraSlashes :: String -> String
+getRidOfExtraSlashes [] = []
+getRidOfExtraSlashes inSt = if (and [((head inSt)=='\\'), ((head (tail inSt))=='\n')]) then ('\n':(getRidOfExtraSlashes (drop 2 inSt))) else ((head inSt):(getRidOfExtraSlashes (tail inSt)))
+
 {-Function to handle escaped characters in a string scanned from input
 For example, if the string "blah\n" is scanned, it ends up being represented as
 "blah\\n". This function parses that newline into a literal newline.-}
@@ -216,7 +235,9 @@ makeLiterals [] = []
 makeLiterals inSt = if ((head inSt)=='\\') then if (head (tail inSt) == '"') then ('\"':(makeLiterals(drop 2 inSt))) else
                                                    if (head (tail inSt) == 'n') then ('\n':(makeLiterals(drop 2 inSt))) else
                                                      if (head (tail inSt) == 't') then ('\t':(makeLiterals(drop 2 inSt))) else
-                                                    ('\\':(makeLiterals(drop 2 inSt)))
+                                                       if(head (tail inSt) == '\n') then ('\n':(makeLiterals(drop 2 inSt))) else
+                                                         if (head (tail inSt) == '\\') then ('\\':(makeLiterals(drop 2 inSt))) else 
+                                                           ((makeLiterals(tail inSt)))
                       else ((head inSt):(makeLiterals (tail inSt)))
 
 {- No longer a big big messy function to print all the different node types, 
@@ -241,14 +262,47 @@ printTree outFile (AbstractNode _ kids) = do{ printTree outFile (head kids);
 
 --Wrapper function to apply all translations in order
 translate :: P5AST -> String -> P5AST
-translate tree options= if (options == "Oo") then (toWords (lengthToMethod (splitOnMatchTranslate (splitQuotes(readlineTranslate (conditionalExpression (arrayKey (hashKey (regexSubstitutionTranslation tree))))))))) else
-                                                    (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (regexSubstitutionTranslation tree)))))))
+translate tree options= if (options == "Oo") then (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (regexSubstitutionTranslation tree))))))))))) else
+                                                    (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (regexSubstitutionTranslation tree))))))))
+
+foreachTranslation :: P5AST -> P5AST
+foreachTranslation (AbstractNode Op_leaveloop kids) = if (isIn (LiteralNode Token "1" "foreach") kids) then (newForeach (map foreachTranslation kids)) else (AbstractNode Op_leaveloop (map foreachTranslation kids))
+foreachTranslation (AbstractNode atype kids) = (AbstractNode atype (map foreachTranslation kids))
+foreachTranslation (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+newForeach :: [P5AST] -> P5AST
+newForeach [] = (AbstractNode UnknownAbs [])
+newForeach kids = if (isIn (AbstractNode Op_rv2av []) kids) then (AbstractNode Op_leaveloop [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_rv2av []) kids),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_rv2gv []) kids),(extractNodetype (AbstractNode Op_lineseq []) kids)]) else
+                    if (isIn (AbstractNode Op_list []) kids) then (AbstractNode Op_leaveloop [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_list []) kids),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_rv2gv []) kids),(extractNodetype (AbstractNode Op_lineseq []) kids)]) else (AbstractNode UnknownAbs [])
+
+extractNodetype :: P5AST -> [P5AST] -> P5AST
+extractNodetype _ [] = (AbstractNode UnknownAbs [])
+extractNodetype node nlist = if (matchWithoutEnc node (head nlist)) then (head nlist) else (extractNodetype node (tail nlist))
+
+closeToMethod :: P5AST -> P5AST
+closeToMethod (AbstractNode Op_close kids) = (AbstractNode Op_close (changeCloseMethod kids))
+closeToMethod (AbstractNode atype kids) = (AbstractNode atype (map closeToMethod kids))
+closeToMethod (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+changeCloseMethod :: [P5AST] -> [P5AST]
+changeCloseMethod [] = []
+changeCloseMethod nlist = if (matchWithoutEnc (head nlist) (AbstractNode Op_rv2gv [])) then (extractKids (head (extractKids (head nlist))))++[(LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "close")])])] else
+                            if (matchWithoutEnc (head nlist) (AbstractNode Op_gv [])) then [(LiteralNode Sigil "1" ("$"++(extractUni (head (extractKids (head (extractKids (head nlist)))))))),(LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "close")])])] else
+                              (changeCloseMethod (tail nlist))
+
+extractKids :: P5AST -> [P5AST]
+extractKids (AbstractNode atype kids) = kids
+extractKids (LiteralNode _ _ _) = []
 
 toWords :: P5AST -> P5AST
-toWords (AbstractNode Op_split kids) = if (isInOrder [(LiteralNode Openquote "1" "/"), (LiteralNode Text "1" " "), (LiteralNode Closequote "1" "/")] kids) then (AbstractNode Op_split [(getSecondArg kids), (LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "words")])])])
+toWords (AbstractNode Op_split kids) = if (and [(isIn (AbstractNode Op_const []) kids),(isInSequence [(LiteralNode Openquote "1" "'"), (LiteralNode Text "1" " "), (LiteralNode Closequote "1" "'")] (extractKids (getConst kids)))]) then (AbstractNode Op_split [(getSecondArg kids), (LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "words")])])])
                                           else (AbstractNode Op_split (map toWords kids))
 toWords (AbstractNode atype kids) = (AbstractNode atype (map toWords kids))
 toWords (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+getConst :: [P5AST] -> P5AST
+getConst [] = (AbstractNode UnknownAbs [])
+getConst nlist = if (matchWithoutEnc (head nlist) (AbstractNode Op_const [])) then (head nlist) else (getConst (tail nlist))
 
 getSecondArg :: [P5AST] -> P5AST
 getSecondArg [] = (AbstractNode UnknownAbs [])
@@ -280,6 +334,10 @@ getLType (LiteralNode sometype enc uni) = sometype
 join :: [[P5AST]] -> [P5AST]
 join [] = []
 join lists = (head lists)++(join (tail lists))
+
+joinString :: [String] -> String
+joinString [] = []
+joinString strs = (head strs)++(joinString (tail strs))
 
 lengthToMethod :: P5AST -> P5AST
 lengthToMethod (AbstractNode Op_length kids) = (toCharMethod kids)
@@ -410,6 +468,17 @@ isInOrder [] [] = True
 isInOrder _ [] = False
 isInOrder [] _ = True
 isInOrder nodes list = if (matchWithoutEnc (head list) (head nodes)) then (isInOrder (tail nodes) (tail list)) else (isInOrder nodes (tail list))
+
+isInSequence :: [P5AST] -> [P5AST] -> Bool
+isInSequence _ [] = True
+isInSequence [] _ = False
+isInSequence nodes list = if (allMatch nodes list) then True else (isInSequence (tail nodes) list) 
+
+allMatch :: [P5AST] -> [P5AST] -> Bool
+allMatch [] [] = True
+allMatch _ [] = False
+allMatch [] _ = False
+allMatch list1 list2 = if (matchWithoutEnc (head list1) (head list2)) then (allMatch (tail list1) (tail list2)) else False
 
 {-Matches nodes based on type (Abstract or Literal) subtype (Junk, Op_leave, PNothing, etc)
 and (in the case of literal nodes) on the uni field. Used in the above search functions.-}
