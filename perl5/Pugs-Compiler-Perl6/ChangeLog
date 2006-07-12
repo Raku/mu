@@ -1,8 +1,12 @@
+
+- parsing is now done one statement at a time 
+-- this cuts memory needs by half while compiling Test.pm
 - use v5; ... use v6;
+-- inlines perl 5 code
 - named enums
 - bool::True, bool::False, true()
 - unless, while
-- setting $ENV{V6DUMPAST} can be used for debugging the syntax tree
+- setting $ENV{V6DUMPAST} can now be used for debugging the syntax tree
 
 0.006  2006-07-06
 
