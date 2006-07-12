@@ -188,6 +188,10 @@ sub perl6_expression {
 
 
 *signature_term_ident = Pugs::Compiler::Regex->compile( q(
+            # XXX t/subroutines/multidimensional_arglists.t
+            \\@ ; <?Pugs::Grammar::Term.ident>
+            { return { die => "not implemented" } }
+     |
         (  ( <'$'>|<'%'>|<'@'>|<'&'> )  <alpha>  [<alnum>|_]* )
             { return $_[0][0]->() }
 ),

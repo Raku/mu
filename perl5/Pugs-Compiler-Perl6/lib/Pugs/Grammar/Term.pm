@@ -147,6 +147,10 @@ sub recompile {
                 { return { scalar => '$.' . $_[0]->() ,} }
             ) ),
         '@' => Pugs::Compiler::Regex->compile( q(
+                # XXX t/subroutines/multidimensional_arglists.t
+                \; <?Pugs::Grammar::Term.ident>
+                { return { die => "not implemented" } }
+            |
                 <?Pugs::Grammar::Term.ident>
                 { return { array => "\@" . $_[0]->() ,} }
             ) ),
