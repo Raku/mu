@@ -23,20 +23,36 @@ sub pair {
         match => $1,
         tail  => $3,
         capture => { 
-            pair => { key => { single_quoted => $1 }, value => { single_quoted => $2 } }
-        },
+            pair => { 
+                key   => { single_quoted => $1 }, 
+                value => { single_quoted => $2 }, 
+        } },
     } )
         if $_[0] =~ /^:([_\w]+)<(.*?)>(.*)$/s;
-    # :$foo
+    # :$foo 
     return Pugs::Runtime::Match->new( { 
         bool  => 1,
         match => $1,
         tail  => $2,
         capture => { 
-            pair => { key => { single_quoted => $1 }, value => { scalar => '$'.$1 } }
-        },
+            pair => { 
+                key   => { single_quoted => $1 }, 
+                value => { scalar => '$'.$1 }, 
+        } },
     } )
         if $_[0] =~ /^:\$([_\w]+)(.*)$/s;
+    # :foo 
+    return Pugs::Runtime::Match->new( { 
+        bool  => 1,
+        match => $1,
+        tail  => $2,
+        capture => { 
+            pair => { 
+                key   => { single_quoted => $1 }, 
+                value => { num => 1 },
+        } },
+    } )
+        if $_[0] =~ /^:([_\w]+)(.*)$/s;
     return $class->no_match;
 };
 
@@ -258,10 +274,10 @@ sub recompile {
             |
                 ### number
                 \d+ { return { int => $() ,} } 
-            |
+            # |
                 ### long:<name> zzzz
-                \:(\w+) ( \( (<Pugs::Grammar::Perl6.perl6_expression('no_blocks',0)>) \) )?
-                { warn 'orz'; return { pair => { key => { single_quoted => $_[0][0]->() }, value => defined $_[0][1] ? $_[0][1][0][0]->() : { int => 1 } } } }
+                #\:(\w+) ( \( (<Pugs::Grammar::Perl6.perl6_expression('no_blocks',0)>) \) )?
+                #{ warn 'orz'; return { pair => { key => { single_quoted => $_[0][0]->() }, value => defined $_[0][1] ? $_[0][1][0][0]->() : { int => 1 } } } }
             |
                 ### long:<name> 
                 <Pugs::Grammar::Term.pair>
