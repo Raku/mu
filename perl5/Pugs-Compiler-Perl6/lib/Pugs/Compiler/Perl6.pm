@@ -34,6 +34,7 @@ sub compile {
 
     my $tail = $self->{source};
     my @statement;
+    my $error = 0;
 
     while (1) {
 
@@ -48,6 +49,7 @@ sub compile {
         if ( $@ ) {
             carp "Error in perl 6 parser: $@\nSource:\n'" .
                  substr( $rule_source, 0, 30 ) . "...\n";
+            $error = 1;
             last;
         }
 
@@ -59,10 +61,14 @@ sub compile {
 
     }
 
-    carp "Error in perl 6 parser:\nSource:\n'" .
-         substr( $rule_source, 0, 30 ) . "...\nat:\n'" .
-         substr( $tail, 0, 30 ) . "...\n" 
-        if $tail;
+    if ( $tail ) {
+        carp "Error in perl 6 parser:\nSource:\n'" .
+             substr( $rule_source, 0, 30 ) . "...\nat:\n'" .
+             substr( $tail, 0, 30 ) . "...\n";
+        $error = 1;
+    }
+
+    return if $error;
 
     $self->{ast} = { statements => \@statement };
 
