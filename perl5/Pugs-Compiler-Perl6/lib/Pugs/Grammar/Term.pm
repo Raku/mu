@@ -269,9 +269,34 @@ sub recompile {
                 ### number
                 \d+ { return { int => $() ,} } 
             |
-                ### :long<name> 
-                <Pugs::Grammar::Term.pair>
-                { return $/{'Pugs::Grammar::Term.pair'}->() }
+                ### pair - long:<name> 
+                \:
+                [
+                # :foo<bar>
+                ((_|\w)+) \< ((.)*?) \>
+                { return {
+                    pair => { 
+                        key   => { single_quoted => $/[0] }, 
+                        value => { single_quoted => $/[1] }, 
+                } } }
+                |
+                # :$foo 
+                \$ ((_|\w)+)
+                { return {
+                    pair => { 
+                        key   => { single_quoted => $/[0] }, 
+                        value => { scalar  => '$' . $/[0] }, 
+                } } }
+                |
+                # :foo 
+                ((_|\w)+)
+                { return {
+                    pair => { 
+                        key   => { single_quoted => $/[0] }, 
+                        value => { num => 1 }, 
+                } } }
+                ]            
+
             |
                 ### Test-0.0.6
                 <Pugs::Grammar::Term.cpan_bareword> 
