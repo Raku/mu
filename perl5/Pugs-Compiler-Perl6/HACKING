@@ -91,6 +91,9 @@ lib/Pugs/Emitter/Perl6/Perl5.pm
 lib/Pugs/Runtime/Perl6.pm
 -- provides routines and objects that help emulate perl 6 semantics.
 
+lib/Pugs/Runtime/Perl6Prelude.pm
+-- provides runtime routines that can be written in Perl 6
+
 * Writing new tests 
 
 For consistency, we share tests with the Haskell implementation.  Instead of
