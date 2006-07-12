@@ -181,6 +181,7 @@ rule concat {
 }
 
 rule rule {
+    [<?ws>\|]?
     $<q1> := (<concat>) 
     [
         \| $<q2> := (<rule>) 

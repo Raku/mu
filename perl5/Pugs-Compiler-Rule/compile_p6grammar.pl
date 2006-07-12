@@ -32,7 +32,15 @@ use base 'Pugs::Grammar::Base';
 
 *block = Pugs::Compiler::Token->compile(q( \{ [ <block> | <-[}]> | \\\\\} ]* \} ))->code;
 
-*mod = Pugs::Compiler::Token->compile(q( \: <rule_name> { return $<rule_name> . " => 0" } ))->code;
+*mod = Pugs::Compiler::Token->compile(q#
+    \: <rule_name> [ \( $<val> := (<-[)]>+) \) ]?
+    {
+	if($<val>[0]){
+	    return $<rule_name> . " => " . $<val>[0];
+	}else{
+	    return $<rule_name> . " => 1";
+	}
+    } #)->code;
 
 *rule = Pugs::Compiler::Rule->compile(q(<'rule'> <rule_name> <mod>* <block>
     {

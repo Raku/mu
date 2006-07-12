@@ -85,7 +85,7 @@ sub emit_rule {
     #my ( $k, $v ) = each %$n;
     # XXX - use real references
     no strict 'refs';
-    print "NODE ", Dumper($k), ", ", Dumper($v);
+    #print "NODE ", Dumper($k), ", ", Dumper($v);
     my $code = &$k( $v, $tab );
     return $code;
 }

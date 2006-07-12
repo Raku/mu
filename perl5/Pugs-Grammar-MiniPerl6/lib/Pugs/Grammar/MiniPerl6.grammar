@@ -13,9 +13,9 @@ token VariableName {
 }
 
 token CaptureVariableName {
-    \< <VariableName> \>  { use v5; return $<VariableName> }
-    | <VariableName>      { use v5; return $<VariableName> }
-    | $<cap_num> := (\d+) { use v5; return "capture_" . $<cap_num> }
+    | \< <VariableName> \> { use v5; return $<VariableName> }
+    | <VariableName>       { use v5; return $<VariableName> }
+    | $<cap_num> := (\d+)  { use v5; return "capture_" . $<cap_num> }
 }
 
 token Variable {
@@ -24,12 +24,12 @@ token Variable {
 }
 
 token Constants {
-    <String>
+    | <String>
     | \d+
 }
 
 rule ArrayTail {
-      \]  { use v5; return ']' }
+    | \]  { use v5; return ']' }
     | , <Expr> <ArrayTail>
     {
       use v5;
@@ -57,7 +57,7 @@ rule Parameters {<Expr>[ , <Parameters>]?{ use v5;
 }
 
 token FunctionAppExpr {
-      <Variable>  { use v5; return $<Variable> }
+    | <Variable>  { use v5; return $<Variable> }
     | <Constants> { use v5; return $<Constants> }
     | <ArrayRef>  { use v5; return $<ArrayRef> }
     | <FunctionName> [<?ws> <'('> <?ws> <Parameters> <?ws> <')'>]?
@@ -92,8 +92,8 @@ rule VariableDeclaration {<'my'> <Variable> <'='> <Expr> \;
     }
 }
 
-token ProductionRule :p {
-      <?ws>? <VariableDeclaration> <ProductionRule>
+token ProductionRule :p(0) {
+    | <?ws>? <VariableDeclaration> <ProductionRule>
     	{ use v5; return $<VariableDeclaration> . $<ProductionRule> }
     | <?ws>? <Return> { use v5; return $<Return> }
 }
