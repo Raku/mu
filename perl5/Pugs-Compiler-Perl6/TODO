@@ -1,5 +1,7 @@
 ﻿TODO list for Pugs-Compiler-Perl6
 
+- parse [ 1, 4 ]
+
 - replace 'Regex' matching with 'Token' - needs fixing Pugs::Compiler::Rule: interoperation of :ratchet/non-ratchet rules; implementation of non-ratchet hash-based dispatch.
 
 - implement hash and array
