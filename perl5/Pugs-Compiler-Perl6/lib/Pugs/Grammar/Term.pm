@@ -17,15 +17,16 @@ sub pair {
     my $class = shift;
     return $class->no_match unless $_[0];
     #print "match pair $_[0]\n";
+    # :foo<bar>
     return Pugs::Runtime::Match->new( { 
         bool  => 1,
         match => $1,
         tail  => $3,
         capture => { 
-            pair => { key => { single_quoted => $1 }, value => defined $2 ? { single_quoted => $2 } : { int => 1 } }
+            pair => { key => { single_quoted => $1 }, value => { single_quoted => $2 } }
         },
     } )
-        if $_[0] =~ /^:([_\w]+)(?:<(.*?)>)?(.*)$/s;
+        if $_[0] =~ /^:([_\w]+):<(.*?)>(.*)$/s;
     # :$foo
     return Pugs::Runtime::Match->new( { 
         bool  => 1,
@@ -261,6 +262,10 @@ sub recompile {
                 ### long:<name> 
                 <Pugs::Grammar::Term.pair>
                 { return $/{'Pugs::Grammar::Term.pair'}->() }
+            |
+                ### long:<name> 
+                \:(\w+) ( \( (<Pugs::Grammar::Perl6.perl6_expression('no_blocks',0)>) \) )?
+                { return { pair => { key => { single_quoted => $_[0][0]->() }, value => defined $_[0][1] ? $_[0][1][0][0]->() : { int => 1 } } } }
             #~ |
                 #~ ### func(... func.(...
                 #~ <Pugs::Grammar::Term.sub_call> 

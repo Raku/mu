@@ -433,7 +433,7 @@ sub default {
 
 	# XXX: builtins
 	my $subname = $n->{sub}{bareword};
-	if ($subname eq 'defined' || $subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'shift') {
+	if ($subname eq 'defined' || $subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'shift' || $subname eq 'join' || $subname eq 'index') {
 	    return ' ' . Pugs::Runtime::Common::mangle_ident( $n->{sub}{bareword} ) . '(' . _emit( $n->{param} ) . ')';
 	}
 	# runtime thunked builtins
