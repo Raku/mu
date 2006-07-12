@@ -434,11 +434,16 @@ sub default {
 	# XXX: builtins
 	my $subname = $n->{sub}{bareword};
 	if ($subname eq 'defined' || $subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'shift' || $subname eq 'join' || $subname eq 'index') {
-	    return ' ' . Pugs::Runtime::Common::mangle_ident( $n->{sub}{bareword} ) . '(' . _emit( $n->{param} ) . ')';
+	    return $subname . '(' . _emit( $n->{param} ) . ')';
+	}
+
+	# XXX: !(0) is not correctly parsed. workaround here.
+	if ($subname eq '!') {
+	    return '!'._emit($n->{param});
 	}
 	# runtime thunked builtins
 	if ($subname eq 'eval') {
-	    return 'Pugs::Runtime::Perl6::eval('. _emit_parameter_capture( $n->{param} ) . ');';
+	    return 'Pugs::Runtime::Perl6::eval('. _emit_parameter_capture( $n->{param} ) . ')';
 	}
 
         return ' ' . Pugs::Runtime::Common::mangle_ident( $n->{sub}{bareword} ) . '(' . _emit_parameter_capture( $n->{param} ) . ')';
