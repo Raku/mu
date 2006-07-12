@@ -10,9 +10,8 @@ use base 'Pugs::Compiler::Regex';
 use Pugs::Grammar::Perl6;
 use Pugs::Emitter::Perl6::Perl5;
 use Carp;
-use Scalar::Util 'blessed';
+# use Scalar::Util 'blessed';
 use Data::Dumper;
-
 use Pugs::Grammar::BaseCategory;  # <ws>
 
 sub compile {
@@ -28,7 +27,7 @@ sub compile {
     #print 'rule source: ', $self->{source}, "\n";
     local $@;
 
-    # TODO: in order to reduce memory footprint:
+    # in order to reduce the memory footprint:
     #       loop parsing '<ws> <statement>'; 
     #       keep the grammar tree and discard the match
     # AST = { statements => \@statement }
@@ -85,16 +84,6 @@ sub compile {
 
 __END__
 
-    $self->{code} = eval 
-        $self->{perl5};
-    carp "Error in perl 5 evaluation: $@\nSource:\n$self->{perl5}\n" if $@;
-
-    bless $self, $class;
-}
-
-1;
-
-__END__
 
 =head1 NAME 
 
