@@ -58,7 +58,8 @@ t/01-sanity/08-test.t
 t/01-sanity/12-caller.t
 t/01-sanity/13-match.t
 t/Test.pm
-t/data_types/hash.t
+# not included in v6 0.007
+# t/data_types/hash.t
 
 TODO
 HACKING

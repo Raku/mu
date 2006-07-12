@@ -1,4 +1,9 @@
+0.007  2006-07-12
 
+- added HACKING file
+- added Pugs::Runtime::Perl6Prelude
+- added t/Test.pm
+-- unmodified copy of pugs ext/Test/lib/Test.pm
 - parsing is now done one statement at a time 
 -- this cuts memory needs by half while compiling Test.pm
 - use v5; ... use v6;
