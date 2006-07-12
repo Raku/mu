@@ -260,32 +260,18 @@ sub recompile {
             }
         ) ),
         # angle is handled by the lexer
-        #q(<) => Pugs::Compiler::Regex->compile( q(
-        #    <Pugs::Grammar::Term.angle_quoted>
-        #    { return { angle_quoted => $/{'Pugs::Grammar::Term.angle_quoted'}->() ,} }
-        #) ),
-        #~ q(.) => Pugs::Compiler::Regex->compile( q(
-            #~ <Pugs::Grammar::Term.bareword>
-            #~ { return { method => $/{'Pugs::Grammar::Term.bareword'}->() ,} }
-        #~ ) ),
+        # q(<) => ...
+        # q(.) => ...
         q() => Pugs::Compiler::Regex->compile( q!
                 ### floating point
                 \d+\.\d+ { return { num => $() ,} } 
             |
                 ### number
                 \d+ { return { int => $() ,} } 
-            # |
-                ### long:<name> zzzz
-                #\:(\w+) ( \( (<Pugs::Grammar::Perl6.perl6_expression('no_blocks',0)>) \) )?
-                #{ warn 'orz'; return { pair => { key => { single_quoted => $_[0][0]->() }, value => defined $_[0][1] ? $_[0][1][0][0]->() : { int => 1 } } } }
             |
                 ### :long<name> 
                 <Pugs::Grammar::Term.pair>
                 { return $/{'Pugs::Grammar::Term.pair'}->() }
-            #~ |
-                #~ ### func(... func.(...
-                #~ <Pugs::Grammar::Term.sub_call> 
-                #~ { return $/{'Pugs::Grammar::Term.sub_call'}->() }
             |
                 ### Test-0.0.6
                 <Pugs::Grammar::Term.cpan_bareword> 
@@ -294,10 +280,6 @@ sub recompile {
                 ### Test::More
                 <Pugs::Grammar::Term.ident> 
                 { return { bareword => $/{'Pugs::Grammar::Term.ident'}->() } }
-            #|
-            #    ### v6
-            #    <Pugs::Grammar::Term.bareword> 
-            #    { return $/{'Pugs::Grammar::Term.bareword'}->() }
         ! ),
     );
     $class->SUPER::recompile;
