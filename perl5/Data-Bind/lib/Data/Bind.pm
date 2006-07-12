@@ -304,7 +304,9 @@ sub bind {
 	    lexalias($lv, $self->container_var, $var);
 	}
 	else {
-	    Data::Bind::_alias_a_to_b($ref, $var, 1);
+	    if (defined $$var) {
+		Data::Bind::_alias_a_to_b($ref, $var, 1);
+	    }
 	}
 	return;
     }
