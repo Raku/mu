@@ -13,49 +13,6 @@ use Pugs::Compiler::Token;
 
 our %hash;
 
-sub pair {
-    my $class = shift;
-    return $class->no_match unless $_[0];
-    #print "match pair $_[0]\n";
-    # :foo<bar>
-    return Pugs::Runtime::Match->new( { 
-        bool  => 1,
-        match => $1,
-        tail  => $3,
-        capture => { 
-            pair => { 
-                key   => { single_quoted => $1 }, 
-                value => { single_quoted => $2 }, 
-        } },
-    } )
-        if $_[0] =~ /^:([_\w]+)<(.*?)>(.*)$/s;
-    # :$foo 
-    return Pugs::Runtime::Match->new( { 
-        bool  => 1,
-        match => $1,
-        tail  => $2,
-        capture => { 
-            pair => { 
-                key   => { single_quoted => $1 }, 
-                value => { scalar => '$'.$1 }, 
-        } },
-    } )
-        if $_[0] =~ /^:\$([_\w]+)(.*)$/s;
-    # :foo 
-    return Pugs::Runtime::Match->new( { 
-        bool  => 1,
-        match => $1,
-        tail  => $2,
-        capture => { 
-            pair => { 
-                key   => { single_quoted => $1 }, 
-                value => { num => 1 },
-        } },
-    } )
-        if $_[0] =~ /^:([_\w]+)(.*)$/s;
-    return $class->no_match;
-};
-
 sub cpan_bareword {
     my $class = shift;
     return $class->no_match unless $_[0];
@@ -278,6 +235,16 @@ sub recompile {
                     pair => { 
                         key   => { single_quoted => $/[0] }, 
                         value => { single_quoted => $/[1] }, 
+                } } }
+                |
+                # :foo(exp)
+                ((_|\w)+) \(  
+                    <?ws>? <Pugs::Grammar::Perl6.perl6_expression> <?ws>? 
+                \)
+                { return {
+                    pair => { 
+                        key   => { single_quoted => $/[0] }, 
+                        value => $/{'Pugs::Grammar::Perl6.perl6_expression'}->(), 
                 } } }
                 |
                 # :$foo 
