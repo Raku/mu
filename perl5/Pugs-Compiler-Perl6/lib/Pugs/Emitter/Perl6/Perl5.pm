@@ -209,6 +209,7 @@ sub _emit_data_bind_param_spec {
     # XXX: translate other attributes
     $param{var} = delete $param{name};
     $param{var} = delete $param{code} if $param{code};
+    $param{optional} = 1 if delete $param{default};
     my $dumped = Dumper(\%param);
     $dumped =~ s/^\$VAR1 = //g;
     $dumped =~ s/;$//;
@@ -231,16 +232,29 @@ sub _emit_parameter_binding {
     #    'attribute' => \@attr   $v is rw
 
     my @params = @$n or return '';
+    my $defaults = '';
     my $param = join( ',' , 
-        map { _emit( {%$_, scalar => $_->{name}} ) } grep { !exists $_->{type} || $_->{type} ne 'Code' } @params
+        map { _emit( {%$_, scalar => $_->{name}} ) } grep { substr($_->{name}, 0, 1) ne '&' } @params
     );
+    for (grep { $_->{default} } @params) {
+	my $var = $_->{default}{code} ? '\\'. $_->{default}{code} : _emit( $_->{default} );
+	if ( substr($_->{name}, 0, 1) eq '&' ) {
+	    my $name = substr($_->{name}, 1);
+	    my $var = $_->{default}{code} ? '\\'. $_->{default}{code} : _emit( $_->{default} );
+	    $defaults .= "local *$name = $var unless *$name;\n"; # XXX: WRONG
+	}
+	else {
+	    my $name = _emit( {%$_, scalar => $_->{name}} );
+	    $defaults .= "$name = $var unless defined $name;\n";
+	}
+    }
     return((length($param) ? "  my ($param);\n" : '').
-           "  Data::Bind->arg_bind(\\\@_);\n");
+           "  Data::Bind->arg_bind(\\\@_);\n  $defaults;\n");
 }
 
 sub _emit_parameter_capture {
     my $n = $_[0];
-    return '' unless $n;
+    return '[],{}' unless $n;
 
     # XXX: gah i am lazy
     if ( exists $n->{fixity} && $n->{fixity} eq 'circumfix') {
@@ -324,6 +338,7 @@ sub default {
 
         if ( $n->{sub}{bareword} eq 'grammar'  ||
              $n->{sub}{bareword} eq 'class'    ||
+             $n->{sub}{bareword} eq 'package'  ||
              $n->{sub}{bareword} eq 'module'   ) {
             # Moose: package xxx; use Moose;
             # class Point;

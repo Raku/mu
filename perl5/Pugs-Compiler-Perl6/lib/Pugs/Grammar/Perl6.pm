@@ -201,8 +201,10 @@ sub perl6_expression {
         (<'*'>?)
         <signature_term_ident>
         (<'?'>?)
+        (<?ws>? <'='> <perl6_expression('no_blocks', 0)>)?
         <?ws>? <attribute> 
             { return {
+                default    => $_[0][3] ? $_[0][3][0]{perl6_expression}->() : undef,
                 type       => $_[0]{signature_term_type}->(),
                 name       => $_[0]{signature_term_ident}->(),
                 attribute  => $_[0]{attribute}->(),
