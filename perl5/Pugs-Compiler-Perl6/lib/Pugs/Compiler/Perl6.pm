@@ -13,6 +13,8 @@ use Carp;
 use Scalar::Util 'blessed';
 use Data::Dumper;
 
+use Pugs::Grammar::BaseCategory;  # <ws>
+
 sub compile {
     my ( $class, $rule_source, $param ) = @_;
     my $self = { source => $rule_source };
@@ -29,23 +31,46 @@ sub compile {
     # TODO: in order to reduce memory footprint:
     #       loop parsing '<ws> <statement>'; 
     #       keep the grammar tree and discard the match
+    # AST = { statements => \@statement }
 
-    eval {
-        $self->{ast} = Pugs::Grammar::Perl6->parse( $self->{source} );
-    };
-    carp "Error in perl 6 parser: $@\nSource:\n'" .
-         substr( $rule_source, 0, 30 ) . "...\n" 
-        if $@;
+    my $tail = $self->{source};
+    my @statement;
+
+    while (1) {
+
+        eval {
+            do {
+                my $match = Pugs::Grammar::BaseCategory->ws( $tail );
+                $tail = $match->{tail} if $match->{bool};
+            } until ! ($tail =~ s/^;//);
+            $self->{ast} = Pugs::Grammar::Perl6->statement( $tail );
+        };
+
+        if ( $@ ) {
+            carp "Error in perl 6 parser: $@\nSource:\n'" .
+                 substr( $rule_source, 0, 30 ) . "...\n";
+            last;
+        }
+
+        push @statement, $self->{ast}();
+        $tail = ${$self->{ast}}->{tail};
+        last unless $tail;
+        #print 'rule ast: ', Dumper( $self->{ast}() );
+        #print "next statement: $tail \n";
+
+    }
+
     carp "Error in perl 6 parser:\nSource:\n'" .
          substr( $rule_source, 0, 30 ) . "...\nat:\n'" .
-         substr( $self->{ast}{tail}, 0, 30 ) . "...\n" 
-        if $self->{ast}{tail};
-    #print 'rule ast: ', do{use Data::Dumper; Dumper( $self->{ast}() )};
+         substr( $tail, 0, 30 ) . "...\n" 
+        if $tail;
 
-    if ( blessed $self->{ast} ) {
+    $self->{ast} = { statements => \@statement };
+
+    if ( @statement ) {
         eval {
             $self->{perl5} = Pugs::Emitter::Perl6::Perl5::emit( 
-                $self->{grammar}, $self->{ast}(), $self );
+                $self->{grammar}, $self->{ast}, $self );
         };
         {
             no warnings 'uninitialized';
