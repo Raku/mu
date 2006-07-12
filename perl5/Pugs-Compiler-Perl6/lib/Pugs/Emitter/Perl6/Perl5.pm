@@ -433,7 +433,7 @@ sub default {
 
 	# XXX: builtins
 	my $subname = $n->{sub}{bareword};
-	if ($subname eq 'defined' || $subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return') {
+	if ($subname eq 'defined' || $subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'shift') {
 	    return ' ' . Pugs::Runtime::Common::mangle_ident( $n->{sub}{bareword} ) . '(' . _emit( $n->{param} ) . ')';
 	}
 	# runtime thunked builtins
@@ -526,7 +526,11 @@ sub default {
                 _emit( $n->{self} ) . "->" . 
                 _emit( $n->{method} ) . "(" . _emit( $n->{param} ) . ")";
         }
-            
+        
+	if (exists $n->{self}{array}) {
+	    return _emit( $n->{method} ).' '._emit($n->{self});
+	}
+    
         # normal methods or subs
         
         return " " . Pugs::Runtime::Common::mangle_ident( $n->{sub}{bareword} ) .
@@ -607,17 +611,22 @@ sub statement {
          $n->{statement} eq 'until' ) {
         #warn "for: ",Dumper $n;
         if ( exists $n->{exp2}{pointy_block} ) {
-            return  " " . $n->{statement} . 
-                    ( $n->{exp2}{signature} 
-                      ? ' my ' . _emit( $n->{exp2}{signature} ) 
-                      : '' 
-                    ) . 
-                    ' ( ' . _emit( $n->{exp1} ) . ' )' . 
+	    my $sig = $n->{exp2}{signature} ? ' my ' . _emit( $n->{exp2}{signature} ) : '';
+            my $head = $n->{statement} eq 'for'
+		?  $n->{statement} . 
+                    $sig . 
+                    ' ( ' . _emit( $n->{exp1} ) . ' )'
+		:   $n->{statement} . ' ( '.
+                    ( $sig ? $sig . ' = ' : ''
+                    ) . _emit( $n->{exp1} ) . ' )';
+
+            return  $head . 
                     " { " . _emit( $n->{exp2}{pointy_block} ) . " }";
         }
+	die 'for/while/until should contain a block' unless $n->{exp2}{bare_block};
         return  " " . $n->{statement} . 
                 ' ( ' . _emit( $n->{exp1} ) . ' )' . 
-                " { " . _emit( $n->{exp2} ) . " }";
+                _emit( $n->{exp2} );
     }
 
     if ( $n->{statement} eq 'rule'  ||
