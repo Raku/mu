@@ -1,5 +1,5 @@
 * BROADCAST TASK - Check ./STATUS and see if systems with which you
-  are familiar are correctly described.  Skills: be famaliar with some
+  are familiar are correctly described.  Skills: be familiar with some
   system. ;)
 
 * Rearrange t/ so that it is suited for reuse with multiple Perl 6
