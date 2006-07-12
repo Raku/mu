@@ -870,6 +870,7 @@ sub prefix {
             Pugs::Runtime::Common::mangle_var( '$!' ) . " = \$@; \@__ret }";
     }
     if ( $n->{op1}{op} eq '~' ) {
+        return ' "'._emit( $n->{exp1}).'"' if $n->{exp1}{array};
         return ' "" . ' . _emit( $n->{exp1} );
     }
     if ( $n->{op1}{op} eq '!' ) {
