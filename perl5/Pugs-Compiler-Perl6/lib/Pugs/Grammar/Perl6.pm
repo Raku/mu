@@ -208,7 +208,7 @@ sub perl6_expression {
                 attribute  => $_[0]{attribute}->(),
                 
                 named_only => $_[0][0]->(),
-                splat      => $_[0][1]->(),
+                is_slurpy  => $_[0][1]->(),
                 optional   => $_[0][2]->(),
             } }
     #|
