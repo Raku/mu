@@ -107,25 +107,25 @@ BEGIN {
 
     __PACKAGE__->add_rule( 
         name => 'eq',
-        assoc => 'left',
+        assoc => 'chain',
         precedence => 'looser',
         other => 'infix:<|>',
     );
     __PACKAGE__->add_rule( 
         name => 'ne',
-        assoc => 'left',
+        assoc => 'chain',
         precedence => 'equal',
         other => 'eq',
     );
     __PACKAGE__->add_rule( 
         name => '==',
-        assoc => 'left',
+        assoc => 'chain',
         precedence => 'equal',
         other => 'eq',
     );
     __PACKAGE__->add_rule( 
         name => '!=',
-        assoc => 'left',
+        assoc => 'chain',
         precedence => 'equal',
         other => 'eq',
     );
@@ -143,26 +143,26 @@ BEGIN {
     );
     __PACKAGE__->add_rule( 
         name => '<',
-        assoc => 'left',
+        assoc => 'chain',
         precedence => 'equal',
         other => 'eq',
     );
     __PACKAGE__->add_rule( 
         name => '>',
-        assoc => 'left',
+        assoc => 'chain',
         precedence => 'equal',
         other => 'eq',
     );
     
     __PACKAGE__->add_rule( 
         name => '<=',
-        assoc => 'left',
+        assoc => 'chain',
         precedence => 'equal',
         other => 'eq',
     );
     __PACKAGE__->add_rule( 
         name => '>=',
-        assoc => 'left',
+        assoc => 'chain',
         precedence => 'equal',
         other => 'eq',
     );
