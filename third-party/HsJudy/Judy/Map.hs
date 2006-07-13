@@ -5,7 +5,7 @@ module Judy.Map (
     Map (..),
 
     -- FIXME: need to move to MapM api
-    elems, keys, map
+    elems, keys, map, swapMaps, freeze, alter2
 ) where
 
 import Data.Typeable
@@ -15,13 +15,16 @@ import Foreign.ForeignPtr
 import Foreign.Marshal.Alloc
 import Foreign.Ptr
 import Foreign.Storable
+import Foreign
+import Data.Maybe (fromJust)
+
 
 import Judy.Private
 import qualified Judy.CollectionsM as CM
 import Judy.Refeable
+import Judy.Freeze
 
 import Prelude hiding (map)
-
 
 -- Refeable is now in Judy/Refeable.hs
 
@@ -34,6 +37,18 @@ instance (Stringable k, Refeable a) => CM.MapM (Map k a) k a IO where
     fromList = fromList_
     toList = toList_
 
+
+instance (Stringable k, Refeable a) => Freezable (Map k a) where
+    freeze m = do
+        m' <- new_
+        swapMaps m' m
+        return (Frozen m')
+
+instance (Stringable k, Refeable a) => CM.MapF (Frozen (Map k a)) k a where
+    memberF k (Frozen m) = unsafePerformIO $ member_ k m
+    lookupF k (Frozen m) = unsafePerformIO $ lookup_ k m
+    fromListF l = Frozen $ unsafePerformIO $ fromList_ l
+    toListF (Frozen m) = unsafePerformIO $ toList_ m
 
 -- TODO: Work on Storable to let any Storable type be
 -- "stringable" i.e., used as Key.
@@ -60,6 +75,9 @@ newtype (Stringable k, Refeable a) => Map k a = Map { judy :: ForeignPtr JudyHS 
 
 instance Show (Map k a) where
     show (Map j) = "<Map " ++ show j ++ ">"
+
+
+
 
 
 -- TODO: a "complete" finalizer (destroys StablePtrs): remember the case
@@ -99,6 +117,24 @@ insert_ k v (Map j) = withForeignPtr j $ \j' -> do
                 poke r v'
                 return ()
 
+alter2 :: (Eq a, Stringable k, Refeable a) => (Maybe a -> Maybe a) -> k -> Map k a -> IO ()
+alter2 f k m@(Map j) = do
+    j' <- withForeignPtr j peek
+    withCAStringLen (toString k) $ \(cp, len) -> do
+        r <- judyHSGet j' cp (fromIntegral len)
+        if r == nullPtr
+            then if (f Nothing) == Nothing
+                    then return ()
+                    else insert_ k (fromJust (f Nothing)) m
+            else do 
+                v' <- peek r
+                v <- fromRef v'
+                if (f (Just v)) == Nothing
+                    then do delete_ k m 
+                            return ()
+                    else do
+                            x <- toRef $ fromJust $ f (Just v)
+                            poke r x
 
 lookup_ :: (Stringable k, Refeable a) => k -> Map k a -> IO (Maybe a)
 lookup_ k (Map j) = do
@@ -185,3 +221,12 @@ keys = map_ $ \_ cp len -> do
     c <- peek cp
     v <- peekCAStringLen (c, fromIntegral l)
     return $ fromString v
+
+
+swapMaps :: Map k a -> Map k a -> IO ()
+swapMaps (Map j1) (Map j2) = do
+    withForeignPtr j1 $ \p1 -> withForeignPtr j2 $ \p2 -> do
+        v1 <- peek p1
+        v2 <- peek p2
+        poke p1 v2
+        poke p2 v1

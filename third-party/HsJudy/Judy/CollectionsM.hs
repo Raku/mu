@@ -28,6 +28,12 @@ class Monad m => CollectionM c i o m | c -> i o m where
     isSingleton :: c -> m Bool
 -}
 
+class MapF c k a | c -> k a where
+    memberF :: k -> c -> Bool
+    lookupF :: k -> c -> Maybe a
+    fromListF :: [(k,a)] -> c
+    toListF :: c -> [(k, a)]
+
 class Monad m => MapM c k a m | c -> k a m where
     new :: m c
     delete :: k -> c -> m ()
@@ -35,6 +41,7 @@ class Monad m => MapM c k a m | c -> k a m where
     lookup :: k -> c -> m (Maybe a) -- FIXME: change Maybe to m'?
     --alter :: (Maybe a -> Maybe a) -> k -> c -> m ()
     alter :: k -> a -> c -> m ()
+
 
     -- Generalize more... (fromFoldable, fromListWith, and both)
     --fromFoldableWith :: Foldable l (k,a) => (a -> a -> a) -> l -> m c

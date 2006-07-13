@@ -2,7 +2,7 @@
 
 module Judy.Map2 (
     Map2 (..),
-    keys, elems, map
+    keys, elems, map, swapMaps, freeze, alter2
 ) where
 
 import Data.Typeable
@@ -13,11 +13,15 @@ import Foreign.Marshal.Alloc
 import Foreign.Ptr
 import Foreign.Storable
 import Foreign.StablePtr
+import Foreign
+import Data.Maybe (fromJust)
 
 import Judy.Private
 import qualified Judy.CollectionsM as CM
 import Judy.Refeable
 import Judy.HashIO
+import Judy.Freeze
+
 
 import Prelude hiding (map)
 
@@ -39,6 +43,27 @@ instance Show (Map2 k a) where
     show (Map2 j) = "<Map2 " ++ show j ++ ">"
 
 
+instance (ReversibleHashIO k, Refeable a) => Freezable (Map2 k a) where
+    freeze m = do
+        m' <- new_
+        swapMaps m' m
+        return (Frozen m')
+
+instance (ReversibleHashIO k, Refeable a) => CM.MapF (Frozen (Map2 k a)) k a where
+    memberF k (Frozen m) = unsafePerformIO $ member_ k m
+    lookupF k (Frozen m) = unsafePerformIO $ lookup_ k m
+    fromListF l = Frozen $ unsafePerformIO $ fromList_ l
+    toListF (Frozen m) = unsafePerformIO $ toList_ m
+
+
+
+swapMaps :: Map2 k a -> Map2 k a -> IO ()
+swapMaps (Map2 j1) (Map2 j2) = do
+    withForeignPtr j1 $ \p1 -> withForeignPtr j2 $ \p2 -> do
+        v1 <- peek p1
+        v2 <- peek p2
+        poke p1 v2
+        poke p2 v1
 
 -- copy/pasted FROM Judy/Map.hs -- some commented code arent translated yet
 
@@ -71,6 +96,24 @@ insert_ k v (Map2 j) = withForeignPtr j $ \j' -> do
     if r == pjerr
         then error "HsJudy: Not enough memory."
         else do { v' <- toRef v; poke r v'; return () }
+
+alter2 :: (Eq a, ReversibleHashIO k, Refeable a) => (Maybe a -> Maybe a) -> k -> Map2 k a -> IO ()
+alter2 f k m@(Map2 j) = do
+    j' <- withForeignPtr j peek
+    k' <- hashIO k
+    r <- judyLGet j' k' judyError
+    if r == nullPtr
+        then if (f Nothing) == Nothing
+                then return ()
+                else insert_ k (fromJust (f Nothing)) m
+        else do
+            v' <- peek r
+            v <- fromRef v'
+            if (f (Just v)) == Nothing
+                then do delete_ k m
+                        return ()
+                else do x <- toRef $ fromJust $ f (Just v)
+                        poke r x
 
 lookup_ :: (ReversibleHashIO k, Refeable a) => k -> Map2 k a -> IO (Maybe a)
 lookup_ k (Map2 j) = do

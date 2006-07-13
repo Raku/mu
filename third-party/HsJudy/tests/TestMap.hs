@@ -7,6 +7,7 @@ import Judy.Map (Stringable (..))
 
 import Data.List (sort)
 import Judy.CollectionsM --as CM
+import Judy.Freeze
 import Prelude hiding (lookup)
 
 
@@ -14,7 +15,17 @@ main = do
     putStrLn "# Map tests:"
     
     -- FIXME: A better way to organize this tests must exist...
-    sequence [testSimple, testDelete, testOverwrite, testMember, testElems, testKeys, testIntKey, testLotsOfMem]
+    testSimple
+    testDelete
+    testOverwrite
+    testMember
+    testElems
+    testKeys
+    testIntKey
+    testLotsOfMem
+    testFrozenMap
+    testSwapMaps
+    testAlter2
 
 check l = do
     if and l
@@ -123,5 +134,38 @@ testLotsOfMem = do
     b <- JM.elems s
     check [a == [], (sort b) == [1,2,42]]
 
+testFrozenMap = do
+    putStr "frozen map: \t"
+    let m = fromListF [(1,2),(2,3),(3,4)] :: Frozen (JM.Map Int Int)
+    let a = memberF 1 m
+    let b = memberF 2 m
+    let c = memberF 42 m
+    let d = lookupF 1 m
+    let e = lookupF 42 m
+    check [a, b, not c, d == Just 2, e == Nothing] 
 
+testSwapMaps = do
+    putStr "swap maps: \t"
+    m1 <- fromList [(1,2),(2,3),(4,7)] :: IO (JM.Map Int Int)
+    m2 <- fromList [(1,42),(2,42),(3,42)] :: IO (JM.Map Int Int)
+    a <- lookup 2 m1
+    b <- lookup 2 m2
+    JM.swapMaps m1 m2
+    c <- lookup 2 m1
+    d <- lookup 2 m2
+    e <- lookup 3 m2
+    check [a == Just 3, b == Just 42, c == Just 42, d == Just 3, e == Nothing]
+
+testAlter2 = do
+    putStr "alter2: \t"
+    m <- fromList [(1,2), (2,3), (4,5)] :: IO (JM.Map Int Int)
+    a <- lookup 1 m
+    JM.alter2 (const (Just 42)) 3 m
+    b <- lookup 1 m
+    c <- lookup 3 m
+    JM.alter2 (const (Just 42)) 2 m
+    d <- lookup 2 m
+    JM.alter2 (const Nothing) 1 m
+    e <- lookup 1 m
+    check [a == Just 2, b == Just 2, c == Just 42, d == Just 42, e == Nothing]
 

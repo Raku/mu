@@ -2,7 +2,7 @@
 
 module Judy.MapSL (
     MapSL (..),
-    keys, elems, map
+    keys, elems, map, swapMaps, freeze, alter2
 ) where
 
 import Data.Typeable
@@ -13,11 +13,14 @@ import Foreign.Marshal.Alloc
 import Foreign.Ptr
 import Foreign.Storable
 import Foreign.StablePtr
+import Foreign
+import Data.Maybe (fromJust)
 
 import Judy.Private
 import qualified Judy.CollectionsM as CM
 import Judy.Refeable
 import Judy.Map (Stringable (..))
+import Judy.Freeze
 
 import Prelude hiding (map)
 
@@ -29,6 +32,21 @@ instance (Stringable k, Refeable a) => CM.MapM (MapSL k a) k a IO where
     alter = insert_
     fromList = fromList_
     toList = toList_
+
+instance (Stringable k, Refeable a) => Freezable (MapSL k a) where
+    freeze m = do
+        m' <- new_
+        swapMaps m' m
+        return (Frozen m')
+
+instance (Stringable k, Refeable a) => CM.MapF (Frozen (MapSL k a)) k a where
+    memberF k (Frozen m) = unsafePerformIO $ member_ k m
+    lookupF k (Frozen m) = unsafePerformIO $ lookup_ k m
+    fromListF l = Frozen $ unsafePerformIO $ fromList_ l
+    toListF (Frozen m) = unsafePerformIO $ toList_ m
+
+
+
 
 -- FIXME: Maybe when using own GC for stableptrs, refeable is viable as a key type
 
@@ -71,6 +89,25 @@ insert_ k v (MapSL j) = withForeignPtr j $ \j' -> do
         if r == pjerr
             then error "HsJudy: Not enough memory."
             else do { v' <- toRef v; poke r v'; return () }
+
+alter2 :: (Eq a, Stringable k, Refeable a) => (Maybe a -> Maybe a) -> k -> MapSL k a -> IO ()
+alter2 f k m@(MapSL j) = do
+    j' <- withForeignPtr j peek
+    withCAString (toString k) $ \k' -> do
+        r <- judySLGet j' k' judyError
+        if r == nullPtr
+            then if (f Nothing) == Nothing
+                    then return ()
+                    else insert_ k (fromJust (f Nothing)) m
+            else do 
+                v' <- peek r
+                v <- fromRef v'
+                if (f (Just v)) == Nothing
+                    then do delete_ k m 
+                            return ()
+                    else do
+                            x <- toRef $ fromJust $ f (Just v)
+                            poke r x
 
 lookup_ :: (Stringable k, Refeable a) => k -> MapSL k a -> IO (Maybe a)
 lookup_ k (MapSL j) = do
@@ -134,3 +171,11 @@ elems = map_ $ \r _ -> do
     v <- peek r
     fromRef v
 
+
+swapMaps :: MapSL k a -> MapSL k a -> IO ()
+swapMaps (MapSL j1) (MapSL j2) = do
+    withForeignPtr j1 $ \p1 -> withForeignPtr j2 $ \p2 -> do
+        v1 <- peek p1
+        v2 <- peek p2
+        poke p1 v2
+        poke p2 v1
