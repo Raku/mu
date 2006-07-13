@@ -407,6 +407,10 @@ sub default {
             return "super";  # param list?
         }
         
+        if ( $n->{sub}{bareword} eq 'undef' ) {
+            return ' undef ';
+        }
+
         if ( $n->{sub}{bareword} eq 'use' ) {
             # use v6-alpha
             if ( exists $n->{param}{cpan_bareword} ) {
