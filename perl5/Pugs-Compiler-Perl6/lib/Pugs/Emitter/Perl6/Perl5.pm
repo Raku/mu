@@ -90,6 +90,14 @@ sub _emit_code {
     return "Pugs::Runtime::Perl6::Routine->new(\\$code)";
 }
 
+sub _emit_double_quoted {
+    my $n = $_[0];
+    my @strings = (split /(\$\*\w+)/, $n);
+    return '""' unless @strings;
+    return join('.', map { $_ =~ /^\$\*/ ? Pugs::Runtime::Common::mangle_var($_) : '"'.$_.'"' }
+                     grep { length $_ } @strings);
+}
+
 sub _emit {
     my $n = $_[0];
     #die "_emit: ", Dumper( $n ); 
@@ -137,7 +145,7 @@ sub _emit {
     return Pugs::Runtime::Common::mangle_var( $n->{hash} )
         if exists $n->{hash};
         
-    return '"' . $n->{double_quoted} . '"' 
+    return _emit_double_quoted($n->{double_quoted})
         if exists $n->{double_quoted};
             
     return '\'' . $n->{single_quoted} . '\'' 
@@ -478,7 +486,7 @@ sub default {
 
 	# XXX: builtins
 	my $subname = $n->{sub}{bareword};
-	if ($subname eq 'defined' || $subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'shift' || $subname eq 'join' || $subname eq 'index' || $subname eq 'undef') {
+	if ($subname eq 'defined' || $subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'shift' || $subname eq 'join' || $subname eq 'index' || $subname eq 'undef' || $subname eq 'rand' || $subname eq 'int') {
 	    return $subname . '(' . _emit( $n->{param} ) . ')';
 	}
 
