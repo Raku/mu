@@ -20,6 +20,8 @@ sub mangle_var {
     return '$^O'       if $s eq '$*OS';  
     return '$$'        if $s eq '$*PID';  
     return '$0'        if $s eq '$*EXECUTABLE_NAME';  
+
+    return '__FILE__'  if $s eq '$?FILE';
     
     # special variables
     return '$::_V6ERR_'   if $s eq '$!';
