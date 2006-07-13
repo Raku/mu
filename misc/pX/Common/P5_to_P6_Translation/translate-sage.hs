@@ -1,3 +1,7 @@
+{-This file is NO LONGER USED.
+Development has moved to ASTTranslate.hs, ASTDefinition.hs, ASTParser.hs and ASTUtil.hs
+for ease of use. -}
+
 import Text.ParserCombinators.Parsec
 import IO hiding (try)
 {------------------
@@ -550,6 +554,9 @@ matchWithoutEnc (AbstractNode type1 kids1) (AbstractNode type2 kids2) = if (type
 matchWithoutEnc (Heredoc start1 end1 kids1) (Heredoc start2 end2 kids2) = if (and [(matchWithoutEnc start1 start2),(matchWithoutEnc end1 end2)]) then True else False
 matchWithoutEnc _ _ = False
 
+getModifiers :: [String] -> String
+getModifiers [] = "0"
+getModifiers args = if (and [('-'==(head (head args))),("Oo"==(tail (head args)))]) then "1" else (head args)
 
 {-
 A main function to parse a file containing a tree and output the contents to another file
