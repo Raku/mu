@@ -131,18 +131,17 @@ sub emit_yapp {
                 $a = 'nonassoc' if $a eq 'non';
                 $a = 'left'     if $a eq 'list';
                 $a = 'left'     if $a eq 'chain';
-                $s .= "%$a ";
+                $s .= '%'.$a.' ';
                 for ( @{ $assoc{$_} } ) {
                     next if $seen{$_->{name}};
                     $seen{$_->{name}} = 1;
-                    $s .= ' ' .
+                    $s .=
                         ( $_ eq 'list' || $_ eq 'chain' )
                             ? $_->{index}
                             : "'$_->{name}'";
+                    $s .= ' ';
                 }
-                $s .= 
-                    " $prec" .
-                    "\n";
+                $s .= "$prec\n";
                 # $seen{$_->{name}} = 1 for @{$assoc{$_}};
                 $prec++;
             }
@@ -166,7 +165,6 @@ sub emit_yapp {
         }
         for ( keys %assoc ) {
             if ( @{$assoc{$_}} ) {
-
 
                 for my $op ( @{$assoc{$_}} ) {
                     if ( $op->{assoc} eq 'list' ) {
