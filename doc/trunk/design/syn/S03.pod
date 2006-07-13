@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 10 Jul 2006
+  Last Modified: 12 Jul 2006
   Number: 3
-  Version: 45
+  Version: 46
 
 =head1 Changes to existing operators
 
@@ -249,18 +249,18 @@ Examples:
     say foo ($bar+1),$baz		say(foo($bar+1, $baz));
     say foo .($bar+1),$baz		say(foo($_.($bar+1), $baz));
 
-    say foo[$bar+1],$baz		illegal, need foo()[]
-    say foo.[$bar+1],$baz		illegal, need foo().[]
+    say foo[$bar+1],$baz		ILLEGAL, need foo()[]
+    say foo.[$bar+1],$baz		ILLEGAL, need foo().[]
     say foo [$bar+1],$baz		say(foo([$bar+1], $baz));
     say foo .[$bar+1],$baz		say(foo($_.[$bar+1], $baz));
 
-    say foo{$bar+1},$baz		illegal, need foo(){}
-    say foo.{$bar+1},$baz		illegal, need foo().{}
+    say foo{$bar+1},$baz		ILLEGAL, need foo(){}
+    say foo.{$bar+1},$baz		ILLEGAL, need foo().{}
     say foo {$bar+1},$baz		say(foo({$bar+1}, $baz));
     say foo .{$bar+1},$baz		say(foo($_.{$bar+1}, $baz));
 
-    say foo<$bar+1>,$baz		illegal, need foo()<>
-    say foo.<$bar+1>,$baz		illegal, need foo().<>
+    say foo<$bar+1>,$baz		ILLEGAL, need foo()<>
+    say foo.<$bar+1>,$baz		ILLEGAL, need foo().<>
     say foo <$bar+1>,$baz		say(foo(<$bar+1>, $baz));
     say foo .<$bar+1>,$baz		say(foo($_.<$bar+1>, $baz));
 
@@ -271,13 +271,25 @@ like C<< < >> accordingly:
     any <a b c>			any('a','b','c')	# term
     any()<a b c>		(any).{'a','b','c'}	# postfix
     any() < $x			(any) < $x		# infix
-    any<a b c>			    [syntax error]	# illegal postfix
+    any<a b c>			ILLEGAL			# stealth postfix
 
 This will seem unfamiliar and "undwimmy" to Perl 5 programmers, who
 are used to a grammar that sloppily hardwires a few postfix operators
 at the price of extensibility.  Perl 6 chooses instead to mandate a
 whitespace dependency in order to gain a completely extensible class
 of postfix operators.
+
+Also note that the postfix restriction applies only to list operators;
+it doesn't apply to methods.  It is legal to say
+
+    $foo.bar<a b c>
+
+to mean
+
+    $foo.bar().{'a','b','c'}
+
+because methods never assume there are arguments unless followed by
+parentheses or a colon.
 
 =item * A list operator's arguments are also terminated by a closure
 that is not followed by a comma or colon.  (And a semicolon is implied if

@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 10 July 2006
+  Last Modified: 12 July 2006
   Number: 2
-  Version: 49
+  Version: 50
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1215,7 +1215,7 @@ It's true that only radixes that define C<e> as a digit are ambiguous that
 way, but with any radix it's not clear whether the exponentiator should
 be 10 or the radix, and this makes it explicit:
 
-    0b1.1e10                    illegal, could be read as any of:
+    0b1.1e10                    ILLEGAL, could be read as any of:
 
     :2<1.1> * 2 ** 10           1536
     :2<1.1> * 10 ** 10          15,000,000,000
@@ -1747,15 +1747,15 @@ colon postfix, since such a colon is allowed only on an indirect object,
 or a method call in dot form.  (It is also allowed on a label when a
 statement is expected.) So for any undeclared identifier "C<foo>":
 
-    foo.bar		# foo().bar	-- illegal postfix, must use foo().bar
+    foo.bar		# ILLEGAL	-- postfix must use foo().bar
     foo .bar		# foo($_.bar)	-- no postfix starts with whitespace
-    foo\ .bar		# foo().bar	-- illegal long dot, use foo()\ .bar
-    foo++		# foo()++	-- illegal postfix, must use foo()++
+    foo\ .bar		# ILLEGAL	-- long dot must use foo()\ .bar
+    foo++		# ILLEGAL	-- postfix must use foo()++
     foo 1,2,3		# foo(1,2,3)	-- args always expected after listop
     foo + 1		# foo(+1)	-- term always expected after listop
     foo;		# foo();	-- no postfix, but no args either
     foo:		#   label	-- must be label at statement boundary.
-					-- illegal otherwise
+					-- ILLEGAL otherwise
     foo: bar:		#   two labels in a row, okay
     .foo:		# $_.foo: 1 	-- must be "dot" method with : args
     .foo(1)		# $_.foo(1) 	-- must be "dot" method with () args
@@ -1768,13 +1768,13 @@ statement is expected.) So for any undeclared identifier "C<foo>":
     foo $bar: 1		# $bar.foo(1)	-- indirect object even if declared sub
     					-- $bar considered one token
     foo (bar()):	# bar().foo(1)	-- even if foo declared sub
-    foo bar():		# illegal	-- bar() is two tokens.
+    foo bar():		# ILLEGAL	-- bar() is two tokens.
     foo .bar:		# foo(.bar:)	-- colon chooses .bar to listopify
     foo bar baz: 1	# foo(baz.bar(1)) -- colon controls "bar", not foo.
     foo (bar baz): 1	# bar(baz()).foo(1) -- colon controls "foo"
-    $foo $bar		# illegal	-- two terms in a row
-    $foo $bar:		# illegal	-- use $bar.$foo for indirection
-    (foo bar) baz: 1	# illegal	-- use $baz.$(foo bar) for indirection
+    $foo $bar		# ILLEGAL	-- two terms in a row
+    $foo $bar:		# ILLEGAL	-- use $bar.$foo for indirection
+    (foo bar) baz: 1	# ILLEGAL	-- use $baz.$(foo bar) for indirection
 
 The indirect object colon only ever dominates a simple term, where
 "simple" includes classes and variables and parenthesized expressions,
