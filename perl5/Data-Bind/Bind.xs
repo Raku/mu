@@ -183,6 +183,12 @@ _alias_a_to_b(SVREF a, SVREF b, int read_only)
     assert(SvNVX(a) == 0.0);
     assert(SvPVX(a) == NULL);
 
+    /* If a magic is assigned to $a, $a has SVt_MAGIC but no MAGIC attached.
+       This breaks the magicext below */
+    if ( type == SVt_PVMG && !SvMAGIC(b) ) {
+        type = 0;
+    }
+
     if (type >= SVt_PVMG) {
         switch (type) {
             case SVt_PVHV:
