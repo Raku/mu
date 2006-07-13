@@ -152,6 +152,9 @@ sub _emit {
     return assoc_list( $n )
         if exists $n->{assoc}  && $n->{assoc}  eq 'list';
         
+    return assoc_chain( $n )
+        if exists $n->{assoc}  && $n->{assoc}  eq 'chain';
+        
     if ( exists $n->{fixity} ) {
         return infix( $n )
             if $n->{fixity} eq 'infix';
@@ -188,6 +191,29 @@ sub assoc_list {
     }
     
     return _not_implemented( $n->{op1}, "list-op" );
+}
+
+sub assoc_chain {
+    my $n = $_[0];
+    my @chain = @{$n->{chain}};
+    #print "chain emit_rule: ", Dumper( @chain );
+
+    if ( @chain == 3 ) {
+        my $exp1 = _emit( $chain[0] );
+        my $op   = $chain[1];
+        my $exp2 = _emit( $chain[2] );
+        return "$exp1 $op $exp2"
+    }
+    my @e;
+    for ( my $i = 0; $i < @chain; $i += 2 ) {
+        push @e,  "(" . _emit( $chain[$i] ) . ")";
+    }
+    my $s = "do { my \@_tmp = (" . join(",", @e) . "); ";
+    @e = ();
+    for ( my $i = 1; $i < @chain; $i += 2 ) {
+        push @e, "\$_tmp[" . int($i/2) . "] $chain[$i] \$_tmp[" . (int($i/2)+1) . "]";
+    }
+    return $s . join(" && ", @e) . " }";
 }
 
 sub _emit_parameter_signature {
