@@ -280,7 +280,7 @@ sub _emit_parameter_binding {
 
 sub _emit_parameter_capture {
     my $n = $_[0];
-    return '[],{}' unless $n;
+    return '' unless $n;
 
     # XXX: gah i am lazy
     if ( exists $n->{fixity} && $n->{fixity} eq 'circumfix') {
@@ -478,13 +478,13 @@ sub default {
 
 	# XXX: builtins
 	my $subname = $n->{sub}{bareword};
-	if ($subname eq 'defined' || $subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'shift' || $subname eq 'join' || $subname eq 'index') {
+	if ($subname eq 'defined' || $subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'shift' || $subname eq 'join' || $subname eq 'index' || $subname eq 'undef') {
 	    return $subname . '(' . _emit( $n->{param} ) . ')';
 	}
 
 	# XXX: !(0) is not correctly parsed. workaround here.
-	if ($subname eq '!') {
-	    return '!'._emit($n->{param});
+	if ($subname eq '!' || $subname eq 'not') {
+	    return $subname.' '._emit($n->{param});
 	}
 	# runtime thunked builtins
 	if ($subname eq 'eval') {
