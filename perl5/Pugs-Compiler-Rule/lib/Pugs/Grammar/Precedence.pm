@@ -60,7 +60,7 @@ my %rule_templates = (
         
     # XXX
     #infix_chain =>       
-    #    "exp 'name' list_right  \n" .
+    #    "exp 'name' chain_right  \n" .
     #    "\t{ \$_[0]->{out}= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }",
     #infix_list =>        
     #    "exp 'name' list_right \n" .
@@ -108,6 +108,13 @@ sub add_to_list {
     return { op1 => $op, list => [ @x, $y ], assoc => 'list' };
 }
 
+sub add_to_chain {
+    my ( $op, $x, $y ) = @_;
+    my @x = exists $x->{chain} ? @{$x->{chain}} : ($x);
+    my @y = exists $y->{chain} ? @{$y->{chain}} : ($y);
+    return { chain => [ @x, $op, @y ], assoc => 'chain' };
+}
+
 sub emit_yapp {
     my ($self) = @_;
     my $s;  # = "%{ my \$_[0]->{out}; %}\n";
@@ -123,12 +130,13 @@ sub emit_yapp {
                 my $a = $_;
                 $a = 'nonassoc' if $a eq 'non';
                 $a = 'left'     if $a eq 'list';
+                $a = 'left'     if $a eq 'chain';
                 $s .= "%$a ";
                 for ( @{ $assoc{$_} } ) {
                     next if $seen{$_->{name}};
                     $seen{$_->{name}} = 1;
                     $s .= ' ' .
-                        $_ eq 'list' 
+                        ( $_ eq 'list' || $_ eq 'chain' )
                             ? $_->{index}
                             : "'$_->{name}'";
                 }
@@ -168,6 +176,16 @@ sub emit_yapp {
                         $s .= 
                             "    |  exp '$op->{name}'    %prec $prec\n" .
                             "        { \$_[0]->{out}= Pugs::Grammar::Precedence::add_to_list( '$op->{name}', \$_[1], { null => 1 } ) } \n" ;
+                            # "        { \$_[0]->{out}= \$_[1] } \n" ;
+                        next;
+                    }
+                    if ( $op->{assoc} eq 'chain' ) {
+                        $s .= 
+                            "    |  exp '$op->{name}' exp   %prec $prec\n" .
+                            "        { \$_[0]->{out}= Pugs::Grammar::Precedence::add_to_chain( '$op->{name}', \$_[1], \$_[3] ) } \n" ;
+                        $s .= 
+                            "    |  exp '$op->{name}'    %prec $prec\n" .
+                            "        { \$_[0]->{out}= Pugs::Grammar::Precedence::add_to_chain( '$op->{name}', \$_[1], { null => 1 } ) } \n" ;
                             # "        { \$_[0]->{out}= \$_[1] } \n" ;
                         next;
                     }
