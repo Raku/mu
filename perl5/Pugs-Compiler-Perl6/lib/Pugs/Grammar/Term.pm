@@ -107,6 +107,14 @@ sub angle_quoted {
     |   \/      # $/
 ) )->code;
 
+*bare_ident = Pugs::Compiler::Regex->compile( q(
+        [
+            [ \:\: ]?
+            [ _ | <?alpha> ]
+            [ _ | <?alnum> ]*
+        ]+
+) )->code;
+
 *parenthesis = Pugs::Compiler::Regex->compile( q(
                 <?ws>? <Pugs::Grammar::Perl6.perl6_expression> <?ws>? 
                 <'\)'>
@@ -131,6 +139,34 @@ sub angle_quoted {
                 { return {
                     op1 => { op => "(" },
                     op2 => { op => ")" },
+                    fixity => "circumfix",
+                } }
+) )->code;
+
+*brackets = Pugs::Compiler::Regex->compile( q(
+                <?ws>? <Pugs::Grammar::Perl6.perl6_expression> <?ws>? 
+                <']'>
+                { return {
+                    op1 => { op => "[" },
+                    op2 => { op => "]" },
+                    fixity => "circumfix",
+                    exp1 => $_[0]{'Pugs::Grammar::Perl6.perl6_expression'}->() 
+                } }
+            |
+                <?ws>? <Pugs::Grammar::Perl6.block> <?ws>? 
+                <']'>
+                { return {
+                    op1 => { op => "[" },
+                    op2 => { op => "]" },
+                    fixity => "circumfix",
+                    exp1 => $_[0]{'Pugs::Grammar::Perl6.block'}->() 
+                } }
+            |
+                <?ws>? 
+                <']'>
+                { return {
+                    op1 => { op => "[" },
+                    op2 => { op => "]" },
                     fixity => "circumfix",
                 } }
 ) )->code;
@@ -166,6 +202,10 @@ sub recompile {
         '(' => Pugs::Compiler::Regex->compile( q(
                 <Pugs::Grammar::Term.parenthesis>
                 { return $_[0]{'Pugs::Grammar::Term.parenthesis'}->() }
+            ) ),
+        '[' => Pugs::Compiler::Regex->compile( q(
+                <Pugs::Grammar::Term.brackets>
+                { return $_[0]{'Pugs::Grammar::Term.brackets'}->() }
             ) ),
         '{' => Pugs::Compiler::Regex->compile( q(
                 <?ws>? <Pugs::Grammar::Perl6.statements_or_null> <?ws>? <'}'>
@@ -270,9 +310,9 @@ sub recompile {
 
             |
                 ### perl5:Test::More
-                perl5 \: <Pugs::Grammar::Term.ident> 
+                perl5 \: <Pugs::Grammar::Term.bare_ident> 
                 { return { 
-                        bareword => $/{'Pugs::Grammar::Term.ident'}->(),
+                        bareword => $/{'Pugs::Grammar::Term.bare_ident'}->(),
                         lang => 'perl5',
                 } }
             |
@@ -281,8 +321,8 @@ sub recompile {
                 { return $/{'Pugs::Grammar::Term.cpan_bareword'}->() }
             |
                 ### Test::More
-                <Pugs::Grammar::Term.ident> 
-                { return { bareword => $/{'Pugs::Grammar::Term.ident'}->() } }
+                <Pugs::Grammar::Term.bare_ident> 
+                { return { bareword => $/{'Pugs::Grammar::Term.bare_ident'}->() } }
         ! ),
     );
     $class->SUPER::recompile;

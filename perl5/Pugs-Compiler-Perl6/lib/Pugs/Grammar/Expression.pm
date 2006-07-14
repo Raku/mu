@@ -20,7 +20,7 @@ $Data::Dumper::Sortkeys = 1;
 
 my $rx_end_with_blocks = qr/
                 ^ \s* (?: 
-                            [});] 
+                            [});\]] 
                           | if \s 
                           | unless \s
                           | for \s 
@@ -34,7 +34,7 @@ my $rx_end_no_blocks = qr/
                 (?: 
                     \s+ {
                   | \s* (?: 
-                            [});] 
+                            [});\]] 
                           | if \s 
                           | unless \s
                           | for \s 
@@ -177,6 +177,39 @@ sub ast {
                         op1 => 'call', 
                         sub => $m2->(), 
                         param => $paren->(), 
+                    };
+                }
+                $m2 = $paren;
+                next;
+            }
+            # term[] is high-precedence
+            if ( $m2 && $$m2->{tail} && $$m2->{tail} =~ /^\[/ ) {
+                my $paren = Pugs::Grammar::Term->parse( $$m2->{tail}, { p => 1 } );
+                if ( exists $m2->()->{dot_bareword} ) {
+                    $$paren->{capture} = { 
+                        op1 => 'method_call', 
+                        self => { 'scalar' => '$_' }, 
+                        method => { bareword => '[]' },
+                        param => $paren->()->{exp1}, 
+                    };
+                }
+                elsif ( exists $m2->()->{op1} 
+                     && $m2->()->{op1} eq 'method_call'
+                     && ! defined $m2->()->{param} 
+                ) {
+                    $$paren->{capture} = { 
+                        %{$m2->()},
+                        method => { bareword => '[]' },
+                        param => $paren->()->{exp1}, 
+                    };
+                }
+                else {
+                    $$paren->{capture} = { 
+                        fixity => 'postcircumfix', 
+                        op1 => '[', 
+                        op2 => ']', 
+                        exp1 => $m2->(), 
+                        exp2 => $paren->()->{exp1}, 
                     };
                 }
                 $m2 = $paren;

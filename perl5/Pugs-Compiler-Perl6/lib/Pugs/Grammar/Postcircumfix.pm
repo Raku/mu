@@ -41,13 +41,13 @@ BEGIN {
     #    precedence => 'equal',
     #    other => 'circumfix:<( )>',
     #);
-    __PACKAGE__->add_rule( 
-        name => '[',
-        name2 => ']',
-        assoc => 'left',
-        precedence => 'tighter',
-        other => 'prefix:<++>',
-    );
+    #__PACKAGE__->add_rule( 
+    #    name => '[',
+    #    name2 => ']',
+    #    assoc => 'left',
+    #    precedence => 'tighter',
+    #    other => 'prefix:<++>',
+    #);
     #__PACKAGE__->add_rule( 
     #    name => '{',
     #    name2 => '}',
