@@ -50,6 +50,26 @@ sub substitution {
     } );
 };
 
+sub rx {
+    my $grammar = shift;
+    return $grammar->no_match unless $_[0];
+    my $options;
+    while ($_[0] =~ s/^:(\w+)//) {
+	$options->{lc($1)} = 1;
+    }
+    return $grammar->no_match unless substr($_[0], 0 , 1) eq '/';
+    substr($_[0], 0, 1, '');
+    my ($extracted,$remainder) = Text::Balanced::extract_delimited( "/" . $_[0], "/" );
+    return $grammar->no_match unless length($extracted) > 0;
+    $extracted = substr( $extracted, 1, -1 );
+    return Pugs::Runtime::Match->new( { 
+        bool    => 1,,
+        match   => $extracted,
+        tail    => $remainder,
+        capture => { options => $options, rx => $extracted },
+    } );
+};
+
 sub single_quoted {
     my $grammar = shift;
     return $grammar->no_match unless $_[0];
@@ -257,6 +277,13 @@ sub recompile {
             <Pugs::Grammar::Term.substitution>
             { return { 
                     substitution => $/{'Pugs::Grammar::Term.substitution'}->(),
+                } 
+            }
+        ) ),
+        q(rx) => Pugs::Compiler::Regex->compile( q(
+            <Pugs::Grammar::Term.rx>
+            { return { 
+                    rx => $/{'Pugs::Grammar::Term.rx'}->(),
                 } 
             }
         ) ),
