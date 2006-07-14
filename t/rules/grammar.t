@@ -1,17 +1,18 @@
-grammar yapc_schedule;
-
-regex ws { .*? }
-token speaker { \w[\w|\s]+ }
-token talk { <'<small>'> <speaker> <'</small>'> }
-token title { <'<title>'> <speaker> <'</title>'> }
-rule schedule { <title> [ <talk> ]+ }
-
-module Main;
 use v6-alpha;
-
 use Test;
 
 plan 3;
+
+rule schedule { <title> [ <talk> ]+ }
+
+token title { \<title\> <speaker> \</title\> }
+
+regex ws { .*? }
+
+token talk { \<small\> <speaker> \</small\> }
+
+token speaker { \w+ }
+
 
 =pod
 
@@ -37,7 +38,7 @@ my $content = '
     </tr>
 ';
 
-is($content ~~ m/<yapc_schedule.speaker>/, 'tr', 'read token from grammar namespace');
+is($content ~~ m/<speaker>/, 'tr', 'read token from grammar namespace');
 
 $content = '<title>Exactly</title> aosihdas
 <small>A</small> aosidh
