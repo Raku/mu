@@ -89,12 +89,12 @@ sub build {
         if (!$ar) { $ar = $ghc; $ar =~ s{(.*)ghc}{$1ar}; }
 
         my ($archive_dir) = glob("third-party/installed/*/pugs-$module-*");
-        foreach my $archive (
+        foreach my $a_file (
             glob("$archive_dir/*.a"),
             glob("$archive_dir/*/*.a"),
             glob("$archive_dir/*/*/*.a"),
         ) {
-            system($ar, s => $archive) unless $^O eq 'MSWin32';
+            system($ar, s => $a_file) unless $^O eq 'MSWin32';
         }
     }
 
@@ -220,7 +220,7 @@ sub build_lib {
     }
 
     # Run ranlib.
-    system($ar, s => $a_file);
+    system($ar, s => $a_file) unless $^O eq 'MSWin32';
 }
 
 sub build_exe {
