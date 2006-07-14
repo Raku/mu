@@ -17,7 +17,7 @@ import Foreign.Ptr
 import Foreign.Storable
 import Foreign
 import Data.Maybe (fromJust)
-
+import qualified Data.ByteString as B
 
 import Judy.Private
 import qualified Judy.CollectionsM as CM
@@ -59,10 +59,31 @@ class Stringable k where
     toString :: k -> String
     fromString :: String -> k
 
+    useAsCS :: k -> (CString -> IO a) -> IO a
+    useAsCS k = withCAString (toString k)
+    useAsCSLen :: k -> (CStringLen -> IO a) -> IO a
+    useAsCSLen k = withCAStringLen (toString k)
+
+    copyCS :: CString -> IO k
+    copyCS c = peekCAString c >>= return . fromString
+    copyCSLen :: CStringLen -> IO k
+    copyCSLen c = peekCAStringLen c >>= return . fromString
+
+    
+
 instance Stringable String where
     toString = id
     fromString = id
 
+instance Stringable B.ByteString where
+    toString = undefined
+    fromString = undefined
+
+    useAsCS = B.useAsCString 
+    useAsCSLen = B.useAsCStringLen
+
+    copyCS = B.copyCString
+    copyCSLen = B.copyCStringLen
 
 
 --instance Stringable Int where
@@ -107,7 +128,7 @@ new_ = do
 
 insert_ :: (Stringable k, Refeable a) => k -> a -> Map k a -> IO ()
 insert_ k v (Map j) = withForeignPtr j $ \j' -> do
-    withCAStringLen (toString k) $ \(cp, len) -> do
+    useAsCSLen k $ \(cp, len) -> do
         -- TODO: maybe there's a better way to convert Int -> Value
         r <- judyHSIns j' cp (fromIntegral len) judyError
         if r == pjerr
@@ -120,7 +141,7 @@ insert_ k v (Map j) = withForeignPtr j $ \j' -> do
 alter2 :: (Eq a, Stringable k, Refeable a) => (Maybe a -> Maybe a) -> k -> Map k a -> IO ()
 alter2 f k m@(Map j) = do
     j' <- withForeignPtr j peek
-    withCAStringLen (toString k) $ \(cp, len) -> do
+    useAsCSLen k $ \(cp, len) -> do
         r <- judyHSGet j' cp (fromIntegral len)
         if r == nullPtr
             then if (f Nothing) == Nothing
@@ -139,7 +160,7 @@ alter2 f k m@(Map j) = do
 lookup_ :: (Stringable k, Refeable a) => k -> Map k a -> IO (Maybe a)
 lookup_ k (Map j) = do
     j' <- withForeignPtr j peek
-    withCAStringLen (toString k) $ \(cp, len) -> do
+    useAsCSLen k $ \(cp, len) -> do
         r <- judyHSGet j' cp (fromIntegral len)
         if r == nullPtr
             then return Nothing
@@ -151,13 +172,13 @@ lookup_ k (Map j) = do
 member_ :: Stringable k => k -> Map k a -> IO Bool
 member_ k (Map j) = do
     j' <- withForeignPtr j peek
-    withCAStringLen (toString k) $ \(cp, len) -> do
+    useAsCSLen k $ \(cp, len) -> do
         r <- judyHSGet j' cp (fromIntegral len)
         return $ r /= nullPtr
 
 delete_ :: Stringable k => k -> Map k a -> IO Bool
 delete_ k (Map j) = withForeignPtr j $ \j' -> do
-    withCAStringLen (toString k) $ \(cp, len) -> do
+    useAsCSLen k $ \(cp, len) -> do
         r <- judyHSDel j' cp (fromIntegral len) judyError
         -- TODO: must free the stableptr
         return $ r /= 0
@@ -202,10 +223,10 @@ map :: (Stringable k, Refeable a) => (k -> a -> b) -> Map k a -> IO [b]
 map f = map_ $ \r cp len -> do
     l <- peek len
     c <- peek cp
-    v <- peekCAStringLen (c, fromIntegral l)
+    v <- copyCSLen (c, fromIntegral l)
     d <- peek r
     d' <- fromRef d
-    return $ f (fromString v) d'
+    return $ f v d'
 
 toList_ :: (Stringable k, Refeable a) => Map k a -> IO [(k,a)]
 toList_ = map $ \k a -> (k, a)
@@ -219,8 +240,8 @@ keys :: Stringable k => Map k a -> IO [k]
 keys = map_ $ \_ cp len -> do
     l <- peek len
     c <- peek cp
-    v <- peekCAStringLen (c, fromIntegral l)
-    return $ fromString v
+    v <- copyCSLen (c, fromIntegral l)
+    return v
 
 
 swapMaps :: Map k a -> Map k a -> IO ()

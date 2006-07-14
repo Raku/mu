@@ -84,7 +84,7 @@ new_ = do
 
 insert_ :: (Stringable k, Refeable a) => k -> a -> MapSL k a -> IO ()
 insert_ k v (MapSL j) = withForeignPtr j $ \j' -> do
-    withCAString (toString k) $ \k' -> do
+    useAsCS k $ \k' -> do
         r <- judySLIns j' k' judyError
         if r == pjerr
             then error "HsJudy: Not enough memory."
@@ -93,7 +93,7 @@ insert_ k v (MapSL j) = withForeignPtr j $ \j' -> do
 alter2 :: (Eq a, Stringable k, Refeable a) => (Maybe a -> Maybe a) -> k -> MapSL k a -> IO ()
 alter2 f k m@(MapSL j) = do
     j' <- withForeignPtr j peek
-    withCAString (toString k) $ \k' -> do
+    useAsCS k $ \k' -> do
         r <- judySLGet j' k' judyError
         if r == nullPtr
             then if (f Nothing) == Nothing
@@ -112,7 +112,7 @@ alter2 f k m@(MapSL j) = do
 lookup_ :: (Stringable k, Refeable a) => k -> MapSL k a -> IO (Maybe a)
 lookup_ k (MapSL j) = do
     j' <- withForeignPtr j peek
-    withCAString (toString k) $ \k' -> do
+    useAsCS k $ \k' -> do
         r <- judySLGet j' k' judyError
         if r == nullPtr
             then return Nothing
@@ -121,13 +121,13 @@ lookup_ k (MapSL j) = do
 member_ :: Stringable k => k -> MapSL k a -> IO Bool
 member_ k (MapSL j) = do
     j' <- withForeignPtr j peek
-    withCAString (toString k) $ \k' -> do
+    useAsCS k $ \k' -> do
         r <- judySLGet j' k' judyError
         return $ r /= nullPtr
 
 delete_ :: Stringable k => k -> MapSL k a -> IO Bool
 delete_ k (MapSL j) = withForeignPtr j $ \j' -> do
-    withCAString (toString k) $ \k' -> do 
+    useAsCS k $ \k' -> do 
         r <- judySLDel j' k' judyError
         return $ r /= 0
 
@@ -152,10 +152,10 @@ map_ f (MapSL j) = do
 
 map :: (Stringable k, Refeable a) => (k -> a -> b) -> MapSL k a -> IO [b]
 map f = map_ $ \r vp -> do
-    k <- peekCAString vp
+    k <- copyCS vp
     v <- peek r
     v' <- fromRef v
-    return $ f (fromString k) v'
+    return $ f k v'
 
 toList_ :: (Stringable k, Refeable a) => MapSL k a -> IO [(k,a)]
 toList_ = map $ \k a -> (k,a)
@@ -163,8 +163,8 @@ toList_ = map $ \k a -> (k,a)
 
 keys :: Stringable k => MapSL k a -> IO [k]
 keys = map_ $ \_ vp -> do
-    k <- peekCAString vp
-    return $ fromString k
+    k <- copyCS vp
+    return k
 
 elems :: Refeable a => MapSL k a -> IO [a]
 elems = map_ $ \r _ -> do

@@ -19,7 +19,6 @@ if the results are correct (they seem to be).
 - http://shootout.alioth.debian.org/gp4/benchmark.php?test=knucleotide&lang=all
 
 - Refeable vs. HashIO => unify?
-- Use ByteString (seems to be trivial with Stringable, just instantiate Stringable?)
 - Better testing
 - More test programs
 - Discuss APIs

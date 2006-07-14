@@ -4,16 +4,19 @@ import Judy.CollectionsM as CM
 
 import Data.Map as DM
 import System
+import qualified Data.ByteString as B
+
 
 -- TODO: make it count the number of dups.
 
 main = do
     s <- getArgs
-    if head s == "1"
-     then main1
-     else if head s == "2"
-            then (new :: IO (JM.Map String Int)) >>= mainj
-            else (new :: IO (JMSL.MapSL String Int)) >>= mainj 
+    case read (head s) of
+        1 -> main1
+        2 -> (new :: IO (JM.Map String Int)) >>= mainj getLine
+        3 -> (new :: IO (JMSL.MapSL String Int)) >>= mainj getLine
+        4 -> (new :: IO (JM.Map B.ByteString Int)) >>= mainj B.getLine
+        5 -> (new :: IO (JMSL.MapSL B.ByteString Int)) >>= mainj B.getLine
 
 main1 = do
     let h = DM.empty :: (Map String Int)
@@ -27,13 +30,11 @@ main1 = do
                     loop h'
                 else putStrLn $ "dup: " ++ x
 
-mainj h = do
+mainj getline h = do
     loop h
     where loop h = do
-            x <- getLine
+            x <- getline
             v <- CM.lookup x h
             if v == Nothing
                 then CM.alter x 1 h >> loop h
-                else putStrLn $ "dup: " ++ x
-
-
+                else putStrLn $ "dup: " ++ (show x)
