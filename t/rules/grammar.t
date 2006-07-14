@@ -5,11 +5,11 @@ plan 3;
 
 rule schedule { <title> [ <talk> ]+ }
 
-token title { \<title\> <speaker> \</title\> }
+token title { <'<title>'> <speaker> <'</title>'> }
 
 regex ws { .*? }
 
-token talk { \<small\> <speaker> \</small\> }
+token talk { <'<small>'> <speaker> <'</small>'> }
 
 token speaker { \w+ }
 
