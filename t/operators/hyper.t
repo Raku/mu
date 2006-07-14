@@ -8,7 +8,7 @@ use Test;
 
 =cut
 
-plan 38;
+plan 48;
 
 { # binary infix
         my @r;
@@ -152,6 +152,69 @@ plan 38;
         eval '@r = ("f", "oo", "bar")>>.length';
         @e = (1, 2, 3);
         is(~@r, ~@e, :todo);
+};
+
+{ # distribution for unary prefix
+        my @r;
+        @r = -« ([1, 2], [3, [4, 5]]);
+        my @e = ([-1, -2], [-3, [-4, -5]]);
+        is_deeply(~@r, ~@e, "distribution for unary prefix", :todo);
+
+        @r = -<< ([1, 2], [3, [4, 5]]);
+        @e = ([-1, -2], [-3, [-4, -5]]);
+        is_deeply(~@r, ~@e, "distribution for unary prefix, ASCII", :todo);
+};
+
+{ # distribution for unary postfix autoincrement
+        my @r;
+        @r = ([1, 2], [3, [4, 5]]);
+        try { @r »++ };
+        my @e = ([2, 3], [4, [5, 6]]);
+        is_deeply(~@r, ~@e, "distribution for unary postfix autoincr", :todo);
+
+        @r = ([1, 2], [3, [4, 5]]);
+        try { @r >>++ };
+        @e = ([2, 3], [4, [5, 6]]);
+        is_deeply(~@r, ~@e, "distribution for unary postfix autoincr, ASCII", :todo);
+};
+
+{ # distribution for binary infix
+        my @r;
+        @r = (1, 2, [3, 4]) »+« (4, 5, [6, 7]);
+        my @e = (5, 7, [9, 11]);
+        is_deeply(~@r, ~@e,
+                  "distribution for binary infix, same shape",
+                  :todo);
+
+        @r = (1, 2, [3, 4]) >>+<< (4, 5, [6, 7]);
+        @e = (5, 7, [9, 11]);
+        is_deeply(~@r, ~@e,
+                  "distribution for binary infix, same shape, ASCII",
+                  :todo);
+
+        @r = (1, 2, [3, 4]) »+« (5, 6, 7);
+        @e = (6, 8, [10, 11]);
+        is_deeply(~@r, ~@e,
+                  "distribution for binary infix, dimension upgrade",
+                  :todo);
+
+        @r = (1, 2, [3, 4]) >>+<< (5, 6, 7);
+        @e = (6, 8, [10, 11]);
+        is_deeply(~@r, ~@e,
+                  "distribution for binary infix, dimension upgrade, ASCII",
+                  :todo);
+
+        @r = ([1, 2], 3) »+« (4, [5, 6]);
+        @e = ([5, 6], [8, 9]);
+        is_deeply(~@r, ~@e,
+                  "distribution for binary infix, S03 cross-upgrade",
+                  :todo);
+
+        @r = ([1, 2], 3) >>+<< (4, [5, 6]);
+        @e = ([5, 6], [8, 9]);
+        is_deeply(~@r, ~@e,
+                  "distribution for binary infix, S03 cross-upgrade, ASCII",
+                  :todo);
 };
 
 { # regression test, ensure that hyper works on arrays
