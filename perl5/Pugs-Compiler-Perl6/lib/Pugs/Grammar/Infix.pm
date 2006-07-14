@@ -42,7 +42,7 @@ BEGIN {
 
     __PACKAGE__->add_rule(
         name => '**',
-        assoc => 'left',
+        assoc => 'right',
         precedence => 'tighter',
         other => 'infix:<*>',
     );
