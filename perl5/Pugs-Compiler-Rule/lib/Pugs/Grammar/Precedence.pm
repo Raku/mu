@@ -6,7 +6,7 @@ use strict;
 use warnings;
 
 use Parse::Yapp;
-
+use Data::Dumper;
 use Digest::MD5 'md5_hex';
 
 my $cache;
@@ -90,6 +90,7 @@ sub add_op {
              } @{$self->{levels}[$level]} ) {
             #print "pos $level at $opt->{precedence} $opt->{other}\n";
             $relative_precedences{$opt->{precedence}}->($self, $level, $opt);
+            #print "Precedence table: ", Dumper( $self );
             return;
         }
     }
@@ -122,26 +123,29 @@ sub emit_yapp {
     my %seen;
     for my $level ( reverse 0 .. $#{$self->{levels}} ) {            
         my %assoc;
-        for ( @{$self->{levels}[$level]} ) {
-            push @{$assoc{ $_->{assoc} }}, $_;
+        for my $operator ( @{$self->{levels}[$level]} ) {
+            push @{$assoc{ $operator->{assoc} }}, $operator;
         }
-        for ( keys %assoc ) {
-            if ( @{$assoc{$_}} ) {
-                my $a = $_;
+        for my $aaa ( keys %assoc ) {
+            if ( @{$assoc{$aaa}} ) {
+                my $a = $aaa;
                 $a = 'nonassoc' if $a eq 'non';
                 $a = 'left'     if $a eq 'list';
                 $a = 'left'     if $a eq 'chain';
-                $s .= '%'.$a.' ';
-                for ( @{ $assoc{$_} } ) {
-                    next if $seen{$_->{name}};
-                    $seen{$_->{name}} = 1;
-                    $s .=
-                        ( $_ eq 'list' || $_ eq 'chain' )
-                            ? $_->{index}
-                            : "'$_->{name}'";
-                    $s .= ' ';
+                $s .= "%$a ";
+                for my $operator ( @{ $assoc{$aaa} } ) {
+                    next if $seen{$operator->{name}};
+                    $seen{$operator->{name}} = 1;
+                    $s .= ' ' . 
+                             "'$operator->{name}'" ;
+                        # (( $aaa eq 'list' || $aaa eq 'chain' )
+                        #     ? $operator->{index}
+                        #     : "'$operator->{name}'" 
+                        # );
                 }
-                $s .= "$prec\n";
+                $s .= 
+                    " $prec" .
+                    "\n";
                 # $seen{$_->{name}} = 1 for @{$assoc{$_}};
                 $prec++;
             }
@@ -165,6 +169,7 @@ sub emit_yapp {
         }
         for ( keys %assoc ) {
             if ( @{$assoc{$_}} ) {
+
 
                 for my $op ( @{$assoc{$_}} ) {
                     if ( $op->{assoc} eq 'list' ) {

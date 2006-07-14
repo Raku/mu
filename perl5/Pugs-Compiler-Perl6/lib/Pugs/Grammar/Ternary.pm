@@ -15,6 +15,8 @@ sub add_rule {
         assoc => 'non',
     );
     $self->Pugs::Grammar::Operator::add_rule( %opt,
+        precedence => 'equal',
+        other  => $opt{name},
         fixity => 'ternary', 
         assoc => 'non',
         name => 'ternary:<' . $opt{name} . ' ' . $opt{name2} . '>',

@@ -806,8 +806,8 @@ sub infix {
             $n->{op1}{op} . ' ' . "sub " . _emit( $n->{exp2} );
     }
 
-    return _emit( $n->{exp1} ) . ' ' . 
-        $n->{op1}{op} . ' ' . _emit( $n->{exp2} );
+    return '(' . _emit( $n->{exp1} ) . ' ' . 
+        $n->{op1}{op} . ' ' . _emit( $n->{exp2} ) . ')';
 }
 
 sub circumfix {
