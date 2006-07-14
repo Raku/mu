@@ -478,8 +478,8 @@ sub default {
         return " " . $n->{sub}{bareword} . " '', " . _emit( $n->{param} ) 
             if $n->{sub}{bareword} eq 'print' ||
                $n->{sub}{bareword} eq 'warn';
-        return " print '', " . _emit( $n->{param} ) . ";\n" .
-            " print " . '"\n"'
+        return " do { print '', " . _emit( $n->{param} ) . ";\n" .
+            " print " . '"\n" } '
             if $n->{sub}{bareword} eq 'say';
 
         # TODO - other builtins
