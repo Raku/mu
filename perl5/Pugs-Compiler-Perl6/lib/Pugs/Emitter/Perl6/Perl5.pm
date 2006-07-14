@@ -112,7 +112,7 @@ sub _emit {
 
 
     return join ( ";\n", 
-            map { _emit( $_ ) } @{$n->{statements}} 
+            map { defined $_ ? _emit( $_ ) : "" } @{$n->{statements}} 
         ) ||
         " # empty block\n"
         if exists $n->{statements};
@@ -587,6 +587,13 @@ sub default {
                     ", " . _emit( $n->{param} ) . ")" .
                 
                 " )";
+        }
+        
+        if ( exists $n->{self}{hash} ) {
+            # %hash.keys
+            return " (" . 
+                _emit( $n->{method} ) . ' ' .
+                _emit( $n->{self}   ) . ')';
         }
         
         if ( exists $n->{self}{op1} ) {

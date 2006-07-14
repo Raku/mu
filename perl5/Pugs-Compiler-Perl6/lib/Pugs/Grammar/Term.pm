@@ -309,8 +309,8 @@ sub recompile {
                 ((_|\w)+) \< ((.)*?) \>
                 { return {
                     pair => { 
-                        key   => { single_quoted => $/[0] }, 
-                        value => { single_quoted => $/[1] }, 
+                        key   => { single_quoted => $/[0]() }, 
+                        value => { single_quoted => $/[1]() }, 
                 } } }
                 |
                 # :foo(exp)
@@ -319,7 +319,7 @@ sub recompile {
                 \)
                 { return {
                     pair => { 
-                        key   => { single_quoted => $/[0] }, 
+                        key   => { single_quoted => $/[0]() }, 
                         value => $/{'Pugs::Grammar::Perl6.perl6_expression'}->(), 
                 } } }
                 |
@@ -327,15 +327,15 @@ sub recompile {
                 \$ ((_|\w)+)
                 { return {
                     pair => { 
-                        key   => { single_quoted => $/[0] }, 
-                        value => { scalar  => '$' . $/[0] }, 
+                        key   => { single_quoted => $/[0]() }, 
+                        value => { scalar  => '$' . $/[0]() }, 
                 } } }
                 |
                 # :foo 
                 ((_|\w)+)
                 { return {
                     pair => { 
-                        key   => { single_quoted => $/[0] }, 
+                        key   => { single_quoted => $/[0]() }, 
                         value => { num => 1 }, 
                 } } }
                 ]            
