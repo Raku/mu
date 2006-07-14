@@ -53,12 +53,22 @@ sub build {
 
     print "*** Building dependencies.  Please wait...\n\n";
 
-    # XXX - instead of --user, use our own package-conf storage position
+    # Instead of --user, use our own package-conf storage position.
+
+    # On Win32, a very broken heuristics in Cabal forced us to copy runcompiler.exe
+    # over to where GHC was in.
+
+    my $runcompiler = File::Spec->rel2abs("../../util/runcompiler$Config{_exe}");
+    if ($^O eq 'MSWin32') {
+        my $new_runcompiler = File::Spec->catfile(dirname($ghc), "runcompiler$Config{_exe}");
+        copy($runcompiler => $new_runcompiler);
+        $new_runcompiler = $runcompiler;
+    }
 
     foreach my $module (qw< fps HsSyck >) {
         chdir "third-party/$module";
         system("../../Setup$Config{_exe}", 'configure',
-                '--with-compiler=' . File::Spec->rel2abs("../../util/runcompiler$Config{_exe}"),
+                '--with-compiler=' . $runcompiler,
                 '--with-hc-pkg='   . File::Spec->rel2abs("../../util/ghc-pkg-wrapper$Config{_exe}"),
                 '--prefix='        . File::Spec->rel2abs('../installed/'));
         system("../../Setup$Config{_exe}", 'unregister');
