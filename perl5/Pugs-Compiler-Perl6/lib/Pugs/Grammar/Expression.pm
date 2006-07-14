@@ -140,7 +140,7 @@ sub ast {
             #warn "m1 = " . Dumper($m1->()) . "m2 = " . Dumper($m2->());
 
         while(1) {
-            # term.meth() is high-precedence
+            # term.meth() 
             if ( $m2 && $$m2->{tail} && $$m2->{tail} =~ /^\.[^.]/ ) {
                 my $meth = Pugs::Grammar::Term->parse( $$m2->{tail}, { p => 1 } );
                 $$meth->{capture} = { 
@@ -152,7 +152,7 @@ sub ast {
                 $m2 = $meth;
                 next;
             }
-            # term() is high-precedence
+            # term() 
             if ( $m2 && $$m2->{tail} && $$m2->{tail} =~ /^\(/ ) {
                 my $paren = Pugs::Grammar::Term->parse( $$m2->{tail}, { p => 1 } );
                 if ( exists $m2->()->{dot_bareword} ) {
@@ -182,7 +182,7 @@ sub ast {
                 $m2 = $paren;
                 next;
             }
-            # term[] is high-precedence
+            # term[] 
             if ( $m2 && $$m2->{tail} && $$m2->{tail} =~ /^\[/ ) {
                 my $paren = Pugs::Grammar::Term->parse( $$m2->{tail}, { p => 1 } );
                 if ( exists $m2->()->{dot_bareword} ) {
@@ -210,6 +210,39 @@ sub ast {
                         op2 => { op => "]" }, 
                         exp1 => $m2->(), 
                         exp2 => $paren->()->{exp1}, 
+                    };
+                }
+                $m2 = $paren;
+                next;
+            }
+            # term{} 
+            if ( $m2 && $$m2->{tail} && $$m2->{tail} =~ /^\{/ ) {
+                my $paren = Pugs::Grammar::Term->parse( $$m2->{tail}, { p => 1 } );
+                if ( exists $m2->()->{dot_bareword} ) {
+                    $$paren->{capture} = { 
+                        op1 => 'method_call', 
+                        self => { 'scalar' => '$_' }, 
+                        method => { bareword => '{}' },
+                        param => $paren->()->{'bare_block'}, 
+                    };
+                }
+                elsif ( exists $m2->()->{op1} 
+                     && $m2->()->{op1} eq 'method_call'
+                     && ! defined $m2->()->{param} 
+                ) {
+                    $$paren->{capture} = { 
+                        %{$m2->()},
+                        method => { bareword => '{}' },
+                        param => $paren->()->{'bare_block'}, 
+                    };
+                }
+                else {
+                    $$paren->{capture} = { 
+                        fixity => 'postcircumfix', 
+                        op1 => { op => "{" }, 
+                        op2 => { op => "}" }, 
+                        exp1 => $m2->(), 
+                        exp2 => $paren->()->{'bare_block'}, 
                     };
                 }
                 $m2 = $paren;
