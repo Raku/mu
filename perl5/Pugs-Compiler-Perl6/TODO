@@ -1,24 +1,16 @@
 ﻿TODO list for Pugs-Compiler-Perl6
 
-- parse [ 1, 4 ]
-- !(0)
+- semicolons in array slice [1;2]
+
+- 'sub', 'method' are functions
 
 - replace 'Regex' matching with 'Token' - needs fixing Pugs::Compiler::Rule: interoperation of :ratchet/non-ratchet rules; implementation of non-ratchet hash-based dispatch.
 
 - implement hash and array
-- hash composer:
-    $ perl -Ilib lib\v6.pm --compile-only -e " %a = { }; %b = { 1, 2 }; %c = { $a }; %d = { $pair, }; %e = {3=>4}; %f = { :x<y> }; "
 
 - implement statement and operation classes in the grammar; implement macros (see lrep for an existing implementation).
 
-- parse ext/Test/lib/Test.pm
-  - &?CALLER::ROUTINE
-  - s:P5:g/foo/bar/;
-  - :$flag in capture
-  - runtime support for caller().package and &?ROUTTINE.name
-  - $TEST::foo in Test.pm needs to be mangled as well like the namespace.
-
-  - named arg binding with Data::Bind - (done on the pX/clkao branch)
+- test s() and rx()
 
 - block parsing:
   t/ref.t: if $string.ref eq Str { say "ok 1 # TODO" }
@@ -46,14 +38,10 @@ Priorities
     (1 if 1)           # 'if' is an op - I think this is now legal 
     sub sub xxx ...    # 'multi' and 'sub' are parsed the same way
 
-- failures:
-    - it is trying to parse the examples in the pod
 - workarounds:
-    - listop if ...;  -- implemented as a special case
     - listop;    -- say;
     - $obj.op()  -- when 'op' is a declared operator (not plain bareword)
     - prefix/infix:<&> vs. &code
-    - <...> and %x<...> should be implemented as circumfix and postcircumfix op
     - /rule/ is a term
   
 - merge Pod.pm into Perl6.pm
@@ -62,7 +50,6 @@ Priorities
     moose=>1
     moose:<elk>
     moose:{antler()}
-    sub 'ternary:?? !!'
 
 - transform hash collisions into alternations
     example: short name of prefix:<&> (Prefix.pm) vs. sigil in &name (Var.pm)
@@ -72,9 +59,7 @@ Priorities
 
 TODO
 
-- implement statements using top-down parser (rules)
 - implement ordered testing of categories <%a|%b|%c> depending on the parser state
-- expression terminator (maybe the tokenizer is the best place?)
 
 - parse the op table from
   http://svn.perl.org/parrot/trunk/languages/perl6/lib/grammar_optok.pge
@@ -85,11 +70,9 @@ TODO
 - dynamic grammar
 
 - unify syntax in Operator.pm:
-    unless/for
     operators with the same precedence, fixity, and associativity
     subroutines
     sub/multi
-    BEGIN/END
 
 - Implement compile-time dynamic 'add_token' (lexical at run-time)
 
