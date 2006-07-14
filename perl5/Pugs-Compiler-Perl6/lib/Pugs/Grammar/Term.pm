@@ -269,6 +269,13 @@ sub recompile {
                 ]            
 
             |
+                ### perl5:Test::More
+                perl5 \: <Pugs::Grammar::Term.ident> 
+                { return { 
+                        bareword => $/{'Pugs::Grammar::Term.ident'}->(),
+                        lang => 'perl5',
+                } }
+            |
                 ### Test-0.0.6
                 <Pugs::Grammar::Term.cpan_bareword> 
                 { return $/{'Pugs::Grammar::Term.cpan_bareword'}->() }

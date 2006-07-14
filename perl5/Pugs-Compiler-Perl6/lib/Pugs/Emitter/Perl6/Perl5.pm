@@ -433,8 +433,19 @@ sub default {
             if ( $n->{param}{sub}{bareword} eq 'v6' ) {
                 return " # use v6\n";
             }
+            # use perl5:module::name 'param'
+            if ( $n->{param}{sub}{lang} &&
+                 $n->{param}{sub}{lang} eq 'perl5' ) {
+                return 
+                    "{ " .
+                    # restore PERL5LIB - see 'perldoc lib'
+                    'local @INC = @lib::ORIG_INC; ' . 
+                    "use " . _emit( $n->{param}{sub} ) . ' ' . 
+                        (exists $n->{param}{param} ? _emit($n->{param}{param}) : '' ) .
+                    "; } ";
+            }
             # use module::name 'param'
-            return "use " . _emit( $n->{param}{sub} ) .
+            return "use " . _emit( $n->{param}{sub} ) . ' ' . 
                    (exists $n->{param}{param} ? _emit($n->{param}{param}) : '' );
         }
 
