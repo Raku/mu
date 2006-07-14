@@ -34,9 +34,6 @@ exp:
       NUM                 
         { $_[0]->{out}= $_[1] }
 
-    #| '@' '(' exp ')' 
-    #    { $_[0]->{out}= { op1 => 'array_context', exp1 => $_[3], } }
-
     | BAREWORD
         { $_[0]->{out}= { op1 => 'call', sub => $_[1], } }
     | BAREWORD exp   %prec P001
@@ -47,7 +44,7 @@ exp:
     | DOT_BAREWORD   
         { $_[0]->{out}= { op1 => 'method_call', self => { 'scalar' => '$_' }, method => $_[1], } }
 
-    | MY NUM attr 
+    | MY NUM attr       
         { $_[0]->{out}= { 
             op1 => { op => $_[1]{op} }, 
             fixity => 'prefix', 

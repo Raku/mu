@@ -877,6 +877,13 @@ sub postcircumfix {
         return _emit( $n->{exp1} ) . '[' . _emit( $n->{exp2} ) . ']';
     }
     
+    if ( $n->{op1}{op} eq '<' &&
+         $n->{op2}{op} eq '>' ) {
+        my $name = _emit( $n->{exp1} );
+        $name =~ s/^\%/\$/;
+        return $name . '{ \'' . $n->{exp2}{angle_quoted} . '\' }';
+    }
+
     return _not_implemented( $n, "postcircumfix" );
 }
 
@@ -964,12 +971,6 @@ sub postfix {
     if ( $n->{op1}{op} eq '++' ||
          $n->{op1}{op} eq '--' ) {
         return _emit( $n->{exp1} ) . $n->{op1}{op};
-    }
-
-    if ( $n->{op1}{op} eq 'ANGLE' ) {
-        my $name = _emit( $n->{exp1} );
-        $name =~ s/^\%/\$/;
-        return $name . '{ \'' . $n->{op1}{angle_quoted} . '\' }';
     }
 
     return _not_implemented( $n, "postfix" );

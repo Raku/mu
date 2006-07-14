@@ -260,8 +260,13 @@ sub recompile {
                 } 
             }
         ) ),
-        # angle is handled by the lexer
-        # q(<) => ...
+        q(<) => Pugs::Compiler::Regex->compile( q(
+            <Pugs::Grammar::Term.angle_quoted>
+            { return { 
+                    angle_quoted => $/{'Pugs::Grammar::Term.angle_quoted'}->(),
+                } 
+            }
+        ) ),
         # q(.) => ...
         q() => Pugs::Compiler::Regex->compile( q!
                 ### floating point

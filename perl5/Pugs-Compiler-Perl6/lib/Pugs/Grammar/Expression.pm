@@ -73,9 +73,9 @@ sub ast {
         }
         #print "still here\n";
         my $m;
-        my $whitespace_before = 0;
 
         my @expect = $p->YYExpect;  # XXX is this expensive?
+        my $expect_term = grep { $_ eq 'NUM' || $_ eq 'BAREWORD' } @expect;
         
         for ( 1 ) {
             $m = Pugs::Grammar::BaseCategory->ws( $match );
@@ -83,60 +83,12 @@ sub ast {
             # print "match is ",Dumper($m),"\n";
             if ( $m->{bool} ) {
                 $match = $m->{tail};
-                $whitespace_before = 1;
-            }
-            
-            # print "tail $match \n"; 
-            
-            # XXX @expect should use symbolic names; better use TABLE instead of 'literal'
-            #print " @{[ sort @expect ]} \n";
-            # if ( grep { $_ eq '++' || $_ eq '{' } @expect ) {
-            
-            # XXX temporary hack - matching options in 'expected' order should fix this
-            if ( $match =~ /^</ ) {   # && ! $whitespace_before ) {
-                # XXX - angle quotes are always tried even if it were expecting a simple '<'
-            
-                # after whitespace means '<' (default)
-                # without whitespace means '<str>'
-
-                # <fglock> I'm trying to parse '(1 | 3)<3'
-                # <TimToady> that's a syntax error.
-                # <TimToady> you must have a space before infix:{'<'}
-                # <TimToady> otherwise it will always be taken as the postfix.
-
-                #print "checking angle quote ... [$whitespace_before]\n";
-                $m = Pugs::Grammar::Term->angle_quoted( substr($match, 1), { p => 1 } );
-                if ( $m ) {
-                    #print "Match: ",Dumper $m->();
-                    if ( grep { $_ eq 'NUM' } @expect ) {
-                        # expects a term
-                        $m = Pugs::Runtime::Match->new( { 
-                            bool  => 1,
-                            match => $m,
-                            tail  => $$m->{tail},
-                            capture => { angle_quoted => $m->() },
-                        } );
-                        #print "Match: ",Dumper $m->();
-                        last;
-                    }
-                    # expects an op
-                    # x < 1  --- less than
-                    # x<1    --- starts angle-quote
-                    unless ( $whitespace_before ) {
-                        $m = Pugs::Runtime::Match->new( { 
-                            bool  => 1,
-                            match => $m,
-                            tail  => $$m->{tail},
-                            capture => { op => "ANGLE", angle_quoted => $m->() },
-                        } );
-                        #print "Match: ",Dumper $m->();
-                        last;
-                    }
-                }
             }
 
             my $m1 = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
-            my $m2 = Pugs::Grammar::Term->parse( $match, { p => 1 } );
+            my $m2;
+            $m2 = Pugs::Grammar::Term->parse( $match, { p => 1 } )
+                if $expect_term;
             #warn "m1 = " . Dumper($m1->()) . "m2 = " . Dumper($m2->());
 
         while(1) {
@@ -248,6 +200,39 @@ sub ast {
                 $m2 = $paren;
                 next;
             }
+            # term<> 
+            if ( $m2 && $$m2->{tail} && $$m2->{tail} =~ /^\</ ) {
+                my $paren = Pugs::Grammar::Term->parse( $$m2->{tail}, { p => 1 } );
+                if ( exists $m2->()->{dot_bareword} ) {
+                    $$paren->{capture} = { 
+                        op1 => 'method_call', 
+                        self => { 'scalar' => '$_' }, 
+                        method => { bareword => '<>' }, 
+                        param => $paren->(), 
+                    };
+                }
+                elsif ( exists $m2->()->{op1} 
+                     && $m2->()->{op1} eq 'method_call'
+                     && ! defined $m2->()->{param} 
+                ) {
+                    $$paren->{capture} = { 
+                        %{$m2->()}, 
+                        method => { bareword => '<>' },
+                        param => $paren->(), 
+                    };
+                }
+                else {
+                    $$paren->{capture} = { 
+                        fixity => 'postcircumfix', 
+                        op1 => { op => "<" }, 
+                        op2 => { op => ">" }, 
+                        exp1 => $m2->(), 
+                        exp2 => $paren->(), 
+                    };
+                }
+                $m2 = $paren;
+                next;
+            }
             last;
         }
 
@@ -271,26 +256,14 @@ sub ast {
                 if $match;            
         } # /for
             
+        #print Dumper($m);
         my $tail = $$m->{tail};
 
-        # method call
- #       if ( defined $tail && $tail =~ /^\./ ) {
- #               # TODO - long dot
- #               my $meth = Pugs::Grammar::Term->parse( $tail, { p => 1 } );
- #               $meth->()->{self} = $m->();
- #               $m = $meth;
- #               $tail = $$m->{tail};
- #               #print "Method: ",Dumper $m->();
-
-# TODO -
 # <fglock> like: ( name 1, 2 or 3 ) - is it parsed as name(1,2 or 3) or (name(1,2) or 3)
 # <TimToady> it will be taken provisionally as a listop, with listop precedence
 # <TimToady> so name(1,2) or 3
 # <TimToady> but it will fail compilation if name is not supplied by CHECK time.
 # <TimToady> it will also fail if name is declared as a unary or 0-ary func.
-
-  #      }
-
 
         {
             # trim tail
@@ -335,7 +308,7 @@ sub ast {
         else {
             $t = [ 'NUM' => $ast ]
         }
-        #warn "T ",Dumper($t), "MATCH $match\n";
+        #warn "Term: ",Dumper($t), "MATCH $match\n";
         $t=['',''] unless $ast;  #$match; # defined($t);
 
         #print "expect NUM \n" if grep { $_ eq 'NUM' } @expect;
