@@ -17,10 +17,11 @@ data Package = MkPackage
 data Module = MkModule
     { m_version   :: Data.Version
     , m_authority :: Network.URI
+    , m_package   :: Maybe Package
     }
 
 data Class = MkClass
-    { c_module              :: Module
+    { c_module              :: Maybe Module
     , c_superClasses        :: [Class]
     , c_runtimeSuperClasses :: Eval [Class] -- list of runtime-added superclasses
     , c_methodTable         :: Map Ident Code
