@@ -832,6 +832,13 @@ sub circumfix {
         return '(' . _emit( $n->{exp1} ) . ')';
     }
     
+    if ( $n->{op1}{op} eq '[' &&
+         $n->{op2}{op} eq ']' ) {
+        return '[]'
+            unless defined  $n->{exp1};
+        return '[' . _emit( $n->{exp1} ) . ']';
+    }
+
     return _not_implemented( $n, "circumfix" );
 }
 

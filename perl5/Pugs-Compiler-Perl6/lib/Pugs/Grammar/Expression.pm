@@ -206,8 +206,8 @@ sub ast {
                 else {
                     $$paren->{capture} = { 
                         fixity => 'postcircumfix', 
-                        op1 => '[', 
-                        op2 => ']', 
+                        op1 => { op => "[" }, 
+                        op2 => { op => "]" }, 
                         exp1 => $m2->(), 
                         exp2 => $paren->()->{exp1}, 
                     };
