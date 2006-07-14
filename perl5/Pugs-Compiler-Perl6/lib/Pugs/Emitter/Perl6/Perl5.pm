@@ -163,6 +163,9 @@ sub _emit {
     return assoc_chain( $n )
         if exists $n->{assoc}  && $n->{assoc}  eq 'chain';
         
+    return reduce( $n )
+        if exists $n->{reduce};
+
     if ( exists $n->{fixity} ) {
         return infix( $n )
             if $n->{fixity} eq 'infix';
@@ -182,6 +185,16 @@ sub _emit {
         if exists $n->{statement};
 
     return default( $n );
+}
+
+sub reduce {
+    my $n = $_[0];
+    # print "list emit_rule: ", Dumper( $n );
+
+    return 
+        "do { use List::Util 'reduce'; reduce { \$a " .
+        $n->{op}{op} . " \$b } " . _emit( $n->{param} ) .
+        " } ";
 }
 
 sub assoc_list {

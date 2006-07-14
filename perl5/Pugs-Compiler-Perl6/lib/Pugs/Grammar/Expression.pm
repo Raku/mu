@@ -290,7 +290,10 @@ sub ast {
             }
         }
         elsif ( exists $ast->{op} ) {
-            if (  $ast->{op} eq 'my' 
+            if ( exists $ast->{reduce} ) {
+                $t = [ 'REDUCE' => $ast ]
+            }
+            elsif (  $ast->{op} eq 'my' 
                || $ast->{op} eq 'our' 
                || $ast->{op} eq 'has' ) {
                 $t = [ 'MY' => $ast ]

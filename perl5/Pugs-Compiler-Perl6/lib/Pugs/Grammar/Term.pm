@@ -164,6 +164,13 @@ sub angle_quoted {
 ) )->code;
 
 *brackets = Pugs::Compiler::Regex->compile( q(
+                <Pugs::Grammar::Infix.parse> 
+                <']'>
+                { return {
+                    op => $_[0]{'Pugs::Grammar::Infix.parse'}->(),
+                    reduce => 1, 
+                } }
+            |
                 <?ws>? <Pugs::Grammar::Perl6.perl6_expression> <?ws>? 
                 <']'>
                 { return {
