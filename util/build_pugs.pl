@@ -58,11 +58,17 @@ sub build {
     # On Win32, a very broken heuristics in Cabal forced us to copy runcompiler.exe
     # over to where GHC was in.
 
-    my $runcompiler = File::Spec->rel2abs("../../util/runcompiler$Config{_exe}");
+    my $runcompiler = File::Spec->rel2abs("$pwd/util/runcompiler$Config{_exe}");
     if ($^O eq 'MSWin32') {
-        my $new_runcompiler = File::Spec->catfile(dirname($ghc), "runcompiler$Config{_exe}");
-        copy($runcompiler => $new_runcompiler);
-        $new_runcompiler = $runcompiler;
+        my $new_runcompiler;
+        foreach my $args (@{$opts->{SETUP}}) {
+            $args =~ /^--with-hsc2hs=(.*[\\\/])/ or next;
+	    $ENV{PATH} = "$ENV{PATH};$1";
+            $new_runcompiler = File::Spec->catfile($1, "runcompiler$Config{_exe}");
+            copy($runcompiler => $new_runcompiler);
+            $runcompiler = $new_runcompiler;
+	}
+	die "Cannot find hsc2hs path" unless $new_runcompiler;
     }
 
     foreach my $module (qw< fps HsSyck >) {
@@ -82,13 +88,13 @@ sub build {
         my $ar = $Config{full_ar};
         if (!$ar) { $ar = $ghc; $ar =~ s{(.*)ghc}{$1ar}; }
 
-        my ($archive_dir) = glob("third-party/installed/lib/pugs-$module-*");
+        my ($archive_dir) = glob("third-party/installed/*/pugs-$module-*");
         foreach my $archive (
             glob("$archive_dir/*.a"),
             glob("$archive_dir/*/*.a"),
             glob("$archive_dir/*/*/*.a"),
         ) {
-            system($ar, s => $archive);
+            system($ar, s => $archive) unless $^O eq 'MSWin32';
         }
     }
 
