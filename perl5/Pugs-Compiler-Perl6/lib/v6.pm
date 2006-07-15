@@ -52,6 +52,7 @@ sub pmc_compile {
         "use Pugs::Runtime::Perl6Prelude;\n" . 
         "use strict;\n" . 
         "no warnings ('void', 'uninitialized');\n" .   # t/07-try.t, t/07-ref.t
+        # "Pugs::Runtime::Perl6Prelude->import();\n" .   # XXX - is import() needed?
         $perl5 . "\n" .
         "; 1;\n";
 
