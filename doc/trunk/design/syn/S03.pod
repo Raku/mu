@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 12 Jul 2006
+  Last Modified: 14 Jul 2006
   Number: 3
-  Version: 46
+  Version: 47
 
 =head1 Changes to existing operators
 
@@ -158,7 +158,7 @@ operators that are known to return numbers, strings, or booleans.
 
 Operators that imply list operations are excluded: prefix C<@>,
 prefix C<%> and infix C<xx>, for instance.  Hyper operators are
-also excluded, but post-assigment forms such as C<SIMPLE += SIMPLE>
+also excluded, but post-assignment forms such as C<SIMPLE += SIMPLE>
 are allowed.
 
 All other forms imply parsing as a list assignment, which may or may not
@@ -317,22 +317,24 @@ arguments.)
 side for definedness instead of truth. There is a low-precedence form,
 too: C<err>.
 
-=item * Binary C<===> tests type and value correspondence: for two value types,
-tests whether they are the same value (eg. C<1 === 1>); for two reference
-types, checks whether they have the same identity value.  For reference
-types that do not define an identity, the reference itself is used (eg. it
-is not true that C<[1,2] === [1,2]>, but it is true that C<@a === @a>).
+=item * Binary C<===> tests immutable type and value correspondence:
+for two value types (that is, immutable types), tests whether
+they are the same value (eg. C<1 === 1>); for two mutable types
+(object types), checks whether they have the same identity value.
+(For most such types the identity is simply the reference itself.)
+It is not true that C<[1,2] === [1,2]> because those are different
+Array objects, but it is true that C<@a === @a> because those are
+the same Array object).
 
-Any reference type may pretend to be a value type by defining a C<.id> method
-which returns a built-in value, i.e. an immutable object or a native value,
-as specified in S06.
+Any object type may pretend to be a value type by defining a C<.id>
+method which returns a value type that can be recursively compared
+using C<===>, or in cases where that is impractical, by overloading
+C<===> such that the comparison treats values consistently with their
+"eternal" identity.  (Strings are defined as values this way despite
+also being objects.)
 
-Because Perl 6 uses a false C<.id> to signify a non-instantiated prototype,
-all instances should arrange to return a C<.id> that boolifies to true.
-
-A class may also overload C<< infix:<===> >> for more efficient comparison of
-any two objects of that type, but it must return the same result as if
-the two identity values had been generated and compared.
+(Because Perl 6 uses a false C<.id> to signify a non-instantiated prototype,
+all instances should arrange to return a C<.id> that boolifies to true.)
 
 Two values are never equivalent unless they are of exactly the same type.  By
 contrast, C<eq> always coerces to string, while C<==> always coerces to
@@ -342,7 +344,44 @@ means "C<+$a === +$b>.
 Note also that, while string hashes use C<eq> semantics by default,
 object hashes use C<===> semantics.
 
-=item * Binary C<< => >> is no longer just a "fancy comma."  It now
+=item * Binary C<eqv> tests equality much like C<===> does, but does
+so with "snapshot" semantics rather than "eternal" semantics.  For
+top-level components of your value that are of immutable types, C<eqv>
+is identical in behavior to C<===>.  For components of your value
+that are mutable, however, rather than comparing object identity using
+C<===>, the C<eqv> operator tests whether the canonical representation
+of both subvalues would be identical if we took a snapshot of them
+right now and compared those (now-immutable) snapshots using C<===>.
+
+If that's not enough flexibility, there is also an C<eqv()> function
+that can be passed additional information specifying how you want
+canonical values to be generated before comparison.  This gives
+C<eqv()> the same kind of expressive power as a sort signature.
+(And indeed, the C<cmp> operator from Perl 5 also has a functional
+analog, C<cmp()>, that takes additional instructions on how to
+do 3-way comparisons of the kind that a sorting algorithm wants.)
+In particular, a signature passed to C<eqv()> will be bound to the
+two operands in question, and then the comparison will proceed
+on the formal parameters according to the information contained
+in the signature, so you can force numeric, string, natural, or
+other comparisons with proper declarations of the parameter's type
+and traits.  If the signature doesn't match the operands, C<eqv()>
+reverts to standard C<eqv> comparison.  (Likewise for C<cmp()>.)
+
+=item * Binary C<cmp> is no longer the comparison operator that
+forces stringification.  Use the C<leg> operator for the old Perl 5
+C<cmp> semantics.  The C<cmp> is just like the C<eqv> above except that
+instead of returning C<Bool::False> or C<Bool::True> values it always
+returns C<Order::Increase>, C<Order::Same>, or C<Order::Decrease>
+(which numerify to -1, 0, or +1).
+
+=item * the C<leg> operator (less than, equal, or greater) is defined
+in terms of C<cmp>, so C<$a leg $b> is now defined as C<~$a cmp ~$b>.
+The sort operator still defaults to C<cmp> rather than C<leg>.  The
+C<< <=> >> operator's semantics are unchanged except that it returns
+and Order value as described above.
+
+=item * Binary C<< => >> is no longer just a "fancy comma".  It now
 constructs a C<Pair> object that can, among other things, be used to
 pass named arguments to functions.  It provides scalar context to both sides.
 Its precedence is now equivalent to assignment, and it is right associative.
@@ -430,7 +469,7 @@ C<foo.^bar> is short for C<foo.meta.bar>.
 
 =item * Unary C<=> reads lines from a filehandle or filename, or
 iterates an iterator, or in general causes a scalar to explode its guts
-when it would otherwise not.  How it does that is context senstive.
+when it would otherwise not.  How it does that is context sensitive.
 For instance, C<=$iterator> is scalar/list sensitive and will
 produce one value in scalar context but many values in list context.
 (Use C<@$iterator> to force a fetch of all the values even in scalar
@@ -540,6 +579,53 @@ to MMD, or just go directly to MMD.  There are good arguments for
 both sides, and we can decide when we see more examples of how
 it'll work out.
 
+=head1 Meta operators
+
+Perl 6's operators have been greatly regularized, for instance, by
+consistently prefixing bitwise, stringwise, and boolean operators
+with C<+>, C<~> and C<?> respectively to indicate operator type.
+But that's just naming conventions.  In addition to those naming
+conventions, Perl 6 has four standard metaoperators for turning a
+given standard operator into a related but more powerful operator.
+
+Note: spaces are never allowed between any metaoperator and the
+operator it's modifying, because all operators including modified
+ones have to recognized by the Longest-Token Rule, which disallows
+spaces within a token.
+
+=head1 Assignment operators
+
+These are already familiar to C and Perl programmers.  The C<.=> operator
+now means to call a mutating method on object on the left, and C<~=> is
+string concatenation.  Most non-relational infix operators may be turned
+into their corresponding assignment operator by suffixing with C<=>.
+
+=head1 Negated relational operators.
+
+Any infix relational operator may be transformed into its negative
+by prefixing with C<!>.  A few of these have traditional shortcuts:
+
+    Full form	Shortcut
+    ---------	--------
+    !==		!=
+    !eq		ne
+    !~~		!~
+
+but most of them do not:
+
+    !<
+    !>=
+    !ge
+    !===
+    !eqv
+    !=:=
+
+To avoid visual confusion with the C<!!> operator, you may not modify
+any operator already beginning with C<!>.
+
+[Conjecture: we could probably do away with C<!~>, but probably not
+C<!=> or C<ne>.]
+
 =head1 Hyper operators
 
 The Unicode characters C<»> (C<\x[BB]>) and C<«> (C<\x[AB]>) and
@@ -637,12 +723,12 @@ Application-wide analysis of finalizable object types may also enable
 such optimizations to be applied to C<Int>, C<Num>, and such.  In the
 absence of that, run-time analysis of partial MMD dispatch may save
 some MMD searching overhead.  Or particular object arrays might even
-keep track of their own run-time type purity and cache partical MMD
+keep track of their own run-time type purity and cache partial MMD
 dispatch tables when they know they're likely to be used in hyperops.
 
 =head1 Reduction operators
 
-The other metaoperator in Perl 6 is the reduction operator.  Any
+The final metaoperator in Perl 6 is the reduction operator.  Any
 infix operator (except for non-associating operators and assignment
 operators) can be surrounded by square brackets in term position to
 create a list operator that reduces using that operation:
