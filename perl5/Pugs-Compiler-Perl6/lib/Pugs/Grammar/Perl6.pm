@@ -418,10 +418,6 @@ sub perl6_expression {
         { return $_[0]{sub_decl}->();
         }
     |
-    <block>
-        { return $_[0]{block}->();
-        }
-    |
     <if>
         { return $_[0]{if}->();
         }
@@ -447,6 +443,10 @@ sub perl6_expression {
             { return $_[0]{perl6_expression}->();
             } 
         ]
+    |
+    <block>
+        { return $_[0]{block}->();
+        }
 
 ),
     { grammar => __PACKAGE__ }

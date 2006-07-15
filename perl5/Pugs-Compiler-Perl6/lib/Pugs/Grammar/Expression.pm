@@ -71,25 +71,22 @@ sub ast {
             #warn "end of expression at: [",substr($match,0,10),"]";
             return ('', '');
         }
-        #print "still here\n";
-        my $m;
 
         my @expect = $p->YYExpect;  # XXX is this expensive?
         my $expect_term = grep { $_ eq 'NUM' || $_ eq 'BAREWORD' } @expect;
         
-        for ( 1 ) {
-            $m = Pugs::Grammar::BaseCategory->ws( $match );
-            # <ws> is nonstandard in that it returns a hashref instead of a Match
-            # print "match is ",Dumper($m),"\n";
-            if ( $m->{bool} ) {
-                $match = $m->{tail};
-            }
-
-            my $m1 = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
-            my $m2;
-            $m2 = Pugs::Grammar::Term->parse( $match, { p => 1 } )
-                if $expect_term;
-            #warn "m1 = " . Dumper($m1->()) . "m2 = " . Dumper($m2->());
+        my $m = Pugs::Grammar::BaseCategory->ws( $match );
+        # <ws> is nonstandard in that it returns a hashref instead of a Match
+        # print "match is ",Dumper($m),"\n";
+        if ( $m->{bool} ) {
+            $match = $m->{tail};
+        }
+        
+        my $m1 = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
+        my $m2;
+        $m2 = Pugs::Grammar::Term->parse( $match, { p => 1 } )
+            if $expect_term;
+        #warn "m1 = " . Dumper($m1->()) . "m2 = " . Dumper($m2->());
 
         while(1) {
             # term.meth() 
@@ -234,29 +231,25 @@ sub ast {
                 next;
             }
             last;
-        }
+        } # /while
 
-            # longest token
-            if ( $m1 && $m2 ) {
-                if ( length($$m1->{tail}) > length($$m2->{tail}) ) {
-                    $m = $m2
-                }
-                else {
-                    $m = $m1
-                }
+        # longest token
+        $m = undef;
+        if ( $m1 && $m2 ) {
+            if ( length($$m1->{tail}) > length($$m2->{tail}) ) {
+                $m = $m2
             }
             else {
-                $m = $m1 if $m1;
-                $m = $m2 if $m2;
+                $m = $m1
             }
-            last if $m;
-            
-            local $Carp::CarpLevel = 2;
-            carp "unrecognized token '",substr($match,0,10),"'\n"
-                if $match;            
-        } # /for
-            
+        }
+        else {
+            $m = $m1 if $m1;
+            $m = $m2 if $m2;
+        }
         #print Dumper($m);
+        return ('','') unless ref $m;
+        
         my $tail = $$m->{tail};
 
 # <fglock> like: ( name 1, 2 or 3 ) - is it parsed as name(1,2 or 3) or (name(1,2) or 3)

@@ -14,7 +14,8 @@ use constant Inf => 100**100**100;
 use constant NaN => Inf - Inf;
 
 sub perl {
-    local $Data::Dumper::Terse = 1;
+    local $Data::Dumper::Terse    = 1;
+    local $Data::Dumper::Sortkeys = 1;
     return join( ', ', Data::Dumper::Dumper( @_ ) );
 }
 
