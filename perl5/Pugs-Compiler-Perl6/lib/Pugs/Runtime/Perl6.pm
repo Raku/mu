@@ -25,24 +25,24 @@ sub eval {
     my $eval_string;
     Data::Bind::bind_op2(\$eval_string, \$string);
     if ($lang eq 'perl6') {
-	require Pugs::Compiler::Perl6;
-	my $p6 = Pugs::Compiler::Perl6->compile( $string );
-	Data::Bind::bind_op2(\$eval_string, \$p6->{perl5});
+        require Pugs::Compiler::Perl6;
+        my $p6 = Pugs::Compiler::Perl6->compile( $string );
+        Data::Bind::bind_op2(\$eval_string, \$p6->{perl5});
     }
     elsif ($lang ne 'perl5') {
-	die;
+        die;
     }
 
     local $@;
     no warnings;
     my @result;
     if (wantarray) {
-	@result = eval $eval_string;
+        @result = eval $eval_string;
     }
     else {
-	$result[0] = eval $eval_string;
+        $result[0] = eval $eval_string;
     }
-    $::_EXCL__ = $@;
+    $::_V6_ERR_ = $@;
     return wantarray ? @result : $result[0];
 
 }
