@@ -58,7 +58,7 @@ bitwise NOT is like an exclusive-or against solid ones.  Note that C<?^>
 is functionally identical to C<!>.  C<?|> differs from C<||> in that
 C<?|> always returns a standard boolean value (either 1 or 0), whereas
 C<||> return the actual value of the first of its arguments that is
-true.  Bitwise string operators may only be applied to Buf types or
+true.  Bitwise string operators may only be applied to C<Buf> types or
 similar compact integer arrays, and treat the entire chunk of memory
 as a single huge integer.
 
@@ -77,7 +77,7 @@ variant, C<«...»>.
 For those still living without the blessings of Unicode, that can also be
 written: C<<< << ... >> >>>.
 
-=item * The scalar comma C<,> now constructs a List object from its
+=item * The scalar comma C<,> now constructs a C<List> object from its
 operands.  You have to use a C<[-1]> subscript to get the last one.
 
 =item * The backslash operator captures its arguments, and returns an
@@ -86,7 +86,7 @@ in several ways to retrieve different parts of the arguments; see the
 definition of C<Capture> in S02 for details.
 
 =item * The old scalar C<..> flipflop operator is now done with
-C<ff> operator.  (C<..> now always produces a Range object
+C<ff> operator.  (C<..> now always produces a C<Range> object
 even in scalar context.)  The C<ff> operator may take a caret on
 either end to exclude either the beginning or ending.  There is
 also a corresponding C<fff> operator with Perl 5's C<...> semantics.
@@ -323,8 +323,8 @@ they are the same value (eg. C<1 === 1>); for two mutable types
 (object types), checks whether they have the same identity value.
 (For most such types the identity is simply the reference itself.)
 It is not true that C<[1,2] === [1,2]> because those are different
-Array objects, but it is true that C<@a === @a> because those are
-the same Array object).
+C<Array> objects, but it is true that C<@a === @a> because those are
+the same C<Array> object).
 
 Any object type may pretend to be a value type by defining a C<.id>
 method which returns a value type that can be recursively compared
@@ -379,7 +379,7 @@ returns C<Order::Increase>, C<Order::Same>, or C<Order::Decrease>
 in terms of C<cmp>, so C<$a leg $b> is now defined as C<~$a cmp ~$b>.
 The sort operator still defaults to C<cmp> rather than C<leg>.  The
 C<< <=> >> operator's semantics are unchanged except that it returns
-and Order value as described above.
+an C<Order> value as described above.
 
 =item * Binary C<< => >> is no longer just a "fancy comma".  It now
 constructs a C<Pair> object that can, among other things, be used to
@@ -401,7 +401,7 @@ on C<$_>.  (It's not really a unary operator, so we put it in quotes.)
 
 =item * The C<..> range operator has variants with C<^> on either
 end to indicate exclusion of that endpoint from the range.  It always
-produces a Range object.  Range objects are lazy iterators, and can
+produces a C<Range> object.  Range objects are lazy iterators, and can
 be interrogated for their current C<.min> and C<.max> values (which
 change as they are iterated).  Ranges are not autoreversing: C<2..1>
 is always a null range, as is C<1^..^2>.  To reverse a range use:
@@ -590,17 +590,25 @@ given standard operator into a related but more powerful operator.
 
 Note: spaces are never allowed between any metaoperator and the
 operator it's modifying, because all operators including modified
-ones have to recognized by the Longest-Token Rule, which disallows
+ones have to be recognized by the Longest-Token Rule, which disallows
 spaces within a token.
 
-=head1 Assignment operators
+=head2 Assignment operators
 
-These are already familiar to C and Perl programmers.  The C<.=> operator
-now means to call a mutating method on object on the left, and C<~=> is
-string concatenation.  Most non-relational infix operators may be turned
-into their corresponding assignment operator by suffixing with C<=>.
+These are already familiar to C and Perl programmers.  (Though the
+C<.=> operator now means to call a mutating method on the object on
+the left, and C<~=> is string concatenation.)  Most non-relational
+infix operators may be turned into their corresponding assignment
+operator by suffixing with C<=>.  The limitation is actually based
+on whether the left side can function both as an rvalue and an lvalue
+by the usual correspondence:
 
-=head1 Negated relational operators.
+    A op= B;
+    A = A op B;
+
+Existing forms ending in C<=> may not be modified with this metaoperator.
+
+=head2 Negated relational operators.
 
 Any infix relational operator may be transformed into its negative
 by prefixing with C<!>.  A few of these have traditional shortcuts:
@@ -626,7 +634,7 @@ any operator already beginning with C<!>.
 [Conjecture: we could probably do away with C<!~>, but probably not
 C<!=> or C<ne>.]
 
-=head1 Hyper operators
+=head2 Hyper operators
 
 The Unicode characters C<»> (C<\x[BB]>) and C<«> (C<\x[AB]>) and
 their ASCII digraphs C<<< >> >>> and C<<< << >>> are used to denote
@@ -645,7 +653,7 @@ If either argument is insufficiently dimensioned, Perl "upgrades" it:
      (3,8,2,9,3,8) >>-<< 1;          # (2,7,1,8,2,7)
 
 In fact, this is the I<only> form that will work for an unordered type
-such as a Bag:
+such as a C<Bag>:
 
      Bag(3,8,2,9,3,8) >>-<< 1;       # Bag(2,7,1,8,2,7) ~~ Bag(1,2,2,7,7,8)
 
@@ -726,7 +734,7 @@ some MMD searching overhead.  Or particular object arrays might even
 keep track of their own run-time type purity and cache partial MMD
 dispatch tables when they know they're likely to be used in hyperops.
 
-=head1 Reduction operators
+=head2 Reduction operators
 
 The final metaoperator in Perl 6 is the reduction operator.  Any
 infix operator (except for non-associating operators and assignment
@@ -903,7 +911,7 @@ On the plus side, this works without a star:
     $x = [dehash] @args;
 
 A reduce operator returns only a scalar result regardless of context.
-(Even C<[,]> returns a single Capture object which is then spliced
+(Even C<[,]> returns a single C<Capture> object which is then spliced
 into the outer argument list.)  To return all intermediate results,
 backslash the operator:
 
@@ -1118,7 +1126,7 @@ as is this:
     my $args = \(@foo, @bar);    # construct a Capture object
     push [,] @$args;
 
-In list context, a Scalar holding an Array object does not flatten.  Hence
+In list context, a C<Scalar> holding an C<Array> object does not flatten.  Hence
 
     $bar = @bar;
     push @foo, $bar;
