@@ -49,6 +49,24 @@ sub eval {
 
 Data::Bind->sub_signature(\&eval, { var => '$string' }, { var => '$lang', optional => 1});
 
+package Pugs::Runtime::Perl6::IO;
+use base 'IO::Handle';
+
+unless ( defined $::_V6_STDIN ) {
+    $::_V6_STDIN = new Pugs::Runtime::Perl6::IO;
+    unless ($::_V6_STDIN->fdopen(fileno(STDIN),"r")) {
+        warn "Can't open \$*IN";
+    }
+}
+
+sub slurp {
+    my $self = $_[0];
+    my $content;
+    local $/; 
+    $content = <$self>;
+    return bless \$content, 'Pugs::Runtime::Perl6::Scalar';
+}
+
 package Pugs::Runtime::Perl6::Routine;
 use B ();
 use Devel::Caller ();
@@ -88,6 +106,12 @@ sub isa {
     return 1 if $_[1] eq 'Num'  && defined $_[0];
     return 1 if $_[1] eq 'Code' && ref($_[0]) eq 'CODE';
     return 0;
+}
+
+sub eval { 
+    my $s = ${$_[0]};
+    #warn "eval $s\n";
+    Pugs::Runtime::Perl6::eval( [ \$s, \'perl6' ], {} ) 
 }
 
 package Pugs::Runtime::Perl6::Scalar::Alias;
