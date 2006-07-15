@@ -4,6 +4,22 @@ package Pugs::Runtime::Common;
 use strict;
 use warnings;
 
+our %perl6_name = (
+    # perl 5        => # perl 6
+    '%::ENV'        => '%*ENV',  
+    '$^O'           => '$*OS',  
+    '$$'            => '$*PID',  
+    '$0'            => '$*EXECUTABLE_NAME',  
+
+    '__FILE__'      => '$?FILE',
+    
+    '$::_V6_ERR_'   => '$!',
+    '$::_V6_MATCH_' => '$/',
+    '$::_V6_STDIN'  => '$*IN',  
+    '$::_V6_STDOUT' => '$*OUT',  
+);
+our %perl5_name = reverse %perl6_name;
+
 sub mangle_ident {
     my $s = shift;
     Carp::confess unless defined $s;
@@ -14,19 +30,7 @@ sub mangle_ident {
 sub mangle_var {
     my $s = $_[0];
     #warn "mangle: $s";
-    
-    # perl6 => perl5 variables
-    return '%::ENV'    if $s eq '%*ENV';  
-    return '$^O'       if $s eq '$*OS';  
-    return '$$'        if $s eq '$*PID';  
-    return '$0'        if $s eq '$*EXECUTABLE_NAME';  
-
-    return '__FILE__'  if $s eq '$?FILE';
-    
-    # special variables
-    return '$::_V6ERR_'   if $s eq '$!';
-    return '$::_V6MATCH_' if $s eq '$/';
-
+    return $perl5_name{$s} if exists $perl5_name{$s};
     substr($s,1) =~ s/ ([^a-zA-Z0-9_:]) / '_'.ord($1).'_' /xge;
     return $s;
 }
