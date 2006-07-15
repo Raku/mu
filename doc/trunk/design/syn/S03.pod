@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 14 Jul 2006
+  Last Modified: 15 Jul 2006
   Number: 3
-  Version: 47
+  Version: 48
 
 =head1 Changes to existing operators
 
@@ -29,7 +29,8 @@ is faulty. :)
 =item * C<< -> >> becomes C<.>, like the rest of the world uses.
 
 =item * The string concatenation C<.> becomes C<~>.  Think of it as
-"stitching" the two ends of its arguments together.
+"stitching" the two ends of its arguments together.  String append
+is likewise C<~=>.
 
 =item * All postfix operators that do not start with a dot also have
 an alternate form that does.  (The converse does not hold--just because
@@ -50,17 +51,31 @@ As with Perl 5, however, C<$$foo[bar]> parses as C<$($foo)[bar]>,
 so you need C<$($foo[bar])> to mean the other way.
 
 =item * Bitwise operators get a data type prefix: C<+>, C<~>, or C<?>.
-For example, C<|> becomes either C<+|> or C<~|> or C<?|>, depending on
-whether the operands are to be treated as numbers, strings, or boolean
-values.  Left shift C< << > becomes C< +< >, and correspondingly with
-right shift. Unary C<~> becomes either C<+^> or C<~^> or C<?^>, since a
-bitwise NOT is like an exclusive-or against solid ones.  Note that C<?^>
-is functionally identical to C<!>.  C<?|> differs from C<||> in that
-C<?|> always returns a standard boolean value (either 1 or 0), whereas
-C<||> return the actual value of the first of its arguments that is
-true.  Bitwise string operators may only be applied to C<Buf> types or
-similar compact integer arrays, and treat the entire chunk of memory
-as a single huge integer.
+For example, Perl 5's C<|> becomes either C<+|> or C<~|> or C<?|>,
+depending on whether the operands are to be treated as numbers,
+strings, or boolean values.  Perl 5's left shift C< << > becomes
+C< +< >, and correspondingly with right shift. Perl 5's unary C<~>
+(one's complement) becomes either C<+^> or C<~^> or C<?^>, since a
+bitwise NOT is like an exclusive-or against solid ones.  Note that
+C<?^> is functionally identical to C<!>, but conceptually coerces to
+boolean first and then flips the bit.  Please use C<!> instead.
+
+C<?|> is a logical OR but differs from C<||> in that C<?|> always
+evaluates both sides and returns a standard boolean value.  That is,
+it's equivalent to C<< ?$a + ?$b != 0 >>.  Another difference is that
+it has the precedence of an additive operator.
+
+C<?&> is a logical AND but differs from C<&&> in that C<?&> always
+evaluates both sides and returns a standard boolean value.  That is,
+it's equivalent to C<< ?$a * ?$b != 0 >>.  Another difference is that
+it has the precedence of a multiplicative operator.
+
+Bitwise string operators (those starting with C<~>) may only be
+applied to C<Buf> types or similar compact integer arrays, and treat
+the entire chunk of memory as a single huge integer.  They differ from
+the C<+> operators in that the C<+> operators would try to convert
+the string to a number first on the assumption that the string was an
+ASCII representation of a number.
 
 =item * C<x> splits into two operators: C<x> (which concatenates repetitions 
 of a string to produce a single string), and C<xx> (which creates a list of 
@@ -108,7 +123,7 @@ You do still need them on the left for
 
     ($a,$b,$c) = 1,2,3;
 
-since list assignment operators are of assignment precedence to their left.
+since assignment operators are tighter than comma to their left.
 
 =item * The scalar assignment operator still parses as it did before, so
 
@@ -379,7 +394,8 @@ returns C<Order::Increase>, C<Order::Same>, or C<Order::Decrease>
 in terms of C<cmp>, so C<$a leg $b> is now defined as C<~$a cmp ~$b>.
 The sort operator still defaults to C<cmp> rather than C<leg>.  The
 C<< <=> >> operator's semantics are unchanged except that it returns
-an C<Order> value as described above.
+an C<Order> value as described above.  In other words, C<< $a <=> $b >>
+is now equivalent to C<+$a cmp +$b>.
 
 =item * Binary C<< => >> is no longer just a "fancy comma".  It now
 constructs a C<Pair> object that can, among other things, be used to
@@ -393,8 +409,9 @@ of semantics.  Anywhere you used C<=~> before you now use C<~~>, but C<~~>
 is much more general now.  See "Smart matching" below for details.  (To catch
 "brainos", the Perl 6 parser defines an C<< infix:<=~> >> macro which always
 fails at compile time with a message directing the user either to use C<~~>
-or C<~=> instead, or to put a space between if they really wanted to assign
-a stringified value.)
+or C<~=> (string append) instead, or to put a space between if they
+really wanted to assign a stringified value.)  A negated smart match is
+spelled C<!~~>.
 
 =item * "Unary" C<.> calls its single argument (which must a postfix operator)
 on C<$_>.  (It's not really a unary operator, so we put it in quotes.)
@@ -582,11 +599,22 @@ it'll work out.
 =head1 Meta operators
 
 Perl 6's operators have been greatly regularized, for instance, by
-consistently prefixing bitwise, stringwise, and boolean operators
-with C<+>, C<~> and C<?> respectively to indicate operator type.
-But that's just naming conventions.  In addition to those naming
-conventions, Perl 6 has four standard metaoperators for turning a
-given standard operator into a related but more powerful operator.
+consistently prefixing numeric, stringwise, and boolean operators
+with C<+>, C<~> and C<?> respectively to indicate whether the bitwise
+operation is done on a number, a string, or a single bit.
+But that's just a naming convention, and if you wanted to add a new
+bitwise C<¬> operator, you'd have the add the C<+¬>, C<~¬>, and C<?¬>
+operators yourself.  Similarly, the carets that exclude the endpoints
+on ranges are there by convention only.
+
+In contrast to that, Perl 6 has four standard metaoperators for
+turning a given existing operator into a related operator that is
+more powerful (or at least differently powerful).  These differ from a
+mere naming convention in that Perl automatically generates these new
+metaoperators from user-defined operators as well as from builtins.
+In fact, you're not generally supposed to define the individual
+metaoperations--their semantics are supposed to be self-evident by
+the transformation of the base operator.
 
 Note: spaces are never allowed between any metaoperator and the
 operator it's modifying, because all operators including modified
@@ -608,19 +636,23 @@ by the usual correspondence:
 
 Existing forms ending in C<=> may not be modified with this metaoperator.
 
+Regardless of the precedence of the base operator, the precedence
+of any assignment operators is forced to be the same as that of
+ordinary assignment.
+
 =head2 Negated relational operators.
 
 Any infix relational operator may be transformed into its negative
-by prefixing with C<!>.  A few of these have traditional shortcuts:
+by prefixing with C<!>.  A couple of these have traditional shortcuts:
 
     Full form	Shortcut
     ---------	--------
     !==		!=
     !eq		ne
-    !~~		!~
 
 but most of them do not:
 
+    !~~
     !<
     !>=
     !ge
@@ -631,8 +663,7 @@ but most of them do not:
 To avoid visual confusion with the C<!!> operator, you may not modify
 any operator already beginning with C<!>.
 
-[Conjecture: we could probably do away with C<!~>, but probably not
-C<!=> or C<ne>.]
+The precedence of any negated operator is the same as the base operator.
 
 =head2 Hyper operators
 
@@ -644,6 +675,8 @@ allowed on the "pointy" end of each "hyper", but are allowed on the
 blunt end (except for postfix operators, which must still follow postfix
 spacing rules, but do allow for an additional dot before the "hyper").
 
+The precedence of any hyperoperator is the same as its base operator.
+This means that you must parenthesize your lists for most operators.
 For example:
 
      (1,1,2,3,5) »+« (1,2,3,5,8);  # (2,3,5,8,13)
@@ -748,7 +781,8 @@ create a list operator that reduces using that operation:
 As with the all metaoperators, space is not allowed inside.  The whole
 thing parses as a single token.
 
-A reduction operator really is a list operator, and is invoked as one.
+A reduction operator has the same precedence as a list operator.  In fact,
+a reduction operator really is a list operator, and is invoked as one.
 Hence, you can implement a reduction operator in one of two ways.  Either
 you can write an explicit list operator:
 
@@ -855,22 +889,26 @@ Builtin reduce operators return the following identity operations:
     [&]()       # all()
     [|]()       # any()
     [^]()       # one()
-    [!=]()      # Bool::False   (also for 1 arg)
+    [!==]()     # Bool::False   (also for 1 arg)
     [==]()      # Bool::True    (also for 1 arg)
     [<]()       # Bool::True    (also for 1 arg)
     [<=]()      # Bool::True    (also for 1 arg)
     [>]()       # Bool::True    (also for 1 arg)
     [>=]()      # Bool::True    (also for 1 arg)
     [~~]()      # Bool::True    (also for 1 arg)
-    [!~]()      # Bool::False   (also for 1 arg)
+    [!~~]()     # Bool::False   (also for 1 arg)
     [eq]()      # Bool::True    (also for 1 arg)
-    [ne]()      # Bool::False   (also for 1 arg)
+    [!eq]()     # Bool::False   (also for 1 arg)
     [lt]()      # Bool::True    (also for 1 arg)
     [le]()      # Bool::True    (also for 1 arg)
     [gt]()      # Bool::True    (also for 1 arg)
     [ge]()      # Bool::True    (also for 1 arg)
     [=:=]()     # Bool::True    (also for 1 arg)
+    [!=:=]()    # Bool::False    (also for 1 arg)
     [===]()     # Bool::True    (also for 1 arg)
+    [!===]()    # Bool::False    (also for 1 arg)
+    [eqv]()     # Bool::True    (also for 1 arg)
+    [!eqv]()    # Bool::False    (also for 1 arg)
     [&&]()      # Bool::True
     [||]()      # Bool::False
     [^^]()      # Bool::False
@@ -970,6 +1008,22 @@ Junctions are specifically unordered.  So if you say
 
 it indicates to the compiler that there is no coupling between loop
 iterations and they can be run in any order or even in parallel.
+
+Use of negative operators with syntactically recognizable junctions may
+produce a warning on code that works differently in English than in Perl.
+Instead of writing
+
+    if $a != 1 | 2 | 3 {...}
+
+you need to write
+
+    if not $a == 1 | 2 | 3 {...}
+
+However, this is only a syntactic warning, and
+
+    if $a != $b {...}
+
+will not complain if $b happens to contain a junction at runtime.
 
 =head1 Chained comparisons
 
@@ -1194,22 +1248,24 @@ into its scalar value.  The above is equivalent to:
     my \$capture := func();
     push [,] =$capture;
 
-=head1 Piping operators
+=head1 Feed operators
 
 The new operators C<< ==> >> and C<< <== >> are akin to UNIX pipes, but
-work with functions that accept and return lists.  For example,
+work with functions that accept and return lists.  Since these lists are
+composed of discrete objects and not liquids, we call these I<feed> operators
+rather than pipes.  For example,
 
      @result = map { floor($^x / 2) },
                  grep { /^ \d+ $/ },
                    @data;
 
-can also now be written:
+can also now be written with rightward feeds as:
 
      @data ==> grep { /^ \d+ $/ }
            ==> map { floor($^x / 2) }
            ==> @result;
 
-or:
+or with leftward feeds as:
 
      @result <== map { floor($^x / 2) }
              <== grep { /^ \d+ $/ }
@@ -1320,28 +1376,46 @@ operators by explicitly using the I<long dot> syntax (see S02):
 
 Perl 6 has 22 precedence levels (which is fewer than Perl 5):
 
-    terms               42 3.14 "eek" $x /abc/ (1+2) a(1) :by(2) .meth listop
-    method postfix      . .+ .? .* .() .[] .{} .<> .«» .:: .=
+    terms               42 3.14 "eek" qq["foo"] [1,2,3] {...} \(@a,$b,%c)
+			    $x @y %z /abc/ MyType @@multidim $^a
+			    (1+2) a(1) :by(2) :!verbose :(Dog $self:)
+			    .meth with implicit invocant
+			    listops leftward
+    method postfix      .meth .+ .? .* .() .[] .{} .<> .«» .:: .= .^
     autoincrement       ++ --
     exponentiation      **
     symbolic unary      ! + - ~ ? $ @ % & +^ ~^ ?^ \ ^ =
-    multiplicative      * / % x xx +& +< +> ~& ~< ~>
-    additive            + - ~ +| +^ ~| ~^
+    multiplicative      * / % x xx +& +< +> ~& ~< ~> ?&
+    additive            + - ~ +| +^ ~| ~^ ?| ?^
     junctive and (all)  &
     junctive or (any)   | ^
     named unary         rand sleep abs etc. -e -r -w -x etc.
-    nonchaining binary  but does cmp <=> .. ^.. ..^ ^..^ ff ^ff ff^ ^ff^ fff ^fff etc.
-    chaining binary     != == < <= > >= ~~ !~ eq ne lt le gt ge =:= ===
+    nonchaining binary  but does <=> leg cmp
+			    .. ^.. ..^ ^..^
+			    ff ^ff ff^ ^ff^
+			    fff ^fff fff^ ^fff^
+    chaining binary     != == < <= > >=
+			    eq ne lt le gt ge
+			    ~~ =:= === eqv
+			    !== !~~ !eq !=:= !=== !eqv etc.
     tight and           &&
     tight or            || ^^ //
     ternary             ?? !!
-    assignment          => := ::= += -= **= xx= .= etc. (also = with simple lvalues)
+    assignment          := ::= =>
+			    (also = with simple lvalues)
+			    += -= **= xx= .= etc.
     loose unary         true not
-    list ops            , print push any all '...' etc. (also list assignment)
+    list ops            , print push say join split substr open etc.
+			    any all one none
+			    die fail warn
+			    !!! ...  ???
+			    [+] [*] [<] [,] [\+] [\*] etc.
+			    (also = as list assignment)
     list infix          ¥ <== ==>
     loose and           and
     loose or            or xor err
     expr terminator     ; {} as control block, statement modifiers
+			    unmatched ), ], }, etc.
 
 Comma is the only listop that is allowed to occur where an operator is
 expected.  All other listops function as a term within the list to the left.
