@@ -111,12 +111,12 @@ sub _emit {
         unless ref( $n ) eq 'HASH';
 
 
-    return join ( ";\n", 
+    if (exists $n->{statements}) {
+	my $statements = join ( ";\n", 
             map { defined $_ ? _emit( $_ ) : "" } @{$n->{statements}} 
-        ) ||
-        " # empty block\n"
-        if exists $n->{statements};
-    
+        );
+	return length $statements ? $statements : " # empty block\n";
+    }
 
     return Pugs::Runtime::Common::mangle_ident( $n->{bareword} )
         if exists $n->{bareword};
@@ -902,6 +902,14 @@ sub postcircumfix {
         my $name = _emit( $n->{exp1} );
         $name =~ s/^\%/\$/;
         return $name . '{ \'' . $n->{exp2}{angle_quoted} . '\' }';
+    }
+
+    if ( $n->{op1}{op} eq '{' &&
+         $n->{op2}{op} eq '}' ) {
+        my $name = _emit( $n->{exp1} );
+	die unless $name =~ m/^\%/;
+        $name =~ s/^\%/\$/;
+        return $name . '{ \'' . _emit($n->{exp2}) . '\' }';
     }
 
     return _not_implemented( $n, "postcircumfix" );
