@@ -6,7 +6,7 @@ download a binary build from http://haskell.org/ghc/.  Although source code
 for GHC is available, it will take a very long time to build by yourself. 
 Additionally, the Cabal framework is needed, see <http://haskell.org/cabal/>.
 
-Pugs needs Parrot 0.4.5 or above to support Perl 6 Rules and PIR evaluation.
+Pugs needs Parrot 0.4.6 or above to support Perl 6 Rules and PIR evaluation.
 To install Parrot, follow the instructions at http://www.parrotcode.org/.
 
 v6-pugs (see <http://perlmonks.org/?node_id=559083>) needs the CPAN modules
@@ -152,7 +152,7 @@ Perl5-style regular expressions (eg, rx:Perl5/foo/) can be used
 without any parrot at all.  Pugs can be built to use parrot external
 (the default), or embedded.  External is recommended.
 
-Embedding parrot currently requires a parrot version 0.4.5 or later.
+Embedding parrot currently requires a parrot version 0.4.6 or later.
 Recent copies of parrot can be obtained from http://www.parrotcode.org/.
 
 CAVEATS FOR Win32 USERS
