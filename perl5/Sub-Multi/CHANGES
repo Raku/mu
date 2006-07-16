@@ -1,3 +1,6 @@
+[Changes for 0.002 - 16 Jul, 2006]
+  - Same as 0.001_2, except removed an underscore now v6.pm depends on us.
+
 [Changes for 0.001_2 - 10 Jul, 2006]
   - Added add_multi method 
   - Improved documentation (Mark Stosberg)
