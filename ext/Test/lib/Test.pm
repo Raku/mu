@@ -17,8 +17,9 @@ $Test::num_of_tests_failed = 0;
 $Test::num_of_tests_badpass = 0;
 $Test::num_of_tests_planned;
 
-# a Junction to hold our FORCE_TODO tests
-$Test::force_todo_test_junction;
+# a Junction to hold our FORCE_TODO tests.  It's actually a string so
+# Test.pm doesn't require back to implement Junction.
+$Test::force_todo_test_junction = '';
 
 # for running the test suite multiple times in the same process
 $Test::testing_started = 1;
