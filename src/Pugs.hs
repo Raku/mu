@@ -252,9 +252,7 @@ doExecuteHelper helper args = do
         , ["perl5", "Pugs-Compiler-Perl6", "lib"]
                                    --  $sourcedir/perl5/Pugs-Compiler-Perl6/v6.pm
         , ["perl5", "PIL2JS"]      --  $sourcedir/perl5/PIL2JS/jspugs.pl
-        , ["perl5", "PIL-Run"]     --  $sourcedir/perl5/PIL-Run/pugs-p5.pl
         , ["perl5", "lib"]         --  $pugslibdir/perl5/lib/jspugs.pl
-        , ["perl5", "lib", "PIL"]  --  $pugslibdir/perl5/PIL/pugs-p5.pl
         ]
     perl5 = getConfig "perl5path"
     findHelper :: [[FilePath]] -> IO (Maybe FilePath)
