@@ -64,7 +64,7 @@ sub validate_params {
 
   uncompress_smoke();
   unless($CGI->param("smoke") =~ /^<!DOCTYPE html/) {
-    print "The submitted smoke does not look like a smoke!";
+    print "The submitted smoke does not look like a smoke (it doesn't begin with /^<!DOCTYPE html/!";
     exit;
   }
 }
@@ -108,8 +108,12 @@ sub add_smoke {
     unexpect => $6,
   };
 
-  if(grep { not $smoke{$_} } qw<pugs_version osname duration summary runcore>) {
-    print "The submitted smoke has an invalid format!";
+  my @req_fields = qw< pugs_version osname duration summary runcore >;
+  if(my @missing_fields = grep { not $smoke{$_} } @req_fields) {
+    print <<EOF;
+The submitted smoke has an invalid format:
+Not all of the required fields (@missing_fields) exist.
+EOF
     exit;
   }
 
@@ -252,6 +256,10 @@ sub pugspath2runcore {
   /PIL2JS/i  and return "pil2js";
   /PIL-RUN/i and return "pilrun";
   /PIR/i     and return "pir";
+
+  # v6.pm smoke: "pugs-path: perl"
+  /^perl$/   and return "perl5";
+
   return "normal";
 }
 
@@ -262,6 +270,7 @@ sub runcore2human {
   $_ eq "pil2js" and return "PIL2JS (Perl 6 on JavaScript)";
   $_ eq "pilrun" and return "PIL-Run (Perl 6 on Perl 5)";
   $_ eq "pir"    and return "PIR (Perl 6 on Parrot)";
+  $_ eq "perl5"  and return "v6.pm (Perl 6 on Perl 5)";
   $_ eq "normal" and return "Normal runcore (Perl 6 on Haskell)";
   die;
 }
