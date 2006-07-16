@@ -495,9 +495,6 @@ sub default {
             " print " . '"\n" } '
             if $n->{sub}{bareword} eq 'say';
 
-        # TODO - other builtins
-        return " (defined " . _emit( $n->{param} ) . ")"
-            if $n->{sub}{bareword} eq 'defined';
             
         # XXX: handle args
         return "Pugs::Runtime::Perl6::Routine->new(Devel::Caller::caller_cv(1))"
@@ -508,9 +505,16 @@ sub default {
             if $n->{sub}{bareword} eq 'fail';
             
 
-	# XXX: builtins
-	my $subname = $n->{sub}{bareword};
-	if ($subname eq 'defined' || $subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'shift' || $subname eq 'join' || $subname eq 'index' || $subname eq 'undef' || $subname eq 'rand' || $subname eq 'int') {
+        # TODO - other builtins
+        my $subname = $n->{sub}{bareword};
+        if ($subname eq 'defined') {
+            my $param = _emit( $n->{param} );
+            # when testing defined-ness of $!, it is testing the emptiness of $@ in perl5.
+            return " length(\$@) " if $param eq '$::_V6_ERR_';
+            return " (defined $param )";
+        }
+
+	if ($subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'shift' || $subname eq 'join' || $subname eq 'index' || $subname eq 'undef' || $subname eq 'rand' || $subname eq 'int') {
 	    return $subname . '(' . _emit( $n->{param} ) . ')';
 	}
 
