@@ -1,5 +1,6 @@
 package Sub::Multi;
 our $VERSION = '0.002';
+use 5.008;
 use base 'Class::Multimethods::Pure';
 use Data::Bind 0.27;
 
