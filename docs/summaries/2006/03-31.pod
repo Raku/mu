@@ -288,7 +288,7 @@ DYLD_LIBRARY_PATH needed to be set.  This led to some discussion on the
 best way to do this.  Eventually the problem resolved itself and Will
 closed the ticket.
 
-=head3 L<t/op/trans.t failure on OpenBSD|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/f0304137d88751b6/b4981c20db1b1cfc#b4981c20db1b1cfc>
+=head3 L<trans.t failure on OpenBSD|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/f0304137d88751b6/b4981c20db1b1cfc#b4981c20db1b1cfc>
 
 In L<[perl #34549]|https://rt.perl.org/rt3/Ticket/Display.html?id=34549>,
 Steve Peters noted a test failure in F<t/op/trans.t> on OpenBSD.  Patches
@@ -303,13 +303,13 @@ L<[perl #38788]|https://rt.perl.org/rt3/Ticket/Display.html?id=38788>
 
 Will Coleda added a patch to promote UTF-8 encoded grammar rules.
 
-=head3 L<compilers/pge/rulec.pir should report line numbers on failure|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/c2d87b94b0d3cb6e/227f82dba2f64f16#227f82dba2f64f16>
+=head3 L<rulec.pir should report line numbers on failure|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/c2d87b94b0d3cb6e/227f82dba2f64f16#227f82dba2f64f16>
 
 Will Coleda created a todo request
 (L<[perl #38794]|https://rt.perl.org/rt3/Ticket/Display.html?id=38794>)
 for better error reporting.
 
-=head3 L<imcc/parser_util.c memory overrun|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/b1b6c95c4f4cd6c9/dee23eb3ea757200#dee23eb3ea757200>
+=head3 L<parser_util.c memory overrun|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/b1b6c95c4f4cd6c9/dee23eb3ea757200#dee23eb3ea757200>
 
 Andy Dougherty supplied a patch 
 (L<[perl #38784]|https://rt.perl.org/rt3/Ticket/Display.html?id=38784>) to
@@ -348,7 +348,7 @@ Patrick R. Michaud elaborated on the strange results he encounters on his
 x86_64 system and included example output from r12014.  After some input,
 it was determined that it was a GC bug.
 
-=head3 L<Allow passing "todo =|http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/2802e30dcd6396ff/83e6e318c564fe9c#83e6e318c564fe9c> $reason" to Parrot::Test::example_output_( is|like|isnt)>
+=head3 L<Allow passing "todo = $reason" to Parrot::Test::example_output_is, like, isnt |http://groups.google.com/group/perl.perl6.internals/browse_frm/thread/2802e30dcd6396ff/83e6e318c564fe9c#83e6e318c564fe9c>
 
 Bernhard Schmalhofer reported a bug with
 L<[perl #38760]|https://rt.perl.org/rt3/Ticket/Display.html?id=38760>.
