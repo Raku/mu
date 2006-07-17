@@ -43,11 +43,11 @@ sub alternation {
     my $nodes = shift;
     return sub {
         my @state = $_[1] ? @{$_[1]} : ( 0, 0 );
-        $_[3] = bless \{ bool => \0 }, 'Pugs::Runtime::Match::Ratchet';
+        $_[3] = Pugs::Runtime::Match::Ratchet->new( { bool => \0 } );
         while ( $state[0] <= $#$nodes ) {
             $state[1] = $nodes->[ $state[0] ]->( $_[0], $state[1], @_[2,3,4,5,6,7] );
             $state[0]++ unless $state[1];
-            last if $_[3] || ${$_[3]}->{abort};
+            last if $_[3] || $_[3]->data->{abort};
         }
         return unless $_[3];
         return \@state;
@@ -60,29 +60,32 @@ sub concat {
     return sub {
         my @state = $_[1] ? @{$_[1]} : ();
         do {
+            print __PACKAGE_."::concat: [0] \n";
+
             my $st = $nodes->[0]->( $_[0], $state[0], @_[2,3,4,5,6,7] );
-            return if ! $_[3] || ${$_[3]}->{abort};
+            return if ! $_[3] || $_[3]->data->{abort};
             
+            print __PACKAGE_."::concat: [1] ", Dumper( $_[3] );
             
             $_[3] = { match => [ $_[3] ] };
-            $state[1] = $nodes->[1]->( $_[0], $state[1], $_[2], $_[3]->{match}[1], 
-                         $_[4], $_[3]->{match}[0]->to, @_[6,7] );
+            $state[1] = $nodes->[1]->( $_[0], $state[1], $_[2], $_[3]{match}[1], 
+                         $_[4], $_[3]{match}[0]->to, @_[6,7] );
             $state[0] = $st unless $state[1];
             
-            
-        } while !   $_[3]->{match}[1] && 
-                ! ${$_[3]->{match}[1]}->{abort} &&
+            print __PACKAGE_."::concat: [2] ", Dumper( $_[3] );
+        } while ! $_[3]{match}[1] && 
+                ! $_[3]{match}[1]->data->{abort} &&
                 $state[0]; 
-        $_[3] = bless \{
+        $_[3] = Pugs::Runtime::Match::Ratchet->new( {
                 bool  => \$_[3]{match}[1]->bool,
                 str   => \$_[0],
                 from  => \$_[3]{match}[0]->from,
                 to    => \$_[3]{match}[1]->to,
                 named => { %{$_[3]{match}[0]}, %{$_[3]{match}[1]} },
                 match => [ @{$_[3]{match}[0]}, @{$_[3]{match}[1]} ],
-                capture => ${$_[3]{match}[1]}->{capture},
-                abort   => ${$_[3]{match}[1]}->{abort},
-        }, 'Pugs::Runtime::Match::Ratchet';
+                capture => ${$_[3]{match}[1]}{capture},
+                abort   => ${$_[3]{match}[1]}{abort},
+        } );
         return \@state;
     }
 }
