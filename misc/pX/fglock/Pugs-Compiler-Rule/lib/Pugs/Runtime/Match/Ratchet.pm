@@ -63,6 +63,42 @@ __END__
 
 Pugs::Runtime::Match::Ratchet - Match object created by :ratchet rules
 
+=head1 METHODS
+
+* array
+
+* hash
+
+* str
+
+* data
+
+- return the internal representation
+
+* bool
+
+* from
+
+* to
+
+=head1 OVERLOADS
+
+* $match->()
+
+- return the capture
+
+* $match->[$n]
+
+- return the positional matches
+
+* $match->{$n}
+
+- return the named matches
+
+* $match ? 1 : 0
+
+- return whether there was a match
+
 =head1 SEE ALSO
 
 Pugs::Runtime::Match

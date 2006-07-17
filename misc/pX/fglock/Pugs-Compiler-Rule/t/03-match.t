@@ -8,7 +8,7 @@ use_ok( 'Pugs::Compiler::Regex' );
     my $rule = Pugs::Compiler::Regex->compile( '.' );
     print $rule->{perl5};
     my $match = $rule->match( "xyzw" );
-    print "match: ", Dumper $match;
+    print "match: ", Dumper $match->data;
     is( "$match", "x", 'stringify 1' );
 }
 
