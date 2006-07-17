@@ -119,6 +119,7 @@ RESTART:
         my $perl5 = Perl6Grammar::compile( $source,{
 		print_ast => $interface::print_ast,
 		print_program => $interface::print_program,
+		output_program => $interface::output_program,
 		print_match => $interface::print_match
 	}); 
     }
@@ -174,17 +175,24 @@ sub compile {
     }
     my $program = emit( $match->{capture} );
     
-    if ($flags->{print_program}) {
+    if ($flags->{print_program} || $flags->{output_program}) {
         my $sum = sprintf('%08X', unpack('%32N*', $_[0]));
-        print "# Generated file - do not edit!\n";
-        print << "...";
+        my $output = "# Generated file - do not edit!\n";
+        $output .= << "...";
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, \$/); (\$F = __FILE__) =~ s!c\$!!; open(F)
 or die "Cannot open \$F: \$!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
 == 0x$sum or die "Checksum failed for outdated .pmc file: \${F}c"}
 #####################################################################
 ...
-        print $program;
+        if ($flags->{print_program}) {
+                print $output;
+		print $program;
+        } else {
+                open my $outfile, ">", $flags->{output_program} || die $!;
+                print $outfile $output;
+                print $outfile $program;
+        }
     }
     return $program;
 
