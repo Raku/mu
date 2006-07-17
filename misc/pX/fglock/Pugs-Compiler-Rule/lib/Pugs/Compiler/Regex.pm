@@ -6,7 +6,7 @@ use 5.006;
 use strict;
 use warnings;
 
-use Pugs::Grammar::Base;  # not 'use base'
+use Pugs::Grammar::RegexBase;  # not 'use base'
 use Pugs::Grammar::Rule;
 #use Pugs::Runtime::Rule;
 use Pugs::Runtime::Match;
@@ -47,7 +47,7 @@ sub compile {
 
     # XXX - should use user's lexical pad instead of an explicit grammar?
     $self->{grammar}  = delete $param->{grammar}  || 
-                        'Pugs::Grammar::Base';
+                        'Pugs::Grammar::RegexBase';
     $self->{ratchet}  = delete $param->{ratchet}  || 
                         0;
     $self->{p}        = delete $param->{pos}      ||
@@ -109,7 +109,7 @@ sub code {
 sub match {
     my ( $rule, $str, $grammar, $flags, $state ) = @_; 
     
-    return Pugs::Runtime::Match->new( { bool => 0 } )
+    return Pugs::Runtime::Match::Ratchet->new( { bool => \0 } )
         unless defined $str;   # XXX - fix?
         
     $grammar ||= $rule->{grammar};
@@ -120,7 +120,8 @@ sub match {
             ? $flags->{p} 
             : $rule->{p};
 
-    if ( defined $p ) {
+    # if ( defined $p ) 
+    {
         #print "flag p";
         #print "match: grammar $rule->{grammar}, $str, %$flags\n";
         #print $rule->{code};
@@ -144,10 +145,11 @@ sub match {
             \%args,
         );
         #$p = 0 if $p eq 'undef';  # XXX - bug - 'undef' as string in t\06-subrule.t
-        eval { $$match->{from} = \(0 + $p) };   # XXX
+        # eval { $$match->{from} = \(0 + $p) };   # XXX
         return $match;  
     }
 
+    # XXX - unused!!!
     foreach my $i (0..length($str)) {
         my $match = $rule->{code}( 
             $grammar,
@@ -155,11 +157,12 @@ sub match {
             $state,
             $flags->{args},
         );
+        print "Regex: match: ",Dumper $match;
         $match or next;   
         eval { $$match->{from} = $i unless defined $$match->{from} };   # XXX
         return $match;  
     }
-    return Pugs::Runtime::Match->new( { bool => 0 } );   # XXX - fix?
+    return Pugs::Runtime::Match::Ratchet->new( { bool => \0 } );   # XXX - fix?
 }
 
 sub install {
