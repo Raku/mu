@@ -348,6 +348,10 @@ sub recompile {
                 ]            
 
             |
+                <Pugs::Grammar::Perl6.sub_decl>
+                    { return $_[0]{'Pugs::Grammar::Perl6.sub_decl'}->();
+                    }
+            |
                 ### perl5:Test::More
                 perl5 \: <Pugs::Grammar::Term.bare_ident> 
                 { return { 
