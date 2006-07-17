@@ -17,8 +17,8 @@ is( $Test.ref, ::Test::Builder, 'new() should return a Test::Builder object' );
 
 my $custom_plan = Test::Builder::TestPlan.new();
 my $Test3       = Test::Builder.create( plan => $custom_plan );
-isnt( $Test3.id, $Test.id, 'create() should return non-singleton object' );
-is( $Test3.testplan.id, $custom_plan.id, '... allowing plan setting' );
+isnt( $Test3.valid, $Test.valid, 'create() should return non-singleton object' );
+is( $Test3.testplan.valid, $custom_plan.valid, '... allowing plan setting' );
 
 # now launch an external process to test DESTROY() the smart way
 

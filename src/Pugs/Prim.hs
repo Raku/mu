@@ -100,7 +100,7 @@ op0 other = const $ fail ("Unimplemented listOp: " ++ other)
 -- |Implementation of unary primitive operators and functions
 op1 :: String -> Val -> Eval Val
 op1 "!"    = op1Cast (VBool . not)
-op1 "id" = \x -> do
+op1 "valid" = \x -> do
     val <- fromVal x
     case val of
         VObject o   -> return . castV . unObjectId $ objId o
@@ -1868,7 +1868,7 @@ initSyms = mapM primDecl syms
 \\n   Class     pre     Object::meta    safe   (Object)\
 \\n   Str       pre     Class::name    safe   (Class)\
 \\n   Hash      pre     Class::traits  safe   (Class)\
-\\n   Object    pre     id      safe   (Any)\
+\\n   Object    pre     valid      safe   (Any)\
 \\n   Int       pre     Rat::numerator   safe   (Rat:)\
 \\n   Int       pre     Rat::denominator safe   (Rat:)\
 \\n   Bool      pre     Thread::yield   safe   (Thread)\
