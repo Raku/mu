@@ -70,7 +70,7 @@ sub alternation {
             ### alternation string to match: "$tail - (node,state)=@$state"
             $match = 
                 $nodes->[ $state->[0] ]->( $tail, $state->[1], $_[2], $_[3]{match}, @_[4,5,6,7] );
-            $match = $$match if ref($match) eq 'Pugs::Runtime::Match';
+            $match = $match->data if ref($match) eq 'Pugs::Runtime::Match';
             ### match: $match
             if ( $match->{state} ) {
                 $state->[1] = $match->{state};
@@ -106,7 +106,7 @@ sub concat {
         while (1) {
             
             $matches[0] = $nodes[0]->( $tail, $state[0], $_[2], $_[3]{match}[0], @_[4,5,6,7] );
-            $matches[0] = ${$matches[0]} if ref($matches[0]) eq 'Pugs::Runtime::Match';
+            $matches[0] = $matches[0]->data if ref($matches[0]) eq 'Pugs::Runtime::Match';
             ### 1st match: $matches[0]
             return $_[3] = $matches[0] 
                 if $matches[0]{abort};
@@ -120,7 +120,7 @@ sub concat {
             #print "Matched concat 0, tree:", Dumper($_[2]);
 
             $matches[1] = $nodes[1]->( $matches[0]{tail}, $state[1], $_[2], $_[3]{match}[1], @_[4,5,6,7] );
-            $matches[1] = ${$matches[1]} if ref($matches[1]) eq 'Pugs::Runtime::Match';
+            $matches[1] = $matches[1]->data if ref($matches[1]) eq 'Pugs::Runtime::Match';
             ### 2nd match: $matches[1]
             if ( ! $matches[1]{abort} ) {
                 # die "not implemented";
@@ -224,7 +224,7 @@ sub capture {
     sub {
         $_[3] = { label => $label };
         my $match = $node->( @_[0,1,2], $_[3]{match}, @_[4,5,6,7] );
-        $match = $$match if ref($match) eq 'Pugs::Runtime::Match';
+        $match = $match->data if ref($match) eq 'Pugs::Runtime::Match';
         return unless $match->{bool};
         ## return if $match->{abort}; - maybe a { return }
         my $new_match = { %$match };
@@ -388,7 +388,7 @@ sub non_greedy_plus {
 # - creates a 'capture', unless it detects a 'return block'
 sub rule_wrapper {
     my ( $str, $match ) = @_;
-    $match = $$match if ref($match) eq 'Pugs::Runtime::Match';
+    $match = $match->data if ref($match) eq 'Pugs::Runtime::Match';
     return unless $match->{bool};
     if ( $match->{return} ) {
         #warn 'pre-return: ', Dumper( $match );
@@ -449,7 +449,7 @@ sub _preprocess_hash {
             #print $h->code;
             my $match = $h->match( $_[0], $_[4], { p => 1 } );
             #print "match: ",$match->(),"\n";
-            return $_[3] = $$match;
+            return $_[3] = $match->data;
         };
     }
     # fail is number != 1 

@@ -140,7 +140,7 @@ sub match {
             \%args,
         );
         #$p = 0 if $p eq 'undef';  # XXX - bug - 'undef' as string in t\06-subrule.t
-        eval { $$match->{from} = \(0 + $p) };   # XXX
+        eval { $match->data->{from} = \(0 + $p) };   # XXX
         return $match;  
     }
 
@@ -152,7 +152,7 @@ sub match {
             $flags->{args},
         );
         $match or next;   
-        eval { $$match->{from} = $i unless defined $$match->{from} };   # XXX
+        eval { $match->data->{from} = $i unless defined $match->data->{from} };   # XXX
         return $match;  
     }
     return Pugs::Runtime::Match->new( { bool => 0 } );   # XXX - fix?
