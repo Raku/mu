@@ -1,18 +1,18 @@
-package Pugs::Compiler::Regex;
+package Pugs::Bootstrap::Compiler::Regex;
 
-# Version in Pugs::Compiler::Rule
+# Version in Pugs::Bootstrap::Compiler::Rule
 # Documentation in the __END__
 use 5.006;
 use strict;
 use warnings;
 
-use Pugs::Grammar::Base;  # not 'use base'
-use Pugs::Grammar::Rule;
-#use Pugs::Runtime::Rule;
-use Pugs::Runtime::Match;
-use Pugs::Emitter::Rule::Perl5;
-use Pugs::Emitter::Rule::Perl5::Ratchet;
-use Pugs::Compiler::RegexPerl5;
+use Pugs::Bootstrap::Grammar::Base;  # not 'use base'
+use Pugs::Bootstrap::Grammar::Rule;
+#use Pugs::Bootstrap::Runtime::Rule;
+use Pugs::Bootstrap::Runtime::Match;
+use Pugs::Bootstrap::Emitter::Rule::Perl5;
+use Pugs::Bootstrap::Emitter::Rule::Perl5::Ratchet;
+use Pugs::Bootstrap::Compiler::RegexPerl5;
 
 use Carp 'croak';
 use Data::Dumper;
@@ -22,7 +22,7 @@ use Digest::MD5 'md5_hex';
 my $cache;
 eval {
     require Cache::FileCache;
-    $cache = new Cache::FileCache( { 'namespace' => 'v6-rules' } );
+    $cache = new Cache::FileCache( { 'namespace' => 'v6-bootstrap' } );
 };
 
 sub new { $_[0] }
@@ -35,7 +35,7 @@ sub compile {
 
     my ( $class, $rule_source, $param ) = @_;
 
-    return Pugs::Compiler::RegexPerl5->compile( $rule_source, $param )
+    return Pugs::Bootstrap::Compiler::RegexPerl5->compile( $rule_source, $param )
         if exists $param->{P5} || exists $param->{Perl5};
 #warn length($rule_source);
 
@@ -45,7 +45,7 @@ sub compile {
 
     # XXX - should use user's lexical pad instead of an explicit grammar?
     $self->{grammar}  = delete $param->{grammar}  || 
-                        'Pugs::Grammar::Base';
+                        'Pugs::Bootstrap::Grammar::Base';
     $self->{ratchet}  = delete $param->{ratchet}  || 
                         0;
     $self->{p}        = delete $param->{pos}      ||
@@ -67,17 +67,17 @@ sub compile {
     else {
 
         #print 'rule source: ', $self->{source}, "\n";
-        $self->{ast} = Pugs::Grammar::Rule->rule( 
+        $self->{ast} = Pugs::Bootstrap::Grammar::Rule->rule( 
             $self->{source} );
         die "Error in rule: '$rule_source' at: '$self->{ast}{tail}'\n" if $self->{ast}{tail};
         #print 'rule ast: ', do{use Data::Dumper; Dumper($self->{ast}{capture})};
 
         if ( $self->{ratchet} ) {
-            $self->{perl5} = Pugs::Emitter::Rule::Perl5::Ratchet::emit( 
+            $self->{perl5} = Pugs::Bootstrap::Emitter::Rule::Perl5::Ratchet::emit( 
                  $self->{grammar}, $self->{ast}{capture}, $self );
         }
         else {
-            $self->{perl5} = Pugs::Emitter::Rule::Perl5::emit( 
+            $self->{perl5} = Pugs::Bootstrap::Emitter::Rule::Perl5::emit( 
                 $self->{grammar}, $self->{ast}{capture}, $self );
         }
         #print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
@@ -105,7 +105,7 @@ sub code {
 sub match {
     my ( $rule, $str, $grammar, $flags, $state ) = @_; 
     
-    return Pugs::Runtime::Match->new( { bool => 0 } )
+    return Pugs::Bootstrap::Runtime::Match->new( { bool => 0 } )
         unless defined $str;   # XXX - fix?
         
     $grammar ||= $rule->{grammar};
@@ -155,7 +155,7 @@ sub match {
         eval { $$match->{from} = $i unless defined $$match->{from} };   # XXX
         return $match;  
     }
-    return Pugs::Runtime::Match->new( { bool => 0 } );   # XXX - fix?
+    return Pugs::Bootstrap::Runtime::Match->new( { bool => 0 } );   # XXX - fix?
 }
 
 sub install {
@@ -196,12 +196,12 @@ __END__
 
 =head1 NAME 
 
-Pugs::Compiler::Regex - Compiler for Perl 6 Regex
+Pugs::Bootstrap::Compiler::Regex - Compiler for Perl 6 Regex
 
 =head1 DESCRIPTION
 
 This module provides an implementation for Perl 6 Regex.
-See L<Pugs::Compiler::Rule> for documentation.
+See L<Pugs::Bootstrap::Compiler::Rule> for documentation.
 
 =head1 AUTHORS
 

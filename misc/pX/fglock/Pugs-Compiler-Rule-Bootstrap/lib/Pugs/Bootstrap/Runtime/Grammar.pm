@@ -1,11 +1,11 @@
 
-package Pugs::Runtime::Grammar;
+package Pugs::Bootstrap::Runtime::Grammar;
 
 use strict;
 use warnings;
 use metaclass;
 
-use Pugs::Compiler::Rule;
+use Pugs::Bootstrap::Compiler::Rule;
 
 our $VERSION ='0.01';
 
@@ -34,7 +34,7 @@ sub new {
 sub add_rule {
 	my ($self, $rule_name, $rule) = @_;
 	# try to compile the rule first ...
-	my $compiled_rule = eval { Pugs::Compiler::Rule->compile( $rule ) };
+	my $compiled_rule = eval { Pugs::Bootstrap::Compiler::Rule->compile( $rule ) };
 	die "Could not compile rule ($rule_name) because : $@" if $@;
 	
 	# add the compiled rule to our local stash
@@ -51,11 +51,11 @@ __END__
 
 =head1 NAME 
 
-Pugs::Runtime::Grammar
+Pugs::Bootstrap::Runtime::Grammar
 
 =head1 SYNOPSIS
 
-  my $grammar = Pugs::Runtime::Grammar->new('Foo');
+  my $grammar = Pugs::Bootstrap::Runtime::Grammar->new('Foo');
   
   $grammar->add_rule(bar => '((.).).');
   # or

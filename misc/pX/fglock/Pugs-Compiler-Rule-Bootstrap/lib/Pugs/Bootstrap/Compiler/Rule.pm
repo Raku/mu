@@ -1,12 +1,12 @@
-package Pugs::Compiler::Rule;
-$Pugs::Compiler::Rule::VERSION = '0.11';
+package Pugs::Bootstrap::Compiler::Rule;
+$Pugs::Bootstrap::Compiler::Rule::VERSION = '0.11';
 
 # Documentation in the __END__
 use 5.006;
 use strict;
 use warnings;
 
-use base 'Pugs::Compiler::Regex';
+use base 'Pugs::Bootstrap::Compiler::Regex';
 
 sub compile {
     my ( $class, $rule_source, $param ) = @_;
@@ -25,15 +25,15 @@ __END__
 
 =head1 NAME 
 
-Pugs::Compiler::Rule - Compiler for Perl 6 Rules
+Pugs::Bootstrap::Compiler::Rule - Compiler for Perl 6 Rules
 
 =head1 SYNOPSIS
 
 Un-named rules are objects:
 
-    use Pugs::Compiler::Rule;
+    use Pugs::Bootstrap::Compiler::Rule;
 
-    my $rule = Pugs::Compiler::Rule->compile( '((.).).' );
+    my $rule = Pugs::Bootstrap::Compiler::Rule->compile( '((.).).' );
     my $match = $rule->match( 'abc' );
 
     if ($match) {               # true
@@ -47,10 +47,10 @@ Un-named rules are objects:
 Named rules are methods in a Grammar:
 
     package MyGrammar;
-    use Pugs::Compiler::Rule;
-    use base 'Pugs::Grammar::Base';
+    use Pugs::Bootstrap::Compiler::Rule;
+    use base 'Pugs::Bootstrap::Grammar::Base';
 
-    Pugs::Compiler::Rule->install( rule => '((.).).' );
+    Pugs::Bootstrap::Compiler::Rule->install( rule => '((.).).' );
     my $match = MyGrammar->rule( 'abc' );
 
 Rules may have parameters:
@@ -70,37 +70,37 @@ to several other modules:
 
 * Front-end Modules
 
-=item * L<Pugs::Compiler::Rule> compiles Perl 6 Rules to Perl 5.
+=item * L<Pugs::Bootstrap::Compiler::Rule> compiles Perl 6 Rules to Perl 5.
 
-=item * L<Pugs::Compiler::Token> compiles Perl 6 Tokens to Perl 5.
+=item * L<Pugs::Bootstrap::Compiler::Token> compiles Perl 6 Tokens to Perl 5.
 
-=item * L<Pugs::Compiler::Regex> compiles Perl 6 Regexes to Perl 5.
+=item * L<Pugs::Bootstrap::Compiler::Regex> compiles Perl 6 Regexes to Perl 5.
 
-=item * L<Pugs::Compiler::RegexPerl5> wraps Perl 5 Regexes to return a B<Match> object.
+=item * L<Pugs::Bootstrap::Compiler::RegexPerl5> wraps Perl 5 Regexes to return a B<Match> object.
 
 * Runtime Classes
 
-=item * L<Pugs::Runtime::Rule> provides the runtime engine for Rules.
+=item * L<Pugs::Bootstrap::Runtime::Rule> provides the runtime engine for Rules.
 
-=item * L<Pugs::Runtime::Match> represents a B<Match> object.
+=item * L<Pugs::Bootstrap::Runtime::Match> represents a B<Match> object.
 
-=item * L<Pugs::Runtime::Match::Ratchet> represents a B<Match> object matched with C<:ratchet>.
+=item * L<Pugs::Bootstrap::Runtime::Match::Ratchet> represents a B<Match> object matched with C<:ratchet>.
 
-=item * L<Pugs::Runtime::Grammar> represents a B<Grammar> class / object.
+=item * L<Pugs::Bootstrap::Runtime::Grammar> represents a B<Grammar> class / object.
 
 * Grammars
 
-=item * L<Pugs::Grammar::Rule> parses the Rules syntax.
+=item * L<Pugs::Bootstrap::Grammar::Rule> parses the Rules syntax.
 
-=item * L<Pugs::Grammar::Rule::Rule> specifies the Rules syntax with Rules.
+=item * L<Pugs::Bootstrap::Grammar::Rule::Rule> specifies the Rules syntax with Rules.
 
-=item * L<Pugs::Grammar::Base> is the base Grammar: <ws>, <space>.
+=item * L<Pugs::Bootstrap::Grammar::Base> is the base Grammar: <ws>, <space>.
 
 * Code Emitters
 
-=item * L<Pugs::Emitter::Rule::Perl5> converts parsed Rules to Perl 5 code.
+=item * L<Pugs::Bootstrap::Emitter::Rule::Perl5> converts parsed Rules to Perl 5 code.
 
-=item * L<Pugs::Emitter::Rule::Perl5::Ratchet> converts parsed :ratchet Rules to Perl 5 code.
+=item * L<Pugs::Bootstrap::Emitter::Rule::Perl5::Ratchet> converts parsed :ratchet Rules to Perl 5 code.
 
 =back
 
@@ -205,8 +205,8 @@ Use Perl 5 grammar and semantics for Regex.
 
 =item match (Str $match_against)
 
-Instance method.  Returns a L<Pugs::Runtime::Match> object (or
-L<Pugs::Runtime::Match::Ratchet>).
+Instance method.  Returns a L<Pugs::Bootstrap::Runtime::Match> object (or
+L<Pugs::Bootstrap::Runtime::Match::Ratchet>).
 
 =item install (Str $name, Str $rule_source, \%options)
 

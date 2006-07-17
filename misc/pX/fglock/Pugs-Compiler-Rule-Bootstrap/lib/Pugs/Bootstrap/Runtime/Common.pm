@@ -1,5 +1,5 @@
 
-package Pugs::Runtime::Common;
+package Pugs::Bootstrap::Runtime::Common;
 
 use strict;
 use warnings;

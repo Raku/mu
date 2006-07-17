@@ -1,4 +1,4 @@
-package Pugs::Emitter::Rule::Perl5::Ratchet;
+package Pugs::Bootstrap::Emitter::Rule::Perl5::Ratchet;
 
 # p6-rule perl5 emitter for ":ratchet" (non-backtracking)
 # see: RuleInline.pl, RuleInline-more.pl for a program prototype
@@ -67,7 +67,7 @@ sub emit {
         "  my \$m = bless \\{ \n" .
         "    str => \\\$s, from => \\(0+\$pos), to => \\(\$pos), \n" .
         "    bool => \\\$bool, match => \\\@match, named => \\\%named, capture => \\\$capture, \n" .
-        "  }, 'Pugs::Runtime::Match::Ratchet';\n" .
+        "  }, 'Pugs::Bootstrap::Runtime::Match::Ratchet';\n" .
         "  \$bool = 0 unless\n" .
         emit_rule( $ast, ' ' ) . ";\n" .
         "  return \$m;\n" .
@@ -218,7 +218,7 @@ sub match_variable {
     #print "var name: ", $num, "\n";
     my $code = 
     "    ... sub { 
-        my \$m = Pugs::Runtime::Match->new( \$_[2] );
+        my \$m = Pugs::Bootstrap::Runtime::Match->new( \$_[2] );
         return constant( \"\$m->[$num]\" )->(\@_);
     }";
     $code =~ s/^/$_[1]/mg;
@@ -268,7 +268,7 @@ $_[1]     my \$bool = \$hash->{'bool'};
 $_[1]     \$index{$rnd} = \$#match+1 unless defined \$index{$rnd};
 $_[1]     if ( \$quantified ) {
 $_[1]       if ( \$bool ) {
-$_[1]         push \@{ \$match[\$index{$rnd}] }, bless \\\$hash, 'Pugs::Runtime::Match::Ratchet';
+$_[1]         push \@{ \$match[\$index{$rnd}] }, bless \\\$hash, 'Pugs::Bootstrap::Runtime::Match::Ratchet';
 $_[1]       }
 $_[1]       else {
 $_[1]         \@{ \$match[\$index{$rnd}] } = () 
@@ -277,13 +277,13 @@ $_[1]       }
 $_[1]     }
 $_[1]     else {
 $_[1]       if ( ! defined \$match[\$index{$rnd}] ) {
-$_[1]         \$match[\$index{$rnd}] = bless \\\$hash, 'Pugs::Runtime::Match::Ratchet';
+$_[1]         \$match[\$index{$rnd}] = bless \\\$hash, 'Pugs::Bootstrap::Runtime::Match::Ratchet';
 $_[1]       }
 $_[1]       elsif ( ref( \$match[\$index{$rnd}] ) ne 'ARRAY' ) {
-$_[1]         \$match[\$index{$rnd}] = [ \$match[\$index{$rnd}], bless \\\$hash, 'Pugs::Runtime::Match::Ratchet' ];
+$_[1]         \$match[\$index{$rnd}] = [ \$match[\$index{$rnd}], bless \\\$hash, 'Pugs::Bootstrap::Runtime::Match::Ratchet' ];
 $_[1]       }
 $_[1]       else {
-$_[1]         push \@{ \$match[\$index{$rnd}] }, bless \\\$hash, 'Pugs::Runtime::Match::Ratchet';
+$_[1]         push \@{ \$match[\$index{$rnd}] }, bless \\\$hash, 'Pugs::Bootstrap::Runtime::Match::Ratchet';
 $_[1]       }
 $_[1]       #unshift \@{ \$match[\$index{$rnd}] } unless \$bool;
 $_[1]     }
@@ -321,7 +321,7 @@ $_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%n
 $_[1]     };
 $_[1]     my \$bool = \${\$hash->{'bool'}};
 .
-        $gen_match = "bless \\\$hash, 'Pugs::Runtime::Match::Ratchet'";
+        $gen_match = "bless \\\$hash, 'Pugs::Bootstrap::Runtime::Match::Ratchet'";
 	$post_match = "";
     }
 
@@ -422,7 +422,7 @@ sub metasyntax {
     my $cmd = $_[0];   
     my $prefix = substr( $cmd, 0, 1 );
     if ( $prefix eq '@' ) {
-        # XXX - wrap @array items - see end of Pugs::Grammar::Rule
+        # XXX - wrap @array items - see end of Pugs::Bootstrap::Grammar::Rule
         # TODO - param list
         return 
             "$_[1] do {\n" . 
@@ -454,7 +454,7 @@ sub metasyntax {
         # TODO - send $pos to subrule
         return 
                 "$_[1]         do {\n" .
-                "$_[1]           my \$r = Pugs::Runtime::Rule::get_variable( '$cmd' );\n" . 
+                "$_[1]           my \$r = Pugs::Bootstrap::Runtime::Rule::get_variable( '$cmd' );\n" . 
                 "$_[1]           push \@match,\n" . 
                 "$_[1]             \$r->match( \$s, \$grammar, {p => \$pos}, undef );\n" .
                 "$_[1]           \$pos = \$match[-1]->to;\n" .

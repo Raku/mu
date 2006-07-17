@@ -1,27 +1,27 @@
-# Pugs::Grammar::Rule - fglock
+# Pugs::Bootstrap::Grammar::Rule - fglock
 #
 # the 'Rule' grammar - 'rule' is the main rule
 #
 
-package Pugs::Grammar::Rule;
+package Pugs::Bootstrap::Grammar::Rule;
 use strict;
 use warnings;
 no  warnings qw( once redefine uninitialized );
 
 use Text::Balanced; 
 use Data::Dumper;
-use Pugs::Runtime::Rule;
-#use Pugs::Runtime::Grammar; -- MOP 
+use Pugs::Bootstrap::Runtime::Rule;
+#use Pugs::Bootstrap::Runtime::Grammar; -- MOP 
 
 use vars qw( @rule_terms );
-use base 'Pugs::Grammar::Base';
-use Pugs::Grammar::Rule::Rule;   # compiled with lrep
+use base 'Pugs::Bootstrap::Grammar::Base';
+use Pugs::Bootstrap::Grammar::Rule::Rule;   # compiled with lrep
 
 sub code {
     my $grammar = shift;
     return $grammar->no_match unless $_[0];
     my ($extracted,$remainder) = Text::Balanced::extract_codeblock( $_[0] );
-    return Pugs::Runtime::Match->new( { 
+    return Pugs::Bootstrap::Runtime::Match->new( { 
         bool  => ( $extracted ne '' ),
         match => $extracted,
         tail  => $remainder,
@@ -33,7 +33,7 @@ sub literal {
     return $grammar->no_match unless $_[0];
     my ($extracted,$remainder) = Text::Balanced::extract_delimited( $_[0], "'" );
     $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
-    return Pugs::Runtime::Match->new( { 
+    return Pugs::Bootstrap::Runtime::Match->new( { 
         bool  => ( $extracted ne '' ),
         match => $extracted,
         tail  => $remainder,
@@ -45,7 +45,7 @@ sub metasyntax {
     return $grammar->no_match unless $_[0];
     my ($extracted,$remainder) = Text::Balanced::extract_bracketed( $_[0], "<..>" );
     $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
-    return Pugs::Runtime::Match->new( { 
+    return Pugs::Bootstrap::Runtime::Match->new( { 
         bool  => ( $extracted ne '' ),
         match => $extracted,
         tail  => $remainder,
@@ -63,7 +63,7 @@ BEGIN {
         my $method = $_;
         sub{ 
             # warn "Trying $method\n";
-            my $match = Pugs::Grammar::Rule->$method(@_);
+            my $match = Pugs::Bootstrap::Grammar::Rule->$method(@_);
             #warn "Match $method ".Dumper($match) if $match->{bool};
             return $match;
         }

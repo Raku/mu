@@ -1,4 +1,4 @@
-package Pugs::Runtime::Match;
+package Pugs::Bootstrap::Runtime::Match;
 
 # Documentation in the __END__
 use 5.006;
@@ -152,13 +152,13 @@ __END__
 
 =head1 NAME 
 
-Pugs::Runtime::Match - Match object
+Pugs::Bootstrap::Runtime::Match - Match object
 
 =head1 SYNOPSIS
 
-    use Pugs::Compiler::Rule;
+    use Pugs::Bootstrap::Compiler::Rule;
 
-    my $rule = Pugs::Compiler::Rule->compile( '((.).).' );
+    my $rule = Pugs::Bootstrap::Compiler::Rule->compile( '((.).).' );
     my $match = $rule->match( 'abc' );
 
     if ($match) {               # true

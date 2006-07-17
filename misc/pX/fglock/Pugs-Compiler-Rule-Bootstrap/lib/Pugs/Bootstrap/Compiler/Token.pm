@@ -1,12 +1,12 @@
-package Pugs::Compiler::Token;
+package Pugs::Bootstrap::Compiler::Token;
 
-# Version in Pugs::Compiler::Rule
+# Version in Pugs::Bootstrap::Compiler::Rule
 # Documentation in the __END__
 use 5.006;
 use strict;
 use warnings;
 
-use base 'Pugs::Compiler::Regex';
+use base 'Pugs::Bootstrap::Compiler::Regex';
 
 sub compile {
     my ( $class, $rule_source, $param ) = @_;
@@ -22,12 +22,12 @@ __END__
 
 =head1 NAME 
 
-Pugs::Compiler::Token - Compiler for Perl 6 Token
+Pugs::Bootstrap::Compiler::Token - Compiler for Perl 6 Token
 
 =head1 DESCRIPTION
 
 This module provides an implementation for Perl 6 Token.
-See L<Pugs::Compiler::Rule> for documentation.
+See L<Pugs::Bootstrap::Compiler::Rule> for documentation.
 
 =head1 AUTHORS
 

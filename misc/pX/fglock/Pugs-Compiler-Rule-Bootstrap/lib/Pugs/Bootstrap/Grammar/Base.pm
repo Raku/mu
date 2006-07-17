@@ -1,5 +1,5 @@
-package Pugs::Grammar::Base;
-use Pugs::Runtime::Match;
+package Pugs::Bootstrap::Grammar::Base;
+use Pugs::Bootstrap::Runtime::Match;
 
 # This class defines <ws>, unicode character classes, etc
 # runtime parameters are: $grammar, $string, $flags, $state
@@ -7,7 +7,7 @@ use Pugs::Runtime::Match;
 # internal methods - not in spec
 
 sub no_match { 
-    Pugs::Runtime::Match->new( { bool => 0 } );
+    Pugs::Bootstrap::Runtime::Match->new( { bool => 0 } );
 }
 
 # non-working :ratchet version
@@ -24,7 +24,7 @@ sub __any {
     str => \$s, from => \(0+$pos), to => \(1+$pos),
     bool => \$bool, match => \@match, named => \%named, capture => \$capture,
     #tail => substr( $s, $pos+1 ),  # backwards compatible
-  }, 'Pugs::Runtime::Match::Ratchet';
+  }, 'Pugs::Bootstrap::Runtime::Match::Ratchet';
   $bool = substr( $s, $pos, 1 ) =~ /\s/s ? 1 : 0;
   print "Match any(): ", do{use Data::Dumper; Dumper($m)};
   return $m;
@@ -35,7 +35,7 @@ sub any {
     my $grammar = shift;
     return $grammar->no_match unless $_[0];
     my $pos = $_[1]{p} || 0;
-    return Pugs::Runtime::Match->new( { 
+    return Pugs::Bootstrap::Runtime::Match->new( { 
         bool  => 1,
         str   => $_[0],
         match => $1,
@@ -55,7 +55,7 @@ sub ws {
     return $grammar->no_match unless $_[0];
     my $pos = $_[1]{p} || 0;
     #print "POS $pos ";
-    return Pugs::Runtime::Match->new( { 
+    return Pugs::Bootstrap::Runtime::Match->new( { 
         bool  => 1,
         str   => $_[0],
         match => $1,
@@ -94,7 +94,7 @@ xdigit
             my $pos = $_[1]{p} || 0;
             #my ($test, $tail) = $_[0] =~ /$rx/;
             #warn "Matching $char_class in [$_[0]] == [$test,$tail]";
-            return Pugs::Runtime::Match->new( { 
+            return Pugs::Bootstrap::Runtime::Match->new( { 
                 bool  => 1,
                 str   => $_[0],
                 match => $1,

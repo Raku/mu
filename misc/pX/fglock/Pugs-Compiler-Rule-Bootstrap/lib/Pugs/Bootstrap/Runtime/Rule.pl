@@ -1,5 +1,5 @@
 use v6-alpha;
-module Pugs::Runtime::Rule;
+module Pugs::Bootstrap::Runtime::Rule;
 
 # iterator_engine.pl - fglock
 #

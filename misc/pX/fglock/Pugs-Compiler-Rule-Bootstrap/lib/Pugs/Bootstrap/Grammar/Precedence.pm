@@ -1,4 +1,4 @@
-﻿package Pugs::Grammar::Precedence;
+﻿package Pugs::Bootstrap::Grammar::Precedence;
 
 # Documentation in the __END__
 use 5.006;
@@ -175,20 +175,20 @@ sub emit_yapp {
                     if ( $op->{assoc} eq 'list' ) {
                         $s .= 
                             "    |  exp '$op->{name}' exp   %prec $prec\n" .
-                            "        { \$_[0]->{out}= Pugs::Grammar::Precedence::add_to_list( '$op->{name}', \$_[1], \$_[3] ) } \n" ;
+                            "        { \$_[0]->{out}= Pugs::Bootstrap::Grammar::Precedence::add_to_list( '$op->{name}', \$_[1], \$_[3] ) } \n" ;
                         $s .= 
                             "    |  exp '$op->{name}'    %prec $prec\n" .
-                            "        { \$_[0]->{out}= Pugs::Grammar::Precedence::add_to_list( '$op->{name}', \$_[1], { null => 1 } ) } \n" ;
+                            "        { \$_[0]->{out}= Pugs::Bootstrap::Grammar::Precedence::add_to_list( '$op->{name}', \$_[1], { null => 1 } ) } \n" ;
                             # "        { \$_[0]->{out}= \$_[1] } \n" ;
                         next;
                     }
                     if ( $op->{assoc} eq 'chain' ) {
                         $s .= 
                             "    |  exp '$op->{name}' exp   %prec $prec\n" .
-                            "        { \$_[0]->{out}= Pugs::Grammar::Precedence::add_to_chain( '$op->{name}', \$_[1], \$_[3] ) } \n" ;
+                            "        { \$_[0]->{out}= Pugs::Bootstrap::Grammar::Precedence::add_to_chain( '$op->{name}', \$_[1], \$_[3] ) } \n" ;
                         $s .= 
                             "    |  exp '$op->{name}'    %prec $prec\n" .
-                            "        { \$_[0]->{out}= Pugs::Grammar::Precedence::add_to_chain( '$op->{name}', \$_[1], { null => 1 } ) } \n" ;
+                            "        { \$_[0]->{out}= Pugs::Bootstrap::Grammar::Precedence::add_to_chain( '$op->{name}', \$_[1], { null => 1 } ) } \n" ;
                             # "        { \$_[0]->{out}= \$_[1] } \n" ;
                         next;
                     }
@@ -247,15 +247,15 @@ __END__
 
 =head1 NAME 
 
-Pugs::Grammar::Precedence - Engine for Perl 6 Rule operator precedence
+Pugs::Bootstrap::Grammar::Precedence - Engine for Perl 6 Rule operator precedence
 
 =head1 SYNOPSIS
 
-  use Pugs::Grammar::Precedence;
+  use Pugs::Bootstrap::Grammar::Precedence;
 
   # example definition for "sub rxinfix:<|> ..."
   
-  my $rxinfix = Pugs::Grammar::Precedence->new( 
+  my $rxinfix = Pugs::Bootstrap::Grammar::Precedence->new( 
     grammar => 'rxinfix',
   );
   $rxinfix->add_op( 

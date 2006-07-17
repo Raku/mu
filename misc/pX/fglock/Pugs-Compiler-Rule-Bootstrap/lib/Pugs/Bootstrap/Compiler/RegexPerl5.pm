@@ -1,12 +1,12 @@
-package Pugs::Compiler::RegexPerl5;
+package Pugs::Bootstrap::Compiler::RegexPerl5;
 
-# Version in Pugs::Compiler::Rule
+# Version in Pugs::Bootstrap::Compiler::Rule
 # Documentation in the __END__
 use 5.006;
 use strict;
 use warnings;
 
-use base 'Pugs::Compiler::Regex';
+use base 'Pugs::Bootstrap::Compiler::Regex';
 
 sub compile {
     my ( $class, $rule_source, $param ) = @_;
@@ -26,12 +26,12 @@ q(sub {
       push @match, bless \\{
         str => \\$s, from => \\(0+$-[$_]), to => \\(0+$+[$_]),
         bool => \\1, match => [], named => {}, capture => \\undef,
-      }, 'Pugs::Runtime::Match::Ratchet';
+      }, 'Pugs::Bootstrap::Runtime::Match::Ratchet';
   }
   return bless \\{
     str => \\$s, from => \\(0+$-[0]), to => \\(0+$+[0]),
     bool => \\$bool, match => \\@match, named => {}, capture => \\undef,
-  }, 'Pugs::Runtime::Match::Ratchet';
+  }, 'Pugs::Bootstrap::Runtime::Match::Ratchet';
 };
 );
     #print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
@@ -50,7 +50,7 @@ __END__
 
 =head1 NAME 
 
-Pugs::Compiler::RegexPerl5 - Compiler for Perl 6 style "Perl5" regex
+Pugs::Bootstrap::Compiler::RegexPerl5 - Compiler for Perl 6 style "Perl5" regex
 
 =head1 DESCRIPTION
 
@@ -60,7 +60,7 @@ This module provides an implementation for Perl 6 regexes that use the "Perl5" s
 
     :P5 /.*/
 
-See L<Pugs::Compiler::Rule> for documentation.
+See L<Pugs::Bootstrap::Compiler::Rule> for documentation.
 
 =head1 AUTHORS
 

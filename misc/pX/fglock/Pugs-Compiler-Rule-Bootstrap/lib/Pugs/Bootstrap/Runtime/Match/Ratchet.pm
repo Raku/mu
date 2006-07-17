@@ -1,7 +1,7 @@
-package Pugs::Runtime::Match::Ratchet;
+package Pugs::Bootstrap::Runtime::Match::Ratchet;
 # Documentation in the __END__
 
-use base 'Pugs::Runtime::Match';
+use base 'Pugs::Bootstrap::Runtime::Match';
 use 5.006;
 use strict;
 use warnings;
@@ -48,11 +48,11 @@ __END__
 
 =head1 NAME 
 
-Pugs::Runtime::Match::Ratchet - Match object created by :ratchet rules
+Pugs::Bootstrap::Runtime::Match::Ratchet - Match object created by :ratchet rules
 
 =head1 SEE ALSO
 
-Pugs::Runtime::Match
+Pugs::Bootstrap::Runtime::Match
 
 =head1 AUTHORS
 

@@ -1,4 +1,4 @@
-package Pugs::Emitter::Rule::Perl5;
+package Pugs::Bootstrap::Emitter::Rule::Perl5;
 
 # p6-rule perl5 emitter
 
@@ -27,7 +27,7 @@ sub emit {
     # rule parameters: see Runtime::Rule.pm
     return 
         "do {\n" .
-        "    package Pugs::Runtime::Rule;\n" .
+        "    package Pugs::Bootstrap::Runtime::Rule;\n" .
         "    my \$matcher = \n" . 
         emit_rule( $ast, '    ' ) . "  ;\n" .
         "  sub {\n" . 
@@ -42,7 +42,7 @@ sub emit {
         "    my \$match = rule_wrapper( \$_[0], \n" . 
         "        \$matcher->( \$s, \$_[1], \$tree, \$tree, \$grammar, 0, \$s, \$_[2] )\n" .
         "    );\n" .
-        "    return Pugs::Runtime::Match->new( \$match );\n" .
+        "    return Pugs::Bootstrap::Runtime::Match->new( \$match );\n" .
         "  }\n" .
         "}\n";
 }
@@ -179,7 +179,7 @@ sub match_variable {
     #print "var name: ", $num, "\n";
     my $code = 
     "    sub { 
-        my \$m = Pugs::Runtime::Match->new( \$_[2] );
+        my \$m = Pugs::Bootstrap::Runtime::Match->new( \$_[2] );
         return constant( \"\$m->[$num]\" )->(\@_);
     }";
     $code =~ s/^/$_[1]/mg;
@@ -246,7 +246,7 @@ sub metasyntax {
     my $cmd = $_[0];   
     my $prefix = substr( $cmd, 0, 1 );
     if ( $prefix eq '@' ) {
-        # XXX - wrap @array items - see end of Pugs::Grammar::Rule
+        # XXX - wrap @array items - see end of Pugs::Bootstrap::Grammar::Rule
         return 
             "$_[1] alternation( \\$cmd )\n";
     }

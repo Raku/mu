@@ -1,11 +1,11 @@
 # the v6 line is commented out due to bootstraping problem.
 #use v6-alpha;
 
-grammar Pugs::Grammar::Rule;
+grammar Pugs::Bootstrap::Grammar::Rule;
 
 =head1 NAME
 
-Pugs::Grammar::Rule - Perl 6 grammar for rules
+Pugs::Bootstrap::Grammar::Rule - Perl 6 grammar for rules
 
 =head1 DESCRIPTION
 
@@ -140,7 +140,7 @@ rule num_variable :P5 {^(?:\$[[:digit:]]+)}
 
 rule quantifier {
     $<ws1>   := (<?ws>?)
-    $<term>  := (<@Pugs::Grammar::Rule::rule_terms>)
+    $<term>  := (<@Pugs::Bootstrap::Grammar::Rule::rule_terms>)
     $<ws2>   := (<?ws>?)
     $<quant> := (
         [ 
