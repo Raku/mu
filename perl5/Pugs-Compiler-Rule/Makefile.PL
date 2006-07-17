@@ -19,16 +19,6 @@ my $cwd = cwd();
 my $pm  = abs_path('lib/Pugs/Grammar/Rule/Rule.pm');
 my $pmc = $pm . 'c';
 
-my $lrep_dir = "./lrep";
-
-my $pmc_is_uptodate = (-s $pmc and (-M $pmc <= -M $pm));
-
-if (-d $lrep_dir and not $pmc_is_uptodate) {
-    chdir $lrep_dir;
-    system("$^X p6compiler.pl --print-program $pm > $pmc");
-    chdir $cwd;
-}
-
 my $mtime = time;
 utime $mtime, $mtime, $pmc;
 
@@ -44,9 +34,11 @@ sub MY::postamble {
     # my $blib_pmc = $pmc;
     # $blib_pmc =~ s!(.*)lib!$1blib/lib!;
     << ".";
-config ::
+config :: $pmc
+
+$pmc: $pm
+\t(cd lrep && $^X p6compiler.pl --output-program=$pmc $pm && cd..)
 \t-\$(NOECHO) \$(CHMOD) 644 $pmc
-\t-\$(NOECHO) \$(TOUCH) $pmc
 .
 }
 
