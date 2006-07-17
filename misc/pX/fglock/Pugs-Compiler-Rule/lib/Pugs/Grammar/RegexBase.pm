@@ -1,5 +1,5 @@
 package Pugs::Grammar::RegexBase;
-use Pugs::Runtime::Match;
+use Pugs::Runtime::Match::Ratchet;
 
 # This class defines <ws>, unicode character classes, etc
 # runtime parameters are: $grammar, $string, $flags, $state
@@ -18,7 +18,7 @@ sub any {
     return $grammar->no_match
         if $pos > length( $_[0] );
     print "any: $_[0] at $pos\n";
-    return $_[3] = Pugs::Runtime::Match::Ratchet->new( { 
+    return Pugs::Runtime::Match::Ratchet->new( { 
         bool  => \1,
         str   => \($_[0]),
         from  => \$pos,

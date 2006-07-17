@@ -5,44 +5,48 @@ use 5.006;
 use strict;
 use warnings;
 use Data::Dumper;
+use Class::InsideOut qw( public register id );
 
 use overload (
     '@{}'    => \&array,
     '%{}'    => \&hash,
     'bool'   => \&bool,
     '&{}'    => \&code,
+    '${}'    => \&code,
     '""'     => \&flat,
     '0+'     => \&flat,
     fallback => 1,
 );
 
-# unused!
+public data => my %_data;
+
 sub new {
     my ($class, $match) = @_;
-    my $self = \$match;
-    bless $self, $class;
+    my $obj = register( bless \(my $s), $class );
+    $_data{ id $obj } = $match;
+    return $obj;
 }
 
-sub from  {  ${${$_[0]}->{from}} }
-sub to    {  ${${$_[0]}->{to}}   }
-sub bool  {  ${${$_[0]}->{bool}} }
-sub hash  {  ${$_[0]}->{named}   }
-sub array {  ${$_[0]}->{match}   }
+sub from  {  ${$_data{id $_[0]}->{from}} }
+sub to    {  ${$_data{id $_[0]}->{to}}   }
+sub bool  {  ${$_data{id $_[0]}->{bool}} }
+sub hash  {  ${$_data{id $_[0]}->{named} }
+sub array {  ${$_data{id $_[0]}->{match} }
 
 sub flat {
-    return ${ ${$_[0]}->{capture} }
-        if defined ${ ${$_[0]}->{capture} };
-    return substr( ${${$_[0]}->{str}}, $_[0]->from, $_[0]->to - $_[0]->from );
+    return ${ $_data{id $_[0]}->{capture} }
+        if defined ${ $_data{id $_[0]}->{capture} };
+    return substr( ${$_data{id $_[0]}->{str}}, $_[0]->from, $_[0]->to - $_[0]->from );
 }
 
 sub str {
-    return substr( ${${$_[0]}->{str}}, $_[0]->from, $_[0]->to - $_[0]->from );
+    return substr( ${$_data{id $_[0]}->{str}}, $_[0]->from, $_[0]->to - $_[0]->from );
 }
 
 # tail() for backwards compatibility
 # - doesn't work on failed matches
 sub tail {
-    return substr( ${${$_[0]}->{str}}, $_[0]->to );
+    return substr( ${$_data{id $_[0]}->{str}}, $_[0]->to );
 }
 
 # return the capture
