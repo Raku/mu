@@ -247,31 +247,10 @@ sub non_greedy_plus {
 }
 
 # interface to the internal rule functions
-# - creates a 'capture', unless it detects a 'return block'
-sub rule_wrapper {
-    my ( $str, $match ) = @_;
-    return $match;
-
-    # obsolete...
-
-    $match = $match->data if ref($match) eq 'Pugs::Runtime::Match::Ratchet';
-    return unless $match->{bool};
-    if ( $match->{return} ) {
-        #warn 'pre-return: ', Dumper( $match );
-        my %match2 = %$match;
-        $match2{capture} = $match->{return}( 
-            Pugs::Runtime::Match::Ratchet->new( $match ) 
-        );
-        #warn "return ",ref($match2{capture});
-        #warn 'post-return: ', Dumper( $match2{capture} );
-        delete $match->{return};
-        delete $match->{abort};
-        delete $match2{return};
-        delete $match2{abort};
-        #warn "Return Object: ", Dumper( \%match2 );
-        return \%match2;
-    }
-}
+#sub rule_wrapper {
+#    my ( $str, $match ) = @_;
+#    return $match;
+#}
 
 # not a 'rule node'
 # gets a variable from the user's pad

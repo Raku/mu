@@ -5,7 +5,7 @@ use warnings;
 
 #require 'iterator_engine.pl';
 
-use Test::More tests => 23;
+use Test::More tests => 22;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Pad = '# ';
@@ -157,10 +157,3 @@ my ( $rule, $match );
 
 }
 
-{
-  Pugs::Runtime::Regex::rule_wrapper( $_[0], 
-       Pugs::Runtime::Regex::constant( "a" )->( 'aa', undef, {capture=>1}, $match )
-    );
-  ok ( $match, "wrapper /a/" );
-  #print Dumper( $match );
-}

@@ -64,10 +64,10 @@ sub emit {
         "  my \$bool = 1;\n" .
         "  my \$capture;\n" .
         "  my \$quantified;\n" .
-        "  my \$m = bless \\{ \n" .
+        "  my \$m = Pugs::Runtime::Match::Ratchet->new( \\{ \n" .
         "    str => \\\$s, from => \\(0+\$pos), to => \\(\$pos), \n" .
         "    bool => \\\$bool, match => \\\@match, named => \\\%named, capture => \\\$capture, \n" .
-        "  }, 'Pugs::Runtime::Match::Ratchet';\n" .
+        "  } );\n" .
         "  \$bool = 0 unless\n" .
         emit_rule( $ast, ' ' ) . ";\n" .
         "  return \$m;\n" .
@@ -268,7 +268,7 @@ $_[1]     my \$bool = \$hash->{'bool'};
 $_[1]     \$index{$rnd} = \$#match+1 unless defined \$index{$rnd};
 $_[1]     if ( \$quantified ) {
 $_[1]       if ( \$bool ) {
-$_[1]         push \@{ \$match[\$index{$rnd}] }, bless \\\$hash, 'Pugs::Runtime::Match::Ratchet';
+$_[1]         push \@{ \$match[\$index{$rnd}] }, Pugs::Runtime::Match::Ratchet->new( \\\$hash );
 $_[1]       }
 $_[1]       else {
 $_[1]         \@{ \$match[\$index{$rnd}] } = () 
@@ -277,13 +277,13 @@ $_[1]       }
 $_[1]     }
 $_[1]     else {
 $_[1]       if ( ! defined \$match[\$index{$rnd}] ) {
-$_[1]         \$match[\$index{$rnd}] = bless \\\$hash, 'Pugs::Runtime::Match::Ratchet';
+$_[1]         \$match[\$index{$rnd}] = Pugs::Runtime::Match::Ratchet->new( \\\$hash );
 $_[1]       }
 $_[1]       elsif ( ref( \$match[\$index{$rnd}] ) ne 'ARRAY' ) {
-$_[1]         \$match[\$index{$rnd}] = [ \$match[\$index{$rnd}], bless \\\$hash, 'Pugs::Runtime::Match::Ratchet' ];
+$_[1]         \$match[\$index{$rnd}] = [ \$match[\$index{$rnd}], Pugs::Runtime::Match::Ratchet->new( \\\$hash ) ];
 $_[1]       }
 $_[1]       else {
-$_[1]         push \@{ \$match[\$index{$rnd}] }, bless \\\$hash, 'Pugs::Runtime::Match::Ratchet';
+$_[1]         push \@{ \$match[\$index{$rnd}] }, Pugs::Runtime::Match::Ratchet->new( \\\$hash );
 $_[1]       }
 $_[1]       #unshift \@{ \$match[\$index{$rnd}] } unless \$bool;
 $_[1]     }
@@ -321,7 +321,7 @@ $_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%n
 $_[1]     };
 $_[1]     my \$bool = \${\$hash->{'bool'}};
 .
-        $gen_match = "bless \\\$hash, 'Pugs::Runtime::Match::Ratchet'";
+        $gen_match = "Pugs::Runtime::Match::Ratchet->new( \\\$hash )";
 	$post_match = "";
     }
 
