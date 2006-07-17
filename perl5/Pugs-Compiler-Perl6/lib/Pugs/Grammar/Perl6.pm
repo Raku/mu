@@ -144,9 +144,9 @@ sub perl6_expression {
                 $<exp3> := <perl6_expression_or_null> <?ws>? <')'> 
                 <?ws>? $<content> := <block>
           { return { statement => $_[0][0]->(),
-                     exp1      => $_[0]{exp1} ? $_[0]{exp1}->() : undef,
-                     exp2      => $_[0]{exp2} ? $_[0]{exp2}->() : undef,
-                     exp3      => $_[0]{exp3} ? $_[0]{exp3}->() : undef,
+                     exp1      => $_[0]{exp1}->(),
+                     exp2      => $_[0]{exp2}->(),
+                     exp3      => $_[0]{exp3}->(),
                      content   => $_[0]{content}->() }
           }
         |
