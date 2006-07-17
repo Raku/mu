@@ -315,6 +315,8 @@ op1HyperPrefix sub x
     doHyper x
         | VRef x' <- x
         = doHyper =<< readRef x'
+        | VList x' <- x
+        = op1HyperPrefix sub x
         | otherwise
         = enterEvalContext cxtItemAny $ App (Val $ VCode sub) Nothing [Val x]
     hyperList []     = return []
@@ -343,7 +345,19 @@ op2Hyper sub x y
     | otherwise
     = fail "Hyper OP only works on lists"
     where
-    doHyper x y = enterEvalContext cxtItemAny $ App (Val $ VCode sub) Nothing [Val x, Val y]
+    doHyper x y 
+        | VRef x' <- x, VRef y' <- y
+        = join $ liftM2 doHyper (readRef x') (readRef y')
+        | VRef x' <- x
+        = (flip doHyper $ y) =<< readRef x'
+        | VRef y' <- y
+        = doHyper x =<< readRef y'
+        | VList x' <- x
+        = op2Hyper sub x y
+        | VList y' <- y
+        = op2Hyper sub x y
+        | otherwise
+        = enterEvalContext cxtItemAny $ App (Val $ VCode sub) Nothing [Val x, Val y]
     hyperLists [] [] = return []
     hyperLists xs [] = return xs
     hyperLists [] ys = return ys
