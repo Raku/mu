@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 1 July 2006
+  Last Modified: 16 July 2006
   Number: 6
-  Version: 39
+  Version: 40
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1337,9 +1337,10 @@ you treat them as objects:
 
 =head2 Undefined types
 
-These can behave as values or objects of any class, but always return a
-C<.id> of 0.  One can create them with the built-in C<undef> and C<fail>
-functions.  (See S02 for how failures are handled.)
+These can behave as values or objects of any class, but always return
+a C<.valid> that evaluates to false.  One can create them with the
+built-in C<undef> and C<fail> functions.  (See S02 for how failures
+are handled.)
 
     Undef       Undefined (can serve as a prototype object of any class)
     Whatever    Wildcard (like undef, but subject to do-what-I-mean via MMD)
@@ -1371,7 +1372,7 @@ if and only if their types and contents are identical.
 
 =head2 Mutable types
 
-Objects with these types have distinct C<.id> values.
+Objects with these types have distinct C<.valid> values.
 
     Array       Perl array
     Hash        Perl hash
@@ -1954,10 +1955,10 @@ their own C<.TEMP> methods:
 
     class LoudArray is Array {
         method TEMP {
-            print "Replacing $.id() at {caller.location}\n";
+            print "Replacing $.valid() at {caller.location}\n";
             my $restorer = $.SUPER::TEMP();
             return { 
-                print "Restoring $.id() at {caller.location}\n";
+                print "Restoring $.valid() at {caller.location}\n";
                 $restorer();
             };
         }
@@ -2003,7 +2004,7 @@ the original routine, but does not introduce a C<CALLER> frame:
     sub thermo ($t) {...}   # set temperature in Celsius, returns old temp
 
     # Add a wrapper to convert from Fahrenheit...
-    $id = &thermo.wrap( { call( ($^t-32)/1.8 ) } );
+    $handle = &thermo.wrap( { call( ($^t-32)/1.8 ) } );
 
 The call to C<.wrap> replaces the original C<Routine> with the C<Code>
 argument, and arranges that the call to C<call> invokes the previous
@@ -2013,13 +2014,13 @@ or less the same effect as:
     &old_thermo := &thermo;
     &thermo := sub ($t) { old_thermo( ($t-32)/1.8 ) }
 
-Except that C<&thermo> is mutated in-place, so C<&thermo.id> stays the same
+Except that C<&thermo> is mutated in-place, so C<&thermo.valid> stays the same
 after the C<.wrap>.
 
-The call to C<.wrap> returns a unique identifier that can later be passed to
+The call to C<.wrap> returns a unique handle that can later be passed to
 the C<.unwrap> method, to undo the wrapping:
 
-    &thermo.unwrap($id);
+    &thermo.unwrap($handle);
 
 This does not affect any other wrappings placed to the routine.
 

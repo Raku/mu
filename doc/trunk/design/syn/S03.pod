@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 15 Jul 2006
+  Last Modified: 16 Jul 2006
   Number: 3
-  Version: 48
+  Version: 49
 
 =head1 Changes to existing operators
 
@@ -341,15 +341,15 @@ It is not true that C<[1,2] === [1,2]> because those are different
 C<Array> objects, but it is true that C<@a === @a> because those are
 the same C<Array> object).
 
-Any object type may pretend to be a value type by defining a C<.id>
+Any object type may pretend to be a value type by defining a C<.valid>
 method which returns a value type that can be recursively compared
 using C<===>, or in cases where that is impractical, by overloading
 C<===> such that the comparison treats values consistently with their
 "eternal" identity.  (Strings are defined as values this way despite
 also being objects.)
 
-(Because Perl 6 uses a false C<.id> to signify a non-instantiated prototype,
-all instances should arrange to return a C<.id> that boolifies to true.)
+(Because Perl 6 uses a false C<.valid> to signify a non-instantiated prototype,
+all instances should arrange to return a C<.valid> that boolifies to true.)
 
 Two values are never equivalent unless they are of exactly the same type.  By
 contrast, C<eq> always coerces to string, while C<==> always coerces to
