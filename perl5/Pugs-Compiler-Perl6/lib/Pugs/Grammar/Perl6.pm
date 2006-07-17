@@ -450,6 +450,10 @@ sub perl6_expression {
         { return $_[0]{rule_decl}->();
         }
     |
+    <sub_decl>
+        { return $_[0]{sub_decl}->();
+        }
+    |
     <if>
         { return $_[0]{if}->();
         }
