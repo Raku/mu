@@ -98,8 +98,30 @@ sub arity {
 }
 
 package Pugs::Runtime::Perl6::Scalar;
+use Scalar::Util qw(looks_like_number);
 
 sub defined { CORE::defined(@_) }
+
+sub ref : method {
+    # XXX: should use Data::Bind callconv
+    my $self = $_[0];
+    my $ref = CORE::ref(@_);
+    
+    unless ($ref) {
+	return 'Num' if looks_like_number($self);
+	return 'Str';
+    }
+
+    if ($self->can('meta')) {
+	return $self->meta->name;
+    }
+
+    return 'Hash' if ref($self) eq 'HASH';
+    return 'Array' if ref($self) eq 'ARRAY';
+
+
+    die 'unknown type';
+}
 
 sub isa {
     my $self = $_[0];
