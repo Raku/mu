@@ -621,7 +621,13 @@ sub default {
         }
         
 	if (exists $n->{self}{array}) {
-	    return _emit( $n->{method} ).' '._emit($n->{self});
+	    if ($n->{method}{dot_bareword} eq 'map') {
+		my $param = $n->{param}{fixity} eq 'circumfix' ? $n->{param}{exp1} : undef;
+		return _emit( $n->{method} )._emit($param)._emit($n->{self});
+	    }
+	    else {
+		return _emit( $n->{method} ).' '.(map { _emit($_) } $n->{self}, $n->{params});
+	    }
 	}
     
         # normal methods or subs
