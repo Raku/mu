@@ -5,26 +5,21 @@ use 5.006;
 use strict;
 use warnings;
 use Data::Dumper;
-use Class::InsideOut qw( public register id );
 
 use overload (
     '@{}'    => \&array,
     '%{}'    => \&hash,
     'bool'   => \&bool,
     '&{}'    => \&code,
-    '${}'    => \&code,
     '""'     => \&flat,
     '0+'     => \&flat,
     fallback => 1,
 );
 
-public data => my %_data;
-
 sub new {
     my ($class, $match) = @_;
-    my $obj = register( bless \(my $s), $class );
-    $_data{ id $obj } = $match;
-    return $obj;
+    my $self = \$match;
+    bless $self, $class;
 }
 
 # XXX - this sub should set .from and .to in match nodes!
@@ -43,14 +38,14 @@ sub _str {
 }
 
 sub from {
-    $_data{id $_[0]}->{from} || 0;
+    ${$_[0]}->{from} || 0;
 }
 
 sub to {
-    #print 'TO: ', do{use Data::Dumper; Dumper($_data{id $_[0]})};
-    #my $str = _str( $_data{id $_[0]} );
+    #print 'TO: ', do{use Data::Dumper; Dumper(${$_[0]})};
+    #my $str = _str( ${$_[0]} );
     #print "TO: $str\n";
-    $_data{id $_[0]}->{to} || ($_[0]->from + length( _str( $_data{id $_[0]} ) ));
+    ${$_[0]}->{to} || ($_[0]->from + length( _str( ${$_[0]} ) ));
 }
 
 sub _box_submatch {
@@ -61,35 +56,35 @@ sub _box_submatch {
 }
 
 sub flat {
-    return '' unless defined $_data{id $_[0]}->{capture};
-    $_data{id $_[0]}->{capture};
+    return '' unless defined ${$_[0]}->{capture};
+    ${$_[0]}->{capture};
 }
 
 # return the capture
 sub code {
-    my $c = $_data{id $_[0]}->{capture};
+    my $c = ${$_[0]}->{capture};
     return sub { $c };
 }
 
 # return the capture
 sub capture {
-    $_data{id $_[0]}->{capture};
+    ${$_[0]}->{capture};
 }
 
 # return the bool value
 sub bool {
-    $_data{id $_[0]}->{bool};
+    ${$_[0]}->{bool};
 }
 
 sub _get_captures {
     my @a;
     # special case: the whole match is a single capture
-    return $_data{id $_[0]} if exists $_data{id $_[0]}->{label};
-    if ( ref( $_data{id $_[0]}->{match} ) eq 'ARRAY' ) {
-        @a = @{$_data{id $_[0]}->{match}};
+    return ${$_[0]} if exists ${$_[0]}->{label};
+    if ( ref( ${$_[0]}->{match} ) eq 'ARRAY' ) {
+        @a = @{${$_[0]}->{match}};
     }
     else {
-        push @a, $_data{id $_[0]}->{match};        
+        push @a, ${$_[0]}->{match};        
     }
     #print Dumper @a;
     while ( ref $a[-1] && exists $a[-1]{match} && ref( $a[-1]{match} ) eq 'ARRAY' ) {
