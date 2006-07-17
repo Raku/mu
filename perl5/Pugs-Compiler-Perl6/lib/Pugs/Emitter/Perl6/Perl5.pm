@@ -613,22 +613,24 @@ sub default {
                 _emit( $n->{self}   ) . ')';
         }
         
+	if (exists $n->{self}{array} ||
+            (exists $n->{self}{exp1}{assoc} && $n->{self}{exp1}{assoc} eq 'list')) {
+	    if ($n->{method}{dot_bareword} eq 'map') {
+		my $param = $n->{param}{fixity} eq 'circumfix' ? $n->{param}{exp1} : undef;
+		my $code = $param->{bare_block} ? 'sub { '._emit($param).' }' : _emit($param);
+		return 'Pugs::Runtime::Perl6::Array::map([\('.$code.', '. _emit($n->{self}).')], {})';
+	    }
+	    else {
+		return _emit( $n->{method} ).' '.(map { _emit($_) } $n->{self}, $n->{params});
+	    }
+	}
+
         if ( exists $n->{self}{op1} ) {
             # %var<item>.++;
             return
                 _emit( $n->{self} ) . "->" . 
                 _emit( $n->{method} ) . "(" . _emit( $n->{param} ) . ")";
         }
-        
-	if (exists $n->{self}{array}) {
-	    if ($n->{method}{dot_bareword} eq 'map') {
-		my $param = $n->{param}{fixity} eq 'circumfix' ? $n->{param}{exp1} : undef;
-		return _emit( $n->{method} )._emit($param)._emit($n->{self});
-	    }
-	    else {
-		return _emit( $n->{method} ).' '.(map { _emit($_) } $n->{self}, $n->{params});
-	    }
-	}
     
         # normal methods or subs
         

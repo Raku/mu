@@ -137,6 +137,29 @@ sub eval {
     Pugs::Runtime::Perl6::eval( [ \$s, \'perl6' ], {} ) 
 }
 
+package Pugs::Runtime::Perl6::Array;
+
+sub map {
+    my ($code, @array);
+    Data::Bind->arg_bind(\@_);
+    my $run = ref($code) eq 'Pugs::Runtime::Perl6::Routine' ? $code->code : $code;
+    my $arity = Pugs::Runtime::Perl6::Routine->new($run)->arity || 1;
+
+    return map $run, @array if $arity == 1;
+
+    my @result;
+    my $i = 0;
+    while ($i <= $#array) {
+	my @x = @array[$i..$i+$arity-1];
+	push @result, $run->([map { \$_ } @x], {});
+	$i += $arity;
+    }
+    return @result;
+}
+
+Data::Bind->sub_signature(\&map, { var => '$code', type => 'Code' }, { var => '@array'} );
+
+
 package Pugs::Runtime::Perl6::Scalar::Alias;
 
 sub TIESCALAR {
