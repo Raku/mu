@@ -39,6 +39,12 @@ extractText :: [P5AST] -> P5AST
 extractText [] = (LiteralNode Text "1" "")
 extractText kids = if ((getLType (head kids))==Text) then (head kids) else (extractText (tail kids)) 
 
+--Match based only on subtype
+matchOnType :: P5AST -> P5AST -> Bool
+matchOnType (AbstractNode atype1 kids1) (AbstractNode atype2 kids2) = if (atype1==atype2) then True else False
+matchOnType (LiteralNode atype1 _ _) (LiteralNode atype2 _ _) = if (atype1==atype2) then True else False
+matchOnType _ _ = False 
+
 --Get the type of a literal node
 getLType :: P5AST -> LitType
 getLType (AbstractNode sometype kids) = UnknownLit
