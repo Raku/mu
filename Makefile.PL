@@ -169,9 +169,6 @@ sub set_postamble {
     compile_hs($ghc, File::Spec->catfile('util', 'ghc-pkg-wrapper'), $ghc_pkg_wrapper);
     compile_hs($ghc, File::Spec->catfile('util', 'runcompiler'), $ghc_wrapper);
 
-    $ghc = $ghc_wrapper;
-    $ghc_pkg = $ghc_pkg_wrapper;
-
     # Add GHC to PATH
     local $ENV{PATH} = dirname($ghc) . $Config{path_sep} . $ENV{PATH};
 
@@ -184,10 +181,13 @@ sub set_postamble {
         $native_fps = 1;
         copy "third-party/fps/fps.cabal.dummy" => "third-party/fps/fps.cabal";
     } else {
-        # Use bundled ByteString
+        # Use bundled ByteString - unregister user-fps installed by earlier Pugs
+        system($ghc_pkg, qw( --user unregister fps ));
         copy "third-party/fps/fps.cabal.in" => "third-party/fps/fps.cabal";
     }
 
+    $ghc = $ghc_wrapper;
+    $ghc_pkg = $ghc_pkg_wrapper;
 
     my $heap;
 
