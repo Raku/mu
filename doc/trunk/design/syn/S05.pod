@@ -634,7 +634,7 @@ assertion (i.e. a subrule or a named character class - see below):
 The special named assertions include:
 
      / <before pattern> /    # was /(?=pattern)/
-     / <after pattern> /     # was /(?<pattern)/
+     / <after pattern> /     # was /(?<=pattern)/
 
      / <sp> /                # match the SPACE character (U+0020)
      / <ws> /                # match "whitespace":
