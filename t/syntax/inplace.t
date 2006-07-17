@@ -10,6 +10,13 @@ is(@a[0], 2, 'inplace map [0]');
 is(@a[1], 3, 'inplace map [1]');
 is(@a[2], 4, 'inplace map [2]');
 
+my @b = <foo 123 bar 456 baz>;
+ok(eval('@b.=grep:{/[a-z]/}'), '.= parses without surrounding whitespace',
+   :todo<bug>);
+is @b[0], 'foo', 'inplace grep [0]';
+is @b[1], 'bar', 'inplace grep [1]', :todo<bug>;
+is @b[2], 'baz', 'inplace grep [2]', :todo<bug>;
+
 my $a=3.14;
 $a .= int;
 is($a, 3, "inplace int");
