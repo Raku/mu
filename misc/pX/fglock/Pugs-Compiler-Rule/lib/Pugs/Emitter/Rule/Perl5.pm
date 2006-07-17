@@ -32,12 +32,8 @@ sub emit {
         emit_rule( $ast, '    ' ) . "  ;\n" .
         "  sub {\n" . 
         # grammar, string, state, args
-        "    my \$grammar = shift;\n" .
         "    my \$tree;\n" .
-        "    my \$pos = \$_[3]{p};\n" .
-        "    \$pos = 0 unless defined \$pos;   # TODO - .*? \$match \n" .
-        "    my \$s = \$_[0]; \n" . 
-        "    \$matcher->( \$s, \$_[1], \$tree, \$tree, \$grammar, 0, \$s, \$_[3] );\n" .
+        "    \$matcher->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$_[3]{p}, \$_[1], \$_[3] );\n" .
         "    return \$tree;\n" .
         "  }\n" .
         "}\n";

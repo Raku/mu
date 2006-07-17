@@ -18,7 +18,7 @@ sub any {
     return $grammar->no_match
         if $pos > length( $_[0] );
     print "any: $_[0] at $pos\n";
-    return Pugs::Runtime::Match::Ratchet->new( { 
+    return $_[3] = Pugs::Runtime::Match::Ratchet->new( { 
         bool  => \1,
         str   => \($_[0]),
         from  => \$pos,

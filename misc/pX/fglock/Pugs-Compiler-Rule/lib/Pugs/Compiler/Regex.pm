@@ -144,6 +144,7 @@ sub match {
             $state,
             \%args,
         );
+        print __PACKAGE__ . ": match result: ", Dumper($match);
         #$p = 0 if $p eq 'undef';  # XXX - bug - 'undef' as string in t\06-subrule.t
         # eval { $$match->{from} = \(0 + $p) };   # XXX
         return $match;  
