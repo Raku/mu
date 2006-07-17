@@ -154,6 +154,7 @@ sub perl6_expression {
           (while) : <?ws>? <perl6_expression('no_blocks',0)>
           { return { statement => $_[0][0]->(),
                      exp2      => $_[0]{perl6_expression}->(),
+                     postfix   => 1,
                      content   => $_[0]{block}->() }
           }
        ]
