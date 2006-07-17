@@ -254,7 +254,7 @@ sub rule_wrapper {
 
     # obsolete...
 
-    $match = $$match if ref($match) eq 'Pugs::Runtime::Match::Ratchet';
+    $match = $match->data if ref($match) eq 'Pugs::Runtime::Match::Ratchet';
     return unless $match->{bool};
     if ( $match->{return} ) {
         #warn 'pre-return: ', Dumper( $match );

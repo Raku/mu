@@ -1,7 +1,6 @@
 package Pugs::Runtime::Match::Ratchet;
 # Documentation in the __END__
 
-use base 'Pugs::Runtime::Match';
 use 5.006;
 use strict;
 use warnings;
