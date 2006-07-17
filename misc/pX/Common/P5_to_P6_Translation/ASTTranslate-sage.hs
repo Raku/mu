@@ -47,8 +47,53 @@ import System(getArgs)
 --Wrapper function to apply all translations in order
 --It's pretty ugly, which is why there's a need for a wrapper function
 translate :: P5AST -> String -> P5AST
-translate tree options= if ('o' `elem` options) then (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree)))))))))))) else
-                                                    (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree)))))))))
+translate tree options= if ('o' `elem` options) then (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree))))))))))))) else
+                                                    (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree))))))))))
+
+regexInternals :: P5AST -> P5AST
+regexInternals (AbstractNode Op_subst kids) = (AbstractNode Op_subst (changeSInternals kids))
+regexInternals (AbstractNode atype kids) = (AbstractNode atype (map regexInternals kids))
+regexInternals (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+changeSInternals :: [P5AST] -> [P5AST]
+changeSInternals [] = []
+changeSInternals kids =  if ((length kids) >= 3) then if (and [((head ((extractUni (head kids))++" "))=='s'),(matchOnType (head kids) (LiteralNode Openquote "" "")),(matchOnType (head (tail kids)) (LiteralNode Text "" "")),(matchOnType (head (drop 2 kids)) (LiteralNode Closequote "" ""))]) then do let regx = case parse regexString "Uni" (extractUni (head (tail kids))) of
+                                                                                                                                                                                                                                                                                                                           Left err -> error $ "\nError:\n" ++ show err
+                                                                                                                                                                                                                                                                                                                           Right result -> result
+                                                                                                                                                                                                                                                                                                           [(head kids),(LiteralNode Text "1" regx),(head (drop 2 kids))]++(drop 3 kids)
+                                                          else ((head kids):(changeSInternals (tail kids)))
+                            else ((head kids):(changeSInternals (tail kids)))
+
+regexString :: Parser String
+regexString = do  strs <- (manyTill regexChar eof)
+                  return (joinString strs)
+
+regexChar :: Parser String
+regexChar = choice[do{try(string "(space)"); return "<sp>"}, --Handle (space) -> <sp>
+                   do{try(string "\\A"); return "^"},         -- \A -> ^
+                   do{try(string "\\z"); return "$"},         -- \z -> $
+                   do{try(string "\\Z"); return "\\n?$"},      -- \Z -> \n?$
+                   do{try(string "\\n"); return "\\c[LF]"},    -- \n -> \c[LF]
+                   do{try(string "\\r?\\n"); return "\\n"},     -- \r?\n -> \n
+                   do{try(string "[^\\n]"); return "\\C[LF]"}, -- [^\n] -> \C[LF]
+                   do{try(string "\\a"); return "\\c[BEL]"},   -- \a -> \c[BEL]
+                   do{try(string "\\N{"); val <- (manyTill anyToken (char '}')); return ("\\c["++val++"]")}, -- \N{CENT SIGN} -> \c[CENT SIGN]
+                   do{try(string "[^\\N{"); val <- (manyTill anyToken (string "}]")); return ("\\C["++val++"]")}, -- [^\N{CENT SIGN}] -> \C[CENT SIGN]
+                   do{try(string "[^\\t]"); return "\\T"},     -- [^\t] -> \T
+                   do{try(string "[^\\r]"); return "\\R"},     -- [^\r] -> \R
+                   do{try(string "[^\\f]"); return "\\F"},     -- [^\f] -> \F
+                   do{try(string "[^\\e]"); return "\\E"},     -- [^\e] -> \E
+                   do{char <- anyToken; return (char:"")}]
+
+topicSplit :: P5AST -> P5AST
+topicSplit (AbstractNode Op_split kids) = (AbstractNode Op_split (topicMethod kids))
+topicSplit (AbstractNode atype kids) = (AbstractNode atype (map topicSplit kids))
+topicSplit (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+topicSplit (Heredoc start end kids) = (Heredoc start end (map topicSplit kids))
+
+topicMethod :: [P5AST] -> [P5AST]
+topicMethod [] = []
+topicMethod kids = if (not (isIn (AbstractNode Listelem []) kids)) then [(LiteralNode Junk "" "")] else kids
 
 --translates foreach loops:
 --foreach $foo (@bar) {...} becomes foreach @bar -> $foo {...}
