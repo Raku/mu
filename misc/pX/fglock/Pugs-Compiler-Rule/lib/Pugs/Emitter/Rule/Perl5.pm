@@ -33,7 +33,19 @@ sub emit {
         "  sub {\n" . 
         # grammar, string, state, args
         "    my \$tree;\n" .
-        "    \$matcher->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$_[3]{p}, \$_[1], \$_[3] );\n" .
+        "    if ( defined \$_[3]{p} ) {\n" .
+        "        \$matcher->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$_[3]{p}, \$_[1], \$_[3] );\n" .
+        "    }\n" .
+        "    else {\n" .
+
+        "        concat(\n" .
+        "           non_greedy_star( \n" .
+        "             " . call_subrule('any', '    ') . "\n" .
+        "           ),\n" .
+        "           \$matcher\n" .
+        "        )->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$_[3]{p}, \$_[1], \$_[3] );\n" .
+
+        "    }\n" .
         "    my \$cap = \$tree->data->{capture};\n" .
         "    if ( \$cap ) { \n" .
 
