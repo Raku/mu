@@ -7,7 +7,14 @@ use Pugs::Runtime::Match::Ratchet;
 # internal methods - not in spec
 
 sub no_match { 
-    Pugs::Runtime::Match::Ratchet->new( { bool => \0 } );
+    Pugs::Runtime::Match::Ratchet->new( { 
+        bool  => \0,
+        str   => \'',   # '
+        from  => \0,
+        to    => \0,
+        match => [],
+        named => {},
+    } );
 }
       
 sub any {
