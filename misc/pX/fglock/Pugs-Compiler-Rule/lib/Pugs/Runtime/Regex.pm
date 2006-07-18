@@ -88,8 +88,8 @@ sub concat {
                 # str 
                 # from  
                 to    => \($m2->to),
-                named => { %{$_[3]}, %{$m2} },   # XXX
-                match => [ @{$_[3]}, @{$m2} ],   # XXX
+                named => { %{$_[3]}, %{$m2} },   # XXX - push() new data
+                match => [ @{$_[3]}, @{$m2} ],   # XXX - push() new data
                 capture => $m2->data->{capture},
                 abort   => $m2->data->{abort},
         );
