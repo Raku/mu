@@ -181,7 +181,7 @@ options:
 
 =over
 
-=item grammar => $class
+=item * grammar => $class
 
 Specify which namespace (Grammar) the rule belongs to.
 
@@ -191,7 +191,7 @@ Disable backtracking. Match faster. Defaults to 1 in Rules and Tokens.
 
 =item * pos => $pos
 
-Specify a string position to match. Starts in zero. Defaults to C<undef>.
+Specify a string position to match. Starts in zero. Defaults to C<undef>, which matches anywhere in the string.
 
 =item * sigspace => 1
 
@@ -214,7 +214,7 @@ Install a rule into the method C<$name>. If C<$name> is fully qualified
 then it will be installed into that path e.g C<MyGrammar::rulename>,
 otherwise it will install it into the current package.
 
-=item perl5
+=item perl
 
 Instance method.  Returns a string that can be eval'ed into a
 rule/token/regex object.

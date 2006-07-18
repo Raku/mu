@@ -1,5 +1,14 @@
 TODO for Pugs::Compiler::Rule (PCR)
 
+-- before merging --
+
+- use base 'RegexBase' in the docs; or change Grammar::Base to another name
+
+- document $$match
+- new Match methods: data, str, perl, capture
+
+--
+
 Unicode:
 
 - \v \h \V \H
