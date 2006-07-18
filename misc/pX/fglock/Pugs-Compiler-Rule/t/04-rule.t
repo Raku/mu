@@ -24,7 +24,7 @@ no warnings qw( once );
     my $rule = Pugs::Compiler::Regex->compile( 'xxx' . "\n" . '\n' );
     my $match = $rule->match( "xxx\n" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #print "Match: ", $match->perl;
     is( "$match", "xxx\n", 'constant' );
 }
 
@@ -36,7 +36,7 @@ no warnings qw( once );
     my $rule = Pugs::Compiler::Regex->compile( '\n x' . "\n" . '\n' );
     my $match = $rule->match( "\nx\n" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #print "Match: ", $match->perl;
     is( "$match", "\nx\n", 'constant' );
 }
 
@@ -45,7 +45,7 @@ no warnings qw( once );
     my $rule = Pugs::Compiler::Regex->compile( '((.).)(.)' );
     my $match = $rule->match( "xyzw" );
     #print "Source: ", $rule->{perl5};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #print "Match: ", $match->perl;
     is( $match?1:0, 1, 'booleanify - unnamed rules are objects' );
     is( "$match", "xyz", 'stringify 1' );
     is( "$match->[0]", "xy", 'stringify 2' );
@@ -100,7 +100,7 @@ no warnings qw( once );
     *test::rule_method4 = Pugs::Compiler::Regex->compile( '<rule_method3>' )->code;
     my $match = test->rule_method4( "xyzw" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #print "Match: ", $match->perl;
     is( "$match", "x", 'a named subrule calls a named subrule in same grammar' );
 }
 
@@ -110,34 +110,8 @@ no warnings qw( once );
     *test::rule_method5 = Pugs::Compiler::Regex->compile( '<test2.rule_method>' )->code;
     my $match = test->rule_method5( "xyzw" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #print "Match: ", $match->perl;
     is( "$match", "x", 'a named subrule calls a named subrule in other grammar' );
-}
-
-{
-    # calling unnamed subrules
-    $test2::rule2 = Pugs::Compiler::Regex->compile( '.' );
-    #print "Source [1]: ", $test2::rule2->perl;
-    *test::rule_method2 = Pugs::Compiler::Regex->compile( '<$test2::rule2>' )->code;
-    #print "Source [2]: ", Pugs::Compiler::Regex->compile( '<$test2::rule2>' )->perl;
-    my $match = test->rule_method2( "xyzw" );
-    #print "Source: ", $test2::rule2->perl;
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
-    is( "$match", "x", 'a named subrule calls a global unnamed subrule' );
-}
-
-{
-    # calling unnamed subrules
-    my $match;
-    eval {
-    my $rule2 = Pugs::Compiler::Regex->compile( '.' );
-    *test::rule_method6 = Pugs::Compiler::Regex->compile( '<$rule2>' )->code;
-    $match = test->rule_method6( "xyzw" );
-    };
-    warn "# *** Please check if CPAN module 'PadWalker' is properly installed\n",
-         "# *** This is the resulting error: $@"
-        if $@;
-    is( "$match", "x", 'a named subrule calls a lexical unnamed subrule' );
 }
 
 {
@@ -226,3 +200,30 @@ no warnings qw( once );
     my $capture = $match->();
     is($capture->{a},'sometext','simple capture');
 }
+
+{
+    # calling unnamed subrules
+    $test2::rule2 = Pugs::Compiler::Regex->compile( '.' );
+    #print "Source [1]: ", $test2::rule2->perl;
+    *test::rule_method2 = Pugs::Compiler::Regex->compile( '<$test2::rule2>' )->code;
+    #print "Source 'test::rule_method2': ", Pugs::Compiler::Regex->compile( '<$test2::rule2>' )->perl;
+    my $match = test->rule_method2( "xyzw" );
+    #print "Source: ", $test2::rule2->perl;
+    #print "Match: ", $match->perl;
+    is( "$match", "x", 'a named subrule calls a global unnamed subrule' );
+}
+
+{
+    # calling unnamed subrules
+    my $match;
+    eval {
+    my $rule2 = Pugs::Compiler::Regex->compile( '.' );
+    *test::rule_method6 = Pugs::Compiler::Regex->compile( '<$rule2>' )->code;
+    $match = test->rule_method6( "xyzw" );
+    };
+    warn "# *** Please check if CPAN module 'PadWalker' is properly installed\n",
+         "# *** This is the resulting error: $@"
+        if $@;
+    is( "$match", "x", 'a named subrule calls a lexical unnamed subrule' );
+}
+
