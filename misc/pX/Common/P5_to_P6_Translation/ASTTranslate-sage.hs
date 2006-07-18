@@ -57,32 +57,59 @@ regexInternals (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 
 changeSInternals :: [P5AST] -> [P5AST]
 changeSInternals [] = []
-changeSInternals kids =  if ((length kids) >= 3) then if (and [((head ((extractUni (head kids))++" "))=='s'),(matchOnType (head kids) (LiteralNode Openquote "" "")),(matchOnType (head (tail kids)) (LiteralNode Text "" "")),(matchOnType (head (drop 2 kids)) (LiteralNode Closequote "" ""))]) then do let regx = case parse regexString "Uni" (extractUni (head (tail kids))) of
+changeSInternals kids =  if ((length kids) >= 3) then if (and [((head ((extractUni (head kids))++" "))=='s'),(matchOnType (head kids) (LiteralNode Openquote "" "")),(matchOnType (head (tail kids)) (LiteralNode Text "" "")),(matchOnType (head (drop 2 kids)) (LiteralNode Closequote "" ""))]) then {-do let regx = case parse regexString "Uni" (extractUni (head (tail kids))) of
                                                                                                                                                                                                                                                                                                                            Left err -> error $ "\nError:\n" ++ show err
                                                                                                                                                                                                                                                                                                                            Right result -> result
-                                                                                                                                                                                                                                                                                                           [(head kids),(LiteralNode Text "1" regx),(head (drop 2 kids))]++(drop 3 kids)
+                                                                                                                                                                                                                                                                                                           [(head kids),(LiteralNode Text "1" regx),(head (drop 2 kids))]++(drop 3 kids) -} [(head kids),(LiteralNode Text "1" (regexChange (extractUni (head (tail kids))))),(head (drop 2 kids))]++(drop 3 kids)
                                                           else ((head kids):(changeSInternals (tail kids)))
                             else ((head kids):(changeSInternals (tail kids)))
 
+regexChange :: String -> String
+regexChange instr = case parse regexString "regex" instr of
+                                Left err -> error $ "\nError:\n" ++ show err
+                                Right result -> result
+
 regexString :: Parser String
-regexString = do  strs <- (manyTill regexChar eof)
-                  return (joinString strs)
+regexString = choice[ do{try(eof); return "<null>"},
+                      do{strs <- (manyTill regexChar eof); return (joinString strs)}]
 
 regexChar :: Parser String
-regexChar = choice[do{try(string "(space)"); return "<sp>"}, --Handle (space) -> <sp>
-                   do{try(string "\\A"); return "^"},         -- \A -> ^
-                   do{try(string "\\z"); return "$"},         -- \z -> $
+regexChar = choice[do{try(string "\\\\"); return "\\\\"},      --Get rid of literal \, make sure only metacharacter \ can trigger the other choices
+                   do{try(string "\\("); return "\\("},        --Make sure we don't get a literal paren (this way only metcharacter parens can hit the other choices
+                   do{try(string "(space)"); return "<sp>"},   --Handle (space) -> <sp>
+                   do{try(string "\\A"); return "^"},          -- \A -> ^
+                   do{try(string "\\z"); return "$"},          -- \z -> $
                    do{try(string "\\Z"); return "\\n?$"},      -- \Z -> \n?$
                    do{try(string "\\n"); return "\\c[LF]"},    -- \n -> \c[LF]
-                   do{try(string "\\r?\\n"); return "\\n"},     -- \r?\n -> \n
+                   do{try(string "\\r?\\n"); return "\\n"},    -- \r?\n -> \n
                    do{try(string "[^\\n]"); return "\\C[LF]"}, -- [^\n] -> \C[LF]
                    do{try(string "\\a"); return "\\c[BEL]"},   -- \a -> \c[BEL]
-                   do{try(string "\\N{"); val <- (manyTill anyToken (char '}')); return ("\\c["++val++"]")}, -- \N{CENT SIGN} -> \c[CENT SIGN]
-                   do{try(string "[^\\N{"); val <- (manyTill anyToken (string "}]")); return ("\\C["++val++"]")}, -- [^\N{CENT SIGN}] -> \C[CENT SIGN]
+                   do{try(string "\\N{"); val <- (manyTill anyToken (char '}')); return ("\\c["++val++"]")},                -- \N{CENT SIGN} -> \c[CENT SIGN]
+                   do{try(string "[^\\N{"); val <- (manyTill anyToken (string "}]")); return ("\\C["++val++"]")},           -- [^\N{CENT SIGN}] -> \C[CENT SIGN]
+                   do{try(string "\\c["); return "\\e"},       -- \c[ -> \e
                    do{try(string "[^\\t]"); return "\\T"},     -- [^\t] -> \T
                    do{try(string "[^\\r]"); return "\\R"},     -- [^\r] -> \R
                    do{try(string "[^\\f]"); return "\\F"},     -- [^\f] -> \F
                    do{try(string "[^\\e]"); return "\\E"},     -- [^\e] -> \E
+                   do{try(string "[^\\x"); val <- (manyTill anyToken (char ']')); return ("\\X"++val)},                      -- [^\x1B] -> \X1B
+                   do{try(string "[^\\x{"); val <- (manyTill anyToken (string "}]")); return ("\\X["++val++"]")},            -- [^\x{263a}] -> \X[263a]
+                   do{try(string "\\p{"); prop <- (manyTill anyToken (char '}')); return ("<"++prop++">")},                  -- \p{prop} -> <prop>
+                   do{try(string "\\P{"); prop <- (manyTill anyToken (char '}')); return ("<-"++prop++">")},                 -- \P{prop} -> <-prop>
+                   do{try(string "\\X"); return "<.>"},        -- \X -> <.>
+                   do{try(string "<"); return "\\<"},          -- < -> \<
+                   do{try(string ">"); return "\\>"},          -- > -> \>
+                   do{try(string "\\Q"); str <- (manyTill anyToken (string "\\E")); return ("<{ quotemeta '"++str++"' }>")}, -- \Qstring\E -> <{ quotemeta 'string'}>
+                   do{num <- try(do{string "\\"; num <- digit; return num}); return ("$"++(num:""))},                        -- \1 -> $1 
+                   do{try(string "[^"); atoms <- (manyTill anyToken (char ']')); return ("<-["++(regexChange atoms)++"]>")}, -- [^abc] -> <-[abc]>
+                   do{try(string "["); atoms <- (manyTill anyToken (char ']')); return ("<["++(regexChange atoms)++"]>")},   -- [abc] -> <[abc]>
+                   do{try(string "(?:"); atoms <- (manyTill anyToken (char ')')); return ("["++atoms++"]")},                 -- (?:...) -> [...]
+                   do{try(string "(?="); atoms <- (manyTill anyToken (char ')')); return ("<?before "++(regexChange atoms)++">")},    -- (?=foo) -> <?before foo>
+                   do{try(string "(?!"); atoms <- (manyTill anyToken (char ')')); return ("<!before "++(regexChange atoms)++">")},    -- (?!foo) -> <!before foo>
+                   do{try(string "(?<="); atoms <- (manyTill anyToken (char ')')); return ("<?after "++(regexChange atoms)++">")},    -- (?<=foo) -> <?after foo>
+                   do{try(string "(?<!"); atoms <- (manyTill anyToken (char ')')); return ("<!after "++(regexChange atoms)++">")},    -- (?<!foo) -> <!after foo>
+                   do{try(string "(?{"); code <- (manyTill anyToken (string "})")); return ("{"++code++"}")},                -- (?{...}) -> {...}
+                   do{try(string "(??{"); code <- (manyTill anyToken (string "})")); return ("<{"++code++"}>")},             -- (??{...}) -> <{...}>
+                   do{try(do{string "|"; eof}); return "<null>"},                                                            -- /blah|/ -> /blah|<null>/
                    do{char <- anyToken; return (char:"")}]
 
 topicSplit :: P5AST -> P5AST
