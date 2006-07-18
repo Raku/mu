@@ -52,24 +52,31 @@ sub emit {
         "sub {\n" . 
         "  my \$grammar = \$_[0];\n" .
         "  my \$s = \$_[1];\n" .
-        "  my \$pos = \$_[3]{p};\n" .
+        #"  my \$pos;\n" .
         #"  print \"match arg_list = \$_[1]\n\";\n" .
         #"  print \"match arg_list = \@{[\%{\$_[1]} ]}\n\" if defined \$_[1];\n" .
-        "  \$pos = 0 unless defined \$pos;   # TODO - .*? \$match \n" .
+        #"  \$pos = 0 unless defined \$pos;   # TODO - .*? \$match \n" .
         #"  print \"match pos = \$pos\n\";\n" .
-        "  my \%index;\n" . 
-        "  my \@match;\n" .
-        "  my \%named;\n" .
+        "  my \$m;\n" .
+
+        "  for my \$pos ( defined \$_[3]{p} ? \$_[3]{p} : ( 0 .. length( \$s ) - 1 ) ) {\n" .
+
+        "    my \%index;\n" . 
+        "    my \@match;\n" .
+        "    my \%named;\n" .
         #"  my \$from = \$pos;\n" .
-        "  my \$bool = 1;\n" .
-        "  my \$capture;\n" .
-        "  my \$quantified;\n" .
-        "  my \$m = Pugs::Runtime::Match::Ratchet->new( \\{ \n" .
-        "    str => \\\$s, from => \\(0+\$pos), to => \\(\$pos), \n" .
-        "    bool => \\\$bool, match => \\\@match, named => \\\%named, capture => \\\$capture, \n" .
-        "  } );\n" .
-        "  \$bool = 0 unless\n" .
-        emit_rule( $ast, ' ' ) . ";\n" .
+        "    my \$bool = 1;\n" .
+        "    my \$capture;\n" .
+        "    my \$quantified;\n" .
+        "    \$m = Pugs::Runtime::Match::Ratchet->new( { \n" .
+        "      str => \\\$s, from => \\(0+\$pos), to => \\(\$pos), \n" .
+        "      bool => \\\$bool, match => \\\@match, named => \\\%named, capture => \\\$capture, \n" .
+        "    } );\n" .
+        "    \$bool = 0 unless\n" .
+        emit_rule( $ast, '   ' ) . ";\n" .
+
+        "    last if \$m;\n" .
+        "  }\n" .  # /for
         "  return \$m;\n" .
         "}\n";
 }
@@ -85,7 +92,7 @@ sub emit_rule {
     #my ( $k, $v ) = each %$n;
     # XXX - use real references
     no strict 'refs';
-    print "NODE ", Dumper($k), ", ", Dumper($v);
+    #print "NODE ", Dumper($k), ", ", Dumper($v);
     my $code = &$k( $v, $tab );
     return $code;
 }
@@ -268,7 +275,7 @@ $_[1]     my \$bool = \$hash->{'bool'};
 $_[1]     \$index{$rnd} = \$#match+1 unless defined \$index{$rnd};
 $_[1]     if ( \$quantified ) {
 $_[1]       if ( \$bool ) {
-$_[1]         push \@{ \$match[\$index{$rnd}] }, Pugs::Runtime::Match::Ratchet->new( \\\$hash );
+$_[1]         push \@{ \$match[\$index{$rnd}] }, Pugs::Runtime::Match::Ratchet->new( \$hash );
 $_[1]       }
 $_[1]       else {
 $_[1]         \@{ \$match[\$index{$rnd}] } = () 
@@ -277,13 +284,13 @@ $_[1]       }
 $_[1]     }
 $_[1]     else {
 $_[1]       if ( ! defined \$match[\$index{$rnd}] ) {
-$_[1]         \$match[\$index{$rnd}] = Pugs::Runtime::Match::Ratchet->new( \\\$hash );
+$_[1]         \$match[\$index{$rnd}] = Pugs::Runtime::Match::Ratchet->new( \$hash );
 $_[1]       }
 $_[1]       elsif ( ref( \$match[\$index{$rnd}] ) ne 'ARRAY' ) {
-$_[1]         \$match[\$index{$rnd}] = [ \$match[\$index{$rnd}], Pugs::Runtime::Match::Ratchet->new( \\\$hash ) ];
+$_[1]         \$match[\$index{$rnd}] = [ \$match[\$index{$rnd}], Pugs::Runtime::Match::Ratchet->new( \$hash ) ];
 $_[1]       }
 $_[1]       else {
-$_[1]         push \@{ \$match[\$index{$rnd}] }, Pugs::Runtime::Match::Ratchet->new( \\\$hash );
+$_[1]         push \@{ \$match[\$index{$rnd}] }, Pugs::Runtime::Match::Ratchet->new( \$hash );
 $_[1]       }
 $_[1]       #unshift \@{ \$match[\$index{$rnd}] } unless \$bool;
 $_[1]     }
@@ -321,7 +328,7 @@ $_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%n
 $_[1]     };
 $_[1]     my \$bool = \${\$hash->{'bool'}};
 .
-        $gen_match = "Pugs::Runtime::Match::Ratchet->new( \\\$hash )";
+        $gen_match = "Pugs::Runtime::Match::Ratchet->new( \$hash )";
 	$post_match = "";
     }
 

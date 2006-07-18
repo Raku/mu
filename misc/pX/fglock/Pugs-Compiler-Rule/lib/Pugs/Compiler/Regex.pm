@@ -120,8 +120,6 @@ sub match {
             ? $flags->{p} 
             : $rule->{p};
 
-    # if ( defined $p ) 
-    {
         #print "flag p";
         #print "match: grammar $rule->{grammar}, $str, %$flags\n";
         #print $rule->{code};
@@ -148,22 +146,6 @@ sub match {
         #$p = 0 if $p eq 'undef';  # XXX - bug - 'undef' as string in t\06-subrule.t
         # eval { $$match->{from} = \(0 + $p) };   # XXX
         return $match;  
-    }
-
-    # XXX - unused!!!
-    foreach my $i (0..length($str)) {
-        my $match = $rule->{code}( 
-            $grammar,
-            substr($str, $i),
-            $state,
-            $flags->{args},
-        );
-        print "Regex: match: ",Dumper $match;
-        $match or next;   
-        eval { $$match->{from} = $i unless defined $$match->{from} };   # XXX
-        return $match;  
-    }
-    return Pugs::Runtime::Match::Ratchet->new( { bool => \0 } );   # XXX - fix?
 }
 
 sub install {

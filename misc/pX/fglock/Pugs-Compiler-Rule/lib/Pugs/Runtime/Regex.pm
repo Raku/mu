@@ -88,7 +88,7 @@ sub concat {
                 capture => $_[3]{match}[1]->data->{capture},
                 abort   => $_[3]{match}[1]->data->{abort},
         } );
-            print __PACKAGE_."::concat: [3] ", $_[3]->perl;
+        #print __PACKAGE_."::concat: [3] ", $_[3]->perl;
         return \@state;
     }
 }

@@ -47,7 +47,7 @@ sub perl {
     local $Data::Dumper::Terse    = 1;
     local $Data::Dumper::Sortkeys = 1;
     local $Data::Dumper::Pad = '  ';
-    return __PACKAGE__ . "->new(" . Dumper( $_[0]->data ) . ")\n";
+    return __PACKAGE__ . "->new( " . Dumper( $_[0]->data ) . ")\n";
 }
 
 # tail() for backwards compatibility

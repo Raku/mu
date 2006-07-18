@@ -6,17 +6,17 @@ use_ok( 'Pugs::Compiler::Regex' );
 
 {
     my $rule = Pugs::Compiler::Regex->compile( '.' );
-    print $rule->{perl5};
+    #print $rule->{perl5};
     my $match = $rule->match( "xyzw" );
-    print "match: ", $match->perl;
+    #print "match: ", $match->perl;
     is( "$match", "x", 'stringify 1' );
 }
 
 {
     my $rule = Pugs::Compiler::Regex->compile( '.|.' );
-    print $rule->{perl5};
+    #print $rule->{perl5};
     my $match = $rule->match( "xyzw" );
-    print "match: ", $match->perl;
+    #print "match: ", $match->perl;
     is( "$match", "x", 'stringify 2' );
 }
 
@@ -80,9 +80,9 @@ use_ok( 'Pugs::Compiler::Regex' );
 
 {
     my $rule = Pugs::Compiler::Regex->compile( '$<z> := (.) { return { x => { %{$_[0]} } ,} } ' );
-    print $rule->{perl5};
+    #print $rule->{perl5};
     my $match = $rule->match( "abc" );
-    print "match: ", $match->perl;
+    #print "match: ", $match->perl;
     ok( $match, 'true match' );
     my $ret = $match->();
     is( $ret->{x}{z}, "a", 'returns correct struct' );
@@ -136,17 +136,18 @@ use_ok( 'Pugs::Compiler::Rule' );
 use_ok( 'Pugs::Runtime::Match::Ratchet' );
 {
     my $rule = Pugs::Compiler::Rule->compile( 'b' );
+    #print $rule->{perl5};
     my $match = $rule->match( "b" );
     is( $match?1:0, 1, 'boolean true');    
     is( $match->from, 0, 'match->from');
     is( $match->to, 1, 'match->to');
     $match = $rule->match( "xby" );
     is( $match?1:0, 1, 'boolean true (non-anchored match)');  
-  TODO: {  
-    local $TODO = "non-achored match breaks from/to";
+  #TODO: {  
+  #  local $TODO = "non-achored match breaks from/to";
     is( $match->from, 1, 'match->from');
     is( $match->to, 2, 'match->to');
-  }
+  #}
     $match = $rule->match( "x" );
     is( $match?1:0, 0, 'boolean false');    
 }
