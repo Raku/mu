@@ -38,13 +38,12 @@ sub emit {
         "    }\n" .
         "    else {\n" .
 
-        "        concat(\n" .
-        "           non_greedy_star( \n" .
-        "             " . call_subrule('any', '    ') . "\n" .
-        "           ),\n" .
-        "           \$matcher\n" .
-        "        )->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$_[3]{p}, \$_[1], \$_[3] );\n" .
+        "        for my \$pos ( 0 .. length( \$_[1] ) - 1 ) {\n" .
+        "            my \$param = { \%{\$_[3]}, p => \$pos };\n" .           
+        "            \$matcher->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$pos, \$_[1], \$_[3] );\n" .
 
+        "            last if \$tree;\n" .
+        "        }\n" .
         "    }\n" .
         "    my \$cap = \$tree->data->{capture};\n" .
         "    if ( \$cap ) { \n" .
