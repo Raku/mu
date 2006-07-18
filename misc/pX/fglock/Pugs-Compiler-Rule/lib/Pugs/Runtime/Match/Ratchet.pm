@@ -30,8 +30,8 @@ sub new {
 sub from  {  ${$_data{id $_[0]}->{from}}  }
 sub to    {  ${$_data{id $_[0]}->{to}}    }
 sub bool  {  ${$_data{id $_[0]}->{bool}}  }
-sub hash  {  ${$_data{id $_[0]}->{named}} }
-sub array {  ${$_data{id $_[0]}->{match}} }
+sub hash  {  $_data{id $_[0]}->{named} }
+sub array {  $_data{id $_[0]}->{match} }
 
 sub flat {
     return ${ $_data{id $_[0]}->{capture} }

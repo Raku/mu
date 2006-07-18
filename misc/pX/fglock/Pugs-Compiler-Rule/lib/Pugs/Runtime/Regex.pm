@@ -96,14 +96,14 @@ sub constant {
     no warnings qw( uninitialized );
     return sub {
         my $bool = $const eq substr( $_[0], $_[5], $lconst );
-        $_[3] = bless \{ 
+        $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
                 bool  => \$bool,
                 str   => \$_[0],
                 from  => \(0 + $_[5]),
                 to    => \($_[5] + $lconst),
                 named => {},
                 match => [],
-            }, 'Pugs::Runtime::Match::Ratchet';
+            });
         return;
     }
 }
@@ -113,14 +113,14 @@ sub perl5 {
     no warnings qw( uninitialized );
     return sub {
         my $bool = substr( $_[0], $_[5] ) =~ m/$rx/;
-        $_[3] = bless \{ 
+        $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
                 bool  => \$bool,
                 str   => \$_[0],
                 from  => \(0 + $_[5]),
                 to    => \($_[5] + length $1),
                 named => {},
                 match => [],
-            }, 'Pugs::Runtime::Match::Ratchet';
+            });
         return;
     };
 }
@@ -128,14 +128,14 @@ sub perl5 {
 sub null {
     no warnings qw( uninitialized );
     return sub {
-        $_[3] = bless \{ 
+        $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
                 bool  => \1,
                 str   => \$_[0],
                 from  => \(0 + $_[5]),
                 to    => \(0 + $_[5]),
                 named => {},
                 match => [],
-            }, 'Pugs::Runtime::Match::Ratchet';
+            });
         return;
     }
 };
@@ -147,14 +147,14 @@ sub named {
     sub {
         my $match;
         $node->( @_[0,1,2], $match, @_[4,5,6,7] );
-        $_[3] = bless \{ 
+        $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
                 bool  => \( $match->bool ),
                 str   => \$_[0],
                 from  => \( $match->from ),
                 to    => \( $match->to ),
                 named => { $label => $match },
                 match => [],
-            }, 'Pugs::Runtime::Match::Ratchet';
+            });
         return;
     }
 }
@@ -167,14 +167,14 @@ sub positional {
     sub {
         my $match;
         $node->( @_[0,1,2], $match, @_[4,5,6,7] );
-        $_[3] = bless \{ 
+        $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
                 bool  => \( $match->bool ),
                 str   => \$_[0],
                 from  => \( $match->from ),
                 to    => \( $match->to ),
                 named => {},
                 match => [ $match ],
-            }, 'Pugs::Runtime::Match::Ratchet';
+            });
         return;
     }
 }
@@ -194,14 +194,14 @@ sub before {
     return sub {
         my $match;
         $op->( @_[0,1,2], $match, @_[4,5,6,7] );
-        $_[3] = bless \{ 
+        $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
                 bool  => \( $match->bool ),
                 str   => \$_[0],
                 from  => \( $match->from ),
                 to    => \( $match->from ),
                 named => {},
                 match => [],
-            }, 'Pugs::Runtime::Match::Ratchet';
+            });
         return;
     };
 }

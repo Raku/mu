@@ -20,11 +20,11 @@ sub __any {
   my %named;
   my $bool;
   my $capture;
-  my $m = bless \{
+  my $m = Pugs::Runtime::Match::Ratchet->new({
     str => \$s, from => \(0+$pos), to => \(1+$pos),
     bool => \$bool, match => \@match, named => \%named, capture => \$capture,
     #tail => substr( $s, $pos+1 ),  # backwards compatible
-  }, 'Pugs::Runtime::Match::Ratchet';
+  });
   $bool = substr( $s, $pos, 1 ) =~ /\s/s ? 1 : 0;
   print "Match any(): ", do{use Data::Dumper; Dumper($m)};
   return $m;

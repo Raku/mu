@@ -23,15 +23,15 @@ q(sub {
   my $bool = \( $s =~ /) . $rule_source . q(/ \) ? 1 : 0;
   my @match;
   for ( 1 .. $#+ ) {
-      push @match, bless \\{
+      push @match, Pugs::Runtime::Match::Ratchet->new({
         str => \\$s, from => \\(0+$-[$_]), to => \\(0+$+[$_]),
         bool => \\1, match => [], named => {}, capture => \\undef,
-      }, 'Pugs::Runtime::Match::Ratchet';
+      });
   }
-  return bless \\{
+  return Pugs::Runtime::Match::Ratchet->new({
     str => \\$s, from => \\(0+$-[0]), to => \\(0+$+[0]),
     bool => \\$bool, match => \\@match, named => {}, capture => \\undef,
-  }, 'Pugs::Runtime::Match::Ratchet';
+  });
 };
 );
     #print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
