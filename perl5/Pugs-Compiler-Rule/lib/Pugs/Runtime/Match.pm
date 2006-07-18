@@ -12,7 +12,7 @@ use overload (
     '%{}'    => \&hash,
     'bool'   => \&bool,
     '&{}'    => \&code,
-    '${}'    => \&code,
+    '${}'    => \&scalar,
     '""'     => \&flat,
     '0+'     => \&flat,
     fallback => 1,
@@ -69,6 +69,12 @@ sub flat {
 sub code {
     my $c = $_data{id $_[0]}->{capture};
     return sub { $c };
+}
+
+# return the capture
+sub scalar {
+    my $c = $_data{id $_[0]}->{capture};
+    return \$c;
 }
 
 # return the capture

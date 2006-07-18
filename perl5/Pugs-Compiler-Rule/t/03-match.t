@@ -45,7 +45,7 @@ use_ok( 'Pugs::Compiler::Regex' );
     my $match = $rule->match( "xyzw" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "xyz", 'stringify 1' );
-    is( $match->(), "xyz", 'stringify 1' );
+    is( $$match, "xyz", 'stringify 1' );
     is( "$match->[0]", "xy", 'stringify 2' );
     is( "$match->[0][0]", "x", 'stringify 3' );
 }
@@ -78,7 +78,7 @@ use_ok( 'Pugs::Compiler::Regex' );
     my $rule = Pugs::Compiler::Regex->compile( '$<z> := (.) { return { x => { %{$_[0]} } ,} } ' );
     my $match = $rule->match( "abc" );
     ok( $match, 'true match' );
-    my $ret = $match->();
+    my $ret = $$match;
     is( $ret->{x}{z}, "a", 'returns correct struct' );
 }
 
@@ -86,7 +86,7 @@ use_ok( 'Pugs::Compiler::Regex' );
     my $rule = Pugs::Compiler::Regex->compile( '$<z> := [.] { return { x => { %{$_[0]} } ,} } ' );
     my $match = $rule->match( "abc" );
     ok( $match, 'true match' );
-    my $ret = $match->();
+    my $ret = $$match;
     is( $ret->{x}{z}, "a", 'returns correct struct' );
 }
 
@@ -94,7 +94,7 @@ use_ok( 'Pugs::Compiler::Regex' );
     my $rule = Pugs::Compiler::Regex->compile( '$<z> := <any> { return { x => { %{$_[0]} } ,} } ' );
     my $match = $rule->match( "abc" );
     ok( $match, 'true match' );
-    my $ret = $match->();
+    my $ret = $$match;
     is( $ret->{x}{z}, "a", 'returns correct struct' );
 }
 
