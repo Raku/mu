@@ -26,7 +26,7 @@ sub __any {
     #tail => substr( $s, $pos+1 ),  # backwards compatible
   }, 'Pugs::Runtime::Match::Ratchet';
   $bool = substr( $s, $pos, 1 ) =~ /\s/s ? 1 : 0;
-  print "Match any(): ", do{use Data::Dumper; Dumper($m)};
+  print "Match any(): ", do{use Data::Dump::Streamer; Dump($m)};
   return $m;
 }
        

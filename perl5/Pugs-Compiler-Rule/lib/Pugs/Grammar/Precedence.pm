@@ -6,7 +6,7 @@ use strict;
 use warnings;
 
 use Parse::Yapp;
-use Data::Dumper;
+use Data::Dump::Streamer;
 use Digest::MD5 'md5_hex';
 
 my $cache;
@@ -90,7 +90,7 @@ sub add_op {
              } @{$self->{levels}[$level]} ) {
             #print "pos $level at $opt->{precedence} $opt->{other}\n";
             $relative_precedences{$opt->{precedence}}->($self, $level, $opt);
-            #print "Precedence table: ", Dumper( $self );
+            #print "Precedence table: ", Dump( $self );
             return;
         }
     }

@@ -1,7 +1,7 @@
 
 use Test::More tests => 29;
-use Data::Dumper;
-$Data::Dumper::Indent = 1;
+use Data::Dump::Streamer;
+$Data::Dump::Streamer::Indent = 1;
 
 use_ok( 'Pugs::Compiler::Regex' );
 no warnings qw( once );
@@ -23,8 +23,8 @@ no warnings qw( once );
     # alpha constant
     my $rule = Pugs::Compiler::Regex->compile( 'xxx' . "\n" . '\n' );
     my $match = $rule->match( "xxx\n" );
-    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #print "Source: ", do{use Data::Dump::Streamer; Dump($rule->{perl5})};
+    #print "Match: ", do{use Data::Dump::Streamer; Dump($match)};
     is( "$match", "xxx\n", 'constant' );
 }
 
@@ -35,8 +35,8 @@ no warnings qw( once );
     # \n is whitespace
     my $rule = Pugs::Compiler::Regex->compile( '\n x' . "\n" . '\n' );
     my $match = $rule->match( "\nx\n" );
-    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #print "Source: ", do{use Data::Dump::Streamer; Dump($rule->{perl5})};
+    #print "Match: ", do{use Data::Dump::Streamer; Dump($match)};
     is( "$match", "\nx\n", 'constant' );
 }
 
@@ -44,8 +44,8 @@ no warnings qw( once );
     # unnamed rules are objects
     my $rule = Pugs::Compiler::Regex->compile( '((.).)(.)' );
     my $match = $rule->match( "xyzw" );
-    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #print "Source: ", do{use Data::Dump::Streamer; Dump($rule->{perl5})};
+    #print "Match: ", do{use Data::Dump::Streamer; Dump($match)};
     is( $match?1:0, 1, 'booleanify - unnamed rules are objects' );
     is( "$match", "xyz", 'stringify 1' );
     is( "$match->[0]", "xy", 'stringify 2' );
@@ -97,8 +97,8 @@ no warnings qw( once );
     *test::rule_method3 = Pugs::Compiler::Regex->compile( '.' )->code;
     *test::rule_method4 = Pugs::Compiler::Regex->compile( '<rule_method3>' )->code;
     my $match = test->rule_method4( "xyzw" );
-    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #print "Source: ", do{use Data::Dump::Streamer; Dump($rule->{perl5})};
+    #print "Match: ", do{use Data::Dump::Streamer; Dump($match)};
     is( "$match", "x", 'a named subrule calls a named subrule in same grammar' );
 }
 
@@ -107,8 +107,8 @@ no warnings qw( once );
     *test2::rule_method = Pugs::Compiler::Regex->compile( '.' )->code;
     *test::rule_method5 = Pugs::Compiler::Regex->compile( '<test2.rule_method>' )->code;
     my $match = test->rule_method5( "xyzw" );
-    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #print "Source: ", do{use Data::Dump::Streamer; Dump($rule->{perl5})};
+    #print "Match: ", do{use Data::Dump::Streamer; Dump($match)};
     is( "$match", "x", 'a named subrule calls a named subrule in other grammar' );
 }
 
@@ -117,8 +117,8 @@ no warnings qw( once );
     $test2::rule2 = Pugs::Compiler::Regex->compile( '.' );
     *test::rule_method2 = Pugs::Compiler::Regex->compile( '<$test2::rule2>' )->code;
     my $match = test->rule_method2( "xyzw" );
-    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #print "Source: ", do{use Data::Dump::Streamer; Dump($rule->{perl5})};
+    #print "Match: ", do{use Data::Dump::Streamer; Dump($match)};
     is( "$match", "x", 'a named subrule calls a global unnamed subrule' );
 }
 
@@ -212,7 +212,7 @@ no warnings qw( once );
     # capture
     my $rule = Pugs::Compiler::Regex->compile('some (text) { return { a => $() ,} } ');
     my $match = $rule->match("sometext");
-    #print Dumper($match);
+    #print Dump($match);
     my $capture = $match->();
     is($capture->{a},'sometext','simple capture');
 }

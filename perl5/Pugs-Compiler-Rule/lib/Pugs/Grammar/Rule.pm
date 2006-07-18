@@ -9,7 +9,7 @@ use warnings;
 no  warnings qw( once redefine uninitialized );
 
 use Text::Balanced; 
-use Data::Dumper;
+use Data::Dump::Streamer;
 use Pugs::Runtime::Rule;
 #use Pugs::Runtime::Grammar; -- MOP 
 
@@ -64,7 +64,7 @@ BEGIN {
         sub{ 
             # warn "Trying $method\n";
             my $match = Pugs::Grammar::Rule->$method(@_);
-            #warn "Match $method ".Dumper($match) if $match->{bool};
+            #warn "Match $method ".Dump($match) if $match->{bool};
             return $match;
         }
     }

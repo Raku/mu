@@ -4,7 +4,7 @@ package Pugs::Runtime::Match;
 use 5.006;
 use strict;
 use warnings;
-use Data::Dumper;
+use Data::Dump::Streamer;
 use Class::InsideOut qw( public register id );
 
 use overload (
@@ -27,12 +27,20 @@ sub new {
     return $obj;
 }
 
+sub DDS_freeze { 
+    my $str = Data::Dump::Streamer::Dump($_[0]->data)->Out;
+    my $cls = ref($_[0]);
+    $str =~ s/[^=]*=/$cls->new(/;
+    $str =~ s/;/)/;
+    return $str;
+}
+
 # XXX - this sub should set .from and .to in match nodes!
 #     - it should be called only once, whenever there is an access
 #       to: .from(); .to(); methods that call ._box_submatch() 
 sub _str {
     my $match = $_[0];
-    #print "STR: ", ref( $match ), " ", Dumper( $match ), "\n";
+    #print "STR: ", ref( $match ), " ", Dump( $match ), "\n";
     return join( '', map { match::str( $_ ) } @$match )
         if ref( $match ) eq 'ARRAY';
     return _str( $match->{match} ) 
@@ -47,7 +55,7 @@ sub from {
 }
 
 sub to {
-    #print 'TO: ', do{use Data::Dumper; Dumper($_data{id $_[0]})};
+    #print 'TO: ', do{use Data::Dump::Streamer; Dump($_data{id $_[0]})};
     #my $str = _str( $_data{id $_[0]} );
     #print "TO: $str\n";
     $_data{id $_[0]}->{to} || ($_[0]->from + length( _str( $_data{id $_[0]} ) ));
@@ -97,7 +105,7 @@ sub _get_captures {
     else {
         push @a, $_data{id $_[0]}->{match};        
     }
-    #print Dumper @a;
+    #print Dump @a;
     while ( ref $a[-1] && exists $a[-1]{match} && ref( $a[-1]{match} ) eq 'ARRAY' ) {
         my $t = pop @a;
         push @a, @{$t->{match}};

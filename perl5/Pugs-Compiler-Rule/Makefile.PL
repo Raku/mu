@@ -27,6 +27,7 @@ all_from('lib/Pugs/Compiler/Rule.pm');
 requires('Parse::Yapp' => '0');
 requires('PadWalker' => '1.0');
 requires('Class::InsideOut' => '0');
+requires('Data::Dump::Streamer' => '0');
 
 &WriteAll;
 

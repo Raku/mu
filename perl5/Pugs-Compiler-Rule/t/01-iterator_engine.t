@@ -6,9 +6,7 @@ use warnings;
 #require 'iterator_engine.pl';
 
 use Test::More qw(no_plan);
-use Data::Dumper;
-$Data::Dumper::Indent = 1;
-$Data::Dumper::Pad = '# ';
+use Data::Dump::Streamer;
 
 use_ok( 'Pugs::Runtime::Rule' );
 
@@ -28,7 +26,7 @@ my ( $rule, $match );
   $match = $rule->( 'c123', undef, {capture=>1} );
   ok ( $match->{bool}, "/[a|c]/ #2" );
   is ( $match->{tail}, '123', "tail is ok" );
-  #print Dumper( $match );
+  #print Dump( $match );
 }
 
 {
@@ -38,12 +36,12 @@ my ( $rule, $match );
     );
   is ( ref $rule, "CODE", "rule 'a*' is a coderef" );
   $match = $rule->( 'aa' );
-  # print Dumper( $match );
+  # print Dump( $match );
   ok ( $match->{bool}, "/a*/" );
-  #print Dumper( $match );
+  #print Dump( $match );
   $match = $rule->( '' );
   ok ( $match->{bool}, "matches 0 occurrences" );
-  #print Dumper( $match );
+  #print Dump( $match );
 }
 
 {
@@ -70,7 +68,7 @@ my ( $rule, $match );
     );
   $match = $rule->( 'aacaab' );
   ok ( $match->{bool}, "/[a|c]+ab/ with backtracking" );
-  # print Dumper( $match );
+  # print Dump( $match );
 }
 
 print "# XXX other tests disabled due to a big API change\n";
@@ -87,7 +85,7 @@ __END__
   ( $stat, $assertion, $match, $tail ) = $rule->( 'aacaab', undef, {capture=>1} );
   ok ( defined $match, "/[a|c]+/" );
   is ( $tail, 'acaab', "tail is ok" );
-  #print Dumper( $match );
+  #print Dump( $match );
 }
 
 {
@@ -103,7 +101,7 @@ __END__
     );
   ( $stat, $assertion, $match, $tail ) = $rule->( 'aacacb' );
   ok ( defined $match, "/[a|c]+?ab/ with backtracking" );
-  #print Dumper( $match );
+  #print Dump( $match );
 }
 
 {
@@ -151,25 +149,25 @@ __END__
 
 # old tests 
 
-print "word\n", Dumper( 
+print "word\n", Dump( 
   &{'rule::<word>'}( 0, qw(b a a ! !) ) 
 );
-print "word concat\n", Dumper( 
+print "word concat\n", Dump( 
   rule::concat( \&{'rule::<word>'}, \&{'rule::<ws>'} )->( 0, qw(b a ),' ' ) 
 );
-print "non_greedy + backtracking\n", Dumper( 
+print "non_greedy + backtracking\n", Dump( 
   rule::concat(
     rule::non_greedy( rule::constant('a') ),
     rule::constant('ab')
   )->( 0, qw(a a a a b) ) 
 );
-print "alternation + backtracking\n", Dumper( 
+print "alternation + backtracking\n", Dump( 
   rule::concat(
     rule::alternation( rule::constant('a'), rule::constant('ab') ),
     rule::constant('ab')
   )->( 0, qw(a b a b) ) 
 );
-print "alternation + greedy + backtracking -- (ab,a,ab)(ab)\n", Dumper( 
+print "alternation + greedy + backtracking -- (ab,a,ab)(ab)\n", Dump( 
   rule::concat(
     rule::greedy(
       rule::alternation( rule::constant('a'), rule::constant('ab') )

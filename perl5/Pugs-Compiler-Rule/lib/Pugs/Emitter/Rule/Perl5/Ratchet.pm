@@ -7,8 +7,8 @@ package Pugs::Emitter::Rule::Perl5::Ratchet;
 
 use strict;
 use warnings;
-use Data::Dumper;
-$Data::Dumper::Indent = 1;
+use Data::Dump::Streamer;
+$Data::Dump::Streamer::Indent = 1;
 
 our $direction = "+";  # XXX make lexical
 our $sigspace = 0;
@@ -77,15 +77,15 @@ sub emit {
 sub emit_rule {
     my $n = $_[0];
     my $tab = $_[1] . '  ';
-    die "unknown node: ", Dumper( $n )
+    die "unknown node: ", Dump( $n )
         unless ref( $n ) eq 'HASH';
-    #print "NODE ", Dumper($n);
+    #print "NODE ", Dump($n);
     my ($k) = keys %$n;
     my $v = $$n{$k};
     #my ( $k, $v ) = each %$n;
     # XXX - use real references
     no strict 'refs';
-    #print "NODE ", Dumper($k), ", ", Dumper($v);
+    #print "NODE ", Dump($k), ", ", Dump($v);
     my $code = &$k( $v, $tab );
     return $code;
 }
@@ -98,7 +98,7 @@ sub non_capturing_group {
 sub quant {
     my $term = $_[0]->{'term'};
     my $quantifier = $_[0]->{quant};
-    #print "QUANT: ",Dumper($_[0]);
+    #print "QUANT: ",Dump($_[0]);
     $quantifier = '' unless defined $quantifier;
     # TODO: fix grammar to not emit empty quantifier
     my $tab = ( $quantifier eq '' ) ? $_[1] : $_[1] . "  ";
@@ -550,7 +550,7 @@ $_[1] )";
                     call_subrule( $subrule, $_[1]."        ", @param ) . ";\n" .
                 "$_[1]           my \$bool = (!\$match[-1] != 1);\n" .
                 "$_[1]           \$pos = \$match[-1]->to if \$bool;\n" .
-                #"print !\$match[-1], ' ', Dumper \$match[-1];\n" .
+                #"print !\$match[-1], ' ', Dump \$match[-1];\n" .
                 "$_[1]           \$bool;\n" .
                 "$_[1]         }",
 	      flat => 1

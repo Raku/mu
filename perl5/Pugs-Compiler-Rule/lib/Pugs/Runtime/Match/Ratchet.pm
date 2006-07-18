@@ -4,7 +4,7 @@ package Pugs::Runtime::Match::Ratchet;
 use 5.006;
 use strict;
 use warnings;
-use Data::Dumper;
+use Data::Dump::Streamer;
 
 use overload (
     '@{}'    => \&array,

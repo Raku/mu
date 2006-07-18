@@ -34,7 +34,7 @@ q(sub {
   }, 'Pugs::Runtime::Match::Ratchet';
 };
 );
-    #print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
+    #print 'rule perl5: ', do{use Data::Dump::Streamer; Dump($self->{perl5})};
 
     local $@;
     $self->{code} = eval 
