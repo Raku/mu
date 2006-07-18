@@ -23,6 +23,8 @@ sub any {
         str   => \($_[0]),
         from  => \$pos,
         to    => \($pos+1),
+        match => [],
+        named => {},
     } );
 };
 

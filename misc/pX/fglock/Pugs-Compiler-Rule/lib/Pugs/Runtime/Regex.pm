@@ -65,14 +65,16 @@ sub concat {
             my $st = $nodes->[0]->( $_[0], $state[0], @_[2,3,4,5,6,7] );
             return if ! $_[3] || $_[3]->data->{abort};
             
-            print __PACKAGE_."::concat: [1] ", Dumper( $_[3] );
-            
+            print __PACKAGE_."::concat: [1] ", $_[3]->perl;
+
+            my $param = { %{$_[7]}, p => $_[3]->to };            
+
             $_[3] = { match => [ $_[3] ] };
             $state[1] = $nodes->[1]->( $_[0], $state[1], $_[2], $_[3]{match}[1], 
-                         $_[4], $_[3]{match}[0]->to, @_[6,7] );
+                         $_[4], $_[3]{match}[0]->to, $_[6], $param );
             $state[0] = $st unless $state[1];
             
-            print __PACKAGE_."::concat: [2] ", Dumper( $_[3] );
+            print __PACKAGE_."::concat: [2] ", $_[3]{match}[0]->perl, $_[3]{match}[1]->perl;
         } while ! $_[3]{match}[1] && 
                 ! $_[3]{match}[1]->data->{abort} &&
                 $state[0]; 
