@@ -1905,32 +1905,32 @@ instance YAML VRef where
     asYAML (MkRef (ICode cv)) = do
         VCode vsub  <- fakeEval $ fmap VCode (code_fetch cv)
         vsubC       <- asYAML vsub
-        return $ mkTagNode (tagHs "VCode") $ YamlSeq [vsubC]
+        return $ mkTagNode (tagHs "VCode") $ ESeq [vsubC]
     asYAML (MkRef (IScalar sv)) = do
         val <- fakeEval $ scalar_fetch sv
         svC <- asYAML val
         let tag = if scalar_iType sv == mkType "Scalar::Const"
                     then "VScalar" else "IScalar"
-        return $ mkTagNode (tagHs tag) $ YamlSeq [svC]
+        return $ mkTagNode (tagHs tag) $ ESeq [svC]
     asYAML (MkRef (IArray av)) = do
         VList vals <- fakeEval $ fmap VList (array_fetch av)
         avC <- asYAML vals
-        return $ mkTagNode (tagHs "Array") $ YamlSeq [avC]
+        return $ mkTagNode (tagHs "Array") $ ESeq [avC]
     asYAML (MkRef (IHash hv)) = do
         VMatch MkMatch{ matchSubNamed = hv } <- fakeEval $ fmap (VMatch . MkMatch False 0 0 "" []) (hash_fetch hv)
         hvC <- asYAML hv
-        return $ mkTagNode (tagHs "Hash") $ YamlSeq [hvC]
+        return $ mkTagNode (tagHs "Hash") $ ESeq [hvC]
     asYAML (MkRef (IPair pv)) = do
         VList [k, v] <- fakeEval $ fmap (\(k, v) -> VList [k, v]) (pair_fetch pv)
         avC <- asYAML (k, v)
-        return $ mkTagNode (tagHs "Pair") $ YamlSeq [avC]
+        return $ mkTagNode (tagHs "Pair") $ ESeq [avC]
     asYAML ref = do
         val <- fakeEval $ readRef ref
         svC <- asYAML val
         liftIO $ print "====>"
         liftIO $ print svC
         fail ("Not implemented: asYAML \"" ++ showType (refType ref) ++ "\"")
-    fromYAML MkYamlNode{nodeTag=Just s, nodeElem=YamlSeq [node]}
+    fromYAML MkNode{n_tag=Just s, n_elem=ESeq [node]}
         | s == packBuf "tag:hs:VCode"   =
             fmap (MkRef . ICode) (fromYAML node :: IO VCode)
         | s == packBuf "tag:hs:VScalar" =

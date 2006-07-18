@@ -27,13 +27,13 @@ instanceSkeleton' s ii  d = (simpleInstance s d <+> text "where")
 	f (i,dflt) = map i (body d) ++ [dflt $ body d]      
 
 caseHead, caseTail :: [Body] -> Doc
-caseHead _ = text "fromYAML MkYamlNode{nodeTag=Just t, nodeElem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of"
+caseHead _ = text "fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of"
 caseTail bodies = nest 4 (text $ "_ -> fail $ \"unhandled tag: \" ++ show t ++ \", expecting \" ++ show " ++ show (map constructor bodies) ++ " ++ \" in node \" ++ show e")
        $+$ text "fromYAML _ = fail \"no tag found\""
 
 makeFromYAML, makeAsYAML :: AlwaysPositional -> IFunction
 
-makeFromYAML alwaysPos Body{constructor=constructor,labels=labels,types=types} =
+makeFromYAML alwaysPos (Body constructor labels types) =
     nest 4 $ eqv <+> match <+> dot $+$ extraLifts $+$ makeFromYAML'
     where
     dqt   = doubleQuotes . text
@@ -47,11 +47,11 @@ makeFromYAML alwaysPos Body{constructor=constructor,labels=labels,types=types} =
     makeFromYAML'
         | null types = nest 4 $ text "return" <+> text constructor
         | (alwaysPos || null labels) = vcat $ map (nest 4)
-            [ text "let YamlSeq" <+> (list $ varNames types) <+> equals <+> text "e"
+            [ text "let ESeq" <+> (list $ varNames types) <+> equals <+> text "e"
             , liftNfy
             ]
         | otherwise = vcat $ map (nest 4)
-            [ text "let YamlMap assocs = e"
+            [ text "let EMap assocs = e"
             , text "let" <+> (list $ varNames types) <+> equals <+> text "map snd assocs"
             , liftNfy
             ]
@@ -71,7 +71,7 @@ makeFromYAML alwaysPos Body{constructor=constructor,labels=labels,types=types} =
         
     arity = length types
 
-makeAsYAML alwaysPos (Body{constructor=constructor,labels=labels,types=types})
+makeAsYAML alwaysPos (Body constructor labels types)
     | null types = fnName <+> fsep [headfn, clsName constructor]
     | (alwaysPos || null labels) = fnName <+> fsep
         [headfn, bodyStartArray, bodyArray]

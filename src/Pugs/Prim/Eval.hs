@@ -115,8 +115,8 @@ op1EvalP6Y fileName = do
     yml  <- liftIO $ (`catch` (return . Left . show)) $
         fmap Right (parseYamlFile fileName')
     case yml of
-        Right MkYamlNode{ nodeElem=YamlSeq (v:_) }
-            | MkYamlNode{ nodeElem=YamlStr vnum } <- v
+        Right MkNode{ n_elem=ESeq (v:_) }
+            | MkNode{ n_elem=EStr vnum } <- v
             , vnum /= (packBuf $ show compUnitVersion) -> do
                 err "incompatible version number for compilation unit"
         Right yml' -> do

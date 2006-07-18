@@ -248,13 +248,13 @@ initPreludePC env = do
         -- print "Parsing yaml..."
         incs <- liftIO $ fmap ("blib6/lib":) getLibs
         yml  <- liftIO $ getYaml incs "Prelude.pm.yml" Str.readFile
-        when (nodeElem yml == YamlNil) $ fail ""
+        when (n_elem yml == ENil) $ fail ""
         -- FIXME: this detects an error if a bad version number was found,
         -- but not if no number was found at all. Then again, if that
         -- happens surely the fromYAML below will fail?
         case yml of
-            MkYamlNode{ nodeElem=YamlSeq (v:_) }
-                | MkYamlNode{ nodeElem=YamlStr vnum } <- v
+            MkNode{ n_elem=ESeq (v:_) }
+                | MkNode{ n_elem=EStr vnum } <- v
                 , vnum /= (packBuf $ show compUnitVersion) -> do
                     fail "incompatible version number for compilation unit"
             _ -> return ()

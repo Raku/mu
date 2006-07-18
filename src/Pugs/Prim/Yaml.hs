@@ -21,14 +21,14 @@ evalYaml cv = do
     fromYaml node
 
 fromYaml :: YamlNode -> Eval Val
-fromYaml MkYamlNode{nodeElem=YamlNil}       = return VUndef
-fromYaml MkYamlNode{nodeElem=YamlStr str}   = return $ VStr $ decodeUTF8 $ unpackBuf str
-fromYaml MkYamlNode{nodeElem=YamlSeq nodes} = do
+fromYaml MkNode{n_elem=ENil}       = return VUndef
+fromYaml MkNode{n_elem=EStr str}   = return $ VStr $ decodeUTF8 $ unpackBuf str
+fromYaml MkNode{n_elem=ESeq nodes} = do
     vals    <- mapM fromYaml nodes
     av      <- liftSTM $ newTVar $
         IntMap.fromAscList ([0..] `zip` map lazyScalar vals)
     return $ VRef (arrayRef av)
-fromYaml MkYamlNode{nodeElem=YamlMap nodes, nodeTag=tag} = do
+fromYaml MkNode{n_elem=EMap nodes, n_tag=tag} = do
     case tag of
         Nothing  -> do
             vals    <- forM nodes $ \(keyNode, valNode) -> do
@@ -69,7 +69,7 @@ dumpYaml v = do
     (return . VStr . decodeUTF8) rv
 
 strNode :: String -> YamlNode
-strNode = mkNode . YamlStr . packBuf
+strNode = mkNode . EStr . packBuf
 
 {-
 addressOf :: a -> IO Int
@@ -79,12 +79,12 @@ addressOf x = do
 -}
 
 toYaml :: (?seen :: IntSet.IntSet) => Val -> Eval YamlNode
-toYaml VUndef       = return $ mkNode YamlNil
+toYaml VUndef       = return $ mkNode ENil
 toYaml (VBool x)    = return $ boolToYaml x
 toYaml (VStr str)   = return $ strNode (encodeUTF8 str)
 toYaml v@(VRef r)   = do
     ptr <- liftIO $ addressOf r
-    if IntSet.member ptr ?seen then return nilNode{ nodeAnchor = MkYamlReference ptr } else do
+    if IntSet.member ptr ?seen then return nilNode{ n_anchor = AReference ptr } else do
         let ?seen = IntSet.insert ptr ?seen
         node <- ifValTypeIsa v "Hash" (hashToYaml r) $ do
             v'      <- readRef r
@@ -92,11 +92,11 @@ toYaml v@(VRef r)   = do
             ifValTypeIsa v "Array" (return nodes) $ case v' of
                 VObject _   -> return nodes
                 _           -> liftIO $ toYamlNode r
-        return node{ nodeAnchor = MkYamlAnchor ptr }
+        return node{ n_anchor = AAnchor ptr }
 toYaml (VList nodes) = do
     n <- mapM toYaml nodes
-    return $ mkNode (YamlSeq n)
-    -- fmap YamlSeq$ mapM toYaml nodes
+    return $ mkNode (ESeq n)
+    -- fmap ESeq$ mapM toYaml nodes
 toYaml v@(VObject obj) = do
     -- ... dump the objAttrs
     -- XXX this needs fixing WRT demagicalized pairs:
@@ -107,7 +107,7 @@ toYaml v@(VObject obj) = do
     return $ tagNode (Just $ packBuf $ "tag:pugs:Object:" ++ showType (objType obj)) attrs
 toYaml (VRule MkRulePGE{rxRule=rule, rxGlobal=global, rxStringify=stringify, rxAdverbs=adverbs}) = do
     adverbs' <- toYaml adverbs
-    return . mkTagNode "tag:pugs:Rule" $ YamlMap
+    return . mkTagNode "tag:pugs:Rule" $ EMap
         [ (strNode "rule", strNode rule)
         , (strNode "global", boolToYaml global)
         , (strNode "stringify", boolToYaml stringify)
@@ -123,7 +123,7 @@ hashToYaml (MkRef (IHash hv)) = do
         ka' <- toYaml $ VStr ka
         va' <- toYaml va
         return (ka', va')
-    return $ mkNode (YamlMap yamlmap)
+    return $ mkNode (EMap yamlmap)
 hashToYaml r = error ("unexpected node: " ++ show r)
 
 boolToYaml :: VBool -> YamlNode
