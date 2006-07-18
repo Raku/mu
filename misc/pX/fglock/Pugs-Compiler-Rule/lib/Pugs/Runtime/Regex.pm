@@ -66,8 +66,9 @@ sub concat {
             return if ! $_[3] || $_[3]->data->{abort};
             
             #print __PACKAGE_."::concat: [1] ", $_[3]->perl;
+            #print "param: ", Dumper( @_ );
 
-            my $param = { %{$_[7]}, p => $_[3]->to };            
+            my $param = { ( defined $_[7] ? %{$_[7]} : () ), p => $_[3]->to };            
 
             $_[3] = { match => [ $_[3] ] };
             $state[1] = $nodes->[1]->( $_[0], $state[1], $_[2], $_[3]{match}[1], 

@@ -131,6 +131,7 @@ sub hash {
 
 # as array
 sub array {
+    print caller();
     my @a = _get_captures( $_[0] );
     my @r;
     for my $m ( @a ) {

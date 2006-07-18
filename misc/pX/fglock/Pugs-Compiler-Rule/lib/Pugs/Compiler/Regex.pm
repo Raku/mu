@@ -71,18 +71,19 @@ sub compile {
         #warn "COMPILING RULE\n";
 
         #print 'rule source: ', $self->{source}, "\n";
-        $self->{ast} = Pugs::Grammar::Rule->rule( 
-            $self->{source} );
-        die "Error in rule: '$rule_source' at: '$self->{ast}{tail}'\n" if $self->{ast}{tail};
-        #print 'rule ast: ', do{use Data::Dumper; Dumper($self->{ast}{capture})};
+        my $ast = Pugs::Grammar::Rule->rule( 
+            $self->{source} )->{capture};
+        #print "ast: ",Dumper($ast),"\n";
+        #die "Error in rule: '$rule_source' at: '$ast->tail'\n" if $ast->tail;
+        #print 'rule ast: ', do{use Data::Dumper; Dumper($ast{capture})};
 
         if ( $self->{ratchet} ) {
             $self->{perl5} = Pugs::Emitter::Rule::Perl5::Ratchet::emit( 
-                 $self->{grammar}, $self->{ast}{capture}, $self );
+                 $self->{grammar}, $ast, $self );
         }
         else {
             $self->{perl5} = Pugs::Emitter::Rule::Perl5::emit( 
-                $self->{grammar}, $self->{ast}{capture}, $self );
+                $self->{grammar}, $ast, $self );
         }
         #print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
 
@@ -108,6 +109,8 @@ sub code {
 
 sub match {
     my ( $rule, $str, $grammar, $flags, $state ) = @_; 
+
+    #print "match: ",Dumper($rule);
     
     return Pugs::Runtime::Match::Ratchet->new( { bool => \0 } )
         unless defined $str;   # XXX - fix?
@@ -179,6 +182,8 @@ sub perl5 {
         "  perl5 "    .  "=> q(" . _quot( $self->{perl5} )  . "), }, " . 
         "q(" . ref($self) . ")";
 }
+
+sub perl { perl5(@_) }
 
 1;
 

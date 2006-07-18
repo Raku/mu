@@ -8,12 +8,12 @@ no warnings qw( once );
 
 {
     package test;
-    use base Pugs::Grammar::Base;
+    use base Pugs::Grammar::RegexBase;
 }
 
 {
     package test2;
-    use base Pugs::Grammar::Base;
+    use base Pugs::Grammar::RegexBase;
 }
 
 #SKIP: 
@@ -44,7 +44,7 @@ no warnings qw( once );
     # unnamed rules are objects
     my $rule = Pugs::Compiler::Regex->compile( '((.).)(.)' );
     my $match = $rule->match( "xyzw" );
-    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Source: ", $rule->{perl5};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( $match?1:0, 1, 'booleanify - unnamed rules are objects' );
     is( "$match", "xyz", 'stringify 1' );
@@ -56,7 +56,9 @@ no warnings qw( once );
 {
     # named rules are methods
     *test::rule_method = Pugs::Compiler::Regex->compile( '((.).)(.)' )->code;
+    #print "Code\n";
     my $match = test->rule_method( "xyzw" );
+    #print "Match: ", $match->perl;
     is( "$match", "xyz", 'named rules are methods' );
 }
 
@@ -115,10 +117,12 @@ no warnings qw( once );
 {
     # calling unnamed subrules
     $test2::rule2 = Pugs::Compiler::Regex->compile( '.' );
+    print "Source [1]: ", $test2::rule2->perl;
     *test::rule_method2 = Pugs::Compiler::Regex->compile( '<$test2::rule2>' )->code;
+    print "Source [2]: ", Pugs::Compiler::Regex->compile( '<$test2::rule2>' )->perl;
     my $match = test->rule_method2( "xyzw" );
-    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    print "Source: ", $test2::rule2->perl;
+    print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "x", 'a named subrule calls a global unnamed subrule' );
 }
 
