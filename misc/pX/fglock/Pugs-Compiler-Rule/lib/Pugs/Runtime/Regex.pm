@@ -60,12 +60,12 @@ sub concat {
     return sub {
         my @state = $_[1] ? @{$_[1]} : ();
         do {
-            print __PACKAGE_."::concat: [0] \n";
+            #print __PACKAGE_."::concat: [0] \n";
 
             my $st = $nodes->[0]->( $_[0], $state[0], @_[2,3,4,5,6,7] );
             return if ! $_[3] || $_[3]->data->{abort};
             
-            print __PACKAGE_."::concat: [1] ", $_[3]->perl;
+            #print __PACKAGE_."::concat: [1] ", $_[3]->perl;
 
             my $param = { %{$_[7]}, p => $_[3]->to };            
 
@@ -74,7 +74,7 @@ sub concat {
                          $_[4], $_[3]{match}[0]->to, $_[6], $param );
             $state[0] = $st unless $state[1];
             
-            print __PACKAGE_."::concat: [2] ", $_[3]{match}[0]->perl, $_[3]{match}[1]->perl;
+            #print __PACKAGE_."::concat: [2] ", $_[3]{match}[0]->perl, $_[3]{match}[1]->perl;
         } while ! $_[3]{match}[1] && 
                 ! $_[3]{match}[1]->data->{abort} &&
                 $state[0]; 
@@ -189,6 +189,18 @@ sub abort {
         ${ $_[3] }->{abort} = 1;
         print "ABORT: ",Dumper( $_[3] );
     };
+};
+
+sub fail { 
+    my $op = shift;
+    return abort( 
+        sub {
+            print "FAILING\n";
+            $op->( @_ );
+            ${ $_[3] }->{bool} = \0;
+            print "FAIL: ",Dumper( $_[3] );
+        } 
+    );
 };
 
 sub before { 

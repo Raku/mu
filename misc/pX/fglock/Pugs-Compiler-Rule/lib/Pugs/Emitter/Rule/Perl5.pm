@@ -58,7 +58,7 @@ sub emit_rule {
 
 sub capturing_group {
     return 
-        "$_[1] capture( '',\n" .
+        "$_[1] positional( \n" .
         emit_rule( $_[0], $_[1].'  ' ) . 
         "$_[1] )\n" .
         '';

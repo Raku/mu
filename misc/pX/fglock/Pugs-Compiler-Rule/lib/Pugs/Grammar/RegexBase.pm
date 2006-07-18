@@ -17,7 +17,7 @@ sub any {
     my $pos = $_[1]{p} || 0;
     return $grammar->no_match
         if $pos > length( $_[0] );
-    print "any: $_[0] at $pos\n";
+    #print "any: $_[0] at $pos\n";
     return Pugs::Runtime::Match::Ratchet->new( { 
         bool  => \1,
         str   => \($_[0]),
@@ -38,10 +38,10 @@ sub ws {
     return Pugs::Runtime::Match::Ratchet->new( { 
         bool  => \1,
         str   => \($_[0]),
-        #match => $1,
-        #capture => $1,
         from  => \$pos,
         to    => \($pos+length $1),
+        match => [],
+        named => {},
     } )
         if $_[0] =~ /^.{$pos}((?:(?<!\w)|(?!\w)|\s)\s*)/s;
         #if $_[0] =~ /^.{$pos}(\s+)(.*)$/s;
@@ -76,11 +76,10 @@ xdigit
             return Pugs::Runtime::Match::Ratchet->new( { 
                 bool  => \1,
                 str   => \($_[0]),
-                #match => $1,
-                #tail  => $2,
-                #capture => $1,
                 from  => \$pos,
                 to    => \($pos+length $1),
+                match => [],
+                named => {},
             } )
                 if $_[0] =~ # /$rx/;
                     /^.{$pos}([[:$char_class:]])(.*)$/s;
