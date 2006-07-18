@@ -28,6 +28,7 @@ use File::Copy;
 use File::Basename;
 use FindBin;
 BEGIN { chdir $FindBin::RealBin };
+use IPC::Cmd qw(can_run);
 use inc::Module::Install;
 use lib 'inc';
 use PugsBuild::Config;
@@ -416,14 +417,29 @@ EOD
         $hsc2hs_flags .= " -DPUGS_HAVE_PARROT -I$base/include ";
     }
     else {
-        push @warn, << '.';
+        my $whichparrot = can_run 'parrot';
+
+        if ($whichparrot) {
+            push @warn, << ".";
 *** Parrot linking disabled; external 'parrot' executable will be used for
-    Rules support -- please make sure that the executable is available in
-    your PATH.  If you want to link against Parrot, set the PUGS_EMBED
+    Rules support. The executable is available in your PATH at
+        $whichparrot
+    If you want to link against Parrot, set the PUGS_EMBED
     environment variable to contain 'parrot', the PARROT_PATH environment
     variable to the path of a built parrot tree, then run Makefile.PL again.
 
 .
+        } else {
+            push @warn, << '.';
+*** Parrot linking disabled; if you want to link against Parrot, set the
+    PUGS_EMBED environment variable to contain 'parrot', the PARROT_PATH
+    environment variable to the path of a built parrot tree, then run
+    Makefile.PL again.
+    External 'parrot' executable is not available in your PATH, either;
+    cannot be used for Rules support.
+
+.
+        };
     }
 
     #if ( try_compile("main :: IO ()\nmain = return ()", $ghc, "-lz") ) {
