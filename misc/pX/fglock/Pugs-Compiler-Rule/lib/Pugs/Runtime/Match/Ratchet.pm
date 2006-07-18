@@ -34,8 +34,10 @@ sub hash  {  $_data{id $_[0]}->{named} }
 sub array {  $_data{id $_[0]}->{match} }
 
 sub flat {
-    return ${ $_data{id $_[0]}->{capture} }
-        if defined ${ $_data{id $_[0]}->{capture} };
+    my $cap = $_data{id $_[0]}->{capture};
+    #print ref $cap;
+    return $$cap
+        if ref $cap eq 'REF';
     return $_[0]->str;
 }
 

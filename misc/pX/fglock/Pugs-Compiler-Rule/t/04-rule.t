@@ -212,9 +212,15 @@ no warnings qw( once );
 }
 
 {
-    # XXX - is $() working?
+    # XXX - is $() working? -- now it's called '$$match'
     # capture
-    my $rule = Pugs::Compiler::Regex->compile('some (text) { return { a => $() ,} } ');
+    my $rule = Pugs::Compiler::Regex->compile('
+        some (text) 
+        { 
+            #print $_[0]->perl; 
+            return { a => $() ,} 
+        } ');
+    #print "rule: ", $rule->perl;
     my $match = $rule->match("sometext");
     #print Dumper($match);
     my $capture = $match->();
