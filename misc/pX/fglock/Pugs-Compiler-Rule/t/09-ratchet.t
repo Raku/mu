@@ -11,20 +11,20 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     package test;
-    use base Pugs::Grammar::Base;
+    use base Pugs::Grammar::RegexBase;
 }
 
 {
     package test2;
-    use base Pugs::Grammar::Base;
+    use base Pugs::Grammar::RegexBase;
 }
 
 {
     # unnamed rules are objects
     my $rule = Pugs::Compiler::Token->compile( '((.).)(.)' );
     my $match = $rule->match( "xyzw" );
-    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #print "Source: ", $rule->perl;
+    #print "Match: ", $match->perl;
     is( $match?1:0, 1, 'booleanify - unnamed rules are objects' );
     is( "$match", "xyz", 'stringify 1' );
     is( "$match->[0]", "xy", 'stringify 2' );
@@ -317,8 +317,8 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     is( "$match", "xyza", 'after' );
 
     $match = $rule->match( "xyyac" );
-    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #print "Source: ", $rule->perl;
+    #print "Match: ", $match->perl;
     is( "$match", "", 'not after' );
 
     # TODO: <!after b>

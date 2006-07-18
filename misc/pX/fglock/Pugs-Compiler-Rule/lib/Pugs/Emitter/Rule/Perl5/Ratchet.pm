@@ -269,9 +269,9 @@ $_[1]       my \$capture;
 $_[1]       my \$quantified;
 $_[1]       \$bool = 0 unless
 " .             $program . ";
-$_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \$bool, to => \\(0+\$pos), capture => \\\$capture }
+$_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \\\$bool, to => \\(0+\$pos), capture => \\\$capture }
 $_[1]     };
-$_[1]     my \$bool = \$hash->{'bool'};
+$_[1]     my \$bool = \${\$hash->{'bool'}};
 $_[1]     \$index{$rnd} = \$#match+1 unless defined \$index{$rnd};
 $_[1]     if ( \$quantified ) {
 $_[1]       if ( \$bool ) {

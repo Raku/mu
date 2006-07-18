@@ -42,6 +42,8 @@ sub flat {
 }
 
 sub str {
+    #print $_[0]->perl;
+    return '' unless $_[0]->bool;
     return substr( ${$_data{id $_[0]}->{str}}, $_[0]->from, $_[0]->to - $_[0]->from );
 }
 
