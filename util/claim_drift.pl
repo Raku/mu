@@ -21,22 +21,30 @@ if (! -d "..${FS}DrIFT") {
     warn <<".";
 *** No DrIFT directory found. Make sure you are in the top level of a pugs
     working directory, and that you have a copy of DrIFT one level up.
+
+    Obtain a copy of DrIFT at:
+      <http://repetae.net/~john/computer/haskell/DrIFT/drop/>
+
+    And rename the distro to "DrIFT", e.g.,
+      tar xzvf DrIFT-2.1.2.tar.gz
+      mv DrIFT-2.1.2 DrIFT
 .
     exit 1;
 }
 
-for my $orig (glob join $FS, qw<.. DrIFT src *.hs>) {
-    (my $real = $orig) =~ s,.*$FS,src${FS}DrIFT${FS},;
-    next unless -f $real;
-    my $clean = sub { $_[0] = File::Spec->canonpath(File::Spec->rel2abs($_[0])) };
+for my $real (glob join $FS, qw<src DrIFT *Rule*.hs>) {
+    (my $orig = $real) =~ s,.*$FS,..${FS}DrIFT${FS}src${FS},;
 
-    $clean->($orig);
-    $clean->($real);
+    clean($orig);
+    clean($real);
 
-    print "rm $orig\n"                                    if $Conf{verbose};
-    do { 1 == unlink  $orig        or die "unlink: $!" }  unless $Conf{no};
+    if (-f $orig) {
+        print "rm $orig\n"                                if $Conf{verbose};
+        do { 1 == unlink  $orig    or die "unlink: $!" }  unless $Conf{no};
+    }
 
     print "ln -s $real $orig\n"                           if $Conf{verbose};
     do { 1 == symlink $real, $orig or die "symlink: $!" } unless $Conf{no};
 }
 
+sub clean { $_[0] = File::Spec->canonpath(File::Spec->rel2abs($_[0])) }
