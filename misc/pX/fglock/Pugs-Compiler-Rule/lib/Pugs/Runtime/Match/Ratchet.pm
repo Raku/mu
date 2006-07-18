@@ -43,6 +43,12 @@ sub str {
     return substr( ${$_data{id $_[0]}->{str}}, $_[0]->from, $_[0]->to - $_[0]->from );
 }
 
+sub perl {
+    local $Data::Dumper::Terse    = 1;
+    local $Data::Dumper::Sortkeys = 1;
+    return __PACKAGE__ . "->new(" . Dumper( $_[0]->data ) . ")\n";
+}
+
 # tail() for backwards compatibility
 # - doesn't work on failed matches
 sub tail {
