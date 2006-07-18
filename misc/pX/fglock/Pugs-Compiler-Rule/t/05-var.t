@@ -6,6 +6,7 @@ use_ok( 'Pugs::Compiler::Rule' );
 
 {
     my $rule = Pugs::Compiler::Regex->compile( '(.)$0' );
+    #print "Source: ", $rule->perl;
     my $match = $rule->match( "xxy" );
     is( "$match", "xx", 'match $0' );
 }
@@ -13,6 +14,8 @@ use_ok( 'Pugs::Compiler::Rule' );
 {
     my $rule = Pugs::Compiler::Regex->compile( '(.)(.)$1' );
     my $match = $rule->match( "xyyz" );
+    #print "Source: ", $rule->perl;
+    #print "Match: ", $match->perl;
     is( "$match", "xyy", 'match $1' );
 }
 

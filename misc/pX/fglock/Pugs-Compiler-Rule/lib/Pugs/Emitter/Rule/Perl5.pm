@@ -191,7 +191,9 @@ sub match_variable {
     #print "var name: ", $num, "\n";
     my $code = 
     "    sub { 
-        my \$m = Pugs::Runtime::Match::Ratchet->new( \$_[2] );
+        my \$m = \$_[2];
+        #print 'var: ',\$m->perl;
+        #print 'var: ',\$m->[$num];
         return constant( \"\$m->[$num]\" )->(\@_);
     }";
     $code =~ s/^/$_[1]/mg;

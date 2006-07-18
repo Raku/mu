@@ -59,36 +59,40 @@ sub concat {
     $nodes = [ $nodes, @_ ] unless ref($nodes) eq 'ARRAY';  # backwards compat
     return sub {
         my @state = $_[1] ? @{$_[1]} : ();
+        my $m2;
         do {
             #print __PACKAGE_."::concat: [0] \n";
 
             my $st = $nodes->[0]->( $_[0], $state[0], @_[2,3,4,5,6,7] );
             return if ! $_[3] || $_[3]->data->{abort};
             
-            #print __PACKAGE_."::concat: [1] ", $_[3]->perl;
-            #print "param: ", Dumper( @_ );
-
             my $param = { ( defined $_[7] ? %{$_[7]} : () ), p => $_[3]->to };            
 
-            $_[3] = { match => [ $_[3] ] };
-            $state[1] = $nodes->[1]->( $_[0], $state[1], $_[2], $_[3]{match}[1], 
-                         $_[4], $_[3]{match}[0]->to, $_[6], $param );
+            #print __PACKAGE_."::concat: [match] ", $_[2]->perl;
+            #print __PACKAGE_."::concat: [1] ", $_[2]->perl;
+            # print "param: ", Dumper( $_[0], $state[1], $_[2], $_[3], $_[4], $_[3]->to, $_[6], $param  );
+
+
+            $m2 = undef;    # $_[3]->data->{match}[1]
+            $state[1] = $nodes->[1]->( $_[0], $state[1], $_[2], $m2, 
+                         $_[4], $_[3]->to, $_[6], $param );
             $state[0] = $st unless $state[1];
             
-            #print __PACKAGE_."::concat: [2] ", $_[3]{match}[0]->perl, $_[3]{match}[1]->perl;
-        } while ! $_[3]{match}[1] && 
-                ! $_[3]{match}[1]->data->{abort} &&
+            #print __PACKAGE_."::concat: [2] ", $_[3]->perl, $m2->perl;
+        } while ! $m2 && 
+                ! $m2->data->{abort} &&
                 $state[0]; 
-        $_[3] = Pugs::Runtime::Match::Ratchet->new( {
-                bool  => \$_[3]{match}[1]->bool,
-                str   => \$_[0],
-                from  => \$_[3]{match}[0]->from,
-                to    => \$_[3]{match}[1]->to,
-                named => { %{$_[3]{match}[0]}, %{$_[3]{match}[1]} },
-                match => [ @{$_[3]{match}[0]}, @{$_[3]{match}[1]} ],
-                capture => $_[3]{match}[1]->data->{capture},
-                abort   => $_[3]{match}[1]->data->{abort},
-        } );
+        %{$_[3]->data} = (
+                %{$_[3]->data},
+                bool  => \($m2->bool),
+                # str 
+                # from  
+                to    => \($m2->to),
+                named => { %{$_[3]}, %{$m2} },   # XXX
+                match => [ @{$_[3]}, @{$m2} ],   # XXX
+                capture => $m2->data->{capture},
+                abort   => $m2->data->{abort},
+        );
         #print __PACKAGE_."::concat: [3] ", $_[3]->perl;
         return \@state;
     }
