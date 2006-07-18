@@ -36,7 +36,7 @@ sub array {  $_data{id $_[0]}->{match} }
 sub flat {
     return ${ $_data{id $_[0]}->{capture} }
         if defined ${ $_data{id $_[0]}->{capture} };
-    return substr( ${$_data{id $_[0]}->{str}}, $_[0]->from, $_[0]->to - $_[0]->from );
+    return $_[0]->str;
 }
 
 sub str {

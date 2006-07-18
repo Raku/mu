@@ -85,9 +85,10 @@ sub concat {
                 to    => \$_[3]{match}[1]->to,
                 named => { %{$_[3]{match}[0]}, %{$_[3]{match}[1]} },
                 match => [ @{$_[3]{match}[0]}, @{$_[3]{match}[1]} ],
-                capture => ${$_[3]{match}[1]}{capture},
-                abort   => ${$_[3]{match}[1]}{abort},
+                capture => $_[3]{match}[1]->data->{capture},
+                abort   => $_[3]{match}[1]->data->{abort},
         } );
+            print __PACKAGE_."::concat: [3] ", $_[3]->perl;
         return \@state;
     }
 }
@@ -186,8 +187,9 @@ sub abort {
     return sub {
         print "ABORTING\n";
         $op->( @_ );
+        print "ABORT: [0] ",Dumper(@_);  #$_[3]->perl;
         ${ $_[3] }->{abort} = 1;
-        print "ABORT: ",Dumper( $_[3] );
+        print "ABORT: ",$_[3]->perl;
     };
 };
 

@@ -80,7 +80,9 @@ use_ok( 'Pugs::Compiler::Regex' );
 
 {
     my $rule = Pugs::Compiler::Regex->compile( '$<z> := (.) { return { x => { %{$_[0]} } ,} } ' );
+    print $rule->{perl5};
     my $match = $rule->match( "abc" );
+    print "match: ", $match->perl;
     ok( $match, 'true match' );
     my $ret = $match->();
     is( $ret->{x}{z}, "a", 'returns correct struct' );

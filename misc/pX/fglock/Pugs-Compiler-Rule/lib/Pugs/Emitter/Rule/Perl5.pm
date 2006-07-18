@@ -34,6 +34,12 @@ sub emit {
         # grammar, string, state, args
         "    my \$tree;\n" .
         "    \$matcher->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$_[3]{p}, \$_[1], \$_[3] );\n" .
+        "    my \$cap = \$tree->data->{capture};\n" .
+        "    if ( \$cap ) { \n" .
+
+        "        \$tree->data->{capture} = \\(\$cap->( \$tree ));\n" .
+
+        "    };\n" .
         "    return \$tree;\n" .
         "  }\n" .
         "}\n";
@@ -84,7 +90,7 @@ sub quant {
     return emit_rule( $term, $_[1] ) 
         if $sub eq '';
     return 
-        "$_[1] capture( '*quantifier*',\n" . 
+        "$_[1] positional( \n" . 
         "$_[1]     $sub(\n" .
         emit_rule( $term, $_[1] . ("    "x2) ) . 
         "$_[1]     )\n" .
@@ -171,7 +177,7 @@ sub match_variable {
     #print "var name: ", $num, "\n";
     my $code = 
     "    sub { 
-        my \$m = Pugs::Runtime::Match->new( \$_[2] );
+        my \$m = Pugs::Runtime::Match::Ratchet->new( \$_[2] );
         return constant( \"\$m->[$num]\" )->(\@_);
     }";
     $code =~ s/^/$_[1]/mg;
@@ -194,22 +200,37 @@ sub closure {
     return 
         "$_[1] sub {\n" . 
         "$_[1]     $code( \@_ );\n" . 
-        "$_[1]     return { bool => 1, tail => \$_[0] }\n" .
+        "$_[1]     \$_[3] = Pugs::Runtime::Match::Ratchet->new( { 
+            bool  => \\1, 
+            str   => \\(\$_[0]),
+            from  => \\(\$_[7]{p} || 0),
+            to    => \\(\$_[7]{p} || 0),
+            match => [],
+            named => {},
+        } )\n" .
         "$_[1] }\n"
         unless $code =~ /return/;
         
     return
-        "$_[1] abort(\n" .
         "$_[1]     sub {\n" . 
-        "$_[1]         return { bool => 1, tail => \$_[0], return => sub $code };\n" .
-        "$_[1]     }\n" .
-        "$_[1] )\n";
+        # "print Dumper(\@_);\n" . 
+        "$_[1]         \$_[3] = Pugs::Runtime::Match::Ratchet->new( { 
+            bool  => \\1, 
+            str   => \\(\$_[0]),
+            from  => \\(\$_[7]{p} || 0),
+            to    => \\(\$_[7]{p} || 0),
+            match => [],
+            named => {},
+            capture => sub $code,
+            abort => 1,
+        } );\n" .
+        "$_[1]     }\n";
 }
 sub named_capture {
     my $name    = $_[0]{ident};
     my $program = $_[0]{rule};
     return 
-        "$_[1] capture( '$name', \n" . 
+        "$_[1] named( '$name', \n" . 
         emit_rule($program, $_[1]) . 
         "$_[1] )\n";
 }
@@ -329,7 +350,7 @@ sub metasyntax {
         $param_list = '' unless defined $param_list;
         my @param = split( ',', $param_list );
         return             
-            "$_[1] capture( '$subrule', \n" . 
+            "$_[1] named( '$subrule', \n" . 
             call_subrule( $subrule, $_[1]."  ", @param ) . 
             "$_[1] )\n";
     }
