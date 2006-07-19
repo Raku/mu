@@ -179,7 +179,7 @@ sub Graham($n)
             @base_composition[$min_id] = $final_composition;
             # Canonize the rest of the vectors with the new vector.
             my $j;
-            loop($j=0 ; $j < @base.elems() ; $j++)
+            loop ($j=0 ; $j < @base.elems() ; $j++)
             {
                 if (($j == $min_id) || (!defined(@base[$j])))
                 {
@@ -197,7 +197,7 @@ sub Graham($n)
         my $print_base = sub {
             print "Base=\n\n";
             my $j;
-            loop($j=0 ; $j < @base.elems() ; $j++)
+            loop ($j=0 ; $j < @base.elems() ; $j++)
             {
                 next if (! defined(@base[$j]));
                 print "base[$j] (" ~ join(" * ", @{@base[$j]}) ~ ")\n";
