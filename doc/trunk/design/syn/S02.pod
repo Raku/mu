@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
   Last Modified: 19 July 2006
   Number: 2
-  Version: 54
+  Version: 55
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -461,9 +461,10 @@ machine representation for integers and floating-point numbers,
 respectively, and do not promote to arbitrary precision, though
 larger representations are always allowed for temporary values.
 Unless qualified with a number of bits, C<int> and C<num> types default
-to the largest native types that run at full speed.  Untyped numeric
-scalars use C<Int> and C<Num> semantics rather than C<int> and C<num>.
+to the largest native types that run at full speed.
 
+Numeric values in untyped variables use C<Int> and C<Num> semantics
+rather than C<int> and C<num>.
 
 =item *
 
@@ -586,7 +587,7 @@ in a dwimmey way, not as a nihilistic "don't care anymore--just shoot me".
 
 =item *
 
-The C<$pkg'var> syntax is dead.  Use C<$pkg::var> instead.
+The C<$Package'var> syntax is gone.  Use C<$Package::var> instead.
 
 =item *
 
@@ -601,15 +602,19 @@ structural type of a variable:
     @@  multislice view of @
 
 Within a declaration, the C<&> sigil also declares the visibility of the
-subroutine name without the sigil within the scope of the declaration.
+subroutine name without the sigil within the scope of the declaration:
+
+    my &func := sub { say "Hi" };
+    func;   # calls &func
 
 Within a signature or other declaration, the C<::> sigil followed by an
-identifier marks a parametric type that also declares the visibility
+identifier marks a type variable that also declares the visibility
 of a package/type name without the sigil within the scope of the
 declaration.  The first such declaration within a scope is assumed
 to be an unbound type, and takes the actual type of its associated
 argument.  With subsequent declarations in the same scope the use of
 the sigil is optional, since the bare type name is also declared.
+
 A declaration nested within must not use the sigil if it wishes to
 refer to the same type, since the inner declaration would rebind
 the type.  (Note that the signature of a pointy block counts as part
@@ -658,15 +663,17 @@ are any elements in the container.
 
 =item *
 
-To get a Perlish representation of any data value, use the C<.perl>
-method.  This will put quotes around strings, square brackets around
-list values, curlies around hash values, constructors around objects,
-etc., such that standard Perl could reparse the result.
+To get a Perlish representation of any object, use the C<.perl> method.
+Like the C<Data::Dumper> module in Perl 5, the C<.perl> method will put
+quotes around strings, square brackets around list values, curlies around
+hash values, constructors around objects, etc., so that Perl can evaluate
+the result back to the same object.
 
 =item *
 
-To get a formatted representation of any scalar data value, use
-the C<.fmt('%03d')> method to do an implicit sprintf on the value.
+To get a formatted representation of any scalar value, use the
+C<.fmt('%03d')> method to do an implicit C<sprintf> on the value.
+
 To format an array value separated by commas, supply a second argument:
 C<.fmt('%03d', ', ')>.  To format a hash value or list of pairs, include
 formats for both key and value in the first string: C<< .fmt('%s: %s', "\n") >>.
@@ -710,16 +717,16 @@ List assignment works exactly as it does in Perl 5, copying the
 values.  There's a new C<:=> binding operator that lets you bind
 names to Array and Hash objects without copying, in the same way
 as subroutine arguments are bound to formal parameters.  See S06
-for more about parameter binding.
+for more about binding.
 
 =item *
 
-An argument list object (C<Capture>) may be created with backslashed parens:
+An argument list may be captured into an object with backslashed parens:
 
     $args = \(1,2,3,:mice<blind>)
 
-Values in C<Capture> are parsed as ordinary expressions, marked as invocant,
-positional, named, and so on.
+Values in a C<Capture> object are parsed as ordinary expressions, marked as
+invocant, positional, named, and so on.
 
 Like C<List> objects, C<Capture> objects are immutable in the abstract, but
 evaluate their arguments lazily.  Before everything inside a C<Capture> is
@@ -757,22 +764,20 @@ when you want to refer only to a single item.
 
 =item *
 
-A signature object (C<Signature>) may be created with coloned parens:
+A signature object (C<Signature>) may be created with colon-prefixed parens:
 
-    my ::MySig = :(Int,Num,Complex, Status :mice)
+    my ::MySig ::= :(Int, Num, Complex, Status :mice)
 
-A signature's values are parsed as declarations rather than ordinary
-expressions.  You may not put arbitrary expressions, but you may, for
-instance stack multiple types that all must match:
+Expressions inside the signature are parsed as parameter declarations
+rather than ordinary expressions.  See S06 for more details on the syntax
+for parameters.
 
-    :(Any Num Dog|Cat $numdog)
+Signature objects bound to C<::t> variables may be used within another
+signature to apply additional type constraints.  When applied to a
+C<Capture> argument of form C<\$x>, the signature allows you to specify
+the types of parameters that would otherwise be untyped:
 
-Such a signature may be used within another signature to apply
-additional type constraints.  When applied to a C<Capture> argument, the
-signature allows you to specify the types of parameters that would
-otherwise be untyped:
-
-    :(Any Num Dog|Cat $numdog, MySig \$a ($i,$j,$k,$mousestatus))
+    :(Num Dog|Cat $numdog, MySig \$a ($i,$j,$k,$mousestatus))
 
 =item *
 
@@ -867,7 +872,7 @@ are aliases into the C<$/> object.
 
 =item *
 
-The C<$#foo> notation is dead.  Use C<@foo.end> or C<[-1]> instead.
+The C<$#foo> notation is dead.  Use C<@foo.end> or C<@foo[-1]> instead.
 (Or C<@foo.shape[$dimension]> for multidimensional arrays.)
 
 =back
@@ -893,14 +898,14 @@ This is resolved at compile time because the variable name is a constant.
 
 The following pseudo-package names are reserved in the first position:
 
-    MY
-    OUR
-    GLOBAL
-    OUTER
-    CALLER
-    CONTEXT
-    SUPER
-    COMPILING
+    MY          # Lexical variables declared in the current scope
+    OUR         # Package variables declared in the current package
+    GLOBAL      # Builtin variables and functions
+    OUTER       # Lexical variables declared in the outer scope
+    CALLER      # Contextual variables in the caller's scope
+    CONTEXT     # Contextual variables in any caller's scope
+    SUPER       # Package variables declared in inherited classes
+    COMPILING   # Lexical variables in the scope being compiled
 
 Other all-caps names are semi-reserved.  We may add more of them in
 the future, so you can protect yourself from future collisions by using
@@ -918,14 +923,14 @@ entire names, since the construct starts with C<::>, and either ends
 immediately or is continued with another C<::> outside the curlies.
 Most symbolic references are done with this notation:
 
-    $foo = "Foo";
+    $foo = "Bar";
     $foobar = "Foo::Bar";
-    $::($foo)           # package-scoped $Foo
-    $::("MY::$foo")     # lexically-scoped $Foo
-    $::("*::$foo")      # global $Foo
+    $::($foo)           # package-scoped $Bar
+    $::("MY::$foo")     # lexically-scoped $Bar
+    $::("*::$foo")      # global $Bar
     $::($foobar)        # $Foo::Bar
     $::($foobar)::baz   # $Foo::Bar::baz
-    $::($foo)::Bar::baz # $Foo::Bar::baz
+    $::($foo)::Bar::baz # $Bar::Bar::baz
     $::($foobar)baz     # ILLEGAL at compile time (no operator baz)
 
 Note that unlike in Perl 5, initial C<::> doesn't imply global.
@@ -1120,30 +1125,31 @@ Instead of C<$?OUTER::SUB> you probably want to write C<< OUTER::<$?SUB>
 
 Here are some possibilities:
 
-    $?OS        Which os am I compiled for?
-    $?OSVER     Which os version am I compiled for?
+    $?OS        Which operating system am I compiled for?
+    $?OSVER     Which operating system version am I compiled for?
     $?PERLVER   Which Perl version am I compiled for?
     $?FILE      Which file am I in?
     $?LINE      Which line am I at?
     $?PACKAGE   Which package am I in?
-    @?PACKAGE   Which packages am I in?
+    @?PACKAGE   Which nested packages am I in?
     $?MODULE    Which module am I in?
-    @?MODULE    Which modules am I in?
-    ::?CLASS    Which class am I in? (as package name)
+    @?MODULE    Which nested modules am I in?
     $?CLASS     Which class am I in? (as variable)
-    @?CLASS     Which classes am I in?
-    ::?ROLE     Which role am I in? (as package name)
+    @?CLASS     Which nested classes am I in?
     $?ROLE      Which role am I in? (as variable)
-    @?ROLE      Which roles am I in?
+    @?ROLE      Which nested roles am I in?
     $?GRAMMAR   Which grammar am I in?
-    @?GRAMMAR   Which grammars am I in?
+    @?GRAMMAR   Which nested grammars am I in?
     $?PARSER    Which Perl grammar was used to parse this statement?
     &?ROUTINE   Which routine am I in?
-    @?ROUTINE   Which routines am I in?
+    @?ROUTINE   Which nested routines am I in?
     &?BLOCK     Which block am I in?
-    @?BLOCK     Which blocks am I in?
+    @?BLOCK     Which nested blocks am I in?
     $?LABEL     Which block label am I in?
-    @?LABEL     Which block labels am I in?
+    @?LABEL     Which nested block labels am I in?
+
+All the nested C<@?> variables are ordered from the innermost to the
+outermost, so C<@?BLOCK[0]> is always the same as C<$?BLOCK>.
 
 Note that some of these things have parallels in the C<*> space at run time:
 
@@ -1244,13 +1250,13 @@ The general radix form of a number involves prefixing with the radix
 in adverbial form:
 
     :10<42>             same as 0d42 or 42
-    :16<dead_beef>      same as 0xdeadbeef
+    :16<DEAD_BEEF>      same as 0xDEADBEEF
     :8<177777>          same as 0o177777 (65535)
     :2<1.1>             same as 0b1.1 (0d1.5)
 
-Extra digits are assumed to be represented by 'a'..'z', so you can go up
-to base 36.  (Use 'a' and 'b' for base twelve, not 't' and 'e'.)  Alternately
-you can use a list of digits in decimal:
+Extra digits are assumed to be represented by C<a>..C<z> and C<A>..C<Z>, so you
+can go up to base 36.  (Use C<A> and C<B> for base twelve, not C<T> and C<E>.)
+Alternately you can use a list of digits in decimal:
 
     :60[12,34,56]       # 12 * 3600 + 34 * 60 + 56
     :100[3,'.',14,16]   # pi
@@ -1310,7 +1316,7 @@ or C<0d> as hex digits, not radix switchers.
 
 =item *
 
-Characters indexed by hex, octal, and decimal can be interpolated
+Characters indexed by hex, octal, and decimal numbers can be interpolated
 into strings using either C<"\x123"> (with C<\o> and C<\d> behaving
 respectively) or using square brackets: C<"\x[123]">.  Multiple
 characters may be specified within any of the bracketed forms by
