@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 16 Jul 2006
+  Last Modified: 18 Jul 2006
   Number: 3
-  Version: 49
+  Version: 50
 
 =head1 Changes to existing operators
 
@@ -245,19 +245,53 @@ between the list operator form and the function form is consistently
 indicated via whitespace between the list operator and the first
 argument.  If there is whitespace, it is always a list operator,
 and the next token will be taken as the first term of the list (or
-if there are no terms, as the expression terminator).
+if there are no terms, as the expression terminator).  Any infix operator
+occurring where a term is expected will be misinterpreted as a term:
 
-If there is no whitespace, the operator is never taken as a list
-operator, but always as a functional operator.  Postfixes are
-specifically disallowed right after the operator except for the
-parenthetical forms delimiting the argument list.  The parentheses
-are optional if and only if there are no arguments.  If there are
-parentheses, they may be followed by any postfix operator.  Unlike
-postfix operators, infix operators and expression terminators are
-allowed without intervening whitespace, and will be taken to indicate
-that the operator is a function with no arguments.
+    say + 2;	# means say(+2);
+
+If there is no whitespace, subsequent parsing depends on the
+syntactic category of the next item.  Parentheses (with or without
+a dot) turn the list operator into a function call instead, and
+all the function's arguments must be passed inside the parentheses
+(with the sole exception of an adverbial block, which may follow the
+parentheses).
+
+Other than various forms of parentheses, all other postfixes are
+disallowed immediately after a list operator, even if there are no
+arguments.  To add a postfix to an argumentless list operator you
+must write it as a function call with empty parentheses:
+
+    foo.[]	# ILLEGAL
+    foo++	# ILLEGAL
+    foo().[]	# legal
+    foo()++	# legal (if foo() is rw)
+
+After the parentheses any postfix operators are allowed, and apply
+to the result of the function call.  (Also note that the postfix
+restriction applies only to list operators; it doesn't apply to
+methods.  It is legal to say
+
+    $foo.bar<a b c>
+
+to mean
+
+    $foo.bar().{'a','b','c'}
+
+because methods never assume there are arguments unless followed by
+parentheses or a colon.)
+
+If the next item after the list operator is either an infix operator
+or a term, a syntax error.  [Conjecture: this may be relaxed in
+non-strict mode.]
 
 Examples:
+
+    say foo + 1;			say(foo(+1));
+    say foo $x;				say(foo($x));
+    say foo$x;				ILLEGAL, need space or parens
+    say foo+1;				ILLEGAL, need space or parens
+    say foo++;				ILLEGAL, need parens
 
     say foo($bar+1),$baz		say(foo($bar+1), $baz);
     say foo.($bar+1),$baz		say(foo($bar+1), $baz);
@@ -294,21 +328,11 @@ at the price of extensibility.  Perl 6 chooses instead to mandate a
 whitespace dependency in order to gain a completely extensible class
 of postfix operators.
 
-Also note that the postfix restriction applies only to list operators;
-it doesn't apply to methods.  It is legal to say
-
-    $foo.bar<a b c>
-
-to mean
-
-    $foo.bar().{'a','b','c'}
-
-because methods never assume there are arguments unless followed by
-parentheses or a colon.
-
 =item * A list operator's arguments are also terminated by a closure
 that is not followed by a comma or colon.  (And a semicolon is implied if
-the closure is the final thing on a line.)
+the closure is the final thing on a line.)  This final closure may be
+followed by a postfix, in which case the postfix is applied to the result
+of the entire list operator.
 
 =item * A function predeclared as 0-ary is never considered list
 operator, though it allows an optional set of empty parentheses.
@@ -1305,7 +1329,7 @@ If you want both meanings of colon, you have to put it twice:
 
     $hacker.feed: :xxx('Pizza and cola'), 1,2,3;
 
-(For similar reasons it's best to put whitespace after the colon of a label.)
+(For similar reasons it's required to put whitespace after the colon of a label.)
 
 =head1 Traversing arrays in parallel
 
@@ -1371,6 +1395,18 @@ operators by explicitly using the I<long dot> syntax (see S02):
      %beatles\.{'ringo'}  = Beatle.new;
      %people\ .{'john'}   = Person.new;
      %cats\   .{'fluffy'} = Cat.new;
+
+Whitespace is in general required between any keyword and any opening
+bracket that is I<not> introducing a subscript or function arguments.
+Any keyword followed directly by parentheses will be taken as a
+function call instead.
+
+    if $a == 1 { say "yes" }		# preferred syntax
+    if ($a == 1) { say "yes" }		# P5-ish if construct
+    if($a,$b,$c)			# if function call
+
+It is possible for C<if()> to also invoke a macro call, but if so, it's a
+C<< prefix:<if> >> macro rather than a C<< statement_control:<if> >> macro.
 
 =head1 Precedence
 

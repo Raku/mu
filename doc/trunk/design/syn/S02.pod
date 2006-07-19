@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 12 July 2006
+  Last Modified: 18 July 2006
   Number: 2
-  Version: 50
+  Version: 51
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1291,7 +1291,7 @@ following table shows the correspondence to the "fatarrow" notation:
     a => %foo<a>	%foo:<a>
 
 Note that as usual the C<{...}> form can indicate either a closure or a hash
-depending on the contents.
+depending on the contents.  It does I<not> indicate a subscript.
 
 Note also that the C<< <a b> >> form is not a subscript and is therefore
 equivalent not to C<.{'a','b'}> but rather to C<('a','b')>.  Bare C<< <a> >>
@@ -1761,8 +1761,9 @@ statement is expected.) So for any undeclared identifier "C<foo>":
     .foo(1)		# $_.foo(1) 	-- must be "dot" method with () args
     .foo		# $_.foo() 	-- must be "dot" method with no args
     .$foo:		# $_.$foo: 1 	-- indirect "dot" method with : args
-    foo bar: 1		# bar.foo(1)	-- bar must be predecl as class or sub
-					-- foo method call even if declared sub
+    foo bar: 1		# bar.foo(1)	-- bar must be predecl as class
+					-- sub bar allowed here only if 0-ary
+					-- otherwise you must say (bar):
     foo bar 1		# foo(bar(1))	-- both subject to postdeclaration
 					-- never taken as indirect object
     foo $bar: 1		# $bar.foo(1)	-- indirect object even if declared sub
