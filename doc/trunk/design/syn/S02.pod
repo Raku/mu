@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
   Last Modified: 19 July 2006
   Number: 2
-  Version: 53
+  Version: 54
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -57,8 +57,8 @@ Ps/Pe properties, though ASCII angle brackets are a notable exception,
 since they're bidirectional but not in the Ps/Pe set.
 
 Characters with no corresponding closing character do not qualify
-as opening brackets.  This includes the second section of the BidiMirroring
-data table, as well as C<U+201A> and C<U+201E>.
+as opening brackets.  This includes the second section of the Unicode
+BidiMirroring data table, as well as C<U+201A> and C<U+201E>.
 
 If a character is already used in Ps/Pe mappings, then its entry in
 BidiMirroring is ignored.  Therefore C<U+298D> maps to C<U+298E>,
@@ -86,10 +86,10 @@ C<#> may not be used as the delimiter in quoting constructs.
 
 Multiline comments are provided by extending the syntax of POD
 to nest C<=begin comment>/C<=end comment> correctly without the need
-for C<=cut>.  (Doesn't have to be "comment"--any unrecognized POD
-stream will do to make it a comment.  Bare C<=begin> and C<=end>
-probably aren't good enough though, unless you want all your comments
-to end up in the manpage...)
+for C<=cut>.  The format name does not have to be C<comment> -- any
+unrecognized format name will do to make it a comment.  (However,
+bare C<=begin> and C<=end> probably aren't good enough, because all
+comments in them will show up in the formatted output.)
 
 We have single paragraph comments with C<=for comment> as well.
 That lets C<=for> keep its meaning as the equivalent of a C<=begin>
@@ -102,7 +102,8 @@ counts as whitespace equivalent to a newline.
 =item *
 
 Embedded comments are supported as a variant on quoting syntax, introduced
-by C<#> plus any user-selected bracket characters (see definition above):
+by C<#> plus any user-selected bracket characters (as defined in
+L</Lexical Conventions> above):
 
     say #( embedded comment ) "hello, world!";
 
@@ -112,25 +113,29 @@ by C<#> plus any user-selected bracket characters (see definition above):
 	embedded comments
     」.say;
 
-There must be no space between the # and the opening bracket character.
-(There may be the I<appearance> of space for some double-wide
-characters, however, such as the corner quotes above.)  Brackets may
-be nested following the same policy as ordinary quote brackets.
+Brackets may be nested, following the same policy as ordinary quote brackets.
 
-As a special case to facilitate commenting out sections of code with
-C<s/^/#/>, C<#> on the left margin is always considered a line-end
-comment rather than an embedded comment, even if followed by a
-bracketing character.
+There must be no space between the C<#> and the opening bracket character.
+(There may be the I<visual appearance> of space for some double-wide
+characters, however, such as the corner quotes above.)
 
 =item *
 
-For all quoting constructs that use user-selected brackets, multiple,
-adjacent, identical opening brackets must always be matched by an
-equal number of adjacent closing brackets.  Bracket counting naturally
-applies only to sets of brackets of the same length:
+As a special case to facilitate commenting out sections of code with
+C<s/^/#/>, C<#> on the beginning of line is always considered a line-end
+comment rather than an embedded comment, even if followed by a bracketing
+character.
+
+=item *
+
+For all quoting constructs that use user-selected brackets, you can open
+with multiple identical bracket characters, which must by closed by the
+same number of closing brackets.  Counting of nested brackets applies only
+to pairs of brackets of the same length as the opening brackets:
 
     say #{{
-	Comment contains unmatched } and { { { { plus a counted {{ ... }} pair.
+        This comment contains unmatched } and { { { {   (ignored)
+        Plus a nested {{ ... }} pair                    (counted)
     }} q<< <<woot>> >>   # says "<<woot>>"
 
 Note however that bare circumfix or postcircumfix C<<< <<...>> >>> is
@@ -187,8 +192,8 @@ unspace hides the whitespace from the parser, line numbers are still counted.
 In general, whitespace is optional in Perl 6 except where it is needed
 to separate constructs that would be misconstrued as a single token or
 other syntactic unit.  (In other words, Perl 6 follows the standard
-"longest-token" principle, or in the cases of large constructs, a
-"prefer shifting to reducing" principle.  See Grammatical Categories
+I<longest-token> principle, or in the cases of large constructs, a
+I<prefer shifting to reducing> principle.  See L</Grammatical Categories>
 below for more on how a Perl program is analyzed into tokens.)
 
 This is an unchanging deep rule, but the surface ramifications of it
@@ -315,10 +320,10 @@ an identical anonymous class already exists and can safely be shared).
 
 =item *
 
-Properties applied to compile-time objects such as variables and
-classes are also called B<traits>.  Traits are not expected to change
-at run time.  Changing run-time properties should be done via mixin
-instead, so that the compiler can optimize based on declared traits.
+Properties applied to objects constructed at compile-time, such as
+variables and classes, are also called B<traits>.  Traits cannot be
+changed at run-time.  Changes to run-time properties are done via
+mixin instead, so that the compiler can optimize based on declared traits.
 
 =item *
 
@@ -329,29 +334,51 @@ than in Perl 5.
 
 =item *
 
-A variable's type is an interface contract indicating what sorts
-of values the variable may contain. More precisely, it's a promise
-that the object or objects contained in the variable are capable of
-responding to the methods of the indicated "role".  See S12 for more
-about roles.  A variable object may itself be bound to a container
-type that specifies how the container works without necessarily
-specifying what kinds of things it contains.
+A variable's type is a constraint indicating what sorts of values the
+variable may contain.  More precisely, it's a promise that the object
+or objects contained in the variable are capable of responding to the
+methods of the indicated "role".  See S12 for more about roles.
 
-=item *
+    # $x can contain only Int objects
+    my Int $x;
 
-You'll be able to ask for the length of an array, but it won't be
-called that, because C<length> does not specify units.  So
-C<.elems> is the number of array elements.  You can also
-ask for the length of an array in bytes or codepoints or graphemes.
-The same methods apply to strings as well: there is no C<.length> on
-strings either.
+A variable may itself be bound to a container type that specifies how
+the container works, without specifying what kinds of things it contains.
+
+    # $x is implemented by the MyScalar class
+    my $x is MyScalar;
+
+Constraints and container types can be used together:
+
+    # $x can contain only Int objects,
+    # and is implemented by the MyScalar class
+    my Int $x is MyScalar;
+
+Note that C<$x> is also initialized to C<::Int>.  See below for more on this.
 
 =item *
 
 C<my Dog $spot> by itself does not automatically call a C<Dog> constructor.
-It merely installs an undefined C<Dog> prototype as the object.
-The actual constructor syntax turns out to be C<my Dog $spot .= new;>,
-making use of the C<.=> mutator method-call syntax.
+It merely assigns an undefined C<Dog> prototype object to C<$spot>:
+
+    my Dog $spot;           # $spot is initialized with ::Dog
+    my Dog $spot = Dog;     # same thing
+
+    $spot.defined;          # False
+    say $spot;              # "Dog"
+
+Any class name used as a value by itself is an undefined instance of that
+class's prototype.  See S12 for more on that.
+
+To get a real C<Dog> object, call a constructor method such as C<new>:
+
+    my Dog $spot .= new;
+    my Dog $spot = $spot.new;   # .= is rewritten into this
+
+You can pass in arguments to the constructor as well:
+
+    my Dog $cerberus .= new(heads => 3);
+    my Dog $cerberus = $cerberus.new(heads => 3);   # same thing
 
 =item *
 
@@ -363,6 +390,16 @@ you are declaring that the elements of C<@array> are native integers,
 but that the array itself is implemented by the C<MyArray> class.
 Untyped arrays and hashes are still perfectly acceptable, but have
 the same performance issues they have in Perl 5.
+
+=item *
+
+To get the number of elements in an array, use the C<.elems> method.  You can
+also ask for the total string length of an array's elements, in bytes,
+codepoints or graphemes, using these methods C<.bytes>, C<.codes> or C<.graphs>
+respectively on the array.  The same methods apply to strings as well.
+
+There is no C<.length> method for either arrays or strings, because C<length>
+does not specify an unit.
 
 =item *
 
@@ -382,18 +419,27 @@ can speed it up.)
 
 =item *
 
-All Object types support the C<undefined> role, and may contain an
-alternate set of attributes when undefined, such as the unthrown
-exception explaining why the value is undefined.  Non-object types
-are not required to support undefinedness, but it is an error to
-assign an undefined value to such a location.
+Variables with non-native types can always contain I<undefined> values,
+such as C<Undef>, C<Whatever> and C<Failure> objects.  See S04 for more
+about failures (i.e. unthrown exceptions):
+
+    my Int $x = undef;    # works
+
+Variables with native types does not support undefinedness: it is an error
+to assign an undefined value to them:
+
+    my int $y = undef;    # dies
 
 =item *
 
-Regardless of whether they are defined, all objects support a C<.meta>
-method that returns the class instance managing the current kind of object.
-Any object (whether defined, undefined, or somewhere between) can be
-used as a "kind" when the context requires it.
+All objects support a C<.meta> method that returns the class instance
+managing it, regardless of whether the object is defined:
+
+    'x'.meta.get_method_list;   # get available methods for strings
+    Str.meta.get_method_list;   # same thing with the prototype object Str
+
+    'x'.get_method_list;        # this is an error - not a meta object
+    Str.get_method_list;        # same thing
 
 =item *
 
@@ -1352,7 +1398,7 @@ Generalized quotes may now take adverbs:
     :t          :to             Interpret result as heredoc terminator
     :n          :none           No escapes at all (unless otherwise adverbed)
     :q          :single         Interpolate \\, \q and \' (or whatever)
-    :qq         :double         Interpolate all the following
+    :qq         :double         Interpolate with :s, :a, :h, :f, :c, :b
     :s          :scalar         Interpolate $ vars
     :a          :array          Interpolate @ vars
     :h          :hash           Interpolate % vars
