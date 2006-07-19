@@ -19,6 +19,7 @@ use_ok( 'Pugs::Compiler::Regex' );
 {
     local *Test123::rule1 = Pugs::Compiler::Regex->compile('\w')->code();
     local *Test123::rule2 = Pugs::Compiler::Regex->compile('(<rule1>)*')->code();
+    #print "rule: ", Pugs::Compiler::Regex->compile('(<rule1>)*')->perl;
     my $match = Test123->rule2("abc");
     #print Dumper( $$match );
     is($match,'abc',"Matched...");
@@ -32,7 +33,9 @@ use_ok( 'Pugs::Compiler::Regex' );
 {
     local *Test123::rule1 = Pugs::Compiler::Regex->compile('\w')->code();
     local *Test123::rule2 = Pugs::Compiler::Regex->compile('<rule1>*')->code();
+    print "rule: ", Pugs::Compiler::Regex->compile('<rule1>*')->perl;
     my $match = Test123->rule2("abc");
+    print "match: ", $match->perl;
     is($match,'abc',"Matched...");
     is(ref($match->{rule1}),"ARRAY",'$<rule1> is an array...');
     is( $match->{rule1}[0],"a","Capture 1...");
