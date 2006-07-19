@@ -286,7 +286,7 @@ because methods never assume there are arguments unless followed by
 parentheses or a colon.)
 
 If the next item after the list operator is either an infix operator
-or a term, a syntax error.  [Conjecture: this may be relaxed in
+or a term, a syntax error is reported.  [Conjecture: this may be relaxed in
 non-strict mode.]
 
 Examples:
