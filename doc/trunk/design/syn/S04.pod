@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 16 July 2006
+  Last Modified: 18 July 2006
   Number: 4
-  Version: 27
+  Version: 28
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -747,8 +747,10 @@ on a line (not counting whitespace or comments) always reverts
 to the precedence of semicolon whether or not you put a semicolon
 after it.  (In the absence of an explicit semicolon, the current
 statement may continue on a subsequent line, but only with valid
-statement continuators such as C<else>.  A modifier on a C<loop>
-statement must continue on the same line, however.)
+statement continuators such as C<else> that cannot be confused with
+the beginning of a new statement.  Anything else, such as a statement
+modifier (on, say, a C<loop> statement) must continue on the same line,
+unless the newline be escaped using the "unspace" construct--see S02.)
 
 Final blocks on statement-level constructs always imply semicolon
 precedence afterwards regardless of the position of the closing curly.
@@ -782,6 +784,14 @@ get a syntax error when you say:
     print if $foo
 
 since C<< prefix:<if> >> would hide C<< statement_modifier:<if> >>.
+
+Built-in statement-level keywords require whitespace between the
+keyword and the first argument, as well as before any terminating loop.
+In particular, a syntax error will be reported for C-isms such as these:
+
+    if(...) {...}
+    while(...) {...}
+    for(...) {...}
 
 =head1 Definition of Success
 

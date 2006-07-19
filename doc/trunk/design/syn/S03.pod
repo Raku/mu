@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 18 Jul 2006
+  Last Modified: 19 Jul 2006
   Number: 3
-  Version: 50
+  Version: 51
 
 =head1 Changes to existing operators
 
@@ -95,10 +95,14 @@ written: C<<< << ... >> >>>.
 =item * The scalar comma C<,> now constructs a C<List> object from its
 operands.  You have to use a C<[-1]> subscript to get the last one.
 
-=item * The backslash operator captures its arguments, and returns an
+=item * The unary backslash operator captures its arguments, and returns an
 object representing those arguments.  You can I<dereference> this object
 in several ways to retrieve different parts of the arguments; see the
-definition of C<Capture> in S02 for details.
+definition of C<Capture> in S02 for details.  (No whitespace is allowed
+after the backslash because that would instead start an "unspace", that is,
+an escaped sequence of whitespace or comments.  See S02 for details.
+However, oddly enough, because of that unspace rule, saying C<\\ $foo>
+turns out to be equivalent to C<\$foo>.)
 
 =item * The old scalar C<..> flipflop operator is now done with
 C<ff> operator.  (C<..> now always produces a C<Range> object
@@ -329,10 +333,11 @@ whitespace dependency in order to gain a completely extensible class
 of postfix operators.
 
 =item * A list operator's arguments are also terminated by a closure
-that is not followed by a comma or colon.  (And a semicolon is implied if
-the closure is the final thing on a line.)  This final closure may be
-followed by a postfix, in which case the postfix is applied to the result
-of the entire list operator.
+that is not followed by a comma or colon.  (And a semicolon is implied
+if the closure is the final thing on a line.  Use an "unspace" to
+suppress that.)  This final closure may be followed by a postfix,
+in which case the postfix is applied to the result of the entire
+list operator.
 
 =item * A function predeclared as 0-ary is never considered list
 operator, though it allows an optional set of empty parentheses.

@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 18 July 2006
+  Last Modified: 19 July 2006
   Number: 2
-  Version: 51
+  Version: 52
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -173,6 +173,17 @@ insert a line break into a sequence of method calls include:
 
 =item *
 
+In fact, any whitespace (including comments) may be hidden by prefixing
+it with C<\>.  It does not have to end with a dot.  It's just that
+the normal use of a you-don't-see-this-space is typically to put
+a dotted postfix on the next line.  But it also lets you continue
+the line in any situation where a newline might confuse the parser,
+regardless of the currently installed parser.  (Unless, of course,
+you override the unspace rule itself...)  Although we say that the
+unspace hides the whitespace from the parser, line numbers are still counted.
+
+=item *
+
 In general, whitespace is optional in Perl 6 except where it is needed
 to separate constructs that would be misconstrued as a single token or
 other syntactic unit.  (In other words, Perl 6 follows the standard
@@ -210,8 +221,12 @@ be written in any of these forms:
     .++
 
     $x\ 	# comment
-    		# more comment
+    		# inside long dot
     .++
+
+    $x\ 	# comment
+    		# inside "unspace"
+    ++		# (but long dot may be preferred...)
 
     $x\#『	comment
     		more comment
@@ -266,7 +281,7 @@ decimal point if the following character is a digit.  Otherwise the
 postfix dot will be taken to be the start of some kind of method call
 syntax, whether long-dotty or not.  (The C<.123> form with a leading
 dot is still allowed however when a term is expected, and is equivalent
-to C<0.123>.)
+to C<0.123> rather than C<$_.123>.)
 
 =back
 
