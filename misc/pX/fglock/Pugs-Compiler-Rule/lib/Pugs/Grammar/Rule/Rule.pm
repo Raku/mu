@@ -169,9 +169,14 @@ rule concat {
     [
         $<q2> := (<concat>) 
         
-        { return { concat => [ 
+        { 
+            my $q2 = $_[0]{q2}();
+            return { concat => [ 
                 { quant => $_[0]{q1}() ,}, 
-                $_[0]{q2}(),
+                ( exists $q2->{concat} 
+                    ? @{$q2->{concat}}
+                    : $q2 
+                ),
             ] ,} 
         } 
     
@@ -185,9 +190,14 @@ rule rule {
     [
         \| $<q2> := (<rule>) 
 
-        { return { alt => [ 
+        { 
+            my $q2 = $_[0]{q2}();
+            return { alt => [ 
                 $_[0]{q1}(), 
-                $_[0]{q2}(),
+                ( exists $q2->{alt} 
+                    ? @{$q2->{alt}}
+                    : $q2 
+                ),
             ] ,} 
         }
     

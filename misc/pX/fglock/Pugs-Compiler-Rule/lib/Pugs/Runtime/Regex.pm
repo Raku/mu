@@ -57,6 +57,12 @@ sub alternation {
 sub concat {
     my $nodes = shift;
     $nodes = [ $nodes, @_ ] unless ref($nodes) eq 'ARRAY';  # backwards compat
+    if ( @$nodes > 2 ) {
+        return concat(
+            concat( [ $nodes->[0], $nodes->[1] ] ),
+            @$nodes[ 2 .. $#$nodes ],
+        );
+    }
     return sub {
         my @state = $_[1] ? @{$_[1]} : ();
         my $m2;

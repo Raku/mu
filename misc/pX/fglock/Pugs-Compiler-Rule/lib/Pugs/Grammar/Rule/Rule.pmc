@@ -2,7 +2,7 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0x1EC5D393 or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0x3899CFAD or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
 use base 'Pugs::Grammar::Base';
@@ -592,9 +592,14 @@ sub {
             ,
               Pugs::Runtime::Rule::abort(
                   sub {
-                      return { bool => 1, tail => $_[0], return => sub { return { concat => [ 
+                      return { bool => 1, tail => $_[0], return => sub { 
+            my $q2 = $_[0]{q2}();
+            return { concat => [ 
                 { quant => $_[0]{q1}() ,}, 
-                $_[0]{q2}(),
+                ( exists $q2->{concat} 
+                    ? @{$q2->{concat}}
+                    : $q2 
+                ),
             ] ,} 
         } };
                   }
@@ -636,9 +641,14 @@ sub {
             ,
               Pugs::Runtime::Rule::abort(
                   sub {
-                      return { bool => 1, tail => $_[0], return => sub { return { alt => [ 
+                      return { bool => 1, tail => $_[0], return => sub { 
+            my $q2 = $_[0]{q2}();
+            return { alt => [ 
                 $_[0]{q1}(), 
-                $_[0]{q2}(),
+                ( exists $q2->{alt} 
+                    ? @{$q2->{alt}}
+                    : $q2 
+                ),
             ] ,} 
         } };
                   }
