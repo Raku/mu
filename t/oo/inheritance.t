@@ -6,6 +6,7 @@ plan 26;
 
 class Foo {
     has $.bar is rw;
+    has $.value is rw;
     method baz { return 'Foo::baz' }
     method getme($self:) returns Foo { return $self }
 }
@@ -40,6 +41,8 @@ is($foo_bar.fud(), 'Foo::Bar::fud', '... sanity check on uninherited method');
 
 is($foo_bar.getme, $foo_bar, 'can call inherited methods');
 is($foo_bar.getme.baz, "Foo::Bar::baz", 'chained method dispatch on altered method', :todo<bug>);
+
+is($foo_bar.value, undef, 'value can be used for attribute name in derived classes');
 my $fud;
 
 lives_ok {
