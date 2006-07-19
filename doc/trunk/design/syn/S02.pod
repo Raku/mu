@@ -281,7 +281,7 @@ decimal point if the following character is a digit.  Otherwise the
 postfix dot will be taken to be the start of some kind of method call
 syntax, whether long-dotty or not.  (The C<.123> form with a leading
 dot is still allowed however when a term is expected, and is equivalent
-to C<0.123> rather than C<$_.123.)
+to C<0.123> rather than C<$_.123>.)
 
 =back
 
