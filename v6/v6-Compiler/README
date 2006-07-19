@@ -1,0 +1,15 @@
+v6::Compiler
+
+The v6::Compiler module provides a front-end to the Perl6-in-Perl6 "bootstrapped" compiler.
+
+The parts of the compiler that are implemented in other languages are imported as classes or objects.
+
+For example:
+
+  rule int { 
+    \d+
+    { return $/[0].as(NInt) }
+  }
+
+The 'NInt' class can be implemented using native code, and the AST can be made implementation-specific if desired.
+
