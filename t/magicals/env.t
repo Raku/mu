@@ -45,7 +45,7 @@ ok !defined(%*ENV<PUGS_ROCKS>), "there's still no env variable 'PUGS_ROCKS'";
 
 my ($pugs,$redir,$squo) = ("./pugs", ">", "'");
 
-if($*OS eq any <MSWin32 mingw msys cygwin>) {
+if $*OS eq any <MSWin32 mingw msys cygwin> {
     $pugs = 'pugs.exe';
 };
 

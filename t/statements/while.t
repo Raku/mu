@@ -52,7 +52,7 @@ plan 11;
   # declare my $x within the while statement more suited for a file read
   # or iterator, but I didn't feel like creating one just for this test.
   eval_is(
-    'my $y; while( (my $x = 2) == 2 ) { $y = $x; last; } $y',
+    'my $y; while (my $x = 2) == 2 { $y = $x; last; } $y',
     2,
     "'my' variable within 'while' conditional");
 }

@@ -25,7 +25,7 @@ diag "Running under $*OS";
 
 my ($pugs,$redir,$echo) = ("./pugs", ">", "echo");
 
-if($*OS eq any <MSWin32 mingw msys cygwin>) {
+if $*OS eq any <MSWin32 mingw msys cygwin> {
   $pugs = 'pugs.exe';
 };
 

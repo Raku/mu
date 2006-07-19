@@ -42,10 +42,10 @@ exit;
 
 sub get_loop {
 return '
-    while(1) {
+    loop {
         my $command = "";
         print "\n", $prompt;
-        while (1) {
+        loop {
             my $char = $*IN.getc;
             if ($char eq "\n") {
                 # TODO: maybe check if _loop_ shows up in the input and disallow that code ?

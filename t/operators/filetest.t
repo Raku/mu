@@ -10,7 +10,7 @@ This test tests the various filetest operators.
 
 plan 34;
 
-#if($*OS eq any <MSWin32 mingw msys cygwin>) {
+#if $*OS eq any <MSWin32 mingw msys cygwin> {
 #    skip 30, "file tests not fully available on win32";
 #    exit;
 #};
@@ -28,7 +28,7 @@ ok -e 't',            "-e returns true on directories";
 ok -r $*PROGRAM_NAME, "-r returns true on readable files";
 ok -w $*PROGRAM_NAME, "-w returns true on writable files";
 
-if($*OS eq any <MSWin32 mingw msys cygwin>) {
+if $*OS eq any <MSWin32 mingw msys cygwin> {
   skip 2, "win32 doesn't have -x";
 } else {
   if -e $*EXECUTABLE_NAME {
@@ -44,7 +44,7 @@ ok not -f "t", "-f returns false on directories";
 ok -r "t",  "-r returns true on a readable directory";
 
 skip 2, "/etc/shadow tests skipped";
-#if($*OS eq any <MSWin32 mingw msys cygwin>) {
+#if $*OS eq any <MSWin32 mingw msys cygwin> {
 #  skip 2, "win32 doesn't have /etc/shadow";
 #} else {
 #  ok not -r "/etc/shadow", "-r returns false on unreadable files";
@@ -63,7 +63,7 @@ ok not -w 'doesnotexist.t', "-w returns false on non existant files";
 ok not -x 'doesnotexist.t', "-x returns false on non existant files";
 ok not -f 'doesnotexist.t', "-f returns false on non existant files";
 
-#if($*OS eq any <MSWin32 mingw msys cygwin>) {
+#if $*OS eq any <MSWin32 mingw msys cygwin> {
 #  skip 1, "-s is not working on Win32 yet"
 #}
 #else {
@@ -77,7 +77,7 @@ ok not -z "t",              "-z returns false on directories";
 
 my $fh = open("empty_file", :w);
 close $fh;
-#if($*OS eq any <MSWin32 mingw msys cygwin>) {
+#if $*OS eq any <MSWin32 mingw msys cygwin> {
 #  skip 1, "-z is not working on Win32 yet"
 #}
 #else {

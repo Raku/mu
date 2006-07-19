@@ -1,4 +1,4 @@
-﻿use v6-alpha;
+use v6-alpha;
 
 use Test;
 
@@ -11,7 +11,7 @@ Basic test for the reverse() builtin with a string (Str).
 plan 8;
 
 #as a function :
-is( reverse 'Pugs', 'sguP', "as a function");
+is( reverse('Pugs'), 'sguP', "as a function");
 
 #as a method :
 is( "".reverse, "", "empty string" );

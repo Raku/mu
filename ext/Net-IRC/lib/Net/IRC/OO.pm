@@ -19,7 +19,7 @@ sub debug(Str $msg) is export {
   $is_fresh //= 1;
 
   print "» " if $is_fresh;
-  if($msg ~~ / $/) {
+  if $msg ~~ / $/ {
     print "$msg";
     $is_fresh = 0;
   } else {
@@ -115,7 +115,7 @@ class Net::IRC {
       my %rest;
       %rest<_ username hostname servername nickname umode _ ircname> =
         split " ", $event<rest>;
-      if(normalize(%rest<nickname>) eq normalize($curnick)) {
+      if normalize(%rest<nickname>) eq normalize($curnick) {
         ($.curusername, $.curhostname, $.curircname) =
           %rest<username hostname ircname>;
       }
@@ -178,7 +178,7 @@ class Net::IRC {
     # We track our status, especially the channels we've joined.
     # Somebody joined. Update %channels and %users accordingly.
     ./add_handler("JOIN", -> $event {
-      if(normalize($event<from_nick>) eq normalize($curnick)) {
+      if normalize($event<from_nick>) eq normalize($curnick) {
         $!chans.insert(normalize $event<object>);
         debug "Joined channel \"$event<object>\".";
       }
@@ -191,7 +191,7 @@ class Net::IRC {
     ./add_handler("PART", -> $event {
       my $chan = normalize $event<object>;
 
-      if(normalize($event<from_nick>) eq normalize($curnick)) {
+      if normalize($event<from_nick>) eq normalize($curnick) {
         $!chans.remove(normalize $event<object>);
         for %!channels{$chan}<users>.keys {
           %!users{$_}<channels>.delete($chan) if %!users{$_}<channels>;
@@ -211,7 +211,7 @@ class Net::IRC {
       $reason = strip_colon($reason);
       my $chan = normalize $event<object>;
 
-      if(normalize($kickee) eq normalize($curnick)) {
+      if normalize($kickee) eq normalize($curnick) {
         $!chans.remove(normalize $event<object>);
         for %!channels{$chan}<users>.keys {
           %!users{$_}<channels>.delete($chan) if %!users{$_}<channels>;
@@ -228,7 +228,7 @@ class Net::IRC {
     # Somebody was killed. Update %channels and %users accordingly.
     ./add_handler("KILL", -> $event {
       my ($killee, $reason) = $event<object rest>;
-      if(normalize($killee) eq normalize($curnick)) {
+      if normalize($killee) eq normalize($curnick) {
         $!chans.clear;
         debug "Was killed by \"$event<from>\" (\"$reason\").";
       }
@@ -248,7 +248,7 @@ class Net::IRC {
     # Somebody changed his/her nick. Rename his/her entry in %users, and update
     # all %channels he/she has joined.
     ./add_handler("NICK", -> $event {
-      if(normalize($event<from_nick>) eq normalize($curnick)) {
+      if normalize($event<from_nick>) eq normalize($curnick) {
         $.curnick = $event<object>;
         debug "Changed nick to \"$.curnick\".";
       }
@@ -286,7 +286,7 @@ class Net::IRC {
 
     debug "Connecting to $.host:$.port... ";
     try { $!socket = connect($.host, $.port) }
-    if($!socket) {
+    if $!socket {
       try { $!socket.autoflush(1) }
       $.connected++;
       $.last_traffic  = time;
@@ -417,7 +417,7 @@ class Net::IRC {
     # PING the server. If the connection is still alive, the server will
     # respond with a PONG, so everything's fine. But if the connection is
     # somehow b0rked, we won't get a reply.
-    if($.curservername and time() - $.last_traffic >= $autoping and time() - $.last_autoping >= 60) {
+    if $.curservername and time() - $.last_traffic >= $autoping and time() - $.last_autoping >= 60 {
       debug "No traffic seen for {time() - $.last_traffic} seconds; pinging server.";
       ./raw("PING :$.curservername");
       $.last_autoping = time;
@@ -426,7 +426,7 @@ class Net::IRC {
     # So we haven't seen any traffic for at least $live_timeout seconds,
     # even though we've pinged the server (probably several times). So, we
     # conclude, the connection is b0rked, and we disconnect.
-    if(time() - $.last_traffic >= $.live_timeout) {
+    if time() - $.last_traffic >= $.live_timeout {
       debug "No traffic seen for {time() - $.last_traffic} seconds; disconnecting.";
       ./disconnect;
     }

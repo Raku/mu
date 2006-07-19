@@ -32,7 +32,7 @@ for 0 .. $n*$n {
     @s[$p] = ++$v;
     # Look where we will step next.
     # If occupied (not zero, i.e. true)...
-    if(  @s[ $p + @d[$d] ]  ) {
+    if  @s[ $p + @d[$d] ] {
         # ...then switch to the "next" direction in @d
         # wrapping back to $d[0] if needed:
         $d = ($d+1) % @d;

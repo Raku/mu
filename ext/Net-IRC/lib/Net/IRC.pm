@@ -19,7 +19,7 @@ sub debug(Str $msg) is export {
   $is_fresh //= 1;
 
   print "» " if $is_fresh;
-  if($msg ~~ rx:P5/ $/) {
+  if $msg ~~ rx:P5/ $/ {
     print "$msg";
     $is_fresh = 0;
   } else {
@@ -110,7 +110,7 @@ sub new_bot(
     my %rest;
     %rest<_ username hostname servername nickname umode _ ircname> =
       split " ", $event<rest>;
-    if(normalize(%rest<nickname>) eq normalize($curnick)) {
+    if normalize(%rest<nickname>) eq normalize($curnick) {
       ($curusername, $curhostname, $curircname) =
         %rest<username hostname ircname>;
     }
@@ -172,7 +172,7 @@ sub new_bot(
   # We track our status, especially the channels we've joined.
   # Somebody joined. Update %channels and %users accordingly.
   %handler<JOIN> = [-> $event {
-    if(normalize($event<from_nick>) eq normalize($curnick)) {
+    if normalize($event<from_nick>) eq normalize($curnick) {
       $chans.insert(normalize $event<object>);
       debug "Joined channel \"$event<object>\".";
     }
@@ -185,7 +185,7 @@ sub new_bot(
   %handler<PART> = [-> $event {
     my $chan = normalize $event<object>;
 
-    if(normalize($event<from_nick>) eq normalize($curnick)) {
+    if normalize($event<from_nick>) eq normalize($curnick) {
       $chans.remove(normalize $event<object>);
       for %channels{$chan}<users>.keys {
         %users{$_}<channels>.delete($chan) if %users{$_}<channels>;
@@ -205,7 +205,7 @@ sub new_bot(
     $reason = strip_colon($reason);
     my $chan = normalize $event<object>;
 
-    if(normalize($kickee) eq normalize($curnick)) {
+    if normalize($kickee) eq normalize($curnick) {
       $chans.remove(normalize $event<object>);
       for %channels{$chan}<users>.keys {
         %users{$_}<channels>.delete($chan) if %users{$_}<channels>;
@@ -222,7 +222,7 @@ sub new_bot(
   # Somebody was killed. Update %channels and %users accordingly.
   %handler<KILL> = [-> $event {
     my ($killee, $reason) = $event<object rest>;
-    if(normalize($killee) eq normalize($curnick)) {
+    if normalize($killee) eq normalize($curnick) {
       $chans.clear;
       debug "Was killed by \"$event<from>\" (\"$reason\").";
     }
@@ -242,7 +242,7 @@ sub new_bot(
   # Somebody changed his/her nick. Rename his/her entry in %users, and update
   # all %channels he/she has joined.
   %handler<NICK> = [-> $event {
-    if(normalize($event<from_nick>) eq normalize($curnick)) {
+    if normalize($event<from_nick>) eq normalize($curnick) {
       $curnick = $event<object>;
       debug "Changed nick to \"$event<object>\".";
     }
@@ -290,7 +290,7 @@ sub new_bot(
 
       debug "Connecting to $host:$port... ";
       try { $hdl = connect($host, $port) };
-      if($hdl) {
+      if $hdl {
         try { $hdl.autoflush(1) };
         $connected++;
         $last_traffic  = time;
@@ -301,7 +301,7 @@ sub new_bot(
       }
     },
     disconnect => {
-      if($connected) {
+      if $connected {
         debug "Disconnecting from $host:$port... ";
         try { $hdl.close };
         # We want to have a sane state when we connect next time.
@@ -326,7 +326,7 @@ sub new_bot(
 
     # Login
     login => {
-      if($connected) {
+      if $connected {
         $queue<enqueue>({
           # Indicate that we're currently logging in, so our nick_already_used
           # handler can choose a different nick. $in_login_phase is reset to 0
@@ -340,7 +340,7 @@ sub new_bot(
 
     # Process $queue, wait for input from server and process it
     run => {
-      while($connected) {
+      while $connected {
         $queue<run>();
         $self<readline>();
         $self<livecheck>();
@@ -357,14 +357,14 @@ sub new_bot(
       # autoping the server if needed.
       $last_traffic = time;
 
-      if($line ~~ rx:P5/^:([^ ]+) (\d+) ([^ ]+) ?(.*)$/) {
+      if $line ~~ rx:P5/^:([^ ]+) (\d+) ([^ ]+) ?(.*)$/ {
         $self<handle_numeric>($line, $0, $1, $2, $3);
-      } elsif($line ~~ rx:P5/^:([^ ]+) (\w+) ([^ ]+) ?(.*)$/) {
+      } elsif $line ~~ rx:P5/^:([^ ]+) (\w+) ([^ ]+) ?(.*)$/ {
         $self<handle_command>($line, $0, $1, $2, $3);
-      } elsif($line ~~ rx:P5/^ERROR ?:?(.*)$/) {
+      } elsif $line ~~ rx:P5/^ERROR ?:?(.*)$/ {
         debug "Error in connection to $host:$port (\"$0\").";
         $self<disconnect>();
-      } elsif($line ~~ rx:P5/^PING ?:?(.*)$/) {
+      } elsif $line ~~ rx:P5/^PING ?:?(.*)$/ {
         $say("PONG $0");
       } else {
         debug "No handler found for \"$line\".";
@@ -380,7 +380,7 @@ sub new_bot(
         rest   => strip_colon($rest),
       };
 
-      if(%handler{$code}) {
+      if %handler{$code} {
         $_($event) for *%handler{$code};
       }
     },
@@ -408,19 +408,19 @@ sub new_bot(
         args   => @args,
       };
 
-      if(%handler{$pseudo}) {
+      if %handler{$pseudo} {
         $_($event) for *%handler{$pseudo};
       }
     },
 
     # Check that our connection is still alive.
     livecheck => {
-      if($connected) {
+      if $connected {
         # We haven't seen any traffic for at least $autoping seconds, so we
         # PING the server. If the connection is still alive, the server will
         # respond with a PONG, so everything's fine. But if the connection is
         # somehow b0rked, we won't get a reply.
-        if($servername and time() - $last_traffic >= $autoping and time() - $last_autoping >= 60) {
+        if $servername and time() - $last_traffic >= $autoping and time() - $last_autoping >= 60 {
           debug "No traffic seen for {time() - $last_traffic} seconds; pinging server.";
           $self<raw>("PING :$servername");
           $last_autoping = time;
@@ -429,7 +429,7 @@ sub new_bot(
         # So we haven't seen any traffic for at least $live_timeout seconds,
         # even though we've pinged the server (probably several times). So, we
         # conclude, the connection is b0rked, and we disconnect.
-        if(time() - $last_traffic >= $live_timeout) {
+        if time() - $last_traffic >= $live_timeout {
           debug "No traffic seen for {time() - $last_traffic} seconds; disconnecting.";
           $self<disconnect>();
         }
@@ -501,8 +501,8 @@ sub new_queue(Bool $floodcontrol = 0) {
     # Run all entries of @queue. Will need throttling later.
     run => {
       my @q = splice @queue;
-      while(@q) {
-        if($bucket<conform>(1)) {
+      while @q {
+        if $bucket<conform>(1) {
           $bucket<count>(1);
           @q.shift().();
         } else {

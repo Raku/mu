@@ -42,7 +42,7 @@ sub yes(Str $q) {
 
 my $info = "dog";
 
-while(1) {
+loop {
   $info = try $info;
   last unless yes "Play again?";
 }

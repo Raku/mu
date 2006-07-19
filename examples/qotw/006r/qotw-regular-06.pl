@@ -5,7 +5,7 @@ use v6-alpha;
 
 sub format_number_list(*@input is copy) {
   my @output;
-  while (@input) {
+  while @input {
     my $range_start = shift @input;
     my $range_end   = $range_start;
 
@@ -13,7 +13,7 @@ sub format_number_list(*@input is copy) {
     $range_end = shift @input while @input and @input[0] == $range_end + 1;
 
     # ...and add to output accordingly
-    if($range_start == $range_end) { push @output, $range_start }
+    if $range_start == $range_end { push @output, $range_start }
     else { push @output, "$range_start-$range_end" }
   }
 

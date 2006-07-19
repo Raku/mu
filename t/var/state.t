@@ -44,7 +44,7 @@ plan 12;
         $svar++;
 
         # Only check on last run
-        if($val == 3) {
+        if $val == 3 {
             is $svar, 3, "state() works inside for-loops";
         }
     }

@@ -123,7 +123,7 @@ is( $span.contains( 9 ), Bool::False, 'doesn\'t contain object' );
     is( @a[0].stringify, '[1,2]', 'difference 0' );
 }
 
-if(0)
+if 0
 {
     # XXX - this test should emit a warning - how to test this?
     my $span = Span.new( :start(1), :end(2) );

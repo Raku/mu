@@ -130,7 +130,7 @@ eval('
   flunk "TEMP{} block (8)", :todo<feature>;
 
   # Following does parse, but isn't executed (don't know why).
-  # If the "{" on the following line is changed to "if(1) {", it is executed,
+  # If the "{" on the following line is changed to "if 1 {", it is executed,
   # too, but then it dies complaining about not finding a matching temp()
   # function.  So, for now, we just comment the following block and add
   # unconditional flunk()s.

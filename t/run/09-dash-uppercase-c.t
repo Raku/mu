@@ -58,7 +58,7 @@ diag "Running under $*OS";
 
 # 2>&1 only works on WinNT upwards (cmd.exe) !
 my ($pugs,$redir, $redir_stderr) = ("./pugs", ">");
-if($*OS eq any(<MSWin32 mingw msys cygwin>)) {
+if $*OS eq any(<MSWin32 mingw msys cygwin>) {
   $pugs = 'pugs.exe';
 };
 

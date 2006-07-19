@@ -71,7 +71,7 @@ method union ($self: Set::Infinite::Functional $set )
     # say "union ", @a.map:{ $_.stringify }.join(":");
     @res[0] = shift @a
         if @a;
-    while( @a ) {
+    while @a {
         my $elem = shift @a;
         @tmp = @res[-1].union( $elem );
         # say "span union ", @tmp.map:{ $_.stringify }.join(":");

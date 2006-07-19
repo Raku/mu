@@ -303,8 +303,8 @@ sub unescapeHTML (Str $string) returns Str is export {
 
 # information functions (again)
 
-multi sub param returns Array is export { unless($IS_PARAMS_LOADED) {load_params}; %PARAMS.keys; }
-multi sub param (Str $key) returns Array is export { unless($IS_PARAMS_LOADED) {load_params}; (%PARAMS{$key}); }
+multi sub param returns Array is export { unless $IS_PARAMS_LOADED {load_params}; %PARAMS.keys; }
+multi sub param (Str $key) returns Array is export { unless $IS_PARAMS_LOADED {load_params}; (%PARAMS{$key}); }
 
 =pod
 

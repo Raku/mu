@@ -16,7 +16,7 @@ Basic C<pairs> tests, see S29.
   my @pairs;
   ok((@pairs = @array.pairs), "basic pairs on arrays");
   is +@pairs, 3,            "pairs on arrays returned the correct number of elems";
-  if(+@pairs != 3) {
+  if +@pairs != 3 {
     skip 6, "skipped tests which depend on a test which failed";
   } else {
     is @pairs[0].key,     0,  "key of pair returned by array.pairs was correct (1)";
@@ -35,7 +35,7 @@ Basic C<pairs> tests, see S29.
   my @pairs;
   ok((@pairs = %hash.pairs.sort), "sorted pairs on hashes");
   is +@pairs, 3,                "pairs on hashes returned the correct number of elems";
-  if(+@pairs != 3) {
+  if +@pairs != 3 {
     skip 6, "skipped tests which depend on a test which failed";
   } else {
     is @pairs[0].key,   "a",      "value of pair returned by hash.pairs was correct (1)";
@@ -53,7 +53,7 @@ Basic C<pairs> tests, see S29.
   my @pairs;
   ok((@pairs = $pair.pairs), "pairs on a pair");
   is +@pairs, 1,           "pairs on a pair returned one elem";
-  if(+@pairs != 1) {
+  if +@pairs != 1 {
     skip 2, "skipped tests which depend on a test which failed";
   } else {
     is @pairs[0].key,   "a", "key of pair returned by pair.pairs";

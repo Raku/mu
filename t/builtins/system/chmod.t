@@ -31,7 +31,7 @@ if $*OS eq "browser" {
   exit;
 }
 
-if($*OS eq any <MSWin32 mingw msys cygwin>) {
+if $*OS eq any <MSWin32 mingw msys cygwin> {
     skip 18, "file tests not fully available on win32";
     exit;
 };

@@ -195,7 +195,7 @@ Perl6-specific tests
 # TODO. refer to S05
 # L<S05/"Hypothetical variables" /backtracks past the closure/>
 
-if(!eval('("a" ~~ /a/)')) {
+if !eval('("a" ~~ /a/)') {
   skip 8, "skipped tests - rules support appears to be missing";
 }
 else {

@@ -22,7 +22,7 @@ class C is Str {
 
 is(C.new.meth1(),"worked",'m:P5/[^a]/ in method in C (is Str)');
 
-if(!eval('("a" ~~ /a/)')) {
+if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
   exit;
 }

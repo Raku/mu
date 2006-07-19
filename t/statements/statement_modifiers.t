@@ -35,7 +35,7 @@ my $str3 = "bbb";
 
 {
     my $a;
-    $a ~= $_ for($str1, $str3, $str2, $str3, $str1);
+    $a ~= $_ for ($str1, $str3, $str2, $str3, $str1);
     is($a, "aaabbbaaabbbaaa", "post for with parens");
 }
 
@@ -53,8 +53,8 @@ my $str3 = "bbb";
 
 {
     my $a;
-    $a += $_ for(1 .. 10);
-    is($a, 55, "post for(1 .. 10)");
+    $a += $_ for 1 .. 10;
+    is($a, 55, "post for 1 .. 10");
 }
 
 {

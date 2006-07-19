@@ -59,12 +59,12 @@ diag "Running under $?OS";
 
 my ($pugs,$redir) = ("../../pugs", ">");
 
-if($?OS eq any <MSWin32 mingw cygwin>) {
+if $?OS eq any <MSWin32 mingw cygwin> {
   $pugs = '..\\..\\pugs.exe';
-  if (-e 'pugs.exe') { $pugs = 'pugs.exe' }
+  if -e 'pugs.exe' { $pugs = 'pugs.exe' }
 }
 else {
-  if (-e './pugs') { $pugs = './pugs' }
+  if -e './pugs' { $pugs = './pugs' }
 };
 
 sub run_pugs ($c) {

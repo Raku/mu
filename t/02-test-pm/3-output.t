@@ -17,7 +17,7 @@ sub nonce () { return (".$*PID." ~ int rand 1000) }
 my $out_fn = "temp-ex-output" ~ nonce;
 my $redir_pre = "2>&1 >";
 my $redir_post = "2>&1";
-if($*OS eq any <MSWin32 mingw msys cygwin>) {
+if $*OS eq any <MSWin32 mingw msys cygwin> {
     $redir_pre = ">";
     $redir_post = "";
 };
