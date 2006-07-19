@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
   Last Modified: 19 July 2006
   Number: 2
-  Version: 52
+  Version: 53
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -281,7 +281,7 @@ decimal point if the following character is a digit.  Otherwise the
 postfix dot will be taken to be the start of some kind of method call
 syntax, whether long-dotty or not.  (The C<.123> form with a leading
 dot is still allowed however when a term is expected, and is equivalent
-to C<0.123> rather than C<$_.123>.)
+to C<0.123> rather than C<$_.123.)
 
 =back
 
@@ -620,10 +620,10 @@ etc., such that standard Perl could reparse the result.
 =item *
 
 To get a formatted representation of any scalar data value, use
-the C<.as('%03d')> method to do an implicit sprintf on the value.
+the C<.fmt('%03d')> method to do an implicit sprintf on the value.
 To format an array value separated by commas, supply a second argument:
-C<.as('%03d', ', ')>.  To format a hash value or list of pairs, include
-formats for both key and value in the first string: C<< .as('%s: %s', "\n") >>.
+C<.fmt('%03d', ', ')>.  To format a hash value or list of pairs, include
+formats for both key and value in the first string: C<< .fmt('%s: %s', "\n") >>.
 
 =item *
 
@@ -1505,11 +1505,11 @@ dereferencers: that is, any of:
 
 In other words, this is legal:
 
-    "Val = $a.ord.as('%x')\n"
+    "Val = $a.ord.fmt('%x')\n"
 
 and is equivalent to
 
-    "Val = { $a.ord.as('%x') }\n"
+    "Val = { $a.ord.fmt('%x') }\n"
 
 
 =item *
