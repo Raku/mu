@@ -48,25 +48,22 @@ instance (Stringable k, Refeable a) => CM.MapF (Frozen (MapSL k a)) k a where
     toListF (Frozen m) = unsafePerformIO $ toList_ m
 
 
-
-
--- FIXME: Maybe when using own GC for stableptrs, refeable is viable as a key type
-
-data (Stringable k, Refeable a) => MapSL k a = MapSL { judy :: ForeignPtr JudySL, gc :: GC.MiniGC }
+newtype (Stringable k, Refeable a) => MapSL k a = MapSL { judy :: ForeignPtr JudySL }
     deriving (Eq, Ord, Typeable)
 
 instance Show (MapSL k a) where
-    show (MapSL j _) = "<MapSL " ++ show j ++ ">"
+    show (MapSL j) = "<MapSL " ++ show j ++ ">"
 
 
 foreign import ccall "wrapper" mkFin :: (Ptr JudySL -> IO ()) -> IO (FunPtr (Ptr JudySL -> IO ()))
 
-finalize :: GC.MiniGC -> Ptr JudySL -> IO ()
-finalize gc j = do
+finalize :: Bool -> Ptr JudySL -> IO ()
+finalize need j = do
+    when need $ do
+        j_ <- newForeignPtr_ j
+        es <- rawElems (MapSL j_)
+        mapM_ GC.freeRef es
     v <- judySLFreeArray j judyError
-    j_ <- newForeignPtr_ j
-    es <- rawElems (MapSL j_ GC.NoGC)
-    mapM_ (GC.freeRef gc) es
     putStrLn $ "\n(FINALIZER CALLED FOR "++ (show j) ++  ": " ++ (show v) ++ ")\n"
     return ()
 
@@ -75,23 +72,21 @@ rawElems = map_ $ \r _ -> peek r
 new_ :: IO (MapSL k a)
 new_ = do
     fp <- mallocForeignPtr
-    gc <- if needGC (undefined :: a) then GC.createMiniGC else return GC.NoGC
-    finalize' <- mkFin $ finalize gc
+    finalize' <- mkFin $ finalize (needGC (undefined :: a))
     addForeignPtrFinalizer finalize' fp 
-    -- addForeignPtrFinalizer judySL_free_ptr fp 
     withForeignPtr fp $ flip poke nullPtr
-    return $ MapSL fp gc
+    return $ MapSL fp
 
 insert_ :: (Stringable k, Refeable a) => k -> a -> MapSL k a -> IO ()
-insert_ k v (MapSL j gc) = withForeignPtr j $ \j' -> do
+insert_ k v (MapSL j) = withForeignPtr j $ \j' -> do
     useAsCS k $ \k' -> do
         r <- judySLIns j' k' judyError
         if r == pjerr
             then error "HsJudy: Not enough memory."
-            else do { v' <- toRef gc v; poke r v'; return () }
+            else do { v' <- toRef v; poke r v'; return () }
 
 alter2 :: (Eq a, Stringable k, Refeable a) => (Maybe a -> Maybe a) -> k -> MapSL k a -> IO ()
-alter2 f k m@(MapSL j gc) = do
+alter2 f k m@(MapSL j) = do
     j' <- withForeignPtr j peek
     useAsCS k $ \k' -> do
         r <- judySLGet j' k' judyError
@@ -107,13 +102,13 @@ alter2 f k m@(MapSL j gc) = do
                     then do delete_ k m 
                             return ()
                     else if v /= (fromJust fv)
-                             then do GC.freeRef gc v'
-                                     x <- toRef gc (fromJust fv)
+                             then do when (needGC (undefined :: a)) $ GC.freeRef v'
+                                     x <- toRef (fromJust fv)
                                      poke r x
                              else return ()
 
 lookup_ :: (Stringable k, Refeable a) => k -> MapSL k a -> IO (Maybe a)
-lookup_ k (MapSL j _) = do
+lookup_ k (MapSL j) = do
     j' <- withForeignPtr j peek
     useAsCS k $ \k' -> do
         r <- judySLGet j' k' judyError
@@ -122,14 +117,14 @@ lookup_ k (MapSL j _) = do
             else do { v' <- peek r; v <- fromRef v'; return $ Just v }
 
 member_ :: Stringable k => k -> MapSL k a -> IO Bool
-member_ k (MapSL j _) = do
+member_ k (MapSL j) = do
     j' <- withForeignPtr j peek
     useAsCS k $ \k' -> do
         r <- judySLGet j' k' judyError
         return $ r /= nullPtr
 
 delete_ :: Stringable k => k -> MapSL k a -> IO Bool
-delete_ k (MapSL j gc) = withForeignPtr j $ \j' -> do
+delete_ k (MapSL j) = withForeignPtr j $ \j' -> do
     j'' <- peek j'
     useAsCS k $ \k' -> do
         when (needGC (undefined :: a)) $ do
@@ -137,7 +132,7 @@ delete_ k (MapSL j gc) = withForeignPtr j $ \j' -> do
             if r == nullPtr
                 then return () 
                 else do v' <- peek r
-                        GC.freeRef gc v'
+                        GC.freeRef v'
                         return ()
         r <- judySLDel j' k' judyError
         return $ r /= 0
@@ -150,7 +145,7 @@ fromList_ xs = do
     return m
 
 map_ :: (Ptr Value -> CString -> IO b) -> MapSL k a -> IO [b]
-map_ f (MapSL j _) = do
+map_ f (MapSL j) = do
     jj <- withForeignPtr j peek
     alloca $ \vp -> do
         poke vp (-1)
@@ -184,8 +179,7 @@ elems = map_ $ \r _ -> do
     fromRef v
 
 swapMaps :: MapSL k a -> MapSL k a -> IO ()
-swapMaps (MapSL j1 gc1) (MapSL j2 gc2) = do
-    GC.swapGCs gc1 gc2
+swapMaps (MapSL j1) (MapSL j2) = do
     withForeignPtr j1 $ \p1 -> withForeignPtr j2 $ \p2 -> do
         v1 <- peek p1
         v2 <- peek p2

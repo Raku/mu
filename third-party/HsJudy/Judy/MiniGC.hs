@@ -1,5 +1,5 @@
 module Judy.MiniGC (
-    MiniGC(..), createMiniGC, newRef, freeRef, swapGCs
+    judyGC, newRef, freeRef
 ) where
 
 import Data.Typeable
@@ -9,34 +9,24 @@ import Foreign
 import Foreign.Ptr
 import Foreign.StablePtr
 
-
 import Judy.Private
 
-data MiniGC = MiniGC Map | NoGC deriving (Eq, Ord, Typeable)
+{-# NOINLINE judyGC #-}
+judyGC = unsafePerformIO newMap
 
-table (MiniGC j) = j
-
-createMiniGC :: IO MiniGC
-createMiniGC = do
-    t <- newMap
-    -- FIXME: need finalizer for this guy too? =P
-    return $ MiniGC t
-
-newRef NoGC _ = undefined
-newRef gc a = do
+newRef a = do
     --putStr "(new)"
     v <- newStablePtr a
     let v' = ptrToWordPtr $ castStablePtrToPtr v
-    alter2 f v' (table gc)
+    alter2 f v' judyGC
     return v'
    where f Nothing = Just 1
          f (Just n) = Just (n+1)
 
-freeRef NoGC v = return ()
-freeRef gc v = do
+freeRef v = do
     --putStr "(free? "
-    alter2 f v (table gc)
-    x <- member v (table gc)
+    alter2 f v judyGC
+    x <- member v judyGC
     if x
         then return () --do { putStr "no!)"; return () }
         else freeStablePtr $ castPtrToStablePtr $ wordPtrToPtr v
@@ -45,19 +35,12 @@ freeRef gc v = do
          f (Just 1) = Nothing
          f (Just n) = Just (n-1)
 
-swapGCs :: MiniGC -> MiniGC -> IO ()
-swapGCs (MiniGC (Map j1)) (MiniGC (Map j2)) = do
-    withForeignPtr j1 $ \p1 -> withForeignPtr j2 $ \p2 -> do
-        v1 <- peek p1
-        v2 <- peek p2
-        poke p1 v2
-        poke p2 v1
 
 {- Special implementation of (Map Value Int) over JudyL for use in GC -}
 
 -- FIXME: clean up a bit
 
-data Map = Map { judy :: ForeignPtr JudyL } deriving (Eq, Ord, Typeable)
+newtype Map = Map { judy :: ForeignPtr JudyL } deriving (Eq, Ord, Typeable)
 
 instance Show Map where
     show (Map j) = "<hsjudy gc internal map " ++ show j ++ ">"

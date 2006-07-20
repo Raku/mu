@@ -32,9 +32,8 @@ main = do
     testSwapMaps
     testAlter2
     
-    -- FIXME: this is causing problems with GHC at runtime
-    -- probably some crazy pointer stuff with finalizers =P
-    --sequence $ take 2000 $ repeat testAlter2
+    -- Stress test for MiniGC
+    --sequence $ take 5000 $ repeat testAlter2
 
 
 check l = do

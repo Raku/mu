@@ -4,16 +4,20 @@
 
 - First RBR test: 1/3 running time when using MapL (via Map2). Not sure
 if the results are correct (they seem to be).
-- Test GC swapping
 - Should I call MapSL and Map2 just Map?
 - Other missing malloc error checking
+- Tests that stress MiniGC (w/ two maps at same time would be nice too)
+
+- Good application for Judy: Interning
+  http://repetae.net/dw/darcsweb.cgi?r=jhc;a=headblob;f=/Atom.hs
+  And check how GHC do it.
 
 
 # "CRAZY" BUGS
-X Bug on HSIter stuff when use a lot of memory. (One of them is solved. Need to GC now.)
 - Dummy/Refeable Bug: need to ask in #haskell and reply Simon's email.
-- Finalizer may be not working right => test with sequencing a lot of operations
-  causes error in GHC runtime.
+X Bug on HSIter stuff when use a lot of memory. (One of them is solved. Need to GC now.)
+X Finalizer may be not working right => test with sequencing a lot of operations
+  causes error in GHC runtime. (seems to be fixed by having ONLY ONE gc for everyone)
 
 
 # NEXT

@@ -18,7 +18,7 @@ class Dummy a
 instance Dummy a
 
 class Refeable a where
-    toRef :: GC.MiniGC -> a -> IO Value
+    toRef :: a -> IO Value
     fromRef :: Value -> IO a
     needGC :: a -> Bool
     
@@ -31,7 +31,7 @@ instance Dummy a => Refeable a where
     needGC _ = True
 
 instance Refeable Int where
-    toRef _ i = return $ toEnum i
+    toRef i = return $ toEnum i
     fromRef v = return $ fromEnum v
     needGC _ = False
 
