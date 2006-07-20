@@ -83,7 +83,9 @@ token uint {
 }
 
 token num {
-    \d+[_\d+]* [ \. \d+[_\d+]* [ <[Ee]> <[+\-]>? \d+ ]? ]
+    | \d+[_\d+]* [ \. \d+[_\d+]* [ <[Ee]> <[+\-]>? \d+ ]? ]
+    { return $/.as(v6::AST::NFloat) }
+    | \. \d+[_\d+]* [ <[Ee]> <[+\-]>? \d+ ]? 
     { return $/.as(v6::AST::NFloat) }
 }
 
