@@ -5,7 +5,7 @@ module Main where
 
 This module is the main guts of the Perl5 -> Perl6 Translator. Additional pieces can be found in:
 ASTUtil - Utility Functions, mostly dealing with the P5AST
-ASTParser - the Parsec parser for the yaml format AST of a P5 AST (the AST probably comes from MADSKILLS)
+ASTParser - the Parsec parser for the yaml format AST of a P5 AST (the AST probably comes from MAD_SKILLS)
 ASTDefinition - The AST datatype decleration. 
 
 
@@ -76,6 +76,9 @@ regexString = choice[ do{try(eof); return "<null>"},
 regexChar :: Parser String
 regexChar = choice[do{try(string "\\\\"); return "\\\\"},      --Get rid of literal \, make sure only metacharacter \ can trigger the other choices
                    do{try(string "\\("); return "\\("},        --Make sure we don't get a literal paren (this way only metcharacter parens can hit the other choices
+                   do{try(string "\\)"); return "\\)"},        --Don't let "\)" get confused with ")"
+                   do{try(string "\\}"); return "\\}"},        --Don't confuse "\}" and "}"
+                   do{try(string "\\]"); return "\\]"},        --Don't let "\]" take the place of "]"
                    do{try(string "(space)"); return "<sp>"},   --Handle (space) -> <sp>
                    do{try(string "\\A"); return "^"},          -- \A -> ^
                    do{try(string "\\z"); return "$"},          -- \z -> $
@@ -98,19 +101,39 @@ regexChar = choice[do{try(string "\\\\"); return "\\\\"},      --Get rid of lite
                    do{try(string "\\X"); return "<.>"},        -- \X -> <.>
                    do{try(string "<"); return "\\<"},          -- < -> \<
                    do{try(string ">"); return "\\>"},          -- > -> \>
-                   do{try(string "\\Q"); str <- (manyTill anyToken (string "\\E")); return ("<{ quotemeta '"++str++"' }>")}, -- \Qstring\E -> <{ quotemeta 'string'}>
+                   do{try(string "\\Q"); str <- (manyTill regexChar (string "\\E")); return ("<{ quotemeta '"++(joinString str)++"' }>")}, -- \Qstring\E -> <{ quotemeta 'string'}>
                    do{num <- try(do{string "\\"; num <- digit; return num}); return ("$"++(num:""))},                        -- \1 -> $1 
-                   do{try(string "[^"); atoms <- (manyTill anyToken (char ']')); return ("<-["++(regexChange atoms)++"]>")}, -- [^abc] -> <-[abc]>
-                   do{try(string "["); atoms <- (manyTill anyToken (char ']')); return ("<["++(regexChange atoms)++"]>")},   -- [abc] -> <[abc]>
-                   do{try(string "(?:"); atoms <- (manyTill anyToken (char ')')); return ("["++atoms++"]")},                 -- (?:...) -> [...]
-                   do{try(string "(?="); atoms <- (manyTill anyToken (char ')')); return ("<?before "++(regexChange atoms)++">")},    -- (?=foo) -> <?before foo>
-                   do{try(string "(?!"); atoms <- (manyTill anyToken (char ')')); return ("<!before "++(regexChange atoms)++">")},    -- (?!foo) -> <!before foo>
-                   do{try(string "(?<="); atoms <- (manyTill anyToken (char ')')); return ("<?after "++(regexChange atoms)++">")},    -- (?<=foo) -> <?after foo>
-                   do{try(string "(?<!"); atoms <- (manyTill anyToken (char ')')); return ("<!after "++(regexChange atoms)++">")},    -- (?<!foo) -> <!after foo>
+                   do{try(string "[^"); atoms <- (manyTill regexChar (char ']')); return ("<-["++(joinString atoms)++"]>")}, -- [^abc] -> <-[abc]>
+                   do{try(string "["); atoms <- (manyTill regexChar (char ']')); return ("<["++(joinString atoms)++"]>")},   -- [abc] -> <[abc]>
+                   do{try(string "(?:"); atoms <- (manyTill regexChar (char ')')); return ("["++(joinString atoms)++"]")},                 -- (?:...) -> [...]
+                   do{try(string "(?="); atoms <- (manyTill regexChar (char ')')); return ("<?before "++(joinString atoms)++">")},         -- (?=foo) -> <?before foo>
+                   do{try(string "(?!"); atoms <- (manyTill regexChar (char ')')); return ("<!before "++(joinString atoms)++">")},         -- (?!foo) -> <!before foo>
+                   do{try(string "(?<="); atoms <- (manyTill regexChar (char ')')); return ("<?after "++(joinString atoms)++">")},         -- (?<=foo) -> <?after foo>
+                   do{try(string "(?<!"); atoms <- (manyTill regexChar (char ')')); return ("<!after "++(joinString atoms)++">")},         -- (?<!foo) -> <!after foo>
+                   do{try(string "(?>"); atoms <- (manyTill regexChar (char ')')); return ("["++(joinString atoms)++"]:")},                -- (?>...) -> [...]:
+                   do{try(string "{"); countMod <- (manyTill anyToken (char '}')); return (countRegex (countMod++"@"))},     -- x{2} -> x**{2} and x{2,} -> x**{2..} and x{2,3} -> x**{2..3}
                    do{try(string "(?{"); code <- (manyTill anyToken (string "})")); return ("{"++code++"}")},                -- (?{...}) -> {...}
                    do{try(string "(??{"); code <- (manyTill anyToken (string "})")); return ("<{"++code++"}>")},             -- (??{...}) -> <{...}>
                    do{try(do{string "|"; eof}); return "<null>"},                                                            -- /blah|/ -> /blah|<null>/
                    do{char <- anyToken; return (char:"")}]
+
+--Wrapper for parsing the count modifier in regexs
+countRegex :: String -> String
+countRegex instr = case parse countString "regex count" instr of
+                                Left err -> error $ "\nError:\n" ++ show err
+                                Right result -> result
+                                
+
+--Parser that translates counts from Perl 5 to Perl 6. Takes care of x{2} -> x**{2} and x{2,} -> x**{2..} and x{2,3} -> x**{2..3},
+--as well as all of those with '?' at the end (the '?' is just left untouched).
+countString :: Parser String
+countString = do{firstNum <- manyTill digit (choice[char ',', char '@']);
+                 spaces;
+                 theRest <- choice[do{try(eof); return ""},
+                                   do{try(char '@'); return "..."},
+                                   do{secondNum <- manyTill digit (char '@'); return (".."++secondNum)}];
+                 return ("**{"++firstNum++theRest++"}")
+                }
 
 topicSplit :: P5AST -> P5AST
 topicSplit (AbstractNode Op_split kids) = (AbstractNode Op_split (topicMethod kids))
@@ -352,7 +375,7 @@ getModifiers args = case (head args) of
                          "-Oo"    ->  ('o':(getModifiers (tail args)))
                          "-V"     ->  ('v':(getModifiers (tail args)))
                          "-U"     ->  ('u':(getModifiers (tail args)))
-                         _        ->  ('n':(getModifiers (tail args)))
+                         _        ->  (' ':(getModifiers (tail args)))
 
 --getFirstFile (oddly enough) gets the first file (which will be the second to last argument). 
 getFirstFile :: [String] -> String
