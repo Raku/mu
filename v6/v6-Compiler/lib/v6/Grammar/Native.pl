@@ -18,12 +18,44 @@ data Native
     | NCplx !NativeComplex -- ^ (45 - 9i)
     | NStr  !NativeStr     -- ^ 'aloha'
     | NBool !NativeBool    -- ^ True (same underlying storage as NBit + True/False)
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
-Int, Buf, Cplx are not parsed here - these are 'higher level' constructs:
+-- | L<S06/"Undefined types">
+data ValUndef
+    = UndefUnit                -- ^ e.g., "my $x" with out further assignment
+    | UndefWhatever
+    | UndefFailure    !ObjId
 
-  -3 is parsed as '-','3'
+type NativeBit   = Bool
+type NativeBool  = Bool
+
+data Sign
+    = SPositive
+    | SNegative
+
+data NativeInt
+    = IFinite      !Integer
+    | IInfinite    !Sign
+    | INotANumber
+
+data NativeNum
+    = NRational  !Rational
+    | NFloat     !Float
+
+type NativeStr = Str
+
+-- Inf or NaN if either part is Inf or NaN.
+data NativeComplex = MkComplex
+    { real      :: !NNum
+    , imaginary :: !NNum
+    }
 
 =cut
+
+# Int, Buf, Cplx are not parsed at the grammar stage, 
+# because these are 'higher level' constructs:
+#
+#  -3 is parsed as '-','3'
 
 token bit {
     0 | 1
@@ -37,13 +69,18 @@ token uint {
         | x <[0..9a..fA..F]>+ [ _ <[0..9a..fA..F]>+ ]*
         | d \d+               [ _ \d+]*
         ]
+    { return $/.as(v6::AST::IFinite) }
     | \d+[_\d+]*
-    { return $/.as(v6::AST::NUint) }
+    { return $/.as(v6::AST::IFinite) }
+    | Inf
+    { return $/.as(v6::AST::IInfinite) }
+    | NaN
+    { return $/.as(v6::AST::INotANumber) }
 }
 
 token num {
     \d+[_\d+]* [ \. \d+[_\d+]* [ <[Ee]> <[+\-]>? \d+ ]? ]
-    { return $/.as(v6::AST::NNum) }
+    { return $/.as(v6::AST::NFloat) }
 }
 
 token str {
