@@ -64,3 +64,6 @@ FIXME native english: 'toward' or 'towards'? the article uses both...
     round_ceiling => round_towards_positive_infinity
     round_floor => round_towards_negative_infinity
     round_toward_zero => round_fix
+
+* Setup CruiseControl and have it report build failure to the #channel.
+Skill: light sysadminship, code a logfile to IRC gateway (reuse a bot?)
