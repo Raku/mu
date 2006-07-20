@@ -13,3 +13,10 @@ showSimplePerl6ClassDef role name =
 showPerl6ClassHead role name =
     "class " ++ name ++ " does " ++ role ++ " {\n"
 
+class Perl6Class a where
+    asPerl6Object :: a -> String
+    asPerl6Object simple = "new " ++ show simple
+
+-- hw factor high; probably needs to got back to the preprocessor.
+--showNewPerl6PosObject cls [attr] = cls ++ ".new(" ++ (intersperse "," $ map dynShow attr) ++ ")"
+
