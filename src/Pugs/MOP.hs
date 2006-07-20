@@ -1,8 +1,9 @@
+module Pugs.MOP where
 
 import qualified Data.Version
 import qualified Network.URI
 
-import Pugs.MOP.Instances
+-- import Pugs.MOP.Instances
 
 pugsMetaModelVersion :: [Int]
 pugsMetaModelVersion = [0, 0, 1]
@@ -60,7 +61,7 @@ classMeta = MkClass
     { c_module              = moduleMeta
     , c_superClasses        = [classObject]
     , c_runtimeSuperClasses = return []
-    , c_methodTable         = -- stevan xx Inf
+    , c_methodTable         = error "XXX stevan" -- stevan xx Inf
     , c_runtimeMethodtable  = return empty
     , c_runtimeSlots        = return -- stevan
     }
@@ -69,7 +70,7 @@ classObject = MkClass
     { c_module              = moduleObject
     , c_superClasses        = []
     , c_runtimeSuperClasses = return []
-    , c_methodTable         = --stevan
+    , c_methodTable         = error "XXX stevan" --stevan
     , c_runtimeMethodtable  = return empty
     , c_runtimeSlots        = return --punt
     }
@@ -96,7 +97,7 @@ mkClass name = MkClass
     { c_module = mkMod'
     , c_superClasses = classMeta
     , c_runtimeSuperClasses = return []
-    , c_methodTable = -- ??
+    , c_methodTable = error "XXX stevan" -- ??
     , c_runtimeMethodtable = return empty
     , c_runtimeSlots = return -- punt
     }

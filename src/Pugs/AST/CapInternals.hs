@@ -5,7 +5,7 @@
 -- semantics; captures; MOP based on Stevan++'s Moose.pm; and cleans up
 -- some accrued cruft.
 
-module Pugs.AST.Internals (
+module Pugs.AST.CapInternals (
     Eval,      -- uses Val, Env, SIO
     Ann(..),   -- Cxt, Pos, Prag
     Exp(..),   -- uses Pad, Eval, Val
@@ -77,7 +77,6 @@ module Pugs.AST.Internals (
 ) where
 import Pugs.Internals
 import Pugs.Types
-import Pugs.MOP
 import Pugs.Cont hiding (shiftT, resetT)
 import System.IO.Error (try)
 import Data.Typeable
@@ -391,7 +390,7 @@ data NativeInt
 
 data NativeNum
     = NRational  !Rational
-    = NFloat     !Float
+    | NFloat     !Float
 
 type NativeStr = Str
 
@@ -451,7 +450,8 @@ data PurePair = MkPair -- ?? or is this more efficient? data Pair (Val, Val)
     , p_val :: Val
     }
 
-data PureMapping = Map Val Val -- XXX what about ordered mappings?
+-- XXX what about ordered mappings?
+data PureMap = Map Val Val
 
 -- | L<S06/"Immutable types">
 data ValPure
@@ -470,9 +470,9 @@ data ValPure
     | PSet       !PureSet
     | PJunc      !PureJunc
     | PPair      !PurePair
-    | PMapping   !PureMapping
-    | PSignature !PureSig
-    | PCapture   !PureCapt
+    | PMap       !PureMap
+    | PSig       !PureSig
+    | PCap       !PureCap 
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 -- | L<S06/"Mutable types"> minus IO types
@@ -495,13 +495,13 @@ data ValMut
     | MRole      !MutRole
     | MGrammar   !MutGrammar
     | MObject    !MutObject  -- ? or ObjectId?
-    | MForeign   ...?
+    | MForeign   !Dynamic -- ...?
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 -- | Obviously side-effectual types such as file handles.
 --   Computations on these types must take place in the IO monad.
 data ValIO
-    = IHandle   !IOHandle         -- ^ File handle
+    = IFile     !IOFile           -- ^ File handle
     | ISocket   !IOSocket         -- ^ Socket handle
     | IThread   !(IOThread Val)   -- ^ Thread handle
     | IProcess  !IOProcess        -- ^ PID value
@@ -511,15 +511,15 @@ instance ScalarClass a where
     doScalarFetch :: a -> Eval Val
     doScalarStore :: a -> Eval Val
 
-scalar_fetch :: Val -> Eval Val
-scalar_fetch v@Native{} = return v
-scalar_fetch v@Pure{}   = return v
-scalar_fetch v@(Mut m)  = case m of
+_scalar_fetch :: Val -> Eval Val
+_scalar_fetch v@Native{} = return v
+_scalar_fetch v@Pure{}   = return v
+_scalar_fetch v@(Mut m)  = case m of
     VMScalar s  -> doScalarFetch s
     VMArray{}   -> return v
     VMObject o  -> callMethod "scalar_fetch" o
     _           -> fail ""
-scalar_fetch v@(IO i)   = fail "not implemented: scalar_fetch on IO value"
+_scalar_fetch v@(IO i)   = fail "not implemented: scalar_fetch on IO value"
 
 
 array_flatten :: Val -> Eval Val
@@ -563,7 +563,7 @@ hash_subscript v@(IO i)   = fail "not implemented: hash_subscript on IO value"
 
 
 instance ArrayClass (TVar Val) where
-    doArrayFlatten
+    doArrayFlatten = error "XXX"
 
 
 instance ScalarClass (TVar Val) where
@@ -779,8 +779,8 @@ data Exp
 
 -- | Control statement, such as "if".
 data ExpControl
-    = CCall        Ident  Capt          -- ^ lookup a routine, call it
-    | CApply       Exp  Capt            -- ^ apply a Code without lookup
+    = CCall        Ident  Cap           -- ^ lookup a routine, call it
+    | CApply       Exp  Cap             -- ^ apply a Code without lookup
     | CCond        Exp  Code            -- ^ 2 if 1
     | CTrenaryCond Exp  Code  Code      -- ^ 1 ?? 2 !! 3
     | CCondBlock   (Exp, Code) [(Exp, Code)] (Maybe Code)
@@ -984,7 +984,7 @@ data MutObject
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
 -- | Capture.
-data Capt
+data Cap 
     = CaptMeth
         { c_invocant :: Exp
         , c_argstack :: [Arglist]
