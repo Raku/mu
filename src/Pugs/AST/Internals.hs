@@ -694,7 +694,7 @@ data Val
     | VNum      !VNum        -- ^ Number (i.e. a double)
     | VComplex  !VComplex    -- ^ Complex number value
     | VStr      !VStr        -- ^ String value
-    | VList     VList        -- ^ List value
+    | VList     !VList       -- ^ List value
     | VType     !VType       -- ^ Type value (e.g. @Int@ or @Type@)
     | VJunc     !VJunc       -- ^ Junction value
     | VError    !Val ![Pos]  -- ^ Error

@@ -155,9 +155,6 @@ findSub name' invs args = do
             typ     <- evalInvType $ unwrap exp
             if typ == mkType "Scalar::Perl5" then fmap (err $ NoSuchMethod $ show typ) (runPerl5Sub name) else do
             findTypedSub typ name
-        _ | [exp] <- args -> do
-            typ     <- evalInvType $ unwrap exp
-            findTypedSub typ name
         _ -> findBuiltinSub NoSuchSub name
     where
     err :: b -> Maybe a -> Either b a

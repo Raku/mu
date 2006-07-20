@@ -825,13 +825,59 @@ reduceApp (Var "&assuming") (Just subExp) args = do
 reduceApp (Var "&infix:=>") invs args = do
     reduceSyn "=>" $ maybeToList invs ++ args
 
+reduceApp (Var name@('&':_)) Nothing [inv]
+    | Syn "named" _ <- inv  = doCall name Nothing [inv]
+    | otherwise             = doCall name (Just inv) []
+
 reduceApp (Var name@('&':_)) invs args = do
-    sub     <- findSub name invs args
+    doCall name invs args
+
+reduceApp subExp invs args = do
+    vsub <- enterEvalContext (cxtItem "Code") subExp
+    (`juncApply` [ApplyArg "" vsub False]) $ \[arg] -> do
+        sub  <- fromVal $ argValue arg
+        apply sub invs args
+
+
+chainFun :: Params -> Exp -> Params -> Exp -> [Val] -> Eval Val
+chainFun p1 f1 p2 f2 (v1:v2:vs) = do
+    val <- applyExp SubPrim (chainArgs p1 [v1, v2]) f1
+    case val of
+        VBool False -> return val
+        _           -> applyExp SubPrim (chainArgs p2 (v2:vs)) f2
+    where
+    chainArgs prms vals = map chainArg (prms `zip` vals)
+    chainArg (p, v) = ApplyArg (paramName p) v False
+chainFun _ _ _ _ _ = internalError "chainFun: Not enough parameters in Val list"
+
+doCall :: Var -> Maybe Exp -> [Exp] -> Eval Val
+doCall name invs args = do
+    -- First, reduce the invocant fully in item context.
+    invs'   <- fmapM (fmap Val . enterLValue . enterEvalContext cxtItemAny) invs
+    sub     <- findSub name invs' args
+
+    -- XXX - Consider this case:
+    --      sub f (*@_) { @_ }
+    --      f =$fh; # App
+    --      f @foo; # Var
+    -- We can't go back and re-evaluate the =$fh call under list context
+    -- after it failed its method lookup; however, we really need to go back
+    -- and re-evaluate @foo under list context.  So we use a klugy heuristic
+    -- before this is resolved:
+    let klugedInvs = case fmap unwrap invs of
+            Just App{}  -> invs' -- no re-evaluation
+            Just Syn{}  -> invs' -- no re-evaluation
+            _           -> invs  -- re-evaluation assumed to be ok
     case sub of
-        Right sub    -> applySub sub invs args
+        Right sub    -> do
+            val <- applySub sub klugedInvs args
+            return val
         _ | [Syn "," args'] <- unwrap args -> do
-            sub <- findSub name invs args'
+            sub <- findSub name klugedInvs args'
             either err (fail errSpcMessage) sub
+        -- If a method called failed, fallback to sub call
+        Left NoSuchMethod{} | Just inv <- klugedInvs -> do
+            doCall name Nothing (inv:args)
         Left failure -> err failure
     where
     errSpcMessage = "Extra space found after " ++ name ++ " (...) -- did you mean " ++ name ++ "(...) instead?"
@@ -875,23 +921,6 @@ reduceApp (Var name@('&':_)) invs args = do
         | otherwise
         = internalError "applyChainsub did not match a chain subroutine"
 
-reduceApp subExp invs args = do
-    vsub <- enterEvalContext (cxtItem "Code") subExp
-    (`juncApply` [ApplyArg "" vsub False]) $ \[arg] -> do
-        sub  <- fromVal $ argValue arg
-        apply sub invs args
-
-
-chainFun :: Params -> Exp -> Params -> Exp -> [Val] -> Eval Val
-chainFun p1 f1 p2 f2 (v1:v2:vs) = do
-    val <- applyExp SubPrim (chainArgs p1 [v1, v2]) f1
-    case val of
-        VBool False -> return val
-        _           -> applyExp SubPrim (chainArgs p2 (v2:vs)) f2
-    where
-    chainArgs prms vals = map chainArg (prms `zip` vals)
-    chainArg (p, v) = ApplyArg (paramName p) v False
-chainFun _ _ _ _ _ = internalError "chainFun: Not enough parameters in Val list"
 
 applyExp :: SubType -> [ApplyArg] -> Exp -> Eval Val
 applyExp _ bound (Prim f) =

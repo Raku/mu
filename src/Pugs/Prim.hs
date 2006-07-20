@@ -518,8 +518,8 @@ op1 "close" = \v -> do
     case v of
         (VSocket _) -> guardedIO sClose v
         _           -> guardedIO hClose v
-op1 "key" = fmap fst . (fromVal :: Val -> Eval VPair)
-op1 "value" = \v -> do
+op1 "Pair::key" = fmap fst . (fromVal :: Val -> Eval VPair)
+op1 "Pair::value" = \v -> do
     ivar <- join $ doPair v pair_fetchElem
     return . VRef . MkRef $ ivar
 op1 "pairs" = \v -> do
@@ -1763,8 +1763,8 @@ initSyms = mapM primDecl syms
 \\n   Int       pre     chars   safe   (Str)\
 \\n   Int       pre     bytes   safe   (Str)\
 \\n   Int       pre     chmod   unsafe (Int, List)\
-\\n   Scalar    pre     key     safe   (rw!Pair)\
-\\n   Scalar    pre     value   safe   (rw!Pair)\
+\\n   Scalar    pre     Pair::key     safe   (rw!Pair)\
+\\n   Scalar    pre     Pair::value   safe   (rw!Pair)\
 \\n   List      pre     keys    safe   (rw!Pair)\
 \\n   List      pre     values  safe   (Pair|Junction)\
 \\n   List      pre     Pair::kv      safe   (rw!Pair)\
