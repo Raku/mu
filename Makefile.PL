@@ -28,7 +28,6 @@ use File::Copy;
 use File::Basename;
 use FindBin;
 BEGIN { chdir $FindBin::RealBin };
-use IPC::Cmd qw(can_run);
 use inc::Module::Install;
 use lib 'inc';
 use PugsBuild::Config;
@@ -417,7 +416,7 @@ EOD
         $hsc2hs_flags .= " -DPUGS_HAVE_PARROT -I$base/include ";
     }
     else {
-        my $whichparrot = can_run 'parrot';
+        my $whichparrot = can_run('parrot');
 
         if ($whichparrot) {
             push @warn, << ".";
