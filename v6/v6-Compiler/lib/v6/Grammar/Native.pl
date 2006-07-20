@@ -52,10 +52,14 @@ data NativeComplex = MkComplex
 
 =cut
 
-# Int, Buf, Cplx are not parsed at the grammar stage, 
-# because these are 'higher level' constructs:
+# Int, Buf, Cplx are not parsed at the token level
 #
-#  -3 is parsed as '-','3'
+# for example, -3 is parsed as '-','3' because there are some operators with
+# tighter precedence than '-'.
+#
+# also, tokens like 'Inf' don't check for end-of-the word, 
+# and this could cause a misparse of the word 'Infinity'.
+# This is fixed later by the 'longest-token' rule
 
 token bit {
     0 | 1
