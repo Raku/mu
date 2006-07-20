@@ -150,9 +150,10 @@ our @rule_terms;
     ]
 ))->code;
 *rule = Pugs::Compiler::Regex->compile(q(
+    [<?ws>\\|]?
     $<q1> := (<concat>) 
     [
-        $<q2> := (<rule>) 
+        \\| $<q2> := (<rule>) 
 
         { return { alt => [ 
                 $_[0]{q1}(), 
@@ -183,7 +184,7 @@ push @rule_terms, 'colon';
         my $method = $_;
         sub{ 
             # warn "Trying $method\n";
-            my $match = Pugs::Grammar::Rule->$method(@_);
+            my $match = Pugs::Grammar::P6Rule->$method(@_);
             #warn "Match $method ".Dumper($match) if $match->{bool};
             return $match;
         }
