@@ -29,7 +29,7 @@ instanceSkeleton' s ii  d = (simpleInstance s d <+> text "where")
     where
     functions = makeDefs : concatMap f ii
     f (i,dflt) = map i (body d) ++ [dflt $ body d]      
-    makeDefs = text "showPerl6TypeDef" <+> equals <+> text "concat" <+> (brackets $ fsep $ punctuate comma defs)
+    makeDefs = text "showPerl6TypeDef _" <+> equals <+> text "concat" <+> (brackets $ fsep $ punctuate comma defs)
     defs = roleDef : classDefs
     roleDef = text "showPerl6RoleDef" <+> (dq $ text $ role)
     classDefs = map (makeClassDef role) (body d)
