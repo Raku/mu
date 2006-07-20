@@ -399,7 +399,7 @@ codepoints or graphemes, using these methods C<.bytes>, C<.codes> or C<.graphs>
 respectively on the array.  The same methods apply to strings as well.
 
 There is no C<.length> method for either arrays or strings, because C<length>
-does not specify an unit.
+does not specify a unit.
 
 =item *
 
@@ -743,8 +743,8 @@ You may retrieve parts from a C<Capture> object with a prefix sigil operator:
 
     $args = \3;     # same as "$args = \(3)"
     $$args;         # same as "$args as Scalar" or "Scalar($args)"
-    @$args;         # same as '$args as Array"  or "Array($args)"
-    %$args;         # same as '$args as Hash"   or "Hash($args)"
+    @$args;         # same as "$args as Array"  or "Array($args)"
+    %$args;         # same as "$args as Hash"   or "Hash($args)"
 
 When cast into an array, you can access all the positional arguments; into a
 hash, all named arguments; into a scalar, its invocant.
@@ -789,7 +789,8 @@ object with parens after it (which may, of course, contain arguments):
 
 Whitespace is not allowed before the parens, but there is a
 corresponding C<.()> operator, plus the "long dot" forms that allow
-you to insert optional whitespace and comments between dots:
+you to insert optional whitespace and comments between the backslash
+and the dot:
 
     &foo\   .($arg1, $arg2);
     &foo\#[
@@ -1064,7 +1065,7 @@ Subprocesses are passed only the global C<%*ENV> values.  They do
 not see any lexical variables or their values, unless you copy those
 values into C<%*ENV> to change what subprocesses see:
 
-    temp %*ENV{LANG} = $+LANG;		# may be modifed by parent
+    temp %*ENV{LANG} = $+LANG;		# may be modified by parent
     system "greet";
 
 =item *
