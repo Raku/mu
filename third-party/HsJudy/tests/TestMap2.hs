@@ -16,6 +16,7 @@ main = do
     testElems
     testKeys
     testStringValue
+    testStringValueDel
     testSwapMaps
     testAlter2
 
@@ -102,6 +103,23 @@ testStringValue = do
     check [a == [], (sort b) == [(22, "string"), (59,"i am not a number")],
            c, not d, e == Just "i am not a number"]
 
+testStringValueDel = do
+    putStr "str-val del: \t"
+    s <- new :: IO (Map2 Int String)
+    a <- toList s
+    alter 22 "string" s
+    alter 23 "string" s
+    alter 59 "i am not a number" s
+    b <- toList s
+    c <- member 22 s
+    delete 22 s
+    d <- member 22 s
+    e <- lookup 59 s
+    f <- lookup 23 s
+    check [a == [], (sort b) == [(22, "string"), (23, "string"), (59,"i am not a number")],
+           c, not d, e == Just "i am not a number", f == Just "string"]
+
+
 testSwapMaps = do
     putStr "swap maps: \t"
     m1 <- fromList [(1,2),(2,3),(4,7)] :: IO (JM.Map2 Int Int)
@@ -126,6 +144,7 @@ testAlter2 = do
     JM.alter2 (const Nothing) 1 m
     e <- lookup 1 m
     check [a == Just 2, b == Just 2, c == Just 42, d == Just 42, e == Nothing]
+
 
 
 

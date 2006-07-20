@@ -6,6 +6,7 @@ module Judy.MapSL (
 ) where
 
 import Data.Typeable
+import Control.Monad (when)
 import Foreign.C.String
 import Foreign.C.Types
 import Foreign.ForeignPtr
@@ -21,6 +22,7 @@ import qualified Judy.CollectionsM as CM
 import Judy.Refeable
 import Judy.Map (Stringable (..))
 import Judy.Freeze
+import qualified Judy.MiniGC as GC
 
 import Prelude hiding (map)
 
@@ -50,48 +52,46 @@ instance (Stringable k, Refeable a) => CM.MapF (Frozen (MapSL k a)) k a where
 
 -- FIXME: Maybe when using own GC for stableptrs, refeable is viable as a key type
 
-newtype (Stringable k, Refeable a) => MapSL k a = MapSL { judy :: ForeignPtr JudySL }
+data (Stringable k, Refeable a) => MapSL k a = MapSL { judy :: ForeignPtr JudySL, gc :: GC.MiniGC }
     deriving (Eq, Ord, Typeable)
 
 instance Show (MapSL k a) where
-    show (MapSL j) = "<MapSL " ++ show j ++ ">"
+    show (MapSL j _) = "<MapSL " ++ show j ++ ">"
 
 
+foreign import ccall "wrapper" mkFin :: (Ptr JudySL -> IO ()) -> IO (FunPtr (Ptr JudySL -> IO ()))
 
--- copy/pasted FROM Judy/Map.hs -- some commented code arent translated yet
-
--- TODO: a "complete" finalizer (destroys StablePtrs): remember the case
--- when same StablePtr is being used by two keys, or that it maybe being
--- used by some other structure (you can't just free, need some refcounting
--- or use some newUniqueStablePtr, dunno yet)!
-
-{-foreign import ccall "wrapper" mkFin :: (Ptr JudyHS -> IO ()) -> IO (FunPtr (Ptr JudyHS -> IO ()))
-
-finalize :: Ptr JudyHS -> IO ()
-finalize j = do
-    v <- judyHSFreeArray j judyError
-    putStrLn $ "\n (FINALIZER CALLED FOR "++ (show j) ++  ": " ++ (show v) ++ ") "
+finalize :: GC.MiniGC -> Ptr JudySL -> IO ()
+finalize gc j = do
+    v <- judySLFreeArray j judyError
+    j_ <- newForeignPtr_ j
+    es <- rawElems (MapSL j_ GC.NoGC)
+    mapM_ (GC.freeRef gc) es
+    putStrLn $ "\n(FINALIZER CALLED FOR "++ (show j) ++  ": " ++ (show v) ++ ")\n"
     return ()
--}
+
+rawElems = map_ $ \r _ -> peek r
+
 new_ :: IO (MapSL k a)
 new_ = do
     fp <- mallocForeignPtr
-    --putStr $ " (NEW on " ++ (show fp) ++ ") "
---    finalize' <- mkFin finalize
---    addForeignPtrFinalizer finalize' fp 
+    gc <- if needGC (undefined :: a) then GC.createMiniGC else return GC.NoGC
+    finalize' <- mkFin $ finalize gc
+    addForeignPtrFinalizer finalize' fp 
+    -- addForeignPtrFinalizer judySL_free_ptr fp 
     withForeignPtr fp $ flip poke nullPtr
-    return $ MapSL fp
+    return $ MapSL fp gc
 
 insert_ :: (Stringable k, Refeable a) => k -> a -> MapSL k a -> IO ()
-insert_ k v (MapSL j) = withForeignPtr j $ \j' -> do
+insert_ k v (MapSL j gc) = withForeignPtr j $ \j' -> do
     useAsCS k $ \k' -> do
         r <- judySLIns j' k' judyError
         if r == pjerr
             then error "HsJudy: Not enough memory."
-            else do { v' <- toRef v; poke r v'; return () }
+            else do { v' <- toRef gc v; poke r v'; return () }
 
 alter2 :: (Eq a, Stringable k, Refeable a) => (Maybe a -> Maybe a) -> k -> MapSL k a -> IO ()
-alter2 f k m@(MapSL j) = do
+alter2 f k m@(MapSL j gc) = do
     j' <- withForeignPtr j peek
     useAsCS k $ \k' -> do
         r <- judySLGet j' k' judyError
@@ -102,15 +102,18 @@ alter2 f k m@(MapSL j) = do
             else do 
                 v' <- peek r
                 v <- fromRef v'
-                if (f (Just v)) == Nothing
+                let fv = f (Just v)
+                if fv == Nothing
                     then do delete_ k m 
                             return ()
-                    else do
-                            x <- toRef $ fromJust $ f (Just v)
-                            poke r x
+                    else if v /= (fromJust fv)
+                             then do GC.freeRef gc v'
+                                     x <- toRef gc (fromJust fv)
+                                     poke r x
+                             else return ()
 
 lookup_ :: (Stringable k, Refeable a) => k -> MapSL k a -> IO (Maybe a)
-lookup_ k (MapSL j) = do
+lookup_ k (MapSL j _) = do
     j' <- withForeignPtr j peek
     useAsCS k $ \k' -> do
         r <- judySLGet j' k' judyError
@@ -119,17 +122,26 @@ lookup_ k (MapSL j) = do
             else do { v' <- peek r; v <- fromRef v'; return $ Just v }
 
 member_ :: Stringable k => k -> MapSL k a -> IO Bool
-member_ k (MapSL j) = do
+member_ k (MapSL j _) = do
     j' <- withForeignPtr j peek
     useAsCS k $ \k' -> do
         r <- judySLGet j' k' judyError
         return $ r /= nullPtr
 
 delete_ :: Stringable k => k -> MapSL k a -> IO Bool
-delete_ k (MapSL j) = withForeignPtr j $ \j' -> do
-    useAsCS k $ \k' -> do 
+delete_ k (MapSL j gc) = withForeignPtr j $ \j' -> do
+    j'' <- peek j'
+    useAsCS k $ \k' -> do
+        when (needGC (undefined :: a)) $ do
+            r <- judySLGet j'' k' judyError
+            if r == nullPtr
+                then return () 
+                else do v' <- peek r
+                        GC.freeRef gc v'
+                        return ()
         r <- judySLDel j' k' judyError
         return $ r /= 0
+
 
 fromList_ :: (Stringable k, Refeable a) => [(k,a)] -> IO (MapSL k a)
 fromList_ xs = do
@@ -138,7 +150,7 @@ fromList_ xs = do
     return m
 
 map_ :: (Ptr Value -> CString -> IO b) -> MapSL k a -> IO [b]
-map_ f (MapSL j) = do
+map_ f (MapSL j _) = do
     jj <- withForeignPtr j peek
     alloca $ \vp -> do
         poke vp (-1)
@@ -171,9 +183,9 @@ elems = map_ $ \r _ -> do
     v <- peek r
     fromRef v
 
-
 swapMaps :: MapSL k a -> MapSL k a -> IO ()
-swapMaps (MapSL j1) (MapSL j2) = do
+swapMaps (MapSL j1 gc1) (MapSL j2 gc2) = do
+    GC.swapGCs gc1 gc2
     withForeignPtr j1 $ \p1 -> withForeignPtr j2 $ \p2 -> do
         v1 <- peek p1
         v2 <- peek p2

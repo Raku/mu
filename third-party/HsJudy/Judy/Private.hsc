@@ -30,6 +30,8 @@ newtype Frozen a = Frozen a
 #def void *j_pjerr(void) { return PJERR; }
 foreign import ccall unsafe "j_pjerr" pjerr :: Ptr Value
 
+jerr :: Value
+jerr = (-1)
 
 -- what do we gain from doing that newtype instead of simply doing: type Judy1Array = () ?
 newtype Judy1Array = Judy1Array Judy1Array

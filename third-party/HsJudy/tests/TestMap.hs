@@ -1,14 +1,18 @@
 {-# OPTIONS -fallow-undecidable-instances -fallow-incoherent-instances #-}
 
+
+import Data.List (sort)
+import System.Mem
+
 --import qualified Judy.MapSL as JM
 import qualified Judy.Map as JM
 
 import Judy.Map (Stringable (..))
-
-import Data.List (sort)
 import Judy.CollectionsM --as CM
 import Judy.Freeze
+
 import Prelude hiding (lookup)
+
 
 
 main = do
@@ -22,10 +26,16 @@ main = do
     testElems
     testKeys
     testIntKey
+    testIntKeyDelete
     testLotsOfMem
     testFrozenMap
     testSwapMaps
     testAlter2
+    
+    -- FIXME: this is causing problems with GHC at runtime
+    -- probably some crazy pointer stuff with finalizers =P
+    --sequence $ take 2000 $ repeat testAlter2
+
 
 check l = do
     if and l
@@ -106,7 +116,6 @@ instance Stringable Int where
     toString = show
     fromString = read
 
-
 testIntKey = do
     putStr "int-key map: \t"
     s <- newIntString
@@ -122,6 +131,17 @@ testIntKey = do
     check [a == [], (sort b) == [22,59],
            (sort c) == ["i am not a number", "string"],
            d, not e, f == Just "i am not a number"]
+
+testIntKeyDelete = do
+    putStr "int-key del: \t"
+    s <- newIntString
+    alter 22 "string" s
+    alter 23 "string" s
+    alter 24 "ahha" s
+    alter 25 "oieee" s
+    delete 22 s
+    a <- lookup 23 s
+    check [a == Just "string"]
 
 testLotsOfMem = do
     putStrLn $ "# " ++ (show $ last $ take 100000 [1..])

@@ -44,26 +44,33 @@ insert :: HashIO a => a -> BitSet a -> IO ()
 insert v (BitSet j) = withForeignPtr j $ \j' -> do
     v' <- hashIO v
     judy1Set j' v' judyError
-    return ()
+    if v' == jerr
+        then putStrLn "HsJudy: Not enough memory."
+        else return ()
 
 -- | Delete a value in the set.
 delete :: HashIO a => a -> BitSet a -> IO ()
 delete v (BitSet j) = withForeignPtr j $ \j' -> do
     v' <- hashIO v
     judy1Unset j' v' judyError
-    return ()
+    if v' == jerr
+        then error "HsJudy: Not enough memory."
+        else return ()
 
 -- | Set value in or out the set and return its old value.
 set :: HashIO a => BitSet a -> a -> Bool -> IO Bool
 set (BitSet j) v True = withForeignPtr j $ \j ->  do
     vp <- hashIO v
     r <- judy1Set j vp judyError
-    return $ r == 0
+    if vp == jerr
+        then error "HsJudy: Not enough memory."
+        else return $ r == 0
 set (BitSet j) v False = withForeignPtr j $ \j -> do
     vp <- hashIO v
     r <- judy1Unset j vp judyError
-    return $ r /= 0
-
+    if vp == jerr
+        then error "HsJudy: Not enough memory."
+        else return $ r /= 0
 
 -- this inline was in Meacham original BitSet
 -- {-# INLINE get #-}
