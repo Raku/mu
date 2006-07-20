@@ -779,8 +779,8 @@ data Exp
 
 -- | Control statement, such as "if".
 data ExpControl
-    = CCall        Exp  Capt            -- ^ lookup a routine, call it
-    | CApply       Code Capt            -- ^ apply a Code immediately
+    = CCall        Ident  Capt          -- ^ lookup a routine, call it
+    | CApply       Exp  Capt            -- ^ apply a Code without lookup
     | CCond        Exp  Code            -- ^ 2 if 1
     | CTrenaryCond Exp  Code  Code      -- ^ 1 ?? 2 !! 3
     | CCondBlock   (Exp, Code) [(Exp, Code)] (Maybe Code)
