@@ -14,111 +14,100 @@ our @rule_terms;
 
 Pugs::Compiler::Regex->install( 
     code => q(
+        # TODO - callback perl6 compiler
         \\{ [ <plain_text> | <ws> | <code> ]* \\}
     ));
-
 Pugs::Compiler::Regex->install( 
-    metasyntax => q(
-        \\< [ <plain_text> | <ws> ]* \\>
-    ));
-
-*ident = Pugs::Compiler::Regex->compile(q(
+    ident => q(
         [ <alnum> | _ | \\: \\: ]+
-    ))->code;
-
-*variable = Pugs::Compiler::Regex->compile(q(
+    ));
+Pugs::Compiler::Regex->install( 
+    variable => q(
         [ \\$ | \\@ | \\% ]
         [ <alnum> | _ | \\: \\: ]+
-    ))->code;
-
-*positional_variable = Pugs::Compiler::Regex->compile(q(
+    ));
+Pugs::Compiler::Regex->install( 
+    positional_variable => q(
         [ \\$ | \\@ | \\% ]
         \\^
         [ <alnum> | _ | \\: \\: ]+
-    ))->code;
+    ));
 
-*num_variable = Pugs::Compiler::Regex->compile(q(
-        [ \\$ | \\@ | \\% ]
-        [ <digit> ]+
-    ))->code;
-
-*dot = Pugs::Compiler::Regex->compile(q(
+Pugs::Compiler::Regex->install( 
+    match_variable => q(
+        [ \\$ | \\@ | \\% ] <digit>+
+        { return { match_variable => $/() ,} }
+    ));
+Pugs::Compiler::Regex->install( 
+    metasyntax => q(
+        \\< ([ <alnum> | <ws> ]+) \\>
+        { return { metasyntax => $/[0]() ,} }
+    ));
+Pugs::Compiler::Regex->install( 
+    dot => q(
         \\.    
-            
         { return { 'dot' => 1 ,} }
-    ))->code;
-*plain_text = Pugs::Compiler::Regex->compile(q(
+    ));
+Pugs::Compiler::Regex->install( 
+    plain_text => q(
         <alnum> | \\, | \\; | \\_ | \\/ | \\~ | \\" | \\' | \\=   # "
-
         { return { 'constant' => $() ,} }
-    ))->code;
-*special_char = Pugs::Compiler::Regex->compile(q(
+    ));
+Pugs::Compiler::Regex->install( 
+    special_char => q(
         \\\\ .
-
         { return { special_char => $(), } } 
-    ))->code;
-*non_capturing_group = Pugs::Compiler::Regex->compile(q(
-        \\[ <rule> \\] 
-         
+    ));
+Pugs::Compiler::Regex->install( 
+    non_capturing_group => q(
+        \\[ : <rule> \\] 
         { return $/{rule}() }
-    ))->code;
+    ));
 *closure_rule = Pugs::Compiler::Regex->compile(q(
         <code>
-            
         { return { closure => $/{code}() ,} }
     ))->code;
 *variable_rule = Pugs::Compiler::Regex->compile(q(
         <variable> | <positional_variable>
-            
         { return { variable => $() ,} }
     ))->code;
-*match_variable = Pugs::Compiler::Regex->compile(q(
-        <num_variable>    
-            
-        { return { match_variable => $/{num_variable}() ,} }
-    ))->code;
 *named_capture_body = Pugs::Compiler::Regex->compile(q(
-          [ \\( <rule> \\) { return { rule => $/{rule}(), } } ]
-        | [ \\[ <rule> \\] { return { rule => $/{rule}(), } } ]
-        | [ <metasyntax> { return { rule => $/{metasyntax}(), } } ]
+        | [ \\( : <rule> \\) { return { rule => $/{rule}(), } } ]
+        | [ \\[ : <rule> \\] { return { rule => $/{rule}(), } } ]
+        | [   <metasyntax> { return { rule => $/{metasyntax}(), } } ]
     ))->code;
 *named_capture = Pugs::Compiler::Regex->compile(q(
         \\$ \\< <ident> \\> <?ws>? \\:\\= <?ws>? <named_capture_body>
-        
         { my $body = $/{named_capture_body}();
           $body->{ident} = $/{ident}();
           return { named_capture => $body, } 
         }
     ))->code;
 *before = Pugs::Compiler::Regex->compile(q(
-        \\< before <?ws> <rule> \\> 
-        
+        \\< before <?ws> : <rule> \\> 
         { return { before => {
                 rule  => $/{rule}(),
             }, } 
         }
     ))->code;
 *after = Pugs::Compiler::Regex->compile(q(
-        \\< after <?ws> <rule> \\> 
-        
+        \\< after <?ws> : <rule> \\> 
         { return { after => {
                 rule  => $/{rule}(),
             }, } 
         }
     ))->code;
 *capturing_group = Pugs::Compiler::Regex->compile(q(
-        \\( <rule> \\)
-            
+        \\( : <rule> \\)
         { return { capturing_group => $/{rule}() ,} }
     ))->code;
 *colon = Pugs::Compiler::Regex->compile(q(
-        ( 
-            [ \\:\\:\\: ] | 
-            [ \\:\\? ]   | 
-            [ \\:\\+ ]   | 
-            [ \\:\\: ]   | \\: |
-            [ \\$\\$ ]   | \\$ |
-            [ \\^\\^ ]   | \\^
+        (   [ \\:\\:\\: ]  
+        |   [ \\:\\? ]    
+        |   [ \\:\\+ ]    
+        |   [ \\:\\: ]   | \\: 
+        |   [ \\$\\$ ]   | \\$ 
+        |   [ \\^\\^ ]   | \\^
         )
             
         { return { colon => $/() ,} }
@@ -128,13 +117,12 @@ Pugs::Compiler::Regex->install(
     $<term>  := (<@Pugs::Grammar::P6Rule::rule_terms>)
     $<ws2>   := (<?ws>?)
     $<quant> := (
-        [ 
-            [ \\?\\? ] |
-            [ \\*\\? ] |
-            [ \\+\\? ] |
-            \\?       |
-            \\*       |
-            \\+
+        [   [ \\?\\? ] 
+        |   [ \\*\\? ] 
+        |   [ \\+\\? ] 
+        |   \\?       
+        |   \\*       
+        |   \\+
         ]?
     )
     $<ws3>   := (<?ws>?)
@@ -149,9 +137,9 @@ Pugs::Compiler::Regex->install(
     }
 ))->code;
 *concat = Pugs::Compiler::Regex->compile(q(
-    $<q1> := (<quantifier>) 
+    $<q1> := <quantifier> 
     [
-        $<q2> := (<concat>) 
+        $<q2> := <concat> 
         
         { return { concat => [ 
                 { quant => $/{q1}() ,}, 
@@ -163,10 +151,10 @@ Pugs::Compiler::Regex->install(
     ]
 ))->code;
 *rule = Pugs::Compiler::Regex->compile(q(
-    [<?ws>\\|]?
-    $<q1> := (<concat>) 
+    [ <?ws> \\| ]?
+    $<q1> := <concat> 
     [
-        \\| $<q2> := (<rule>) 
+        \\| : $<q2> := <rule> 
 
         { return { alt => [ 
                 $/{q1}(), 
@@ -191,9 +179,18 @@ Pugs::Compiler::Regex->install(
             return $match;
         }
     }
+    qw(  capturing_group 
+         after before metasyntax 
+         named_capture match_variable
+         variable_rule closure_rule special_char plain_text dot
+         non_capturing_group colon 
+    );
+
+1;
+
+__END__
+
     qw(  capturing_group after before named_capture match_variable
          variable_rule closure_rule special_char plain_text dot
          metasyntax non_capturing_group colon 
     );
-
-1;
