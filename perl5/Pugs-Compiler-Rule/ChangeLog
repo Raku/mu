@@ -1,3 +1,9 @@
+0.12  2006-07-21
+
+- $$match returns the 'return object'
+
+0.11
+
 - implemented chain operators in Precedence.pm
 
 0.10  2006-07-10
