@@ -54,7 +54,7 @@ sub compile {
         }
 
         push @statement, $self->{ast}();
-        $tail = ${$self->{ast}}->{tail};
+        $tail = $self->{ast}->data->{tail};
         last unless $tail;
         #print 'rule ast: ', Dumper( $self->{ast}() );
         #print "next statement: $tail \n";
