@@ -18,7 +18,7 @@ showPerl6ClassDef role cls members =
     where
     clsHead = "class " ++ cls ++ " does " ++ role ++ " {"
     clsTail = "};"
-    memberDef (ty, nm) = "    has " ++ ty ++ " $." ++ nm ++ ";"
+    memberDef (ty, nm) = "    has " ++ ty ++ (if null ty then "" else " ") ++ nm ++ ";"
 
 class Typeable a => Perl6Class a where
     showPerl6TypeDef :: a -> String

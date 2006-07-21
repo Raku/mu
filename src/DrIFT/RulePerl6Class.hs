@@ -37,12 +37,16 @@ instanceSkeleton' s ii  d = (simpleInstance s d <+> text "where")
 makeClassDef role bod@(Body constructor labels types) =
     hsep [text "showPerl6ClassDef", qt role, qt constructor, mkAllAttr]
     where
-    mkAllAttr = text $ show $ zip types' names'
+    mkAllAttr = text $ show $ zipWith3 (\t s n -> (t, dq $ s<>n)) types' sigils names'
     mkPosAttr = varNames types
     mkRecAttr = map text labels
-    types'    = map (qt . p6Type) types
-    names'    = map dq (if null labels then mkPosAttr else mkRecAttr)
-    p6Type (Con ty) = ty -- XXX should be: lookup the type in some Hs->P6 map
+    types'    = map (qt . snd . p6Type) types
+    sigils    = map (text . fst . p6Type) types
+    names'    = if null labels then mkPosAttr else mkRecAttr
+    p6Type (Con ty)        = ("$.", ty) -- XXX should be: lookup the type in some Hs->P6 map
+    p6Type (List (Con ty)) = ("@.", ty) -- simple list
+    p6Type (List {})       = ("@.", "") -- too deep for a P6 constraint, for now.
+    p6Type x               = error $ "don't know what to do with " ++ (show x)
 
 makeAsObject bod@(Body constructor labels types)
     | null types  = empty
