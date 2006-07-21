@@ -28,17 +28,16 @@ instanceSkeleton' s ii  d = (simpleInstance s d <+> text "where")
     where
     functions  = makeDefs : concatMap f ii
     f (i,dflt) = map i (body d) ++ [dflt $ body d]
-    makeDefs   = text "showPerl6TypeDef _" <+> equals <+> text "unlines" $$ (nest 8 $ mlist defs)
+    makeDefs   = text "showPerl6TypeDef _" <+> equals <+> text "unlines" $$ (nest 8 $ commaList defs)
     defs       = roleDef : classDefs
     roleDef    = text "showPerl6RoleDef" <+> (dq $ text $ role)
     classDefs  = map (makeClassDef role) (body d)
     role       = name d
 
 makeClassDef role bod@(Body constructor labels types) =
-    hsep [text "showPerl6ClassDef", qt constructor, equals,
-        text "doShowPerl6ClassDef", qt role, qt constructor, text $ show mkAllAttr]
+    hsep [text "showPerl6ClassDef", qt role, qt constructor, mkAllAttr]
     where
-    mkAllAttr = zip types' names'
+    mkAllAttr = text $ show $ zip types' names'
     mkPosAttr = varNames types
     mkRecAttr = map text labels
     types'    = map (qt . p6Type) types
@@ -47,10 +46,29 @@ makeClassDef role bod@(Body constructor labels types) =
 
 makeAsObject bod@(Body constructor labels types)
     | null types  = empty
-    | null labels = hsep [text "asPerl6Object", (parens $ hsep (qt constructor : varNames types)), equals, text "error", qt "not yet"]
-    | otherwise   = text "asPerl6Object _" <+> equals <+> text "error $" <+> qt "not yet: " <+> text "++" <+> text (show (show bod))
+    | null labels = hsep [text "asPerl6Object", (parens $ hsep (text constructor : varNames types)), equals, text "error", qt "not yet"]
+    | otherwise   = hsep [text "asPerl6Object", text constructor, text "{}", equals,
+        text "error $", qt "not yet: ", text "++", text (show (show bod))]
 
 dq    = doubleQuotes
 qt    = dq . text
-mlist [] = lbrack $$ rbrack
-mlist (x:xs) = lbrack <+> x $$ (vcat $ map (\e -> comma <+> e) xs) $$ rbrack
+
+commaList, statementList :: [Doc] -> Doc
+-- | punctuation-first list data
+commaList     = genSeq lbrack rbrack comma
+-- | punctuation-first statement block
+statementList = genSeq lbrace rbrace semi
+
+{-| generate a punctuation-first style sequence, such as this:
+     [ firstElem
+     , secondElem
+     , thirdElem
+     ]
+Use @commaList@ for the above, or @statementList@ for layout-less
+explicitly delimited blocks.
+-}
+genSeq :: Doc -> Doc -> Doc -> [Doc] -> Doc
+genSeq lft rht _   []     = lft $$ rht
+genSeq lft rht del (x:xs) = lft <+> x $$ (vcat $ map (del <+>) xs) $$ rht
+
+

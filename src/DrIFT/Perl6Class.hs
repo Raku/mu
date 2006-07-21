@@ -2,24 +2,28 @@
 
 module DrIFT.Perl6Class where
 
-showPerl6RoleDef :: String -> String        -- ^ Perl 6 role definition
+import Data.Typeable
+import Debug.Trace
+
+showPerl6RoleDef :: String -> String      -- ^ Perl 6 role definition
 showPerl6RoleDef name =
     "role " ++ name ++ " is TaggedUnion;\n"
 
-doShowPerl6ClassDef :: String               -- ^ role name (Hs datatype)
-                    -> String               -- ^ class name (Hs variant)
-                    -> [(String -> String)] -- ^ member type+name pairs
-                    -> String               -- ^ Perl 6 class definition
-doShowPerl6ClassDef role constructor members =
+showPerl6ClassDef :: String               -- ^ role name (Hs datatype)
+                    -> String             -- ^ class name (Hs variant)
+                    -> [(String, String)] -- ^ member type+name pairs
+                    -> String             -- ^ Perl 6 class definition
+showPerl6ClassDef role cls members =
     unlines $ [clsHead] ++ (map memberDef members) ++ [clsTail]
     where
-    clsHead = "class " ++ name ++ " does " ++ role ++ " {"
-    clsTail = "}"
+    clsHead = "class " ++ cls ++ " does " ++ role ++ " {"
+    clsTail = "};"
     memberDef (ty, nm) = "\thas " ++ ty ++ " $." ++ nm ++ ";"
 
-class Perl6Class a where
+class Typeable a => Perl6Class a where
+    showPerl6TypeDef :: a -> String
     asPerl6Object :: a -> String
-    asPerl6Object simple = "new " ++ show simple
+    asPerl6Object simple = "new " ++ (show $ typeOf simple)
 
 -- hw factor high; probably needs to got back to the preprocessor.
 --showNewPerl6PosObject cls [attr] = cls ++ ".new(" ++ (intersperse "," $ map dynShow attr) ++ ")"
@@ -30,5 +34,5 @@ class Show a => PLit a where
     plShow = show
 
 instance PLit String where
-    plShow s = "q\"" ++ (show s) ++ "'" -- XXX: wrong.
+    plShow s = "q\"" ++ (show s) ++ "\"" -- XXX: wrong.
 

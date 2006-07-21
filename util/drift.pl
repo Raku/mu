@@ -108,6 +108,7 @@ import Data.Yaml.Syck
 import DrIFT.YAML
 import DrIFT.JSON
 import DrIFT.Perl5
+import DrIFT.Perl6Class
 import Control.Monad
 import qualified Data.ByteString as Buf
 
