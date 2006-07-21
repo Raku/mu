@@ -19,5 +19,5 @@ extra-libraries: __LIBS__
 extra-lib-dirs: __LIB_DIRS__
 extensions: ForeignFunctionInterface
 include-dirs: __INCLUDE_DIRS__
-other-modules: Data.DeepSeq DrIFT.JSON DrIFT.Perl5 DrIFT.YAML RRegex RRegex.PCRE RRegex.Syntax System.FilePath UTF8
+other-modules: Data.DeepSeq DrIFT.JSON DrIFT.Perl5 DrIFT.Perl6Class DrIFT.YAML RRegex RRegex.PCRE RRegex.Syntax System.FilePath UTF8
 ghc-options: __OPTIONS__
