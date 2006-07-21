@@ -5,29 +5,37 @@ module Main where
 
 This module is the main guts of the Perl5 -> Perl6 Translator. Additional pieces can be found in:
 ASTUtil - Utility Functions, mostly dealing with the P5AST
-ASTParser - the Parsec parser for the yaml format AST of a P5 AST (the AST probably comes from MAD_SKILLS)
+ASTParser - The Parsec parser for the yaml format AST of a P5 AST (the AST probably comes from MAD_SKILLS)
 ASTDefinition - The AST datatype decleration. 
 
 
 This file is designed to be compiled with GHC. The command
   $ ghc --make -o translate ASTTranslate.hs
-usually works. 
+works (but has not been widely tested). 
 
 
 The compiled version (let's call it 'translate') is used like so:
-  $./translate [-Oo -V -U] inFile outFile
+  $./translate [-Oo -V -U -R] inFile outFile
 the -Oo, -U and -V switches are optional, and have these effects:
 
--Oo: Heavy object orientation. If there's an available (but optional) Oo translation it does it, such
+-Oo: Heavy object orientation. If there's an available (but optional) Oo translation it does it, such 
 as translating close($fh) to $fh.close.
 
--V: Verbose. The translator prints the entire translated AST to STDOUT. Useful for debugging small programs,
+-V: Verbose. The translator prints the entire translated AST to STDOUT. Useful for debugging small programs, 
 but not much else. For long files, echoing the entire tree to STDOUT may take more time then parsing.
 
--U: Unknown Debug. Whenever an unknown node is encountered during printing, prints "UnknownAbs" or
-"UnknownLit" to the file every place an unknown node is encountered. Also Echoes "UNKNOWN: UnknownAbs"
+-U: Unknown Debug. Whenever an unknown node is encountered during printing, prints "UnknownAbs" or 
+"UnknownLit" to the file every place an unknown node is encountered. Also Echoes "UNKNOWN: UnknownAbs" 
 or "UNKNOWN: UnknownLit" to STDOUT every time an unknown is encountered.
 
+-R: Minimal regex changes. The translator will  not attempt to translate the Regex from Perl 5 syntax to 
+Perl 6. It will instead apply the :Perl5 modifer to the regex and only make changes to the externals of the 
+regex. This will most likely break existing captures, given the new structure of captures. Use at your own risk.
+
+Translations may run _slightly_ faster without the -Oo switch. Translations will almost _always_
+take longer with -V (printing to STDOUT often takes longer then a full run, for large numbers of nodes). -U
+and -R should have little to no effect on speed (but if the AST contains unknown nodes with -U, the resulting 
+code will be invlaid).
 
 At this point, all code is highly unstable. Use at your own risk (but help welcome!).
 
@@ -47,39 +55,82 @@ import System(getArgs)
 --Wrapper function to apply all translations in order
 --It's pretty ugly, which is why there's a need for a wrapper function
 translate :: P5AST -> String -> P5AST
-translate tree options= if ('o' `elem` options) then (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree))))))))))))) else
-                                                    (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree))))))))))
+translate tree options = case [('o' `elem` options), ('r' `elem` options)] of
+                               [True, False]   -> (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree)))))))))))))
+                               [True, True]  -> (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree))))))))))))
+                               [False, False]  -> (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree))))))))))
+                               [False, True] -> (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree)))))))))
+{- This code will eventually apply the :Perl5 modifer to all regexs, but it's not quite ready yet.
+easyRegex :: P5AST -> P5AST
+easyRegex (AbstractNode Op_subst kids) = (AbstractNode Op_subst (easyRegexChanges kids))
+easyRegex (AbstractNode atype kids) = (AbstractNode atype (map easyRegex kids))
+easyRegex (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 
+easyRegexChanges :: [P5AST] -> [P5AST]
+easyRegexChanges [] = []
+easyRegexChanges kids =  if ((length kids) >= 3) then if (and [((head ((extractUni (head kids))++" "))=='s'),(matchOnType (head kids) (LiteralNode Openquote "" "")),(matchOnType (head (tail kids)) (LiteralNode Text "" "")),(matchOnType (head (drop 2 kids)) (LiteralNode Closequote "" ""))]) then [(AbstractNode OpenQuote "" ("s:Perl5"++(getMods (head (drop 2 kids)))++())), (head (tail kids)), (AbstractNode]
+                                                            else ((head kids):(easyRegexChanges (tail kids)))
+                            else ((head kids):(easyRegexChanges (tail kids)))
+-}
+
+--This function applies changeSInternals int he proper places to translate
+--everything inside a regex from Perl 5 -> Perl 6
 regexInternals :: P5AST -> P5AST
 regexInternals (AbstractNode Op_subst kids) = (AbstractNode Op_subst (changeSInternals kids))
 regexInternals (AbstractNode atype kids) = (AbstractNode atype (map regexInternals kids))
 regexInternals (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 
+--This function does the actual work of finding the regex and applying the change.
 changeSInternals :: [P5AST] -> [P5AST]
 changeSInternals [] = []
-changeSInternals kids =  if ((length kids) >= 3) then if (and [((head ((extractUni (head kids))++" "))=='s'),(matchOnType (head kids) (LiteralNode Openquote "" "")),(matchOnType (head (tail kids)) (LiteralNode Text "" "")),(matchOnType (head (drop 2 kids)) (LiteralNode Closequote "" ""))]) then {-do let regx = case parse regexString "Uni" (extractUni (head (tail kids))) of
-                                                                                                                                                                                                                                                                                                                           Left err -> error $ "\nError:\n" ++ show err
-                                                                                                                                                                                                                                                                                                                           Right result -> result
-                                                                                                                                                                                                                                                                                                           [(head kids),(LiteralNode Text "1" regx),(head (drop 2 kids))]++(drop 3 kids) -} [(head kids),(LiteralNode Text "1" (regexChange (extractUni (head (tail kids))))),(head (drop 2 kids))]++(drop 3 kids)
-                                                          else ((head kids):(changeSInternals (tail kids)))
+changeSInternals kids =  if ((length kids) >= 3) then if (and [((head ((extractUni (head kids))++" "))=='s'),(matchOnType (head kids) (LiteralNode Openquote "" "")),(matchOnType (head (tail kids)) (LiteralNode Text "" "")),(matchOnType (head (drop 2 kids)) (LiteralNode Closequote "" ""))]) then [(head kids),(LiteralNode Text "1" (regexChangeCaptures (regexChange (extractUni (head (tail kids)))))),(head (drop 2 kids))]++(drop 3 kids)
+                                                            else ((head kids):(changeSInternals (tail kids)))
                             else ((head kids):(changeSInternals (tail kids)))
 
+--Function to apply the regexString parser to a string
 regexChange :: String -> String
 regexChange instr = case parse regexString "regex" instr of
                                 Left err -> error $ "\nError:\n" ++ show err
                                 Right result -> result
 
+--Function to apply the captureString parser to a string, aliasing all
+--captures so that $1 (and friends) are still the same in Perl 6
+regexChangeCaptures :: String -> String
+regexChangeCaptures instr = case parse (captureString 1) "regex (Captures)" instr of
+                                    Left err -> error $ "\nError:\n" ++ show err
+                                    Right result -> result
+
+--Parses all captures from a regex into Perl 6 aliases.
+--Each capture becomes a Perl 6 aliased capture in the Perl 5
+--order of captures. For the sake of simplicity and reliability, 
+--all captures are explicitly aliased. 
+captureString :: Int -> Parser String
+captureString depth = do{ strs <- manyTill (choice[ do{try(string "\\("); return "\\("},
+                                                    do{try(string "\\)"); return "\\)"},
+                                                    do{try(string "(?"); return "(?"},
+                                                    do{try(string "("); more <- (captureString (depth+1)); return (" $"++(show depth)++":=["++more)},
+                                                    do{try(string ")"); return "] "},
+                                                    do{char <- anyToken; return (char:"")}]) eof;
+                          return(joinString strs);}
+
+--A regex string in Perl 5 may be null, but it can't be implicitly null in Perl 6.
+--A completely null Perl 5 regex becomes a Perl 6 /<prior>/.
+--If it's not null, it's a series of regex characters, handled by the regexChar parser
 regexString :: Parser String
-regexString = choice[ do{try(eof); return "<null>"},
+regexString = choice[ do{try(eof); return "<prior>"},
                       do{strs <- (manyTill regexChar eof); return (joinString strs)}]
 
+--The regexChar parser takes care of all changed metacharacters, as well as de-meta-ing
+--the > and < characters (to \> and \<), quotestrings, classes of characters ([abc] and [^abc])
+--(? operations, null alternatives and last but not least, counts. The countRegex parser is used
+--for some help on counts.
 regexChar :: Parser String
 regexChar = choice[do{try(string "\\\\"); return "\\\\"},      --Get rid of literal \, make sure only metacharacter \ can trigger the other choices
                    do{try(string "\\("); return "\\("},        --Make sure we don't get a literal paren (this way only metcharacter parens can hit the other choices
                    do{try(string "\\)"); return "\\)"},        --Don't let "\)" get confused with ")"
                    do{try(string "\\}"); return "\\}"},        --Don't confuse "\}" and "}"
                    do{try(string "\\]"); return "\\]"},        --Don't let "\]" take the place of "]"
-                   do{try(string "(space)"); return "<sp>"},   --Handle (space) -> <sp>
+                   do{try(string " "); return "<sp>"},         --Handle (space) -> <sp>
                    do{try(string "\\A"); return "^"},          -- \A -> ^
                    do{try(string "\\z"); return "$"},          -- \z -> $
                    do{try(string "\\Z"); return "\\n?$"},      -- \Z -> \n?$
@@ -96,8 +147,8 @@ regexChar = choice[do{try(string "\\\\"); return "\\\\"},      --Get rid of lite
                    do{try(string "[^\\e]"); return "\\E"},     -- [^\e] -> \E
                    do{try(string "[^\\x"); val <- (manyTill anyToken (char ']')); return ("\\X"++val)},                      -- [^\x1B] -> \X1B
                    do{try(string "[^\\x{"); val <- (manyTill anyToken (string "}]")); return ("\\X["++val++"]")},            -- [^\x{263a}] -> \X[263a]
-                   do{try(string "\\p{"); prop <- (manyTill anyToken (char '}')); return ("<"++prop++">")},                  -- \p{prop} -> <prop>
-                   do{try(string "\\P{"); prop <- (manyTill anyToken (char '}')); return ("<-"++prop++">")},                 -- \P{prop} -> <-prop>
+                   do{try(string "\\p{"); prop <- (manyTill anyToken (char '}')); return ("<prop "++prop++">")},             -- \p{prop} -> <prop>
+                   do{try(string "\\P{"); prop <- (manyTill anyToken (char '}')); return ("<-prop "++prop++">")},            -- \P{prop} -> <-prop>
                    do{try(string "\\X"); return "<.>"},        -- \X -> <.>
                    do{try(string "<"); return "\\<"},          -- < -> \<
                    do{try(string ">"); return "\\>"},          -- > -> \>
@@ -124,7 +175,7 @@ countRegex instr = case parse countString "regex count" instr of
                                 Right result -> result
                                 
 
---Parser that translates counts from Perl 5 to Perl 6. Takes care of x{2} -> x**{2} and x{2,} -> x**{2..} and x{2,3} -> x**{2..3},
+--Parser that translates regex counts from Perl 5 to Perl 6. Takes care of x{2} -> x**{2} and x{2,} -> x**{2..} and x{2,3} -> x**{2..3},
 --as well as all of those with '?' at the end (the '?' is just left untouched).
 countString :: Parser String
 countString = do{firstNum <- manyTill digit (choice[char ',', char '@']);
@@ -135,12 +186,14 @@ countString = do{firstNum <- manyTill digit (choice[char ',', char '@']);
                  return ("**{"++firstNum++theRest++"}")
                 }
 
+--When the split is implicitly on the topic ($_), it can become a method call (.split(...))
 topicSplit :: P5AST -> P5AST
 topicSplit (AbstractNode Op_split kids) = (AbstractNode Op_split (topicMethod kids))
 topicSplit (AbstractNode atype kids) = (AbstractNode atype (map topicSplit kids))
 topicSplit (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 topicSplit (Heredoc start end kids) = (Heredoc start end (map topicSplit kids))
 
+--Actually convert to a method.
 topicMethod :: [P5AST] -> [P5AST]
 topicMethod [] = []
 topicMethod kids = if (not (isIn (AbstractNode Listelem []) kids)) then [(LiteralNode Junk "" "")] else kids
@@ -347,16 +400,20 @@ mainParse inName outName options= do
     let ast = case parse parseInput "stdin" input of
             Left err -> error $ "\nError:\n" ++ show err
             Right result -> result
-    putStrLn ("Translating...")
+    case [('o' `elem` options), ('r' `elem` options)] of 
+            [True, True]   -> putStrLn ("Translating with the heavy object oriented option and limited regex support...")
+            [True, False]  -> putStrLn ("Translating with the heavy object oriented option...")
+            [False, True]  -> putStrLn ("Translating with limited regex support...")
+            [False, False] -> putStrLn ("Translating...")
     let tree = (translate (AbstractNode P5AST ast) options)
     case [('v' `elem` options),('u' `elem` options)] of
-             [True, True]   -> putStrLn "Printing with Verbose and Unknown Debug..."
-             [False, True]  -> putStrLn "Printing with Unknown Debug..."
-             [True, False]  -> putStrLn "Printing with Verbose..."
-             [False, False] -> putStrLn "Printing..."
+            [True, True]   -> putStrLn "Printing with Verbose and Unknown Debug..."
+            [False, True]  -> putStrLn "Printing with Unknown Debug..."
+            [True, False]  -> putStrLn "Printing with Verbose..."
+            [False, False] -> putStrLn "Printing..."
     case ('v' `elem` options) of
-             True  -> do{putStrLn "VERBOSE: TREE(Translated):"; print tree; printTree outHandle tree options}
-             False -> do{printTree outHandle tree options}
+            True  -> do{putStrLn "VERBOSE: TREE(Translated):"; print tree; printTree outHandle tree options}
+            False -> do{printTree outHandle tree options}
     hClose inHandle
     hClose outHandle
     putStrLn "Finished."
@@ -369,12 +426,14 @@ main = do
 --The following functions parse out the command line args into a good format for the mainParse call.
 
 --getModifiers creates a string with an element for each command line switch.
+--Unknown swicthes (or file names) do nothing.
 getModifiers :: [String] -> String
 getModifiers [] = "n"
 getModifiers args = case (head args) of
                          "-Oo"    ->  ('o':(getModifiers (tail args)))
                          "-V"     ->  ('v':(getModifiers (tail args)))
                          "-U"     ->  ('u':(getModifiers (tail args)))
+                         "-R"     ->  ('r':(getModifiers (tail args)))
                          _        ->  (' ':(getModifiers (tail args)))
 
 --getFirstFile (oddly enough) gets the first file (which will be the second to last argument). 
