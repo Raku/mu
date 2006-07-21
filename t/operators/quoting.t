@@ -271,21 +271,21 @@ FOO
 };
 
 { # weird char escape sequences
-    is("\d97", "a");
-    is("\d102oo", "foo");
-    is("\d123", chr 123);
-    is("\d[12]3", chr(12) ~ "3");
-    is("\d[12] 3", chr(12) ~ " 3");
+    is("\d97", "a", '\d97 is "a"');
+    is("\d102oo", "foo", '\d102 is "f", works next to other letters');
+    is("\d123", chr 123, '"\dXXX" and chr XXX are equivalent');
+    is("\d[12]3", chr(12) ~ "3", '\d[12]3 is the same as chr(12) concatenated with "3"');
+    is("\d[12] 3", chr(12) ~ " 3", 'respects spaces when interpolating a space character');
 
-    is("\x41", "A");
-    is("\o101", "A");
+    is("\x41", "A", 'hex interpolation - \x41 is "A"');
+    is("\o101", "A", 'octal interpolation - \o101 is also "A"' );
 
-    is("\c@", "\0");
-    is("\cA", chr 1);
-    is("\cZ", chr 26);
+    is("\c@", "\0", 'Unicode code point "@" converts correctly to "\0"');
+    is("\cA", chr 1 'Unicode "A" is #1!');
+    is("\cZ", chr 26 'Unicode "Z" is chr 26 (or \d26)');
 }
 
 { # simple test for nested-bracket quoting, per S02
     my $hi = q<<hi>>;
-    is($hi, "hi");
+    is($hi, "hi", 'q<<hi>> is "hi"');
 }
