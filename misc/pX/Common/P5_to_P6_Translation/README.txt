@@ -8,7 +8,7 @@ To build the translator, use
   $ ghc --make -o translate ASTTranslate.hs
 
 Useage for the resulting translator:
-  $./translate [-Oo -V -U] inFile outFile
+  $./translate [-Oo -V -U -R] inFile outFile
 the -Oo, -U and -V switches are optional, and have these effects:
 
 -Oo: Heavy object orientation. If there's an available (but optional) Oo translation it does it, such
@@ -21,6 +21,10 @@ but not much else. For long files, echoing the entire tree to STDOUT may take mo
 "UnknownLit" to the file every place an unknown node is encountered. Also Echoes "UNKNOWN: UnknownAbs"
 or "UNKNOWN: UnknownLit" to STDOUT every time an unknown is encountered.
 
+-R: Limited Regex Support. The only changes made to regexs will be adding the :Perl5 modifer (and moving 
+existing modifiers into the regex, since tail modifiers are no longer allowed). This means the regex 
+should work exactly as it once did, but it will also break all existing captures.
+
 
 Any changes and comments are welcome to anything in this directory, except 
 ASTTranslate-Sage.hs which is my personal working copy, should I need it. Everything
@@ -32,11 +36,11 @@ AST_Description.txt - A description of the AST produced by Larry Wall's P5 parse
 The info in this file is both to help me remember what's going on and to aid anybody
 else picking up development.
 
-ASTDefinition.hs - Haskell module defining a Perl 5 AST. Used by just about other module
+ASTDefinition.hs - Haskell module defining a Perl 5 AST. Used by just about every other module
 in this directory.
 
 ASTParser.hs - Haskell module for parsing a yaml file containing a P5AST as created by
-the MADSKILLS parser.
+the MADSKILLS parser. Uses Parsec (which shouldn't be a problem as Parsec comes with ghc).
 
 ASTTranslate.hs - Haskell main module for translating an AST. The most important stuff happens 
 here. To build it, use
