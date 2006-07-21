@@ -136,7 +136,7 @@ to pairs of brackets of the same length as the opening brackets:
     say #{{
         This comment contains unmatched } and { { { {   (ignored)
         Plus a nested {{ ... }} pair                    (counted)
-    }} q<< <<woot>> >>   # says "<<woot>>"
+    }} q<< <<woot>> >>   # says " <<woot>> "
 
 Note however that bare circumfix or postcircumfix C<<< <<...>> >>> is
 not a user-selected bracket, but the ASCII variant of the C<< «...» >>
