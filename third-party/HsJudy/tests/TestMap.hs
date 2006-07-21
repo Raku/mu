@@ -4,15 +4,21 @@
 import Data.List (sort)
 import System.Mem
 
---import qualified Judy.MapSL as JM
-import qualified Judy.Map as JM
+--import qualified Judy.MapSL as JSL
+import qualified Judy.Map as J
 
 import Judy.Map (Stringable (..))
-import Judy.CollectionsM --as CM
+import Judy.CollectionsM
 import Judy.Freeze
 
 import Prelude hiding (lookup)
 
+
+--type M = JSL.MapSL
+--swapMaps = JSL.swapMaps
+
+type M = J.Map
+swapMaps = J.swapMaps
 
 
 main = do
@@ -30,7 +36,7 @@ main = do
     testLotsOfMem
     testFrozenMap
     testSwapMaps
-    testAlter2
+    testAlter
     
     -- Stress test for MiniGC
     --sequence $ take 5000 $ repeat testAlter2
@@ -41,17 +47,15 @@ check l = do
         then putStrLn "ok"
         else putStrLn "BAD"
 
---newStringInt = new :: IO (JM.MapSL String Int)
---newIntString = new :: IO (JM.MapSL Int String)
-
-newStringInt = new :: IO (JM.Map String Int)
-newIntString = new :: IO (JM.Map Int String)
+newStringInt = new :: IO (M String Int)
+newIntString = new :: IO (M Int String)
+type IntIntMap = M Int Int
 
 testSimple = do
     putStr "simple: \t"
     s <- newStringInt
     a <- lookup "haha" s
-    alter "haha" 42 s
+    insert "haha" 42 s
     b <- lookup "haha" s
     check [a == Nothing, b == Just 42]
 
@@ -59,9 +63,9 @@ testDelete = do
     putStr "delete: \t"
     s <- newStringInt
     a <- lookup "haha" s
-    alter "haha" 42 s
+    insert "haha" 42 s
     b <- lookup "haha" s
-    alter "ahoy" 59 s
+    insert "ahoy" 59 s
     delete "haha" s
     c <- lookup "haha" s
     d <- lookup "ahoy" s
@@ -70,10 +74,10 @@ testDelete = do
 testOverwrite = do
     putStr "overwrite: \t"
     s <- newStringInt
-    alter "haha" 1234 s
-    alter "dois" 1234 s
-    alter "haha" 42 s
-    alter "oi" 42 s
+    insert "haha" 1234 s
+    insert "dois" 1234 s
+    insert "haha" 42 s
+    insert "oi" 42 s
     a <- lookup "haha" s
     check [a == Just 42]
 
@@ -81,7 +85,7 @@ testMember = do
     putStr "member: \t"
     s <- newStringInt
     a <- member "haha" s
-    alter "haha" 42 s
+    insert "haha" 42 s
     b <- member "ahoy" s
     c <- member "haha" s
     delete "hahaha" s -- doesn't exist
@@ -91,24 +95,24 @@ testMember = do
 testElems = do
     putStr "elems:  \t"
     s <- newStringInt
-    a <- JM.elems s
-    alter "haha" 42 s
-    alter "ahoy" 1 s
-    alter "nop" 2 s
-    b <- JM.elems s
+    a <- elems s
+    insert "haha" 42 s
+    insert "ahoy" 1 s
+    insert "nop" 2 s
+    b <- elems s
     check [a == [], (sort b) == [1,2,42]]
 
 testKeys = do
     putStr "keys:   \t"
     s <- newStringInt
-    a <- JM.keys s
-    alter "haha" 42 s
-    alter "ahoy" 1 s
-    alter "nop" 2 s
-    b <- JM.keys s
+    a <- keys s
+    insert "haha" 42 s
+    insert "ahoy" 1 s
+    insert "nop" 2 s
+    b <- keys s
     delete "ahoy" s
     delete "nada" s
-    c <- JM.keys s
+    c <- keys s
     check [a == [], (sort b) == ["ahoy", "haha", "nop"], (sort c) == ["haha", "nop"]]
 
 instance Stringable Int where
@@ -118,11 +122,11 @@ instance Stringable Int where
 testIntKey = do
     putStr "int-key map: \t"
     s <- newIntString
-    a <- JM.keys s
-    alter 22 "string" s
-    alter 59 "i am not a number" s
-    b <- JM.keys s
-    c <- JM.elems s
+    a <- keys s
+    insert 22 "string" s
+    insert 59 "i am not a number" s
+    b <- keys s
+    c <- elems s
     d <- member 22 s
     delete 22 s
     e <- member 22 s
@@ -134,10 +138,10 @@ testIntKey = do
 testIntKeyDelete = do
     putStr "int-key del: \t"
     s <- newIntString
-    alter 22 "string" s
-    alter 23 "string" s
-    alter 24 "ahha" s
-    alter 25 "oieee" s
+    insert 22 "string" s
+    insert 23 "string" s
+    insert 24 "ahha" s
+    insert 25 "oieee" s
     delete 22 s
     a <- lookup 23 s
     check [a == Just "string"]
@@ -146,16 +150,16 @@ testLotsOfMem = do
     putStrLn $ "# " ++ (show $ last $ take 100000 [1..])
     putStr "lots of mem:  \t"
     s <- newStringInt
-    a <- JM.elems s
-    alter "haha" 42 s
-    alter "ahoy" 1 s
-    alter "nop" 2 s
-    b <- JM.elems s
+    a <- elems s
+    insert "haha" 42 s
+    insert "ahoy" 1 s
+    insert "nop" 2 s
+    b <- elems s
     check [a == [], (sort b) == [1,2,42]]
 
 testFrozenMap = do
     putStr "frozen map: \t"
-    let m = fromListF [(1,2),(2,3),(3,4)] :: Frozen (JM.Map Int Int)
+    let m = fromListF [(1,2),(2,3),(3,4)] :: Frozen IntIntMap
     let a = memberF 1 m
     let b = memberF 2 m
     let c = memberF 42 m
@@ -165,26 +169,26 @@ testFrozenMap = do
 
 testSwapMaps = do
     putStr "swap maps: \t"
-    m1 <- fromList [(1,2),(2,3),(4,7)] :: IO (JM.Map Int Int)
-    m2 <- fromList [(1,42),(2,42),(3,42)] :: IO (JM.Map Int Int)
+    m1 <- fromList [(1,2),(2,3),(4,7)] :: IO IntIntMap
+    m2 <- fromList [(1,42),(2,42),(3,42)] :: IO IntIntMap
     a <- lookup 2 m1
     b <- lookup 2 m2
-    JM.swapMaps m1 m2
+    swapMaps m1 m2
     c <- lookup 2 m1
     d <- lookup 2 m2
     e <- lookup 3 m2
     check [a == Just 3, b == Just 42, c == Just 42, d == Just 3, e == Nothing]
 
-testAlter2 = do
-    putStr "alter2: \t"
-    m <- fromList [(1,2), (2,3), (4,5)] :: IO (JM.Map Int Int)
+testAlter = do
+    putStr "alter:   \t"
+    m <- fromList [(1,2), (2,3), (4,5)] :: IO IntIntMap
     a <- lookup 1 m
-    JM.alter2 (const (Just 42)) 3 m
+    alter (const (Just 42)) 3 m
     b <- lookup 1 m
     c <- lookup 3 m
-    JM.alter2 (const (Just 42)) 2 m
+    alter (const (Just 42)) 2 m
     d <- lookup 2 m
-    JM.alter2 (const Nothing) 1 m
+    alter (const Nothing) 1 m
     e <- lookup 1 m
     check [a == Just 2, b == Just 2, c == Just 42, d == Just 42, e == Nothing]
 

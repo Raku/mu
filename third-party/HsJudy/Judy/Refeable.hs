@@ -1,7 +1,7 @@
 {-# OPTIONS -fallow-undecidable-instances -fallow-incoherent-instances #-}
 
 module Judy.Refeable (
-    Refeable (..),
+    Refeable (..)
 ) where
 
 import Foreign.Ptr

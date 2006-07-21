@@ -2,7 +2,7 @@
 
 module Judy.Map2 (
     Map2 (..),
-    keys, elems, map, swapMaps, freeze, alter2
+    swapMaps, freeze
 ) where
 
 import Data.Typeable
@@ -17,7 +17,6 @@ import Foreign.StablePtr
 import Foreign
 import Data.Maybe (fromJust)
 
-
 import Judy.Private
 import qualified Judy.CollectionsM as CM
 import Judy.Refeable
@@ -27,21 +26,21 @@ import qualified Judy.MiniGC as GC
 
 import Prelude hiding (map)
 
-instance (ReversibleHashIO k, Refeable a) => CM.MapM (Map2 k a) k a IO where
-    new = new_
-    delete k c = delete_ k c >> return ()
-    member = member_
-    lookup = lookup_
-    alter = insert_
-    fromList = fromList_
-    toList = toList_
-
 newtype (ReversibleHashIO k, Refeable a) => Map2 k a = Map2 { judy :: ForeignPtr JudyL }
     deriving (Eq, Ord, Typeable)
 
-instance Show (Map2 k a) where
-    show (Map2 j) = "<Map2 " ++ show j ++ ">"
-
+instance (ReversibleHashIO k, Refeable a) => CM.MapM (Map2 k a) k a IO where
+    new = new_
+    delete = delete_
+    member = member_
+    lookup = lookup_
+    insert = insert_
+    alter = alter_
+    fromList = fromList_
+    toList = toList_
+    elems = elems_
+    keys = keys_
+    mapToList = mapToList_
 
 instance (ReversibleHashIO k, Refeable a) => Freezable (Map2 k a) where
     freeze m = do
@@ -54,6 +53,9 @@ instance (ReversibleHashIO k, Refeable a) => CM.MapF (Frozen (Map2 k a)) k a whe
     lookupF k (Frozen m) = unsafePerformIO $ lookup_ k m
     fromListF l = Frozen $ unsafePerformIO $ fromList_ l
     toListF (Frozen m) = unsafePerformIO $ toList_ m
+
+instance Show (Map2 k a) where
+    show (Map2 j) = "<Map2 " ++ show j ++ ">"
 
 
 
@@ -69,7 +71,7 @@ finalize need j = do
     putStrLn $ "\n(FINALIZER CALLED FOR "++ (show j) ++  ": " ++ (show v) ++ ")\n"
     return ()
 
-rawElems = map_ $ \r _ -> peek r
+rawElems = internalMap $ \r _ -> peek r
 
 new_ :: IO (Map2 k a)
 new_ = do
@@ -87,27 +89,28 @@ insert_ k v (Map2 j) = withForeignPtr j $ \j' -> do
         then error "HsJudy: Not enough memory."
         else do { v' <- toRef v; poke r v'; return () }
 
-alter2 :: (Eq a, ReversibleHashIO k, Refeable a) => (Maybe a -> Maybe a) -> k -> Map2 k a -> IO ()
-alter2 f k m@(Map2 j) = do
+alter_ :: (Eq a, ReversibleHashIO k, Refeable a) => (Maybe a -> Maybe a) -> k -> Map2 k a -> IO (Maybe a)
+alter_ f k m@(Map2 j) = do
     j' <- withForeignPtr j peek
     k' <- hashIO k
     r <- judyLGet j' k' judyError
     if r == nullPtr
         then if (f Nothing) == Nothing
-                then return ()
-                else insert_ k (fromJust (f Nothing)) m
+                then return Nothing
+                else insert_ k (fromJust (f Nothing)) m >> return (f Nothing)
         else do
             v' <- peek r
             v <- fromRef v'
             let fv = f (Just v)
             if fv == Nothing
                 then do delete_ k m 
-                        return ()
+                        return Nothing           -- FIXME check delete output
                 else if v /= (fromJust fv)
                          then do when (needGC (undefined :: a)) $ GC.freeRef v'
                                  x <- toRef (fromJust fv)
                                  poke r x
-                         else return ()
+                                 return fv
+                         else return fv
 
 lookup_ :: (ReversibleHashIO k, Refeable a) => k -> Map2 k a -> IO (Maybe a)
 lookup_ k (Map2 j) = do
@@ -151,8 +154,8 @@ fromList_ xs = do
 --    r <- judyLCount jj i1 i2 judyError
 --    return $ r
 
-map_ :: (Ptr Value -> Ptr Value -> IO b) -> Map2 k a -> IO [b]
-map_ f (Map2 j) = do
+internalMap :: (Ptr Value -> Ptr Value -> IO b) -> Map2 k a -> IO [b]
+internalMap f (Map2 j) = do
     jj <- withForeignPtr j peek
     alloca $ \vp -> do
         poke vp (-1)
@@ -164,8 +167,8 @@ map_ f (Map2 j) = do
                         loop judyLPrev (x:xs)
         loop judyLLast []
 
-map :: (ReversibleHashIO k, Refeable a) => (k -> a -> b) -> Map2 k a -> IO [b]
-map f = map_ $ \r vp -> do
+mapToList_ :: (ReversibleHashIO k, Refeable a) => (k -> a -> b) -> Map2 k a -> IO [b]
+mapToList_ f = internalMap $ \r vp -> do
     k <- peek vp
     k' <- unHashIO k
     v <- peek r
@@ -173,15 +176,15 @@ map f = map_ $ \r vp -> do
     return $ f k' v'
 
 toList_ :: (ReversibleHashIO k, Refeable a) => Map2 k a -> IO [(k,a)]
-toList_ = map $ \k a -> (k,a)
+toList_ = mapToList_ $ \k a -> (k,a)
 
-keys :: ReversibleHashIO k => Map2 k a -> IO [k]
-keys = map_ $ \_ vp -> do
+keys_ :: ReversibleHashIO k => Map2 k a -> IO [k]
+keys_ = internalMap $ \_ vp -> do
     k <- peek vp
     unHashIO k
 
-elems :: Refeable a => Map2 k a -> IO [a]
-elems = map_ $ \r _ -> do
+elems_ :: Refeable a => Map2 k a -> IO [a]
+elems_ = internalMap $ \r _ -> do
     v <- peek r
     fromRef v
 

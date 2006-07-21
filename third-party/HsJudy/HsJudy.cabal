@@ -7,7 +7,7 @@ author:              Caio Marcelo de Oliveira Filho <cmarcelo@gmail.com>, John M
 maintainer:          Caio Marcelo de Oliveira Filho <cmarcelo@gmail.com>
 build-depends:       base
 exposed-modules:     Judy.BitSet Judy.Freeze Judy.Map Judy.Map2 Judy.MapSL Judy.CollectionsM Judy.HashIO Judy.Refeable
-other-modules:       Judy.Private
+other-modules:       Judy.Private Judy.MiniGC
 extensions:          ForeignFunctionInterface
 ghc-options:         -fglasgow-exts -O2
 include-dirs:        .

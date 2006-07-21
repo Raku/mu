@@ -2,7 +2,7 @@
 
 module Judy.MapSL (
     MapSL (..),
-    keys, elems, map, swapMaps, freeze, alter2
+    swapMaps, freeze
 ) where
 
 import Data.Typeable
@@ -26,14 +26,21 @@ import qualified Judy.MiniGC as GC
 
 import Prelude hiding (map)
 
+newtype (Stringable k, Refeable a) => MapSL k a = MapSL { judy :: ForeignPtr JudySL }
+    deriving (Eq, Ord, Typeable)
+
 instance (Stringable k, Refeable a) => CM.MapM (MapSL k a) k a IO where
     new = new_
-    delete k c = delete_ k c >> return ()
+    delete = delete_
     member = member_
     lookup = lookup_
-    alter = insert_
+    insert = insert_
+    alter = alter_
     fromList = fromList_
     toList = toList_
+    elems = elems_
+    keys = keys_
+    mapToList = mapToList_
 
 instance (Stringable k, Refeable a) => Freezable (MapSL k a) where
     freeze m = do
@@ -46,10 +53,6 @@ instance (Stringable k, Refeable a) => CM.MapF (Frozen (MapSL k a)) k a where
     lookupF k (Frozen m) = unsafePerformIO $ lookup_ k m
     fromListF l = Frozen $ unsafePerformIO $ fromList_ l
     toListF (Frozen m) = unsafePerformIO $ toList_ m
-
-
-newtype (Stringable k, Refeable a) => MapSL k a = MapSL { judy :: ForeignPtr JudySL }
-    deriving (Eq, Ord, Typeable)
 
 instance Show (MapSL k a) where
     show (MapSL j) = "<MapSL " ++ show j ++ ">"
@@ -67,7 +70,7 @@ finalize need j = do
     putStrLn $ "\n(FINALIZER CALLED FOR "++ (show j) ++  ": " ++ (show v) ++ ")\n"
     return ()
 
-rawElems = map_ $ \r _ -> peek r
+rawElems = internalMap $ \r _ -> peek r
 
 new_ :: IO (MapSL k a)
 new_ = do
@@ -85,27 +88,28 @@ insert_ k v (MapSL j) = withForeignPtr j $ \j' -> do
             then error "HsJudy: Not enough memory."
             else do { v' <- toRef v; poke r v'; return () }
 
-alter2 :: (Eq a, Stringable k, Refeable a) => (Maybe a -> Maybe a) -> k -> MapSL k a -> IO ()
-alter2 f k m@(MapSL j) = do
+alter_ :: (Eq a, Stringable k, Refeable a) => (Maybe a -> Maybe a) -> k -> MapSL k a -> IO (Maybe a)
+alter_ f k m@(MapSL j) = do
     j' <- withForeignPtr j peek
     useAsCS k $ \k' -> do
         r <- judySLGet j' k' judyError
         if r == nullPtr
             then if (f Nothing) == Nothing
-                    then return ()
-                    else insert_ k (fromJust (f Nothing)) m
+                    then return Nothing
+                    else insert_ k (fromJust (f Nothing)) m >> return (f Nothing)
             else do 
                 v' <- peek r
                 v <- fromRef v'
                 let fv = f (Just v)
                 if fv == Nothing
                     then do delete_ k m 
-                            return ()
+                            return Nothing
                     else if v /= (fromJust fv)
                              then do when (needGC (undefined :: a)) $ GC.freeRef v'
                                      x <- toRef (fromJust fv)
                                      poke r x
-                             else return ()
+                                     return fv
+                             else return fv
 
 lookup_ :: (Stringable k, Refeable a) => k -> MapSL k a -> IO (Maybe a)
 lookup_ k (MapSL j) = do
@@ -144,8 +148,8 @@ fromList_ xs = do
     mapM_ (\(k,a) -> insert_ k a m) xs
     return m
 
-map_ :: (Ptr Value -> CString -> IO b) -> MapSL k a -> IO [b]
-map_ f (MapSL j) = do
+internalMap :: (Ptr Value -> CString -> IO b) -> MapSL k a -> IO [b]
+internalMap f (MapSL j) = do
     jj <- withForeignPtr j peek
     alloca $ \vp -> do
         poke vp (-1)
@@ -157,24 +161,24 @@ map_ f (MapSL j) = do
                         loop judySLPrev (x:xs)
         loop judySLLast []
 
-map :: (Stringable k, Refeable a) => (k -> a -> b) -> MapSL k a -> IO [b]
-map f = map_ $ \r vp -> do
+mapToList_ :: (Stringable k, Refeable a) => (k -> a -> b) -> MapSL k a -> IO [b]
+mapToList_ f = internalMap $ \r vp -> do
     k <- copyCS vp
     v <- peek r
     v' <- fromRef v
     return $ f k v'
 
 toList_ :: (Stringable k, Refeable a) => MapSL k a -> IO [(k,a)]
-toList_ = map $ \k a -> (k,a)
+toList_ = mapToList_ $ \k a -> (k,a)
 
 
-keys :: Stringable k => MapSL k a -> IO [k]
-keys = map_ $ \_ vp -> do
+keys_ :: Stringable k => MapSL k a -> IO [k]
+keys_ = internalMap $ \_ vp -> do
     k <- copyCS vp
     return k
 
-elems :: Refeable a => MapSL k a -> IO [a]
-elems = map_ $ \r _ -> do
+elems_ :: Refeable a => MapSL k a -> IO [a]
+elems_ = internalMap $ \r _ -> do
     v <- peek r
     fromRef v
 

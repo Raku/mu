@@ -2,6 +2,11 @@
 
 module Judy.CollectionsM where 
 
+import Judy.Freeze
+import Foreign
+
+import Prelude hiding (lookup)
+
 -- import Prelude (Bool(..), Int, Maybe(..),
 --                 (==), (.), (+), ($), (-), (&&), (||),
 --                 Eq, Ord, 
@@ -28,25 +33,32 @@ class Monad m => CollectionM c i o m | c -> i o m where
     isSingleton :: c -> m Bool
 -}
 
-class MapF c k a | c -> k a where
-    memberF :: k -> c -> Bool
-    lookupF :: k -> c -> Maybe a
-    fromListF :: [(k,a)] -> c
-    toListF :: c -> [(k, a)]
-
 class Monad m => MapM c k a m | c -> k a m where
     new :: m c
-    delete :: k -> c -> m ()
+    --delete :: k -> c -> m ()
+    delete :: k -> c -> m Bool
     member :: k -> c -> m Bool
-    lookup :: k -> c -> m (Maybe a) -- FIXME: change Maybe to m'?
-    --alter :: (Maybe a -> Maybe a) -> k -> c -> m ()
-    alter :: k -> a -> c -> m ()
-
+    lookup :: k -> c -> m (Maybe a)
+    insert :: k -> a -> c -> m ()
+    alter :: Eq a => (Maybe a -> Maybe a) -> k -> c -> m (Maybe a)
 
     -- Generalize more... (fromFoldable, fromListWith, and both)
     --fromFoldableWith :: Foldable l (k,a) => (a -> a -> a) -> l -> m c
     fromList :: [(k,a)] -> m c
     toList :: c -> m [(k,a)]
+
+    elems :: c -> m [a]
+    keys :: c -> m [k]
+
+    mapToList :: (k -> a -> b) -> c -> m [b]
+
+
+
+--map :: ... -> m c, using updates
+
+-- Should it create the new value or not
+--lookupWithDefault :: (MapM c k a m) -> k -> c -> m
+
 
     --union :: c -> c -> m c
     --intersection :: c -> c -> m c
@@ -62,6 +74,9 @@ class Monad m => MapM c k a m | c -> k a m where
     --differenceWith :: (a -> a -> Maybe a) -> c -> c -> m c
     --isSubmapBy :: (a -> a -> Bool) -> c -> c -> m Bool
 
-
-
+class MapF c k a | c -> k a where
+    memberF :: k -> c -> Bool
+    lookupF :: k -> c -> Maybe a
+    fromListF :: [(k,a)] -> c
+    toListF :: c -> [(k, a)]
 

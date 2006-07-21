@@ -1,0 +1,16 @@
+# FIXME: need way to generate this automatically
+# FIXME: fromAtom operation test
+
+toAtom operations:
+    N         Atom      JudyAtom
+    1000      0.025     0.012
+    5000      0.116     0.060
+   10000      0.252     0.112
+   50000      1.420     0.826
+  100000      3.287     2.250
+  200000      7.330     6.954
+  234000      9.220     8.940
+
+# The benefit from Judy decreases when N grows.
+# For last test memory usage by Atom was ~90m RES,
+  versus JudyAtom  ~58m RES.

@@ -4,7 +4,7 @@ import Prelude hiding (lookup)
 
 import Data.List (sort)
 import Judy.CollectionsM --as CM
-import Judy.Map2 as JM
+import Judy.Map2 as J
 
 
 main = do
@@ -18,7 +18,7 @@ main = do
     testStringValue
     testStringValueDel
     testSwapMaps
-    testAlter2
+    testAlter
 
 check l = do
     if and l
@@ -29,7 +29,7 @@ testSimple = do
     putStr "simple: \t"
     s <- new :: IO (Map2 Int Int)
     a <- lookup 1 s
-    alter 1 42 s
+    insert 1 42 s
     b <- lookup 1 s
     check [a == Nothing, b == Just 42]
 
@@ -37,9 +37,9 @@ testDelete = do
     putStr "delete: \t"
     s <- new :: IO (Map2 Int Int)
     a <- lookup 3 s
-    alter 3 42 s
+    insert 3 42 s
     b <- lookup 3 s
-    alter 37 59 s
+    insert 37 59 s
     delete 3 s
     c <- lookup 3 s
     d <- lookup 37 s
@@ -48,10 +48,10 @@ testDelete = do
 testOverwrite = do
     putStr "overwrite: \t"
     s <- new :: IO (Map2 Int Int)
-    alter 3 1234 s
-    alter 2222 1234 s
-    alter 3 42 s
-    alter 123 42 s
+    insert 3 1234 s
+    insert 2222 1234 s
+    insert 3 42 s
+    insert 123 42 s
     a <- lookup 3 s
     check [a == Just 42]
 
@@ -59,7 +59,7 @@ testMember = do
     putStr "member: \t"
     s <- new :: IO (Map2 Int Int)
     a <- member 3 s
-    alter 3 42 s
+    insert 3 42 s
     b <- member 37 s
     c <- member 3 s
     delete 12345 s -- doesn't exist
@@ -70,9 +70,9 @@ testElems = do
     putStr "elems:  \t"
     s <- new :: IO (Map2 Int Int)
     a <- elems s
-    alter 3 42 s
-    alter 37 1 s
-    alter 0 2 s
+    insert 3 42 s
+    insert 37 1 s
+    insert 0 2 s
     b <- elems s
     check [a == [], (sort b) == [1,2,42]]
 
@@ -80,9 +80,9 @@ testKeys = do
     putStr "keys:   \t"
     s <- new :: IO (Map2 Int Int)
     a <- keys s
-    alter 3 42 s
-    alter 37 1 s
-    alter 0 2 s
+    insert 3 42 s
+    insert 37 1 s
+    insert 0 2 s
     b <- keys s
     delete 37 s
     delete 15 s
@@ -93,8 +93,8 @@ testStringValue = do
     putStr "string-value: \t"
     s <- new :: IO (Map2 Int String)
     a <- toList s
-    alter 22 "string" s
-    alter 59 "i am not a number" s
+    insert 22 "string" s
+    insert 59 "i am not a number" s
     b <- toList s
     c <- member 22 s
     delete 22 s
@@ -107,9 +107,9 @@ testStringValueDel = do
     putStr "str-val del: \t"
     s <- new :: IO (Map2 Int String)
     a <- toList s
-    alter 22 "string" s
-    alter 23 "string" s
-    alter 59 "i am not a number" s
+    insert 22 "string" s
+    insert 23 "string" s
+    insert 59 "i am not a number" s
     b <- toList s
     c <- member 22 s
     delete 22 s
@@ -122,26 +122,26 @@ testStringValueDel = do
 
 testSwapMaps = do
     putStr "swap maps: \t"
-    m1 <- fromList [(1,2),(2,3),(4,7)] :: IO (JM.Map2 Int Int)
-    m2 <- fromList [(1,42),(2,42),(3,42)] :: IO (JM.Map2 Int Int)
+    m1 <- fromList [(1,2),(2,3),(4,7)] :: IO (J.Map2 Int Int)
+    m2 <- fromList [(1,42),(2,42),(3,42)] :: IO (J.Map2 Int Int)
     a <- lookup 2 m1
     b <- lookup 2 m2
-    JM.swapMaps m1 m2
+    J.swapMaps m1 m2
     c <- lookup 2 m1
     d <- lookup 2 m2
     e <- lookup 3 m2
     check [a == Just 3, b == Just 42, c == Just 42, d == Just 3, e == Nothing]
 
-testAlter2 = do
-    putStr "alter2: \t"
-    m <- fromList [(1,2), (2,3), (4,5)] :: IO (JM.Map2 Int Int)
+testAlter = do
+    putStr "alter:   \t"
+    m <- fromList [(1,2), (2,3), (4,5)] :: IO (J.Map2 Int Int)
     a <- lookup 1 m
-    JM.alter2 (const (Just 42)) 3 m
+    alter (const (Just 42)) 3 m
     b <- lookup 1 m
     c <- lookup 3 m
-    JM.alter2 (const (Just 42)) 2 m
+    alter (const (Just 42)) 2 m
     d <- lookup 2 m
-    JM.alter2 (const Nothing) 1 m
+    alter (const Nothing) 1 m
     e <- lookup 1 m
     check [a == Just 2, b == Just 2, c == Just 42, d == Just 42, e == Nothing]
 
