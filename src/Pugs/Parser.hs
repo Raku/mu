@@ -2096,8 +2096,11 @@ getQFlags flagnames protectedChar =
 
 {- | XXX can be later defined to exclude alphanumerics, maybe also exclude
 closing delims from being openers (disallow q]a]) -}
-openingDelim :: RuleParser Char
-openingDelim = anyChar
+openingDelim :: RuleParser (Int, Char)
+openingDelim = do
+    ch  <- anyChar
+    rep <- many (char ch)
+    return (length rep + 1, ch)
 
 qStructure :: RuleParser (RuleParser String, RuleParser String, QFlags)
 qStructure = 
@@ -2111,10 +2114,10 @@ qStructure =
 
        notFollowedBy alphaNum
        whiteSpace
-       delim <- openingDelim
+       (rep, delim) <- openingDelim
        let qflags = getQFlags flags $ balancedDelim delim
        when (qfFailed qflags) $ fail ""
-       return ( (string [delim]), (string [balancedDelim delim]), qflags)
+       return ( (string (replicate rep delim)), (string (replicate rep $ balancedDelim delim)), qflags)
     where
        oneflag = do string ":"
                     many alphaNum
@@ -2189,14 +2192,14 @@ ruleAdverbHash = do
 substLiteral :: RuleParser Exp
 substLiteral = do
     symbol "s"
-    adverbs <- ruleAdverbHash
-    ch      <- openingDelim
+    adverbs     <- ruleAdverbHash
+    (rep, ch)   <- openingDelim
     let endch = balancedDelim ch
     -- XXX - probe for adverbs to determine p5 vs p6
     expr    <- rxLiteralAny adverbs ch endch
     ch      <- if ch == endch then return ch else do { whiteSpace ; anyChar }
     let endch = balancedDelim ch
-    subst   <- qLiteral1 (string [ch]) (string [endch]) qqFlags { qfProtectedChar = endch }
+    subst   <- qLiteral1 (string (replicate rep ch)) (string (replicate rep endch)) qqFlags { qfProtectedChar = endch }
     return $ Syn "subst" [expr, subst, adverbs]
 
 ruleRegexDeclarator :: RuleParser (Exp -> Exp)
