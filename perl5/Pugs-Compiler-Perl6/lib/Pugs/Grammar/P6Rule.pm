@@ -7,7 +7,7 @@ use warnings;
 use Pugs::Compiler::Rule;
 use Pugs::Compiler::Token;
 use Pugs::Compiler::Regex;
-# use Pugs::Grammar::Perl6;
+use Pugs::Grammar::Perl6;
 use base qw(Pugs::Grammar::BaseCategory);
 use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
@@ -21,8 +21,8 @@ Pugs::Compiler::Regex->install(
 Pugs::Compiler::Regex->install( 
     closure_rule => q(
         # callback perl6 compiler
-        \\{ <Pugs::Grammar::Perl6::parse> \\}
-        { return { closure => $/{'Pugs::Grammar::Perl6::parse'}() ,} }
+        \\{ <Pugs::Grammar::Perl6.parse> \\}
+        { return { closure => $/{'Pugs::Grammar::Perl6.parse'}() ,} }
     ));
 Pugs::Compiler::Regex->install( 
     variable_rule => q(
@@ -98,8 +98,7 @@ Pugs::Compiler::Regex->install(
         |   [ \\:\\: ]   | \\: 
         |   [ \\$\\$ ]   | \\$ 
         |   [ \\^\\^ ]   | \\^
-        )
-            
+        )  
         { return { colon => $/() ,} }
     ))->code;
 *quantifier = Pugs::Compiler::Regex->compile(q(
@@ -116,7 +115,6 @@ Pugs::Compiler::Regex->install(
         ]?
     )
     $<ws3>   := (<?ws>?)
-    
     { return {  
             term  => $/{term}(),
             quant => $/{quant}(),
@@ -128,31 +126,25 @@ Pugs::Compiler::Regex->install(
 ))->code;
 *concat = Pugs::Compiler::Regex->compile(q(
     $<q1> := <quantifier> 
-    [
-        $<q2> := <concat> 
-        
+    [   $<q2> := <concat> 
         { return { concat => [ 
                 { quant => $/{q1}() ,}, 
                 $/{q2}(),
             ] ,} 
         } 
-    |    
-        { return { quant => $/{q1}() ,} } 
+    |   { return { quant => $/{q1}() ,} } 
     ]
 ))->code;
 *rule = Pugs::Compiler::Regex->compile(q(
     [ <?ws> \\| ]?
     $<q1> := <concat> 
-    [
-        \\| : $<q2> := <rule> 
-
+    [   \\| : $<q2> := <rule> 
         { return { alt => [ 
                 $/{q1}(), 
                 $/{q2}(),
             ] ,} 
         }
-    |           
-        { return $/{q1}() } 
+    |   { return $/{q1}() } 
     ]
 ))->code;
 
@@ -178,9 +170,3 @@ Pugs::Compiler::Regex->install(
 
 1;
 
-__END__
-
-    qw(  capturing_group after before named_capture match_variable
-         variable_rule closure_rule special_char plain_text dot
-         metasyntax non_capturing_group colon 
-    );
