@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 19 July 2006
+  Last Modified: 21 July 2006
   Number: 4
-  Version: 28
+  Version: 29
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -175,6 +175,14 @@ implicit conditionals implied by short-circuit operators.
 
 =head1 Loop statements
 
+Looping statement modifiers are the same as in Perl 5.
+Loop modifiers C<next>, C<last>, and C<redo> also work as in Perl 5.
+
+There is no longer a C<continue> block.  Instead, use a C<NEXT> block
+within the body of the loop.  See below.
+
+=head2 The C<while> and C<until> statements
+
 The C<while> and C<until> statements work as in Perl 5, except that you
 may leave out the parentheses around the conditional:
 
@@ -182,26 +190,59 @@ may leave out the parentheses around the conditional:
 	...
     }
 
-Looping statement modifiers are the same as in Perl 5, except that
-to avoid confusion applying one to a C<do> block is specifically
-disallowed.  Instead of
+=head2 The C<repeat> statement
+
+Unlike in Perl 5, applying a statement modifier to a C<do> block is
+specifically disallowed:
+
 
     do {
 	...
-    } while $x;
+    } while $x < 10;	# ILLEGAL
 
-you should write
+Instead, you should write the more Pascal-like C<repeat> loop:
 
-    loop {
+    repeat {
 	...
-    } while $x;
+    } while $x < 10;
 
-Loop modifiers C<next>, C<last>, and C<redo> work as in Perl 5.
+or equivalently:
 
-There is no longer a C<continue> block.  Instead, use a C<NEXT> block
-within the loop.  See below.
+    repeat {
+	...
+    } until $x >= 10;
 
-=head1 The general loop statement
+Unlike Perl 5's C<do-while> loop, this is a real loop block now, so
+C<next>, C<last>, and C<redo> work as expected.  The loop conditional
+on a repeat block is required, so it will be recognized even if you
+put it on a line by its own:
+
+    repeat
+    {
+	...
+    }
+    while $x < 10;
+
+However, that's likely to be visually confused with a following
+C<while> loop at the best of times, so it's also allowed to put the
+loop conditional at the front, with the same meaning (the C<repeat>
+keyword forces the conditional to be evaluated at the end of the loop,
+so it's still C's do-while semantics.)  Therefore, even under GNU style
+rules, the previous example may be rewritten into a very clear:
+
+    repeat while $x < 10
+      {
+	...
+      }
+
+or equivalently:
+
+    repeat until $x >= 10
+      {
+	...
+      }
+
+=head2 The general loop statement
 
 The C<loop> statement is the C-style C<for> loop in disguise:
 
@@ -210,13 +251,16 @@ The C<loop> statement is the C-style C<for> loop in disguise:
     }
 
 As in C, the parentheses are required if you supply the 3-part spec; however,
-as shown in the previous section, the 3-part loop spec may be entirely
-omitted to write an infinite loop.  If you omit the 3-part loop spec
-you may add a C<while> or C<until> statement modifier at the end
-to make it a "repeat at least once" loop.  Unlike C<do> in Perl 5,
-it's a real loop block, so you may use loop modifiers.
+the 3-part loop spec may be entirely omitted to write an infinite loop.
+That is,
 
-=head1 The C<for> statement
+    loop {...}
+
+is equivalent to the Cish idiom:
+
+    loop (;;) {...}
+
+=head2 The C<for> statement
 
 There is no C<foreach> statement any more. It's always spelled C<for>
 in Perl 6, so it always takes a list as an argument:
@@ -293,12 +337,12 @@ can be referred to as C<$OUTER::_>.  (And yes, this implies that the
 compiler may have to retroactively change the binding of <$_> on the
 left side.  But it's what people expect of a pronoun like "it".)
 
-=head1 The do-once loop
+=head2 The do-once loop
 
 In Perl 5, a bare block is deemed to be a do-once loop.  In Perl 6,
 the bare block is not a do-once.  Instead C<do {...}> is the do-once
 loop (which is another reason you can't put a C<while> or C<until>
-modifier on it).
+modifier on it; use C<repeat> for that).
 
 For any statement, prefixing with a C<do> allows you to 
 return the value of that statement and use it in an expression:
