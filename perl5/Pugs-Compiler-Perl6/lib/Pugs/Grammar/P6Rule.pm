@@ -7,32 +7,30 @@ use warnings;
 use Pugs::Compiler::Rule;
 use Pugs::Compiler::Token;
 use Pugs::Compiler::Regex;
+# use Pugs::Grammar::Perl6;
 use base qw(Pugs::Grammar::BaseCategory);
 use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 our @rule_terms;
-
-Pugs::Compiler::Regex->install( 
-    code => q(
-        # TODO - callback perl6 compiler
-        \\{ [ <plain_text> | <ws> | <code> ]* \\}
-    ));
+# TODO - reuse 'ident' from other modules
 Pugs::Compiler::Regex->install( 
     ident => q(
         [ <alnum> | _ | \\: \\: ]+
     ));
-Pugs::Compiler::Regex->install( 
-    variable => q(
-        [ \\$ | \\@ | \\% ]
-        [ <alnum> | _ | \\: \\: ]+
-    ));
-Pugs::Compiler::Regex->install( 
-    positional_variable => q(
-        [ \\$ | \\@ | \\% ]
-        \\^
-        [ <alnum> | _ | \\: \\: ]+
-    ));
 
+Pugs::Compiler::Regex->install( 
+    closure_rule => q(
+        # callback perl6 compiler
+        \\{ <Pugs::Grammar::Perl6::parse> \\}
+        { return { closure => $/{'Pugs::Grammar::Perl6::parse'}() ,} }
+    ));
+Pugs::Compiler::Regex->install( 
+    variable_rule => q(
+        [ \\$ | \\@ | \\% ]
+        \\^?
+        [ <alnum> | _ | \\: \\: ]+
+        { return { variable => $() ,} }
+    ));
 Pugs::Compiler::Regex->install( 
     match_variable => q(
         [ \\$ | \\@ | \\% ] <digit>+
@@ -63,14 +61,6 @@ Pugs::Compiler::Regex->install(
         \\[ : <rule> \\] 
         { return $/{rule}() }
     ));
-*closure_rule = Pugs::Compiler::Regex->compile(q(
-        <code>
-        { return { closure => $/{code}() ,} }
-    ))->code;
-*variable_rule = Pugs::Compiler::Regex->compile(q(
-        <variable> | <positional_variable>
-        { return { variable => $() ,} }
-    ))->code;
 *named_capture_body = Pugs::Compiler::Regex->compile(q(
         | [ \\( : <rule> \\) { return { rule => $/{rule}(), } } ]
         | [ \\[ : <rule> \\] { return { rule => $/{rule}(), } } ]
