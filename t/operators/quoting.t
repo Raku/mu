@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 83;
+plan 84;
 
 my $foo = "FOO";
 my $bar = "BAR";
@@ -283,4 +283,9 @@ FOO
     is("\c@", "\0");
     is("\cA", chr 1);
     is("\cZ", chr 26);
+}
+
+{ # simple test for nested-bracket quoting, per S02
+    my $hi = q<<hi>>;
+    is($hi, "hi");
 }
