@@ -4,6 +4,7 @@ use warnings;
 #use Pugs::Compiler::Rule;
 use Pugs::Compiler::Regex;
 use base qw(Pugs::Grammar::Base);
+use Data::Dumper;
 
 sub ws {
     my $grammar = shift;
@@ -47,8 +48,9 @@ sub add_rule {
 }
 
 sub capture {
-    # print Dumper ${$_[0]}->{match}[0]{match}[1]{capture}; 
-    return ${$_[0]}->{match}[0]{match}[1]{capture};
+    #print "capture1: ", Dumper( $_[0] ); 
+    #print "capture2: ", Dumper( $_[0]->data->{match}[0]{match}[1]{capture} ); 
+    return $_[0]->data->{match}[0]{match}[1]{capture};
 }
 
 sub recompile {
