@@ -37,16 +37,26 @@ instanceSkeleton' s ii  d = (simpleInstance s d <+> text "where")
 makeClassDef role bod@(Body constructor labels types) =
     hsep [text "showPerl6ClassDef", qt role, qt constructor, mkAllAttr]
     where
-    mkAllAttr = text $ show $ zipWith3 (\t s n -> (t, dq $ s<>n)) types' sigils names'
+    mkAllAttr = text $ show $ zipWith4 (\t s n l -> (t, dq $ s<>n, show l)) types' sigils names' lossage
     mkPosAttr = varNames types
     mkRecAttr = map text labels
-    types'    = map (qt . snd . p6Type) types
-    sigils    = map (text . fst . p6Type) types
+    types'    = map (qt . r_typename . p6Type) types
+    sigils    = map (text . r_sigil . p6Type) types
+    lossage   = map (qt . r_lossage . p6Type) types
     names'    = if null labels then mkPosAttr else mkRecAttr
-    p6Type (Con ty)        = ("$.", ty) -- XXX should be: lookup the type in some Hs->P6 map
-    p6Type (List (Con ty)) = ("@.", ty) -- simple list
-    p6Type (List {})       = ("@.", "") -- too deep for a P6 constraint, for now.
-    p6Type x               = error $ "don't know what to do with " ++ (show x)
+
+data P6TypeRep = MkRep
+    { r_sigil    :: String
+    , r_typename :: String
+    , r_lossage  :: String
+    }
+
+p6Type :: Type -> P6TypeRep
+p6Type (Con ty)                       = MkRep "$." ty "" -- XXX should be: lookup the type in some Hs->P6 map
+p6Type (List (Con ty))                = MkRep "@." ty "" -- simple list
+p6Type ty@(List {})                   = MkRep "@." "" $ (show ty) -- too deep for a simple P6 constraint
+p6Type (LApply (Con "Maybe") (ty:[])) = p6Type ty  -- drop Maybe silently
+p6Type ty                             = MkRep "$." "" $ show ty
 
 makeAsObject bod@(Body constructor labels types)
     | null types  = empty

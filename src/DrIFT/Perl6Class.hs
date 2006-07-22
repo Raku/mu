@@ -9,16 +9,18 @@ showPerl6RoleDef :: String -> String      -- ^ Perl 6 role definition
 showPerl6RoleDef name =
     "role " ++ name ++ " is TaggedUnion;\n"
 
-showPerl6ClassDef :: String               -- ^ role name (Hs datatype)
-                    -> String             -- ^ class name (Hs variant)
-                    -> [(String, String)] -- ^ member type+name pairs
-                    -> String             -- ^ Perl 6 class definition
+showPerl6ClassDef :: String                       -- ^ role name (Hs datatype)
+                    -> String                     -- ^ class name (Hs variant)
+                    -> [(String, String, String)] -- ^ member type+name pairs
+                    -> String                     -- ^ Perl 6 class definition
 showPerl6ClassDef role cls members =
     unlines $ [clsHead] ++ (map memberDef members) ++ [clsTail]
     where
     clsHead = "class " ++ cls ++ " does " ++ role ++ " {"
     clsTail = "};"
-    memberDef (ty, nm) = "    has " ++ ty ++ (if null ty then "" else " ") ++ nm ++ ";"
+    memberDef (ty, nm, ann) = "    has " ++ ty ++ (sepIf ty " ") ++ nm ++ ";" ++ (sepIf' ann $ " # " ++ ann)
+    sepIf x y = if null x then "" else y
+    sepIf' x y = if x == "\"\"" then "" else y
 
 class Typeable a => Perl6Class a where
     showPerl6TypeDef :: a -> String
