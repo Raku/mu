@@ -5,6 +5,7 @@ use Test::More tests => 6;
 use_ok( 'Pugs::Grammar::Rule' );
 use_ok( 'Pugs::Emitter::Rule::Parsec' );
 
+# XXX replace by really feed result to GHC and parse test data
 sub is_rule_match {
     my ($input, $output, @arg) = @_;
     my $tree = Pugs::Grammar::Rule->rule($input);
@@ -25,11 +26,12 @@ q#
         }
 #,
 q#do
-  sym <- string "..."
-    <|>
-    string "???"
-    <|>
-    string "!!!"
+  sym <- do
+      string "..."
+      <|>
+      string "???"
+      <|>
+      string "!!!"
   return $ (App (Var (doYada sym)) Nothing [(Val (VStr (sym ++ " - not yet implemented")))])
 #,
 'yadaLiteral');
@@ -38,21 +40,22 @@ is_rule_match(
 q#
 	\\^ | \\* | \\? | \\. | \\! | \\+ | ; | <''>
 #,
-q#string "^"
-<|>
-string "*"
-<|>
-string "?"
-<|>
-string "."
-<|>
-string "!"
-<|>
-string "+"
-<|>
-string ";"
-<|>
-string ""
+q#do
+  string "^"
+  <|>
+  string "*"
+  <|>
+  string "?"
+  <|>
+  string "."
+  <|>
+  string "!"
+  <|>
+  string "+"
+  <|>
+  string ";"
+  <|>
+  string ""
 #,
 'ruleTwigil');
 
@@ -63,11 +66,12 @@ q#
 	{ return $<sigil> ~ $<digits> }
 #,
 q#do
-  sigil <- string "$"
-    <|>
-    string "@"
-    <|>
-    string "%"
+  sigil <- do
+      string "$"
+      <|>
+      string "@"
+      <|>
+      string "%"
   digits <- ((many1 $ (digit >>= \c -> return [c])) >>= \arr -> return $ foldr (++) "" arr)
   return $ (sigil ++ digits)
 #,
@@ -82,17 +86,19 @@ q#
 	{ return $<sigil> ~ "<" ~ $<name> ~ ">" }
 #,
 q#do
-  sigil <- string "$"
-    <|>
-    string "@"
-    <|>
-    string "%"
+  sigil <- do
+      string "$"
+      <|>
+      string "@"
+      <|>
+      string "%"
   string "<"
   name <- ((many $ do
+        do
           string " "
           (anyChar >>= \c -> return [c])
-      <|>
-      (noneOf ">" >>= \c -> return [c])) >>= \arr -> return $ foldr (++) "" arr)
+        <|>
+        (noneOf ">" >>= \c -> return [c])) >>= \arr -> return $ foldr (++) "" arr)
   string ">"
   return $ (sigil ++ ("<" ++ (name ++ ">")))
 #,

@@ -84,15 +84,15 @@ sub alt {
 	}
     }
 
+    my $indent = $_[1] . '  ';
     foreach(@alt){ 
-        my $tmp = emit_rule( $_, $_[1].'  ' );
+        my $tmp = emit_rule( $_, $indent );
         push @s, $tmp if $tmp;   
     }
-    return join "\n$_[1]<|>\n$_[1]", @s;
+    return "do\n$indent" . join "\n$indent<|>\n$indent", @s;
 }
 
 sub concat {
-    my $indent = $_[1] . '  ';
     my @inner = @{$_[0]};
 
     # clean up concatenation body
@@ -109,6 +109,7 @@ sub concat {
 	}
     }
 
+    my $indent = $_[1] . '  ';
     my $result = 'do';
     foreach(@inner){ 
         my $tmp = emit_rule( $_, $indent );
@@ -136,6 +137,7 @@ f => "char '\\f'",
 w => "(alphaNum <|> char '_')",
 d => 'digit',
 s => 'space',
+N => 'noneOf "\\n\\r"',
 W => "satisfy (\\x -> x /= '_' && not \$ isAlphaNum x)",
 D => 'noneOf "0123456789"',
 S => 'noneOf " \\v\\f\\t\\r\\n"',
@@ -167,7 +169,11 @@ sub named_capture {
     return "$name <- " . emit_rule($program, $_[1] . '  ');
 }
 
-sub before {}
+sub before {
+    my $program = $_[0]{rule};
+    return 'lookAhead (' . emit_rule($program, $_[1] . '    ') . ')';
+}
+
 sub after {}
 sub colon {}
 
@@ -273,20 +279,12 @@ sub metasyntax {
 	   return to_genparser_string("oneOf \"$str\"");
     }
     if ( $prefix eq '?' ) {   # non_capturing_subrule / code assertion
-=cut
         $cmd = substr( $cmd, 1 );
         if ( $cmd =~ /^{/ ) {
             warn "code assertion not implemented";
             return;
         }
-        return
-	    "$_[1] do { my \$match =\n" .
-	    call_subrule( $cmd, $_[1] . "          " ) . ";\n" .
-	    "$_[1]      my \$bool = (!\$match != 1);\n" .
-	    "$_[1]      \$pos = \$match->to if \$bool;\n" .
-	    "$_[1]      \$bool;\n" .
-	    "$_[1] }";
-=cut
+	return rule_rename($cmd);
     }
     if ( $prefix eq '!' ) {   # negated_subrule / code assertion 
 =cut
@@ -332,7 +330,7 @@ sub metasyntax {
         my ( $subrule, $param_list ) = split( /[\(\)]/, $cmd );
         $param_list = '' unless defined $param_list;
         my @param = split( ',', $param_list );
-	return rule_rename($subrule);   # XXX parameters
+	return "$subrule <- " . rule_rename($subrule);   # XXX parameters
     }
     die "<$cmd> not implemented";
 }

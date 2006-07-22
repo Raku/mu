@@ -84,7 +84,10 @@ rule AdditiveExpr {<FunctionAppExpr>[ $<op>:=(\+|\-|~) <AdditiveExpr>]?{
 
 token Expr { <AdditiveExpr> { use v5; return $<AdditiveExpr> } }
 
-rule Return {<'return'> <Expr> \;? { use v5; return "return \$ " . $<Expr> } }
+rule Return {
+    |<'return'> <Expr> \;? { use v5; return "return \$ " . $<Expr> }
+    |<'return'> \;?        { use v5; return "return ()" }
+}
 
 rule VariableDeclaration {<'my'> <Variable> <'='> <Expr> \;
     {

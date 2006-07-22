@@ -82,7 +82,7 @@ The MiniPerl6 includes only these language constructions
 (c.f. lib/Pugs/Grammar/MiniPerl6.grammar)
 
    Var: $<name> $0 $1 ...
-   Return: return
+   Return: return            # returning expression or nothing
    Call: Foo( exp, exp... )  # parantheses are necessary
          Bar
    Infix: ~ + -

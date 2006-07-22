@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 use lib '../Pugs-Compiler-Rule/lib';
-use Test::More tests => 7;
+use Test::More tests => 8;
 use Pugs::Grammar::MiniPerl6;
 use Pugs::Runtime::Match::Ratchet;
 
@@ -47,3 +47,5 @@ is_production_match(q#
 #, q#let yada = (doYada sym) in
 let err = (Val (VStr (sym ++ " - not yet implemented"))) in
 return $ (App (Var yada) Nothing [err, capture_0])#, 'full yada example');
+
+is_production_match(' return; ', 'return ()', 'return ()');
