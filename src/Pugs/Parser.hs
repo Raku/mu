@@ -1028,7 +1028,8 @@ vcode2initOrCheckBlock magicalVar allowIOLeak code = do
 ruleConstruct :: RuleParser Exp
 ruleConstruct = rule "construct" $ choice
     [ ruleForConstruct
-    , ruleLoopConstruct
+    , ruleSemiLoopConstruct
+    , ruleRepeatConstruct
     , ruleCondConstruct
     , ruleWhileUntilConstruct
 --  , ruleStandaloneBlock
@@ -1045,13 +1046,16 @@ ruleForConstruct = rule "for construct" $ do
     body    <- enterBracketLevel ParensBracket $ ruleBlockLiteral
     return $ Syn "for" [cond, body]
 
+{-|
 ruleLoopConstruct :: RuleParser Exp
 ruleLoopConstruct = rule "loop construct" $ do
     symbol "loop"
     choice [ ruleSemiLoopConstruct, rulePostLoopConstruct ]
+-}
 
 ruleSemiLoopConstruct :: RuleParser Exp
 ruleSemiLoopConstruct = rule "for-like loop construct" $ do
+    symbol "loop"
     conds <- parens $ do
         a <- option emptyExp ruleExpression
         symbol ";"
@@ -1062,13 +1066,25 @@ ruleSemiLoopConstruct = rule "for-like loop construct" $ do
     block <- ruleBlock
     return $ Syn "loop" (conds ++ [block])
 
-rulePostLoopConstruct :: RuleParser Exp
-rulePostLoopConstruct = rule "postfix loop construct" $ do
+ruleRepeatConstruct :: RuleParser Exp
+ruleRepeatConstruct = rule "postfix loop construct" $ do
+    symbol "repeat"
+    choice [ ruleRepeatPostConstruct, ruleRepeatPreConstruct ]
+
+ruleRepeatPostConstruct :: RuleParser Exp
+ruleRepeatPostConstruct = rule "repeat postfix construct" $ do
     block <- ruleBlock
     option (Syn "loop" [block]) $ do
         name <- choice [ symbol "while", symbol "until" ]
         cond <- ruleExpression
         return $ Syn ("post" ++ name) [cond, block]
+
+ruleRepeatPreConstruct :: RuleParser Exp
+ruleRepeatPreConstruct = rule "repeat prefix construct" $ do
+    name <- choice [ symbol "while", symbol "until" ]
+    cond <- ruleExpression
+    body <- ruleBlock
+    return $ Syn ("post" ++ name) [ cond, body ]
 
 ruleCondConstruct :: RuleParser Exp
 ruleCondConstruct = rule "conditional construct" $ do
