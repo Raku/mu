@@ -8,6 +8,16 @@ use Pugs::Grammar::MiniPerl6;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
+sub rule_rename($){
+    my $orig_name = shift;
+    return 'rule' . (uc substr $orig_name, 0, 1) . substr $orig_name, 1;
+}
+
+sub to_genparser_string($) {
+    my $char_parser = shift;
+    return "($char_parser >>= \\c -> return [c])";
+}
+
 sub call_constant {
     my $str = shift;
     $str =~ s/\\/\\\\/g;
@@ -47,12 +57,13 @@ sub quant {
 
     # *  +  ?
     my $qual = '';
-    $qual = 'optional' if $quantifier eq '?';
+    return "option \"\" \$ $rul" if $quantifier eq '?';
+
     $qual = 'many'     if $quantifier eq '*';
     $qual = 'many1'    if $quantifier eq '+';
 
     die "quantifier not implemented: $quantifier" if $qual eq '';
-    return "$qual \$ $rul";
+    return "(($qual \$ $rul) >>= \\arr -> return \$ foldr (++) \"\" arr)";
 }
 
 sub alt {
@@ -107,37 +118,32 @@ sub concat {
 }
 
 sub code {}
-sub dot {}
+
+sub dot {
+    return to_genparser_string("anyChar");
+}
+
 sub variable {}
 
 use vars qw( %special_chars );
 BEGIN {
     %special_chars = ( 
-r => '"\\r"',
-n => '"\\n"',
-t => '"\\t"',
-e => '"\\033"',
-f => '"\\f"',
+r => "char '\\r'",
+n => "char '\\n'",
+t => "char '\\t'",
+e => "char '\\033'",
+f => "char '\\f'",
 w => "(alphaNum <|> char '_')",
 d => 'digit',
 s => 'space',
-W => "(satisfy (\\x -> x /= '_' && not \$ isAlphaNum x))",
-D => '(noneOf "0123456789")',
-S => '(none " \\v\\f\\t\\r\\n")',
+W => "satisfy (\\x -> x /= '_' && not \$ isAlphaNum x)",
+D => 'noneOf "0123456789"',
+S => 'noneOf " \\v\\f\\t\\r\\n"',
 );
-
-    while(my ($k, $v) = each %special_chars){
-	if($k =~ /[[:lower:]]/ && !exists $special_chars{uc $k}){
-	    $special_chars{uc $k} = "(noneOf $v)";
-	    $special_chars{$k} = "(oneOf $v)";
-	}
-    }
 }
 sub special_char {
     my $char = substr($_[0],1);
-    for ( qw( r n t e f w d s ) ) {
-	# XXX
-    }
+    return to_genparser_string($special_chars{$char}) if exists $special_chars{$char};
     $char = '\\\\' if $char eq '\\';
     return "string \"$char\"";
 }
@@ -174,14 +180,14 @@ BEGIN {
     %char_class = ( 
 alpha => 'letter',
 alnum => 'alphaNum',
-ascii => '(satisfy isAscii)',
+ascii => 'satisfy isAscii',
 blank => 'oneOf " \\t"',
-cntrl => '(satisfy isCotrol)',
+cntrl => 'satisfy isCotrol',
 digit => 'digit',
-graph => "(satisfy (\\x -> isPrint x && x /= ' '))",
+graph => "satisfy (\\x -> isPrint x && x /= ' ')",
 lower => 'lower',
-print => '(satisfy isPrint)',
-punct => "(satisfy (\\x -> isPrint x && x /= ' ' && not (isAlphaNum x)))",
+print => 'satisfy isPrint',
+punct => "satisfy (\\x -> isPrint x && x /= ' ' && not (isAlphaNum x))",
 space => 'space',
 upper => 'upper',
 word  => "(alphaNum <|> char '_')",
@@ -253,7 +259,7 @@ sub metasyntax {
 	       $str =~ s/\\/\\\\/g;
 	       $str =~ s/"/\\"/g;
 
-	       return "(noneOf \"$str\" >>= \\c -> return [c])";
+	       return to_genparser_string("noneOf \"$str\"");
 	   } 
 	   elsif ( $prefix eq '+' ) {
 	       $cmd = substr($cmd, 2);
@@ -264,7 +270,7 @@ sub metasyntax {
 	   $str =~ s/\\/\\\\/g;
 	   $str =~ s/"/\\"/g;
 
-	   return "(oneOf \"$str\" >>= \\c -> return [c])";
+	   return to_genparser_string("oneOf \"$str\"");
     }
     if ( $prefix eq '?' ) {   # non_capturing_subrule / code assertion
 =cut
@@ -319,31 +325,14 @@ sub metasyntax {
         }
         if ( $char_class{$cmd} ) {
             # XXX - inlined char classes are not inheritable, but this should be ok
-	    return "($char_class{$cmd} >>= \\c -> return [c])";
+	    return to_genparser_string($char_class{$cmd});
         }
         # capturing subrule
         # <subrule ( param, param ) >
-=cut
         my ( $subrule, $param_list ) = split( /[\(\)]/, $cmd );
         $param_list = '' unless defined $param_list;
         my @param = split( ',', $param_list );
-        # TODO - send $pos to subrule
-        return named_capture(
-            { ident => $subrule, 
-              rule => 
-                "$_[1]         do {\n" . 
-                "$_[1]           push \@match,\n" . 
-                    call_subrule( $subrule, $_[1]."        ", @param ) . ";\n" .
-                "$_[1]           my \$bool = (!\$match[-1] != 1);\n" .
-                "$_[1]           \$pos = \$match[-1]->to if \$bool;\n" .
-                #"print !\$match[-1], ' ', Dumper \$match[-1];\n" .
-                "$_[1]           \$bool;\n" .
-                "$_[1]         }",
-	      flat => 1
-            }, 
-            $_[1],    
-        );
-=cut
+	return rule_rename($subrule);   # XXX parameters
     }
     die "<$cmd> not implemented";
 }
