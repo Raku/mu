@@ -2,12 +2,17 @@ use v6-alpha;
 
 use Test;
 
-plan 9;
+plan 12;
 
 is(4\       .sqrt, 2, 'long dot with numbers');
 is(4\#(quux).sqrt, 2, 'long dot with comments');
 is("x"\     .bytes, 1, 'long dot with strings');
 is("x"\     .bytes(), 1, 'long dot with strings + parens');
+
+my $foo = 4;
+is($foo.++, 5, '(short) long dot with postfix inc');
+is($foo\       .++, 6, 'long dot with postfix inc');
+is($foo\       .--, 5, 'long dot with postfix dec');
 
 is("xxxxxx"\.bytes, 6, 'long dot without spaces');
 is("xxxxxx"\
