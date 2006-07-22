@@ -65,8 +65,8 @@ syn match p6PODSecTitle  ".*$"        contained
 
 " Variables, arrays, and hashes with ordinary \w+ names
 syn match p6KeyType      "¢[:\.*^?]\?[a-zA-Z_]\w*"
-syn match p6VarPlain     "\(::?\|[$@%][:\.*^?]\?\)[a-zA-Z_]\w*"
-syn match p6VarException "\$!"
+syn match p6VarPlain     "\(::?\|[$@%][\!\.*^?]\?\)[a-zA-Z_]\w*"
+syn match p6VarException "\$![a-zA-Z]\@!"
 syn match p6VarCapt      "\$[0-9\/]"
 syn match p6VarPunct     "\$\d\+"
 syn match p6Invoke       "\(&\|[.:]/\)[a-zA-Z_]\w*"
