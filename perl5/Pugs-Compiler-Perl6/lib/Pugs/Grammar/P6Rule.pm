@@ -12,7 +12,8 @@ use base qw(Pugs::Grammar::BaseCategory);
 use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 our @rule_terms;
-# TODO - reuse 'ident' from other modules
+
+# TODO - reuse 'ident' from other modules
 Pugs::Compiler::Regex->install( 
     ident => q(
         [ <alnum> | _ | \\: \\: ]+
@@ -47,11 +48,6 @@ Pugs::Compiler::Regex->install(
         { return { 'dot' => 1 ,} }
     ));
 Pugs::Compiler::Regex->install( 
-    plain_text => q(
-        <alnum> | \\, | \\; | \\_ | \\/ | \\~ | \\" | \\' | \\=   # "
-        { return { 'constant' => $() ,} }
-    ));
-Pugs::Compiler::Regex->install( 
     special_char => q(
         \\\\ .
         { return { special_char => $(), } } 
@@ -62,9 +58,9 @@ Pugs::Compiler::Regex->install(
         { return $/{rule}() }
     ));
 *named_capture_body = Pugs::Compiler::Regex->compile(q(
-        | [ \\( : <rule> \\) { return { rule => $/{rule}(), } } ]
-        | [ \\[ : <rule> \\] { return { rule => $/{rule}(), } } ]
-        | [   <metasyntax> { return { rule => $/{metasyntax}(), } } ]
+        |  \\( : <rule> \\) { return { rule => $/{rule}(),       } } 
+        |  \\[ : <rule> \\] { return { rule => $/{rule}(),       } } 
+        |    <metasyntax>   { return { rule => $/{metasyntax}(), } } 
     ))->code;
 *named_capture = Pugs::Compiler::Regex->compile(q(
         \\$ \\< <ident> \\> <?ws>? \\:\\= <?ws>? <named_capture_body>
@@ -92,28 +88,34 @@ Pugs::Compiler::Regex->install(
         { return { capturing_group => $/{rule}() ,} }
     ))->code;
 *colon = Pugs::Compiler::Regex->compile(q(
-        (   [ \\:\\:\\: ]  
-        |   [ \\:\\? ]    
-        |   [ \\:\\+ ]    
-        |   [ \\:\\: ]   | \\: 
-        |   [ \\$\\$ ]   | \\$ 
-        |   [ \\^\\^ ]   | \\^
+        (  \\:\\:\\:  
+        |  \\:\\?     
+        |  \\:\\+     
+        |  \\:\\:  |  \\: 
+        |  \\$\\$  |  \\$ 
+        |  \\^\\^  |  \\^
         )  
         { return { colon => $/() ,} }
     ))->code;
+    
+*term = Pugs::Compiler::Regex->compile(q(
+    |  $<term>  := <@Pugs::Grammar::P6Rule::rule_terms>
+          { return $/{term}() }
+    |  .  { return { 'constant' => $() ,} }
+    ))->code;
+
 *quantifier = Pugs::Compiler::Regex->compile(q(
     $<ws1>   := (<?ws>?)
-    $<term>  := (<@Pugs::Grammar::P6Rule::rule_terms>)
+    <term>
     $<ws2>   := (<?ws>?)
     $<quant> := (
-        [   [ \\?\\? ] 
-        |   [ \\*\\? ] 
-        |   [ \\+\\? ] 
-        |   \\?       
-        |   \\*       
-        |   \\+
-        ]?
-    )
+        |  \\?\\?  
+        |  \\*\\?  
+        |  \\+\\? 
+        |  \\?       
+        |  \\*       
+        |  \\+
+        |  <''>   )
     $<ws3>   := (<?ws>?)
     { return {  
             term  => $/{term}(),
@@ -156,7 +158,7 @@ Pugs::Compiler::Regex->install(
         sub{ 
             #warn "Trying $method\n";
             # $str, $state, $_[2], $_[3]{match}, @_[4,5,6,7]
-            my $match = Pugs::Grammar::P6Rule->$method($_[0]);
+            my $match = Pugs::Grammar::P6Rule->$method($_[0], { p => 0 } );
             #warn "Match $method ".Dumper($match) if $match->{bool};
             return $match;
         }
@@ -164,7 +166,7 @@ Pugs::Compiler::Regex->install(
     qw(  capturing_group 
          after before metasyntax 
          named_capture match_variable
-         variable_rule closure_rule special_char plain_text dot
+         variable_rule closure_rule special_char dot
          non_capturing_group colon 
     );
 
