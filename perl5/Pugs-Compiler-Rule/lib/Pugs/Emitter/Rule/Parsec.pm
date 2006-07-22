@@ -12,7 +12,7 @@ sub call_constant {
     my $str = shift;
     $str =~ s/\\/\\\\/g;
     $str =~ s/"/\\"/g;
-    return 'symbol "' . $str . '"';
+    return 'string "' . $str . '"';
 }
 
 sub emit {
@@ -38,12 +38,42 @@ sub emit_rule {
 sub non_capturing_group {}
 sub quant {
     my $term = $_[0]->{'term'};
-    return emit_rule( $term, $_[1] );
+    my $quantifier = $_[0]->{quant};
+    my $tab = ( $quantifier eq '' ) ? $_[1] : $_[1] . '  ';
+    my $rul = emit_rule( $term, $tab );
+
+    return $rul 
+        if $quantifier eq '';
+
+    # *  +  ?
+    my $qual = '';
+    $qual = 'optional' if $quantifier eq '?';
+    $qual = 'many'     if $quantifier eq '*';
+    $qual = 'many1'    if $quantifier eq '+';
+
+    die "quantifier not implemented: $quantifier" if $qual eq '';
+    return "$qual \$ $rul";
 }
 
 sub alt {
     my @s;
-    for ( @{$_[0]} ) { 
+    my @alt = @{$_[0]};
+
+    # clean up alternative body
+    # XXX maybe can be done earlier (e.g. in parser)
+    foreach(@alt){
+	if(ref eq 'HASH'){
+	    my($k) = keys %$_;
+
+	    if($k eq 'alt'){
+		my @sub_alt = @{$_->{alt}};
+		$_ = $sub_alt[0];
+		push @alt, @sub_alt[1 .. $#sub_alt];
+	    }
+	}
+    }
+
+    foreach(@alt){ 
         my $tmp = emit_rule( $_, $_[1].'  ' );
         push @s, $tmp if $tmp;   
     }
@@ -52,8 +82,24 @@ sub alt {
 
 sub concat {
     my $indent = $_[1] . '  ';
+    my @inner = @{$_[0]};
+
+    # clean up concatenation body
+    # XXX maybe can be done earlier (e.g. in parser)
+    foreach(@inner){
+	if(ref eq 'HASH'){
+	    my($k) = keys %$_;
+
+	    if($k eq 'concat'){
+		my @sub_inner = @{$_->{concat}};
+		$_ = $sub_inner[0];
+		push @inner, @sub_inner[1 .. $#sub_inner];
+	    }
+	}
+    }
+
     my $result = 'do';
-    for ( @{$_[0]} ) { 
+    foreach(@inner){ 
         my $tmp = emit_rule( $_, $indent );
 	$result .= "\n$indent" . $tmp if $tmp;
     }
@@ -63,7 +109,39 @@ sub concat {
 sub code {}
 sub dot {}
 sub variable {}
-sub special_char {}
+
+use vars qw( %special_chars );
+BEGIN {
+    %special_chars = ( 
+r => '"\\r"',
+n => '"\\n"',
+t => '"\\t"',
+e => '"\\033"',
+f => '"\\f"',
+w => "(alphaNum <|> char '_')",
+d => 'digit',
+s => 'space',
+W => "(satisfy (\\x -> x /= '_' && not \$ isAlphaNum x))",
+D => '(noneOf "0123456789")',
+S => '(none " \\v\\f\\t\\r\\n")',
+);
+
+    while(my ($k, $v) = each %special_chars){
+	if($k =~ /[[:lower:]]/ && !exists $special_chars{uc $k}){
+	    $special_chars{uc $k} = "(noneOf $v)";
+	    $special_chars{$k} = "(oneOf $v)";
+	}
+    }
+}
+sub special_char {
+    my $char = substr($_[0],1);
+    for ( qw( r n t e f w d s ) ) {
+	# XXX
+    }
+    $char = '\\\\' if $char eq '\\';
+    return "string \"$char\"";
+}
+
 sub match_variable {}
 
 sub closure {
@@ -86,25 +164,28 @@ sub named_capture {
 sub before {}
 sub after {}
 sub colon {}
-sub constant {}
+
+sub constant {
+    return "string \"$_[0]\"";
+}
 
 use vars qw( %char_class );
 BEGIN {
-    %char_class = map { $_ => 1 } qw( 
-alpha
-alnum
-ascii
-blank
-cntrl
-digit
-graph
-lower
-print
-punct
-space
-upper
-word
-xdigit
+    %char_class = ( 
+alpha => 'letter',
+alnum => 'alphaNum',
+ascii => '(satisfy isAscii)',
+blank => 'oneOf " \\t"',
+cntrl => '(satisfy isCotrol)',
+digit => 'digit',
+graph => "(satisfy (\\x -> isPrint x && x /= ' '))",
+lower => 'lower',
+print => '(satisfy isPrint)',
+punct => "(satisfy (\\x -> isPrint x && x /= ' ' && not (isAlphaNum x)))",
+space => 'space',
+upper => 'upper',
+word  => "(alphaNum <|> char '_')",
+xdigit => 'hexDigit',
 );
 }
 
@@ -166,17 +247,24 @@ sub metasyntax {
         return;
     }
     if ( $prefix =~ /[-+[]/ ) {   # character class 
-=cut
 	   if ( $prefix eq '-' ) {
-	       $cmd = '[^' . substr($cmd, 2);
+	       my $str = substr $cmd, 2, length($cmd) - 3;
+	       $str =~ s/\\>/>/g; # XXX
+	       $str =~ s/\\/\\\\/g;
+	       $str =~ s/"/\\"/g;
+
+	       return "(noneOf \"$str\" >>= \\c -> return [c])";
 	   } 
-       elsif ( $prefix eq '+' ) {
+	   elsif ( $prefix eq '+' ) {
 	       $cmd = substr($cmd, 2);
 	   }
-	   # XXX <[^a]> means [\^a] instead of [^a] in perl5re
 
-	   return call_perl5($cmd, $_[1]);
-=cut
+	   my $str = substr $cmd, 1, length($cmd) - 2;
+	   $str =~ s/\\>/>/g; # XXX
+	   $str =~ s/\\/\\\\/g;
+	   $str =~ s/"/\\"/g;
+
+	   return "(oneOf \"$str\" >>= \\c -> return [c])";
     }
     if ( $prefix eq '?' ) {   # non_capturing_subrule / code assertion
 =cut
@@ -229,15 +317,9 @@ sub metasyntax {
             warn "<$cmd> not implemented";
             return;
         }
-        if ( exists $char_class{$cmd} ) {
+        if ( $char_class{$cmd} ) {
             # XXX - inlined char classes are not inheritable, but this should be ok
-=cut
-            return
-                "$_[1] ( ( substr( \$s, \$pos, 1 ) =~ /[[:$cmd:]]/ ) 
-$_[1]     ? do { $direction$direction\$pos; 1 }
-$_[1]     : 0
-$_[1] )";
-=cut
+	    return "($char_class{$cmd} >>= \\c -> return [c])";
         }
         # capturing subrule
         # <subrule ( param, param ) >
