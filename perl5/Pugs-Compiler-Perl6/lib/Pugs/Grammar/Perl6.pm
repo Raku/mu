@@ -151,12 +151,40 @@ sub perl6_expression {
           }
         |
           <block> <?ws>?
-          (while) : <?ws>? <perl6_expression('no_blocks',0)>
           { return { statement => $_[0][0]->(),
+                     content   => $_[0]{block}->() }
+          }
+        |
+            # XXX better error messages
+            { return { die "invalid loop syntax" } }
+       ]
+),
+    { grammar => __PACKAGE__ }
+)->code;
+
+*repeat = Pugs::Compiler::Regex->compile( q(
+    (repeat) : <?ws>?
+        [
+          (while|until) : <?ws>? <perl6_expression('no_blocks',0)>
+          <block> <?ws>?
+          { return { statement => $_[0][0]->(),
+                     which     => $_[0][1]->(),
                      exp2      => $_[0]{perl6_expression}->(),
                      postfix   => 1,
                      content   => $_[0]{block}->() }
           }
+        |
+          <block> <?ws>?
+          (while|until) : <?ws>? <perl6_expression('no_blocks',0)>
+          { return { statement => $_[0][0]->(),
+                     which     => $_[0][1]->(),
+                     exp2      => $_[0]{perl6_expression}->(),
+                     postfix   => 1,
+                     content   => $_[0]{block}->() }
+          }
+        |
+            # XXX better error messages
+            { return { die "invalid repeat syntax" } }
        ]
 ),
     { grammar => __PACKAGE__ }
@@ -464,6 +492,10 @@ sub perl6_expression {
     |
     <loop>
         { return $_[0]{loop}->();
+        }
+    |
+    <repeat>
+        { return $_[0]{repeat}->();
         }
     |
     <try>   # this actually don't belong here
