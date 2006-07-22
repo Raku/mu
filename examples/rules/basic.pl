@@ -31,12 +31,12 @@ do {
   my $basic_program;
   my $i = 0;
   my $line = "123";
-  loop {
+  repeat while $line.chars {
    print "{$i++}: ";
    $line = =$*IN;
 #  exit if $line eq "exit";
    $basic_program ~= $line ~ "\n";
-  } while $line.chars;
+  }
   my $parsed = $basic_program ~~ /<program>/;
   $parsed.perl.say;
   execute($parsed) if $parsed;

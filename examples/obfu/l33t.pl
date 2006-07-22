@@ -156,7 +156,7 @@ method demo(Class $class: ) {
 }
 
 method debug() {
-    loop { ./debug_trace } until ./debug_interactive;
+    repeat { ./debug_trace } until ./debug_interactive;
 }
 
 # true return == stay at this line
@@ -166,7 +166,7 @@ method debug_interactive() returns Bool {
     } elsif !$!step {
         return Bool::True;
     }
-    loop { print "$.ip> " } until (./debug_action(=<>) || $!runnable);
+    repeat { print "$.ip> " } until (./debug_action(=<>) || $!runnable);
     return $!runnable;
 }
 

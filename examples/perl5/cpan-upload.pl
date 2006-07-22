@@ -188,11 +188,11 @@ sub ftp_upload_files (*@files) {
             if (@files > 0 and !$config.non_interactive) {
                 my $continue;
 
-                loop {
+                repeat {
                     print "Do you want to continue? [y] ";
                     $continue = =$*IN;
                     $continue = 'y' if $continue ~~ m:P5/^$/;
-                } while ($continue !~ m:P5<i>/^[yn]/);
+                } while $continue !~~ m:P5<i>/^[yn]/;
                 exit(0) if $continue ~~ m:P5<i>/^n/;
             }
         }

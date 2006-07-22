@@ -6,13 +6,16 @@ Perl6::Overview::Control - Control Structure
 
 =head2 Loop Structures
 
-    loop { ... };
-    loop { ... } while EXPR;
-    loop { ... } until EXPR;
-    loop ($i = 0; $i < 10; $i++) { ... }
-    
     while EXPR { ... }
     until EXPR { ... }
+    
+    loop { ... };
+    loop ($i = 0; $i < 10; $i++) { ... }
+
+    repeat { ... } while EXPR;
+    repeat { ... } until EXPR;
+    repeat while EXPR { ... }
+    repeat until EXPR { ... }
     
 =head2 For Loop structures
 
