@@ -1,0 +1,13 @@
+# Execution times:
+# TODO: Research on BS.Lazy for 2 and 8
+# TODO: 2 seems to be wrong. Must check.
+
+1 Data.Map String Int         4.146
+2 Data.Map ByteString Int    11.266
+3 Judy.Map String Int         0.861
+4 Judy.MapSL String Int       0.810
+5 Judy.Map ByteString Int     0.752
+6 Judy.MapSL ByteString Int   0.642
+7 Data.HashTable String Int   2.790
+8 Data.HashTable String Int   3.809 
+
