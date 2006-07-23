@@ -189,6 +189,11 @@ _alias_a_to_b(SVREF a, SVREF b, int read_only)
         type = 0;
     }
 
+    /* if @array is bound to other thing, binding $array[1] to $x */
+    if ( type == SVt_PVLV && SvMAGIC(b) ) {
+        type = 0;
+    }
+
     if (type >= SVt_PVMG) {
         switch (type) {
             case SVt_PVHV:
