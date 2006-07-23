@@ -321,7 +321,7 @@ sub _emit_parameter_capture {
 		$positional .= "), \\"._emit($_).", \\(";
 	    }
 	    else {
-		$positional .= _emit($_).',';
+		$positional .= (exists $_->{bare_block} ? 'sub '._emit($_) : _emit($_)).',';
 	    }
 	}
     }
@@ -797,8 +797,13 @@ sub infix {
     
     if ( $n->{op1}{op} eq ':=' ) {
         #warn "bind: ", Dumper( $n );
-	return " Data::Bind::bind_op2( \\(" . _emit( $n->{exp1} ) . 
-	    "), \\(" . _emit( $n->{exp2} ). ') )';
+	# The hassle here is that we can't use \(@x) or \(my @x)
+	my $_emit_value = sub { exists $_[0]->{array} ||
+                                (exists $_[0]->{op1} &&
+                                 $_[0]->{op1}{op} eq 'my' && exists $_[0]->{exp1}{array})
+                                ? '\\'._emit($_[0]) : '\\('._emit($_[0]).')'};
+	return " Data::Bind::bind_op2( " . $_emit_value->( $n->{exp1} ) . ','
+	    . $_emit_value->( $n->{exp2} ). ' )';
     }
     if ( $n->{op1}{op} eq '~~' ) {
         if ( my $subs = $n->{exp2}{substitution} ) {
