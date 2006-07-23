@@ -205,6 +205,7 @@ sub metasyntax {
     # <cmd>
     my $cmd = $_[0];   
     my $prefix = substr( $cmd, 0, 1 );
+    my $named_capturing = 1;
     if ( $prefix eq '@' ) {
         # XXX - wrap @array items - see end of Pugs::Grammar::Rule
         # TODO - param list
@@ -284,7 +285,8 @@ sub metasyntax {
             warn "code assertion not implemented";
             return;
         }
-	return rule_rename($cmd);
+	$prefix = substr( $cmd, 0, 1 );
+	$named_capturing = 0;
     }
     if ( $prefix eq '!' ) {   # negated_subrule / code assertion 
 =cut
@@ -305,6 +307,9 @@ sub metasyntax {
     }
     if ( $prefix =~ /[_[:alnum:]]/ ) {  
         # "before" and "after" are handled in a separate rule
+	if ( $cmd eq 'ws' ){
+	    return '(whiteSpace >> return "")';
+	}
         if ( $cmd eq 'cut' ) {
             warn "<$cmd> not implemented";
             return;
@@ -330,7 +335,8 @@ sub metasyntax {
         my ( $subrule, $param_list ) = split( /[\(\)]/, $cmd );
         $param_list = '' unless defined $param_list;
         my @param = split( ',', $param_list );
-	return "$subrule <- " . rule_rename($subrule);   # XXX parameters
+	return ($named_capturing ? "$subrule <- " : '') .
+	    rule_rename($subrule);   # XXX parameters
     }
     die "<$cmd> not implemented";
 }

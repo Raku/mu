@@ -1,6 +1,6 @@
 
 use lib '../Pugs-Grammar-MiniPerl6/lib';
-use Test::More tests => 6;
+use Test::More tests => 7;
 
 use_ok( 'Pugs::Grammar::Rule' );
 use_ok( 'Pugs::Emitter::Rule::Parsec' );
@@ -38,24 +38,22 @@ q#do
 
 is_rule_match(
 q#
-	\\^ | \\* | \\? | \\. | \\! | \\+ | ; | <''>
+	[ \\^ | \\* | \\? | \\. | \\! | \\+ | ; ]?
 #,
-q#do
-  string "^"
-  <|>
-  string "*"
-  <|>
-  string "?"
-  <|>
-  string "."
-  <|>
-  string "!"
-  <|>
-  string "+"
-  <|>
-  string ";"
-  <|>
-  string ""
+q#option "" $ do
+    string "^"
+    <|>
+    string "*"
+    <|>
+    string "?"
+    <|>
+    string "."
+    <|>
+    string "!"
+    <|>
+    string "+"
+    <|>
+    string ";"
 #,
 'ruleTwigil');
 
@@ -81,7 +79,7 @@ is_rule_match(
 q#
 	$<sigil> := [ \$ | \@ | \% ]
 	\<
-	$<name>  := [ [ \\ . | <-[\>]> ]* ]
+	$<name>  := [ [ \\\\ . | <-[\>]> ]* ]
 	\>
 	{ return $<sigil> ~ "<" ~ $<name> ~ ">" }
 #,
@@ -95,7 +93,7 @@ q#do
   string "<"
   name <- ((many $ do
         do
-          string " "
+          string "\\\\"
           (anyChar >>= \c -> return [c])
         <|>
         (noneOf ">" >>= \c -> return [c])) >>= \arr -> return $ foldr (++) "" arr)
@@ -104,3 +102,17 @@ q#do
 #,
 'ruleMatchNamed');
 
+is_rule_match(
+q#
+	[ , | ; ] <?ws>?
+	{ return; }
+#,
+q#do
+  do
+    string ","
+    <|>
+    string ";"
+  option "" $ (whiteSpace >> return "")
+  return ()
+#,
+'ruleCommaOrSemicolon');
