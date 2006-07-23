@@ -300,7 +300,7 @@ sub bind {
     $lv++;
 
     if ($self->p5type eq '&') {
-	return [ 'main::'.$self->name => $$var ];
+	return [ (caller($lv-1))[0].'::'.$self->name => $$var ];
     }
     my $ref = $pad->{$self->container_var} or Carp::confess $self->container_var;
     if ($self->p5type eq '$') {
