@@ -28,6 +28,8 @@ module RRegex.PCRE (
     ) where
 
 
+import Data.Generics.Basics
+
 import Prelude
 
 import Foreign
@@ -38,11 +40,13 @@ import Array
 -- | return version of pcre used or Nothing if pcre is not available.
 getVersion :: Maybe String
 
-data PCRE 
+-- The constructor here is of no use except permitting a derivation of Data
+data PCRE = PCRE
+    deriving (Typeable, Data)
 
 -- | A compiled regular expression
 newtype Regex = Regex (ForeignPtr PCRE)
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Typeable, Data)
 
 fi :: (Num b, Integral a) => a -> b
 fi x = fromIntegral x
