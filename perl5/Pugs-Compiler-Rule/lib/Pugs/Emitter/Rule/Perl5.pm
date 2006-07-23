@@ -228,6 +228,18 @@ sub before {
         emit_rule($program, $_[1]) . 
         "$_[1] )\n";
 }
+sub not_before {
+    warn '<!before ...> not implemented';
+    return;
+}
+sub after {
+    warn '<after ...> not implemented';
+    return;
+}
+sub not_after {
+    warn '<!after ...> not implemented';
+    return;
+}
 sub colon {
     my $str = $_[0];
     return "$_[1] alternation( [ null(), fail() ] ) \n"

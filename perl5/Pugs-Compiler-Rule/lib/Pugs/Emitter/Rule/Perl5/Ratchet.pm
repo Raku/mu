@@ -417,6 +417,10 @@ $_[1]       \$bool;
 $_[1]     };
 $_[1] }";
 }
+sub not_before {
+    warn '<!before ...> not implemented';
+    return;
+}
 sub after {
     local $direction = "-";
     my $program = $_[0]{rule};
@@ -435,6 +439,10 @@ $_[1]       \$bool = 0 unless
 $_[1]       \$bool;
 $_[1]     };
 $_[1] }";
+}
+sub not_after {
+    warn '<!after ...> not implemented';
+    return;
 }
 sub colon {
     my $str = $_[0];

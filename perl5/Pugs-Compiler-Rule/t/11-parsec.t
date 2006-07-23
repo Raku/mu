@@ -1,6 +1,6 @@
 
 use lib '../Pugs-Grammar-MiniPerl6/lib';
-use Test::More tests => 7;
+use Test::More tests => 9;
 
 use_ok( 'Pugs::Grammar::Rule' );
 use_ok( 'Pugs::Emitter::Rule::Parsec' );
@@ -116,3 +116,43 @@ q#do
   return ()
 #,
 'ruleCommaOrSemicolon');
+
+is_rule_match(
+q#
+	[ \\. <!before \\.> | <?longDot> ]
+	[ \\* | \\+ | \\? ]?
+	{ return }
+#,
+q#do
+  do
+    do
+      string "."
+      notFollowedBy $ (string ".") >> return ' '
+    <|>
+    ruleLongDot
+  option "" $ do
+      string "*"
+      <|>
+      string "+"
+      <|>
+      string "?"
+  return ()
+#,
+'ruleDot (not "try"ed)');
+
+is_rule_match(
+q#
+	\\\\ <!before \\(>
+	<?ws>
+	\\.
+	{ return }
+#,
+q#do
+  string "\\\\"
+  notFollowedBy $ (string "(") >> return ' '
+  (whiteSpace >> return "")
+  string "."
+  return ()
+#,
+'ruleLongDot (not "try"ed)');
+

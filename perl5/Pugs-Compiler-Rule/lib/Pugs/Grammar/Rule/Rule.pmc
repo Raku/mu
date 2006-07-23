@@ -2,7 +2,7 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0x10F950F9 or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0xE4B6CB09 or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
 use base 'Pugs::Grammar::Base';
@@ -362,6 +362,39 @@ sub {
     )
 };
     unshift @Pugs::Grammar::Rule::rule_terms, 'before';
+*{'Pugs::Grammar::Rule::not_before'} = 
+sub {
+    my $grammar = shift;
+    $_[0] = '' unless defined $_[0];
+    package Pugs::Runtime::Rule;
+    rule_wrapper( $_[0], (
+        concat(
+          constant( "\<" )
+        ,
+          constant( "\!" )
+        ,
+          constant( "before" )
+        ,
+          sub{ $grammar->ws(@_) }
+        ,
+          capture( 'rule', sub{ $grammar->rule(@_) } )
+        ,
+          constant( "\>" )
+        ,
+          Pugs::Runtime::Rule::abort(
+              sub {
+                  return { bool => 1, tail => $_[0], return => sub { return { not_before => {
+                rule  => $_[0]{rule}(),
+            }, } 
+        } };
+              }
+          )
+        ,
+        ),
+        )->( @_ )
+    )
+};
+    unshift @Pugs::Grammar::Rule::rule_terms, 'not_before';
 *{'Pugs::Grammar::Rule::after'} = 
 sub {
     my $grammar = shift;
@@ -393,6 +426,39 @@ sub {
     )
 };
     unshift @Pugs::Grammar::Rule::rule_terms, 'after';
+*{'Pugs::Grammar::Rule::not_after'} = 
+sub {
+    my $grammar = shift;
+    $_[0] = '' unless defined $_[0];
+    package Pugs::Runtime::Rule;
+    rule_wrapper( $_[0], (
+        concat(
+          constant( "\<" )
+        ,
+          constant( "\!" )
+        ,
+          constant( "after" )
+        ,
+          sub{ $grammar->ws(@_) }
+        ,
+          capture( 'rule', sub{ $grammar->rule(@_) } )
+        ,
+          constant( "\>" )
+        ,
+          Pugs::Runtime::Rule::abort(
+              sub {
+                  return { bool => 1, tail => $_[0], return => sub { return { not_after => {
+                rule  => $_[0]{rule}(),
+            }, } 
+        } };
+              }
+          )
+        ,
+        ),
+        )->( @_ )
+    )
+};
+    unshift @Pugs::Grammar::Rule::rule_terms, 'not_after';
 *{'Pugs::Grammar::Rule::capturing_group'} = 
 sub {
     my $grammar = shift;

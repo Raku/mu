@@ -104,6 +104,16 @@ rule num_variable :P5 {^(?:\$[[:digit:]]+)}
     }
     unshift @rule_terms, 'before';
         
+    rule not_before {
+        \< \! before <?ws> <rule> \> 
+        
+        { return { not_before => {
+                rule  => $_[0]{rule}(),
+            }, } 
+        }
+    }
+    unshift @rule_terms, 'not_before';
+        
     rule after {
         \< after <?ws> <rule> \> 
         
@@ -113,6 +123,16 @@ rule num_variable :P5 {^(?:\$[[:digit:]]+)}
         }
     }
     unshift @rule_terms, 'after';
+        
+    rule not_after {
+        \< \! after <?ws> <rule> \> 
+        
+        { return { not_after => {
+                rule  => $_[0]{rule}(),
+            }, } 
+        }
+    }
+    unshift @rule_terms, 'not_after';
         
     rule capturing_group {
         \( <rule> \)

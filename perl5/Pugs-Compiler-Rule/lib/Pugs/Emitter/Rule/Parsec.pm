@@ -174,7 +174,17 @@ sub before {
     return 'lookAhead (' . emit_rule($program, $_[1] . '    ') . ')';
 }
 
+sub not_before {
+    my $program = $_[0]{rule};
+    return 'notFollowedBy $ (' .
+	emit_rule($program, $_[1] . '    ') .
+	") >> return ' '";
+    # notFollowedBy :: Show tok => GenParser tok st tok -> GenParser tok st ()
+    #   tok = Char in the context so that we have to cast it
+}
+
 sub after {}
+sub not_after {}
 sub colon {}
 
 sub constant {
@@ -205,7 +215,10 @@ sub metasyntax {
     # <cmd>
     my $cmd = $_[0];   
     my $prefix = substr( $cmd, 0, 1 );
+
     my $named_capturing = 1;
+    my $negative_lookahead = 0;
+
     if ( $prefix eq '@' ) {
         # XXX - wrap @array items - see end of Pugs::Grammar::Rule
         # TODO - param list
@@ -289,17 +302,15 @@ sub metasyntax {
 	$named_capturing = 0;
     }
     if ( $prefix eq '!' ) {   # negated_subrule / code assertion 
-=cut
         $cmd = substr( $cmd, 1 );
         if ( $cmd =~ /^{/ ) {
             warn "code assertion not implemented";
             return;
         }
-        return 
-            "$_[1] ... negate( '$_[0]', \n" .
-            call_subrule( $_[0], $_[1]."  " ) .
-            "$_[1] )\n";
-=cut
+	$prefix = substr( $cmd, 0, 1 );
+	$negative_lookahead = 1;
+	warn "<$cmd> not implemented";
+	return;
     }
     if ( $cmd eq '.' ) {
             warn "<$cmd> not implemented";
