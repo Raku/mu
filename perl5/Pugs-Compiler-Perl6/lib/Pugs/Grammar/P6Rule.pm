@@ -39,7 +39,7 @@ Pugs::Compiler::Regex->install(
     ));
 Pugs::Compiler::Regex->install( 
     metasyntax => q(
-        \\< ([ <alnum> | <ws> ]+) \\>
+        \\< ([ <metasyntax> | . ]+?) \\>
         { return { metasyntax => $/[0]() ,} }
     ));
 Pugs::Compiler::Regex->install( 
@@ -106,7 +106,7 @@ Pugs::Compiler::Regex->install(
 
 *quantifier = Pugs::Compiler::Regex->compile(q(
     $<ws1>   := (<?ws>?)
-    <term>
+    <term> :
     $<ws2>   := (<?ws>?)
     $<quant> := (
         |  \\?\\?  
