@@ -760,11 +760,10 @@ data Magic
     | MArrayBlocks      -- ^ @?BLOCK     Which blocks am I in?
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
 
-{- <DrIFT>
+instance Typeable Unique where typeOf _ = typeOf ()
+instance Typeable ProcessHandle where typeOf _ = typeOf ()
 
-instance Typeable1 Tree
-instance Typeable ProcessHandle
-instance Typeable Unique
+{- <DrIFT>
 
 instance YAML (VThread Val)
 instance YAML ClassTree

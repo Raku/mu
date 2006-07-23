@@ -999,9 +999,6 @@ instance Unwrap [Exp] where
     unwrap = map unwrap
 
 instance Unwrap Exp where
-    ---gaal unwrap (Cxt _ exp)      = unwrap exp
-    ---gaal unwrap (Pos _ exp)      = unwrap exp
-    ---gaal unwrap (Prag _ exp)     = unwrap exp
     unwrap (Ann _ exp)      = unwrap exp
     unwrap (Pad _ _ exp)    = unwrap exp
     unwrap (Sym _ _ exp)    = unwrap exp
@@ -1984,10 +1981,6 @@ instance Perl5 Val where
 
 instance Typeable Unique where typeOf _ = typeOf ()
 instance Typeable ProcessHandle where typeOf _ = typeOf ()
-instance Typeable Regex where typeOf _ = typeOf ()
-#if __GLASGOW_HASKELL__ <= 604
-instance Typeable1 Tree where typeOf1 _ = typeOf ()
-#endif
 
 
 {- !!! For DrIFT -- Don't delete !!!
