@@ -210,6 +210,9 @@ _alias_a_to_b(SVREF a, SVREF b, int read_only)
 		mg_get(a);
                 break;
 	    }
+            case SVt_PVLV: {
+                break;
+	    }
             default:
                 croak("don't know what to do yet for %d", type);
         }
