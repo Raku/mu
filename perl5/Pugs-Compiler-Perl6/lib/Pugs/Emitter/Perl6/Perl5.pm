@@ -113,7 +113,7 @@ sub _emit {
 
     if (exists $n->{statements}) {
 	my $statements = join ( ";\n", 
-            map { defined $_ ? _emit( $_ ) : "" } @{$n->{statements}} 
+            map { defined $_ ? _emit( $_ ) : "" } @{$n->{statements}}, undef 
         );
 	return length $statements ? $statements : " # empty block\n";
     }
