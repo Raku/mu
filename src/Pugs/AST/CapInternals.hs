@@ -769,9 +769,7 @@ instance YAML (VThread Val)
 instance YAML ClassTree
 instance YAML Dynamic
 instance YAML Pragma
-instance YAML ProcessHandle
 instance YAML Regex
-instance YAML Unique
 instance YAML VComplex
 instance YAML PerlSV
 instance YAML Float
