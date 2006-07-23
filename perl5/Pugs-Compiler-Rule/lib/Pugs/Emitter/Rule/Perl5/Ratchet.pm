@@ -13,6 +13,9 @@ $Data::Dump::Streamer::Indent = 1;
 our $direction = "+";  # XXX make lexical
 our $sigspace = 0;
 
+our $count = 1000 + int(rand(1000));
+sub id { 'I' . ($count++) }
+
 # XXX - reuse this sub in metasyntax()
 sub call_subrule {
     my ( $subrule, $tab, @param ) = @_;
@@ -166,6 +169,25 @@ sub dot {
         "$_[1] do { \$pos >= 0 ? do{ --\$pos; 1 } : 0 }"
     }
 }
+
+sub preprocess_hash {
+    my ( $h, $key ) = ( $_[0]->{hash}, $_[0]->{key} );
+    # returns AST depending on $h
+    if ( ref( $h->{$key} ) eq 'CODE') {
+        return " do { \$hash->{'$key'}->(); 1; } ";
+    } 
+    if ( ref( $h->{$key} ) =~ /Pugs::Compiler::/ ) {
+        return " return \$hash->{'$key'}->match( \$s, \$grammar, { p => \$pos } ) ";
+    }
+    # fail is number != 1 
+    if ( $h->{$key} =~ /^(\d+)$/ ) {
+        return " 0 " unless $1 == 1;
+        return " 1 " ;
+    }
+    # subrule
+    return " do { warn \"uncompiled subrule: $h->{$key} - not implemented \" } ";
+}
+
 sub variable {
     my $name = "$_[0]";
     my $value = undef;
@@ -194,9 +216,40 @@ sub variable {
     
     $value = join('', eval $name) if $name =~ /^\@/;
     if ( $name =~ /^%/ ) {
-        # XXX - runtime or compile-time interpolation?
-        return "$_[1] ... hash( \\$name )\n" if $name =~ /::/;
-        return "$_[1] ... hash( get_variable( '$name' ) )\n";
+        my $id = '$' . id();
+        my $code = "
+          do {
+            our $id;
+            unless ( $id ) {
+                my \$hash = " . 
+                ( $name =~ /::/ 
+                    ? "\\$name" 
+                    : "Pugs::Runtime::Rule::get_variable( '$name' )"
+                ) . 
+                ";
+                my \$ast = {
+                    alt => [
+                        map  {{ 
+                            concat => [
+                                { constant => \$_ },
+                                { preprocess_hash => { hash => \$hash, key => \$_ }, },
+                            ] }}
+                        sort { length \$b <=> length \$a } keys \%\$hash
+                    ]
+                };
+                #print 'ast: ', Data::Dump::Streamer::Dump( \$ast );
+                my \$code = Pugs::Emitter::Rule::Perl5::Ratchet::emit( \$grammar, \$ast );
+                #print 'code: ', \$code;
+                $id = eval \$code;
+            }
+            my \$match = $id->( \$grammar, \$s, { p => \$pos, args => {} }, \$_[3] );
+            my \$bool = (!\$match != 1);
+            \$pos = \$match->to if \$bool;
+            #print !\$match[-1], ' ', Dump \$match[-1];
+            \$bool;
+          }";
+        #print $code;
+        return $code;
     }
     die "interpolation of $name not implemented"
         unless defined $value;
@@ -251,7 +304,7 @@ sub capturing_group {
 
     $program = emit_rule( $program, $_[1].'      ' )
         if ref( $program );
-    my $rnd = rand;
+    my $rnd = id();
     return "$_[1] do{ 
 $_[1]     my \$hash = do {
 $_[1]       my \$bool = 1;

@@ -23,6 +23,7 @@ my $cache;
 eval {
     require Cache::FileCache;
     $cache = new Cache::FileCache( { 'namespace' => 'v6-rules' } );
+    #$cache->Clear;
 };
 
 sub new { $_[0] }
@@ -117,7 +118,7 @@ sub match {
             : $rule->{p};
 
     if ( defined $p ) {
-        #print "flag p";
+        #print "flag p\n";
         #print "match: grammar $rule->{grammar}, $str, %$flags\n";
         #print $rule->{code};
 
@@ -144,6 +145,7 @@ sub match {
         return $match;  
     }
 
+    #print "no p\n";
     foreach my $i (0..length($str)) {
         my $match = $rule->{code}( 
             $grammar,

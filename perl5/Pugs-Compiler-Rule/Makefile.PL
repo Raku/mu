@@ -43,3 +43,9 @@ $pmc: $pm
 .
 }
 
+# clean the precompiled rules cache
+eval {
+    require Cache::FileCache;
+    my $cache = new Cache::FileCache( { 'namespace' => 'v6-rules' } );
+    $cache->Clear;
+};
