@@ -100,8 +100,9 @@ Pugs::Compiler::Regex->install(
     
 *term = Pugs::Compiler::Regex->compile(q(
     |  $<term>  := <@Pugs::Grammar::P6Rule::rule_terms>
-          { return $/{term}() }
-    |  .  { return { 'constant' => $() ,} }
+        { return $/{term}() }
+    |  [ <-[ \\] \\} \\\) \\: \\? \\+ \\* \\| \\& ]> ]
+        { return { 'constant' => $() ,} }
     ))->code;
 
 *quantifier = Pugs::Compiler::Regex->compile(q(
@@ -138,7 +139,7 @@ Pugs::Compiler::Regex->install(
     ]
 ))->code;
 *rule = Pugs::Compiler::Regex->compile(q(
-    [ <?ws> \\| ]?
+    [ <?ws>? \\| ]?
     $<q1> := <concat> 
     [   \\| : $<q2> := <rule> 
         { return { alt => [ 
