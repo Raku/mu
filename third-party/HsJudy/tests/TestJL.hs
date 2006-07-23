@@ -1,3 +1,4 @@
+import Test
 
 import Data.Typeable
 import Foreign.ForeignPtr
@@ -9,17 +10,14 @@ import System.IO.Unsafe
 import Judy.Private
 
 
-main = do
-    putStrLn "# JudyL tests:"
-    sequence [testSimple, testUpdate, testDelete, testCount, testList]
+main = no_plan $ do
+    testSimple
+    testUpdate
+    testDelete
+    testCount
+    testList
 
-check l = do
-    if and l
-        then putStrLn "ok"
-        else putStrLn "bad"
-
-
--- primitives
+{- Primitives for working with JudyL -}
 new :: IO (ForeignPtr JudyL)
 new = do
     fp <- mallocForeignPtr
@@ -70,61 +68,63 @@ toListIO j = do
                 d <- peek r
                 f wp [(v, d)]
 
--- tests
+{- Tests -}
 
 testSimple = do
-    putStr "simple: \t"
+    say "Simple"
     j <- new
     ins j 1 1
-    a <- get j 1
+    get j 1 .=> Just 1
+
     ins j 1 42
-    b <- get j 2
-    c <- get j 1
-    check [a == Just 1, b == Nothing, c == Just 42]
+    get j 2 .=> Nothing
+    get j 1 .=> Just 42
 
 testUpdate = do
-    putStr "update: \t"
+    say "Update"
     j <- new
     ins j 1 1
-    a <- get j 1
+    get j 1 .=> Just 1
+
     ins j 1 42
-    b <- get j 1
+    get j 1 .=> Just 42
+    
     ins j 1 1
-    c <- get j 1
-    check [a == Just 1, b == Just 42, c == Just 1]
+    get j 1 .=> Just 1
 
 testDelete = do
-    putStr "delete: \t"
+    say "Delete"
     j <- new
-    a <- del j 1
+    del j 1 .=> False
+
     ins j 1 42
-    b <- del j 1
-    c <- del j 1
-    check [not a, b, not c]
+    del j 1 .=> True
+    del j 1 .=> False
 
 testCount = do
-    putStr "count:  \t"
+    say "Count"
     j <- new
-    a <- count j 1 10
+    count j 1 10 .=> 0
+    
     ins j 1 42
-    b <- count j 1 10
+    count j 1 10 .=> 1
+
     ins j 2 42
     ins j 3 42
-    c <- count j 1 10
-    d <- del j 2
-    e <- count j 1 10
-    f <- count j 3 10
-    check [a == 0, b == 1, c == 3, d, e == 2, f == 1]
+    count j 1 10 .=> 3
+    del j 2      .=> True
+    count j 1 10 .=> 2
+    count j 3 10 .=> 1
 
 testList = do
-    putStr "list:   \t"
+    say "List"
     j <- new
-    a <- toListIO j
+    toListIO j .-= []
+    
     ins j 1 42
     ins j 2 42
     ins j 3 42
-    b <- toListIO j
-    c <- del j 2
-    d <- toListIO j
-    check [a == [], b == [(1,42),(2,42),(3,42)],
-           c, d == [(1,42),(3,42)]]
+    toListIO j .-= [(1,42), (2,42), (3,42)]
+
+    del j 2 .=> True
+    toListIO j .-= [(1,42),(3,42)]

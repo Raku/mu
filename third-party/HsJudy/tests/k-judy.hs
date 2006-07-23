@@ -21,7 +21,7 @@ import Data.Maybe (fromJust)
 counts _ _ [] = return ()
 counts h k dna = do
     let x = take k dna
-    J.alter2 plus' x h
+    C.alter plus' x h
     counts h k (tail dna)
 
 counts' _ _ _ [] = return ()
@@ -29,7 +29,7 @@ counts' a h k dna = do
     if (head dna) == a
         then do
             let x = take k dna
-            J.alter2 plus' x h
+            C.alter plus' x h
             counts h k (tail dna)
         else counts h k (tail dna)
 

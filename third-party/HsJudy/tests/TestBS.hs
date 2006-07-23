@@ -1,156 +1,160 @@
+import Test
+
 import qualified Judy.BitSet as BS
 import Judy.HashIO
 import Judy.Freeze
 
-main = do
-    putStrLn "# BitSet tests:"
-    -- FIXME: A better way to do this must exist...
-    sequence [testIntSimple, testIntGet, testIntSwapBitSets, testIntSetList,
-              testIntNullMember, testIntSize, testIntInsertDelete, testIntFreeze,
-              testIntFromListF, testIntToListF]
-    sequence [testUselessSimple, testUselessGet, testUselessSwapBitSets, testUselessSetList]
+main = no_plan $ do
+    testIntSimple
+    testIntGet
+    testIntSwapBitSets
+    testIntSetList
+    testIntNullMember
+    testIntSize
+    testIntInsertDelete
+    testIntFreeze
+    testIntFromListF
+    testIntToListF
 
-check l = do
-    if and l
-        then putStrLn "ok"
-        else putStrLn "BAD"
-
+    testUselessSimple
+    testUselessGet
+    testUselessSwapBitSets
+    testUselessSetList
 
 -- Tests for Int type. Uses default implementation for Enum types.
 newIntSet :: IO (BS.BitSet Int)
 newIntSet = BS.new
 
 testIntSimple = do
-    putStr "int simple: \t"
+    say "IntSimple"
     s <- newIntSet
     BS.set s 3 True
     BS.set s 10 True
     BS.set s 30 True
-    xs <- BS.toList s
+    BS.toList s .-= [3, 10, 30]
+
     BS.clear s
-    ys <- BS.toList s
-    check [xs == [3,10,30], ys == []]
+    BS.toList s .-= []
 
 testIntGet = do
-    putStr "int get: \t"
+    say "IntGet"
     s <- newIntSet
-    a <- BS.get s 2
+    BS.get s 2 .=> False
+    
     BS.set s 1 True
-    b <- BS.get s 1
+    BS.get s 1 .=> True
+    
     BS.set s 2 True
-    c <- BS.get s 2
+    BS.get s 2 .=> True
+    
     BS.set s 1 False
-    d <- BS.get s 1
+    BS.get s 1 .=> False
+    
     BS.clear s
-    e <- BS.get s 1
-    check [not a, b, c, not d, not e]
+    BS.get s 1 .=> False
 
 testIntSwapBitSets = do
-    putStr "int swapBS: \t"
+    say "IntSwapBitSets"
     s1 <- newIntSet
     s2 <- newIntSet
     BS.set s1 1 True
     BS.set s2 2 True
     BS.swapBitSets s1 s2
-    xs <- BS.toList s1
-    ys <- BS.toList s2
-    check [xs == [2], ys == [1]]
+    BS.toList s1 .-= [2]
+    BS.toList s2 .-= [1]
 
 testIntSetList = do
-    putStr "int fromList: \t"
+    say "IntSetList"
     s <- newIntSet
     BS.fromList [1..10] s
-    a <- BS.get s 10
+    BS.get s 10 .=> True
+
     BS.set s 10 False
-    b <- BS.get s 10
-    c <- BS.get s 1
-    check [a, not b, c]
+    BS.get s 10 .=> False
+    BS.get s 1  .=> True
 
 testIntNullMember = do
-    putStr "int nullmember:\t"
+    say "IntNullMember"
     s <- newIntSet
-    a <- BS.null s
-    b <- BS.member 3 s
+    BS.null s     .=> True
+    BS.member 3 s .=> False
+
     BS.fromList [1..10] s
-    c <- BS.member 3 s
-    d <- BS.null s
-    check [a, not b, c, not d]
+    BS.member 3 s .=> True
+    BS.null s     .=> False
 
 testIntSize = do
-    putStr "int size:  \t"
+    say "IntSize"
     s <- newIntSet
-    a <- BS.size s
+    BS.size s .=> 0
     BS.fromList [1..10] s
-    b <- BS.size s
+    BS.size s .=> 10
     BS.clear s
-    c <- BS.size s
+    BS.size s .=> 0
     BS.set s 3 True
     BS.set s 2 True
-    d <- BS.size s
-    check [a == 0, b == 10, c == 0, d == 2]
+    BS.size s .=> 2
 
 testIntInsertDelete = do
-    putStr "int ins/del: \t"
+    say "IntInsertDelete"
     s <- newIntSet
     BS.insert 1 s
-    a <- BS.toList s
+    BS.toList s .-= [1]
+
     BS.delete 1 s
-    b <- BS.toList s
+    BS.toList s .-= []
+
     BS.insert 1 s 
     BS.insert 2 s
     BS.insert 42 s
-    c <- BS.toList s
+    BS.toList s .-= [1, 2, 42]
+
     BS.insert 1 s
-    d <- BS.toList s
+    BS.toList s .-= [1, 2, 42]
+    
     BS.delete 1 s
     BS.delete 2 s
-    e <- BS.toList s
+    BS.toList s .-= [42]
+    
     BS.delete 1 s
-    f <- BS.toList s
-    check [a == [1], b == [], c == [1,2,42],
-           d == c, e == [42], f == [42]]
+    BS.toList s .-= [42]
 
 testIntFreeze = do
-    putStr "int freeze: \t"
+    say "IntFreeze"
     s <- newIntSet
     BS.insert 1 s
     BS.insert 2 s
     ice <- freeze s
-    let a = BS.memberF 1 ice
-        b = BS.memberF 2 ice
-        c = BS.memberF 42 ice
-    check [a, b, not c]
+    BS.memberF 1 ice  ==> True
+    BS.memberF 2 ice  ==> True
+    BS.memberF 42 ice ==> False
 
 testIntFromListF = do
-    putStr "int fromF: \t"
+    say "IntFromListF"
     let ice = BS.fromListF [42, 59] :: Frozen (BS.BitSet Int)
-        a = BS.memberF 42 ice
-        b = BS.memberF 1 ice
-        c = BS.memberF 59 ice
-        d = BS.memberF 2 ice
-    check [a, not b, c, not d]
+    BS.memberF 42 ice ==> True
+    BS.memberF 1 ice  ==> False
+    BS.memberF 59 ice ==> True
+    BS.memberF 2 ice  ==> False
 
 testIntToListF = do
-    putStr "int toF: \t"
+    say "IntToListF"
     s <- newIntSet
     BS.insert 1 s
     BS.insert 59 s
     ice <- freeze s
-    let xs = BS.toListF ice
-        a = BS.memberF 1 ice
-        b = BS.memberF 2 ice
-    check [xs == [1,59], a, not b]
-    
+    BS.toListF ice   =-= [1, 59]
+    BS.memberF 1 ice ==> True
+    BS.memberF 2 ice ==> False
 
 
--- Tests for Useless type.
+{- Tests for Useless type. -}
 newUselessSet :: IO (BS.BitSet Useless)
 newUselessSet = BS.new
 
-data Useless = A | B | C | D deriving (Show, Eq, Enum)
+data Useless = A | B | C | D deriving (Show, Ord, Eq, Enum)
 
 -- Enum types can provide own implementation if needed
-
 instance HashIO Useless where
     hashIO A = return 10
     hashIO B = return 20
@@ -163,53 +167,55 @@ instance ReversibleHashIO Useless where
     unHashIO 30 = return C 
     unHashIO 40 = return D
 
-
 testUselessSimple = do
-    putStr "ul simple: \t"
+    say "UselessSimple"
     s <- newUselessSet
     BS.set s A True
     BS.set s B True
-    xs <- BS.toList s
+    BS.toList s .-= [A, B]
+
     BS.clear s
-    ys <- BS.toList s
+    BS.toList s .-= []
+
     BS.set s D True
     BS.set s C True
     BS.set s D False
-    zs <- BS.toList s
-    check [xs == [A,B], ys == [], zs == [C]]
+    BS.toList s .-= [C]
 
 testUselessGet = do
-    putStr "ul get: \t"
+    say "UselessGet"
     s <- newUselessSet
-    a <- BS.get s C
+    BS.get s C .=> False
+
     BS.set s D True
-    b <- BS.get s D
+    BS.get s D .=> True
+
     BS.set s A True
-    c <- BS.get s A
+    BS.get s A .=> True
+
     BS.set s A False
-    d <- BS.get s A
+    BS.get s A .=> False
+
     BS.clear s
-    e <- BS.get s D
-    check [not a, b, c, not d, not e]
+    BS.get s D .=> False
 
 testUselessSwapBitSets = do
-    putStr "ul swapBS: \t"
+    say "UselessSwapBitSets"
     s1 <- newUselessSet
     s2 <- newUselessSet
     BS.set s1 A True
     BS.set s2 B True
     BS.set s2 C True
     BS.swapBitSets s1 s2
-    xs <- BS.toList s1
-    ys <- BS.toList s2
-    check [xs == [B,C], ys == [A]]
+    BS.toList s1 .-= [B, C]
+    BS.toList s2 .-= [A]
 
 testUselessSetList = do
-    putStr "ul fromList: \t"
+    say "UselessSetList"
     s <- newUselessSet
     BS.fromList [A,B,C,D] s
-    a <- BS.get s D
+    BS.get s D .=> True
+
     BS.set s D False
-    b <- BS.get s D
-    c <- BS.get s A
-    check [a, not b, c]
+    BS.get s D .=> False
+    BS.get s A .=> True

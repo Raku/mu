@@ -1,14 +1,14 @@
 {-# OPTIONS -fallow-undecidable-instances -fallow-incoherent-instances #-}
 
+import Test
+
 import Prelude hiding (lookup)
 
 import Data.List (sort)
 import Judy.CollectionsM --as CM
 import Judy.Map2 as J
 
-
-main = do
-    putStrLn "# Map2 tests:"
+main = no_plan $ do
     testSimple
     testDelete
     testOverwrite
@@ -20,134 +20,122 @@ main = do
     testSwapMaps
     testAlter
 
-check l = do
-    if and l
-        then putStrLn "ok"
-        else putStrLn "BAD"
-
 testSimple = do
-    putStr "simple: \t"
+    say "Simple"
     s <- new :: IO (Map2 Int Int)
-    a <- lookup 1 s
+    lookup 1 s    .=> Nothing
     insert 1 42 s
-    b <- lookup 1 s
-    check [a == Nothing, b == Just 42]
+    lookup 1 s    .=> Just 42
 
 testDelete = do
-    putStr "delete: \t"
+    say "Delete"
     s <- new :: IO (Map2 Int Int)
-    a <- lookup 3 s
+    lookup 3 s    .=> Nothing
     insert 3 42 s
-    b <- lookup 3 s
+    lookup 3 s    .=> Just 42
+
     insert 37 59 s
     delete 3 s
-    c <- lookup 3 s
-    d <- lookup 37 s
-    check [a == Nothing, b == Just 42, c == Nothing, d == Just 59]
+    lookup 3 s  .=> Nothing
+    lookup 37 s .=> Just 59
 
 testOverwrite = do
-    putStr "overwrite: \t"
+    say "Overwrite"
     s <- new :: IO (Map2 Int Int)
     insert 3 1234 s
     insert 2222 1234 s
     insert 3 42 s
     insert 123 42 s
-    a <- lookup 3 s
-    check [a == Just 42]
+    lookup 3 s .=> Just 42
 
 testMember = do
-    putStr "member: \t"
+    say "Member"
     s <- new :: IO (Map2 Int Int)
-    a <- member 3 s
+    member 3 s     .=> False
     insert 3 42 s
-    b <- member 37 s
-    c <- member 3 s
-    delete 12345 s -- doesn't exist
-    d <- member 3 s
-    check [not a, not b, c, d]
+    member 37 s    .=> False
+    member 3 s     .=> True
+    delete 12345 s --- doesn't exist
+    member 3 s     .=> True
 
 testElems = do
-    putStr "elems:  \t"
+    say "Elems"
     s <- new :: IO (Map2 Int Int)
-    a <- elems s
+    elems s .-= []
     insert 3 42 s
     insert 37 1 s
     insert 0 2 s
-    b <- elems s
-    check [a == [], (sort b) == [1,2,42]]
+    elems s .-= [1,2,42]
 
 testKeys = do
-    putStr "keys:   \t"
+    say "Keys"
     s <- new :: IO (Map2 Int Int)
-    a <- keys s
+    keys s .-= []
     insert 3 42 s
     insert 37 1 s
     insert 0 2 s
-    b <- keys s
+    keys s .-= [0,3,37]
     delete 37 s
     delete 15 s
-    c <- keys s
-    check [a == [], (sort b) == [0, 3, 37], (sort c) == [0, 3]]
+    keys s .-= [0,3]
 
 testStringValue = do
-    putStr "string-value: \t"
+    say "StringValue"
     s <- new :: IO (Map2 Int String)
-    a <- toList s
+    toList s .-= []
+
     insert 22 "string" s
     insert 59 "i am not a number" s
-    b <- toList s
-    c <- member 22 s
+    toList s    .-= [(22, "string"), (59,"i am not a number")] 
+    member 22 s .=> True
+
     delete 22 s
-    d <- member 22 s
-    e <- lookup 59 s
-    check [a == [], (sort b) == [(22, "string"), (59,"i am not a number")],
-           c, not d, e == Just "i am not a number"]
+    member 22 s .=> False
+    lookup 59 s .=> Just "i am not a number"
 
 testStringValueDel = do
-    putStr "str-val del: \t"
+    say "StringValueDel"
     s <- new :: IO (Map2 Int String)
-    a <- toList s
+    toList s .-= []
+
     insert 22 "string" s
     insert 23 "string" s
     insert 59 "i am not a number" s
-    b <- toList s
-    c <- member 22 s
-    delete 22 s
-    d <- member 22 s
-    e <- lookup 59 s
-    f <- lookup 23 s
-    check [a == [], (sort b) == [(22, "string"), (23, "string"), (59,"i am not a number")],
-           c, not d, e == Just "i am not a number", f == Just "string"]
+    toList s    .-= [(22, "string"), (23, "string"), (59,"i am not a number")] 
+    member 22 s .=> True
 
+    delete 22 s
+    member 22 s .=> False
+    lookup 59 s .=> Just "i am not a number"
+    lookup 23 s .=> Just "string"
 
 testSwapMaps = do
-    putStr "swap maps: \t"
+    say "SwapMaps"
     m1 <- fromList [(1,2),(2,3),(4,7)] :: IO (J.Map2 Int Int)
     m2 <- fromList [(1,42),(2,42),(3,42)] :: IO (J.Map2 Int Int)
-    a <- lookup 2 m1
-    b <- lookup 2 m2
+    lookup 2 m1 .=> Just 3
+    lookup 2 m2 .=> Just 42
+    lookup 3 m2 .=> Just 42
+
     J.swapMaps m1 m2
-    c <- lookup 2 m1
-    d <- lookup 2 m2
-    e <- lookup 3 m2
-    check [a == Just 3, b == Just 42, c == Just 42, d == Just 3, e == Nothing]
+    lookup 2 m1 .=> Just 42
+    lookup 2 m2 .=> Just 3
+    lookup 3 m2 .=> Nothing
 
 testAlter = do
-    putStr "alter:   \t"
+    say "Alter"
     m <- fromList [(1,2), (2,3), (4,5)] :: IO (J.Map2 Int Int)
-    a <- lookup 1 m
+    lookup 1 m .=> Just 2
+
     alter (const (Just 42)) 3 m
-    b <- lookup 1 m
-    c <- lookup 3 m
+    lookup 1 m .=> Just 2
+    lookup 3 m .=> Just 42
+
     alter (const (Just 42)) 2 m
-    d <- lookup 2 m
+    lookup 2 m .=> Just 42
+
     alter (const Nothing) 1 m
-    e <- lookup 1 m
-    check [a == Just 2, b == Just 2, c == Just 42, d == Just 42, e == Nothing]
-
-
-
-
+    lookup 1 m .=> Nothing
 
 -- TODO: test some crazy haskell type as value (to check stableptrs)
 

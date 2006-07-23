@@ -12,7 +12,7 @@ import Foreign.StablePtr
 import Judy.Private
 
 {-# NOINLINE judyGC #-}
-judyGC = unsafePerformIO newMap
+judyGC = unsafePerformIO newGCMap
 
 newRef a = do
     --putStr "(new)"
@@ -36,31 +36,31 @@ freeRef v = do
          f (Just n) = Just (n-1)
 
 
-{- Special implementation of (Map Value Int) over JudyL for use in GC -}
+{- Special implementation of (GCMap Value Int) over JudyL for use in GC -}
 
 -- FIXME: clean up a bit
 
-newtype Map = Map { judy :: ForeignPtr JudyL } deriving (Eq, Ord, Typeable)
+newtype GCMap = GCMap { judy :: ForeignPtr JudyL } deriving (Eq, Ord, Typeable)
 
-instance Show Map where
-    show (Map j) = "<hsjudy gc internal map " ++ show j ++ ">"
+instance Show GCMap where
+    show (GCMap j) = "<hsjudy gc internal map " ++ show j ++ ">"
 
-newMap :: IO Map
-newMap = do
+newGCMap :: IO GCMap
+newGCMap = do
     fp <- mallocForeignPtr
     addForeignPtrFinalizer judyL_free_ptr fp 
     withForeignPtr fp $ flip poke nullPtr
-    return $ Map fp
+    return $ GCMap fp
 
-insert :: Value -> Int -> Map -> IO ()
-insert k v (Map j) = withForeignPtr j $ \j' -> do
+insert :: Value -> Int -> GCMap -> IO ()
+insert k v (GCMap j) = withForeignPtr j $ \j' -> do
     r <- judyLIns j' k judyError
     if r == pjerr
         then error "HsJudy: Not enough memory."
         else poke r (toEnum v)
 
-alter2 :: (Maybe Int -> Maybe Int) -> Value -> Map -> IO ()
-alter2 f k m@(Map j) = do
+alter2 :: (Maybe Int -> Maybe Int) -> Value -> GCMap -> IO ()
+alter2 f k m@(GCMap j) = do
     j' <- withForeignPtr j peek
     r <- judyLGet j' k judyError
     if r == nullPtr
@@ -75,21 +75,21 @@ alter2 f k m@(Map j) = do
                 then delete k m >> return ()
                 else poke r $ toEnum $ fromJust fv
 
-lookup :: Value -> Map -> IO (Maybe Int)
-lookup k (Map j) = do
+lookup :: Value -> GCMap -> IO (Maybe Int)
+lookup k (GCMap j) = do
     j' <- withForeignPtr j peek
     r <- judyLGet j' k judyError
     if r == nullPtr
         then return Nothing
         else do { v' <- peek r; return $ Just $ fromEnum v' }
 
-member :: Value -> Map -> IO Bool
-member k (Map j) = do
+member :: Value -> GCMap -> IO Bool
+member k (GCMap j) = do
     j' <- withForeignPtr j peek
     r <- judyLGet j' k judyError
     return $ r /= nullPtr
 
-delete :: Value -> Map -> IO Bool
-delete k (Map j) = withForeignPtr j $ \j' -> do
+delete :: Value -> GCMap -> IO Bool
+delete k (GCMap j) = withForeignPtr j $ \j' -> do
     r <- judyLDel j' k judyError
     return $ r /= 0

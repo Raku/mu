@@ -27,26 +27,18 @@ HSFLAGS= $(HSF) -O2 -fffi -I/usr/local/include -fglasgow-exts -I. '-\#include Ju
 %.hs: %.hsc
 	hsc2hs -C "-I/usr/local/include" -C "$(CFLAGS)" -o $@ $<
 
-
-all: try $(TESTS)
+all: $(TESTS)
 
 Judy_hsc.c: Judy_hsc.h
 
-%: tests/%.hs Judy/*.hs Judy/Private.hs Judy/Private_hsc.o
-	$(GHC) $(HSFLAGS) --make $< Judy/Private_hsc.o -o tests/$@
-
-try: Try.hs Judy/Private.hs Judy/BitSet.hs Judy/Private_hsc.o
-	$(GHC) $(HSFLAGS) --make $< Judy/Private_hsc.o -o $@
-
-##trybench: TryBench.hs Judy/Private.hs Judy/BitSet.hs Judy/Private_hsc.o
-##	$(GHC) $(HSFLAGS) --make $< Judy/Private_hsc.o -o $@
+%: tests/%.hs Judy/*.hs Judy/Private.hs Judy/Private_hsc.o tests/Test.hs
+	$(GHC) $(HSFLAGS) --make $< tests/Test.hs Judy/Private_hsc.o -o tests/$@ 
 
 .PHONY: test clean
 
 test: $(TESTS)
-	@echo
-	@for i in $(TESTS); do ./tests/$$i ; echo ; done
+	cd tests; echo; env HARNESS_PERL="perl -e \"exec './' . pop; \" " prove $(TESTS)
 
 clean:
 	cd tests; rm -f $(TESTS); cd ..
-	rm -f try $(TESTS) Judy/Private.hs Judy/*_stub.? Judy/*_hsc.c Judy/*_hsc.h Judy/*.hi Judy/*.o *.hi *.o tests/*.hi tests/*.o
+	rm -f $(TESTS) Judy/Private.hs Judy/*_stub.? Judy/*_hsc.c Judy/*_hsc.h Judy/*.hi Judy/*.o *.hi *.o tests/*.hi tests/*.o

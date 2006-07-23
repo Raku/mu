@@ -1,13 +1,20 @@
-# Execution times:
+# The test check for duplicates lines in a file, stops when one is found
+
+# Execution times on an AMD64 3200 | 2.0 GHz | RAM: 1GB | Gentoo Linux
+# $ wc /usr/share/dict/words
+#   234937  234937 2486824 /usr/share/dict/words
+# No duplicates on the file.
+
 # TODO: Research on BS.Lazy for 2 and 8
 # TODO: 2 seems to be wrong. Must check.
-
-1 Data.Map String Int         4.146
-2 Data.Map ByteString Int    11.266
-3 Judy.Map String Int         0.861
-4 Judy.MapSL String Int       0.810
-5 Judy.Map ByteString Int     0.752
-6 Judy.MapSL ByteString Int   0.642
-7 Data.HashTable String Int   2.790
-8 Data.HashTable String Int   3.809 
+# TODO: Check memory usage.
+                                exec time
+1 Data.Map       String Int         4.146
+2 Data.Map       ByteString Int    11.266
+3 Judy.Map       String Int         0.861
+4 Judy.MapSL     String Int         0.810
+5 Judy.Map       ByteString Int     0.752
+6 Judy.MapSL     ByteString Int     0.642
+7 Data.HashTable String Int         2.790
+8 Data.HashTable String Int         3.809 
 

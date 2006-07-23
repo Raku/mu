@@ -1,3 +1,5 @@
+import Test
+
 import Data.Typeable
 import Foreign.ForeignPtr
 import Foreign.Marshal.Alloc
@@ -11,17 +13,14 @@ import Judy.Private
 
 import Data.List (sort)
 
-main = do
-    putStrLn "# JudyHS tests:"
-    sequence [testSimple, testUpdate, testDelete, testList, testMixList]
+main = no_plan $ do
+    testSimple
+    testUpdate
+    testDelete
+    testList
+    testMixList
 
-check l = do
-    if and l
-        then putStrLn "ok"
-        else putStrLn "bad"
-
-
--- primitives
+{- Primitives for working with JudyHS -}
 new :: IO (ForeignPtr JudyHS)
 new = do
     fp <- mallocForeignPtr
@@ -94,55 +93,53 @@ mixList j1 j2 = do
         f (j1',i1') (j2',i2') judyHSIterFirst judyHSIterFirst []
 
 
--- tests
+{- Tests -}
 
 testSimple = do
-    putStr "simple: \t"
+    say "Simple"
     j <- new
     ins j "test" 1
-    a <- get j "test"
+    get j "test" .=> Just 1
+
     ins j "www" 42
-    b <- get j "www"
-    c <- get j "haha"
-    check [a == Just 1, b == Just 42, c == Nothing]
+    get j "www"  .=> Just 42
+    get j "haha" .=> Nothing
 
 testUpdate = do
-    putStr "update: \t"
+    say "Update"
     j <- new
     ins j "test" 1
-    a <- get j "test"
+    get j "test" .=> Just 1
+    
     ins j "test" 42
-    b <- get j "test"
+    get j "test" .=> Just 42
+
     ins j "test" 1
-    c <- get j "test"
-    check [a == Just 1, b == Just 42, c == Just 1]
+    get j "test" .=> Just 1
 
 testDelete = do
-    putStr "delete: \t"
+    say "Delete"
     j <- new
-    a <- del j "haha haha haha"
+    del j "haha haha haha" .=> False
+    
     ins j "test" 42
-    b <- del j "test"
-    c <- del j "test"
-    check [not a, b, not c]
+    del j "test" .=> True
+    del j "test" .=> False
 
 testList = do
-    putStr "list:   \t"
+    say "List"
     j <- new
-    a <- toListIO j
+    toListIO j .-= []
+
     ins j "test" 42
     ins j "hahaha" 42
     ins j "funk" 42
-    b <- toListIO j
-    c <- del j "hahaha"
-    d <- toListIO j
-    check [a == [],
-           sort b == sort [("test",42),("hahaha",42),("funk",42)],
-           c,
-           sort d == sort [("test",42),("funk",42)]]
+    toListIO j     .-= [("test",42), ("hahaha",42), ("funk",42)]
+    del j "hahaha" .=> True
+    toListIO j     .-= [("test",42), ("funk",42)]
 
 testMixList = do
-    putStr "mixlist: \t"
+    say "MixList"
     j1 <- new
     j2 <- new
     mapM_ (\x -> ins j1 ("A" ++ (show x)) 1111) [1..10]

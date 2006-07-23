@@ -1,3 +1,5 @@
+import Test
+
 import Data.Typeable
 import Foreign.ForeignPtr
 import Foreign.Marshal.Alloc
@@ -8,22 +10,15 @@ import System.IO.Unsafe
 
 import Judy.Private
 
+main = no_plan $ do
+    --testOutOfMemory
+    testSimple
+    testUpdate
+    testDelete
+    testNonASCII
+    testList
 
--- TODO: check whether shoudl use CString instead of CAString
--- CAString is being used now because apparently Judy is ignorant of Unicode
-
-main = do
-    putStrLn "# JudySL tests:"
---    testOutOfMemory
-    sequence [testSimple, testUpdate, testDelete, testNonASCII, testList]
-
-check l = do
-    if and l
-        then putStrLn "ok"
-        else putStrLn "bad"
-
-
--- primitives
+{- Primitives for working with JudySL -}
 new :: IO (ForeignPtr JudySL)
 new = do
     fp <- mallocForeignPtr
@@ -76,64 +71,61 @@ toListIO j = do
                         f judySLNext ((v,d):xs)
         f judySLFirst []
 
--- tests
+
+{- Tests -}
 
 testSimple = do
-    putStr "simple: \t"
+    say "Simple"
     j <- new
     ins j "test" 1
-    a <- get j "test"
+    get j "test"   .=> Just 1
     ins j "www" 42
-    b <- get j "www"
-    c <- get j "haha"
-    check [a == Just 1, b == Just 42, c == Nothing]
+    get j "www"    .=> Just 42
+    get j "haha"   .=> Nothing
 
 testUpdate = do
-    putStr "update: \t"
+    say "Update"
     j <- new
     ins j "test" 1
-    a <- get j "test"
+    get j "test"     .=> Just 1
     ins j "test" 42
-    b <- get j "test"
+    get j "test"     .=> Just 42
     ins j "test" 1
-    c <- get j "test"
-    check [a == Just 1, b == Just 42, c == Just 1]
+    get j "test"     .=> Just 1
 
 testDelete = do
-    putStr "delete: \t"
+    say "Delete"
     j <- new
-    a <- del j "haha haha haha"
+    del j "haha haha haha" .=> False
     ins j "test" 42
-    b <- del j "test"
-    c <- del j "test"
-    check [not a, b, not c]
+    del j "test"           .=> True
+    del j "test"           .=> False
 
 testNonASCII = do
-    putStr "non_ascii: \t"
+    say "NonASCII"
     j <- new
     ins j "josé" 42
-    a <- get j "josé"
-    b <- toListIO j
-    c <- del j "josé"
-    d <- get j "josé"
-    check [a == Just 42, b == [("josé", 42)], c, d == Nothing]
+    get j "josé"    .=> Just 42
+    toListIO j      .-= [("josé", 42)]
+    del j "josé"    .=> True
+    get j "josé"    .=> Nothing
 
 testList = do
-    putStr "list:   \t"
+    say "List"
     j <- new
-    a <- toListIO j
+    toListIO j .-= []
+
     ins j "test" 42
     ins j "haha" 42
     ins j "funk" 42
-    b <- toListIO j
-    c <- del j "haha"
-    d <- toListIO j
-    check [a == [], b == [("test",42),("haha",42),("funk",42)],
-           c, d == [("test",42),("funk",42)]]
+    toListIO j .-= [("test",42),("haha",42),("funk",42)]
+
+    del j "haha" .=> True
+    toListIO j .-= [("test",42), ("funk",42)]
 
 
 {-testOutOfMemory = do
-    putStrLn "out_of_mem: \t"
+    say "OutOfMemory"
     j <- new
     sequence_ $ map (\x -> ins j ("haha ahhaahahhahahahahhahahahahahhahahahahahha" ++ show x) x) [1..100000]
     l <- toListIO j
