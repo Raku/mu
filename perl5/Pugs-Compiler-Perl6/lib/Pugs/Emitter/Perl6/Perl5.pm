@@ -799,7 +799,8 @@ sub infix {
         #warn "bind: ", Dumper( $n );
 	# The hassle here is that we can't use \(@x) or \(my @x)
 	my $_emit_value = sub { exists $_[0]->{array} ||
-                                (exists $_[0]->{op1} &&
+                                (exists $_[0]->{fixity} && $_[0]->{fixity} eq 'prefix' &&
+                                 exists $_[0]->{op1}{op} &&
                                  $_[0]->{op1}{op} eq 'my' && exists $_[0]->{exp1}{array})
                                 ? '\\'._emit($_[0]) : '\\('._emit($_[0]).')'};
 	return " Data::Bind::bind_op2( " . $_emit_value->( $n->{exp1} ) . ','
