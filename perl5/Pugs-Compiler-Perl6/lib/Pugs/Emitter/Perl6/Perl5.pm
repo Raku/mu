@@ -797,8 +797,8 @@ sub infix {
     
     if ( $n->{op1}{op} eq ':=' ) {
         #warn "bind: ", Dumper( $n );
-	return " Data::Bind::bind_op2( \\" . _emit( $n->{exp1} ) . 
-	    ", \\" . _emit( $n->{exp2} ). ')';
+	return " Data::Bind::bind_op2( \\(" . _emit( $n->{exp1} ) . 
+	    "), \\(" . _emit( $n->{exp2} ). ') )';
     }
     if ( $n->{op1}{op} eq '~~' ) {
         if ( my $subs = $n->{exp2}{substitution} ) {
