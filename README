@@ -42,7 +42,7 @@ The following works are owned by third-party projects and are not
 subject to joint ownership.  Eventually, these packages should all
 be moved to the third-party/ directory.
 
-The "ByteString" subsystem is derived from Don Stewart et all's work,
+The "ByteString" subsystem is derived from Don Stewart et al's work,
 under a BSD-style license.  See third-party/fps/LICENSE.
 
 The "FilePath" subsystem is derived from FilePath 0.1.0 by Isaac Jones,
