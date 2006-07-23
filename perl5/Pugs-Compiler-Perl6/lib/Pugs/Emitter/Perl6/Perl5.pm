@@ -381,7 +381,7 @@ sub default {
     if ( $n->{op1} eq 'call' ) {
         # warn "call: ",Dumper $n;
 
-	if ($n->{sub}{scalar}) {
+	if ($n->{sub}{scalar} || $n->{sub}{statement}) {
             return _emit($n->{sub}). '->(' . _emit_parameter_capture( $n->{param} ) . ')';
 	}
 
