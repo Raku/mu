@@ -18,14 +18,14 @@ newRef a = do
     --putStr "(new)"
     v <- newStablePtr a
     let v' = ptrToWordPtr $ castStablePtrToPtr v
-    alter2 f v' judyGC
+    alter f v' judyGC
     return v'
    where f Nothing = Just 1
          f (Just n) = Just (n+1)
 
 freeRef v = do
     --putStr "(free? "
-    alter2 f v judyGC
+    alter f v judyGC
     x <- member v judyGC
     if x
         then return () --do { putStr "no!)"; return () }
@@ -34,7 +34,6 @@ freeRef v = do
    where f Nothing = Nothing
          f (Just 1) = Nothing
          f (Just n) = Just (n-1)
-
 
 {- Special implementation of (GCMap Value Int) over JudyL for use in GC -}
 
@@ -59,8 +58,8 @@ insert k v (GCMap j) = withForeignPtr j $ \j' -> do
         then error "HsJudy: Not enough memory."
         else poke r (toEnum v)
 
-alter2 :: (Maybe Int -> Maybe Int) -> Value -> GCMap -> IO ()
-alter2 f k m@(GCMap j) = do
+alter :: (Maybe Int -> Maybe Int) -> Value -> GCMap -> IO ()
+alter f k m@(GCMap j) = do
     j' <- withForeignPtr j peek
     r <- judyLGet j' k judyError
     if r == nullPtr

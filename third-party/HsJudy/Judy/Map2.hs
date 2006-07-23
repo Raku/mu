@@ -73,13 +73,18 @@ finalize need j = do
 
 rawElems = internalMap $ \r _ -> peek r
 
-new_ :: IO (Map2 k a)
+dummy :: Refeable a => Map2 k a -> a
+dummy = undefined
+
+new_ :: Refeable a => IO (Map2 k a)
 new_ = do
     fp <- mallocForeignPtr
-    finalize' <- mkFin $ finalize (needGC (undefined :: a))
-    addForeignPtrFinalizer finalize' fp 
     withForeignPtr fp $ flip poke nullPtr
-    return $ Map2 fp
+    m <- return $ Map2 fp
+
+    finalize' <- mkFin $ finalize $ needGC (dummy m)
+    addForeignPtrFinalizer finalize' fp 
+    return m
 
 insert_ :: (ReversibleHashIO k, Refeable a) => k -> a -> Map2 k a -> IO ()
 insert_ k v (Map2 j) = withForeignPtr j $ \j' -> do
@@ -106,7 +111,7 @@ alter_ f k m@(Map2 j) = do
                 then do delete_ k m 
                         return Nothing           -- FIXME check delete output
                 else if v /= (fromJust fv)
-                         then do when (needGC (undefined :: a)) $ GC.freeRef v'
+                         then do when (needGC (fromJust fv)) $ GC.freeRef v'
                                  x <- toRef (fromJust fv)
                                  poke r x
                                  return fv
@@ -129,10 +134,10 @@ member_ k (Map2 j) = do
     return $ r /= nullPtr
 
 delete_ :: ReversibleHashIO k => k -> Map2 k a -> IO Bool
-delete_ k (Map2 j) = withForeignPtr j $ \j' -> do
+delete_ k m@(Map2 j) = withForeignPtr j $ \j' -> do
     j'' <- peek j'
     k' <- hashIO k
-    when (needGC (undefined :: a)) $ do
+    when (needGC (dummy m)) $ do
         r <- judyLGet j'' k' judyError
         if r == nullPtr
             then return ()

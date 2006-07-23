@@ -116,13 +116,19 @@ finalize need j = do
 
 rawElems = internalMap $ \r _ _ -> peek r
 
-new_ :: IO (Map k a)
+dummy :: Refeable a => Map k a -> a
+dummy = undefined
+
+
+new_ :: Refeable a => IO (Map k a)
 new_ = do
     fp <- mallocForeignPtr
-    finalize' <- mkFin $ finalize (needGC (undefined :: a))
-    addForeignPtrFinalizer finalize' fp 
     withForeignPtr fp $ flip poke nullPtr
-    return $ Map fp
+    m <- return $ Map fp
+
+    finalize' <- mkFin $ finalize $ needGC (dummy m)
+    addForeignPtrFinalizer finalize' fp 
+    return m
 
 insert_ :: (Stringable k, Refeable a) => k -> a -> Map k a -> IO ()
 insert_ k v (Map j) = withForeignPtr j $ \j' -> do
@@ -153,7 +159,7 @@ alter_ f k m@(Map j) = do
                     then do delete_ k m 
                             return Nothing
                     else if v /= (fromJust fv)
-                             then do when (needGC (undefined :: a)) $ GC.freeRef v'
+                             then do when (needGC (fromJust fv)) $ GC.freeRef v'
                                      x <- toRef (fromJust fv)
                                      poke r x
                                      return fv
@@ -179,10 +185,10 @@ member_ k (Map j) = do
         return $ r /= nullPtr
 
 delete_ :: Stringable k => k -> Map k a -> IO Bool
-delete_ k (Map j) = withForeignPtr j $ \j' -> do
+delete_ k m@(Map j) = withForeignPtr j $ \j' -> do
     j'' <- peek j'
     useAsCSLen k $ \(cp, len) -> do
-        when (needGC (undefined :: a)) $ do
+        when (needGC (dummy m)) $ do
             r <- judyHSGet j'' cp (fromIntegral len)
             if r == nullPtr
                 then return ()

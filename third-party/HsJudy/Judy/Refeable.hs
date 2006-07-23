@@ -14,16 +14,16 @@ import qualified Judy.MiniGC as GC
 -- FIXME: It results in an illegal instruction if I take the "Dummy a"
 -- out of "Refeable a" context. Maybe something arch related, dunno. =P
 
-class Dummy a
-instance Dummy a
+--class Dummy a
+--instance Dummy a
 
 class Refeable a where
     toRef :: a -> IO Value
     fromRef :: Value -> IO a
     needGC :: a -> Bool
     
-instance Dummy a => Refeable a where
---instance Refeable a where
+--instance Dummy a => Refeable a where
+instance Refeable a where
     toRef = GC.newRef
     fromRef v = do
         a <- deRefStablePtr (castPtrToStablePtr (wordPtrToPtr v))

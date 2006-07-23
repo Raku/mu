@@ -57,11 +57,11 @@ instance (Stringable k, Refeable a) => CM.MapF (Frozen (MapSL k a)) k a where
 instance Show (MapSL k a) where
     show (MapSL j) = "<MapSL " ++ show j ++ ">"
 
-
 foreign import ccall "wrapper" mkFin :: (Ptr JudySL -> IO ()) -> IO (FunPtr (Ptr JudySL -> IO ()))
 
 finalize :: Bool -> Ptr JudySL -> IO ()
 finalize need j = do
+    putStrLn $ show $ need
     when need $ do
         j_ <- newForeignPtr_ j
         es <- rawElems (MapSL j_)
@@ -72,13 +72,19 @@ finalize need j = do
 
 rawElems = internalMap $ \r _ -> peek r
 
-new_ :: IO (MapSL k a)
+dummy :: Refeable a => MapSL k a -> a
+dummy = undefined
+
+new_ :: Refeable a => IO (MapSL k a)
 new_ = do
     fp <- mallocForeignPtr
-    finalize' <- mkFin $ finalize (needGC (undefined :: a))
-    addForeignPtrFinalizer finalize' fp 
     withForeignPtr fp $ flip poke nullPtr
-    return $ MapSL fp
+    m <- return $ MapSL fp
+
+    -- putStrLn $ show $ needGC $ dummy m
+    finalize' <- mkFin $ finalize $ needGC $ dummy m
+    addForeignPtrFinalizer finalize' fp 
+    return m
 
 insert_ :: (Stringable k, Refeable a) => k -> a -> MapSL k a -> IO ()
 insert_ k v (MapSL j) = withForeignPtr j $ \j' -> do
@@ -105,7 +111,7 @@ alter_ f k m@(MapSL j) = do
                     then do delete_ k m 
                             return Nothing
                     else if v /= (fromJust fv)
-                             then do when (needGC (undefined :: a)) $ GC.freeRef v'
+                             then do when (needGC (fromJust fv)) $ GC.freeRef v'
                                      x <- toRef (fromJust fv)
                                      poke r x
                                      return fv
@@ -127,11 +133,11 @@ member_ k (MapSL j) = do
         r <- judySLGet j' k' judyError
         return $ r /= nullPtr
 
-delete_ :: Stringable k => k -> MapSL k a -> IO Bool
-delete_ k (MapSL j) = withForeignPtr j $ \j' -> do
+delete_ :: (Stringable k, Refeable a) => k -> MapSL k a -> IO Bool
+delete_ k m@(MapSL j) = withForeignPtr j $ \j' -> do
     j'' <- peek j'
     useAsCS k $ \k' -> do
-        when (needGC (undefined :: a)) $ do
+        when (needGC (dummy m)) $ do
             r <- judySLGet j'' k' judyError
             if r == nullPtr
                 then return () 
