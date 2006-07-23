@@ -159,23 +159,6 @@ sub map {
 
 Data::Bind->sub_signature(\&map, { var => '$code', type => 'Code' }, { var => '@array'} );
 
-
-package Pugs::Runtime::Perl6::Scalar::Alias;
-
-sub TIESCALAR {
-    my $class = shift;
-    my $var_ref = shift;
-    return bless $var_ref, $class;
-}
-sub FETCH {
-    my $self = shift;
-    $$self;
-}
-sub STORE {
-    my $self = shift;
-    $$self = shift;
-  }
-
 1;
 
 __END__

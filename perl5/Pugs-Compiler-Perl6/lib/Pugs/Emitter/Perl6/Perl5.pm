@@ -797,14 +797,8 @@ sub infix {
     
     if ( $n->{op1}{op} eq ':=' ) {
         #warn "bind: ", Dumper( $n );
-        if ( exists $n->{exp2}{scalar} ) {
-            return " Data::Bind::bind_op2( \\" . _emit( $n->{exp1} ) . 
-                ", \\" . _emit( $n->{exp2} ). ')';
-        }
-        else {
-            # XXX: for now, should use data::bind
-            return _emit( $n->{exp1}).' = '._emit( $n->{exp2});
-        }
+	return " Data::Bind::bind_op2( \\" . _emit( $n->{exp1} ) . 
+	    ", \\" . _emit( $n->{exp2} ). ')';
     }
     if ( $n->{op1}{op} eq '~~' ) {
         if ( my $subs = $n->{exp2}{substitution} ) {
@@ -1008,6 +1002,9 @@ sub prefix {
     }
     if ( $n->{op1}{op} eq '!' ) {
         return _emit( $n->{exp1} ) . ' ? 0 : 1 ';
+    }
+    if ($n->{op1}{op} eq '+' && exists $n->{exp1}{array}) { # num context
+	return 'scalar '._emit( $n->{exp1} );
     }
     if ( $n->{op1}{op} eq '++' ||
          $n->{op1}{op} eq '--' ||
