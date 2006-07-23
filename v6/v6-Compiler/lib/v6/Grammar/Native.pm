@@ -103,6 +103,6 @@ token str {
 }
 
 token bool {
-    True | False
+    [ True | False ]
     { return $/.as(v6::AST::NBool) }
 }
