@@ -25,6 +25,10 @@ sub bind_op {
 
 sub bind_op2 {
     my ($a, $b) = @_;
+    if (ref($a) eq 'ARRAY' && ref($b) ne 'ARRAY') {
+        # binding @array := $arrayref
+	$b = $$b;
+    }
     _alias_a_to_b($a, $b, 0);
 }
 
@@ -305,7 +309,10 @@ sub bind {
 	    lexalias($lv, $self->container_var, $var);
 	}
 	else {
-	    if (defined $$var) {
+	    if (ref($var) eq 'ARRAY') {
+		Data::Bind::_alias_a_to_b($ref, \$var, 1);
+	    }
+	    elsif (defined $$var) {
 		Data::Bind::_alias_a_to_b($ref, $var, 1);
 	    }
 	}
