@@ -310,20 +310,22 @@ sub _emit_parameter_capture {
     $n = { list => [$n] }
         if !($n->{assoc} && $n->{assoc} eq 'list');
 
-    my (@named, @positional);
+    my ($positional, @named) = ("\\(");
     for (@{$n->{list}}) {
 	if (my $pair = $_->{pair}) {
 	    push @named, $pair->{key}{single_quoted}.' => \\('._emit($pair->{value}).')';
 	}
 	else {
-	    push @positional, _emit($_);
+	    # \($scalar, 123, ), \@array, \($orz)
+	    if (exists $_->{array}) {
+		$positional .= "), \\"._emit($_).", \\(";
+	    }
+	    else {
+		$positional .= _emit($_).',';
+	    }
 	}
     }
-
-    my $positional = '';
-    if (@positional) {
-        $positional = "\\(".join(', ', @positional).")";
-    }
+    $positional .= ')';
 
     return "[$positional], {".join(',', @named).'}';
 }
@@ -514,7 +516,7 @@ sub default {
             return " (defined $param )";
         }
 
-	if ($subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'shift' || $subname eq 'join' || $subname eq 'index' || $subname eq 'undef' || $subname eq 'rand' || $subname eq 'int') {
+	if ($subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'shift' || $subname eq 'join' || $subname eq 'index' || $subname eq 'undef' || $subname eq 'rand' || $subname eq 'int' || $subname eq 'splice') {
 	    return $subname . '(' . _emit( $n->{param} ) . ')';
 	}
 
@@ -619,6 +621,11 @@ sub default {
 		my $param = $n->{param}{fixity} eq 'circumfix' ? $n->{param}{exp1} : undef;
 		my $code = $param->{bare_block} ? 'sub { '._emit($param).' }' : _emit($param);
 		return 'Pugs::Runtime::Perl6::Array::map([\('.$code.', '. _emit($n->{self}).')], {})';
+	    }
+	    elsif ($n->{method}{dot_bareword} eq 'delete') {
+		my $self = _emit($n->{self});
+		$self =~ s{\@}{\$};
+		return _emit( $n->{method} ).' '.$self.'['._emit($n->{param}).']';
 	    }
 	    else {
 		return _emit( $n->{method} ).' '.(map { _emit($_) } $n->{self}, $n->{params});
@@ -791,9 +798,8 @@ sub infix {
     if ( $n->{op1}{op} eq ':=' ) {
         #warn "bind: ", Dumper( $n );
         if ( exists $n->{exp2}{scalar} ) {
-            return " tie " . _emit( $n->{exp1} ) . 
-                ", 'Pugs::Runtime::Perl6::Scalar::Alias', " .
-                "\\" . _emit( $n->{exp2} );
+            return " Data::Bind::bind_op2( \\" . _emit( $n->{exp1} ) . 
+                ", \\" . _emit( $n->{exp2} ). ')';
         }
         else {
             # XXX: for now, should use data::bind
@@ -915,7 +921,7 @@ sub postcircumfix {
             return $name . '[' . _emit( $n->{exp2} ) . ']';
         }
         
-        return _emit( $n->{exp1} ) . '[' . _emit( $n->{exp2} ) . ']';
+        return _emit( $n->{exp1} ) . '->[' . _emit( $n->{exp2} ) . ']';
     }
     
     if ( $n->{op1}{op} eq '<' &&
