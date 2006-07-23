@@ -170,7 +170,7 @@ We also include:
     SIMPLE OP
     SIMPLE OP SIMPLE
 
-where C<OP> is includes any standard scalar operators in the five
+where C<OP> includes any standard scalar operators in the five
 precedence levels autoincrement, exponentiation, symbolic unary,
 multiplicative, and additive; but these are limited to standard
 operators that are known to return numbers, strings, or booleans.
@@ -383,7 +383,7 @@ all instances should arrange to return a C<.valid> that boolifies to true.)
 Two values are never equivalent unless they are of exactly the same type.  By
 contrast, C<eq> always coerces to string, while C<==> always coerces to
 numeric.  In fact, C<$a eq $b> really means "C<~$a === ~$b>" and C<$a == $b>
-means "C<+$a === +$b>.
+means C<+$a === +$b>.
 
 Note also that, while string hashes use C<eq> semantics by default,
 object hashes use C<===> semantics.
@@ -442,8 +442,9 @@ or C<~=> (string append) instead, or to put a space between if they
 really wanted to assign a stringified value.)  A negated smart match is
 spelled C<!~~>.
 
-=item * "Unary" C<.> calls its single argument (which must a postfix operator)
-on C<$_>.  (It's not really a unary operator, so we put it in quotes.)
+=item * "Unary" C<.> calls its single argument (which must be a postfix
+operator) on C<$_>.  (It's not really a unary operator, so we put it in
+quotes.)
 
 =item * The C<..> range operator has variants with C<^> on either
 end to indicate exclusion of that endpoint from the range.  It always
@@ -475,7 +476,7 @@ the other argument.  A star on both sides will match any value that
 supports the C<Ordered> role.
 
     0..*	# 0 .. +Inf
-    'a'..*	# 'a' .. 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzz...
+    'a'..*	# 'a' .. 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzz...'
     *..0	# -Inf .. 0
     *..*	# "-Inf .. +Inf", really Ordered
     1.2.3..*	# Any version higher than 1.2.3.
@@ -569,7 +570,7 @@ separate entries for lists.
     Any     .method   method truth*            match if $_.method
     Any     Regex     pattern match            match if $_ ~~ /$x/
     Any     subst     substitution match*      match if $_ ~~ subst
-    Any     boolean   simple expression truth* match if true given $_
+    Any     boolean   simple expression truth* match if $x.true given $_
     Any     undef     undefined                match unless defined $_
     Any     Whatever  default                  match anything
     Any     Any       run-time dispatch        match if infix:<~~>($_, $x)
@@ -894,7 +895,7 @@ You may also reduce using the semicolon second-dimension separator:
 
     [[;] 1,2,3]   # equivalent to [1;2;3]
 
-Builtin reduce operators return the following identity operations:
+Builtin reduce operators return the following identity values:
 
     [**]()      # 1     (arguably nonsensical)
     [*]()       # 1
@@ -933,11 +934,11 @@ Builtin reduce operators return the following identity operations:
     [gt]()      # Bool::True    (also for 1 arg)
     [ge]()      # Bool::True    (also for 1 arg)
     [=:=]()     # Bool::True    (also for 1 arg)
-    [!=:=]()    # Bool::False    (also for 1 arg)
+    [!=:=]()    # Bool::False   (also for 1 arg)
     [===]()     # Bool::True    (also for 1 arg)
-    [!===]()    # Bool::False    (also for 1 arg)
+    [!===]()    # Bool::False   (also for 1 arg)
     [eqv]()     # Bool::True    (also for 1 arg)
-    [!eqv]()    # Bool::False    (also for 1 arg)
+    [!eqv]()    # Bool::False   (also for 1 arg)
     [&&]()      # Bool::True
     [||]()      # Bool::False
     [^^]()      # Bool::False
@@ -1079,8 +1080,8 @@ replaces the container itself.  For instance:
     my $y := $x;
     $y = 'Perl Hacker';
 
-After this, both C<$x> and C<$y> contain the string "Perl Hacker," since
-they are really just two different names for the same variable.
+After this, both C<$x> and C<$y> contain the string C<"Perl Hacker">,
+since they are really just two different names for the same variable.
 
 There is another variant, spelled C<::=>, that does the same thing at
 compile time.
@@ -1131,7 +1132,7 @@ also legal to use it:
     my :($b, $c);		# okay
     sub foo :($a,$b) {...}	# okay
 
-The C<< -> >> "pointy sub" token also introduces a signature, but
+The C<< -> >> "pointy block" token also introduces a signature, but
 in this case you must omit both the colon and the parens.  For instance,
 if you're defining the "loop variable" of a loop block:
 
@@ -1184,7 +1185,7 @@ These all have their uses and are explained in subsequent Synopses.
 
 =head1 Argument List Interpolating
 
-Perl 5 forced interpolation of a functions argument list by use of
+Perl 5 forced interpolation of a function's argument list by use of
 the C<&> prefix.  That option is no longer available in Perl 6, so
 instead the C<[,]> reduction operator serves as an
 interpolator, by casting its operands to C<Capture> objects
@@ -1229,8 +1230,8 @@ assignment:
     @$bar = 1,2,3;
     $bar[] = 1,2,3;
 
-Some lvalues can be rather lengthy, so that second form can help keep
-the "arrayness" of the lvalue close to the assignment operator:
+For long lvalue expressions, the second form can keep the "arrayness"
+of the lvalue close to the assignment operator:
 
     $foo.bar.baz.bletch.whatever.attr[] = 1,2,3;
 
@@ -1243,8 +1244,8 @@ and remember the C<@> at the front until you get to the C<=>.
 The empty C<[]> and C<.[]> postfix operators are interpreted as
 zero-dimensional slices returning the entire array, not null slices
 returning no elements.  Likewise for C<{}> and C<.{}> on hashes,
-not to mention the C<< <> >>, C<< .<> >>, C<«»>, and C<.«»>
-constant and interpolating slice subscripting forms.
+as well as the C<< <> >>, C<< .<> >>, C<«»>, and C<.«»> constant and
+interpolating slice subscripting forms.
 
 The C<[,]> operator interpolates lazily for C<Array> and C<Range> objects.
 To get an immediate interpolation like Perl 5 does, add the C<eager> list
@@ -1255,7 +1256,7 @@ operator:
 
 To interpolate a function's return value, you must say:
 
-    push [,] func()
+    push [,] func();
 
 Within the argument list of a C<[,]>, function return values are
 automatically exploded into their various parts, as if you'd said:
@@ -1346,7 +1347,7 @@ arrays.
         print "Name: $name;   Zip code: $zip\n";
     }
 
-C<zip> has an infix synonym, the Unicode operator C<¥>, and its the ASCII
+C<zip> has an infix synonym, the Unicode operator C<¥>, and its ASCII
 equivalent C<Y>.
 
 To read arrays in parallel like C<zip> but just sequence the values
