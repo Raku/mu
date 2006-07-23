@@ -12,6 +12,15 @@ use Pugs::Runtime::Perl6;
 my $bin;
 BEGIN { $bin = ((dirname(__FILE__) || '.') . "/..") };
 
+INIT {
+  if($ENV{V6_RESOURCE_GUARD}) {
+    require BSD::Resource;
+    import BSD::Resource;
+    setrlimit(RLIMIT_CPU(), 30, 60) or die "Couldn't setrlimit: $!\n";
+    setrlimit(RLIMIT_RSS(), 1048000, 1196000) or die "Couldn't setrlimit: $!\n";
+  }
+}
+
 sub pmc_can_output { 1 }
 
 sub pmc_parse_blocks {
