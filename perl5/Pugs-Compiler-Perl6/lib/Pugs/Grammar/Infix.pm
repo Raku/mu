@@ -111,12 +111,6 @@ BEGIN {
         other => '&&',
     );
 
-    __PACKAGE__->add_rule( 
-        name => '||',
-        assoc => 'right',
-        precedence => 'looser',
-        other => '&&',
-    );
     __PACKAGE__->add_same_precedence_ops({ assoc => 'right'}, qw(|| //) );
 
     __PACKAGE__->add_rule( 
