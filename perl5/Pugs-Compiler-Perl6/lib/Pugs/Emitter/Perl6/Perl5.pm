@@ -112,10 +112,10 @@ sub _emit {
 
 
     if (exists $n->{statements}) {
-	my $statements = join ( ";\n", 
+        my $statements = join ( ";\n", 
             map { defined $_ ? _emit( $_ ) : "" } @{$n->{statements}}, undef 
         );
-	return length $statements ? $statements : " # empty block\n";
+        return length $statements ? $statements : " # empty block\n";
     }
 
     return Pugs::Runtime::Common::mangle_ident( $n->{bareword} )
@@ -284,16 +284,16 @@ sub _emit_parameter_binding {
         map { _emit( {%$_, scalar => $_->{name}} ) } grep { substr($_->{name}, 0, 1) ne '&' } @params
     );
     for (grep { $_->{default} } @params) {
-	my $var = $_->{default}{code} ? '\\'. $_->{default}{code} : _emit( $_->{default} );
-	if ( substr($_->{name}, 0, 1) eq '&' ) {
-	    my $name = substr($_->{name}, 1);
-	    my $var = $_->{default}{code} ? '\\'. $_->{default}{code} : _emit( $_->{default} );
-	    $defaults .= "local *$name = $var unless *$name;\n"; # XXX: WRONG
-	}
-	else {
-	    my $name = _emit( {%$_, scalar => $_->{name}} );
-	    $defaults .= "$name = $var unless defined $name;\n";
-	}
+        my $var = $_->{default}{code} ? '\\'. $_->{default}{code} : _emit( $_->{default} );
+        if ( substr($_->{name}, 0, 1) eq '&' ) {
+            my $name = substr($_->{name}, 1);
+            my $var = $_->{default}{code} ? '\\'. $_->{default}{code} : _emit( $_->{default} );
+            $defaults .= "local *$name = $var unless *$name;\n"; # XXX: WRONG
+        }
+        else {
+            my $name = _emit( {%$_, scalar => $_->{name}} );
+            $defaults .= "$name = $var unless defined $name;\n";
+        }
     }
     return((length($param) ? "  my ($param);\n" : '').
            "  Data::Bind->arg_bind(\\\@_);\n  $defaults;\n");
@@ -312,18 +312,18 @@ sub _emit_parameter_capture {
 
     my ($positional, @named) = ("\\(");
     for (@{$n->{list}}) {
-	if (my $pair = $_->{pair}) {
-	    push @named, $pair->{key}{single_quoted}.' => \\('._emit($pair->{value}).')';
-	}
-	else {
-	    # \($scalar, 123, ), \@array, \($orz)
-	    if (exists $_->{array}) {
-		$positional .= "), \\"._emit($_).", \\(";
-	    }
-	    else {
-		$positional .= (exists $_->{bare_block} ? 'sub '._emit($_) : _emit($_)).',';
-	    }
-	}
+        if (my $pair = $_->{pair}) {
+            push @named, $pair->{key}{single_quoted}.' => \\('._emit($pair->{value}).')';
+        }
+        else {
+            # \($scalar, 123, ), \@array, \($orz)
+            if (exists $_->{array}) {
+                $positional .= "), \\"._emit($_).", \\(";
+            }
+            else {
+                $positional .= (exists $_->{bare_block} ? 'sub '._emit($_) : _emit($_)).',';
+            }
+        }
     }
     $positional .= ')';
 
@@ -333,8 +333,8 @@ sub _emit_parameter_capture {
 sub _emit_closure {
     my ($signature, $block) = @_;
     return " Data::Bind->sub_signature( sub {" .
-	_emit_parameter_binding( $signature ) .
-	_emit( $block ) .
+        _emit_parameter_binding( $signature ) .
+        _emit( $block ) .
     "\n }, "._emit_parameter_signature( $signature ).")\n";
 }
 
@@ -381,9 +381,9 @@ sub default {
     if ( $n->{op1} eq 'call' ) {
         # warn "call: ",Dumper $n;
 
-	if ($n->{sub}{scalar} || $n->{sub}{statement}) {
+        if ($n->{sub}{scalar} || $n->{sub}{statement}) {
             return _emit($n->{sub}). '->(' . _emit_parameter_capture( $n->{param} ) . ')';
-	}
+        }
 
         if ( $n->{sub}{bareword} eq 'grammar'  ||
              $n->{sub}{bareword} eq 'class'    ||
@@ -411,8 +411,8 @@ sub default {
                     : '' ) .
                 ";use Exporter 'import'; push our \@ISA, 'Exporter' ;our \@EXPORT ";
 
-	    return exists $n->{param}{param}{bare_block} && @{$n->{param}{param}{bare_block}{statements}}
-		? "{ $decl; "._emit($n->{param}{param})."}" : $decl;
+            return exists $n->{param}{param}{bare_block} && @{$n->{param}{param}{bare_block}{statements}}
+                ? "{ $decl; "._emit($n->{param}{param})."}" : $decl;
         }
 
         if ( 0 && $n->{sub}{bareword} eq 'is' ) { # XXX: this is wrong, consider is() from Test.pm
@@ -488,10 +488,10 @@ sub default {
             }
         }
 
-	if ($n->{sub}{bareword} eq 'sub') {
-	    # defining anonymous sub.  XXX: this shouldn't be here. fix the parser.
-	    return _emit_closure($n->{signature}, $n->{param}{bare_block});
-	}
+        if ($n->{sub}{bareword} eq 'sub') {
+            # defining anonymous sub.  XXX: this shouldn't be here. fix the parser.
+            return _emit_closure($n->{signature}, $n->{param}{bare_block});
+        }
 
         return " " . $n->{sub}{bareword} . " '', " . _emit( $n->{param} ) 
             if $n->{sub}{bareword} eq 'print' ||
@@ -519,21 +519,21 @@ sub default {
             return " (defined $param )";
         }
 
-	if ($subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'shift' || $subname eq 'join' || $subname eq 'index' || $subname eq 'undef' || $subname eq 'rand' || $subname eq 'int' || $subname eq 'splice') {
-	    return $subname . '(' . _emit( $n->{param} ) . ')';
-	}
+        if ($subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'shift' || $subname eq 'join' || $subname eq 'index' || $subname eq 'undef' || $subname eq 'rand' || $subname eq 'int' || $subname eq 'splice') {
+            return $subname . '(' . _emit( $n->{param} ) . ')';
+        }
 
-	# XXX: !(0) is not correctly parsed. workaround here.
-	if ($subname eq '!' || $subname eq 'not') {
-	    return $subname.' '._emit($n->{param});
-	}
-	# runtime thunked builtins
-	if ($subname eq 'eval') {
-	    return 'Pugs::Runtime::Perl6::eval('. _emit_parameter_capture( $n->{param} ) . ')';
-	}
+        # XXX: !(0) is not correctly parsed. workaround here.
+        if ($subname eq '!' || $subname eq 'not') {
+            return $subname.' '._emit($n->{param});
+        }
+        # runtime thunked builtins
+        if ($subname eq 'eval') {
+            return 'Pugs::Runtime::Perl6::eval('. _emit_parameter_capture( $n->{param} ) . ')';
+        }
 
         return ' ' . Pugs::Runtime::Common::mangle_ident( $n->{sub}{bareword} ) .
-	    (exists $n->{param} ? '(' . _emit_parameter_capture( $n->{param} ) . ')' : '');
+            (exists $n->{param} ? '(' . _emit_parameter_capture( $n->{param} ) . ')' : '');
     }
     
     if ( $n->{op1} eq 'method_call' ) {    
@@ -619,22 +619,22 @@ sub default {
                 _emit( $n->{self}   ) . ')';
         }
         
-	if (exists $n->{self}{array} ||
+        if (exists $n->{self}{array} ||
             (exists $n->{self}{exp1}{assoc} && $n->{self}{exp1}{assoc} eq 'list')) {
-	    if ($n->{method}{dot_bareword} eq 'map') {
-		my $param = $n->{param}{fixity} eq 'circumfix' ? $n->{param}{exp1} : undef;
-		my $code = $param->{bare_block} ? 'sub { '._emit($param).' }' : _emit($param);
-		return 'Pugs::Runtime::Perl6::Array::map([\('.$code.', '. _emit($n->{self}).')], {})';
-	    }
-	    elsif ($n->{method}{dot_bareword} eq 'delete') {
-		my $self = _emit($n->{self});
-		$self =~ s{\@}{\$};
-		return _emit( $n->{method} ).' '.$self.'['._emit($n->{param}).']';
-	    }
-	    else {
-		return _emit( $n->{method} ).' '.(map { _emit($_) } $n->{self}, $n->{params});
-	    }
-	}
+            if ($n->{method}{dot_bareword} eq 'map') {
+                my $param = $n->{param}{fixity} eq 'circumfix' ? $n->{param}{exp1} : undef;
+                my $code = $param->{bare_block} ? 'sub { '._emit($param).' }' : _emit($param);
+                return 'Pugs::Runtime::Perl6::Array::map([\('.$code.', '. _emit($n->{self}).')], {})';
+            }
+            elsif ($n->{method}{dot_bareword} eq 'delete') {
+                my $self = _emit($n->{self});
+                $self =~ s{\@}{\$};
+                return _emit( $n->{method} ).' '.$self.'['._emit($n->{param}).']';
+            }
+            else {
+                return _emit( $n->{method} ).' '.(map { _emit($_) } $n->{self}, $n->{params});
+            }
+        }
 
         if ( exists $n->{self}{op1} ) {
             # %var<item>.++;
@@ -666,12 +666,12 @@ sub statement {
     
     if ( $n->{statement} eq 'if'     || 
          $n->{statement} eq 'unless' ) {
-	$n->{exp2} = { bare_block => $n->{exp2} } if $n->{exp2} && !$n->{exp2}{bare_block};
-	$n->{exp3} = { bare_block => $n->{exp3} } if $n->{exp3} && !$n->{exp3}{bare_block};
+        $n->{exp2} = { bare_block => $n->{exp2} } if $n->{exp2} && !$n->{exp2}{bare_block};
+        $n->{exp3} = { bare_block => $n->{exp3} } if $n->{exp3} && !$n->{exp3}{bare_block};
         return  " " . $n->{statement} . 
                 '(' . _emit( $n->{exp1} ) . ')' .
                 _emit( $n->{exp2} ) . "\n" .
-		( $n->{exp3} ? " else" . _emit( $n->{exp3} ) : '' );
+                ( $n->{exp3} ? " else" . _emit( $n->{exp3} ) : '' );
     }
 
     if ( $n->{statement} eq 'sub'       ||
@@ -689,18 +689,18 @@ sub statement {
             }
         }
 
-	if (length $name) {
-	    my $wrapper_name = $name;
-	    my $multi_sub = '';
-	    my $sigs = _emit_parameter_signature ( $n->{signature} ) ;
-	    if ($n->{multi}) {
-		$name .= '_'.md5_hex($sigs);
-		$multi_sub = "BEGIN { Sub::Multi->add_multi('$wrapper_name', \\&$name) }\n";
-	    }
-	    # XXX: check incompatible attributes
-	    return "local *$name = "._emit_closure($n->{signature}, $n->{block}) if $n->{my};
+        if (length $name) {
+            my $wrapper_name = $name;
+            my $multi_sub = '';
+            my $sigs = _emit_parameter_signature ( $n->{signature} ) ;
+            if ($n->{multi}) {
+                $name .= '_'.md5_hex($sigs);
+                $multi_sub = "BEGIN { Sub::Multi->add_multi('$wrapper_name', \\&$name) }\n";
+            }
+            # XXX: check incompatible attributes
+            return "local *$name = "._emit_closure($n->{signature}, $n->{block}) if $n->{my};
 
-	    return  $export . " sub " . $name . 
+            return  $export . " sub " . $name . 
                 " {\n" .
                     (
                         $n->{statement} =~ /method/
@@ -713,10 +713,10 @@ sub statement {
                 "## Signature for $name\n" .
                 " Data::Bind->sub_signature\n".
                 " (\\&$name, $sigs);\n$multi_sub";
-	}
-	else {
-	    return _emit_closure($n->{signature}, $n->{block});
-	}
+        }
+        else {
+            return _emit_closure($n->{signature}, $n->{block});
+        }
     }
 
     if ( $n->{statement} eq 'for'   ||
@@ -724,29 +724,29 @@ sub statement {
          $n->{statement} eq 'until' ) {
         #warn "for: ",Dumper $n;
         if ( exists $n->{exp2}{pointy_block} ) {
-	    my $sig = $n->{exp2}{signature} ? ' my ' . _emit( $n->{exp2}{signature} ) : '';
+            my $sig = $n->{exp2}{signature} ? ' my ' . _emit( $n->{exp2}{signature} ) : '';
             my $head = $n->{statement} eq 'for'
-		?  $n->{statement} . 
+                ?  $n->{statement} . 
                     $sig . 
                     ' ( ' . _emit( $n->{exp1} ) . ' )'
-		:   $n->{statement} . ' ( '.
+                :   $n->{statement} . ' ( '.
                     ( $sig ? $sig . ' = ' : ''
                     ) . _emit( $n->{exp1} ) . ' )';
 
             return  $head . 
                     " { " . _emit( $n->{exp2}{pointy_block} ) . " }";
         }
-	die 'for/while/until should contain a block' unless $n->{exp2}{bare_block};
+        die 'for/while/until should contain a block' unless $n->{exp2}{bare_block};
         return  " " . $n->{statement} . 
                 ' ( ' . _emit( $n->{exp1} ) . ' )' . 
                 _emit( $n->{exp2} );
     }
 
     if ( $n->{statement} eq 'loop' ) {
-	if ($n->{postfix}) {
-	    # YES, remember the do {{ }} thingy?
-	    return " do {"._emit($n->{content})."} while ("._emit($n->{exp2}).")";
-	}
+        if ($n->{postfix}) {
+            # YES, remember the do {{ }} thingy?
+            return " do {"._emit($n->{content})."} while ("._emit($n->{exp2}).")";
+        }
         return  " for( ". join(';', map { $_->{null} ? ' ' : _emit($_) } @{$n}{qw/exp1 exp2 exp3/}).
             ")\n"._emit($n->{content});
     }
@@ -801,22 +801,22 @@ sub infix {
     
     if ( $n->{op1}{op} eq ':=' ) {
         #warn "bind: ", Dumper( $n );
-	# The hassle here is that we can't use \(@x) or \(my @x)
-	my $_emit_value = sub { exists $_[0]->{array} ||
+        # The hassle here is that we can't use \(@x) or \(my @x)
+        my $_emit_value = sub { exists $_[0]->{array} ||
                                 (exists $_[0]->{fixity} && $_[0]->{fixity} eq 'prefix' &&
                                  exists $_[0]->{op1}{op} &&
                                  $_[0]->{op1}{op} eq 'my' && exists $_[0]->{exp1}{array})
                                 ? '\\'._emit($_[0]) : '\\('._emit($_[0]).')'};
-	return " Data::Bind::bind_op2( " . $_emit_value->( $n->{exp1} ) . ','
-	    . $_emit_value->( $n->{exp2} ). ' )';
+        return " Data::Bind::bind_op2( " . $_emit_value->( $n->{exp1} ) . ','
+            . $_emit_value->( $n->{exp2} ). ' )';
     }
     if ( $n->{op1}{op} eq '~~' ) {
         if ( my $subs = $n->{exp2}{substitution} ) {
-	    # XXX: use Pugs::Compiler::RegexPerl5
-	    # XXX: escape
+            # XXX: use Pugs::Compiler::RegexPerl5
+            # XXX: escape
             return _emit( $n->{exp1} ) . ' =~ s{' . $subs->{substitution}[0]. '}{'. $subs->{substitution}->[1] .'}' .
-		( $subs->{options}{g} ? 'g' : '' )
-		if $subs->{options}{p5};
+                ( $subs->{options}{g} ? 'g' : '' )
+                if $subs->{options}{p5};
             return _not_implemented( $n, "rule" );
         }
         return _emit( $n->{exp1} ) . ' =~ (ref(' . _emit( $n->{exp2} ).') eq "REGEX" ? '._emit($n->{exp2}).' : quotemeta('._emit($n->{exp2}).'))';
@@ -1019,8 +1019,11 @@ sub prefix {
     if ( $n->{op1}{op} eq '!' ) {
         return _emit( $n->{exp1} ) . ' ? 0 : 1 ';
     }
+    if ( $n->{op1}{op} eq '?' ) {
+        return _emit( $n->{exp1} ) . ' ? 1 : 0 ';
+    }
     if ($n->{op1}{op} eq '+' && exists $n->{exp1}{array}) { # num context
-	return 'scalar '._emit( $n->{exp1} );
+        return 'scalar '._emit( $n->{exp1} );
     }
     if ( $n->{op1}{op} eq '++' ||
          $n->{op1}{op} eq '--' ||
@@ -1030,7 +1033,7 @@ sub prefix {
     }
 
     if ($n->{op1}{op} eq '?') { # bool
-	return '('._emit($n->{exp1}).' ? 1 : 0 )';
+        return '('._emit($n->{exp1}).' ? 1 : 0 )';
     }
     
     return _not_implemented( $n, "prefix" );
