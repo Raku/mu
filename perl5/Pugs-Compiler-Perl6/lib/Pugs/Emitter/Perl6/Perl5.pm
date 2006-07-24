@@ -1019,9 +1019,6 @@ sub prefix {
     if ( $n->{op1}{op} eq '!' ) {
         return _emit( $n->{exp1} ) . ' ? 0 : 1 ';
     }
-    if ( $n->{op1}{op} eq '?' ) {
-        return _emit( $n->{exp1} ) . ' ? 1 : 0 ';
-    }
     if ($n->{op1}{op} eq '+' && exists $n->{exp1}{array}) { # num context
         return 'scalar '._emit( $n->{exp1} );
     }
