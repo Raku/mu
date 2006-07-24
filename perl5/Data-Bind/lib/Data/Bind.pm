@@ -310,7 +310,7 @@ sub bind {
 	    lexalias($lv, $self->container_var, $var);
 	}
 	else {
-	    if (ref($var) eq 'ARRAY') {
+	    if (ref($var) eq 'ARRAY' || ref($var) eq 'HASH') {
 		Data::Bind::_alias_a_to_b($ref, \$var, 1);
 	    }
 	    elsif (defined $$var) {
