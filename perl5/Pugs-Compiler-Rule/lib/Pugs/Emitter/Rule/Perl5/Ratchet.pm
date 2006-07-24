@@ -602,17 +602,17 @@ sub metasyntax {
             "$_[1]      \$bool;\n" .
             "$_[1] }";
     }
-    # if ( $prefix eq '!' ) {   # negated_subrule / code assertion 
-    #    $cmd = substr( $cmd, 1 );
-    #    if ( $cmd =~ /^{/ ) {
-    #        warn "code assertion not implemented";
-    #        return;
-    #    }
-    #    return 
-    #        "$_[1] ... negate( '$_[0]', \n" .
-    #        call_subrule( $_[0], $_[1]."  " ) .
-    #        "$_[1] )\n";
-    # }
+    if ( $prefix eq '!' ) {   # negated_subrule / code assertion 
+        $cmd = substr( $cmd, 1 );
+        if ( $cmd =~ /^{/ ) {
+            warn "code assertion not implemented";
+            return;
+        }
+        return 
+            "$_[1] ... negate( '$_[0]', \n" .
+            call_subrule( $_[0], $_[1]."  " ) .
+            "$_[1] )\n";
+    }
     if ( $cmd eq '.' ) {
             warn "<$cmd> not implemented";
             return;
