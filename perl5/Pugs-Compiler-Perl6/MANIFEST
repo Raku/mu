@@ -54,9 +54,6 @@ t/01-sanity/07-split.t
 t/01-sanity/07-substr.t
 t/01-sanity/07-tailcall.t
 t/01-sanity/07-try.t
-t/01-sanity/08-test.t
-t/01-sanity/12-caller.t
-t/01-sanity/13-match.t
 
 t/02-test-pm/0-compile.t
 t/02-test-pm/2-force_todo.t

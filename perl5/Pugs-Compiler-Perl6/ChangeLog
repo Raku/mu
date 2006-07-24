@@ -1,3 +1,13 @@
+0.011  2006-07-24
+
+- basic regex parsing and matching
+- grammar/rule parsing
+- support := with Data::Bind::bind_op2
+- basic hash support
+- class name barewords are allowed. Str and Bool in Prelude
+- implement $?POSITION and $?CALLER::POSITION.
+- 788 tests pass
+
 0.010  2006-07-17
 
 - better support for array and hash syntax; - clkao++
