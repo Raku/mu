@@ -671,6 +671,7 @@ sub statement {
          $n->{statement} eq 'module'   ) {
         # Moose: package xxx; use Moose;
         # class Point;
+        # print Dumper($n);
         local %env;
 
         my $id;
@@ -703,7 +704,7 @@ sub statement {
                 our \@EXPORT; 
                 $attributes ";
 
-            return exists $n->{block}{bare_block}
+        return ref( $n->{block} ) && exists $n->{block}{bare_block}
                 ? "{ $decl; ".(@{$n->{block}{bare_block}{statements}}
                                ? _emit($n->{block}) : '')."}"
                 : $decl;
