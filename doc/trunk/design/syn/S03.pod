@@ -808,7 +808,7 @@ create a list operator that reduces using that operation:
     my @a = (5,6);
     [*] @a;           # 5 * 6 = 30
 
-As with the all metaoperators, space is not allowed inside.  The whole
+As with all the metaoperators, space is not allowed inside.  The whole
 thing parses as a single token.
 
 A reduction operator has the same precedence as a list operator.  In fact,
@@ -1071,7 +1071,7 @@ in front of it, or it will be interpreted as a hash subscript instead.
 
 =head1 Binding
 
-A new form of assignment is present in Perl 6, called "binding," used in
+A new form of assignment is present in Perl 6, called I<binding>, used in
 place of typeglob assignment.  It is performed with the C<:=> operator.
 Instead of replacing the value in a container like normal assignment, it
 replaces the container itself.  For instance:
