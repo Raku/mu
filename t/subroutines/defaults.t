@@ -18,8 +18,7 @@ sub value_v(Code :$func = &doubler) {
 
 is(value_v, 10, "default sub called");
 
-package MyPack;
-
+package MyPack {
 
 sub double($x) { return 2 * $x }
 
@@ -27,7 +26,8 @@ sub val_v(Code :$func = &double) is export {
     return $func(5);
 }
 
-package main;
+}
+
 use Test;
 
 ok((MyPack::val_v), "default sub called in package namespace");
