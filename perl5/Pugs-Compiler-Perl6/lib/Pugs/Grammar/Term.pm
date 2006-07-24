@@ -50,6 +50,11 @@ sub substitution {
     } );
 };
 
+my %openmatch = ( '/' => '/',
+                  '{' => '}',
+	          '!' => '!',
+                  '\'' => '\'');
+
 sub rx {
     my $grammar = shift;
     return $grammar->no_match unless $_[0];
@@ -57,9 +62,12 @@ sub rx {
     while ($_[0] =~ s/^:(\w+)//) {
 	$options->{lc($1)} = 1;
     }
-    return $grammar->no_match unless substr($_[0], 0 , 1) eq '/';
+    my $open = substr($_[0], 0 , 1);
+    return $grammar->no_match unless exists $openmatch{$open};
     substr($_[0], 0, 1, '');
-    my ($extracted,$remainder) = Text::Balanced::extract_delimited( "/" . $_[0], "/" );
+    my ($extracted,$remainder) = $open eq $openmatch{$open}
+        ? Text::Balanced::extract_delimited( $open . $_[0], $openmatch{$open} )
+	: Text::Balanced::extract_bracketed( $open . $_[0], $open.$openmatch{$open} );
     return $grammar->no_match unless length($extracted) > 0;
     $extracted = substr( $extracted, 1, -1 );
     return Pugs::Runtime::Match->new( { 
