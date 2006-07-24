@@ -28,10 +28,10 @@ sub call_subrule {
 sub call_constant {
     my $const = $_[0];
     my $len = length( eval "'$const'" );
-    $const = ( $_[0] eq $_ ? "chr(".ord($_).")" : $_[0] )
+    $const = ( $_[0] eq $_ ? "chr(".ord($_).")" : "'$_[0]'" )
         for qw( \ ' );     # '
     return
-    "$_[1] ( ( substr( \$s, \$pos, $len ) eq '$const' ) 
+    "$_[1] ( ( substr( \$s, \$pos, $len ) eq $const ) 
 $_[1]     ? do { \$pos $direction= $len; 1 }
 $_[1]     : 0
 $_[1] )";
@@ -359,7 +359,7 @@ $_[1]     \$bool = 0 unless
 .
 .            $program . ";\n";
         $gen_match = "\$match[-1]";
-	$post_match = "\$#match--;";
+        $post_match = "\$#match--;";
     } else {
         $try_match = <<"." ;
 $_[1]     my \$hash = do {
@@ -375,7 +375,7 @@ $_[1]     };
 $_[1]     my \$bool = \${\$hash->{'bool'}};
 .
         $gen_match = "bless \\\$hash, 'Pugs::Runtime::Match::Ratchet'";
-	$post_match = "";
+        $post_match = "";
     }
 
     return "$_[1] do{ 
@@ -397,6 +397,23 @@ $_[1]       }
 $_[1]     }
 $_[1]     $post_match
 $_[1]     \$bool;
+$_[1] }";
+}
+sub negate {
+    my $program = $_[0]{rule};
+    $program = emit_rule( $program, $_[1].'        ' )
+        if ref( $program );
+    return "$_[1] do{ 
+$_[1]     my \$pos1 = \$pos;
+$_[1]     do {
+$_[1]       my \$pos = \$pos1;
+$_[1]       my \$from = \$pos;
+$_[1]       my \@match;
+$_[1]       my \%named;
+$_[1]       my \$capture;
+$_[1]       \$bool = " . $program . " ? 0 : 1;
+$_[1]       \$bool;
+$_[1]     };
 $_[1] }";
 }
 sub before {
@@ -532,15 +549,15 @@ sub metasyntax {
         return;
     }
     if ( $prefix =~ /[-+[]/ ) {   # character class 
-	   if ( $prefix eq '-' ) {
-	       $cmd = '[^' . substr($cmd, 2);
-	   } 
-       elsif ( $prefix eq '+' ) {
-	       $cmd = substr($cmd, 2);
-	   }
-	   # XXX <[^a]> means [\^a] instead of [^a] in perl5re
-
-	   return call_perl5($cmd, $_[1]);
+        if ( $prefix eq '-' ) {
+               $cmd = '[^' . substr($cmd, 2);
+        } 
+        elsif ( $prefix eq '+' ) {
+               $cmd = substr($cmd, 2);
+        }
+        # XXX <[^a]> means [\^a] instead of [^a] in perl5re
+        $cmd =~ s/\.\./-/g;    # <[1..4]> -> [1-4]
+        return call_perl5($cmd, $_[1]);
     }
     if ( $prefix eq '?' ) {   # non_capturing_subrule / code assertion
         $cmd = substr( $cmd, 1 );
@@ -549,24 +566,24 @@ sub metasyntax {
             return;
         }
         return
-	    "$_[1] do { my \$match =\n" .
-	    call_subrule( $cmd, $_[1] . "          " ) . ";\n" .
-	    "$_[1]      my \$bool = (!\$match != 1);\n" .
-	    "$_[1]      \$pos = \$match->to if \$bool;\n" .
-	    "$_[1]      \$bool;\n" .
-	    "$_[1] }";
+            "$_[1] do { my \$match =\n" .
+            call_subrule( $cmd, $_[1] . "          " ) . ";\n" .
+            "$_[1]      my \$bool = (!\$match != 1);\n" .
+            "$_[1]      \$pos = \$match->to if \$bool;\n" .
+            "$_[1]      \$bool;\n" .
+            "$_[1] }";
     }
-    if ( $prefix eq '!' ) {   # negated_subrule / code assertion 
-        $cmd = substr( $cmd, 1 );
-        if ( $cmd =~ /^{/ ) {
-            warn "code assertion not implemented";
-            return;
-        }
-        return 
-            "$_[1] ... negate( '$_[0]', \n" .
-            call_subrule( $_[0], $_[1]."  " ) .
-            "$_[1] )\n";
-    }
+    # if ( $prefix eq '!' ) {   # negated_subrule / code assertion 
+    #    $cmd = substr( $cmd, 1 );
+    #    if ( $cmd =~ /^{/ ) {
+    #        warn "code assertion not implemented";
+    #        return;
+    #    }
+    #    return 
+    #        "$_[1] ... negate( '$_[0]', \n" .
+    #        call_subrule( $_[0], $_[1]."  " ) .
+    #        "$_[1] )\n";
+    # }
     if ( $cmd eq '.' ) {
             warn "<$cmd> not implemented";
             return;
@@ -614,7 +631,7 @@ $_[1] )";
                 #"print !\$match[-1], ' ', Dump \$match[-1];\n" .
                 "$_[1]           \$bool;\n" .
                 "$_[1]         }",
-	      flat => 1
+              flat => 1
             }, 
             $_[1],    
         );
