@@ -120,6 +120,18 @@ BEGIN {
         other => 'eq',
     );
     __PACKAGE__->add_rule( 
+        name => 'lt',
+        assoc => 'chain',
+        precedence => 'equal',
+        other => 'eq',
+    );
+    __PACKAGE__->add_rule( 
+        name => 'gt',
+        assoc => 'chain',
+        precedence => 'equal',
+        other => 'eq',
+    );
+    __PACKAGE__->add_rule( 
         name => '==',
         assoc => 'chain',
         precedence => 'equal',
