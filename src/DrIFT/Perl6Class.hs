@@ -6,12 +6,12 @@ import Data.Typeable
 import Text.PrettyPrint.HughesPJ
 
 showPerl6RoleDef, showMooseRoleDef
-                    :: String -> String           -- ^ Perl 6 role definition
-showPerl6RoleDef name = render $
-    hsep $ map text ["role", name, "is TaggedUnion;"]
+                    :: NamespaceMangler -> String -> String           -- ^ Perl 6 role definition
+showPerl6RoleDef ns name = render $
+    hsep $ map text ["role", ns name, "is TaggedUnion;"]
 
-showMooseRoleDef name = render $
-    vcat [ text "package" <+> text name <> semi
+showMooseRoleDef ns name = render $
+    vcat [ text "package" <+> (text $ ns name) <> semi
          , text "use Moose::Role;"
          , empty
          , text "with 'TaggedUnion';"
@@ -19,31 +19,32 @@ showMooseRoleDef name = render $
          ]
 
 showPerl6ClassDef, showMooseClassDef
-                    :: String                     -- ^ role name (Hs datatype)
+                    :: NamespaceMangler           -- ^ (e.g, ("v6::AST::" ++))
+                    -> String                     -- ^ role name (Hs datatype)
                     -> String                     -- ^ class name (Hs variant)
                     -> [(String, String, String)] -- ^ member type+name pairs
                     -> String                     -- ^ Perl 6 class definition
-showPerl6ClassDef role cls members = render $
+showPerl6ClassDef ns role cls members = render $
     catF [clsHead, mem, clsTail]
     where
     mem = nest 4 $ vcat $ map memberDef members
     catF | null members = cat   -- can't emit oneliner classes w/"has" because
          | otherwise    = vcat  -- sometimes there are '#'-style comments.
-    clsHead = hsep $ map text ["class", cls, "does", role, "{"]
+    clsHead = hsep $ map text ["class", ns cls, "does", ns role, "{"]
     clsTail = rbrace <> semi
     memberDef (ty, nm, ann) = hsep [text "has", ty' ty, text nm] <> semi <+> annComment ann
     ty' x   = if null x then empty else text x
     annComment x = if null x then empty else text "#" <+> text x
 
-showMooseClassDef role cls members = render $
+showMooseClassDef ns role cls members = render $
     clsHead $+$ mem $+$ text ""
     where
     mem = vcat $ map memberDef members
     clsHead = vcat
-        [ text "package" <+> text cls <> semi
+        [ text "package" <+> (text $ ns cls) <> semi
         , text "use Moose;"
         , text ""
-        , text "extends" <+> quotes (text role) <> semi
+        , text "extends" <+> quotes (text $ ns role) <> semi
         , text ""
         ]
     memberDef (ty, nm, ann) = hsep [text "has", qt nm, text "=>"] <+>
@@ -54,11 +55,13 @@ showMooseClassDef role cls members = render $
 qt :: String -> Doc
 qt = doubleQuotes . text
 
+type NamespaceMangler = String -> String
+
 class Typeable a => MooseClass a where
-    showMooseTypeDef :: a -> String
+    showMooseTypeDef :: NamespaceMangler -> a -> String
 
 class Typeable a => Perl6Class a where
-    showPerl6TypeDef :: a -> String
+    showPerl6TypeDef :: NamespaceMangler -> a -> String
     asPerl6Object :: a -> String
     asPerl6Object simple = "new " ++ (show $ typeOf simple)
 

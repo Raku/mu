@@ -38,14 +38,14 @@ instanceSkeleton' s ii  d = (simpleInstance s d <+> text "where")
         | otherwise         = ("showMooseTypeDef", "showMooseRoleDef", makeMooseClassDef)
     functions  = makeDefs : concatMap f ii
     f (i,dflt) = map i (body d) ++ [dflt $ body d]
-    makeDefs   = text typeDefF <+> text "_" <+> equals <+> text "unlines" $$ (nest 8 $ commaList defs)
+    makeDefs   = (text $ typeDefF ++ " ns _") <+> equals <+> text "unlines" $$ (nest 8 $ commaList defs)
     defs       = roleDef : classDefs
-    roleDef    = text roleDefF <+> (dq $ text $ role)
+    roleDef    = (text $ roleDefF ++ " ns") <+> (dq $ text $ role)
     classDefs  = map (classDefF role) (body d)
     role       = name d
 
 makePerl6ClassDef role bod@(Body constructor labels types) =
-    hsep [text "showPerl6ClassDef", qt role, qt constructor, mkAllAttr]
+    hsep [text "showPerl6ClassDef ns", qt role, qt constructor, mkAllAttr]
     where
     mkAllAttr = text $ show $ zipWith4 (\t s n l -> (t, dq $ s<>n, show l)) types' sigils names' lossage
     mkPosAttr = varNames types
@@ -56,7 +56,7 @@ makePerl6ClassDef role bod@(Body constructor labels types) =
     names'    = if null labels then mkPosAttr else mkRecAttr
 
 makeMooseClassDef role bod@(Body constructor labels types) =
-    hsep [text "showMooseClassDef", qt role, qt constructor, mkAllAttr]
+    hsep [text "showMooseClassDef ns", qt role, qt constructor, mkAllAttr]
     where
     mkAllAttr = text $ show $ zipWith3 (\t n l -> (t, dq $ n, show l)) types' names' lossage
     mkPosAttr = varNames types
