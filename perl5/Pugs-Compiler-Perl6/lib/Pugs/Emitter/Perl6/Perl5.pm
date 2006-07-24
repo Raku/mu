@@ -315,6 +315,9 @@ sub _emit_parameter_capture {
         if (my $pair = $_->{pair}) {
             push @named, $pair->{key}{single_quoted}.' => \\('._emit($pair->{value}).')';
         }
+	elsif ($_->{fixity} && $_->{fixity} eq 'infix' && $_->{op1}{op} eq '=>') {
+            push @named, _emit($_->{exp1}).' => \\('._emit($_->{exp2}).')';
+	}
         else {
             # \($scalar, 123, ), \@array, \($orz)
             if (exists $_->{array}) {
