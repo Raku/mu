@@ -320,7 +320,7 @@ sub _emit_parameter_capture {
 	}
         else {
             # \($scalar, 123, ), \@array, \($orz)
-            if (exists $_->{array}) {
+            if (exists $_->{array} || exists $_->{hash}) {
                 $positional .= "), \\"._emit($_).", \\(";
             }
             else {
@@ -602,6 +602,8 @@ sub default {
             
             # $scalar.++;
             # runtime decision - method or lib call
+	    return _emit( $n->{method} ).'('._emit( $n->{self} ).')'
+		if $n->{method}{dot_bareword} eq 'ref';
             return 
                 "( Scalar::Util::blessed " . _emit( $n->{self} ) . " ? " .
             
@@ -637,7 +639,7 @@ sub default {
                 return _emit( $n->{method} ).' '.$self.'['._emit($n->{param}).']';
             }
             else {
-                return _emit( $n->{method} ).' '.(map { _emit($_) } $n->{self}, $n->{params});
+                return _emit( $n->{method} ).' '.(join(',', grep { length $_} map { _emit($_) } $n->{self}, $n->{params}));
             }
         }
 
