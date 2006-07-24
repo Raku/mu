@@ -75,3 +75,5 @@ ok($/, 'Caprep matched');
 is($/, "abcabcabcabc", 'Caprep matched');
 is($/<caprep>, "abcabcabcabc", 'Caprep captured');
 is(eval('$/<caprep>[0]'), "abcabcabcabc", 'Caprep abc one captured');
+
+=end

@@ -116,3 +116,5 @@ is($/, "john", 'Metaname match is john', :todo<feature>);
 ok($/ ne "jean", "Metaname match isn't jean");
 is($/<name>, "john", 'Metaname is john', :todo<feature>);
 is(try { $/<name><name> }, "john", 'Metaname name is john', :todo<feature>);
+
+=end
