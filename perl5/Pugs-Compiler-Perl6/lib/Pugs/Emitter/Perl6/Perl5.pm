@@ -414,8 +414,10 @@ sub default {
                     : '' ) .
                 ";use Exporter 'import'; push our \@ISA, 'Exporter' ;our \@EXPORT ";
 
-            return exists $n->{param}{param}{bare_block} && @{$n->{param}{param}{bare_block}{statements}}
-                ? "{ $decl; "._emit($n->{param}{param})."}" : $decl;
+            return exists $n->{param}{param}{bare_block}
+                ? "{ $decl; ".(@{$n->{param}{param}{bare_block}{statements}}
+                               ? _emit($n->{param}{param}) : '')."}"
+                : $decl;
         }
 
         if ( 0 && $n->{sub}{bareword} eq 'is' ) { # XXX: this is wrong, consider is() from Test.pm
