@@ -360,6 +360,8 @@ sub default {
 
     if ( exists $n->{pointy_block} ) {
         # XXX: no signature yet
+	return _emit_closure($n->{signature}, $n->{pointy_block});
+
         return  "sub {\n" . _emit( $n->{pointy_block} ) . "\n }\n";
     }
 
@@ -601,6 +603,9 @@ sub default {
         
         if ( exists $n->{self}{hash} ) {
             # %hash.keys
+            if ($n->{method}{dot_bareword} eq 'kv') {
+		return _emit( $n->{self}); # just use it as array
+	    }
             return " (" . 
                 _emit( $n->{method} ) . ' ' .
                 _emit( $n->{self}   ) . ')';
@@ -761,7 +766,11 @@ sub statement {
          $n->{statement} eq 'until' ) {
         #warn "for: ",Dumper $n;
         if ( exists $n->{exp2}{pointy_block} ) {
-            my $sig = $n->{exp2}{signature} ? ' my ' . _emit( $n->{exp2}{signature} ) : '';
+	    if ($n->{statement} eq 'for' && $n->{exp2}{signature} && @{$n->{exp2}{signature}} > 1) {
+		return 'Pugs::Runtime::Perl6::Array::map([\\'._emit($n->{exp2}).', ['._emit($n->{exp1}).']], {})';
+	    }
+	    my @sigs = map { { scalar => $_->{name} } } @{$n->{exp2}{signature}};
+            my $sig = $n->{exp2}{signature} ? ' my ' . _emit( @sigs ) : '';
             my $head = $n->{statement} eq 'for'
                 ?  $n->{statement} . 
                     $sig . 

@@ -53,11 +53,11 @@ sub perl6_expression {
     |
     \-\> : 
         [
-            <?ws>? <perl6_expression('no_blocks',0)> <?ws>? 
+            <?ws>? <signature_no_invocant> <?ws>? 
             \{ <?ws>? <statements_or_null> <?ws>? \}
             { return { 
                 pointy_block => $_[0]{statements_or_null}->(),
-                signature    => $_[0]{perl6_expression}->(),
+                signature    => $_[0]{signature_no_invocant}->(),
             } }
         |
             <?ws>?
