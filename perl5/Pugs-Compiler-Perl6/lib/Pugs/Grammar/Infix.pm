@@ -110,57 +110,22 @@ BEGIN {
         precedence => 'looser',
         other => '&&',
     );
+
     __PACKAGE__->add_rule( 
-        name => '//',
+        name => '||',
         assoc => 'right',
-        precedence => 'equal',
-        other => '||',
+        precedence => 'looser',
+        other => '&&',
     );
-    
+    __PACKAGE__->add_same_precedence_ops({ assoc => 'right'}, qw(|| //) );
+
     __PACKAGE__->add_rule( 
         name => '=',
         assoc => 'right',
         precedence => 'looser',
         other => '||',
     );
-    __PACKAGE__->add_rule( 
-        name => ':=',
-        assoc => 'right',
-        precedence => 'equal',
-        other => '=',
-    );
-    __PACKAGE__->add_rule( 
-        name => '=>',
-        assoc => 'right',
-        precedence => 'equal',
-        other => '=',
-    );
-    __PACKAGE__->add_rule( 
-        name => '~=',
-        assoc => 'right',
-        precedence => 'equal',
-        other => '=',
-    );
-    __PACKAGE__->add_rule( 
-        name => '=~',
-        assoc => 'right',
-        precedence => 'equal',
-        other => '=',
-    );
-    
-
-    __PACKAGE__->add_rule( 
-        name => '+=',
-        assoc => 'left',
-        precedence => 'equal',
-        other => 'eq',
-    );
-    __PACKAGE__->add_rule( 
-        name => '-=',
-        assoc => 'left',
-        precedence => 'equal',
-        other => 'eq',
-    );
+    __PACKAGE__->add_same_precedence_ops({ assoc => 'right'}, qw(= := ::= += -= **= xx= .= ~= =~) );
 
 
     __PACKAGE__->add_rule( 
