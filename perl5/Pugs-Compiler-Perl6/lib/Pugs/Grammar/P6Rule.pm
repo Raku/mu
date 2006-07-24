@@ -83,6 +83,13 @@ Pugs::Compiler::Regex->install(
             }, } 
         }
     ))->code;
+*negate = Pugs::Compiler::Regex->compile(q(
+        \\< \\! : <rule> \\> 
+        { return { negate => {
+                rule  => $/{rule}(),
+            }, } 
+        }
+    ))->code;
 *capturing_group = Pugs::Compiler::Regex->compile(q(
         \\( : <rule> \\)
         { return { capturing_group => $/{rule}() ,} }
@@ -165,7 +172,7 @@ Pugs::Compiler::Regex->install(
         }
     }
     qw(  capturing_group 
-         after before metasyntax 
+         after before negate metasyntax 
          named_capture match_variable
          variable_rule closure_rule special_char dot
          non_capturing_group colon 
