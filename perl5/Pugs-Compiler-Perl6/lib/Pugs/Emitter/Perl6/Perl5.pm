@@ -942,7 +942,7 @@ sub postcircumfix {
         $name =~ s/^\%/\$/;
         return $name . 
             '{ ' . 
-            join(', ', 
+            join('}{', 
                 map { 
                     _emit($_) 
                 } @{$n->{exp2}{statements}} ) . 
