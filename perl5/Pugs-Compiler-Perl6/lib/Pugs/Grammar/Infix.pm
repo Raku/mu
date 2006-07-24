@@ -125,7 +125,7 @@ BEGIN {
         precedence => 'looser',
         other => '||',
     );
-    __PACKAGE__->add_same_precedence_ops({ assoc => 'right'}, qw(= := ::= += -= **= xx= .= ~= =~) );
+    __PACKAGE__->add_same_precedence_ops({ assoc => 'right'}, qw(= := ::= => += -= **= xx= .= ~= =~) );
 
 
     __PACKAGE__->add_rule( 
