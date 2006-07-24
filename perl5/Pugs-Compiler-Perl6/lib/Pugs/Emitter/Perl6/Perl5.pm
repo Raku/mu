@@ -814,7 +814,14 @@ sub infix {
         return ' do { my $_tmp_ = ' . _emit( $n->{exp1} ) . 
             '; defined $_tmp_ ? $_tmp_ : ' . _emit( $n->{exp2} ) . '}';
     }
-    
+
+    if ( $n->{op1}{op} eq '=:=' ) {
+	# XXX: Data::Bind needs to provide an API.  we are now
+	# actually with different address using the magic proxying in D::B.
+	return 'Scalar::Util::refaddr(\\'._emit($n->{exp1}).
+          ') == Scalar::Util::refaddr(\\'._emit($n->{exp2}).')';
+    }
+
     if ( $n->{op1}{op} eq ':=' ) {
         #warn "bind: ", Dumper( $n );
         # The hassle here is that we can't use \(@x) or \(my @x)

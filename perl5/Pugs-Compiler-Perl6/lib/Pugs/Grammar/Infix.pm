@@ -92,10 +92,10 @@ BEGIN {
     );
 
     __PACKAGE__->add_same_precedence_ops( { assoc => 'chain'}, qw(eq !=
-                                   == < <= > >= ne lt le gt ge =:=
-                                   === eqv !== !~~ !eq !=:= !=== !eqv)
+                                   == < <= > >= ne lt le gt ge
+                                   === eqv !== !~~ !eq !=== !eqv)
                                    );
-    __PACKAGE__->add_same_precedence_ops( { assoc => 'left'}, qw(eq ~~) );
+    __PACKAGE__->add_same_precedence_ops( { assoc => 'left'}, qw(eq ~~ =:=  !=:=) );
 
     __PACKAGE__->add_rule( 
         name => '&&',
