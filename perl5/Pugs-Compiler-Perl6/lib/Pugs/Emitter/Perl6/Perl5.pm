@@ -333,7 +333,7 @@ sub _emit_parameter_capture {
                 $positional .= "), \\"._emit($_).", \\(";
             }
             else {
-                $positional .= (exists $_->{bare_block} ? 'sub '._emit($_) : _emit($_)).',';
+                $positional .= (exists $_->{bare_block} ? 'sub ' : '')._emit($_).', ';
             }
         }
     }
@@ -839,7 +839,7 @@ sub infix {
                                  $_[0]->{op1}{op} eq 'my' && exists $_[0]->{exp1}{array})
                                 ? '\\'._emit($_[0]) : '\\('._emit($_[0]).')'};
         return " Data::Bind::bind_op2( " . $_emit_value->( $n->{exp1} ) . ','
-            . $_emit_value->( $n->{exp2} ). ' )';
+            . 'scalar '.$_emit_value->( $n->{exp2} ). ' )';
     }
     if ( $n->{op1}{op} eq '~~' ) {
         if ( my $subs = $n->{exp2}{substitution} ) {
