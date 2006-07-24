@@ -437,6 +437,45 @@ sub perl6_expression {
 )->code;
 
 
+# class
+
+
+*class_decl_name = Pugs::Compiler::Regex->compile( q(
+    ( my | <''> ) <?ws>?
+    ( class | grammar | module ) <?ws>? 
+    ( <?Pugs::Grammar::Term.ident>? ) 
+        { return { 
+            my         => $_[0][0]->(),
+            statement  => $_[0][1]->(),
+            name       => $_[0][2]->(),
+        } }
+),
+    { grammar => __PACKAGE__ }
+)->code;
+
+
+*class_decl = Pugs::Compiler::Regex->compile( q(
+    <class_decl_name> <?ws>? 
+        # attr
+        <attribute> <?ws>?
+        ( <block>? )
+        { return { 
+            my         => $_[0]{class_decl_name}->()->{my},
+            statement  => $_[0]{class_decl_name}->()->{statement},
+            name       => $_[0]{class_decl_name}->()->{name},
+            
+            attribute  => $_[0]{attribute}->(),
+            block      => $_[0][0]->(),
+        } }
+),
+    { grammar => __PACKAGE__ }
+)->code;
+
+
+
+# /class
+
+
 *begin_block = Pugs::Compiler::Regex->compile( q(
     (          
    BEGIN 

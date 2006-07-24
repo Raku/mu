@@ -397,40 +397,6 @@ sub default {
             return _emit($n->{sub}). '->(' . _emit_parameter_capture( $n->{param} ) . ')';
         }
 
-        if ( $n->{sub}{bareword} eq 'grammar'  ||
-             $n->{sub}{bareword} eq 'class'    ||
-             $n->{sub}{bareword} eq 'package'  ||
-             $n->{sub}{bareword} eq 'module'   ) {
-            # Moose: package xxx; use Moose;
-            # class Point;
-            #warn "class: ",Dumper $n;
-            local %env;
-            my $id;
-            $id = exists $n->{param}{cpan_bareword} 
-                  # ? Pugs::Runtime::Common::mangle_ident( $n->{param}{cpan_bareword} )
-                  ? $n->{param}{cpan_bareword} 
-                  : _emit( $n->{param}{sub} );
-            my @a = split "-", $id;
-            my $version = ( @a > 1 && $a[-1] =~ /^[0-9]/ ? $a[-1] : '' );
-            my $decl = 'package ' . $a[0].';' .
-                ( $version ? ";\$$a[0]::VERSION = '$version'" : '' ) .
-                ( $n->{sub}{bareword} eq 'grammar' 
-                    ? ';use Pugs::Compiler::Rule' .
-                      ';use base \'Pugs::Grammar::Base\'' 
-                    : '' ) .
-                ( $n->{sub}{bareword} eq 'class' 
-                    ? ';use Moose; Pugs::Runtime::Perl6->setup_class' 
-                    : '' ) .
-                "; use Exporter 'import'; 
-                push our \@ISA, 'Exporter';
-                our \@EXPORT; ";
-
-            return exists $n->{param}{param}{bare_block}
-                ? "{ $decl; ".(@{$n->{param}{param}{bare_block}{statements}}
-                               ? _emit($n->{param}{param}) : '')."}"
-                : $decl;
-        }
-
         if ( 0 && $n->{sub}{bareword} eq 'is' ) { # XXX: this is wrong, consider is() from Test.pm
             # is Point;
             #warn "inheritance: ",Dumper $n;
@@ -697,6 +663,39 @@ sub statement {
                 '(' . _emit( $n->{exp1} ) . ')' .
                 _emit( $n->{exp2} ) . "\n" .
                 ( $n->{exp3} ? " else" . _emit( $n->{exp3} ) : '' );
+    }
+
+    if ( $n->{statement} eq 'grammar'  ||
+         $n->{statement} eq 'class'    ||
+         # $n->{statement} eq 'package'  ||
+         $n->{statement} eq 'module'   ) {
+        # Moose: package xxx; use Moose;
+        # class Point;
+        local %env;
+
+        my $id;
+        # TODO - anonymous class
+        # TODO - attributes
+        $id = $n->{name};
+        my @a = split "-", $id;
+        my $version = ( @a > 1 && $a[-1] =~ /^[0-9]/ ? $a[-1] : '' );
+        my $decl = 'package ' . $a[0].';' .
+                ( $version ? ";\$$a[0]::VERSION = '$version'" : '' ) .
+                ( $n->{statement} eq 'grammar' 
+                    ? ';use Pugs::Compiler::Rule' .
+                      ';use base \'Pugs::Grammar::Base\'' 
+                    : '' ) .
+                ( $n->{statement} eq 'class' 
+                    ? ';use Moose; Pugs::Runtime::Perl6->setup_class' 
+                    : '' ) .
+                "; use Exporter 'import'; 
+                push our \@ISA, 'Exporter';
+                our \@EXPORT; ";
+
+            return exists $n->{block}{bare_block}
+                ? "{ $decl; ".(@{$n->{block}{bare_block}{statements}}
+                               ? _emit($n->{block}) : '')."}"
+                : $decl;
     }
 
     if ( $n->{statement} eq 'sub'       ||
