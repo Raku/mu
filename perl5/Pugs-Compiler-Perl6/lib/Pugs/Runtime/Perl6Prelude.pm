@@ -1,10 +1,10 @@
 use v6-alpha;
 
-module main;
-
 class Str {};
 
-class Bool {};
+class Bool { sub False { 0 }; sub True { 1 }};
+
+module main;
 enum bool <False True>;
 
 sub true is export {
