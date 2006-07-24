@@ -73,7 +73,7 @@ sub emit {
         "  }, 'Pugs::Runtime::Match::Ratchet';\n" .
         "  \$bool = 0 unless\n" .
         emit_rule( $ast, ' ' ) . ";\n" .
-        "  return \$m;\n" .
+        "  return \$::_V6_MATCH_ = \$m;\n" .
         "}\n";
 }
 
@@ -283,10 +283,20 @@ sub closure {
     if ( ref( $code ) ) {
         if ( defined $Pugs::Compiler::Perl6::VERSION ) {
             # perl6 compiler is loaded
+            my $perl5 = Pugs::Emitter::Perl6::Perl5::emit( 'grammar', $code, 'self' );
             return 
-                "{" .
-                Pugs::Emitter::Perl6::Perl5::emit( 'grammar', $code, 'self' ) .
-                "}";
+                "do { 
+                    \$::_V6_MATCH_ = \$m; 
+                    \$capture = sub { $perl5 }->();
+                    \$bool = 1;
+                    return \$m;
+                }" if $perl5 =~ /return/;
+            return 
+                "do { 
+                    \$::_V6_MATCH_ = \$m; 
+                    sub { $perl5 }->();
+                    1;
+                }";
         }        
     }
     
