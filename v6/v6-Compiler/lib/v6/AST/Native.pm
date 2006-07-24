@@ -2,15 +2,15 @@
 use v6-alpha;
 use v6::AST::Base;
 
-class v6::AST::Native  is v6::AST::Base {}
+class v6::AST::Native     does v6::AST::Base   {}
 
-class v6::AST::NBit    is v6::AST::Native {}
-class v6::AST::NFloat  is v6::AST::Native {}
-class v6::AST::NInt    is v6::AST::Native {}
+class v6::AST::NBit       does v6::AST::Native {}
+class v6::AST::NFloat     does v6::AST::Native {}
+class v6::AST::NInt       does v6::AST::Native {}
 
-class v6::AST::IFinite     is v6::AST::NInt {}
-class v6::AST::INotANumber is v6::AST::NInt {}
-class v6::AST::IInfinite   is v6::AST::NInt {}
+class v6::AST::IFinite      does v6::AST::NInt {}
+class v6::AST::INotANumber  does v6::AST::NInt {}
+class v6::AST::IInfinite    does v6::AST::NInt {}
 
-class v6::AST::NStr    is v6::AST::Native {}
-class v6::AST::NBool   is v6::AST::Native {}
+class v6::AST::NStr       does v6::AST::Native {}
+class v6::AST::NBool      does v6::AST::Native {}
