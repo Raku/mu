@@ -678,6 +678,10 @@ sub default {
         return 'XXXX';
     }
 
+    if ( exists $n->{rx} ) {
+	return 'qr{'.$n->{rx}{rx}.'}' if $n->{rx}{options}{perl5};
+    }
+
     return _not_implemented( $n, "syntax" );
 }
 
@@ -852,7 +856,7 @@ sub infix {
 		return '$::_V6_MATCH_ = Pugs::Compiler::Regex->compile( q{'.$rx->{rx}.'} )->match('._emit($n->{exp1}).')';
 	    }
 	}
-        return _emit( $n->{exp1} ) . ' =~ (ref(' . _emit( $n->{exp2} ).') eq "REGEX" ? '._emit($n->{exp2}).' : quotemeta('._emit($n->{exp2}).'))';
+        return _emit( $n->{exp1} ) . ' =~ (ref(' . _emit( $n->{exp2} ).') eq "Regexp" ? '._emit($n->{exp2}).' : quotemeta('._emit($n->{exp2}).'))';
     }
 
     if ( $n->{op1}{op} eq '=' ) {
