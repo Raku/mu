@@ -404,17 +404,17 @@ $1:=[ (.) (.) (.) ] (.)			abcdefg	/mob 2: <a @ 0>/	perl5 numbered captures $1
 $1:=[ (.) (.) (.) ] (.)			abcdefg	/mob 3: <b @ 1>/	perl5 numbered captures $1
 $1:=[ (.) (.) (.) ] (.)			abcdefg	/mob 4: <c @ 2>/	perl5 numbered captures $1
 $1:=[ (.) (.) (.) ] (.)			abcdefg	/mob 5: <d @ 3>/	perl5 numbered captures $1
-:s $<key>:=[\w+] = $<val>:=[\S+]	 abc = 123	/mob<key>: <abc @ 1>/	named capture
-:s $<key>:=[\w+] = $<val>:=[\S+]	 abc = 123	/mob<val>: <123 @ 7>/	named capture
-:s (\w+) $<foo>:=(\w+) (\w+)	   	abc def ghi	/mob<foo>: <def @ 7>/	mixing named and unnamed capture
-:s (\w+) $<foo>:=(\w+) (\w+)	   	abc def ghi	/mob 1: <ghi @ 11>/	mixing named and unnamed capture
-<alpha> [ - <alpha> ]?	   		abc def ghi	/mob<alpha> 0: <a @ 3>/	multiple subrule captures in same scope
-[(.)$0]+				bookkeeper	y			backreference
-(\w+) <?ws> $0				hello hello	y			backreference at end of string
-[(.)$0]+				bookkeeper	/mob 0 0: <o @ 1>/	backref $1
-[(.)$0]+				bookkeeper	/mob 0 1: <k @ 3>/	backref $1
-[(.)$0]+				bookkeeper	/mob 0 2: <e @ 5>/	backref $1
-(.)*x					123x		/mob: <123x @ 0>/	repeated dot capture
+#:s $<key>:=[\w+] = $<val>:=[\S+]	 abc = 123	/mob<key>: <abc @ 1>/	named capture
+#:s $<key>:=[\w+] = $<val>:=[\S+]	 abc = 123	/mob<val>: <123 @ 7>/	named capture
+#:s (\w+) $<foo>:=(\w+) (\w+)	   	abc def ghi	/mob<foo>: <def @ 7>/	mixing named and unnamed capture
+#:s (\w+) $<foo>:=(\w+) (\w+)	   	abc def ghi	/mob 1: <ghi @ 11>/	mixing named and unnamed capture
+#<alpha> [ - <alpha> ]?	   		abc def ghi	/mob<alpha> 0: <a @ 3>/	multiple subrule captures in same scope
+#[(.)$0]+				bookkeeper	y			backreference
+#(\w+) <?ws> $0				hello hello	y			backreference at end of string
+#[(.)$0]+				bookkeeper	/mob 0 0: <o @ 1>/	backref $1
+#[(.)$0]+				bookkeeper	/mob 0 1: <k @ 3>/	backref $1
+#[(.)$0]+				bookkeeper	/mob 0 2: <e @ 5>/	backref $1
+#(.)*x					123x		/mob: <123x @ 0>/	repeated dot capture
 
 
 ##  modifiers
@@ -508,7 +508,7 @@ foo -? bar			foo - bar	n	basic non-match
 :s<?wb>foo -? bar		foo - bar	y	basic ws match with boundary modifier separation
 :s::foo -? bar			foo - bar	y	basic ws match with backtrack no-op modifier separation
 :s::(\w+) \:= (\S+)		dog := spot	/mob 0: <dog @ 0>/	sigspace and capture together
-:s::(\w+) \:= (\S+)		dog := spot	/mob 1: <spot @ 7>/	sigspace and capture together
+#:s::(\w+) \:= (\S+)		dog := spot	/mob 1: <spot @ 7>/	sigspace and capture together
 :perl5 \A.*? bcd\Q$\E..\z	a bcd$ef	y	TODO: perl5 syntax (:perl5)
 :x(6) \d			123456		y	repetition (:x)
 :x(3) \d			123456		y	repetition (:x)
