@@ -407,7 +407,7 @@ sub default {
                       ';use base \'Pugs::Grammar::Base\'' 
                     : '' ) .
                 ( $n->{sub}{bareword} eq 'class' 
-                    ? ';use Moose' 
+                    ? ';use Moose; Pugs::Runtime::Perl6->setup_class' 
                     : '' ) .
                 ";use Exporter 'import'; push our \@ISA, 'Exporter' ;our \@EXPORT";
         }
@@ -529,7 +529,8 @@ sub default {
 	    return 'Pugs::Runtime::Perl6::eval('. _emit_parameter_capture( $n->{param} ) . ')';
 	}
 
-        return ' ' . Pugs::Runtime::Common::mangle_ident( $n->{sub}{bareword} ) . '(' . _emit_parameter_capture( $n->{param} ) . ')';
+        return ' ' . Pugs::Runtime::Common::mangle_ident( $n->{sub}{bareword} ) .
+	    (exists $n->{param} ? '(' . _emit_parameter_capture( $n->{param} ) . ')' : '');
     }
     
     if ( $n->{op1} eq 'method_call' ) {    
@@ -1017,6 +1018,10 @@ sub prefix {
          $n->{op1}{op} eq '+'  ||
          $n->{op1}{op} eq '-'  ) {
         return $n->{op1}{op} . _emit( $n->{exp1} );
+    }
+
+    if ($n->{op1}{op} eq '?') { # bool
+	return '('._emit($n->{exp1}).' ? 1 : 0 )';
     }
     
     return _not_implemented( $n, "prefix" );

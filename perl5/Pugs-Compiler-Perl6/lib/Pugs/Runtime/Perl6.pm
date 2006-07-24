@@ -50,6 +50,15 @@ sub eval {
 
 Data::Bind->sub_signature(\&eval, { var => '$string' }, { var => '$lang', optional => 1});
 
+sub setup_class {
+    my ($class) = caller;
+    no strict 'refs';
+    my @foo = split /::/, $class;
+    my $last = pop @foo;
+    no strict 'refs';
+    *{'::'.$class} = sub { $class->meta->name };
+}
+
 package Pugs::Runtime::Perl6::IO;
 use base 'IO::Handle';
 

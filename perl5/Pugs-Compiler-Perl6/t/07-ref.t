@@ -1,30 +1,21 @@
 use v6-alpha;
 
 my $has_run = 0;
-if 0 {  # XXX parser error - uncomment when fixed
-eval '
 
 say "1..3";
 
 {
     my $string = "Pugs";
-    if $string.ref eq Str { say "ok 1 # TODO" } else { say "not ok 1" }
+    if $string.ref eq Str { say "ok 1" } else { say "not ok 1" }
 }
 
 {
     my $bool = ?1;
-    if $bool.ref eq Bool { say "ok 2 # TODO" } else { say "not ok 2" }
+    if $bool.ref eq Bool { say "ok 2" } else { say "not ok 2 # TODO" }
 }
 
 {
     my $bool = Bool::True;
-    if $bool.ref eq Bool { say "ok 3 # TODO" } else { say "not ok 3" }
+    if $bool.ref eq Bool { say "ok 3" } else { say "not ok 3 # TODO" }
 }
 
-$has_run = 1;
-';
-}
-unless $has_run {
-    say "1..1";
-    say 'ok 1 # skip TODO parse Class bare-name as term';
-}

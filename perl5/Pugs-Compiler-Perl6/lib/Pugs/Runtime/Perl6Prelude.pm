@@ -2,6 +2,9 @@ use v6-alpha;
 
 module main;
 
+class Str {};
+
+class Bool {};
 enum bool <False True>;
 
 sub true is export {
