@@ -280,6 +280,16 @@ sub match_variable {
 sub closure {
     my $code = $_[0]; 
     
+    if ( ref( $code ) ) {
+        if ( defined $Pugs::Compiler::Perl6::VERSION ) {
+            # perl6 compiler is loaded
+            return 
+                "{" .
+                Pugs::Emitter::Perl6::Perl5::emit( 'grammar', $code, 'self' ) .
+                "}";
+        }        
+    }
+    
     # XXX XXX XXX - source-filter - temporary hacks to translate p6 to p5
     # $()<name>
     $code =~ s/ ([^']) \$ \( \) < (.*?) > /$1 \$_[0]->[$2] /sgx;
