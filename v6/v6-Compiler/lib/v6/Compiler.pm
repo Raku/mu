@@ -1,9 +1,9 @@
 
 use v6-alpha;
 
-class v6::Compiler  {}
+class v6::Compiler-0.01;
 
-=head1 NAME 
+=head1 NAME
 
 v6-Compiler - An experimental Perl6-in-Perl6 implementation
 
@@ -15,7 +15,9 @@ TODO
 
 The C<v6-Compiler> module is a front-end to the experimental Perl6-in-Perl6 compiler.
 
-The compiler is not run directly - it is meant to be used by Perl6 backend implementations.
+The compiler is meant to be used by Perl6 backend implementations.
+
+In a Perl 5 environment, use the C<v6-alpha> distribution instead.
 
 =head1 AUTHORS
 

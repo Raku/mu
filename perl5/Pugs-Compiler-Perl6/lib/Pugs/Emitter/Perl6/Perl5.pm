@@ -698,16 +698,22 @@ sub statement {
             }
         }
 
-        my $decl = "package $namespace;" .
-                ( $version ? ";\$".$namespace."::VERSION = '$version'" : '' ) .
+        my $decl = "package $namespace" .
+                ( $version 
+                    ? ";
+                        \$".$namespace."::VERSION = '$version'" 
+                    : "" ) .
                 ( $n->{statement} eq 'grammar' 
-                    ? ';use Pugs::Compiler::Rule' .
-                      ';use base \'Pugs::Grammar::Base\'' 
-                    : '' ) .
+                    ? ";
+                        use Pugs::Compiler::Rule;
+                        use base 'Pugs::Grammar::Base' " 
+                    : "" ) .
                 ( $n->{statement} eq 'class' 
-                    ? ';use Moose; Pugs::Runtime::Perl6->setup_class' 
-                    : '' ) .
-                "; use Exporter 'import'; 
+                    ? ";
+                        use Moose; Pugs::Runtime::Perl6->setup_class"
+                    : "" ) .
+                ";
+                use Exporter 'import'; 
                 push our \@ISA, 'Exporter';
                 our \@EXPORT; 
                 $attributes ";

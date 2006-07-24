@@ -13,10 +13,11 @@ BEGIN {
 use lib '../..', (@inc ? $inc[-1] : ());
 use inc::Module::Install @inc;
 
-    name('v6-Compiler');
-all_from('lib/v6/Compiler.pm');
+        name('v6-Compiler');
+version_from('lib/v6/Compiler.pmc');
+    all_from('lib/v6/Compiler.pm');
 
-requires('v6' => '0.010');
+# requires('v6' => '0.010');
 
 &WriteAll;
 
