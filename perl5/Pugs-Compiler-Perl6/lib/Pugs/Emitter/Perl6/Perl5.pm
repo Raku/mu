@@ -400,7 +400,7 @@ sub default {
                   : _emit( $n->{param}{sub} );
             my @a = split "-", $id;
             my $version = ( @a > 1 && $a[-1] =~ /^[0-9]/ ? $a[-1] : '' );
-            return 'package ' . $a[0].';' .
+            return '{ package ' . $a[0].';' .
                 ( $version ? ";\$$a[0]::VERSION = '$version'" : '' ) .
                 ( $n->{sub}{bareword} eq 'grammar' 
                     ? ';use Pugs::Compiler::Rule' .
@@ -409,7 +409,7 @@ sub default {
                 ( $n->{sub}{bareword} eq 'class' 
                     ? ';use Moose; Pugs::Runtime::Perl6->setup_class' 
                     : '' ) .
-                ";use Exporter 'import'; push our \@ISA, 'Exporter' ;our \@EXPORT";
+                ";use Exporter 'import'; push our \@ISA, 'Exporter' ;our \@EXPORT } ";
         }
 
         if ( 0 && $n->{sub}{bareword} eq 'is' ) { # XXX: this is wrong, consider is() from Test.pm
