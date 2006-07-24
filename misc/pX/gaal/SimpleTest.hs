@@ -4,12 +4,23 @@ module Main where
 
 import DrIFT.Perl6Class
 
-import P
-import P.Instances
+import SimpleMod
+import SimpleMod.Instances
 
 main :: IO ()
 main = do
-    putStrLn $ showPerl6TypeDef (undefined :: Simple)
-    putStrLn $ showPerl6TypeDef (undefined :: PosAttr)
-    putStrLn $ showPerl6TypeDef (undefined :: RecAttr)
+    gop (undefined :: Simple)
+    gop (undefined :: PosAttr)
+    gop (undefined :: RecAttr)
+
+    gom (undefined :: Simple)
+    gom (undefined :: PosAttr)
+    gom (undefined :: RecAttr)
+
+gop :: Perl6Class a => a -> IO ()
+gop = putStrLn . showPerl6TypeDef
+
+gom :: MooseClass a => a -> IO ()
+gom = putStrLn . showMooseTypeDef
+
 

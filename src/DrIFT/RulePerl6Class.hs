@@ -9,11 +9,18 @@ type AlwaysPositional = Bool
 
 rules =
     [ ("Perl6Class", userRulePerl6Class, "Representation", "serialize into Perl 6 classes", Nothing)
+    , ("MooseClass", userRuleMoose, "Representation", "serialize into Moose Perl 5 classes", Nothing)
     ]
 
 userRulePerl6Class = instanceSkeleton' "Perl6Class"
     [ (makeAsObject, const empty)
     ]
+
+userRuleMoose = instanceSkeleton' "MooseClass"
+    [
+    --[ (makeAsMooseObject, const empty)
+    ]
+
 {-
     [ (const empty, caseHead)
     , (makeFromYAML alwaysPos, const empty)
@@ -26,23 +33,36 @@ instanceSkeleton' :: Class -> [(IFunction,[Body] -> Doc)] -> Data -> Doc
 instanceSkeleton' s ii  d = (simpleInstance s d <+> text "where") 
                 $$ block functions
     where
+    (typeDefF, roleDefF, classDefF)
+        | s == "Perl6Class" = ("showPerl6TypeDef", "showPerl6RoleDef", makePerl6ClassDef)
+        | otherwise         = ("showMooseTypeDef", "showMooseRoleDef", makeMooseClassDef)
     functions  = makeDefs : concatMap f ii
     f (i,dflt) = map i (body d) ++ [dflt $ body d]
-    makeDefs   = text "showPerl6TypeDef _" <+> equals <+> text "unlines" $$ (nest 8 $ commaList defs)
+    makeDefs   = text typeDefF <+> text "_" <+> equals <+> text "unlines" $$ (nest 8 $ commaList defs)
     defs       = roleDef : classDefs
-    roleDef    = text "showPerl6RoleDef" <+> (dq $ text $ role)
-    classDefs  = map (makeClassDef role) (body d)
+    roleDef    = text roleDefF <+> (dq $ text $ role)
+    classDefs  = map (classDefF role) (body d)
     role       = name d
 
-makeClassDef role bod@(Body constructor labels types) =
+makePerl6ClassDef role bod@(Body constructor labels types) =
     hsep [text "showPerl6ClassDef", qt role, qt constructor, mkAllAttr]
     where
     mkAllAttr = text $ show $ zipWith4 (\t s n l -> (t, dq $ s<>n, show l)) types' sigils names' lossage
     mkPosAttr = varNames types
     mkRecAttr = map text labels
-    types'    = map (qt . r_typename . p6Type) types
-    sigils    = map (text . r_sigil . p6Type) types
-    lossage   = map (qt . r_lossage . p6Type) types
+    types'    = map (qt   . r_typename . p6Type) types
+    sigils    = map (text . r_sigil    . p6Type) types
+    lossage   = map (text . r_lossage  . p6Type) types
+    names'    = if null labels then mkPosAttr else mkRecAttr
+
+makeMooseClassDef role bod@(Body constructor labels types) =
+    hsep [text "showMooseClassDef", qt role, qt constructor, mkAllAttr]
+    where
+    mkAllAttr = text $ show $ zipWith3 (\t n l -> (t, dq $ n, show l)) types' names' lossage
+    mkPosAttr = varNames types
+    mkRecAttr = map text labels
+    types'    = map (qt   . m_typename . mType) types
+    lossage   = map (text . m_lossage  . mType) types
     names'    = if null labels then mkPosAttr else mkRecAttr
 
 data P6TypeRep = MkRep
@@ -54,9 +74,21 @@ data P6TypeRep = MkRep
 p6Type :: Type -> P6TypeRep
 p6Type (Con ty)                       = MkRep "$." ty "" -- XXX should be: lookup the type in some Hs->P6 map
 p6Type (List (Con ty))                = MkRep "@." ty "" -- simple list
-p6Type ty@(List {})                   = MkRep "@." "" $ (show ty) -- too deep for a simple P6 constraint
+p6Type ty@(List {})                   = MkRep "@." "" $ show ty -- too deep for a simple P6 constraint
 p6Type (LApply (Con "Maybe") (ty:[])) = p6Type ty  -- drop Maybe silently
 p6Type ty                             = MkRep "$." "" $ show ty
+
+data MooseTypeRep = MkMooseRep
+    { m_typename :: String
+    , m_lossage  :: String
+    }
+
+mType :: Type -> MooseTypeRep
+mType (Con ty)                       = MkMooseRep ty "" -- XXX should be: lookup the type in some Hs->P6 map
+mType ty@(List {})                   = MkMooseRep "ArrayRef" $ show ty
+mType (LApply (Con "Maybe") (ty:[])) = mType ty  -- drop Maybe silently
+mType ty                             = MkMooseRep "" $ show ty
+
 
 makeAsObject bod@(Body constructor labels types)
     | null types  = empty

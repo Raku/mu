@@ -47,7 +47,7 @@ import Data.Array.IO
  </DrIFT> -}
  
 data Eval a = Eval a -- junk; just for testing p6 derivations
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 type Class = Bogus -- junk; just for testing p6 derivations
 
 type VList = [Val]
@@ -86,7 +86,7 @@ data VRule
         , rxStringify :: !Bool
         , rxAdverbs   :: !Val
         }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- | Represents a value.
 data Val
@@ -95,7 +95,7 @@ data Val
     | VPure   ValPure            -- ^ Immutable (or "pure") values
     | VMut    ValMut             -- ^ Mutable variables (in STM monad)
     | VIO     ValIO              -- ^ I/O handles (in IO monad)
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 type ExpVal = Val
 
@@ -110,14 +110,14 @@ data Native
     | NCplx !NativeComplex -- ^ (45 - 9i)
     | NStr  !NativeStr     -- ^ 'aloha'
     | NBool !NativeBool    -- ^ True (same underlying storage as NBit + True/False)
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- | L<S06/"Undefined types">
 data ValUndef
     = UUndef               -- ^ e.g., "my $x" with out further assignment
     | UWhatever            -- ^ e.g. the * in 1 .. *
     | UFailure    !ObjId   -- ^ $! object
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 
 type NativeBit   = Bool
@@ -126,18 +126,18 @@ type NativeBool  = Bool
 data Sign
     = SPositive
     | SNegative
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 data NativeInt
     = IFinite      !Integer
     | IInfinite    !Sign
     | INotANumber
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 data NativeNum
     = NRational  !Rational
     | NFloat     !Float
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 type NativeStr = Str
 
@@ -146,28 +146,28 @@ data NativeComplex = MkComplex
     { c_real      :: !NativeNum
     , c_imaginary :: !NativeNum
     }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 data PureList = MkList
     { l_seq   :: !PureSeq
     , l_range :: !PureRange
     }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 newtype PureSeq = MkSeq { s_seq :: SeqOf Val }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 data PureRange = MkRange
     { r_from :: Val  -- ??
     , r_to   :: Val  -- ??
     , r_next :: Code -- ??
     }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- Buffer in memory (Perl type Buf).
 -- This is called MemBuf because of a clash with Pugs.Types.Buf .
 data MemBuf = MkBuf { b_buffer :: IOUArray Word64 Word8 }
-    deriving (Typeable) {-!derive: YAML_Pos, Perl6Class !-}
+    deriving (Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass !-}
 instance Show MemBuf where
     show _ = "<buf>"
 instance Ord MemBuf where
@@ -195,7 +195,7 @@ type PureSig = Sig
 type PureCap = Cap
 
 newtype PureSet = MkSet { s_set :: Set Val }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 {-|
 Represents a junction value.
@@ -215,24 +215,24 @@ data PureJunc = MkJunc
     --     junctions, contains the set of values that appear exactly
     --     /once/.
     }
-    deriving (Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- | The combining semantics of a junction. See 'VJunc' for more info.
 data JuncType = JAny  -- ^ Matches if /at least one/ member matches
               | JAll  -- ^ Matches only if /all/ members match
               | JNone -- ^ Matches only if /no/ members match
               | JOne  -- ^ Matches if /exactly one/ member matches
-    deriving (Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 data PurePair = MkPair -- ?? or is this more efficient? data Pair (Val, Val)
     { p_key :: Val
     , p_val :: Val
     }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- XXX what about ordered mappings?
 data PureMap = Map Val Val
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- | L<S06/"Immutable types">
 data ValPure
@@ -254,7 +254,7 @@ data ValPure
     | PMap       !PureMap
     | PSig       !PureSig
     | PCap       !PureCap 
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 type MutScalar  = Eval ValPure
 type MutArray   = Eval [ValPure]
@@ -271,7 +271,7 @@ type MutGrammar = Eval Bogus
 type MutDynamic = Eval Bogus
 
 data Bogus = Bogus
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- | L<S06/"Mutable types"> minus IO types
 --   Computations on these types take place in the STM monad.
@@ -294,16 +294,16 @@ data ValMut
     | MGrammar   !MutGrammar
     | MObject    !MutObject  -- ? or ObjectId?
     | MForeign   !MutDynamic -- ...?
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 data IOFile = Handle
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 data IOSocket = Socket
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 data IOThread a = IOThread a -- XXX
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 data IOProcess = ProcessHandle
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- | Obviously side-effectual types such as file handles.
 --   Computations on these types must take place in the IO monad.
@@ -312,7 +312,7 @@ data ValIO
     | ISocket   !IOSocket         -- ^ Socket handle
     | IThread   !(IOThread Val)   -- ^ Thread handle
     | IProcess  !IOProcess        -- ^ PID value
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 {-
 instance ScalarClass a where
@@ -467,7 +467,7 @@ data Stmt = MkStmt
     { label      :: Maybe Ident
     , pragmas    :: Table
     , expression :: Exp
-    } deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    } deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- | Carry over last pragmas and create a new statement out of an expression
 nextStmt :: Stmt -> Exp -> Stmt
@@ -484,7 +484,7 @@ data Exp
     | EControl  ExpControl             -- ^ Control structure, e.g. if, while
     | EFlatten  [Exp]                  -- ^ Wrapper for expressions forced into
                                        --   slurpy context
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 
 -- | Control statement, such as "if".
@@ -502,7 +502,7 @@ data ExpControl
     | CGiven       Exp  Code            -- ^ given
     | CWhen        Exp  Code            -- ^ when
     | CForeign                          -- ^ &statement_control:<mycontrol>
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- | Single parameter for a function/method, e.g.:
 --   Elk $m where { $m.antlers ~~ Velvet }
@@ -526,13 +526,13 @@ data Param = MkParam
     , p_hasAccess   :: ParamAccess   -- ^ is ro, is rw, is copy
     , p_isRef       :: Bool
     , p_isLazy      :: Bool
-    } deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    } deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 data ParamAccess
     = AccRO
     | AccRW
     | AccCopy
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- | Function associtivity
 data CodeAssoc
@@ -541,7 +541,7 @@ data CodeAssoc
     | AssNon
     | AssChain
     | AssList
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- | AST for function signature. Separated to method and function variants
 --   for ease of pattern matching.
@@ -569,13 +569,13 @@ data Sig
         , s_slurpyCode                :: Maybe Param
         , s_slurpyCapture             :: Maybe Param
         }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 
 newtype CodeWrapping = MkWrapping
     { w_wrappings :: TVar (IntMap Routine)
     }
-    deriving (Show, Eq, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 instance Ord CodeWrapping where
     compare _ _ = error "can't compare CodeWrapping"
@@ -589,7 +589,7 @@ data Routine
         { wrappings       :: CodeWrapping
         , routineVariants :: Set MultiVariant
         }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 {- (It's not clear how multi variants are supposed to be ordered.
    One thing is that we want local code to be able to add variants,
@@ -624,13 +624,13 @@ data Code
         , c_isRW              :: Bool
         , c_isSafe            :: Bool
         }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
     
 data MultiVariant = MkMultiVariant 
     { m_semicolonOffsets              :: IntSet
     , m_callable                      :: Code  -- ^ Thing actually called
     , m_extraWrappings                :: Maybe CodeWrapping
-    } deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    } deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 
 -- | Storage cell for a lexical variable: @Pad@, @EntryDeclarator@, @EntryStorage@, @PadEntry@
@@ -654,7 +654,7 @@ progressively outer scopes until an item is found. For dynamic variables
 -}
 
 newtype Pad = MkPad { padEntries :: Map Var PadEntry }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 type EntryStorage = TVar Val
 instance Ord EntryStorage where
@@ -667,13 +667,13 @@ data EntryDeclarator
     | DeclHas
     | DeclState
     | DeclConstant
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 data PadEntry = MkEntry
     { e_declarator :: EntryDeclarator   -- ^ my etc.
     , e_storage    :: EntryStorage      -- ^ stored value
     }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 type Bit = Bool     -- XXX: correct?
 
@@ -700,7 +700,7 @@ data MutObject
         { o_id       :: !ObjId      -- ^ our unique id
         , o_meta     :: !ObjClass   -- ^ id of our metaobj/type
         }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- | Capture.
 data Cap 
@@ -711,13 +711,13 @@ data Cap
     | CaptSub
         { c_argstack :: [Arglist]
         }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 data Arglist = MkArglist
     { a_positional :: [Exp]
     , a_named      :: Map Str [Exp]
     }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 data Var
     = VarLexical
@@ -732,7 +732,7 @@ data Var
     | VarMagic
         { v_magic       :: Magic
         }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 type ExpVar = Var
 
@@ -758,10 +758,13 @@ data Magic
     | MArrayRoutines    -- ^ @?ROUTINE   Which routines am I in?
     | MScalarBlock      -- ^ &?BLOCK     Which block am I in?
     | MArrayBlocks      -- ^ @?BLOCK     Which blocks am I in?
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class!-}
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 instance Typeable Unique where typeOf _ = typeOf ()
 instance Typeable ProcessHandle where typeOf _ = typeOf ()
+#if __GLASGOW_HASKELL__ <= 604
+instance Typeable1 Tree where typeOf1 _ = typeOf ()
+#endif
 
 {- <DrIFT>
 
@@ -789,5 +792,6 @@ instance YAML (IOUArray Word64 Word8)
 instance YAML (TVar (IntMap Routine))
 instance YAML CodeWrapping
 instance YAML Pad
+instance YAML ProcessHandle
 
 </DrIFT> -}

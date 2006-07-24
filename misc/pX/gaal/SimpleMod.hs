@@ -1,22 +1,22 @@
 {-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -fallow-overlapping-instances -funbox-strict-fields -fallow-undecidable-instances #-}
 
-module P where
+module SimpleMod where
 
 import Data.Typeable
 
 data Simplest
-    deriving Typeable {-!derive: Perl6Class!-}
+    deriving Typeable {-!derive: Perl6Class, MooseClass!-}
 
 data Simple
     = Variant1
     | Variant2
     | Variant3
-    deriving Typeable {-!derive: Perl6Class!-}
+    deriving Typeable {-!derive: Perl6Class, MooseClass!-}
 
 data PosAttr
     = PosClass  Int [Int] String
     | PosClass2 Rational Int String
-    deriving Typeable {-!derive: Perl6Class!-}
+    deriving Typeable {-!derive: Perl6Class, MooseClass!-}
 
 data RecAttr
     = MkRec
@@ -29,6 +29,6 @@ data RecAttr
         , atta :: Rational
         , attb :: String
         }
-    deriving Typeable {-!derive: Perl6Class!-}
+    deriving Typeable {-!derive: Perl6Class, MooseClass!-}
 
 

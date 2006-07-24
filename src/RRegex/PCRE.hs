@@ -46,7 +46,8 @@ data PCRE = PCRE
 
 -- | A compiled regular expression
 newtype Regex = Regex (ForeignPtr PCRE)
-    deriving (Show, Eq, Ord, Typeable, Data)
+    deriving (Show, Eq, Ord, Data)
+instance Typeable Regex where typeOf _ = typeOf ()
 
 fi :: (Num b, Integral a) => a -> b
 fi x = fromIntegral x
