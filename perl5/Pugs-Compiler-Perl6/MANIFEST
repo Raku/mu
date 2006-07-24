@@ -49,6 +49,7 @@ t/01-sanity/07-isa.t
 t/01-sanity/07-range.t
 # don't copy one. We have a modified version. 
 # t/01-sanity/07-ref.t
+t/01-sanity/07-simple-multisubs.t
 t/01-sanity/07-split.t
 t/01-sanity/07-substr.t
 t/01-sanity/07-tailcall.t
@@ -68,13 +69,25 @@ t/builtins/io/exit.t
 t/builtins/math/rand.t
 
 t/builtins/strings/append.t
+
+t/junction/array_deref.t
+
 t/oo/attributes/class.t
 
+t/oo/can.t
+t/oo/positional_parameters_in_BUILD.t
 t/oo/precedence.t
+
 t/operators/and_precedence.t
+t/operators/auto.t
 t/operators/cond.t
 t/operators/eq.t
+t/operators/inc.t
 t/operators/pipe.t
+t/operators/relational.t
+t/operators/spaceship_and_datatypes.t
+
+t/rules/from_perl6_rules/assert.t
 
 t/statements/exit_in_begin.t
 t/statements/for_with_only_one_item.t
@@ -85,16 +98,27 @@ t/statements/while.t
 t/subroutines/bare_block_with_dollar_underscore.t
 t/subroutines/defaults.t
 t/subroutines/nested_named.t
+t/subroutines/primitive_named_params.t
 t/subroutines/splat_rw.t
 t/subroutines/splatty_in_caller_position.t
 t/subroutines/splatty_with_type.t
 t/subroutines/sub_arg_errors.t
 t/syntax/parsing/braces_in_rules.t
 t/syntax/parsing/parens.t
+t/syntax/parsing/postfix_if_and_is.t
 t/syntax/single_quoted_strings.t
 t/syntax/stmt_or_expr.t
 
+t/var/constant.t
+t/var/passing_the_pair_class_to_a_sub.t
+
+t/xx-uncategorized/cast_undef_shortcircuit.t
+t/xx-uncategorized/class_name_and_attribute_name_confliction.t
+t/xx-uncategorized/is_copy_ne_is_rw.t
+t/xx-uncategorized/named_2_positional.t
+t/xx-uncategorized/optional_copy.t
 t/xx-uncategorized/parsing_bool.t
+t/xx-uncategorized/shift-from-function-array-arg.t
 
 t/Test.pm
 # not included in v6 0.007
