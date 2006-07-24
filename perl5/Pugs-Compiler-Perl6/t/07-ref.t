@@ -6,7 +6,7 @@ say "1..3";
 
 {
     my $string = "Pugs";
-    if $string.ref eq Str { say "ok 1" } else { say "not ok 1" }
+    if $string.ref eq Str { say "ok 1" } else { say "not ok 1 # TODO" }
 }
 
 {
