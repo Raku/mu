@@ -32,8 +32,10 @@ showPerl6ClassDef ns role cls members = render $
          | otherwise    = vcat  -- sometimes there are '#'-style comments.
     clsHead = hsep $ map text ["class", ns cls, "does", ns role, "{"]
     clsTail = rbrace <> semi
-    memberDef (ty, nm, ann) = hsep [text "has", ty' ty, text nm] <> semi <+> annComment ann
+    memberDef (ty, nm, ann) = hsep [text "has", ty' ty, nm' nm] <> semi <+> annComment ann
     ty' x   = if null x then empty else text x
+    nm' (_:'_':n) = text n
+    nm' n         = text n
     annComment x = if null x then empty else text "#" <+> text x
 
 showMooseClassDef ns role cls members = render $
@@ -47,9 +49,11 @@ showMooseClassDef ns role cls members = render $
         , text "extends" <+> quotes (text $ ns role) <> semi
         , text ""
         ]
-    memberDef (ty, nm, ann) = hsep [text "has", qt nm, text "=>"] <+>
+    memberDef (ty, nm, ann) = hsep [text "has", nm' nm, text "=>"] <+>
         (parens $ hsep [text "is 'rw',", ty' ty]) <> semi <+> annComment ann
     ty' x   = if null x then empty else text "isa =>" <+> (quotes $ text x)
+    nm' (_:'_':n) = qt n
+    nm' n         = qt n
     annComment x = if null x then empty else text "#" <+> text x
 
 qt :: String -> Doc
