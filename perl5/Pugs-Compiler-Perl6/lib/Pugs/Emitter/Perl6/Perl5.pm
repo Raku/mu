@@ -683,7 +683,9 @@ sub statement {
         my $id;
         # TODO - anonymous class
         # TODO - attributes
-        $id = $n->{name};
+        $id = ref( $n->{name} ) 
+            ? $n->{name}{cpan_bareword}
+            : $n->{name};
         my @a = split "-", $id;
         my $version = ( @a > 1 && $a[-1] =~ /^[0-9]/ ? $a[-1] : '' );
         my $namespace = Pugs::Runtime::Common::mangle_ident( $a[0] );
@@ -697,7 +699,7 @@ sub statement {
         }
 
         my $decl = "package $namespace;" .
-                ( $version ? ";\$$a[0]::VERSION = '$version'" : '' ) .
+                ( $version ? ";\$".$namespace."::VERSION = '$version'" : '' ) .
                 ( $n->{statement} eq 'grammar' 
                     ? ';use Pugs::Compiler::Rule' .
                       ';use base \'Pugs::Grammar::Base\'' 

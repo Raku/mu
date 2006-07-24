@@ -22,7 +22,7 @@ sub cpan_bareword {
         tail  => $2,
         capture => { cpan_bareword => $1 },
     } )
-        if $_[0] =~ /^ ([_\w\d]+ \- [_\w\d\-\.*]+) ( (?: \(|\;|\s|$ ) .*)$/sx;
+        if $_[0] =~ /^ ([_\w\d\:]+ \- [_\w\d\-\.*]+) ( (?: \(|\;|\s|$ ) .*)$/sx;
     return $class->no_match;
 };
 

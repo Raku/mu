@@ -443,7 +443,9 @@ sub perl6_expression {
 *class_decl_name = Pugs::Compiler::Regex->compile( q(
     ( my | <''> ) <?ws>?
     ( class | grammar | module | role | package ) <?ws>? 
-    ( <?Pugs::Grammar::Term.ident>? ) 
+    ( <?Pugs::Grammar::Term.cpan_bareword> |
+      <?Pugs::Grammar::Term.bare_ident> |
+      <''> ) 
         { return { 
             my         => $_[0][0]->(),
             statement  => $_[0][1]->(),
