@@ -938,9 +938,15 @@ sub postcircumfix {
     if ( $n->{op1}{op} eq '{' &&
          $n->{op2}{op} eq '}' ) {
         my $name = _emit( $n->{exp1} );
-	die unless $name =~ m/^\%/;
+        die unless $name =~ m/^\%/;
         $name =~ s/^\%/\$/;
-        return $name . '{ \'' . _emit($n->{exp2}) . '\' }';
+        return $name . 
+            '{ ' . 
+            join(', ', 
+                map { 
+                    _emit($_) 
+                } @{$n->{exp2}{statements}} ) . 
+            ' }';
     }
 
     return _not_implemented( $n, "postcircumfix" );
