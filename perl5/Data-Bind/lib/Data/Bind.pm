@@ -118,6 +118,7 @@ sub arg_bind {
     for (@$install_local) {
 	my ($name, $code) = @$_;
 	no strict 'refs';
+	no warnings 'redefine';
 	*{$name} = $code;
 	Data::Bind::_forget_unlocal(2);
     }
