@@ -682,7 +682,7 @@ sub statement {
         my $version = ( @a > 1 && $a[-1] =~ /^[0-9]/ ? $a[-1] : '' );
         my $namespace = Pugs::Runtime::Common::mangle_ident( $a[0] );
 
-        my $attributes;
+        my $attributes = '';
         for my $attr ( @{$n->{attribute}} ) {
             if ( $attr->[0]{bareword} eq 'is' &&
                  $attr->[1]{bareword} ne 'export' ) {
