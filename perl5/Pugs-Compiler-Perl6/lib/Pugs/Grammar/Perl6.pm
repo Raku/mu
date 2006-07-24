@@ -203,7 +203,7 @@ sub perl6_expression {
 
 
 *attribute = Pugs::Compiler::Regex->compile( q(
-        (<alnum>+) <?ws> (<alnum>+)
+        (<alnum>+) <?ws> ( [<alnum>|_|\\:\\:]+)
         [
             <?ws> <attribute>
             { return [
