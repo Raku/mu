@@ -62,9 +62,17 @@ sub rx {
     while ($_[0] =~ s/^:(\w+)//) {
 	$options->{lc($1)} = 1;
     }
-    my $open = substr($_[0], 0 , 1);
+    my $open = substr($_[0], 0 , 1, '');
+    my $ret = rx_body($grammar, $_[0], { args => { open => $open } });
+    $ret->capture->{options} = $options if $ret->bool;
+    return $ret;
+}
+
+sub rx_body {
+    my $grammar = shift;
+    use Data::Dumper;
+    my $open = $_[1]->{args}{open};
     return $grammar->no_match unless exists $openmatch{$open};
-    substr($_[0], 0, 1, '');
     my ($extracted,$remainder) = $open eq $openmatch{$open}
         ? Text::Balanced::extract_delimited( $open . $_[0], $openmatch{$open} )
 	: Text::Balanced::extract_bracketed( $open . $_[0], $open.$openmatch{$open} );
@@ -74,7 +82,7 @@ sub rx {
         bool    => 1,,
         match   => $extracted,
         tail    => $remainder,
-        capture => { options => $options, rx => $extracted },
+        capture => { rx => $extracted },
     } );
 };
 
@@ -309,6 +317,13 @@ sub recompile {
             <Pugs::Grammar::Term.rx>
             { return { 
                     rx => $/{'Pugs::Grammar::Term.rx'}->(),
+                } 
+            }
+        ) ),
+        q(/) => Pugs::Compiler::Regex->compile( q(
+            <Pugs::Grammar::Term.rx_body('open','/')>
+            { return { 
+                    rx => $/{'Pugs::Grammar::Term.rx_body'}->(),
                 } 
             }
         ) ),
