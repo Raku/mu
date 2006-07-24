@@ -442,7 +442,7 @@ sub perl6_expression {
 
 *class_decl_name = Pugs::Compiler::Regex->compile( q(
     ( my | <''> ) <?ws>?
-    ( class | grammar | module | role ) <?ws>? 
+    ( class | grammar | module | role | package ) <?ws>? 
     ( <?Pugs::Grammar::Term.ident>? ) 
         { return { 
             my         => $_[0][0]->(),
