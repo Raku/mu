@@ -668,7 +668,8 @@ sub statement {
     if ( $n->{statement} eq 'grammar'  ||
          $n->{statement} eq 'class'    ||
          # $n->{statement} eq 'package'  ||
-         $n->{statement} eq 'module'   ) {
+         $n->{statement} eq 'module'   ||
+         $n->{statement} eq 'role'     ) {
         # Moose: package xxx; use Moose;
         # class Point;
         # print Dumper($n);
