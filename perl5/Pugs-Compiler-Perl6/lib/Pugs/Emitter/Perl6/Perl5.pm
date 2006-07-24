@@ -679,7 +679,17 @@ sub statement {
         $id = $n->{name};
         my @a = split "-", $id;
         my $version = ( @a > 1 && $a[-1] =~ /^[0-9]/ ? $a[-1] : '' );
-        my $decl = 'package ' . $a[0].';' .
+        my $namespace = Pugs::Runtime::Common::mangle_ident( $a[0] );
+
+        my $attributes;
+        for my $attr ( @{$n->{attribute}} ) {
+            if ( $attr->[0]{bareword} eq 'is' &&
+                 $attr->[1]{bareword} ne 'export' ) {
+                $attributes .= "push \@ISA, '" . Pugs::Runtime::Common::mangle_ident( $attr->[1]{bareword} ) . "';";
+            }
+        }
+
+        my $decl = "package $namespace;" .
                 ( $version ? ";\$$a[0]::VERSION = '$version'" : '' ) .
                 ( $n->{statement} eq 'grammar' 
                     ? ';use Pugs::Compiler::Rule' .
@@ -690,7 +700,8 @@ sub statement {
                     : '' ) .
                 "; use Exporter 'import'; 
                 push our \@ISA, 'Exporter';
-                our \@EXPORT; ";
+                our \@EXPORT; 
+                $attributes ";
 
             return exists $n->{block}{bare_block}
                 ? "{ $decl; ".(@{$n->{block}{bare_block}{statements}}
