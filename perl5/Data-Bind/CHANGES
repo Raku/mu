@@ -1,3 +1,10 @@
+[Changes for 0.28  - 24 Jul, 2006]
+
+* Fix binding between array/hash and arrayref/hashref.
+* forget_unlocal injects to actual caller namespace now.
+* Fix binding a element of a bound array, and other PVLV issues.
+* Fix binding for SVt_PVMG without MAGIC.
+
 [Changes for 0.27  - 9 Jul, 2006]
 
 * Doc fixes.
