@@ -210,8 +210,11 @@ sub recompile {
     my $class = shift;
     %hash = (
         '$' => Pugs::Compiler::Regex->compile( q(
-                <?Pugs::Grammar::Term.ident>
-                { return { scalar => '$' . $_[0]->() ,} }
+                [ <?Pugs::Grammar::Term.ident>
+                  { return { scalar => '$' . $_[0]->() ,} }
+                | (\d+)
+                  { return { scalar => '$' . $_[0]->() ,} }
+                ]
             ) ),
         '$.' => Pugs::Compiler::Regex->compile( q(
                 <?Pugs::Grammar::Term.ident>
@@ -296,6 +299,13 @@ sub recompile {
             }
         ) ),
         q(rx) => Pugs::Compiler::Regex->compile( q(
+            <Pugs::Grammar::Term.rx>
+            { return { 
+                    rx => $/{'Pugs::Grammar::Term.rx'}->(),
+                } 
+            }
+        ) ),
+        q(m) => Pugs::Compiler::Regex->compile( q(
             <Pugs::Grammar::Term.rx>
             { return { 
                     rx => $/{'Pugs::Grammar::Term.rx'}->(),
