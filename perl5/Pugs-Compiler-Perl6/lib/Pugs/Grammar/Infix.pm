@@ -28,17 +28,17 @@ sub add_rule {
         '{ return { op => "infix:<' . $opt{name} . '>" ,} }' );
 }
 
+sub add_same_precedence_ops {
+    my ($class, $opt, $other, @ops) = @_;
+    $class->add_rule(other => $other, precedence => 'equal', name => $_, %$opt) for @ops;
+}
+
 BEGIN {
     __PACKAGE__->add_rule( 
         name => '*',
         assoc => 'left',
     );
-    __PACKAGE__->add_rule( 
-        name => '/',
-        assoc => 'left',
-        precedence => 'equal',
-        other => '*',
-    );
+    __PACKAGE__->add_same_precedence_ops( { assoc => 'left'}, qw(* / % x xx +& +< +> ~& ~< ~> ?& ) );
 
     __PACKAGE__->add_rule(
         name => '**',
@@ -53,44 +53,21 @@ BEGIN {
         precedence => 'looser',
         other => '*',
     );
-    __PACKAGE__->add_rule( 
-        name => '-',
-        assoc => 'left',
-        precedence => 'equal',
-        other => '+',
-    );
-    __PACKAGE__->add_rule( 
-        name => '~',
-        assoc => 'left',
-        precedence => 'equal',
-        other => '+',
-    );
-    
+
+    __PACKAGE__->add_same_precedence_ops( { assoc => 'left'}, qw(+ - ~ +| +^ ~| ~^ ?| ?^) );
+
     __PACKAGE__->add_rule( 
         name => '..',
         assoc => 'left',
         precedence => 'looser',
         other => '+',
     );
-    __PACKAGE__->add_rule( 
-        name => 'cmp',
-        assoc => 'left',
-        precedence => 'equal',
-        other => '..',
-    );
-    __PACKAGE__->add_rule( 
-        name => 'does',
-        assoc => 'left',
-        precedence => 'equal',
-        other => '..',
-    );
-    __PACKAGE__->add_rule( 
-        name => 'but',
-        assoc => 'left',
-        precedence => 'equal',
-        other => '..',
-    );
-    
+
+    __PACKAGE__->add_same_precedence_ops( { assoc => 'left'},
+                                   qw(.. but does <=> leg cmp ^.. ..^
+                                   ^..^ ff ^ff ff^ ^ff^ fff ^fff fff^
+                                   ^fff^) );
+
     __PACKAGE__->add_rule( 
         name => '|',
         assoc => 'left',
@@ -113,80 +90,13 @@ BEGIN {
         precedence => 'looser',
         other => 'infix:<|>',
     );
-    __PACKAGE__->add_rule( 
-        name => 'ne',
-        assoc => 'chain',
-        precedence => 'equal',
-        other => 'eq',
-    );
-    __PACKAGE__->add_rule( 
-        name => 'lt',
-        assoc => 'chain',
-        precedence => 'equal',
-        other => 'eq',
-    );
-    __PACKAGE__->add_rule( 
-        name => 'gt',
-        assoc => 'chain',
-        precedence => 'equal',
-        other => 'eq',
-    );
-    __PACKAGE__->add_rule( 
-        name => '==',
-        assoc => 'chain',
-        precedence => 'equal',
-        other => 'eq',
-    );
-    __PACKAGE__->add_rule( 
-        name => '!=',
-        assoc => 'chain',
-        precedence => 'equal',
-        other => 'eq',
-    );
-    __PACKAGE__->add_rule( 
-        name => '+=',
-        assoc => 'left',
-        precedence => 'equal',
-        other => 'eq',
-    );
-    __PACKAGE__->add_rule( 
-        name => '-=',
-        assoc => 'left',
-        precedence => 'equal',
-        other => 'eq',
-    );
-    __PACKAGE__->add_rule( 
-        name => '<',
-        assoc => 'chain',
-        precedence => 'equal',
-        other => 'eq',
-    );
-    __PACKAGE__->add_rule( 
-        name => '>',
-        assoc => 'chain',
-        precedence => 'equal',
-        other => 'eq',
-    );
-    
-    __PACKAGE__->add_rule( 
-        name => '<=',
-        assoc => 'chain',
-        precedence => 'equal',
-        other => 'eq',
-    );
-    __PACKAGE__->add_rule( 
-        name => '>=',
-        assoc => 'chain',
-        precedence => 'equal',
-        other => 'eq',
-    );
-    __PACKAGE__->add_rule( 
-        name => '~~',
-        assoc => 'left',
-        precedence => 'equal',
-        other => 'eq',
-    );
-    
+
+    __PACKAGE__->add_same_precedence_ops( { assoc => 'chain'}, qw(eq !=
+                                   == < <= > >= ne lt le gt ge =:=
+                                   === eqv !== !~~ !eq !=:= !=== !eqv)
+                                   );
+    __PACKAGE__->add_same_precedence_ops( { assoc => 'left'}, qw(eq ~~) );
+
     __PACKAGE__->add_rule( 
         name => '&&',
         assoc => 'right',
@@ -238,6 +148,21 @@ BEGIN {
         other => '=',
     );
     
+
+    __PACKAGE__->add_rule( 
+        name => '+=',
+        assoc => 'left',
+        precedence => 'equal',
+        other => 'eq',
+    );
+    __PACKAGE__->add_rule( 
+        name => '-=',
+        assoc => 'left',
+        precedence => 'equal',
+        other => 'eq',
+    );
+
+
     __PACKAGE__->add_rule( 
         name => 'Y',
         assoc => 'list',
