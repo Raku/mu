@@ -847,6 +847,11 @@ sub infix {
                 if $subs->{options}{p5};
             return _not_implemented( $n, "rule" );
         }
+	if ( my $rx = $n->{exp2}{rx} ) {
+	    if ( !$rx->{options}{perl5} ) {
+		return '$::_V6_MATCH_ = Pugs::Compiler::Regex->compile( q{'.$rx->{rx}.'} )->match('._emit($n->{exp1}).')';
+	    }
+	}
         return _emit( $n->{exp1} ) . ' =~ (ref(' . _emit( $n->{exp2} ).') eq "REGEX" ? '._emit($n->{exp2}).' : quotemeta('._emit($n->{exp2}).'))';
     }
 
