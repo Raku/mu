@@ -98,11 +98,18 @@ token num {
 }
 
 token str {
-    ' [ \\' | <!'> ]* '
-    { return $/.as(v6::AST::NStr) }
+    ' ( [ \\' | <!'> ]* ) '
+    { return $/[0].as(v6::AST::NStr) }
 }
 
-token bool {
-    [ True | False ]
-    { return $/.as(v6::AST::NBool) }
-}
+# - there is no parsetime 'bool'
+#
+#   <audreyt> the only way to get parsetime bool is
+#   constant bool $x = True
+#   or
+#   my bool $x; BEGIN { $x = False } 
+#
+# token bool {
+#    [ True | False ]
+#    { return $/.as(v6::AST::NBool) }
+# }
