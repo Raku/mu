@@ -421,7 +421,9 @@ sub default {
                 ( $n->{sub}{bareword} eq 'class' 
                     ? ';use Moose; Pugs::Runtime::Perl6->setup_class' 
                     : '' ) .
-                ";use Exporter 'import'; push our \@ISA, 'Exporter' ;our \@EXPORT ";
+                "; use Exporter 'import'; 
+                push our \@ISA, 'Exporter';
+                our \@EXPORT; ";
 
             return exists $n->{param}{param}{bare_block}
                 ? "{ $decl; ".(@{$n->{param}{param}{bare_block}{statements}}
@@ -546,7 +548,10 @@ sub default {
             return 'Pugs::Runtime::Perl6::eval('. _emit_parameter_capture( $n->{param} ) . ')';
         }
 
-        return ' ' . Pugs::Runtime::Common::mangle_ident( $n->{sub}{bareword} ) .
+        my $sub_name = Pugs::Runtime::Common::mangle_ident( $n->{sub}{bareword} );
+        $sub_name = "\&{'$sub_name'}"
+            if $sub_name =~ /^v6::/;  # avoid perl5 syntax error
+        return ' ' . $sub_name .
             (exists $n->{param} ? '(' . _emit_parameter_capture( $n->{param} ) . ')' : '');
     }
     

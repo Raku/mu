@@ -56,6 +56,7 @@ sub setup_class {
     my @foo = split /::/, $class;
     my $last = pop @foo;
     no strict 'refs';
+    no warnings 'redefine';  # Moose already does this?
     *{'::'.$class} = sub { $class->meta->name };
 }
 

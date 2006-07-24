@@ -449,7 +449,7 @@ sub _preprocess_hash {
             #print $h->code;
             my $match = $h->match( $_[0], $_[4], { p => 1 } );
             #print "match: ",$match->(),"\n";
-            return $_[3] = $match->data;
+            return $_[3] = $match; #->data;
         };
     }
     # fail is number != 1 

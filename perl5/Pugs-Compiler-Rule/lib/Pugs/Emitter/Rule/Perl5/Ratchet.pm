@@ -26,10 +26,20 @@ sub call_subrule {
 }
 
 sub call_constant {
-    my $const = $_[0];
-    my $len = length( eval "'$const'" );
-    $const = ( $_[0] eq $_ ? "chr(".ord($_).")" : "'$_[0]'" )
-        for qw( \ ' );     # '
+    return " 1 # null constant\n"
+        unless length($_[0]);
+    my $len = length( $_[0] );
+    my $const;
+    #print "Const: [$_[0]] ". length($_[0])."\n";
+    if ( $_[0] eq "\\" ) {
+        $const = "chr(".ord("\\").")";
+    }
+    elsif ( $_[0] eq "'" ) {
+        $const = "chr(".ord("'").")"
+    }
+    else {
+        $const = "'$_[0]'"
+    }
     return
     "$_[1] ( ( substr( \$s, \$pos, $len ) eq $const ) 
 $_[1]     ? do { \$pos $direction= $len; 1 }
@@ -262,7 +272,6 @@ sub special_char {
         return call_perl5(   "\\$_",  $_[1] ) if $char eq $_;
         return call_perl5( "[^\\$_]", $_[1] ) if $char eq uc($_);
     }
-    $char = '\\\\' if $char eq '\\';
     return call_constant( $char, $_[1] );
 }
 sub match_variable {
