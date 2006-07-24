@@ -84,6 +84,12 @@ sub _emit_code {
         if ($name eq 'ROUTINE') {
             return "Pugs::Runtime::Perl6::Routine->new(Devel::Caller::caller_cv($caller_level))";
         }
+        elsif ($name eq 'POSITION') {
+	    if ($caller_level == 0) {
+		return "join(' line ', __FILE__, __LINE__)";
+	    }
+            return "join(' line ', (caller(".($caller_level-1)."))[1,2])";
+        }
         die 'unhandled magic variable';
     }
 
@@ -92,9 +98,12 @@ sub _emit_code {
 
 sub _emit_double_quoted {
     my $n = $_[0];
-    my @strings = (split /(\$\*\w+)/, $n);
+    # special case for $POSITION
+    my @strings = map { $_ =~ s/\$(\?.*POSITION)/&$1/; $_ } (split /([&\$][*?][:\w.]+)/, $n);
     return '""' unless @strings;
-    return join('.', map { $_ =~ /^\$\*/ ? Pugs::Runtime::Common::mangle_var($_) : '"'.$_.'"' }
+    return join('.', map { /^\$\*/ ? Pugs::Runtime::Common::mangle_var($_)
+                         : /^.\?/ ? 'do { '.Pugs::Compiler::Perl6->compile($_)->{perl5}.' }'
+                         : '"'.$_.'"' }
                      grep { length $_ } @strings);
 }
 
