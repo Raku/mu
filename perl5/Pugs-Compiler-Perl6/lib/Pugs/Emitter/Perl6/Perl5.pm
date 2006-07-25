@@ -99,7 +99,7 @@ sub _emit_code {
 sub _emit_double_quoted {
     my $n = $_[0];
     # special case for $POSITION
-    my @strings = map { $_ =~ s/\$(\?.*POSITION)/&$1/; $_ } (split /([&\$][*?][:\w.]+)/, $n);
+    my @strings = map { $_ =~ s/\$(\?.*POSITION)/&$1/; $_ } (split /([&\$][*?][:\w.]+\w)/, $n);
     return '""' unless @strings;
     return join('.', map { /^\$\*/ ? Pugs::Runtime::Common::mangle_var($_)
                          : /^.\?/ ? 'do { '.Pugs::Compiler::Perl6->compile($_)->{perl5}.' }'
