@@ -71,35 +71,35 @@ token num {
           | d \d+               [ _ \d+]*
           | \d+[_\d+]*
             [ \. \d+[_\d+]* [ <[Ee]> <[+\-]>? \d+ ]? 
-              { return $/.as(v6::AST::NFloat) }
-            | { return $/.as(v6::AST::IFinite) }
+              { return $/ does v6::AST::NFloat  }
+            | { return $/ does v6::AST::IFinite }
             ]
           ]
-        | { return $/.as(v6::AST::NBit) }
+        | { return $/ does v6::AST::NBit) }
         ]
     | 1 [ \d+[_\d+]*
             [ \. \d+[_\d+]* [ <[Ee]> <[+\-]>? \d+ ]? 
-              { return $/.as(v6::AST::NFloat) }
-            | { return $/.as(v6::AST::IFinite) }
+              { return $/ does v6::AST::NFloat  }
+            | { return $/ does v6::AST::IFinite }
             ]
-        | { return $/.as(v6::AST::NBit) }
+        | { return $/ does v6::AST::NBit) }
         ]
     | \d+[_\d+]*
         [ \. \d+[_\d+]* [ <[Ee]> <[+\-]>? \d+ ]? 
-          { return $/.as(v6::AST::NFloat) }
-        | { return $/.as(v6::AST::IFinite) }
+          { return $/ does v6::AST::NFloat  }
+        | { return $/ does v6::AST::IFinite }
         ]
     | \. \d+[_\d+]* [ <[Ee]> <[+\-]>? \d+ ]? 
-    { return $/.as(v6::AST::NFloat) }
+    { return $/ does v6::AST::NFloat      }
     | Inf
-    { return $/.as(v6::AST::IInfinite) }
+    { return $/ does v6::AST::IInfinite   }
     | NaN
-    { return $/.as(v6::AST::INotANumber) }
+    { return $/ does v6::AST::INotANumber }
 }
 
 token str {
     ' ( [ \\' | <!'> ]* ) '
-    { return $/[0].as(v6::AST::NStr) }
+    { return $/[0] does v6::AST::NStr }
 }
 
 # - there is no parsetime 'bool'
@@ -111,5 +111,5 @@ token str {
 #
 # token bool {
 #    [ True | False ]
-#    { return $/.as(v6::AST::NBool) }
+#    { return $/ does v6::AST::NBool) }
 # }
