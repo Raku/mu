@@ -5,19 +5,15 @@ class v6::Compiler-0.01;
 
 =head1 NAME
 
-v6-Compiler - An experimental Perl6-in-Perl6 implementation
-
-=head1 SYNOPSIS
-
-TODO
+v6-Compiler - A Perl 6 compiler library
 
 =head1 DESCRIPTION
 
-The C<v6-Compiler> module is a front-end to the experimental Perl6-in-Perl6 compiler.
+The C<v6-Compiler> distribution provides modules for implementing
+a Perl 6 compiler.
 
-The compiler is meant to be used by Perl6 backend implementations.
-
-In a Perl 5 environment, use the C<v6-alpha> distribution instead.
+The modules are meant to be used by Perl 6 "backend" implementations,
+such as C<Pugs-Haskell>, C<Perl6-Parrot>, and C<v6.pm>.
 
 =head1 AUTHORS
 
@@ -33,9 +29,14 @@ The Pugs homepage at L<http://pugscode.org/>.
 
 The Parrot homepage at L<http://www.parrotcode.org>.
 
+The C<v6.pm> module at L<http://search.cpan.org/dist/v6-alpha/>.
+
 =head1 COPYRIGHT
 
 Copyright 2006 by Flavio Soibelmann Glock and others.
+
+This program contains snippets from Pugs, Parrot, v6.pm, and from the
+several Perl 6 mailing lists and irc channels.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
