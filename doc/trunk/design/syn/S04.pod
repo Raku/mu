@@ -36,7 +36,7 @@ should generally be declared as formal parameters to that block.  There
 are three ways to declare formal parameters to a closure.
 
     $func = sub ($a, $b) { print if $a eq $b };  # standard sub declaration
-    $func = -> $a, $b { print if $a eq $b };     # a "pointy" sub
+    $func = -> $a, $b { print if $a eq $b };     # a "pointy" block
     $func = { print if $^a eq $^b }              # placeholder arguments
 
 A bare closure without placeholder arguments that uses C<$_>
@@ -456,10 +456,9 @@ To ignore all unhandled exceptions, use an empty C<default> case.
 of the C<CATCH> block.  Handled exceptions break out past this implicit
 rethrow.)
 
-A C<CATCH> block sees the lexical scope in which it defined, but the
-dynamic scope in which it is called, that is, as if it were called
-from the dynamic location that threw the exception.  That is, the
-stack is not unwound until some exception handler chooses to
+A C<CATCH> block sees the lexical scope in which it was defined, but
+its caller is the dynamic location that threw the exception.  That is,
+the stack is not unwound until some exception handler chooses to
 unwind it by "handling" the exception in question.  So logically,
 if the C<CATCH> block throws its own exception, you would expect the
 C<CATCH> block to catch its own exception recursively forever.  However,
@@ -495,7 +494,7 @@ object outside of its official "sub" scope, it is illegal to
 return from it.  You may only leave the closure block itself with C<leave>
 or by falling off the end of it.
 
-To return a value from a pointy sub or bare closure, you either
+To return a value from a pointy block or bare closure, you either
 just let the block return the value of its final expression, or you can
 use C<leave>.  A C<leave> by default exits from the innermost block.
 But you may change the behavior of C<leave> with selector adverbs:
