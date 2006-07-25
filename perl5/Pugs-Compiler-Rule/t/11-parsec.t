@@ -7,9 +7,15 @@ use_ok( 'Pugs::Emitter::Rule::Parsec' );
 
 # XXX replace by really feed result to GHC and parse test data
 sub is_rule_match {
-    my ($input, $output, @arg) = @_;
+    my ($input, $output, $emit_arg, @arg) = @_;
+    if(ref $emit_arg ne 'HASH'){
+	unshift @arg, $emit_arg;
+	$emit_arg = { };
+    }
+
     my $tree = Pugs::Grammar::Rule->rule($input);
-    my $got = Pugs::Emitter::Rule::Parsec::emit(0, $tree->{capture}, 0);
+    my $got = Pugs::Emitter::Rule::Parsec::emit({ }, $tree->{capture},
+	    $emit_arg);
     @_ = ($got, $output, @arg);
     goto \&is;
 }
@@ -141,12 +147,7 @@ q#do
 'ruleDot (not "try"ed)');
 
 is_rule_match(
-q#
-	\\\\ <!before \\(>
-	<?ws>
-	\\.
-	{ return }
-#,
+q#\\\\<!before \\(> \\.{ return }#,
 q#do
   string "\\\\"
   notFollowedBy $ (string "(") >> return ' '
@@ -154,5 +155,6 @@ q#do
   string "."
   return ()
 #,
+{ sigspace => 1 },
 'ruleLongDot (not "try"ed)');
 

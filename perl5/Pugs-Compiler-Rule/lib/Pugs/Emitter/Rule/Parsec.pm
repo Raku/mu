@@ -8,6 +8,8 @@ use Pugs::Grammar::MiniPerl6;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
+our $sigspace = 0;
+
 sub rule_rename($){
     my $orig_name = shift;
     return 'rule' . (uc substr $orig_name, 0, 1) . substr $orig_name, 1;
@@ -27,6 +29,7 @@ sub call_constant {
 
 sub emit {
     my ($grammar, $ast, $param) = @_;
+    local $sigspace = $param->{sigspace};   # XXX - $sigspace should be lexical
     emit_rule( $ast, '' ) . "\n";
 }
 
@@ -52,6 +55,9 @@ sub quant {
     my $tab = ( $quantifier eq '' ) ? $_[1] : $_[1] . '  ';
     my $rul = emit_rule( $term, $tab );
 
+    my $ws = metasyntax('?ws', $tab);
+    $rul = "$ws\n$_[1]$rul" if $sigspace && $_[0]->{ws1} ne '';
+    $rul = "$rul\n$_[1]$ws" if $sigspace && $_[0]->{ws2} ne '';
     return $rul 
         if $quantifier eq '';
 
@@ -63,7 +69,12 @@ sub quant {
     $qual = 'many1'    if $quantifier eq '+';
 
     die "quantifier not implemented: $quantifier" if $qual eq '';
-    return "(($qual \$ $rul) >>= \\arr -> return \$ foldr (++) \"\" arr)";
+
+    my $final_rul =
+	"(($qual \$ $rul) >>= \\arr -> return \$ foldr (++) \"\" arr)";
+
+    return "$final_rul\n$_[1]$ws" if $sigspace and $_[0]->{ws3} ne '';
+    return $final_rul;
 }
 
 sub alt {
@@ -137,15 +148,25 @@ f => "char '\\f'",
 w => "(alphaNum <|> char '_')",
 d => 'digit',
 s => 'space',
-N => 'noneOf "\\n\\r"',
 W => "satisfy (\\x -> x /= '_' && not \$ isAlphaNum x)",
 D => 'noneOf "0123456789"',
 S => 'noneOf " \\v\\f\\t\\r\\n"',
 );
+
+    while(my ($k, $v) = each %special_chars){
+	next if
+	    $k eq uc $k or
+	    exists $special_chars{uc $k} or
+	    $v !~ /^char/;
+	my $chars = substr $v, 6;
+	chop $chars;
+	$special_chars{uc $k} = "noneOf \"$chars\"";
+    }
 }
 sub special_char {
     my $char = substr($_[0],1);
-    return to_genparser_string($special_chars{$char}) if exists $special_chars{$char};
+    return to_genparser_string($special_chars{$char})
+	if exists $special_chars{$char};
     $char = '\\\\' if $char eq '\\';
     return "string \"$char\"";
 }
