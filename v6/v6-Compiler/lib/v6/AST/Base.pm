@@ -1,9 +1,9 @@
 
 use v6-alpha;
 
-class v6::AST::Base  {
+role v6::AST::Base  {
 
-    sub *coerce:as (Match $match, To ::v6::AST::Base) { 
+    sub *coerce:as (Match $match, To ::?CLASS) { 
         To.new( :$match );
     }
 
