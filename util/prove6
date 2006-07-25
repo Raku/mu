@@ -1,0 +1,2 @@
+#!/bin/sh
+env PERL5LIB=blib6/pugs/perl5/lib:blib6/pugs/perl5/arch PERL6LIB=blib6/lib prove $@
