@@ -554,7 +554,7 @@ sub default {
         if ( exists $n->{self}{bareword} ) {
             # Str.new;
             return 
-                " " . _emit( $n->{self} ) . "->" . _emit( $n->{method} ) . 
+                " '" . _emit( $n->{self} ) . "'->" . _emit( $n->{method} ) . 
                 "(" . _emit( $n->{param} ) . ") ";
         }
     

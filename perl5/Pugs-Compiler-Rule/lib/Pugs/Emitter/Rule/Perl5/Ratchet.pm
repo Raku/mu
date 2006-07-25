@@ -21,6 +21,7 @@ sub call_subrule {
     my ( $subrule, $tab, @param ) = @_;
     $subrule = "\$grammar->" . $subrule unless $subrule =~ / :: | \. | -> /x;
     $subrule =~ s/\./->/;   # XXX - source filter
+    # print "Subrule: $subrule\n";
     return 
         "$tab     $subrule( \$s, { p => \$pos, args => {" . join(", ",@param) . "} }, \$_[3] )";
 }
