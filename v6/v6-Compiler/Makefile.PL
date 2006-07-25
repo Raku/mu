@@ -19,6 +19,9 @@ version_from('lib/v6/Compiler.pmc');
 
 # requires('v6' => '0.010');
 
+# ??? clean 'lib/*.pmc' too?
+clean_files('t/*.tc', 't/*.pmc', 't/*/*.tc', 't/*/*.pmc', 't/*/*/*.tc', 't/*/*/*.pmc');
+
 &WriteAll;
 
 
@@ -46,8 +49,6 @@ if (@inc) {
 makemaker_args  (
     test => { TESTS => join ' ', "t/*.t", "t/*/*.t", "t/*/*/*.t" },
 );
-
-clean_files('t/*.tc', 't/*.pmc', 't/*/*.tc', 't/*/*.pmc', 't/*/*/*.tc', 't/*/*/*.pmc');
 
 &WriteAll;
 
