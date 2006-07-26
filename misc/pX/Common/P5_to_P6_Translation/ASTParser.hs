@@ -25,7 +25,7 @@ one for nodes with kids, one for all other nodes.
 ---------------}
 nodeNamer :: Int -> Parser P5AST
 nodeNamer indent = do
-    count indent space
+    choice[(count indent space),(count 0 space)] --The count 0 space option accounts for nodes after the chomp modifier on a uni block, since the uni block will consume everything up to the '-'
     choice [hereDoc indent, withKids indent , noKids indent , blank indent]
 
 blank :: Int -> Parser P5AST
@@ -121,16 +121,16 @@ noKids indent = do
 
 hereDoc :: Int -> Parser P5AST
 hereDoc indent = do
-    try (string "- !perl/P5AST::heredoc") <?> "Heredoc decleration";
+    try (string "- !perl/P5AST::heredoc ") <?> "Heredoc decleration";
     newline
     spaces
     string "doc: !perl/P5AST::"
     doc <- manyTill anyChar space
     newline
     spaces
-    string "kids: "
+    string "Kids: "
     newline
-    kids <- many (try (nodeNamer (indent+4)))
+    kids <- many (try (nodeNamer (indent+6)))
     spaces
     string "end: !perl/p5::closequote "
     newline
@@ -139,7 +139,7 @@ hereDoc indent = do
     endenc <- manyTill anyChar newline
     spaces
     string "uni: "
-    enduni <- uniBlock (indent + 4) 
+    enduni <- uniBlock (indent + 6) 
     spaces
     string "start: !perl/p5::openquote "
     newline
@@ -148,8 +148,9 @@ hereDoc indent = do
     startenc <- manyTill anyChar newline
     spaces
     string "uni: "
-    startuni <- uniBlock (indent + 4)
+    startuni <- uniBlock (indent + 6)
     return (Heredoc (LiteralNode Openquote startenc startuni) (LiteralNode Closequote endenc enduni) kids)
+    
     
     
 
@@ -165,7 +166,7 @@ uniBlock indent = choice
         return (unlines (map (drop indent) uni))
     ,do try $ string "|+"
         newline;
-        uni <- manyTill (manyTill anyToken newline) (try(newline)) <?> "uni block with chomp modifier";
+        uni <- manyTill (manyTill anyToken newline) (try(choice [try(do{count (indent-4) space; notFollowedBy (char ' ')}), try(do{count (indent-8) space; notFollowedBy (char ' ')})])) <?> "uni block with chomp modifier"; -- A block with the chomp modifier ends when there's a line with too few spaces (which means another node (or the end part of a heredoc) is starting.
         return (unlines (map (drop indent) uni))
     ,do try $ string "\""
         uni <- manyTill anyToken (try(string("\"\n")))
@@ -220,8 +221,13 @@ printTree outFile (AbstractNode UnknownAbs kids) = do{ hPutStr outFile "UnknownA
                                                        printTree outFile (AbstractNode P5AST (tail kids))}
 -------------------------------------------------------------}
 printTree outFile (LiteralNode atype _ uni) options = if (and [(atype==UnknownLit),('u' `elem` options)]) then do{ hPutStr outFile "UnknownLit"; putStrLn "UNKNOWN: UnknownLit"; hPutStr outFile uni} else (hPutStr outFile uni)
+
 printTree outFile (AbstractNode atype []) options = if (and [(atype==UnknownAbs),('u' `elem` options)]) then do{ hPutStr outFile "UnknownAbs"; putStrLn "UNKNOWN: UnknownAbs"; hPutStr outFile ""} else (hPutStr outFile "")
+
 printTree outFile (AbstractNode atype kids) options = if (and [(atype==UnknownAbs),('u' `elem` options)]) then do{ hPutStr outFile "UnknownAbs"; putStrLn "UNKNOWN: UnknownAbs"; printTree outFile (head kids) options; printTree outFile (AbstractNode P5AST (tail kids)) options} else do{ printTree outFile (head kids) options; printTree outFile (AbstractNode P5AST (tail kids)) options}
+
 printTree outFile (Heredoc start end kids) options = do printTree outFile start options
+                                                        hPutStr outFile ";\n"
                                                         printTree outFile (AbstractNode P5AST kids) options
                                                         printTree outFile end options
+
