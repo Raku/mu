@@ -47,6 +47,8 @@ is(foo([3, "Four"]), "Tuple(2) 3,Four", "call tuple multi sub", :todo<feature>);
 is(foo([3, "Four", "Five"]), "Tuple(3) 3,Four,Five", "call tuple multi sub", :todo<feature>);
 
 # You're allowed to omit the "sub" when declaring a multi sub.
+# L<S06/"Routine modifiers">
+
 multi declared_wo_sub (Int $x) { 1 }
 multi declared_wo_sub (Str $x) { 2 }
 is declared_wo_sub(42),   1, "omitting 'sub' when declaring 'multi sub's works (1)";
@@ -54,7 +56,7 @@ is declared_wo_sub("42"), 2, "omitting 'sub' when declaring 'multi sub's works (
 
 # Test for slurpy MMDs
 
-proto mmd () {...}
+proto mmd () {...}  # L<S06/"Routine modifiers">
 multi mmd () { 1 }
 multi mmd (*$x, *@xs) { 2 }
 
