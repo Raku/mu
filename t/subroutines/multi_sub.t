@@ -54,9 +54,33 @@ is declared_wo_sub("42"), 2, "omitting 'sub' when declaring 'multi sub's works (
 
 # Test for slurpy MMDs
 
+proto mmd () {...}
 multi mmd () { 1 }
 multi mmd (*$x, *@xs) { 2 }
 
 is(mmd(), 1, 'Slurpy MMD to nullary');
 is(mmd(1,2,3), 2, 'Slurpy MMD to listop via args');
 is(mmd(1..3), 2, 'Slurpy MMD to listop via list');
+
+# Test for proto definitions
+
+# L<S03/"Reduction operators">
+
+proto prefix:<[+]> (*@args) {
+    my $accum = 0;
+    while (@args) {
+        $accum += @args.shift();
+    }
+    return $accum * 2; # * 2 is intentional here
+}
+
+is ([+] 1,2,3), 12, "[+] overloaded by proto definition";
+
+# more similar tests
+
+proto prefix:<foo> ($arg) { $arg + 1 }
+is (foo 3), 4, "proto definition of prefix:<foo> works";
+
+proto prefix:<bar> ($arg) {...}
+multi prefix:<bar> ($arg) { $arg + 1 }
+is (foo 3), 4, "multi definition of prefix:<foo> works";
