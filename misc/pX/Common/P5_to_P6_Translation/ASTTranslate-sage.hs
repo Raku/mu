@@ -56,10 +56,22 @@ import System(getArgs)
 --It's pretty ugly, which is why there's a need for a wrapper function
 translate :: P5AST -> String -> P5AST
 translate tree options = case [('o' `elem` options), ('r' `elem` options)] of
-                               [True, False]   -> (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree)))))))))))))
-                               [True, True]  -> (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree))))))))))))
-                               [False, False]  -> (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree))))))))))
-                               [False, True] -> (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree)))))))))
+                               [True, False]   -> (hereDocTranslate (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree))))))))))))))
+                               [True, True]  -> (hereDocTranslate (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree)))))))))))))
+                               [False, False]  -> (hereDocTranslate (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree)))))))))))
+                               [False, True] -> (hereDocTranslate (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree))))))))))
+
+hereDocTranslate :: P5AST -> P5AST
+hereDocTranslate (Heredoc start end kids) = (Heredoc (changeHereDoc start) end kids)
+hereDocTranslate (AbstractNode atype kids) = (AbstractNode atype (map hereDocTranslate kids))
+hereDocTranslate (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+
+changeHereDoc :: P5AST -> P5AST
+changeHereDoc (LiteralNode atype enc uni) = case ((head uni):(head (tail uni)):[(head (tail (tail uni)))]) of
+                                                    "<<\"" -> (LiteralNode atype enc ("qq:to/"++(drop 3 uni)++"/"))
+                                                    "<<'"  -> (LiteralNode atype enc ("q:to/"++(drop 3 uni)++"/"))
+                                                    _      -> (LiteralNode atype enc ("qq:to/"++(drop 2 uni)++"/"))
+
 {- This code will eventually apply the :Perl5 modifer to all regexs, but it's not quite ready yet.
 easyRegex :: P5AST -> P5AST
 easyRegex (AbstractNode Op_subst kids) = (AbstractNode Op_subst (easyRegexChanges kids))
@@ -79,6 +91,7 @@ regexInternals :: P5AST -> P5AST
 regexInternals (AbstractNode Op_subst kids) = (AbstractNode Op_subst (changeSInternals kids))
 regexInternals (AbstractNode atype kids) = (AbstractNode atype (map regexInternals kids))
 regexInternals (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+regexInternals (Heredoc start end kids) = (Heredoc start end kids)
 
 --This function does the actual work of finding the regex and applying the change.
 changeSInternals :: [P5AST] -> [P5AST]
@@ -381,6 +394,7 @@ constHashChanges (Heredoc start end kids) = (Heredoc start end kids)
 scalarSigilToHashSigil :: P5AST -> P5AST
 scalarSigilToHashSigil (LiteralNode Sigil enc uni) = (LiteralNode Sigil enc ('%':(tail uni)))
 scalarSigilToHashSigil (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+scalarSigilToHashSigil (AbstractNode atype kids) = (AbstractNode atype kids)
 
 {-
 A main function to parse a file containing a tree and output the contents to another file
@@ -390,14 +404,13 @@ if there's a 'v' in the options string, which starts verbose mode.
 -}
 mainParse :: FilePath -> FilePath -> String -> IO ()
 mainParse inName outName options= do
-    inHandle    <- openFile inName ReadMode
-    input       <- hGetContents inHandle
-    outHandle   <- openFile outName WriteMode
+    --outHandle   <- openFile outName WriteMode
     putStrLn "--Perl 5 to Perl 6 Translation Utility--"
     putStrLn ("Translating: "++inName)
     putStrLn ("Output Target: "++outName)
     putStrLn ("Parsing Input File...")
-    let ast = case parse parseInput "stdin" input of
+    result <- parseFromFile parseInput inName
+    let ast = case (result) of
             Left err -> error $ "\nError:\n" ++ show err
             Right result -> result
     case [('o' `elem` options), ('r' `elem` options)] of 
@@ -406,6 +419,7 @@ mainParse inName outName options= do
             [False, True]  -> putStrLn ("Translating with limited regex support...")
             [False, False] -> putStrLn ("Translating...")
     let tree = (translate (AbstractNode P5AST ast) options)
+    outHandle   <- openFile outName WriteMode
     case [('v' `elem` options),('u' `elem` options)] of
             [True, True]   -> putStrLn "Printing with Verbose and Unknown Debug..."
             [False, True]  -> putStrLn "Printing with Unknown Debug..."
@@ -414,7 +428,6 @@ mainParse inName outName options= do
     case ('v' `elem` options) of
             True  -> do{putStrLn "VERBOSE: TREE(Translated):"; print tree; printTree outHandle tree options}
             False -> do{printTree outHandle tree options}
-    hClose inHandle
     hClose outHandle
     putStrLn "Finished."
 
