@@ -158,6 +158,8 @@ ruleSubHead = rule "subroutine head" $ do
     styp    <- choice
         [ do symbol "sub"
              return SubRoutine
+        , do symbol "proto"
+             return SubRoutine -- XXX - need to do some multi-handling here
         , do symbol "coro"
              return SubCoroutine
         , do (symbol "submethod" <|> symbol "method")
