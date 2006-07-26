@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
-  Last Modified: 13 May 2006
+  Last Modified: 26 July 2006
   Number: 9
-  Version: 11
+  Version: 12
 
 =head1 Overview
 
@@ -152,7 +152,7 @@ however, continue to protect you against overflow--these days, that's
 not just a reliability issue, but also a security issue.)
 
 A multidimensional array is indexed by a semicolon list, which is really
-a list of pipes in disguise.  Each sublist is a slice/pipe of one particular
+a list of feeds in disguise.  Each sublist is a slice/feed of one particular
 dimension.  So
 
     @array[0..10; 42; @x]

@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 21 July 2006
+  Last Modified: 26 July 2006
   Number: 4
-  Version: 29
+  Version: 30
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -503,7 +503,7 @@ But you may change the behavior of C<leave> with selector adverbs:
 
 The innermost block matching the selection criteria will be exited.
 The return value, if any, must be passed as a list.  To return pairs
-as part of the value, you can use a pipe:
+as part of the value, you can use a feed operator:
 
     leave <== :foo:bar:baz(1) if $leaving;
 

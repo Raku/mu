@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 16 July 2006
+  Last Modified: 26 July 2006
   Number: 6
-  Version: 40
+  Version: 41
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -804,10 +804,10 @@ C<\()> in several ways:
     bar;        # $args === \(1,2,3)
     bar();      # $args === \()
 
-=head2 Pipe operators
+=head2 Feed operators
 
 The variadic list of a subroutine call can be passed in separately
-from the normal argument list, by using either of the "pipe" operators:
+from the normal argument list, by using either of the I<feed> operators:
 C<< <== >> or C<< ==> >>.
 
 Each operator expects to find a call to a variadic receiver on its
@@ -819,19 +819,20 @@ Each operator expects to find a call to a variadic receiver on its
 
 It binds the (potentially lazy) list from the blunt end to the slurpy
 parameter(s) of the receiver on the sharp end.  In the case of a receiver
-that is a variadic function, the pipe is received as part of its slurpy list.
+that is a variadic function, the feed is received as part of its slurpy list.
 So both of the calls above are equivalent to:
 
     grep { $_ % 2 }, @data;
 
-Note that all such pipes (and indeed all lazy argument lists) supply
+Note that all such feed (and indeed all lazy argument lists) supply
 an implicit promise that the code producing the lists may execute
-in parallel with the code receiving the lists.  (Pipes, hyperops,
+in parallel with the code receiving the lists.  (Feeds, hyperops,
 and junctions all have this promise of parallelizability in common,
 but differ in interface.  Code which violates these promises is
 erroneous, and will produce undefined results when parallelized.)
-In particular, a pipeline may not begin and end with the same array.
-(You may, however, assign to an array that is used within a pipeline
+
+In particular, a chain of feeds may not begin and end with the same array.
+(You may, however, assign to an array that is used within a chain
 on the right side of the assignment, since list assignment will clear
 and copy as necessary to make it work.)  That is, this doesn't work:
 
@@ -841,7 +842,7 @@ but this does:
 
     @data = grep { $_ % 2 } <== @data;
 
-Leftward pipes are a convenient way of explicitly indicating the typical
+Leftward feeds are a convenient way of explicitly indicating the typical
 right-to-left flow of data through a chain of operations:
 
     @oddsquares = map { $_**2 }, sort grep { $_ % 2 }, @nums;
@@ -850,7 +851,7 @@ right-to-left flow of data through a chain of operations:
 
     @oddsquares = map { $_**2 } <== sort <== grep { $_ % 2 } <== @nums;
 
-Rightward pipes are a convenient way of reversing the normal data flow in a
+Rightward feeds are a convenient way of reversing the normal data flow in a
 chain of operations, to make it read left-to-right:
 
     @oddsquares =
@@ -858,20 +859,20 @@ chain of operations, to make it read left-to-right:
 
 Note that the parens are necessary there due to precedence.
 
-If the operand on the sharp end of a pipe is not a call to a variadic
+If the operand on the sharp end of a feed is not a call to a variadic
 operation, it must be something else that can be interpreted as a
 list receiver.
 
 Any list operator is considered a variadic operation, so ordinarily
-a list operator adds any piped input to the end of its list.
+a list operator adds any feed input to the end of its list.
 But sometimes you want to interpolate elsewhere, so the C<***> term
-may be used to indicating the target of a pipe without the use of a
+may be used to indicating the target of a feed without the use of a
 temporary array:
 
     foo() ==> say ***, " is what I meant";
     bar() ==> ***.baz();
 
-Piping to the C<*> "whatever" term is considered a pipe to the lexically
+Piping to the C<*> "whatever" term is considered a feed to the lexically
 following C<***> term:
 
     0..*       ==> *;
@@ -891,7 +892,7 @@ the array.  Unlike with assignment, no clobbering of the array is implied.
 It's therefore more like a push than an assignment.
 
 In general you can simply think of a receiver array as representing
-the results of the pipeline, so you can equivalently write any of:
+the results of the chain, so you can equivalently write any of:
 
     my @oddsquares <== map { $_**2 } <== sort <== grep { $_ % 2 } <== @nums;
 
@@ -909,23 +910,23 @@ the results of the pipeline, so you can equivalently write any of:
     ==> map { $_**2 }
     ==> my @oddsquares;
 
-Since the pipe iterator is bound into the final variable, the variable
-can be just as lazy as the pipe that is producing the values.
+Since the feed iterator is bound into the final variable, the variable
+can be just as lazy as the feed that is producing the values.
 
-Because pipes are bound to arrays with "push" semantics, you can have
-a receiver for multiple pipes:
+Because feeds are bound to arrays with "push" semantics, you can have
+a receiver for multiple feeds:
 
     my @foo;
     0..2       ==> @foo;
     'a'..'c'   ==> @foo;
     say @foo;	# 0,1,2,'a','b','c'
 
-Note how the pipes are concatenated in C<@foo> so that C<@foo>
+Note how the feeds are concatenated in C<@foo> so that C<@foo>
 is a list of 6 elements.  This is the default behavior.  However,
 sometimes you want to capture the outputs as a list of two iterators,
-namely the two iterators that represent the two input pipes.  You can
+namely the two iterators that represent the two input feeds.  You can
 get at those two iterators by using the name C<@@foo> instead, where
-the "pipe" twigil marks a multidimensional array, that is, an
+the "feed" twigil marks a multidimensional array, that is, an
 array of slices.
 
     0..*       ==> @@foo;
@@ -950,7 +951,7 @@ is equivalent to
 
     zip(@@foo[0]; @@foo[1]; @@foo[2])
 
-A semicolon inside brackets is equivalent to stacked pipes.  The code above
+A semicolon inside brackets is equivalent to stacked feeds.  The code above
 could be rewritten as:
 
     (0..*; 'a'..*; pidigits()) ==> my @@foo;
@@ -960,15 +961,15 @@ which is in turn equivalent to
 
     for zip(0..*; 'a'..*; pidigits()) { say }
 
-A named receiver array is useful when you wish to pipe into an
+A named receiver array is useful when you wish to feed into an
 expression that is not an ordinary list operator, and you wish to be
-clear where the pipe's destination is supposed to be:
+clear where the feed's destination is supposed to be:
 
     picklist() ==> my @baz;
     my @foo = @bar[@baz];
 
 Various contexts may or may not be expecting multi-dimensional slices
-or pipes.  By default, ordinary arrays are flattened, that is, they
+or feeds.  By default, ordinary arrays are flattened, that is, they
 have "cat" semantics.  If you say
 
     (0..2; 'a'..'c') ==> my @tmp;
@@ -1004,7 +1005,7 @@ If C<@@foo> is currently empty, then C<for zip(@@foo) {...}> acts on a
 zero-dimensional slice (i.e. C<for (zip) {...}>), and outputs nothing
 at all.
 
-Note that with the current definition, the order of pipes is preserved
+Note that with the current definition, the order of feeds is preserved
 left to right in general regardless of the position of the receiver.
 
 So

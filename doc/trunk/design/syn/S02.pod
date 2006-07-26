@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 19 July 2006
+  Last Modified: 26 July 2006
   Number: 2
-  Version: 55
+  Version: 56
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -571,7 +571,7 @@ and optimize in the context of what operator it is being passed to.
 A variant of C<*> is the C<**> term.  It is generally understood to
 be a multidimension form of C<*> when that makes sense.
 
-The C<***> variant serves as the insertion point of a list of pipes.
+The C<***> variant serves as the insertion point of a list of feeds.
 That insertion point may be targeted by piping to C<*>.  See S06.
 
 Other uses for C<*> will doubtless suggest themselves over time.  These
@@ -734,7 +734,7 @@ fully evaluated (which happens at compile time when all the arguments are
 constants), the eventual value may well be unknown.  All we know is
 that we have the promise to make the bits of it immutable as they become known.
 
-C<Capture> objects may contain multiple unresolved iterators such as pipes
+C<Capture> objects may contain multiple unresolved iterators such as feeds
 or slices.  How these are resolved depends on what they are eventually
 bound to.  Some bindings are sensitive to multiple dimensions while
 others are not.
