@@ -15,7 +15,7 @@ Allison Randal <al@shadowed.net>
   Date: 21 Mar 2003
   Last Modified: 26 July 2006
   Number: 6
-  Version: 41
+  Version: 42
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -132,13 +132,13 @@ merely produces a C<Code> object.  If the term bare block occurs in a list,
 it is considered the final element of that list unless followed immediately
 by a comma or comma surrogate.
 
-=head2 "Pointy subs"
+=head2 "Pointy blocks"
 
 Semantically the arrow operator C<< -> >> is almost a synonym for
 the anonymous C<sub> keyword, except that the parameter list of a
-pointy sub does not require parentheses, and a pointy sub may not be
-given traits.  Syntactically a pointy sub is parsed exactly like a
-bare block.
+pointy block does not require parentheses, and a pointy block may not be
+given traits.  Syntactically, a pointy block is parsed exactly like a
+bare block:
 
     my $sq = -> $val { $val**2 };
     say $sq(10); # 100
@@ -149,7 +149,7 @@ bare block.
     }
 
 It also behaves like a block with respect to control exceptions.  If you
-C<return> from within a pointy sub, it will return from the innermost
+C<return> from within a pointy block, it will return from the innermost
 enclosing C<sub> or C<method>, not the block itself.  It is referenced
 by C<&?BLOCK>, not C<&?ROUTINE>.
 
