@@ -233,16 +233,16 @@ sub perl6_expression {
 
 # Str|Num
 *signature_term_type = Pugs::Compiler::Regex->compile( q(
-        (<alnum>+)
+        <Pugs::Grammar::Term.bare_ident>
         [
             <?ws>? \| <?ws>? <signature_term_type>
             { return {
                 op1 => '|',
-                exp1 => $_[0][0]->(), 
+                exp1 => $_[0]{'Pugs::Grammar::Term.bare_ident'}->(),
                 exp2 => $<signature_term_type>->(),
             } }
         |
-            { return $_[0][0]->() }
+            { return $_[0]{'Pugs::Grammar::Term.bare_ident'}->() }
         ]
     |
         { return undef }
