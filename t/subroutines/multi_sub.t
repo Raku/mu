@@ -6,16 +6,16 @@ plan 19;
 
 # type based dispatching
 
-multi sub foo (Int $bar)   { "Int "  ~ $bar  }
-multi sub foo (Str $bar)   { "Str "  ~ $bar  }
-multi sub foo (Num $bar)   { "Num "  ~ $bar  }
-multi sub foo (Rat $bar)   { "Rat "  ~ $bar  }
-multi sub foo (Bool $bar)  { "Bool " ~ $bar  }
-multi sub foo (Rule $bar)  { "Rule " ~ ref( $bar ) } # since Rule's don't stringify
-multi sub foo (Sub $bar)   { "Sub " ~ $bar() }
-multi sub foo (Array @bar) { "Array " ~ join(', ', @bar) }
-multi sub foo (Hash %bar)  { "Hash " ~ join(', ', %bar.keys) }
-multi sub foo (IO $fh)     { "IO" }
+multi foo (Int $bar)   { "Int "  ~ $bar  }
+multi foo (Str $bar)   { "Str "  ~ $bar  }
+multi foo (Num $bar)   { "Num "  ~ $bar  }
+multi foo (Rat $bar)   { "Rat "  ~ $bar  }
+multi foo (Bool $bar)  { "Bool " ~ $bar  }
+multi foo (Rule $bar)  { "Rule " ~ ref( $bar ) } # since Rule's don't stringify
+multi foo (Sub $bar)   { "Sub " ~ $bar() }
+multi foo (Array @bar) { "Array " ~ join(', ', @bar) }
+multi foo (Hash %bar)  { "Hash " ~ join(', ', %bar.keys) }
+multi foo (IO $fh)     { "IO" }
 
 is(foo('test'), 'Str test', 'dispatched to the Str sub');
 is(foo(2), 'Int 2', 'dispatched to the Int sub');
@@ -70,9 +70,7 @@ is(mmd(1..3), 2, 'Slurpy MMD to listop via list');
 
 proto prefix:<[+]> (*@args) {
     my $accum = 0;
-    while (@args) {
-        $accum += @args.shift();
-    }
+    $accum += $_ for @args;
     return $accum * 2; # * 2 is intentional here
 }
 
@@ -80,9 +78,9 @@ is ([+] 1,2,3), 12, "[+] overloaded by proto definition";
 
 # more similar tests
 
-proto prefix:<foo> ($arg) { $arg + 1 }
-is (foo 3), 4, "proto definition of prefix:<foo> works";
+proto prefix:<moose> ($arg) { $arg + 1 }
+is (moose 3), 4, "proto definition of prefix:<moose> works";
 
-proto prefix:<bar> ($arg) {...}
-multi prefix:<bar> ($arg) { $arg + 1 }
-is (foo 3), 4, "multi definition of prefix:<foo> works";
+proto prefix:<elk> ($arg) {...}
+multi prefix:<elk> ($arg) { $arg + 1 }
+is (elk 3), 4, "multi definition of prefix:<elk> works";
