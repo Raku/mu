@@ -1,0 +1,9 @@
+Directory tree
+
+lib/v6/Compiler.pm   - basic CPAN documentation
+
+lib/v6/Grammar/      - parser files
+lib/v6/AST/          - 'role' definitions for ast nodes
+lib/v6/Emitter/      - code generators
+lib/v6/Optimizer/ ??? - ast transformations
+
