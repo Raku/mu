@@ -872,8 +872,8 @@ temporary array:
     foo() ==> say ***, " is what I meant";
     bar() ==> ***.baz();
 
-Piping to the C<*> "whatever" term is considered a feed to the lexically
-following C<***> term:
+Sending a feed into the C<*> "whatever" term is considered to extend
+the lexically following C<***> term:
 
     0..*       ==> *;
     'a'..*     ==> *;

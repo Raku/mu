@@ -572,7 +572,7 @@ A variant of C<*> is the C<**> term.  It is generally understood to
 be a multidimension form of C<*> when that makes sense.
 
 The C<***> variant serves as the insertion point of a list of feeds.
-That insertion point may be targeted by piping to C<*>.  See S06.
+That insertion point may be targeted by sending a feed into C<*>.  See S06.
 
 Other uses for C<*> will doubtless suggest themselves over time.  These
 can be given meaning via the MMD system, if not the compiler.  In general
