@@ -30,7 +30,7 @@ Options:
     --haskell    ditto
     --perl5      Harness with v6.pm (the Perl 5 implementation)
     --perl       ditto
-    --v6-alpha   ditoo
+    --v6-alpha   ditto
 
 _EOC_
     exit(0);
