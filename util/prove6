@@ -1,2 +1,57 @@
-#!/bin/sh
-env PERL5LIB=blib6/pugs/perl5/lib:blib6/pugs/perl5/arch PERL6LIB=blib6/lib prove $@
+#!/bin/perl
+
+# This is a test harness for pugs and v6-alpha
+# XXX add support for --js and --parrot
+
+use strict;
+use warnings;
+use Getopt::Long;
+use Test::Harness;
+
+my ($pugs, $perl5, $help);
+
+GetOptions(
+    haskell     => \$pugs,
+    pugs        => \$pugs, 
+    perl5       => \$perl5,
+    perl        => \$perl5,
+    'v6-alpha'  => \$perl5,
+    help        => \$help
+);
+
+if ($help) {
+    print <<'_EOC_';
+prove6 - Pugs Test Suit Harness
+
+Usage: prove6 [--pugs] [--perl5] [--help] t/dir/to/test/*.t
+
+Options:
+    --pugs       Harness with the Haskell Pugs (default on)
+    --haskell    ditto
+    --perl5      Harness with v6.pm (the Perl 5 implementation)
+    --perl       ditto
+    --v6-alpha   ditoo
+
+_EOC_
+    exit(0);
+}
+
+if ($pugs and $perl5) { die "error: --pugs and --perl5 are exclusive\n"; }
+if (!$pugs and !$perl5) { $pugs = 1 } # default to pugs
+
+my @tfiles = map glob, @ARGV;
+
+if ($perl5) {
+    warn "  info: Harness with v6.pm.\n";
+    warn "  warning: make sure you have run 'make install'.\n";
+    my $sep = ($^O eq 'MSWin32')? ';' : ':';
+    #warn $sep;
+    $ENV{PERL5LIB} = "blib6/pugs/perl5/lib${sep}blib6/pugs/perl5/arch";
+    $ENV{PERL6LIB} = 'blib6/lib';
+} else {
+    warn "  info: Harness with pugs.\n";
+    $ENV{PERL6LIB} = 'blib6/lib';
+    $ENV{HARNESS_PERL} = './pugs';
+}
+
+runtests(@tfiles);
