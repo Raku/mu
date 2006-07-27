@@ -23,7 +23,7 @@ statement syntax of Perl.
 
 Every block is a closure.  (That is, in the abstract, they're all
 anonymous subroutines that take a snapshot of their lexical scope.)
-How any block is invoked and how its results are used is a matter of
+How a block is invoked and how its results are used is a matter of
 context, but closures all work the same on the inside.
 
 Blocks are delimited by curlies, or by the beginning and end of the
@@ -41,7 +41,7 @@ are three ways to declare formal parameters to a closure.
 
 A bare closure without placeholder arguments that uses C<$_>
 (either explicitly or implicitly) is treated as though C<$_> were a
-a formal parameter:
+formal parameter:
 
     $func = { print if $_ };   # Same as: $func = -> $_ { print if $_ };
     $func("printme");
@@ -473,7 +473,7 @@ exception mechanism (which is likely to be optimized away in specific
 cases.)  Here "abnormal" means any transfer of control outward that
 is not just falling off the end of a block.  A C<return>,
 for example, is considered a form of abnormal control flow, since it
-can jump out of multiple levels of closure to the end of the scope
+can jump out of multiple levels of closures to the end of the scope
 of the current subroutine definition.  Loop commands like C<next>
 are abnormal, but looping because you hit the end of the block is not.
 The implicit break of a C<when> block is abnormal.
@@ -507,7 +507,7 @@ as part of the value, you can use a feed operator:
 
     leave <== :foo:bar:baz(1) if $leaving;
 
-or going the other way::
+or going the other way:
 
     $leaving and :foo:bar:baz(1) ==> leave;
 
@@ -521,7 +521,7 @@ with a specific label, and calls a loop control from within the lexical
 scope of that loop, and if that call mentions the outer loop's label,
 then that outer loop is the one that must be controlled. (This search
 of lexical scopes is limited to the current "official" subroutine.)
-If there is no such lexically scoped outer loop in current subroutine.
+If there is no such lexically scoped outer loop in the current subroutine.
 Then a fallback search is made outward through the dynamic scopes in
 the same way Perl 5 does.  (The difference between Perl 5 and Perl 6
 in this respect arises only because Perl 5 didn't have user-defined
@@ -568,7 +568,7 @@ but only for lexical scopes that require no special initialization
 of parameters.  (Initialization of ordinary variables does not
 count--presumably the presence of a label will prevent code-movement
 optimizations past the label.)  So, for instance, it's always possible
-to goto into the next case of a C<when> or into either the "then"
+to C<goto> into the next case of a C<when> or into either the "then"
 or "else" branch of a conditional.  You may not go into a C<given>
 or a C<for>, though, because that would bypass a formal parameter
 binding (not to mention list generation in the case of C<for>).
@@ -580,7 +580,7 @@ prohibition on bypassing formal binding.)
 
 As in Perl 5, many built-in functions simply return undef when you ask
 for a value out of range, or the function fails somehow.  Perl 6 has
-C<Failure> objects, which refers to an unthrown C<Exception> object in
+C<Failure> objects, any of which refers to an unthrown C<Exception> object in
 C<$!> and knows whether it has been handled or not.
 
 If you test a C<Failure> for C<.valid>, C<.defined> or C<.true>, it causes
@@ -594,11 +594,11 @@ whether they were handled or not.  A bare C<die>/C<fail> takes C<$!> as the
 default argument.
 
 At scope exit, C<$!> discards all handled exceptions from itself, then performs
-a GC check for all remaining (unhandled) exceptions.  If all of them are still
-alive (e.g. by becoming part of the return value), then they are appended to
-C<< CALLER::<$!> >>.  Otherwise, it calls C<die> to throw those exceptions
-as a single new exception, which may then be caught with a C<CATCH> block in
-the current (or caller's) scope.
+a garbage-collection check for all remaining (unhandled) exceptions.  If all of
+them are still alive (e.g. by becoming part of the return value), then they are
+appended to C<< CALLER::<$!> >>.  Otherwise, it calls C<die> to throw those
+exceptions as a single new exception, which may then be caught with a C<CATCH>
+block in the current (or caller's) scope.
 
 You can cause built-ins to automatically throw exceptions on failure using
 
@@ -672,13 +672,13 @@ what C<state> variables do.
 
 All of these trait blocks can see any previously declared lexical
 variables, even if those variables have not been elaborated yet when
-the closure is invoked.  (In which case the variables evaluate to an
+the closure is invoked (in which case the variables evaluate to an
 undefined value.)
 
 Note: Apocalypse 4 confused the notions of C<PRE>/C<POST> with C<ENTER>/C<LEAVE>.
 These are now separate notions.  C<ENTER> and C<LEAVE> are used only for
 their side effects.  C<PRE> and C<POST> must return boolean values that are
-evaluated according to the usual Design by Contract rules.  (Plus,
+evaluated according to the usual Design by Contract (DBC) rules.  (Plus,
 if you use C<ENTER>/C<LEAVE> in a class block, they only execute when the
 class block is executed, but C<PRE>/C<POST> in a class block are evaluated
 around every method in the class.)
@@ -718,7 +718,7 @@ sake, as long as there's a space between the closing paren and the
 opening brace.  You I<must> parenthesize the expression if there is
 a bare block or pointy block that would be misinterpreted as the statement's
 block.  This is regardless of whether a term or operator is expected where
-the block occurs.  (A block inside brackets, or used as as
+the block occurs.  (A block inside brackets, or used as a
 postcircumfix is fine, though.)  Any block with whitespace
 in front of it will be taken as terminating the conditional, even if
 the conditional expression could take another argument.  Therefore
@@ -811,7 +811,7 @@ must use something like C<do {...}> or C<try {...}>.
     $x =  do { given $foo { when 1 {2} when 3 {4} }} + $bar;
     $x = try { given $foo { when 1 {2} when 3 {4} }} + $bar;
 
-Just because there's a C<< statement_control:<BEGIN> >> does not preclude us from
+The existence of a C<< statement_control:<BEGIN> >> does not preclude us from
 also defining a C<< prefix:<BEGIN> >> that I<can> be used within an expression:
 
     macro prefix:<BEGIN> (&beginblock) { beginblock().repr }
@@ -821,10 +821,10 @@ Then you can say things like:
     $recompile_by = BEGIN { time } + $expiration_time;
 
 But C<< statement_control:<BEGIN> >> hides C<< prefix:<BEGIN> >> at the start of a statement.
-You could also conceivably define a C<< prefix:<if> >>, but then you would
-get a syntax error when you say:
+You could also conceivably define a C<< prefix:<if> >>, but then you may not
+get what you want when you say:
 
-    print if $foo
+    print if $foo;
 
 since C<< prefix:<if> >> would hide C<< statement_modifier:<if> >>.
 
@@ -840,7 +840,7 @@ In particular, a syntax error will be reported for C-isms such as these:
 
 Hypothetical variables are somewhat transactional--they keep their
 new values only on successful exit of the current block, and otherwise
-are rolled back to their original value.
+are rolled back to their original values.
 
 It is, of course, a failure to leave the block by propagating an error
 exception, though returning a defined value after catching an exception
@@ -880,7 +880,7 @@ Everything is conceptually a closure in Perl 6, but the optimizer
 is free to turn unreferenced closures into mere blocks of code.
 It is also free to turn referenced closures into mere anonymous
 subroutines if the block does not refer to any external lexicals that
-could themselves be cloned.  In particular, named subroutines in any
+should themselves be cloned.  In particular, named subroutines in any
 scope do not consider themselves closures unless you take a reference
 to them.  So
 
@@ -899,10 +899,10 @@ the current snapshot of its world, lexically speaking.
 
 Some closures produce C<Code> objects at compile time that cannot be
 cloned, because they're not attached to any runtime code that can
-actively clone them.  C<BEGIN>, C<CHECK>, C<INIT>, and C<END> blocks
+actually clone them.  C<BEGIN>, C<CHECK>, C<INIT>, and C<END> blocks
 fall into this category.  Therefore you can't reliably refer to
-run-time variables from them even if they appear to be in scope.
-(The compile-time closure may, in fact, see a some kind of permanent
+run-time variables from these closures even if they appear to be in the
+scope.  (The compile-time closure may, in fact, see some kind of permanent
 copy of the variable for some storage classes, but the variable is
 likely to be undefined when the closure is run in any case.)  It's
 only safe to refer to package variables and file-scoped lexicals from
