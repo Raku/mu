@@ -23,7 +23,7 @@ statement syntax of Perl.
 
 Every block is a closure.  (That is, in the abstract, they're all
 anonymous subroutines that take a snapshot of their lexical scope.)
-How a block is invoked and how its results are used is a matter of
+How a block is invoked and how its results are used are matters of
 context, but closures all work the same on the inside.
 
 Blocks are delimited by curlies, or by the beginning and end of the
@@ -225,7 +225,7 @@ put it on a line by its own:
 
 However, that's likely to be visually confused with a following
 C<while> loop at the best of times, so it's also allowed to put the
-loop conditional at the front, with the same meaning (the C<repeat>
+loop conditional at the front, with the same meaning. (The C<repeat>
 keyword forces the conditional to be evaluated at the end of the loop,
 so it's still C's do-while semantics.)  Therefore, even under GNU style
 rules, the previous example may be rewritten into a very clear:
@@ -521,8 +521,9 @@ with a specific label, and calls a loop control from within the lexical
 scope of that loop, and if that call mentions the outer loop's label,
 then that outer loop is the one that must be controlled. (This search
 of lexical scopes is limited to the current "official" subroutine.)
-If there is no such lexically scoped outer loop in the current subroutine.
-Then a fallback search is made outward through the dynamic scopes in
+
+If there is no such lexically scoped outer loop in the current subroutine,
+then a fallback search is made outward through the dynamic scopes in
 the same way Perl 5 does.  (The difference between Perl 5 and Perl 6
 in this respect arises only because Perl 5 didn't have user-defined
 control structures, hence the sub's lexical scope was I<always>
