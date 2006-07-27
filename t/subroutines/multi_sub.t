@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 19;
+plan 22;
 
 # type based dispatching
 
