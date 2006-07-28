@@ -9,6 +9,8 @@ use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
 our $sigspace = 0;
+our $capture_counter = 0;
+sub get_capture_var { return 'capture_' . $capture_counter++; }
 
 sub rule_rename($){
     my $orig_name = shift;
@@ -30,6 +32,7 @@ sub call_constant {
 sub emit {
     my ($grammar, $ast, $param) = @_;
     local $sigspace = $param->{sigspace};   # XXX - $sigspace should be lexical
+    local $capture_counter = 0;
     emit_rule( $ast, '' ) . "\n";
 }
 
@@ -181,11 +184,21 @@ sub closure {
     return "$haskell";
 }
 
-sub capturing_group {}
+sub capturing_group {
+    my $program = $_[0];
+
+    $program = emit_rule( $program, $_[1] . '  ' )
+        if ref( $program );
+
+    return &get_capture_var . ' <- ' . $program;
+}
 
 sub named_capture {
     my $name    = $_[0]{ident};
     my $program = $_[0]{rule};
+
+    return "$name <- " . metasyntax($program->{metasyntax}, $_[1] . '  ', 1)
+	if exists $program->{metasyntax};
 
     return "$name <- " . emit_rule($program, $_[1] . '  ');
 }
@@ -237,7 +250,7 @@ sub metasyntax {
     my $cmd = $_[0];   
     my $prefix = substr( $cmd, 0, 1 );
 
-    my $named_capturing = 1;
+    my $named_capturing = !$_[2];
     my $negative_lookahead = 0;
 
     if ( $prefix eq '@' ) {
@@ -368,7 +381,7 @@ sub metasyntax {
         $param_list = '' unless defined $param_list;
         my @param = split( ',', $param_list );
 	return ($named_capturing ? "$subrule <- " : '') .
-	    rule_rename($subrule);   # XXX parameters
+	    rule_rename($subrule) . join '', map { " ($_)" } @param;
     }
     die "<$cmd> not implemented";
 }

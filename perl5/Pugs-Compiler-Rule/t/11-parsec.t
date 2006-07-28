@@ -1,6 +1,6 @@
 
 use lib '../Pugs-Grammar-MiniPerl6/lib';
-use Test::More tests => 9;
+use Test::More tests => 10;
 
 use_ok( 'Pugs::Grammar::Rule' );
 use_ok( 'Pugs::Emitter::Rule::Parsec' );
@@ -158,3 +158,29 @@ q#do
 { sigspace => 1 },
 'ruleLongDot (not "try"ed)');
 
+is_rule_match(
+q#
+	(<'for'>|<'while'>|<'until'>) : <?ws>?
+	$<exp1> := <perl6_expression("no_blocks",0)> <?ws>?
+	$<exp2> := <block>
+        { return mkHash([
+                    "statement", $0,
+                    "exp1", $<exp1>,
+                    "exp2", $<exp2>
+		])
+        }
+#,
+q#do
+  capture_0 <- do
+      string "for"
+      <|>
+      string "while"
+      <|>
+      string "until"
+  option "" $ (whiteSpace >> return "")
+  exp1 <- rulePerl6_expression ("no_blocks") (0)
+  option "" $ (whiteSpace >> return "")
+  exp2 <- ruleBlock
+  return $ (mkHash ["statement", capture_0, "exp1", exp1, "exp2", exp2])
+#,
+'ruleLoop');
