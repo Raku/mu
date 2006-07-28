@@ -13,7 +13,7 @@ $Data::Dumper::Indent = 1;
 our $direction = "+";  # XXX make lexical
 our $sigspace = 0;
 our $capture_count;
-our $quantified;
+our $capture_to_array;
 
 # XXX - reuse this sub in metasyntax()
 sub call_subrule {
@@ -51,7 +51,7 @@ sub emit {
     # rule parameters: see Runtime::Rule.pm
     local $sigspace = $param->{sigspace};   # XXX - $sigspace should be lexical
     local $capture_count = -1;
-    local $quantified = 0;
+    local $capture_to_array = 0;
     return 
         "sub {\n" . 
         "  my \$grammar = \$_[0];\n" .
@@ -117,7 +117,7 @@ sub quant {
 
     my $rul;
     {
-        local $quantified = ( $quantifier ne '' );
+        local $capture_to_array = ( $quantifier ne '' );
         $rul = emit_rule( $term, $tab );
     }
 
@@ -278,7 +278,7 @@ sub capturing_group {
 
     {
         local $capture_count = -1;
-        local $quantified = 0;
+        local $capture_to_array = 0;
         $program = emit_rule( $program, $_[1].'      ' )
             if ref( $program );
     }
@@ -295,10 +295,8 @@ $_[1]       \$bool = 0 unless
 $_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \\\$bool, to => \\(0+\$pos), capture => \\\$capture }
 $_[1]     };
 $_[1]     my \$bool = \${\$hash->{'bool'}};" .
-        ( $quantified 
+        ( $capture_to_array 
         ? "
-$_[1]     \$match[ $capture_count ] = [] 
-$_[1]         unless defined \$match[ $capture_count ];
 $_[1]     if ( \$bool ) {
 $_[1]         push \@{ \$match[ $capture_count ] }, Pugs::Runtime::Match::Ratchet->new( \$hash );
 $_[1]     }"
@@ -347,10 +345,8 @@ $_[1]     my \$bool = \${\$hash->{'bool'}};
 $try_match
 $_[1]     if ( \$bool ) {
 $_[1]       my \$match = $gen_match;" .
-        ( $quantified 
+        ( $capture_to_array 
         ? "
-$_[1]       \$named{'$name'} = [] 
-$_[1]         unless defined \$named{'$name'};
 $_[1]       push \@{\$named{'$name'}}, \$match;" 
         : "
 $_[1]       \$named{'$name'} = \$match;"
