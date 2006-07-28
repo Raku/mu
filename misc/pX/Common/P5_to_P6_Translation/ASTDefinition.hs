@@ -81,6 +81,7 @@ data AbsType
     | Op_each
     | Op_egrent
     | Op_entereval
+    | Op_enteriter
     | Op_entersub
     | Op_entertry
     | Op_enterwrite
