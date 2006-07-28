@@ -12,6 +12,7 @@ $Data::Dumper::Indent = 1;
 
 our $direction = "+";  # XXX make lexical
 our $sigspace = 0;
+our $capture_count;
 
 # XXX - reuse this sub in metasyntax()
 sub call_subrule {
@@ -48,6 +49,7 @@ sub emit {
     # runtime parameters: $grammar, $string, $state, $arg_list
     # rule parameters: see Runtime::Rule.pm
     local $sigspace = $param->{sigspace};   # XXX - $sigspace should be lexical
+    local $capture_count = -1;
     return 
         "sub {\n" . 
         "  my \$grammar = \$_[0];\n" .
@@ -256,9 +258,14 @@ $_[1]   && return \$m )";
 sub capturing_group {
     my $program = $_[0];
 
-    $program = emit_rule( $program, $_[1].'      ' )
-        if ref( $program );
-    my $rnd = rand;
+    $capture_count++;
+
+    {
+        local $capture_count = -1;
+        $program = emit_rule( $program, $_[1].'      ' )
+            if ref( $program );
+    }
+
     return "$_[1] do{ 
 $_[1]     my \$hash = do {
 $_[1]       my \$bool = 1;
@@ -272,27 +279,26 @@ $_[1]       \$bool = 0 unless
 $_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \\\$bool, to => \\(0+\$pos), capture => \\\$capture }
 $_[1]     };
 $_[1]     my \$bool = \${\$hash->{'bool'}};
-$_[1]     \$index{$rnd} = \$#match+1 unless defined \$index{$rnd};
 $_[1]     if ( \$quantified ) {
 $_[1]       if ( \$bool ) {
-$_[1]         push \@{ \$match[\$index{$rnd}] }, Pugs::Runtime::Match::Ratchet->new( \$hash );
+$_[1]         push \@{ \$match[ $capture_count ] }, Pugs::Runtime::Match::Ratchet->new( \$hash );
 $_[1]       }
 $_[1]       else {
-$_[1]         \@{ \$match[\$index{$rnd}] } = () 
-$_[1]           if ! defined \$match[\$index{$rnd}];
+$_[1]         \@{ \$match[ $capture_count ] } = () 
+$_[1]           if ! defined \$match[ $capture_count ];
 $_[1]       }
 $_[1]     }
 $_[1]     else {
-$_[1]       if ( ! defined \$match[\$index{$rnd}] ) {
-$_[1]         \$match[\$index{$rnd}] = Pugs::Runtime::Match::Ratchet->new( \$hash );
+$_[1]       if ( ! defined \$match[ $capture_count ] ) {
+$_[1]         \$match[ $capture_count ] = Pugs::Runtime::Match::Ratchet->new( \$hash );
 $_[1]       }
-$_[1]       elsif ( ref( \$match[\$index{$rnd}] ) ne 'ARRAY' ) {
-$_[1]         \$match[\$index{$rnd}] = [ \$match[\$index{$rnd}], Pugs::Runtime::Match::Ratchet->new( \$hash ) ];
+$_[1]       elsif ( ref( \$match[ $capture_count ] ) ne 'ARRAY' ) {
+$_[1]         \$match[ $capture_count ] = [ \$match[ $capture_count ], Pugs::Runtime::Match::Ratchet->new( \$hash ) ];
 $_[1]       }
 $_[1]       else {
-$_[1]         push \@{ \$match[\$index{$rnd}] }, Pugs::Runtime::Match::Ratchet->new( \$hash );
+$_[1]         push \@{ \$match[ $capture_count ] }, Pugs::Runtime::Match::Ratchet->new( \$hash );
 $_[1]       }
-$_[1]       #unshift \@{ \$match[\$index{$rnd}] } unless \$bool;
+$_[1]       #unshift \@{ \$match[ $capture_count ] } unless \$bool;
 $_[1]     }
 $_[1]     \$bool;
 $_[1] }";
