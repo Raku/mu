@@ -3,10 +3,11 @@ use Test::More tests => 46;
 use Data::Dumper;
 
 use_ok( 'Pugs::Compiler::Regex' );
+use_ok( 'Pugs::Grammar::RegexBase' );
 
 {
     my $rule = Pugs::Compiler::Regex->compile( '.' );
-    #print $rule->{perl5};
+    print $rule->{perl5};
     my $match = $rule->match( "xyzw" );
     #print "match: ", $match->perl;
     is( "$match", "x", 'stringify 1' );

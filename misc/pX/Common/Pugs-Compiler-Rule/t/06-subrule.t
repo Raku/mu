@@ -6,6 +6,7 @@ use warnings;
 no warnings 'once';
 
 use_ok( 'Pugs::Compiler::Regex' );
+# use base 'Pugs::Grammar::RegexBase';
 
 {
     my $rule = Pugs::Compiler::Regex->compile('\w');
@@ -14,6 +15,17 @@ use_ok( 'Pugs::Compiler::Regex' );
     is( ref($rule2), 'Pugs::Compiler::Regex', "a Regex object");
     my $match = $rule2->match("abc");
     is( "$match",'a',"perl5 returns eval'able code");
+}
+
+{
+    local *rule = Pugs::Compiler::Regex->compile('<ws>')->code();
+    print "rule: ", Pugs::Compiler::Regex->compile('<ws>')->perl;
+    my $match = rule("abc");
+    is( $match ? 1 : 0 , 0 ,"no ws");
+    $match = rule(" abc");
+    is( $match ? 1 : 0 , 1 ,"Matched <ws> at pos=0");
+    $match = rule("ab c");
+    is( $match ? 1 : 0 , 1 ,"Matched non-anchored <ws>");
 }
 
 {

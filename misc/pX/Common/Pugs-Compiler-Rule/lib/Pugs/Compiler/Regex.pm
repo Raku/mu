@@ -6,7 +6,7 @@ use 5.006;
 use strict;
 use warnings;
 
-use Pugs::Grammar::RegexBase;  # not 'use base'
+# use Pugs::Grammar::RegexBase;  # not 'use base'
 use Pugs::Grammar::Rule;
 #use Pugs::Runtime::Rule;
 use Pugs::Runtime::Match;
@@ -115,12 +115,21 @@ sub match {
     return Pugs::Runtime::Match::Ratchet->new( { bool => \0 } )
         unless defined $str;   # XXX - fix?
         
+    if ( ref $grammar eq 'HASH' ) {
+        # backwards compatibility - grammar can now be specified in $flags
+        $state = $flags;
+        $flags = $grammar;
+        $grammar = $flags->{grammar};
+    }
+
     $grammar ||= $rule->{grammar};
     #print "match: grammar $rule->{grammar}, $_[0], $flags\n";
     #print "match: Variables: ", Dumper ( $flags->{args} ) if defined $flags->{args};
 
     my $p = defined $flags->{p} 
             ? $flags->{p} 
+            : defined $flags->{pos} 
+            ? $flags->{pos} 
             : $rule->{p};
 
         #print "flag p";

@@ -1,5 +1,5 @@
 
-use Test::More tests => 11;
+use Test::More tests => 16;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -30,7 +30,27 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     is( "$match", "xyz", 'stringify 1' );
     is( "$match->[0]", "xy", 'stringify 2' );
     is( "$match->[1]", "x", 'stringify 3' );
+    is( $match->[2]->to, 3, 'to() 4' );
     is( "$match->[2]", "z", 'stringify 4' );
 }
 
-# TODO: test :p
+{
+    my $rule = Pugs::Compiler::Regex->compile( '(a.)', { Perl5 => 1 } );
+    my $match = $rule->match( "xayzwabc", { pos => 5 } );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "ab", 'pos set' );
+    my $match = $rule->match( "xayzwabc", { p => 5 } );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "ab", 'p set' );
+    my $match = $rule->match( "xayzwabc", { pos => undef } );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "ay", 'p unset' );
+    my $match = $rule->match( "xayzwabc" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "ay", 'no pos' );
+}
+
