@@ -98,6 +98,7 @@ withKids indent = do
             "op_each"       -> Op_each
             "op_egrent"     -> Op_egrent
             "op_entereval"  -> Op_entereval
+            "op_enteriter"  -> Op_enteriter
             "op_entersub"   -> Op_entersub
             "op_entertry"   -> Op_entertry
             "op_enterwrite" -> Op_enterwrite
@@ -396,6 +397,10 @@ uniBlock indent = choice
         uni <- manyTill (manyTill anyToken newline) (try(newline)) <?> "uni block";
         return (unlines (map (drop indent) uni))
     ,do try $ string "|+"
+        newline;
+        uni <- manyTill (manyTill anyToken newline) (try(choice [try(do{count (indent-4) space; notFollowedBy (char ' ')}), try(do{count (indent-8) space; notFollowedBy (char ' ')})])) <?> "uni block with chomp modifier"; -- A block with the chomp modifier ends when there's a line with too few spaces (which means another node (or the end part of a heredoc) is starting.
+        return (unlines (map (drop indent) uni))
+    ,do try $ string "|-"
         newline;
         uni <- manyTill (manyTill anyToken newline) (try(choice [try(do{count (indent-4) space; notFollowedBy (char ' ')}), try(do{count (indent-8) space; notFollowedBy (char ' ')})])) <?> "uni block with chomp modifier"; -- A block with the chomp modifier ends when there's a line with too few spaces (which means another node (or the end part of a heredoc) is starting.
         return (unlines (map (drop indent) uni))
