@@ -16,8 +16,9 @@ sub call_subrule {
     $subrule =~ s/\./->/;   # XXX - source filter
     return 
         "$tab sub{ \n" .
-        "$tab     # param: @param \n" .
+        #"$tab     print \"param: \",Dumper( \@_ );\n" .
         "$tab     \$_[3] = $subrule( \$_[0], \$_[7], \$_[1] );\n" .
+        #"$tab     print \"match: \",Dumper(\$_[3]->data);\n" .
         "$tab }\n";
 }
 
@@ -28,6 +29,7 @@ sub emit {
     return 
         "do {\n" .
         "    package Pugs::Runtime::Regex;\n" .
+        # "    use Pugs::Grammar::RegexBase;\n" .
         "    my \$matcher = \n" . 
         emit_rule( $ast, '    ' ) . "  ;\n" .
         "  sub {\n" . 
@@ -48,8 +50,9 @@ sub emit {
         "           unless defined \$tree;
 ;\n" .
         "    }\n" .
+        # "    print \"match: \",Dumper(\$tree->data);\n" .
         "    my \$cap = \$tree->data->{capture};\n" .
-        "    if ( \$cap ) { \n" .
+        "    if ( ref \$cap eq 'CODE' ) { \n" .
 
         "        \$tree->data->{capture} = \\(\$cap->( \$tree ));\n" .
 

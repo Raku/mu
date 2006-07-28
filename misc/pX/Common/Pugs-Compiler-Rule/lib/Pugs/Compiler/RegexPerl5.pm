@@ -30,7 +30,7 @@ q(sub {
   if ( defined $_[3]{p} ) {
     pos($s) = $_[3]{p};
     my $bool = \( $s =~ /\G) . $rule_source . q(/sx \) ? 1 : 0;
-    # print "matching P5/$rule_source/ at $_[3]{p} in '$s', '$1'\n";
+    #print "matching P5/$rule_source/ at $_[3]{p} in '$s', '$1', $bool\n";
     my @match;
     for ( 1 .. $#+ ) {
       push @match, Pugs::Runtime::Match::Ratchet->new({

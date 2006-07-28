@@ -2,6 +2,7 @@
 use Test::More tests => 3;
 
 use_ok( 'Pugs::Compiler::Rule' );
+use Pugs::Grammar::RegexBase;
 #no warnings qw( once );
 
 {
