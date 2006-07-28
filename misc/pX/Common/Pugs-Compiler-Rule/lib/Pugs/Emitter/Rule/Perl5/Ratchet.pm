@@ -13,6 +13,7 @@ $Data::Dumper::Indent = 1;
 our $direction = "+";  # XXX make lexical
 our $sigspace = 0;
 our $capture_count;
+our $quantified;
 
 # XXX - reuse this sub in metasyntax()
 sub call_subrule {
@@ -50,6 +51,7 @@ sub emit {
     # rule parameters: see Runtime::Rule.pm
     local $sigspace = $param->{sigspace};   # XXX - $sigspace should be lexical
     local $capture_count = -1;
+    local $quantified = 0;
     return 
         "sub {\n" . 
         "  my \$grammar = \$_[0];\n" .
@@ -69,7 +71,6 @@ sub emit {
         #"  my \$from = \$pos;\n" .
         "    my \$bool = 1;\n" .
         "    my \$capture;\n" .
-        "    my \$quantified;\n" .
         "    \$m = Pugs::Runtime::Match::Ratchet->new( { \n" .
         "      str => \\\$s, from => \\(0+\$pos), to => \\(\$pos), \n" .
         "      bool => \\\$bool, match => \\\@match, named => \\\%named, capture => \\\$capture, \n" .
@@ -113,7 +114,13 @@ sub quant {
     my $tab = ( $quantifier eq '' ) ? $_[1] : $_[1] . "  ";
     my $ws = metasyntax( '?ws', $tab );
     my $ws3 = ( $sigspace && $_[0]->{ws3} ne '' ) ? " &&\n$ws" : '';
-    my $rul = emit_rule( $term, $tab );
+
+    my $rul;
+    {
+        local $quantified = ( $quantifier ne '' );
+        $rul = emit_rule( $term, $tab );
+    }
+
     $rul = "$ws &&\n$rul" if $sigspace && $_[0]->{ws1} ne '';
     $rul = "$rul &&\n$ws" if $sigspace && $_[0]->{ws2} ne '';
     #print $rul;
@@ -124,16 +131,16 @@ sub quant {
     # TODO: *+ ++ ?+
     # TODO: quantifier + capture creates Array
     return 
-        "$_[1] do { my \$quantified = 1; (\n$rul\n" .
+        "$_[1] do { (\n$rul\n" .
         "$_[1] ||\n" .
         "$_[1]   1\n" .
         "$_[1] ) }$ws3"
         if $quantifier eq '?';
     return 
-        "$_[1] do { my \$quantified = 1; while (\n$rul) {}; 1 }$ws3"
+        "$_[1] do { while (\n$rul) {}; 1 }$ws3"
         if $quantifier eq '*';
     return
-        "$_[1] do { my \$quantified = 1;\n" . 
+        "$_[1] do { \n" . 
         "$_[1] (\n$rul\n" .
         "$_[1] &&\n" .
         "$_[1]   do { while (\n$rul) {}; 1 }\n" .
@@ -143,10 +150,19 @@ sub quant {
 }        
 sub alt {
     my @s;
+    # print 'Alt: ';
+    my $count = $capture_count;
+    my $max = -1;
     for ( @{$_[0]} ) { 
+        $capture_count = $count;
         my $tmp = emit_rule( $_, $_[1].'  ' );
+        # print ' ',$capture_count;
+        $max = $capture_count 
+            if $capture_count > $max;
         push @s, $tmp if $tmp;   
     }
+    $capture_count = $max;
+    # print " max = $capture_count\n";
     return 
         "$_[1] do {
 $_[1]   my \$pos1 = \$pos;
@@ -262,6 +278,7 @@ sub capturing_group {
 
     {
         local $capture_count = -1;
+        local $quantified = 0;
         $program = emit_rule( $program, $_[1].'      ' )
             if ref( $program );
     }
@@ -273,33 +290,21 @@ $_[1]       my \$from = \$pos;
 $_[1]       my \@match;
 $_[1]       my \%named;
 $_[1]       my \$capture;
-$_[1]       my \$quantified;
 $_[1]       \$bool = 0 unless
 " .             $program . ";
 $_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \\\$bool, to => \\(0+\$pos), capture => \\\$capture }
 $_[1]     };
-$_[1]     my \$bool = \${\$hash->{'bool'}};
-$_[1]     if ( \$quantified ) {
-$_[1]       if ( \$bool ) {
+$_[1]     my \$bool = \${\$hash->{'bool'}};" .
+        ( $quantified 
+        ? "
+$_[1]     \$match[ $capture_count ] = [] 
+$_[1]         unless defined \$match[ $capture_count ];
+$_[1]     if ( \$bool ) {
 $_[1]         push \@{ \$match[ $capture_count ] }, Pugs::Runtime::Match::Ratchet->new( \$hash );
-$_[1]       }
-$_[1]       else {
-$_[1]         \@{ \$match[ $capture_count ] } = () 
-$_[1]           if ! defined \$match[ $capture_count ];
-$_[1]       }
-$_[1]     }
-$_[1]     else {
-$_[1]       if ( ! defined \$match[ $capture_count ] ) {
-$_[1]         \$match[ $capture_count ] = Pugs::Runtime::Match::Ratchet->new( \$hash );
-$_[1]       }
-$_[1]       elsif ( ref( \$match[ $capture_count ] ) ne 'ARRAY' ) {
-$_[1]         \$match[ $capture_count ] = [ \$match[ $capture_count ], Pugs::Runtime::Match::Ratchet->new( \$hash ) ];
-$_[1]       }
-$_[1]       else {
-$_[1]         push \@{ \$match[ $capture_count ] }, Pugs::Runtime::Match::Ratchet->new( \$hash );
-$_[1]       }
-$_[1]       #unshift \@{ \$match[ $capture_count ] } unless \$bool;
-$_[1]     }
+$_[1]     }"
+        : "
+$_[1]     \$match[ $capture_count ] = Pugs::Runtime::Match::Ratchet->new( \$hash );"
+        ) . "
 $_[1]     \$bool;
 $_[1] }";
 }        
@@ -341,19 +346,16 @@ $_[1]     my \$bool = \${\$hash->{'bool'}};
     return "$_[1] do{ 
 $try_match
 $_[1]     if ( \$bool ) {
-$_[1]       my \$match = $gen_match;
-$_[1]       if ( \$quantified ) {
-$_[1]         \$named{'$name'} = [] if ! defined \$named{'$name'};
-$_[1]         push \@{\$named{'$name'}}, \$match;
-$_[1]       } else {
-$_[1]         if ( ! defined \$named{'$name'} ){
-$_[1]           \$named{'$name'} = \$match;
-$_[1]         } elsif ( ref ( \$named{'$name'} ) ne 'ARRAY' ){
-$_[1]           \$named{'$name'} = [\$named{'$name'}, \$match];
-$_[1]         } else {
-$_[1]           push \@{ \$named{'$name'} }, \$match;
-$_[1]         }
-$_[1]       }
+$_[1]       my \$match = $gen_match;" .
+        ( $quantified 
+        ? "
+$_[1]       \$named{'$name'} = [] 
+$_[1]         unless defined \$named{'$name'};
+$_[1]       push \@{\$named{'$name'}}, \$match;" 
+        : "
+$_[1]       \$named{'$name'} = \$match;"
+        ) .
+"
 $_[1]     }
 $_[1]     $post_match
 $_[1]     \$bool;

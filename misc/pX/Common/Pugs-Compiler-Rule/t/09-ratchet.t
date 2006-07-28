@@ -1,5 +1,5 @@
 
-use Test::More tests => 78;
+use Test::More tests => 82;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -41,6 +41,19 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     $match = $rule->match("ab");
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     ok( $match, "basic alternative - 2" );
+}
+
+{
+    my $rule = Pugs::Compiler::Regex->compile( '[(a)(b)|(c)](d)', { ratchet => 1, p => 0 } );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    my $match = $rule->match("ac");
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    ok( !$match, "alternative with captures" );
+    $match = $rule->match("cd");
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    ok( $match, "alternative - 2" );
+    is( $match->[0], "c", "alternative - 3" );
+    is( $match->[2], "d", "alternative - 4" );
 }
 
 {
