@@ -34,6 +34,7 @@ sub emit {
         emit_rule( $ast, '    ' ) . "  ;\n" .
         "  sub {\n" . 
         # grammar, string, state, args
+        #"    print \"match args: \",Dumper(\@_);\n" .
         "    my \$tree;\n" .
         "    if ( defined \$_[3]{p} ) {\n" .
         "        \$matcher->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$_[3]{p}, \$_[1], \$_[3] );\n" .

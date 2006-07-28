@@ -160,6 +160,7 @@ sub named {
     my $node = shift;
     sub {
         my $match;
+        #print "named() param: ",Dumper( @_ );
         $node->( @_[0,1,2], $match, @_[4,5,6,7] );
         $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
                 bool  => \( $match->bool ),
