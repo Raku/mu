@@ -16,7 +16,7 @@ works (but has not been widely tested).
 
 The compiled version (let's call it 'translate') is used like so:
   $./translate [-Oo -V -U -R] inFile outFile
-the -Oo, -U and -V switches are optional, and have these effects:
+the switches are optional, and have these effects:
 
 -Oo: Heavy object orientation. If there's an available (but optional) Oo translation it does it, such 
 as translating close($fh) to $fh.close.
@@ -56,11 +56,34 @@ import System(getArgs)
 --It's pretty ugly, which is why there's a need for a wrapper function
 translate :: P5AST -> String -> P5AST
 translate tree options = case [('o' `elem` options), ('r' `elem` options)] of
-                               [True, False]   -> (hereDocTranslate (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree))))))))))))))
-                               [True, True]  -> (hereDocTranslate (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree)))))))))))))
-                               [False, False]  -> (hereDocTranslate (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree)))))))))))
-                               [False, True] -> (hereDocTranslate (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree))))))))))
+                               [True, False]   ->  (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree)))))))))))))))
+                               [True, True]  ->  (scalarTranslate (hereDocTranslate (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree))))))))))))))
+                               [False, False]  -> (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree))))))))))))
+                               [False, True] -> (scalarTranslate (hereDocTranslate (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree)))))))))))
 
+--Find places where the translation scalar @blah -> +@blah is needed
+scalarTranslate :: P5AST -> P5AST
+scalarTranslate (AbstractNode Op_scalar kids) = (AbstractNode Op_scalar (scalarToPlus kids))
+scalarTranslate (AbstractNode atype kids) = (AbstractNode atype (map scalarTranslate kids))
+scalarTranslate (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+scalarTranslate (Heredoc start end kids) = (Heredoc start end kids)
+
+--Change a scalar function call to + symbol.
+scalarToPlus :: [P5AST] -> [P5AST]
+scalarToPlus [] = []
+scalarToPlus kids = case (matchWithoutEnc (head kids) (LiteralNode Operator "" "scalar")) of
+                      False -> (head kids):(scalarToPlus (tail kids))
+                      True  -> (LiteralNode Operator "" "+"):(dropLeadingJunk (head (tail kids))):(drop 2 kids)
+
+--Removes leading junk 
+dropLeadingJunk :: P5AST -> P5AST
+dropLeadingJunk (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+dropLeadingJunk (AbstractNode atype kids) = case (matchOnType (head kids) (LiteralNode Junk "" "")) of
+                                              True  -> (AbstractNode atype (tail kids))
+                                              False -> (AbstractNode atype kids)
+dropLeadingJunk (Heredoc start end kids) = (Heredoc start end kids)
+
+--Translates herdocs. Just changes to start...
 hereDocTranslate :: P5AST -> P5AST
 hereDocTranslate (Heredoc start end kids) = (Heredoc (changeHereDoc start) end kids)
 hereDocTranslate (AbstractNode atype kids) = (AbstractNode atype (map hereDocTranslate kids))
@@ -214,21 +237,23 @@ topicMethod kids = if (not (isIn (AbstractNode Listelem []) kids)) then [(Litera
 --translates foreach loops:
 --foreach $foo (@bar) {...} becomes foreach @bar -> $foo {...}
 foreachTranslation :: P5AST -> P5AST
-foreachTranslation (AbstractNode Op_leaveloop kids) = if (isIn (LiteralNode Token "1" "foreach") kids) then 
-                                                        if ((getLType (head kids))==(getLType (LiteralNode Junk "1" ""))) then (AbstractNode Op_leaveloop ((head kids):(extractKids (newForeach (map foreachTranslation kids))))) 
-                                                           else (newForeach (map foreachTranslation kids))
-                                                       else (AbstractNode Op_leaveloop (map foreachTranslation kids))
+foreachTranslation (AbstractNode Op_leaveloop kids) = if (isIn (LiteralNode Token "1" "foreach") kids) then (AbstractNode Op_leaveloop (newForeach kids)) else (AbstractNode Op_leaveloop (map foreachTranslation kids))                                             
 foreachTranslation (AbstractNode atype kids) = (AbstractNode atype (map foreachTranslation kids))
 foreachTranslation (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 foreachTranslation (Heredoc start end kids) = (Heredoc start end kids)
 
 --Does the dirty work of actual translation on foreach
-newForeach :: [P5AST] -> P5AST
-newForeach [] = (AbstractNode UnknownAbs [])
-newForeach kids =  if (and [(isIn (AbstractNode Op_padsv []) kids),(isIn (AbstractNode Op_padav []) kids)]) then (AbstractNode Op_leaveloop [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_padav []) kids),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(LiteralNode Declarator "1" "my"),(extractNodetype (AbstractNode Op_padsv []) kids),(extractNodetype (AbstractNode Op_lineseq []) kids)]) else
-                    if (and [(isIn (AbstractNode Op_padsv []) kids),(isIn (AbstractNode Op_list []) kids)]) then (AbstractNode Op_leaveloop [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(LiteralNode Opener "1" "("),(extractNodetype (AbstractNode Op_list []) kids),(LiteralNode Closer "1" ")"),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(LiteralNode Declarator "1" "my"),(extractNodetype (AbstractNode Op_padsv []) kids),(extractNodetype (AbstractNode Op_lineseq []) kids)]) else 
-                      if (isIn (AbstractNode Op_rv2av []) kids) then (AbstractNode Op_leaveloop [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_rv2av []) kids),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_rv2gv []) kids),(extractNodetype (AbstractNode Op_lineseq []) kids)]) else
-                        if (isIn (AbstractNode Op_list []) kids) then (AbstractNode Op_leaveloop [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(LiteralNode Opener "1" "("),(extractNodetype (AbstractNode Op_list []) kids),(LiteralNode Closer "1" ")"),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_rv2gv []) kids),(extractNodetype (AbstractNode Op_lineseq []) kids)]) else (AbstractNode UnknownAbs [])
+newForeach :: [P5AST] -> [P5AST]
+newForeach [] = []
+newForeach kids = if (matchOnType (head kids) (LiteralNode Junk "" "")) then (head kids):(newForeach (tail kids)) else 
+            case [(isIn (AbstractNode Op_padsv []) kids), (isIn (AbstractNode Op_padav []) kids), (isIn (AbstractNode Op_list []) kids), (isIn (AbstractNode Op_rv2av []) kids), (isIn (AbstractNode Op_gv []) kids), (isIn (LiteralNode Declarator "" "my") kids)] of
+                    [True, True, False, False, False, False]  -> (map foreachTranslation [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_padav []) kids),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(LiteralNode Declarator "1" "my"),(extractNodetype (AbstractNode Op_padsv []) kids),(extractNodetype (AbstractNode Op_lineseq []) kids)])
+                    [True, False, True, False, False, True]  -> (map foreachTranslation [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(LiteralNode Opener "1" "("),(extractNodetype (AbstractNode Op_list []) kids),(LiteralNode Closer "1" ")"),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(LiteralNode Declarator "1" "my"),(extractNodetype (AbstractNode Op_padsv []) kids),(extractNodetype (AbstractNode Op_lineseq []) kids)])
+                    [False, False, False, True, False, False] -> (map foreachTranslation [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_rv2av []) kids),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_rv2gv []) kids),(extractNodetype (AbstractNode Op_lineseq []) kids)])
+                    [False, False, True, False, False, False] -> (map foreachTranslation [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_rv2av []) kids),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(LiteralNode Sigil "" "$_"),(extractNodetype (AbstractNode Op_lineseq []) kids)])
+                    [False, False, True, False, True, False] -> (map foreachTranslation [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(LiteralNode Opener "1" "("),(extractNodetype (AbstractNode Op_list []) kids),(LiteralNode Closer "1" ")"),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(LiteralNode Sigil "" "$_"),(extractNodetype (AbstractNode Op_lineseq []) kids)])
+                    _                           -> []
+
 
 --Changes a split on a sinle space into a call to the .words method
 toWords :: P5AST -> P5AST
@@ -250,7 +275,7 @@ changeCloseMethod :: [P5AST] -> [P5AST]
 changeCloseMethod [] = []
 changeCloseMethod nlist = if (matchWithoutEnc (head nlist) (AbstractNode Op_rv2gv [])) then (extractKids (head (extractKids (head nlist))))++[(LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "close")])])] else
                             if (matchWithoutEnc (head nlist) (AbstractNode Op_gv [])) then [(LiteralNode Sigil "1" ("$"++(extractUni (head (extractKids (head (extractKids (head nlist)))))))),(LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "close")])])] else
-                              (changeCloseMethod (tail nlist))
+                              if ((length nlist) >= 2) then (head nlist):(changeCloseMethod (tail nlist)) else (nlist)
 
 --Changes the quote type of regexs in a split.
 splitQuotes :: P5AST -> P5AST
@@ -268,16 +293,19 @@ toSlashQuotes (AbstractNode atype kids) = [(AbstractNode atype kids)]
 
 --Changes length($blah) to $blah.chars with the help of toCharMethod
 lengthToMethod :: P5AST -> P5AST
-lengthToMethod (AbstractNode Op_length kids) = (toCharMethod kids)
+lengthToMethod (AbstractNode Op_length kids) = (AbstractNode Op_length (toCharMethod kids))
 lengthToMethod (AbstractNode atype kids) = (AbstractNode atype (map lengthToMethod kids))
 lengthToMethod (Heredoc start end kids) = (Heredoc start end kids)
 lengthToMethod (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 
 --Actually performs change to method call
-toCharMethod :: [P5AST] -> P5AST
-toCharMethod [] = (AbstractNode UnknownAbs [])
-toCharMethod kids = if (matchWithoutEnc (head kids) (LiteralNode Opener "1" "(")) then (AbstractNode Op_length [(head (tail kids)), (LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "chars")])])]) else
-                     (toCharMethod (tail kids))
+toCharMethod :: [P5AST] -> [P5AST]
+toCharMethod [] = []
+toCharMethod kids = case [(matchWithoutEnc (head kids) (LiteralNode Operator "" "length")), (matchWithoutEnc (head (tail kids)) (LiteralNode Opener "" "("))] of
+                      [True, True]   -> [(head (drop 2 kids)), (LiteralNode Operator "" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "chars")])])]++(drop 4 kids)
+                      [True, False]  -> [(head (tail kids)),(LiteralNode Operator "" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "chars")])])]++(drop 2 kids)
+                      [False, True]  -> (head kids):(toCharMethod (tail kids))
+                      [False, False] -> (head kids):(toCharMethod (tail kids))
 
 {-Translates split calls on a regex with an explicit match (i.e. split(/blah/m, $something) to no longer
 use the /m which now happens immediately. -}
@@ -318,7 +346,7 @@ The name of the function is a bit long, but it won't be called often
 and at least it's very descriptive -}
 equalTildeToTildeTilde :: P5AST -> P5AST
 equalTildeToTildeTilde (LiteralNode Operator enc "=~") = (LiteralNode Operator enc "~~")
-equalTildeToTildeTilde (AbstractNode atype kids) = (AbstractNode atype kids)
+equalTildeToTildeTilde (AbstractNode atype kids) = (AbstractNode atype (map equalTildeToTildeTilde kids))
 equalTildeToTildeTilde (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 equalTildeToTildeTilde (Heredoc start end kids) = (Heredoc start end kids)
 
