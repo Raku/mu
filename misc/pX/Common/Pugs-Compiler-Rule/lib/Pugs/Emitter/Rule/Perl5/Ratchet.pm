@@ -117,7 +117,9 @@ sub quant {
 
     my $rul;
     {
-        local $capture_to_array = ( $quantifier ne '' );
+        #print "Term: ", Dumper($term), "\n";
+        my $cap = $capture_to_array;
+        local $capture_to_array = $cap || ( $quantifier ne '' );
         $rul = emit_rule( $term, $tab );
     }
 
