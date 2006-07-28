@@ -264,7 +264,7 @@ sub perl6_expression {
 
 
 *signature_term = Pugs::Compiler::Regex->compile( q(
-        <signature_term_type> <?ws>?
+        <signature_term_type> : <?ws>?
         (<':'>?)
         (<'*'>?)
         <signature_term_ident>
