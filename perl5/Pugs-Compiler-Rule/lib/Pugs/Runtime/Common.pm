@@ -11,6 +11,8 @@ our %perl6_name = (
     '$$'            => '$*PID',  
     '$0'            => '$*EXECUTABLE_NAME',  
 
+    '\\*STDERR'     => '$*ERR',  
+
     '__FILE__'      => '$?FILE',
     
     '$::_V6_ERR_'   => '$!',

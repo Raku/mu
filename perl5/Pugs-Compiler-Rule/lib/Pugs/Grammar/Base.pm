@@ -6,6 +6,11 @@ use Pugs::Runtime::Match;
 
 # internal methods - not in spec
 
+sub AUTOLOAD {
+    Carp::cluck;
+    die;
+}
+
 sub no_match { 
     Pugs::Runtime::Match->new( { bool => 0 } );
 }
