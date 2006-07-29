@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 24;
+plan 27;
 
 =pod
 
@@ -101,6 +101,24 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
   is &infix:<z>(2, 3), 5, "accessing a userdefined operator using its subroutine name";
 
   is ~(&infix:<»+«>([1,2,3],[4,5,6])), "5 7 9", "accessing a hyperoperator using its subroutine name";
+}
+
+# Overriding postfix:<;>
+{
+    my proto postfix:<;> ($a) { 1 }
+    is (3+2;), 4  # XXX correct ?!
+}
+
+# Overriding infix:<;>
+{
+    my proto infix:<;> ($a, $b) { $a + $b }
+    is (3 ; 2), 5  # XXX correct?
+}
+
+# Overriding prefix:<if>
+{
+    my proto prefix:<if> ($a) { $a*2 }
+    is (if 5), 10;
 }
 
 # great.  Now, what about those silent auto-conversion operators a la:
