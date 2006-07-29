@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 27;
+plan 26;
 
 =pod
 
@@ -103,23 +103,29 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
   is ~(&infix:<»+«>([1,2,3],[4,5,6])), "5 7 9", "accessing a hyperoperator using its subroutine name";
 }
 
-# Overriding postfix:<;>
-{
-    my proto postfix:<;> ($a) { 1 }
-    is (3+2;), 4  # XXX correct ?!
-}
-
 # Overriding infix:<;>
 {
     my proto infix:<;> ($a, $b) { $a + $b }
     is (3 ; 2), 5  # XXX correct?
 }
 
+# [NOTE]
+# pmichaud ruled that prefix:<;> and postfix:<;> shouldn't be defined by
+# the synopses:
+#   http://colabti.de/irclogger/irclogger_log/perl6?date=2006-07-29,Sat&sel=189#l299
+# so we won't test them here.
+
 # Overriding prefix:<if>
+# L<S04/"Statement parsing" /since C<< prefix:<if> >> would hide C<< statement_modifier:<if> >>/>
 {
     my proto prefix:<if> ($a) { $a*2 }
     is (if 5), 10;
 }
+
+# [NOTE]
+# pmichaud ruled that infix<if> is incorrect:
+#   http://colabti.de/irclogger/irclogger_log/perl6?date=2006-07-29,Sat&sel=183#l292
+# so we won't test it here either.
 
 # great.  Now, what about those silent auto-conversion operators a la:
 # multi sub prefix:<+> (Str $x) returns Num { ... }
