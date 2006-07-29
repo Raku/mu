@@ -11,6 +11,7 @@ BEGIN {
         : ()
 }
 use lib '../..', (@inc ? $inc[-1] : ());
+use lib '../../../..';  # from pX/Common
 use inc::Module::Install @inc;
 
 use Cwd qw< abs_path cwd >;

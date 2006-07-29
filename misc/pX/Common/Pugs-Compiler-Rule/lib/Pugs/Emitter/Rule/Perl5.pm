@@ -9,6 +9,9 @@ use warnings;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
+our $capture_count;
+our $capture_to_array;
+
 # XXX - reuse this sub in metasyntax()
 sub call_subrule {
     my ( $subrule, $tab, @param ) = @_;
@@ -26,6 +29,8 @@ sub emit {
     my ($grammar, $ast) = @_;
     # runtime parameters: $grammar, $string, $state, $arg_list
     # rule parameters: see Runtime::Rule.pm
+    local $capture_count = -1;
+    local $capture_to_array = 0;
     return 
         "do {\n" .
         "    package Pugs::Runtime::Regex;\n" .
@@ -81,9 +86,20 @@ sub emit_rule {
 #rule nodes
 
 sub capturing_group {
+    my $program = $_[0];
+    
+    $capture_count++;
+    {
+        local $capture_count = -1;
+        local $capture_to_array = 0;
+        $program = emit_rule( $program, $_[1].'      ' )
+            if ref( $program );
+    }
+    
+    # TODO - $capture_to_array ? ...
     return 
         "$_[1] positional( \n" .
-        emit_rule( $_[0], $_[1].'  ' ) . 
+        $program . 
         "$_[1] )\n" .
         '';
 }        
@@ -105,22 +121,39 @@ sub quant {
         }->{$quantifier};
     die "quantifier not implemented: $quantifier" 
         unless defined $sub;
-    return emit_rule( $term, $_[1] ) 
+        
+    my $rul;
+    {
+        my $cap = $capture_to_array;
+        local $capture_to_array = $cap || ( $quantifier ne '' );
+        $rul = emit_rule( $term, $_[1] . '  ' );
+    }
+
+    return $rul 
         if $sub eq '';
     return 
         "$_[1] positional( \n" . 
         "$_[1]     $sub(\n" .
-        emit_rule( $term, $_[1] . ("    "x2) ) . 
+        $rul . 
         "$_[1]     )\n" .
         "$_[1] )\n" .
         '';
 }        
 sub alt {
     my @s;
+    
+    my $count = $capture_count;
+    my $max = -1;
     for ( @{$_[0]} ) { 
-        my $tmp = emit_rule( $_, $_[1] );
+        $capture_count = $count;
+        my $tmp = emit_rule( $_, $_[1].'  ' );
+        # print ' ',$capture_count;
+        $max = $capture_count 
+            if $capture_count > $max;
         push @s, $tmp if $tmp;   
     }
+    $capture_count = $max;
+    
     return "$_[1] alternation( [\n" . 
            join( ',', @s ) .
            "$_[1] ] )\n";
@@ -249,6 +282,7 @@ sub closure {
 sub named_capture {
     my $name    = $_[0]{ident};
     my $program = $_[0]{rule};
+    # TODO - $capture_to_array ? ...
     return 
         "$_[1] named( '$name', \n" . 
         emit_rule($program, $_[1]) . 

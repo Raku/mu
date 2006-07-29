@@ -277,7 +277,6 @@ sub capturing_group {
     my $program = $_[0];
 
     $capture_count++;
-
     {
         local $capture_count = -1;
         local $capture_to_array = 0;
