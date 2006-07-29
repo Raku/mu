@@ -98,7 +98,7 @@ sub capturing_group {
     
     # TODO - $capture_to_array ? ...
     return 
-        "$_[1] positional( \n" .
+        "$_[1] positional( $capture_count, \n" .
         $program . 
         "$_[1] )\n" .
         '';
@@ -132,12 +132,9 @@ sub quant {
     return $rul 
         if $sub eq '';
     return 
-        "$_[1] positional( \n" . 
-        "$_[1]     $sub(\n" .
+        "$_[1] $sub(\n" .
         $rul . 
-        "$_[1]     )\n" .
-        "$_[1] )\n" .
-        '';
+        "$_[1] )\n";
 }        
 sub alt {
     my @s;

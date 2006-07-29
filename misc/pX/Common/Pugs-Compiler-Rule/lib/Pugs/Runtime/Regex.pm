@@ -177,8 +177,9 @@ sub capture { named(@_) } # backwards compat
 
 sub positional {
     # return a positional capture
-    # my $num = shift;   TODO?
+    my $num = shift;   # TODO
     my $node = shift;
+    print "positional: $num, $node\n";
     sub {
         my $match;
         $node->( @_[0,1,2], $match, @_[4,5,6,7] );
