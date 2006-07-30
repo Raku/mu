@@ -13,12 +13,15 @@ my ($pugs, $pir, $perl5, $help);
 GetOptions(
     haskell     => \$pugs,
     pugs        => \$pugs,
+
     pir         => \$pir,
     parrot      => \$pir,
+    
     perl5       => \$perl5,
     perl        => \$perl5,
     'v6-alpha'  => \$perl5,
-    help        => \$help
+    
+    help        => \$help,
 );
 
 if ($help) {
@@ -33,8 +36,10 @@ Usage:
 Options:
     --pugs       Harness with the Haskell Pugs (default on)
     --haskell    ditto
+
     --pir        Harness with Pugs' PIR backend
     --parrot     ditto
+    
     --perl5      Harness with v6.pm (the Perl 5 implementation)
     --perl       ditto
     --v6-alpha   ditto
@@ -55,7 +60,7 @@ my $sep = ($^O eq 'MSWin32')? ';' : ':';
 
 if ($perl5) {
     warn "  info: Harness with v6.pm.\n";
-    warn "  warning: make sure you have run 'make install'.\n";
+    #warn "  warning: make sure you have run 'make install'.\n";
     $ENV{PERL5LIB} = "blib6/pugs/perl5/lib${sep}blib6/pugs/perl5/arch";
 } elsif ($pugs) {
     warn "  info: Harness with pugs (Haskell backend).\n";
