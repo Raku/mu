@@ -51,7 +51,10 @@ sub emit_rule {
 
 #rule nodes
 
-sub non_capturing_group {}
+sub non_capturing_group {
+    return emit_rule( $_[0], $_[1] );
+}
+
 sub quant {
     my $term = $_[0]->{'term'};
     my $quantifier = $_[0]->{quant};
@@ -131,8 +134,6 @@ sub concat {
     }
     return $result;
 }
-
-sub code {}
 
 sub dot {
     return to_genparser_string("anyChar");
