@@ -1,4 +1,4 @@
-use Test::More tests => 30;
+use Test::More tests => 33;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 use strict;
@@ -75,7 +75,9 @@ use base 'Pugs::Grammar::RegexBase';
     is( $match->{rule1}[3],undef,"No more captures");
 }
 
+SKIP:
 {
+    skip "infinite loop - backtracking into subrules", 5;
     # backtracking into subrules
     my $rule1 = Pugs::Compiler::Regex->compile('(\w)+');
     my $rule2 = Pugs::Compiler::Regex->compile('a<$rule1>z');

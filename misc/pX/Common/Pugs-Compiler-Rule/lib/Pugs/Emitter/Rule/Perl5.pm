@@ -31,10 +31,11 @@ sub emit {
     # rule parameters: see Runtime::Rule.pm
     local $capture_count = -1;
     local $capture_to_array = 0;
+    #print "emit capture_to_array $capture_to_array\n";
     return 
         "do {\n" .
         "    package Pugs::Runtime::Regex;\n" .
-        # "    use Pugs::Grammar::RegexBase;\n" .
+        #"    use Pugs::Grammar::RegexBase;\n" .
         "    my \$matcher = \n" . 
         emit_rule( $ast, '    ' ) . "  ;\n" .
         "  sub {\n" . 
@@ -125,7 +126,7 @@ sub quant {
     my $rul;
     {
         my $cap = $capture_to_array;
-        local $capture_to_array = $cap || ( $quantifier ne '' );
+        local $capture_to_array = $cap || ( $quantifier ne '' ? 1 : 0 );
         $rul = emit_rule( $term, $_[1] . '  ' );
     }
 
@@ -281,7 +282,7 @@ sub named_capture {
     my $program = $_[0]{rule};
     # TODO - $capture_to_array ? ...
     return 
-        "$_[1] named( '$name', \n" . 
+        "$_[1] named( '$name', $capture_to_array, \n" . 
         emit_rule($program, $_[1]) . 
         "$_[1] )\n";
 }
@@ -404,7 +405,7 @@ sub metasyntax {
         $param_list = '' unless defined $param_list;
         my @param = split( ',', $param_list );
         return             
-            "$_[1] named( '$subrule', \n" . 
+            "$_[1] named( '$subrule', $capture_to_array, \n" . 
             call_subrule( $subrule, $_[1]."  ", @param ) . 
             "$_[1] )\n";
     }

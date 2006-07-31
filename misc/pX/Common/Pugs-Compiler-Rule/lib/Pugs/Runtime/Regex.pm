@@ -91,7 +91,9 @@ sub concat {
         } while ! $m2 && 
                 ! $m2->data->{abort} &&
                 $state[0]; 
-        #print "Concat data: ", Dumper( $_[3]->data, $m2->data );
+
+        # push capture data
+        #print "Concat positional: ", Dumper( $_[3]->data->{match}, $m2->data->{match} );
         for ( 0 .. $#{ @$m2 } ) {
             if ( ref $m2->[$_] eq 'ARRAY' ) {
                 push @{ $_[3]->data->{match}[$_] }, @{ $m2->[$_] };
@@ -100,13 +102,24 @@ sub concat {
                 $_[3]->data->{match}[$_] = $m2->[$_];
             }
         }
+        #print "Concat named: ", Dumper( $_[3]->data->{named}, $m2->data->{named} );
+        for ( keys %{$m2} ) {
+            if ( ref $m2->{$_} eq 'ARRAY' ) {
+                push @{ $_[3]->data->{named}{$_} }, @{ $m2->{$_} };
+            }
+            elsif ( defined $m2->{$_} ) {
+                $_[3]->data->{named}{$_} = $m2->{$_};
+            }
+        }
+        # /push capture data
+
         %{$_[3]->data} = (
                 %{$_[3]->data},
                 bool  => \($m2->bool),
                 # str 
                 # from  
                 to    => \($m2->to),
-                named => { %{$_[3]}, %{$m2} },   # XXX - push() new data
+                # named => { %{$_[3]}, %{$m2} },   # XXX - push() new data
                 # match => [ @{$_[3]} ],   # XXX - push() new data
                 capture => $m2->data->{capture},
                 abort   => $m2->data->{abort},
@@ -169,17 +182,20 @@ sub null {
 sub named {
     # return a named capture
     my $label = shift;
+    my $capture_to_array = shift;  
     my $node = shift;
     sub {
         my $match;
         #print "named() param: ",Dumper( @_ );
         $node->( @_[0,1,2], $match, @_[4,5,6,7] );
+        my %matches;
+        $matches{ $label } = $capture_to_array ? [ $match ] : $match;
         $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
                 bool  => \( $match->bool ),
                 str   => \$_[0],
                 from  => \( $match->from ),
                 to    => \( $match->to ),
-                named => { $label => $match },
+                named => \%matches,
                 match => [],
             });
         return;
@@ -189,8 +205,8 @@ sub capture { named(@_) } # backwards compat
 
 sub positional {
     # return a positional capture
-    my $num = shift;   # TODO
-    my $capture_to_array = shift;   # TODO
+    my $num = shift;  
+    my $capture_to_array = shift;  
     my $node = shift;
     # print "positional: $num, $node\n";
     sub {
