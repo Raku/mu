@@ -98,7 +98,7 @@ sub capturing_group {
     
     # TODO - $capture_to_array ? ...
     return 
-        "$_[1] positional( $capture_count, \n" .
+        "$_[1] positional( $capture_count, $capture_to_array, \n" .
         $program . 
         "$_[1] )\n" .
         '';

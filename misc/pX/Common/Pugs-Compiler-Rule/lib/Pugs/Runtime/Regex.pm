@@ -44,6 +44,9 @@ sub alternation {
     return sub {
         my @state = $_[1] ? @{$_[1]} : ( 0, 0 );
         $_[3] = Pugs::Runtime::Match::Ratchet->new( { bool => \0 } );
+        # print Dumper( $nodes, @state );
+        #die "invalid state in Regex alternation" 
+        #    unless @state;
         while ( $state[0] <= $#$nodes ) {
             $state[1] = $nodes->[ $state[0] ]->( $_[0], $state[1], @_[2,3,4,5,6,7] );
             $state[0]++ unless $state[1];
@@ -88,6 +91,15 @@ sub concat {
         } while ! $m2 && 
                 ! $m2->data->{abort} &&
                 $state[0]; 
+        #print "Concat data: ", Dumper( $_[3]->data, $m2->data );
+        for ( 0 .. $#{ @$m2 } ) {
+            if ( ref $m2->[$_] eq 'ARRAY' ) {
+                push @{ $_[3]->data->{match}[$_] }, @{ $m2->[$_] };
+            }
+            elsif ( defined $m2->[$_] ) {
+                $_[3]->data->{match}[$_] = $m2->[$_];
+            }
+        }
         %{$_[3]->data} = (
                 %{$_[3]->data},
                 bool  => \($m2->bool),
@@ -95,7 +107,7 @@ sub concat {
                 # from  
                 to    => \($m2->to),
                 named => { %{$_[3]}, %{$m2} },   # XXX - push() new data
-                match => [ @{$_[3]}, @{$m2} ],   # XXX - push() new data
+                # match => [ @{$_[3]} ],   # XXX - push() new data
                 capture => $m2->data->{capture},
                 abort   => $m2->data->{abort},
         );
@@ -178,18 +190,21 @@ sub capture { named(@_) } # backwards compat
 sub positional {
     # return a positional capture
     my $num = shift;   # TODO
+    my $capture_to_array = shift;   # TODO
     my $node = shift;
-    print "positional: $num, $node\n";
+    # print "positional: $num, $node\n";
     sub {
         my $match;
         $node->( @_[0,1,2], $match, @_[4,5,6,7] );
+        my @matches;
+        $matches[ $num ] = $capture_to_array ? [ $match ] : $match;
         $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
                 bool  => \( $match->bool ),
                 str   => \$_[0],
                 from  => \( $match->from ),
                 to    => \( $match->to ),
                 named => {},
-                match => [ $match ],
+                match => \@matches,
             });
         return;
     }
