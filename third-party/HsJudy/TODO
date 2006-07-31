@@ -1,20 +1,30 @@
 # TODO
-- Use Judy to implement Pugs IHash substitute. (First patch done, but it's old by now)
+- Use Judy for Hash and Array in Pugs. Maybe creating some special
+  operators for Judy.Map2 to be used for Array (think shift and pop).
 - CollectionsM: complete the subset of MapM and uncomment/complete CollectionM.
 - See if needGC hack can be improved. It seems its eating CPU time.
 
 - First RBR test: 1/3 running time when using MapL (via Map2). Not sure
-if the results are correct (they seem to be).
-- Should I call MapSL and Map2 just Map?
+  if the results are correct (they seem to be). Check with Ketil about usage
+  of Map2, if its enough.
+
+- Names names names
+  - Idea: Map2 -> IntMap
+  - Should I call MapSL just Map too?
+
 - Other missing malloc error checking
 - Tests that stress MiniGC (w/ two maps at same time would be nice too)
-- Check how GHC do interning
 
-# "CRAZY" BUGS
-- Dummy/Refeable Bug: need to ask in #haskell and reply Simon's email.
-X Bug on HSIter stuff when use a lot of memory. (One of them is solved. Need to GC now.)
+- Check how GHC do interning
+- Check how's sparse array implementation of Parrot.
+
+# "CRAZY" BUGS (X means "solved")
+X Dummy/Refeable Bug: need to ask in #haskell and reply Simon's email.
+  It dissapeared recently. Dunno the reason.
+X Bug on HSIter stuff when use a lot of memory.
 X Finalizer may be not working right => test with sequencing a lot of operations
-  causes error in GHC runtime. (seems to be fixed by having ONLY ONE gc for everyone)
+  causes error in GHC runtime. (seems to be fixed by having ONLY ONE gc
+  for everyone)
 
 
 # NEXT
@@ -24,10 +34,10 @@ X Finalizer may be not working right => test with sequencing a lot of operations
   worst than hawiki Ketil entry, but better than one of three Haskell entries
   on the page (are they updated?).
 - Implementations specific to unboxed values like Int and Double: Int seems to
-  be ok now, but Double and other unboxed still need to check
+  be ok now, but Double and other unboxable still need to check
 
 - Discuss APIs
--- Unbounded arrays: see Bulat work on this
+-- Unbounded arrays: see Bulat work on this.
 
 - Refeable vs. HashIO => unify?
 - Better testing / More test programs
@@ -68,4 +78,6 @@ StablePtrs, if that's true three obvious ways are:
 > Arrays would benefit from a faster implementation
 
 Bulat says "sorry, i don't think so. especially for Arrays ;)"
+
+Judy is useful for applications for (very-)sparse Arrays, which is Pugs' case.
 

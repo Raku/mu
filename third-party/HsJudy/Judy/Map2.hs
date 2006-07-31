@@ -2,7 +2,7 @@
 
 module Judy.Map2 (
     Map2 (..),
-    swapMaps, freeze
+    swapMaps, freeze, toRevList
 ) where
 
 import Data.Typeable
@@ -159,6 +159,20 @@ fromList_ xs = do
 --    r <- judyLCount jj i1 i2 judyError
 --    return $ r
 
+
+internalMap' :: (Ptr Value -> Ptr Value -> IO b) -> Map2 k a -> IO [b]
+internalMap' f (Map2 j) = do
+    jj <- withForeignPtr j peek
+    alloca $ \vp -> do
+        poke vp (0 :: Value)
+        let loop act xs = do
+            r <- act jj vp judyError
+            if r == nullPtr
+                then return xs
+                else do x <- f r vp
+                        loop judyLNext (x:xs)
+        loop judyLFirst []
+
 internalMap :: (Ptr Value -> Ptr Value -> IO b) -> Map2 k a -> IO [b]
 internalMap f (Map2 j) = do
     jj <- withForeignPtr j peek
@@ -170,7 +184,8 @@ internalMap f (Map2 j) = do
                 then return xs
                 else do x <- f r vp
                         loop judyLPrev (x:xs)
-        loop judyLLast []
+        loop judyLLast [] -- Because of list concat we go backwards
+                          -- to get ordered list right.
 
 mapToList_ :: (ReversibleHashIO k, Refeable a) => (k -> a -> b) -> Map2 k a -> IO [b]
 mapToList_ f = internalMap $ \r vp -> do
@@ -180,8 +195,19 @@ mapToList_ f = internalMap $ \r vp -> do
     v' <- fromRef v
     return $ f k' v'
 
+mapToRevList_ :: (ReversibleHashIO k, Refeable a) => (k -> a -> b) -> Map2 k a -> IO [b]
+mapToRevList_ f = internalMap' $ \r vp -> do
+    k <- peek vp
+    k' <- unHashIO k
+    v <- peek r
+    v' <- fromRef v
+    return $ f k' v'
+
 toList_ :: (ReversibleHashIO k, Refeable a) => Map2 k a -> IO [(k,a)]
 toList_ = mapToList_ $ \k a -> (k,a)
+
+toRevList :: (ReversibleHashIO k, Refeable a) => Map2 k a -> IO [(k,a)]
+toRevList = mapToRevList_ $ \k a -> (k,a)
 
 keys_ :: ReversibleHashIO k => Map2 k a -> IO [k]
 keys_ = internalMap $ \_ vp -> do
@@ -200,8 +226,3 @@ swapMaps (Map2 j1) (Map2 j2) = do
         v2 <- peek p2
         poke p1 v2
         poke p2 v1
-
-
-
-
-

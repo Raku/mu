@@ -16,5 +16,5 @@
 5 Judy.Map       ByteString Int     0.752
 6 Judy.MapSL     ByteString Int     0.642
 7 Data.HashTable String Int         2.790
-8 Data.HashTable String Int         3.809 
+8 Data.HashTable ByteString Int     3.809 
 

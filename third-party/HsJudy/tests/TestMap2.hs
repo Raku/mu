@@ -19,6 +19,7 @@ main = no_plan $ do
     testStringValueDel
     testSwapMaps
     testAlter
+    testRevList
 
 testSimple = do
     say "Simple"
@@ -61,11 +62,11 @@ testMember = do
 testElems = do
     say "Elems"
     s <- new :: IO (Map2 Int Int)
-    elems s .-= []
+    elems s .=> []
     insert 3 42 s
     insert 37 1 s
     insert 0 2 s
-    elems s .-= [1,2,42]
+    elems s .=> [2,42,1]
 
 testKeys = do
     say "Keys"
@@ -74,10 +75,10 @@ testKeys = do
     insert 3 42 s
     insert 37 1 s
     insert 0 2 s
-    keys s .-= [0,3,37]
+    keys s .=> [0,3,37]
     delete 37 s
     delete 15 s
-    keys s .-= [0,3]
+    keys s .=> [0,3]
 
 testStringValue = do
     say "StringValue"
@@ -86,7 +87,7 @@ testStringValue = do
 
     insert 22 "string" s
     insert 59 "i am not a number" s
-    toList s    .-= [(22, "string"), (59,"i am not a number")] 
+    toList s    .=> [(22, "string"), (59,"i am not a number")] 
     member 22 s .=> True
 
     delete 22 s
@@ -101,7 +102,7 @@ testStringValueDel = do
     insert 22 "string" s
     insert 23 "string" s
     insert 59 "i am not a number" s
-    toList s    .-= [(22, "string"), (23, "string"), (59,"i am not a number")] 
+    toList s .=> [(22, "string"), (23, "string"), (59,"i am not a number")] 
     member 22 s .=> True
 
     delete 22 s
@@ -136,6 +137,15 @@ testAlter = do
 
     alter (const Nothing) 1 m
     lookup 1 m .=> Nothing
+
+testRevList = do
+    say "RevList"
+    let l = [(1,2), (2,3), (4,5)]
+    m <- fromList l :: IO (J.Map2 Int Int)
+    J.toRevList m .=> reverse l
+
+    insert 3 10 m
+    J.toRevList m .=> reverse (sort $ (3,10):l)
 
 -- TODO: test some crazy haskell type as value (to check stableptrs)
 
