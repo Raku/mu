@@ -1,6 +1,8 @@
 {-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -fallow-overlapping-instances -funbox-strict-fields -fallow-undecidable-instances #-}
 
-module SimpleMod where
+module SimpleMod (
+    Simplest, Simple(..), PosAttr(..), RecAttr(..)
+) where
 
 import Data.Typeable
 

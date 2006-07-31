@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -fallow-overlapping-instances -funbox-strict-fields -fallow-undecidable-instances #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -fallow-overlapping-instances -funbox-strict-fields -fallow-undecidable-instances -fallow-incoherent-instances #-}
 
 -- This is WIP towards an overhaul of Pugs.AST.Internals.
 -- It includes a new and more detailed AST which captures much more Perl 6
@@ -29,6 +29,11 @@ import Pugs.AST.Scope
 import Pugs.AST.SIO
 import Pugs.Embed.Perl5
 
+import DrIFT.Perl6Class
+
+
+--import {-# SOURCE #-} Pugs.AST.CapInternals.Instances
+
 type Str = Str.ByteString
 type IntSet = IntSet.IntSet
 type SeqOf = Seq.Seq
@@ -44,11 +49,24 @@ import Pugs.Embed.Perl5
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 import Data.Array.IO
+import DrIFT.Perl6Class
+
+-- instance (Typeable a, Show a) => Perl6Class (IOThread a)
+instance (PLit a) => PLit (Eval a) where -- XXX: very bogus
+    plShow (Eval x) = plShow x
+
+instance (PLit a) => PLit (IOThread a) where -- XXX
+    plShow (IOThread x) = "<thread: " ++ (show $ plShow x) ++ ">"
  </DrIFT> -}
  
 data Eval a = Eval a -- junk; just for testing p6 derivations
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+-- instance (Perl6Class a) => Perl6Class (Eval a)
 type Class = Bogus -- junk; just for testing p6 derivations
+
+{-
+-}
+
 
 type VList = [Val]
 type VSubst = (VRule, Exp)
@@ -168,31 +186,37 @@ data PureRange = MkRange
 -- This is called MemBuf because of a clash with Pugs.Types.Buf .
 data MemBuf = MkBuf { b_buffer :: IOUArray Word64 Word8 }
     deriving (Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass !-}
-instance Show MemBuf where
+{- <DrIFT>
+instance PLit MemBuf where
+    plShow _       = "<buf>"
+instance Show (IOUArray Word64 Word8) where
     show _ = "<buf>"
+</DrIFT> -}
+instance Show MemBuf where
+    show _         = "<buf>"
 instance Ord MemBuf where
-    compare _ = error "can't compare MemBuf"
+    compare _      = error "can't compare MemBuf"
 instance Eq MemBuf where
-    (==) _ _ = error "can't equate MemBuf"
+    (==) _ _       = error "can't equate MemBuf"
 instance Data MemBuf where
-    gfoldl _ _ _ = error "can't gfoldl MemBuf"
-    gunfold _ _ _ = error "can't gfoldl MemBuf"
-    toConstr _ = error "can't gfoldl MemBuf"
-    dataTypeOf _ = mkDataType "Pugs.AST.CapInternals.MemBuf" [] -- bogus
+    gfoldl _ _ _   = error "can't gfoldl MemBuf"
+    gunfold _ _ _  = error "can't gfoldl MemBuf"
+    toConstr _     = error "can't gfoldl MemBuf"
+    dataTypeOf _   = mkDataType "Pugs.AST.CapInternals.MemBuf" [] -- bogus
 
-type NativeBuf = MemBuf
-type PureBuf   = MemBuf
+type NativeBuf     = MemBuf
+type PureBuf       = MemBuf
 
-type PureBit   = Bool
-type PureInt   = Integer
-type PureNum   = NativeNum -- XXX wrong?
-type PureComplex  = NativeComplex -- XXX wrong?
-type PureStr   = Str
-type PureBool   = Bool
+type PureBit       = Bool
+type PureInt       = Integer
+type PureNum       = NativeNum -- XXX wrong?
+type PureComplex   = NativeComplex -- XXX wrong?
+type PureStr       = Str
+type PureBool      = Bool
 type PureException = String -- XXX *very* bogus
-type PureCode = String -- XXX *very* bogus
-type PureSig = Sig
-type PureCap = Cap
+type PureCode      = String -- XXX *very* bogus
+type PureSig       = Sig
+type PureCap       = Cap
 
 newtype PureSet = MkSet { s_set :: Set Val }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
@@ -767,7 +791,6 @@ instance Typeable1 Tree where typeOf1 _ = typeOf ()
 #endif
 
 {- <DrIFT>
-
 instance YAML (VThread Val)
 instance YAML ClassTree
 instance YAML Dynamic

@@ -90,11 +90,20 @@ mType (LApply (Con "Maybe") (ty:[])) = mType ty  -- drop Maybe silently
 mType ty                             = MkMooseRep "" $ show ty
 
 
-makeAsObject bod@(Body constructor labels types)
-    | null types  = empty
-    | null labels = hsep [text "asPerl6Object", (parens $ hsep (text constructor : varNames types)), equals, text "error", qt "not yet"]
-    | otherwise   = hsep [text "asPerl6Object", text constructor, text "{}", equals,
-        text "error $", qt "not yet: ", text "++", text (show (show bod))]
+makeAsObject bod@(Body constructor labels types) =
+    hsep [text "asPerl6Object", (parens $ hsep (text constructor : varNames types)), equals,
+        qt $ constructor ++ ".new(", paste, parens mkPos, paste, qt ")"]
+    where
+    -- asPerl6Object (PosClass aa ab ac) = "PosClass.new(" map plShow [aa, ab, ac] ++ ")"
+    mkPos = (text "concat $ intersperse \", \"") <+> (brackets $ hsep $ punctuate comma $ map mkPos' $ varNames types)
+    --[mkPos' v | v <- varNames types])
+    mkPos' var = text "plShow" <+> var
+    extrasperse e ls = e:(intersperse e ls)++[e]
+    paste = text "++"
+    -- | null labels = hsep [text "asPerl6Object", (parens $ hsep (text constructor : varNames types)), equals,
+    --        qt $ constructor ++ ".new(", paste, parens mkPos, paste, qt ")"]
+    -- | otherwise   = hsep [text "asPerl6Object", text constructor, text "{}", equals,
+    --    text "error $", qt "not yet: ", text "++", text (show (show bod))]
 
 dq    = doubleQuotes
 qt    = dq . text
@@ -116,5 +125,4 @@ explicitly delimited blocks.
 genSeq :: Doc -> Doc -> Doc -> [Doc] -> Doc
 genSeq lft rht _   []     = lft $$ rht
 genSeq lft rht del (x:xs) = lft <+> x $$ (vcat $ map (del <+>) xs) $$ rht
-
 
