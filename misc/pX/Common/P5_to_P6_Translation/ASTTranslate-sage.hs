@@ -56,10 +56,13 @@ import System(getArgs)
 --It's pretty ugly, which is why there's a need for a wrapper function
 translate :: P5AST -> String -> P5AST
 translate tree options = case [('o' `elem` options), ('r' `elem` options)] of
-                               [True, False]   ->  (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree)))))))))))))))
-                               [True, True]  ->  (scalarTranslate (hereDocTranslate (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree))))))))))))))
-                               [False, False]  -> (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree))))))))))))
-                               [False, True] -> (scalarTranslate (hereDocTranslate (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde (regexSubstitutionTranslation tree)))))))))))
+                               [True, False]   ->  (regexModifiers (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))
+                               [True, True]  ->  (regexModifiers (scalarTranslate (hereDocTranslate (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))
+                               [False, False]  -> (regexModifiers (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))
+                               [False, True] -> (regexModifiers (scalarTranslate (hereDocTranslate (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))
+
+regexOnce :: P5AST -> P5AST
+regexOnce (AbstractNode Op_subst)
 
 --Find places where the translation scalar @blah -> +@blah is needed
 scalarTranslate :: P5AST -> P5AST
@@ -73,13 +76,13 @@ scalarToPlus :: [P5AST] -> [P5AST]
 scalarToPlus [] = []
 scalarToPlus kids = case (matchWithoutEnc (head kids) (LiteralNode Operator "" "scalar")) of
                       False -> (head kids):(scalarToPlus (tail kids))
-                      True  -> (LiteralNode Operator "" "+"):(dropLeadingJunk (head (tail kids))):(drop 2 kids)
+                      True  -> (LiteralNode Operator "" "+"):(dropLeadingJunk (head (drop 1 kids))):(drop 2 kids)
 
 --Removes leading junk 
 dropLeadingJunk :: P5AST -> P5AST
 dropLeadingJunk (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 dropLeadingJunk (AbstractNode atype kids) = case (matchOnType (head kids) (LiteralNode Junk "" "")) of
-                                              True  -> (AbstractNode atype (tail kids))
+                                              True  -> (AbstractNode atype (drop 1 kids))
                                               False -> (AbstractNode atype kids)
 dropLeadingJunk (Heredoc start end kids) = (Heredoc start end kids)
 
@@ -90,7 +93,7 @@ hereDocTranslate (AbstractNode atype kids) = (AbstractNode atype (map hereDocTra
 hereDocTranslate (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 
 changeHereDoc :: P5AST -> P5AST
-changeHereDoc (LiteralNode atype enc uni) = case ((head uni):(head (tail uni)):[(head (tail (tail uni)))]) of
+changeHereDoc (LiteralNode atype enc uni) = case ((head uni):(head (drop 1 uni)):[(head (drop 1 (drop 1 uni)))]) of
                                                     "<<\"" -> (LiteralNode atype enc ("qq:to/"++(drop 3 uni)++"/"))
                                                     "<<'"  -> (LiteralNode atype enc ("q:to/"++(drop 3 uni)++"/"))
                                                     _      -> (LiteralNode atype enc ("qq:to/"++(drop 2 uni)++"/"))
@@ -103,15 +106,16 @@ easyRegex (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 
 easyRegexChanges :: [P5AST] -> [P5AST]
 easyRegexChanges [] = []
-easyRegexChanges kids =  if ((length kids) >= 3) then if (and [((head ((extractUni (head kids))++" "))=='s'),(matchOnType (head kids) (LiteralNode Openquote "" "")),(matchOnType (head (tail kids)) (LiteralNode Text "" "")),(matchOnType (head (drop 2 kids)) (LiteralNode Closequote "" ""))]) then [(AbstractNode OpenQuote "" ("s:Perl5"++(getMods (head (drop 2 kids)))++())), (head (tail kids)), (AbstractNode]
-                                                            else ((head kids):(easyRegexChanges (tail kids)))
-                            else ((head kids):(easyRegexChanges (tail kids)))
+easyRegexChanges kids =  if ((length kids) >= 3) then if (and [((head ((extractUni (head kids))++" "))=='s'),(matchOnType (head kids) (LiteralNode Openquote "" "")),(matchOnType (head (drop 1 kids)) (LiteralNode Text "" "")),(matchOnType (head (drop 2 kids)) (LiteralNode Closequote "" ""))]) then [(AbstractNode OpenQuote "" ("s:Perl5"++(getMods (head (drop 2 kids)))++())), (head (drop 1 kids)), (AbstractNode]
+                                                            else ((head kids):(easyRegexChanges (drop 1 kids)))
+                            else ((head kids):(easyRegexChanges (drop 1 kids)))
 -}
 
 --This function applies changeSInternals int he proper places to translate
 --everything inside a regex from Perl 5 -> Perl 6
 regexInternals :: P5AST -> P5AST
 regexInternals (AbstractNode Op_subst kids) = (AbstractNode Op_subst (changeSInternals kids))
+regexInternals (AbstractNode Op_match kids) = (AbstractNode Op_match (changeMInternals kids))
 regexInternals (AbstractNode atype kids) = (AbstractNode atype (map regexInternals kids))
 regexInternals (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 regexInternals (Heredoc start end kids) = (Heredoc start end kids)
@@ -119,9 +123,13 @@ regexInternals (Heredoc start end kids) = (Heredoc start end kids)
 --This function does the actual work of finding the regex and applying the change.
 changeSInternals :: [P5AST] -> [P5AST]
 changeSInternals [] = []
-changeSInternals kids =  if ((length kids) >= 3) then if (and [((head ((extractUni (head kids))++" "))=='s'),(matchOnType (head kids) (LiteralNode Openquote "" "")),(matchOnType (head (tail kids)) (LiteralNode Text "" "")),(matchOnType (head (drop 2 kids)) (LiteralNode Closequote "" ""))]) then [(head kids),(LiteralNode Text "1" (regexChangeCaptures (regexChange (extractUni (head (tail kids)))))),(head (drop 2 kids))]++(drop 3 kids)
-                                                            else ((head kids):(changeSInternals (tail kids)))
-                            else ((head kids):(changeSInternals (tail kids)))
+changeSInternals kids =  if ((length kids) >= 3) then if (and [((head ((extractUni (head kids))++" "))=='s'),(matchOnType (head kids) (LiteralNode Openquote "" "")),(matchOnType (head (drop 1 kids)) (LiteralNode Text "" "")),(matchOnType (head (drop 2 kids)) (LiteralNode Closequote "" ""))]) then [(head kids),(LiteralNode Text "1" (regexChangeCaptures (regexChange (extractUni (head (drop 1 kids)))))),(head (drop 2 kids))]++(drop 3 kids)
+                                                            else ((head kids):(changeSInternals (drop 1 kids)))
+                            else ((head kids):(changeSInternals (drop 1 kids)))
+
+changeMInternals :: [P5AST] -> [P5AST]
+changeMInternals [] = []
+changeMInternals kids = if (matchOnType (head kids) (LiteralNode Text "" "")) then (LiteralNode Text (regexChangeCaptures (regexChange (extractUni (head kids))))):(drop 1 kids) else (head kids):(changeMInternals (drop 1 kids)) 
 
 --Function to apply the regexString parser to a string
 regexChange :: String -> String
@@ -245,7 +253,7 @@ foreachTranslation (Heredoc start end kids) = (Heredoc start end kids)
 --Does the dirty work of actual translation on foreach
 newForeach :: [P5AST] -> [P5AST]
 newForeach [] = []
-newForeach kids = if (matchOnType (head kids) (LiteralNode Junk "" "")) then (head kids):(newForeach (tail kids)) else 
+newForeach kids = if (matchOnType (head kids) (LiteralNode Junk "" "")) then (head kids):(newForeach (drop 1 kids)) else 
             case [(isIn (AbstractNode Op_padsv []) kids), (isIn (AbstractNode Op_padav []) kids), (isIn (AbstractNode Op_list []) kids), (isIn (AbstractNode Op_rv2av []) kids), (isIn (AbstractNode Op_gv []) kids), (isIn (LiteralNode Declarator "" "my") kids)] of
                     [True, True, False, False, False, False]  -> (map foreachTranslation [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_padav []) kids),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(LiteralNode Declarator "1" "my"),(extractNodetype (AbstractNode Op_padsv []) kids),(extractNodetype (AbstractNode Op_lineseq []) kids)])
                     [True, False, True, False, False, True]  -> (map foreachTranslation [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(LiteralNode Opener "1" "("),(extractNodetype (AbstractNode Op_list []) kids),(LiteralNode Closer "1" ")"),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(LiteralNode Declarator "1" "my"),(extractNodetype (AbstractNode Op_padsv []) kids),(extractNodetype (AbstractNode Op_lineseq []) kids)])
@@ -273,9 +281,10 @@ closeToMethod (Heredoc start end kids) = (Heredoc start end kids)
 
 changeCloseMethod :: [P5AST] -> [P5AST]
 changeCloseMethod [] = []
-changeCloseMethod nlist = if (matchWithoutEnc (head nlist) (AbstractNode Op_rv2gv [])) then (extractKids (head (extractKids (head nlist))))++[(LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "close")])])] else
-                            if (matchWithoutEnc (head nlist) (AbstractNode Op_gv [])) then [(LiteralNode Sigil "1" ("$"++(extractUni (head (extractKids (head (extractKids (head nlist)))))))),(LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "close")])])] else
-                              if ((length nlist) >= 2) then (head nlist):(changeCloseMethod (tail nlist)) else (nlist)
+changeCloseMethod kids = case (matchWithoutEnc (head kids) (LiteralNode Operator "" "close")) of
+                           True  -> [(head (tail kids)), (LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "close")])])]++(drop 2 kids)
+                           False -> (head kids):(changeCloseMethod (drop 1 kids))
+
 
 --Changes the quote type of regexs in a split.
 splitQuotes :: P5AST -> P5AST
@@ -301,11 +310,11 @@ lengthToMethod (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 --Actually performs change to method call
 toCharMethod :: [P5AST] -> [P5AST]
 toCharMethod [] = []
-toCharMethod kids = case [(matchWithoutEnc (head kids) (LiteralNode Operator "" "length")), (matchWithoutEnc (head (tail kids)) (LiteralNode Opener "" "("))] of
+toCharMethod kids = case [(matchWithoutEnc (head kids) (LiteralNode Operator "" "length")), (matchWithoutEnc (head (drop 1 kids)) (LiteralNode Opener "" "("))] of
                       [True, True]   -> [(head (drop 2 kids)), (LiteralNode Operator "" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "chars")])])]++(drop 4 kids)
-                      [True, False]  -> [(head (tail kids)),(LiteralNode Operator "" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "chars")])])]++(drop 2 kids)
-                      [False, True]  -> (head kids):(toCharMethod (tail kids))
-                      [False, False] -> (head kids):(toCharMethod (tail kids))
+                      [True, False]  -> [(head (drop 1 kids)),(LiteralNode Operator "" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "chars")])])]++(drop 2 kids)
+                      [False, True]  -> (head kids):(toCharMethod (drop 1 kids))
+                      [False, False] -> (head kids):(toCharMethod (drop 1 kids))
 
 {-Translates split calls on a regex with an explicit match (i.e. split(/blah/m, $something) to no longer
 use the /m which now happens immediately. -}
@@ -326,20 +335,72 @@ removeMModifier (Heredoc start end kids) = (Heredoc start end kids)
 --When an Op_readline is found, it's replaced with a new Op_readling consisting
 --of a .readline method call from the filehandle that was being read.
 readlineTranslate :: P5AST -> P5AST
-readlineTranslate (AbstractNode Op_readline kids) = (AbstractNode Op_readline [(LiteralNode Sigil "1" ('$':(tail (reverse (tail (reverse (extractUni (head kids)))))))), (LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "readline")])])])
+--readlineTranslate (AbstractNode Op_readline kids) = (AbstractNode Op_readline [(LiteralNode Sigil "1" ('$':(drop 1 (reverse (drop 1 (reverse (extractUni (head kids)))))))), (LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "readline")])])])
+readlineTranslate (AbstractNode Op_readline kids) = (AbstractNode Op_readline (readlineMethod kids))
 readlineTranslate (AbstractNode atype kids) = (AbstractNode atype (map readlineTranslate kids))
 readlineTranslate (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 readlineTranslate (Heredoc start end kids) = (Heredoc start end kids)
 
+readlineMethod :: [P5AST] -> [P5AST]
+readlineMethod [] = []
+readlineMethod kids = case (matchOnType (head kids) (LiteralNode Token "" "")) of
+                        True  -> case ((head (tail (extractUni (head (tail kids)))))=='$') of 
+                                   True  -> [(LiteralNode Sigil "" (drop 1 (reverse (drop 1 (reverse (extractUni (head kids))))))), (LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "readline")])])]++(drop 1 kids)
+                                   False -> [(LiteralNode Sigil "" ('$':(drop 1 (reverse (drop 1 (reverse (extractUni (head kids)))))))), (LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "readline")])])]++(drop 1 kids)
+                        False -> (head kids):(readlineMethod (drop 1 kids))
 
-{-Translations for substitution regexs.-}
-regexSubstitutionTranslation :: P5AST -> P5AST
-regexSubstitutionTranslation (AbstractNode Op_subst kids) = if (isIn (LiteralNode Closequote "1" "/g") kids) then (AbstractNode Op_subst (map equalTildeToTildeTilde (map substitutionGlobal kids)))
-                                                               else (AbstractNode Op_subst (map equalTildeToTildeTilde kids))
-regexSubstitutionTranslation (AbstractNode atype kids) = (AbstractNode atype (map regexSubstitutionTranslation kids))
-regexSubstitutionTranslation (LiteralNode atype enc uni) = (LiteralNode atype enc uni) 
-regexSubstitutionTranslation (Heredoc start end kids) = (Heredoc start end kids)
+regexModifiers :: P5AST -> P5AST
+regexModifiers (AbstractNode Op_subst kids) = case [(matchOnType (LiteralNode Remod "" "") (extractNodetype (LiteralNode Remod "" "") kids)), ('g' `elem` (extractUni (extractNodetype (LiteralNode Remod "" "") kids))), ('i' `elem` (extractUni (extractNodetype (LiteralNode Remod "" "") kids))), ('e' `elem` (extractUni (extractNodetype (LiteralNode Remod "" "") kids)))] of
+                                                [True, True, True, True]    -> (AbstractNode Op_subst (dropEMod (moveGMod (moveIMod kids))))
+                                                [True, True, True, False]   -> (AbstractNode Op_subst (moveGMod (moveIMod kids)))
+                                                [True, True, False, True]   -> (AbstractNode Op_subst (moveGMod (dropEMod kids)))
+                                                [True, False, True, True]   -> (AbstractNode Op_subst (moveIMod (dropEMod kids)))
+                                                [True, True, False, False]  -> (AbstractNode Op_subst (moveGMod kids))
+                                                [True, False, False, True]  -> (AbstractNode Op_subst (dropEMod kids))
+                                                [True, False, True, False]  -> (AbstractNode Op_subst(moveIMod kids))
+                                                [True, False, False, False] -> (LiteralNode Text "" "FOUND IT!")
+                                                _                           -> (AbstractNode Op_subst kids)
+regexModifiers (AbstractNode Op_match kids) = case [(matchOnType (LiteralNode Remod "" "") (extractNodetype (LiteralNode Remod "" "") kids)), ('g' `elem` (extractUni (extractNodetype (LiteralNode Remod "" "") kids))), ('i' `elem` (extractUni (extractNodetype (LiteralNode Remod "" "") kids)))] of
+                                                [True, True, True]    -> (AbstractNode Op_subst (moveIMod (moveGMod kids)))
+                                                [True, True, False]   -> (AbstractNode Op_subst (moveIMod kids))
+                                                [True, False, True]   -> (AbstractNode Op_subst (moveGMod kids))
+                                                _                           -> (AbstractNode Op_subst kids)
+regexModifiers (AbstractNode Op_split kids) = case [(matchOnType (LiteralNode Remod "" "") (extractNodetype (LiteralNode Remod "" "") kids)), ('g' `elem` (extractUni (extractNodetype (LiteralNode Remod "" "") kids))), ('i' `elem` (extractUni (extractNodetype (LiteralNode Remod "" "") kids)))] of
+                                                [True, True, True]    -> (AbstractNode Op_subst (moveIMod (moveGMod kids)))
+                                                [True, True, False]   -> (AbstractNode Op_subst (moveIMod kids))
+                                                [True, False, True]   -> (AbstractNode Op_subst (moveGMod kids))
+                                                _                           -> (AbstractNode Op_subst kids)
+regexModifiers (AbstractNode atype kids) = (AbstractNode atype (map regexModifiers kids))
+regexModifiers (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+regexModifiers (Heredoc start end kids) = (Heredoc start end kids)
 
+moveIMod :: [P5AST] -> [P5AST]
+moveIMod [] = []
+moveIMod kids = case [(matchOnType (head kids) (LiteralNode Openquote "" "")), (matchOnType (head kids) (LiteralNode Remod "" ""))] of
+                  [True, False]  -> (LiteralNode Openquote "" ((head (reverse (extractUni (head kids)))):"i:"++(tail (reverse (extractUni (head kids))))) ):(drop 1 kids)
+                  [False, True]  -> (LiteralNode Remod "" (removeChar 'i' (extractUni (head kids)))):(drop 1 kids)
+                  [False, False] -> (head kids):(moveIMod (tail kids))
+
+moveGMod :: [P5AST] -> [P5AST]
+moveGMod [] = []
+moveGMod kids = case [(matchOnType (head kids) (LiteralNode Openquote "" "")), (matchOnType (head kids) (LiteralNode Remod "" ""))] of
+                  [True, False]  -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"g:"++(tail (reverse (extractUni (head kids)))))) ):(moveGMod (drop 1 kids))
+                  [False, True]  -> (LiteralNode Remod "" (removeChar 'g' (extractUni (head kids)))):(drop 1 kids)
+                  [False, False] -> (head kids):(moveGMod (tail kids))
+
+removeChar :: Char -> String -> String
+removeChar _ [] = []
+removeChar todrop instr = case ((head instr)==todrop) of
+                  True  -> (tail instr)
+                  False -> (head instr):(removeChar todrop (tail instr))
+
+
+dropEMod :: [P5AST] -> [P5AST]
+dropEMod [] = []
+dropEMod kids = case [(matchOnType (head kids) (LiteralNode Text "" "")), (matchOnType (head kids) (LiteralNode Remod "" ""))] of
+                  [True, False] -> (head kids):(head (drop 1 kids)):(LiteralNode Opener "" "{ "):(head (drop 2 kids)):(LiteralNode Opener "" " }"):(dropEMod (drop 3 kids))
+                  [False, True] -> (LiteralNode Remod "" (removeChar 'e' (extractUni (head kids)))):(drop 1 kids)
+                  _             -> (head kids):(dropEMod (tail kids))
 
 {-Translates =~ -> ~~ for using regexs in P6
 The name of the function is a bit long, but it won't be called often
@@ -349,16 +410,6 @@ equalTildeToTildeTilde (LiteralNode Operator enc "=~") = (LiteralNode Operator e
 equalTildeToTildeTilde (AbstractNode atype kids) = (AbstractNode atype (map equalTildeToTildeTilde kids))
 equalTildeToTildeTilde (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 equalTildeToTildeTilde (Heredoc start end kids) = (Heredoc start end kids)
-
-
-{-Added changes for when a substitution is global -}
-substitutionGlobal :: P5AST -> P5AST
-substitutionGlobal (LiteralNode Openquote enc "s/") = (LiteralNode Openquote enc "s:P5:g/")
-substitutionGlobal (LiteralNode Closequote enc "/g") = (LiteralNode Closequote enc "/")
-substitutionGlobal (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
-substitutionGlobal (AbstractNode atype kids) = (AbstractNode atype kids)
-substitutionGlobal (Heredoc start end kids) = (Heredoc start end kids)
-
 
 {- Function that converts conditional return statements (i.e. "a ? b : c") into a P5 form
 a ?? b !! c.  No Context needed, if ? or : is ever a P5 operator, it's in one of these statements-}
@@ -387,7 +438,7 @@ arrayKeyChanges (Heredoc start end kids) = (Heredoc start end kids)
 
 {-$something->@something, used by the arrayKeyChanges function-}
 scalarSigilToArraySigil :: P5AST -> P5AST
-scalarSigilToArraySigil (LiteralNode Sigil enc uni) = (LiteralNode Sigil enc ('@':(tail uni)))
+scalarSigilToArraySigil (LiteralNode Sigil enc uni) = (LiteralNode Sigil enc ('@':(drop 1 uni)))
 scalarSigilToArraySigil (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 
 {-Do changes to hashes with keys, such as $hash{word}->%hash<word> 
@@ -420,7 +471,7 @@ constHashChanges (Heredoc start end kids) = (Heredoc start end kids)
 
 {-Function to change the sigil from a scalar ($something) to a hash (%something)-}
 scalarSigilToHashSigil :: P5AST -> P5AST
-scalarSigilToHashSigil (LiteralNode Sigil enc uni) = (LiteralNode Sigil enc ('%':(tail uni)))
+scalarSigilToHashSigil (LiteralNode Sigil enc uni) = (LiteralNode Sigil enc ('%':(drop 1 uni)))
 scalarSigilToHashSigil (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 scalarSigilToHashSigil (AbstractNode atype kids) = (AbstractNode atype kids)
 
@@ -471,16 +522,16 @@ main = do
 getModifiers :: [String] -> String
 getModifiers [] = "n"
 getModifiers args = case (head args) of
-                         "-Oo"    ->  ('o':(getModifiers (tail args)))
-                         "-V"     ->  ('v':(getModifiers (tail args)))
-                         "-U"     ->  ('u':(getModifiers (tail args)))
-                         "-R"     ->  ('r':(getModifiers (tail args)))
-                         _        ->  (' ':(getModifiers (tail args)))
+                         "-Oo"    ->  ('o':(getModifiers (drop 1 args)))
+                         "-V"     ->  ('v':(getModifiers (drop 1 args)))
+                         "-U"     ->  ('u':(getModifiers (drop 1 args)))
+                         "-R"     ->  ('r':(getModifiers (drop 1 args)))
+                         _        ->  (' ':(getModifiers (drop 1 args)))
 
 --getFirstFile (oddly enough) gets the first file (which will be the second to last argument). 
 getFirstFile :: [String] -> String
 getFirstFile [] = ""
-getFirstFile args = (head (tail (reverse args))) 
+getFirstFile args = (head (drop 1 (reverse args))) 
 
 --getSecondFile gets the second filename from the args. It should always be the last arument.
 getSecondFile :: [String] -> String
