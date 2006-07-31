@@ -14,7 +14,7 @@ import ASTDefinition
 --Returns the first instance of a given type of node from a list of nodes. 
 extractNodetype :: P5AST -> [P5AST] -> P5AST
 extractNodetype _ [] = (AbstractNode UnknownAbs [])
-extractNodetype node nlist = if (matchWithoutEnc node (head nlist)) then (head nlist) else (extractNodetype node (tail nlist))
+extractNodetype node nlist = if (matchOnType node (head nlist)) then (head nlist) else (extractNodetype node (tail nlist))
 
 --Get just the kids of a given node ([] in case of literal node).
 extractKids :: P5AST -> [P5AST]
