@@ -56,13 +56,54 @@ import System(getArgs)
 --It's pretty ugly, which is why there's a need for a wrapper function
 translate :: P5AST -> String -> P5AST
 translate tree options = case [('o' `elem` options), ('r' `elem` options)] of
-                               [True, False]   ->  (regexModifiers (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))
-                               [True, True]  ->  (regexModifiers (scalarTranslate (hereDocTranslate (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))
-                               [False, False]  -> (regexModifiers (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))
-                               [False, True] -> (regexModifiers (scalarTranslate (hereDocTranslate (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))
+                               [True, False]   ->  (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))
+                               [True, True]  ->  (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))
+                               [False, False]  -> (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))
+                               [False, True] -> (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))
 
+--Translates "@array" -> "@array[]" and "%hash" -> "%hash{}"
+changeVarsInQuotes :: P5AST -> P5AST
+changeVarsInQuotes (LiteralNode Text enc uni) = (LiteralNode Text enc (runTextParser uni))
+changeVarsInQuotes (AbstractNode atype kids) = (AbstractNode atype (map changeVarsInQuotes kids))
+changeVarsInQuotes (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+changeVarsInQuotes (Heredoc start end kids) = (Heredoc start end (map changeVarsInQuotes kids))
+
+--Wrapper for the parser that translates arrays and hashes in strings
+runTextParser :: String -> String
+runTextParser instr = case parse textParser "text node" instr of
+                                Left err -> error $ "\nError:\n" ++ show err
+                                Right result -> result
+
+--The actual parser that changes "@array" and "%hash"
+textParser :: Parser String
+textParser = do{ parts <- manyTill (choice[do{char '@'; name <- many alphaNum; return ('@':name++"[]")},
+                                           do{char '%'; name <- many alphaNum; return ('%':name++"{}")},
+                                           do{this <- anyToken; return [this]}]) eof;
+                 return (joinString parts)}
+
+--Translates ?foo? to m:once/foo/ (and m?foo? to m:once/foo/)
+--The order in which this is applied is very important, it should be applied
+--BEFORE other regex modifiers (/i, for example) have been processed.
 regexOnce :: P5AST -> P5AST
-regexOnce (AbstractNode Op_subst)
+regexOnce (AbstractNode Op_match kids) = (AbstractNode Op_match (newOnce kids))
+regexOnce (AbstractNode atype kids) = (AbstractNode atype (map regexOnce kids))
+regexOnce (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+regexOnce (Heredoc start end kids) = (Heredoc start end kids)
+
+--Changes the opening ? of a once regex to m:once/
+newOnce :: [P5AST] -> [P5AST]
+newOnce [] = []
+newOnce kids = case [(matchWithoutEnc (head kids) (LiteralNode Openquote "" "m?")), (matchWithoutEnc (head kids) (LiteralNode Openquote "" "?"))] of
+                 [True, False] -> (LiteralNode Openquote "" "m:once/"):(finalOnce (tail kids))
+                 [False, True] -> (LiteralNode Openquote "" "m:once/"):(finalOnce (tail kids))
+                 _             -> (head kids):(newOnce (tail kids))
+
+--Changes the closing ? to / in a once regex
+finalOnce :: [P5AST] -> [P5AST]
+finalOnce [] = []
+finalOnce kids = case [(matchOnType (LiteralNode Openquote "" "") (head kids)), ('?' `elem` (extractUni (head kids)))] of
+                   [True, True] -> (LiteralNode Openquote "" ('/':(tail (extractUni (head kids))))):(tail kids)
+                   _            -> (head kids):(finalOnce (tail kids))
 
 --Find places where the translation scalar @blah -> +@blah is needed
 scalarTranslate :: P5AST -> P5AST
@@ -129,7 +170,7 @@ changeSInternals kids =  if ((length kids) >= 3) then if (and [((head ((extractU
 
 changeMInternals :: [P5AST] -> [P5AST]
 changeMInternals [] = []
-changeMInternals kids = if (matchOnType (head kids) (LiteralNode Text "" "")) then (LiteralNode Text (regexChangeCaptures (regexChange (extractUni (head kids))))):(drop 1 kids) else (head kids):(changeMInternals (drop 1 kids)) 
+changeMInternals kids = if (matchOnType (head kids) (LiteralNode Text "" "")) then (LiteralNode Text "" (regexChangeCaptures (regexChange (extractUni (head kids))))):(drop 1 kids) else (head kids):(changeMInternals (drop 1 kids)) 
 
 --Function to apply the regexString parser to a string
 regexChange :: String -> String
