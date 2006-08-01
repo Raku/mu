@@ -50,6 +50,7 @@ sub concat {
     }
     return sub {
         my @state = $_[1] ? @{$_[1]} : ( undef, undef );
+        #print "enter state ",Dumper(\@state);
         my $m2;
         do {
             $nodes->[0]->( $_[0], $state[0], @_[2..7] );
@@ -59,10 +60,12 @@ sub concat {
                           p => $_[3]->to };     
             # TODO - retry the second submatch only, until it fails
             my $next_state = $_[3]->state;
+            #print "next_state ",Dumper($next_state);
             $nodes->[1]->( $_[0], $state[1], $_[2], $m2, 
                            $_[4], $_[3]->to, $_[6], $param );
             $state[1] = $m2->state;
             $state[0] = $next_state unless $state[1];
+            #print "return state ",Dumper(\@state);
         } while ! $m2 && 
                 ! $m2->data->{abort} &&
                 defined $state[0]; 
@@ -110,7 +113,9 @@ sub concat {
                 to      => \($m2->to),
                 capture => $m2->data->{capture},
                 abort   => $m2->data->{abort},
-                state   => ( defined $state[0] ? \@state : undef ),
+                state   => ( defined $state[0] || defined $state[1] 
+                             ? \@state 
+                             : undef ),
         );
     }
 }

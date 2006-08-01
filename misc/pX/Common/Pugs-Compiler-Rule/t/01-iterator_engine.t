@@ -5,7 +5,7 @@ use warnings;
 
 #require 'iterator_engine.pl';
 
-use Test::More tests => 24;
+use Test::More tests => 28;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Pad = '# ';
@@ -61,6 +61,38 @@ my ( $rule, $match );
   #print "state: ", Dumper($match->state), "\n";
   #is ( $match->str, '', "/[a|ab]/ multi-match state #2" );
   #print Dumper( $match );
+}
+
+{
+  # -- continuations in concat()
+  $rule = 
+    Pugs::Runtime::Regex::concat( [
+      Pugs::Runtime::Regex::alternation( [
+        Pugs::Runtime::Regex::constant( 'a' ), 
+        Pugs::Runtime::Regex::constant( 'ab' ), 
+      ] ),
+      Pugs::Runtime::Regex::alternation( [
+        Pugs::Runtime::Regex::constant( 'b' ), 
+        Pugs::Runtime::Regex::constant( 'bb' ), 
+      ] ),
+    ] );
+  my $str = 'abbb';
+  $rule->( $str, undef, {}, $match );
+  #print "state 1: ", Dumper($match->state), "\n";
+  is ( $match->str, 'ab', "/[a|ab][b|bb]/ continuation state #0" );
+
+  $rule->( $str, $match->state, {}, $match );
+  #print "state 2: ", Dumper($match->state), "\n";
+  is ( $match->str, 'abb', "state #1" );
+
+  $rule->( $str, $match->state, {}, $match );
+  #print "state 3: ", Dumper($match->state), "\n";
+  is ( $match->str, 'abb', "state #2" );
+
+  $rule->( $str, $match->state, {}, $match );
+  #print "state 4: ", Dumper($match->state), "\n";
+  is ( $match->str, 'abbb', "state #3" );
+
 }
 
 {
