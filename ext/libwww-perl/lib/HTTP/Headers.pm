@@ -129,7 +129,7 @@ my method header (Str $field is copy, Str $val is copy, Str $op = "") {
   $val = undef if $op eq "INIT" and @old;
   if $val.defined {
     my @new = ($op eq "PUSH") ?? @old !! ();
-    if $val !~ Array {
+    if $val !~~ Array {
       push @new, $val;
     } else {
       push @new, *@$val;
@@ -295,7 +295,7 @@ my method basic_auth ($self: Str $h) is rw {
     # -- XXX does this create a reasonable warning? If not, put
     #   Carp::croak("Basic authorization user name can't contain ':'")
     # back.
-    # XXX Str where { $^str !~ /\:/ }
+    # XXX Str where { $^str !~~ /\:/ }
     STORE => -> Str $user, Str $passwd = "" {
       #$self!header($h, "Basic " ~ MIME::Base64::encode("$user:$passwd", ""));
     });

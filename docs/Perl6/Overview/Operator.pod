@@ -17,7 +17,7 @@ Perl6::Overview::Operator - Operators
     junctive or (any)   | ^
     named unary         rand sleep abs etc.
     nonchaining binary  => but does cmp <=> .. ^.. ..^ ^..^
-    chaining binary     != == < <= > >= ~~ !~ eq ne lt le gt ge =:= ===
+    chaining binary     != == < <= > >= ~~ !~~ eq ne lt le gt ge =:= ===
     tight and           &&
     tight or            || ^^ //
     ternary             ?? !!
@@ -93,7 +93,7 @@ Perl6::Overview::Operator - Operators
     >=    ge            # greater than or equal to
     <=>   cmp           # lt => -1, eq => 0, gt => 1
                 ~~      # smart match (see smartmatch)
-                !~      # negated smart match
+                !~~     # negated smart match
                 =:=     # equality (container)
                 ===     # equality (value)
 

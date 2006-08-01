@@ -1524,12 +1524,13 @@ ruleFoldOp = verbatimRule "reduce metaoperator" $ try $ do
     possiblyHyper <- option "" ((char '\171' >> return "<<") <|> (string "<<"))
     return $ "&prefix:[" ++ keep ++ name ++ "]" ++ possiblyHyper
     where
+    -- XXX !~~ needs to turn into metaop plus ~~
     defaultInfixOps = words $ concat
         [ " ** * / % x xx +& +< +> ~& ~< ~> "
         , " + - ~ +| +^ ~| ~^ ?| , Y \xA5 "
         , " & ^ | "
         , " => = "
-        , " != == < <= > >= ~~ !~ "
+        , " != == < <= > >= ~~ !~~ "
         , " eq ne lt le gt ge =:= === "
         , " && "
         , " || ^^ // "

@@ -51,7 +51,7 @@ tightOperators = do
     , noneSyn   (words " is but does ")                         -- Traits
       ++ noneOps (words " cmp <=> .. ^.. ..^ ^..^ till ^till till^ ")  -- Non-chaining Binary
       ++ postOps (words "...")                                  -- Infinite range
-    , chainOps (words " != == < <= > >= ~~ !~ eq ne lt le gt ge =:= === ")
+    , chainOps (words " != == < <= > >= ~~ !~~ eq ne lt le gt ge =:= === ")
                                                                 -- Chained Binary
     , leftOps  ["&&"]                                           -- Tight And
     , leftOps  (words " || ^^ // ")                             -- Tight Or

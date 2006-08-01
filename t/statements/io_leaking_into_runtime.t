@@ -26,20 +26,20 @@ my @tests = (
     
     # Test open('README') in BEGIN, CHECK, and INIT
     $ignore_errors ~ 'my $fh = BEGIN { open "README" }; print "_nok_"',
-    { $^a !~ rx:P5/_nok_/ },
+    { $^a !~~ rx:P5/_nok_/ },
 
     $ignore_errors ~ 'my $fh = CHECK { open "README" }; print "_nok_"',
-    { $^a !~ rx:P5/_nok_/ },
+    { $^a !~~ rx:P5/_nok_/ },
 
     'my $fh = INIT { open "README" }; print($fh ?? "ok" !! "nok")',
     { $^a eq "ok" },
 
     # Test my $fh = open('README'); { $fh } in BEGIN, CHECK
     $ignore_errors ~ 'my $fh = BEGIN { my $f = open "README"; ({ $f },) }; print "_nok_"',
-    { $^a !~ rx:P5/_nok_/ },
+    { $^a !~~ rx:P5/_nok_/ },
 
     $ignore_errors ~ 'my $fh = CHECK { my $f = open "README"; ({ $f },) }; print "_nok_"',
-    { $^a !~ rx:P5/_nok_/ },
+    { $^a !~~ rx:P5/_nok_/ },
 
     'my $fh = INIT { my $f = open "README"; ({ $f },) }; print($fh ?? "ok" !! "nok")',
     { $^a eq "ok" },

@@ -195,7 +195,7 @@ sub svn_commits() {
         }
 
         when rx:P5/\S/ {
-           if $cur_entry and $_ !~ rx:P5/^Changed paths\:/ {
+           if $cur_entry and $_ !~~ rx:P5/^Changed paths\:/ {
               $_ ~~ rx:P5/^(.*)$/;
               $commits ~= $sep_header
                   ?? ": "

@@ -50,7 +50,7 @@ by template haskell for compile-time checked regular expresions
 module RRegex.Syntax(
     RegexLike(..), 
     RegexContext(..), 
-    (!~), 
+    (!~~), 
     MatchResult(..)) where
 
 import Data.Array
@@ -108,8 +108,8 @@ class RegexContext x a where
     (=~~) :: (Monad m, RegexLike r x) => [x] -> r -> m a
 
 -- | check if regular expression does not match
-(!~) :: RegexLike r x => [x] -> r -> Bool
-s !~ re = not (s =~ re)
+(!~~) :: RegexLike r x => [x] -> r -> Bool
+s !~~ re = not (s =~ re)
 
 regexFailed :: (RegexLike r a, Monad m) => r -> m b
 regexFailed re =  fail $ "regex failed to match: " ++ matchShow re

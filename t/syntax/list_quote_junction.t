@@ -45,6 +45,6 @@ for @matching_strings -> $str {
 };
 
 for @nonmatching_strings -> $str {
-  ok( ($str !~ any <foo bar baz>), "'$str' does not match any <foo bar baz>" );
-  ok( $str !~ any(<foo bar baz>), "'$str' does not match any(<foo bar baz>)" );
+  ok( ($str !~~ any <foo bar baz>), "'$str' does not match any <foo bar baz>" );
+  ok( $str !~~ any(<foo bar baz>), "'$str' does not match any(<foo bar baz>)" );
 };

@@ -152,7 +152,7 @@ method decoded_content ($self: ) {
 method as_string ($self: Str $newline = "\n") returns Str {
     my $content = $self.content;
     
-    return [~] ($!headers.as_string($newline), $newline, ($content.chars && $content !~ /\n$/) ?? "\n" !! "");
+    return [~] ($!headers.as_string($newline), $newline, ($content.chars && $content !~~ /\n$/) ?? "\n" !! "");
 }
 
 method parts ($self: *@new) is rw {
@@ -166,7 +166,7 @@ method parts ($self: *@new) is rw {
             if ($content_type ~~ m,^message/,) {
                 die "Only one part allowed for $content_type content!"
                     if @new > 1;
-            } elsif ($content_type !~ m,^multipart/,) {
+            } elsif ($content_type !~~ m,^multipart/,) {
                 $self.remove_content_headers;
                 $self.content_type("multipart/mixed");
             }
@@ -180,7 +180,7 @@ method parts ($self: *@new) is rw {
 }
 
 method add_part ($self: ::?CLASS $part) returns Void {
-    if ((.content_type // "") !~ m,^multipart/,) {
+    if ((.content_type // "") !~~ m,^multipart/,) {
         my $message = ::?CLASS.new(.remove_content_headers, .content(""));
         $self.content_type("multipart/mixed");
         @!parts = $message;

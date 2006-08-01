@@ -69,7 +69,7 @@ my $err = 0;
 for %*ENV.kv -> $k,$v {
   # Ignore env vars which bash and maybe other shells set automatically.
   next if $k eq any <SHLVL _ OLDPWD PS1>;
-  if (%child_env{$k} !~ $v) {
+  if (%child_env{$k} !~~ $v) {
     if (! $err) {
       flunk("Environment gets propagated to child.");
       $err++;
@@ -101,7 +101,7 @@ my $err = 0;
 for %*ENV.kv -> $k,$v {
   # Ignore env vars which bash and maybe other shells set automatically.
   next if $k eq any <SHLVL _ OLDPWD PS1>;
-  if (%child_env{$k} !~ $v) {
+  if (%child_env{$k} !~~ $v) {
     if (! $err) {
       flunk("Environment gets propagated to child.");
       $err++;

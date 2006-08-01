@@ -80,7 +80,7 @@ my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 
 { #L<<S04/"Smart matching" /Array\s+Array\s+arrays\s+are\s+identical\s+match\s+if\s+\$_\s+»~~«\s+\$x/>>
     ok((("blah", "blah") ~~ ("blah", "blah")), "qw/blah blah/ .eq");
-    ok(!((1, 2) ~~ (1, 1)), "1 2 !~ 1 1");
+    ok(!((1, 2) ~~ (1, 1)), "1 2 !~~ 1 1");
 };
 
 { #L<<S04/"Smart matching" /Array\s+any(list)\s+list\s+intersection\s+match\s+if\s+any(\@\$_)\s+~~\s+any(list)/>>
@@ -159,15 +159,15 @@ my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 
 
 { #L<S04/"Smart matching">
-  #representational checks for !~, rely on ~~ semantics to be correct, assume negated results
+  #representational checks for !~~, rely on ~~ semantics to be correct, assume negated results
 
-    ok(!("foo" !~ "foo"), "!(foo ne foo)");
-    ok(("bar" !~ "foo"), "bar ne foo)");
+    ok(!("foo" !~~ "foo"), "!(foo ne foo)");
+    ok(("bar" !~~ "foo"), "bar ne foo)");
 
-    ok(!((1, 2) !~ 1), "(1, 2) contains 1", :todo);
-    ok(((3, 4, 5) !~ 2), "(3, 4, 5) doesn't contain 2");
+    ok(!((1, 2) !~~ 1), "(1, 2) contains 1", :todo);
+    ok(((3, 4, 5) !~~ 2), "(3, 4, 5) doesn't contain 2");
 
-    ok(!(%hash1 !~ any(%hash3)), "intersecting keys", :todo);
-    ok((%hash1 !~ any(%hash4)), "no intersecting keys");
+    ok(!(%hash1 !~~ any(%hash3)), "intersecting keys", :todo);
+    ok((%hash1 !~~ any(%hash4)), "no intersecting keys");
 };
 

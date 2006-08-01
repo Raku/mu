@@ -896,7 +896,7 @@ op2 "le" = op2Cmp vCastStr (<=)
 op2 "gt" = op2Cmp vCastStr (>)
 op2 "ge" = op2Cmp vCastStr (>=)
 op2 "~~" = op2Match
-op2 "!~" = \x y -> op1Cast (VBool . not) =<< op2Match x y
+op2 "!~~" = \x y -> op1Cast (VBool . not) =<< op2Match x y
 op2 "=:=" = op2Identity -- XXX wrong, needs to compare container only
 op2 "===" = op2Identity -- XXX wrong, needs to compare objects only
 op2 "&&" = op2Logical (fmap not . fromVal)
@@ -1821,7 +1821,7 @@ initSyms = mapM primDecl syms
 \\n   Bool      chain   =:=     safe   (rw!Any, rw!Any)\
 \\n   Bool      chain   ===     safe   (Any, Any)\
 \\n   Bool      chain   ~~      safe   (rw!Any, Any)\
-\\n   Bool      chain   !~      safe   (Any, Any)\
+\\n   Bool      chain   !~~     safe   (Any, Any)\
 \\n   Bool      chain   <       safe   (Num, Num)\
 \\n   Bool      chain   <=      safe   (Num, Num)\
 \\n   Bool      chain   >       safe   (Num, Num)\

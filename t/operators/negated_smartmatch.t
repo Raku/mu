@@ -4,10 +4,10 @@ use Test;
 
 =pod
 
-Currently, pugs treats ~~ as smartmatch, but !~ as negated string match.
+Currently, pugs treats ~~ as smartmatch, but !~~ as negated string match.
 This leads to craziness like the following:
 
-    pugs> not(0 !~ rx:Perl5/0/)
+    pugs> not(0 !~~ rx:Perl5/0/)
     Bool::False
     pugs> not(0 ~~ rx:Perl5/0/)
     Bool::False
@@ -16,5 +16,5 @@ This leads to craziness like the following:
 
 plan 1;
 
-my $opposites = (not(0 ~~ rx:Perl5/0/) xor not(0 !~ rx:Perl5/0/));
-ok($opposites, "~~ and !~ are opposites");
+my $opposites = (not(0 ~~ rx:Perl5/0/) xor not(0 !~~ rx:Perl5/0/));
+ok($opposites, "~~ and !~~ are opposites");

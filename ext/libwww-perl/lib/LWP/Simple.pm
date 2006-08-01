@@ -118,7 +118,7 @@ sub _trivial_http_get (Str $url) returns Str {
   # $hdl.irs = /$CRLF$CRLF/; # <-- make this into a todo test
 
   my $buffer = slurp $hdl;
-  # 1 while ( $buffer ~= $hdl.read() and $buffer !~ rx:perl5{$CRLF$CRLF} );
+  # 1 while ( $buffer ~= $hdl.read() and $buffer !~~ rx:perl5{$CRLF$CRLF} );
   # my ($status,@headers) = split /$CRLF/, $buffer;
   # worry later about large body
 

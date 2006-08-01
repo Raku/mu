@@ -453,7 +453,7 @@ before 99).
 
 Smart comparison
        ~~  smart match (see smartmatch)
-       !~  negated smart match
+       !~~ negated smart match
 
 Boolean logic
        &&  and

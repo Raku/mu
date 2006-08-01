@@ -37,12 +37,12 @@ sub splice_ok (Array @got, Array @ref, Array @exp, Array @exp_ref, Str $comment)
   # Once we get Test::Builder, this will be better:
   #if ( (@got ~~ @exp) and (@ref ~~ @exp_ref)) {
   #  flunk($comment);
-  #  if (@got !~ @exp) {
+  #  if (@got !~~ @exp) {
   #    diag "The returned result is wrong:";
   #    diag "  Expected: @exp";
   #    diag "  Got     : @got";
   #  };
-  #  if (@ref !~ @exp_ref) {
+  #  if (@ref !~~ @exp_ref) {
   #    diag "The modified array is wrong:";
   #    diag "  Expected: @exp_ref";
   #    diag "  Got     : @exp";
