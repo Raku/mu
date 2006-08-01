@@ -95,7 +95,11 @@ allMatch :: [P5AST] -> [P5AST] -> Bool
 allMatch [] [] = True
 allMatch _ [] = False
 allMatch [] _ = False
-allMatch list1 list2 = if (matchWithoutEnc (head list1) (head list2)) then (allMatch (tail list1) (tail list2)) else False
+allMatch list1 list2 = case [(matchOnType (head list1) (LiteralNode Junk "" "")), (matchOnType (head list2) (LiteralNode Junk "" ""))] of
+                         [True, True]   -> (allMatch (tail list1) (tail list2))
+                         [True, False]  -> (allMatch (tail list1) list2)
+                         [False, True]  -> (allMatch list1 (tail list2))
+                         [False, False] -> if (matchWithoutEnc (head list1) (head list2)) then (allMatch (tail list1) (tail list2)) else False
 
 {-Matches nodes based on type (Heredoc, Abstract or Literal) subtype (Junk, Op_leave, PNothing, etc)
 and (in the case of literal nodes) on the uni field. Used in the above search functions.-}
