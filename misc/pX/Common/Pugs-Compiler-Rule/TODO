@@ -1,11 +1,18 @@
 TODO for Pugs::Compiler::Rule (PCR)
 
--- before merging --
+-- after merging pX (2006-08-01) --
+
+- finish 'static' capture count
+
+- static signature for '$^a' 
+
+- add 'inlined' switch to disable PadWalker lookups
+
+-- before merging pX (2006-08-01) --
 
 - use base 'RegexBase' in the docs; or change Grammar::Base to another name
 
-- document $$match
-- new Match methods: data, str, perl, capture
+- new Match methods: data, str, perl, capture, state
 
 --
 

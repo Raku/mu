@@ -1,3 +1,9 @@
+- refactored Regex runtime:
+-- reuses the matching string in submatches
+-- resues the Match class for Token/Rule
+-- more tests
+- partially implemented 'static' capture numbering
+
 0.10  2006-07-10
 
 - added Pugs::Runtime::Common - contains utilities shared by all perl 6 

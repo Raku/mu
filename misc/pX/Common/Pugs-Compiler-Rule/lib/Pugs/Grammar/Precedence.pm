@@ -6,7 +6,7 @@ use strict;
 use warnings;
 
 use Parse::Yapp;
-
+use Data::Dump::Streamer;
 use Digest::MD5 'md5_hex';
 
 my $cache;
@@ -60,7 +60,7 @@ my %rule_templates = (
         
     # XXX
     #infix_chain =>       
-    #    "exp 'name' list_right  \n" .
+    #    "exp 'name' chain_right  \n" .
     #    "\t{ \$_[0]->{out}= {op1 => 'name', exp1 => \$_[1], exp2 => \$_[3],} }",
     #infix_list =>        
     #    "exp 'name' list_right \n" .
@@ -90,6 +90,7 @@ sub add_op {
              } @{$self->{levels}[$level]} ) {
             #print "pos $level at $opt->{precedence} $opt->{other}\n";
             $relative_precedences{$opt->{precedence}}->($self, $level, $opt);
+            #print "Precedence table: ", Dump( $self );
             return;
         }
     }
@@ -108,6 +109,13 @@ sub add_to_list {
     return { op1 => $op, list => [ @x, $y ], assoc => 'list' };
 }
 
+sub add_to_chain {
+    my ( $op, $x, $y ) = @_;
+    my @x = exists $x->{chain} ? @{$x->{chain}} : ($x);
+    my @y = exists $y->{chain} ? @{$y->{chain}} : ($y);
+    return { chain => [ @x, $op, @y ], assoc => 'chain' };
+}
+
 sub emit_yapp {
     my ($self) = @_;
     my $s;  # = "%{ my \$_[0]->{out}; %}\n";
@@ -115,22 +123,25 @@ sub emit_yapp {
     my %seen;
     for my $level ( reverse 0 .. $#{$self->{levels}} ) {            
         my %assoc;
-        for ( @{$self->{levels}[$level]} ) {
-            push @{$assoc{ $_->{assoc} }}, $_;
+        for my $operator ( @{$self->{levels}[$level]} ) {
+            push @{$assoc{ $operator->{assoc} }}, $operator;
         }
-        for ( keys %assoc ) {
-            if ( @{$assoc{$_}} ) {
-                my $a = $_;
+        for my $aaa ( keys %assoc ) {
+            if ( @{$assoc{$aaa}} ) {
+                my $a = $aaa;
                 $a = 'nonassoc' if $a eq 'non';
                 $a = 'left'     if $a eq 'list';
+                $a = 'left'     if $a eq 'chain';
                 $s .= "%$a ";
-                for ( @{ $assoc{$_} } ) {
-                    next if $seen{$_->{name}};
-                    $seen{$_->{name}} = 1;
-                    $s .= ' ' .
-                        $_ eq 'list' 
-                            ? $_->{index}
-                            : "'$_->{name}'";
+                for my $operator ( @{ $assoc{$aaa} } ) {
+                    next if $seen{$operator->{name}};
+                    $seen{$operator->{name}} = 1;
+                    $s .= ' ' . 
+                             "'$operator->{name}'" ;
+                        # (( $aaa eq 'list' || $aaa eq 'chain' )
+                        #     ? $operator->{index}
+                        #     : "'$operator->{name}'" 
+                        # );
                 }
                 $s .= 
                     " $prec" .
@@ -168,6 +179,16 @@ sub emit_yapp {
                         $s .= 
                             "    |  exp '$op->{name}'    %prec $prec\n" .
                             "        { \$_[0]->{out}= Pugs::Grammar::Precedence::add_to_list( '$op->{name}', \$_[1], { null => 1 } ) } \n" ;
+                            # "        { \$_[0]->{out}= \$_[1] } \n" ;
+                        next;
+                    }
+                    if ( $op->{assoc} eq 'chain' ) {
+                        $s .= 
+                            "    |  exp '$op->{name}' exp   %prec $prec\n" .
+                            "        { \$_[0]->{out}= Pugs::Grammar::Precedence::add_to_chain( '$op->{name}', \$_[1], \$_[3] ) } \n" ;
+                        $s .= 
+                            "    |  exp '$op->{name}'    %prec $prec\n" .
+                            "        { \$_[0]->{out}= Pugs::Grammar::Precedence::add_to_chain( '$op->{name}', \$_[1], { null => 1 } ) } \n" ;
                             # "        { \$_[0]->{out}= \$_[1] } \n" ;
                         next;
                     }
