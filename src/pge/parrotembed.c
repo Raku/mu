@@ -1,7 +1,7 @@
 
 static int exit_count = 0;
 
-void Pugs_trap_exit (int status, void* arg) {
+void Pugs_trap_exit (void *i, int status, void* arg) {
     if (exit_count == ((Parrot_exception*)arg)->system) {
         exit_count++;
         longjmp(((Parrot_exception*)arg)->destination, -1);
@@ -18,7 +18,7 @@ void* Pugs_callSubSSS(void *i, void *p, void *x, void *y) {
     }
     else {
 	push_new_c_exception_handler(i, &jb);
-        Parrot_on_exit(i, Pugs_trap_exit, &jb);
+        Parrot_on_exit(i, (exit_handler_f)Pugs_trap_exit, &jb);
 
         exit_count++;
         jb.system = exit_count;
