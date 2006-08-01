@@ -90,7 +90,7 @@ use base 'Pugs::Grammar::RegexBase';
     my $match = $rule2->match("abcz");
     is( "$match",'abcz',"backtracking subrule matched");
 
-    #print Dumper($match->[0]);
+    #print map { ref($_) ? Dumper($_->data) : Dumper($_) } @{$match->[0]};
     is(ref($match->[0]),"ARRAY",'array...');
     is( $match->[0][0],"b","Capture 1...");
     is( $match->[0][1],"c","Capture 2...");

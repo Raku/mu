@@ -26,16 +26,7 @@ sub alternation {
                 return;
             }
         }
-        no warnings 'uninitialized';
-        $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
-                bool  => \0,
-                str   => \$_[0],
-                from  => \(0 + $_[5]),
-                to    => \(0 + $_[5]),
-                named => {},
-                match => [],
-                state => undef,
-            });
+        $_[3] = failed()->(@_);
     }
 }
 
@@ -79,7 +70,9 @@ sub concat {
                 $_[3]->data->{match}[$_] = [
                     ( ref( $_[3]->data->{match}[$_] ) eq 'ARRAY' 
                       ? @{ $_[3]->data->{match}[$_] }
-                      :    $_[3]->data->{match}[$_] 
+                      : defined( $_[3]->data->{match}[$_] ) 
+                      ?    $_[3]->data->{match}[$_] 
+                      :    () 
                     ), 
                     @{ $m2->[$_] },
                 ];
@@ -96,7 +89,9 @@ sub concat {
                 $_[3]->data->{named}{$_} = [
                     ( ref( $_[3]->data->{named}{$_} ) eq 'ARRAY'
                       ? @{ $_[3]->data->{named}{$_} }
-                      :    $_[3]->data->{named}{$_} 
+                      : defined( $_[3]->data->{named}{$_} ) 
+                      ?    $_[3]->data->{named}{$_} 
+                      :    () 
                     ),
                     @{ $m2->{$_} },
                 ];
@@ -158,6 +153,20 @@ sub null {
     return sub {
         $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
                 bool  => \1,
+                str   => \$_[0],
+                from  => \(0 + $_[5]),
+                to    => \(0 + $_[5]),
+                named => {},
+                match => [],
+            });
+    }
+};
+
+sub failed {
+    no warnings qw( uninitialized );
+    return sub {
+        $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
+                bool  => \0,
                 str   => \$_[0],
                 from  => \(0 + $_[5]),
                 to    => \(0 + $_[5]),
@@ -303,35 +312,28 @@ sub _preprocess_hash {
     if ( ref($h) eq 'CODE') {
         return sub {
             $h->();
-            return { 
-                bool => 1, 
-                match => '', 
-                #tail => $_[0] 
-            };
+            return null()->(@_);
         };
     } 
-    if ( UNIVERSAL::isa( $h, 'Pugs::Compiler::Regex') ) {
+    if ( ref($h) =~ /^Pugs::Compiler::/ ) {
         #print "compiling subrule\n";
         #return $h->code;
         return sub { 
             #print "into subrule - $_[0] - grammar $_[4]\n"; 
             #print $h->code;
-            my $match = $h->match( $_[0], $_[4], { p => 1 } );
+            my $match = $h->match( $_[0], $_[4], $_[7] );
             #print "match: ",$match->(),"\n";
-            return $_[3] = $$match;
+            $_[3] = $match;
         };
     }
     # fail is number != 1 
     if ( $h =~ /^(\d+)$/ ) {
-        return sub{} unless $1 == 1;
-        return sub{ { 
-            bool => 1, match => '', 
-            #tail => $_[0] 
-        } };
+        return failed unless $1 == 1;
+        return null;
     }
     # subrule
     warn "uncompiled subrule: $h - not implemented";
-    return sub {};
+    return failed;
 }
 
 # see commit #9783 for an alternate implementation
@@ -339,7 +341,7 @@ sub hash {
     my %hash = %{shift()};
     #print "HASH: @{[ %hash ]}\n";
     my @keys = sort {length $b <=> length $a } keys %hash;
-    #print "hash keys: @keys\n";
+    #print "hash keys [ @keys ]\n";
     @keys = map {
         concat( [
             constant( $_ ),
