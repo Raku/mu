@@ -114,6 +114,15 @@ rule num_variable :P5 {^(?:\$[[:digit:]]+)}
     }
     unshift @rule_terms, 'after';
         
+    rule negate {
+        \< \! <rule> \> 
+        { return { negate => {
+                rule  => $_[0]{rule}(),
+            }, } 
+        }
+    }
+    unshift @rule_terms, 'negate';
+
     rule capturing_group {
         \( <rule> \)
             
@@ -186,6 +195,7 @@ rule concat {
 }
 
 rule rule {
+    [<?ws>\|]?
     $<q1> := (<concat>) 
     [
         \| $<q2> := (<rule>) 

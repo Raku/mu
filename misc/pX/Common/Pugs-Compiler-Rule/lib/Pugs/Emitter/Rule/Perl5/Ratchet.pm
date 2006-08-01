@@ -307,6 +307,26 @@ sub match_variable {
 sub closure {
     my $code = $_[0]; 
     
+    if ( ref( $code ) ) {
+        if ( defined $Pugs::Compiler::Perl6::VERSION ) {
+            # perl6 compiler is loaded
+            my $perl5 = Pugs::Emitter::Perl6::Perl5::emit( 'grammar', $code, 'self' );
+            return 
+                "do { 
+                    \$::_V6_MATCH_ = \$m; 
+                    \$capture = sub { $perl5 }->();
+                    \$bool = 1;
+                    return \$m;
+                }" if $perl5 =~ /return/;
+            return 
+                "do { 
+                    \$::_V6_MATCH_ = \$m; 
+                    sub { $perl5 }->();
+                    1;
+                }";
+        }        
+    }
+
     # XXX XXX XXX - source-filter - temporary hacks to translate p6 to p5
     # $()<name>
     $code =~ s/ ([^']) \$ \( \) < (.*?) > /$1 \$_[0]->[$2] /sgx;
@@ -411,6 +431,23 @@ $_[1]     $post_match
 $_[1]     \$bool;
 $_[1] }";
 }
+sub negate {
+    my $program = $_[0]{rule};
+    $program = emit_rule( $program, $_[1].'        ' )
+        if ref( $program );
+    return "$_[1] do{ 
+$_[1]     my \$pos1 = \$pos;
+$_[1]     do {
+$_[1]       my \$pos = \$pos1;
+$_[1]       my \$from = \$pos;
+$_[1]       my \@match;
+$_[1]       my \%named;
+$_[1]       my \$capture;
+$_[1]       \$bool = " . $program . " ? 0 : 1;
+$_[1]       \$bool;
+$_[1]     };
+$_[1] }";
+}
 sub before {
     my $program = $_[0]{rule};
     $program = emit_rule( $program, $_[1].'        ' )
@@ -428,6 +465,10 @@ $_[1]       \$bool = 0 unless
 $_[1]       \$bool;
 $_[1]     };
 $_[1] }";
+}
+sub not_before {
+    warn '<!before ...> not implemented';
+    return;
 }
 sub after {
     local $direction = "-";
@@ -447,6 +488,10 @@ $_[1]       \$bool = 0 unless
 $_[1]       \$bool;
 $_[1]     };
 $_[1] }";
+}
+sub not_after {
+    warn '<!after ...> not implemented';
+    return;
 }
 sub colon {
     my $str = $_[0];
