@@ -18,7 +18,7 @@ void* Pugs_callSubSSS(void *i, void *p, void *x, void *y) {
     }
     else {
 	push_new_c_exception_handler(i, &jb);
-        Parrot_on_exit(Pugs_trap_exit, &jb);
+        Parrot_on_exit(i, Pugs_trap_exit, &jb);
 
         exit_count++;
         jb.system = exit_count;

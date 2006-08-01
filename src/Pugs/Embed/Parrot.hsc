@@ -211,7 +211,7 @@ initParrot = do
         interp <- readIORef _ParrotInterp
         if interp == nullPtr then return () else do
         writeIORef _ParrotInterp nullPtr
-        parrot_exit 0
+        parrot_exit interp 0
 
 makeAscii :: String -> ParrotInterp -> IO ParrotString
 makeAscii str interp = withCString str (const_string interp)
@@ -357,7 +357,7 @@ foreign import ccall "Parrot_set_debug"
     parrot_set_debug :: ParrotInterp -> CInt -> IO ()
 
 foreign import ccall "Parrot_exit"
-    parrot_exit :: CInt -> IO ()
+    parrot_exit :: ParrotInterp -> CInt -> IO ()
 
 foreign import ccall "string_to_cstring"
     parrot_string_to_cstring :: ParrotInterp -> ParrotString -> IO CString
