@@ -5,6 +5,7 @@ use 5.006;
 use strict;
 use warnings;
 use Data::Dumper;
+# use Data::Dump::Streamer;  # TODO
 use Class::InsideOut qw( public register id );
 
 use overload (
