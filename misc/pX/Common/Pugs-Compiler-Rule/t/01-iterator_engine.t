@@ -5,7 +5,7 @@ use warnings;
 
 #require 'iterator_engine.pl';
 
-use Test::More tests => 22;
+use Test::More tests => 24;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Pad = '# ';
@@ -41,6 +41,25 @@ my ( $rule, $match );
   $rule->( 'c123', undef, {capture=>1}, $match );
   ok ( $match->bool, "/[a|c]/ #2" );
   is ( $match->tail, '123', "tail is ok" );
+  #print Dumper( $match );
+}
+
+{
+  # -- continuations in alternation()
+  $rule = 
+      Pugs::Runtime::Regex::alternation( [
+        Pugs::Runtime::Regex::constant( 'a' ), 
+        Pugs::Runtime::Regex::constant( 'ab' ), 
+      ] );
+  $rule->( 'ab', undef, {}, $match );
+  #print "state: ", Dumper($match->state), "\n";
+  is ( $match->str, 'a', "/[a|ab]/ multi-match continuation state #0" );
+  $rule->( 'ab', $match->state, {}, $match );
+  #print "state: ", Dumper($match->state), "\n";
+  is ( $match->str, 'ab', "/[a|ab]/ multi-match continuation state #1" );
+  #$rule->( 'ab', $match->state, {}, $match );
+  #print "state: ", Dumper($match->state), "\n";
+  #is ( $match->str, '', "/[a|ab]/ multi-match state #2" );
   #print Dumper( $match );
 }
 

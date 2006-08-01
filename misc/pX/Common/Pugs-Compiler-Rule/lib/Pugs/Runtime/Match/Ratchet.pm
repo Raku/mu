@@ -60,6 +60,11 @@ sub tail {
     return substr( ${$_data{id $_[0]}->{str}}, $_[0]->to );
 }
 
+# state() is used for multiple matches and backtracking control
+sub state {
+    return $_data{id $_[0]}->{state};
+}
+
 # return the capture
 sub code {
     my $c = $_[0]->flat;

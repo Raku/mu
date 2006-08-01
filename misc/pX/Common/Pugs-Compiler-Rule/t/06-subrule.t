@@ -75,9 +75,9 @@ use base 'Pugs::Grammar::RegexBase';
     is( $match->{rule1}[3],undef,"No more captures");
 }
 
-SKIP:
+#SKIP:
 {
-    skip "infinite loop - backtracking into subrules", 5;
+    #skip "infinite loop - backtracking into subrules", 5;
     # backtracking into subrules
     my $rule1 = Pugs::Compiler::Regex->compile('(\w)+');
     my $rule2 = Pugs::Compiler::Regex->compile('a<$rule1>z');
