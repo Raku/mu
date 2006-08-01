@@ -15,6 +15,8 @@ After merging pX (2006-08-01)
 
 - finish 'static' capture count
 
+- finish remaining metasyntax in <!...> Grammar
+
 - static signature for '$^a' 
 
 - add 'inlined' switch to disable PadWalker lookups

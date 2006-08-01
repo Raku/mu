@@ -1,5 +1,5 @@
 
-use Test::More tests => 90;
+use Test::More tests => 92;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -283,7 +283,20 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "", 'not before' );
 
-    # TODO: <!before b>
+}
+
+{
+    # not-before
+    my $rule = Pugs::Compiler::Token->compile('a<!before b>', { ratchet => 1 } );
+    my $match = $rule->match( "ac" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "a", 'not before' );
+
+    $match = $rule->match( "ab" );
+    #print "Source: ", $rule->{perl5};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "", 'before' );
 }
 
 {

@@ -115,11 +115,30 @@ rule num_variable :P5 {^(?:\$[[:digit:]]+)}
     unshift @rule_terms, 'after';
         
     rule negate {
-        \< \! <rule> \> 
+        \< \! 
+        [
+        before <?ws> <rule> \> 
+        { return { 
+            negate => {
+              before => {
+                rule  => $_[0]{rule}(),
+            }, }, } 
+        }
+        |
+        after <?ws> <rule> \> 
+        { return { 
+            negate => {
+              after => {
+                rule  => $_[0]{rule}(),
+            }, }, } 
+        }
+        |
+        <rule> \> 
         { return { negate => {
                 rule  => $_[0]{rule}(),
             }, } 
         }
+        ]
     }
     unshift @rule_terms, 'negate';
 

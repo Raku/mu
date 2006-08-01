@@ -2,7 +2,7 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0x3050189A or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0x5110DD55 or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
 use base 'Pugs::Grammar::Base';
@@ -404,7 +404,51 @@ sub {
         ,
           constant( "\!" )
         ,
+          constant( "before" )
+        ,
+          sub{ $grammar->ws(@_) }
+        ,
           capture( 'rule', sub{ $grammar->rule(@_) } )
+        ,
+          constant( "\>" )
+        ,
+          alternation( [
+                Pugs::Runtime::Rule::abort(
+                    sub {
+                        return { bool => 1, tail => $_[0], return => sub { return { 
+            negate => {
+              before => {
+                rule  => $_[0]{rule}(),
+            }, }, } 
+        } };
+                    }
+                )
+              ,
+                constant( "after" )
+              ,
+          ] )
+        ,
+          sub{ $grammar->ws(@_) }
+        ,
+          capture( 'rule', sub{ $grammar->rule(@_) } )
+        ,
+          constant( "\>" )
+        ,
+          alternation( [
+                Pugs::Runtime::Rule::abort(
+                    sub {
+                        return { bool => 1, tail => $_[0], return => sub { return { 
+            negate => {
+              after => {
+                rule  => $_[0]{rule}(),
+            }, }, } 
+        } };
+                    }
+                )
+              ,
+                capture( 'rule', sub{ $grammar->rule(@_) } )
+              ,
+          ] )
         ,
           constant( "\>" )
         ,
