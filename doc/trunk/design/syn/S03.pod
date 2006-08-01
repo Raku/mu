@@ -12,11 +12,11 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 19 Jul 2006
+  Last Modified: 1 Aug 2006
   Number: 3
-  Version: 51
+  Version: 52
 
-=head1 Changes to existing operators
+=head1 Changes to Perl 5 operators
 
 Several operators have been given new names to increase clarity and better
 Huffman-code the language, while others have changed precedence.  (If an
@@ -25,6 +25,9 @@ same as in Perl 5.  And if that doesn't make sense, assume this document
 is faulty. :)
 
 =over
+
+=item * Perl 5's C<${...}>, C<@{...}>, C<%{...}>, etc. dereferencing
+forms are now C<$(...)>, C<@(...)>, C<%(...)>, etc. instead.
 
 =item * C<< -> >> becomes C<.>, like the rest of the world uses.
 
@@ -1442,7 +1445,7 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
 			    !== !~~ !eq !=:= !=== !eqv etc.
     tight and           &&
     tight or            || ^^ //
-    ternary             ?? !!
+    conditional         ?? !!
     assignment          := ::= =>
 			    (also = with simple lvalues)
 			    += -= **= xx= .= etc.

@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 1 July 2006
+   Last Modified: 1 Aug 2006
    Number: 5
-   Version: 28
+   Version: 29
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> because they haven't been
@@ -94,7 +94,7 @@ Modifiers are now placed as adverbs at the I<start> of a match/substitution:
      m:g:i/\s* (\w*) \s* ,?/;
 
 Every modifier must start with its own colon.  The delimiter must be
-separated from the final modifier by whitespace if it would be taken
+separated from the final modifier by whitespace if it would otherwise be taken
 as an argument to the preceding modifier (which is true for any
 bracketing character).
 
@@ -199,7 +199,7 @@ The C<:s> modifier is considered sufficiently important that
 match variants are defined for them:
 
     ms/match some words/			# same as m:sigspace
-    ss/match some words/replace those words/	# same ss s:sigspace
+    ss/match some words/replace those words/	# same as s:sigspace
 
 Conjecture: This might become sufficiently idiomatic that C<ms//> would
 be better as a "stuttered" C<mm//> instead, much as C<qq//> became idiomatic.
@@ -497,7 +497,7 @@ It is illegal to return a list, so this easy mistake fails:
      / [foo]**{1,3} /
 
 (At least, it fails in the absence of C<use rx :listquantifier>,
-which is likely to be unimplemented in Perl 6.0.0 anyway).
+which is likely to be unimplemented in Perl 6.0.0 anyway.)
 
 The optimizer will likely optimize away things like C<**{1..*}>
 so that the closure is never actually run in that case.  But it's
@@ -784,7 +784,7 @@ lexically scoped.)
 
 =item *
 
-A leading C<?{> or C<!{>indicates a code assertion:
+A leading C<?{> or C<!{> indicates a code assertion:
 
      / (\d**{1..3}) <?{ $0 < 256 }> /
      / (\d**{1..3}) <!{ $0 < 256 }> /
@@ -1011,7 +1011,7 @@ The Perl 5  C<qr/pattern/> regex constructor is gone.
 The Perl 6 equivalents are:
 
      regex { pattern }    # always takes {...} as delimiters
-        rx / pattern /    # can take (almost any) chars as delimiters
+     rx    / pattern /    # can take (almost any) chars as delimiters
 
 You may not use whitespace or alphanumerics for delimiters.  Space is
 optional unless needed to distinguish from modifier arguments or
@@ -1021,14 +1021,14 @@ but only if you interpose whitespace:
      rx ( pattern )      # okay
      rx( 1,2,3 )         # tries to call rx function
 
-(This is true of all quotelike constructs in Perl 6.)
+(This is true for all quotelike constructs in Perl 6.)
 
 =item *
 
 If either form needs modifiers, they go before the opening delimiter:
 
      $regex = regex :g:s:i { my name is (.*) };
-         $regex = rx:g:s:i / my name is (.*) /;    # same thing
+     $regex = rx:g:s:i     / my name is (.*) /;    # same thing
 
 Space is necessary after the final modifier if you use any
 bracketing character for the delimiter.  (Otherwise it would be taken as
@@ -1050,7 +1050,7 @@ longer an interpolating quote-like operator.  C<rx> is short for I<regex>,
 =item *
 
 As the syntax indicates, it is now more closely analogous to a C<sub {...}>
-constructor.  In fact, that analogy will run I<very> deep in Perl 6.
+constructor.  In fact, that analogy runs I<very> deep in Perl 6.
 
 =item *
 
@@ -1120,10 +1120,10 @@ it has scanned so far.  The above is equivalent to
 
     regex ident { [ <alpha>: | _: ]: \w+: }
 
-but rather easier to read.  The bare C<*>, C<+> and C<?> quantifiers
+but rather easier to read.  The bare C<*>, C<+>, and C<?> quantifiers
 never backtrack in a C<token> unless some outer regex has specified a
 C<:panic> option that applies.  If you want to prevent even that, use
-C<*:>, C<+:> or C<?:> to prevent any backtracking into the quantifier.
+C<*:>, C<+:>, or C<?:> to prevent any backtracking into the quantifier.
 If you want to explicitly backtrack, append either a C<?> or a C<+>
 to the quantifier.   The C<?> forces minimal matching as usual,
 while the C<+> forces greedy matching.  The C<token> declarator is
@@ -1248,7 +1248,7 @@ side effect of deleting the parts of the string already matched.
 =item *
 
 Attempting to backtrack past a C<< <cut> >> causes the complete match
-to fail (like backtracking past a C<< <commit> >>. This is because there's
+to fail (like backtracking past a C<< <commit> >>). This is because there's
 now no preceding text to backtrack into.
 
 =item *
@@ -1546,7 +1546,7 @@ C<$/> variable, unless the match statement is inside another regex. That is:
 =item *
 
 Inside a regex, the C<$/> variable holds the current regex's
-incomplete C<Match> object (which can be modified via the internal C<$/>.
+incomplete C<Match> object (which can be modified via the internal C<$/>).
 For example:
 
     $str ~~ / foo                 # Match 'foo'
@@ -1651,13 +1651,13 @@ $1, with the numbers corresponding to the element's index inside C<$/>.
 =item *
 
 The array elements of the regex's C<Match> object (i.e. C<$/>)
-store individual C<Match> objects representing the substrings that where
+store individual C<Match> objects representing the substrings that were
 matched and captured by the first, second, third, etc. I<outermost>
 (i.e. unnested) subpatterns. So these elements can be treated like fully
 fledged match results. For example:
 
      if m/ (\d\d\d\d)-(\d\d)-(\d\d) (BCE?|AD|CE)?/ {
-           ($yr, $mon, $day) = $/[0..2]
+           ($yr, $mon, $day) = $/[0..2];
            $era = "$3" if $3;                    # stringify/boolify
            @datepos = ( $0.from() .. $2.to() );  # Call Match methods
      }
@@ -1672,8 +1672,8 @@ fledged match results. For example:
 =item *
 
 Substrings matched by I<nested> subpatterns (i.e. nested capturing
-parens) are assigned to the array inside the subpattern's parent C<Match>
-surrounding subpattern, not to the array of C<$/>.
+parens) are assigned to the array inside the nested subpattern's parent C<Match>
+object, not to the array of C<$/>.
 
 =item *
 
@@ -1721,7 +1721,7 @@ corresponding array element for the quantified capture will store a
 
      if m/ (\w+) \: (\w+ \s+)* / {
          say "Key:    $0";         # Unquantified --> single Match
-         say "Values: { @{$1} }";  # Quantified   --> array of Match
+         say "Values: @($1)";      # Quantified   --> array of Match
      }
 
 
@@ -1746,14 +1746,14 @@ structure:
 
 Non-capturing brackets I<don't> create a separate nested lexical scope,
 so the two subpatterns inside them are actually still in the regex's
-top-level scope. Hence their top-level designations: C<$0> and C<$1>.
+top-level scope, hence their top-level designations: C<$0> and C<$1>.
 
 =item *
 
 However, because the two subpatterns are inside a quantified
 structure, C<$0> and C<$1> will each contain an array.
 The elements of that array will be the submatches returned by the
-corresponding subpattern on each iteration of the non-capturing
+corresponding subpatterns on each iteration of the non-capturing
 parentheses. For example:
 
      my $text = "foo:food fool\nbar:bard barb";
@@ -1870,7 +1870,7 @@ C<token> or C<rule> or even an ordinary C<method> or C<multi>.
 
 =item *
 
-Any bracketed construct that is aliased (see L<Aliasing> below) to a
+Any bracketed construct that is aliased (see L</Aliasing> below) to a
 named variable is also a subrule.
 
 =item *
@@ -1921,7 +1921,7 @@ C<$«bar»>, C<< $<baz> >>, etc.)  So the previous example also implies:
 =item *
 
 Note that it makes no difference whether a subrule is angle-bracketed
-(C<< <ident> >>) or aliased (C<< $<ident> := (<alpha>\w*) >>. The name's
+(C<< <ident> >>) or aliased (C<< $<ident> := (<alpha>\w*) >>). The name's
 the thing.
 
 
@@ -1957,16 +1957,16 @@ Likewise, with a quantified subrule:
          $to   = $<file>[1];
      }
 
-Likewise, with a mixture of both:
+And with a mixture of both:
 
      if ms/ mv <file>+ <file> / {
-         $to   = pop @{$<file>};
-         @from = @{$<file>};
+         $to   = pop @($<file>);
+         @from = @($<file>);
      }
 
 =item *
 
-However, if a subrule is explicitly renamed (or aliased -- see L<Aliasing>),
+However, if a subrule is explicitly renamed (or aliased -- see L</Aliasing>),
 then only the I<final> name counts when deciding whether it is or isn't
 repeated. For example:
 
@@ -2030,7 +2030,7 @@ If a named scalar alias is applied to a set of I<capturing> parens:
      ms/ $<key>:=( (<[A..E]>) (\d**{3..6}) (X?) ) /;
 
 then the outer capturing parens no longer capture into the array of
-C<$/> (like unaliased parens would). Instead the aliased parens capture
+C<$/> as unaliased parens would. Instead the aliased parens capture
 into the hash of C<$/>; specifically into the hash element
 whose key is the alias name.
 
@@ -2068,7 +2068,7 @@ C<< $/<key>[2] >> will contain the optional X.
 
 Another way to think about this behavior is that aliased parens create
 a kind of lexically scoped named subrule; that the contents of the
-brackets are treated as if they were part of a separate subrule whose
+parentheses are treated as if they were part of a separate subrule whose
 name is the alias.
 
 
@@ -2080,14 +2080,14 @@ name is the alias.
 
 =item *
 
-If an named scalar alias is applied to a set of I<non-capturing> brackets:
+If a named scalar alias is applied to a set of I<non-capturing> brackets:
 
         #          ___/non-capturing brackets\__
         #         |                             |
         #         |                             |
      ms/ $<key>:=[ (<[A..E]>) (\d**{3..6}) (X?) ] /;
 
-then the corresponding C<< $/<key> >> object contains only the string
+then the corresponding C<< $/<key> >> Match object contains only the string
 matched by the non-capturing brackets.
 
 =item *
@@ -2135,7 +2135,7 @@ If a subrule is aliased, it assigns its C<Match> object to the hash
 entry whose key is the name of the alias. And it I<no longer> assigns
 anything to the hash entry whose key is the subrule name. That is:
 
-     if m:/ ID\: $<id>:=<ident> / {
+     if m/ ID\: $<id>:=<ident> / {
          say "Identified as $/<id>";    # $/<ident> is undefined
      }
 
@@ -2146,7 +2146,7 @@ object. This is particularly useful for differentiating two or more calls to
 the same subrule in the same scope. For example:
 
      if ms/ mv <file>+ $<dir>:=<file> / {
-         @from = @{$<file>};
+         @from = @($<file>);
          $to   = $<dir>;
      }
 
@@ -2162,7 +2162,7 @@ If a numbered alias is used instead of a named alias:
 
      m/ $1:=(<-[:]>*) \:  $0:=<ident> /
 
-the behavior is exactly the same as for a named alias (i.e the various
+the behavior is exactly the same as for a named alias (i.e. the various
 cases described above), except that the resulting C<Match> object is
 assigned to the corresponding element of the appropriate array rather
 than to an element of the hash.
@@ -2288,7 +2288,7 @@ non-capturing brackets>). For example:
 
 =item *
 
-An alias can also be specified using an array as the alias instead of scalar.
+An alias can also be specified using an array as the alias instead of a scalar.
 For example:
 
      m/ mv @<from>:=[(\S+) \s+]* <dir> /;
@@ -2310,12 +2310,12 @@ branches):
      # Aliasing to @<names> means $/<names> is always
      # an Array object, so...
 
-     say @{$/<names>};
+     say @($/<names>);
 
 =item *
 
 For convenience and consistency, C<< @<key> >> can also be used outside a
-regex, as a shorthand for C<< @{ $/<key> } >>. That is:
+regex, as a shorthand for C<< @( $/<key> ) >>. That is:
 
      ms/ Mr?s? @<names>:=<ident> W\. @<names>:=<ident>
         | Mr?s? @<names>:=<ident>
@@ -2337,7 +2337,7 @@ brackets into separate elements of the corresponding array. That is:
 
      m/ mv @<files>:=[ f.. \s* ]* /; # $/<files> assigned an array,
                                      # each element of which is a
-                                     # C<Match> object containing
+                                     # Match object containing
                                      # the substring matched by Nth
                                      # repetition of the non-
                                      # capturing bracket match
@@ -2356,7 +2356,7 @@ subpattern captures within the aliased subpattern. For example:
          # of Match objects, each of which has its own array
          # of two subcaptures...
 
-         for @{$<pairs>} -> $pair {
+         for @($<pairs>) -> $pair {
              say "Key: $pair[0]";
              say "Val: $pair[1]";
          }
@@ -2368,7 +2368,7 @@ subpattern captures within the aliased subpattern. For example:
          # of Match objects, each of which is flattened out of
          # the two subcaptures within the subpattern
 
-         for @{$<pairs>} -> $key, $val {
+         for @($<pairs>) -> $key, $val {
              say "Key: $key";
              say "Val: $val";
          }
@@ -2388,7 +2388,7 @@ repetition of the subrule, all flattened into a single array:
          # Match objects, each of which is the result of the
          # <pair> subrule call...
 
-         for @{$<pairs>} -> $pair {
+         for @($<pairs>) -> $pair {
              say "Key: $pair[0]";
              say "Val: $pair[1]";
          }
@@ -2401,7 +2401,7 @@ repetition of the subrule, all flattened into a single array:
          # nested arrays inside the Match objects returned
          # by each match of the <pair> subrule...
 
-         for @{$<pairs>} -> $key, $val {
+         for @($<pairs>) -> $key, $val {
              say "Key: $key";
              say "Val: $val";
          }
@@ -2433,7 +2433,7 @@ its match hash. For example:
          #           \___ Array alias, so $0 gets a flattened array of
          #                just the (\w+) captures from each repetition
 
-         @from     = @{$0};      # Flattened list
+         @from     = @($0);      # Flattened list
 
          $to_str   = $1[0][0];   # Nested elems of
          $to_gap   = $1[0][1];   #    unflattened list
@@ -2442,7 +2442,7 @@ its match hash. For example:
 =item *
 
 Note again that, outside a regex, C<@0> is simply a shorthand for
-C<@{$0}>, so the first assignment above could also have been written:
+C<@($0)>, so the first assignment above could also have been written:
 
      @from = @0;
 
@@ -2470,7 +2470,7 @@ current scope's C<Match> object to be assigned a (nested) Hash object
 
 If a hash alias is applied to a subrule or subpattern then the first nested
 numeric capture becomes the key of each hash entry and any remaining numeric
-captures become the values (in an array if there is more than one),
+captures become the values (in an array if there is more than one).
 
 =item *
 
@@ -2483,22 +2483,22 @@ C<Match> object is stored:
      if ms/ %0:=<one_to_many>+ / {
          # $/[0] contains a hash, in which each key is provided by
          # the first subcapture within C<one_to_many>, and each
-         # value is an  array containing the
-         # subrule's second, third, and fourth, etc. subcaptures...
+         # value is an array containing the
+         # subrule's second, third, fourth, etc. subcaptures...
 
-         for %{$/[0]} -> $pair {
-             say "One:  $pair.key";
-             say "Many: { @{$pair.value} }";
+         for %($/[0]) -> $pair {
+             say "One:  $pair.key()";
+             say "Many: { @($pair.value) }";
          }
      }
 
 =item *
 
-Outside the regex, C<%0> is a shortcut for C<%{$0}>:
+Outside the regex, C<%0> is a shortcut for C<%($0)>:
 
          for %0 -> $pair {
-             say "One:  $pair.key";
-             say "Many: { @{$pair.value} }";
+             say "One:  $pair.key()";
+             say "Many: @($pair.value)";
          }
 
 
@@ -2521,9 +2521,9 @@ the name of an ordinary variable can be used as an I<external> alias, like so:
 =item *
 
 In this case, the behavior of each alias is exactly as described in the
-previous sections, except that the resulting capture(s) are bound
-directly (but still hypothetically) to the variables of the specified
-name that exist in the scope in which the regex is declared.
+previous sections, except that any resulting capture is bound
+directly (but still hypothetically) to the variable of the specified
+name that must already exist in the scope in which the regex is declared.
 
 
 =back
@@ -2776,7 +2776,7 @@ Use the C<.=> form to do a translation in place:
 
 =item *
 
-The two sides of the any pair can be strings interpreted as C<tr///> would:
+The two sides of any pair can be strings interpreted as C<tr///> would:
 
      $str.=trans( 'A..C' => 'a..c', 'XYZ' => 'xyz' );
 
@@ -2806,10 +2806,10 @@ first in order wins.
 There are also method forms of C<m//> and C<s///>:
 
      $str.match(//);
-     $str.subst(//, "replacement")
-     $str.subst(//, {"replacement"})
-     $str.=subst(//, "replacement")
-     $str.=subst(//, {"replacement"})
+     $str.subst(//, "replacement");
+     $str.subst(//, {"replacement"});
+     $str.=subst(//, "replacement");
+     $str.=subst(//, {"replacement"});
 
 =back
 
@@ -2830,14 +2830,14 @@ the string regardless of whether you count by bytes or codepoints or
 graphemes.  If used with an integer, the C<at> assertion will assume
 you mean the current lexically scoped Unicode level, on the assumption
 that this integer was somehow generated in this same lexical scope.
-If this is outside the current string's allowed abstraction levels, an
+If this is outside the current string's allowed Unicode abstraction levels, an
 exception is thrown.  See S02 for more discussion of string positions.
 
 =item *
 
 C<Buf> types are based on fixed-width cells and can therefore
 handle integer positions just fine, and treat them as array indices.
-In particular, C<buf8> AKA C<buf> is just an old-school byte string.
+In particular, C<buf8> (also known as C<buf>) is just an old-school byte string.
 Matches against C<Buf> types are restricted to ASCII semantics in
 the absence of an I<explicit> modifier asking for the array's values
 to be treated as some particular encoding such as UTF-32.  (This is
@@ -2874,7 +2874,7 @@ against a regex:
 
 The special C<< <,> >> subrule matches the boundary between elements.
 The C<< <elem> >> assertion matches any individual array element.
-It is the equivalent of "dot" for the whole element.
+It is the equivalent of the "dot" metacharacter for the whole element.
 
 If the array elements are strings, they are concatenated virtually into
 a single logical string.  If the array elements are tokens or other
@@ -2895,7 +2895,7 @@ Any object may, of course, pretend to be a string element if it likes.
 Please be aware that the warnings on C<.from> and C<.to> returning
 opaque objects goes double for matching against an array, where a
 particular position reflects both a position within the array and
-(potentially) a positional within a string of that array.  Do not
+(potentially) a position within a string of that array.  Do not
 expect to do math with such values.  Nor should you expect to be
 able to extract a substr that crosses element boundaries.
 
@@ -2903,6 +2903,6 @@ able to extract a substr that crosses element boundaries.
 
 To match against each element of an array, use a hyper operator:
 
-     @array».match($regex)
+     @array».match($regex);
 
 =back
