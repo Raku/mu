@@ -43,7 +43,14 @@ sub alternation {
     my $nodes = shift;
     return sub {
         my @state = $_[1] ? @{$_[1]} : ( 0, 0 );
-        $_[3] = Pugs::Runtime::Match::Ratchet->new( { bool => \0 } );
+        $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
+                bool  => \0,
+                str   => \$_[0],
+                from  => \(0 + $_[5]),
+                to    => \(0 + $_[5]),
+                named => {},
+                match => [],
+            });
         # print Dumper( $nodes, @state );
         #die "invalid state in Regex alternation" 
         #    unless @state;
@@ -52,6 +59,8 @@ sub alternation {
             $state[0]++ unless $state[1];
             last if $_[3] || $_[3]->data->{abort};
         }
+        # print "alt ",Dumper($_[3]->data);
+        $_[3]->data->{state} = \@state;
         return unless $_[3];
         return \@state;
     }
@@ -81,7 +90,6 @@ sub concat {
             #print __PACKAGE_."::concat: [1] ", $_[2]->perl;
             # print "param: ", Dumper( $_[0], $state[1], $_[2], $_[3], $_[4], $_[3]->to, $_[6], $param  );
 
-
             $m2 = undef;    # $_[3]->data->{match}[1]
             $state[1] = $nodes->[1]->( $_[0], $state[1], $_[2], $m2, 
                          $_[4], $_[3]->to, $_[6], $param );
@@ -93,10 +101,17 @@ sub concat {
                 $state[0]; 
 
         # push capture data
-        #print "Concat positional: ", Dumper( $_[3]->data->{match}, $m2->data->{match} );
+        # print "Concat positional: ", Dumper( $_[3]->data->{match}, $m2->data->{match} );
         for ( 0 .. $#{ @$m2 } ) {
             if ( ref $m2->[$_] eq 'ARRAY' ) {
-                push @{ $_[3]->data->{match}[$_] }, @{ $m2->[$_] };
+                # push @{ $_[3]->data->{match}[$_] }, @{ $m2->[$_] };
+                $_[3]->data->{match}[$_] = [
+                    ( ref( $_[3]->data->{match}[$_] ) eq 'ARRAY' 
+                      ? @{ $_[3]->data->{match}[$_] }
+                      :    $_[3]->data->{match}[$_] 
+                    ), 
+                    @{ $m2->[$_] },
+                ];
             }
             elsif ( defined $m2->[$_] ) {
                 $_[3]->data->{match}[$_] = $m2->[$_];
@@ -105,7 +120,14 @@ sub concat {
         #print "Concat named: ", Dumper( $_[3]->data->{named}, $m2->data->{named} );
         for ( keys %{$m2} ) {
             if ( ref $m2->{$_} eq 'ARRAY' ) {
-                push @{ $_[3]->data->{named}{$_} }, @{ $m2->{$_} };
+                #push @{ $_[3]->data->{named}{$_} }, @{ $m2->{$_} };
+                $_[3]->data->{named}{$_} = [
+                    ( ref( $_[3]->data->{named}{$_} ) eq 'ARRAY'
+                      ? @{ $_[3]->data->{named}{$_} }
+                      :    $_[3]->data->{named}{$_} 
+                    ),
+                    @{ $m2->{$_} },
+                ];
             }
             elsif ( defined $m2->{$_} ) {
                 $_[3]->data->{named}{$_} = $m2->{$_};
@@ -115,14 +137,15 @@ sub concat {
 
         %{$_[3]->data} = (
                 %{$_[3]->data},
-                bool  => \($m2->bool),
+                bool    => \($m2->bool),
                 # str 
                 # from  
-                to    => \($m2->to),
+                to      => \($m2->to),
                 # named => { %{$_[3]}, %{$m2} },   # XXX - push() new data
                 # match => [ @{$_[3]} ],   # XXX - push() new data
                 capture => $m2->data->{capture},
                 abort   => $m2->data->{abort},
+                state   => \@state,
         );
         #print __PACKAGE_."::concat: [3] ", $_[3]->perl;
         return \@state;

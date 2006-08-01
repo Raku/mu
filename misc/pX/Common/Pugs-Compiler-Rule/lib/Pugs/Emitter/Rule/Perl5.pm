@@ -11,6 +11,7 @@ $Data::Dumper::Indent = 1;
 
 our $capture_count;
 our $capture_to_array;
+our %capture_seen;
 
 # XXX - reuse this sub in metasyntax()
 sub call_subrule {
@@ -22,6 +23,7 @@ sub call_subrule {
         #"$tab     print \"param: \",Dumper( \@_ );\n" .
         "$tab     \$_[3] = $subrule( \$_[0], \$_[7], \$_[1] );\n" .
         #"$tab     print \"match: \",Dumper(\$_[3]->data);\n" .
+        "$tab     return \$_[3]->data->{state};\n" .
         "$tab }\n";
 }
 
@@ -31,6 +33,7 @@ sub emit {
     # rule parameters: see Runtime::Rule.pm
     local $capture_count = -1;
     local $capture_to_array = 0;
+    local %capture_seen = ();
     #print "emit capture_to_array $capture_to_array\n";
     return 
         "do {\n" .
@@ -91,15 +94,18 @@ sub capturing_group {
     
     $capture_count++;
     {
+        $capture_seen{$capture_count}++;
         local $capture_count = -1;
         local $capture_to_array = 0;
+        local %capture_seen = ();
         $program = emit_rule( $program, $_[1].'      ' )
             if ref( $program );
     }
     
-    # TODO - $capture_to_array ? ...
     return 
-        "$_[1] positional( $capture_count, $capture_to_array, \n" .
+        "$_[1] positional( $capture_count, " .
+        ( $capture_to_array || ( $capture_seen{$capture_count} > 1 ? 1 : 0 ) ) .  
+        ", \n" .
         $program . 
         "$_[1] )\n" .
         '';
@@ -280,9 +286,11 @@ sub closure {
 sub named_capture {
     my $name    = $_[0]{ident};
     my $program = $_[0]{rule};
-    # TODO - $capture_to_array ? ...
+    $capture_seen{$name}++;
     return 
-        "$_[1] named( '$name', $capture_to_array, \n" . 
+        "$_[1] named( '$name', " .
+        ( $capture_to_array || ( $capture_seen{$name} > 1 ? 1 : 0 ) ) .  
+        ", \n" .
         emit_rule($program, $_[1]) . 
         "$_[1] )\n";
 }
@@ -322,13 +330,16 @@ sub metasyntax {
             "$_[1] sub { \n" . 
             # "$_[1]     print 'params: ',Dumper(\@_);\n" . 
             "$_[1]     \$_[3] = $cmd->match( \$_[0], \$_[4], \$_[7], \$_[1] );\n" .
+            "$_[1]     return \$_[3]->data->{state};\n" .
             "$_[1] }\n";
         }
         # call method in lexical $var
         return 
             "$_[1] sub { \n" . 
+            #"$_[1]     print 'params: ',Dumper(\@_);\n" . 
             "$_[1]     my \$r = get_variable( '$cmd' );\n" . 
             "$_[1]     \$_[3] = \$r->match( \$_[0], \$_[4], \$_[7], \$_[1] );\n" .
+            "$_[1]     return \$_[3]->data->{state};\n" .
             "$_[1] }\n";
     }
     if ( $prefix eq q(') ) {   # single quoted literal ' 
@@ -401,12 +412,16 @@ sub metasyntax {
         }
         # capturing subrule
         # <subrule ( param, param ) >
-        my ( $subrule, $param_list ) = split( /[\(\)]/, $cmd );
+        my ( $name, $param_list ) = split( /[\(\)]/, $cmd );
         $param_list = '' unless defined $param_list;
         my @param = split( ',', $param_list );
+        $capture_seen{$name}++;
+        #print "subrule ", $capture_seen{$name}, "\n";
         return             
-            "$_[1] named( '$subrule', $capture_to_array, \n" . 
-            call_subrule( $subrule, $_[1]."  ", @param ) . 
+            "$_[1] named( '$name', " .
+            ( $capture_to_array || ( $capture_seen{$name} > 1 ? 1 : 0 ) ) .  
+            ", \n" .
+            call_subrule( $name, $_[1]."  ", @param ) . 
             "$_[1] )\n";
     }
     die "<$cmd> not implemented";

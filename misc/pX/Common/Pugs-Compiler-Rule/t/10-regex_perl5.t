@@ -40,15 +40,15 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "ab", 'pos set' );
-    my $match = $rule->match( "xayzwabc", { p => 5 } );
+    $match = $rule->match( "xayzwabc", { p => 5 } );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "ab", 'p set' );
-    my $match = $rule->match( "xayzwabc", { pos => undef } );
+    $match = $rule->match( "xayzwabc", { pos => undef } );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "ay", 'p unset' );
-    my $match = $rule->match( "xayzwabc" );
+    $match = $rule->match( "xayzwabc" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "ay", 'no pos' );

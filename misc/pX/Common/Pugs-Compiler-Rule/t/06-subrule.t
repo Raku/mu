@@ -85,6 +85,8 @@ SKIP:
     #print $rule1->perl5;
     #print $rule2->perl5;
 
+    #print Pugs::Compiler::Regex->compile('a<rule1>z')->perl5;
+    
     my $match = $rule2->match("abcz");
     is( "$match",'abcz',"backtracking subrule matched");
 
