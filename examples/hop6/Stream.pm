@@ -44,7 +44,7 @@ sub show(Array $s is copy, Int $n? is copy) {
   my $ret = '';
   while $s && (!defined($n) || $n-- > 0) {
     ## XXX - what's $" these days?
-    $ret ~= "{@{head($s)}}" ~ ' ';
+    $ret ~= "@(head($s)) ";
     $s = tail($s);
   }
   return $ret;

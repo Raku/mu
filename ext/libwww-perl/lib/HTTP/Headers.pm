@@ -238,7 +238,7 @@ method content_type ($self: ) is rw {
 
 method referer ($self: ) is rw {
   return Proxy.new(
-    FETCH => { @{$self!header("Referer")}[0] },
+    FETCH => { $self!header("Referer")[0] },
     STORE => -> $new is copy {
       if ($new ~~ /\#/) {
         # Strip fragment per RFC 2616, section 14.36.

@@ -102,7 +102,7 @@ method prepare {
     %*ENV<REMOTE_HOST>     = '';
     %*ENV<QUERY_STRING>    = $query;
     my $headers = ./parse_headers or do { ./bad_request; return 0 };
-    for @{ $headers } -> $header {
+    for @$headers -> $header {
         my Str $tag = $header.key.uc;
         $tag = "HTTP_$tag"
             unless $tag ~~ m:P5/^(?:CONTENT_(?:LENGTH|TYPE)|COOKIE)$/;

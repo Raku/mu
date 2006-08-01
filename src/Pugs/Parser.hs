@@ -1707,7 +1707,7 @@ regularVarName = do
 ruleDereference :: RuleParser Exp
 ruleDereference = try $ do
     sigil   <- oneOf "$@%&"
-    exp     <- ruleDereference <|> ruleSigiledVar <|> braces ruleExpression
+    exp     <- ruleDereference <|> ruleSigiledVar <|> parens ruleExpression
     return $ Syn (sigil:"{}") [exp]
 
 ruleSigiledVar :: RuleParser Exp

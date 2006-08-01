@@ -53,7 +53,7 @@ class Perl::Compiler::CodeGen::Perl5_Str
                     when Bool { &?OUTER::BLOCK(+$_) }
                     when undef { box("P5::PIL::Run::Undef" => perl("undef")) }
                     when List { box("P5::PIL::Run::List" => list(map { &OUTER::BLOCK($_) }, *$_)) }
-                    when Error { box("P5::PIL::Run::Error", string($_.first), list(@{ $_.second })) }
+                    when Error { box("P5::PIL::Run::Error", string($_.first), list(@( $_.second ))) }
                     when Junc { die "no junctions yet"; box("P5::PIL::Run::Junction", ...) }
                     default { die "a value of type $_.ref cannot appear in PIL. Your compiler must be sick." }
                 }.perl); ''

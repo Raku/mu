@@ -126,7 +126,7 @@ Some deeper tests were already added.
     is(%hash<key>[2], 3, 'got the right value');
     
     {
-        my @array = @{ %hash<key> };
+        my @array = @( %hash<key> );
         is(+@array, 3, 'it should have 3 values in it');    
         is(@array[0], 1, 'got the right value (when I pull the array out)');
         is(@array[1], 2, 'got the right value (when I pull the array out)');    

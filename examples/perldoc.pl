@@ -72,7 +72,7 @@ sub index_pods {
             if ($line ~~ /X\<(.*?)\>/) {
                 #say "Found $row $0";
                 #my %h = ("file" =>  $podfile,  "row" =>  $row);
-                push @{%data{$0}}, "$row.$podfile"; # only one dimension work in pugs so we have this workaround
+                push @(%data{$0}), "$row.$podfile"; # only one dimension work in pugs so we have this workaround
             }
             # always remember in which entry are we in (row number or =head? name or both)
             # if there is one or more X<> tags in a row, remember the values and in the end save to
@@ -107,7 +107,7 @@ sub lookup($keyword) {
     #say "-----";
 
     if (%data{$keyword}) {
-        for @{%data{$keyword}} -> $entry {
+        for %data{$keyword}[] -> $entry {
             my ($row, $file) = split /\./, $entry, 2;
             say "here: $file  $row";
             my $fh = open $file err die "Could not open $file";

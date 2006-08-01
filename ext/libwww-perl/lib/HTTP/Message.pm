@@ -203,7 +203,7 @@ my method parts ($self: ) {
     
     if ($content_type ~~ m,^multipart/,) {
         my @h = HTTP::Headers::Util::split_header_words(.header("Content-Type"));
-        my %h = %{@h[0]};
+        my %h = %(@h[0]);
         
         if ((my $boundary = $h<boundary>).defined) {
             my $str = $self.content;

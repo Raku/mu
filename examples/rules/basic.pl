@@ -45,9 +45,9 @@ do {
 sub execute (Match $basic) {
   say "Running...";
   my $i = 0;
-  for @{$basic<program><line>} -> $line {
+  for @($basic<program><line>) -> $line {
 #   say "{$i++}: $line";
-   for @{$line<command>} -> $cmd {
+   for @($line<command>) -> $cmd {
      for %$cmd.keys {
        when 'f_print' { print expr_to_string(%$cmd<f_print><expr>) }
       }

@@ -16,7 +16,7 @@ for (1 .. $bowlers) {
       $bowler<games>.push( $score );      
     }
     $bowler<id>       = $_;
-    $bowler<total>    = [+] @{$bowler<games>};  
+    $bowler<total>    = [+] @($bowler<games>);  
     $bowler<avg>      = $bowler<total> / $games;
     $bowler<handicap> = int ( (200 - $bowler<avg>) * .8);
     @bowlers.push($bowler);

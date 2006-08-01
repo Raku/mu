@@ -27,27 +27,27 @@ lives_ok { $x = OughtaLoad::test(2,3,4) },
 
 package OughtaWork {
     our $s = 0;
-    sub AUTOSCALAR($_) { my $v = "\${$_} number {++$s}";
-                     eval "our \${$_} := \$v";
+    sub AUTOSCALAR($_) { my $v = "\$$_ number {++$s}";
+                     eval "our \$$_ := \$v";
                      \$v }
     our $a = 0;
     sub AUTOARRAY($_)  { my @v = ( "auto", $_, ++$a );
-                     eval "our @{$_} := @v";
+                     eval "our @$_ := @v";
                      \@v }
     our $h = 0;
     sub AUTOHASH($_)   { my %v = ( auto => $_, num => ++$h );
-                     eval "our %{$_} := %v";
+                     eval "our %$_ := %v";
                      \%v }
     our $u = 0;
     sub AUTOSUB($_)    { my $x = "\&{$_} number {++$u}";
                      my $sub = sub { $x };
-                     eval "our &{$_} := \$sub";
+                     eval "our &$_ := \$sub";
                      return $sub;
                    }
     our $m = 0;
     method AUTOMETH($_) { my $x = "$?SELF {$_}.number {++$m}";
                      my $method = sub($self:) { "{$self}.$x" };
-                     eval "our &{$_} := \$method";
+                     eval "our &$_ := \$method";
                      return $method;
                    }
 }

@@ -298,7 +298,7 @@ class HTTP::Cookies-0.0.1 {
         for %!cookies.keys.sort -> $domain {
             for %!cookies{$domain}.keys.sort -> $path {
                 for %!cookies{$domain}{$path}.keys.sort -> $key is rw {
-                    my :($version, $val, $port, $path_spec, $secure, $expires, $discard, *%rest) := @{$key};
+                    my :($version, $val, $port, $path_spec, $secure, $expires, $discard, *%rest) := @$key;
                     %rest //= {};
                     
                     $cb.($version, $key, $val, $path, $domain, $port, $path_spec, $secure, $expires, $discard, *%rest);

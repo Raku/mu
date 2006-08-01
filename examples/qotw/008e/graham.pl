@@ -185,7 +185,7 @@ sub Graham($n)
                 {
                     next;
                 }
-                if (grep { $_ == $min_p }, @{@base[$j]})
+                if (grep { $_ == $min_p }, @base[$j][])
                 {
                     @base[$j] = multiply_squaring_factors(@base[$j], $final_vec);
                     @base_composition[$j] = multiply_squaring_factors(@base_composition[$j], $final_composition);
@@ -200,7 +200,7 @@ sub Graham($n)
             loop ($j=0 ; $j < @base.elems() ; $j++)
             {
                 next if (! defined(@base[$j]));
-                print "base[$j] (" ~ join(" * ", @{@base[$j]}) ~ ")\n";
+                print "base[$j] (" ~ join(" * ", @base[$j][]) ~ ")\n";
             }
             print "\n\n";
         };

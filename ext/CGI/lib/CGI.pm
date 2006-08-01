@@ -88,7 +88,7 @@ sub header (
     }
     
     if ($cookies) {
-        my @cookies = ($cookies !~ Array) ?? ($cookies) !! @{$cookies};
+        my @cookies = ($cookies !~~ Array) ?? ($cookies) !! @$cookies;
         
         for @cookies -> $cookie {
             #$cookie = ($cookie ~~ CGI::Cookie) ?? $cookie.as_string !! $cookie;
