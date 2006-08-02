@@ -74,7 +74,7 @@ sub emit {
         #"  my \$from = \$pos;\n" .
         "    my \$bool = 1;\n" .
         "    my \$capture;\n" .
-        "    \$m = Pugs::Runtime::Match::Ratchet->new( { \n" .
+        "    \$m = Pugs::Runtime::Match->new( { \n" .
         "      str => \\\$s, from => \\(0+\$pos), to => \\(\$pos), \n" .
         "      bool => \\\$bool, match => \\\@match, named => \\\%named, capture => \\\$capture, \n" .
         "    } );\n" .
@@ -298,7 +298,7 @@ sub match_variable {
     #print "var name: ", $num, "\n";
     my $code = 
     "    ... sub { 
-        my \$m = Pugs::Runtime::Match::Ratchet->new( \$_[2] );
+        my \$m = Pugs::Runtime::Match->new( \$_[2] );
         return constant( \"\$m->[$num]\" )->(\@_);
     }";
     $code =~ s/^/$_[1]/mg;
@@ -372,10 +372,10 @@ $_[1]     my \$bool = \${\$hash->{'bool'}};" .
         ( $capture_to_array 
         ? "
 $_[1]     if ( \$bool ) {
-$_[1]         push \@{ \$match[ $capture_count ] }, Pugs::Runtime::Match::Ratchet->new( \$hash );
+$_[1]         push \@{ \$match[ $capture_count ] }, Pugs::Runtime::Match->new( \$hash );
 $_[1]     }"
         : "
-$_[1]     \$match[ $capture_count ] = Pugs::Runtime::Match::Ratchet->new( \$hash );"
+$_[1]     \$match[ $capture_count ] = Pugs::Runtime::Match->new( \$hash );"
         ) . "
 $_[1]     \$bool;
 $_[1] }";
@@ -411,7 +411,7 @@ $_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%n
 $_[1]     };
 $_[1]     my \$bool = \${\$hash->{'bool'}};
 .
-        $gen_match = "Pugs::Runtime::Match::Ratchet->new( \$hash )";
+        $gen_match = "Pugs::Runtime::Match->new( \$hash )";
 	$post_match = "";
     }
 

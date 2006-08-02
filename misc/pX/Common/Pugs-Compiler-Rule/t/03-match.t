@@ -134,7 +134,7 @@ use_ok( 'Pugs::Grammar::Base' );
 
 # Now, try from and to on P::C::Rule instead of P::C::Regex:
 use_ok( 'Pugs::Compiler::Rule' );
-use_ok( 'Pugs::Runtime::Match::Ratchet' );
+use_ok( 'Pugs::Runtime::Match' );
 {
     my $rule = Pugs::Compiler::Rule->compile( 'b' );
     #print $rule->{perl5};

@@ -84,8 +84,6 @@ to several other modules:
 
 =item * L<Pugs::Runtime::Match> represents a B<Match> object.
 
-=item * L<Pugs::Runtime::Match::Ratchet> represents a B<Match> object matched with C<:ratchet>.
-
 =item * L<Pugs::Runtime::Grammar> represents a B<Grammar> class / object.
 
 * Grammars
@@ -205,8 +203,7 @@ Use Perl 5 grammar and semantics for Regex.
 
 =item match (Str $match_against)
 
-Instance method.  Returns a L<Pugs::Runtime::Match> object (or
-L<Pugs::Runtime::Match::Ratchet>).
+Instance method.  Returns a L<Pugs::Runtime::Match> object.
 
 =item install (Str $name, Str $rule_source, \%options)
 

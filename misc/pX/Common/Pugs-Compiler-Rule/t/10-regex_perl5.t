@@ -7,7 +7,7 @@ use_ok( 'Pugs::Compiler::RegexPerl5' );
 use Pugs::Compiler::Rule;
 no warnings qw( once );
 
-use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
+use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 {
     my $rule = Pugs::Compiler::RegexPerl5->compile( '((.).)(.)' );

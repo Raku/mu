@@ -6,10 +6,7 @@ use 5.006;
 use strict;
 use warnings;
 
-# use Pugs::Grammar::RegexBase;  # not 'use base'
 use Pugs::Grammar::Rule;
-#use Pugs::Runtime::Rule;
-#use Pugs::Runtime::LrepMatch;
 use Pugs::Emitter::Rule::Perl5;
 use Pugs::Emitter::Rule::Perl5::Ratchet;
 use Pugs::Compiler::RegexPerl5;
@@ -113,7 +110,7 @@ sub match {
 
     #print "match: ",Dumper($rule);
     
-    return Pugs::Runtime::Match::Ratchet->new( { bool => \0 } )
+    return Pugs::Runtime::Match->new( { bool => \0 } )
         unless defined $str;   # XXX - fix?
         
     if ( ref $grammar eq 'HASH' ) {

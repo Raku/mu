@@ -1,5 +1,5 @@
 package Pugs::Grammar::Base;
-use Pugs::Runtime::Match::Ratchet;
+use Pugs::Runtime::Match;
 use Pugs::Compiler::RegexPerl5;
 
 # This class defines <ws>, unicode character classes, etc

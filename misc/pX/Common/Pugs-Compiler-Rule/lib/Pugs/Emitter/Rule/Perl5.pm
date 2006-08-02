@@ -257,7 +257,7 @@ sub closure {
     return 
         "$_[1] sub {\n" . 
         "$_[1]     $code( \@_ );\n" . 
-        "$_[1]     \$_[3] = Pugs::Runtime::Match::Ratchet->new( { 
+        "$_[1]     \$_[3] = Pugs::Runtime::Match->new( { 
             bool  => \\1, 
             str   => \\(\$_[0]),
             from  => \\(\$_[7]{p} || 0),
@@ -271,7 +271,7 @@ sub closure {
     return
         "$_[1]     sub {\n" . 
         # "print Dumper(\@_);\n" . 
-        "$_[1]         \$_[3] = Pugs::Runtime::Match::Ratchet->new( { 
+        "$_[1]         \$_[3] = Pugs::Runtime::Match->new( { 
             bool  => \\1, 
             str   => \\(\$_[0]),
             from  => \\(\$_[7]{p} || 0),

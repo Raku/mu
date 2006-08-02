@@ -10,7 +10,7 @@ use Test::More tests => 28;
 use Data::Dump::Streamer;
 
 use_ok( 'Pugs::Runtime::Regex' );
-use Pugs::Runtime::Match::Ratchet;
+use Pugs::Runtime::Match;
 
 my ( $rule, $match );
 

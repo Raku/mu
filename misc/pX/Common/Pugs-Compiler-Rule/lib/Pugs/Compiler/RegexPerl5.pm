@@ -33,12 +33,12 @@ q(sub {
     #print "matching P5/$rule_source/ at $_[3]{p} in '$s', '$1', $bool\n";
     my @match;
     for ( 1 .. $#+ ) {
-      push @match, Pugs::Runtime::Match::Ratchet->new({
+      push @match, Pugs::Runtime::Match->new({
         str => \\$s, from => \\(0+$-[$_]), to => \\(0+$+[$_]),
         bool => \\1, match => [], named => {}, capture => \\undef,
       });
     }
-    return Pugs::Runtime::Match::Ratchet->new({
+    return Pugs::Runtime::Match->new({
       str => \\$s, from => \\(0+$-[0]), to => \\(0+$+[0]),
       bool => \\$bool, match => \\@match, named => {}, capture => \\undef,
     });
@@ -48,12 +48,12 @@ q(sub {
   # print "matching P5/$rule_source/ at $_[3]{p} in '$s', '$1'\n";
   my @match;
   for ( 1 .. $#+ ) {
-      push @match, Pugs::Runtime::Match::Ratchet->new({
+      push @match, Pugs::Runtime::Match->new({
         str => \\$s, from => \\(0+$-[$_]), to => \\(0+$+[$_]),
         bool => \\1, match => [], named => {}, capture => \\undef,
       });
   }
-  return Pugs::Runtime::Match::Ratchet->new({
+  return Pugs::Runtime::Match->new({
     str => \\$s, from => \\(0+$-[0]), to => \\(0+$+[0]),
     bool => \\$bool, match => \\@match, named => {}, capture => \\undef,
   });
