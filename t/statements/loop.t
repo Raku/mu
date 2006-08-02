@@ -10,7 +10,7 @@ L<S04/"The general loop statement">
 
 =cut
 
-plan 21;
+plan 26;
 
 # basic loop
 
@@ -132,3 +132,11 @@ L<S04/"Loop statements">
   my $x = 0; try { repeat until 1 { $x++; redo if $x < 10 } };
   is($x, 10, 'redo works in repeat until {}', :todo<feature>);
 }
+
+my $loopvar = 0;
+
+loop {
+    is($loopvar, $loopvar, "bare loop iterates $loopvar");
+    last if ++$loopvar == 3;
+}
+is($loopvar, 3, "bare loop exited after 3 iterations");

@@ -1030,7 +1030,7 @@ vcode2initOrCheckBlock magicalVar allowIOLeak code = do
 ruleConstruct :: RuleParser Exp
 ruleConstruct = rule "construct" $ choice
     [ ruleForConstruct
-    , ruleSemiLoopConstruct
+    , ruleLoopConstruct
     , ruleRepeatConstruct
     , ruleCondConstruct
     , ruleWhileUntilConstruct
@@ -1048,16 +1048,13 @@ ruleForConstruct = rule "for construct" $ do
     body    <- enterBracketLevel ParensBracket $ ruleBlockLiteral
     return $ Syn "for" [cond, body]
 
-{-|
 ruleLoopConstruct :: RuleParser Exp
 ruleLoopConstruct = rule "loop construct" $ do
     symbol "loop"
-    choice [ ruleSemiLoopConstruct, rulePostLoopConstruct ]
--}
+    choice [ ruleSemiLoopConstruct, ruleBareLoopConstruct ]
 
 ruleSemiLoopConstruct :: RuleParser Exp
 ruleSemiLoopConstruct = rule "for-like loop construct" $ do
-    symbol "loop"
     conds <- parens $ do
         a <- option emptyExp ruleExpression
         symbol ";"
@@ -1067,6 +1064,11 @@ ruleSemiLoopConstruct = rule "for-like loop construct" $ do
         return [a,b,c]
     block <- ruleBlock
     return $ Syn "loop" (conds ++ [block])
+
+ruleBareLoopConstruct :: RuleParser Exp
+ruleBareLoopConstruct = rule "for-like loop construct" $ do
+    block <- ruleBlock
+    return $ Syn "loop" ([] ++ [block])
 
 ruleRepeatConstruct :: RuleParser Exp
 ruleRepeatConstruct = rule "postfix loop construct" $ do
