@@ -27,7 +27,7 @@ sub perl6_expression {
         match   => [],
         from    => \$pos,
         to      => \$to,
-        capture => $ast,
+        capture => \$ast,
     } );
 };
 
@@ -550,7 +550,8 @@ sub perl6_expression {
                 exp1 => $_[0]{exp1}->(),
             } } 
         |
-            { return $_[0]{perl6_expression}->();
+            { 
+                return $_[0]{perl6_expression}->();
             } 
         ]
     |

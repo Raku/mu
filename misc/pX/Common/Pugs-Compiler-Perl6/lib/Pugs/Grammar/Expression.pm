@@ -54,7 +54,7 @@ sub ast {
     #print "pos: $pos\n";
 
     my $no_blocks = exists $param->{args}{no_blocks} ? 1 : 0;
-    # warn "don't parse blocks: $no_blocks ";
+    #warn "don't parse blocks: $no_blocks ";
     my $rx_end = $no_blocks 
                 ? $rx_end_no_blocks
                 : $rx_end_with_blocks;

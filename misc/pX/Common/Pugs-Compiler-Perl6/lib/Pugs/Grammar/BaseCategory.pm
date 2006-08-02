@@ -36,7 +36,7 @@ sub add_rule {
 }
 
 sub capture {
-    #print "capture1: ", Dumper( $_[0] ); 
+    print "capture1: ", Dumper( $_[0] ); 
     #print "capture2: ", Dumper( $_[0]->data->{match}[0]{match}[1]{capture} ); 
     return $_[0]->data->{match}[0]{match}[1]{capture};
 }
@@ -47,7 +47,10 @@ sub recompile {
     #print "creating ${class}::parse()\n";
     *{"${class}::parse"} = Pugs::Compiler::Regex->compile( '
         %' . $class . '::hash
-        { return Pugs::Grammar::BaseCategory::capture( $/ ) }
+        { 
+            print "matching hash\n";
+            return Pugs::Grammar::BaseCategory::capture( $/ );
+        }
     ' )->code;
 }
 
