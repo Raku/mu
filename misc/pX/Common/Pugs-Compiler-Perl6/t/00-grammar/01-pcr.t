@@ -16,9 +16,7 @@ use_ok( 'Pugs::Grammar::Term' );
   ok( $match ? 1 : 0, "/abc/" );
 }
 
-TODO:
 {
-  local $TODO = 'not yet';
   my $match = Pugs::Grammar::Term->cpan_bareword( 'abc-1.0' );
   is( "$match", "abc-1.0", "cpan_bareword" );
 }
