@@ -1,5 +1,5 @@
 
-use Test::More tests => 92;
+use Test::More tests => 93;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -229,11 +229,22 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 }
 
 {
-    # XXX - is $() working?
     # capture
     my $rule = Pugs::Compiler::Token->compile('some (text) { return { a => $() ,} } ', { ratchet => 1 });
     my $match = $rule->match("sometext");
     #print Dumper($match);
+    my $capture = $match->();
+    is($capture->{a},'sometext','simple capture');
+}
+
+{
+    # capture in empty rule
+    my $rule = Pugs::Compiler::Token->compile(
+        ' { return { a => "sometext" ,} } ', 
+        { ratchet => 1, p => 0 });
+    print $rule->{perl5};
+    my $match = $rule->match("");
+    print Dumper($match);
     my $capture = $match->();
     is($capture->{a},'sometext','simple capture');
 }

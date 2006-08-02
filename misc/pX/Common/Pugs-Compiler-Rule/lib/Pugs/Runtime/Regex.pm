@@ -309,6 +309,7 @@ sub non_greedy_plus {
 
 sub _preprocess_hash {
     my $h = shift;
+    #print "hash: ",ref($h),"\n";
     if ( ref($h) eq 'CODE') {
         return sub {
             $h->();
@@ -319,8 +320,8 @@ sub _preprocess_hash {
         #print "compiling subrule\n";
         #return $h->code;
         return sub { 
-            #print "into subrule - $_[0] - grammar $_[4]\n"; 
-            #print $h->code;
+            #print "into subrule - $_[0] - grammar $_[4] - ", Dumper($_[7]); 
+            print $h->{perl5};
             my $match = $h->match( $_[0], $_[4], $_[7] );
             #print "match: ",$match->(),"\n";
             $_[3] = $match;

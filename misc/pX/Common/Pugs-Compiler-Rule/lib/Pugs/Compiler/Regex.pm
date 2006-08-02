@@ -109,6 +109,7 @@ sub match {
     my ( $rule, $str, $grammar, $flags, $state ) = @_; 
 
     #print "match: ",Dumper($rule);
+    #print "match: ",Dumper(\@_);
     
     return Pugs::Runtime::Match->new( { bool => \0 } )
         unless defined $str;   # XXX - fix?
@@ -146,6 +147,7 @@ sub match {
         %args = %{$flags->{args}} if defined $flags && defined $flags->{args};
         $args{p} = $p;
         
+        #print "calling code with ",Dumper([ $grammar,$str, $state,\%args ] );
         my $match = $rule->{code}( 
             $grammar,
             $str, 
@@ -153,8 +155,6 @@ sub match {
             \%args,
         );
         #print __PACKAGE__ . ": match result: ", $match->perl;
-        #$p = 0 if $p eq 'undef';  # XXX - bug - 'undef' as string in t\06-subrule.t
-        # eval { $$match->{from} = \(0 + $p) };   # XXX
         return $match;  
 }
 
