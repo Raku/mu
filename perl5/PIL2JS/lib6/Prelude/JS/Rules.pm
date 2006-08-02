@@ -127,7 +127,7 @@ sub JS::Root::rx_core_(%mods, Str $pat, Str $qo, Str $qc) is primitive {
       my $m = $string ~~ $rx;
       return $m if !$m;
       my @a = @$m; # XXX Error: Can't use "[object Object]" as a generic reference!
-      @a = map {$_[0]}, @$m if @{@a[0]};
+      @a = map {$_[0]}, @$m if @(@a[0]);
       unshift(@a,undef); # 1-based.
       @a[$nth_keys];
     };

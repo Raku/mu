@@ -46,7 +46,7 @@ method tied(Ref $self:) returns Ref {
   })')($self);
 }
 
-sub circumfix:<${}>($thing) is primitive is rw { PIL2JS::Internals::generic_deref($thing) }
-sub circumfix:<@{}>($thing) is primitive is rw { PIL2JS::Internals::generic_deref($thing) }
-sub circumfix:<%{}>($thing) is primitive is rw { PIL2JS::Internals::generic_deref($thing) }
-sub circumfix:<&{}>($thing) is primitive is rw { PIL2JS::Internals::generic_deref($thing) }
+sub circumfix:<$( )>($thing) is primitive is rw { PIL2JS::Internals::generic_deref($thing) }
+sub circumfix:<@( )>($thing) is primitive is rw { PIL2JS::Internals::generic_deref($thing) }
+sub circumfix:<%( )>($thing) is primitive is rw { PIL2JS::Internals::generic_deref($thing) }
+sub circumfix:<&( )>($thing) is primitive is rw { PIL2JS::Internals::generic_deref($thing) }
