@@ -6,9 +6,21 @@ use Pugs::Compiler::RegexPerl5;
 
 # internal methods - not in spec
 
-*no_match = Pugs::Compiler::RegexPerl5->compile( 
-    '\²\$\£\%\"\^\¬' 
-)->code;
+# *no_match = Pugs::Compiler::RegexPerl5->compile( 
+#    '\²\$\£\%\"\^\¬' 
+# )->code;
+sub no_match {
+    my $grammar = shift;
+    my $pos = $_[1]{p} || 0;
+    return Pugs::Runtime::Match->new( { 
+        bool    => \0,
+        str     => \$_[0],
+        match   => [],
+        from    => \$pos,
+        to      => \$pos,
+        capture => undef,
+    } );
+}
 
 *any = Pugs::Compiler::RegexPerl5->compile( 
     '.' 

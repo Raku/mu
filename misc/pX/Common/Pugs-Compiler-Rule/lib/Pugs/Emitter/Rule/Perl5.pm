@@ -18,10 +18,12 @@ sub call_subrule {
     my ( $subrule, $tab, @param ) = @_;
     $subrule = "\$_[4]->" . $subrule unless $subrule =~ / :: | \. | -> /x;
     $subrule =~ s/\./->/;   # XXX - source filter
+
     return 
         "$tab sub{ \n" .
         #"$tab     print \"param: \",Dumper( \@_ );\n" .
-        "$tab     \$_[3] = $subrule( \$_[0], \$_[7], \$_[1] );\n" .
+        "$tab     my \$param = { \%{ \$_[1] || {} }, args => {" . join(", ",@param) . "} };\n" .
+        "$tab     \$_[3] = $subrule( \$_[0], \$_[7], \$param );\n" .
         #"$tab     print \"match: \",Dumper(\$_[3]->data);\n" .
         "$tab     return \$_[3]->data->{state};\n" .
         "$tab }\n";
@@ -56,7 +58,7 @@ sub emit {
 
         "            last if \$tree;\n" .
         "        }\n" .
-        "        \$tree = Pugs::Grammar::RegexBase->no_match\n" . 
+        "        \$tree = Pugs::Grammar::RegexBase->no_match(\@_)\n" . 
         "           unless defined \$tree;
 ;\n" .
         "    }\n" .
@@ -417,6 +419,7 @@ sub metasyntax {
         my @param = split( ',', $param_list );
         $capture_seen{$name}++;
         #print "subrule ", $capture_seen{$name}, "\n";
+        #print "param: ", Dumper(\@param);
         return             
             "$_[1] named( '$name', " .
             ( $capture_to_array || ( $capture_seen{$name} > 1 ? 1 : 0 ) ) .  
