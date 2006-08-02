@@ -56,7 +56,7 @@ use_ok( 'Pugs::Grammar::Perl6' );
 
 {
   my $match = Pugs::Grammar::Perl6->perl6_expression( 
-        '*123 ;#', 
+        '* 123 ;#', 
         { p => 1 }, );
   print Dumper $match->data;
   ok( $match ? 1 : 0, "perl6_expression" );

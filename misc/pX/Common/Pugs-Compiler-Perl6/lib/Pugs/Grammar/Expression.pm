@@ -49,6 +49,9 @@ my $rx_end_no_blocks = qr/
 sub ast {
     my $match = shift;
     my $param = shift;
+    my $pos = $param->{p} || 0;
+    #my $s = substr( $_[0], $pos );
+    print "pos: $pos\n";
 
     my $no_blocks = exists $param->{args}{no_blocks} ? 1 : 0;
     # warn "don't parse blocks: $no_blocks ";
@@ -57,7 +60,7 @@ sub ast {
                 : $rx_end_with_blocks;
 
     $match .= '';
-    if ( $match =~ /$rx_end/ ) {
+    if ( substr( $match, $pos ) =~ /$rx_end/ ) {
         # end of parse
         return (undef, $match);
     }
@@ -67,7 +70,7 @@ sub ast {
     
     my $lex = sub {
         #print "Grammar::Expression::ast::lex '$match' \n";
-        if ( $match =~ /$rx_end/ ) {
+        if ( substr( $match, $pos ) =~ /$rx_end/ ) {
             #warn "end of expression at: [",substr($match,0,10),"]";
             return ('', '');
         }
@@ -75,16 +78,17 @@ sub ast {
         my @expect = $p->YYExpect;  # XXX is this expensive?
         my $expect_term = grep { $_ eq 'NUM' || $_ eq 'BAREWORD' } @expect;
         
-        my $m = Pugs::Grammar::BaseCategory->ws( $match );
+        my $m = Pugs::Grammar::BaseCategory->ws( $match, { p => $pos } );
         # <ws> is nonstandard in that it returns a hashref instead of a Match
         # print "match is ",Dumper($m),"\n";
-        if ( $m->{bool} ) {
-            $match = $m->{tail};
+        if ( $m ) {
+            $pos = $m->to;
+            print "pos after <ws>: $pos\n";
         }
         
-        my $m1 = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
+        my $m1 = Pugs::Grammar::Operator->parse( $match, { p => $pos } );
         my $m2;
-        $m2 = Pugs::Grammar::Term->parse( $match, { p => 1 } )
+        $m2 = Pugs::Grammar::Term->parse( $match, { p => $pos } )
             if $expect_term;
         #warn "m1 = " . Dumper($m1->()) . "m2 = " . Dumper($m2->());
 
