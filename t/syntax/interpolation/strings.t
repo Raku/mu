@@ -51,10 +51,10 @@ is(qq{a{chr 98}c}, 'abc', "curly brace delimiters don't interfere with closure i
 # Quoting constructs
 # The next test will always succeed, but if there's a bug it probably
 # won't compile.
-is(q0"abc\\d\\'\/", q0"abc\\d\\'\/", "raw quotation works");
-is(q1"abc\\d\"\'\/", q0|abc\d"\'\/|, "single quotation works"); #"
-is(q2"abc\\d\"\'\/", q0|abc\d"'/|, "double quotation works"); #"
-is(qa"$world @list[] %hash{}", q0"$world 1 2 %hash{}", "only interpolate array");
+is(qn"abc\\d\\'\/", qn"abc\\d\\'\/", "raw quotation works");
+is(q"abc\\d\"\'\/", qn|abc\d"\'\/|, "single quotation works"); #"
+is(qq"abc\\d\"\'\/", qn|abc\d"'/|, "double quotation works"); #"
+is(qa"$world @list[] %hash{}", qn"$world 1 2 %hash{}", "only interpolate array");
 is(qb"$world \\\"\n\t", "\$world \\\"\n\t", "only interpolate backslash");
 is('$world \qq[@list[]] %hash{}', '$world 1 2 %hash{}', "interpolate quoting constructs in ''");
 
