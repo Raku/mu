@@ -2103,13 +2103,12 @@ getQFlags flagnames protectedChar =
           useflag "to" qf         = qf { qfHereDoc = True }
 
         -- Zeroing flags
-          useflag "0" _           = rawFlags
-          useflag "raw" _         = rawFlags
-          useflag "1" _           = qFlags
+          useflag "n" _           = rawFlags
+          useflag "none" _        = rawFlags
+          useflag "q" _           = qFlags
           useflag "single" _      = qFlags
-          useflag "2" _           = qqFlags
           useflag "double" _      = qqFlags
-          useflag "q" _           = qqFlags -- support qq//
+          useflag "qq" _          = qqFlags -- support qq//
 
         -- in case of unknown flag, we simply abort the parse.
           useflag _ qf            = qf { qfFailed = True }
@@ -2125,13 +2124,14 @@ openingDelim = do
 
 qStructure :: RuleParser (RuleParser String, RuleParser String, QFlags)
 qStructure = 
-    do string "q"
+    do char 'q'
        flags <- do
-           firstflag <- many alphaNum
-           allflags  <- many oneflag
-           case firstflag of
-               "" -> return allflags
-               _  -> return $ firstflag:allflags
+           firstFlag <- option ' ' alphaNum
+           allFlags  <- many oneFlag
+           case firstFlag of
+               'q' -> return ("qq":allFlags) -- Special case: qq() means q:qq()
+               ' ' -> return allFlags
+               _   -> return ([firstFlag]:allFlags)
 
        notFollowedBy alphaNum
        whiteSpace
@@ -2140,8 +2140,9 @@ qStructure =
        when (qfFailed qflags) $ fail ""
        return ( (string (replicate rep delim)), (string (replicate rep $ balancedDelim delim)), qflags)
     where
-       oneflag = do string ":"
-                    many alphaNum
+    oneFlag = do
+        char ':'
+        many alphaNum
 
 
 getQDelim :: RuleParser (RuleParser String, RuleParser String, QFlags)
