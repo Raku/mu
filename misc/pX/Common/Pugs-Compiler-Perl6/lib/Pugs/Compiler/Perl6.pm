@@ -46,9 +46,9 @@ sub compile {
         eval {
             my $match = __PACKAGE__->skip_spaces( $source, { pos => $pos } );
             $pos = $match->to if $match;
-            print "<ws> until $pos; tail [",substr( $source, $pos, 10 ),"...]\n";
+            #print "<ws> until $pos; tail [",substr( $source, $pos, 10 ),"...]\n";
             $self->{ast} = Pugs::Grammar::Perl6->statement( $source, { pos => $pos } );
-            print 'match: ', Dumper( $self->{ast} );
+            #print 'match: ', Dumper( $self->{ast} );
             $pos = $self->{ast}->to if $self->{ast};
         };
         # print 'rule ast: ', Dumper( $self->{ast}() );

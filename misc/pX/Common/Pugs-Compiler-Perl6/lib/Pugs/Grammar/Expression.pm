@@ -261,8 +261,8 @@ sub ast {
 # <TimToady> but it will fail compilation if name is not supplied by CHECK time.
 # <TimToady> it will also fail if name is declared as a unary or 0-ary func.
 
-        #print Dumper $m;
-        #print $match;
+        print Dumper $m->data;
+
         my $ast = $m->();
         $ast->{pos} = $pos;
         #print "pos after op: $pos\n";

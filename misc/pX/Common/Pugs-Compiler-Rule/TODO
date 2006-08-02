@@ -2,6 +2,10 @@ TODO for Pugs::Compiler::Rule (PCR)
 
 Before merging pX (2006-08-01) 
 
+- BUG: %hash should pass 'pos' to subrules
+
+- Makefile.PL should clean the regex cache
+
 - run Pugs-Compiler-Perl6 make test
 
 - use base 'RegexBase' in the docs; or change Grammar::Base name

@@ -35,11 +35,10 @@ sub add_rule {
     );
 }
 
-sub capture {
-    print "capture1: ", Dumper( $_[0] ); 
-    #print "capture2: ", Dumper( $_[0]->data->{match}[0]{match}[1]{capture} ); 
-    return $_[0]->data->{match}[0]{match}[1]{capture};
-}
+#sub capture {
+#    print "capture1: ", Dumper( $_[0]->data ); 
+#    return ${$_[0]};
+#}
 
 sub recompile {
     my ( $class ) = @_;
@@ -48,8 +47,8 @@ sub recompile {
     *{"${class}::parse"} = Pugs::Compiler::Regex->compile( '
         %' . $class . '::hash
         { 
-            print "matching hash\n";
-            return Pugs::Grammar::BaseCategory::capture( $/ );
+            #print "matching hash ", Dumper( $_[0]->data );
+            return $();
         }
     ' )->code;
 }

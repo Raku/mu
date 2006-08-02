@@ -299,7 +299,7 @@ sub recompile {
                 <?Pugs::Grammar::Term.ident>
                 { return { dot_bareword  => $_[0]->() ,} }
             ) ),
-        '...' => Pugs::Compiler::Regex->compile( q(
+        '...' => Pugs::Compiler::Token->compile( q(
             { 
                 return { die => "not implemented" } 
             }
