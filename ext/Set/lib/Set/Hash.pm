@@ -37,7 +37,7 @@ method members() returns List {
 # to stringify).
 method _stringify ($item) returns Str {
     my $str_item = ~$item;
-    $str_item ~= $item.id()
+    $str_item ~= $item.valid()
         if $str_item ~~ rx:perl5/^\<obj\:/; #/#cperl-mode--
     return $str_item;
 }

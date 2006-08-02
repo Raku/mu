@@ -178,7 +178,7 @@ sub JS::Root::uniq(Code $cmp is copy = &infix:<cmp>, *@array) is primitive {
     $cmp := &infix:<===>;
   }
 
-  # XXX O(n²) implementation, needing .id or === hashes for a better
+  # XXX O(n²) implementation, needing .valid or === hashes for a better
   # implementation
   my @res;
   for @array -> $elem {
