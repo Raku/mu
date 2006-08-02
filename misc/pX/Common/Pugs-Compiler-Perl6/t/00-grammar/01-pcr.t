@@ -1,5 +1,5 @@
 
-use Test::More tests => 12;
+use Test::More tests => 16;
 use Data::Dumper;
 
 use_ok( 'Pugs::Grammar::Rule' );
@@ -58,6 +58,14 @@ use_ok( 'Pugs::Grammar::Perl6' );
   my $match = Pugs::Grammar::Perl6->perl6_expression( 
         '* 123 ;#', 
         { p => 1 }, );
-  print Dumper $match->data;
-  ok( $match ? 1 : 0, "perl6_expression" );
+  #print Dumper $match->data;
+  ok( $match ? 1 : 0, "perl6_expression 123" );
+}
+{
+  my $match = Pugs::Grammar::Perl6->perl6_expression( 
+        '* 123 + 456 ;#', 
+        { p => 1 }, );
+  #print Dumper $match->data;
+  ok( $match ? 1 : 0, "perl6_expression 123 + 456" );
+  is( "" . $match, ' 123 + 456', "perl6_expression as string 123 + 456" );
 }

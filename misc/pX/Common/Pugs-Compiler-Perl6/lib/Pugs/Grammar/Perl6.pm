@@ -19,14 +19,14 @@ sub perl6_expression {
     #warn "perl6_expression param: ", Dumper @_;
     my $pos = $_[2]{p} || 0;
     #my $s = substr( $_[1], $pos );
-    my ( $ast, $tail ) = Pugs::Grammar::Expression::ast( $_[1], $_[2] );
+    my ( $ast, $to ) = Pugs::Grammar::Expression::ast( $_[1], $_[2] );
     #print "[$_[1],$tail,$pos]\n";
     return Pugs::Runtime::Match->new( { 
         bool    => \( $ast ? 1 : 0 ),
         str     => \$_[1],
         match   => [],
         from    => \$pos,
-        to      => \( length($_[1]) - length($tail) - $pos ),
+        to      => \$to,
         capture => $ast,
     } );
 };

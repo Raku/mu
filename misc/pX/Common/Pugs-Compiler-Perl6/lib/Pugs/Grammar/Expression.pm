@@ -51,7 +51,7 @@ sub ast {
     my $param = shift;
     my $pos = $param->{p} || 0;
     #my $s = substr( $_[0], $pos );
-    print "pos: $pos\n";
+    #print "pos: $pos\n";
 
     my $no_blocks = exists $param->{args}{no_blocks} ? 1 : 0;
     # warn "don't parse blocks: $no_blocks ";
@@ -79,11 +79,10 @@ sub ast {
         my $expect_term = grep { $_ eq 'NUM' || $_ eq 'BAREWORD' } @expect;
         
         my $m = Pugs::Grammar::BaseCategory->ws( $match, { p => $pos } );
-        # <ws> is nonstandard in that it returns a hashref instead of a Match
         # print "match is ",Dumper($m),"\n";
         if ( $m ) {
             $pos = $m->to;
-            print "pos after <ws>: $pos\n";
+            #print "pos after <ws>: $pos\n";
         }
         
         my $m1 = Pugs::Grammar::Operator->parse( $match, { p => $pos } );
@@ -92,10 +91,12 @@ sub ast {
             if $expect_term;
         #warn "m1 = " . Dumper($m1->()) . "m2 = " . Dumper($m2->());
 
+        my $pos2;
         while(1) {
+            $pos2 = $m2->to if $m2;
             # term.meth() 
-            if ( $m2 && $m2->data->{tail} && $m2->data->{tail} =~ /^\.[^.]/ ) {
-                my $meth = Pugs::Grammar::Term->parse( $m2->data->{tail}, { p => 1 } );
+            if ( $m2 && $m2->tail && $m2->tail =~ /^\.[^.]/ ) {
+                my $meth = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
                 $meth->data->{capture} = { 
                     op1  => 'method_call', 
                     self => $m2->(), 
@@ -106,8 +107,8 @@ sub ast {
                 next;
             }
             # term() 
-            if ( $m2 && $m2->data->{tail} && $m2->data->{tail} =~ /^\(/ ) {
-                my $paren = Pugs::Grammar::Term->parse( $m2->data->{tail}, { p => 1 } );
+            if ( $m2 && $m2->tail && $m2->tail =~ /^\(/ ) {
+                my $paren = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
                 if ( exists $m2->()->{dot_bareword} ) {
                     $paren->data->{capture} = { 
                         op1 => 'method_call', 
@@ -136,8 +137,8 @@ sub ast {
                 next;
             }
             # term[] 
-            if ( $m2 && $m2->data->{tail} && $m2->data->{tail} =~ /^\[/ ) {
-                my $paren = Pugs::Grammar::Term->parse( $m2->data->{tail}, { p => 1 } );
+            if ( $m2 && $m2->tail && $m2->tail =~ /^\[/ ) {
+                my $paren = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
                 if ( exists $m2->()->{dot_bareword} ) {
                     $paren->data->{capture} = { 
                         op1 => 'method_call', 
@@ -169,8 +170,8 @@ sub ast {
                 next;
             }
             # term{} 
-            if ( $m2 && $m2->data->{tail} && $m2->data->{tail} =~ /^\{/ ) {
-                my $paren = Pugs::Grammar::Term->parse( $m2->data->{tail}, { p => 1 } );
+            if ( $m2 && $m2->tail && $m2->tail =~ /^\{/ ) {
+                my $paren = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
                 if ( exists $m2->()->{dot_bareword} ) {
                     $paren->data->{capture} = { 
                         op1 => 'method_call', 
@@ -202,8 +203,8 @@ sub ast {
                 next;
             }
             # term<> 
-            if ( $m2 && $m2->data->{tail} && $m2->data->{tail} =~ /^\</ ) {
-                my $paren = Pugs::Grammar::Term->parse( $m2->data->{tail}, { p => 1 } );
+            if ( $m2 && $m2->tail && $m2->tail =~ /^\</ ) {
+                my $paren = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
                 if ( exists $m2->()->{dot_bareword} ) {
                     $paren->data->{capture} = { 
                         op1 => 'method_call', 
@@ -240,7 +241,7 @@ sub ast {
         # longest token
         $m = undef;
         if ( $m1 && $m2 ) {
-            if ( length($m1->data->{tail}) > length($m2->data->{tail}) ) {
+            if ( $m1->to < $m2->to ) {
                 $m = $m2
             }
             else {
@@ -253,8 +254,6 @@ sub ast {
         }
         #print Dumper($m);
         return ('','') unless ref $m;
-        
-        my $tail = $m->data->{tail};
 
 # <fglock> like: ( name 1, 2 or 3 ) - is it parsed as name(1,2 or 3) or (name(1,2) or 3)
 # <TimToady> it will be taken provisionally as a listop, with listop precedence
@@ -262,17 +261,12 @@ sub ast {
 # <TimToady> but it will fail compilation if name is not supplied by CHECK time.
 # <TimToady> it will also fail if name is declared as a unary or 0-ary func.
 
-        {
-            # trim tail
-            my $tmp = $tail;
-            $match = $tmp if defined $tmp;  # match failure doesn't kill $match (PCR "bug")
-        }
-
         #print Dumper $m;
         #print $match;
         my $ast = $m->();
-
-        $ast->{pos} = $last - length( $match );
+        $ast->{pos} = $pos;
+        #print "pos after op: $pos\n";
+        $pos = $m->to if $m;
         my $t;
         if ( exists $ast->{stmt} ) {
             # unused!
@@ -330,7 +324,7 @@ sub ast {
 
     my $out=$p->YYParse(yydebug => 0);
     #print Dumper $out;
-    return ( $out, $match );
+    return ( $out, $pos );
 }
 
 1;
