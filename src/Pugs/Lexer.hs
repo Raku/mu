@@ -244,7 +244,7 @@ interpolatingStringLiteral startRule endRule interpolator = do
             rest  <- stringList i
             return (parse:rest)
         , do
-            ch    <- endRule
+            ch    <- try endRule
             if i == 0
                 then return []
                 else do
