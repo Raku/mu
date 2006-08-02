@@ -23,13 +23,15 @@ our %hash;
 sub substitution {
     my $grammar = shift;
     return $grammar->no_match unless $_[0];
+    my $pos = $_[1]{p} || 0;
+    my $s = substr( $_[0], $pos );
     my $options;
-    while ($_[0] =~ s/^:(\w+)//) {
+    while ($s =~ s/^:(\w+)//) {
 	$options->{lc($1)} = 1;
     }
-    return $grammar->no_match unless substr($_[0], 0 , 1) eq '/';
-    substr($_[0], 0, 1, '');
-    my ($extracted,$remainder) = Text::Balanced::extract_delimited( "/" . $_[0], "/" );
+    return $grammar->no_match unless substr($s, 0 , 1) eq '/';
+    substr($s, 0, 1, '');
+    my ($extracted,$remainder) = Text::Balanced::extract_delimited( "/" . $s, "/" );
     return $grammar->no_match unless length($extracted) > 0;
     $extracted = substr( $extracted, 1, -1 );
     my $extracted2;
@@ -37,9 +39,11 @@ sub substitution {
     return $grammar->no_match unless length($extracted2) > 0;
     $extracted2 = substr( $extracted2, 1, -1 );
     return Pugs::Runtime::Match->new( { 
-        bool    => 1,,
-        match   => $extracted,
-        tail    => $remainder,
+        bool    => \1,
+        str     => \$_[0],
+        match   => [ $extracted, $extracted2 ],
+        from    => \$pos,
+        to      => \( length($_[0]) - length($remainder) - $pos ),
         capture => { options => $options, substitution => [$extracted, $extracted2] },
     } );
 };
@@ -67,15 +71,19 @@ sub rx_body {
     use Data::Dumper;
     my $open = $_[1]->{args}{open};
     return $grammar->no_match unless exists $openmatch{$open};
+    my $pos = $_[1]{p} || 0;
+    my $s = substr( $_[0], $pos );
     my ($extracted,$remainder) = $open eq $openmatch{$open}
-        ? Text::Balanced::extract_delimited( $open . $_[0], $openmatch{$open} )
-	: Text::Balanced::extract_bracketed( $open . $_[0], $open.$openmatch{$open} );
+        ? Text::Balanced::extract_delimited( $open . $s, $openmatch{$open} )
+	: Text::Balanced::extract_bracketed( $open . $s, $open.$openmatch{$open} );
     return $grammar->no_match unless length($extracted) > 0;
     $extracted = substr( $extracted, 1, -1 );
     return Pugs::Runtime::Match->new( { 
-        bool    => 1,,
-        match   => $extracted,
-        tail    => $remainder,
+        bool    => \1,
+        str     => \$_[0],
+        match   => [ $extracted ],
+        from    => \$pos,
+        to      => \( length($_[0]) - length($remainder) - $pos ),
         capture => { rx => $extracted },
     } );
 };
@@ -83,13 +91,17 @@ sub rx_body {
 sub single_quoted {
     my $grammar = shift;
     return $grammar->no_match unless $_[0];
-    my ($extracted,$remainder) = Text::Balanced::extract_delimited( "'" . $_[0], "'" );
+    my $pos = $_[1]{p} || 0;
+    my $s = substr( $_[0], $pos );
+    my ($extracted,$remainder) = Text::Balanced::extract_delimited( "'" . $s, "'" );
     return $grammar->no_match unless length($extracted) > 0;
     $extracted = substr( $extracted, 1, -1 );
     return Pugs::Runtime::Match->new( { 
-        bool    => 1,,
-        match   => $extracted,
-        tail    => $remainder,
+        bool    => \1,
+        str     => \$_[0],
+        match   => [ $extracted ],
+        from    => \$pos,
+        to      => \( length($_[0]) - length($remainder) - $pos ),
         capture => $extracted,
     } );
 }
@@ -97,13 +109,17 @@ sub single_quoted {
 sub double_quoted {
     my $grammar = shift;
     return $grammar->no_match unless $_[0];
-    my ($extracted,$remainder) = Text::Balanced::extract_delimited( '"' . $_[0], '"' );
+    my $pos = $_[1]{p} || 0;
+    my $s = substr( $_[0], $pos );
+    my ($extracted,$remainder) = Text::Balanced::extract_delimited( '"' . $s, '"' );
     return $grammar->no_match unless length($extracted) > 0;
     $extracted = substr( $extracted, 1, -1 );
     return Pugs::Runtime::Match->new( { 
-        bool    => 1, 
-        match   => $extracted,
-        tail    => $remainder,
+        bool    => \1,
+        str     => \$_[0],
+        match   => [ $extracted ],
+        from    => \$pos,
+        to      => \( length($_[0]) - length($remainder) - $pos ),
         capture => $extracted,
     } );
 }
@@ -111,13 +127,17 @@ sub double_quoted {
 sub angle_quoted {
     my $grammar = shift;
     return $grammar->no_match unless $_[0];
-    my ($extracted,$remainder) = Text::Balanced::extract_bracketed( '<' . $_[0], '<..>' );
+    my $pos = $_[1]{p} || 0;
+    my $s = substr( $_[0], $pos );
+    my ($extracted,$remainder) = Text::Balanced::extract_bracketed( '<' . $s, '<..>' );
     return $grammar->no_match unless length($extracted) > 0;
     $extracted = substr( $extracted, 1, -1 );
     return Pugs::Runtime::Match->new( { 
-        bool    => 1,
-        match   => $extracted,
-        tail    => $remainder,
+        bool    => \1,
+        str     => \$_[0],
+        match   => [ $extracted ],
+        from    => \$pos,
+        to      => \( length($_[0]) - length($remainder) - $pos ),
         capture => $extracted,
     } );
 }

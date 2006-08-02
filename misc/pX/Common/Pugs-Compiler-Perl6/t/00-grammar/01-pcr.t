@@ -1,5 +1,6 @@
 
-use Test::More tests => 6;
+use Test::More tests => 12;
+use Data::Dumper;
 
 use_ok( 'Pugs::Grammar::Rule' );
 use_ok( 'Pugs::Grammar::BaseCategory' );
@@ -19,4 +20,34 @@ use_ok( 'Pugs::Grammar::Term' );
 {
   my $match = Pugs::Grammar::Term->cpan_bareword( 'abc-1.0' );
   is( "$match", "abc-1.0", "cpan_bareword" );
+}
+
+{
+  my $match = Pugs::Grammar::Term->single_quoted( "'abc-1.0'", { p => 1 } );
+  is( "" . $match->[0] , "abc-1.0", "single_quoted" );
+}
+{
+  my $match = Pugs::Grammar::Term->double_quoted( '"abc-1.0"', { p => 1 } );
+  is( "" . $match->[0] , "abc-1.0", "double_quoted" );
+}
+{
+  my $match = Pugs::Grammar::Term->angle_quoted( "<abc-1.0>", { p => 1 } );
+  is( "" . $match->[0] , "abc-1.0", "angle_quoted" );
+}
+{
+  my $match = Pugs::Grammar::Term->rx_body( 
+        "/abc-1.0/", 
+        { p => 1, args => { open => '/' } },
+  );
+  # print Dumper $match->data;
+  is( "" . $match->[0] , "abc-1.0", "rx_body" );
+}
+{
+  my $match = Pugs::Grammar::Term->substitution( 
+        "s/abc-1.0/abc-2.0/", 
+        { p => 1, args => { open => '/' } },
+  );
+  # print Dumper $match->data;
+  is( "" . $match->[0] , "abc-1.0", "substitution 0" );
+  is( "" . $match->[1] , "abc-2.0", "substitution 1" );
 }
