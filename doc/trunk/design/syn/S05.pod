@@ -16,7 +16,7 @@ Allison Randal <al@shadowed.net>
    Date: 24 Jun 2002
    Last Modified: 2 Aug 2006
    Number: 5
-   Version: 30
+   Version: 31
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> because they haven't been
@@ -629,6 +629,38 @@ assertion (i.e. a subrule or a named character class - see below):
 
      / <sign>? <mantissa> <exponent>? /
 
+The first character after the identifier determines the treatment of
+the rest of the text before the closing angle.  The underlying semantics
+is that of a function or method call, so if the first character is
+a left parenthesis, it really is a call:
+
+    <foo('bar')>
+
+If the first character is a colon, the rest of the text (following any
+whitespace) is passed as a string, so the previous may also be written as:
+
+    <foo: bar>
+
+If the first character is whitespace, the subsequent text is passed as regex,
+so:
+
+    <foo bar>
+
+is more or less equivalent to
+
+    <foo(/bar/)>
+
+If the first character is a plus or minus, the initial identifier taken
+as a character class, so
+
+    <foo+bar-baz>
+
+is equivalent to
+
+    <+foo+bar-baz>
+
+(See below.)
+
 =item *
 
 The special named assertions include:
@@ -816,6 +848,10 @@ A leading C<-> indicates a complemented character class:
 
      / <-[a..z_]> <-alpha> /
 
+This is essentially the same as using negative lookahead and dot:
+
+    / <![a..z_]> . <!alpha> . /
+
 =item *
 
 Character classes can be combined (additively or subtractively) within
@@ -824,9 +860,11 @@ a single set of angle brackets. For example:
      / <[a..z]-[aeiou]+xdigit> /      # consonant or hex digit
 
 If such a combination starts with a named character class, a leading
-C<+> is required:
+C<+> is allowed but not required, provided the next character is a
+character set operation:
 
-     / <+alpha-[Jj]> /               # J-less alpha
+     / <+alpha-[Jj]> /              # J-less alpha
+     / <alpha-[Jj]> /               # same thing
 
 =item *
 
