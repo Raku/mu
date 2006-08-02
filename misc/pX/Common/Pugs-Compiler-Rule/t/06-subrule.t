@@ -122,7 +122,7 @@ SKIP:
 
     {
         package Test;
-        use base 'Pugs::Grammar::Base';
+        use base 'Pugs::Grammar::RegexBase';
         *subrule = $subrule->code;
     }
     
@@ -141,7 +141,7 @@ SKIP: {
 
     {
         package Test;
-        use base 'Pugs::Grammar::Base';
+        use base 'Pugs::Grammar::RegexBase';
         *subrule2 = $subrule->code;
     }
     

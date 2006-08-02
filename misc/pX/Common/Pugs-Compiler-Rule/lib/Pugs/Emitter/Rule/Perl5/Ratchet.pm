@@ -251,7 +251,7 @@ sub variable {
                 my \$hash = " . 
                 ( $name =~ /::/ 
                     ? "\\$name" 
-                    : "Pugs::Runtime::Rule::get_variable( '$name' )"
+                    : "Pugs::Runtime::Regex::get_variable( '$name' )"
                 ) . 
                 ";
                 my \$ast = {
@@ -565,7 +565,7 @@ sub metasyntax {
         # TODO - send $pos to subrule
         return 
                 "$_[1]         do {\n" .
-                "$_[1]           my \$r = Pugs::Runtime::Rule::get_variable( '$cmd' );\n" . 
+                "$_[1]           my \$r = Pugs::Runtime::Regex::get_variable( '$cmd' );\n" . 
                 "$_[1]           push \@match,\n" . 
                 "$_[1]             \$r->match( \$s, \$grammar, {p => \$pos}, undef );\n" .
                 "$_[1]           \$pos = \$match[-1]->to;\n" .

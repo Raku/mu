@@ -9,7 +9,7 @@ use warnings;
 # use Pugs::Grammar::RegexBase;  # not 'use base'
 use Pugs::Grammar::Rule;
 #use Pugs::Runtime::Rule;
-use Pugs::Runtime::Match;
+#use Pugs::Runtime::LrepMatch;
 use Pugs::Emitter::Rule::Perl5;
 use Pugs::Emitter::Rule::Perl5::Ratchet;
 use Pugs::Compiler::RegexPerl5;
@@ -71,6 +71,7 @@ sub compile {
         #warn "COMPILING RULE\n";
 
         #print 'rule source: ', $self->{source}, "\n";
+        #print "match: ", Dumper( Pugs::Grammar::Rule->rule( $self->{source} ) );
         my $ast = Pugs::Grammar::Rule->rule( 
             $self->{source} )->{capture};
         #print "ast: ",Dumper($ast),"\n";

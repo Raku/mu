@@ -14,7 +14,7 @@ no warnings 'redefine';
 
 use FindBin '$Bin';
 use lib "$Bin/../lib";
-use Pugs::Grammar::Base;
+use Pugs::Grammar::LrepBase;
 
 require 'p6rule.pl';
 require 'emit.pl';
