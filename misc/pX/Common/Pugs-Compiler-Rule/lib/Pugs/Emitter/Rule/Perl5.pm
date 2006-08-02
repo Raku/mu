@@ -22,8 +22,8 @@ sub call_subrule {
     return 
         "$tab sub{ \n" .
         #"$tab     print \"param: \",Dumper( \@_ );\n" .
-        "$tab     my \$param = { \%{ \$_[1] || {} }, args => {" . join(", ",@param) . "} };\n" .
-        "$tab     \$_[3] = $subrule( \$_[0], \$_[7], \$param );\n" .
+        "$tab     my \$param = { \%{ \$_[7] || {} }, args => {" . join(", ",@param) . "} };\n" .
+        "$tab     \$_[3] = $subrule( \$_[0], \$param, \$_[3],  );\n" .
         #"$tab     print \"match: \",Dumper(\$_[3]->data);\n" .
         "$tab     return \$_[3]->data->{state};\n" .
         "$tab }\n";
