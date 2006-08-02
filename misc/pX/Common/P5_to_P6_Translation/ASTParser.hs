@@ -419,7 +419,7 @@ uniBlock indent = choice
 --A wrapper for nodeNamer, to handle the junk at the beginning of the file.
 parseInput :: Parser [P5AST]
 parseInput = do
-    sequence_ (replicate 3 $ manyTill anyToken newline)
+    manyTill anyToken (string "Kids: \n")
     names <- many (nodeNamer 2)
     eof 
     return names
