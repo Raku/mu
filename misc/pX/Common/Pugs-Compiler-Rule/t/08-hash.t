@@ -4,7 +4,7 @@ $Data::Dumper::Indent = 1;
 
 use_ok( 'Pugs::Compiler::Rule' );
 
-use base 'Pugs::Grammar::RegexBase';
+use base 'Pugs::Grammar::Base';
 
 {
 =for docs - see S05

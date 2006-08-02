@@ -47,7 +47,7 @@ sub compile {
 
     # XXX - should use user's lexical pad instead of an explicit grammar?
     $self->{grammar}  = delete $param->{grammar}  || 
-                        'Pugs::Grammar::RegexBase';
+                        'Pugs::Grammar::Base';
     $self->{ratchet}  = delete $param->{ratchet}  || 
                         0;
     $self->{p}        = delete $param->{pos}      ||

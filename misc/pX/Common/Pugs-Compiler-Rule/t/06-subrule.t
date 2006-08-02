@@ -6,7 +6,7 @@ use warnings;
 no warnings 'once';
 
 use_ok( 'Pugs::Compiler::Regex' );
-use base 'Pugs::Grammar::RegexBase';
+use base 'Pugs::Grammar::Base';
 
 {
     my $rule = Pugs::Compiler::Regex->compile('\w');
@@ -122,7 +122,7 @@ SKIP:
 
     {
         package Test;
-        use base 'Pugs::Grammar::RegexBase';
+        use base 'Pugs::Grammar::Base';
         *subrule = $subrule->code;
     }
     
@@ -141,7 +141,7 @@ SKIP: {
 
     {
         package Test;
-        use base 'Pugs::Grammar::RegexBase';
+        use base 'Pugs::Grammar::Base';
         *subrule2 = $subrule->code;
     }
     

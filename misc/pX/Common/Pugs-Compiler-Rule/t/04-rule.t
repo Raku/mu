@@ -8,12 +8,12 @@ no warnings qw( once );
 
 {
     package test;
-    use base Pugs::Grammar::RegexBase;
+    use base Pugs::Grammar::Base;
 }
 
 {
     package test2;
-    use base Pugs::Grammar::RegexBase;
+    use base Pugs::Grammar::Base;
 }
 
 #SKIP: 

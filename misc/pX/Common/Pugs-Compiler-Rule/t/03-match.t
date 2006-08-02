@@ -3,7 +3,7 @@ use Test::More tests => 47;
 use Data::Dumper;
 
 use_ok( 'Pugs::Compiler::Regex' );
-use_ok( 'Pugs::Grammar::RegexBase' );
+use_ok( 'Pugs::Grammar::Base' );
 
 {
     my $rule = Pugs::Compiler::Regex->compile( '.' );

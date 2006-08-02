@@ -11,12 +11,12 @@ use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
 
 {
     package test;
-    use base Pugs::Grammar::RegexBase;
+    use base Pugs::Grammar::Base;
 }
 
 {
     package test2;
-    use base Pugs::Grammar::RegexBase;
+    use base Pugs::Grammar::Base;
 }
 
 {
