@@ -230,6 +230,7 @@ regexChar = choice[do{try(string "\\\\"); return "\\\\"},      --Get rid of lite
                    do{try(string "[^\\r]"); return "\\R"},     -- [^\r] -> \R
                    do{try(string "[^\\f]"); return "\\F"},     -- [^\f] -> \F
                    do{try(string "[^\\e]"); return "\\E"},     -- [^\e] -> \E
+                   do{try(string "\\x{"); val <- (manyTill anyToken (char '}')); return ("\\x["++val++"]")},                   -- \x{3b1} -> \x[3b1]
                    do{try(string "[^\\x"); val <- (manyTill anyToken (char ']')); return ("\\X"++val)},                      -- [^\x1B] -> \X1B
                    do{try(string "[^\\x{"); val <- (manyTill anyToken (string "}]")); return ("\\X["++val++"]")},            -- [^\x{263a}] -> \X[263a]
                    do{try(string "\\p{"); prop <- (manyTill anyToken (char '}')); return ("<prop "++prop++">")},             -- \p{prop} -> <prop>
@@ -481,6 +482,8 @@ arrayKeyChanges (Heredoc start end kids) = (Heredoc start end kids)
 scalarSigilToArraySigil :: P5AST -> P5AST
 scalarSigilToArraySigil (LiteralNode Sigil enc uni) = (LiteralNode Sigil enc ('@':(drop 1 uni)))
 scalarSigilToArraySigil (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+scalarSigilToArraySigil (AbstractNode atype kids) = (AbstractNode atype kids)
+scalarSigilToArraySigil (Heredoc start end kids) = (Heredoc start end kids)
 
 {-Do changes to hashes with keys, such as $hash{word}->%hash<word> 
 and $hash{$var}->%hash{$var}-}
