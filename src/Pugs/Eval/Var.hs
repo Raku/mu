@@ -153,8 +153,11 @@ findSub name' invs args = do
             findSuperSub (mkType typ) (sig ++ name')
         Just exp | not (':' `elem` drop 2 name) -> do
             typ     <- evalInvType $ unwrap exp
-            if typ == mkType "Scalar::Perl5" then fmap (err $ NoSuchMethod $ show typ) (runPerl5Sub name) else do
-            findTypedSub typ name
+            if typ == mkType "Scalar::Perl5"
+                then do
+                    fmap (err $ NoSuchMethod $ show typ) (runPerl5Sub name)
+                else do
+                    findTypedSub typ name
         _ -> findBuiltinSub NoSuchSub name
     where
     err :: b -> Maybe a -> Either b a
@@ -206,7 +209,10 @@ findSub name' invs args = do
                     then return found
                     else canPerl5 sv "AUTOLOAD"
                 if not found'
-                    then evalExp (App (Var name) Nothing (map (Val . PerlSV) (sv:svs)))
+                    then do
+                        -- XXX - when svs is empty, this could call back here infinitely
+                        --       add an extra '&' to force no-reinterpretation.
+                        evalExp (App (Var ('&':name)) Nothing (map (Val . PerlSV) (sv:svs)))
                     else do
                         subSV   <- liftIO . vstrToSV $ tail name
                         runInvokePerl5 subSV sv svs

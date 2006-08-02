@@ -825,6 +825,11 @@ reduceApp (Var "&assuming") (Just subExp) args = do
 reduceApp (Var "&infix:=>") invs args = do
     reduceSyn "=>" $ maybeToList invs ++ args
 
+-- XXX - special handling of forced-no-invocant-reinterpretation.
+--       (see Eval.Var.)
+reduceApp (Var ('&':name@('&':_))) invs args = do
+    doCall name invs args
+
 reduceApp (Var name@('&':_)) Nothing [inv]
     | Syn "named" _ <- inv  = doCall name Nothing [inv]
     | otherwise             = doCall name (Just inv) []
