@@ -13,9 +13,6 @@ be valid perl6.
 
 plan 4;
 
-skip_rest "This file was in t_disabled/.  Remove this SKIP of it now works.";
-exit;
-
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
@@ -23,7 +20,9 @@ if !eval('("a" ~~ /a/)') {
 ok("ab cd" ~~ m/a <'b c'> d/, 'ab cd 1');
 ok(!( "abcd" ~~ m/a <'b c'> d/ ), 'not abcd 1');
 ok("ab cd" ~~ m/ab <' '> c d/, 'ab cd 2');
-ok("ab/cd" ~~ m/ab <'/'> c d/, 'ab/cd');
+eval q[
+    ok("ab/cd" ~~ m/ab <'/'> c d/, 'ab/cd');
+];
 
 }
 

@@ -281,8 +281,8 @@ FOO
     is("\o101", "A", 'octal interpolation - \o101 is also "A"' );
 
     is("\c@", "\0", 'Unicode code point "@" converts correctly to "\0"');
-    is("\cA", chr 1 'Unicode "A" is #1!');
-    is("\cZ", chr 26 'Unicode "Z" is chr 26 (or \d26)');
+    is("\cA", chr 1, 'Unicode "A" is #1!');
+    is("\cZ", chr 26, 'Unicode "Z" is chr 26 (or \d26)');
 }
 
 { # simple test for nested-bracket quoting, per S02
