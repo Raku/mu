@@ -16,22 +16,19 @@ use Data::Dumper;
 # *ws = &Pugs::Grammar::BaseCategory::ws;
 
 sub perl6_expression {
-    my $class = shift;
-    my $src   = shift;
-    my $param = shift;
-
     #warn "perl6_expression param: ", Dumper @_;
-
-    my ( $ast, $tail ) = Pugs::Grammar::Expression::ast( $src, $param );
-    if ( length( $tail ) ) {
-        $src = substr( $src, 0, - length( $tail ) );
-    }
+    my $pos = $_[2]{p} || 0;
+    my $s = substr( $_[1], $pos );
+    my ( $ast, $tail ) = Pugs::Grammar::Expression::ast( $s, $_[2] );
+    #print "[$_[1],$tail,$pos]\n";
     return Pugs::Runtime::Match->new( { 
-        bool  =>   ( $ast ? 1 : 0 ),
-        match =>   $src,
-        tail  =>   $tail,
+        bool    => \( $ast ? 1 : 0 ),
+        str     => \$_[1],
+        match   => [],
+        from    => \$pos,
+        to      => \( length($_[1]) - length($tail) - $pos ),
         capture => $ast,
-    } )
+    } );
 };
 
 *perl6_expression_or_null = Pugs::Compiler::Regex->compile( q(

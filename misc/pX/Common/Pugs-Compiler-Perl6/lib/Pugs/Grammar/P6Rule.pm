@@ -9,7 +9,7 @@ use Pugs::Compiler::Token;
 use Pugs::Compiler::Regex;
 use Pugs::Grammar::Perl6;
 use base qw(Pugs::Grammar::BaseCategory);
-use Pugs::Runtime::Match::Ratchet; # overload doesn't work without this ???
+use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 our @rule_terms;
 

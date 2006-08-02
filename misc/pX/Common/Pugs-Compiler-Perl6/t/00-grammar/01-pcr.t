@@ -51,3 +51,13 @@ use_ok( 'Pugs::Grammar::Term' );
   is( "" . $match->[0] , "abc-1.0", "substitution 0" );
   is( "" . $match->[1] , "abc-2.0", "substitution 1" );
 }
+
+use_ok( 'Pugs::Grammar::Perl6' );
+
+{
+  my $match = Pugs::Grammar::Perl6->perl6_expression( 
+        '*123 ;#', 
+        { p => 1 }, );
+  print Dumper $match->data;
+  ok( $match ? 1 : 0, "perl6_expression" );
+}
