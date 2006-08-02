@@ -14,7 +14,7 @@ it is closely related to || and && and //.
 
 # test cases by Andrew Savige
 
-plan 30;
+plan 34;
 
 {
     my $x = 1;
@@ -131,3 +131,24 @@ plan 30;
     is($x0,  1, "'or' operator seems to be short circuiting");
     is(+@a0, 0, "'or' operator seems to be working with list assignment");
 }
+
+# L<E03/"Don't break the chain">
+#
+# Chained comparisons are supposed to short-circuit.  Do they?
+
+{
+    my $x = 0;
+    my $y = 0;
+    ok(($x++ < ++$y < ++$y), "chained comparison (truth - 1)");
+    # expect x=1, y=2
+    is($y, 2, "chained comparison short-circuit: not re-evaluating middle");
+}
+
+{
+    my $x = 0;
+    my $y = 0;
+    ok(not(++$x < $y++ < $y++), "chained comparison (truth - 2)");
+    # expect x=1, y=1
+    is($y, 1, "chained comparison short-circuit: stopping soon enough");
+}
+
