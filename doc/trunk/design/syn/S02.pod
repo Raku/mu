@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 26 July 2006
+  Last Modified: 2 Aug 2006
   Number: 2
-  Version: 56
+  Version: 57
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1421,6 +1421,9 @@ without an intervening colon:
     quote qw;                   # declare a P5-esque qw// meaning q:w
     quote qn;                   # completely raw quote qn//
     quote qnc;                  # q:n:c//, interpolate only closures
+
+Actually, the first two are already assumed, because you get all of the
+forms that use as single character predeclared for free.
 
 If you want to abbreviate further, you may also give an explicit
 definition as either a string or quasiquote:

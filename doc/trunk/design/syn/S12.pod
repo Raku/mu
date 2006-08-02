@@ -1247,7 +1247,7 @@ bind or assign to the container.
 
     my Str_not2b $hamlet;
     $hamlet = 'isnt';   # Okay because 'isnt' ~~ /^[isnt|arent|amnot|aint]$/
-    $hamlet = 'amnt';   # Bzzzzzzzt!   'amnt' !~ /^[isnt|arent|amnot|aint]$/
+    $hamlet = 'amnt';   # Bzzzzzzzt!   'amnt' !~~ /^[isnt|arent|amnot|aint]$/
 
     my EvenNum $n;
     $n = 2;             # Okay
