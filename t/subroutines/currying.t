@@ -12,7 +12,7 @@ Tests curried subs as defined by L<S06/Currying>
 
 =cut
 
-plan 10;
+plan 14;
 
 package main; # XXX PIL2JS namespace bug
 
@@ -28,6 +28,14 @@ is((&foo.assuming(y => 2))(x => 1), foo(1, 2), "curried sub with named params");
 is((&foo.assuming(y => 2))(1), foo(1, 2), "curried sub, mixed notation");
 
 is((&foo.assuming(x => 1))(2), foo(1, 2), "same thing, but the other way around");
+
+is((&foo.assuming(:x(1)))(2), foo(1, 2), "curried sub, use colon style");
+
+is((&foo.assuming(:x(1) :y(2)))(), foo(1, 2), "same thing, but more colon");
+
+is((&foo.assuming:x(1))(2), foo(1, 2), "curried sub, another colon style");
+
+is((&foo.assuming:x(1):y(2))(), foo(1, 2), "same thing, but more pre colon");
 
 ok(!(try { &foo.assuming(1) }), "can't curry without named params",:todo); # L<S06/Currying /takes a series of named arguments/> 
 
