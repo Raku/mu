@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 1 Aug 2006
+   Last Modified: 2 Aug 2006
    Number: 5
-   Version: 29
+   Version: 30
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> because they haven't been
@@ -924,8 +924,14 @@ definition of whitespace.)
 
 =item *
 
-The C<\p> and C<\P> properties become intrinsic grammar rules
-(C<< <prop ...> >> and C<< <!prop ...> >>).
+The C<\p> and C<\P> properties become intrinsic grammar rules such as
+(C<< <alpha> >> and C<< <!alpha> >>).  They may be combined using the
+above-mentioned character class notation: C<< <[_]+alpha+digit> >>.
+Regardless of the higher-level character class names, low-level
+Unicode properties are always available with a prefix of C<is>.
+Hence, C<< <+isLu+isLt> >> is equivalent to C<< <+upper+title> >>.
+If you define your own "is" properties they hide any Unicode properties
+of the same name.
 
 =item *
 
