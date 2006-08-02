@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 84;
+plan 86;
 
 my $foo = "FOO";
 my $bar = "BAR";
@@ -14,7 +14,7 @@ Tests quoting constructs as defined in L<S02/Literals>
 =todo
 
 * q:t - heredocs
-* q:0, q:b, and other interpolation levels
+* q:n, q:b, and other interpolation levels
 * meaningful quotations (qx, rx, etc)
 * review shell quoting semantics of «»
 * arrays in «»
@@ -51,10 +51,10 @@ Tests quoting constructs as defined in L<S02/Literals>
     is(+@q, 0, 'nothing in @q, q() is not allowed', :todo);
 };
 
-{ # adverb variation L<S02/Literals /:1/>
+{ # adverb variation L<S02/Literals /:q/>
     my @q = ();
-    @q = (q:1/$foo $bar/);
-    is(+@q, 1, "q:1// is singular");
+    @q = (q:q/$foo $bar/);
+    is(+@q, 1, "q:q// is singular");
     is(@q[0], '$foo $bar', "and again, non interpolating");
 };
 
@@ -79,10 +79,10 @@ Tests quoting constructs as defined in L<S02/Literals>
     is(@q[0], "FOO BAR", '"" interpolates');
 };
 
-{ # adverb variation L<S02/Literals /:2/>
+{ # adverb variation L<S02/Literals /:qq/>
     my @q = ();
-    @q = q:2/$foo $bar/;
-    is(+@q, 1, "q:2// is singular");
+    @q = q:qq/$foo $bar/;
+    is(+@q, 1, "q:qq// is singular");
     is(@q[0], "FOO BAR", "blah blah interp");
 };
 
@@ -241,14 +241,25 @@ FOO
         is(@q[0], "yoink\\n\nsplort\\n\n", "backslashes");
 }
 
-{ # q:0 L<S02/Literals /No escapes at all/>
+{ # q:n L<S02/Literals /No escapes at all/>
     my @q = ();
     
     my $backslash = "\\";
 
-    @q = (q:0/foo\\bar$foo/);
+    @q = (q:n/foo\\bar$foo/);
 
-    is(+@q, 1, "q:0// is singular");
+    is(+@q, 1, "q:n// is singular");
+    is(@q[0], "foo\\\\bar\$foo", "special chars are meaningless"); # double quoting is to be more explicit
+};
+
+{ # q:n L<S02/Literals /No escapes at all/>
+    my @q = ();
+    
+    my $backslash = "\\";
+
+    @q = (qn/foo\\bar$foo/);
+
+    is(+@q, 1, "qn// is singular");
     is(@q[0], "foo\\\\bar\$foo", "special chars are meaningless"); # double quoting is to be more explicit
 };
 
