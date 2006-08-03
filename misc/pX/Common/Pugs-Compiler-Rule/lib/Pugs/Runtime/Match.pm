@@ -46,7 +46,8 @@ sub flat {
     my $cap = $_data{id $_[0]}->{capture};
     #print ref $cap;
     return $$cap
-        if ref $cap eq 'REF';
+        if ref $cap eq 'REF'   ||
+           ref $cap eq 'SCALAR';
     return $_[0]->str;
 }
 
@@ -76,14 +77,13 @@ sub state {
 
 # return the capture
 sub code {
-    my $c = $_[0]->flat;
-    return sub { $c };
+    my $c = $_[0];
+    return sub { $c->flat };
 }
 
 # return the capture
 sub scalar {
-    my $c = $_data{id $_[0]}->{capture};
-    return $c;
+    return \( $_[0]->flat );
 }
 
 1;

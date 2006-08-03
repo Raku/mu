@@ -15,7 +15,7 @@ our %hash;
 
 *cpan_bareword = Pugs::Compiler::Regex->compile( '
     ([_\w\d\:]+ \- [_\w\d\-\.*]+) 
-    (?: \( | \; | \s | $ ) 
+    (?= \( | \; | \s | $ ) 
 ', 
     { Perl5 => 1 } 
 )->code;
@@ -43,7 +43,7 @@ sub substitution {
         str     => \$_[0],
         match   => [],
         from    => \$pos,
-        to      => \( length($_[0]) - length($remainder) - $pos + 1 ),
+        to      => \( length($_[0]) - length($remainder) ),
         capture => \{ options => $options, substitution => [$extracted, $extracted2] },
     } );
 };
@@ -83,7 +83,7 @@ sub rx_body {
         str     => \$_[0],
         match   => [],
         from    => \$pos,
-        to      => \( length($_[0]) - length($remainder) - $pos + 1 ),
+        to      => \( length($_[0]) - length($remainder) ),
         capture => \{ rx => $extracted },
     } );
 };
@@ -101,7 +101,7 @@ sub single_quoted {
         str     => \$_[0],
         match   => [],
         from    => \$pos,
-        to      => \( length($_[0]) - length($remainder) - $pos + 1 ),
+        to      => \( length($_[0]) - length($remainder) ),
         capture => \$extracted,
     } );
 }
@@ -119,7 +119,7 @@ sub double_quoted {
         str     => \$_[0],
         match   => [],
         from    => \$pos,
-        to      => \( length($_[0]) - length($remainder) - $pos + 1 ),
+        to      => \( length($_[0]) - length($remainder) ),
         capture => \$extracted,
     } );
 }
@@ -137,7 +137,7 @@ sub angle_quoted {
         str     => \$_[0],
         match   => [],
         from    => \$pos,
-        to      => \( length($_[0]) - length($remainder) - $pos + 1 ),
+        to      => \( length($_[0]) - length($remainder) ),
         capture => \$extracted,
     } );
 }
