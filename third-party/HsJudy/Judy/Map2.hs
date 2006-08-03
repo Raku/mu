@@ -2,7 +2,11 @@
 
 module Judy.Map2 (
     Map2 (..),
-    swapMaps, freeze, toRevList
+    swapMaps, freeze,
+    toRevList,
+    size,
+    takeFirstElems, takeFirst,
+    takeLastElems, takeLast
 ) where
 
 import Data.Typeable
@@ -147,18 +151,19 @@ delete_ k m@(Map2 j) = withForeignPtr j $ \j' -> do
     r <- judyLDel j' k' judyError
     return $ r /= 0
 
+size :: Map2 k a -> IO Int
+size (Map2 j) = withForeignPtr j $ \j' -> do
+    jj <- peek j'
+    r <- judyLCount jj 0 (-1) judyError
+    return $ fromEnum r
+
+
 
 fromList_ :: (ReversibleHashIO k, Refeable a) => [(k,a)] -> IO (Map2 k a)
 fromList_ xs = do
     m <- new_
     mapM_ (\(k,a) -> insert_ k a m) xs
     return m
-
---count j i1 i2 = withForeignPtr j $ \j -> do
---    jj <- peek j
---    r <- judyLCount jj i1 i2 judyError
---    return $ r
-
 
 internalMap' :: (Ptr Value -> Ptr Value -> IO b) -> Map2 k a -> IO [b]
 internalMap' f (Map2 j) = do
@@ -172,6 +177,61 @@ internalMap' f (Map2 j) = do
                 else do x <- f r vp
                         loop judyLNext (x:xs)
         loop judyLFirst []
+
+withLast :: (Ptr Value -> Ptr Value -> IO b) -> Int -> Map2 k a -> IO [b]
+withLast f n (Map2 j) = do
+    jj <- withForeignPtr j peek
+    alloca $ \vp -> do
+        poke vp (-1)
+        let loop _ xs 0 = return xs
+            loop act xs n' = do
+            r <- act jj vp judyError
+            if r == nullPtr
+                then return xs
+                else do x <- f r vp
+                        loop judyLPrev (x:xs) (n'-1)
+        loop judyLLast [] n
+
+-- FIXME: use a less obscure syntax =P
+takeLast :: (ReversibleHashIO k, Refeable a) => Int -> Map2 k a -> IO [(k,a)]
+takeLast n m = do
+    withLast (\r vp -> do { k <- peek vp >>= unHashIO; v <- peek r >>= fromRef; return (k,v) }) n m
+
+takeLastElems :: Refeable a => Int -> Map2 k a -> IO [a]
+takeLastElems n m = do
+    withLast (\r _ -> peek r >>= fromRef) n m
+
+
+
+
+withFirst :: (Ptr Value -> Ptr Value -> IO b) -> Int -> Map2 k a -> IO [b]
+withFirst f n (Map2 j) = do
+    jj <- withForeignPtr j peek
+    alloca $ \vp -> do
+        poke vp (0 :: Value)
+        let loop _ xs 0 = return xs
+            loop act xs n' = do
+            r <- act jj vp judyError
+            if r == nullPtr
+                then return xs
+                else do x <- f r vp
+                        loop judyLNext (x:xs) (n'-1)
+        loop judyLFirst [] n
+
+-- FIXME: For n < size, is better use this approach, but for
+-- n ~= size would be better to use LPrev and LLast and dont reverse.
+
+
+-- FIXME: use a less obscure syntax =P
+takeFirst :: (ReversibleHashIO k, Refeable a) => Int -> Map2 k a -> IO [(k,a)]
+takeFirst n m = do
+    l <- withFirst (\r vp -> do { k <- peek vp >>= unHashIO; v <- peek r >>= fromRef; return (k,v) }) n m
+    return $ reverse l
+
+takeFirstElems :: Refeable a => Int -> Map2 k a -> IO [a]
+takeFirstElems n m = do
+    l <- withFirst (\r _ -> peek r >>= fromRef) n m
+    return $ reverse l
 
 internalMap :: (Ptr Value -> Ptr Value -> IO b) -> Map2 k a -> IO [b]
 internalMap f (Map2 j) = do
