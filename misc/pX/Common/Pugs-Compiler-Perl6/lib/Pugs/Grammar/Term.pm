@@ -360,7 +360,7 @@ sub recompile {
                 \:
                 [
                 # :foo<bar>
-                ((_|\w)+) \< ((.)*?) \>
+                ([_|\w]+) \< (.*?) \>
                 { return {
                     pair => { 
                         key   => { single_quoted => $/[0]() }, 
@@ -368,11 +368,14 @@ sub recompile {
                 } } }
                 |
                 # :foo(exp)
-                ((_|\w)+) \(  
+                ([_|\w]+) \(  
                     <?ws>? <Pugs::Grammar::Perl6.perl6_expression> <?ws>? 
                 \)
-                { return {
-                    pair => { 
+                { 
+                    print ":foo(exp) ", Dumper( $/{'Pugs::Grammar::Perl6.perl6_expression'}() );
+                    print ":foo(exp) ", Dumper( $/[0]() );
+                    return {
+                      pair => { 
                         key   => { single_quoted => $/[0]() }, 
                         value => $/{'Pugs::Grammar::Perl6.perl6_expression'}->(), 
                 } } }

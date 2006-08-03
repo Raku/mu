@@ -16,11 +16,12 @@ use Data::Dumper;
 # *ws = &Pugs::Grammar::BaseCategory::ws;
 
 sub perl6_expression {
-    #warn "perl6_expression param: ", Dumper @_;
+    #print "perl6_expression param: ", Dumper @_;
     my $pos = $_[2]{p} || 0;
     #my $s = substr( $_[1], $pos );
     my ( $ast, $to ) = Pugs::Grammar::Expression::ast( $_[1], $_[2] );
     #print "[$_[1],$tail,$pos]\n";
+    #print "perl6_expression to: $to \n";
     return Pugs::Runtime::Match->new( { 
         bool    => \( $ast ? 1 : 0 ),
         str     => \$_[1],
