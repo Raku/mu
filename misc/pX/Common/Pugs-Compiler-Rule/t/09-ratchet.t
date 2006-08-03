@@ -625,9 +625,9 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 }
 
-#TODO:
+TODO:
 {
-    # local $TODO = "failing hash rule interpolation inside itself";
+    local $TODO = "failing hash rule interpolation inside itself";
     my $match;
     my %test = (
         rule1 => Pugs::Compiler::Token->compile('xx %test yy'),  
