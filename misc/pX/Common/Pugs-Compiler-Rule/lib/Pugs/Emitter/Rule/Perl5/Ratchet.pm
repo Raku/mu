@@ -61,12 +61,14 @@ sub emit {
         "  my \$s = \$_[1];\n" .
         #"  my \$pos;\n" .
         #"  print \"match arg_list = \$_[1]\n\";\n" .
+        #"  print 'match ', Dumper(\\\@_);\n" .
         #"  print \"match arg_list = \@{[\%{\$_[1]} ]}\n\" if defined \$_[1];\n" .
         #"  \$pos = 0 unless defined \$pos;   # TODO - .*? \$match \n" .
         #"  print \"match pos = \$pos\n\";\n" .
         "  my \$m;\n" .
 
-        "  for my \$pos ( defined \$_[3]{p} ? \$_[3]{p} : ( 0 .. length( \$s ) - 1 ) ) {\n" .
+        #"  for my \$pos ( defined \$_[3]{p} ? \$_[3]{p} : ( 0 .. length( \$s ) - 1 ) ) {\n" .
+        "  for my \$pos ( defined \$_[3]{p} ? \$_[3]{p} : ( 0 .. length( \$s ) ) ) {\n" .
 
         "    my \%index;\n" . 
         "    my \@match;\n" .
@@ -343,8 +345,12 @@ sub closure {
         unless $code =~ /return/;
         
     return
-        "$_[1] ( ( \$capture = sub $code->( \$m ) ) 
-$_[1]   && return \$m )";
+        "$_[1] do { \n" .
+        "$_[1]   \$capture = sub $code->( \$m ); \n" .
+        # "$_[1]   print 'Capture ', Dumper( \$capture ); \n" .
+        # "$_[1]   print 'Match ', Dumper( \$m->data ); \n" .
+        "$_[1]   return \$m; \n" .
+        "$_[1] }";
 }
 sub capturing_group {
     my $program = $_[0];

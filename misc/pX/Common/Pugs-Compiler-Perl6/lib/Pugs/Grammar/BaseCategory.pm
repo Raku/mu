@@ -35,20 +35,15 @@ sub add_rule {
     );
 }
 
-#sub capture {
-#    print "capture1: ", Dumper( $_[0]->data ); 
-#    return ${$_[0]};
-#}
-
 sub recompile {
     my ( $class ) = @_;
     no strict qw( refs );
     #print "creating ${class}::parse()\n";
     *{"${class}::parse"} = Pugs::Compiler::Regex->compile( '
-        %' . $class . '::hash
+        <%' . $class . '::hash>
         { 
-            #print "matching hash ", Dumper( $_[0]->data );
-            return $();
+            #print "BaseCategory matching hash ", Dumper( $_[0]->data );
+            return $/->{\'' . $class . '::hash\'}->();
         }
     ' )->code;
 }

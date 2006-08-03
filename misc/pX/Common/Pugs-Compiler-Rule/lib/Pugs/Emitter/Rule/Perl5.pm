@@ -325,6 +325,20 @@ sub metasyntax {
         return 
             "$_[1] alternation( \\$cmd )\n";
     }
+
+    if ( $prefix eq '%' ) {
+        # XXX - runtime or compile-time interpolation?
+        my $name = substr( $cmd, 1 );
+        $capture_seen{$name}++;
+        return "$_[1] named( '$name', " .
+            ( $capture_to_array || ( $capture_seen{$name} > 1 ? 1 : 0 ) ) .  
+            ", hash( \\$cmd ) )\n" 
+            if $cmd =~ /::/;
+        return "$_[1] named( '$name', " .
+            ( $capture_to_array || ( $capture_seen{$name} > 1 ? 1 : 0 ) ) .  
+            ", hash( get_variable( '$cmd' ) ) )\n";
+    }
+
     if ( $prefix eq '$' ) {
         if ( $cmd =~ /::/ ) {
             # call method in fully qualified $package::var

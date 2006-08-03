@@ -97,7 +97,7 @@ sub ast {
             # term.meth() 
             if ( $m2 && $m2->tail && $m2->tail =~ /^\.[^.]/ ) {
                 my $meth = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
-                $meth->data->{capture} = { 
+                $meth->data->{capture} = \{ 
                     op1  => 'method_call', 
                     self => $m2->(), 
                     method => $meth->(),
@@ -110,7 +110,7 @@ sub ast {
             if ( $m2 && $m2->tail && $m2->tail =~ /^\(/ ) {
                 my $paren = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
                 if ( exists $m2->()->{dot_bareword} ) {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         op1 => 'method_call', 
                         self => { 'scalar' => '$_' }, 
                         method => $m2->(), 
@@ -121,13 +121,13 @@ sub ast {
                      && $m2->()->{op1} eq 'method_call'
                      && ! defined $m2->()->{param} 
                 ) {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         %{$m2->()}, 
                         param => $paren->(), 
                     };
                 }
                 else {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         op1 => 'call', 
                         sub => $m2->(), 
                         param => $paren->(), 
@@ -140,7 +140,7 @@ sub ast {
             if ( $m2 && $m2->tail && $m2->tail =~ /^\[/ ) {
                 my $paren = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
                 if ( exists $m2->()->{dot_bareword} ) {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         op1 => 'method_call', 
                         self => { 'scalar' => '$_' }, 
                         method => { bareword => '[]' },
@@ -151,14 +151,14 @@ sub ast {
                      && $m2->()->{op1} eq 'method_call'
                      && ! defined $m2->()->{param} 
                 ) {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         %{$m2->()},
                         method => { bareword => '[]' },
                         param => $paren->()->{exp1}, 
                     };
                 }
                 else {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         fixity => 'postcircumfix', 
                         op1 => { op => "[" }, 
                         op2 => { op => "]" }, 
@@ -173,7 +173,7 @@ sub ast {
             if ( $m2 && $m2->tail && $m2->tail =~ /^\{/ ) {
                 my $paren = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
                 if ( exists $m2->()->{dot_bareword} ) {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         op1 => 'method_call', 
                         self => { 'scalar' => '$_' }, 
                         method => { bareword => '{}' },
@@ -184,14 +184,14 @@ sub ast {
                      && $m2->()->{op1} eq 'method_call'
                      && ! defined $m2->()->{param} 
                 ) {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         %{$m2->()},
                         method => { bareword => '{}' },
                         param => $paren->()->{'bare_block'}, 
                     };
                 }
                 else {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         fixity => 'postcircumfix', 
                         op1 => { op => "{" }, 
                         op2 => { op => "}" }, 
@@ -206,7 +206,7 @@ sub ast {
             if ( $m2 && $m2->tail && $m2->tail =~ /^\</ ) {
                 my $paren = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
                 if ( exists $m2->()->{dot_bareword} ) {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         op1 => 'method_call', 
                         self => { 'scalar' => '$_' }, 
                         method => { bareword => '<>' }, 
@@ -217,14 +217,14 @@ sub ast {
                      && $m2->()->{op1} eq 'method_call'
                      && ! defined $m2->()->{param} 
                 ) {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         %{$m2->()}, 
                         method => { bareword => '<>' },
                         param => $paren->(), 
                     };
                 }
                 else {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         fixity => 'postcircumfix', 
                         op1 => { op => "<" }, 
                         op2 => { op => ">" }, 
@@ -252,7 +252,7 @@ sub ast {
             $m = $m1 if $m1;
             $m = $m2 if $m2;
         }
-        #print Dumper($m);
+        #print Dumper($m->data);
         return ('','') unless ref $m;
 
 # <fglock> like: ( name 1, 2 or 3 ) - is it parsed as name(1,2 or 3) or (name(1,2) or 3)

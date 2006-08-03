@@ -48,7 +48,7 @@ sub compile {
             $pos = $match->to if $match;
             #print "<ws> until $pos; tail [",substr( $source, $pos, 10 ),"...]\n";
             $self->{ast} = Pugs::Grammar::Perl6->statement( $source, { pos => $pos } );
-            #print 'match: ', Dumper( $self->{ast} );
+            print 'match: ', Dumper( $self->{ast}() );
             $pos = $self->{ast}->to if $self->{ast};
         };
         # print 'rule ast: ', Dumper( $self->{ast}() );
@@ -60,7 +60,8 @@ sub compile {
             last;
         }
 
-        push @statement, $self->{ast}();
+        push @statement, $self->{ast}()
+            if ref $self->{ast}();
         last unless $self->{ast}->tail;
         #print "next statement: $tail \n";
 

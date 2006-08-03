@@ -193,6 +193,7 @@ sub named {
                 to    => \( $match->to ),
                 named => \%matches,
                 match => [],
+                capture => $match->data->{capture},
                 state => $match->state,
             });
     }
@@ -216,6 +217,7 @@ sub positional {
                 to    => \( $match->to ),
                 named => {},
                 match => \@matches,
+                capture => $match->data->{capture},
                 state => $match->state,
             });
     }
@@ -321,8 +323,8 @@ sub _preprocess_hash {
         #return $h->code;
         return sub { 
             #print "into subrule - $_[0] - grammar $_[4] - ", Dumper($_[7]); 
-            print $h->{perl5};
-            my $match = $h->match( $_[0], $_[4], $_[7] );
+            #print $h->{perl5};
+            my $match = $h->match( $_[0], $_[4], $_[7], $_[1] );
             #print "match: ",$match->(),"\n";
             $_[3] = $match;
         };
