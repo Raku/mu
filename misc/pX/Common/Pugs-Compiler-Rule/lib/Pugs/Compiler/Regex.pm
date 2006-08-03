@@ -88,11 +88,11 @@ sub compile {
         $cache->set($digest, $self->{perl5}, 'never') if $cache;
     }
 
-    our $evals++;
+    #our $evals++;
 
     local $@;
     $self->{code} = eval 
-        "\#line " . ($evals*1000) . "\n" .
+        # "\#line " . ($evals*1000) . "\n" .
         $self->{perl5};
     die "Error in evaluation: $@\nSource:\n$self->{perl5}\n" if $@;
 

@@ -372,8 +372,11 @@ sub recompile {
                     <?ws>? <Pugs::Grammar::Perl6.perl6_expression> <?ws>? 
                 \)
                 { 
-                    print ":foo(exp) ", Dumper( $/{'Pugs::Grammar::Perl6.perl6_expression'}() );
-                    print ":foo(exp) ", Dumper( $/[0]() );
+                    print __LINE__ . ":foo(exp)1 ", Dumper( $/{'Pugs::Grammar::Perl6.perl6_expression'}() );
+                    print __LINE__ . ":foo(exp)2 ", Dumper( $/[0] );
+                    print __LINE__ . ":foo(exp)3 ", Dumper( { 
+                        key   => { single_quoted => 42 }, 
+                        value => 43, } );
                     return {
                       pair => { 
                         key   => { single_quoted => $/[0]() }, 

@@ -13,8 +13,8 @@ use overload (
     '%{}'    => \&hash,
     'bool'   => \&bool,
     '&{}'    => \&code,
-    '${}'    => \&code,
-    '""'     => \&flat,
+    '${}'    => \&scalar,
+    '""'     => \&str,
     '0+'     => \&flat,
     fallback => 1,
 );
@@ -70,6 +70,12 @@ sub state {
 sub code {
     my $c = $_[0]->flat;
     return sub { $c };
+}
+
+# return the capture
+sub scalar {
+    my $c = $_data{id $_[0]}->{capture};
+    return $c;
 }
 
 1;

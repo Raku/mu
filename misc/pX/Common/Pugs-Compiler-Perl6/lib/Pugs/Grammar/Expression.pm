@@ -252,7 +252,8 @@ sub ast {
             $m = $m1 if $m1;
             $m = $m2 if $m2;
         }
-        #print Dumper($m->data);
+        #print "Term or expression: ",Dumper $m->data;
+
         return ('','') unless ref $m;
 
 # <fglock> like: ( name 1, 2 or 3 ) - is it parsed as name(1,2 or 3) or (name(1,2) or 3)
@@ -260,8 +261,6 @@ sub ast {
 # <TimToady> so name(1,2) or 3
 # <TimToady> but it will fail compilation if name is not supplied by CHECK time.
 # <TimToady> it will also fail if name is declared as a unary or 0-ary func.
-
-        print "Term or expression: ",Dumper $m->data;
 
         my $ast = $m->();
         $ast->{pos} = $pos;
