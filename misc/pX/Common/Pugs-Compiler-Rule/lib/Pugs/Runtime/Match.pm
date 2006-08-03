@@ -5,7 +5,7 @@ use 5.006;
 use strict;
 use warnings;
 use Data::Dumper;
-# use Data::Dump::Streamer;  # TODO
+use Data::Dump::Streamer;  
 use Class::InsideOut qw( public register id );
 
 use overload (
@@ -26,6 +26,14 @@ sub new {
     my $obj = register( bless \(my $s), $class );
     $_data{ id $obj } = $match;
     return $obj;
+}
+
+sub DDS_freeze { 
+    my $str = Data::Dump::Streamer::Dump($_[0]->data)->Out;
+    my $cls = ref($_[0]);
+    $str =~ s/[^=]*=/$cls->new(/;
+    $str =~ s/;/)/;
+    return $str;
 }
 
 sub from  {  ${$_data{id $_[0]}->{from}}  }

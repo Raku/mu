@@ -252,9 +252,8 @@ sub ast {
             $m = $m1 if $m1;
             $m = $m2 if $m2;
         }
-        #print "Term or expression: ",Dumper $m->data;
-
         return ('','') unless ref $m;
+        #print "Term or expression: ",Dumper $m->data;
 
 # <fglock> like: ( name 1, 2 or 3 ) - is it parsed as name(1,2 or 3) or (name(1,2) or 3)
 # <TimToady> it will be taken provisionally as a listop, with listop precedence

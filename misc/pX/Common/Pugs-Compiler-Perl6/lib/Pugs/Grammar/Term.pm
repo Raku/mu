@@ -41,10 +41,10 @@ sub substitution {
     return Pugs::Runtime::Match->new( { 
         bool    => \1,
         str     => \$_[0],
-        match   => [ $extracted, $extracted2 ],
+        match   => [],
         from    => \$pos,
-        to      => \( length($_[0]) - length($remainder) - $pos ),
-        capture => { options => $options, substitution => [$extracted, $extracted2] },
+        to      => \( length($_[0]) - length($remainder) - $pos + 1 ),
+        capture => \{ options => $options, substitution => [$extracted, $extracted2] },
     } );
 };
 
@@ -81,10 +81,10 @@ sub rx_body {
     return Pugs::Runtime::Match->new( { 
         bool    => \1,
         str     => \$_[0],
-        match   => [ $extracted ],
+        match   => [],
         from    => \$pos,
-        to      => \( length($_[0]) - length($remainder) - $pos ),
-        capture => { rx => $extracted },
+        to      => \( length($_[0]) - length($remainder) - $pos + 1 ),
+        capture => \{ rx => $extracted },
     } );
 };
 
@@ -99,10 +99,10 @@ sub single_quoted {
     return Pugs::Runtime::Match->new( { 
         bool    => \1,
         str     => \$_[0],
-        match   => [ $extracted ],
+        match   => [],
         from    => \$pos,
-        to      => \( length($_[0]) - length($remainder) - $pos ),
-        capture => $extracted,
+        to      => \( length($_[0]) - length($remainder) - $pos + 1 ),
+        capture => \$extracted,
     } );
 }
 
@@ -117,10 +117,10 @@ sub double_quoted {
     return Pugs::Runtime::Match->new( { 
         bool    => \1,
         str     => \$_[0],
-        match   => [ $extracted ],
+        match   => [],
         from    => \$pos,
-        to      => \( length($_[0]) - length($remainder) - $pos ),
-        capture => $extracted,
+        to      => \( length($_[0]) - length($remainder) - $pos + 1 ),
+        capture => \$extracted,
     } );
 }
 
@@ -135,10 +135,10 @@ sub angle_quoted {
     return Pugs::Runtime::Match->new( { 
         bool    => \1,
         str     => \$_[0],
-        match   => [ $extracted ],
+        match   => [],
         from    => \$pos,
-        to      => \( length($_[0]) - length($remainder) - $pos ),
-        capture => $extracted,
+        to      => \( length($_[0]) - length($remainder) - $pos + 1 ),
+        capture => \$extracted,
     } );
 }
 
@@ -372,11 +372,6 @@ sub recompile {
                     <?ws>? <Pugs::Grammar::Perl6.perl6_expression> <?ws>? 
                 \)
                 { 
-                    print __LINE__ . ":foo(exp)1 ", Dumper( $/{'Pugs::Grammar::Perl6.perl6_expression'}() );
-                    print __LINE__ . ":foo(exp)2 ", Dumper( $/[0] );
-                    print __LINE__ . ":foo(exp)3 ", Dumper( { 
-                        key   => { single_quoted => 42 }, 
-                        value => 43, } );
                     return {
                       pair => { 
                         key   => { single_quoted => $/[0]() }, 
@@ -418,7 +413,7 @@ sub recompile {
             |
                 ### Test-0.0.6
                 <Pugs::Grammar::Term.cpan_bareword> 
-                { return $/{'Pugs::Grammar::Term.cpan_bareword'}->() }
+                { return { cpan_bareword => $/{'Pugs::Grammar::Term.cpan_bareword'}->() } }
             |
                 ### Test::More
                 <Pugs::Grammar::Term.bare_ident> 
