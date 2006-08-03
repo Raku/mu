@@ -175,14 +175,14 @@ changeMInternals kids = if (matchOnType (head kids) (LiteralNode Text "" "")) th
 --Function to apply the regexString parser to a string
 regexChange :: String -> String
 regexChange instr = case parse regexString "regex" instr of
-                                Left err -> error $ "\nError:\n" ++ show err
+                                Left err -> error $ "\nError:\n" ++ show err ++"\nIN:\n"++instr
                                 Right result -> result
 
 --Function to apply the captureString parser to a string, aliasing all
 --captures so that $1 (and friends) are still the same in Perl 6
 regexChangeCaptures :: String -> String
 regexChangeCaptures instr = case parse (captureString 1) "regex (Captures)" instr of
-                                    Left err -> error $ "\nError:\n" ++ show err
+                                    Left err -> error $ "\nError:\n" ++ show err ++"\nIN:\n"++instr
                                     Right result -> result
 
 --Parses all captures from a regex into Perl 6 aliases.
@@ -203,6 +203,7 @@ captureString depth = do{ strs <- manyTill (choice[ do{try(string "\\("); return
 --If it's not null, it's a series of regex characters, handled by the regexChar parser
 regexString :: Parser String
 regexString = choice[ do{try(eof); return "<prior>"},
+                      do{try(char '{'); strs <- (manyTill regexChar eof); return ('{':(joinString strs))},
                       do{strs <- (manyTill regexChar eof); return (joinString strs)}]
 
 --The regexChar parser takes care of all changed metacharacters, as well as de-meta-ing
@@ -213,6 +214,7 @@ regexChar :: Parser String
 regexChar = choice[do{try(string "\\\\"); return "\\\\"},      --Get rid of literal \, make sure only metacharacter \ can trigger the other choices
                    do{try(string "\\("); return "\\("},        --Make sure we don't get a literal paren (this way only metcharacter parens can hit the other choices
                    do{try(string "\\)"); return "\\)"},        --Don't let "\)" get confused with ")"
+                   do{try(string "\\{"); return "\\{"},        --Don't confuse "\{" and "{"
                    do{try(string "\\}"); return "\\}"},        --Don't confuse "\}" and "}"
                    do{try(string "\\]"); return "\\]"},        --Don't let "\]" take the place of "]"
                    do{try(string " "); return "<sp>"},         --Handle (space) -> <sp>
@@ -257,7 +259,7 @@ regexChar = choice[do{try(string "\\\\"); return "\\\\"},      --Get rid of lite
 --Wrapper for parsing the count modifier in regexs
 countRegex :: String -> String
 countRegex instr = case parse countString "regex count" instr of
-                                Left err -> error $ "\nError:\n" ++ show err
+                                Left err -> error $ "\nError:\n"++ show err ++"\nIN:\n"++instr
                                 Right result -> result
                                 
 
@@ -352,11 +354,12 @@ lengthToMethod (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 --Actually performs change to method call
 toCharMethod :: [P5AST] -> [P5AST]
 toCharMethod [] = []
-toCharMethod kids = case [(matchWithoutEnc (head kids) (LiteralNode Operator "" "length")), (matchWithoutEnc (head (drop 1 kids)) (LiteralNode Opener "" "("))] of
-                      [True, True]   -> [(head (drop 2 kids)), (LiteralNode Operator "" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "chars")])])]++(drop 4 kids)
-                      [True, False]  -> [(head (drop 1 kids)),(LiteralNode Operator "" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "chars")])])]++(drop 2 kids)
-                      [False, True]  -> (head kids):(toCharMethod (drop 1 kids))
-                      [False, False] -> (head kids):(toCharMethod (drop 1 kids))
+toCharMethod kids = if ((length kids) >= 2) then case [(matchWithoutEnc (head kids) (LiteralNode Operator "" "length")), (matchWithoutEnc (head (drop 1 kids)) (LiteralNode Opener "" "("))] of
+                                             [True, True]   -> [(head (drop 2 kids)), (LiteralNode Operator "" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "chars")])])]++(drop 4 kids)
+                                             [True, False]  -> [(head (drop 1 kids)),(LiteralNode Operator "" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "chars")])])]++(drop 2 kids)
+                                             [False, True]  -> (head kids):(toCharMethod (drop 1 kids))
+                                             [False, False] -> (head kids):(toCharMethod (drop 1 kids))
+                                                               else kids
 
 {-Translates split calls on a regex with an explicit match (i.e. split(/blah/m, $something) to no longer
 use the /m which now happens immediately. -}
@@ -386,9 +389,10 @@ readlineTranslate (Heredoc start end kids) = (Heredoc start end kids)
 readlineMethod :: [P5AST] -> [P5AST]
 readlineMethod [] = []
 readlineMethod kids = case (matchOnType (head kids) (LiteralNode Token "" "")) of
-                        True  -> case ((head (tail (extractUni (head (tail kids)))))=='$') of 
+                        True  -> if ((length kids) >= 2) then case ((head (tail (extractUni (head (tail kids)))))=='$') of 
                                    True  -> [(LiteralNode Sigil "" (drop 1 (reverse (drop 1 (reverse (extractUni (head kids))))))), (LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "readline")])])]++(drop 1 kids)
                                    False -> [(LiteralNode Sigil "" ('$':(drop 1 (reverse (drop 1 (reverse (extractUni (head kids)))))))), (LiteralNode Operator "1" "."), (AbstractNode Op_method [(AbstractNode Op_const [(LiteralNode Token "1" "readline")])])]++(drop 1 kids)
+                                            else kids
                         False -> (head kids):(readlineMethod (drop 1 kids))
 
 regexModifiers :: P5AST -> P5AST
