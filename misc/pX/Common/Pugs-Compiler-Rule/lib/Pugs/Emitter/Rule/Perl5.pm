@@ -151,6 +151,14 @@ sub alt {
     my $max = -1;
     for ( @{$_[0]} ) { 
         $capture_count = $count;
+
+        my $_capture_count      = $capture_count;
+        my $_capture_to_array   = $capture_to_array;
+        my %_capture_seen       = ( %capture_seen );
+        local $capture_count    = $_capture_count;
+        local $capture_to_array = $_capture_to_array;
+        local %capture_seen     = ( %_capture_seen );
+
         my $tmp = emit_rule( $_, $_[1].'  ' );
         # print ' ',$capture_count;
         $max = $capture_count 
