@@ -88,10 +88,20 @@ sub compile {
         $cache->set($digest, $self->{perl5}, 'never') if $cache;
     }
 
+    our $evals++;
+
     local $@;
     $self->{code} = eval 
+        "\#line " . ($evals*1000) . "\n" .
         $self->{perl5};
     die "Error in evaluation: $@\nSource:\n$self->{perl5}\n" if $@;
+
+    #my $code = $self->{code};
+    #my $e = $evals;
+    #my $c = $self->{perl5};
+    #my $x = 1;
+    #$c =~ s/\n/"\n".++$x.": "/seg;
+    #$self->{code} = sub { print "calling #$e <<< $rule_source >>> compiles to <<< $c >>>\n"; $code->(@_); };
 
     bless $self, $class;
 }

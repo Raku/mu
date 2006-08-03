@@ -24,8 +24,7 @@ sub call_subrule {
         #"$tab     print \"param: \",Dumper( \@_ );\n" .
         "$tab     my \$param = { \%{ \$_[7] || {} }, args => {" . join(", ",@param) . "} };\n" .
         "$tab     \$_[3] = $subrule( \$_[0], \$param, \$_[3],  );\n" .
-        #"$tab     print \"match: \",Dumper(\$_[3]->data);\n" .
-        "$tab     return \$_[3]->data->{state};\n" .
+        #"$tab     print \"subrule match: \",Dumper(\$_[3]->data);\n" .
         "$tab }\n";
 }
 
@@ -247,13 +246,13 @@ sub closure {
     
     # XXX XXX XXX - source-filter - temporary hacks to translate p6 to p5
     # $()<name>
-    $code =~ s/ ([^']) \$ \( \) < (.*?) > /$1 \$_[0]->[$2] /sgx;
+    $code =~ s/ ([^']) \$ \( \) < (.*?) > /$1 \$_[0]->[$2]/sgx;
     # $<name>
-    $code =~ s/ ([^']) \$ < (.*?) > /$1 \$_[0]->{$2} /sgx;
+    $code =~ s/ ([^']) \$ < (.*?) > /$1 \$_[0]->{$2}/sgx;
     # $()
-    $code =~ s/ ([^']) \$ \( \) /$1 \$_[0]->() /sgx;
+    $code =~ s/ ([^']) \$ \( \) /$1 \$_[0]->()/sgx;
     # $/
-    $code =~ s/ ([^']) \$ \/ /$1 \$_[0] /sgx;
+    $code =~ s/ ([^']) \$ \/ /$1 \$_[0]/sgx;
     #print "Code: $code\n";
     
     return 
@@ -346,7 +345,6 @@ sub metasyntax {
             "$_[1] sub { \n" . 
             # "$_[1]     print 'params: ',Dumper(\@_);\n" . 
             "$_[1]     \$_[3] = $cmd->match( \$_[0], \$_[4], \$_[7], \$_[1] );\n" .
-            "$_[1]     return \$_[3]->data->{state};\n" .
             "$_[1] }\n";
         }
         # call method in lexical $var
@@ -355,7 +353,6 @@ sub metasyntax {
             #"$_[1]     print 'params: ',Dumper(\@_);\n" . 
             "$_[1]     my \$r = get_variable( '$cmd' );\n" . 
             "$_[1]     \$_[3] = \$r->match( \$_[0], \$_[4], \$_[7], \$_[1] );\n" .
-            "$_[1]     return \$_[3]->data->{state};\n" .
             "$_[1] }\n";
     }
     if ( $prefix eq q(') ) {   # single quoted literal ' 

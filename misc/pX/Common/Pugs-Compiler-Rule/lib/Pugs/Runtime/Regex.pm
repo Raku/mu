@@ -16,6 +16,7 @@ sub alternation {
     return sub {
         my @state = $_[1] ? @{$_[1]} : ( 0, undef );
         while ( $state[0] <= $#$nodes ) {
+            #print "alternation $state[0] ",Dumper($nodes->[ $state[0] ]);
             $nodes->[ $state[0] ]->( $_[0], $state[1], @_[2..7] );
             $state[1] = $_[3]->state;
             $state[0]++ unless $state[1];
