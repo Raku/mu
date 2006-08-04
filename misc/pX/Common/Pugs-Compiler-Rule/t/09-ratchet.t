@@ -222,7 +222,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     my $rule = Pugs::Compiler::Token->compile('some (text) { return { a => $_[0][0] ,} } ', { ratchet => 1 });
     #print "Source: ", do{use Data::Dumper; Dumper($rule->perl5)};
     my $match = $rule->match("sometext");
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #print "Match: ", do{use Data::Dumper; Dumper($match->data)};
     my $capture = $match->();
     is(ref($capture),'HASH','Capture is a hashref');
     is($capture->{a},'text','$capture->{a}');
@@ -242,9 +242,9 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     my $rule = Pugs::Compiler::Token->compile(
         ' { return { a => "sometext" ,} } ', 
         { ratchet => 1, p => 0 });
-    print $rule->{perl5};
+    #print $rule->{perl5};
     my $match = $rule->match("");
-    print Dumper($match);
+    #print Dumper($match);
     my $capture = $match->();
     is($capture->{a},'sometext','simple capture');
 }
@@ -619,7 +619,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is($v,1,"closure was called hash{use}");
 
     $match = $rule1->match("untilaba123");
-    #print Dump($match);
+    #print Dumper($match->data);
     is($match,'untilaba123',"subrule hash{until}");
     is($match->(),'untilaba123',"subrule hash{until} - 2");
 

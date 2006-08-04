@@ -75,10 +75,10 @@ sub emit {
         "    my \%named;\n" .
         #"  my \$from = \$pos;\n" .
         "    my \$bool = 1;\n" .
-        "    my \$capture;\n" .
+        #"    my \$capture;\n" .
         "    \$m = Pugs::Runtime::Match->new( { \n" .
         "      str => \\\$s, from => \\(0+\$pos), to => \\(\$pos), \n" .
-        "      bool => \\\$bool, match => \\\@match, named => \\\%named, capture => \\\$capture, \n" .
+        "      bool => \\\$bool, match => \\\@match, named => \\\%named, capture => undef, \n" .
         "    } );\n" .
         "    \$bool = 0 unless\n" .
         emit_rule( $ast, '   ' ) . ";\n" .
@@ -316,7 +316,7 @@ sub closure {
             return 
                 "do { 
                     \$::_V6_MATCH_ = \$m; 
-                    \$capture = sub { $perl5 }->();
+                    \$m->data->{capture} = \\( sub { $perl5 }->() );
                     \$bool = 1;
                     return \$m;
                 }" if $perl5 =~ /return/;
@@ -346,9 +346,7 @@ sub closure {
         
     return
         "$_[1] do { \n" .
-        "$_[1]   \$capture = sub $code->( \$m ); \n" .
-        # "$_[1]   print 'Capture ', Dumper( \$capture ); \n" .
-        # "$_[1]   print 'Match ', Dumper( \$m->data ); \n" .
+        "$_[1]   \$m->data->{capture} = \\( sub $code->( \$m ) ); \n" .
         "$_[1]   return \$m; \n" .
         "$_[1] }";
 }
@@ -369,10 +367,9 @@ $_[1]       my \$bool = 1;
 $_[1]       my \$from = \$pos;
 $_[1]       my \@match;
 $_[1]       my \%named;
-$_[1]       my \$capture;
 $_[1]       \$bool = 0 unless
 " .             $program . ";
-$_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \\\$bool, to => \\(0+\$pos), capture => \\\$capture }
+$_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \\\$bool, to => \\(0+\$pos), capture => undef }
 $_[1]     };
 $_[1]     my \$bool = \${\$hash->{'bool'}};" .
         ( $capture_to_array 
@@ -410,10 +407,9 @@ $_[1]       my \$bool = 1;
 $_[1]       my \$from = \$pos;
 $_[1]       my \@match;
 $_[1]       my \%named;
-$_[1]       my \$capture;
 $_[1]       \$bool = 0 unless
 $program;
-$_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \\\$bool, to => \\(0+\$pos), capture => \\\$capture }
+$_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \\\$bool, to => \\(0+\$pos), capture => undef }
 $_[1]     };
 $_[1]     my \$bool = \${\$hash->{'bool'}};
 .
@@ -449,7 +445,6 @@ $_[1]       my \$pos = \$pos1;
 $_[1]       my \$from = \$pos;
 $_[1]       my \@match;
 $_[1]       my \%named;
-$_[1]       my \$capture;
 $_[1]       \$bool = " . $program . " ? 0 : 1;
 $_[1]       \$bool;
 $_[1]     };
@@ -466,7 +461,6 @@ $_[1]       my \$pos = \$pos1;
 $_[1]       my \$from = \$pos;
 $_[1]       my \@match;
 $_[1]       my \%named;
-$_[1]       my \$capture;
 $_[1]       \$bool = 0 unless
 " .             $program . ";
 $_[1]       \$bool;
@@ -489,7 +483,6 @@ $_[1]       my \$pos = \$pos1 - 1;
 $_[1]       my \$from = \$pos;
 $_[1]       my \@match;
 $_[1]       my \%named;
-$_[1]       my \$capture;
 $_[1]       \$bool = 0 unless
 " .             $program . ";
 $_[1]       \$bool;

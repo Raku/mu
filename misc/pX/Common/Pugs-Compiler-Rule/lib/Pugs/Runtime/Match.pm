@@ -15,7 +15,7 @@ use overload (
     '&{}'    => \&code,
     '${}'    => \&scalar,
     '""'     => \&str,
-    '0+'     => \&flat,
+    '0+'     => \&str,
     fallback => 1,
 );
 

@@ -35,12 +35,12 @@ q(sub {
     for ( 1 .. $#+ ) {
       push @match, Pugs::Runtime::Match->new({
         str => \\$s, from => \\(0+$-[$_]), to => \\(0+$+[$_]),
-        bool => \\1, match => [], named => {}, capture => \\undef,
+        bool => \\1, match => [], named => {}, capture => undef,
       });
     }
     return Pugs::Runtime::Match->new({
       str => \\$s, from => \\(0+$-[0]), to => \\(0+$+[0]),
-      bool => \\$bool, match => \\@match, named => {}, capture => \\undef,
+      bool => \\$bool, match => \\@match, named => {}, capture => undef,
     });
   }
 
@@ -50,12 +50,12 @@ q(sub {
   for ( 1 .. $#+ ) {
       push @match, Pugs::Runtime::Match->new({
         str => \\$s, from => \\(0+$-[$_]), to => \\(0+$+[$_]),
-        bool => \\1, match => [], named => {}, capture => \\undef,
+        bool => \\1, match => [], named => {}, capture => undef,
       });
   }
   return Pugs::Runtime::Match->new({
     str => \\$s, from => \\(0+$-[0]), to => \\(0+$+[0]),
-    bool => \\$bool, match => \\@match, named => {}, capture => \\undef,
+    bool => \\$bool, match => \\@match, named => {}, capture => undef,
   });
 
 };

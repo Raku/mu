@@ -1,5 +1,5 @@
 
-use Test::More tests => 47;
+use Test::More tests => 49;
 use Data::Dumper;
 
 use_ok( 'Pugs::Compiler::Regex' );
@@ -46,9 +46,17 @@ use_ok( 'Pugs::Grammar::Base' );
 }
 
 {
+    my $rule = Pugs::Compiler::Regex->compile( '(.)' );
+    my $match = $rule->match( "xyzw" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match->data)};
+    is( "$match", "x", 'stringify 1' );
+    is( $match->(), "x", 'stringify 1' );
+}
+
+{
     my $rule = Pugs::Compiler::Regex->compile( '((.).)(.)' );
     my $match = $rule->match( "xyzw" );
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #print "Match: ", do{use Data::Dumper; Dumper($match->data)};
     is( "$match", "xyz", 'stringify 1' );
     is( $match->(), "xyz", 'stringify 1' );
     is( "$match->[0]", "xy", 'stringify 2' );
