@@ -44,12 +44,19 @@ sub perl6_expression {
 *block = Pugs::Compiler::Token->compile( q(
     \{ <?ws>? 
         #{ print "block\n" }
-        <statements> 
+        <statements>
         #{ print "matched block\n" }
         <?ws>? \}
         { 
             return { 
                 bare_block => $_[0]{statements}->(),
+            } 
+        }
+    |
+    \{ <?ws>? \}
+        { 
+            return { 
+                bare_block => { statements => [] } 
             } 
         }
     |
