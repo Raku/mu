@@ -42,7 +42,11 @@ sub perl6_expression {
 )->code;
 
 *block = Pugs::Compiler::Token->compile( q(
-    \{ <?ws>? <statements> <?ws>? \}
+    \{ <?ws>? 
+        #{ print "block\n" }
+        <statements> 
+        #{ print "matched block\n" }
+        <?ws>? \}
         { 
             return { 
                 bare_block => $_[0]{statements}->(),
@@ -570,21 +574,12 @@ sub perl6_expression {
     [ ; <?ws>? ]*
 
     [
-        <before <'}'> > 
-        { 
-            return {
-                statements => [],
-        } }
+        <before <'}'> > { $::_V6_SUCCEED = 0 } 
     |
-
         <statement> 
         <?ws>? [ ; <?ws>? ]*
         [
-            <before <'}'> >
-            { 
-                return {
-                    statements => [ $_[0]{statement}->() ],
-            } }
+            <before <'}'> > { $::_V6_SUCCEED = 0 }
         |
             <statements> 
             { return {

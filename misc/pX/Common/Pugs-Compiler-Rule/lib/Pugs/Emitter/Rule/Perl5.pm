@@ -1,5 +1,7 @@
 package Pugs::Emitter::Rule::Perl5;
 
+use Pugs::Emitter::Rule::Perl5::Ratchet;
+
 # p6-rule perl5 emitter
 
 # XXX - cleanup unused nodes

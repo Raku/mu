@@ -78,6 +78,7 @@ sub compile {
         if ( $self->{ratchet} ) {
             $self->{perl5} = Pugs::Emitter::Rule::Perl5::Ratchet::emit( 
                  $self->{grammar}, $ast, $self );
+            #print "token: ", $self->{perl5};
         }
         else {
             $self->{perl5} = Pugs::Emitter::Rule::Perl5::emit( 

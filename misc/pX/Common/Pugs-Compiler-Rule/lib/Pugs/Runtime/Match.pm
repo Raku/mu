@@ -8,6 +8,10 @@ use Data::Dumper;
 use Data::Dump::Streamer;  
 use Class::InsideOut qw( public register id );
 
+# class method
+# ::fail can be called from inside closures
+# sub ::fail { $::_V6_SUCCEED = 0 }
+
 use overload (
     '@{}'    => \&array,
     '%{}'    => \&hash,

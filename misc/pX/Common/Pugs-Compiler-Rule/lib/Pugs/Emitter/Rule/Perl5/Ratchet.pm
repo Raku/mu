@@ -24,7 +24,7 @@ sub call_subrule {
     $subrule = "\$grammar->" . $subrule unless $subrule =~ / :: | \. | -> /x;
     $subrule =~ s/\./->/;   # XXX - source filter
     return 
-        "$tab     $subrule( \$s, { p => \$pos, args => {" . join(", ",@param) . "} }, \$_[3] )";
+        "$tab     $subrule( \$s, { p => \$pos, args => {" . join(", ",@param) . "} }, undef )";
 }
 
 sub call_constant {
@@ -316,15 +316,17 @@ sub closure {
             return 
                 "do { 
                     \$::_V6_MATCH_ = \$m; 
+                    local \$::_V6_SUCCEED = 1;
                     \$m->data->{capture} = \\( sub { $perl5 }->() );
-                    \$bool = 1;
-                    return \$m;
+                    \$bool = \$::_V6_SUCCEED;
+                    return \$m if \$bool;
                 }" if $perl5 =~ /return/;
             return 
                 "do { 
                     \$::_V6_MATCH_ = \$m; 
+                    local \$::_V6_SUCCEED = 1;
                     sub { $perl5 }->();
-                    1;
+                    \$::_V6_SUCCEED;
                 }";
         }        
     }
@@ -341,14 +343,21 @@ sub closure {
     #print "Code: $code\n";
     
     return 
-        "$_[1] ( sub $code->( \$m ) || 1 )" 
+        "$_[1] do {\n" .
+        "$_[1]   local \$::_V6_SUCCEED = 1;\n" .
+        "$_[1]   sub $code->( \$m );\n" .
+        "$_[1]   \$::_V6_SUCCEED;\n" .
+        "$_[1] }" 
         unless $code =~ /return/;
         
     return
         "$_[1] do { \n" .
+        "$_[1]   local \$::_V6_SUCCEED = 1;\n" .
         "$_[1]   \$m->data->{capture} = \\( sub $code->( \$m ) ); \n" .
-        "$_[1]   return \$m; \n" .
+        "$_[1]   \$bool = \$::_V6_SUCCEED;\n" .
+        "$_[1]   return \$m if \$bool; \n" .
         "$_[1] }";
+
 }
 sub capturing_group {
     my $program = $_[0];
