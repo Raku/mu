@@ -61,13 +61,13 @@ foreign import ccall "wrapper" mkFin :: (Ptr JudySL -> IO ()) -> IO (FunPtr (Ptr
 
 finalize :: Bool -> Ptr JudySL -> IO ()
 finalize need j = do
-    putStrLn $ show $ need
+    --putStrLn $ show $ need
     when need $ do
         j_ <- newForeignPtr_ j
         es <- rawElems (MapSL j_)
         mapM_ GC.freeRef es
     v <- judySLFreeArray j judyError
-    putStrLn $ "\n(FINALIZER CALLED FOR "++ (show j) ++  ": " ++ (show v) ++ ")\n"
+    --putStrLn $ "\n(FINALIZER CALLED FOR "++ (show j) ++  ": " ++ (show v) ++ ")\n"
     return ()
 
 rawElems = internalMap $ \r _ -> peek r

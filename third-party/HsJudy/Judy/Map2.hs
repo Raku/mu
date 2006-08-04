@@ -72,7 +72,7 @@ finalize need j = do
         es <- rawElems (Map2 j_)
         mapM_ GC.freeRef es
     v <- judyLFreeArray j judyError
-    putStrLn $ "\n(FINALIZER CALLED FOR "++ (show j) ++  ": " ++ (show v) ++ ")\n"
+    --putStrLn $ "\n(FINALIZER CALLED FOR "++ (show j) ++  ": " ++ (show v) ++ ")\n"
     return ()
 
 rawElems = internalMap $ \r _ -> peek r
