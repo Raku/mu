@@ -46,10 +46,11 @@ sub compile {
 
     while (1) {
 
-        print "source pos: $pos\n";
+        #print "source pos: $pos\n";
 
         while ( $source_pos < $pos ) {
             my $i = index( $source, "\n", $source_pos + 1);
+            last if $i < 0;
             $source_pos = $i;
             $source_line_number++;
             print "line $source_line_number at pos $source_pos\n";
