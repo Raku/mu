@@ -268,10 +268,10 @@ sub recompile {
                 { return $_[0]{'Pugs::Grammar::Term.brackets'}->() }
             ) ),
         '{' => Pugs::Compiler::Regex->compile( q(
-                <?ws>? <Pugs::Grammar::Perl6.statements_or_null> <?ws>? <'}'>
+                <?ws>? <Pugs::Grammar::Perl6.statements> <?ws>? <'}'>
                 { 
                   return { 
-                    bare_block => $_[0]{'Pugs::Grammar::Perl6.statements_or_null'}->(),
+                    bare_block => $_[0]{'Pugs::Grammar::Perl6.statements'}->(),
                 } }
             ) ),
 
@@ -279,16 +279,16 @@ sub recompile {
         '->' => Pugs::Compiler::Regex->compile( q( 
         [
             <?ws>? <Pugs::Grammar::Perl6.signature_no_invocant> <?ws>? 
-            \{ <?ws>? <Pugs::Grammar::Perl6.statements_or_null> <?ws>? \}
+            \{ <?ws>? <Pugs::Grammar::Perl6.statements> <?ws>? \}
             { return { 
-                pointy_block => $_[0]{'Pugs::Grammar::Perl6.statements_or_null'}->(),
+                pointy_block => $_[0]{'Pugs::Grammar::Perl6.statements'}->(),
                 signature    => $_[0]{'Pugs::Grammar::Perl6.signature_no_invocant'}->(),
             } }
         |
             <?ws>?
-            \{ <?ws>? <Pugs::Grammar::Perl6.statements_or_null> <?ws>? \}
+            \{ <?ws>? <Pugs::Grammar::Perl6.statements> <?ws>? \}
             { return { 
-                pointy_block => $_[0]{'Pugs::Grammar::Perl6.statements_or_null'}->(),
+                pointy_block => $_[0]{'Pugs::Grammar::Perl6.statements'}->(),
                 signature    => undef,
             } }
         ]

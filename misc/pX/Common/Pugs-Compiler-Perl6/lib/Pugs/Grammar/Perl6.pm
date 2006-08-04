@@ -41,25 +41,27 @@ sub perl6_expression {
     { grammar => __PACKAGE__ }
 )->code;
 
-*block = Pugs::Compiler::Regex->compile( q(
-    \{ : <?ws>? <statements_or_null> <?ws>? \}
-        { return { 
-            bare_block => $_[0]{statements_or_null}->(),
-        } }
+*block = Pugs::Compiler::Token->compile( q(
+    \{ <?ws>? <statements> <?ws>? \}
+        { 
+            return { 
+                bare_block => $_[0]{statements}->(),
+            } 
+        }
     |
-    \-\> : 
+    \-\>  
         [
             <?ws>? <signature_no_invocant> <?ws>? 
-            \{ <?ws>? <statements_or_null> <?ws>? \}
+            \{ <?ws>? <statements> <?ws>? \}
             { return { 
-                pointy_block => $_[0]{statements_or_null}->(),
+                pointy_block => $_[0]{statements}->(),
                 signature    => $_[0]{signature_no_invocant}->(),
             } }
         |
             <?ws>?
-            \{ <?ws>? <statements_or_null> <?ws>? \}
+            \{ <?ws>? <statements> <?ws>? \}
             { return { 
-                pointy_block => $_[0]{statements_or_null}->(),
+                pointy_block => $_[0]{statements}->(),
                 signature    => undef,
             } }
         ]
@@ -302,7 +304,7 @@ sub perl6_expression {
 )->code;
 
 
-*signature = Pugs::Compiler::Regex->compile( q(
+*signature = Pugs::Compiler::Token->compile( q(
         <signature_term> <?ws>? <':'>
         [
             <?ws>? <signature_no_invocant>
@@ -353,18 +355,20 @@ sub perl6_expression {
     { grammar => __PACKAGE__ }
 )->code;
 
-*sub_signature = Pugs::Compiler::Regex->compile( q(
+*sub_signature = Pugs::Compiler::Token->compile( q(
         # (sig)
-        <'('> : <?ws>? <signature> <?ws>? <')'>
-        { return $_[0]{signature}->() }
+        <'('> <?ws>? <signature> <?ws>? <')'>
+        { 
+            #print "sig ", Dumper( $_[0]{signature}->() );
+            return $_[0]{signature}->() 
+        }
     |
         { return [] }
 ),
     { grammar => __PACKAGE__ }
 )->code;
 
-
-*sub_decl = Pugs::Compiler::Regex->compile( q(
+*sub_decl = Pugs::Compiler::Token->compile( q(
     <sub_decl_name> <?ws>? 
         # (sig)
         <sub_signature> <?ws>? 
@@ -562,12 +566,26 @@ sub perl6_expression {
     { grammar => __PACKAGE__ }
 )->code;
 
-*statements = Pugs::Compiler::Regex->compile( q(
+*statements = Pugs::Compiler::Token->compile( q(
     [ ; <?ws>? ]*
+
     [
-        <statement> :
+        <before <'}'> > 
+        { 
+            return {
+                statements => [],
+        } }
+    |
+
+        <statement> 
+        <?ws>? [ ; <?ws>? ]*
         [
-            <?ws>? [ ; <?ws>? ]*
+            <before <'}'> >
+            { 
+                return {
+                    statements => [ $_[0]{statement}->() ],
+            } }
+        |
             <statements> 
             { return {
                 statements => [
@@ -577,35 +595,21 @@ sub perl6_expression {
                 }
             }
         |
-            { return {
+            { 
+            return {
                 statements => [ $_[0]{statement}->() ],
             } }
         ]
-    |
-        { return {
-            statements => [],
-        } }
     ]
-),
-    { grammar => __PACKAGE__ }
-)->code;
-
-*statements_or_null = Pugs::Compiler::Regex->compile( q(
-    <statements> 
-        { return $_[0]{statements}->() }
-    |
-        { return {
-            statements => [],
-        } }
 ),
     { grammar => __PACKAGE__ }
 )->code;
 
 *parse = Pugs::Compiler::Regex->compile( q(
     <?ws>? 
-    <statements_or_null> 
+    <statements> 
     <?ws>? 
-        { return $_[0]{statements_or_null}->() }
+        { return $_[0]{statements}->() }
 ),
     { grammar => __PACKAGE__ }
 )->code;

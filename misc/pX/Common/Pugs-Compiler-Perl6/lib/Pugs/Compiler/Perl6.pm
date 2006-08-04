@@ -44,9 +44,7 @@ sub compile {
     my $source_line_number = 1;
     my $source_pos = 0;
 
-    while (1) {
-
-        #print "source pos: $pos\n";
+    while ( $pos < length( $source ) ) {
 
         while ( $source_pos < $pos ) {
             my $i = index( $source, "\n", $source_pos + 1);
@@ -56,9 +54,12 @@ sub compile {
             print "line $source_line_number at pos $source_pos\n";
         }
 
+        my $match = __PACKAGE__->skip_spaces( $source, { pos => $pos } );
+        $pos = $match->to if $match;
+        last if $pos >= length( $source );
+
         eval {
-            my $match = __PACKAGE__->skip_spaces( $source, { pos => $pos } );
-            $pos = $match->to if $match;
+
             #print "<ws> until $pos; tail [",substr( $source, $pos, 10 ),"...]\n";
             $self->{ast} = Pugs::Grammar::Perl6->statement( $source, { pos => $pos } );
             #print 'match: ', Dumper( $self->{ast}() );
