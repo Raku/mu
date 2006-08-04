@@ -41,9 +41,19 @@ sub compile {
     my $error = 0;
     my $pos = $self->{p} || 0;
 
+    my $source_line_number = 1;
+    my $source_pos = 0;
+
     while (1) {
 
-        #print "source pos: $pos\n";
+        print "source pos: $pos\n";
+
+        while ( $source_pos < $pos ) {
+            my $i = index( $source, "\n", $source_pos + 1);
+            $source_pos = $i;
+            $source_line_number++;
+            print "line $source_line_number at pos $source_pos\n";
+        }
 
         eval {
             my $match = __PACKAGE__->skip_spaces( $source, { pos => $pos } );
