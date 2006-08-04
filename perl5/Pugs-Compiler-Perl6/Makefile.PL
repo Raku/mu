@@ -12,6 +12,7 @@ BEGIN {
 }
 use lib '../..', (@inc ? $inc[-1] : ());
 use inc::Module::Install @inc;
+use File::Spec;
 
     name('v6-alpha');
 all_from('lib/v6.pm');
@@ -44,10 +45,13 @@ if (@inc) {
 }
 
 makemaker_args  (
-    test => { TESTS => join ' ', "t/*.t", "t/*/*.t", "t/*/*/*.t" },
+    test => {
+        TESTS => join ' ',
+            map {glob File::Spec->catfile('t', ('*') x $_, '*.t')} 0..3
+    },
 );
 
-clean_files('t/*.tc', 't/*.pmc', 't/*/*.tc', 't/*/*.pmc', 't/*/*/*.tc', 't/*/*/*.pmc');
+clean_files(map {glob File::Spec->catfile('t', ('*') x $_, '*.{t,pm}c')} 0..3);
 
 &WriteAll;
 
