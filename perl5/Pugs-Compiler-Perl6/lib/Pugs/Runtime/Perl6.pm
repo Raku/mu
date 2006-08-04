@@ -8,6 +8,9 @@ use Data::Dumper;
 use Data::Bind;
 use Sub::Multi;
 
+use IO::File ();
+use Pugs::Compiler::Regex ();
+
 # TODO - see Pugs::Runtime::Grammar for metaclass stuff
 
 use constant Inf => 100**100**100;
