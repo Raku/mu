@@ -51,7 +51,7 @@ sub compile {
             last if $i < 0;
             $source_pos = $i;
             $source_line_number++;
-            print "line $source_line_number at pos $source_pos\n";
+            #print "line $source_line_number at pos $source_pos\n";
         }
 
         my $match = __PACKAGE__->skip_spaces( $source, { pos => $pos } );
