@@ -189,6 +189,11 @@ _alias_a_to_b(SVREF a, SVREF b, int read_only)
         type = 0;
     }
 
+    /* other mg */
+    if ( type == SVt_PVMG && SvMAGIC(b)->mg_virtual != &alias_vtbl) {
+        type = 0;
+    }
+
     /* if @array is bound to other thing, binding $array[1] to $x */
     if ( type == SVt_PVLV && SvMAGIC(b) ) {
         type = 0;
