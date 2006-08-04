@@ -1,9 +1,10 @@
 use v6-alpha;
 
-## test perl 6 regexes
+## test perl 6 regexes, requiring p5 regex to work
 
 use Test;
 
+# XXX: add sanity check to see we can run the test or skip
 
 plan 494;
 
@@ -19,22 +20,22 @@ $tests ~~ s:p5/p6regex.t/regex_tests/;
 my $fh = open $tests;
 
 sub p6rule_is( $target, $pattern, $description?, :$todo ) {
-    my $match = try { $target ~~ /$pattern/ };
-    ok( !$! && $match, $description, :$todo );
+    try { $target ~~ /$pattern/ };
+    ok( !$! && $/, $description, :$todo );
     $! and diag $!;
 }
 
 
 sub p6rule_isnt( $target, $pattern, $description?, :$todo ) {
-    my $match = try { $target ~~ /$pattern/ };
-    ok( !$! && !$match, $description, :$todo );
+    try { $target ~~ /$pattern/ };
+    ok( !$! && !$/, $description, :$todo );
     $! and diag $!;
 }
 
 
 sub p6rule_like( $target, $pattern, $expected, $description?, :$todo ) {
-    my $match = try { $target ~~ /$pattern/ };
-    like( $! ?? $! !! "$match", $expected, $description, :$todo );
+    try { $target ~~ /$pattern/ };
+    like( $! ?? $! !! "$/", $expected, $description, :$todo );
 }
 
 while (my $line = =$fh) {
