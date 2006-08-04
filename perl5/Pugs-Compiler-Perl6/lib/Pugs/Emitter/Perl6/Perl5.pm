@@ -882,7 +882,10 @@ sub infix {
         }
 	if ( my $rx = $n->{exp2}{rx} ) {
 	    if ( !$rx->{options}{perl5} ) {
-		return '$::_V6_MATCH_ = Pugs::Compiler::Regex->compile( q{'.$rx->{rx}.'} )->match('._emit($n->{exp1}).')';
+		my $regex = $rx->{rx};
+		# XXX: hack for /$pattern/
+		$regex = 'q{'.$regex.'}' unless $regex =~ m/^\$[\w\d]+/;
+		return '$::_V6_MATCH_ = Pugs::Compiler::Regex->compile( '.$rx->{rx}.' )->match('._emit($n->{exp1}).')';
 	    }
 	}
         return _emit( $n->{exp1} ) . ' =~ (ref(' . _emit( $n->{exp2} ).') eq "Regexp" ? '._emit($n->{exp2}).' : quotemeta('._emit($n->{exp2}).'))';
