@@ -27,10 +27,24 @@ This is the Hugh Darwen's and Christopher J. Date's home on the web for
 "The Third Manifesto" (TTM), their formal proposal for a solid foundation
 for data and database management systems (DBMSs); like Edgar F. Codd's
 original papers, TTM can be seen as an abstract blueprint for the design of
-a DBMS and the language interface to such a DBMS.  Rosetta has officially
-incorporated this blueprint into its own design, and implements its rules
-without compromise.  The TTM web site contains various useful documents and
-links on the subject, some being specified further below.
+a DBMS and the language interface to such a DBMS.  It consists in essence
+of a rigorous set of principles, stated in the form of a series of
+prescriptions and proscriptions, that the authors require adherence to on
+the part of a hypothetical database programming language that they call D.
+
+The proposal would avoid 'Object-Relational Impedance Mismatch' between
+object-oriented programming languages and RDBMSs by fully supporting all
+the capabilities of the relational model.  The main objective of The Third
+Manifesto, besides being theoretically sound and avoiding arbitrary
+restrictions and pragmatic debasement of the relational model, is to make a
+simple, restricted and precise definition of the role of object orientation
+in database management systems emphasising the few valid ideas from object
+modeling that are orthogonal to relational modeling.
+
+Rosetta has officially incorporated this blueprint into its own design, and
+implements its principles without compromise, and so its API is a concrete
+language that qualifies as a D.  The TTM web site contains various useful
+documents and links on the subject, some being specified further below.
 
 =item B<Database in Depth: Relational Theory for Practitioners>
 
@@ -100,6 +114,10 @@ Unicode Standard official documentation.
 
 The Wikipedia article on the relational data model, and related topics.
 
+=item L<http://en.wikipedia.org/wiki/Tuple_calculus>
+
+The Wikipedia article on Tuple calculus, a basis of the relational model.
+
 =back
 
 Also, the vendor documentation for various relational and/or SQL databases
@@ -115,8 +133,8 @@ and/or in development.  None of these use 'SQL' as their native language.
 =head2 Free and Open Source Software
 
 These software projects are released under a free and open source license,
-as Rosetta is, so you have the freedom to examine the project source code,
-change it, and redistribute it:
+as Rosetta is, so you have the freedom to use the software for any purpose,
+to examine the project source code, change it, and redistribute it:
 
 =over
 
@@ -134,6 +152,30 @@ Duro is a relational database library, written by René Hartmann
 interface), is implemented on top of the Berkeley DB database library, and
 runs on all POSIX/Unix-like and 32-bit Windows operating systems.  It is
 licensed under the GNU GPL.
+
+=back
+
+=head2 Shared Source Software
+
+These software projects are released with access to the project source code
+but lack permissions on use, modification, or redistribution that are
+essential to qualify as free and open source software; some are available
+at zero cost:
+
+=over
+
+=item B<FlipDB> - L<http://www.flipdb.com/>
+
+FlipDB is a relational database management system written by Paul Mansour
+(paul@carlislegroup.com).  Pending a full implementation of the relational
+algebra, FlipDB uses a simple but powerful query technique that simulates
+relation-valued attributes and obviates the need for outer join (or any
+explicit join).  The author is using Date's and Darwen's work as a guide,
+and his intention is to not violate any of the principles set forth in TTM,
+if not to implement all of Tutorial D.  It is written in Dyalog APL, in a
+functional style with no loops or control structures, and runs only on
+32-bit Windows operating systems.  It is available under a shared source
+agreement for personal use and study.
 
 =back
 
@@ -298,8 +340,6 @@ relative few are listed here.
 
 =item B<FileMaker Pro> - L<http://www.filemaker.com/>
 
-=over
-
 =item B<Valentina> - L<http://www.paradigmasoft.com/>
 
 =back
@@ -321,17 +361,25 @@ get Rosetta bindings: L<Catalyst>, L<Maypole>, L<Bricolage>, L<RT>.
 
 I<This documentation is pending.>
 
+These other Perl 6 packages also work in the problem domain of managing
+data or data definitions or connections to databases:
+
+L<Set::Relation>.
+
 These other Perl 5 packages also work in the problem domain of managing
 data or data definitions or connections to databases:
 
 L<DBI>, L<Tangram>, L<DBIx::Class>, L<HDB>, L<Class::DBI>, L<Pixie>,
-L<Alzabo>, L<DBIx::SQLEngine>, L<SPOPS>, L<DBIx::SearchBuilder>,
+L<Alzabo>, L<DBIx::SQLEngine>, L<Rose::DB>, L<SPOPS>, L<Set::Object>,
+L<Set::Scalar>, L<Object::Relation>, L<DBM::Deep>, L<DBIx::SearchBuilder>,
 L<DBIx::RecordSet>, L<DBIx::Abstract>, L<DBIx::AnyDBD>, L<DBIx::Browse>,
 L<DBIx::DBH>, L<MKDoc::SQL>, L<Data::Transactional>, L<DBIx::ModelUpdate>,
-L<DBIx::ProcedureCall>, L<DB::Ent>, L<DBIx::DBSchema>, L<DBIx::Namespace>,
-L<TripleStore>, L<Data::Table>, L<ORM>, L<OOPS>, L<SQL::Statement>,
-L<SQL::Parser>, L<SQL::Translator>, L<SQL::YASP>, L<SQL::Generator>,
-L<SQL::Schema>, L<SQL::Abstract>, L<SQL::Snippet>, L<SQL::Catalog>.
+L<DBIx::ProcedureCall>, L<DB::Ent>, L<DBIx::Romani>, L<DBIx::DBSchema>,
+L<DBIx::Namespace>, L<TripleStore>, L<Data::Table>, L<ORM>, L<OOPS>,
+L<Object::Transaction>, L<Relations>, L<DBIx::SimplePerl>, L<DBIx::YAWM>,
+L<Class::Entity>, L<SQL::Statement>, L<SQL::Parser>, L<SQL::Translator>,
+L<SQL::YASP>, L<SQL::Generator>, L<SQL::Schema>, L<SQL::Abstract>,
+L<SQL::Snippet>, L<SQL::Catalog>.
 
 =head1 AUTHOR
 

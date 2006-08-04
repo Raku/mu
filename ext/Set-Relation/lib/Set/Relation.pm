@@ -200,7 +200,7 @@ role Set::Relation::Heading-0.1.0 {
 
 submethod new (Set::Relation::LaxAttrList :%attrs? = {}) {
     return $?CLASS.bless( attrs =>
-        { all(%attrs.pairs).map:{ ( .key => 
+        { all(%attrs.pairs).map:{ ( .key =>
             (.value.does(Pair)
                 ?? ( .value.key =>
                     (.value.value.does(Set::Relation::Heading)
@@ -260,7 +260,7 @@ method no_names_exist of Bool (Set::Relation::AttrName *@attr_names) {
 
 method equal of Bool (Set::Relation::Heading $other!) {
     return $?SELF.export_attrs() === $other.export_attrs();
-}        
+}
 
 method not_equal of Bool (Set::Relation::Heading $other!) {
     return !$?SELF.equal( $other );
@@ -921,17 +921,21 @@ I<This documentation is pending.>
 This library provides naive self-contained reference implementations of
 several data types that together correspond to the components and whole of
 the "relation" of logic and mathematics and philosophy ("a predicate
-ranging over more than one argument"), which is also the basis of the
-relational data model proposed by Edgar. F. Codd, upon which anything in
-the world can be modelled.
+ranging over N arguments"), which is also the basis of the relational data
+model proposed by Edgar. F. Codd (eg, see
+L<http://www.acm.org/classics/nov95/toc.html>), and further enhanced by by
+Hugh Darwen and Christopher J. Date (eg, see
+L<http://www.thethirdmanifesto.com/>), upon which anything in the world can
+be modelled.
 
-This library is intended more as a functional demonstration of true
-"relation" and "tuple" data types and operators.  While it is perfectly
-safe to use in production, this library may lack certain features and good
-performance characteristics that a robust industrial implementation should
-have.  The hope is that this library will inspire others to make more
-robust implementations that stay true to its fundamentals, and in
-particular, that the standard Perl 6 grammar or language will include one.
+This library is intended more as an accurate demonstration of the
+principles of true "relation" and "tuple" data types and operators.  While
+it is perfectly safe to use in production, this library may lack certain
+features and good performance characteristics that a robust industrial
+implementation should have.  The hope is that this library will inspire
+others to make more robust implementations that stay true to the principles
+it demonstrates, and in particular, that the standard Perl 6 grammar or
+language will include one.
 
 I<Note that the separately released L<Rosetta> DBMS framework is one such
 more robust implementation in principle, though Rosetta is intentionally
