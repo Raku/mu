@@ -207,7 +207,7 @@ _alias_a_to_b(SVREF a, SVREF b, int read_only)
                 HV *stash = gv_stashpv(type == SVt_PVHV ?
                                        "Data::Bind::Hash" : "Data::Bind::Array",
                                        TRUE);
-                hv_store(SvRV(tie), "real", 4, newRV_inc((SV *)b), 0);
+                hv_store((HV*)SvRV(tie), "real", 4, newRV_inc((SV *)b), 0);
                 sv_bless(tie, stash);
                 SvUPGRADE(a, SVt_PVAV);
                 hv_magic((HV*)a, (GV *)tie, PERL_MAGIC_tied);
