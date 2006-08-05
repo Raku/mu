@@ -8,13 +8,14 @@ use warnings;
 
 use base 'Pugs::Compiler::Regex';
 use Pugs::Grammar::Perl6;
+use Pugs::Compiler::Token;
 use Pugs::Emitter::Perl6::Perl5;
 use Carp;
 # use Scalar::Util 'blessed';
 use Data::Dumper;
 use base 'Pugs::Grammar::BaseCategory';  # <ws>
 
-*skip_spaces = Pugs::Compiler::Regex->compile( q(
+*skip_spaces = Pugs::Compiler::Token->compile( q(
         [ <?ws> | ; ]*
 ) )->code;
 

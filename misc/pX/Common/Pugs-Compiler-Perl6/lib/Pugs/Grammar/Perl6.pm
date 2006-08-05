@@ -30,7 +30,7 @@ sub perl6_expression {
     return $match;
 };
 
-*perl6_expression_or_null = Pugs::Compiler::Regex->compile( q(
+*perl6_expression_or_null = Pugs::Compiler::Token->compile( q(
     <perl6_expression('no_blocks',0)> 
         { return $_[0]{perl6_expression}->() }
     |
@@ -82,7 +82,7 @@ sub perl6_expression {
 
 
 *if = Pugs::Compiler::Regex->compile( q(
-    (if|unless) : <?ws>? 
+    (if|unless) <?ws>? 
     $<exp1> := <perl6_expression('no_blocks',0)> <?ws>?
     $<exp2> := <block>        
         [
@@ -199,8 +199,8 @@ sub perl6_expression {
     { grammar => __PACKAGE__ }
 )->code;
 
-*try = Pugs::Compiler::Regex->compile( q(
-    (try) : <?ws>? <block>        
+*try = Pugs::Compiler::Token->compile( q(
+    (try) <?ws>? <block>        
         { return { 
                     fixity => 'prefix',
                     op1 => { op => 'try' },
@@ -342,7 +342,7 @@ sub perl6_expression {
     { grammar => __PACKAGE__ }
 )->code;
 
-*sub_decl_name = Pugs::Compiler::Regex->compile( q(
+*sub_decl_name = Pugs::Compiler::Token->compile( q(
     ( my | <''> ) <?ws>?
     ( multi | <''> ) <?ws>?
     ( submethod | method | sub ) <?ws>? 
@@ -489,7 +489,7 @@ sub perl6_expression {
 # /class
 
 
-*begin_block = Pugs::Compiler::Regex->compile( q(
+*begin_block = Pugs::Compiler::Token->compile( q(
     (          
    BEGIN 
  | CHECK 
@@ -506,7 +506,7 @@ sub perl6_expression {
  | POST
  | CATCH
  | CONTROL
-    ) : <?ws>? <block>        
+    ) <?ws>? <block>        
         { return { 
             trait  => $_[0][0]->(),
             %{ $_[0]{block}->() },
@@ -515,12 +515,19 @@ sub perl6_expression {
     { grammar => __PACKAGE__ }
 )->code;
 
-
-*statement = Pugs::Compiler::Regex->compile( q(
-    use <?ws> v5 <?ws>?; ((.)*?) ; <?ws>? use <?ws> v6 (.)*? ; 
+*perl5source = Pugs::Compiler::Regex->compile( q(
+    (.*?) ; <?ws>? use <?ws> v6 (.)*? ; 
         { return { 
             perl5source => $_[0][0]->() 
         } }
+),
+    { grammar => __PACKAGE__ }
+)->code;
+
+*statement = Pugs::Compiler::Token->compile( q(
+    use <?ws> v5 <?ws>?; <perl5source> 
+        { return $_[0]{perl5source}->() 
+        }
     |
     <begin_block>
         { return $_[0]{begin_block}->();
@@ -607,7 +614,7 @@ sub perl6_expression {
     { grammar => __PACKAGE__ }
 )->code;
 
-*parse = Pugs::Compiler::Regex->compile( q(
+*parse = Pugs::Compiler::Token->compile( q(
     <?ws>? 
     <statements> 
     <?ws>? 

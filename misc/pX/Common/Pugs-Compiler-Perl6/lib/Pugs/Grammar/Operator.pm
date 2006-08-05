@@ -118,15 +118,6 @@ sub recompile {
 }
 
 BEGIN {
-    #~ __PACKAGE__->add_rule( 
-        #~ # tokenizer defined in Term.pm
-        #~ name => 'CALL',
-        #~ name2 => ')',
-        #~ assoc => 'non',
-        #~ precedence => 'tighter',
-        #~ other => '*',
-    #~ );
-
     __PACKAGE__->recompile;
 }
 

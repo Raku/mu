@@ -157,7 +157,7 @@ sub angle_quoted {
     |   \/      # $/
 ) )->code;
 
-*bare_ident = Pugs::Compiler::Regex->compile( q(
+*bare_ident = Pugs::Compiler::Token->compile( q(
         [
             [ \:\: ]?
             [ _ | <?alpha> ]
@@ -165,7 +165,7 @@ sub angle_quoted {
         ]+
 ) )->code;
 
-*parenthesis = Pugs::Compiler::Regex->compile( q(
+*parenthesis = Pugs::Compiler::Token->compile( q(
                 <?ws>? <Pugs::Grammar::Perl6.perl6_expression> <?ws>? 
                 <'\)'>
                 { return {
@@ -193,7 +193,7 @@ sub angle_quoted {
                 } }
 ) )->code;
 
-*brackets = Pugs::Compiler::Regex->compile( q(
+*brackets = Pugs::Compiler::Token->compile( q(
                 <Pugs::Grammar::Infix.parse> 
                 <']'>
                 { return {
@@ -231,18 +231,18 @@ sub angle_quoted {
 sub recompile {
     my $class = shift;
     %hash = (
-        '$' => Pugs::Compiler::Regex->compile( q(
+        '$' => Pugs::Compiler::Token->compile( q(
                 [ <?Pugs::Grammar::Term.ident>
                   { return { scalar => '$' . $_[0]->() ,} }
                 | (\d+)
                   { return { scalar => '$' . $_[0]->() ,} }
                 ]
             ) ),
-        '$.' => Pugs::Compiler::Regex->compile( q(
+        '$.' => Pugs::Compiler::Token->compile( q(
                 <?Pugs::Grammar::Term.ident>
                 { return { scalar => '$.' . $_[0]->() ,} }
             ) ),
-        '@' => Pugs::Compiler::Regex->compile( q(
+        '@' => Pugs::Compiler::Token->compile( q(
                 # XXX t/subroutines/multidimensional_arglists.t
                 \; <?Pugs::Grammar::Term.ident>
                 { return { die => "not implemented" } }
@@ -250,24 +250,24 @@ sub recompile {
                 <?Pugs::Grammar::Term.ident>
                 { return { array => "\@" . $_[0]->() ,} }
             ) ),
-        '%' => Pugs::Compiler::Regex->compile( q(
+        '%' => Pugs::Compiler::Token->compile( q(
                 <?Pugs::Grammar::Term.ident>
                 { return { hash  => "\%" . $_[0]->() ,} }
             ) ),
-        '&' => Pugs::Compiler::Regex->compile( q(
+        '&' => Pugs::Compiler::Token->compile( q(
                 <?Pugs::Grammar::Term.ident>
                 { return { code  => "\&" . $_[0]->() ,} }
             ) ),
 
-        '(' => Pugs::Compiler::Regex->compile( q(
+        '(' => Pugs::Compiler::Token->compile( q(
                 <Pugs::Grammar::Term.parenthesis>
                 { return $_[0]{'Pugs::Grammar::Term.parenthesis'}->() }
             ) ),
-        '[' => Pugs::Compiler::Regex->compile( q(
+        '[' => Pugs::Compiler::Token->compile( q(
                 <Pugs::Grammar::Term.brackets>
                 { return $_[0]{'Pugs::Grammar::Term.brackets'}->() }
             ) ),
-        '{' => Pugs::Compiler::Regex->compile( q(
+        '{' => Pugs::Compiler::Token->compile( q(
                 <?ws>? <Pugs::Grammar::Perl6.statements> <?ws>? <'}'>
                 { 
                   return { 
@@ -276,7 +276,7 @@ sub recompile {
             ) ),
 
 
-        '->' => Pugs::Compiler::Regex->compile( q( 
+        '->' => Pugs::Compiler::Token->compile( q( 
         [
             <?ws>? <Pugs::Grammar::Perl6.signature_no_invocant> <?ws>? 
             \{ <?ws>? <Pugs::Grammar::Perl6.statements> <?ws>? \}
@@ -294,7 +294,7 @@ sub recompile {
         ]
             ) ),
 
-        '.' => Pugs::Compiler::Regex->compile( q(
+        '.' => Pugs::Compiler::Token->compile( q(
                 # .method op
                 <?Pugs::Grammar::Term.ident>
                 { return { dot_bareword  => $_[0]->() ,} }
@@ -305,43 +305,43 @@ sub recompile {
             }
         ) ),
         q(') =>       # ' 
-          Pugs::Compiler::Regex->compile( q(
+          Pugs::Compiler::Token->compile( q(
             <Pugs::Grammar::Term.single_quoted>
             { return { single_quoted => $/{'Pugs::Grammar::Term.single_quoted'}->() ,} }
         ) ),
-        q(") => Pugs::Compiler::Regex->compile( q(
+        q(") => Pugs::Compiler::Token->compile( q(
             <Pugs::Grammar::Term.double_quoted>
             { return { double_quoted => $/{'Pugs::Grammar::Term.double_quoted'}->() ,} }
         ) ),
-        q(s) => Pugs::Compiler::Regex->compile( q(
+        q(s) => Pugs::Compiler::Token->compile( q(
             <Pugs::Grammar::Term.substitution>
             { return { 
                     substitution => $/{'Pugs::Grammar::Term.substitution'}->(),
                 } 
             }
         ) ),
-        q(rx) => Pugs::Compiler::Regex->compile( q(
+        q(rx) => Pugs::Compiler::Token->compile( q(
             <Pugs::Grammar::Term.rx>
             { return { 
                     rx => $/{'Pugs::Grammar::Term.rx'}->(),
                 } 
             }
         ) ),
-        q(m) => Pugs::Compiler::Regex->compile( q(
+        q(m) => Pugs::Compiler::Token->compile( q(
             <Pugs::Grammar::Term.rx>
             { return { 
                     rx => $/{'Pugs::Grammar::Term.rx'}->(),
                 } 
             }
         ) ),
-        q(/) => Pugs::Compiler::Regex->compile( q(
+        q(/) => Pugs::Compiler::Token->compile( q(
             <Pugs::Grammar::Term.rx_body('open','/')>
             { return { 
                     rx => $/{'Pugs::Grammar::Term.rx_body'}->(),
                 } 
             }
         ) ),
-        q(<) => Pugs::Compiler::Regex->compile( q(
+        q(<) => Pugs::Compiler::Token->compile( q(
             <Pugs::Grammar::Term.angle_quoted>
             { return { 
                     angle_quoted => $/{'Pugs::Grammar::Term.angle_quoted'}->(),

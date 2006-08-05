@@ -3,6 +3,7 @@ use strict;
 use warnings;
 #use Pugs::Compiler::Rule;
 use Pugs::Compiler::Regex;
+use Pugs::Compiler::Token;
 use base qw(Pugs::Grammar::Base);
 use Data::Dumper;
 
@@ -29,7 +30,7 @@ use Data::Dumper;
 sub add_rule {
     my ( $class, $key, $rule ) = @_;
     no strict qw( refs );
-    ${"${class}::hash"}{$key} = Pugs::Compiler::Regex->compile( 
+    ${"${class}::hash"}{$key} = Pugs::Compiler::Token->compile( 
         $rule, 
         { grammar => $class },
     );

@@ -11,15 +11,15 @@ use base qw(Pugs::Grammar::BaseCategory);
 # XXX Pod can only start at a line start
 
 BEGIN {
-    __PACKAGE__->add_rule(
-        "=begin" => q(
-                #{ print "pod - $_[0]\n" }
-                .* \n \= end .*? \n
-            
-            {
-                return { pod_block => $() ,}
-            }
-    ) );
+    #__PACKAGE__->add_rule(
+    #    "=begin" => q(
+    #            #{ print "pod - $_[0]\n" }
+    #            .* \n \= end .*? \n
+    #        
+    #        {
+    #            return { pod_block => $() ,}
+    #        }
+    #) );
     __PACKAGE__->recompile;
 }
 
