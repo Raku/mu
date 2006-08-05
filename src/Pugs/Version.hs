@@ -24,19 +24,14 @@ module Pugs.Version (
     name, versnum, date, version, copyright, revnum, revision,
 ) where
 
-name :: String
+name, versnum, date, version, copyright, revnum, revision :: String
+
 name       = "Perl6 User's Golfing System"
-versnum :: String
 versnum    = PUGS_VERSION
-date :: String
 date       = PUGS_DATE
-version :: String
 version    = name ++ ", version " ++ versnum ++ ", " ++ date ++ revision
-copyright :: String
 copyright  = "Copyright 2005-2006, The Pugs Contributors"
-revnum :: String
-revnum     = show(PUGS_SVN_REVISION :: Integer)
-revision :: String
+revnum     = show (PUGS_SVN_REVISION :: Integer)
 revision
     | rev <- revnum
     , rev /= "0"

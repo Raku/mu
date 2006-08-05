@@ -55,19 +55,19 @@ runFile file = do
 
 -- see also Run/Args.hs
 run :: [String] -> IO ()
-run (("-d"):rest)                 = run rest
-run (("-l"):rest)                 = run rest
-run (("-w"):rest)                 = run rest
-run (("-I"):_:rest)               = run rest
+run ("-d":rest)                 = run rest
+run ("-l":rest)                 = run rest
+run ("-w":rest)                 = run rest
+run ("-I":_:rest)               = run rest
 
 -- XXX should raise an error here:
 -- run ("-I":[])                     = do
 --                                    print "Empty -I"
 
-run ("-h":_)                    = printCommandLineHelp
-run (("-V"):_)                  = printConfigInfo []
-run (("-V:"):item:_)            = printConfigInfo [item]
-run ("-v":_)                    = banner
+run ("-h":_)                  = printCommandLineHelp
+run ("-V":_)                  = printConfigInfo []
+run ("-V:":item:_)            = printConfigInfo [item]
+run ("-v":_)                  = banner
 
 -- turn :file: and "-e":frag into a common subroutine/token
 run ("-c":"-e":prog:_)          = doCheck "-e" prog
@@ -87,16 +87,16 @@ run ("-B":backend:_) | (== map toLower backend) `any` ["js","perl5","js-perl5"] 
 run ("-B":backend:"-e":prog:_)           = doCompileRun backend "-e" prog
 run ("-B":backend:file:_)                = readFile file >>= doCompileRun backend file
 
-run ("--external":mod:"-e":prog:_)    = doExternal mod "-e" prog
-run ("--external":mod:file:_)         = readFile file >>= doExternal mod file
+run ("--external":mod:"-e":prog:_)       = doExternal mod "-e" prog
+run ("--external":mod:file:_)            = readFile file >>= doExternal mod file
 
-run (("-e"):prog:args)          = do doRun "-e" args prog
+run ("-e":prog:args)                     = do doRun "-e" args prog
 -- -E is like -e, but not accessible as a normal parameter and used only
 -- internally:
 --   "-e foo bar.pl" executes "foo" with @*ARGS[0] eq "bar.pl",
 --   "-E foo bar.pl" executes "foo" and then bar.pl.
 -- XXX - Wrong -- Need to preserve environment across -E runs
-run (("-E"):prog:rest)          = run ("-e":prog:[]) >> run rest
+run ("-E":prog:rest)            = run ("-e":prog:[]) >> run rest
 run ("-":args)                  = do doRun "-" args =<< readStdin
 run (file:args)                 = readFile file >>= doRun file args
 run []                          = do

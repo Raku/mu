@@ -28,7 +28,6 @@ All changes made here will be lost!
 module Emit.PIR.Instances ()
 where
 import Emit.PIR
-import Data.List
 import Data.Yaml.Syck
 import DrIFT.YAML
 import DrIFT.JSON

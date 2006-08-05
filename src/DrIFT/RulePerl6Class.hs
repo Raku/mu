@@ -21,14 +21,6 @@ userRuleMoose = instanceSkeleton' "MooseClass"
     --[ (makeAsMooseObject, const empty)
     ]
 
-{-
-    [ (const empty, caseHead)
-    , (makeFromYAML alwaysPos, const empty)
-    , (const empty, caseTail)
-    , (makeAsYAML alwaysPos, const empty)
-    ]
--}
-
 instanceSkeleton' :: Class -> [(IFunction,[Body] -> Doc)] -> Data -> Doc
 instanceSkeleton' s ii  d = (simpleInstance s d <+> text "where") 
                 $$ block functions
@@ -92,18 +84,12 @@ mType ty                             = MkMooseRep "" $ show ty
 
 makeAsObject bod@(Body constructor labels types) =
     hsep [text "asPerl6Object", (parens $ hsep (text constructor : varNames types)), equals,
-        qt $ constructor ++ ".new(", paste, parens mkPos, paste, qt ")"]
+        qt $ constructor ++ ".new(", paste, mkPos, paste, qt ")"]
     where
-    -- asPerl6Object (PosClass aa ab ac) = "PosClass.new(" map plShow [aa, ab, ac] ++ ")"
-    mkPos = (text "concat $ intersperse \", \"") <+> (brackets $ hsep $ punctuate comma $ map mkPos' $ varNames types)
-    --[mkPos' v | v <- varNames types])
-    mkPos' var = text "plShow" <+> var
-    extrasperse e ls = e:(intersperse e ls)++[e]
+    mkPos         = parens $ (text "concat $ intersperse \", \"") <+> mkPosElems
+    mkPosElems    = brackets $ hsep $ punctuate comma $ map mkPosElem $ varNames types
+    mkPosElem var = text "plShow" <+> var
     paste = text "++"
-    -- | null labels = hsep [text "asPerl6Object", (parens $ hsep (text constructor : varNames types)), equals,
-    --        qt $ constructor ++ ".new(", paste, parens mkPos, paste, qt ")"]
-    -- | otherwise   = hsep [text "asPerl6Object", text constructor, text "{}", equals,
-    --    text "error $", qt "not yet: ", text "++", text (show (show bod))]
 
 dq    = doubleQuotes
 qt    = dq . text

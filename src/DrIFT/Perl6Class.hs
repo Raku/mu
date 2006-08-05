@@ -1,11 +1,14 @@
-{-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fallow-overlapping-instances -fvia-C -fallow-incoherent-instances -fallow-undecidable-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fallow-overlapping-instances -fvia-C -fallow-incoherent-instances -fallow-undecidable-instances -fno-monomorphism-restriction #-}
 
 module DrIFT.Perl6Class where
 
 import Data.Typeable
 import Data.List
+import qualified Data.ByteString.Char8 as Str
 import qualified Data.Map as Map
 import Text.PrettyPrint.HughesPJ
+
+type Str = Str.ByteString
 
 showPerl6RoleDef, showMooseRoleDef
                     :: NamespaceMangler -> String -> String           -- ^ Perl 6 role definition
@@ -15,9 +18,9 @@ showPerl6RoleDef ns name = render $
 showMooseRoleDef ns name = render $
     vcat [ text "package" <+> (text $ ns name) <> semi
          , text "use Moose::Role;"
-         , empty
+         , text ""
          , text "with 'TaggedUnion';"
-         , empty
+         , text ""
          ]
 
 showPerl6ClassDef, showMooseClassDef
@@ -76,14 +79,15 @@ instance Perl6Class a => Perl6Class [a] where
     showPerl6TypeDef _ ty = error $ "showPerl6TypeDef " ++ (show $ typeOf ty)
     asPerl6Object xs = (show $ typeOf xs) ++ ".new(" ++ (concat $ intersperse ", " $ map asPerl6Object xs) ++ ")"
 
+-- needed -fno-monomorphism-restriction
 instance (Perl6Class a, Perl6Class b, PLit a, PLit b, PLit (Map.Map a b)) => (Perl6Class (Map.Map a b)) where
-    asPerl6Object h = render $ cat $ qbraces $ map (\(k, v) -> (text $ show $ plShow k) <+> qt "=>" <+> (text $ show $ plShow v)) $ Map.assocs h
+    asPerl6Object h   = render $ cat $ qbraces $ map showKV $ Map.assocs h
+        where
+        showKV (k, v) = ts k <+> qt "=>" <+> ts v
+        ts            = text . show . plShow
 
 qbraces :: [Doc] -> [Doc]
 qbraces ls = doubleQuotes lbrace : ls ++ [doubleQuotes rbrace]
-
--- hw factor high; probably needs to got back to the preprocessor.
---showNewPerl6PosObject cls [attr] = cls ++ ".new(" ++ (intersperse "," $ map dynShow attr) ++ ")"
 
 -- | typeclass for dumping literals in Perl 6 source code.
 class (Typeable a, Show a) => PLit a where
@@ -92,6 +96,9 @@ class (Typeable a, Show a) => PLit a where
 
 instance PLit String where
     plShow = render . cat . showStringLiteral
+
+instance PLit Str where
+    plShow = render . cat . showStrLiteral
 
 instance PLit a => PLit [a] where
     plShow x = "[" ++ (concat $ intersperse ", " $ map plShow x) ++ "]"
@@ -119,5 +126,15 @@ showStringLiteral str =
     strQuoteSplit qa sa ""       = qa ++ [sa]
     strQuoteSplit qa sa ('\'':xs) = strQuoteSplit (qa ++ [sa])  ""      xs
     strQuoteSplit qa sa (x:xs)   = strQuoteSplit qa       (sa++[x])  xs
-    slQuote str = text "qn'" <> text str <> text "'"
+    slQuote str' = text "qn'" <> text str' <> text "'"
+
+-- | An FPS version of @showStringLiteral@.
+--   Since the pretty-printing library isn't fps, this isn't
+--   as fast as it might have been.
+showStrLiteral :: Str -> [Doc]
+showStrLiteral str =
+    intersperse catter $ map slQuote $ Str.split '\'' str
+    where
+    catter = text "~ \"'\" ~"
+    slQuote str' = text "qn'" <> text (Str.unpack str') <> text "'"
 

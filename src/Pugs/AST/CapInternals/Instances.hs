@@ -96,14 +96,14 @@ instance (YAML a) => YAML (Eval a) where
 instance (Perl6Class a) => Perl6Class (Eval a) where
     showPerl6TypeDef ns _ = unlines
 	    [ showPerl6RoleDef ns "Eval"
-	    , showPerl6ClassDef ns "Eval" "Eval" [("","$.aa","Var \"a\"")]
+	    , showPerl6ClassDef ns "Eval" "Eval" [("","$.aa","a")]
 	    ]
     asPerl6Object (Eval aa) = "Eval.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
 
 instance (MooseClass a) => MooseClass (Eval a) where
     showMooseTypeDef ns _ = unlines
 	    [ showMooseRoleDef ns "Eval"
-	    , showMooseClassDef ns "Eval" "Eval" [("","aa","Var \"a\"")]
+	    , showMooseClassDef ns "Eval" "Eval" [("","aa","a")]
 	    ]
 
 instance YAML VThunk where
@@ -483,14 +483,14 @@ instance YAML MemBuf where
 instance Perl6Class MemBuf where
     showPerl6TypeDef ns _ = unlines
 	    [ showPerl6RoleDef ns "MemBuf"
-	    , showPerl6ClassDef ns "MemBuf" "MkBuf" [("","$.b_buffer","LApply (Con \"IOUArray\") [Con \"Word64\",Con \"Word8\"]")]
+	    , showPerl6ClassDef ns "MemBuf" "MkBuf" [("","$.b_buffer","IOUArray Word64 Word8")]
 	    ]
     asPerl6Object (MkBuf aa) = "MkBuf.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
 
 instance MooseClass MemBuf where
     showMooseTypeDef ns _ = unlines
 	    [ showMooseRoleDef ns "MemBuf"
-	    , showMooseClassDef ns "MemBuf" "MkBuf" [("","b_buffer","LApply (Con \"IOUArray\") [Con \"Word64\",Con \"Word8\"]")]
+	    , showMooseClassDef ns "MemBuf" "MkBuf" [("","b_buffer","IOUArray Word64 Word8")]
 	    ]
 
 instance YAML PureJunc where
@@ -955,14 +955,14 @@ instance (YAML a) => YAML (IOThread a) where
 instance (Perl6Class a) => Perl6Class (IOThread a) where
     showPerl6TypeDef ns _ = unlines
 	    [ showPerl6RoleDef ns "IOThread"
-	    , showPerl6ClassDef ns "IOThread" "IOThread" [("","$.aa","Var \"a\"")]
+	    , showPerl6ClassDef ns "IOThread" "IOThread" [("","$.aa","a")]
 	    ]
     asPerl6Object (IOThread aa) = "IOThread.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
 
 instance (MooseClass a) => MooseClass (IOThread a) where
     showMooseTypeDef ns _ = unlines
 	    [ showMooseRoleDef ns "IOThread"
-	    , showMooseClassDef ns "IOThread" "IOThread" [("","aa","Var \"a\"")]
+	    , showMooseClassDef ns "IOThread" "IOThread" [("","aa","a")]
 	    ]
 
 instance YAML IOProcess where
@@ -1012,7 +1012,7 @@ instance Perl6Class ValIO where
 	    [ showPerl6RoleDef ns "ValIO"
 	    , showPerl6ClassDef ns "ValIO" "IFile" [("IOFile","$.aa","")]
 	    , showPerl6ClassDef ns "ValIO" "ISocket" [("IOSocket","$.aa","")]
-	    , showPerl6ClassDef ns "ValIO" "IThread" [("","$.aa","LApply (Con \"IOThread\") [Con \"Val\"]")]
+	    , showPerl6ClassDef ns "ValIO" "IThread" [("","$.aa","IOThread Val")]
 	    , showPerl6ClassDef ns "ValIO" "IProcess" [("IOProcess","$.aa","")]
 	    ]
     asPerl6Object (IFile aa) = "IFile.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
@@ -1025,7 +1025,7 @@ instance MooseClass ValIO where
 	    [ showMooseRoleDef ns "ValIO"
 	    , showMooseClassDef ns "ValIO" "IFile" [("IOFile","aa","")]
 	    , showMooseClassDef ns "ValIO" "ISocket" [("IOSocket","aa","")]
-	    , showMooseClassDef ns "ValIO" "IThread" [("","aa","LApply (Con \"IOThread\") [Con \"Val\"]")]
+	    , showMooseClassDef ns "ValIO" "IThread" [("","aa","IOThread Val")]
 	    , showMooseClassDef ns "ValIO" "IProcess" [("IOProcess","aa","")]
 	    ]
 
@@ -1145,7 +1145,7 @@ instance MooseClass Exp where
 	    , showMooseClassDef ns "Exp" "EBind" [("Exp","aa",""),("Exp","ab","")]
 	    , showMooseClassDef ns "Exp" "EAssign" [("Exp","aa",""),("Exp","ab","")]
 	    , showMooseClassDef ns "Exp" "EControl" [("ExpControl","aa","")]
-	    , showMooseClassDef ns "Exp" "EFlatten" [("ArrayRef","aa","List (Con \"Exp\")")]
+	    , showMooseClassDef ns "Exp" "EFlatten" [("ArrayRef","aa","[Exp]")]
 	    ]
 
 instance YAML ExpControl where
@@ -1201,7 +1201,7 @@ instance Perl6Class ExpControl where
 	    , showPerl6ClassDef ns "ExpControl" "CApply" [("Exp","$.aa",""),("Cap","$.ab","")]
 	    , showPerl6ClassDef ns "ExpControl" "CCond" [("Exp","$.aa",""),("Code","$.ab","")]
 	    , showPerl6ClassDef ns "ExpControl" "CTrenaryCond" [("Exp","$.aa",""),("Code","$.ab",""),("Code","$.ac","")]
-	    , showPerl6ClassDef ns "ExpControl" "CCondBlock" [("","$.aa","Tuple [Con \"Exp\",Con \"Code\"]"),("","@.ab","List (Tuple [Con \"Exp\",Con \"Code\"])"),("Code","$.ac","")]
+	    , showPerl6ClassDef ns "ExpControl" "CCondBlock" [("","$.aa","(Exp,Code)"),("","@.ab","[(Exp,Code)]"),("Code","$.ac","")]
 	    , showPerl6ClassDef ns "ExpControl" "CGoto" [("Ident","$.aa","")]
 	    , showPerl6ClassDef ns "ExpControl" "CWhile" [("Exp","$.aa",""),("Code","$.ab","")]
 	    , showPerl6ClassDef ns "ExpControl" "CGiven" [("Exp","$.aa",""),("Code","$.ab","")]
@@ -1226,7 +1226,7 @@ instance MooseClass ExpControl where
 	    , showMooseClassDef ns "ExpControl" "CApply" [("Exp","aa",""),("Cap","ab","")]
 	    , showMooseClassDef ns "ExpControl" "CCond" [("Exp","aa",""),("Code","ab","")]
 	    , showMooseClassDef ns "ExpControl" "CTrenaryCond" [("Exp","aa",""),("Code","ab",""),("Code","ac","")]
-	    , showMooseClassDef ns "ExpControl" "CCondBlock" [("","aa","Tuple [Con \"Exp\",Con \"Code\"]"),("ArrayRef","ab","List (Tuple [Con \"Exp\",Con \"Code\"])"),("Code","ac","")]
+	    , showMooseClassDef ns "ExpControl" "CCondBlock" [("","aa","(Exp,Code)"),("ArrayRef","ab","[(Exp,Code)]"),("Code","ac","")]
 	    , showMooseClassDef ns "ExpControl" "CGoto" [("Ident","aa","")]
 	    , showMooseClassDef ns "ExpControl" "CWhile" [("Exp","aa",""),("Code","ab","")]
 	    , showMooseClassDef ns "ExpControl" "CGiven" [("Exp","aa",""),("Code","ab","")]
@@ -1258,7 +1258,7 @@ instance Perl6Class Param where
 instance MooseClass Param where
     showMooseTypeDef ns _ = unlines
 	    [ showMooseRoleDef ns "Param"
-	    , showMooseClassDef ns "Param" "MkParam" [("Ident","p_variable",""),("ArrayRef","p_types","List (Con \"Class\")"),("ArrayRef","p_constraints","List (Con \"Code\")"),("Sig","p_unpacking",""),("Exp","p_default",""),("Ident","p_label",""),("Table","p_slots",""),("ParamAccess","p_hasAccess",""),("Bool","p_isRef",""),("Bool","p_isLazy","")]
+	    , showMooseClassDef ns "Param" "MkParam" [("Ident","p_variable",""),("ArrayRef","p_types","[Class]"),("ArrayRef","p_constraints","[Code]"),("Sig","p_unpacking",""),("Exp","p_default",""),("Ident","p_label",""),("Table","p_slots",""),("ParamAccess","p_hasAccess",""),("Bool","p_isRef",""),("Bool","p_isLazy","")]
 	    ]
 
 instance YAML ParamAccess where
@@ -1365,8 +1365,8 @@ instance YAML Sig where
 instance Perl6Class Sig where
     showPerl6TypeDef ns _ = unlines
 	    [ showPerl6RoleDef ns "Sig"
-	    , showPerl6ClassDef ns "Sig" "SigMethSingle" [("Param","$.s_invocant",""),("Int","$.s_requiredPositionalCount",""),("","$.s_requiredNames","LApply (Con \"Set\") [Con \"Ident\"]"),("Param","@.s_positionalList",""),("","$.s_namedSet","LApply (Con \"Map\") [Con \"Ident\",Con \"Param\"]"),("Param","@.s_slurpyScalarList",""),("Param","$.s_slurpyArray",""),("Param","$.s_slurpyHash",""),("Param","$.s_slurpyCode",""),("Param","$.s_slurpyCapture","")]
-	    , showPerl6ClassDef ns "Sig" "SigSubSingle" [("Int","$.s_requiredPositionalCount",""),("","$.s_requiredNames","LApply (Con \"Set\") [Con \"Ident\"]"),("Param","@.s_positionalList",""),("","$.s_namedSet","LApply (Con \"Map\") [Con \"Ident\",Con \"Param\"]"),("Param","@.s_slurpyScalarList",""),("Param","$.s_slurpyArray",""),("Param","$.s_slurpyHash",""),("Param","$.s_slurpyCode",""),("Param","$.s_slurpyCapture","")]
+	    , showPerl6ClassDef ns "Sig" "SigMethSingle" [("Param","$.s_invocant",""),("Int","$.s_requiredPositionalCount",""),("","$.s_requiredNames","Set Ident"),("Param","@.s_positionalList",""),("","$.s_namedSet","Map Ident Param"),("Param","@.s_slurpyScalarList",""),("Param","$.s_slurpyArray",""),("Param","$.s_slurpyHash",""),("Param","$.s_slurpyCode",""),("Param","$.s_slurpyCapture","")]
+	    , showPerl6ClassDef ns "Sig" "SigSubSingle" [("Int","$.s_requiredPositionalCount",""),("","$.s_requiredNames","Set Ident"),("Param","@.s_positionalList",""),("","$.s_namedSet","Map Ident Param"),("Param","@.s_slurpyScalarList",""),("Param","$.s_slurpyArray",""),("Param","$.s_slurpyHash",""),("Param","$.s_slurpyCode",""),("Param","$.s_slurpyCapture","")]
 	    ]
     asPerl6Object (SigMethSingle aa ab ac ad ae af ag ah ai aj) = "SigMethSingle.new(" ++ (concat $ intersperse ", " [plShow aa, plShow ab, plShow ac, plShow ad, plShow ae, plShow af, plShow ag, plShow ah, plShow ai, plShow aj]) ++ ")"
     asPerl6Object (SigSubSingle aa ab ac ad ae af ag ah ai) = "SigSubSingle.new(" ++ (concat $ intersperse ", " [plShow aa, plShow ab, plShow ac, plShow ad, plShow ae, plShow af, plShow ag, plShow ah, plShow ai]) ++ ")"
@@ -1374,8 +1374,8 @@ instance Perl6Class Sig where
 instance MooseClass Sig where
     showMooseTypeDef ns _ = unlines
 	    [ showMooseRoleDef ns "Sig"
-	    , showMooseClassDef ns "Sig" "SigMethSingle" [("Param","s_invocant",""),("Int","s_requiredPositionalCount",""),("","s_requiredNames","LApply (Con \"Set\") [Con \"Ident\"]"),("ArrayRef","s_positionalList","List (Con \"Param\")"),("","s_namedSet","LApply (Con \"Map\") [Con \"Ident\",Con \"Param\"]"),("ArrayRef","s_slurpyScalarList","List (Con \"Param\")"),("Param","s_slurpyArray",""),("Param","s_slurpyHash",""),("Param","s_slurpyCode",""),("Param","s_slurpyCapture","")]
-	    , showMooseClassDef ns "Sig" "SigSubSingle" [("Int","s_requiredPositionalCount",""),("","s_requiredNames","LApply (Con \"Set\") [Con \"Ident\"]"),("ArrayRef","s_positionalList","List (Con \"Param\")"),("","s_namedSet","LApply (Con \"Map\") [Con \"Ident\",Con \"Param\"]"),("ArrayRef","s_slurpyScalarList","List (Con \"Param\")"),("Param","s_slurpyArray",""),("Param","s_slurpyHash",""),("Param","s_slurpyCode",""),("Param","s_slurpyCapture","")]
+	    , showMooseClassDef ns "Sig" "SigMethSingle" [("Param","s_invocant",""),("Int","s_requiredPositionalCount",""),("","s_requiredNames","Set Ident"),("ArrayRef","s_positionalList","[Param]"),("","s_namedSet","Map Ident Param"),("ArrayRef","s_slurpyScalarList","[Param]"),("Param","s_slurpyArray",""),("Param","s_slurpyHash",""),("Param","s_slurpyCode",""),("Param","s_slurpyCapture","")]
+	    , showMooseClassDef ns "Sig" "SigSubSingle" [("Int","s_requiredPositionalCount",""),("","s_requiredNames","Set Ident"),("ArrayRef","s_positionalList","[Param]"),("","s_namedSet","Map Ident Param"),("ArrayRef","s_slurpyScalarList","[Param]"),("Param","s_slurpyArray",""),("Param","s_slurpyHash",""),("Param","s_slurpyCode",""),("Param","s_slurpyCapture","")]
 	    ]
 
 instance YAML Routine where
@@ -1397,7 +1397,7 @@ instance Perl6Class Routine where
     showPerl6TypeDef ns _ = unlines
 	    [ showPerl6RoleDef ns "Routine"
 	    , showPerl6ClassDef ns "Routine" "RoutineSimple" [("CodeWrapping","$.wrappings",""),("Code","$.routineCode","")]
-	    , showPerl6ClassDef ns "Routine" "RoutineMulti" [("CodeWrapping","$.wrappings",""),("","$.routineVariants","LApply (Con \"Set\") [Con \"MultiVariant\"]")]
+	    , showPerl6ClassDef ns "Routine" "RoutineMulti" [("CodeWrapping","$.wrappings",""),("","$.routineVariants","Set MultiVariant")]
 	    ]
     asPerl6Object (RoutineSimple aa ab) = "RoutineSimple.new(" ++ (concat $ intersperse ", " [plShow aa, plShow ab]) ++ ")"
     asPerl6Object (RoutineMulti aa ab) = "RoutineMulti.new(" ++ (concat $ intersperse ", " [plShow aa, plShow ab]) ++ ")"
@@ -1406,7 +1406,7 @@ instance MooseClass Routine where
     showMooseTypeDef ns _ = unlines
 	    [ showMooseRoleDef ns "Routine"
 	    , showMooseClassDef ns "Routine" "RoutineSimple" [("CodeWrapping","wrappings",""),("Code","routineCode","")]
-	    , showMooseClassDef ns "Routine" "RoutineMulti" [("CodeWrapping","wrappings",""),("","routineVariants","LApply (Con \"Set\") [Con \"MultiVariant\"]")]
+	    , showMooseClassDef ns "Routine" "RoutineMulti" [("CodeWrapping","wrappings",""),("","routineVariants","Set MultiVariant")]
 	    ]
 
 instance YAML Code where
@@ -1441,7 +1441,7 @@ instance Perl6Class Code where
 instance MooseClass Code where
     showMooseTypeDef ns _ = unlines
 	    [ showMooseRoleDef ns "Code"
-	    , showMooseClassDef ns "Code" "CodePerl" [("Sig","c_signature",""),("Rational","c_precedence",""),("CodeAssoc","c_assoc",""),("Bool","c_isRW",""),("Bool","c_isSafe",""),("Bool","c_isCached",""),("ArrayRef","c_body","List (Con \"Stmt\")"),("Pad","c_pad",""),("Table","c_traits",""),("ArrayRef","c_preBlocks","List (Con \"Code\")"),("ArrayRef","c_postBlocks","List (Con \"Code\")"),("ArrayRef","c_firstBlocks","List (Con \"Code\")"),("ArrayRef","c_lastBlocks","List (Con \"Code\")"),("ArrayRef","c_nextBlocks","List (Con \"Code\")"),("ArrayRef","c_keepBlocks","List (Con \"Code\")"),("ArrayRef","c_undoBlocks","List (Con \"Code\")")]
+	    , showMooseClassDef ns "Code" "CodePerl" [("Sig","c_signature",""),("Rational","c_precedence",""),("CodeAssoc","c_assoc",""),("Bool","c_isRW",""),("Bool","c_isSafe",""),("Bool","c_isCached",""),("ArrayRef","c_body","[Stmt]"),("Pad","c_pad",""),("Table","c_traits",""),("ArrayRef","c_preBlocks","[Code]"),("ArrayRef","c_postBlocks","[Code]"),("ArrayRef","c_firstBlocks","[Code]"),("ArrayRef","c_lastBlocks","[Code]"),("ArrayRef","c_nextBlocks","[Code]"),("ArrayRef","c_keepBlocks","[Code]"),("ArrayRef","c_undoBlocks","[Code]")]
 	    , showMooseClassDef ns "Code" "CodePrim" [("Sig","c_signature",""),("Rational","c_precedence",""),("CodeAssoc","c_assoc",""),("Bool","c_isRW",""),("Bool","c_isSafe","")]
 	    ]
 
@@ -1600,8 +1600,8 @@ instance Perl6Class Cap where
 instance MooseClass Cap where
     showMooseTypeDef ns _ = unlines
 	    [ showMooseRoleDef ns "Cap"
-	    , showMooseClassDef ns "Cap" "CaptMeth" [("Exp","c_invocant",""),("ArrayRef","c_argstack","List (Con \"Arglist\")")]
-	    , showMooseClassDef ns "Cap" "CaptSub" [("ArrayRef","c_argstack","List (Con \"Arglist\")")]
+	    , showMooseClassDef ns "Cap" "CaptMeth" [("Exp","c_invocant",""),("ArrayRef","c_argstack","[Arglist]")]
+	    , showMooseClassDef ns "Cap" "CaptSub" [("ArrayRef","c_argstack","[Arglist]")]
 	    ]
 
 instance YAML Arglist where
@@ -1617,14 +1617,14 @@ instance YAML Arglist where
 instance Perl6Class Arglist where
     showPerl6TypeDef ns _ = unlines
 	    [ showPerl6RoleDef ns "Arglist"
-	    , showPerl6ClassDef ns "Arglist" "MkArglist" [("Exp","@.a_positional",""),("","$.a_named","LApply (Con \"Map\") [Con \"Str\",List (Con \"Exp\")]")]
+	    , showPerl6ClassDef ns "Arglist" "MkArglist" [("Exp","@.a_positional",""),("","$.a_named","Map Str [Exp]")]
 	    ]
     asPerl6Object (MkArglist aa ab) = "MkArglist.new(" ++ (concat $ intersperse ", " [plShow aa, plShow ab]) ++ ")"
 
 instance MooseClass Arglist where
     showMooseTypeDef ns _ = unlines
 	    [ showMooseRoleDef ns "Arglist"
-	    , showMooseClassDef ns "Arglist" "MkArglist" [("ArrayRef","a_positional","List (Con \"Exp\")"),("","a_named","LApply (Con \"Map\") [Con \"Str\",List (Con \"Exp\")]")]
+	    , showMooseClassDef ns "Arglist" "MkArglist" [("ArrayRef","a_positional","[Exp]"),("","a_named","Map Str [Exp]")]
 	    ]
 
 instance YAML Var where
@@ -1661,7 +1661,7 @@ instance MooseClass Var where
     showMooseTypeDef ns _ = unlines
 	    [ showMooseRoleDef ns "Var"
 	    , showMooseClassDef ns "Var" "VarLexical" [("Ident","v_name",""),("Int","v_callerCount",""),("Int","v_outerCount","")]
-	    , showMooseClassDef ns "Var" "VarDynamic" [("Ident","v_name",""),("ArrayRef","v_packageName","List (Con \"Ident\")")]
+	    , showMooseClassDef ns "Var" "VarDynamic" [("Ident","v_name",""),("ArrayRef","v_packageName","[Ident]")]
 	    , showMooseClassDef ns "Var" "VarMagic" [("Magic","v_magic","")]
 	    ]
 
