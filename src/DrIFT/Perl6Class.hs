@@ -79,7 +79,6 @@ instance Perl6Class a => Perl6Class [a] where
     showPerl6TypeDef _ ty = error $ "showPerl6TypeDef " ++ (show $ typeOf ty)
     asPerl6Object xs = (show $ typeOf xs) ++ ".new(" ++ (concat $ intersperse ", " $ map asPerl6Object xs) ++ ")"
 
--- needed -fno-monomorphism-restriction
 instance (Perl6Class a, Perl6Class b, PLit a, PLit b, PLit (Map.Map a b)) => (Perl6Class (Map.Map a b)) where
     asPerl6Object h   = render $ cat $ qbraces $ map showKV $ Map.assocs h
         where
