@@ -1,24 +1,76 @@
 use v6-alpha;
 
-# External packages used by packages in this file, that don't export symbols:
-# (None Yet)
-
 ###########################################################################
 ###########################################################################
 
-# Constant values used by packages in this file:
 my Str $EMPTY_STR is readonly = q{};
 
 ###########################################################################
 ###########################################################################
 
-package Set::Relation-0.1.0 {
-    # Note: This given version applies to all of this file's packages.
-} # package Set::Relation
+module Set::Relation-0.1.0 {
+
+###########################################################################
+
+sub of Set::Relation::H heading (*%args) is export {
+    return Set::Relation::H->new( *%args );
+}
+
+###########################################################################
+
+} # module Set::Relation-0.1.0
 
 ###########################################################################
 ###########################################################################
 
+class Set::Relation::H-0.1.0 {
+    has %!attrs;
+
+###########################################################################
+
+submethod BUILD (:$attrs? = hash()) {
+    die "Invalid :$attrs argument; it is not a Hash."
+        if !$attrs.does(Hash);
+    for all($attrs.pairs).kv -> $attr_name, $attr_type {
+        die "Invalid :$attrs argument; at least one of its keys is not"
+                ~ " a valid attribute name."
+            if !$attr_name.does(Str) or $attr_name eq $EMPTY_STR;
+        my ($major_type, $minor_type)
+            =  $attr_type.does(Pair) ?? $attr_type.kv
+            !!                          ( 'Scalar' => $attr_type )
+            ;
+        die "Invalid :$attrs argument; at least one of its values is a"
+                ~ " Pair whose key is not a valid attribute major type."
+            if !$major_type.does(Str);
+        if $major_type eq 'Scalar' {
+            if !$minor_type.does(Package) {
+                # Try to convert a Str having package name into a Package.
+                $minor_type = ::($minor_type);
+            }
+        }
+        elsif $major_type eq 'Tuple'|'Relation' {
+            if !$minor_type.does(Set::Relation::H) {
+                # Try to convert a Hash into a Set::Relation::H.
+                $minor_type = $?CLASS.new( :attrs<$minor_type> );
+            }
+        }
+        else {
+            die "Invalid :$attrs argument; at least one of its values is a"
+                ~ " Pair whose key is not a valid attribute major type."
+        }
+        %!attrs{$attr_name} = ($major_type => $minor_type);
+    }
+    return;
+}
+
+###########################################################################
+
+} # class Set::Relation::H-0.1.0
+
+###########################################################################
+###########################################################################
+
+=x
 subset Set::Relation::AttrName of Str where {
     Set::Relation::Util::Str_looks_like_AttrName( $^n )
 };
@@ -923,8 +975,8 @@ several data types that together correspond to the components and whole of
 the "relation" of logic and mathematics and philosophy ("a predicate
 ranging over N arguments"), which is also the basis of the relational data
 model proposed by Edgar. F. Codd (eg, see
-L<http://www.acm.org/classics/nov95/toc.html>), and further enhanced by by
-Hugh Darwen and Christopher J. Date (eg, see
+L<http://www.acm.org/classics/nov95/toc.html>), and further evolved by Hugh
+Darwen and Christopher J. Date (eg, see
 L<http://www.thethirdmanifesto.com/>), upon which anything in the world can
 be modelled.
 
