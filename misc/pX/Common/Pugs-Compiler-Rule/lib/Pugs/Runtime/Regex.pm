@@ -177,6 +177,21 @@ sub failed {
     }
 };
 
+sub failed_abort {
+    no warnings qw( uninitialized );
+    return sub {
+        $_[3] = Pugs::Runtime::Match->new({ 
+                bool  => \0,
+                str   => \$_[0],
+                from  => \(0 + $_[5]),
+                to    => \(0 + $_[5]),
+                named => {},
+                match => [],
+                abort => 1,
+            });
+    }
+};
+
 sub named {
     # return a named capture
     my $label = shift;
@@ -224,24 +239,24 @@ sub positional {
     }
 }
 
-sub abort { 
+sub ___abort { 
     my $op = shift;
     return sub {
         print "ABORTING\n";
         $op->( @_ );
         print "ABORT: [0] ",Dumper(@_);  #$_[3]->perl;
-        ${ $_[3] }->{abort} = 1;
+        $_[3]->data->{abort} = 1;
         print "ABORT: ",$_[3]->perl;
     };
 };
 
-sub fail { 
+sub ___fail { 
     my $op = shift;
     return abort( 
         sub {
             print "FAILING\n";
             $op->( @_ );
-            ${ $_[3] }->{bool} = \0;
+            $_[3]->data->{bool} = \0;
             print "FAIL: ",Dumper( $_[3] );
         } 
     );
