@@ -12,8 +12,16 @@ module Set::Relation-0.1.0 {
 
 ###########################################################################
 
-sub of Set::Relation::H heading (*%args) is export {
-    return Set::Relation::H->new( *%args );
+#sub heading of Set::Relation::H (*%args) is export {
+sub heading (*%args) returns Set::Relation::H is export {
+    return Set::Relation::H.new( *%args );
+}
+
+#multi sub infix:<===> of Bool
+#    (Set::Relation::H $lhs, Set::Relation::H $rhs) is export {
+multi sub *infix:<===> (Set::Relation::H $lhs, Set::Relation::H $rhs)
+        returns Bool is export {
+    return $lhs.is_equal( $rhs );
 }
 
 ###########################################################################
@@ -61,6 +69,34 @@ submethod BUILD (:$attrs? = hash()) {
         %!attrs{$attr_name} = ($major_type => $minor_type);
     }
     return;
+}
+
+###########################################################################
+
+method export_as_hash () returns Hash {
+    return {
+        'attrs' => hash(*%!attrs),
+    };
+}
+
+###########################################################################
+
+#method is_equal of Bool (Set::Relation::H $other) {
+method is_equal (Set::Relation::H $other) returns Bool {
+#    if $other !=:= $?SELF {
+    if not $other =:= $?SELF {
+        return Bool::False;
+    }
+#    if $other!attrs !=:= %!attrs {
+    if not $other!attrs =:= %!attrs {
+        return Bool::False;
+    }
+#    if $other!attrs !eqv %!attrs {
+#    if not $other!attrs eqv %!attrs {
+    if not all($other!attrs.pairs) === all(%!attrs.pairs) {
+        return Bool::False;
+    }
+    return Bool::True;
 }
 
 ###########################################################################
