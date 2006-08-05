@@ -1,7 +1,15 @@
+{-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -fallow-overlapping-instances -funbox-strict-fields -fallow-undecidable-instances -fallow-incoherent-instances #-}
+
 module Pugs.MOP where
 
-import qualified Data.Version
+import Data.Map
 import qualified Network.URI
+import qualified Data.ByteString.Char8 as Str
+import Data.Version
+
+import Pugs.AST.CapInternals
+
+type Str = Str.ByteString
 
 -- import Pugs.MOP.Instances
 
@@ -10,69 +18,49 @@ pugsMetaModelVersion = [0, 0, 1]
 
 {-| data types for Package, Module, Class, Grammar, and Role -}
 
-data Package = MkPackage
-    { p_name     :: Ident
-    , p_parent   :: Maybe Package
-    }
-
-data Module = MkModule
-    { m_version   :: Data.Version
-    , m_authority :: Network.URI
-    , m_package   :: Maybe Package
-    }
-
-data Class = MkClass
-    { c_module              :: Maybe Module
-    , c_superClasses        :: [Class]
-    , c_runtimeSuperClasses :: Eval [Class] -- list of runtime-added superclasses
-    , c_methodTable         :: Map Ident Code
-    , c_runtimeMethodtable  :: Eval (Map Ident Code)
-    , c_runtimeSlots        :: Eval (Map Ident (TVar Val))
-    }
-
-newtype Grammar = MkGrammar { g_class :: Class }
-
-newtype Role    = MkRole    { r_role  :: Class }
-
 
 class Boxable a where
     meta  :: a -> Class
     getId :: a -> Val
 
 -- These will be derived by DrIFT eventually :)
-instance Boxable VInt where
-    meta  _ = mkClass "VInt"
-    getId _ = 6147 -- unique per built-in Val type
+instance Boxable Int where
+    meta  _ = mkClass "NativeInt"
+    --        vvvvvvvvvvvvvvvvvvvvvvvv we'd better come up with some convenience funcs here
+    getId _ = VNative $ NInt $ IFinite 6147 -- unique per built-in Val type
 
 {- Bootstrap initial metaobject instances -}
-packageMeta, packageRoot :: Package
-packageRoot = MkPackage "GLOBAL" Nothing
-packageMeta = MkPackage "Class" (Just packageRoot)
+packageObject, packageMeta, packageRoot :: Package
+packageRoot   = MkPackage (Str.pack "GLOBAL") Nothing
+packageMeta   = MkPackage (Str.pack "Class")  (Just packageRoot)
+packageObject = MkPackage (Str.pack "Object") (Just packageRoot)
 
-moduleMeta :: Module
+moduleMeta, moduleObject :: Module
 moduleMeta = MkModule
-    { m_version   = pugsMetaModelVersion []
-    , m_authority = parseURI "urn:Pugs"
-    , m_package   = packageMeta
+    { m_version   = Version pugsMetaModelVersion []
+    , m_authority = Network.URI.parseURI "urn:Pugs"
+    , m_package   = Just packageMeta
     }
+
+moduleObject = moduleMeta{ m_package = Just packageObject }
 
 classMeta, classObject :: Class
 classMeta = MkClass
-    { c_module              = moduleMeta
+    { c_module              = Just moduleMeta
     , c_superClasses        = [classObject]
-    , c_runtimeSuperClasses = return []
-    , c_methodTable         = error "XXX stevan" -- stevan xx Inf
-    , c_runtimeMethodtable  = return empty
-    , c_runtimeSlots        = return -- stevan
+    , c_runtimeSuperClasses = Eval [] -- return []
+    , c_methodTable         = empty
+    , c_runtimeMethodtable  = Eval empty -- return empty
+    , c_runtimeSlots        = Eval empty -- return empty -- stevan
     }
 
 classObject = MkClass
-    { c_module              = moduleObject
+    { c_module              = Just moduleObject
     , c_superClasses        = []
-    , c_runtimeSuperClasses = return []
-    , c_methodTable         = error "XXX stevan" --stevan
-    , c_runtimeMethodtable  = return empty
-    , c_runtimeSlots        = return --punt
+    , c_runtimeSuperClasses = Eval [] -- return []
+    , c_methodTable         = empty
+    , c_runtimeMethodtable  = Eval empty -- return empty
+    , c_runtimeSlots        = Eval empty -- return empty --punt
     }
 
 
@@ -95,15 +83,15 @@ getClass = mkClass
 mkClass :: String -> Class
 mkClass name = MkClass
     { c_module = mkMod'
-    , c_superClasses = classMeta
-    , c_runtimeSuperClasses = return []
-    , c_methodTable = error "XXX stevan" -- ??
-    , c_runtimeMethodtable = return empty
-    , c_runtimeSlots = return -- punt
+    , c_superClasses = [classMeta]
+    , c_runtimeSuperClasses = Eval [] -- return []
+    , c_methodTable = empty
+    , c_runtimeMethodtable = Eval empty -- return empty
+    , c_runtimeSlots = Eval empty -- return empty -- punt
     }
     where
-    mkMod' = moduleMeta{ m_package = mkPkg' }
-    mkPkg' = MkPackage{ p_name = name, p_parent = Just packageMeta }
+    mkMod' = Just moduleMeta{ m_package = mkPkg' }
+    mkPkg' = Just MkPackage{ p_name = Str.pack name, p_parent = Just packageMeta }
 
 mkGrammar :: String -> Grammar
 mkGrammar = MkGrammar . mkClass

@@ -18,9 +18,11 @@ import qualified Data.Set            as Set
 import qualified Data.Map            as Map
 import qualified Data.Seq            as Seq
 import qualified Data.IntMap         as IntMap
-import qualified Data.ByteString     as Str
+--import qualified Data.ByteString     as Str
 import qualified Data.IntSet         as IntSet
 import qualified Data.Generics.Twins as Twins
+import qualified Data.Version
+import qualified Network.URI
 
 import Pugs.Parser.Number
 import Pugs.AST.Prag
@@ -31,10 +33,9 @@ import Pugs.Embed.Perl5
 
 import DrIFT.Perl6Class
 
-
 --import {-# SOURCE #-} Pugs.AST.CapInternals.Instances
 
-type Str = Str.ByteString
+--type Str = Str.ByteString
 type IntSet = IntSet.IntSet
 type SeqOf = Seq.Seq
 
@@ -50,6 +51,8 @@ import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 import Data.Array.IO
 import DrIFT.Perl6Class
+import qualified Data.Version
+import qualified Network.URI
 
 -- instance (Typeable a, Show a) => Perl6Class (IOThread a)
 instance (PLit a) => PLit (Eval a) where -- XXX: very bogus
@@ -62,7 +65,6 @@ instance (PLit a) => PLit (IOThread a) where -- XXX
 data Eval a = Eval a -- junk; just for testing p6 derivations
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 -- instance (Perl6Class a) => Perl6Class (Eval a)
-type Class = Bogus -- junk; just for testing p6 derivations
 
 {-
 -}
@@ -784,6 +786,37 @@ data Magic
     | MArrayBlocks      -- ^ @?BLOCK     Which blocks am I in?
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
+data Package = MkPackage
+    { p_name     :: Ident
+    , p_parent   :: Maybe Package
+    }
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+data Module = MkModule
+    { m_version   :: Data.Version.Version
+    , m_authority :: Maybe Network.URI.URI
+    , m_package   :: Maybe Package
+    }
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+data Class = MkClass
+    { c_module              :: Maybe Module
+    , c_superClasses        :: [Class]
+    , c_runtimeSuperClasses :: Eval [Class] -- list of runtime-added superclasses
+    , c_methodTable         :: Map Ident Code
+    , c_runtimeMethodtable  :: Eval (Map Ident Code)
+    , c_runtimeSlots        :: Eval (Map Ident (TVar Val))
+    }
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+newtype Grammar = MkGrammar { g_class :: Class }
+
+newtype Role    = MkRole    { r_role  :: Class }
+
+instance Ord  Network.URI.URI
+instance Data Data.Version.Version
+-- where compare (URI sc au pa qu fr) (URI sc' au' pa' qu' fr') =
+
 instance Typeable Unique where typeOf _ = typeOf ()
 instance Typeable ProcessHandle where typeOf _ = typeOf ()
 #if __GLASGOW_HASKELL__ <= 604
@@ -816,5 +849,9 @@ instance YAML (TVar (IntMap Routine))
 instance YAML CodeWrapping
 instance YAML Pad
 instance YAML ProcessHandle
+instance YAML Data.Version.Version
+instance YAML Network.URI.URI
+instance YAML (Map Ident (TVar Val))
+instance YAML (Map Ident Code)
 
 </DrIFT> -}
