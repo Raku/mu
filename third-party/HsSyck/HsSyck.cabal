@@ -1,5 +1,5 @@
 Name:                pugs-HsSyck
-Version:             0.3
+Version:             0.2
 Description:         Fast, lightweight YAML loader and dumper
 -- License is really "MIT", but Cabal allows no such field
 License:             BSD3
