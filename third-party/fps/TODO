@@ -1,16 +1,9 @@
 Todo items
 ----------
 
-* state more clearly the null-termination property of strict ByteStrings
-    - strings created via mallocByteString, generate or create will be
-      null terminated. Strings created with slices, won't be.
-
 * would it make sense to move the IO bits into a different module too?
         - System.IO.ByteString
         - Data.ByteString.IO
-
-* pack/unpack -> fromList/toList ?
-        - Don sez: i don't like it. pack/unpack is culturally significant :)
 
 * can we avoid joinWithByte? 
         - Hard. Can't do it easily with a rule.
@@ -30,3 +23,50 @@ Todo items
     anything anyway, you can always get a full chunk.
 
 * think about lazy hGetContents and IO exceptions
+
+* consider dropping map' as ghc-6.5 optimises map much better so there's now
+  little difference between them (15% rather than 40%) and with the new fusion
+  system we may be able to get even closer. Look at the benchmarks for filter'
+  to see if we can do the same there.
+
+* It might be nice to have a trim MutableByteArray primitive that can release
+  the tail of an array back to the GC. This would save copying in cases where
+  we choose to realloc to save space. This combined with GC-movable strings
+  might improve fragmentation / space usage for the many small strings case.
+
+* if we can be sure there is very little variance then it might be interesting to look 
+ into the cases where we're doing slightly worse eg the map/up, filter/up cases
+ and why we're doing so much better in the up/up case!?  that one makes no sense
+ since we should be doing the exact same thing as the old loopU for the up/up
+ case
+
+* then there are the strictness issues eg our current foldl & foldr are
+  arguably too strict we could fuse unpack/unpackWith if they wern't so strict
+
+* look at shrinking the chunk size, based on our cache testing.
+
+* think about horizontal fusion (esp. when considering nofib code)
+
+* fuseable reverse.
+
+* 'reverse' is very common in list code, but unnecessary in bytestring
+  code, since it takes a symmertric view.
+    look to eliminate it with rules. loopUp . reverse --> loopDown
+
+* work out how robust the rules are .
+
+* benchmark against C string library benchmarks
+
+* work out if we can convince ghc to remove NoAccs in map and filter.
+
+* Implement Lazy:
+    scanl1
+    partition
+    unzip
+
+* fix documentation in Fusion.hs
+
+* Prelude Data.ByteString.Lazy> List.groupBy (/=) $ [97,99,103,103]
+  [[97,99,103,103]]
+  Prelude Data.ByteString.Lazy> groupBy (/=) $ pack [97,99,103,103]
+  [LPS ["ac","g"],LPS ["g"]]

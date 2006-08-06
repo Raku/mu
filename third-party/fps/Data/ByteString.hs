@@ -167,6 +167,7 @@ module Data.ByteString (
         -- * Zipping and unzipping ByteStrings
         zip,                    -- :: ByteString -> ByteString -> [(Word8,Word8)]
         zipWith,                -- :: (Word8 -> Word8 -> c) -> ByteString -> ByteString -> [c]
+        zipWith',
         unzip,                  -- :: [(Word8,Word8)] -> (ByteString,ByteString)
 
         -- * Ordered ByteStrings
@@ -181,8 +182,7 @@ module Data.ByteString (
 
         -- ** Using ByteStrings as CStrings
         useAsCString,           -- :: ByteString -> (CString -> IO a) -> IO a
-        unsafeUseAsCString,     -- :: ByteString -> (CString -> IO a) -> IO a
-        unsafeUseAsCStringLen,  -- :: ByteString -> (CStringLen -> IO a) -> IO a
+        useAsCStringLen,        -- :: ByteString -> (CStringLen -> IO a) -> IO a
 
         -- ** Copying ByteStrings
         -- | These functions perform memcpy(3) operations
@@ -193,13 +193,11 @@ module Data.ByteString (
         -- * I\/O with 'ByteString's
 
         -- ** Standard input and output
-
-#if defined(__GLASGOW_HASKELL__)
         getLine,                -- :: IO ByteString
-#endif
         getContents,            -- :: IO ByteString
         putStr,                 -- :: ByteString -> IO ()
         putStrLn,               -- :: ByteString -> IO ()
+        interact,               -- :: (ByteString -> ByteString) -> IO ()
 
         -- ** Files
         readFile,               -- :: FilePath -> IO ByteString
@@ -208,14 +206,12 @@ module Data.ByteString (
 --      mmapFile,               -- :: FilePath -> IO ByteString
 
         -- ** I\/O with Handles
-#if defined(__GLASGOW_HASKELL__)
         getArgs,                -- :: IO [ByteString]
         hGetLine,               -- :: Handle -> IO ByteString
         hGetLines,              -- :: Handle -> IO [ByteString]
-        hGetNonBlocking,        -- :: Handle -> Int -> IO ByteString
-#endif
         hGetContents,           -- :: Handle -> IO ByteString
         hGet,                   -- :: Handle -> Int -> IO ByteString
+        hGetNonBlocking,        -- :: Handle -> Int -> IO ByteString
         hPut,                   -- :: Handle -> ByteString -> IO ()
         hPutStr,                -- :: Handle -> ByteString -> IO ()
         hPutStrLn,              -- :: Handle -> ByteString -> IO ()
@@ -235,7 +231,7 @@ import Prelude hiding           (reverse,head,tail,last,init,null
                                 ,minimum,all,concatMap,foldl1,foldr1
                                 ,scanl,scanl1,scanr,scanr1
                                 ,readFile,writeFile,appendFile,replicate
-                                ,getContents,getLine,putStr,putStrLn
+                                ,getContents,getLine,putStr,putStrLn,interact
                                 ,zip,zipWith,unzip,notElem)
 
 import Data.ByteString.Base
@@ -260,14 +256,15 @@ import Foreign.Ptr
 import Foreign.Storable         (Storable(..))
 
 -- hGetBuf and hPutBuf not available in yhc or nhc
-import System.IO                (stdin,stdout,hClose,hFileSize
-                                ,hGetBuf,hPutBuf,openBinaryFile
-                                ,Handle,IOMode(..))
+import System.IO                (stdin,stdout,hClose,hFileSize,hIsEOF
+                                ,hGetBuf,hPutBuf,Handle,IOMode(..),openBinaryFile)
 
 import Data.Monoid              (Monoid, mempty, mappend, mconcat)
 
 #if !defined(__GLASGOW_HASKELL__)
 import System.IO.Unsafe
+import qualified System.Environment
+import qualified System.IO      (hGetLine)
 #endif
 
 #if defined(__GLASGOW_HASKELL__)
@@ -448,6 +445,22 @@ unpack (PS ps s l) = inlinePerformIO $ withForeignPtr ps $ \p ->
 unpack ps = build (unpackFoldr ps)
 {-# INLINE unpack #-}
 
+--
+-- critical this isn't strict in the acc
+-- as it will break in the presence of list fusion. this is a known
+-- issue with seq and build/foldr rewrite rules, which rely on lazy
+-- demanding to avoid bottoms in the list.
+--
+unpackFoldr :: ByteString -> (Word8 -> a -> a) -> a -> a
+unpackFoldr (PS fp off len) f ch = withPtr fp $ \p -> do
+    let loop q n    _   | q `seq` n `seq` False = undefined -- n.b.
+        loop _ (-1) acc = return acc
+        loop q n    acc = do
+           a <- peekByteOff q n
+           loop q (n-1) (a `f` acc)
+    loop (p `plusPtr` off) (len-1) ch
+{-# INLINE [0] unpackFoldr #-}
+
 unpackList :: ByteString -> [Word8]
 unpackList (PS fp off len) = withPtr fp $ \p -> do
     let STRICT3(loop)
@@ -460,24 +473,6 @@ unpackList (PS fp off len) = withPtr fp $ \p -> do
 {-# RULES
 "unpack-list"  [1]  forall p  . unpackFoldr p (:) [] = unpackList p
  #-}
-
-unpackFoldr :: ByteString -> (Word8 -> a -> a) -> a -> a
-unpackFoldr (PS fp off len) f ch = withPtr fp $ \p -> do
-    let STRICT3(loop)
-        loop _ (-1) acc = return acc
-        loop q n    acc = do
-           a <- peekByteOff q n
-           loop q (n-1) (a `f` acc)
-    loop (p `plusPtr` off) (len-1) ch
-{-# INLINE [0] unpackFoldr #-}
-
--- TODO just use normal foldr here.
---
--- or
--- unpack xs | null xs = []
---           | otherwise = unsafeHead xs : unpack (unsafeTail xs)
---
--- ?
 
 #endif
 
@@ -746,8 +741,9 @@ concat xs     = unsafeCreate len $ \ptr -> go xs ptr
 
 -- | Map a function over a 'ByteString' and concatenate the results
 concatMap :: (Word8 -> ByteString) -> ByteString -> ByteString
-concatMap f = foldr (append . f) empty
--- A silly function for ByteStrings anyway.
+concatMap f = concat . foldr ((:) . f) []
+
+-- foldr (append . f) empty
 
 -- | /O(n)/ Applied to a predicate and a ByteString, 'any' determines if
 -- any element of the 'ByteString' satisfies the predicate.
@@ -832,6 +828,10 @@ minimumU = foldl1' min
 
 ------------------------------------------------------------------------
 
+-- | The 'mapAccumL' function behaves like a combination of 'map' and
+-- 'foldl'; it applies a function to each element of a ByteString,
+-- passing an accumulating parameter from left to right, and returning a
+-- final value of this accumulator together with the new list.
 mapAccumL :: (acc -> Word8 -> (acc, Word8)) -> acc -> ByteString -> (acc, ByteString)
 #if !defined(LOOPU_FUSION)
 mapAccumL f z = unSP . loopUp (mapAccumEFL f) z
@@ -840,6 +840,10 @@ mapAccumL f z = unSP . loopU (mapAccumEFL f) z
 #endif
 {-# INLINE mapAccumL #-}
 
+-- | The 'mapAccumR' function behaves like a combination of 'map' and
+-- 'foldr'; it applies a function to each element of a ByteString,
+-- passing an accumulating parameter from right to left, and returning a
+-- final value of this accumulator together with the new ByteString.
 mapAccumR :: (acc -> Word8 -> (acc, Word8)) -> acc -> ByteString -> (acc, ByteString)
 mapAccumR f z = unSP . loopDown (mapAccumEFL f) z
 {-# INLINE mapAccumR #-}
@@ -1526,11 +1530,43 @@ zip ps qs
 -- | 'zipWith' generalises 'zip' by zipping with the function given as
 -- the first argument, instead of a tupling function.  For example,
 -- @'zipWith' (+)@ is applied to two ByteStrings to produce the list of
--- corresponding sums.
+-- corresponding sums. 
 zipWith :: (Word8 -> Word8 -> a) -> ByteString -> ByteString -> [a]
 zipWith f ps qs
     | null ps || null qs = []
     | otherwise = f (unsafeHead ps) (unsafeHead qs) : zipWith f (unsafeTail ps) (unsafeTail qs)
+
+--
+-- | A specialised version of zipWith for the common case of a
+-- simultaneous map over two bytestrings, to build a 3rd. Rewrite rules
+-- are used to automatically covert zipWith into zipWith' when a pack is
+-- performed on the result of zipWith, but we also export it for
+-- convenience.
+--
+zipWith' :: (Word8 -> Word8 -> Word8) -> ByteString -> ByteString -> ByteString
+zipWith' f (PS fp s l) (PS fq t m) = inlinePerformIO $
+    withForeignPtr fp $ \a ->
+    withForeignPtr fq $ \b ->
+    create len $ zipWith_ 0 (a `plusPtr` s) (b `plusPtr` t)
+  where
+    zipWith_ :: Int -> Ptr Word8 -> Ptr Word8 -> Ptr Word8 -> IO ()
+    STRICT4(zipWith_)
+    zipWith_ n p1 p2 r
+       | n >= len = return ()
+       | otherwise = do
+            x <- peekByteOff p1 n
+            y <- peekByteOff p2 n
+            pokeByteOff r n (f x y)
+            zipWith_ (n+1) p1 p2 r
+
+    len = min l m
+{-# INLINE zipWith' #-}
+
+{-# RULES
+
+"Specialise zipWith" forall (f :: Word8 -> Word8 -> Word8) p q .
+    pack (zipWith f p q) = zipWith' f p q
+  #-}
 
 -- | /O(n)/ 'unzip' transforms a list of pairs of bytes into a pair of
 -- ByteStrings. Note that this performs two 'pack' operations.
@@ -1613,27 +1649,33 @@ packMallocCString cstr = unsafePerformIO $ do
     len <- c_strlen cstr
     return $! PS fp 0 (fromIntegral len)
 
--- | /O(n) construction/ Use a @ByteString@ with a function requiring a null-terminated @CString@.
---   The @CString@ should not be freed afterwards. This is a memcpy(3).
+-- | /O(n) construction/ Use a @ByteString@ with a function requiring a
+-- null-terminated @CString@.  The @CString@ will be freed
+-- automatically. This is a memcpy(3).
 useAsCString :: ByteString -> (CString -> IO a) -> IO a
 useAsCString (PS ps s l) = bracket alloc (c_free.castPtr)
-    where
-      alloc = withForeignPtr ps $ \p -> do
-                buf <- c_malloc (fromIntegral l+1)
-                memcpy (castPtr buf) (castPtr p `plusPtr` s) (fromIntegral l)
-                poke (buf `plusPtr` l) (0::Word8) -- n.b.
-                return $! castPtr buf
+    where alloc = withForeignPtr ps $ \p -> do
+            buf <- c_malloc (fromIntegral l+1)
+            memcpy (castPtr buf) (castPtr p `plusPtr` s) (fromIntegral l)
+            poke (buf `plusPtr` l) (0::Word8) -- n.b.
+            return (castPtr buf)
 
--- | /O(1) construction/ Use a @ByteString@ with a function requiring a @CString@.
--- Warning: modifying the @CString@ will affect the @ByteString@.
--- Why is this function unsafe? It relies on the null byte at the end of
--- the ByteString to be there. This is /not/ the case if your ByteString
--- has been spliced from a larger string (i.e. with take or drop).
--- Unless you can guarantee the null byte, you should use the safe
--- version, which will copy the string first.
+-- | /O(1) construction/ Use a @ByteString@ with a function requiring a @CStringLen@.
+useAsCStringLen :: ByteString -> (CStringLen -> IO a) -> IO a
+useAsCStringLen = unsafeUseAsCStringLen
+
 --
-unsafeUseAsCString :: ByteString -> (CString -> IO a) -> IO a
-unsafeUseAsCString (PS ps s _) ac = withForeignPtr ps $ \p -> ac (castPtr p `plusPtr` s)
+-- why were we doing this?
+--
+-- useAsCStringLen :: ByteString -> (CStringLen -> IO a) -> IO a
+-- useAsCStringLen (PS ps s l) = bracket alloc (c_free.castPtr.fst)
+--     where
+--       alloc = withForeignPtr ps $ \p -> do
+--                 buf <- c_malloc (fromIntegral l+1)
+--                 memcpy (castPtr buf) (castPtr p `plusPtr` s) (fromIntegral l)
+--                 poke (buf `plusPtr` l) (0::Word8) -- n.b.
+--                 return $! (castPtr buf, l)
+--
 
 -- | /O(n)/ Make a copy of the 'ByteString' with its own storage. 
 --   This is mainly useful to allow the rest of the data pointed
@@ -1656,36 +1698,37 @@ copyCStringLen :: CStringLen -> IO ByteString
 copyCStringLen (cstr, len) = create len $ \p ->
     memcpy p (castPtr cstr) (fromIntegral len)
 
--- | /O(1) construction/ Use a @ByteString@ with a function requiring a @CStringLen@.
--- Warning: modifying the @CStringLen@ will affect the @ByteString@.
--- This is analogous to unsafeUseAsCString, and comes with the same safety requirements.
-unsafeUseAsCStringLen :: ByteString -> (CStringLen -> IO a) -> IO a
-unsafeUseAsCStringLen (PS ps s l) ac = withForeignPtr ps $ \p -> ac (castPtr p `plusPtr` s,l)
-
 -- ---------------------------------------------------------------------
 -- line IO
 
-#if defined(__GLASGOW_HASKELL__)
-
--- | getLine, read a line from stdin.
+-- | Read a line from stdin.
 getLine :: IO ByteString
 getLine = hGetLine stdin
 
 -- | Lazily construct a list of lines of ByteStrings. This will be much
--- better on memory consumption than using lines =<< getContents.
+-- better on memory consumption than using 'hGetContents >>= lines'
+-- If you're considering this, a better choice might be to use
+-- Data.ByteString.Lazy
 hGetLines :: Handle -> IO [ByteString]
 hGetLines h = go
     where
         go = unsafeInterleaveIO $ do
-                ms <- catch (hGetLine h >>= return . Just)
-                            (\_ -> return Nothing)
-                case ms of
-                    Nothing -> return []
-                    Just s  -> do ss <- go
-                                  return (s:ss)
+                e <- hIsEOF h
+                if e
+                  then return []
+                  else do
+                x  <- hGetLine h
+                xs <- go
+                return (x:xs)
 
--- | hGetLine. read a ByteString from a handle
+-- | Read a line from a handle
+
 hGetLine :: Handle -> IO ByteString
+#if !defined(__GLASGOW_HASKELL__)
+hGetLine h = do
+  string <- System.IO.hGetLine h
+  return $ packWith c2w string
+#else
 hGetLine h = wantReadableHandle "Data.ByteString.hGetLine" h $ \ handle_ -> do
     case haBufferMode handle_ of
        NoBuffering -> error "no buffering"
@@ -1786,13 +1829,15 @@ hGet :: Handle -> Int -> IO ByteString
 hGet _ 0 = return empty
 hGet h i = createAndTrim i $ \p -> hGetBuf h p i
 
-#if defined(__GLASGOW_HASKELL__)
 -- | hGetNonBlocking is identical to 'hGet', except that it will never block
 -- waiting for data to become available, instead it returns only whatever data
 -- is available.
 hGetNonBlocking :: Handle -> Int -> IO ByteString
+#if defined(__GLASGOW_HASKELL__)
 hGetNonBlocking _ 0 = return empty
 hGetNonBlocking h i = createAndTrim i $ \p -> hGetBufNonBlocking h p i
+#else
+hGetNonBlocking = hGet
 #endif
 
 -- | Read entire handle contents into a 'ByteString'.
@@ -1830,23 +1875,31 @@ hGetContents h = do
 getContents :: IO ByteString
 getContents = hGetContents stdin
 
+-- | The interact function takes a function of type @ByteString -> ByteString@
+-- as its argument. The entire input from the standard input device is passed
+-- to this function as its argument, and the resulting string is output on the
+-- standard output device. It's great for writing one line programs!
+interact :: (ByteString -> ByteString) -> IO ()
+interact transformer = putStr . transformer =<< getContents
+
 -- | Read an entire file strictly into a 'ByteString'.  This is far more
 -- efficient than reading the characters into a 'String' and then using
 -- 'pack'.  It also may be more efficient than opening the file and
--- reading it using hGet.
+-- reading it using hGet. Files are read using 'binary mode' on Windows,
+-- for 'text mode' use the Char8 version of this function.
 readFile :: FilePath -> IO ByteString
 readFile f = bracket (openBinaryFile f ReadMode) hClose
     (\h -> hFileSize h >>= hGet h . fromIntegral)
 
 -- | Write a 'ByteString' to a file.
 writeFile :: FilePath -> ByteString -> IO ()
-writeFile f ps = bracket (openBinaryFile f WriteMode) hClose
-    (\h -> hPut h ps)
+writeFile f txt = bracket (openBinaryFile f WriteMode) hClose
+    (\h -> hPut h txt)
 
 -- | Append a 'ByteString' to a file.
 appendFile :: FilePath -> ByteString -> IO ()
 appendFile f txt = bracket (openBinaryFile f AppendMode) hClose
-    (\hdl -> hPut hdl txt)
+    (\h -> hPut h txt)
 
 {-
 --
@@ -1906,11 +1959,11 @@ mmap f = do
     where mmap_limit = 16*1024
 -}
 
-#if defined(__GLASGOW_HASKELL__)
 --
 -- | A ByteString equivalent for getArgs. More efficient for large argument lists
 --
 getArgs :: IO [ByteString]
+#if defined(__GLASGOW_HASKELL__)
 getArgs =
   alloca $ \ p_argc ->
   alloca $ \ p_argv -> do
@@ -1918,6 +1971,10 @@ getArgs =
     p    <- fromIntegral `fmap` peek p_argc
     argv <- peek p_argv
     P.map packCString `fmap` peekArray (p - 1) (advancePtr argv 1)
+#else
+getArgs = do
+  stringArgs <- System.Environment.getArgs
+  return $ List.map (packWith c2w) stringArgs
 #endif
 
 -- ---------------------------------------------------------------------

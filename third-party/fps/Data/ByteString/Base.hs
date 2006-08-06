@@ -30,8 +30,11 @@ module Data.ByteString.Base (
         create,                 -- :: Int -> (Ptr Word8 -> IO ()) -> IO ByteString
         createAndTrim,          -- :: Int -> (Ptr Word8 -> IO Int) -> IO  ByteString
         createAndTrim',         -- :: Int -> (Ptr Word8 -> IO (Int, Int, a)) -> IO (ByteString, a)
+        mallocByteString,       -- :: Int -> IO (ForeignPtr a)
 
         unsafeCreate,           -- :: Int -> (Ptr Word8 -> IO ()) ->  ByteString
+        unsafeUseAsCString,     -- :: ByteString -> (CString -> IO a) -> IO a
+        unsafeUseAsCStringLen,  -- :: ByteString -> (CStringLen -> IO a) -> IO a
 
         fromForeignPtr,         -- :: ForeignPtr Word8 -> Int -> ByteString
         toForeignPtr,           -- :: ByteString -> (ForeignPtr Word8, Int, Int)
@@ -85,7 +88,7 @@ import Foreign.ForeignPtr
 import Foreign.Ptr
 import Foreign.Storable         (Storable(..))
 import Foreign.C.Types
-import Foreign.C.String         (CString)
+import Foreign.C.String         (CString, CStringLen)
 
 import Control.Exception        (assert)
 
@@ -199,14 +202,10 @@ unsafeCreate :: Int -> (Ptr Word8 -> IO ()) -> ByteString
 unsafeCreate l f = unsafePerformIO (create l f)
 {-# INLINE unsafeCreate #-}
 
--- | Wrapper of mallocForeignPtrBytes.
+-- | Create ByteString of size @l@ and use action @f@ to fill it's contents.
 create :: Int -> (Ptr Word8 -> IO ()) -> IO ByteString
 create l f = do
-#if defined(SLOW_FOREIGN_PTR) || !defined(__GLASGOW_HASKELL__)
-    fp <- mallocForeignPtrBytes l
-#else
-    fp <- mallocPlainForeignPtrBytes l
-#endif
+    fp <- mallocByteString l
     withForeignPtr fp $ \p -> f p
     return $! PS fp 0 l
 
@@ -220,11 +219,7 @@ create l f = do
 --
 createAndTrim :: Int -> (Ptr Word8 -> IO Int) -> IO ByteString
 createAndTrim l f = do
-#if defined(SLOW_FOREIGN_PTR) || !defined(__GLASGOW_HASKELL__)
-    fp <- mallocForeignPtrBytes l
-#else
-    fp <- mallocPlainForeignPtrBytes l
-#endif
+    fp <- mallocByteString l
     withForeignPtr fp $ \p -> do
         l' <- f p
         if assert (l' <= l) $ l' >= l
@@ -233,11 +228,7 @@ createAndTrim l f = do
 
 createAndTrim' :: Int -> (Ptr Word8 -> IO (Int, Int, a)) -> IO (ByteString, a)
 createAndTrim' l f = do
-#if defined(SLOW_FOREIGN_PTR) || !defined(__GLASGOW_HASKELL__)
-    fp <- mallocForeignPtrBytes l
-#else
-    fp <- mallocPlainForeignPtrBytes l
-#endif
+    fp <- mallocByteString l
     withForeignPtr fp $ \p -> do
         (off, l', res) <- f p
         if assert (l' <= l) $ l' >= l
@@ -245,6 +236,16 @@ createAndTrim' l f = do
             else do ps <- create l' $ \p' ->
                             memcpy p' (p `plusPtr` off) (fromIntegral l')
                     return $! (ps, res)
+
+-- | Wrapper of mallocForeignPtrBytes with faster implementation
+-- for GHC 6.5 builds newer than 06/06/06
+mallocByteString :: Int -> IO (ForeignPtr a)
+mallocByteString l = do
+#if defined(SLOW_FOREIGN_PTR) || !defined(__GLASGOW_HASKELL__)
+    mallocForeignPtrBytes l
+#else
+    mallocPlainForeignPtrBytes l
+#endif
 
 #if defined(__GLASGOW_HASKELL__)
 -- | /O(n)/ Pack a null-terminated sequence of bytes, pointed to by an
@@ -360,6 +361,20 @@ countOccurrences counts str l = go 0
                           x <- peekElemOff counts k
                           pokeElemOff counts k (x + 1)
                           go (i + 1)
+
+-- | /O(1) construction/ Use a @ByteString@ with a function requiring a
+-- @CString@.  Warning: modifying the @CString@ will affect the
+-- @ByteString@.  Why is this function unsafe? It relies on the null
+-- byte at the end of the ByteString to be there. Unless you can
+-- guarantee the null byte, you should use the safe version, which will
+-- copy the string first.
+unsafeUseAsCString :: ByteString -> (CString -> IO a) -> IO a
+unsafeUseAsCString (PS ps s _) ac = withForeignPtr ps $ \p -> ac (castPtr p `plusPtr` s)
+
+-- | /O(1) construction/ Use a @ByteString@ with a function requiring a
+-- @CStringLen@.
+unsafeUseAsCStringLen :: ByteString -> (CStringLen -> IO a) -> IO a
+unsafeUseAsCStringLen (PS ps s l) f = withForeignPtr ps $ \p -> f (castPtr p `plusPtr` s,l)
 
 -- ---------------------------------------------------------------------
 -- 

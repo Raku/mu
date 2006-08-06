@@ -180,26 +180,37 @@ module Data.ByteString.Char8 (
         -- * Ordered ByteStrings
         sort,                   -- :: ByteString -> ByteString
 
-        -- * Unchecked access
+        -- * Conversion
         w2c,                    -- :: Word8 -> Char
         c2w,                    -- :: Char  -> Word8
 
         -- * Reading from ByteStrings
         readInt,                -- :: ByteString -> Maybe Int
 
+        -- * Low level CString conversions
+
+        -- ** Packing CStrings and pointers
+        packCString,            -- :: CString -> ByteString
+        packCStringLen,         -- :: CString -> ByteString
+        packMallocCString,      -- :: CString -> ByteString
+
+        -- ** Using ByteStrings as CStrings
+        useAsCString,           -- :: ByteString -> (CString -> IO a) -> IO a
+        useAsCStringLen,        -- :: ByteString -> (CStringLen -> IO a) -> IO a
+
         -- * Copying ByteStrings
         copy,                   -- :: ByteString -> ByteString
+        copyCString,            -- :: CString -> IO ByteString
+        copyCStringLen,         -- :: CStringLen -> IO ByteString
 
         -- * I\/O with @ByteString@s
 
         -- ** Standard input and output
-
-#if defined(__GLASGOW_HASKELL__)
         getLine,                -- :: IO ByteString
-#endif
         getContents,            -- :: IO ByteString
         putStr,                 -- :: ByteString -> IO ()
         putStrLn,               -- :: ByteString -> IO ()
+        interact,               -- :: (ByteString -> ByteString) -> IO ()
 
         -- ** Files
         readFile,               -- :: FilePath -> IO ByteString
@@ -208,12 +219,10 @@ module Data.ByteString.Char8 (
 --      mmapFile,               -- :: FilePath -> IO ByteString
 
         -- ** I\/O with Handles
-#if defined(__GLASGOW_HASKELL__)
         getArgs,                -- :: IO [ByteString]
         hGetLine,               -- :: Handle -> IO ByteString
         hGetLines,              -- :: Handle -> IO ByteString
         hGetNonBlocking,        -- :: Handle -> Int -> IO ByteString
-#endif
         hGetContents,           -- :: Handle -> IO ByteString
         hGet,                   -- :: Handle -> Int -> IO ByteString
         hPut,                   -- :: Handle -> ByteString -> IO ()
@@ -241,8 +250,9 @@ import Prelude hiding           (reverse,head,tail,last,init,null
                                 ,concat,any,take,drop,splitAt,takeWhile
                                 ,dropWhile,span,break,elem,filter,unwords
                                 ,words,maximum,minimum,all,concatMap,scanl,scanl1
-                                ,foldl1,foldr1,readFile,writeFile,appendFile,replicate
-                                ,getContents,getLine,putStr,putStrLn
+                                ,appendFile,readFile,writeFile
+                                ,foldl1,foldr1,replicate
+                                ,getContents,getLine,putStr,putStrLn,interact
                                 ,zip,zipWith,unzip,notElem)
 
 import qualified Data.ByteString as B
@@ -255,11 +265,12 @@ import Data.ByteString (empty,null,length,tail,init,append
                        ,sort,isPrefixOf,isSuffixOf,isSubstringOf,findSubstring
                        ,findSubstrings,copy,group
 
-                       ,getContents, putStr, putStrLn
-                       ,readFile, {-mmapFile,-} writeFile, appendFile
+                       ,getLine, getContents, putStr, putStrLn, interact
                        ,hGetContents, hGet, hPut, hPutStr, hPutStrLn
+                       ,getArgs, hGetLine, hGetLines, hGetNonBlocking
+                       ,packCString,packCStringLen, packMallocCString
+                       ,useAsCString,useAsCStringLen, copyCString,copyCStringLen
 #if defined(__GLASGOW_HASKELL__)
-                       ,getLine, getArgs, hGetLine, hGetLines, hGetNonBlocking
                        ,unpackList
 #endif
                        )
@@ -274,6 +285,8 @@ import Data.ByteString.Base (
 
 import qualified Data.List as List (intersperse)
 
+import System.IO                (openFile,hClose,hFileSize,IOMode(..))
+import Control.Exception        (bracket)
 import Foreign
 
 #if defined(__GLASGOW_HASKELL__)
@@ -825,12 +838,12 @@ lines ps
     where search = elemIndex '\n'
 {-# INLINE lines #-}
 
-{-# Bogus rule, wrong if there's not \n at end of line
+{- Bogus rule, wrong if there's not \n at end of line
 
 "length.lines/count" 
     P.length . lines = count '\n'
 
-  #-}
+  -}
 
 {-
 -- Just as fast, but more complex. Should be much faster, I thought.
@@ -1000,3 +1013,22 @@ map' f = B.map' (c2w . f . w2c)
 -- around 2x faster for some one-shot applications.
 filter' :: (Char -> Bool) -> ByteString -> ByteString
 filter' f = B.filter' (f . w2c)
+
+-- | Read an entire file strictly into a 'ByteString'.  This is far more
+-- efficient than reading the characters into a 'String' and then using
+-- 'pack'.  It also may be more efficient than opening the file and
+-- reading it using hGet.
+readFile :: FilePath -> IO ByteString
+readFile f = bracket (openFile f ReadMode) hClose
+    (\h -> hFileSize h >>= hGet h . fromIntegral)
+
+-- | Write a 'ByteString' to a file.
+writeFile :: FilePath -> ByteString -> IO ()
+writeFile f txt = bracket (openFile f WriteMode) hClose
+    (\h -> hPut h txt)
+
+-- | Append a 'ByteString' to a file.
+appendFile :: FilePath -> ByteString -> IO ()
+appendFile f txt = bracket (openFile f AppendMode) hClose
+    (\h -> hPut h txt)
+

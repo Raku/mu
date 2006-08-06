@@ -1,6 +1,4 @@
-{-# OPTIONS_GHC -cpp -optc-O1 -fffi -fglasgow-exts -fno-warn-incomplete-patterns #-}
---
--- -optc-O2 breaks with 4.0.4 gcc on debian
+{-# OPTIONS_GHC -cpp -fffi -fglasgow-exts -fno-warn-incomplete-patterns #-}
 --
 -- Module      : ByteString.Lazy
 -- Copyright   : (c) Don Stewart 2006
@@ -69,7 +67,7 @@ module Data.ByteString.Lazy (
         -- * Transformating ByteStrings
         map,                    -- :: (Word8 -> Word8) -> ByteString -> ByteString
         reverse,                -- :: ByteString -> ByteString
-        intersperse,            -- :: Word8 -> ByteString -> ByteString
+--      intersperse,            -- :: Word8 -> ByteString -> ByteString
         transpose,              -- :: [ByteString] -> [ByteString]
 
         -- * Reducing 'ByteString's (folds)
@@ -96,9 +94,8 @@ module Data.ByteString.Lazy (
 --      scanr1,                 -- :: (Word8 -> Word8 -> Word8) -> ByteString -> ByteString
 
         -- ** Accumulating maps
-        mapAccumL,              -- :: (acc -> Word8 -> (acc, Word8)) -> acc -> ByteString -> (acc, ByteString)
---      mapAccumR,              -- :: (acc -> Word8 -> (acc, Word8)) -> acc -> ByteString -> (acc, ByteString)
-        mapIndexed,             -- :: (Int64 -> Word8 -> Word8) -> ByteString -> ByteString
+        mapAccumL,  -- :: (acc -> Word8 -> (acc, Word8)) -> acc -> ByteString -> (acc, ByteString)
+        mapIndexed, -- :: (Int64 -> Word8 -> Word8) -> ByteString -> ByteString
 
         -- ** Infinite ByteStrings
         repeat,                 -- :: Word8 -> ByteString
@@ -188,26 +185,19 @@ module Data.ByteString.Lazy (
         hGetContentsN,          -- :: Int -> Handle -> IO ByteString
         hGet,                   -- :: Handle -> Int -> IO ByteString
         hGetN,                  -- :: Int -> Handle -> Int -> IO ByteString
-#if defined(__GLASGOW_HASKELL__)
+        hPut,                   -- :: Handle -> ByteString -> IO ()
         hGetNonBlocking,        -- :: Handle -> IO ByteString
         hGetNonBlockingN,       -- :: Int -> Handle -> IO ByteString
-#endif
-        hPut,                   -- :: Handle -> ByteString -> IO ()
 
   ) where
 
 import qualified Prelude
-import Prelude hiding           (reverse,head,tail,last,init,null
-                                ,length,map,lines,foldl,foldr,unlines
-                                ,concat,any,take,drop,splitAt,takeWhile
-                                ,dropWhile,span,break,elem,filter,maximum
-                                ,minimum,all,concatMap,foldl1,foldr1
-                                ,scanl, scanl1, scanr, scanr1
-                                ,repeat, cycle, interact, iterate
-                                ,readFile,writeFile,appendFile,replicate
-                                ,getContents,getLine,putStr,putStrLn
-                                ,zip,zipWith,unzip,notElem)
-
+import Prelude hiding
+    (reverse,head,tail,last,init,null,length,map,lines,foldl,foldr,unlines
+    ,concat,any,take,drop,splitAt,takeWhile,dropWhile,span,break,elem,filter,maximum
+    ,minimum,all,concatMap,foldl1,foldr1,scanl, scanl1, scanr, scanr1
+    ,repeat, cycle, interact, iterate,readFile,writeFile,appendFile,replicate
+    ,getContents,getLine,putStr,putStrLn ,zip,zipWith,unzip,notElem)
 
 import qualified Data.List              as L  -- L for list/lazy
 import qualified Data.ByteString        as P  -- P for packed
@@ -482,14 +472,14 @@ reverse :: ByteString -> ByteString
 reverse (LPS xs) = LPS (L.reverse . L.map P.reverse $ xs)
 {-# INLINE reverse #-}
 
--- | /O(n)/ The 'intersperse' function takes a 'Word8' and a
--- 'ByteString' and \`intersperses\' that byte between the elements of
--- the 'ByteString'.  It is analogous to the intersperse function on
--- Lists.
-intersperse :: Word8 -> ByteString -> ByteString
-intersperse = error "FIXME: not yet implemented"
+-- The 'intersperse' function takes a 'Word8' and a 'ByteString' and
+-- \`intersperses\' that byte between the elements of the 'ByteString'.
+-- It is analogous to the intersperse function on Lists.
+-- intersperse :: Word8 -> ByteString -> ByteString
+-- intersperse = error "FIXME: not yet implemented"
 
-{-intersperse c (LPS [])     = LPS []
+{-
+intersperse c (LPS [])     = LPS []
 intersperse c (LPS (x:xs)) = LPS (P.intersperse c x : L.map intersperse')
   where intersperse' c ps@(PS x s l) =
           P.create (2*l) $ \p -> withForeignPtr x $ \f ->
@@ -583,6 +573,10 @@ minimum (LPS []) = errorEmptyList "minimum"
 minimum (LPS xs) = L.minimum (L.map P.minimum xs)
 {-# INLINE minimum #-}
 
+-- | The 'mapAccumL' function behaves like a combination of 'map' and
+-- 'foldl'; it applies a function to each element of a ByteString,
+-- passing an accumulating parameter from left to right, and returning a
+-- final value of this accumulator together with the new ByteString.
 mapAccumL :: (acc -> Word8 -> (acc, Word8)) -> acc -> ByteString -> (acc, ByteString)
 mapAccumL f z = (\(a :*: ps) -> (a, LPS ps)) . loopL (P.mapAccumEFL f) z . unLPS
 
@@ -649,7 +643,6 @@ cycle (LPS xs) = LPS (L.cycle xs)
 -- ByteString or returns 'Just' @(a,b)@, in which case, @a@ is a
 -- prepending to the ByteString and @b@ is used as the next element in a
 -- recursive call.
---
 unfoldr :: (a -> Maybe (Word8, a)) -> a -> ByteString
 unfoldr f = LPS . unfoldChunk 32
   where unfoldChunk n x =
@@ -1132,10 +1125,9 @@ hGetContentsN k h = lazyRead >>= return . LPS
     lazyRead = unsafeInterleaveIO $ do
         ps <- P.hGet h k
         case P.length ps of
-            0         -> return []
-            n | n < k -> return [ps]
-            _         -> do pss <- lazyRead
-                            return (ps : pss)
+            0 -> return []
+            _ -> do pss <- lazyRead
+                    return (ps : pss)
 
 -- | Read @n@ bytes into a 'ByteString', directly from the
 -- specified 'Handle', in chunks of size @k@.
@@ -1147,26 +1139,27 @@ hGetN k h n = readChunks n >>= return . LPS
     readChunks i = do
         ps <- P.hGet h (min k i)
         case P.length ps of
-            0          -> return []
-            m | m == i -> return [ps]
-            m          -> do pss <- readChunks (i - m)
-                             return (ps : pss)
+            0 -> return []
+            m -> do pss <- readChunks (i - m)
+                    return (ps : pss)
 
-#if defined(__GLASGOW_HASKELL__)
 -- | hGetNonBlockingN is similar to 'hGetContentsN', except that it will never block
 -- waiting for data to become available, instead it returns only whatever data
--- is available.
+-- is available. Chunks are read on demand, in @k@-sized chunks.
 hGetNonBlockingN :: Int -> Handle -> Int -> IO ByteString
+#if defined(__GLASGOW_HASKELL__)
 hGetNonBlockingN _ _ 0 = return empty
 hGetNonBlockingN k h n = readChunks n >>= return . LPS
   where
+    STRICT1(readChunks)
     readChunks i = do
         ps <- P.hGetNonBlocking h (min k i)
         case P.length ps of
-            0         -> return []
-            m | fromIntegral m < i -> return [ps]
-            m         -> do pss <- readChunks (i - m)
-                            return (ps : pss)
+            0 -> return []
+            m -> do pss <- readChunks (i - m)
+                    return (ps : pss)
+#else
+hGetNonBlockingN = hGetN
 #endif
 
 -- | Read entire handle contents /lazily/ into a 'ByteString'. Chunks
@@ -1178,14 +1171,15 @@ hGetContents = hGetContentsN defaultChunkSize
 hGet :: Handle -> Int -> IO ByteString
 hGet = hGetN defaultChunkSize
 
-#if defined(__GLASGOW_HASKELL__)
 -- | hGetNonBlocking is similar to 'hGet', except that it will never block
 -- waiting for data to become available, instead it returns only whatever data
 -- is available.
+#if defined(__GLASGOW_HASKELL__)
 hGetNonBlocking :: Handle -> Int -> IO ByteString
 hGetNonBlocking = hGetNonBlockingN defaultChunkSize
+#else
+hGetNonBlocking = hGet
 #endif
-
 
 -- | Read an entire file /lazily/ into a 'ByteString'.
 readFile :: FilePath -> IO ByteString
