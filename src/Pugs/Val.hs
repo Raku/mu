@@ -22,7 +22,7 @@ does not provide concrete data type definitions beyond those five.
 
 -- | 'Val' represents what an unconstrained scalar container can hold.
 data Val
-    = VUndef  !ValUndef   -- ^ Values that defeat type constraints (ValId = 0)
+    = VUndef  !ValUndef   -- ^ Values that are false on .defined   (ValId = 0)
     | VNative !ValNative  -- ^ Values that can fit into an UArray  (ValId = boxed value)
     | VPure   !ValPure    -- ^ Values that are immutable           (ValId = itself)
     | VMut    !ValMut     -- ^ In-memory mutable structures        (ValId = memory addr)
@@ -38,7 +38,8 @@ type Id = ValPure
 data ValUndef
     = UUndef                        -- ^ "my $x"
     | UWhatever                     -- ^ "my $x = *"
-    | UFailure { f_errid :: !Id }   -- ^ "my $x = fail 'oops'"
+    | UFailure  { f_err  :: !Id }   -- ^ "my $x = fail 'oops'"
+    | UProto    { p_meta :: !Id }   -- ^ "my $x = Dog"
     deriving (Show, Eq, Ord, Data, Typeable)
 
 --------------------------------------------------------------------------------------
