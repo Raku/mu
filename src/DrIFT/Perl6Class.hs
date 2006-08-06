@@ -4,6 +4,7 @@ module DrIFT.Perl6Class where
 
 import Data.Typeable
 import Data.List
+import Data.Word
 import qualified Data.ByteString.Char8 as Str
 import qualified Data.Map as Map
 import Text.PrettyPrint.HughesPJ
@@ -92,6 +93,11 @@ qbraces ls = doubleQuotes lbrace : ls ++ [doubleQuotes rbrace]
 class (Typeable a, Show a) => PLit a where
     plShow :: a -> String
     plShow = show
+
+instance Perl6Class Int
+instance Perl6Class Rational
+instance Perl6Class Float
+instance Perl6Class Word
 
 instance PLit String where
     plShow = render . cat . showStringLiteral

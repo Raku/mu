@@ -93,6 +93,11 @@ instance YAML Int where
     fromYAMLElem (EStr x) = return $ read $ Buf.unpack x
     fromYAMLElem e = failWith e
 
+instance YAML Word where
+    asYAML x = return $ mkTagStrNode "int" $ show x
+    fromYAMLElem (EStr x) = return $ read $ Buf.unpack x
+    fromYAMLElem e = failWith e
+
 instance YAML Buf where
     asYAML = return . mkNode . EStr
     fromYAMLElem (EStr str) = return str
