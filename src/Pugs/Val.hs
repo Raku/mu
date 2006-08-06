@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances #-}
 {-! global : YAML_Pos, Perl6Class, MooseClass !-}
 {-|
     Perl 6 Values.
@@ -27,14 +27,13 @@ does not provide concrete data type definitions beyond those five.
 -- | 'Val' represents what an unconstrained scalar container can hold.
 data Val
     = VUndef  !ValUndef   -- ^ Values that are false on .defined      (ValId = 0)
-    | VNative !ValNative  -- ^ Values that can fit into an UArray     (ValId = itself)
-    | forall a. Pure a => VPure !a  -- ^ Values that are immutable    (ValId = itself)
+    | VNative !ValNative  -- ^ Values that can fit into an UArray     (ValId = impl.dep.)
+    | forall a. Pure a => VPure !a  -- ^ Values that are immutable    (ValId = pureId)
     | forall a. Mut a  => VMut  !a  -- ^ In-memory mutable structures (ValId = memory addr)
-    | forall a. Ext a  => VExt  !a  -- ^ Input/Ouput handles          (ValId = impl. dep.)
+    | forall a. Ext a  => VExt  !a  -- ^ Input/Ouput handles          (ValId = memory addr)
     deriving (Typeable)
 
 instance Value Val where
-    val = id
     valId VUndef{}    = NBit False
     valId (VNative x) = nativeId x
     valId (VPure x)   = valId x
@@ -83,12 +82,18 @@ type NativeComplex  = () -- Complex NativeNum
 
 --------------------------------------------------------------------------------------
 class Value a => Pure a where
+    pureId :: a -> Id
+    pureId = error "Pure values can't use memory address for Id - define pureId first"
+
 class Value a => Mut a where
 class Value a => Ext a where
 
 class (Show a, Eq a, Ord a, Data a, Typeable a) => Value a where
-    val   :: a -> Val
     valId :: a -> Id
+    valId = NUint . unsafeCoerce#
+
+instance Pure a => Value a where
+    valId = pureId
 
 dynEq :: (Typeable a, Typeable b, Eq a) => a -> b -> Bool
 dynEq x y = case cast y of
