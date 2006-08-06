@@ -7,6 +7,7 @@ use File::Copy qw(copy);
 use File::Path qw(mkpath rmtree);
 use File::Find qw(find);
 use File::Basename qw(dirname);
+use List::Util qw(max min);
 
 our %BuildPrefs;
 use Config;
@@ -72,8 +73,31 @@ sub build {
     }
 
     foreach my $module (qw< fps HsSyck >) {
+        if ( my ($archive_dir) = glob("third-party/installed/*/pugs-$module-*") ) {
+            my $oldest_a_file = max(
+                map {-M $_} (
+                    glob("$archive_dir/*.a"),
+                    glob("$archive_dir/*/*.a"),
+                    glob("$archive_dir/*/*/*.a"),
+                )
+            );
+
+            my $newest_hs_file;
+            my $wanted = sub {
+                return unless /\.hsc?$/;
+                $newest_hs_file = -M $_ if !$newest_hs_file or -M $_ < $newest_hs_file;
+            };
+            find $wanted, "third-party/$module";
+
+            if ($newest_hs_file >= $oldest_a_file) {
+                # We are safe - no rebuild needed
+                next;
+            }
+        }
+
         chdir "third-party/$module";
         system("../../Setup$Config{_exe}", 'configure',
+                '--enable-library-profiling',
                 '--with-compiler=' . $runcompiler,
                 '--with-hc-pkg='   . File::Spec->rel2abs("../../util/ghc-pkg-wrapper$Config{_exe}"),
                 '--prefix='        . File::Spec->rel2abs('../installed/'));
