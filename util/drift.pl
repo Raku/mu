@@ -28,7 +28,7 @@ while (<IN>) {
     if(/<DrIFT>/../<\/DrIFT>/) { next }
 
     # "EvalT m a" is not handled by DrIFT yet
-    /^(?:data|newtype)\b(?!\s+\w+\s+\w+\s+\w+)(?!.*\bwhere)/ ... (/^(?![- \t])/) or next;
+    /^(?:data|newtype)\b(?!\s+\w+\s+\w+\s+\w+)(?!.*\bwhere)/ ... (/^(?![ \t]|--|data\b|newtype\b)/) or next;
     s/^newtype\b/data/;
     s/--.*$//;
     /\S/ or next;
