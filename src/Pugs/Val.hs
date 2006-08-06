@@ -1,4 +1,5 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}{-! global : YAML_Pos, Perl6Class, MooseClass !-}
+{-# OPTIONS_GHC -fglasgow-exts #-}
+{-! global : YAML_Pos, Perl6Class, MooseClass !-}
 {-|
     Perl 6 Values.
 
@@ -8,9 +9,12 @@
 >   And shining spears were laid in hoard...
 -}
 module Pugs.Val (
-    Val(..), ValUndef, ValNative, ValPure, ValMut, ValIO, Id
+    Val(..), ValUndef, ValNative, Id,
 ) where
 import Pugs.Internals
+import GHC.Exts
+import Data.Generics.Basics
+import qualified Data.ByteString as Buf
 
 {-|
 
@@ -22,15 +26,23 @@ does not provide concrete data type definitions beyond those five.
 
 -- | 'Val' represents what an unconstrained scalar container can hold.
 data Val
-    = VUndef  !ValUndef   -- ^ Values that are false on .defined   (ValId = 0)
-    | VNative !ValNative  -- ^ Values that can fit into an UArray  (ValId = boxed value)
-    | VPure   !ValPure    -- ^ Values that are immutable           (ValId = itself)
-    | VMut    !ValMut     -- ^ In-memory mutable structures        (ValId = memory addr)
-    | VIO     !ValIO      -- ^ Input/Ouput handles                 (ValId = impl. dep.)
-    deriving (Show, Eq, Ord, Data, Typeable)
+    = VUndef  !ValUndef   -- ^ Values that are false on .defined      (ValId = 0)
+    | VNative !ValNative  -- ^ Values that can fit into an UArray     (ValId = itself)
+    | forall a. Pure a => VPure !a  -- ^ Values that are immutable    (ValId = itself)
+    | forall a. Mut a  => VMut  !a  -- ^ In-memory mutable structures (ValId = memory addr)
+    | forall a. Ext a  => VExt  !a  -- ^ Input/Ouput handles          (ValId = impl. dep.)
+    deriving (Typeable)
+
+instance Value Val where
+    val = id
+    valId VUndef{}    = NBit False
+    valId (VNative x) = nativeId x
+    valId (VPure x)   = valId x
+    valId (VMut x)    = valId x
+    valId (VExt x)    = valId x
 
 -- | 'Id' is an unique ID that distinguishes two @Val@s of the same type from each other.
-type Id = ValPure
+type Id = ValNative
 
 --------------------------------------------------------------------------------------
 
@@ -43,8 +55,7 @@ data ValUndef
     deriving (Show, Eq, Ord, Data, Typeable)
 
 --------------------------------------------------------------------------------------
-
--- | Unboxed or native values. They have themselves as their .valid.
+-- | Unboxed values.
 data ValNative
     = NBit      !NativeBit      -- ^ 0
     | NInt      !NativeInt      -- ^ -3
@@ -54,8 +65,16 @@ data ValNative
     | NComplex  !NativeComplex  -- ^ (45 - 9i)
     deriving (Show, Eq, Ord, Data, Typeable)
 
+nativeId :: ValNative -> Id
+nativeId (NBit True)            = NInt (-1)
+nativeId (NBit False)           = NBit True
+nativeId (NInt 0)               = NBit True
+nativeId (NUint 0)              = NBit True
+nativeId (NNum 0)               = NBit True
+nativeId (NBuf x) | Buf.null x  = NBit True
+nativeId x                      = x
+
 type NativeBit      = Bool
-type NativeBool     = Bool
 type NativeInt      = Int
 type NativeUint     = Word
 type NativeBuf      = ByteString
@@ -63,8 +82,25 @@ type NativeNum      = Float
 type NativeComplex  = () -- Complex NativeNum 
 
 --------------------------------------------------------------------------------------
--- | L<S06/"Immutable types">
-data ValPure
+class Value a => Pure a where
+class Value a => Mut a where
+class Value a => Ext a where
+
+class (Show a, Eq a, Ord a, Data a, Typeable a) => Value a where
+    val   :: a -> Val
+    valId :: a -> Id
+
+dynEq :: (Typeable a, Typeable b, Eq a) => a -> b -> Bool
+dynEq x y = case cast y of
+    Just y' -> x == y'
+    Nothing -> False
+
+dynCompare :: (Typeable a, Typeable b, Ord a) => a -> b -> Ordering
+dynCompare x y = case cast y of
+    Just y' -> compare x y'
+    Nothing -> compare (show $ typeOf x) (show $ typeOf y)
+
+{-
     = PBit       !PureBit
     | PInt       !PureInt
     | PStr       !PureStr
@@ -85,6 +121,7 @@ data ValPure
     | PCap       !PureCap 
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
+-}
 type PureBit        = Bool
 type PureStr        = ByteString    -- XXX *very* bogus
 type PureBool       = Bool
@@ -103,6 +140,7 @@ type PureJunc       = ()
 type PurePair       = ()
 type PureMap        = ()
 
+{-
 --------------------------------------------------------------------------------------
 -- | L<S06/"Mutable types"> minus IO types
 --   Computations on these types take place in the STM monad.
@@ -126,33 +164,83 @@ data ValMut
     | MObject    !MutObject  -- ? or ObjectId?
     | MForeign   !MutDynamic -- ...?
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
-
-type MutScalar      = ()
-type MutArray       = ()
-type MutHash        = ()
-type MutBuf         = ()
-type MutRoutine     = ()
-type MutVRule       = ()
-type MutVMatch      = ()
-type MutPackage     = ()
-type MutModule      = ()
-type MutClass       = ()
-type MutRole        = ()
-type MutGrammar     = ()
-type MutObject      = ()
-type MutDynamic     = ()
+-}
 
 --------------------------------------------------------------------------------------
+{-
 -- | Obviously side-effectual types such as file handles.
 --   Computations on these types must take place in the IO monad.
-data ValIO
-    = IFile     !IOFile     -- ^ File handle
-    | ISocket   !IOSocket   -- ^ Socket handle
-    | IThread   !IOThread   -- ^ Thread handle
-    | IProcess  !IOProcess  -- ^ Process handle
+data ValExt
+    = IFile     !ExtFile     -- ^ File handle
+    | ISocket   !ExtSocket   -- ^ Socket handle
+    | IThread   !ExtThread   -- ^ Thread handle
+    | IProcess  !ExtProcess  -- ^ Process handle
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+-}
 
-type IOFile         = ()
-type IOSocket       = ()
-type IOThread       = ()
-type IOProcess      = ()
+type ExtFile         = ()
+type ExtSocket       = ()
+type ExtThread       = ()
+type ExtProcess      = ()
+
+
+{-* Generated by DrIFT : Look, but Don't Touch. *-}
+instance Show Val where
+    showsPrec d (VUndef aa) = showParen (d >= 10)
+              (showString "VUndef" . showChar ' ' . showsPrec 10 aa)
+    showsPrec d (VNative aa) = showParen (d >= 10)
+              (showString "VNative" . showChar ' ' . showsPrec 10 aa)
+    showsPrec d (VPure aa) = showParen (d >= 10)
+              (showString "VPure" . showChar ' ' . showsPrec 10 aa)
+    showsPrec d (VMut aa) = showParen (d >= 10)
+              (showString "VMut" . showChar ' ' . showsPrec 10 aa)
+    showsPrec d (VExt aa) = showParen (d >= 10)
+              (showString "VExt" . showChar ' ' . showsPrec 10 aa)
+
+instance Eq Val where
+    (VUndef aa)  == (VUndef aa')    = aa == aa'
+    (VNative aa) == (VNative aa')   = aa == aa'
+    (VPure aa)   == (VPure aa')     = dynEq aa aa'
+    (VMut aa)    == (VMut aa')      = dynEq aa aa'
+    (VExt aa)    == (VExt aa')      = dynEq aa aa'
+    _            == _               = False
+
+instance Ord Val where
+    compare (VUndef aa) (VUndef aa') = compare aa aa'
+    compare (VUndef aa) (VNative aa') = LT
+    compare (VUndef aa) (VPure aa') = LT
+    compare (VUndef aa) (VMut aa') = LT
+    compare (VUndef aa) (VExt aa') = LT
+    compare (VNative aa) (VUndef aa') = GT
+    compare (VNative aa) (VNative aa') = compare aa aa'
+    compare (VNative aa) (VPure aa') = LT
+    compare (VNative aa) (VMut aa') = LT
+    compare (VNative aa) (VExt aa') = LT
+    compare (VPure aa) (VUndef aa') = GT
+    compare (VPure aa) (VNative aa') = GT
+    compare (VPure aa) (VPure aa') = dynCompare aa aa'
+    compare (VPure aa) (VMut aa') = LT
+    compare (VPure aa) (VExt aa') = LT
+    compare (VMut aa) (VUndef aa') = GT
+    compare (VMut aa) (VNative aa') = GT
+    compare (VMut aa) (VPure aa') = GT
+    compare (VMut aa) (VMut aa') = dynCompare aa aa'
+    compare (VMut aa) (VExt aa') = LT
+    compare (VExt aa) (VUndef aa') = GT
+    compare (VExt aa) (VNative aa') = GT
+    compare (VExt aa) (VPure aa') = GT
+    compare (VExt aa) (VMut aa') = GT
+    compare (VExt aa) (VExt aa') = dynCompare aa aa'
+
+instance Data Val where
+    toConstr (VUndef x)     = toConstr x
+    toConstr (VNative x)    = toConstr x
+    toConstr (VPure x)      = toConstr x
+    toConstr (VMut x)       = toConstr x
+    toConstr (VExt x)       = toConstr x
+    dataTypeOf (VUndef x)   = dataTypeOf x
+    dataTypeOf (VNative x)  = dataTypeOf x
+    dataTypeOf (VPure x)    = dataTypeOf x
+    dataTypeOf (VMut x)     = dataTypeOf x
+    dataTypeOf (VExt x)     = dataTypeOf x
+    gunfold                 = gunfold
