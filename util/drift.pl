@@ -4,7 +4,7 @@ use Config;
 use File::Spec;
 use FindBin qw<$Bin>;
 
-my $setup = File::Spec->catfile($Bin, "DrIFT$Config{_exe}");
+my $drift_exe = File::Spec->catfile($Bin, "DrIFT$Config{_exe}");
 
 -e "$Bin/../../DrIFT/src/DrIFT.hs" or exit;
 
@@ -25,8 +25,11 @@ while (<IN>) {
         print TMP $_;
         next;
     }
+    if(/<DrIFT>/../<\/DrIFT>/) { next }
+
+    # "EvalT m a" is not handled by DrIFT yet
+    /^(?:data|newtype)\b(?!\s+\w+\s+\w+\s+\w+)(?!.*\bwhere)/ ... (/^(?![- \t])/) or next;
     s/^newtype\b/data/;
-    /^(?:data)\b(?!.*\bwhere)/ .. /^$/ or next;
     s/--.*$//;
     /\S/ or next;
     print TMP $_;
@@ -39,13 +42,13 @@ my ($rh, $wh);
 system(
     'ghc',
     '--make',
-    '-o' => $setup,
+    '-o' => $drift_exe,
     "-i$Bin/../src/DrIFT",
     "-i$Bin/../../DrIFT/src",
     "$Bin/../../DrIFT/src/DrIFT.hs",
 );
 my $pid = open2(
-    $rh, $wh, $setup, "$in.tmp"
+    $rh, $wh, $drift_exe, "$in.tmp"
 );
 
 my @program = do { <$rh> };
