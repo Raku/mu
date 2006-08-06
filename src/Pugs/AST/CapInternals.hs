@@ -18,7 +18,7 @@ import qualified Data.Set            as Set
 import qualified Data.Map            as Map
 import qualified Data.Seq            as Seq
 import qualified Data.IntMap         as IntMap
---import qualified Data.ByteString     as Str
+import qualified Data.ByteString     as Buf
 import qualified Data.IntSet         as IntSet
 import qualified Data.Generics.Twins as Twins
 import qualified Data.Version
@@ -119,16 +119,15 @@ data Val
 
 type ExpVal = Val
 
--- | Unboxed or native values. They have themselves as their .id.
+-- | Unboxed or native values. They have themselves as their .valid.
 type ValNative = Native
 data Native
     = NBit  !NativeBit     -- ^ 0
     | NInt  !NativeInt     -- ^ -3
-    | NUint !NativeInt     -- ^ 7
+    | NUint !NativeUint    -- ^ 7
     | NBuf  !NativeBuf     -- ^ (a raw chunk of ints or uints)
     | NNum  !NativeNum     -- ^ 4.2
     | NCplx !NativeComplex -- ^ (45 - 9i)
-    | NStr  !NativeStr     -- ^ 'aloha'
     | NBool !NativeBool    -- ^ True (same underlying storage as NBit + True/False)
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
@@ -142,36 +141,43 @@ data ValUndef
 
 type NativeBit   = Bool
 type NativeBool  = Bool
+type NativeInt   = Int
+type NativeUint  = Word
+type NativeUInt  = Word
 
 data Sign
     = SPositive
     | SNegative
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
-data NativeInt
+data PureInt
     = IFinite      !Integer
     | IInfinite    !Sign
     | INotANumber
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
-data NativeNum
+data PureNum
     = NRational  !Rational
     | NFloat     !Float
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
-type NativeStr = Str
+type NativeNum = Float
+type NativeComplex = ComplexNum NativeNum
+type PureComplex   = ComplexNum PureNum
 
 -- Inf or NaN if either part is Inf or NaN.
-data NativeComplex = MkComplex
-    { c_real      :: !NativeNum
-    , c_imaginary :: !NativeNum
+data ComplexNum a = MkComplexNum
+    { c_real      :: !a
+    , c_imaginary :: !a
     }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
-data PureList = MkList
-    { l_seq   :: !PureSeq
-    , l_range :: !PureRange
-    }
+newtype PureList = MkList { l_list :: SeqOf ListComponent }
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+data ListComponent
+    = CSeq   PureSeq
+    | CRange PureRange
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 newtype PureSeq = MkSeq { s_seq :: SeqOf Val }
@@ -206,13 +212,10 @@ instance Data MemBuf where
     toConstr _     = error "can't gfoldl MemBuf"
     dataTypeOf _   = mkDataType "Pugs.AST.CapInternals.MemBuf" [] -- bogus
 
-type NativeBuf     = MemBuf
+type NativeBuf     = Buf.ByteString
 type PureBuf       = MemBuf
 
 type PureBit       = Bool
-type PureInt       = Integer
-type PureNum       = NativeNum -- XXX wrong?
-type PureComplex   = NativeComplex -- XXX wrong?
 type PureStr       = Str
 type PureBool      = Bool
 type PureException = String -- XXX *very* bogus
@@ -839,15 +842,12 @@ instance YAML (Map Ident Param)
 instance YAML (Set Ident)
 instance YAML (Set Val)
 instance YAML (SeqOf Val)
-instance YAML PureSet
-instance YAML PureSeq
+instance YAML (SeqOf ListComponent)
 instance YAML (Set MultiVariant)
 instance YAML (Map Var PadEntry)
 instance YAML (Map Str [Exp])
 instance YAML (IOUArray Word64 Word8)
 instance YAML (TVar (IntMap Routine))
-instance YAML CodeWrapping
-instance YAML Pad
 instance YAML ProcessHandle
 instance YAML Data.Version.Version
 instance YAML Network.URI.URI

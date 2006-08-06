@@ -27,7 +27,7 @@ class Boxable a where
 instance Boxable Int where
     meta  _ = mkClass "NativeInt"
     --        vvvvvvvvvvvvvvvvvvvvvvvv we'd better come up with some convenience funcs here
-    getId _ = VNative $ NInt $ IFinite 6147 -- unique per built-in Val type
+    getId _ = VNative $ NInt $ 6147 -- unique per built-in Val type
 
 {- Bootstrap initial metaobject instances -}
 packageObject, packageMeta, packageRoot :: Package

@@ -74,15 +74,12 @@ instance YAML (Map Ident Param)
 instance YAML (Set Ident)
 instance YAML (Set Val)
 instance YAML (SeqOf Val)
-instance YAML PureSet
-instance YAML PureSeq
+instance YAML (SeqOf ListComponent)
 instance YAML (Set MultiVariant)
 instance YAML (Map Var PadEntry)
 instance YAML (Map Str [Exp])
 instance YAML (IOUArray Word64 Word8)
 instance YAML (TVar (IntMap Routine))
-instance YAML CodeWrapping
-instance YAML Pad
 instance YAML ProcessHandle
 instance YAML Data.Version.Version
 instance YAML Network.URI.URI
@@ -233,13 +230,10 @@ instance YAML Native where
 	"NCplx" -> do
 	    let ESeq [aa] = e
 	    liftM NCplx (fromYAML aa)
-	"NStr" -> do
-	    let ESeq [aa] = e
-	    liftM NStr (fromYAML aa)
 	"NBool" -> do
 	    let ESeq [aa] = e
 	    liftM NBool (fromYAML aa)
-	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["NBit","NInt","NUint","NBuf","NNum","NCplx","NStr","NBool"] ++ " in node " ++ show e
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["NBit","NInt","NUint","NBuf","NNum","NCplx","NBool"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (NBit aa) = asYAMLseq "NBit" [asYAML aa]
     asYAML (NInt aa) = asYAMLseq "NInt" [asYAML aa]
@@ -247,7 +241,6 @@ instance YAML Native where
     asYAML (NBuf aa) = asYAMLseq "NBuf" [asYAML aa]
     asYAML (NNum aa) = asYAMLseq "NNum" [asYAML aa]
     asYAML (NCplx aa) = asYAMLseq "NCplx" [asYAML aa]
-    asYAML (NStr aa) = asYAMLseq "NStr" [asYAML aa]
     asYAML (NBool aa) = asYAMLseq "NBool" [asYAML aa]
 
 instance Perl6Class Native where
@@ -255,11 +248,10 @@ instance Perl6Class Native where
 	    [ showPerl6RoleDef ns "Native"
 	    , showPerl6ClassDef ns "Native" "NBit" [("NativeBit","$.aa","")]
 	    , showPerl6ClassDef ns "Native" "NInt" [("NativeInt","$.aa","")]
-	    , showPerl6ClassDef ns "Native" "NUint" [("NativeInt","$.aa","")]
+	    , showPerl6ClassDef ns "Native" "NUint" [("NativeUint","$.aa","")]
 	    , showPerl6ClassDef ns "Native" "NBuf" [("NativeBuf","$.aa","")]
 	    , showPerl6ClassDef ns "Native" "NNum" [("NativeNum","$.aa","")]
 	    , showPerl6ClassDef ns "Native" "NCplx" [("NativeComplex","$.aa","")]
-	    , showPerl6ClassDef ns "Native" "NStr" [("NativeStr","$.aa","")]
 	    , showPerl6ClassDef ns "Native" "NBool" [("NativeBool","$.aa","")]
 	    ]
     asPerl6Object (NBit aa) = "NBit.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
@@ -268,7 +260,6 @@ instance Perl6Class Native where
     asPerl6Object (NBuf aa) = "NBuf.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
     asPerl6Object (NNum aa) = "NNum.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
     asPerl6Object (NCplx aa) = "NCplx.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
-    asPerl6Object (NStr aa) = "NStr.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
     asPerl6Object (NBool aa) = "NBool.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
 
 instance MooseClass Native where
@@ -276,11 +267,10 @@ instance MooseClass Native where
 	    [ showMooseRoleDef ns "Native"
 	    , showMooseClassDef ns "Native" "NBit" [("NativeBit","aa","")]
 	    , showMooseClassDef ns "Native" "NInt" [("NativeInt","aa","")]
-	    , showMooseClassDef ns "Native" "NUint" [("NativeInt","aa","")]
+	    , showMooseClassDef ns "Native" "NUint" [("NativeUint","aa","")]
 	    , showMooseClassDef ns "Native" "NBuf" [("NativeBuf","aa","")]
 	    , showMooseClassDef ns "Native" "NNum" [("NativeNum","aa","")]
 	    , showMooseClassDef ns "Native" "NCplx" [("NativeComplex","aa","")]
-	    , showMooseClassDef ns "Native" "NStr" [("NativeStr","aa","")]
 	    , showMooseClassDef ns "Native" "NBool" [("NativeBool","aa","")]
 	    ]
 
@@ -345,7 +335,7 @@ instance MooseClass Sign where
 	    , showMooseClassDef ns "Sign" "SNegative" []
 	    ]
 
-instance YAML NativeInt where
+instance YAML PureInt where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"IFinite" -> do
 	    let ESeq [aa] = e
@@ -361,26 +351,26 @@ instance YAML NativeInt where
     asYAML (IInfinite aa) = asYAMLseq "IInfinite" [asYAML aa]
     asYAML (INotANumber) = asYAMLcls "INotANumber"
 
-instance Perl6Class NativeInt where
+instance Perl6Class PureInt where
     showPerl6TypeDef ns _ = unlines
-	    [ showPerl6RoleDef ns "NativeInt"
-	    , showPerl6ClassDef ns "NativeInt" "IFinite" [("Integer","$.aa","")]
-	    , showPerl6ClassDef ns "NativeInt" "IInfinite" [("Sign","$.aa","")]
-	    , showPerl6ClassDef ns "NativeInt" "INotANumber" []
+	    [ showPerl6RoleDef ns "PureInt"
+	    , showPerl6ClassDef ns "PureInt" "IFinite" [("Integer","$.aa","")]
+	    , showPerl6ClassDef ns "PureInt" "IInfinite" [("Sign","$.aa","")]
+	    , showPerl6ClassDef ns "PureInt" "INotANumber" []
 	    ]
     asPerl6Object (IFinite aa) = "IFinite.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
     asPerl6Object (IInfinite aa) = "IInfinite.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
     asPerl6Object (INotANumber) = "INotANumber.new(" ++ (concat $ intersperse ", " []) ++ ")"
 
-instance MooseClass NativeInt where
+instance MooseClass PureInt where
     showMooseTypeDef ns _ = unlines
-	    [ showMooseRoleDef ns "NativeInt"
-	    , showMooseClassDef ns "NativeInt" "IFinite" [("Integer","aa","")]
-	    , showMooseClassDef ns "NativeInt" "IInfinite" [("Sign","aa","")]
-	    , showMooseClassDef ns "NativeInt" "INotANumber" []
+	    [ showMooseRoleDef ns "PureInt"
+	    , showMooseClassDef ns "PureInt" "IFinite" [("Integer","aa","")]
+	    , showMooseClassDef ns "PureInt" "IInfinite" [("Sign","aa","")]
+	    , showMooseClassDef ns "PureInt" "INotANumber" []
 	    ]
 
-instance YAML NativeNum where
+instance YAML PureNum where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"NRational" -> do
 	    let ESeq [aa] = e
@@ -393,65 +383,116 @@ instance YAML NativeNum where
     asYAML (NRational aa) = asYAMLseq "NRational" [asYAML aa]
     asYAML (NFloat aa) = asYAMLseq "NFloat" [asYAML aa]
 
-instance Perl6Class NativeNum where
+instance Perl6Class PureNum where
     showPerl6TypeDef ns _ = unlines
-	    [ showPerl6RoleDef ns "NativeNum"
-	    , showPerl6ClassDef ns "NativeNum" "NRational" [("Rational","$.aa","")]
-	    , showPerl6ClassDef ns "NativeNum" "NFloat" [("Float","$.aa","")]
+	    [ showPerl6RoleDef ns "PureNum"
+	    , showPerl6ClassDef ns "PureNum" "NRational" [("Rational","$.aa","")]
+	    , showPerl6ClassDef ns "PureNum" "NFloat" [("Float","$.aa","")]
 	    ]
     asPerl6Object (NRational aa) = "NRational.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
     asPerl6Object (NFloat aa) = "NFloat.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
 
-instance MooseClass NativeNum where
+instance MooseClass PureNum where
     showMooseTypeDef ns _ = unlines
-	    [ showMooseRoleDef ns "NativeNum"
-	    , showMooseClassDef ns "NativeNum" "NRational" [("Rational","aa","")]
-	    , showMooseClassDef ns "NativeNum" "NFloat" [("Float","aa","")]
+	    [ showMooseRoleDef ns "PureNum"
+	    , showMooseClassDef ns "PureNum" "NRational" [("Rational","aa","")]
+	    , showMooseClassDef ns "PureNum" "NFloat" [("Float","aa","")]
 	    ]
 
-instance YAML NativeComplex where
+instance (YAML a) => YAML (ComplexNum a) where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
-	"MkComplex" -> do
+	"MkComplexNum" -> do
 	    let ESeq [aa, ab] = e
-	    liftM2 MkComplex (fromYAML aa) (fromYAML ab)
-	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkComplex"] ++ " in node " ++ show e
+	    liftM2 MkComplexNum (fromYAML aa) (fromYAML ab)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkComplexNum"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML (MkComplex aa ab) = asYAMLseq "MkComplex"
+    asYAML (MkComplexNum aa ab) = asYAMLseq "MkComplexNum"
 	   [asYAML aa, asYAML ab]
 
-instance Perl6Class NativeComplex where
+instance (Perl6Class a) => Perl6Class (ComplexNum a) where
     showPerl6TypeDef ns _ = unlines
-	    [ showPerl6RoleDef ns "NativeComplex"
-	    , showPerl6ClassDef ns "NativeComplex" "MkComplex" [("NativeNum","$.c_real",""),("NativeNum","$.c_imaginary","")]
+	    [ showPerl6RoleDef ns "ComplexNum"
+	    , showPerl6ClassDef ns "ComplexNum" "MkComplexNum" [("","$.c_real","a"),("","$.c_imaginary","a")]
 	    ]
-    asPerl6Object (MkComplex aa ab) = "MkComplex.new(" ++ (concat $ intersperse ", " [plShow aa, plShow ab]) ++ ")"
+    asPerl6Object (MkComplexNum aa ab) = "MkComplexNum.new(" ++ (concat $ intersperse ", " [plShow aa, plShow ab]) ++ ")"
 
-instance MooseClass NativeComplex where
+instance (MooseClass a) => MooseClass (ComplexNum a) where
     showMooseTypeDef ns _ = unlines
-	    [ showMooseRoleDef ns "NativeComplex"
-	    , showMooseClassDef ns "NativeComplex" "MkComplex" [("NativeNum","c_real",""),("NativeNum","c_imaginary","")]
+	    [ showMooseRoleDef ns "ComplexNum"
+	    , showMooseClassDef ns "ComplexNum" "MkComplexNum" [("","c_real","a"),("","c_imaginary","a")]
 	    ]
 
 instance YAML PureList where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"MkList" -> do
-	    let ESeq [aa, ab] = e
-	    liftM2 MkList (fromYAML aa) (fromYAML ab)
+	    let ESeq [aa] = e
+	    liftM MkList (fromYAML aa)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkList"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML (MkList aa ab) = asYAMLseq "MkList" [asYAML aa, asYAML ab]
+    asYAML (MkList aa) = asYAMLseq "MkList" [asYAML aa]
 
 instance Perl6Class PureList where
     showPerl6TypeDef ns _ = unlines
 	    [ showPerl6RoleDef ns "PureList"
-	    , showPerl6ClassDef ns "PureList" "MkList" [("PureSeq","$.l_seq",""),("PureRange","$.l_range","")]
+	    , showPerl6ClassDef ns "PureList" "MkList" [("","$.l_list","SeqOf ListComponent")]
 	    ]
-    asPerl6Object (MkList aa ab) = "MkList.new(" ++ (concat $ intersperse ", " [plShow aa, plShow ab]) ++ ")"
+    asPerl6Object (MkList aa) = "MkList.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
 
 instance MooseClass PureList where
     showMooseTypeDef ns _ = unlines
 	    [ showMooseRoleDef ns "PureList"
-	    , showMooseClassDef ns "PureList" "MkList" [("PureSeq","l_seq",""),("PureRange","l_range","")]
+	    , showMooseClassDef ns "PureList" "MkList" [("","l_list","SeqOf ListComponent")]
+	    ]
+
+instance YAML ListComponent where
+    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+	"CSeq" -> do
+	    let ESeq [aa] = e
+	    liftM CSeq (fromYAML aa)
+	"CRange" -> do
+	    let ESeq [aa] = e
+	    liftM CRange (fromYAML aa)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["CSeq","CRange"] ++ " in node " ++ show e
+    fromYAML _ = fail "no tag found"
+    asYAML (CSeq aa) = asYAMLseq "CSeq" [asYAML aa]
+    asYAML (CRange aa) = asYAMLseq "CRange" [asYAML aa]
+
+instance Perl6Class ListComponent where
+    showPerl6TypeDef ns _ = unlines
+	    [ showPerl6RoleDef ns "ListComponent"
+	    , showPerl6ClassDef ns "ListComponent" "CSeq" [("PureSeq","$.aa","")]
+	    , showPerl6ClassDef ns "ListComponent" "CRange" [("PureRange","$.aa","")]
+	    ]
+    asPerl6Object (CSeq aa) = "CSeq.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
+    asPerl6Object (CRange aa) = "CRange.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
+
+instance MooseClass ListComponent where
+    showMooseTypeDef ns _ = unlines
+	    [ showMooseRoleDef ns "ListComponent"
+	    , showMooseClassDef ns "ListComponent" "CSeq" [("PureSeq","aa","")]
+	    , showMooseClassDef ns "ListComponent" "CRange" [("PureRange","aa","")]
+	    ]
+
+instance YAML PureSeq where
+    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+	"MkSeq" -> do
+	    let ESeq [aa] = e
+	    liftM MkSeq (fromYAML aa)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkSeq"] ++ " in node " ++ show e
+    fromYAML _ = fail "no tag found"
+    asYAML (MkSeq aa) = asYAMLseq "MkSeq" [asYAML aa]
+
+instance Perl6Class PureSeq where
+    showPerl6TypeDef ns _ = unlines
+	    [ showPerl6RoleDef ns "PureSeq"
+	    , showPerl6ClassDef ns "PureSeq" "MkSeq" [("","$.s_seq","SeqOf Val")]
+	    ]
+    asPerl6Object (MkSeq aa) = "MkSeq.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
+
+instance MooseClass PureSeq where
+    showMooseTypeDef ns _ = unlines
+	    [ showMooseRoleDef ns "PureSeq"
+	    , showMooseClassDef ns "PureSeq" "MkSeq" [("","s_seq","SeqOf Val")]
 	    ]
 
 instance YAML PureRange where
@@ -497,6 +538,28 @@ instance MooseClass MemBuf where
     showMooseTypeDef ns _ = unlines
 	    [ showMooseRoleDef ns "MemBuf"
 	    , showMooseClassDef ns "MemBuf" "MkBuf" [("","b_buffer","IOUArray Word64 Word8")]
+	    ]
+
+instance YAML PureSet where
+    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+	"MkSet" -> do
+	    let ESeq [aa] = e
+	    liftM MkSet (fromYAML aa)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkSet"] ++ " in node " ++ show e
+    fromYAML _ = fail "no tag found"
+    asYAML (MkSet aa) = asYAMLseq "MkSet" [asYAML aa]
+
+instance Perl6Class PureSet where
+    showPerl6TypeDef ns _ = unlines
+	    [ showPerl6RoleDef ns "PureSet"
+	    , showPerl6ClassDef ns "PureSet" "MkSet" [("","$.s_set","Set Val")]
+	    ]
+    asPerl6Object (MkSet aa) = "MkSet.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
+
+instance MooseClass PureSet where
+    showMooseTypeDef ns _ = unlines
+	    [ showMooseRoleDef ns "PureSet"
+	    , showMooseClassDef ns "PureSet" "MkSet" [("","s_set","Set Val")]
 	    ]
 
 instance YAML PureJunc where
@@ -1384,6 +1447,28 @@ instance MooseClass Sig where
 	    , showMooseClassDef ns "Sig" "SigSubSingle" [("Int","s_requiredPositionalCount",""),("","s_requiredNames","Set Ident"),("ArrayRef","s_positionalList","[Param]"),("","s_namedSet","Map Ident Param"),("ArrayRef","s_slurpyScalarList","[Param]"),("Param","s_slurpyArray",""),("Param","s_slurpyHash",""),("Param","s_slurpyCode",""),("Param","s_slurpyCapture","")]
 	    ]
 
+instance YAML CodeWrapping where
+    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+	"MkWrapping" -> do
+	    let ESeq [aa] = e
+	    liftM MkWrapping (fromYAML aa)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkWrapping"] ++ " in node " ++ show e
+    fromYAML _ = fail "no tag found"
+    asYAML (MkWrapping aa) = asYAMLseq "MkWrapping" [asYAML aa]
+
+instance Perl6Class CodeWrapping where
+    showPerl6TypeDef ns _ = unlines
+	    [ showPerl6RoleDef ns "CodeWrapping"
+	    , showPerl6ClassDef ns "CodeWrapping" "MkWrapping" [("","$.w_wrappings","TVar IntMap Routine")]
+	    ]
+    asPerl6Object (MkWrapping aa) = "MkWrapping.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
+
+instance MooseClass CodeWrapping where
+    showMooseTypeDef ns _ = unlines
+	    [ showMooseRoleDef ns "CodeWrapping"
+	    , showMooseClassDef ns "CodeWrapping" "MkWrapping" [("","w_wrappings","TVar IntMap Routine")]
+	    ]
+
 instance YAML Routine where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"RoutineSimple" -> do
@@ -1472,6 +1557,28 @@ instance MooseClass MultiVariant where
     showMooseTypeDef ns _ = unlines
 	    [ showMooseRoleDef ns "MultiVariant"
 	    , showMooseClassDef ns "MultiVariant" "MkMultiVariant" [("IntSet","m_semicolonOffsets",""),("Code","m_callable",""),("CodeWrapping","m_extraWrappings","")]
+	    ]
+
+instance YAML Pad where
+    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+	"MkPad" -> do
+	    let ESeq [aa] = e
+	    liftM MkPad (fromYAML aa)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkPad"] ++ " in node " ++ show e
+    fromYAML _ = fail "no tag found"
+    asYAML (MkPad aa) = asYAMLseq "MkPad" [asYAML aa]
+
+instance Perl6Class Pad where
+    showPerl6TypeDef ns _ = unlines
+	    [ showPerl6RoleDef ns "Pad"
+	    , showPerl6ClassDef ns "Pad" "MkPad" [("","$.padEntries","Map Var PadEntry")]
+	    ]
+    asPerl6Object (MkPad aa) = "MkPad.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
+
+instance MooseClass Pad where
+    showMooseTypeDef ns _ = unlines
+	    [ showMooseRoleDef ns "Pad"
+	    , showMooseClassDef ns "Pad" "MkPad" [("","padEntries","Map Var PadEntry")]
 	    ]
 
 instance YAML EntryDeclarator where

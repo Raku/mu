@@ -69,6 +69,7 @@ type NamespaceMangler = String -> String
 
 class Typeable a => MooseClass a where
     showMooseTypeDef :: NamespaceMangler -> a -> String
+    showMooseTypeDef _ ty = error $ "showMooseTypeDef " ++ (show $ typeOf ty)
 
 class PLit a => Perl6Class a where
     showPerl6TypeDef :: NamespaceMangler -> a -> String
@@ -98,6 +99,11 @@ instance Perl6Class Int
 instance Perl6Class Rational
 instance Perl6Class Float
 instance Perl6Class Word
+
+instance MooseClass Int
+instance MooseClass Rational
+instance MooseClass Float
+instance MooseClass Word
 
 instance PLit String where
     plShow = render . cat . showStringLiteral
