@@ -80,9 +80,6 @@ fakeEval = liftIO . runEvalIO _FakeEnv
 instance YAML ([Val] -> Eval Val) where
     asYAML _ = return nilNode
     fromYAML _ = return (const $ return VUndef)
-instance YAML ObjectId where
-    asYAML (MkObjectId x) = asYAML x
-    fromYAML x = fmap MkObjectId (fromYAML x)
 instance YAML (Maybe Env) where
     asYAML _ = return nilNode
     fromYAML _ = return Nothing
@@ -504,6 +501,15 @@ instance YAML Exp where
     asYAML (Var aa) = asYAMLseq "Var" [asYAML aa]
     asYAML (NonTerm aa) = asYAMLseq "NonTerm" [asYAML aa]
 
+instance YAML InitDat where
+    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+	"MkInitDat" -> do
+	    let ESeq [aa] = e
+	    liftM MkInitDat (fromYAML aa)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkInitDat"] ++ " in node " ++ show e
+    fromYAML _ = fail "no tag found"
+    asYAML (MkInitDat aa) = asYAMLseq "MkInitDat" [asYAML aa]
+
 instance YAML PadEntry where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"MkEntry" -> do
@@ -532,6 +538,15 @@ instance YAML IScalarCwd where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkScalarCwd"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (MkScalarCwd) = asYAMLcls "MkScalarCwd"
+
+instance YAML ObjectId where
+    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+	"MkObjectId" -> do
+	    let ESeq [aa] = e
+	    liftM MkObjectId (fromYAML aa)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkObjectId"] ++ " in node " ++ show e
+    fromYAML _ = fail "no tag found"
+    asYAML (MkObjectId aa) = asYAMLseq "MkObjectId" [asYAML aa]
 
 instance YAML VObject where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of

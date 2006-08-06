@@ -642,11 +642,13 @@ type VList = [Val]
 type VSubst = (VRule, Exp)
 type VArray = [Val]
 type VHash = Map VStr Val
+
 data VThunk = MkThunk
     { thunkExp  :: Eval Val
     , thunkType :: VType
     }
     deriving (Typeable) {-!derive: YAML_Pos!-}
+
 newtype VProcess = MkProcess (ProcessHandle)
     deriving (Typeable) {-!derive: YAML_Pos!-}
 
@@ -1884,9 +1886,6 @@ fakeEval = liftIO . runEvalIO _FakeEnv
 instance YAML ([Val] -> Eval Val) where
     asYAML _ = return nilNode
     fromYAML _ = return (const $ return VUndef)
-instance YAML ObjectId where
-    asYAML (MkObjectId x) = asYAML x
-    fromYAML x = fmap MkObjectId (fromYAML x)
 instance YAML (Maybe Env) where
     asYAML _ = return nilNode
     fromYAML _ = return Nothing
