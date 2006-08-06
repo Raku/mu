@@ -1,20 +1,21 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
-module Pugs.Val (Val) where
-import Data.Generics (Data, Typeable)
+module Pugs.Val (
+    Val(..), ValUndef, ValNative, ValPure, ValMut, ValIO, Id
+) where
+import Pugs.Internals
 
 data Val
+    = VUndef  !ValUndef   -- ^ Values that defeat type constraints (ValId = 0)
+    | VNative !ValNative  -- ^ Values that can fit into an UArray  (ValId = boxed value)
+    | VPure   !ValPure    -- ^ Values that are immutable           (ValId = itself)
+    | VMut    !ValMut     -- ^ In-memory mutable structures        (ValId = memory addr)
+    | VIO     !ValIO      -- ^ Input/Ouput handles                 (ValId = impl. dep.)
 
-instance Show       Val
-instance Eq         Val
-instance Ord        Val
-instance Data       Val
-instance Typeable   Val
+data ValUndef
+data ValNative
+data ValPure
+data ValMut
+data ValIO
 
-{-
-instance Show       ValId
-instance Eq         ValId
-instance Ord        ValId
-instance Data       ValId
-instance Typeable   ValId
--}
+type Id = ValPure
