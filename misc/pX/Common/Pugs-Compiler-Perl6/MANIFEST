@@ -84,8 +84,6 @@ t/operators/pipe.t
 t/operators/relational.t
 t/operators/spaceship_and_datatypes.t
 
-t/rules/from_perl6_rules/assert.t
-
 t/statements/exit_in_begin.t
 t/statements/for_with_only_one_item.t
 t/statements/return_from_inner_block.t
