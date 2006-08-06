@@ -21,8 +21,7 @@ import Foreign.Marshal.Utils
 import Foreign.Storable
 import GHC.Ptr (Ptr(..))
 import qualified Data.HashTable as Hash
-import qualified Data.ByteString as Buf
-import qualified Data.ByteString.Char8 as Char8
+import qualified Data.ByteString.Char8 as Buf
 
 type Buf        = Buf.ByteString
 type YamlTag    = Maybe Buf
@@ -73,11 +72,11 @@ nilNode = MkNode 0 ENil Nothing ASingleton
 
 {-# INLINE unpackBuf #-}
 unpackBuf :: Buf -> String
-unpackBuf = Char8.unpack
+unpackBuf = Buf.unpack
 
 {-# INLINE packBuf #-}
 packBuf :: String -> Buf
-packBuf = Char8.pack
+packBuf = Buf.pack
 
 tagNode :: YamlTag -> YamlNode -> YamlNode
 tagNode _ MkNode{n_tag=Just x} = error $ "can't add tag: already tagged with" ++ unpackBuf x
@@ -171,13 +170,13 @@ emitNode _ e n | n_elem n == ENil = do
     withTag n (Ptr "string"##) $ \tag ->
         syck_emit_scalar e tag scalarNone 0 0 0 (Ptr "~"##) 1
 
-emitNode _ e n | EStr s <- n_elem n, Buf.length s == 1, Buf.head s == 0x7E = do
+emitNode _ e n | EStr s <- n_elem n, Buf.length s == 1, Buf.head s == '~' = do
     withTag n (Ptr "string"##) $ \tag ->
         syck_emit_scalar e tag scalar1quote 0 0 0 (Ptr "~"##) 1
 
 emitNode _ e n | EStr s <- n_elem n = do
     withTag n (Ptr "string"##) $ \tag ->
-        Buf.unsafeUseAsCStringLen s $ \(cs, l) ->       
+        Buf.useAsCStringLen s $ \(cs, l) ->       
         syck_emit_scalar e tag scalarNone 0 0 0 cs (toEnum l)
 
 emitNode freeze e n | ESeq sq <- n_elem n = do
@@ -286,7 +285,7 @@ syckNodeTag syckNode = do
     tag <- #{peek SyckNode, type_id} syckNode
     if (tag == nullPtr) then (return Nothing) else do
         p <- Buf.copyCString tag
-        return $! case Buf.elemIndex 0x2F p of -- '/'
+        return $! case Buf.elemIndex '/' p of
             Just n -> let { pre = Buf.take n p; post = Buf.drop (n+1) p } in
                 Just $ Buf.concat [_tagLiteral, pre, _colonLiteral, post]
             Nothing -> Nothing
@@ -324,7 +323,7 @@ parseNode SyckStr _ syckNode len = do
     cstr  <- syck_str_read syckNode
     buf   <- Buf.copyCStringLen (cstr, fromEnum len)
     let node = nilNode{ n_elem = EStr buf, n_tag = tag }
-    if tag == Nothing && Buf.length buf == 1 && Buf.index buf 0 == 0x7E
+    if tag == Nothing && Buf.length buf == 1 && Buf.index buf 0 == '~'
         then do
             style <- syck_str_style syckNode
             if style == scalarPlain
