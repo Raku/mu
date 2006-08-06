@@ -2,7 +2,7 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0x5110DD55 or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0xD5C899BC or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
 use base 'Pugs::Grammar::LrepBase';
@@ -245,29 +245,21 @@ sub {
     rule_wrapper( $_[0], (
           alternation( [
               concat(
-                constant( "\(" )
-              ,
-                capture( 'rule', sub{ $grammar->rule(@_) } )
-              ,
-                constant( "\)" )
+                capture( 'capturing_group', sub{ $grammar->capturing_group(@_) } )
               ,
                 Pugs::Runtime::LrepRule::abort(
                     sub {
-                        return { bool => 1, tail => $_[0], return => sub { return { rule => $_[0]{rule}(), } } };
+                        return { bool => 1, tail => $_[0], return => sub { return { rule => $_[0]{capturing_group}(), } } };
                     }
                 )
               ,
               ),
               concat(
-                constant( "\[" )
-              ,
-                capture( 'rule', sub{ $grammar->rule(@_) } )
-              ,
-                constant( "\]" )
+                capture( 'non_capturing_group', sub{ $grammar->non_capturing_group(@_) } )
               ,
                 Pugs::Runtime::LrepRule::abort(
                     sub {
-                        return { bool => 1, tail => $_[0], return => sub { return { rule => $_[0]{rule}(), } } };
+                        return { bool => 1, tail => $_[0], return => sub { return { rule => $_[0]{non_capturing_group}(), } } };
                     }
                 )
               ,
@@ -282,6 +274,11 @@ sub {
                 )
               ,
               ),
+                sub {
+                    { die "invalid alias syntax" };
+                    return { bool => 1, tail => $_[0] }
+                }
+              ,
           ] )
         ,
         )->( @_ )

@@ -79,9 +79,10 @@ rule num_variable :P5 {^(?:\$[[:digit:]]+)}
     unshift @rule_terms, 'match_variable';
 
     rule named_capture_body {
-          [ \( <rule> \) { return { rule => $_[0]{rule}(), } } ]
-        | [ \[ <rule> \] { return { rule => $_[0]{rule}(), } } ]
-        | [ <metasyntax> { return { rule => $_[0]{metasyntax}(), } } ]
+          [ <capturing_group>     { return { rule => $_[0]{capturing_group}(), } } ]
+        | [ <non_capturing_group> { return { rule => $_[0]{non_capturing_group}(), } } ]
+        | [ <metasyntax>          { return { rule => $_[0]{metasyntax}(), } } ]
+        | { die "invalid alias syntax" }
     }
     
     rule named_capture {

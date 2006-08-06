@@ -55,6 +55,7 @@ sub emit {
     local $sigspace = $param->{sigspace};   # XXX - $sigspace should be lexical
     local $capture_count = -1;
     local $capture_to_array = 0;
+    #print Dumper( $ast );
     return 
         "sub {\n" . 
         "  my \$grammar = \$_[0];\n" .
@@ -395,52 +396,81 @@ $_[1] }";
 sub named_capture {
     my $name    = $_[0]{ident};
     my $program = $_[0]{rule};
-    my $flat    = $_[0]{flat};
-    $program = emit_rule( $program, $_[1].'        ' )
-        if ref( $program );
-    # TODO - repeated captures create an Array
-
-    my($try_match, $gen_match, $post_match);
-    if ( $flat ) {
-        $try_match = <<"."
-$_[1]     my \$bool = 1;
-$_[1]     \$bool = 0 unless
-.
-.            $program . ";\n";
-        $gen_match = "\$match[-1]";
-	$post_match = "\$#match--;";
-    } else {
-        $try_match = <<"." ;
-$_[1]     my \$hash = do {
-$_[1]       my \$bool = 1;
-$_[1]       my \$from = \$pos;
-$_[1]       my \@match;
-$_[1]       my \%named;
-$_[1]       \$bool = 0 unless
-$program;
-$_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \\\$bool, to => \\(0+\$pos), capture => undef }
-$_[1]     };
-$_[1]     my \$bool = \${\$hash->{'bool'}};
-.
-        $gen_match = "Pugs::Runtime::Match->new( \$hash )";
-	$post_match = "";
+    #my $flat    = $_[0]{flat};
+    
+    if ( exists $program->{metasyntax} ) {
+        #print "aliased subrule\n";
+        # $/<name> = $/<subrule>
+        
+        my $cmd = $program->{metasyntax};
+        die "invalid aliased subrule" 
+            unless $cmd =~ /^[_[:alnum:]]/;
+        
+        # <subrule ( param, param ) >
+        my ( $subrule, $param_list ) = split( /[\(\)]/, $cmd );
+        $param_list = '' unless defined $param_list;
+        my @param = split( ',', $param_list );
+        return "$_[1] do { 
+                my \$match = \n" . 
+                    call_subrule( $subrule, $_[1]."        ", @param ) . ";
+                if ( \$match ) {" .
+                    ( $capture_to_array 
+                    ? " push \@{\$named{'$name'}}, \$match;" 
+                    : " \$named{'$name'} = \$match;"
+                    ) . "
+                    \$pos = \$match->to; 
+                    1 
+                } 
+                else { 0 }
+            }";
     }
-
-    return "$_[1] do{ 
-$try_match
-$_[1]     if ( \$bool ) {
-$_[1]       my \$match = $gen_match;" .
-        ( $capture_to_array 
-        ? "
-$_[1]       push \@{\$named{'$name'}}, \$match;" 
-        : "
-$_[1]       \$named{'$name'} = \$match;"
-        ) .
-"
-$_[1]     }
-$_[1]     $post_match
-$_[1]     \$bool;
-$_[1] }";
+    elsif ( exists $program->{capturing_group} ) {
+        #print "aliased capturing_group\n";
+        # $/<name> = $/[0]
+        {
+            local $capture_count = -1;
+            local $capture_to_array = 0;
+            $program = emit_rule( $program, $_[1].'      ' )
+                if ref( $program );
+        }
+        return "$_[1] do{ 
+                my \$match = Pugs::Runtime::Match->new( do {
+                    my \$bool = 1;
+                    my \$from = \$pos;
+                    my \@match;
+                    my \%named;
+                    \$bool = 0 unless " .
+                    $program . ";
+                    { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \\\$bool, to => \\(0+\$pos), capture => undef }
+                } );
+                if ( \$match ) {" .
+                    ( $capture_to_array 
+                    ? " push \@{\$named{'$name'}}, \$match;" 
+                    : " \$named{'$name'} = \$match;"
+                    ) . "
+                    \$pos = \$match->to; 
+                    1 
+                } 
+                else { 0 }
+            }";
+    }
+    else {
+        #print "aliased non_capturing_group\n";
+        # $/<name> = "$/"
+        $program = emit_rule( $program, $_[1].'      ' );
+        return "$_[1] do{ 
+                my \$from = \$pos;
+                my \$bool = $program;
+                my \$match = Pugs::Runtime::Match->new( 
+                    { str => \\\$s, from => \\\$from, match => [], named => {}, bool => \\1, to => \\(0+\$pos), capture => undef }
+                );" .
+                ( $capture_to_array 
+                ? " push \@{\$named{'$name'}}, \$match;" 
+                : " \$named{'$name'} = \$match;"
+                ) . "
+                \$bool
+            }";
+    }
 }
 sub negate {
     my $program = $_[0];
@@ -590,15 +620,15 @@ sub metasyntax {
         return;
     }
     if ( $prefix =~ /[-+[]/ ) {   # character class 
-	   if ( $prefix eq '-' ) {
-	       $cmd = '[^' . substr($cmd, 2);
-	   } 
+           if ( $prefix eq '-' ) {
+               $cmd = '[^' . substr($cmd, 2);
+           } 
        elsif ( $prefix eq '+' ) {
-	       $cmd = substr($cmd, 2);
-	   }
-	   # XXX <[^a]> means [\^a] instead of [^a] in perl5re
+               $cmd = substr($cmd, 2);
+           }
+           # XXX <[^a]> means [\^a] instead of [^a] in perl5re
 
-	   return call_perl5($cmd, $_[1]);
+           return call_perl5($cmd, $_[1]);
     }
     if ( $prefix eq '?' ) {   # non_capturing_subrule / code assertion
         $cmd = substr( $cmd, 1 );
@@ -607,12 +637,12 @@ sub metasyntax {
             return;
         }
         return
-	    "$_[1] do { my \$match =\n" .
-	    call_subrule( $cmd, $_[1] . "          " ) . ";\n" .
-	    "$_[1]      my \$bool = (!\$match != 1);\n" .
-	    "$_[1]      \$pos = \$match->to if \$bool;\n" .
-	    "$_[1]      \$bool;\n" .
-	    "$_[1] }";
+            "$_[1] do { my \$match =\n" .
+            call_subrule( $cmd, $_[1] . "          " ) . ";\n" .
+            "$_[1]      my \$bool = (!\$match != 1);\n" .
+            "$_[1]      \$pos = \$match->to if \$bool;\n" .
+            "$_[1]      \$match;\n" .
+            "$_[1] }";
     }
     if ( $prefix eq '!' ) {   # negated_subrule / code assertion 
         $cmd = substr( $cmd, 1 );
@@ -658,21 +688,10 @@ $_[1] )";
         # capturing subrule
         # <subrule ( param, param ) >
         my ( $subrule, $param_list ) = split( /[\(\)]/, $cmd );
-        $param_list = '' unless defined $param_list;
-        my @param = split( ',', $param_list );
-        # TODO - send $pos to subrule
         return named_capture(
             { ident => $subrule, 
-              rule => 
-                "$_[1]         do {\n" . 
-                "$_[1]           push \@match,\n" . 
-                    call_subrule( $subrule, $_[1]."        ", @param ) . ";\n" .
-                "$_[1]           my \$bool = (!\$match[-1] != 1);\n" .
-                "$_[1]           \$pos = \$match[-1]->to if \$bool;\n" .
-                #"print !\$match[-1], ' ', Dumper \$match[-1];\n" .
-                "$_[1]           \$bool;\n" .
-                "$_[1]         }",
-	      flat => 1
+              rule => { metasyntax => $cmd },
+              flat => 1
             }, 
             $_[1],    
         );
