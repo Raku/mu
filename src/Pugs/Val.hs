@@ -9,13 +9,16 @@
 >   And shining spears were laid in hoard...
 -}
 module Pugs.Val (
-    Val(..), ValUndef, ValNative, Id,
+    Value(..), Val(..), ValUndef, ValNative, Id,
+    module Pugs.Val.Str,
 ) where
 import Pugs.Internals
 import GHC.Exts
-import Data.Generics.Basics
+import Data.Generics.Basics hiding (cast)
+import qualified Data.Typeable as Typeable
 import qualified Data.ByteString as Buf
-import qualified Data.ByteString.Char8 as Str
+
+import Pugs.Val.Str
 
 {-|
 
@@ -36,27 +39,34 @@ data Val
 
 instance Value Val where
     val = id
-    valId VUndef{}      = NBit False
+    valId VUndef{}      = cast (NBit False)
     valId (VNative x)   = valId x
     valId (VPure x)     = valId x
     valId (VMut x)      = valId x
     valId (VExt x)      = valId x
     valIdCompare        = compare
-    valShow             = cnv . show
+    valShow             = cast . show
+
+instance Pure PureStr where
+    pureId x = cast (cast x :: ByteString)
+
+instance ((:>:) Id) NativeBuf where
+    cast = MkId . NBuf
 
 instance Value ValNative where
     val = VNative
     valIdCompare = compare
-    valShow      = cnv . show
+    valShow      = cast . show
     valId (NBit x)   = valId x
-    valId (NInt 0)   = NBit True
-    valId (NUint 0)  = NBit True
-    valId (NNum 0)   = NBit True
-    valId (NBuf x) | Buf.null x  = NBit True
-    valId x          = x
+    valId (NInt 0)   = cast(NBit True)
+    valId (NUint 0)  = cast(NBit True)
+    valId (NNum 0)   = cast(NBit True)
+    valId (NBuf x) | Buf.null x  = cast(NBit True)
+    valId x          = cast x
 
 -- | 'Id' is an unique ID that distinguishes two @Val@s of the same type from each other.
-type Id = ValNative
+newtype Id = MkId { unId :: ValNative }
+    deriving (Show, Eq, Ord, Data, Typeable, (:>:) ValNative, (:<:) ValNative)
 
 --------------------------------------------------------------------------------------
 
@@ -94,7 +104,7 @@ class (Show a, Eq a, Ord a, Data a, Typeable a) => Pure a where
 
 class (Eq a, Data a, Typeable a) => Mut a where
     mutId :: a -> Id
-    mutId = NUint . unsafeCoerce#
+    mutId = cast . NUint . unsafeCoerce#
     mutVal :: a -> Val
     mutVal = VMut
     mutIdCompare :: a -> a -> Ordering
@@ -103,7 +113,7 @@ class (Eq a, Data a, Typeable a) => Mut a where
 
 class (Eq a, Data a, Typeable a) => Ext a where
     extId :: a -> Id
-    extId = NUint . unsafeCoerce#
+    extId = cast . NUint . unsafeCoerce#
     extVal :: a -> Val
     extVal = VExt
     extIdCompare :: a -> a -> Ordering
@@ -122,7 +132,7 @@ instance Pure a => Mut a where
     mutId           = pureId
     mutIdCompare    = compare
     mutVal          = pureVal
-    mutShow         = cnv . show
+    mutShow         = cast . show
 
 instance Mut a => Ext a where
     extId           = mutId
@@ -137,16 +147,16 @@ instance Ext a => Value a where
     valShow         = extShow
 
 instance Pure Bool where
-    pureId True     = NInt (-1)
-    pureId False    = NBit True
+    pureId True     = cast (NInt (-1))
+    pureId False    = cast (NBit True)
 
 dynEq :: (Typeable a, Typeable b, Eq a) => a -> b -> Bool
-dynEq x y = case cast y of
+dynEq x y = case Typeable.cast y of
     Just y' -> x == y'
     Nothing -> False
 
 dynCompare :: (Value a, Value b) => a -> b -> Ordering
-dynCompare x y = case cast y of
+dynCompare x y = case Typeable.cast y of
     Just y' -> valIdCompare x y'
     Nothing -> compare (show $ typeOf x) (show $ typeOf y)
 
@@ -173,7 +183,6 @@ dynCompare x y = case cast y of
 
 -}
 type PureBit        = Bool
-type PureStr        = ByteString    -- XXX *very* bogus
 type PureBool       = Bool
 type PureException  = ()            -- XXX *very* bogus
 type PureCode       = ()            -- XXX *very* bogus
@@ -243,15 +252,9 @@ instance Show Val where
     showsPrec d (VPure aa) = showParen (d >= 10)
               (showString "VPure" . showChar ' ' . showsPrec 10 aa)
     showsPrec d (VMut aa) = showParen (d >= 10)
-              (showString "VMut" . showChar ' ' . (cnv (valShow aa) ++))
+              (showString "VMut" . showChar ' ' . (cast(valShow aa) ++))
     showsPrec d (VExt aa) = showParen (d >= 10)
-              (showString "VExt" . showChar ' ' . (cnv (valShow aa) ++))
-
-class a :>: b where
-    cnv :: a -> b
-
-instance (:>:) String PureStr where cnv = Str.pack
-instance (:>:) PureStr String where cnv = Str.unpack
+              (showString "VExt" . showChar ' ' . (cast(valShow aa) ++))
 
 instance Eq Val where
     (VUndef aa)  == (VUndef aa')    = aa == aa'

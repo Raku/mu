@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse -fno-warn-deprecations #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse -fno-warn-deprecations -fallow-undecidable-instances -fallow-overlapping-instances #-}
 
 {-|
     Internal utilities and library imports.
@@ -23,7 +23,9 @@ module Pugs.Internals (
     module Data.Bits,
     module Data.Char,
     module Data.Complex,
+    module Data.ByteString,
     module Data.Dynamic,
+    module Data.Generics,
     module Data.Either,
     module Data.FunctorM,
     module Data.IntMap,
@@ -32,6 +34,7 @@ module Pugs.Internals (
     module Data.Maybe,
     module Data.Ratio,
     module Data.Set,
+    module Data.Seq,
     module Data.Tree,
     module Data.Unique,
     module Data.Word,
@@ -53,6 +56,8 @@ module Pugs.Internals (
     module System.Random,
     module System.Time,
     module UTF8,
+    (:>:)(..),
+    (:<:)(..),
     internalError,
     split,
     split_n,
@@ -82,7 +87,8 @@ import RRegex
 import RRegex.Syntax
 import Data.Char
 import Data.IORef
-import Data.Dynamic
+import Data.Dynamic hiding (cast)
+import Data.Generics (Data)
 import Data.Array (elems)
 import Network
 import System.Environment (getArgs, withArgs, getProgName)
@@ -120,14 +126,28 @@ import Data.Unique
 import Data.Ratio
 import Data.Word
 import Data.Complex
+import Data.ByteString (ByteString)
 import Data.Tree
 import Data.Set (Set)
 import Data.Map (Map)
+import Data.Seq (Seq)
 import Data.IntMap (IntMap)
 import Debug.Trace
 import GHC.Base (realWorld#)
 import GHC.IOBase (IO(..))
 import GHC.Conc (unsafeIOToSTM)
+
+-- Nominal subtyping and type equivalence
+class ((:>:) a) b where
+    cast :: b -> a
+
+class ((:<:) a) b where
+    castBack :: a -> b
+
+instance (b :<: a) => (:>:) a b where
+    cast = castBack
+
+instance (:<:) a a where castBack = id
 
 -- Instances.
 instance Show Unique where
@@ -326,3 +346,4 @@ safeMode = case (inlinePerformIO $ getEnv "PUGS_SAFEMODE") of
 {-# NOINLINE _GlobalFinalizer #-}
 _GlobalFinalizer :: IORef (IO ())
 _GlobalFinalizer = unsafePerformIO $ newIORef (return ())
+
