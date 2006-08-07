@@ -87,6 +87,7 @@ import Pugs.AST.Pos
 import Pugs.AST.Scope
 import Pugs.AST.SIO
 import Pugs.Embed.Perl5
+import qualified Pugs.Val as Val
 
 {- <DrIFT> Imports for the DrIFT
 import Pugs.AST.Scope
@@ -98,6 +99,7 @@ import Pugs.Internals
 import Pugs.Embed.Perl5
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
+import qualified Pugs.Val       as Val
  </DrIFT> -}
  
 #include "../Types/Array.hs"
@@ -718,6 +720,7 @@ data Val
     | VObject   !VObject     -- ^ Object
     | VOpaque   !VOpaque
     | PerlSV    !PerlSV
+    | V         !Val.Val
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 {-|
@@ -1889,6 +1892,7 @@ _FakeEnv = unsafePerformIO $ liftSTM $ do
 fakeEval :: MonadIO m => Eval Val -> m Val
 fakeEval = liftIO . runEvalIO _FakeEnv
 
+instance YAML Val.Val
 instance YAML ([Val] -> Eval Val) where
     asYAML _ = return nilNode
     fromYAML _ = return (const $ return VUndef)

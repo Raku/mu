@@ -18,6 +18,7 @@ import Data.Generics.Basics hiding (cast)
 import qualified Data.Typeable as Typeable
 import qualified Data.ByteString as Buf
 
+import Pugs.AST.SIO
 import Pugs.Val.Str
 
 {-|

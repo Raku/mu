@@ -160,56 +160,6 @@ instance MooseClass VRule where
 	    , showMooseClassDef ns "VRule" "MkRulePGE" [("String","rxRule",""),("Bool","rxGlobal",""),("Bool","rxStringify",""),("Val","rxAdverbs","")]
 	    ]
 
-instance YAML Val where
-    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
-	"VNative" -> do
-	    let ESeq [aa] = e
-	    liftM VNative (fromYAML aa)
-	"VUndef" -> do
-	    let ESeq [aa] = e
-	    liftM VUndef (fromYAML aa)
-	"VPure" -> do
-	    let ESeq [aa] = e
-	    liftM VPure (fromYAML aa)
-	"VMut" -> do
-	    let ESeq [aa] = e
-	    liftM VMut (fromYAML aa)
-	"VIO" -> do
-	    let ESeq [aa] = e
-	    liftM VIO (fromYAML aa)
-	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["VNative","VUndef","VPure","VMut","VIO"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
-    asYAML (VNative aa) = asYAMLseq "VNative" [asYAML aa]
-    asYAML (VUndef aa) = asYAMLseq "VUndef" [asYAML aa]
-    asYAML (VPure aa) = asYAMLseq "VPure" [asYAML aa]
-    asYAML (VMut aa) = asYAMLseq "VMut" [asYAML aa]
-    asYAML (VIO aa) = asYAMLseq "VIO" [asYAML aa]
-
-instance Perl6Class Val where
-    showPerl6TypeDef ns _ = unlines
-	    [ showPerl6RoleDef ns "Val"
-	    , showPerl6ClassDef ns "Val" "VNative" [("ValNative","$.aa","")]
-	    , showPerl6ClassDef ns "Val" "VUndef" [("ValUndef","$.aa","")]
-	    , showPerl6ClassDef ns "Val" "VPure" [("ValPure","$.aa","")]
-	    , showPerl6ClassDef ns "Val" "VMut" [("ValMut","$.aa","")]
-	    , showPerl6ClassDef ns "Val" "VIO" [("ValIO","$.aa","")]
-	    ]
-    asPerl6Object (VNative aa) = "VNative.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
-    asPerl6Object (VUndef aa) = "VUndef.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
-    asPerl6Object (VPure aa) = "VPure.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
-    asPerl6Object (VMut aa) = "VMut.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
-    asPerl6Object (VIO aa) = "VIO.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
-
-instance MooseClass Val where
-    showMooseTypeDef ns _ = unlines
-	    [ showMooseRoleDef ns "Val"
-	    , showMooseClassDef ns "Val" "VNative" [("ValNative","aa","")]
-	    , showMooseClassDef ns "Val" "VUndef" [("ValUndef","aa","")]
-	    , showMooseClassDef ns "Val" "VPure" [("ValPure","aa","")]
-	    , showMooseClassDef ns "Val" "VMut" [("ValMut","aa","")]
-	    , showMooseClassDef ns "Val" "VIO" [("ValIO","aa","")]
-	    ]
-
 instance YAML Native where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"NBit" -> do
@@ -1982,6 +1932,56 @@ instance MooseClass Class where
     showMooseTypeDef ns _ = unlines
 	    [ showMooseRoleDef ns "Class"
 	    , showMooseClassDef ns "Class" "MkClass" [("Module","c_module",""),("ArrayRef","c_superClasses","[Class]"),("","c_runtimeSuperClasses","Eval [Class]"),("","c_methodTable","Map Ident Code"),("","c_runtimeMethodtable","Eval Map Ident Code"),("","c_runtimeSlots","Eval Map Ident TVar Val")]
+	    ]
+
+instance YAML Val where
+    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+	"VUndef" -> do
+	    let ESeq [aa] = e
+	    liftM VUndef (fromYAML aa)
+	"VNative" -> do
+	    let ESeq [aa] = e
+	    liftM VNative (fromYAML aa)
+	"VPure" -> do
+	    let ESeq [aa] = e
+	    liftM VPure (fromYAML aa)
+	"VMut" -> do
+	    let ESeq [aa] = e
+	    liftM VMut (fromYAML aa)
+	"VIO" -> do
+	    let ESeq [aa] = e
+	    liftM VIO (fromYAML aa)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["VUndef","VNative","VPure","VMut","VIO"] ++ " in node " ++ show e
+    fromYAML _ = fail "no tag found"
+    asYAML (VUndef aa) = asYAMLseq "VUndef" [asYAML aa]
+    asYAML (VNative aa) = asYAMLseq "VNative" [asYAML aa]
+    asYAML (VPure aa) = asYAMLseq "VPure" [asYAML aa]
+    asYAML (VMut aa) = asYAMLseq "VMut" [asYAML aa]
+    asYAML (VIO aa) = asYAMLseq "VIO" [asYAML aa]
+
+instance Perl6Class Val where
+    showPerl6TypeDef ns _ = unlines
+	    [ showPerl6RoleDef ns "Val"
+	    , showPerl6ClassDef ns "Val" "VUndef" [("ValUndef","$.aa","")]
+	    , showPerl6ClassDef ns "Val" "VNative" [("ValNative","$.aa","")]
+	    , showPerl6ClassDef ns "Val" "VPure" [("ValPure","$.aa","")]
+	    , showPerl6ClassDef ns "Val" "VMut" [("ValMut","$.aa","")]
+	    , showPerl6ClassDef ns "Val" "VIO" [("ValIO","$.aa","")]
+	    ]
+    asPerl6Object (VUndef aa) = "VUndef.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
+    asPerl6Object (VNative aa) = "VNative.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
+    asPerl6Object (VPure aa) = "VPure.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
+    asPerl6Object (VMut aa) = "VMut.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
+    asPerl6Object (VIO aa) = "VIO.new(" ++ (concat $ intersperse ", " [plShow aa]) ++ ")"
+
+instance MooseClass Val where
+    showMooseTypeDef ns _ = unlines
+	    [ showMooseRoleDef ns "Val"
+	    , showMooseClassDef ns "Val" "VUndef" [("ValUndef","aa","")]
+	    , showMooseClassDef ns "Val" "VNative" [("ValNative","aa","")]
+	    , showMooseClassDef ns "Val" "VPure" [("ValPure","aa","")]
+	    , showMooseClassDef ns "Val" "VMut" [("ValMut","aa","")]
+	    , showMooseClassDef ns "Val" "VIO" [("ValIO","aa","")]
 	    ]
 
 --  Imported from other files :-

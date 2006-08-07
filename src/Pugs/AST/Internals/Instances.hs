@@ -45,6 +45,7 @@ import Pugs.Internals
 import Pugs.Embed.Perl5
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
+import qualified Pugs.Val       as Val
 
 {-# NOINLINE _FakeEnv #-}
 _FakeEnv :: Env
@@ -77,6 +78,7 @@ _FakeEnv = unsafePerformIO $ liftSTM $ do
 fakeEval :: MonadIO m => Eval Val -> m Val
 fakeEval = liftIO . runEvalIO _FakeEnv
 
+instance YAML Val.Val
 instance YAML ([Val] -> Eval Val) where
     asYAML _ = return nilNode
     fromYAML _ = return (const $ return VUndef)
@@ -282,7 +284,10 @@ instance YAML Val where
 	"PerlSV" -> do
 	    let ESeq [aa] = e
 	    liftM PerlSV (fromYAML aa)
-	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["VUndef","VBool","VInt","VRat","VNum","VComplex","VStr","VList","VType","VJunc","VError","VControl","VRef","VCode","VBlock","VHandle","VSocket","VThread","VProcess","VRule","VSubst","VMatch","VObject","VOpaque","PerlSV"] ++ " in node " ++ show e
+	"V" -> do
+	    let ESeq [aa] = e
+	    liftM V (fromYAML aa)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["VUndef","VBool","VInt","VRat","VNum","VComplex","VStr","VList","VType","VJunc","VError","VControl","VRef","VCode","VBlock","VHandle","VSocket","VThread","VProcess","VRule","VSubst","VMatch","VObject","VOpaque","PerlSV","V"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (VUndef) = asYAMLcls "VUndef"
     asYAML (VBool aa) = asYAMLseq "VBool" [asYAML aa]
@@ -309,6 +314,7 @@ instance YAML Val where
     asYAML (VObject aa) = asYAMLseq "VObject" [asYAML aa]
     asYAML (VOpaque aa) = asYAMLseq "VOpaque" [asYAML aa]
     asYAML (PerlSV aa) = asYAMLseq "PerlSV" [asYAML aa]
+    asYAML (V aa) = asYAMLseq "V" [asYAML aa]
 
 instance YAML VJunc where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
