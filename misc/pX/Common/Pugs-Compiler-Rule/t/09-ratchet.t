@@ -1,5 +1,5 @@
 
-use Test::More tests => 93;
+use Test::More tests => 99;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -607,6 +607,36 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
                            # closure - print "use()"
     );   
     $rule1 = Pugs::Compiler::Token->compile('%test 123');
+    
+    $match = $rule1->match("iff123");
+    is($match,'iff123',"Matched hash{iff}");
+
+    $match = $rule1->match("if123");
+    is($match,'',"fail hash{if} - value != 1");
+
+    is($v,0,"closure not called yet");
+    $match = $rule1->match("use");
+    is($v,1,"closure was called hash{use}");
+
+    $match = $rule1->match("untilaba123");
+    #print Dumper($match->data);
+    is($match,'untilaba123',"subrule hash{until}");
+    is($match->(),'untilaba123',"subrule hash{until} - 2");
+
+}
+
+{
+    my $match;
+    my $v = 0;
+    my %test = (
+        if =>    2,        # fail (number, not '1')
+        iff =>   1,        # match (longer than 'if')
+        until => Pugs::Compiler::Token->compile('(a.a)'),  
+                           # subrule - match "until(aa)"
+        use =>   sub { $v = 1 },   
+                           # closure - print "use()"
+    );   
+    $rule1 = Pugs::Compiler::Token->compile('<%test> 123');
     
     $match = $rule1->match("iff123");
     is($match,'iff123',"Matched hash{iff}");

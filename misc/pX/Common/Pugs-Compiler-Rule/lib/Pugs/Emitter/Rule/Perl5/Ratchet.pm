@@ -586,6 +586,19 @@ sub metasyntax {
             "$_[1]    \$bool;\n" . 
             "$_[1] }";
     }
+
+    if ( $prefix eq '%' ) {
+        # XXX - runtime or compile-time interpolation?
+        my $name = substr( $cmd, 1 );
+print "<$cmd>\n";
+        return variable( $cmd );
+        return named_capture ( {
+            ident => $name,
+            program => variable( $cmd ),
+            flat => 1, # ???
+        } );
+    }
+
     if ( $prefix eq '$' ) {
         if ( $cmd =~ /::/ ) {
             # call method in fully qualified $package::var
