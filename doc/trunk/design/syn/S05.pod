@@ -650,7 +650,7 @@ is more or less equivalent to
 
     <foo(/bar/)>
 
-If the first character is a plus or minus, the initial identifier taken
+If the first character is a plus or minus, the initial identifier is taken
 as a character class, so
 
     <foo+bar-baz>

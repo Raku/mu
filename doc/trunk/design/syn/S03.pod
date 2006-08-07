@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 1 Aug 2006
+  Last Modified: 7 Aug 2006
   Number: 3
-  Version: 52
+  Version: 53
 
 =head1 Changes to Perl 5 operators
 
@@ -1009,7 +1009,7 @@ reduction of C<< infix:<x> >>.  This is deemed to be an insignificant problem.
 =head1 Junctive operators
 
 C<|>, C<&>, and C<^> are no longer bitwise operators (see
-L</Changes to existing operators>) but now serve a much higher cause:
+L</Changes to Perl 5 operators>) but now serve a much higher cause:
 they are now the junction constructors.
 
 A junction is a single value that is equivalent to multiple values. They

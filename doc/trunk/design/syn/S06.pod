@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 26 July 2006
+  Last Modified: 7 Aug 2006
   Number: 6
-  Version: 42
+  Version: 43
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -57,7 +57,7 @@ variants that share the same name, selected by arity, types, or some
 other constraints.  They may have multliple invocants.
 
 B<Prototypes> (keyword: C<proto>) specify the commonalities (such
-as parameter names, fixity and associativity) shared by all multis
+as parameter names, fixity, and associativity) shared by all multis
 of that name in the scope of the C<proto> declaration.
 
 A modifier keyword may occur before the routine keyword in a named routine:
@@ -98,7 +98,7 @@ But one can also use a scope modifier to introduce the return type first:
     our RETTYPE sub ( PARAMS ) TRAITS {...} # means the same as "my" here
 
 B<Trait> is the name for a compile-time (C<is>) property.
-See L<"Traits and Properties">
+See L<"Properties and traits">.
 
 
 =head2 Perl5ish subroutine declarations
@@ -244,7 +244,7 @@ Operators are just subroutines with special names and scoping.
 An operator name consists of a grammatical category name followed by
 a single colon followed by an operator name specified as if it were
 a hash subscript (but evaluated at compile time).  So any of these
-indicate the same binary addition operator:
+indicates the same binary addition operator:
 
     infix:<+>
     infix:«+»
@@ -271,7 +271,7 @@ operator.
     sub circumfix:<LEFTDELIM RIGHTDELIM> ($contents) {...}
     sub circumfix:{'LEFTDELIM','RIGHTDELIM'} ($contents) {...}
 
-Contrary to A6, there is no longer any rule about splitting an even
+Contrary to Apocalypse 6, there is no longer any rule about splitting an even
 number of characters.  You must use a two element slice.  Such names
 are canonicalized to a single form within the symbol table, so you
 must use the canonical name if you wish to subscript the symbol table
@@ -367,9 +367,9 @@ the key to suppress autoquoting:
 Only bare keys with valid identifier names are recognized as named arguments:
 
     doit when => 'now';		# always a named arg
-    doit 'when' => 'now';	# always a positonal arg
-    doit 123  => 'now';		# always a positonal arg
-    doit :123<now>;		# always a positonal arg
+    doit 'when' => 'now';	# always a positional arg
+    doit 123  => 'now';		# always a positional arg
+    doit :123<now>;	        # always a positional arg
 
 Going the other way, pairs intended as named arguments that don't look
 like pairs must be introduced with the C<[,]> reduction operator:
@@ -419,12 +419,13 @@ are short for
 
 Ordinary hash notation will just pass the value of the hash entry as a
 positional argument regardless of whether it is a pair or not.
-To pass both key and value out of hash as a positional pair, use C<:p>.
+To pass both key and value out of hash as a positional pair, use C<:p>
+instead:
 
     doit %hash<a>:p,1,2,3;
     doit %hash{'b'}:p,1,2,3;
 
-instead..  (The C<:p> stands for "pairs", not "positional"--the
+(The C<:p> stands for "pairs", not "positional"--the
 C<:p> adverb may be placed on any Hash objects to make it mean
 "pairs" instead of "values".)
 
@@ -435,7 +436,7 @@ objects.  Leftover named arguments can be slurped into a slurpy hash.
 
 Because named and positional arguments can be freely mixed, the
 programmer always needs to disambiguate pairs literals from named
-arguments with parenthesis or quotes:
+arguments with parentheses or quotes:
 
     # Named argument "a"
     push @array, 1, 2, :a<b>;
@@ -453,7 +454,7 @@ to be concatenated:
     fun( x => 1, x => 2 );              # @x := (1, 2)
     fun( x => (1, 2), x => (3, 4) );    # @x := (1, 2, 3, 4)
 
-Other sigils binds only to the I<last> argument with that name:
+Other sigils bind only to the I<last> argument with that name:
 
     sub fun (Int $x) { ... }
     f( x => 1, x => 2 );                # $x := 2
@@ -462,7 +463,7 @@ Other sigils binds only to the I<last> argument with that name:
 This means a hash holding default values must come I<before> known named
 parameters, similar to how hash constructors work:
 
-    # Allow "x" and "y" in %defaults be overrided
+    # Allow "x" and "y" in %defaults to be overridden
     f( [,](%defaults), x => 1, y => 2 );
 
 =head2 Invocant parameters
@@ -487,7 +488,7 @@ list, with a colon terminating the list of invocants:
 
 If the parameter list for a C<multi> contains no colon to delimit
 the list of invocant parameters, then all positional parameters are
-considered invocants.  If it's a C<multi method> and C<multi submethod>,
+considered invocants.  If it's a C<multi method> or C<multi submethod>,
 an additional implicit unnamed C<self> invocant is prepended to the
 signature list.
 
@@ -577,7 +578,7 @@ name:
     my_substr("foobar",1,3);        # $from is 1, $len is 3
     my_substr("foobar",len=>3);     # $from is 0, $len is 3
 
-Missing optional arguments default to their default value, or to
+Missing optional arguments default to their default values, or to
 an undefined value if they have no default.  (A supplied argument that is
 undefined is not considered to be missing, and hence does not trigger
 the default.  Use C<//=> within the body for that.)
@@ -757,7 +758,7 @@ operator:
 
 =head2 Multidimensional argument list binding
 
-Some functions take more than one lists of positional and/or named arguments,
+Some functions take more than one list of positional and/or named arguments,
 that they wish not to be flattened into one list.  For instance, C<zip()> wants
 to iterate several lists in parallel, while array and hash subscripts want to
 process multidimensional slices.  The set of underlying argument lists may be
@@ -782,7 +783,7 @@ It is allowed to specify a return type:
     sub foo (*@@slices --> Num) { ... }
 
 The invocant does not participate in multi-dimensional argument lists,
-so C<self> is not present in any of the C<@@slices> below:
+so C<self> is not present in the C<@@slices> below:
 
     method foo (*@@slices) { ... }
 
@@ -824,7 +825,7 @@ So both of the calls above are equivalent to:
 
     grep { $_ % 2 }, @data;
 
-Note that all such feed (and indeed all lazy argument lists) supply
+Note that all such feeds (and indeed all lazy argument lists) supply
 an implicit promise that the code producing the lists may execute
 in parallel with the code receiving the lists.  (Feeds, hyperops,
 and junctions all have this promise of parallelizability in common,
@@ -866,7 +867,7 @@ list receiver.
 Any list operator is considered a variadic operation, so ordinarily
 a list operator adds any feed input to the end of its list.
 But sometimes you want to interpolate elsewhere, so the C<***> term
-may be used to indicating the target of a feed without the use of a
+may be used to indicate the target of a feed without the use of a
 temporary array:
 
     foo() ==> say ***, " is what I meant";
@@ -1011,39 +1012,39 @@ left to right in general regardless of the position of the receiver.
 So
 
     ('a'..*; 0..*) ==> *;
-     for zip(*** <== @foo) -> [$a, $i, $x] { ...}
+     for zip(*** <== @foo) -> [$a, $i, $x] { ... }
 
 is the same as
 
     'a'..* ==> *;
      0..*  ==> *;
-     for zip(*** <== @foo) -> [$a, $i, $x] { ...}
+     for zip(*** <== @foo) -> [$a, $i, $x] { ... }
 
 which is the same as
 
-    for zip('a'..*; 0..*; @foo) -> [$a, $i, $x] { ...}
+    for zip('a'..*; 0..*; @foo) -> [$a, $i, $x] { ... }
 
-And
+Likewise,
 
     @foo ==> *;
     0..* ==> *;
-    for each(***) -> $x, $i { ...}
+    for each(***) -> $x, $i { ... }
 
 is the same as
 
     0..* ==> *;
-    for each(@foo; ***) -> $x, $i { ...}
+    for each(@foo; ***) -> $x, $i { ... }
 
-which is the same as
+and also
 
-    for each(@foo; 0..*) -> $x, $i { ...}
+    for each(@foo; 0..*) -> $x, $i { ... }
 
-Note that the each method is also sensitive to multislicing, so you
+Note that the C<each> method is also sensitive to multislicing, so you
 could also just write that as:
 
-    (@foo; 0..*).each: -> $x, $i { ...}
+    (@foo; 0..*).each: -> $x, $i { ... }
 
-Also note that these come out to identical for ordinary arrays:
+Also note that these come out to be identical for ordinary arrays:
 
     @foo.each
     @foo.cat
@@ -1098,8 +1099,8 @@ the value and its kind at once.  (A "kind" is a class or type that
 an object is allowed to be.  An object is not officially allowed
 to take on a constrained or contravariant type.)  A type variable
 can be used anywhere a type name can, but instead of asserting that
-the value must conform to a particular type, instead captures the
-actual "kind" of object and also declares a package/type name
+the value must conform to a particular type, it captures the
+actual "kind" of the object and also declares a package/type name
 by which you can refer to that kind later in the signature or body.
 For instance, if you wanted to match any two Dogs as long as they
 were of the same kind, you can say:
@@ -1112,11 +1113,11 @@ a type that is compatible with C<Dog>.)
 The C<::> sigil is short for "subset" in much the same way that C<&> is
 short for "sub".  Just as C<&> can be used to name any kind of code,
 so too C<::> can be used to name any kind of type.  Both of them insert
-a bare identifier into the grammar, though they fill different syntactic
+a bare identifier into the symbol table, though they fill different syntactic
 spots.
 
 Note that it is not required to capture the object associated with the
-class unless you want it.  The sub above could be written
+class unless you want it.  The sub above could be written as
 
     sub matchedset (Dog ::T, T) {...}
 
@@ -1173,7 +1174,7 @@ you can get the same effect with:
 
 You can unpack tree nodes in various dwimmy ways by enclosing the bindings
 of child nodes and attributes in parentheses following the declaration of
-the node itself
+the node itself:
 
     sub traverse ( BinTree $top ( $left, $right ) ) {
 	traverse($left);
@@ -1192,7 +1193,7 @@ the transformations can be reversible.)
 
 However, the full power of signatures can be applied to pattern match
 just about any argument or set of arguments, even though in some cases
-the reverse transformation is not intuitable.  For instance, to bind to
+the reverse transformation is not derivable.  For instance, to bind to
 an array of children named C<.kids> or C<< .<kids> >>, use something
 like:
 
@@ -1218,7 +1219,7 @@ the variable, or we can't correctly differentiate:
     my Dog $ ($fido, $spot) := twodogs();	# one twodog object
     my Dog :($fido, $spot)  := twodogs();	# one twodog object
 
-Subsignatures can be matched directly within regexes by using C<:(...)>
+Sub signatures can be matched directly within regexes by using C<:(...)>
 notation.
 
     push @a, "foo";
@@ -1265,10 +1266,10 @@ which would be equivalent to
 
     :(\Any(Dog))
 
-and match a function taking a single value of type Dog.
+and match a function taking a single parameter of type Dog.
 
 Note also that bare C<\(1,2,3)> is never legal in a regex since the
-first paren would try to match literally.
+first (escaped) paren would try to match literally.
 
 =head2 Attributive parameters
 
@@ -1299,7 +1300,7 @@ is the same as:
     submethod initialize(:name($.name), :age($!age)) {}
 
 Note that C<$!age> actually refers to the private "C<has>" variable that
-can be referred to either as C<$age> or C<$!age>.
+can be referred to as either C<$age> or C<$!age>.
 
 =head2 Placeholder variables
 
@@ -1366,7 +1367,7 @@ if and only if their types and contents are identical.
     Range       Incrementally generated (hence lazy) sequence
     Set         Unordered Seqs that allow no duplicates
     Junction    Sets with additional behaviours
-    Pair        Seq of two elements that serves as an one-element Mapping
+    Pair        Seq of two elements that serves as a one-element Mapping
     Mapping     Pairs with no duplicate keys
     Signature   Function parameters (left-hand side of a binding)
     Capture     Function call arguments (right-hand side of a binding)
@@ -1378,7 +1379,7 @@ Objects with these types have distinct C<.valid> values.
     Array       Perl array
     Hash        Perl hash
     Scalar      Perl scalar
-    Buf         Perl buffer (an stringish array of memory locations)
+    Buf         Perl buffer (a stringish array of memory locations)
     IO          Perl filehandle
     Routine     Base class for all wrappable executable objects
     Sub         Perl subroutine
@@ -1512,13 +1513,13 @@ Fancier type constraints may be expressed through a subtype:
 
 Since the terms in a parameter could be viewed as a set of
 constraints that are implicitly "anded" together (the variable itself
-supplies type constraints, and where clauses or tree matching just
+supplies type constraints, and C<where> clauses or tree matching just
 add more constraints), we relax this to allow juxtaposition of
 types to act like an "and" junction:
 
     # Anything assigned to the variable $mitsy must conform
     # to the type Fish and either the Cat or Dog type...
-    my Cat|Dog Fish $mitsy = new Fish but { int rand 2 ?? .does Cat;
+    my Cat|Dog Fish $mitsy = new Fish but { int rand 2 ?? .does Cat
 						       !! .does Dog };
 
 =head2 Parameter types
@@ -1536,7 +1537,7 @@ its parametric value from the actual type of the parameter it is
 associated with.  It declares the new type name in the same scope
 as the associated declaration.
 
-    sub max (Num ::X @array ) {
+    sub max (Num ::X @array) {
 	push @array, X.new();
     }
 
@@ -1551,7 +1552,7 @@ the same signature must unify compatibly if they have the same name:
 
 On a scoped subroutine, a return type can be specified before or after
 the name.  We call all return types "return types", but distinguish
-two kinds of return type, the C<inner> type and the C<of> type,
+two kinds of return types, the C<inner> type and the C<of> type,
 because the C<of> type is normally an "official" named type and
 declares the official interface to the routine, while the C<inner>
 type is merely a constraint on what may be returned by the routine
@@ -1606,7 +1607,7 @@ is known to return an object of type Fish, as if you'd said:
 
     my sub wanda ($x --> Fish) { ... }
 
-not as if you'd said
+I<not> as if you'd said
 
     my sub wanda ($x) returns Fish { ... }
 
@@ -1664,7 +1665,7 @@ parameter list and/or return type.
 
 =item C<returns>/C<is returns>
 
-The C<inner> type constraint that a routine imposes in its return value.
+The C<inner> type constraint that a routine imposes on its return value.
 
 =item C<of>/C<is of>
 
@@ -1699,7 +1700,7 @@ optimization via inlining.
 Specifies the precedence of an operator relative to an existing
 operator.  C<equiv> also specifies the default associativity to
 be the same as the operator to which the new operator is equivalent.
-C<tighter> and C<looser> operators default to left associative.
+C<tighter> and C<looser> operators default to being left associative.
 
 =item C<is assoc>
 
@@ -1716,7 +1717,7 @@ Specifies the associativity of an operator explicitly.  Valid values are:
 
 Note that operators "C<equiv>" to relationals are automatically considered
 chaining operators.  When creating a new precedence level, the chaining
-is determined by the presence or absence of "C<is assoc('chaining')>",
+is determined by the presence or absence of "C<is assoc('chain')>",
 and other operators defined at that level are required to be the same.
 
 =item C<PRE>/C<POST>
@@ -1735,7 +1736,7 @@ C<PRE> block as well.
 When applied to a method, a C<POST> block automatically also calls all
 C<POST> blocks on any method of the same long name in every ancestral
 class. The postcondition is satisfied only if the method's own C<POST>
-block and every one of its ancestral C<POST> blocks all return true.
+block I<and> every one of its ancestral C<POST> blocks all return true.
 
 =item C<FIRST>/C<LAST>/C<NEXT>/C<KEEP>/C<UNDO>/etc.
 
@@ -1800,9 +1801,9 @@ to cause a final list parameter to apply a series of scalar contexts:
     sub format(*@data is context(Scalar)) {...}
 
 Note that the compiler may not be able to propagate such a scalar
-context to a function call used as a parameter to a method or multisub
+context to a function call used as an argument to a method or multisub
 whose signature is not visible until dispatch time.  Such function
-call parameters are called in list context by default, and must be
+call arguments are called in list context by default, and must be
 coerced to scalar context explicitly if that is desired.
 
 =back
@@ -1817,7 +1818,7 @@ by the current lexically enclosing C<Routine> to force a return through
 the control logic code of any intermediate block constructs.  With normal
 blocks this can be optimized away to a "goto".  All C<Routine> declarations
 have an explicit declarator such as C<sub> or C<method>; bare blocks and
-"pointy" subs are never considered to be routines in that sense.  To return
+"pointy" blocks are never considered to be routines in that sense.  To return
 from a block, use C<leave> instead--see below.
 
 The C<return> function preserves its argument list as a C<Capture> object, and
@@ -1836,7 +1837,7 @@ parentheses:
     return( (:x<1>), (:y<2>) ); # two positional Pair objects
 
 Note that the postfix parentheses on the function call don't count as
-"additional".  However, as with any function, whitespace after the
+being "additional".  However, as with any function, whitespace after the
 C<return> keyword prevents that interpretation and turns it instead
 into a list operator:
 
@@ -1893,7 +1894,7 @@ or a C<when>:
 
 or has the corresponding methods called on it:
 
-       if (want.Scalar)    {...}    # called in scalar context
+    if    (want.Scalar)    {...}    # called in scalar context
     elsif (want.List)      {...}    # called in list context
     elsif (want.rw)        {...}    # expected to return an lvalue
     elsif (want.count > 2) {...}    # expected to return more than two values
@@ -1933,7 +1934,7 @@ The first that matches is the scope that is left.
 =head2 Temporization
 
 The C<temp> function temporarily replaces the value of an existing
-variable, subroutine, or other object in a given scope:
+variable, subroutine, context of a function call, or other object in a given scope:
 
     {
        temp $*foo = 'foo';      # Temporarily replace global $foo
@@ -2002,7 +2003,7 @@ Every C<Routine> object has a C<.wrap> method. This method expects a single
 C<Code> argument. Within the code, the special C<call> function will invoke
 the original routine, but does not introduce a C<CALLER> frame:
 
-    sub thermo ($t) {...}   # set temperature in Celsius, returns old temp
+    sub thermo ($t) {...}   # set temperature in Celsius, returns old value
 
     # Add a wrapper to convert from Fahrenheit...
     $handle = &thermo.wrap( { call( ($^t-32)/1.8 ) } );
@@ -2057,7 +2058,7 @@ by binding:
 =head2 The C<&?ROUTINE> object
 
 C<&?ROUTINE> is always an alias for the lexically innermost C<Routine>
-(which may be a C<Sub>, C<Method> or C<SubMethod>), so you can specify
+(which may be a C<Sub>, C<Method>, or C<Submethod>), so you can specify
 tail-recursion on an anonymous sub:
 
     my $anonfactorial = sub (Int $n) {
@@ -2085,15 +2086,16 @@ specify tail-recursion on an anonymous block:
 
 C<&?BLOCK.label> contains the label of the current block, if any.
 
-If the innermost lexical block comes is part of a C<Routine>,
-then C<&?BLOCK> just returns the C<Block> object within it.
+If the innermost lexical block happens to be the main block of a C<Routine>,
+then C<&?BLOCK> just returns the C<Block> object, not the C<Routine> object
+that contains it.
 
 [Note: to refer to any C<$?> or C<&?> variable at the time the sub or
 block is being compiled, use the C<< COMPILING:: >> pseudopackage.]
 
 =head2 Currying
 
-Every C<Code> object has an C<.assuming> method. This method does a partial
+Every C<Code> object has a C<.assuming> method. This method does a partial
 binding of a set of arguments to a signature and returns a new function
 that takes only the remaining arguments.
 
@@ -2116,12 +2118,12 @@ already bound to the corresponding parameters:
     $last = textfrom(-1);  # same as: $last = substr($text,-1,Inf);
 
 The result of a C<use> statement is a (compile-time) object that also has
-an C<.assuming> method, allowing the user to bind parameters in all the
+a C<.assuming> method, allowing the user to bind parameters in all the
 module's subroutines/methods/etc. simultaneously:
 
     (use IO::Logging).assuming(logfile => ".log");
 
-This form should generally be restricted to named parameters.
+This special form should generally be restricted to named parameters.
 
 To curry a particular multimethod it may be necessary to specify the type
 of one or more of its invocants:
