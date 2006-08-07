@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fallow-overlapping-instances #-}
 {-! global : YAML_Pos, Perl6Class, MooseClass !-}
 {-|
     Perl 6 Values.
@@ -15,6 +15,7 @@ import Pugs.Internals
 import GHC.Exts
 import Data.Generics.Basics
 import qualified Data.ByteString as Buf
+import qualified Data.ByteString.Char8 as Str
 
 {-|
 
@@ -34,11 +35,25 @@ data Val
     deriving (Typeable)
 
 instance Value Val where
-    valId VUndef{}    = NBit False
-    valId (VNative x) = nativeId x
-    valId (VPure x)   = valId x
-    valId (VMut x)    = valId x
-    valId (VExt x)    = valId x
+    val = id
+    valId VUndef{}      = NBit False
+    valId (VNative x)   = valId x
+    valId (VPure x)     = valId x
+    valId (VMut x)      = valId x
+    valId (VExt x)      = valId x
+    valIdCompare        = compare
+    valShow             = cnv . show
+
+instance Value ValNative where
+    val = VNative
+    valIdCompare = compare
+    valShow      = cnv . show
+    valId (NBit x)   = valId x
+    valId (NInt 0)   = NBit True
+    valId (NUint 0)  = NBit True
+    valId (NNum 0)   = NBit True
+    valId (NBuf x) | Buf.null x  = NBit True
+    valId x          = x
 
 -- | 'Id' is an unique ID that distinguishes two @Val@s of the same type from each other.
 type Id = ValNative
@@ -64,15 +79,6 @@ data ValNative
     | NComplex  !NativeComplex  -- ^ (45 - 9i)
     deriving (Show, Eq, Ord, Data, Typeable)
 
-nativeId :: ValNative -> Id
-nativeId (NBit True)            = NInt (-1)
-nativeId (NBit False)           = NBit True
-nativeId (NInt 0)               = NBit True
-nativeId (NUint 0)              = NBit True
-nativeId (NNum 0)               = NBit True
-nativeId (NBuf x) | Buf.null x  = NBit True
-nativeId x                      = x
-
 type NativeBit      = Bool
 type NativeInt      = Int
 type NativeUint     = Word
@@ -81,28 +87,67 @@ type NativeNum      = Float
 type NativeComplex  = () -- Complex NativeNum 
 
 --------------------------------------------------------------------------------------
-class Value a => Pure a where
+class (Show a, Eq a, Ord a, Data a, Typeable a) => Pure a where
     pureId :: a -> Id
-    pureId = error "Pure values can't use memory address for Id - define pureId first"
+    pureVal :: a -> Val
+    pureVal = VPure
 
-class Value a => Mut a where
-class Value a => Ext a where
+class (Eq a, Data a, Typeable a) => Mut a where
+    mutId :: a -> Id
+    mutId = NUint . unsafeCoerce#
+    mutVal :: a -> Val
+    mutVal = VMut
+    mutIdCompare :: a -> a -> Ordering
+    mutIdCompare x y = mutId x `compare` mutId y
+    mutShow :: a -> PureStr
 
-class (Show a, Eq a, Ord a, Data a, Typeable a) => Value a where
-    valId :: a -> Id
-    valId = NUint . unsafeCoerce#
+class (Eq a, Data a, Typeable a) => Ext a where
+    extId :: a -> Id
+    extId = NUint . unsafeCoerce#
+    extVal :: a -> Val
+    extVal = VExt
+    extIdCompare :: a -> a -> Ordering
+    extIdCompare x y = extId x `compare` extId y
+    extShow :: a -> PureStr
 
-instance Pure a => Value a where
-    valId = pureId
+{- Pure interfaces common to all value types -}
+class (Eq a, Data a, Typeable a) => Value a where
+    val          :: a -> Val
+    valShow      :: a -> PureStr
+    valId        :: a -> Id
+    valIdCompare :: a -> a -> Ordering
+    valIdCompare x y = valId x `compare` valId y
+
+instance Pure a => Mut a where
+    mutId           = pureId
+    mutIdCompare    = compare
+    mutVal          = pureVal
+    mutShow         = cnv . show
+
+instance Mut a => Ext a where
+    extId           = mutId
+    extIdCompare    = mutIdCompare
+    extVal          = mutVal
+    extShow         = mutShow
+
+instance Ext a => Value a where
+    valId           = extId
+    valIdCompare    = extIdCompare
+    val             = extVal
+    valShow         = extShow
+
+instance Pure Bool where
+    pureId True     = NInt (-1)
+    pureId False    = NBit True
 
 dynEq :: (Typeable a, Typeable b, Eq a) => a -> b -> Bool
 dynEq x y = case cast y of
     Just y' -> x == y'
     Nothing -> False
 
-dynCompare :: (Typeable a, Typeable b, Ord a) => a -> b -> Ordering
+dynCompare :: (Value a, Value b) => a -> b -> Ordering
 dynCompare x y = case cast y of
-    Just y' -> compare x y'
+    Just y' -> valIdCompare x y'
     Nothing -> compare (show $ typeOf x) (show $ typeOf y)
 
 {-
@@ -198,9 +243,15 @@ instance Show Val where
     showsPrec d (VPure aa) = showParen (d >= 10)
               (showString "VPure" . showChar ' ' . showsPrec 10 aa)
     showsPrec d (VMut aa) = showParen (d >= 10)
-              (showString "VMut" . showChar ' ' . showsPrec 10 aa)
+              (showString "VMut" . showChar ' ' . (cnv (valShow aa) ++))
     showsPrec d (VExt aa) = showParen (d >= 10)
-              (showString "VExt" . showChar ' ' . showsPrec 10 aa)
+              (showString "VExt" . showChar ' ' . (cnv (valShow aa) ++))
+
+class a :>: b where
+    cnv :: a -> b
+
+instance (:>:) String PureStr where cnv = Str.pack
+instance (:>:) PureStr String where cnv = Str.unpack
 
 instance Eq Val where
     (VUndef aa)  == (VUndef aa')    = aa == aa'
