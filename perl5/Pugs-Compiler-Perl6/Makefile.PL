@@ -57,3 +57,10 @@ clean_files(map {glob File::Spec->catfile('t', ('*') x $_, '*.{t,pm}c')} 0..3);
 
 # Evil hack to add PERL6LIB path to Makefile
 system($^X, '-p', '-i.old', '-e', 's+(?=test_harness)+%ENV=(%ENV,qw( PERL6LIB ./t) );+g', 'Makefile');
+
+# clean the precompiled rules cache
+eval {
+    require Cache::FileCache;
+    my $cache = new Cache::FileCache( { 'namespace' => 'v6-rules' } );
+    $cache->Clear;
+};
