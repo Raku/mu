@@ -51,7 +51,7 @@ tightOperators = do
     , noneSyn   (words " is but does ")                         -- Traits
       ++ noneOps (words " cmp <=> .. ^.. ..^ ^..^ till ^till till^ ")  -- Non-chaining Binary
       ++ postOps (words "...")                                  -- Infinite range
-    , chainOps (words " != == < <= > >= ~~ !~~ eq ne lt le gt ge =:= === ")
+    , chainOps (words " != == < <= > >= ~~ eqv eq ne lt le gt ge =:= === ")
                                                                 -- Chained Binary
     , leftOps  ["&&"]                                           -- Tight And
     , leftOps  (words " || ^^ // ")                             -- Tight Or
@@ -217,7 +217,11 @@ noneOps     = ops $ makeOp2 AssocNone "&infix:" doApp
 listOps     :: [String] -> [RuleOperator Exp]
 listOps     = ops $ makeOp2 AssocLeft "&infix:" doApp
 chainOps    :: [String] -> [RuleOperator Exp]
-chainOps    = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix
+chainOps    = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix . withNegation
+    where
+    withNegation []             = []
+    withNegation (x@('!':_):xs) = x:withNegation xs
+    withNegation (x:xs)         = x:('!':x):withNegation xs
 rightSyn    :: [String] -> [RuleOperator Exp]
 rightSyn    = ops $ makeOp2 AssocRight "" Syn
 noneSyn     :: [String] -> [RuleOperator Exp]

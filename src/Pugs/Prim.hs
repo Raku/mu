@@ -896,9 +896,9 @@ op2 "le" = op2Cmp vCastStr (<=)
 op2 "gt" = op2Cmp vCastStr (>)
 op2 "ge" = op2Cmp vCastStr (>=)
 op2 "~~" = op2Match
-op2 "!~~" = \x y -> op1Cast (VBool . not) =<< op2Match x y
 op2 "=:=" = op2Identity -- XXX wrong, needs to compare container only
 op2 "===" = op2Identity -- XXX wrong, needs to compare objects only
+op2 "eqv" = op2Identity -- XXX wrong, needs to compare full objects
 op2 "&&" = op2Logical (fmap not . fromVal)
 op2 "||" = op2Logical (fmap id . fromVal)
 op2 "^^" = \x y -> do
@@ -1037,6 +1037,7 @@ op2 "Pugs::Internals::base" = \x y -> do
         _       -> do
             str <- fromVal y
             op2BasedDigits base [ s | Just s <- map baseDigit str ]
+op2 ('!':name) = \x y -> op1Cast (VBool . not) =<< op2 name x y
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
 
 baseDigit :: Char -> Maybe Val
@@ -1418,11 +1419,16 @@ withDefined (_:xs) c = withDefined xs c
 -- the default is 'op0'.
 -- The Pad symbol name is prefixed with \"&*\" for functions and
 -- \"&*\" ~ fixity ~ \":\" for operators.
-primOp :: String -> String -> Params -> String -> Bool -> Bool -> STM (PadMutator)
-primOp sym assoc prms ret isSafe isMacro =
-    -- In safemode, we filter all prims marked as "unsafe".
-    genMultiSym name (sub (isSafe || not safeMode))
+primOp :: String -> String -> Params -> String -> Bool -> Bool -> STM PadMutator
+primOp sym assoc prms ret isSafe isMacro = do
+    prim <- genMultiSym name (sub (isSafe || not safeMode))
+    case assoc of
+        "chain" | head sym /= '!' -> do
+            prim' <- primOp ('!':sym) assoc prms ret isSafe isMacro
+            return (prim . prim')
+        _       -> return prim
     where
+    -- In safemode, we filter all prims marked as "unsafe".
     name | isAlpha (head sym)
          , fixity == "prefix"
          = "&*" ++ sym
@@ -1820,8 +1826,8 @@ initSyms = mapM primDecl syms
 \\n   Bool      chain   ==      safe   (Num, Num)\
 \\n   Bool      chain   =:=     safe   (rw!Any, rw!Any)\
 \\n   Bool      chain   ===     safe   (Any, Any)\
+\\n   Bool      chain   eqv     safe   (Any, Any)\
 \\n   Bool      chain   ~~      safe   (rw!Any, Any)\
-\\n   Bool      chain   !~~     safe   (Any, Any)\
 \\n   Bool      chain   <       safe   (Num, Num)\
 \\n   Bool      chain   <=      safe   (Num, Num)\
 \\n   Bool      chain   >       safe   (Num, Num)\
