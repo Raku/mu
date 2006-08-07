@@ -10,8 +10,7 @@ BEGIN {
         ? (prefix => '../../../../inc')
         : ()
 }
-use lib '../..', (@inc ? $inc[-1] : ());
-use lib '../../../..';  # from pX/Common
+use lib '../..', '../../../..', (@inc ? $inc[-1] : ());
 use inc::Module::Install @inc;
 
 use Cwd qw< abs_path cwd >;
@@ -39,6 +38,7 @@ requires('Parse::Yapp' => '0');
 requires('PadWalker' => '1.0');
 requires('Class::InsideOut' => '0');
 requires('Data::Dump::Streamer' => '0');
+requires('Cache::Cache' => '1.05');
 
 &WriteAll;
 
