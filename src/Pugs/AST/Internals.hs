@@ -506,7 +506,9 @@ instance Value VStr where
             "Hash" -> do
                 --- XXX special case for Hash -- need to Objectify
                 hv      <- join $ doHash v hash_fetch
+                warn "STEP 1" hv
                 lns     <- forM (Map.assocs hv) $ \(k, v) -> do
+                    warn "STEP 2" (k, v)
                     str <- fromVal v
                     return $ k ++ "\t" ++ str
                 return $ unlines lns
@@ -1603,6 +1605,10 @@ newObject typ = case showType typ of
 
 doPair :: Val -> (forall a. PairClass a => a -> b) -> Eval b
 doPair (VRef (MkRef (IPair pv))) f = return $ f pv
+doPair (VRef (MkRef (IHash hv))) f = do
+    vals <- hash_fetch hv
+    let [(k, v)] = Map.toList vals
+    return $ f (VStr k, v)
 doPair (VRef (MkRef (IArray av))) f = do
     vals <- array_fetch av
     let [k, v] = take 2 (vals ++ repeat undef)
@@ -1615,7 +1621,7 @@ doPair (VRef (MkRef (IScalar sv))) f = do
             scalar_store sv (VRef ref)
             return $ f pv
         _  -> doPair val f
-doPair val@(VRef _) _ = retError "Cannot cast into Pair" val
+doPair (VRef x) _ = retError "Cannot cast into Pair" x
 doPair val f = do
     vs <- fromVal val
     case (vs :: VList) of
