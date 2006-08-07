@@ -275,9 +275,10 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         , ruleSubGlobal
         ]
     optional $ do { symbol "handles"; ruleExpression }
-    typ'    <- option typ $ try $ ruleBareTrait "returns"
+    let returnsOrOf = try (ruleBareTrait "returns" <|> ruleBareTrait "of")
+    typ'    <- option typ returnsOrOf
     formal  <- option Nothing $ ruleSubParameters ParensMandatory
-    typ''   <- option typ' $ try $ ruleBareTrait "returns"
+    typ''   <- option typ' returnsOrOf
     traits  <- many $ ruleTrait
 
     -- XXX - We have the prototype now; install it immediately?
