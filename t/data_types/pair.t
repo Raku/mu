@@ -8,7 +8,7 @@ use Test;
 
 =cut
 
-plan 95;
+plan 97;
 
 # basic Pair
 
@@ -82,6 +82,13 @@ is($pair4.key.value, 'bar', 'got right nested value');
 
 my $quux = (quux => "xyzzy");
 is($quux.key, 'quux', "lhs quotes" );
+
+{
+    # L<S06/Immutable types/Pair "one-element Mapping">
+    my $pair = :when<now>;
+    is ~(%$pair), "when\tnow";
+    is (%$pair).ref, 'Hash', 'Pair is a special Hash with one element';
+}
 
 # lvalue Pair assignments from S06 and thread starting with
 # L<"http://www.nntp.perl.org/group/perl.perl6.language/19425">
