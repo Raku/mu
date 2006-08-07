@@ -1,5 +1,5 @@
 
-use Test::More tests => 99;
+use Test::More tests => 100;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -640,6 +640,8 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     
     $match = $rule1->match("iff123");
     is($match,'iff123',"Matched hash{iff}");
+    #print Dumper( $match->{test}->data );
+    is($match->{test},'iff',"Matched hash{iff} capture");
 
     $match = $rule1->match("if123");
     is($match,'',"fail hash{if} - value != 1");

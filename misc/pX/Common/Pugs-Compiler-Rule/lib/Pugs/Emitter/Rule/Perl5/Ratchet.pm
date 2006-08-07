@@ -396,7 +396,6 @@ $_[1] }";
 sub named_capture {
     my $name    = $_[0]{ident};
     my $program = $_[0]{rule};
-    #my $flat    = $_[0]{flat};
     
     if ( exists $program->{metasyntax} ) {
         #print "aliased subrule\n";
@@ -590,12 +589,11 @@ sub metasyntax {
     if ( $prefix eq '%' ) {
         # XXX - runtime or compile-time interpolation?
         my $name = substr( $cmd, 1 );
-print "<$cmd>\n";
-        return variable( $cmd );
+        # print "<$cmd>\n";
+        # return variable( $cmd );
         return named_capture ( {
             ident => $name,
-            program => variable( $cmd ),
-            flat => 1, # ???
+            rule => { variable => $cmd },
         } );
     }
 
@@ -704,7 +702,6 @@ $_[1] )";
         return named_capture(
             { ident => $subrule, 
               rule => { metasyntax => $cmd },
-              flat => 1
             }, 
             $_[1],    
         );
