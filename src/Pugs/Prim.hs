@@ -878,6 +878,7 @@ op2 "~^" = op2Str $ mapStr2Fill xor
 op2 "=>" = \x y -> return $ castV (x, y)
 op2 "="  = \x y -> evalExp (Syn "=" [Val x, Val y])
 op2 "cmp"= op2Ord vCastStr
+op2 "leg"= op2Ord vCastStr
 op2 "<=>"= op2Ord vCastRat
 op2 ".." = op2Range
 op2 "..^" = op2RangeExclRight
@@ -1817,6 +1818,7 @@ initSyms = mapM primDecl syms
 \\n   Str       left    ?|      safe   (Str, Str)\
 \\n   Pair      right   =>      safe   (Any, Any)\
 \\n   Int       non     cmp     safe   (Str, Str)\
+\\n   Int       non     leg     safe   (Str, Str)\
 \\n   Int       non     <=>     safe   (Num, Num)\
 \\n   List      non     ..      safe   (Scalar, Scalar)\
 \\n   List      non     ..^     safe   (Scalar, Scalar)\

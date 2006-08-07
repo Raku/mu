@@ -49,7 +49,7 @@ tightOperators = do
       ++ preOps (filter (\x -> (x /= "true") && (x /= "not")) namedUnary)
       ++ optSymOps (map (\x -> ['-', x]) fileTestOperatorNames)
     , noneSyn   (words " is but does ")                         -- Traits
-      ++ noneOps (words " cmp <=> .. ^.. ..^ ^..^ till ^till till^ ")  -- Non-chaining Binary
+      ++ noneOps (words " leg cmp <=> .. ^.. ..^ ^..^ till ^till till^ ")  -- Non-chaining Binary
       ++ postOps (words "...")                                  -- Infinite range
     , chainOps (words " != == < <= > >= ~~ eqv eq ne lt le gt ge =:= === ")
                                                                 -- Chained Binary
