@@ -6,28 +6,46 @@ Perl6::Overview::Operator - Operators
 
 =head2 Precedence
 
-    terms               42 "eek" $x /abc/ (1+2) a(1) :by(2) .meth ./meth listop
-    method postfix      . .+ .? .* .+ .() .[] .{} .«» .=
+    terms               42 3.14 "eek" qq["foo"] [1,2,3] {...} \(@a,$b,%c)
+                            $x @y %z /abc/ MyType @@multidim $^a
+                            (1+2) a(1) :by(2) :!verbose :(Dog $self:)
+                            .meth with implicit invocant
+                            listops leftward
+    method postfix      .meth .+ .? .* .() .[] .{} .<> .«» .:: .= .^
     autoincrement       ++ --
     exponentiation      **
-    symbolic unary      ! + - ~ ? * ** +^ ~^ ?^ \
-    multiplicative      * / % x xx +& +< +> ~& ~< ~>
-    additive            + - ~ +| +^ ~| ~^
+    symbolic unary      ! + - ~ ? $ @ % & +^ ~^ ?^ \ ^ =
+    multiplicative      * / % x xx +& +< +> ~& ~< ~> ?&
+    additive            + - ~ +| +^ ~| ~^ ?| ?^
     junctive and (all)  &
     junctive or (any)   | ^
-    named unary         rand sleep abs etc.
-    nonchaining binary  => but does cmp <=> .. ^.. ..^ ^..^
-    chaining binary     != == < <= > >= ~~ !~~ eq ne lt le gt ge =:= ===
+    named unary         rand sleep abs etc. -e -r -w -x etc.
+    nonchaining binary  but does <=> leg cmp
+                            .. ^.. ..^ ^..^
+                            ff ^ff ff^ ^ff^
+                            fff ^fff fff^ ^fff^
+    chaining binary     != == < <= > >=
+                            eq ne lt le gt ge
+                            ~~ =:= === eqv
+                            !== !~~ !eq !=:= !=== !eqv etc.
     tight and           &&
     tight or            || ^^ //
-    ternary             ?? !!
-    assignment          = := ::= += -= **= xx= etc.
-    list item separator , ¥
-    list op (rightward) <== [+] print push any all true not etc.
-    pipe forward        ==>
+    conditional         ?? !!
+    assignment          := ::= =>
+                            (also = with simple lvalues)
+                            += -= **= xx= .= etc.
+    loose unary         true not
+    list ops            , print push say join split substr open etc.
+                            any all one none
+                            die fail warn
+                            !!! ...  ???
+                            [+] [*] [<] [,] [\+] [\*] etc.
+                            (also = as list assignment)
+    list infix          ¥ <== ==>
     loose and           and
     loose or            or xor err
     expr terminator     ; {} as control block, statement modifiers
+                            unmatched ), ], }, etc.
 
 =head2 Simple arithmetic operators
 
@@ -83,19 +101,24 @@ Perl6::Overview::Operator - Operators
 
 =head2 Comparison operators
 
-    Num   Str   Generic
+    Generic   Num   Str
     -------------------
-    ==    eq            # equality (value)
-    !=    ne            # negated equality (value)
-    <     lt            # less than
-    >     gt            # greater than
-    <=    le            # less than or equal to
-    >=    ge            # greater than or equal to
-    <=>   cmp           # lt => -1, eq => 0, gt => 1
-                ~~      # smart match (see smartmatch)
-                !~~     # negated smart match
-                =:=     # equality (container)
-                ===     # equality (value)
+    =:=                   # equality (container)
+    ===                   # equality (value, eternal semantics)
+    !===                  # negated equality (value, eternal semantics)
+    eqv       ==    eq    # equality (value, snapshot semantics)
+    !eqv      !==   !eq   # negated equality (value, snapshot semantics)
+              !=    ne    # traditional shortcuts for previous
+              <     lt    # less than
+              >     gt    # greater than
+              <=    le    # less than or equal to
+              >=    ge    # greater than or equal to
+    cmp       <=>   leg   # lt => -1, eq => 0, gt => +1
+    ~~                    # smart match (see smartmatch)
+    !~~                   # negated smart match
+
+In general, any infix comparison operator (that doesn't begin with a !) may
+be transformed into its negative by prefixing with !.
 
 =head2 Logic operators
 
@@ -141,7 +164,8 @@ Perl6::Overview::Operator - Operators
     $foo ~ $bar         # string concat
     $foo x 3            # $foo ~ $foo ~ $foo
     $foo xx 3           # ($foo, $foo, $foo)
-    @foo Y @bar Y @baz  # zip(@foo, @bar, @baz)
+    @foo ¥ @bar ¥ @baz  # zip(@foo, @bar, @baz)
+    @foo Y @bar Y @baz  # non-Unicode saavy syntax for previous
     item ($foo, $bar)   # [ $foo, $bar ]
     1..5                # (1, 2, 3, 4, 5)
     "a".."g"            # <a b c d e f g>
@@ -161,6 +185,5 @@ Perl6::Overview::Operator - Operators
     k => $v         # data
     :k($v)          # data
     <==, ==>        # sub
-    ~~              # smartmatch
 
 =cut

@@ -30,6 +30,7 @@ Test.pm itself works, and subsequent t/* use Test.pm
 
 == Feature Changes
 
+* There are now separate `===` and `eqv` operators
 
 
 == Bug Fixes
