@@ -2,6 +2,24 @@
   are familiar are correctly described.  Skills: be familiar with some
   system. ;)
 
+* The "runpugs" idea still needs pickup: Basically, write (or find) a  
+generic, line-buffered web/terminal bridge that hooks something like IPC::Run
+with a web-based terminal display, with, for example, HTML::FromANSI for
+display, so we can have a Pugs shell online for people to play with.
+
+* Look at directories under t/; move or merge the incoming tests  
+under xx-uncategorized/ to the directory to which they belong. In addition 
+to that, try to reorganize the increasingly overlapping and incoherent 
+directory-naming scheme a bit, perhaps grouped by synopses names (see 
+doc/Perl6/Spec/) and then by section names as subdirectories.
+
+* We already have "evalbot" under examples/network/; if Pugs build  
+fails, currently it simply uses the last-known-good version of ./pugs binary.
+However, it would be great for the bot to report a build failure (perhaps
+with nopasted log) on the channel.
+
+* Spellcheck and POD format docs/Perl6/Overview/*.pod.
+
 * Rearrange t/ so that it is suited for reuse with multiple Perl 6
 implementations.  The generic Perl 6 tests, suitable to all Perl 6
 implementations, go in t/, and if any tests seem to be implementation
