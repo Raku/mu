@@ -46,6 +46,11 @@ instance Value Val where
     valId (VMut x)      = valId x
     valId (VExt x)      = valId x
     valIdCompare        = compare
+    valMeta (VUndef x)  = cast . show . typeOf $ x
+    valMeta (VNative x) = cast . show . typeOf $ x
+    valMeta (VPure x)   = valMeta x
+    valMeta (VMut x)    = valMeta x
+    valMeta (VExt x)    = valMeta x
     valShow             = cast . show
 
 instance Pure PureStr where
@@ -125,9 +130,12 @@ class (Eq a, Data a, Typeable a) => Ext a where
 class (Eq a, Data a, Typeable a) => Value a where
     val          :: a -> Val
     valShow      :: a -> PureStr
+    valMeta      :: a -> Class
     valId        :: a -> Id
     valIdCompare :: a -> a -> Ordering
     valIdCompare x y = valId x `compare` valId y
+
+type Class = PureStr -- XXX - Wrong
 
 instance Pure a => Mut a where
     mutId           = pureId
@@ -146,6 +154,7 @@ instance Ext a => Value a where
     valIdCompare    = extIdCompare
     val             = extVal
     valShow         = extShow
+    valMeta         = cast . show . typeOf
 
 instance Pure Bool where
     pureId True     = cast (NInt (-1))
@@ -251,11 +260,11 @@ instance Show Val where
     showsPrec d (VNative aa) = showParen (d >= 10)
               (showString "VNative" . showChar ' ' . showsPrec 10 aa)
     showsPrec d (VPure aa) = showParen (d >= 10)
-              (showString "VPure" . showChar ' ' . showsPrec 10 aa)
+              (showString "VPure (" . showsPrec 10 aa . showChar ')')
     showsPrec d (VMut aa) = showParen (d >= 10)
-              (showString "VMut" . showChar ' ' . (cast(valShow aa) ++))
+              (showString "VMut (" . (cast(valShow aa) ++) . showChar ')')
     showsPrec d (VExt aa) = showParen (d >= 10)
-              (showString "VExt" . showChar ' ' . (cast(valShow aa) ++))
+              (showString "VExt (" . (cast(valShow aa) ++) . showChar ')')
 
 instance Eq Val where
     (VUndef aa)  == (VUndef aa')    = aa == aa'
@@ -267,29 +276,29 @@ instance Eq Val where
 
 instance Ord Val where
     compare (VUndef aa) (VUndef aa') = compare aa aa'
-    compare (VUndef aa) (VNative aa') = LT
-    compare (VUndef aa) (VPure aa') = LT
-    compare (VUndef aa) (VMut aa') = LT
-    compare (VUndef aa) (VExt aa') = LT
-    compare (VNative aa) (VUndef aa') = GT
+    compare (VUndef _) (VNative _) = LT
+    compare (VUndef _) (VPure _) = LT
+    compare (VUndef _) (VMut _) = LT
+    compare (VUndef _) (VExt _) = LT
+    compare (VNative _) (VUndef _) = GT
     compare (VNative aa) (VNative aa') = compare aa aa'
-    compare (VNative aa) (VPure aa') = LT
-    compare (VNative aa) (VMut aa') = LT
-    compare (VNative aa) (VExt aa') = LT
-    compare (VPure aa) (VUndef aa') = GT
-    compare (VPure aa) (VNative aa') = GT
+    compare (VNative _) (VPure _) = LT
+    compare (VNative _) (VMut _) = LT
+    compare (VNative _) (VExt _) = LT
+    compare (VPure _) (VUndef _) = GT
+    compare (VPure _) (VNative _) = GT
     compare (VPure aa) (VPure aa') = dynCompare aa aa'
-    compare (VPure aa) (VMut aa') = LT
-    compare (VPure aa) (VExt aa') = LT
-    compare (VMut aa) (VUndef aa') = GT
-    compare (VMut aa) (VNative aa') = GT
-    compare (VMut aa) (VPure aa') = GT
+    compare (VPure _) (VMut _) = LT
+    compare (VPure _) (VExt _) = LT
+    compare (VMut _) (VUndef _) = GT
+    compare (VMut _) (VNative _) = GT
+    compare (VMut _) (VPure _) = GT
     compare (VMut aa) (VMut aa') = dynCompare aa aa'
-    compare (VMut aa) (VExt aa') = LT
-    compare (VExt aa) (VUndef aa') = GT
-    compare (VExt aa) (VNative aa') = GT
-    compare (VExt aa) (VPure aa') = GT
-    compare (VExt aa) (VMut aa') = GT
+    compare (VMut _) (VExt _) = LT
+    compare (VExt _) (VUndef _) = GT
+    compare (VExt _) (VNative _) = GT
+    compare (VExt _) (VPure _) = GT
+    compare (VExt _) (VMut _) = GT
     compare (VExt aa) (VExt aa') = dynCompare aa aa'
 
 instance Data Val where

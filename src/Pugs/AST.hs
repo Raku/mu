@@ -25,6 +25,7 @@ module Pugs.AST (
     module Pugs.AST.Scope,
     module Pugs.AST.SIO,
     module Pugs.AST.Pad,
+    module Pugs.Val,
 ) where
 import Pugs.Internals
 import Pugs.Types
@@ -36,6 +37,7 @@ import Pugs.AST.Pos
 import Pugs.AST.Scope
 import Pugs.AST.SIO
 import Pugs.AST.Pad
+import Pugs.Val (val, PureStr)
 
 {-|
 Return an infinite (lazy) Haskell list of the given string and its

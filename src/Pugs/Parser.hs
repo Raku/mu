@@ -2004,7 +2004,11 @@ qLiteral1 qStart qEnd flags = do
         -- expr ~~ rx:perl5:g/(\S+)/
         QS_Yes      -> return (doSplit expr)
         QS_Protect  -> return (doSplit expr)
-        QS_No       -> return expr
+        QS_No       -> case qfExecute flags of
+            True | Val (VStr str) <- unwrap expr -> do
+                return . Val . V $ val (cast str :: PureStr)
+            _   -> do
+                return expr
     where
     -- words() regards \xa0 as (breaking) whitespace. But \xa0 is
     -- a nonbreaking ws char.
@@ -2075,6 +2079,7 @@ data QFlags = MkQFlags
     , qfProtectedChar           :: !Char
     , qfP5RegularExpression     :: !Bool
     , qfHereDoc                 :: !Bool
+    , qfExecute                 :: !Bool
     , qfFailed                  :: !Bool -- Failed parse
     }
     deriving (Show, Eq, Ord, Typeable)
@@ -2110,6 +2115,8 @@ getQFlags flagnames protectedChar =
           useflag "single" _      = qFlags
           useflag "double" _      = qqFlags
           useflag "qq" _          = qqFlags -- support qq//
+          useflag "exec" _        = qqFlags { qfExecute = True }
+          useflag "x" _           = qqFlags { qfExecute = True }
 
         -- in case of unknown flag, we simply abort the parse.
           useflag _ qf            = qf { qfFailed = True }
@@ -2153,12 +2160,14 @@ getQDelim = try qStructure
         return (string "<<", string ">>",
             qqFlags { qfSplitWords = QS_Yes, qfProtectedChar = '>' }))
     <|> do
-        delim <- oneOf "\"'<\xab"
+        delim <- oneOf "`\"'<\xab"
         case delim of
             '"'     -> return (string "\"",  string "\"",    qqFlags)
             '\''    -> return (string "'",   string "'",   qFlags)
             '<'     -> return (string "<",   string ">",    qFlags
                 { qfSplitWords = QS_Yes, qfProtectedChar = '>' })
+            '`'     -> return (string "`",   string "`",    qqFlags
+                { qfExecute = True, qfProtectedChar = '`' })
             '\xab'  -> return (string "\xab", string "\xbb", qqFlags
                 { qfSplitWords = QS_Protect, qfProtectedChar = '\xbb' })
             _       -> fail ""
@@ -2166,19 +2175,19 @@ getQDelim = try qStructure
 
 -- | Default flags
 qFlags    :: QFlags
-qFlags    = MkQFlags QS_No False False False False False QB_Single '\'' False False False
+qFlags    = MkQFlags QS_No False False False False False QB_Single '\'' False False False False
 -- | Default flags
 qqFlags   :: QFlags
-qqFlags   = MkQFlags QS_No True True True True True QB_All '"' False False False
+qqFlags   = MkQFlags QS_No True True True True True QB_All '"' False False False False
 -- | Default flags
 rawFlags  :: QFlags
-rawFlags  = MkQFlags QS_No False False False False False QB_No 'x' False False False
+rawFlags  = MkQFlags QS_No False False False False False QB_No 'x' False False False False
 -- | Default flags
 rxP5Flags :: QFlags
-rxP5Flags = MkQFlags QS_No True True True True False QB_Balanced '/' True False False
+rxP5Flags = MkQFlags QS_No True True True True False QB_Balanced '/' True False False False
 -- | Default flags
 rxP6Flags :: QFlags
-rxP6Flags = MkQFlags QS_No False False False False False QB_Balanced '/' False False False
+rxP6Flags = MkQFlags QS_No False False False False False QB_Balanced '/' False False False False
 
 -- Regexps
 

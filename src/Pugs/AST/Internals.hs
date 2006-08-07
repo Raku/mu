@@ -88,6 +88,7 @@ import Pugs.AST.Scope
 import Pugs.AST.SIO
 import Pugs.Embed.Perl5
 import qualified Pugs.Val as Val
+import Pugs.Val hiding (Val, Value, VUndef)
 
 {- <DrIFT> Imports for the DrIFT
 import Pugs.AST.Scope
@@ -755,6 +756,7 @@ valType (VType    t)    = t
 valType (VObject  o)    = objType o
 valType (VOpaque  _)    = mkType "Object"
 valType (PerlSV   _)    = mkType "Scalar::Perl5"
+valType (V        v)    = mkType (cast $ valMeta v)
 
 type VBlock = Exp
 data VControl

@@ -187,6 +187,7 @@ instance Pretty Val where
         ]
     format (PerlSV _) = text $ "{obj-perl5}"
     format VUndef = text $ "undef"
+    format (V x) = text $ show x
 
 quoted :: Char -> String
 quoted '\'' = "\\'"
