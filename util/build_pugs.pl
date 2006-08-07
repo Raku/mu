@@ -97,7 +97,7 @@ sub build {
 
         chdir "third-party/$module";
         system("../../Setup$Config{_exe}", 'configure',
-                '--enable-library-profiling',
+                (($ghc_version =~ /^6.4(?:.0)?$/) ? () : '--enable-library-profiling'),
                 '--with-compiler=' . $runcompiler,
                 '--with-hc-pkg='   . File::Spec->rel2abs("../../util/ghc-pkg-wrapper$Config{_exe}"),
                 '--prefix='        . File::Spec->rel2abs('../installed/'));
