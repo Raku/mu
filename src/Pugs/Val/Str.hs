@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
 module Pugs.Val.Str where
 import Pugs.Internals
 import qualified Data.ByteString.Char8 as Char8
