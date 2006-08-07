@@ -34,10 +34,18 @@ Another choice is to define implentation-specific (and also version-specific)
 TODO options like :pugs<6.28.0> in Test.pm's is/ok/dies_ok/etc functions.
 For example:
 
-    is($got, $expected, :pugs<6.28.0>, :perl5<0.100>);
+    is($got, $expected, :pugs<6.28.0>, :p6p5<0.100>);
 
 This TODO test will expire automatically when Pugs is at or over version
 6.28.0. The same is true for the Perl 5 implemenation (expire at v6-alpha 0.100).
+
+gaal proposed to introduce a &todo function to Test.pm which will TODO the
+next test:
+
+    todo(:pugs<6.28.0>, :parrot<0.112>);
+    is($got, $expected);
+
+which is a nice variant.
 
 * Re-group the majority general/implementation-generic Perl 6 tests first
 along lines of what is likely to be implemented together and/or by tier, a
