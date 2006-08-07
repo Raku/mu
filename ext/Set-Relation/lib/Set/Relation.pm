@@ -12,8 +12,8 @@ module Set::Relation-0.1.0 {
 
 ###########################################################################
 
-sub heading of Set::Relation::H (*%args) is export {
-    return Set::Relation::H.new( *%args );
+sub heading of Set::Relation::H (:$attrs? = hash()) is export {
+    return Set::Relation::H.new( :attrs($attrs) );
 }
 
 multi sub infix:<===> of Bool
@@ -34,18 +34,21 @@ class Set::Relation::H-0.1.0 {
 ###########################################################################
 
 submethod BUILD (:$attrs? = hash()) {
-    die "Invalid :$attrs argument; it is not a Hash."
+    die q{Invalid :$attrs argument; it is not a Hash.}
         if !$attrs.does(Hash);
-    for all($attrs.pairs).kv -> $attr_name, $attr_type {
-        die "Invalid :$attrs argument; at least one of its keys is not"
-                ~ " a valid attribute name."
+# TOFIX: The first following line produces a different (incorrect) result but shouldn't
+#    for all($attrs.pairs).values -> $attr {
+    for $attrs.pairs -> $attr {
+        my ($attr_name, $attr_type) = $attr.kv;
+        die q{Invalid :$attrs argument; at least one of its keys is not}
+                ~ q{ a valid attribute name.}
             if !$attr_name.does(Str) or $attr_name eq $EMPTY_STR;
-        my ($major_type, $minor_type)
-            =  $attr_type.does(Pair) ?? $attr_type.kv
-            !!                          ( 'Scalar' => $attr_type )
-            ;
-        die "Invalid :$attrs argument; at least one of its values is a"
-                ~ " Pair whose key is not a valid attribute major type."
+        if !$attr_type.does(Pair) {
+            $attr_type = ('Scalar' => $attr_type);
+        }
+        my ($major_type, $minor_type) = $attr_type.kv;
+        die q{Invalid :$attrs argument; at least one of its values is a}
+                ~ q{ Pair whose key is not a valid attribute major type.}
             if !$major_type.does(Str);
         if $major_type eq 'Scalar' {
             if !$minor_type.does(Package) {
@@ -56,12 +59,12 @@ submethod BUILD (:$attrs? = hash()) {
         elsif $major_type eq 'Tuple'|'Relation' {
             if !$minor_type.does(Set::Relation::H) {
                 # Try to convert a Hash into a Set::Relation::H.
-                $minor_type = $?CLASS.new( :attrs<$minor_type> );
+                $minor_type = $?CLASS.new( :attrs($minor_type) );
             }
         }
         else {
-            die "Invalid :$attrs argument; at least one of its values is a"
-                ~ " Pair whose key is not a valid attribute major type."
+            die q{Invalid :$attrs argument; at least one of its values is a}
+                ~ q{ Pair whose key is not a valid attribute major type.}
         }
         %!attrs{$attr_name} = ($major_type => $minor_type);
     }
