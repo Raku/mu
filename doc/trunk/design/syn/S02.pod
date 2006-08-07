@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
   Last Modified: 7 Aug 2006
   Number: 2
-  Version: 58
+  Version: 59
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -186,7 +186,8 @@ the line in any situation where a newline might confuse the parser,
 regardless of the currently installed parser.  (Unless, of course,
 you override the unspace rule itself...)  Although we say that the
 unspace hides the whitespace from the parser, line numbers are still counted
-if the unspace contains one or more newlines.  All other line-oriented
+if the unspace contains one or more newlines.  Also, a C<#> in the first column
+is always an end-of-line comment, as described above.  All other line-oriented
 processing is suppressed, however--including pod directives and heredoc
 boundaries.
 
