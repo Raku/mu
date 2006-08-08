@@ -1,11 +1,16 @@
 package Pugs::Runtime::Match;
-
 # Documentation in the __END__
+
 use 5.006;
 use strict;
 use warnings;
-use Data::Dump::Streamer;
+use Data::Dumper;
+use Data::Dump::Streamer;  
 use Class::InsideOut qw( public register id );
+
+# class method
+# ::fail can be called from inside closures
+# sub ::fail { $::_V6_SUCCEED = 0 }
 
 use overload (
     '@{}'    => \&array,
@@ -13,8 +18,8 @@ use overload (
     'bool'   => \&bool,
     '&{}'    => \&code,
     '${}'    => \&scalar,
-    '""'     => \&flat,
-    '0+'     => \&flat,
+    '""'     => \&str,
+    '0+'     => \&str,
     fallback => 1,
 );
 
@@ -35,134 +40,54 @@ sub DDS_freeze {
     return $str;
 }
 
-# XXX - this sub should set .from and .to in match nodes!
-#     - it should be called only once, whenever there is an access
-#       to: .from(); .to(); methods that call ._box_submatch() 
-sub _str {
-    my $match = $_[0];
-    #print "STR: ", ref( $match ), " ", Dump( $match ), "\n";
-    return join( '', map { match::str( $_ ) } @$match )
-        if ref( $match ) eq 'ARRAY';
-    return _str( $match->{match} ) 
-        if ref( $match ) eq 'HASH' && exists $match->{match};
-    return join( '', map { _str( $_ ) } values %$match )
-        if ref( $match ) eq 'HASH';
-    return $match;
-}
-
-sub from {
-    $_data{id $_[0]}->{from} || 0;
-}
-
-sub to {
-    #print 'TO: ', do{use Data::Dump::Streamer; Dump($_data{id $_[0]})};
-    #my $str = _str( $_data{id $_[0]} );
-    #print "TO: $str\n";
-    $_data{id $_[0]}->{to} || ($_[0]->from + length( _str( $_data{id $_[0]} ) ));
-}
-
-sub _box_submatch {
-    my ($match, $submatch) = @_;
-    my $m = { %$submatch };
-    delete $m->{label};
-    ref($match)->new($m);
-}
+sub from  {  ${$_data{id $_[0]}->{from}}  }
+sub to    {  ${$_data{id $_[0]}->{to}}    }
+sub bool  {  ${$_data{id $_[0]}->{bool}}  }
+sub hash  {  $_data{id $_[0]}->{named} }
+sub array {  $_data{id $_[0]}->{match} }
 
 sub flat {
-    return '' unless defined $_data{id $_[0]}->{capture};
-    $_data{id $_[0]}->{capture};
+    my $cap = $_data{id $_[0]}->{capture};
+    #print ref $cap;
+    return $$cap
+        if ref $cap eq 'REF'   ||
+           ref $cap eq 'SCALAR';
+    return $_[0]->str;
+}
+
+sub str {
+    #print $_[0]->perl;
+    return '' unless $_[0]->bool;
+    return substr( ${$_data{id $_[0]}->{str}}, $_[0]->from, $_[0]->to - $_[0]->from );
+}
+
+sub perl {
+    local $Data::Dumper::Terse    = 1;
+    local $Data::Dumper::Sortkeys = 1;
+    local $Data::Dumper::Pad = '  ';
+    return __PACKAGE__ . "->new( " . Dumper( $_[0]->data ) . ")\n";
+}
+
+# tail() for backwards compatibility
+# - doesn't work on failed matches
+sub tail {
+    return substr( ${$_data{id $_[0]}->{str}}, $_[0]->to );
+}
+
+# state() is used for multiple matches and backtracking control
+sub state {
+    return $_data{id $_[0]}->{state};
 }
 
 # return the capture
 sub code {
-    my $c = $_data{id $_[0]}->{capture};
-    return sub { $c };
+    my $c = $_[0];
+    return sub { $c->flat };
 }
 
 # return the capture
 sub scalar {
-    my $c = $_data{id $_[0]}->{capture};
-    return \$c;
-}
-
-# return the capture
-sub capture {
-    $_data{id $_[0]}->{capture};
-}
-
-# return the bool value
-sub bool {
-    $_data{id $_[0]}->{bool};
-}
-
-sub _get_captures {
-    my @a;
-    # special case: the whole match is a single capture
-    return $_data{id $_[0]} if exists $_data{id $_[0]}->{label};
-    if ( ref( $_data{id $_[0]}->{match} ) eq 'ARRAY' ) {
-        @a = @{$_data{id $_[0]}->{match}};
-    }
-    else {
-        push @a, $_data{id $_[0]}->{match};        
-    }
-    #print Dump @a;
-    while ( ref $a[-1] && exists $a[-1]{match} && ref( $a[-1]{match} ) eq 'ARRAY' ) {
-        my $t = pop @a;
-        push @a, @{$t->{match}};
-    }
-    return @a;
-}
-
-# as hash
-sub hash {
-    my @a = _get_captures( $_[0] );
-    my %r;
-    for my $m ( @a ) {
-        next unless ref $m && exists $m->{label};
-        if ( $m->{label} eq '*quantifier*' ) {
-            my %h = %{ _box_submatch( $_[0], $m ) };
-            while ( my ($k, $v) = each %h ) {
-                my @v = ref($v) eq 'ARRAY' ? @$v : 
-                        defined $v ? $v :
-                        ();
-                if ( ref( $r{$k} ) ne 'ARRAY' ) {
-                    $r{$k} = [ $r{$k} ] if defined $r{$k};
-                }
-                push @{$r{$k}}, @v;
-            }
-            next;
-        }
-        next if $m->{label} eq '';
-        if ( exists $r{ $m->{label} } ) {
-            if ( ref( $r{$m->{label}} ) eq 'ARRAY' ) {
-                push @{$r{$m->{label}}}, _box_submatch( $_[0], $m );                
-            }
-            else {
-                $r{$m->{label}} = [ $r{$m->{label}}, _box_submatch( $_[0], $m ) ];
-            }
-        }
-        else {
-            $r{ $m->{label} } = _box_submatch( $_[0], $m );
-        }
-    }
-    return \%r;
-}
-
-# as array
-sub array {
-    my @a = _get_captures( $_[0] );
-    my @r;
-    for my $m ( @a ) {
-        next unless exists $m->{label};
-        if ( $m->{label} eq '*quantifier*' ) {
-            my @m = @{ _box_submatch( $_[0], $m ) };
-            push @r, \@m if @m;
-            next;
-        }
-        next if $m->{label} ne '';
-        push @r, _box_submatch( $_[0], $m );                
-    }
-    return \@r;
+    return \( $_[0]->flat );
 }
 
 1;
@@ -171,65 +96,47 @@ __END__
 
 =head1 NAME 
 
-Pugs::Runtime::Match - Match object
-
-=head1 SYNOPSIS
-
-    use Pugs::Compiler::Rule;
-
-    my $rule = Pugs::Compiler::Rule->compile( '((.).).' );
-    my $match = $rule->match( 'abc' );
-
-    if ($match) {               # true
-        print $match;           # "abc"
-        print $match->from;     # 0
-        print $match->to;       # 3
-        print $match->[0];      # "ab"
-        print $match->[0][0];   # "a"
-    }
-
-=head1 OVERLOAD INTERFACE
-
-=head2 bool
-
-When used as a boolean, the match object returns whether the match has
-succeeded or not.
-
-=head2 @{}
-
-When used as an array reference, the match object returns positional
-captures as match objects.
-
-=head2 %{}
-
-When used as a hash reference, the match object returns named captures
-as match objects, keyed by their names.
-
-=head2 &{}
-
-When used as a code reference, the match object returns the I<result>
-object; this is normally the entire match string, but may be arbitrary
-objects returned from the rule using a C<return> clause.
-
-=head2 ""
-
-When used as a string, the match object returns the stringified version
-of the result object (usually the entire match string).
-
-=head2 0+
-
-When used as a number, the match object returns the numified version
-of the result object (usually the entire match string).
+Pugs::Runtime::Match - Match object created by rules
 
 =head1 METHODS
 
-=head2 from ()
+* array
 
-Returns the initial position of the match.
+* hash
 
-=head2 to ()
+* str
 
-Returns the final position of the match.
+* data
+
+- return the internal representation
+
+* bool
+
+* from
+
+* to
+
+=head1 OVERLOADS
+
+* $match->()
+
+- return the capture
+
+* $match->[$n]
+
+- return the positional matches
+
+* $match->{$n}
+
+- return the named matches
+
+* $match ? 1 : 0
+
+- return whether there was a match
+
+=head1 SEE ALSO
+
+Pugs::Runtime::Match
 
 =head1 AUTHORS
 
@@ -245,3 +152,4 @@ under the same terms as Perl itself.
 See L<http://www.perl.com/perl/misc/Artistic.html>
 
 =cut
+

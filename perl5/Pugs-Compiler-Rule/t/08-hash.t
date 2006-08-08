@@ -1,8 +1,10 @@
 use Test::More tests => 8;
-use Data::Dump::Streamer;
-$Data::Dump::Streamer::Indent = 1;
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
 
 use_ok( 'Pugs::Compiler::Rule' );
+
+use base 'Pugs::Grammar::Base';
 
 {
 =for docs - see S05
@@ -37,7 +39,7 @@ use_ok( 'Pugs::Compiler::Rule' );
     is($v,1,"closure was called hash{use}");
 
     $match = $rule1->match("untilaba123");
-    #print Dump($match);
+    #print Dumper($match);
     is($match,'untilaba123',"subrule hash{until}");
     is($match->(),'untilaba123',"subrule hash{until} - 2");
 

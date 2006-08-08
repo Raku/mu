@@ -6,16 +6,15 @@ use 5.006;
 use strict;
 use warnings;
 
-use Pugs::Grammar::Base;  # not 'use base'
 use Pugs::Grammar::Rule;
-#use Pugs::Runtime::Rule;
-use Pugs::Runtime::Match;
 use Pugs::Emitter::Rule::Perl5;
 use Pugs::Emitter::Rule::Perl5::Ratchet;
 use Pugs::Compiler::RegexPerl5;
 
+use Pugs::Runtime::Regex;
+
 use Carp 'croak';
-use Data::Dump::Streamer;
+use Data::Dumper;
 use Symbol 'qualify_to_ref';
 use Digest::MD5 'md5_hex';
 
@@ -23,7 +22,6 @@ my $cache;
 eval {
     require Cache::FileCache;
     $cache = new Cache::FileCache( { 'namespace' => 'v6-rules' } );
-    #$cache->Clear;
 };
 
 sub new { $_[0] }
@@ -38,11 +36,11 @@ sub compile {
 
     return Pugs::Compiler::RegexPerl5->compile( $rule_source, $param )
         if exists $param->{P5} || exists $param->{Perl5};
-#warn length($rule_source);
+    #warn length($rule_source);
 
     my $self = { source => $rule_source };
 
-    #print Dump @_;
+    #print Dumper @_;
 
     # XXX - should use user's lexical pad instead of an explicit grammar?
     $self->{grammar}  = delete $param->{grammar}  || 
@@ -59,37 +57,52 @@ sub compile {
     warn "Error in rule: unknown parameter '$_'" 
         for keys %$param;
 
-    my $digest = md5_hex(Dump($self));
+    my $digest = md5_hex(Dumper($self));
     my $cached;
 
     if ($cache && ($cached = $cache->get($digest))) {
-	$self->{perl5} = $cached;
+        #warn "USING CACHED RULE\n";
+        $self->{perl5} = $cached;
     }
     else {
+        #warn "COMPILING RULE\n";
 
         #print 'rule source: ', $self->{source}, "\n";
-        $self->{ast} = Pugs::Grammar::Rule->rule( 
-            $self->{source} );
-        die "Error in rule: '$rule_source' at: '$self->{ast}{tail}'\n" if $self->{ast}{tail};
-        #print 'rule ast: ', do{use Data::Dump::Streamer; Dump($self->{ast}{capture})};
+        #print "match: ", Dumper( Pugs::Grammar::Rule->rule( $self->{source} ) );
+        my $ast = Pugs::Grammar::Rule->rule( 
+            $self->{source} )->{capture};
+        #print "ast: ",Dumper($ast),"\n";
+        #die "Error in rule: '$rule_source' at: '$ast->tail'\n" if $ast->tail;
+        #print 'rule ast: ', do{use Data::Dumper; Dumper($ast{capture})};
 
         if ( $self->{ratchet} ) {
             $self->{perl5} = Pugs::Emitter::Rule::Perl5::Ratchet::emit( 
-                 $self->{grammar}, $self->{ast}{capture}, $self );
+                 $self->{grammar}, $ast, $self );
+            #print "token: ", $self->{perl5};
         }
         else {
             $self->{perl5} = Pugs::Emitter::Rule::Perl5::emit( 
-                $self->{grammar}, $self->{ast}{capture}, $self );
+                $self->{grammar}, $ast, $self );
         }
-        #print 'rule perl5: ', do{use Data::Dump::Streamer; Dump($self->{perl5})};
+        #print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
 
         $cache->set($digest, $self->{perl5}, 'never') if $cache;
     }
 
+    #our $evals++;
+
     local $@;
     $self->{code} = eval 
+        # "\#line " . ($evals*1000) . "\n" .
         $self->{perl5};
     die "Error in evaluation: $@\nSource:\n$self->{perl5}\n" if $@;
+
+    #my $code = $self->{code};
+    #my $e = $evals;
+    #my $c = $self->{perl5};
+    #my $x = 1;
+    #$c =~ s/\n/"\n".++$x.": "/seg;
+    #$self->{code} = sub { print "calling #$e <<< $rule_source >>> compiles to <<< $c >>>\n"; $code->(@_); };
 
     bless $self, $class;
 }
@@ -105,20 +118,31 @@ sub code {
 
 sub match {
     my ( $rule, $str, $grammar, $flags, $state ) = @_; 
+
+    #print "match: ",Dumper($rule);
+    #print "match: ",Dumper(\@_);
     
-    return Pugs::Runtime::Match->new( { bool => 0 } )
+    return Pugs::Runtime::Match->new( { bool => \0 } )
         unless defined $str;   # XXX - fix?
         
+    if ( ref $grammar eq 'HASH' ) {
+        # backwards compatibility - grammar can now be specified in $flags
+        $state = $flags;
+        $flags = $grammar;
+        $grammar = $flags->{grammar};
+    }
+
     $grammar ||= $rule->{grammar};
     #print "match: grammar $rule->{grammar}, $_[0], $flags\n";
-    #print "match: Variables: ", Dump ( $flags->{args} ) if defined $flags->{args};
+    #print "match: Variables: ", Dumper ( $flags->{args} ) if defined $flags->{args};
 
     my $p = defined $flags->{p} 
             ? $flags->{p} 
+            : defined $flags->{pos} 
+            ? $flags->{pos} 
             : $rule->{p};
 
-    if ( defined $p ) {
-        #print "flag p\n";
+        #print "flag p";
         #print "match: grammar $rule->{grammar}, $str, %$flags\n";
         #print $rule->{code};
 
@@ -134,30 +158,15 @@ sub match {
         %args = %{$flags->{args}} if defined $flags && defined $flags->{args};
         $args{p} = $p;
         
+        #print "calling code with ",Dumper([ $grammar,$str, $state,\%args ] );
         my $match = $rule->{code}( 
             $grammar,
             $str, 
             $state,
             \%args,
         );
-        #$p = 0 if $p eq 'undef';  # XXX - bug - 'undef' as string in t\06-subrule.t
-        eval { $match->data->{from} = \(0 + $p) };   # XXX
+        #print __PACKAGE__ . ": match result: ", $match->perl;
         return $match;  
-    }
-
-    #print "no p\n";
-    foreach my $i (0..length($str)) {
-        my $match = $rule->{code}( 
-            $grammar,
-            substr($str, $i),
-            $state,
-            $flags->{args},
-        );
-        $match or next;   
-        eval { $match->data->{from} = $i unless defined $match->data->{from} };   # XXX
-        return $match;  
-    }
-    return Pugs::Runtime::Match->new( { bool => 0 } );   # XXX - fix?
 }
 
 sub install {
@@ -191,6 +200,8 @@ sub perl5 {
         "  perl5 "    .  "=> q(" . _quot( $self->{perl5} )  . "), }, " . 
         "q(" . ref($self) . ")";
 }
+
+sub perl { perl5(@_) }
 
 1;
 

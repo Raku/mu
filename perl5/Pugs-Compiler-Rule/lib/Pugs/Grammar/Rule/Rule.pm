@@ -79,9 +79,10 @@ rule num_variable :P5 {^(?:\$[[:digit:]]+)}
     unshift @rule_terms, 'match_variable';
 
     rule named_capture_body {
-          [ \( <rule> \) { return { rule => $_[0]{rule}(), } } ]
-        | [ \[ <rule> \] { return { rule => $_[0]{rule}(), } } ]
-        | [ <metasyntax> { return { rule => $_[0]{metasyntax}(), } } ]
+          [ <capturing_group>     { return { rule => $_[0]{capturing_group}(), } } ]
+        | [ <non_capturing_group> { return { rule => $_[0]{non_capturing_group}(), } } ]
+        | [ <metasyntax>          { return { rule => $_[0]{metasyntax}(), } } ]
+        | { die "invalid alias syntax" }
     }
     
     rule named_capture {
@@ -104,16 +105,6 @@ rule num_variable :P5 {^(?:\$[[:digit:]]+)}
     }
     unshift @rule_terms, 'before';
         
-    rule not_before {
-        \< \! before <?ws> <rule> \> 
-        
-        { return { not_before => {
-                rule  => $_[0]{rule}(),
-            }, } 
-        }
-    }
-    unshift @rule_terms, 'not_before';
-        
     rule after {
         \< after <?ws> <rule> \> 
         
@@ -124,16 +115,34 @@ rule num_variable :P5 {^(?:\$[[:digit:]]+)}
     }
     unshift @rule_terms, 'after';
         
-    rule not_after {
-        \< \! after <?ws> <rule> \> 
-        
-        { return { not_after => {
+    rule negate {
+        \< \! 
+        [
+        before <?ws> <rule> \> 
+        { return { 
+            negate => {
+              before => {
+                rule  => $_[0]{rule}(),
+            }, }, } 
+        }
+        |
+        after <?ws> <rule> \> 
+        { return { 
+            negate => {
+              after => {
+                rule  => $_[0]{rule}(),
+            }, }, } 
+        }
+        |
+        <rule> \> 
+        { return { negate => {
                 rule  => $_[0]{rule}(),
             }, } 
         }
+        ]
     }
-    unshift @rule_terms, 'not_after';
-        
+    unshift @rule_terms, 'negate';
+
     rule capturing_group {
         \( <rule> \)
             
@@ -189,9 +198,14 @@ rule concat {
     [
         $<q2> := (<concat>) 
         
-        { return { concat => [ 
+        { 
+            my $q2 = $_[0]{q2}();
+            return { concat => [ 
                 { quant => $_[0]{q1}() ,}, 
-                $_[0]{q2}(),
+                ( exists $q2->{concat} 
+                    ? @{$q2->{concat}}
+                    : $q2 
+                ),
             ] ,} 
         } 
     
@@ -206,9 +220,14 @@ rule rule {
     [
         \| $<q2> := (<rule>) 
 
-        { return { alt => [ 
+        { 
+            my $q2 = $_[0]{q2}();
+            return { alt => [ 
                 $_[0]{q1}(), 
-                $_[0]{q2}(),
+                ( exists $q2->{alt} 
+                    ? @{$q2->{alt}}
+                    : $q2 
+                ),
             ] ,} 
         }
     

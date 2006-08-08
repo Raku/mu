@@ -2,7 +2,7 @@ package Pugs::AST::Expression;
 
 use strict;
 use warnings;
-use Data::Dump::Streamer;
+use Data::Dumper;
 
 sub term {
     { term => $_[1]{'term'}->() ,}
@@ -15,7 +15,7 @@ sub operator {
     my %h = %$match;
     my %opt = @_;
     
-    #print "capture ", Dump($match) if $opt{'fixity'} eq 'circumfix';
+    #print "capture ", Dumper($match) if $opt{'fixity'} eq 'circumfix';
     for ( keys %h ) {
         $h{$_} = $h{$_}->();
     }

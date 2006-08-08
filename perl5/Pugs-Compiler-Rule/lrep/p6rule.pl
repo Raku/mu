@@ -12,7 +12,7 @@ require 'iterator_engine-p5.pl';
 require 'p6rule_lib.pl';
 require 'p5hacks.pl';
 
-my $namespace = 'Pugs::Grammar::Rule::';
+my $namespace = 'Pugs::Grammar::LrepRule::';
 
 {
   package grammar1;
@@ -422,7 +422,7 @@ sub node::closure {
         unless $code =~ /return/;
         
     return
-           "$_[1] Pugs::Runtime::Rule::abort(\n" .
+           "$_[1] Pugs::Runtime::LrepRule::abort(\n" .
            "$_[1]     sub {\n" . 
            "$_[1]         return { bool => 1, tail => \$_[0], return => sub $code };\n" .
            "$_[1]     }\n" .

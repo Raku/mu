@@ -7,7 +7,7 @@ use warnings;
 #use Smart::Comments; #for debugging, look also at Filtered-Comments.pm
 use Data::Dumper;
 use PadWalker qw( peek_my );  # peek_our ); ???
-use Pugs::Runtime::Match::Ratchet;
+use Pugs::Runtime::Match;
 
 # note: alternation is first match (not longest). 
 # note: the list in @$nodes can be modified at runtime
@@ -16,6 +16,7 @@ sub alternation {
     return sub {
         my @state = $_[1] ? @{$_[1]} : ( 0, undef );
         while ( $state[0] <= $#$nodes ) {
+            #print "alternation $state[0] ",Dumper($nodes->[ $state[0] ]);
             $nodes->[ $state[0] ]->( $_[0], $state[1], @_[2..7] );
             $state[1] = $_[3]->state;
             $state[0]++ unless $state[1];
@@ -121,7 +122,7 @@ sub constant {
     no warnings qw( uninitialized );
     return sub {
         my $bool = $const eq substr( $_[0], $_[5], $lconst );
-        $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
+        $_[3] = Pugs::Runtime::Match->new({ 
                 bool  => \$bool,
                 str   => \$_[0],
                 from  => \(0 + $_[5]),
@@ -137,7 +138,7 @@ sub perl5 {
     no warnings qw( uninitialized );
     return sub {
         my $bool = substr( $_[0], $_[5] ) =~ m/$rx/;
-        $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
+        $_[3] = Pugs::Runtime::Match->new({ 
                 bool  => \$bool,
                 str   => \$_[0],
                 from  => \(0 + $_[5]),
@@ -151,7 +152,7 @@ sub perl5 {
 sub null {
     no warnings qw( uninitialized );
     return sub {
-        $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
+        $_[3] = Pugs::Runtime::Match->new({ 
                 bool  => \1,
                 str   => \$_[0],
                 from  => \(0 + $_[5]),
@@ -165,13 +166,28 @@ sub null {
 sub failed {
     no warnings qw( uninitialized );
     return sub {
-        $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
+        $_[3] = Pugs::Runtime::Match->new({ 
                 bool  => \0,
                 str   => \$_[0],
                 from  => \(0 + $_[5]),
                 to    => \(0 + $_[5]),
                 named => {},
                 match => [],
+            });
+    }
+};
+
+sub failed_abort {
+    no warnings qw( uninitialized );
+    return sub {
+        $_[3] = Pugs::Runtime::Match->new({ 
+                bool  => \0,
+                str   => \$_[0],
+                from  => \(0 + $_[5]),
+                to    => \(0 + $_[5]),
+                named => {},
+                match => [],
+                abort => 1,
             });
     }
 };
@@ -186,13 +202,14 @@ sub named {
         $node->( @_[0,1,2], $match, @_[4,5,6,7] );
         my %matches;
         $matches{ $label } = $capture_to_array ? [ $match ] : $match;
-        $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
+        $_[3] = Pugs::Runtime::Match->new({ 
                 bool  => \( $match->bool ),
                 str   => \$_[0],
                 from  => \( $match->from ),
                 to    => \( $match->to ),
                 named => \%matches,
                 match => [],
+                capture => $match->data->{capture},
                 state => $match->state,
             });
     }
@@ -209,36 +226,37 @@ sub positional {
         $node->( @_[0,1,2], $match, @_[4,5,6,7] );
         my @matches;
         $matches[ $num ] = $capture_to_array ? [ $match ] : $match;
-        $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
+        $_[3] = Pugs::Runtime::Match->new({ 
                 bool  => \( $match->bool ),
                 str   => \$_[0],
                 from  => \( $match->from ),
                 to    => \( $match->to ),
                 named => {},
                 match => \@matches,
+                capture => $match->data->{capture},
                 state => $match->state,
             });
     }
 }
 
-sub abort { 
+sub ___abort { 
     my $op = shift;
     return sub {
         print "ABORTING\n";
         $op->( @_ );
         print "ABORT: [0] ",Dumper(@_);  #$_[3]->perl;
-        ${ $_[3] }->{abort} = 1;
+        $_[3]->data->{abort} = 1;
         print "ABORT: ",$_[3]->perl;
     };
 };
 
-sub fail { 
+sub ___fail { 
     my $op = shift;
     return abort( 
         sub {
             print "FAILING\n";
             $op->( @_ );
-            ${ $_[3] }->{bool} = \0;
+            $_[3]->data->{bool} = \0;
             print "FAIL: ",Dumper( $_[3] );
         } 
     );
@@ -249,7 +267,7 @@ sub before {
     return sub {
         my $match;
         $op->( @_[0,1,2], $match, @_[4,5,6,7] );
-        $_[3] = Pugs::Runtime::Match::Ratchet->new({ 
+        $_[3] = Pugs::Runtime::Match->new({ 
                 bool  => \( $match->bool ),
                 str   => \$_[0],
                 from  => \( $match->from ),
@@ -309,6 +327,7 @@ sub non_greedy_plus {
 
 sub _preprocess_hash {
     my $h = shift;
+    #print "hash: ",ref($h),"\n";
     if ( ref($h) eq 'CODE') {
         return sub {
             $h->();
@@ -319,9 +338,9 @@ sub _preprocess_hash {
         #print "compiling subrule\n";
         #return $h->code;
         return sub { 
-            #print "into subrule - $_[0] - grammar $_[4]\n"; 
-            #print $h->code;
-            my $match = $h->match( $_[0], $_[4], $_[7] );
+            #print "into subrule - $_[0] - grammar $_[4] - ", Dumper($_[7]); 
+            #print $h->{perl5};
+            my $match = $h->match( $_[0], $_[4], $_[7], $_[1] );
             #print "match: ",$match->(),"\n";
             $_[3] = $match;
         };

@@ -1,10 +1,8 @@
-0.12  2006-07-21
-
-- $$match returns the 'return object'
-
-0.11
-
-- implemented chain operators in Precedence.pm
+- refactored Regex runtime:
+-- reuses the matching string in submatches
+-- resues the Match class for Token/Rule
+-- more tests
+- partially implemented 'static' capture numbering
 
 0.10  2006-07-10
 

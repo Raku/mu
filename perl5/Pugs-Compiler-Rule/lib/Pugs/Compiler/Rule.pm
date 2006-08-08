@@ -1,5 +1,5 @@
 package Pugs::Compiler::Rule;
-$Pugs::Compiler::Rule::VERSION = '0.12';
+$Pugs::Compiler::Rule::VERSION = '0.12_01';
 
 # Documentation in the __END__
 use 5.006;
@@ -83,8 +83,6 @@ to several other modules:
 =item * L<Pugs::Runtime::Rule> provides the runtime engine for Rules.
 
 =item * L<Pugs::Runtime::Match> represents a B<Match> object.
-
-=item * L<Pugs::Runtime::Match::Ratchet> represents a B<Match> object matched with C<:ratchet>.
 
 =item * L<Pugs::Runtime::Grammar> represents a B<Grammar> class / object.
 
@@ -181,7 +179,7 @@ options:
 
 =over
 
-=item grammar => $class
+=item * grammar => $class
 
 Specify which namespace (Grammar) the rule belongs to.
 
@@ -191,7 +189,7 @@ Disable backtracking. Match faster. Defaults to 1 in Rules and Tokens.
 
 =item * pos => $pos
 
-Specify a string position to match. Starts in zero. Defaults to C<undef>.
+Specify a string position to match. Starts in zero. Defaults to C<undef>, which matches anywhere in the string.
 
 =item * sigspace => 1
 
@@ -205,8 +203,7 @@ Use Perl 5 grammar and semantics for Regex.
 
 =item match (Str $match_against)
 
-Instance method.  Returns a L<Pugs::Runtime::Match> object (or
-L<Pugs::Runtime::Match::Ratchet>).
+Instance method.  Returns a L<Pugs::Runtime::Match> object.
 
 =item install (Str $name, Str $rule_source, \%options)
 
@@ -214,7 +211,7 @@ Install a rule into the method C<$name>. If C<$name> is fully qualified
 then it will be installed into that path e.g C<MyGrammar::rulename>,
 otherwise it will install it into the current package.
 
-=item perl5
+=item perl
 
 Instance method.  Returns a string that can be eval'ed into a
 rule/token/regex object.

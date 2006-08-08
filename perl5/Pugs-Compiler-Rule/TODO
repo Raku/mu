@@ -1,5 +1,32 @@
 TODO for Pugs::Compiler::Rule (PCR)
 
+Before merging pX (2006-08-01) 
+
+- BUG: %hash should pass 'pos' to subrules
+
+- Makefile.PL should clean the regex cache
+
+- run Pugs-Compiler-Perl6 make test
+
+- use base 'RegexBase' in the docs; or change Grammar::Base name
+
+- add 'negate' node to Regex
+- add tests for 'negate'
+
+After merging pX (2006-08-01) 
+
+- document new Match methods: data, str, perl, capture, state
+
+- finish 'static' capture count
+
+- finish remaining metasyntax in <!...> Grammar
+
+- static signature for '$^a' 
+
+- add 'inlined' switch to disable PadWalker lookups
+
+- fix the <ws> rule
+
 Unicode:
 
 - \v \h \V \H
@@ -24,10 +51,6 @@ Ratchet switch:
 - is :ratchet allowed as a runtime switch?
   - are there runtime switches?
   - is :+ the non-ratchet specifier?
-
-Pos switch:
-
-- test in non-ratchet rules
 
 Perl 6 parser:
 
@@ -61,7 +84,6 @@ Priorities:
 - make Emitter::Rule::Perl5 subclassable - such that closures can be 
   parsed/compiled by a custom parser
 - make the 'return' block functionally detectable (instead of regex)
-- cleanup any remaining source filtering
 
 Bugs:
 
@@ -150,10 +172,6 @@ API:
 
 
 TODO for Pugs-Compiler-Precedence
-
-- Pugs::Grammar::Precedence and Pugs-Compiler-Precedence/ should have the same name
-
-- add Makefile.PL, MANIFEST
 
 - needs to use category identifiers, like INFIX
   maybe INFIX_004 for category+precedence?

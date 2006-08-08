@@ -49,15 +49,18 @@ my $rx_end_no_blocks = qr/
 sub ast {
     my $match = shift;
     my $param = shift;
+    my $pos = $param->{p} || 0;
+    #my $s = substr( $_[0], $pos );
+    #print "pos: $pos\n";
 
     my $no_blocks = exists $param->{args}{no_blocks} ? 1 : 0;
-    # warn "don't parse blocks: $no_blocks ";
+    #warn "don't parse blocks: $no_blocks ";
     my $rx_end = $no_blocks 
                 ? $rx_end_no_blocks
                 : $rx_end_with_blocks;
 
     $match .= '';
-    if ( $match =~ /$rx_end/ ) {
+    if ( substr( $match, $pos ) =~ /$rx_end/ ) {
         # end of parse
         return (undef, $match);
     }
@@ -67,7 +70,7 @@ sub ast {
     
     my $lex = sub {
         #print "Grammar::Expression::ast::lex '$match' \n";
-        if ( $match =~ /$rx_end/ ) {
+        if ( substr( $match, $pos ) =~ /$rx_end/ ) {
             #warn "end of expression at: [",substr($match,0,10),"]";
             return ('', '');
         }
@@ -75,24 +78,26 @@ sub ast {
         my @expect = $p->YYExpect;  # XXX is this expensive?
         my $expect_term = grep { $_ eq 'NUM' || $_ eq 'BAREWORD' } @expect;
         
-        my $m = Pugs::Grammar::BaseCategory->ws( $match );
-        # <ws> is nonstandard in that it returns a hashref instead of a Match
+        my $m = Pugs::Grammar::BaseCategory->ws( $match, { p => $pos } );
         # print "match is ",Dumper($m),"\n";
-        if ( $m->{bool} ) {
-            $match = $m->{tail};
+        if ( $m ) {
+            $pos = $m->to;
+            #print "pos after <ws>: $pos\n";
         }
         
-        my $m1 = Pugs::Grammar::Operator->parse( $match, { p => 1 } );
+        my $m1 = Pugs::Grammar::Operator->parse( $match, { p => $pos } );
         my $m2;
-        $m2 = Pugs::Grammar::Term->parse( $match, { p => 1 } )
+        $m2 = Pugs::Grammar::Term->parse( $match, { p => $pos } )
             if $expect_term;
         #warn "m1 = " . Dumper($m1->()) . "m2 = " . Dumper($m2->());
 
+        my $pos2;
         while(1) {
+            $pos2 = $m2->to if $m2;
             # term.meth() 
-            if ( $m2 && $m2->data->{tail} && $m2->data->{tail} =~ /^\.[^.]/ ) {
-                my $meth = Pugs::Grammar::Term->parse( $m2->data->{tail}, { p => 1 } );
-                $meth->data->{capture} = { 
+            if ( $m2 && $m2->tail && $m2->tail =~ /^\.[^.]/ ) {
+                my $meth = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
+                $meth->data->{capture} = \{ 
                     op1  => 'method_call', 
                     self => $m2->(), 
                     method => $meth->(),
@@ -102,10 +107,10 @@ sub ast {
                 next;
             }
             # term() 
-            if ( $m2 && $m2->data->{tail} && $m2->data->{tail} =~ /^\(/ ) {
-                my $paren = Pugs::Grammar::Term->parse( $m2->data->{tail}, { p => 1 } );
+            if ( $m2 && $m2->tail && $m2->tail =~ /^\(/ ) {
+                my $paren = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
                 if ( exists $m2->()->{dot_bareword} ) {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         op1 => 'method_call', 
                         self => { 'scalar' => '$_' }, 
                         method => $m2->(), 
@@ -116,13 +121,13 @@ sub ast {
                      && $m2->()->{op1} eq 'method_call'
                      && ! defined $m2->()->{param} 
                 ) {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         %{$m2->()}, 
                         param => $paren->(), 
                     };
                 }
                 else {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         op1 => 'call', 
                         sub => $m2->(), 
                         param => $paren->(), 
@@ -132,10 +137,10 @@ sub ast {
                 next;
             }
             # term[] 
-            if ( $m2 && $m2->data->{tail} && $m2->data->{tail} =~ /^\[/ ) {
-                my $paren = Pugs::Grammar::Term->parse( $m2->data->{tail}, { p => 1 } );
+            if ( $m2 && $m2->tail && $m2->tail =~ /^\[/ ) {
+                my $paren = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
                 if ( exists $m2->()->{dot_bareword} ) {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         op1 => 'method_call', 
                         self => { 'scalar' => '$_' }, 
                         method => { bareword => '[]' },
@@ -146,14 +151,14 @@ sub ast {
                      && $m2->()->{op1} eq 'method_call'
                      && ! defined $m2->()->{param} 
                 ) {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         %{$m2->()},
                         method => { bareword => '[]' },
                         param => $paren->()->{exp1}, 
                     };
                 }
                 else {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         fixity => 'postcircumfix', 
                         op1 => { op => "[" }, 
                         op2 => { op => "]" }, 
@@ -165,10 +170,10 @@ sub ast {
                 next;
             }
             # term{} 
-            if ( $m2 && $m2->data->{tail} && $m2->data->{tail} =~ /^\{/ ) {
-                my $paren = Pugs::Grammar::Term->parse( $m2->data->{tail}, { p => 1 } );
+            if ( $m2 && $m2->tail && $m2->tail =~ /^\{/ ) {
+                my $paren = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
                 if ( exists $m2->()->{dot_bareword} ) {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         op1 => 'method_call', 
                         self => { 'scalar' => '$_' }, 
                         method => { bareword => '{}' },
@@ -179,14 +184,14 @@ sub ast {
                      && $m2->()->{op1} eq 'method_call'
                      && ! defined $m2->()->{param} 
                 ) {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         %{$m2->()},
                         method => { bareword => '{}' },
                         param => $paren->()->{'bare_block'}, 
                     };
                 }
                 else {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         fixity => 'postcircumfix', 
                         op1 => { op => "{" }, 
                         op2 => { op => "}" }, 
@@ -198,10 +203,10 @@ sub ast {
                 next;
             }
             # term<> 
-            if ( $m2 && $m2->data->{tail} && $m2->data->{tail} =~ /^\</ ) {
-                my $paren = Pugs::Grammar::Term->parse( $m2->data->{tail}, { p => 1 } );
+            if ( $m2 && $m2->tail && $m2->tail =~ /^\</ ) {
+                my $paren = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
                 if ( exists $m2->()->{dot_bareword} ) {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         op1 => 'method_call', 
                         self => { 'scalar' => '$_' }, 
                         method => { bareword => '<>' }, 
@@ -212,14 +217,14 @@ sub ast {
                      && $m2->()->{op1} eq 'method_call'
                      && ! defined $m2->()->{param} 
                 ) {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         %{$m2->()}, 
                         method => { bareword => '<>' },
                         param => $paren->(), 
                     };
                 }
                 else {
-                    $paren->data->{capture} = { 
+                    $paren->data->{capture} = \{ 
                         fixity => 'postcircumfix', 
                         op1 => { op => "<" }, 
                         op2 => { op => ">" }, 
@@ -236,7 +241,7 @@ sub ast {
         # longest token
         $m = undef;
         if ( $m1 && $m2 ) {
-            if ( length($m1->data->{tail}) > length($m2->data->{tail}) ) {
+            if ( $m1->to < $m2->to ) {
                 $m = $m2
             }
             else {
@@ -247,10 +252,8 @@ sub ast {
             $m = $m1 if $m1;
             $m = $m2 if $m2;
         }
-        #print Dumper($m);
         return ('','') unless ref $m;
-        
-        my $tail = $m->data->{tail};
+        #print "Term or expression: ",Dumper $m->data;
 
 # <fglock> like: ( name 1, 2 or 3 ) - is it parsed as name(1,2 or 3) or (name(1,2) or 3)
 # <TimToady> it will be taken provisionally as a listop, with listop precedence
@@ -258,17 +261,10 @@ sub ast {
 # <TimToady> but it will fail compilation if name is not supplied by CHECK time.
 # <TimToady> it will also fail if name is declared as a unary or 0-ary func.
 
-        {
-            # trim tail
-            my $tmp = $tail;
-            $match = $tmp if defined $tmp;  # match failure doesn't kill $match (PCR "bug")
-        }
-
-        #print Dumper $m;
-        #print $match;
         my $ast = $m->();
-
-        $ast->{pos} = $last - length( $match );
+        $ast->{pos} = $pos;
+        #print "pos after op: $pos\n";
+        $pos = $m->to if $m;
         my $t;
         if ( exists $ast->{stmt} ) {
             # unused!
@@ -326,7 +322,7 @@ sub ast {
 
     my $out=$p->YYParse(yydebug => 0);
     #print Dumper $out;
-    return ( $out, $match );
+    return ( $out, $pos );
 }
 
 1;

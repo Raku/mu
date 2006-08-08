@@ -2,7 +2,10 @@ use strict;
 package Perl6Grammar;
 our %nodes;
 
-sub Pugs::Runtime::Rule::rule_wrapper { @_ };
+#{
+#  no warnings 'redefine';
+#  sub Pugs::Runtime::LrepRule::rule_wrapper { @_ };
+#}
 my $grammar1 = 'Pugs::Grammar::Rule::';
 
 sub emit_node {
@@ -46,7 +49,8 @@ sub node::ws {
 sub node::grammar_name {
     my $ident = get_str( $_[0], '$<ident>' );
     return "package $ident;\n" .
-           "use base 'Pugs::Grammar::Base';\n";
+           "use base 'Pugs::Grammar::LrepBase';\n" .
+           "use Pugs::Runtime::LrepRule;\n";
 }
 sub node::rule_decl {
     my $name = get_str( $_[0], '$<ident>' );
@@ -57,7 +61,7 @@ sub node::rule_decl {
         #"    warn 'rule argument is undefined' unless defined \$_[0];\n" .
         "    \$_[0] = '' unless defined \$_[0];\n" .
         #"    print 'GRAMMAR: \$grammar', \"\\n\";\n" .
-        "    package Pugs::Runtime::Rule;\n" .
+        "    package Pugs::Runtime::LrepRule;\n" .
         "    rule_wrapper( \$_[0], (\n" . 
         $program . 
         "        )->( \@_ )\n" .

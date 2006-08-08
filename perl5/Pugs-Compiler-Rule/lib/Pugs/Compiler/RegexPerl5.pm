@@ -8,6 +8,12 @@ use warnings;
 
 use base 'Pugs::Compiler::Regex';
 
+#use Pugs::Compiler::Regex;
+#sub code { (+shift)->Pugs::Compiler::Regex::code( @_ ) }
+
+# http://www.foo.be/docs/tpj/issues/vol2_3/tpj0203-0002.html
+# is a good reference on the use of pos()
+
 sub compile {
     my ( $class, $rule_source, $param ) = @_;
     $param = ref $param ? { %$param } : {}; 
@@ -18,23 +24,43 @@ sub compile {
     my $self = { source => $rule_source };
     $self->{perl5} = 
 q(sub {
+  no warnings 'uninitialized';
   my $s = $_[1];
-  pos $_[3]{p};
-  my $bool = \( $s =~ /) . $rule_source . q(/ \) ? 1 : 0;
+
+  if ( defined $_[3]{p} ) {
+    pos($s) = $_[3]{p};
+    my $bool = \( $s =~ /\G) . $rule_source . q(/sx \) ? 1 : 0;
+    #print "matching P5/$rule_source/ at $_[3]{p} in '$s', '$1', $bool\n";
+    my @match;
+    for ( 1 .. $#+ ) {
+      push @match, Pugs::Runtime::Match->new({
+        str => \\$s, from => \\(0+$-[$_]), to => \\(0+$+[$_]),
+        bool => \\1, match => [], named => {}, capture => undef,
+      });
+    }
+    return Pugs::Runtime::Match->new({
+      str => \\$s, from => \\(0+$-[0]), to => \\(0+$+[0]),
+      bool => \\$bool, match => \\@match, named => {}, capture => undef,
+    });
+  }
+
+  my $bool = \( $s =~ /) . $rule_source . q(/sx \) ? 1 : 0;
+  # print "matching P5/$rule_source/ at $_[3]{p} in '$s', '$1'\n";
   my @match;
   for ( 1 .. $#+ ) {
-      push @match, bless \\{
+      push @match, Pugs::Runtime::Match->new({
         str => \\$s, from => \\(0+$-[$_]), to => \\(0+$+[$_]),
-        bool => \\1, match => [], named => {}, capture => \\undef,
-      }, 'Pugs::Runtime::Match::Ratchet';
+        bool => \\1, match => [], named => {}, capture => undef,
+      });
   }
-  return bless \\{
+  return Pugs::Runtime::Match->new({
     str => \\$s, from => \\(0+$-[0]), to => \\(0+$+[0]),
-    bool => \\$bool, match => \\@match, named => {}, capture => \\undef,
-  }, 'Pugs::Runtime::Match::Ratchet';
+    bool => \\$bool, match => \\@match, named => {}, capture => undef,
+  });
+
 };
 );
-    #print 'rule perl5: ', do{use Data::Dump::Streamer; Dump($self->{perl5})};
+    # print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
 
     local $@;
     $self->{code} = eval 

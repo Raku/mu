@@ -16,25 +16,21 @@ use Data::Dumper;
 # *ws = &Pugs::Grammar::BaseCategory::ws;
 
 sub perl6_expression {
-    my $class = shift;
-    my $src   = shift;
-    my $param = shift;
-
-    #warn "perl6_expression param: ", Dumper @_;
-
-    my ( $ast, $tail ) = Pugs::Grammar::Expression::ast( $src, $param );
-    if ( length( $tail ) ) {
-        $src = substr( $src, 0, - length( $tail ) );
-    }
-    return Pugs::Runtime::Match->new( { 
-        bool  =>   ( $ast ? 1 : 0 ),
-        match =>   $src,
-        tail  =>   $tail,
-        capture => $ast,
-    } )
+    #print "perl6_expression param: ", Dumper @_;
+    my $pos = $_[2]{p} || 0;
+    my ( $ast, $to ) = Pugs::Grammar::Expression::ast( $_[1], $_[2] );
+    my $match = Pugs::Runtime::Match->new( { 
+        bool    => \( $ast ? 1 : 0 ),
+        str     => \$_[1],
+        match   => [],
+        from    => \$pos,
+        to      => \$to,
+        capture => \$ast,
+    } );
+    return $match;
 };
 
-*perl6_expression_or_null = Pugs::Compiler::Regex->compile( q(
+*perl6_expression_or_null = Pugs::Compiler::Token->compile( q(
     <perl6_expression('no_blocks',0)> 
         { return $_[0]{perl6_expression}->() }
     |
@@ -45,25 +41,38 @@ sub perl6_expression {
     { grammar => __PACKAGE__ }
 )->code;
 
-*block = Pugs::Compiler::Regex->compile( q(
-    \{ : <?ws>? <statements_or_null> <?ws>? \}
-        { return { 
-            bare_block => $_[0]{statements_or_null}->(),
-        } }
+*block = Pugs::Compiler::Token->compile( q(
+    \{ <?ws>? 
+        #{ print "block\n" }
+        <statements>
+        #{ print "matched block\n" }
+        <?ws>? \}
+        { 
+            return { 
+                bare_block => $_[0]{statements}->(),
+            } 
+        }
     |
-    \-\> : 
+    \{ <?ws>? \}
+        { 
+            return { 
+                bare_block => { statements => [] } 
+            } 
+        }
+    |
+    \-\>  
         [
             <?ws>? <signature_no_invocant> <?ws>? 
-            \{ <?ws>? <statements_or_null> <?ws>? \}
+            \{ <?ws>? <statements> <?ws>? \}
             { return { 
-                pointy_block => $_[0]{statements_or_null}->(),
+                pointy_block => $_[0]{statements}->(),
                 signature    => $_[0]{signature_no_invocant}->(),
             } }
         |
             <?ws>?
-            \{ <?ws>? <statements_or_null> <?ws>? \}
+            \{ <?ws>? <statements> <?ws>? \}
             { return { 
-                pointy_block => $_[0]{statements_or_null}->(),
+                pointy_block => $_[0]{statements}->(),
                 signature    => undef,
             } }
         ]
@@ -73,7 +82,7 @@ sub perl6_expression {
 
 
 *if = Pugs::Compiler::Regex->compile( q(
-    (if|unless) : <?ws>? 
+    (if|unless) <?ws>? 
     $<exp1> := <perl6_expression('no_blocks',0)> <?ws>?
     $<exp2> := <block>        
         [
@@ -190,8 +199,8 @@ sub perl6_expression {
     { grammar => __PACKAGE__ }
 )->code;
 
-*try = Pugs::Compiler::Regex->compile( q(
-    (try) : <?ws>? <block>        
+*try = Pugs::Compiler::Token->compile( q(
+    (try) <?ws>? <block>        
         { return { 
                     fixity => 'prefix',
                     op1 => { op => 'try' },
@@ -306,7 +315,7 @@ sub perl6_expression {
 )->code;
 
 
-*signature = Pugs::Compiler::Regex->compile( q(
+*signature = Pugs::Compiler::Token->compile( q(
         <signature_term> <?ws>? <':'>
         [
             <?ws>? <signature_no_invocant>
@@ -333,7 +342,7 @@ sub perl6_expression {
     { grammar => __PACKAGE__ }
 )->code;
 
-*sub_decl_name = Pugs::Compiler::Regex->compile( q(
+*sub_decl_name = Pugs::Compiler::Token->compile( q(
     ( my | <''> ) <?ws>?
     ( multi | <''> ) <?ws>?
     ( submethod | method | sub ) <?ws>? 
@@ -357,18 +366,20 @@ sub perl6_expression {
     { grammar => __PACKAGE__ }
 )->code;
 
-*sub_signature = Pugs::Compiler::Regex->compile( q(
+*sub_signature = Pugs::Compiler::Token->compile( q(
         # (sig)
-        <'('> : <?ws>? <signature> <?ws>? <')'>
-        { return $_[0]{signature}->() }
+        <'('> <?ws>? <signature> <?ws>? <')'>
+        { 
+            #print "sig ", Dumper( $_[0]{signature}->() );
+            return $_[0]{signature}->() 
+        }
     |
         { return [] }
 ),
     { grammar => __PACKAGE__ }
 )->code;
 
-
-*sub_decl = Pugs::Compiler::Regex->compile( q(
+*sub_decl = Pugs::Compiler::Token->compile( q(
     <sub_decl_name> <?ws>? 
         # (sig)
         <sub_signature> <?ws>? 
@@ -478,7 +489,7 @@ sub perl6_expression {
 # /class
 
 
-*begin_block = Pugs::Compiler::Regex->compile( q(
+*begin_block = Pugs::Compiler::Token->compile( q(
     (          
    BEGIN 
  | CHECK 
@@ -495,7 +506,7 @@ sub perl6_expression {
  | POST
  | CATCH
  | CONTROL
-    ) : <?ws>? <block>        
+    ) <?ws>? <block>        
         { return { 
             trait  => $_[0][0]->(),
             %{ $_[0]{block}->() },
@@ -504,12 +515,19 @@ sub perl6_expression {
     { grammar => __PACKAGE__ }
 )->code;
 
-
-*statement = Pugs::Compiler::Regex->compile( q(
-    use <?ws> v5 <?ws>?; ((.)*?) ; <?ws>? use <?ws> v6 (.)*? ; 
+*perl5source = Pugs::Compiler::Regex->compile( q(
+    (.*?) ; <?ws>? use <?ws> v6 (.)*? ; 
         { return { 
             perl5source => $_[0][0]->() 
         } }
+),
+    { grammar => __PACKAGE__ }
+)->code;
+
+*statement = Pugs::Compiler::Token->compile( q(
+    use <?ws> v5 <?ws>?; <perl5source> 
+        { return $_[0]{perl5source}->() 
+        }
     |
     <begin_block>
         { return $_[0]{begin_block}->();
@@ -547,13 +565,18 @@ sub perl6_expression {
         [
             <?ws>? (if|unless|for|while|until) <?ws>?
             $<exp1> := <perl6_expression> 
+            #{ print "$a if $b ", Dumper( $/->data );
+            #    print Dumper( $_[0]{perl6_expression}->data ),
+            #          Dumper( $_[0]{exp1}->data );
+            #}
             { return {
                 statement => $_[0][0]->(),
                 exp2 => $_[0]{perl6_expression}->(),
                 exp1 => $_[0]{exp1}->(),
             } } 
         |
-            { return $_[0]{perl6_expression}->();
+            { 
+                return $_[0]{perl6_expression}->();
             } 
         ]
     |
@@ -565,12 +588,17 @@ sub perl6_expression {
     { grammar => __PACKAGE__ }
 )->code;
 
-*statements = Pugs::Compiler::Regex->compile( q(
+*statements = Pugs::Compiler::Token->compile( q(
     [ ; <?ws>? ]*
+
     [
-        <statement> :
+        <before <'}'> > { $::_V6_SUCCEED = 0 } 
+    |
+        <statement> 
+        <?ws>? [ ; <?ws>? ]*
         [
-            <?ws>? [ ; <?ws>? ]*
+            <before <'}'> > { $::_V6_SUCCEED = 0 }
+        |
             <statements> 
             { return {
                 statements => [
@@ -580,35 +608,21 @@ sub perl6_expression {
                 }
             }
         |
-            { return {
+            { 
+            return {
                 statements => [ $_[0]{statement}->() ],
             } }
         ]
-    |
-        { return {
-            statements => [],
-        } }
     ]
 ),
     { grammar => __PACKAGE__ }
 )->code;
 
-*statements_or_null = Pugs::Compiler::Regex->compile( q(
+*parse = Pugs::Compiler::Token->compile( q(
+    <?ws>? 
     <statements> 
+    <?ws>? 
         { return $_[0]{statements}->() }
-    |
-        { return {
-            statements => [],
-        } }
-),
-    { grammar => __PACKAGE__ }
-)->code;
-
-*parse = Pugs::Compiler::Regex->compile( q(
-    <?ws>? 
-    <statements_or_null> 
-    <?ws>? 
-        { return $_[0]{statements_or_null}->() }
 ),
     { grammar => __PACKAGE__ }
 )->code;

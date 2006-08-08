@@ -1,23 +1,32 @@
 package Pugs::Emitter::Rule::Perl5;
 
+use Pugs::Emitter::Rule::Perl5::Ratchet;
+
 # p6-rule perl5 emitter
 
 # XXX - cleanup unused nodes
 
 use strict;
 use warnings;
-use Data::Dump::Streamer;
-$Data::Dump::Streamer::Indent = 1;
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
+
+our $capture_count;
+our $capture_to_array;
+our %capture_seen;
 
 # XXX - reuse this sub in metasyntax()
 sub call_subrule {
     my ( $subrule, $tab, @param ) = @_;
     $subrule = "\$_[4]->" . $subrule unless $subrule =~ / :: | \. | -> /x;
     $subrule =~ s/\./->/;   # XXX - source filter
+
     return 
         "$tab sub{ \n" .
-        "$tab     # param: @param \n" .
-        "$tab     $subrule( \$_[0], { p => 0, args => {" . join(", ",@param) . "} }, \$_[1] );\n" .
+        #"$tab     print \"param: \",Dumper( \@_ );\n" .
+        "$tab     my \$param = { \%{ \$_[7] || {} }, args => {" . join(", ",@param) . "} };\n" .
+        "$tab     \$_[3] = $subrule( \$_[0], \$param, \$_[3],  );\n" .
+        #"$tab     print \"subrule match: \",Dumper(\$_[3]->data);\n" .
         "$tab }\n";
 }
 
@@ -25,24 +34,43 @@ sub emit {
     my ($grammar, $ast) = @_;
     # runtime parameters: $grammar, $string, $state, $arg_list
     # rule parameters: see Runtime::Rule.pm
+    local $capture_count = -1;
+    local $capture_to_array = 0;
+    local %capture_seen = ();
+    #print "emit capture_to_array $capture_to_array\n";
     return 
         "do {\n" .
-        "    package Pugs::Runtime::Rule;\n" .
+        "    package Pugs::Runtime::Regex;\n" .
+        #"    use Pugs::Grammar::RegexBase;\n" .
         "    my \$matcher = \n" . 
         emit_rule( $ast, '    ' ) . "  ;\n" .
         "  sub {\n" . 
-        "    my \$grammar = shift;\n" .
+        # grammar, string, state, args
+        #"    print \"match args: \",Dumper(\@_);\n" .
         "    my \$tree;\n" .
-        "    my \$pos = \$_[2]{p};\n" .
-        "    \$pos = 0 unless defined \$pos;   # TODO - .*? \$match \n" .
-        "    my \$s = \$_[0]; # TODO - substr( \$_[0], \$pos );\n" .
-        # "    print \"\\nVariables: args[\", join(\",\",\@_) ,\"] \\n\";\n" .
-        # "    print \"         : \@{\$_[2]}} \\n\" if defined \$_[2];\n" .
-        # "    \$_[0] = '' unless defined \$_[0];\n" .
-        "    my \$match = rule_wrapper( \$_[0], \n" . 
-        "        \$matcher->( \$s, \$_[1], \$tree, \$tree, \$grammar, 0, \$s, \$_[2] )\n" .
-        "    );\n" .
-        "    return Pugs::Runtime::Match->new( \$match );\n" .
+        "    if ( defined \$_[3]{p} ) {\n" .
+        "        \$matcher->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$_[3]{p}, \$_[1], \$_[3] );\n" .
+        "    }\n" .
+        "    else {\n" .
+
+        "        for my \$pos ( 0 .. length( \$_[1] ) - 1 ) {\n" .
+        "            my \$param = { \%{\$_[3]}, p => \$pos };\n" .           
+        "            \$matcher->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$pos, \$_[1], \$param );\n" .
+
+        "            last if \$tree;\n" .
+        "        }\n" .
+        "        \$tree = Pugs::Grammar::RegexBase->no_match(\@_)\n" . 
+        "           unless defined \$tree;
+;\n" .
+        "    }\n" .
+        # "    print \"match: \",Dumper(\$tree->data);\n" .
+        "    my \$cap = \$tree->data->{capture};\n" .
+        "    if ( ref \$cap eq 'CODE' ) { \n" .
+
+        "        \$tree->data->{capture} = \\(\$cap->( \$tree ));\n" .
+
+        "    };\n" .
+        "    return \$tree;\n" .
         "  }\n" .
         "}\n";
 }
@@ -50,9 +78,9 @@ sub emit {
 sub emit_rule {
     my $n = $_[0];
     my $tab = $_[1] . '  ';
-    die "unknown node: ", Dump( $n )
+    die "unknown node: ", Dumper( $n )
         unless ref( $n ) eq 'HASH';
-    #print "NODE ", Dump($n);
+    #print "NODE ", Dumper($n);
     my ($k) = keys %$n;
     my $v = $$n{$k};
     #my ( $k, $v ) = each %$n;
@@ -65,9 +93,23 @@ sub emit_rule {
 #rule nodes
 
 sub capturing_group {
+    my $program = $_[0];
+    
+    $capture_count++;
+    {
+        $capture_seen{$capture_count}++;
+        local $capture_count = -1;
+        local $capture_to_array = 0;
+        local %capture_seen = ();
+        $program = emit_rule( $program, $_[1].'      ' )
+            if ref( $program );
+    }
+    
     return 
-        "$_[1] capture( '',\n" .
-        emit_rule( $_[0], $_[1].'  ' ) . 
+        "$_[1] positional( $capture_count, " .
+        ( $capture_to_array || ( $capture_seen{$capture_count} > 1 ? 1 : 0 ) ) .  
+        ", \n" .
+        $program . 
         "$_[1] )\n" .
         '';
 }        
@@ -89,22 +131,44 @@ sub quant {
         }->{$quantifier};
     die "quantifier not implemented: $quantifier" 
         unless defined $sub;
-    return emit_rule( $term, $_[1] ) 
+        
+    my $rul;
+    {
+        my $cap = $capture_to_array;
+        local $capture_to_array = $cap || ( $quantifier ne '' ? 1 : 0 );
+        $rul = emit_rule( $term, $_[1] . '  ' );
+    }
+
+    return $rul 
         if $sub eq '';
     return 
-        "$_[1] capture( '*quantifier*',\n" . 
-        "$_[1]     $sub(\n" .
-        emit_rule( $term, $_[1] . ("    "x2) ) . 
-        "$_[1]     )\n" .
-        "$_[1] )\n" .
-        '';
+        "$_[1] $sub(\n" .
+        $rul . 
+        "$_[1] )\n";
 }        
 sub alt {
     my @s;
+    
+    my $count = $capture_count;
+    my $max = -1;
     for ( @{$_[0]} ) { 
-        my $tmp = emit_rule( $_, $_[1] );
+        $capture_count = $count;
+
+        my $_capture_count      = $capture_count;
+        my $_capture_to_array   = $capture_to_array;
+        my %_capture_seen       = ( %capture_seen );
+        local $capture_count    = $_capture_count;
+        local $capture_to_array = $_capture_to_array;
+        local %capture_seen     = ( %_capture_seen );
+
+        my $tmp = emit_rule( $_, $_[1].'  ' );
+        # print ' ',$capture_count;
+        $max = $capture_count 
+            if $capture_count > $max;
         push @s, $tmp if $tmp;   
     }
+    $capture_count = $max;
+    
     return "$_[1] alternation( [\n" . 
            join( ',', @s ) .
            "$_[1] ] )\n";
@@ -179,7 +243,9 @@ sub match_variable {
     #print "var name: ", $num, "\n";
     my $code = 
     "    sub { 
-        my \$m = Pugs::Runtime::Match->new( \$_[2] );
+        my \$m = \$_[2];
+        #print 'var: ',\$m->perl;
+        #print 'var: ',\$m->[$num];
         return constant( \"\$m->[$num]\" )->(\@_);
     }";
     $code =~ s/^/$_[1]/mg;
@@ -190,34 +256,52 @@ sub closure {
     
     # XXX XXX XXX - source-filter - temporary hacks to translate p6 to p5
     # $()<name>
-    $code =~ s/ ([^']) \$ \( \) < (.*?) > /$1 \$_[0]->[$2] /sgx;
+    $code =~ s/ ([^']) \$ \( \) < (.*?) > /$1 \$_[0]->[$2]/sgx;
     # $<name>
-    $code =~ s/ ([^']) \$ < (.*?) > /$1 \$_[0]->{$2} /sgx;
+    $code =~ s/ ([^']) \$ < (.*?) > /$1 \$_[0]->{$2}/sgx;
     # $()
-    $code =~ s/ ([^']) \$ \( \) /$1 \$_[0]->() /sgx;
+    $code =~ s/ ([^']) \$ \( \) /$1 \$_[0]->()/sgx;
     # $/
-    $code =~ s/ ([^']) \$ \/ /$1 \$_[0] /sgx;
+    $code =~ s/ ([^']) \$ \/ /$1 \$_[0]/sgx;
     #print "Code: $code\n";
     
     return 
         "$_[1] sub {\n" . 
         "$_[1]     $code( \@_ );\n" . 
-        "$_[1]     return { bool => 1, tail => \$_[0] }\n" .
+        "$_[1]     \$_[3] = Pugs::Runtime::Match->new( { 
+            bool  => \\1, 
+            str   => \\(\$_[0]),
+            from  => \\(\$_[7]{p} || 0),
+            to    => \\(\$_[7]{p} || 0),
+            match => [],
+            named => {},
+        } )\n" .
         "$_[1] }\n"
         unless $code =~ /return/;
         
     return
-        "$_[1] abort(\n" .
         "$_[1]     sub {\n" . 
-        "$_[1]         return { bool => 1, tail => \$_[0], return => sub $code };\n" .
-        "$_[1]     }\n" .
-        "$_[1] )\n";
+        # "print Dumper(\@_);\n" . 
+        "$_[1]         \$_[3] = Pugs::Runtime::Match->new( { 
+            bool  => \\1, 
+            str   => \\(\$_[0]),
+            from  => \\(\$_[7]{p} || 0),
+            to    => \\(\$_[7]{p} || 0),
+            match => [],
+            named => {},
+            capture => sub $code,
+            abort => 1,
+        } );\n" .
+        "$_[1]     }\n";
 }
 sub named_capture {
     my $name    = $_[0]{ident};
     my $program = $_[0]{rule};
+    $capture_seen{$name}++;
     return 
-        "$_[1] capture( '$name', \n" . 
+        "$_[1] named( '$name', " .
+        ( $capture_to_array || ( $capture_seen{$name} > 1 ? 1 : 0 ) ) .  
+        ", \n" .
         emit_rule($program, $_[1]) . 
         "$_[1] )\n";
 }
@@ -228,21 +312,9 @@ sub before {
         emit_rule($program, $_[1]) . 
         "$_[1] )\n";
 }
-sub not_before {
-    warn '<!before ...> not implemented';
-    return;
-}
-sub after {
-    warn '<after ...> not implemented';
-    return;
-}
-sub not_after {
-    warn '<!after ...> not implemented';
-    return;
-}
 sub colon {
     my $str = $_[0];
-    return "$_[1] alternation( [ null(), fail() ] ) \n"
+    return "$_[1] alternation( [ null(), failed_abort() ] ) \n"
         if $str eq ':';
     return "$_[1] end_of_string() \n" 
         if $str eq '$';
@@ -262,17 +334,35 @@ sub metasyntax {
         return 
             "$_[1] alternation( \\$cmd )\n";
     }
+
+    if ( $prefix eq '%' ) {
+        # XXX - runtime or compile-time interpolation?
+        my $name = substr( $cmd, 1 );
+        $capture_seen{$name}++;
+        return "$_[1] named( '$name', " .
+            ( $capture_to_array || ( $capture_seen{$name} > 1 ? 1 : 0 ) ) .  
+            ", hash( \\$cmd ) )\n" 
+            if $cmd =~ /::/;
+        return "$_[1] named( '$name', " .
+            ( $capture_to_array || ( $capture_seen{$name} > 1 ? 1 : 0 ) ) .  
+            ", hash( get_variable( '$cmd' ) ) )\n";
+    }
+
     if ( $prefix eq '$' ) {
         if ( $cmd =~ /::/ ) {
             # call method in fully qualified $package::var
             return 
-                "$_[1] sub { $cmd->match( \@_[0, 4], {p => 0}, \$_[1] ) }\n";
+            "$_[1] sub { \n" . 
+            # "$_[1]     print 'params: ',Dumper(\@_);\n" . 
+            "$_[1]     \$_[3] = $cmd->match( \$_[0], \$_[4], \$_[7], \$_[1] );\n" .
+            "$_[1] }\n";
         }
         # call method in lexical $var
         return 
             "$_[1] sub { \n" . 
+            #"$_[1]     print 'params: ',Dumper(\@_);\n" . 
             "$_[1]     my \$r = get_variable( '$cmd' );\n" . 
-            "$_[1]     \$r->match( \@_[0, 4], {p => 0}, \$_[1] );\n" .
+            "$_[1]     \$_[3] = \$r->match( \$_[0], \$_[4], \$_[7], \$_[1] );\n" .
             "$_[1] }\n";
     }
     if ( $prefix eq q(') ) {   # single quoted literal ' 
@@ -345,12 +435,17 @@ sub metasyntax {
         }
         # capturing subrule
         # <subrule ( param, param ) >
-        my ( $subrule, $param_list ) = split( /[\(\)]/, $cmd );
+        my ( $name, $param_list ) = split( /[\(\)]/, $cmd );
         $param_list = '' unless defined $param_list;
         my @param = split( ',', $param_list );
+        $capture_seen{$name}++;
+        #print "subrule ", $capture_seen{$name}, "\n";
+        #print "param: ", Dumper(\@param);
         return             
-            "$_[1] capture( '$subrule', \n" . 
-            call_subrule( $subrule, $_[1]."  ", @param ) . 
+            "$_[1] named( '$name', " .
+            ( $capture_to_array || ( $capture_seen{$name} > 1 ? 1 : 0 ) ) .  
+            ", \n" .
+            call_subrule( $name, $_[1]."  ", @param ) . 
             "$_[1] )\n";
     }
     die "<$cmd> not implemented";

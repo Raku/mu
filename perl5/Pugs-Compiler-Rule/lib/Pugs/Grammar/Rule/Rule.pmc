@@ -2,10 +2,11 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0xE4B6CB09 or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0xD5C899BC or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
-use base 'Pugs::Grammar::Base';
+use base 'Pugs::Grammar::LrepBase';
+use Pugs::Runtime::LrepRule;
 *{'Pugs::Grammar::Rule::ws'} = sub {
     my $grammar = shift;
     #warn "rule argument is undefined" unless defined $_[0];
@@ -70,12 +71,12 @@ use base 'Pugs::Grammar::Base';
 sub {
     my $grammar = shift;
     $_[0] = '' unless defined $_[0];
-    package Pugs::Runtime::Rule;
+    package Pugs::Runtime::LrepRule;
     rule_wrapper( $_[0], (
         concat(
           constant( "\." )
         ,
-          Pugs::Runtime::Rule::abort(
+          Pugs::Runtime::LrepRule::abort(
               sub {
                   return { bool => 1, tail => $_[0], return => sub { return { 'dot' => 1 ,} } };
               }
@@ -90,7 +91,7 @@ sub {
 sub {
     my $grammar = shift;
     $_[0] = '' unless defined $_[0];
-    package Pugs::Runtime::Rule;
+    package Pugs::Runtime::LrepRule;
     rule_wrapper( $_[0], (
         concat(
           alternation( [
@@ -114,7 +115,7 @@ sub {
               ,
           ] )
         ,
-          Pugs::Runtime::Rule::abort(
+          Pugs::Runtime::LrepRule::abort(
               sub {
                   return { bool => 1, tail => $_[0], return => sub { return { 'constant' =>  $_[0]->()  ,} } };
               }
@@ -129,14 +130,14 @@ sub {
 sub {
     my $grammar = shift;
     $_[0] = '' unless defined $_[0];
-    package Pugs::Runtime::Rule;
+    package Pugs::Runtime::LrepRule;
     rule_wrapper( $_[0], (
         concat(
           constant( "\\" )
         ,
           sub{ $grammar->any(@_) }
         ,
-          Pugs::Runtime::Rule::abort(
+          Pugs::Runtime::LrepRule::abort(
               sub {
                   return { bool => 1, tail => $_[0], return => sub { return { special_char =>  $_[0]->() , } } };
               }
@@ -151,7 +152,7 @@ sub {
 sub {
     my $grammar = shift;
     $_[0] = '' unless defined $_[0];
-    package Pugs::Runtime::Rule;
+    package Pugs::Runtime::LrepRule;
     rule_wrapper( $_[0], (
         concat(
           constant( "\[" )
@@ -160,7 +161,7 @@ sub {
         ,
           constant( "\]" )
         ,
-          Pugs::Runtime::Rule::abort(
+          Pugs::Runtime::LrepRule::abort(
               sub {
                   return { bool => 1, tail => $_[0], return => sub { return $_[0]{rule}() } };
               }
@@ -175,12 +176,12 @@ sub {
 sub {
     my $grammar = shift;
     $_[0] = '' unless defined $_[0];
-    package Pugs::Runtime::Rule;
+    package Pugs::Runtime::LrepRule;
     rule_wrapper( $_[0], (
         concat(
           capture( 'code', sub{ $grammar->code(@_) } )
         ,
-          Pugs::Runtime::Rule::abort(
+          Pugs::Runtime::LrepRule::abort(
               sub {
                   return { bool => 1, tail => $_[0], return => sub { return { closure => $_[0]{code}() ,} } };
               }
@@ -195,7 +196,7 @@ sub {
 sub {
     my $grammar = shift;
     $_[0] = '' unless defined $_[0];
-    package Pugs::Runtime::Rule;
+    package Pugs::Runtime::LrepRule;
     rule_wrapper( $_[0], (
         concat(
           alternation( [
@@ -205,7 +206,7 @@ sub {
               ,
           ] )
         ,
-          Pugs::Runtime::Rule::abort(
+          Pugs::Runtime::LrepRule::abort(
               sub {
                   return { bool => 1, tail => $_[0], return => sub { return { variable =>  $_[0]->()  ,} } };
               }
@@ -220,12 +221,12 @@ sub {
 sub {
     my $grammar = shift;
     $_[0] = '' unless defined $_[0];
-    package Pugs::Runtime::Rule;
+    package Pugs::Runtime::LrepRule;
     rule_wrapper( $_[0], (
         concat(
           capture( 'num_variable', sub{ $grammar->num_variable(@_) } )
         ,
-          Pugs::Runtime::Rule::abort(
+          Pugs::Runtime::LrepRule::abort(
               sub {
                   return { bool => 1, tail => $_[0], return => sub { return { match_variable => $_[0]{num_variable}() ,} } };
               }
@@ -240,33 +241,25 @@ sub {
 sub {
     my $grammar = shift;
     $_[0] = '' unless defined $_[0];
-    package Pugs::Runtime::Rule;
+    package Pugs::Runtime::LrepRule;
     rule_wrapper( $_[0], (
           alternation( [
               concat(
-                constant( "\(" )
+                capture( 'capturing_group', sub{ $grammar->capturing_group(@_) } )
               ,
-                capture( 'rule', sub{ $grammar->rule(@_) } )
-              ,
-                constant( "\)" )
-              ,
-                Pugs::Runtime::Rule::abort(
+                Pugs::Runtime::LrepRule::abort(
                     sub {
-                        return { bool => 1, tail => $_[0], return => sub { return { rule => $_[0]{rule}(), } } };
+                        return { bool => 1, tail => $_[0], return => sub { return { rule => $_[0]{capturing_group}(), } } };
                     }
                 )
               ,
               ),
               concat(
-                constant( "\[" )
+                capture( 'non_capturing_group', sub{ $grammar->non_capturing_group(@_) } )
               ,
-                capture( 'rule', sub{ $grammar->rule(@_) } )
-              ,
-                constant( "\]" )
-              ,
-                Pugs::Runtime::Rule::abort(
+                Pugs::Runtime::LrepRule::abort(
                     sub {
-                        return { bool => 1, tail => $_[0], return => sub { return { rule => $_[0]{rule}(), } } };
+                        return { bool => 1, tail => $_[0], return => sub { return { rule => $_[0]{non_capturing_group}(), } } };
                     }
                 )
               ,
@@ -274,13 +267,18 @@ sub {
               concat(
                 capture( 'metasyntax', sub{ $grammar->metasyntax(@_) } )
               ,
-                Pugs::Runtime::Rule::abort(
+                Pugs::Runtime::LrepRule::abort(
                     sub {
                         return { bool => 1, tail => $_[0], return => sub { return { rule => $_[0]{metasyntax}(), } } };
                     }
                 )
               ,
               ),
+                sub {
+                    { die "invalid alias syntax" };
+                    return { bool => 1, tail => $_[0] }
+                }
+              ,
           ] )
         ,
         )->( @_ )
@@ -290,7 +288,7 @@ sub {
 sub {
     my $grammar = shift;
     $_[0] = '' unless defined $_[0];
-    package Pugs::Runtime::Rule;
+    package Pugs::Runtime::LrepRule;
     rule_wrapper( $_[0], (
         concat(
           constant( "\$" )
@@ -317,7 +315,7 @@ sub {
         ,
           capture( 'named_capture_body', sub{ $grammar->named_capture_body(@_) } )
         ,
-          Pugs::Runtime::Rule::abort(
+          Pugs::Runtime::LrepRule::abort(
               sub {
                   return { bool => 1, tail => $_[0], return => sub { my $body = $_[0]{named_capture_body}();
           $body->{ident} = $_[0]{ident}();
@@ -335,7 +333,7 @@ sub {
 sub {
     my $grammar = shift;
     $_[0] = '' unless defined $_[0];
-    package Pugs::Runtime::Rule;
+    package Pugs::Runtime::LrepRule;
     rule_wrapper( $_[0], (
         concat(
           constant( "\<" )
@@ -348,7 +346,7 @@ sub {
         ,
           constant( "\>" )
         ,
-          Pugs::Runtime::Rule::abort(
+          Pugs::Runtime::LrepRule::abort(
               sub {
                   return { bool => 1, tail => $_[0], return => sub { return { before => {
                 rule  => $_[0]{rule}(),
@@ -362,11 +360,42 @@ sub {
     )
 };
     unshift @Pugs::Grammar::Rule::rule_terms, 'before';
-*{'Pugs::Grammar::Rule::not_before'} = 
+*{'Pugs::Grammar::Rule::after'} = 
 sub {
     my $grammar = shift;
     $_[0] = '' unless defined $_[0];
-    package Pugs::Runtime::Rule;
+    package Pugs::Runtime::LrepRule;
+    rule_wrapper( $_[0], (
+        concat(
+          constant( "\<" )
+        ,
+          constant( "after" )
+        ,
+          sub{ $grammar->ws(@_) }
+        ,
+          capture( 'rule', sub{ $grammar->rule(@_) } )
+        ,
+          constant( "\>" )
+        ,
+          Pugs::Runtime::LrepRule::abort(
+              sub {
+                  return { bool => 1, tail => $_[0], return => sub { return { after => {
+                rule  => $_[0]{rule}(),
+            }, } 
+        } };
+              }
+          )
+        ,
+        ),
+        )->( @_ )
+    )
+};
+    unshift @Pugs::Grammar::Rule::rule_terms, 'after';
+*{'Pugs::Grammar::Rule::negate'} = 
+sub {
+    my $grammar = shift;
+    $_[0] = '' unless defined $_[0];
+    package Pugs::Runtime::LrepRule;
     rule_wrapper( $_[0], (
         concat(
           constant( "\<" )
@@ -381,30 +410,21 @@ sub {
         ,
           constant( "\>" )
         ,
-          Pugs::Runtime::Rule::abort(
-              sub {
-                  return { bool => 1, tail => $_[0], return => sub { return { not_before => {
+          alternation( [
+                Pugs::Runtime::LrepRule::abort(
+                    sub {
+                        return { bool => 1, tail => $_[0], return => sub { return { 
+            negate => {
+              before => {
                 rule  => $_[0]{rule}(),
-            }, } 
+            }, }, } 
         } };
-              }
-          )
-        ,
-        ),
-        )->( @_ )
-    )
-};
-    unshift @Pugs::Grammar::Rule::rule_terms, 'not_before';
-*{'Pugs::Grammar::Rule::after'} = 
-sub {
-    my $grammar = shift;
-    $_[0] = '' unless defined $_[0];
-    package Pugs::Runtime::Rule;
-    rule_wrapper( $_[0], (
-        concat(
-          constant( "\<" )
-        ,
-          constant( "after" )
+                    }
+                )
+              ,
+                constant( "after" )
+              ,
+          ] )
         ,
           sub{ $grammar->ws(@_) }
         ,
@@ -412,42 +432,27 @@ sub {
         ,
           constant( "\>" )
         ,
-          Pugs::Runtime::Rule::abort(
-              sub {
-                  return { bool => 1, tail => $_[0], return => sub { return { after => {
+          alternation( [
+                Pugs::Runtime::LrepRule::abort(
+                    sub {
+                        return { bool => 1, tail => $_[0], return => sub { return { 
+            negate => {
+              after => {
                 rule  => $_[0]{rule}(),
-            }, } 
+            }, }, } 
         } };
-              }
-          )
-        ,
-        ),
-        )->( @_ )
-    )
-};
-    unshift @Pugs::Grammar::Rule::rule_terms, 'after';
-*{'Pugs::Grammar::Rule::not_after'} = 
-sub {
-    my $grammar = shift;
-    $_[0] = '' unless defined $_[0];
-    package Pugs::Runtime::Rule;
-    rule_wrapper( $_[0], (
-        concat(
-          constant( "\<" )
-        ,
-          constant( "\!" )
-        ,
-          constant( "after" )
-        ,
-          sub{ $grammar->ws(@_) }
-        ,
-          capture( 'rule', sub{ $grammar->rule(@_) } )
+                    }
+                )
+              ,
+                capture( 'rule', sub{ $grammar->rule(@_) } )
+              ,
+          ] )
         ,
           constant( "\>" )
         ,
-          Pugs::Runtime::Rule::abort(
+          Pugs::Runtime::LrepRule::abort(
               sub {
-                  return { bool => 1, tail => $_[0], return => sub { return { not_after => {
+                  return { bool => 1, tail => $_[0], return => sub { return { negate => {
                 rule  => $_[0]{rule}(),
             }, } 
         } };
@@ -458,12 +463,12 @@ sub {
         )->( @_ )
     )
 };
-    unshift @Pugs::Grammar::Rule::rule_terms, 'not_after';
+    unshift @Pugs::Grammar::Rule::rule_terms, 'negate';
 *{'Pugs::Grammar::Rule::capturing_group'} = 
 sub {
     my $grammar = shift;
     $_[0] = '' unless defined $_[0];
-    package Pugs::Runtime::Rule;
+    package Pugs::Runtime::LrepRule;
     rule_wrapper( $_[0], (
         concat(
           constant( "\(" )
@@ -472,7 +477,7 @@ sub {
         ,
           constant( "\)" )
         ,
-          Pugs::Runtime::Rule::abort(
+          Pugs::Runtime::LrepRule::abort(
               sub {
                   return { bool => 1, tail => $_[0], return => sub { return { capturing_group => $_[0]{rule}() ,} } };
               }
@@ -487,7 +492,7 @@ sub {
 sub {
     my $grammar = shift;
     $_[0] = '' unless defined $_[0];
-    package Pugs::Runtime::Rule;
+    package Pugs::Runtime::LrepRule;
     rule_wrapper( $_[0], (
         concat(
           capture( 'capturing_group',
@@ -540,7 +545,7 @@ sub {
             ,
           )
         ,
-          Pugs::Runtime::Rule::abort(
+          Pugs::Runtime::LrepRule::abort(
               sub {
                   return { bool => 1, tail => $_[0], return => sub { return { colon => $_[0]->() ,} } };
               }
@@ -555,7 +560,7 @@ sub {
 sub {
     my $grammar = shift;
     $_[0] = '' unless defined $_[0];
-    package Pugs::Runtime::Rule;
+    package Pugs::Runtime::LrepRule;
     rule_wrapper( $_[0], (
         concat(
           capture( 'ws1', 
@@ -620,7 +625,7 @@ sub {
             ,
           )
         ,
-          Pugs::Runtime::Rule::abort(
+          Pugs::Runtime::LrepRule::abort(
               sub {
                   return { bool => 1, tail => $_[0], return => sub { return {  
             term  => $_[0]{term}(),
@@ -641,7 +646,7 @@ sub {
 sub {
     my $grammar = shift;
     $_[0] = '' unless defined $_[0];
-    package Pugs::Runtime::Rule;
+    package Pugs::Runtime::LrepRule;
     rule_wrapper( $_[0], (
         concat(
           capture( 'q1', 
@@ -656,11 +661,16 @@ sub {
                 ,
               )
             ,
-              Pugs::Runtime::Rule::abort(
+              Pugs::Runtime::LrepRule::abort(
                   sub {
-                      return { bool => 1, tail => $_[0], return => sub { return { concat => [ 
+                      return { bool => 1, tail => $_[0], return => sub { 
+            my $q2 = $_[0]{q2}();
+            return { concat => [ 
                 { quant => $_[0]{q1}() ,}, 
-                $_[0]{q2}(),
+                ( exists $q2->{concat} 
+                    ? @{$q2->{concat}}
+                    : $q2 
+                ),
             ] ,} 
         } };
                   }
@@ -669,7 +679,7 @@ sub {
             ),
           )
         ,
-          Pugs::Runtime::Rule::abort(
+          Pugs::Runtime::LrepRule::abort(
               sub {
                   return { bool => 1, tail => $_[0], return => sub { return { quant => $_[0]{q1}() ,} } };
               }
@@ -683,7 +693,7 @@ sub {
 sub {
     my $grammar = shift;
     $_[0] = '' unless defined $_[0];
-    package Pugs::Runtime::Rule;
+    package Pugs::Runtime::LrepRule;
     rule_wrapper( $_[0], (
         concat(
           optional(
@@ -709,11 +719,16 @@ sub {
                 ,
               )
             ,
-              Pugs::Runtime::Rule::abort(
+              Pugs::Runtime::LrepRule::abort(
                   sub {
-                      return { bool => 1, tail => $_[0], return => sub { return { alt => [ 
+                      return { bool => 1, tail => $_[0], return => sub { 
+            my $q2 = $_[0]{q2}();
+            return { alt => [ 
                 $_[0]{q1}(), 
-                $_[0]{q2}(),
+                ( exists $q2->{alt} 
+                    ? @{$q2->{alt}}
+                    : $q2 
+                ),
             ] ,} 
         } };
                   }
@@ -722,7 +737,7 @@ sub {
             ),
           )
         ,
-          Pugs::Runtime::Rule::abort(
+          Pugs::Runtime::LrepRule::abort(
               sub {
                   return { bool => 1, tail => $_[0], return => sub { return $_[0]{q1}() } };
               }

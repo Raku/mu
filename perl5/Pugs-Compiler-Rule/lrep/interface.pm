@@ -1,6 +1,5 @@
 package interface;
 our $print_program = 0;
-our $output_program = 0;
 our $print_ast     = 0;
 our $print_match   = 0;
 our $pretty_print  = 0; #no effect yet...
@@ -15,7 +14,6 @@ sub import {
 	##print "* reading command line options\n";
 	GetOptions(
 		"print-program" => \$print_program,
-		"output-program=s" => \$output_program,
 		"print-ast" => \$print_ast,
 		"print-match" => \$print_match,
 		"pretty-print" => \$pretty_print,

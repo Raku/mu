@@ -1,11 +1,12 @@
-use Test::More tests => 30;
-use Data::Dump::Streamer;
-$Data::Dump::Streamer::Indent = 1;
+use Test::More tests => 33;
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
 use strict;
 use warnings;
 no warnings 'once';
 
 use_ok( 'Pugs::Compiler::Regex' );
+use base 'Pugs::Grammar::Base';
 
 {
     my $rule = Pugs::Compiler::Regex->compile('\w');
@@ -17,10 +18,30 @@ use_ok( 'Pugs::Compiler::Regex' );
 }
 
 {
+    local *rule = Pugs::Compiler::Regex->compile('<ws>')->code();
+    #print "rule: ", Pugs::Compiler::Regex->compile('<ws>')->{perl5};
+    my $match;
+
+    TODO: {
+    local $TODO = "weird <ws> rule matches 'null' before the text";
+    $match = __PACKAGE__->rule("abc");
+    #print "match: ", Dumper( $match->data );
+    is( $match ? 1 : 0 , 0 ,"no ws");
+    }
+
+    $match = __PACKAGE__->rule(" abc", { pos => 0 } );
+    #print "match: ", Dumper( $match->data );
+    is( $match ? 1 : 0 , 1 ,"Matched <ws> at pos=0");
+    $match = __PACKAGE__->rule("ab c");
+    is( $match ? 1 : 0 , 1 ,"Matched non-anchored <ws>");
+}
+
+{
     local *Test123::rule1 = Pugs::Compiler::Regex->compile('\w')->code();
     local *Test123::rule2 = Pugs::Compiler::Regex->compile('(<rule1>)*')->code();
+    #print "rule: ", Pugs::Compiler::Regex->compile('(<rule1>)*')->perl;
     my $match = Test123->rule2("abc");
-    #print Dump( $$match );
+    #print Dumper( $$match );
     is($match,'abc',"Matched...");
     is( $match->[0][0],"a","Capture 1...");
     is( $match->[0][1],"b","Capture 2...");
@@ -32,7 +53,9 @@ use_ok( 'Pugs::Compiler::Regex' );
 {
     local *Test123::rule1 = Pugs::Compiler::Regex->compile('\w')->code();
     local *Test123::rule2 = Pugs::Compiler::Regex->compile('<rule1>*')->code();
+    #print "rule: ", Pugs::Compiler::Regex->compile('<rule1>*')->perl;
     my $match = Test123->rule2("abc");
+    #print "match: ", $match->perl;
     is($match,'abc',"Matched...");
     is(ref($match->{rule1}),"ARRAY",'$<rule1> is an array...');
     is( $match->{rule1}[0],"a","Capture 1...");
@@ -52,7 +75,9 @@ use_ok( 'Pugs::Compiler::Regex' );
     is( $match->{rule1}[3],undef,"No more captures");
 }
 
+#SKIP:
 {
+    #skip "infinite loop - backtracking into subrules", 5;
     # backtracking into subrules
     my $rule1 = Pugs::Compiler::Regex->compile('(\w)+');
     my $rule2 = Pugs::Compiler::Regex->compile('a<$rule1>z');
@@ -60,10 +85,12 @@ use_ok( 'Pugs::Compiler::Regex' );
     #print $rule1->perl5;
     #print $rule2->perl5;
 
+    #print Pugs::Compiler::Regex->compile('a<rule1>z')->perl5;
+    
     my $match = $rule2->match("abcz");
     is( "$match",'abcz',"backtracking subrule matched");
 
-    #print Dump($match[0]);
+    #print map { ref($_) ? Dumper($_->data) : Dumper($_) } @{$match->[0]};
     is(ref($match->[0]),"ARRAY",'array...');
     is( $match->[0][0],"b","Capture 1...");
     is( $match->[0][1],"c","Capture 2...");
@@ -101,7 +128,7 @@ SKIP:
     
     my $rule = Pugs::Compiler::Regex->compile(' \[ <Test.subrule(to=>"]")> ');
     my $match = $rule->match("[abc]");
-    #print Dump $match;
+    #print Dumper $match;
     #print $match->(), "\n";
     is( "$match",'[abc]',"subrule+param matched");
 }
@@ -120,7 +147,7 @@ SKIP: {
     
     my $rule = Pugs::Compiler::Regex->compile(' \[ <Test.subrule2("]")> ');
     my $match = $rule->match("[abc]");
-    #print Dump $match;
+    #print Dumper $match;
     #print $match->(), "\n";
     is( "$match",'[abc]',"subrule+param matched");
 }

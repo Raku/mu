@@ -7,7 +7,7 @@ use metaclass;
 
 use Pugs::Compiler::Rule;
 
-our $VERSION ='0.01';
+#our $VERSION ='0.01';
 
 # stash the metaclass for the package 
 # that we store the grammer in

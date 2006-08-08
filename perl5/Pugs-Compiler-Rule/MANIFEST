@@ -16,7 +16,6 @@ lib/Pugs/Emitter/Rule/Perl5/Ratchet.pm
 lib/Pugs/Grammar/Base.pm
 lib/Pugs/Grammar/Precedence.pm
 lib/Pugs/Grammar/Rule.pm
-lib/Pugs/Grammar/RegexBase.pm
 lib/Pugs/Grammar/Rule/Rule.pm
 lib/Pugs/Grammar/Rule/Rule.pmc
 lib/Pugs/Runtime/Grammar.pm
@@ -24,7 +23,6 @@ lib/Pugs/Runtime/Match.pm
 lib/Pugs/Runtime/Match/Ratchet.pm
 lib/Pugs/Runtime/Rule.pl
 lib/Pugs/Runtime/Rule.pm
-lib/Pugs/Runtime/Regex.pm
 lib/Pugs/Runtime/Common.pm
 Makefile.PL
 MANIFEST

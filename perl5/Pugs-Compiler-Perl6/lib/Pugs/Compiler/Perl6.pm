@@ -8,11 +8,16 @@ use warnings;
 
 use base 'Pugs::Compiler::Regex';
 use Pugs::Grammar::Perl6;
+use Pugs::Compiler::Token;
 use Pugs::Emitter::Perl6::Perl5;
 use Carp;
 # use Scalar::Util 'blessed';
 use Data::Dumper;
-use Pugs::Grammar::BaseCategory;  # <ws>
+use base 'Pugs::Grammar::BaseCategory';  # <ws>
+
+*skip_spaces = Pugs::Compiler::Token->compile( q(
+        [ <?ws> | ; ]*
+) )->code;
 
 sub compile {
     my ( $class, $rule_source, $param ) = @_;
@@ -32,19 +37,37 @@ sub compile {
     #       keep the grammar tree and discard the match
     # AST = { statements => \@statement }
 
-    my $tail = $self->{source};
+    my $source = $self->{source};
     my @statement;
     my $error = 0;
+    my $pos = $self->{p} || 0;
 
-    while (1) {
+    my $source_line_number = 1;
+    my $source_pos = 0;
+
+    while ( $pos < length( $source ) ) {
+
+        while ( $source_pos < $pos ) {
+            my $i = index( $source, "\n", $source_pos + 1);
+            last if $i < 0;
+            $source_pos = $i;
+            $source_line_number++;
+            #print "line $source_line_number at pos $source_pos\n";
+        }
+
+        my $match = __PACKAGE__->skip_spaces( $source, { pos => $pos } );
+        $pos = $match->to if $match;
+        last if $pos >= length( $source );
 
         eval {
-            do {
-                my $match = Pugs::Grammar::BaseCategory->ws( $tail );
-                $tail = $match->{tail} if $match->{bool};
-            } until ! ($tail =~ s/^;//);
-            $self->{ast} = Pugs::Grammar::Perl6->statement( $tail );
+
+            #print "<ws> until $pos; tail [",substr( $source, $pos, 10 ),"...]\n";
+            $self->{ast} = Pugs::Grammar::Perl6->statement( $source, { pos => $pos } );
+            #print 'match: ', Dumper( $self->{ast}() );
+            #print 'match: ', Dumper( $self->{ast}->data );
+            $pos = $self->{ast}->to if $self->{ast};
         };
+        # print 'rule ast: ', Dumper( $self->{ast}() );
 
         if ( $@ ) {
             carp "Error in perl 6 parser: $@\nSource:\n'" .
@@ -53,18 +76,17 @@ sub compile {
             last;
         }
 
-        push @statement, $self->{ast}();
-        $tail = $self->{ast}->data->{tail};
-        last unless $tail;
-        #print 'rule ast: ', Dumper( $self->{ast}() );
+        push @statement, $self->{ast}()
+            if ref $self->{ast}();
+        last unless $self->{ast}->tail;
         #print "next statement: $tail \n";
 
     }
 
-    if ( $tail ) {
+    if ( $pos < length( $source ) ) {
         carp "Error in perl 6 parser:\nSource:\n'" .
              substr( $rule_source, 0, 30 ) . "...\nat:\n'" .
-             substr( $tail, 0, 30 ) . "...\n";
+             substr( $source, $pos, 30 ) . "...\n";
         $error = 1;
     }
 

@@ -39,7 +39,7 @@ if (@inc) {
         /^t\// or next;
         mkpath(dirname($_));
         my $src = "$inc[-1]/../$_";
-        $src = "../../ext/Test/lib/Test.pm" if $_ eq 't/Test.pm';
+        $src = "$inc[-1]/../ext/Test/lib/Test.pm" if $_ eq 't/Test.pm';
         copy($src => $_);
     }
 }
