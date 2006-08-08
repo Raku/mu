@@ -131,46 +131,6 @@ sub perl6_expression {
     { grammar => __PACKAGE__ }
 )->code;
 
-
-*for = Pugs::Compiler::Regex->compile( q(
-    (for|while|until) : <?ws>? 
-    $<exp1> := <perl6_expression('no_blocks',0)> <?ws>?
-    $<exp2> := <block>        
-        { return { 
-                    statement => $_[0][0]->(),
-                    exp1 => $_[0]{exp1}->(),
-                    exp2 => $_[0]{exp2}->(),
-        } }
-),
-    { grammar => __PACKAGE__ }
-)->code;
-
-*loop = Pugs::Compiler::Regex->compile( q(
-    (loop) : <?ws>?
-        [
-          <'('> $<exp1> := <perl6_expression_or_null> <?ws>? <';'>
-                $<exp2> := <perl6_expression_or_null> <?ws>? <';'>
-                $<exp3> := <perl6_expression_or_null> <?ws>? <')'> 
-                <?ws>? $<content> := <block>
-          { return { statement => $_[0][0]->(),
-                     exp1      => $_[0]{exp1}->(),
-                     exp2      => $_[0]{exp2}->(),
-                     exp3      => $_[0]{exp3}->(),
-                     content   => $_[0]{content}->() }
-          }
-        |
-          <block> <?ws>?
-          { return { statement => $_[0][0]->(),
-                     content   => $_[0]{block}->() }
-          }
-        |
-            # XXX better error messages
-            { return { die "invalid loop syntax" } }
-       ]
-),
-    { grammar => __PACKAGE__ }
-)->code;
-
 *repeat = Pugs::Compiler::Regex->compile( q(
     (repeat) : <?ws>?
         [
@@ -529,6 +489,11 @@ sub perl6_expression {
         { return $_[0]{perl5source}->() 
         }
     |
+    <Pugs::Grammar::StatementControl.parse>
+        { 
+            return $/->{'Pugs::Grammar::StatementControl.parse'}->();
+        }
+    |
     <begin_block>
         { return $_[0]{begin_block}->();
         }
@@ -543,14 +508,6 @@ sub perl6_expression {
     |
     <if>
         { return $_[0]{if}->();
-        }
-    |
-    <for>
-        { return $_[0]{for}->();
-        }
-    |
-    <loop>
-        { return $_[0]{loop}->();
         }
     |
     <repeat>

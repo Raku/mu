@@ -3,38 +3,67 @@ use strict;
 use warnings;
 use base qw(Pugs::Grammar::BaseCategory);
 
-# TODO - implement the "magic hash" dispatcher
-# TODO - generate AST
-# TODO - redefine <ws> to test Pod.pm after each \n
-
-sub register_sub {
-        my $category = $_[0]{pair}{key}{single_quoted};
-        my $name     = $_[0]{pair}{value}{single_quoted};
-        $category =~ s/^(\w)/uc($1)/e; 
-        $category = 'Pugs::Grammar::' . $category;
-        $category->add_rule( 
-            name => $name,
-            assoc => 'left',
-            precedence => 'equal',
-            other => '+',
-        );
-}
-
 BEGIN {
     __PACKAGE__->add_rule(
-        '{' => q( { return { stmt => '{'} } ));
+        'for' =>  q( 
+            # { print "statement for \n"; }
+            <?ws> 
+            $<exp1> := <Pugs::Grammar::Perl6.perl6_expression('no_blocks',0)> <?ws>?
+            $<exp2> := <Pugs::Grammar::Perl6.block>        
+            { return { 
+                    statement => 'for',
+                    exp1 => $_[0]{exp1}->(),
+                    exp2 => $_[0]{exp2}->(),
+            } }
+        ) );
     __PACKAGE__->add_rule(
-        '}' => q( { return { stmt => '}'} } ));
+        'while' =>  q( 
+            <?ws> 
+            $<exp1> := <Pugs::Grammar::Perl6.perl6_expression('no_blocks',0)> <?ws>?
+            $<exp2> := <Pugs::Grammar::Perl6.block>        
+            { return { 
+                    statement => 'while',
+                    exp1 => $_[0]{exp1}->(),
+                    exp2 => $_[0]{exp2}->(),
+            } }
+        ) );
     __PACKAGE__->add_rule(
-        '->' => q( { return { stmt => '->'} } ));
+        'until' =>  q( 
+            <?ws> 
+            $<exp1> := <Pugs::Grammar::Perl6.perl6_expression('no_blocks',0)> <?ws>?
+            $<exp2> := <Pugs::Grammar::Perl6.block>        
+            { return { 
+                    statement => 'until',
+                    exp1 => $_[0]{exp1}->(),
+                    exp2 => $_[0]{exp2}->(),
+            } }
+        ) );
     __PACKAGE__->add_rule(
-        '.' => q( <before <Pugs::Grammar::Term.ident> > { return { stmt => '.'} } ));
-    for ( qw( 
-        my our has
-    ) ) {
-        __PACKAGE__->add_rule(
-            $_ =>  qq( <before \\s> { return { stmt => '$_' } } ));
-    }
+        'loop' =>  q( 
+            <?ws> 
+            [
+              <'('> 
+                $<exp1> := <Pugs::Grammar::Perl6.perl6_expression_or_null> <?ws>? <';'>
+                $<exp2> := <Pugs::Grammar::Perl6.perl6_expression_or_null> <?ws>? <';'>
+                $<exp3> := <Pugs::Grammar::Perl6.perl6_expression_or_null> <?ws>? 
+              <')'> 
+              <?ws>? $<content> := <Pugs::Grammar::Perl6.block>
+              { return { statement => 'loop',
+                     exp1      => $_[0]{exp1}->(),
+                     exp2      => $_[0]{exp2}->(),
+                     exp3      => $_[0]{exp3}->(),
+                     content   => $_[0]{content}->() }
+              }
+            |
+              <Pugs::Grammar::Perl6.block> <?ws>?
+              { return { statement => 'loop',
+                     content   => $_[0]{'Pugs::Grammar::Perl6.block'}->() }
+              }
+            |
+              # XXX better error messages
+              { return { die "invalid loop syntax" } }
+           ]
+        ) );
     __PACKAGE__->recompile;
 }
 

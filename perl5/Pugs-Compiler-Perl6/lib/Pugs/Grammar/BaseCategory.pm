@@ -30,7 +30,8 @@ use Data::Dumper;
 sub add_rule {
     my ( $class, $key, $rule ) = @_;
     no strict qw( refs );
-    ${"${class}::hash"}{$key} = $rule;
+    #print "add_rule [". $class . "::hash{$key} /$rule/\n";
+    ${ $class . "::hash" }{$key} = $rule;
 }
 
 sub recompile {
@@ -40,7 +41,7 @@ sub recompile {
     *{"${class}::parse"} = Pugs::Compiler::Token->compile( '
         <%' . $class . '::hash>
         { 
-            #print "BaseCategory matching hash ", Dumper( $_[0]->data );
+            #print "BaseCategory matched hash ", Dumper( $_[0]->data );
             return $/->{\'' . $class . '::hash\'}->();
         }
     ' )->code;
