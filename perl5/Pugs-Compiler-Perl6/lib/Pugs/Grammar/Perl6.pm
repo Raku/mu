@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use base qw(Pugs::Grammar::BaseCategory);
 use Pugs::Grammar::StatementControl;
+use Pugs::Grammar::StatementModifier;
 use Pugs::Grammar::Expression;
 use Pugs::Grammar::Pod;
 
@@ -433,16 +434,16 @@ sub perl6_expression {
     |
     <perl6_expression> 
         [
-            <?ws>? (if|unless|for|while|until) <?ws>?
-            $<exp1> := <perl6_expression> 
-            #{ print "$a if $b ", Dumper( $/->data );
-            #    print Dumper( $_[0]{perl6_expression}->data ),
-            #          Dumper( $_[0]{exp1}->data );
+            <?ws>? 
+            <Pugs::Grammar::StatementModifier.parse> 
+            #{ print "\$a if \$b ", Dumper( $/->data );
+            #  print Dumper( $_[0]{'perl6_expression'}->data ),
+            #        Dumper( $_[0]{'Pugs::Grammar::StatementModifier.parse'}->data );
             #}
             { return {
-                statement => $_[0][0]->(),
-                exp2 => $_[0]{perl6_expression}->(),
-                exp1 => $_[0]{exp1}->(),
+                statement => $/->{'Pugs::Grammar::StatementModifier.parse'}->()->{'statement'},
+                exp2 => $/->{'perl6_expression'}->(),
+                exp1 => $/->{'Pugs::Grammar::StatementModifier.parse'}->()->{'exp1'},
             } } 
         |
             { 
