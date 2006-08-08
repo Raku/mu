@@ -13,9 +13,6 @@ use Pugs::Grammar::P6Rule; # our local version of Grammar::Rule.pm
 
 use Data::Dumper;
 
-# TODO - redefine <ws> to test Pod.pm after each \n
-# *ws = &Pugs::Grammar::BaseCategory::ws;
-
 sub perl6_expression {
     #print "perl6_expression param: ", Dumper @_;
     my $pos = $_[2]{p} || 0;
