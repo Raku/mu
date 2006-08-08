@@ -50,7 +50,7 @@ instance Value SIO Val where
     valId (VExt x)      = valId x
     valCompare        = compare
     valMeta (VUndef x)  = cast . show . typeOf $ x
-    valMeta (VNative x) = cast . show . typeOf $ x
+    valMeta (VNative x) = valMeta x
     valMeta (VPure x)   = valMeta x
     valMeta (VMut x)    = valMeta x
     valMeta (VExt x)    = valMeta x
@@ -62,13 +62,20 @@ instance Value SIO Val where
 instance ((:>:) Id) NativeBuf where
     cast = cast . NBuf
 
-{-
-instance Value Identity ValNative where
-    val             = VNative
-    valCompare      = compare
-    valShow         = cast . show
-    valId x         = cast x
--}
+instance Coercible P ValNative where
+    asNative = return . id
+
+instance Value P ValNative where
+    val                 = VNative
+    valMeta NBit{}      = cast "bit"
+    valMeta NInt{}      = cast "int"
+    valMeta NUint{}     = cast "uint"
+    valMeta NBuf{}      = cast "buf"
+    valMeta NNum{}      = cast "num"
+    valMeta NComplex{}  = cast "complex"
+    valCompare          = compare
+    valShow             = cast . show
+    valId x             = cast x
 
 -- | 'Id' is an unique ID that distinguishes two @Val@s of the same type from each other.
 type Id = Maybe ValNative
@@ -111,7 +118,13 @@ type P = Identity
 class Coercible m a => Value m a where
     val         :: a -> Val
     valMeta     :: a -> Class
-    valMeta     = error "moose"
+    valMeta     = cast . takeTypeName "" . reverse . show . typeOf
+        where
+        -- Here we intuit "Str" from "Pugs.Val.Str.PureStr".
+        takeTypeName acc [] = acc
+        takeTypeName acc (x:xs)
+            | isLower x = takeTypeName (x:acc) xs
+            | otherwise = x:acc
     valShow     :: a -> PureStr
     valShow _ = cast "<opaque>"
     valId       :: a -> Id
