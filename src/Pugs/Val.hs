@@ -122,9 +122,9 @@ class (Monad m, Functor m, Eq a, Data a, Typeable a) => Coercible m a | a -> m w
     asBit    :: a -> m PureBit
     asBit _ = return True
     asInt    :: a -> m PureInt
-    asInt _ = fail "coerce fail"
+    asInt x = fail $ "coerce fail: " ++ (show $ typeOf x) ++ " to PureInt"
     asNum    :: a -> m PureNum
-    asNum _ = fail "coerce fail"
+    asNum x = fail $ "coerce fail: " ++ (show $ typeOf x) ++ " to PureNum"
     asStr    :: a -> m PureStr
     asStr x = return (cast "<opaque>") -- XXX wrong
     asList   :: a -> Maybe (m PureList)
