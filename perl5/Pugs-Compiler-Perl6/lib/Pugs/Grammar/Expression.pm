@@ -16,9 +16,7 @@ use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
 
-# XXX - PCR is not calling this
-*ws = &Pugs::Grammar::BaseCategory::ws;
-
+# TODO - grab the delimiters from StatementModifier
 my $rx_end_with_blocks = qr/
                 ^ \s* (?: 
                             [});\]] 
@@ -208,7 +206,8 @@ sub ast {
             }
             # term<> 
             if ( $m2 && $m2->tail && $m2->tail =~ /^\</ ) {
-                my $paren = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
+                # XXX - is '<' a quote?
+                my $paren = Pugs::Grammar::Quote->parse( $match, { p => $pos2 } );
                 if ( exists $m2->()->{dot_bareword} ) {
                     $paren->data->{capture} = \{ 
                         op1 => 'method_call', 
