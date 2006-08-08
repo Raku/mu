@@ -62,10 +62,9 @@ listVal :: Val -> SIO PureList
 listVal v@(VPure x) = f v x asList
 listVal v@(VMut x)  = f v x asList
 listVal v@(VExt x)  = f v x asList
-listVal v           = return (cast v)
+listVal v           = cast v
 
-f :: ((:>:) (m a) b1, (:>:) a b, Monad m) => b -> bx -> (bx -> Maybe b1) -> m a
-f v x g = maybe (return $ cast v) cast (g x)
+f v x g = maybe (cast v) cast (g x)
 
 instance ((:>:) PureList) Val where
     cast = singleton -- . Left . singleton
@@ -77,7 +76,7 @@ instance IValue SIO Val where
     valId (VPure x)     = valId x
     valId (VMut x)      = valId x
     valId (VExt x)      = valId x
-    valCompare        = compare
+    valCompare          = compare
     valMeta (VUndef x)  = cast . show . typeOf $ x
     valMeta (VNative x) = valMeta x
     valMeta (VPure x)   = valMeta x

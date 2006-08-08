@@ -11,7 +11,7 @@ newtype PureStr = MkStr ByteString
     deriving (Typeable, Show, Eq, Ord, Data, (:>:) String, (:<:) String, (:>:) ByteString, (:<:) ByteString)
 
 instance ICoercible P PureStr where
-    asStr  = return . cast
+    asStr  = cast
 
 class (Monad m, Functor m, Eq a, Data a, Typeable a) => ICoercible m a | a -> m where
     asBit    :: a -> m PureBit

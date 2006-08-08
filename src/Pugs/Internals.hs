@@ -143,6 +143,12 @@ import qualified Data.Seq as Seq
 instance ((:>:) [a]) (Seq a) where cast = Seq.toList
 instance ((:<:) [a]) (Seq a) where castBack = Seq.fromList
 
+-- "return . cast" can be written as "cast"
+instance (Monad m, (a :>: b)) => ((:>:) (m a)) b where cast = return . cast
+
+-- "fmap cast" can be written as "cast"
+instance (Functor f, (a :>: b)) => ((:>:) (f a)) (f b) where cast = fmap cast
+
 -- Nominal subtyping and type equivalence
 class ((:>:) a) b where
     cast :: b -> a
