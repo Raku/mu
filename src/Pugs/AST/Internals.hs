@@ -641,7 +641,8 @@ instance Value [Word8] where
 type VScalar = Val
 
 instance Value VScalar where
-    fromSV sv = return $ PerlSV sv
+    fromSV = return . PerlSV
+    fromVV = return . VV
     fromVal (VRef r) = fromVal =<< readRef r
     fromVal v = return v
     doCast v = return v
