@@ -9,8 +9,9 @@
 >   And shining spears were laid in hoard...
 -}
 module Pugs.Val (
-    Value(..), Val(..), ValUndef, ValNative, Id,
-    module Pugs.Val.Str,
+    Value(..), Val(..), ValUndef, ValNative, Id, P,
+    Coercible(..),
+    PureBit, PureInt, PureNum, PureStr, PureList,
 ) where
 import Pugs.Internals
 import GHC.Exts
@@ -38,11 +39,12 @@ data Val
     | forall a. Ext a  => VExt  !a  -- ^ Input/Ouput handles          (ValId = memory addr)
     deriving (Typeable)
 
-{-
+instance Coercible SIO Val where
+
 instance Value SIO Val where
     val = id
     valId VUndef{}      = cast (NBit False)
-    valId (VNative x)   = valId x
+    valId (VNative x)   = Just x
     valId (VPure x)     = valId x
     valId (VMut x)      = valId x
     valId (VExt x)      = valId x
@@ -53,7 +55,6 @@ instance Value SIO Val where
     valMeta (VMut x)    = valMeta x
     valMeta (VExt x)    = valMeta x
     valShow             = cast . show
--}
 
 -- instance Pure PureStr where
 --  pureId x = cast (cast x :: ByteString)
@@ -117,23 +118,6 @@ class Coercible m a => Value m a where
     valId = cast . NUint . unsafeCoerce#
     valCompare  :: a -> a -> Ordering
     valCompare x y = valId x `compare` valId y
-
-class (Monad m, Functor m, Eq a, Data a, Typeable a) => Coercible m a | a -> m where
-    asBit    :: a -> m PureBit
-    asBit _ = return True
-    asInt    :: a -> m PureInt
-    asInt x = fail $ "coerce fail: " ++ (show $ typeOf x) ++ " to PureInt"
-    asNum    :: a -> m PureNum
-    asNum x = fail $ "coerce fail: " ++ (show $ typeOf x) ++ " to PureNum"
-    asStr    :: a -> m PureStr
-    asStr x = return (cast "<opaque>") -- XXX wrong
-    asList   :: a -> Maybe (m PureList)
-    asList _ = Nothing -- default = do not flatten
-    asNative :: a -> m ValNative
-    asNative = fmap (NBuf . cast) . asStr
-
-instance Coercible P PureStr where
-    asStr  = return . cast
 
 class (Coercible P a, Ord a, Show a) => Pure a where {}
 instance (Coercible P a, Ord a, Show a) => Pure a where {}

@@ -1,21 +1,30 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
 module Pugs.Val (
-    Val(..), ValUndef, ValNative, ValPure, ValMut, ValIO, Id
+    Val, ValNative(..), PureBit, PureInt, PureNum, PureList, P
 ) where
 import Pugs.Internals
 
 data Val
-    = VUndef  !ValUndef   -- ^ Values that defeat type constraints (ValId = 0)
-    | VNative !ValNative  -- ^ Values that can fit into an UArray  (ValId = boxed value)
-    | VPure   !ValPure    -- ^ Values that are immutable           (ValId = itself)
-    | VMut    !ValMut     -- ^ In-memory mutable structures        (ValId = memory addr)
-    | VIO     !ValIO      -- ^ Input/Ouput handles                 (ValId = impl. dep.)
 
-data ValUndef
 data ValNative
-data ValPure
-data ValMut
-data ValIO
+    = NBit      !NativeBit      
+    | NInt      !NativeInt      
+    | NUint     !NativeUint     
+    | NBuf      !NativeBuf      
+    | NNum      !NativeNum      
+    | NComplex  !NativeComplex 
 
-type Id = ValPure
+type NativeBit      = Bool
+type NativeInt      = Int
+type NativeUint     = Word
+type NativeBuf      = ByteString
+type NativeNum      = Float
+type NativeComplex  = () -- Complex NativeNum 
+
+type PureBit = Bool
+data PureInt
+data PureNum
+data PureList
+
+type P = Identity

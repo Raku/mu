@@ -13,10 +13,10 @@ import Control.Monad.RWS
 
 data SIO a = MkSTM !(STM a) | MkIO !(IO a) | MkSIO !a
 
-runSIO :: SIO a -> a
-runSIO MkSTM{}      = error "Unsafe STM caught in pure computation"
-runSIO MkIO{}       = error "Unsafe IO caught in pure computation"
-runSIO (MkSIO x)    = x
+runSIO :: Monad m => SIO a -> m a
+runSIO MkSTM{}      = fail "Unsafe STM caught in pure computation"
+runSIO MkIO{}       = fail "Unsafe IO caught in pure computation"
+runSIO (MkSIO x)    = return x
 
 runSTM :: SIO a -> STM a
 runSTM (MkSTM stm)  = stm
