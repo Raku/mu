@@ -304,23 +304,24 @@ sub variable {
                 ";
                 my \%sizes = map { length(\$_) => 1 } keys \%\$hash;
                 ${id}_sizes = [ sort { \$b <=> \$a } keys \%sizes ];
-                #print \"sizes: \@${id}_sizes\\n\";
+                " . #print \"sizes: \@${id}_sizes\\n\";
                 #$id = {
                 #        map  { \$_ =>
                 #               Pugs::Emitter::Rule::Perl5::Ratchet::preprocess_hash( \$hash, \$_ ) }
                 #        keys \%\$hash
                 #};
-                $id = \$hash;
+                "$id = \$hash;
             }
-            #print 'keys: ',Dumper( $id );
-            my \$match = 0;
+            " . #print 'keys: ',Dumper( $id );
+            "my \$match = 0;
             my \$key;
             for ( \@". $id ."_sizes ) {
                 \$key = ( \$pos <= length( \$s ) 
                             ? substr( \$s, \$pos, \$_ )
                             : '' );
-                if ( exists ". $id ."->{\$key} ) {
-                    " . #print \"* ${name}\{'\$key\'} at \$pos \\\n\";
+                " . #print \"try ".$name." \$_ = \$key; \$s\\\n\";
+                "if ( exists ". $id ."->{\$key} ) {
+                    " . #print \"* ".$name."\{'\$key\'} at \$pos \\\n\";
                     "\$match = $preprocess_hash( $id, \$key )->( \$s, \$grammar, { p => ( \$pos + \$_ ), args => {} }, undef );
                     " . #print \"match: \", Dumper( \$match->data );
                     "last if \$match;

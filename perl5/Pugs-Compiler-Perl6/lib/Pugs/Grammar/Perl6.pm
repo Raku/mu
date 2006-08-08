@@ -80,85 +80,6 @@ sub perl6_expression {
     { grammar => __PACKAGE__ }
 )->code;
 
-
-*if = Pugs::Compiler::Regex->compile( q(
-    (if|unless) <?ws>? 
-    $<exp1> := <perl6_expression('no_blocks',0)> <?ws>?
-    $<exp2> := <block>        
-        [
-            <?ws>? else <?ws>? 
-            $<exp3> := <block>
-                { return { 
-                    statement => $_[0][0]->(),
-                    exp1 => $_[0]{exp1}->(),
-                    exp2 => $_[0]{exp2}->(),
-                    exp3 => $_[0]{exp3}->(),
-                } }
-        |
-            <?ws>? elsif <?ws>? 
-            $<exp3> := <perl6_expression('no_blocks',0)> <?ws>?
-            $<exp4> := <block>
-            [
-                <?ws>? else <?ws>? 
-                $<exp5> := <block>
-                { return { 
-                    statement => $_[0][0]->(),
-                    exp1 => $_[0]{exp1}->(),
-                    exp2 => $_[0]{exp2}->(),
-                    exp3 => $_[0]{exp3}->(),
-                    exp4 => $_[0]{exp4}->(),
-                    exp5 => $_[0]{exp5}->(),
-                } }
-                
-                # TODO: elsif ...
-            |
-                { return { 
-                    statement => $_[0][0]->(),
-                    exp1 => $_[0]{exp1}->(),
-                    exp2 => $_[0]{exp2}->(),
-                    exp3 => $_[0]{exp3}->(),
-                    exp4 => $_[0]{exp4}->(),
-                } }
-            ]
-        |
-            { return { 
-                    statement => $_[0][0]->(),
-                    exp1 => $_[0]{exp1}->(),
-                    exp2 => $_[0]{exp2}->(),
-            } }
-        ]
-),
-    { grammar => __PACKAGE__ }
-)->code;
-
-*repeat = Pugs::Compiler::Regex->compile( q(
-    (repeat) : <?ws>?
-        [
-          (while|until) : <?ws>? <perl6_expression('no_blocks',0)>
-          <block> <?ws>?
-          { return { statement => $_[0][0]->(),
-                     which     => $_[0][1]->(),
-                     exp2      => $_[0]{perl6_expression}->(),
-                     postfix   => 1,
-                     content   => $_[0]{block}->() }
-          }
-        |
-          <block> <?ws>?
-          (while|until) : <?ws>? <perl6_expression('no_blocks',0)>
-          { return { statement => $_[0][0]->(),
-                     which     => $_[0][1]->(),
-                     exp2      => $_[0]{perl6_expression}->(),
-                     postfix   => 1,
-                     content   => $_[0]{block}->() }
-          }
-        |
-            # XXX better error messages
-            { return { die "invalid repeat syntax" } }
-       ]
-),
-    { grammar => __PACKAGE__ }
-)->code;
-
 *try = Pugs::Compiler::Token->compile( q(
     (try) <?ws>? <block>        
         { return { 
@@ -498,23 +419,15 @@ sub perl6_expression {
         { return $_[0]{begin_block}->();
         }
     |
-    <rule_decl>
+    <rule_decl>  # TODO: move to expression
         { return $_[0]{rule_decl}->();
         }
     |
-    <sub_decl>
+    <sub_decl>   # TODO: move to expression
         { return $_[0]{sub_decl}->();
         }
     |
-    <if>
-        { return $_[0]{if}->();
-        }
-    |
-    <repeat>
-        { return $_[0]{repeat}->();
-        }
-    |
-    <try>   # this actually don't belong here
+    <try>        # TODO: move to expression
         { return $_[0]{try}->();
         }
     |
