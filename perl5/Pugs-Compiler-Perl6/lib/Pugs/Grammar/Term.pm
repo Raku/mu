@@ -319,6 +319,14 @@ sub recompile {
                         key   => { single_quoted => $/[0]() }, 
                         value => { num => 1 }, 
                 } } }
+                |
+                # :!foo 
+                <'!'> ((_|\w)+)
+                { return {
+                    pair => { 
+                        key   => { single_quoted => $/[0]() }, 
+                        value => { num => 0 }, 
+                } } }
                 ]            
 
             |
