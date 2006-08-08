@@ -1,5 +1,5 @@
 
-use Test::More tests => 28;
+use Test::More tests => 30;
 use Data::Dumper;
 
 use_ok( 'Pugs::Grammar::Rule' );
@@ -68,6 +68,16 @@ use_ok( 'Pugs::Grammar::Term' );
 }
 
 use_ok( 'Pugs::Grammar::Perl6' );
+
+{
+  my $match = $Pugs::Grammar::Term::hash{''}->match( 
+        "abc", 
+        { p => 0, },
+  );
+  #print Dumper $match->data;
+  is_deeply( $$match , { 'bareword' => 'abc' }, "bareword" );
+  is( $match->to, 3, ".to" );
+}
 
 {
   my $match = Pugs::Grammar::Perl6->perl6_expression( 

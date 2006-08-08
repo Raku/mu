@@ -30,17 +30,14 @@ use Data::Dumper;
 sub add_rule {
     my ( $class, $key, $rule ) = @_;
     no strict qw( refs );
-    ${"${class}::hash"}{$key} = Pugs::Compiler::Token->compile( 
-        $rule, 
-        { grammar => $class },
-    );
+    ${"${class}::hash"}{$key} = $rule;
 }
 
 sub recompile {
     my ( $class ) = @_;
     no strict qw( refs );
     #print "creating ${class}::parse()\n";
-    *{"${class}::parse"} = Pugs::Compiler::Regex->compile( '
+    *{"${class}::parse"} = Pugs::Compiler::Token->compile( '
         <%' . $class . '::hash>
         { 
             #print "BaseCategory matching hash ", Dumper( $_[0]->data );
