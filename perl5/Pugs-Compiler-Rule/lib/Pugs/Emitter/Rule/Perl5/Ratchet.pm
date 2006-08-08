@@ -630,18 +630,24 @@ sub metasyntax {
     if ( $prefix eq '@' ) {
         # XXX - wrap @array items - see end of Pugs::Grammar::Rule
         # TODO - param list
+        my $name = substr( $cmd, 1 );
         return 
-            "$_[1] do {\n" . 
-            "$_[1]    my \$match;\n" . 
-            "$_[1]    for my \$subrule ( $cmd ) {\n" . 
-            "$_[1]        \$match = " . 
-                call_subrule( '$subrule', '', () ) . ";\n" .
-            "$_[1]        last if \$match;\n" . 
-            "$_[1]    }\n" .
-            "$_[1]    my \$bool = (!\$match != 1);\n" . 
-            "$_[1]    \$pos = \$match->to if \$bool;\n" . 
-            "$_[1]    \$bool;\n" . 
-            "$_[1] }";
+            "$_[1] do {
+                my \$match; 
+                for my \$subrule ( $cmd ) { 
+                    \$match = \$subrule->match( \$s, \$grammar, { p => ( \$pos ), args => {} }, undef );
+                    last if \$match; 
+                }
+                if ( \$match ) {" .
+                    ( $capture_to_array 
+                    ? " push \@{\$named{'$name'}}, \$match;" 
+                    : " \$named{'$name'} = \$match;"
+                    ) . "
+                    \$pos = \$match->to; 
+                    1 
+                } 
+                else { 0 }
+            }";
     }
 
     if ( $prefix eq '%' ) {

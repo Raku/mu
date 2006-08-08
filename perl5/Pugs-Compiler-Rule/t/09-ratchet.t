@@ -560,11 +560,11 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 {
     my $match;
-    Pugs::Compiler::Rule->install('Test::rule1' => 'xxyy'),  
-    Pugs::Compiler::Rule->install('Test::rule2' => 'abc'),   
+    #Pugs::Compiler::Rule->install('Test::rule1' => 'xxyy'),  
+    #Pugs::Compiler::Rule->install('Test::rule2' => 'abc'),   
     @Test::test = (
-        'Test::rule1',  
-        'Test::rule2',   
+        Pugs::Compiler::Token->compile('xxyy'),  
+        Pugs::Compiler::Token->compile('abc'),   
     );   
     $rule1 = Pugs::Compiler::Rule->compile('<@Test::test> 123');
     #print $rule1->perl5;
@@ -574,11 +574,11 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 {
     my $match;
-    Pugs::Compiler::Token->install('Test::rule3' => 'xxyy'),  
-    Pugs::Compiler::Token->install('Test::rule4' => 'abc'),   
+    #Pugs::Compiler::Token->install('Test::rule3' => 'xxyy'),  
+    #Pugs::Compiler::Token->install('Test::rule4' => 'abc'),   
     @Test::test = (
-        'Test::rule4',  
-        'Test::rule3',   
+        Pugs::Compiler::Token->compile('xxyy'),  
+        Pugs::Compiler::Token->compile('abc'),   
     );   
     $rule1 = Pugs::Compiler::Token->compile('<@Test::test> 123');
     #print $rule1->perl5;
