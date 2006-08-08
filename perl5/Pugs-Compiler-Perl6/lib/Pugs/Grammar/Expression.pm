@@ -6,6 +6,7 @@ use warnings;
 #use Pugs::Compiler::Rule;
 use Pugs::Grammar::Precedence;
 use Pugs::Grammar::Term;
+use Pugs::Grammar::Quote;
 use Pugs::Grammar::Operator;
 use Pugs::Grammar::StatementControl;
 use base 'Pugs::Grammar::Base';
@@ -87,8 +88,11 @@ sub ast {
         
         my $m1 = Pugs::Grammar::Operator->parse( $match, { p => $pos } );
         my $m2;
-        $m2 = Pugs::Grammar::Term->parse( $match, { p => $pos } )
-            if $expect_term;
+        if ( $expect_term ) {
+            $m2 = Pugs::Grammar::Term->parse( $match, { p => $pos } );
+            $m2 = Pugs::Grammar::Quote->parse( $match, { p => $pos } )
+                unless $m2;
+        }
         #print "m1 = " . Dumper($m1->()) . "m2 = " . Dumper($m2->());
 
         my $pos2;
