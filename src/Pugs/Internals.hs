@@ -19,6 +19,7 @@ module Pugs.Internals (
     module Control.Exception,
     module Control.Monad.Error,
     module Control.Monad.RWS,
+    module Control.Monad.Identity,
     module Data.Array,
     module Data.Bits,
     module Data.Char,
@@ -110,6 +111,7 @@ import System.Mem.Weak
 import System.Directory (Permissions(..), getPermissions, getTemporaryDirectory, createDirectory, removeDirectory, removeFile, getDirectoryContents)
 import Control.Exception (catchJust, errorCalls)
 import Control.Monad.RWS
+import Control.Monad.Identity (Identity(..))
 import Control.Monad.Error (MonadError(..))
 import Control.Concurrent
 import Control.Concurrent.STM

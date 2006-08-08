@@ -31,48 +31,49 @@ does not provide concrete data type definitions beyond those five.
 
 -- | 'Val' represents what an unconstrained scalar container can hold.
 data Val
-    = VUndef  !ValUndef   -- ^ Values that are false on .defined      (ValId = 0)
+    = VUndef  !ValUndef   -- ^ Values that are false on .defined      (ValId = undef)
     | VNative !ValNative  -- ^ Values that can fit into an UArray     (ValId = impl.dep.)
     | forall a. Pure a => VPure !a  -- ^ Values that are immutable    (ValId = pureId)
     | forall a. Mut a  => VMut  !a  -- ^ In-memory mutable structures (ValId = memory addr)
     | forall a. Ext a  => VExt  !a  -- ^ Input/Ouput handles          (ValId = memory addr)
     deriving (Typeable)
 
-instance Value Val where
+{-
+instance Value SIO Val where
     val = id
     valId VUndef{}      = cast (NBit False)
     valId (VNative x)   = valId x
     valId (VPure x)     = valId x
     valId (VMut x)      = valId x
     valId (VExt x)      = valId x
-    valIdCompare        = compare
+    valCompare        = compare
     valMeta (VUndef x)  = cast . show . typeOf $ x
     valMeta (VNative x) = cast . show . typeOf $ x
     valMeta (VPure x)   = valMeta x
     valMeta (VMut x)    = valMeta x
     valMeta (VExt x)    = valMeta x
     valShow             = cast . show
+-}
 
-instance Pure PureStr where
-    pureId x = cast (cast x :: ByteString)
+-- instance Pure PureStr where
+--  pureId x = cast (cast x :: ByteString)
 
 instance ((:>:) Id) NativeBuf where
-    cast = MkId . NBuf
+    cast = cast . NBuf
 
-instance Value ValNative where
-    val = VNative
-    valIdCompare = compare
-    valShow      = cast . show
-    valId (NBit x)   = valId x
-    valId (NInt 0)   = cast(NBit True)
-    valId (NUint 0)  = cast(NBit True)
-    valId (NNum 0)   = cast(NBit True)
-    valId (NBuf x) | Buf.null x  = cast(NBit True)
-    valId x          = cast x
+{-
+instance Value Identity ValNative where
+    val             = VNative
+    valCompare      = compare
+    valShow         = cast . show
+    valId x         = cast x
+-}
 
 -- | 'Id' is an unique ID that distinguishes two @Val@s of the same type from each other.
-newtype Id = MkId { unId :: ValNative }
-    deriving (Show, Eq, Ord, Data, Typeable, (:>:) ValNative, (:<:) ValNative)
+type Id = Maybe ValNative
+
+instance ((:>:) Id) ValNative where
+    cast = Just
 
 --------------------------------------------------------------------------------------
 
@@ -103,71 +104,68 @@ type NativeNum      = Float
 type NativeComplex  = () -- Complex NativeNum 
 
 --------------------------------------------------------------------------------------
-class (Show a, Eq a, Ord a, Data a, Typeable a) => Pure a where
-    pureId :: a -> Id
-    pureVal :: a -> Val
-    pureVal = VPure
 
-class (Eq a, Data a, Typeable a) => Mut a where
-    mutId :: a -> Id
-    mutId = cast . NUint . unsafeCoerce#
-    mutVal :: a -> Val
-    mutVal = VMut
-    mutIdCompare :: a -> a -> Ordering
-    mutIdCompare x y = mutId x `compare` mutId y
-    mutShow :: a -> PureStr
+type P = Identity
 
-class (Eq a, Data a, Typeable a) => Ext a where
-    extId :: a -> Id
-    extId = cast . NUint . unsafeCoerce#
-    extVal :: a -> Val
-    extVal = VExt
-    extIdCompare :: a -> a -> Ordering
-    extIdCompare x y = extId x `compare` extId y
-    extShow :: a -> PureStr
+class Coercible m a => Value m a where
+    val         :: a -> Val
+    valMeta     :: a -> Class
+    valMeta     = error "moose"
+    valShow     :: a -> PureStr
+    valShow _ = cast "<opaque>"
+    valId       :: a -> Id
+    valId = cast . NUint . unsafeCoerce#
+    valCompare  :: a -> a -> Ordering
+    valCompare x y = valId x `compare` valId y
 
-{- Pure interfaces common to all value types -}
-class (Eq a, Data a, Typeable a) => Value a where
-    val          :: a -> Val
-    valShow      :: a -> PureStr
-    valMeta      :: a -> Class
-    valId        :: a -> Id
-    valIdCompare :: a -> a -> Ordering
-    valIdCompare x y = valId x `compare` valId y
+class (Monad m, Functor m, Eq a, Data a, Typeable a) => Coercible m a | a -> m where
+    asBit    :: a -> m PureBit
+    asBit _ = return True
+    asInt    :: a -> m PureInt
+    asInt _ = fail "coerce fail"
+    asNum    :: a -> m PureNum
+    asNum _ = fail "coerce fail"
+    asStr    :: a -> m PureStr
+    asStr x = return (cast "<opaque>") -- XXX wrong
+    asList   :: a -> Maybe (m PureList)
+    asList _ = Nothing -- default = do not flatten
+    asNative :: a -> m ValNative
+    asNative = fmap (NBuf . cast) . asStr
+
+instance Coercible P PureStr where
+    asStr  = return . cast
+
+class (Coercible P a, Ord a, Show a) => Pure a where {}
+instance (Coercible P a, Ord a, Show a) => Pure a where {}
+
+instance Pure a => Value P a where
+    val         = VPure
+    valId       = Just . runIdentity . asNative
+    valShow     = cast . show
+    valCompare  = compare
+
+instance Mut a => Value STM a where
+    val         = VMut
+
+instance Ext a => Value SIO a where
+    val         = VExt
+
+class Coercible STM a => Mut a where {}
+instance Coercible STM a => Mut a where {}
+
+class Coercible SIO a => Ext a where {}
+instance Coercible SIO a => Ext a where {}
 
 type Class = PureStr -- XXX - Wrong
-
-instance Pure a => Mut a where
-    mutId           = pureId
-    mutIdCompare    = compare
-    mutVal          = pureVal
-    mutShow         = cast . show
-
-instance Mut a => Ext a where
-    extId           = mutId
-    extIdCompare    = mutIdCompare
-    extVal          = mutVal
-    extShow         = mutShow
-
-instance Ext a => Value a where
-    valId           = extId
-    valIdCompare    = extIdCompare
-    val             = extVal
-    valShow         = extShow
-    valMeta         = cast . show . typeOf
-
-instance Pure Bool where
-    pureId True     = cast (NInt (-1))
-    pureId False    = cast (NBit True)
 
 dynEq :: (Typeable a, Typeable b, Eq a) => a -> b -> Bool
 dynEq x y = case Typeable.cast y of
     Just y' -> x == y'
     Nothing -> False
 
-dynCompare :: (Value a, Value b) => a -> b -> Ordering
+dynCompare :: forall a b ma mb. (Value ma a, Value mb b) => a -> b -> Ordering
 dynCompare x y = case Typeable.cast y of
-    Just y' -> valIdCompare x y'
+    Just y' -> valCompare x y'
     Nothing -> compare (show $ typeOf x) (show $ typeOf y)
 
 {-
