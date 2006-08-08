@@ -88,7 +88,7 @@ import Pugs.AST.Scope
 import Pugs.AST.SIO
 import Pugs.Embed.Perl5
 import qualified Pugs.Val as Val
-import Pugs.Val hiding (Val, Value, VUndef)
+import Pugs.Val hiding (Val, IValue, VUndef)
 
 {- <DrIFT> Imports for the DrIFT
 import Pugs.AST.Scope

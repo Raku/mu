@@ -9,8 +9,8 @@
 >   And shining spears were laid in hoard...
 -}
 module Pugs.Val (
-    Value(..), Val(..), ValUndef, ValNative, Id, P,
-    Coercible(..),
+    IValue(..), Val(..), ValUndef, ValNative, Id, P,
+    ICoercible(..),
     PureBit, PureInt, PureNum, PureStr, PureList,
 ) where
 import Pugs.Internals
@@ -39,7 +39,7 @@ data Val
     | forall a. Ext a  => VExt  !a  -- ^ Input/Ouput handles          (ValId = memory addr)
     deriving (Typeable)
 
-instance Coercible SIO Val where
+instance ICoercible SIO Val where
     -- XXX - have to invent a generic map somehow -- DrIFT anyone?
     asBit (VPure x) = liftP $ asBit x
     asInt (VPure x) = liftP $ asInt x
@@ -47,7 +47,7 @@ instance Coercible SIO Val where
     asStr (VPure x) = liftP $ asStr x
     asNative (VPure x) = liftP $ asNative x
 
-instance Value SIO Val where
+instance IValue SIO Val where
     val = id
     valId VUndef{}      = cast (NBit False)
     valId (VNative x)   = Just x
@@ -68,10 +68,10 @@ instance Value SIO Val where
 instance ((:>:) Id) NativeBuf where
     cast = cast . NBuf
 
-instance Coercible P ValNative where
+instance ICoercible P ValNative where
     asNative = return . id
 
-instance Value P ValNative where
+instance IValue P ValNative where
     val                 = VNative
     valMeta NBit{}      = cast "bit"
     valMeta NInt{}      = cast "int"
@@ -121,7 +121,7 @@ type NativeComplex  = () -- Complex NativeNum
 
 type P = Identity
 
-class Coercible m a => Value m a where
+class ICoercible m a => IValue m a where
     val         :: a -> Val
     valMeta     :: a -> Class
     valMeta     = cast . takeTypeName "" . reverse . show . typeOf
@@ -138,29 +138,29 @@ class Coercible m a => Value m a where
     valCompare  :: a -> a -> Ordering
     valCompare x y = valId x `compare` valId y
 
-class (Coercible P a, Ord a, Show a) => Pure a where {}
-instance (Coercible P a, Ord a, Show a) => Pure a where {}
+class (ICoercible P a, Ord a, Show a) => Pure a where {}
+instance (ICoercible P a, Ord a, Show a) => Pure a where {}
 
 liftP :: Monad m => P a -> m a
 liftP = return . runIdentity
 
-instance Pure a => Value P a where
+instance Pure a => IValue P a where
     val         = VPure
     valId       = liftP . asNative
     valShow     = cast . show
     valCompare  = compare
 
-instance Mut a => Value STM a where
+instance Mut a => IValue STM a where
     val         = VMut
 
-instance Ext a => Value SIO a where
+instance Ext a => IValue SIO a where
     val         = VExt
 
-class Coercible STM a => Mut a where {}
-instance Coercible STM a => Mut a where {}
+class ICoercible STM a => Mut a where {}
+instance ICoercible STM a => Mut a where {}
 
-class Coercible SIO a => Ext a where {}
-instance Coercible SIO a => Ext a where {}
+class ICoercible SIO a => Ext a where {}
+instance ICoercible SIO a => Ext a where {}
 
 type Class = PureStr -- XXX - Wrong
 
@@ -169,7 +169,7 @@ dynEq x y = case Typeable.cast y of
     Just y' -> x == y'
     Nothing -> False
 
-dynCompare :: forall a b ma mb. (Value ma a, Value mb b) => a -> b -> Ordering
+dynCompare :: forall a b ma mb. (IValue ma a, IValue mb b) => a -> b -> Ordering
 dynCompare x y = case Typeable.cast y of
     Just y' -> valCompare x y'
     Nothing -> compare (show $ typeOf x) (show $ typeOf y)

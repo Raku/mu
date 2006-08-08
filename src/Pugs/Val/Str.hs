@@ -10,10 +10,10 @@ instance ((:<:) String) ByteString where castBack = Char8.pack
 newtype PureStr = MkStr ByteString
     deriving (Typeable, Show, Eq, Ord, Data, (:>:) String, (:<:) String, (:>:) ByteString, (:<:) ByteString)
 
-instance Coercible P PureStr where
+instance ICoercible P PureStr where
     asStr  = return . cast
 
-class (Monad m, Functor m, Eq a, Data a, Typeable a) => Coercible m a | a -> m where
+class (Monad m, Functor m, Eq a, Data a, Typeable a) => ICoercible m a | a -> m where
     asBit    :: a -> m PureBit
     asBit _ = return True
     asInt    :: a -> m PureInt
