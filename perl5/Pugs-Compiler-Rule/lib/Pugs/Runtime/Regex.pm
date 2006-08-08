@@ -18,6 +18,7 @@ sub alternation {
         while ( $state[0] <= $#$nodes ) {
             #print "alternation $state[0] ",Dumper($nodes->[ $state[0] ]);
             $nodes->[ $state[0] ]->( $_[0], $state[1], @_[2..7] );
+            last unless defined $_[3];  # test case ???
             $state[1] = $_[3]->state;
             $state[0]++ unless $state[1];
             if ( $_[3] || $_[3]->data->{abort} ) {
