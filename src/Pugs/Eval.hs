@@ -886,7 +886,7 @@ doCall name invs args = do
         Left failure -> err failure
     where
     errSpcMessage = "Extra space found after " ++ name ++ " (...) -- did you mean " ++ name ++ "(...) instead?"
-    err NoMatchingMulti    = retError "No compatible subrountine found" name
+    err NoMatchingMulti    = retError "No compatible subroutine found" name
     err NoSuchSub          = retError "No such sub" name
     err (NoSuchMethod cls) = retError ("No such method in class " ++ cls) name
     applySub :: VCode -> (Maybe Exp) -> [Exp] -> Eval Val
