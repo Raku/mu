@@ -57,9 +57,38 @@ import System(getArgs)
 translate :: P5AST -> String -> P5AST
 translate tree options = case [('o' `elem` options), ('r' `elem` options)] of
                                [True, False]   ->  (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))
-                               [True, True]  ->  (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))
+                               [True, True]  ->  (easyRegex (changeVarsInQuotes  (scalarTranslate (regexOnce (hereDocTranslate (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))
                                [False, False]  -> (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))
-                               [False, True] -> (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))
+                               [False, True] -> (changeVarsInQuotes (easyRegex (regexOnce (scalarTranslate (hereDocTranslate (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))
+
+getExports :: P5AST -> [String]
+getExports (AbstractNode Op_aassign kids) = case [(matchOnType (smartHead kids) (AbstractNode Op_list [])), (matchWithoutEnc (smartHead (extractKids (smartHead (extractKids (smartHead kids))))) (LiteralNode Sigil "" "@EXPORT")), (isIn (LiteralNode Operator "" "=") kids), (matchOnType (AbstractNode Quote []) (smartHead (extractKids (extractNodetype (AbstractNode Op_list []) (tail kids)))))] of
+                                              [True, True, True, True] -> (extractExportsFromQW (extractKids (smartHead (extractKids (extractNodetype (AbstractNode Op_list []) (tail kids))))))
+                                              _                        -> []
+getExports (AbstractNode atype kids) = (makeList (map getExports kids))
+getExports (LiteralNode atype enc uni) = []
+getExports (Heredoc start end kids) = []
+
+smartHead :: [P5AST] -> P5AST
+smartHead [] = (AbstractNode UnknownAbs [])
+smartHead alist = head alist
+
+makeList :: [[String]] -> [String]
+makeList [] = []
+makeList alist = (head alist)++(makeList (tail alist))
+
+extractExportsFromQW :: [P5AST] -> [String]
+extractExportsFromQW [] = []
+extractExportsFromQW kids = if (matchOnType (LiteralNode Openquote "" "") (head kids)) then (map (dropLeadingChar '&') (makeWords (extractUni (head (drop 1 kids))) [""])) else (extractExportsFromQW (tail kids))
+
+makeWords :: String -> [String] -> [String]
+makeWords [] curout = curout
+makeWords inst curout= if ((head inst)==' ') then (makeWords (drop 2 inst) ([(head (tail inst))]:curout)) else (makeWords (tail inst) (((head curout)++[(head inst)]):(tail curout)))
+
+dropLeadingChar :: Char -> String -> String
+dropLeadingChar _ [] = []
+dropLeadingChar todrop astring = if ((head astring)==todrop) then (tail astring) else astring 
+
 
 --Translates "@array" -> "@array[]" and "%hash" -> "%hash{}"
 changeVarsInQuotes :: P5AST -> P5AST
@@ -76,7 +105,9 @@ runTextParser instr = case parse textParser "text node" instr of
 
 --The actual parser that changes "@array" and "%hash"
 textParser :: Parser String
-textParser = do{ parts <- manyTill (choice[do{char '@'; name <- many alphaNum; return ('@':name++"[]")},
+textParser = do{ parts <- manyTill (choice[{-do{char '$'; name <- manyTill alphaNum (char '['); key <- manyTill anyToken (char ']'); return ('@':name++"["++key++"]")},
+                                           do{char '$'; name <- manyTill alphaNum (char '{'); key <- manyTill anyToken (char '}'); return ('%':name++"{"++key++"}")},-}
+                                           do{char '@'; name <- many alphaNum; return ('@':name++"[]")},
                                            do{char '%'; name <- many alphaNum; return ('%':name++"{}")},
                                            do{this <- anyToken; return [this]}]) eof;
                  return (joinString parts)}
@@ -139,18 +170,34 @@ changeHereDoc (LiteralNode atype enc uni) = case ((head uni):(head (drop 1 uni))
                                                     "<<'"  -> (LiteralNode atype enc ("q:to/"++(drop 3 uni)++"/"))
                                                     _      -> (LiteralNode atype enc ("qq:to/"++(drop 2 uni)++"/"))
 
-{- This code will eventually apply the :Perl5 modifer to all regexs, but it's not quite ready yet.
+
 easyRegex :: P5AST -> P5AST
-easyRegex (AbstractNode Op_subst kids) = (AbstractNode Op_subst (easyRegexChanges kids))
+easyRegex (AbstractNode Op_subst kids) = (AbstractNode Op_subst (easyRegexSChanges kids))
+easyRegex (AbstractNode Op_match kids) = (AbstractNode Op_match (easyRegexMChanges kids))
 easyRegex (AbstractNode atype kids) = (AbstractNode atype (map easyRegex kids))
 easyRegex (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 
-easyRegexChanges :: [P5AST] -> [P5AST]
-easyRegexChanges [] = []
-easyRegexChanges kids =  if ((length kids) >= 3) then if (and [((head ((extractUni (head kids))++" "))=='s'),(matchOnType (head kids) (LiteralNode Openquote "" "")),(matchOnType (head (drop 1 kids)) (LiteralNode Text "" "")),(matchOnType (head (drop 2 kids)) (LiteralNode Closequote "" ""))]) then [(AbstractNode OpenQuote "" ("s:Perl5"++(getMods (head (drop 2 kids)))++())), (head (drop 1 kids)), (AbstractNode]
-                                                            else ((head kids):(easyRegexChanges (drop 1 kids)))
-                            else ((head kids):(easyRegexChanges (drop 1 kids)))
--}
+easyRegexSChanges :: [P5AST] -> [P5AST]
+easyRegexSChanges [] = []
+easyRegexSChanges kids = case [(matchOnType (head kids) (LiteralNode Openquote "" "")), ('g' `elem` (extractUni (extractNodetype (LiteralNode Remod "" "") kids))), ('i' `elem` (extractUni (extractNodetype (LiteralNode Remod "" "") kids)))] of
+                          [True, True, True] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:g:i:s"))):(noRemod (tail kids))
+                          [True, True, False] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:g:s"))):(noRemod (tail kids))
+                          [True, False, True] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:i:s"))):(noRemod (tail kids))
+                          [True, False, False] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:s"))):(noRemod (tail kids))
+                          _ -> (head kids):(easyRegexSChanges (tail kids))
+
+easyRegexMChanges :: [P5AST] -> [P5AST]
+easyRegexMChanges [] = []
+easyRegexMChanges kids = case [(matchOnType (head kids) (LiteralNode Openquote "" "")), ('g' `elem` (extractUni (extractNodetype (LiteralNode Remod "" "") kids))), ('i' `elem` (extractUni (extractNodetype (LiteralNode Remod "" "") kids)))] of
+                          [True, True, True] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:g:i:m"))):(noRemod (tail kids))
+                          [True, True, False] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:g:m"))):(noRemod (tail kids))
+                          [True, False, True] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:i:m"))):(noRemod (tail kids))
+                          [True, False, False] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:m"))):(noRemod (tail kids))
+                          _ -> (head kids):(easyRegexSChanges (tail kids))
+
+noRemod :: [P5AST] -> [P5AST]
+noRemod [] = []
+noRemod kids = if (matchOnType (head kids) (LiteralNode Remod "" "")) then (tail kids) else ((head kids):(noRemod (tail kids))) 
 
 --This function applies changeSInternals int he proper places to translate
 --everything inside a regex from Perl 5 -> Perl 6
