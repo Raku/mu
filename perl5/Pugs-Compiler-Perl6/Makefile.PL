@@ -64,3 +64,6 @@ eval {
     my $cache = new Cache::FileCache( { 'namespace' => 'v6-rules' } );
     $cache->Clear;
 };
+
+# see Module::Compile
+    pmc_support();
