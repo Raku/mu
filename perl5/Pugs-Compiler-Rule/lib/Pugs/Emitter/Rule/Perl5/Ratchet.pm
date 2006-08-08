@@ -27,13 +27,28 @@ sub call_subrule {
         "$tab     $subrule( \$s, { p => \$pos, args => {" . join(", ",@param) . "} }, undef )";
 }
 
+sub quote_constant {
+    my $const;
+    if ( $_[0] eq "\\" ) {
+        $const = "chr(".ord("\\").")";
+    }
+    elsif ( $_[0] eq "'" ) {
+        $const = "chr(".ord("'").")"
+    }
+    else {
+        $const = "'$_[0]'"
+    }
+    return $const;
+}
+
 sub call_constant {
-    my $const = $_[0];
-    my $len = length( eval "'$const'" );
-    $const = ( $_[0] eq $_ ? "chr(".ord($_).")" : $_[0] )
-        for qw( \ ' );     # '
+    return " 1 # null constant\n"
+        unless length($_[0]);
+    my $len = length( $_[0] );
+    my $const = quote_constant( $_[0] );
+    #print "Const: [$_[0]] $const $len \n";
     return
-    "$_[1] ( ( substr( \$s, \$pos, $len ) eq '$const' ) 
+    "$_[1] ( ( length(\$s) >= \$pos && substr( \$s, \$pos, $len ) eq $const ) 
 $_[1]     ? do { \$pos $direction= $len; 1 }
 $_[1]     : 0
 $_[1] )";
@@ -201,21 +216,49 @@ sub dot {
 }
 
 sub preprocess_hash {
-    my ( $h, $key ) = ( $_[0]->{hash}, $_[0]->{key} );
+    # TODO - move to Runtime/
+    my ( $h, $key ) = @_;
     # returns AST depending on $h
     if ( ref( $h->{$key} ) eq 'CODE') {
-        return " do { \$hash->{'$key'}->(); 1; } ";
+        return sub { 
+            my ( $str, $grammar, $args ) = @_;
+            #print "data: ", Dumper( \@_ );
+            $h->{$key}->( ); 
+            Pugs::Runtime::Match->new( { 
+                bool => \1, 
+                str =>  \$str,
+                from => \( 0 + ( $args->{p} || 0 ) ),
+                to =>   \( 0 + ( $args->{p} || 0 ) ),
+            } ) }
     } 
     if ( ref( $h->{$key} ) =~ /Pugs::Compiler::/ ) {
-        return " return \$hash->{'$key'}->match( \$s, \$grammar, { p => \$pos } ) ";
+        return sub { $h->{$key}->match( @_ ) };
     }
     # fail is number != 1 
     if ( $h->{$key} =~ /^(\d+)$/ ) {
-        return " 0 " unless $1 == 1;
-        return " 1 " ;
+        return sub { 
+            my ( $str, $grammar, $args ) = @_;
+            Pugs::Runtime::Match->new( { 
+                bool => \0, 
+                str =>  \$str,
+                from => \( 0 + ( $args->{p} || 0 ) ),
+                to =>   \( 0 + ( $args->{p} || 0 ) ),
+            } ) } unless $1 == 1;
+        return sub { 
+            my ( $str, $grammar, $args ) = @_;
+            Pugs::Runtime::Match->new( { 
+                bool => \1, 
+                str =>  \$str,
+                from => \( 0 + ( $args->{p} || 0 ) ),
+                to =>   \( 0 + ( $args->{p} || 0 ) ),
+            } ) };
     }
     # subrule
-    return " do { warn \"uncompiled subrule: $h->{$key} - not implemented \" } ";
+    #print "compile: ",$h->{$key}, "\n";
+    my $r = Pugs::Compiler::Token->compile( $h->{$key} );
+    $h->{$key} = $r;
+    return sub { $r->match( @_ ) };
+    # return sub { warn "uncompiled subrule: $h->{$key} - not implemented " };
 }
 
 sub variable {
@@ -247,9 +290,11 @@ sub variable {
     $value = join('', eval $name) if $name =~ /^\@/;
     if ( $name =~ /^%/ ) {
         my $id = '$' . id();
+        my $preprocess_hash = 'Pugs::Emitter::Rule::Perl5::Ratchet::preprocess_hash';
         my $code = "
           do {
             our $id;
+            our ${id}_sizes;
             unless ( $id ) {
                 my \$hash = " . 
                 ( $name =~ /::/ 
@@ -257,26 +302,36 @@ sub variable {
                     : "Pugs::Runtime::Regex::get_variable( '$name' )"
                 ) . 
                 ";
-                my \$ast = {
-                    alt => [
-                        map  {{ 
-                            concat => [
-                                { constant => \$_ },
-                                { preprocess_hash => { hash => \$hash, key => \$_ }, },
-                            ] }}
-                        sort { length \$b <=> length \$a } keys \%\$hash
-                    ]
-                };
-                #print 'ast: ', Data::Dump::Streamer::Dump( \$ast );
-                my \$code = Pugs::Emitter::Rule::Perl5::Ratchet::emit( \$grammar, \$ast );
-                #print 'code: ', \$code;
-                $id = eval \$code;
+                my \%sizes = map { length(\$_) => 1 } keys \%\$hash;
+                ${id}_sizes = [ sort { \$b <=> \$a } keys \%sizes ];
+                #print \"sizes: \@${id}_sizes\\n\";
+                #$id = {
+                #        map  { \$_ =>
+                #               Pugs::Emitter::Rule::Perl5::Ratchet::preprocess_hash( \$hash, \$_ ) }
+                #        keys \%\$hash
+                #};
+                $id = \$hash;
             }
-            my \$match = $id->( \$grammar, \$s, { p => \$pos, args => {} }, \$_[3] );
-            my \$bool = (!\$match != 1);
-            \$pos = \$match->to if \$bool;
-            #print !\$match[-1], ' ', Dump \$match[-1];
-            \$bool;
+            #print 'keys: ',Dumper( $id );
+            my \$match = 0;
+            my \$key;
+            for ( \@". $id ."_sizes ) {
+                \$key = ( \$pos <= length( \$s ) 
+                            ? substr( \$s, \$pos, \$_ )
+                            : '' );
+                if ( exists ". $id ."->{\$key} ) {
+                    " . #print \"* ${name}\{'\$key\'} at \$pos \\\n\";
+                    "\$match = $preprocess_hash( $id, \$key )->( \$s, \$grammar, { p => ( \$pos + \$_ ), args => {} }, undef );
+                    " . #print \"match: \", Dumper( \$match->data );
+                    "last if \$match;
+                }
+            }
+            if ( \$match ) {
+                \$pos = \$match->to;
+                #print \"match: \$key at \$pos = \", Dumper( \$match->data );
+                \$bool = 1;
+            } else { \$bool = 0 }
+            \$match;
           }";
         #print $code;
         return $code;
@@ -396,7 +451,7 @@ $_[1] }";
 sub named_capture {
     my $name    = $_[0]{ident};
     my $program = $_[0]{rule};
-    #my $flat    = $_[0]{flat};
+    #print "name [$name]\n";
     
     if ( exists $program->{metasyntax} ) {
         #print "aliased subrule\n";
@@ -457,6 +512,7 @@ sub named_capture {
     else {
         #print "aliased non_capturing_group\n";
         # $/<name> = "$/"
+        #print Dumper( $_[0] );
         $program = emit_rule( $program, $_[1].'      ' );
         return "$_[1] do{ 
                 my \$from = \$pos;
@@ -590,13 +646,27 @@ sub metasyntax {
     if ( $prefix eq '%' ) {
         # XXX - runtime or compile-time interpolation?
         my $name = substr( $cmd, 1 );
-print "<$cmd>\n";
-        return variable( $cmd );
-        return named_capture ( {
-            ident => $name,
-            program => variable( $cmd ),
-            flat => 1, # ???
-        } );
+        # print "<$cmd>\n";
+        # return variable( $cmd );
+        return "$_[1] do{ 
+                my \$match = " . variable( $cmd, $_[1] ) . ";
+                if ( \$match ) {" .
+                    ( $capture_to_array 
+                    ? " push \@{\$named{'$name'}}, \$match;" 
+                    : " \$named{'$name'} = \$match;"
+                    ) . "
+                    \$pos = \$match->to; 
+                    1 
+                } 
+                else { 0 }
+            }";
+        #return named_capture ( 
+        #    {
+        #        ident => $name,
+        #        rule => { capturing_group => { variable => $cmd } },
+        #    }, 
+        #    $_[1] 
+        #);
     }
 
     if ( $prefix eq '$' ) {
@@ -702,9 +772,9 @@ $_[1] )";
         # <subrule ( param, param ) >
         my ( $subrule, $param_list ) = split( /[\(\)]/, $cmd );
         return named_capture(
-            { ident => $subrule, 
-              rule => { metasyntax => $cmd },
-              flat => 1
+            { 
+                ident => $subrule, 
+                rule => { metasyntax => $cmd },
             }, 
             $_[1],    
         );

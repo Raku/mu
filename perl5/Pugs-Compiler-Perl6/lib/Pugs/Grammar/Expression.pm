@@ -89,7 +89,7 @@ sub ast {
         my $m2;
         $m2 = Pugs::Grammar::Term->parse( $match, { p => $pos } )
             if $expect_term;
-        #warn "m1 = " . Dumper($m1->()) . "m2 = " . Dumper($m2->());
+        #print "m1 = " . Dumper($m1->()) . "m2 = " . Dumper($m2->());
 
         my $pos2;
         while(1) {

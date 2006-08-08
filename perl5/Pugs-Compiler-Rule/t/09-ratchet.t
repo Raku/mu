@@ -1,5 +1,5 @@
 
-use Test::More tests => 99;
+use Test::More tests => 103;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -631,15 +631,20 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     my %test = (
         if =>    2,        # fail (number, not '1')
         iff =>   1,        # match (longer than 'if')
-        until => Pugs::Compiler::Token->compile('(a.a)'),  
+        until => Pugs::Compiler::Token->compile('(a.a) { return 42 } '),  
                            # subrule - match "until(aa)"
         use =>   sub { $v = 1 },   
                            # closure - print "use()"
+        '' =>    Pugs::Compiler::Token->compile('other'),  
+                           # default subrule - match "other"
     );   
     $rule1 = Pugs::Compiler::Token->compile('<%test> 123');
+    #print "<<< ", Pugs::Compiler::Token->compile('<%test> 123')->{perl5}, ">>>";
     
     $match = $rule1->match("iff123");
     is($match,'iff123',"Matched hash{iff}");
+    #print Dumper( $match->{test}->data );
+    is($match->{test},'',"Matched hash{iff} capture");
 
     $match = $rule1->match("if123");
     is($match,'',"fail hash{if} - value != 1");
@@ -649,9 +654,15 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     is($v,1,"closure was called hash{use}");
 
     $match = $rule1->match("untilaba123");
-    #print Dumper($match->data);
     is($match,'untilaba123',"subrule hash{until}");
     is($match->(),'untilaba123',"subrule hash{until} - 2");
+    is($match->{test},'aba',"Matched hash{until} capture");
+    #print "\$/ ",Dumper($match->data);
+    #print "\$/{test} ",Dumper($match->{test}->data);
+    is($match->{test}(),42,"Matched hash{until} return object");
+
+    $match = $rule1->match("other123");
+    is($match,'other123',"default subrule");
 
 }
 
