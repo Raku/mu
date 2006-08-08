@@ -284,10 +284,10 @@ instance YAML Val where
 	"PerlSV" -> do
 	    let ESeq [aa] = e
 	    liftM PerlSV (fromYAML aa)
-	"V" -> do
+	"VV" -> do
 	    let ESeq [aa] = e
-	    liftM V (fromYAML aa)
-	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["VUndef","VBool","VInt","VRat","VNum","VComplex","VStr","VList","VType","VJunc","VError","VControl","VRef","VCode","VBlock","VHandle","VSocket","VThread","VProcess","VRule","VSubst","VMatch","VObject","VOpaque","PerlSV","V"] ++ " in node " ++ show e
+	    liftM VV (fromYAML aa)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["VUndef","VBool","VInt","VRat","VNum","VComplex","VStr","VList","VType","VJunc","VError","VControl","VRef","VCode","VBlock","VHandle","VSocket","VThread","VProcess","VRule","VSubst","VMatch","VObject","VOpaque","PerlSV","VV"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (VUndef) = asYAMLcls "VUndef"
     asYAML (VBool aa) = asYAMLseq "VBool" [asYAML aa]
@@ -314,7 +314,7 @@ instance YAML Val where
     asYAML (VObject aa) = asYAMLseq "VObject" [asYAML aa]
     asYAML (VOpaque aa) = asYAMLseq "VOpaque" [asYAML aa]
     asYAML (PerlSV aa) = asYAMLseq "PerlSV" [asYAML aa]
-    asYAML (V aa) = asYAMLseq "V" [asYAML aa]
+    asYAML (VV aa) = asYAMLseq "VV" [asYAML aa]
 
 instance YAML VJunc where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of

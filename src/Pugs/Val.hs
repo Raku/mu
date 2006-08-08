@@ -40,6 +40,12 @@ data Val
     deriving (Typeable)
 
 instance Coercible SIO Val where
+    -- XXX - have to invent a generic map somehow -- DrIFT anyone?
+    asBit (VPure x) = liftP $ asBit x
+    asInt (VPure x) = liftP $ asInt x
+    asNum (VPure x) = liftP $ asNum x
+    asStr (VPure x) = liftP $ asStr x
+    asNative (VPure x) = liftP $ asNative x
 
 instance Value SIO Val where
     val = id
@@ -135,9 +141,12 @@ class Coercible m a => Value m a where
 class (Coercible P a, Ord a, Show a) => Pure a where {}
 instance (Coercible P a, Ord a, Show a) => Pure a where {}
 
+liftP :: Monad m => P a -> m a
+liftP = return . runIdentity
+
 instance Pure a => Value P a where
     val         = VPure
-    valId       = Just . runIdentity . asNative
+    valId       = liftP . asNative
     valShow     = cast . show
     valCompare  = compare
 

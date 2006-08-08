@@ -214,6 +214,7 @@ fromVal' (PerlSV sv) = do
     case v of
         PerlSV sv'  -> fromSV sv'   -- it was a SV
         val         -> fromVal val  -- it was a Val
+fromVal' (VV v) = fromVV v
 fromVal' v = doCast v
 
 {-|
@@ -226,6 +227,10 @@ class (Typeable n, Show n, Ord n) => Value n where
     fromVal = fromVal'
     doCast :: Val -> Eval n
 {-    doCast v = castFailM v "default implementation of doCast" -}
+    fromVV :: Val.Val -> Eval n
+    fromVV v = do
+        str <- liftSIO (asStr v)
+        fail $ "Cannot cast from VV (" ++ cast str ++ ") to " ++ errType (undefined :: n)
     fromSV :: PerlSV -> Eval n
     fromSV sv = do
         str <- liftIO $ svToVStr sv
@@ -492,6 +497,7 @@ instance Value VComplex where
 instance Value VStr where
     castV = VStr
     fromSV sv = liftIO $ svToVStr sv
+    fromVV vv = liftSIO $ fmap cast (asStr vv)
     fromVal (VList l)    = return . unwords =<< mapM fromVal l
     fromVal v@(PerlSV _) = fromVal' v
     fromVal VUndef       = return ""
@@ -586,6 +592,7 @@ valToStr = fromVal
 instance Value VList where
     castV = VList
     fromSV sv = return [PerlSV sv]
+    fromVV vv = return [VV vv]
     fromVal (VRef r) = do
         v <- readRef r
         case v of
@@ -721,7 +728,7 @@ data Val
     | VObject   !VObject     -- ^ Object
     | VOpaque   !VOpaque
     | PerlSV    !PerlSV
-    | V         !Val.Val
+    | VV        !Val.Val
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 {-|
@@ -756,7 +763,7 @@ valType (VType    t)    = t
 valType (VObject  o)    = objType o
 valType (VOpaque  _)    = mkType "Object"
 valType (PerlSV   _)    = mkType "Scalar::Perl5"
-valType (V        v)    = mkType (cast $ valMeta v)
+valType (VV       v)    = mkType (cast $ valMeta v)
 
 type VBlock = Exp
 data VControl
@@ -1435,7 +1442,7 @@ guardIOexcept safetyNet io = do
         | otherwise = catcher e safetyNets
 
 instance MonadSTM Eval where
-    -- liftSTM stm = EvalT (lift . lift . liftSTM $ stm)
+    liftSIO = EvalT . lift . lift
     liftSTM stm = do
         atom <- asks envAtomic
         if atom

@@ -17,6 +17,7 @@ module Pugs.Pretty (
 import Pugs.Internals
 import Pugs.Types
 import Pugs.AST
+import Pugs.Val (valShow)
 import Pugs.Rule (SourcePos)
 import Text.PrettyPrint
 import qualified Data.Set as Set
@@ -187,7 +188,7 @@ instance Pretty Val where
         ]
     format (PerlSV _) = text $ "{obj-perl5}"
     format VUndef = text $ "undef"
-    format (V x) = text $ show x
+    format (VV x) = text . cast $ valShow x
 
 quoted :: Char -> String
 quoted '\'' = "\\'"

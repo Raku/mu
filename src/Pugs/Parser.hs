@@ -2006,7 +2006,7 @@ qLiteral1 qStart qEnd flags = do
         QS_Protect  -> return (doSplit expr)
         QS_No       -> case qfExecute flags of
             True | Val (VStr str) <- unwrap expr -> do
-                return . Val . V $ val (cast str :: PureStr)
+                return . Val . VV $ val (cast str :: PureStr)
             _   -> do
                 return expr
     where
