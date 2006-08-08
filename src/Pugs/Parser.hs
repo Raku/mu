@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -cpp -fglasgow-exts -funbox-strict-fields -fno-full-laziness -fno-cse #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts -funbox-strict-fields -fno-full-laziness -fno-cse -fallow-overlapping-instances #-}
 
 {-|
     Higher-level parser for building ASTs.
@@ -2007,6 +2007,8 @@ qLiteral1 qStart qEnd flags = do
         QS_No       -> case qfExecute flags of
             True | Val (VStr str) <- unwrap expr -> do
                 return . Val . VV $ val (cast str :: PureStr)
+                -- this demonstrates we *can* get PureInt here.
+                --return . Val . VV $ val (cast ((read str) :: Integer) :: PureInt)
             _   -> do
                 return expr
     where

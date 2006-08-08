@@ -436,6 +436,7 @@ juncToBool (MkJunc JOne ds vs) = do
 
 instance Value VInt where
     castV = VInt
+    fromVV vv = liftSIO $ fmap cast (asInt vv)
     fromSV sv = liftIO $ svToVInt sv
     doCast (VInt i)     = return $ i
     doCast x            = fmap truncate (fromVal x :: Eval VRat)

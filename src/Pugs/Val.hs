@@ -21,6 +21,7 @@ import qualified Data.ByteString as Buf
 
 import Pugs.AST.SIO
 import Pugs.Val.Str
+import Pugs.Val.Int
 
 {-|
 
@@ -38,6 +39,24 @@ data Val
     | forall a. Mut a  => VMut  !a  -- ^ In-memory mutable structures (ValId = memory addr)
     | forall a. Ext a  => VExt  !a  -- ^ Input/Ouput handles          (ValId = memory addr)
     deriving (Typeable)
+
+class (Monad m, Functor m, Eq a, Data a, Typeable a) => ICoercible m a | a -> m where
+    asBit    :: a -> m PureBit
+    asBit _ = return True
+    asInt    :: a -> m PureInt
+    asInt x = fail $ "coerce fail: " ++ (show $ typeOf x) ++ " to PureInt"
+    asNum    :: a -> m PureNum
+    asNum x = fail $ "coerce fail: " ++ (show $ typeOf x) ++ " to PureNum"
+    asStr    :: a -> m PureStr
+    asStr x = return (cast "<opaque>") -- XXX wrong
+    -- "$item = VAL"
+    asItem   :: a -> Maybe (m Val)
+    asItem _ = Nothing -- default = do nothing (for Scalar this would return its content)
+    -- "@list = VAL"
+    asList   :: a -> Maybe (m PureList)
+    asList _ = Nothing -- default = do nothing (for Scalar this would return its content wrapped in a 1-seq)
+    asNative :: a -> m ValNative
+    asNative = fmap (NBuf . cast) . asStr
 
 instance ICoercible SIO Val where
     -- XXX - have to invent a generic map somehow -- DrIFT anyone?
@@ -163,6 +182,9 @@ class ICoercible m a => IValue m a where
 class (ICoercible P a, Ord a, Show a) => Pure a where {}
 instance (ICoercible P a, Ord a, Show a) => Pure a where {}
 
+instance ICoercible P PureStr where asStr = return . cast
+instance ICoercible P PureInt where asInt = return . cast
+
 liftP :: Monad m => P a -> m a
 liftP = return . runIdentity
 
@@ -228,7 +250,6 @@ type PureSet        = Set Val
 type PureSeq        = Seq Val
 type PureList       = Seq Val -- Seq (Either PureSeq PureRange) -- XXX - *very bogus*
 type PureComplex    = ()
-type PureInt        = ()
 type PureNum        = ()
 type PureRange      = ()
 type PureJunc       = ()
