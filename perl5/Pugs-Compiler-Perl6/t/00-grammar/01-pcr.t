@@ -70,6 +70,7 @@ use_ok( 'Pugs::Grammar::Term' );
 use_ok( 'Pugs::Grammar::Perl6' );
 
 {
+  no warnings 'once';
   my $match = $Pugs::Grammar::Term::hash{''}->match( 
         "abc", 
         { p => 0, },

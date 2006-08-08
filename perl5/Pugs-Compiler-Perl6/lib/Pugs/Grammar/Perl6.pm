@@ -282,7 +282,7 @@ sub perl6_expression {
 )->code;
 
 
-*rule_decl_name = Pugs::Compiler::Regex->compile( q(
+*rule_decl_name = Pugs::Compiler::Token->compile( q(
     ( multi | <''> ) <?ws>?
     ( rule | regex | token ) <?ws>?
     ( <?Pugs::Grammar::Term.ident>? ) 
@@ -296,8 +296,8 @@ sub perl6_expression {
 )->code;
 
 
-*rule_decl = Pugs::Compiler::Regex->compile( q(
-    <rule_decl_name> : <?ws>?   
+*rule_decl = Pugs::Compiler::Token->compile( q(
+    <rule_decl_name> <?ws>?   
         # (sig)
         <sub_signature> <?ws>? 
         # attr

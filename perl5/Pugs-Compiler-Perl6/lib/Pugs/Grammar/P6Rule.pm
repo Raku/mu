@@ -42,59 +42,59 @@ Pugs::Compiler::Regex->install(
         \\< ([ <metasyntax> | . ]+?) \\>
         { return { metasyntax => $/[0]() ,} }
     ));
-Pugs::Compiler::Regex->install( 
+Pugs::Compiler::Token->install( 
     dot => q(
         \\.    
         { return { 'dot' => 1 ,} }
     ));
-Pugs::Compiler::Regex->install( 
+Pugs::Compiler::Token->install( 
     special_char => q(
         \\\\ .
         { return { special_char => $(), } } 
     ));
-Pugs::Compiler::Regex->install( 
+Pugs::Compiler::Token->install( 
     non_capturing_group => q(
-        \\[ : <rule> \\] 
+        \\[ <rule> \\] 
         { return $/{rule}() }
     ));
-*named_capture_body = Pugs::Compiler::Regex->compile(q(
-        |  \\( : <rule> \\) { return { rule => $/{rule}(),       } } 
-        |  \\[ : <rule> \\] { return { rule => $/{rule}(),       } } 
+*named_capture_body = Pugs::Compiler::Token->compile(q(
+        |  \\( <rule> \\) { return { rule => $/{rule}(),       } } 
+        |  \\[ <rule> \\] { return { rule => $/{rule}(),       } } 
         |    <metasyntax>   { return { rule => $/{metasyntax}(), } } 
     ))->code;
-*named_capture = Pugs::Compiler::Regex->compile(q(
+*named_capture = Pugs::Compiler::Token->compile(q(
         \\$ \\< <ident> \\> <?ws>? \\:\\= <?ws>? <named_capture_body>
         { my $body = $/{named_capture_body}();
           $body->{ident} = $/{ident}();
           return { named_capture => $body, } 
         }
     ))->code;
-*before = Pugs::Compiler::Regex->compile(q(
-        \\< before <?ws> : <rule> \\> 
+*before = Pugs::Compiler::Token->compile(q(
+        \\< before <?ws> <rule> \\> 
         { return { before => {
                 rule  => $/{rule}(),
             }, } 
         }
     ))->code;
-*after = Pugs::Compiler::Regex->compile(q(
-        \\< after <?ws> : <rule> \\> 
+*after = Pugs::Compiler::Token->compile(q(
+        \\< after <?ws> <rule> \\> 
         { return { after => {
                 rule  => $/{rule}(),
             }, } 
         }
     ))->code;
-*negate = Pugs::Compiler::Regex->compile(q(
-        \\< \\! : <rule> \\> 
+*negate = Pugs::Compiler::Token->compile(q(
+        \\< \\! <rule> \\> 
         { return { negate => {
                 rule  => $/{rule}(),
             }, } 
         }
     ))->code;
-*capturing_group = Pugs::Compiler::Regex->compile(q(
-        \\( : <rule> \\)
+*capturing_group = Pugs::Compiler::Token->compile(q(
+        \\( <rule> \\)
         { return { capturing_group => $/{rule}() ,} }
     ))->code;
-*colon = Pugs::Compiler::Regex->compile(q(
+*colon = Pugs::Compiler::Token->compile(q(
         (  \\:\\:\\:  
         |  \\:\\?     
         |  \\:\\+     
@@ -112,9 +112,9 @@ Pugs::Compiler::Regex->install(
         { return { 'constant' => $() ,} }
     ))->code;
 
-*quantifier = Pugs::Compiler::Regex->compile(q(
+*quantifier = Pugs::Compiler::Token->compile(q(
     $<ws1>   := (<?ws>?)
-    <term> :
+    <term> 
     $<ws2>   := (<?ws>?)
     $<quant> := (
         |  \\?\\?  
@@ -134,7 +134,7 @@ Pugs::Compiler::Regex->install(
         } 
     }
 ))->code;
-*concat = Pugs::Compiler::Regex->compile(q(
+*concat = Pugs::Compiler::Token->compile(q(
     $<q1> := <quantifier> 
     [   $<q2> := <concat> 
         { return { concat => [ 
@@ -145,10 +145,10 @@ Pugs::Compiler::Regex->install(
     |   { return { quant => $/{q1}() ,} } 
     ]
 ))->code;
-*rule = Pugs::Compiler::Regex->compile(q(
+*rule = Pugs::Compiler::Token->compile(q(
     [ <?ws>? \\| ]?
     $<q1> := <concat> 
-    [   \\| : $<q2> := <rule> 
+    [   \\| $<q2> := <rule> 
         { return { alt => [ 
                 $/{q1}(), 
                 $/{q2}(),
