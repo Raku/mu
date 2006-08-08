@@ -140,16 +140,14 @@ import GHC.IOBase (IO(..))
 import GHC.Conc (unsafeIOToSTM)
 import qualified Data.Seq as Seq
 
-instance ((:>:) [a]) (Seq a) where cast = Seq.toList
-instance ((:<:) [a]) (Seq a) where castBack = Seq.fromList
-
--- "return . cast" can be written as "cast"
-instance (Monad m, (a :>: b)) => ((:>:) (m a)) b where cast = return . cast
-
--- "fmap cast" can be written as "cast"
-instance (Functor f, (a :>: b)) => ((:>:) (f a)) (f b) where cast = fmap cast
-
--- Nominal subtyping and type equivalence
+--
+-- Nominal subtyping relationship with widening cast.
+-- 
+-- The function "cast" is injective: for distinct values of "b",
+-- it must produce distinct values of "a".
+--
+-- Also, it must work for all values of type "b".
+-- 
 class ((:>:) a) b where
     cast :: b -> a
 
@@ -160,6 +158,16 @@ instance (b :<: a) => (:>:) a b where
     cast = castBack
 
 instance (:<:) a a where castBack = id
+
+instance ((:>:) [a]) (Seq a) where cast = Seq.toList
+instance ((:<:) [a]) (Seq a) where castBack = Seq.fromList
+
+-- "return . cast" can be written as "cast"
+instance (Monad m, (a :>: b)) => ((:>:) (m a)) b where cast = return . cast
+
+-- "fmap cast" can be written as "cast"
+instance (Functor f, (a :>: b)) => ((:>:) (f a)) (f b) where cast = fmap cast
+
 
 -- Instances.
 instance Show Unique where
