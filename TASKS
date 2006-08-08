@@ -52,6 +52,9 @@ form of todo should be used:
 By doing this, temporarily TODO'd tests can get unTODO'd automaticall once
 the the release is done (and the version number gets updated).
 
+The version number fed to :pugs/:p6p5/:parrot/etc is optional. when omitted,
+the corresponding tests won't get expired unless we unTODO them manually.
+
 * Re-group the majority general/implementation-generic Perl 6 tests first
 along lines of what is likely to be implemented together and/or by tier, a
 trivial example already in place being the sanity tests.  With the sanity
