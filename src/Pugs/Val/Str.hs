@@ -22,8 +22,12 @@ class (Monad m, Functor m, Eq a, Data a, Typeable a) => ICoercible m a | a -> m 
     asNum x = fail $ "coerce fail: " ++ (show $ typeOf x) ++ " to PureNum"
     asStr    :: a -> m PureStr
     asStr x = return (cast "<opaque>") -- XXX wrong
+    -- "$item = VAL"
+    asItem   :: a -> Maybe (m Val)
+    asItem _ = Nothing -- default = do nothing (for Scalar this would return its content)
+    -- "@list = VAL"
     asList   :: a -> Maybe (m PureList)
-    asList _ = Nothing -- default = do not flatten
+    asList _ = Nothing -- default = do nothing (for Scalar this would return its content wrapped in a 1-seq)
     asNative :: a -> m ValNative
     asNative = fmap (NBuf . cast) . asStr
 

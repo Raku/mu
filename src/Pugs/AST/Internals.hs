@@ -592,7 +592,7 @@ valToStr = fromVal
 instance Value VList where
     castV = VList
     fromSV sv = return [PerlSV sv]
-    fromVV vv = return [VV vv]
+    fromVV = cast . fmap (map VV . cast) . listVal
     fromVal (VRef r) = do
         v <- readRef r
         case v of
@@ -642,7 +642,7 @@ type VScalar = Val
 
 instance Value VScalar where
     fromSV = return . PerlSV
-    fromVV = return . VV
+    fromVV = cast . fmap VV . itemVal
     fromVal (VRef r) = fromVal =<< readRef r
     fromVal v = return v
     doCast v = return v
@@ -1307,6 +1307,8 @@ compUnitVersion = 3
 -- type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
 type Eval = EvalT (ContT Val (ReaderT Env SIO))
 newtype EvalT m a = EvalT { runEvalT :: m a }
+
+instance ((:>:) (Eval a)) (SIO a) where cast = liftSIO
 
 runEvalSTM :: Env -> Eval Val -> STM Val
 runEvalSTM env = runSTM . (`runReaderT` env { envAtomic = True }) . (`runContT` return) . runEvalT

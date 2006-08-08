@@ -8,8 +8,12 @@ module Pugs.AST.SIO (
 
     module Control.Concurrent.STM
 ) where
+import Pugs.Internals
 import Control.Concurrent.STM
 import Control.Monad.RWS
+
+instance Monad m => ((:>:) (m a)) (Identity a) where cast = return . runIdentity
+instance ((:>:) (SIO a)) (STM a) where cast = liftSTM
 
 data SIO a = MkSTM !(STM a) | MkIO !(IO a) | MkSIO !a
 

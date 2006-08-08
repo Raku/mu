@@ -11,7 +11,7 @@
 module Pugs.Val (
     IValue(..), Val(..), ValUndef, ValNative, Id, P,
     ICoercible(..),
-    PureBit, PureInt, PureNum, PureStr, PureList,
+    PureBit, PureInt, PureNum, PureStr, PureList, itemVal, listVal,
 ) where
 import Pugs.Internals
 import GHC.Exts
@@ -41,11 +41,34 @@ data Val
 
 instance ICoercible SIO Val where
     -- XXX - have to invent a generic map somehow -- DrIFT anyone?
-    asBit (VPure x) = liftP $ asBit x
-    asInt (VPure x) = liftP $ asInt x
-    asNum (VPure x) = liftP $ asNum x
-    asStr (VPure x) = liftP $ asStr x
-    asNative (VPure x) = liftP $ asNative x
+    asBit (VPure x)     = cast $ asBit x
+    asBit (VMut x)      = cast $ asBit x
+    asInt (VPure x)     = cast $ asInt x
+    asNum (VPure x)     = cast $ asNum x
+    asStr (VPure x)     = cast $ asStr x
+    asItem = Just . itemVal
+    asList = Just . listVal
+    asNative (VPure x)  = cast $ asNative x
+
+-- evaluate a Val in Item context, a.k.a. rvalue, a.k.a. "is readonly"
+itemVal :: Val -> SIO Val
+itemVal v@(VPure x) = f v x asItem
+itemVal v@(VMut x)  = f v x asItem
+itemVal v@(VExt x)  = f v x asItem
+itemVal v           = return v
+
+-- evaluate a Val in List context, a.k.a. flattening, a.k.a. "is slurpy"
+listVal :: Val -> SIO PureList
+listVal v@(VPure x) = f v x asList
+listVal v@(VMut x)  = f v x asList
+listVal v@(VExt x)  = f v x asList
+listVal v           = return (cast v)
+
+f :: ((:>:) (m a) b1, (:>:) a b, Monad m) => b -> bx -> (bx -> Maybe b1) -> m a
+f v x g = maybe (return $ cast v) cast (g x)
+
+instance ((:>:) PureList) Val where
+    cast = singleton -- . Left . singleton
 
 instance IValue SIO Val where
     val = id
@@ -204,7 +227,7 @@ type PureSig        = ()
 type PureCap        = ()
 type PureSet        = Set Val
 type PureSeq        = Seq Val
-type PureList       = Seq (Either PureSeq PureRange) -- XXX - *very bogus*
+type PureList       = Seq Val -- Seq (Either PureSeq PureRange) -- XXX - *very bogus*
 type PureComplex    = ()
 type PureInt        = ()
 type PureNum        = ()

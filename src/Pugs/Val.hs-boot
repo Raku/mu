@@ -25,6 +25,8 @@ type NativeComplex  = () -- Complex NativeNum
 type PureBit = Bool
 data PureInt
 data PureNum
-data PureList
+-- type PureSeq        = Seq Val
+type PureList       = Seq Val -- (Either PureSeq PureRange) -- XXX - *very bogus*
+-- type PureRange      = ()
 
 type P = Identity

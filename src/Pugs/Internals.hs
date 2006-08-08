@@ -132,12 +132,16 @@ import Data.ByteString (ByteString)
 import Data.Tree
 import Data.Set (Set)
 import Data.Map (Map)
-import Data.Seq (Seq)
+import Data.Seq (Seq, singleton)
 import Data.IntMap (IntMap)
 import Debug.Trace
 import GHC.Base (realWorld#)
 import GHC.IOBase (IO(..))
 import GHC.Conc (unsafeIOToSTM)
+import qualified Data.Seq as Seq
+
+instance ((:>:) [a]) (Seq a) where cast = Seq.toList
+instance ((:<:) [a]) (Seq a) where castBack = Seq.fromList
 
 -- Nominal subtyping and type equivalence
 class ((:>:) a) b where
