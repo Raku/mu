@@ -1,23 +1,9 @@
 TODO for Pugs::Compiler::Rule (PCR)
 
-Before merging pX (2006-08-01) 
-
-- BUG: %hash should pass 'pos' to subrules
-
-- Makefile.PL should clean the regex cache
-
-- run Pugs-Compiler-Perl6 make test
-
-- use base 'RegexBase' in the docs; or change Grammar::Base name
-
 - add 'negate' node to Regex
 - add tests for 'negate'
 
-After merging pX (2006-08-01) 
-
 - document new Match methods: data, str, perl, capture, state
-
-- finish 'static' capture count
 
 - finish remaining metasyntax in <!...> Grammar
 
@@ -41,9 +27,6 @@ Sigspace switch:
 
 Ratchet switch:
 
-- more tests
-  - interoperability with non-ratchet
-  - non-ratchet subrules need to know current "$pos"
 - quantifiers
   - implement ?? +? *?
   - implement ?+ ++ *+
@@ -61,23 +44,15 @@ Perl 6 parser:
 
 Priorities:
 
-- implement <%hash> using trie
-
 - features used in PGE P6 Grammar
 - <after ...> in non-ratchet
 - char classes
 
 - make PadWalker optional, as most distros don't hold PW 1.0
 
-- move files to /perl5; fix paths in Makefile.PL
-
-- Match: .from and .to not implemented in subrules
-
 - '%var := xxx'; '@var := xxx'; %<var> := ; @<var> :=
 
 - rule parameters 
-
-- :P5 rules
 
 - add placeholder 'not implemented' messages in the right places
 
@@ -92,8 +67,6 @@ Bugs:
 - in Pugs::Emitter::Rule::Perl5.pm
  * <[^a]> should be [\^a]
  * fix <[!)]>
-
-- ratchet rules can't call non-ratchet rules
 
 Categories (some things belong to P::C::Perl6) :
 
@@ -123,8 +96,6 @@ Tests:
 
 - <'... <?... <!...
 
-- more tests (port from lrep)
-  
 Related projects:
 
 - implement (optional?) PCR in pugs
@@ -141,9 +112,6 @@ Other:
 - see 'not implemented' messages in Pugs::Emitter::Rule::Perl5
 
 - migrate Pugs::Grammar::Rule::Rule compilation to PCR
-
-- cleanup the non-ratchet engine: it is both returning the match, and building the match tree.
-  There is no need to return the match.
 
 - closures should be called on the Match object
 
@@ -179,9 +147,6 @@ TODO for Pugs-Compiler-Precedence
 - \s{ is an expression terminator if the parser is expecting an operator
 
 - add is-parsed to the appropriate category in op-precedence and tokenizer
-
-- PCP needs to return a Match object?
-  (maybe a match-like object is more appropriate?)
 
 - The P::Yapp 'expect' state can be verified inside
     %{$self->{STATES}[$self->{STACK}[-1][0]]{ACTIONS}}

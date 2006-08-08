@@ -4,13 +4,11 @@
 
 - 'sub', 'method' are functions
 
-- replace 'Regex' matching with 'Token' - needs fixing Pugs::Compiler::Rule: interoperation of :ratchet/non-ratchet rules; implementation of non-ratchet hash-based dispatch.
+- replace 'Regex' matching with 'Token' 
 
 - implement hash and array
 
 - implement statement and operation classes in the grammar; implement macros (see lrep for an existing implementation).
-
-- test s() and rx()
 
 - block parsing:
   t/ref.t: if $string.ref eq Str { say "ok 1 # TODO" }
@@ -18,7 +16,8 @@
 
 pre-release - jun/2006
 
-- cache compiled YAPP and Rule code, use Module::Compile
+- cache compiled YAPP and Rule code, 
+  use Module::Compile instead of Cache::Cache ?
 - write POD
     - v6.pm 
     - Pugs::Compiler::Perl6->compile
@@ -167,17 +166,6 @@ P::C::R BUGS
 
 - A Match doesn't stringify if there is a capture
 
-- Fix %hash capture - it currently works like this:
-
-  sub capture {
-    # print Dumper ${$_[0]}->{match}[0]{match}[1]{capture}; 
-    return ${$_[0]}->{match}[0]{match}[1]{capture};
-  }
-
-- needs character classes
-
 - needs <after...> (update: implemented in :ratchet)
 
 - cleanup Pugs::AST::Expression (no longer used?)
-
-- Token/Rule/Regex have problems calling each other
