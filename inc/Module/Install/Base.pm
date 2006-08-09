@@ -1,5 +1,6 @@
 #line 1 "inc/Module/Install/Base.pm - /usr/local/lib/perl5/site_perl/5.8.7/Module/Install/Base.pm"
 package Module::Install::Base;
+$Module::Install::Base::VERSION = '0.61';
 
 # Suspend handler for "redefined" warnings
 BEGIN { my $w = $SIG{__WARN__}; $SIG{__WARN__} = sub { $w } };
