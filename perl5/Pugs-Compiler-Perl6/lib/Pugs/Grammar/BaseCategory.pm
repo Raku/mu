@@ -9,35 +9,43 @@ use Data::Dumper;
 # TODO - redefine <ws> to test Pod.pm after each \n
 
 Pugs::Compiler::Regex->install( 
-    comment => q^
-        .*?
-        \\n   
-    ^ );
+    to_end_of_line => '
+        [^\n]*? 
+        (?: \n | $ )
+    ', { Perl5 => 1 } );
 
 Pugs::Compiler::Regex->install( 
+    to_end_of_pod => '
+        .*? 
+        (?= \n = ) 
+    ', { Perl5 => 1 } );
+
+Pugs::Compiler::Token->install( 
     pod_begin => q^
-        .*?
-        \\n =end  
+    |   \\n =end  
+    |   . <?to_end_of_pod> <?pod_begin>
     ^ );
 
-Pugs::Compiler::Regex->install( 
+Pugs::Compiler::Token->install( 
     pod_other => q^
-        .*?
-        \\n =cut  
+    |   \\n =cut  
+    |   . <?to_end_of_pod> <?pod_other>
     ^ );
 
 Pugs::Compiler::Token->install( 
     ws1 => q^
-    |   \\# <comment>
+    |   \\# <to_end_of_line>
     |   \\n [
             | =begin  <pod_begin>
-            | =\\w    <pod_other>
+            | =kwid   <pod_other>
+            | =pod    <pod_other>
+            | =for    <pod_other>
             | <''>
             ]
     |   \\s
     ^ );
 
-Pugs::Compiler::Regex->install( 
+Pugs::Compiler::Token->install( 
     ws => ' <ws1>+ ' 
 );
 
