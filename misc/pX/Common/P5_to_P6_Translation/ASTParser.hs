@@ -134,6 +134,9 @@ withKids indent = do
             "op_fttty"      -> Op_fttty
             "op_ftzero"     -> Op_ftzero
             "op_goto"       -> Op_goto
+            "op_ge"         -> Op_ge
+            "Op_grepstart"  -> Op_grepstart
+            "op_grepwhile"  -> Op_grepwhile
             "op_gt"         -> Op_gt
             "op_gv"         -> Op_gv
             "op_helem"      -> Op_helem
