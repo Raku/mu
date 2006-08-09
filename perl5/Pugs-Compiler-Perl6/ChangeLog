@@ -1,3 +1,14 @@
+0.013  2006-08-09
+
+- includes precompiled v6 modules: Perl6Prelude.pm, Test.pm
+- new grammatical categories: 'quote', 'statement_modifier'
+
+0.012  2006-08-08
+
+- faster compilation due to improved grammatical categories dispatching
+  and lazy rule compilation
+- 'statement_control' grammatical category implemented
+
 0.011  2006-07-24
 
 - basic regex parsing and matching
