@@ -464,6 +464,7 @@ instance Value VRat where
 
 instance Value VNum where
     castV = VNum
+    fromVV vv = liftSIO $ fmap cast (asNum vv)
     fromSV sv = liftIO $ svToVNum sv
     doCast VUndef       = return $ 0
     doCast VType{}      = return $ 0

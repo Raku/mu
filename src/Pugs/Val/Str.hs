@@ -13,3 +13,7 @@ newtype PureStr = MkStr ByteString
 instance ICoercible P PureStr where
     asStr  = cast
 -}
+
+parseNum :: PureStr -> Double
+parseNum (MkStr s) = fromIntegral i
+    where (i, _) = maybe (0, undefined) id $ Char8.readInt s

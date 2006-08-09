@@ -22,6 +22,7 @@ import qualified Data.ByteString as Buf
 import Pugs.AST.SIO
 import Pugs.Val.Str
 import Pugs.Val.Int
+import Pugs.Val.Num
 
 {-|
 
@@ -182,8 +183,11 @@ class ICoercible m a => IValue m a where
 class (ICoercible P a, Ord a, Show a) => Pure a where {}
 instance (ICoercible P a, Ord a, Show a) => Pure a where {}
 
-instance ICoercible P PureStr where asStr = return . cast
+instance ICoercible P PureStr where
+    asStr = return . cast
+    asNum = return . cast . parseNum
 instance ICoercible P PureInt where asInt = return . cast
+instance ICoercible P PureNum where asNum = return . cast
 
 liftP :: Monad m => P a -> m a
 liftP = return . runIdentity
@@ -250,7 +254,6 @@ type PureSet        = Set Val
 type PureSeq        = Seq Val
 type PureList       = Seq Val -- Seq (Either PureSeq PureRange) -- XXX - *very bogus*
 type PureComplex    = ()
-type PureNum        = ()
 type PureRange      = ()
 type PureJunc       = ()
 type PurePair       = ()
