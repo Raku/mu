@@ -30,14 +30,14 @@ token num {
             | { return $/ does v6::AST::NUint   }
             ]
           ]
-        | { return $/ does v6::AST::NBit) }
+        | { return $/ does v6::AST::NBit }
         ]
     | 1 [ \d+[_\d+]*
             [ \. \d+[_\d+]* [ <[Ee]> <[+\-]>? \d+ ]? 
               { return $/ does v6::AST::NFloat  }
             | { return $/ does v6::AST::NUint   }
             ]
-        | { return $/ does v6::AST::NBit) }
+        | { return $/ does v6::AST::NBit }
         ]
     | \d+[_\d+]*
         [ \. \d+[_\d+]* [ <[Ee]> <[+\-]>? \d+ ]? 
