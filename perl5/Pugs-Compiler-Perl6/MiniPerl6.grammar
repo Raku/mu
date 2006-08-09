@@ -95,7 +95,7 @@ rule VariableDeclaration {<'my'> <Variable> <'='> <Expr> \;
 }
 
 token ProductionRule 
-   # :p(0)  --- TODO
+   # :p(0)  --- v6.pm TODO
 {
     | <?ws>? <VariableDeclaration> <ProductionRule>
             { return $<VariableDeclaration> ~ $<ProductionRule> }

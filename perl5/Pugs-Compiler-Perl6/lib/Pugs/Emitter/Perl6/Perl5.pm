@@ -397,7 +397,7 @@ sub default {
         return  "{\n" . _emit( $n->{bare_block} ) . "\n }\n";
     }
 
-    if ( $n->{op1} eq 'call' ) {
+    if ( exists $n->{op1} && $n->{op1} eq 'call' ) {
         # warn "call: ",Dumper $n;
 
         if ($n->{sub}{scalar} || $n->{sub}{statement}) {
@@ -531,7 +531,7 @@ sub default {
             (exists $n->{param} ? '(' . _emit_parameter_capture( $n->{param} ) . ')' : '');
     }
     
-    if ( $n->{op1} eq 'method_call' ) {    
+    if ( exists $n->{op1} && $n->{op1} eq 'method_call' ) {    
         #warn "method_call: ", Dumper( $n );
         if ( $n->{method}{dot_bareword} eq 'print' ||
              $n->{method}{dot_bareword} eq 'warn' ) {
