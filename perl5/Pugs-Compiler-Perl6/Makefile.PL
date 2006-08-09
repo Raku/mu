@@ -66,4 +66,5 @@ eval {
 };
 
 # see Module::Compile
+    # precompile Perl6Prelude.pm and Test.pm
     pmc_support();

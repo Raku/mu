@@ -29,7 +29,9 @@ lib/Pugs/Grammar/StatementControl.pm
 lib/Pugs/Grammar/Term.pm
 lib/Pugs/Grammar/Ternary.pm
 lib/Pugs/Runtime/Perl6.pm
+
 lib/Pugs/Runtime/Perl6Prelude.pm
+lib/Pugs/Runtime/Perl6Prelude.pmc
 
 lib/Pugs/Grammar/StatementModifier.pm
 lib/Pugs/Grammar/Quote.pm
@@ -120,6 +122,8 @@ t/xx-uncategorized/parsing_bool.t
 t/xx-uncategorized/shift-from-function-array-arg.t
 
 t/Test.pm
+t/Test.pmc
+
 # not included in v6 0.007
 # t/data_types/hash.t
 
