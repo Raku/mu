@@ -720,6 +720,10 @@ sub statement {
                     ? ";
                         use Moose; Pugs::Runtime::Perl6->setup_class"
                     : "" ) .
+                ( $n->{statement} eq 'role' 
+                    ? ";
+                        use Moose::Role; Pugs::Runtime::Perl6->setup_class"
+                    : "" ) .
                 ";
                 use Exporter 'import'; 
                 push our \@ISA, 'Exporter';
