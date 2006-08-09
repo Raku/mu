@@ -6,6 +6,8 @@ import qualified Data.ByteString.Char8 as Char8
 instance ((:>:) PureInt) Integer where cast = MkInt
 instance ((:<:) PureInt) Integer where castBack (MkInt i) = i
 
+instance ((:>:) PureInt) Int where cast = MkInt . toInteger
+
 newtype PureInt = MkInt Integer
     deriving (Typeable, Show, Eq, Ord, Data, (:>:) Integer, (:<:) Integer)
 

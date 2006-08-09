@@ -399,6 +399,7 @@ runInvokePerl5 sub inv args = do
 instance Value VBool where
     castV = VBool
     fromSV sv = liftIO $ svToVBool sv
+    fromVV vv = liftSIO $ fmap cast (asBit vv)
     doCast (VJunc j)   = juncToBool j
     doCast (VMatch m)  = return $ matchOk m
     doCast (VBool b)   = return $ b

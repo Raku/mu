@@ -184,8 +184,13 @@ class (ICoercible P a, Ord a, Show a) => Pure a where {}
 instance (ICoercible P a, Ord a, Show a) => Pure a where {}
 
 instance ICoercible P PureStr where
-    asStr = return . cast
-    asNum = return . cast . parseNum
+    asBit (MkStr s)
+        | Buf.null s = return False
+        | otherwise  = return (Buf.head s /= 0x30)
+    asStr = cast
+    asNum = cast . parseInt -- XXX - wrong
+    asInt = cast . parseInt
+
 instance ICoercible P PureInt where asInt = return . cast
 instance ICoercible P PureNum where asNum = return . cast
 

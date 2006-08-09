@@ -6,6 +6,8 @@ import qualified Data.ByteString.Char8 as Char8
 instance ((:>:) PureNum) Double where cast = MkNum
 instance ((:<:) PureNum) Double where castBack (MkNum i) = i
 
+instance ((:>:) PureNum) Int where cast = MkNum . fromIntegral
+
 newtype PureNum = MkNum Double
     deriving (Typeable, Show, Eq, Ord, Data, (:>:) Double, (:<:) Double)
 
