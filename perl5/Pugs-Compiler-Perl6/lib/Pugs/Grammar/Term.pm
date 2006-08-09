@@ -57,12 +57,16 @@ sub rx {
     my $grammar = shift;
     return $grammar->no_match(@_) unless $_[0];
     my $options;
-    while ($_[0] =~ s/^:(\w+)//) {
-	$options->{lc($1)} = 1;
+    my $pos = $_[1]{p} || 0;
+    while ( substr( $_[0], $pos ) =~ m/^:(\w+)/ ) {
+        $options->{lc($1)} = 1;
+        $pos += 1 + length($1);
     }
-    my $open = substr($_[0], 0 , 1, '');
-    my $ret = rx_body($grammar, $_[0], { args => { open => $open } });
-    $ret->capture->{options} = $options if $ret->bool;
+    my $open = substr($_[0], $pos , 1);
+    #print "rx options ", keys( %$options ), ", open $open \n";
+    my $ret = rx_body($grammar, $_[0], { p => $pos+1, args => { open => $open } });
+    #print "rx match: ", Dumper($ret->data->{capture} );
+    ${ $ret->data->{capture} }->{options} = $options if $ret;
     return $ret;
 }
 
@@ -75,7 +79,8 @@ sub rx_body {
     my $s = substr( $_[0], $pos );
     my ($extracted,$remainder) = $open eq $openmatch{$open}
         ? Text::Balanced::extract_delimited( $open . $s, $openmatch{$open} )
-	: Text::Balanced::extract_bracketed( $open . $s, $open.$openmatch{$open} );
+        : Text::Balanced::extract_bracketed( $open . $s, $open.$openmatch{$open} );
+    #print "rx_body at $s got $extracted\n";
     return $grammar->no_match(@_) unless length($extracted) > 0;
     $extracted = substr( $extracted, 1, -1 );
     return Pugs::Runtime::Match->new( { 
