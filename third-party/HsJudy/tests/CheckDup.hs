@@ -1,5 +1,5 @@
-import qualified Judy.Map as M
-import qualified Judy.MapSL as S
+import qualified Judy.Hash as H
+import qualified Judy.StrMap as S
 import Judy.CollectionsM as C
 
 import Data.Map as DM
@@ -15,10 +15,10 @@ main = do
     case read (head s) of
         1 -> main1
         2 -> main2
-        3 -> (new :: IO (M.Map String Int)) >>= mainj getLine
-        4 -> (new :: IO (S.MapSL String Int)) >>= mainj getLine
-        5 -> (new :: IO (M.Map B.ByteString Int)) >>= mainj B.getLine
-        6 -> (new :: IO (S.MapSL B.ByteString Int)) >>= mainj B.getLine
+        3 -> (new :: IO (H.Hash String Int)) >>= mainj getLine
+        4 -> (new :: IO (S.StrMap String Int)) >>= mainj getLine
+        5 -> (new :: IO (H.Hash B.ByteString Int)) >>= mainj B.getLine
+        6 -> (new :: IO (S.StrMap B.ByteString Int)) >>= mainj B.getLine
         7 -> (H.new (==) H.hashString :: IO (H.HashTable String Int)) >>= mainh getLine
         8 -> (H.new (==) (H.hashString . B.unpack) :: IO (H.HashTable B.ByteString Int)) >>= mainh B.getLine
 

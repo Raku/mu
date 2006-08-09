@@ -6,7 +6,7 @@ license-file:        LICENSE
 author:              Caio Marcelo de Oliveira Filho <cmarcelo@gmail.com>, John Meacham
 maintainer:          Caio Marcelo de Oliveira Filho <cmarcelo@gmail.com>
 build-depends:       base
-exposed-modules:     Judy.BitSet Judy.Freeze Judy.Map Judy.Map2 Judy.MapSL Judy.CollectionsM Judy.HashIO Judy.Refeable
+exposed-modules:     Judy.BitSet Judy.Freeze Judy.Hash Judy.IntMap Judy.StrMap Judy.CollectionsM Judy.HashIO Judy.Refeable Judy.Stringable
 other-modules:       Judy.Private Judy.MiniGC
 extensions:          ForeignFunctionInterface
 ghc-options:         -fglasgow-exts -O2

@@ -5,21 +5,16 @@ import Test
 import Data.List (sort)
 import System.Mem
 
---import qualified Judy.MapSL as JSL
-import qualified Judy.Map as J
+import qualified Judy.Hash as J
 
-import Judy.Map (Stringable (..))
+import Judy.Stringable
 import Judy.CollectionsM
 import Judy.Freeze
 
 import Prelude hiding (lookup)
 
---type M = JSL.MapSL
---swapMaps = JSL.swapMaps
-
-type M = J.Map
+type M = J.Hash
 swapMaps = J.swapMaps
-
 
 main = no_plan $ do
     -- FIXME: A better way to organize this tests must exist...

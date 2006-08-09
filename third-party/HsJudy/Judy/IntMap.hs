@@ -1,7 +1,7 @@
 {-# OPTIONS -fallow-undecidable-instances -fallow-incoherent-instances #-}
 
-module Judy.Map2 (
-    Map2 (..),
+module Judy.IntMap (
+    IntMap (..),
     swapMaps, freeze,
     toRevList,
     size,
@@ -30,10 +30,10 @@ import qualified Judy.MiniGC as GC
 
 import Prelude hiding (map)
 
-newtype (ReversibleHashIO k, Refeable a) => Map2 k a = Map2 { judy :: ForeignPtr JudyL }
+newtype (ReversibleHashIO k, Refeable a) => IntMap k a = IntMap { judy :: ForeignPtr JudyL }
     deriving (Eq, Ord, Typeable)
 
-instance (ReversibleHashIO k, Refeable a) => CM.MapM (Map2 k a) k a IO where
+instance (ReversibleHashIO k, Refeable a) => CM.MapM (IntMap k a) k a IO where
     new = new_
     delete = delete_
     member = member_
@@ -46,20 +46,20 @@ instance (ReversibleHashIO k, Refeable a) => CM.MapM (Map2 k a) k a IO where
     keys = keys_
     mapToList = mapToList_
 
-instance (ReversibleHashIO k, Refeable a) => Freezable (Map2 k a) where
+instance (ReversibleHashIO k, Refeable a) => Freezable (IntMap k a) where
     freeze m = do
         m' <- new_
         swapMaps m' m
         return (Frozen m')
 
-instance (ReversibleHashIO k, Refeable a) => CM.MapF (Frozen (Map2 k a)) k a where
+instance (ReversibleHashIO k, Refeable a) => CM.MapF (Frozen (IntMap k a)) k a where
     memberF k (Frozen m) = unsafePerformIO $ member_ k m
     lookupF k (Frozen m) = unsafePerformIO $ lookup_ k m
     fromListF l = Frozen $ unsafePerformIO $ fromList_ l
     toListF (Frozen m) = unsafePerformIO $ toList_ m
 
-instance Show (Map2 k a) where
-    show (Map2 j) = "<Map2 " ++ show j ++ ">"
+instance Show (IntMap k a) where
+    show (IntMap j) = "<IntMap " ++ show j ++ ">"
 
 
 
@@ -69,7 +69,7 @@ finalize :: Bool -> Ptr JudyL -> IO ()
 finalize need j = do
     when need $ do
         j_ <- newForeignPtr_ j
-        es <- rawElems (Map2 j_)
+        es <- rawElems (IntMap j_)
         mapM_ GC.freeRef es
     v <- judyLFreeArray j judyError
     --putStrLn $ "\n(FINALIZER CALLED FOR "++ (show j) ++  ": " ++ (show v) ++ ")\n"
@@ -77,29 +77,29 @@ finalize need j = do
 
 rawElems = internalMap $ \r _ -> peek r
 
-dummy :: Refeable a => Map2 k a -> a
+dummy :: Refeable a => IntMap k a -> a
 dummy = undefined
 
-new_ :: Refeable a => IO (Map2 k a)
+new_ :: Refeable a => IO (IntMap k a)
 new_ = do
     fp <- mallocForeignPtr
     withForeignPtr fp $ flip poke nullPtr
-    m <- return $ Map2 fp
+    m <- return $ IntMap fp
 
     finalize' <- mkFin $ finalize $ needGC (dummy m)
     addForeignPtrFinalizer finalize' fp 
     return m
 
-insert_ :: (ReversibleHashIO k, Refeable a) => k -> a -> Map2 k a -> IO ()
-insert_ k v (Map2 j) = withForeignPtr j $ \j' -> do
+insert_ :: (ReversibleHashIO k, Refeable a) => k -> a -> IntMap k a -> IO ()
+insert_ k v (IntMap j) = withForeignPtr j $ \j' -> do
     k' <- hashIO k
     r <- judyLIns j' k' judyError
     if r == pjerr
         then error "HsJudy: Not enough memory."
         else do { v' <- toRef v; poke r v'; return () }
 
-alter_ :: (Eq a, ReversibleHashIO k, Refeable a) => (Maybe a -> Maybe a) -> k -> Map2 k a -> IO (Maybe a)
-alter_ f k m@(Map2 j) = do
+alter_ :: (Eq a, ReversibleHashIO k, Refeable a) => (Maybe a -> Maybe a) -> k -> IntMap k a -> IO (Maybe a)
+alter_ f k m@(IntMap j) = do
     j' <- withForeignPtr j peek
     k' <- hashIO k
     r <- judyLGet j' k' judyError
@@ -121,8 +121,8 @@ alter_ f k m@(Map2 j) = do
                                  return fv
                          else return fv
 
-lookup_ :: (ReversibleHashIO k, Refeable a) => k -> Map2 k a -> IO (Maybe a)
-lookup_ k (Map2 j) = do
+lookup_ :: (ReversibleHashIO k, Refeable a) => k -> IntMap k a -> IO (Maybe a)
+lookup_ k (IntMap j) = do
     j' <- withForeignPtr j peek
     k' <- hashIO k
     r <- judyLGet j' k' judyError
@@ -130,15 +130,15 @@ lookup_ k (Map2 j) = do
         then return Nothing
         else do { v' <- peek r; v <- fromRef v'; return $ Just v }
 
-member_ :: ReversibleHashIO k => k -> Map2 k a -> IO Bool
-member_ k (Map2 j) = do
+member_ :: ReversibleHashIO k => k -> IntMap k a -> IO Bool
+member_ k (IntMap j) = do
     j' <- withForeignPtr j peek
     k' <- hashIO k
     r <- judyLGet j' k' judyError
     return $ r /= nullPtr
 
-delete_ :: ReversibleHashIO k => k -> Map2 k a -> IO Bool
-delete_ k m@(Map2 j) = withForeignPtr j $ \j' -> do
+delete_ :: ReversibleHashIO k => k -> IntMap k a -> IO Bool
+delete_ k m@(IntMap j) = withForeignPtr j $ \j' -> do
     j'' <- peek j'
     k' <- hashIO k
     when (needGC (dummy m)) $ do
@@ -151,22 +151,22 @@ delete_ k m@(Map2 j) = withForeignPtr j $ \j' -> do
     r <- judyLDel j' k' judyError
     return $ r /= 0
 
-size :: Map2 k a -> IO Int
-size (Map2 j) = withForeignPtr j $ \j' -> do
+size :: IntMap k a -> IO Int
+size (IntMap j) = withForeignPtr j $ \j' -> do
     jj <- peek j'
     r <- judyLCount jj 0 (-1) judyError
     return $ fromEnum r
 
 
 
-fromList_ :: (ReversibleHashIO k, Refeable a) => [(k,a)] -> IO (Map2 k a)
+fromList_ :: (ReversibleHashIO k, Refeable a) => [(k,a)] -> IO (IntMap k a)
 fromList_ xs = do
     m <- new_
     mapM_ (\(k,a) -> insert_ k a m) xs
     return m
 
-internalMap' :: (Ptr Value -> Ptr Value -> IO b) -> Map2 k a -> IO [b]
-internalMap' f (Map2 j) = do
+internalMap' :: (Ptr Value -> Ptr Value -> IO b) -> IntMap k a -> IO [b]
+internalMap' f (IntMap j) = do
     jj <- withForeignPtr j peek
     alloca $ \vp -> do
         poke vp (0 :: Value)
@@ -178,8 +178,8 @@ internalMap' f (Map2 j) = do
                         loop judyLNext (x:xs)
         loop judyLFirst []
 
-withLast :: (Ptr Value -> Ptr Value -> IO b) -> Int -> Map2 k a -> IO [b]
-withLast f n (Map2 j) = do
+withLast :: (Ptr Value -> Ptr Value -> IO b) -> Int -> IntMap k a -> IO [b]
+withLast f n (IntMap j) = do
     jj <- withForeignPtr j peek
     alloca $ \vp -> do
         poke vp (-1)
@@ -192,20 +192,31 @@ withLast f n (Map2 j) = do
                         loop judyLPrev (x:xs) (n'-1)
         loop judyLLast [] n
 
+takeLast :: (ReversibleHashIO k, Refeable a) => Int -> IntMap k a -> IO [(k,a)]
+-- this case is here as a tentative to optimize, in case GHC doesn't do it
+takeLast 1 (IntMap j) = do
+    jj <- withForeignPtr j peek
+    alloca $ \vp -> do
+        poke vp (-1)
+        r <- judyLLast jj vp judyError
+        if r == nullPtr
+            then return []
+            else do k <- peek vp >>= unHashIO
+                    v <- peek r  >>= fromRef
+                    return [(k,v)]
 -- FIXME: use a less obscure syntax =P
-takeLast :: (ReversibleHashIO k, Refeable a) => Int -> Map2 k a -> IO [(k,a)]
 takeLast n m = do
     withLast (\r vp -> do { k <- peek vp >>= unHashIO; v <- peek r >>= fromRef; return (k,v) }) n m
 
-takeLastElems :: Refeable a => Int -> Map2 k a -> IO [a]
+takeLastElems :: Refeable a => Int -> IntMap k a -> IO [a]
 takeLastElems n m = do
     withLast (\r _ -> peek r >>= fromRef) n m
 
 
 
 
-withFirst :: (Ptr Value -> Ptr Value -> IO b) -> Int -> Map2 k a -> IO [b]
-withFirst f n (Map2 j) = do
+withFirst :: (Ptr Value -> Ptr Value -> IO b) -> Int -> IntMap k a -> IO [b]
+withFirst f n (IntMap j) = do
     jj <- withForeignPtr j peek
     alloca $ \vp -> do
         poke vp (0 :: Value)
@@ -222,19 +233,30 @@ withFirst f n (Map2 j) = do
 -- n ~= size would be better to use LPrev and LLast and dont reverse.
 
 
+takeFirst :: (ReversibleHashIO k, Refeable a) => Int -> IntMap k a -> IO [(k,a)]
+-- this case is here as a tentative to optimize, in case GHC doesn't do it
+takeFirst 1 (IntMap j) = do
+    jj <- withForeignPtr j peek
+    alloca $ \vp -> do
+        poke vp (0 :: Value)
+        r <- judyLFirst jj vp judyError
+        if r == nullPtr
+            then return []
+            else do k <- peek vp >>= unHashIO
+                    v <- peek r  >>= fromRef
+                    return [(k,v)]
 -- FIXME: use a less obscure syntax =P
-takeFirst :: (ReversibleHashIO k, Refeable a) => Int -> Map2 k a -> IO [(k,a)]
 takeFirst n m = do
     l <- withFirst (\r vp -> do { k <- peek vp >>= unHashIO; v <- peek r >>= fromRef; return (k,v) }) n m
     return $ reverse l
 
-takeFirstElems :: Refeable a => Int -> Map2 k a -> IO [a]
+takeFirstElems :: Refeable a => Int -> IntMap k a -> IO [a]
 takeFirstElems n m = do
     l <- withFirst (\r _ -> peek r >>= fromRef) n m
     return $ reverse l
 
-internalMap :: (Ptr Value -> Ptr Value -> IO b) -> Map2 k a -> IO [b]
-internalMap f (Map2 j) = do
+internalMap :: (Ptr Value -> Ptr Value -> IO b) -> IntMap k a -> IO [b]
+internalMap f (IntMap j) = do
     jj <- withForeignPtr j peek
     alloca $ \vp -> do
         poke vp (-1)
@@ -247,7 +269,7 @@ internalMap f (Map2 j) = do
         loop judyLLast [] -- Because of list concat we go backwards
                           -- to get ordered list right.
 
-mapToList_ :: (ReversibleHashIO k, Refeable a) => (k -> a -> b) -> Map2 k a -> IO [b]
+mapToList_ :: (ReversibleHashIO k, Refeable a) => (k -> a -> b) -> IntMap k a -> IO [b]
 mapToList_ f = internalMap $ \r vp -> do
     k <- peek vp
     k' <- unHashIO k
@@ -255,7 +277,7 @@ mapToList_ f = internalMap $ \r vp -> do
     v' <- fromRef v
     return $ f k' v'
 
-mapToRevList_ :: (ReversibleHashIO k, Refeable a) => (k -> a -> b) -> Map2 k a -> IO [b]
+mapToRevList_ :: (ReversibleHashIO k, Refeable a) => (k -> a -> b) -> IntMap k a -> IO [b]
 mapToRevList_ f = internalMap' $ \r vp -> do
     k <- peek vp
     k' <- unHashIO k
@@ -263,24 +285,24 @@ mapToRevList_ f = internalMap' $ \r vp -> do
     v' <- fromRef v
     return $ f k' v'
 
-toList_ :: (ReversibleHashIO k, Refeable a) => Map2 k a -> IO [(k,a)]
+toList_ :: (ReversibleHashIO k, Refeable a) => IntMap k a -> IO [(k,a)]
 toList_ = mapToList_ $ \k a -> (k,a)
 
-toRevList :: (ReversibleHashIO k, Refeable a) => Map2 k a -> IO [(k,a)]
+toRevList :: (ReversibleHashIO k, Refeable a) => IntMap k a -> IO [(k,a)]
 toRevList = mapToRevList_ $ \k a -> (k,a)
 
-keys_ :: ReversibleHashIO k => Map2 k a -> IO [k]
+keys_ :: ReversibleHashIO k => IntMap k a -> IO [k]
 keys_ = internalMap $ \_ vp -> do
     k <- peek vp
     unHashIO k
 
-elems_ :: Refeable a => Map2 k a -> IO [a]
+elems_ :: Refeable a => IntMap k a -> IO [a]
 elems_ = internalMap $ \r _ -> do
     v <- peek r
     fromRef v
 
-swapMaps :: Map2 k a -> Map2 k a -> IO ()
-swapMaps (Map2 j1) (Map2 j2) = do
+swapMaps :: IntMap k a -> IntMap k a -> IO ()
+swapMaps (IntMap j1) (IntMap j2) = do
     withForeignPtr j1 $ \p1 -> withForeignPtr j2 $ \p2 -> do
         v1 <- peek p1
         v2 <- peek p2

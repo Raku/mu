@@ -2,8 +2,8 @@ module JudyAtom where
 
 -- This code is based on Atom.hs from JHC
 
-import qualified Judy.MapSL as M
-import qualified Judy.Map2 as L
+import qualified Judy.StrMap as M
+import qualified Judy.IntMap as L
 import qualified Judy.CollectionsM as C
 
 import Judy.Refeable as R
@@ -20,11 +20,11 @@ instance R.Refeable Atom where
     needGC _ = False
 
 {-# NOINLINE table #-}
-table :: M.MapSL B.ByteString Atom
+table :: M.StrMap B.ByteString Atom
 table = unsafePerformIO $ C.new
 
 {-# NOINLINE reverseTable #-}
-reverseTable :: L.Map2 Int B.ByteString
+reverseTable :: L.IntMap Int B.ByteString
 reverseTable = unsafePerformIO $ C.new
 
 {-# NOINLINE intPtr #-}

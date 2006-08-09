@@ -6,18 +6,18 @@ import Prelude hiding (lookup)
 
 import Data.List (sort)
 import Judy.CollectionsM --as CM
-import Judy.Map2 as J
+import Judy.IntMap as J
 
 main = no_plan $ do
 
 t "Simple" $ do
-    s <- new :: IO (Map2 Int Int)
+    s <- new :: IO (IntMap Int Int)
     lookup 1 s    .=> Nothing
     insert 1 42 s
     lookup 1 s    .=> Just 42
 
 t "Delete" $ do
-    s <- new :: IO (Map2 Int Int)
+    s <- new :: IO (IntMap Int Int)
     lookup 3 s    .=> Nothing
     insert 3 42 s
     lookup 3 s    .=> Just 42
@@ -28,7 +28,7 @@ t "Delete" $ do
     lookup 37 s .=> Just 59
 
 t "Overwrite" $ do
-    s <- new :: IO (Map2 Int Int)
+    s <- new :: IO (IntMap Int Int)
     insert 3 1234 s
     insert 2222 1234 s
     insert 3 42 s
@@ -36,7 +36,7 @@ t "Overwrite" $ do
     lookup 3 s .=> Just 42
 
 t "Member" $ do
-    s <- new :: IO (Map2 Int Int)
+    s <- new :: IO (IntMap Int Int)
     member 3 s     .=> False
     insert 3 42 s
     member 37 s    .=> False
@@ -45,7 +45,7 @@ t "Member" $ do
     member 3 s     .=> True
 
 t "Elems" $ do
-    s <- new :: IO (Map2 Int Int)
+    s <- new :: IO (IntMap Int Int)
     elems s .=> []
     insert 3 42 s
     insert 37 1 s
@@ -53,7 +53,7 @@ t "Elems" $ do
     elems s .=> [2,42,1]
 
 t "Keys" $ do
-    s <- new :: IO (Map2 Int Int)
+    s <- new :: IO (IntMap Int Int)
     keys s .-= []
     insert 3 42 s
     insert 37 1 s
@@ -64,7 +64,7 @@ t "Keys" $ do
     keys s .=> [0,3]
 
 t "StringValue" $ do
-    s <- new :: IO (Map2 Int String)
+    s <- new :: IO (IntMap Int String)
     toList s .-= []
 
     insert 22 "string" s
@@ -77,7 +77,7 @@ t "StringValue" $ do
     lookup 59 s .=> Just "i am not a number"
 
 t "StringValueDel" $ do
-    s <- new :: IO (Map2 Int String)
+    s <- new :: IO (IntMap Int String)
     toList s .-= []
 
     insert 22 "string" s
@@ -92,8 +92,8 @@ t "StringValueDel" $ do
     lookup 23 s .=> Just "string"
 
 t "SwapMaps" $ do
-    m1 <- fromList [(1,2),(2,3),(4,7)] :: IO (J.Map2 Int Int)
-    m2 <- fromList [(1,42),(2,42),(3,42)] :: IO (J.Map2 Int Int)
+    m1 <- fromList [(1,2),(2,3),(4,7)] :: IO (J.IntMap Int Int)
+    m2 <- fromList [(1,42),(2,42),(3,42)] :: IO (J.IntMap Int Int)
     lookup 2 m1 .=> Just 3
     lookup 2 m2 .=> Just 42
     lookup 3 m2 .=> Just 42
@@ -104,7 +104,7 @@ t "SwapMaps" $ do
     lookup 3 m2 .=> Nothing
 
 t "Alter" $ do
-    m <- fromList [(1,2), (2,3), (4,5)] :: IO (J.Map2 Int Int)
+    m <- fromList [(1,2), (2,3), (4,5)] :: IO (J.IntMap Int Int)
     lookup 1 m .=> Just 2
 
     alter (const (Just 42)) 3 m
@@ -119,7 +119,7 @@ t "Alter" $ do
 
 t "RevList" $ do
     let l = [(1,2), (2,3), (4,5)]
-    m <- fromList l :: IO (J.Map2 Int Int)
+    m <- fromList l :: IO (J.IntMap Int Int)
     J.toRevList m .=> reverse l
 
     insert 3 10 m
@@ -127,7 +127,7 @@ t "RevList" $ do
 
 t "Size" $ do
     let l = [0..] `zip` [1..20]
-    m <- fromList l :: IO (J.Map2 Int Int)
+    m <- fromList l :: IO (J.IntMap Int Int)
     J.size m .=> 20
     delete 0 m
     delete 1 m
@@ -138,7 +138,7 @@ t "Size" $ do
 
 t "TakeFirst et al" $ do
     let l = [0..100] `zip` [100..]
-    m <- fromList l :: IO (J.Map2 Int Int)
+    m <- fromList l :: IO (J.IntMap Int Int)
     J.takeFirstElems 5 m  .=> [100..104]
     J.takeFirst 5 m       .=> [0..] `zip` [100..104]
     J.takeFirstElems 10 m .=> [100..109]
@@ -146,10 +146,11 @@ t "TakeFirst et al" $ do
     delete 1 m
     J.takeFirstElems 3 m  .=> [102..104]
     J.takeFirst 3 m       .=> [2..4] `zip` [102..104]
+    J.takeFirst 1 m       .=> [(2,102)]
 
 t "TakeLast et al" $ do
     let l = [0..100] `zip` [100..]
-    m <- fromList l :: IO (J.Map2 Int Int)
+    m <- fromList l :: IO (J.IntMap Int Int)
     J.takeLastElems 5 m  .=> [196..200]
     J.takeLast 5 m       .=> [96..] `zip` [196..200]
     J.takeLastElems 10 m .=> [191..200]
@@ -157,5 +158,6 @@ t "TakeLast et al" $ do
     delete 99 m
     J.takeLastElems 3 m  .=> [196..198]
     J.takeLast 3 m       .=> [96..] `zip` [196..198]
+    J.takeLast 1 m       .=> [(98,198)]
 
 -- TODO: test some crazy haskell type as value (to check stableptrs)

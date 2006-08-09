@@ -14,7 +14,7 @@ import Data.Char
 import Data.List
 import Numeric
 import Control.Monad (when)
-import qualified Judy.MapSL as J
+import qualified Judy.StrMap as J
 import qualified Judy.CollectionsM as C
 import Data.Maybe (fromJust)
 
@@ -49,7 +49,7 @@ writeFrequencies h k dna = do
 
 -- FIXME: This step could be better
 writeCount sq dna = do
-    h <- C.new :: IO (J.MapSL String Int)
+    h <- C.new :: IO (J.StrMap String Int)
     counts h (length sq) dna
     x <- C.lookup sq h
     putStrLn $ (show (fromJust x)) ++ "\t" ++ sq 
@@ -62,9 +62,9 @@ dnaThree = process =<< getContents
           ul str      = map toUpper $ concat str
 
 main = do three <- dnaThree
-          h <- C.new :: IO (J.MapSL String Int)
+          h <- C.new :: IO (J.StrMap String Int)
           writeFrequencies h 1 three
-          h <- C.new :: IO (J.MapSL String Int)
+          h <- C.new :: IO (J.StrMap String Int)
           writeFrequencies h 2 three
           mapM_ (\k -> writeCount k three) ["GGT", "GGTA", "GGTATT", "GGTATTTTAATT", "GGTATTTTAATTTATAGT"]
 

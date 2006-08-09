@@ -1,7 +1,7 @@
 #GHC=ghc-6.4.2 
 GHC=ghc # -debug
 CC=$(GHC)
-TESTS=TestBS TestJL TestJSL TestJHS TestMap TestMap2
+TESTS=TestBS TestJL TestJSL TestJHS TestHash TestIntMap TestStrMap
 
 CFLAGS= -O2
 
