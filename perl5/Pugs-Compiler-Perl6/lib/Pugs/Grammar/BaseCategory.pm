@@ -8,31 +8,39 @@ use Data::Dumper;
 
 # TODO - redefine <ws> to test Pod.pm after each \n
 
-*ws = Pugs::Compiler::Regex->compile( '
-            (?:
-            
-            # TODO
-            #    # =begin END 
-            #    (?<= \n | ^ ) \= begin \s+ END 
-            #    .*
-            #|
-                # pod start
-                (?: \n | ^ ) \= \w  
-                # pod body
-                .*?
-                # pod end
-                \n \= (?: end | cut ) (?-s:.)*
-            |
-                # normal space
-                \s            
-            |
-                # a comment until end-of-line
-                \# (?-s:.)*   
-            )+
-', 
-    { Perl5 => 1 } 
-)->code;
-    
+Pugs::Compiler::Regex->install( 
+    comment => q^
+        .*?
+        \\n   
+    ^ );
+
+Pugs::Compiler::Regex->install( 
+    pod_begin => q^
+        .*?
+        \\n =end  
+    ^ );
+
+Pugs::Compiler::Regex->install( 
+    pod_other => q^
+        .*?
+        \\n =cut  
+    ^ );
+
+Pugs::Compiler::Token->install( 
+    ws1 => q^
+    |   \\# <comment>
+    |   \\n [
+            | =begin  <pod_begin>
+            | =\\w    <pod_other>
+            | <''>
+            ]
+    |   \\s
+    ^ );
+
+Pugs::Compiler::Regex->install( 
+    ws => ' <ws1>+ ' 
+);
+
 sub add_rule {
     my ( $class, $key, $rule ) = @_;
     no strict qw( refs );
