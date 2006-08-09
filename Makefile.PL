@@ -632,7 +632,7 @@ test-perl5 :
 	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B PERL5+; system qq+$Config{make}+, q+test+"
 
 blib6/lib/Test.pm.yml :
-	$pugs -CPugs-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml 
+	$pugs -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml 
 
 smoke.html :
 	\$(PERL) util/run-smoke.pl . smoke.html
