@@ -1,0 +1,103 @@
+use v6-alpha;
+
+grammar Pugs::Grammar::MiniPerl6;
+
+token EscapeChar {
+    \\ | \"
+}
+
+token String {
+    \" [ <-[\\"]> | \\ <?EscapeChar> ]* \"
+}
+
+token VariableName {
+    [<alpha> | _] [<alpha> | _ | \d]*
+}
+
+token CaptureVariableName {
+    | \< <VariableName> \> { return $<VariableName> }
+    | <VariableName>       { return $<VariableName> }
+    | $<cap_num> := (\d+)  { return "capture_" ~ $<cap_num> }
+}
+
+token Variable {
+    \$ <CaptureVariableName>
+    { return $<CaptureVariableName> }
+}
+
+token Constants {
+    | <String>
+    | \d+
+}
+
+rule ArrayTail {
+    | \]  { return ']' }
+    | , <Expr> <ArrayTail>
+    {
+      return ', ' ~ $<Expr> ~ $<ArrayTail>
+    }
+}
+
+rule ArrayRef {
+    \[ <Expr> <ArrayTail>
+    {
+      return '[' ~ $<Expr> ~ $<ArrayTail>;
+    }
+}
+
+token FunctionName { <VariableName> }
+
+rule Parameters { <Expr> [ , <Parameters> ]?
+    { 
+      if( $<Parameters>[0] ){
+        return $<Expr> ~ " " ~ $<Parameters>[0];
+      }else{
+        return $<Expr>;
+      }
+    }
+}
+
+token FunctionAppExpr {
+    | <Variable>  { return $<Variable>  }
+    | <Constants> { return $<Constants> }
+    | <ArrayRef>  { return $<ArrayRef>  }
+    | <FunctionName> [<?ws> <'('> <?ws> <Parameters> <?ws> <')'>]?
+    {
+      if($<Parameters>[0]){
+        return "(" ~ $<FunctionName> ~ " " ~ $<Parameters>[0] ~ ")";
+      }else{
+        return $<FunctionName>;
+      };
+    }
+}
+
+rule AdditiveExpr {<FunctionAppExpr>[ $<op>:=(\+|\-|~) <AdditiveExpr>]?{
+      if($<op>[0]){
+          my $op = $<op>[0] eq '~' ?? '++' !! $<op>[0];
+          return "(" ~ $<FunctionAppExpr> ~ " " ~ $op ~ " " ~
+              $<AdditiveExpr>[0] ~ ")";
+      }else{
+          return $<FunctionAppExpr>;
+      }
+}}
+
+token Expr { <AdditiveExpr> { return $<AdditiveExpr> } }
+
+rule Return {
+    |<'return'> <Expr> \;? { return "return \$ " ~ $<Expr> }
+    |<'return'> \;?        { return "return ()" }
+}
+
+rule VariableDeclaration {<'my'> <Variable> <'='> <Expr> \;
+    {
+        return "let " ~ $<Variable> ~ " = " ~ $<Expr> ~ " in\n"
+    }
+}
+
+token ProductionRule 
+   # :p(0)  --- TODO
+{
+    | <?ws>? <VariableDeclaration> <ProductionRule>
+            { return $<VariableDeclaration> ~ $<ProductionRule> }
+    | <?ws>? <Return> { return $<Return> }
+}
