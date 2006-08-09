@@ -25,7 +25,7 @@ sub pmc_support {
     my @pmcs = glob('*.pmc');
     File::Find::find( sub {
         push @pmcs, $File::Find::name if /\.pmc$/i;
-    }, 'lib');
+    }, 'lib', 't');
 
     $self->realclean_files("@pmcs");
 
