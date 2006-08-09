@@ -40,6 +40,7 @@ Pugs::Compiler::Token->install(
             | =kwid   <pod_other>
             | =pod    <pod_other>
             | =for    <pod_other>
+            | =head1  <pod_other>
             | <''>
             ]
     |   \\s

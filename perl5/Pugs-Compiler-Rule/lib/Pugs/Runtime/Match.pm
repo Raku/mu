@@ -25,10 +25,17 @@ use overload (
 
 public data => my %_data;
 
+#my $count = 0;
+#sub DEMOLISH {
+#   print $count, " ";
+#   $count--;
+#}
+
 sub new {
     my ($class, $match) = @_;
     my $obj = register( bless \(my $s), $class );
     $_data{ id $obj } = $match;
+    #$count++;
     return $obj;
 }
 
