@@ -56,11 +56,55 @@ import System(getArgs)
 --It's pretty ugly, which is why there's a need for a wrapper function
 translate :: P5AST -> String -> P5AST
 translate tree options = case [('o' `elem` options), ('r' `elem` options)] of
-                               [True, False]   ->  (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))
-                               [True, True]  ->  (easyRegex (changeVarsInQuotes  (scalarTranslate (regexOnce (hereDocTranslate (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))
-                               [False, False]  -> (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))
-                               [False, True] -> (changeVarsInQuotes (easyRegex (regexOnce (scalarTranslate (hereDocTranslate (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))
+                               [True, False]   ->  (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))))))
+                               [True, True]  ->  (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (easyRegex (changeVarsInQuotes  (scalarTranslate (regexOnce (hereDocTranslate (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))))
+                               [False, False]  -> (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))
+                               [False, True] -> (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (easyRegex (regexOnce (scalarTranslate (hereDocTranslate (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))
 
+filePrintChange :: P5AST -> P5AST
+filePrintChange (AbstractNode Op_print kids) = if (isInSequence kids [(LiteralNode Operator "" "print"),(AbstractNode Op_rv2gv [])]) then (AbstractNode Op_print (addPrintComma kids)) else (AbstractNode Op_print kids)
+filePrintChange (AbstractNode Op_prtf kids) = if (isInSequence kids [(LiteralNode Operator "" "printf"),(AbstractNode Op_rv2gv [])]) then (AbstractNode Op_print (addPrintComma kids)) else (AbstractNode Op_print kids)
+filePrintChange (AbstractNode atype kids) = (AbstractNode atype (map filePrintChange kids))
+filePrintChange (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+filePrintChange (Heredoc start end kids) = (Heredoc start end kids)
+
+addPrintComma :: [P5AST] -> [P5AST]
+addPrintComma [] =[]
+addPrintComma kids = if (matchOnType (head kids) (AbstractNode Op_rv2gv [])) then (head kids):(LiteralNode Token "" ","):(tail kids) else (head kids):(addPrintComma (tail kids))
+
+changeExportOkay :: [String] -> P5AST -> P5AST
+changeExportOkay [] (AbstractNode Sub kids) = (AbstractNode Sub kids)
+changeExportOkay names (AbstractNode Sub kids) = if (isIn (LiteralNode Token "" (head names)) (extractKids (extractNodetype (AbstractNode Op_const []) kids))) then (AbstractNode Sub (addExportOkay kids)) else (changeExportOkay (tail names) (AbstractNode Sub kids))
+changeExportOkay names (AbstractNode atype kids) = (AbstractNode atype (map (changeExportOkay names) kids))
+changeExportOkay _ (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+changeExportOkay _ (Heredoc start end kids) = (Heredoc start end kids)
+
+addExportOkay :: [P5AST] -> [P5AST]
+addExportOkay [] = []
+addExportOkay kids = if (matchWithoutEnc (LiteralNode Opener "" "{") (head kids)) then (LiteralNode Token "" " is export"):(kids) else (head kids):(addExportOkay (tail kids))
+
+getExportOkay :: P5AST -> [String]
+getExportOkay (AbstractNode Op_aassign kids) = case [(matchOnType (smartHead kids) (AbstractNode Op_list [])), (matchWithoutEnc (smartHead (extractKids (smartHead (extractKids (smartHead kids))))) (LiteralNode Sigil "" "@EXPORT_OK")), (isIn (LiteralNode Operator "" "=") kids), (matchOnType (AbstractNode Quote []) (smartHead (extractKids (extractNodetype (AbstractNode Op_list []) (tail kids)))))] of
+                                              [True, True, True, True] -> (extractExportsFromQW (extractKids (smartHead (extractKids (extractNodetype (AbstractNode Op_list []) (tail kids))))))
+                                              _                        -> []
+getExportOkay (AbstractNode atype kids) = (makeList (map getExportOkay kids))
+getExportOkay (LiteralNode atype enc uni) = []
+getExportOkay (Heredoc start end kids) = []
+
+{-Changes things stored in @EXPORT to sub... is export(:MANDATORY)-}
+changeExports :: [String] -> P5AST -> P5AST
+changeExports [] (AbstractNode Sub kids) = (AbstractNode Sub kids)
+changeExports names (AbstractNode Sub kids) = if (isIn (LiteralNode Token "" (head names)) (extractKids (extractNodetype (AbstractNode Op_const []) kids))) then (AbstractNode Sub (addExport kids)) else (changeExports (tail names) (AbstractNode Sub kids))
+changeExports names (AbstractNode atype kids) = (AbstractNode atype (map (changeExports names) kids))
+changeExports _ (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+changeExports _ (Heredoc start end kids) = (Heredoc start end kids)
+
+{-Actually adds the is export(:MANDATORY) text. Since there isn't really a way to add that to a P5AST, it's just stuck in a Token node.-}
+addExport :: [P5AST] -> [P5AST]
+addExport [] = []
+addExport kids = if (matchWithoutEnc (LiteralNode Opener "" "{") (head kids)) then (LiteralNode Token "" " is export(:MANDATORY)"):(kids) else (head kids):(addExport (tail kids))
+
+{-This function finds any lines that assign to @EXPORT and gets the names stored in @EXPORT so that they can be handed to changeExports. The captured names are returned in a list of strings (with the & stripped off for functions).-}
 getExports :: P5AST -> [String]
 getExports (AbstractNode Op_aassign kids) = case [(matchOnType (smartHead kids) (AbstractNode Op_list [])), (matchWithoutEnc (smartHead (extractKids (smartHead (extractKids (smartHead kids))))) (LiteralNode Sigil "" "@EXPORT")), (isIn (LiteralNode Operator "" "=") kids), (matchOnType (AbstractNode Quote []) (smartHead (extractKids (extractNodetype (AbstractNode Op_list []) (tail kids)))))] of
                                               [True, True, True, True] -> (extractExportsFromQW (extractKids (smartHead (extractKids (extractNodetype (AbstractNode Op_list []) (tail kids))))))
@@ -69,14 +113,17 @@ getExports (AbstractNode atype kids) = (makeList (map getExports kids))
 getExports (LiteralNode atype enc uni) = []
 getExports (Heredoc start end kids) = []
 
+--My own version of head that doesn't fail on an empty list
 smartHead :: [P5AST] -> P5AST
 smartHead [] = (AbstractNode UnknownAbs [])
 smartHead alist = head alist
 
+--Makes a list of strings from a list of lists of strings
 makeList :: [[String]] -> [String]
 makeList [] = []
 makeList alist = (head alist)++(makeList (tail alist))
 
+--Grabs exports from something of the form @EXPORT = qw{blah foo bar}
 extractExportsFromQW :: [P5AST] -> [String]
 extractExportsFromQW [] = []
 extractExportsFromQW kids = if (matchOnType (LiteralNode Openquote "" "") (head kids)) then (map (dropLeadingChar '&') (makeWords (extractUni (head (drop 1 kids))) [""])) else (extractExportsFromQW (tail kids))
@@ -90,7 +137,8 @@ dropLeadingChar _ [] = []
 dropLeadingChar todrop astring = if ((head astring)==todrop) then (tail astring) else astring 
 
 
---Translates "@array" -> "@array[]" and "%hash" -> "%hash{}"
+--Translates "@array" -> "@array[]" and "%hash" -> "%hash{}", as well as
+--other changes needed inside quotes ($array[1] -> @array[1], etc.)
 changeVarsInQuotes :: P5AST -> P5AST
 changeVarsInQuotes (LiteralNode Text enc uni) = (LiteralNode Text enc (runTextParser uni))
 changeVarsInQuotes (AbstractNode atype kids) = (AbstractNode atype (map changeVarsInQuotes kids))
@@ -107,6 +155,7 @@ runTextParser instr = case parse textParser "text node" instr of
 textParser :: Parser String
 textParser = do{ parts <- manyTill (choice[{-do{char '$'; name <- manyTill alphaNum (char '['); key <- manyTill anyToken (char ']'); return ('@':name++"["++key++"]")},
                                            do{char '$'; name <- manyTill alphaNum (char '{'); key <- manyTill anyToken (char '}'); return ('%':name++"{"++key++"}")},-}
+                                           do{char '$'; name <- many alphaNum; choice[do{char '['; key <- manyTill anyToken (char ']'); return ("@"++name++"["++key++"]")}, do{char '{'; key <- manyTill anyToken (char '}'); return ("%"++name++"<"++key++">")}, return ("$"++name)]},
                                            do{char '@'; name <- many alphaNum; return ('@':name++"[]")},
                                            do{char '%'; name <- many alphaNum; return ('%':name++"{}")},
                                            do{this <- anyToken; return [this]}]) eof;
@@ -299,6 +348,7 @@ regexChar = choice[do{try(string "\\\\"); return "\\\\"},      --Get rid of lite
                    do{try(string "(?>"); atoms <- (manyTill regexChar (char ')')); return ("["++(joinString atoms)++"]:")},                -- (?>...) -> [...]:
                    do{try(string "{"); countMod <- (manyTill anyToken (char '}')); return (countRegex (countMod++"@"))},     -- x{2} -> x**{2} and x{2,} -> x**{2..} and x{2,3} -> x**{2..3}
                    do{try(string "(?{"); code <- (manyTill anyToken (string "})")); return ("{"++code++"}")},                -- (?{...}) -> {...}
+                   do{try(string "(?("); cond <- (manyTill regexChar (char ')')); tru <- (manyTill regexChar (char '|')); els <- (manyTill regexChar (char ')')); return ("[ "++(joinString cond)++" :: "++(joinString tru)++" | "++(joinString els)++" ]")},
                    do{try(string "(??{"); code <- (manyTill anyToken (string "})")); return ("<{"++code++"}>")},             -- (??{...}) -> <{...}>
                    do{try(do{string "|"; eof}); return "<null>"},                                                            -- /blah|/ -> /blah|<null>/
                    do{char <- anyToken; return (char:"")}]
