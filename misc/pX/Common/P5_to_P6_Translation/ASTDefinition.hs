@@ -117,6 +117,9 @@ data AbsType
     | Op_fttty
     | Op_ftzero
     | Op_goto
+    | Op_ge
+    | Op_grepstart
+    | Op_grepwhile
     | Op_gt
     | Op_gv
     | Op_helem
