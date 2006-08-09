@@ -203,19 +203,22 @@ sub set_postamble {
     # $ghc_flags .= ' -dcore-lint';
     # $ghc_flags .= " -keep-tmp-files";
 
-    if (has_ghc_package('plugins')
-        and  try_compile("import System.Eval\n"
-                        ."main :: IO ()\n"
-                        .'main = (eval_ "return ()" [] [] [] [] :: IO (Either [String] (Maybe ()))) >> return ()', $ghc, '-package', 'plugins')) {
-        $ghc_flags .= ' -package plugins -DPUGS_HAVE_HSPLUGINS ';
-    } else {
-        push @warn, << '.';
+    if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bhaskell\b/i) {
+        if (has_ghc_package('plugins')
+            and  try_compile("import System.Eval\n"
+                            ."main :: IO ()\n"
+                            .'main = (eval_ "return ()" [] [] [] [] :: IO (Either [String] (Maybe ()))) >> return ()', $ghc, '-package', 'plugins')) {
+            $ghc_flags .= ' -package plugins -DPUGS_HAVE_HSPLUGINS ';
+        }
+        else {
+            push @warn, << '.';
 *** Inline Haskell support disabled.  If you want dynamic loading
     of haskell modules, please install the hs-plugins library:
         http://www.cse.unsw.edu.au/~dons/hs-plugins/
     Remember to "make register" after "make install" for hs-plugins!
 
 .
+        }
     }
 
     if ($ghc_version =~ /^6.4(?:.0)?$/) {
