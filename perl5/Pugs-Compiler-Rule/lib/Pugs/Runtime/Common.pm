@@ -4,6 +4,22 @@ package Pugs::Runtime::Common;
 use strict;
 use warnings;
 
+our %quote = (
+    # left => # right
+    "'"    => "'",    
+    '"'    => '"',    
+    '/'    => '/',
+    '!'    => '!',
+    '('    => ')',
+    '['    => ']',
+    '{'    => '}',
+    '<'    => '>',
+    '<<'   => '>>',
+    '«'    => '»',    
+    '“'    => '”',    
+    '‘'    => '’',
+);
+
 our %perl6_name = (
     # perl 5        => # perl 6
     '%::ENV'        => '%*ENV',  
