@@ -188,6 +188,10 @@ sub recompile {
                 <?Pugs::Grammar::Term.ident>
                 { return { scalar => '$.' . $_[0]->() ,} }
             ),
+        '$<' => q(
+                ( <?Pugs::Grammar::Term.ident> ) \>
+                { return { scalar => { match_variable => $_[0][0]->() ,} } }
+            ),
         '@' => q(
                 # XXX t/subroutines/multidimensional_arglists.t
                 \; <?Pugs::Grammar::Term.ident>

@@ -33,6 +33,11 @@ sub _var_get {
         if exists $env{$s} &&
            exists $env{$s}{get};
     
+    if ( ref $s eq 'HASH' ) {
+        my $v = $s->{match_variable};
+        return Pugs::Runtime::Common::mangle_var( '$/' ) . '->{' . $v . '}';
+    }
+
     # default
     return "\$self->{'" . substr($s,2) . "'}"
         if substr($s,1,1) eq '.';
@@ -1010,7 +1015,7 @@ sub postcircumfix {
     if ( $n->{op1}{op} eq '{' &&
          $n->{op2}{op} eq '}' ) {
         my $name = _emit( $n->{exp1} );
-        die unless $name =~ m/^\%/;
+        # die "trying to emit ${name}{exp}" unless $name =~ m/^\%/;
         $name =~ s/^\%/\$/;
         return $name . 
             '{ ' . 
