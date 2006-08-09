@@ -40,6 +40,15 @@ sub clean_files {
     );
 }
 
+sub realclean_files {
+    my $self  = shift;
+    my $realclean = $self->makemaker_args->{realclean} ||= {};
+    %$realclean = (
+        %$realclean, 
+        FILES => join(' ', grep length, $realclean->{FILES}, @_),
+    );
+}
+
 sub libs {
     my $self = shift;
     my $libs = ref $_[0] ? shift : [shift];
