@@ -1,3 +1,8 @@
+0.11 to 0.14  2006-08-09
+
+- several fixes and optimizations in hash and array interpolation
+- fixed capture aliasing
+
 - refactored Regex runtime:
 -- reuses the matching string in submatches
 -- resues the Match class for Token/Rule
