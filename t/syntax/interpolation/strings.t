@@ -10,7 +10,7 @@ These tests derived from comments in L<"http://use.perl.org/~autrijus/journal/23
 
 =cut
 
-plan 30;
+plan 31;
 
 my $world = "World";
 my @list  = (1,2);
@@ -34,6 +34,7 @@ is("&func_w_args("foo","bar"))", '[foo][bar])', '"&func_w_args(...)" should inte
 # L<S02/"Literals" /"In order to interpolate the result of a method call">
 is("$world.chars()", '5', 'method calls with parens should interpolate');
 is("$world.chars", 'World.chars', 'method calls without parens should not interpolate');
+is("$world.reverse.chars()", '5', 'cascade of argumentless methods, last ending in paren');
 is("$world.substr(0,1)", 'W', 'method calls with parens and args should interpolate');
 
 # Single quotes
