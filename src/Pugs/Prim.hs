@@ -649,6 +649,10 @@ op1 "Class::traits" = \v -> do
     fetch   <- doHash meta hash_fetchVal
     str     <- fromVal =<< fetch "traits"
     return str
+op1 "Pugs::Internals::emit_yaml" = \v -> do
+    glob <- asks envGlobal
+    yml  <- liftIO $ showYaml (glob, v)
+    return $ VStr yml
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 op1IO :: Value a => (Handle -> IO a) -> Val -> Eval Val
