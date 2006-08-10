@@ -23,8 +23,6 @@ type VType = Type
 type VArray = [Val]
 type VList = [Val]
 type VHash = Map VStr Val
-newtype EvalT m a = EvalT { runEvalT :: m a }
-type Eval = EvalT (ContT Val (ReaderT Env SIO))
 
 envPos :: Env -> Pos
 errStrPos :: VStr -> Pos -> Val
@@ -35,14 +33,10 @@ envMaxId :: Env -> TVar ObjectId
 envClasses :: Env -> ClassTree
 enterAtomicEnv :: Env -> Env
 objOpaque :: VObject -> Maybe Dynamic
-evalValType :: Val -> Eval Type
-valToBool :: Val -> Eval VBool
 
 instance Eq Val
 instance Ord Val
 instance Show Val
-
--- lookupPad :: Var -> Pad -> Maybe [TVar VRef]
 
 createObjectRaw :: (MonadSTM m)
     => ObjectId -> Maybe Dynamic -> VType -> [(VStr, Val)] -> m VObject

@@ -20,7 +20,8 @@ import qualified Pugs.Val as Val
 import Pugs.Val hiding (Val, IValue, VUndef)
 
 {- Eval Monad -}
--- type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
+type Eval = EvalT (ContT Val (ReaderT Env SIO))
+newtype EvalT m a = EvalT { runEvalT :: m a }
 
 instance ((:>:) (Eval a)) (SIO a) where cast = liftSIO
 

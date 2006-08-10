@@ -62,23 +62,6 @@ getMapIndex idx def doList ext = do
             Nothing    -> errIndex def idx
 
 {-|
-Check whether a 'Val' is of the specified type. Based on the result,
-either the first or the second evaluation should be performed.
--}
-ifValTypeIsa :: Val      -- ^ Value to check the type of
-             -> String   -- ^ Name of the type to check against
-             -> (Eval a) -- ^ The @then@ case
-             -> (Eval a) -- ^ The @else@ case
-             -> Eval a
-ifValTypeIsa v (':':typ) trueM falseM = ifValTypeIsa v typ trueM falseM
-ifValTypeIsa v typ trueM falseM = do
-    env <- ask
-    vt  <- evalValType v
-    if isaType (envClasses env) typ vt
-        then trueM
-        else falseM
-
-{-|
 If we are in list context (i.e. 'CxtSlurpy'), then perform the first
 evaluation; otherwise perform the second.
 -}
@@ -170,27 +153,6 @@ instance Show VJunc where
                 else x ++ "," ++ show y)
             "" $ Set.elems set) ++ ")"
 
-{-|
-Collapse a junction value into a single boolean value.
-
-Works by recursively casting the junction members to booleans, then performing
-the actual junction test.
--}
-juncToBool :: VJunc -> Eval Bool
-juncToBool (MkJunc JAny  _  vs) = do
-    bools <- mapM valToBool (Set.elems vs)
-    return . isJust $ find id bools
-juncToBool (MkJunc JAll  _  vs) = do
-    bools <- mapM valToBool (Set.elems vs)
-    return . isNothing $ find not bools
-juncToBool (MkJunc JNone _  vs) = do
-    bools <- mapM valToBool (Set.elems vs)
-    return . isNothing $ find id bools
-juncToBool (MkJunc JOne ds vs) = do
-    bools <- mapM valToBool (Set.elems ds)
-    if isJust (find id bools) then return False else do
-    bools <- mapM valToBool (Set.elems vs)
-    return $ 1 == (length $ filter id bools)
 
 showRat :: VRat -> VStr
 showRat r
