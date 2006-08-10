@@ -6,7 +6,9 @@ module Judy.Stringable (
 
 import Foreign.C.String
 
-import qualified Data.ByteString as B
+-- #if __GLASGOW_HASKELL__ >= 605
+-- import qualified Data.ByteString as B
+-- #endif
 
 -- TODO: See if its possible to use Storable, ie. to let any Storable type be "stringable".
 
@@ -28,15 +30,19 @@ instance Stringable String where
     toString = id
     fromString = id
 
-instance Stringable B.ByteString where
-    toString = undefined
-    fromString = undefined
+-- FIXME: use pugs-fps
 
-    useAsCS = B.useAsCString 
-    useAsCSLen = B.useAsCStringLen
-
-    copyCS = B.copyCString
-    copyCSLen = B.copyCStringLen
+-- #if __GLASGOW_HASKELL__ >= 605
+-- instance Stringable B.ByteString where
+--     toString = undefined
+--     fromString = undefined
+-- 
+--     useAsCS = B.useAsCString 
+--     useAsCSLen = B.useAsCStringLen
+-- 
+--     copyCS = B.copyCString
+--     copyCSLen = B.copyCStringLen
+-- #endif
 
 
 --instance Stringable Int where
