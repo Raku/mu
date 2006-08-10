@@ -34,8 +34,6 @@ envClasses :: Env -> ClassTree
 enterAtomicEnv :: Env -> Env
 objOpaque :: VObject -> Maybe Dynamic
 
-instance Eq Val
-instance Ord Val
 instance Show Val
 
 createObjectRaw :: (MonadSTM m)

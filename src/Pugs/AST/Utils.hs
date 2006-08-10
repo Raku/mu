@@ -130,7 +130,7 @@ data VJunc = MkJunc
     -- ^ Set of values that make up the junction. In @one()@
     --     junctions, contains the set of values that appear exactly
     --     /once/.
-    } deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
+    } deriving (Typeable) {-!derive: YAML_Pos!-}
 
 -- | The combining semantics of a junction. See 'VJunc' for more info.
 data JuncType = JAny  -- ^ Matches if /at least one/ member matches

@@ -559,6 +559,16 @@ instance YAML CompUnit where
     asYAML (MkCompUnit aa ab ac) = asYAMLseq "MkCompUnit"
 	   [asYAML aa, asYAML ab, asYAML ac]
 
+instance Eq VJunc where
+    (MkJunc aa ab ac) == (MkJunc aa' ab' ac') = aa == aa' && ab == ab'
+		      && ac == ac'
+    _ == _ = False
+
+instance Ord VJunc where
+    compare (MkJunc aa ab ac) (MkJunc aa' ab' ac') =
+	    foldl (\x y -> if x == EQ then compare y EQ else x) EQ
+	    [compare aa aa',compare ab ab',compare ac ac']
+
 instance YAML VJunc where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"MkJunc" -> do

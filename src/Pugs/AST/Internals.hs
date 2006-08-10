@@ -1666,13 +1666,22 @@ instance Typeable ProcessHandle where typeOf _ = typeOf ()
 instance Typeable1 Tree where typeOf1 _ = typeOf ()
 #endif
 
+instance Eq VJunc where
+    (MkJunc aa ab ac) == (MkJunc aa' ab' ac') = aa == aa' && ab == ab'
+                      && ac == ac'
+
+instance Ord VJunc where
+    compare (MkJunc aa ab ac) (MkJunc aa' ab' ac') =
+            foldl (\x y -> if x == EQ then compare y EQ else x) EQ
+            [compare aa aa',compare ab ab',compare ac ac']
+
 {- !!! For DrIFT -- Don't delete !!!
 
 data VJunc = MkJunc
     { juncType :: !JuncType
     , juncDup  :: !(Set Val)
     , juncSet  :: !(Set Val)
-    } deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
+    } deriving (Typeable) {-!derive: YAML_Pos!-}
 
 data JuncType = JAny | JAll | JNone | JOne
     deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
