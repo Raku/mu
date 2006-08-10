@@ -53,7 +53,7 @@ token num {
 }
 
 token str {
-    ' ( [ \\' | <!'> ]* ) '
+    ' ( [ \\' | <-[']> ]* ) '
     { return $/[0] does v6::AST::NStr }
 }
 
