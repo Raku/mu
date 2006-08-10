@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 9 Aug 2006
+  Last Modified: 11 Aug 2006
   Number: 3
-  Version: 54
+  Version: 55
 
 =head1 Changes to Perl 5 operators
 
@@ -562,7 +562,9 @@ separate entries for lists.
     Num     NumRange  in numeric range         match if $min <= $_ <= $max
     Str     StrRange  in string range          match if $min le $_ le $max
     Capture Signature parameter binding        match if $cap can bind to $sig
-    Any     Code:()    simple closure truth*    match if $x() (ignoring $_)
+    Code    Signature signature compatibility* match if $_ is a subset of $x
+  Signature Signature signature compatibility  match if $_ is a subset of $x
+    Any     Code:()   simple closure truth*    match if $x() (ignoring $_)
     Any     Class     class membership         match if $_.does($x)
     Any     Role      role playing             match if $_.does($x)
     Any     Num       numeric equality         match if $_ == $x

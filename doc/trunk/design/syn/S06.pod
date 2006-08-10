@@ -1763,6 +1763,10 @@ The following traits can be applied to many types of parameters.
 Specifies that the parameter cannot be modified (e.g. assigned to,
 incremented). It is the default for parameters.
 
+$x = 5;
+
+sub f ($x) {}
+
 =item C<is rw>
 
 Specifies that the parameter can be modified (assigned to, incremented,
@@ -1880,35 +1884,35 @@ look for, and how many such scopes to skip over when looking:
 
 =head2 The C<want> function
 
-The C<want> function returns an object that contains information about
-the context in which the current block, closure, or subroutine was
+The C<want> function returns a C<Signature> object that contains information
+about the context in which the current block, closure, or subroutine was
 called.
 
-The returned context object is typically tested with a smart match (C<~~>)
-or a C<when>:
+As with normal function signatures, you can test the result of C<want> with a
+smart match (C<~~>) or a C<when>:
 
    given want {
-        when Scalar {...}           # called in scalar context
-        when List   {...}           # called in list context
-        when Lvalue {...}           # expected to return an lvalue
-        when 2      {...}           # expected to return two values
+        when :($)       {...}   # called in scalar context
+        when :(*@)      {...}   # called in list context
+        when :($ is rw) {...}   # expected to return an lvalue
+        when :($,$)     {...}   # expected to return two values
         ...
     }
 
-or has the corresponding methods called on it:
+You can also use the postfix signature syntax to test for compatibility:
 
-    if    (want.Scalar)    {...}    # called in scalar context
-    elsif (want.List)      {...}    # called in list context
-    elsif (want.rw)        {...}    # expected to return an lvalue
-    elsif (want.count > 2) {...}    # expected to return more than two values
+    if    want:($)       {...}  # called in scalar context
+    elsif want:(*@)      {...}  # called in list context
+    elsif want:($ is rw) {...}  # expected to return an lvalue
+    elsif want:($,$)     {...}  # expected to return two values
 
-Note these are pseudo type associations.  There's no such thing as an
-Lvalue object, and a List is really an unbound argument list object,
-parts of which may in fact be eventually bound into scalar context.
+The C<.arity> method also works here:
+
+    if want.arity > 2    {...}  # expected to return more than two values
 
 =head2 The C<leave> function
 
-A C<return> statement causes the innermost surrounding subroutine,
+A C<return> call causes the innermost surrounding subroutine,
 method, rule, token, regex (as a keyword), macro, or multimethod
 to return.  Only declarations with an explicit keyword such as "sub"
 may be returned from.  You may not return from a quotelike operator such
