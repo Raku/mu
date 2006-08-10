@@ -649,6 +649,7 @@ op1 "Class::traits" = \v -> do
     fetch   <- doHash meta hash_fetchVal
     str     <- fromVal =<< fetch "traits"
     return str
+op1 "vv" = toVV'
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 op1IO :: Value a => (Handle -> IO a) -> Val -> Eval Val
@@ -1915,4 +1916,5 @@ initSyms = mapM primDecl syms
 \\n   Bool      pre     Pugs::Internals::current_pragma_value safe (Str)\
 \\n   Bool      pre     Pugs::Internals::caller_pragma_value safe (Str)\
 \\n   Num       pre     Pugs::Internals::base      safe (Int, Any)\
+\\n   Any       pre     vv      safe (Any)\
 \\n"

@@ -54,7 +54,7 @@ module Pugs.AST.Internals (
     readRef, writeRef, clearRef, dumpRef, forceRef,
     askGlobal, writeVar, readVar,
     findSymRef, findSym,
-    ifListContext, ifValTypeIsa, evalValType, fromVal',
+    ifListContext, ifValTypeIsa, evalValType, fromVal', toVV',
     scalarRef, codeRef, arrayRef, hashRef, thunkRef, pairRef,
     newScalar, newArray, newHash, newHandle, newObject,
     proxyScalar, constScalar, lazyScalar, lazyUndef, constArray,
@@ -217,6 +217,12 @@ fromVal' (PerlSV sv) = do
 fromVal' (VV v) = fromVV v
 fromVal' v = doCast v
 
+toVV' :: Val -> Eval Val
+toVV' (VBool v) = return $ VV $ val $ ((cast v) :: PureBit)
+toVV' (VInt v) = return $ VV $ val $ ((cast v) :: PureInt)
+toVV' (VNum v) = return $ VV $ val $ ((cast v) :: PureNum)
+toVV' (VStr v) = return $ VV $ val $ ((cast v) :: PureStr)
+
 {-|
 Typeclass indicating types that can be converted to\/from 'Val's.
 
@@ -231,6 +237,8 @@ class (Typeable n, Show n, Ord n) => Value n where
     fromVV v = do
         str <- liftSIO (asStr v)
         fail $ "Cannot cast from VV (" ++ cast str ++ ") to " ++ errType (undefined :: n)
+    toVV :: n -> Eval Val
+    toVV = toVV' . castV
     fromSV :: PerlSV -> Eval n
     fromSV sv = do
         str <- liftIO $ svToVStr sv

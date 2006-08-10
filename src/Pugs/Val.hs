@@ -20,6 +20,7 @@ import qualified Data.Typeable as Typeable
 import qualified Data.ByteString as Buf
 
 import Pugs.AST.SIO
+import Pugs.Val.Bit
 import Pugs.Val.Str
 import Pugs.Val.Int
 import Pugs.Val.Num
@@ -43,7 +44,7 @@ data Val
 
 class (Monad m, Functor m, Eq a, Data a, Typeable a) => ICoercible m a | a -> m where
     asBit    :: a -> m PureBit
-    asBit _ = return True
+    asBit _ = return $ cast True
     asInt    :: a -> m PureInt
     asInt x = fail $ "coerce fail: " ++ (show $ typeOf x) ++ " to PureInt"
     asNum    :: a -> m PureNum
@@ -58,6 +59,31 @@ class (Monad m, Functor m, Eq a, Data a, Typeable a) => ICoercible m a | a -> m 
     asList _ = Nothing -- default = do nothing (for Scalar this would return its content wrapped in a 1-seq)
     asNative :: a -> m ValNative
     asNative = fmap (NBuf . cast) . asStr
+
+-- | Value view. Contains methods for inspecting values: getting
+-- their metaclass, ids, stringification and so on.
+class ICoercible m a => IValue m a where
+    -- | lift an ASTish leaf type to a value. Using this convenience method
+    -- you can say "val (NInt 42)" instead of "Val (VNative (NInt 42))".
+    val         :: a -> Val
+    -- | retrieve metaclass of a value.
+    valMeta     :: a -> Class
+    valMeta     = cast . takeTypeName "" . reverse . show . typeOf
+        where
+        -- Here we intuit "Str" from "Pugs.Val.Str.PureStr".
+        takeTypeName acc [] = acc
+        takeTypeName acc (x:xs)
+            | isLower x = takeTypeName (x:acc) xs
+            | otherwise = x:acc
+    -- | Stringification of arbitrary values.
+    valShow     :: a -> PureStr
+    valShow _ = cast "<opaque>"
+    -- | Identity.
+    valId       :: a -> Id
+    valId = cast . NUint . unsafeCoerce#
+    -- | Comparision.
+    valCompare  :: a -> a -> Ordering
+    valCompare x y = valId x `compare` valId y
 
 instance ICoercible SIO Val where
     -- XXX - have to invent a generic map somehow -- DrIFT anyone?
@@ -161,38 +187,26 @@ type NativeComplex  = () -- Complex NativeNum
 
 --------------------------------------------------------------------------------------
 
-type P = Identity
+-- | L<S06/"Immutable types">
 
-class ICoercible m a => IValue m a where
-    val         :: a -> Val
-    valMeta     :: a -> Class
-    valMeta     = cast . takeTypeName "" . reverse . show . typeOf
-        where
-        -- Here we intuit "Str" from "Pugs.Val.Str.PureStr".
-        takeTypeName acc [] = acc
-        takeTypeName acc (x:xs)
-            | isLower x = takeTypeName (x:acc) xs
-            | otherwise = x:acc
-    valShow     :: a -> PureStr
-    valShow _ = cast "<opaque>"
-    valId       :: a -> Id
-    valId = cast . NUint . unsafeCoerce#
-    valCompare  :: a -> a -> Ordering
-    valCompare x y = valId x `compare` valId y
+-- | Pure values need not be in a monad, but we put them in the trivial
+-- Identity so that they are at the same monadic depth as Mut and Ext.
+type P = Identity
 
 class (ICoercible P a, Ord a, Show a) => Pure a where {}
 instance (ICoercible P a, Ord a, Show a) => Pure a where {}
 
 instance ICoercible P PureStr where
     asBit (MkStr s)
-        | Buf.null s = return False
-        | otherwise  = return (Buf.head s /= 0x30)
+        | Buf.null s = return $ cast False
+        | otherwise  = return $ cast (Buf.head s /= 0x30)
     asStr = cast
     asNum = cast . parseInt -- XXX - wrong
     asInt = cast . parseInt
 
 instance ICoercible P PureInt where asInt = return . cast
 instance ICoercible P PureNum where asNum = return . cast
+instance ICoercible P PureBit where asBit = return . cast
 
 liftP :: Monad m => P a -> m a
 liftP = return . runIdentity
@@ -249,7 +263,6 @@ dynCompare x y = case Typeable.cast y of
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -}
-type PureBit        = Bool
 type PureBool       = Bool
 type PureException  = ()            -- XXX *very* bogus
 type PureCode       = ()            -- XXX *very* bogus
