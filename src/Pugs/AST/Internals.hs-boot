@@ -17,8 +17,6 @@ data PadEntry
 -- newtype Pad = MkPad { padEntries :: Map Var PadEntry }
 newtype ObjectId = MkObjectId { unObjectId :: Int }
 
-instance Show VObject
-
 type VType = Type
 type VArray = [Val]
 type VList = [Val]
@@ -33,8 +31,6 @@ envMaxId :: Env -> TVar ObjectId
 envClasses :: Env -> ClassTree
 enterAtomicEnv :: Env -> Env
 objOpaque :: VObject -> Maybe Dynamic
-
-instance Show Val
 
 createObjectRaw :: (MonadSTM m)
     => ObjectId -> Maybe Dynamic -> VType -> [(VStr, Val)] -> m VObject

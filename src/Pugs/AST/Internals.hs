@@ -171,6 +171,20 @@ juncToBool (MkJunc JOne ds vs) = do
     bools <- mapM valToBool (Set.elems vs)
     return $ 1 == (length $ filter id bools)
 
+instance Show JuncType where
+    show JAny  = "any"
+    show JAll  = "all"
+    show JNone = "none"
+    show JOne  = "one"
+
+instance Show VJunc where
+    show (MkJunc jtype _ set) =
+        (show jtype) ++ "(" ++
+            (foldl (\x y ->
+                if x == "" then show y
+                else x ++ "," ++ show y)
+            "" $ Set.elems set) ++ ")"
+
 {-|
 Typeclass indicating types that can be converted to\/from 'Val's.
 
@@ -864,6 +878,13 @@ instance Value Exp where
     {- castV exp = VObject (createObject (mkType "Code::Exp") [("theexp", exp)]) -}
     doCast v = castFailM v "Exp"
     
+
+fromObject :: (Typeable a) => VObject -> a
+fromObject obj = case objOpaque obj of
+    Nothing     -> castFail obj "VObject without opaque"
+    Just dyn    -> case fromDynamic dyn of
+        Nothing -> castFail obj "VObject's opaque not valueable"
+        Just x  -> x
 
 {- FIXME: Figure out how to get this working without a monad, and make it castV -}
 expToEvalVal :: Exp -> Eval Val

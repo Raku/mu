@@ -97,13 +97,6 @@ castFailM v str = fail $ "Cannot cast from " ++ show v ++ " to " ++ errType (und
 castFail :: forall a b. (Show a, Typeable b) => a -> String -> b
 castFail v str = error $ "Cannot cast from " ++ show v ++ " to " ++ errType (undefined :: b) ++ " (" ++ str ++ ")"
 
-fromObject :: (Typeable a) => VObject -> a
-fromObject obj = case objOpaque obj of
-    Nothing     -> castFail obj "VObject without opaque"
-    Just dyn    -> case fromDynamic dyn of
-        Nothing -> castFail obj "VObject's opaque not valueable"
-        Just x  -> x
-
 class Unwrap a where
     {-|
     Unwrap a nested expression, throwing away wrappers (such as 'Cxt' or
@@ -138,20 +131,6 @@ data JuncType = JAny  -- ^ Matches if /at least one/ member matches
               | JNone -- ^ Matches only if /no/ members match
               | JOne  -- ^ Matches if /exactly one/ member matches
     deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
-
-instance Show JuncType where
-    show JAny  = "any"
-    show JAll  = "all"
-    show JNone = "none"
-    show JOne  = "one"
-
-instance Show VJunc where
-    show (MkJunc jtype _ set) =
-        (show jtype) ++ "(" ++
-            (foldl (\x y ->
-                if x == "" then show y
-                else x ++ "," ++ show y)
-            "" $ Set.elems set) ++ ")"
 
 
 showRat :: VRat -> VStr
