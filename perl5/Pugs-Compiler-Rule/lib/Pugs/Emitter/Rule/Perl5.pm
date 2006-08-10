@@ -376,16 +376,16 @@ sub metasyntax {
         return;
     }
     if ( $prefix =~ /[-+[]/ ) {   # character class 
-	   if ( $prefix eq '-' ) {
+        $cmd =~ s/\.\./-/g;
+        if ( $prefix eq '-' ) {
 	       $cmd = '[^' . substr($cmd, 2);
-	   } 
-       elsif ( $prefix eq '+' ) {
+	    } 
+        elsif ( $prefix eq '+' ) {
 	       $cmd = substr($cmd, 2);
-	   }
-	   # XXX <[^a]> means [\^a] instead of [^a] in perl5re
-
-	   return "$_[1] perl5( q!$cmd! )\n" unless $cmd =~ /!/;
-	   return "$_[1] perl5( q($cmd) )\n"; # XXX if $cmd eq '!)'
+	    }
+	    # XXX <[^a]> means [\^a] instead of [^a] in perl5re
+        return "$_[1] perl5( q!$cmd! )\n" unless $cmd =~ /!/;
+        return "$_[1] perl5( q($cmd) )\n"; # XXX if $cmd eq '!)'
     }
     if ( $prefix eq '?' ) {   # non_capturing_subrule / code assertion
         $cmd = substr( $cmd, 1 );
