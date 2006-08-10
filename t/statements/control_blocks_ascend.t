@@ -7,6 +7,8 @@ use Test;
 
 plan 13;
 
+# L<S04/Closure traits/END "at run time" ALAP>
+
 my $var = 1;
 
 # vars for BEGIN
