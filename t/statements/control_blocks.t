@@ -48,8 +48,7 @@ my $var_at_init;
 my $evar;
 my $var_at_end;
 
-# FIXME: CHECK {
-{
+CHECK {
     $cvar = 1;
     $var_at_check = $var;
     $ivar_at_check = $ivar;
@@ -68,11 +67,10 @@ ok($bvar_at_begin, 'but { $bvar = BEGIN { 1 } } was');
 is($cvar_at_begin, undef, 'CHECK var not defined at BEGIN time');
 
 # L<S04/"Closure traits" /INIT/>
-ok($ivar, "INIT var defined at begining of runtime", :todo);
+ok($ivar, "INIT var defined at begining of runtime");
 is($var_at_init, undef, 'INIT block ran before { $var = 1 }');
 
-# FIXME: INIT {
-{
+INIT {
     $var_at_init;
     $ivar = 1;
 };
