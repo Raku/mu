@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 7 Aug 2006
+  Last Modified: 9 Aug 2006
   Number: 6
-  Version: 43
+  Version: 44
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1339,8 +1339,8 @@ you treat them as objects:
 
 =head2 Undefined types
 
-These can behave as values or objects of any class, but always return
-a C<.valid> that evaluates to false.  One can create them with the
+These can behave as values or objects of any class, except that
+C<defined> always returns false.  One can create them with the
 built-in C<undef> and C<fail> functions.  (See S02 for how failures
 are handled.)
 
@@ -1351,7 +1351,8 @@ are handled.)
 =head2 Immutable types
 
 Objects with these types behave like values, i.e. C<$x === $y> is true
-if and only if their types and contents are identical.
+if and only if their types and contents are identical (that is, if
+C<$x.SKID> eqv C<$y.SKID>).
 
     Bit         Perl single bit (allows traits, aliasing, undef, etc.)
     Int         Perl integer (allows Inf/NaN, arbitrary precision, etc.)
@@ -1371,10 +1372,12 @@ if and only if their types and contents are identical.
     Mapping     Pairs with no duplicate keys
     Signature   Function parameters (left-hand side of a binding)
     Capture     Function call arguments (right-hand side of a binding)
+    Blob	An undifferentiated mass of bits
 
 =head2 Mutable types
 
-Objects with these types have distinct C<.valid> values.
+Objects with these types have distinct C<.SKID> values that do not change
+even if the object's contents change.
 
     Array       Perl array
     Hash        Perl hash
@@ -1957,10 +1960,10 @@ their own C<.TEMP> methods:
 
     class LoudArray is Array {
         method TEMP {
-            print "Replacing $.valid() at {caller.location}\n";
+            print "Replacing $.SKID() at {caller.location}\n";
             my $restorer = $.SUPER::TEMP();
             return { 
-                print "Restoring $.valid() at {caller.location}\n";
+                print "Restoring $.SKID() at {caller.location}\n";
                 $restorer();
             };
         }
@@ -2016,7 +2019,7 @@ or less the same effect as:
     &old_thermo := &thermo;
     &thermo := sub ($t) { old_thermo( ($t-32)/1.8 ) }
 
-Except that C<&thermo> is mutated in-place, so C<&thermo.valid> stays the same
+Except that C<&thermo> is mutated in-place, so C<&thermo.SKID> stays the same
 after the C<.wrap>.
 
 The call to C<.wrap> returns a unique handle that can later be passed to

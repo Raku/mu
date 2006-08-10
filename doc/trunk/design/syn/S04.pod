@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 26 July 2006
+  Last Modified: 9 Aug 2006
   Number: 4
-  Version: 31
+  Version: 32
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -584,7 +584,7 @@ for a value out of range, or the function fails somehow.  Perl 6 has
 C<Failure> objects, any of which refers to an unthrown C<Exception> object in
 C<$!> and knows whether it has been handled or not.
 
-If you test a C<Failure> for C<.valid>, C<.defined> or C<.true>, it causes
+If you test a C<Failure> for C<.defined> or C<.true>, it causes
 C<$!> to mark the exception as I<handled>, and acts as a harmless C<Undef>
 value thereafter.  Any other use of the C<Failure> will throw its associated
 exception immediately.

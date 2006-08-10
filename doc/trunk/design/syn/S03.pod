@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 7 Aug 2006
+  Last Modified: 9 Aug 2006
   Number: 3
-  Version: 53
+  Version: 54
 
 =head1 Changes to Perl 5 operators
 
@@ -373,15 +373,12 @@ It is not true that C<[1,2] === [1,2]> because those are different
 C<Array> objects, but it is true that C<@a === @a> because those are
 the same C<Array> object).
 
-Any object type may pretend to be a value type by defining a C<.valid>
+Any object type may pretend to be a value type by defining a C<.SKID>
 method which returns a value type that can be recursively compared
 using C<===>, or in cases where that is impractical, by overloading
 C<===> such that the comparison treats values consistently with their
 "eternal" identity.  (Strings are defined as values this way despite
 also being objects.)
-
-(Because Perl 6 uses a false C<.valid> to signify a non-instantiated prototype,
-all instances should arrange to return a C<.valid> that boolifies to true.)
 
 Two values are never equivalent unless they are of exactly the same type.  By
 contrast, C<eq> always coerces to string, while C<==> always coerces to
@@ -497,8 +494,8 @@ If applied to a list, it generates a multidimensional set of subscripts.
     for ^(3,3) { ... } # (0,0)(0,1)(0,2)(1,0)(1,1)(1,2)(2,0)(2,1)(2,2)
 
 If applied to a type name, it indicates the metaclass instance instead,
-so C<^Moose> is short for C<Moose.meta>.  It still kinda means "what
-is this thing's domain" in an abstract sort of way.
+so C<^Moose> is short for C<META(Moose)> or C<Moose.META>.  It still kinda
+means "what is this thing's domain" in an abstract sort of way.
 
 =item * The C<...> operator is the "yada, yada, yada" list operator,
 which is used as the body in function prototypes.  It complains
@@ -515,7 +512,7 @@ out bad data or programming rather than just an incomplete design.)
 variants C<.*>, C<.?>, and C<.+> to control how multiple related methods
 of the same name are handled.  The C<.=> operator does inplace modification
 of the object on the left.  The C<.^> operator calls a class metamethod;
-C<foo.^bar> is short for C<foo.meta.bar>.
+C<foo.^bar> is short for C<foo.META.bar>.
 
 =item * Unary C<=> reads lines from a filehandle or filename, or
 iterates an iterator, or in general causes a scalar to explode its guts

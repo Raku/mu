@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 29 Jun 2006
+  Last Modified: 9 Aug 2006
   Number: 12
-  Version: 18
+  Version: 19
 
 =head1 Overview
 
@@ -34,7 +34,7 @@ its type, and the class object can thus be used as a proxy for any
 that type can do.  The class object is an Object, but it is not a
 Class, because there is no mandatory Class class in Perl 6.  We wish
 to support both class-based and prototype-based OO programming.
-So all metaprogramming is done through the current object's C<.meta>
+So all metaprogramming is done through the current object's C<META>
 object, which can delegate metaprogramming to any metamodel it likes.
 However, by default, objects derived from Object support a fairly
 standard class-based model.
@@ -120,19 +120,19 @@ You may put these inside as well:
 
 Every object (including any class object) delegates to an instance of
 its metaclass.  You can get at the metaclass of any object via the
-C<.meta> method.  A "class" object is just considered an "empty"
+C<META> method.  A "class" object is just considered an "empty"
 instance in Perl 6, more properly called a "prototype" object.
 The actual class object is the metaclass object pointed to by the
-C<.meta> syntax.  So when you say "Dog", you're referring to both a
+C<META> syntax.  So when you say "Dog", you're referring to both a
 package and a prototype object, that latter of which points to the
-actual object representing the class via C<.meta>.  The prototype
+actual object representing the class via C<META>.  The prototype
 object differs from an instance object not by having a different
 type but rather in the extent to which it is defined.  Some objects
 may tell you that they are defined, while others may tell you that
 they are undefined.  That's up to the object, and depends on how the
 metaclass chooses to dispatch the .defined method.
 
-The notation C<^Dog> is syntactic sugar for C<Dog.meta>, so C<^> can be
+The notation C<^Dog> is syntactic sugar for C<Dog.META>, so C<^> can be
 considered the "class" sigil when you want to talk about the current
 metaclass instance.
 
@@ -300,14 +300,21 @@ or C<Code> object bound to the variable:
     @keys  = %hash.keys;
     $sig   = &sub.signature;
 
-Use the C<variable> pseudo-function on a scalar variable to get at its
+Use the C<VAR> pseudo-function on a scalar variable to get at its
 underlying C<Scalar> object:
 
-    if variable($scalar).constant {...}
+    if VAR($scalar).readonly {...}
+
+There's also a corresponding postfix:<VAR> macro that can be used
+as if it were a method:
+
+    if $scalar.VAR.readonly {...}
+
+(But since it's a macro, C<VAR> is not dispatched as a real method.)
 
 You can also get at the container through the appropriate symbol table:
 
-    if MY::<$scalar>.constant {...}
+    if MY::<$scalar>.readonly {...}
 
 =head1 Class methods
 
@@ -325,7 +332,7 @@ which as a singleton object knows your package, and can function as a more tradi
     our $count;
     method ^count { return $count }
 
-Such a I<metaclass method> is always delegated to C<.meta> just as methods like
+Such a I<metaclass method> is always delegated to the C<META> object just as methods like
 C<.does> are, so it's possible to call this as C<Dog.count> or C<$dog.count>.
 However, best practice is probably to call such a class method as C<Dog.^count>
 or C<$dog.^count> to make it clear that it's in its own namespace separate
@@ -1488,22 +1495,23 @@ C<hides Base> instead of C<is Base>.
 
 =head1 Introspection
 
-Every class object has a C<.meta> method that lets you get at the
-class's metaclass object, which lets you get at all the metadata
-properties for the class:
+Every class has a C<META> function/method that lets you get at the
+class's metaobject, which lets you get at all the metadata properties
+for the class (or other metaobject protocol) implementing the objects
+of the class:
 
     MyClass.getmethods()	# call MyClass's .getmethods method (error?)
-    MyClass.meta.getmethods()	# get the method list of MyClass
+    MyClass.META.getmethods()	# get the method list of MyClass
 
-The C<^> metasyntax is equivalent to .meta:
+The C<^> metasyntax is equivalent to .META:
 
-    MyClass.meta.getmethods()	# get the method list of MyClass
+    MyClass.META.getmethods()	# get the method list of MyClass
     ^MyClass.getmethods()	# get the method list of MyClass
     MyClass.^getmethods()	# get the method list of MyClass
 
-Each object of the class also has a C<.meta> or C<.^> method:
+Each object of the class also has a C<.META> or C<.^> method:
 
-    $obj.meta.getmethods();
+    $obj.META.getmethods();
     $obj.^getmethods();
 
 Class traits may include:
@@ -1522,7 +1530,7 @@ Class traits may include:
     disambig      how to deal with ambiguous method names from roles
     layout        P6opaque, P6hash, P5hash, P5array, PyDict, Cstruct, etc.
 
-The C<.meta.getmethods> method returns method-descriptors containing:
+The C<.META.getmethods> method returns method-descriptors containing:
 
     name		the name of the method
     signature		the parameters of the method
@@ -1544,14 +1552,14 @@ that have traits like these:
     private
     accessor
     build
-    constant
+    readonly
 
 Strictly speaking, metamethods like C<.isa()>, C<.does()>, and C<.can()>
 should be called through the meta object:
 
-    $obj.meta.can("bark")
-    $obj.meta.does(Dog)
-    $obj.meta.isa(Mammal)
+    $obj.META.can("bark")
+    $obj.META.does(Dog)
+    $obj.META.isa(Mammal)
 
 But C<Object> gives you shortcuts to those, if you don't override them.
 
@@ -1561,13 +1569,13 @@ The smartmatch:
 
 actually calls:
 
-    $obj.meta.does(Dog)
+    $obj.META.does(Dog)
 
 which is true if C<$obj> either "does" or "isa" C<Dog> (or "isa"
 something that "does" C<Dog>).
 
 Unlike in Perl 5 where C<.can> returns a single C<Code> object,
-Perl 6's version of C<.meta.can> returns a "WALK" iterator for a
+Perl 6's version of C<.META.can> returns a "WALK" iterator for a
 set of routines that match the name, including all autoloaded and
 wildcarded possibilities.  In particular, C<.can> interrogates
 any class package's C<CANDO> method for names that are to be considered autoloadable methods
