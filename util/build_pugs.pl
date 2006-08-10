@@ -89,6 +89,7 @@ sub build {
             };
             find $wanted, "third-party/$module";
 
+            die;
             if ($newest_hs_file and $oldest_a_file and $newest_hs_file >= $oldest_a_file) {
                 # We are safe - no rebuild needed
                 next;
@@ -96,9 +97,10 @@ sub build {
         }
 
         chdir "third-party/$module";
+
+        my $want_profiling = grep { /^-prof$/ } @args; 
         system("../../Setup$Config{_exe}", 'configure',
-# XXX - need a way to specify that we want profiling
-#               (($ghc_version =~ /^6.4(?:.0)?$/) ? () : '--enable-library-profiling'),
+                ($want_profiling ?  '--enable-library-profiling' : ()),
                 '--with-compiler=' . $runcompiler,
                 '--with-hc-pkg='   . File::Spec->rel2abs("../../util/ghc-pkg-wrapper$Config{_exe}"),
                 '--prefix='        . File::Spec->rel2abs('../installed/'));
