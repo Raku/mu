@@ -316,33 +316,6 @@ instance YAML Val where
     asYAML (PerlSV aa) = asYAMLseq "PerlSV" [asYAML aa]
     asYAML (VV aa) = asYAMLseq "VV" [asYAML aa]
 
-instance YAML VJunc where
-    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
-	"MkJunc" -> do
-	    let ESeq [aa, ab, ac] = e
-	    liftM3 MkJunc (fromYAML aa) (fromYAML ab) (fromYAML ac)
-	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkJunc"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
-    asYAML (MkJunc aa ab ac) = asYAMLseq "MkJunc"
-	   [asYAML aa, asYAML ab, asYAML ac]
-
-instance YAML JuncType where
-    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
-	"JAny" -> do
-	    return JAny
-	"JAll" -> do
-	    return JAll
-	"JNone" -> do
-	    return JNone
-	"JOne" -> do
-	    return JOne
-	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["JAny","JAll","JNone","JOne"] ++ " in node " ++ show e
-    fromYAML _ = fail "no tag found"
-    asYAML (JAny) = asYAMLcls "JAny"
-    asYAML (JAll) = asYAMLcls "JAll"
-    asYAML (JNone) = asYAMLcls "JNone"
-    asYAML (JOne) = asYAMLcls "JOne"
-
 instance YAML SubType where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"SubMethod" -> do
@@ -585,6 +558,33 @@ instance YAML CompUnit where
     fromYAML _ = fail "no tag found"
     asYAML (MkCompUnit aa ab ac) = asYAMLseq "MkCompUnit"
 	   [asYAML aa, asYAML ab, asYAML ac]
+
+instance YAML VJunc where
+    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+	"MkJunc" -> do
+	    let ESeq [aa, ab, ac] = e
+	    liftM3 MkJunc (fromYAML aa) (fromYAML ab) (fromYAML ac)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkJunc"] ++ " in node " ++ show e
+    fromYAML _ = fail "no tag found"
+    asYAML (MkJunc aa ab ac) = asYAMLseq "MkJunc"
+	   [asYAML aa, asYAML ab, asYAML ac]
+
+instance YAML JuncType where
+    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+	"JAny" -> do
+	    return JAny
+	"JAll" -> do
+	    return JAll
+	"JNone" -> do
+	    return JNone
+	"JOne" -> do
+	    return JOne
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["JAny","JAll","JNone","JOne"] ++ " in node " ++ show e
+    fromYAML _ = fail "no tag found"
+    asYAML (JAny) = asYAMLcls "JAny"
+    asYAML (JAll) = asYAMLcls "JAll"
+    asYAML (JNone) = asYAMLcls "JNone"
+    asYAML (JOne) = asYAMLcls "JOne"
 
 instance YAML Scope where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of

@@ -71,6 +71,7 @@ module Pugs.AST.Internals (
     unwrap, -- Unwrap(..) -- not used in this file, suitable for factoring out
     newObjectId, runInvokePerl5,
     
+    errStrPos, errValPos, enterAtomicEnv, valToBool, -- for circularity
     expToEvalVal, -- Hack, should be removed once it's figured out how
 ) where
 import Pugs.Internals
@@ -82,6 +83,8 @@ import qualified Data.Map       as Map
 import qualified Data.IntMap    as IntMap
 
 import Pugs.Parser.Number
+import Pugs.AST.Eval
+import Pugs.AST.Utils
 import Pugs.AST.Prag
 import Pugs.AST.Pos
 import Pugs.AST.Scope
@@ -113,79 +116,8 @@ import qualified Pugs.Val       as Val
 #include "../Types/Pair.hs"
 #include "../Types/Object.hs"
 
-
-errIndex :: Show a => Maybe b -> a -> Eval b
-errIndex (Just v) _ = return v
-errIndex _ idx =
-    retError "Modification of non-creatable array value attempted" idx
-
--- Three outcomes: Has value; can extend; cannot extend
-getIndex :: Int -> Maybe a -> Eval [a] -> Maybe (Eval b) -> Eval a
-
-getIndex idx def doList _ | idx < 0 = do
-    -- first, check if the list is at least abs(idx) long.
-    list <- doList
-    if null (drop (abs (idx+1)) list)
-        then errIndex def idx
-        else return (list !! (idx `mod` (length list)))
-
--- now we are all positive; either extend or return
-getIndex idx def doList ext = do
-    list <- doList
-    case drop idx list of
-        [] -> case ext of
-            Just doExt -> do { doExt ; getIndex idx def doList Nothing }
-            Nothing    -> errIndex def idx
-        (a:_) -> return a
-
-getMapIndex :: Int -> Maybe a -> Eval (IntMap a) -> Maybe (Eval b) -> Eval a
-getMapIndex idx def doList _ | idx < 0 = do
-    -- first, check if the list is at least abs(idx) long.
-    list <- doList
-    if IntMap.member (abs (idx+1)) list
-        then return . fromJust
-            $ IntMap.lookup (idx `mod` (IntMap.size list)) list
-        else errIndex def idx
--- now we are all positive; either extend or return
-getMapIndex idx def doList ext = do
-    list <- doList
-    case IntMap.lookup idx list of
-        Just a  -> return a
-        Nothing -> case ext of
-            Just doExt -> do { doExt ; getMapIndex idx def doList Nothing }
-            Nothing    -> errIndex def idx
-
-{-|
-Check whether a 'Val' is of the specified type. Based on the result,
-either the first or the second evaluation should be performed.
--}
-ifValTypeIsa :: Val      -- ^ Value to check the type of
-             -> String   -- ^ Name of the type to check against
-             -> (Eval a) -- ^ The @then@ case
-             -> (Eval a) -- ^ The @else@ case
-             -> Eval a
-ifValTypeIsa v (':':typ) trueM falseM = ifValTypeIsa v typ trueM falseM
-ifValTypeIsa v typ trueM falseM = do
-    env <- ask
-    vt  <- evalValType v
-    if isaType (envClasses env) typ vt
-        then trueM
-        else falseM
-
-{-|
-If we are in list context (i.e. 'CxtSlurpy'), then perform the first
-evaluation; otherwise perform the second.
--}
-ifListContext :: (MonadReader Env m)
-              => m t -- ^ The @then@ case
-              -> m t -- ^ The @else@ case
-              -> m t
-ifListContext trueM falseM = do
-    cxt <- asks envContext
-    case cxt of
-        CxtSlurpy _ -> trueM
-        _           -> falseM
-
+type Eval = EvalT (ContT Val (ReaderT Env SIO))
+newtype EvalT m a = EvalT { runEvalT :: m a }
 {-|
 Return the appropriate 'empty' value for the current context -- either
 an empty list ('VList' []), or undef ('VUndef').
@@ -201,27 +133,6 @@ evalValType (VRef (MkRef (IScalar sv))) = scalar_type sv
 evalValType (VRef r) = return $ refType r
 evalValType (VType t) = return t
 evalValType val = return $ valType val
-
-fromVal' :: (Value a) => Val -> Eval a
-fromVal' (VRef r) = do
-    v <- readRef r
-    fromVal v
-fromVal' (VList vs) | not $ null [ undefined | VRef _ <- vs ] = do
-    vs <- forM vs $ \v -> case v of { VRef r -> readRef r; _ -> return v }
-    fromVal $ VList vs
-fromVal' (PerlSV sv) = do
-    v <- liftIO $ svToVal sv
-    case v of
-        PerlSV sv'  -> fromSV sv'   -- it was a SV
-        val         -> fromVal val  -- it was a Val
-fromVal' (VV v) = fromVV v
-fromVal' v = doCast v
-
-toVV' :: Val -> Eval Val
-toVV' (VBool v) = return $ VV $ val $ ((cast v) :: PureBit)
-toVV' (VInt v) = return $ VV $ val $ ((cast v) :: PureInt)
-toVV' (VNum v) = return $ VV $ val $ ((cast v) :: PureNum)
-toVV' (VStr v) = return $ VV $ val $ ((cast v) :: PureStr)
 
 {-|
 Typeclass indicating types that can be converted to\/from 'Val's.
@@ -246,13 +157,30 @@ class (Typeable n, Show n, Ord n) => Value n where
     castV :: n -> Val
     castV x = VOpaque (MkOpaque x) -- error $ "Cannot cast into Val"
 
-errType :: (Typeable a) => a -> String
-errType x = show (typeOf x)
+data VOpaque where
+    MkOpaque :: Value a => !a -> VOpaque
 
-createObject :: VType -> [(VStr, Val)] -> Eval VObject
-createObject typ attrList = do
-    uniq    <- newObjectId
-    createObjectRaw uniq Nothing typ attrList
+fromVal' :: (Value a) => Val -> Eval a
+fromVal' (VRef r) = do
+    v <- readRef r
+    fromVal v
+fromVal' (VList vs) | not $ null [ undefined | VRef _ <- vs ] = do
+    vs <- forM vs $ \v -> case v of { VRef r -> readRef r; _ -> return v }
+    fromVal $ VList vs
+fromVal' (PerlSV sv) = do
+    v <- liftIO $ svToVal sv
+    case v of
+        PerlSV sv'  -> fromSV sv'   -- it was a SV
+        val         -> fromVal val  -- it was a Val
+fromVal' (VV v) = fromVV v
+fromVal' v = doCast v
+
+toVV' :: Val -> Eval Val
+toVV' (VBool v) = return $ VV $ val $ ((cast v) :: PureBit)
+toVV' (VInt v) = return $ VV $ val $ ((cast v) :: PureInt)
+toVV' (VNum v) = return $ VV $ val $ ((cast v) :: PureNum)
+toVV' (VStr v) = return $ VV $ val $ ((cast v) :: PureStr)
+
 
 createObjectRaw :: (MonadSTM m)
     => ObjectId -> Maybe Dynamic -> VType -> [(VStr, Val)] -> m VObject
@@ -264,27 +192,6 @@ createObjectRaw uniq opaq typ attrList = do
         , objAttrs  = attrs
         , objOpaque = opaq
         }
-
-newObjectId :: Eval ObjectId
-newObjectId = do
-    tv <- asks envMaxId
-    liftSTM $ do
-        rv <- readTVar tv
-        writeTVar tv (succ rv)
-        return rv
-        
-fromObject :: forall a. (Typeable a) => VObject -> a
-fromObject obj = case objOpaque obj of
-    Nothing     -> castFail obj "VObject without opaque"
-    Just dyn    -> case fromDynamic dyn of
-        Nothing -> castFail obj "VObject's opaque not valueable"
-        Just x  -> x
-
-castFailM :: forall a b. (Show a, Typeable b) => a -> String -> Eval b
-castFailM v str = fail $ "Cannot cast from " ++ show v ++ " to " ++ errType (undefined :: b) ++ " (" ++ str ++ ")"
-
-castFail :: forall a b. (Show a, Typeable b) => a -> String -> b
-castFail v str = error $ "Cannot cast from " ++ show v ++ " to " ++ errType (undefined :: b) ++ " (" ++ str ++ ")"
 
 instance Value (IVar VScalar) where
     fromVal (VRef (MkRef v@(IScalar _))) = return v
@@ -421,27 +328,6 @@ instance Value VBool where
     doCast (VList [])  = return $ False
     doCast _           = return $ True
 
-{-|
-Collapse a junction value into a single boolean value.
-
-Works by recursively casting the junction members to booleans, then performing
-the actual junction test.
--}
-juncToBool :: VJunc -> Eval Bool
-juncToBool (MkJunc JAny  _  vs) = do
-    bools <- mapM fromVal (Set.elems vs)
-    return . isJust $ find id bools
-juncToBool (MkJunc JAll  _  vs) = do
-    bools <- mapM fromVal (Set.elems vs)
-    return . isNothing $ find not bools
-juncToBool (MkJunc JNone _  vs) = do
-    bools <- mapM fromVal (Set.elems vs)
-    return . isNothing $ find id bools
-juncToBool (MkJunc JOne ds vs) = do
-    bools <- mapM fromVal (Set.elems ds)
-    if isJust (find id bools) then return False else do
-    bools <- mapM fromVal (Set.elems vs)
-    return $ 1 == (length $ filter id bools)
 
 instance Value VInt where
     castV = VInt
@@ -548,28 +434,6 @@ instance Value VStr where
     doCast (VObject o)   = return $ "<obj:" ++ showType (objType o) ++ ">"
     doCast x             = return $ "<" ++ showType (valType x) ++ ">"
 
-showRat :: VRat -> VStr
-showRat r
-    | frac == 0 = s ++ show quot
-    | otherwise = s ++ show quot ++ "." ++ showFrac frac
-    where
-    n = numerator r
-    d = denominator r
-    s = if signum n < 0 then "-" else ""
-    (quot, rem) = quotRem (abs n) d
-    frac :: VInt
-    frac = round ((rem * (10 ^ (40 :: VInt))) % d)
-    showFrac = reverse . dropWhile (== '0') . reverse . pad . show
-    pad x = (replicate (40 - length x) '0') ++ x
-
-showTrueRat :: VRat -> VStr
-showTrueRat r =
-    (show n) ++ "/" ++ (show d)
-    where
-    n = numerator r
-    d = denominator r
-
-
 instance Value [PerlSV] where
     fromVal = fromVals
     doCast v = castFailM v "[PerlSV]"
@@ -582,18 +446,6 @@ instance Value PerlSV where
     fromVal (VNum int) = liftIO $ vnumToSV int
     fromVal v = liftIO $ mkValRef v
     doCast v = castFailM v "PerlSV"
-
-showNum :: Show a => a -> String
-showNum x
-    | str == "Infinity"
-    = "Inf"
-    | str == "-Infinity"
-    = "-Inf"
-    | (i, ".0") <- break (== '.') str
-    = i -- strip the trailing ".0"
-    | otherwise = str
-    where
-    str = show x
 
 valToStr :: Val -> Eval VStr
 valToStr = fromVal
@@ -703,6 +555,15 @@ data VRule
         }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
+errStrPos :: VStr -> Pos -> Val
+errStrPos str pos = VError (VStr str) [pos]
+
+errValPos :: Val -> Pos -> Val
+errValPos val pos = VError val [pos]
+
+enterAtomicEnv :: Env -> Env
+enterAtomicEnv env = env{ envAtomic = True }
+
 {-|
 Represents a value.
 
@@ -775,52 +636,15 @@ valType (VOpaque  _)    = mkType "Object"
 valType (PerlSV   _)    = mkType "Scalar::Perl5"
 valType (VV       v)    = mkType (cast $ valMeta v)
 
+valToBool :: Val -> Eval VBool
+valToBool = fromVal
+
 type VBlock = Exp
 data VControl
     = ControlExit  !ExitCode
     | ControlEnv   !Env
 -- \| ControlLeave !(Env -> Eval Bool) !Val
     deriving (Show, Eq, Ord, Typeable) -- don't derive YAML for now
-
-{-|
-Represents a junction value.
-
-Note that @VJunc@ is also a pun for a 'Val' constructor /containing/ a 'VJunc'.
--}
-data VJunc = MkJunc
-    { juncType :: !JuncType -- ^ 'JAny', 'JAll', 'JNone' or 'JOne'
-    , juncDup  :: !(Set Val)
-    -- ^ Only used for @one()@ junctions. Contains those values
-    --     that appear more than once (the actual count is
-    --     irrelevant), since matching any of these would
-    --     automatically violate the 'match /only/ one value'
-    --     junctive semantics.
-    , juncSet  :: !(Set Val)
-    -- ^ Set of values that make up the junction. In @one()@
-    --     junctions, contains the set of values that appear exactly
-    --     /once/.
-    } deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
-
--- | The combining semantics of a junction. See 'VJunc' for more info.
-data JuncType = JAny  -- ^ Matches if /at least one/ member matches
-              | JAll  -- ^ Matches only if /all/ members match
-              | JNone -- ^ Matches only if /no/ members match
-              | JOne  -- ^ Matches if /exactly one/ member matches
-    deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
-
-instance Show JuncType where
-    show JAny  = "any"
-    show JAll  = "all"
-    show JNone = "none"
-    show JOne  = "one"
-
-instance Show VJunc where
-    show (MkJunc jtype _ set) =
-        (show jtype) ++ "(" ++
-            (foldl (\x y ->
-                if x == "" then show y
-                else x ++ "," ++ show y)
-            "" $ Set.elems set) ++ ")"
 
 {-|
 Each 'VCode' structure has a 'SubType' indicating what \'level\' of
@@ -1010,17 +834,6 @@ expToEvalVal exp = do
     obj <- createObject (mkType "Code::Exp") []
     return $ VObject obj{ objOpaque = Just $ toDyn exp }
 
-
-
-class Unwrap a where
-    {-|
-    Unwrap a nested expression, throwing away wrappers (such as 'Cxt' or
-    'Pos' to get at the more interesting expression underneath. Works both
-    on individual 'Exp's, and elementwise on ['Exp']s.
-    -}
-    unwrap :: a -> a
-    unwrap = id
-
 instance Unwrap [Exp] where
     unwrap = map unwrap
 
@@ -1086,35 +899,6 @@ extractPlaceholderVars (Sym scope var ex) vs = ((Sym scope var ex'), vs')
     where
     (ex', vs') = extractPlaceholderVars ex vs
 extractPlaceholderVars exp vs = (exp, vs)
-
-
--- can be factored
-{-|
-Return the context implied by a particular primary sigil
-(\$, \@, \% or \&). E.g. used to find what context to impose on
-the RHS of a binding (based on the sigil of the LHS).
--}
-cxtOfSigil :: Char -> Cxt
-cxtOfSigil '$'  = cxtItemAny
-cxtOfSigil '@'  = cxtSlurpyAny
-cxtOfSigil '%'  = cxtSlurpyAny
-cxtOfSigil '&'  = CxtItem $ mkType "Code"
-cxtOfSigil '<'  = CxtItem $ mkType "Pugs::Internals::VRule"
-cxtOfSigil ':'  = CxtItem $ mkType "Type"
-cxtOfSigil x    = internalError $ "cxtOfSigil: unexpected character: " ++ show x
-
-{-|
-Return the type of variable implied by a name beginning with the specified
-sigil.
--}
-typeOfSigil :: Char -> Type
-typeOfSigil '$'  = mkType "Item"
-typeOfSigil '@'  = mkType "Array"
-typeOfSigil '%'  = mkType "Hash"
-typeOfSigil '&'  = mkType "Code"
-typeOfSigil '<'  = mkType "Pugs::Internals::VRule"
-typeOfSigil ':'  = mkType "Type"
-typeOfSigil x    = internalError $ "typeOfSigil: unexpected character: " ++ show x
 
 buildParam :: String -- ^ Type of the parameter
            -> String -- ^ Parameter-sigil (@:@, @!:@, @?@, @!@, etc.)
@@ -1232,7 +1016,7 @@ data IHashEnv = MkHashEnv deriving (Show, Typeable) {-!derive: YAML_Pos!-}
 data IScalarCwd = MkScalarCwd deriving (Show, Typeable) {-!derive: YAML_Pos!-}
 
 newtype ObjectId = MkObjectId { unObjectId :: Int }
-    deriving (Show, Eq, Ord, Num, Enum, Typeable) {-!derive: YAML_Pos!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 data VObject = MkObject
     { objType   :: !VType
@@ -1256,6 +1040,17 @@ data VMatch = MkMatch
 
 instance Show Pad where
     show pad = "MkPad (padToList " ++ show (padToList pad) ++ ")"
+
+findSymRef :: String -> Pad -> Eval VRef
+findSymRef name pad = do
+    case findSym name pad of
+        Just ref -> liftSTM $ readTVar ref
+        Nothing  -> fail $ "Cannot find variable: " ++ show name
+
+findSym :: String -> Pad -> Maybe (TVar VRef)
+findSym name pad = case lookupPad name pad of
+    Just (x:_)  -> Just x
+    _           -> Nothing
 
 -- | Look up a symbol in a 'Pad', returning the ref it is bound to.
 lookupPad :: Var -- ^ Symbol to look for
@@ -1312,181 +1107,6 @@ mkCompUnit _ pad ast = MkCompUnit compUnitVersion pad ast
 compUnitVersion :: Int
 compUnitVersion = 3
 
-{- Eval Monad -}
--- type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
-type Eval = EvalT (ContT Val (ReaderT Env SIO))
-newtype EvalT m a = EvalT { runEvalT :: m a }
-
-instance ((:>:) (Eval a)) (SIO a) where cast = liftSIO
-
-runEvalSTM :: Env -> Eval Val -> STM Val
-runEvalSTM env = runSTM . (`runReaderT` env { envAtomic = True }) . (`runContT` return) . runEvalT
-
-runEvalIO :: Env -> Eval Val -> IO Val
-runEvalIO env = runIO . (`runReaderT` env) . (`runContT` return) . runEvalT
-
-tryIO :: a -> IO a -> Eval a
-tryIO err = lift . liftIO . (`catch` (const $ return err))
-
-{-|
-'shiftT' is like @callCC@, except that when you activate the continuation
-provided by 'shiftT', it will run to the end of the nearest enclosing 'resetT',
-then jump back to just after the point at which you activated the continuation.
-
-Note that because control eventually returns to the point after the 
-subcontinuation is activated, you can activate it multiple times in the 
-same block. This is unlike @callCC@'s continuations, which discard the current
-execution path when activated.
-
-See 'resetT' for an example of how these delimited subcontinuations actually
-work.
--}
-shiftT :: ((a -> Eval Val) -> Eval Val)
-       -- ^ Typically a lambda function of the form @\\esc -> do ...@, where
-       --     @esc@ is the current (sub)continuation
-       -> Eval a
-shiftT e = EvalT . ContT $ \k ->
-    runContT (runEvalT . e $ lift . lift . k) return
-
-{-|
-Create an scope that 'shiftT'\'s subcontinuations are guaranteed to eventually
-exit out the end of.
-
-Consider this example:
-
-> resetT $ do
->     alfa
->     bravo
->     x <- shiftT $ \esc -> do
->        charlie
->        esc 1
->        delta
->        esc 2
->        return 0
->     zulu x
-
-This will:
-
-  1) Perform @alfa@
-  
-  2) Perform @bravo@
-  
-  3) Perform @charlie@
-  
-  4) Bind @x@ to 1, and thus perform @zulu 1@
-  
-  5) Fall off the end of 'resetT', and jump back to just after @esc 1@
-  
-  6) Perform @delta@
-  
-  7) Bind @x@ to 2, and thus perform @zulu 2@
-  
-  8) Fall off the end of 'resetT', and jump back to just after @esc 2@
-  
-  6) Escape from the 'resetT', causing it to yield 0
-
-Thus, unlike @callCC@'s continuations, these subcontinuations will eventually
-return to the point after they are activated, after falling off the end of the
-nearest 'resetT'.
--}
-resetT :: Eval Val -- ^ An evaluation, possibly containing a 'shiftT'
-       -> Eval Val
-resetT e = lift . lift $
-    runContT (runEvalT e) return
-
-instance Monad Eval where
-    return a = EvalT $ return a
-    m >>= k = EvalT $ do
-        a <- runEvalT m
-        runEvalT (k a)
-    fail str = do
-        pos <- asks envPos
-        shiftT . const . return $ VError (VStr str) [pos]
-
-instance MonadTrans EvalT where
-    lift x = EvalT x
-
-instance Functor Eval where
-    fmap f (EvalT a) = EvalT (fmap f a)
-
-instance MonadIO Eval where
-    liftIO io = EvalT (liftIO io)
-
-instance MonadError Val Eval where
-    throwError err = do
-        pos <- asks envPos
-        shiftT . const . return $ VError err [pos]
-    catchError _ _ = fail "catchError unimplemented"
-
-guardSTM :: STM a -> Eval a
-guardSTM stm = do
-    rv <- liftSTM $ fmap Right stm `catchSTM` (return . Left)
-    case rv of
-        Left e -> fail (show e)
-        Right v -> return v
-    
-{-|
-Perform an IO action and raise an exception if it fails.
--}
-guardIO :: IO a -> Eval a
-guardIO io = do
-    rv <- liftIO $ try io
-    case rv of
-        Left e -> fail (ioeGetErrorString e)
-        Right v -> return v
-
-{-|
-Like @guardIO@, perform an IO action and raise an exception if it fails.
-
-If t
-supress the exception and return an associated value instead.
--}
-guardIOexcept :: MonadIO m => [((IOError -> Bool), a)] -> IO a -> m a
-guardIOexcept safetyNet io = do
-    rv <- liftIO $ try io
-    case rv of
-        Right v -> return v
-        Left  e -> catcher e safetyNet
-    where
-    catcher e [] = fail (show e)
-    catcher e ((f, res):safetyNets)
-        | f e       = return res
-        | otherwise = catcher e safetyNets
-
-instance MonadSTM Eval where
-    liftSIO = EvalT . lift . lift
-    liftSTM stm = do
-        atom <- asks envAtomic
-        if atom
-            then EvalT (lift . lift . liftSTM $ stm)
-            else EvalT (lift . lift . liftIO . liftSTM $ stm)
-
-instance MonadReader Env Eval where
-    ask       = lift ask
-    local f m = EvalT $ local f (runEvalT m)
-
-findSymRef :: String -> Pad -> Eval VRef
-findSymRef name pad = do
-    case findSym name pad of
-        Just ref -> liftSTM $ readTVar ref
-        Nothing  -> fail $ "Cannot find variable: " ++ show name
-
-findSym :: String -> Pad -> Maybe (TVar VRef)
-findSym name pad = case lookupPad name pad of
-    Just (x:_)  -> Just x
-    _           -> Nothing
-
-instance MonadCont Eval where
-    -- callCC :: ((a -> Eval b) -> Eval a) -> Eval a
-    callCC f = EvalT . callCCT $ \c -> runEvalT . f $ \a -> EvalT $ c a
-
-{-
-instance MonadEval Eval
-
-class (MonadReader Env m, MonadCont m, MonadIO m, MonadSTM m) => MonadEval m
---     askGlobal :: m Pad
--}
-
 {-|
 Retrieve the global 'Pad' from the current evaluation environment.
 
@@ -1532,11 +1152,7 @@ emptyExp :: Exp
 emptyExp = Noop
 
 retControl :: VControl -> Eval a
-retControl c = do
-    shiftT $ const (return $ VControl c)
-
-retError :: (Show a) => VStr -> a -> Eval b
-retError str a = fail $ str ++ ": " ++ show a
+retControl c = shiftT $ const (return $ VControl c)
 
 defined :: VScalar -> Bool
 defined VUndef  = False
@@ -1731,9 +1347,6 @@ data IVar v where
     IRule   :: RuleClass   a => !a -> IVar VRule
     IThunk  :: ThunkClass  a => !a -> IVar VThunk
     IPair   :: PairClass   a => !a -> IVar VPair
-
-data VOpaque where
-    MkOpaque :: Value a => !a -> VOpaque
 
 -- | An empty failed match
 mkMatchFail :: VMatch
@@ -2016,8 +1629,16 @@ instance Typeable ProcessHandle where typeOf _ = typeOf ()
 instance Typeable1 Tree where typeOf1 _ = typeOf ()
 #endif
 
-
 {- !!! For DrIFT -- Don't delete !!!
+
+data VJunc = MkJunc
+    { juncType :: !JuncType
+    , juncDup  :: !(Set Val)
+    , juncSet  :: !(Set Val)
+    } deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
+
+data JuncType = JAny | JAll | JNone | JOne
+    deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 data Scope = SState | SLet | STemp | SEnv | SMy | SOur | SGlobal
     {-!derive: YAML_Pos, JSON, Perl5!-}
