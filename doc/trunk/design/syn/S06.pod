@@ -15,7 +15,7 @@ Allison Randal <al@shadowed.net>
   Date: 21 Mar 2003
   Last Modified: 9 Aug 2006
   Number: 6
-  Version: 44
+  Version: 45
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -710,9 +710,9 @@ It is allowed to specify a return type:
     sub foo (\$args --> Num) { ... }
 
 Apart from that, no other parameters are allowed in the signature
-after the List.  Parameters before the List either do not show up in
-the List or are marked as already bound somehow.  In other words,
-parameters are bound normally up to the List parameter, and then
+after the C<Capture>.  Parameters before the C<Capture> either do not show up in
+the C<Capture> or are marked as already bound somehow.  In other words,
+parameters are bound normally up to the C<Capture> parameter, and then
 C<\$args> takes a snapshot of the remaining input without further
 attempts at binding.
 
