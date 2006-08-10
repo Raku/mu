@@ -1,10 +1,11 @@
-# use of control blocks as rvalues
-
 use v6-alpha;
+
+# Test control blocks (BEGIN/CHECK/INIT/END) used as rvalues
+# [TODO] add tests for other control blocks
 
 use Test;
 
-plan 9;
+plan 10;
 
 # L<S04/Closure traits/"marked with a *" "used within" expression>
 
@@ -42,3 +43,7 @@ my $begin = {
 is $begin(), 'B', 'BEGIN {} runs only once';
 is $begin_val, 'B', 'BEGIN {} as rval is its ret val';
 is $begin(), 'B', 'BEGIN {} runs only once';
+
+# Test END {} as rval:
+
+dies_ok('my $end_val = END { 3 }', "END {} can't be used as a rval");
