@@ -82,8 +82,8 @@ sub header (
         $temp_key ~~ s:P5:g/[-_](\w)/-$0.uc()/;
         
         given $key {
-            when "Target" { $header ~= "\nWindow-Target: " ~ $value; }
-            default { $header ~= "\n" ~ $temp_key ~ ": " ~ $value; }
+            when "Target" { $header ~= "\nWindow-Target: "     ~ $value; }
+            default       { $header ~= "\n" ~ $temp_key ~ ": " ~ $value; }
         }
     }
     
