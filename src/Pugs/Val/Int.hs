@@ -29,9 +29,6 @@ data PureInt
     | INotANumber
     deriving (Typeable, Show, Eq, Ord, Data)
 
-instance (:>:) Integer PureInt where
-instance (:<:) Integer PureInt where
-
 
 {- regretfully, I couldn't find a way to put this here w/o circularity.
 instance ICoercible P PureInt where
