@@ -518,9 +518,7 @@ instance Value VStr where
             "Hash" -> do
                 --- XXX special case for Hash -- need to Objectify
                 hv      <- join $ doHash v hash_fetch
-                warn "STEP 1" hv
                 lns     <- forM (Map.assocs hv) $ \(k, v) -> do
-                    warn "STEP 2" (k, v)
                     str <- fromVal v
                     return $ k ++ "\t" ++ str
                 return $ unlines lns
