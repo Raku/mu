@@ -444,6 +444,8 @@ object for hashing and other value-base comparisons.  Normal objects
 just use their address in memory, but if a class wishes to behave as a
 value type, it can define a C<.SKID> method that makes different objects
 look like the same object if they happen to have the same contents.
+SKID may also stand for "static key id", or "silly key id", or
+"secret key id", or "supercalifragilisticexpialidocious key id".
 
 =item *
 
