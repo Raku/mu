@@ -1,10 +1,17 @@
+#This is a simple test script to run the translator across all files in the directory in which it is run.
+#Useage is:
+#    $ perl Test.pl [PATH]
+#to run a compiled version stored at PATH (which is optional). It can also be run as
+#    $ perl Test.pl -i [PATH]
+#which runs ghc seperately for each test. This option is very slow, but it is useful when the code does not compile (such as on Intel Macs without special consideration).
+
 $switch = shift @ARGV;
-if($switch eq "-o"){
-  $prog = "translate";
-  $path = shift @ARGV;
-}else{
+if($switch eq "-i"){
   $prog = "ghc-6.4.1 -e \"Main.mainParse ";
   $path = $switch;
+}else{
+  $prog = "translate";
+  $path = shift @ARGV;
 }
 $errors = 0;
 $parses = 0;
@@ -39,7 +46,6 @@ foreach $file (@allfiles){
     $fine = $fine + 1;
   }
 }
-print $command."\n";
 
 $total = $fine + $parses + $errors + $unknown;
 print "\n\n";
