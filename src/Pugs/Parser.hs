@@ -723,10 +723,7 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
                             (Syn ":=" [ Var (':':'*':pkg)
                                , App (Var "&require_perl5") Nothing [Val $ VStr pkg] ]))
                        (newMetaType pkg) -- Perl5's ::CGI is same as ::CGI.meta
-            else Stmts (App (Var "&use") Nothing [Val $ VStr pkg])
-                       (App (Var "&unshift")
-                            (Just (Var ("@" ++ envPackage env ++ "::END")))
-                            [Var ("@" ++ pkg ++ "::END")])
+            else (App (Var "&use") Nothing [Val $ VStr pkg])
         modify $ \state -> state
             { ruleEnv = env
                 { envClasses = envClasses env' `addNode` mkType pkg
@@ -915,8 +912,7 @@ ruleClosureTrait rhs = rule "closure trait" $ do
             -- They're then run at the end of runtime or at the end of the
             -- whole program.
             let pkg = envPackage env
-                end | pkg == "main" = "@*END"
-                    | otherwise     = '@':pkg++"::END"
+                end = "@*END"
             unsafeEvalExp $ 
                 App (Var "&unshift")
                     (Just (Var end))

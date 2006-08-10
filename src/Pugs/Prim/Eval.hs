@@ -55,8 +55,15 @@ opRequire dumpEnv v = do
                               , mkStrPair "relpath"  (decodeUTF8 file) ]
                     ]
             ]
-        tryFastEval (pathName ++ ".yml") $
-            slowEval pathName
+        -- merge @*END here
+        endAV   <- findSymRef "@*END" glob
+        ends    <- fromVal =<< readRef endAV
+        clearRef endAV
+        rv <- tryFastEval (pathName ++ ".yml") $
+                slowEval pathName
+        endAV'  <- findSymRef "@*END" glob
+        doArray (VRef endAV') (`array_unshift` ends)
+        return rv
     where
     tryFastEval pathName' fallback = do
         ok <- liftIO $ doesFileExist pathName'
