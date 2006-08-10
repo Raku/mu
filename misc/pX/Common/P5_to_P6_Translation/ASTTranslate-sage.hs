@@ -9,9 +9,14 @@ ASTParser - The Parsec parser for the yaml format AST of a P5 AST (the AST proba
 ASTDefinition - The AST datatype decleration. 
 
 
+To build the translator, use
+  $ make
+to build Sage's personal copy (may be more up to date, but also less stable) use
+  $ make sage
+
 This file is designed to be compiled with GHC. The command
   $ ghc --make -o translate ASTTranslate.hs
-works (but has not been widely tested). 
+works (but has not been widely tested). (The makefile is actually just an alias for ghc --make) 
 
 
 The compiled version (let's call it 'translate') is used like so:
@@ -21,21 +26,13 @@ the switches are optional, and have these effects:
 -Oo: Heavy object orientation. If there's an available (but optional) Oo translation it does it, such 
 as translating close($fh) to $fh.close.
 
--V: Verbose. The translator prints the entire translated AST to STDOUT. Useful for debugging small programs, 
-but not much else. For long files, echoing the entire tree to STDOUT may take more time then parsing.
+-V: Verbose. The translator prints the entire translated AST to STDOUT. Useful for debugging small programs, but not much else. For long files, echoing the entire tree to STDOUT may take more time then parsing.
 
--U: Unknown Debug. Whenever an unknown node is encountered during printing, prints "UnknownAbs" or 
-"UnknownLit" to the file every place an unknown node is encountered. Also Echoes "UNKNOWN: UnknownAbs" 
-or "UNKNOWN: UnknownLit" to STDOUT every time an unknown is encountered.
+-U: Unknown Debug. Whenever an unknown node is encountered during printing, prints "UnknownAbs" or "UnknownLit" to the file every place an unknown node is encountered. Also Echoes "UNKNOWN: UnknownAbs" or "UNKNOWN: UnknownLit" to STDOUT every time an unknown is encountered.
 
--R: Minimal regex changes. The translator will  not attempt to translate the Regex from Perl 5 syntax to 
-Perl 6. It will instead apply the :Perl5 modifer to the regex and only make changes to the externals of the 
-regex. This will most likely break existing captures, given the new structure of captures. Use at your own risk.
+-R: Minimal regex changes. The translator will  not attempt to translate the Regex from Perl 5 syntax to Perl 6. It will instead apply the :Perl5 modifer to the regex and move the re mods (/g, /i, etc.) to the start (:g, :i, etc.). The only internal changes made are explicitly aliasing the captures, so surrounding code will never know the difference.
 
-Translations may run _slightly_ faster without the -Oo switch. Translations will almost _always_
-take longer with -V (printing to STDOUT often takes longer then a full run, for large numbers of nodes). -U
-and -R should have little to no effect on speed (but if the AST contains unknown nodes with -U, the resulting 
-code will be invlaid).
+Translations may run _slightly_ faster without the -Oo switch. Translations will almost _always_ take longer with -V (printing to STDOUT often takes longer then a full run, for large numbers of nodes). -U and -R should have little to no effect on speed (but if the AST contains unknown nodes with -U, the resulting code will be invlaid).
 
 At this point, all code is highly unstable. Use at your own risk (but help welcome!).
 
@@ -61,17 +58,20 @@ translate tree options = case [('o' `elem` options), ('r' `elem` options)] of
                                [False, False]  -> (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))
                                [False, True] -> (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (easyRegex (regexOnce (scalarTranslate (hereDocTranslate (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))
 
+--Find any instance of print or printf that prints to a file and add a colon
 filePrintChange :: P5AST -> P5AST
-filePrintChange (AbstractNode Op_print kids) = if (isInSequence kids [(LiteralNode Operator "" "print"),(AbstractNode Op_rv2gv [])]) then (AbstractNode Op_print (addPrintComma kids)) else (AbstractNode Op_print kids)
-filePrintChange (AbstractNode Op_prtf kids) = if (isInSequence kids [(LiteralNode Operator "" "printf"),(AbstractNode Op_rv2gv [])]) then (AbstractNode Op_print (addPrintComma kids)) else (AbstractNode Op_print kids)
+filePrintChange (AbstractNode Op_print kids) = if (or [(isInSequence kids [(LiteralNode Operator "" "print"),(AbstractNode Op_rv2gv [])]), (isInSequence kids [(LiteralNode Operator "" "print"),(LiteralNode Opener "" "("),(AbstractNode Op_rv2gv [])])]) then (AbstractNode Op_print (addPrintColon kids)) else (AbstractNode Op_print kids)
+filePrintChange (AbstractNode Op_prtf kids) = if (or [(isInSequence kids [(LiteralNode Operator "" "printf"),(AbstractNode Op_rv2gv [])]), (isInSequence kids [(LiteralNode Operator "" "printf"),(LiteralNode Opener "" "("),(AbstractNode Op_rv2gv [])])]) then (AbstractNode Op_print (addPrintColon kids)) else (AbstractNode Op_print kids)
 filePrintChange (AbstractNode atype kids) = (AbstractNode atype (map filePrintChange kids))
 filePrintChange (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 filePrintChange (Heredoc start end kids) = (Heredoc start end kids)
 
-addPrintComma :: [P5AST] -> [P5AST]
-addPrintComma [] =[]
-addPrintComma kids = if (matchOnType (head kids) (AbstractNode Op_rv2gv [])) then (head kids):(LiteralNode Token "" ","):(tail kids) else (head kids):(addPrintComma (tail kids))
+--Adds a colon after the filehandle argument of print or printf
+addPrintColon :: [P5AST] -> [P5AST]
+addPrintColon [] =[]
+addPrintColon kids = if (matchOnType (head kids) (AbstractNode Op_rv2gv [])) then (head kids):(LiteralNode Token "" ":"):(tail kids) else (head kids):(addPrintColon (tail kids))
 
+--Finds sub declerations that match the names of things being exported and adds "is export" to them
 changeExportOkay :: [String] -> P5AST -> P5AST
 changeExportOkay [] (AbstractNode Sub kids) = (AbstractNode Sub kids)
 changeExportOkay names (AbstractNode Sub kids) = if (isIn (LiteralNode Token "" (head names)) (extractKids (extractNodetype (AbstractNode Op_const []) kids))) then (AbstractNode Sub (addExportOkay kids)) else (changeExportOkay (tail names) (AbstractNode Sub kids))
@@ -79,10 +79,13 @@ changeExportOkay names (AbstractNode atype kids) = (AbstractNode atype (map (cha
 changeExportOkay _ (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 changeExportOkay _ (Heredoc start end kids) = (Heredoc start end kids)
 
+--Adds "is export" to anything that is @EXPORT_OK
 addExportOkay :: [P5AST] -> [P5AST]
 addExportOkay [] = []
 addExportOkay kids = if (matchWithoutEnc (LiteralNode Opener "" "{") (head kids)) then (LiteralNode Token "" " is export"):(kids) else (head kids):(addExportOkay (tail kids))
 
+
+--getExportOkay returns the names of everything assigned to @EXPORT_OK in a list of strings
 getExportOkay :: P5AST -> [String]
 getExportOkay (AbstractNode Op_aassign kids) = case [(matchOnType (smartHead kids) (AbstractNode Op_list [])), (matchWithoutEnc (smartHead (extractKids (smartHead (extractKids (smartHead kids))))) (LiteralNode Sigil "" "@EXPORT_OK")), (isIn (LiteralNode Operator "" "=") kids), (matchOnType (AbstractNode Quote []) (smartHead (extractKids (extractNodetype (AbstractNode Op_list []) (tail kids)))))] of
                                               [True, True, True, True] -> (extractExportsFromQW (extractKids (smartHead (extractKids (extractNodetype (AbstractNode Op_list []) (tail kids))))))
@@ -91,7 +94,7 @@ getExportOkay (AbstractNode atype kids) = (makeList (map getExportOkay kids))
 getExportOkay (LiteralNode atype enc uni) = []
 getExportOkay (Heredoc start end kids) = []
 
-{-Changes things stored in @EXPORT to sub... is export(:MANDATORY)-}
+{-Changes things stored in @EXPORT to sub ... is export(:MANDATORY)-}
 changeExports :: [String] -> P5AST -> P5AST
 changeExports [] (AbstractNode Sub kids) = (AbstractNode Sub kids)
 changeExports names (AbstractNode Sub kids) = if (isIn (LiteralNode Token "" (head names)) (extractKids (extractNodetype (AbstractNode Op_const []) kids))) then (AbstractNode Sub (addExport kids)) else (changeExports (tail names) (AbstractNode Sub kids))
@@ -99,7 +102,7 @@ changeExports names (AbstractNode atype kids) = (AbstractNode atype (map (change
 changeExports _ (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 changeExports _ (Heredoc start end kids) = (Heredoc start end kids)
 
-{-Actually adds the is export(:MANDATORY) text. Since there isn't really a way to add that to a P5AST, it's just stuck in a Token node.-}
+{-Actually adds the "is export(:MANDATORY)" text. Since there isn't really a way to add that to a P5AST, it's just stuck in a Token node.-}
 addExport :: [P5AST] -> [P5AST]
 addExport [] = []
 addExport kids = if (matchWithoutEnc (LiteralNode Opener "" "{") (head kids)) then (LiteralNode Token "" " is export(:MANDATORY)"):(kids) else (head kids):(addExport (tail kids))
@@ -128,10 +131,15 @@ extractExportsFromQW :: [P5AST] -> [String]
 extractExportsFromQW [] = []
 extractExportsFromQW kids = if (matchOnType (LiteralNode Openquote "" "") (head kids)) then (map (dropLeadingChar '&') (makeWords (extractUni (head (drop 1 kids))) [""])) else (extractExportsFromQW (tail kids))
 
+
+--Take a string and return a list of strings with each element being a word in that string. 
+--The second argument is what's already been collected (allowing you to start the list of words with your own list, if need be)
+--To just get the contents of the string broken into words, just call makeWords instring [""]
 makeWords :: String -> [String] -> [String]
 makeWords [] curout = curout
 makeWords inst curout= if ((head inst)==' ') then (makeWords (drop 2 inst) ([(head (tail inst))]:curout)) else (makeWords (tail inst) (((head curout)++[(head inst)]):(tail curout)))
 
+--drop the leading character if it matches the first argument of the call
 dropLeadingChar :: Char -> String -> String
 dropLeadingChar _ [] = []
 dropLeadingChar todrop astring = if ((head astring)==todrop) then (tail astring) else astring 
@@ -153,8 +161,7 @@ runTextParser instr = case parse textParser "text node" instr of
 
 --The actual parser that changes "@array" and "%hash"
 textParser :: Parser String
-textParser = do{ parts <- manyTill (choice[{-do{char '$'; name <- manyTill alphaNum (char '['); key <- manyTill anyToken (char ']'); return ('@':name++"["++key++"]")},
-                                           do{char '$'; name <- manyTill alphaNum (char '{'); key <- manyTill anyToken (char '}'); return ('%':name++"{"++key++"}")},-}
+textParser = do{ parts <- manyTill (choice[
                                            do{char '$'; name <- many alphaNum; choice[do{char '['; key <- manyTill anyToken (char ']'); return ("@"++name++"["++key++"]")}, do{char '{'; key <- manyTill anyToken (char '}'); return ("%"++name++"<"++key++">")}, return ("$"++name)]},
                                            do{char '@'; name <- many alphaNum; return ('@':name++"[]")},
                                            do{char '%'; name <- many alphaNum; return ('%':name++"{}")},
@@ -213,37 +220,49 @@ hereDocTranslate (Heredoc start end kids) = (Heredoc (changeHereDoc start) end k
 hereDocTranslate (AbstractNode atype kids) = (AbstractNode atype (map hereDocTranslate kids))
 hereDocTranslate (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 
+--Change the syntax of heredocs
 changeHereDoc :: P5AST -> P5AST
 changeHereDoc (LiteralNode atype enc uni) = case ((head uni):(head (drop 1 uni)):[(head (drop 1 (drop 1 uni)))]) of
                                                     "<<\"" -> (LiteralNode atype enc ("qq:to/"++(drop 3 uni)++"/"))
                                                     "<<'"  -> (LiteralNode atype enc ("q:to/"++(drop 3 uni)++"/"))
                                                     _      -> (LiteralNode atype enc ("qq:to/"++(drop 2 uni)++"/"))
 
-
+--easyRegex just moves around the remods and then changes the captures
 easyRegex :: P5AST -> P5AST
 easyRegex (AbstractNode Op_subst kids) = (AbstractNode Op_subst (easyRegexSChanges kids))
 easyRegex (AbstractNode Op_match kids) = (AbstractNode Op_match (easyRegexMChanges kids))
 easyRegex (AbstractNode atype kids) = (AbstractNode atype (map easyRegex kids))
 easyRegex (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 
+--Just get the relevent Re mods and put them at the beginning
 easyRegexSChanges :: [P5AST] -> [P5AST]
 easyRegexSChanges [] = []
 easyRegexSChanges kids = case [(matchOnType (head kids) (LiteralNode Openquote "" "")), ('g' `elem` (extractUni (extractNodetype (LiteralNode Remod "" "") kids))), ('i' `elem` (extractUni (extractNodetype (LiteralNode Remod "" "") kids)))] of
-                          [True, True, True] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:g:i:s"))):(noRemod (tail kids))
-                          [True, True, False] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:g:s"))):(noRemod (tail kids))
-                          [True, False, True] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:i:s"))):(noRemod (tail kids))
-                          [True, False, False] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:s"))):(noRemod (tail kids))
+                          [True, True, True] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:g:i:s"))):(easyCapChanges (head (tail kids))):(noRemod (drop 2 kids))
+                          [True, True, False] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:g:s"))):(easyCapChanges (head (tail kids))):(noRemod (drop 2 kids))
+                          [True, False, True] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:i:s"))):(easyCapChanges (head (tail kids))):(noRemod (drop 2 kids))
+                          [True, False, False] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:s"))):(easyCapChanges (head (tail kids))):(noRemod (drop 2 kids))
                           _ -> (head kids):(easyRegexSChanges (tail kids))
 
+--Just get the relevent Re mods and put them at the beginning
 easyRegexMChanges :: [P5AST] -> [P5AST]
 easyRegexMChanges [] = []
 easyRegexMChanges kids = case [(matchOnType (head kids) (LiteralNode Openquote "" "")), ('g' `elem` (extractUni (extractNodetype (LiteralNode Remod "" "") kids))), ('i' `elem` (extractUni (extractNodetype (LiteralNode Remod "" "") kids)))] of
-                          [True, True, True] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:g:i:m"))):(noRemod (tail kids))
-                          [True, True, False] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:g:m"))):(noRemod (tail kids))
-                          [True, False, True] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:i:m"))):(noRemod (tail kids))
-                          [True, False, False] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:m"))):(noRemod (tail kids))
+                          [True, True, True] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:g:i:m"))):(easyCapChanges (head (tail kids))):(noRemod (drop 2 kids))
+                          [True, True, False] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:g:m"))):(easyCapChanges (head (tail kids))):(noRemod (drop 2 kids))
+                          [True, False, True] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:i:m"))):(easyCapChanges (head (tail kids))):(noRemod (drop 2 kids))
+                          [True, False, False] -> (LiteralNode Openquote "" (reverse ((head (reverse (extractUni (head kids)))):"5lrelP:m"))):(easyCapChanges (head (tail kids))):(noRemod (drop 2 kids))
                           _ -> (head kids):(easyRegexSChanges (tail kids))
 
+--Change captures (and nothing else) in a regex
+easyCapChanges :: P5AST -> P5AST
+easyCapChanges (LiteralNode Text enc uni) = (LiteralNode Text enc (regexChangeCaptures uni))
+easyCapChanges (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+easyCapChanges (AbstractNode atype kids) = (AbstractNode atype kids)
+easyCapChanges (Heredoc start end kids) = (Heredoc start end kids)
+
+
+--noRemod gets rid of remods (since they don't exist in Perl 6)
 noRemod :: [P5AST] -> [P5AST]
 noRemod [] = []
 noRemod kids = if (matchOnType (head kids) (LiteralNode Remod "" "")) then (tail kids) else ((head kids):(noRemod (tail kids))) 
