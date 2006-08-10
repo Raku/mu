@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 9 Aug 2006
+  Last Modified: 11 Aug 2006
   Number: 4
-  Version: 32
+  Version: 33
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -741,30 +741,34 @@ Apart from that, it is illegal to use a bare closure where an
 operator is expected.  (Remove the whitespace if you wish it to be
 a postcircumfix.)
 
-Anywhere a term is expected, a block is taken to
-be a closure definition (an anonymous subroutine).  If the closure
-appears to delimit nothing but a comma-separated list starting with
-a pair (counting a single pair as a list of one element), the closure
-will be immediately executed as a hash composer.
+Anywhere a term is expected, a block is taken to be a closure definition
+(an anonymous subroutine).  If the closure is empty, or appears to contain
+nothing but a comma-separated list starting with a pair or a hash (counting
+a single pair or hash as a list of one element), the closure will be
+immediately executed as a hash composer.
 
-    $hashref = { "a" => 1 };
-    $hashref = { "a" => 1, $b, $c, %stuff, @nonsense };
+    $hash = { };
+    $hash = { %stuff };
+    $hash = { "a" => 1 };
+    $hash = { "a" => 1, $b, $c, %stuff, @nonsense };
 
-    $coderef = { "a", 1 };
-    $coderef = { "a" => 1, $b, $c ==> print };
+    $code = { ; };
+    $code = { @stuff };
+    $code = { "a", 1 };
+    $code = { "a" => 1, $b, $c ==> print };
 
 If you wish to be less ambiguous, the C<hash> list operator will
 explicitly evaluate a list and compose a hash of the returned value,
 while C<sub> introduces an anonymous subroutine:
 
-    $coderef = sub { "a" => 1 };
-    $hashref = hash("a" => 1);
-    $hashref = hash("a", 1);
+    $code = sub { "a" => 1 };
+    $hash = hash("a" => 1);
+    $hash = hash("a", 1);
 
 If a closure is the right argument of the dot operator, the closure
 is interpreted as a hash subscript.
 
-    $ref = {$x};	# closure because term expected
+    $code = {$x};	# closure because term expected
     if $term{$x}	# subscript because postfix expected
     if $term {$x}	# expression followed by statement block
     if $term.{$x}	# valid subscript with dot
@@ -772,7 +776,7 @@ is interpreted as a hash subscript.
 
 Similar rules apply to array subscripts:
 
-    $ref = [$x];	# array composer because term expected
+    $array = [$x];	# array composer because term expected
     if $term[$x]	# subscript because postfix expected
     if $term [$x]	# syntax error (two terms in a row)
     if $term.[$x]	# valid subscript with dot
@@ -780,7 +784,7 @@ Similar rules apply to array subscripts:
 
 And to the parentheses delimiting function arguments:
 
-    $ref = ($x);	# grouping parens because term expected
+    $scalar = ($x);	# grouping parens because term expected
     if $term($x)	# function call because operator expected
     if $term ($x)	# syntax error (two terms in a row)
     if $term.($x)	# valid function call with dot
@@ -889,7 +893,7 @@ to them.  So
 	my $x = 1;
 	my sub bar { print $x }		# not cloned yet
 	my &baz = { bar(); print $x };	# cloned immediately
-	my $barref = &bar;		# now bar is cloned
+	my $code = &bar;		# now bar is cloned
 	return &baz;
     }
 
