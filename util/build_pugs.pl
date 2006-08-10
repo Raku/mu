@@ -89,7 +89,7 @@ sub build {
             };
             find $wanted, "third-party/$module";
 
-            if ($newest_hs_file >= $oldest_a_file) {
+            if ($newest_hs_file and $oldest_a_file and $newest_hs_file >= $oldest_a_file) {
                 # We are safe - no rebuild needed
                 next;
             }
