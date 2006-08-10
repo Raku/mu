@@ -694,13 +694,13 @@ build_perl5 ::
 ")]}
 
 clean ::
-	\@\$(PERL) -MFile::Path -e rmtree+q.third-party/installed/.
+	\@\$(PERL) -MFile::Path -ermtree+q+third-party/installed/+
 @{[for_perl5("
 	-cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) clean
 ")]}
 
 realclean ::
-	\@\$(PERL) -MFile::Path -e rmtree+q.third-party/installed/.
+	\@\$(PERL) -MFile::Path -ermtree+q+third-party/installed/+
 @{[for_perl5("
 	-cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) realclean
 ")]}
