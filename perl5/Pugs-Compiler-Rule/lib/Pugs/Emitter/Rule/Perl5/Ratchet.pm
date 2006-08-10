@@ -591,7 +591,7 @@ sub not_after {
 }
 sub colon {
     my $str = $_[0];
-    return "$_[1] # : no-op\n"
+    return "$_[1] 1 # : no-op\n"
         if $str eq ':';
     return "$_[1] ( \$pos >= length( \$s ) ) \n" 
         if $str eq '$';
