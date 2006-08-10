@@ -53,7 +53,7 @@ _FakeEnv = unsafePerformIO $ liftSTM $ do
     ref  <- newTVar Map.empty
     glob <- newTVar $ MkPad Map.empty
     init <- newTVar $ MkInitDat { initPragmas=[] }
-    maxi <- newTVar 1
+    maxi <- newTVar $ MkObjectId 1
     return $ MkEnv
         { envContext = CxtVoid
         , envLexical = MkPad Map.empty
