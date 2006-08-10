@@ -204,7 +204,12 @@ instance ICoercible P PureStr where
     asNum = cast . parseInt -- XXX - wrong
     asInt = cast . parseInt
 
-instance ICoercible P PureInt where asInt = return . cast
+instance ICoercible P PureInt where
+    asInt = return . cast
+    asNum INotANumber           = return $ cast ( (0/0) :: Double)
+    asNum (IInfinite SPositive) = return $ cast ( (1/0) :: Double)
+    asNum (IInfinite SNegative) = return $ cast ((-1/0) :: Double)
+    asNum (IFinite   n)         = return $ cast ((fromIntegral n) :: Double)
 instance ICoercible P PureNum where asNum = return . cast
 instance ICoercible P PureBit where asBit = return . cast
 
