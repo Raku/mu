@@ -864,6 +864,12 @@ sub infix {
         return ' do { my $_tmp_ = ' . _emit( $n->{exp1} ) . 
             '; defined $_tmp_ ? $_tmp_ : ' . _emit( $n->{exp2} ) . '}';
     }
+    if ( $n->{op1}{op} eq 'does' ) {
+        # XXX - fix this when Moose implements '$object does'
+        #print Dumper( $n->{exp2} );
+        return "'" . $n->{exp2}{sub}{bareword} . "'" .
+             '->new( ' . _emit( $n->{exp1} ) . ' )'
+    }
 
     if ( $n->{op1}{op} eq '=:=' ) {
 	# XXX: Data::Bind needs to provide an API.  we are now
