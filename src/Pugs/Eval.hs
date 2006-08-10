@@ -60,7 +60,7 @@ emptyEnv name genPad = liftSTM $ do
     syms <- initSyms
     glob <- newTVar (combine (pad ++ syms) $ mkPad [])
     init <- newTVar $ MkInitDat { initPragmas=[] }
-    maxi <- newTVar 1
+    maxi <- newTVar $ MkObjectId 1
     return $ MkEnv
         { envContext = CxtVoid
         , envLexical = mkPad []

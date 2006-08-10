@@ -112,7 +112,7 @@ prepareEnv name args = do
     errSV   <- newScalar (VStr "")
     defSV   <- newScalar undef
     autoSV  <- newScalar undef
-    classes <- initClassObjects (-1) [] initTree
+    classes <- initClassObjects (MkObjectId $ -1) [] initTree
 #if defined(PUGS_HAVE_HSPLUGINS)
     hspluginsSV <- newScalar (VInt 1)
 #else
@@ -184,7 +184,7 @@ initClassObjects uniq parent (Node typ children) = do
         , ("traits", castV $ map showType parent)
         ]
     objSV   <- newScalar (VObject obj)
-    rest    <- mapM (initClassObjects (pred uniq) [typ]) children
+    rest    <- mapM (initClassObjects (MkObjectId . pred $ unObjectId uniq) [typ]) children
     let metaSym  = genSym (':':'*':name) $ MkRef objSV
         codeSym  = genMultiSym ('&':'*':name) $ codeRef typeCode
         name     = showType typ
