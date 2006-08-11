@@ -48,6 +48,7 @@ import Pugs.Prim.Code
 import Pugs.Prim.Param
 import qualified Data.IntSet as IntSet
 import DrIFT.YAML
+import GHC.Exts (unsafeCoerce#)
 
 constMacro :: Exp -> [Val] -> Eval Val
 constMacro = const . expToEvalVal
@@ -898,7 +899,8 @@ op2 "le" = op2Cmp vCastStr (<=)
 op2 "gt" = op2Cmp vCastStr (>)
 op2 "ge" = op2Cmp vCastStr (>=)
 op2 "~~" = op2Match
-op2 "=:=" = op2Identity -- XXX wrong, needs to compare container only
+op2 "=:=" = \x y -> do
+    return $ castV (unsafeCoerce# x == (unsafeCoerce# y :: Int))
 op2 "===" = op2Identity -- XXX wrong, needs to compare objects only
 op2 "eqv" = op2Identity -- XXX wrong, needs to compare full objects
 op2 "&&" = op2Logical (fmap not . fromVal)
