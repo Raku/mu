@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
   Last Modified: 10 Aug 2006
   Number: 2
-  Version: 62
+  Version: 63
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1149,9 +1149,7 @@ sigil.  These are all values that are known to the compiler, and may
 in fact be dynamically scoped within the compiler itself, and only
 appear to be lexically scoped because dynamic scopes of the compiler
 resolve to lexical scopes of the program.  All C<$?> variables are considered
-constants, and may not be modified after being compiled in, except insofar
-as the compiler arranges in advance for such variables to be rebound (as
-is the case with C<$?SELF>).
+constants, and may not be modified after being compiled in.
 
 C<$?FILE> and C<$?LINE> are your current file and line number, for
 instance.  C<?> is not a shortcut for a package name like C<*> is.
