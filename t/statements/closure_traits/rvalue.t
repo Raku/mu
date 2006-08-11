@@ -46,4 +46,5 @@ is $begin(), 'B', 'BEGIN {} runs only once';
 
 # Test END {} as rval:
 
-dies_ok('my $end_val = END { 3 }', "END {} can't be used as a rval");
+dies_ok { my $end_val = END { 3 } },
+    "END {} can't be used as a rvalue";
