@@ -704,6 +704,11 @@ sub statement {
                  $attr->[1]{bareword} ne 'export' ) {
                 $attributes .= "push \@ISA, '" . Pugs::Runtime::Common::mangle_ident( $attr->[1]{bareword} ) . "';";
             }
+            if ( $attr->[0]{bareword} eq 'does' ) {
+                # TODO
+                # $attributes .= "with '" . Pugs::Runtime::Common::mangle_ident( $attr->[1]{bareword} ) . "';";
+                $attributes .= "use base '" . Pugs::Runtime::Common::mangle_ident( $attr->[1]{bareword} ) . "';";
+            }
         }
 
         my $decl = "package $namespace" .

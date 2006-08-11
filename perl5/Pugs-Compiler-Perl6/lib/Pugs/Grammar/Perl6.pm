@@ -395,7 +395,7 @@ sub perl6_expression {
 )->code;
 
 *perl5source = Pugs::Compiler::Regex->compile( q(
-    (.*?) ; <?ws>? use <?ws> v6 (.)*? ; 
+    (.*?) [ ; | <?ws> ] use <?ws> v6 (.)*? ; 
         { return { 
             perl5source => $_[0][0]->() 
         } }
