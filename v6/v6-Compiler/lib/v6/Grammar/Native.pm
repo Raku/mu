@@ -20,9 +20,6 @@ use v6::AST::Native;
 # and this could cause a misparse of the word 'Infinity'.
 # This is fixed later by the 'longest-token' rule
 
-say "loading Grammar::Native";
-v6::AST::node( "match", 'v6::AST::NBit' );
-
 token num {
     | 0 [ [ b <[01]>+           [ _ <[01]>+ ]*
           | o <[0..7]>+         [ _ <[0..7]>+ ]*
