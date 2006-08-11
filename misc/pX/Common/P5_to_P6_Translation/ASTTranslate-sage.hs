@@ -333,6 +333,8 @@ regexChar = choice[do{try(string "\\\\"); return "\\\\"},      --Get rid of lite
                    do{try(string "\\}"); return "\\}"},        --Don't confuse "\}" and "}"
                    do{try(string "\\]"); return "\\]"},        --Don't let "\]" take the place of "]"
                    do{try(string " "); return "<sp>"},         --Handle (space) -> <sp>
+                   do{try(string "${"); return "${"},
+                   do{try(string "\\$"); name <- many alphaNum; choice[do{char '['; key <- manyTill anyToken (char ']'); return ("@"++name++"["++key++"]")}, do{char '{'; key <- manyTill anyToken (char '}'); return ("%"++name++"<"++key++">")}, return ("$"++name)]},
                    do{try(string "\\A"); return "^"},          -- \A -> ^
                    do{try(string "\\z"); return "$"},          -- \z -> $
                    do{try(string "\\Z"); return "\\n?$"},      -- \Z -> \n?$
