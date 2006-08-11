@@ -1879,7 +1879,7 @@ initSyms = mapM primDecl syms
 \\n   Class     pre     Object::meta    safe   (Object)\
 \\n   Str       pre     Class::name    safe   (Class)\
 \\n   Hash      pre     Class::traits  safe   (Class)\
-\\n   Object    pre     valid      safe   (Any)\
+\\n   Object    pre     SKID      safe   (Any)\
 \\n   Int       pre     Rat::numerator   safe   (Rat:)\
 \\n   Int       pre     Rat::denominator safe   (Rat:)\
 \\n   Bool      pre     Thread::yield   safe   (Thread)\
