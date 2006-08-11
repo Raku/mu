@@ -11,6 +11,7 @@ sub get_config {
         perl_revision   => '6',
         perl_version    => '0',
         perl_subversion => '0',
+        perl_compiler   => 'pugs',
 
         osname    => $Config{osname},
         pager     => $Config{pager},
