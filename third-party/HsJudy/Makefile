@@ -1,18 +1,21 @@
 #GHC=ghc-6.4.2 
 GHC=ghc # -debug
-
 CC=$(GHC)
 TESTS=TestBS TestJL TestJSL TestJHS TestHash TestIntMap TestStrMap
-#HSC2HS=/usr/bin/hsc2hs
-HSC2HS=hsc2hs
-
 
 CFLAGS= -O2
+
+JUDY_SRC=../judy/Judy-1.0.3
+
+
 LIB_JUDY=-lJudy
+
+# static linking
+#LIB_JUDY=$(JUDY_SRC)/src/Judy1/*.o $(JUDY_SRC)/src/JudyL/*.o $(JUDY_SRC)/src/JudySL/*.o $(JUDY_SRC)/src/JudyHS/*.o $(JUDY_SRC)/src/JudyCommon/*.o
+ 
 
 CHEADERS= Judy/Private_hsc.h
 HSFLAGS= $(HSF) -O2 -fffi -I/usr/local/include -fglasgow-exts -I. '-\#include Judy/Private_hsc.h' $(LIB_JUDY)
-
 
 %.hi: %.o
 	@:
@@ -22,7 +25,7 @@ HSFLAGS= $(HSF) -O2 -fffi -I/usr/local/include -fglasgow-exts -I. '-\#include Ju
 	@:
 
 %.hs: %.hsc
-	$(HSC2HS) -C "-I/usr/local/include" -C "-I$(JUDY_SRC)/src" -C "$(CFLAGS)" -o $@ $<
+	hsc2hs -C "-I/usr/local/include" -C "$(CFLAGS)" -o $@ $<
 
 all: $(TESTS)
 

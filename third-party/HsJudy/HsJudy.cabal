@@ -5,12 +5,13 @@ license:             BSD3
 license-file:        LICENSE
 author:              Caio Marcelo de Oliveira Filho <cmarcelo@gmail.com>, John Meacham
 maintainer:          Caio Marcelo de Oliveira Filho <cmarcelo@gmail.com>
-build-depends:       base
+build-depends:       base -any, pugs-fps -any
 exposed-modules:     Judy.BitSet Judy.Freeze Judy.Hash Judy.IntMap Judy.StrMap Judy.CollectionsM Judy.HashIO Judy.Refeable Judy.Stringable
 other-modules:       Judy.Private Judy.MiniGC
 extensions:          ForeignFunctionInterface
-ghc-options:         -fglasgow-exts -O2
-include-dirs:        .
+ghc-options:         -fglasgow-exts -O2 -static
+include-dirs:        . ../judy/Judy-1.0.3/src
 -- FIXME: make Cabal work nicely with _hsc files, now I think it works, but doesnt clean _hsc files
 c-sources:           Judy/Private_hsc.c
 extra-libraries:     Judy
+extra-lib-dirs:      .

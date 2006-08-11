@@ -1,3 +1,5 @@
+{-# OPTIONS -fallow-overlapping-instances #-}
+
 import qualified Judy.Hash as H
 import qualified Judy.StrMap as S
 import Judy.CollectionsM as C

@@ -69,7 +69,7 @@ finalize need j = do
         es <- rawElems (Hash j_)
         mapM_ GC.freeRef es
     v <- judyHSFreeArray j judyError
-    --putStrLn $ "\n(FINALIZER CALLED FOR "++ (show j) ++  ": " ++ (show v) ++ ")\n"
+    putStrLn $ "\n(FINALIZER CALLED FOR "++ (show j) ++  ": " ++ (show v) ++ ")\n"
     return ()
 
 rawElems = internalMap $ \r _ _ -> peek r
@@ -167,7 +167,7 @@ instance Show HashIter where
 newIter :: IO (HashIter)
 newIter = do
     fp <- mallocForeignPtr
-    addForeignPtrFinalizer judyHSIter_free_ptr fp
+--    addForeignPtrFinalizer judyHSIter_free_ptr fp
     withForeignPtr fp $ flip poke nullPtr
     return $ HashIter fp
 

@@ -1,5 +1,3 @@
-{-# OPTIONS -fallow-overlapping-instances #-}
-
 import Test
 
 import qualified Judy.BitSet as BS

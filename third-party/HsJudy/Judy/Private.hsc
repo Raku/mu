@@ -2,14 +2,7 @@
 module Judy.Private where
 
 import Foreign
-
-#if __GLASGOW_HASKELL__ >= 605
 import Data.Word
-#else
---import Judy.Word
-import GHC.Exts
-#endif
-
 import Foreign.C.Types
 import Foreign.C.String
 
@@ -17,20 +10,8 @@ import Foreign.C.String
 #include <stdlib.h>
 
 --type Value = (#type Word_t)
---type Value = CULong
-
-#if __GLASGOW_HASKELL__ >= 605
 type Value = WordPtr
-#else
-type Value = (#type Word_t)
-
-ptrToWordPtr :: Ptr () -> Value
-ptrToWordPtr = unsafeCoerce##
-
-wordPtrToPtr :: Value -> Ptr ()
-wordPtrToPtr = unsafeCoerce##
-
-#endif
+--type Value = CULong
 
 newtype JError = JError (Ptr ())
 --foreign import ccall unsafe "judy_error" judyError :: JError

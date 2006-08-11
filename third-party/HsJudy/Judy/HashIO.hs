@@ -1,4 +1,4 @@
-{-# OPTIONS -fallow-undecidable-instances -fallow-incoherent-instances -fallow-overlapping-instances #-}
+{-# OPTIONS -fallow-undecidable-instances -fallow-incoherent-instances #-}
 
 module Judy.HashIO (
     HashIO (..),
