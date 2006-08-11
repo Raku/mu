@@ -528,7 +528,7 @@ sub default {
         $sub_name = "\&{'$sub_name'}"
             if $sub_name =~ /^v6::/;  # avoid perl5 syntax error
         return ' ' . $sub_name .
-            (exists $n->{param} ? '(' . _emit_parameter_capture( $n->{param} ) . ')' : '');
+            (exists $n->{param} ? '(' . _emit_parameter_capture( $n->{param} ) . ')' : '()');
     }
     
     if ( exists $n->{op1} && $n->{op1} eq 'method_call' ) {    
