@@ -896,8 +896,8 @@ ruleDoBlock = rule "do block" $ do
 
 ruleClosureTrait :: Bool -> RuleParser Exp
 ruleClosureTrait rhs = rule "closure trait" $ do
-    let names | rhs       = " BEGIN CHECK INIT FIRST "
-              | otherwise = " BEGIN CHECK INIT FIRST END "
+    let names | rhs       = " BEGIN CHECK INIT FIRST ENTER "
+              | otherwise = " BEGIN CHECK INIT END FIRST ENTER LEAVE KEEP UNDO NEXT LAST PRE POST CATCH CONTROL"
     name    <- choice $ map symbol $ words names
     block   <- ruleBlock
     let (fun, names) = extractPlaceholderVars block []
@@ -930,6 +930,17 @@ ruleClosureTrait rhs = rule "closure trait" $ do
         "CHECK" -> vcode2checkBlock code
         "INIT"  -> vcode2initBlock code
         "FIRST" -> vcode2firstBlock code
+        -- XXX stubs just to make them parse
+        "ENTER" -> return emptyExp
+        "LEAVE" -> return emptyExp
+        "KEEP"  -> return emptyExp
+        "UNDO"  -> return emptyExp
+        "NEXT"  -> return emptyExp
+        "LAST"  -> return emptyExp
+        "PRE"   -> return emptyExp
+        "POST"  -> return emptyExp
+        "CATCH" -> return emptyExp
+        "CONTROL" -> return emptyExp
         _       -> fail ""
     where
         install [] = return $ ()
