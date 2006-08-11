@@ -724,7 +724,7 @@ sub statement {
                     : "" ) .
                 ( $n->{statement} eq 'role' 
                     ? ";
-                        # use Moose::Role;  XXX - need '$object does role'
+                        # use Moose::Role;  XXX - need '\$object does role'
                         use Moose; 
                         Pugs::Runtime::Perl6->setup_class"
                     : "" ) .
