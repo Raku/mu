@@ -36,8 +36,8 @@ class Locale::KeyedText::Message {
 
 submethod BUILD (Str :$msg_key!, Any :%msg_vars? = {}) {
 
-    $?SELF!_assert_arg_str( 'new', ':$msg_key!', $msg_key );
-    $?SELF!_assert_arg_hash( 'new', ':%msg_vars?', %msg_vars );
+    self!_assert_arg_str( 'new', ':$msg_key!', $msg_key );
+    self!_assert_arg_hash( 'new', ':%msg_vars?', %msg_vars );
 
     $!msg_key  = $msg_key;
     %!msg_vars = %msg_vars;
@@ -61,7 +61,7 @@ method get_msg_key () returns Str {
 }
 
 method get_msg_var (Str $var_name!) returns Any {
-    $?SELF!_assert_arg_str( 'get_msg_var', '$var_name!', $var_name );
+    self!_assert_arg_str( 'get_msg_var', '$var_name!', $var_name );
     return %!msg_vars{$var_name};
 }
 
@@ -94,19 +94,19 @@ my method _die_with_msg (Str $msg_key!, Any %msg_vars? is ref = {}) {
 }
 
 my method _assert_arg_str (Str $meth!, Str $arg!, Str $val!) {
-    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+    self!_die_with_msg( 'LKT_ARG_UNDEF',
             { 'METH' => $meth, 'ARG' => $arg } )
         if !$val.defined;
-    $?SELF!_die_with_msg( 'LKT_ARG_EMP_STR',
+    self!_die_with_msg( 'LKT_ARG_EMP_STR',
             { 'METH' => $meth, 'ARG' => $arg } )
         if $val eq $EMPTY_STR;
 }
 
 my method _assert_arg_hash (Str $meth!, Str $arg!, Any %val!) {
-    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+    self!_die_with_msg( 'LKT_ARG_UNDEF',
             { 'METH' => $meth, 'ARG' => $arg } )
         if !%val.defined;
-    $?SELF!_die_with_msg( 'LKT_ARG_HASH_KEY_EMP_STR',
+    self!_die_with_msg( 'LKT_ARG_HASH_KEY_EMP_STR',
             { 'METH' => $meth, 'ARG' => $arg } )
         if %val.exists($EMPTY_STR);
 }
@@ -135,8 +135,8 @@ class Locale::KeyedText::Translator {
 
 submethod BUILD (Str :@set_names!, Str :@member_names!) {
 
-    $?SELF!_assert_arg_ary( 'new', ':@set_names!', @set_names );
-    $?SELF!_assert_arg_ary( 'new', ':@member_names!', @member_names );
+    self!_assert_arg_ary( 'new', ':@set_names!', @set_names );
+    self!_assert_arg_ary( 'new', ':@member_names!', @member_names );
 
     @!set_names    = @set_names;
     @!member_names = @member_names;
@@ -188,7 +188,7 @@ method get_set_member_combinations () returns Array of Str {
 method translate_message (Locale::KeyedText::Message $message!)
         returns Str {
 
-    $?SELF!_assert_arg_msg( 'translate_message', '$message!', $message );
+    self!_assert_arg_msg( 'translate_message', '$message!', $message );
 
     # This Perl-6 specific workaround is done since $message param can oft
     # be set from a caught exception (aliased to $!), and the Perl-6 spec
@@ -210,7 +210,7 @@ method translate_message (Locale::KeyedText::Message $message!)
         # and so skip to the next candidate module name.
         if (!$module_is_loaded) {
             try {
-                $?SELF.load_template_module( $module_name );
+                self.load_template_module( $module_name );
             };
 #            next SET_MEMBER
             next
@@ -241,7 +241,7 @@ method translate_message (Locale::KeyedText::Message $message!)
 ###########################################################################
 
 method template_module_is_loaded (Str $module_name!) returns Bool {
-    $?SELF!_assert_arg_str( 'template_module_is_loaded',
+    self!_assert_arg_str( 'template_module_is_loaded',
         '$module_name!', $module_name );
     # Note: It is yet unknown whether this is working because the language
     # spec says it is supposed to, or whether is due a fluke or unspecced.
@@ -254,14 +254,14 @@ method template_module_is_loaded (Str $module_name!) returns Bool {
 
 method load_template_module (Str $module_name!) {
 
-    $?SELF!_assert_arg_str( 'load_template_module',
+    self!_assert_arg_str( 'load_template_module',
         '$module_name!', $module_name );
 
     # Note: We have to invoke this 'require' in an eval string
     # because we need the bareword semantics, where 'require'
     # will munge the package name into file system paths.
     eval "require $module_name;";
-    $?SELF!_die_with_msg( 'LKT_T_FAIL_LOAD_TMPL_MOD',
+    self!_die_with_msg( 'LKT_T_FAIL_LOAD_TMPL_MOD',
             { 'METH' => 'load_template_module',
             'TMPL_MOD_NAME' => $module_name, 'REASON' => $! } )
         if $!;
@@ -272,16 +272,16 @@ method load_template_module (Str $module_name!) {
 method get_template_text_from_loaded_module
         (Str $module_name!, Str $msg_key!) returns Str {
 
-    $?SELF!_assert_arg_str( 'get_template_text_from_loaded_module',
+    self!_assert_arg_str( 'get_template_text_from_loaded_module',
         '$module_name!', $module_name );
-    $?SELF!_assert_arg_str( 'get_template_text_from_loaded_module',
+    self!_assert_arg_str( 'get_template_text_from_loaded_module',
         '$msg_key!', $msg_key );
 
     my Str $text = undef;
     try {
         $text = &::($module_name)::get_text_by_key( $msg_key );
     };
-    $?SELF!_die_with_msg( 'LKT_T_FAIL_GET_TMPL_TEXT',
+    self!_die_with_msg( 'LKT_T_FAIL_GET_TMPL_TEXT',
             { 'METH' => 'get_template_text_from_loaded_module',
             'TMPL_MOD_NAME' => $module_name, 'REASON' => $! } )
         if $!;
@@ -292,11 +292,11 @@ method get_template_text_from_loaded_module
 method interpolate_vars_into_template_text
         (Str $text! is copy, Any %msg_vars!) returns Str {
 
-    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+    self!_die_with_msg( 'LKT_ARG_UNDEF',
             { 'METH' => 'interpolate_vars_into_template_text',
             'ARG' => '$text!' } )
         if !$text.defined;
-    $?SELF!_assert_arg_hash( 'interpolate_vars_into_template_text',
+    self!_assert_arg_hash( 'interpolate_vars_into_template_text',
         '%msg_vars!', %msg_vars );
 
     for %msg_vars.kv -> $var_name, $var_value {
@@ -317,45 +317,45 @@ my method _die_with_msg (Str $msg_key!, Any %msg_vars? is ref = {}) {
 }
 
 my method _assert_arg_str (Str $meth!, Str $arg!, Str $val!) {
-    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+    self!_die_with_msg( 'LKT_ARG_UNDEF',
             { 'METH' => $meth, 'ARG' => $arg } )
         if !$val.defined;
-    $?SELF!_die_with_msg( 'LKT_ARG_EMP_STR',
+    self!_die_with_msg( 'LKT_ARG_EMP_STR',
             { 'METH' => $meth, 'ARG' => $arg } )
         if $val eq $EMPTY_STR;
 }
 
 my method _assert_arg_ary (Str $meth!, Str $arg!, Str @val!) {
-    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+    self!_die_with_msg( 'LKT_ARG_UNDEF',
             { 'METH' => $meth, 'ARG' => $arg } )
         if !@val.defined;
-    $?SELF!_die_with_msg( 'LKT_ARG_ARY_NO_ELEMS',
+    self!_die_with_msg( 'LKT_ARG_ARY_NO_ELEMS',
             { 'METH' => $meth, 'ARG' => $arg } )
         if +@val == 0;
     for @val -> $val_elem {
-        $?SELF!_die_with_msg( 'LKT_ARG_ARY_ELEM_UNDEF',
+        self!_die_with_msg( 'LKT_ARG_ARY_ELEM_UNDEF',
                 { 'METH' => $meth, 'ARG' => $arg } )
             if !$val_elem.defined;
-        $?SELF!_die_with_msg( 'LKT_ARG_ARY_ELEM_EMP_STR',
+        self!_die_with_msg( 'LKT_ARG_ARY_ELEM_EMP_STR',
                 { 'METH' => $meth, 'ARG' => $arg } )
             if $val_elem eq $EMPTY_STR;
     }
 }
 
 my method _assert_arg_hash (Str $meth!, Str $arg!, Any %val!) {
-    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+    self!_die_with_msg( 'LKT_ARG_UNDEF',
             { 'METH' => $meth, 'ARG' => $arg } )
         if !%val.defined;
-    $?SELF!_die_with_msg( 'LKT_ARG_HASH_KEY_EMP_STR',
+    self!_die_with_msg( 'LKT_ARG_HASH_KEY_EMP_STR',
             { 'METH' => $meth, 'ARG' => $arg } )
         if %val.exists($EMPTY_STR);
 }
 
 my method _assert_arg_msg (Str $meth!, Str $arg!, $val!) {
-    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+    self!_die_with_msg( 'LKT_ARG_UNDEF',
             { 'METH' => $meth, 'ARG' => $arg } )
         if !$val.defined;
-    $?SELF!_die_with_msg( 'LKT_ARG_NO_EXP_TYPE', { 'METH' => $meth,
+    self!_die_with_msg( 'LKT_ARG_NO_EXP_TYPE', { 'METH' => $meth,
             'ARG' => $arg, 'EXP_TYPE' => 'Locale::KeyedText::Message',
             'VAL' => $val } )
         if !$val.does(Locale::KeyedText::Message);

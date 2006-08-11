@@ -56,7 +56,7 @@ A twigil (secondary sigil) represents a particular special type of variable.
 
 Examples of each include:
 
-* Lexically-scoped magical: @$?SELF@
+* Lexically-scoped magical: @$?CLASS@
 
 * Globally-available: @%*ENV@
 

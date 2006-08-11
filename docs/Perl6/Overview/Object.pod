@@ -40,9 +40,9 @@ Perl6::Overview::Object - Object-oriented Programming
 
     method methodname($invocant: ...) {...}
     # The invocant (the class or the instance) is explicitly bound to
-    # $invocant. In any case, there's $?SELF and $?CLASS, too.
+    # $invocant. In any case, there's self and $?CLASS, too.
 
-    method methodname(Class $class: ...) {...}
+    method ^methodname(...) {...}
     # Class method
 
     method methodname(::?CLASS $self: ...) {...}
@@ -60,9 +60,12 @@ Perl6::Overview::Object - Object-oriented Programming
         does RoleName;
     }
 
+=head2 Magical function
+
+    self    # Returns the current instance
+
 =head2 Magical variables
 
-    $?SELF    # The current instance as scalar variable
     $?CLASS   # The current class as scalar variable
     ::?CLASS  # The current class as package variable
     $?ROLE    # The current role as scalar variable

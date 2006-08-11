@@ -9,7 +9,7 @@ class Perl::Compiler::CodeGen::Perl5_Str
 
     method generate (Perl::Compiler::PIL::PIL $tree is rw) {
         my $ng = ::Perl::Compiler::CodeGen::NameGen.new(template => { "\$P_$_" });
-        say "$?SELF / $?SELF.ref()";
+        say "{self} / $.ref()";
         ./gen($tree, $ng);
     }
 

@@ -64,7 +64,7 @@ class Class::Events::Subscription {
     }
 
     method delete {
-        $.publisher.remove_subscription($?SELF);
+        $.publisher.remove_subscription(self);
     }
 }
 
@@ -79,7 +79,7 @@ class Class::Events::Subscription::Named {
 
         # when you say add_subscription("foo", ...) then "foo" is the name of the subscription
         method add_subscription (String $name, $subscriber = $?CALLER::?SELF) {
-            my $subscription = Class::Events::Subscription::Named.new(:name($name), :subscriber($subscriber), :publisher($?SELF));
+            my $subscription = Class::Events::Subscription::Named.new(:name($name), :subscriber($subscriber), :publisher(self));
             ( %.subscriptions<$name> ||= Set.new ).insert($subscription);
             $subscriber.note_subscription($subscription);
         }
@@ -127,7 +127,7 @@ class Class::Events::Notification {
     has Class::Events::Event $.event;
 
     method dispatch {
-        dispatch($?SELF, $.subscription.subscriber);
+        dispatch(self, $.subscription.subscriber);
     }
     
     method dispatch (Code & Class::Events::Subscriber $subscriber) {

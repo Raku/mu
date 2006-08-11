@@ -191,10 +191,10 @@ class HTTP::Cookies-0.0.1 {
     
     # XXX lots of potential `where /.../` clauses here :-)
     method set_cookie (Num $version, Str $key, Str $val, Str $path, Str $domain, Str $port?, Bool $path_spec = Bool::False, Bool $secure = Bool::False, Num $maxage?, Bool $discard = Bool::False, *%rest) {
-        return $?SELF if $path !~~ m,^/, || $key ~~ m,^\$,;
+        return self if $path !~~ m,^/, || $key ~~ m,^\$,;
         
         if $port.defined {
-            return $?SELF unless $port ~~ m:P5/^_?\d+(?:,\d+)*/;
+            return self unless $port ~~ m:P5/^_?\d+(?:,\d+)*/;
         }
         
         my $expires;
@@ -202,7 +202,7 @@ class HTTP::Cookies-0.0.1 {
         if $maxage.defined {
             if $maxage <= 0 {
                 %!cookies{$domain}{$path}.delete($key);
-                return $?SELF;
+                return self;
             }
             
             $expires = time() + $maxage;
@@ -214,7 +214,7 @@ class HTTP::Cookies-0.0.1 {
         @array.pop while !defined @array[-1];
         
         %!cookies{$domain}{$path}{$key} = \@array;
-        return $?SELF;
+        return self;
     }
     
     method set_cookie_ok (*@_) { 1; }
@@ -275,7 +275,7 @@ class HTTP::Cookies-0.0.1 {
     multi method clear () {
         %!cookies = ();
         
-        $?SELF;
+        self;
     }
     
     multi method clear (*@_) {
@@ -287,7 +287,7 @@ class HTTP::Cookies-0.0.1 {
             %!cookies{@_[0]}{@_[1]}.delete(@_[2]);
         }
         
-        $?SELF;
+        self;
     }
     
     method clear_temporary_cookies () {

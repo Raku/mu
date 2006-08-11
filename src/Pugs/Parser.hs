@@ -496,7 +496,7 @@ ruleMemberDeclaration = do
         exp = Syn ":=" [Var name, Syn "sub" [Val $ VCode sub]]
         name | twigil == '.' = '&':(envPackage env ++ "::" ++ key)
                 | otherwise     = '&':(envPackage env ++ "::" ++ (twigil:key))
-        fun = Ann (Cxt (cxtOfSigil sigil)) (Syn "{}" [Var "$?SELF", Val (VStr key)])
+        fun = Ann (Cxt (cxtOfSigil sigil)) (Syn "{}" [Var "&self", Val (VStr key)])
     unsafeEvalExp (Sym SGlobal name exp)
     return emptyExp
 
@@ -1468,7 +1468,7 @@ ruleApplyImplicitMethod = do
         char '.' -- implicit-invocant forms all begin with '.'
         option (Var "$_") $
             -- XXX - This ./method form is going to be removed
-            do { char '/'; return (Var "$?SELF") }
+            do { char '/'; return (Var "&self") }
     insertIntoPosition '.' 
     fs <- many rulePostTerm
     return (combine (reverse fs) implicitInv)

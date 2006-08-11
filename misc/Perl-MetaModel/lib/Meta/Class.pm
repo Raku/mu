@@ -33,7 +33,7 @@ Has($?CLASS, "code", "Str");
 method new($class: Str $name) returns Meta::Class {
 
     $.name = $name;
-    return $?SELF;
+    return self;
 
 }
 

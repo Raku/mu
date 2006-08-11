@@ -46,7 +46,7 @@ multi submethod BUILD (Str $string) returns Date {
 #                     tomorrow    { $meth = 'tomorrow' }
 #                     yesterday   { $meth = 'yesterday' }
 #                    / ) {
-#        return $?SELF.$meth();
+#        return self.$meth();
 #    }
 #    else {
 #        # load a heavier weight parser - hand waving ensues
@@ -99,11 +99,11 @@ method quarter () returns Int {
 }
 
 method day_of_quarter () returns Int {
-    my $doy = $?SELF.day_of_year();
+    my $doy = $.day_of_year;
 
     my @doy := _is_leap_year($.year) ?? @PreviousMonthDoLY !! @PreviousMonthDoY;
 
-    return $doy - @doy[ ( 3 * $?SELF.quarter() ) - 3 ];
+    return $doy - @doy[ ( 3 * $.quarter ) - 3 ];
 }
 
 method day_of_year () returns Int {

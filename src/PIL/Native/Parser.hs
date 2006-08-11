@@ -148,7 +148,7 @@ expression = (<?> "expression") $ do
     -- $obj`$method(1,2,3)
     selfExpression = do
         symbol "self"
-        return (EVar $ mkStr "$?SELF")
+        return (EVar $ mkStr "&self")
 
 variableExpression :: Parser NativeLangExpression
 variableExpression = fmap (EVar . mkStr) identifier

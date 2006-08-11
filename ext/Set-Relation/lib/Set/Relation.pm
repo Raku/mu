@@ -83,7 +83,7 @@ method export_as_hash () returns Hash {
 ###########################################################################
 
 method is_equal of Bool (::?CLASS $other!) {
-    if $other !=:= $?SELF {
+    if $other !=:= self {
         return Bool::False;
     }
     if $other!attrs !=:= %!attrs {
@@ -313,14 +313,14 @@ proto method attr_name_exists of Bool
 ###########################################################################
 
 method size of Int () {
-    return +$?SELF.export_attr_names();
+    return +@.export_attr_names;
 }
 
 ###########################################################################
 
 method all_names_exist of Bool (Set::Relation::AttrName *@attr_names) {
     for all(@attr_names) -> $attr_name {
-        if (!$?SELF.attr_name_exists( $attr_name )) {
+        if (!self.attr_name_exists( $attr_name )) {
             return Bool::False;
         }
     }
@@ -329,7 +329,7 @@ method all_names_exist of Bool (Set::Relation::AttrName *@attr_names) {
 
 method any_names_exist of Bool (Set::Relation::AttrName *@attr_names) {
     for all(@attr_names) -> $attr_name {
-        if ($?SELF.attr_name_exists( $attr_name )) {
+        if (self.attr_name_exists( $attr_name )) {
             return Bool::True;
         }
     }
@@ -337,17 +337,17 @@ method any_names_exist of Bool (Set::Relation::AttrName *@attr_names) {
 }
 
 method no_names_exist of Bool (Set::Relation::AttrName *@attr_names) {
-    return !$?SELF.all_exist( *@attr_names );
+    return !self.all_exist( *@attr_names );
 }
 
 ###########################################################################
 
 method equal of Bool (Set::Relation::Heading $other!) {
-    return $?SELF.export_attrs() === $other.export_attrs();
+    return self.export_attrs() === $other.export_attrs();
 }
 
 method not_equal of Bool (Set::Relation::Heading $other!) {
-    return !$?SELF.equal( $other );
+    return !self.equal( $other );
 }
 
 ###########################################################################
@@ -464,12 +464,12 @@ method exists (Mapping(Str) of Any $tuple!) returns Bool {
 ###########################################################################
 
 method equal (Set::Relation $other!) returns Bool {
-    return $other!heading === $?SELF!heading
-        and $other!body === $?SELF!body;
+    return $other!heading === self!heading
+        and $other!body === self!body;
 }
 
 method not_equal (Set::Relation $other!) returns Bool {
-    return !$?SELF.equal( $other );
+    return not self.equal( $other );
 }
 
 ###########################################################################
@@ -504,7 +504,7 @@ method project (Set of Str $attrs!) returns Set::Relation {
     }
 
     if ($attrs === $!heading) {
-        return $?SELF;
+        return self;
     }
 
     die "Some members of $attrs! do not match this relation's attributes."
@@ -521,7 +521,7 @@ method project (Set of Str $attrs!) returns Set::Relation {
 &select ::= &project;
 
 method project_all_but (Set of Str $attrs!) returns Set::Relation {
-    return $?SELF.project( $!heading.difference( $attrs ) );
+    return self.project( $!heading.difference( $attrs ) );
 }
 
 &select_all_but ::= &project_all_but;
@@ -531,7 +531,7 @@ method project_all_but (Set of Str $attrs!) returns Set::Relation {
 method extend (Mapping(Str) of Code $attrs!) returns Set::Relation {
 
     if ($attrs.size() == 0) {
-        return $?SELF;
+        return self;
     }
 
     die "Some keys of $attrs! duplicate attribute names of this relation."
@@ -587,7 +587,7 @@ multi method union (Set::Relation $other!) returns Set::Relation {
             ~ " not match the heading of the invocant relation."
         if !($other!heading === $!heading);
 
-    return $?SELF!_union( $other );
+    return self!_union( $other );
 }
 
 multi method union (Set::Relation *@others) returns Set::Relation {
@@ -598,7 +598,7 @@ multi method union (Set::Relation *@others) returns Set::Relation {
             if !($r2!heading === $!heading);
     }
 
-    my Set::Relation $r1 = $?SELF;
+    my Set::Relation $r1 = self;
 
     for @others -> $r2 {
         $r1 = $r1!_union( $r2 );
@@ -617,7 +617,7 @@ multi method exclusion (Set::Relation $other!) returns Set::Relation {
             ~ " not match the heading of the invocant relation."
         if !($other!heading === $!heading);
 
-    return $?SELF!_exclusion( $other );
+    return self!_exclusion( $other );
 }
 
 multi method exclusion (Set::Relation *@others) returns Set::Relation {
@@ -628,7 +628,7 @@ multi method exclusion (Set::Relation *@others) returns Set::Relation {
             if !($r2!heading === $!heading);
     }
 
-    my Set::Relation $r1 = $?SELF;
+    my Set::Relation $r1 = self;
 
     for @others -> $r2 {
         $r1 = $r1!_exclusion( $r2 );
@@ -649,7 +649,7 @@ multi method intersection (Set::Relation $other!) returns Set::Relation {
             ~ " not match the heading of the invocant relation."
         if !($other!heading === $!heading);
 
-    return $?SELF!_intersection( $other );
+    return self!_intersection( $other );
 }
 
 multi method intersection (Set::Relation *@others) returns Set::Relation {
@@ -660,7 +660,7 @@ multi method intersection (Set::Relation *@others) returns Set::Relation {
             if !($r2!heading === $!heading);
     }
 
-    my Set::Relation $r1 = $?SELF;
+    my Set::Relation $r1 = self;
 
     for @others -> $r2 {
         $r1 = $r1!_intersection( $r2 );
@@ -691,7 +691,7 @@ method difference (Set::Relation $other!) returns Set::Relation {
 ###########################################################################
 
 method semidifference (Set::Relation $other!) returns Set::Relation {
-    return $?SELF.difference( $?SELF.semijoin( $other ) );
+    return self.difference( self.semijoin( $other ) );
 }
 
 &semiminus    ::= &semidifference;
@@ -712,16 +712,16 @@ method semijoin (Set::Relation $other!) returns Set::Relation {
     }
     if ($other!heading.size() == 0) {
         # Second source is identity-one tuple; result is first source.
-        return $?SELF;
+        return self;
     }
 
     if ($other!heading === $!heading) {
         # Both sources have identical headings; result is src intersection.
-        return $?SELF!_intersection( $other );
+        return self!_intersection( $other );
     }
 
     # Now, the standard case of a semijoin.
-    return $?SELF!_semijoin( $other );
+    return self!_semijoin( $other );
 }
 
 &matching ::= &semijoin;
@@ -748,20 +748,20 @@ multi method product (Set::Relation $other!) returns Set::Relation {
     }
     if ($other!heading.size() == 0) {
         # Second source is identity-one tuple; result is first source.
-        return $?SELF;
+        return self;
     }
 
     # Now, the standard case of a cross-join.
-    return $?SELF!_product( $other );
+    return self!_product( $other );
 }
 
 multi method product (Set::Relation *@others) returns Set::Relation {
 
     if (+@others == 0) {
-        return $?SELF;
+        return self;
     }
 
-    my Set::Relation @sources = ($?SELF, *@others);
+    my Set::Relation @sources = (self, *@others);
     while (my $r1 = @sources.shift()) {
         for @sources -> $r2 {
             die "The heading of at least one given relation in @others has"
@@ -771,7 +771,7 @@ multi method product (Set::Relation *@others) returns Set::Relation {
         }
     }
 
-    return $?SELF.join( @others );
+    return self.join( @others );
 }
 
 &cartesian_product ::= &product;
@@ -796,17 +796,17 @@ multi method join (Set::Relation $other!) returns Set::Relation {
     }
     if ($other!heading.size() == 0) {
         # Second source is identity-one tuple; result is first source.
-        return $?SELF;
+        return self;
     }
 
     if ($other!heading === $!heading) {
         # Both sources have identical headings; result is src intersection.
-        return $?SELF!_intersection( $other );
+        return self!_intersection( $other );
     }
 
     if (all( $!heading ) === none( $other!heading )) {
         # Both sources have exclusive headings; result is cross-product.
-        return $?SELF!_product( $other );
+        return self!_product( $other );
     }
 
     # Both sources have overlapping non-identical headings.
@@ -814,16 +814,16 @@ multi method join (Set::Relation $other!) returns Set::Relation {
     if (all( $other!heading ) === any( $!heading )) {
         # The second source's heading is a proper subset of the
         # first source's heading, so simplify to a semijoin.
-        return $?SELF!_semijoin( $other );
+        return self!_semijoin( $other );
     }
     if (all( $!heading ) === any( $other!heading )) {
         # The first source's heading is a proper subset of the
         # second source's heading, so simplify to a semijoin.
-        return $other!_semijoin( $?SELF );
+        return $other!_semijoin( self );
     }
 
     # Now, the standard case of a inner join.
-    return $?SELF!_inner_join( $other );
+    return self!_inner_join( $other );
 }
 
 multi method join (Set::Relation *@others) returns Set::Relation {
@@ -832,10 +832,10 @@ multi method join (Set::Relation *@others) returns Set::Relation {
     # combined, so to try and make the least expensive kinds of combining
     # occur first, and most expensive later.
     if (+@others == 0) {
-        return $?SELF;
+        return self;
     }
 
-    my Set::Relation @sources = ($?SELF, *@others);
+    my Set::Relation @sources = (self, *@others);
     my Set::Relation @r_with_zero_tuples;
     my Set::Relation @r_with_shared_attrs;
     my Set::Relation @r_with_disjoint_attrs;
@@ -927,7 +927,7 @@ my method _product (Set::Relation $other!) returns Set::Relation {
     );
 }
 
-my method _inner_join (Set::Relation $other!) returns Set::Relation {
+my method _inner_join ($SELF: Set::Relation $other!) returns Set::Relation {
     # This form takes the form of an ordinary natural join,
     # where some source attributes are in common, and each
     # source has attributes not in the other.
@@ -936,17 +936,17 @@ my method _inner_join (Set::Relation $other!) returns Set::Relation {
         # Another optimization:
         # In case it is faster for outer loop to have fewer
         # iterations rather than the inner loop having fewer.
-        ($?SELF, $other) = ($other, $?SELF);
+        ($SELF, $other) = ($other, $SELF);
     }
 
-    Set $common_h = $!heading.intersection( $other!heading );
-    Set $r1only_h = $!heading.difference( $other!heading );
-    Set $r2only_h = $other!heading.difference( $!heading );
+    Set $common_h = $SELF!heading.intersection( $other!heading );
+    Set $r1only_h = $SELF!heading.difference( $other!heading );
+    Set $r2only_h = $other!heading.difference( $SELF!heading );
 
     return Set::Relation.new(
-        heading => $!heading.union( $other!heading ),
+        heading => $SELF!heading.union( $other!heading ),
         body => set( gather {
-            for $!body.values -> $t1 {
+            for $SELF!body.values -> $t1 {
                 $t1common_m = mapping( $t1.pairs.map:{
                     $_.key === any( $common_h )
                 } )

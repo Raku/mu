@@ -40,7 +40,7 @@ an experiment in using the MOP, and not meant to be anything definitive.
 ::Class.meta.add_method('BUILDALL' => method (%params) returns Void { 
     my Dispatcher $dispatcher = $self.meta.dispatcher(:descendant);
     for WALKMETH($dispatcher, 'BUILD') -> Method $method { 
-        $method.($?SELF, %params);                  
+        $method.(self, %params);                  
     }      
 });
 
@@ -52,7 +52,7 @@ an experiment in using the MOP, and not meant to be anything definitive.
         # attributes. It will do nothing with them
         # but it will allow them to exist.
         # - (see t_oo/submethods.t)
-        opaque_instance_attr($?SELF, $key) = $params{$key}
+        opaque_instance_attr(self, $key) = $params{$key}
             # NOTE:
             # this is an ugly way to do this, ideally
             # we would peek into the instance structure
@@ -63,15 +63,15 @@ an experiment in using the MOP, and not meant to be anything definitive.
 });
 
 ::Class.meta.add_method('DESTROYALL' => method returns Void { 
-    my Dispatcher $dispatcher = $?SELF.meta.dispatcher(:ascendant);
+    my Dispatcher $dispatcher = self.meta.dispatcher(:ascendant);
     for WALKMETH($dispatcher, 'BUILD') -> Method $method { 
-        $method.($?SELF, %params);                  
+        $method.(self, %params);                  
     }      
 });
 
 ::Class.meta.add_method('isa' => method (Str $class_name) returns Bool { 
     return undef unless $class_name;
-    my Dispatcher $dispatcher = $?SELF.meta.dispatcher(:canonical);
+    my Dispatcher $dispatcher = self.meta.dispatcher(:canonical);
     while (my $next = $dispatcher.next()) {
         return bool::true if $class_name eq $next.meta.name;
     }
@@ -79,7 +79,7 @@ an experiment in using the MOP, and not meant to be anything definitive.
     # maybe they are asking of we are an 
     # instance of something,.. so we pass
     # it back up to our class
-    return $?SELF.isa($class_name) 
+    return self.isa($class_name) 
         # however, we need to not do this 
         # for $::Class as that presents a 
         # meta-circularity issue, and it

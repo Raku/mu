@@ -39,12 +39,12 @@ class Rosetta::Model::Document {
 
 submethod BUILD (Hash :@root_nodes? = []) {
 
-    $?SELF!_assert_arg_rt_nd_aoh( 'new', ':@root_nodes?', @root_nodes );
+    self!_assert_arg_rt_nd_aoh( 'new', ':@root_nodes?', @root_nodes );
 
     @!all_nodes  = [];
     @!root_nodes = [];
     for @root_nodes -> $root_node {
-        Rosetta::Model::Node.new( document => $?SELF, *%$root_node );
+        Rosetta::Model::Node.new( document => self, *%$root_node );
     }
 
     return;
@@ -67,18 +67,18 @@ my method _die_with_msg (Str $msg_key!, Any %msg_vars? is ref = {}) {
 }
 
 my method _assert_arg_rt_nd_aoh (Str $meth!, Str $arg!, Str @val!) {
-    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+    self!_die_with_msg( 'LKT_ARG_UNDEF',
             { 'METH' => $meth, 'ARG' => $arg } )
         if !@val.defined;
     for @val -> $val_elem {
-        $?SELF!_die_with_msg( 'LKT_ARG_ARY_ELEM_UNDEF',
+        self!_die_with_msg( 'LKT_ARG_ARY_ELEM_UNDEF',
                 { 'METH' => $meth, 'ARG' => $arg } )
             if !$val_elem.defined;
-        $?SELF!_die_with_msg( 'LKT_ARG_ARY_ELEM_NO_HASH',
+        self!_die_with_msg( 'LKT_ARG_ARY_ELEM_NO_HASH',
                 { 'METH' => $meth, 'ARG' => $arg, 'VAL' => $val_elem } )
             if !$val_elem.does(Hash);
         for ('document', 'parent_node') -> $k {
-            $?SELF!_die_with_msg(
+            self!_die_with_msg(
                     'ROS_M_D_ARG_AOH_TO_CONSTR_CH_ND_HAS_KEY_CONFL',
                     { 'METH' => $meth, 'ARG' => $arg, 'KEY' => $k } )
                 if $val_elem.exists($k);
@@ -125,23 +125,23 @@ submethod BUILD (
             Hash                     :@child_nodes? = [],
         ) {
 
-    $?SELF!_assert_arg_doc( 'new', ':$document!', $document );
+    self!_assert_arg_doc( 'new', ':$document!', $document );
     if ($parent_node.defined) {
-        $?SELF!_assert_arg_node_assume_def(
+        self!_assert_arg_node_assume_def(
             'new', ':$parent_node?', $parent_node );
     }
-    $?SELF!_assert_arg_str( 'new', ':$node_type!', $node_type );
-    $?SELF!_assert_arg_hash( 'new', ':%attributes?', %attributes );
-    $?SELF!_assert_arg_ch_nd_aoh( 'new', ':@child_nodes?', @child_nodes );
+    self!_assert_arg_str( 'new', ':$node_type!', $node_type );
+    self!_assert_arg_hash( 'new', ':%attributes?', %attributes );
+    self!_assert_arg_ch_nd_aoh( 'new', ':@child_nodes?', @child_nodes );
 
     $!document = $document;
-    $document!all_nodes.push( $?SELF );
+    $document!all_nodes.push( self );
     if ($parent_node.defined) {
         $!parent_node = $parent_node;
-        $parent_node!child_nodes.push( $?SELF );
+        $parent_node!child_nodes.push( self );
     }
     else {
-        $document!root_nodes.push( $?SELF );
+        $document!root_nodes.push( self );
     }
     $!node_type   = $node_type;
     %!attributes  = %attributes;
@@ -149,7 +149,7 @@ submethod BUILD (
     for @child_nodes -> $child_node {
         $?CLASS.new(
             document    => $document,
-            parent_node => $?SELF,
+            parent_node => self,
             *%$child_node,
         );
     }
@@ -176,53 +176,53 @@ my method _die_with_msg (Str $msg_key!, Any %msg_vars? is ref = {}) {
 }
 
 my method _assert_arg_str (Str $meth!, Str $arg!, Str $val!) {
-    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+    self!_die_with_msg( 'LKT_ARG_UNDEF',
             { 'METH' => $meth, 'ARG' => $arg } )
         if !$val.defined;
-    $?SELF!_die_with_msg( 'LKT_ARG_EMP_STR',
+    self!_die_with_msg( 'LKT_ARG_EMP_STR',
             { 'METH' => $meth, 'ARG' => $arg } )
         if $val eq $EMPTY_STR;
 }
 
 my method _assert_arg_hash (Str $meth!, Str $arg!, Any %val!) {
-    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+    self!_die_with_msg( 'LKT_ARG_UNDEF',
             { 'METH' => $meth, 'ARG' => $arg } )
         if !%val.defined;
-    $?SELF!_die_with_msg( 'LKT_ARG_HASH_KEY_EMP_STR',
+    self!_die_with_msg( 'LKT_ARG_HASH_KEY_EMP_STR',
             { 'METH' => $meth, 'ARG' => $arg } )
         if %val.exists($EMPTY_STR);
 }
 
 my method _assert_arg_doc (Str $meth!, Str $arg!, $val!) {
-    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+    self!_die_with_msg( 'LKT_ARG_UNDEF',
             { 'METH' => $meth, 'ARG' => $arg } )
         if !$val.defined;
-    $?SELF!_die_with_msg( 'LKT_ARG_NO_EXP_TYPE', { 'METH' => $meth,
+    self!_die_with_msg( 'LKT_ARG_NO_EXP_TYPE', { 'METH' => $meth,
             'ARG' => $arg, 'EXP_TYPE' => 'Rosetta::Model::Document',
             'VAL' => $val } )
         if !$val.does(Rosetta::Model::Document);
 }
 
 my method _assert_arg_node_assume_def (Str $meth!, Str $arg!, $val!) {
-    $?SELF!_die_with_msg( 'LKT_ARG_NO_EXP_TYPE', { 'METH' => $meth,
+    self!_die_with_msg( 'LKT_ARG_NO_EXP_TYPE', { 'METH' => $meth,
             'ARG' => $arg, 'EXP_TYPE' => 'Rosetta::Model::Node',
             'VAL' => $val } )
         if !$val.does(Rosetta::Model::Node);
 }
 
 my method _assert_arg_ch_nd_aoh (Str $meth!, Str $arg!, Str @val!) {
-    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+    self!_die_with_msg( 'LKT_ARG_UNDEF',
             { 'METH' => $meth, 'ARG' => $arg } )
         if !@val.defined;
     for @val -> $val_elem {
-        $?SELF!_die_with_msg( 'LKT_ARG_ARY_ELEM_UNDEF',
+        self!_die_with_msg( 'LKT_ARG_ARY_ELEM_UNDEF',
                 { 'METH' => $meth, 'ARG' => $arg } )
             if !$val_elem.defined;
-        $?SELF!_die_with_msg( 'LKT_ARG_ARY_ELEM_NO_HASH',
+        self!_die_with_msg( 'LKT_ARG_ARY_ELEM_NO_HASH',
                 { 'METH' => $meth, 'ARG' => $arg, 'VAL' => $val_elem } )
             if !$val_elem.does(Hash);
         for ('document', 'parent_node') -> $k {
-            $?SELF!_die_with_msg(
+            self!_die_with_msg(
                     'ROS_M_N_ARG_AOH_TO_CONSTR_CH_ND_HAS_KEY_CONFL',
                     { 'METH' => $meth, 'ARG' => $arg, 'KEY' => $k } )
                 if $val_elem.exists($k);

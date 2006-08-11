@@ -254,9 +254,9 @@ reduceVal v = retVal v
 -- Reduction for variables
 reduceVar :: Var -> Eval Val
 reduceVar (sigil:'.':name) = reduceSyn (sigil:"{}")
-    [ Syn "{}" [Var "$?SELF", Val (VStr name)] ]
+    [ Syn "{}" [Var "&self", Val (VStr name)] ]
 reduceVar (sigil:'!':name@(_:_)) = reduceSyn (sigil:"{}")
-    [ Syn "{}" [Var "$?SELF", Val (VStr name)] ]
+    [ Syn "{}" [Var "&self", Val (VStr name)] ]
 reduceVar name = do
     let cxt = case name of
             ('$':_) -> enterContext (CxtItem $ mkType "Scalar")
@@ -950,10 +950,10 @@ applyExp styp bound@(invArg:_) body = do
 applyThunk :: SubType -> [ApplyArg] -> VThunk -> Eval Val
 applyThunk _ [] thunk = thunk_force thunk
 applyThunk styp bound@(arg:_) thunk = do
-    -- introduce $?SELF and $_ as the first invocant.
+    -- introduce self and $_ as the first invocant.
     inv     <- case styp of
         SubPointy               -> aliased ["$_"]
-        _ | styp <= SubMethod   -> aliased ["$?SELF"] -- , "$_"]
+        _ | styp <= SubMethod   -> aliased ["&self"] -- , "$_"]
         _                       -> return []
     pad <- formal
     enterLex (inv ++ pad) $ thunk_force thunk

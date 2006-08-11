@@ -14,7 +14,7 @@ class Perl::Compiler::CodeGen::NameGen {
         my $ret = $?CLASS.new(
             template     => $.template,
             conter       => $.counter,
-            parent       => $?SELF,
+            parent       => self,
             parent_ident => $ident,
             state        => %.state,
         );

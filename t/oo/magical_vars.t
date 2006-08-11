@@ -5,7 +5,7 @@ use Test;
 plan 17;
 
 class Foo {
-  method get_self_normal()    { $?SELF }
+  method get_self_normal()    { self }
   method get_class_normal()   { $?CLASS }
   method get_package_normal() { $?PACKAGE }
 
@@ -16,7 +16,7 @@ class Foo {
 }
 
 role Bar {
-  method get_self_normal()    { $?SELF }
+  method get_self_normal()    { self }
   method get_class_normal()   { $?CLASS }
   method get_role_normal()    { $?ROLE }
   method get_package_normal() { $?PACKAGE }
@@ -47,7 +47,7 @@ class SimpleClass does Bar {}
   my $foo1 = Foo.new;
   my $foo2 = $foo1.get_self_normal;
 
-  ok $foo1 === $foo2, '$?SELF in classes works';
+  ok $foo1 === $foo2, 'self in classes works';
 }
 
 {
@@ -68,7 +68,7 @@ class SimpleClass does Bar {}
   my $bar1 = SimpleClass.new;
   my $bar2 = $bar1.get_self_normal;
 
-  ok $bar1 === $bar2, '$?SELF in roles works';
+  ok $bar1 === $bar2, 'self in roles works';
 }
 
 {
@@ -104,16 +104,16 @@ class SimpleClass does Bar {}
 {
   class Grtz {
     method get_self1 { self }
-    method get_self2 { $?SELF }
+    method get_self2 ($self:) { $self }
     method foo       { 42 }
     method run_foo   { self.foo }
   }
   my $grtz = Grtz.new;
 
   cmp_ok $grtz.get_self1, &infix:<===>, $grtz.get_self2,
-    'self is an alias for $?SELF (1)';
+    'self is an alias for $self (1)';
   is $grtz.run_foo, 42,
-    'self is an alias for $?SELF (2)';
+    'self is an alias for $self (2)';
 }
 
 {

@@ -151,7 +151,7 @@ selfParam typ = MkParam
     , isLValue      = True
     , isWritable    = True
     , isLazy        = False
-    , paramName     = "$?SELF"
+    , paramName     = "&self"
     , paramContext  = CxtItem (mkType typ)
     , paramDefault  = Noop
     }

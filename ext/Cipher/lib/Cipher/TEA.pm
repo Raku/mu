@@ -6,10 +6,10 @@ my  int $delta is readonly = 0x9e3779b9;
 
 submethod BUILD($key) {
     if ($key.isa(Array)) {
-        @.key = $?SELF!fusebytes($key);
+        @.key = @!fusebytes($key);
     }
     else {
-        @.key = $?SELF!fusebytes(map &ord, $key);
+        @.key = @!fusebytes(map &ord, $key);
     }
 }
 
@@ -20,7 +20,7 @@ method _zeroize() {
 method block_size() returns int { 8 }
 
 method cipher_block(Array $block) returns Array {
-    my int($v0, $v1) = $?SELF!fusebytes($block);
+    my int($v0, $v1) = @!fusebytes($block);
     
     if ($.mode eq 'enciphering') {
         my int $sum = 0;
@@ -39,7 +39,7 @@ method cipher_block(Array $block) returns Array {
         }
     }
     
-    return $?SELF!splitbytes($v0, $v1);
+    return @!splitbytes($v0, $v1);
 }
 
 my method fusebytes(@bytes) {

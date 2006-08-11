@@ -129,7 +129,7 @@ method proper_superset($self: Set $other) returns Bool {
 }
 
 method stringify() returns Str {
-    return("set(" ~ $?SELF.members.join(" ") ~ ")");
+    return("set(@.members[])");
 }
 
 

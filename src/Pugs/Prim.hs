@@ -86,7 +86,7 @@ op0 "File::Spec::tmpdir" = const $ do
     tmp <- guardIO getTemporaryDirectory
     return $ VStr tmp
 op0 "pi" = constMacro . Val $ VNum pi
-op0 "self" = const $ expToEvalVal (Var "$?SELF")
+op0 "self" = const $ expToEvalVal (Var "&self")
 op0 "say" = const $ op1 "IO::say" (VHandle stdout)
 op0 "print" = const $ op1 "IO::print" (VHandle stdout)
 op0 "return" = const $ op1Return (shiftT . const $ retEmpty)

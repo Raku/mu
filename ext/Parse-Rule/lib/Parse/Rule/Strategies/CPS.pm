@@ -50,7 +50,7 @@ our class Parser {
     does Parse::Rule::Core::Parser;
     does Parse::Rule::Core::Rule;
 
-    method compile() { $?SELF }   # no compilation phase
+    method compile() { self }   # no compilation phase
     method run($input, $match) {
         $.parse(
             # XXX this class should be virtual

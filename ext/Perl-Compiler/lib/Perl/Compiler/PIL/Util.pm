@@ -5,7 +5,7 @@ class Perl::Compiler::PIL::Util::Pad {
 
     method lookup_pad($name) {
         if grep { $_ ~~ $name }, @.names {
-            $?SELF;
+            self;
         }
         else {
             $.parent ?? $.parent.lookup_pad($name) !! fail;

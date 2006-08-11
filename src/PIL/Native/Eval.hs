@@ -162,7 +162,7 @@ primCall inv meth args
         Just f  -> return $ f x args
 
 enterObj :: NativeObj -> (NativeObj -> Eval a) -> Eval a
-enterObj obj f = enterLex [("$?SELF", obj), ("$?CLASS", cls)] (f cls)
+enterObj obj f = enterLex [("&self", obj), ("$?CLASS", cls)] (f cls)
     where
     cls = o_class obj
 
@@ -249,7 +249,7 @@ callObject obj meth args = enterLex lex $ do
                     callSub this args
                 Nothing -> callSub this args
     where
-    lex = [("$?SELF", obj), ("$?CLASS", cls)]
+    lex = [("&self", obj), ("$?CLASS", cls)]
     cls = o_class obj
     genNext mros = do
         rv <- findMRO mros

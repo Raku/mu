@@ -106,7 +106,6 @@ data Statement = MkStatment
     &statement_control<if> <== ...
 
 
--- Anything but $?SELF -- See S02
 data Magic
     = MagicOS            -- $?OS        Which os am I compiled for?
     | MagicOSVer         -- $?OSVER     Which os version am I compiled for?

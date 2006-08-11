@@ -9,7 +9,7 @@ has Code--Perl6 %:methods;
 
 method new(Str $name) returns Class--Perl6 {
     $.name = $name;
-    return $?SELF;
+    return self;
 }
 
 method addMethod(Method--Perl6 $meth) {
