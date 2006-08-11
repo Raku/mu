@@ -584,15 +584,15 @@ different on either side.  Such non-reversible constructs can be made
 reversible by putting the leading term into a closure to defer the
 binding of C<$_>.  For example:
 
-    $x ~~ .does(Storeable)	# okay
-    .does(Storeable) ~~ $x	# not okay--gets wrong $_ on left
-    { .does(Storeable) } ~~ $x	# okay--closure binds its $_ to $x
+    $x ~~ .does(Storable)	# okay
+    .does(Storable) ~~ $x	# not okay--gets wrong $_ on left
+    { .does(Storable) } ~~ $x	# okay--closure binds its $_ to $x
 
 Exactly the same consideration applies to C<given> and C<when>:
 
-    given $x { when .does(Storeable) {...} }      # okay
-    given .does(Storeable) { when $x {...} }      # not okay
-    given { .does(Storeable) } { when $x {...} }  # okay
+    given $x { when .does(Storable) {...} }      # okay
+    given .does(Storable) { when $x {...} }      # not okay
+    given { .does(Storable) } { when $x {...} }  # okay
 
 Boolean expressions are those known to return a boolean value, such
 as comparisons, or the unary C<?> operator.  They may reference C<$_>
