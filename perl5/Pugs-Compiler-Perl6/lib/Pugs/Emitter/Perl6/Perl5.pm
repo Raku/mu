@@ -715,18 +715,21 @@ sub statement {
                     ? ";
                         use Pugs::Compiler::Rule;
                         use Moose;
-                        use base 'Pugs::Grammar::Base' " 
+                        use base 'Pugs::Grammar::Base';
+                        no strict 'refs'"
                     : "" ) .
                 ( $n->{statement} eq 'class' 
                     ? ";
                         use Moose; 
-                        Pugs::Runtime::Perl6->setup_class"
+                        Pugs::Runtime::Perl6->setup_class;
+                        no strict 'refs'"
                     : "" ) .
                 ( $n->{statement} eq 'role' 
                     ? ";
                         # use Moose::Role;  XXX - need '\$object does role'
                         use Moose; 
-                        Pugs::Runtime::Perl6->setup_class"
+                        Pugs::Runtime::Perl6->setup_class;
+                        no strict 'refs'"
                     : "" ) .
                 ";
                 use Exporter 'import'; 
