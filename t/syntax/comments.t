@@ -25,21 +25,25 @@ plan 21;
     is $var, 32, 'embedded comment with #{}';
 
     $var = 3 + #「 this is a comment 」 56;
-    is $var, 59, 'embedded comment with thin corner (Unicode) brackets';
+    is $var, 59, 'embedded comment with LEFT/RIGHT CORNER BRACKET';
 
     $var = 2 #『 blah blah blah 』 * 3;
-    is $var, 6, 'embedded comment with thick corner (Unicode) brackets';
+    is $var, 6, 'embedded comment with LEFT/RIGHT WHITE CORNER BRACKET';
 
     my @list = 'a'..'c';
 
-    # FIXME: $var = @list[ #（注释）2];
-    is $var, 'c', 'embedded comment with Chinese parens';
+    # FIXME: $var = @list[ #（注释）2 ];
+    is $var, 'c', 'embedded comment with FULLWIDTH LEFT/RIGHT PARENTHESIS';
 
     $var = @list[ 0 #《注释》];
-    is $var, 'a', 'embedded comment with Chinese double angle brackets';
+    is $var, 'a', 'embedded comment with LEFT/RIGHT DOUBLE ANGLE BRACKET';
 
     $var = @list[#〈注释〉1];
-    is $var, 'b', 'embedded comment with Chinese single angle brackets';
+    is $var, 'b', 'embedded comment with LEFT/RIGHT ANGLE BRACKET';
+
+    # Note that 'LEFT/RIGHT SINGLE QUOTATION MARK' (i.e. ‘’) and
+    # LEFT/RIGHT DOUBLE QUOTATION MARK (i.e. “”) are not valid delimiter
+    # characters.
 }
 
 {
