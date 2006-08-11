@@ -34,6 +34,9 @@ lib/Pugs/Runtime/Perl6.pm
 lib/Pugs/Runtime/Perl6Prelude.pm
 lib/Pugs/Runtime/Perl6Prelude.pmc
 
+lib/Pugs/Runtime/Perl6AST.pm
+lib/Pugs/Runtime/Perl6AST.pmc
+
 lib/Pugs/Grammar/StatementModifier.pm
 lib/Pugs/Grammar/Quote.pm
 
