@@ -1,6 +1,4 @@
 # TODO
-- Use Judy for Hash and Array in Pugs. Maybe creating some special
-  operators for Judy.Map2 to be used for Array (think shift and pop).
 - CollectionsM: complete the subset of MapM and uncomment/complete CollectionM.
 - See if needGC hack can be improved. It seems its eating CPU time.
 
@@ -9,8 +7,8 @@
   of Map2, if its enough.
 
 - Names names names
-  - Idea: Map2 -> IntMap
-  - Should I call MapSL just Map too?
+  - HashIO is too similar to Hash. Stringable is strange and not totally true,
+    maybe CStringable?
 
 - Other missing malloc error checking
 - Tests that stress MiniGC (w/ two maps at same time would be nice too)
