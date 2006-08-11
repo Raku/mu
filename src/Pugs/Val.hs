@@ -20,10 +20,7 @@ import qualified Data.Typeable as Typeable
 import qualified Data.ByteString as Buf
 
 import Pugs.AST.SIO
-import Pugs.Val.Bit
-import Pugs.Val.Str
-import Pugs.Val.Int
-import Pugs.Val.Num
+import Pugs.Val.Base
 --import Pugs.Val.Sig
 
 {-|
@@ -42,24 +39,6 @@ data Val
     | forall a. Mut a  => VMut  !a  -- ^ In-memory mutable structures (ValId = memory addr)
     | forall a. Ext a  => VExt  !a  -- ^ Input/Ouput handles          (ValId = memory addr)
     deriving (Typeable)
-
-class (Monad m, Functor m, Eq a, Data a, Typeable a) => ICoercible m a | a -> m where
-    asBit    :: a -> m PureBit
-    asBit _ = return $ cast True
-    asInt    :: a -> m PureInt
-    asInt x = fail $ "coerce fail: " ++ (show $ typeOf x) ++ " to PureInt"
-    asNum    :: a -> m PureNum
-    asNum x = fail $ "coerce fail: " ++ (show $ typeOf x) ++ " to PureNum"
-    asStr    :: a -> m PureStr
-    asStr x = return (cast "<opaque>") -- XXX wrong
-    -- "$item = VAL"
-    asItem   :: a -> Maybe (m Val)
-    asItem _ = Nothing -- default = do nothing (for Scalar this would return its content)
-    -- "@list = VAL"
-    asList   :: a -> Maybe (m PureList)
-    asList _ = Nothing -- default = do nothing (for Scalar this would return its content wrapped in a 1-seq)
-    asNative :: a -> m ValNative
-    asNative = fmap (NBuf . cast) . asStr
 
 -- | Value view. Contains methods for inspecting values: getting
 -- their metaclass, ids, stringification and so on.
@@ -197,22 +176,6 @@ type P = Identity
 class (ICoercible P a, Ord a, Show a) => Pure a where {}
 instance (ICoercible P a, Ord a, Show a) => Pure a where {}
 
-instance ICoercible P PureStr where
-    asBit (MkStr s)
-        | Buf.null s = return $ cast False
-        | otherwise  = return $ cast (Buf.head s /= 0x30)
-    asStr = cast
-    asNum = cast . parseInt -- XXX - wrong
-    asInt = cast . parseInt
-
-instance ICoercible P PureInt where
-    asInt = return . cast
-    asNum INotANumber           = return $ cast ( (0/0) :: Double)
-    asNum (IInfinite SPositive) = return $ cast ( (1/0) :: Double)
-    asNum (IInfinite SNegative) = return $ cast ((-1/0) :: Double)
-    asNum (IFinite   n)         = return $ cast ((fromIntegral n) :: Double)
-instance ICoercible P PureNum where asNum = return . cast
-instance ICoercible P PureBit where asBit = return . cast
 
 liftP :: Monad m => P a -> m a
 liftP = return . runIdentity
@@ -276,7 +239,6 @@ type PureSig        = ()
 type PureCap        = ()
 type PureSet        = Set Val
 type PureSeq        = Seq Val
-type PureList       = Seq Val -- Seq (Either PureSeq PureRange) -- XXX - *very bogus*
 type PureComplex    = ()
 type PureRange      = ()
 type PureJunc       = ()
