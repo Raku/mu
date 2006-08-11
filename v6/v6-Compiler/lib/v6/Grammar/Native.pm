@@ -26,35 +26,35 @@ token num {
           | d \d+               [ _ \d+]*
           | \d+[_\d+]*
             [ \. \d+[_\d+]* [ <[Ee]> <[+\-]>? \d+ ]? 
-              { return $/ does v6::AST::NFloat  }
-            | { return $/ does v6::AST::NUint   }
+              { return v6::AST.node( $/, v6::AST::NFloat ) }
+            | { return v6::AST.node( $/, v6::AST::NUint )  }
             ]
           ]
-        | { return $/ does v6::AST::NBit }
+        |     { return v6::AST.node( $/, v6::AST::NBit )   }
         ]
     | 1 [ \d+[_\d+]*
             [ \. \d+[_\d+]* [ <[Ee]> <[+\-]>? \d+ ]? 
-              { return $/ does v6::AST::NFloat  }
-            | { return $/ does v6::AST::NUint   }
+              { return v6::AST.node( $/, v6::AST::NFloat ) }
+            | { return v6::AST.node( $/, v6::AST::NUint )  }
             ]
-        | { return $/ does v6::AST::NBit }
+        |     { return v6::AST.node( $/, v6::AST::NBit )   }
         ]
     | \d+[_\d+]*
         [ \. \d+[_\d+]* [ <[Ee]> <[+\-]>? \d+ ]? 
-          { return $/ does v6::AST::NFloat  }
-        | { return $/ does v6::AST::NUint   }
+              { return v6::AST.node( $/, v6::AST::NFloat ) }
+        |     { return v6::AST.node( $/, v6::AST::NUint )  }
         ]
     | \. \d+[_\d+]* [ <[Ee]> <[+\-]>? \d+ ]? 
-    { return $/ does v6::AST::NFloat      }
+    { return v6::AST.node( $/, v6::AST::NFloat )      }
     | Inf
-    { return $/ does v6::AST::IInfinite   }
+    { return v6::AST.node( $/, v6::AST::IInfinite )   }
     | NaN
-    { return $/ does v6::AST::INotANumber }
+    { return v6::AST.node( $/, v6::AST::INotANumber ) }
 }
 
 token str {
     ' ( [ \\' | <-[']> ]* ) '
-    { return $/[0] does v6::AST::NStr }
+    { return v6::AST.node( $/[0], v6::AST::NStr )     }
 }
 
 # - there is no parsetime 'bool'
