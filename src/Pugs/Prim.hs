@@ -101,7 +101,7 @@ op0 other = const $ fail ("Unimplemented listOp: " ++ other)
 -- |Implementation of unary primitive operators and functions
 op1 :: String -> Val -> Eval Val
 op1 "!"    = op1Cast (VBool . not)
-op1 "valid" = \x -> do
+op1 "SKID" = \x -> do
     val <- fromVal x
     case val of
         VObject o   -> return . castV . unObjectId $ objId o

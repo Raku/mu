@@ -119,7 +119,7 @@ data Val
 
 type ExpVal = Val
 
--- | Unboxed or native values. They have themselves as their .valid.
+-- | Unboxed or native values. They have themselves as their .SKID.
 type ValNative = Native
 data Native
     = NBit  !NativeBit     -- ^ 0

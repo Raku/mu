@@ -60,7 +60,7 @@ class Perl::Compiler::CodeGen::Perl5_Str
             }
 
             when ::Perl::Compiler::PIL::PILVar    {
-                # XXX shouldn't need $tree.pad.valid ; .pad.valid should do ($tree is topic)
+                # XXX shouldn't need $tree.pad.SKID ; .pad.SKID should do ($tree is topic)
                 my $pad = $tree.pad;
                 $ng.ret(self.pad_var($pad) ~ "->\{'{ $tree.value }'}"); ''
             }
@@ -104,7 +104,7 @@ class Perl::Compiler::CodeGen::Perl5_Str
     }
 
     method pad_var(Perl::Compiler::PIL::Util::Pad $pad) {
-        "\$PAD_" ~ $pad.valid;
+        "\$PAD_" ~ $pad.SKID;
     }
 }
 
