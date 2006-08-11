@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 10 Aug 2006
+  Last Modified: 11 Aug 2006
   Number: 6
-  Version: 46
+  Version: 47
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -165,7 +165,8 @@ The old Perl 5 form:
 
 is a compile-time error in Perl 6 (because it would imply that the body of the
 subroutine extends from that statement to the end of the file, as C<class> and
-C<module> declarations do).
+C<module> declarations do).  The only allowed use of the semicolon form is to
+declare a C<MAIN> sub--see L</Declaring a MAIN subroutine> below.
 
 Redefining a stub subroutine does not produce an error, but redefining
 an already-defined subroutine does. If you wish to redefine a defined sub,
@@ -1922,7 +1923,7 @@ a quotelike operator such as C<rx//>.
 
 To return from other types of code structures, the C<leave> function
 is used.  The first argument, if supplied, specifies a C<Selector>
-for the control structure to leave.  The C<Selector> and will be
+for the control structure to leave.  The C<Selector> will be
 smart-matched against the dynamic scope objects from inner to outer.
 The first that matches is the scope that is left.
 
@@ -2414,8 +2415,8 @@ the compilation unit declares a C<Routine> named "C<MAIN>", and
 
 =item c)
 
-no explicit call to C<MAIN> was performed by the time the mainline code
-finishes.
+the mainline code is not terminated prematurely, such as with an explicit call
+to C<exit>, or an uncaught exception.
 
 =back
 
@@ -2429,17 +2430,17 @@ or the slurpy array:
 	for @filenames { ... }
     }
 
-If C<MAIN> is declared as a method, the name of the invoked
-program is passed as the "invocant".  If C<MAIN> is declared as a
-set of multi subs, MMD dispatch is performed.
+If C<MAIN> is declared as a set of multi subs, MMD dispatch is performed.
 
-As with module and class declarations, a sub or method declaration
+As with module and class declarations, a sub declaration
 ending in semicolon is allowed at the outermost file scope if it is the
 first such declaration, in which case the rest of the file is the body:
 
     sub MAIN ($directory, :$verbose, *%other, *@filenames);
     for @filenames { ... }
 
+This form is allowed only for simple subs named C<MAIN> that are intended
+to be run from the command line.
 Proto or multi definitions may not be written in semicolon form,
 nor may C<MAIN> subs within a module or class.  (A C<MAIN> routine
 is allowed in a module or class, but is not usually invoked unless
@@ -2465,11 +2466,16 @@ as follows:
     -name='spacy value'        :name«'spacy value'»
     -name=val1,'val 2', etc    :name«val1 'val 2' etc»
 
-    --name                     :name
-    --name=value               :name<value>
+    --name                     :name		# only if declared Bool
+    --name=value               :name<value>	# don't care
+    --name value               :name<value>	# only if not declared Bool
+
     --name="spacy value"       :name«'spacy value'»
+    --name "spacy value"       :name«'spacy value'»
     --name='spacy value'       :name«'spacy value'»
+    --name 'spacy value'       :name«'spacy value'»
     --name=val1,'val 2', etc   :name«val1 'val 2' etc»
+    --name val1 'val 2' etc    :name«val1 'val 2' etc» # only if declared @
     --                                 # end named argument processing
 
     +name                      :!name
@@ -2486,6 +2492,42 @@ as follows:
     :name='spacy value'        :name«'spacy value'»
     :name=val1,'val 2', etc    :name«val1 'val 2' etc»
 
-As usual, switches are assumed to be first, and any switches after C<-->
-are treated as positionals or slurpy.  Other policies may be introduced
-by calling C<MAIN> explicitly.
+Exact Perl 6 forms are okay if quoted from shell processing:
+
+    ':name<value>'             :name<value>
+    ':name(42)'                :name(42)
+
+For security reasons, only constants are allowed as arguments, however.
+
+The default C<Capture> mapper pays attention to declaration of
+C<MAIN>'s parameters to resolve certain ambiguities.  A C<--foo> switch
+needs to know whether to treat the next word from the command line as
+an argument.  (Allowing the spacey POSIX form gives the shell room to
+do various things to the argument.)  The non-POSIX C<-foo> form never
+assumes a separate argument, and you must use C<=>.  For the C<--foo>
+form, if there is a named parameter corresponding to the switch name,
+and it is of type C<Bool>, then no argument is expected.  Otherwise an
+argument is expected.  If the parameter is of a non-slurpy array type,
+all subsequent words up to the next command-line switch (or the end
+of the list) are bound to that parameter.
+
+As usual, switches are assumed to be first, and everything after
+the first non-switch, or any switches after a C<-->, are treated
+as positionals or go into the slurpy array (even if they look like
+switches).  Other policies may easily be introduced by calling C<MAIN>
+explicitly.  For instance, you can parse your arguments with a grammar
+and pass the resulting C<Match> object as a C<Capture> to C<MAIN>:
+
+    @*ARGS ~~ /<MyGrammar::top>/;
+    MAIN([,] =$/);
+    exit;
+
+    sub MAIN ($frompart, $topart, *@rest) {
+	if $frompart<foo> { ... }
+	if $topart<bar><baz> { ... }
+    }
+
+This will conveniently bind top-level named matches to named
+parameters, but still give you access to nested matches through those
+parameters, just as any C<Match> object would.  Of course, in this example,
+there's no particular reason the sub has to be named C<MAIN>.
