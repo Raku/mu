@@ -14,16 +14,17 @@ use lib '../..', (@inc ? $inc[-1] : ());
 use inc::Module::Install @inc;
 
         name('v6-Compiler');
-version_from('lib/v6/Compiler.pmc');
+version_from('lib/v6/Compiler.pmc') if -e 'lib/v6/Compiler.pmc';
     all_from('lib/v6/Compiler.pm');
 
 # requires('v6' => '0.010');
 
-# ??? clean 'lib/*.pmc' too?
-clean_files('t/*.tc', 't/*.pmc', 't/*/*.tc', 't/*/*.pmc', 't/*/*/*.tc', 't/*/*/*.pmc');
+clean_files('t/*.tc', 't/*.pmc', 't/*/*.tc', 't/*/*.pmc', 't/*/*/*.tc', 't/*/*/*.pmc', 'lib/*.pmc', 'lib/*/*.pmc', 'lib/*/*/*.pmc');
 
 &WriteAll;
 
+# see Module::Compile
+    pmc_support();
 
 __END__
 
