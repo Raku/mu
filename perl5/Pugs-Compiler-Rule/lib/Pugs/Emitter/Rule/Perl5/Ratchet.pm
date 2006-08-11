@@ -101,6 +101,7 @@ sub emit {
 
         "    last if \$m;\n" .
         "  }\n" .  # /for
+        "  \$::_V6_MATCH_ = \$m; \n" .
         "  return \$m;\n" .
         "}\n";
 }
@@ -376,6 +377,7 @@ sub closure {
                     local \$::_V6_SUCCEED = 1;
                     \$m->data->{capture} = \\( sub { $perl5 }->() );
                     \$bool = \$::_V6_SUCCEED;
+                    \$::_V6_MATCH_ = \$m if \$bool; 
                     return \$m if \$bool;
                 }" if $perl5 =~ /return/;
             return 
@@ -412,6 +414,7 @@ sub closure {
         "$_[1]   local \$::_V6_SUCCEED = 1;\n" .
         "$_[1]   \$m->data->{capture} = \\( sub $code->( \$m ) ); \n" .
         "$_[1]   \$bool = \$::_V6_SUCCEED;\n" .
+        "$_[1]   \$::_V6_MATCH_ = \$m if \$bool; \n" .
         "$_[1]   return \$m if \$bool; \n" .
         "$_[1] }";
 
