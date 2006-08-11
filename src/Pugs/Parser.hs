@@ -1477,9 +1477,7 @@ ruleApplyImplicitMethod = do
        will be 'Nothing'. -}
     implicitInv <- do
         char '.' -- implicit-invocant forms all begin with '.'
-        option (Var "$_") $
-            -- XXX - This ./method form is going to be removed
-            do { char '/'; return (Var "&self") }
+        return (Var "$_")
     insertIntoPosition '.' 
     fs <- many rulePostTerm
     return (combine (reverse fs) implicitInv)

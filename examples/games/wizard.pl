@@ -85,7 +85,7 @@ class Mortal is wObject {
             $enemy.damage($power);
       } elsif ($power < 0) {
             say "$.name hurts himself doing $power damage!";
-            ./damage($power);
+            self.damage($power);
       }
     }
     method dead ()  { $.life <= 0 }
@@ -118,7 +118,7 @@ class Person is Mortal {
                 #when Weapon {  #not yet working right.
                 when .does(Weapon) {
                     $.weapon = $_;
-                    ./attack($enemy);
+                    self.attack($enemy);
                 }
                 default {
                     say "Please enter a valid command!"
@@ -133,7 +133,7 @@ class Person is Mortal {
     }
 
     method attack (Monster $enemy) {
-        ./hit($enemy);
+        self.hit($enemy);
         $enemy.hit($_);
 
         say '';

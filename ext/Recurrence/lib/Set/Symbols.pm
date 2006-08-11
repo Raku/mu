@@ -62,7 +62,7 @@ multi sub *infix:<%> (Set $one, Set $two) {
 
 # what will be used for stringify?
 method prefix:<~> ($self) returns Str {
-    ./stringify
+    self.stringify
 }
 
 # removed - spans can be numerically compared

@@ -27,7 +27,7 @@ method plugins {
     for @*INC -> $dir {
         # XXX: add blib support
         for $.search -> $search {
-           for ./find_packages($dir) -> $package {
+           for self.find_packages($dir) -> $package {
                my $rel = abs2rel( $package, $dir );
                my $class = splitdir($rel).join('::');
                $class ~~ s:P5/\.pm$//;

@@ -27,11 +27,11 @@ class HTTP::Cookies-0.0.1 {
     
     ## Creation and destruction
     submethod BUILD (Str $.file, Bool $.autosave = 0, Bool $.ignore_discard = 0, Bool $.hide_cookie2 = 0) {
-        ./load();
+        self.load();
     }
     
     submethod DESTROY () {
-        ./save() if $.autosave;
+        self.save() if $.autosave;
     }
     
     ## Instance methods
@@ -44,17 +44,17 @@ class HTTP::Cookies-0.0.1 {
             return;
         }
     
-        my $domain = ./:host($request, $uri);
+        my $domain = self!host($request, $uri);
         $domain = "$domain\.local" unless $domain ~~ m:P5/\./;
         
         my $secure_request = ($scheme eq 'https');
         
-        my $req_path = ./:uri_path($uri);
+        my $req_path = self!uri_path($uri);
         my $req_port = $uri.port;
         
         my $now = time();
         
-        ./:normalize_path($req_path) if $req_path ~~ m:P5/%/;
+        self!normalize_path($req_path) if $req_path ~~ m:P5/%/;
         
         my $set_ver = 0;
         my $netscape_only = 0; # an exact domain match applies to "any" cookie
@@ -69,7 +69,7 @@ class HTTP::Cookies-0.0.1 {
                 if (.delayload && defined $cookies{'//+delayload'}) {
                     my $data = $cookies{''//+delayload'}{'cookie'};
                     %!cookies.delete($domain);
-                    ./load_cookie($data[1]);
+                    self.load_cookie($data[1]);
                     
                     $cookies = %!cookies{$domain};
                     next unless $cookies; # should not really happen
@@ -223,7 +223,7 @@ class HTTP::Cookies-0.0.1 {
         my $fh = open($file, :w);
         
         $fh.say("#LWP-Cookies-1.0");
-        $fh.print(./as_string(!$.ignore_discard));
+        $fh.print(self.as_string(!$.ignore_discard));
         $fh.close;
         
         1;
@@ -269,7 +269,7 @@ class HTTP::Cookies-0.0.1 {
     }
     
     method revert () {
-        ./clear.load;
+        self.clear.load;
     }
     
     multi method clear () {
@@ -291,7 +291,7 @@ class HTTP::Cookies-0.0.1 {
     }
     
     method clear_temporary_cookies () {
-        ./scan(sub (*@_) { if (@_[9]) || (!@_[8].defined) { @_[8] = -1; ./set_cookie(*@_); } });
+        self.scan(sub (*@_) { if (@_[9]) || (!@_[8].defined) { @_[8] = -1; self.set_cookie(*@_); } });
     }
     
     method scan (Code $callback) {
@@ -310,7 +310,7 @@ class HTTP::Cookies-0.0.1 {
     method as_string (Bool $skip_discardables?) {
         # XXX use nested gather/take
         my @ret = (gather {
-            ./scan(sub ($version, $key, $val, $path, $domain, $port?, $path_spec?, $secure?, $maxage?, $discard?, *%rest) {
+            self.scan(sub ($version, $key, $val, $path, $domain, $port?, $path_spec?, $secure?, $maxage?, $discard?, *%rest) {
                 return if $discard && $skip_discardables;
                 
                 my @h = ($key, $val);

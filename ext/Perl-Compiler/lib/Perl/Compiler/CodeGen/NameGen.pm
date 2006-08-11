@@ -34,11 +34,11 @@ class Perl::Compiler::CodeGen::NameGen {
     }
 
     method ret($value) {
-        ./inject('RET', $value);
+        self.inject('RET', $value);
     }
 
     method r($name) {
-        %.names{$name} //= ./newreg;
+        %.names{$name} //= self.newreg;
     }
 
     method newreg() {

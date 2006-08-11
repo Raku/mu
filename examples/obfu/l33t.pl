@@ -46,11 +46,11 @@ submethod trace( Str $msg) {
 }
 
 method load($self: Str $program is copy) {
-    ./trace("loading >>\n $program\n<<");
+    self.trace("loading >>\n $program\n<<");
     $program ~~ s:perl5<s>/^\s*//;
     for split rx:perl5/\s+/, $program -> $word {
         my $val = ([+] $word ~~ rx:P5<g>/(\d)/) // 0;
-        ./trace("word [$word] = $val");
+        self.trace("word [$word] = $val");
         @.mem[$.mp++] = $val;
         $.mp %= $MEMSIZE;
     }
@@ -72,18 +72,18 @@ method run() {
     say "\nl33t d3bu993r - h1t 'h' 4 h31p / 'i' 4 inf0\n" if $!debug;
     #try {
       loop {
-        ./debug if $!debug; # XXX: figure out how to bind this once
+        self.debug if $!debug; # XXX: figure out how to bind this once
         given @.mem[$.ip] {
-            when 0 { ./IIP };                                      # NOP
-            when 1 { ./write; };                                   # WRT
-            when 2 { ./read; };                                    # RD
-            when 3 { ./bracket(3, 4) };                            # IF
-            when 4 { ./bracket(4, 3) };                            # EIF
-            when 5 { ./mem($.mp,        wrap=>$MEMSIZE) };         # FWD
-            when 6 { ./mem($.mp,        wrap=>$MEMSIZE,  :down) }; # BAK
-            when 7 { ./mem(@.mem[$.mp], wrap=>$CELLSIZE) };        # INC
-            when 8 { ./mem(@.mem[$.mp], wrap=>$CELLSIZE, :down) }; # DEC
-            when 9 { ./con };                                      # CON
+            when 0 { self.IIP };                                      # NOP
+            when 1 { self.write; };                                   # WRT
+            when 2 { self.read; };                                    # RD
+            when 3 { self.bracket(3, 4) };                            # IF
+            when 4 { self.bracket(4, 3) };                            # EIF
+            when 5 { self.mem($.mp,        wrap=>$MEMSIZE) };         # FWD
+            when 6 { self.mem($.mp,        wrap=>$MEMSIZE,  :down) }; # BAK
+            when 7 { self.mem(@.mem[$.mp], wrap=>$CELLSIZE) };        # INC
+            when 8 { self.mem(@.mem[$.mp], wrap=>$CELLSIZE, :down) }; # DEC
+            when 9 { self.con };                                      # CON
             when 10 {                                              # END
                 $.con.close if defined $.con;
                 last;
@@ -91,7 +91,7 @@ method run() {
 
             # unknown opcode. this is NOT a (fatal) syntax error.
             say "$INSULT: wtf iz $_?";
-            ./IIP;
+            self.IIP;
         }
       }
     #CATCH "Debugger::QUIT" { say "qu1t" }
@@ -111,42 +111,42 @@ method con() {
         $!coninfo = "$ip:$port";
     }
 
-    ./IIP;
+    self.IIP;
     $.mp += 6;
     $.mp %= $MAXSIZE;
 };
 
 method mem($target is rw, :$wrap!, $down?) {
-    ./IIP;
+    self.IIP;
     $target += (@.mem[$.ip] + 1) * ($down ?? -1 !! 1);
     $target %= $wrap;
-    ./IIP;
+    self.IIP;
 }
 
 method bracket(: $own, $matching) {
-    my $move     = (($own == 3) ?? {./IIP} !! {./DIP}); # mover in the right direction
+    my $move     = (($own == 3) ?? {self.IIP} !! {self.DIP}); # mover in the right direction
     if (($own == 3 && @.mem[$.mp] == 0) || ($own == 4 && @.mem[$.mp] != 0)) {
         my $iflevel = 1;
         loop {
              $move();
              given @.mem[$.ip] {
                  when $own      { $iflevel++ };
-                 when $matching { ./IIP, last unless --$iflevel };
+                 when $matching { self.IIP, last unless --$iflevel };
              }
          }
     } else {
-        ./IIP;
+        self.IIP;
     }
 }
 
 method write() {
     print chr @.mem[$.mp];
-    ./IIP;
+    self.IIP;
 }
 
 method read() {
     @.mem[$.mp] = ord getc;
-    ./IIP;
+    self.IIP;
 }
 
 method demo(Class $class: ) {
@@ -156,7 +156,7 @@ method demo(Class $class: ) {
 }
 
 method debug() {
-    repeat { ./debug_trace } until ./debug_interactive;
+    repeat { self.debug_trace } until self.debug_interactive;
 }
 
 # true return == stay at this line
@@ -166,7 +166,7 @@ method debug_interactive() returns Bool {
     } elsif !$!step {
         return Bool::True;
     }
-    repeat { print "$.ip> " } until (./debug_action(=<>) || $!runnable);
+    repeat { print "$.ip> " } until (self.debug_action(=<>) || $!runnable);
     return $!runnable;
 }
 
@@ -199,7 +199,7 @@ method debug_action(Str $cmd is copy) returns Bool {
     $!last_db_command = $cmd;
     given $cmd {
         when rx:perl5<i>/^\s*h|\?/ {        # h help
-            ./debug_help;
+            self.debug_help;
         };
         #when 'B' { say %!breakpoints.keys.sort:{$^a<=>$^b} };
         when 'B' {
@@ -252,7 +252,7 @@ method debug_action(Str $cmd is copy) returns Bool {
         };
         when 'q' { die "Debugger::QUIT" };  # q quit
         when rx:perl5<i>/^\s*w\s*(.+)/ {    # w write
-            ./load($0);
+            self.load($0);
             return True;
         };
         say "$INSULT: wft iz $_?";

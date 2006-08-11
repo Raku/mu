@@ -32,28 +32,28 @@ method literal(Str $text) {...}
 method any_char() {...}
 
 method beginning_of_string () {
-    ./assertion: -> $m {
+    self.assertion: -> $m {
         my $pos = $m.pos;
         $pos.pos == 0;
     }
 }
 
 method end_of_string () {
-    ./assertion: -> $m {
+    self.assertion: -> $m {
         my $pos = $m.pos;
         $pos.pos == $pos.text.chars;
     }
 }
 
 method beginning_of_line () {
-    ./assertion: -> $m {
+    self.assertion: -> $m {
         my $pos = $m.pos;
         $pos.pos == 0 || $pos.text.substr($pos.pos-1, 1) eq "\n";
     }
 }
 
 method end_of_line () {
-    ./assertion: -> $m {
+    self.assertion: -> $m {
         my $pos = $m.pos;
         $pos.pos == $pos.text.chars 
             || $pos.text.substr($pos.pos, 1) eq "\n";

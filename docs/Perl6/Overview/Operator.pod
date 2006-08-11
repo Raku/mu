@@ -175,7 +175,6 @@ be transformed into its negative by prefixing with !.
 
     .method         # oo
     .=method        # oo
-    ./method        # oo
     .()             # sub
     .[]             # data
     .{}             # data

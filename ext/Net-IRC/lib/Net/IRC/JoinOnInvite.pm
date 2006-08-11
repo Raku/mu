@@ -1,10 +1,10 @@
 role Net::IRC::JoinOnInvite;
 
 submethod BUILD() {
-  ./add_handler("INVITE", -> $event {
+  self.add_handler("INVITE", -> $event {
     my ($from, $chan) = $event<from rest>;
-    ./debug("Got an invitation from \"$from\" to join channel \"$chan\".");
-    ./join($chan);
+    self.debug("Got an invitation from \"$from\" to join channel \"$chan\".");
+    self.join($chan);
   });
 }
 

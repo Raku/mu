@@ -23,7 +23,7 @@ class HTTP::Response[?::URI_CLASS = URI] {
             $str = "";
         }
         
-        my $self = ../parse($str);
+        my $self = self.SUPER::parse($str);
         
         given ($self) {
             my ($protocol, $code, $message);
@@ -45,14 +45,14 @@ class HTTP::Response[?::URI_CLASS = URI] {
     
     method status_line () {
         my $code = .code // "000";
-        my $mess = ./message // HTTP::Status::status_message($code) // "?";
+        my $mess = $.message // HTTP::Status::status_message($code) // "?";
         "$code $mess";
     }
     
     method base () {
-        my $base = ./header('Content-Base')      //  # used to be HTTP/1.1
-                   ./header('Content-Location')  //  # HTTP/1.1
-                   ./header('Base');                 # HTTP/1.0
+        my $base = $.header('Content-Base')      //  # used to be HTTP/1.1
+                   $.header('Content-Location')  //  # HTTP/1.1
+                   $.header('Base');                 # HTTP/1.0
         
         require URI;
         
@@ -61,7 +61,7 @@ class HTTP::Response[?::URI_CLASS = URI] {
             return $HTTP::URI_CLASS.new($base);
         }
         
-        my $req = ./request;
+        my $req = $.request;
         
         if ($req) {
             # if $base is undef here, the return value is effectively
@@ -74,27 +74,27 @@ class HTTP::Response[?::URI_CLASS = URI] {
     }
     
     method as_string (Str $newline = "\n") {
-        my $code = ./code;
+        my $code = $.code;
         my $status_message = HTTP::Status::status_message($code) // "Unknown code";
-        my $message = ./message // "";
+        my $message = $.message // "";
         
         my $status_line = "$code";
-        my $proto = ./protocol;
+        my $proto = $.protocol;
         $status_line = "$proto $status_line" if $proto.defined;
         $status_line ~= " ($status_message)" if $status_message ne $message;
         $status_line ~= " $message";
         
-        return ($status_line, ../as_string($newline)).join($newline);
+        return ($status_line, self.SUPER::as_string($newline)).join($newline);
     }
     
-    method is_info     () { HTTP::Status::is_info     (./code); }
-    method is_success  () { HTTP::Status::is_success  (./code); }
-    method is_redirect () { HTTP::Status::is_redirect (./code); }
-    method is_error    () { HTTP::Status::is_error    (./code); }
+    method is_info     () { HTTP::Status::is_info     ($.code); }
+    method is_success  () { HTTP::Status::is_success  ($.code); }
+    method is_redirect () { HTTP::Status::is_redirect ($.code); }
+    method is_error    () { HTTP::Status::is_error    ($.code); }
     
     method error_as_HTML () {
         my $title = "An Error Occurred";
-        my $body = ./status_line;
+        my $body = $.status_line;
         
         return "<HTML>
 <HEAD><TITLE>$title</TITLE></HEAD>
@@ -106,8 +106,8 @@ $body
     }
     
     method current_age () {
-        my $response_time = ./client_date;
-        my $date = ./date;
+        my $response_time = $.client_date;
+        my $date = $.date;
         
         my $age = 0;
         
@@ -116,13 +116,13 @@ $body
             $age = 0 if $age < 0;
         }
         
-        my $age_v = ./header('Age');
+        my $age_v = $.header('Age');
         
         if ($age_v && $age_v > $age) {
             $age = $age_v; # corrected_received_age
         }
         
-        my $request = ./request;
+        my $request = $.request;
         
         if ($request) {
             my $request_time = $request.date;
@@ -141,7 +141,7 @@ $body
     }
     
     method freshness_lifetime () {
-        my @cc = ./header('Cache-Control');
+        my @cc = $.header('Cache-Control');
         
         # First look for the Cache-Control: max-age=n header
         if (@cc) {
@@ -155,12 +155,12 @@ $body
         }
         
         # Next possibility is to look at the "Expires" header
-        my $date = ./date // ./client_date // time;
-        my $expires = ./expires;
+        my $date = $.date // $.client_date // time;
+        my $expires = $.expires;
         
         unless ($expires.defined) {
             # Must apply heuristic expiration
-            my $last_modified = ./last_modified;
+            my $last_modified = $.last_modified;
             
             if ($last_modified.defined) {
                 my $h_exp = ($date - $last_modified) * 0.10; # 10% since last-mod
@@ -184,8 +184,8 @@ $body
         return $expires - $date;
     }
 
-    method is_fresh     () { ./freshness_lifetime > ./current_age }
-    method fresh_until  () { ./freshness_lifetime - ./current_age + time }
+    method is_fresh     () { $.freshness_lifetime > $.current_age }
+    method fresh_until  () { $.freshness_lifetime - $.current_age + time }
 }
 
 1;

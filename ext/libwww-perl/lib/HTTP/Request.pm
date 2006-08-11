@@ -20,7 +20,7 @@ class HTTP::Request-0.1[?::URI_CLASS = URI] {
             $str = "";
         }
         
-        my $self = ../parse($str);
+        my $self = self.SUPER::parse($str);
         
         given ($self) {
             my ($method, $uri, $protocol) = $request_line.split(' ');
@@ -58,14 +58,14 @@ class HTTP::Request-0.1[?::URI_CLASS = URI] {
     
     method as_string (Str $newline = "\n") {
         my $req_line = $.method // "-";
-        my $uri = (./uri().defined) ?? ./uri().as_string() !! "-";
+        my $uri = ($.uri().defined) ?? $.uri().as_string() !! "-";
         
         $req_line ~= $uri;
         
-        my $proto = ./protocol;
+        my $proto = $.protocol;
         
         $req_line ~= $protocol if $proto.defined;
         
-        return ($req_line, ../as_string($newline)).join($newline);
+        return ($req_line, self.SUPER::as_string($newline)).join($newline);
     }
 }

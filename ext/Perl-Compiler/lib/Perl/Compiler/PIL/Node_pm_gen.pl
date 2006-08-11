@@ -70,7 +70,7 @@ sub common_code ($data,$constructor,$stuff,*@fields) {
     $code ~= ("\n  submethod BUILD "
           ~"("~join(", ",map -> $n,$t { "\$$n" }, @fields) ~") \{"
           ~"\n    "~join("\n    ",map -> $n,$t { "\$.{$n} = \$$n;" }, @fields)
-          ~"\n    ./type_check("
+          ~"\n    self.type_check("
           ~"\n      "~join(",\n      ",map -> $n,$t { "\$.{$n}.vtype, '$t'" }, @fields) ~");"
           ~"\n    }");
     $code ~= "\n}\n";

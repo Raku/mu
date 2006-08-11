@@ -218,7 +218,7 @@ multi sub *infix:<≠> (Set $one, Set $two) returns Set {
 
 # what will be used for stringify?
 method prefix:<~> (Set $self) returns Str {
-    ./stringify
+    self.stringify
 }
 
 multi sub *infix:«<» (Set $one, Set $two) returns Set {

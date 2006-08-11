@@ -30,7 +30,7 @@ class POE::Kernel {
 
   method run () {
     while @:events {
-      ./:step;
+      self!step;
     }
   }
 
@@ -39,13 +39,13 @@ class POE::Kernel {
   # callback we enqueue().
   method post (POE::Session $session, Str $event, *@args) {
     # Push our callback on @:events.
-    ./:enqueue({
+    self!enqueue({
       my $result = $session.dispatch($event, *@args);
       $result;
     });
     
     # And enter the runloop again.
-    ./:step(); #/#--vim
+    self!step(); #/#--vim
   }
 }
 
