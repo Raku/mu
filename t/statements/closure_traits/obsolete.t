@@ -11,7 +11,7 @@ These are based on L<S04/"Closure traits">
 
 =cut
 
-plan 20;
+plan 11;
 
 # don't read this linearly, some tests are not in the order they're written it
 # (or at least, should not be ;-)
@@ -30,66 +30,6 @@ plan 20;
 # * LEAVE type blocks in the context of CATCH
 #
 # * PRE/POST in classes is not the same as LEAVE/ENTER
-
-
-my $var = 1;
-# defined in BEGIN
-my $bvar_at_begin = BEGIN { 3 };
-my $var_at_begin;
-# defined in CHECK
-my $cvar;
-my $cvar_at_begin;
-my $var_at_check;
-# defined in INIT
-my $ivar;
-my $ivar_at_check;
-my $var_at_init;
-# defined in END
-my $evar;
-my $var_at_end;
-
-CHECK {
-    $cvar = 1;
-    $var_at_check = $var;
-    $ivar_at_check = $ivar;
-};
-
-BEGIN {
-    $var_at_begin = $var;
-    $cvar_at_begin = $cvar;
-};
-
-# L<S04/"Closure traits" /BEGIN/>
-is($var_at_begin, undef, '{ $var = 1 } not yet assigned when BEGIN block run');
-# L<S04/"Closure traits" /can also be used within an expression/>
-ok($bvar_at_begin, 'but { $bvar = BEGIN { 1 } } was');
-# L<S04/"Closure traits" /CHECK/>
-is($cvar_at_begin, undef, 'CHECK var not defined at BEGIN time');
-
-# L<S04/"Closure traits" /INIT/>
-ok($ivar, "INIT var defined at begining of runtime");
-is($var_at_init, undef, 'INIT block ran before { $var = 1 }');
-
-INIT {
-    $var_at_init;
-    $ivar = 1;
-};
-
-END {
-    # L<S04/"Closure traits" /END/>
-    ok($evar,  "END var was defined");
-    ok($var_at_end, 'and also saw $var');
-};
-
-END {
-    $evar = 1;
-    $var_at_end = $var;
-};
-
-# L<S04/"Closure traits" /END/>
-is($evar, undef, "END var was not defined yet");
-is($var_at_end, undef, '$var was not yet seen by END');
-
 
 my (@first, @enter, @leave, @last, @next) = ();
 
