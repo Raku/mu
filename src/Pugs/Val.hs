@@ -24,6 +24,7 @@ import Pugs.Val.Bit
 import Pugs.Val.Str
 import Pugs.Val.Int
 import Pugs.Val.Num
+--import Pugs.Val.Sig
 
 {-|
 

@@ -230,8 +230,9 @@ toVV' :: Val -> Eval Val
 toVV' (VBool v) = return $ VV $ val $ ((cast v) :: PureBit)
 toVV' (VInt v) = return $ VV $ val $ ((cast v) :: PureInt)
 toVV' (VNum v) = return $ VV $ val $ ((cast v) :: PureNum)
+toVV' (VRat v) = return $ VV $ val $ ((cast v) :: PureNum)
 toVV' (VStr v) = return $ VV $ val $ ((cast v) :: PureStr)
-
+toVV' x = error $ "don't know how to toVV': " ++ show x
 
 createObjectRaw :: (MonadSTM m)
     => ObjectId -> Maybe Dynamic -> VType -> [(VStr, Val)] -> m VObject
