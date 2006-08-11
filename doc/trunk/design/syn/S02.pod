@@ -440,7 +440,7 @@ can speed it up.)
 
 Some object types can behave as value types.  Every object can produce
 a "safe key identifier" (C<SKID> for short) that uniquely identifies the
-object for hashing and other value-base comparisons.  Normal objects
+object for hashing and other value-bases comparisons.  Normal objects
 just use their address in memory, but if a class wishes to behave as a
 value type, it can define a C<.SKID> method that makes different objects
 look like the same object if they happen to have the same contents.
