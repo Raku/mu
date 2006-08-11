@@ -1,18 +1,57 @@
+{- hopefully, in 6.6, this can be a first-class compilation unit. For now,
+ - it's #included from Pugs.Val.
 {-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
-module Pugs.Val.Sig where
+module Pugs.Val.Code where
 import Pugs.Internals
 import Pugs.Types
-import qualified Data.ByteString as B -- just for Ident, removeme after circularity fixed
 
---import {-# SOURCE #-} Pugs.Val
+import {-# SOURCE #-} Pugs.Val
+--import {-# SOURCE #-} Pugs.Val.Sig
+-}
 
--- moveme to Val
-type Ident = B.ByteString
--- | General purpose mapping from identifiers to values.
-type Table = Map Ident Val
+-- | AST for a primitive Code object
+data Code
+    = CodePerl
+        { c_signature         :: Sig
+        , c_precedence        :: Rational
+        , c_assoc             :: CodeAssoc
+        , c_isRW              :: Bool
+        , c_isSafe            :: Bool
+        , c_isCached          :: Bool
+        , c_body              :: [Stmt]    -- ^ AST of "do" block
+        , c_pad               :: Pad       -- ^ Storage for lexical vars
+        , c_traits            :: Table     -- ^ Any additional trait not
+                                           --   explicitly mentioned below
+        , c_preBlocks         :: [Code]
+        , c_postBlocks        :: [Code]
+        , c_firstBlocks       :: [Code]
+        , c_lastBlocks        :: [Code]
+        , c_nextBlocks        :: [Code]
+        , c_keepBlocks        :: [Code]
+        , c_undoBlocks        :: [Code]
+        }
+    | CodePrim
+        { c_signature         :: Sig
+        , c_precedence        :: Rational
+        , c_assoc             :: CodeAssoc
+        , c_isRW              :: Bool
+        , c_isSafe            :: Bool
+        }
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+-- | Function associtivity
+data CodeAssoc
+    = AssLeft
+    | AssRight
+    | AssNon
+    | AssChain
+    | AssList
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
 
 -- | AST for function signature. Separated to method and function variants
 --   for ease of pattern matching.
+type Sig = PureSig
 data PureSig
     = SigMethSingle
         { s_invocant                  :: Param
@@ -50,7 +89,7 @@ values.
 -}
 data Param = MkParam
     { p_variable    :: Ident         -- ^ E.g. $m above
-    , p_types       :: [Type]        -- ^ Static pieces of inferencer-food
+    , p_types       :: [Types.Type]  -- ^ Static pieces of inferencer-food
                                      --   E.g. Elk above
     , p_constraints :: [Code]        -- ^ Dynamic pieces of runtime-mood
                                      --   E.g. where {...} above
@@ -69,3 +108,5 @@ data ParamAccess
     | AccessRW
     | AccessCopy
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+type Exp = () -- XXX bogus

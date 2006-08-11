@@ -40,7 +40,7 @@ data Type
     = MkType !Buf         -- ^ A regular type
     | TypeOr  !Type !Type -- ^ The disjunction (|) of two types
     | TypeAnd !Type !Type -- ^ The conjunction (&) of two types
-    deriving (Eq, Ord, Typeable)
+    deriving (Eq, Ord, Typeable, Data)
 
 instance Show Type where
     show t = "(mkType \"" ++ showType t ++ "\")"

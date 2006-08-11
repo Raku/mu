@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fallow-overlapping-instances -cpp #-}
 {-! global : YAML_Pos, Perl6Class, MooseClass !-}
 {-|
     Perl 6 Values.
@@ -22,6 +22,10 @@ import qualified Data.ByteString as Buf
 import Pugs.AST.SIO
 import Pugs.Val.Base
 --import Pugs.Val.Sig
+--import Pugs.Val.Code
+
+import qualified Pugs.Types as Types
+#include "Val/Code.hs"
 
 {-|
 
@@ -235,7 +239,6 @@ dynCompare x y = case Typeable.cast y of
 type PureBool       = Bool
 type PureException  = ()            -- XXX *very* bogus
 type PureCode       = ()            -- XXX *very* bogus
-type PureSig        = ()
 type PureCap        = ()
 type PureSet        = Set Val
 type PureSeq        = Seq Val
@@ -288,6 +291,118 @@ type ExtSocket       = ()
 type ExtThread       = ()
 type ExtProcess      = ()
 
+--------------------------------------------------------------------------------------
+
+type Ident = Buf.ByteString
+
+-- | General purpose mapping from identifiers to values.
+type Table = Map Ident Val
+
+
+{- Pad -}
+{-|
+A 'Pad' keeps track of the names of all currently-bound symbols, and
+associates them with the things they actually represent.
+
+It is represented as a mapping from names to /lists/ of bound items.
+This is to allow for multi subs, because we will need to keep
+/multiple/ subs associated with one symbol. In other cases, the list
+should just contain a single value. See 'Pugs.AST.genSym' and 'Pugs.AST.genMultiSym' for
+more details.
+
+@TVar@ indicates that the mapped-to items are STM transactional variables.
+
+Pads are stored in the current 'Code', and lexical lookups proceed through
+progressively outer scopes until an item is found. For dynamic variables
+(e.g., "our"), the pad holding the items is located in the package.
+-}
+
+newtype Pad = MkPad { padEntries :: Map Var PadEntry }
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+newtype EntryStorage = MkStorage { s_cell :: TVar Val }
+    deriving (Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+instance Show EntryStorage where
+    show _ = error "can't show EntryStorage"
+instance Ord EntryStorage where
+    compare _ = error "can't compare EntryStorage"
+instance Eq EntryStorage where
+    (==) = error "can't equate EntryStorage"
+
+data EntryDeclarator
+    = DeclMy
+    | DeclOur
+    | DeclHas
+    | DeclState
+    | DeclConstant
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+data PadEntry = MkEntry
+    { e_declarator :: EntryDeclarator   -- ^ my etc.
+    , e_storage    :: EntryStorage      -- ^ stored value
+    }
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+
+--------------------------------------------------------------------------------------
+
+{- Variable specification. This belongs in an AST .hs file, not here but until
+ - it finds its home we will give it boarding. -}
+data Var
+    = VarLexical
+        { v_name        :: Ident
+        , v_callerCount :: Int
+        , v_outerCount  :: Int
+        }
+    | VarDynamic
+        { v_name        :: Ident
+        , v_packageName :: [Ident]
+        }
+    | VarMagic
+        { v_magic       :: Magic
+        }
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+type ExpVar = Var
+
+data Magic
+    = MOS               -- ^ $?OS        Which os am I compiled for?
+    | MOSVer            -- ^ $?OSVER     Which os version am I compiled for?
+    | MPerlVer          -- ^ $?PERLVER   Which Perl version am I compiled for?
+    | MFile             -- ^ $?FILE      Which file am I in?
+    | MLine             -- ^ $?LINE      Which line am I at?
+    | MScalarPackage    -- ^ $?PACKAGE   Which package am I in?
+    | MArrayPackages    -- ^ @?PACKAGE   Which packages am I in?
+    | MScalarModule     -- ^ $?MODULE    Which module am I in?
+    | MArrayModules     -- ^ @?MODULE    Which modules am I in?
+    | MScalarClass      -- ^ $?CLASS     Which class am I in? (as variable)
+    | MArrayClasses     -- ^ @?CLASS     Which classes am I in?
+    | MScalarRole       -- ^ $?ROLE      Which role am I in? (as variable)
+    | MArrayRoles       -- ^ @?ROLE      Which roles am I in?
+    | MScalarGrammar    -- ^ $?GRAMMAR   Which grammar am I in?
+    | MArrayGrammars    -- ^ @?GRAMMAR   Which grammars am I in?
+    | MParser           -- ^ $?PARSER    Which Perl grammar was used to
+                        -- ^                   parse this statement?
+    | MScalarRoutine    -- ^ &?ROUTINE   Which routine am I in?
+    | MArrayRoutines    -- ^ @?ROUTINE   Which routines am I in?
+    | MScalarBlock      -- ^ &?BLOCK     Which block am I in?
+    | MArrayBlocks      -- ^ @?BLOCK     Which blocks am I in?
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+-- this too really belongs in the AST file.
+
+-- | AST for a statement. The top level of an AST is a list of Stmt.
+data Stmt = MkStmt
+    { label      :: Maybe Ident
+    , pragmas    :: Table
+    , expression :: Exp
+    } deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+-- | Carry over last pragmas and create a new statement out of an expression
+nextStmt :: Stmt -> Exp -> Stmt
+nextStmt MkStmt{ pragmas=prag } exp = MkStmt{ label=Nothing, pragmas=prag, expression=exp }
+
+--------------------------------------------------------------------------------------
 
 {-* Generated by DrIFT : Look, but Don't Touch. *-}
 instance Show Val where

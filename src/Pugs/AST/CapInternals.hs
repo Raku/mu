@@ -654,7 +654,7 @@ data Code
         , c_isSafe            :: Bool
         }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
-    
+
 data MultiVariant = MkMultiVariant 
     { m_semicolonOffsets              :: IntSet
     , m_callable                      :: Code  -- ^ Thing actually called
