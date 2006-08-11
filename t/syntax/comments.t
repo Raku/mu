@@ -7,7 +7,6 @@ use Test;
 plan 21;
 
 {
-    # ----------------------------------------------------
     # L<S02/"Whitespace and Comments"/"Embedded comments"
     #  "#" plus any bracket>
 
