@@ -50,11 +50,12 @@ sub runInteractiveCommand($command) { ... }
 sub sprintf($conversion, @arg) { ... } #bad signature
 sub use($module) { ... }
 
-module v6::AST;
-
-$INC{"v6/AST.pm"}=1;  # mark this module as "used"
-
-sub node( $match, $type ) {
-    #say "new node $match $type\n";
-    $match;
-}
+use Pugs::Runtime::Perl6AST;
+# module v6::AST;
+#
+# $INC{"v6/AST.pm"}=1;  # mark this module as "used"
+#
+# sub node( $match, $type ) {
+#    #say "new node $match $type\n";
+#    $match;
+# }
