@@ -19,7 +19,9 @@ use constant NaN => Inf - Inf;
 sub perl {
     local $Data::Dumper::Terse    = 1;
     local $Data::Dumper::Sortkeys = 1;
-    return join( ', ', Data::Dumper::Dumper( @_ ) );
+	my $dumped = join(', ', Data::Dumper::Dumper(@_));
+	$dumped =~ s/\n$//;
+	return $dumped;
 }
 
 sub eval {
