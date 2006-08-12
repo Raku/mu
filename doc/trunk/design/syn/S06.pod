@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 11 Aug 2006
+  Last Modified: 12 Aug 2006
   Number: 6
-  Version: 47
+  Version: 48
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1766,10 +1766,6 @@ The following traits can be applied to many types of parameters.
 Specifies that the parameter cannot be modified (e.g. assigned to,
 incremented). It is the default for parameters.
 
-$x = 5;
-
-sub f ($x) {}
-
 =item C<is rw>
 
 Specifies that the parameter can be modified (assigned to, incremented,
@@ -1902,16 +1898,24 @@ smart match (C<~~>) or a C<when>:
         ...
     }
 
-You can also use the postfix signature syntax to test for compatibility:
+Or use its shorthand methods to reduce line noise:
 
-    if    want:($)       {...}  # called in scalar context
-    elsif want:(*@)      {...}  # called in list context
-    elsif want:($ is rw) {...}  # expected to return an lvalue
-    elsif want:($,$)     {...}  # expected to return two values
+    if    want.item      {...}  # called in non-lvalue scalar context
+    elsif want.list      {...}  # called in list context
+    elsif want.void      {...}  # called in void context
+    elsif want.rw        {...}  # expected to return an lvalue
 
-The C<.arity> method also works here:
+The C<.arity> and C<.count> methods also work here:
 
-    if want.arity > 2    {...}  # expected to return more than two values
+    if want.arity > 2    {...}  # must return more than two values
+    if want.count > 2    {...}  # can return more than two values
+
+Their difference is that C<.arity> considers only mandatory parts,
+while C<.count> considers also optional ones, including C<*$>:
+
+    ($x, $y) = f();     # Within &f, want === :(*$?, *$?, *@)
+                        #            want.arity === 0
+                        #            want.count === 2
 
 =head2 The C<leave> function
 
