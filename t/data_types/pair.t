@@ -8,7 +8,7 @@ use Test;
 
 =cut
 
-plan 97;
+plan 98;
 
 # basic Pair
 
@@ -87,7 +87,8 @@ is($quux.key, 'quux', "lhs quotes" );
     # L<S06/Immutable types/Pair "one-element Mapping">
     my $pair = :when<now>;
     is ~(%$pair), "when\tnow";
-    is (%$pair).ref, 'Hash', 'Pair is a special Hash with one element';
+    ok $pair.does(Hash), 'Pair does Hash';
+    ok (%$pair).does(Hash), 'Pair already does Hash, so %() is a no-op';
 }
 
 # lvalue Pair assignments from S06 and thread starting with
