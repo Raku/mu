@@ -2,24 +2,35 @@ use v6-alpha;
 
 use Test;
 
-plan 8;
+plan 7;
 
 # L<S04/"Closure traits" /at run time, ASAP/>
 # INIT {...} blocks in "void" context
 {
-  my $var;
+  my $str;
+  is $str, "begin1 begin2 init ", "init blocks run after begin blocks";
 
-  my $was_in_init;
-  my $was_in_init_as_of_begin_time;
-  my $var_as_of_init_time;
+  BEGIN { $str ~= "begin1 "; }
+  INIT  { $str ~= "init "; }
+  BEGIN { $str ~= "begin2 "; }
+}
 
-  BEGIN { $var = 42; $was_in_init_as_of_begin_time = $was_in_init }
-  INIT  { $was_in_init++; $var_as_of_init_time = $var; $var = 13 }
+{
+  my $str;
+  is $str, "check2 check1 init ", "init blocks run after check blocks";
+  
+  CHECK { $str ~= "check1 "; }
+  INIT  { $str ~= "init "; }
+  CHECK { $str ~= "check2 "; }
+}
 
-  is $was_in_init,  1, 'our INIT {...} block was executed';
-  is $var,         13, 'our INIT {...} block set our variable';
-  is $was_in_init_as_of_begin_time // 0, 0, 'our INIT {...} block was not called before runtime';
-  is $var_as_of_init_time, 42, 'our INIT {...} block was executed after our BEGIN {...} block';
+{
+  my $str;
+  is $str, "begin init1 init2 ", "init blocks run in forward order";
+  
+  INIT  { $str ~= "init1 "; }
+  BEGIN { $str ~= "begin "; }
+  INIT  { $str ~= "init2 "; }
 }
 
 # INIT {...} blocks as rvalues
@@ -27,8 +38,8 @@ plan 8;
   my $var;
   my $was_in_init;
 
-  BEGIN { $var = 42 }
   my $sub = { my $z = INIT { $was_in_init++; $var }; $z + 1 };
+  BEGIN { $var = 42 }
 
   $var = 23;
 

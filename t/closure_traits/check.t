@@ -2,36 +2,26 @@ use v6-alpha;
 
 use Test;
 
-plan 8;
+plan 6;
 
 # L<S04/"Closure traits" /at compile time, ALAP/>
 # CHECK {...} block in "void" context
 {
-  my $var;
+  my $str;
+  BEGIN { $str ~= "begin1 "; }
+  CHECK { $str ~= "check "; }
+  BEGIN { $str ~= "begin2 "; }
 
-  my $was_in_check;
-  my $was_in_begin;
-  my $was_in_check_at_begin_time;
-  my $was_in_begin_at_check_time;
-  my $var_as_of_check_time;
+  is $str, "begin1 begin2 check ", "check blocks run after begin blocks";
+}
 
-  $var = 19;
-
-  CHECK {
-    $var_as_of_check_time = $var;
-    $was_in_check++;
-    $was_in_begin_at_check_time = $was_in_begin;
-  }
-  BEGIN {
-    $var = 42;
-    $was_in_begin++;
-    $was_in_check_at_begin_time = $was_in_check;
-  }
-
-  is $var_as_of_check_time, 42, 'our CHECK {...} block was executed after our BEGIN {...} block';
-  is $was_in_check, 1, 'our CHECK {...} block was executed';
-  is $was_in_begin_at_check_time, 1, 'our BEGIN {...} block was executed before our CHECK {...} block was (1)';
-  is $was_in_check_at_begin_time // 0, 0, 'our BEGIN {...} block was executed before our CHECK {...} block was (2)';
+{
+  my $str;
+  CHECK { $str ~= "check1 "; }
+  BEGIN { $str ~= "begin "; }
+  CHECK { $str ~= "check2 "; }
+  
+  is $str, "begin check2 check1 ", "check blocks run in reverse order";
 }
 
 # CHECK {...} blocks as rvalues
