@@ -9,13 +9,14 @@ $failed = 1;
 
 # When we end, we check if $failed is still 0. If yes, we've never reached runtime.
 END {
-  is $failed // 0, 0, 'exit() works in BEGIN {}';
+  is $failed, undef,
+      'exit() works in BEGIN {} - $faile not yet initialized at END time';
 }
 
 BEGIN {
   # Output the TAP header...
   plan 2;
-  is $failed // 0, 0, 'exit() works in BEGIN {}';
+  is $failed, undef, '$failed not yet initialized in BEGIN {}';
   # ...and exit, implicitly calling END.
   exit;
 }
