@@ -332,24 +332,21 @@ C<===>.
     $a === $b;  # false, of course
     $a eqv $b;  # true
 
-Method calls always go to the container of a variable, but Scalar (the
-container class of scalar variables) can be thought of as providing an
-appropriate AUTOMETH which redirects most calls to the cell of a container.
-Method calls on arrays and hashes always go the container (of course).
+Method calls on arrays and hashes go to the container, whereas method
+calls on scalars go to the cell.  
 
-    $dog.bark();   # method call first dispatched to $dog's container,
-                    # then redispatched to $dog's value, i.e. a Dog object.
-    @array.elems;  # method call dispatched to @array's container.
+    $dog.bark();   # method call dispatched to $dog's value, i.e. a Dog object.
+    @array.elems;  # method call dispatched to @array's container, an Array object
 
-An example of a method on scalar variables which is not redirected to the
-cell is .exists. .exists on scalar containers test, whether the
-container's cell slot is not empty. Example:
+Using the .VAR postfix macro, you can force a method call to a scalar to
+go to its container.  An example of a method on a scalar is .exists,
+which tests whether the container's cell slot is nonempty:
 
-    sub foo ($a?) { $a.exists }
+    sub foo ($a?) { $a.VAR.exists }
     foo();    # false
     foo(42);  # true
 
-(.exists on array and hash containers test whether an element of a given
+.exists on array and hash containers test whether an element of a given
 index/name exists:
 
     my @array = (1,2,3);
