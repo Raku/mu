@@ -896,13 +896,15 @@ ruleDoBlock = rule "do block" $ do
 
 ruleClosureTrait :: Bool -> RuleParser Exp
 ruleClosureTrait rhs = rule "closure trait" $ do
-    let names | rhs       = " BEGIN CHECK INIT FIRST ENTER "
-              | otherwise = " BEGIN CHECK INIT END FIRST ENTER LEAVE KEEP UNDO NEXT LAST PRE POST CATCH CONTROL"
-    name    <- choice $ map symbol $ words names
+    let rhsTraits = words " BEGIN CHECK INIT FIRST ENTER "
+    let names = words " BEGIN CHECK INIT END FIRST ENTER LEAVE KEEP UNDO NEXT LAST PRE POST CATCH CONTROL"
+    name    <- choice $ map symbol $ names
+    when (rhs && not (name `elem` rhsTraits)) $
+        fail (name ++ " may only be used at statement level")
     block   <- ruleBlock
-    let (fun, names) = extractPlaceholderVars block []
+    let (fun, params) = extractPlaceholderVars block []
     -- Check for placeholder vs formal parameters
-    when (not $ null names) $
+    when (not $ null params) $
         fail "Closure traits take no formal parameters"
     env <- ask
     let code = VCode mkSub { subName = name, subBody = fun, subEnv = Just env } 
