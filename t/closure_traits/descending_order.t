@@ -1,79 +1,53 @@
 use v6-alpha;
 
 # Test the running order of BEGIN/CHECK/INIT/END
-# These control blocks appear in a decending order
+# These control blocks appear in descending order
 # [TODO] add tests for other control blocks (e.g. FIRST/ENTER/etc)
 
 use Test;
 
-plan 13;
+plan 7;
 
 # L<S04/Closure traits/END "at run time" ALAP>
 
-my $var = 1;
+my $var;
+my ($var_at_first, $var_at_init, $var_at_check, $var_at_begin);
+my $eof_var;
 
-# vars for END
-my ($evar, $ivar_at_end, $eof_var);
+$var = 13;
 
-# vars for INIT
-my ($ivar, $cvar_at_init, $evar_at_init, $var_at_init);
-
-# vars for CHECK
-my ($cvar, $bvar_at_check, $ivar_at_check, $var_at_check);
-
-# vars for BEGIN
-my ($bvar, $cvar_at_begin, $var_at_begin);
+my $hist;
 
 END {
-    $evar++;
-    $ivar_at_end = $ivar;
-
     # tests for END blocks:
-    is $ivar_at_end, 1, '$ivar_at_end already initialized at END time' ~
-        '(END {} runs at runtime, ALAP)';
-    is $var, 1, '$var gets initialized at END time';
-    is $eof_var, 1, '$eof_var gets assigned at END time';
+    is $var, 13, '$var gets initialized at END time';
+    is $eof_var, 29, '$eof_var gets assigned at END time';
+}
+
+FIRST {
+    $hist ~= 'first ';
+    $var_at_first = $var;
 }
 
 INIT {
-    $ivar++;
-    $cvar_at_init = $cvar;
-    $evar_at_init = $evar;
+    $hist ~= 'init ';
+    $var_at_init = $var;
 }
 
 CHECK {
-    $cvar++;
-    $bvar_at_check = $bvar;
-    $ivar_at_check = $ivar;
+    $hist ~= 'check ';
+    $var_at_check = $var;
 }
 
 BEGIN {
-    $bvar++;
-    $cvar_at_begin = $cvar;
+    $hist ~= 'begin ';
     $var_at_begin = $var;
 }
 
-# tests for INIT blocks:
-is $ivar, 1, 'INIT {} runs only once';
-is $cvar_at_init, 1, '$cvar already assigned ' ~
-    '(INIT {} runs after CHECK {})';
-is $evar_at_init, undef, '$evar not yet initialized at INIT time ' ~
-    '(INIT {} runs before END {})';
+is $hist, 'begin check init first ', 'BEGIN {} runs only once';
+is $var_at_begin, undef, 'BEGIN {...} ran at compile time';
+is $var_at_check, undef, 'CHECK {...} ran at compile time';
+is $var_at_init, undef, 'INIT {...} ran at runtime, but ASAP';
+is $var_at_first, undef, 'FIRST {...} at runtime, but before the mainline body';
 
-# tests for CHECK blocks:
-is $cvar, 1, 'CHECK {} runs only once';
-is $bvar_at_check, 1, '$bvar already assigned ' ~
-    '(CHECK {} runs after BEGIN {})';
-is $ivar_at_check, undef, '$ivar not yet initialized at CHECK time ' ~
-    '(CHECK {} runs before INIT {})';
-is $var_at_check, undef, '$var not yet initialized at CHECK time ' ~
-    '(CHECK {} runs at runtime, but ASAP)';
-
-# tests for BEGIN blocks:
-is $bvar, 1, 'BEGIN {} runs only once';
-is $cvar_at_begin, undef, '$cvar not yet initialized at BEGIN time ' ~
-    '(BEGIN {} runs before CHECK {})';
-is $var_at_begin, undef, '$var not yet initialized at BEGIN time ' ~
-    '(BEGIN {} runs at compile-time)';
-
-$eof_var = 1;
+$eof_var = 29;
