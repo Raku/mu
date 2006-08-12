@@ -296,7 +296,7 @@ findSub name' invs args = do
         maybeM (findVar (':':'*':pkg)) $ \ref -> do
             meta    <- readRef ref
             fetch   <- doHash meta hash_fetchVal
-            fromVal =<< fetch "traits"
+            fromVal =<< fetch "is"
     findWithPkg :: String -> String -> Eval (Either FindSubFailure VCode)
     findWithPkg pkg name = do
         subs <- findSub' (('&':pkg) ++ "::" ++ tail name)

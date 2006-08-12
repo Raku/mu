@@ -242,7 +242,7 @@ rulePackageHead = do
         Just SOur -> return $ envPackage env ++ "::" ++ name
         Nothing   -> return name
         _         -> fail "I only know about package- and global-scoped classes. Sorry."
-    traits  <- many $ ruleTrait
+    traits  <- many $ ruleTrait ["is", "does"]
     let pkgClass = case sym of
                        "package" -> "Package"
                        "module"  -> "Module"
@@ -250,11 +250,12 @@ rulePackageHead = do
                        "role"    -> "Class" -- XXX - Wrong - need metamodel
                        "grammar" -> "Grammar"
                        _ -> fail "bug"
-        parentClasses = nub ("Object":traits)
+        mixinRoles = nub ([ cls | ("does", cls) <- traits])
+        parentClasses = nub ("Object":[ cls | ("is", cls) <- traits])
     if (elem name parentClasses)
         then return (Left $ "Circular inheritance detected for " ++ sym ++ " '" ++ name ++ "'")
         else do
-            unsafeEvalExp (newPackage pkgClass newName parentClasses)
+            unsafeEvalExp (newPackage pkgClass newName parentClasses mixinRoles)
             modify $ \state -> state
                 { ruleEnv = (ruleEnv state)
                     { envPackage = newName
@@ -265,6 +266,9 @@ rulePackageHead = do
             let pkgVal = Val . VStr $ newName
                 kind   = Val . VStr $ sym
             return $ Right (newName, kind, pkgVal, env)
+
+ruleTraitsIsOnly :: RuleParser [String]
+ruleTraitsIsOnly = fmap (map snd) . many $ ruleTrait ["is"]
 
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
@@ -279,7 +283,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     typ'    <- option typ returnsOrOf
     formal  <- option Nothing $ ruleSubParameters ParensMandatory
     typ''   <- option typ' returnsOrOf
-    traits  <- many $ ruleTrait
+    traits  <- ruleTraitsIsOnly
 
     -- XXX - We have the prototype now; install it immediately?
 
@@ -407,7 +411,7 @@ ruleFormalParam opt = rule "formal parameter" $ do
     sigil1  <- option "" $ choice . map symbol $ words " : * "
     name    <- ruleParamName -- XXX support *[...]
     sigil2  <- option "" $ choice . map symbol $ words " ? ! "
-    traits  <- many ruleTrait
+    traits  <- ruleTraitsIsOnly
     -- sigil' is the canonical form of sigil1 and sigil2, e.g.
     --   $foo is required -->  !$foo
     --  :$foo             --> ?:$foo
@@ -461,11 +465,14 @@ ruleTraitDeclaration = try $ do
     --   is eval(...);        # trait
     --   is eval(...) }       # trait
     --   is eval(...), ...    # sub call
-    trait   <- ruleTrait
+    (aux, trait) <- ruleTrait ["is", "does"]
     lookAhead (eof <|> (oneOf ";}" >> return ()))
     env     <- ask
     let pkg = Var (':':'*':envPackage env)
-    return $ Syn "=" [Syn "{}" [pkg, Val (VStr "traits")], Syn "," [Syn "@{}" [Syn "{}" [pkg, Val (VStr "traits")]], Val (VStr trait)]]
+    return $ Syn "="
+        [ Syn "{}" [pkg, Val (VStr aux)]
+        , Syn "," [Syn "@{}" [Syn "{}" [pkg, Val (VStr aux)]], Val (VStr trait)]
+        ]
 
 ruleMemberDeclaration :: RuleParser Exp
 ruleMemberDeclaration = do
@@ -479,7 +486,7 @@ ruleMemberDeclaration = do
             | (isAlpha twigil) || twigil == '_'
                     -> return (x:'!':xs)
         _           -> fail $ "Invalid member variable name '" ++ attr ++ "'"
-    traits  <- many ruleTrait
+    traits  <- ruleTraitsIsOnly
     optional $ do { symbol "handles"; ruleExpression }
     env     <- ask
     -- manufacture an accessor
@@ -1238,14 +1245,14 @@ ruleBlockFormalStandard = rule "standard block parameters" $ do
         , do { symbol "macro"; return SubMacro }
         ]
     params <- option Nothing $ ruleSubParameters ParensMandatory
-    traits <- many $ ruleTrait
+    traits <- ruleTraitsIsOnly
     return $ (styp, params, "rw" `elem` traits)
 
 ruleBlockFormalPointy :: RuleParser (SubType, Maybe [Param], Bool)
 ruleBlockFormalPointy = rule "pointy block parameters" $ do
     symbol "->"
     params <- ruleSubParameters ParensOptional
-    traits <- many $ ruleTrait
+    traits <- ruleTraitsIsOnly
     return $ (SubPointy, params, "rw" `elem` traits)
 
 

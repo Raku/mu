@@ -180,8 +180,8 @@ prepareEnv name args = do
 initClassObjects :: ObjectId -> [Type] -> ClassTree -> IO [STM PadMutator]
 initClassObjects uniq parent (Node typ children) = do
     obj     <- createObjectRaw uniq Nothing (mkType "Class")
-        [ ("name",   castV $ showType typ)
-        , ("traits", castV $ map showType parent)
+        [ ("name",  castV $ showType typ)
+        , ("is",    castV $ map showType parent)
         ]
     objSV   <- newScalar (VObject obj)
     rest    <- mapM (initClassObjects (MkObjectId . pred $ unObjectId uniq) [typ]) children

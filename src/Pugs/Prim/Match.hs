@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans #-}
 
 module Pugs.Prim.Match (
-    op2Match, rxSplit, rxSplit_n, matchFromMR, pkgParents
+    op2Match, rxSplit, rxSplit_n, matchFromMR, pkgParents, pkgParentClasses
 ) where
 import Pugs.Internals
 import Pugs.Embed
@@ -278,7 +278,18 @@ pkgParents pkg = do
     if ref == undef then return [] else do
     meta    <- readRef =<< fromVal ref
     fetch   <- doHash meta hash_fetchVal
-    attrs   <- fromVal =<< fetch "traits"
-    pkgs    <- mapM pkgParents attrs
+    attrs   <- fromVal =<< fetch "is"
+    attrs'  <- fromVal =<< fetch "does" -- XXX wrong
+    pkgs    <- mapM pkgParents (attrs ++ attrs')
     return $ nub (pkg:concat pkgs)
 
+-- XXX - copy and paste code; merge with above!
+pkgParentClasses :: VStr -> Eval [VStr]
+pkgParentClasses pkg = do
+    ref     <- readVar (':':'*':pkg)
+    if ref == undef then return [] else do
+    meta    <- readRef =<< fromVal ref
+    fetch   <- doHash meta hash_fetchVal
+    attrs   <- fromVal =<< fetch "is"
+    pkgs    <- mapM pkgParentClasses attrs
+    return $ nub (pkg:concat pkgs)

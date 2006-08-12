@@ -659,7 +659,7 @@ op1 "Class::traits" = \v -> do
     cls     <- fromVal v
     meta    <- readRef =<< fromVal cls
     fetch   <- doHash meta hash_fetchVal
-    str     <- fromVal =<< fetch "traits"
+    str     <- fromVal =<< fetch "is"
     return str
 op1 "vv" = toVV'
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
@@ -949,8 +949,14 @@ op2 "kill" = \s v -> do
         return 1
     rets <- mapM (tryIO 0 . doKill) pids'
     return . VInt $ sum rets
-op2 "does"  = op2 "isa" -- XXX not correct
-op2 "isa"   = \x y -> do
+op2 "isa"    = \x y -> do
+    typY <- case y of
+        VStr str -> return $ mkType str
+        _        -> fromVal y
+    typX <- fromVal x -- XXX consider line 224 of Pugs.Prim.Match case too
+    typs <- pkgParentClasses (showType typX)
+    return . VBool $ showType typY `elem` (showType typX:typs)
+op2 "does"   = \x y -> do
     typY <- case y of
         VStr str -> return $ mkType str
         _        -> fromVal y
@@ -1162,6 +1168,29 @@ op3 "splice" = \x y z -> do
 op3 "split" = op3Split
 op3 "Str::split" = \x y z -> do
     op3 "split" y x z
+op3 "META::new" = \t n p -> do
+    cls     <- op3 "Object::new" t n p
+    meta    <- readRef =<< fromVal cls
+    fetch   <- doHash meta hash_fetchVal
+
+    name    <- fromVal =<< fetch "name"
+    roles   <- fromVals =<< fetch "does"
+
+    -- Role flattening -- copy over things there and put it to symbol table
+    -- XXX - also do renaming of concrete types mentioned in roles
+    -- XXX - also, rewrite subEnv mentioned in the subs
+    -- XXX - also, copy over the inheritance chain from role's metaobject
+    glob <- asks envGlobal
+    liftSTM . modifyTVar glob $ \(MkPad entries) ->
+        MkPad . Map.union entries . Map.fromList $
+            [ (toPackage name sym, v)
+            | (k, v) <- Map.assocs entries
+            , let q = isQualified k
+            , isJust q
+            , let (pkg, sym) = fromJust q
+            , pkg `elem` roles
+            ]
+    return cls
 op3 "Object::new" = \t n p -> do
     positionals <- fromVal p
     typ     <- fromVal t
@@ -1452,6 +1481,7 @@ primOp sym assoc prms ret isSafe isMacro = do
     pkg = do
         (_, pre) <- breakOnGlue "::" (reverse sym)
         return $ dropWhile (not . isAlphaNum) (reverse pre)
+
     sub safe = codeRef $! mkPrim
         { subName     = sym
         , subType     = case pkg of
@@ -1888,6 +1918,7 @@ initSyms = mapM primDecl syms
 \\n   Code      pre     TEMP    safe   (rw!Any)\
 \\n   Object    pre     Object::clone   safe   (Object: Named)\
 \\n   Class     pre     Object::meta    safe   (Object)\
+\\n   Object    pre     META::new     safe   (Object: Named)\
 \\n   Str       pre     Class::name    safe   (Class)\
 \\n   Hash      pre     Class::traits  safe   (Class)\
 \\n   Object    pre     SKID      safe   (Any)\

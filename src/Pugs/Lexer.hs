@@ -374,9 +374,9 @@ postSpace rule = try $ do
     whiteSpace
     return rv
 
-ruleTrait :: RuleParser String
-ruleTrait = rule "trait" $ do
-    symbol "is" <|> symbol "does"
+ruleTrait :: [String] -> RuleParser (String, String)
+ruleTrait auxs = rule "trait" $ do
+    aux <- choice $ map symbol auxs
     trait <- do
         optional $ string "::" -- XXX Bad Hack
         ruleQualifiedIdentifier
@@ -386,7 +386,7 @@ ruleTrait = rule "trait" $ do
     -- <Aankhen``> Otherwise, it'll be a pain to go back to every module and
     --             change it all once the proper behaviour is implemented.
     optional $ verbatimParens $ many $ satisfy (/= ')')
-    return trait
+    return (aux, trait)
 
 ruleTraitName :: String -> RuleParser String
 ruleTraitName trait = rule "named trait" $ do

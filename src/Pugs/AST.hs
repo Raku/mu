@@ -198,16 +198,20 @@ isEmptyParams [] = True
 isEmptyParams [x] | [_, '_'] <- paramName x = True
 isEmptyParams _ = False
 
-newPackage :: String -> String -> [String] -> Exp
-newPackage cls name traits = Stmts metaObj (newType name)
+newPackage :: String -> String -> [String] -> [String] -> Exp
+newPackage cls name classes roles = Stmts metaObj (newType name)
     where
     metaObj = Sym SGlobal (':':'*':name) $! Syn ":="
         [ Var (':':'*':name)
-        , App (Var "&Object::new")
+        , App (Var "&META::new")
             (Just $ Val (VType $ mkType cls))
             [ Syn "named"
-                [ Val (VStr "traits")
-                , Val (VList $ map VStr traits)
+                [ Val (VStr "is")
+                , Val (VList $ map VStr classes)
+                ]
+            , Syn "named"
+                [ Val (VStr "does")
+                , Val (VList $ map VStr roles)
                 ]
             , Syn "named"
                 [ Val (VStr "name")
