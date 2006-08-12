@@ -16,18 +16,21 @@ plan 2;
 
 my $hist;
 
-END { is $hist, 'BbCcIieE', 'running order of multiple closure traits' }
+END { is $hist, 'B b c C I i F f end End ', 'running order of multiple closure traits' }
 
-END { $hist ~= 'E' }
-END { $hist ~= 'e' }
+END { $hist ~= 'End ' }
+END { $hist ~= 'end ' }
 
-INIT { $hist ~= 'I' }
-INIT { $hist ~= 'i' }
+FIRST { $hist ~= 'F ' }
+FIRST { $hist ~= 'f ' }
 
-CHECK { $hist ~= 'C' }
-CHECK { $hist ~= 'c' }
+INIT { $hist ~= 'I ' }
+INIT { $hist ~= 'i ' }
 
-BEGIN { $hist ~= 'B' }
-BEGIN { $hist ~= 'b' }
+CHECK { $hist ~= 'C ' }
+CHECK { $hist ~= 'c ' }
 
-is $hist, 'BbCcIi', 'running order of multiple closure traits';
+BEGIN { $hist ~= 'B ' }
+BEGIN { $hist ~= 'b ' }
+
+is $hist, 'B b c C I i F f ', 'running order of multiple closure traits';
