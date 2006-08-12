@@ -450,14 +450,25 @@ op1 "IO::Dir::readdir" = \v -> do
         if null this then return [] else do
         rest <- readDirStreamList dir
         return $ (this:rest)
+op1 "Pugs::Internals::runShellCommand" = \v -> do
+    str <- fromVal v
+    cxt <- asks envContext
+    guardIO $ do
+        (inp,out,err,pid) <- runInteractiveCommand str
+        hClose inp
+        res <- hGetContents out
+        waitForProcess pid
+        return $ case cxt of
+            CxtSlurpy{} -> VList (map VStr $ lines res)
+            _           -> VStr res
 op1 "Pugs::Internals::runInteractiveCommand" = \v -> do
     str <- fromVal v
     guardIO $ do
-        (inp,out,err,phand) <- runInteractiveCommand str
+        (inp,out,err,pid) <- runInteractiveCommand str
         return $ VList [ VHandle inp
                        , VHandle out
                        , VHandle err
-                       , VProcess (MkProcess phand)
+                       , VProcess (MkProcess pid)
                        ]
 op1 "Pugs::Internals::check_for_io_leak" = \v -> do
     rv      <- evalExp (App (Val v) Nothing [])
@@ -1883,6 +1894,7 @@ initSyms = mapM primDecl syms
 \\n   Int       pre     Rat::numerator   safe   (Rat:)\
 \\n   Int       pre     Rat::denominator safe   (Rat:)\
 \\n   Bool      pre     Thread::yield   safe   (Thread)\
+\\n   List      pre     Pugs::Internals::runShellCommand        unsafe (Str)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand  unsafe (Str)\
 \\n   Bool      pre     Pugs::Internals::hSetBinaryMode         unsafe (IO, Str)\
 \\n   Void      pre     Pugs::Internals::hSeek                  unsafe (IO, Int, Int)\

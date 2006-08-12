@@ -1457,20 +1457,9 @@ ruleApply isFolded = tryVerbatimRule "apply" $
 
 ruleApplyImplicitMethod :: RuleParser Exp
 ruleApplyImplicitMethod = do
-    {- (colonify :: String -> String) is a function that will take a name
-       like '&foo', and MIGHT convert it to '&:foo'.  This only happens if
-       you're using the '!foo' implicit-invocant syntax, otherwise 'colon' will
-       just be 'id'.
-    
-       (inv :: Maybe Exp) might hold a 'Var' expression indicating the implicit
-       invocant.  Of course, if you're not using implicit-invocant syntax, this
-       will be 'Nothing'. -}
-    implicitInv <- do
-        char '.' -- implicit-invocant forms all begin with '.'
-        return (Var "$_")
-    insertIntoPosition '.' 
+    lookAhead (char '.')
     fs <- many rulePostTerm
-    return (combine (reverse fs) implicitInv)
+    return (combine (reverse fs) (Var "$_"))
 
 ruleSubNameWithoutPostfixModifier :: RuleParser String
 ruleSubNameWithoutPostfixModifier = try $ do
@@ -1999,13 +1988,9 @@ qLiteral1 qStart qEnd flags = do
         -- expr ~~ rx:perl5:g/(\S+)/
         QS_Yes      -> return (doSplit expr)
         QS_Protect  -> return (doSplit expr)
-        QS_No       -> case qfExecute flags of
-            True | Val (VStr str) <- unwrap expr -> do
-                return . Val . VV $ val (cast str :: PureStr)
-                -- this demonstrates we *can* get PureInt here.
-                --return . Val . VV $ val (cast ((read str) :: Integer) :: PureInt)
-            _   -> do
-                return expr
+        QS_No       -> return $ case qfExecute flags of
+            True -> App (Var "&Pugs::Internals::runShellCommand") Nothing [expr]
+            _    -> expr
     where
     -- words() regards \xa0 as (breaking) whitespace. But \xa0 is
     -- a nonbreaking ws char.
