@@ -1005,33 +1005,21 @@ vcode2firstBlock code = do
         ]
 
 vcode2initBlock :: Val -> RuleParser Exp
-vcode2initBlock code = vcode2initOrCheckBlock "@*INIT" True code
+vcode2initBlock code = do
+	body <- vcode2firstBlock code
+	fstcode <- unsafeEvalExp $ Syn "sub" [ Val $ VCode mkSub { subBody = body } ]
+	unsafeEvalExp $
+		App (Var "&push") (Just $ Var "@*INIT") [ fstcode ]
+	return $ App fstcode Nothing []
 
 vcode2checkBlock :: Val -> RuleParser Exp
-vcode2checkBlock code = vcode2initOrCheckBlock "@*CHECK" False code
-
-vcode2initOrCheckBlock :: String -> Bool -> Val -> RuleParser Exp
-vcode2initOrCheckBlock magicalVar allowIOLeak code = do
-    -- Similar as with FIRST {...}, we transform our input:
-    -- my $x = INIT { 42 }   is transformed into
-    -- BEGIN { push @*INIT, { FIRST { 42 } } }; my $x = @*INIT[(index)]();
-    -- Or, with CHECK:
-    -- my $x = CHECK { 42 }  is transformed into
-    -- BEGIN { push @*CHECK, { FIRST { 42 } } }; my $x = @*CHECK[(index)]();
-    -- This is the inner FIRST {...} block we generate.
-    body <- vcode2firstBlock code
-    let possiblyCheck | allowIOLeak = id
-                      | otherwise   = checkForIOLeak
-    rv <- unsafeEvalExp $
-        -- BEGIN { push @*INIT, { FIRST {...} } }
-        App (Var "&push") (Just $ Var magicalVar)
-            [ Syn "sub" [ Val $ VCode mkSub { subBody = possiblyCheck body }]]
-    -- rv is the return value of the push. Now we extract the actual num out of it:
-    let (Val (VInt elems)) = rv
-    -- Finally, we can return the transformed expression.
-    -- elems is the new number of elems in @*INIT (as push returns the new
-    -- number of elems), but we're interested in the index, so we -1 it.
-    return $ App (Syn "[]" [Var magicalVar, Val . VInt $ elems - 1]) Nothing []
+vcode2checkBlock code = do
+	body <- vcode2firstBlock code
+	fstcode <- unsafeEvalExp $ 
+		Syn "sub" [ Val $ VCode mkSub { subBody = checkForIOLeak body } ]
+	unsafeEvalExp $
+		App (Var "&unshift") (Just $ Var "@*CHECK") [ fstcode ]
+	return $ App fstcode Nothing []
 
 -- Constructs ------------------------------------------------
 
