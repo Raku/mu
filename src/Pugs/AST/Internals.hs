@@ -71,7 +71,7 @@ module Pugs.AST.Internals (
     unwrap, -- Unwrap(..) -- not used in this file, suitable for factoring out
     newObjectId, runInvokePerl5,
     
-    errStrPos, errValPos, enterAtomicEnv, valToBool, -- for circularity
+    errStrPos, errValPos, enterAtomicEnv, valToBool, envPos', -- for circularity
     expToEvalVal, -- Hack, should be removed once it's figured out how
 ) where
 import Pugs.Internals
@@ -1019,6 +1019,9 @@ data Env = MkEnv
     , envAtomic  :: !Bool                -- ^ Are we in an atomic transaction?
     } 
     deriving (Show, Eq, Ord, Typeable) -- don't derive YAML for now
+
+envPos' :: Env -> Pos
+envPos' = envPos
 
 {-|
 Module initialization information.

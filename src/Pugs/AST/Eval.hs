@@ -106,7 +106,7 @@ instance Monad Eval where
         a <- runEvalT m
         runEvalT (k a)
     fail str = do
-        pos <- asks envPos
+        pos <- asks envPos'
         shiftT . const . return $ errStrPos str pos
 
 instance MonadTrans EvalT where
@@ -120,7 +120,7 @@ instance MonadIO Eval where
 
 instance MonadError Val Eval where
     throwError err = do
-        pos <- asks envPos
+        pos <- asks envPos'
         shiftT . const . return $ errValPos err pos
     catchError _ _ = fail "catchError unimplemented"
 
