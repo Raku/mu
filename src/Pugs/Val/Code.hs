@@ -22,13 +22,18 @@ data Code
         , c_pad               :: Pad       -- ^ Storage for lexical vars
         , c_traits            :: Table     -- ^ Any additional trait not
                                            --   explicitly mentioned below
-        , c_preBlocks         :: [Code]
+        , c_preBlocks         :: [Code]    -- ^ DBC hooks: pre(\$args --> Bool) 
         , c_postBlocks        :: [Code]
+        , c_enterBlocks       :: [Code]    -- ^ AOPish hooks
+        , c_leaveBlocks       :: [Code]
         , c_firstBlocks       :: [Code]
         , c_lastBlocks        :: [Code]
         , c_nextBlocks        :: [Code]
         , c_keepBlocks        :: [Code]
         , c_undoBlocks        :: [Code]
+        , c_undoBlocks        :: [Code]
+        , c_catchBlock        :: Maybe Code
+        , c_controlBlock      :: Maybe Code
         }
     | CodePrim
         { c_signature         :: Sig
