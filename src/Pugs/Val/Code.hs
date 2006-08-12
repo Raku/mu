@@ -48,6 +48,7 @@ data CodeAssoc
     | AssList
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
+--------------------------------------------------------------------------------------
 
 -- | AST for function signature. Separated to method and function variants
 --   for ease of pattern matching.
@@ -107,6 +108,25 @@ data ParamAccess
     = AccessRO
     | AccessRW
     | AccessCopy
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+--------------------------------------------------------------------------------------
+
+-- | Capture.
+data Cap 
+    = CaptMeth
+        { c_invocant :: Exp
+        , c_argstack :: [Arglist]
+        }
+    | CaptSub
+        { c_argstack :: [Arglist]
+        }
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+data Arglist = MkArglist
+    { a_positional :: [Exp]
+    , a_named      :: Map Ident [Exp]
+    }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 type Exp = () -- XXX bogus

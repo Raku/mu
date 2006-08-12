@@ -343,7 +343,6 @@ data PadEntry = MkEntry
     }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
-
 --------------------------------------------------------------------------------------
 
 {- Variable specification. This belongs in an AST .hs file, not here but until
