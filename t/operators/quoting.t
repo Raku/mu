@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 86;
+plan 90;
 
 my $foo = "FOO";
 my $bar = "BAR";
@@ -40,15 +40,23 @@ Tests quoting constructs as defined in L<S02/Literals>
 
 { # non interpolating single quotes with nested parens L<S02/Literals /That is.*?\(\).*?have no special significance/>
     my @q = ();
-    try { eval '@q = (q: (($foo $bar)))' };
-    is(+@q, 1, 'q: () is singular', :todo);
-    is(@q[0], '($foo $bar)', 'and nests parens appropriately', :todo);
+    try { eval '@q = (q (($foo $bar)))' };
+    is(+@q, 1, 'q (()) is singular');
+    is(@q[0], '$foo $bar', 'and nests parens appropriately');
+};
+
+{ # non interpolating single quotes with nested parens L<S02/Literals /That is.*?\(\).*?have no special significance/>
+    my @q = ();
+    try { eval '@q = (q ( ($foo $bar)))' };
+    is(+@q, 1, 'q () is singular');
+    is(@q[0], ' ($foo $bar)', 'and nests parens appropriately');
 };
 
 { # q() is bad L<S02/Literals /Which is mandatory for parens/>
-    my @q = ();
-    @q = (q(($foo $bar)));
-    is(+@q, 0, 'nothing in @q, q() is not allowed', :todo);
+    my @q;
+    sub q { @_ }
+    @q = q($foo,$bar);
+    is(+@q, 2, 'q() is always sub call', :todo);
 };
 
 { # adverb variation L<S02/Literals /:q/>
@@ -58,11 +66,18 @@ Tests quoting constructs as defined in L<S02/Literals>
     is(@q[0], '$foo $bar', "and again, non interpolating");
 };
 
-{ # nested parens
+{ # nested brackets
+    my @q = ();
+    @q = (q[ [$foo $bar]]);
+    is(+@q, 1, 'q[] is singular');
+    is(@q[0], ' [$foo $bar]', 'and nests brackets appropriately');
+};
+
+{ # nested brackets
     my @q = ();
     @q = (q[[$foo $bar]]);
-    is(+@q, 1, 'q[] is singular');
-    is(@q[0], '[$foo $bar]', 'and nests parens appropriately');
+    is(+@q, 1, 'q[[]] is singular');
+    is(@q[0], '$foo $bar', 'and nests brackets appropriately');
 };
 
 { # interpolating quotes L<S02/Literals /same as qq/>
