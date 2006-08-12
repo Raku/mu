@@ -1,8 +1,8 @@
 
 use lib '../Pugs-Grammar-MiniPerl6/lib';
-use Test::More tests => 10;
+use Test::More tests => 9;
 
-#use_ok( 'Pugs::Grammar::Rule' );
+use Pugs::Grammar::Rule;
 use_ok( 'Pugs::Emitter::Rule::Parsec' );
 
 # XXX replace by really feed result to GHC and parse test data
@@ -184,3 +184,4 @@ q#do
   return $ (mkHash ["statement", capture_0, "exp1", exp1, "exp2", exp2])
 #,
 'ruleLoop');
+

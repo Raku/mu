@@ -204,6 +204,13 @@ sub named_capture {
     return "$name <- " . emit_rule($program, $_[1] . '  ');
 }
 
+sub negate {
+    my $body = $_[0];
+    return not_after($body->{after}, $_[1]) if exists $body->{after};
+    return not_before($body->{before}, $_[1]) if exists $body->{before};
+    return '';
+}
+
 sub before {
     my $program = $_[0]{rule};
     return 'lookAhead (' . emit_rule($program, $_[1] . '    ') . ')';

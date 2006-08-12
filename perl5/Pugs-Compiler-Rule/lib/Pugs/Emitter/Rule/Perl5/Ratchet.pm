@@ -394,7 +394,7 @@ sub closure {
     # $()<name>
     $code =~ s/ ([^']) \$ \( \) < (.*?) > /$1 \$_[0]->[$2] /sgx;
     # $<name>
-    $code =~ s/ ([^']) \$ < (.*?) > /$1 \$_[0]->{$2} /sgx;
+    $code =~ s/ ([^']) \$ < (.*?) > /$1 \$_[0]->{named}->{$2} /sgx;
     # $()
     $code =~ s/ ([^']) \$ \( \) /$1 \$_[0]->() /sgx;
     # $/
@@ -404,7 +404,7 @@ sub closure {
     return 
         "$_[1] do {\n" .
         "$_[1]   local \$::_V6_SUCCEED = 1;\n" .
-        "$_[1]   sub $code->( \$m );\n" .
+        "$_[1]   sub $code->( \$m->data );\n" .
         "$_[1]   \$::_V6_SUCCEED;\n" .
         "$_[1] }" 
         unless $code =~ /return/;
@@ -412,7 +412,7 @@ sub closure {
     return
         "$_[1] do { \n" .
         "$_[1]   local \$::_V6_SUCCEED = 1;\n" .
-        "$_[1]   \$m->data->{capture} = \\( sub $code->( \$m ) ); \n" .
+        "$_[1]   \$m->data->{capture} = \\( sub $code->( \$m->data ) ); \n" .
         "$_[1]   \$bool = \$::_V6_SUCCEED;\n" .
         "$_[1]   \$::_V6_MATCH_ = \$m if \$bool; \n" .
         "$_[1]   return \$m if \$bool; \n" .
