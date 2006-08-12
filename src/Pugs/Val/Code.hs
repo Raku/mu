@@ -25,12 +25,10 @@ data Code
         , c_preBlocks         :: [Code]    -- ^ DBC hooks: pre(\$args --> Bool) 
         , c_postBlocks        :: [Code]
         , c_enterBlocks       :: [Code]    -- ^ AOPish hooks
-        , c_leaveBlocks       :: [Code]
+        , c_leaveBlocks       :: [CodeLeave]
         , c_firstBlocks       :: [Code]
         , c_lastBlocks        :: [Code]
         , c_nextBlocks        :: [Code]
-        , c_keepBlocks        :: [Code]
-        , c_undoBlocks        :: [Code]
         , c_catchBlock        :: Maybe Code
         , c_controlBlock      :: Maybe Code
         }
@@ -41,6 +39,13 @@ data Code
         , c_isRW              :: Bool
         , c_isSafe            :: Bool
         }
+    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+-- | Block exit traits may be interleaved, so tag them by type
+data CodeLeave
+    = LeaveNormal Code        -- ^ LEAVE block
+    | LeaveKeep   Code        -- ^ KEEP block
+    | LeaveUndo   Code        -- ^ UNDO block
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- | Function associtivity
