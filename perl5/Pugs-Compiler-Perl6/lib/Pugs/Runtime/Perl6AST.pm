@@ -23,6 +23,11 @@ use Data::Dumper;
 sub create {
     #print "create new node $_[0], ", Dumper( $_[1]->data );
     #print " str ", $_[1]->flat, "\n";
-    bless \{ $_[1]->flat }, $_[0];
+    bless \( $_[1]->flat ), $_[0];
+}
+sub str {
+    #print Dumper( ${$_[0]} );
+    my $s = ${$_[0]};  
+    return $s;
 }
 use v6; 
