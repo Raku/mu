@@ -1,6 +1,8 @@
 use v6-alpha;
 
-# Test duplicated BEGIN/CHECK/INIT/END blocks
+# [TODO] add tests for ENTER/LEAVE/KEEP/UNDO/PRE/POST/etc
+
+# Test multiple closure traits.
 
 use Test;
 

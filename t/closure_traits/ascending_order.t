@@ -1,8 +1,8 @@
 use v6-alpha;
 
 # Test the running order of BEGIN/CHECK/INIT/END
-# These control blocks appear in ascending order
-# [TODO] add tests for other control blocks (e.g. FIRST/ENTER/etc)
+# These blocks appear in ascending order
+# [TODO] add tests for ENTER/LEAVE/KEEP/UNDO/PRE/POST/etc
 
 use Test;
 

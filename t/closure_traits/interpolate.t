@@ -4,7 +4,9 @@ use v6-alpha;
 
 use Test;
 
-plan 4;
+plan 6;
+
+# [TODO] add tests for ENTER/LEAVE/KEEP/UNDO/PRE/POST/etc
 
 # L<S04/Closure traits/END "at run time" ALAP>
 
@@ -16,10 +18,17 @@ plan 4;
 # audreyt   compile time.
 #           qq is not eval.
 
-my $hist = '';
+my $hist;
+
+END {
+    is $hist, 'BCIFE', 'interpolated END {...} executed';
+}
 
 is "{ END { $hist ~= 'E' } }", undef,
     'END {...} not yet executed';
+
+is "{ FIRST { $hist ~= 'F' } }", "BCIF",
+    'FIRST {...} fired at run-time, entry time of the mainline code';
 
 is "{ INIT { $hist ~= 'I' } }", 'BCI',
     'INIT {...} fired at the beginning of runtime';
