@@ -31,7 +31,6 @@ data Code
         , c_nextBlocks        :: [Code]
         , c_keepBlocks        :: [Code]
         , c_undoBlocks        :: [Code]
-        , c_undoBlocks        :: [Code]
         , c_catchBlock        :: Maybe Code
         , c_controlBlock      :: Maybe Code
         }
