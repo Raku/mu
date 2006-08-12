@@ -2,56 +2,62 @@ use v6-alpha;
 
 use Test;
 
-plan 11;
+plan 13;
+
+# L<S04/Closure traits/FIRST "runs seperately for each clone">
 
 {
-  my $var;
-  my $was_in_first = 0;
-  my $sub = { FIRST { $was_in_first++; $var = rand } };
+    my $var;
+    my $was_in_first = 0;
+    my $sub = { FIRST { $was_in_first++; $var = rand } };
 
-  $sub();
-  is $was_in_first, 1, 'our FIRST {} block was invoked';
-  my $orig_var = $var;
+    is $var, undef, 'FIRST {...} not run yet';
 
-  $sub();
-  is $was_in_first, 1, 'our FIRST {} block was invoked only once...';
-  is $var, $orig_var, "...and our var wasn't changed";
+    $sub();
+    is $was_in_first, 1, 'our FIRST {} block was invoked';
+    my $orig_var = $var;
+
+    $sub();
+    is $was_in_first, 1, 'our FIRST {} block was invoked only once...';
+    is $var, $orig_var, "...and our var wasn't changed";
 }
 
 {
-  my $sub = {
-    my $var = 42;
-    FIRST { $var = 23 };
-    $var;
-  };
+    my $sub = {
+        my $str ~= 'o';
+        FIRST { $str ~= 'I' };
+        FIRST { $str ~= 'i' };
+        ":$str";
+    };
 
-  is $sub(), 23, 'our FIRST {} block set our variable (1)';
-  is $sub(), 42, 'our FIRST {} wasn\'t invoked again (1-1)';
-  is $sub(), 42, 'our FIRST {} wasn\'t invoked again (1-2)';
+    is $sub(), ':Iio', 'FIRST {} block set $str to 3';
+    is $sub(), ':o', 'FIRST {} wasn\'t invoked again (1-1)';
+    is $sub(), ':o', 'FIRST {} wasn\'t invoked again (1-2)';
 }
 
 {
-  my $was_in_first;
-  my $sub = {
-    my $var = FIRST { $was_in_first++; 23 };
-    $var //= 42;
-    $var;
-  };
+    my $was_in_first;
+    my $sub = {
+      my $var = FIRST { $was_in_first++; 23 };
+      $var //= 42;
+      $var;
+    };
 
-  is $sub(), 23, 'our FIRST {} block set our variable (2)';
-  is $sub(), 23, 'our FIRST {} wasn\'t invoked again (2-1)';
-  is $sub(), 23, 'our FIRST {} wasn\'t invoked again (2-2)';
-  is $was_in_first, 1, 'our FIRST {} block was invoked exactly once';
+    is $was_in_first, undef, 'FIRST {} not run yet';
+    is $sub(), 23, 'FIRST {} block set our variable (2)';
+    is $sub(), 23, 'the returned value of FIRST {} still there';
+    is $was_in_first, 1, 'our FIRST {} block was invoked exactly once';
 }
 
 # Test that FIRST {} blocks are executed only once even if they return undef
 # (the first implementation ran than twice instead).
 {
-  my $was_in_first;
-  my $sub = { FIRST { $was_in_first++; undef } };
+    my $was_in_first;
+    my $sub = { FIRST { $was_in_first++; undef } };
 
-  $sub();
-  $sub();
-  $sub();
-  is $was_in_first, 1, 'our FIRST { ...; undef } block was invoked exactly once';
+    is $sub(), undef, 'FIRST {} returned undef';
+    $sub();
+    $sub();
+    is $was_in_first, 1,
+        'our FIRST { ...; undef } block was invoked exactly once';
 }
