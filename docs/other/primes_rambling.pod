@@ -217,11 +217,21 @@ correct to:
       return 1;
    }
 
-Good to see the postfix C<if> still working.
+Good to see the postfix C<if> still working. But in Perl6 there's more
+for this sub parameters stuff, as audreyt suggested in IRC:
+
+   sub is_prime ($n) { # Parameters! Arguments! No more "prototypes"!
+      return 0 if $n <= 1;
+      return 1 if $n <= 3;
+      return 1;
+   }
+
+It's true, subroutine parameters are fully supported now, a big step
+from the prototypes available in Perl5.
+
 On with the "hard" part, now; again, I'll try to go Perl 5 to start:
 
-   sub is_prime {
-      my $n = shift @_;
+   sub is_prime ($n) {
       return 0 if $n <= 1;
       return 1 if $n <= 3;
       for my $factor (2 .. sqrt($n)) {
@@ -234,8 +244,7 @@ No way. Iteration is done differently, but discovering why reveals a lot
 of interesting things... First of all, I wasn't so distant from something
 working; had I used the default variable, it would have worked! So:
 
-   sub is_prime {
-      my $n = shift @_;
+   sub is_prime ($n) {
       return 0 if $n <= 1;
       return 1 if $n <= 3;
       for (2 .. sqrt($n)) {
@@ -247,8 +256,7 @@ working; had I used the default variable, it would have worked! So:
 works! But C<Synopsis 4: Blocks and Statements> teaches more: the assignment
 is visually more sweet:
 
-   sub is_prime {
-      my $n = shift @_;
+   sub is_prime ($n) {
       return 0 if $n <= 1;
       return 1 if $n <= 3;
       for (2 .. sqrt($n)) -> $factor {
@@ -299,8 +307,7 @@ Last, but not least, here's the final script:
    
    say "$n is ", (is_prime($n) ?? '' !! 'NOT '), 'prime';
    
-   sub is_prime {
-      my $n = shift @_;
+   sub is_prime ($n) {
       return 0 if $n <= 1;
       return 1 if $n <= 3;
       for (2 .. sqrt($n)) -> $factor {
