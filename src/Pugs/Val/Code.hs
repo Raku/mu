@@ -61,8 +61,7 @@ data CodeAssoc
 
 -- | AST for function signature. Separated to method and function variants
 --   for ease of pattern matching.
-type Sig = PureSig
-data PureSig
+data Sig
     = SigMethSingle
         { s_invocant                  :: Param
         , s_requiredPositionalCount   :: Int
@@ -88,6 +87,7 @@ data PureSig
         }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
+type PureSig = Sig
 
 -- | Single parameter for a function/method, e.g.:
 --   Elk $m where { $m.antlers ~~ Velvet }
@@ -121,21 +121,29 @@ data ParamAccess
 
 --------------------------------------------------------------------------------------
 
--- | Capture.
-data Cap 
+-- | a Capture is a frozen version of the arguments to an application.
+data Capt a
     = CaptMeth
-        { c_invocant :: Exp
-        , c_argstack :: [Arglist]
+        { c_invocant :: a
+        , c_argstack :: [Arglist a]
         }
     | CaptSub
-        { c_argstack :: [Arglist]
+        { c_argstack :: [Arglist a]
         }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
-data Arglist = MkArglist
-    { a_positional :: [Exp]
-    , a_named      :: Map Ident [Exp]
+-- | non-invocant arguments.
+data Arglist a = MkArglist
+    { a_positional :: [a]
+    , a_named      :: Map Ident [a]   -- ^ maps to [a] and not a since if the Sig stipulates
+                                      --   @x, "x => 1, x => 2" constructs @x = (1, 2).
     }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+
+-- | Runtime Capture with dynamic Exp for leaves
+type ExpCapt = Capt Exp
+-- | Static Capture with Val for leaves
+type ValCapt = Capt Val
 
 type Exp = () -- XXX bogus
