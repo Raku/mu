@@ -4,7 +4,7 @@ use v6-alpha;
 
 use Test;
 
-plan 17;
+plan 18;
 
 # L<S02/Closure traits/Code "generated at run-time" "still fire off"
 #   "can't" "travel back in time" >
@@ -13,7 +13,8 @@ my ($code, $hist, $handle);
 
 $code = '$handle = { FIRST { $hist ~= "F" } }';
 ok eval($code), 'eval FIRST {...} works';
-is $hist, 'F', 'FIRST {...} already fired at run-time';
+is $hist, undef, 'FIRST {...} has not run yet';
+is $handle(), 'F', 'FIRST {...} fired';
 is $handle(), 'F', 'FIRST {...} fired only once';
 
 $code = '$handle = { INIT { $hist ~= "I" } }';
