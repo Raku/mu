@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 12;
+plan 16;
 
 # L<S04/"The Relationship of Blocks and Declarations" /There is a new state declarator that introduces/>
 
@@ -142,4 +142,17 @@ plan 12;
 
     is(step().perl, "(43, 41)", "chained state (#1)", :todo<bug>);
     is(step().perl, "(44, 40)", "chained state (#2)", :todo<bug>);
+}
+
+# state in cloned closures
+{
+    for <first second> {
+        my $code = {
+            state $foo = 42;
+            ++$foo;
+        };
+
+        is $code(), 43, "state was initialized properly ($_ time)";
+        is $code(), 44, "state keeps its value across calls ($_ time)";
+    }
 }
