@@ -49,6 +49,7 @@ import Pugs.Prim.Param
 import qualified Data.IntSet as IntSet
 import DrIFT.YAML
 import GHC.Exts (unsafeCoerce#)
+import GHC.Unicode
 
 constMacro :: Exp -> [Val] -> Eval Val
 constMacro = const . expToEvalVal
@@ -135,6 +136,7 @@ op1 "capitalize" = op1Cast $ VStr . (mapEachWord capitalizeWord)
           where (word,rest) = break isSpace str
     capitalizeWord []     = []
     capitalizeWord (c:cs) = toUpper c:(map toLower cs)
+op1 "quotemeta" = op1Cast (VStr . concat . map toQuoteMeta)
 op1 "undef" = const $ return undef
 op1 "undefine" = \x -> do
     when (defined x) $ do
@@ -1598,6 +1600,15 @@ doPrettyVal v@(VObject obj) = do
         ++ ".new(" ++ init (tail str) ++ ")"
 doPrettyVal v = return (pretty v)
 
+-- perform char quotation according to original Perl 5 quotemeta
+-- have to return a string because of the quote, this requires
+-- concat in quotemeta above.
+toQuoteMeta :: Char -> String
+toQuoteMeta c =
+   if isAsciiUpper c || isAsciiLower c || isDigit c || c == '_'
+      then [ c ]
+      else [ '\\', c ]
+
 -- XXX -- Junctive Types -- XXX --
 
 -- spre is "symbolic pre", that is, operators for which a precedence has
@@ -1673,6 +1684,7 @@ initSyms = mapM primDecl syms
 \\n   Int       pre     rindex  safe   (Str, Str, ?Int)\
 \\n   Int       pre     substr  safe   (rw!Str, Int, ?Int, ?Str)\
 \\n   Str       pre     lc      safe   (Str)\
+\\n   Str       pre     quotemeta safe   (Str)\
 \\n   Str       pre     lcfirst safe   (Str)\
 \\n   Str       pre     uc      safe   (Str)\
 \\n   Str       pre     ucfirst safe   (Str)\
