@@ -32,6 +32,7 @@ plan 36;
     is(-$b, 0, 'non numbers forced into numeric context are 0');
 }
 
+# L<S03/Changes to Perl 5 operators/Unary ~ string context>
 # string context
 {
     my $a = 10.500000;
