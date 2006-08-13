@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 14;
+plan 11;
 
 # L<S04/"Closure traits"/INIT "at run time" ASAP>
 # INIT {...} blocks in "void" context
@@ -68,18 +68,9 @@ is $str, 'io', 'INIT {} always runs before the mainline code runs';
 
 # L<S04/Closure traits/INIT "runs once for all copies of" "cloned closure">
 {
-    my $var;
-
-    my $sub = { INIT { $var++ } };
-    is $var, 1, 'INIT {} has already run';
-    
-    my $sub2 = { $sub() };
-    is $var, 1, 'INIT {} only run once even in case of closure cloning (1)';
-    $sub2();
-    is $var, 1, 'INIT {} only run once even in case of closure cloning (2)';
-
-    my $sub3 = { $sub2() };
-    is $var, 1, 'INIT {} only run once even in case of closure cloning (3)';
-    $sub3();
-    is $var, 1, 'INIT {} only run once even in case of closure cloning (4)';
+	my $var;
+	for <first second> {
+		my $sub = { INIT { $var++ } };
+		is $var, 1, "INIT has run exactly once ($_ time)";
+	}
 }
