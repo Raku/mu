@@ -209,7 +209,7 @@ sub flunk (Str $desc?, :$todo, :$depends) returns Bool is export {
 
 sub diag (Str $diag) is export {
     for (split("\n", $diag)) -> $line {
-        warn "# $line\n";   # we need `warn' to work with `prove6'
+        $*ERR.say("# $line");   # we need `warn' to work with `prove6'
     }
 }
 
