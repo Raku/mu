@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 21;
+plan 18;
 
 # L<S04/Closure traits/FIRST "runs seperately for each clone">
 
@@ -30,7 +30,22 @@ plan 21;
 #             = is executed, which is the same moment
 #             it would have been exectued for a my.
 #             the difference is it only does it once.
+# ...
+# <TimToady1> FIRST runs later when you first try to use a block.
+# <TimToady1> a FIRST will run multiple times in a block that is 
+#             cloned as a closure.
+# <TimToady1> INIT only ever runs once.
 {
+    my $str ~= 'o';
+    {
+        FIRST { $str ~= 'i' }
+    }
+    is $str, 'oi', 'FIRST {} runs when we first try to use a block';
+}
+
+# Execute the tests twice to make sure that FIRST binds to
+# the lexical scope, not the lexical position.
+for <first second> {
     my $sub = {
         my $str ~= 'o';
         FIRST { $str ~= 'I' };
@@ -38,9 +53,9 @@ plan 21;
         ":$str";
     };
 
-    is $sub(), ':oIi', 'FIRST {} block set $str to 3';
-    is $sub(), ':o', 'FIRST {} wasn\'t invoked again (1-1)';
-    is $sub(), ':o', 'FIRST {} wasn\'t invoked again (1-2)';
+    is $sub(), ':oIi', "FIRST block set \$str to 3     ($_ time)";
+    is $sub(), ':o', "FIRST wasn't invoked again (1-1) ($_ time)";
+    is $sub(), ':o', "FIRST wasn't invoked again (1-2) ($_ time)";
 }
 
 # IRC note
@@ -73,36 +88,4 @@ plan 21;
     $sub();
     is $was_in_first, 1,
         'our FIRST { ...; undef } block was invoked exactly once';
-}
-
-# IRC note:
-# ---------------------------------------------------------------
-# <TimToady1> FIRST runs later when you first try to use a block.
-# <TimToady1> a FIRST will run multiple times in a block that is 
-#             cloned as a closure.
-# <TimToady1> INIT only ever runs once.
-{
-    my $str ~= 'o';
-    {
-        FIRST { $str ~= 'i' }
-    }
-    is $str, 'oi', 'FIRST {} runs when we first try to use a block';
-}
-
-{
-    my $var;
-    my $sub = { FIRST { $var++ } };
-    is $var, undef, 'FIRST {} has not run yet';
-    $sub();
-    is $var, 1, '$sub\'s FIRST {} only runs once';
-
-    my $sub2 = { $sub() };
-    is $var, 1, 'FIRST {} has not run for the second time yet';
-    $sub2();
-    is $var, 2, '$sub2\'s FIRST {} only runs once';
-
-    my $sub3 = { $sub2() };
-    is $var, 2, 'FIRST {} has not run for the third time yet';
-    $sub3();
-    is $var, 3, '$sub3\'s FIRST {} only runs once';
 }
