@@ -10,7 +10,7 @@ Context forcing operators
 
 plan 36;
 
-# L<S03/Changes to Perl 5 operators/"+TERM" "coerced to numeric">
+# L<S02/Context/numeric "+">
 # numeric (+) context
 {
     my $a = '2 is my favorite number';
@@ -34,7 +34,7 @@ plan 36;
     is(-$b, 0, 'non numbers forced into numeric context are 0');
 }
 
-# L<S03/Changes to Perl 5 operators/"~TERM" "coerced to string">
+# L<S02/Context/string "~">
 # L<S03/Changes to Perl 5 operators/Unary ~ string context>
 # string context
 {
@@ -51,6 +51,7 @@ plan 36;
     is(~$c, '-100.101', 'forced into string context');
 }
 
+# L<S02/Context/boolean "?">
 # L<S03/Changes to Perl 5 operators/"?" imposes boolean context>
 # boolean context
 {
