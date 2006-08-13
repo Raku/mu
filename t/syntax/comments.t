@@ -4,7 +4,7 @@ use v6-alpha;
 
 use Test;
 
-plan 21;
+plan 22;
 
 {
     # L<S02/"Whitespace and Comments"/"Embedded comments"
@@ -100,4 +100,12 @@ plan 21;
 
     ok !eval(" #<this is invalid"),
         'embedded comment not on the left margin';
+}
+
+{
+    # L<S02/"Whitespace and Comments"/whitespace
+    #   "hidden by prefixing it with \">
+
+    # I'm not 100% sure whether the following test is valid.
+    is(21, #\  (comment) 21, 'unspace also works in embedded comments');
 }
