@@ -56,7 +56,7 @@ plan 21;
       $var;
     };
 
-    is $was_in_first, 1, 'FIRST {} ran when cloning it into a closure';
+    is $was_in_first, undef, 'FIRST {} has not run yet';
     is $sub(), 23, 'FIRST {} block set our variable (2)';
     is $sub(), 23, 'the returned value of FIRST {} still there';
     is $was_in_first, 1, 'our FIRST {} block was invoked exactly once';
