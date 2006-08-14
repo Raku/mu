@@ -60,10 +60,14 @@ sub build {
     # over to where GHC was in.
 
     my $runcompiler = File::Spec->rel2abs("$pwd/util/runcompiler$Config{_exe}");
+    my $ghc_inst_path;
     if ($^O eq 'MSWin32') {
         my $new_runcompiler;
         foreach my $args (@{$opts->{SETUP}}) {
-            $args =~ /^--with-hsc2hs=(.*[\\\/])/ or next;
+            if ($args =~ /^--with-hsc2hs=(.*[\\\/])/) {
+                $ghc_inst_path = $1;
+                $ghc_inst_path =~ s,[/\\]bin[/\\]?$,,
+            } else { next; }
 	    $ENV{PATH} = "$ENV{PATH};$1";
             $new_runcompiler = File::Spec->catfile($1, "runcompiler$Config{_exe}");
             copy($runcompiler => $new_runcompiler);
@@ -74,12 +78,31 @@ sub build {
 
     # Judy library
     chdir "third-party/judy/Judy-1.0.3";
-    system("./configure") unless -e "config.status";
-    system("rm src/obj/.libs/libJudy.la* src/obj/.libs/libJudy.so*");
-    system("cp src/obj/.libs/libJudy.a ../../HsJudy");
-    mkdir("../../installed");
-    system("cp src/obj/.libs/libJudy.a ../../installed");
-    system("make");
+
+    if ($^O eq 'MSWin32') {
+        chdir 'src';
+        $ENV{CC} = "$ghc_inst_path\\gcc";
+        $ENV{COPT} = "-I$ghc_inst_path\\include\\mingw -I$ghc_inst_path\\gcc-lib\\include " .
+            "-B$ghc_inst_path\\gcc-lib";
+        $ENV{AR_CALL} = "$ghc_inst_path\\bin\\ar -r libJudy.a " .
+            join(' ', glob 'Judy*/*.o');
+        warn "\nCC = $ENV{CC}\nCOPT = $ENV{COPT}\nAR_CALL = $ENV{AR_CALL}\n";
+        system("hs_build.bat");
+        if (!-f 'libJudy.a') {
+            die "Oops! Failed to build libJudy.a...\n";
+        }
+        chdir '..';
+        mkdir("../../installed") if !-d "../../installed";
+        system("copy src\\libJudy.a ..\\..\\installed");
+    } else {
+        system("./configure") unless -e "config.status";
+        system("rm src/obj/.libs/libJudy.la* src/obj/.libs/libJudy.so*");
+        system("cp src/obj/.libs/libJudy.a ../../HsJudy");
+        mkdir("../../installed") if !-d "../../installed";
+        system("cp src/obj/.libs/libJudy.a ../../installed");
+        system("make");
+    }
+
     chdir "../../..";
 
     foreach my $module (qw< fps HsSyck HsJudy >) {
