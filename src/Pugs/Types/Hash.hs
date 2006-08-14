@@ -33,6 +33,10 @@ class (Typeable a) => HashClass a where
     hash_fetchKeys hv = do
         vals <- hash_fetch hv
         return $ Map.keys vals
+    hash_fetchSize   :: a -> Eval Int
+    hash_fetchSize hv = do
+        vals <- hash_fetch hv
+        return $ Map.size vals
     hash_deleteElem  :: a -> HashIndex -> Eval ()
     hash_existsElem  :: a -> HashIndex -> Eval VBool
     hash_existsElem hv idx = do

@@ -530,6 +530,7 @@ instance Value VStr where
     doCast (VObject o)   = return $ "<obj:" ++ showType (objType o) ++ ">"
     doCast x             = return $ "<" ++ showType (valType x) ++ ">"
 
+
 instance Value [PerlSV] where
     fromVal = fromVals
     doCast v = castFailM v "[PerlSV]"
