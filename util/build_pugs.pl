@@ -77,6 +77,8 @@ sub build {
     system("./configure") unless -e "config.status";
     system("rm src/obj/.libs/libJudy.la* src/obj/.libs/libJudy.so*");
     system("cp src/obj/.libs/libJudy.a ../../HsJudy");
+    mkdir("../../installed");
+    system("cp src/obj/.libs/libJudy.a ../../installed");
     system("make");
     chdir "../../..";
 
@@ -281,7 +283,7 @@ sub build_exe {
     push @libs, grep /^-auto/, @_;
     push @libs, grep /^-prof/, @_;
 
-    @_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -optl-Lthird-party/judy/Judy-1.0.3/src/obj/.libs -o pugs src/Main.hs), @libs);
+    @_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -optl-Lthird-party/installed -o pugs src/Main.hs), @libs);
     #@_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -o pugs src/Main.hs), @libs);
     print "*** Building: ", join(' ', $ghc, @_), $/;
     system $ghc, @_;
