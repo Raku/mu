@@ -80,7 +80,7 @@ module Pugs.Internals (
     die,
     _GlobalFinalizer,
     unsafeIOToSTM,
-    ID,
+    ID(..), bufToID,
 ) where
 
 import UTF8
@@ -375,7 +375,7 @@ _GlobalFinalizer :: IORef (IO ())
 _GlobalFinalizer = unsafePerformIO $ newIORef (return ())
 
 
-newtype ID = MkID Int
+newtype ID = MkID { unID :: Int }
     deriving (Typeable, Eq, Ord, Data)
 
 instance Show ID where
@@ -408,17 +408,21 @@ instance ((:>:) String) ID where
 
 instance ((:<:) ID) ByteString where
     castBack (MkID i) = unsafePerformIO $! do
-        bs <- C.lookup i _ID_to_ByteString
-        maybe (internalError ("ID lookup: " ++ show i)) return bs
+        buf <- C.lookup i _ID_to_ByteString
+        maybe (internalError ("ID lookup: " ++ show i)) return buf
 
 instance ((:<:) ByteString) ID where
-    castBack bs = unsafePerformIO $! do
-        a' <- C.lookup bs _ByteString_to_ID
-        maybe (do
-            i <- Foreign.peek _ID_count
-            Foreign.poke _ID_count (i + 2)
-            let a = MkID i
-            C.insert i bs _ID_to_ByteString
-            C.insert bs a _ByteString_to_ID
-            return a) return a'
+    castBack buf = unsafePerformIO (bufToID buf)
+
+{-# NOINLINE bufToID #-}
+bufToID :: ByteString -> IO ID
+bufToID buf = do
+    a' <- C.lookup buf _ByteString_to_ID
+    maybe (do
+        i <- Foreign.peek _ID_count
+        Foreign.poke _ID_count (i + 2)
+        let a = MkID i
+        C.insert i buf _ID_to_ByteString
+        C.insert buf a _ByteString_to_ID
+        return a) return a'
 
