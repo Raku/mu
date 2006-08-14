@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 33;
+plan 35;
 
 =kwid
 
@@ -66,3 +66,16 @@ is("\d [6211]", '\d [6211]', 'broken "\d [6211]"');
 is("\d[65,66,67]", 'ABC', '\d[list]');
 is("\d[20320,22909]", '你好', '\d[a,b]');
 is("\d65,66,67", 'A,66,67', '\dlist not valid');
+
+# IRC note
+# ---------------------------------------------------------------
+# <agentzh> auderyt: is "\187 \132" valid in Perl 6? The synopses
+#          don't mention this form of characters indexed by number.
+# <audreyt> oh hm, wait, \187 indeed is not
+# <audreyt> I don't know... I can see that \65 is not as clear
+#           as \d65
+# <agentzh> aye
+# <audreyt> so I'm fine for retiring the \187 form
+
+is("\123", '123', '"\123" form is no longer valid Perl 6');
+is("\040", '040', '"\040" form is no longer valid Perl 6');
