@@ -49,6 +49,8 @@ module Pugs.AST.Internals (
 
     -- MonadEval(..),
 
+	transformExp,
+
     runEvalSTM, runEvalIO, shiftT, resetT, callCC,
     undef, defined, tryIO, guardSTM, guardIO, guardIOexcept,
     readRef, writeRef, clearRef, dumpRef, forceRef,
@@ -60,7 +62,7 @@ module Pugs.AST.Internals (
     proxyScalar, constScalar, lazyScalar, lazyUndef, constArray,
     retError, retControl, retEmpty, retIVar, readIVar, writeIVar,
     fromVals, refType,
-    lookupPad, padToList, listToPad,
+    refreshPad, lookupPad, padToList, listToPad,
     mkPrim, mkSub, showRat, showTrueRat,
     cxtOfSigil, typeOfSigil,
     buildParam, defaultArrayParam, defaultHashParam, defaultScalarParam,
@@ -928,7 +930,25 @@ instance Value Exp where
     {- Exp -> Val -}
     {- castV exp = VObject (createObject (mkType "Code::Exp") [("theexp", exp)]) -}
     doCast v = castFailM v "Exp"
-    
+
+-- Recursively apply a transformation to an Exp structure
+transformExp :: (Monad m) => (Exp -> m Exp) -> Exp -> m Exp
+transformExp f (App a b cs) = do
+    a' <- transformExp f a
+    b' <- case b of
+        Just e -> liftM Just $ transformExp f e
+        Nothing -> return Nothing
+    cs' <- mapM (transformExp f) cs
+    f $ App a' b' cs'
+transformExp f (Syn t es) = f =<< liftM (Syn t) (mapM (transformExp f) es)
+transformExp f (Ann a e) = f =<< liftM (Ann a) (transformExp f e)
+transformExp f (Pad s p e) = f =<< liftM (Pad s p) (transformExp f e)
+transformExp f (Sym s v e) = f =<< liftM (Sym s v) (transformExp f e)
+transformExp f (Stmts e1 e2) = do 
+    e1' <- transformExp f e1
+    e2' <- transformExp f e2
+    f $ Stmts e1' e2'
+transformExp f e = f e
 
 fromObject :: (Typeable a) => VObject -> a
 fromObject obj = case objOpaque obj of
@@ -1126,6 +1146,18 @@ data PadEntry
 
 data IHashEnv = MkHashEnv deriving (Show, Typeable) {-!derive: YAML_Pos!-}
 data IScalarCwd = MkScalarCwd deriving (Show, Typeable) {-!derive: YAML_Pos!-}
+
+refreshPad :: (MonadSTM m) => Pad -> m Pad
+refreshPad pad = do
+    fmap listToPad $ liftSTM $ forM (padToList pad) $ \(name, tvars) -> do
+        tvars' <- forM tvars $ \orig@(fresh, _) -> do
+            isFresh <- readTVar fresh
+            if isFresh then do { writeTVar fresh False; return orig } else do
+            -- regen TVar -- this is not the first time entering this scope
+            ref <- newObject (typeOfSigil $ head name)
+            tvar' <- newTVar ref
+            return (fresh, tvar')
+        return (name, tvars')
 
 newtype ObjectId = MkObjectId { unObjectId :: Int }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}

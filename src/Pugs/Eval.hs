@@ -313,15 +313,7 @@ reducePad SEnv lex@(MkPad lex') exp = do
         reducePad SMy lex exp
 reducePad SMy lex exp = do
     -- heuristics: if we are repeating ourselves, generate a new TVar.
-    lex' <- fmap mkPad $ liftSTM $ forM (padToList lex) $ \(name, tvars) -> do
-        tvars' <- forM tvars $ \orig@(fresh, _) -> do
-            isFresh <- readTVar fresh
-            if isFresh then do { writeTVar fresh False; return orig } else do
-            -- regen TVar -- we have re-entered this scope
-            ref     <- newObject (typeOfSigil $ head name)
-            tvar'   <- newTVar ref
-            return (fresh, tvar')
-        return (name, tvars')
+    lex' <- refreshPad lex
     local (\e -> e{ envLexical = lex' `unionPads` envLexical e }) $ do
         evalExp exp
 
@@ -410,10 +402,17 @@ reduceSyn "sub" [exp] = do
             redo
         writeTVar tvar thunk
         return $ Just tvar
+    newbody <- transformExp cloneBodyStates $ subBody sub
     retVal $ VCode sub
         { subEnv  = Just env
         , subCont = cont
+        , subBody = newbody
         }
+    where
+    cloneBodyStates (Syn "block" [Pad SState pad exp]) = do
+        pad' <- refreshPad pad
+        return $ Syn "block" [Pad SState pad' exp]
+    cloneBodyStates x = return x
 
 reduceSyn "but" [obj, block] = do
     evalExp $ App (Var "&Pugs::Internals::but_block") Nothing [obj, block]

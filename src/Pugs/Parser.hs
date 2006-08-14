@@ -938,6 +938,7 @@ ruleClosureTrait rhs = rule "closure trait" $ do
             return val
         "CHECK" -> vcode2checkBlock code
         "INIT"  -> vcode2initBlock code
+		-- we need to clone this closure sometimes
         "FIRST" -> vcode2firstBlock code
         -- XXX stubs just to make them parse
         "ENTER" -> return emptyExp

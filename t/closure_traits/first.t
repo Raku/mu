@@ -47,7 +47,7 @@ plan 18;
 # the lexical scope, not the lexical position.
 for <first second> {
     my $sub = {
-        my $str ~= 'o';
+        my $str = 'o';
         FIRST { $str ~= 'I' };
         FIRST { $str ~= 'i' };
         ":$str";
