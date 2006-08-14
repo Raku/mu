@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 18;
+plan 22;
 
 # L<S04/Closure traits/FIRST "runs seperately for each clone">
 
@@ -52,10 +52,26 @@ for <first second> {
         FIRST { $str ~= 'i' };
         ":$str";
     };
-
+	
     is $sub(), ':oIi', "FIRST block set \$str to 3     ($_ time)";
     is $sub(), ':o', "FIRST wasn't invoked again (1-1) ($_ time)";
     is $sub(), ':o', "FIRST wasn't invoked again (1-2) ($_ time)";
+}
+
+# Some behavior occurs where FIRST does not close over the correct
+# pad when closures are cloned
+
+my $ran;  # needs to be global, bug is in lexicals
+for <first second> {
+    my $str = 'bana';
+    $ran = 0;
+    my $sub = {
+        FIRST { $ran++; $str ~= 'na' };
+    };
+
+    $sub(); $sub();
+    is $ran, 1, "FIRST block ran exactly once ($_ time)";
+    is $str, 'banana', "FIRST block modified the correct variable ($_ time)";
 }
 
 # IRC note
