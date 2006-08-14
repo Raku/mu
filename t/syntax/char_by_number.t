@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 22;
+plan 33;
 
 =kwid
 
@@ -45,3 +45,24 @@ is("\o [6211]", '\o [6211]', 'broken "\o [6211]"');
 is("\o[101,102,103]", 'ABC', '\o[list]');
 is("\o[47540,54575]", '你好', '\o[a,b]');
 is("\o101,102,103", 'A,102,103', '\olist not valid');
+
+=kwid
+
+<S02/Literals/"Characters indexed by" decimal numbers"
+              with "\d">
+
+=cut
+
+is("\d32", ' ', '\d32 normal space');
+is("\d160", ' ', '\d160 non-breaking space');
+
+is("\d[32]", ' ', '\d[32] normal space');
+is("\d[160]", chr(160), '\d[240] non-breaking space');
+is("\d[9786]", '☺', '\d[9786] wide hex character (SMILEY)');
+is("\d[25105]", '我', '\d[25105] wide hex character (Chinese char)');
+is("\d[6211", '\d[6211', 'broken "\d[6211"');
+is("\d [6211]", '\d [6211]', 'broken "\d [6211]"');
+
+is("\d[65,66,67]", 'ABC', '\d[list]');
+is("\d[20320,22909]", '你好', '\d[a,b]');
+is("\d65,66,67", 'A,66,67', '\dlist not valid');
