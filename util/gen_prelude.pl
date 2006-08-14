@@ -151,11 +151,11 @@ sub precomp {
 
     my ($rh, $wh, $lines);
     my $pid = open2($rh, $wh, $Config{pugs}, -C => 'Parse-YAML', $TEMP_PRELUDE);
-    $lines += print OUT while <$rh>;
-    #my $program = do { local $/; <$rh> };
+    my $program = do { local $/; <$rh> };
+    print OUT $program;
     waitpid($pid, 0);
 
-    exit 1 unless length $lines;
+    exit 1 unless length $program;
 
     die "Pugs ".(($?&255)?"killed by signal $?"
          :"exited with error code ".($?>>8)) if $?;
