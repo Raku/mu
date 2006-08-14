@@ -21,8 +21,6 @@ module Pugs.Types
     typeOfCxt, isSlurpyCxt, isItemCxt, isVoidCxt,
     enumCxt, cxtEnum,
 
-    Var, 
-
     VStr, VBool, VInt, VRat, VNum, VComplex, VHandle, VSocket,
     VThread(..),
 
@@ -32,12 +30,9 @@ module Pugs.Types
 where
 import Pugs.Internals
 import qualified Data.Map as Map
-import qualified Data.ByteString.Char8 as Buf
-
-type Buf = Buf.ByteString
 
 data Type
-    = MkType !Buf         -- ^ A regular type
+    = MkType !ID         -- ^ A regular type
     | TypeOr  !Type !Type -- ^ The disjunction (|) of two types
     | TypeAnd !Type !Type -- ^ The conjunction (&) of two types
     deriving (Eq, Ord, Typeable, Data)
@@ -46,7 +41,7 @@ instance Show Type where
     show t = "(mkType \"" ++ showType t ++ "\")"
 
 showType :: Type -> String
-showType (MkType typ)    = Buf.unpack typ
+showType (MkType typ)    = cast typ
 showType (TypeOr t1 t2)  = showType t1 ++ "|" ++ showType t2
 showType (TypeAnd t1 t2) = showType t1 ++ "&" ++ showType t2
 
@@ -128,7 +123,7 @@ mkType str
     | (t1, (_:t2)) <- span (/= '&') str
     = TypeAnd (mkType t1) (mkType t2)
     | otherwise
-    = MkType (Buf.pack str)
+    = MkType (cast str)
 
 -- | Variable name.
 type Var   = String
@@ -298,7 +293,7 @@ distanceType tree base@(MkType b) target@(MkType t) =
     l2 = findList target tree
 distanceType _ _ _ = error "distanceType: MkType not 'simple'"
 
-initCache :: Map.Map (Buf, Buf) Int
+initCache :: Map.Map (ID, ID) Int
 initCache = Map.fromList leaves
     where
     leaves = [ ((x, y), cachedLookup x y) | x <- initLeaves, y <- initLeaves ]
@@ -307,7 +302,7 @@ initCache = Map.fromList leaves
         l1 = findList base rawTree
         l2 = findList target rawTree
 
-initLeaves :: [Buf]
+initLeaves :: [ID]
 initLeaves = flatten rawTree
 
 {-
@@ -345,7 +340,7 @@ compareList l1 l2
     | last l1 `elem` l2 =   length(l2 \\ l1) -- compatible types
     | last l2 `elem` l1 = - length(l1 \\ l2) -- anti-compatible types
     | otherwise = compareList l1 (init l2)
-{-# SPECIALIZE compareList :: [Buf] -> [Buf] -> Int #-}
+{-# SPECIALIZE compareList :: [ID] -> [ID] -> Int #-}
 {-# SPECIALIZE compareList :: [Type] -> [Type] -> Int #-}
 
 {-|
@@ -376,7 +371,7 @@ findList base (Node l cs)
     | otherwise                             = []
     where
     found = map (findList base) cs
-{-# SPECIALIZE findList :: Buf -> Tree Buf -> [Buf] #-}
+{-# SPECIALIZE findList :: ID -> Tree ID -> [ID] #-}
 {-# SPECIALIZE findList :: Type -> Tree Type -> [Type] #-}
 
 {-
@@ -403,8 +398,8 @@ Default class tree, containing all built-in types.
 initTree :: ClassTree
 initTree = fmap MkType rawTree
 
-rawTree :: Tree Buf
-rawTree = fmap Buf.pack $! Node "Object"
+rawTree :: Tree ID
+rawTree = fmap cast $! Node "Object"
     [ Node "Any"
         [ Node "Item"
             [ Node "List"

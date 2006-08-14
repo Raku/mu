@@ -80,6 +80,7 @@ module Pugs.Internals (
     die,
     _GlobalFinalizer,
     unsafeIOToSTM,
+    ID,
 ) where
 
 import UTF8
@@ -139,6 +140,12 @@ import GHC.Base (realWorld#)
 import GHC.IOBase (IO(..))
 import GHC.Conc (unsafeIOToSTM)
 import qualified Data.Seq as Seq
+
+import qualified Judy.Hash as H
+import qualified Judy.IntMap as L
+import qualified Judy.CollectionsM as C
+import qualified Data.ByteString.Char8 as Char8
+import qualified Foreign as Foreign
 
 --
 -- Nominal subtyping relationship with widening cast.
@@ -366,4 +373,52 @@ safeMode = case (inlinePerformIO $ getEnv "PUGS_SAFEMODE") of
 {-# NOINLINE _GlobalFinalizer #-}
 _GlobalFinalizer :: IORef (IO ())
 _GlobalFinalizer = unsafePerformIO $ newIORef (return ())
+
+
+newtype ID = MkID Int
+    deriving (Typeable, Eq, Ord, Data)
+
+instance Show ID where
+    showsPrec _ atom = (cast atom ++)
+
+instance Read ID where
+    readsPrec _ s = [ (cast s,"") ]
+
+
+instance ((:>:) String) ByteString where cast = Char8.unpack
+instance ((:<:) String) ByteString where castBack = Char8.pack
+
+{-# NOINLINE _ID_to_ByteString #-}
+_ID_to_ByteString :: L.IntMap Int ByteString
+_ID_to_ByteString = unsafePerformIO C.new
+
+{-# NOINLINE _ByteString_to_ID #-}
+_ByteString_to_ID :: H.Hash ByteString ID
+_ByteString_to_ID = unsafePerformIO C.new
+
+{-# NOINLINE _ID_count #-}
+_ID_count :: Foreign.Ptr Int
+_ID_count = unsafePerformIO (Foreign.new 1)
+
+instance ((:<:) String) ID where
+    castBack = cast . (cast :: String -> ByteString)
+
+instance ((:>:) String) ID where
+    cast = cast . (cast :: ID -> ByteString)
+
+instance ((:<:) ID) ByteString where
+    castBack (MkID i) = unsafePerformIO $! do
+        bs <- C.lookup i _ID_to_ByteString
+        maybe (internalError ("ID lookup: " ++ show i)) return bs
+
+instance ((:<:) ByteString) ID where
+    castBack bs = unsafePerformIO $! do
+        a' <- C.lookup bs _ByteString_to_ID
+        maybe (do
+            i <- Foreign.peek _ID_count
+            Foreign.poke _ID_count (i + 2)
+            let a = MkID i
+            C.insert i bs _ID_to_ByteString
+            C.insert bs a _ByteString_to_ID
+            return a) return a'
 

@@ -11,7 +11,6 @@ data Val
 data ValNative = NBuf !NativeBuf
 type NativeBuf      = ByteString
 type P = Identity
-type ID = Buf.ByteString
 type Table = Map ID Val
 newtype Pad = MkPad { padEntries :: Map Var PadEntry }
 data PadEntry

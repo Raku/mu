@@ -10,7 +10,7 @@
 -}
 module Pugs.Val (
     IValue(..), Val(..), ValUndef, ValNative, P,
-    ICoercible(..), ID, SKID,
+    ICoercible(..), SKID,
     PureBit, PureInt, PureNum, PureStr, PureList, itemVal, listVal,
 
     -- From Code
@@ -295,8 +295,6 @@ type ExtThread       = ()
 type ExtProcess      = ()
 
 --------------------------------------------------------------------------------------
-
-type ID = Buf.ByteString
 
 -- | General purpose mapping from identifiers to values.
 type Table = Map ID Val

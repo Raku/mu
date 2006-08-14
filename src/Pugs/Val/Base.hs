@@ -102,11 +102,12 @@ instance ICoercible P PureNum where asNum = return . cast
 
 -- PureStr
 
-instance ((:>:) String) ByteString where cast = Char8.unpack
-instance ((:<:) String) ByteString where castBack = Char8.pack
-
-newtype PureStr = MkStr ByteString
-    deriving (Typeable, Show, Eq, Ord, Data, (:>:) String, (:<:) String, (:>:) ByteString, (:<:) ByteString)
+newtype PureStr = MkStr ByteString deriving
+    ( Typeable, Show, Eq, Ord, Data
+    , (:>:) ID, (:<:) ID
+    , (:>:) String, (:<:) String
+    , (:>:) ByteString, (:<:) ByteString
+    )
 
 parseInt :: PureStr -> Int
 parseInt (MkStr s) = maybe 0 fst (Char8.readInt s)

@@ -145,7 +145,15 @@ instance YAML IHash where
          l <- fromYAMLmap node
          l' <- C.fromList l
          return l'
+
+instance YAML ID where
+    asYAML x = asYAML (cast x :: ByteString)
+    fromYAML x = fmap cast (fromYAML x :: IO ByteString)
  
+instance Perl5 ID where
+    showPerl5 x = showPerl5 (cast x :: ByteString)
+instance JSON ID where
+    showJSON x = showJSON (cast x :: ByteString)
 
 instance YAML VControl
 instance YAML (Set Val)
