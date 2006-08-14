@@ -149,16 +149,32 @@ sub precomp {
     gen_source($TEMP_PRELUDE);
     $ENV{PUGS_COMPILE_PRELUDE} = 1;
 
-    my ($rh, $wh, $lines);
-    my $pid = open2($rh, $wh, $Config{pugs}, -C => 'Parse-YAML', $TEMP_PRELUDE);
-    my $program = do { local $/; <$rh> };
-    print OUT $program;
-    waitpid($pid, 0);
+    close OUT;
 
-    exit 1 unless length $program;
+    my $output = '';
+    if ($Config{output}) {
+        $output = "> $Config{output}";
+    }
+
+    warn("$Config{pugs} -C Parse-YAML $TEMP_PRELUDE $output\n");
+    system("$Config{pugs} -C Parse-YAML $TEMP_PRELUDE $output");
+
+    if ($Config{output}) {
+        open IN, '<:crlf', $Config{output} or die "No output found";
+        my @lines = <IN> or do {
+            close IN;
+            unlink $Config{output};
+            die "Output is empty";
+        };
+        close IN;
+        open OUT, '>:raw', $Config{output} or die "Cannot write back to output";
+        print OUT @lines;
+        close OUT;
+    }
 
     die "Pugs ".(($?&255)?"killed by signal $?"
          :"exited with error code ".($?>>8)) if $?;
+
     print STDERR "done.\n" if $Config{verbose};
 }
 
