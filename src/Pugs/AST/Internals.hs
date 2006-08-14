@@ -84,7 +84,7 @@ import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 
 import qualified Judy.CollectionsM as C
-import qualified Judy.Hash         as H
+import qualified Judy.StrMap       as H
 import qualified Judy.IntMap       as I
 import GHC.Conc (unsafeIOToSTM)
 
@@ -1625,7 +1625,7 @@ retConstError val = retError "Can't modify constant item" val
 type IArray'            = I.IntMap ArrayIndex (IVar VScalar)
 type IArray             = (IArray', TVar ArrayIndex) 
 type IArraySlice        = [IVar VScalar]
-type IHash              = H.Hash VStr (IVar VScalar)
+type IHash              = H.StrMap VStr (IVar VScalar)
 type IScalar            = TVar Val
 type ICode              = TVar VCode
 type IScalarProxy       = (Eval VScalar, (VScalar -> Eval ()))

@@ -37,7 +37,7 @@ import Data.IORef
 import System.IO.Error (isEOFError)
 
 import qualified Judy.CollectionsM as C
-import qualified Judy.Hash         as H
+--import qualified Judy.StrMap         as H
 import qualified Judy.IntMap       as I
 
 import Pugs.Prim.Keyed
