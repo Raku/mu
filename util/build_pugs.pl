@@ -97,11 +97,10 @@ sub build {
         system("copy src\\libJudy.a ..\\..\\installed");
     } else {
         system("./configure") unless -e "config.status";
-        system("rm src/obj/.libs/libJudy.la* src/obj/.libs/libJudy.so*");
-        system("cp src/obj/.libs/libJudy.a ../../HsJudy");
+        system("make");
         mkdir("../../installed") if !-d "../../installed";
         system("cp src/obj/.libs/libJudy.a ../../installed");
-        system("make");
+        system("cp src/obj/.libs/libJudy.a ../../HsJudy");
     }
 
     chdir "../../..";
