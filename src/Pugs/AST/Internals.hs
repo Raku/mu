@@ -1756,8 +1756,10 @@ instance YAML IHash where
          return l'
 
 instance YAML ID where
-    asYAML x = asYAML (cast x :: ByteString)
-    fromYAML x = fmap cast (fromYAML x :: IO ByteString)
+    asYAML x = asYAML (idBuf x)
+    fromYAML x = do
+        buf <- fromYAML x
+        bufToID buf
  
 instance Perl5 ID where
     showPerl5 x = showPerl5 (cast x :: ByteString)

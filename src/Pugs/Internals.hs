@@ -145,7 +145,7 @@ import GHC.Conc (unsafeIOToSTM)
 import GHC.Exts (unsafeCoerce#)
 import qualified Data.Seq as Seq
 
-import qualified Judy.Hash as H
+import qualified Judy.StrMap as H
 import qualified Judy.IntMap as L
 import qualified Judy.CollectionsM as C
 import qualified Data.ByteString.Char8 as Char8
@@ -406,7 +406,7 @@ _IntToID :: L.IntMap Int ByteString
 _IntToID = unsafePerformIO C.new
 
 {-# NOINLINE _BufToID #-}
-_BufToID :: H.Hash ByteString ID
+_BufToID :: H.StrMap ByteString ID
 _BufToID = unsafePerformIO C.new
 
 {-# NOINLINE _ID_count #-}
