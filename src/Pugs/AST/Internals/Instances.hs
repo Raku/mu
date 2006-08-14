@@ -47,6 +47,9 @@ import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 import qualified Pugs.Val       as Val
 
+import qualified Judy.CollectionsM as C
+import qualified Judy.Hash         as H
+
 {-# NOINLINE _FakeEnv #-}
 _FakeEnv :: Env
 _FakeEnv = unsafePerformIO $ liftSTM $ do
@@ -134,6 +137,15 @@ instance YAML VRef where
         | s == packBuf "tag:hs:Hash"    = newV newHash
         where newV f = fmap MkRef (f =<< fromYAML node)
     fromYAML node = fail $ "Unhandled YAML node: " ++ show node
+instance YAML IHash where
+     asYAML x = do
+         l <- liftIO $ C.mapToList (\k v -> (k, asYAML v)) x
+         asYAMLmap "IHash" l
+     fromYAML node = do
+         l <- fromYAMLmap node
+         l' <- C.fromList l
+         return l'
+ 
 
 instance YAML VControl
 instance YAML (Set Val)

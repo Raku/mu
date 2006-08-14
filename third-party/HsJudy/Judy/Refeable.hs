@@ -4,8 +4,11 @@ module Judy.Refeable (
     Refeable (..)
 ) where
 
-import Foreign.Ptr
+
+
 import Foreign.StablePtr
+
+import Foreign.Ptr
 
 import Judy.Private
 import qualified Judy.MiniGC as GC

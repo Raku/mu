@@ -72,7 +72,15 @@ sub build {
 	die "Cannot find hsc2hs path" unless $new_runcompiler;
     }
 
-    foreach my $module (qw< fps HsSyck >) {
+    # Judy library
+    chdir "third-party/judy/Judy-1.0.3";
+    system("./configure") unless -e "config.status";
+    system("rm src/obj/.libs/libJudy.la* src/obj/.libs/libJudy.so*");
+    system("cp src/obj/.libs/libJudy.a ../../HsJudy");
+    system("make");
+    chdir "../../..";
+
+    foreach my $module (qw< fps HsSyck HsJudy >) {
         if ( my ($archive_dir) = glob("third-party/installed/*/pugs-$module-*") ) {
             my $oldest_a_file = max(
                 map {-M $_} (
@@ -256,7 +264,7 @@ sub build_exe {
     #my @o = qw( src/pcre/pcre.o src/syck/bytecode.o src/syck/emitter.o src/syck/gram.o src/syck/handler.o src/syck/implicit.o src/syck/node.o src/syck/syck.o src/syck/syck_st.o src/syck/token.o src/syck/yaml2byte.o src/cbits/fpstring.o );
     #push @o, 'src/UnicodeC.o' if grep /WITH_UNICODEC/, @_;
     #system $ghc, '--make', @_, @o, '-o' => 'pugs', 'src/Main.hs';
-    my @pkgs = qw(-hide-all-packages -package stm -package network -package mtl -package template-haskell -package base -package pugs-fps -package pugs-HsSyck );
+    my @pkgs = qw(-hide-all-packages -package stm -package network -package mtl -package template-haskell -package base -package pugs-fps -package pugs-HsSyck -package HsJudy );
     if ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) {
         push @pkgs, -package => 'Win32' unless $ghc_version =~ /^6.4(?:.0)?$/;
     }
@@ -273,7 +281,8 @@ sub build_exe {
     push @libs, grep /^-auto/, @_;
     push @libs, grep /^-prof/, @_;
 
-    @_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -o pugs src/Main.hs), @libs);
+    @_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -optl-Lthird-party/judy/Judy-1.0.3/src/obj/.libs -o pugs src/Main.hs), @libs);
+    #@_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -o pugs src/Main.hs), @libs);
     print "*** Building: ", join(' ', $ghc, @_), $/;
     system $ghc, @_;
 
@@ -335,7 +344,7 @@ sub write_buildinfo {
             s/hs-source-dir/hs-source-dirs/;
         }
         else {
-            s/pugs-fps -any, pugs-HsSyck -any, //;
+            s/pugs-fps -any, pugs-HsSyck -any, HsJudy -any, //;
         }
         s/__OPTIONS__/@_/;
         s/__VERSION__/$version/;

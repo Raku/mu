@@ -36,6 +36,10 @@ import qualified Data.Map as Map
 import Data.IORef
 import System.IO.Error (isEOFError)
 
+import qualified Judy.CollectionsM as C
+import qualified Judy.Hash         as H
+import qualified Judy.IntMap       as I
+
 import Pugs.Prim.Keyed
 import Pugs.Prim.Yaml
 import Pugs.Prim.Match
@@ -401,7 +405,9 @@ op1 "-s"    = FileTest.fileSize
 op1 "-f"    = FileTest.isFile
 op1 "-d"    = FileTest.isDirectory
 op1 "List::end"   = op1Cast (VInt . (-1 +) . (genericLength :: VList -> VInt))
-op1 "List::elems" = op1Cast (VInt . (genericLength :: VList -> VInt))
+op1 "List::elems" = \v -> do
+    --liftIO $ putStrLn "haha"
+    sizeFromVal v --op1Cast (VInt . (genericLength :: VList -> VInt))
 op1 "graphs"= op1Cast (VInt . (genericLength :: String -> VInt)) -- XXX Wrong
 op1 "codes" = op1Cast (VInt . (genericLength :: String -> VInt))
 op1 "chars" = op1Cast (VInt . (genericLength :: String -> VInt))
@@ -559,7 +565,9 @@ op1 "readline" = op1Readline
 op1 "getc"     = op1Getc
 
 op1 "ref"   = fmap VType . evalValType
-op1 "List::pop"   = \x -> join $ doArray x array_pop -- monadic join
+op1 "List::pop"   = \x -> do
+    liftIO $ putStrLn "thats pop"
+    join $ doArray x array_pop -- monadic join
 op1 "List::shift" = \x -> join $ doArray x array_shift -- monadic join
 op1 "pick"  = op1Pick
 op1 "sum"   = op1Sum
@@ -1197,7 +1205,7 @@ op3 "Object::new" = \t n p -> do
     positionals <- fromVal p
     typ     <- fromVal t
     named   <- fromVal n
-    attrs   <- liftSTM $ newTVar Map.empty
+    attrs   <- liftIO $ (C.new :: IO IHash)
     writeIVar (IHash attrs) named
     uniq    <- newObjectId
     unless (positionals == VList []) (fail "Must only use named arguments to new() constructor")
@@ -1216,7 +1224,7 @@ op3 "Object::clone" = \t n _ -> do
     named <- fromVal n
     (VObject o) <- fromVal t
     attrs   <- readIVar (IHash $ objAttrs o)
-    attrs'  <- liftSTM $ newTVar Map.empty
+    attrs'   <- liftIO $ (C.new :: IO IHash)
     uniq    <- newObjectId
     writeIVar (IHash attrs') (named `Map.union` attrs)
     return $ VObject o{ objAttrs = attrs', objId = uniq }
@@ -1819,7 +1827,7 @@ initSyms = mapM primDecl syms
 \\n   Bool      pre     rmdir   unsafe (Str)\
 \\n   Bool      pre     mkdir   unsafe (Str)\
 \\n   Bool      pre     chdir   unsafe (Str)\
-\\n   Int       pre     List::elems   safe   (Array)\
+\\n   Int       pre     List::elems   safe   (rw!Array)\
 \\n   Int       pre     List::end     safe   (Array)\
 \\n   Int       pre     graphs  safe   (Str)\
 \\n   Int       pre     codes   safe   (Str)\

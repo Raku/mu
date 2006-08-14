@@ -127,94 +127,107 @@ instance ArrayClass IArraySlice where
     array_storeElem _ _ _ = retConstError undef
 
 instance ArrayClass IArray where
-    array_store av vals = do
-        let svList = map lazyScalar vals
-        liftSTM $ writeTVar av $ IntMap.fromAscList ([0..] `zip` svList)
-    array_fetchSize av = do
-        avMap <- liftSTM $ readTVar av
-        return $ IntMap.size avMap
-    array_storeSize av sz = do
-        liftSTM $ modifyTVar av $ \avMap ->
-            let size = IntMap.size avMap in
-            case size `compare` sz of
-                GT -> fst $ IntMap.split sz avMap
-                EQ -> avMap
-                LT -> IntMap.union avMap $
-                    IntMap.fromAscList ([size .. sz-1] `zip` repeat lazyUndef)
-    array_shift av = do
-        svList <- liftSTM $ fmap IntMap.elems $ readTVar av
-        case svList of
-            (sv:rest) -> do
-                liftSTM $ writeTVar av $ IntMap.fromAscList ([0..] `zip` rest)
-                readIVar sv
-            _ -> return undef
-    array_unshift av vals = do
-        liftSTM $ modifyTVar av $ \avMap ->
-            let svList = IntMap.elems avMap in
-            IntMap.fromAscList ([0..] `zip` ((map lazyScalar vals) ++ svList))
-    array_pop av = do
-        avMap <- liftSTM $ readTVar av
-        if IntMap.null avMap
+    array_store (av, s) vals = do
+        new <- liftIO $ C.new
+        liftIO $ I.swapMaps new av
+        liftIO $ mapM_ (\(k,v) -> C.insert k (lazyScalar v) av) ([0..] `zip` vals)
+        liftSTM $ writeTVar s (length vals)
+    array_fetchSize (_, s) = do
+        liftSTM $ readTVar s
+    array_storeSize (av, s) sz = do
+        size <- liftSTM $ readTVar s
+        case size `compare` sz of
+            GT -> do new <- liftIO $ C.fromList =<< I.takeFirst sz av
+                     liftIO $ I.swapMaps new av
+                     liftSTM $ writeTVar s sz
+            EQ -> return ()
+            LT -> liftSTM $ writeTVar s sz
+    array_shift (av, s) = do
+        size <- liftSTM $ readTVar s
+        if size == 0
+             then return undef
+             else do
+                liftSTM $ writeTVar s (size-1)
+                [(k,v)] <- liftIO $ I.takeFirst 1 av
+                if k == 0
+                    then do 
+                            liftIO $ C.delete k av
+                            l <- liftIO $ C.mapToList (\k v -> (k-1,v)) av
+                            new <- liftIO $ C.fromList l
+                            liftIO $ I.swapMaps new av
+                            readIVar v
+                    else do
+                            l <- liftIO $ C.mapToList (\k v -> (k-1,v)) av
+                            new <- liftIO $ C.fromList l
+                            liftIO $ I.swapMaps new av
+                            return undef
+    array_unshift (av, s) vals = do
+        let sz = length vals
+        l <- liftIO $ C.mapToList (\k v -> (k+sz,v)) av
+        new <- liftIO $ C.fromList $ ([0..] `zip` (map lazyScalar vals)) ++ l
+        liftIO $ I.swapMaps new av
+        size <- liftSTM $ readTVar s
+        liftSTM $ writeTVar s (size+sz)
+    array_pop (av, s) = do
+        size <- liftSTM $ readTVar s
+        if size == 0
             then return undef
             else do
-                let idx = IntMap.size avMap - 1
-                liftSTM $ writeTVar av $ IntMap.delete idx avMap
-                readIVar . fromJust $ IntMap.lookup idx avMap
-    array_push av vals = do
-        liftSTM $ modifyTVar av $ \avMap ->
-            let svList = IntMap.elems avMap in
-            IntMap.fromAscList ([0..] `zip` (svList ++ (map lazyScalar vals)))
-    array_extendSize _ 0 = return ()
-    array_extendSize av sz = do
-        liftSTM $ modifyTVar av $ \avMap ->
-            let size = IntMap.size avMap in
-            case size `compare` sz of
-                GT -> avMap
-                EQ -> avMap
-                LT -> IntMap.union avMap $
-                    IntMap.fromAscList ([size .. sz-1] `zip` repeat lazyUndef)
-    array_fetchVal av idx = do
-        readIVar =<< getMapIndex idx (Just $ constScalar undef)
-            (liftSTM $ readTVar av) 
-            Nothing -- don't bother extending
-    array_fetchKeys av = do
-        avMap <- liftSTM $ readTVar av
-        return $ IntMap.keys avMap
-    array_fetchElem av idx = do
-        sv <- getMapIndex idx Nothing
-            (liftSTM $ readTVar av) 
-            (Just (array_extendSize av $ idx+1))
+                liftSTM $ writeTVar s (size-1)
+                e <- liftIO $ C.lookup (size-1) av
+                case e of
+                    Nothing -> return undef
+                    Just x -> do
+                        liftIO $ C.delete (size-1) av
+                        readIVar x
+    array_push (av, s) vals = do
+        size <- liftSTM $ readTVar s
+        liftSTM $ writeTVar s (size+(length vals))
+        liftIO $ mapM_ (\(k,v) -> C.insert k v av) $ [size..] `zip` (map lazyScalar vals)
+    array_extendSize (av,s) sz = liftSTM $ do
+        size <- readTVar s
+        if size > sz
+            then return ()
+            else writeTVar s sz
+    array_fetchVal arr idx = do
+        readIVar =<< getArrayIndex idx (Just $ constScalar undef)
+            (return arr)
+             Nothing -- don't bother extending
+    array_fetchKeys (av,s) = liftIO $ C.keys av
+    array_fetchElem arr@(av,s) idx = do
+        sv <- getArrayIndex idx Nothing
+            (return arr)
+            (Just (array_extendSize arr $ idx+1))
         if refType (MkRef sv) == mkType "Scalar::Lazy"
             then do
-                val <- readIVar sv
-                sv' <- newScalar val
-                liftSTM . modifyTVar av $ \avMap ->
-                    let idx' = idx `mod` IntMap.size avMap in
-                    IntMap.adjust (const sv') idx' avMap
-                return sv'
+               val <- readIVar sv
+               sv' <- newScalar val
+               size <- liftSTM $ readTVar s
+               let idx' = idx `mod` size
+               liftIO $ C.insert idx' sv' av
+               return sv'
             else return sv
-    array_existsElem av idx | idx < 0 = array_existsElem av (abs idx - 1)
-    array_existsElem av idx = do
-        avMap <- liftSTM $ readTVar av
-        return $ IntMap.member idx avMap
-    array_deleteElem av idx = do
-        liftSTM . modifyTVar av $ \avMap ->
-            let size = IntMap.size avMap
-                idx' | idx < 0   = idx `mod` IntMap.size avMap -- XXX wrong; wraparound
-                     | otherwise = idx in
-            case (size - 1) `compare` idx' of
-                LT -> avMap
-                EQ -> IntMap.delete idx' avMap
-                GT -> IntMap.adjust (const lazyUndef) idx' avMap
-    array_storeElem av idx sv = do
-        liftSTM . modifyTVar av $ \avMap ->
-            let size = IntMap.size avMap
-                idx' | idx < 0   = idx `mod` IntMap.size avMap -- XXX wrong; wraparound
-                     | otherwise = idx in
-            if size > idx'
-                then IntMap.adjust (const sv) idx' avMap
-                else IntMap.union avMap $
-                    IntMap.fromAscList ([size .. idx'] `zip` (sv:repeat lazyUndef))
+    array_existsElem arr idx | idx < 0 = array_existsElem arr (abs idx - 1)    -- FIXME: missing mod?
+    array_existsElem (av,s) idx = liftIO $ C.member idx av
+    array_deleteElem arr@(av,s) idx = do
+        size <- liftSTM $ readTVar s
+        let idx' | idx < 0   = idx `mod` size        --- XXX wrong; wraparound => what do you mean?
+                 | otherwise = idx
+        case (size-1) `compare` idx' of
+            LT -> return ()
+            EQ -> do
+                liftSTM $ writeTVar s (size-1)
+                liftIO $ C.delete idx' av
+                return ()
+            GT -> (liftIO $ C.delete idx' av) >> return ()
+    array_storeElem (av,s) idx sv = do
+        size <- liftSTM $ readTVar s
+        let idx' | idx < 0   = idx `mod` size        --- XXX wrong; wraparound => what do you mean?
+                 | otherwise = idx
+        liftIO $ C.insert idx' sv av
+        if size > idx'
+            then return ()
+            else liftSTM $ writeTVar s (idx'+1)
 
 instance ArrayClass VArray where
     array_iType = const $ mkType "Array::Const"

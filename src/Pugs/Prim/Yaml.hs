@@ -14,6 +14,9 @@ import qualified Data.IntMap as IntMap
 import qualified Data.ByteString as Str
 import DrIFT.YAML
 
+import qualified Judy.CollectionsM as C
+import qualified Judy.Hash         as H
+
 evalYaml :: Val -> Eval Val
 evalYaml cv = do
     str     <- fromVal cv
@@ -25,9 +28,9 @@ fromYaml MkNode{n_elem=ENil}       = return VUndef
 fromYaml MkNode{n_elem=EStr str}   = return $ VStr $ decodeUTF8 $ unpackBuf str
 fromYaml MkNode{n_elem=ESeq nodes} = do
     vals    <- mapM fromYaml nodes
-    av      <- liftSTM $ newTVar $
-        IntMap.fromAscList ([0..] `zip` map lazyScalar vals)
-    return $ VRef (arrayRef av)
+    s       <- liftSTM $ newTVar (0 :: Int)
+    av      <- liftIO $ (C.fromList ([0..] `zip` map lazyScalar vals) :: IO IArray')
+    return $ VRef (arrayRef (av,s))
 fromYaml MkNode{n_elem=EMap nodes, n_tag=tag} = do
     case tag of
         Nothing  -> do
@@ -35,7 +38,7 @@ fromYaml MkNode{n_elem=EMap nodes, n_tag=tag} = do
                 key <- fromVal =<< fromYaml keyNode
                 val <- newScalar =<< fromYaml valNode
                 return (key, val)
-            hv      <- liftSTM $ (newTVar (Map.fromList vals) :: STM IHash)
+            hv      <- liftIO $ (C.fromList vals :: IO IHash)
             return $ VRef (hashRef hv)
         Just s | (pre, post) <- Str.splitAt 16 s   -- 16 == length "tag:pugs:Object:"
                , pre == packBuf "tag:pugs:Object:" -> do

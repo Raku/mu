@@ -65,6 +65,10 @@ instance Compile Pad where
         where
         syms = padToList pad
 
+instance Compile IHash where
+    compile map = error (show map)
+
+
 instance Compile (String, [(TVar Bool, TVar VRef)]) where
     compile ((':':'*':_), _) = return Str.empty -- XXX - :*Bool etc; punt for now
     compile (n, tvars) = do

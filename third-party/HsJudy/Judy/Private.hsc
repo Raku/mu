@@ -6,7 +6,6 @@ import Foreign
 #if __GLASGOW_HASKELL__ >= 605
 import Data.Word
 #else
---import Judy.Word
 import GHC.Exts
 #endif
 
@@ -16,17 +15,16 @@ import Foreign.C.String
 #include <Judy.h>
 #include <stdlib.h>
 
---type Value = (#type Word_t)
---type Value = CULong
-
 #if __GLASGOW_HASKELL__ >= 605
 type Value = WordPtr
 #else
 type Value = (#type Word_t)
 
+{-# INLINE ptrToWordPtr #-}
 ptrToWordPtr :: Ptr () -> Value
 ptrToWordPtr = unsafeCoerce##
 
+{-# INLINE wordPtrToPtr #-}
 wordPtrToPtr :: Value -> Ptr ()
 wordPtrToPtr = unsafeCoerce##
 

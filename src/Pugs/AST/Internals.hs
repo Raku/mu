@@ -37,7 +37,7 @@ module Pugs.AST.Internals (
     VRule(..), -- uses Val
 
     IVar(..), -- uses *Class and V*
-    IArray, IArraySlice, IHash, IScalar, ICode, IScalarProxy,
+    IArray', IArray, IArraySlice, IHash, IScalar, ICode, IScalarProxy,
     IScalarLazy, IPairHashSlice, IRule, IHandle, IHashEnv(..),
     IScalarCwd(..),
 
@@ -82,6 +82,11 @@ import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 import qualified Data.IntMap    as IntMap
 
+import qualified Judy.CollectionsM as C
+import qualified Judy.Hash         as H
+import qualified Judy.IntMap       as I
+import GHC.Conc (unsafeIOToSTM)
+
 import Pugs.Parser.Number
 import Pugs.AST.Eval
 import Pugs.AST.Utils
@@ -104,6 +109,9 @@ import Pugs.Embed.Perl5
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 import qualified Pugs.Val       as Val
+
+import qualified Judy.CollectionsM as C
+import qualified Judy.Hash         as H
  </DrIFT> -}
  
 #include "../Types/Array.hs"
@@ -234,10 +242,39 @@ toVV' (VRat v) = return $ VV $ val $ ((cast v) :: PureNum)
 toVV' (VStr v) = return $ VV $ val $ ((cast v) :: PureStr)
 toVV' x = error $ "don't know how to toVV': " ++ show x
 
+getArrayIndex :: Int -> Maybe (IVar VScalar) -> Eval IArray -> Maybe (Eval b) -> Eval (IVar VScalar)
+getArrayIndex idx def getArr _ | idx < 0 = do
+    -- first, check if the list is at least abs(idx) long
+    (av, s) <- getArr
+    size <- liftSTM $ readTVar s
+    if size > (abs (idx+1))
+        then do
+            e <- liftIO $ C.lookup (idx `mod` size) av
+            case e of
+                Nothing -> return lazyUndef
+                Just x  -> return x
+        else errIndex def idx
+-- now we are all positive; either extend or return
+getArrayIndex idx def getArr ext = do
+    let maybeExtend = do case ext of
+                             Just doExt -> do { doExt; getArrayIndex idx def getArr Nothing }
+                             Nothing    -> errIndex def idx
+    (av, s) <- getArr
+    size <- liftSTM $ readTVar s
+    if size > idx
+        then do
+            e <- liftIO $ C.lookup idx av
+            case e of
+                Just a  -> return a
+                Nothing -> return lazyUndef
+        else maybeExtend
+
+
+
 createObjectRaw :: (MonadSTM m)
     => ObjectId -> Maybe Dynamic -> VType -> [(VStr, Val)] -> m VObject
 createObjectRaw uniq opaq typ attrList = do
-    attrs   <- liftSTM . newTVar . Map.map lazyScalar $ Map.fromList attrList
+    attrs   <- liftSTM $ unsafeIOToSTM $ C.fromList $ map (\(a,b) -> (a, lazyScalar b)) attrList
     return $ MkObject
         { objType   = typ
         , objId     = uniq
@@ -311,10 +348,8 @@ instance Value VObject where
 
 instance Value VHash where
     fromVal (VObject o) = do
-        attrs <- liftSTM $ readTVar (objAttrs o)
-        fmap Map.fromAscList $ forM (Map.assocs $ attrs) $ \(k, ivar) -> do
-            v <- readIVar ivar
-            return (k, v)
+        l <- liftIO $ C.mapToList (\k ivar -> do { v <- readIVar ivar; return (k, v) }) (objAttrs o)
+        fmap Map.fromList $ sequence l
     fromVal v = do
         list <- fromVal v
         fmap Map.fromList $ forM list $ \(k, v) -> do
@@ -1305,8 +1340,13 @@ newObject :: (MonadSTM m) => Type -> m VRef
 newObject typ = case showType typ of
     "Item"      -> liftSTM $ fmap scalarRef $ newTVar undef
     "Scalar"    -> liftSTM $ fmap scalarRef $ newTVar undef
-    "Array"     -> liftSTM $ fmap arrayRef $ (newTVar IntMap.empty :: STM IArray)
-    "Hash"      -> liftSTM $ fmap hashRef $ (newTVar Map.empty :: STM IHash)
+    "Array"     -> do
+        s <- liftSTM $ newTVar (0 :: ArrayIndex)
+        av <- liftSTM $ unsafeIOToSTM $ (C.new :: IO IArray')
+        return $ arrayRef (av,s)
+    "Hash"      -> do
+        h <- liftSTM $ unsafeIOToSTM $ (C.new :: IO IHash)
+        return $ hashRef h
     "Code"      -> liftSTM $ fmap codeRef $ newTVar mkPrim
         { subAssoc = ""
         , subBody  = Prim . const $ fail "Cannot use Undef as a Code object"
@@ -1505,12 +1545,15 @@ newScalar = liftSTM . (fmap IScalar) . newTVar
 
 newArray :: (MonadSTM m) => VArray -> m (IVar VArray)
 newArray vals = liftSTM $ do
-    av <- newTVar $ IntMap.fromAscList ([0..] `zip` map lazyScalar vals)
-    return $ IArray av
+    --liftSTM $ unsafeIOToSTM $ putStrLn "new array"
+    s <- newTVar (length vals)
+    av <- unsafeIOToSTM $ (C.fromList ([0..] `zip` map lazyScalar vals) :: IO IArray')
+    return $ IArray (av,s)
 
 newHash :: (MonadSTM m) => VHash -> m (IVar VHash)
 newHash hash = do
-    ihash <- liftSTM (newTVar $ Map.map lazyScalar hash)
+    --liftSTM $ unsafeIOToSTM $ putStrLn "new hash"
+    ihash <- liftSTM $ unsafeIOToSTM $ (C.fromList (map (\(a,b) -> (a, lazyScalar b)) (Map.toList hash)) :: IO IHash)
     return $ IHash ihash
 
 newHandle :: (MonadSTM m) => VHandle -> m (IVar VHandle)
@@ -1536,9 +1579,10 @@ retConstError val = retError "Can't modify constant item" val
 
 -- Haddock doesn't like these; not sure why ...
 #ifndef HADDOCK
-type IArray             = TVar (IntMap (IVar VScalar))
+type IArray'            = I.IntMap ArrayIndex (IVar VScalar)
+type IArray             = (IArray', TVar ArrayIndex) 
 type IArraySlice        = [IVar VScalar]
-type IHash              = TVar (Map VStr (IVar VScalar))
+type IHash              = H.Hash VStr (IVar VScalar)
 type IScalar            = TVar Val
 type ICode              = TVar VCode
 type IScalarProxy       = (Eval VScalar, (VScalar -> Eval ()))
@@ -1659,6 +1703,15 @@ instance YAML VRef where
         | s == packBuf "tag:hs:Hash"    = newV newHash
         where newV f = fmap MkRef (f =<< fromYAML node)
     fromYAML node = fail $ "Unhandled YAML node: " ++ show node
+instance YAML IHash where
+     asYAML x = do
+         l <- liftIO $ C.mapToList (\k v -> (k, asYAML v)) x
+         asYAMLmap "IHash" l
+     fromYAML node = do
+         l <- fromYAMLmap node
+         l' <- C.fromList l
+         return l'
+ 
 
 instance YAML VControl
 instance YAML (Set Val)

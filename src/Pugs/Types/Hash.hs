@@ -92,28 +92,24 @@ instance HashClass IHashEnv where
 
 instance HashClass IHash where
     hash_fetch hv = do
-        svMap <- liftSTM $ readTVar hv
-        fmap Map.fromList $ forM (Map.assocs svMap) $ \(key, sv) -> do
-            val <- readIVar sv
-            return (key, val)
-    hash_fetchKeys hv = do
-        liftSTM . fmap Map.keys $ readTVar hv
+        let f key sv = do { val <- readIVar sv; return (key, val) }
+        l <- liftIO $ C.mapToList f hv
+        fmap Map.fromList $ sequence l
+    hash_fetchKeys hv = liftIO $ C.keys hv
     hash_fetchElem hv idx = do
-        svMap <- liftSTM $ readTVar hv
-        case Map.lookup idx svMap of
-            Just sv -> return sv
-            Nothing -> do
-                sv <- newScalar undef
-                liftSTM $ modifyTVar hv (Map.insert idx sv)
-                return sv
-    hash_storeElem hv idx sv = do
-        liftSTM $ modifyTVar hv (Map.insert idx sv)
+        --liftIO $ putStrLn $ "fetching " ++ (show hv) ++ ": " ++ (show idx)
+        r <- liftIO $ C.lookup idx hv
+        case r of
+             Just sv -> return sv
+             Nothing -> do sv <- newScalar undef
+                           liftIO $ C.insert idx sv hv
+                           return sv
+    hash_storeElem hv idx sv = liftIO $ C.insert idx sv hv -- >>  (putStrLn $ "storing " ++ (show hv) ++  ": " ++ (show idx)))
     hash_deleteElem hv idx = do
-        liftSTM $ modifyTVar hv (Map.delete idx)
-    hash_existsElem hv idx = do
-        liftSTM $ do
-            svMap <- readTVar hv
-            return $ Map.member idx svMap
+        --liftIO $ putStrLn $ "deleting " ++ (show hv) ++ ": " ++ (show idx)
+        liftIO $ C.delete idx hv
+        return ()
+    hash_existsElem hv idx = liftIO $ C.member idx hv
 
 instance HashClass PerlSV where
     hash_iType = const $ mkType "Hash::Perl"

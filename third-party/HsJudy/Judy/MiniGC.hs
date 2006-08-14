@@ -6,7 +6,9 @@ import Data.Typeable
 import Data.Maybe (fromJust)
 
 import Foreign
-import Foreign.Ptr
+
+
+--import Foreign.Ptr
 import Foreign.StablePtr
 
 import Judy.Private
