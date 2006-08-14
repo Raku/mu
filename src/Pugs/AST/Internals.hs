@@ -53,7 +53,7 @@ module Pugs.AST.Internals (
     undef, defined, tryIO, guardSTM, guardIO, guardIOexcept,
     readRef, writeRef, clearRef, dumpRef, forceRef,
     askGlobal, writeVar, readVar,
-    findSymRef, findSym,
+    findSymRef, findSym, valType,
     ifListContext, ifValTypeIsa, evalValType, fromVal', toVV',
     scalarRef, codeRef, arrayRef, hashRef, thunkRef, pairRef,
     newScalar, newArray, newHash, newHandle, newObject,
@@ -443,6 +443,13 @@ instance Value VComplex where
     castV = VComplex
     doCast x            = fmap (:+ 0) (fromVal x :: Eval VNum)
 
+instance Value ID where
+    castV = VStr . cast
+    fromSV sv = fmap cast (liftIO $ svToVStr sv)
+    fromVV vv = liftSIO $ cast (asStr vv)
+    fromVal = fmap (cast :: VStr -> ID) . fromVal
+    doCast = fmap (cast :: VStr -> ID) . doCast
+
 instance Value VStr where
     castV = VStr
     fromSV sv = liftIO $ svToVStr sv
@@ -498,6 +505,14 @@ instance Value PerlSV where
     fromVal (VNum int) = liftIO $ vnumToSV int
     fromVal v = liftIO $ mkValRef v
     doCast v = castFailM v "PerlSV"
+
+instance Value Val.Val where
+    fromVal (VV vv) = return vv
+    fromVal v       = fromVal =<< toVV v
+    fromVV          = return
+    toVV            = return . VV
+    castV           = VV
+    doCast v = castFailM v "VV"
 
 valToStr :: Val -> Eval VStr
 valToStr = fromVal

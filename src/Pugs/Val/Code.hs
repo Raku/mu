@@ -125,15 +125,15 @@ data ParamAccess
 data Capt a
     = CaptMeth
         { c_invocant :: a
-        , c_argstack :: [Arglist a]
+        , c_feeds    :: [Feed a]
         }
     | CaptSub
-        { c_argstack :: [Arglist a]
+        { c_feeds    :: [Feed a]
         }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- | non-invocant arguments.
-data Arglist a = MkArglist
+data Feed a = MkFeed
     { a_positional :: [a]
     , a_named      :: Map ID [a]    -- ^ maps to [a] and not a since if the Sig stipulates
                                     --   @x, "x => 1, x => 2" constructs @x = (1, 2).

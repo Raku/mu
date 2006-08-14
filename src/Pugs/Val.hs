@@ -14,7 +14,7 @@ module Pugs.Val (
     PureBit, PureInt, PureNum, PureStr, PureList, itemVal, listVal,
 
     -- From Code
-    Capt(..), Arglist(..),
+    Capt(..), Feed(..),
 ) where
 import Pugs.Internals
 import GHC.Exts

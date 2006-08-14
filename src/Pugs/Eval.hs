@@ -825,6 +825,11 @@ reduceApp (Var "&assuming") (Just subExp) args = do
 reduceApp (Var "&infix:=>") invs args = do
     reduceSyn "=>" $ maybeToList invs ++ args
 
+-- We have three rules here:
+--      close($fh)  => try sub first, fallback to method
+--      $fh.close   => try meth first, fallback to sub
+--      &close($fh) => try sub, method is not considered
+
 -- XXX - special handling of forced-no-invocant-reinterpretation.
 --       (see Eval.Var.)
 reduceApp (Var ('&':name@('&':_))) invs args = do
@@ -888,7 +893,7 @@ doCall name invs args = do
     errSpcMessage = "Extra space found after " ++ name ++ " (...) -- did you mean " ++ name ++ "(...) instead?"
     err NoMatchingMulti    = retError "No compatible subroutine found" name
     err NoSuchSub          = retError "No such sub" name
-    err (NoSuchMethod cls) = retError ("No such method in class " ++ cls) name
+    err (NoSuchMethod typ) = retError ("No such method in class " ++ showType typ) name
     applySub :: VCode -> (Maybe Exp) -> [Exp] -> Eval Val
     applySub sub invs args
         -- list-associativity

@@ -17,6 +17,8 @@ import Pugs.Prim.Param (foldParam)
 import Pugs.Pretty
 import Pugs.Config
 import Pugs.Monads
+import qualified Pugs.Val as Val
+import Pugs.Val hiding (Val, IValue, VUndef)
 
 findVar :: Var -> Eval (Maybe VRef)
 findVar (':':x:_) | x /= '*' = return Nothing
@@ -138,31 +140,32 @@ findVarRef name
 data FindSubFailure
     = NoMatchingMulti
     | NoSuchSub
-    | NoSuchMethod String
+    | NoSuchMethod !Type
 
 findSub :: String     -- ^ Name, with leading @\&@.
         -> Maybe Exp  -- ^ Invocant
         -> [Exp]      -- ^ Other arguments
         -> Eval (Either FindSubFailure VCode)
 findSub name' invs args = do
-    let name = possiblyFixOperatorName name'
     case invs of
         Just _ | Just (package, name') <- breakOnGlue "::" name
                , Just (sig, "") <- breakOnGlue "SUPER" package -> do
             typ <- asks envPackage
             findSuperSub (mkType typ) (sig ++ name')
-        Just exp | not (':' `elem` drop 2 name) -> do
-            typ     <- evalInvType $ unwrap exp
-            if typ == mkType "Scalar::Perl5"
-                then do
-                    fmap (err $ NoSuchMethod $ show typ) (runPerl5Sub name)
-                else do
-                    findTypedSub typ name
+        Just exp | not (':' `elem` drop 2 name) -> case unwrap exp of
+            Val inv@VV{}     -> withExternalCall callMethodVV inv 
+            Val inv@PerlSV{} -> withExternalCall callMethodPerl5 inv 
+            exp' -> do
+                typ <- evalInvType exp'
+                findTypedSub typ name
         _ -> findBuiltinSub NoSuchSub name
+
     where
     err :: b -> Maybe a -> Either b a
     err _ (Just j) = Right j
     err x Nothing  = Left x
+
+    name = possiblyFixOperatorName name'
 
     findSuperSub :: Type -> String -> Eval (Either FindSubFailure VCode)
     findSuperSub typ name = do
@@ -171,7 +174,7 @@ findSub name' invs args = do
         subs    <- findWithSuper pkg name
         subs'   <- either (flip findBuiltinSub name) (return . Right) subs
         case subs' of
-            Right sub | subName sub == qualified -> return (Left $ NoSuchMethod $ show typ)
+            Right sub | subName sub == qualified -> return (Left $ NoSuchMethod typ)
             _   -> return subs'
     findTypedSub :: Type -> String -> Eval (Either FindSubFailure VCode)
     findTypedSub typ name = do
@@ -182,19 +185,43 @@ findSub name' invs args = do
         sub <- findSub' name
         maybe (fmap (err failure) $ possiblyBuildMetaopVCode name) (return . Right) sub
     evalInvType :: Exp -> Eval Type
-    evalInvType x@(Var (':':typ)) = do
-        typ' <- inferExpType x
-        return $ if typ' == mkType "Scalar::Perl5" then typ' else mkType typ
-    evalInvType (App (Var "&new") (Just inv) _) = do
-        evalInvType $ unwrap inv
-    evalInvType x@(App (Var _) (Just inv) _) = do
-        typ <- evalInvType $ unwrap inv
-        if typ == mkType "Scalar::Perl5" then return typ else inferExpType x
     evalInvType x = inferExpType $ unwrap x
-    runPerl5Sub :: String -> Eval (Maybe VCode)
-    runPerl5Sub name = do
-        metaSub <- possiblyBuildMetaopVCode name
-        if isJust metaSub then return metaSub else do
+
+    withExternalCall callMeth inv = do
+        fmap (err . NoSuchMethod $ valType inv) $ do
+            metaSub <- possiblyBuildMetaopVCode name
+            if isJust metaSub then return metaSub else callMeth
+
+    callMethodVV :: Eval (Maybe VCode)
+    callMethodVV = do
+        let (_, methName) = breakSigil name
+        -- Look up the proto for the method in VV land right here
+        -- Whether it matched or not, it's the proto's signature
+        -- that's available to the inferencer, not any of its children's
+        -- (this is because MMD in newland is performed _after_ everything
+        -- has been reduced.)
+        return . Just $ mkPrim
+            { subName     = methName
+            , subParams   = makeParams ["Object", "List", "Named"]
+            , subReturns  = mkType "Any"
+            , subBody     = Prim $ \(inv:named:pos:_) -> do
+                invVV   <- fromVal inv      :: Eval Val.Val
+                posVVs  <- fromVals pos     :: Eval [Val.Val]
+                namVVs  <- do
+                    list <- fromVal named
+                    fmap Map.fromList $ forM list $ \(k, v) -> do
+                        key <- fromVal k
+                        val <- fromVal v
+                        return (key, [val])   :: Eval (ID, [Val.Val])
+
+                -- This is the Capture object we are going to work with
+                let capt = CaptMeth invVV [MkFeed posVVs namVVs]
+
+                return . castV $ "CCall " ++ show methName ++ " " ++ show capt
+            }
+
+    callMethodPerl5 :: Eval (Maybe VCode)
+    callMethodPerl5 = do
         return . Just $ mkPrim
             { subName     = name
             , subParams   = makeParams ["Object", "List", "Named"]
@@ -307,7 +334,7 @@ findSub name' invs args = do
         attrs <- fmap (fmap (filter (/= pkg) . nub)) $ findAttrs pkg
         if isNothing attrs || null (fromJust attrs) then fmap (err NoMatchingMulti) (findSub' name) else do
         (`fix` (fromJust attrs)) $ \run pkgs -> do
-            if null pkgs then return (Left $ NoSuchMethod $ pkg) else do
+            if null pkgs then return (Left $ NoSuchMethod $ mkType pkg) else do
             subs <- findWithPkg (head pkgs) name
             either (const $ run (tail pkgs)) (return . Right) subs
     findSub' :: String -> Eval (Maybe VCode)
@@ -376,7 +403,7 @@ inferExpType (Val val) = fromVal val
 inferExpType (App (Val val) _ _) = do
     sub <- fromVal val
     return $ subReturns sub
-inferExpType (App (Var "&new") (Just (Val (VType typ))) _) = return typ
+inferExpType (App (Var "&new") (Just inv) _) = inferExpType $ unwrap inv
 inferExpType (App (Var name) invs args) = do
     sub <- findSub name invs args
     case sub of
