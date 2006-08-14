@@ -307,6 +307,8 @@ sub build_exe {
     push @libs, grep /^-auto/, @_;
     push @libs, grep /^-prof/, @_;
 
+    push @pkgs, "-package-name" => "Pugs-$version";
+
     @_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -optl-Lthird-party/installed -o pugs src/Main.hs), @libs);
     #@_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -o pugs src/Main.hs), @libs);
     print "*** Building: ", join(' ', $ghc, @_), $/;
