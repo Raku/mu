@@ -10,8 +10,11 @@
 -}
 module Pugs.Val (
     IValue(..), Val(..), ValUndef, ValNative, Id, P,
-    ICoercible(..),
+    ICoercible(..), ID,
     PureBit, PureInt, PureNum, PureStr, PureList, itemVal, listVal,
+
+    -- From Code
+    Capt(..), Arglist(..),
 ) where
 import Pugs.Internals
 import GHC.Exts
@@ -50,7 +53,7 @@ class ICoercible m a => IValue m a where
     -- | lift an ASTish leaf type to a value. Using this convenience method
     -- you can say "val (NInt 42)" instead of "Val (VNative (NInt 42))".
     val         :: a -> Val
-    -- | retrieve metaclass of a value.
+    -- | retrieve metaclass instance of a value.
     valMeta     :: a -> Class
     valMeta     = cast . takeTypeName "" . reverse . show . typeOf
         where
@@ -65,7 +68,7 @@ class ICoercible m a => IValue m a where
     -- | Identity.
     valId       :: a -> Id
     valId = cast . NUint . unsafeCoerce#
-    -- | Comparision.
+    -- | Comparison.
     valCompare  :: a -> a -> Ordering
     valCompare x y = valId x `compare` valId y
 
@@ -293,10 +296,10 @@ type ExtProcess      = ()
 
 --------------------------------------------------------------------------------------
 
-type Ident = Buf.ByteString
+type ID = Buf.ByteString
 
 -- | General purpose mapping from identifiers to values.
-type Table = Map Ident Val
+type Table = Map ID Val
 
 
 {- Pad -}
@@ -349,13 +352,13 @@ data PadEntry = MkEntry
  - it finds its home we will give it boarding. -}
 data Var
     = VarLexical
-        { v_name        :: Ident
+        { v_name        :: ID
         , v_callerCount :: Int
         , v_outerCount  :: Int
         }
     | VarDynamic
-        { v_name        :: Ident
-        , v_packageName :: [Ident]
+        { v_name        :: ID
+        , v_packageName :: [ID]
         }
     | VarMagic
         { v_magic       :: Magic
@@ -392,7 +395,7 @@ data Magic
 
 -- | AST for a statement. The top level of an AST is a list of Stmt.
 data Stmt = MkStmt
-    { label      :: Maybe Ident
+    { label      :: Maybe ID
     , pragmas    :: Table
     , expression :: Exp
     } deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}

@@ -65,9 +65,9 @@ data Sig
     = SigMethSingle
         { s_invocant                  :: Param
         , s_requiredPositionalCount   :: Int
-        , s_requiredNames             :: Set Ident
+        , s_requiredNames             :: Set ID
         , s_positionalList            :: [Param]
-        , s_namedSet                  :: Map Ident Param
+        , s_namedSet                  :: Map ID Param
         , s_slurpyScalarList          :: [Param]
         , s_slurpyArray               :: Maybe Param
         , s_slurpyHash                :: Maybe Param
@@ -76,9 +76,9 @@ data Sig
         }
     | SigSubSingle
         { s_requiredPositionalCount   :: Int
-        , s_requiredNames             :: Set Ident
+        , s_requiredNames             :: Set ID
         , s_positionalList            :: [Param]
-        , s_namedSet                  :: Map Ident Param
+        , s_namedSet                  :: Map ID Param
         , s_slurpyScalarList          :: [Param]
         , s_slurpyArray               :: Maybe Param
         , s_slurpyHash                :: Maybe Param
@@ -98,14 +98,14 @@ These represent declared parameters; don't confuse them with actual argument
 values.
 -}
 data Param = MkParam
-    { p_variable    :: Ident         -- ^ E.g. $m above
+    { p_variable    :: ID            -- ^ E.g. $m above
     , p_types       :: [Types.Type]  -- ^ Static pieces of inferencer-food
                                      --   E.g. Elk above
     , p_constraints :: [Code]        -- ^ Dynamic pieces of runtime-mood
                                      --   E.g. where {...} above
     , p_unpacking   :: Maybe PureSig -- ^ E.g. BinTree $t (Left $l, Right $r)
     , p_default     :: Maybe Exp     -- ^ E.g. $answer? = 42
-    , p_label       :: Ident         -- ^ E.g. :mode
+    , p_label       :: ID            -- ^ E.g. :mode
     , p_slots       :: Table         -- ^ Any additional attrib not
                                      --   explicitly mentioned below
     , p_hasAccess   :: ParamAccess   -- ^ is ro, is rw, is copy
@@ -135,8 +135,8 @@ data Capt a
 -- | non-invocant arguments.
 data Arglist a = MkArglist
     { a_positional :: [a]
-    , a_named      :: Map Ident [a]   -- ^ maps to [a] and not a since if the Sig stipulates
-                                      --   @x, "x => 1, x => 2" constructs @x = (1, 2).
+    , a_named      :: Map ID [a]    -- ^ maps to [a] and not a since if the Sig stipulates
+                                    --   @x, "x => 1, x => 2" constructs @x = (1, 2).
     }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 

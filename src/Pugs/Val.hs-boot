@@ -11,8 +11,8 @@ data Val
 data ValNative = NBuf !NativeBuf
 type NativeBuf      = ByteString
 type P = Identity
-type Ident = Buf.ByteString
-type Table = Map Ident Val
+type ID = Buf.ByteString
+type Table = Map ID Val
 newtype Pad = MkPad { padEntries :: Map Var PadEntry }
 data PadEntry
 data Var -- XXX: should be moved to from Val to AST definiton

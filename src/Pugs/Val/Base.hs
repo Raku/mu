@@ -7,6 +7,14 @@ import qualified Data.ByteString.Char8 as Char8
 import Pugs.Internals
 import {-# SOURCE #-} Pugs.Val
 
+
+-- Goal: associate each builtin type with prim methods (that handles native monotypes)
+--       its metaclass then get those as the initial method slots
+--       still have to maintain a list of builtin bootstrap classes somewhere
+--       but everything else can be reflected via Coercible
+--
+-- Plan: Each prim type has a static fixed META class
+
 class (Monad m, Functor m, Eq a, Data a, Typeable a) => ICoercible m a | a -> m where
     asBit    :: a -> m PureBit
     asBit _ = return $ cast True
