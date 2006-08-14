@@ -392,13 +392,13 @@ sub closure {
 
     # XXX XXX XXX - source-filter - temporary hacks to translate p6 to p5
     # $()<name>
-    $code =~ s/ ([^']) \$ \( \) < (.*?) > /$1 \$_[0]->[$2] /sgx;
+    $code =~ s/ ([^']) \$ \( \) < (.*?) > /$1\$_[0]->[$2]/sgx;
     # $<name>
-    $code =~ s/ ([^']) \$ < (.*?) > /$1 \$_[0]->{named}->{$2} /sgx;
+    $code =~ s/ ([^']) \$ < (.*?) > /$1\$_[0]->{named}->{$2}/sgx;
     # $()
-    $code =~ s/ ([^']) \$ \( \) /$1 \$_[0]->() /sgx;
+    $code =~ s/ ([^']) \$ \( \) /$1\$_[0]->()/sgx;
     # $/
-    $code =~ s/ ([^']) \$ \/ /$1 \$_[0] /sgx;
+    $code =~ s/ ([^']) \$ \/ /$1\$_[0]/sgx;
     #print "Code: $code\n";
     
     return 

@@ -1,0 +1,99 @@
+grammar Pugs::Parser::Literal;
+
+use Pugs::Internals;
+use Pugs::AST;
+use Pugs::Types;
+use Pugs::Lexer;
+use Pugs::Rule;
+
+use Pugs::Parser::Types;
+use Pugs::Parser::Operator;
+
+token yada {
+    $<sym> := [ <'...'> | <'???'> | <'!!!'> ]
+    {
+	return App(
+		Var( doYada( $<sym> ) ),
+		Nothing,
+		[ Val( VStr( $<sym> ~ " - not yet implemented") ) ]
+		)
+    }
+}
+
+token twigil {
+    [ \^ | \* | \? | \. | \! | \+ | ; ]?
+}
+
+token matchPos {
+    $<sigil>  := [ \$ | \@ | \% ]
+    $<digits> := [ <digit>+ ]
+    { return $<sigil> ~ $<digits> }
+}
+
+token matchNamed {
+    $<sigil> := [ \$ | \@ | \% ]
+    \<
+        $<name>  := [ [ \\ . | <-[\>]> ]* ]
+    \>
+    { return $<sigil> ~ "<" ~ $<name> ~ ">" }
+}
+
+token commaOrSemicolon {
+    [ , | ; ] <?ws>?
+    { return; }
+}
+
+token dot {
+    [ \. <!before \.> | <?longDot> ]
+    [ \* | \+ | \? ]?
+    { return }
+}
+
+rule longDot {\\<!before \(> \.{ return }}
+
+use Haskell;
+
+yadaLiteral = expRule $ ruleYada
+
+doYada "..." = "&fail_" -- XXX rename to fail() eventually
+doYada "???" = "&warn"
+doYada "!!!" = "&die"
+doYada _ = error "Bad yada symbol"
+
+{-|
+Match the given literal string (as a lexeme), returning the second argument in
+a 'Pugs.AST.Internals.Val' expression.
+
+Used by 'ruleLit' for @NaN@ and @Inf@.
+-}
+namedLiteral :: String -- Literal string to match
+             -> Val    -- Value to return
+             -> RuleParser Exp
+namedLiteral n v = do { symbol n; return $ Val v }
+
+possiblyTypeLiteral :: Var -> RuleParser Exp
+possiblyTypeLiteral name = do
+    env  <- getRuleEnv
+    let prefix = envPackage env ++ "::"
+        classes = [ showType c | c <- flatten $ envClasses env ]
+        packageClasses = concatMap (maybeToList . removePrefix prefix) classes
+    if name `elem` packageClasses
+        then return . Var $ ':':(prefix ++ name)
+        else if name `elem` classes
+            then return . Var $ ':':name
+            else fail "not a class name"
+    where
+    removePrefix :: (Eq a) => [a] -> [a] -> Maybe [a]
+    removePrefix pre str
+        | pre `isPrefixOf` str = Just (drop (length pre) str)
+        | otherwise            = Nothing
+
+-- zero-width, non-consuming word boundary assertion (\b)
+ruleWordBoundary :: RuleParser ()
+ruleWordBoundary = do
+    cls <- getPrevCharClass
+    look $ if (cls == SpaceClass) then (/=) else (==)
+    return ()
+    where
+    look op = lookAhead (satisfy (\c -> SpaceClass `op` charClassOf c))
+

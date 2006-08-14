@@ -9,7 +9,7 @@ module Pugs.Parser.Types (
     addBlockPad,
     -- Alternate Char implementations that keeps track of ruleCharClass
     satisfy, string, oneOf, noneOf, char, hexDigit, octDigit,
-    digit, upper, anyChar,
+    digit, upper, anyChar, perl6WhiteSpace
 ) where
 import Pugs.AST
 import Pugs.Rule
@@ -76,6 +76,12 @@ upper       = satisfy (isUpper)     <?> "uppercase letter"
 
 whiteSpace  = satisfy (\c -> charClassOf c == SpaceClass)
                                     <?> "whitespace"
+
+perl6WhiteSpace = do cls <- getPrevCharClass 
+		     let mod = if cls == WordClass then many1 else many
+		     do mod whiteSpace
+		        <|>
+		        (satisfy (\c -> charClassOf c /= WordClass) >> return "")
 
 anyChar :: RuleParser Char
 anyChar     = satisfy (const True)

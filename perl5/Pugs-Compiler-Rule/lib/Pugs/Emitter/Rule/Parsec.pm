@@ -58,12 +58,17 @@ sub non_capturing_group {
 sub quant {
     my $term = $_[0]->{'term'};
     my $quantifier = $_[0]->{quant};
-    my $tab = ( $quantifier eq '' ) ? $_[1] : $_[1] . '  ';
+    my $spacing =
+	( $sigspace &&
+	  ($_[0]->{ws1} ne '' && $_[0]->{ws2} ne '')
+	);
+    my $tab = $spacing ? $_[1] . '  ' : $_[1];
     my $rul = emit_rule( $term, $tab );
 
     my $ws = metasyntax('?ws', $tab);
-    $rul = "$ws\n$_[1]$rul" if $sigspace && $_[0]->{ws1} ne '';
-    $rul = "$rul\n$_[1]$ws" if $sigspace && $_[0]->{ws2} ne '';
+    $rul = "$ws\n$tab$rul" if $sigspace && $_[0]->{ws1} ne '';
+    $rul = "$rul\n$tab$ws" if $sigspace && $_[0]->{ws2} ne '';
+    $rul = "do\n$tab$rul" if $spacing;
     return $rul 
         if $quantifier eq '';
 
@@ -79,7 +84,7 @@ sub quant {
     my $final_rul =
 	"(($qual \$ $rul) >>= \\arr -> return \$ foldr (++) \"\" arr)";
 
-    return "$final_rul\n$_[1]$ws" if $sigspace and $_[0]->{ws3} ne '';
+    return "$final_rul >>\n$tab$ws" if $sigspace and $_[0]->{ws3} ne '';
     return $final_rul;
 }
 
@@ -361,7 +366,14 @@ sub metasyntax {
     if ( $prefix =~ /[_[:alnum:]]/ ) {  
         # "before" and "after" are handled in a separate rule
 	if ( $cmd eq 'ws' ){
-	    return '(whiteSpace >> return "")';
+	    return 'perl6WhiteSpace';
+	    # assuming function:
+	    # perl6WhiteSpace = do cls <- getPrevCharClass
+	    #                      let mod = if cls == WordClass then many1 else many
+	    #                      do mod whiteSpace
+	    #                         <|>
+	    #                         (satisfy (\c -> charClassOf c /= WordClass) >> return "")
+
 	}
         if ( $cmd eq 'cut' ) {
             warn "<$cmd> not implemented";
