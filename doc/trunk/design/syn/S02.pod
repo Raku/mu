@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 10 Aug 2006
+  Last Modified: 14 Aug 2006
   Number: 2
-  Version: 63
+  Version: 64
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -207,6 +207,22 @@ To the heredoc parser that just looks like:
 	CODE
 	...
 	OUTPUT
+
+=item *
+
+An unspace may contain a comment, but a comment may not contain an unspace.
+In particular, end-of-line comments do not treat backslash as significant.
+If you say:
+
+    #\ (...
+
+it is an end-of-line comment, not an embedded comment.  Write:
+
+    \ #(
+	...
+       )
+
+to mean the other thing.
 
 =item *
 
