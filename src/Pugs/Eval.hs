@@ -402,17 +402,24 @@ reduceSyn "sub" [exp] = do
             redo
         writeTVar tvar thunk
         return $ Just tvar
-    newbody <- transformExp cloneBodyStates $ subBody sub
+    newBody <- transformExp cloneBodyStates $ subBody sub
     retVal $ VCode sub
         { subEnv  = Just env
         , subCont = cont
-        , subBody = newbody
+        , subBody = newBody
         }
     where
-    cloneBodyStates (Syn "block" [Pad SState pad exp]) = do
-        pad' <- refreshPad pad
-        return $ Syn "block" [Pad SState pad' exp]
+    cloneBodyStates (Pad scope pad exp) | scope <= SMy = do
+        pad' <- clonePad pad
+        return $ Pad scope pad' exp
     cloneBodyStates x = return x
+    clonePad pad = do
+        fmap listToPad $ liftSTM $ forM (padToList pad) $ \(name, tvars) -> do
+            tvars' <- forM tvars $ \(fresh, tvar) -> do
+                fresh'  <- newTVar False
+                tvar'   <- newTVar =<< newObject (typeOfSigil $ head name)
+                return (fresh', tvar')
+            return (name, tvars')
 
 reduceSyn "but" [obj, block] = do
     evalExp $ App (Var "&Pugs::Internals::but_block") Nothing [obj, block]

@@ -1010,7 +1010,7 @@ vcode2firstBlock code = do
             Syn "if"
                 [ App (Var "&postfix:++") Nothing [Var "$?FIRST_RUN"]
                 , Var "$?FIRST_RESULT"
-                , Syn "=" [Var "$?FIRST_RESULT", App (Val code) Nothing []]
+                , Syn "=" [Var "$?FIRST_RESULT", App (Syn "sub" [Val code]) Nothing []]
                 ]   --  { $?FIRST_RUN++; $?FIRST_RESULT = { 42 }() };
         ]
 
