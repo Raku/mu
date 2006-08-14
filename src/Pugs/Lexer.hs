@@ -277,8 +277,7 @@ charControl     = do{ char 'c'
 charNum :: RuleParser String
 charNum = do
     codes <- choice
-        [ fmap (:[]) decimal 
-        , based 'o'  8 octDigit
+        [ based 'o'  8 octDigit
         , based 'x' 16 hexDigit
         , based 'd' 10 digit
         ]
