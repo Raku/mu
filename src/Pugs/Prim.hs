@@ -404,10 +404,6 @@ op1 "-z"    = FileTest.sizeIsZero
 op1 "-s"    = FileTest.fileSize
 op1 "-f"    = FileTest.isFile
 op1 "-d"    = FileTest.isDirectory
-op1 "List::end"   = op1Cast (VInt . (-1 +) . (genericLength :: VList -> VInt))
-op1 "List::elems" = \v -> do
-    --liftIO $ putStrLn "haha"
-    sizeFromVal v --op1Cast (VInt . (genericLength :: VList -> VInt))
 op1 "graphs"= op1Cast (VInt . (genericLength :: String -> VInt)) -- XXX Wrong
 op1 "codes" = op1Cast (VInt . (genericLength :: String -> VInt))
 op1 "chars" = op1Cast (VInt . (genericLength :: String -> VInt))
@@ -565,9 +561,9 @@ op1 "readline" = op1Readline
 op1 "getc"     = op1Getc
 
 op1 "ref"   = fmap VType . evalValType
-op1 "List::pop"   = \x -> do
-    liftIO $ putStrLn "thats pop"
-    join $ doArray x array_pop -- monadic join
+op1 "List::end"   = \x -> fmap (castV . pred) (join $ doArray x array_fetchSize) -- monadic join
+op1 "List::elems" = \x -> fmap castV (join $ doArray x array_fetchSize) -- monadic join
+op1 "List::pop"   = \x -> join $ doArray x array_pop -- monadic join
 op1 "List::shift" = \x -> join $ doArray x array_shift -- monadic join
 op1 "pick"  = op1Pick
 op1 "sum"   = op1Sum

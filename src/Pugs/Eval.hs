@@ -867,8 +867,8 @@ doCall name invs args = do
 
     -- XXX - Consider this case:
     --      sub f (*@_) { @_ }
-    --      f =$fh; # App
-    --      f @foo; # Var
+    --      =$fh.f; # App
+    --      @foo.f; # Var
     -- We can't go back and re-evaluate the =$fh call under list context
     -- after it failed its method lookup; however, we really need to go back
     -- and re-evaluate @foo under list context.  So we use a klugy heuristic

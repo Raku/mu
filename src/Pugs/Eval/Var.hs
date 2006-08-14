@@ -343,13 +343,10 @@ findSub name' invs args = do
         lens        <- mapM argSlurpLen (unwrap $ maybeToList invs ++ args)
         doFindSub (sum lens) subSyms
     argSlurpLen :: Exp -> Eval Int
-    argSlurpLen (Val listMVal) = do
-        listVal  <- fromVal listMVal
-        fmap length (fromVal listVal :: Eval [Val])
+    argSlurpLen (Val val) = join $ doArray val array_fetchSize
     argSlurpLen (Var name) = do
-        listMVal <- evalExp (Var name)
-        listVal  <- fromVal listMVal
-        fmap length (fromVal listVal :: Eval [Val])
+        val <- evalExp (Var name)
+        join $ doArray val array_fetchSize
     argSlurpLen (Syn "," list) =  return $ length list
     argSlurpLen _ = return 1 -- XXX
     doFindSub :: Int -> [(String, Val)] -> Eval (Maybe VCode)
