@@ -61,7 +61,7 @@ for <first second> {
 # Some behavior occurs where FIRST does not close over the correct
 # pad when closures are cloned
 
-my $ran;  # needs to be global, bug is in lexicals
+my $ran;
 for <first second> {
     my $str = 'bana';
     $ran = 0;
