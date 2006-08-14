@@ -134,8 +134,8 @@ data Capt a
 
 -- | non-invocant arguments.
 data Feed a = MkFeed
-    { a_positional :: [a]
-    , a_named      :: Map ID [a]    -- ^ maps to [a] and not a since if the Sig stipulates
+    { f_positionals :: [a]
+    , f_nameds      :: Map ID [a]   -- ^ maps to [a] and not a since if the Sig stipulates
                                     --   @x, "x => 1, x => 2" constructs @x = (1, 2).
     }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
