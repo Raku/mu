@@ -777,6 +777,11 @@ reduceSyn name exps =
 
 reduceApp :: Exp -> (Maybe Exp) -> [Exp] -> Eval Val
 -- XXX absolutely evil bloody hack for context hinters
+reduceApp (Var "&VAR") invs args = do
+    res <- forM (maybeToList invs ++ args) $ \exp -> do
+        enterLValue (enterEvalContext cxtItemAny exp)
+    return $ VList res
+
 reduceApp (Var "&hash") invs args = do
     enterEvalContext cxtItemAny $ Syn "\\{}" [Syn "," $ maybeToList invs ++ args]
 

@@ -880,7 +880,7 @@ instance Ord VComplex where
     compare (a :+ ai) (b :+ bi) = compare (a, ai) (b, bi)
 
 instance (Typeable a) => Show (TVar a) where
-    show tv = "<ref:0x" ++ showHex (unsafeCoerce# tv :: Word) ">"
+    show tv = "<ref:0x" ++ showHex (unsafeCoerce# tv :: Int) ">"
 
 {- Expression annotation
 -}
@@ -1558,7 +1558,7 @@ instance Ord (TVar a) where
 instance (Typeable a) => Show (IVar a) where
     show v = "<" ++ showType (refType (MkRef v)) ++ ":0x" ++ showHex addr ">"
         where
-        addressOf :: x -> Word
+        addressOf :: x -> Int
         addressOf x = unsafeCoerce# x
         addr = case v of
             IScalar x -> addressOf x
