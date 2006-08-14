@@ -41,6 +41,7 @@ module Pugs.Internals (
     module Data.Word,
     module Debug.Trace,
     module Network,
+    module Numeric,
     module Pugs.Compat,
     module RRegex,
     module RRegex.Syntax,
@@ -80,6 +81,7 @@ module Pugs.Internals (
     die,
     _GlobalFinalizer,
     unsafeIOToSTM,
+    unsafeCoerce#,
     ID(..), bufToID,
 ) where
 
@@ -93,6 +95,7 @@ import Data.Dynamic hiding (cast)
 import Data.Generics (Data)
 import Data.Array (elems)
 import Network
+import Numeric (showHex)
 import System.Environment (getArgs, withArgs, getProgName)
 import System.Random hiding (split)
 import System.Exit
@@ -139,6 +142,7 @@ import Debug.Trace
 import GHC.Base (realWorld#)
 import GHC.IOBase (IO(..))
 import GHC.Conc (unsafeIOToSTM)
+import GHC.Exts (unsafeCoerce#)
 import qualified Data.Seq as Seq
 
 import qualified Judy.Hash as H

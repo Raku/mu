@@ -82,7 +82,6 @@ import Pugs.Cont hiding (shiftT, resetT)
 import System.IO.Error (try)
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
-import qualified Data.IntMap    as IntMap
 
 import qualified Judy.CollectionsM as C
 import qualified Judy.Hash         as H
@@ -881,7 +880,7 @@ instance Ord VComplex where
     compare (a :+ ai) (b :+ bi) = compare (a, ai) (b, bi)
 
 instance (Typeable a) => Show (TVar a) where
-    show _ = "<ref>"
+    show tv = "<ref:0x" ++ showHex (unsafeCoerce# tv :: Word) ">"
 
 {- Expression annotation
 -}
@@ -1548,7 +1547,7 @@ instance Eq VRef where
 instance Ord VRef where
     compare _ _ = EQ
 instance Show VRef where
-    show v = "<" ++ showType (refType v) ++ ">"
+    show (MkRef ivar) = show ivar
 
 instance Eq (IVar a) where
     (==) = const $ const False
@@ -1557,7 +1556,19 @@ instance Ord (IVar a) where
 instance Ord (TVar a) where
     compare _ _ = EQ
 instance (Typeable a) => Show (IVar a) where
-    show v = show (MkRef v)
+    show v = "<" ++ showType (refType (MkRef v)) ++ ":0x" ++ showHex addr ">"
+        where
+        addressOf :: x -> Word
+        addressOf x = unsafeCoerce# x
+        addr = case v of
+            IScalar x -> addressOf x
+            IArray  x -> addressOf x
+            IHash   x -> addressOf x
+            ICode   x -> addressOf x
+            IHandle x -> addressOf x
+            IRule   x -> addressOf x
+            IThunk  x -> addressOf x
+            IPair   x -> addressOf x
 #endif
 
 scalarRef   :: ScalarClass a=> a -> VRef
