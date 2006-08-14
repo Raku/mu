@@ -16,9 +16,9 @@ switch, and wraps the whole script in
 =cut
 
 my @examples = (
-  '-n -e say',
-  '-ne say',
-  '-e "" -ne say',
+  '-n -e .say',
+  '-ne .say',
+  '-e "" -ne .say',
 );
 
 plan +@examples;
