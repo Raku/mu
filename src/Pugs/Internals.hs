@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse -fno-warn-deprecations -fallow-undecidable-instances -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse -fno-warn-deprecations -fallow-undecidable-instances -fallow-overlapping-instances -funbox-strict-fields #-}
 
 {-|
     Internal utilities and library imports.
@@ -374,42 +374,54 @@ safeMode = case (inlinePerformIO $ getEnv "PUGS_SAFEMODE") of
 _GlobalFinalizer :: IORef (IO ())
 _GlobalFinalizer = unsafePerformIO $ newIORef (return ())
 
+data ID = MkID { idKey :: !Int, idBuf :: !ByteString }
+    deriving (Typeable, Data)
 
-newtype ID = MkID { unID :: Int }
-    deriving (Typeable, Eq, Ord, Data)
+instance Eq ID where
+    MkID x _ == MkID y _ = x == y
+    MkID x _ /= MkID y _ = x /= y
+
+instance Ord ID where
+    compare (MkID x _) (MkID y _) = compare x y
+    MkID x _ <= MkID y _ = x <= y
+    MkID x _ >= MkID y _ = x >= y
+    MkID x _ < MkID y _ = x < y
+    MkID x _ > MkID y _ = x > y
 
 instance Show ID where
-    showsPrec _ atom = (cast atom ++)
+    showsPrec x (MkID _ buf) = showsPrec x buf
 
 instance Read ID where
-    readsPrec _ s = [ (cast s,"") ]
-
+    readsPrec p s = [ (unsafePerformIO (bufToID (Char8.pack x)), y) | (x,y) <- readsPrec p s]
 
 instance ((:>:) String) ByteString where cast = Char8.unpack
 instance ((:<:) String) ByteString where castBack = Char8.pack
 
-{-# NOINLINE _ID_to_ByteString #-}
-_ID_to_ByteString :: L.IntMap Int ByteString
-_ID_to_ByteString = unsafePerformIO C.new
+{-# NOINLINE _IntToID #-}
+_IntToID :: L.IntMap Int ByteString
+_IntToID = unsafePerformIO C.new
 
-{-# NOINLINE _ByteString_to_ID #-}
-_ByteString_to_ID :: H.Hash ByteString ID
-_ByteString_to_ID = unsafePerformIO C.new
+{-# NOINLINE _BufToID #-}
+_BufToID :: H.Hash ByteString ID
+_BufToID = unsafePerformIO C.new
 
 {-# NOINLINE _ID_count #-}
 _ID_count :: Foreign.Ptr Int
 _ID_count = unsafePerformIO (Foreign.new 1)
 
-instance ((:<:) String) ID where
-    castBack = cast . (cast :: String -> ByteString)
+instance ((:>:) ID) String where
+    cast str = unsafePerformIO (bufToID (Char8.pack str))
 
 instance ((:>:) String) ID where
-    cast = cast . (cast :: ID -> ByteString)
+    cast (MkID _ buf) = Char8.unpack buf
 
 instance ((:<:) ID) ByteString where
-    castBack (MkID i) = unsafePerformIO $! do
+    castBack (MkID _ buf) = buf
+    {-
+     unsafePerformIO $! do
         buf <- C.lookup i _ID_to_ByteString
         maybe (internalError ("ID lookup: " ++ show i)) return buf
+    -}
 
 instance ((:<:) ByteString) ID where
     castBack buf = unsafePerformIO (bufToID buf)
@@ -417,12 +429,12 @@ instance ((:<:) ByteString) ID where
 {-# NOINLINE bufToID #-}
 bufToID :: ByteString -> IO ID
 bufToID buf = do
-    a' <- C.lookup buf _ByteString_to_ID
+    a' <- C.lookup buf _BufToID
     maybe (do
         i <- Foreign.peek _ID_count
         Foreign.poke _ID_count (i + 2)
-        let a = MkID i
-        C.insert i buf _ID_to_ByteString
-        C.insert buf a _ByteString_to_ID
+        let a = MkID i buf
+        C.insert i buf _IntToID
+        C.insert buf a _BufToID
         return a) return a'
 
