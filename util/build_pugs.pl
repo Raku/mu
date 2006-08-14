@@ -107,7 +107,10 @@ sub build {
     chdir "../../..";
 
     foreach my $module (qw< fps HsSyck HsJudy >) {
-        if ( my ($archive_dir) = glob("third-party/installed/*/pugs-$module-*") ) {
+        if ( my ($archive_dir) = (
+                glob("third-party/installed/*/$module-*"),
+                glob("third-party/installed/*/pugs-$module-*"),
+            )) {
             my $oldest_a_file = max(
                 map {-M $_} (
                     glob("$archive_dir/*.a"),
