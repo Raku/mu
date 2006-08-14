@@ -1466,7 +1466,12 @@ ruleApply isFolded = tryVerbatimRule "apply" $
 ruleApplyImplicitMethod :: RuleParser Exp
 ruleApplyImplicitMethod = do
     lookAhead (char '.')
+    prevChar <- gets ruleChar
     fs <- many rulePostTerm
+    when (prevChar == '}') $ do
+        pos <- getPosition
+        trace ("Warning: '{...}.method' treated as '{...}; .method' at " ++ show pos) $
+            return ()
     return (combine (reverse fs) (Var "$_"))
 
 ruleSubNameWithoutPostfixModifier :: RuleParser String
