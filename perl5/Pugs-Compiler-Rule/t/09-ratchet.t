@@ -664,10 +664,13 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     $match = $rule1->match("untilaba123");
     is($match,'untilaba123',"subrule hash{until}");
     is($match->(),'untilaba123',"subrule hash{until} - 2");
-    is($match->{test},'aba',"Matched hash{until} capture");
+
+    # is($match->{test},'aba',"Matched hash{until} capture");
+    is("" . $match->{test}, 42, "Matched hash{until} capture handles stringification");
+
     #print "\$/ ",Dumper($match->data);
     #print "\$/{test} ",Dumper($match->{test}->data);
-    is($match->{test}(),42,"Matched hash{until} return object");
+    is($match->{test}(), 42, "Matched hash{until} return object");
 
     $match = $rule1->match("other123");
     is($match,'other123',"default subrule");

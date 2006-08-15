@@ -54,20 +54,18 @@ sub hash  {  $_data{id $_[0]}->{named} }
 sub array {  $_data{id $_[0]}->{match} }
 
 sub flat {
-    my $cap = $_data{id $_[0]}->{capture};
+    my $obj = $_data{id $_[0]};
+    my $cap = $obj->{capture};
     #print ref $cap;
     return $$cap
         if ref $cap eq 'REF'   ||
            ref $cap eq 'SCALAR';
-    return $_[0]->str;
+    return '' unless $obj->{bool};
+    return substr( ${$obj->{str}}, $_[0]->from, $_[0]->to - $_[0]->from );
 }
 
 sub str {
-    my $obj = $_data{id $_[0]};
-    #print $_[0]->perl;
-    return '' unless $obj->{bool};
-    return ${$obj->{capture}} if defined $obj->{capture};
-    return substr( ${$obj->{str}}, $_[0]->from, $_[0]->to - $_[0]->from );
+    $_[0]->flat;
 }
 
 sub perl {
