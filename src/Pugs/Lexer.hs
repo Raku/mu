@@ -277,7 +277,10 @@ charControl     = do{ char 'c'
 charNum :: RuleParser String
 charNum = do
     codes <- choice
-        [ based 'o'  8 octDigit
+        [ many1 digit >>= \ds -> do
+            trace ("Warning: Escape sequence \\" ++ ds ++ " is invalid; write \\d" ++ ds ++ " instead") $
+                return [read ds]
+        , based 'o'  8 octDigit
         , based 'x' 16 hexDigit
         , based 'd' 10 digit
         ]
