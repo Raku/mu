@@ -262,7 +262,7 @@ interpolatingStringLiteral startRule endRule interpolator = do
 
 -- | Backslashed non-alphanumerics (except for @\^@) translate into themselves.
 escapeCode      :: RuleParser String
-escapeCode      = ch charEsc <|> charNum <|> ch charAscii <|> ch charControl <|> ch anyChar
+escapeCode      = charNum <|> ch charEsc <|> ch charAscii <|> ch charControl <|> ch anyChar
                 <?> "escape code"
     where
     ch = fmap (:[])
@@ -277,8 +277,9 @@ charControl     = do{ char 'c'
 charNum :: RuleParser String
 charNum = do
     codes <- choice
-        [ many1 digit >>= \ds -> do
-            error ("Error: \\" ++ ds ++ " is ambiguous: write as decimal \\d" ++ ds ++ " or octal \\o" ++ ds ++ " instead") -- $ return [read ds]
+        [ many1 digit >>= \ds -> case ds of
+            "0" -> return [0]
+            _   -> error ("Error: Invalid escape sequence \\" ++ ds ++ "; write as decimal \\d" ++ ds ++ " or octal \\o" ++ ds ++ " instead") -- $ return [read ds]
         , based 'o'  8 octDigit
         , based 'x' 16 hexDigit
         , based 'd' 10 digit
