@@ -3,9 +3,10 @@
 use strict;
 
 my ($nick_base, @channels) = @ARGV;
+my $svn = ((-e '.svn') ? 'svn' : 'svk');
 
-unless (`svn info` =~ /\/pugs$/m) {
-    die "This should be run from the root directory of a pugs svn (not svk) checkout\n";
+unless (`$svn info` =~ /\/pugs$/m) {
+    die "This should be run from the root directory of a pugs $svn checkout\n";
 }
 
 chomp(my $PUGSHOME = `pwd`);
@@ -22,8 +23,8 @@ my $pipe = "evalbot_nick";
 
 sub update_pugs {
     print STDERR "*** Updating repository...\n";
-    system 'svn update';
-    my $rtext = `svn info`;
+    system "$svn update";
+    my $rtext = `$svn info`;
     my ($rev) = $rtext =~ /^Revision: (\d+)/m;
     print STDERR "*** Updated to revision $rev\n";
     return $rev;
