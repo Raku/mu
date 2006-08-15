@@ -278,8 +278,7 @@ charNum :: RuleParser String
 charNum = do
     codes <- choice
         [ many1 digit >>= \ds -> do
-            trace ("Warning: Escape sequence \\" ++ ds ++ " is invalid; write \\d" ++ ds ++ " instead") $
-                return [read ds]
+            trace ("Warning: \\" ++ ds ++ " interpreted as decimal \\d" ++ ds ++ "; write \\o" ++ ds ++ " for octal digits") $ return [read ds]
         , based 'o'  8 octDigit
         , based 'x' 16 hexDigit
         , based 'd' 10 digit
