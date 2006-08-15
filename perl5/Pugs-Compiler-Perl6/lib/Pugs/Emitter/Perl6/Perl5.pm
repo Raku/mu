@@ -90,9 +90,9 @@ sub _emit_code {
             return "Pugs::Runtime::Perl6::Routine->new(Devel::Caller::caller_cv($caller_level))";
         }
         elsif ($name eq 'POSITION') {
-	    if ($caller_level == 0) {
-		return "join(' line ', __FILE__, __LINE__)";
-	    }
+            if ($caller_level == 0) {
+                return "join(' line ', __FILE__, __LINE__)";
+            }
             return "join(' line ', (caller(".($caller_level-1)."))[1,2])";
         }
         die 'unhandled magic variable';
@@ -329,9 +329,9 @@ sub _emit_parameter_capture {
         if (my $pair = $_->{pair}) {
             push @named, $pair->{key}{single_quoted}.' => \\('._emit($pair->{value}).')';
         }
-	elsif ($_->{fixity} && $_->{fixity} eq 'infix' && $_->{op1}{op} eq '=>') {
+        elsif ($_->{fixity} && $_->{fixity} eq 'infix' && $_->{op1}{op} eq '=>') {
             push @named, _emit($_->{exp1}).' => \\('._emit($_->{exp2}).')';
-	}
+        }
         else {
             # \($scalar, 123, ), \@array, \($orz)
             if (exists $_->{array} || exists $_->{hash}) {
@@ -365,7 +365,7 @@ sub default {
 
     if ( exists $n->{pointy_block} ) {
         # XXX: no signature yet
-	return _emit_closure($n->{signature}, $n->{pointy_block});
+        return _emit_closure($n->{signature}, $n->{pointy_block});
 
         return  "sub {\n" . _emit( $n->{pointy_block} ) . "\n }\n";
     }
@@ -592,8 +592,8 @@ sub default {
             
             # $scalar.++;
             # runtime decision - method or lib call
-	    return _emit( $n->{method} ).'('._emit( $n->{self} ).')'
-		if $n->{method}{dot_bareword} eq 'ref';
+            return _emit( $n->{method} ).'('._emit( $n->{self} ).')'
+                if $n->{method}{dot_bareword} eq 'ref';
             return 
                 "( Scalar::Util::blessed " . _emit( $n->{self} ) . " ? " .
             
@@ -612,8 +612,8 @@ sub default {
         if ( exists $n->{self}{hash} ) {
             # %hash.keys
             if ($n->{method}{dot_bareword} eq 'kv') {
-		return _emit( $n->{self}); # just use it as array
-	    }
+                return _emit( $n->{self}); # just use it as array
+            }
             return " (" . 
                 _emit( $n->{method} ) . ' ' .
                 _emit( $n->{self}   ) . ')';
@@ -626,7 +626,8 @@ sub default {
                 my $code = $param->{bare_block} ? 'sub { '._emit($param).' }' : _emit($param);
                 return 'Pugs::Runtime::Perl6::Array::map([\('.$code.', '. _emit($n->{self}).')], {})';
             }
-            elsif ($n->{method}{dot_bareword} eq 'delete') {
+            elsif ( $n->{method}{dot_bareword} eq 'delete' ||
+                    $n->{method}{dot_bareword} eq 'exists' ) {
                 my $self = _emit($n->{self});
                 $self =~ s{\@}{\$};
                 return _emit( $n->{method} ).' '.$self.'['._emit($n->{param}).']';
@@ -658,7 +659,7 @@ sub default {
     }
 
     if ( exists $n->{rx} ) {
-	return 'qr{'.$n->{rx}{rx}.'}' if $n->{rx}{options}{perl5};
+        return 'qr{'.$n->{rx}{rx}.'}' if $n->{rx}{options}{perl5};
     }
 
     return _not_implemented( $n, "syntax" );
@@ -798,10 +799,10 @@ sub statement {
          $n->{statement} eq 'until' ) {
         #warn "for: ",Dumper $n;
         if ( exists $n->{exp2}{pointy_block} ) {
-	    if ($n->{statement} eq 'for' && $n->{exp2}{signature} && @{$n->{exp2}{signature}} > 1) {
-		return 'Pugs::Runtime::Perl6::Array::map([\\'._emit($n->{exp2}).', ['._emit($n->{exp1}).']], {})';
-	    }
-	    my @sigs = map { { scalar => $_->{name} } } @{$n->{exp2}{signature}};
+            if ($n->{statement} eq 'for' && $n->{exp2}{signature} && @{$n->{exp2}{signature}} > 1) {
+                return 'Pugs::Runtime::Perl6::Array::map([\\'._emit($n->{exp2}).', ['._emit($n->{exp1}).']], {})';
+            }
+            my @sigs = map { { scalar => $_->{name} } } @{$n->{exp2}{signature}};
             my $sig = $n->{exp2}{signature} ? ' my ' . _emit( @sigs ) : '';
             my $head = $n->{statement} eq 'for'
                 ?  $n->{statement} . 
@@ -884,9 +885,9 @@ sub infix {
     }
 
     if ( $n->{op1}{op} eq '=:=' ) {
-	# XXX: Data::Bind needs to provide an API.  we are now
-	# actually with different address using the magic proxying in D::B.
-	return 'Scalar::Util::refaddr(\\'._emit($n->{exp1}).
+        # XXX: Data::Bind needs to provide an API.  we are now
+        # actually with different address using the magic proxying in D::B.
+        return 'Scalar::Util::refaddr(\\'._emit($n->{exp1}).
           ') == Scalar::Util::refaddr(\\'._emit($n->{exp2}).')';
     }
 
@@ -905,19 +906,19 @@ sub infix {
         if ( my $subs = $n->{exp2}{substitution} ) {
             # XXX: use Pugs::Compiler::RegexPerl5
             # XXX: escape
-	    my $p5options = join('', map { $subs->{options}{$_} ? $_ : '' } qw(s m g e));
+            my $p5options = join('', map { $subs->{options}{$_} ? $_ : '' } qw(s m g e));
             return _emit( $n->{exp1} ) . ' =~ s{' . $subs->{substitution}[0]. '}{'. $subs->{substitution}->[1] .'}' . $p5options
                 if $subs->{options}{p5};
             return _not_implemented( $n, "rule" );
         }
-	if ( my $rx = $n->{exp2}{rx} ) {
-	    if ( !$rx->{options}{perl5} ) {
-		my $regex = $rx->{rx};
-		# XXX: hack for /$pattern/
-		$regex = 'q{'.$regex.'}' unless $regex =~ m/^\$[\w\d]+/;
-		return '$::_V6_MATCH_ = Pugs::Compiler::Regex->compile( '.$regex.' )->match('._emit($n->{exp1}).')';
-	    }
-	}
+        if ( my $rx = $n->{exp2}{rx} ) {
+            if ( !$rx->{options}{perl5} ) {
+                my $regex = $rx->{rx};
+                # XXX: hack for /$pattern/
+                $regex = 'q{'.$regex.'}' unless $regex =~ m/^\$[\w\d]+/;
+                return '$::_V6_MATCH_ = Pugs::Compiler::Regex->compile( '.$regex.' )->match('._emit($n->{exp1}).')';
+            }
+        }
         return _emit( $n->{exp1} ) . ' =~ (ref(' . _emit( $n->{exp2} ).') eq "Regexp" ? '._emit($n->{exp2}).' : quotemeta('._emit($n->{exp2}).'))';
     }
 

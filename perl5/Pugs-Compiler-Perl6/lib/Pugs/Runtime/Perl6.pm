@@ -49,6 +49,7 @@ sub eval {
         $result[0] = eval $eval_string;
     }
     $::_V6_ERR_ = $@;
+    #warn $::_V6_ERR_ if $::_V6_ERR_;
     return wantarray ? @result : $result[0];
 
 }
