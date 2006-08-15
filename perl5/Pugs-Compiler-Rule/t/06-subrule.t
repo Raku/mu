@@ -108,6 +108,7 @@ use base 'Pugs::Grammar::Base';
     no warnings qw( uninitialized );
     
     $match = $rule->match("a");
+    #print Dumper( $match->data );
     is( "$match",'',"before didn't match");
     
     $match = $rule->match("ab");

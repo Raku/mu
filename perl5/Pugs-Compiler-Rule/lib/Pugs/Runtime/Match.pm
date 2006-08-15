@@ -60,7 +60,7 @@ sub flat {
     return $$cap
         if ref $cap eq 'REF'   ||
            ref $cap eq 'SCALAR';
-    return '' unless $obj->{bool};
+    return '' unless ${$obj->{bool}};
     return substr( ${$obj->{str}}, $_[0]->from, $_[0]->to - $_[0]->from );
 }
 
