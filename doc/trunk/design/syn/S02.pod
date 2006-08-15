@@ -1383,7 +1383,7 @@ The old C<\123> form is now illegal, as is the C<\0123> form.
 Only C<\0> remains, and then only if the next character is not in
 the range C<'0'..'7'>.  Octal characters must use C<\o> notation.
 Note also that backreferences are no longer represented by C<\1>
-and the like--see S06.
+and the like--see S05.
 
 =item *
 
