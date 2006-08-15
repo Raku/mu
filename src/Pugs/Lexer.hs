@@ -278,7 +278,7 @@ charNum :: RuleParser String
 charNum = do
     codes <- choice
         [ many1 digit >>= \ds -> do
-            trace ("Warning: \\" ++ ds ++ " interpreted as decimal \\d" ++ ds ++ "; write \\o" ++ ds ++ " for octal digits") $ return [read ds]
+            error ("Error: \\" ++ ds ++ " is ambiguous: write as decimal \\d" ++ ds ++ " or octal \\o" ++ ds ++ " instead") -- $ return [read ds]
         , based 'o'  8 octDigit
         , based 'x' 16 hexDigit
         , based 'd' 10 digit
