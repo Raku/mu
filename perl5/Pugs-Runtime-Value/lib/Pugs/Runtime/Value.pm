@@ -13,7 +13,8 @@
 #
 # 2006-08-15
 # * forked from Perl6::Value
-# * changed 'use MetaModel' to Moose (p5) or v6-alpha (p6)
+# * changed 'use MetaModel' to 'use v6-alpha' (p6)
+# * unboxed subs moved to Pugs::Runtime::Unboxed
 #
 # 2005-10-03
 # * Fixed Pair stringification ("$key\t$value") and .perlification
@@ -145,92 +146,76 @@ class Str {
 
 }
 
-use v5;
+class Bit {
 
-class1 'Bit'.$class_description => {
-    is => [ $::Object ],
-    class => {
-        attrs => [],
-        methods => {}
-    },
-    instance => {
-        attrs => [ '$.unboxed' ],
-        DESTROY => sub {},
-        methods => {
-            'num' => sub { Num->new( '$.unboxed' => Pugs::Runtime::Value::Bit::to_num( _('$.unboxed') ) ) },
-            'int' => sub { Int->new( '$.unboxed' => Pugs::Runtime::Value::Bit::to_int( _('$.unboxed') ) ) },
-            'str' => sub { Str->new( '$.unboxed' => Pugs::Runtime::Value::Bit::to_str( _('$.unboxed') ) ) },
-            'bit' => sub { $::SELF },
-            'perl' => sub { $::SELF->str },
-            'ref' => sub { $::CLASS }, 
-        },
+    has $.unboxed;
+
+    method num { 
+        Num.new( unboxed => Pugs::Runtime::Value::Bit::to_num( self.unboxed ) ) 
     }
-};
-
-class1 'Rat'.$class_description => {
-    is => [ $::Object ],
-    class => {
-        attrs => [],
-        methods => {},
-    },
-    instance => {
-        attrs => [ '$.a', '$.b' ],
-        DESTROY => sub {},
-        methods => {
-            'num' =>  sub { Num->new( '$.unboxed' => _('$.a')/_('$.b') ) },
-            'int' =>  sub { Int->new( '$.unboxed' => Pugs::Runtime::Value::Num::to_int( _('$.a')/_('$.b') ) ) },
-            'str' =>  sub { Str->new( '$.unboxed' => Pugs::Runtime::Value::Num::to_str( _('$.a')/_('$.b') ) ) },
-            'bit' =>  sub { Bit->new( '$.unboxed' => Pugs::Runtime::Value::Num::to_bit( _('$.a')/_('$.b') ) ) },
-            'perl' => sub { $::SELF->str },
-            'ref' =>  sub { $::CLASS }, 
-        },
+    method int { 
+        Int.new( unboxed => Pugs::Runtime::Value::Bit::to_int( self.unboxed ) )
     }
-};
-
-class1 'Pair'.$class_description => {
-    is => [ $::Object ],
-    class => {
-        attrs => [],
-        methods => {}
-    },
-    instance => {
-        attrs => [ '$.key', '$.value' ],  # [ '$.value' => { access => 'rw' } ] ],
-        DESTROY => sub {},
-        methods => {
-            'num' => sub { Num->new( '$.unboxed' => 0 ) },
-            'int' => sub { Int->new( '$.unboxed' => 0 ) },
-            'str' => sub {
-                my $key =   Pugs::Runtime::Value::stringify( _('$.key') );
-                my $value = Pugs::Runtime::Value::stringify( _('$.value') );
-                Str->new( '$.unboxed' => "$key\t$value" ) 
-              },
-            'bit' => sub { Bit->new( '$.unboxed' => 0 ) },
-            'perl' => sub { 
-                my $self = shift;
-                my $key =   Pugs::Runtime::Value::stringify( $self->key->perl );
-                my $value = Pugs::Runtime::Value::stringify( $self->value->perl );
-                Str->new( '$.unboxed' => "($key => $value)" ) 
-              },
-            'unboxed' => sub { ( _('$.key'), _('$.value') ) },
-            'ref' => sub { $::CLASS }, 
-            'isa' => sub { ::next_METHOD() },
-            'does' => sub { ::next_METHOD() },
-            'AUTOLOAD' => sub {
-                my ($self, @param) = @_;
-                my $method = __('$AUTOLOAD');
-                die "unsupported pair method .$method";
-            },
-
-        },
+    method str { 
+        Str.new( unboxed => Pugs::Runtime::Value::Bit::to_str( self.unboxed ) )
     }
-};
+    method bit { 
+        self
+    }
+    method perl { self.str }
+    method ref  { self.class }
+
+}
+
+class Rat {
+
+    has $.a;
+    has $.b;
+
+    method num { 
+        Num.new( unboxed => self.a / self.b ) 
+    }
+    method int { 
+        Int.new( unboxed => self.a / self.b )
+    }
+    method str { 
+        Str.new( unboxed => self.a ~ '/' ~ self.b )
+    }
+    method bit { 
+        Bit.new( unboxed => self.a / self.b )
+    }
+    method perl { self.str }
+    method ref  { self.class }
+
+}
+
+class Pair {
+
+    has $.key;
+    has $.value;
+
+    method num { 
+        Num.new( unboxed => 0 ) 
+    }
+    method int { 
+        Int.new( unboxed => 0 )
+    }
+    method str { 
+        Str.new( unboxed => self.key ~ "\t" ~ self.value )
+    }
+    method bit { 
+        Bit.new( unboxed => 0 )
+    }
+    method perl { "(" ~ self.key ~ " => " ~ self.value ~ ")" }
+    method ref  { self.class }
+
+}
+
+=begin v5
+
+# TODO: move Capture and List to p6-land
 
 class1 'Ref'.$class_description => {
-    is => [ $::Object ],
-    class => {
-        attrs => [],
-        methods => {}
-    },
     instance => {
         attrs => [ '$.referred' ],
         DESTROY => sub {
@@ -280,11 +265,6 @@ role Eager => {
 };
 
 class1 'List'.$class_description => {
-    is => [ $::Object ],
-    class => {
-        attrs => [],
-        methods => {}
-    },
     instance => {
         attrs => [ '$.unboxed' ],
         DESTROY => sub {},
@@ -307,7 +287,7 @@ class1 'List'.$class_description => {
 };
 
 
-use v6;
+=end 
 
 =head1 NAME
 
