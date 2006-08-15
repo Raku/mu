@@ -73,7 +73,7 @@ sub new_bot(
   # Sub which sends $msg, flushes $hdl and logs $msg to STDERR.
   my $say = -> Str $msg {
     debug_sent $msg if $debug_raw;
-    $hdl.print("$msg\13\10");
+    $hdl.print("$msg\d[13,10]");
     $hdl.flush();
   };
 
