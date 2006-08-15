@@ -389,7 +389,9 @@ sub default {
                 @{$n->{bare_block}{statements}} == 1        &&
                 exists $n->{bare_block}{statements}[0]{op1} &&
                 (   $n->{bare_block}{statements}[0]{op1} eq ',' 
-                ||  $n->{bare_block}{statements}[0]{op1}{op} eq '=>'
+                ||  (  ref $n->{bare_block}{statements}[0]{op1} eq 'HASH'
+                    && $n->{bare_block}{statements}[0]{op1}{op} eq '=>' 
+                    )
                 )
                 # TODO -   && is it a pair?
             ) {
