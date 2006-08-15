@@ -10,7 +10,7 @@
 # - Arrays stored in a Scalar can be accessed using indexed store/fetch
 #
 # 2005-08-23
-# - fixed Perl6::Cell::fetch
+# - fixed Pugs::Runtime::Cell::fetch
 #
 # 2005-08-19
 # - Added roles (traits) - tieable, readonly
@@ -49,8 +49,8 @@
 
 use strict;
 
-use Perl6::MetaModel;
-use Perl6::Value;
+use Moose;
+use Pugs::Runtime::Value;
 use Carp;
 
 my $class_description = '-0.0.1-cpan:FGLOCK';
@@ -67,10 +67,10 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
 #    type         (default: undef; can be set to 'Hash' or 'Array')
 #    id
 
-$Perl6::Cell::_id = rand;
-sub Perl6::Cell::new { bless { 'id' => ++$Perl6::Cell::_id }, 'Perl6::Cell' } 
-sub Perl6::Cell::store {
-    # warn "Perl6::Cell::store tied=$_[0]{tied} type=$_[0]{type} ref=".ref($_[0]{v})." param=@_";
+$Pugs::Runtime::Cell::_id = rand;
+sub Pugs::Runtime::Cell::new { bless { 'id' => ++$Pugs::Runtime::Cell::_id }, 'Pugs::Runtime::Cell' } 
+sub Pugs::Runtime::Cell::store {
+    # warn "Pugs::Runtime::Cell::store tied=$_[0]{tied} type=$_[0]{type} ref=".ref($_[0]{v})." param=@_";
     die 'read only cell' if $_[0]{ro} && defined $_[0]{v};
     # return $_[0]{tied}->store($_[1]) if $_[0]{tied};
     if ( $_[0]{tied} ) {
@@ -79,8 +79,8 @@ sub Perl6::Cell::store {
     }
     if ( @_ > 2 ) {
            # && (
-           # Perl6::Value::p6v_isa( $_[0]{v}, 'Array' ) || 
-           # Perl6::Value::p6v_isa( $_[0]{v}, 'Hash'  )
+           # Pugs::Runtime::Value::p6v_isa( $_[0]{v}, 'Array' ) || 
+           # Pugs::Runtime::Value::p6v_isa( $_[0]{v}, 'Hash'  )
            # ))  {
         my $cell = shift;
         # warn "storing @_ to ".ref($cell->{v});
@@ -89,8 +89,8 @@ sub Perl6::Cell::store {
     }
     $_[0]{v} = $_[1]
 }
-sub Perl6::Cell::fetch {
-    # warn "Perl6::Cell::fetch tied=$_[0]{tied} type=$_[0]{type} ref=".ref($_[0]{v})." param=@_";
+sub Pugs::Runtime::Cell::fetch {
+    # warn "Pugs::Runtime::Cell::fetch tied=$_[0]{tied} type=$_[0]{type} ref=".ref($_[0]{v})." param=@_";
     # return $_[0]{tied}->fetch if $_[0]{tied};
     if ( $_[0]{tied} ) {
         my $cell = shift;
@@ -98,8 +98,8 @@ sub Perl6::Cell::fetch {
     }
     if ( @_ > 1 ) {
            # && (
-           # Perl6::Value::p6v_isa( $_[0]{v}, 'Array' ) || 
-           # Perl6::Value::p6v_isa( $_[0]{v}, 'Hash'  )
+           # Pugs::Runtime::Value::p6v_isa( $_[0]{v}, 'Array' ) || 
+           # Pugs::Runtime::Value::p6v_isa( $_[0]{v}, 'Hash'  )
            # ))  {
         my $cell = shift;
         #warn "fetching @_ from ".ref($cell->{v});
@@ -107,12 +107,12 @@ sub Perl6::Cell::fetch {
     }
     $_[0]{v}
 }
-sub Perl6::Cell::tie {
+sub Pugs::Runtime::Cell::tie {
     die 'untieable cell' if ! $_[0]{tieable};
     # TODO - use extra parameters
     $_[0]{tied} = $_[1];
 }
-sub Perl6::Cell::untie {
+sub Pugs::Runtime::Cell::untie {
     $_[0]{tied} = undef;
 }
 
@@ -166,7 +166,7 @@ class1 'Scalar'.$class_description => {
     instance => {
         attrs => [ [ '$:cell' => { 
                         access => 'rw', 
-                        build => sub { Perl6::Cell->new } } ] ],
+                        build => sub { Pugs::Runtime::Cell->new } } ] ],
         DESTROY => sub {
             # _('$:cell' => undef); # XXX - MM2.0 gc workaround
         },
@@ -177,7 +177,7 @@ class1 'Scalar'.$class_description => {
                 my $self = shift; 
                 my $value = shift;
                 #carp "Too many arguments to Scalar->store: @_" if @_;
-                if ( Perl6::Value::p6v_isa( $value, 'Scalar' ) ) {
+                if ( Pugs::Runtime::Value::p6v_isa( $value, 'Scalar' ) ) {
                     #carp "Attempting to store a Scalar into a Scalar";
                     $value = $value->cell->{v};
                     #warn "value was a $value";
@@ -284,11 +284,11 @@ __END__
 
 =head1 NAME
 
-Perl6::Container::Scalar - Perl extension for Perl6 "Scalar" class
+Pugs::Runtime::Container::Scalar - Perl extension for Perl6 "Scalar" class
 
 =head1 SYNOPSIS
 
-  use Perl6::Container::Scalar;
+  use Pugs::Runtime::Container::Scalar;
 
   ...
 

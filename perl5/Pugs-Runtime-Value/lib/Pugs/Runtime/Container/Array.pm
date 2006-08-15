@@ -47,7 +47,7 @@
 # * Array is stringified using parenthesis.
 #
 # 2005-08-26
-# * New internal class 'Perl6::Slice'
+# * New internal class 'Pugs::Runtime::Slice'
 #   supports syntax: @a = (2,3,4,5); @a[1,2] = @a[0,3]
 #
 # 2005-08-12
@@ -89,7 +89,7 @@
 # TODO - there are too many methods under AUTOLOAD - upgrade them to real methods
 #
 # TODO - optimize Eager array to O(1)
-#      - currently disabled with "if 0 &&" (Perl6::Container::Array)
+#      - currently disabled with "if 0 &&" (Pugs::Runtime::Container::Array)
 #
 # TODO - ($a,undef,$b) = @a - fixed, add test
 #      - (@a[1..10],$a,undef,$b) = @a
@@ -119,28 +119,28 @@
 # TODO - test multi-dimensional array
 
 # Notes:
-# * Cell is implemented in the Perl6::Container::Scalar package
+# * Cell is implemented in the Pugs::Runtime::Container::Scalar package
 
 use strict;
 use Carp;
 
-use Perl6::MetaModel;
-use Perl6::Value;
-use Perl6::Container::Scalar;
+use Moose;
+use Pugs::Runtime::Value;
+use Pugs::Runtime::Container::Scalar;
 
-use constant Inf => Perl6::Value::Num::Inf;
+use constant Inf => Pugs::Runtime::Value::Num::Inf;
 
 my $class_description = '-0.0.1-cpan:FGLOCK';
 
-# ------ Perl6::Slice -----
+# ------ Pugs::Runtime::Slice -----
 
-sub Perl6::Slice::new { 
+sub Pugs::Runtime::Slice::new { 
     my $class = shift;
     my %param = @_;  
-    #warn "NEW SLICE: ".Perl6::Value::stringify($param{array})." -- ".Perl6::Value::stringify($param{slice})."\n";
+    #warn "NEW SLICE: ".Pugs::Runtime::Value::stringify($param{array})." -- ".Pugs::Runtime::Value::stringify($param{slice})."\n";
     bless { %param }, $class;
 } 
-sub Perl6::Slice::clone { 
+sub Pugs::Runtime::Slice::clone { 
     my $self = shift;
     return $self->unbind;
     #my $a = Array->new;
@@ -148,54 +148,54 @@ sub Perl6::Slice::clone {
     #$a = $a->clone;
     #return $a;
 } 
-sub Perl6::Slice::items {
+sub Pugs::Runtime::Slice::items {
     my $self = shift;
-    #warn "SLICE ITEMS: ".Perl6::Value::stringify($self->{array})." -- ".Perl6::Value::stringify($self->{slice})."\n";
+    #warn "SLICE ITEMS: ".Pugs::Runtime::Value::stringify($self->{array})." -- ".Pugs::Runtime::Value::stringify($self->{slice})."\n";
     #$self->{array}->items;
     my @a;
     warn "Infinite sub-slices are not supported yet" 
-        if Perl6::Value::numify( $self->is_infinite );
-    for ( 0 .. Perl6::Value::numify( $self->elems ) - 1 ) {
+        if Pugs::Runtime::Value::numify( $self->is_infinite );
+    for ( 0 .. Pugs::Runtime::Value::numify( $self->elems ) - 1 ) {
         push @a, $self->fetch( $_ );
     }
     # warn "    items: @a\n";
     return @a;
 }
-sub Perl6::Slice::fetch {
+sub Pugs::Runtime::Slice::fetch {
     my $self = shift;
     my $i = shift;
-    my $pos = Perl6::Value::numify( $self->{slice}->fetch( $i ) );
-    #warn "SLICE FETCH: at ($i) $pos -- @_ -- ".Perl6::Value::stringify($self->{array}->fetch( $pos, @_ ))."\n";
+    my $pos = Pugs::Runtime::Value::numify( $self->{slice}->fetch( $i ) );
+    #warn "SLICE FETCH: at ($i) $pos -- @_ -- ".Pugs::Runtime::Value::stringify($self->{array}->fetch( $pos, @_ ))."\n";
     return unless defined $pos && $pos >= 0;
     $self->{array}->fetch( $pos, @_ );
 }
-sub Perl6::Slice::store {
+sub Pugs::Runtime::Slice::store {
     my $self = shift;
     my $i = shift;
-    my $pos = Perl6::Value::numify( $self->{slice}->fetch( $i ) );
+    my $pos = Pugs::Runtime::Value::numify( $self->{slice}->fetch( $i ) );
     #warn "SLICE STORE: at ($i) $pos -- @_"."\n";
     return unless defined $pos && $pos >= 0;
     $self->{array}->store( $pos, @_ );
 }
-sub Perl6::Slice::is_infinite {
+sub Pugs::Runtime::Slice::is_infinite {
     my $self = shift; 
     $self->{slice}->is_infinite()->unboxed;
 }
-sub Perl6::Slice::elems {
+sub Pugs::Runtime::Slice::elems {
     my $self = shift; 
     $self->{slice}->elems()->unboxed;
 }
-sub Perl6::Slice::unbind {
+sub Pugs::Runtime::Slice::unbind {
     # creates a new Array - not bound to the original array/slice
     my $self = shift; 
-    #warn "SLICE UNBIND: ".Perl6::Value::stringify($self->{array})." -- ".Perl6::Value::stringify($self->{slice})."\n";
+    #warn "SLICE UNBIND: ".Pugs::Runtime::Value::stringify($self->{array})." -- ".Pugs::Runtime::Value::stringify($self->{slice})."\n";
     my $ary = $self->{array};
     my @idx = $self->{slice}->items;
     my $result = Array->new;
     my $pos = 0;
     for my $i ( @idx ) {
         # warn "unbind() loop...";
-        if ( UNIVERSAL::isa( $i, 'Perl6::Value::List' ) ) {
+        if ( UNIVERSAL::isa( $i, 'Pugs::Runtime::Value::List' ) ) {
             die "Not implemented: instantiate lazy slice using a non-contiguous list"
                 unless $i->is_contiguous;
             my $start = $i->start;
@@ -215,13 +215,13 @@ sub Perl6::Slice::unbind {
             my @items = $slice->unboxed->items;
             @items = map {
                         # warn "unbind - elems ". $_->elems . "\n";
-                        UNIVERSAL::isa( $_, 'Perl6::Value::List' ) ? $_->clone : $_
+                        UNIVERSAL::isa( $_, 'Pugs::Runtime::Value::List' ) ? $_->clone : $_
                     } @items;
             $result->push( @items );
             if ( $elems < ( $end - $start + 1 ) ) {
                 my $diff = $end - $start + 1 - $elems;
                 # warn "Missing $diff elements";
-                $result->push( Perl6::Value::List->from_x( item => undef, count => $diff ) );
+                $result->push( Pugs::Runtime::Value::List->from_x( item => undef, count => $diff ) );
             }
             $pos = $pos + $end - $start + 1;
             # warn "pos = $pos";
@@ -235,20 +235,20 @@ sub Perl6::Slice::unbind {
     }
     return $result;
 }
-sub Perl6::Slice::write_thru {
+sub Pugs::Runtime::Slice::write_thru {
     # writes back to the bound Array using the slice as an index
     my $self = shift; 
     my $other = shift;
-    #warn "SLICE WRITE THROUGH: ".Perl6::Value::stringify($self->{array})." -- ".Perl6::Value::stringify($self->{slice})."\n";
-    #warn "               FROM: ".Perl6::Value::stringify($other)."\n";
+    #warn "SLICE WRITE THROUGH: ".Pugs::Runtime::Value::stringify($self->{array})." -- ".Pugs::Runtime::Value::stringify($self->{slice})."\n";
+    #warn "               FROM: ".Pugs::Runtime::Value::stringify($other)."\n";
     #warn "SLICE WRITE THROUGH: ".$self->{array}." -- ".$self->{slice}."\n";
     #warn "               FROM: ".$other."\n";
     my $ary = $self->{array};
     my @idx = $self->{slice}->items;
     my $pos = 0;
     for my $i ( @idx ) {
-        #warn "write loop... ". Perl6::Value::stringify($i)." -- $i\n";
-        if ( UNIVERSAL::isa( $i, 'Perl6::Value::List' ) ) {
+        #warn "write loop... ". Pugs::Runtime::Value::stringify($i)." -- $i\n";
+        if ( UNIVERSAL::isa( $i, 'Pugs::Runtime::Value::List' ) ) {
             # warn "List -- ". $i->is_contiguous;
             die "Not implemented: instantiate lazy slice using a non-contiguous list"
                 unless $i->is_contiguous;
@@ -274,7 +274,7 @@ sub Perl6::Slice::write_thru {
             if ( $elems < $slice_size ) {
                 my $diff = $slice_size - $elems;
                 #warn "Missing $diff elements";
-                push @items, Perl6::Value::List->from_x( item => undef, count => $diff )
+                push @items, Pugs::Runtime::Value::List->from_x( item => undef, count => $diff )
                     if $diff > 0;
             }
             #warn "  STORE SLICE pos $pos to $start, $slice_size, @items";
@@ -293,7 +293,7 @@ sub Perl6::Slice::write_thru {
     return;
 }
 
-# ------ end Perl6::Slice -----
+# ------ end Pugs::Runtime::Slice -----
 
 class1 'Array'.$class_description => {
     is => [ $::Object ],
@@ -306,8 +306,8 @@ class1 'Array'.$class_description => {
                         access => 'rw', 
                         build => sub { 
                             # warn " ---- new @_ ---- ";
-                            my $cell = Perl6::Cell->new;
-                            my $h = Perl6::Container::Array->new( items => [ @_ ] );
+                            my $cell = Pugs::Runtime::Cell->new;
+                            my $h = Pugs::Runtime::Container::Array->new( items => [ @_ ] );
                             $cell->{v} = $h;
                             $cell->{type} = 'Array';
                             return $cell;
@@ -346,17 +346,17 @@ class1 'Array'.$class_description => {
                 my ( $self, @list ) = @_;
                 #warn "Trying to delete() a non-slice" unless $self->tied;
 
-                if ( UNIVERSAL::isa( $self->tied, 'Perl6::Slice' ) ) {
+                if ( UNIVERSAL::isa( $self->tied, 'Pugs::Runtime::Slice' ) ) {
                     # delete from slice
                     my $ret = Array->new();
                     $ret = $self->clone;
-                    $self->store( Perl6::Value::List->from_x( item => undef, count => Inf ) );
+                    $self->store( Pugs::Runtime::Value::List->from_x( item => undef, count => Inf ) );
                     return $ret;
                 }
 
                 #warn "DELETE LIST @list";
                 $self->slice( @list )->delete( 
-                    Perl6::Value::List->from_num_range( start => 0, end => Inf ) 
+                    Pugs::Runtime::Value::List->from_num_range( start => 0, end => Inf ) 
                 );
                 
             },
@@ -365,7 +365,7 @@ class1 'Array'.$class_description => {
                 my ( $self, @list ) = @_;
 
                 my $list = $list[0];
-                if ( !Perl6::Value::p6v_isa($list,'Array') ) {
+                if ( !Pugs::Runtime::Value::p6v_isa($list,'Array') ) {
                     $list = Array->new();
                     $list->push( $_ ) for @list;
                 }
@@ -377,7 +377,7 @@ class1 'Array'.$class_description => {
                 #   store/fetch from array[$list[$i]] == array[5]
                 my $ret = Array->new();
                 $ret->cell->{tieable} = 1;
-                my $proxy = Perl6::Slice->new( 
+                my $proxy = Pugs::Runtime::Slice->new( 
                     array => $self, 
                     slice => $list,   
                 );
@@ -386,7 +386,7 @@ class1 'Array'.$class_description => {
             },
             'zip' => sub {
                 my ( $array, @array_list ) = map {
-                        Perl6::Value::p6v_isa( $_, 'Array' ) ? 
+                        Pugs::Runtime::Value::p6v_isa( $_, 'Array' ) ? 
                         $_->to_list : 
                         warn "Argument to zip() must be an Array"; 
                     } @_; 
@@ -397,7 +397,7 @@ class1 'Array'.$class_description => {
             'map' => sub {
                 my $array = shift;  $array = $array->clone->to_list;
                 my $code = shift;
-                die "Argument to map() must be a Code" unless Perl6::Value::p6v_isa( $code, 'Code' );
+                die "Argument to map() must be a Code" unless Pugs::Runtime::Value::p6v_isa( $code, 'Code' );
                 my $res = Array->new;
                 $res->push( $array->map( $code ) );
                 return $res;
@@ -417,7 +417,7 @@ class1 'Array'.$class_description => {
                 # XXX - rewrite this using map()
                 $ret->push(
                     # XXX - TODO - optimization - shift_n, pop_n
-                    Perl6::Value::List->new(
+                    Pugs::Runtime::Value::List->new(
                         cstart => sub { 
                             return Pair->new( 
                                 '$.key' =>   $shifted++, 
@@ -442,7 +442,7 @@ class1 'Array'.$class_description => {
                 my $array = shift; 
                 my $ret = Array->new();
                 $ret->push(
-                    Perl6::Value::List->from_num_range( 
+                    Pugs::Runtime::Value::List->from_num_range( 
                         start => 0, 
                         end =>   $array->elems->unboxed - 1 ) ); 
                 return $ret;
@@ -461,9 +461,9 @@ class1 'Array'.$class_description => {
 
                 @param = 
                     map {
-                        # Perl6::Value::p6v_isa( $_, 'Array' ) ? $_->unboxed->items :  
-                        Perl6::Value::p6v_isa( $_, 'List' ) ? $_->unboxed :  
-                        UNIVERSAL::isa( $_, 'Perl6::Container::Array' ) ? $_->items : 
+                        # Pugs::Runtime::Value::p6v_isa( $_, 'Array' ) ? $_->unboxed->items :  
+                        Pugs::Runtime::Value::p6v_isa( $_, 'List' ) ? $_->unboxed :  
+                        UNIVERSAL::isa( $_, 'Pugs::Runtime::Container::Array' ) ? $_->items : 
                         $_ 
                     } @param;
                 
@@ -471,7 +471,7 @@ class1 'Array'.$class_description => {
                     my $ret = Array->new();
                     my @result = $tmp->$method( @param )->items;
                     $ret->unboxed->push( @result );
-                    #warn "-- @result "; # . Perl6::Value::stringify($result->shift). " ... ". Perl6::Value::stringify($result->pop);
+                    #warn "-- @result "; # . Pugs::Runtime::Value::stringify($result->shift). " ... ". Pugs::Runtime::Value::stringify($result->pop);
                     #warn "reversed: ".$ret->str->unboxed;
                     #use Data::Dumper; $Data::Dumper::Indent=1;
                     #print Dumper($ret);
@@ -493,8 +493,8 @@ class1 'Array'.$class_description => {
                         #    die "Infinite slices and tied arrays are not yet fully supported";
                         # }
 
-                        if ( Perl6::Value::p6v_isa( $other, 'Array' ) ) {
-                            if ( UNIVERSAL::isa( $other->tied, 'Perl6::Slice' ) ) {
+                        if ( Pugs::Runtime::Value::p6v_isa( $other, 'Array' ) ) {
+                            if ( UNIVERSAL::isa( $other->tied, 'Pugs::Runtime::Slice' ) ) {
                                 # unbind the slice from the original arrays
                                 $other = $other->tied->unbind;
                             }
@@ -506,8 +506,8 @@ class1 'Array'.$class_description => {
                         }
 
                         my @items = $other->unboxed->items;  
-                        if ( UNIVERSAL::isa( $self->tied, 'Perl6::Slice' ) ) {
-                            #warn "WRITE THROUGH ".Perl6::Value::stringify($other);
+                        if ( UNIVERSAL::isa( $self->tied, 'Pugs::Runtime::Slice' ) ) {
+                            #warn "WRITE THROUGH ".Pugs::Runtime::Value::stringify($other);
                             $self->tied->write_thru( $other );
                             return $other;
                             #return $self;
@@ -516,10 +516,10 @@ class1 'Array'.$class_description => {
 
                         # unbind cells
                         @items = map {
-                                Perl6::Value::p6v_isa($_,'Scalar') ? $_->fetch : $_
+                                Pugs::Runtime::Value::p6v_isa($_,'Scalar') ? $_->fetch : $_
                             } @items;
 
-                        my $ret = Perl6::Container::Array->from_list( @items );
+                        my $ret = Pugs::Runtime::Container::Array->from_list( @items );
                         $self->cell->{v} = $ret;
                         return $self;
                     }
@@ -528,7 +528,7 @@ class1 'Array'.$class_description => {
                         #warn "STORING @param";
                         my $pos = shift @param;
                         my $elem = $tmp->fetch( $pos );
-                        if ( Perl6::Value::p6v_isa( $elem, 'Scalar' ) ) {
+                        if ( Pugs::Runtime::Value::p6v_isa( $elem, 'Scalar' ) ) {
                             #warn "CELL TO STORE IS A SCALAR: $elem";
                             $elem->store( @param );
                         }
@@ -543,10 +543,10 @@ class1 'Array'.$class_description => {
                     }
 
                     #for ( @param ) {
-                    #    next if UNIVERSAL::isa( $_, 'Perl6::Value::List' );
-                    #    next if Perl6::Value::p6v_isa( $_, 'Scalar' );
-                    #    next if Perl6::Value::p6v_isa( $_, 'Array' );
-                    #    next if Perl6::Value::p6v_isa( $_, 'Hash' );
+                    #    next if UNIVERSAL::isa( $_, 'Pugs::Runtime::Value::List' );
+                    #    next if Pugs::Runtime::Value::p6v_isa( $_, 'Scalar' );
+                    #    next if Pugs::Runtime::Value::p6v_isa( $_, 'Array' );
+                    #    next if Pugs::Runtime::Value::p6v_isa( $_, 'Hash' );
                     #    my $tmp = $_;
                     #    $_ = Scalar->new();
                     #    $_->store( $tmp );
@@ -565,7 +565,7 @@ class1 'Array'.$class_description => {
                     }
                     my $elem = $tmp->$method( @param );
                     my $scalar;
-                    if ( Perl6::Value::p6v_isa( $elem, 'Scalar' ) ) {
+                    if ( Pugs::Runtime::Value::p6v_isa( $elem, 'Scalar' ) ) {
                         #warn "FETCHED CELL IS A SCALAR: $elem";
                         $scalar = $elem;
                     }
@@ -588,7 +588,7 @@ class1 'Array'.$class_description => {
 
                 if ( $method eq 'pop'   || $method eq 'shift' ) {
                     my $elem = $tmp->$method( @param );
-                    unless ( Perl6::Value::p6v_isa( $elem, 'Scalar' ) ) {
+                    unless ( Pugs::Runtime::Value::p6v_isa( $elem, 'Scalar' ) ) {
                         # XXX - I think only fetch() need to return Scalar 
                         my $scalar = Scalar->new();
                         $scalar->store( $elem );
@@ -602,7 +602,7 @@ class1 'Array'.$class_description => {
                 }
                 if ( $method eq 'exists' ) {
                     # XXX - TODO - recursive to other dimensions
-                    return Bit->new( '$.unboxed' => ($tmp->elems > Perl6::Value::numify($param[0]) ) )
+                    return Bit->new( '$.unboxed' => ($tmp->elems > Pugs::Runtime::Value::numify($param[0]) ) )
                 }
                 if ( $method eq 'is_infinite' ) {
                     return Bit->new( '$.unboxed' => $tmp->$method( @param ) )
@@ -626,30 +626,30 @@ class1 'Array'.$class_description => {
                 my $tmp;
                 for ( 0 .. $samples ) {
                     no warnings 'numeric';
-                    last if $_ >= Perl6::Value::numify( $self->elems );
+                    last if $_ >= Pugs::Runtime::Value::numify( $self->elems );
                     $tmp = $self->fetch( $_ );
-                    $tmp = Perl6::Value::stringify( $tmp );
+                    $tmp = Pugs::Runtime::Value::stringify( $tmp );
                     push @start, $tmp;
                     last if $tmp eq 'Inf' || $tmp eq '-Inf';
                 }
                 for ( map { - $_ - 1 } 0 .. $samples ) {
                     no warnings 'numeric';
-                    # warn "  UNSHIFT: ".$self->elems->unboxed." ".Perl6::Value::numify( $self->elems )." + $_ >= scalar ".(scalar @start)."\n";
-                    last unless Perl6::Value::numify( $self->elems ) + $_ >= scalar @start;
+                    # warn "  UNSHIFT: ".$self->elems->unboxed." ".Pugs::Runtime::Value::numify( $self->elems )." + $_ >= scalar ".(scalar @start)."\n";
+                    last unless Pugs::Runtime::Value::numify( $self->elems ) + $_ >= scalar @start;
                     $tmp = $self->fetch( $_ );
-                    $tmp = Perl6::Value::stringify( $tmp );
+                    $tmp = Pugs::Runtime::Value::stringify( $tmp );
                     unshift @end, $tmp;
                     last if $tmp eq 'Inf' || $tmp eq '-Inf';
                 }
                 my $str = '';
                 if ( @start > 0 ) {
-                    if ( Perl6::Value::numify( $self->elems ) == ( scalar @start + scalar @end ) ) {
-                        $str =  join( ' ', map { Perl6::Value::stringify($_) } @start, @end );
+                    if ( Pugs::Runtime::Value::numify( $self->elems ) == ( scalar @start + scalar @end ) ) {
+                        $str =  join( ' ', map { Pugs::Runtime::Value::stringify($_) } @start, @end );
                     }
                     else {
-                        $str =  join( ' ', map { Perl6::Value::stringify($_) } @start ) .
+                        $str =  join( ' ', map { Pugs::Runtime::Value::stringify($_) } @start ) .
                                 ' .. ' . 
-                                join( ' ', map { Perl6::Value::stringify($_) } @end );
+                                join( ' ', map { Pugs::Runtime::Value::stringify($_) } @end );
                     }
                 }
                 return Str->new( '$.unboxed' => $str );                
@@ -669,24 +669,24 @@ class1 'Array'.$class_description => {
                 my $tmp;
                 for ( 0 .. $samples ) {
                     no warnings 'numeric';
-                    last if $_ >= Perl6::Value::numify( $self->elems );
+                    last if $_ >= Pugs::Runtime::Value::numify( $self->elems );
                     $tmp = $self->fetch( $_ );
-                    $tmp = Perl6::Value::stringify( $tmp->perl );
+                    $tmp = Pugs::Runtime::Value::stringify( $tmp->perl );
                     push @start, $tmp;
                     last if $tmp eq 'Inf' || $tmp eq '-Inf';
                 }
                 for ( map { - $_ - 1 } 0 .. $samples ) {
                     no warnings 'numeric';
-                    # warn "  UNSHIFT: ".$self->elems->unboxed." ".Perl6::Value::numify( $self->elems )." + $_ >= scalar ".(scalar @start)."\n";
-                    last unless Perl6::Value::numify( $self->elems ) + $_ >= scalar @start;
+                    # warn "  UNSHIFT: ".$self->elems->unboxed." ".Pugs::Runtime::Value::numify( $self->elems )." + $_ >= scalar ".(scalar @start)."\n";
+                    last unless Pugs::Runtime::Value::numify( $self->elems ) + $_ >= scalar @start;
                     $tmp = $self->fetch( $_ );
-                    $tmp = Perl6::Value::stringify( $tmp->perl );
+                    $tmp = Pugs::Runtime::Value::stringify( $tmp->perl );
                     unshift @end, $tmp;
                     last if $tmp eq 'Inf' || $tmp eq '-Inf';
                 }
                 my $str = '';
                 if ( @start > 0 ) {
-                    if ( Perl6::Value::numify( $self->elems ) == ( scalar @start + scalar @end ) ) {
+                    if ( Pugs::Runtime::Value::numify( $self->elems ) == ( scalar @start + scalar @end ) ) {
                         $str =  join( ', ', @start, @end );
                     }
                     else {
@@ -697,7 +697,7 @@ class1 'Array'.$class_description => {
                 }
                 # Ensure that ($only_one_item,).perl gets perlificated
                 # correctly (i.e. not ($item), but ($item,)).
-                $str .= "," if Perl6::Value::numify( $self->elems ) == 1;
+                $str .= "," if Pugs::Runtime::Value::numify( $self->elems ) == 1;
                 return Str->new( '$.unboxed' => '(' . $str . ')' );                
             },
         },
@@ -706,14 +706,14 @@ class1 'Array'.$class_description => {
 
 # ----- unboxed functions
 
-package Perl6::Container::Array;
+package Pugs::Runtime::Container::Array;
 
 use strict;
-use Perl6::Value;
-use Perl6::Value::List;
+use Pugs::Runtime::Value;
+use Pugs::Runtime::Value::List;
 use Carp;
 
-use constant Inf => Perl6::Value::Num::Inf;
+use constant Inf => Pugs::Runtime::Value::Num::Inf;
 
 sub new {
     my $class = shift;
@@ -727,7 +727,7 @@ sub clone {
     # XXX - TODO - clone Scalars
     my $self = bless { %{ $_[0] } }, ref $_[0];
     @{$self->{items}} = map {
-            UNIVERSAL::isa( $_, 'Perl6::Value::List' ) ? $_->clone : $_
+            UNIVERSAL::isa( $_, 'Pugs::Runtime::Value::List' ) ? $_->clone : $_
         } @{$self->{items}};
     return $self;
 }
@@ -736,7 +736,7 @@ sub sum {
     my $self = shift;
     my $sum = 0;
     for ( @{$self->{items}} ) {
-        if ( UNIVERSAL::isa( $_, 'Perl6::Value::List' ) ) {
+        if ( UNIVERSAL::isa( $_, 'Pugs::Runtime::Value::List' ) ) {
             $sum += $_->sum
         }
         elsif ( ref( $_ ) ) {
@@ -787,14 +787,14 @@ sub _shift_n {
             }
             next;
         }
-        if ( UNIVERSAL::isa( $tmp[0], 'Perl6::Value::List') ) {
+        if ( UNIVERSAL::isa( $tmp[0], 'Pugs::Runtime::Value::List') ) {
             if ( $tmp[0]->elems > 0 ) {
                 # my $i = $tmp[0]->shift;
                 my $li = $tmp[0];
                 my $diff = $length - $ret_length;
                 my $i = $li->shift_n( $diff );
                 push @ret, $i;
-                if ( UNIVERSAL::isa( $i, 'Perl6::Value::List') ) {
+                if ( UNIVERSAL::isa( $i, 'Pugs::Runtime::Value::List') ) {
                     $ret_length += $i->elems;
                 }
                 else {
@@ -843,7 +843,7 @@ sub _pop_n {
             }
             next;
         }
-        if ( UNIVERSAL::isa( $tmp[-1], 'Perl6::Value::List') ) {
+        if ( UNIVERSAL::isa( $tmp[-1], 'Pugs::Runtime::Value::List') ) {
             if ( $tmp[-1]->elems > 0 ) {
                 # my $i = $tmp[-1]->pop;
                 # unshift @ret, $i;
@@ -851,7 +851,7 @@ sub _pop_n {
                 my $diff = $length - $ret_length;
                 my $i = $li->pop_n( $diff );
                 unshift @ret, $i;
-                if ( UNIVERSAL::isa( $i, 'Perl6::Value::List') ) {
+                if ( UNIVERSAL::isa( $i, 'Pugs::Runtime::Value::List') ) {
                     $ret_length += $i->elems;
                 }
                 else {
@@ -878,7 +878,7 @@ sub elems {
     my $count = 0;
     for ( @{$array->{items}} ) {
         $count += UNIVERSAL::isa( $_, 'ARRAY') ? 0 + @$_ :
-                  UNIVERSAL::isa( $_, 'Perl6::Value::List') ? $_->elems  :
+                  UNIVERSAL::isa( $_, 'Pugs::Runtime::Value::List') ? $_->elems  :
                   1;
     }
     $count;
@@ -887,7 +887,7 @@ sub elems {
 sub is_infinite {
     my $array = shift;
     for ( @{$array->{items}} ) {
-        return 1 if UNIVERSAL::isa( $_, 'Perl6::Value::List') && $_->is_infinite;
+        return 1 if UNIVERSAL::isa( $_, 'Pugs::Runtime::Value::List') && $_->is_infinite;
     }
     0;
 }
@@ -895,7 +895,7 @@ sub is_infinite {
 sub is_lazy {
     my $array = shift;
     for ( @{$array->{items}} ) {
-        return 1 if UNIVERSAL::isa( $_, 'Perl6::Value::List') && $_->is_lazy;
+        return 1 if UNIVERSAL::isa( $_, 'Pugs::Runtime::Value::List') && $_->is_lazy;
     }
     0;
 }
@@ -905,15 +905,15 @@ sub flatten {
     my $array = shift;
     my $ret = $array->clone;
     for ( @{$ret->{items}} ) {
-        $_ = $_->flatten() if UNIVERSAL::isa( $_, 'Perl6::Value::List') && $_->is_lazy;
+        $_ = $_->flatten() if UNIVERSAL::isa( $_, 'Pugs::Runtime::Value::List') && $_->is_lazy;
     }
     $ret;
 }
 
 sub splice { 
     my $array =  shift;
-    my $offset = shift; $offset = Perl6::Value::numify( $offset ); $offset = 0   unless defined $offset;
-    my $length = shift; $length = Perl6::Value::numify( $length ); $length = Inf unless defined $length;
+    my $offset = shift; $offset = Pugs::Runtime::Value::numify( $offset ); $offset = 0   unless defined $offset;
+    my $length = shift; $length = Pugs::Runtime::Value::numify( $length ); $length = Inf unless defined $length;
     my @list = @_;
     my $class = ref($array);
     my ( @head, @body, @tail );
@@ -971,7 +971,7 @@ sub fetch {
     # XXX - this is inefficient because it needs 2 splices
     # see also: splice()
     my $array = shift;
-    my $pos =   shift; $pos = Perl6::Value::numify( $pos );
+    my $pos =   shift; $pos = Pugs::Runtime::Value::numify( $pos );
     
     #use Data::Dumper;
     #warn "-- array -- ". Dumper( $array );
@@ -981,7 +981,7 @@ sub fetch {
 
     my $ret = $array->splice( $pos, 1 );
     ($ret) = @{$ret->{items}};
-    $ret = $ret->shift if UNIVERSAL::isa( $ret, 'Perl6::Value::List' );
+    $ret = $ret->shift if UNIVERSAL::isa( $ret, 'Pugs::Runtime::Value::List' );
     if ( $pos < 0 ) {
         if ( $pos == -1 ) {
             $array->push( $ret );
@@ -999,18 +999,18 @@ sub fetch {
 
 sub store {
     my $array = shift;
-    my $pos =   shift; $pos = Perl6::Value::numify( $pos );
+    my $pos =   shift; $pos = Pugs::Runtime::Value::numify( $pos );
     my $item  = shift;
     # warn "uninitialized value used in numeric context"
     #    unless defined $pos;  
-    if ( UNIVERSAL::isa( $item, 'Perl6::Value::List') ) {
+    if ( UNIVERSAL::isa( $item, 'Pugs::Runtime::Value::List') ) {
         my $class = ref($array);
         $item = $class->new( items => [$item] );
     }
     if ( $pos <= $array->elems ) {
         # 'Array' takes care of proper cell re-binding 
         my $scalar = $array->fetch( $pos );
-        if ( Perl6::Value::p6v_isa( $scalar, 'Scalar' ) ) {
+        if ( Pugs::Runtime::Value::p6v_isa( $scalar, 'Scalar' ) ) {
             # warn "Store to scalar\n";
             $scalar->store( $item );
         }
@@ -1020,7 +1020,7 @@ sub store {
         return $array;
     }
     # store after the end 
-    my $fill = Perl6::Value::List->from_x( item => undef, count => ( $pos - $array->elems ) );
+    my $fill = Pugs::Runtime::Value::List->from_x( item => undef, count => ( $pos - $array->elems ) );
     push @{$array->{items}}, $fill, $item;
     return $array;
 }
@@ -1030,10 +1030,10 @@ sub reverse {
     my @rev = reverse @{$array->{items}};
     @rev = map {
             UNIVERSAL::isa( $_, 'ARRAY' ) ? [ reverse( @$_ ) ] : 
-            UNIVERSAL::isa( $_, 'Perl6::Value::List' ) ? $_->reverse : 
+            UNIVERSAL::isa( $_, 'Pugs::Runtime::Value::List' ) ? $_->reverse : 
             $_
         } @rev;
-    return Perl6::Container::Array->from_list( @rev );
+    return Pugs::Runtime::Container::Array->from_list( @rev );
 }
 
 sub to_list {
@@ -1041,7 +1041,7 @@ sub to_list {
     my $ret = $array->clone;
     # XXX - TODO - optimization - return the internal list object, if there is one
     # XXX - TODO - optimization - add shift_n, pop_n closures
-    return Perl6::Value::List->new(
+    return Pugs::Runtime::Value::List->new(
             cstart => sub { $ret->shift },
             cend =>   sub { $ret->pop },
             celems => sub { $ret->elems },
@@ -1064,20 +1064,20 @@ sub push {
 sub pop {
     my $array = shift;
     my ( $length, $ret ) = $array->_pop_n( 1 );
-    # warn "POP $length -- ". $ret->elems if UNIVERSAL::isa( $ret, 'Perl6::Value::List' );
-    $ret = $ret->shift if UNIVERSAL::isa( $ret, 'Perl6::Value::List' );
+    # warn "POP $length -- ". $ret->elems if UNIVERSAL::isa( $ret, 'Pugs::Runtime::Value::List' );
+    $ret = $ret->shift if UNIVERSAL::isa( $ret, 'Pugs::Runtime::Value::List' );
     return $ret;
 }
 
 sub shift {
     my $array = shift;
     my ( $length, $ret ) = $array->_shift_n( 1 );
-    # warn "SHIFT $length -- ". $ret->elems if UNIVERSAL::isa( $ret, 'Perl6::Value::List' );
-    $ret = $ret->shift if UNIVERSAL::isa( $ret, 'Perl6::Value::List' );
+    # warn "SHIFT $length -- ". $ret->elems if UNIVERSAL::isa( $ret, 'Pugs::Runtime::Value::List' );
+    $ret = $ret->shift if UNIVERSAL::isa( $ret, 'Pugs::Runtime::Value::List' );
     return $ret;
 }
 
-package Perl6::Container::Array::Native;
+package Pugs::Runtime::Container::Array::Native;
 
 sub new {
     my $class = shift;
@@ -1087,13 +1087,13 @@ sub new {
 
 sub store {
     my ( $this, $key, $value ) = @_;
-    my $s = Perl6::Value::numify( $key );
+    my $s = Pugs::Runtime::Value::numify( $key );
     $this->{arrayref}[$s] = $value->unboxed;
     return $value;
 }
 sub fetch {
     my ( $this, $key ) = @_;
-    my $s = Perl6::Value::numify( $key );
+    my $s = Pugs::Runtime::Value::numify( $key );
     $this->{arrayref}[$s]
 }
 sub push {
@@ -1116,7 +1116,7 @@ sub shift {
 }
 sub delete {
     my ( $this, $key ) = @_;
-    my $s = Perl6::Value::numify( $key );
+    my $s = Pugs::Runtime::Value::numify( $key );
     my $r = delete $this->{arrayref}[$s];
 }
 sub clear {
@@ -1137,11 +1137,11 @@ __END__
 
 =head1 NAME
 
-Perl6::Container::Array - Perl extension for Perl6 "Array" class
+Pugs::Runtime::Container::Array - Perl extension for Perl6 "Array" class
 
 =head1 SYNOPSIS
 
-  use Perl6::Container::Array;
+  use Pugs::Runtime::Container::Array;
 
   ...
 

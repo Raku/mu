@@ -4,7 +4,7 @@
 # ChangeLog
 #
 # 2005-09-06
-# * new class Perl6::Container::Hash::Native
+# * new class Pugs::Runtime::Container::Hash::Native
 #
 # 2005-09-05
 # * delete hash element
@@ -18,7 +18,7 @@
 # * New Perl6 class 'Hash'
 #
 # 2005-08-18
-# * New Perl5 class "Perl6::Container::Hash::Object"
+# * New Perl5 class "Pugs::Runtime::Container::Hash::Object"
 #   implements a hash in which the keys can be objects
 #
 # 2005-08-14
@@ -63,13 +63,13 @@
 # TODO - test 'readonly'
 
 # Notes:
-# * Cell is implemented in the Perl6::Container::Scalar package
+# * Cell is implemented in the Pugs::Runtime::Container::Scalar package
 
 use strict;
 
-use Perl6::MetaModel;
-use Perl6::Value;
-use Perl6::Container::Scalar;
+use Moose;
+use Pugs::Runtime::Value;
+use Pugs::Runtime::Container::Scalar;
 
 my $class_description = '-0.0.1-cpan:FGLOCK';
 
@@ -83,8 +83,8 @@ class1 'Hash'.$class_description => {
         attrs => [ [ '$:cell' => { 
                         access => 'rw', 
                         build => sub { 
-                            my $cell = Perl6::Cell->new;
-                            my $h = bless {}, 'Perl6::Container::Hash::Object';
+                            my $cell = Pugs::Runtime::Cell->new;
+                            my $h = bless {}, 'Pugs::Runtime::Container::Hash::Object';
                             $cell->{v} = $h;
                             $cell->{type} = 'Hash';
                             return $cell;
@@ -120,12 +120,12 @@ class1 'Hash'.$class_description => {
             'elems' =>    sub { Int->new( '$.unboxed' =>
                                 _('$:cell')->{tied} ? 
                                 _('$:cell')->{tied}->elems :
-                                Perl6::Container::Hash::elems( _('$:cell')->{v} ) )
+                                Pugs::Runtime::Container::Hash::elems( _('$:cell')->{v} ) )
             },
             'buckets' =>  sub { Str->new( '$.unboxed' =>
                                 _('$:cell')->{tied} ? 
                                 _('$:cell')->{tied}->buckets :
-                                Perl6::Container::Hash::buckets( _('$:cell')->{v} ) )
+                                Pugs::Runtime::Container::Hash::buckets( _('$:cell')->{v} ) )
             },
             'pairs' => sub { 
                 my $key = $_[0]->firstkey;
@@ -190,26 +190,26 @@ class1 'Hash'.$class_description => {
                 #warn "FETCH: @param\n";
                 my $tmp = _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v};
                 my $key = shift @param;
-                if ( Perl6::Value::p6v_isa( $key, 'Array' ) ) {
+                if ( Pugs::Runtime::Value::p6v_isa( $key, 'Array' ) ) {
                     #warn "Hash slice $key\n";
                     warn "Infinite hash slice not supported\n" 
-                        if Perl6::Value::numify( $key->is_infinite );
+                        if Pugs::Runtime::Value::numify( $key->is_infinite );
                     #warn "not implemented";
                     my $a = Array->new();
-                    for ( 0 .. Perl6::Value::numify( $key->elems ) - 1 ) {
+                    for ( 0 .. Pugs::Runtime::Value::numify( $key->elems ) - 1 ) {
                         my $k = $key->fetch( $_ );
                         $a->push( $self->fetch( $k ) );
-                        #warn "push $_ - ",Perl6::Value::stringify( $a ),"\n";
+                        #warn "push $_ - ",Pugs::Runtime::Value::stringify( $a ),"\n";
                         #warn "bind $_ -- $k \n";
                         #$a->fetch( $_ )->bind( $self->fetch( $k ) );
                     }
                     #warn $a->fetch( 1 );
                     #warn $self->fetch( 1 );
                     #$a->fetch( 1 )->bind( $self->fetch( 1 ) );
-                    return $a->slice( 0 .. Perl6::Value::numify( $a->elems ) - 1 );
+                    return $a->slice( 0 .. Pugs::Runtime::Value::numify( $a->elems ) - 1 );
                 }
                 my $v = $tmp->fetch( $key );
-                if ( ! Perl6::Value::p6v_isa( $v, 'Scalar' ) ) {
+                if ( ! Pugs::Runtime::Value::p6v_isa( $v, 'Scalar' ) ) {
                     #warn "autovivify - $key - $v\n";
                     my $s = Scalar->new;
                     $s->store( $v );
@@ -223,7 +223,7 @@ class1 'Hash'.$class_description => {
                 my $tmp = _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v};
                 if ( scalar @param == 1 ) {
                     # store whole hash
-                    if ( Perl6::Value::p6v_isa( $param[0], 'Hash' ) ) {
+                    if ( Pugs::Runtime::Value::p6v_isa( $param[0], 'Hash' ) ) {
                         $self->clear;
                         my $key = $param[0]->firstkey;
                         while ( defined $key ) {
@@ -233,7 +233,7 @@ class1 'Hash'.$class_description => {
                         }
                         return $self;
                     }
-                    if ( Perl6::Value::p6v_isa( $param[0], 'Array' ) ) {
+                    if ( Pugs::Runtime::Value::p6v_isa( $param[0], 'Array' ) ) {
                         $self->clear;
                         for ( 0 .. $param[0]->elems->unboxed - 1 ) {
                             my $pair = $param[0]->fetch( $_ );
@@ -241,7 +241,7 @@ class1 'Hash'.$class_description => {
                         }
                         return $self;
                     }
-                    if ( Perl6::Value::p6v_isa( $param[0], 'Pair' ) ) {
+                    if ( Pugs::Runtime::Value::p6v_isa( $param[0], 'Pair' ) ) {
                         $self->clear;
                         my $pair = $param[0];
                         $self->store( $pair->key, $pair->value );
@@ -252,7 +252,7 @@ class1 'Hash'.$class_description => {
                 my $key = shift @param;
                 my $s = $self->fetch( $key );
                 # fetch should always return Scalar
-                if ( ! Perl6::Value::p6v_isa( $tmp, 'Scalar' ) ) {
+                if ( ! Pugs::Runtime::Value::p6v_isa( $tmp, 'Scalar' ) ) {
                     #warn "creating scalar";
                     $s = Scalar->new;
                     $tmp->store( $key, $s );
@@ -275,19 +275,19 @@ class1 'Hash'.$class_description => {
 
 # ----- unboxed functions
 
-package Perl6::Container::Hash::Object;
+package Pugs::Runtime::Container::Hash::Object;
 
 sub store {
     my ( $this, $key, $value ) = @_;
-    $key = $key->fetch if Perl6::Value::p6v_isa( $key, 'Scalar' );
-    my $s = Perl6::Value::identify( $key );
+    $key = $key->fetch if Pugs::Runtime::Value::p6v_isa( $key, 'Scalar' );
+    my $s = Pugs::Runtime::Value::identify( $key );
     $this->{$s} = [ $key, $value ];
     return $value;
 }
 sub fetch {
     my ( $this, $key ) = @_;
-    $key = $key->fetch if Perl6::Value::p6v_isa( $key, 'Scalar' );
-    my $s = Perl6::Value::identify( $key );
+    $key = $key->fetch if Pugs::Runtime::Value::p6v_isa( $key, 'Scalar' );
+    my $s = Pugs::Runtime::Value::identify( $key );
     $this->{$s}[1];
     # warn "fetching " . $this->{$s}[1];
 }
@@ -306,14 +306,14 @@ sub nextkey {
 }
 sub exists {
     my ( $this, $key ) = @_;
-    $key = $key->fetch if Perl6::Value::p6v_isa( $key, 'Scalar' );
-    my $s = Perl6::Value::identify( $key );
+    $key = $key->fetch if Pugs::Runtime::Value::p6v_isa( $key, 'Scalar' );
+    my $s = Pugs::Runtime::Value::identify( $key );
     exists $this->{$s};
 }
 sub delete {
     my ( $this, $key ) = @_;
-    $key = $key->fetch if Perl6::Value::p6v_isa( $key, 'Scalar' );
-    my $s = Perl6::Value::identify( $key );
+    $key = $key->fetch if Pugs::Runtime::Value::p6v_isa( $key, 'Scalar' );
+    my $s = Pugs::Runtime::Value::identify( $key );
     my $r = delete $this->{$s};
     $r->[1];
 }
@@ -326,7 +326,7 @@ sub scalar {
     0 + %$this;
 }
 
-package Perl6::Container::Hash::Native;
+package Pugs::Runtime::Container::Hash::Native;
 
 sub new {
     my $class = shift;
@@ -338,7 +338,7 @@ sub new {
 
 sub store {
     my ( $this, $key, $value ) = @_;
-    my $s = Perl6::Value::identify( $key );
+    my $s = Pugs::Runtime::Value::identify( $key );
     my $v;
     $v = $value->unboxed if ref( $value );
     no warnings 'uninitialized';
@@ -347,7 +347,7 @@ sub store {
 }
 sub fetch {
     my ( $this, $key ) = @_;
-    my $s = Perl6::Value::identify( $key );
+    my $s = Pugs::Runtime::Value::identify( $key );
     $this->{hashref}{$s}
     # warn "fetching " . $this->{$s}[1];
 }
@@ -362,12 +362,12 @@ sub nextkey {
 }
 sub exists {
     my ( $this, $key ) = @_;
-    my $s = Perl6::Value::identify( $key );
+    my $s = Pugs::Runtime::Value::identify( $key );
     exists $this->{hashref}{$s};
 }
 sub delete {
     my ( $this, $key ) = @_;
-    my $s = Perl6::Value::identify( $key );
+    my $s = Pugs::Runtime::Value::identify( $key );
     my $r = delete $this->{hashref}{$s};
 }
 sub clear {
@@ -379,7 +379,7 @@ sub scalar {
     0 + %{$this->{hashref}};
 }
 
-package Perl6::Container::Hash;
+package Pugs::Runtime::Container::Hash;
 
 sub clone { 
     my $tmp = { %{ $_[0] } };
@@ -398,11 +398,11 @@ __END__
 
 =head1 NAME
 
-Perl6::Container::Hash - Perl extension for Perl6 "Hash" class
+Pugs::Runtime::Container::Hash - Perl extension for Perl6 "Hash" class
 
 =head1 SYNOPSIS
 
-  use Perl6::Container::Hash;
+  use Pugs::Runtime::Container::Hash;
 
   ...
 
