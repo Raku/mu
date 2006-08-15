@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 12 Aug 2006
+  Last Modified: 14 Aug 2006
   Number: 6
-  Version: 48
+  Version: 49
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1744,13 +1744,13 @@ C<POST> blocks on any method of the same long name in every ancestral
 class. The postcondition is satisfied only if the method's own C<POST>
 block I<and> every one of its ancestral C<POST> blocks all return true.
 
-=item C<FIRST>/C<LAST>/C<NEXT>/C<KEEP>/C<UNDO>/etc.
+=item C<ENTER>/C<LEAVE>/C<KEEP>/C<UNDO>/etc.
 
-Mark blocks that are to be conditionally executed before or after
-the subroutine's C<do> block. These blocks are generally used only for
-their side effects, since most return values will be ignored.  C<FIRST>
-may be an exception, but in that case you probably want to use a
-state variable anyway.
+These supply closures that are to be conditionally executed before or
+after the subroutine's C<do> block (only if used at the outermost level
+within the subroutine; technically, these are block traits on the C<do>
+block, not subroutine traits).  These blocks are generally used only
+for their side effects, since most return values will be ignored.
 
 =back
 
@@ -2503,17 +2503,16 @@ Exact Perl 6 forms are okay if quoted from shell processing:
 
 For security reasons, only constants are allowed as arguments, however.
 
-The default C<Capture> mapper pays attention to declaration of
-C<MAIN>'s parameters to resolve certain ambiguities.  A C<--foo> switch
-needs to know whether to treat the next word from the command line as
-an argument.  (Allowing the spacey POSIX form gives the shell room to
-do various things to the argument.)  The non-POSIX C<-foo> form never
-assumes a separate argument, and you must use C<=>.  For the C<--foo>
-form, if there is a named parameter corresponding to the switch name,
-and it is of type C<Bool>, then no argument is expected.  Otherwise an
-argument is expected.  If the parameter is of a non-slurpy array type,
-all subsequent words up to the next command-line switch (or the end
-of the list) are bound to that parameter.
+The default C<Capture> mapper pays attention to declaration of C<MAIN>'s
+parameters to resolve certain ambiguities.  A C<--foo> switch needs to
+know whether to treat the next word from the command line as an argument.
+(Allowing the spacey form gives the shell room to do various things to
+the argument.)  The short C<-foo> form never assumes a separate argument,
+and you must use C<=>.  For the C<--foo> form, if there is a named parameter
+corresponding to the switch name, and it is of type C<Bool>, then no argument
+is expected.  Otherwise an argument is expected.  If the parameter is of
+a non-slurpy array type, all subsequent words up to the next command-line
+switch (or the end of the list) are bound to that parameter.
 
 As usual, switches are assumed to be first, and everything after
 the first non-switch, or any switches after a C<-->, are treated

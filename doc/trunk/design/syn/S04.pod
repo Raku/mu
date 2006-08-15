@@ -615,26 +615,32 @@ blocks can be installed as traits as well.  These other blocks are
 called at various times, and some of them respond to various control
 exceptions and exit values:
 
-      BEGIN {...}*	at compile time, ASAP
-      CHECK {...}*	at compile time, ALAP
-       INIT {...}*	at run time, ASAP
-        END {...}	at run time, ALAP
-      FIRST {...}*	at first block entry time
-      ENTER {...}*	at every block entry time 
+      BEGIN {...}*	at compile time, ASAP, only ever runs once
+      CHECK {...}*	at compile time, ALAP, only ever runs once
+       INIT {...}*	at run time, ASAP, only ever runs once
+        END {...}	at run time, ALAP, only ever runs once
+
+      START {...}*	on first ever execution, once per closure clone
+
+      ENTER {...}*	at every block entry time, repeats on loop blocks.
       LEAVE {...}	at every block exit time 
-       KEEP {...}	at every successful block exit
-       UNDO {...}	at every unsuccessful block exit
-       NEXT {...}	at loop continuation time
-       LAST {...}	at loop termination time
-        PRE {...}	assert precondition at every block entry
-       POST {...}	assert postcondition at every block exit
-      CATCH {...}	catch exceptions
-    CONTROL {...}	catch control exceptions
+       KEEP {...}	at every successful block exit, part of LEAVE queue
+       UNDO {...}	at every unsuccessful block exit, part of LEAVE queue
+
+      FIRST {...}*	at loop initialization time, before any ENTER
+       NEXT {...}	at loop continuation time, after any LEAVE
+       LAST {...}	at loop termination time, after any LEAVE
+
+        PRE {...}	assert precondition at every block entry, before any
+       POST {...}	assert postcondition at every block exit, after any
+
+      CATCH {...}	catch exceptions, before LEAVE
+    CONTROL {...}	catch control exceptions, before LEAVE
 
 Those marked with a C<*> can also be used within an expression:
 
     my $compiletime = BEGIN { localtime };
-    our $temphandle = FIRST { maketemp() };
+    our $temphandle = START { maketemp() };
 
 Code that is generated at run time can still fire off C<CHECK>
 and C<INIT> blocks, though of course those blocks can't do things that
@@ -644,25 +650,26 @@ Some of these also have corresponding traits that can be set on variables.
 These have the advantage of passing the variable in question into
 the closure as its topic:
 
-    my $r will first { .set_random_seed() };
+    my $r will start { .set_random_seed() };
     our $h will enter { .rememberit() } will undo { .forgetit() };
 
-Apart from C<CATCH> and C<CONTROL>, which can only occur once, most of
-these can occur multiple times within the block.  So they aren't really
-traits, exactly--they add themselves onto a list stored in the
-actual trait.  So if you examine the C<ENTER> trait of a block, you'll
-find that it's really a list of closures rather than a single closure.
+Apart from C<CATCH> and C<CONTROL>, which can only occur once, most
+of these can occur multiple times within the block.  So they aren't
+really traits, exactly--they add themselves onto a list stored in the
+actual trait (except for C<START>, which executes inline).  So if you
+examine the C<ENTER> trait of a block, you'll find that it's really
+a list of closures rather than a single closure.
 
-The semantics of C<INIT> and C<FIRST> are not equivalent to each
+The semantics of C<INIT> and C<START> are not equivalent to each
 other in the case of cloned closures.  An C<INIT> only runs once for
-all copies of a cloned closure.  A C<FIRST> runs separately for each
+all copies of a cloned closure.  A C<START> runs separately for each
 clone, so separate clones can keep separate state variables:
 
     our $i = 0;
     ...
-    $func = { state $x will first{$i++}; dostuff($i) };
+    $func = { state $x will start { $x = $i++ }; dostuff($i) };
 
-But C<state> automatically applies "first" semantics to any initializer,
+But C<state> automatically applies "start" semantics to any initializer,
 so this also works:
 
     $func = { state $x = $i++; dostuff($i) }
@@ -670,6 +677,12 @@ so this also works:
 Each subsequent clone gets an initial state that is one higher than the
 previous, and each clone maintains its own state of C<$x>, because that's
 what C<state> variables do.
+
+Even in the absence of closure cloning, C<INIT> runs before the
+mainline code, while C<START> puts off the initialization till the
+last possible moment, then runs exactly once, and caches its value
+for all subsequent calls (assuming it wasn't called in void context,
+in which case the C<START> is evaluated once only for its side effects).
 
 All of these trait blocks can see any previously declared lexical
 variables, even if those variables have not been elaborated yet when
@@ -682,7 +695,13 @@ their side effects.  C<PRE> and C<POST> must return boolean values that are
 evaluated according to the usual Design by Contract (DBC) rules.  (Plus,
 if you use C<ENTER>/C<LEAVE> in a class block, they only execute when the
 class block is executed, but C<PRE>/C<POST> in a class block are evaluated
-around every method in the class.)
+around every method in the class.)  C<KEEP> and C<UNDO> are just variants
+of C<LEAVE>, and for execution order are treated as part of the queue of
+C<LEAVE> blocks.
+
+[Note: the name C<FIRST> used to be associated with C<state>
+declarations.  Now it is associated only with loops.  See the C<START>
+above for C<state> semantics.]
 
 C<LEAVE> blocks are evaluated after C<CATCH> and C<CONTROL> blocks, including
 the C<LEAVE> variants, C<KEEP> and C<UNDO>.  C<POST> blocks are evaluated after
@@ -829,7 +848,7 @@ But C<< statement_control:<BEGIN> >> hides C<< prefix:<BEGIN> >> at the start of
 You could also conceivably define a C<< prefix:<if> >>, but then you may not
 get what you want when you say:
 
-    print if $foo;
+    .print if $foo;
 
 since C<< prefix:<if> >> would hide C<< statement_modifier:<if> >>.
 
