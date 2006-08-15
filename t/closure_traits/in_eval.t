@@ -11,11 +11,11 @@ plan 18;
 
 my ($code, $hist, $handle);
 
-$code = '$handle = { FIRST { $hist ~= "F" } }';
-ok eval($code), 'eval FIRST {...} works';
-is $hist, undef, 'FIRST {...} has not run yet';
-is $handle(), 'F', 'FIRST {...} fired';
-is $handle(), 'F', 'FIRST {...} fired only once';
+$code = '$handle = { START { $hist ~= "F" } }';
+ok eval($code), 'eval START {...} works';
+is $hist, undef, 'START {...} has not run yet';
+is $handle(), 'F', 'START {...} fired';
+is $handle(), 'F', 'START {...} fired only once';
 
 $code = '$handle = { INIT { $hist ~= "I" } }';
 ok eval($code), 'eval INIT {...} works';

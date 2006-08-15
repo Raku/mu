@@ -103,7 +103,7 @@ Declarators [what is a real name for these things?]
     our
     temp                   Similar to Perl 5's local()
     let
-    state                  Initialization (see also FIRST {}
+    state                  Initialization (see also START {}
                            in quickref/control)
     env                    Lexical visible to called subs via 
                            the CALLER or ENV packages, or $+ twigil

@@ -40,10 +40,10 @@ Perl6::Overview::Control - Control Structure
     CHECK { ... }      # Body executed at compile-time, as last as possible
     INIT  { ... }      # Body executed at runtime, as soon as possible
     END   { ... }      # Body executed at runtime, as last as possible
-    FIRST { ... }      # Body only executed once
+    START { ... }      # Body only executed once (per clone), inline
 
     sub foo {
-      FIRST {
+      START {
         # Initialize environment, e.g. create some files, etc.
       }
 

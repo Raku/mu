@@ -374,6 +374,7 @@ sub perl6_expression {
  | CHECK 
  | INIT 
  | END
+ | START
  | FIRST
  | ENTER
  | LEAVE

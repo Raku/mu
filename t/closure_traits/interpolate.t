@@ -21,14 +21,14 @@ plan 6;
 my $hist;
 
 END {
-    is $hist, 'BCIFE', 'interpolated END {...} executed';
+    is $hist, 'BCISE', 'interpolated END {...} executed';
 }
 
 is "{ END { $hist ~= 'E' } }", undef,
     'END {...} not yet executed';
 
-is "{ FIRST { $hist ~= 'F' } }", "BCIF",
-    'FIRST {...} fired at run-time, entry time of the mainline code';
+is "{ START { $hist ~= 'S' } }", "BCIS",
+    'START {...} fired at run-time, entry time of the mainline code';
 
 is "{ INIT { $hist ~= 'I' } }", 'BCI',
     'INIT {...} fired at the beginning of runtime';

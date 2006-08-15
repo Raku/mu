@@ -4,21 +4,21 @@ use Test;
 
 plan 22;
 
-# L<S04/Closure traits/FIRST "runs seperately for each clone">
+# L<S04/Closure traits/START "runs seperately for each clone">
 
 {
     my $var;
-    my $was_in_first = 0;
-    my $sub = { FIRST { $was_in_first++; $var += 100 } };
+    my $was_in_start = 0;
+    my $sub = { START { $was_in_start++; $var += 100 } };
 
-    is $var, undef, 'FIRST {...} not run yet';
-
-    $sub();
-    is $var, 100, 'FIRST {} has executed';
-    is $was_in_first, 1, 'our FIRST {} block was invoked';
+    is $var, undef, 'START {...} not run yet';
 
     $sub();
-    is $was_in_first, 1, 'our FIRST {} block was invoked only once...';
+    is $var, 100, 'START {} has executed';
+    is $was_in_start, 1, 'our START {} block was invoked';
+
+    $sub();
+    is $was_in_start, 1, 'our START {} block was invoked only once...';
     is $var, 100, "...and our var wasn't changed";
 }
 
@@ -38,27 +38,27 @@ plan 22;
 {
     my $str ~= 'o';
     {
-        FIRST { $str ~= 'i' }
+        START { $str ~= 'i' }
     }
-    is $str, 'oi', 'FIRST {} runs when we first try to use a block';
+    is $str, 'oi', 'START {} runs when we first try to use a block';
 }
 
-# Execute the tests twice to make sure that FIRST binds to
+# Execute the tests twice to make sure that START binds to
 # the lexical scope, not the lexical position.
 for <first second> {
     my $sub = {
         my $str = 'o';
-        FIRST { $str ~= 'I' };
-        FIRST { $str ~= 'i' };
+        START { $str ~= 'I' };
+        START { $str ~= 'i' };
         ":$str";
     };
 	
-    is $sub(), ':oIi', "FIRST block set \$str to 3     ($_ time)";
-    is $sub(), ':o', "FIRST wasn't invoked again (1-1) ($_ time)";
-    is $sub(), ':o', "FIRST wasn't invoked again (1-2) ($_ time)";
+    is $sub(), ':oIi', "START block set \$str to 3     ($_ time)";
+    is $sub(), ':o', "START wasn't invoked again (1-1) ($_ time)";
+    is $sub(), ':o', "START wasn't invoked again (1-2) ($_ time)";
 }
 
-# Some behavior occurs where FIRST does not close over the correct
+# Some behavior occurs where START does not close over the correct
 # pad when closures are cloned
 
 my $ran;
@@ -66,12 +66,12 @@ for <first second> {
     my $str = 'bana';
     $ran = 0;
     my $sub = {
-        FIRST { $ran++; $str ~= 'na' };
+        START { $ran++; $str ~= 'na' };
     };
 
     $sub(); $sub();
-    is $ran, 1, "FIRST block ran exactly once ($_ time)";
-    is $str, 'banana', "FIRST block modified the correct variable ($_ time)";
+    is $ran, 1, "START block ran exactly once ($_ time)";
+    is $str, 'banana', "START block modified the correct variable ($_ time)";
 }
 
 # IRC note
@@ -80,28 +80,28 @@ for <first second> {
 #            and then every time
 # <TimToady> through reinit $x to that value.
 {
-    my $was_in_first;
+    my $was_in_start;
     my $sub = {
-      my $var = FIRST { $was_in_first++; 23 };
+      my $var = START { $was_in_start++; 23 };
       $var //= 42;
       $var;
     };
 
-    is $was_in_first, undef, 'FIRST {} has not run yet';
-    is $sub(), 23, 'FIRST {} block set our variable (2)';
-    is $sub(), 23, 'the returned value of FIRST {} still there';
-    is $was_in_first, 1, 'our FIRST {} block was invoked exactly once';
+    is $was_in_start, undef, 'START {} has not run yet';
+    is $sub(), 23, 'START {} block set our variable (2)';
+    is $sub(), 23, 'the returned value of START {} still there';
+    is $was_in_start, 1, 'our START {} block was invoked exactly once';
 }
 
-# Test that FIRST {} blocks are executed only once even if they return undef
-# (the first implementation ran than twice instead).
+# Test that START {} blocks are executed only once even if they return undef
+# (the first implementation ran them twice instead).
 {
-    my $was_in_first;
-    my $sub = { FIRST { $was_in_first++; undef } };
+    my $was_in_start;
+    my $sub = { START { $was_in_start++; undef } };
 
-    is $sub(), undef, 'FIRST {} returned undef';
+    is $sub(), undef, 'START {} returned undef';
     $sub();
     $sub();
-    is $was_in_first, 1,
-        'our FIRST { ...; undef } block was invoked exactly once';
+    is $was_in_start, 1,
+        'our START { ...; undef } block was invoked exactly once';
 }

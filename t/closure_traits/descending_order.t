@@ -11,7 +11,7 @@ plan 7;
 # L<S04/Closure traits/END "at run time" ALAP>
 
 my $var;
-my ($var_at_first, $var_at_init, $var_at_check, $var_at_begin);
+my ($var_at_enter, $var_at_init, $var_at_check, $var_at_begin);
 my $eof_var;
 
 $var = 13;
@@ -24,9 +24,9 @@ END {
     is $eof_var, 29, '$eof_var gets assigned at END time';
 }
 
-FIRST {
-    $hist ~= 'first ';
-    $var_at_first = $var;
+ENTER {
+    $hist ~= 'enter ';
+    $var_at_enter = $var;
 }
 
 INIT {
@@ -48,6 +48,6 @@ is $hist, 'begin check init first ', 'BEGIN {} runs only once';
 is $var_at_begin, undef, 'BEGIN {...} ran at compile time';
 is $var_at_check, undef, 'CHECK {...} ran at compile time';
 is $var_at_init, undef, 'INIT {...} ran at runtime, but ASAP';
-is $var_at_first, undef, 'FIRST {...} at runtime, but before the mainline body';
+is $var_at_enter, undef, 'ENTER {...} at runtime, but before the mainline body';
 
 $eof_var = 29;

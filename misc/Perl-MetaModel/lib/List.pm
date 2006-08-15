@@ -35,7 +35,7 @@ role List--Perl6;
  multi sub reduce (Code $expression ; *@values) returns List {
    my $res;
    for @values -> $cur {
-        FIRST {$res = $cur; next;}
+     FIRST {$res = $cur; next;}
      $res = &$expression($res, $cur);
    }
    $res;

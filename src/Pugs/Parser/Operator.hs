@@ -289,11 +289,11 @@ stateAssignHack exp@(Syn "=" [lhs, _]) | isStateAssign lhs =
     let pad = unsafePerformSTM $! do
                 state_first_run <- newTVar =<< (fmap scalarRef $! newTVar (VInt 0))
                 state_fresh     <- newTVar False
-                return $! mkPad [("$?STATE_FIRST_RUN", [(state_fresh, state_first_run)])] in
+                return $! mkPad [("$?STATE_START_RUN", [(state_fresh, state_first_run)])] in
     Syn "block"
         [ Pad SState pad $!
             Syn "if"
-                [ App (Var "&postfix:++") Nothing [Var "$?STATE_FIRST_RUN"]
+                [ App (Var "&postfix:++") Nothing [Var "$?STATE_START_RUN"]
                 , lhs
                 , exp
                 ]

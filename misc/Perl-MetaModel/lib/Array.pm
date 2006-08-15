@@ -67,7 +67,7 @@ multi sub Array::pop () returns Scalar {
  multi sub  Perl6::List::reduce (Code $expression ; *@values) returns Scalar {
    my $res;
    for @values -> $cur {
-        FIRST {$res = $cur; next;}
+     FIRST {$res = $cur; next;}
      $res = &$expression($res, $cur);
    }
    $res;

@@ -593,7 +593,7 @@ ruleVarDeclaration = rule "variable declaration" $ do
         _       -> unsafeEvalLexDiff (decl emptyExp)
     let rhs | sym == "::=" = emptyExp
             | otherwise = maybe emptyExp (\exp -> Syn sym [lhs, exp]) expMaybe
-    -- state $x = 42 is really syntax sugar for state $x; FIRST { $x = 42 }
+    -- state $x = 42 is really syntax sugar for state $x; START { $x = 42 }
     -- XXX always wrap the Pad in a Stmts so that expRule has something to unwrap
     case scope of
         SState -> do
@@ -903,8 +903,8 @@ ruleDoBlock = rule "do block" $ do
 
 ruleClosureTrait :: Bool -> RuleParser Exp
 ruleClosureTrait rhs = rule "closure trait" $ do
-    let rhsTraits = words " BEGIN CHECK INIT FIRST ENTER "
-    let names = words " BEGIN CHECK INIT END FIRST ENTER LEAVE KEEP UNDO NEXT LAST PRE POST CATCH CONTROL"
+    let rhsTraits = words " BEGIN CHECK INIT START ENTER FIRST "
+    let names = words " BEGIN CHECK INIT END START ENTER LEAVE KEEP UNDO FIRST NEXT LAST PRE POST CATCH CONTROL"
     name    <- choice $ map symbol $ names
     when (rhs && not (name `elem` rhsTraits)) $
         fail (name ++ " may only be used at statement level")
@@ -939,12 +939,13 @@ ruleClosureTrait rhs = rule "closure trait" $ do
         "CHECK" -> vcode2checkBlock code
         "INIT"  -> vcode2initBlock code
 		-- we need to clone this closure sometimes
-        "FIRST" -> vcode2firstBlock code
+        "START" -> vcode2firstBlock code
         -- XXX stubs just to make them parse
         "ENTER" -> return emptyExp
         "LEAVE" -> return emptyExp
         "KEEP"  -> return emptyExp
         "UNDO"  -> return emptyExp
+        "FIRST" -> return emptyExp
         "NEXT"  -> return emptyExp
         "LAST"  -> return emptyExp
         "PRE"   -> return emptyExp
@@ -994,24 +995,24 @@ vcode2firstBlock :: Val -> RuleParser Exp
 vcode2firstBlock code = do
     -- Ok. Now the tricky thing.
     -- This is the general idea:
-    -- FIRST { 42 } is transformed into
+    -- START { 42 } is transformed into
     -- {
-    --   state $?FIRST_RESULT;
-    --   state $?FIRST_RUN;
-    --   $?FIRST_RUN++ ?? $?FIRST_RESULT !! $?FIRST_RESULT = { 42 }();
+    --   state $?START_RESULT;	XXX these should not be $? vars!!!
+    --   state $?START_RUN;
+    --   $?START_RUN++ ?? $?START_RESULT !! $?START_RESULT = { 42 }();
     -- }
     -- These are the two state variables we need.
     -- This will soon add our two state vars to our pad
     lexDiff <- unsafeEvalLexDiff $
-        (Sym SState "$?FIRST_RESULT") . (Sym SState "$?FIRST_RUN") $ emptyExp
+        (Sym SState "$?START_RESULT") . (Sym SState "$?START_RUN") $ emptyExp
     -- And that's the transformation part.
     return $ Syn "block"        -- The outer block
-        [ Pad SState lexDiff $  -- state ($?FIRST_RESULT, $?FIRST_RUN);
+        [ Pad SState lexDiff $  -- state ($?START_RESULT, $?START_RUN);
             Syn "if"
-                [ App (Var "&postfix:++") Nothing [Var "$?FIRST_RUN"]
-                , Var "$?FIRST_RESULT"
-                , Syn "=" [Var "$?FIRST_RESULT", App (Syn "sub" [Val code]) Nothing []]
-                ]   --  { $?FIRST_RUN++; $?FIRST_RESULT = { 42 }() };
+                [ App (Var "&postfix:++") Nothing [Var "$?START_RUN"]
+                , Var "$?START_RESULT"
+                , Syn "=" [Var "$?START_RESULT", App (Syn "sub" [Val code]) Nothing []]
+                ]   --  { $?START_RUN++; $?START_RESULT = { 42 }() };
         ]
 
 vcode2initBlock :: Val -> RuleParser Exp

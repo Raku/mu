@@ -378,7 +378,7 @@ been iterated.
  multi  List::reduce (Code $expression ; *@values --> Scalar ) {
    my $res;
    for @values -> $cur {
-        FIRST {$res = $cur; next;}
+     FIRST {$res = $cur; next;}
      $res = &$expression($res, $cur);
    }
    $res;
