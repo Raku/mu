@@ -7,10 +7,12 @@
 == Updated modules
 
 * [ext/Set-Relation/] - Renamed from ext/Relation/
+* [ext/HTTP-Server-Simple/] - switched from non-standard "./" syntax to standard "self." syntax.
 
 == Perl 6 on Perl 5 (under [misc/pX/Common/])
 
-
+* Added make_build_perl5, to make it possible to build 
+all the perl5 modules without installing ghc first. 
 
 == Test, Examples and Documentations
 
