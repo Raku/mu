@@ -520,6 +520,9 @@ sub default {
         if ($subname eq '!' || $subname eq 'not') {
             return $subname.' '._emit($n->{param});
         }
+        if ($subname eq 'ref') {
+            return 'Pugs::Runtime::Perl6::Scalar::ref( \\'. _emit( $n->{param} ) . ')';
+        }
         # runtime thunked builtins
         if ($subname eq 'eval') {
             return 'Pugs::Runtime::Perl6::eval('. _emit_parameter_capture( $n->{param} ) . ')';
@@ -617,6 +620,12 @@ sub default {
             # %hash.keys
             if ($n->{method}{dot_bareword} eq 'kv') {
                 return _emit( $n->{self}); # just use it as array
+            }
+            if ($n->{method}{dot_bareword} eq 'ref') {
+                return 'Pugs::Runtime::Perl6::Scalar::ref( \\'. _emit( $n->{self} ) . ')';
+            }
+            if ($n->{method}{dot_bareword} eq 'isa') {
+                return 'Pugs::Runtime::Perl6::Scalar::isa( \\'. _emit( $n->{self} ) . ')';
             }
             return " (" . 
                 _emit( $n->{method} ) . ' ' .

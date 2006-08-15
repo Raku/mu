@@ -120,9 +120,13 @@ sub defined { CORE::defined(@_) }
 
 sub ref : method {
     # XXX: should use Data::Bind callconv
+    print "ref: ", Data::Dumper::Dumper( @_ );
     my $self = $_[0];
     my $ref = CORE::ref(@_);
     
+    return 'Hash' if ref($self) eq 'HASH';
+    return 'Array' if ref($self) eq 'ARRAY';
+
     unless ($ref) {
 	return 'Num' if looks_like_number($self);
 	return 'Str';
@@ -132,8 +136,6 @@ sub ref : method {
 	return $self->meta->name;
     }
 
-    return 'Hash' if ref($self) eq 'HASH';
-    return 'Array' if ref($self) eq 'ARRAY';
 
 
     die 'unknown type';
@@ -141,9 +143,11 @@ sub ref : method {
 
 sub isa {
     my $self = $_[0];
-    return 1 if $_[1] eq 'Str'  && defined $_[0];
-    return 1 if $_[1] eq 'Num'  && defined $_[0];
-    return 1 if $_[1] eq 'Code' && ref($_[0]) eq 'CODE';
+    return 1 if $_[1] eq 'Hash'  && ref($_[0]) eq 'HASH';
+    return 1 if $_[1] eq 'Array' && ref($_[0]) eq 'ARRAY';
+    return 1 if $_[1] eq 'Str'   && defined $_[0];
+    return 1 if $_[1] eq 'Num'   && defined $_[0];
+    return 1 if $_[1] eq 'Code'  && ref($_[0]) eq 'CODE';
     return 0;
 }
 
