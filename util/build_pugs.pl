@@ -64,10 +64,10 @@ sub build {
     if ($^O eq 'MSWin32') {
         my $new_runcompiler;
         foreach my $args (@{$opts->{SETUP}}) {
-            next if $args !~ /^--with-hsc2hs=(.*[\\\/])/;
+            $args =~ /^--with-hsc2hs=(.*[\\\/])/ or next;
             $ghc_inst_path = $1;
-            $ghc_inst_path =~ s,[/\\]bin[/\\]?$,,;
-            $ENV{PATH} = "$ENV{PATH};$1";
+            $ghc_inst_path =~ s{[/\\]bin[/\\]?$}{};
+            $ENV{PATH} = "$ENV{PATH};$ghc_inst_path";
             $new_runcompiler = File::Spec->catfile($1, "runcompiler$Config{_exe}");
             copy($runcompiler => $new_runcompiler);
             $runcompiler = $new_runcompiler;
@@ -130,6 +130,7 @@ sub build {
 
             if ($newest_hs_file and $oldest_a_file and $newest_hs_file >= $oldest_a_file) {
                 # We are safe - no rebuild needed
+                print "*** Skipping building the '$module' dependency.\n\n";
                 next;
             }
         }

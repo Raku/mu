@@ -174,7 +174,7 @@ sub set_postamble {
 
     my $native_fps;
 
-    if (try_compile("import Data.ByteString\n"
+    if (try_compile("import Data.ByteString (useAsCStringLen)\n"
             ."main :: IO ()\n"
             ."main = main\n", $ghc, qw(-hide-all-packages -package base))) {
         # We have native ByteString; dummy the fps out
