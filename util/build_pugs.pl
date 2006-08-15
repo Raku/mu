@@ -64,11 +64,10 @@ sub build {
     if ($^O eq 'MSWin32') {
         my $new_runcompiler;
         foreach my $args (@{$opts->{SETUP}}) {
-            if ($args =~ /^--with-hsc2hs=(.*[\\\/])/) {
-                $ghc_inst_path = $1;
-                $ghc_inst_path =~ s,[/\\]bin[/\\]?$,,
-            } else { next; }
-	    $ENV{PATH} = "$ENV{PATH};$1";
+            next if $args !~ /^--with-hsc2hs=(.*[\\\/])/;
+            $ghc_inst_path = $1;
+            $ghc_inst_path =~ s,[/\\]bin[/\\]?$,,;
+            $ENV{PATH} = "$ENV{PATH};$1";
             $new_runcompiler = File::Spec->catfile($1, "runcompiler$Config{_exe}");
             copy($runcompiler => $new_runcompiler);
             $runcompiler = $new_runcompiler;
@@ -81,6 +80,7 @@ sub build {
 
     if ($^O eq 'MSWin32') {
         chdir 'src';
+        unlink 'libJudy.a' if -f 'libJudy.a';
         $ENV{CC} = "$ghc_inst_path\\gcc";
         $ENV{COPT} = "-I$ghc_inst_path\\include\\mingw -I$ghc_inst_path\\gcc-lib\\include " .
             "-B$ghc_inst_path\\gcc-lib";
@@ -94,14 +94,14 @@ sub build {
         }
         chdir '..';
         mkdir("../../installed") if !-d "../../installed";
-        system("copy src\\libJudy.a ..\\..\\installed");
+        copy('src/libJudy.a', '../../installed');
     } else {
         if (!-e "src/obj/.libs/libJudy.a") {
             system("./configure") unless -e "config.status";
             system("make");
             mkdir("../../installed") if !-d "../../installed";
-            system("cp src/obj/.libs/libJudy.a ../../installed");
-            system("cp src/obj/.libs/libJudy.a ../../HsJudy");
+            copy('src/obj/.libs/libJudy.a', '../../installed');
+            copy('src/obj/.libs/libJudy.a', '../../HsJudy');
         }
     }
 
