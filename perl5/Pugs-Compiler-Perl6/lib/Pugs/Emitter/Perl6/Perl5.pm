@@ -1052,15 +1052,28 @@ sub postcircumfix {
     if ( $n->{op1}{op} eq '<' &&
          $n->{op2}{op} eq '>' ) {
         my $name = _emit( $n->{exp1} );
-        $name =~ s/^\%/\$/;
-        return $name . '{ \'' . $n->{exp2}{angle_quoted} . '\' }';
+        #$name =~ s/^\%/\$/;
+
+        # looks like a hash slice
+        $name =~ s/^(?: \% | \$ ) / \@ /x;
+
+        return $name . '{ qw(' . $n->{exp2}{angle_quoted} . ') }';
     }
 
     if ( $n->{op1}{op} eq '{' &&
          $n->{op2}{op} eq '}' ) {
         my $name = _emit( $n->{exp1} );
         # die "trying to emit ${name}{exp}" unless $name =~ m/^\%/;
-        $name =~ s/^\%/\$/;
+        #print "postcircumfix{} ",Dumper( $n->{exp2}{statements} );
+        if (  exists $n->{exp2}{statements}[0]{list}
+           )
+        {
+            # looks like a hash slice
+            $name =~ s/^(?: \% | \$ ) / \@ /x;
+        }
+        else {
+            $name =~ s/^\%/\$/;
+        }
         return $name . 
             '{ ' . 
             join('}{', 
