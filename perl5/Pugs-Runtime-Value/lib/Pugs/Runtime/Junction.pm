@@ -11,7 +11,7 @@
 
 use strict;
 
-use Perl6::Value;
+use Pugs::Runtime::Value;
 
 my $class_description = '-0.0.1-cpan:FGLOCK';
 
@@ -39,11 +39,11 @@ class1 'Junction'.$class_description => {
                 for ( @res ) {
                     $_ = $_->fetch if $_->isa('Scalar');
                 }
-                @res = sort { Perl6::Value::identify($a) cmp Perl6::Value::identify($b) } @res;
+                @res = sort { Pugs::Runtime::Value::identify($a) cmp Pugs::Runtime::Value::identify($b) } @res;
                 my $last_id = rand();
                 #warn "SORTED @res";
                 @res = grep { 
-                        my $id = Perl6::Value::identify( $_ );
+                        my $id = Pugs::Runtime::Value::identify( $_ );
                         #warn "ID $id";
                         $id eq $last_id ? 0 : ( $last_id = $id, 1 )
                     } @res;
@@ -118,11 +118,11 @@ __END__
 
 =head1 NAME
 
-Perl6::Value::Junction - Perl6 junctions
+Pugs::Runtime::Value::Junction - Perl6 junctions
 
 =head1 SYNOPSIS
 
-  use Perl6::Value::Junction;
+  use Pugs::Runtime::Value::Junction;
   
   ...
 

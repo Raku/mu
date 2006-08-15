@@ -5,33 +5,33 @@ use strict;
 use Test::More;
 plan tests => 13;
  
-use Perl6::Value;
-use Perl6::Value::List;
+use Pugs::Runtime::Value;
+use Pugs::Runtime::Value::List;
 
-use constant Inf => Perl6::Value::Num::Inf;
+use constant Inf => Pugs::Runtime::Value::Num::Inf;
 
 sub MySub::arity { 1 };
 
 {
   # string range
-  my $iter = Perl6::Value::List->from_range( start => 'a', end => Inf );
+  my $iter = Pugs::Runtime::Value::List->from_range( start => 'a', end => Inf );
   is( $iter->shift, 'a', 'string range' );  
   is( $iter->shift, 'b', 'string range 1' );
 }
 
 {
   # stringify
-  my $span = Perl6::Value::List->from_num_range( start => 0, end => 10, step => 1 );
+  my $span = Pugs::Runtime::Value::List->from_num_range( start => 0, end => 10, step => 1 );
   is( $span->perl, '(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)', 'perl()' );
-  $span = Perl6::Value::List->from_num_range( start => 0, end => Inf, step => 1 );
+  $span = Pugs::Runtime::Value::List->from_num_range( start => 0, end => Inf, step => 1 );
   is( $span->perl, '(0, 1, 2 ... Inf)', 'perl()' );
 }
 
 {
   # zip
   
-  my $a1 = Perl6::Value::List->from_num_range( start => 4, end => 5 ); 
-  my $a2 = Perl6::Value::List->from_num_range( start => 1, end => 3 ); 
+  my $a1 = Pugs::Runtime::Value::List->from_num_range( start => 4, end => 5 ); 
+  my $a2 = Pugs::Runtime::Value::List->from_num_range( start => 1, end => 3 ); 
   $a1 = $a1->zip( $a2 );
   is( $a1->shift, 4, 'zip' );
   is( $a1->shift, 1, 'zip' );
@@ -51,7 +51,7 @@ __END__
 
 {
   # 'Iter' object
-  my $span = Perl6::Value::List->from_num_range( start => 0, end => 13, step => 1 );
+  my $span = Pugs::Runtime::Value::List->from_num_range( start => 0, end => 13, step => 1 );
 
   is( $span->elems, 14, 'elems' );
 
@@ -79,7 +79,7 @@ __END__
   my @a = ( 1, 2 ); 
   sub mylist { shift @a }
   
-  my $a1 = Perl6::Value::List->from_coro( \&mylist ); 
+  my $a1 = Pugs::Runtime::Value::List->from_coro( \&mylist ); 
   is( $a1->shift, 1, 'lazy array from subroutine' );
   is( $a1->shift, 2, 'subroutine end' );
   # is( $a1->shift, undef, 'subroutine really ended' );
@@ -87,7 +87,7 @@ __END__
 
 {
   # elems
-  my $iter = Perl6::Value::List->from_num_range( start => 1, end => 1000000, step => 2 );
+  my $iter = Pugs::Runtime::Value::List->from_num_range( start => 1, end => 1000000, step => 2 );
   is( $iter->elems, 500000, 'Lazy List elems' );
 
   # is( $iter->kv->elems, 1000000, 'Lazy List elems doubles after kv()' );
@@ -99,7 +99,7 @@ __END__
   my @a = ( 1, 2, 2, 3 ); 
   sub mylist0 { shift @a; } # my $x = shift @a;print " --> shifting $x\n";  $x }
   
-  my $a1 = Perl6::Value::List->from_coro( \&mylist0 )->uniq; 
+  my $a1 = Pugs::Runtime::Value::List->from_coro( \&mylist0 )->uniq; 
   is( $a1->shift, 1, 'uniq' );
   is( $a1->shift, 2, 'uniq' );
   is( $a1->shift, 3, 'uniq' );
@@ -112,7 +112,7 @@ __END__
 #  my @a = ( 4, 5 ); 
 #  sub mylist2 { shift @a }
   
-#  my $a1 = Perl6::Value::List->new( cstart => \&mylist2 ); 
+#  my $a1 = Pugs::Runtime::Value::List->new( cstart => \&mylist2 ); 
 #  $a1 = $a1->kv;
 #  is( $a1->shift, 0, 'kv' );
 #  is( $a1->shift, 4, 'kv' );
@@ -124,7 +124,7 @@ __END__
 {
 #  # pairs
 #  
-#  my $a1 = Perl6::Value::List->from_range( start => 4, end => 5 ); 
+#  my $a1 = Pugs::Runtime::Value::List->from_range( start => 4, end => 5 ); 
 #
 #  $a1 = $a1->pairs;
 #  my $p = $a1->shift;

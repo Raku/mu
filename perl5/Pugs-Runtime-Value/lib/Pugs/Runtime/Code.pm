@@ -6,8 +6,8 @@
 # * Fixed Code-do() return context
 #
 # 2005-09-01
-# * New Class Perl6::Type
-# * Signature can be stringified - new methods Code::signature_str and Perl6::Param::str
+# * New Class Pugs::Runtime::Type
+# * Signature can be stringified - new methods Code::signature_str and Pugs::Runtime::Param::str
 #
 # 2005-08-22
 # * bugfix - MultiSub wasn't checking parameter signature
@@ -27,7 +27,7 @@
 
 # Notes:
 # Subroutine global names are not created by the Code object.
-# - code.t stores names in %Perl6::[Multi]Sub::SUBS
+# - code.t stores names in %Pugs::Runtime::[Multi]Sub::SUBS
 
 # Algorithm for matching/binding:
 # extract all +$x, ?+$x - must be Pairs
@@ -37,7 +37,7 @@
 
 # MORE TODO - See "S06"
 
-# TODO - Perl6::Param - PIL gives these extra attributes:
+# TODO - Pugs::Runtime::Param - PIL gives these extra attributes:
 #        is_invocant - ???
 #        is_writable 
 #        is_lazy   - ???
@@ -59,13 +59,13 @@
 # TODO - junctive types
 
 # TODO - does 'returns' calls coerce:<as> ?
-# TODO - the 'match' argument to Perl6::Type->new() should be a P6 'Block' instance
+# TODO - the 'match' argument to Pugs::Runtime::Type->new() should be a P6 'Block' instance
 
 # TODO - 'Pad' structure
 
-# TODO - create base "types" and reuse - see Perl6::Param
+# TODO - create base "types" and reuse - see Pugs::Runtime::Param
 
-# TODO - name_required() parameter to Perl6::Param signature ( +$x )
+# TODO - name_required() parameter to Pugs::Runtime::Param signature ( +$x )
 # TODO - 'returns'
 
 # TODO - unify parameter types and binding with MetaModel's methods/multimethods
@@ -93,13 +93,13 @@ use warnings;
 
 use Carp 'confess';
 
-use Perl6::MetaModel;
-use Perl6::Value;
+use Moose;
+use Pugs::Runtime::Value;
 
 my $class_description = '-0.0.1-cpan:FGLOCK';
 
 {
-    package Perl6::Type;
+    package Pugs::Runtime::Type;
 
     sub new {
         # TODO - autobox/un-box hook
@@ -128,7 +128,7 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
 }
 
 {
-    package Perl6::Param;
+    package Pugs::Runtime::Param;
 
     sub new {
         # TODO - autobox/un-box hook
@@ -147,19 +147,19 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
         $type = 
             defined $type ? $type :
             $name =~ /^\$/ ? 
-                Perl6::Type->new( 
+                Pugs::Runtime::Type->new( 
                     name => 'Any', 
                     match => sub { 1 } ) : 
             $name =~ /^\@/ ? 
-                Perl6::Type->new( 
+                Pugs::Runtime::Type->new( 
                     name => 'Array', 
                     match => sub { ref($_[0]) eq 'ARRAY' || ref($_[0]) eq 'Array' || ref($_[0]) eq 'Dispatchable' && $_[0]->isa('Array') } ) : 
             $name =~ /^\%/ ? 
-                Perl6::Type->new( 
+                Pugs::Runtime::Type->new( 
                     name => 'Hash', 
                     match => sub { ref($_[0]) eq 'HASH'  || ref($_[0]) eq 'Hash' || ref($_[0]) eq 'Dispatchable' && $_[0]->isa('Hash') } ) : 
             $name =~ /^\&/ ?
-                Perl6::Type->new( 
+                Pugs::Runtime::Type->new( 
                     name => 'Any',  # XXX - should be Sub or Code or something
                     match => sub { 1 } ) : 
             die 'Sigil required in the parameter name ('.$name.')';
@@ -190,7 +190,7 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
         $s .= '?' if $_[0]->optional;
         # $s .= '+' if $_[0]->name_required; -- not used in PIL-v1
         $s .= $_[0]->name;
-        $s .= ' = ' . Perl6::Value::stringify( $_[0]->default ) if $_[0]->default;
+        $s .= ' = ' . Pugs::Runtime::Value::stringify( $_[0]->default ) if $_[0]->default;
         return $s;
     }      
 }
@@ -217,7 +217,7 @@ class1 'Code'.$class_description => {
                         return $self->do( @args, @_ );
                     },
                     '$.name' => $self->name . '_Curried_',
-                    '$.params' => [ Perl6::Param->new( 'name' => '*@_' ) ],
+                    '$.params' => [ Pugs::Runtime::Param->new( 'name' => '*@_' ) ],
                     '$.returns' => undef,
                 );
             },
@@ -230,7 +230,7 @@ class1 'Code'.$class_description => {
             'perl' => sub { 
                 #my $s = "sub "; 
                 my $s = lc( $::CLASS->name ) . " ";
-                $s .= Perl6::Value::stringify( _('$.name') ) . " " if defined _('$.name');
+                $s .= Pugs::Runtime::Value::stringify( _('$.name') ) . " " if defined _('$.name');
                 $s .= "(" . $_[0]->signature_str . ") {...}"; 
                 return Str->new( '$.unboxed' => $s ) 
             },
@@ -246,14 +246,14 @@ class1 'Code'.$class_description => {
                     if ( ref($arg) && $arg->isa( 'Junction' ) ) {
                         #warn "HAS JUNCTION ", $arg->str->unboxed;
                         my @items = @{$arg->things};
-                        #warn "ITEMS @items = @{[ map { Perl6::Value::stringify($_) } @items ]}";
+                        #warn "ITEMS @items = @{[ map { Pugs::Runtime::Value::stringify($_) } @items ]}";
                         my @r;
                         for my $element ( @items ) {
                             my @a = @arguments;
                             $a[$i] = $element;
                             push @r, $self->do( @a );
                         }
-                        #warn "RETURNING @r = @{[ map { Perl6::Value::stringify($_) } @items ]}";
+                        #warn "RETURNING @r = @{[ map { Pugs::Runtime::Value::stringify($_) } @items ]}";
                         my $j = Junction->new;
                         $j->type( $arg->type );  
                         $j->things( \@r );  

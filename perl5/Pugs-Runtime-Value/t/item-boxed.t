@@ -7,13 +7,13 @@ use Test::More;
 # use Test::Exception;
 plan tests => 38;
  
-use Perl6::Value;
-use Perl6::Value::List;
+use Pugs::Runtime::Value;
+use Pugs::Runtime::Value::List;
 
-use constant Inf => Perl6::Value::Num::Inf;
+use constant Inf => Pugs::Runtime::Value::Num::Inf;
 
 can_ok('Int', 'new');
-ok(Int->isa('Perl6::Object'), '... Int isa Perl6::Object');
+ok(Int->isa('Pugs::Runtime::Object'), '... Int isa Pugs::Runtime::Object');
 
 {
     my $n = Num->new( '$.unboxed' => 3.3 );
@@ -42,7 +42,7 @@ ok(Int->isa('Perl6::Object'), '... Int isa Perl6::Object');
     # Inf
     my $n = Num->Inf;
     isa_ok($n, 'Num');
-    is($n->unboxed(), &Perl6::Value::Num::Inf, '... Inf');
+    is($n->unboxed(), &Pugs::Runtime::Value::Num::Inf, '... Inf');
 }
 
 {
@@ -62,7 +62,7 @@ ok(Int->isa('Perl6::Object'), '... Int isa Perl6::Object');
     is( $p->value->unboxed, 7, '... Pair value is rw' );
 
     #my $class_name = ::dispatch( ::meta( $p ), 'name' );  # ** get the class name, from object
-    #my $class = $Perl6::Class::ALL_CLASSES{$class_name};  # ** get the class, from class name
+    #my $class = $Pugs::Runtime::Class::ALL_CLASSES{$class_name};  # ** get the class, from class name
     #warn $class;
 
     # my $class = ::meta( $p );
@@ -144,7 +144,7 @@ if(0){  # -- belongs to 'Container'
     # TODO - test with boxed contents
     my $seq = List->new(
         '$.unboxed' => 
-            Perl6::Value::List->from_num_range( 
+            Pugs::Runtime::Value::List->from_num_range( 
                 start => 0, 
                 end => Inf,
         ) );

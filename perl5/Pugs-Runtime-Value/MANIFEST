@@ -1,8 +1,8 @@
 ChangeLog
-lib/Perl6/Code.pm
-lib/Perl6/Junction.pm
-lib/Perl6/Value.pm
-lib/Perl6/Value/List.pm
+lib/Pugs/Runtime/Code.pm
+lib/Pugs/Runtime/Junction.pm
+lib/Pugs/Runtime/Value.pm
+lib/Pugs/Runtime/Value/List.pm
 Makefile.PL
 MANIFEST
 README

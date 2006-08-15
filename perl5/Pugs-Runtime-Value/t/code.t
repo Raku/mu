@@ -3,18 +3,18 @@
 use strict;
 use warnings;
 
-use Perl6::Code;
+use Pugs::Runtime::Code;
 # use Data::Dumper;
 use PadWalker;
 
 use Test::More tests => 21;
 
-%Perl6::MultiSub::SUBS = ();
-%Perl6::NamedSub::SUBS = ();
+%Pugs::Runtime::MultiSub::SUBS = ();
+%Pugs::Runtime::NamedSub::SUBS = ();
 
 sub body (&) { @_ }
 sub params {
-    [ map { Perl6::Param->new( 'type' => undef, 'name' => $_ ) } @_ ]  
+    [ map { Pugs::Runtime::Param->new( 'type' => undef, 'name' => $_ ) } @_ ]  
 }
 sub mksub {
     my ($params, $body) = @_;
@@ -23,26 +23,26 @@ sub mksub {
 sub mk_named_sub {
     my ($name, $params, $body) = @_;
     my $sub = Sub->new( '$.name' => $name, '$.body' => $body, '$.params' => $params);
-    $Perl6::NamedSub::SUBS{$name} = $sub;
+    $Pugs::Runtime::NamedSub::SUBS{$name} = $sub;
 }
 sub call_named_sub {
     my ($name, @args) = @_;
-    (exists $Perl6::NamedSub::SUBS{$name})
+    (exists $Pugs::Runtime::NamedSub::SUBS{$name})
         || die "No sub found called '$name'";
-    my $sub = $Perl6::NamedSub::SUBS{$name};
+    my $sub = $Pugs::Runtime::NamedSub::SUBS{$name};
     $sub->do(@args);
     # $sub->return_value;
 }
 sub mk_multi_sub {
     my ($name, @subs) = @_;
     my $sub = MultiSub->new( '$.name' => $name, '@.subs' => \@subs);
-    $Perl6::MultiSub::SUBS{$name} = $sub;
+    $Pugs::Runtime::MultiSub::SUBS{$name} = $sub;
 }
 sub call_multi_sub {
     my ($name, @args) = @_;
-    (exists $Perl6::MultiSub::SUBS{$name})
+    (exists $Pugs::Runtime::MultiSub::SUBS{$name})
         || die "No sub found called '$name'";
-    my $sub = $Perl6::MultiSub::SUBS{$name};
+    my $sub = $Pugs::Runtime::MultiSub::SUBS{$name};
     $sub->do(@args);
     # $sub->return_value;
 }
@@ -73,7 +73,7 @@ sub call_multi_sub {
 
     my $sub = mksub 
         [ 
-            Perl6::Param->new( 'type' => undef, 'name' => '?$name', 'default' => sub{'Flavio'} ),
+            Pugs::Runtime::Param->new( 'type' => undef, 'name' => '?$name', 'default' => sub{'Flavio'} ),
         ], 
         sub {
             my $sub = shift;
@@ -128,7 +128,7 @@ Can't yet handle &sub params
         my ($code, @rest); bind_params;
         $code->(@rest);
     };
-    isa_ok($sub, 'Perl6::Sub');
+    isa_ok($sub, 'Pugs::Runtime::Sub');
 
     $sub->do(sub { join "|" => @_ }, [ 1, 2, 3, 4 ]);
     is($sub->return_value, '1|2|3|4', '... got the right return value');
@@ -181,8 +181,8 @@ Can't yet handle &sub params
 
     my $sub = mksub 
         [ 
-            Perl6::Param->new( 'type' => undef, 'name' => '@names' ),
-            Perl6::Param->new( 'type' => undef, 'name' => '*@numbers' ),
+            Pugs::Runtime::Param->new( 'type' => undef, 'name' => '@names' ),
+            Pugs::Runtime::Param->new( 'type' => undef, 'name' => '*@numbers' ),
         ], 
         sub {
             my $sub = shift;
@@ -207,7 +207,7 @@ Can't yet handle &sub params
         '$.name' => 'say',
         '$.params' => 
             [ 
-                Perl6::Param->new( 'name' => '*@_' ),
+                Pugs::Runtime::Param->new( 'name' => '*@_' ),
             ], 
         '$.body' => 
             sub {
@@ -229,7 +229,7 @@ Can't yet handle &sub params
         '$.name' => 'say',
         '$.params' => 
             [ 
-                Perl6::Param->new( 'name' => '*@param' ),
+                Pugs::Runtime::Param->new( 'name' => '*@param' ),
             ], 
         '$.body' => 
             sub {

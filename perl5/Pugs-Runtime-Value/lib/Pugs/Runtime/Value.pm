@@ -3,11 +3,11 @@
 # Num, Int, Str, Bit, Pair, Ref, List
 #
 # - functions for implementation of unboxed Perl6 Values in Perl5
-# Perl6::Value::Num - Inf, NaN
-# Perl6::Value::Int
-# Perl6::Value::Str
-# Perl6::Value::Bit - bool::* taint::*
-# Perl6::Value::List (separate file)
+# Pugs::Runtime::Value::Num - Inf, NaN
+# Pugs::Runtime::Value::Int
+# Pugs::Runtime::Value::Str
+# Pugs::Runtime::Value::Bit - bool::* taint::*
+# Pugs::Runtime::Value::List (separate file)
 
 # ChangeLog
 #
@@ -47,7 +47,7 @@
 # * added boxed types: Num, Int, Str, Bit, Pair
 #
 # 2005-08-13
-# * refactored from Perl6::Value::List
+# * refactored from Pugs::Runtime::Value::List
 
 # Notes:
 # - All library functions - add, subtract, sqrt, ...
@@ -61,14 +61,14 @@
 
 use strict;
 
-sub Perl6::Value::p6v_isa {
+sub Pugs::Runtime::Value::p6v_isa {
     my($o,$cls)=@_;
     my $ref = ref($o);
     return 1 if $ref eq 'Dispatchable' && $o->isa($cls);
     return 0;
 }
 
-use Perl6::MetaModel;
+use Moose;
 
 sub class1 {
     my ($name, $params) = @_;
@@ -154,11 +154,11 @@ class1 'Num'.$class_description => {
             # TODO - pi ?
             'Inf' => sub {
                 my ($class) = @_;           
-                return $class->new( '$.unboxed' => &Perl6::Value::Num::Inf );
+                return $class->new( '$.unboxed' => &Pugs::Runtime::Value::Num::Inf );
             },
             'NaN' => sub {
                 my ($class) = @_;           
-                return $class->new( '$.unboxed' => &Perl6::Value::Num::NaN );
+                return $class->new( '$.unboxed' => &Pugs::Runtime::Value::Num::NaN );
             },
         }
     },
@@ -167,9 +167,9 @@ class1 'Num'.$class_description => {
         DESTROY => sub {},
         methods => {
             'num' =>  sub { $::SELF },
-            'int' =>  sub { Int->new( '$.unboxed' => Perl6::Value::Num::to_int( _('$.unboxed') ) ) },
-            'str' =>  sub { Str->new( '$.unboxed' => Perl6::Value::Num::to_str( _('$.unboxed') ) ) },
-            'bit' =>  sub { Bit->new( '$.unboxed' => Perl6::Value::Num::to_bit( _('$.unboxed') ) ) },
+            'int' =>  sub { Int->new( '$.unboxed' => Pugs::Runtime::Value::Num::to_int( _('$.unboxed') ) ) },
+            'str' =>  sub { Str->new( '$.unboxed' => Pugs::Runtime::Value::Num::to_str( _('$.unboxed') ) ) },
+            'bit' =>  sub { Bit->new( '$.unboxed' => Pugs::Runtime::Value::Num::to_bit( _('$.unboxed') ) ) },
             'perl' => sub { $::SELF->str },
             'increment' => sub { 
                 my $value = _('$.unboxed');
@@ -192,10 +192,10 @@ class1 'Int'.$class_description => {
         attrs => [ '$.unboxed' ],
         DESTROY => sub {},
         methods => {
-            'num' =>  sub { Num->new( '$.unboxed' => Perl6::Value::Int::to_num( _('$.unboxed') ) ) },
+            'num' =>  sub { Num->new( '$.unboxed' => Pugs::Runtime::Value::Int::to_num( _('$.unboxed') ) ) },
             'int' =>  sub { $::SELF },
-            'str' =>  sub { Str->new( '$.unboxed' => Perl6::Value::Int::to_str( _('$.unboxed') ) ) },
-            'bit' =>  sub { Bit->new( '$.unboxed' => Perl6::Value::Int::to_bit( _('$.unboxed') ) ) },
+            'str' =>  sub { Str->new( '$.unboxed' => Pugs::Runtime::Value::Int::to_str( _('$.unboxed') ) ) },
+            'bit' =>  sub { Bit->new( '$.unboxed' => Pugs::Runtime::Value::Int::to_bit( _('$.unboxed') ) ) },
             'perl' => sub { $::SELF->str },
             'increment' => sub { 
                 my $value = _('$.unboxed');
@@ -218,10 +218,10 @@ class1 'Str'.$class_description => {
         attrs => [ '$.unboxed' ],
         DESTROY => sub {},
         methods => {
-            'num' =>  sub { Num->new( '$.unboxed' => Perl6::Value::Str::to_num( _('$.unboxed') ) ) },
-            'int' =>  sub { Int->new( '$.unboxed' => Perl6::Value::Str::to_int( _('$.unboxed') ) ) },
+            'num' =>  sub { Num->new( '$.unboxed' => Pugs::Runtime::Value::Str::to_num( _('$.unboxed') ) ) },
+            'int' =>  sub { Int->new( '$.unboxed' => Pugs::Runtime::Value::Str::to_int( _('$.unboxed') ) ) },
             'str' =>  sub { $::SELF },
-            'bit' =>  sub { Bit->new( '$.unboxed' => Perl6::Value::Str::to_bit( _('$.unboxed') ) ) },
+            'bit' =>  sub { Bit->new( '$.unboxed' => Pugs::Runtime::Value::Str::to_bit( _('$.unboxed') ) ) },
             'perl' => sub { 
                 my $tmp = _('$.unboxed');
                 $tmp =~ s/(\\|\')/\\$1/g;  # quote ' \
@@ -233,7 +233,7 @@ class1 'Str'.$class_description => {
             'decrement' => sub { 
                 my $value = _('$.unboxed');
                 # perl5 doesn't support string decrement
-                $::SELF->ref->new( '$.unboxed' => Perl6::Value::Str::decrement( $value ) ) },
+                $::SELF->ref->new( '$.unboxed' => Pugs::Runtime::Value::Str::decrement( $value ) ) },
             'ref' => sub { $::CLASS }, 
         },
     }
@@ -249,9 +249,9 @@ class1 'Bit'.$class_description => {
         attrs => [ '$.unboxed' ],
         DESTROY => sub {},
         methods => {
-            'num' => sub { Num->new( '$.unboxed' => Perl6::Value::Bit::to_num( _('$.unboxed') ) ) },
-            'int' => sub { Int->new( '$.unboxed' => Perl6::Value::Bit::to_int( _('$.unboxed') ) ) },
-            'str' => sub { Str->new( '$.unboxed' => Perl6::Value::Bit::to_str( _('$.unboxed') ) ) },
+            'num' => sub { Num->new( '$.unboxed' => Pugs::Runtime::Value::Bit::to_num( _('$.unboxed') ) ) },
+            'int' => sub { Int->new( '$.unboxed' => Pugs::Runtime::Value::Bit::to_int( _('$.unboxed') ) ) },
+            'str' => sub { Str->new( '$.unboxed' => Pugs::Runtime::Value::Bit::to_str( _('$.unboxed') ) ) },
             'bit' => sub { $::SELF },
             'perl' => sub { $::SELF->str },
             'ref' => sub { $::CLASS }, 
@@ -270,9 +270,9 @@ class1 'Rat'.$class_description => {
         DESTROY => sub {},
         methods => {
             'num' =>  sub { Num->new( '$.unboxed' => _('$.a')/_('$.b') ) },
-            'int' =>  sub { Int->new( '$.unboxed' => Perl6::Value::Num::to_int( _('$.a')/_('$.b') ) ) },
-            'str' =>  sub { Str->new( '$.unboxed' => Perl6::Value::Num::to_str( _('$.a')/_('$.b') ) ) },
-            'bit' =>  sub { Bit->new( '$.unboxed' => Perl6::Value::Num::to_bit( _('$.a')/_('$.b') ) ) },
+            'int' =>  sub { Int->new( '$.unboxed' => Pugs::Runtime::Value::Num::to_int( _('$.a')/_('$.b') ) ) },
+            'str' =>  sub { Str->new( '$.unboxed' => Pugs::Runtime::Value::Num::to_str( _('$.a')/_('$.b') ) ) },
+            'bit' =>  sub { Bit->new( '$.unboxed' => Pugs::Runtime::Value::Num::to_bit( _('$.a')/_('$.b') ) ) },
             'perl' => sub { $::SELF->str },
             'ref' =>  sub { $::CLASS }, 
         },
@@ -292,15 +292,15 @@ class1 'Pair'.$class_description => {
             'num' => sub { Num->new( '$.unboxed' => 0 ) },
             'int' => sub { Int->new( '$.unboxed' => 0 ) },
             'str' => sub {
-                my $key =   Perl6::Value::stringify( _('$.key') );
-                my $value = Perl6::Value::stringify( _('$.value') );
+                my $key =   Pugs::Runtime::Value::stringify( _('$.key') );
+                my $value = Pugs::Runtime::Value::stringify( _('$.value') );
                 Str->new( '$.unboxed' => "$key\t$value" ) 
               },
             'bit' => sub { Bit->new( '$.unboxed' => 0 ) },
             'perl' => sub { 
                 my $self = shift;
-                my $key =   Perl6::Value::stringify( $self->key->perl );
-                my $value = Perl6::Value::stringify( $self->value->perl );
+                my $key =   Pugs::Runtime::Value::stringify( $self->key->perl );
+                my $value = Pugs::Runtime::Value::stringify( $self->value->perl );
                 Str->new( '$.unboxed' => "($key => $value)" ) 
               },
             'unboxed' => sub { ( _('$.key'), _('$.value') ) },
@@ -331,8 +331,8 @@ class1 'Ref'.$class_description => {
         methods => { 
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
             'isa' => sub { 
-                return 1 if $_[1] eq 'Array' && Perl6::Value::p6v_isa( _('$.referred'), 'Array' );
-                return 1 if $_[1] eq 'Hash' && Perl6::Value::p6v_isa( _('$.referred'), 'Hash' );
+                return 1 if $_[1] eq 'Array' && Pugs::Runtime::Value::p6v_isa( _('$.referred'), 'Array' );
+                return 1 if $_[1] eq 'Hash' && Pugs::Runtime::Value::p6v_isa( _('$.referred'), 'Hash' );
                 ::next_METHOD();
             },
             'does' => sub { ::next_METHOD() },
@@ -353,7 +353,7 @@ class1 'Ref'.$class_description => {
                 return $::CLASS 
                     if $method eq 'ref';
                 if ( $method eq 'perl' || $method eq 'str' ) {
-                    return Str->new( '$.unboxed' => '\\' . Perl6::Value::stringify($tmp) ) 
+                    return Str->new( '$.unboxed' => '\\' . Pugs::Runtime::Value::stringify($tmp) ) 
                 }
                 return Bit->new( '$.unboxed' => defined $tmp ? 1 : 0 ) 
                     if $method eq 'defined';                
@@ -400,19 +400,19 @@ class1 'List'.$class_description => {
 
 # ---------- Implementation of unboxed values --------------
 
-#package Perl6::Value;
+#package Pugs::Runtime::Value;
 #
 #sub to_ref {
 #    my $object = shift;
 #    my $class_name = ::dispatch( ::meta( $object ), 'name' );  # ** get the class name, from object
-#    my $class = $Perl6::Class::ALL_CLASSES{$class_name};  # ** get the class, from class name
+#    my $class = $Pugs::Runtime::Class::ALL_CLASSES{$class_name};  # ** get the class, from class name
 #    return $class;
 #}
 
-$Perl6::Value::obj_id = '**ObJecT**' . rand;
-sub Perl6::Value::identify {
+$Pugs::Runtime::Value::obj_id = '**ObJecT**' . rand;
+sub Pugs::Runtime::Value::identify {
     my $key = shift;
-    return $Perl6::Value::obj_id unless defined $key;
+    return $Pugs::Runtime::Value::obj_id unless defined $key;
     my $s = $key;
     if ( ref($key) && (
         $key->isa( 'Int' ) ||
@@ -424,14 +424,14 @@ sub Perl6::Value::identify {
         $s = $key->str->unboxed
     }
     elsif ( UNIVERSAL::can( $key, 'id' ) ) {
-        $s = $Perl6::Value::obj_id . $key->id
+        $s = $Pugs::Runtime::Value::obj_id . $key->id
     }
     return $s;
 }
 
-sub Perl6::Value::stringify {
+sub Pugs::Runtime::Value::stringify {
     my $s = shift;
-    $s = $s->fetch if Perl6::Value::p6v_isa( $s, 'Scalar');
+    $s = $s->fetch if Pugs::Runtime::Value::p6v_isa( $s, 'Scalar');
     my $tmp;
     # warn "stringify - $s\n";
     eval { $tmp = $s->str(max=>3) };
@@ -442,13 +442,13 @@ sub Perl6::Value::stringify {
     # warn "   unboxed - $s - $@\n";
     return 'undef' unless defined $s;
     no warnings 'numeric';
-    $s = Perl6::Value::Num::to_str( $s ) if $s+0 eq $s;
+    $s = Pugs::Runtime::Value::Num::to_str( $s ) if $s+0 eq $s;
     return $s;
 }
 
-sub Perl6::Value::numify {
+sub Pugs::Runtime::Value::numify {
     my $s = shift;
-    $s = $s->fetch if Perl6::Value::p6v_isa( $s, 'Scalar');
+    $s = $s->fetch if Pugs::Runtime::Value::p6v_isa( $s, 'Scalar');
     my $tmp;
     eval { $tmp = $s->num };
     $s = $tmp unless $@;
@@ -459,11 +459,11 @@ sub Perl6::Value::numify {
         return 0;
     }
     no warnings 'numeric';
-    $s = Perl6::Value::Str::to_num( $s ) if $s+0 ne $s;
+    $s = Pugs::Runtime::Value::Str::to_num( $s ) if $s+0 ne $s;
     return $s;
 }
 
-package Perl6::Value::Num;
+package Pugs::Runtime::Value::Num;
 
 use constant Inf => 100**100**100;
 use constant NaN => Inf / Inf;
@@ -471,9 +471,9 @@ use constant NaN => Inf / Inf;
 sub to_str        { 
     my $v = shift;
     # native
-    return 'Inf'  if $v eq "".&Perl6::Value::Num::Inf;
-    return '-Inf' if $v eq "".(-&Perl6::Value::Num::Inf);
-    return 'NaN'  if $v eq "".&Perl6::Value::Num::NaN;
+    return 'Inf'  if $v eq "".&Pugs::Runtime::Value::Num::Inf;
+    return '-Inf' if $v eq "".(-&Pugs::Runtime::Value::Num::Inf);
+    return 'NaN'  if $v eq "".&Pugs::Runtime::Value::Num::NaN;
     $v = 0 + $v;
     return 'Inf'  if $v == Inf;
     return '-Inf' if $v == -&Inf;
@@ -484,13 +484,13 @@ sub to_bit        { $_[0] == 0 ? '' : 1 }
 sub to_num        { 0 + $_[0] }
 sub to_int        { int( $_[0] ) }
 
-package Perl6::Value::Int;
+package Pugs::Runtime::Value::Int;
 
 sub to_str        { 
     no warnings 'uninitialized';
     my $v = 0 + $_[0];
-    return 'Inf'  if $v == Perl6::Value::Num::Inf;
-    return '-Inf' if $v == -&Perl6::Value::Num::Inf;
+    return 'Inf'  if $v == Pugs::Runtime::Value::Num::Inf;
+    return '-Inf' if $v == -&Pugs::Runtime::Value::Num::Inf;
     return 'NaN'  if $v =~ m/n/i;
     return "" . $v 
 }
@@ -498,7 +498,7 @@ sub to_bit        { $_[0] == 0 ? '' : 1 }
 sub to_num        { 0 + $_[0] }
 sub to_int        { $_[0] }
 
-package Perl6::Value::Str;
+package Pugs::Runtime::Value::Str;
 
 sub to_str        { $_[0] }
 sub to_bit        { 
@@ -509,18 +509,18 @@ sub to_num        {
     my $v = $_[0];
     $v =~ s/\s+//g;
     # Perl 6
-    return Perl6::Value::Num::Inf   if $v eq 'Inf';
-    return -&Perl6::Value::Num::Inf if $v eq '-Inf';
-    return Perl6::Value::Num::NaN   if $v eq 'NaN';
+    return Pugs::Runtime::Value::Num::Inf   if $v eq 'Inf';
+    return -&Pugs::Runtime::Value::Num::Inf if $v eq '-Inf';
+    return Pugs::Runtime::Value::Num::NaN   if $v eq 'NaN';
     # native
-    return Perl6::Value::Num::Inf   if $v eq "".&Perl6::Value::Num::Inf;
-    return -&Perl6::Value::Num::Inf if $v eq "".(-&Perl6::Value::Num::Inf);
-    return Perl6::Value::Num::NaN   if $v eq "".&Perl6::Value::Num::NaN;
+    return Pugs::Runtime::Value::Num::Inf   if $v eq "".&Pugs::Runtime::Value::Num::Inf;
+    return -&Pugs::Runtime::Value::Num::Inf if $v eq "".(-&Pugs::Runtime::Value::Num::Inf);
+    return Pugs::Runtime::Value::Num::NaN   if $v eq "".&Pugs::Runtime::Value::Num::NaN;
 
     no warnings 'numeric';
     return 0 + $v;
 }
-sub to_int        { Perl6::Value::Num::to_int( to_num( $_[0] ) ) }
+sub to_int        { Pugs::Runtime::Value::Num::to_int( to_num( $_[0] ) ) }
 
 sub decrement {
     return '' if $_[0] eq '' || $_[0] eq 'a' || $_[0] eq '0';
@@ -530,7 +530,7 @@ sub decrement {
     return $s . chr( ord($c) - 1 );
 }
 
-package Perl6::Value::Bit;
+package Pugs::Runtime::Value::Bit;
 
 # built-in, unboxed 'bit' enums
 sub bool::false      { '' }
@@ -548,14 +548,14 @@ __END__
 
 =head1 NAME
 
-Perl6::Value - Perl6 boxed and unboxed Values
+Pugs::Runtime::Value - Perl6 boxed and unboxed Values
 
 =head1 SYNOPSIS
 
-  use Perl6::Value;
+  use Pugs::Runtime::Value;
   
   # unboxed Perl5 value
-  my $num = Perl6::Value::Str::to_num( 'NaN' );
+  my $num = Pugs::Runtime::Value::Str::to_num( 'NaN' );
  
   # Perl6 "Num" object
   my $num = Num->NaN;

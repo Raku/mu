@@ -5,14 +5,14 @@ use strict;
 use Test::More;
 plan tests => 17;
  
-use Perl6::Value;
-use Perl6::Value::List;
+use Pugs::Runtime::Value;
+use Pugs::Runtime::Value::List;
 
-use constant Inf => Perl6::Value::Num::Inf;
+use constant Inf => Pugs::Runtime::Value::Num::Inf;
 
 {
   # end of stream
-  my $a = Perl6::Value::List->from_single( 1 .. 2 );
+  my $a = Pugs::Runtime::Value::List->from_single( 1 .. 2 );
   is( $a->shift, 1, 'iter 0' );
   is( $a->shift, 2, 'iter 1' );
   is( $a->shift, undef, 'end' );
@@ -20,7 +20,7 @@ use constant Inf => Perl6::Value::Num::Inf;
 
 {
   # end of lazy stream
-  my $a = Perl6::Value::List->from_range( start => 1, end => 2, step => 1 );
+  my $a = Pugs::Runtime::Value::List->from_range( start => 1, end => 2, step => 1 );
   is( $a->shift, 1, 'iter 0' );
   is( $a->shift, 2, 'iter 1' );
   is( $a->shift, undef, 'end' );
@@ -28,7 +28,7 @@ use constant Inf => Perl6::Value::Num::Inf;
 
 {
   # 'Iter' object
-  my $span = Perl6::Value::List->from_range( start => 0, end => Inf, step => 1 );
+  my $span = Pugs::Runtime::Value::List->from_range( start => 0, end => Inf, step => 1 );
   is( $span->shift, 0, 'iter 0' );
   is( $span->shift, 1, 'iter 1' );
   
@@ -37,14 +37,14 @@ use constant Inf => Perl6::Value::Num::Inf;
   
   # reverse
   my $rev = $span->reverse();
-  isa_ok( $rev, 'Perl6::Value::List', 'reversed' );
+  isa_ok( $rev, 'Pugs::Runtime::Value::List', 'reversed' );
   is( $rev->shift, Inf, 'shift reverse' );
   is( $rev->pop,   2,   'pop reverse' );
 }
 
 {
     # clone
-    my $list1 = Perl6::Value::List->from_num_range( start => 3, end => 1000_000, step => 1 );
+    my $list1 = Pugs::Runtime::Value::List->from_num_range( start => 3, end => 1000_000, step => 1 );
     my $list2 = $list1->clone;
 
     is( $list1->shift, 3, 'shift from list' );
@@ -58,18 +58,18 @@ __END__
 
 {
     # list mapped into array
-    my $span0 = Perl6::Value::List->from_num_range( start => 3, end => &Inf, step => 1 );
-    my $span1 = Perl6::Value::List->from_num_range( start => &Inf, end => 7, step => -1 );
-    my $array = Perl6::Container::Array->new( items => [ $span0, $span1 ] );
+    my $span0 = Pugs::Runtime::Value::List->from_num_range( start => 3, end => &Inf, step => 1 );
+    my $span1 = Pugs::Runtime::Value::List->from_num_range( start => &Inf, end => 7, step => -1 );
+    my $array = Pugs::Runtime::Container::Array->new( items => [ $span0, $span1 ] );
     is( $array->shift, 3, 'lazy array shift' );
     is( $array->pop, 7, '... lazy array pop' );
     
-    my $list = Perl6::Value::List->from_shared_array(
+    my $list = Pugs::Runtime::Value::List->from_shared_array(
         array => $array, offset => 2, length => &Inf );
     is( $list->shift, 6, 'shift from list' );
     is( $list->pop, 8, '... pop' );
         
-    my $list2 = Perl6::Value::List->from_shared_array(
+    my $list2 = Pugs::Runtime::Value::List->from_shared_array(
         array => $array, offset => 2, length => &Inf );
     is( $list2->shift, 6, 'shift from another list, same buffer' );
     is( $list2->pop, 8, '... pop' );
@@ -77,11 +77,11 @@ __END__
 
 {
   # shared list
-  my $span = Perl6::Value::List->from_num_range( start => 0, end => 100, step => 1 );
-  my $list0 = Perl6::Value::List->new;
+  my $span = Pugs::Runtime::Value::List->from_num_range( start => 0, end => 100, step => 1 );
+  my $list0 = Pugs::Runtime::Value::List->new;
   {
     # start of inner scope
-    my $list1 = Perl6::Value::List->new;
+    my $list1 = Pugs::Runtime::Value::List->new;
     
     $span->dup_list( $list0, $list1 );
     is( $list0->shift, 0, 'iter 0 - dup list - shift' );

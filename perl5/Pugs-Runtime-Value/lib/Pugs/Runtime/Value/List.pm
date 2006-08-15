@@ -1,6 +1,6 @@
-package Perl6::Value::List;
+package Pugs::Runtime::Value::List;
 
-# Perl6::Value::List - implementation of Perl6 'List' class in Perl5
+# Pugs::Runtime::Value::List - implementation of Perl6 'List' class in Perl5
 
 # ChangeLog
 #
@@ -55,10 +55,10 @@ package Perl6::Value::List;
 # TODO - is_contiguous() should test if $step == 1
 
 use strict;
-use Perl6::Value;
+use Pugs::Runtime::Value;
 
-use constant Inf => Perl6::Value::Num::Inf;
-our $VERSION = '0.01';
+use constant Inf => Pugs::Runtime::Value::Num::Inf;
+our $VERSION = '0.02';
 
 sub _default_stringify {
     my $self = (shift)->clone;
@@ -90,10 +90,10 @@ sub _default_stringify {
     }
     return 
         join( ', ', 
-        map { Perl6::Value::stringify( $_ ) } @start ) .
+        map { Pugs::Runtime::Value::stringify( $_ ) } @start ) .
         ' ... ' . 
         join( ', ', 
-        map { Perl6::Value::stringify( $_ ) } @end );
+        map { Pugs::Runtime::Value::stringify( $_ ) } @end );
 }
 
 sub new {
@@ -169,9 +169,9 @@ sub flatten       {
 sub from_num_range {
     my $class = shift;
     my %param = @_;
-    my $start = Perl6::Value::numify( $param{start} );
-    my $end =   Perl6::Value::numify( $param{end} );
-    my $step =  Perl6::Value::numify( $param{step} || 1 );
+    my $start = Pugs::Runtime::Value::numify( $param{start} );
+    my $end =   Pugs::Runtime::Value::numify( $param{end} );
+    my $step =  Pugs::Runtime::Value::numify( $param{step} || 1 );
     $class->new(
         clone => sub { 
             $class->from_num_range( start => $start, end => $end, step => $step ) 
@@ -289,7 +289,7 @@ sub from_x {
             $class->from_x( item => $item, count => $count ) 
         },
         sum => sub {
-            Perl6::Value::numify( $_[0] ) * $item;
+            Pugs::Runtime::Value::numify( $_[0] ) * $item;
         },
         shift_n => sub {
             my $list = shift;
@@ -316,7 +316,7 @@ sub from_single {
 
     my @list;
     for( @_ ) {
-        if ( UNIVERSAL::isa($_, 'Perl6::Value::List') ) {
+        if ( UNIVERSAL::isa($_, 'Pugs::Runtime::Value::List') ) {
             my @li; push @li, $_->shift while $_->elems; 
             push @list, @li;
         }
@@ -362,7 +362,7 @@ sub from_coro {
 
 sub reverse { 
     my $ret = shift;
-    Perl6::Value::List->new( 
+    Pugs::Runtime::Value::List->new( 
         clone => sub { 
             $ret->clone->reverse 
         },
@@ -382,8 +382,8 @@ sub map {
     my $array = shift;
     my $code = shift;
     my $ret = $array->clone; 
-    my $arity = Perl6::Value::numify( $code->arity );
-    Perl6::Value::List->new(
+    my $arity = Pugs::Runtime::Value::numify( $code->arity );
+    Pugs::Runtime::Value::List->new(
         clone => sub { 
             my $self = shift;
             # this doesn't work if $code is a closure
@@ -401,7 +401,7 @@ sub map {
                 push @x, $ret->shift for 1 .. $arity;
                 my $res = $code->do( @x );
                 my @res;
-                if ( Perl6::Value::p6v_isa( $res, 'Array' ) ) {
+                if ( Pugs::Runtime::Value::p6v_isa( $res, 'Array' ) ) {
                     @res = $res->items 
                 }
                 else {
@@ -421,7 +421,7 @@ sub map {
                 unshift @x, $ret->pop for 1 .. $arity;
                 my $res = $code->do( @x );
                 my @res;
-                if ( Perl6::Value::p6v_isa( $res, 'Array' ) ) {
+                if ( Pugs::Runtime::Value::p6v_isa( $res, 'Array' ) ) {
                     @res = $res->items 
                 }
                 else {
@@ -444,7 +444,7 @@ sub zip {
     my $array = shift;
     my @lists = @_;
     my $ret = $array->clone; 
-    Perl6::Value::List->new(
+    Pugs::Runtime::Value::List->new(
         sum => sub { 
             my $sum = $ret->sum;
             $sum += $_->sum for @lists;
@@ -551,15 +551,15 @@ sub values {
 
 =head1 NAME
 
-Perl6::Value::List - Perl extension for Perl6 "List" class
+Pugs::Runtime::Value::List - Perl extension for Perl6 "List" class
 
 =head1 SYNOPSIS
 
-  use Perl6::Value::List;
+  use Pugs::Runtime::Value::List;
   
-  my $list = Perl6::Value::List.from_range( start => 10, end => 20 );
+  my $list = Pugs::Runtime::Value::List.from_range( start => 10, end => 20 );
   
-  my $list = Perl6::Value::List.new( ... );
+  my $list = Pugs::Runtime::Value::List.new( ... );
 
 =head1 DESCRIPTION
 
