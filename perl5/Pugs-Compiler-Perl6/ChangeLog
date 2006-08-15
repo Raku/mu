@@ -1,3 +1,5 @@
+- fixed '{}' (empty hash)
+
 0.013  2006-08-09
 
 - includes precompiled v6 modules: Perl6Prelude.pm, Test.pm
