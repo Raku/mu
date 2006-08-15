@@ -388,7 +388,9 @@ sub default {
             if (
                 @{$n->{bare_block}{statements}} == 1        &&
                 exists $n->{bare_block}{statements}[0]{op1} &&
-                $n->{bare_block}{statements}[0]{op1} eq ','
+                (   $n->{bare_block}{statements}[0]{op1} eq ',' 
+                ||  $n->{bare_block}{statements}[0]{op1}{op} eq '=>'
+                )
                 # TODO -   && is it a pair?
             ) {
                 return  "{\n" . _emit( $n->{bare_block}{statements}[0] ) . "\n }  # hash\n";
@@ -862,12 +864,29 @@ sub statement {
     return _not_implemented( $n, "statement" );
 }
 
+sub autoquote {
+    my $n = $_[0];
+    if ( exists $n->{'op1'} &&
+         $n->{'op1'} eq 'call' &&
+         ! exists $n->{'param'} &&
+         exists $n->{'sub'}{'bareword'}
+       )
+    {
+        return $n->{'sub'}{'bareword'};
+    }
+    return _emit( $n );
+}
+
 sub infix {
     my $n = $_[0];
     #print "infix: ", Dumper( $n );
 
     if ( $n->{op1}{op} eq '~' ) {
         return _emit( $n->{exp1} ) . ' . ' . _emit( $n->{exp2} );
+    }
+    if ( $n->{op1}{op} eq '=>' ) {
+        #print Dumper( $n->{exp1} );
+        return autoquote( $n->{exp1} ) . ' => ' . _emit( $n->{exp2} );
     }
     if ( $n->{op1}{op} eq '~=' ) {
         return _emit( $n->{exp1} ) . ' .= ' . _emit( $n->{exp2} );
