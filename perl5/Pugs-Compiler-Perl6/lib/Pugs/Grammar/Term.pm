@@ -222,6 +222,12 @@ sub recompile {
                 { return $_[0]{'Pugs::Grammar::Term.brackets'}->() }
             ),
         '{' => q(
+                <?ws>? <'}'>
+                { 
+                  return { 
+                    bare_block => { statements => [] },
+                } }
+            |
                 <?ws>? <Pugs::Grammar::Perl6.statements> <?ws>? <'}'>
                 { 
                   return { 
