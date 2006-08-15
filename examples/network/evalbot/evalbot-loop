@@ -47,7 +47,7 @@ sub start_pugs {
     }
     else {
         exec "./pugs examples/network/evalbot/evalbot.pl " .
-             "'=$pipe' irc.freenode.net 900 " . join(' ', map { "'$_'" } @channels)
+             "'=$pipe' chat.freenode.net 900 " . join(' ', map { "'$_'" } @channels)
                 or exit;
     }
 }
