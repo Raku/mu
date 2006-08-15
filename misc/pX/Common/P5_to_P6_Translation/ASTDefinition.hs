@@ -116,8 +116,14 @@ data AbsType
     | Op_fttext
     | Op_fttty
     | Op_ftzero
+    | Op_glob
     | Op_goto
     | Op_ge
+    | Op_gelem
+    | Op_ggrnam
+    | Op_getppid
+    | Op_ggrgid
+    | Op_gpwuid
     | Op_grepstart
     | Op_grepwhile
     | Op_gt
