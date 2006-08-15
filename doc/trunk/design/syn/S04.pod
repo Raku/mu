@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 11 Aug 2006
+  Last Modified: 14 Aug 2006
   Number: 4
-  Version: 33
+  Version: 34
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -698,6 +698,9 @@ class block is executed, but C<PRE>/C<POST> in a class block are evaluated
 around every method in the class.)  C<KEEP> and C<UNDO> are just variants
 of C<LEAVE>, and for execution order are treated as part of the queue of
 C<LEAVE> blocks.
+
+C<FIRST>, C<NEXT>, and C<LAST> are meaningful only within the lexical scope
+of a loop, and may occur only at the top level of such a loop block.
 
 [Note: the name C<FIRST> used to be associated with C<state>
 declarations.  Now it is associated only with loops.  See the C<START>
