@@ -133,9 +133,15 @@ withKids indent = do
             "op_fttext"     -> Op_fttext
             "op_fttty"      -> Op_fttty
             "op_ftzero"     -> Op_ftzero
+            "op_glob"       -> Op_glob
             "op_goto"       -> Op_goto
             "op_ge"         -> Op_ge
-            "Op_grepstart"  -> Op_grepstart
+            "op_gelem"      -> Op_gelem
+            "op_getppid"    -> Op_getppid
+            "op_gpwuid"     -> Op_gpwuid
+            "op_ggrnam"     -> Op_ggrnam
+            "op_ggrgid"     -> Op_ggrgid
+            "op_grepstart"  -> Op_grepstart
             "op_grepwhile"  -> Op_grepwhile
             "op_gt"         -> Op_gt
             "op_gv"         -> Op_gv
@@ -232,7 +238,7 @@ withKids indent = do
             "op_ref"        -> Op_ref
             "op_refgen"     -> Op_refgen
             "op_regcomp"    -> Op_regcomp
-            "op_regcrest"   -> Op_regcreset
+            "op_regcreset"   -> Op_regcreset
             "op_rename"     -> Op_rename
             "op_repeat"     -> Op_repeat
             "op_require"    -> Op_require
