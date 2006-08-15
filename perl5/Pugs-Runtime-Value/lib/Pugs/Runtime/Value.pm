@@ -59,7 +59,9 @@
 # TODO - move .increment, .decrement to Primitives (this will break some tests)
 # TODO - move Num::Inf, Num::NaN to Primitives
 
-use strict;
+use v6-alpha;
+
+use v5;
 
 sub Pugs::Runtime::Value::p6v_isa {
     my($o,$cls)=@_;
@@ -68,119 +70,43 @@ sub Pugs::Runtime::Value::p6v_isa {
     return 0;
 }
 
-use Moose;
+use v6;
 
-sub class1 {
-    my ($name, $params) = @_;
-    my $barename = $name; $barename =~ s/-0.*//;
-    my $code="";
-    $code .= "package $barename;\n";
-    $code .= "our \$MM = \$::Class->new('\$:name' => '$barename');\n";
-    $code .= "sub new { shift; \$MM->new(\@_) }\n";
-    #$code .= "sub new { my \$c = shift; my \$o = \$MM->new(\@_); warn \"new: \$c  \$o\"; \$o; }\n";
-    $code .= "\$MM;";
-    my $MM = eval($code); die "$@\n$code" if $@;
-    for my $key (keys %$params) {
-	my $val = $params->{$key};
-	if($key eq 'is') {
-	    my $sc = [map{ref($_)?$_:do{no strict;my $n=$_."::MM";$$n}}@$val];
-	    #print STDERR "$barename  @$sc\n";
-	    $MM->superclasses($sc);
-	} elsif($key eq 'class') {
-	    for my $k (keys %$val) {
-		my $v = $val->{$k};
-		if($k eq 'methods') {
-		    foreach my $m (keys %$v) {
-			#warn "$barename $m\n";
-			$MM->add_method($m => ::make_class_method($v->{$m}));
-		    }
-		}
-	    }
-	} elsif($key eq 'instance') {
-	    for my $k (keys %$val) {
-		my $v = $val->{$k};
-		if($k eq 'attrs') {
-		    #print STDERR "$barename  @$v\n";
-		    foreach my $a (@$v) {
-			my $a_config = {};
-			if(ref($a)) {
-			    $a_config = $a->[1];
-			    $a = $a->[0];
-			}
-			my $am = $a; $am =~ s/\$.//;
-			$MM->add_attribute($a => ::make_attribute($a));
-			my $access = $a_config->{'access'};
-			my $build  = $a_config->{'build'};
-			my $is_rw = $access && $access eq 'rw';
-			# XXX - everything treated as rw;
-			$MM->add_method($am => ::make_method(sub {
-			    my $self = shift;
-			    ::opaque_instance_attr($self => $a) = shift if @_;
-			    ::opaque_instance_attr($self => $a);
-			}));
-			if($build) {
-			    $MM->add_method('BUILD' => ::make_submethod(sub{
-				shift;
-				_($a => $build->());
-			    }));
-			}
-		    }
-		} elsif($k eq 'DESTROY') {
-		    $MM->add_method('DESTROY' => ::make_method(sub{
-			shift;
-			$v->();
-		    }));
-		} elsif($k eq 'methods') {
-		    foreach my $m (keys %$v) {
-			#warn "$barename $m\n";
-			$MM->add_method($m => ::make_method($v->{$m}));
-		    }
-		}
-	    }
-	}
+# TODO
+# my $class_description = '-0.0.1-cpan:FGLOCK';
+
+class Num {
+
+    has $.unboxed;
+
+    # TODO - pi ?
+    sub Inf {
+        my ($class) = @_;           
+        return $class.new( '$.unboxed' => Pugs::Runtime::Value::Num::Inf() );
     }
-    $MM;
-}
-
-
-
-my $class_description = '-0.0.1-cpan:FGLOCK';
-
-class1 'Num'.$class_description => {
-    is => [ $::Object ],
-    class => {
-        attrs => [],
-        methods => {
-            # TODO - pi ?
-            'Inf' => sub {
-                my ($class) = @_;           
-                return $class->new( '$.unboxed' => &Pugs::Runtime::Value::Num::Inf );
-            },
-            'NaN' => sub {
-                my ($class) = @_;           
-                return $class->new( '$.unboxed' => &Pugs::Runtime::Value::Num::NaN );
-            },
-        }
-    },
-    instance => {
-        attrs => [ '$.unboxed' ],
-        DESTROY => sub {},
-        methods => {
-            'num' =>  sub { $::SELF },
-            'int' =>  sub { Int->new( '$.unboxed' => Pugs::Runtime::Value::Num::to_int( _('$.unboxed') ) ) },
-            'str' =>  sub { Str->new( '$.unboxed' => Pugs::Runtime::Value::Num::to_str( _('$.unboxed') ) ) },
-            'bit' =>  sub { Bit->new( '$.unboxed' => Pugs::Runtime::Value::Num::to_bit( _('$.unboxed') ) ) },
-            'perl' => sub { $::SELF->str },
-            'increment' => sub { 
-                my $value = _('$.unboxed');
-                $::SELF->ref->new( '$.unboxed' => ++$value ) },
-            'decrement' => sub { 
-                my $value = _('$.unboxed');
-                $::SELF->ref->new( '$.unboxed' => --$value ) },
-            'ref' => sub { $::CLASS }, 
-        },
+    sub NaN {
+        my ($class) = @_;           
+        return $class->new( '$.unboxed' => Pugs::Runtime::Value::Num::NaN() );
     }
+
+    method num { self }
+    method int { 
+        Int.new( '$.unboxed' => Pugs::Runtime::Value::Num::to_int( self.unboxed ) ) 
+    }
+    method str  sub { 
+        Str.new( '$.unboxed' => Pugs::Runtime::Value::Num::to_str( self.unboxed ) )
+    }
+    method bit { 
+        Bit.new( '$.unboxed' => Pugs::Runtime::Value::Num::to_bit( self.unboxed ) )
+    }
+    method perl { self.str }
+    # method increment - don't belong here
+    # method decrement - don't belong here
+    method ref { self }
+
 };
+
+use v5;
 
 class1 'Int'.$class_description => {
     is => [ $::Object ],
@@ -543,8 +469,7 @@ sub to_bit        { $_[0] }
 sub to_num        { $_[0] == 0 ? 0 : 1 }
 sub to_int        { to_num( $_[0] ) }
 
-1;
-__END__
+use v6;
 
 =head1 NAME
 
