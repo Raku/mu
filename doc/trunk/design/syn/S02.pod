@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 14 Aug 2006
+  Last Modified: 15 Aug 2006
   Number: 2
-  Version: 64
+  Version: 65
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1365,11 +1365,25 @@ or C<0d> as hex digits, not radix switchers.
 
 =item *
 
-Characters indexed by hex, octal, and decimal numbers can be interpolated
-into strings using either C<"\x123"> (with C<\o> and C<\d> behaving
-respectively) or using square brackets: C<"\x[123]">.  Multiple
-characters may be specified within any of the bracketed forms by
-separating the numbers with comma: C<"\x[41,42,43]">.
+Characters indexed by hex numbers can be interpolated into strings
+by introducing with C<"\x">, followed by either a bare hex number
+(C<"\x263a">) or a hex number in square brackets (C<"\x[263a]">).
+Similarly, C<"\o12"> and C<"\o[12]"> interpolate octals, while
+C<"\d1234"> and C<"\d[1234]"> interpolate decimals--but generally
+you should be using hex in the world of Unicode.  Multiple characters
+may be specified within any of the bracketed forms by separating the
+numbers with comma: C<"\x[41,42,43]">.  You must use the bracketed
+form to disambiguate if the unbracketed form would "eat" too many
+characters, because all of the unbracketed forms eat as many characters
+as they think look like digits in the radix specified.  None of these
+notations work in normal Perl code.  They work only in interpolations
+and regexes and the like.
+
+The old C<\123> form is now illegal, as is the C<\0123> form.
+Only C<\0> remains, and then only if the next character is not in
+the range C<'0'..'7'>.  Octal characters must use C<\o> notation.
+Note also that backreferences are no longer represented by C<\1>
+and the like--see S06.
 
 =item *
 
