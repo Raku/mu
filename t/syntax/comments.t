@@ -4,7 +4,7 @@ use v6-alpha;
 
 use Test;
 
-plan 22;
+plan 23;
 
 {
     # L<S02/"Whitespace and Comments"/"Embedded comments"
@@ -103,9 +103,8 @@ plan 22;
 }
 
 {
-    # L<S02/"Whitespace and Comments"/whitespace
-    #   "hidden by prefixing it with \">
-
-    # I'm not 100% sure whether the following test is valid.
-    is(21, #\  (comment) 21, 'unspace also works in embedded comments');
+    # L<S02/Whitespace and Comments/"comment may not contain an unspace">
+    my $a;
+    ok !eval '$a = #\  (comment) 32', "comments can't contain unspace";
+    is $a, undef, '$a remains undef';
 }
