@@ -165,11 +165,14 @@ sub build {
 
     print "*** Finished building dependencies.\n\n";
 
+    my $prefix = File::Spec->rel2abs("$pwd/third-party/installed");
+    my $runcompiler = File::Spec->rel2abs("$pwd/util/runcompiler$Config{_exe}");
+    my $hc_pkg = File::Spec->rel2abs("$pwd/util/ghc-pkg-wrapper$Config{_exe}");
     $run_setup = sub { system($setup, @_) };
     $run_setup->('configure',
-            '--with-compiler' => File::Spec->catfile('..', '..', 'util', 'runcompiler'),
-            '--with-hc-pkg'   => File::Spec->catfile('..', '..', 'util', 'ghc-pkg-wrapper'),
-            '--prefix='       => File::Spec->catfile('..', '..', 'third-party', 'installed'),
+            '--with-compiler' => $runcompiler,
+            '--with-hc-pkg'   => $hc_pkg,
+            '--prefix'        => $prefix,
             grep !/^--.*=$/, @{$opts->{SETUP}});
 
     my $pm = "src/perl6/Prelude.pm";
