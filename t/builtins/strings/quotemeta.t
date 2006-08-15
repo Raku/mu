@@ -1,12 +1,24 @@
 use v6-alpha;
 # vim: filetype=perl6 :
 
-# NOTE on porting quotemeta.t from Perl 5.9.3: the original test suite
-# (see the pod-commented out section at the end of this file)
-# did include may tests to exercise the behaviour in double-quotes
-# interpolation with \Q and \E, and their interaction with other
-# modification like \L and \U. These interpolating sequences no longer
-# exist.
+# NOTES ON PORTING QUOTEMETA.T FROM Perl 5.9.3
+#
+# 1. The original test suite did include may tests to exercise the
+#    behaviour in double-quotes interpolation with \Q and \E, and their 
+#    interaction with other modification like \L and \U. These
+#    interpolating sequences no longer exist.
+#
+# 2. The original test suite did not exercise the quotemeta function
+#    for the whole 0-255 Unicode character set. Extending that test
+#    suite to include all of these characters basically yields the
+#    modified tests included here FOR THE ASCII VARIANT ONLY.
+#    Tests for EBCDIC have not been (yet) extended.
+#
+# 3. The original test suite used tr/// to count backslashes, here
+#    we use a combination of split and grep to count non-backslashes,
+#    which should be more intuitive.
+#
+# NOTE 2 on porting quotemat.t from 
 
 use Test;
 
@@ -40,32 +52,28 @@ if (%*Config<ebcdic> eq 'define') {
     is($_.split('').grep({ $_ eq "\x5c" }).elems, 54, "count backslashes");
 }
 else {
-    $_ = (32 .. 127).map({ chr($_); }).join('');
-    is($_.chars, 96, "quotemeta starting string");
+    $_ = (0 .. 255).map({ chr($_); }).join('');
+    is($_.chars, 256, "quotemeta starting string");
     
+    # Original test in Perl 5.9.3:
     # 96 characters - 52 letters - 10 digits - 1 underscore = 33 backslashes
     # 96 characters + 33 backslashes = 129 characters
+    # 
+    # Then added remaining 32 + 128, all escaped:
+    # 129 + (32 + 128) * 2 = 449
+    #
+    # Total backslashed chars are 33 + 32 + 128 = 193
+    # Total backslashes are 1 + 193 = 194
     $_ = quotemeta $_;
-    is($_.chars, 129, "quotemeta string");
+    is($_.chars, 449, "quotemeta string");
     # 33 backslashed characters + 1 "original" backslash
-    is($_.split('').grep({ $_ eq "\x5c" }).elems, 34, "count backslashes");
+    is($_.split('').grep({ $_ eq "\x5c" }).elems, 194, "count backslashes");
 }
 
-# I don't exactly know why the following tests should apply.
-# The only thing I suspect is that quotemeta in Perl5:
-#
-# * ignores Unicode and treats strings as sequences of octets
-# * does not escape characters that are outside the ASCII range 32 .. 127
-#   or the EBCDIC range 129 .. 233
-#
-# This is indirectly confirmed by the tests above (they focus on these
-# ranges only) and by the fact that Unicode character \x[263a] corresponds
-# to the UTF-8 sequence [0xe2, 0x98, 0xba], in which each octet is outside
-# the given ranges.
-# 
-# Should we stick to this?
-is(quotemeta("\x[263a]"), "\x[263a]", "quotemeta Unicode", :todo<bug>);
-is(quotemeta("\x[263a]").chars, 1, "quotemeta Unicode length", :todo<bug>);
+# Current quotemeta implementation mimics that for Perl 5, avoiding
+# to escape Unicode characters beyond 256th
+is(quotemeta("\x[263a]"), "\x[263a]", "quotemeta Unicode");
+is(quotemeta("\x[263a]").chars, 1, "quotemeta Unicode length");
 
 =begin from_perl5
 

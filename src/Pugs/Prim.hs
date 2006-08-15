@@ -1609,7 +1609,8 @@ doPrettyVal v = return (pretty v)
 -- concat in quotemeta above.
 toQuoteMeta :: Char -> String
 toQuoteMeta c =
-   if isAsciiUpper c || isAsciiLower c || isDigit c || c == '_'
+   if not(isLatin1 c) -- Ignore Unicode characters beyond the 256-th
+      || isAsciiUpper c || isAsciiLower c || isDigit c || c == '_'
       then [ c ]
       else [ '\\', c ]
 
