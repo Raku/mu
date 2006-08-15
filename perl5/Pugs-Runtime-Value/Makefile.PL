@@ -2,14 +2,21 @@
 
 use strict;
 use warnings;
-use lib '../..', '../../inc';
-use inc::Module::Install prefix => '../../inc';
+my @inc;
+BEGIN {
+    @inc = (-e '../../inc' and -e '../../VICTUALS')
+        ? (prefix => '../../inc')
+        : (-e '../../../../inc' and -e '../../../../VICTUALS')
+        ? (prefix => '../../../../inc')
+        : ()
+}
+use lib '../..', '../../../..', (@inc ? $inc[-1] : ());
+use inc::Module::Install @inc;
 
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
-
-name          ('Pugs::Runtime::Value');
+name          ('Pugs-Runtime-Value');
 version_from  ('lib/Pugs/Runtime/Value/List.pm');
 abstract_from ('lib/Pugs/Runtime/Value/List.pm');
 author        ('Flavio S. Glock <fglock@gmail.com>');
-WritePugs     (5);
+requires      ('Moose'  => '0.10');
+
+&WriteAll;
