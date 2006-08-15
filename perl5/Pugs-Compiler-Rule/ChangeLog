@@ -1,3 +1,4 @@
+- stringification is handled by the 'return object', if it exists.
 - fixed '..' in char classes
 - ':' is ignored inside tokens
 
