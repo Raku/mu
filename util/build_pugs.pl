@@ -98,11 +98,12 @@ sub build {
     } else {
         if (!-e "src/obj/.libs/libJudy.a") {
             system("./configure") unless -e "config.status";
+            system("make clean");
             system("make");
             mkdir("../../installed") if !-d "../../installed";
-            copy('src/obj/.libs/libJudy.a', '../../installed');
-            copy('src/obj/.libs/libJudy.a', '../../HsJudy');
         }
+        copy('src/obj/.libs/libJudy.a', '../../installed');
+        copy('src/obj/.libs/libJudy.a', '../../HsJudy');
     }
 
     chdir "../../..";
