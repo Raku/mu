@@ -20,7 +20,7 @@ works (but has not been widely tested). (The makefile is actually just an alias 
 
 
 The compiled version (let's call it 'translate') is used like so:
-  $./translate [-Oo -V -U -R] inFile outFile
+  $./translate [-Oo -V -U -R -N] inFile outFile
 the switches are optional, and have these effects:
 
 -Oo: Heavy object orientation. If there's an available (but optional) Oo translation it does it, such 
@@ -31,6 +31,8 @@ as translating close($fh) to $fh.close.
 -U: Unknown Debug. Whenever an unknown node is encountered during printing, prints "UnknownAbs" or "UnknownLit" to the file every place an unknown node is encountered. Also Echoes "UNKNOWN: UnknownAbs" or "UNKNOWN: UnknownLit" to STDOUT every time an unknown is encountered.
 
 -R: Minimal regex changes. The translator will  not attempt to translate the Regex from Perl 5 syntax to Perl 6. It will instead apply the :Perl5 modifer to the regex and move the re mods (/g, /i, etc.) to the start (:g, :i, etc.). The only internal changes made are explicitly aliasing the captures, so surrounding code will never know the difference.
+
+-N: No translation. The translator just parses the yaml file back into a perl 5 file. No other options matter with -N.
 
 Translations may run _slightly_ faster without the -Oo switch. Translations will almost _always_ take longer with -V (printing to STDOUT often takes longer then a full run, for large numbers of nodes). -U and -R should have little to no effect on speed (but if the AST contains unknown nodes with -U, the resulting code will be invlaid).
 
@@ -52,7 +54,7 @@ import System(getArgs)
 --Wrapper function to apply all translations in order
 --It's pretty ugly, which is why there's a need for a wrapper function
 translate :: P5AST -> String -> P5AST
-translate tree options = case [('o' `elem` options), ('r' `elem` options)] of
+translate tree options = if ('n' `elem` options) then (tree) else case [('o' `elem` options), ('r' `elem` options)] of
                                [True, False]   ->  (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))))))
                                [True, True]  ->  (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (easyRegex (changeVarsInQuotes  (scalarTranslate (regexOnce (hereDocTranslate (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))))
                                [False, False]  -> (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))
@@ -416,12 +418,13 @@ foreachTranslation (Heredoc start end kids) = (Heredoc start end kids)
 newForeach :: [P5AST] -> [P5AST]
 newForeach [] = []
 newForeach kids = if (matchOnType (head kids) (LiteralNode Junk "" "")) then (head kids):(newForeach (drop 1 kids)) else 
-            case [(isIn (AbstractNode Op_padsv []) kids), (isIn (AbstractNode Op_padav []) kids), (isIn (AbstractNode Op_list []) kids), (isIn (AbstractNode Op_rv2av []) kids), (isIn (AbstractNode Op_gv []) kids), (isIn (LiteralNode Declarator "" "my") kids)] of
-                    [True, True, False, False, False, False]  -> (map foreachTranslation [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_padav []) kids),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(LiteralNode Declarator "1" "my"),(extractNodetype (AbstractNode Op_padsv []) kids),(extractNodetype (AbstractNode Op_lineseq []) kids)])
-                    [True, False, True, False, False, True]  -> (map foreachTranslation [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(LiteralNode Opener "1" "("),(extractNodetype (AbstractNode Op_list []) kids),(LiteralNode Closer "1" ")"),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(LiteralNode Declarator "1" "my"),(extractNodetype (AbstractNode Op_padsv []) kids),(extractNodetype (AbstractNode Op_lineseq []) kids)])
-                    [False, False, False, True, False, False] -> (map foreachTranslation [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_rv2av []) kids),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_rv2gv []) kids),(extractNodetype (AbstractNode Op_lineseq []) kids)])
-                    [False, False, True, False, False, False] -> (map foreachTranslation [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_rv2av []) kids),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(LiteralNode Sigil "" "$_"),(extractNodetype (AbstractNode Op_lineseq []) kids)])
-                    [False, False, True, False, True, False] -> (map foreachTranslation [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(LiteralNode Opener "1" "("),(extractNodetype (AbstractNode Op_list []) kids),(LiteralNode Closer "1" ")"),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(LiteralNode Sigil "" "$_"),(extractNodetype (AbstractNode Op_lineseq []) kids)])
+            case [(isIn (AbstractNode Op_padsv []) kids), (isIn (AbstractNode Op_padav []) kids), (isIn (AbstractNode Op_list []) kids), (isIn (AbstractNode Op_rv2av []) kids), (isIn (AbstractNode Op_gv []) kids), (isIn (LiteralNode Declarator "" "my") kids), (isIn (AbstractNode Op_rv2gv []) kids)] of
+                    [True, True, False, False, False, False, False]  -> (map foreachTranslation [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_padav []) kids),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(LiteralNode Declarator "1" "my"),(extractNodetype (AbstractNode Op_padsv []) kids),(extractNodetype (AbstractNode Op_lineseq []) kids)])
+                    [True, False, True, False, False, True, False]  -> (map foreachTranslation [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(LiteralNode Opener "1" "("),(extractNodetype (AbstractNode Op_list []) kids),(LiteralNode Closer "1" ")"),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(LiteralNode Declarator "1" "my"),(extractNodetype (AbstractNode Op_padsv []) kids),(extractNodetype (AbstractNode Op_lineseq []) kids)])
+                    [False, False, False, True, False, False, False] -> (map foreachTranslation [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_rv2av []) kids),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_rv2gv []) kids),(extractNodetype (AbstractNode Op_lineseq []) kids)])
+                    [False, False, True, False, False, False, True] -> (map foreachTranslation [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(LiteralNode Opener "" "("),(extractNodetype (AbstractNode Op_list []) kids),(LiteralNode Closer "" ")"),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_rv2gv []) kids),(extractNodetype (AbstractNode Op_lineseq []) kids)])
+                    [False, False, True, False, False, False, False] -> (map foreachTranslation [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(extractNodetype (AbstractNode Op_rv2av []) kids),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(LiteralNode Sigil "" "$_"),(extractNodetype (AbstractNode Op_lineseq []) kids)])
+                    [False, False, True, False, True, False, False] -> (map foreachTranslation [(LiteralNode Token "1" "foreach"),(LiteralNode Junk "1" " "),(LiteralNode Opener "1" "("),(extractNodetype (AbstractNode Op_list []) kids),(LiteralNode Closer "1" ")"),(AbstractNode Op_iter []),(LiteralNode Junk "1" " "),(LiteralNode Operator "1" "->"),(LiteralNode Junk "1" " "),(LiteralNode Sigil "" "$_"),(extractNodetype (AbstractNode Op_lineseq []) kids)])
                     _                           -> []
 
 
@@ -658,7 +661,7 @@ mainParse inName outName options= do
     let ast = case (result) of
             Left err -> error $ "\nError:\n" ++ show err
             Right result -> result
-    case [('o' `elem` options), ('r' `elem` options)] of 
+    if ('n' `elem` options) then (putStrLn "Not Translating...")  else case [('o' `elem` options), ('r' `elem` options)] of 
             [True, True]   -> putStrLn ("Translating with the heavy object oriented option and limited regex support...")
             [True, False]  -> putStrLn ("Translating with the heavy object oriented option...")
             [False, True]  -> putStrLn ("Translating with limited regex support...")
@@ -692,6 +695,7 @@ getModifiers args = case (head args) of
                          "-V"     ->  ('v':(getModifiers (drop 1 args)))
                          "-U"     ->  ('u':(getModifiers (drop 1 args)))
                          "-R"     ->  ('r':(getModifiers (drop 1 args)))
+                         "-N"     ->  ('n':(getModifiers (drop 1 args)))
                          _        ->  (' ':(getModifiers (drop 1 args)))
 
 --getFirstFile (oddly enough) gets the first file (which will be the second to last argument). 
