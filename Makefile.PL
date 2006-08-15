@@ -179,11 +179,11 @@ sub set_postamble {
             ."main = main\n", $ghc, qw(-hide-all-packages -package base))) {
         # We have native ByteString; dummy the fps out
         $native_fps = 1;
-        copy "third-party/fps/fps.cabal.dummy" => "third-party/fps/fps.cabal";
+        copy "third-party/fps/fps.cabal.dummy" => "third-party/fps/pugs-fps.cabal";
     } else {
         # Use bundled ByteString - unregister user-fps installed by earlier Pugs
         system($ghc_pkg, qw( --user unregister fps ));
-        copy "third-party/fps/fps.cabal.in" => "third-party/fps/fps.cabal";
+        copy "third-party/fps/fps.cabal.in" => "third-party/fps/pugs-fps.cabal";
     }
 
     $ghc = $ghc_wrapper;

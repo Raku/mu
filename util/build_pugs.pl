@@ -169,6 +169,7 @@ sub build {
     $run_setup->('configure',
             '--with-compiler' => File::Spec->catfile('..', '..', 'util', 'runcompiler'),
             '--with-hc-pkg'   => File::Spec->catfile('..', '..', 'util', 'ghc-pkg-wrapper'),
+            '--prefix='       => File::Spec->catfile('..', '..', 'third-party', 'installed'),
             grep !/^--.*=$/, @{$opts->{SETUP}});
 
     my $pm = "src/perl6/Prelude.pm";
@@ -176,6 +177,9 @@ sub build {
     my $ppc_yml = "blib6/lib/Prelude.pm.yml";
 
     build_lib($version, $ghc, @args);
+
+    $run_setup->('install');
+
     build_exe($version, $ghc, $ghc_version, @args);
 
     if ((!-s $ppc_yml) or -M $ppc_yml > -M $ppc_hs) {
@@ -311,9 +315,9 @@ sub build_exe {
     push @libs, grep /^-auto/, @_;
     push @libs, grep /^-prof/, @_;
 
-    push @pkgs, "-package-name" => "Pugs-$version";
+    push @pkgs, "-package" => "Pugs"; #-$version";
 
-    @_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -optl-Lthird-party/installed -o pugs src/Main.hs), @libs);
+    @_ = (@pkgs, qw(-optl-Lthird-party/installed -o pugs src/Main.hs), @libs);
     #@_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -o pugs src/Main.hs), @libs);
     print "*** Building: ", join(' ', $ghc, @_), $/;
     system $ghc, @_;
