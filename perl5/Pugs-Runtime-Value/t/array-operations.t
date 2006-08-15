@@ -5,27 +5,27 @@ use strict;
 use Test::More;
 plan tests => 36;
 
-# use_ok( 'Perl6::Container::Array' );
-use Perl6::Container::Array; 
-use Perl6::Value;
-use Perl6::Value::List;
+# use_ok( 'Pugs::Runtime::Container::Array' );
+use Pugs::Runtime::Container::Array; 
+use Pugs::Runtime::Value;
+use Pugs::Runtime::Value::List;
 
-use constant Inf => Perl6::Value::Num::Inf;
+use constant Inf => Pugs::Runtime::Value::Num::Inf;
 
 {
   # string range
-  my $iter = Perl6::Value::List->from_range( start => 'a', end => Inf, step => undef );
+  my $iter = Pugs::Runtime::Value::List->from_range( start => 'a', end => Inf, step => undef );
   is( $iter->shift, 'a', 'string range' );  
   is( $iter->shift, 'b', 'string range 1' );
 }
 
 {
   # 'Iter' object
-  my $iter = Perl6::Value::List->from_num_range( start => 0, end => 13, step => 1 );
+  my $iter = Pugs::Runtime::Value::List->from_num_range( start => 0, end => 13, step => 1 );
 
   # warn "iter ". join(',', map{ $iter->shift } (0..10) );
 
-  my $span = Perl6::Container::Array->from_list( -1, 9, $iter );
+  my $span = Pugs::Runtime::Container::Array->from_list( -1, 9, $iter );
 
   # warn "span ". join(',', map{ $span->shift } (0..10) );
 
@@ -51,34 +51,34 @@ use constant Inf => Perl6::Value::Num::Inf;
 
 {
   # multidimensional lazy array
-  my $iter = Perl6::Value::List->from_num_range( start => 0, end => 9, step => 1 );
-  my $a1 = Perl6::Container::Array->from_list( $iter );
+  my $iter = Pugs::Runtime::Value::List->from_num_range( start => 0, end => 9, step => 1 );
+  my $a1 = Pugs::Runtime::Container::Array->from_list( $iter );
   my @a2 = 1..10;
-  my $b1 = Perl6::Container::Array->from_list( $a1, [@a2] ); 
-  isa_ok( $b1->shift, 'Perl6::Container::Array', 'without "splat", inserts an array' );
+  my $b1 = Pugs::Runtime::Container::Array->from_list( $a1, [@a2] ); 
+  isa_ok( $b1->shift, 'Pugs::Runtime::Container::Array', 'without "splat", inserts an array' );
   isa_ok( $b1->shift, 'ARRAY' );
 }
 
 {
   # splat
-  my $iter = Perl6::Value::List->from_num_range( start => 0, end => 9, step => 1 );
-  my $a1 = Perl6::Container::Array->from_list( $iter );
-  my $b1 = Perl6::Container::Array->from_list( $a1->to_list, 1..10 );
+  my $iter = Pugs::Runtime::Value::List->from_num_range( start => 0, end => 9, step => 1 );
+  my $a1 = Pugs::Runtime::Container::Array->from_list( $iter );
+  my $b1 = Pugs::Runtime::Container::Array->from_list( $a1->to_list, 1..10 );
   is( ref($b1->shift), '', 'with "splat", inserts the elements' );
   is( ref($b1->shift), '' );
 }
 
 {
   # uniq
-  my $iter = Perl6::Value::List->from_num_range( start => 0, end => 9, step => 1 );
-  my $a1 = Perl6::Container::Array->from_list( 1, $iter );
+  my $iter = Pugs::Runtime::Value::List->from_num_range( start => 0, end => 9, step => 1 );
+  my $a1 = Pugs::Runtime::Container::Array->from_list( 1, $iter );
   $a1 = $a1->to_list->uniq;
   is( $a1->shift, 1, 'not seen element' );
   is( $a1->shift, 0, 'not seen element' );
   is( $a1->shift, 2, 'seen element was skipped' );
 
   # end
-  $a1 = Perl6::Container::Array->from_list( $a1 );
+  $a1 = Pugs::Runtime::Container::Array->from_list( $a1 );
   is( $a1->end, 9, 'end' );
   is( $a1->pop, 9, 'end is still there' );
 }
@@ -86,8 +86,8 @@ use constant Inf => Perl6::Value::Num::Inf;
 {
   # (test originally written to test coroutines)
 
-  my $iter = Perl6::Value::List->from_num_range( start => 1, end => 2, step => 1 );
-  my $a1 = Perl6::Container::Array->from_list( $iter );
+  my $iter = Pugs::Runtime::Value::List->from_num_range( start => 1, end => 2, step => 1 );
+  my $a1 = Pugs::Runtime::Container::Array->from_list( $iter );
   is( $a1->shift, 1, 'lazy array from subroutine' );
   is( $a1->shift, 2, 'subroutine' );
   is( $a1->shift, undef, 'subroutine end' );
@@ -97,8 +97,8 @@ use constant Inf => Perl6::Value::Num::Inf;
 {
   # kv
   
-  my $iter = Perl6::Value::List->from_num_range( start => 4, end => 5, step => 1 );
-  my $a1 = Perl6::Container::Array->from_list( $iter );
+  my $iter = Pugs::Runtime::Value::List->from_num_range( start => 4, end => 5, step => 1 );
+  my $a1 = Pugs::Runtime::Container::Array->from_list( $iter );
   $a1 = $a1->to_list->kv;
   is( $a1->shift, 0, 'kv' );
   is( $a1->shift, 4, 'kv' );
@@ -109,9 +109,9 @@ use constant Inf => Perl6::Value::Num::Inf;
 {
   # pairs
   
-#  my $iter = Perl6::Value::List->from_num_range( start => 4, end => 5, step => 1 );
-#  my $a1 = Perl6::Container::Array->from_list( $iter );
-#  $a1 = $a1->to_list.Perl6::Value::List::pairs;
+#  my $iter = Pugs::Runtime::Value::List->from_num_range( start => 4, end => 5, step => 1 );
+#  my $a1 = Pugs::Runtime::Container::Array->from_list( $iter );
+#  $a1 = $a1->to_list.Pugs::Runtime::Value::List::pairs;
 #  my $p = $a1->shift;
 #  is( $p->ref,  'Pair',     'pair', :todo<wrong type> );
 #  is( $p->perl, '(0 => 4)', 'pair', :todo<wrong type> );
@@ -120,10 +120,10 @@ use constant Inf => Perl6::Value::Num::Inf;
 {
   # zip
   
-  my $iter1 = Perl6::Value::List->from_num_range( start => 4, end => 5, step => 1 );
-  my $a1 =    Perl6::Container::Array->from_list( $iter1 );
-  my $iter2 = Perl6::Value::List->from_num_range( start => 1, end => 3, step => 1 );
-  my $a2 =    Perl6::Container::Array->from_list( $iter2 );
+  my $iter1 = Pugs::Runtime::Value::List->from_num_range( start => 4, end => 5, step => 1 );
+  my $a1 =    Pugs::Runtime::Container::Array->from_list( $iter1 );
+  my $iter2 = Pugs::Runtime::Value::List->from_num_range( start => 1, end => 3, step => 1 );
+  my $a2 =    Pugs::Runtime::Container::Array->from_list( $iter2 );
   
   $a1 = $a1->to_list->zip( $a2 );
   is( $a1->shift, 4, 'zip' );
@@ -137,12 +137,12 @@ use constant Inf => Perl6::Value::Num::Inf;
 
 {
   # elems
-  my $iter = Perl6::Value::List->from_num_range( start => 1, end => 1000000, step => 2 );
+  my $iter = Pugs::Runtime::Value::List->from_num_range( start => 1, end => 1000000, step => 2 );
   is( $iter->elems, 500000, 'Lazy List elems' );
 
   # not implemented
   # is( $iter->kv->elems, 1000000, 'Lazy List elems doubles after kv()' );
 
-  my $a1 =    Perl6::Container::Array->from_list( 'z', $iter );
+  my $a1 =    Pugs::Runtime::Container::Array->from_list( 'z', $iter );
   is( $a1->elems, 500001, 'Lazy Array elems' );
 }

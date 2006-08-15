@@ -6,11 +6,11 @@ use warnings;
 use Test::More;
 plan tests => 27;
 
-use Perl6::Container::Scalar;
-use Perl6::Value;
+use Pugs::Runtime::Container::Scalar;
+use Pugs::Runtime::Value;
 
 can_ok('Scalar', 'new');
-ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
+ok(Scalar->isa('Pugs::Runtime::Object'), '... Scalar isa Pugs::Runtime::Object');
 
 {
     my $n = Scalar->new;
@@ -56,7 +56,7 @@ ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
     # warn 'class ident '. $class->identifier;
     # XXX is($n->ref->name, 'Num', '... get the class name');
 
-    # warn $n->ref;  # Perl6::Class=HASH(0x8269888)
+    # warn $n->ref;  # Pugs::Runtime::Class=HASH(0x8269888)
 
     # warn $n->ref->id;
     # warn $n->ref->identifier;

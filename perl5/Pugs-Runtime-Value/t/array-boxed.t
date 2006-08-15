@@ -5,11 +5,11 @@ use strict;
 use Test::More;
 plan tests => 63;
 
-use Perl6::Container::Array; 
-use Perl6::Value;
-use Perl6::Value::List;
+use Pugs::Runtime::Container::Array; 
+use Pugs::Runtime::Value;
+use Pugs::Runtime::Value::List;
 
-# use constant Inf => Perl6::Value::Num::Inf;
+# use constant Inf => Pugs::Runtime::Value::Num::Inf;
 
 {
   # str()
@@ -23,7 +23,7 @@ use Perl6::Value::List;
   is( $span->str->unboxed, '(1, 2, 3)', '...' );
   $span->push( 4 );
   is( $span->str->unboxed, '(1, 2, 3, 4)', '...' );
-  $span->push( List->new( '$.unboxed' => Perl6::Value::List->from_num_range( start => 0, end => Inf, step => 1  ) ) );
+  $span->push( List->new( '$.unboxed' => Pugs::Runtime::Value::List->from_num_range( start => 0, end => Inf, step => 1  ) ) );
   is( $span->str->unboxed, '(1, 2, 3 ... Inf)', '...' );
   is( $span->fetch(6)->fetch, 2, '...' );
 }
@@ -32,7 +32,7 @@ use Perl6::Value::List;
   # splice: offset > 0, length > 0
 
   my $span = Array->new();
-  $span->push( Perl6::Value::List->from_single( 1 .. 10 ) );
+  $span->push( Pugs::Runtime::Value::List->from_single( 1 .. 10 ) );
   isa_ok( $span, 'Array', 'created an Array' );
   is( $span->perl->unboxed, '(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)', '... perl()' );
 
@@ -46,7 +46,7 @@ use Perl6::Value::List;
 {
   # splice: offset > 0, length = 0
   my $span = Array->new();
-  $span->push( Perl6::Value::List->from_single( 1 .. 10 ) );
+  $span->push( Pugs::Runtime::Value::List->from_single( 1 .. 10 ) );
   my $spliced = $span->splice( 2, 0, 99 );
   is( $span->perl->unboxed, '(1, 2, 99, 3, 4, 5, 6, 7, 8, 9, 10)', '... splice: offset > 0, length = 0' );
   is( $spliced->perl->unboxed, '()', '... splice' );
@@ -55,7 +55,7 @@ use Perl6::Value::List;
 {
   # splice: offset > 0, length < 0
   my $span = Array->new();
-  $span->push( Perl6::Value::List->from_single( 1 .. 10 ) );
+  $span->push( Pugs::Runtime::Value::List->from_single( 1 .. 10 ) );
   my $spliced = $span->splice( 2, -1, 99 );
   is( $span->perl->unboxed, '(1, 2, 99, 10)', '... splice: offset > 0, length < 0' );
   is( $spliced->perl->unboxed, '(3, 4, 5, 6, 7, 8, 9)', '... splice' );
@@ -64,7 +64,7 @@ use Perl6::Value::List;
 {
   # splice: offset < 0, length > 0
   my $span = Array->new();
-  $span->push( Perl6::Value::List->from_single( 1 .. 10 ) );
+  $span->push( Pugs::Runtime::Value::List->from_single( 1 .. 10 ) );
   my $spliced = $span->splice( -2, 1, 99 );
   is( $span->perl->unboxed, '(1, 2, 3, 4, 5, 6, 7, 8, 99, 10)', '... splice: offset < 0, length > 0' );
   is( $spliced->perl->unboxed, '(9)', '... splice' );
@@ -73,7 +73,7 @@ use Perl6::Value::List;
 {
   # splice: offset < 0, length = 0
   my $span = Array->new();
-  $span->push( Perl6::Value::List->from_single( 1 .. 10 ) );
+  $span->push( Pugs::Runtime::Value::List->from_single( 1 .. 10 ) );
   my $spliced = $span->splice( -2, 0, 99 );
   is( $span->perl->unboxed, '(1, 2, 3, 4, 5, 6, 7, 8, 99, 9, 10)', '... splice: offset < 0, length = 0' );
   is( $spliced->perl->unboxed, '()', '... splice' );
@@ -82,7 +82,7 @@ use Perl6::Value::List;
 {
   # splice: offset < 0, length < 0
   my $span = Array->new();
-  $span->push( Perl6::Value::List->from_single( 1 .. 10 ) );
+  $span->push( Pugs::Runtime::Value::List->from_single( 1 .. 10 ) );
   my $spliced = $span->splice( -3, -1, 99 );
   is( $span->perl->unboxed, '(1, 2, 3, 4, 5, 6, 7, 99, 10)', '... splice: offset < 0, length < 0' );
   is( $spliced->perl->unboxed, '(8, 9)', '... splice' );
@@ -93,7 +93,7 @@ use Perl6::Value::List;
 
     my $scalar = Scalar->new();
     my $array = Array->new();
-    $array->push( Perl6::Value::List->from_single( 1 .. 2 ) );
+    $array->push( Pugs::Runtime::Value::List->from_single( 1 .. 2 ) );
     $scalar->store( $array );
 
     # use Data::Dumper;
@@ -113,7 +113,7 @@ use Perl6::Value::List;
 {
   # fetch
 
-  my $list = Perl6::Value::List->from_num_range( start => 0, end => 1000000 );
+  my $list = Pugs::Runtime::Value::List->from_num_range( start => 0, end => 1000000 );
   my $array1 = Array->new();
   $array1->push( $list );
 
@@ -135,10 +135,10 @@ use Perl6::Value::List;
   # slicing
 
   my $array = Array->new();
-  $array->push( Perl6::Value::List->from_single( 1 .. 10 ) );
+  $array->push( Pugs::Runtime::Value::List->from_single( 1 .. 10 ) );
 
   my $slice = Array->new();
-  $slice->push( Perl6::Value::List->from_single( 4, 5, 6 ) );
+  $slice->push( Pugs::Runtime::Value::List->from_single( 4, 5, 6 ) );
 
   my $sliced = $array->slice( $slice );
 
@@ -168,11 +168,11 @@ use Perl6::Value::List;
   # lazy slicing - fetch/store elements
 
   my $array = Array->new();
-  $array->push( Perl6::Value::List->from_num_range( start => 1000, end => 100_000 ) );
+  $array->push( Pugs::Runtime::Value::List->from_num_range( start => 1000, end => 100_000 ) );
 
   my $slice = Array->new();
   # TODO - lazy slice index with step!=1 should die
-  $slice->push( Perl6::Value::List->from_num_range( start => 4, end => 1_000_000 ) );
+  $slice->push( Pugs::Runtime::Value::List->from_num_range( start => 4, end => 1_000_000 ) );
 
   my $sliced = $array->slice( $slice );
 
@@ -193,11 +193,11 @@ use Perl6::Value::List;
   # lazy slicing - fetch whole slices
 
   my $array = Array->new();
-  $array->push( Perl6::Value::List->from_num_range( start => 1000, end => 100_000 ) );
+  $array->push( Pugs::Runtime::Value::List->from_num_range( start => 1000, end => 100_000 ) );
 
   my $idx = Array->new();
   $idx->push( 2 );
-  $idx->push( Perl6::Value::List->from_num_range( start => 4, end => 1_000_000 ) );
+  $idx->push( Pugs::Runtime::Value::List->from_num_range( start => 4, end => 1_000_000 ) );
   # TODO TEST - should die if a lazy slice index has step!=1 
   my $sliced = $array->slice( $idx );
 
@@ -220,16 +220,16 @@ use Perl6::Value::List;
   # lazy slicing - store to whole slices
 
   my $array = Array->new();
-  $array->push( Perl6::Value::List->from_num_range( start => 1000, end => 100_000 ) );
+  $array->push( Pugs::Runtime::Value::List->from_num_range( start => 1000, end => 100_000 ) );
 
   my $idx = Array->new();
   $idx->push( 2 );
-  $idx->push( Perl6::Value::List->from_num_range( start => 4, end => 100 ) ); 
+  $idx->push( Pugs::Runtime::Value::List->from_num_range( start => 4, end => 100 ) ); 
   my $sliced = $array->slice( $idx );
 
   # store to a lazy slice
   my $array2 = Array->new();
-  $array2->push( 99, Perl6::Value::List->from_num_range( start => 100, end => 200_000_000 ) );
+  $array2->push( 99, Pugs::Runtime::Value::List->from_num_range( start => 100, end => 200_000_000 ) );
   $sliced->store( $array2 );
 
   is( $sliced->perl(max=>3)->unboxed, 
@@ -251,7 +251,7 @@ use Perl6::Value::List;
   # lazy slicing - store to whole slices - special case, tests a new feature in splice()
 
   my $array = Array->new();
-  $array->push( Perl6::Value::List->from_num_range( start => 1000, end => 100_000 ) );
+  $array->push( Pugs::Runtime::Value::List->from_num_range( start => 1000, end => 100_000 ) );
   is( $array->perl(max=>3)->unboxed, 
       '(1000, 1001, 1002 ... 99998, 99999, 100000)', 'Array to be sliced' );
   my $array_elems = $array->elems->unboxed;
@@ -259,7 +259,7 @@ use Perl6::Value::List;
 
   my $idx = Array->new();
   $idx->push( 2 );
-  $idx->push( Perl6::Value::List->from_num_range( start => 4, end => 1_000_000 ) ); 
+  $idx->push( Pugs::Runtime::Value::List->from_num_range( start => 4, end => 1_000_000 ) ); 
     # end => 1_000_000 - was not supported before
   is( $idx->perl(max=>3)->unboxed, 
       '(2, 4, 5 ... 999998, 999999, 1000000)', '... Array with indexes' );
@@ -272,7 +272,7 @@ use Perl6::Value::List;
       
   # array that will be stored into lazy slice
   my $array2 = Array->new();
-  $array2->push( 99, Perl6::Value::List->from_num_range( start => 100, end => 200_000_000 ) );
+  $array2->push( 99, Pugs::Runtime::Value::List->from_num_range( start => 100, end => 200_000_000 ) );
   is( $array2->perl(max=>3)->unboxed, 
       '(99, 100, 101 ... 199999998, 199999999, 200000000)', '... Array to be stored into the slice' );
       
@@ -301,14 +301,14 @@ use Perl6::Value::List;
   # lazy slicing - fetch/store to whole slices
 
   my $array = Array->new();
-  $array->push( Perl6::Value::List->from_num_range( start => 1000, end => 1010 ) );
+  $array->push( Pugs::Runtime::Value::List->from_num_range( start => 1000, end => 1010 ) );
 
   my $idx1 = Array->new();
-  $idx1->push( Perl6::Value::List->from_num_range( start => 1, end => 5 ) ); 
+  $idx1->push( Pugs::Runtime::Value::List->from_num_range( start => 1, end => 5 ) ); 
   my $slice1 = $array->slice( $idx1 );
 
   my $idx2 = Array->new();
-  $idx2->push( Perl6::Value::List->from_num_range( start => 3, end => 6 ) ); 
+  $idx2->push( Pugs::Runtime::Value::List->from_num_range( start => 3, end => 6 ) ); 
   my $slice2 = $array->slice( $idx2 );
 
   $slice1->store( $slice2 );

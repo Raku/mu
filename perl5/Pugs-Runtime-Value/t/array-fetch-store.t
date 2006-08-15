@@ -5,17 +5,17 @@ use strict;
 use Test::More;
 plan tests => 13;
 
-# use_ok( 'Perl6::Container::Array' );
-use Perl6::Container::Array; 
-use Perl6::Value;
-use Perl6::Value::List;
+# use_ok( 'Pugs::Runtime::Container::Array' );
+use Pugs::Runtime::Container::Array; 
+use Pugs::Runtime::Value;
+use Pugs::Runtime::Value::List;
 
-use constant Inf => Perl6::Value::Num::Inf;
+use constant Inf => Pugs::Runtime::Value::Num::Inf;
 
 {
   # fetch/store
-  my $a1 = Perl6::Container::Array->from_list(
-        Perl6::Value::List->from_range( start => 'a', end => Inf, step => undef ) );
+  my $a1 = Pugs::Runtime::Container::Array->from_list(
+        Pugs::Runtime::Value::List->from_range( start => 'a', end => Inf, step => undef ) );
   is( $a1->fetch(2), 'c', 'fetch' );
   is( $a1->fetch(2), 'c', 'fetch again' );
   is( $a1->fetch(3), 'd', 'fetch' );
@@ -34,30 +34,30 @@ use constant Inf => Perl6::Value::Num::Inf;
   is( $a1->fetch(3), 'd', 'fetch' );
 
   # store a lazy list
-  $a1->store( 2, Perl6::Value::List->from_range( start => 0, end => Inf ));
+  $a1->store( 2, Pugs::Runtime::Value::List->from_range( start => 0, end => Inf ));
   is( $a1->fetch(1), 'b', 'fetch after storing a lazy list' );
 
   # not portable
-  # is( $a1->fetch(2), '<obj:Perl6::Value::List>', 'fetch' );
+  # is( $a1->fetch(2), '<obj:Pugs::Runtime::Value::List>', 'fetch' );
 
   is( $a1->fetch(3), 'd', 'fetch' );
 }
 
 {
   # fetch/store x shift/pop
-  my $a1 = Perl6::Container::Array->from_list(
-        Perl6::Value::List->from_range( start => 'a', end => Inf ) );
+  my $a1 = Pugs::Runtime::Container::Array->from_list(
+        Pugs::Runtime::Value::List->from_range( start => 'a', end => Inf ) );
   # store a lazy list
-  $a1->store( 0, Perl6::Value::List->from_range( start => 0, end => Inf ));
+  $a1->store( 0, Pugs::Runtime::Value::List->from_range( start => 0, end => Inf ));
 
   # not portable
-  # is( $a1->fetch(0), '<obj:Perl6::Value::List>', 'fetch lazy list' );
-  # is( $a1->shift,    '<obj:Perl6::Value::List>', 'shift lazy list' );
+  # is( $a1->fetch(0), '<obj:Pugs::Runtime::Value::List>', 'fetch lazy list' );
+  # is( $a1->shift,    '<obj:Pugs::Runtime::Value::List>', 'shift lazy list' );
 }
 
 {
   # removed -- lazy slice
-  # my $a1 = Perl6::Container::Array->from_list(
+  # my $a1 = Pugs::Runtime::Container::Array->from_list(
   #      Lazy::Range->from_list( start => 'a', end => Inf, step => undef ) );
   #
   # my $indexes = Lazy::Range->from_list( start => 2, end => Inf, step => 2 );

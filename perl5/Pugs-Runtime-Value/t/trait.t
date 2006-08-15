@@ -6,8 +6,8 @@ use warnings;
 use Test::More;
 plan tests => 4;
 
-use Perl6::Container::Scalar;
-use Perl6::Value;
+use Pugs::Runtime::Container::Scalar;
+use Pugs::Runtime::Value;
 
 role Mytrait => {
     methods => {
