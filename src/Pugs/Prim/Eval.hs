@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
 module Pugs.Prim.Eval (
     -- used by Pugs.Prim
     op1EvalHaskell, op1EvalP6Y,

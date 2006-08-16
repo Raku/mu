@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp -fallow-overlapping-instances #-}
 
 module Pugs.Eval.Var (
     findVar, findVarRef,

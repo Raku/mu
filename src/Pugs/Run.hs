@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-full-laziness -fno-cse -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-full-laziness -fno-cse -cpp -fallow-overlapping-instances #-}
 
 
 {-|

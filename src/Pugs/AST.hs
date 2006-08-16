@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -funbox-strict-fields #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -funbox-strict-fields -fallow-overlapping-instances #-}
 
 {-|
     Abstract syntax tree.
@@ -312,7 +312,7 @@ isPrim tv = do
 filterUserDefinedPad :: Pad -> Pad
 filterUserDefinedPad (MkPad pad) = MkPad $ Map.filterWithKey doFilter pad
     where
-    doFilter key _ = key `Set.notMember` _reserved
+    doFilter key _ = (not . Set.member key) _reserved
 
 _reserved :: Set Var
 _reserved = Set.fromList . cast . words $

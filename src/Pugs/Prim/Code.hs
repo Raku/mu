@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
 module Pugs.Prim.Code (
     op1CodeAssoc, op1CodeName, op1CodeArity, op1CodeBody, op1CodePos,
 ) where

@@ -161,15 +161,15 @@ import qualified Foreign as Foreign
 -- Also, it must work for all values of type "b".
 -- 
 class ((:>:) a) b where
-    {-# SPECIALISE INLINE cast :: ID -> ID #-}
-    {-# SPECIALISE INLINE cast :: ByteString -> ByteString #-}
-    {-# SPECIALISE INLINE cast :: String -> String #-}
-    {-# SPECIALISE INLINE cast :: ByteString -> ByteString #-}
-    {-# SPECIALISE INLINE cast :: String -> String #-}
-    {-# SPECIALISE INLINE cast :: ID -> ByteString #-}
-    {-# SPECIALISE INLINE cast :: ID -> String #-}
-    {-# SPECIALISE INLINE cast :: ByteString -> ID #-}
-    {-# SPECIALISE INLINE cast :: String -> ID #-}
+    {-# SPECIALISE cast :: ID -> ID #-}
+    {-# SPECIALISE cast :: ByteString -> ByteString #-}
+    {-# SPECIALISE cast :: String -> String #-}
+    {-# SPECIALISE cast :: ByteString -> ByteString #-}
+    {-# SPECIALISE cast :: String -> String #-}
+    {-# SPECIALISE cast :: ID -> ByteString #-}
+    {-# SPECIALISE cast :: ID -> String #-}
+    {-# SPECIALISE cast :: ByteString -> ID #-}
+    {-# SPECIALISE cast :: String -> ID #-}
     cast :: b -> a
 
 class ((:<:) a) b where

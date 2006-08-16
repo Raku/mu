@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -cpp -fglasgow-exts -funbox-strict-fields -fno-full-laziness -fno-cse #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts -funbox-strict-fields -fno-full-laziness -fno-cse -fallow-overlapping-instances #-}
 
 module Pugs.Parser.Operator where
 import Pugs.Internals
@@ -183,7 +183,7 @@ currentTightFunctions = do
         optionary = map v_name optionary'
         (optionary', unary') = mapPair (map snd) . partition fst . sort $
             [ (isOptional param, var) | (var, _, [param]) <- unary
-            , v_name var `Set.notMember` restNames
+            , not (v_name var `Set.member` restNames)
             ]
         (namedUnary, preUnary, postUnary) = foldr splitUnary ([],[],[]) unary'
         splitUnary MkVar{ v_categ = C_prefix, v_name = name } (n, pre, post)
