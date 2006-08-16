@@ -444,6 +444,10 @@ sub default {
             return ' undef ';
         }
 
+        if ( $n->{sub}{bareword} eq 'hash' ) {
+            return ' %{{ ' . _emit( $n->{param} ) . ' }} ';
+        }
+
         if ( $n->{sub}{bareword} eq 'use' ) {
             # use v6-alpha
             if ( exists $n->{param}{cpan_bareword} ) {
@@ -1006,6 +1010,7 @@ sub infix {
                     && $exp2->{'fixity'} eq 'circumfix'
                     && $exp2->{'op1'}{'op'} eq '(';
             #print "{'='}: set hash ",Dumper($exp2);
+            # Note - the AST is changed in-place here
             if ( exists $exp2->{'list'} ) {
                 $exp2->{'list'} = [
                     map {
@@ -1219,7 +1224,10 @@ sub prefix {
             Pugs::Runtime::Common::mangle_var( '$!' ) . " = \$@; \@__ret }";
     }
     if ( $n->{op1}{op} eq '~' ) {
-        return ' "'._emit( $n->{exp1}).'"' if $n->{exp1}{array};
+        return ' Pugs::Runtime::Perl6::Hash::str( \\' . _emit( $n->{exp1} ) . ' ) '
+            if $n->{exp1}{hash};
+        return ' "' . _emit( $n->{exp1} ) . '"' 
+            if $n->{exp1}{array};
         return ' "" . ' . _emit( $n->{exp1} );
     }
     if ( $n->{op1}{op} eq '!' ) {

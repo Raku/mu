@@ -120,7 +120,7 @@ sub defined { CORE::defined(@_) }
 
 sub ref : method {
     # XXX: should use Data::Bind callconv
-    print "ref: ", Data::Dumper::Dumper( @_ );
+    #print "ref: ", Data::Dumper::Dumper( @_ );
     my $self = $_[0];
     my $ref = CORE::ref(@_);
     
@@ -154,7 +154,7 @@ sub isa {
 sub eval { 
     my $s = ${$_[0]};
     #warn "eval $s\n";
-    Pugs::Runtime::Perl6::eval( [ \$s, \'perl6' ], {} ) 
+    Pugs::Runtime::Perl6::eval( [ \$s, \'perl6' ], {} )     # '
 }
 
 sub sort { 
@@ -182,6 +182,17 @@ sub map {
 }
 
 Data::Bind->sub_signature(\&map, { var => '$code', type => 'Code' }, { var => '@array'} );
+
+package Pugs::Runtime::Perl6::Hash;
+
+sub str {
+    join( "\n",
+        map {
+            $_ . "\t" . $_[0]{$_}
+        }
+        keys %{$_[0]}
+    );
+}
 
 1;
 
