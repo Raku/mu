@@ -65,6 +65,7 @@ my $x = m/perl5/ ? 1 : 0;
 
 use Pugs::Compiler::Rule;
 use Pugs::Runtime::Match::Ratchet;
+use base 'Pugs::Grammar::Base';
 
 sub match {
     my ($target, $pattern) = @_;
