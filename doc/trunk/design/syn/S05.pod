@@ -14,14 +14,19 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 2 Aug 2006
+   Last Modified: 16 Aug 2006
    Number: 5
-   Version: 31
+   Version: 32
 
 This document summarizes Apocalypse 5, which is about the new regex
-syntax.  We now try to call them I<regex> because they haven't been
-regular expressions for a long time.  When referring to their use in
-a grammar, the term I<rule> is preferred.
+syntax.  We now try to call them I<regex> rather than "regular
+expressions" because they haven't been regular expressions for a
+long time, and we think the popular term "regex" is in the process of
+becoming a technical term with a precise meaning of: "something you do
+pattern matching with, kinda like a regular expression".
+
+In any case, when referring to recursive patterns within a grammar,
+the terms I<rule> and I<token> are generally preferred.
 
 =head1 New match result and capture variables
 
