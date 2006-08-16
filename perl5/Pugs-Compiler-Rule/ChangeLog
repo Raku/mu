@@ -1,6 +1,9 @@
+0.15  2006-08-16
+
 - stringification is handled by the 'return object', if it exists.
 - fixed '..' in char classes
 - ':' is ignored inside tokens
+- updated the identifier list in Common.pm
 
 0.11 to 0.14  2006-08-09
 
