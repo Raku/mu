@@ -126,7 +126,7 @@ print @warn;
 
 print << ".";
 *** Enter '$Config{make}' to build Pugs.  If compilation is too slow,
-    consider using '$Config{make} unoptimized' instead.
+    consider using '$Config{make} fast' instead.
 
 .
 
@@ -602,6 +602,8 @@ optimised :: optimized
 
 optimized :: pugs_requirements
 	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_pkg $ghc_version $setup --make -O $threaded $ghc_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+
+fast :: unoptimized
 
 unoptimised :: unoptimized
 
