@@ -101,9 +101,9 @@ sub build {
             system("make clean");
             system("make");
             mkdir("../../installed") if !-d "../../installed";
-            copy('src/obj/.libs/libJudy.a', '../../installed');
-            copy('src/obj/.libs/libJudy.a', '../../HsJudy');
         }
+        copy('src/obj/.libs/libJudy.a', '../../installed') unless -e '../../installed/libJudy.a';
+        copy('src/obj/.libs/libJudy.a', '../../HsJudy') unless -e '../../HsJudy/libJudy.a';
     }
 
     chdir "../../..";
