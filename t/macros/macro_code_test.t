@@ -88,9 +88,8 @@ More complex restructuring of the input AST would require walking
 the AST (or munging the string).  Nothing spec'd for that yet.
 We would likw to ensure only valid ASTs can be produced.
 
-Perl's rules may be able to scan the tree with 
-L<S05/"Matching against non-strings"> and just s:g///
-to produce the output ast.  
+Perl's rules may be able to scan the tree with L<S05/"Matching against non-strings">
+and just s:g/// to produce the output ast.  
 
 If a tree grammar tool reaches the Perl 6 user space then that can be used
 

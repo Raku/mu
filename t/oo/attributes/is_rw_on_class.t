@@ -4,7 +4,7 @@ use Test;
 
 plan 3;
 
-# L<S12/"Attributes" /If you declare the class as/>;
+# L<S12/"Attributes" /If you declare the class as/>
 
 class Foo {
     has $.readonly_attr;

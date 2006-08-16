@@ -18,11 +18,13 @@ sub approx(Num $a, Num $b) {
 # See also: L<"http://theory.cs.iitm.ernet.in/~arvindn/pi/"> :)
 my $PI = 3.14159265358979323846264338327950288419716939937510;
 
-# L<S29/"Math::Trig" /"pi"/> -- pi
+# L<S29/"Math::Trig" /"pi"/>
+# -- pi
 ok(approx(pi, $PI), "pi()");
 ok(approx(pi + 3, $PI + 3), "'pi() + 3' may drop its parentheses before +3");
 
-# L<S29/"Math::Trig" /"atan"/> -- atan
+# L<S29/"Math::Trig" /"atan"/>
+# -- atan
 # The basic form of atan (one argument) returns a value in ]-pi, pi[.
 # Quadrants I, III
 ok(approx(atan(1)           / $PI * 180, 45));
@@ -56,7 +58,8 @@ ok(approx(atan(-1, 1)           / $PI * 180 + 360, 315));
 ok(approx(atan(-1, sqrt(3))     / $PI * 180 + 360, 330));
 ok(approx(atan(-1, 1/3*sqrt(3)) / $PI * 180 + 360, 300));
 
-# L<S29/"Math::Trig"> -- sin, cos, tan
+# L<S29/"Math::Trig">
+# -- sin, cos, tan
 # sin
 ok(approx(sin(0/4*$PI), 0));
 ok(approx(sin(1/4*$PI), 1/2*sqrt(2)));

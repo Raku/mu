@@ -8,8 +8,6 @@ This tests the &?BLOCK magical from Synoposis 6
 
 L<S06/"The &?BLOCK routine">
 
-L<S06
-
 =cut
 
 plan 1;
