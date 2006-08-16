@@ -20,7 +20,7 @@ works (but has not been widely tested). (The makefile is actually just an alias 
 
 
 The compiled version (let's call it 'translate') is used like so:
-  $./translate [-Oo -V -U -R -N] inFile outFile
+  $./translate [-Oo -V -U -R -N -S] inFile outFile
 the switches are optional, and have these effects:
 
 -Oo: Heavy object orientation. If there's an available (but optional) Oo translation it does it, such 
@@ -33,6 +33,8 @@ as translating close($fh) to $fh.close.
 -R: Minimal regex changes. The translator will  not attempt to translate the Regex from Perl 5 syntax to Perl 6. It will instead apply the :Perl5 modifer to the regex and move the re mods (/g, /i, etc.) to the start (:g, :i, etc.). The only internal changes made are explicitly aliasing the captures, so surrounding code will never know the difference.
 
 -N: No translation. The translator just parses the yaml file back into a perl 5 file. No other options matter with -N.
+
+-S: Just turn off strict instead of trying to declare all variables properly.
 
 Translations may run _slightly_ faster without the -Oo switch. Translations will almost _always_ take longer with -V (printing to STDOUT often takes longer then a full run, for large numbers of nodes). -U and -R should have little to no effect on speed (but if the AST contains unknown nodes with -U, the resulting code will be invlaid).
 
@@ -591,6 +593,7 @@ conditionalExpression (Heredoc start end kids) = (Heredoc start end kids)
 arrayKey :: P5AST -> P5AST
 arrayKey (AbstractNode Op_aelem kids) = if (isIn (AbstractNode Op_rv2av []) kids) then (AbstractNode Op_aelem (map arrayKeyChanges kids))
                                            else (AbstractNode Op_aelem (map arrayKey kids))
+arrayKey (LiteralNode Sigil enc uni) = if ('[' `elem` uni) then (scalarSigilToArraySigil (LiteralNode Sigil enc uni)) else (LiteralNode Sigil enc uni)
 arrayKey (AbstractNode atype kids) = (AbstractNode atype (map arrayKey kids))
 arrayKey (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 arrayKey (Heredoc start end kids) = (Heredoc start end (map arrayKey kids))
@@ -618,6 +621,10 @@ hashKey (AbstractNode Op_helem kids) = if (isInOrder [(AbstractNode Op_rv2hv [])
                                               if (isInOrder [(AbstractNode Op_rv2hv []), (LiteralNode Opener "1" "{"), (LiteralNode Closer "1" "}")] kids)
                                                 then (AbstractNode Op_helem (map hashChanges kids)) 
                                                 else (AbstractNode Op_helem (map hashKey kids)) 
+hashKey (LiteralNode Sigil enc uni) = case [('{' `elem` uni), (and [((head uni)=='$'), ((head (tail uni))=='{'), ((head (drop 2 uni))=='^')])] of
+                                                         [True, True]  -> (LiteralNode Sigil enc ("$*"++(drop 3 (reverse (tail (reverse uni))))))
+							 [True, False] -> (LiteralNode Sigil enc ('%':(tail uni)))
+							 _                 -> (LiteralNode Sigil enc uni)
 hashKey (AbstractNode atype kids) = (AbstractNode atype (map hashKey kids))
 hashKey (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 hashKey (Heredoc start end kids) = (Heredoc start end (map hashKey kids))
