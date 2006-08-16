@@ -56,11 +56,19 @@ import System(getArgs)
 --Wrapper function to apply all translations in order
 --It's pretty ugly, which is why there's a need for a wrapper function
 translate :: P5AST -> String -> P5AST
-translate tree options = if ('n' `elem` options) then (tree) else case [('o' `elem` options), ('r' `elem` options)] of
-                               [True, False]   ->  (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))))))
-                               [True, True]  ->  (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (easyRegex (changeVarsInQuotes  (scalarTranslate (regexOnce (hereDocTranslate (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))))
-                               [False, False]  -> (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))
-                               [False, True] -> (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (easyRegex (regexOnce (scalarTranslate (hereDocTranslate (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))
+translate tree options = if ('n' `elem` options) then (tree) else case [('o' `elem` options), ('r' `elem` options), ('s' `elem` options)] of
+                               [True, False, False]   ->  (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))))))
+                               [True, True, False]  ->  (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (easyRegex (changeVarsInQuotes  (scalarTranslate (regexOnce (hereDocTranslate (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))))
+                               [False, False, False]  -> (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))
+                               [False, True, False] -> (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (easyRegex (regexOnce (scalarTranslate (hereDocTranslate (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))
+                               [True, False, True]   ->  (noStrict (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))))))
+                               [True, True, True]  ->  (noStrict (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (easyRegex (changeVarsInQuotes  (scalarTranslate (regexOnce (hereDocTranslate (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))))))
+                               [False, False, True]  -> (noStrict (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))))
+                               [False, True, True] -> (noStrict (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (easyRegex (regexOnce (scalarTranslate (hereDocTranslate (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))
+
+--Add 'no strict' to make it easier to translate
+noStrict :: P5AST -> P5AST
+noStrict (AbstractNode atype kids) = (AbstractNode atype (((head (extractKids (head kids))):(AbstractNode Use [(LiteralNode Junk "" "\n"),(LiteralNode Operator "" "no"), (AbstractNode Op_const [(LiteralNode Junk "" " "), (LiteralNode Token "" "strict"), (LiteralNode Junk "" "\n")])]):(tail (extractKids (head kids))))))
 
 --Find any instance of print or printf that prints to a file and add a colon
 filePrintChange :: P5AST -> P5AST
@@ -668,11 +676,15 @@ mainParse inName outName options= do
     let ast = case (result) of
             Left err -> error $ "\nError:\n" ++ show err
             Right result -> result
-    if ('n' `elem` options) then (putStrLn "Not Translating...")  else case [('o' `elem` options), ('r' `elem` options)] of 
-            [True, True]   -> putStrLn ("Translating with the heavy object oriented option and limited regex support...")
-            [True, False]  -> putStrLn ("Translating with the heavy object oriented option...")
-            [False, True]  -> putStrLn ("Translating with limited regex support...")
-            [False, False] -> putStrLn ("Translating...")
+    if ('n' `elem` options) then (putStrLn "Not Translating...")  else case [('o' `elem` options), ('r' `elem` options), ('s' `elem` options)] of 
+            [True, True, False]   -> putStrLn ("Translating with the heavy object oriented option and limited regex support...")
+            [True, False, False]  -> putStrLn ("Translating with the heavy object oriented option...")
+            [False, True, False]  -> putStrLn ("Translating with limited regex support...")
+            [False, False, False] -> putStrLn ("Translating...")
+            [True, True, True]    -> putStrLn ("Translating with the heavy object oriented option and limited regex support and no strict...")
+            [True, False, True]   -> putStrLn ("Translating with the heavy object oriented option and no strict...")
+            [False, True, True]   -> putStrLn ("Translating with limited regex support and no strict...")
+            [False, False, True]  -> putStrLn ("Translating with no strict...")
     let tree = (translate (AbstractNode P5AST ast) options)
     outHandle   <- openFile outName WriteMode
     case [('v' `elem` options),('u' `elem` options)] of
@@ -703,6 +715,7 @@ getModifiers args = case (head args) of
                          "-U"     ->  ('u':(getModifiers (drop 1 args)))
                          "-R"     ->  ('r':(getModifiers (drop 1 args)))
                          "-N"     ->  ('n':(getModifiers (drop 1 args)))
+                         "-S"     ->  ('s':(getModifiers (drop 1 args)))
                          _        ->  (' ':(getModifiers (drop 1 args)))
 
 --getFirstFile (oddly enough) gets the first file (which will be the second to last argument). 
