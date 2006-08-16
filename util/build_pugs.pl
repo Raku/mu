@@ -90,6 +90,7 @@ sub build {
         die "Cannot find hsc2hs path" unless $new_runcompiler;
         warn "GHC installation path: $ghc_inst_path\n";
         warn "GHC bin path: $ghc_bin_path\n";
+        warn "Runcompile: $runcompiler\n";
     }
 
     # Judy library
