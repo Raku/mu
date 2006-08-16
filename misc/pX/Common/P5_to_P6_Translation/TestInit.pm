@@ -13,15 +13,18 @@
 # P.S. This documentation is not in POD format in order to avoid
 # problems when there are fundamental bugs in perl.
 
+
 package TestInit;
 
-$VERSION = 1.01;
+my $VERSION = 1.01;
 
 chdir 't' if -d 't';
-@INC = '../lib';
+my @INC = '../lib';
 
+my %ENV;
 # Don't interfere with the taintedness of %ENV, this could perturbate tests
-$ENV{PERL_CORE} = 1 unless ${^TAINT};
+%ENV<PERL_CORE> = 1 unless %{1};
 
-$0 ~~ s/\.dp$//; # for the test.deparse make target\n1;
+$0 ~~ s/\.dp$//; # for the test.deparse make target
+1;
 
