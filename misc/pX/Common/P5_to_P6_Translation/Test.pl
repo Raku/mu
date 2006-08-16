@@ -29,7 +29,16 @@ foreach $file (@allfiles){
     $command = "ghc-6.4.1 -e \"Main.mainParse \\\"".$file."\\\" \\\"".$file.".out\\\" \\\"ou\\\"\" ".$path."ASTTranslate-sage.hs ".$path."ASTDefinition.hs ".$path."ASTUtil.hs ".$path."ASTParser.hs";
   }
   $res = `$command`;
-  if($res =~ /Error/){
+  if(($res =~ /UnknownAbs/) | ($res =~ /UnknownLit/)){
+    print "$file looks fine, but has unknown nodes.\n";
+    $unknown = $unknown + 1;
+    print DETAIL "$res\n";
+    print UNKNOWN "$res\n";
+  }elsif($res =~ /Finished/){
+    print "$file looks fine.\n";
+    $fine = $fine + 1;
+    print DETAIL "$res\n";
+  }elsif($res =~ /Error/){
     print "***Parse error in $file***\n";
     $parses = $parses + 1;
     print DETAIL "$res\n";
@@ -37,13 +46,10 @@ foreach $file (@allfiles){
     print "***Exception in $file***\n";
     $errors = $errors + 1;
     print DETAIL "$res\n";
-  }elsif(($res =~ /UnknownAbs/) | ($res =~ /UnknownLit/)){
-    print "$file looks fine, but has unknown nodes.\n";
-    $unknown = $unknown + 1;
-    print UNKNOWN "$res\n";
   }else{
-    print "$file looks fine.\n";
-    $fine = $fine + 1;
+    print "***Parse error in $file***\n";
+    $parses = $parses + 1;
+    print DETAIL "$res\n";
   }
 }
 
