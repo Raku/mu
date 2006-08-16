@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fth -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -fth -cpp -fallow-overlapping-instances #-}
 
 module Pugs.Compile.Haskell (
     genGHC,
