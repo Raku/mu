@@ -96,22 +96,19 @@ runWarn msg = do
         App (_Var "&warn") Nothing [Val (VStr msg)]
     return ()
 
-debug :: Pretty a => ID -> (String -> String) -> String -> a -> Eval ()
-debug key fun str a = do
-    rv <- asks envDebug
-    case rv of
-        Nothing -> do
-            -- trace ("***" ++ str ++ encodeUTF8 (pretty a)) return ()
-            return ()
-        Just ref -> do
-            val <- liftSTM $ do
-                fm <- readTVar ref
-                let val = fun $ Map.findWithDefault "" key fm
-                writeTVar ref (Map.insert key val fm)
-                return val
-            when (length val > 100) $ do
-                trace "*** Warning: deep recursion" return ()
-            trace ("***" ++ val ++ str ++ encodeUTF8 (pretty a)) return ()
+type DebugCache = TVar (Map ID String)
+
+{-# SPECIALIZE debug :: DebugCache -> ID -> (String -> String) -> String -> String -> Eval () #-}
+debug :: Pretty a => DebugCache -> ID -> (String -> String) -> String -> a -> Eval ()
+debug ref key fun str a = do
+    val <- liftSTM $ do
+        fm <- readTVar ref
+        let val = fun $ Map.findWithDefault "" key fm
+        writeTVar ref (Map.insert key val fm)
+        return val
+    when (length val > 100) $ do
+        trace "*** Warning: deep recursion" return ()
+    trace ("***" ++ val ++ str ++ encodeUTF8 (pretty a)) return ()
 
 evaluateMain :: Exp -> Eval Val
 evaluateMain exp = do
@@ -138,11 +135,17 @@ evaluate :: Exp -- ^ The expression to evaluate
          -> Eval Val
 evaluate (Val val) = evalVal val
 evaluate exp = do
-    want <- asks envWant
-    debug (cast "indent") ('-':) (" Evl [" ++ want ++ "]:\n") exp
-    val <- local (\e -> e{ envBody = exp }) $ reduce exp
-    debug (cast "indent") (tail) "- Ret: " val
-    trapVal val (return val)
+    debugRef <- asks envDebug
+    case debugRef of
+        Just ref -> do
+            want <- asks envWant
+            debug ref (cast "indent") ('-':) (" Evl [" ++ want ++ "]:\n") exp
+            val <- local (\e -> e{ envBody = exp }) $ reduce exp
+            debug ref (cast "indent") (tail) "- Ret: " val
+            trapVal val (return val)
+        Nothing -> do
+            val <- local (\e -> e{ envBody = exp }) (reduce exp)
+            trapVal val (return val)
 
 -- Reduction ---------------------------------------------------------------
 
