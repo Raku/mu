@@ -102,6 +102,11 @@ t/oo/class/inherit_from_role.t
 t/oo/class/inheritance.t
 t/oo/class/literal.t
 t/oo/class/nested_use.t
+# test modules for nested_use.t
+t/oo/class/TestFiles/Bar.pm
+t/oo/class/TestFiles/FooBar.pm
+t/oo/class/TestFiles/Foo.pm
+
 t/oo/enums.t
 t/oo/global_destruction.t
 t/oo/positional_parameters_in_BUILD.t

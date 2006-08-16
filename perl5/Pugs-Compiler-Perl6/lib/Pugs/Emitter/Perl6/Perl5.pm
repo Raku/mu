@@ -353,15 +353,16 @@ sub _emit_parameter_capture {
 sub runtime_method {
     my $n = $_[0];
     # runtime decision - method or lib call
-    my $tmp = '@_V6_TMP';
+    my $tmp = '_V6_TMP';
     return 
-        "do { my $tmp = " . _emit( $n->{self} ) . "; " .
-        "( $tmp == 1 && Scalar::Util::blessed " . $tmp . "[0] ? " .
-          $tmp . "[0]->" . 
+        "do { my \@" . $tmp . " = " . _emit( $n->{self} ) . "; " .
+        "( \@" . $tmp . " == 1 && Scalar::Util::blessed \$" . $tmp . "[0] " .
+        " ? " .
+          "\$" . $tmp . "[0]->" . 
           _emit( $n->{method} ) . "(" . _emit( $n->{param} ) . ")" .
         " : " .
           " Pugs::Runtime::Perl6::Scalar::" . _emit( $n->{method}, '  ' ) . 
-          "( $tmp, " . _emit( $n->{param} ) . ")" .
+          "( \@" . $tmp . ", " . _emit( $n->{param} ) . ")" .
         " ) }";
 }
 
@@ -448,7 +449,9 @@ sub default {
             return ' %{{ ' . _emit( $n->{param} ) . ' }} ';
         }
 
-        if ( $n->{sub}{bareword} eq 'use' ) {
+        if (  $n->{sub}{bareword} eq 'use' 
+           || $n->{sub}{bareword} eq 'require'
+           ) {
             # use v6-alpha
             if ( exists $n->{param}{cpan_bareword} ) {
                 if ( $n->{param}{cpan_bareword} =~ /^v6-/ ) {
