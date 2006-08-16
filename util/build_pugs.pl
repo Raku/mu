@@ -177,7 +177,7 @@ sub build {
 
     # Embedding Judy object files in HsJudy
     my ($archive_dir) = glob("third-party/installed/*/HsJudy-*");
-    my ($archive_file) = (
+    my @archive_files = (
         glob("$archive_dir/*.a"),
         glob("$archive_dir/*/*.a"),
         glob("$archive_dir/*/*/*.a"),
@@ -194,7 +194,7 @@ sub build {
         if (!$ar) { $ar = $ghc; $ar =~ s{(.*)ghc}{$1ar}; }
     }
 
-    system($ar, "-r", $archive_file, @o_files);
+    system($ar, "-r", $_, @o_files) for @archive_files;
   
 
 
@@ -208,6 +208,11 @@ sub build {
     $run_setup->('install');
 
     build_exe($version, $ghc, $ghc_version, @args);
+
+    if ($want_profiling) {
+        $want_profiling = 0;
+        build_exe($version, $ghc, $ghc_version, @args);
+    }
 
     my $pm = "src/perl6/Prelude.pm";
     my $ppc_hs = "src/Pugs/Prelude.hs";
@@ -346,7 +351,10 @@ sub build_exe {
     push @libs, grep /^-auto/, @_;
 
     # XXX - Hack to work around Cabal's semibroken profiling lib support!
+    my $out = "pugs$Config{_exe}";
+
     if ($want_profiling) {
+        $out = "pugs-prof$Config{_exe}";
         push @libs, '-prof';
         push @pkgs, glob('third-party/HsSyck/dist/build/syck/*.o'), qw( dist/build/src/pcre/pcre.o third-party/HsJudy/dist/build/Judy/Private_hsc.o )
     }
@@ -356,7 +364,7 @@ sub build_exe {
 
     push @pkgs, "-package" => "Pugs"; #-$version";
 
-    @_ = (@pkgs, qw(-optl-Lthird-party/installed -o pugs src/Main.hs), @libs);
+    @_ = (@pkgs, qw(-optl-Lthird-party/installed -o ), $out, qw( src/Main.hs ), @libs);
     #@_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -o pugs src/Main.hs), @libs);
     print "*** Building: ", join(' ', $ghc, @_), $/;
     system $ghc, @_;
