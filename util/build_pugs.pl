@@ -95,6 +95,7 @@ sub build {
 
     # Judy library
     chdir "third-party/judy/Judy-1.0.3";
+    copy('src/Judy.h', '../../HsJudy');
 
     if ($^O eq 'MSWin32') {
         chdir 'src';
@@ -111,17 +112,17 @@ sub build {
             die "Oops! Failed to build libJudy.a...\n";
         }
         chdir '..';
-        mkdir("../../installed") if !-d "../../installed";
-        copy('src/libJudy.a', '../../installed');
+        #mkdir("../../installed") if !-d "../../installed";
+        #copy('src/libJudy.a', '../../installed');
     } else {
         if (!-e "src/obj/.libs/libJudy.a") {
             system("./configure") unless -e "config.status";
             system("make clean");
             system("make");
-            mkdir("../../installed") if !-d "../../installed";
+            #mkdir("../../installed") if !-d "../../installed";
         }
-        copy('src/obj/.libs/libJudy.a', '../../installed') unless -e '../../installed/libJudy.a';
-        copy('src/obj/.libs/libJudy.a', '../../HsJudy') unless -e '../../HsJudy/libJudy.a';
+        #copy('src/obj/.libs/libJudy.a', '../../installed') unless -e '../../installed/libJudy.a';
+        #copy('src/obj/.libs/libJudy.a', '../../HsJudy') unless -e '../../HsJudy/libJudy.a';
     }
 
     chdir "../../..";
@@ -181,6 +182,29 @@ sub build {
             system($ar, s => $a_file) unless $^O eq 'MSWin32';
         }
     }
+
+
+    # Embedding Judy object files in HsJudy
+    my ($archive_dir) = glob("third-party/installed/*/HsJudy-*");
+    my ($archive_file) = (
+        glob("$archive_dir/*.a"),
+        glob("$archive_dir/*/*.a"),
+        glob("$archive_dir/*/*/*.a"),
+    );
+    
+    my @o_files = map { glob("third-party/judy/Judy-1.0.3/src/$_/*.o"), }
+                        qw( Judy1 JudyHS JudyCommon JudyL JudySL );
+
+    my $ar;
+    if ($^O eq 'MSWin32') {
+        $ar = "$ghc_inst_path\\bin\\ar";
+    } else {
+        $ar = $Config{full_ar};
+        if (!$ar) { $ar = $ghc; $ar =~ s{(.*)ghc}{$1ar}; }
+    }
+
+    system($ar, "-r", $archive_file, @o_files);
+  
 
 
     print "*** Finished building dependencies.\n\n";

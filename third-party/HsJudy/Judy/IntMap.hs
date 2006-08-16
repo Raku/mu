@@ -1,5 +1,7 @@
 {-# OPTIONS -fallow-undecidable-instances -fallow-incoherent-instances #-}
 
+{-# INCLUDE "Judy.h" #-}
+
 module Judy.IntMap (
     IntMap (..),
     swapMaps, freeze,

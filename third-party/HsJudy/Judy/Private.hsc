@@ -12,6 +12,8 @@ import GHC.Exts
 import Foreign.C.Types
 import Foreign.C.String
 
+{-# INCLUDE "Judy.h" #-}
+
 #include <Judy.h>
 #include <stdlib.h>
 

@@ -1,3 +1,6 @@
+
+{-# INCLUDE "Judy.h" #-}
+
 module Judy.MiniGC (
     judyGC, newRef, freeRef
 ) where
