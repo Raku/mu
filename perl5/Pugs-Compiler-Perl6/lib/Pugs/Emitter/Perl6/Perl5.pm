@@ -994,20 +994,42 @@ sub infix {
     }
 
     if ( $n->{op1}{op} eq '=' ) {
-        # warn "{'='}: ", Dumper( $n );
+        # print "{'='}: ", Dumper( $n );
         if ( exists $n->{exp1}{scalar} ) {
-            #warn "set $n->{exp1}{scalar}";
+            #print "set $n->{exp1}{scalar}";
             return _var_set( $n->{exp1}{scalar} )->( _var_get( $n->{exp2} ) );
+        }
+        if ( exists $n->{exp1}{hash} ) {
+            my $exp2 = $n->{exp2};
+            $exp2 = $exp2->{exp1}
+                if     exists $exp2->{'fixity'} 
+                    && $exp2->{'fixity'} eq 'circumfix'
+                    && $exp2->{'op1'}{'op'} eq '(';
+            #print "{'='}: set hash ",Dumper($exp2);
+            if ( exists $exp2->{'list'} ) {
+                $exp2->{'list'} = [
+                    map {
+                        exists ( $_->{pair} ) 
+                        ?   ( $_->{pair}{key},
+                              $_->{pair}{value}
+                            )
+                        : $_
+                    }
+                    @{ $exp2->{'list'} }
+                ];
+            }
+            return _emit( $n->{exp1} ) . 
+                " = (" . _emit( $exp2 ) . ")";
         }
         if ( exists $n->{exp1}{op1}  && ref $n->{exp1}{op1} &&
              $n->{exp1}{op1}{op} eq 'has' ) {
-            #warn "{'='}: ", Dumper( $n );
+            #print "{'='}: ", Dumper( $n );
             # XXX - changes the AST
             push @{ $n->{exp1}{attribute} },
                  [  { bareword => 'default' }, 
                     $n->{exp2} 
                  ]; 
-            #warn "{'='}: ", Dumper( $n );
+            #print "{'='}: ", Dumper( $n );
             return _emit( $n->{exp1} );
         }
         return _emit( $n->{exp1} ) . 
@@ -1015,7 +1037,7 @@ sub infix {
     }
 
     if ( $n->{op1}{op} eq '+=' ) {
-        #warn "{'='}: ", Dumper( $n );
+        #print "{'='}: ", Dumper( $n );
         if ( exists $n->{exp1}{scalar} ) {
             #warn "set $n->{exp1}{scalar}";
             return _var_set( $n->{exp1}{scalar} )->( 
