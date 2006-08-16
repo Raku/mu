@@ -624,29 +624,48 @@ sub default {
                 return 'Pugs::Runtime::Perl6::Scalar::ref( \\'. _emit( $n->{self} ) . ')';
             }
             if ($n->{method}{dot_bareword} eq 'isa') {
-                return 'Pugs::Runtime::Perl6::Scalar::isa( \\'. _emit( $n->{self} ) . ')';
+                return 'Pugs::Runtime::Perl6::Scalar::isa( \\'. _emit( $n->{self} ) . ', ' . _emit( $n->{param} ) . ')';
             }
             return " (" . 
                 _emit( $n->{method} ) . ' ' .
                 _emit( $n->{self}   ) . ')';
         }
         
-        if (exists $n->{self}{array} ||
-            (exists $n->{self}{exp1}{assoc} && $n->{self}{exp1}{assoc} eq 'list')) {
+        if (  exists $n->{self}{array} 
+           || (  exists $n->{self}{exp1}{assoc} 
+              && $n->{self}{exp1}{assoc} eq 'list'
+              )
+           ) {
             if ($n->{method}{dot_bareword} eq 'map') {
                 my $param = $n->{param}{fixity} eq 'circumfix' ? $n->{param}{exp1} : undef;
                 my $code = $param->{bare_block} ? 'sub { '._emit($param).' }' : _emit($param);
-                return 'Pugs::Runtime::Perl6::Array::map([\('.$code.', '. _emit($n->{self}).')], {})';
+                return 'Pugs::Runtime::Perl6::Array::map([\('.$code.', '. _emit( $n->{self} ).')], {})';
             }
-            elsif ( $n->{method}{dot_bareword} eq 'delete' ||
-                    $n->{method}{dot_bareword} eq 'exists' ) {
+            if (  $n->{method}{dot_bareword} eq 'delete' 
+               || $n->{method}{dot_bareword} eq 'exists' 
+               ) {
                 my $self = _emit($n->{self});
                 $self =~ s{\@}{\$};
                 return _emit( $n->{method} ).' '.$self.'['._emit($n->{param}).']';
             }
-            else {
-                return _emit( $n->{method} ).' '.(join(',', grep { length $_} map { _emit($_) } $n->{self}, $n->{params}));
+            if ($n->{method}{dot_bareword} eq 'kv') {
+                my $array = "("._emit( $n->{self} ).")";
+                return "( map { ( \$_, ".$array."[\$_] ) } 0..".$array."-1 )"; 
             }
+            if ($n->{method}{dot_bareword} eq 'keys') {
+                my $array = "("._emit( $n->{self} ).")";
+                return "( 0..".$array."-1 )"; 
+            }
+            if ($n->{method}{dot_bareword} eq 'values') {
+                return "("._emit( $n->{self} ).")";
+            }
+            if ($n->{method}{dot_bareword} eq 'ref') {
+                return 'Pugs::Runtime::Perl6::Scalar::ref( \\'. _emit( $n->{self} ) . ')';
+            }
+            if ($n->{method}{dot_bareword} eq 'isa') {
+                return 'Pugs::Runtime::Perl6::Scalar::isa( \\'. _emit( $n->{self} ) . ', ' . _emit( $n->{param} ) . ')';
+            }
+            return _emit( $n->{method} ).' '.(join(',', grep { length $_} map { _emit($_) } $n->{self}, $n->{params}));
         }
 
         if (  exists $n->{self}{op1} 
