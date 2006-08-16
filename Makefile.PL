@@ -705,6 +705,10 @@ clean ::
 
 realclean ::
 	\@\$(RM_RF) third-party/installed
+    \@\$(RM_RF) third-party/judy/Judy-*/src/*.a
+    \@\$(RM_RF) third-party/judy/Judy-*/src/*/*.o
+    \@\$(RM_RF) third-party/judy/Judy-*/src/*/*.lo
+    \@\$(RM_RF) third-party/judy/Judy-*/src/obj/.libs/*
 @{[for_perl5("
 	-cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) realclean
 ")]}

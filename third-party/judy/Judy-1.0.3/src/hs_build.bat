@@ -206,6 +206,6 @@ rem  -OR-
 rem
 echo --- Make a Judy static library
 
-%AR_CALL%
+rem %AR_CALL%
 
 echo --- Done

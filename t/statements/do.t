@@ -19,7 +19,7 @@ plan 16;
     is $i, undef, 'the code never run';
 }
 
-# L<S04/The do-once loop/statements "prefixing with" do
+# L<S04/The do-once loop/statements "prefixing with" do>
 {
     my $x;
     my ($a, $b, $c) = 'a' .. 'c';

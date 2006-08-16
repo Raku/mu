@@ -99,21 +99,12 @@ sub build {
 
     if ($^O eq 'MSWin32') {
         chdir 'src';
-        unlink 'libJudy.a' if -f 'libJudy.a';
         $ENV{CC} = "$ghc_inst_path\\gcc";
         $ENV{COPT} = "-I$ghc_inst_path\\include\\mingw -I$ghc_inst_path\\gcc-lib\\include " .
             "-B$ghc_inst_path\\gcc-lib";
-        $ENV{AR_CALL} = "$ghc_inst_path\\bin\\ar -r libJudy.a " .
-            join(' ', map { "$_/*.o" } qw( Judy1 JudyHS JudyCommon JudyL JudySL ) );
-
-        warn "\nCC = $ENV{CC}\nCOPT = $ENV{COPT}\nAR_CALL = $ENV{AR_CALL}\n";
+        warn "\nCC = $ENV{CC}\nCOPT = $ENV{COPT}\n";
         system("hs_build.bat");
-        if (!-f 'libJudy.a') {
-            die "Oops! Failed to build libJudy.a...\n";
-        }
         chdir '..';
-        #mkdir("../../installed") if !-d "../../installed";
-        #copy('src/libJudy.a', '../../installed');
     } else {
         if (!-e "src/obj/.libs/libJudy.a") {
             system("./configure") unless -e "config.status";
