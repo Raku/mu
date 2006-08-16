@@ -107,7 +107,7 @@ instance Monad Eval where
         runEvalT (k a)
     fail str = do
         pos <- asks envPos'
-        shiftT . const . return $ errStrPos str pos
+        shiftT . const . return $ errStrPos (cast str) pos
 
 instance MonadTrans EvalT where
     lift x = EvalT x
@@ -182,6 +182,6 @@ class (MonadReader Env m, MonadCont m, MonadIO m, MonadSTM m) => MonadEval m
 --     askGlobal :: m Pad
 -}
 
-retError :: (Show a) => VStr -> a -> Eval b
+retError :: (Show a) => String -> a -> Eval b
 retError str a = fail $ str ++ ": " ++ show a
 

@@ -93,8 +93,8 @@ Perform the specified evaluation in the specified package.
 
 (Subsequent chained 'Eval's do /not/ see this package.)
 -}
-enterPackage :: String -> Eval a -> Eval a
-enterPackage pkg = local (\e -> e{ envPackage = pkg })
+enterPackage :: ByteString -> Eval a -> Eval a
+enterPackage pkg = local (\e -> e{ envPackage = cast pkg })
 
 {-|
 Enter a new environment and mark the previous one as 'Caller'.
@@ -108,7 +108,7 @@ envEnterCaller env = env
         { envLexical = MkPad (lex `Map.intersection` envImplicit env)
         }
     , envDepth = envDepth env + 1
-    , envImplicit = Map.fromList [("$_", ())]
+    , envImplicit = Map.fromList [(cast "$_", ())]
     }
     where
     MkPad lex = envLexical env
@@ -123,7 +123,7 @@ enterGiven :: VRef   -- ^ Reference to the value to topicalise
            -> Eval a -- ^ Action to perform within the new scope
            -> Eval a
 enterGiven topic action = do
-    sym <- genSym "$_" topic
+    sym <- genSym (cast "$_") topic
     enterLex [sym] action
 
 {-|
@@ -146,12 +146,12 @@ enterWhen break action = callCC $ \esc -> do
     enterLex (contRec ++ breakRec) action
     where
     continueSub esc env = mkPrim
-        { subName = "continue"
+        { subName = __"continue"
         , subParams = makeParams env
         , subBody = Prim ((esc =<<) . headVal)
         }
     breakSub env = mkPrim
-        { subName = "break"
+        { subName = __"break"
         , subParams = makeParams env
         , subBody = break
         }
@@ -191,8 +191,8 @@ genSymPrim :: (MonadSTM m)
                                     --     transformer is given to
            -> m t -- ^ Result of passing the pad-transformer to the \'action\'
 genSymPrim symName@('&':name) prim action = do
-    newSym <- genSym symName . codeRef $ mkPrim
-        { subName = name
+    newSym <- genSym (cast symName) . codeRef $ mkPrim
+        { subName = cast name
         , subBody = Prim prim
         }
     action newSym
@@ -232,7 +232,7 @@ enterBlock action = callCC $ \esc -> do
     local (\e -> e{ envOuter = Just env }) $ enterLex exitRec action
     where
     escSub esc env = mkPrim
-        { subName = "BLOCK_EXIT"
+        { subName = __"BLOCK_EXIT"
         , subParams = makeParams env
         , subBody = Prim ((esc =<<) . headVal)
         }
@@ -259,18 +259,18 @@ enterSub sub action
     fixEnv :: (Val -> Eval Val) -> Env -> Eval (Env -> Env)
     fixEnv cc env
         | typ >= SubBlock = do
-            blockRec <- genSym "&?BLOCK" (codeRef (orig sub))
+            blockRec <- genSym (cast "&?BLOCK") (codeRef (orig sub))
             return $ \e -> e
                 { envOuter = Just env
                 , envPackage = maybe (envPackage e) envPackage (subEnv sub)
                 , envLexical = combine [blockRec]
                     (subPad sub `unionPads` envLexical env)
                 , envImplicit= envImplicit e `Map.union` Map.fromList
-                    [ ("&?BLOCK", ()) ]
+                    [ (cast "&?BLOCK", ()) ]
                 }
         | otherwise = do
             subRec <- sequence
-                [ genSym "&?ROUTINE" (codeRef (orig sub))
+                [ genSym (cast "&?ROUTINE") (codeRef (orig sub))
                 ]
             -- retRec    <- genSubs env "&return" retSub
             callerRec <- genSubs env "&?CALLER_CONTINUATION" (ccSub cc)
@@ -279,19 +279,19 @@ enterSub sub action
                 , envPackage = maybe (envPackage e) envPackage (subEnv sub)
                 , envOuter   = maybe Nothing envOuter (subEnv sub)
                 , envImplicit= envImplicit e `Map.union` Map.fromList
-                    [ ("&?ROUTINE", ()), ("&?CALLER_CONTINUATION", ()) ]
+                    [ (cast "&?ROUTINE", ()), (cast "&?CALLER_CONTINUATION", ()) ]
                 }
     ccSub :: (Val -> Eval Val) -> Env -> VCode
     ccSub cc env = mkPrim
-        { subName = "CALLER_CONTINUATION"
+        { subName = __"CALLER_CONTINUATION"
         , subParams = makeParams env
         , subBody = Prim $ doCC cc
         }
 
-genSubs :: t -> Var -> (t -> VCode) -> Eval [PadMutator]
+genSubs :: t -> String -> (t -> VCode) -> Eval [PadMutator]
 genSubs env name gen = sequence
-    [ genMultiSym name (codeRef $ gen env)
-    , genMultiSym name (codeRef $ (gen env) { subParams = [] })
+    [ genMultiSym (cast name) (codeRef $ gen env)
+    , genMultiSym (cast name) (codeRef $ (gen env) { subParams = [] })
     ]
 
 makeParams :: Env -> [Param]
@@ -303,7 +303,7 @@ makeParams MkEnv{ envContext = cxt, envLValue = lv }
         , isLValue   = lv
         , isWritable = lv
         , isLazy     = False
-        , paramName = case cxt of
+        , paramName  = cast $ case cxt of
             CxtSlurpy _ -> "@?0"
             _           -> "$?0"
         , paramContext = cxt
@@ -328,7 +328,7 @@ headVal :: [Val] -> Eval Val
 headVal []    = retEmpty
 headVal (v:_) = return v
 
-tempVar :: String -> Val -> Eval a -> Eval a
+tempVar :: Var -> Val -> Eval a -> Eval a
 tempVar var val action = do
     old <- readVar var
     writeVar var val

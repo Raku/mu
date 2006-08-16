@@ -4,10 +4,11 @@ module Pugs.Prim.Param (
     foldParam
 ) where
 import Pugs.AST
+import Pugs.Internals
 
 doFoldParam :: String -> String -> [Param] -> [Param]
 doFoldParam cxt [] []       = [(buildParam cxt "" "$?1" (Val VUndef)) { isLValue = False }]
-doFoldParam cxt [] (p:ps)   = ((buildParam cxt "" (strInc $ paramName p) (Val VUndef)) { isLValue = False }:p:ps)
+doFoldParam cxt [] (p:ps)   = ((buildParam cxt "" (strInc . cast $ paramName p) (Val VUndef)) { isLValue = False }:p:ps)
 doFoldParam cxt (s:name) ps = ((buildParam cxt [s] name (Val VUndef)) { isLValue = False } : ps)
 
 foldParam :: String -> Params -> Params
@@ -22,9 +23,9 @@ foldParam ('?':str)
     | ('r':'w':'!':typ) <- str
     = \ps -> ((buildParam typ "?" "$?1" (Val VUndef)) { isLValue = True }:ps)
     | (('r':'w':'!':typ), "=$_") <- break (== '=') str
-    = \ps -> ((buildParam typ "?" "$?1" (Var "$_")) { isLValue = True }:ps)
+    = \ps -> ((buildParam typ "?" "$?1" (_Var "$_")) { isLValue = True }:ps)
     | (typ, "=$_") <- break (== '=') str
-    = \ps -> ((buildParam typ "?" "$?1" (Var "$_")) { isLValue = False }:ps)
+    = \ps -> ((buildParam typ "?" "$?1" (_Var "$_")) { isLValue = False }:ps)
     | (typ, ('=':def)) <- break (== '=') str
     = let readVal "Num" = Val . VNum . read
           readVal "Int" = Val . VInt . read

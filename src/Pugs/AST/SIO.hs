@@ -17,16 +17,23 @@ instance ((:>:) (SIO a)) (STM a) where cast = liftSTM
 
 data SIO a = MkSTM !(STM a) | MkIO !(IO a) | MkSIO !a
 
+{-# INLINE runSIO #-}
+{-# SPECIALISE INLINE runSIO :: SIO () -> Maybe () #-}
+{-# SPECIALISE INLINE runSIO :: SIO () -> Either String () #-}
 runSIO :: Monad m => SIO a -> m a
 runSIO MkSTM{}      = fail "Unsafe STM caught in pure computation"
 runSIO MkIO{}       = fail "Unsafe IO caught in pure computation"
 runSIO (MkSIO x)    = return x
 
+{-# INLINE runSTM #-}
+{-# SPECIALISE INLINE runSTM :: SIO () -> STM () #-}
 runSTM :: SIO a -> STM a
 runSTM (MkSTM stm)  = stm
 runSTM MkIO{}       = fail "Unsafe IO caught in STM"
 runSTM (MkSIO x)    = return x
 
+{-# INLINE runIO #-}
+{-# SPECIALISE INLINE runIO :: SIO () -> IO () #-}
 runIO :: SIO a -> IO a
 runIO (MkIO io)     = io
 runIO (MkSTM stm)   = atomically stm

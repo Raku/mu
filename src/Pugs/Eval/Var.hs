@@ -3,8 +3,7 @@
 module Pugs.Eval.Var (
     findVar, findVarRef,
     findSub, inferExpType,  inferExpCxt, FindSubFailure(..),
-    isQualified, packageOf, qualify,
-    toPackage, toQualified,
+    packageOf, toPackage, toQualified,
 ) where
 import qualified Data.Map as Map
 import Pugs.Internals
@@ -19,65 +18,72 @@ import Pugs.Config
 import Pugs.Monads
 import qualified Pugs.Val as Val
 import Pugs.Val hiding (Val, IValue, VUndef)
+import qualified Data.ByteString.Char8 as Str
 
 findVar :: Var -> Eval (Maybe VRef)
-findVar (':':x:_) | x /= '*' = return Nothing
-findVar name = do
-    rv <- findVarRef name
-    case rv of
-        Nothing  -> case name of
-            ('&':_) -> do
-                sub <- findSub name Nothing []
-                return $ either (const Nothing) (Just . codeRef) sub
-            _ -> return Nothing
-        Just ref -> fmap Just $ liftSTM (readTVar ref)
+findVar var
+    | SType <- v_sigil var
+    , not (isGlobalVar var)
+    = return Nothing
+    | otherwise = do
+        rv <- findVarRef var
+        case rv of
+            Just ref -> fmap Just $ liftSTM (readTVar ref)
+            Nothing
+                | SCode == v_sigil var || SCodeMulti == v_sigil var -> do
+                    sub <- findSub var Nothing []
+                    return $ either (const Nothing) (Just . codeRef) sub
+                | otherwise -> return Nothing
+
+
+lookupShellEnvironment :: ByteString -> Eval (Maybe (TVar VRef))
+lookupShellEnvironment name = do
+    exists <- evalExp $ App (_Var "&exists") (Just (_Var "%*ENV")) [Val (VStr $ cast name)]
+    case exists of
+        VBool False -> do
+            retError "no such ENV variable" name
+        _           -> do
+            rv   <- enterLValue (evalExp $ Syn "{}" [_Var "%*ENV", Val (VStr $ cast name)])
+            tvar <- liftSTM . newTVar =<< fromVal rv
+            return (Just tvar)
 
 findVarRef :: Var -> Eval (Maybe (TVar VRef))
-findVarRef name
-    | Just (package, name') <- breakOnGlue "::" name
-    = case () of
-        _ | Just (sig, "") <- breakOnGlue "CALLER" package -> do
-            maybeCaller <- asks envCaller
-            case maybeCaller of
-                Just env -> local (const env) $ do
-                    rv <- findVarRef (sig ++ name')
-                    return rv
-                Nothing -> retError "cannot access CALLER:: in top level" name
-        _ | Just (sig, "") <- breakOnGlue "ENV" package -> fix $ \upLevel -> do
-            maybeCaller <- asks envCaller
-            case maybeCaller of
-                Just env -> local (const env) $ do
-                    rv <- findVarRef (sig ++ name')
-                    if isJust rv then return rv else upLevel
-                Nothing -> do
-                    -- final callback: try an "environment" lookup
-                    -- XXX: how does "@+PATH" differ from "$+PATH"?
-                    -- XXX: how to tell empty env from nonexistent env?
-                    --      should we allow writes?
-                    exists <- evalExp $ App (Var "&exists") (Just (Var "%*ENV")) [Val (VStr name')]
-                    case exists of
-                        VBool False -> do
-                            retError "no such ENV:: variable" name'
-                        _           -> do
-                            rv   <- enterLValue (evalExp $ Syn "{}" [Var "%*ENV", Val (VStr name')])
-                            tvar <- liftSTM . newTVar =<< fromVal rv
-                            return (Just tvar)
-        _ | Just (sig, "") <- breakOnGlue "OUTER" package -> do
-            maybeOuter <- asks envOuter
-            case maybeOuter of
-                Just env -> local (const env) $ do
-                    findVarRef (sig ++ name')
-                Nothing -> retError "cannot access OUTER:: in top level" name
-        _ -> doFindVarRef name
-    | (sig:'+':name') <- name = findVarRef (sig:("ENV::"++name'))
-    | (_:'?':_) <- name = do
-        rv  <- getMagical name
+findVarRef var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = pkg }
+    | Just var' <- dropVarPkg (__"CALLER") var = do
+        maybeCaller <- asks envCaller
+        case maybeCaller of
+            Just env -> local (const env) $ findVarRef var'
+            Nothing -> retError "cannot access CALLER:: in top level" var
+
+    | Just var' <- dropVarPkg (__"ENV") var = fix $ \upLevel -> do
+        maybeCaller <- asks envCaller
+        case maybeCaller of
+            Just env -> local (const env) $ do
+                rv <- findVarRef var'
+                if isJust rv then return rv else upLevel
+            -- final callback: try an "environment" lookup
+            -- XXX: how does "@+PATH" differ from "$+PATH"?
+            -- XXX: how to tell empty env from nonexistent env?
+            --      should we allow writes?
+            Nothing -> lookupShellEnvironment (cast name)
+
+    | Just var' <- dropVarPkg (__"OUTER") var = do
+        maybeOuter <- asks envOuter
+        case maybeOuter of
+            Just env -> local (const env) $ findVarRef var'
+            Nothing -> retError "cannot access OUTER:: in top level" name
+
+    | pkg /= emptyPkg = doFindVarRef var
+
+    | TMagical <- twi = do
+        rv  <- getMagical var
         case rv of
-            Nothing  -> doFindVarRef name
+            Nothing  -> doFindVarRef var
             Just val -> do
                 tvar <- liftSTM $ newTVar (MkRef . constScalar $ val)
                 return $ Just tvar
-    | "%" <- name = do
+
+    | SHash <- sig, nullID == name = do
         {- %CALLER::, %OUTER::, %Package::, etc, all recurse to here. -}
         pad <- asks envLexical
         let plist   = padToList pad
@@ -86,27 +92,29 @@ findVarRef name
         let hashref = MkRef hash
         tvar <- liftSTM $ newTVar hashref
         return $ Just tvar
-    | otherwise = doFindVarRef name
+    | otherwise = doFindVarRef var
     where
     padEntryToHashEntry :: (Var, [(TVar Bool, TVar VRef)]) -> Eval (VStr, Val)
     padEntryToHashEntry (key, (_, tvref) : _) = do
         vref   <- liftSTM (readTVar tvref)
         let val = VRef vref
-        return (key, val)
-    padEntryToHashEntry (_, []) = do fail "Nonexistant var in pad?"
-    doFindVarRef :: Var -> Eval (Maybe (TVar VRef))
-    doFindVarRef name = do
-        callCC $ \foundIt -> do
-            lexSym  <- fmap (findSym name . envLexical) ask
-            when (isJust lexSym) $ foundIt lexSym
-            glob    <- liftSTM . readTVar . envGlobal =<< ask
-            name'   <- toQualified name
-            -- XXX - find qualified name here
-            let globSym = findSym name' glob
-            when (isJust globSym) $ foundIt globSym
-            let globSym = findSym (toGlobal name) glob
-            when (isJust globSym) $ foundIt globSym
-            return Nothing
+        return (cast key, val)
+    padEntryToHashEntry (_, []) = fail "Nonexistant var in pad?"
+
+doFindVarRef :: Var -> Eval (Maybe (TVar VRef))
+doFindVarRef var = do
+    callCC $ \foundIt -> do
+        lexSym  <- fmap (findSym var . envLexical) ask
+        when (isJust lexSym) $ foundIt lexSym
+        -- XXX - this is bogus; we should not fallback if it's not in lex csope.
+        glob    <- liftSTM . readTVar . envGlobal =<< ask
+        var'    <- toQualified var
+        let globSym = findSym var' glob
+        when (isJust globSym) $ foundIt globSym
+        -- XXX - ditto for globals
+        let globSym = findSym (toGlobalVar var) glob
+        when (isJust globSym) $ foundIt globSym
+        return Nothing
 
 
 {-|
@@ -142,59 +150,56 @@ data FindSubFailure
     | NoSuchSub
     | NoSuchMethod !Type
 
-findSub :: String     -- ^ Name, with leading @\&@.
+_SUPER :: ByteString
+_SUPER = __"SUPER"
+
+findSub :: Var        -- ^ Name, with leading @\&@.
         -> Maybe Exp  -- ^ Invocant
         -> [Exp]      -- ^ Other arguments
         -> Eval (Either FindSubFailure VCode)
-findSub name' invs args = do
-    case invs of
-        Just _ | Just (package, name') <- breakOnGlue "::" name
-               , Just (sig, "") <- breakOnGlue "SUPER" package -> do
-            typ <- asks envPackage
-            findSuperSub (mkType typ) (sig ++ name')
-        Just exp | not (':' `elem` drop 2 name) -> case unwrap exp of
-            Val inv@VV{}     -> withExternalCall callMethodVV inv 
-            Val inv@PerlSV{} -> withExternalCall callMethodPerl5 inv 
-            exp' -> do
-                typ <- evalInvType exp'
-                findTypedSub typ name
-        _ -> findBuiltinSub NoSuchSub name
-
+findSub var invs args
+    | Nothing <- invs = findBuiltinSub NoSuchSub var
+    | not (isQualifiedVar var) = case unwrap inv of
+        Val inv@VV{}     -> withExternalCall callMethodVV inv 
+        Val inv@PerlSV{} -> withExternalCall callMethodPerl5 inv 
+        inv' -> do
+            typ <- evalInvType inv'
+            findTypedSub (cast typ) var
+    | Just var' <- dropVarPkg _SUPER var = do
+        pkg <- asks envPackage
+        findSuperSub pkg var'
+    | otherwise = do
+        findBuiltinSub NoSuchSub var
     where
-    err :: b -> Maybe a -> Either b a
-    err _ (Just j) = Right j
-    err x Nothing  = Left x
+    inv = fromJust invs
 
-    name = possiblyFixOperatorName name'
-
-    findSuperSub :: Type -> String -> Eval (Either FindSubFailure VCode)
-    findSuperSub typ name = do
-        let pkg = showType typ
-            qualified = (head name:pkg) ++ "::" ++ tail name
-        subs    <- findWithSuper pkg name
-        subs'   <- either (flip findBuiltinSub name) (return . Right) subs
+    findSuperSub :: Pkg -> Var -> Eval (Either FindSubFailure VCode)
+    findSuperSub pkg var = do
+--          qualified = Str.concat [Str.take 1 name, pkg, __"::", Str.tail name]
+        subs    <- findWithSuper pkg var
+        subs'   <- either (flip findBuiltinSub var) (return . Right) subs
         case subs' of
-            Right sub | subName sub == qualified -> return (Left $ NoSuchMethod typ)
+--          Right sub | subName sub == qualified -> return (Left $ NoSuchMethod typ)
             _   -> return subs'
-    findTypedSub :: Type -> String -> Eval (Either FindSubFailure VCode)
-    findTypedSub typ name = do
-        subs    <- findWithPkg (showType typ) name
-        either (flip findBuiltinSub name) (return . Right) subs
-    findBuiltinSub :: FindSubFailure -> String -> Eval (Either FindSubFailure VCode)
-    findBuiltinSub failure name = do
-        sub <- findSub' name
-        maybe (fmap (err failure) $ possiblyBuildMetaopVCode name) (return . Right) sub
+    findTypedSub :: Pkg -> Var -> Eval (Either FindSubFailure VCode)
+    findTypedSub pkg var = do
+        subs    <- findWithPkg pkg var
+        either (flip findBuiltinSub var) (return . Right) subs
+    findBuiltinSub :: FindSubFailure -> Var -> Eval (Either FindSubFailure VCode)
+    findBuiltinSub failure var = do
+        sub <- findSub' var
+        maybe (fmap (err failure) $ possiblyBuildMetaopVCode var) (return . Right) sub
     evalInvType :: Exp -> Eval Type
     evalInvType x = inferExpType $ unwrap x
 
     withExternalCall callMeth inv = do
         fmap (err . NoSuchMethod $ valType inv) $ do
-            metaSub <- possiblyBuildMetaopVCode name
+            metaSub <- possiblyBuildMetaopVCode var
             if isJust metaSub then return metaSub else callMeth
 
     callMethodVV :: Eval (Maybe VCode)
     callMethodVV = do
-        let (_, methName) = breakSigil name
+        let methName = cast (v_name var)
         -- Look up the proto for the method in VV land right here
         -- Whether it matched or not, it's the proto's signature
         -- that's available to the inferencer, not any of its children's
@@ -223,7 +228,7 @@ findSub name' invs args = do
     callMethodPerl5 :: Eval (Maybe VCode)
     callMethodPerl5 = do
         return . Just $ mkPrim
-            { subName     = name
+            { subName     = cast (v_name var)
             , subParams   = makeParams ["Object", "List", "Named"]
             , subReturns  = mkType "Scalar::Perl5"
             , subBody     = Prim $ \(inv:named:pos:_) -> do
@@ -231,115 +236,39 @@ findSub name' invs args = do
                 posSVs  <- fromVals pos
                 namSVs  <- fmap concat (fromVals named)
                 let svs = posSVs ++ namSVs
-                found   <- liftIO $ canPerl5 sv (tail name)
+                found   <- liftIO $ canPerl5 sv (cast $ v_name var)
                 found'  <- liftIO $ if found
                     then return found
-                    else canPerl5 sv "AUTOLOAD"
+                    else canPerl5 sv (__"AUTOLOAD")
                 if not found'
                     then do
                         -- XXX - when svs is empty, this could call back here infinitely
                         --       add an extra '&' to force no-reinterpretation.
-                        evalExp (App (Var ('&':name)) Nothing (map (Val . PerlSV) (sv:svs)))
+                        evalExp $
+                            App (Var var{ v_sigil = SCodeMulti }) Nothing
+                                (map (Val . PerlSV) (sv:svs))
                     else do
-                        subSV   <- liftIO . vstrToSV $ tail name
+                        subSV   <- liftIO . bufToSV . cast $ v_name var
                         runInvokePerl5 subSV sv svs
             }
-    possiblyBuildMetaopVCode :: String -> Eval (Maybe VCode)
-    possiblyBuildMetaopVCode op'' | "&prefix:[" `isPrefixOf` op'', "]" `isSuffixOf` op'' = do 
-        -- Strip the trailing "]" from op
-        let op' = drop 9 (init op'')
-        let (op, keep) | '\\':real <- op' = (real, True)
-                       | otherwise        = (op', False)
-        -- We try to find the userdefined sub.
-        -- We use the first two elements of invs as invocants, as these are the
-        -- types of the op.
-            rv = fmap (either (const Nothing) Just) $ findSub ("&infix:" ++ op) Nothing (take 2 $ args ++ [Val undef, Val undef])
-        maybeM rv $ \code -> return $ mkPrim
-            { subName     = "&prefix:[" ++ (if keep then "\\" else "") ++ op ++ "]"
-            , subType     = SubPrim
-            , subAssoc    = "spre"
-            , subParams   = makeParams $
-                if any isLValue (subParams code)
-                    then ["rw!List"] -- XXX - does not yet work for the [=] case
-                    else ["List"]
-            , subReturns  = anyType
-            , subBody     = Prim $ \[vs] -> do
-                list_of_args <- fromVal vs
-                op2Reduce keep list_of_args (VCode code)
-            }
-        -- Now we construct the sub. Is there a more simple way to do it?
-    possiblyBuildMetaopVCode op' | "&prefix:" `isPrefixOf` op', "\171" `isSuffixOf` op' = do 
-        let op = drop 8 (init op')
-        possiblyBuildMetaopVCode ("&prefix:" ++ op ++ "<<")
-    possiblyBuildMetaopVCode op' | "&prefix:" `isPrefixOf` op', "<<" `isSuffixOf` op' = do 
-        let op = drop 8 (init (init op'))
-            rv = fmap (either (const Nothing) Just) $ findSub ("&prefix:" ++ op) Nothing [head $ args ++ [Val undef]]
-        maybeM rv $ \code -> return $ mkPrim
-            { subName     = "&prefix:" ++ op ++ "<<"
-            , subType     = SubPrim
-            , subAssoc    = subAssoc code
-            , subParams   = subParams code
-            , subReturns  = mkType "List"
-            , subBody     = Prim
-                (\x -> op1HyperPrefix code (listArg x))
-            }
-    possiblyBuildMetaopVCode op' | "&postfix:\187" `isPrefixOf` op' = do
-        let op = drop 10 op'
-        possiblyBuildMetaopVCode ("&postfix:>>" ++ op)
-    possiblyBuildMetaopVCode op' | "&postfix:>>" `isPrefixOf` op' = do
-        let op = drop 11 op'
-            rv = fmap (either (const Nothing) Just) $ findSub ("&postfix:" ++ op) Nothing [head $ args ++ [Val undef]]
-        maybeM rv $ \code -> return $ mkPrim
-            { subName     = "&postfix:>>" ++ op
-            , subType     = SubPrim
-            , subAssoc    = subAssoc code
-            , subParams   = subParams code
-            , subReturns  = mkType "List"
-            , subBody     = Prim
-                (\x -> op1HyperPostfix code (listArg x))
-            }
-    possiblyBuildMetaopVCode op' | "&infix:\187" `isPrefixOf` op', "\171" `isSuffixOf` op' = do 
-        let op = drop 8 (init op')
-        possiblyBuildMetaopVCode ("&infix:>>" ++ op ++ "<<")
-    possiblyBuildMetaopVCode op' | "&infix:>>" `isPrefixOf` op', "<<" `isSuffixOf` op' = do 
-        let op = drop 9 (init (init op'))
-            rv = fmap (either (const Nothing) Just) $ findSub ("&infix:" ++ op) Nothing (take 2 (args ++ [Val undef, Val undef]))
-        maybeM rv $ \code -> return $ mkPrim
-            { subName     = "&infix:>>" ++ op ++ "<<"
-            , subType     = SubPrim
-            , subAssoc    = subAssoc code
-            , subParams   = makeParams ["Any", "Any"]
-            , subReturns  = mkType "List"
-            , subBody     = Prim (\[x, y] -> op2Hyper code x y)
-            }
-        -- Taken from Pugs.Prim. Probably this should be refactored. (?)
-    possiblyBuildMetaopVCode _ = return Nothing
-    listArg [x] = x
-    listArg xs = VList xs
-    makeParams = map (\p -> p{ isWritable = isLValue p }) . foldr foldParam [] . map takeWord
-    takeWord = takeWhile isWord . dropWhile (not . isWord)
-    isWord   = not . (`elem` "(),:")
-    findAttrs pkg = do
-        maybeM (findVar (':':'*':pkg)) $ \ref -> do
-            meta    <- readRef ref
-            fetch   <- doHash meta hash_fetchVal
-            fromVal =<< fetch "is"
-    findWithPkg :: String -> String -> Eval (Either FindSubFailure VCode)
-    findWithPkg pkg name = do
-        subs <- findSub' (('&':pkg) ++ "::" ++ tail name)
-        maybe (findWithSuper pkg name) (return . Right) subs
-    findWithSuper :: String -> String -> Eval (Either FindSubFailure VCode)
-    findWithSuper pkg name = do
+
+    findWithPkg :: Pkg -> Var -> Eval (Either FindSubFailure VCode)
+    findWithPkg pkg var = do
+        subs <- findSub' var{ v_package = pkg }
+        maybe (findWithSuper pkg var) (return . Right) subs
+
+    findWithSuper :: Pkg -> Var -> Eval (Either FindSubFailure VCode)
+    findWithSuper pkg var = do
         -- get superclasses
         attrs <- fmap (fmap (filter (/= pkg) . nub)) $ findAttrs pkg
-        if isNothing attrs || null (fromJust attrs) then fmap (err NoMatchingMulti) (findSub' name) else do
+        if isNothing attrs || null (fromJust attrs) then fmap (err NoMatchingMulti) (findSub' var) else do
         (`fix` (fromJust attrs)) $ \run pkgs -> do
-            if null pkgs then return (Left $ NoSuchMethod $ mkType pkg) else do
-            subs <- findWithPkg (head pkgs) name
+            if null pkgs then return (Left $ NoSuchMethod (cast pkg)) else do
+            subs <- findWithPkg (head pkgs) var
             either (const $ run (tail pkgs)) (return . Right) subs
-    findSub' :: String -> Eval (Maybe VCode)
-    findSub' name = do
-        subSyms     <- findSyms name
+    findSub' :: Var -> Eval (Maybe VCode)
+    findSub' var = do
+        subSyms     <- findSyms var
         lens        <- mapM argSlurpLen (unwrap $ maybeToList invs ++ args)
         doFindSub (sum lens) subSyms
     argSlurpLen :: Exp -> Eval Int
@@ -356,7 +285,7 @@ findSub name' invs args = do
     valSlurpLen (VRef (MkRef (IHash hv))) = hash_fetchSize hv
     valSlurpLen _  = return 1 -- XXX
 
-    doFindSub :: Int -> [(String, Val)] -> Eval (Maybe VCode)
+    doFindSub :: Int -> [(Var, Val)] -> Eval (Maybe VCode)
     doFindSub slurpLen subSyms = do
         subs' <- subs slurpLen subSyms
         -- let foo (x, sub) = show x ++ show (map paramContext $ subParams sub)
@@ -364,7 +293,7 @@ findSub name' invs args = do
         return $ case sort subs' of
             ((_, sub):_)    -> Just sub
             _               -> Nothing
-    subs :: Int -> [(String, Val)] -> Eval [((Bool, Bool, Int, Int), VCode)]
+    subs :: Int -> [(Var, Val)] -> Eval [((Bool, Bool, Int, Int), VCode)]
     subs slurpLen subSyms = fmap catMaybes . forM subSyms $ \(_, val) -> do
         sub@(MkCode{ subReturns = ret, subParams = prms }) <- fromVal val
         let rv = return $ arityMatch sub (length (maybeToList invs ++ args)) slurpLen
@@ -376,38 +305,158 @@ findSub name' invs args = do
             deltaArgs   <- mapM deltaFromPair pairs
             let bound = either (const False) (const True) $ bindParams sub invs args
             return ((isMulti sub, bound, sum deltaArgs, deltaCxt), fun)
-    deltaFromCxt :: Type -> Eval Int
-    deltaFromCxt x  = do
-        cls <- asks envClasses
-        cxt <- asks envContext
-        return $ deltaType cls (typeOfCxt cxt) x
-    deltaFromPair (x, y) = do
-        cls <- asks envClasses
-        typ <- inferExpType y
-        return $ deltaType cls x typ
+
+    firstArg = [maybe (Val undef) id (listToMaybe args)]
+
+    buildPrefixHyper name var = do
+        let rv = fmap (either (const Nothing) Just) $
+                findSub var Nothing firstArg
+        maybeM rv $ \code -> return $ mkPrim
+            { subName     = name
+            , subType     = SubPrim
+            , subAssoc    = subAssoc code
+            , subParams   = subParams code
+            , subReturns  = mkType "List"
+            , subBody     = Prim
+                (\x -> op1HyperPrefix code (listArg x))
+            }
+
+    buildPostfixHyper name var = do
+        let rv = fmap (either (const Nothing) Just) $
+                findSub var Nothing firstArg
+        maybeM rv $ \code -> return $ mkPrim
+            { subName     = name
+            , subType     = SubPrim
+            , subAssoc    = subAssoc code
+            , subParams   = subParams code
+            , subReturns  = mkType "List"
+            , subBody     = Prim
+                (\x -> op1HyperPostfix code (listArg x))
+            }
+
+    buildInfixHyper name var = do
+        let rv = fmap (either (const Nothing) Just) $
+                findSub var Nothing (take 2 (args ++ [Val undef, Val undef]))
+        maybeM rv $ \code -> return $ mkPrim
+            { subName     = name
+            , subType     = SubPrim
+            , subAssoc    = subAssoc code
+            , subParams   = makeParams ["Any", "Any"]
+            , subReturns  = mkType "List"
+            , subBody     = Prim (\[x, y] -> op2Hyper code x y)
+            }
+
+    possiblyBuildMetaopVCode :: Var -> Eval (Maybe VCode)
+    possiblyBuildMetaopVCode var@MkVar{ v_categ = cat, v_name = name }
+        | C_prefix <- cat, '\171' <- Str.last buf = do
+            buildPrefixHyper buf var{ v_name = cast $ Str.init buf }
+        | C_prefix <- cat, __"<<" `Str.isSuffixOf` buf = do
+            buildPrefixHyper buf var{ v_name = cast $ dropEnd 2 buf }
+        | C_postfix <- cat, '\187' <- Str.head buf = do
+            buildPostfixHyper buf var{ v_name = cast $ Str.tail buf }
+        | C_postfix <- cat, __">>" `Str.isPrefixOf` buf = do
+            buildPostfixHyper buf var{ v_name = cast $ Str.drop 2 buf }
+        | C_infix <- cat, '\187' <- Str.head buf, '\171' <- Str.last buf = do
+            buildInfixHyper buf var{ v_name = cast $ Str.init (Str.tail buf) }
+        | C_infix <- cat, __">>" `Str.isPrefixOf` buf, __"<<" `Str.isSuffixOf` buf = do
+            buildInfixHyper buf var{ v_name = cast $ Str.take 2 (dropEnd 2 buf) }
+        | C_prefix <- cat, '[' <- Str.head buf, ']' <- Str.last buf = do
+            -- Strip the trailing "]" from op
+            let (op, keep)
+                    | Str.index buf 1 == '\\'   = (Str.drop 2 (Str.init buf), True)
+                    | otherwise                 = (Str.tail (Str.init buf), False)
+
+            -- We try to find the userdefined sub.
+            -- We use the first two elements of invs as invocants, as these are the
+            -- types of the op.
+                rv = fmap (either (const Nothing) Just) $
+                    findSub (var{ v_categ = C_infix, v_name = cast op }) Nothing
+                        (take 2 $ args ++ [Val undef, Val undef])
+            maybeM rv $ \code -> return $ mkPrim
+                { subName     = buf
+                , subType     = SubPrim
+                , subAssoc    = "spre"
+                , subParams   = makeParams $
+                    if any isLValue (subParams code)
+                        then ["rw!List"] -- XXX - does not yet work for the [=] case
+                        else ["List"]
+                , subReturns  = anyType
+                , subBody     = Prim $ \[vs] -> do
+                    list_of_args <- fromVal vs
+                    op2Reduce keep list_of_args (VCode code)
+                }
+            -- Now we construct the sub. Is there a more simple way to do it?
+        | otherwise = return Nothing
+        where
+        buf = cast name
+
+metaVar :: Pkg -> Var
+-- metaVar = MkVar SType TNone globalPkg CNone . cast
+metaVar pkg = MkVar
+    { v_sigil   = SType
+    , v_twigil  = TGlobal
+    , v_package = emptyPkg
+    , v_categ   = CNone
+    , v_name    = cast pkg
+    }
+
+err :: b -> Maybe a -> Either b a
+err _ (Just j) = Right j
+err x Nothing  = Left x
+
+listArg :: [Val] -> Val
+listArg [x] = x
+listArg xs = VList xs
+
+makeParams :: [String] -> [Param]
+makeParams = map (\p -> p{ isWritable = isLValue p }) . foldr foldParam [] . map takeWord
+    where
+    takeWord = takeWhile isWord . dropWhile (not . isWord)
+    isWord   = not . (`elem` "(),:")
+
+deltaFromCxt :: Type -> Eval Int
+deltaFromCxt x  = do
+    cls <- asks envClasses
+    cxt <- asks envContext
+    return $ deltaType cls (typeOfCxt cxt) x
+
+deltaFromPair :: (Type, Exp) -> Eval Int
+deltaFromPair (x, y) = do
+    cls <- asks envClasses
+    typ <- inferExpType y
+    return $ deltaType cls x typ
+
+findAttrs pkg = do
+    maybeM (findVar $ metaVar pkg) $ \ref -> do
+        meta    <- readRef ref
+        fetch   <- doHash meta hash_fetchVal
+        fmap (map (cast :: String -> Pkg)) (fromVal =<< fetch "is")
 
 {-|
 Take an expression, and attempt to predict what type it will evaluate to
 /without/ actually evaluating it.
 -}
 inferExpType :: Exp -> Eval Type
-inferExpType exp@(Var (_:'.':_)) = fromVal =<< evalExp exp
-inferExpType exp@(Var (_:'!':_:_)) = fromVal =<< evalExp exp
-inferExpType (Var var) = do
-    rv  <- findVar var
-    case rv of
-        Nothing  -> return $ typeOfSigil (head var)
-        Just ref -> do
-            let typ = refType ref
-            cls <- asks envClasses
-            if isaType cls "List" typ
-                then return typ
-                else fromVal =<< readRef ref
+inferExpType exp@(Var var)
+    | TAttribute <- v_twigil var = fromVal =<< evalExp exp
+    | TPrivate <- v_twigil var   = fromVal =<< evalExp exp
+    | otherwise = do
+        rv  <- findVar var
+        case rv of
+            Nothing  -> return $ typeOfSigilVar var
+            Just ref -> do
+                let typ = refType ref
+                cls <- asks envClasses
+                if isaType cls "List" typ
+                    then return typ
+                    else fromVal =<< readRef ref
 inferExpType (Val val) = fromVal val
 inferExpType (App (Val val) _ _) = do
     sub <- fromVal val
     return $ subReturns sub
-inferExpType (App (Var "&new") (Just inv) _) = inferExpType $ unwrap inv
+inferExpType (App (Var var) (Just inv) _)
+    | var == cast "&new"
+    = inferExpType $ unwrap inv
 inferExpType (App (Var name) invs args) = do
     sub <- findSub name invs args
     case sub of
@@ -487,29 +536,33 @@ inferExpCxt _                      = return cxtSlurpyAny
 Evaluate the \'magical\' variable associated with a given name. Returns 
 @Nothing@ if the name does not match a known magical.
 -}
-getMagical :: String -- ^ Name of the magical var to evaluate
+getMagical :: Var -- ^ Name of the magical var to evaluate
            -> Eval (Maybe Val)
-getMagical "$?FILE"     = posSym posName
-getMagical "$?LINE"     = posSym posBeginLine
-getMagical "$?COLUMN"   = posSym posBeginColumn
-getMagical "$?POSITION" = posSym pretty
-getMagical "$?MODULE"   = constSym "main"
-getMagical "$?OS"       = constSym $ getConfig "osname"
-getMagical "$?CLASS"    = fmap (Just . VType . mkType) (asks envPackage)
-getMagical ":?CLASS"    = fmap (Just . VType . mkType) (asks envPackage)
-getMagical "$?PACKAGE"  = fmap (Just . VType . mkType) (asks envPackage)
-getMagical ":?PACKAGE"  = fmap (Just . VType . mkType) (asks envPackage)
-getMagical "$?ROLE"     = fmap (Just . VType . mkType) (asks envPackage)
-getMagical ":?ROLE"     = fmap (Just . VType . mkType) (asks envPackage)
-getMagical _            = return Nothing
+getMagical var = Map.findWithDefault (return Nothing) var magicalMap
+
+magicalMap :: Map Var (Eval (Maybe Val))
+magicalMap = Map.fromList
+    [ (cast "$?FILE"     , posSym posName)
+    , (cast "$?LINE"     , posSym posBeginLine)
+    , (cast "$?COLUMN"   , posSym posBeginColumn)
+    , (cast "$?POSITION" , posSym pretty)
+    , (cast "$?MODULE"   , constSym $ cast "main")
+    , (cast "$?OS"       , constSym $ cast (getConfig "osname"))
+    , (cast "$?CLASS"    , fmap (Just . VType . cast) (asks envPackage))
+    , (cast ":?CLASS"    , fmap (Just . VType . cast) (asks envPackage))
+    , (cast "$?PACKAGE"  , fmap (Just . VType . cast) (asks envPackage))
+    , (cast ":?PACKAGE"  , fmap (Just . VType . cast) (asks envPackage))
+    , (cast "$?ROLE"     , fmap (Just . VType . cast) (asks envPackage))
+    , (cast ":?ROLE"     , fmap (Just . VType . cast) (asks envPackage))
+    ]
 
 posSym :: Value a => (Pos -> a) -> Eval (Maybe Val)
 posSym f = fmap (Just . castV . f) $ asks envPos
-constSym :: String -> Eval (Maybe Val)
-constSym = return . Just . castV
+constSym :: Var -> Eval (Maybe Val)
+constSym = return . Just . VStr . cast
 
 findSyms :: Var -> Eval [(Var, Val)]
-findSyms name = do
+findSyms var = do
         runMaybeT (findLexical `mplus` findPackage `mplus` findGlobal) >>= \ret ->
             case ret of
                 Nothing -> return []
@@ -518,18 +571,18 @@ findSyms name = do
         findLexical :: MaybeT Eval [(Var, Val)]
         findLexical = do
             lex <- lift $ asks envLexical
-            padSym lex name
+            padSym lex var
             
         findPackage :: MaybeT Eval [(Var, Val)]
         findPackage = do
             glob <- lift $ askGlobal
             pkg  <- lift $ asks envPackage
-            padSym glob name `mplus` padSym glob (toPackage pkg name)
+            padSym glob var `mplus` padSym glob (toPackage pkg var)
 
         findGlobal :: MaybeT Eval [(Var, Val)]
         findGlobal = do
             glob <- lift $ askGlobal
-            padSym glob (toGlobal name)
+            padSym glob (toGlobalVar var)
 
         padSym :: Pad -> Var -> MaybeT Eval [(Var, Val)]
         padSym pad var = do
@@ -541,75 +594,36 @@ findSyms name = do
                         return (var, val)
                 Nothing -> mzero
         
-
-toGlobal :: String -> String
-toGlobal name
-    | (sigil, identifier) <- break (\x -> isAlpha x || x == '_') name
-    , last sigil /= '*'
-    = sigil ++ ('*':identifier)
-    | otherwise = name
-
 arityMatch :: VCode -> Int -> Int -> Maybe VCode
 arityMatch sub@MkCode{ subAssoc = assoc, subParams = prms } argLen argSlurpLen
     | assoc == "list" || assoc == "chain"
     = Just sub
     | isNothing $ find (not . isSlurpy) prms -- XXX - what about empty ones?
     , assoc == "pre"
-    , slurpLen <- length $ filter (\p -> isSlurpy p && head (paramName p) == '$') prms
-    , hasArray <- isJust $ find (\p -> isSlurpy p && head (paramName p) /= '$') prms
+    , slurpLen <- length $ filter (\p -> isSlurpy p && v_sigil (paramName p) == SScalar) prms
+    , hasArray <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) /= SScalar) prms
     , if hasArray then slurpLen <= argSlurpLen else slurpLen == argSlurpLen
     = Just sub
     | reqLen <- length $ filter (\p -> not (isOptional p || isSlurpy p)) prms
     , optLen <- length $ filter (\p -> isOptional p) prms
-    , hasArray <- isJust $ find (\p -> isSlurpy p && head (paramName p) /= '$') prms
+    , hasArray <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) /= SScalar) prms
     , argLen >= reqLen && (hasArray || argLen <= (reqLen + optLen))
     = Just sub
     | otherwise
     = Nothing
 
-breakSigil :: String -> (String, String)
-breakSigil = break (\x -> isAlpha x || x == '_')
+toPackage :: Pkg -> Var -> Var
+toPackage pkg var
+    | isGlobalVar var = var
+    | otherwise       = var{ v_package = pkg }
 
-toPackage :: String -> String -> String
-toPackage pkg name
-    | (sigil, identifier) <- breakSigil name
-    , last sigil /= '*'
-    = concat [sigil, pkg, "::", identifier]
-    | otherwise = name
+packageOf :: Var -> Pkg
+packageOf = v_package
 
-packageOf :: String -> String
-packageOf name = case isQualified name of
-    Just (pkg, _)   -> pkg
-    _               -> "main"
-
-qualify :: String -> String
-qualify name = case isQualified name of
-    Just _  -> name
-    _       -> let (sigil, name') = breakSigil name
-        in sigil ++ "main::" ++ name'
-
-isQualified :: String -> Maybe (String, String)
-isQualified name
-    | Just (post, pre) <- breakOnGlue "::" (reverse name) =
-    let (sigil, pkg) = span (not . isAlphaNum) preName
-        name'       = possiblyFixOperatorName (sigil ++ postName)
-        preName     = reverse pre
-        postName    = reverse post
-    in case takeWhile isAlphaNum pkg of
-        "OUTER"     -> Nothing
-        "CALLER"    -> Nothing
-        _           -> Just (pkg, name')
-isQualified _ = Nothing
-
-toQualified :: String -> Eval String
-toQualified name@(_:'*':_) = return name
-toQualified name@(_:'?':_) = return name
-toQualified name@(_:'+':_) = return name
-toQualified name@(_:"!") = return name
-toQualified name@(_:"/") = return name
-toQualified name = do
-    case isQualified name of
-        Just _  -> return name
-        _       -> do
-            pkg <- asks envPackage
-            return $ toPackage pkg name
+toQualified :: Var -> Eval Var
+toQualified var
+    | TNone /= v_twigil var     = return var
+    | emptyPkg /= v_package var = return var
+    | otherwise                 = do
+        pkg <- asks envPackage
+        return var{ v_package = pkg }

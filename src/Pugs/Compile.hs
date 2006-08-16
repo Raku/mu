@@ -72,7 +72,7 @@ instance Compile Pad [PIL_Decl] where
         entries' <- mapM canCompile entries
         return $ concat entries'
         where
-        entries = sortBy padSort $ padToList pad
+        entries = sortBy padSort [ (cast var, ref) | (var, ref) <- padToList pad ]
         canCompile (name@('&':_), xs) | length xs > 1 = do
             fmap concat $ mapM (\x -> canCompile (name, [x])) xs
         canCompile (name@('&':_), [(_, sym)]) = do
@@ -135,7 +135,7 @@ instance Compile (String, [(TVar Bool, TVar VRef)]) PIL_Expr where
     compile (name, ((_, ref):_)) = do
         rv <- readRef =<< liftSTM (readTVar ref)
         case rv of
-            VCode sub   -> return $ PRawName (subName sub)
+            VCode sub   -> return $ PRawName (cast $ subName sub)
             _           -> return $ PRawName name
     compile (name, _) = return $ PRawName name
 
@@ -145,13 +145,15 @@ instance Compile Exp PIL_Stmts where
     compile (Ann Prag{} rest) = compile rest -- fmap (PPos pos rest) $ compile rest
     compile (Ann (Cxt cxt) rest) = enter cxt $ compile rest
     compile (Ann _ rest) = compile rest
-    compile (Sym _ "" rest) = compile rest
     compile (Stmts (Pad SOur _ exp) rest) = do
         compile $ mergeStmts exp rest
     compile (Stmts (Pad scope pad exp) rest) = do
-        padC    <- compile $ padToList pad
-        let symC = (map fst $ padToList pad) `zip` padC
-            exps = [ Syn ":=" [Var name, Var from] | (name, PRawName from) <- symC, name /= from ]
+        padC    <- compile [ (cast var :: String, ref) | (var, ref) <- padToList pad ]
+        let symC = (map (cast . fst) $ padToList pad) `zip` padC
+            exps = [ Syn ":=" [_Var name, _Var from]
+                   | (name, PRawName from) <- symC
+                   , name /= from
+                   ]
         expC    <- compile $ mergeStmts (foldl1 mergeStmts (exps ++ [exp])) rest
         return $ PPad scope symC expC
     compile exp = compileStmts exp
@@ -178,11 +180,11 @@ compileStmts exp = case exp of
     Stmts this (Syn "namespace" [Val (VStr sym), Val (VStr pkg), rest]) -> do
         thisC   <- enter cxtVoid $ compile this
         declC   <- enter cxtVoid $ compile decl
-        restC   <- enterPackage pkg $ compileStmts rest
+        restC   <- enterPackage (cast pkg) $ compileStmts rest
         return $ PStmts thisC $ PStmts declC restC
         where
           -- XXX - kludge.
-          decl = App (Var func) Nothing [(Val (VStr pkg))]
+          decl = App (_Var func) Nothing [(Val (VStr pkg))]
           func = "&" ++ (capitalize sym) ++ "::_create"
           capitalize []     = []
           capitalize (c:cs) = toUpper c:cs
@@ -206,7 +208,6 @@ instance Compile Exp PIL_Stmt where
     -- XXX: pragmas?
     compile (Ann Prag{} rest) = compile rest -- fmap (PPos pos rest) $ compile rest
     compile (Ann _ rest) = compile rest
-    compile (Sym _ "" rest) = compile rest
     compile Noop = return PNoop
     compile (Val val) = do
         cxt     <- asks envContext
@@ -230,7 +231,7 @@ instance Compile Exp PIL_Stmt where
         condC   <- cond'
         bodyC   <- compile body
         postC   <- compile post
-        funC    <- compile (Var "&statement_control:loop")
+        funC    <- compile (_Var "&statement_control:loop")
         return . PStmt . PExp $ PApp TCxtVoid funC Nothing
             [preC, pBlock condC, pBlock bodyC, pBlock postC]
     compile exp@(Syn "unless" _) = fmap (PStmt . PExp) $ compConditional exp
@@ -241,10 +242,10 @@ instance Compile Exp PIL_Stmt where
     compile (Syn "for" [exp, body]) = do
         expC    <- compile exp
         bodyC   <- compile body
-        funC    <- compile (Var "&statement_control:for")
+        funC    <- compile (_Var "&statement_control:for")
         return . PStmt . PExp $ PApp TCxtVoid funC Nothing [expC, bodyC]
-    compile (Syn "given" _) = compile (Var "$_") -- XXX
-    compile (Syn "when" _) = compile (Var "$_") -- XXX
+    compile (Syn "given" _) = compile (_Var "$_") -- XXX
+    compile (Syn "when" _) = compile (_Var "$_") -- XXX
     compile exp = fmap PStmt $ compile exp
 
 pBlock :: PIL_Stmts -> PIL_Expr
@@ -283,13 +284,12 @@ instance Compile Exp PIL_LValue where
     compile (Ann Prag{} rest) = compile rest
     compile (Ann (Cxt cxt) rest) = enter cxt $ compile rest
     compile (Ann _ rest) = compile rest
-    compile (Sym _ "" rest) = compile rest
     -- XXX: pragmas?
-    compile (Var name) = return $ PVar name
+    compile (Var name) = return $ _PVar name
     compile (Syn (sigil:"::()") exps) = do
-        compile $ App (Var "&Pugs::Internals::symbolic_deref") Nothing $
+        compile $ App (_Var "&Pugs::Internals::symbolic_deref") Nothing $
             (Val . VStr $ sigil:""):exps
-    compile (App (Var "&goto") (Just inv) args) = do
+    compile (App (Var var) (Just inv) args) | var == cast "&goto" = do
         cxt     <- askTCxt
         funC    <- compile inv
         argsC   <- enter cxtItemAny $ compile args
@@ -312,23 +312,23 @@ instance Compile Exp PIL_LValue where
         isLogicalLazy (PExp (PVar "&infix://"))  = True
         isLogicalLazy _ = False
     compile exp@(Syn "if" _) = compConditional exp
-    compile (Syn "{}" (x:xs)) = compile $ App (Var "&postcircumfix:{}") (Just x) xs
+    compile (Syn "{}" (x:xs)) = compile $ App (_Var "&postcircumfix:{}") (Just x) xs
     compile (Syn "[]" (x:xs)) = do
-        compile (App (Var "&postcircumfix:[]") (Just x) xs)
+        compile (App (_Var "&postcircumfix:[]") (Just x) xs)
     compile (Syn "," exps) = do
-        compile (App (Var "&infix:,") Nothing exps)
+        compile (App (_Var "&infix:,") Nothing exps)
     -- Minor hack, my $a = [] is parsed as my $a = [Noop], resulting in my $a =
     -- [undef], which is wrong.
     compile (Syn "\\[]" [Noop]) = do
-        compile (App (Var "&circumfix:[]") Nothing [])
+        compile (App (_Var "&circumfix:[]") Nothing [])
     compile (Syn "\\[]" exps) = do
-        compile (App (Var "&circumfix:[]") Nothing exps)
+        compile (App (_Var "&circumfix:[]") Nothing exps)
     compile (Syn name@(sigil:"{}") exps) | (sigil ==) `any` "$@%&" = do
-        compile (App (Var $ "&circumfix:" ++ name) Nothing exps)
+        compile (App (_Var $ "&circumfix:" ++ name) Nothing exps)
     compile (Syn "\\{}" exps) = do
-        compile (App (Var "&circumfix:{}") Nothing exps)
+        compile (App (_Var "&circumfix:{}") Nothing exps)
     compile (Syn "*" exps) = do
-        compile (App (Var "&prefix:*") Nothing exps)
+        compile (App (_Var "&prefix:*") Nothing exps)
     compile (Syn "=" [lhs, rhs]) = do
         lhsC <- enterLValue $ compile lhs
         rhsC <- enterRValue $ compile rhs
@@ -338,9 +338,9 @@ instance Compile Exp PIL_LValue where
         return $ PBind [lhsC] rhsC
     compile (Syn syn [lhs, exp]) | last syn == '=' = do
         let op = "&infix:" ++ init syn
-        compile $ Syn "=" [lhs, App (Var op) Nothing [lhs, exp]]
+        compile $ Syn "=" [lhs, App (_Var op) Nothing [lhs, exp]]
     compile (Syn "but" [obj, block]) =
-        compile $ App (Var "&Pugs::Internals::but_block") Nothing [obj, block]
+        compile $ App (_Var "&Pugs::Internals::but_block") Nothing [obj, block]
     compile exp@(Syn "namespace" _) = do
         -- XXX - Is there a better way to wrap Stmts as LValue?
         compile $ App (Syn "sub"
@@ -353,7 +353,7 @@ instance Compile Exp PIL_LValue where
     --   PApp { pNamedArgs = [...], pPositionalArgs = [...], ... }
     -- For now, using &Pugs::Internals::named_pair is probably ok.
     compile (Syn "named" kv@[_, _]) = do
-        compile $ App (Var "&Pugs::Internals::named_pair") Nothing kv
+        compile $ App (_Var "&Pugs::Internals::named_pair") Nothing kv
     compile exp = compError exp
 
 compLoop :: Exp -> Comp PIL_Stmt
@@ -361,7 +361,7 @@ compLoop (Syn name [cond, body]) = do
     cxt     <- askTCxt
     condC   <- enter (CxtItem $ mkType "Bool") $ compile cond
     bodyC   <- enter CxtVoid $ compile body
-    funC    <- compile (Var $ "&statement_control:" ++ name)
+    funC    <- compile (_Var $ "&statement_control:" ++ name)
     return . PStmt . PExp $ PApp cxt funC Nothing [pBlock condC, pBlock bodyC]
 compLoop exp = compError exp
 
@@ -371,10 +371,13 @@ compLoop exp = compError exp
 compConditional :: Exp -> Comp PIL_LValue
 compConditional (Syn name exps) = do
     [condC, trueC, falseC] <- compile exps
-    funC    <- compile $ Var ("&statement_control:" ++ name)
+    funC    <- compile $ _Var ("&statement_control:" ++ name)
     cxt     <- askTCxt
     return $ PApp cxt funC Nothing [condC, PThunk trueC, PThunk falseC]
 compConditional exp = compError exp
+
+_PVar :: Var -> PIL_LValue
+_PVar = PVar . cast
 
 {-| Compiles various 'Exp's to 'PIL_Expr's. -}
 instance Compile Exp PIL_Expr where
@@ -382,9 +385,8 @@ instance Compile Exp PIL_Expr where
     compile (Ann Prag{} rest) = compile rest
     compile (Ann (Cxt cxt) rest) = enter cxt $ compile rest
     compile (Ann _ rest) = compile rest
-    compile (Sym _ "" rest) = compile rest
     -- XXX: pragmas?
-    compile (Var name) = return . PExp $ PVar name
+    compile (Var name) = return . PExp $ _PVar name
     compile exp@(Val (VCode _)) = compile $ Syn "sub" [exp]
     compile (Val val) = fmap PLit $ compile val
     compile Noop = compile (Val undef)
@@ -421,7 +423,7 @@ instance Compile Val PIL_Literal where
     compile val = return $ PVal val
 
 -- utility functions
-padSort :: (Var, [(TVar Bool, TVar VRef)]) -> (String, [(a, b)]) -> Ordering
+padSort :: (String, [(TVar Bool, TVar VRef)]) -> (String, [(a, b)]) -> Ordering
 padSort (a, [(_, _)]) (b, [(_, _)])
     | (head a == ':' && head b == '&') = LT
     | (head b == ':' && head a == '&') = GT

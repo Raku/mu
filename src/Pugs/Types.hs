@@ -1,5 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields -fallow-overlapping-instances #-}
-
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields -fallow-overlapping-instances #-} 
 {-|
     Implementation Types.
 
@@ -29,13 +28,31 @@ module Pugs.Types
 -}
 where
 import Pugs.Internals
-import qualified Data.Map as Map
+import Data.Bits (shiftL)
+import qualified Judy.StrMap as H
+import qualified Judy.CollectionsM as C
+import qualified Data.IntMap as IntMap
+import qualified Data.ByteString.Char8 as Str
 
 data Type
     = MkType !ID         -- ^ A regular type
     | TypeOr  !Type !Type -- ^ The disjunction (|) of two types
     | TypeAnd !Type !Type -- ^ The conjunction (&) of two types
     deriving (Eq, Ord, Typeable, Data)
+
+instance ((:>:) ByteString) Type where
+    cast (MkType x) = cast x
+    cast (TypeOr t1 t2)  = cast t1 +++ __"|" +++ cast t2
+    cast (TypeAnd t1 t2) = cast t1 +++ __"&" +++ cast t2
+
+instance ((:>:) Type) ByteString where
+    cast = MkType . cast
+
+instance ((:>:) Type) Pkg where
+    cast = cast . (cast :: Pkg -> ByteString)
+
+instance ((:>:) Pkg) Type where
+    cast = cast . (cast :: Type -> ByteString)
 
 instance Show Type where
     show t = "(mkType \"" ++ showType t ++ "\")"
@@ -125,8 +142,269 @@ mkType str
     | otherwise
     = MkType (cast str)
 
--- | Variable name.
-type Var   = String
+
+data Var = MkVar
+    { v_name    :: ID
+    , v_sigil   :: VarSigil
+    , v_twigil  :: VarTwigil
+    , v_categ   :: VarCateg
+    , v_package :: Pkg
+    }
+    deriving (Eq, Ord, Typeable, Data)
+
+isQualifiedVar :: Var -> Bool
+isQualifiedVar MkVar{ v_package = MkPkg [] } = False
+isQualifiedVar _ = True
+
+dropVarPkg :: ByteString -> Var -> Maybe Var
+dropVarPkg buf var@MkVar{ v_package = MkPkg ps }
+    | (p:_) <- ps, p == buf = Just var{ v_package = MkPkg (tail ps) }
+    | otherwise             = Nothing
+
+-- | Package name, composed of multiple parts.
+newtype Pkg = MkPkg [ByteString]
+    deriving (Eq, Ord, Typeable, Data)
+
+instance Show Pkg where
+    show pkg = Str.unpack (cast pkg)
+
+instance ((:>:) ByteString) Pkg where
+    cast (MkPkg ns) = Str.join (__"::") ns
+
+instance Show Var where
+    showsPrec _ var = ('"':) . showsVar var . ('"':)
+
+showsVar :: Var -> String -> String
+showsVar MkVar
+    { v_sigil   = sig
+    , v_twigil  = twi
+    , v_package = pkg@(MkPkg ns)
+    , v_categ   = cat
+    , v_name    = name
+    } = showsPrec 0 sig . showsPrec 0 twi . showCateg . showPkg . ((++) (cast name))
+    where
+    showCateg = case cat of
+        CNone   -> id
+        _       -> drop 2 . showsPrec 0 cat . (':':)
+    showPkg = if null ns
+        then id
+        else showsPrec 0 pkg . (\x -> (':':':':x))
+
+instance ((:>:) String) Var where
+    cast var = showsVar var ""
+
+instance ((:>:) String) Pkg where
+    cast = cast . (cast :: Pkg -> ByteString)
+
+data VarCateg
+    = CNone
+    | C_prefix_circumfix_meta_operator
+    | C_infix_circumfix_meta_operator
+    | C_prefix_postfix_meta_operator
+    | C_postfix_prefix_meta_operator
+    | C_infix_postfix_meta_operator
+    | C_statement_modifier
+    | C_statement_control
+    | C_scope_declarator
+    | C_trait_auxiliary
+    | C_trait_verb
+    | C_regex_mod_external
+    | C_regex_mod_internal
+    | C_regex_assertion
+    | C_regex_backslash
+    | C_regex_metachar
+    | C_postcircumfix
+    | C_circumfix
+    | C_postfix
+    | C_infix
+    | C_prefix
+    | C_quote
+    | C_term
+    deriving (Show, Enum, Eq, Ord, Typeable, Data, Read)
+
+data VarSigil = SScalar | SArray | SHash | SType | SCode | SRegex | SCodeMulti | SArrayMulti
+    deriving (Enum, Eq, Ord, Typeable, Data)
+
+data VarTwigil = TNone | TAttribute | TPrivate | TImplicit | TMagical | TDoc
+    | TGlobal -- XXX WRONG!
+    deriving (Enum, Eq, Ord, Typeable, Data)
+
+isSigilChar :: Char -> Bool
+isSigilChar '$' = True
+isSigilChar '@' = True
+isSigilChar '%' = True
+isSigilChar '&' = True
+isSigilChar '<' = True -- XXX wrong
+isSigilChar ':' = True
+isSigilChar _   = False
+
+instance Show VarSigil where
+    showsPrec _ sig = case sig of
+        SScalar     -> ('$':)
+        SArray      -> ('@':)
+        SHash       -> ('%':)
+        SCode       -> ('&':)
+        SRegex      -> ('<':)
+        SType       -> \x -> (':':':':x)
+        SCodeMulti  -> \x -> ('&':'&':x)
+        SArrayMulti -> \x -> ('@':'@':x)
+
+instance Show VarTwigil where
+    showsPrec _ twi = case twi of
+        TNone       -> id
+        TAttribute  -> ('.':)
+        TPrivate    -> ('!':)
+        TImplicit   -> ('^':)
+        TMagical    -> ('?':)
+        TDoc        -> ('=':)
+        TGlobal     -> ('*':)
+
+instance ((:>:) VarCateg) ByteString where
+    -- XXX slow
+    cast buf = case reads ('C':'_':cast buf) of
+        ((x, _):_)  -> x
+        _           -> internalError $ "Invalid grammatical category: " ++ show buf
+
+instance ((:>:) VarSigil) Char where
+    cast '$'    = SScalar
+    cast '@'    = SArray
+    cast '%'    = SHash
+    cast '&'    = SCode
+    cast '<'    = SRegex
+    cast ':'    = SType
+    cast x      = internalError $ "Invalid sigil " ++ show x
+
+instance ((:>:) VarSigil) ByteString where
+    cast name
+        | name == __"$"     = SScalar
+        | name == __"@"     = SArray
+        | name == __"%"     = SHash
+        | name == __"&"     = SCode
+        | name == __"<"     = SRegex
+        | name == __":"     = SType
+        | name == __"::"    = SType
+        | name == __"&&"    = SCodeMulti
+        | name == __"@@"    = SArrayMulti
+        | otherwise         = internalError $ "Invalid sigil " ++ show name
+
+{-|
+Transform an operator name, for example @&infix:\<+\>@ or @&prefix:«[+]»@, 
+into its internal name (@&infix:+@ and @&prefix:[+]@ respectively).
+-}
+instance ((:>:) Var) String where
+    cast = cast . Str.pack
+
+emptyPkg :: Pkg
+emptyPkg = MkPkg []
+
+-- globalPkg :: Pkg
+-- globalPkg = MkPkg [__"GLOBAL"]
+
+contextPkg :: Pkg
+contextPkg = MkPkg [__"ENV"] -- XXX wrong
+
+toGlobalVar :: Var -> Var
+toGlobalVar var = var{ v_twigil = TGlobal }
+
+isGlobalVar :: Var -> Bool
+isGlobalVar MkVar{ v_twigil = TGlobal } = True
+isGlobalVar _                           = False
+
+instance ((:>:) Var) ByteString where
+    cast x = unsafePerformIO (bufToVar x)
+
+{-# NOINLINE _BufToVar #-}
+_BufToVar :: H.StrMap ByteString Var
+_BufToVar = unsafePerformIO C.new
+
+bufToVar :: ByteString -> IO Var
+bufToVar buf = do
+    a' <- C.lookup buf _BufToVar
+    maybe (do
+        let a = doBufToVar buf
+        C.insert buf a _BufToVar
+        return a) return a'
+
+doBufToVar :: ByteString -> Var
+doBufToVar buf = MkVar
+    { v_sigil   = sig'
+    , v_twigil  = twi
+    , v_package = pkg
+    , v_categ   = cat
+    , v_name    = cast name
+    }
+    where
+    (sig, afterSig) = Str.span isSigilChar buf
+    sig' = if Str.null sig then internalError $ "Sigilless var: " ++ show buf else cast sig
+    len = Str.length afterSig
+    (twi, (pkg, afterPkg))
+        | len == 0 = (TNone, (emptyPkg, afterSig))
+        | len == 1 = case Str.head afterSig of
+            '!' -> (TGlobal, (emptyPkg, afterSig))  -- XXX $! always global - WRONG
+            '/' -> (TGlobal, (emptyPkg, afterSig))  -- XXX $/ always global - WRONG
+            _   -> (TNone, (emptyPkg, afterSig))
+        | otherwise = case Str.head afterSig of
+            '.' -> (TAttribute, toPkg afterTwi)
+            '^' -> (TImplicit, toPkg afterTwi)
+            '?' -> (TMagical, toPkg afterTwi)
+            '!' -> (TPrivate, toPkg afterTwi)
+            '=' -> (TDoc, toPkg afterTwi)
+--              '*' -> (TNone, (globalPkg, Str.tail afterSig))
+            '*' -> (TGlobal, toPkg afterTwi)
+            '+' -> (TNone, (contextPkg, Str.tail afterSig))
+            _   -> (TNone, toPkg (tokenPkg afterSig))
+    afterTwi = tokenPkg (Str.tail afterSig)
+    toPkg (pkg, rest) = (MkPkg pkg, rest)
+    tokenPkg str = case Str.findSubstring (__"::") str of
+        Nothing  -> ([], str)
+        Just idx -> let (rest, final) = tokenPkg (Str.drop (idx + 2) str) in
+            ((Str.take idx str:rest), final)
+    (cat, name)
+        | twi == TGlobal =
+            -- XXX special case for "$*X::Y::Z".  Currently we encode that
+            --     as a twigil of *, and then the name part contains
+            case Str.findSubstrings (__"::") afterPkg of
+                [] -> tokenizeCategory afterPkg
+                xs -> let idx = last xs
+                          (cat, name) = tokenizeCategory (Str.drop (idx + 2) afterPkg)
+                        in (cat, Str.take idx afterPkg +++ name)
+        | otherwise = tokenizeCategory afterPkg
+    tokenizeCategory str = case Str.elemIndex ':' str of
+        Just idx -> if isUpper (Str.head str)
+            then internalError (show buf)
+            else (cast (Str.take idx str), Str.drop (succ idx) str)
+        _ -> (CNone, afterPkg)
+
+instance ((:>:) Pkg) ByteString where
+    cast = MkPkg . Str.tokens (== ':')
+
+instance ((:>:) Pkg) String where
+    cast = cast . Str.pack
+
+instance ((:>:) ID) Pkg where
+    cast = cast . (cast :: Pkg -> ByteString)
+
+instance ((:>:) Type) ID where
+    cast = cast . (cast :: ID -> ByteString)
+
+possiblyFixOperatorName :: Var -> Var
+possiblyFixOperatorName var@MkVar{ v_categ = cat, v_sigil = sig, v_name = name }
+    | cat == CNone = var
+    | sig /= SCode, sig /= SCodeMulti = var
+    | Str.head buf == '\171', Str.last buf == '\187'
+    = var{ v_name = cast (Str.init (Str.tail buf)) }
+    | __"<<" `Str.isPrefixOf` buf, __">>" `Str.isSuffixOf` buf
+    = var{ v_name = cast (dropEnd 2 (Str.drop 2 buf)) }
+    | Str.head buf == '<', Str.last buf == '>', buf /= __"<=>"
+    = var{ v_name = cast (Str.init (Str.tail buf)) }
+    | otherwise
+    = var
+    where
+    buf = cast name
+
+dropEnd :: Int -> ByteString -> ByteString
+dropEnd i buf = Str.take (Str.length buf - i) buf
+
 -- | Uses Haskell's underlying representation for strings.
 type VStr  = String
 -- | Uses Haskell's underlying representation for booleans.
@@ -279,13 +557,12 @@ isaType' = junctivate (||) (&&) $ \tree base target ->
 
 {-|
 Compute the \'distance\' between two types by applying 'findList' to each of
-them, and passing the resulting type chains to 'compareList'.
-
+/bin/bash: line 1: :1: command not found
 See 'compareList' for further details.
 -}
 distanceType :: ClassTree -> Type -> Type -> Int
 distanceType tree base@(MkType b) target@(MkType t) = 
-    Map.findWithDefault (compareList l1 l2) (b, t) initCache
+    IntMap.findWithDefault (compareList l1 l2) (idKey b `shiftL` 16 + idKey t) initCache
 --  | not (castOk base target)  = 0
 --  | otherwise = compareList l1 l2
     where
@@ -293,10 +570,12 @@ distanceType tree base@(MkType b) target@(MkType t) =
     l2 = findList target tree
 distanceType _ _ _ = error "distanceType: MkType not 'simple'"
 
-initCache :: Map.Map (ID, ID) Int
-initCache = Map.fromList leaves
+initCache :: IntMap.IntMap Int
+initCache = IntMap.fromList leaves
     where
-    leaves = [ ((x, y), cachedLookup x y) | x <- initLeaves, y <- initLeaves ]
+    leaves = [ (idKey x `shiftL` 16 + idKey y, cachedLookup x y)
+             | x <- initLeaves, y <- initLeaves
+             ]
     cachedLookup base target = compareList l1 l2
         where
         l1 = findList base rawTree

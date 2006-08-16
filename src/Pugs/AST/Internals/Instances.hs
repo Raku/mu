@@ -63,7 +63,7 @@ _FakeEnv = unsafePerformIO $ liftSTM $ do
         , envImplicit= Map.empty
         , envLValue  = False
         , envGlobal  = glob
-        , envPackage = "main"
+        , envPackage = cast "Main"
         , envClasses = initTree
         , envEval    = const (return VUndef)
         , envCaller  = Nothing
@@ -94,6 +94,13 @@ instance YAML (Eval Val) where
 instance YAML a => YAML (Map String a) where
     asYAML x = asYAMLmap "Map" $ Map.toAscList (Map.map asYAML x)
     fromYAML node = fmap Map.fromList (fromYAMLmap node)
+instance YAML a => YAML (Map Var a) where
+    asYAML x = asYAMLmap "Map" . sortBy (\x y -> fst x `compare` fst y) $
+        [ (cast k, asYAML v) | (k, v) <- Map.toList x ]
+    fromYAML node = do
+        list <- fromYAMLmap node
+        fmap Map.fromList . forM list $ \(k, v) -> do
+            return (cast k, v)
 instance Typeable a => YAML (IVar a) where
     asYAML x = asYAML (MkRef x)
 instance YAML VRef where
@@ -156,6 +163,15 @@ instance Perl5 ID where
     showPerl5 x = showPerl5 (cast x :: ByteString)
 instance JSON ID where
     showJSON x = showJSON (cast x :: ByteString)
+
+instance YAML Var where
+    asYAML x = asYAML (cast x :: String)
+    fromYAML = fmap (cast :: String -> Var) . fromYAML
+ 
+instance Perl5 Var where
+    showPerl5 x = showPerl5 (cast x :: String)
+instance JSON Var where
+    showJSON x = showJSON (cast x :: String)
 
 instance YAML VControl
 instance YAML (Set Val)

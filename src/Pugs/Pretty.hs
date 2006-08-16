@@ -31,13 +31,14 @@ class (Show a) => Pretty a where
     format x = text $ show x
 
 instance Pretty VStr
+instance Pretty Var
 
 instance Pretty Exp where
     format (NonTerm pos) = text "Syntax error at" <+> format pos
     format (Val v) = format v
     format (Syn x vs) = text "Syn" <+> format x <+> (braces $ vcat (punctuate (text ";") (map format vs)))
     format (Stmts exp1 exp2) = (vcat $ punctuate (text ";") $ (map format) [exp1, exp2])
-    format (App (Var name) invs args) = text "App" <+> text name <+> parens (nest defaultIndent $ cat (punctuate (text ": ") [ cat (punctuate (text ", ") (map format x)) | x <- [maybeToList invs, args] ]))
+    format (App (Var name) invs args) = text "App" <+> text (cast name) <+> parens (nest defaultIndent $ cat (punctuate (text ": ") [ cat (punctuate (text ", ") (map format x)) | x <- [maybeToList invs, args] ]))
     format (App sub invs args) = text "App" <+> parens (format sub) <+> parens (nest defaultIndent $ vcat (punctuate (text ", ") (map format $ maybeToList invs ++ args)))
     format (Sym scope name exp) = text "Sym" <+> text (show scope) <+> format name $+$ format exp
     format (Pad scope pad exp) = text "Pad" <+> text (show scope) <+> format pad $+$ format exp
@@ -78,10 +79,10 @@ instance Pretty (Exp, SourcePos) where
     format (x, _) = format x 
 
 instance Pretty (TVar VRef) where
-    format x = braces $ text $ "ref:" ++ show x
+    format x = text ('#':show x)
 
 instance Pretty VRef where
-    format x = braces $ text $ "ref:" ++ show x
+    format x = text ('#':show x)
 
 instance Pretty VMatch where
     format m = joinList (text ", ")

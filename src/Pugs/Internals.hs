@@ -74,7 +74,6 @@ module Pugs.Internals (
     inlinePerformIO,
     inlinePerformSTM,
     unsafePerformSTM,
-    possiblyFixOperatorName,
     maybeM,
     safeMode,
     warn,
@@ -83,6 +82,8 @@ module Pugs.Internals (
     unsafeIOToSTM,
     unsafeCoerce#,
     ID(..), bufToID,
+
+    __, (+++), nullID,
 ) where
 
 import UTF8
@@ -160,6 +161,15 @@ import qualified Foreign as Foreign
 -- Also, it must work for all values of type "b".
 -- 
 class ((:>:) a) b where
+    {-# SPECIALISE INLINE cast :: ID -> ID #-}
+    {-# SPECIALISE INLINE cast :: ByteString -> ByteString #-}
+    {-# SPECIALISE INLINE cast :: String -> String #-}
+    {-# SPECIALISE INLINE cast :: ByteString -> ByteString #-}
+    {-# SPECIALISE INLINE cast :: String -> String #-}
+    {-# SPECIALISE INLINE cast :: ID -> ByteString #-}
+    {-# SPECIALISE INLINE cast :: ID -> String #-}
+    {-# SPECIALISE INLINE cast :: ByteString -> ID #-}
+    {-# SPECIALISE INLINE cast :: String -> ID #-}
     cast :: b -> a
 
 class ((:<:) a) b where
@@ -334,36 +344,6 @@ maybeM :: (FunctorM f, Monad m)
 maybeM f m = fmapM m =<< f
 
 {-|
-Transform an operator name, for example @&infix:\<+\>@ or @&prefix:«[+]»@, 
-into its internal name (@&infix:+@ and @&prefix:[+]@ respectively).
--}
-possiblyFixOperatorName :: String -> String
-possiblyFixOperatorName name
-    -- It doesn't matter if we lookup &foo or &*foo.
-    | ('&':'*':rest) <- name = "&*" ++ fixName' rest
-    | ('&':rest)     <- name = "&"  ++ fixName' rest
-    | otherwise      = name
-    where
-    -- We've to strip the <>s for &infix:<...>, &prefix:<...>, and
-    -- &postfix:<...>.
-    -- The other &...:<...> things aren't that simple (e.g. circumfix.).
-    fixName' ('i':'n':'f':'i':'x':':':rest)         = "infix:"   ++ dropBrackets rest
-    fixName' ('p':'r':'e':'f':'i':'x':':':rest)     = "prefix:"  ++ dropBrackets rest
-    fixName' ('p':'o':'s':'t':'f':'i':'x':':':rest) = "postfix:" ++ dropBrackets rest
-    fixName' x                                      = x
-    -- We have to make sure that the last character(s) match the first one(s),
-    -- otherwise 4 <= 4 will stop working.
-    -- Kludge. <=> is ambigious.
-    dropBrackets "<=>" = "<=>"
-    -- «bar» --> bar
-    dropBrackets ('\171':(rest@(_:_)))    = if (last rest) == '\187' then init rest else '\171':rest
-    -- <<bar>> --> bar
-    dropBrackets ('<':'<':(rest@(_:_:_))) = if (last rest) == '>' && (last . init $ rest) == '>' then init . init $ rest else "<<" ++ rest
-    -- <bar> --> bar
-    dropBrackets ('<':(rest@(_:_)))       = if (last rest) == '>' then init rest else '<':rest
-    dropBrackets x                        = x
-
-{-|
 Returns @True@ if the environment variable @PUGS_SAFEMODE@ is set to a
 true value. Most IO primitives are disabled under safe mode.
 -}
@@ -400,6 +380,18 @@ instance Read ID where
 
 instance ((:>:) String) ByteString where cast = Char8.unpack
 instance ((:<:) String) ByteString where castBack = Char8.pack
+
+{-# NOINLINE nullID #-}
+nullID :: ID
+nullID = cast ""
+
+{-# INLINE __ #-}
+__ :: String -> ByteString
+__ = Char8.pack
+
+{-# INLINE (+++) #-}
+(+++) :: ByteString -> ByteString -> ByteString
+(+++) = Char8.append
 
 {-# NOINLINE _IntToID #-}
 _IntToID :: L.IntMap Int ByteString

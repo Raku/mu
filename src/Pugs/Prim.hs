@@ -38,7 +38,6 @@ import System.IO.Error (isEOFError)
 
 import qualified Judy.CollectionsM as C
 --import qualified Judy.StrMap         as H
-import qualified Judy.IntMap       as I
 
 import Pugs.Prim.Keyed
 import Pugs.Prim.Yaml
@@ -92,7 +91,7 @@ op0 "File::Spec::tmpdir" = const $ do
     tmp <- guardIO getTemporaryDirectory
     return $ VStr tmp
 op0 "pi" = constMacro . Val $ VNum pi
-op0 "self" = const $ expToEvalVal (Var "&self")
+op0 "self" = const $ expToEvalVal (_Var "&self")
 op0 "say" = const $ op1 "IO::say" (VHandle stdout)
 op0 "print" = const $ op1 "IO::print" (VHandle stdout)
 op0 "return" = const $ op1Return (shiftT . const $ retEmpty)
@@ -253,7 +252,7 @@ op1 "require_parrot" = \v -> do
 op1 "require_perl5" = \v -> do
     name    <- fromVal v
     val     <- op1 "Pugs::Internals::eval_perl5" (VStr $ "require " ++ name ++ "; '" ++ name ++ "'")
-    evalExp $ Sym SGlobal ('$':'*':name) (Syn ":=" [Var ('$':'*':name), Val val])
+    evalExp $ _Sym SGlobal ('$':'*':name) (Syn ":=" [_Var ('$':'*':name), Val val])
     case val of
         PerlSV _  -> return val
         _         -> fail "perl5 is not available"
@@ -327,7 +326,7 @@ op1 "return" = op1Return . op1ShiftOut
 op1 "yield" = op1Yield . op1ShiftOut
 op1 "take" = \v -> do
     lex <- asks envLexical
-    arr <- findSymRef "@?TAKE" lex
+    arr <- findSymRef (cast "@?TAKE") lex
     op2 "push" (VRef arr) v
 op1 "sign" = \v -> withDefined [v] $
     op1Cast (VInt . signum) v
@@ -360,7 +359,7 @@ op1 "die" = \v -> do
     errmsg x           = x
 op1 "warn" = \v -> do
     strs <- fromVal v
-    errh <- readVar "$*ERR"
+    errh <- readVar $ cast "$*ERR"
     pos  <- asks envPos
     op2 "IO::say" errh $ VList [ VStr $ pretty (VError (errmsg strs) [pos]) ]
     where
@@ -368,7 +367,7 @@ op1 "warn" = \v -> do
     errmsg x  = VStr x
 op1 "fail" = op1 "fail_" -- XXX - to be replaced by Prelude later
 op1 "fail_" = \v -> do
-    throw <- fromVal =<< readVar "$?FAIL_SHOULD_DIE"
+    throw <- fromVal =<< readVar (cast "$?FAIL_SHOULD_DIE")
     if throw then op1 "die" (errmsg v) else do
     pos   <- asks envPos
     let die = shiftT . const . return $ VError (errmsg v) [pos]
@@ -458,7 +457,7 @@ op1 "Pugs::Internals::runShellCommand" = \v -> do
     str <- fromVal v
     cxt <- asks envContext
     guardIO $ do
-        (inp,out,err,pid) <- runInteractiveCommand str
+        (inp,out,_,pid) <- runInteractiveCommand str
         hClose inp
         res <- hGetContents out
         waitForProcess pid
@@ -487,7 +486,7 @@ op1 "system" = \v -> do
     case exitCode of
         ExitFailure x -> do
             glob    <- askGlobal
-            errSV   <- findSymRef "$!" glob
+            errSV   <- findSymRef (cast "$!") glob
             writeRef errSV (VInt $ toInteger x)
             return $ VBool False
         ExitSuccess -> return $ VBool True
@@ -554,7 +553,7 @@ op1 "values" = valuesFromVal
 -- (http://www.nntp.perl.org/group/perl.perl6.language/21895),
 -- =$obj should call $obj.next().
 op1 "="        = \v -> case v of
-    VObject _   -> evalExp $ App (Var "&shift") (Just $ Val v) []
+    VObject _   -> evalExp $ App (_Var "&shift") (Just $ Val v) []
     _           -> op1 "readline" v
 op1 "readline" = op1Readline
 
@@ -619,7 +618,7 @@ op1 "Pugs::Internals::hIsWritable" = op1IO hIsWritable
 op1 "Pugs::Internals::hIsSeekable" = op1IO hIsSeekable
 op1 "Pugs::Internals::reduceVar" = \v -> do
     str <- fromVal v
-    evalExp (Var str)
+    evalExp (_Var str)
 op1 "Pugs::Internals::rule_pattern" = \v -> do
     case v of
         VRule MkRulePGE{rxRule=re} -> return $ VStr re
@@ -654,7 +653,7 @@ op1 "Pugs::Internals::emit_yaml" = \v -> do
     return $ VStr yml
 op1 "Object::meta" = \v -> do
     typ     <- evalValType v
-    evalExp $ Var (':':'*':showType typ)
+    evalExp $ _Var (':':'*':showType typ)
 op1 "Class::name" = \v -> do
     cls     <- fromVal v
     meta    <- readRef =<< fromVal cls
@@ -688,9 +687,9 @@ cascadeMethod f meth v args = do
         _      -> join $ doHash args hash_fetch
     forM_ pkgs $ \pkg -> do
         let sym = ('&':pkg) ++ "::" ++ meth
-        maybeM (fmap (findSym sym) askGlobal) . const $ do
+        maybeM (fmap (findSym $ cast sym) askGlobal) . const $ do
             enterEvalContext CxtVoid $
-                App (Var sym) (Just $ Val v)
+                App (_Var sym) (Just $ Val v)
                     [ Syn "named" [Val (VStr key), Val val]
                     | (key, val) <- Map.assocs named
                     ]
@@ -700,7 +699,7 @@ op1Return :: Eval Val -> Eval Val
 op1Return action = do
     depth <- asks envDepth
     if depth == 0 then fail "cannot return() outside a subroutine" else do
-    sub   <- fromVal =<< readVar "&?ROUTINE"
+    sub   <- fromVal =<< readVar (cast "&?ROUTINE")
     -- If this is a coroutine, reset the entry point
     case subCont sub of
         Nothing -> action
@@ -716,7 +715,7 @@ op1Yield :: Eval Val -> Eval Val
 op1Yield action = do
     depth <- asks envDepth
     if depth == 0 then fail "cannot yield() outside a coroutine" else do
-    sub   <- fromVal =<< readVar "&?ROUTINE"
+    sub   <- fromVal =<< readVar (cast "&?ROUTINE")
     case subCont sub of
         Nothing -> fail $ "cannot yield() from a " ++ pretty (subType sub)
         Just tvar -> callCC $ \esc -> do
@@ -806,21 +805,21 @@ op1Read v fList fScalar = do
         (fScalar fh)
     where
     handleOf x | safeMode, (VHandle h) <- x, h /= stdin = fail "Evil handle detected"
-    handleOf x | safeMode = return stdin
+    handleOf _ | safeMode = return stdin
     handleOf VUndef = handleOf (VList [])
     handleOf (VList []) = do
-        argsGV  <- readVar "$*ARGS"
+        argsGV  <- readVar (cast "$*ARGS")
         gv      <- fromVal argsGV
         if defined gv
             then handleOf gv
             else do
-                args    <- readVar "@*ARGS"
+                args    <- readVar (cast "@*ARGS")
                 files   <- fromVal args
                 if null files
                     then return stdin
                     else do
                         hdl <- handleOf (VStr (head files)) -- XXX wrong
-                        writeVar "$*ARGS" (VHandle hdl)
+                        writeVar (cast "$*ARGS") (VHandle hdl)
                         return hdl
     handleOf (VStr x) = do
         return =<< guardIO $ openFile x ReadMode
@@ -1024,7 +1023,7 @@ op2 "system" = \x y -> do
     case exitCode of
         ExitFailure x -> do
             glob    <- askGlobal
-            errSV   <- findSymRef "$!" glob
+            errSV   <- findSymRef (cast "$!") glob
             writeRef errSV (VInt $ toInteger x)
             return $ VBool False
         ExitSuccess -> return $ VBool True
@@ -1125,7 +1124,7 @@ op3 "Pugs::Internals::exec" = \x y z -> do
     case exitCode of
         ExitFailure x -> do
             glob    <- askGlobal
-            errSV   <- findSymRef "$!" glob
+            errSV   <- findSymRef (cast "$!") glob
             writeRef errSV (VInt $ toInteger x)
             return $ VBool False
         ExitSuccess -> do
@@ -1179,22 +1178,22 @@ op3 "META::new" = \t n p -> do
     meta    <- readRef =<< fromVal cls
     fetch   <- doHash meta hash_fetchVal
 
-    name    <- fromVal =<< fetch "name"
-    roles   <- fromVals =<< fetch "does"
+    name    <- fromVal =<< fetch "name" :: Eval String
+    roles   <- fromVals =<< fetch "does" :: Eval [String]
 
     -- Role flattening -- copy over things there and put it to symbol table
     -- XXX - also do renaming of concrete types mentioned in roles
     -- XXX - also, rewrite subEnv mentioned in the subs
     -- XXX - also, copy over the inheritance chain from role's metaobject
     glob <- asks envGlobal
+    let rolePkgs = map cast roles
+        thisPkg  = cast name
+
     liftSTM . modifyTVar glob $ \(MkPad entries) ->
         MkPad . Map.union entries . Map.fromList $
-            [ (toPackage name sym, v)
+            [ (k{ v_package = thisPkg }, v)
             | (k, v) <- Map.assocs entries
-            , let q = isQualified k
-            , isJust q
-            , let (pkg, sym) = fromJust q
-            , pkg `elem` roles
+            , v_package k `elem` rolePkgs
             ]
     return cls
 op3 "Object::new" = \t n p -> do
@@ -1411,16 +1410,16 @@ op3Caller kind skip _ = do                                 -- figure out label
     formatFrame :: [(Env, Maybe VCode)] -> Eval Val
     formatFrame [] = retEmpty
     formatFrame ((env, Just sub):_) = returnList
-        [ VStr $ envPackage env                        -- .package
+        [ VStr $ cast (envPackage env)                 -- .package
         , VStr $ posName $ envPos env                  -- .file
         , VInt $ toInteger $ posBeginLine $ envPos env -- .line
-        , VStr $ subName sub                           -- .subname
+        , VStr $ cast (subName sub)                    -- .subname
         , VStr $ show $ subType sub                    -- .subtype
         , VCode $ sub                                  -- .sub
         -- TODO: add more things as they are specced.
         ]
     formatFrame ((env, _):_) = returnList
-        [ VStr $ envPackage env                        -- .package
+        [ VStr $ cast (envPackage env)                 -- .package
         , VStr $ posName $ envPos env                  -- .file
         , VInt $ toInteger $ posBeginLine $ envPos env -- .line
         ]
@@ -1439,7 +1438,7 @@ op3Caller kind skip _ = do                                 -- figure out label
     callChain cur = 
         case envCaller cur of
             Just caller -> do
-                val <- local (const caller) (readVar "&?ROUTINE")
+                val <- local (const caller) (readVar $ cast "&?ROUTINE")
                 if (val == undef) then return [(caller, Nothing)] else do
                 sub <- fromVal val
                 rest <- callChain caller
@@ -1471,7 +1470,7 @@ withDefined (_:xs) c = withDefined xs c
 -- \"&*\" ~ fixity ~ \":\" for operators.
 primOp :: String -> String -> Params -> String -> Bool -> Bool -> STM PadMutator
 primOp sym assoc prms ret isSafe isMacro = do
-    prim <- genMultiSym name (sub (isSafe || not safeMode))
+    prim <- genMultiSym (cast name) (sub (isSafe || not safeMode))
     case assoc of
         "chain" | head sym /= '!' -> do
             prim' <- primOp ('!':sym) assoc prms ret isSafe isMacro
@@ -1484,12 +1483,13 @@ primOp sym assoc prms ret isSafe isMacro = do
          = "&*" ++ sym
          | otherwise
          = "&*" ++ fixity ++ (':':sym)
+
     pkg = do
         (_, pre) <- breakOnGlue "::" (reverse sym)
         return $ dropWhile (not . isAlphaNum) (reverse pre)
 
     sub safe = codeRef $! mkPrim
-        { subName     = sym
+        { subName     = cast sym
         , subType     = case pkg of
             Nothing | isMacro       -> SubMacro
                     | otherwise     -> SubPrim
@@ -1552,7 +1552,7 @@ setFinalization obj = do
     setFinalizationIn obj env = do
         objRef <- mkWeakPtr obj . Just $ do
             runEvalIO env $ do
-                evalExp $ App (Var "&DESTROYALL") (Just $ Val obj) []
+                evalExp $ App (_Var "&DESTROYALL") (Just $ Val obj) []
             return ()
         modifyIORef _GlobalFinalizer (>> finalize objRef)
         return obj

@@ -69,12 +69,13 @@ instance Compile IHash where
     compile map = error (show map)
 
 
-instance Compile (String, [(TVar Bool, TVar VRef)]) where
-    compile ((':':'*':_), _) = return Str.empty -- XXX - :*Bool etc; punt for now
-    compile (n, tvars) = do
-        tvarsC <- fmap (filter (not . Str.null)) $ mapM compile tvars
-        if null tvarsC then return Str.empty else do
-        return $ Str.concat [pl, Str.pack (show n), Str.pack ", [", joinMany tvarsC, br, pr]
+instance Compile (Var, [(TVar Bool, TVar VRef)]) where
+    compile (var, tvars)
+        | SType <- v_sigil var, isGlobalVar var = return Str.empty
+        | otherwise = do
+            tvarsC <- fmap (filter (not . Str.null)) $ mapM compile tvars
+            if null tvarsC then return Str.empty else do
+            return $ Str.concat [pl, Str.pack (cast var), Str.pack ", [", joinMany tvarsC, br, pr]
 
 instance (Typeable a) => Compile (Maybe (TVar a)) where
     compile = const . ret $ "Nothing"

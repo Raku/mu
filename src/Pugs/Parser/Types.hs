@@ -26,21 +26,22 @@ satisfy f = do
     modify $ \state -> state{ ruleChar = rv }
     return rv
 
+string :: String -> RuleParser String
 string s = do
     rv <- tokens show updatePosString s
     modify $ \state -> state{ ruleChar = last s }
     return rv
 
-captureNamed :: String -> RuleParser a -> RuleParser a
-captureNamed newState rule = do
+_captureNamed :: String -> RuleParser a -> RuleParser a
+_captureNamed newState rule = do
     prev <- gets ruleName
     modify $ \state -> state{ ruleName = newState }
     rv <- rule
     modify $ \state -> state{ ruleName = prev }
     return rv
 
-capturePositioned :: Int -> RuleParser a -> RuleParser a
-capturePositioned pos rule = do
+_capturePositioned :: Int -> RuleParser a -> RuleParser a
+_capturePositioned pos rule = do
     prev <- gets rulePos
     modify $ \state -> state{ rulePos = pos }
     rv <- rule
@@ -68,6 +69,7 @@ noneOf cs   = satisfy (\c -> not (elem c cs))
 char :: Char -> RuleParser Char
 char c      = satisfy (==c)  <?> show [c]
 
+hexDigit, octDigit, digit, upper, whiteSpace :: RuleParser Char
 hexDigit    = satisfy (isHexDigit)  <?> "hexadecimal digit"
 octDigit    = satisfy (isOctDigit)  <?> "octal digit"
 
@@ -77,6 +79,7 @@ upper       = satisfy (isUpper)     <?> "uppercase letter"
 whiteSpace  = satisfy (\c -> charClassOf c == SpaceClass)
                                     <?> "whitespace"
 
+perl6WhiteSpace :: RuleParser String
 perl6WhiteSpace = do cls <- getPrevCharClass 
 		     let mod = if cls == WordClass then many1 else many
 		     do mod whiteSpace

@@ -172,25 +172,33 @@ Return the context implied by a particular primary sigil
 (\$, \@, \% or \&). E.g. used to find what context to impose on
 the RHS of a binding (based on the sigil of the LHS).
 -}
-cxtOfSigil :: Char -> Cxt
-cxtOfSigil '$'  = cxtItemAny
-cxtOfSigil '@'  = cxtSlurpyAny
-cxtOfSigil '%'  = cxtSlurpyAny
-cxtOfSigil '&'  = CxtItem $ mkType "Code"
-cxtOfSigil '<'  = CxtItem $ mkType "Pugs::Internals::VRule"
-cxtOfSigil ':'  = CxtItem $ mkType "Type"
-cxtOfSigil x    = internalError $ "cxtOfSigil: unexpected character: " ++ show x
+cxtOfSigil :: VarSigil -> Cxt
+cxtOfSigil SScalar      = cxtItemAny
+cxtOfSigil SArray       = cxtSlurpyAny
+cxtOfSigil SArrayMulti  = cxtSlurpyAny
+cxtOfSigil SHash        = cxtSlurpyAny
+cxtOfSigil SCode        = CxtItem $ mkType "Code"
+cxtOfSigil SCodeMulti   = CxtItem $ mkType "Code"
+cxtOfSigil SRegex       = CxtItem $ mkType "Pugs::Internals::VRule"
+cxtOfSigil SType        = CxtItem $ mkType "Type"
 
+cxtOfSigilVar :: Var -> Cxt
+cxtOfSigilVar = cxtOfSigil . v_sigil
 
 {-|
 Return the type of variable implied by a name beginning with the specified
 sigil.
 -}
-typeOfSigil :: Char -> Type
-typeOfSigil '$'  = mkType "Item"
-typeOfSigil '@'  = mkType "Array"
-typeOfSigil '%'  = mkType "Hash"
-typeOfSigil '&'  = mkType "Code"
-typeOfSigil '<'  = mkType "Pugs::Internals::VRule"
-typeOfSigil ':'  = mkType "Type"
-typeOfSigil x    = internalError $ "typeOfSigil: unexpected character: " ++ show x
+typeOfSigil :: VarSigil -> Type
+typeOfSigil SScalar     = mkType "Item"
+typeOfSigil SArray      = mkType "Array"
+typeOfSigil SArrayMulti = mkType "Array"
+typeOfSigil SHash       = mkType "Hash"
+typeOfSigil SCode       = mkType "Code"
+typeOfSigil SCodeMulti  = mkType "Code"
+typeOfSigil SRegex      = mkType "Pugs::Internals::VRule"
+typeOfSigil SType       = mkType "Type"
+
+typeOfSigilVar :: Var -> Type
+typeOfSigilVar = typeOfSigil . v_sigil
+

@@ -30,8 +30,8 @@ import Pugs.AST
 import Pugs.Rule
 import Pugs.Types
 import Pugs.Parser.Types
-import qualified Text.ParserCombinators.Parsec.Char as C (satisfy)
 
+identStart, identLetter :: RuleParser Char
 identStart  = satisfy isWordAlpha
 identLetter = satisfy isWordAny
 
@@ -48,6 +48,7 @@ isWordAlpha x = (isAlpha x || x == '_')
 maybeParens :: RuleParser a -> RuleParser a
 maybeParens p = choice [ parens p, p ]
 
+parens, braces, angles, brackets :: RuleParser a -> RuleParser a
 parens p        = between (symbol "(") (symbol ")") p
 braces p        = between (symbol "{") (symbol "}") p
 angles p        = between (symbol "<") (symbol ">") p
@@ -131,8 +132,8 @@ balanced = do
     return contents
 
 -- The \b rule.
-ruleWordBoundary :: RuleParser ()
-ruleWordBoundary = do
+_ruleWordBoundary :: RuleParser ()
+_ruleWordBoundary = do
     prev <- getPrevCharClass
     case prev of
         SpaceClass -> return ()
@@ -235,7 +236,7 @@ interpolatingStringLiteral startRule endRule interpolator = do
     homogenConcat (Val (VStr x):Val (VStr y):xs)
         = homogenConcat (Val (VStr (x ++ y)) : xs)
     homogenConcat (x:xs)
-        = App (Var "&infix:~") Nothing [x, homogenConcat xs]
+        = App (_Var "&infix:~") Nothing [x, homogenConcat xs]
     
     stringList :: Int -> RuleParser [Exp]
     stringList i = choice
@@ -450,7 +451,7 @@ verbatimBraces = between (lexeme $ char '{') (char '}')
 -- Numbers
 -----------------------------------------------------------
 -- naturalOrFloat :: CharParser st (Either Integer Double)
-naturalOrFloat  = lexeme (natFloat) <?> "number"
+naturalOrFloat  = lexeme natFloat   <?> "number"
 
 float           = lexeme floating   <?> "float"
 integer         = lexeme int        <?> "integer"

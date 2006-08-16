@@ -51,10 +51,10 @@ ruleProgram = rule "program" $ do
     -- S04: CHECK {...}*      at compile time, ALAP
     --  $_() for @*CHECK
     rv <- unsafeEvalExp $ Syn "for"
-        [ Var "@*CHECK"
+        [ _Var "@*CHECK"
         , Syn "sub"
             [ Val . VCode $ mkSub
-                { subBody   = App (Var "$_") Nothing []
+                { subBody   = App (_Var "$_") Nothing []
                 , subParams = [defaultScalarParam]
                 }
             ]

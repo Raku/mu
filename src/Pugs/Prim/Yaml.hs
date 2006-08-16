@@ -10,12 +10,10 @@ import Pugs.Types
 import Data.Yaml.Syck
 import qualified Data.Map as Map
 import qualified Data.IntSet as IntSet
-import qualified Data.IntMap as IntMap
 import qualified Data.ByteString as Str
 import DrIFT.YAML
 
 import qualified Judy.CollectionsM as C
-import qualified Judy.Hash         as H
 
 evalYaml :: Val -> Eval Val
 evalYaml cv = do

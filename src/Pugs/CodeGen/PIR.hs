@@ -16,7 +16,6 @@ module Pugs.CodeGen.PIR (genPIR, genPIR_YAML) where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
-import Pugs.Eval.Var
 import Pugs.PIL1
 import Emit.PIR.Instances ()
 import Emit.PIR
@@ -27,6 +26,7 @@ import Pugs.Prim.Eval
 import Pugs.Compile
 import Pugs.Run (getLibs)
 import DrIFT.YAML
+import qualified Data.ByteString.Char8 as Str
 
 type CodeGen a = WriterT [Stmt] (ReaderT TEnv IO) a
 type CodeGenMonad = WriterT [Stmt] (ReaderT TEnv IO)
@@ -124,12 +124,26 @@ instance Translate PIL_Expr Expression where
         return (ExpLV this)
 
 prmToPad :: Param -> (VarName, Expression)
-prmToPad prm = (paramName prm, ExpLV (VAR $ prmToIdent prm))
+prmToPad prm = (cast (paramName prm), ExpLV (VAR $ prmToIdent prm))
+
+isQualified :: String -> Maybe (String, String)
+isQualified name
+    | Just (post, pre) <- breakOnGlue "::" (reverse name) =
+    let (sigil, pkg) = span (not . isAlphaNum) preName
+        name'       = possiblyFixOperatorName (cast $ sigil ++ postName)
+        preName     = reverse pre
+        postName    = reverse post
+    in case takeWhile isAlphaNum pkg of
+        "OUTER"     -> Nothing
+        "CALLER"    -> Nothing
+        _           -> Just (pkg, cast name')
+isQualified _ = Nothing
 
 instance Translate PIL_Decl Decl where
-    trans (PSub name styp params lvalue ismulti body) | Just (pkg, name') <- isQualified name = do
-        declC <- trans $ PSub name' styp params lvalue ismulti body
-        return $ DeclNS pkg [declC]
+    trans (PSub name styp params lvalue ismulti body) 
+        | Just (pkg, name') <- isQualified name = do
+            declC <- trans $ PSub (cast name') styp params lvalue ismulti body
+            return $ DeclNS (cast pkg) [declC]
     trans (PSub name styp params _ _ body) = do
         (_, stmts)  <- listen $ do
             let prms = map tpParam params
@@ -155,7 +169,7 @@ instance Translate PIL_Literal Expression where
     trans (PVal (VCode code))
         | MkCode{ subBody = Syn "block" [ Ann _ exp ] } <- code
         , App (Var var) Nothing [] <- exp
-        = fmap ExpLV (trans (PVar var))
+        = fmap ExpLV (trans (PVar $ cast var))
     trans (PVal (VList vs)) = do
         pmc <- genArray "vlist"
         forM vs $ \val -> do
@@ -165,7 +179,7 @@ instance Translate PIL_Literal Expression where
     trans val@(PVal _) = transError val
 
 instance Translate PIL_LValue LValue where
-    trans (PVar name) | Just (pkg, name') <- isQualified name = do
+    trans (PVar name) | Just (pkg, name') <- isQualified (cast name) = do
         [globL] <- genLabel ["glob"]
         pmc     <- genScalar "glob"
         tell [StmtRaw (text "errorsoff .PARROT_ERRORS_GLOBALS_FLAG")]
@@ -185,7 +199,7 @@ instance Translate PIL_LValue LValue where
         = trans $ PVar (sig ++ name')
     trans (PVar name) = do
         pmc     <- genScalar "lex"
-        tellIns $ pmc <-- "find_name" $ [lit $ possiblyFixOperatorName name]
+        tellIns $ pmc <-- "find_name" $ [lit $ possiblyFixOperatorName $ cast name]
         return pmc
     trans (PAssign [lhs] rhs) = do
         lhsC    <- enter tcLValue $ trans lhs
@@ -235,6 +249,12 @@ instance Translate PIL_LValue LValue where
         -}
     trans x = transError x
 
+instance LiteralClass Var Expression where
+    lit = ExpLit . LitStr . cast
+
+instance LiteralClass ByteString Expression where
+    lit = ExpLit . LitStr . cast
+
 -- XXX - slow way of implementing "return"
 wrapSub :: SubType -> CodeGen () -> CodeGen ()
 wrapSub SubPrim = id
@@ -265,7 +285,7 @@ prmToArgs prm = combine
     f ==> arg = if f prm then (arg:) else id
 
 prmToIdent :: Param -> String
-prmToIdent = render . varText . paramName
+prmToIdent = render . varText . cast. paramName
 
 storeLex :: TParam -> CodeGen ()
 storeLex param = do
@@ -279,7 +299,7 @@ storeLex param = do
                 -- compile it away
                 tellIns $ VAR name <:= expC
         tellLabel defC
-    tellIns $ "store_lex" .- [lit var, bare name]
+    tellIns $ "store_lex" .- [lit (cast var :: VarName), bare name]
     where
     var     = paramName prm
     name    = prmToIdent prm

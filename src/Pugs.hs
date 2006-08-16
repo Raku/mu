@@ -302,7 +302,7 @@ doLoad env fn = do
     runImperatively env (evaluate exp)
     return ()
     where
-    exp = App (Var "&require") Nothing [Val $ VStr fn]
+    exp = App (_Var "&require") Nothing [Val $ VStr fn]
 
 doRunSingle :: TVar Env -> RunOptions -> String -> IO ()
 doRunSingle menv opts prog = (`catch` handler) $ do
@@ -314,7 +314,7 @@ doRunSingle menv opts prog = (`catch` handler) $ do
         VControl (ControlEnv env') -> do
             ref <- liftSTM $ do
                 pad <- readTVar (envGlobal env')
-                readTVar $ fromJust (findSym "$*_" pad)
+                readTVar $ fromJust (findSym (cast "$*_") pad)
             val <- runEvalIO env' $ readRef ref
             liftSTM $ writeTVar menv env'
             return val

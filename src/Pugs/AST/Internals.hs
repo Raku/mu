@@ -64,7 +64,7 @@ module Pugs.AST.Internals (
     fromVals, refType,
     refreshPad, lookupPad, padToList, listToPad,
     mkPrim, mkSub, showRat, showTrueRat,
-    cxtOfSigil, typeOfSigil,
+    cxtOfSigil, cxtOfSigilVar, typeOfSigil, typeOfSigilVar,
     buildParam, defaultArrayParam, defaultHashParam, defaultScalarParam,
     emptyExp,
     isSlurpy, envWant,
@@ -75,11 +75,12 @@ module Pugs.AST.Internals (
     
     errStrPos, errValPos, enterAtomicEnv, valToBool, envPos', -- for circularity
     expToEvalVal, -- Hack, should be removed once it's figured out how
+
+    _Sym, _Var, -- String -> ByteString constructors
 ) where
 import Pugs.Internals
 import Pugs.Types
 import Pugs.Cont hiding (shiftT, resetT)
-import System.IO.Error (try)
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 
@@ -97,6 +98,7 @@ import Pugs.AST.Scope
 import Pugs.AST.SIO
 import Pugs.Embed.Perl5
 import qualified Pugs.Val as Val
+import qualified Data.ByteString.Char8 as Str
 import Pugs.Val hiding (Val, IValue, VUndef)
 
 {- <DrIFT> Imports for the DrIFT
@@ -376,7 +378,7 @@ instance Value [VPair] where
 instance Value VCode where
     castV = VCode
     fromSV sv = return $ mkPrim
-        { subName     = "<anon>"
+        { subName     = cast "<anon>"
         , subParams   = [defaultArrayParam]
         , subReturns  = mkType "Scalar::Perl5"
         , subBody     = Prim $ \(args:_) -> do
@@ -520,7 +522,7 @@ instance Value VStr where
     doCast (VRat r)      = return $ showRat r
     doCast (VNum n)      = return $ showNum n
     doCast (VList l)     = fmap unwords (mapM fromVal l)
-    doCast (VCode s)     = return $ "<" ++ show (subType s) ++ "(" ++ subName s ++ ")>"
+    doCast (VCode s)     = return $ "<" ++ show (subType s) ++ "(" ++ cast (subName s) ++ ")>"
     doCast (VJunc j)     = return $ show j
     doCast (VThread t)   = return $ takeWhile isDigit $ dropWhile (not . isDigit) $ show t
     doCast (VHandle h)   = return $ "<" ++ "VHandle (" ++ (show h) ++ ">"
@@ -646,7 +648,7 @@ data VRule
                                 --     'Regex' object)
         , rxGlobal    :: !Bool  -- ^ Flag indicating \'global\' (match-all)
         , rxNumSubs   :: !Int   -- ^ The number of subpatterns present.
-            , rxStringify :: !Bool
+        , rxStringify :: !Bool
         , rxRuleStr   :: !String -- ^ The rule string, for user reference.
         , rxAdverbs   :: !Val
         }
@@ -783,7 +785,7 @@ data Param = MkParam
     , isLValue      :: !Bool        -- ^ Is it lvalue (i.e. not `is copy`)?
     , isWritable    :: !Bool        -- ^ Is it writable (i.e. `is rw`)?
     , isLazy        :: !Bool        -- ^ Is it call-by-name (short-circuit)?
-    , paramName     :: !String      -- ^ Parameter name
+    , paramName     :: !Var         -- ^ Parameter name
     , paramContext  :: !Cxt         -- ^ Parameter context: slurpiness and type
     , paramDefault  :: !Exp         -- ^ Default expression (to evaluate to)
                                     --     when omitted
@@ -825,7 +827,7 @@ type SlurpLimit = [(VInt, Exp)]
 -- | Represents a sub, method, closure etc. -- basically anything callable.
 data VCode = MkCode
     { isMulti       :: !Bool        -- ^ Is this a multi sub\/method?
-    , subName       :: !String      -- ^ Name of the closure
+    , subName       :: !ByteString  -- ^ Name of the closure
     , subType       :: !SubType     -- ^ Type of the closure
     , subEnv        :: !(Maybe Env) -- ^ Lexical pad for sub\/method
     , subAssoc      :: !String      -- ^ Associativity
@@ -847,7 +849,7 @@ See "Pugs.Prim" for more info.
 mkPrim :: VCode
 mkPrim = MkCode
     { isMulti = True
-    , subName = ""
+    , subName = cast "&"
     , subType = SubPrim
     , subEnv = Nothing
     , subAssoc = "pre"
@@ -863,7 +865,7 @@ mkPrim = MkCode
 mkSub :: VCode
 mkSub = MkCode
     { isMulti = False
-    , subName = ""
+    , subName = cast "&"
     , subType = SubBlock
     , subEnv = Nothing
     , subAssoc = "pre"
@@ -921,6 +923,12 @@ data Exp
     | Var !Var                          -- ^ Variable
     | NonTerm !Pos                      -- ^ Parse error
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
+
+_Sym :: Scope -> String -> Exp -> Exp
+_Sym scope str exp = Sym scope (cast str) exp
+
+_Var :: String -> Exp
+_Var str = Var (cast str)
 
 instance Value Exp where
     {- Val -> Eval Exp -}
@@ -987,13 +995,13 @@ instance Eq VProcess
 instance Ord VProcess where
     compare _ _ = EQ
 
-extractPlaceholderVarsExp :: Exp -> ([Exp], [String]) -> ([Exp], [String])
+extractPlaceholderVarsExp :: Exp -> ([Exp], [Var]) -> ([Exp], [Var])
 extractPlaceholderVarsExp ex (exps, vs) = (ex':exps, vs')
     where
     (ex', vs') = extractPlaceholderVars ex vs
 
 {-| Deduce the placeholder vars ($^a, $^x etc.) used by a block). -}
-extractPlaceholderVars :: Exp -> [String] -> (Exp, [String])
+extractPlaceholderVars :: Exp -> [Var] -> (Exp, [Var])
 extractPlaceholderVars (App n invs args) vs = (App n' invs' args', vs''')
     where
     (n', vs')      = extractPlaceholderVars n vs
@@ -1007,17 +1015,17 @@ extractPlaceholderVars (Syn n exps) vs = (Syn n exps', vs'')
     where
     (exps', vs') = foldr extractPlaceholderVarsExp ([], vs) exps
     vs'' = case n of
-        "when"  -> nub $ vs' ++ ["$_"]
-        "given" -> delete "$_" vs'
+        "when"  -> nub (cast "$_" : vs')
+        "given" -> delete (cast "$_") vs'
         _       -> vs'
-extractPlaceholderVars (Var name) vs
-    | (sigil:'^':identifer) <- name
-    , name' <- (sigil : identifer)
-    = (Var name', nub (name':vs))
-    | name == "$_"
-    = (Var name, nub (name:vs))
+extractPlaceholderVars (Var var) vs
+    | TImplicit <- v_twigil var
+    , var' <- var{ v_twigil = TNone }
+    = (Var var', nub (var':vs))
+    | var == cast "$_"
+    = (Var var, nub (var:vs))
     | otherwise
-    = (Var name, vs)
+    = (Var var, vs)
 extractPlaceholderVars (Ann ann ex) vs = ((Ann ann ex'), vs')
     where
     (ex', vs') = extractPlaceholderVars ex vs
@@ -1041,7 +1049,7 @@ buildParam typ sigil name e = MkParam
     , isLValue      = True
     , isWritable    = (name == "$_")
     , isLazy        = False
-    , paramName     = name
+    , paramName     = cast name
     , paramContext  = if '*' `elem` sigil
         then CxtSlurpy typ'
         else CxtItem typ'
@@ -1056,9 +1064,9 @@ defaultScalarParam :: Param
 
 defaultArrayParam   = buildParam "" "*" "@_" (Val VUndef)
 defaultHashParam    = buildParam "" "*" "%_" (Val VUndef)
-defaultScalarParam  = buildParam "" "?" "$_" (Var "$_")
+defaultScalarParam  = buildParam "" "?" "$_" (Var $ cast "$_")
 
-type DebugInfo = Maybe (TVar (Map String String))
+type DebugInfo = Maybe (TVar (Map ID String))
 
 {-|
 Evaluation environment.
@@ -1074,7 +1082,7 @@ data Env = MkEnv
     , envLexical :: !Pad                 -- ^ Lexical pad for variable lookup
     , envImplicit:: !(Map Var ())        -- ^ Set of implicit variables
     , envGlobal  :: !(TVar Pad)          -- ^ Global pad for variable lookup
-    , envPackage :: !String              -- ^ Current package
+    , envPackage :: !Pkg                 -- ^ Current package
     , envClasses :: !ClassTree           -- ^ Current class tree
     , envEval    :: !(Exp -> Eval Val)   -- ^ Active evaluator
     , envCaller  :: !(Maybe Env)         -- ^ Caller's "env" pad
@@ -1154,7 +1162,7 @@ refreshPad pad = do
             isFresh <- readTVar fresh
             if isFresh then do { writeTVar fresh False; return orig } else do
             -- regen TVar -- this is not the first time entering this scope
-            ref <- newObject (typeOfSigil $ head name)
+            ref <- newObject (typeOfSigilVar name)
             tvar' <- newTVar ref
             return (fresh, tvar')
         return (name, tvars')
@@ -1185,13 +1193,13 @@ data VMatch = MkMatch
 instance Show Pad where
     show pad = "MkPad (padToList " ++ show (padToList pad) ++ ")"
 
-findSymRef :: String -> Pad -> Eval VRef
+findSymRef :: Var -> Pad -> Eval VRef
 findSymRef name pad = do
     case findSym name pad of
         Just ref -> liftSTM $ readTVar ref
         Nothing  -> fail $ "Cannot find variable: " ++ show name
 
-findSym :: String -> Pad -> Maybe (TVar VRef)
+findSym :: Var -> Pad -> Maybe (TVar VRef)
 findSym name pad = case lookupPad name pad of
     Just (x:_)  -> Just x
     _           -> Nothing
@@ -1209,9 +1217,9 @@ lookupPad :: Var -- ^ Symbol to look for
 -}
 
 lookupPad key (MkPad map) = case Map.lookup (possiblyFixOperatorName key) map of
-        Just (MkEntryMulti xs)   -> Just [tvar | (_, tvar) <- xs]
-        Just (MkEntry (_, tvar)) -> Just [tvar]
-        Nothing -> Nothing
+    Just (MkEntryMulti xs)   -> Just [tvar | (_, tvar) <- xs]
+    Just (MkEntry (_, tvar)) -> Just [tvar]
+    Nothing -> Nothing
 
 {-|
 Transform a pad into a flat list of bindings. The inverse of 'mkPad'.
@@ -1219,13 +1227,13 @@ Transform a pad into a flat list of bindings. The inverse of 'mkPad'.
 Note that @Data.Map.assocs@ returns a list of mappings in ascending key order.
 -}
 padToList :: Pad -> [(Var, [(TVar Bool, TVar VRef)])]
-padToList (MkPad map) = (Map.assocs . Map.map entryToList) map
+padToList (MkPad map) = [ (cast k, entryToList v) | (k, v) <- Map.assocs map ]
     where
     entryToList (MkEntry x)         = [x]
     entryToList (MkEntryMulti xs)   = xs
 
 listToPad :: [(Var, [(TVar Bool, TVar VRef)])] -> Pad
-listToPad = MkPad . Map.map listToEntry . Map.fromList
+listToPad entries = MkPad (Map.fromList [ (cast k, listToEntry v) | (k, v) <- entries ])
     where
     listToEntry [x] = MkEntry x
     listToEntry xs  = MkEntryMulti xs
@@ -1273,21 +1281,22 @@ writeVar name val = do
         _        -> return () -- XXX Wrong
 
 readVar :: Var -> Eval Val
-readVar name@(_:'*':_) = do
-    glob <- askGlobal
-    case findSym name glob of
-        Just tvar -> do
-            ref <- liftSTM $ readTVar tvar
-            readRef ref
-        _        -> return undef
-readVar name@(sigil:rest) = do
-    lex <- asks envLexical
-    case findSym name lex of
-        Just tvar -> do
-            ref <- liftSTM $ readTVar tvar
-            readRef ref
-        _  -> readVar (sigil:'*':rest)
-readVar _ = return undef
+readVar var
+    | isGlobalVar var = do
+        glob <- askGlobal
+        case findSym var glob of
+            Just tvar -> do
+                ref <- liftSTM $ readTVar tvar
+                readRef ref
+            _        -> return undef
+    | otherwise = do
+        lex <- asks envLexical
+        case findSym var lex of
+            Just tvar -> do
+                ref <- liftSTM $ readTVar tvar
+                readRef ref
+            -- XXX - fallback to global should be eliminated here
+            _  -> readVar (toGlobalVar var)
 
 {-|
 The \'empty expression\' is just a no-op ('Noop').
@@ -1672,7 +1681,7 @@ _FakeEnv = unsafePerformIO $ liftSTM $ do
         , envImplicit= Map.empty
         , envLValue  = False
         , envGlobal  = glob
-        , envPackage = "main"
+        , envPackage = cast "Main"
         , envClasses = initTree
         , envEval    = const (return VUndef)
         , envCaller  = Nothing
@@ -1703,6 +1712,13 @@ instance YAML (Eval Val) where
 instance YAML a => YAML (Map String a) where
     asYAML x = asYAMLmap "Map" $ Map.toAscList (Map.map asYAML x)
     fromYAML node = fmap Map.fromList (fromYAMLmap node)
+instance YAML a => YAML (Map Var a) where
+    asYAML x = asYAMLmap "Map" . sortBy (\x y -> fst x `compare` fst y) $
+        [ (cast k, asYAML v) | (k, v) <- Map.toList x ]
+    fromYAML node = do
+        list <- fromYAMLmap node
+        fmap Map.fromList . forM list $ \(k, v) -> do
+            return (cast k, v)
 instance Typeable a => YAML (IVar a) where
     asYAML x = asYAML (MkRef x)
 instance YAML VRef where
@@ -1765,6 +1781,15 @@ instance Perl5 ID where
     showPerl5 x = showPerl5 (cast x :: ByteString)
 instance JSON ID where
     showJSON x = showJSON (cast x :: ByteString)
+
+instance YAML Var where
+    asYAML x = asYAML (cast x :: String)
+    fromYAML = fmap (cast :: String -> Var) . fromYAML
+ 
+instance Perl5 Var where
+    showPerl5 x = showPerl5 (cast x :: String)
+instance JSON Var where
+    showJSON x = showJSON (cast x :: String)
 
 instance YAML VControl
 instance YAML (Set Val)
@@ -1835,7 +1860,7 @@ data JuncType = JAny | JAll | JNone | JOne
 data Scope = SState | SLet | STemp | SEnv | SMy | SOur | SGlobal
     {-!derive: YAML_Pos, JSON, Perl5!-}
 
-data Pad = MkPad { padEntries :: Map Var PadEntry }
+data Pad = MkPad { padEntries :: IntMap PadEntry }
     {-!derive: YAML_Pos!-}
 
 data Pos = MkPos

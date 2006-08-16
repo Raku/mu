@@ -36,7 +36,11 @@ doMatch cs rule@MkRulePGE{ rxRule = ruleStr } = do
     hasSrc <- liftIO $ doesDirectoryExist pwd2
     let pwd = if hasSrc then pwd2 else pwd1
     glob    <- askGlobal
-    let syms = [ (name, tvar) | (('<':'*':name), [(_, tvar)]) <- padToList glob ]
+    let syms = [ (cast $ v_name var, tvar)
+               | (var, [(_, tvar)]) <- padToList glob
+               , SRegex == v_sigil var
+               , isGlobalVar var
+               ]
     subrules <- forM syms $ \(name, tvar) -> do
         ref         <- liftSTM $ readTVar tvar
         VRule rule  <- fromVal =<< readRef ref
@@ -105,7 +109,7 @@ op2Match _ y@(VCode _) = do
     res <- fromVal =<< case arity of
         0 -> evalExp $ App (Val y) Nothing []
         1 -> do
-             topic <- readVar "$_"
+             topic <- readVar (cast "$_")
              evalExp $ App (Val y) Nothing [Val topic]
         _ -> fail ("Unexpected arity in smart match: " ++ (show arity))
     return $ VBool $ res
@@ -141,7 +145,7 @@ op2Match x (VSubst (rx, subst)) | rxGlobal rx = do
         match <- str `doMatch` rx
         if not (matchOk match) then return (str, ok) else do
         glob    <- askGlobal
-        matchSV <- findSymRef "$/" glob
+        matchSV <- findSymRef (cast "$/") glob
         writeRef matchSV (VMatch match)
         str'    <- fromVal =<< evalExp subst
         -- XXX - on zero-width match, advance the cursor and, if can't,
@@ -160,7 +164,7 @@ op2Match x (VSubst (rx, subst)) = do
     match   <- str `doMatch` rx
     if not (matchOk match) then return (VBool False) else do
     glob    <- askGlobal
-    matchSV <- findSymRef "$/" glob
+    matchSV <- findSymRef (cast "$/") glob
     writeRef matchSV (VMatch match)
     str'    <- fromVal =<< evalExp subst
     writeRef ref . VStr $ concat
@@ -204,7 +208,7 @@ op2Match x (VRule rx) = do
     str     <- fromVal x
     match   <- str `doMatch` rx
     glob    <- askGlobal
-    matchSV <- findSymRef "$/" glob
+    matchSV <- findSymRef (cast "$/") glob
     writeRef matchSV (VMatch match)
     ifListContext
         (return $ VList (matchSubPos match))
@@ -274,7 +278,7 @@ rxSplit_n rx str n = do
 
 pkgParents :: VStr -> Eval [VStr]
 pkgParents pkg = do
-    ref     <- readVar (':':'*':pkg)
+    ref     <- readVar $ cast (':':'*':pkg)
     if ref == undef then return [] else do
     meta    <- readRef =<< fromVal ref
     fetch   <- doHash meta hash_fetchVal
@@ -286,7 +290,7 @@ pkgParents pkg = do
 -- XXX - copy and paste code; merge with above!
 pkgParentClasses :: VStr -> Eval [VStr]
 pkgParentClasses pkg = do
-    ref     <- readVar (':':'*':pkg)
+    ref     <- readVar $ cast (':':'*':pkg)
     if ref == undef then return [] else do
     meta    <- readRef =<< fromVal ref
     fetch   <- doHash meta hash_fetchVal

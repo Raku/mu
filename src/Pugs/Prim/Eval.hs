@@ -39,9 +39,9 @@ opRequire :: Bool -> Val -> Eval Val
 opRequire dumpEnv v = do
     mod         <- fromVal v
     if elem mod specialPackageNames then return (VBool True) else do
-    incs        <- fromVal =<< readVar "@*INC"
+    incs        <- fromVal =<< readVar (cast "@*INC")
     glob        <- askGlobal
-    seen        <- findSymRef "%*INC" glob
+    seen        <- findSymRef (cast "%*INC") glob
     loaded      <- existsFromRef seen v
     let file    = (concat $ intersperse (getConfig "file_sep") $ split "::" mod) ++ ".pm"
     pathName    <- requireInc incs file (errMsg file incs)
@@ -49,19 +49,19 @@ opRequire dumpEnv v = do
         -- %*INC{mod} = { relname => file, pathname => pathName }
         evalExp $ Syn "="
             [ Syn "{}"             -- subscript
-                [ Var "%*INC", Val . VStr $ decodeUTF8 mod ]
+                [ _Var "%*INC", Val . VStr $ decodeUTF8 mod ]
                 , Syn "\\{}"       -- hashref
                     [ Syn "," [ mkStrPair "fullpath" (decodeUTF8 pathName)
                               , mkStrPair "relpath"  (decodeUTF8 file) ]
                     ]
             ]
         -- merge @*END here
-        endAV   <- findSymRef "@*END" glob
+        endAV   <- findSymRef (cast "@*END") glob
         ends    <- fromVal =<< readRef endAV
         clearRef endAV
         rv <- tryFastEval (pathName ++ ".yml") $
                 slowEval pathName
-        endAV'  <- findSymRef "@*END" glob
+        endAV'  <- findSymRef (cast "@*END") glob
         doArray (VRef endAV') (`array_unshift` ends)
         return rv
     where
@@ -84,7 +84,7 @@ opRequire dumpEnv v = do
                                            else EvalResultLastValue)}
     errMsg file incs = "Can't locate " ++ file ++ " in @*INC (@*INC contains: " ++ unwords incs ++ ")."
     mkStrPair :: String -> String -> Exp
-    mkStrPair key val = App (Var "&infix:=>") Nothing (map (Val . VStr) [key, val])
+    mkStrPair key val = App (_Var "&infix:=>") Nothing (map (Val . VStr) [key, val])
 
 requireInc :: (MonadIO m) => [FilePath] -> FilePath -> String -> m String
 requireInc [] _ msg = fail msg
@@ -156,7 +156,7 @@ opEval style path str = enterCaller $ do
 retEvalResult :: EvalStyle -> Val -> Eval Val
 retEvalResult style val = do
     glob <- askGlobal
-    errSV <- findSymRef "$!" glob
+    errSV <- findSymRef (cast "$!") glob
     case val of
         err@(VError e _) -> do
             writeRef errSV e

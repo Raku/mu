@@ -80,7 +80,7 @@ isOperatorName _ = False
 -- checker function.
 checkForIOLeak :: Exp -> Exp
 checkForIOLeak exp =
-    App (Var "&Pugs::Internals::check_for_io_leak") Nothing
+    App (_Var "&Pugs::Internals::check_for_io_leak") Nothing
         [ Val $ VCode mkSub { subBody = exp } ]
     
 defaultParamFor :: SubType -> [Param]
@@ -88,12 +88,15 @@ defaultParamFor SubBlock    = [defaultScalarParam]
 defaultParamFor SubPointy   = []
 defaultParamFor _           = [defaultArrayParam]
 
-doExtract :: SubType -> Maybe [Param] -> Exp -> (Exp, [String], [Param])
+_dollarUnderscore :: Var
+_dollarUnderscore = cast "$_"
+
+doExtract :: SubType -> Maybe [Param] -> Exp -> (Exp, [Var], [Param])
 doExtract SubBlock formal body = (fun, names', params)
     where
     (fun, names) = extractPlaceholderVars body []
     names' | isJust formal
-           = filter (/= "$_") names
+           = filter (/= _dollarUnderscore) names
            | otherwise
            = names
     params = map nameToParam (sort names') ++ (maybe [] id formal)
@@ -103,29 +106,30 @@ doExtract _ formal body = (body, names', params)
     where
     (_, names) = extractPlaceholderVars body []
     names' | isJust formal
-           = filter (/= "$_") names
+           = filter (/= _dollarUnderscore) names
            | otherwise
-           = filter (== "$_") names
+           = filter (== _dollarUnderscore) names
     params = map nameToParam (sort names') ++ (maybe [] id formal)
 
-nameToParam :: String -> Param
+nameToParam :: Var -> Param
 nameToParam name = MkParam
     { isInvocant    = False
     , isOptional    = False
     , isNamed       = False
     , isLValue      = True
-    , isWritable    = (name == "$_")
+    , isWritable    = (name == _dollarUnderscore)
     , isLazy        = False
     , paramName     = name
-    , paramContext  = case name of
-        -- "$_" -> CxtSlurpy $ typeOfSigil (head name)
-        _    -> CxtItem   $ typeOfSigil (head name)
+    , paramContext  = CxtItem $ typeOfSigilVar name
     , paramDefault  = Noop
     }
 
+_percentUnderscore :: Var
+_percentUnderscore = cast "%_"
+
 paramsFor :: SubType -> Maybe [Param] -> [Param] -> [Param]
 paramsFor SubMethod formal params 
-    | isNothing (find (("%_" ==) . paramName) params)
+    | isNothing (find ((_percentUnderscore ==) . paramName) params)
     = paramsFor SubRoutine formal params ++ [defaultHashParam]
 paramsFor styp Nothing []       = defaultParamFor styp
 paramsFor _ _ params            = params
@@ -143,7 +147,7 @@ processFormals formal = case formal of
     unwind x  = x
 
 -- | A Param representing the default (unnamed) invocant of a method on the given type.
-selfParam :: String -> Param
+selfParam :: Type -> Param
 selfParam typ = MkParam
     { isInvocant    = True
     , isOptional    = False
@@ -151,8 +155,8 @@ selfParam typ = MkParam
     , isLValue      = True
     , isWritable    = True
     , isLazy        = False
-    , paramName     = "&self"
-    , paramContext  = CxtItem (mkType typ)
+    , paramName     = cast "&self"
+    , paramContext  = CxtItem typ
     , paramDefault  = Noop
     }
 
@@ -164,9 +168,8 @@ extractHash exp = extractHash' (possiblyUnwrap exp)
     possiblyUnwrap x = x
     
     isHashOrPair (Ann _ exp) = isHashOrPair exp
-    isHashOrPair (App (Var "&pair") _ _) = True
-    isHashOrPair (App (Var "&infix:=>") _ _) = True
-    isHashOrPair (Var ('%':_)) = True
+    isHashOrPair (App (Var var) _ _) =
+        v_sigil var == SHash || (var == cast "&pair") || (var == cast "&infix:=>") 
     isHashOrPair (Syn "%{}" _) = True
     isHashOrPair _ = False
     

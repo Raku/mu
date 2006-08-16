@@ -126,31 +126,38 @@ currentFunctions = do
         glob <- readTVar $ envGlobal env
         let funs  = padToList glob ++ padToList (envLexical env)
             pkg   = envPackage env
-        forM [ fun | fun@(('&':_), _) <- funs ] $ \(name, tvars) -> do
-            case inScope pkg (dropWhile (not . isAlphaNum) $ name) of
-                Nothing     -> return []
-                Just name'  -> fmap catMaybes $ forM tvars $ \(_, tvar) -> do
+        forM [ fun | fun@(var, _) <- funs, v_sigil var == SCode ] $ \(var, tvars) -> do
+            if not (inScope pkg var) then return [] else do
+                fmap catMaybes $ forM tvars $ \(_, tvar) -> do
                     ref <- readTVar tvar
                     -- read from ref
                     return $ case ref of
                         MkRef (ICode cv)
                             | relevantToParsing (code_assoc cv) (code_type cv)
-                            -> Just (name', code_assoc cv, code_params cv)
+                            -> Just (var, code_assoc cv, code_params cv)
                         MkRef (IScalar sv)
                             | Just (VCode cv) <- scalar_const sv
                             , relevantToParsing (code_assoc cv) (code_type cv)
-                            -> Just (name', code_assoc cv, code_params cv)
+                            -> Just (var, code_assoc cv, code_params cv)
                         _ -> Nothing
     where
-    inScope _ ('L':'i':'s':'t':':':':':name) = Just name
-    inScope pkg name | Just (post, pre) <- breakOnGlue "::" (reverse name) =
-        if pkg == reverse pre then Just (reverse post) else Nothing
-    inScope _ name = Just name
+    inScope pkg var
+        | isGlobalVar var       = True
+        | pkg == varPkg         = True
+        | listPkg == varPkg     = True -- XXX wrong
+        | otherwise             = False
+        where
+        varPkg = v_package var
     relevantToParsing "pre" SubPrim      = True
     relevantToParsing _     SubPrim      = False
     relevantToParsing _     SubMethod    = False
     relevantToParsing ""    _            = False
     relevantToParsing _     _            = True
+
+-- XXX Very bad hacky kluge just for Parser.Operator
+--     Switch to macro export for push(@x, 1) instead!
+listPkg :: Pkg
+listPkg = cast (mkType "List")
 
 -- read just the current state
 currentTightFunctions :: RuleParser [[String]]
@@ -164,32 +171,40 @@ currentTightFunctions = do
             _ -> False
         rest' = (`filter` rest) $ \x -> case x of
             (_, _, (_:_:_)) -> True
-            (_, _, [MkParam{ paramContext = CxtSlurpy{}, paramName = ('@':_) }]) -> True
+            (_, _, [MkParam
+                        { paramContext = CxtSlurpy{}
+                        , paramName = MkVar{ v_sigil = SArrayMulti }
+                        }]) -> True
             _ -> False
-        namesFrom = map (\(name, _, _) -> name)
+        namesFrom = map (\(var, _, _) -> v_name var)
         restNames = Set.fromList $ namesFrom rest'
         notNullaryNames = Set.fromList $ namesFrom notNullary
         nullary = filter (not . (`Set.member` notNullaryNames)) $ namesFrom maybeNullary
-        (optionary, unary') = mapPair (map snd) . partition fst . sort $
-            [ (isOptional param, name) | (name, _, [param]) <- unary
-            , not (name `Set.member` restNames)
+        optionary = map v_name optionary'
+        (optionary', unary') = mapPair (map snd) . partition fst . sort $
+            [ (isOptional param, var) | (var, _, [param]) <- unary
+            , v_name var `Set.notMember` restNames
             ]
         (namedUnary, preUnary, postUnary) = foldr splitUnary ([],[],[]) unary'
-        splitUnary ('p':'r':'e':'f':'i':'x':':':op) (n, pre, post) = (n, (op:pre), post)
-        splitUnary ('p':'o':'s':'t':'f':'i':'x':':':op) (n, pre, post) = (n, pre, (op:post))
-        splitUnary op (n, pre, post) = ((op:n), pre, post)
+        splitUnary MkVar{ v_categ = C_prefix, v_name = name } (n, pre, post)
+            = (n, (name:pre), post)
+        splitUnary MkVar{ v_categ = C_postfix, v_name = name } (n, pre, post)
+            = (n, pre, (name:post))
+        splitUnary var (n, pre, post)
+            = ((v_name var:n), pre, post)
         -- Then we grep for the &infix:... ones.
         (infixs, _) = (`partition` rest) $ \x -> case x of
-                ('i':'n':'f':'i':'x':':':_, _, _) -> True
-                _  -> False
-        infixOps = map (\(name, _, _) -> drop 6 name) infixs
+            (MkVar{ v_categ = C_infix }, _, _) -> True
+            _  -> False
+        infixOps = map (\(var, _, _) -> v_name var) infixs
         mapPair f (x, y) = (f x, f y)
     -- Finally, we return the names of the ops.
     -- But we've to s/^infix://, as we've to return (say) "+" instead of "infix:+".
     -- Hack: Filter out &infix:<,> (which are most Preludes for PIL -> *
     -- compilers required to define), because else basic function application
     -- (foo(1,2,3) will get parsed as foo(&infix:<,>(1,&infix:<,>(2,3))) (bad).
-    return $ map nub [nullary, optionary, namedUnary, preUnary, postUnary, infixOps]
+    return $ map (map (cast :: ID -> String) . nub)
+        [nullary, optionary, namedUnary, preUnary, postUnary, infixOps]
 
 fileTestOperatorNames :: String
 fileTestOperatorNames = "rwxoRWXOezsfdlpSbctugkTBMAC"
@@ -289,11 +304,11 @@ stateAssignHack exp@(Syn "=" [lhs, _]) | isStateAssign lhs =
     let pad = unsafePerformSTM $! do
                 state_first_run <- newTVar =<< (fmap scalarRef $! newTVar (VInt 0))
                 state_fresh     <- newTVar False
-                return $! mkPad [("$?STATE_START_RUN", [(state_fresh, state_first_run)])] in
+                return $! mkPad [(cast "$?STATE_START_RUN", [(state_fresh, state_first_run)])] in
     Syn "block"
         [ Pad SState pad $!
             Syn "if"
-                [ App (Var "&postfix:++") Nothing [Var "$?STATE_START_RUN"]
+                [ App (_Var "&postfix:++") Nothing [_Var "$?STATE_START_RUN"]
                 , lhs
                 , exp
                 ]
@@ -334,7 +349,7 @@ makeOp0 prec sigil con name = (`InfixList` prec) $ do
     return . con $ sigil ++ name
 
 doApp :: String -> [Exp] -> Exp
-doApp str args = App (Var str) Nothing args
+doApp str args = App (_Var str) Nothing args
 
 {-|
 Take a list of infix-operator names (as a space-separated string), and return
@@ -375,8 +390,8 @@ methOps             :: a -> [b]
 methOps _ = []
 
 doAppSym :: String -> [Exp] -> Exp
-doAppSym name@(_:'p':'r':'e':'f':'i':'x':':':_) args = App (Var name) Nothing args
-doAppSym (sigil:name) args = App (Var (sigil:("prefix:"++name))) Nothing args
+doAppSym name@(_:'p':'r':'e':'f':'i':'x':':':_) args = App (_Var name) Nothing args
+doAppSym (sigil:name) args = App (_Var (sigil:("prefix:"++name))) Nothing args
 doAppSym _ _ = error "doAppSym: bad name"
 
 

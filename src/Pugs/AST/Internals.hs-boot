@@ -5,7 +5,6 @@ import Pugs.Types
 import Pugs.Internals
 import Pugs.AST.Pos
 import Pugs.AST.SIO
-import Pugs.Cont hiding (shiftT, resetT)
 import Control.Concurrent.STM
 import Data.Dynamic
 

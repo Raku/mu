@@ -121,49 +121,50 @@ prepareEnv name args = do
     let subExit = \x -> case x of
             [x] -> op1Exit x     -- needs refactoring (out of Prim)
             _   -> op1Exit undef
+        gen = genSym . cast
     env <- emptyEnv name $
-        [ genSym "@*ARGS"       $ hideInSafemode $ MkRef argsAV
-        , genSym "@*INC"        $ hideInSafemode $ MkRef incAV
-        , genSym "%*INC"        $ hideInSafemode $ MkRef incHV
-        , genSym "$*PUGS_HAS_HSPLUGINS" $ hideInSafemode $ MkRef hspluginsSV
-        , genSym "$*EXECUTABLE_NAME"    $ hideInSafemode $ MkRef execSV
-        , genSym "$*PROGRAM_NAME"       $ hideInSafemode $ MkRef progSV
-        , genSym "$*PID"        $ hideInSafemode $ MkRef pidSV
+        [ gen "@*ARGS"       $ hideInSafemode $ MkRef argsAV
+        , gen "@*INC"        $ hideInSafemode $ MkRef incAV
+        , gen "%*INC"        $ hideInSafemode $ MkRef incHV
+        , gen "$*PUGS_HAS_HSPLUGINS" $ hideInSafemode $ MkRef hspluginsSV
+        , gen "$*EXECUTABLE_NAME"    $ hideInSafemode $ MkRef execSV
+        , gen "$*PROGRAM_NAME"       $ hideInSafemode $ MkRef progSV
+        , gen "$*PID"        $ hideInSafemode $ MkRef pidSV
         -- XXX these four need a proper `set' magic
-        , genSym "$*UID"        $ hideInSafemode $ MkRef uidSV
-        , genSym "$*EUID"       $ hideInSafemode $ MkRef euidSV
-        , genSym "$*GID"        $ hideInSafemode $ MkRef gidSV
-        , genSym "$*EGID"       $ hideInSafemode $ MkRef egidSV
-        , genSym "@*CHECK"      $ MkRef checkAV
-        , genSym "@*INIT"       $ MkRef initAV
-        , genSym "@*END"        $ MkRef endAV
-        , genSym "$*IN"         $ hideInSafemode $ MkRef inGV
-        , genSym "$*OUT"        $ hideInSafemode $ MkRef outGV
-        , genSym "$*ERR"        $ hideInSafemode $ MkRef errGV
-        , genSym "$*ARGS"       $ hideInSafemode $ MkRef argsGV
-        , genSym "$!"           $ MkRef errSV
-        , genSym "$/"           $ MkRef matchAV
-        , genSym "%*ENV"        $ hideInSafemode $ hashRef MkHashEnv
-        , genSym "$*CWD"        $ hideInSafemode $ scalarRef MkScalarCwd
+        , gen "$*UID"        $ hideInSafemode $ MkRef uidSV
+        , gen "$*EUID"       $ hideInSafemode $ MkRef euidSV
+        , gen "$*GID"        $ hideInSafemode $ MkRef gidSV
+        , gen "$*EGID"       $ hideInSafemode $ MkRef egidSV
+        , gen "@*CHECK"      $ MkRef checkAV
+        , gen "@*INIT"       $ MkRef initAV
+        , gen "@*END"        $ MkRef endAV
+        , gen "$*IN"         $ hideInSafemode $ MkRef inGV
+        , gen "$*OUT"        $ hideInSafemode $ MkRef outGV
+        , gen "$*ERR"        $ hideInSafemode $ MkRef errGV
+        , gen "$*ARGS"       $ hideInSafemode $ MkRef argsGV
+        , gen "$!"           $ MkRef errSV
+        , gen "$/"           $ MkRef matchAV
+        , gen "%*ENV"        $ hideInSafemode $ hashRef MkHashEnv
+        , gen "$*CWD"        $ hideInSafemode $ scalarRef MkScalarCwd
         -- XXX What would this even do?
-        -- , genSym "%=POD"        (Val . VHash $ emptyHV)
-        , genSym "@=POD"        $ MkRef $ constArray []
-        , genSym "$=POD"        $ MkRef $ constScalar (VStr "")
+        -- , gen "%=POD"        (Val . VHash $ emptyHV)
+        , gen "@=POD"        $ MkRef $ constArray []
+        , gen "$=POD"        $ MkRef $ constScalar (VStr "")
         -- To answer the question "what revision does evalbot run on?"
-        , genSym "$?PUGS_VERSION" $ MkRef $ constScalar (VStr $ getConfig "pugs_version")
+        , gen "$?PUGS_VERSION" $ MkRef $ constScalar (VStr $ getConfig "pugs_version")
         -- If you change the name or contents of $?PUGS_BACKEND, be sure
         -- to update all t/ and perl5/{PIL2JS,PIL-Run} as well.
-        , genSym "$?PUGS_BACKEND" $ MkRef $ constScalar (VStr "BACKEND_PUGS")
-        , genSym "$*OS"         $ hideInSafemode $ MkRef $ constScalar (VStr $ getConfig "osname")
-        , genSym "&?BLOCK_EXIT" $ codeRef $ mkPrim
-            { subName = "&?BLOCK_EXIT"
+        , gen "$?PUGS_BACKEND" $ MkRef $ constScalar (VStr "BACKEND_PUGS")
+        , gen "$*OS"         $ hideInSafemode $ MkRef $ constScalar (VStr $ getConfig "osname")
+        , gen "&?BLOCK_EXIT" $ codeRef $ mkPrim
+            { subName = cast "&?BLOCK_EXIT"
             , subBody = Prim subExit
             }
-        , genSym "%?CONFIG" $ hideInSafemode $ hashRef confHV
-        , genSym "$*_" $ MkRef defSV
-        , genSym "$*AUTOLOAD" $ MkRef autoSV
+        , gen "%?CONFIG" $ hideInSafemode $ hashRef confHV
+        , gen "$*_" $ MkRef defSV
+        , gen "$*AUTOLOAD" $ MkRef autoSV
         ] ++ classes
-    -- defSVcell <- (genSym "$_" . MkRef) =<< newScalar undef
+    -- defSVcell <- (gen "$_" . MkRef) =<< newScalar undef
     let env' = env
     {-
             { envLexical  = defSVcell (envLexical env)
@@ -185,8 +186,8 @@ initClassObjects uniq parent (Node typ children) = do
         ]
     objSV   <- newScalar (VObject obj)
     rest    <- mapM (initClassObjects (MkObjectId . pred $ unObjectId uniq) [typ]) children
-    let metaSym  = genSym (':':'*':name) $ MkRef objSV
-        codeSym  = genMultiSym ('&':'*':name) $ codeRef typeCode
+    let metaSym  = genSym (cast (':':'*':name)) $ MkRef objSV
+        codeSym  = genMultiSym (cast ('&':'*':name)) $ codeRef typeCode
         name     = showType typ
         typeBody = Val . VType . mkType $ name
         Syn "sub" [Val (VCode typeCode)] = typeMacro name typeBody

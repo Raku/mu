@@ -38,9 +38,9 @@ bindNames exps prms = (bound, exps', prms')
     (bound, exps') = foldr doBindNamed ([], []) (map unwrapNamedArg exps)
     doBindNamed (name, exp) (bound, exps) = case foundParam of
         Just prm -> ( ((prm, exp) : bound), exps )
-        _        -> ( bound, (Syn "=>" [Val (VStr name), exp]:exps) )
+        _        -> ( bound, (Syn "=>" [Val (VStr $ cast name), exp]:exps) )
         where
-        foundParam = find ((== name) . dropWhile (not . isAlpha) . paramName) prms
+        foundParam = find ((== name) . v_name . paramName) prms
 
 emptyHashExp :: Exp
 emptyHashExp  = Val $ VList [] -- VHash $ vCast $ VList []
@@ -91,12 +91,13 @@ bindArray vs ps oldLimit = do
         Left errMsg      -> fail errMsg
         Right (bound, n) -> do
             let newLimit = case prms of
-                    ((_, '@'):_) -> oldLimit
+                    ((_, SArray):_) -> oldLimit
+                    ((_, SArrayMulti):_) -> oldLimit
                     _    | n > 0 -> (n, exp) : oldLimit
                     _            -> oldLimit
             return (reverse bound, newLimit)
     where
-    prms = map (\p -> (p, (head (paramName p)))) ps 
+    prms = map (\p -> (p, v_sigil $ paramName p)) ps 
 
 {-|
 Construct an expression representing an infinite slice of the given
@@ -121,10 +122,10 @@ the slurpable arguments.
 doIndex :: Exp -> VInt -> Exp
 doIndex v n = Syn "[]" [Syn "val" [v], Val $ VInt n]
 
-doBindArray :: Exp -> (Bindings, VInt) -> (Param, Char) -> MaybeError (Bindings, VInt)
-doBindArray _ (xs, -1) (p, '@') = return (((p, emptyArrayExp):xs), -1)
+doBindArray :: Exp -> (Bindings, VInt) -> (Param, VarSigil) -> MaybeError (Bindings, VInt)
+doBindArray _ (xs, -1) (p, SArray) = return (((p, emptyArrayExp):xs), -1)
 doBindArray _ (_, -1)  (p, _) = fail $ "Slurpy array followed by slurpy scalar: " ++ show p
-doBindArray v (xs, n)  (p, '@') = return (((p, doSlice v n):xs), -1)
+doBindArray v (xs, n)  (p, SArray) = return (((p, doSlice v n):xs), -1)
 doBindArray v (xs, n)  (p, _) = case v of
     (Syn "," [])    -> fail $ "Insufficient arguments for slurpy scalar"
     _               -> return (((p, doIndex v n):xs), n+1)
@@ -137,9 +138,9 @@ isNamedArg (Syn "named" [Ann _ (Val (VStr _)), _]) = True -- should the Ann reac
 isNamedArg arg@(Syn "named" _)               = error $ "malformed named arg: " ++ show arg
 isNamedArg _                                 = False
 
-unwrapNamedArg :: Exp -> (String, Exp)
-unwrapNamedArg (Syn "named" [(Val (VStr key)), val]) = (key, val)
-unwrapNamedArg (Syn "named" [Ann _ (Val (VStr key)), val]) = (key, val) -- (see comment in isNamedArg)
+unwrapNamedArg :: Exp -> (ID, Exp)
+unwrapNamedArg (Syn "named" [(Val (VStr key)), val]) = (cast key, val)
+unwrapNamedArg (Syn "named" [Ann _ (Val (VStr key)), val]) = (cast key, val) -- (see comment in isNamedArg)
 unwrapNamedArg x = error $ "not a well-formed named arg: " ++ show x
 
 {-|
@@ -187,7 +188,7 @@ finalizeBindings sub = do
             supplied = show (length boundInvs)
         fail $ concat
             [ "Missing invocant parameters in '"
-            , subName sub
+            , cast (subName sub)
             , "': "
             , supplied, " received, "
             , missing,  " missing"
@@ -199,7 +200,7 @@ finalizeBindings sub = do
     -- Check length of required parameters
     when (length boundReq < length reqPrms) $ do
         fail $ "Missing required parameters: "
-            ++ unwords (map paramName $ reqPrms \\ map fst boundReq)
+            ++ unwords (map (cast . paramName) $ reqPrms \\ map fst boundReq)
 
     let unboundOptPrms = optPrms \\ (map fst boundOpt) -- unbound optParams are allPrms - boundPrms
         optPrmsDefaults = [
@@ -240,10 +241,10 @@ bindSomeParams sub invExp argsExp = do
         posForSlurp             = drop (length posPrms) posArgs -- and whatever's left will be slurped
 
     -- Bind slurpy arrays and hashes
-    let (slurpNamed, slurpPos) = partition (('%' ==) . head . paramName) slurpyPrms
+    let (slurpNamed, slurpPos) = partition ((SHash ==) . v_sigil . paramName) slurpyPrms
         -- defaultPos      = if hasDefaultArray  then [] else [defaultArrayParam]
         defaultScalar   = if hasDefaultScalar then [] else [] -- XXX - fetch from *@_
-        hasDefaultScalar= isJust (find (("$_" ==) . paramName) params)
+        hasDefaultScalar= isJust (find ((_dollarUnderscore ==) . paramName) params)
         
     boundHash   <- bindHash namedForSlurp slurpNamed -- put leftover named args in %_
     (boundArray, newSlurpLimit) <- bindArray posForSlurp slurpPos slurpLimit
@@ -266,3 +267,5 @@ bindSomeParams sub invExp argsExp = do
         , subSlurpLimit = newSlurpLimit
         }
 
+_dollarUnderscore :: Var
+_dollarUnderscore = cast "$_"

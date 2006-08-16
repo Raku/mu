@@ -3,8 +3,6 @@
 module Pugs.Val where
 
 import Pugs.Internals
-import Data.Generics.Basics hiding (cast)
-import qualified Data.Typeable as Typeable
 import qualified Data.ByteString as Buf
 
 data Val

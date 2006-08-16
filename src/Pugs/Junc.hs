@@ -14,6 +14,7 @@ module Pugs.Junc (
     opJunc, opJuncNone, opJuncAll, opJuncAny, opJuncOne,
     juncApply,
 ) where
+import Pugs.Types
 import Pugs.Internals
 import Pugs.AST
 import qualified Data.Set as Set
@@ -186,7 +187,7 @@ Note that 'argCollapsed' is set to @True@ only if the corresponding sub param
 is explicitly specified as accepting the Perl 6 type @Junc@.
 -}
 data ApplyArg = ApplyArg
-    { argName       :: !String  -- ^ Name of the param that this arg is for
+    { argName       :: !Var     -- ^ Name of the param that this arg is for
     , argValue      :: !Val     -- ^ Actual argument value, which may still be
                                 --     a junction
     , argCollapsed  :: !Bool    -- ^ @True@ if we have confirmed that this arg

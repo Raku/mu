@@ -16,7 +16,7 @@ op1CodeAssoc v = do
 op1CodeName :: Val -> Eval Val
 op1CodeName v = do
     code <- fromVal v
-    return . castV $ subName code
+    return . VStr $ cast (subName code)
 
 op1CodeArity :: Val -> Eval Val
 op1CodeArity v = do

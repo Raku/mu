@@ -3,13 +3,15 @@
 #ifndef PUGS_HAVE_PERL5
 module Pugs.Embed.Perl5 
     ( InvokePerl5Result(..),
-    , svToVBool, svToVInt, svToVNum, svToVStr, vstrToSV, vintToSV, svToVal,
+    , svToVBool, svToVInt, svToVNum, svToVStr, vstrToSV, vintToSV, svToVal, bufToSV,
     , vnumToSV, mkValRef , mkVal, PerlSV, nullSV, evalPerl5, invokePerl5,
     , initPerl5, freePerl5, canPerl5
     )
 where
 import Foreign.C.Types
 import Data.Typeable
+import Pugs.Internals 
+import qualified Data.ByteString.Char8 as Str
 
 type PerlInterpreter = ()
 data PerlSV = MkPerlSV -- phantom type
@@ -57,6 +59,9 @@ mkValRef = constFail
 vstrToSV :: String -> IO PerlSV
 vstrToSV = constFail
 
+bufToSV :: ByteString -> IO PerlSV
+bufToSV = constFail
+
 vintToSV :: (Integral a) => a -> IO PerlSV
 vintToSV = constFail
 
@@ -66,7 +71,7 @@ vnumToSV = constFail
 invokePerl5 :: PerlSV -> PerlSV -> [PerlSV] -> PugsVal -> CInt -> IO InvokePerl5Result
 invokePerl5 _ _ _ _ = constFail
 
-canPerl5 :: PerlSV -> String -> IO Bool
+canPerl5 :: PerlSV -> ByteString -> IO Bool
 canPerl5 _ = constFail
 
 nullSV :: PerlSV
@@ -90,6 +95,8 @@ import Foreign
 import Foreign.C.Types
 import Foreign.C.String
 import Data.IORef (modifyIORef)
+import Pugs.Internals 
+import qualified Data.ByteString.Char8 as Str
 
 type PerlInterpreter = Ptr ()
 type PerlSV = Ptr ()
@@ -185,6 +192,9 @@ mkValRef x = do
 vstrToSV :: String -> IO PerlSV
 vstrToSV str = withCString str perl5_newSVpv 
 
+bufToSV :: ByteString -> IO PerlSV
+bufToSV str = Str.useAsCString str perl5_newSVpv 
+
 vintToSV :: (Integral a) => a -> IO PerlSV
 vintToSV int = perl5_newSViv (fromIntegral int)
 
@@ -211,8 +221,8 @@ invokePerl5 sub inv args env cxt = do
                 str <- svToVStr x
                 return $ Perl5ErrorString str
             
-canPerl5 :: PerlSV -> String -> IO Bool
-canPerl5 sv meth = withCString meth $ \cstr -> perl5_can sv cstr
+canPerl5 :: PerlSV -> ByteString -> IO Bool
+canPerl5 sv meth = Str.useAsCString meth $ \cstr -> perl5_can sv cstr
 
 mkSV :: IO PerlSV -> IO PerlSV
 mkSV = id

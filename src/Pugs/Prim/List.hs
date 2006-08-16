@@ -315,7 +315,7 @@ op1HyperPrefix sub x
     doHyper x
         | VRef x' <- x
         = doHyper =<< readRef x'
-        | VList x' <- x
+        | VList{} <- x
         = op1HyperPrefix sub x
         | otherwise
         = enterEvalContext cxtItemAny $ App (Val $ VCode sub) Nothing [Val x]
@@ -352,9 +352,9 @@ op2Hyper sub x y
         = (flip doHyper $ y) =<< readRef x'
         | VRef y' <- y
         = doHyper x =<< readRef y'
-        | VList x' <- x
+        | VList{} <- x
         = op2Hyper sub x y
-        | VList y' <- y
+        | VList{} <- y
         = op2Hyper sub x y
         | otherwise
         = enterEvalContext cxtItemAny $ App (Val $ VCode sub) Nothing [Val x, Val y]

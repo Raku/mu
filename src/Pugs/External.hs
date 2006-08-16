@@ -44,8 +44,8 @@ externRequire lang name = do
         newSyms     <- mapM gen bindings
         modifyTVar glob (\pad -> combine newSyms pad)
     where
-    gen (name, fun) = genSym ('&':name) . codeRef $ mkPrim
-        { subName       = ('&':name)
+    gen (name, fun) = genSym (cast ('&':name)) . codeRef $ mkPrim
+        { subName       = cast name
         , subParams     = [buildParam "List" "" "*@?1" (Val VUndef)]
         , subBody       = (Prim fun)
         }
