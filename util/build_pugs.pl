@@ -40,6 +40,8 @@ Current settings:
 
 my $run_setup;
 
+my $want_profiling = 0;
+
 sub build {
     my($opts) = @_;
     my $thispugs = { @{ $opts->{GEN_PRELUDE} } }->{'--pugs'} or # laugh at me now.
@@ -48,6 +50,10 @@ sub build {
     print "Build configuration:\n" . PugsBuild::Config->pretty_print;
 
     my ($version, $ghc, $ghc_pkg, $ghc_version, $setup, @args) = @{$opts->{GHC}};
+
+    $want_profiling = grep { /^-prof$/ } @args; 
+    @args = grep { !/^-prof$/ } @args; 
+
     write_buildinfo($version, $ghc, $ghc_pkg, $ghc_version, @args);
 
     my $pwd = cwd();
@@ -56,19 +62,28 @@ sub build {
 
     # Instead of --user, use our own package-conf storage position.
 
+    my $runcompiler = File::Spec->rel2abs("$pwd/util/runcompiler$Config{_exe}");
+    my $prefix      = File::Spec->rel2abs("$pwd/third-party/installed");
+    my $hc_pkg      = File::Spec->rel2abs("$pwd/util/ghc-pkg-wrapper$Config{_exe}");
+
+    my @configure_args = (
+        ($want_profiling ?  '--enable-library-profiling' : ()),
+        '--with-compiler=' . $runcompiler,
+        '--with-hc-pkg='   . $hc_pkg,
+        '--prefix='        . $prefix
+    );
+
     # On Win32, a very broken heuristics in Cabal forced us to copy runcompiler.exe
     # over to where GHC was in.
-
-    my $runcompiler = File::Spec->rel2abs("$pwd/util/runcompiler$Config{_exe}");
-    my $ghc_inst_path;
+    my ($ghc_inst_path, $ghc_bin_path);
     if ($^O eq 'MSWin32') {
         my $new_runcompiler;
         foreach my $args (@{$opts->{SETUP}}) {
             $args =~ /^--with-hsc2hs=(.*[\\\/])/ or next;
-            $ghc_inst_path = $1;
+            $ghc_inst_path = $ghc_bin_path = $1;
             $ghc_inst_path =~ s{[/\\]bin[/\\]?$}{};
-            $ENV{PATH} = "$ENV{PATH};$ghc_inst_path";
-            $new_runcompiler = File::Spec->catfile($1, "runcompiler$Config{_exe}");
+            $ENV{PATH} = "$ENV{PATH};$ghc_inst_path;$ghc_bin_path";
+            $new_runcompiler = File::Spec->catfile($ghc_bin_path, "runcompiler$Config{_exe}");
             copy($runcompiler => $new_runcompiler);
             $runcompiler = $new_runcompiler;
 	}
@@ -137,12 +152,8 @@ sub build {
 
         chdir "third-party/$module";
 
-        my $want_profiling = grep { /^-prof$/ } @args; 
-        system("../../Setup$Config{_exe}", 'configure',
-                ($want_profiling ?  '--enable-library-profiling' : ()),
-                '--with-compiler=' . $runcompiler,
-                '--with-hc-pkg='   . File::Spec->rel2abs("../../util/ghc-pkg-wrapper$Config{_exe}"),
-                '--prefix='        . File::Spec->rel2abs('../installed/'));
+        warn join ' ', ("../../Setup$Config{_exe}", 'configure', @configure_args);
+        system("../../Setup$Config{_exe}", 'configure', @configure_args);
         system("../../Setup$Config{_exe}", 'unregister');
 
         print "*** Building the '$module' dependency.  Please wait...\n\n";
@@ -154,7 +165,11 @@ sub build {
         my $ar = $Config{full_ar};
         if (!$ar) { $ar = $ghc; $ar =~ s{(.*)ghc}{$1ar}; }
 
-        my ($archive_dir) = glob("third-party/installed/*/pugs-$module-*") or next;
+        my ($archive_dir) = (
+            glob("third-party/installed/*/pugs-$module-*"),
+            glob("third-party/installed/*/$module-*"),
+        ) or die "Installation failed for $module";
+
         foreach my $a_file (
             glob("$archive_dir/*.a"),
             glob("$archive_dir/*/*.a"),
@@ -167,25 +182,18 @@ sub build {
 
     print "*** Finished building dependencies.\n\n";
 
-    my $prefix = File::Spec->rel2abs("$pwd/third-party/installed");
-    my $runcompiler = File::Spec->rel2abs("$pwd/util/runcompiler$Config{_exe}");
-    my $hc_pkg = File::Spec->rel2abs("$pwd/util/ghc-pkg-wrapper$Config{_exe}");
     $run_setup = sub { system($setup, @_) };
-    $run_setup->('configure',
-            '--with-compiler' => $runcompiler,
-            '--with-hc-pkg'   => $hc_pkg,
-            '--prefix'        => $prefix,
-            grep !/^--.*=$/, @{$opts->{SETUP}});
-
-    my $pm = "src/perl6/Prelude.pm";
-    my $ppc_hs = "src/Pugs/Prelude.hs";
-    my $ppc_yml = "blib6/lib/Prelude.pm.yml";
+    $run_setup->('configure', @configure_args, grep { !/^--.*=$/ } @{$opts->{SETUP}});
 
     build_lib($version, $ghc, @args);
 
     $run_setup->('install');
 
     build_exe($version, $ghc, $ghc_version, @args);
+
+    my $pm = "src/perl6/Prelude.pm";
+    my $ppc_hs = "src/Pugs/Prelude.hs";
+    my $ppc_yml = "blib6/lib/Prelude.pm.yml";
 
     if ((!-s $ppc_yml) or -M $ppc_yml > -M $ppc_hs) {
         # can't assume blib6/lib exists: the user may be running
@@ -219,14 +227,15 @@ sub build_lib {
     my $ghc     = shift;
 
     my $ar = $Config{full_ar};
-    my $a_file = File::Spec->rel2abs("dist/build/libHSPugs-$version.a");
+    my @a_file = File::Spec->rel2abs("dist/build/libHSPugs-$version.a");
+    push @a_file, File::Spec->rel2abs("dist/build/libHSPugs-${version}_p.a") if $want_profiling;
 
     # Add GHC to PATH
     local $ENV{PATH} = dirname($ghc) . $Config{path_sep} . $ENV{PATH};
 
-    unlink $a_file;
+    unlink $_ for @a_file;
     $run_setup->('build');
-    die "Build failed: $?" unless -e $a_file;
+    (-e or die "Build failed: $?") for @a_file;
 
     if (!$ar) {
         $ar = $ghc;
@@ -269,13 +278,11 @@ sub build_lib {
                 or die "Copy '$candidates[0]' => '$target' failed: $!";
         }
 
-        system($ar, r => $a_file, $target);
+        system($ar, r => $_, $target) for @a_file;
     };
 
     $fixup->('Pugs.Embed.Perl5') if grep /^-DPUGS_HAVE_PERL5$/, @_;
     $fixup->('Pugs.Embed.Parrot') if grep /^-DPUGS_HAVE_PARROT$/, @_;
-
-    # system($ar, r => $a_file, $_) for grep /\.(?:o(?:bj)?)$/, @_;
 
     foreach my $a_ext (grep /\.a$/, @_) {
         # Do some very sneaky things -- linking other .a with us!
@@ -285,7 +292,7 @@ sub build_lib {
         mkdir $dir;
         chdir $dir;
         system($ar, x => $a_ext);
-        system($ar, r => $a_file, glob("*"));
+        system($ar, r => $_, glob("*")) for @a_file;
         unlink(glob("*"));
         chdir '..';
         chdir '..';
@@ -293,7 +300,9 @@ sub build_lib {
     }
 
     # Run ranlib.
-    system($ar, s => $a_file) unless $^O eq 'MSWin32';
+    unless ($^O eq 'MSWin32') {
+        system($ar, s => $_) for @a_file;
+    }
 }
 
 sub build_exe {
@@ -312,13 +321,19 @@ sub build_exe {
     }
     push @pkgs, -package => 'readline' if grep /^-DPUGS_HAVE_READLINE$/, @_;
     push @pkgs, -package => 'plugins', -package => 'haskell-src' if grep /^-DPUGS_HAVE_HSPLUGINS$/, @_;
-    my @libs = "-lHSPugs-$version";
+    my @libs = "-lHSPugs-$version" . ($want_profiling ? '_p' : '');
     push @libs, grep /^-threaded/, @_;
     push @libs, grep /^-opt/, @_;
     push @libs, grep /^-[lL]/, @_;
     push @libs, grep /\.(?:a|o(?:bj)?|\Q$Config{so}\E)$/, @_;
     push @libs, grep /^-auto/, @_;
-    push @libs, grep /^-prof/, @_;
+
+    # XXX - Hack to work around Cabal's semibroken profiling lib support!
+    if ($want_profiling) {
+        push @libs, '-lJudy';
+        push @libs, '-prof';
+        push @pkgs, glob('third-party/HsSyck/dist/build/syck/*.o'), qw( dist/build/src/pcre/pcre.o third-party/HsJudy/dist/build/Judy/Private_hsc.o )
+    }
 
     push @pkgs, "-package" => "Pugs"; #-$version";
 
