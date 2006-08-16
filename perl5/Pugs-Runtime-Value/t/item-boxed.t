@@ -13,7 +13,7 @@ use Pugs::Runtime::Value::List;
 use constant Inf => Pugs::Runtime::Value::Num::Inf;
 
 can_ok('Int', 'new');
-ok(Int->isa('Pugs::Runtime::Object'), '... Int isa Pugs::Runtime::Object');
+ok(Int->isa('Object'), '... Int isa Object');
 
 {
     my $n = Num->new( '$.unboxed' => 3.3 );
@@ -43,6 +43,7 @@ ok(Int->isa('Pugs::Runtime::Object'), '... Int isa Pugs::Runtime::Object');
     my $n = Num->Inf;
     isa_ok($n, 'Num');
     is($n->unboxed(), &Pugs::Runtime::Value::Num::Inf, '... Inf');
+    is($n->str(), 'Inf', '... got the stringified num value');
 }
 
 {

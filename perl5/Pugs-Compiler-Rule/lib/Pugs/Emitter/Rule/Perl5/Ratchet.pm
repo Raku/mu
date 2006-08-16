@@ -97,8 +97,9 @@ sub emit {
         "      bool => \\\$bool, match => \\\@match, named => \\\%named, capture => undef, \n" .
         "    } );\n" .
         "    \$bool = 0 unless\n" .
+        #"      do { TAILCALL: ;\n" .
         emit_rule( $ast, '   ' ) . ";\n" .
-
+        #"      }\n" .
         "    last if \$m;\n" .
         "  }\n" .  # /for
         "  \$::_V6_MATCH_ = \$m; \n" .
@@ -754,6 +755,10 @@ sub metasyntax {
     }
     if ( $prefix =~ /[_[:alnum:]]/ ) {  
         # "before" and "after" are handled in a separate rule
+        #if ( $cmd eq 'redo' ) {
+        #    # tailcall - this is an unauthorized extension
+        #    "$_[1]      goto TAILCALL;\n";
+        #}
         if ( $cmd eq 'cut' ) {
             warn "<$cmd> not implemented";
             return;

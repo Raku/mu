@@ -258,7 +258,12 @@ sub recompile {
             ),
         '...' => q(
             { 
-                return { die => "not implemented" } 
+                return { term => "yada" } 
+            }
+            ),
+        'self' => q(
+            { 
+                return { term => "self" } 
             }
             ),
         q(s) => q(

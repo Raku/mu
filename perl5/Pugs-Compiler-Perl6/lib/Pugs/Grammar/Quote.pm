@@ -10,6 +10,7 @@ sub single_quoted {
     my $grammar = shift;
     return $grammar->no_match(@_) unless $_[0];
     my $pos = $_[1]{p} || 0;
+    return $grammar->no_match(@_) unless length( $_[0] ) > $pos;
     my $s = substr( $_[0], $pos );
     my ($extracted,$remainder) = Text::Balanced::extract_delimited( "'" . $s, "'" );
     return $grammar->no_match(@_) unless length($extracted) > 0;

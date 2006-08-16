@@ -70,7 +70,10 @@ use Pugs::Runtime::Unboxed;
 # TODO
 # my $class_description = '-0.0.1-cpan:FGLOCK';
 
-class Num {
+class Object {
+}
+
+class Num is Object {
 
     has $.unboxed;
 
@@ -101,7 +104,7 @@ class Num {
 
 }
 
-class Int {
+class Int is Object {
 
     has $.unboxed;
 
@@ -122,7 +125,7 @@ class Int {
 
 }
 
-class Str {
+class Str is Object {
 
     has $.unboxed;
 
@@ -146,7 +149,7 @@ class Str {
 
 }
 
-class Bit {
+class Bit is Object {
 
     has $.unboxed;
 
@@ -167,7 +170,7 @@ class Bit {
 
 }
 
-class Rat {
+class Rat is Object {
 
     has $.a;
     has $.b;
@@ -189,7 +192,7 @@ class Rat {
 
 }
 
-class Pair {
+class Pair is Object {
 
     has $.key;
     has $.value;

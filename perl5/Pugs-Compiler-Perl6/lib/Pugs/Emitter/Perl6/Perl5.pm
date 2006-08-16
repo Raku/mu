@@ -198,6 +198,9 @@ sub _emit {
     return statement( $n )
         if exists $n->{statement};
 
+    return term( $n )
+        if exists $n->{term};
+
     return default( $n );
 }
 
@@ -359,10 +362,6 @@ sub default {
     my $n = $_[0];
     #warn "emit: ", Dumper( $n );
     
-    if ( exists $n->{die} ) {
-        return  "do { die '" . $n->{die} . "' }";
-    }
-
     if ( exists $n->{pointy_block} ) {
         # XXX: no signature yet
         return _emit_closure($n->{signature}, $n->{pointy_block});
@@ -650,7 +649,9 @@ sub default {
             }
         }
 
-        if ( exists $n->{self}{op1} ) {
+        if (  exists $n->{self}{op1} 
+           || exists $n->{self}{term} 
+           ) {
             # %var<item>.++;
             return
                 _emit( $n->{self} ) . "->" . 
@@ -886,6 +887,18 @@ sub autoquote {
         return $n->{'sub'}{'bareword'};
     }
     return _emit( $n );
+}
+
+sub term {
+    my $n = $_[0];
+    #print "term: ", Dumper( $n );
+
+    if ( $n->{term} eq 'self' ) {
+        return '$self';
+    }
+    if ( $n->{term} eq 'yada' ) {
+        return  'do { die "not implemented" }';
+    }
 }
 
 sub infix {
