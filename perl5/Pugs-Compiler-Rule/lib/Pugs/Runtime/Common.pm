@@ -27,6 +27,7 @@ our %perl6_name = (
     '$$'            => '$*PID',  
     '$0'            => '$*EXECUTABLE_NAME',  
     '$0'            => '$*PROGRAM_NAME',
+    '@INC'          => '@*INC',
     
     '\\*STDERR'     => '$*ERR',  
 
@@ -36,6 +37,7 @@ our %perl6_name = (
     '$::_V6_MATCH_' => '$/',
     '$::_V6_STDIN'  => '$*IN',  
     '$::_V6_STDOUT' => '$*OUT',  
+    '$::_V6_BACKEND'=> '$?PUGS_BACKEND',
 );
 our %perl5_name = reverse %perl6_name;
 

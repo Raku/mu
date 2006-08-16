@@ -672,7 +672,12 @@ sub default {
             if ($n->{method}{dot_bareword} eq 'isa') {
                 return 'Pugs::Runtime::Perl6::Scalar::isa( \\'. _emit( $n->{self} ) . ', ' . _emit( $n->{param} ) . ')';
             }
-            return _emit( $n->{method} ).' '.(join(',', grep { length $_} map { _emit($_) } $n->{self}, $n->{params}));
+            return _emit( $n->{method} ).' '.
+                ( join( ',', 
+                    grep { length $_ } 
+                    map { _emit($_) } 
+                    ( $n->{self}, $n->{param} )
+                ) );
         }
 
         if (  exists $n->{self}{op1} 
