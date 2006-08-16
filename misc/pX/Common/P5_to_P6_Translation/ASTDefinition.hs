@@ -120,9 +120,15 @@ data AbsType
     | Op_goto
     | Op_ge
     | Op_gelem
+    | Op_getc
+    | Op_ggrent
     | Op_ggrnam
     | Op_getppid
     | Op_ggrgid
+    | Op_ghbyaddr
+    | Op_gmtime
+    | Op_gpwent
+    | Op_gpwnam
     | Op_gpwuid
     | Op_grepstart
     | Op_grepwhile

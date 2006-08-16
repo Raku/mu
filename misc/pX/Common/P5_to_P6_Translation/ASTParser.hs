@@ -137,8 +137,14 @@ withKids indent = do
             "op_goto"       -> Op_goto
             "op_ge"         -> Op_ge
             "op_gelem"      -> Op_gelem
+            "op_getc"       -> Op_getc
             "op_getppid"    -> Op_getppid
+            "op_ghbyaddr"   -> Op_ghbyaddr
+            "op_gmtime"     -> Op_gmtime
+            "op_gpwnam"     -> Op_gpwnam
+            "op_gpwent"     -> Op_gpwent
             "op_gpwuid"     -> Op_gpwuid
+            "op_ggrent"     -> Op_ggrent
             "op_ggrnam"     -> Op_ggrnam
             "op_ggrgid"     -> Op_ggrgid
             "op_grepstart"  -> Op_grepstart
