@@ -86,8 +86,10 @@ sub build {
             $new_runcompiler = File::Spec->catfile($ghc_bin_path, "runcompiler$Config{_exe}");
             copy($runcompiler => $new_runcompiler);
             $runcompiler = $new_runcompiler;
-	}
-	die "Cannot find hsc2hs path" unless $new_runcompiler;
+        }
+        die "Cannot find hsc2hs path" unless $new_runcompiler;
+        warn "GHC installation path: $ghc_inst_path\n";
+        warn "GHC bin path: $ghc_bin_path\n";
     }
 
     # Judy library
