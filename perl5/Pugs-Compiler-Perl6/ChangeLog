@@ -1,4 +1,8 @@
 - fixed '{}' (empty hash)
+- implemented additional Array and Hash methods
+- $?PUGS_BACKEND returns 'BACKEND_PERL5'
+- implemented @*INC
+- %hash = ( { a => 1 }, { b => 2 } ) works
 
 0.013  2006-08-09
 
