@@ -281,7 +281,7 @@ sub report_failure (Str $todo?, Str $got?, Str $expected?, Bool $negate?) return
 
 
 sub test_ends {
-    return unless $Test::testing_started;
+    return() unless $Test::testing_started;
     if (!defined($Test::num_of_tests_planned)) {
         say("1..$Test::num_of_tests_run");
     }
