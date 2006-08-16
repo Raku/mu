@@ -956,8 +956,15 @@ sub infix {
     }
     if ( $n->{op1}{op} eq '//'  ||
          $n->{op1}{op} eq 'err' ) {
-        return ' do { my $_tmp_ = ' . _emit( $n->{exp1} ) . 
-            '; defined $_tmp_ ? $_tmp_ : ' . _emit( $n->{exp2} ) . '}';
+
+        # ( !defined ($::TMP=( my $x = $v )) ? $y : $::TMP )
+
+        # XXX - this is not reentrant
+        # but (undef//undef//42) still works
+
+        return ' ( !defined ($::_V6_DEFINED_OR=( ' . _emit( $n->{exp1} ) . 
+            ' )) ? ( ' . _emit( $n->{exp2} ) . 
+            ' ) : $::_V6_DEFINED_OR ) ';
     }
     if ( $n->{op1}{op} eq 'does' ) {
         # XXX - fix this when Moose implements '$object does'
