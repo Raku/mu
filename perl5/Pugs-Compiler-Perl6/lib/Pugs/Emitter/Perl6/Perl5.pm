@@ -856,7 +856,7 @@ sub statement {
 
     if ( $n->{statement} eq 'loop' ) {
         if ( ! exists $n->{exp1} ) {
-            return " while (1) " . _emit($n->{content}) . "}";
+            return " while (1) " . _emit($n->{content});
         }
         #if ($n->{postfix}) {
         #    # YES, remember the do {{ }} thingy?
