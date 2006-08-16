@@ -16,14 +16,13 @@
 
 package TestInit;
 
-my $VERSION = 1.01;
+$VERSION = 1.01;
 
 chdir 't' if -d 't';
-my @INC = '../lib';
+@INC = '../lib';
 
-my %ENV;
 # Don't interfere with the taintedness of %ENV, this could perturbate tests
-%ENV<PERL_CORE> = 1 unless %{1};
+%ENV<PERL_CORE> = 1 unless ${^TAINT};
 
 $0 ~~ s/\.dp$//; # for the test.deparse make target
 1;
