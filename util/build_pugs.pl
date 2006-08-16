@@ -66,13 +66,6 @@ sub build {
     my $prefix      = File::Spec->rel2abs("$pwd/third-party/installed");
     my $hc_pkg      = File::Spec->rel2abs("$pwd/util/ghc-pkg-wrapper$Config{_exe}");
 
-    my @configure_args = (
-        ($want_profiling ?  '--enable-library-profiling' : ()),
-        '--with-compiler=' . $runcompiler,
-        '--with-hc-pkg='   . $hc_pkg,
-        '--prefix='        . $prefix
-    );
-
     # On Win32, a very broken heuristics in Cabal forced us to copy runcompiler.exe
     # over to where GHC was in.
     my ($ghc_inst_path, $ghc_bin_path);
@@ -92,6 +85,13 @@ sub build {
         warn "GHC bin path: $ghc_bin_path\n";
         warn "Runcompile: $runcompiler\n";
     }
+
+    my @configure_args = (
+        ($want_profiling ?  '--enable-library-profiling' : ()),
+        '--with-compiler=' . $runcompiler,
+        '--with-hc-pkg='   . $hc_pkg,
+        '--prefix='        . $prefix
+    );
 
     # Judy library
     chdir "third-party/judy/Judy-1.0.3";
@@ -141,7 +141,7 @@ sub build {
 
             my $newest_hs_file;
             my $wanted = sub {
-                return unless /\.hsc?$/;
+                return unless /\.hsc?$/ or /\.cabal$/;
                 $newest_hs_file = -M $_ if !$newest_hs_file or -M $_ < $newest_hs_file;
             };
             find $wanted, "third-party/$module";
@@ -325,7 +325,6 @@ sub build_exe {
     push @pkgs, -package => 'readline' if grep /^-DPUGS_HAVE_READLINE$/, @_;
     push @pkgs, -package => 'plugins', -package => 'haskell-src' if grep /^-DPUGS_HAVE_HSPLUGINS$/, @_;
     my @libs = "-lHSPugs-$version" . ($want_profiling ? '_p' : '');
-    push @libs, grep /^-threaded/, @_;
     push @libs, grep /^-opt/, @_;
     push @libs, grep /^-[lL]/, @_;
     push @libs, grep /\.(?:a|o(?:bj)?|\Q$Config{so}\E)$/, @_;
@@ -333,9 +332,11 @@ sub build_exe {
 
     # XXX - Hack to work around Cabal's semibroken profiling lib support!
     if ($want_profiling) {
-        push @libs, '-lJudy';
         push @libs, '-prof';
         push @pkgs, glob('third-party/HsSyck/dist/build/syck/*.o'), qw( dist/build/src/pcre/pcre.o third-party/HsJudy/dist/build/Judy/Private_hsc.o )
+    }
+    else {
+        push @libs, grep /^-threaded/, @_;
     }
 
     push @pkgs, "-package" => "Pugs"; #-$version";
