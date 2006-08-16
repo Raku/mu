@@ -855,10 +855,13 @@ sub statement {
     }
 
     if ( $n->{statement} eq 'loop' ) {
-        if ($n->{postfix}) {
-            # YES, remember the do {{ }} thingy?
-            return " do {"._emit($n->{content})."} while ("._emit($n->{exp2}).")";
+        if ( ! exists $n->{exp1} ) {
+            return " while (1) " . _emit($n->{content}) . "}";
         }
+        #if ($n->{postfix}) {
+        #    # YES, remember the do {{ }} thingy?
+        #    return " do {"._emit($n->{content})."} while ("._emit($n->{exp2}).")";
+        #}
         return  " for( ". join(';', map { $_->{null} ? ' ' : _emit($_) } @{$n}{qw/exp1 exp2 exp3/}).
             ")\n"._emit($n->{content});
     }
