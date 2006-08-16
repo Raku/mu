@@ -1,5 +1,5 @@
 #!/usr/bin/pugs
-#
+# vim: filetype=perl6 :
 # Perl 6 variation of http://www.perlmonks.org/?node_id=567025.
 # You can change $command to reflect the actual command you want to use
 # (e.g. 'svk diff').
@@ -9,7 +9,7 @@ use v6;
 # Default command, a hint on a possible different default is given as well
 # If $default_command is undef, then the command line will be called as-is
 my $default_command = 'diff';
- $default_command = 'svk diff';
+# $default_command = 'svk diff';
 
 # Color associations: red are "from", green are "to", blue are other stuff
 my %color_for = (
@@ -35,7 +35,7 @@ for =$fh {
     my $first_char = substr $_, 0, 1;
     delete %color_for{'-'} if $first_char eq '<';
     print BOLD, %color_for{$first_char} if %color_for.exists($first_char);
-    say;
+    .say;
     print RESET if %color_for.exists($first_char);
 }
 close $fh;
@@ -59,14 +59,4 @@ sub get_input_fh ($command) {
     my ($in, $out, $err, $pid) =
         Pugs::Internals::runInteractiveCommand($command);
     return $out;
-}
-
-# I'm not using rules to be fair with who doesn't install parrot.
-# Ok, I've not installed parrot :)
-sub quotemeta ($string) {
-    state $wordish = (0 .. 9) ~ ('a' .. 'z') ~ ('A' .. 'Z') ~ '_';
-    state %wordish = $wordish.split('').map({ $_ => 1; });
-    return $string.split('').map({
-        %wordish.exists($_) ?? $_ !! "\\$_";
-    }).join('');
 }
