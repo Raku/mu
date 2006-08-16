@@ -54,10 +54,11 @@ if($runcore eq "vanilla") {
     sub *say (*@_) {
       print *@_, "\n";
     }
+    my $_;
     -> $ret {
       if $__evalbot_print { Pugs::Safe::safe_print "] " }
       Pugs::Safe::safe_print ($! ?? "Error: $!" !! $ret) ~ "\n";
-    }(eval("' . $code . '").perl);
+    }(Pugs::Internals::eval_perl6("' . $code . '").perl);
   ';
 } elsif($runcore eq "JS" or $runcore eq "Perl5") {
   system $pugs, "-B$runcore", "-e", "
