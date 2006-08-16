@@ -209,9 +209,9 @@ sub reduce {
     # print "list emit_rule: ", Dumper( $n );
 
     return 
-        "do { use List::Util 'reduce'; reduce { \$a " .
+        "( List::Util::reduce { \$a " .
         $n->{op}{op} . " \$b } " . _emit( $n->{param} ) .
-        " } ";
+        " ) ";
 }
 
 sub assoc_list {
@@ -510,8 +510,7 @@ sub default {
         return " " . $n->{sub}{bareword} . " '', " . _emit( $n->{param} ) 
             if $n->{sub}{bareword} eq 'print' ||
                $n->{sub}{bareword} eq 'warn';
-        return " do { print '', " . _emit( $n->{param} ) . ";\n" .
-            " print " . '"\n" } '
+        return " ( print '', ( " . _emit( $n->{param} ) . " )," . '"\n" ) '
             if $n->{sub}{bareword} eq 'say';
 
             
@@ -937,7 +936,7 @@ sub term {
         return '$self';
     }
     if ( $n->{term} eq 'yada' ) {
-        return  'do { die "not implemented" }';
+        return  '( die "not implemented" )';
     }
 }
 

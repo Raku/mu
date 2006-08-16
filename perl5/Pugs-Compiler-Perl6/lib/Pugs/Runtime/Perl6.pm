@@ -10,6 +10,7 @@ use Sub::Multi;
 
 use IO::File ();
 use Pugs::Compiler::Regex ();
+use List::Util; # 'reduce'
 
 $::_V6_BACKEND = 'BACKEND_PERL5';
 
