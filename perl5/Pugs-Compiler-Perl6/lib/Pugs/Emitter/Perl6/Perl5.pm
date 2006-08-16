@@ -353,11 +353,11 @@ sub _emit_parameter_capture {
 sub runtime_method {
     my $n = $_[0];
     # runtime decision - method or lib call
-    my $tmp = '$_V6_TMP';
+    my $tmp = '@_V6_TMP';
     return 
         "do { my $tmp = " . _emit( $n->{self} ) . "; " .
-        "( Scalar::Util::blessed $tmp ? " .
-          $tmp . "->" . 
+        "( $tmp == 1 && Scalar::Util::blessed " . $tmp . "[0] ? " .
+          $tmp . "[0]->" . 
           _emit( $n->{method} ) . "(" . _emit( $n->{param} ) . ")" .
         " : " .
           " Pugs::Runtime::Perl6::Scalar::" . _emit( $n->{method}, '  ' ) . 
