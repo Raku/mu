@@ -350,6 +350,21 @@ sub _emit_parameter_capture {
     return "[$positional], {".join(',', @named).'}';
 }
 
+sub runtime_method {
+    my $n = $_[0];
+    # runtime decision - method or lib call
+    my $tmp = '$_V6_TMP';
+    return 
+        "do { my $tmp = " . _emit( $n->{self} ) . "; " .
+        "( Scalar::Util::blessed $tmp ? " .
+          $tmp . "->" . 
+          _emit( $n->{method} ) . "(" . _emit( $n->{param} ) . ")" .
+        " : " .
+          " Pugs::Runtime::Perl6::Scalar::" . _emit( $n->{method}, '  ' ) . 
+          "( $tmp, " . _emit( $n->{param} ) . ")" .
+        " ) }";
+}
+
 sub _emit_closure {
     my ($signature, $block) = @_;
     return " Data::Bind->sub_signature( sub {" .
@@ -574,14 +589,14 @@ sub default {
     
         # "autobox"
         
-        if ( exists $n->{self}{code} && $n->{method}{dot_bareword} eq 'goto') {
-            # &code.goto;
-            return 
-                " \@_ = (" . _emit_parameter_capture( $n->{param} ) . ");\n" .
-                " " . _emit( $n->{method} ) . "( " .
-                    _emit( $n->{self} ) . "->code )";
-        }
         if ( exists $n->{self}{code} ) {
+            if ( $n->{method}{dot_bareword} eq 'goto' ) {
+                # &code.goto;
+                return 
+                    " \@_ = (" . _emit_parameter_capture( $n->{param} ) . ");\n" .
+                    " " . _emit( $n->{method} ) . "( " .
+                    _emit( $n->{self} ) . "->code )";
+            }
             # &?ROUTINE.name;
             return 
                 _emit( $n->{self} ) . "->" .
@@ -597,22 +612,10 @@ sub default {
                 if $n->{self}{scalar} =~ /^\$\./;
             
             # $scalar.++;
-            # runtime decision - method or lib call
             return _emit( $n->{method} ).'('._emit( $n->{self} ).')'
                 if $n->{method}{dot_bareword} eq 'ref';
-            return 
-                "( Scalar::Util::blessed " . _emit( $n->{self} ) . " ? " .
-            
-                    _emit( $n->{self} ) . "->" . 
-                    _emit( $n->{method} ) . "(" . _emit( $n->{param} ) . ")" .
-                
-                " : " .
-                
-                    " Pugs::Runtime::Perl6::Scalar::" . _emit( $n->{method}, '  ' ) . 
-                    "(" . _emit( $n->{self} ) .
-                    ", " . _emit( $n->{param} ) . ")" .
-                
-                " )";
+            # runtime decision - method or lib call
+            return runtime_method( $n );
         }
         
         if ( exists $n->{self}{hash} ) {
@@ -672,9 +675,11 @@ sub default {
            || exists $n->{self}{term} 
            ) {
             # %var<item>.++;
-            return
-                _emit( $n->{self} ) . "->" . 
-                _emit( $n->{method} ) . "(" . _emit( $n->{param} ) . ")";
+            return runtime_method( $n );
+
+            #return
+            #    "(" . _emit( $n->{self} ) . ")->" . 
+            #    _emit( $n->{method} ) . "(" . _emit( $n->{param} ) . ")";
         }
     
         # normal methods or subs

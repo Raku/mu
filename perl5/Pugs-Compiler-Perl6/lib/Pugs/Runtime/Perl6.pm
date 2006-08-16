@@ -157,6 +157,10 @@ sub eval {
     Pugs::Runtime::Perl6::eval( [ \$s, \'perl6' ], {} ) 
 }
 
+sub sort { 
+    sort @_ 
+}
+
 package Pugs::Runtime::Perl6::Array;
 
 sub map {
