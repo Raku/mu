@@ -72,8 +72,8 @@ pugs_apply subPtr invPtr argsPtr cxt = do
     inv     <- deValMaybe invPtr
     args    <- mapM deVal =<< peekArray0 nullPtr argsPtr
     let subExp = case sub of
-            VStr name@('&':_)   -> Var name
-            VStr name           -> Var ('&':name)
+            VStr name@('&':_)   -> _Var name
+            VStr name           -> _Var ('&':name)
             _                   -> Val sub
     val <- runEvalIO env $
         evalExp (Ann (Cxt (cxtEnum cxt)) $ App subExp (fmap Val inv) (map Val args))
