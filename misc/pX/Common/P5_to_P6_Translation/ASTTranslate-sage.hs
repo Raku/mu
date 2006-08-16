@@ -689,7 +689,7 @@ main = do
 --getModifiers creates a string with an element for each command line switch.
 --Unknown swicthes (or file names) do nothing.
 getModifiers :: [String] -> String
-getModifiers [] = "n"
+getModifiers [] = " "
 getModifiers args = case (head args) of
                          "-Oo"    ->  ('o':(getModifiers (drop 1 args)))
                          "-V"     ->  ('v':(getModifiers (drop 1 args)))
