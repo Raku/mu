@@ -11,6 +11,8 @@ use Sub::Multi;
 use IO::File ();
 use Pugs::Compiler::Regex ();
 
+$::_V6_BACKEND = 'BACKEND_PERL5';
+
 # TODO - see Pugs::Runtime::Grammar for metaclass stuff
 
 use constant Inf => 100**100**100;
