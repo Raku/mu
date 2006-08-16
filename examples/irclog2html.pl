@@ -108,7 +108,7 @@ my $process = -> $time, $nick, $type, $text {
     # PRIVMSG is the standard type of messages.
     when "PRIVMSG" {
       # If it was a /ME, we format it differently.
-      $htext = $text ~~ m:Perl5/^\001ACTION (.*)\001$/
+      $htext = $text ~~ m:Perl5/^\x01(?:ACTION (.*))\x01$/
         ?? "$nick {qhtml $0}"
         !! qhtml $text;
     }
@@ -135,7 +135,7 @@ my $process = -> $time, $nick, $type, $text {
     globfg => "black",
     globbg =>
       $type eq "PRIVMSG"    
-        ?? $text ~~ rx:Perl5/^\001ACTION/ ?? "#eaeaea" !! "#f5f5f5"
+        ?? $text ~~ rx:Perl5/^\x01(?:ACTION)/ ?? "#eaeaea" !! "#f5f5f5"
         !! "#dddddd",
 
     # Nick foreground/background color
@@ -157,7 +157,7 @@ my $process = -> $time, $nick, $type, $text {
       $type eq "PART"    ?? qhtml "<" !!
       $type eq "JOIN"    ?? qhtml ">" !!
       $type eq "PRIVMSG"
-        ?? ($text ~~ rx:Perl5/^\001ACTION/ ?? qhtml "*" !! "")
+        ?? ($text ~~ rx:Perl5/^\x01(?:ACTION)/ ?? qhtml "*" !! "")
         !! qhtml "*",
   );
 };
@@ -210,7 +210,7 @@ sub parse_ilogger2(Str $line is copy) {
 
     when rx:Perl5/^\* <([^>]+)> (.*)/ {
       # We reformat /MEs as CTCP ACTIONs.
-      return ($time, $0, "PRIVMSG", "\001ACTION $1\001");
+      return ($time, $0, "PRIVMSG", "\x01(?:ACTION $1)\x01");
     }
   }
 

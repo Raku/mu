@@ -29,7 +29,7 @@ sub on_invite($event) {
 }
 
 sub on_privmsg($event) {
-  if $event<rest> ~~ rx:P5/^\001ACTION (.*)\001?$/ {
+  if $event<rest> ~~ rx:P5/^\x01(?:ACTION )(.*)\x01?$/ {
     log "* $event<from_nick> $0";
   } else {
     log "<$event<from_nick>> $event<rest>";

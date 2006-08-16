@@ -24,7 +24,7 @@ if ($BSD_STYLE) {
     system "stty cbreak </dev/tty >/dev/tty 2>&1";
 }
 else {
-    system "stty", '-icanon', 'eol', "\001";
+    system "stty", '-icanon', 'eol', "\x01";
 }
 
 my $_loop_ = get_loop();
