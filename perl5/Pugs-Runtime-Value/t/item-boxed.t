@@ -16,7 +16,7 @@ can_ok('Int', 'new');
 ok(Int->isa('Object'), '... Int isa Object');
 
 {
-    my $n = Num->new( '$.unboxed' => 3.3 );
+    my $n = Num->new( 'unboxed' => 3.3 );
     isa_ok($n, 'Num');
     can_ok($n, 'num');
     is($n->unboxed(), 3.3, '... got the unboxed num value');

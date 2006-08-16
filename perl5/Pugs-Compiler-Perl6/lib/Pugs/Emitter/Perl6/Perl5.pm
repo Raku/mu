@@ -333,7 +333,7 @@ sub _emit_parameter_capture {
             push @named, $pair->{key}{single_quoted}.' => \\('._emit($pair->{value}).')';
         }
         elsif ($_->{fixity} && $_->{fixity} eq 'infix' && $_->{op1}{op} eq '=>') {
-            push @named, _emit($_->{exp1}).' => \\('._emit($_->{exp2}).')';
+            push @named, autoquote($_->{exp1}).' => \\('._emit($_->{exp2}).')';
         }
         else {
             # \($scalar, 123, ), \@array, \($orz)
@@ -878,13 +878,14 @@ sub statement {
 
 sub autoquote {
     my $n = $_[0];
+    #print "autoquote: ", Dumper( $n );
     if ( exists $n->{'op1'} &&
          $n->{'op1'} eq 'call' &&
          ! exists $n->{'param'} &&
          exists $n->{'sub'}{'bareword'}
        )
     {
-        return $n->{'sub'}{'bareword'};
+        return "'" . $n->{'sub'}{'bareword'} . "'";
     }
     return _emit( $n );
 }
@@ -909,7 +910,7 @@ sub infix {
         return _emit( $n->{exp1} ) . ' . ' . _emit( $n->{exp2} );
     }
     if ( $n->{op1}{op} eq '=>' ) {
-        #print Dumper( $n->{exp1} );
+        #print "autoquote: ", Dumper( $n->{exp1} );
         return autoquote( $n->{exp1} ) . ' => ' . _emit( $n->{exp2} );
     }
     if ( $n->{op1}{op} eq '~=' ) {
@@ -1017,7 +1018,7 @@ sub infix {
 
 sub circumfix {
     my $n = $_[0];
-    # print "infix: ", Dumper( $n );
+    #print "circumfix: ", Dumper( $n );
     
     if ( $n->{op1}{op} eq '(' &&
          $n->{op2}{op} eq ')' ) {
