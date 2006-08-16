@@ -2,11 +2,6 @@
 
 rem WARMING!!! Don't Edit This File!!! Pugs' Build System Depends On This!
 
-echo --- This is a compile kit to suggest how to port to your machine
-echo --- This script runs in 7 seconds on a 3.2Ghz Pentium P4C
-echo --- Must be in the 'src' directory to execute this script
-echo --- I normally run it like: COPT='-O3 -march=i686' sh_build
-
 rem --- Set Compiler
 rem set CC=D:\ghc\ghc-6.4.2\gcc.exe
 
