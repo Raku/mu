@@ -15,7 +15,7 @@ use Test;
 #       $_;
 #   };
 
-plan 7;
+plan 10;
 
 # Without an own class
 {
@@ -58,3 +58,9 @@ plan 7;
   is $attr, 42, "attribute setting worked correctly in syntax but";
   cmp_ok $obj, &infix:<~~>, SampleClass, "syntax but returned the original object";
 }
+
+# L<<S02/Context /objects can override the class definition:/>>
+my $trueZero;
+eval_ok '$trueZero = 0 but True', "0 but True syntax evaluates";
+ok ($trueZero == 0), "0 but True is numerically equal to 0";
+ok ?($trueZero), "0 but True is true";
