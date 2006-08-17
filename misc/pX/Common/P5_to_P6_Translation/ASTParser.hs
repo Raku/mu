@@ -413,7 +413,7 @@ uniBlock indent = choice
         return (unlines (map (drop indent) uni))
     ,do try $ string "|+"
         newline;
-        uni <- manyTill (manyTill anyToken newline) (try(choice [try(do{count (indent-4) space; notFollowedBy (char ' ')}), try(do{count (indent-8) space; notFollowedBy (char ' ')})])) <?> "uni block with chomp modifier"; -- A block with the chomp modifier ends when there's a line with too few spaces (which means another node (or the end part of a heredoc) is starting.
+        uni <- manyTill (manyTill anyToken newline) (try(choice [try(do{count (indent-4) space; notFollowedBy (char ' ')}), try(do{count (indent-8) space; notFollowedBy (char ' ')}), try(eof)])) <?> "uni block with chomp modifier"; -- A block with the chomp modifier ends when there's a line with too few spaces (which means another node (or the end part of a heredoc) is starting.
         return (unlines (map (drop indent) uni))
     ,do try $ string "|-"
         newline;
