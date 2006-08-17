@@ -261,7 +261,6 @@ findSub var invs args
     findWithSuper pkg var = do
         -- get superclasses
         attrs <- fmap (fmap (filter (/= pkg) . nub)) $ findAttrs pkg
-        warn "ATTRS" attrs
         if isNothing attrs || null (fromJust attrs) then fmap (err NoMatchingMulti) (findSub' var) else do
         (`fix` (fromJust attrs)) $ \run pkgs -> do
             if null pkgs then return (Left $ NoSuchMethod (cast pkg)) else do
