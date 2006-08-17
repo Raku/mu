@@ -107,8 +107,8 @@ debug ref key fun str a = do
         writeTVar ref (Map.insert key val fm)
         return val
     when (length val > 100) $ do
-        trace "*** Warning: deep recursion" return ()
-    trace ("***" ++ val ++ str ++ encodeUTF8 (pretty a)) return ()
+        liftIO $ putStrLn "*** Warning: deep recursion"
+    liftIO $ putStrLn ("***" ++ val ++ str ++ encodeUTF8 (pretty a))
 
 evaluateMain :: Exp -> Eval Val
 evaluateMain exp = do
