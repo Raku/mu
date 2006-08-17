@@ -150,3 +150,68 @@ TODO for Pugs-Compiler-Precedence
 
 - The P::Yapp 'expect' state can be verified inside
     %{$self->{STATES}[$self->{STACK}[-1][0]]{ACTIONS}}
+
+
+= Implemented Features
+
+  <ws> 
+  #comment\n 
+  . 
+  ? * + *? +? ??
+  literal
+  [] 
+  ()     
+  |
+ 
+  <'literal'>
+  <subrule>
+  <namespace::subrule>
+  <$var>      
+  <?subrule>
+  <!subrule>
+  <before ...>
+  <after ...>         -- implemented in :ratchet mode only
+  <subrule('param')>  -- constant parameters only
+ 
+  %hash
+ 
+  <@var>             -- special-cased for array-of-rule (but not Rule|Str)
+  \char              -- not all chars implemented
+  {code}             -- non-capturing closure
+                     -- perl5 syntax inside closure
+                     -- $/ doesn't work yet
+  { return code }    -- capturing closure
+                     -- perl5 syntax inside closure
+                     -- $/ works
+  $var := (capture)  -- capture aliasing
+  $<> $/<>           -- special variables can't be used inside a match yet
+  $/ 
+  $<0> $<1>
+  $0 $1
+  \n \N
+  $^a $^b            -- positional parameters (must start with $^a)
+  ^ $
+  :
+
+= Unimplemented or untested features
+
+  $variable 
+  @variable
+  $/<0> $/<1>
+  $/0 $/1
+  <"literal">
+  ^^ $$
+  <unicode-class> <+unicode-class> <+unicode-class+unicode-class>
+  <&var> 
+  <%var>
+  **{n..m}
+  :: :::   (commit)
+  $var := [non-capture]
+  $var := <rule>
+  <(closure-assertion)> <{code-returns-rule}>
+  <<character-class>> <[character-class]>
+  :flag :flag() :flag[]
+  \x0a \0123 ...
+  &    
+  $1      - lvalue match variables
+  $/ $()  - global match variables 
