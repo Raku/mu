@@ -5,7 +5,7 @@ use Test;
 plan 9;
 force_todo 8;
 
-# L<S29/"Perl6::Str" /uc/>
+# L<S29/"Str" /uc/>
 
 is(uc("Hello World"), "HELLO WORLD", "simple");
 is(uc(""), "", "empty string"); 

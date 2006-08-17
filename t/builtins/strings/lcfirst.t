@@ -4,7 +4,7 @@ use Test;
 
 plan 8;
 
-# L<S29/"Perl6::Str" /lcfirst/>
+# L<S29/"Str" /lcfirst/>
 
 is lcfirst("HELLO WORLD"), "hELLO WORLD", "simple";
 is lcfirst(""),            "",            "empty string";

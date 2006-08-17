@@ -4,7 +4,7 @@ use Test;
 
 plan 40;
 
-# L<S29/"Perl6::Str" /substr/>
+# L<S29/"Str" /substr/>
 
 { # read only
     my $str = "foobar";

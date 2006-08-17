@@ -24,7 +24,7 @@ use Test;
 
 plan 10;
 
-# L<S29/"Perl6::Str" /quotemeta/>
+# L<S29/"Str" /quotemeta/>
 
 is(quotemeta("HeLLo World-72_1"), "HeLLo\\ World\\-72_1", "simple lc test");
 is(quotemeta(""), "", "empty string");

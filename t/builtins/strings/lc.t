@@ -4,7 +4,7 @@ use Test;
 
 plan 8;
 
-# L<S29/"Perl6::Str" /lc/>
+# L<S29/"Str" /lc/>
 
 is(lc("Hello World"), "hello world", "simple lc test");
 is(lc(""), "", "empty string");
