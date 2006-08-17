@@ -330,7 +330,7 @@ sub perl6_expression {
 # class
 
 
-*class_decl_name = Pugs::Compiler::Regex->compile( q(
+*class_decl_name = Pugs::Compiler::Token->compile( q(
     ( my | <''> ) <?ws>?
     ( class | grammar | module | role | package ) <?ws>? 
     ( <?Pugs::Grammar::Term.cpan_bareword> |
@@ -346,7 +346,7 @@ sub perl6_expression {
 )->code;
 
 
-*class_decl = Pugs::Compiler::Regex->compile( q(
+*class_decl = Pugs::Compiler::Token->compile( q(
     <class_decl_name> <?ws>? 
         # attr
         <attribute> <?ws>?

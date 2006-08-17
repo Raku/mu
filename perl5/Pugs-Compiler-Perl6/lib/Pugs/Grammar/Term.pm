@@ -93,7 +93,7 @@ sub rx_body {
     } );
 };
 
-*ident = Pugs::Compiler::Regex->compile( q(
+*ident = Pugs::Compiler::Token->compile( q(
         \!      # $!
     |   \??     # $?CALLER
         \*?     # $*x
@@ -349,7 +349,7 @@ sub recompile {
             }
             ),
         # q(.) => ...
-        q() => Pugs::Compiler::Regex->compile( q^
+        q() => Pugs::Compiler::Token->compile( q^
                 ### floating point
                 \d+\.\d+ { return { num => $() ,} } 
             |
@@ -360,11 +360,11 @@ sub recompile {
                 \:
                 [
                 # :foo<bar>
-                ([_|\w]+) \< (.*?) \>
+                ([_|\w]+) \< <Pugs::Grammar::Quote.angle_quoted>
                 { return {
                     pair => { 
                         key   => { single_quoted => $/[0]() }, 
-                        value => { single_quoted => $/[1]() }, 
+                        value => { single_quoted => $/{'Pugs::Grammar::Quote.angle_quoted'}() }, 
                 } } }
                 |
                 # :foo(exp)
