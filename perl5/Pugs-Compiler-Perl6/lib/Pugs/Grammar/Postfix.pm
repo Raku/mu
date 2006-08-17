@@ -1,7 +1,6 @@
 ﻿package Pugs::Grammar::Postfix;
 use strict;
 use warnings;
-#use base qw(Pugs::Grammar::Operator);
 use Pugs::Grammar::Operator;
 use base qw(Pugs::Grammar::BaseCategory);
 
@@ -45,13 +44,6 @@ BEGIN {
     );
     __PACKAGE__->add_rule(
         name => '?',
-        assoc => 'left',
-        precedence => 'equal',
-        other => 'prefix:<++>',
-    );
-
-    __PACKAGE__->add_rule(
-        name => 'ANGLE',    # <str>
         assoc => 'left',
         precedence => 'equal',
         other => 'prefix:<++>',

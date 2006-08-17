@@ -1,7 +1,6 @@
 ﻿package Pugs::Grammar::Infix;
 use strict;
 use warnings;
-#use base qw(Pugs::Grammar::Operator);
 use Pugs::Grammar::Operator;
 use base qw(Pugs::Grammar::BaseCategory);
 
@@ -74,15 +73,6 @@ BEGIN {
         precedence => 'looser',
         other => '..',
     );
-
-    # XXX - BUG - collision with &name
-    
-    #__PACKAGE__->add_rule( 
-    #    name => '&',
-    #    assoc => 'left',
-    #    precedence => 'equal',
-    #    other => 'infix:<|>',
-    #);
 
     __PACKAGE__->add_rule( 
         name => 'eq',
@@ -166,29 +156,6 @@ BEGIN {
         precedence => 'equal',
         other => 'or',
     );
-    
-    #__PACKAGE__->add_rule( 
-    #    name => ';',
-    #    assoc => 'list',
-    #    precedence => 'looser',
-    #    other => 'or',
-    #);
-    
-    # '->' is not an operator
-    #__PACKAGE__->add_rule( 
-    #    name => '->',
-    #    assoc => 'non',
-    #    precedence => 'equal',
-    #    other => ';',
-    #);
-
-    # experimental
-    #__PACKAGE__->add_rule( 
-    #    name => 'IF',
-    #    assoc => 'non',
-    #    precedence => 'tighter',
-    #    other => ';',
-    #);
 
     __PACKAGE__->recompile;
 }

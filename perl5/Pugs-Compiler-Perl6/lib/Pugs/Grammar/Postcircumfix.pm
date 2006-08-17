@@ -1,11 +1,13 @@
 ﻿package Pugs::Grammar::Postcircumfix;
 use strict;
 use warnings;
-#use base qw(Pugs::Grammar::Operator);
 use Pugs::Grammar::Operator;
 use base qw(Pugs::Grammar::BaseCategory);
 
 use Pugs::Grammar::Infix;
+
+# XXX - this module is currently unused
+# XXX - see Pugs::Grammar::Term, Pugs::Grammar::Quote
 
 sub add_rule {
     my $self = shift;
@@ -34,27 +36,7 @@ sub add_rule {
 
 
 BEGIN {
-    #__PACKAGE__->add_rule( 
-    #    name => '(',
-    #    name2 => ')',
-    #    assoc => 'non',
-    #    precedence => 'equal',
-    #    other => 'circumfix:<( )>',
-    #);
-    #__PACKAGE__->add_rule( 
-    #    name => '[',
-    #    name2 => ']',
-    #    assoc => 'left',
-    #    precedence => 'tighter',
-    #    other => 'prefix:<++>',
-    #);
-    #__PACKAGE__->add_rule( 
-    #    name => '{',
-    #    name2 => '}',
-    #    assoc => 'non',
-    #    precedence => 'equal',
-    #    other => 'postcircumfix:<[ ]>',
-    #);
+
     __PACKAGE__->recompile;
 }
 

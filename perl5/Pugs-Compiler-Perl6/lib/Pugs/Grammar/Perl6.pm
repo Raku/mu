@@ -43,9 +43,10 @@ sub perl6_expression {
     \{ <?ws>? 
         #{ print "block\n" }
         <statements>
-        #{ print "matched block\n" }
+        #{ print "matched block\n", Dumper( $_[0]{statements}->data ); }
         <?ws>? \}
         { 
+            #print "matched block\n", Dumper( $_[0]{statements}->data ); 
             return { 
                 bare_block => $_[0]{statements}->(),
             } 
@@ -139,19 +140,19 @@ sub perl6_expression {
 )->code;
 
 
-*signature_term_ident = Pugs::Compiler::Regex->compile( q(
+*signature_term_ident = Pugs::Compiler::Token->compile( q(
             # XXX t/subroutines/multidimensional_arglists.t
             \\@ ; <?Pugs::Grammar::Term.ident>
             { return { die => "not implemented" } }
      |
-        (  ( <'$'>|<'%'>|<'@'>|<'&'> )  <alpha>  [<alnum>|_]* )
+        (  ( <'$'>|<'%'>|<'@'>|<'&'> ) <?Pugs::Grammar::Term.ident> )
             { return $_[0][0]->() }
 ),
     { grammar => __PACKAGE__ }
 )->code;
 
 
-*signature_term = Pugs::Compiler::Regex->compile( q(
+*signature_term = Pugs::Compiler::Token->compile( q(
         <signature_term_type> : <?ws>?
         (<':'>?)
         (<'*'>?)
@@ -176,7 +177,7 @@ sub perl6_expression {
 )->code;
 
 
-*signature_no_invocant = Pugs::Compiler::Regex->compile( q(
+*signature_no_invocant = Pugs::Compiler::Token->compile( q(
         <signature_term>
         [
             <?ws>? <','> <?ws>? <signature_no_invocant>
@@ -265,7 +266,8 @@ sub perl6_expression {
         # attr
         <attribute> <?ws>?
         <block>        
-        { return { 
+        { 
+          return { 
             multi      => $_[0]{sub_decl_name}->()->{multi},
             my         => $_[0]{sub_decl_name}->()->{my},
             statement  => $_[0]{sub_decl_name}->()->{statement},
@@ -350,14 +352,18 @@ sub perl6_expression {
     <class_decl_name> <?ws>? 
         # attr
         <attribute> <?ws>?
-        ( <block>? )
-        { return { 
+        <block>?
+        { 
+          #print "matched block\n", Dumper( $_[0]{block}[0]->data ); 
+          return { 
             my         => $_[0]{class_decl_name}->()->{my},
             statement  => $_[0]{class_decl_name}->()->{statement},
             name       => $_[0]{class_decl_name}->()->{name},
             
             attribute  => $_[0]{attribute}->(),
-            block      => $_[0][0]->(),
+            block      => defined $_[0]{block}[0]
+                          ? $_[0]{block}[0]->()
+                          : undef ,
         } }
 ),
     { grammar => __PACKAGE__ }

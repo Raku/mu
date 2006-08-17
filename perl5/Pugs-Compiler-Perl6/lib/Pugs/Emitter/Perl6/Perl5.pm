@@ -712,12 +712,14 @@ sub default {
     
         # normal methods or subs
         
-        return " " . Pugs::Runtime::Common::mangle_ident( $n->{sub}{bareword} ) .
+        if ( exists $n->{sub}{bareword} ) {
+            return " " . Pugs::Runtime::Common::mangle_ident( $n->{sub}{bareword} ) .
             '(' .
             join ( ";\n",   # XXX
                 map { _emit( $_ ) } @{$n->{param}} 
             ) .
             ')';
+        }
     }
 
     if ( exists $n->{substitution}) {
@@ -766,7 +768,9 @@ sub statement {
             : $n->{name};
         my @a = split "-", $id;
         my $version = ( @a > 1 && $a[-1] =~ /^[0-9]/ ? $a[-1] : '' );
-        my $namespace = Pugs::Runtime::Common::mangle_ident( $a[0] );
+        my $namespace = $a[0] 
+                ? Pugs::Runtime::Common::mangle_ident( $a[0] )
+                : '';
 
         my $attributes = '';
         for my $attr ( @{$n->{attribute}} ) {

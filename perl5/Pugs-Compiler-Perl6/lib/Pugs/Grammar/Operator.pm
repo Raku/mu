@@ -46,14 +46,14 @@ exp:
 
 !,
     );
-    # print "created operator table\n";
+    #print "created operator table\n";
 }
 
 sub add_rule {
     # print "add operator\n";
     my $self = shift;
     my %opt = @_;
-    # print "Operator add: @{[ %opt ]} \n";
+    #print "Operator add: @{[ %opt ]} \n";
 
     delete $opt{rule};
     $operator->add_op( \%opt );
