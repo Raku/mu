@@ -24,10 +24,29 @@ my $pipe = "evalbot_nick";
 sub update_pugs {
     print STDERR "*** Updating repository...\n";
     system "$svn update";
-    my $rtext = `$svn info`;
-    my ($rev) = $rtext =~ /^Revision: (\d+)/m;
-    print STDERR "*** Updated to revision $rev\n";
-    return $rev;
+    my $revision;
+    if ($svn eq 'svn') {
+        my $info = `$svn info`;
+        ($revision) = $info =~ /^Revision: (\d+)/m;
+    }
+    else { # SVK here
+        my @info = qx/svk info/;
+        if (my ($line) = grep /(?:file|svn|https?)\b/, @info) {
+            ($revision) = $line =~ / (\d+)$/;
+        } elsif (my ($source_line) = grep /^(Copied|Merged) From/, @info) {
+            if (my ($source_depot) = $source_line =~ /From: (.*?), Rev\. \d+/) {
+                $source_depot = '/'.$source_depot; # convert /svk/trunk to //svk/trunk
+                if (my @info = qx/svk info $source_depot/ and $? == 0) {
+                    if (my ($line) = grep /(?:file|svn|https?)\b/, @info) {
+                        ($revision) = $line =~ / (\d+)$/;
+                    }
+                }
+            }
+        }
+    }
+
+    print STDERR "*** Updated to revision $revision\n";
+    return $revision;
 }
 
 sub build_pugs {
