@@ -168,7 +168,7 @@ changeVarsInQuotes (Heredoc start end kids) = (Heredoc start end (map changeVars
 --Wrapper for the parser that translates arrays and hashes in strings
 runTextParser :: String -> String
 runTextParser instr = case parse textParser "text node" instr of
-                                Left err -> error $ "\nError:\n" ++ show err
+                                Left err -> error $ "\nError:\n" ++ show err ++"\nIN:\n"++instr
                                 Right result -> result
 
 --The actual parser that changes "@array" and "%hash"
