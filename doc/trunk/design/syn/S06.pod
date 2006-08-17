@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 14 Aug 2006
+  Last Modified: 17 Aug 2006
   Number: 6
-  Version: 49
+  Version: 50
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -481,21 +481,10 @@ and is passed as the left operand of the method call operator:
     print $obj.get_name();
     $obj.set_name("Sam");
 
-Multimethod and multisub invocants are specified at the start of the parameter
-list, with a colon terminating the list of invocants:
-
-    multi sub handle_event ($window, $event: $mode) {...}   # two invocants
-    multi method set_name ($self, $name: $nick) {...}       # two invocants
-
-If the parameter list for a C<multi> contains no colon to delimit
-the list of invocant parameters, then all positional parameters are
-considered invocants.  If it's a C<multi method> or C<multi submethod>,
-an additional implicit unnamed C<self> invocant is prepended to the
-signature list.
-
 For the purpose of matching positional arguments against invocant parameters,
 the invocant argument passed via the method call syntax is considered the
-first positional argument:
+first positional argument when failover happens from single dispatch to
+multiple dispatch:
 
     handle_event($w, $e, $m);   # calls the multi sub
     $w.handle_event($e, $m);    # ditto, but only if there is no
@@ -509,13 +498,27 @@ same precedence:
                             # fall-back to set_name($obj, "Sam")
     $obj.set_name("Sam");   # same as the above
 
-Passing too many or too few invocants is a fatal error if no matching
-definition can be found.
-
 An invocant is the topic of the corresponding method or multi if that
 formal parameter is declared with the name C<$_>.  A method's first
 invocant always has the alias C<self>.  Other styles of self can be
 declared with the C<self> pragma.
+
+=head2 Longname parameters
+
+Much like ordinary methods give preference to the invocant,
+multimethods and multisubs can give preference to earlier parameters.
+These are called I<longnames>; see S12 for more about the semantics
+of multiple dispatch.  Syntactically, longnames are declared by
+terminating the list of important parameters with a semicolon:
+
+    multi sub handle_event ($window, $event; $mode) {...}
+    multi method set_name ($self: $name; $nick) {...}
+
+If the parameter list for a C<multi> contains no semicolon to delimit
+the list of invocant parameters, then all positional parameters are
+considered invocants.  If it's a C<multi method> or C<multi submethod>,
+an additional implicit unnamed C<self> invocant is prepended to the
+signature list unless the first parameter is explicitly marked with a colon.
 
 
 =head2 Required parameters
@@ -2534,3 +2537,14 @@ This will conveniently bind top-level named matches to named
 parameters, but still give you access to nested matches through those
 parameters, just as any C<Match> object would.  Of course, in this example,
 there's no particular reason the sub has to be named C<MAIN>.
+
+To give both a long and a short switch name, you may use the pair
+notation.  The key will be considered the short switch name, while
+the variable name will be considered the long switch name.  So if
+the previous declaration had been:
+
+    sub MAIN (:f($frompart), :t($topart), *@rest)
+
+then you could invoke the program with either C<-f> or C<--frompart>
+to specify the first parameter.  Likewise you could use either C<-t>
+or C<--topart> for the second parameter.
