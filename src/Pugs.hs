@@ -63,10 +63,10 @@ run' :: (?debugInfo :: DebugInfo) => [String] -> IO ()
 run' ("-d":rest)                 = do
     info <- fmap Just (liftSTM $ newTVar Map.empty)
     let ?debugInfo = info
-    run rest
-run' ("-l":rest)                 = run rest
-run' ("-w":rest)                 = run rest
-run' ("-I":_:rest)               = run rest
+    run' rest
+run' ("-l":rest)                 = run' rest
+run' ("-w":rest)                 = run' rest
+run' ("-I":_:rest)               = run' rest
 
 -- XXX should raise an error here:
 -- run ("-I":[])                     = do
@@ -104,14 +104,14 @@ run' ("-e":prog:args)                     = do doRun "-e" args prog
 --   "-e foo bar.pl" executes "foo" with @*ARGS[0] eq "bar.pl",
 --   "-E foo bar.pl" executes "foo" and then bar.pl.
 -- XXX - Wrong -- Need to preserve environment across -E runs
-run' ("-E":prog:rest)            = run ("-e":prog:[]) >> run rest
+run' ("-E":prog:rest)            = run' ("-e":prog:[]) >> run' rest
 run' ("-":args)                  = do doRun "-" args =<< readStdin
 run' (file:args)                 = readFile file >>= doRun file args
 run' []                          = do
     isTTY <- hIsTerminalDevice stdin
     if isTTY
         then do banner >> intro >> repLoop
-        else run ["-"]
+        else run' ["-"]
 
 readStdin :: IO String
 readStdin = do
