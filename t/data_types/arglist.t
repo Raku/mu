@@ -44,7 +44,7 @@ plan 18;
 {
     my @array   = <a b c>;
     my $arglist = \(@array);
-    
+
     # L<S03/"List flattening" /an Array \(or Arglist\)/>
     my sub foo (@arr) { ~@arr }
     is try { foo *$arglist }, "a b c",

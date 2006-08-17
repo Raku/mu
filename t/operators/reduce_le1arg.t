@@ -3,7 +3,7 @@ use v6-alpha;
 use Test;
 plan 46;
 
-# L<S06/"Reduction operators">
+# L<S03/"Reduction operators">
 
 is ([**] ()), 1, "[**] () eq 1 (arguably nonsensical)";
 is ([*] ()), 1, "[*] () eq 1";

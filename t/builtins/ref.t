@@ -44,7 +44,7 @@ isa_ok($s1, 'Sub', 'it is a Sub type');
 my $s2 = {};
 isa_ok($s2, 'Hash', 'it is a Hash type (bare block)');
 
-# L<S06/"Types" /Parametric\s+Basic Perl block with placeholder parameters/>
+# L<S06/"Placeholder variables">
 my $s2a = { $^a };
 isa_ok($s2a, 'Block', 'it is a Parametric type (bare block with placeholder parameters)');
 

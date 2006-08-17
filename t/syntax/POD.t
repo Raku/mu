@@ -4,8 +4,7 @@ use Test;
 
 plan 8;
 
-# L<S02/"Literals">
-# L<S02/"Molecules" /Multiline comments/>
+# L<S02/"Whitespace and Comments"/"Multiline comments" extending POD>
 # others will be added later, or you can do it.
 
 eval_ok '

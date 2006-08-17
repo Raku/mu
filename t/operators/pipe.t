@@ -8,8 +8,8 @@ Tests for the pipe operators
 
     ==> and <== 
     
-L<S06/"Pipe operators">
-L<S03/"Piping operators">    
+L<S06/"Feed operators">
+L<S03/"Feed operators">
 
 =cut
 

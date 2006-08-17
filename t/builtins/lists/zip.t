@@ -6,7 +6,7 @@ use Test;
 
 The zip() builtin and operator tests
 
-L<S03/"C<zip>">
+L<S03/"Traversing arrays in parallel">
 
 =cut
 

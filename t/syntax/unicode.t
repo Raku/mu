@@ -4,7 +4,7 @@ use Test;
 
 plan 26;
 
-# L<S02/"Atoms" /Perl is written in Unicode/>
+# L<S02/"Lexical Conventions"/"Perl is written in Unicode">
 
 # Unicode variables
 # english ;-)

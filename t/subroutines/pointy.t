@@ -8,11 +8,11 @@ plan 10;
 
 Test pointy sub behaviour described in S06
 
-L<S06/"Pointy subs">
+L<S06/""Pointy blocks"">
 
 =cut
 
-# L<S06/"Pointy subs" /the parameter list of a pointy sub does not require parentheses/>
+# L<S06/""Pointy blocks"" /the parameter list of a pointy sub does not require parentheses/>
 my ($sub, $got);
 
 $got = '';
@@ -37,7 +37,7 @@ $got = '';
 is $got, 'x 123', 'called pointy immediately: -> $x { ... }(...)';
 
 
-# L<S06/"Pointy subs" /not require a preceding comma when included in a list/>
+# L<S06/""Pointy blocks"" /not require a preceding comma when included in a list/>
 # Is this what is really intended?
 # my @a;
 # eval_ok '@a = ("one" -> $x { $x**2 }, "three")', 
@@ -47,7 +47,7 @@ is $got, 'x 123', 'called pointy immediately: -> $x { ... }(...)';
 # is @a[2], 'three', 'pointy sub in list';
 
 
-# L<S06/"Pointy subs" /behaves like a block with respect to control exceptions/>
+# L<S06/""Pointy blocks"" /behaves like a block with respect to control exceptions/>
 my $n = 1;
 my $s = -> { 
     last if $n == 10;
@@ -58,7 +58,7 @@ try { $s.() };
 is($!, undef, 'pointy with block control exceptions', :todo<feature>);
 is $n, 10, "pointy control exceptions ran", :todo<feature>;
 
-# L<S06/"Pointy subs" /will return from the innermost enclosing sub or method>
+# L<S06/""Pointy blocks"" /will return from the innermost enclosing sub or method>
 my $str = '';
 
 sub outer {  
@@ -79,5 +79,5 @@ is $str, 'inner', 'return in pointy returns from enclosing sub';
 # What about nested pointies -> { ... -> {} }?
 
 
-# L<S06/"Pointy subs" /It is referenced by &?BLOCK, not &?ROUTINE/>
+# L<S06/""Pointy blocks"" /It is referenced by &?BLOCK, not &?ROUTINE/>
 # Coming soon...

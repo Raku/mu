@@ -3,7 +3,7 @@ use v6-alpha;
 use Test;
 
 # Basic &leave tests
-# L<S06/"The leave function">
+# L<S06/"The C<leave> function">
 
 plan 5;
 

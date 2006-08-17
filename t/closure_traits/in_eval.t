@@ -6,7 +6,7 @@ use Test;
 
 plan 18;
 
-# L<S02/Closure traits/Code "generated at run-time" "still fire off"
+# L<S04/Closure traits/Code "generated at run-time" "still fire off"
 #   "can't" "travel back in time" >
 
 my ($code, $hist, $handle);
