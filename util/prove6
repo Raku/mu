@@ -64,7 +64,23 @@ if ($perl5) {
     $ENV{PERL5LIB} = "blib6/pugs/perl5/lib${sep}blib6/pugs/perl5/arch";
 } elsif ($pugs) {
     warn "  info: Harness with pugs (Haskell backend).\n";
-    $ENV{HARNESS_PERL} = './pugs';
+    # Something like this seems better, but didn't work
+    # use ExtUtils::MM;
+    # my $mm = ExtUtils::MM->new();
+    # $mm->maybe_command('pugs')
+    if ((`pugs --version` =~ m/perl/i) && not $ENV{HARNESS_PERL}) {
+        $ENV{HARNESS_PERL} = 'pugs';
+    }
+    elsif ($ENV{HARNESS_PERL}) {
+        # Nothing to do, respect the current setting
+    }
+    # Guess that it's in the local directory
+    elsif (-x './pugs') {
+        $ENV{HARNESS_PERL} = './pugs';
+    }
+    else {
+       die "unable to find pugs binary to test with";
+    }
 } elsif ($pir) {
     warn "  info: Harness with pugs (PIR packend).\n";
     $ENV{PERL5LIB} = 'blib/lib${sep}blib/arch';
