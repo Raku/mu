@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 15 Aug 2006
+  Last Modified: 17 Aug 2006
   Number: 4
-  Version: 35
+  Version: 36
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -504,13 +504,14 @@ or by falling off the end of it.
 To return a value from a pointy block or bare closure, you either
 just let the block return the value of its final expression, or you can
 use C<leave>.  A C<leave> by default exits from the innermost block.
-But you may change the behavior of C<leave> with selector adverbs:
+But you may change the behavior of C<leave> with a selector as the
+first argument:
 
-    leave :from(Loop) :label<LINE> <== 1,2,3;	# XXX "with"?
+    leave Loop where { .label ~~ 'LINE' }, 1,2,3;
 
 The innermost block matching the selection criteria will be exited.
-The return value, if any, must be passed as a list.  To return pairs
-as part of the value, you can use a feed operator:
+The return value, if any, must be passed as the second and subsequent arguments.
+To return pairs as part of the value, you can use a feed operator:
 
     leave <== :foo:bar:baz(1) if $leaving;
 
