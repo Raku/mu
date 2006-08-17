@@ -261,6 +261,7 @@ findSub var invs args
     findWithSuper pkg var = do
         -- get superclasses
         attrs <- fmap (fmap (filter (/= pkg) . nub)) $ findAttrs pkg
+        warn "ATTRS" attrs
         if isNothing attrs || null (fromJust attrs) then fmap (err NoMatchingMulti) (findSub' var) else do
         (`fix` (fromJust attrs)) $ \run pkgs -> do
             if null pkgs then return (Left $ NoSuchMethod (cast pkg)) else do
@@ -392,13 +393,16 @@ findSub var invs args
 
 metaVar :: Pkg -> Var
 -- metaVar = MkVar SType TNone globalPkg CNone . cast
-metaVar pkg = MkVar
+metaVar pkg = cast (':':'*':cast pkg)
+    {-
+MkVar
     { v_sigil   = SType
     , v_twigil  = TGlobal
     , v_package = emptyPkg
     , v_categ   = CNone
     , v_name    = cast pkg
     }
+    -}
 
 err :: b -> Maybe a -> Either b a
 err _ (Just j) = Right j
