@@ -307,10 +307,11 @@ sub undef_of($) {
     if $_[0] =~ /(?:__init_|__export_)/; # minor hack
 
   my $sigil = substr $_[0], 0, 1;
-  die "Sigil doesn't match /[\$&@%]/!\n" unless $sigil =~ /[\$&@%]/;
+  die "Sigil in $_[0] doesn't match /[\$&@%:]/!\n" unless $sigil =~ /[\$&@%:]/;
   return {
     '$' => 'new PIL2JS.Box(undefined)',
     '&' => 'new PIL2JS.Box(undefined)',
+    ':' => 'new PIL2JS.Box(undefined)',
     '@' => 'new PIL2JS.Box([])',
     '%' => 'new PIL2JS.Box(new PIL2JS.Hash)',
   }->{$sigil};
