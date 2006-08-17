@@ -59,7 +59,7 @@ plan 10;
   cmp_ok $obj, &infix:<~~>, SampleClass, "syntax but returned the original object";
 }
 
-# L<S02/Context /can override the class definition:/>
+# L<S02/Context/"can override the class definition:"/>
 my $trueZero;
 eval_ok '$trueZero = 0 but True', "0 but True syntax evaluates";
 ok ($trueZero == 0), "0 but True is numerically equal to 0";
