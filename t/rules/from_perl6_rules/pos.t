@@ -11,10 +11,10 @@ be valid perl6.
 
 =cut
 
-plan 9;
+skip_rest "This file was in t_disabled/.  Remove this SKIP when it works.";
+=begin END
 
-skip_rest "This file was in t_disabled/.  Remove this SKIP of it now works.";
-exit;
+plan 9;
 
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
