@@ -10,7 +10,7 @@ Basic C<delete> tests, see S29.
 
 =cut
 
-# L<S29/"Perl6::Arrays" /"delete"/>
+# L<S29/"Array" /"delete"/>
 # W/ positive indices:
 {
   my @array = <a b c d>;
@@ -65,7 +65,7 @@ Basic C<delete> tests, see S29.
     "deletion of the same array element accessed by different indices (2)";
 }
 
-# L<S29/"Perl6::Hashes" /"delete"/>
+# L<S29/"Hash" /"delete"/>
 my %hash = (a => 1, b => 2, c => 3, d => 4);
 is +%hash, 4, "basic sanity (2)";
 is ~%hash.delete("a"), "1",

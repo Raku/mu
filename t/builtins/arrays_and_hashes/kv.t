@@ -10,7 +10,7 @@ Basic C<kv> tests, see S29.
 
 =cut
 
-# L<S29/"Perl6::Arrays" /"kv"/>
+# L<S29/"Array" /"kv"/>
 { # check the invocant form
     my @array = <a b c d>;
     my @kv = @array.kv;
@@ -25,7 +25,7 @@ Basic C<kv> tests, see S29.
     is(~@kv, "0 a 1 b 2 c 3 d", 'kv(@array) has no inner list');
 }
 
-# L<S29/"Perl6::Hashes" /"kv"/>
+# L<S29/"Hash" /"kv"/>
 { # check the invocant form
     my %hash = (a => 1, b => 2, c => 3, d => 4);
     my @kv = %hash.kv;
