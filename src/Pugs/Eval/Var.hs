@@ -158,7 +158,7 @@ findSub :: Var        -- ^ Name, with leading @\&@.
         -> [Exp]      -- ^ Other arguments
         -> Eval (Either FindSubFailure VCode)
 findSub var invs args
-    | Nothing <- invs = findBuiltinSub NoSuchSub var
+    | Nothing <- invs = findBuiltinSub NoMatchingMulti var
     | not (isQualifiedVar var) = case unwrap inv of
         Val inv@VV{}     -> withExternalCall callMethodVV inv 
         Val inv@PerlSV{} -> withExternalCall callMethodPerl5 inv 
@@ -169,7 +169,7 @@ findSub var invs args
         pkg <- asks envPackage
         findSuperSub pkg var'
     | otherwise = do
-        findBuiltinSub NoSuchSub var
+        findBuiltinSub NoMatchingMulti var
     where
     inv = fromJust invs
 
@@ -566,36 +566,34 @@ constSym = return . Just . VStr . cast
 
 findSyms :: Var -> Eval [(Var, Val)]
 findSyms var = do
-        runMaybeT (findLexical `mplus` findPackage `mplus` findGlobal) >>= \ret ->
-            case ret of
-                Nothing -> return []
-                Just xs -> return xs
+    runMaybeT (findLexical `mplus` findPackage `mplus` findGlobal)
+        >>= maybe (return []) return
     where
-        findLexical :: MaybeT Eval [(Var, Val)]
-        findLexical = do
-            lex <- lift $ asks envLexical
-            padSym lex var
-            
-        findPackage :: MaybeT Eval [(Var, Val)]
-        findPackage = do
-            glob <- lift $ askGlobal
-            pkg  <- lift $ asks envPackage
-            padSym glob var `mplus` padSym glob (toPackage pkg var)
+    findLexical :: MaybeT Eval [(Var, Val)]
+    findLexical = do
+        lex <- lift $ asks envLexical
+        padSym lex var{ v_package = emptyPkg }
+        
+    findPackage :: MaybeT Eval [(Var, Val)]
+    findPackage = do
+        glob <- lift $ askGlobal
+        pkg  <- lift $ asks envPackage
+        padSym glob var `mplus` padSym glob (toPackage pkg var)
 
-        findGlobal :: MaybeT Eval [(Var, Val)]
-        findGlobal = do
-            glob <- lift $ askGlobal
-            padSym glob (toGlobalVar var)
+    findGlobal :: MaybeT Eval [(Var, Val)]
+    findGlobal = do
+        glob <- lift $ askGlobal
+        padSym glob (toGlobalVar var)
 
-        padSym :: Pad -> Var -> MaybeT Eval [(Var, Val)]
-        padSym pad var = do
-            case lookupPad var pad of
-                Just tvar -> lift $ do
-                    refs <- liftSTM $ mapM readTVar tvar
-                    forM refs $ \ref -> do
-                        val <- readRef ref
-                        return (var, val)
-                Nothing -> mzero
+    padSym :: Pad -> Var -> MaybeT Eval [(Var, Val)]
+    padSym pad var = do
+        case lookupPad var pad of
+            Just tvar -> lift $ do
+                refs <- liftSTM $ mapM readTVar tvar
+                forM refs $ \ref -> do
+                    val <- readRef ref
+                    return (var, val)
+            Nothing -> mzero
         
 arityMatch :: VCode -> Int -> Int -> Maybe VCode
 arityMatch sub@MkCode{ subAssoc = assoc, subParams = prms } argLen argSlurpLen
