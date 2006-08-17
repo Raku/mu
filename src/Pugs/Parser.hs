@@ -33,7 +33,6 @@ import Pugs.Parser.Operator
 import Pugs.Parser.Doc
 import Pugs.Parser.Literal
 import Pugs.Parser.Util
-
 import qualified Data.Map as Map
 
 -- Lexical units --------------------------------------------------
@@ -519,23 +518,24 @@ parseExpWithCachedParser f = do
     case ruleDynParsers state of
         MkDynParsersEmpty   -> refillCache state f
         p                   -> f p
-    where
-    refillCache state f = do
-        let ?parseExpWithTightOps = parseExpWithTightOps
-        ops         <- operators
-        opsTight    <- tightOperators
-        opsLit      <- litOperators
-        nullary:_   <- currentTightFunctions
-        let [parse, parseTight, parseLit] = map
-                (expRule . (\o -> buildExpressionParser o parseTerm (Syn "" [])))
-                [ops, opsTight, opsLit]
-            opParsers = MkDynParsers parse parseTight parseLit parseNullary
-            parseNullary = try $ do
-                name <- choice . map symbol $ nullary
-                notFollowedBy (char '(' <|> (char ':' >> char ':'))
-                possiblyApplyMacro $ App (_Var ('&':name)) Nothing []
-        setState state{ ruleDynParsers = opParsers }
-        f opParsers
+
+refillCache :: RuleState -> (DynParsers -> RuleParser Exp) -> RuleParser Exp
+refillCache state f = do
+    let ?parseExpWithTightOps = parseExpWithTightOps
+    ops         <- operators
+    opsTight    <- tightOperators
+    opsLit      <- litOperators
+    MkTightFunctions{ r_term = terms } <- currentTightFunctions
+    let [parse, parseTight, parseLit] = map
+            (expRule . (\o -> buildExpressionParser o parseTerm (Syn "" [])))
+            [ops, opsTight, opsLit]
+        opParsers = MkDynParsers parse parseTight parseLit parseNullary
+        parseNullary = try $ do
+            name <- choice . map symbol . fromSet $ terms
+            notFollowedBy (char '(' <|> (char ':' >> char ':'))
+            possiblyApplyMacro $ App (_Var ('&':name)) Nothing []
+    setState state{ ruleDynParsers = opParsers }
+    f opParsers
 
 {-
 ruleVarDeclaration :: RuleParser Exp
@@ -1524,10 +1524,11 @@ ruleFoldOp :: RuleParser String
 ruleFoldOp = verbatimRule "reduce metaoperator" $ try $ do
     char '['
     keep <- option "" $ string "\\"
-    [_, _, _, _, _, infixOps] <- currentTightFunctions
+    -- XXX - Instead of a lookup, add a cached parseInfix here!
+    MkTightFunctions{ r_infix = infixOps } <- currentTightFunctions
     -- name <- choice $ ops (try . string) (addHyperInfix $ infixOps ++ defaultInfixOps)
     name <- verbatimRule "infix operator" $ do
-        choice $ ops (try . string) (addHyperInfix $ infixOps ++ defaultInfixOps)
+        choice $ ops (try . string) (addHyperInfix $ (fromSet infixOps) ++ defaultInfixOps)
     char ']'
     possiblyHyper <- option "" ((char '\171' >> return "<<") <|> (string "<<"))
     return $ "&prefix:[" ++ keep ++ name ++ "]" ++ possiblyHyper

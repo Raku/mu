@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -cpp -fglasgow-exts -funbox-strict-fields -fno-full-laziness -fno-cse -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts -funbox-strict-fields -fno-full-laziness -fno-cse -fallow-overlapping-instances -fno-warn-orphans #-}
 
 module Pugs.Parser.Operator where
 import Pugs.Internals
@@ -8,9 +8,11 @@ import Pugs.Lexer
 import Pugs.Rule
 import Pugs.Rule.Expr
 import qualified Data.Set as Set
+import qualified Data.HashTable as Hash
 
 import Pugs.Parser.Types
 import Pugs.Parser.Unsafe
+import Data.List (foldl')
 
 operators :: (?parseExpWithTightOps :: RuleParser Exp) =>
     RuleParser (RuleOperatorTable Exp)
@@ -30,7 +32,7 @@ operators = do
 tightOperators :: (?parseExpWithTightOps :: RuleParser Exp) =>
     RuleParser (RuleOperatorTable Exp)
 tightOperators = do
-  [_, optionary, namedUnary, preUnary, postUnary, infixOps] <- currentTightFunctions
+  tights <- currentTightFunctions
   return $
     [ methOps   (words " . .+ .? .* .+ .() .[] .{} .<<>> .= ")  -- Method postfix
     , postOps   (words " ++ -- ")
@@ -38,15 +40,15 @@ tightOperators = do
     , rightOps  (words " ** ")                                  -- Exponentiation
     , optPreSyn ["*"]                                           -- Symbolic Unary
       ++ preOps (words " = ! + - ~ ? +^ ~^ ?^ \\ ^")
-      ++ preSymOps preUnary
-      ++ postOps postUnary
+      ++ preSymOps (fromSet $ r_pre tights)
+      ++ postOps (fromSet $ r_post tights)
     , leftOps   (words " * / % x xx +& +< +> ~& ~< ~> ")        -- Multiplicative
     , leftOps   (words " + - ~ +| +^ ~| ~^ ?| ")                -- Additive
-      ++ leftOps (filter (/= ",") infixOps)                     -- User defined ops
+      ++ leftOps (fromSet $ r_infix tights)                      -- User defined ops
     , listOps   ["&"]                                           -- Junctive And
     , listOps   (words " ^ | ")                                 -- Junctive Or
-    , optOps optionary                                          -- Named Unary
-      ++ preOps (filter (\x -> (x /= "true") && (x /= "not")) namedUnary)
+    , optOps (fromSet $ r_opt tights)                            -- Named Unary
+      ++ preOps (filter (\x -> (x /= "true") && (x /= "not")) (fromSet $ r_named tights))
       ++ optSymOps (map (\x -> ['-', x]) fileTestOperatorNames)
     , noneSyn   (words " but does ")                            -- Traits
       ++ noneOps (words " leg cmp <=> .. ^.. ..^ ^..^ till ^till till^ ")  -- Non-chaining Binary
@@ -67,6 +69,9 @@ tightOperators = do
                " +<= +>= ~<= ~>= +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= "))
     , preOps ["true", "not"]                                    -- Loose unary
     ]
+
+fromSet :: Set ID -> [String]
+fromSet = cast . Set.toList
 
 listAssignment :: (?parseExpWithTightOps :: RuleParser Exp) => Exp -> RuleParser Exp
 listAssignment x = do
@@ -113,47 +118,73 @@ looseOperators = do
 litOperators :: (?parseExpWithTightOps :: RuleParser Exp) =>
     RuleParser (RuleOperatorTable Exp)
 litOperators = do
-    tight <- tightOperators
-    loose <- looseOperators
+    tight   <- tightOperators
+    loose   <- looseOperators
     return $ tight ++ loose
+
+type SubAssoc = VStr
+
+data CurrentFunction = MkCurrentFunction
+    { f_var     :: !Var
+    , f_assoc   :: !SubAssoc
+    , f_params  :: !Params
+    }
 
 -- read just the current state (ie, not a parser)
 -- {-# NOINLINE currentFunctions #-}
-currentFunctions :: RuleParser [(Var, VStr, Params)]
+currentFunctions :: RuleParser [CurrentFunction]
 currentFunctions = do
-    env     <- getRuleEnv
-    return . concat . inlinePerformSTM $ do
+    env <- getRuleEnv
+    return $! inlinePerformSTM $! do
         glob <- readTVar $ envGlobal env
-        let funs  = padToList glob ++ padToList (envLexical env)
+        let syms  = padToList glob ++ padToList (envLexical env)
             pkg   = envPackage env
-        forM [ fun | fun@(var, _) <- funs, v_sigil var == SCode ] $ \(var, tvars) -> do
-            if not (inScope pkg var) then return [] else do
-                fmap catMaybes $ forM tvars $ \(_, tvar) -> do
-                    ref <- readTVar tvar
-                    -- read from ref
-                    return $ case ref of
-                        MkRef (ICode cv)
-                            | relevantToParsing (code_assoc cv) (code_type cv)
-                            -> Just (var, code_assoc cv, code_params cv)
-                        MkRef (IScalar sv)
-                            | Just (VCode cv) <- scalar_const sv
-                            , relevantToParsing (code_assoc cv) (code_type cv)
-                            -> Just (var, code_assoc cv, code_params cv)
-                        _ -> Nothing
+            funs  = [ map (\(_, tvar) -> filterFun var tvar) tvars
+                    | (var@MkVar{ v_sigil = SCode }, tvars) <- syms
+                    , inScope pkg var
+                    ] 
+        fmap catMaybes (sequence (concat funs))
+
+{-# NOINLINE _RefToFunction #-}
+_RefToFunction :: Hash.HashTable Int (Maybe CurrentFunction)
+_RefToFunction = unsafePerformIO (Hash.new (==) Hash.hashInt)
+
+filterFun :: Var -> TVar VRef -> STM (Maybe CurrentFunction)
+filterFun var tvar = do
+    let key = unsafeCoerce# tvar
+    res <- unsafeIOToSTM (Hash.lookup _RefToFunction key)
+    case res of
+        Just rv -> return rv
+        Nothing -> do
+            ref <- readTVar tvar
+            let rv = case ref of
+                    MkRef (ICode cv)
+                        | relevantToParsing (code_type cv) (code_assoc cv)
+                        -> Just (MkCurrentFunction var (code_assoc cv) (code_params cv))
+                    MkRef (IScalar sv)
+                        | Just (VCode cv) <- scalar_const sv
+                        , relevantToParsing (code_type cv) (code_assoc cv)
+                        -> Just (MkCurrentFunction var (code_assoc cv) (code_params cv))
+                    _ -> Nothing
+            unsafeIOToSTM (Hash.insert _RefToFunction key rv)
+            return rv
+
+inScope :: Pkg -> Var -> Bool
+inScope pkg var
+    | isGlobalVar var           = True
+    | not (isQualifiedVar var)  = True
+    | pkg == varPkg             = True
+    | listPkg == varPkg         = True -- XXX wrong - special case for List::*
+    | otherwise                 = False
     where
-    inScope pkg var
-        | isGlobalVar var           = True
-        | not (isQualifiedVar var)  = True
-        | pkg == varPkg             = True
-        | listPkg == varPkg         = True -- XXX wrong - special case for List::*
-        | otherwise                 = False
-        where
-        varPkg = v_package var
-    relevantToParsing "pre" SubPrim      = True
-    relevantToParsing _     SubPrim      = False
-    relevantToParsing _     SubMethod    = False
-    relevantToParsing ""    _            = False
-    relevantToParsing _     _            = True
+    varPkg = v_package var
+
+relevantToParsing :: SubType -> SubAssoc -> Bool
+relevantToParsing SubMethod  _      = False
+relevantToParsing SubPrim    "pre"  = True
+relevantToParsing SubPrim    _      = False
+relevantToParsing _          ""     = False
+relevantToParsing _          _      = True
 
 -- XXX Very bad hacky kluge just for Parser.Operator
 --     Switch to macro export for push(@x, 1) instead!
@@ -161,49 +192,69 @@ listPkg :: Pkg
 listPkg = cast (mkType "List")
 
 -- read just the current state
-currentTightFunctions :: RuleParser [[String]]
+currentTightFunctions :: RuleParser TightFunctions
 currentTightFunctions = do
     funs    <- currentFunctions
-    let (unary, rest) = (`partition` funs) $ \x -> case x of
-            (_, "pre", [MkParam{ paramContext = CxtItem{}, isNamed = False }]) -> True
-            _ -> False
-        (maybeNullary, notNullary) = (`partition` funs) $ \x -> case x of
-            (_, "pre", []) -> True
-            _ -> False
-        rest' = (`filter` rest) $ \x -> case x of
-            (_, _, (_:_:_)) -> True
-            (_, _, [MkParam { paramContext = CxtSlurpy{}, paramName = MkVar{ v_sigil = sig }}])
-                | sig == SArray || sig == SArrayMulti-> True
-            _ -> False
-        namesFrom = map (\(var, _, _) -> v_name var)
-        restNames = Set.fromList $ namesFrom rest'
-        notNullaryNames = Set.fromList $ namesFrom notNullary
-        nullary = filter (not . (`Set.member` notNullaryNames)) $ namesFrom maybeNullary
-        optionary = map v_name optionary'
-        (optionary', unary') = mapPair (map snd) . partition fst . sort $
-            [ (isOptional param, var) | (var, _, [param]) <- unary
-            , not (v_name var `Set.member` restNames)
+    let finalResult = foldl' splitUnary initResult unary
+        initResult  = MkTightFunctions emptySet emptySet emptySet emptySet terms infixOps
+        (unary, notUnary)   = partition matchUnary funs
+        slurpyNames         = namesFrom (filter matchSlurpy notUnary)
+        (maybeTerm, notTerm)= partition matchTerm funs
+        terms               = namesFrom maybeTerm Set.\\ namesFrom notTerm
+        infixOps            = Set.fromList
+            [ name
+            | MkCurrentFunction { f_var = MkVar { v_categ = C_infix, v_name = name } } <- notUnary
+            , name /= commaID
             ]
-        (namedUnary, preUnary, postUnary) = foldr splitUnary ([],[],[]) unary'
-        splitUnary MkVar{ v_categ = C_prefix, v_name = name } (n, pre, post)
-            = (n, (name:pre), post)
-        splitUnary MkVar{ v_categ = C_postfix, v_name = name } (n, pre, post)
-            = (n, pre, (name:post))
-        splitUnary var (n, pre, post)
-            = ((v_name var:n), pre, post)
-        -- Then we grep for the &infix:... ones.
-        (infixs, _) = (`partition` rest) $ \x -> case x of
-            (MkVar{ v_categ = C_infix }, _, _) -> True
-            _  -> False
-        infixOps = map (\(var, _, _) -> v_name var) infixs
-        mapPair f (x, y) = (f x, f y)
-    -- Finally, we return the names of the ops.
-    -- But we've to s/^infix://, as we've to return (say) "+" instead of "infix:+".
-    -- Hack: Filter out &infix:<,> (which are most Preludes for PIL -> *
-    -- compilers required to define), because else basic function application
-    -- (foo(1,2,3) will get parsed as foo(&infix:<,>(1,&infix:<,>(2,3))) (bad).
-    return $ map (map (cast :: ID -> String) . nub)
-        [nullary, optionary, namedUnary, preUnary, postUnary, infixOps]
+        splitUnary :: TightFunctions -> CurrentFunction -> TightFunctions
+        splitUnary res@MkTightFunctions
+            { r_opt = opt, r_named = named, r_pre = pre, r_post = post }
+            (MkCurrentFunction MkVar{ v_categ = cat, v_name = n } _ [param])
+                | n `Set.member` slurpyNames    = res
+                | isOptional param              = res{ r_opt    = Set.insert n opt }
+                | C_prefix <- cat               = res{ r_pre    = Set.insert n pre }
+                | C_postfix <- cat              = res{ r_post   = Set.insert n post }
+                | otherwise                     = res{ r_named  = Set.insert n named }
+        splitUnary res _ = res
+    return finalResult
+
+namesFrom :: [CurrentFunction] -> Set ID
+namesFrom = Set.fromList . map (v_name . f_var)
+
+commaID :: ID
+commaID = cast ","
+
+data TightFunctions = MkTightFunctions
+    { r_opt   :: !(Set ID)
+    , r_named :: !(Set ID)
+    , r_pre   :: !(Set ID)
+    , r_post  :: !(Set ID)
+    , r_term  :: !(Set ID)
+    , r_infix :: !(Set ID)
+    }
+
+emptySet :: Set ID
+emptySet = Set.empty
+
+matchUnary :: CurrentFunction -> Bool
+matchUnary MkCurrentFunction
+    { f_assoc = "pre", f_params = [MkParam
+        { paramContext = CxtItem{}, isNamed = False }] } = True
+matchUnary _ = False
+
+matchTerm :: CurrentFunction -> Bool
+matchTerm MkCurrentFunction
+    { f_assoc = "pre", f_params = [] } = True
+matchTerm _ = False
+
+matchSlurpy :: CurrentFunction -> Bool
+matchSlurpy MkCurrentFunction
+    { f_params = (_:_:_) } = True
+matchSlurpy MkCurrentFunction
+    { f_params = [MkParam
+        { paramContext = CxtSlurpy{}, paramName = MkVar{ v_sigil = sig } }] }
+            = sig == SArray || sig == SArrayMulti
+matchSlurpy _ = False
 
 fileTestOperatorNames :: String
 fileTestOperatorNames = "rwxoRWXOezsfdlpSbctugkTBMAC"
@@ -247,12 +298,12 @@ rightAssignSyn = makeOp2Assign AssocRight "" Syn
 rightDotAssignSyn :: RuleOperator Exp
 rightDotAssignSyn = makeOp2DotAssign AssocRight "" Syn
 
--- 0x10FFFF is the max number "chr" can take.
+{-# INLINE ops #-}
+{-# SPECIALISE ops :: (String -> RuleOperator Exp) -> [String] -> [RuleOperator Exp] #-}
+{-# SPECIALISE ops :: (String -> RuleParser String) -> [String] -> [RuleParser String] #-}
+-- 0x10FFFF is the max number "chr" can take, so we use it for longest-token sorting.
 ops :: (String -> a) -> [String] -> [a]
 ops f = map (f . tail) . sort . map (\x -> (chr (0x10FFFF - length x):x))
-
-
--- chainOps    = ops $ makeOpChained
 
 makeOp1 :: (RuleParser (Exp -> Exp) -> RuleOperator Exp) -> 
         String -> 
@@ -301,9 +352,9 @@ makeOp2Assign prec _ con = (`Infix` prec) $ do
 stateAssignHack :: Exp -> Exp
 stateAssignHack exp@(Syn "=" [lhs, _]) | isStateAssign lhs = 
     let pad = unsafePerformSTM $! do
-                state_first_run <- newTVar =<< (fmap scalarRef $! newTVar (VInt 0))
-                state_fresh     <- newTVar False
-                return $! mkPad [(cast "$?STATE_START_RUN", [(state_fresh, state_first_run)])] in
+            state_first_run <- newTVar =<< (fmap scalarRef $! newTVar (VInt 0))
+            state_fresh     <- newTVar False
+            return $! mkPad [(cast "$?STATE_START_RUN", [(state_fresh, state_first_run)])] in
     Syn "block"
         [ Pad SState pad $!
             Syn "if"
