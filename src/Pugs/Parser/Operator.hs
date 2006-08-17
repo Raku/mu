@@ -142,10 +142,11 @@ currentFunctions = do
                         _ -> Nothing
     where
     inScope pkg var
-        | isGlobalVar var       = True
-        | pkg == varPkg         = True
-        | listPkg == varPkg     = True -- XXX wrong
-        | otherwise             = False
+        | isGlobalVar var           = True
+        | not (isQualifiedVar var)  = True
+        | pkg == varPkg             = True
+        | listPkg == varPkg         = True -- XXX wrong - special case for List::*
+        | otherwise                 = False
         where
         varPkg = v_package var
     relevantToParsing "pre" SubPrim      = True
