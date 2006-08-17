@@ -1369,9 +1369,17 @@ ruleTypeVar = rule "type" $ do
     -- but can use a simple Var, if nameExps consists of only one expression
     -- and this expression is a plain string, i.e. it is not a
     -- (...)-expression.
-    return $ case nameExps of
-        [Val (VStr name)] -> _Var $ ":" ++ name
-        _                 -> Syn (":::()") nameExps
+    return $ case mergeSimpleName nameExps of
+        Just name -> Val (VType (mkType name)) -- _Var $ ":" ++ name
+        _         -> Syn (":::()") nameExps
+    where
+    mergeSimpleName :: [Exp] -> Maybe String
+    mergeSimpleName [] = Nothing
+    mergeSimpleName [Val (VStr name)] = Just name
+    mergeSimpleName (Val (VStr name):xs) = do
+        rest <- mergeSimpleName xs
+        Just $ name ++ "::" ++ rest
+    mergeSimpleName _ = Nothing
 
 rulePostTerm :: RuleParser (Exp -> Exp)
 rulePostTerm = verbatimRule "term postfix" $ do
