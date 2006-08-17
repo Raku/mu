@@ -569,8 +569,8 @@ magicalMap = Map.fromList
     , (cast "$?LINE"     , posSym posBeginLine)
     , (cast "$?COLUMN"   , posSym posBeginColumn)
     , (cast "$?POSITION" , posSym pretty)
-    , (cast "$?MODULE"   , constSym $ cast "main")
-    , (cast "$?OS"       , constSym $ cast (getConfig "osname"))
+    , (cast "$?MODULE"   , constSym "main")
+    , (cast "$?OS"       , constSym (getConfig "osname"))
     , (cast "$?CLASS"    , fmap (Just . VType . cast) (asks envPackage))
     , (cast ":?CLASS"    , fmap (Just . VType . cast) (asks envPackage))
     , (cast "$?PACKAGE"  , fmap (Just . VType . cast) (asks envPackage))
@@ -581,8 +581,9 @@ magicalMap = Map.fromList
 
 posSym :: Value a => (Pos -> a) -> Eval (Maybe Val)
 posSym f = fmap (Just . castV . f) $ asks envPos
-constSym :: Var -> Eval (Maybe Val)
-constSym = return . Just . VStr . cast
+
+constSym :: String -> Eval (Maybe Val)
+constSym = return . Just . VStr
 
 findSyms :: Var -> Eval [(Var, Val)]
 findSyms var = do
