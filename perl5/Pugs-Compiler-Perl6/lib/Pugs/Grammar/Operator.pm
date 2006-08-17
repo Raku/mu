@@ -23,24 +23,25 @@ exp:
         { $_[0]->{out} = $_[1] }
 
     | BAREWORD
-        { $_[0]->{out} = {  op1 => 'call', 
-                            sub => $_[1], } }
+        { $_[0]->{out} = {  op1    => 'call', 
+                            sub    => $_[1], } }
     | BAREWORD exp       %prec P001
-        { $_[0]->{out} = {  op1 => 'call', 
-                            sub => $_[1], param => $_[2], } }
+        { $_[0]->{out} = {  op1    => 'call', 
+                            sub    => $_[1], 
+                            param  => $_[2], } }
  
     | REDUCE exp         %prec P001
         { $_[0]->{out} = {  %{$_[1]}, 
-                            param => $_[2], } }
+                            param  => $_[2], } }
        
     | DOT_BAREWORD exp   %prec P001
-        { $_[0]->{out} = {  op1 => 'method_call', 
-                            self => { 'scalar' => '$_' }, 
+        { $_[0]->{out} = {  op1    => 'method_call', 
+                            self   => { 'scalar' => '$_' }, 
                             method => $_[1], 
-                            param => $_[2], } }
+                            param  => $_[2], } }
     | DOT_BAREWORD   
-        { $_[0]->{out} = {  op1 => 'method_call', 
-                            self => { 'scalar' => '$_' }, 
+        { $_[0]->{out} = {  op1    => 'method_call', 
+                            self   => { 'scalar' => '$_' }, 
                             method => $_[1], } }
 
 !,
