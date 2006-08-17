@@ -62,7 +62,11 @@ showType (MkType typ)    = cast typ
 showType (TypeOr t1 t2)  = showType t1 ++ "|" ++ showType t2
 showType (TypeAnd t1 t2) = showType t1 ++ "&" ++ showType t2
 
-type ClassTree = Tree Type
+newtype ClassTree = MkClassTree (Tree Type)
+    deriving (Eq, Ord, Typeable)
+
+instance Show ClassTree where
+    show t = "{ClassTree:" ++ show (countTree t) ++ "}"
 
 data Cxt = CxtVoid         -- ^ Context that isn't expecting any values
          | CxtItem !Type   -- ^ Context expecting a value of the specified type
@@ -457,8 +461,8 @@ This is used by 'deltaType' to ensure that incompatible types are always
 further apart than compatible types.
 -}
 countTree :: ClassTree -> Int
-countTree (Node _ []) = 1
-countTree (Node _ cs) = 1 + sum (map countTree cs)
+countTree (MkClassTree (Node _ [])) = 1
+countTree (MkClassTree (Node _ cs)) = 1 + sum (map (countTree . MkClassTree) cs)
 
 {-|
 Find the \'difference\' between two types in the given class tree (for MMD
@@ -561,7 +565,7 @@ Compute the \'distance\' between two types by applying 'findList' to each of
 See 'compareList' for further details.
 -}
 distanceType :: ClassTree -> Type -> Type -> Int
-distanceType tree base@(MkType b) target@(MkType t) = 
+distanceType (MkClassTree tree) base@(MkType b) target@(MkType t) = 
     IntMap.findWithDefault (compareList l1 l2) (idKey b `shiftL` 16 + idKey t) initCache
 --  | not (castOk base target)  = 0
 --  | otherwise = compareList l1 l2
@@ -667,15 +671,15 @@ prettyTypes = drawTree $ fmap show initTree
 Add a new \'top-level\' type to the class tree, under @Object@.
 -}
 addNode :: ClassTree -> Type -> ClassTree
-addNode (Node obj [Node any (Node item ns:rest), junc]) typ =
-    Node obj [Node any (Node item ((Node typ []):ns):rest), junc]
+addNode (MkClassTree (Node obj [Node any (Node item ns:rest), junc])) typ =
+    MkClassTree (Node obj [Node any (Node item ((Node typ []):ns):rest), junc])
 addNode _ _ = error "malformed tree"
 
 {-|
 Default class tree, containing all built-in types.
 -}
 initTree :: ClassTree
-initTree = fmap MkType rawTree
+initTree = MkClassTree (fmap MkType rawTree)
 
 rawTree :: Tree ID
 rawTree = fmap cast $! Node "Object"
