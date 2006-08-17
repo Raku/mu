@@ -166,7 +166,7 @@ newtype Pkg = MkPkg [ByteString]
     deriving (Eq, Ord, Typeable, Data)
 
 instance Show Pkg where
-    show pkg = Str.unpack (cast pkg)
+    show pkg = cast (cast pkg :: ByteString)
 
 instance ((:>:) ByteString) Pkg where
     cast (MkPkg ns) = Str.join (__"::") ns
@@ -292,7 +292,7 @@ Transform an operator name, for example @&infix:\<+\>@ or @&prefix:«[+]»@,
 into its internal name (@&infix:+@ and @&prefix:[+]@ respectively).
 -}
 instance ((:>:) Var) String where
-    cast = cast . Str.pack
+    cast = cast . (cast :: String -> ByteString)
 
 emptyPkg :: Pkg
 emptyPkg = MkPkg []
@@ -379,7 +379,7 @@ instance ((:>:) Pkg) ByteString where
     cast = MkPkg . Str.tokens (== ':')
 
 instance ((:>:) Pkg) String where
-    cast = cast . Str.pack
+    cast = cast . (cast :: String -> ByteString)
 
 instance ((:>:) ID) Pkg where
     cast = cast . (cast :: Pkg -> ByteString)

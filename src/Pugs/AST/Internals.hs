@@ -76,7 +76,7 @@ module Pugs.AST.Internals (
     errStrPos, errValPos, enterAtomicEnv, valToBool, envPos', -- for circularity
     expToEvalVal, -- Hack, should be removed once it's figured out how
 
-    _Sym, _Var, -- String -> ByteString constructors
+    DebugInfo, _Sym, _Var, -- String -> ByteString constructors
 ) where
 import Pugs.Internals
 import Pugs.Types

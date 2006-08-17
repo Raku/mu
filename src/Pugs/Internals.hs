@@ -378,8 +378,10 @@ instance Show ID where
 instance Read ID where
     readsPrec p s = [ (unsafePerformIO (bufToID (Char8.pack x)), y) | (x,y) <- readsPrec p s]
 
-instance ((:>:) String) ByteString where cast = Char8.unpack
-instance ((:<:) String) ByteString where castBack = Char8.pack
+instance ((:>:) String) ByteString where
+    cast = decodeUTF8 . Char8.unpack
+instance ((:<:) String) ByteString where
+    castBack = Char8.pack . encodeUTF8
 
 {-# NOINLINE nullID #-}
 nullID :: ID
@@ -406,10 +408,10 @@ _ID_count :: Foreign.Ptr Int
 _ID_count = unsafePerformIO (Foreign.new 1)
 
 instance ((:>:) ID) String where
-    cast str = unsafePerformIO (bufToID (Char8.pack str))
+    cast str = unsafePerformIO (bufToID (cast str))
 
 instance ((:>:) String) ID where
-    cast (MkID _ buf) = Char8.unpack buf
+    cast (MkID _ buf) = cast buf
 
 instance ((:<:) ID) ByteString where
     castBack (MkID _ buf) = buf

@@ -152,12 +152,12 @@ mainWith run = do
 eval :: String -> IO ()
 eval prog = do
     args <- getArgs
-    runProgramWith id (putStrLn . pretty) defaultProgramName args prog
+    runProgramWith id (putStrLn . encodeUTF8 . pretty) defaultProgramName args (encodeUTF8 prog)
 
 parse :: String -> IO ()
 parse prog = do
     env <- tabulaRasa defaultProgramName
-    doParse env (encodeUTF8 . pretty) "-" prog
+    doParse env (encodeUTF8 . pretty) "-" (encodeUTF8 prog)
 
 dump :: String -> IO ()
 dump = (doParseWith $ \env _ -> print $ envBody env) "-"
