@@ -144,12 +144,18 @@ BEGIN {
     #        other => 'say',
     #    );
     #}
-    for ( qw( my our has ) ) {
+    __PACKAGE__->add_rule(
+        name => 'my',
+        assoc => 'left',
+        precedence => 'tighter',
+        other => '=',
+    );
+    for ( qw( our has state ) ) {
         __PACKAGE__->add_rule(
             name => $_,
             assoc => 'left',
-            precedence => 'tighter',
-            other => '=',
+            precedence => 'equal',
+            other => 'my',
         );
     }
 

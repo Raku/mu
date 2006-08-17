@@ -1,3 +1,4 @@
+- state variables
 - fixed '{}' (empty hash)
 - implemented additional Array and Hash methods
 - $?PUGS_BACKEND returns 'BACKEND_PERL5'

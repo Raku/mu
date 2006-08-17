@@ -7,7 +7,7 @@ use warnings;
 use Data::Dumper;
 use Data::Bind;
 use Sub::Multi;
-
+use PadWalker;
 use IO::File ();
 use Pugs::Compiler::Regex ();
 use List::Util; # 'reduce'
@@ -18,6 +18,13 @@ $::_V6_BACKEND = 'BACKEND_PERL5';
 
 use constant Inf => 100**100**100;
 use constant NaN => Inf - Inf;
+
+sub pad_depth {
+    local $@;
+    my $idx = 0;
+    $idx++ while eval { PadWalker::peek_my($idx) };
+    $idx;
+}
 
 sub perl {
     local $Data::Dumper::Terse    = 1;

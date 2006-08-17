@@ -63,6 +63,8 @@ sub pmc_compile {
          no strict 'refs';
          no warnings ('void', 'uninitialized');
          \$::_V6_COMPILER_OS = '$^O';
+         my \%_V6_PAD;
+         our \%_V6_STATE;
         " .  
         # "Pugs::Runtime::Perl6Prelude->import();\n" .   # XXX - is import() needed?
         $perl5 . "\n" .

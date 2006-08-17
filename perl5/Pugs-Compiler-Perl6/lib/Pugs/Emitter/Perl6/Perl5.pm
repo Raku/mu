@@ -11,7 +11,9 @@ use Pugs::Emitter::Rule::Perl5::Ratchet;
 use Pugs::Runtime::Common;
 use Digest::MD5 'md5_hex';
 
+# TODO - localize %env at each block
 our %env;
+our $id = int( 1000 + rand(9000) );
 
 sub _var_get {
     my $n = $_[0];
@@ -246,10 +248,13 @@ sub assoc_chain {
     for ( my $i = 0; $i < @chain; $i += 2 ) {
         push @e,  "(" . _emit( $chain[$i] ) . ")";
     }
-    my $s = "do { my \@_tmp = (" . join(",", @e) . "); ";
+    my $id1 = $id++;
+    my $s = 'do { $_V6_PAD{'.$id1.'} = [' . join(",", @e) . "]; ";
     @e = ();
     for ( my $i = 1; $i < @chain; $i += 2 ) {
-        push @e, "\$_tmp[" . int($i/2) . "] $chain[$i] \$_tmp[" . (int($i/2)+1) . "]";
+        push @e, 
+            '$_V6_PAD{'.$id1.'}[' . int($i/2) . "] $chain[$i] " . 
+            '$_V6_PAD{'.$id1.'}[' . (int($i/2)+1) . "]";
     }
     return $s . join(" && ", @e) . " }";
 }
@@ -353,22 +358,23 @@ sub _emit_parameter_capture {
 sub runtime_method {
     my $n = $_[0];
     # runtime decision - method or lib call
-    my $tmp = '_V6_TMP';
+    my $id1 = $id++;
     return 
-        "do { my \@" . $tmp . " = " . _emit( $n->{self} ) . "; " .
-        "( \@" . $tmp . " == 1 && Scalar::Util::blessed \$" . $tmp . "[0] " .
+        'do { $_V6_PAD{'.$id1.'} = [ ' . _emit( $n->{self} ) . " ]; " .
+        '( @{$_V6_PAD{'.$id1.'}} == 1 && Scalar::Util::blessed $_V6_PAD{'.$id1.'}[0] ' .
         " ? " .
-          "\$" . $tmp . "[0]->" . 
+          '$_V6_PAD{'.$id1.'}[0]->' . 
           _emit( $n->{method} ) . "(" . _emit( $n->{param} ) . ")" .
         " : " .
           " Pugs::Runtime::Perl6::Scalar::" . _emit( $n->{method}, '  ' ) . 
-          "( \@" . $tmp . ", " . _emit( $n->{param} ) . ")" .
+          '( @{$_V6_PAD{'.$id1.'}}, ' . _emit( $n->{param} ) . ")" .
         " ) }";
 }
 
 sub _emit_closure {
     my ($signature, $block) = @_;
     return " Data::Bind->sub_signature( sub {" .
+        "   my %_V6_PAD;\n" .
         _emit_parameter_binding( $signature ) .
         _emit( $block ) .
     "\n }, "._emit_parameter_signature( $signature ).")\n";
@@ -826,6 +832,7 @@ sub statement {
 
             return  $export . " sub " . $name . 
                 " {\n" .
+                "   my %_V6_PAD;\n" .
                     (
                         $n->{statement} =~ /method/
                         ? " my \$self = shift; "   # default invocant 
@@ -958,13 +965,11 @@ sub infix {
          $n->{op1}{op} eq 'err' ) {
 
         # ( !defined ($::TMP=( my $x = $v )) ? $y : $::TMP )
-
-        # XXX - this is not reentrant
-        # but (undef//undef//42) still works
-
-        return ' ( !defined ($::_V6_DEFINED_OR=( ' . _emit( $n->{exp1} ) . 
-            ' )) ? ( ' . _emit( $n->{exp2} ) . 
-            ' ) : $::_V6_DEFINED_OR ) ';
+        my $id1 = $id++;
+        return 
+            ' ( !defined ( $_V6_PAD{'.$id1.'} = ( ' . _emit( $n->{exp1} ) . ' )) ' . 
+            ' ? ( ' . _emit( $n->{exp2} ) . ' ) ' . 
+            ' : $_V6_PAD{'.$id1.'} ) ';
     }
     if ( $n->{op1}{op} eq 'does' ) {
         # XXX - fix this when Moose implements '$object does'
@@ -1130,6 +1135,7 @@ sub postcircumfix {
         # avoid p5 warning - "@a[1] better written as $a[1]"
         if (   (  exists $n->{exp2}{int} 
                || exists $n->{exp2}{scalar} 
+               || exists $n->{exp2}{op1} 
                ) 
                && exists $n->{exp1}{array} ) {
             my $name = _emit( $n->{exp1} );
@@ -1192,6 +1198,13 @@ sub prefix {
         return $n->{op1}{op} . ' ' . _emit( $n->{exp1} );
     }
 
+    if ( $n->{op1}{op} eq 'state' ) {
+        my $name = _emit( $n->{exp1} );
+        $id++;
+        $env{$name}{get} = $env{$name}{set} = '$_V6_STATE{'.$id.'}';
+        return _emit( $n->{exp1} );
+    }
+
     if ( $n->{op1}{op} eq 'do' ) {
         return $n->{op1}{op} . ' ' . _emit( $n->{exp1} );
     }
@@ -1234,8 +1247,9 @@ sub prefix {
         #    # CATCH/CONTROL
         #    return $n->{trait} . " {\n" . _emit( $n->{bare_block} ) . "\n }";
         #}
-        return 'do { my @__ret = eval ' . _emit( $n->{exp1} ) . "; " . 
-            Pugs::Runtime::Common::mangle_var( '$!' ) . " = \$@; \@__ret }";
+        my $id1 = $id++;
+        return 'do { $_V6_PAD{'.$id1.'} = [ eval ' . _emit( $n->{exp1} ) . " ]; " . 
+            Pugs::Runtime::Common::mangle_var( '$!' ) . ' = $@; @{$_V6_PAD{'.$id1.'}} }';
     }
     if ( $n->{op1}{op} eq '~' ) {
         return ' Pugs::Runtime::Perl6::Hash::str( \\' . _emit( $n->{exp1} ) . ' ) '
