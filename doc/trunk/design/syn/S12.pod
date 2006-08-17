@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 9 Aug 2006
+  Last Modified: 17 Aug 2006
   Number: 12
-  Version: 19
+  Version: 20
 
 =head1 Overview
 
@@ -160,8 +160,9 @@ Methods are routines declared in a class with the C<method> keyword:
     method doit (MyName $self: $a, $b, $c) { ... }
     method doit (::?CLASS $self: $a, $b, $c) { ... }
 
-Declaration of the invocant is optional.  You need not declare
-its type, since the lexical class of the invocant is known in any
+Declaration of the invocant is optional.  You may always access the
+current invocant using the keyword C<self>.  You need not declare the
+invocant's type, since the lexical class of the invocant is known in any
 event because methods must be declared in the class of the invocant,
 though of course the actual (virtual) type may be a derived type of
 the lexical type.  You could declare a more restrictive type, but
