@@ -1,8 +1,8 @@
 {-# OPTIONS_GHC -fglasgow-exts -cpp -fallow-overlapping-instances #-}
 
 module Pugs.Eval.Var (
-    findVar, findVarRef,
-    findSub, inferExpType,  inferExpCxt, FindSubFailure(..),
+    findVar, findVarRef, findSub,
+    inferExpType,  inferExpCxt, FindSubFailure(..),
     packageOf, toPackage, toQualified,
 ) where
 import qualified Data.Map as Map
@@ -158,261 +158,257 @@ findSub :: Var        -- ^ Name, with leading @\&@.
         -> Maybe Exp  -- ^ Invocant
         -> [Exp]      -- ^ Other arguments
         -> Eval (Either FindSubFailure VCode)
-findSub var invs args =
-    let ?var  = var
-        ?invs = invs
-        ?args = args
-    in case invs of
-        Nothing -> findBuiltinSub NoMatchingMulti var
-        _ | not (isQualifiedVar var) -> case unwrap inv of
-            Val vv@VV{}     -> withExternalCall callMethodVV vv
-            Val sv@PerlSV{} -> withExternalCall callMethodPerl5 sv
-            inv' -> do
-                typ <- evalInvType inv'
-                findTypedSub (cast typ) var
-          | Just var' <- dropVarPkg _SUPER var -> do
-            pkg <- asks envPackage
-            findSuperSub pkg var'
-          | otherwise -> do
-            findBuiltinSub NoMatchingMulti var
+findSub _var _invs _args = case _invs of
+    Nothing -> findBuiltinSub NoMatchingMulti _var
+    _ | not (isQualifiedVar _var) -> case unwrap _inv of
+        Val vv@VV{}     -> withExternalCall callMethodVV vv
+        Val sv@PerlSV{} -> withExternalCall callMethodPerl5 sv
+        inv' -> do
+            typ <- evalInvType inv'
+            findTypedSub (cast typ) _var
+      | Just var' <- dropVarPkg _SUPER _var -> do
+        pkg <- asks envPackage
+        findSuperSub pkg var'
+      | otherwise -> do
+        findBuiltinSub NoMatchingMulti _var
     where
-    inv = fromJust invs
+    _inv = fromJust _invs
 
-findSuperSub :: (?var :: Var, ?invs :: Maybe Exp, ?args :: [Exp])
-    => Pkg -> Var -> Eval (Either FindSubFailure VCode)
-findSuperSub pkg var = do
-    subs    <- findWithSuper pkg var
-    subs'   <- either (flip findBuiltinSub var) (return . Right) subs
-    case subs' of
-        -- Recursion prevention -- SUPER::foo should not go back to ThisClas::foo
-        Right sub | cast (Str.cons '&' $ subName sub) == var{ v_package = pkg } -> do
-            return (Left . NoSuchMethod $ cast pkg)
-        _   -> do
-            return subs'
+    -- findSuperSub :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp])
+    --     => Pkg -> Var -> Eval (Either FindSubFailure VCode)
+    findSuperSub pkg var = do
+        subs    <- findWithSuper pkg var
+        subs'   <- either (flip findBuiltinSub var) (return . Right) subs
+        case subs' of
+            -- Recursion prevention -- SUPER::foo should not go back to ThisClas::foo
+            Right sub | cast (Str.cons '&' $ subName sub) == var{ v_package = pkg } -> do
+                return (Left . NoSuchMethod $ cast pkg)
+            _   -> do
+                return subs'
 
-findTypedSub :: (?var :: Var, ?invs :: Maybe Exp, ?args :: [Exp])
-    => Pkg -> Var -> Eval (Either FindSubFailure VCode)
-findTypedSub pkg var = do
-    subs    <- findWithPkg pkg var
-    either (flip findBuiltinSub var) (return . Right) subs
+    -- findTypedSub :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp])
+    --     => Pkg -> Var -> Eval (Either FindSubFailure VCode)
+    findTypedSub pkg var = do
+        subs    <- findWithPkg pkg var
+        either (flip findBuiltinSub var) (return . Right) subs
 
-evalInvType :: Exp -> Eval Type
-evalInvType x = inferExpType $ unwrap x
+    evalInvType :: Exp -> Eval Type
+    evalInvType x = inferExpType $ unwrap x
 
-withExternalCall callMeth inv = do
-    fmap (err . NoSuchMethod $ valType inv) $ do
-        metaSub <- possiblyBuildMetaopVCode ?var
-        if isJust metaSub then return metaSub else callMeth
+    withExternalCall callMeth inv = do
+        fmap (err . NoSuchMethod $ valType inv) $ do
+            metaSub <- possiblyBuildMetaopVCode _var
+            if isJust metaSub then return metaSub else callMeth
 
-callMethodVV :: (?var :: Var, ?invs :: Maybe Exp, ?args :: [Exp])
-    => Eval (Maybe VCode)
-callMethodVV = do
-    let methName = cast (v_name ?var)
-    -- Look up the proto for the method in VV land right here
-    -- Whether it matched or not, it's the proto's signature
-    -- that's available to the inferencer, not any of its children's
-    -- (this is because MMD in newland is performed _after_ everything
-    -- has been reduced.)
-    return . Just $ mkPrim
-        { subName     = methName
-        , subParams   = makeParams ["Object", "List", "Named"]
-        , subReturns  = mkType "Any"
-        , subBody     = Prim $ \(inv:named:pos:_) -> do
-            invVV   <- fromVal inv      :: Eval Val.Val
-            posVVs  <- fromVals pos     :: Eval [Val.Val]
-            namVVs  <- do
-                list <- fromVal named
-                fmap Map.fromList $ forM list $ \(k, v) -> do
-                    key <- fromVal k
-                    val <- fromVal v
-                    return (key, [val])   :: Eval (ID, [Val.Val])
+    -- callMethodVV :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp])
+    --     => Eval (Maybe VCode)
+    callMethodVV = do
+        let methName = cast (v_name _var)
+        -- Look up the proto for the method in VV land right here
+        -- Whether it matched or not, it's the proto's signature
+        -- that's available to the inferencer, not any of its children's
+        -- (this is because MMD in newland is performed _after_ everything
+        -- has been reduced.)
+        return . Just $ mkPrim
+            { subName     = methName
+            , subParams   = makeParams ["Object", "List", "Named"]
+            , subReturns  = mkType "Any"
+            , subBody     = Prim $ \(inv:named:pos:_) -> do
+                invVV   <- fromVal inv      :: Eval Val.Val
+                posVVs  <- fromVals pos     :: Eval [Val.Val]
+                namVVs  <- do
+                    list <- fromVal named
+                    fmap Map.fromList $ forM list $ \(k, v) -> do
+                        key <- fromVal k
+                        val <- fromVal v
+                        return (key, [val])   :: Eval (ID, [Val.Val])
 
-            -- This is the Capture object we are going to work with
-            let capt = CaptMeth invVV [MkFeed posVVs namVVs]
+                -- This is the Capture object we are going to work with
+                let capt = CaptMeth invVV [MkFeed posVVs namVVs]
 
-            return . castV $ "CCall " ++ show methName ++ " " ++ show capt
-        }
-
-callMethodPerl5 :: (?var :: Var, ?invs :: Maybe Exp, ?args :: [Exp])
-    => Eval (Maybe VCode)
-callMethodPerl5 = do
-    let name = cast (v_name ?var)
-    return . Just $ mkPrim
-        { subName     = name
-        , subParams   = makeParams ["Object", "List", "Named"]
-        , subReturns  = mkType "Scalar::Perl5"
-        , subBody     = Prim $ \(inv:named:pos:_) -> do
-            sv      <- fromVal inv
-            posSVs  <- fromVals pos
-            namSVs  <- fmap concat (fromVals named)
-            let svs = posSVs ++ namSVs
-            found   <- liftIO $ canPerl5 sv name
-            found'  <- liftIO $ if found
-                then return found
-                else canPerl5 sv (__"AUTOLOAD")
-            if not found'
-                then do
-                    -- XXX - when svs is empty, this could call back here infinitely
-                    --       add an extra '&' to force no-reinterpretation.
-                    evalExp $
-                        App (Var ?var{ v_sigil = SCodeMulti }) Nothing
-                            (map (Val . PerlSV) (sv:svs))
-                else do
-                    subSV   <- liftIO . bufToSV $ name
-                    runInvokePerl5 subSV sv svs
-        }
-
-findWithPkg :: (?var :: Var, ?invs :: Maybe Exp, ?args :: [Exp])
-    => Pkg -> Var -> Eval (Either FindSubFailure VCode)
-findWithPkg pkg var = do
-    subs <- findSub' var{ v_package = pkg }
-    maybe (findWithSuper pkg var) (return . Right) subs
-
-findWithSuper :: (?var :: Var, ?invs :: Maybe Exp, ?args :: [Exp])
-    => Pkg -> Var -> Eval (Either FindSubFailure VCode)
-findWithSuper pkg var = do
-    -- get superclasses
-    attrs <- fmap (fmap (filter (/= pkg) . nub)) $ findAttrs pkg
-    if isNothing attrs || null (fromJust attrs) then fmap (err NoMatchingMulti) (findSub' var) else do
-    (`fix` (fromJust attrs)) $ \run pkgs -> do
-        if null pkgs then return (Left $ NoSuchMethod (cast pkg)) else do
-        subs <- findWithPkg (head pkgs) var
-        either (const $ run (tail pkgs)) (return . Right) subs
-
-findSub' :: (?var :: Var, ?invs :: Maybe Exp, ?args :: [Exp]) => Var -> Eval (Maybe VCode)
-findSub' var = do
-    subSyms     <- findSyms var
-    lens        <- mapM argSlurpLen (unwrap $ maybeToList ?invs ++ ?args)
-    doFindSub (sum lens) subSyms
-
-argSlurpLen :: Exp -> Eval Int
-argSlurpLen (Val val) = valSlurpLen val
-argSlurpLen (Var name) = do
-    val <- evalExp (Var name)
-    valSlurpLen val
-argSlurpLen (Syn "," list) =  return $ length list
-argSlurpLen _ = return 1 -- XXX
-
-valSlurpLen :: Val -> Eval Int
-valSlurpLen (VList list) = return $ length list
-valSlurpLen (VRef (MkRef (IArray av))) = array_fetchSize av
-valSlurpLen (VRef (MkRef (IHash hv))) = hash_fetchSize hv
-valSlurpLen _  = return 1 -- XXX
-
-doFindSub :: (?var :: Var, ?invs :: Maybe Exp, ?args :: [Exp])
-    => Int -> [(Var, Val)] -> Eval (Maybe VCode)
-doFindSub slurpLen subSyms = do
-    subs' <- subs slurpLen subSyms
-    -- let foo (x, sub) = show x ++ show (map paramContext $ subParams sub)
-    -- trace (unlines $ map foo $ sort subs') return ()
-    return $ case sort subs' of
-        ((_, sub):_)    -> Just sub
-        _               -> Nothing
-
-subs :: (?invs :: Maybe Exp, ?args :: [Exp])
-    => Int -> [(Var, Val)] -> Eval [((Bool, Bool, Int, Int), VCode)]
-subs slurpLen subSyms = fmap catMaybes . forM subSyms $ \(_, val) -> do
-    sub@(MkCode{ subReturns = ret, subParams = prms }) <- fromVal val
-    let rv = return $ arityMatch sub (length (maybeToList ?invs ++ ?args)) slurpLen
-    maybeM rv $ \fun -> do
-        -- if deltaFromCxt ret == 0 then return Nothing else do
-        let pairs = map (typeOfCxt . paramContext) prms
-                        `zip` (map unwrap $ maybeToList ?invs ++ ?args)
-        deltaCxt    <- deltaFromCxt ret
-        deltaArgs   <- mapM deltaFromPair pairs
-        let bound = either (const False) (const True) $ bindParams sub ?invs ?args
-        return ((isMulti sub, bound, sum deltaArgs, deltaCxt), fun)
-
-findBuiltinSub :: (?var :: Var, ?invs :: Maybe Exp, ?args :: [Exp])
-    => FindSubFailure -> Var -> Eval (Either FindSubFailure VCode)
-findBuiltinSub failure var = do
-    sub <- findSub' var
-    maybe (fmap (err failure) $ possiblyBuildMetaopVCode var) (return . Right) sub
-
-firstArg :: (?args :: [Exp]) => [Exp]
-firstArg = [maybe (Val undef) id (listToMaybe ?args)]
-
-buildPrefixHyper name var = do
-    let rv = fmap (either (const Nothing) Just) $
-            findSub var Nothing firstArg
-    maybeM rv $ \code -> return $ mkPrim
-        { subName     = name
-        , subType     = SubPrim
-        , subAssoc    = subAssoc code
-        , subParams   = subParams code
-        , subReturns  = mkType "List"
-        , subBody     = Prim
-            (\x -> op1HyperPrefix code (listArg x))
-        }
-
-buildPostfixHyper name var = do
-    let rv = fmap (either (const Nothing) Just) $
-            findSub var Nothing firstArg
-    maybeM rv $ \code -> return $ mkPrim
-        { subName     = name
-        , subType     = SubPrim
-        , subAssoc    = subAssoc code
-        , subParams   = subParams code
-        , subReturns  = mkType "List"
-        , subBody     = Prim
-            (\x -> op1HyperPostfix code (listArg x))
-        }
-
-buildInfixHyper name var = do
-    let rv = fmap (either (const Nothing) Just) $
-            findSub var Nothing (take 2 (?args ++ [Val undef, Val undef]))
-    maybeM rv $ \code -> return $ mkPrim
-        { subName     = name
-        , subType     = SubPrim
-        , subAssoc    = subAssoc code
-        , subParams   = makeParams ["Any", "Any"]
-        , subReturns  = mkType "List"
-        , subBody     = Prim (\[x, y] -> op2Hyper code x y)
-        }
-
-possiblyBuildMetaopVCode :: (?args :: [Exp]) => Var -> Eval (Maybe VCode)
-possiblyBuildMetaopVCode var@MkVar{ v_categ = cat, v_name = name }
-    | C_prefix <- cat, '\171' <- Str.last buf = do
-        buildPrefixHyper buf var{ v_name = cast $ Str.init buf }
-    | C_prefix <- cat, __"<<" `Str.isSuffixOf` buf = do
-        buildPrefixHyper buf var{ v_name = cast $ dropEnd 2 buf }
-    | C_postfix <- cat, '\187' <- Str.head buf = do
-        buildPostfixHyper buf var{ v_name = cast $ Str.tail buf }
-    | C_postfix <- cat, __">>" `Str.isPrefixOf` buf = do
-        buildPostfixHyper buf var{ v_name = cast $ Str.drop 2 buf }
-    | C_infix <- cat, '\187' <- Str.head buf, '\171' <- Str.last buf = do
-        buildInfixHyper buf var{ v_name = cast $ Str.init (Str.tail buf) }
-    | C_infix <- cat, __">>" `Str.isPrefixOf` buf, __"<<" `Str.isSuffixOf` buf = do
-        buildInfixHyper buf var{ v_name = cast $ Str.take 2 (dropEnd 2 buf) }
-    | C_prefix <- cat, '[' <- Str.head buf, ']' <- Str.last buf = do
-        -- Strip the trailing "]" from op
-        let (op, keep)
-                | Str.index buf 1 == '\\'   = (Str.drop 2 (Str.init buf), True)
-                | otherwise                 = (Str.tail (Str.init buf), False)
-
-        -- We try to find the userdefined sub.
-        -- We use the first two elements of invs as invocants, as these are the
-        -- types of the op.
-            rv = fmap (either (const Nothing) Just) $
-                findSub (var{ v_categ = C_infix, v_name = cast op }) Nothing
-                    (take 2 $ ?args ++ [Val undef, Val undef])
-        maybeM rv $ \code -> return $ mkPrim
-            { subName     = buf
-            , subType     = SubPrim
-            , subAssoc    = "spre"
-            , subParams   = makeParams $
-                if any isLValue (subParams code)
-                    then ["rw!List"] -- XXX - does not yet work for the [=] case
-                    else ["List"]
-            , subReturns  = anyType
-            , subBody     = Prim $ \[vs] -> do
-                list_of_args <- fromVal vs
-                op2Reduce keep list_of_args (VCode code)
+                return . castV $ "CCall " ++ show methName ++ " " ++ show capt
             }
-        -- Now we construct the sub. Is there a more simple way to do it?
-    | otherwise = return Nothing
-    where
-    buf = cast name
+
+    -- callMethodPerl5 :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp])
+    --     => Eval (Maybe VCode)
+    callMethodPerl5 = do
+        let name = cast (v_name _var)
+        return . Just $ mkPrim
+            { subName     = name
+            , subParams   = makeParams ["Object", "List", "Named"]
+            , subReturns  = mkType "Scalar::Perl5"
+            , subBody     = Prim $ \(inv:named:pos:_) -> do
+                sv      <- fromVal inv
+                posSVs  <- fromVals pos
+                namSVs  <- fmap concat (fromVals named)
+                let svs = posSVs ++ namSVs
+                found   <- liftIO $ canPerl5 sv name
+                found'  <- liftIO $ if found
+                    then return found
+                    else canPerl5 sv (__"AUTOLOAD")
+                if not found'
+                    then do
+                        -- XXX - when svs is empty, this could call back here infinitely
+                        --       add an extra '&' to force no-reinterpretation.
+                        evalExp $
+                            App (Var _var{ v_sigil = SCodeMulti }) Nothing
+                                (map (Val . PerlSV) (sv:svs))
+                    else do
+                        subSV   <- liftIO . bufToSV $ name
+                        runInvokePerl5 subSV sv svs
+            }
+
+    -- findWithPkg :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp])
+    --     => Pkg -> Var -> Eval (Either FindSubFailure VCode)
+    findWithPkg pkg var = do
+        subs <- findSub' var{ v_package = pkg }
+        maybe (findWithSuper pkg var) (return . Right) subs
+
+    -- findWithSuper :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp])
+    --     => Pkg -> Var -> Eval (Either FindSubFailure VCode)
+    findWithSuper pkg var = do
+        -- get superclasses
+        attrs <- fmap (fmap (filter (/= pkg) . nub)) $ findAttrs pkg
+        if isNothing attrs || null (fromJust attrs) then fmap (err NoMatchingMulti) (findSub' var) else do
+        (`fix` (fromJust attrs)) $ \run pkgs -> do
+            if null pkgs then return (Left $ NoSuchMethod (cast pkg)) else do
+            subs <- findWithPkg (head pkgs) var
+            either (const $ run (tail pkgs)) (return . Right) subs
+
+    -- findSub' :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp]) => Var -> Eval (Maybe VCode)
+    findSub' var = do
+        subSyms     <- findSyms var
+        lens        <- mapM argSlurpLen (unwrap $ maybeToList _invs ++ _args)
+        doFindSub (sum lens) subSyms
+
+    argSlurpLen :: Exp -> Eval Int
+    argSlurpLen (Val val) = valSlurpLen val
+    argSlurpLen (Var name) = do
+        val <- evalExp (Var name)
+        valSlurpLen val
+    argSlurpLen (Syn "," list) =  return $ length list
+    argSlurpLen _ = return 1 -- XXX
+
+    valSlurpLen :: Val -> Eval Int
+    valSlurpLen (VList list) = return $ length list
+    valSlurpLen (VRef (MkRef (IArray av))) = array_fetchSize av
+    valSlurpLen (VRef (MkRef (IHash hv))) = hash_fetchSize hv
+    valSlurpLen _  = return 1 -- XXX
+
+    -- doFindSub :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp])
+    --     => Int -> [(Var, Val)] -> Eval (Maybe VCode)
+    doFindSub slurpLen subSyms = do
+        subs' <- subs slurpLen subSyms
+        -- let foo (x, sub) = show x ++ show (map paramContext $ subParams sub)
+        -- trace (unlines $ map foo $ sort subs') return ()
+        return $ case sort subs' of
+            ((_, sub):_)    -> Just sub
+            _               -> Nothing
+
+    -- subs :: (_invs :: Maybe Exp, _args :: [Exp])
+    --     => Int -> [(Var, Val)] -> Eval [((Bool, Bool, Int, Int), VCode)]
+    subs slurpLen subSyms = fmap catMaybes . forM subSyms $ \(_, val) -> do
+        sub@(MkCode{ subReturns = ret, subParams = prms }) <- fromVal val
+        let rv = return $ arityMatch sub (length (maybeToList _invs ++ _args)) slurpLen
+        maybeM rv $ \fun -> do
+            -- if deltaFromCxt ret == 0 then return Nothing else do
+            let pairs = map (typeOfCxt . paramContext) prms
+                            `zip` (map unwrap $ maybeToList _invs ++ _args)
+            deltaCxt    <- deltaFromCxt ret
+            deltaArgs   <- mapM deltaFromPair pairs
+            let bound = either (const False) (const True) $ bindParams sub _invs _args
+            return ((isMulti sub, bound, sum deltaArgs, deltaCxt), fun)
+
+    -- findBuiltinSub :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp])
+    --     => FindSubFailure -> Var -> Eval (Either FindSubFailure VCode)
+    findBuiltinSub failure var = do
+        sub <- findSub' var
+        maybe (fmap (err failure) $ possiblyBuildMetaopVCode var) (return . Right) sub
+
+    -- firstArg :: (_args :: [Exp]) => [Exp]
+    firstArg = [maybe (Val undef) id (listToMaybe _args)]
+
+    buildPrefixHyper name var = do
+        let rv = fmap (either (const Nothing) Just) $
+                findSub var Nothing firstArg
+        maybeM rv $ \code -> return $ mkPrim
+            { subName     = name
+            , subType     = SubPrim
+            , subAssoc    = subAssoc code
+            , subParams   = subParams code
+            , subReturns  = mkType "List"
+            , subBody     = Prim
+                (\x -> op1HyperPrefix code (listArg x))
+            }
+
+    buildPostfixHyper name var = do
+        let rv = fmap (either (const Nothing) Just) $
+                findSub var Nothing firstArg
+        maybeM rv $ \code -> return $ mkPrim
+            { subName     = name
+            , subType     = SubPrim
+            , subAssoc    = subAssoc code
+            , subParams   = subParams code
+            , subReturns  = mkType "List"
+            , subBody     = Prim
+                (\x -> op1HyperPostfix code (listArg x))
+            }
+
+    buildInfixHyper name var = do
+        let rv = fmap (either (const Nothing) Just) $
+                findSub var Nothing (take 2 (_args ++ [Val undef, Val undef]))
+        maybeM rv $ \code -> return $ mkPrim
+            { subName     = name
+            , subType     = SubPrim
+            , subAssoc    = subAssoc code
+            , subParams   = makeParams ["Any", "Any"]
+            , subReturns  = mkType "List"
+            , subBody     = Prim (\[x, y] -> op2Hyper code x y)
+            }
+
+    -- possiblyBuildMetaopVCode :: (_args :: [Exp]) => Var -> Eval (Maybe VCode)
+    possiblyBuildMetaopVCode var@MkVar{ v_categ = cat, v_name = name }
+        | C_prefix <- cat, '\171' <- Str.last buf = do
+            buildPrefixHyper buf var{ v_name = cast $ Str.init buf }
+        | C_prefix <- cat, __"<<" `Str.isSuffixOf` buf = do
+            buildPrefixHyper buf var{ v_name = cast $ dropEnd 2 buf }
+        | C_postfix <- cat, '\187' <- Str.head buf = do
+            buildPostfixHyper buf var{ v_name = cast $ Str.tail buf }
+        | C_postfix <- cat, __">>" `Str.isPrefixOf` buf = do
+            buildPostfixHyper buf var{ v_name = cast $ Str.drop 2 buf }
+        | C_infix <- cat, '\187' <- Str.head buf, '\171' <- Str.last buf = do
+            buildInfixHyper buf var{ v_name = cast $ Str.init (Str.tail buf) }
+        | C_infix <- cat, __">>" `Str.isPrefixOf` buf, __"<<" `Str.isSuffixOf` buf = do
+            buildInfixHyper buf var{ v_name = cast $ Str.take 2 (dropEnd 2 buf) }
+        | C_prefix <- cat, '[' <- Str.head buf, ']' <- Str.last buf = do
+            -- Strip the trailing "]" from op
+            let (op, keep)
+                    | Str.index buf 1 == '\\'   = (Str.drop 2 (Str.init buf), True)
+                    | otherwise                 = (Str.tail (Str.init buf), False)
+
+            -- We try to find the userdefined sub.
+            -- We use the first two elements of invs as invocants, as these are the
+            -- types of the op.
+                rv = fmap (either (const Nothing) Just) $
+                    findSub (var{ v_categ = C_infix, v_name = cast op }) Nothing
+                        (take 2 $ _args ++ [Val undef, Val undef])
+            maybeM rv $ \code -> return $ mkPrim
+                { subName     = buf
+                , subType     = SubPrim
+                , subAssoc    = "spre"
+                , subParams   = makeParams $
+                    if any isLValue (subParams code)
+                        then ["rw!List"] -- XXX - does not yet work for the [=] case
+                        else ["List"]
+                , subReturns  = anyType
+                , subBody     = Prim $ \[vs] -> do
+                    list_of_args <- fromVal vs
+                    op2Reduce keep list_of_args (VCode code)
+                }
+            -- Now we construct the sub. Is there a more simple way to do it?
+        | otherwise = return Nothing
+        where
+        buf = cast name
 
 metaVar :: Pkg -> Var
 -- metaVar = MkVar SType TNone globalPkg CNone . cast
