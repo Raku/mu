@@ -96,24 +96,28 @@ instance HashClass IHashEnv where
 
 instance HashClass IHash where
     hash_fetch hv = do
-        let f key sv = do { val <- readIVar sv; return (key, val) }
+        let f key sv = do { val <- readIVar sv; return (decodeUTF8 key, val) }
         l <- liftIO $ C.mapToList f hv
         fmap Map.fromList $ sequence l
-    hash_fetchKeys hv = liftIO $ C.keys hv
+    hash_fetchKeys hv = fmap (map decodeUTF8) (liftIO $ C.keys hv)
     hash_fetchElem hv idx = do
         --liftIO $ putStrLn $ "fetching " ++ (show hv) ++ ": " ++ (show idx)
-        r <- liftIO $ C.lookup idx hv
+        let idx' = encodeUTF8 idx
+        r <- liftIO $ C.lookup idx' hv
         case r of
              Just sv -> return sv
-             Nothing -> do sv <- newScalar undef
-                           liftIO $ C.insert idx sv hv
-                           return sv
-    hash_storeElem hv idx sv = liftIO $ C.insert idx sv hv -- >>  (putStrLn $ "storing " ++ (show hv) ++  ": " ++ (show idx)))
+             Nothing -> do
+                sv <- newScalar undef
+                liftIO $ C.insert idx' sv hv
+                return sv
+    hash_storeElem hv idx sv = do
+        liftIO $ C.insert (encodeUTF8 idx) sv hv
+        -- >>  (putStrLn $ "storing " ++ (show hv) ++  ": " ++ (show idx)))
     hash_deleteElem hv idx = do
         --liftIO $ putStrLn $ "deleting " ++ (show hv) ++ ": " ++ (show idx)
-        liftIO $ C.delete idx hv
+        liftIO $ C.delete (encodeUTF8 idx) hv
         return ()
-    hash_existsElem hv idx = liftIO $ C.member idx hv
+    hash_existsElem hv idx = liftIO $ C.member (encodeUTF8 idx) hv
 
 instance HashClass PerlSV where
     hash_iType = const $ mkType "Hash::Perl"
