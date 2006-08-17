@@ -18,48 +18,30 @@ BEGIN {
         grammar => 'Pugs::Grammar::Operator',
         header  => q!
   
-attr:
-        #empty  
-        { $_[0]->{out}= { attribute => [] } }
-    |   BAREWORD  BAREWORD  attr
-        { $_[0]->{out}= {
-            attribute => [ 
-                [$_[1], $_[2],],
-                @{$_[3]{attribute}}, 
-            ], 
-        } }
-    ;
-      
 exp: 
       NUM                 
-        { $_[0]->{out}= $_[1] }
+        { $_[0]->{out} = $_[1] }
 
     | BAREWORD
-        { $_[0]->{out}= { op1 => 'call', sub => $_[1], } }
-    | BAREWORD exp   %prec P001
-        { $_[0]->{out}= { op1 => 'call', sub => $_[1], param => $_[2], } }
+        { $_[0]->{out} = {  op1 => 'call', 
+                            sub => $_[1], } }
+    | BAREWORD exp       %prec P001
+        { $_[0]->{out} = {  op1 => 'call', 
+                            sub => $_[1], param => $_[2], } }
  
-    | REDUCE exp   %prec P001
-        { $_[0]->{out}= { %{$_[1]}, param => $_[2], } }
+    | REDUCE exp         %prec P001
+        { $_[0]->{out} = {  %{$_[1]}, 
+                            param => $_[2], } }
        
     | DOT_BAREWORD exp   %prec P001
-        { $_[0]->{out}= { op1 => 'method_call', self => { 'scalar' => '$_' }, method => $_[1], param => $_[2], } }
+        { $_[0]->{out} = {  op1 => 'method_call', 
+                            self => { 'scalar' => '$_' }, 
+                            method => $_[1], 
+                            param => $_[2], } }
     | DOT_BAREWORD   
-        { $_[0]->{out}= { op1 => 'method_call', self => { 'scalar' => '$_' }, method => $_[1], } }
-
-    | MY NUM attr       
-        { $_[0]->{out}= { 
-            op1 => { op => $_[1]{op} }, 
-            fixity => 'prefix', 
-            exp1 => $_[2],
-            %{$_[3]}, } }
-    | MY BAREWORD NUM attr 
-        { $_[0]->{out}= { 
-            op1 => { op => $_[1]{op} }, 
-            fixity => 'prefix', 
-            exp1 => $_[3],
-            type => { bareword => $_[2], },
-            %{$_[4]}, } }
+        { $_[0]->{out} = {  op1 => 'method_call', 
+                            self => { 'scalar' => '$_' }, 
+                            method => $_[1], } }
 
 !,
     );

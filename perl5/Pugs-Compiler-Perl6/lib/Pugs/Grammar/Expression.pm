@@ -75,7 +75,14 @@ sub ast {
         }
 
         my @expect = $p->YYExpect;  # XXX is this expensive?
+        #print "Expect: ", Dumper( @expect );
         my $expect_term = grep { $_ eq 'NUM' || $_ eq 'BAREWORD' } @expect;
+
+        # -- this only optimizes about 2%
+        #my $expect = $p->{STATES}[$p->{STACK}[-1][0]]{ACTIONS};
+        #print "Expect: ", Dumper( keys %{$expect} );
+        #my $expect_term =  exists $expect->{'NUM'} 
+        #                || exists $expect->{'BAREWORD'};
         
         my $m = Pugs::Grammar::BaseCategory->ws( $match, { p => $pos } );
         # print "match is ",Dumper($m),"\n";
@@ -270,25 +277,11 @@ sub ast {
         $pos = $m->to if $m;
         my $t;
         if ( exists $ast->{stmt} ) {
-            # unused!
-            if ( $ast->{stmt} eq '{' ) {
-                $t = [ 'BLOCK_START' => $ast ]
-            }
-            elsif ( $ast->{stmt} eq '}' ) {
-                $t = [ 'BLOCK_END' => $ast ]
-            }
-            else {
-                $t = [ $ast->{stmt} => $ast ]
-            }
+            $t = [ $ast->{stmt} => $ast ]
         }
         elsif ( exists $ast->{op} ) {
             if ( exists $ast->{reduce} ) {
                 $t = [ 'REDUCE' => $ast ]
-            }
-            elsif (  $ast->{op} eq 'my' 
-               || $ast->{op} eq 'our' 
-               || $ast->{op} eq 'has' ) {
-                $t = [ 'MY' => $ast ]
             }
             else {
                 $t = [ $ast->{op} => $ast ];
