@@ -159,7 +159,7 @@ Wow, it blows! Here's the error I got:
        expecting comment, operator or ")"
        at primes.pugs line 7, column 29
 
-But I know why: the good ol' trinary C<? :> has now become C<?? ::>, so
+But I know why: the good ol' ternary C<? :> has now become C<?? ::>, so
 the change is straighforward:
 
    #!/home/poletti/bin/pugs
@@ -180,7 +180,7 @@ What the heck! It blows again!
        expecting comment, operator or "!!"
        at primes.pugs line 7, column 35
 
-This should teach me to B<read> the documentation: the trinary (operator?
+This should teach me to B<read> the documentation: the ternary (operator?
 test?) has now become C<?? !!>, with the exclamation point instead of the
 colon! Hummm, that beatiful "Periodic Table of Perl 6 Operators" needs
 some updating, let's see... ok now this works:
