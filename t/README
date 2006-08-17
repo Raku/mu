@@ -78,7 +78,7 @@ The section name should be copied verbatim from the pod.
 The links also have a weird extension: you can specify a regex, to skip forward
 from the linked section, so the backlink is put in a more specific place:
 
-    L<<S05/"Return values from matches" /In numeric context.*number of matches:/>>
+    L<S05/"Return values from matches" /In numeric context.*number of matches:/>
 
 The above link is appropriate next to a test case checking rule application in
 numeric context, and it will place the backlink appropriately.
