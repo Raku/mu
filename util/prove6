@@ -1,4 +1,4 @@
-#!/bin/perl
+#!/usr/bin/env perl
 
 # This is a test harness for pugs and v6-alpha
 # XXX TODO: add support for the --js option
