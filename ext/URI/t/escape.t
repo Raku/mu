@@ -5,7 +5,7 @@ plan 8;
 
 use URI::Escape;
 
-is(uri_escape("|abc\229"), '%7Cabc%E5', 'uri_escape');
+is(uri_escape("|abc\d229"), '%7Cabc%E5', 'uri_escape');
 is(uri_escape("abc", 'b-d'), 'a%62%63', 'uri_escape (explicit unsafe chars)');
 #ok(!defined uri_escape(undef), 'uri_escape(undef)'); # not applicable
 
