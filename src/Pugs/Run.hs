@@ -179,13 +179,14 @@ prepareEnv name args = do
     hideInSafemode x = if safeMode then MkRef $ constScalar undef else x
 
 initClassObjects :: ObjectId -> [Type] -> ClassTree -> IO [STM PadMutator]
-initClassObjects uniq parent (Node typ children) = do
+initClassObjects uniq parent (MkClassTree (Node typ children)) = do
     obj     <- createObjectRaw uniq Nothing (mkType "Class")
         [ ("name",  castV $ showType typ)
         , ("is",    castV $ map showType parent)
         ]
     objSV   <- newScalar (VObject obj)
-    rest    <- mapM (initClassObjects (MkObjectId . pred $ unObjectId uniq) [typ]) children
+    rest    <- forM children $
+        initClassObjects (MkObjectId . pred $ unObjectId uniq) [typ] . MkClassTree
     let metaSym  = genSym (cast (':':'*':name)) $ MkRef objSV
         codeSym  = genMultiSym (cast ('&':'*':name)) $ codeRef typeCode
         name     = showType typ
