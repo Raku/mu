@@ -198,7 +198,7 @@ Rules Grammar implemented:
 
  #comment\n
 
- \x0a \0123 ...
+ \x0a \o123 ...
 
  <?ws>  -- optional whitespace ???
 

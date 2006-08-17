@@ -77,5 +77,7 @@ is("\d65,66,67", 'A,66,67', '\dlist not valid');
 # <agentzh> aye
 # <audreyt> so I'm fine for retiring the \187 form
 
-is("\123", '123', '"\123" form is no longer valid Perl 6');
-is("\040", '040', '"\040" form is no longer valid Perl 6');
+eval '"\123"' //
+ok($!, '"\123" form is no longer valid Perl 6');
+eval '"\040"' //
+ok($!, '"\040" form is no longer valid Perl 6');

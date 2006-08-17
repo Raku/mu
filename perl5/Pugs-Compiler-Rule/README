@@ -68,7 +68,7 @@ DESCRIPTION
      :flag :flag() :flag[]
      lookahead lookbehind
      #comment\n
-     \x0a \0123 ...
+     \x0a \o123 ...
      <?ws>                      -- optional whitespace ???
      &    
      <!abc>                     -- is this !<abc> or !abc ?

@@ -177,7 +177,7 @@ method as_string ($self: Str $ending = "\n") {
       # must handle header values with embedded newlines with care
       $val ~~ s/\s+$//;                    # trailing newlines and space must go
       $val ~~ s:g/\n\n+/\n/;               # no empty lines
-      $val ~~ s:g/\n(<-[\040\t]>)/\n $0/;  # initial space for continuation
+      $val ~~ s:g/\n(<-[\x20\t]>)/\n $0/;  # initial space for continuation
       $val ~~ s:g/\n/$ending/;             # substitute with requested line ending
     }
     @result.push("$field: $val");

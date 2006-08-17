@@ -4,7 +4,7 @@ use HTTP::Headers;
 
 class HTTP::Message-0.1;
 
-our $CRLF = "\015\012";
+our $CRLF = "\o15\o12";
 
 has HTTP::Headers $!headers handles «
     header push_header init_header remove_header remove_content_headers header_field_names scan

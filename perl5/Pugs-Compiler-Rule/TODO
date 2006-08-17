@@ -211,7 +211,7 @@ TODO for Pugs-Compiler-Precedence
   <(closure-assertion)> <{code-returns-rule}>
   <<character-class>> <[character-class]>
   :flag :flag() :flag[]
-  \x0a \0123 ...
+  \x0a \o123 ...
   &    
   $1      - lvalue match variables
   $/ $()  - global match variables 

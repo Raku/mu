@@ -38,7 +38,7 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
       m/ a\  b /x       -> m/ a\  b /
                            m/ a <sp> b /            # also see below
                            m:s/ a b /               # :s == :sigspace
-      (space)           -> <sp>                     # or \c[SPACE], \x20, \040,
+      (space)           -> <sp>                     # or \c[SPACE], \x20, \o40,
                                                     # <' '>
 
       [abc]             -> <[abc]>

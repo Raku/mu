@@ -22,10 +22,10 @@ if !eval('("a" ~~ /a/)') {
 
 ok("\n" ~~ m/\n/, '\n');
 
-ok("\015\012" ~~ m/\n/, 'CR/LF');
-ok("\012" ~~ m/\n/, 'LF');
-ok("a\012" ~~ m/\n/, 'aLF');
-ok("\015" ~~ m/\n/, 'CR');
+ok("\o15\o12" ~~ m/\n/, 'CR/LF');
+ok("\o12" ~~ m/\n/, 'LF');
+ok("a\o12" ~~ m/\n/, 'aLF');
+ok("\o15" ~~ m/\n/, 'CR');
 ok("\x85" ~~ m/\n/, 'NEL');
 ok("\x2028" ~~ m/\n/, 'LINE SEP');
 
@@ -33,9 +33,9 @@ ok(!( "abc" ~~ m/\n/ ), 'not abc');
 
 ok(!( "\n" ~~ m/\N/ ), 'not \n');
 
-ok(!( "\012" ~~ m/\N/ ), 'not LF');
-ok(!( "\015\012" ~~ m/\N/ ), 'not CR/LF');
-ok(!( "\015" ~~ m/\N/ ), 'not CR');
+ok(!( "\o12" ~~ m/\N/ ), 'not LF');
+ok(!( "\o15\o12" ~~ m/\N/ ), 'not CR/LF');
+ok(!( "\o15" ~~ m/\N/ ), 'not CR');
 ok(!( "\x85" ~~ m/\N/ ), 'not NEL');
 ok(!( "\x2028" ~~ m/\N/ ), 'not LINE SEP');
 

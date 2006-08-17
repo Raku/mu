@@ -67,7 +67,7 @@ sub head (Str $url) is export {
   # This should all be done better so the response doesn't live in
   # memory all at once
 
-  if ($head ~~ rx:perl5{^HTTP\/\d+\.\d+\s+(\d+) (?:.*?\015?\012)((?:.*?\015?\012)*?)\015?\012}) {
+  if ($head ~~ rx:Perl5{^HTTP\/\d+\.\d+\s+(\d+) (?:.*?\015?\012)((?:.*?\015?\012)*?)\015?\012}) {
     my ($code,$head) = ($0,$1);
 
     # if (want.Boolean) {
