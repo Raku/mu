@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 11 Aug 2006
+  Last Modified: 16 Aug 2006
   Number: 3
-  Version: 55
+  Version: 56
 
 =head1 Changes to Perl 5 operators
 
@@ -87,7 +87,7 @@ number of copies, useful for initializing lists.  The left side of
 an C<xx> is evaluated only once.  (To call a block repeatedly, use a C<map>
 instead.)
 
-=item * Trinary C<? :> becomes C<?? !!>.  It is a syntax error to use an
+=item * The C<? :> conditional operator becomes C<?? !!>.  It is a syntax error to use an
 operator in the middle that binds looser in precedence, such as C<=>.
 
 =item * C<qw{ ... }> gets a synonym: C< < ... > >, and an interpolating
