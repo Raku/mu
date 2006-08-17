@@ -44,7 +44,9 @@ The entry point of Pugs. Uses 'Pugs.Run.runWithArgs' to normalise the command-li
 arguments and pass them to 'run'.
 -}
 pugsMain :: IO ()
-pugsMain = mainWith run
+pugsMain = do
+    let ?debugInfo = Nothing
+    mainWith run
 
 defaultProgramName :: String
 defaultProgramName = "<interactive>"
@@ -54,8 +56,11 @@ runFile file = do
     withArgs [file] pugsMain
 
 -- see also Run/Args.hs
-run :: [String] -> IO ()
-run ("-d":rest)                 = run rest
+run :: (?debugInfo :: DebugInfo) => [String] -> IO ()
+run ("-d":rest)                 = do
+    info <- fmap Just (liftSTM $ newTVar Map.empty)
+    let ?debugInfo = info
+    run rest
 run ("-l":rest)                 = run rest
 run ("-w":rest)                 = run rest
 run ("-I":_:rest)               = run rest
@@ -373,9 +378,9 @@ runImperatively menv eval = do
         liftSTM $ writeTVar menv newEnv
         return val
 
-doRun :: String -> [String] -> String -> IO ()
+doRun :: (?debugInfo :: DebugInfo) => String -> [String] -> String -> IO ()
 doRun = do
-    runProgramWith noEnvDebug end
+    runProgramWith (\e -> e{ envDebug = ?debugInfo }) end
     where
     end err@(VError _ _)  = do
         hPutStrLn stderr $ encodeUTF8 $ pretty err
