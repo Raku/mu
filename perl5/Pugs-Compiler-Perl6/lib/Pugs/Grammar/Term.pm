@@ -257,14 +257,13 @@ sub recompile {
                 { return { dot_bareword  => $_[0]->() ,} }
             ),
         '...' => q(
-            { 
-                return { term => "yada" } 
-            }
+            { return { term => "yada" } }
             ),
         'self' => q(
-            { 
-                return { term => "self" } 
-            }
+            { return { term => "self" } }
+            ),
+        'undef' => q(
+            { return { term => "undef" } }
             ),
         'my' => q(
             <?ws> <Pugs::Grammar::Term.parse>

@@ -148,7 +148,8 @@ sub _emit {
 
     if (exists $n->{statements}) {
         my $statements = join ( ";\n", 
-            map { defined $_ ? _emit( $_ ) : "" } @{$n->{statements}}, undef 
+            map { defined $_ ? _emit( $_ ) : "" } 
+            @{$n->{statements}}, undef 
         );
         return length $statements ? $statements : " # empty block\n";
     }
@@ -448,19 +449,8 @@ sub default {
         # warn "call: ",Dumper $n;
 
         if ($n->{sub}{scalar} || $n->{sub}{statement}) {
-            return _emit($n->{sub}). '->(' . _emit_parameter_capture( $n->{param} ) . ')';
-        }
-
-        if ( 0 && $n->{sub}{bareword} eq 'is' ) { # XXX: this is wrong, consider is() from Test.pm
-            # is Point;
-            #warn "inheritance: ",Dumper $n;
-            my $id;
-            $id = exists $n->{param}{cpan_bareword} 
-                  ? Pugs::Runtime::Common::mangle_ident( $n->{param}{cpan_bareword} )
-                  : _emit( $n->{param}{sub} );
-            my @a = split "-", $id;
-            my $version = ( @a > 1 && $a[-1] =~ /^[0-9]/ ? $a[-1] : '' );
-            return "extends '" . $a[0] . "'";
+            return _emit($n->{sub}). '->(' . 
+                _emit_parameter_capture( $n->{param} ) . ')';
         }
         
         if ( $n->{sub}{bareword} eq 'call' ) {
@@ -469,10 +459,6 @@ sub default {
             return "super";  # param list?
         }
         
-        if ( $n->{sub}{bareword} eq 'undef' ) {
-            return ' undef ';
-        }
-
         if ( $n->{sub}{bareword} eq 'hash' ) {
             return ' %{{ ' . _emit( $n->{param} ) . ' }} ';
         }
@@ -506,7 +492,9 @@ sub default {
             }
             # use module::name 'param'
             return "use " . _emit( $n->{param}{sub} ) . ' ' . 
-                   (exists $n->{param}{param} ? _emit($n->{param}{param}) : '' );
+                   (exists $n->{param}{param} 
+                    ? _emit($n->{param}{param}) 
+                    : '' );
         }
 
         if ( $n->{sub}{bareword} eq 'enum' ) {
@@ -528,11 +516,6 @@ sub default {
                     " ${name}->import(); " .
                     "1 } "; # /do -- t/oo/enums.t depends on enum returning true
             }
-        }
-
-        if ($n->{sub}{bareword} eq 'sub') {
-            # defining anonymous sub.  XXX: this shouldn't be here. fix the parser.
-            return _emit_closure($n->{signature}, $n->{param}{bare_block});
         }
 
         return " " . $n->{sub}{bareword} . " '', " . _emit( $n->{param} ) 
@@ -663,6 +646,9 @@ sub default {
             if ($n->{method}{dot_bareword} eq 'isa') {
                 return 'Pugs::Runtime::Perl6::Scalar::isa( \\'. _emit( $n->{self} ) . ', ' . _emit( $n->{param} ) . ')';
             }
+            if ($n->{method}{dot_bareword} eq 'elems') {
+                return "( scalar keys "._emit( $n->{self} )." )"; 
+            }
             return " (" . 
                 _emit( $n->{method} ) . ' ' .
                 _emit( $n->{self}   ) . ')';
@@ -701,6 +687,9 @@ sub default {
             }
             if ($n->{method}{dot_bareword} eq 'isa') {
                 return 'Pugs::Runtime::Perl6::Scalar::isa( \\'. _emit( $n->{self} ) . ', ' . _emit( $n->{param} ) . ')';
+            }
+            if ($n->{method}{dot_bareword} eq 'elems') {
+                return "( scalar "._emit( $n->{self} )." )"; 
             }
             return _emit( $n->{method} ).' '.
                 ( join( ',', 
@@ -969,6 +958,9 @@ sub term {
     }
     if ( $n->{term} eq 'yada' ) {
         return  '( die "not implemented" )';
+    }
+    if ( $n->{term} eq 'undef' ) {
+        return ' undef ';
     }
 }
 
