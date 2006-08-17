@@ -171,6 +171,22 @@ sub sort {
     sort @_ 
 }
 
+sub chars { 
+    length "@_" 
+}
+
+sub reverse { 
+    my $s = reverse $_[0];
+    $s;
+}
+
+sub words { 
+    # todo - parameter handling
+    my $s = $_[0];
+    $s =~ s/^\s+//;
+    my @tmp = split( /\s+/, $s ); 
+}
+
 package Pugs::Runtime::Perl6::Array;
 
 sub map {

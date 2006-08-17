@@ -737,8 +737,10 @@ sub statement {
     
     if ( $n->{statement} eq 'if'     || 
          $n->{statement} eq 'unless' ) {
-        $n->{exp2} = { bare_block => $n->{exp2} } if $n->{exp2} && !$n->{exp2}{bare_block};
-        $n->{exp3} = { bare_block => $n->{exp3} } if $n->{exp3} && !$n->{exp3}{bare_block};
+        $n->{exp2} = { bare_block => $n->{exp2} } 
+            if $n->{exp2} && !$n->{exp2}{bare_block};
+        $n->{exp3} = { bare_block => $n->{exp3} } 
+            if $n->{exp3} && !$n->{exp3}{bare_block};
         return  " " . $n->{statement} . 
                 '(' . _emit( $n->{exp1} ) . ')' .
                 _emit( $n->{exp2} ) . "\n" .
