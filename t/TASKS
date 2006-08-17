@@ -1,2 +1,2 @@
+* fix the broken smart links (L<..>) in the test suite via util/smart_links.pl
 * rename pipe operator to feed operator
-* rename (old) FIRST to START
