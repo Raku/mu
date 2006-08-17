@@ -171,10 +171,8 @@ currentTightFunctions = do
             _ -> False
         rest' = (`filter` rest) $ \x -> case x of
             (_, _, (_:_:_)) -> True
-            (_, _, [MkParam
-                        { paramContext = CxtSlurpy{}
-                        , paramName = MkVar{ v_sigil = SArrayMulti }
-                        }]) -> True
+            (_, _, [MkParam { paramContext = CxtSlurpy{}, paramName = MkVar{ v_sigil = sig }}])
+                | sig == SArray || sig == SArrayMulti-> True
             _ -> False
         namesFrom = map (\(var, _, _) -> v_name var)
         restNames = Set.fromList $ namesFrom rest'
