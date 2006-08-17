@@ -44,7 +44,7 @@ sub desc_ref ($obj) {
         is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
     }
 
-    for ("a string", "", "\0", "\t", "\n", "\r\n", "\7", '{', '}', "\123",) -> $obj {
+    for ("a string", "", "\0", "\t", "\n", "\r\n", "\o7", '{', '}', "\d123",) -> $obj {
         is ~$obj.perl.eval    , ~$obj    , desc_perl($obj);
         is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
     }
