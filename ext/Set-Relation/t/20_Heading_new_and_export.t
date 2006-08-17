@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan( 12 );
+plan( 6 );
 
 use Set::Relation;
 
@@ -45,18 +45,3 @@ is_deeply( $person_h3.export_as_hash(),
     },
     q{$person_h3.export_as_hash() returns correct output},
 );
-
-is( $person_h1.is_equal( $person_h1 ), Bool::True,
-    q{$person_h1.is_equal( $person_h1 returns Bool::True} );
-is( $person_h1 === $person_h1, Bool::True,
-    q{$person_h1 === $person_h1 returns Bool::True} );
-
-is( $person_h2.is_equal( $person_h1 ), Bool::True,
-    q{$person_h2.is_equal( $person_h1 returns Bool::True} );
-is( $person_h2 === $person_h1, Bool::True,
-    q{$person_h2 === $person_h1 returns Bool::True} );
-
-is( $person_h3.is_equal( $person_h1 ), Bool::False,
-    q{$person_h3.is_equal( $person_h1 returns Bool::False} );
-is( $person_h3 === $person_h1, Bool::False,
-    q{$person_h3 === $person_h1 returns Bool::False} );
