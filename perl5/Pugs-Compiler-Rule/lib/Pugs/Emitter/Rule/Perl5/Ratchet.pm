@@ -772,8 +772,7 @@ sub metasyntax {
             return;
         }
         if ( $cmd eq 'null' ) {
-            warn "<$cmd> not implemented";
-            return;
+            return "$_[1] 1 # null\n"
         }
         if ( exists $char_class{$cmd} ) {
             # XXX - inlined char classes are not inheritable, but this should be ok

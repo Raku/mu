@@ -1,3 +1,5 @@
+- token <null>
+
 0.15  2006-08-16
 
 - stringification is handled by the 'return object', if it exists.

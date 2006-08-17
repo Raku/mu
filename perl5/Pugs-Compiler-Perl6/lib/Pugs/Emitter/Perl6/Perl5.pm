@@ -1296,6 +1296,17 @@ sub variable_declarator {
         return $n->{'variable_declarator'} . ' ' . _emit( $n->{exp1} );
     }
 
+    if ( $n->{'variable_declarator'} eq 'constant' ) {
+        my $name;
+        for (qw( scalar hash array )) {
+            $name = $n->{exp1}{$_} if exists $n->{exp1}{$_}
+        }
+        $name = _emit( $n->{exp1} ) unless $name;
+        my $no_sigil = substr( $name, 1 );
+        $_V6_ENV{$name}{get} = $_V6_ENV{$name}{set} = $no_sigil;
+        return "use constant $no_sigil ";  # TODO - set initial value
+    }
+
     if ( $n->{'variable_declarator'} eq 'state' ) {
         $id++;
         #print "State: $id $name ", Dumper( $n->{exp1} );

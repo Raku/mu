@@ -1,5 +1,5 @@
 
-use Test::More tests => 105;
+use Test::More tests => 107;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -37,6 +37,14 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     my $rule = Pugs::Compiler::Token->compile( '((.) : .) : (.)' );
     my $match = $rule->match( "xyzw" );
     is( $match?1:0, 1, 'booleanify - unnamed rules are objects' );
+    is( "$match", "xyz", 'stringify 1' );
+}
+
+{
+    # <null> is a no-op
+    my $rule = Pugs::Compiler::Token->compile( '((.) <null> .) <null> (.)' );
+    my $match = $rule->match( "xyzw" );
+    is( $match?1:0, 1, '<null>' );
     is( "$match", "xyz", 'stringify 1' );
 }
 
