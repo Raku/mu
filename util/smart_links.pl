@@ -55,7 +55,7 @@ sub process_t_file ($$) {
             #warn "$synopsis $section" if $synopsis eq 'S06';
             $to = $. - 1;
         }
-        elsif (/^ \s* \#? \s* L< (S\d+) \/ ([^\/]+) \/ (.*) /xo) {
+        elsif (/^ \s* \#? \s* L<<? (S\d+) \/ ([^\/]+) \/ (.*) /xo) {
             #warn "$1, $2, $3\n";
             ($synopsis, $section, $pattern) = ($1, $2, $3);
             $section =~ s/^\s+|\s+$//g;
@@ -67,7 +67,7 @@ sub process_t_file ($$) {
             if (substr($pattern, -1, 1) ne '>') {
                 $_ = <$in>;
                 s/^\s+|\s+$//g;
-                if (!/>$/) {
+                if (!s/>>?$//) {
                     error "$infile: line $.: smart links must termanate " .
                         "in the second line.";
                 }
@@ -79,7 +79,7 @@ sub process_t_file ($$) {
             chop $pattern;
             #warn "*$synopsis* *$section* *$pattern*\n";
         }
-        elsif (/^ \s* \#? \s* L< S\d+\b /xoi) {
+        elsif (/^ \s* \#? \s* L<? S\d+\b /xoi) {
             error "$infile: line $.: syntax error in the magic link:\n\t$_";
         }
         else { next; }
@@ -173,7 +173,7 @@ sub process_syn ($$$) {
             my ($t_file, $from) = @{ $link->[1] };
             $from--;
             error "$t_file: line $from: ".
-                "section name ``$section'' not found.";
+                "section name ``$section'' not found in S$syn_id.";
         }
     }
 
