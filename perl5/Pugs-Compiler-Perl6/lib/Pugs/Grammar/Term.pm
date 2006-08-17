@@ -266,6 +266,61 @@ sub recompile {
                 return { term => "self" } 
             }
             ),
+        'my' => q(
+            <?ws> <Pugs::Grammar::Term.parse>
+            <?ws>? <Pugs::Grammar::Perl6.attribute>
+            { 
+                return { 
+                    exp1 => $/{'Pugs::Grammar::Term.parse'}->(),
+                    attribute  => $/{'Pugs::Grammar::Perl6.attribute'}->(),
+                    variable_declarator => "my",
+                } 
+            }
+            ),
+        'our' => q(
+            <?ws> <Pugs::Grammar::Term.parse>
+            <?ws>? <Pugs::Grammar::Perl6.attribute>
+            { 
+                return { 
+                    exp1 => $/{'Pugs::Grammar::Term.parse'}->(),
+                    attribute  => $/{'Pugs::Grammar::Perl6.attribute'}->(),
+                    variable_declarator => "our",
+                } 
+            }
+            ),
+        'has' => q(
+            <?ws> <Pugs::Grammar::Term.parse>
+            <?ws>? <Pugs::Grammar::Perl6.attribute>
+            { 
+                return { 
+                    exp1 => $/{'Pugs::Grammar::Term.parse'}->(),
+                    attribute  => $/{'Pugs::Grammar::Perl6.attribute'}->(),
+                    variable_declarator => "has",
+                } 
+            }
+            ),
+        'state' => q(
+            <?ws> <Pugs::Grammar::Term.parse>
+            <?ws>? <Pugs::Grammar::Perl6.attribute>
+            { 
+                return { 
+                    exp1 => $/{'Pugs::Grammar::Term.parse'}->(),
+                    attribute  => $/{'Pugs::Grammar::Perl6.attribute'}->(),
+                    variable_declarator => "state",
+                } 
+            }
+            ),
+        'constant' => q(
+            <?ws> <Pugs::Grammar::Term.parse>
+            <?ws>? <Pugs::Grammar::Perl6.attribute>
+            { 
+                return { 
+                    exp1 => $/{'Pugs::Grammar::Term.parse'}->(),
+                    attribute  => $/{'Pugs::Grammar::Perl6.attribute'}->(),
+                    variable_declarator => "constant",
+                } 
+            }
+            ),
         q(s) => q(
             <Pugs::Grammar::Term.substitution>
             { return { 

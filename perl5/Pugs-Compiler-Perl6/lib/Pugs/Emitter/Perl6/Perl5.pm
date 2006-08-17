@@ -11,14 +11,19 @@ use Pugs::Emitter::Rule::Perl5::Ratchet;
 use Pugs::Runtime::Common;
 use Digest::MD5 'md5_hex';
 
-# TODO - localize %env at each block
-our %env;
+# TODO - finish localizing %_V6_ENV at each block
+our %_V6_ENV;
 our $id = int( 1000 + rand(9000) );
 
 sub _var_get {
     my $n = $_[0];
-    
-    if ( ! exists $n->{scalar} ) {
+    my $s;
+
+    for ( qw( scalar array hash ) ) {
+        $s = $n->{$_} if exists $n->{$_};
+    }
+
+    if ( ! $s ) {
         if ( exists $n->{bare_block} ) {
             my $block = _emit( $n );
             # TODO - check if it is a comma-delimited list
@@ -29,11 +34,9 @@ sub _var_get {
         return _emit( $n );
     }
 
-    my $s = $n->{scalar};
-
-    return $env{$s}{get}
-        if exists $env{$s} &&
-           exists $env{$s}{get};
+    return $_V6_ENV{$s}{get}
+        if exists $_V6_ENV{$s} &&
+           exists $_V6_ENV{$s}{get};
     
     if ( ref $s eq 'HASH' ) {
         my $v = $s->{match_variable};
@@ -49,10 +52,10 @@ sub _var_get {
 sub _var_set {
     my $s = $_[0];
     
-    #warn "emit: set $s - ", Dumper %env;
+    #warn "emit: set $s - ", Dumper %_V6_ENV;
     
-    return $env{$s}{set}
-        if exists $env{$s}{set};
+    return $_V6_ENV{$s}{set}
+        if exists $_V6_ENV{$s}{set};
     
     # default
     return sub { Pugs::Runtime::Common::mangle_var( $s ) . " = " . $_[0] };
@@ -63,10 +66,26 @@ sub _not_implemented {
     return "die q(not implemented $what: " . Dumper( $n ) . ")";
 }
 
+# modified from http://www.stonehenge.com/merlyn/UnixReview/col30.html
+sub deep_copy {
+    my $this = shift;
+    if (ref $this eq '') {
+        $this;
+    } elsif (ref $this eq "ARRAY") {
+        [map deep_copy($_), @$this];
+    } elsif (ref $this eq "HASH") {
+        +{map { $_ => deep_copy($this->{$_}) } keys %$this};
+    } else { 
+        #print "deep_copy: ", ref($this), "\n";
+        $this;    
+    }
+}
+
 sub emit {
     
     # <audreyt> %Namespace:: = ();  # clear stash
-    local %env;
+    my %old_env = %{ deep_copy( \%_V6_ENV ) };
+    local %_V6_ENV = %old_env;
     
     my ($grammar, $ast) = @_;
     # runtime parameters: $grammar, $string, $state, $arg_list
@@ -155,10 +174,10 @@ sub _emit {
     return _var_get( $n )
         if exists $n->{scalar};
         
-    return Pugs::Runtime::Common::mangle_var( $n->{array} )
+    return _var_get( $n )
         if exists $n->{array};
         
-    return Pugs::Runtime::Common::mangle_var( $n->{hash} )
+    return _var_get( $n )
         if exists $n->{hash};
         
     return _emit_double_quoted($n->{double_quoted})
@@ -199,6 +218,9 @@ sub _emit {
     
     return statement( $n )
         if exists $n->{statement};
+
+    return variable_declarator( $n )
+        if exists $n->{variable_declarator};
 
     return term( $n )
         if exists $n->{term};
@@ -742,7 +764,8 @@ sub statement {
         # Moose: package xxx; use Moose;
         # class Point;
         # print Dumper($n);
-        local %env;
+        my %old_env = %{ deep_copy( \%_V6_ENV ) };
+        local %_V6_ENV = %old_env;
 
         my $id;
         # TODO - anonymous class
@@ -808,6 +831,8 @@ sub statement {
          $n->{statement} eq 'submethod' ||
          $n->{statement} eq 'method'     ) {
         #warn "sub: ",Dumper $n;
+        my %old_env = %{ deep_copy( \%_V6_ENV ) };
+        local %_V6_ENV = %old_env;
 
         my $name = Pugs::Runtime::Common::mangle_ident( $n->{name} );
 
@@ -1191,54 +1216,8 @@ sub prefix {
         return _emit( $n->{exp1} ) . "  # XXX :\$var not implemented\n";
     }
     
-    if ( $n->{op1}{op} eq 'my' ||
-         $n->{op1}{op} eq 'our' ) {
-        #die "not implemented 'attribute'",Dumper $n
-        #    if @{$n->{attribute}};
-        return $n->{op1}{op} . ' ' . _emit( $n->{exp1} );
-    }
-
-    if ( $n->{op1}{op} eq 'state' ) {
-        my $name = _emit( $n->{exp1} );
-        $id++;
-        $env{$name}{get} = $env{$name}{set} = '$_V6_STATE{'.$id.'}';
-        return _emit( $n->{exp1} );
-    }
-
     if ( $n->{op1}{op} eq 'do' ) {
         return $n->{op1}{op} . ' ' . _emit( $n->{exp1} );
-    }
-
-    if ( $n->{op1}{op} eq 'has' ) {
-            # Moose: has 'xxx';
-            # has $x;
-            #warn "has: ",Dumper $n;
-            
-            my $name = _emit( $n->{exp1} );
-            #my $name = _emit( $n->{exp1} );
-            $name =~ s/^\$//;  # remove sigil
-            
-            my $raw_name;
-            $raw_name = $n->{exp1}{scalar} if exists $n->{exp1}{scalar};
-            $env{$raw_name}{set} = sub { 
-                "\$self->" . substr($raw_name,2) . "(" . $_[0] . ")" 
-            };
-            # is rw?
-            #warn Dumper @{$n->{attribute}};
-            my $is_rw = grep { $_->[0]{bareword} eq 'is' &&
-                               $_->[1]{bareword} eq 'rw' } @{$n->{attribute}};
-            $env{$raw_name}{set} = sub { 
-                "\$self->{'" . substr($raw_name,2) . "'} = " . $_[0] 
-            }
-                if $is_rw;
-            
-            my $attr = join( ', ', 
-                map { 
-                    join( ' => ', map { "'" . _emit($_) . "'" } @$_ )
-                } @{$n->{attribute}}
-            );
-
-            return $n->{op1}{op} . " '" . substr($raw_name,2) . "' => ( $attr )";
     }
 
     if ( $n->{op1}{op} eq 'try' ) {
@@ -1307,4 +1286,61 @@ sub ternary {
 
     return _not_implemented( $n, "ternary" );
 }
+
+sub variable_declarator {
+    my $n = $_[0];
+    if ( $n->{'variable_declarator'} eq 'my' ||
+         $n->{'variable_declarator'} eq 'our' ) {
+        #die "not implemented 'attribute'",Dumper $n
+        #    if @{$n->{attribute}};
+        return $n->{'variable_declarator'} . ' ' . _emit( $n->{exp1} );
+    }
+
+    if ( $n->{'variable_declarator'} eq 'state' ) {
+        $id++;
+        #print "State: $id $name ", Dumper( $n->{exp1} );
+        my $name;
+        for (qw( scalar hash array )) {
+            $name = $n->{exp1}{$_} if exists $n->{exp1}{$_}
+        }
+        $name = _emit( $n->{exp1} ) unless $name;
+        my $sigil = substr( $name, 0, 1 );
+        $_V6_ENV{$name}{get} = $_V6_ENV{$name}{set} = 
+            $sigil . '{$_V6_STATE{'.$id.'}}';
+        return _emit( $n->{exp1} );
+    }
+    if ( $n->{'variable_declarator'} eq 'has' ) {
+            # Moose: has 'xxx';
+            # has $x;
+            #warn "has: ",Dumper $n;
+            
+            my $name = _emit( $n->{exp1} );
+            #my $name = _emit( $n->{exp1} );
+            $name =~ s/^\$//;  # remove sigil
+            
+            my $raw_name;
+            $raw_name = $n->{exp1}{scalar} if exists $n->{exp1}{scalar};
+            $_V6_ENV{$raw_name}{set} = sub { 
+                "\$self->" . substr($raw_name,2) . "(" . $_[0] . ")" 
+            };
+            # is rw?
+            #warn Dumper @{$n->{attribute}};
+            my $is_rw = grep { $_->[0]{bareword} eq 'is' &&
+                               $_->[1]{bareword} eq 'rw' } @{$n->{attribute}};
+            if ( $is_rw ) {
+                $_V6_ENV{$raw_name}{set} = sub { 
+                    "\$self->{'" . substr($raw_name,2) . "'} = " . $_[0] 
+                }
+            }
+        
+            my $attr = join( ', ', 
+                map { 
+                    join( ' => ', map { "'" . _emit($_) . "'" } @$_ )
+                } @{$n->{attribute}}
+            );
+
+            return $n->{'variable_declarator'} . " '" . substr($raw_name,2) . "' => ( $attr )";
+    }
+}
+
 1;

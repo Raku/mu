@@ -136,29 +136,6 @@ BEGIN {
         other => 'infix:<+>',
     );
 
-    #for ( qw( print use push pop ) ) {
-    #    __PACKAGE__->add_rule(
-    #        name => $_,
-    #        assoc => 'left',
-    #        precedence => 'equal',
-    #        other => 'say',
-    #    );
-    #}
-    __PACKAGE__->add_rule(
-        name => 'my',
-        assoc => 'left',
-        precedence => 'tighter',
-        other => '=',
-    );
-    for ( qw( our has state ) ) {
-        __PACKAGE__->add_rule(
-            name => $_,
-            assoc => 'left',
-            precedence => 'equal',
-            other => 'my',
-        );
-    }
-
     __PACKAGE__->recompile;
 }
 
