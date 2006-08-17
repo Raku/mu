@@ -433,11 +433,7 @@ uniBlock indent = choice
 
 --A wrapper for nodeNamer, to handle the junk at the beginning of the file.
 parseInput :: Parser [P5AST]
-parseInput = do
-    manyTill anyToken (string "Kids: \n")
-    names <- many (nodeNamer 2)
-    eof 
-    return names
+parseInput = choice [do{try(manyTill anyToken (string "Kids: \n")); names <- many (nodeNamer 2); eof; return names}, return []]
 
 getRidOfExtraSlashes :: String -> String
 getRidOfExtraSlashes [] = []
