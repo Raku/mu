@@ -166,7 +166,9 @@ sub file_name_is_absolute (Str $file) returns Bool is export {
 #    return $cwd;
 #}
 sub cwd returns Str is export {
-  return '\\';
+  # This seems wrong - limbic_region 2006-08-17
+  #return '\\';
+  return $*CWD;
 }
 
 sub tmpdir returns Str is export {
