@@ -62,7 +62,9 @@ sub pmc_compile {
          use strict;
          no strict 'refs';
          no warnings ('void', 'uninitialized');
-         \$::_V6_COMPILER_OS = '$^O';
+         \$::_V6_COMPILER_OS      = '$^O';
+         \$::_V6_COMPILER_NAME    = 'v6.pm';
+         \$::_V6_COMPILER_VERSION = '$v6::VERSION';
          my \%_V6_PAD;
          our \%_V6_STATE;
         " .  

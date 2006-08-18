@@ -2,7 +2,8 @@
 - fixed '{}' (empty hash)
 - implemented additional Array and Hash methods
 - $?PUGS_BACKEND returns 'BACKEND_PERL5'
-- implemented @*INC, $?OS
+- implemented @*INC, $?OS, $?COMPILER, $?VERSION
+
 - %hash = ( { a => 1 }, { b => 2 } ) works
 - 'my' works inside '//' and 'err'
 

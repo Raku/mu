@@ -38,7 +38,9 @@ our %perl6_name = (
     '$::_V6_STDIN'  => '$*IN',  
     '$::_V6_STDOUT' => '$*OUT',  
     '$::_V6_BACKEND'=> '$?PUGS_BACKEND',
-    '$::_V6_COMPILER_OS' => '$?OS',
+    '$::_V6_COMPILER_OS'      => '$?OS',
+    '$::_V6_COMPILER_NAME'    => '$?COMPILER', 
+    '$::_V6_COMPILER_VERSION' => '$?VERSION',
 );
 our %perl5_name = reverse %perl6_name;
 
