@@ -1,9 +1,11 @@
-# yet another util/catalog_tests.pl.
+# util/smart_links.pl - The successor to util/catalog_tests.pl.
 
+# Please look at t/README for documentation.
+# See uitl/t/smart_links.t for unit tests and usage of the internal API.
 # This script is still under development.
 # Contact agentzh on #perl6 if you have a patch or some good idea for this tool.
 # Currently you can use it to verify the smart link used in your script:
-#   perl util/smart_links.pl --check t/some/test.t
+#   $ perl util/smart_links.pl --check t/some/test.t
 # The HTML outputing feature will be implemented *very* soon.
 
 use strict;
@@ -31,13 +33,8 @@ sub add_link ($$$$$$$)  {
     $count++;
 }
 
-sub error ($) {
-    my ($msg) = @_;
-    if ($check) {
-        die "$msg\n";
-    } else {
-        warn "$msg\n";
-    }
+sub error {
+    warn "@_\n";
 }
 
 sub process_t_file ($$) {
@@ -66,17 +63,17 @@ sub process_t_file ($$) {
             $pattern =~ s/^\s+|\s+$//g;
             if (substr($pattern, -1, 1) ne '>') {
                 $_ = <$in>;
-                s/^\s+|\s+$//g;
+                s/^\s*\#?\s*|\s+$//g;
                 if (!s/>>?$//) {
-                    error "$infile: line $.: smart links must termanate " .
+                    error "$infile: line $.: smart links must termanate",
                         "in the second line.";
                 }
-                $pattern .= $_;
+                $pattern .= " $_";
                 $to = $. - 2;
             } else {
                 $to = $. - 1;
+                chop $pattern;
             }
-            chop $pattern;
             #warn "*$synopsis* *$section* *$pattern*\n";
         }
         elsif (/^ \s* \#? \s* L<? S\d+\b /xoi) {
@@ -145,6 +142,43 @@ sub emit_pod ($) {
     $str;
 }
 
+# convert patterns used in smartlinks to perl 5 regexes
+sub parse_pattern ($) {
+    my $pat = shift;
+    if ($pat =~ m{^/(.*)/}) {
+        return $1;
+    }
+    my @keys;
+    while (1) {
+        if ($pat =~ /\G\s*"([^"]+)"/gco ||
+            $pat =~ /\G\s*'([^']+)'/gco ||
+            $pat =~ /\G\s*(\S+)/gco) {
+                push @keys, $1;
+        } else { last }
+    }
+    my $str = join('.*?', map quotemeta, @keys);
+    $str;
+}
+
+# process paragraphs of the synopses: unwrap lines, strip POD tags, and etc.
+sub process_paragraph ($) {
+    my $str = shift;
+
+    # unwrap lines:
+    $str =~ s/\s*\n\s*/ /go;
+
+    # strip POD tags:
+    $str =~ s/L<<(.*?)>>/$1/go;
+    $str =~ s/L<(.*?)>/$1/go;
+    $str =~ s/C<<(.*?)>>/$1/go;
+    $str =~ s/C<(.*?)>/$1/go;
+    $str =~ s/I<<(.*?)>>/$1/go;
+    $str =~ s/I<(.*?)>/$1/go;
+    $str =~ s/B<<(.*?)>>/$1/go;
+    $str =~ s/B<(.*?)>/$1/go;
+    $str;
+}
+
 sub process_syn ($$$) {
     my ($infile, $out_dir, $links) = @_;
     my $syn_id;
@@ -165,15 +199,34 @@ sub process_syn ($$$) {
     if (!$sections) {
         return;
     }
-    for my $section (keys %$sections) {
+    while (my ($section, $links) = each %$sections) {
         #warn "checking $section...";
-        my @links = @{ $sections->{$section} };
-        if (!$podtree->{$section}) {
+        my @links = @$links;
+        my $paras = $podtree->{$section};
+        if (!$paras) {
             my $link = $links[0];
             my ($t_file, $from) = @{ $link->[1] };
             $from--;
-            error "$t_file: line $from: ".
-                "section name ``$section'' not found in S$syn_id.";
+            error "$t_file: line $from:",
+                "section ``$section'' not found in S$syn_id.";
+        }
+        for my $link (@links) {
+            my ($pattern, $location) = @$link;
+            my $regex = parse_pattern($pattern);
+            my $i = 0; my $matched;
+            for my $para (@$paras) {
+                next if !$para;
+                if (process_paragraph($para) =~ /$regex/) {
+                    # splice @$paras, $i, 0, gen_snippet($location);
+                    $matched = 1;
+                }
+            } continue { $i++ }
+            if (!$matched) {
+                my ($file, $lineno) = @$location;
+                $lineno--;
+                error("$file: line $lineno: pattern <$pattern> failed to match any",
+                    "paragraph in L<S${syn_id}/${section}>.");
+            }
         }
     }
 
@@ -183,10 +236,10 @@ sub process_syn ($$$) {
     #    use File::Slurp;
     #    write_file("S$syn_id.pod", $pod);
     #}
-    warn "$syn_id: $infile\n";
+    #warn "$syn_id: $infile\n";
 }
 
-MAIN: {
+sub main {
     my ($syn_dir, $out_dir);
     GetOptions(
         'check'   => \$check,
@@ -215,4 +268,9 @@ MAIN: {
         process_syn($syn, $out_dir, $links);
     }
     exit if $check;
+    exit;
 }
+
+main() if ! caller;
+
+1;
