@@ -17,7 +17,7 @@ module LWP::Simple-0.0.1;
 # $VERSION = sprintf("%d.%02d", q$Revision: 1.41 $ =~ /(\d+)\.(\d+)/);
 # $FULL_LWP++ if grep {lc($_) eq "http_proxy"}, keys %*ENV;
 
-# my $CRLF = rx:perl5/\015?\012/;
+# my $CRLF = rx:perl5/\x0D?\x0A/;
 my $CRLF = "\x0D\x0A\x0D\x0A";
 my $VERSION = "0.0.1";
 
@@ -67,7 +67,7 @@ sub head (Str $url) is export {
   # This should all be done better so the response doesn't live in
   # memory all at once
 
-  if ($head ~~ rx:Perl5{^HTTP\/\d+\.\d+\s+(\d+) (?:.*?\015?\012)((?:.*?\015?\012)*?)\015?\012}) {
+  if ($head ~~ rx:Perl5{^HTTP\/\d+\.\d+\s+(\d+) (?:.*?\x0D?\x0A)((?:.*?\x0D?\x0A)*?)\x0D?\x0A}) {
     my ($code,$head) = ($0,$1);
 
     # if (want.Boolean) {
@@ -83,7 +83,7 @@ sub head (Str $url) is export {
     #if (want.Item) {
       return $head
     #};
-    # my @list = "X-LWP-HTTP-Status: $code", (split rx:perl5/\015?\012/, $head);
+    # my @list = "X-LWP-HTTP-Status: $code", (split rx:perl5/\x0D?\x0A/, $head);
     #if (want.List) { return @list };
     #if (want.Hash) {
     #  my %res = map { rx:perl5/^(.*?): (.*)/; ($0 => $1) }, @list;
@@ -126,7 +126,7 @@ sub _trivial_http_get (Str $url) returns Str {
   # This should all be done better so the response doesn't live in
   # memory all at once
 
-  # if ($buffer ~~ s:perl5{^HTTP\/\d+\.\d+\s+(\d+)([^\012]*?\015?\012)+?\015?\012}{}) {
+  # if ($buffer ~~ s:perl5{^HTTP\/\d+\.\d+\s+(\d+)([^\012]*?\x0D?\x0A)+?\x0D?\x0A}{}) {
   if ($buffer ~~ s:Perl5{^HTTP\/\d+\.\d+\s+(\d+)([^\x0A]*?\x0D?\x0A)+?\x0D?\x0A}{}) {
     my $code = $0;
 
