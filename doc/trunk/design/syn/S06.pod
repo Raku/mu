@@ -15,7 +15,7 @@ Allison Randal <al@shadowed.net>
   Date: 21 Mar 2003
   Last Modified: 18 Aug 2006
   Number: 6
-  Version: 51
+  Version: 52
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -2548,3 +2548,7 @@ the previous declaration had been:
 then you could invoke the program with either C<-f> or C<--frompart>
 to specify the first parameter.  Likewise you could use either C<-t>
 or C<--topart> for the second parameter.
+
+If a switch of the form C<-abc> cannot be matched against any
+particular parameter, an attempt will be made to match it as if it
+had been written C<-a -b -c>.
