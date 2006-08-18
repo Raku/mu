@@ -14,8 +14,9 @@ use warnings;
 use YAML::Syck;
 use Getopt::Long;
 use File::Basename;
+use FindBin;
 
-my ($check, $count);
+my ($check, $count, $broken_count);
 
 my %Spec = reverse qw(
     01 Overview 02 Syntax       03 Operator     04 Block
@@ -34,7 +35,7 @@ sub add_link ($$$$$$$)  {
 }
 
 sub error {
-    warn "@_\n";
+    warn "ERROR: @_\n";
 }
 
 sub process_t_file ($$) {
@@ -209,6 +210,7 @@ sub process_syn ($$$) {
             $from--;
             error "$t_file: line $from:",
                 "section ``$section'' not found in S$syn_id.";
+            $broken_count++;
         }
         for my $link (@links) {
             my ($pattern, $location) = @$link;
@@ -231,6 +233,7 @@ sub process_syn ($$$) {
                 $lineno--;
                 error("$file: line $lineno: pattern <$pattern> failed to match any",
                     "paragraph in L<S${syn_id}/${section}>.");
+                $broken_count++;
             }
         }
     }
@@ -244,13 +247,31 @@ sub process_syn ($$$) {
     #warn "$syn_id: $infile\n";
 }
 
+sub Usage {
+    print <<_EOC_;
+Usage:
+  util/smart_links.pl --check t/*/*.t t/*/*/*.t
+  util/smart_links.pl --check t/some/test.t
+_EOC_
+    exit(0);
+}
+
 sub main {
-    my ($syn_dir, $out_dir);
+    my ($syn_dir, $out_dir, $help);
     GetOptions(
         'check'   => \$check,
         'syn-dir' => \$syn_dir,
         'out-dir' => \$out_dir,
+        'help'    => \$help,
     );
+
+    if ($help || !@ARGV) {
+        Usage();
+    }
+
+    $count = 0;
+    $broken_count = 0;
+    
     $out_dir ||= 'tmp';
     mkdir $out_dir if !-d $out_dir;
 
@@ -261,17 +282,19 @@ sub main {
         process_t_file($t_file, $links);
     }
     #print Dump($links);
-    warn "  info: $count smart links found.\n";
 
-    $syn_dir ||= 'docs/Perl6/Spec';
+    my $pugs_syn_dir = "$FindBin::Bin/../docs/Perl6/Spec";
+    $syn_dir ||= $pugs_syn_dir;
 
-    if ($syn_dir eq 'docs/Perl6/Spec') {
+    if ($syn_dir eq $pugs_syn_dir) {
         system "$^X $syn_dir/update";
     }
     my @syns = map glob, "$syn_dir/*.pod";
     for my $syn (@syns) {
         process_syn($syn, $out_dir, $links);
     }
+    warn "INFO: for total $count smartlinks found.\n";
+    warn "INFO: $broken_count smartlinks broken.\n";
     exit if $check;
     exit;
 }
