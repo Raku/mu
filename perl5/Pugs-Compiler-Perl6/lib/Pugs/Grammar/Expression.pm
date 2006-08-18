@@ -45,33 +45,60 @@ my $rx_end_no_blocks = qr/
                 )
             /xs;
 
+our ( $p, $match, $pos, $rx_end );
+our $reentrant;
+
 sub ast {
-    my $match = shift;
+    local ( $p, $match, $pos, $rx_end )
+        if $reentrant;
+    $reentrant++;
+    #print " $reentrant ";
+
+    $match = shift;
     my $param = shift;
-    my $pos = $param->{p} || 0;
+    $pos = $param->{p} || 0;
     #my $s = substr( $_[0], $pos );
     #print "pos: $pos\n";
 
     my $no_blocks = exists $param->{args}{no_blocks} ? 1 : 0;
     #warn "don't parse blocks: $no_blocks ";
-    my $rx_end = $no_blocks 
+    $rx_end = $no_blocks 
                 ? $rx_end_no_blocks
                 : $rx_end_with_blocks;
 
     $match .= '';
     if ( substr( $match, $pos ) =~ /$rx_end/ ) {
         # end of parse
+        $reentrant--;
         return (undef, $match);
     }
     #print "Grammar::Expression::ast '$match' \n";
-    my $p;
-    my $last = length( $match );
-    
-    my $lex = sub {
+
+    $p = Pugs::Grammar::Operator->new(
+        yylex => sub {
+            my ( $label, $node );
+            ( $label, $node, $pos ) = lexer( $match, $pos, $rx_end );
+            ( $label, $node );
+        },
+        yyerror => sub { 
+            local $Carp::CarpLevel = 2;
+            croak "parsing error in Expression: ..." . substr($match,0,30) . "... "; 
+        },
+    ) unless $p;
+
+    my $out=$p->YYParse(yydebug => 0);
+    #print Dumper $out;
+    $reentrant--;
+    return ( $out, $pos );
+}
+
+sub lexer {
+    my ( $match, $pos, $rx_end ) = @_;
+
         #print "Grammar::Expression::ast::lex '$match' \n";
         if ( substr( $match, $pos ) =~ /$rx_end/ ) {
             #warn "end of expression at: [",substr($match,0,10),"]";
-            return ('', '');
+            return ('', '', $pos);
         }
 
         my @expect = $p->YYExpect;  # XXX is this expensive?
@@ -262,7 +289,7 @@ sub ast {
             $m = $m1 if $m1;
             $m = $m2 if $m2;
         }
-        return ('','') unless ref $m;
+        return ('','', $pos) unless ref $m;
         #print "Term or expression: ",Dumper $m->data;
 
 # <fglock> like: ( name 1, 2 or 3 ) - is it parsed as name(1,2 or 3) or (name(1,2) or 3)
@@ -305,20 +332,7 @@ sub ast {
         #print "token: $$t[0] ", Dumper( $$t[1] ); #, $match;
         #print "expect: ", Dumper( @expect );
 
-        return($$t[0],$$t[1]);
-    };
-
-    $p = Pugs::Grammar::Operator->new(
-        yylex => $lex, 
-        yyerror => sub { 
-            local $Carp::CarpLevel = 2;
-            croak "parsing error in Expression: ..." . substr($match,0,30) . "... "; 
-        },
-    );
-
-    my $out=$p->YYParse(yydebug => 0);
-    #print Dumper $out;
-    return ( $out, $pos );
+        return($$t[0],$$t[1], $pos );
 }
 
 1;
