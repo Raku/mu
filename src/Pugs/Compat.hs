@@ -189,6 +189,7 @@ setFileMode :: FilePath -> FileMode -> IO ()
 setFileMode _ _ = warnWith "chmod"
 
 newtype DirStream = DirStream (Ptr CDir)
+    deriving (Typeable)
 
 openDirStream :: FilePath -> IO DirStream
 openDirStream name =
