@@ -369,7 +369,7 @@ sub build_exe {
     print "*** Building: ", join(' ', $ghc, @_), $/;
     system $ghc, @_;
 
-    die "Build failed: $?" unless -e "pugs$Config{_exe}";
+    die "Build failed: $?" unless -e $out;
 }
 
 sub write_buildinfo { 
