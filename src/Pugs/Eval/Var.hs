@@ -587,18 +587,17 @@ constSym = return . Just . VStr
 
 findSyms :: Var -> Eval [(Var, Val)]
 findSyms var
-    | Just var' <- dropVarPkg (__"OUTER") var = do
-        maybeOuter <- asks envOuter
-        case maybeOuter of
-            Just env -> local (const env) $ findSyms var'
-            Nothing  -> return []
-findSyms var = do
-    runMaybeT findAll >>= maybe (return []) return
+    | isGlobalVar var    = findWith findGlobal
+    | isQualifiedVar var = case dropVarPkg (__"OUTER") var of
+        Just var' -> do
+            maybeOuter <- asks envOuter
+            case maybeOuter of
+                Just env -> local (const env) $ findSyms var'
+                Nothing  -> return []
+        _              -> findWith findQualified
+    | otherwise         = findWith (findLexical `mplus` findPackage)
     where
-    findAll
-        | isGlobalVar var       = findGlobal
-        | isQualifiedVar var    = findQualified
-        | otherwise             = findLexical `mplus` findPackage
+    findWith f = runMaybeT f >>= maybe (return []) return
 
     -- $x should look up $x in the current pad first.
     findLexical :: MaybeT Eval [(Var, Val)]
