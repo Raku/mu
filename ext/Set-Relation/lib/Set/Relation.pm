@@ -12,8 +12,8 @@ module Set::Relation-0.1.0 {
 
 ###########################################################################
 
-sub heading of Set::Relation::H (:%attrs?) is export {
-    return Set::Relation::H.new( :attrs(%attrs) );
+sub heading of Set::Relation::H (Hash :$attrs?) is export {
+    return Set::Relation::H.new( :attrs($attrs) );
 }
 
 multi sub infix:<===> of Bool
@@ -29,26 +29,26 @@ multi sub infix:<===> of Bool
 ###########################################################################
 
 class Set::Relation::H-0.1.0 {
-#    has %!attrs = {}; # may be needed for prototype object to work right?
-    has %!attrs; # but if we like implicit autoviv, this version is better
+#    has Hash $!attrs = {}; # may be needed for prototype object to work right?
+    has Hash $!attrs; # but if we like implicit autoviv, this version is better
     
 #    multi Set::Relation::H () { ::?CLASS.new() } # for prototype?
 
 ###########################################################################
 
-submethod BUILD (:%attrs?) {
+submethod BUILD (Hash :$attrs?) {
 # TOFIX: The first following line produces a different (incorrect) result but shouldn't
-#    for all(%attrs.pairs).values -> $attr {
-    for %attrs.pairs -> $attr {
+#    for all($attrs.pairs).values -> $attr {
+    for $attrs.pairs -> $attr {
         my ($attr_name, $attr_type) = $attr.kv;
-        die q{Invalid :%attrs argument; at least one of its keys is not}
+        die q{Invalid :$attrs argument; at least one of its keys is not}
                 ~ q{ a valid attribute name.}
             if !$attr_name.does(Str) or $attr_name eq $EMPTY_STR;
         if !$attr_type.does(Pair) {
             $attr_type = ('Scalar' => $attr_type);
         }
         my ($major_type, $minor_type) = $attr_type.kv;
-        die q{Invalid :%attrs argument; at least one of its values is a}
+        die q{Invalid :$attrs argument; at least one of its values is a}
                 ~ q{ Pair whose key is not a valid attribute major type.}
             if !$major_type.does(Str);
         if $major_type eq 'Scalar' {
@@ -64,10 +64,10 @@ submethod BUILD (:%attrs?) {
             }
         }
         else {
-            die q{Invalid :%attrs argument; at least one of its values is a}
+            die q{Invalid :$attrs argument; at least one of its values is a}
                 ~ q{ Pair whose key is not a valid attribute major type.}
         }
-        %!attrs{$attr_name} = ($major_type => $minor_type);
+        $!attrs{$attr_name} = ($major_type => $minor_type);
     }
     return;
 }
@@ -76,7 +76,7 @@ submethod BUILD (:%attrs?) {
 
 method export_as_hash () returns Hash {
     return {
-        'attrs' => {%!attrs},
+        'attrs' => hash($!attrs),
     };
 }
 
@@ -86,10 +86,10 @@ method is_equal of Bool (::?CLASS $other!) {
     if $other !=:= self {
         return Bool::False;
     }
-    if $other!attrs !=:= %!attrs {
+    if $other!attrs !=:= $!attrs {
         return Bool::False;
     }
-    if $other!attrs !eqv %!attrs {
+    if $other!attrs !eqv $!attrs {
         return Bool::False;
     }
     return Bool::True;
