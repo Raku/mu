@@ -9,7 +9,20 @@ use Getopt::Long;
 use Test::Harness;
 
 my ($pugs, $pir, $perl5, $help);
+my $blib = 0;
+my $lib = 0;
+my @includes = ();
+my @switches = ();
 
+# Allow cuddling the paths with the -I
+@ARGV = map { /^(-I)(.+)/ ? ($1,$2) : $_ } @ARGV;
+
+# Stick any default switches at the beginning, so they can be overridden
+# by the command line switches.
+#unshift @ARGV, split( " ", $ENV{PROVE_SWITCHES} ) if defined $ENV{PROVE_SWITCHES};
+
+Getopt::Long::Configure( "no_ignore_case" );
+Getopt::Long::Configure( "bundling" );
 GetOptions(
     haskell     => \$pugs,
     pugs        => \$pugs,
@@ -22,7 +35,13 @@ GetOptions(
     'v6-alpha'  => \$perl5,
     
     help        => \$help,
-);
+
+    'b|blib'        => \$blib,
+    'l|lib'         => \$lib,
+    'v|verbose'     => \$Test::Harness::verbose,
+) or exit 1;
+
+$ENV{TEST_VERBOSE} = 1 if $Test::Harness::verbose;
 
 if ($help) {
     print <<'_EOC_';
@@ -44,6 +63,10 @@ Options:
     --perl       ditto
     --v6-alpha   ditto
 
+    -b, --blib    Adds blib/lib to the path for your tests, a la "use blib".
+    -l, --lib     Add lib to the path for your tests.
+    -v, --verbose Display standard output of test scripts while running them.
+
 _EOC_
     exit(0);
 }
@@ -57,6 +80,26 @@ my @tfiles = sort map glob, @ARGV;
 $ENV{PERL6LIB} ||= 'blib6/lib';
 my $sep = ($^O eq 'MSWin32')? ';' : ':';
 #warn $sep;
+
+# Handle blib includes
+if ( $blib ) {
+    my @blibdirs = blibdirs();
+    if ( @blibdirs ) {
+        unshift @includes, @blibdirs;
+    } else {
+        warn "No blib directories found.\n";
+    }
+}
+
+# Handle lib includes
+if ( $lib ) {
+    unshift @includes, "lib";
+}
+
+# Build up TH switches
+push( @switches, map { /\s/ && !/^".*"$/ ? qq["-I$_"] : "-I$_" } @includes );
+$Test::Harness::Switches = join( " ", @switches );
+print "# \$Test::Harness::Switches: $Test::Harness::Switches\n" if $Test::Harness::debug;
 
 if ($perl5) {
     warn "  info: Harness with v6.pm.\n";
@@ -89,3 +132,30 @@ if ($perl5) {
 }
 
 runtests(@tfiles);
+
+# Stolen directly from 'prove', which stole from blib.pm
+sub blibdirs {
+    my $dir = File::Spec->curdir;
+    if ($^O eq 'VMS') {
+        ($dir = VMS::Filespec::unixify($dir)) =~ s-/\z--;
+    }
+    my $archdir = "arch";
+    if ( $^O eq "MacOS" ) {
+        # Double up the MP::A so that it's not used only once.
+        $archdir = $MacPerl::Architecture = $MacPerl::Architecture;
+    }
+
+    my $i = 5;
+    while ($i--) {
+        my $blib      = File::Spec->catdir( $dir, "blib" );
+        my $blib_lib  = File::Spec->catdir( $blib, "lib" );
+        my $blib_arch = File::Spec->catdir( $blib, $archdir );
+
+        if ( -d $blib && -d $blib_arch && -d $blib_lib ) {
+            return ($blib_arch,$blib_lib);
+        }
+        $dir = File::Spec->catdir($dir, File::Spec->updir);
+    }
+    warn "$0: Cannot find blib\n";
+    return;
+}

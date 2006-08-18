@@ -16,6 +16,8 @@ all the perl5 modules without installing ghc first.
 
 == Test, Examples and Documentations
 
+* Updated util/prove6 to work better when used outside of the pugs try.
+The "--blib", "--lib" and "--verbose" options from prove were added.
 * Updated all tests and examples plus in some docs and other files to
 remove the #/usr/bin/pugs shebangs and variants thereof.
 * Replaced all "use v6-pugs;" and "use v6;" with "use v6-alpha;" in mostly
