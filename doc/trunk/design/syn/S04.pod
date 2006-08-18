@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 17 Aug 2006
+  Last Modified: 18 Aug 2006
   Number: 4
-  Version: 36
+  Version: 37
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -636,7 +636,7 @@ exceptions and exit values:
        UNDO {...}	at every unsuccessful block exit, part of LEAVE queue
 
       FIRST {...}*	at loop initialization time, before any ENTER
-       NEXT {...}	at loop continuation time, after any LEAVE
+       NEXT {...}	at loop continuation time, before any LEAVE
        LAST {...}	at loop termination time, after any LEAVE
 
         PRE {...}	assert precondition at every block entry, before any
@@ -707,8 +707,14 @@ around every method in the class.)  C<KEEP> and C<UNDO> are just variants
 of C<LEAVE>, and for execution order are treated as part of the queue of
 C<LEAVE> blocks.
 
-C<FIRST>, C<NEXT>, and C<LAST> are meaningful only within the lexical scope
-of a loop, and may occur only at the top level of such a loop block.
+C<FIRST>, C<NEXT>, and C<LAST> are meaningful only within the
+lexical scope of a loop, and may occur only at the top level of such
+a loop block.  A C<NEXT> executes only if the end of the loop block is
+reached normally, or an explicit C<next> is executed.  In distinction
+to C<LEAVE> blocks, a C<NEXT> block is not executed if the loop block
+is exited via any exception other than the control exception thrown
+by C<next>.  In particular, a C<last> bypasses evaluation of C<NEXT>
+blocks.
 
 [Note: the name C<FIRST> used to be associated with C<state>
 declarations.  Now it is associated only with loops.  See the C<START>

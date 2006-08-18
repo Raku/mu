@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 17 Aug 2006
+  Last Modified: 18 Aug 2006
   Number: 12
-  Version: 20
+  Version: 21
 
 =head1 Overview
 
@@ -730,7 +730,7 @@ that name.  There is no fail-over from subroutine to method dispatch.
 =head1 Multi dispatch
 
 Multi submethods work just like multi subs except they are constrained
-to an exact type match on the first invocant.
+to an exact type match on the invocant.
 
 Perl 6.0.0 is not required to support multiple dispatch on named parameters,
 only on positional parameters.  Note that most builtins will map known
@@ -742,7 +742,7 @@ is one.
 
 Attributes are tied to a particular class definition, so a multi method
 can only directly access the attributes of a class it's defined within
-when the first invocant is the "self" of that attribute.
+when the invocant is the "self" of that attribute.
 However, it may call the private attribute accessors from a different
 class if that other class has indicated that it trusts the class the
 multi method is defined in:

@@ -499,7 +499,7 @@ same precedence:
     $obj.set_name("Sam");   # same as the above
 
 An invocant is the topic of the corresponding method if that formal
-parameter is declared with the name C<$_>.  A method's first invocant
+parameter is declared with the name C<$_>.  A method's invocant
 always has the alias C<self>.  Other styles of self can be declared
 with the C<self> pragma.
 
