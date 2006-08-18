@@ -395,7 +395,7 @@ findSub _var _invs _args = case _invs of
             maybeM rv $ \code -> return $ mkPrim
                 { subName     = buf
                 , subType     = SubPrim
-                , subAssoc    = "spre"
+                , subAssoc    = ANil
                 , subParams   = makeParams $
                     if any isLValue (subParams code)
                         then ["rw!List"] -- XXX - does not yet work for the [=] case
@@ -411,14 +411,14 @@ findSub _var _invs _args = case _invs of
         buf = cast name
 
 metaVar :: Pkg -> Var
--- metaVar = MkVar SType TNone globalPkg CNone . cast
+-- metaVar = MkVar SType TNil globalPkg CNil . cast
 metaVar pkg = cast (':':'*':cast pkg)
     {-
 MkVar
     { v_sigil   = SType
     , v_twigil  = TGlobal
     , v_package = emptyPkg
-    , v_categ   = CNone
+    , v_categ   = CNil
     , v_name    = cast pkg
     }
     -}
@@ -586,6 +586,12 @@ constSym :: String -> Eval (Maybe Val)
 constSym = return . Just . VStr
 
 findSyms :: Var -> Eval [(Var, Val)]
+findSyms var
+    | Just var' <- dropVarPkg (__"OUTER") var = do
+        maybeOuter <- asks envOuter
+        case maybeOuter of
+            Just env -> local (const env) $ findSyms var'
+            Nothing  -> return []
 findSyms var = do
     runMaybeT findAll >>= maybe (return []) return
     where
@@ -634,10 +640,9 @@ findSyms var = do
         
 arityMatch :: VCode -> Int -> Int -> Maybe VCode
 arityMatch sub@MkCode{ subAssoc = assoc, subParams = prms } argLen argSlurpLen
-    | assoc == "list" || assoc == "chain"
-    = Just sub
+    | A_list <- assoc = Just sub
+    | A_chain <- assoc = Just sub
     | isNothing $ find (not . isSlurpy) prms -- XXX - what about empty ones?
-    , assoc == "pre"
     , slurpLen <- length $ filter (\p -> isSlurpy p && v_sigil (paramName p) == SScalar) prms
     , hasArray <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) /= SScalar) prms
     , if hasArray then slurpLen <= argSlurpLen else slurpLen == argSlurpLen
@@ -659,9 +664,8 @@ packageOf :: Var -> Pkg
 packageOf = v_package
 
 toQualified :: Var -> Eval Var
-toQualified var
-    | TNone /= v_twigil var     = return var
-    | emptyPkg /= v_package var = return var
-    | otherwise                 = do
-        pkg <- asks envPackage
-        return var{ v_package = pkg }
+toQualified var@MkVar{ v_twigil = TNil, v_package = pkg }
+    | pkg == emptyPkg = do
+        currentPkg <- asks envPackage
+        return var{ v_package = currentPkg }
+toQualified var = return var
