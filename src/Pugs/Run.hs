@@ -155,6 +155,8 @@ prepareEnv name args = do
         -- If you change the name or contents of $?PUGS_BACKEND, be sure
         -- to update all t/ and perl5/{PIL2JS,PIL-Run} as well.
         , gen "$?PUGS_BACKEND" $ MkRef $ constScalar (VStr "BACKEND_PUGS")
+        , gen "$?COMPILER"   $ MkRef $ constScalar (VStr "Pugs")
+        , gen "$?VERSION"    $ MkRef $ constScalar (VStr $ getConfig "pugs_versnum")
         , gen "$*OS"         $ hideInSafemode $ MkRef $ constScalar (VStr $ getConfig "osname")
         , gen "&?BLOCK_EXIT" $ codeRef $ mkPrim
             { subName = cast "&?BLOCK_EXIT"
