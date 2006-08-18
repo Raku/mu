@@ -212,8 +212,13 @@ sub process_syn ($$$) {
         }
         for my $link (@links) {
             my ($pattern, $location) = @$link;
+            if (!$pattern) { # match the whole section
+                # unshift @$paras, gen_snippet($location);
+                next;
+            }
             my $regex = parse_pattern($pattern);
-            my $i = 0; my $matched;
+            my $i = 0;
+            my $matched;
             for my $para (@$paras) {
                 next if !$para;
                 if (process_paragraph($para) =~ /$regex/) {
