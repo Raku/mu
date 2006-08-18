@@ -20,12 +20,11 @@ import Text.ParserCombinators.Parsec.Pos
 import qualified Data.Map as Map
 
 satisfy :: (Char -> Bool) -> RuleParser Char
-satisfy f = do
-    rv <- tokenPrim (\c -> show [c]) 
-                    (\pos c _ -> updatePosChar pos c) 
-                    (\c -> if f c then Just c else Nothing)
-    modify $ \state -> state{ ruleChar = rv }
-    return rv
+satisfy f = tokenPrimEx
+    (\c -> show [c]) 
+    (\pos c _ -> updatePosChar pos c) 
+    (Just (\_ c _ state -> state{ ruleChar = c }))
+    (\c -> if f c then Just c else Nothing)
 
 string :: String -> RuleParser String
 string s = do
@@ -111,9 +110,9 @@ data DynParsers = MkDynParsersEmpty | MkDynParsers
 State object that gets passed around during the parsing process.
 -}
 data RuleState = MkRuleState
-    { ruleEnv           :: !Env
-    , ruleParseProgram  :: !(Env -> FilePath -> String -> Env)
-    , ruleDynParsers    :: !DynParsers -- ^ Cache for dynamically-generated
+    { ruleEnv           :: Env
+    , ruleParseProgram  :: (Env -> FilePath -> String -> Env)
+    , ruleDynParsers    :: DynParsers  -- ^ Cache for dynamically-generated
                                        --     parsers
     , ruleBracketLevel  :: !BracketLevel
                                        -- ^ The kind of "bracket" we are in
@@ -121,7 +120,7 @@ data RuleState = MkRuleState
     , ruleChar          :: !Char       -- ^ What the previous character contains
     , ruleName          :: !String     -- ^ Capture name
     , rulePos           :: !Int        -- ^ Capture position
-    , ruleBlockPads     :: !(Map Scope Pad)
+    , ruleBlockPads     :: Map Scope Pad
                                        -- ^ Hoisted pad for this block
     }
 
