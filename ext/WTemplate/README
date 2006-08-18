@@ -11,7 +11,7 @@ the output. You can assign variables to a template, and those
 variables will be replaced in the template. Widgets are
 template elements (looks like HTML elements), and if the
 engine read one, then call a subroutine. You can define
-paramters for the widgets - it will be passed to the
+parameters for the widgets - it will be passed to the
 subroutine.
 
 --------------------------------------------------------------
@@ -65,7 +65,7 @@ does nothing, but gets the hash's element with the
 name defined by parameter 'id'.
 
 In the widget, we get to paramaters, the first hash
-contains the widget's paramters, coming from the template,
+contains the widget's parameters, coming from the template,
 the second hash is the same one, we passed to the 'fill_with'
 subroutine.
 
