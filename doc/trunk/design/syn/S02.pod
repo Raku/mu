@@ -471,10 +471,15 @@ about failures (i.e. unthrown exceptions):
 
     my Int $x = undef;    # works
 
-Variables with native types does not support undefinedness: it is an error
+Variables with native types do not support undefinedness: it is an error
 to assign an undefined value to them:
 
     my int $y = undef;    # dies
+
+Conjecture: num might support the autoconversion of undef to NaN, since
+the floating-point form can represent this concept.  Might be better
+to make that conversion optional though, so that the rocket designer
+can decide whether to self-destruct immediately or shortly thereafter.
 
 =item *
 
