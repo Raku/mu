@@ -974,6 +974,21 @@ sub infix {
     my $n = $_[0];
     #print "infix: ", Dumper( $n );
 
+    if ( $n->{op1}{op} eq 'xx' ) {
+        return 
+            'do { my @_V6_TMP1 = ' . _emit( $n->{exp1} ) . '; ' . 
+            ' my @_V6_TMP2; push @_V6_TMP2, @_V6_TMP1 for 1..' . 
+            _emit( $n->{exp2} ) . '; @_V6_TMP2 } ';
+    }
+    if ( $n->{op1}{op} eq 'xx=' ) {
+        return 
+            '(' .
+            _emit( $n->{exp1} ) . ' = ' .
+            'do { my @_V6_TMP1 = ' . _emit( $n->{exp1} ) . '; ' . 
+            ' my @_V6_TMP2; push @_V6_TMP2, @_V6_TMP1 for 1..' . 
+            _emit( $n->{exp2} ) . '; @_V6_TMP2 } ' .
+            ')';
+    }
     if ( $n->{op1}{op} eq '~' ) {
         return _emit( $n->{exp1} ) . ' . ' . _emit( $n->{exp2} );
     }
