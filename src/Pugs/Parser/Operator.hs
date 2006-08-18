@@ -6,34 +6,25 @@ import Pugs.AST
 import Pugs.Types
 import Pugs.Lexer
 import Pugs.Rule
-import Pugs.Rule.Expr
 import qualified Data.Set as Set
 import qualified Data.HashTable as Hash
 
 import Pugs.Parser.Types
 import Pugs.Parser.Unsafe
-import Data.List (foldl')
 
-operators :: (?parseExpWithTightOps :: RuleParser Exp) =>
-    RuleParser (RuleOperatorTable Exp)
-operators = do
-    tight <- tightOperators
-    loose <- looseOperators
-    return $ concat $
-        [ tight
-        , [ listSyn [","] ]                             -- List constructor
-        , [ listOps ["Y", "\xA5", "==>", "<=="] ]       -- List infix
-        , loose
-    --  , [ listSyn  " ; " ]                            -- Terminator
-        ]
+listCons :: [RuleOperator Exp]
+listCons = listSyn [","]                             -- List constructor
+
+listInfix :: [RuleOperator Exp]
+listInfix = listOps ["Y", "\xA5", "==>", "<=="]       -- List infix
 
 -- Not yet transcribed ------------------------------------------------
 
 tightOperators :: (?parseExpWithTightOps :: RuleParser Exp) =>
-    RuleParser (RuleOperatorTable Exp)
+    RuleParser (Set ID, RuleOperatorTable Exp)
 tightOperators = do
   tights <- currentTightFunctions
-  return $
+  return $ (,) (r_term tights)
     [ methOps   (words " . .+ .? .* .+ .() .[] .{} .<<>> .= ")  -- Method postfix
     , postOps   (words " ++ -- ")
       ++ preOps (words " ++ -- ")                               -- Auto-Increment
@@ -114,16 +105,6 @@ looseOperators = do
         , leftOps  (words " or xor err ")                       -- Loose Or
         ]
 
--- not a parser!
-litOperators :: (?parseExpWithTightOps :: RuleParser Exp) =>
-    RuleParser (RuleOperatorTable Exp)
-litOperators = do
-    tight   <- tightOperators
-    loose   <- looseOperators
-    return $ tight ++ loose
-
-type SubAssoc = VStr
-
 data CurrentFunction = MkCurrentFunction
     { f_var     :: !Var
     , f_assoc   :: !SubAssoc
@@ -181,9 +162,9 @@ inScope pkg var
 
 relevantToParsing :: SubType -> SubAssoc -> Bool
 relevantToParsing SubMethod  _      = False
-relevantToParsing SubPrim    "pre"  = True
+relevantToParsing SubPrim    ANil   = True
 relevantToParsing SubPrim    _      = False
-relevantToParsing _          ""     = False
+relevantToParsing _          ANil   = False
 relevantToParsing _          _      = True
 
 -- XXX Very bad hacky kluge just for Parser.Operator
@@ -195,7 +176,7 @@ listPkg = cast (mkType "List")
 currentTightFunctions :: RuleParser TightFunctions
 currentTightFunctions = do
     funs    <- currentFunctions
-    let finalResult = foldl' splitUnary initResult unary
+    let finalResult = foldr splitUnary initResult unary
         initResult  = MkTightFunctions emptySet emptySet emptySet emptySet terms infixOps
         (unary, notUnary)   = partition matchUnary funs
         slurpyNames         = namesFrom (filter matchSlurpy notUnary)
@@ -206,16 +187,16 @@ currentTightFunctions = do
             | MkCurrentFunction { f_var = MkVar { v_categ = C_infix, v_name = name } } <- notUnary
             , name /= commaID
             ]
-        splitUnary :: TightFunctions -> CurrentFunction -> TightFunctions
-        splitUnary res@MkTightFunctions
-            { r_opt = opt, r_named = named, r_pre = pre, r_post = post }
-            (MkCurrentFunction MkVar{ v_categ = cat, v_name = n } _ [param])
+        splitUnary :: CurrentFunction -> TightFunctions -> TightFunctions
+        splitUnary (MkCurrentFunction MkVar{ v_categ = cat, v_name = n } _ [param])
+            res@MkTightFunctions
+                { r_opt = opt, r_named = named, r_pre = pre, r_post = post }
                 | n `Set.member` slurpyNames    = res
                 | isOptional param              = res{ r_opt    = Set.insert n opt }
                 | C_prefix <- cat               = res{ r_pre    = Set.insert n pre }
                 | C_postfix <- cat              = res{ r_post   = Set.insert n post }
                 | otherwise                     = res{ r_named  = Set.insert n named }
-        splitUnary res _ = res
+        splitUnary _ res = res
     return finalResult
 
 namesFrom :: [CurrentFunction] -> Set ID
@@ -238,13 +219,13 @@ emptySet = Set.empty
 
 matchUnary :: CurrentFunction -> Bool
 matchUnary MkCurrentFunction
-    { f_assoc = "pre", f_params = [MkParam
+    { f_assoc = ANil, f_params = [MkParam
         { paramContext = CxtItem{}, isNamed = False }] } = True
 matchUnary _ = False
 
 matchTerm :: CurrentFunction -> Bool
 matchTerm MkCurrentFunction
-    { f_assoc = "pre", f_params = [] } = True
+    { f_assoc = ANil, f_params = [] } = True
 matchTerm _ = False
 
 matchSlurpy :: CurrentFunction -> Bool
@@ -302,6 +283,7 @@ rightDotAssignSyn = makeOp2DotAssign AssocRight "" Syn
 {-# SPECIALISE ops :: (String -> RuleOperator Exp) -> [String] -> [RuleOperator Exp] #-}
 {-# SPECIALISE ops :: (String -> RuleParser String) -> [String] -> [RuleParser String] #-}
 -- 0x10FFFF is the max number "chr" can take, so we use it for longest-token sorting.
+-- buildExpressionParser will then use that information to make a longest-token match.
 ops :: (String -> a) -> [String] -> [a]
 ops f = map (f . tail) . sort . map (\x -> (chr (0x10FFFF - length x):x))
 
@@ -483,4 +465,117 @@ ternOp pre post syn = (`Infix` AssocRight) $ do
     y <- ?parseExpWithTightOps
     symbol post
     return $ \x z -> Syn syn [x, y, z]
+
+
+
+
+emptyTerm :: Exp
+emptyTerm = Syn "" []
+
+type UnaryOperator      = RuleParser (Exp -> Exp)
+type BinaryOperator     = RuleParser (Exp -> Exp -> Exp)
+type ListOperator       = RuleParser ([Exp] -> Exp)
+type DependentOperator  = Exp -> RuleParser Exp
+
+data OpRow = MkOpRow
+    { o_rassoc          :: ![BinaryOperator]
+    , o_lassoc          :: ![BinaryOperator]
+    , o_nassoc          :: ![BinaryOperator]
+    , o_prefix          :: ![UnaryOperator]
+    , o_postfix         :: ![UnaryOperator]
+    , o_optPrefix       :: ![UnaryOperator]
+    , o_listAssoc       :: ![ListOperator]
+    , o_depPostfix      :: ![DependentOperator]
+    }
+
+-----------------------------------------------------------
+-- Convert an OperatorTable and basic term parser into
+-- a full fledged expression parser
+-----------------------------------------------------------
+buildExpressionParser :: RuleOperatorTable Exp -> RuleParser Exp -> RuleParser Exp
+buildExpressionParser = flip (foldl makeParser)
+
+{-# INLINE makeParser #-}
+makeParser :: RuleParser Exp -> [RuleOperator Exp] -> RuleParser Exp
+makeParser term ops = do
+    x <- termP
+    rassocP x <|> lassocP x <|> nassocP x <|> listAssocP x <|> return x <?> "operator"
+    where
+    MkOpRow rassoc lassoc nassoc prefix postfix optPrefix listAssoc depPostfix
+        = foldr splitOp (MkOpRow [] [] [] [] [] [] [] []) ops
+    rassocOp          = choice rassoc
+    lassocOp          = choice lassoc
+    nassocOp          = choice nassoc
+    prefixOp          = choice prefix <?> ""
+    postfixOp         = choice postfix <?> ""
+    optPrefixOp       = choice optPrefix <?> ""
+    listAssocOp       = choice listAssoc
+    depPostfixOp x    = choice (map ($ x) depPostfix) <?> ""
+
+    ambig assoc op    = try
+        (op >> fail ("ambiguous use of a " ++ assoc ++ " associative operator"))
+    ambigRight        = ambig "right" rassocOp
+    ambigLeft         = ambig "left" lassocOp
+    ambigNon          = ambig "non" nassocOp
+
+    foldOp = foldr (.) id
+    termP = do
+        pres    <- many $ (fmap Left prefixOp) <|> (fmap Right optPrefixOp)
+        -- Here we handle optional-prefix operators.
+        x       <- if null pres then term else case last pres of
+            Left _  -> term
+            _       -> option emptyTerm term
+        x'      <- depPostP x
+        posts   <- many postfixOp
+        return $ foldOp posts $ foldOp (map liftEither pres) x'
+
+    liftEither (Left x) = x
+    liftEither (Right x) = x
+    depPostP x = (<|> return x) $ do
+        x' <- depPostfixOp x 
+        depPostP x'
+
+    rassocP x  = (do
+        f   <- rassocOp
+        y   <- rassocP1 =<< termP
+        return (f x y)) <|> ambigLeft <|> ambigNon
+
+    rassocP1 x = rassocP x  <|> return x
+
+    lassocP x  = (do
+        f   <- lassocOp
+        y   <- termP
+        lassocP1 (f x y)) <|> ambigRight <|> ambigNon
+
+    lassocP1 x = lassocP x <|> return x
+
+    nassocP x  = do
+        f <- nassocOp
+        y <- termP
+        ambigRight <|> ambigLeft <|> ambigNon <|> return (f x y)
+
+    listAssocP x  = do
+        f   <- listAssocOp
+        xs  <- option [] $ listAssocP1 =<< termP
+        return (f (x:xs))
+
+    listAssocP0 x  = do
+        listAssocOp
+        xs  <- option [] $ listAssocP1 =<< termP
+        return (x:xs)
+    listAssocP1 x = listAssocP0 x <|> return [x]
+
+{-# INLINE splitOp #-}
+splitOp :: RuleOperator Exp -> OpRow -> OpRow
+splitOp col row@(MkOpRow rassoc lassoc nassoc prefix postfix optPrefix listAssoc depPostfix) = case col of
+    Infix op AssocNone      -> row{ o_nassoc    = op:nassoc }
+    Infix op AssocLeft      -> row{ o_lassoc    = op:lassoc }
+    Infix op AssocRight     -> row{ o_rassoc    = op:rassoc }
+    InfixList op AssocList  -> row{ o_listAssoc = op:listAssoc }
+    Prefix op               -> row{ o_prefix    = op:prefix }
+    Postfix op              -> row{ o_postfix   = op:postfix }
+    OptionalPrefix op       -> row{ o_optPrefix = op:optPrefix }
+    DependentPostfix op     -> row{ o_depPostfix= op:depPostfix }
+    -- FIXME: add AssocChain
+    _ -> internalError $ "Unhandled operator type" ++ show (op_assoc col)
 

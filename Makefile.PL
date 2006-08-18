@@ -227,14 +227,7 @@ sub set_postamble {
         }
     }
 
-    if ($ghc_version =~ /^6.4(?:.0)?$/) {
-      push @warn, << '.';
-*** Readline support disabled.  If you want readline support,
-    please upgrade to GHC 6.4.1 or later.
-
-.
-    }
-    elsif (has_ghc_package('readline') 
+    if (has_ghc_package('readline') 
         and  try_compile("import System.Console.Readline\n"
                         ."main :: IO ()\n"
                         ."main = do\n"
@@ -308,20 +301,6 @@ sub set_postamble {
     # Respect CC setting
     my $cc = $ENV{CC} || 'gcc';
     $ghc_flags .= " -pgmc $cc " unless $cc eq 'gcc';
-
-    # GHC 6.4.1, OS X / Tiger and gcc4.0 doesn't work together. complain.
-    if ($Config{osname} eq "darwin") {
-      my $gcc_version = `$cc -v 2>&1`;
-      my $os_version = `uname -r`;
-      if ($ghc_version =~ /^6.4(?:.0)?$/ and $gcc_version =~ /\b4.0.0\b/ && $os_version =~ /^8./) {
-         die <<EOD;
-*** GHC 6.4.0 cannot work with GCC 4.0 on Mac OS X.
-    Please download the GHC 6.4.1 installer from http://haskell.org/ghc/.
-    (Alternatively, use "sudo gcc_select 3.3" to pick an earlier version
-     of GCC, or set the CC environment variable to "/usr/bin/gcc-3.3".)
-EOD
-      }
-    }
 
     if ($Config{cf_by} eq 'Debian Project' and $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/i) {
         # Is it safe to remove 'Debian Project' above, to test on all platforms?

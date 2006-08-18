@@ -9,11 +9,12 @@ module Pugs.Parser.Types (
     addBlockPad,
     -- Alternate Char implementations that keeps track of ruleCharClass
     satisfy, string, oneOf, noneOf, char, hexDigit, octDigit,
-    digit, upper, anyChar, perl6WhiteSpace
+    digit, upper, anyChar, perl6WhiteSpace,
+
+    Operator(..), Assoc(..),
 ) where
 import Pugs.AST
 import Pugs.Rule
-import Pugs.Rule.Expr
 import Pugs.Internals
 import Text.ParserCombinators.Parsec.Pos
 import qualified Data.Map as Map
@@ -163,6 +164,25 @@ instance MonadState RuleState RuleParser where
 
 type RuleOperator a = Operator Char RuleState a
 type RuleOperatorTable a = OperatorTable Char RuleState a
+
+-----------------------------------------------------------
+-- Assoc and OperatorTable
+-----------------------------------------------------------
+data Assoc                = AssocNone
+                          | AssocLeft
+                          | AssocRight
+                          | AssocList
+                          | AssocChain
+                          deriving (Show)
+
+data Operator t st a      = Infix { op_infix :: (GenParser t st (a -> a -> a)), op_assoc :: Assoc }
+                          | Prefix (GenParser t st (a -> a))
+                          | Postfix (GenParser t st (a -> a))
+                          | InfixList { op_infixList :: (GenParser t st ([a] -> a)), op_assoc ::  Assoc }
+                          | OptionalPrefix (GenParser t st (a -> a))
+                          | DependentPostfix (a -> GenParser t st a)
+
+type OperatorTable t st a = [[Operator t st a]]
 
 {-|
 Retrieve the 'Pugs.AST.Internals.Env' from the current state of the parser.
