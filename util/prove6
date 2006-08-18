@@ -54,7 +54,7 @@ if ($sum == 0) { $pugs = 1 } # default to pugs
 
 my @tfiles = sort map glob, @ARGV;
 
-$ENV{PERL6LIB} = 'blib6/lib';
+$ENV{PERL6LIB} ||= 'blib6/lib';
 my $sep = ($^O eq 'MSWin32')? ';' : ':';
 #warn $sep;
 
