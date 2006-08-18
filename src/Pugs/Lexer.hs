@@ -196,19 +196,13 @@ ruleEndOfLine :: RuleParser ()
 ruleEndOfLine = choice [ do { char '\n'; return () }, eof ]
 
 symbol :: String -> RuleParser String
-symbol s
-    | isWordAny (last s) = try $ do
-        rv <- string s
-        choice [ eof >> return ' ', lookAhead (satisfy (aheadWord $ last s)) ]
-        whiteSpace
-        return rv
-    | otherwise          = try $ do
-        rv <- string s
-        -- XXX Wrong - the correct solution is to lookahead as much as possible
-        -- in the expression parser below
-        choice [ eof >> return ' ', lookAhead (satisfy (aheadSym $ last s)) ]
-        whiteSpace
-        return rv
+symbol s = try $ do
+    rv <- string s
+    let ahead  = if isWordAny lastCh then aheadWord else aheadSym
+        lastCh = last rv
+    choice [ lookAhead (satisfy (ahead lastCh)), eof >> return ' ' ]
+    whiteSpace
+    return rv
     where
     aheadWord x  '=' = not $ x `elem` "xY\xA5" -- ¥
     aheadWord _  y   = not $ isWordAny y
