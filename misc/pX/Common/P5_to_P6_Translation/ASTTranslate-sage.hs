@@ -168,7 +168,7 @@ changeVarsInQuotes (Heredoc start end kids) = (Heredoc start end (map changeVars
 --Wrapper for the parser that translates arrays and hashes in strings
 runTextParser :: String -> String
 runTextParser instr = case parse textParser "text node" instr of
-                                Left err -> error $ "\nError:\n" ++ show err ++"\nIN:\n"++instr
+                                Left err -> do{[putStrLn ("\nNon-Terminal Error:\n" ++ show err ++"\nIN:\n"++instr)]; instr}
                                 Right result -> result
 
 --The actual parser that changes "@array" and "%hash"
@@ -302,14 +302,14 @@ changeMInternals kids = if (matchOnType (head kids) (LiteralNode Text "" "")) th
 --Function to apply the regexString parser to a string
 regexChange :: String -> String
 regexChange instr = case parse regexString "regex" instr of
-                                Left err -> error $ "\nError:\n" ++ show err ++"\nIN:\n"++instr
+                                Left err -> do{[putStrLn ("\nNon-Terminal Error:\n" ++ show err ++"\nIN:\n"++instr)]; instr}
                                 Right result -> result
 
 --Function to apply the captureString parser to a string, aliasing all
 --captures so that $1 (and friends) are still the same in Perl 6
 regexChangeCaptures :: String -> String
 regexChangeCaptures instr = case parse (captureString 1) "regex (Captures)" instr of
-                                    Left err -> error $ "\nError:\n" ++ show err ++"\nIN:\n"++instr
+                                    Left err -> do{[putStrLn ("\nNon-Terminal Error:\n" ++ show err ++"\nIN:\n"++instr)]; instr}
                                     Right result -> result
 
 --Parses all captures from a regex into Perl 6 aliases.
@@ -389,7 +389,7 @@ regexChar = choice[do{try(string "\\\\"); return "\\\\"},      --Get rid of lite
 --Wrapper for parsing the count modifier in regexs
 countRegex :: String -> String
 countRegex instr = case parse countString "regex count" instr of
-                                Left err -> error $ "\nError:\n"++ show err ++"\nIN:\n"++instr
+                                Left err -> do{[putStrLn ("\nNon-Terminal Error:\n" ++ show err ++"\nIN:\n"++instr)]; (reverse (tail (reverse instr)))}
                                 Right result -> result
                                 
 
