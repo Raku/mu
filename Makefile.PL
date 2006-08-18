@@ -69,7 +69,11 @@ install_script  (glob('script/*'));
 recommends      ('Perl6::Bible');
 recommends      ('Inline');
 recommends      ('Filter::Simple');
+recommends      ('LWP::Simple');
+recommends      ('LWP');
 build_requires  ('ExtUtils::MakeMaker' => 6.15);
+build_requires  ('FindBin');
+build_requires  ('File::Path');
 include         ('Module::Install::Makefile::Name');
 include         ('Module::Install::Makefile::Version');
 build_subdirs   (map fixpaths($_), grep {
