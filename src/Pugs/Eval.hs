@@ -269,11 +269,14 @@ reduceVar var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = p
                 | otherwise         -> evalRef ref
             Nothing
                 | sig == SType      -> return $ VType (cast name)
-                | pkg == emptyPkg   -> retError "Undeclared variable" var
-                | otherwise         -> do
+                | pkg /= emptyPkg
+                , pkg /= callerPkg
+                , pkg /= outerPkg
+                , pkg /= contextPkg -> do
                     -- $Qualified::Var is not found.  Vivify at lvalue context.
                     lv <- asks envLValue
                     if lv then evalExp (Sym SGlobal var (Var var)) else retEmpty
+                | otherwise         -> retError "Undeclared variable" var
 
 _scalarContext :: Cxt
 _scalarContext = CxtItem $ mkType "Scalar"

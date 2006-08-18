@@ -303,6 +303,12 @@ emptyPkg = MkPkg []
 -- globalPkg :: Pkg
 -- globalPkg = MkPkg [__"GLOBAL"]
 
+callerPkg :: Pkg
+callerPkg = MkPkg [__"CALLER"]
+
+outerPkg :: Pkg
+outerPkg = MkPkg [__"OUTER"]
+
 contextPkg :: Pkg
 contextPkg = MkPkg [__"ENV"] -- XXX wrong
 
