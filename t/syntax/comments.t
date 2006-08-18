@@ -55,8 +55,8 @@ plan 23;
 }
 
 {
-    # L<S02/"Whitespace and Comments"/"matched by" "equal number"
-    #   adjacent closing brackets>
+    # L<S02/"Whitespace and Comments"/"closed by" "same number of"
+    #   "closing brackets">
 
     ok #<<<
         Or this <also> works...
@@ -73,8 +73,8 @@ plan 23;
 }
 
 {
-    # L<S02/"Whitespace and Comments"/"Bracket counting" "sets of brackets"
-    #   "same length">
+    # L<S02/"Whitespace and Comments"/"Counting of nested brackets"
+    #   "applies only to" "pairs of brackets of the same length">
 
     is 3, #(
         (Nested parens) works also
@@ -92,7 +92,7 @@ plan 23;
 
 {
     # L<S02/"Whitespace and Comments"/
-    #   "#" "left margin" always "line-end comment">
+    #   "#" on "beginning of line" always "line-end comment">
 
     is 31,
 #<this is special cased
