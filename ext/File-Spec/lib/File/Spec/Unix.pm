@@ -162,7 +162,9 @@ sub path returns Array is export {
 # the File::Spec platform hack
 #sub cwd returns Str { system("pwd") }
 sub cwd returns Str is export {
-  return '/';
+  # This seems wrong - limbic_region 2006-08-17
+  #return '\\';
+  return $*CWD;
 }
 
 sub tmpdir returns Str is export {
