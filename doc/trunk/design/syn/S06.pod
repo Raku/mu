@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 17 Aug 2006
+  Last Modified: 18 Aug 2006
   Number: 6
-  Version: 50
+  Version: 51
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -54,7 +54,7 @@ source code string or a parse-tree.
 
 B<Multimethods> (keyword: C<multi>) are routines that can have multiple
 variants that share the same name, selected by arity, types, or some
-other constraints.  They may have multliple invocants.
+other constraints.
 
 B<Prototypes> (keyword: C<proto>) specify the commonalities (such
 as parameter names, fixity, and associativity) shared by all multis
@@ -498,10 +498,10 @@ same precedence:
                             # fall-back to set_name($obj, "Sam")
     $obj.set_name("Sam");   # same as the above
 
-An invocant is the topic of the corresponding method or multi if that
-formal parameter is declared with the name C<$_>.  A method's first
-invocant always has the alias C<self>.  Other styles of self can be
-declared with the C<self> pragma.
+An invocant is the topic of the corresponding method if that formal
+parameter is declared with the name C<$_>.  A method's first invocant
+always has the alias C<self>.  Other styles of self can be declared
+with the C<self> pragma.
 
 =head2 Longname parameters
 
@@ -515,9 +515,9 @@ terminating the list of important parameters with a semicolon:
     multi method set_name ($self: $name; $nick) {...}
 
 If the parameter list for a C<multi> contains no semicolon to delimit
-the list of invocant parameters, then all positional parameters are
-considered invocants.  If it's a C<multi method> or C<multi submethod>,
-an additional implicit unnamed C<self> invocant is prepended to the
+the list of important parameters, then all positional parameters are
+considered important.  If it's a C<multi method> or C<multi submethod>,
+an additional implicit unnamed C<self> invocant is added to the
 signature list unless the first parameter is explicitly marked with a colon.
 
 
@@ -2148,7 +2148,7 @@ module's subroutines/methods/etc. simultaneously:
 This special form should generally be restricted to named parameters.
 
 To curry a particular multimethod it may be necessary to specify the type
-of one or more of its invocants:
+for one or more of its parameters:
 
     &woof ::= &bark:(Dog).assuming :pitch<low>;
     &pine ::= &bark:(Tree).assuming :pitch<yes>;
