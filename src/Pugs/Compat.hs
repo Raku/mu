@@ -219,10 +219,14 @@ readDirStream (DirStream dirp) =
 		    else throwErrno "readDirStream"
 
 rewindDirStream :: DirStream -> IO ()
-rewindDirStream (DirStream dirp) = c_rewinddir dirp
+rewindDirStream (DirStream dirp) = do
+    c_rewinddir dirp
+    return ()
 
 closeDirStream :: DirStream -> IO ()
-closeDirStream (DirStream dirp) = c_closedir dirp
+closeDirStream (DirStream dirp) = do
+    c_closedir dirp
+    return ()
 
 -- Win32 specific
 
