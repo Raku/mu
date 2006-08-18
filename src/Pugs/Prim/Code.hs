@@ -11,7 +11,14 @@ import Pugs.Pretty
 op1CodeAssoc :: Val -> Eval Val
 op1CodeAssoc v = do
     code <- fromVal v
-    return . castV $ subAssoc code
+    return $ case subAssoc code of
+        ANil                    -> undef
+        AIrrelevantToParsing    -> undef
+        A_left                  -> castV "left"
+        A_right                 -> castV "right"
+        A_non                   -> castV "non"
+        A_chain                 -> castV "chain"
+        A_list                  -> castV "list"
 
 op1CodeName :: Val -> Eval Val
 op1CodeName v = do

@@ -7,7 +7,7 @@ class (Typeable a) => CodeClass a where
     code_store    :: a -> VCode -> Eval ()
     code_assuming :: a -> [Exp] -> [Exp] -> Eval VCode
     code_apply    :: a -> Eval Val
-    code_assoc    :: a -> VStr
+    code_assoc    :: a -> SubAssoc
     code_params   :: a -> Params
     code_type     :: a -> SubType
 

@@ -12,12 +12,9 @@
 
 
 module Pugs.Rule (
-    module Pugs.Rule.Expr,
     module Text.ParserCombinators.Parsec,
-    module Pugs.Rule,
 ) where
 
-import Pugs.Rule.Expr
 import Text.ParserCombinators.Parsec hiding (
     token       ,
     char        ,

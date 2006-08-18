@@ -23,7 +23,6 @@ import Pugs.Types
 import Pugs.Version (versnum)
 import Pugs.Lexer
 import Pugs.Rule
-import Pugs.Rule.Expr
 
 import Pugs.Parser.Types
 import Pugs.Parser.Number
@@ -299,7 +298,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subEnv        = Just env
             , subType       = if "primitive" `elem` traits
                 then SubPrim else styp
-            , subAssoc      = "pre"
+            , subAssoc      = ANil
             , subReturns    = mkType typ''
             , subLValue     = "rw" `elem` traits
             , subParams     = self ++ paramsFor styp formal params
@@ -522,14 +521,14 @@ parseExpWithCachedParser f = do
 refillCache :: RuleState -> (DynParsers -> RuleParser Exp) -> RuleParser Exp
 refillCache state f = do
     let ?parseExpWithTightOps = parseExpWithTightOps
-    ops         <- operators
-    opsTight    <- tightOperators
-    opsLit      <- litOperators
-    MkTightFunctions{ r_term = terms } <- currentTightFunctions
-    let [parse, parseTight, parseLit] = map
-            (expRule . (\o -> buildExpressionParser o parseTerm (Syn "" [])))
-            [ops, opsTight, opsLit]
-        opParsers = MkDynParsers parse parseTight parseLit parseNullary
+    (terms, opsTight)   <- tightOperators
+    opsLoose            <- looseOperators
+    let tightExprs  = buildExpressionParser opsTight parseTerm
+        parseTight  = expRule tightExprs
+        parseFull   = expRule (buildExpressionParser opsFull tightExprs)
+        parseLit    = expRule (buildExpressionParser opsLoose tightExprs)
+        opParsers   = MkDynParsers parseFull parseTight parseLit parseNullary
+        opsFull     = listCons:listInfix:opsLoose
         parseNullary = try $ do
             name <- choice . map symbol . fromSet $ terms
             notFollowedBy (char '(' <|> (char ':' >> char ':'))
@@ -1227,7 +1226,7 @@ retVerbatimBlock styp formal lvalue body = expRule $ do
             , subName       = __"<anon>"
             , subEnv        = Just env
             , subType       = styp
-            , subAssoc      = "pre"
+            , subAssoc      = ANil
             , subReturns    = anyType
             , subLValue     = lvalue
             , subParams     = paramsFor styp formal params

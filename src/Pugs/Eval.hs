@@ -910,25 +910,25 @@ doCall var invs args = do
     applySub :: VCode -> (Maybe Exp) -> [Exp] -> Eval Val
     applySub sub invs args
         -- list-associativity
-        | MkCode{ subAssoc = "list" }      <- sub
+        | MkCode{ subAssoc = A_list }      <- sub
         , (App (Var var') Nothing args'):rest  <- args
         , var == var'
         = applySub sub invs (args' ++ rest)
         -- fix subParams to agree with number of actual arguments
-        | MkCode{ subAssoc = "list", subParams = (p:_) }   <- sub
+        | MkCode{ subAssoc = A_list, subParams = (p:_) }   <- sub
         = apply sub{ subParams = (length args) `replicate` p } invs args
         -- chain-associativity
-        | MkCode{ subAssoc = "chain" }  <- sub
+        | MkCode{ subAssoc = A_chain }  <- sub
         , (App _ Nothing _):_                <- args
         = mungeChainSub sub args
-        | MkCode{ subAssoc = "chain", subParams = (p:_) }   <- sub
+        | MkCode{ subAssoc = A_chain, subParams = (p:_) }   <- sub
         = apply sub{ subParams = (length args) `replicate` p } invs args
         -- normal application
         | otherwise
         = apply sub invs args
     mungeChainSub :: VCode -> [Exp] -> Eval Val
     mungeChainSub sub args = do
-        let MkCode{ subAssoc = "chain", subParams = (p:_) } = sub
+        let MkCode{ subAssoc = A_chain, subParams = (p:_) } = sub
             (App (Var name') invs' args'):rest = args
         theSub   <- findSub name' invs' args'
         case theSub of
@@ -936,10 +936,10 @@ doCall var invs args = do
             Left _        -> apply sub{ subParams = (length args) `replicate` p } Nothing args -- XXX Wrong
     applyChainSub :: VCode -> [Exp] -> VCode -> [Exp] -> [Exp] -> Eval Val
     applyChainSub sub args sub' args' rest
-        | MkCode{ subAssoc = "chain", subBody = fun, subParams = prm }   <- sub
-        , MkCode{ subAssoc = "chain", subBody = fun', subParams = prm' } <- sub'
+        | MkCode{ subAssoc = A_chain, subBody = fun, subParams = prm }   <- sub
+        , MkCode{ subAssoc = A_chain, subBody = fun', subParams = prm' } <- sub'
         = applySub sub{ subParams = prm ++ tail prm', subBody = Prim $ chainFun prm' fun' prm fun } Nothing (args' ++ rest)
-        | MkCode{ subAssoc = "chain", subParams = (p:_) }   <- sub
+        | MkCode{ subAssoc = A_chain, subParams = (p:_) }   <- sub
         = apply sub{ subParams = (length args) `replicate` p } Nothing args -- XXX Wrong
         | otherwise
         = internalError "applyChainsub did not match a chain subroutine"

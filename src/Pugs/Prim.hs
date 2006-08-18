@@ -1495,7 +1495,14 @@ primOp sym assoc prms ret isSafe isMacro = do
                     | otherwise     -> SubPrim
             Just "Pugs::Internals"  -> SubPrim
             _                       -> SubMethod
-        , subAssoc    = assoc
+        , subAssoc    = case assoc of
+            "left"  -> A_left
+            "right" -> A_right
+            "non"   -> A_non
+            "chain" -> A_chain
+            "list"  -> A_list
+            "spre"  -> AIrrelevantToParsing -- XXX HACK
+            _       -> ANil
         , subParams   = prms
         , subReturns  = mkType ret
         , subBody     = Prim $! if safe then f else unsafe

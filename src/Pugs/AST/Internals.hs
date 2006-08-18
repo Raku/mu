@@ -9,7 +9,7 @@ module Pugs.AST.Internals (
     Value(..), -- uses Val, Eval
     InitDat(..),
 
-    EvalT(..), ContT(..),
+    EvalT(..), ContT(..), SubAssoc(..),
 
     Pad(..), PadEntry(..), PadMutator, -- uses Var, TVar, VRef
     Param(..), -- uses Cxt, Exp
@@ -824,13 +824,17 @@ separate stages, and each of the bindings needs to be checked.
 -}
 type SlurpLimit = [(VInt, Exp)]
 
+data SubAssoc
+    = ANil | AIrrelevantToParsing | A_left | A_right | A_non | A_chain | A_list 
+    deriving (Show, Eq, Ord, Typeable, Data) {-!derive: YAML_Pos, JSON, Perl5 !-}
+
 -- | Represents a sub, method, closure etc. -- basically anything callable.
 data VCode = MkCode
     { isMulti       :: !Bool        -- ^ Is this a multi sub\/method?
     , subName       :: !ByteString  -- ^ Name of the closure
     , subType       :: !SubType     -- ^ Type of the closure
     , subEnv        :: !(Maybe Env) -- ^ Lexical pad for sub\/method
-    , subAssoc      :: !String      -- ^ Associativity
+    , subAssoc      :: !SubAssoc    -- ^ Associativity
     , subParams     :: !Params      -- ^ Parameters list
     , subBindings   :: !Bindings    -- ^ Currently assumed bindings
     , subSlurpLimit :: !SlurpLimit  -- ^ Max. number of slurpy arguments
@@ -852,7 +856,7 @@ mkPrim = MkCode
     , subName = cast "&"
     , subType = SubPrim
     , subEnv = Nothing
-    , subAssoc = "pre"
+    , subAssoc = ANil
     , subParams = []
     , subBindings = []
     , subSlurpLimit = []
@@ -868,7 +872,7 @@ mkSub = MkCode
     , subName = cast "&"
     , subType = SubBlock
     , subEnv = Nothing
-    , subAssoc = "pre"
+    , subAssoc = ANil
     , subParams = []
     , subBindings = []
     , subSlurpLimit = []
@@ -1020,7 +1024,7 @@ extractPlaceholderVars (Syn n exps) vs = (Syn n exps', vs'')
         _       -> vs'
 extractPlaceholderVars (Var var) vs
     | TImplicit <- v_twigil var
-    , var' <- var{ v_twigil = TNone }
+    , var' <- var{ v_twigil = TNil }
     = (Var var', nub (var':vs))
     | var == cast "$_"
     = (Var var, nub (var:vs))
@@ -1389,7 +1393,7 @@ newObject typ = case showType typ of
         h <- liftSTM $ unsafeIOToSTM $ (C.new :: IO IHash)
         return $ hashRef h
     "Code"      -> liftSTM $ fmap codeRef $ newTVar mkPrim
-        { subAssoc = ""
+        { subAssoc = ANil
         , subBody  = Prim . const $ fail "Cannot use Undef as a Code object"
         }
     "Type"      -> liftSTM $ fmap scalarRef $ newTVar undef

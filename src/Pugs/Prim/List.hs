@@ -159,7 +159,7 @@ op2ReduceL :: Bool -> Val -> Val -> Eval Val
 op2ReduceL keep sub@(VCode _) list = op2ReduceL keep list sub
 op2ReduceL keep list sub = do
     code <- fromVal sub
-    op2Reduce keep list $ VCode code{ subAssoc = "left" }
+    op2Reduce keep list $ VCode code{ subAssoc = A_left }
 
 op2Reduce :: Bool -> Val -> Val -> Eval Val
 op2Reduce keep sub@(VCode _) list = op2Reduce keep list sub
@@ -181,10 +181,10 @@ op2Reduce keep list sub = do
         local (\e -> e{ envContext = cxtItemAny }) $ do
             evl (App (Val sub) Nothing (map Val xs))
     case subAssoc code of
-        "right" -> do
+        A_right -> do
             let args' = reverse args
             reduceMn args' n (doFold . reverse)
-        "chain" -> if arity /= 2            -- FIXME: incorrect for scans
+        A_chain -> if arity /= 2            -- FIXME: incorrect for scans
             then fail
                 "When reducing using a chain-associative sub,\nthe sub must take exactly two arguments."
             else callCC $ \esc -> do
@@ -195,7 +195,7 @@ op2Reduce keep list sub = do
                         _           -> return y
                 reduceM doFold' (head args) (tail args)
                 return $ VBool True
-        "non"   -> fail $ "Cannot reduce over non-associativity"
+        A_non   -> fail $ "Cannot reduce over non-associativity"
         _       -> reduceMn args n doFold -- "left", "pre"
     where
     -- This is a generalized foldM.

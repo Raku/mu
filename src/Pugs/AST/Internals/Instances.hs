@@ -429,6 +429,52 @@ instance JSON Param where
 	      ("paramName", showJSON ag), ("paramContext", showJSON ah),
 	      ("paramDefault", showJSON ai)]
 
+instance YAML SubAssoc where
+    fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
+	"ANil" -> do
+	    return ANil
+	"AIrrelevantToParsing" -> do
+	    return AIrrelevantToParsing
+	"A_left" -> do
+	    return A_left
+	"A_right" -> do
+	    return A_right
+	"A_non" -> do
+	    return A_non
+	"A_chain" -> do
+	    return A_chain
+	"A_list" -> do
+	    return A_list
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["ANil","AIrrelevantToParsing","A_left","A_right","A_non","A_chain","A_list"] ++ " in node " ++ show e
+    fromYAML _ = fail "no tag found"
+    asYAML (ANil) = asYAMLcls "ANil"
+    asYAML (AIrrelevantToParsing) = asYAMLcls "AIrrelevantToParsing"
+    asYAML (A_left) = asYAMLcls "A_left"
+    asYAML (A_right) = asYAMLcls "A_right"
+    asYAML (A_non) = asYAMLcls "A_non"
+    asYAML (A_chain) = asYAMLcls "A_chain"
+    asYAML (A_list) = asYAMLcls "A_list"
+
+instance JSON SubAssoc where
+    showJSON (ANil) = showJSScalar "ANil"
+    showJSON (AIrrelevantToParsing) =
+	     showJSScalar "AIrrelevantToParsing"
+    showJSON (A_left) = showJSScalar "A_left"
+    showJSON (A_right) = showJSScalar "A_right"
+    showJSON (A_non) = showJSScalar "A_non"
+    showJSON (A_chain) = showJSScalar "A_chain"
+    showJSON (A_list) = showJSScalar "A_list"
+
+instance Perl5 SubAssoc where
+    showPerl5 (ANil) = showP5Class "ANil"
+    showPerl5 (AIrrelevantToParsing) =
+	      showP5Class "AIrrelevantToParsing"
+    showPerl5 (A_left) = showP5Class "A::left"
+    showPerl5 (A_right) = showP5Class "A::right"
+    showPerl5 (A_non) = showP5Class "A::non"
+    showPerl5 (A_chain) = showP5Class "A::chain"
+    showPerl5 (A_list) = showP5Class "A::list"
+
 instance YAML VCode where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
 	"MkCode" -> do

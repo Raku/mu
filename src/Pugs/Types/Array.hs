@@ -184,7 +184,7 @@ instance ArrayClass IArray where
         size <- liftSTM $ readTVar s
         liftSTM $ writeTVar s (size+(length vals))
         liftIO $ mapM_ (\(k,v) -> C.insert k v av) $ [size..] `zip` (map lazyScalar vals)
-    array_extendSize (av,s) sz = liftSTM $ do
+    array_extendSize (_, s) sz = liftSTM $ do
         size <- readTVar s
         if size > sz
             then return ()
@@ -193,8 +193,8 @@ instance ArrayClass IArray where
         readIVar =<< getArrayIndex idx (Just $ constScalar undef)
             (return arr)
              Nothing -- don't bother extending
-    array_fetchKeys (av,s) = liftIO $ C.keys av
-    array_fetchElem arr@(av,s) idx = do
+    array_fetchKeys (av, _) = liftIO $ C.keys av
+    array_fetchElem arr@(av, s) idx = do
         sv <- getArrayIndex idx Nothing
             (return arr)
             (Just (array_extendSize arr $ idx+1))
@@ -208,8 +208,8 @@ instance ArrayClass IArray where
                return sv'
             else return sv
     array_existsElem arr idx | idx < 0 = array_existsElem arr (abs idx - 1)    -- FIXME: missing mod?
-    array_existsElem (av,s) idx = liftIO $ C.member idx av
-    array_deleteElem arr@(av,s) idx = do
+    array_existsElem (av, _) idx = liftIO $ C.member idx av
+    array_deleteElem (av, s) idx = do
         size <- liftSTM $ readTVar s
         let idx' | idx < 0   = idx `mod` size        --- XXX wrong; wraparound => what do you mean?
                  | otherwise = idx

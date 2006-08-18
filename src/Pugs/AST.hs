@@ -166,7 +166,7 @@ opSet cat posts = Set.fromList $ map doMakeVar posts
     where
     doMakeVar name = MkVar
         { v_sigil   = SCode
-        , v_twigil  = TNone
+        , v_twigil  = TNil
         , v_package = emptyPkg
         , v_categ   = cat
         , v_name    = cast name
@@ -220,7 +220,7 @@ isEmptyParams [x]
     | var <- paramName x
     , _underscore == v_name var
     , emptyPkg    == v_package var
-    , TNone       == v_twigil var
+    , TNil        == v_twigil var
     = True
 isEmptyParams _ = False
 
@@ -267,7 +267,7 @@ typeMacro name exp = Syn "sub" . (:[]) . Val . VCode $ MkCode
     , subName       = cast ('&':name)
     , subEnv        = Nothing
     , subType       = SubMacro
-    , subAssoc      = "pre"
+    , subAssoc      = ANil
     , subReturns    = typ
     , subLValue     = False
     , subParams     = []

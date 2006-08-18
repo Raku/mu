@@ -146,7 +146,6 @@ mkType str
     | otherwise
     = MkType (cast str)
 
-
 data Var = MkVar
     { v_name    :: ID
     , v_sigil   :: VarSigil
@@ -188,7 +187,7 @@ showsVar MkVar
     } = showsPrec 0 sig . showsPrec 0 twi . showCateg . showPkg . ((++) (cast name))
     where
     showCateg = case cat of
-        CNone   -> id
+        CNil    -> id
         _       -> drop 2 . showsPrec 0 cat . (':':)
     showPkg = if null ns
         then id
@@ -201,7 +200,7 @@ instance ((:>:) String) Pkg where
     cast = cast . (cast :: Pkg -> ByteString)
 
 data VarCateg
-    = CNone
+    = CNil
     | C_prefix_circumfix_meta_operator
     | C_infix_circumfix_meta_operator
     | C_prefix_postfix_meta_operator
@@ -229,7 +228,7 @@ data VarCateg
 data VarSigil = SScalar | SArray | SHash | SType | SCode | SRegex | SCodeMulti | SArrayMulti
     deriving (Enum, Eq, Ord, Typeable, Data)
 
-data VarTwigil = TNone | TAttribute | TPrivate | TImplicit | TMagical | TDoc
+data VarTwigil = TNil | TAttribute | TPrivate | TImplicit | TMagical | TDoc
     | TGlobal -- XXX WRONG!
     deriving (Enum, Eq, Ord, Typeable, Data)
 
@@ -255,7 +254,7 @@ instance Show VarSigil where
 
 instance Show VarTwigil where
     showsPrec _ twi = case twi of
-        TNone       -> id
+        TNil        -> id
         TAttribute  -> ('.':)
         TPrivate    -> ('!':)
         TImplicit   -> ('^':)
@@ -342,21 +341,21 @@ doBufToVar buf = MkVar
     sig' = if Str.null sig then internalError $ "Sigilless var: " ++ show buf else cast sig
     len = Str.length afterSig
     (twi, (pkg, afterPkg))
-        | len == 0 = (TNone, (emptyPkg, afterSig))
+        | len == 0 = (TNil, (emptyPkg, afterSig))
         | len == 1 = case Str.head afterSig of
             '!' -> (TGlobal, (emptyPkg, afterSig))  -- XXX $! always global - WRONG
             '/' -> (TGlobal, (emptyPkg, afterSig))  -- XXX $/ always global - WRONG
-            _   -> (TNone, (emptyPkg, afterSig))
+            _   -> (TNil, (emptyPkg, afterSig))
         | otherwise = case Str.head afterSig of
             '.' -> (TAttribute, toPkg afterTwi)
             '^' -> (TImplicit, toPkg afterTwi)
             '?' -> (TMagical, toPkg afterTwi)
             '!' -> (TPrivate, toPkg afterTwi)
             '=' -> (TDoc, toPkg afterTwi)
---              '*' -> (TNone, (globalPkg, Str.tail afterSig))
+--          '*' -> (TNil, (globalPkg, Str.tail afterSig))
             '*' -> (TGlobal, toPkg afterTwi)
-            '+' -> (TNone, (contextPkg, Str.tail afterSig))
-            _   -> (TNone, toPkg (tokenPkg afterSig))
+            '+' -> (TNil, (contextPkg, Str.tail afterSig))
+            _   -> (TNil, toPkg (tokenPkg afterSig))
     afterTwi = tokenPkg (Str.tail afterSig)
     toPkg (pkg, rest) = (MkPkg pkg, rest)
     tokenPkg str = case Str.findSubstring (__"::") str of
@@ -377,7 +376,7 @@ doBufToVar buf = MkVar
         Just idx -> if isUpper (Str.head str)
             then internalError (show buf)
             else (cast (Str.take idx str), Str.drop (succ idx) str)
-        _ -> (CNone, afterPkg)
+        _ -> (CNil, afterPkg)
 
 instance ((:>:) Pkg) ByteString where
     cast = MkPkg . Str.tokens (== ':')
@@ -392,8 +391,8 @@ instance ((:>:) Type) ID where
     cast = cast . (cast :: ID -> ByteString)
 
 possiblyFixOperatorName :: Var -> Var
-possiblyFixOperatorName var@MkVar{ v_categ = cat, v_sigil = sig, v_name = name }
-    | cat == CNone = var
+possiblyFixOperatorName var@MkVar{ v_categ = CNil } = var
+possiblyFixOperatorName var@MkVar{ v_sigil = sig, v_name = name }
     | sig /= SCode, sig /= SCodeMulti = var
     | Str.head buf == '\171', Str.last buf == '\187'
     = var{ v_name = cast (Str.init (Str.tail buf)) }

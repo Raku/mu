@@ -127,7 +127,7 @@ import Data.FunctorM
 import Data.List (
     (\\), find, genericLength, insert, sortBy, intersperse,
     partition, group, sort, genericReplicate, isPrefixOf, isSuffixOf,
-    genericTake, genericDrop, unfoldr, nub, nubBy, transpose, delete
+    genericTake, genericDrop, unfoldr, nub, nubBy, transpose, delete, foldl'
     )
 import Data.Unique
 import Data.Ratio
