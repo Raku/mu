@@ -6,7 +6,21 @@ import Pugs.Internals
 import qualified Data.ByteString as Buf
 
 data Val
+data ValNative
+    = NBit      !NativeBit
+    | NInt      !NativeInt
+    | NUint     !NativeUint
+    | NBuf      !NativeBuf
+    | NNum      !NativeNum
+    | NComplex  !NativeComplex
+
+type NativeBit      = Bool
+type NativeInt      = Int
+type NativeUint     = Word
 type NativeBuf      = ByteString
+type NativeNum      = Float
+type NativeComplex  = ()
+
 type P = Identity
 type Table = Map ID Val
 newtype Pad = MkPad { padEntries :: Map Var PadEntry }
