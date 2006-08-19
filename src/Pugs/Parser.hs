@@ -23,7 +23,7 @@ module Pugs.Parser (
     -- Circularity: Used in Pugs.Parser.Literal
     ruleExpression,
     ruleArraySubscript, ruleHashSubscript, ruleCodeSubscript,
-    ruleInvocationParens, ruleVarName, ruleVerbatimBlock,
+    ruleInvocationParens, ruleVarNameString, ruleVerbatimBlock,
     ruleBlockLiteral, ruleDoBlock, regularVarName,
 ) where
 import Pugs.Internals

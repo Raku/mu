@@ -244,7 +244,7 @@ qInterpolator flags = choice [
             QB_Balanced -> try $ qInterpolateDelimiterBalanced $ qfProtectedChar flags
             QB_No -> mzero
         variable = try $ do
-            var <- ruleVarName
+            var <- ruleVarNameString
             fs <- case head var of
                 '$' -> if qfInterpolateScalar flags &&
                           notProtected var flags
