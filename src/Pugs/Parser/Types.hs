@@ -180,6 +180,7 @@ data Operator t st a      = Infix { op_infix :: (GenParser t st (a -> a -> a)), 
                           | InfixList { op_infixList :: (GenParser t st ([a] -> a)), op_assoc ::  Assoc }
                           | OptionalPrefix (GenParser t st (a -> a))
                           | DependentPostfix (a -> GenParser t st a)
+                          | Circumfix (GenParser t st a)
 
 type OperatorTable t st a = [[Operator t st a]]
 

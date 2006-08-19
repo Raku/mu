@@ -208,6 +208,7 @@ symbol s = try $ do
     aheadWord _  y   = not $ isWordAny y
     aheadSym '-' '>' = False -- XXX hardcode
     aheadSym '!' '~' = False -- XXX hardcode
+    aheadSym '\\''(' = False -- XXX hardcode
     aheadSym x   '=' = not (x `elem` "!~+-*&/|.%^")
     aheadSym '?' y   = not (y `elem` "&|^?")
     aheadSym '+' y   = not (y `elem` "&|^+")

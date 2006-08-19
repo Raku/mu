@@ -12,11 +12,13 @@
 module Pugs.Parser (
     ruleBlockBody,
     possiblyExit,
-    parseTerm,
     module Pugs.Lexer,
     module Pugs.Parser.Types,
     module Pugs.Parser.Unsafe,
     module Pugs.Parser.Operator,
+
+    -- For circularity use in Pugs.Parser.Operator
+    parseTerm, ruleExpression,
 ) where
 import Pugs.Internals
 import Pugs.AST
@@ -1262,6 +1264,7 @@ parseTerm :: RuleParser Exp
 parseTerm = rule "term" $! do
     term <- choice
         [ ruleDereference
+        , ruleCapture
         , ruleVarDecl
         , ruleVar
         , ruleApply True    -- Folded metaoperators
@@ -1271,7 +1274,6 @@ parseTerm = rule "term" $! do
         , ruleCodeQuotation
         , ruleTypeVar
 --      , ruleTypeLiteral
-        , ruleCapture
         , ruleApply False   -- Normal application
         -- Hack - use an empty Syn to defeat isScalarLValue checking
         --        so that ($x) = f() gives list context.
@@ -1728,10 +1730,6 @@ numLiteral = do
     case n of
         Left  i -> return . Val $ VInt i
         Right d -> return . Val $ VRat d
-
-ruleBracketedExpression :: RuleParser Exp
-ruleBracketedExpression = enterBracketLevel ParensBracket $
-    ruleExpression <|> do { whiteSpace; return (Syn "," []) }
 
 arrayLiteral :: RuleParser Exp
 arrayLiteral = try $ do

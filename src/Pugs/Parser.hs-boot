@@ -3,3 +3,4 @@ import Pugs.AST
 import Pugs.Parser.Types
 
 parseTerm :: RuleParser Exp
+ruleExpression :: RuleParser Exp
