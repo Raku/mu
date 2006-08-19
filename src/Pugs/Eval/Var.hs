@@ -332,91 +332,67 @@ findSub _var _invs _args = case _invs of
         | [arg] <- _args    = [arg, Val undef]
         | otherwise         = take 2 _args
 
-    buildPrefixHyper name var = do
+    metaPrim = mkPrim
+        { subName = cast (v_name _var)
+        , subType     = SubPrim
+        , subReturns  = mkType "List"
+        }
+
+    buildPrefixHyper var = do
         let rv = fmap (either (const Nothing) Just) $
                 findSub var Nothing firstArg
-        maybeM rv $ \code -> return $ mkPrim
-            { subName     = name
-            , subType     = SubPrim
-            , subAssoc    = subAssoc code
+        maybeM rv $ \code -> return $ metaPrim
+            { subAssoc    = subAssoc code
             , subParams   = subParams code
-            , subReturns  = mkType "List"
             , subBody     = Prim
                 (\x -> op1HyperPrefix code (listArg x))
             }
 
-    buildPostfixHyper name var = do
+    buildPostfixHyper var = do
         let rv = fmap (either (const Nothing) Just) $
                 findSub var Nothing firstArg
-        maybeM rv $ \code -> return $ mkPrim
-            { subName     = name
-            , subType     = SubPrim
-            , subAssoc    = subAssoc code
+        maybeM rv $ \code -> return $ metaPrim
+            { subAssoc    = subAssoc code
             , subParams   = subParams code
-            , subReturns  = mkType "List"
             , subBody     = Prim
                 (\x -> op1HyperPostfix code (listArg x))
             }
 
-    buildInfixHyper name var = do
+    buildInfixHyper var = do
         let rv = fmap (either (const Nothing) Just) $
                 findSub var Nothing firstTwoArgs
-        maybeM rv $ \code -> return $ mkPrim
-            { subName     = name
-            , subType     = SubPrim
-            , subAssoc    = subAssoc code
+        maybeM rv $ \code -> return $ metaPrim
+            { subAssoc    = subAssoc code
             , subParams   = makeParams ["Any", "Any"]
-            , subReturns  = mkType "List"
             , subBody     = Prim (\[x, y] -> op2Hyper code x y)
             }
 
-    -- possiblyBuildMetaopVCode :: (_args :: [Exp]) => Var -> Eval (Maybe VCode)
-    possiblyBuildMetaopVCode var@MkVar{ v_categ = cat, v_name = name }
-        | C_prefix <- cat, __"\194\171" `Str.isSuffixOf` buf = do
-            buildPrefixHyper buf var{ v_name = cast $ dropEnd 2 buf }
-        | C_prefix <- cat, __"<<" `Str.isSuffixOf` buf = do
-            buildPrefixHyper buf var{ v_name = cast $ dropEnd 2 buf }
-        | C_postfix <- cat, __"\194\187" `Str.isPrefixOf` buf = do
-            buildPostfixHyper buf var{ v_name = cast $ Str.drop 2 buf }
-        | C_postfix <- cat, __">>" `Str.isPrefixOf` buf = do
-            buildPostfixHyper buf var{ v_name = cast $ Str.drop 2 buf }
-        | C_infix <- cat
-        , __"\194\187" `Str.isPrefixOf` buf
-        , __"\194\171" `Str.isSuffixOf` buf = do
-            buildInfixHyper buf var{ v_name = cast $ Str.drop 2 (dropEnd 2 buf) }
-        | C_infix <- cat
-        , __">>" `Str.isPrefixOf` buf
-        , __"<<" `Str.isSuffixOf` buf = do
-            buildInfixHyper buf var{ v_name = cast $ Str.drop 2 (dropEnd 2 buf) }
-        | C_prefix <- cat, '[' <- Str.head buf, ']' <- Str.last buf = do
-            -- Strip the trailing "]" from op
-            let (op, keep)
-                    | Str.index buf 1 == '\\'   = (Str.drop 2 (Str.init buf), True)
-                    | otherwise                 = (Str.tail (Str.init buf), False)
+    buildReduce var keep = do
+        let rv = fmap (either (const Nothing) Just) $
+                findSub var Nothing firstTwoArgs
+        maybeM rv $ \code -> return $ metaPrim
+            { subAssoc    = ANil
+            , subParams   = makeParams $
+                if any isLValue (subParams code)
+                    then ["rw!List"] -- XXX - does not yet work for the [=] case
+                    else ["List"]
+            , subReturns  = anyType
+            , subBody     = Prim $ \[vs] -> do
+                list_of_args <- fromVal vs
+                op2Reduce keep list_of_args (VCode code)
+            }
 
-            -- We try to find the userdefined sub.
-            -- We use the first two elements of invs as invocants, as these are the
-            -- types of the op.
-                rv = fmap (either (const Nothing) Just) $
-                    findSub (var{ v_categ = C_infix, v_name = cast op }) Nothing
-                        firstTwoArgs
-            maybeM rv $ \code -> return $ mkPrim
-                { subName     = buf
-                , subType     = SubPrim
-                , subAssoc    = ANil
-                , subParams   = makeParams $
-                    if any isLValue (subParams code)
-                        then ["rw!List"] -- XXX - does not yet work for the [=] case
-                        else ["List"]
-                , subReturns  = anyType
-                , subBody     = Prim $ \[vs] -> do
-                    list_of_args <- fromVal vs
-                    op2Reduce keep list_of_args (VCode code)
-                }
-            -- Now we construct the sub. Is there a more simple way to do it?
-        | otherwise = return Nothing
+    -- possiblyBuildMetaopVCode :: (_args :: [Exp]) => Var -> Eval (Maybe VCode)
+    possiblyBuildMetaopVCode var@MkVar{ v_name = name, v_meta = meta }
+        | MPost     <- meta = buildPrefixHyper var'         -- +<<
+        | MPre      <- meta = buildPostfixHyper var'        -- >>+
+        | MHyper    <- meta = buildInfixHyper var'          -- >>+<<
+        | MFold     <- meta = buildReduce varInfix False    -- [+]
+        | MScan     <- meta = buildReduce varInfix True     -- [\+]
+        | otherwise         = return Nothing
         where
-        buf = cast name
+        var' = var{ v_meta = MNil }
+        varInfix = var{ v_meta = MNil, v_categ = C_infix }
 
 metaVar :: Pkg -> Var
 -- metaVar = MkVar SType TNil globalPkg CNil . cast

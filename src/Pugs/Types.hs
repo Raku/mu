@@ -198,14 +198,28 @@ showsVar MkVar
     , v_package = pkg@(MkPkg ns)
     , v_categ   = cat
     , v_name    = name
-    } = showsPrec 0 sig . showsPrec 0 twi . showCateg . showPkg . ((++) (cast name))
+    , v_meta    = meta
+    } = showsPrec 0 sig . showsPrec 0 twi . showCateg . showPkg . showsMeta meta showName
     where
+    showName = ((++) (cast name))
     showCateg = case cat of
         CNil    -> id
         _       -> drop 2 . showsPrec 0 cat . (':':)
     showPkg = if null ns
         then id
         else showsPrec 0 pkg . (\x -> (':':':':x))
+
+showsMeta :: VarMeta -> (String -> String) -> String -> String
+showsMeta MNil              f x = f x
+showsMeta MFold             f x = ('[':f (']':x))
+showsMeta MScan             f x = ('[':'\\':f (']':x))
+showsMeta MPre              f x = ('>':'>':f x)
+showsMeta MPost             f x = f ('<':'<':x)
+showsMeta MHyper            f x = ('>':'>':f ('<':'<':x))
+showsMeta MHyperFold        f x = ('[':'>':'>':f ('<':'<':']':x))
+showsMeta MHyperFoldPost    f x = ('[':'>':'>':f ('<':'<':']':'<':'<':x))
+showsMeta MHyperScan        f x = ('[':'\\':'>':'>':f ('<':'<':']':x))
+showsMeta MHyperScanPost    f x = ('[':'\\':'>':'>':f ('<':'<':']':'<':'<':x))
 
 instance ((:>:) String) Var where
     cast var = showsVar var ""
@@ -354,7 +368,7 @@ doBufToVar buf = MkVar
     , v_twigil  = twi
     , v_package = pkg
     , v_categ   = cat
-    , v_meta    = metas
+    , v_meta    = meta
     , v_name    = cast name
     }
     where
@@ -393,7 +407,35 @@ doBufToVar buf = MkVar
                           (c, n) = tokenizeCategory (Str.drop (idx + 2) afterPkg)
                         in (c, Str.take idx afterPkg +++ n)
         | otherwise = tokenizeCategory afterPkg
-    (name, metas) = (afterCat, MNil)
+    (name, meta)
+        | C_prefix <- cat, __"\194\171" `Str.isSuffixOf` afterCat
+        = (dropEnd 2 afterCat, MPost)
+        | C_prefix <- cat, __"<<" `Str.isSuffixOf` afterCat
+        = (dropEnd 2 afterCat, MPost)
+        | C_postfix <- cat, __"\194\187" `Str.isPrefixOf` afterCat
+        = (Str.drop 2 afterCat, MPre)
+        | C_postfix <- cat, __">>" `Str.isPrefixOf` afterCat
+        = (Str.drop 2 afterCat, MPre)
+        | C_infix <- cat
+        , __"\194\187" `Str.isPrefixOf` afterCat
+        , __"\194\171" `Str.isSuffixOf` afterCat
+        = (Str.drop 2 (dropEnd 2 afterCat), MHyper)
+        | C_infix <- cat
+        , __">>" `Str.isPrefixOf` afterCat
+        , __"<<" `Str.isSuffixOf` afterCat 
+        = (Str.drop 2 (dropEnd 2 afterCat), MHyper)
+        | C_prefix <- cat
+        , __"[\\" `Str.isPrefixOf` afterCat
+        , ']' <- Str.last afterCat
+        = (Str.drop 2 (Str.tail afterCat), MScan)
+        | C_prefix <- cat
+        , '[' <- Str.head afterCat
+        , ']' <- Str.last afterCat
+        = (Str.init (Str.tail afterCat), MFold)
+        -- XXX - MHyperFold, MHyperFoldPost, MHyperScan, MHyperScanPost
+        | otherwise
+        = (afterCat, MNil)
+
     tokenizeCategory str = case Str.elemIndex ':' str of
         Just idx -> if isUpper (Str.head str)
             then internalError (show buf)
