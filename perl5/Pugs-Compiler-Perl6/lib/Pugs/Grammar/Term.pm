@@ -117,13 +117,13 @@ sub rx_body {
 ) )->code;
 
 *parenthesis = Pugs::Compiler::Token->compile( q(
-                <?ws>? <Pugs::Grammar::Perl6.perl6_expression> <?ws>? 
+                <?ws>? <Pugs::Grammar::Expression.parse> <?ws>? 
                 <'\)'>
                 { return {
                     op1 => { op => "(" },
                     op2 => { op => ")" },
                     fixity => "circumfix",
-                    exp1 => $_[0]{'Pugs::Grammar::Perl6.perl6_expression'}->() 
+                    exp1 => $_[0]{'Pugs::Grammar::Expression.parse'}->() 
                 } }
             |
                 <?ws>? <Pugs::Grammar::Perl6.block> <?ws>? 
@@ -152,13 +152,13 @@ sub rx_body {
                     reduce => 1, 
                 } }
             |
-                <?ws>? <Pugs::Grammar::Perl6.perl6_expression> <?ws>? 
+                <?ws>? <Pugs::Grammar::Expression.parse> <?ws>? 
                 <']'>
                 { return {
                     op1 => { op => "[" },
                     op2 => { op => "]" },
                     fixity => "circumfix",
-                    exp1 => $_[0]{'Pugs::Grammar::Perl6.perl6_expression'}->() 
+                    exp1 => $_[0]{'Pugs::Grammar::Expression.parse'}->() 
                 } }
             |
                 <?ws>? <Pugs::Grammar::Perl6.block> <?ws>? 
@@ -369,13 +369,13 @@ sub recompile {
                 |
                 # :foo(exp)
                 ([_|\w]+) \(  
-                    <?ws>? <Pugs::Grammar::Perl6.perl6_expression> <?ws>? 
+                    <?ws>? <Pugs::Grammar::Expression.parse> <?ws>? 
                 \)
                 { 
                     return {
                       pair => { 
                         key   => { single_quoted => $/[0]() }, 
-                        value => $/{'Pugs::Grammar::Perl6.perl6_expression'}->(), 
+                        value => $/{'Pugs::Grammar::Expression.parse'}->(), 
                 } } }
                 |
                 # :$foo 

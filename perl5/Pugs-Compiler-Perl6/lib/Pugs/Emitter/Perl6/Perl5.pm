@@ -735,7 +735,7 @@ sub default {
 
 sub statement {
     my $n = $_[0];
-    #warn "statement: ", Dumper( $n );
+    warn "statement: ", Dumper( $n );
     
     if ( $n->{statement} eq 'if'     || 
          $n->{statement} eq 'unless' ) {
@@ -891,9 +891,11 @@ sub statement {
             return  $head . 
                     " { " . _emit( $n->{exp2}{pointy_block} ) . " }";
         }
-        die 'for/while/until should contain a block' unless $n->{exp2}{bare_block};
+        #die 'for/while/until should contain a block' unless $n->{exp2}{bare_block};
+        $n->{exp2} = { bare_block => $n->{exp2} } 
+            if $n->{exp2} && !$n->{exp2}{bare_block};
         return  " " . $n->{statement} . 
-                ' ( ' . _emit( $n->{exp1} ) . ' )' . 
+                ' ( ' . _emit( $n->{exp1} ) . ' ) ' . 
                 _emit( $n->{exp2} );
     }
 

@@ -83,7 +83,7 @@ use_ok( 'Pugs::Grammar::Perl6' );
 }
 
 {
-  my $match = Pugs::Grammar::Perl6->perl6_expression( 
+  my $match = Pugs::Grammar::Expression->parse( 
         '* 123 ;#', 
         { p => 1 }, );
   #print Dumper $match->data;
@@ -91,7 +91,7 @@ use_ok( 'Pugs::Grammar::Perl6' );
   is( $match->to, 5, ".to" );
 }
 {
-  my $match = Pugs::Grammar::Perl6->perl6_expression( 
+  my $match = Pugs::Grammar::Expression->parse( 
         '* 123 + 456 ;#', 
         { p => 1 }, );
   #print Dumper $match->data;

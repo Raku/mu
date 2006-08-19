@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 #use Pugs::Compiler::Rule;
+use Pugs::Runtime::Match;
 use Pugs::Grammar::Precedence;
 use Pugs::Grammar::Term;
 use Pugs::Grammar::Quote;
@@ -16,15 +17,9 @@ use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Sortkeys = 1;
 
-# TODO - grab the delimiters from StatementModifier
 my $rx_end_with_blocks = qr/
                 ^ \s* (?: 
                             [});\]] 
-                          | if \s 
-                          | unless \s
-                          | for \s 
-                          | while \s
-                          | until \s
                           | $
                         )
             /xs;
@@ -34,22 +29,33 @@ my $rx_end_no_blocks = qr/
                     \s+ {
                   | \s* (?: 
                             [});\]] 
-                          | if \s 
-                          | unless \s
-                          | for \s 
-                          | while \s
-                          | until \s
                           | -> 
                           | $
                         )  
                 )
             /xs;
 
-our ( $p, $match, $pos, $rx_end );
+# this is not thread-safe, but it saves time in Parse::Yapp 
+our ( $p, $match, $pos, $rx_end, $allow_modifier, $statement_modifier );
 our $reentrant;
 
+sub parse {
+    #print "perl6_expression param: ", Dumper @_;
+    my $pos = $_[2]{p} || 0;
+    my ( $ast, $to ) = ast( $_[1], $_[2] );
+    my $match = Pugs::Runtime::Match->new( { 
+        bool    => \( $ast ? 1 : 0 ),
+        str     => \$_[1],
+        match   => [],
+        from    => \$pos,
+        to      => \$to,
+        capture => \$ast,
+    } );
+    return $match;
+};
+
 sub ast {
-    local ( $p, $match, $pos, $rx_end )
+    local ( $p, $match, $pos, $rx_end, $allow_modifier, $statement_modifier )
         if $reentrant;
     $reentrant++;
     #print " $reentrant ";
@@ -60,12 +66,14 @@ sub ast {
     #my $s = substr( $_[0], $pos );
     #print "pos: $pos\n";
 
-    my $no_blocks = exists $param->{args}{no_blocks} ? 1 : 0;
+    my $no_blocks   = exists $param->{args}{no_blocks}      ? 1 : 0;
+    $allow_modifier = exists $param->{args}{allow_modifier} ? 1 : 0;
     #warn "don't parse blocks: $no_blocks ";
     $rx_end = $no_blocks 
                 ? $rx_end_no_blocks
                 : $rx_end_with_blocks;
-
+    $statement_modifier = undef;
+    
     $match .= '';
     if ( substr( $match, $pos ) =~ /$rx_end/ ) {
         # end of parse
@@ -87,6 +95,16 @@ sub ast {
     ) unless $p;
 
     my $out=$p->YYParse(yydebug => 0);
+
+    if ( $statement_modifier ) {
+        $pos = $statement_modifier->to;
+        $out = {
+            statement => $statement_modifier->()->{'statement'},
+            exp1 => $statement_modifier->()->{'exp1'},
+            exp2 => $out,
+        }; 
+    }
+
     #print Dumper $out;
     $reentrant--;
     return ( $out, $pos );
@@ -102,7 +120,7 @@ sub lexer {
         }
 
         my @expect = $p->YYExpect;  # XXX is this expensive?
-        #print "Expect: ", Dumper( @expect );
+        #print "Expect: @expect \n";
         my $expect_term = grep { $_ eq 'NUM' || $_ eq 'BAREWORD' } @expect;
 
         # -- this only optimizes about 2%
@@ -111,6 +129,27 @@ sub lexer {
         #my $expect_term =  exists $expect->{'NUM'} 
         #                || exists $expect->{'BAREWORD'};
         
+        my $expect_end =
+            (  $reentrant == 1 
+            && grep { $_ eq 'postfix:<++>' } @expect
+            );
+            
+        # a new-line after a block may terminate a statement
+        if ( $expect_end ) {
+            #print "Expecting end-of-expression at $pos \n";
+            #print "  $match\n";
+            #print "  ", (" "x$pos), "^", "\n";
+            
+            if ( substr( $match, $pos-1, 1 ) eq '}' ) {
+                #print "  It was a block\n";
+                # TODO - "unspace"
+                my $spaces = Pugs::Grammar::BaseCategory->ws( $match, { p => $pos } );
+                # does the spaces contain 'newline' ?
+                return ('', '', $pos)
+                    if $spaces =~ /\n/s;
+            }
+        }
+
         my $m = Pugs::Grammar::BaseCategory->ws( $match, { p => $pos } );
         # print "match is ",Dumper($m),"\n";
         if ( $m ) {
@@ -118,6 +157,15 @@ sub lexer {
             #print "pos after <ws>: $pos\n";
         }
         
+        # a statement modifier can also terminate a statement
+        if ( $expect_end ) {
+            if ( $allow_modifier ) {
+                $statement_modifier = Pugs::Grammar::StatementModifier->parse( $match, { p => $pos } );
+                return ('', '', $pos)
+                    if $statement_modifier;
+            }
+        }
+
         my $m1 = Pugs::Grammar::Operator->parse( $match, { p => $pos } );
         my $m2;
         if ( $expect_term ) {

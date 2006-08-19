@@ -13,24 +13,9 @@ use Pugs::Grammar::P6Rule; # our local version of Grammar::Rule.pm
 
 use Data::Dumper;
 
-sub perl6_expression {
-    #print "perl6_expression param: ", Dumper @_;
-    my $pos = $_[2]{p} || 0;
-    my ( $ast, $to ) = Pugs::Grammar::Expression::ast( $_[1], $_[2] );
-    my $match = Pugs::Runtime::Match->new( { 
-        bool    => \( $ast ? 1 : 0 ),
-        str     => \$_[1],
-        match   => [],
-        from    => \$pos,
-        to      => \$to,
-        capture => \$ast,
-    } );
-    return $match;
-};
-
 *perl6_expression_or_null = Pugs::Compiler::Token->compile( q(
-    <perl6_expression('no_blocks',0)> 
-        { return $_[0]{perl6_expression}->() }
+    <Pugs::Grammar::Expression.parse('no_blocks',1)> 
+        { return $_[0]{'Pugs::Grammar::Expression.parse'}->() }
     |
         { return {
             null => 1,
@@ -78,18 +63,6 @@ sub perl6_expression {
 ),
     { grammar => __PACKAGE__ }
 )->code;
-
-*try = Pugs::Compiler::Token->compile( q(
-    (try) <?ws>? <block>        
-        { return { 
-                    fixity => 'prefix',
-                    op1 => { op => 'try' },
-                    exp1 => $_[0]{block}->(),
-        } }
-),
-    { grammar => __PACKAGE__ }
-)->code;
-
 
 *attribute = Pugs::Compiler::Regex->compile( q(
         (<alnum>+) <?ws> ( [<alnum>|_|\\:\\:]+)
@@ -158,10 +131,10 @@ sub perl6_expression {
         (<'*'>?)
         <signature_term_ident>
         (<'?'>?)
-        (<?ws>? <'='> <perl6_expression('no_blocks', 0)>)?
+        (<?ws>? <'='> <Pugs::Grammar::Expression.parse('no_blocks', 1)>)?
         <?ws>? <attribute> 
             { return {
-                default    => $_[0][3] ? $_[0][3][0]{perl6_expression}->() : undef,
+                default    => $_[0][3] ? $_[0][3][0]{'Pugs::Grammar::Expression.parse'}->() : undef,
                 type       => $_[0]{signature_term_type}->(),
                 name       => $_[0]{signature_term_ident}->(),
                 attribute  => $_[0]{attribute}->(),
@@ -223,8 +196,8 @@ sub perl6_expression {
 )->code;
 
 *sub_decl_name = Pugs::Compiler::Token->compile( q(
-    ( my | <''> ) <?ws>?
-    ( multi | <''> ) <?ws>?
+    ( my    | <null> ) <?ws>?
+    ( multi | <null> ) <?ws>?
     ( submethod | method | sub ) <?ws>? 
     ( <?Pugs::Grammar::Term.ident>? ) 
         { return { 
@@ -283,8 +256,8 @@ sub perl6_expression {
 
 
 *rule_decl_name = Pugs::Compiler::Token->compile( q(
-    ( multi | <''> ) <?ws>?
-    ( rule | regex | token ) <?ws>?
+    ( multi | <null> ) <?ws>?
+    ( rule  | regex | token ) <?ws>?
     ( <?Pugs::Grammar::Term.ident>? ) 
         { return { 
             multi      => $_[0][0]->(),
@@ -333,11 +306,9 @@ sub perl6_expression {
 
 
 *class_decl_name = Pugs::Compiler::Token->compile( q(
-    ( my | <''> ) <?ws>?
+    ( my    | <null> ) <?ws>?
     ( class | grammar | module | role | package ) <?ws>? 
-    ( <?Pugs::Grammar::Term.cpan_bareword> |
-      <?Pugs::Grammar::Term.bare_ident> |
-      <''> ) 
+    ( <?Pugs::Grammar::Term.cpan_bareword> | <?Pugs::Grammar::Term.bare_ident> | <null> ) 
         { return { 
             my         => $_[0][0]->(),
             statement  => $_[0][1]->(),
@@ -350,7 +321,6 @@ sub perl6_expression {
 
 *class_decl = Pugs::Compiler::Token->compile( q(
     <class_decl_name> <?ws>? 
-        # attr
         <attribute> <?ws>?
         <block>?
         { 
@@ -424,41 +394,10 @@ sub perl6_expression {
         { return $_[0]{begin_block}->();
         }
     |
-    <rule_decl>  # TODO: move to expression
-        { return $_[0]{rule_decl}->();
-        }
-    |
-    <sub_decl>   # TODO: move to expression
-        { return $_[0]{sub_decl}->();
-        }
-    |
-    <try>        # TODO: move to expression
-        { return $_[0]{try}->();
-        }
-    |
-    <perl6_expression> 
-        [
-            <?ws>? 
-            <Pugs::Grammar::StatementModifier.parse> 
-            #{ print "\$a if \$b ", Dumper( $/->data );
-            #  print Dumper( $_[0]{'perl6_expression'}->data ),
-            #        Dumper( $_[0]{'Pugs::Grammar::StatementModifier.parse'}->data );
-            #}
-            { return {
-                statement => $/->{'Pugs::Grammar::StatementModifier.parse'}->()->{'statement'},
-                exp2 => $/->{'perl6_expression'}->(),
-                exp1 => $/->{'Pugs::Grammar::StatementModifier.parse'}->()->{'exp1'},
-            } } 
-        |
-            { 
-                return $_[0]{perl6_expression}->();
-            } 
-        ]
-    |
-    <block>
-        { return $_[0]{block}->();
-        }
-
+    <Pugs::Grammar::Expression.parse('allow_modifier', 1)> 
+        { 
+            return $_[0]{'Pugs::Grammar::Expression.parse'}->();
+        } 
 ),
     { grammar => __PACKAGE__ }
 )->code;
