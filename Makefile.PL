@@ -66,6 +66,7 @@ author          ('Audrey Tang <cpan@audreyt.org>');
 license         ('perl');
 install_script  ($pugs);
 install_script  (glob('script/*'));
+install_script  ('util/prove6');
 recommends      ('Perl6::Bible');
 recommends      ('Inline');
 recommends      ('Filter::Simple');
