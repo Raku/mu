@@ -466,7 +466,7 @@ These functions both take blocks of code, run the code, and test whether they li
 Sometimes a test is broken because something is not implemented yet. So
 in order to still allow that to be tested, and those tests to knowingly
 fail, we provide the `todo` function to TODO the next one test according
-to a given deadline.
+to a given deadline. (See below.)
 
 Take the Pugs implementatio as an examle, when TODOing failing tests before
 the Pugs release (say, 6.2.12), the following form of todo should be used:
@@ -506,6 +506,10 @@ and only if the current compiler's $?COMPILER holds a string whose lowercase
 version equals to 'pugs' and $?VERSION holds a value less than '6.28.0'.
 The `todo` functuion will perform partial ordering comparison between version
 numbers.
+
+More implementation-specific deadlines can be appended to a single `todo` call:
+
+    todo :pugs<6.28.0>, :p6p5<0.011>, :parrot<0.45>;
 
 - `skip (Str $reason?) returns Bool`
 - `skip (Int $count, Str $reason?) returns Bool`
