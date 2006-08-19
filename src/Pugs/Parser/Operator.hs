@@ -240,39 +240,25 @@ matchSlurpy _ = False
 fileTestOperatorNames :: String
 fileTestOperatorNames = "rwxoRWXOezsfdlpSbctugkTBMAC"
 
-preSyn      :: [String] -> [RuleOperator Exp]
-preSyn      = ops $ makeOp1 Prefix "" Syn
-optPreSyn   :: [String] -> [RuleOperator Exp]
-optPreSyn   = ops $ makeOp1 OptionalPrefix "" Syn
-preOps      :: [String] -> [RuleOperator Exp]
+preSyn, optPreSyn, preOps, preSymOps, optSymOps, postOps, optOps, leftOps, rightOps, noneOps, listOps :: [String] -> [RuleOperator Exp]
+preSyn      = ops  $ makeOp1 Prefix "" Syn
+optPreSyn   = ops  $ makeOp1 OptionalPrefix "" Syn
 preOps      = (ops $ makeOp1 Prefix "&prefix:" doApp) . addHyperPrefix
-preSymOps   :: [String] -> [RuleOperator Exp]
 preSymOps   = (ops $ makeOp1 Prefix "&prefix:" doAppSym) . addHyperPrefix
-optSymOps   :: [String] -> [RuleOperator Exp]
 optSymOps   = (ops $ makeOp1 OptionalPrefix "&prefix:" doAppSym) . addHyperPrefix
-postOps     :: [String] -> [RuleOperator Exp]
 postOps     = (ops $ makeOp1 Postfix "&postfix:" doApp) . addHyperPostfix
-optOps      :: [String] -> [RuleOperator Exp]
 optOps      = (ops $ makeOp1 OptionalPrefix "&prefix:" doApp) . addHyperPrefix
-leftOps     :: [String] -> [RuleOperator Exp]
 leftOps     = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix
-rightOps    :: [String] -> [RuleOperator Exp]
 rightOps    = (ops $ makeOp2 AssocRight "&infix:" doApp) . addHyperInfix
-noneOps     :: [String] -> [RuleOperator Exp]
-noneOps     = ops $ makeOp2 AssocNone "&infix:" doApp
-listOps     :: [String] -> [RuleOperator Exp]
-listOps     = ops $ makeOp2 AssocLeft "&infix:" doApp
-chainOps    :: [String] -> [RuleOperator Exp]
+noneOps     = ops  $ makeOp2 AssocNone "&infix:" doApp
+listOps     = ops  $ makeOp2 AssocLeft "&infix:" doApp
 chainOps    = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix . withNegation
     where
     withNegation []             = []
     withNegation (x@('!':_):xs) = x:withNegation xs
     withNegation (x:xs)         = x:('!':x):withNegation xs
-rightSyn    :: [String] -> [RuleOperator Exp]
 rightSyn    = ops $ makeOp2 AssocRight "" Syn
-noneSyn     :: [String] -> [RuleOperator Exp]
 noneSyn     = ops $ makeOp2 AssocNone "" Syn
-listSyn     :: [String] -> [RuleOperator Exp]
 listSyn     = ops $ makeOp0 AssocList "" Syn
 rightAssignSyn :: RuleOperator Exp
 rightAssignSyn = makeOp2Assign AssocRight "" Syn
