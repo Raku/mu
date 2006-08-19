@@ -8,7 +8,7 @@ use warnings;
 use Getopt::Long;
 use Test::Harness;
 
-my ($pugs, $pir, $perl5, $help);
+my ($pugs, $pir, $perl5, $help, $inc);
 my $blib = 0;
 my $lib = 0;
 my @includes = ();
@@ -35,6 +35,8 @@ GetOptions(
     'v6-alpha'  => \$perl5,
     
     help        => \$help,
+
+    'I=s'       => \$inc,
 
     'b|blib'        => \$blib,
     'l|lib'         => \$lib,
@@ -63,6 +65,7 @@ Options:
     --perl       ditto
     --v6-alpha   ditto
 
+    -I <path>     Prepends <path> to PERL6LIB.
     -b, --blib    Adds blib/lib to the path for your tests, a la "use blib".
     -l, --lib     Add lib to the path for your tests.
     -v, --verbose Display standard output of test scripts while running them.
@@ -80,6 +83,9 @@ my @tfiles = sort map glob, @ARGV;
 $ENV{PERL6LIB} ||= 'blib6/lib';
 my $sep = ($^O eq 'MSWin32')? ';' : ':';
 #warn $sep;
+
+warn $inc;
+if ($inc) { $ENV{PERL6LIB} = $inc . $sep . $ENV{PERL6LIB}; }
 
 # Handle blib includes
 if ( $blib ) {
