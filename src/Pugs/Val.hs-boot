@@ -6,7 +6,6 @@ import Pugs.Internals
 import qualified Data.ByteString as Buf
 
 data Val
-data ValNative = NBuf !NativeBuf
 type NativeBuf      = ByteString
 type P = Identity
 type Table = Map ID Val
