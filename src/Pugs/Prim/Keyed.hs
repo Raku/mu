@@ -3,7 +3,6 @@
 module Pugs.Prim.Keyed (
   -- keyed values (Val)
   pairsFromVal, keysFromVal, valuesFromVal,
-  sizeFromVal,
 
   -- keyed references (VRef)
   pairsFromRef, keysFromRef, valuesFromRef,
@@ -47,13 +46,6 @@ valuesFromVal (PerlSV sv) = do
     pairs <- hash_fetch sv
     return . VList $ Map.elems pairs
 valuesFromVal v = retError "Not a keyed reference" v
-
-sizeFromVal :: Val -> Eval Val
-sizeFromVal v = do
-    size <- doArray v array_fetchSize
-    sz <- size
-    return $ castV sz
-
 
 -- XXX These bulks of code below screams for refactoring
 
