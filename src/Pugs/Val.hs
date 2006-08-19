@@ -34,6 +34,7 @@ import Pugs.Val.Base
 import {-# SOURCE #-} Pugs.Exp
 
 import qualified Pugs.Types as Types
+
 #include "Val/Code.hs"
 
 {-|
@@ -442,18 +443,3 @@ instance Ord Val where
     compare (VExt _) (VPure _) = GT
     compare (VExt _) (VMut _) = GT
     compare (VExt aa) (VExt aa') = dynCompare aa aa'
-
-{-
-instance Data Val where
-    toConstr (VUndef x)     = toConstr x
-    toConstr (VNative x)    = toConstr x
-    toConstr (VPure x)      = toConstr x
-    toConstr (VMut x)       = toConstr x
-    toConstr (VExt x)       = toConstr x
-    dataTypeOf (VUndef x)   = dataTypeOf x
-    dataTypeOf (VNative x)  = dataTypeOf x
-    dataTypeOf (VPure x)    = dataTypeOf x
-    dataTypeOf (VMut x)     = dataTypeOf x
-    dataTypeOf (VExt x)     = dataTypeOf x
-    gunfold                 = gunfold
--}
