@@ -84,7 +84,7 @@ $ENV{PERL6LIB} ||= 'blib6/lib';
 my $sep = ($^O eq 'MSWin32')? ';' : ':';
 #warn $sep;
 
-warn $inc;
+#warn $inc;
 if ($inc) { $ENV{PERL6LIB} = $inc . $sep . $ENV{PERL6LIB}; }
 
 # Handle blib includes
