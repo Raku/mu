@@ -13,7 +13,7 @@ L<S04/"The C<for> statement">
 
 =cut
 
-plan 34;
+plan 35;
 
 ## for with plain old range operator w/out parens
 # L<S04/"The C<for> statement" /in Perl 6, si it always take a list as an argument/>
@@ -28,6 +28,16 @@ is($a, '012345', 'for 0..5 {} works');
 my $b;
 for 0 .. 5 -> $_ { $b = $b ~ $_; };
 is($b, '012345', 'for 0 .. 5 -> {} works');
+
+{
+    my @str;
+    my @a = 1..3;
+    my @b = 5..6;
+    for each(@a; @b) -> $x, $y {
+        $str ~= "($x $y)";
+    }
+    is $str, "(1 5)(2 4)(3 6)";
+}
 
 # ... with sub
 
