@@ -13,31 +13,31 @@ import ASTDefinition
 
 --Returns the first instance of a given type of node from a list of nodes. 
 extractNodetype :: P5AST -> [P5AST] -> P5AST
-extractNodetype _ [] = (AbstractNode UnknownAbs [])
+extractNodetype _ [] = (AbstractNode "UnknownAbs" [])
 extractNodetype node nlist = if (matchOnType node (head nlist)) then (head nlist) else (extractNodetype node (tail nlist))
 
 --Get just the kids of a given node ([] in case of literal node).
 extractKids :: P5AST -> [P5AST]
 extractKids (AbstractNode atype kids) = kids
-extractKids (Heredoc start end kids) = kids
+extractKids (Heredoc doc start end kids) = kids
 extractKids (LiteralNode _ _ _) = []
 
 --When called on the kids of a node that make up a function call, this function extracts the second arguement (the first thing after a comma)
 getSecondArg :: [P5AST] -> P5AST
-getSecondArg [] = (AbstractNode UnknownAbs [])
-getSecondArg list = if (matchWithoutEnc (head list) (AbstractNode Listelem [])) then (dropComma (head list)) else (getSecondArg (tail list))
+getSecondArg [] = (AbstractNode "UnknownAbs" [])
+getSecondArg list = if (matchWithoutEnc (head list) (AbstractNode "listelem" [])) then (dropComma (head list)) else (getSecondArg (tail list))
 
 --Drops the comma from an argument to a function (since the literal comma gets stuck in with with argument)
 dropComma :: P5AST -> P5AST
-dropComma (AbstractNode Listelem kids) = (head (tail kids))
+dropComma (AbstractNode "listelem" kids) = (head (tail kids))
 dropComma (AbstractNode atype kids) = (AbstractNode atype kids)
-dropComma (Heredoc start end kids) = (Heredoc start end kids)
+dropComma (Heredoc doc start end kids) = (Heredoc doc start end kids)
 dropComma (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
 
 --Extracts the first text node (based only on type, not other fields)
 extractText :: [P5AST] -> P5AST
-extractText [] = (LiteralNode Text "1" "")
-extractText kids = if ((getLType (head kids))==Text) then (head kids) else (extractText (tail kids)) 
+extractText [] = (LiteralNode "text" "1" "")
+extractText kids = if ((getLType (head kids))=="text") then (head kids) else (extractText (tail kids)) 
 
 --Match based only on subtype
 matchOnType :: P5AST -> P5AST -> Bool
@@ -46,9 +46,9 @@ matchOnType (LiteralNode atype1 _ _) (LiteralNode atype2 _ _) = if (atype1==atyp
 matchOnType _ _ = False 
 
 --Get the type of a literal node
-getLType :: P5AST -> LitType
-getLType (AbstractNode sometype kids) = UnknownLit
-getLType (Heredoc start end kids) = UnknownLit
+getLType :: P5AST -> String
+getLType (AbstractNode sometype kids) = "UnknownLit"
+getLType (Heredoc _ start end kids) = "UnknownLit"
 getLType (LiteralNode sometype enc uni) = sometype
 
 --Join a list of lists of nodes into a list of nodes
@@ -65,7 +65,7 @@ joinString strs = (head strs)++(joinString (tail strs))
 extractUni :: P5AST -> String
 extractUni (LiteralNode _ _ uni) = uni
 extractUni (AbstractNode _ _) = "" 
-extractUni (Heredoc _ _ _) = "" 
+extractUni (Heredoc _ _ _ _) = "" 
 
 {-A simple search convenience function, returns true when the given node is in the list
 matches based on type (Abstract or Literal) subtype (Junk, Op_leave, Sigil, etc.) and, in
@@ -95,7 +95,7 @@ allMatch :: [P5AST] -> [P5AST] -> Bool
 allMatch [] [] = True
 allMatch _ [] = False
 allMatch [] _ = False
-allMatch list1 list2 = case [(matchOnType (head list1) (LiteralNode Junk "" "")), (matchOnType (head list2) (LiteralNode Junk "" ""))] of
+allMatch list1 list2 = case [(matchOnType (head list1) (LiteralNode "junk" "" "")), (matchOnType (head list2) (LiteralNode "junk" "" ""))] of
                          [True, True]   -> (allMatch (tail list1) (tail list2))
                          [True, False]  -> (allMatch (tail list1) list2)
                          [False, True]  -> (allMatch list1 (tail list2))
@@ -106,5 +106,5 @@ and (in the case of literal nodes) on the uni field. Used in the above search fu
 matchWithoutEnc :: P5AST -> P5AST -> Bool
 matchWithoutEnc (LiteralNode type1 _ uni1) (LiteralNode type2 _ uni2) = if (and [(uni1==uni2), (type1==type2)]) then True else False
 matchWithoutEnc (AbstractNode type1 kids1) (AbstractNode type2 kids2) = if (type1 == type2) then True else False
-matchWithoutEnc (Heredoc start1 end1 kids1) (Heredoc start2 end2 kids2) = if (and [(matchWithoutEnc start1 start2),(matchWithoutEnc end1 end2)]) then True else False
+matchWithoutEnc (Heredoc doc1 start1 end1 kids1) (Heredoc doc2 start2 end2 kids2) = if (and [(matchWithoutEnc start1 start2),(matchWithoutEnc end1 end2), doc1==doc2]) then True else False
 matchWithoutEnc _ _ = False
