@@ -51,8 +51,8 @@ sub update_pugs {
 
 sub build_pugs {
     print STDERR "*** Rebuilding pugs\n";
-#   system 'perl Makefile.PL';
-#   system 'make';
+    system 'perl Makefile.PL';
+    system 'make';
 }
 
 sub start_pugs {
