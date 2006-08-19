@@ -17,7 +17,6 @@ import Pugs.Pretty
 import Pugs.Config
 import Pugs.Monads
 import qualified Pugs.Val as Val
-import Pugs.Val hiding (Val, IValue, VUndef, Var)
 import qualified Data.ByteString.Char8 as Str
 
 findVar :: Var -> Eval (Maybe VRef)
@@ -224,7 +223,7 @@ findSub _var _invs _args = case _invs of
                         return (key, [val])   :: Eval (ID, [Val.Val])
 
                 -- This is the Capture object we are going to work with
-                let capt = CaptMeth invVV [MkFeed posVVs namVVs]
+                let capt = CaptMeth invVV [Val.MkFeed posVVs namVVs]
 
                 return . castV $ "CCall " ++ show methName ++ " " ++ show capt
             }
