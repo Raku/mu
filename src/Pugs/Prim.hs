@@ -667,6 +667,9 @@ op1 "Class::traits" = \v -> do
     str     <- fromVal =<< fetch "is"
     return str
 op1 "vv" = toVV'
+op1 "circum:\\( )" = \v -> do
+    yml     <- liftIO $ showYaml v
+    return $ VStr yml
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 op1IO :: Value a => (Handle -> IO a) -> Val -> Eval Val
@@ -1538,10 +1541,13 @@ data Arity = Arity0 | Arity1 | Arity2
     deriving (Show, Eq, Ord, Typeable)
 
 -- |Produce a Pad update transaction with 'primOp' from a string description
-primDecl :: String -> STM PadMutator
-primDecl str = primOp sym assoc params ret ("safe" `isPrefixOf` safe) ("macro" `isSuffixOf` safe)
+primDecl :: Bool -> String -> STM PadMutator
+primDecl isCircum str = primOp sym assoc params ret ("safe" `isPrefixOf` safe) ("macro" `isSuffixOf` safe)
     where
-    (ret:assoc:sym:safe:prms) = words str
+    (ret:assoc:sym':rest) = words str
+    (sym, safe, prms)
+        | isCircum,  (sym'':safe':prms') <- rest = (sym' ++ " " ++ sym'', safe', prms')
+        | otherwise, (safe':prms')       <- rest = (sym',                 safe', prms')
     takeWord = takeWhile isWord . dropWhile (not . isWord)
     isWord = not . (`elem` "(),:")
     prms'  = map takeWord prms
@@ -1633,7 +1639,7 @@ toQuoteMeta c =
 --
 -- >  ret_val   assoc   op_name [safe|unsafe] args
 initSyms :: STM [PadMutator]
-initSyms = mapM primDecl syms
+initSyms = liftM2 (++) (mapM (primDecl False) syms) (mapM (primDecl True) symsCircum)
     where
     syms = filter (not . null) . lines $ "\
 \\n   Bool      spre    !       safe   (Bool)\
@@ -1987,4 +1993,7 @@ initSyms = mapM primDecl syms
 \\n   Bool      pre     Pugs::Internals::caller_pragma_value safe (Str)\
 \\n   Num       pre     Pugs::Internals::base      safe (Int, Any)\
 \\n   Any       pre     vv      safe (Any)\
+\\n"
+    symsCircum = filter (not . null) . lines $ "\
+\\n   Any       circum  \\( ) safe (Any)\
 \\n"
