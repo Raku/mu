@@ -371,20 +371,7 @@ use Data::Dumper;
     { grammar => __PACKAGE__ }
 )->code;
 
-*perl5source = Pugs::Compiler::Regex->compile( q(
-    (.*?) [ ; | <?ws> ] use <?ws> v6 (.)*? ; 
-        { return { 
-            perl5source => $_[0][0]->() 
-        } }
-),
-    { grammar => __PACKAGE__ }
-)->code;
-
 *statement = Pugs::Compiler::Token->compile( q(
-    use <?ws> v5 <?ws>?; <perl5source> 
-        { return $_[0]{perl5source}->() 
-        }
-    |
     <Pugs::Grammar::StatementControl.parse>
         { 
             return $/->{'Pugs::Grammar::StatementControl.parse'}->();

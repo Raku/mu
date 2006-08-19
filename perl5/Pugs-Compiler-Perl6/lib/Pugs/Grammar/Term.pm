@@ -20,6 +20,15 @@ our %hash;
     { Perl5 => 1 } 
 )->code;
 
+*perl5source = Pugs::Compiler::Regex->compile( q(
+    (.*?) [ ; | <?ws> ] use <?ws> v6 (.)*? ; 
+        { return { 
+            perl5source => $_[0][0]->() 
+        } }
+),
+    { grammar => __PACKAGE__ }
+)->code;
+
 sub substitution {
     my $grammar = shift;
     return $grammar->no_match(@_) unless $_[0];
@@ -349,13 +358,21 @@ sub recompile {
             }
             ),
         q(perl5:) => q(
-            |
                 ### perl5:Test::More
                 <Pugs::Grammar::Term.bare_ident> 
                 { return { 
                         bareword => $/{'Pugs::Grammar::Term.bare_ident'}->(),
                         lang => 'perl5',
                 } }
+            ),
+        q(use) => q(
+                # "use v5"
+                <?ws> v5 <?ws>?; <perl5source> 
+                { return $_[0]{perl5source}->() 
+                }
+            |
+                # default
+                { return { bareword => 'use' } }
             ),
         q(:) => Pugs::Compiler::Token->compile( q^
             ### pair - long:<name> 
