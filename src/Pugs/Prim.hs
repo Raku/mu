@@ -1739,6 +1739,7 @@ initSyms = mapM primDecl syms
 \\n   Any       pre     join    safe   (Thread)\
 \\n   Bool      pre     detach  safe   (Thread)\
 \\n   List      pre     zip     safe   (List)\
+\\n   List      pre     each    safe   (List)\
 \\n   List      pre     keys    safe   (rw!Hash)\
 \\n   List      pre     values  safe   (rw!Hash)\
 \\n   List      pre     List::kv      safe   (rw!Hash)\

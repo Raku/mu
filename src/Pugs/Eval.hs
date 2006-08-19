@@ -32,7 +32,7 @@ import Pugs.AST
 import Pugs.Junc
 import Pugs.Bind
 import Pugs.Prim
-import Pugs.Prim.List (op0Zip)
+import Pugs.Prim.List (op0Zip, op0Each)
 import Pugs.Monads
 import Pugs.Pretty
 import Pugs.Types
@@ -808,6 +808,10 @@ reduceApp (Var var) invs args
         case maybeToList invs ++ args of
             [exp] -> enterEvalContext cxtItemAny exp
             _     -> enterEvalContext cxtItemAny $ Syn "," (maybeToList invs ++ args)
+    | var == cast "&each", Nothing <- invs = do
+        vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) args
+        val  <- op0Each vals
+        retVal val
     | var == cast "&zip", Nothing <- invs = do
         vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) args
         val  <- op0Zip vals

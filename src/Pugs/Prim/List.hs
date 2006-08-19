@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
 module Pugs.Prim.List (
-    op0Zip, op1Pick, op1Sum,
+    op0Zip, op0Each, op1Pick, op1Sum,
     op1Min, op1Max, op1Uniq,
     op2ReduceL, op2Reduce, op2Grep, op2Map, op2Join,
     sortByM,
@@ -17,7 +17,10 @@ import Pugs.Prim.Numeric
 import Pugs.Prim.Lifts
 
 op0Zip :: [Val] -> Eval Val
-op0Zip = fmap (VList . concat . op0Zip') . mapM fromVal
+op0Zip = fmap (VList . fmap VList . op0Zip') . mapM fromVal
+
+op0Each :: [Val] -> Eval Val
+op0Each = fmap (VList . concat . op0Zip') . mapM fromVal
 
 op0Zip' :: [[Val]] -> [[Val]]
 op0Zip' lists | all null lists = []
