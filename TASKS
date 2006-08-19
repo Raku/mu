@@ -27,33 +27,9 @@ specific, then perhaps this indicates the standard needs updating.
 
 * Remove all unconditional SKIP/TODO flags from t/, either replacing them
 with conditionals that only SKIP if the current Perl 6 implementation's
-CONFIG vars explicitly don't support the features that the test is for, or
-just letting them fail.
-
-Another choice is to define implentation-specific (and also version-specific)
-TODO mechanism. For example:
-
-    todo :pugs<6.28.0>, :p6p5<0.100>, :parrot<0.42>;
-    is($got, $expected, $desc);
-
-The call to the &todo function will cause the next test to be a TODO test if
-and only if testing pugs older than version 6.28.0, v6.pm older than 0.100, or
-parrot/perl6 older than 0.42. The &todo function should return an empty list,
-by doing so, we can also have
-
-    is $got, $expected, todo :pugs<6.2.13>, :p6p5<0.110>;
-    ok $value, todo :parrot<1.00>;
-
-When TODOing failing tests before the Pugs release (say, 6.2.12), the following
-form of todo should be used:
-
-    todo :pugs<6.2.13>;  # version of the next point release
-
-By doing this, temporarily TODO'd tests can get unTODO'd automaticall once
-the the release is done (and the version number gets updated).
-
-The version number fed to :pugs/:p6p5/:parrot/etc is optional. when omitted,
-the corresponding tests won't get expired unless we unTODO them manually.
+CONFIG vars explicitly don't support the features that the test is for,
+or use Test.pm's &todo function to mark them as Pugs' TODO, or just letting
+them fail.
 
 * Re-group the majority general/implementation-generic Perl 6 tests first
 along lines of what is likely to be implemented together and/or by tier, a
