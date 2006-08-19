@@ -117,7 +117,7 @@ if ($perl5) {
     # use ExtUtils::MM;
     # my $mm = ExtUtils::MM->new();
     # $mm->maybe_command('pugs')
-    if ((`pugs --version` =~ m/perl/i) && not $ENV{HARNESS_PERL}) {
+    if (!$ENV{HARNESS_PERL} && `pugs --version` =~ m/perl/i) {
         $ENV{HARNESS_PERL} = 'pugs';
     }
     elsif ($ENV{HARNESS_PERL}) {
