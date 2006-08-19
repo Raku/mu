@@ -37,6 +37,14 @@ Harrorth implementation journal                               - Yuval Kogman
     http://feather.perl6.nl/~nothingmuch/harrorth/
 All About Monads                                              - Jeff Newbern
     http://www.nomaware.com/monads/html/index.html
+how i/o can work in a purely functional language
+    http://community.livejournal.com/evan_tech/197471.html     - Evan Martin
+applications of monads
+    http://community.livejournal.com/evan_tech/198116.html     - Evan Martin
+why type classes are interesting
+    http://community.livejournal.com/evan_tech/199837.html     - Evan Martin
+Hitchhikers guide to Haskell
+    http://www.haskell.org/haskellwiki/Hitchhikers_guide_to_Haskell
 
 = Perl 6 (always outdated :))
 
@@ -59,3 +67,4 @@ The Art of the MetaObject Protocol                         - Gregor Kiczales
 The Silmarillion                                            - J.R.R. Tolkien
 The Demolished Man                                           - Alfred Bester
 Flow My Tears the Policeman Said                           - Phillip K. Dick
+The Curious Incident of the Dog in the Night-Time              - Mark Haddon
