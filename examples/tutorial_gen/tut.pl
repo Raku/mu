@@ -212,7 +212,7 @@ qq|<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
     <br><br>
     <table id="test_out" cellspacing=0 cellpadding=0 border=0>| ); # <<=====
  
-    for zip( @parts.keys, @parts.values, @out_parts ) -> $part_num, $part, $out_part {
+    for each( @parts.keys; @parts.values; @out_parts ) -> $part_num, $part, $out_part {
         if $dg {
             my $sep = '-' x 20;
             say "$sep $part_num in_part -----";
@@ -279,7 +279,6 @@ say ~@prep_index if $dg;
 my ( @parts, @out_parts );
 my ( $tut_fp, $tt_vars );
 my ( $prev_tut_fn, $next_tut_fn );
-# TODO autrijus "zip() is in." 
 for @prep_index.kv -> $idx, $tut_fn {
     if ( $idx > 0 ) { $prev_tut_fn = @prep_index[$idx-1] } else { $prev_tut_fn = undef };
     if ( $idx + 1 < @prep_index.elems ) { $next_tut_fn = @prep_index[$idx+1] } else { $next_tut_fn = undef };

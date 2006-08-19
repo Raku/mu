@@ -8,7 +8,7 @@ use v6-alpha;
 multi postfix:<!> ($x) { [*] 1..$x };
 multi postfix:<!> (@x) { [*] @x };
 
-multi infix:<z> (@x, @y) { zip @x,@y };
+multi infix:<z> (@x, @y) { each(@x;@y) };
 multi infix:<z> (Str $x, Str $y) { $x ~ $y };
 
 my @x = 1..5;

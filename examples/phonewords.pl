@@ -37,7 +37,7 @@ while $digits = $digitchooser() {
 
         my @word;
 
-        for zip(@digits, @letters) -> $digit, $letter {
+        for each(@digits; @letters) -> $digit, $letter {
             push @word, %digit_letters{$digit}[$letter];
         }
 
