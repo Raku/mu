@@ -198,7 +198,7 @@ sub todo (*%deadline) returns Bool is export {
     #warn "!!!", %deadline;
     return if ! $?COMPILER.defined;
     my $spec_ver = %deadline{lc($?COMPILER)};
-    if (!$spec_ver.defined or $spec_ver eq '1' or version_lt($?VERSION, $spec_ver)) {
+    if (!$spec_ver.defined or $spec_ver eq '1' or Test::version_lt($?VERSION, $spec_ver)) {
         $Test::todo_next_test = True;
         return True;
     }
