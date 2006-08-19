@@ -396,7 +396,7 @@ data Stmt = MkStmt
     { label      :: Maybe ID
     , pragmas    :: Table
     , expression :: Exp
-    } deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+    } deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- | Carry over last pragmas and create a new statement out of an expression
 nextStmt :: Stmt -> Exp -> Stmt
@@ -421,8 +421,8 @@ instance Eq Val where
     (VUndef aa)  == (VUndef aa')    = aa == aa'
     (VNative aa) == (VNative aa')   = aa == aa'
     (VPure aa)   == (VPure aa')     = dynEq aa aa'
-    (VMut aa)    == (VMut aa')      = dynEq aa aa'
-    (VExt aa)    == (VExt aa')      = dynEq aa aa'
+    (VMut aa)    == (VMut aa')      = valId aa == valId aa'
+    (VExt aa)    == (VExt aa')      = valId aa == valId aa'
     _            == _               = False
 
 instance Ord Val where
@@ -452,6 +452,7 @@ instance Ord Val where
     compare (VExt _) (VMut _) = GT
     compare (VExt aa) (VExt aa') = dynCompare aa aa'
 
+{-
 instance Data Val where
     toConstr (VUndef x)     = toConstr x
     toConstr (VNative x)    = toConstr x
@@ -464,3 +465,4 @@ instance Data Val where
     dataTypeOf (VMut x)     = dataTypeOf x
     dataTypeOf (VExt x)     = dataTypeOf x
     gunfold                 = gunfold
+-}

@@ -15,7 +15,7 @@ import {-# SOURCE #-} Pugs.Val
 --
 -- Plan: Each prim type has a static fixed META class
 
-class (Monad m, Functor m, Eq a, Data a, Typeable a) => ICoercible m a | a -> m where
+class (Monad m, Functor m, Typeable a) => ICoercible m a | a -> m where
     asBit    :: a -> m PureBit
     asBit _ = return $ cast True
     asInt    :: a -> m PureInt

@@ -39,14 +39,14 @@ data Code
         , c_isRW              :: Bool
         , c_isSafe            :: Bool
         }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- | Block exit traits may be interleaved, so tag them by type
 data CodeLeave
     = LeaveNormal Code        -- ^ LEAVE block
     | LeaveKeep   Code        -- ^ KEEP block
     | LeaveUndo   Code        -- ^ UNDO block
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- | Function associtivity
 data CodeAssoc
@@ -55,7 +55,7 @@ data CodeAssoc
     | AssNon
     | AssChain
     | AssList
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 --------------------------------------------------------------------------------------
 
@@ -85,7 +85,7 @@ data Sig
         , s_slurpyCode                :: Maybe Param
         , s_slurpyCapture             :: Maybe Param
         }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 type PureSig = Sig
 
@@ -111,13 +111,13 @@ data Param = MkParam
     , p_hasAccess   :: ParamAccess   -- ^ is ro, is rw, is copy
     , p_isRef       :: Bool
     , p_isLazy      :: Bool
-    } deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+    } deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 data ParamAccess
     = AccessRO
     | AccessRW
     | AccessCopy
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 --------------------------------------------------------------------------------------
 
@@ -130,7 +130,7 @@ data Capt a
     | CaptSub
         { c_feeds    :: [Feed a]
         }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- | non-invocant arguments.
 data Feed a = MkFeed
@@ -138,7 +138,7 @@ data Feed a = MkFeed
     , f_nameds      :: Map ID [a]   -- ^ maps to [a] and not a since if the Sig stipulates
                                     --   @x, "x => 1, x => 2" constructs @x = (1, 2).
     }
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 
 -- | Runtime Capture with dynamic Exp for leaves
