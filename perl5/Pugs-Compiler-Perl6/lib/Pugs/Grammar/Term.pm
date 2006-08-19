@@ -348,17 +348,17 @@ sub recompile {
                 } 
             }
             ),
-        # q(.) => ...
-        q() => Pugs::Compiler::Token->compile( q^
-                ### floating point
-                \d+\.\d+ { return { num => $() ,} } 
+        q(perl5:) => q(
             |
-                ### number
-                \d+ { return { int => $() ,} } 
-            |
-                ### pair - long:<name> 
-                \:
-                [
+                ### perl5:Test::More
+                <Pugs::Grammar::Term.bare_ident> 
+                { return { 
+                        bareword => $/{'Pugs::Grammar::Term.bare_ident'}->(),
+                        lang => 'perl5',
+                } }
+            ),
+        q(:) => Pugs::Compiler::Token->compile( q^
+            ### pair - long:<name> 
                 # :foo<bar>
                 ([_|\w]+) \< <Pugs::Grammar::Quote.angle_quoted>
                 { return {
@@ -366,7 +366,7 @@ sub recompile {
                         key   => { single_quoted => $/[0]() }, 
                         value => { single_quoted => $/{'Pugs::Grammar::Quote.angle_quoted'}() }, 
                 } } }
-                |
+            |
                 # :foo(exp)
                 ([_|\w]+) \(  
                     <?ws>? <Pugs::Grammar::Expression.parse> <?ws>? 
@@ -377,7 +377,7 @@ sub recompile {
                         key   => { single_quoted => $/[0]() }, 
                         value => $/{'Pugs::Grammar::Expression.parse'}->(), 
                 } } }
-                |
+            |
                 # :$foo 
                 \$ ((_|\w)+)
                 { return {
@@ -385,7 +385,7 @@ sub recompile {
                         key   => { single_quoted => $/[0]() }, 
                         value => { scalar  => '$' . $/[0]() }, 
                 } } }
-                |
+            |
                 # :foo 
                 ((_|\w)+)
                 { return {
@@ -393,7 +393,7 @@ sub recompile {
                         key   => { single_quoted => $/[0]() }, 
                         value => { num => 1 }, 
                 } } }
-                |
+            |
                 # :!foo 
                 <'!'> ((_|\w)+)
                 { return {
@@ -401,8 +401,13 @@ sub recompile {
                         key   => { single_quoted => $/[0]() }, 
                         value => { num => 0 }, 
                 } } }
-                ]            
-
+            ^ ),
+        q() => Pugs::Compiler::Token->compile( q^
+                ### floating point
+                \d+\.\d+ { return { num => $() ,} } 
+            |
+                ### number
+                \d+ { return { int => $() ,} } 
             |
                 <Pugs::Grammar::Perl6.sub_decl>
                     { return $_[0]{'Pugs::Grammar::Perl6.sub_decl'}->();
@@ -411,13 +416,6 @@ sub recompile {
                 <Pugs::Grammar::Perl6.class_decl>
                     { return $_[0]{'Pugs::Grammar::Perl6.class_decl'}->();
                     }
-            |
-                ### perl5:Test::More
-                perl5 \: <Pugs::Grammar::Term.bare_ident> 
-                { return { 
-                        bareword => $/{'Pugs::Grammar::Term.bare_ident'}->(),
-                        lang => 'perl5',
-                } }
             |
                 ### Test-0.0.6
                 <Pugs::Grammar::Term.cpan_bareword> 
