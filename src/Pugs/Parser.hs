@@ -42,7 +42,7 @@ import qualified Data.Map as Map
 
 ruleBlock :: RuleParser Exp
 ruleBlock = do
-    lvl <- gets ruleBracketLevel
+    lvl <- gets s_bracketLevel
     case lvl of
         StatementBracket    -> ruleBlock'
         _                   -> lexeme ruleVerbatimBlock
@@ -93,9 +93,9 @@ ruleStatement :: RuleParser Exp
 ruleStatement = do
     exp <- ruleExpression
     f <- option return $ choice
-        [ rulePostConditional
-        , rulePostLoop
-        , rulePostIterate
+        [ s_postConditional
+        , s_postLoop
+        , s_postIterate
         ]
     f exp
 
@@ -259,11 +259,11 @@ rulePackageHead = do
         else do
             unsafeEvalExp (newPackage pkgClass newName parentClasses mixinRoles)
             modify $ \state -> state
-                { ruleEnv = (ruleEnv state)
+                { s_env = (s_env state)
                     { envPackage = cast newName
                     , envClasses = envClasses env `addNode` mkType newName
                     }
-                , ruleDynParsers = MkDynParsersEmpty
+                , s_dynParsers = MkDynParsersEmpty
                 }
             let pkgVal = Val . VStr $ newName
                 kind   = Val . VStr $ sym
@@ -706,11 +706,11 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
                        (newMetaType pkg) -- Perl5's ::CGI is same as ::CGI.meta
             else (App (_Var "&use") Nothing [Val $ VStr pkg])
         modify $ \state -> state
-            { ruleEnv = env
+            { s_env = env
                 { envClasses = envClasses env' `addNode` mkType pkg
                 , envGlobal  = envGlobal env'
                 }
-            , ruleDynParsers = MkDynParsersEmpty
+            , s_dynParsers = MkDynParsersEmpty
             }
     try (do { verbatimParens whiteSpace ; return emptyExp}) <|> do
         imp <- option emptyExp ruleExpression
@@ -1135,8 +1135,8 @@ e.g. '@say \"hello\" if \$cheerful@' or '@die unless +\@arguments@'.
 Returns a function that will take the statement proper, and enclose it in an
 appropriate 'Pugs.AST.Internals.Syn' (either @\"if\"@ or @\"unless\"@).
 -}
-rulePostConditional :: RuleParser (Exp -> RuleParser Exp)
-rulePostConditional = rule "postfix conditional" $ do
+s_postConditional :: RuleParser (Exp -> RuleParser Exp)
+s_postConditional = rule "postfix conditional" $ do
     cond <- choice $ map symbol ["if", "unless"]
     exp <- ruleExpression
     return $ \body -> return $ Syn cond [exp, body, emptyExp]
@@ -1148,8 +1148,8 @@ e.g. '@procrastinate while $bored@' or '@eat until $full@'.
 Returns a function that will take the statement proper, and enclose it in an
 appropriate 'Pugs.AST.Internals.Syn' (either @\"while\"@ or @\"until\"@).
 -}
-rulePostLoop :: RuleParser (Exp -> RuleParser Exp)
-rulePostLoop = rule "postfix loop" $ do
+s_postLoop :: RuleParser (Exp -> RuleParser Exp)
+s_postLoop = rule "postfix loop" $ do
     cond <- choice $ map symbol ["while", "until"]
     exp <- ruleExpression
     return $ \body -> return $ Syn cond [exp, body]
@@ -1161,8 +1161,8 @@ e.g. '@say for 1..10@'.
 Returns a function that will take the statement proper, and enclose it in
 @'Pugs.AST.Internals.Syn' \"for\"@.
 -}
-rulePostIterate :: RuleParser (Exp -> RuleParser Exp)
-rulePostIterate = rule "postfix iteration" $ do
+s_postIterate :: RuleParser (Exp -> RuleParser Exp)
+s_postIterate = rule "postfix iteration" $ do
     cond <- choice $ map symbol ["for"]
     exp <- ruleExpression
     return $ \body -> do
@@ -1283,8 +1283,8 @@ parseTerm = rule "term" $! do
     case cls of
         SpaceClass -> return term
         _ -> do
-            -- rulePostTerm returns an (Exp -> Exp) that we apply to the original term
-            fs <- many rulePostTerm
+            -- s_postTerm returns an (Exp -> Exp) that we apply to the original term
+            fs <- many s_postTerm
             return $! combine (reverse fs) term
 
 ruleCapture :: RuleParser Exp
@@ -1317,8 +1317,8 @@ ruleTypeVar = rule "type" $ do
         Just $ name ++ "::" ++ rest
     mergeSimpleName _ = Nothing
 
-rulePostTerm :: RuleParser (Exp -> Exp)
-rulePostTerm = verbatimRule "term postfix" $ do
+s_postTerm :: RuleParser (Exp -> Exp)
+s_postTerm = verbatimRule "term postfix" $ do
     hasDot <- option Nothing $ choice [dotChar, try bangChar]
     let maybeInvocation = case hasDot of
             Just '.' -> (ruleInvocation:)
@@ -1392,7 +1392,7 @@ Match a sub application, returning the appropriate 'App' expression.
 
 Note that this only handles regular sub application (@foo(\$bar)@) and
 implicit-invocant calls (@.foo@); regular method invocation (@\$obj.foo@) is
-handled by 'ruleInvocation' as a post-term ('rulePostTerm').
+handled by 'ruleInvocation' as a post-term ('s_postTerm').
 
 The boolean argument is @True@ if we're trying to parse a reduce-metaop
 application (e.g. @[+] 1, 2, 3@), and @False@ otherwise.
@@ -1410,8 +1410,8 @@ ruleApply isFolded = tryVerbatimRule "apply" $
 ruleApplyImplicitMethod :: RuleParser Exp
 ruleApplyImplicitMethod = do
     lookAhead (char '.')
-    prevChar <- gets ruleChar
-    fs <- many rulePostTerm
+    prevChar <- gets s_char
+    fs <- many s_postTerm
     when (prevChar == '}') $ do
         pos <- getPosition
         trace ("Warning: '{...}.method' treated as '{...}; .method' at " ++ show pos) $
@@ -1645,9 +1645,9 @@ ruleSigiledVar = (<|> ruleSymbolicDeref) . try $ do
             state <- get
             let outerLexPad     = envLexical (fromJust outerEnv)
                 outerVisible    = isJust (lookupPad (cast name) outerLexPad)
-                curPads         = Map.elems (ruleBlockPads state)
+                curPads         = Map.elems (s_blockPads state)
                 curVisible      = any (Map.member (cast name) . padEntries) curPads
-                outerEnv        = envOuter (ruleEnv state)
+                outerEnv        = envOuter (s_env state)
                 inTopLevel      = case outerEnv of
                     Just env -> isNothing (envOuter env)
                     _        -> True
@@ -1691,7 +1691,7 @@ makeVarWithSigil s   x = Syn (s:"{}") [x]
 
 ruleLit :: RuleParser Exp
 ruleLit = do
-    lvl <- gets ruleBracketLevel
+    lvl <- gets s_bracketLevel
     let blk | ConditionalBracket <- lvl = id
             | otherwise                 = (ruleBlockLiteral:)
     choice ( ruleDoBlock : blk
@@ -1726,7 +1726,7 @@ numLiteral = do
     n <- naturalOrRat
     -- XXX - This is a hack to allow \b to work with numbers
     --       because Parser.Number is currently not a RuleParser
-    modify $ \state -> state{ ruleChar = '0' }
+    modify $ \state -> state{ s_char = '0' }
     case n of
         Left  i -> return . Val $ VInt i
         Right d -> return . Val $ VRat d

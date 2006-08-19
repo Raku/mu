@@ -14,15 +14,15 @@ parseProgram :: Env -> FilePath -> String -> Env
 parseProgram = flip runRule ruleProgram
 
 makeState :: Env -> RuleState
-makeState env = MkRuleState
-    { ruleEnv           = env
-    , ruleParseProgram  = parseProgram
-    , ruleDynParsers    = MkDynParsersEmpty
-    , ruleBracketLevel  = StatementBracket
-    , ruleChar          = ' '
-    , ruleName          = ""
-    , rulePos           = 0
-    , ruleBlockPads     = Map.empty
+makeState env = MkState
+    { s_env           = env
+    , s_parseProgram  = parseProgram
+    , s_dynParsers    = MkDynParsersEmpty
+    , s_bracketLevel  = StatementBracket
+    , s_char          = ' '
+    , s_name          = ""
+    , s_pos           = 0
+    , s_blockPads     = Map.empty
     }
 
 runRule :: Env -> RuleParser Env -> FilePath -> String -> Env

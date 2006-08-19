@@ -18,15 +18,15 @@ fixities = ["prefix_circumfix_meta_operator:","infix_circumfix_meta_operator:","
 localEnv :: RuleParser Exp -> RuleParser Exp
 localEnv m = do
     state   <- get
-    let env = ruleEnv state
+    let env = s_env state
     put state
-        { ruleBlockPads = Map.empty
-        , ruleEnv = env { envOuter = Just env }
+        { s_blockPads = Map.empty
+        , s_env = env { envOuter = Just env }
         }
     rv      <- m
     state'  <- get
     put state
-        { ruleEnv = (ruleEnv state')
+        { s_env = (s_env state')
             { envPackage = envPackage env
             , envLexical = envLexical env
             , envOuter   = envOuter env
@@ -34,7 +34,7 @@ localEnv m = do
         }
     -- Hoist all pad-declared entries into this block
     -- XXX - Handle "state" and "constant" here.
-    return $ Map.foldWithKey Pad rv (ruleBlockPads state')
+    return $ Map.foldWithKey Pad rv (s_blockPads state')
 
 ruleParamList :: ParensOption -> RuleParser a -> RuleParser (Maybe [[a]])
 ruleParamList wantParens parse = rule "parameter list" $ do

@@ -92,7 +92,7 @@ possiblyApplyMacro app@(App (Var name) invs args) = do
         return $! fromObject o
     -- A Str should be (re)parsed.
     substMacroResult (Val (VStr code)) = localEnv $ do
-        parseProgram <- gets ruleParseProgram
+        parseProgram <- gets s_parseProgram
         env          <- ask
         pos          <- getPosition
         case envBody (parseProgram env ("MACRO { " ++ show pos ++" }") code) of

@@ -596,7 +596,7 @@ refillCache state f = do
             name <- choice . map symbol . fromSet $ terms
             notFollowedBy (char '(' <|> (char ':' >> char ':'))
             possiblyApplyMacro $ App (_Var ('&':name)) Nothing []
-    setState state{ ruleDynParsers = opParsers }
+    setState state{ s_dynParsers = opParsers }
     f opParsers
 
 -- was: parseOp
@@ -615,7 +615,7 @@ parseExpWithItemOps = parseExpWithCachedParser dynParseLitOp
 parseExpWithCachedParser :: (DynParsers -> RuleParser Exp) -> RuleParser Exp
 parseExpWithCachedParser f = do
     state <- getState
-    case ruleDynParsers state of
+    case s_dynParsers state of
         MkDynParsersEmpty   -> refillCache state f
         p                   -> f p
 
