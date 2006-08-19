@@ -23,26 +23,24 @@ sub test {
     }
     $res = `$command`;
     if(($res =~ /UnknownAbs/) | ($res =~ /UnknownLit/)){
-      print "$filepath$file looks fine, but has unknown nodes.\n";
+      print "$filepath/$file looks fine, but has unknown nodes.\n";
       $unknown = $unknown + 1;
       print DETAIL "$res\n";
       print UNKNOWN "$res\n";
-    }elsif($res =~ /line 1, column 1/){
-      print "I don't think I need to check $filepath$file, it looks empty";
     }elsif($res =~ /Finished/){
-      print "$filepath$file looks fine.\n";
+      print "$filepath/$file looks fine.\n";
       $fine = $fine + 1;
       print DETAIL "$res\n";
     }elsif($res =~ /Error/){
-      print "***Parse error in $filepath$file***\n";
+      print "***Parse error in $filepath/$file***\n";
       $parses = $parses + 1;
       print DETAIL "$res\n";
     }elsif($res =~ /Exception/){
-      print "***Exception in $filepath$file***\n";
+      print "***Exception in $filepath/$file***\n";
       $errors = $errors + 1;
       print DETAIL "$res\n";
     }else{
-      print "***Parse error in $filepath$file***\n";
+      print "***Parse error in $filepath/$file***\n";
       $parses = $parses + 1;
       print DETAIL "$res\n";
     }
