@@ -9,61 +9,72 @@ import Pugs.Rule
 import {-# SOURCE #-} Pugs.Parser
 import qualified Data.Set as Set
 import qualified Data.HashTable as Hash
+import qualified Data.ByteString.Char8 as Str
 
 import Pugs.Parser.Types
 import Pugs.Parser.Unsafe
 
 listCons :: [RuleOperator Exp]
-listCons = listSyn [","]                             -- List constructor
+listCons = listSyn (_words ",")                         -- List constructor
 
 listInfix :: [RuleOperator Exp]
-listInfix = listOps ["Y", "\xA5", "==>", "<=="]       -- List infix
+listInfix = listOps (_words "Y \xA5 ==> <==")  -- List infix
+
+_words :: String -> Set OpName
+_words xs = Set.fromList (map (MkOpName . cast) (words xs))
+
+newtype OpName = MkOpName ID
+    deriving (Show, Eq, Typeable, (:>:) String, (:>:) ByteString, (:<:) ByteString)
+
+instance Ord OpName where
+    compare (MkOpName (MkID a x)) (MkOpName (MkID b y))
+        = compare (Str.length y) (Str.length x) `mappend` compare b a
 
 -- Not yet transcribed into a full optable parser with dynamic precedence --
 
-tightOperators :: RuleParser (Set ID, RuleOperatorTable Exp)
+tightOperators :: RuleParser (Set OpName, RuleOperatorTable Exp)
 tightOperators = do
   tights <- currentTightFunctions
   return $ (,) (r_term tights)
-    [ circumOps ["\\( )"]
-    , methOps   (words " . .+ .? .* .+ .() .[] .{} .<<>> .= ")  -- Method postfix
-    , postOps   (words " ++ -- ")
-      ++ preOps (words " ++ -- ")                               -- Auto-Increment
-    , rightOps  (words " ** ")                                  -- Exponentiation
-    , optPreSyn ["*"]                                           -- Symbolic Unary
-      ++ preOps (words " = ! + - ~ ? +^ ~^ ?^ \\ ^")
-      ++ preSymOps (fromSet $ r_pre tights)
-      ++ postOps (fromSet $ r_post tights)
-    , leftOps   (words " * / % x xx +& +< +> ~& ~< ~> ")        -- Multiplicative
-    , leftOps   (words " + - ~ +| +^ ~| ~^ ?| ")                -- Additive
-      ++ leftOps (fromSet $ r_infix tights)                      -- User defined ops
-    , listOps   ["&"]                                           -- Junctive And
-    , listOps   (words " ^ | ")                                 -- Junctive Or
-    , optOps (fromSet $ r_opt tights)                            -- Named Unary
-      ++ preOps (filter (\x -> (x /= "true") && (x /= "not")) (fromSet $ r_named tights))
-      ++ optSymOps (map (\x -> ['-', x]) fileTestOperatorNames)
-    , noneSyn   (words " but does ")                            -- Traits
-      ++ noneOps (words " leg cmp <=> .. ^.. ..^ ^..^ till ^till till^ ")  -- Non-chaining Binary
-      ++ postOps (words "...")                                  -- Infinite range
-    , chainOps (words " != == < <= > >= ~~ eqv eq ne lt le gt ge =:= === ")
+    [ circumOps (Set.singleton (MkOpName (cast "\\( )")))
+    , methOps   (_words " . .+ .? .* .+ .() .[] .{} .<<>> .= ")  -- Method postfix
+    , postOps   (_words " ++ -- ")
+      ++ preOps (_words " ++ -- ")                               -- Auto-Increment
+    , rightOps  (_words " ** ")                                  -- Exponentiation
+    , optPreSyn (_words " * ")                                   -- Symbolic Unary
+      ++ preOps (_words " = ! + - ~ ? +^ ~^ ?^ \\ ^")
+      ++ preSymOps (r_pre tights)
+      ++ postOps (r_post tights)
+    , leftOps   (_words " * / % x xx +& +< +> ~& ~< ~> ")        -- Multiplicative
+    , leftOps   (_words " + - ~ +| +^ ~| ~^ ?| ")                -- Additive
+      ++ leftOps (r_infix tights)                      -- User defined ops
+    , listOps   (_words " & ")                                   -- Junctive And
+    , listOps   (_words " ^ | ")                                 -- Junctive Or
+    , optOps (r_opt tights)                            -- Named Unary
+      ++ preOps (r_named tights Set.\\ _words " true not ")
+      ++ optSymOps (Set.fromAscList (map (MkOpName . cast . (\x -> ['-', x])) fileTestOperatorNames))
+    , noneSyn   (_words " but does ")                            -- Traits
+      ++ noneOps (_words " leg cmp <=> .. ^.. ..^ ^..^ till ^till till^ ")  -- Non-chaining Binary
+      ++ postOps (_words "...")                                 -- Infinite range
+    , chainOps (_words " != == < <= > >= ~~ eqv eq ne lt le gt ge =:= === ")
                                                                 -- Chained Binary
-    , leftOps  ["&&"]                                           -- Tight And
-    , leftOps  (words " || ^^ // ")                             -- Tight Or
+    , leftOps  (_words "&&")                                    -- Tight And
+    , leftOps  (_words " || ^^ // ")                            -- Tight Or
     , [ternOp "??" "!!" "if"]                                   -- Ternary
     -- Assignment
-    , (rightOps ["=>"] ++) .                                    -- Pair constructor
+    , (rightOps (_words " => ") ++) .                           -- Pair constructor
       (DependentPostfix listAssignment :) .
       (DependentPostfix immediateBinding :) .
       (rightAssignSyn :) .
       (rightDotAssignSyn :) $
-      rightSyn (words (
+      rightSyn (_words (
                " := ~= += -= *= /= %= x= Y= \xA5= **= xx= ||= &&= //= ^^= " ++
                " +<= +>= ~<= ~>= +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= "))
-    , preOps ["true", "not"]                                    -- Loose unary
+    , preOps (_words " true not ")                              -- Loose unary
     ]
 
-fromSet :: Set ID -> [String]
-fromSet = cast . Set.toList
+fromSet :: Set OpName -> [String]
+fromSet = cast . Set.toAscList
 
 listAssignment :: Exp -> RuleParser Exp
 listAssignment x = do
@@ -101,9 +112,9 @@ looseOperators = do
     -- names <- currentListFunctions
     return $
         [ -- preOps names                               -- List Operator
-          leftOps  ["==>"]                              -- Pipe Forward
-        , leftOps  ["and"]                              -- Loose And
-        , leftOps  (words " or xor err ")                       -- Loose Or
+          leftOps  (_words " ==> ")                     -- Pipe Forward
+        , leftOps  (_words " and ")                     -- Loose And
+        , leftOps  (_words " or xor err ")              -- Loose Or
         ]
 
 data CurrentFunction = MkCurrentFunction
@@ -178,13 +189,14 @@ currentTightFunctions :: RuleParser TightFunctions
 currentTightFunctions = do
     funs    <- currentFunctions
     let finalResult = foldr splitUnary initResult unary
-        initResult  = MkTightFunctions emptySet emptySet emptySet emptySet terms infixOps
+        initResult  = MkTightFunctions emptySet emptySet emptySet emptySet termSet infixOps
         (unary, notUnary)   = partition matchUnary funs
         slurpyNames         = namesFrom (filter matchSlurpy notUnary)
         (maybeTerm, notTerm)= partition matchTerm funs
         terms               = namesFrom maybeTerm Set.\\ namesFrom notTerm
+        termSet             = Set.map MkOpName terms
         infixOps            = Set.fromList
-            [ name
+            [ MkOpName name
             | MkCurrentFunction { f_var = MkVar { v_categ = C_infix, v_name = name } } <- notUnary
             , name /= commaID
             ]
@@ -193,10 +205,10 @@ currentTightFunctions = do
             res@MkTightFunctions
                 { r_opt = opt, r_named = named, r_pre = pre, r_post = post }
                 | n `Set.member` slurpyNames    = res
-                | isOptional param              = res{ r_opt    = Set.insert n opt }
-                | C_prefix <- cat               = res{ r_pre    = Set.insert n pre }
-                | C_postfix <- cat              = res{ r_post   = Set.insert n post }
-                | otherwise                     = res{ r_named  = Set.insert n named }
+                | isOptional param              = res{ r_opt    = Set.insert (MkOpName n) opt }
+                | C_prefix <- cat               = res{ r_pre    = Set.insert (MkOpName n) pre }
+                | C_postfix <- cat              = res{ r_post   = Set.insert (MkOpName n) post }
+                | otherwise                     = res{ r_named  = Set.insert (MkOpName n) named }
         splitUnary _ res = res
     return finalResult
 
@@ -207,15 +219,15 @@ commaID :: ID
 commaID = cast ","
 
 data TightFunctions = MkTightFunctions
-    { r_opt   :: !(Set ID)
-    , r_named :: !(Set ID)
-    , r_pre   :: !(Set ID)
-    , r_post  :: !(Set ID)
-    , r_term  :: !(Set ID)
-    , r_infix :: !(Set ID)
+    { r_opt   :: !(Set OpName)
+    , r_named :: !(Set OpName)
+    , r_pre   :: !(Set OpName)
+    , r_post  :: !(Set OpName)
+    , r_term  :: !(Set OpName)
+    , r_infix :: !(Set OpName)
     }
 
-emptySet :: Set ID
+emptySet :: Set OpName
 emptySet = Set.empty
 
 matchUnary :: CurrentFunction -> Bool
@@ -241,7 +253,7 @@ matchSlurpy _ = False
 fileTestOperatorNames :: String
 fileTestOperatorNames = "rwxoRWXOezsfdlpSbctugkTBMAC"
 
-preSyn, optPreSyn, preOps, preSymOps, optSymOps, postOps, optOps, leftOps, rightOps, noneOps, listOps :: [String] -> [RuleOperator Exp]
+circumOps, rightSyn, chainOps, noneSyn, listSyn, preSyn, optPreSyn, preOps, preSymOps, optSymOps, postOps, optOps, leftOps, rightOps, noneOps, listOps :: Set OpName -> [RuleOperator Exp]
 preSyn      = ops  $ makeOp1 Prefix "" Syn
 optPreSyn   = ops  $ makeOp1 OptionalPrefix "" Syn
 preOps      = (ops $ makeOp1 Prefix "&prefix:" doApp) . addHyperPrefix
@@ -253,11 +265,7 @@ leftOps     = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix
 rightOps    = (ops $ makeOp2 AssocRight "&infix:" doApp) . addHyperInfix
 noneOps     = ops  $ makeOp2 AssocNone "&infix:" doApp
 listOps     = ops  $ makeOp2 AssocLeft "&infix:" doApp
-chainOps    = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix . withNegation
-    where
-    withNegation []             = []
-    withNegation (x@('!':_):xs) = x:withNegation xs
-    withNegation (x:xs)         = x:('!':x):withNegation xs
+chainOps    = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix . addNegation
 rightSyn    = ops $ makeOp2 AssocRight "" Syn
 noneSyn     = ops $ makeOp2 AssocNone "" Syn
 listSyn     = ops $ makeOp0 AssocList "" Syn
@@ -268,12 +276,12 @@ rightDotAssignSyn :: RuleOperator Exp
 rightDotAssignSyn = makeOp2DotAssign AssocRight "" Syn
 
 {-# INLINE ops #-}
-{-# SPECIALISE ops :: (String -> RuleOperator Exp) -> [String] -> [RuleOperator Exp] #-}
-{-# SPECIALISE ops :: (String -> RuleParser String) -> [String] -> [RuleParser String] #-}
+{-# SPECIALISE ops :: (String -> RuleOperator Exp) -> Set OpName -> [RuleOperator Exp] #-}
+{-# SPECIALISE ops :: (String -> RuleParser String) -> Set OpName -> [RuleParser String] #-}
 -- 0x10FFFF is the max number "chr" can take, so we use it for longest-token sorting.
 -- buildExpressionParser will then use that information to make a longest-token match.
-ops :: (String -> a) -> [String] -> [a]
-ops f = map (f . tail) . sort . map (\x -> (chr (0x10FFFF - length x):x))
+ops :: (String -> a) -> Set OpName -> [a]
+ops f = map f . cast . Set.toAscList
 
 makeOp1 :: (RuleParser (Exp -> Exp) -> RuleOperator Exp) -> 
         String -> 
@@ -390,10 +398,13 @@ hyperized forms.
 For example, the string @\"+ -\"@ would be transformed into
 @\"+ >>+\<\< »+« - >>-\<\< »-«\"@.
 -}
-addHyperInfix :: [String] -> [String]
-addHyperInfix = concatMap hyperForm
+addHyperInfix :: Set OpName -> Set OpName
+addHyperInfix xs = xs `Set.union` hyperTexan `Set.union` hyperFrench
     where
-    hyperForm op = [op, ">>" ++ op ++ "<<", "\xBB" ++ op ++ "\xAB"]
+    hyperTexan = Set.mapMonotonic texan xs
+    hyperFrench = Set.mapMonotonic french xs
+    texan x = cast (Str.concat [__">>", cast x, __"<<"])
+    french x = cast (Str.concat [__"\194\187", cast x, __"\194\171"])
 
 {-|
 Similar to 'addHyperInfix', but for prefix ops.
@@ -401,10 +412,13 @@ Similar to 'addHyperInfix', but for prefix ops.
 For example, @\"++ --\"@ would become
 @\"++ ++\<\< ++« -- --\<\< --«\"@.
 -}
-addHyperPrefix :: [String] -> [String]
-addHyperPrefix = concatMap hyperForm
+addHyperPrefix :: Set OpName -> Set OpName
+addHyperPrefix xs = xs `Set.union` hyperTexan `Set.union` hyperFrench
     where
-    hyperForm op = [op, op ++ "<<", op ++ "\xAB"]
+    hyperTexan = Set.mapMonotonic texan xs
+    hyperFrench = Set.mapMonotonic french xs
+    texan x = cast (cast x +++ __"<<")
+    french x = cast (cast x +++ __"\194\171")
 
 {-|
 Similar to 'addHyperInfix', but for postfix ops.
@@ -412,10 +426,21 @@ Similar to 'addHyperInfix', but for postfix ops.
 For example, @\"++ --\"@ would become
 @\"++ >>++ »++ -- >>-- »--\"@.
 -}
-addHyperPostfix :: [String] -> [String]
-addHyperPostfix = concatMap hyperForm
+addHyperPostfix :: Set OpName -> Set OpName
+addHyperPostfix xs = xs `Set.union` hyperTexan `Set.union` hyperFrench
     where
-    hyperForm op = [op, ">>" ++ op, "\xBB" ++ op]
+    hyperTexan = Set.mapMonotonic texan xs
+    hyperFrench = Set.mapMonotonic french xs
+    texan x = cast (__">>" +++ cast x)
+    french x = cast (__"\194\187" +++ cast x)
+
+addNegation :: Set OpName -> Set OpName
+addNegation xs = xs `Set.union` Set.mapMonotonic negation xs
+    where
+    negation x = let buf = cast x in
+        if Str.head buf == '!'
+            then x
+            else cast (Str.cons '!' (cast x))
 
 methOps             :: a -> [b]
 methOps _ = []
@@ -627,13 +652,14 @@ ruleFoldOp = verbatimRule "reduce metaoperator" $ try $ do
     MkTightFunctions{ r_infix = infixOps } <- currentTightFunctions
     -- name <- choice $ ops (try . string) (addHyperInfix $ infixOps ++ defaultInfixOps)
     name <- verbatimRule "infix operator" $ do
-        choice $ ops (try . string) (addHyperInfix $ (fromSet infixOps) ++ defaultInfixOps)
+        choice $ ops (try . string)
+            (addHyperInfix (infixOps `Set.union` defaultInfixOps))
     char ']'
     possiblyHyper <- option "" ((char '\171' >> return "<<") <|> (string "<<"))
     return $ "&prefix:[" ++ keep ++ name ++ "]" ++ possiblyHyper
     where
     -- XXX !~~ needs to turn into metaop plus ~~
-    defaultInfixOps = words $ concat
+    defaultInfixOps = _words $ concat
         [ " ** * / % x xx +& +< +> ~& ~< ~> "
         , " + - ~ +| +^ ~| ~^ ?| , Y \xA5 "
         , " & ^ | "
