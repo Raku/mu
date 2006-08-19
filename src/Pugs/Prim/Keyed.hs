@@ -134,10 +134,3 @@ deleteFromRef (MkRef (IScalar sv)) val = do
         _           -> return undef
 deleteFromRef ref _ = retError "Not a keyed reference" ref
 
-sizeFromRef :: VRef -> Eval Val
-sizeFromRef (MkRef (IArray arr)) = do
-    --liftIO $ putStrLn "here"
-    size <- array_fetchSize arr
-    return $ castV size
-sizeFromRef ref = retError "Not a sizeable reference" ref
-
