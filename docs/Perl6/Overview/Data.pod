@@ -295,7 +295,7 @@ Examples:
     # other variable causes further assignments to $foo to have no effect on
     # @array again.)
 
-=:= tests whether the cell slots of two containers $a and $b point to the
+C<=:=> tests whether the cell slots of two containers $a and $b point to the
 same cell.
 
     $a = 42;
