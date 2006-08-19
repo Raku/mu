@@ -327,6 +327,10 @@ findSub _var _invs _args = case _invs of
 
     -- firstArg :: (_args :: [Exp]) => [Exp]
     firstArg = [maybe (Val undef) id (listToMaybe _args)]
+    firstTwoArgs
+        | [] <- _args       = [Val undef, Val undef]
+        | [arg] <- _args    = [arg, Val undef]
+        | otherwise         = take 2 _args
 
     buildPrefixHyper name var = do
         let rv = fmap (either (const Nothing) Just) $
@@ -356,7 +360,7 @@ findSub _var _invs _args = case _invs of
 
     buildInfixHyper name var = do
         let rv = fmap (either (const Nothing) Just) $
-                findSub var Nothing (take 2 (_args ++ [Val undef, Val undef]))
+                findSub var Nothing firstTwoArgs
         maybeM rv $ \code -> return $ mkPrim
             { subName     = name
             , subType     = SubPrim
@@ -379,7 +383,7 @@ findSub _var _invs _args = case _invs of
         | C_infix <- cat, '\187' <- Str.head buf, '\171' <- Str.last buf = do
             buildInfixHyper buf var{ v_name = cast $ Str.init (Str.tail buf) }
         | C_infix <- cat, __">>" `Str.isPrefixOf` buf, __"<<" `Str.isSuffixOf` buf = do
-            buildInfixHyper buf var{ v_name = cast $ Str.take 2 (dropEnd 2 buf) }
+            buildInfixHyper buf var{ v_name = cast $ Str.drop 2 (dropEnd 2 buf) }
         | C_prefix <- cat, '[' <- Str.head buf, ']' <- Str.last buf = do
             -- Strip the trailing "]" from op
             let (op, keep)
@@ -391,7 +395,7 @@ findSub _var _invs _args = case _invs of
             -- types of the op.
                 rv = fmap (either (const Nothing) Just) $
                     findSub (var{ v_categ = C_infix, v_name = cast op }) Nothing
-                        (take 2 $ _args ++ [Val undef, Val undef])
+                        firstTwoArgs
             maybeM rv $ \code -> return $ mkPrim
                 { subName     = buf
                 , subType     = SubPrim
@@ -449,6 +453,7 @@ deltaFromPair (x, y) = do
     typ <- inferExpType y
     return $ deltaType cls x typ
 
+findAttrs :: Pkg -> Eval (Maybe [Pkg])
 findAttrs pkg = do
     maybeM (findVar $ metaVar pkg) $ \ref -> do
         meta    <- readRef ref
