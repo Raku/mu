@@ -6,16 +6,21 @@
 
 module Pugs.Exp where
 
-import Data.Generics.Basics hiding (cast)
-import qualified Data.Typeable as Typeable
 import Pugs.Internals
-import qualified Pugs.AST as OldAST
+import {-# SOURCE #-} qualified Pugs.AST.Internals as OldAST
 import Pugs.Val
+import Pugs.Types (Var)
 
 
 type ExpVar = Var
 type ExpVal = Val
 type ExpCapt = Capt Exp
+
+newtype ExpEmeritus = MkExpEmeritus { ee :: OldAST.Exp }
+
+instance Eq ExpEmeritus where _ == _ = True
+instance Ord ExpEmeritus where compare _ _ = EQ
+instance Show ExpEmeritus where show _ = "<Exp.Emeritus>"
 
 -- | AST for an expression.
 data Exp
@@ -28,8 +33,8 @@ data Exp
     | EControl  ExpControl             -- ^ Control structure, e.g. if, while
     | EFlatten  [Exp]                  -- ^ Wrapper for expressions forced into
                                        --   slurpy context
-    | EE OldAST.Exp
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+    | EE ExpEmeritus
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 
 -- | Control statement, such as "if".
@@ -47,14 +52,17 @@ data ExpControl
     | CGiven       Exp  Code            -- ^ given
     | CWhen        Exp  Code            -- ^ when
     | CForeign                          -- ^ &statement_control:<mycontrol>
-    deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+-- | General purpose mapping from identifiers to values.
+type Table = Map ID Val
 
 -- | AST for a statement. The top level of an AST is a list of Stmt.
 data Stmt = MkStmt
     { label      :: Maybe ID
     , pragmas    :: Table
     , expression :: Exp
-    } deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+    } deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 -- | Carry over last pragmas and create a new statement out of an expression
 nextStmt :: Stmt -> Exp -> Stmt

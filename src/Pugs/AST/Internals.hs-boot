@@ -13,6 +13,7 @@ data Val
 data VRef
 data VObject
 data PadEntry
+data Exp
 -- newtype Pad = MkPad { padEntries :: Map Var PadEntry }
 newtype ObjectId = MkObjectId { unObjectId :: Int }
 
