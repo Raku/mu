@@ -116,7 +116,8 @@ data Param = MkParam
 newtype CodeBody = MkCodeBody [Stmt]
     deriving (Typeable)
 
-newtype ParamDefault = MkParamDefault Exp
+data ParamDefault
+    = DNil | DExp Exp
     deriving (Typeable)
 
 instance Eq ParamDefault where _ == _ = True
