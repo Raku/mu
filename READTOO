@@ -30,8 +30,9 @@ http://www.dcs.ed.ac.uk/home/cvr/ECS-LFCS-98-389.html
 [mentioned by stevan, 2006-Jan]
 
 Software Extension and Integration with Type Classes
-http://homepages.cwi.nl/~ralf/gpce06/paper.pdf
-[mentioned by gaal in http://pugs.blogs.com/pugs/2006/08/val_migration.html]
+http://lambda-the-ultimate.org/node/1657
+[mentioned by audreyt 2006-08-09]
+http://colabti.de/irclogger/irclogger_log/perl6?date=2006-08-09,Wed&sel=20#l41
 
 Smash your boiler-plate without class and Typeable
 http://www.haskell.org/pipermail/haskell/2006-August/018353.html
