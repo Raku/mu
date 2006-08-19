@@ -1,4 +1,4 @@
 * update t/closure_traits/*.t to conform with the latest S04.
 * update t/syntax/char_by_number.t to conform with the lastest S02.
-* fix the broken smart links (L<..>) in the test suite via util/smart_links.pl.
+* fix the broken smart links (L<..>) in the test suite via util/smartlinks.pl.
 * rename pipe operator to feed operator.

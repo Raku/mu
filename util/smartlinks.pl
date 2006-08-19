@@ -1,11 +1,11 @@
-# util/smart_links.pl - The successor to util/catalog_tests.pl.
+# util/smartlinks.pl - The successor to util/catalog_tests.pl.
 
 # Please look at t/README for documentation.
-# See uitl/t/smart_links.t for unit tests and usage of the internal API.
+# See uitl/t/smartlinks.t for unit tests and usage of the internal API.
 # This script is still under development.
 # Contact agentzh on #perl6 if you have a patch or some good idea for this tool.
 # Currently you can use it to verify the smart link used in your script:
-#   $ perl util/smart_links.pl --check t/some/test.t
+#   $ perl util/smartlinks.pl --check t/some/test.t
 # The HTML outputing feature will be implemented *very* soon.
 
 use strict;
@@ -250,8 +250,8 @@ sub process_syn ($$$) {
 sub Usage {
     print <<_EOC_;
 Usage:
-  util/smart_links.pl --check t/*/*.t t/*/*/*.t
-  util/smart_links.pl --check t/some/test.t
+  $0 --check t/*/*.t t/*/*/*.t
+  $0 --check t/some/test.t
 _EOC_
     exit(0);
 }

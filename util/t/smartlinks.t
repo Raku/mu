@@ -1,4 +1,4 @@
-# tests for util/smart_links.pl
+# tests for util/smartlinks.pl
 # [TODO] add more tests for the remaining subs.
 
 use strict;
@@ -6,7 +6,7 @@ use warnings;
 use Test::More tests => 15;
 use FindBin;
 
-require "$FindBin::Bin/../smart_links.pl";
+require "$FindBin::Bin/../smartlinks.pl";
 
 # Test sub parse_pattern
 {
