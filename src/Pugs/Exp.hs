@@ -9,7 +9,6 @@ module Pugs.Exp where
 import Pugs.Internals
 import {-# SOURCE #-} qualified Pugs.AST.Internals as OldAST
 import Pugs.Val
-import Pugs.Types (Var)
 
 
 type ExpVar = Var
@@ -53,9 +52,6 @@ data ExpControl
     | CWhen        Exp  Code            -- ^ when
     | CForeign                          -- ^ &statement_control:<mycontrol>
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
-
--- | General purpose mapping from identifiers to values.
-type Table = Map ID Val
 
 -- | AST for a statement. The top level of an AST is a list of Stmt.
 data Stmt = MkStmt

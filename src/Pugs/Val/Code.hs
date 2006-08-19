@@ -17,7 +17,7 @@ data Code
         , c_isRW              :: Bool
         , c_isSafe            :: Bool
         , c_isCached          :: Bool
-        , c_body              :: [Stmt]    -- ^ AST of "do" block
+        , c_body              :: CodeBody  -- ^ AST of "do" block
         , c_pad               :: Pad       -- ^ Storage for lexical vars
         , c_traits            :: Table     -- ^ Any additional trait not
                                            --   explicitly mentioned below
@@ -103,14 +103,29 @@ data Param = MkParam
     , p_constraints :: [Code]        -- ^ Dynamic pieces of runtime-mood
                                      --   E.g. where {...} above
     , p_unpacking   :: Maybe PureSig -- ^ E.g. BinTree $t (Left $l, Right $r)
-    , p_default     :: Maybe Exp     -- ^ E.g. $answer? = 42
+    , p_default     :: ParamDefault  -- ^ E.g. $answer? = 42
     , p_label       :: ID            -- ^ E.g. :mode
     , p_slots       :: Table         -- ^ Any additional attrib not
                                      --   explicitly mentioned below
     , p_hasAccess   :: ParamAccess   -- ^ is ro, is rw, is copy
     , p_isRef       :: Bool
     , p_isLazy      :: Bool
-    } deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+    }
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+newtype CodeBody = MkCodeBody [Stmt]
+    deriving (Typeable)
+
+newtype ParamDefault = MkParamDefault Exp
+    deriving (Typeable)
+
+instance Eq ParamDefault where _ == _ = True
+instance Ord ParamDefault where compare _ _ = EQ
+instance Show ParamDefault where show _ = "<Param.Default>"
+
+instance Eq CodeBody where _ == _ = True
+instance Ord CodeBody where compare _ _ = EQ
+instance Show CodeBody where show _ = "<Code.Body>"
 
 data ParamAccess
     = AccessRO
