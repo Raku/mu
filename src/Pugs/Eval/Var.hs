@@ -17,7 +17,7 @@ import Pugs.Pretty
 import Pugs.Config
 import Pugs.Monads
 import qualified Pugs.Val as Val
-import Pugs.Val hiding (Val, IValue, VUndef)
+import Pugs.Val hiding (Val, IValue, VUndef, Var)
 import qualified Data.ByteString.Char8 as Str
 
 findVar :: Var -> Eval (Maybe VRef)
