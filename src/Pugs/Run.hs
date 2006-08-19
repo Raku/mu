@@ -250,8 +250,9 @@ initPreludePC env = do
     evalPrelude = runEvalIO env{ envDebug = Nothing } $ opEval style "<prelude>" preludeStr
     loadPreludePC = do  -- XXX: this so wants to reuse stuff from op1EvalP6Y
         -- print "Parsing yaml..."
-        incs <- liftIO $ fmap ("blib6/lib":) getLibs
-        yml  <- liftIO $ getYaml incs "Prelude.pm.yml" Str.readFile
+        incs     <- liftIO $ fmap ("blib6/lib":) getLibs
+        pathName <- liftIO $ requireInc incs "Prelude.pm.yml" ""
+        yml      <- liftIO $ parseYamlBytes =<< Str.readFile pathName
         when (n_elem yml == ENil) $ fail ""
         -- FIXME: this detects an error if a bad version number was found,
         -- but not if no number was found at all. Then again, if that
@@ -260,7 +261,10 @@ initPreludePC env = do
             MkNode{ n_elem=ESeq (v:_) }
                 | MkNode{ n_elem=EStr vnum } <- v
                 , vnum /= (packBuf $ show compUnitVersion) -> do
-                    fail "incompatible version number for compilation unit"
+                    fail $ unlines
+                        [ "Incompatible version number for compilation unit"
+                        , "Consider removing " ++ pathName ++ " and make it again"
+                        ]
             _ -> return ()
         -- print "Parsing done!"
         -- print "Loading yaml..."
@@ -271,8 +275,3 @@ initPreludePC env = do
         runEnv env{ envBody = ast, envDebug = Nothing }
         --     Right Nothing -> fail ""
         --     x  -> fail $ "Error loading precompiled Prelude: " ++ show x
-    getYaml incs fileName loader = do
-        pathName <- liftIO $ requireInc incs fileName ""
-        parseYamlBytes =<< loader pathName
-        
-
