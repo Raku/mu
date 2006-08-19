@@ -152,8 +152,22 @@ data Var = MkVar
     , v_twigil  :: VarTwigil
     , v_categ   :: VarCateg
     , v_package :: Pkg
+    , v_meta    :: VarMeta
     }
     deriving (Eq, Ord, Typeable, Data)
+
+data VarMeta
+    = MNil
+    | MFold             -- [+]
+    | MScan             -- [\+]
+    | MPre              -- >>+
+    | MPost             -- +<<
+    | MHyper            -- >>+<<
+    | MHyperFold        -- [>>+<<]
+    | MHyperFoldPost    -- [>>+<<]<<
+    | MHyperScan        -- [\>>+<<]
+    | MHyperScanPost    -- [\>>+<<]<<
+    deriving (Show, Enum, Eq, Ord, Typeable, Data, Read)
 
 isQualifiedVar :: Var -> Bool
 isQualifiedVar MkVar{ v_package = MkPkg [] } = False
@@ -340,6 +354,7 @@ doBufToVar buf = MkVar
     , v_twigil  = twi
     , v_package = pkg
     , v_categ   = cat
+    , v_meta    = metas
     , v_name    = cast name
     }
     where
@@ -368,16 +383,17 @@ doBufToVar buf = MkVar
         Nothing  -> ([], str)
         Just idx -> let (rest, final) = tokenPkg (Str.drop (idx + 2) str) in
             ((Str.take idx str:rest), final)
-    (cat, name)
+    (cat, afterCat)
         | twi == TGlobal =
             -- XXX special case for "$*X::Y::Z".  Currently we encode that
             --     as a twigil of *, and then the name part contains
             case Str.findSubstrings (__"::") afterPkg of
                 [] -> tokenizeCategory afterPkg
                 xs -> let idx = last xs
-                          (cat, name) = tokenizeCategory (Str.drop (idx + 2) afterPkg)
-                        in (cat, Str.take idx afterPkg +++ name)
+                          (c, n) = tokenizeCategory (Str.drop (idx + 2) afterPkg)
+                        in (c, Str.take idx afterPkg +++ n)
         | otherwise = tokenizeCategory afterPkg
+    (name, metas) = (afterCat, MNil)
     tokenizeCategory str = case Str.elemIndex ':' str of
         Just idx -> if isUpper (Str.head str)
             then internalError (show buf)
@@ -400,8 +416,8 @@ possiblyFixOperatorName :: Var -> Var
 possiblyFixOperatorName var@MkVar{ v_categ = CNil } = var
 possiblyFixOperatorName var@MkVar{ v_sigil = sig, v_name = name }
     | sig /= SCode, sig /= SCodeMulti = var
-    | Str.head buf == '\171', Str.last buf == '\187'
-    = var{ v_name = cast (Str.init (Str.tail buf)) }
+    | __"\194\171" `Str.isPrefixOf` buf, __"\194\187" `Str.isSuffixOf` buf
+    = var{ v_name = cast (dropEnd 2 (Str.drop 2 buf)) }
     | __"<<" `Str.isPrefixOf` buf, __">>" `Str.isSuffixOf` buf
     = var{ v_name = cast (dropEnd 2 (Str.drop 2 buf)) }
     | Str.head buf == '<', Str.last buf == '>', buf /= __"<=>"

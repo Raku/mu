@@ -372,17 +372,21 @@ findSub _var _invs _args = case _invs of
 
     -- possiblyBuildMetaopVCode :: (_args :: [Exp]) => Var -> Eval (Maybe VCode)
     possiblyBuildMetaopVCode var@MkVar{ v_categ = cat, v_name = name }
-        | C_prefix <- cat, '\171' <- Str.last buf = do
-            buildPrefixHyper buf var{ v_name = cast $ Str.init buf }
+        | C_prefix <- cat, __"\194\171" `Str.isSuffixOf` buf = do
+            buildPrefixHyper buf var{ v_name = cast $ dropEnd 2 buf }
         | C_prefix <- cat, __"<<" `Str.isSuffixOf` buf = do
             buildPrefixHyper buf var{ v_name = cast $ dropEnd 2 buf }
-        | C_postfix <- cat, '\187' <- Str.head buf = do
-            buildPostfixHyper buf var{ v_name = cast $ Str.tail buf }
+        | C_postfix <- cat, __"\194\187" `Str.isPrefixOf` buf = do
+            buildPostfixHyper buf var{ v_name = cast $ Str.drop 2 buf }
         | C_postfix <- cat, __">>" `Str.isPrefixOf` buf = do
             buildPostfixHyper buf var{ v_name = cast $ Str.drop 2 buf }
-        | C_infix <- cat, '\187' <- Str.head buf, '\171' <- Str.last buf = do
-            buildInfixHyper buf var{ v_name = cast $ Str.init (Str.tail buf) }
-        | C_infix <- cat, __">>" `Str.isPrefixOf` buf, __"<<" `Str.isSuffixOf` buf = do
+        | C_infix <- cat
+        , __"\194\187" `Str.isPrefixOf` buf
+        , __"\194\171" `Str.isSuffixOf` buf = do
+            buildInfixHyper buf var{ v_name = cast $ Str.drop 2 (dropEnd 2 buf) }
+        | C_infix <- cat
+        , __">>" `Str.isPrefixOf` buf
+        , __"<<" `Str.isSuffixOf` buf = do
             buildInfixHyper buf var{ v_name = cast $ Str.drop 2 (dropEnd 2 buf) }
         | C_prefix <- cat, '[' <- Str.head buf, ']' <- Str.last buf = do
             -- Strip the trailing "]" from op
