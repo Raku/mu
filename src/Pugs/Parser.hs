@@ -12,6 +12,7 @@
 module Pugs.Parser (
     ruleBlockBody,
     possiblyExit,
+    parseTerm,
     module Pugs.Lexer,
     module Pugs.Parser.Types,
     module Pugs.Parser.Unsafe,
@@ -506,36 +507,6 @@ ruleMemberDeclaration = do
         pkg = cast (envPackage env)
     unsafeEvalExp (_Sym SGlobal name exp)
     return emptyExp
-
--- was: parseTightOp
-parseExpWithTightOps :: RuleParser Exp
-parseExpWithTightOps = parseExpWithCachedParser dynParseTightOp
-
--- was: parseOpWith
-parseExpWithCachedParser :: (DynParsers -> RuleParser Exp) -> RuleParser Exp
-parseExpWithCachedParser f = do
-    state <- getState
-    case ruleDynParsers state of
-        MkDynParsersEmpty   -> refillCache state f
-        p                   -> f p
-
-refillCache :: RuleState -> (DynParsers -> RuleParser Exp) -> RuleParser Exp
-refillCache state f = do
-    let ?parseExpWithTightOps = parseExpWithTightOps
-    (terms, opsTight)   <- tightOperators
-    opsLoose            <- looseOperators
-    let tightExprs  = buildExpressionParser opsTight parseTerm
-        parseTight  = expRule tightExprs
-        parseFull   = expRule (buildExpressionParser opsFull tightExprs)
-        parseLit    = expRule (buildExpressionParser opsLoose tightExprs)
-        opParsers   = MkDynParsers parseFull parseTight parseLit parseNullary
-        opsFull     = listCons:listInfix:opsLoose
-        parseNullary = try $ do
-            name <- choice . map symbol . fromSet $ terms
-            notFollowedBy (char '(' <|> (char ':' >> char ':'))
-            possiblyApplyMacro $ App (_Var ('&':name)) Nothing []
-    setState state{ ruleDynParsers = opParsers }
-    f opParsers
 
 {-
 ruleVarDeclaration :: RuleParser Exp
@@ -1257,44 +1228,6 @@ ruleBlockFormalPointy = rule "pointy block parameters" $ do
     return $ (SubPointy, params, "rw" `elem` traits)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- was: parseOp
-parseExpWithOps :: RuleParser Exp
-parseExpWithOps = parseExpWithCachedParser dynParseOp
-
-{-
-was: parseLitOp
-[09:23] <autrijus> lit = tight+loose
-[09:24] <autrijus> i.e. all operators minus the list-associative , Y
-[09:24] <scook0> any reason it's called 'lit'?
-[09:26] <scook0> I didn't realise parseLitOp/parseTightOp were parsing terms, btw
-[09:29] <autrijus> please fix them
-[09:29] <autrijus> ruleLitTerms
-[09:29] <autrijus> "lit" as in "literal"
-[09:29] <autrijus> as in non-list
-[09:29] <autrijus> but this is too vague
-[09:29] <autrijus> maybe "Item".
--}
-parseExpWithItemOps :: RuleParser Exp
-parseExpWithItemOps = parseExpWithCachedParser dynParseLitOp
-
 ruleVarDecl :: RuleParser Exp
 ruleVarDecl = rule "variable declaration" $ do
     scope           <- ruleScope
@@ -1359,14 +1292,6 @@ ruleCapture = rule "capture" $ do
     -- Here we want to use some safe hooks
     return $ Syn "newland-capt"
         [unsafeCoerce# (CaptMeth (EE (MkExpEmeritus t)) []) :: Exp]
-
-{-
-ruleBarewordMethod :: RuleParser Exp
-ruleBarewordMethod = try $ do
-    name <- identifier
-    lookAhead (char '.' >> ruleSubName)
-    return $ _Var (':':name)
--}
 
 ruleTypeVar :: RuleParser Exp
 ruleTypeVar = rule "type" $ do
@@ -1529,33 +1454,6 @@ ruleApplySub isFolded = do
         <|> possiblyApplyMacro (App (Var name) Nothing [])
 -}
 
-ruleFoldOp :: RuleParser String
-ruleFoldOp = verbatimRule "reduce metaoperator" $ try $ do
-    char '['
-    keep <- option "" $ string "\\"
-    -- XXX - Instead of a lookup, add a cached parseInfix here!
-    MkTightFunctions{ r_infix = infixOps } <- currentTightFunctions
-    -- name <- choice $ ops (try . string) (addHyperInfix $ infixOps ++ defaultInfixOps)
-    name <- verbatimRule "infix operator" $ do
-        choice $ ops (try . string) (addHyperInfix $ (fromSet infixOps) ++ defaultInfixOps)
-    char ']'
-    possiblyHyper <- option "" ((char '\171' >> return "<<") <|> (string "<<"))
-    return $ "&prefix:[" ++ keep ++ name ++ "]" ++ possiblyHyper
-    where
-    -- XXX !~~ needs to turn into metaop plus ~~
-    defaultInfixOps = words $ concat
-        [ " ** * / % x xx +& +< +> ~& ~< ~> "
-        , " + - ~ +| +^ ~| ~^ ?| , Y \xA5 "
-        , " & ^ | "
-        , " => = "
-        , " != == < <= > >= ~~ !~~ "
-        , " eq ne lt le gt ge =:= === "
-        , " && "
-        , " || ^^ // "
-        , " and or xor err "
-        , " .[] .{} "
-        ]
-
 -- used only by 'ruleCodeSubscript'!
 parseParenParamList :: RuleParser (Maybe Exp, [Exp])
 parseParenParamList = parseParenParamListCommon True
@@ -1654,9 +1552,9 @@ parseParamList (after trying parseParenParamList)
 ruleInvocationParens (<= qInterpolatorPostTerm)
 ruleApply (when `foo .($bar)`?) (after whitespace when there's no implicit-inv)
 
-[09:12] <scook0> so really the only difference is that NoParens has to be 
-                 careful not to swallow `{}.blah`?
-[09:15] <autrijus> nodnod.
+The only difference with parseParamList is that NoParens has to be careful not
+to swallow `{}.blah`.
+
 -}
 parseNoParenParamList :: RuleParser (Maybe Exp, [Exp])
 parseNoParenParamList = do

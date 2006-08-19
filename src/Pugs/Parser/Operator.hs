@@ -6,6 +6,7 @@ import Pugs.AST
 import Pugs.Types
 import Pugs.Lexer
 import Pugs.Rule
+import {-# SOURCE #-} Pugs.Parser
 import qualified Data.Set as Set
 import qualified Data.HashTable as Hash
 
@@ -18,10 +19,9 @@ listCons = listSyn [","]                             -- List constructor
 listInfix :: [RuleOperator Exp]
 listInfix = listOps ["Y", "\xA5", "==>", "<=="]       -- List infix
 
--- Not yet transcribed ------------------------------------------------
+-- Not yet transcribed into a full optable parser with dynamic precedence --
 
-tightOperators :: (?parseExpWithTightOps :: RuleParser Exp) =>
-    RuleParser (Set ID, RuleOperatorTable Exp)
+tightOperators :: RuleParser (Set ID, RuleOperatorTable Exp)
 tightOperators = do
   tights <- currentTightFunctions
   return $ (,) (r_term tights)
@@ -64,18 +64,18 @@ tightOperators = do
 fromSet :: Set ID -> [String]
 fromSet = cast . Set.toList
 
-listAssignment :: (?parseExpWithTightOps :: RuleParser Exp) => Exp -> RuleParser Exp
+listAssignment :: Exp -> RuleParser Exp
 listAssignment x = do
     try $ do
         char '='
         guard (not (isScalarLValue x))
         notFollowedBy (oneOf "=>" <|> (char ':' >> char '='))
         whiteSpace
-    y   <- ?parseExpWithTightOps
+    y   <- parseExpWithTightOps
     rhs <- option y $ do
         -- If we see comma, then convert this to a Syn ",".
         ruleComma
-        ys <- ?parseExpWithTightOps `sepEndBy` ruleComma
+        ys <- parseExpWithTightOps `sepEndBy` ruleComma
         return (Syn "," (y:ys))
     return (Syn "=" [forceParens x, rhs])
     where
@@ -88,10 +88,10 @@ listAssignment x = do
     forceParens (Pad x y inner)     = Pad x y (forceParens inner)
     forceParens exp                 = exp
 
-immediateBinding :: (?parseExpWithTightOps :: RuleParser Exp) => Exp -> RuleParser Exp
+immediateBinding :: Exp -> RuleParser Exp
 immediateBinding x = do
     symbol "::="
-    y <- ?parseExpWithTightOps
+    y <- parseExpWithTightOps
     unsafeEvalExp (Syn ":=" [x, y])
     return x
 
@@ -458,11 +458,10 @@ mkPos pos1 pos2 = MkPos
     , posEndColumn    = sourceColumn pos2
     }
 
-ternOp :: (?parseExpWithTightOps :: RuleParser Exp) =>
-    String -> String -> String -> RuleOperator Exp
+ternOp :: String -> String -> String -> RuleOperator Exp
 ternOp pre post syn = (`Infix` AssocRight) $ do
     symbol pre
-    y <- ?parseExpWithTightOps
+    y <- parseExpWithTightOps
     symbol post
     return $ \x z -> Syn syn [x, y, z]
 
@@ -578,4 +577,69 @@ splitOp col row@(MkOpRow rassoc lassoc nassoc prefix postfix optPrefix listAssoc
     DependentPostfix op     -> row{ o_depPostfix= op:depPostfix }
     -- FIXME: add AssocChain
     _ -> internalError $ "Unhandled operator type" ++ show (op_assoc col)
+
+
+refillCache :: RuleState -> (DynParsers -> RuleParser Exp) -> RuleParser Exp
+refillCache state f = do
+    (terms, opsTight)   <- tightOperators
+    opsLoose            <- looseOperators
+    let tightExprs  = buildExpressionParser opsTight parseTerm
+        parseTight  = expRule tightExprs
+        parseFull   = expRule (buildExpressionParser opsFull tightExprs)
+        parseLit    = expRule (buildExpressionParser opsLoose tightExprs)
+        opParsers   = MkDynParsers parseFull parseTight parseLit parseNullary
+        opsFull     = listCons:listInfix:opsLoose
+        parseNullary = try $ do
+            name <- choice . map symbol . fromSet $ terms
+            notFollowedBy (char '(' <|> (char ':' >> char ':'))
+            possiblyApplyMacro $ App (_Var ('&':name)) Nothing []
+    setState state{ ruleDynParsers = opParsers }
+    f opParsers
+
+-- was: parseOp
+parseExpWithOps :: RuleParser Exp
+parseExpWithOps = parseExpWithCachedParser dynParseOp
+
+-- was: parseTightOp
+parseExpWithTightOps :: RuleParser Exp
+parseExpWithTightOps = parseExpWithCachedParser dynParseTightOp
+
+-- Parse something in item context -- i.e. everything minus list-associative ones
+parseExpWithItemOps :: RuleParser Exp
+parseExpWithItemOps = parseExpWithCachedParser dynParseLitOp
+
+-- was: parseOpWith
+parseExpWithCachedParser :: (DynParsers -> RuleParser Exp) -> RuleParser Exp
+parseExpWithCachedParser f = do
+    state <- getState
+    case ruleDynParsers state of
+        MkDynParsersEmpty   -> refillCache state f
+        p                   -> f p
+
+ruleFoldOp :: RuleParser String
+ruleFoldOp = verbatimRule "reduce metaoperator" $ try $ do
+    char '['
+    keep <- option "" $ string "\\"
+    -- XXX - Instead of a lookup, add a cached parseInfix here!
+    MkTightFunctions{ r_infix = infixOps } <- currentTightFunctions
+    -- name <- choice $ ops (try . string) (addHyperInfix $ infixOps ++ defaultInfixOps)
+    name <- verbatimRule "infix operator" $ do
+        choice $ ops (try . string) (addHyperInfix $ (fromSet infixOps) ++ defaultInfixOps)
+    char ']'
+    possiblyHyper <- option "" ((char '\171' >> return "<<") <|> (string "<<"))
+    return $ "&prefix:[" ++ keep ++ name ++ "]" ++ possiblyHyper
+    where
+    -- XXX !~~ needs to turn into metaop plus ~~
+    defaultInfixOps = words $ concat
+        [ " ** * / % x xx +& +< +> ~& ~< ~> "
+        , " + - ~ +| +^ ~| ~^ ?| , Y \xA5 "
+        , " & ^ | "
+        , " => = "
+        , " != == < <= > >= ~~ !~~ "
+        , " eq ne lt le gt ge =:= === "
+        , " && "
+        , " || ^^ // "
+        , " and or xor err "
+        , " .[] .{} "
+        ]
 
