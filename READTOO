@@ -11,7 +11,7 @@ Adding comments about the papers is welcome/encouraged.
 Papers which stick around for a while, or are highly thought of, or
 relevant could be moved to READTHEM.
 
-Last updated 2006-02-01.
+Last updated 2006-08-19.
 
 == Current
 
@@ -28,6 +28,10 @@ http://lambda-the-ultimate.org/node/1248
 Types for Modules
 http://www.dcs.ed.ac.uk/home/cvr/ECS-LFCS-98-389.html
 [mentioned by stevan, 2006-Jan]
+
+Software Extension and Integration with Type Classes
+http://homepages.cwi.nl/~ralf/gpce06/paper.pdf
+[mentioned by gaal in http://pugs.blogs.com/pugs/2006/08/val_migration.html]
 
 == Older
 
