@@ -12,7 +12,6 @@ module Pugs.Val (
     IValue(..), Val(..), ValUndef, ValNative, P,
     ICoercible(..), SKID,
     PureBit, PureInt, PureNum, PureStr, PureList, itemVal, listVal,
-    Code,
 
     Table,
     Var,
