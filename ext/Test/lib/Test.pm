@@ -17,6 +17,8 @@ $Test::num_of_tests_failed = 0;
 $Test::num_of_tests_badpass = 0;
 $Test::num_of_tests_planned;
 
+$Test::todo_next_test = False;
+
 # a Junction to hold our FORCE_TODO tests.  It's actually a string so
 # Test.pm doesn't require back to implement Junction.
 $Test::force_todo_test_junction = '';
@@ -180,6 +182,29 @@ sub lives_ok (Code &code, Str $desc?, :$todo, :$depends) returns Bool is export 
 
 ## misc. test utilities
 
+sub version_lt (Str $version1, Str $version2) returns Bool {
+    my @num1 = split '.', $version1;
+    my @num2 = split '.', $version2;
+    #warn ">>> compare $version1 <=> $version2\n";
+    for each(@num1; @num2) -> $a, $b {
+        next if $a == $b;
+        return True if $a < $b;
+        return False;
+    }
+    return False;
+}
+
+sub todo (*%deadline) returns Bool is export {
+    #warn "!!!", %deadline;
+    return if ! $?COMPILER.defined;
+    my $spec_ver = %deadline{lc($?COMPILER)};
+    if (!$spec_ver.defined or $spec_ver eq '1' or version_lt($?VERSION, $spec_ver)) {
+        $Test::todo_next_test = True;
+        return True;
+    }
+    return False;
+}
+
 multi sub skip (Str $reason?, :$depends) returns Bool is export {
     Test::proclaim(1, "", "skip $reason", :$depends);
 }
@@ -209,7 +234,11 @@ sub flunk (Str $desc?, :$todo, :$depends) returns Bool is export {
 
 sub diag (Str $diag) is export {
     for (split("\n", $diag)) -> $line {
-        $*ERR.say("# $line");   # we need `warn' to work with `prove6'
+        if ($diag ~~ m:P5/Failed \(TODO.*?\) test/) {
+            $*OUT.say("# $line");
+        } else {
+            $*ERR.say("# $line");   # we need `warn' to work with `prove6'
+        }
     }
 }
 
@@ -227,7 +256,11 @@ sub proclaim (Bool $cond, Str $desc? is copy, $todo?, Str $got?, Str $expected?,
     $context = "TODO for release"
         if index($Test::force_todo_test_junction, ' '~$Test::num_of_tests_run~' ') >= 0;
 
-    if $todo {
+    #warn "todo_next_test: $Test::todo_next_test";
+    if $Test::todo_next_test {
+        $context =  "TODO" ~ ($todo.isa('Str') ?? " $todo" !! '');
+        $Test::todo_next_test = False;
+    } elsif $todo {
         if (substr($todo, 0, 4) eq 'skip') {
             $context = $todo;
         }
@@ -342,6 +375,10 @@ Test - Test support module for perl6
 
   diag('some misc comments and documentation');
 
+  # TODO the next test with respect to the "deadline" specified.
+  todo :pugs<6.2.13>, :foo<1.23>;
+  is foo, bar, '...';
+
 = DESCRIPTION
 
 This module was built to facilitate the Pugs test suite. It has the
@@ -428,7 +465,10 @@ These functions both take blocks of code, run the code, and test whether they li
 
 Sometimes a test is broken because something is not implemented yet. So
 in order to still allow that to be tested, and those tests to knowingly
-fail, we provide the `:todo(1)` named parameter for all these  functions.
+fail, we provide the `todo` function to TODO the next one test according
+to a given deadline.
+
+XXX more detailed explanation of todo() here...
 
 The `:depends("string")` parameter to most of the functions is a way
 to provide a comment that refers to another file or test which must be
@@ -441,6 +481,11 @@ It is also possible to use the `force_todo()` function to do large scale
 TODO-ing of tests.
 
 == Misc. Functions
+
+- `todo (*%deadline) returns Bool is export`
+
+If the deadline has been hit (or passed), the next one test will be marked
+as TODO.
 
 - `skip (Str $reason?) returns Bool`
 - `skip (Int $count, Str $reason?) returns Bool`
