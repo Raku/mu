@@ -179,3 +179,50 @@ extractHash exp = extractHash' (possiblyUnwrap exp)
     extractHash' exp@Noop = Just exp
     extractHash' _ = Nothing
 
+tryLookAhead :: RuleParser a -> RuleParser b -> RuleParser a
+tryLookAhead rule after = try $ do
+    rv <- rule
+    lookAhead after
+    return rv
+
+makeVar :: String -> Exp
+makeVar (s:"<>") =
+    makeVarWithSigil s $ _Var "$/"
+makeVar (s:rest) | all (`elem` "1234567890") rest =
+    makeVarWithSigil s $ Syn "[]" [_Var "$/", Val $ VInt (read rest)]
+makeVar (s:'<':name) =
+    makeVarWithSigil s $ Syn "{}" [_Var "$/", doSplitStr (init name)]
+makeVar var = _Var var
+
+makeVarWithSigil :: Char -> Exp -> Exp
+makeVarWithSigil '$' x = x
+makeVarWithSigil s   x = Syn (s:"{}") [x]
+
+-- | splits the string into expressions on whitespace.
+-- Implements the <> operator at parse-time.
+doSplitStr :: String -> Exp
+doSplitStr str = case perl6Words str of
+    []  -> Syn "," []
+    [x] -> Val (VStr x)
+    xs  -> Syn "," $ map (Val . VStr) xs
+    where
+    perl6Words :: String -> [String]
+    perl6Words s
+      | findSpace == [] = []
+      | otherwise       = w : words s''
+      where
+      (w, s'')  = break isBreakingSpace findSpace
+      findSpace = dropWhile isBreakingSpace s
+      
+    isBreakingSpace('\x09') = True
+    isBreakingSpace('\x0a') = True
+    isBreakingSpace('\x0d') = True
+    isBreakingSpace('\x20') = True
+    isBreakingSpace(_)      = False
+
+tryFollowedBy :: RuleParser a -> RuleParser b -> RuleParser a
+tryFollowedBy rule after = try $ do
+    rv <- rule
+    after
+    return rv
+
