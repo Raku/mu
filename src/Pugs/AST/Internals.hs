@@ -99,7 +99,7 @@ import Pugs.AST.SIO
 import Pugs.Embed.Perl5
 import qualified Pugs.Val as Val
 import qualified Data.ByteString.Char8 as Str
-import Pugs.Val hiding (Val, IValue, VUndef)
+import Pugs.Val hiding (Val, Var, IValue, VUndef)
 
 {- <DrIFT> Imports for the DrIFT
 import Pugs.AST.Scope

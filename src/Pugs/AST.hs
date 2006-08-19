@@ -38,7 +38,7 @@ import Pugs.AST.Pos
 import Pugs.AST.Scope
 import Pugs.AST.SIO
 import Pugs.AST.Pad
-import Pugs.Val (val, PureStr, PureInt, PureNum)
+import Pugs.Val (val, PureStr, PureInt, PureNum, Capt(..), ValCapt)
 import qualified Pugs.Exp as NewExp
 
 {-|

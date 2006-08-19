@@ -1,6 +1,5 @@
-{- hopefully, in 6.6, this can be a first-class compilation unit. For now,
- - it's #included from Pugs.Val.
-{-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
+{-
+ - {-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
 module Pugs.Val.Code where
 import Pugs.Internals
 import Pugs.Types
@@ -142,8 +141,7 @@ data Feed a = MkFeed
 
 
 -- | Runtime Capture with dynamic Exp for leaves
-type ExpCapt = Capt Exp
+--type ExpCapt = Capt Exp
 -- | Static Capture with Val for leaves
 type ValCapt = Capt Val
 
-type Exp = () -- XXX bogus

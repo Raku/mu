@@ -12,9 +12,14 @@ module Pugs.Val (
     IValue(..), Val(..), ValUndef, ValNative, P,
     ICoercible(..), SKID,
     PureBit, PureInt, PureNum, PureStr, PureList, itemVal, listVal,
+    Code,
+
+    Table,
+    Var,
 
     -- From Code
     Capt(..), Feed(..), Code(..),
+    ValCapt,
 ) where
 import Pugs.Internals
 import GHC.Exts
@@ -26,6 +31,8 @@ import Pugs.AST.SIO
 import Pugs.Val.Base
 --import Pugs.Val.Sig
 --import Pugs.Val.Code
+--import Pugs.Exp
+import {-# SOURCE #-} Pugs.Exp
 
 import qualified Pugs.Types as Types
 #include "Val/Code.hs"
@@ -363,8 +370,6 @@ data Var
         }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
-type ExpVar = Var
-
 data Magic
     = MOS               -- ^ $?OS        Which os am I compiled for?
     | MOSVer            -- ^ $?OSVER     Which os version am I compiled for?
@@ -388,19 +393,6 @@ data Magic
     | MScalarBlock      -- ^ &?BLOCK     Which block am I in?
     | MArrayBlocks      -- ^ @?BLOCK     Which blocks am I in?
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
-
--- this too really belongs in the AST file.
-
--- | AST for a statement. The top level of an AST is a list of Stmt.
-data Stmt = MkStmt
-    { label      :: Maybe ID
-    , pragmas    :: Table
-    , expression :: Exp
-    } deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
-
--- | Carry over last pragmas and create a new statement out of an expression
-nextStmt :: Stmt -> Exp -> Stmt
-nextStmt MkStmt{ pragmas=prag } exp = MkStmt{ label=Nothing, pragmas=prag, expression=exp }
 
 --------------------------------------------------------------------------------------
 

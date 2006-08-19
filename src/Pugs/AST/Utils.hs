@@ -18,7 +18,7 @@ import Pugs.AST.Eval
 import {-# SOURCE #-} Pugs.AST.Internals
 import Pugs.Embed.Perl5
 import qualified Pugs.Val as Val
-import Pugs.Val hiding (Val, IValue, VUndef)
+import Pugs.Val hiding (Val, Var, IValue, VUndef)
 
 errIndex :: Show a => Maybe b -> a -> Eval b
 errIndex (Just v) _ = return v

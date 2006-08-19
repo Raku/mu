@@ -13,4 +13,4 @@ type Table = Map ID Val
 newtype Pad = MkPad { padEntries :: Map Var PadEntry }
 data PadEntry
 data Var -- XXX: should be moved to from Val to AST definiton
-data Stmt
+--data Stmt

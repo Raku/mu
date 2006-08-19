@@ -19,6 +19,7 @@ module Pugs.Parser (
 ) where
 import Pugs.Internals
 import Pugs.AST
+--import Pugs.Exp
 import Pugs.Types
 import Pugs.Version (versnum)
 import Pugs.Lexer
@@ -1337,6 +1338,7 @@ parseTerm = rule "term" $! do
         , ruleCodeQuotation
         , ruleTypeVar
 --      , ruleTypeLiteral
+        , ruleCapture
         , ruleApply False   -- Normal application
         -- Hack - use an empty Syn to defeat isScalarLValue checking
         --        so that ($x) = f() gives list context.
@@ -1349,6 +1351,12 @@ parseTerm = rule "term" $! do
             -- rulePostTerm returns an (Exp -> Exp) that we apply to the original term
             fs <- many rulePostTerm
             return $! combine (reverse fs) term
+
+ruleCapture :: RuleParser Exp
+ruleCapture = rule "capture" $ do
+    char '\\'
+    t <- ruleVar
+    return $ Val $ VV $ val $ ((CaptMeth t []) :: ExpCapt)
 
 {-
 ruleBarewordMethod :: RuleParser Exp

@@ -23,7 +23,7 @@ class (Monad m, Functor m, Typeable a) => ICoercible m a | a -> m where
     asNum    :: a -> m PureNum
     asNum x = fail $ "coerce fail: " ++ (show $ typeOf x) ++ " to PureNum"
     asStr    :: a -> m PureStr
-    asStr x = return (cast "<opaque>") -- XXX wrong
+    asStr _ = return (cast "<opaque>") -- XXX wrong
     -- "$item = VAL"
     asItem   :: a -> Maybe (m Val)
     asItem _ = Nothing -- default = do nothing (for Scalar this would return its content)
