@@ -39,7 +39,6 @@ import Pugs.AST.Scope
 import Pugs.AST.SIO
 import Pugs.AST.Pad
 import Pugs.Val (val, PureStr, PureInt, PureNum, Capt(..), ValCapt)
-import qualified Pugs.Exp as NewExp
 
 {-|
 Return an infinite (lazy) Haskell list of the given string and its
@@ -171,6 +170,7 @@ opSet cat posts = Set.fromList $ map doMakeVar posts
         , v_package = emptyPkg
         , v_categ   = cat
         , v_name    = cast name
+        , v_meta    = MNil
         }
 
 coercePrefixOps, simplePrefixOps, simplePostfixOps, simpleInfixOps :: Set Var

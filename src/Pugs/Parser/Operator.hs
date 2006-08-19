@@ -261,7 +261,7 @@ chainOps    = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix . withNe
 rightSyn    = ops $ makeOp2 AssocRight "" Syn
 noneSyn     = ops $ makeOp2 AssocNone "" Syn
 listSyn     = ops $ makeOp0 AssocList "" Syn
-circumOps   = ops $ makeCircumfixOp1 "&circumfix:" doApp
+circumOps   = ops $ makeCircumOp "&circumfix:"
 rightAssignSyn :: RuleOperator Exp
 rightAssignSyn = makeOp2Assign AssocRight "" Syn
 rightDotAssignSyn :: RuleOperator Exp
@@ -313,19 +313,13 @@ makeOp1 fixity sigil con name = fixity $ try $ do
         Syn "" []   -> con name []
         _           -> con name [x]
 
-ruleBracketedExpression :: RuleParser Exp
-ruleBracketedExpression = enterBracketLevel ParensBracket $
-    ruleExpression <|> do { whiteSpace; return (Syn "," []) }
 
-makeCircumfixOp1 :: String -> 
-           (String -> [Exp] -> Exp) -> 
-           String -> 
-           RuleOperator Exp
-makeCircumfixOp1 sigil con op = Circumfix $ try $ do
-    x <- between (lexeme $ string opener)
-                 (string closer)
-                 ruleBracketedExpression
-    return $ con name [x]
+makeCircumOp :: String -> String -> RuleOperator Exp
+makeCircumOp sigil op = Term . try $
+    between (lexeme $ string opener) (string closer) $
+        enterBracketLevel ParensBracket $ do
+            (invs, args) <- option (Nothing, []) parseNoParenParamList
+            possiblyApplyMacro $ App (_Var name) invs args
     where
     name = sigil ++ opener ++ " " ++ closer
     [opener, closer] = words op
@@ -483,15 +477,15 @@ type ListOperator       = RuleParser ([Exp] -> Exp)
 type DependentOperator  = Exp -> RuleParser Exp
 
 data OpRow = MkOpRow
-    { o_rassoc          :: ![BinaryOperator]
-    , o_lassoc          :: ![BinaryOperator]
-    , o_nassoc          :: ![BinaryOperator]
-    , o_prefix          :: ![UnaryOperator]
-    , o_postfix         :: ![UnaryOperator]
-    , o_optPrefix       :: ![UnaryOperator]
-    , o_listAssoc       :: ![ListOperator]
-    , o_depPostfix      :: ![DependentOperator]
-    , o_circumfix       :: ![TermOperator]
+    { o_rassoc      :: ![BinaryOperator]
+    , o_lassoc      :: ![BinaryOperator]
+    , o_nassoc      :: ![BinaryOperator]
+    , o_prefix      :: ![UnaryOperator]
+    , o_postfix     :: ![UnaryOperator]
+    , o_optPrefix   :: ![UnaryOperator]
+    , o_listAssoc   :: ![ListOperator]
+    , o_depPostfix  :: ![DependentOperator]
+    , o_term        :: ![TermOperator]
     }
 
 -----------------------------------------------------------
@@ -503,11 +497,11 @@ buildExpressionParser = flip (foldl makeParser)
 
 {-# INLINE makeParser #-}
 makeParser :: RuleParser Exp -> [RuleOperator Exp] -> RuleParser Exp
-makeParser term ops = do
+makeParser simpleTerm ops = do
     x <- termP
     rassocP x <|> lassocP x <|> nassocP x <|> listAssocP x <|> return x <?> "operator"
     where
-    MkOpRow rassoc lassoc nassoc prefix postfix optPrefix listAssoc depPostfix circumfix
+    MkOpRow rassoc lassoc nassoc prefix postfix optPrefix listAssoc depPostfix term
         = foldr splitOp (MkOpRow [] [] [] [] [] [] [] [] []) ops
     rassocOp          = choice rassoc
     lassocOp          = choice lassoc
@@ -517,9 +511,7 @@ makeParser term ops = do
     optPrefixOp       = choice optPrefix <?> ""
     listAssocOp       = choice listAssoc
     depPostfixOp x    = choice (map ($ x) depPostfix) <?> ""
-    circumfixOp       = choice circumfix <?> ""
-
-    termOp            = circumfixOp <|> term
+    termOp            = choice term <|> simpleTerm
 
     ambig assoc op    = try
         (op >> fail ("ambiguous use of a " ++ assoc ++ " associative operator"))
@@ -576,7 +568,7 @@ makeParser term ops = do
 
 {-# INLINE splitOp #-}
 splitOp :: RuleOperator Exp -> OpRow -> OpRow
-splitOp col row@(MkOpRow rassoc lassoc nassoc prefix postfix optPrefix listAssoc depPostfix circumfix) = case col of
+splitOp col row@(MkOpRow rassoc lassoc nassoc prefix postfix optPrefix listAssoc depPostfix term) = case col of
     Infix op AssocNone      -> row{ o_nassoc    = op:nassoc }
     Infix op AssocLeft      -> row{ o_lassoc    = op:lassoc }
     Infix op AssocRight     -> row{ o_rassoc    = op:rassoc }
@@ -585,7 +577,7 @@ splitOp col row@(MkOpRow rassoc lassoc nassoc prefix postfix optPrefix listAssoc
     Postfix op              -> row{ o_postfix   = op:postfix }
     OptionalPrefix op       -> row{ o_optPrefix = op:optPrefix }
     DependentPostfix op     -> row{ o_depPostfix= op:depPostfix }
-    Circumfix op            -> row{ o_circumfix = op:circumfix }
+    Term op                 -> row{ o_term      = op:term }
     -- FIXME: add AssocChain
     _ -> internalError $ "Unhandled operator type" ++ show (op_assoc col)
 

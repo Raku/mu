@@ -18,7 +18,7 @@ module Pugs.Parser (
     module Pugs.Parser.Operator,
 
     -- For circularity use in Pugs.Parser.Operator
-    parseTerm, ruleExpression,
+    parseTerm, parseNoParenParamList,
 ) where
 import Pugs.Internals
 import Pugs.AST
@@ -1735,6 +1735,10 @@ arrayLiteral :: RuleParser Exp
 arrayLiteral = try $ do
     item <- verbatimBrackets ruleBracketedExpression
     return $ Syn "\\[]" [item]
+
+ruleBracketedExpression :: RuleParser Exp
+ruleBracketedExpression = enterBracketLevel ParensBracket $
+    ruleExpression <|> do { whiteSpace; return (Syn "," []) }
 
 {-|
 Match a pair literal -- either an arrow pair (@a => 'b'@), or an adverbial pair

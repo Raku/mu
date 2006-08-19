@@ -386,6 +386,11 @@ reduceSyn :: String -> [Exp] -> Eval Val
 
 reduceSyn "()" [exp] = reduce exp
 
+reduceSyn "named" [keyExp, valExp] = do
+    key <- enterEvalContext cxtItemAny keyExp
+    val <- enterEvalContext cxtItemAny valExp
+    retItem $ castV (key, val)
+
 reduceSyn "env" [] = do
     env <- ask
     -- writeVar "$*_" val
