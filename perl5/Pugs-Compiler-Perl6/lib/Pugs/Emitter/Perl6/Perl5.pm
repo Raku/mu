@@ -735,7 +735,7 @@ sub default {
 
 sub statement {
     my $n = $_[0];
-    warn "statement: ", Dumper( $n );
+    #warn "statement: ", Dumper( $n );
     
     if ( $n->{statement} eq 'if'     || 
          $n->{statement} eq 'unless' ) {
@@ -749,6 +749,10 @@ sub statement {
                 ( $n->{exp3} ? " else" . _emit( $n->{exp3} ) : '' );
     }
 
+    if ( $n->{statement} eq 'do' ) {
+        return  'do { ' . _emit( $n->{exp1} ) . ' } ';
+    }
+    
     if ( $n->{statement} eq 'grammar'  ||
          $n->{statement} eq 'class'    ||
          $n->{statement} eq 'package'  ||

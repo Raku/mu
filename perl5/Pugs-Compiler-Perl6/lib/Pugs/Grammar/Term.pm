@@ -374,6 +374,15 @@ sub recompile {
                 # default
                 { return { bareword => 'use' } }
             ),
+        q(do) =>  q( 
+                # { print "statement do \n"; }
+                <?ws> 
+                $<exp1> := <Pugs::Grammar::Perl6.statement>        
+                { return { 
+                        statement => 'do',
+                        exp1 => $_[0]{exp1}->(),
+                } }
+            ),
         q(:) => Pugs::Compiler::Token->compile( q^
             ### pair - long:<name> 
                 # :foo<bar>
