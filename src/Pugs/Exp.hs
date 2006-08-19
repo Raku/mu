@@ -7,7 +7,7 @@
 module Pugs.Exp where
 
 import Pugs.Internals
-import {-# SOURCE #-} qualified Pugs.AST.Internals as OldAST
+import {-# SOURCE #-} qualified Pugs.AST.Internals (Exp)
 import Pugs.Val
 
 
@@ -15,7 +15,7 @@ type ExpVar = Var
 type ExpVal = Val
 type ExpCapt = Capt Exp
 
-newtype ExpEmeritus = MkExpEmeritus { ee :: OldAST.Exp }
+newtype ExpEmeritus = MkExpEmeritus { ee :: Pugs.AST.Internals.Exp }
 
 instance Eq ExpEmeritus where _ == _ = True
 instance Ord ExpEmeritus where compare _ _ = EQ

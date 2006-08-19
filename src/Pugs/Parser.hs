@@ -19,7 +19,7 @@ module Pugs.Parser (
 ) where
 import Pugs.Internals
 import Pugs.AST
---import Pugs.Exp
+import Pugs.Exp hiding (Exp)
 import Pugs.Types
 import Pugs.Version (versnum)
 import Pugs.Lexer
@@ -1356,7 +1356,9 @@ ruleCapture :: RuleParser Exp
 ruleCapture = rule "capture" $ do
     char '\\'
     t <- ruleVar
-    return $ Val $ VV $ val $ ((CaptMeth t []) :: ExpCapt)
+    -- Here we want to use some safe hooks
+    return $ Syn "newland-capt"
+        [unsafeCoerce# (CaptMeth (EE (MkExpEmeritus t)) []) :: Exp]
 
 {-
 ruleBarewordMethod :: RuleParser Exp
