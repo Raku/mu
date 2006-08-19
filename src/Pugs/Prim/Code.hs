@@ -1,10 +1,11 @@
 {-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
 module Pugs.Prim.Code (
-    op1CodeAssoc, op1CodeName, op1CodeArity, op1CodeBody, op1CodePos,
+    op1CodeAssoc, op1CodeName, op1CodeArity, op1CodeBody, op1CodePos, op1CodeSignature
 ) where
 import Pugs.AST
 import Pugs.Internals
 import Pugs.Pretty
+import qualified Pugs.Val as Val
 
 {- On Code -}
 
@@ -42,6 +43,11 @@ op1CodePos v = do
     case env of
         Nothing  -> return VUndef
         Just env -> return $ castV $ pretty $ envPos env
+
+op1CodeSignature :: Val -> Eval Val
+op1CodeSignature v = do
+	code <- fromVal v
+	return . VV . Val.val . paramsToSig . subParams $ code
 
 {- On Code::Exp -}
 

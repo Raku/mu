@@ -66,6 +66,7 @@ module Pugs.AST.Internals (
     mkPrim, mkSub, showRat, showTrueRat,
     cxtOfSigil, cxtOfSigilVar, typeOfSigil, typeOfSigilVar,
     buildParam, defaultArrayParam, defaultHashParam, defaultScalarParam,
+	paramsToSig,
     emptyExp,
     isSlurpy, envWant,
     extractPlaceholderVars, fromObject, createObject, createObjectRaw,
@@ -99,7 +100,6 @@ import Pugs.AST.SIO
 import Pugs.Embed.Perl5
 import qualified Pugs.Val as Val
 import qualified Data.ByteString.Char8 as Str
-import Pugs.Val hiding (Val, Var, IValue, VUndef)
 
 {- <DrIFT> Imports for the DrIFT
 import Pugs.AST.Scope
@@ -208,7 +208,7 @@ class (Typeable n, Show n, Ord n) => Value n where
 {-    doCast v = castFailM v "default implementation of doCast" -}
     fromVV :: Val.Val -> Eval n
     fromVV v = do
-        str <- liftSIO (asStr v)
+        str <- liftSIO (Val.asStr v)
         fail $ "Cannot cast from VV (" ++ cast str ++ ") to " ++ errType (undefined :: n)
     toVV :: n -> Eval Val
     toVV = toVV' . castV
@@ -238,11 +238,11 @@ fromVal' (VV v) = fromVV v
 fromVal' v = doCast v
 
 toVV' :: Val -> Eval Val
-toVV' (VBool v) = return $ VV $ val $ ((cast v) :: PureBit)
-toVV' (VInt v) = return $ VV $ val $ ((cast v) :: PureInt)
-toVV' (VNum v) = return $ VV $ val $ ((cast v) :: PureNum)
-toVV' (VRat v) = return $ VV $ val $ ((cast v) :: PureNum)
-toVV' (VStr v) = return $ VV $ val $ ((cast v) :: PureStr)
+toVV' (VBool v) = return $ VV $ Val.val $ ((cast v) :: Val.PureBit)
+toVV' (VInt v) = return $ VV $ Val.val $ ((cast v) :: Val.PureInt)
+toVV' (VNum v) = return $ VV $ Val.val $ ((cast v) :: Val.PureNum)
+toVV' (VRat v) = return $ VV $ Val.val $ ((cast v) :: Val.PureNum)
+toVV' (VStr v) = return $ VV $ Val.val $ ((cast v) :: Val.PureStr)
 toVV' x = error $ "don't know how to toVV': " ++ show x
 
 getArrayIndex :: Int -> Maybe (IVar VScalar) -> Eval IArray -> Maybe (Eval b) -> Eval (IVar VScalar)
@@ -404,7 +404,7 @@ runInvokePerl5 sub inv args = do
 instance Value VBool where
     castV = VBool
     fromSV sv = liftIO $ svToVBool sv
-    fromVV vv = liftSIO $ fmap cast (asBit vv)
+    fromVV vv = liftSIO $ fmap cast (Val.asBit vv)
     doCast (VJunc j)   = juncToBool j
     doCast (VMatch m)  = return $ matchOk m
     doCast (VBool b)   = return $ b
@@ -421,7 +421,7 @@ instance Value VBool where
 
 instance Value VInt where
     castV = VInt
-    fromVV vv = liftSIO $ fmap cast (asInt vv)
+    fromVV vv = liftSIO $ fmap cast (Val.asInt vv)
     fromSV sv = liftIO $ svToVInt sv
     doCast (VInt i)     = return $ i
     doCast x            = fmap truncate (fromVal x :: Eval VRat)
@@ -449,7 +449,7 @@ instance Value VRat where
 
 instance Value VNum where
     castV = VNum
-    fromVV vv = liftSIO $ fmap cast (asNum vv)
+    fromVV vv = liftSIO $ fmap cast (Val.asNum vv)
     fromSV sv = liftIO $ svToVNum sv
     doCast VUndef       = return $ 0
     doCast VType{}      = return $ 0
@@ -484,14 +484,14 @@ instance Value VComplex where
 instance Value ID where
     castV = VStr . cast
     fromSV sv = fmap cast (liftIO $ svToVStr sv)
-    fromVV vv = liftSIO $ cast (asStr vv)
+    fromVV vv = liftSIO $ cast (Val.asStr vv)
     fromVal = fmap (cast :: VStr -> ID) . fromVal
     doCast = fmap (cast :: VStr -> ID) . doCast
 
 instance Value VStr where
     castV = VStr
     fromSV sv = liftIO $ svToVStr sv
-    fromVV vv = liftSIO $ cast (asStr vv)
+    fromVV vv = liftSIO $ cast (Val.asStr vv)
     fromVal (VList l)    = return . unwords =<< mapM fromVal l
     fromVal v@(PerlSV _) = fromVal' v
     fromVal VUndef       = return ""
@@ -559,7 +559,7 @@ valToStr = fromVal
 instance Value VList where
     castV = VList
     fromSV sv = return [PerlSV sv]
-    fromVV = cast . fmap (map VV . cast) . listVal
+    fromVV = cast . fmap (map VV . cast) . Val.listVal
     fromVal (VRef r) = do
         v <- readRef r
         case v of
@@ -609,7 +609,7 @@ type VScalar = Val
 
 instance Value VScalar where
     fromSV = return . PerlSV
-    fromVV = cast . fmap VV . itemVal
+    fromVV = cast . fmap VV . Val.itemVal
     fromVal (VRef r) = fromVal =<< readRef r
     fromVal v = return v
     doCast v = return v
@@ -740,7 +740,7 @@ valType (VType    t)    = t
 valType (VObject  o)    = objType o
 valType (VOpaque  _)    = mkType "Object"
 valType (PerlSV   _)    = mkType "Scalar::Perl5"
-valType (VV       v)    = mkType (cast $ valMeta v)
+valType (VV       v)    = mkType (cast $ Val.valMeta v)
 
 valToBool :: Val -> Eval VBool
 valToBool = fromVal
@@ -794,6 +794,45 @@ data Param = MkParam
 
 -- | A list of formal parameters.
 type Params     = [Param]
+
+paramToValParam :: Param -> Val.Param
+paramToValParam param = ret
+    where 
+    ret = Val.MkParam 
+        { Val.p_variable    = v_name $ paramName param  -- XXX sigilization
+        , Val.p_types       = []
+        , Val.p_constraints = []
+        , Val.p_unpacking   = Nothing
+        , Val.p_default     = Val.DNil                  -- XXX Exp incompatibility
+        , Val.p_label       = v_name $ paramName param  -- XXX sigility
+        , Val.p_slots       = Map.empty
+        , Val.p_hasAccess   = case param of
+                                  MkParam { isLValue = True, isWritable = False } -> Val.AccessRO
+                                  MkParam { isLValue = True, isWritable = True }  -> Val.AccessRW
+                                  MkParam { isLValue = False }                    -> Val.AccessCopy
+        , Val.p_isRef       = Val.p_hasAccess ret == Val.AccessRW
+        , Val.p_isLazy      = isLazy param
+        }
+
+paramsToSig :: Params -> Val.Sig
+paramsToSig params = 
+    Val.SigSubSingle
+        { Val.s_requiredPositionalCount =
+            length $ filter (\x -> not (isNamed x) && not (isOptional x)) params
+        , Val.s_requiredNames =
+            Set.fromList $ map (v_name . paramName) $ filter (not . isOptional) params
+        , Val.s_positionalList = map paramToValParam $ filter (not . isNamed) params
+        , Val.s_namedSet = 
+			Map.fromList $ 
+				map (\p -> (v_name (paramName p), paramToValParam p)) $ 
+				   filter isNamed params
+        , Val.s_slurpyScalarList = []  -- XXX unimplemented
+        , Val.s_slurpyArray   = Nothing  -- XXX ditto
+        , Val.s_slurpyHash    = Nothing  -- XXX yep
+        , Val.s_slurpyCode    = Nothing  -- XXX all right
+        , Val.s_slurpyCapture = Nothing -- this one is okay as it is ;-)
+        }   
+
 {-|
 A list of bindings from formal parameters ('Param') to actual parameter
 expressions ('Exp').

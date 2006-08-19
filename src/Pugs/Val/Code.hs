@@ -104,11 +104,11 @@ data Param = MkParam
                                      --   E.g. where {...} above
     , p_unpacking   :: Maybe PureSig -- ^ E.g. BinTree $t (Left $l, Right $r)
     , p_default     :: ParamDefault  -- ^ E.g. $answer? = 42
-    , p_label       :: ID            -- ^ E.g. :mode
+    , p_label       :: ID            -- ^ The external name for the param ('m' above)
     , p_slots       :: Table         -- ^ Any additional attrib not
                                      --   explicitly mentioned below
     , p_hasAccess   :: ParamAccess   -- ^ is ro, is rw, is copy
-    , p_isRef       :: Bool
+    , p_isRef       :: Bool          -- ^ must be true if hasAccess = AccessRW
     , p_isLazy      :: Bool
     }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
@@ -133,6 +133,12 @@ data ParamAccess
     | AccessRW
     | AccessCopy
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+instance ICoercible P Sig where
+	asStr _ = return (cast "<sig>")  -- XXX
+
+instance Pure Sig where {}
+	
 
 --------------------------------------------------------------------------------------
 

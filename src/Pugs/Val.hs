@@ -17,6 +17,7 @@ module Pugs.Val (
     Var,
 
     -- From Code
+	Sig(..), Param(..), ParamAccess(..), ParamDefault(..),
     Capt(..), Feed(..), Code(..),
     ValCapt,
 ) where
