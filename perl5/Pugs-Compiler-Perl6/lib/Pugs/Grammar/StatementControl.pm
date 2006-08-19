@@ -5,6 +5,40 @@ use base qw(Pugs::Grammar::BaseCategory);
 
 BEGIN {
     __PACKAGE__->add_rule(
+        'given' =>  q( 
+            # { print "statement given \n"; }
+            <?ws> 
+            $<exp1> := <Pugs::Grammar::Expression.parse('no_blocks',0)> <?ws>?
+            $<exp2> := <Pugs::Grammar::Perl6.block>        
+            { return { 
+                    statement => 'given',
+                    exp1 => $_[0]{exp1}->(),
+                    exp2 => $_[0]{exp2}->(),
+            } }
+        ) );
+    __PACKAGE__->add_rule(
+        'when' =>  q( 
+            # { print "statement when \n"; }
+            <?ws> 
+            $<exp1> := <Pugs::Grammar::Expression.parse('no_blocks',0)> <?ws>?
+            $<exp2> := <Pugs::Grammar::Perl6.block>        
+            { return { 
+                    statement => 'when',
+                    exp1 => $_[0]{exp1}->(),
+                    exp2 => $_[0]{exp2}->(),
+            } }
+        ) );
+    __PACKAGE__->add_rule(
+        'default' =>  q( 
+            # { print "statement default \n"; }
+            <?ws> 
+            $<exp1> := <Pugs::Grammar::Perl6.block>        
+            { return { 
+                    statement => 'default',
+                    exp1 => $_[0]{exp1}->(),
+            } }
+        ) );
+    __PACKAGE__->add_rule(
         'for' =>  q( 
             # { print "statement for \n"; }
             <?ws> 
