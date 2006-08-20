@@ -1,5 +1,8 @@
-
-no strict
+my $0;
+my $*TAINT;
+my %ENV;
+my @INC;
+my $VERSION;
 # This is a replacement for the old BEGIN preamble which heads (or
 # should head) up every core test program to prepare it for running.
 # Now instead of:

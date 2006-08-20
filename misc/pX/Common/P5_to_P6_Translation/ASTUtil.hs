@@ -90,6 +90,21 @@ isInSequence _ [] = True
 isInSequence [] _ = False
 isInSequence nodes list = if (allMatch nodes list) then True else (isInSequence (tail nodes) list) 
 
+isInSequenceType :: [P5AST] -> [P5AST] -> Bool
+isInSequenceType _ [] = True
+isInSequenceType [] _ = False
+isInSequenceType nodes list = if (allMatchType nodes list) then True else (isInSequence (tail nodes) list)
+
+allMatchType :: [P5AST] -> [P5AST] -> Bool
+allMatchType [] [] = True
+allMatchType _ [] = False
+allMatchType [] _ = False
+allMatchType list1 list2 = case [(matchOnType (head list1) (LiteralNode "junk" "" "")), (matchOnType (head list2) (LiteralNode "junk" "" ""))] of
+                             [True, True]   -> (allMatch (tail list1) (tail list2))
+                             [True, False]  -> (allMatch (tail list1) list2)
+                             [False, True]  -> (allMatch list1 (tail list2))
+                             [False, False] -> if (matchOnType (head list1) (head list2)) then (allMatch (tail list1) (tail list2)) else False
+
 --Make sure two lists match
 allMatch :: [P5AST] -> [P5AST] -> Bool
 allMatch [] [] = True
