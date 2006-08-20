@@ -24,6 +24,15 @@ sub _var_get {
         $s = $n->{$_} if exists $n->{$_};
     }
 
+    #print "get: $s\n";
+    
+    if ( $s =~ /\$\? .* POSITION $/x ) {
+        # $?CALLER::CALLER::CALLER::POSITION
+        my $code = $s;
+        $code =~ s/\$/\&/;
+        return _emit_code( $code );
+    }
+
     if ( ! $s ) {
         if ( exists $n->{bare_block} ) {
             my $block = _emit( $n );
