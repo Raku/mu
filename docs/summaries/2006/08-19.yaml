@@ -339,7 +339,7 @@ lists:
           - email: jerry.gay@gmail.com
             name: jerry gay
         subject: Implement .loadlib pragma in IMCC
-        summary: ~
+        summary: ''
       - date_from: 1153163540
         date_to: 1155175298
         hidden: ~
@@ -704,7 +704,7 @@ lists:
           - email: jerry.gay@gmail.com
             name: jerry gay
         subject: Inf and NaN
-        summary: ~
+        summary: ''
       - date_from: 1154378334
         date_to: 1154648469
         hidden: ~
@@ -749,7 +749,7 @@ lists:
           - email: wcoleda@tello.com
             name: Will Coleda
         subject: argument type warning
-        summary: ~
+        summary: ''
       - date_from: 1154393058
         date_to: 1154393058
         hidden: ~
@@ -855,7 +855,7 @@ lists:
           namespace opcodes accept arrays to enable multidimensional namespaces, 
           and to remove redundant globals and get/set methods.  Matt Diephouse
           asked how the removal of get/set methods would affect namespaces with 
-          a sigil or other unusual name.  Allision replied that the methods
+          a sigil or other unusual name.  Allison replied that the methods
           were part of the untyped interface; the typed interface uses 
           `find_namespace` and `add_namespace`.
       - date_from: 1154467297
@@ -947,7 +947,7 @@ lists:
           - email: allison@cvs.perl.org
             name: allison
         subject: '[svn:parrot-pdd] r13766 - in trunk: . docs/pdds/clip'
-        summary: ~
+        summary: ''
       - date_from: 1154594138
         date_to: 1154594138
         hidden: ~
@@ -1085,7 +1085,7 @@ lists:
             name: Chip Salzenberg
         rt_ticket: 'perl #40060'
         subject: '[perl #40060] [CAGE] Fix non-symbol-table namespace pollution in public headers'
-        summary: ~
+        summary: ''
       - date_from: 1154632016
         date_to: 1154632016
         hidden: 1
@@ -1095,7 +1095,7 @@ lists:
             name: Chip Salzenberg
         rt_ticket: 'perl #40061'
         subject: '[perl #40061] Parrot release 0.4.7'
-        summary: ~
+        summary: ''
       - date_from: 1154637108
         date_to: 1154637108
         hidden: ~
@@ -1157,7 +1157,7 @@ lists:
           - email: chip@pobox.com
             name: Chip Salzenberg
         subject: Impending release of Parrot 0.4.6
-        summary: ~
+        summary: ''
       - date_from: 1154677489
         date_to: 1154677489
         hidden: 1
@@ -1166,7 +1166,7 @@ lists:
           - email: allison@cvs.perl.org
             name: allison
         subject: '[svn:parrot-pdd] r13834 - in trunk: . docs/pdds'
-        summary: ~
+        summary: ''
       - date_from: 1154677500
         date_to: 1154677500
         hidden: 1
@@ -1175,7 +1175,7 @@ lists:
           - email: allison@cvs.perl.org
             name: allison
         subject: '[svn:parrot-pdd] r13835 - in trunk: . docs/pdds/clip'
-        summary: ~
+        summary: ''
       - date_from: 1154681430
         date_to: 1154711688
         hidden: ~
@@ -1216,7 +1216,7 @@ lists:
           - email: chip@pobox.com
             name: Chip Salzenberg
         subject: svk is generating almost-empty change sets
-        summary: ~
+        summary: ''
       - date_from: 1154833855
         date_to: 1154833855
         hidden: ~
@@ -1287,7 +1287,7 @@ lists:
           - email: perlbug-summary@perl.org
             name: Parrot Bug Summary
         subject: Parrot Bug Summary
-        summary: ~
+        summary: ''
       - date_from: 1154982634
         date_to: 1154982634
         hidden: ~
@@ -1364,7 +1364,7 @@ lists:
           - email: kay-uwe.hull@exgate.tek.com
             name: kay-uwe.hull
         subject: parrot compile error
-        summary: ~
+        summary: ''
       - date_from: 1155053077
         date_to: 1155053703
         hidden: 1
@@ -1379,7 +1379,7 @@ lists:
           - email: Hugues.Lafarge@afp.com
             name: hugues
         subject: parrot compile error
-        summary: ~
+        summary: ''
       - date_from: 1155059812
         date_to: 1155059812
         hidden: ~
@@ -1431,7 +1431,7 @@ lists:
           Will Coleda created ticket <rt://perl/40122> to address code
           near the `list_splice()` function which prevents using it 
           across multiple types of PMCs.  Leopold Toetsch replied that
-          the implemention is optimized for Array, and a more general
+          the implementation is optimized for Array, and a more general
           solution can be created by implementing the splice vtable
           function in the TclList PMC.  Will closed the ticket and
           created <msgid:rt-3.5.HEAD-22709-1155070434-1371.40125-72-0@perl.org>.
@@ -1510,7 +1510,7 @@ lists:
           - email: kay-uwe.hull@exgate.tek.com
             name: kay-uwe.hull
         subject: 'Re: parrot compile error'
-        summary: ~
+        summary: ''
       - date_from: 1155108536
         date_to: 1155108536
         hidden: ~
@@ -1544,7 +1544,7 @@ lists:
           - email: chip@pobox.com
             name: Chip Salzenberg
         subject: can somebody convert an MS Project 97 file for me?
-        summary: ~
+        summary: ''
       - date_from: 1155155793
         date_to: 1155158764
         hidden: ~
@@ -1572,7 +1572,7 @@ lists:
           - email: Hugues.Lafarge@afp.com
             name: hugues
         subject: parrot compile error
-        summary: ~
+        summary: ''
       - date_from: 1155172401
         date_to: 1155236567
         hidden: ~
@@ -1587,7 +1587,7 @@ lists:
         rt_ticket: 'perl #40145'
         subject: '[perl #40145] [PATCH] t/compilers/imcc/syn/macro.t segfault'
         summary: |-
-          Autrijus Tang requested a regeneration of a patch.
+          Audrey Tang requested a regeneration of a patch.
           Leopold Toetsch applied it as r13984.  Ticket
           <rt://perl/40145> tracked the request.
       - date_from: 1155220232
@@ -1744,7 +1744,7 @@ lists:
           chromatic noted that it is currently possible to change the paths
           Parrot uses to load libraries.  He included tests which show the
           problem, and a patch to fix it.  There is still a issue that
-          the `enum_lib_paths` constants in `include/prrot/library.h` are
+          the `enum_lib_paths` constants in `include/parrot/library.h` are
           not available via `iglobals.pasm`.
       - date_from: 1155561317
         date_to: 1155561317
@@ -1754,7 +1754,7 @@ lists:
           - email: perlbug-summary@perl.org
             name: Parrot Bug Summary
         subject: Parrot Bug Summary
-        summary: ~
+        summary: ''
       - date_from: 1155588713
         date_to: 1155588713
         hidden: duplicate
@@ -1765,7 +1765,7 @@ lists:
           - email: jerry.gay@gmail.com
             name: jerry gay
         subject: designing a test suite for multiple implementations (repository thread)
-        summary: ~
+        summary: ''
       - date_from: 1155646636
         date_to: 1155646636
         hidden: ~
@@ -1830,7 +1830,7 @@ lists:
           - email: creiss@cvs.perl.org
             name: creiss
         subject: '[svn:parrot-pdd] r14131 - in trunk: . config/auto config/auto/cpu config/auto/cpu/i386 config/auto/cpu/ppc config/auto/cpu/sun4 config/gen/makefiles config/init docs/pdds docs/pdds/clip docs/stm examples/pir include/parrot include/parrot/atomic include/parrot/stm lib/Parrot runtime/parrot/library src src/atomic src/dynpmc src/ops src/pmc src/stm t t/pmc t/src t/stm tools/build tools/dev'
-        summary: ~
+        summary: ''
       - date_from: 1155746901
         date_to: 1155746901
         hidden: 1
@@ -1839,7 +1839,7 @@ lists:
           - email: creiss@cvs.perl.org
             name: creiss
         subject: '[svn:parrot-pdd] r14139 - trunk/docs/pdds'
-        summary: ~
+        summary: ''
       - date_from: 1155794821
         date_to: 1155794821
         hidden: ~
@@ -1862,7 +1862,7 @@ lists:
             name: Matt Diephouse
         rt_ticket: 'perl #40156'
         subject: "[perl #40156] [TODO] - Can't use an Iterator with a DynLexPad PMC "
-        summary: ~
+        summary: ''
       - date_from: 1155795025
         date_to: 1155795025
         hidden: 1
@@ -1872,7 +1872,7 @@ lists:
             name: Matt Diephouse
         rt_ticket: 'perl #40158'
         subject: "[perl #40158] [TODO] - Can't use an Iterator with a DynLexPad PMC "
-        summary: ~
+        summary: ''
       - date_from: 1155795049
         date_to: 1155806931
         hidden: duplicate
@@ -1886,7 +1886,7 @@ lists:
             name: nuno carvalho
         rt_ticket: 'perl #40160'
         subject: '[perl #40160] [PATCH] PGE simple grammar test file '
-        summary: ~
+        summary: ''
       - date_from: 1155795074
         date_to: 1155795074
         hidden: ~
@@ -1941,7 +1941,7 @@ lists:
             name: Chip Salzenberg
         rt_ticket: 'perl #40179'
         subject: '[perl #40179] None Must Die '
-        summary: ~
+        summary: ''
       - date_from: 1155797449
         date_to: 1155797449
         hidden: ~
@@ -2018,7 +2018,7 @@ lists:
           - email: jerry.gay@gmail.com
             name: jerry gay
         subject: 'Re: [perl #40178] None Must Die'
-        summary: ~
+        summary: ''
       - date_from: 1155844812
         date_to: 1155844812
         hidden: ~
@@ -2080,7 +2080,7 @@ lists:
           - email: nick@ccl4.org
             name: Nicholas Clark
         subject: '[perl #38887] Result of INFINITY or NAN stringification is platform dependent'
-        summary: ~
+        summary: ''
       - date_from: 1155931080
         date_to: 1156030275
         hidden: ~
@@ -2104,7 +2104,7 @@ lists:
           Compilation, to speed up startup times, asking what Parrot could take from
           this.
           
-          Leopold Toetsch replied that Parrot alrady supports the basic features needed
+          Leopold Toetsch replied that Parrot already supports the basic features needed
           for this, but that are not currently being tested or used, and would probably
           need to be updated.
       - date_from: 1155960683
@@ -2277,7 +2277,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r10536 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1154503231
         date_to: 1154503231
         hidden: 1
@@ -2286,7 +2286,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r10537 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1154530129
         date_to: 1154604790
         hidden: ~
@@ -2311,7 +2311,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r10538 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1154534446
         date_to: 1154534910
         hidden: 1
@@ -2324,7 +2324,7 @@ lists:
           - email: perl@aaroncrane.co.uk
             name: Aaron Crane
         subject: '[svn:perl6-synopsis] r10539 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1154858268
         date_to: 1155735982
         hidden: ~
@@ -2380,9 +2380,9 @@ lists:
         subject: Patch for S06 (and also S03)
         summary: |-
           Agent Zhang sent a patch to S06 and S03 with typo corrections but
-          had two lingering issues: S06 is overly repetative in explaining the
+          had two lingering issues: S06 is overly repetitive in explaining the
           differences between 'inner' and 'of' return values, and 'unpacking
-          tree node parameters' needs clarification.   In addition, S06 refered
+          tree node parameters' needs clarification.   In addition, S06 referred
           to both 'is assoc('chain')' and 'is assoc('chaining')', which were
           normalized to 'chain'.
           
@@ -2397,7 +2397,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r10676 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1154978255
         date_to: 1154978255
         hidden: 1
@@ -2406,7 +2406,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r10677 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1154979502
         date_to: 1154982560
         hidden: 1
@@ -2419,7 +2419,7 @@ lists:
           - email: Mark.Reed@turner.com
             name: Mark Reed
         subject: '[svn:perl6-synopsis] r10678 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1154981569
         date_to: 1154996834
         hidden: 1
@@ -2432,7 +2432,7 @@ lists:
           - email: darren@DarrenDuncan.net
             name: Darren Duncan
         subject: '[svn:perl6-synopsis] r10679 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1154982562
         date_to: 1154982562
         hidden: 1
@@ -2441,7 +2441,7 @@ lists:
           - email: Mark.Reed@turner.com
             name: Mark Reed
         subject: '[svn:perl6-synopsis] r10678 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1154983032
         date_to: 1154983593
         hidden: 1
@@ -2454,7 +2454,7 @@ lists:
           - email: Mark.Reed@turner.com
             name: Mark Reed
         subject: '[svn:perl6-synopsis] r10680 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1154999056
         date_to: 1155042056
         hidden: ~
@@ -2479,7 +2479,7 @@ lists:
         subject: weak roles
         summary: |-
           Yuval Kogman proposed the idea of "weak roles". Mark Overmeer and Luke Palmer
-          replied bringing up issues with the idea. The general concensus seems to be
+          replied bringing up issues with the idea. The general consensus seems to be
           that delegates are the right way to solve this.
       - date_from: 1155029519
         date_to: 1155044576
@@ -2502,7 +2502,7 @@ lists:
         subject: Type annotation on expressions
         summary: |-
           Yuval Kogman asked for a syntax to provide type annotations to expressions, not
-          just containers, in order to disambiguate MMD, and to provide type inferrence
+          just containers, in order to disambiguate MMD, and to provide type inference
           hints. Daniel Hulme asked if this is any different than coercion, and Luke
           Palmer debated the necessity of such a construct.
       - date_from: 1155083167
@@ -2521,7 +2521,7 @@ lists:
         subject: naming of the Str type
         summary: |-
           Darren Duncan wrote because he felt that the name of the Str data
-          type is ambigious given the traditional use of the word 'string'.
+          type is ambiguous given the traditional use of the word 'string'.
           Later he updated his musings to accept that Str is a good enough
           name for the data type.  David Green felt Darren's reasons made
           sense, but he did not object to Str.
@@ -2561,7 +2561,7 @@ lists:
           - email: larry@wall.org
             name: Larry Wall
         subject: '[svn:perl6-synopsis] r10758 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155178165
         date_to: 1155178165
         hidden: 1
@@ -2570,7 +2570,7 @@ lists:
           - email: chip@pobox.com
             name: Chip Salzenberg
         subject: Parrot 0.4.6 Released!
-        summary: ~
+        summary: ''
       - date_from: 1155183758
         date_to: 1155183758
         hidden: 1
@@ -2579,7 +2579,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r10762 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155187933
         date_to: 1155187933
         hidden: 1
@@ -2588,7 +2588,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r10763 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155226585
         date_to: 1155226585
         hidden: 1
@@ -2597,7 +2597,7 @@ lists:
           - email: audreyt@cvs.perl.org
             name: audreyt
         subject: '[svn:perl6-synopsis] r10780 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155227762
         date_to: 1155227762
         hidden: 1
@@ -2606,7 +2606,7 @@ lists:
           - email: audreyt@cvs.perl.org
             name: audreyt
         subject: '[svn:perl6-synopsis] r10782 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155228057
         date_to: 1155228057
         hidden: 1
@@ -2615,7 +2615,7 @@ lists:
           - email: audreyt@cvs.perl.org
             name: audreyt
         subject: '[svn:perl6-synopsis] r10783 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155255124
         date_to: 1155286389
         hidden: ~
@@ -2644,7 +2644,7 @@ lists:
             name: Larry Wall
         subject: '[svn:perl6-synopsis] r10804 - doc/trunk/design/syn'
         summary: |-
-          Larry Wall comitted a doc patch with the MAIN sub semantics. Luke Palmer and
+          Larry Wall committed a doc patch with the MAIN sub semantics. Luke Palmer and
           Audrey Tang discussed issues with the current semantics of MAIN declared as a
           method.
       - date_from: 1155262736
@@ -2655,7 +2655,7 @@ lists:
           - email: audreyt@cvs.perl.org
             name: audreyt
         subject: '[svn:perl6-synopsis] r10805 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155266352
         date_to: 1155266352
         hidden: 1
@@ -2664,7 +2664,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r10807 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155270947
         date_to: 1155278264
         hidden: ~
@@ -2679,7 +2679,7 @@ lists:
             name: Darren Duncan
           - email: duff@pobox.com
             name: Jonathan Scott Duff
-        subject: Module/Class Authoritys
+        subject: Module/Class Authorities
         summary: |-
           Stevan Little wondered if there can be more than one authority
           for a module/class.  He thought S11 indicated no.
@@ -2694,7 +2694,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r10828 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155322922
         date_to: 1155390533
         hidden: duplicated cross posts from hell
@@ -2728,7 +2728,7 @@ lists:
           - email: jerry.gay@gmail.com
             name: jerry gay
         subject: designing a test suite for multiple implementations
-        summary: ~
+        summary: ''
       - date_from: 1155353292
         date_to: 1155353292
         hidden: 1
@@ -2737,7 +2737,7 @@ lists:
           - email: audreyt@cvs.perl.org
             name: audreyt
         subject: '[svn:perl6-synopsis] r10855 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155473251
         date_to: 1155473251
         hidden: ~
@@ -2757,7 +2757,7 @@ lists:
         posters:
           - email: agentzh@gmail.com
             name: Agent Zhang
-        subject: Apply the unpace rule into embedded comments
+        subject: Apply the unspace rule into embedded comments
         summary: |-
           Agent Zhang wondered if the unspace rule could be used with
           the embedded comment syntax.
@@ -2788,7 +2788,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r10940 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155603233
         date_to: 1155603233
         hidden: 1
@@ -2797,7 +2797,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r10942 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155605933
         date_to: 1155605933
         hidden: 1
@@ -2806,7 +2806,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r10944 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155640560
         date_to: 1155640560
         hidden: ~
@@ -2837,7 +2837,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r10969 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155656504
         date_to: 1155656504
         hidden: 1
@@ -2846,7 +2846,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r10970 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155657178
         date_to: 1155657178
         hidden: 1
@@ -2855,7 +2855,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r10971 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155757721
         date_to: 1155790894
         hidden: ~
@@ -2887,7 +2887,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r11047 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155774089
         date_to: 1155952159
         hidden: ~
@@ -2927,7 +2927,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r11065 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155831908
         date_to: 1155831908
         hidden: ~
@@ -2967,7 +2967,7 @@ lists:
         subject: 'Numerification of Order:: constants'
         summary: |-
           Mark Reed quoted a section of S03 and asked if Order::Increase should
-          numerify to +1 and Order::Descrease to -1.  Mark A. Biggar explained
+          numerify to +1 and Order::Decrease to -1.  Mark A. Biggar explained
           that `$a cmp $b` can be seen as a sequence `($a, $b)`--if the sequence
           is increasing, `$a cmp $b` returns Order::Increase or -1.
           
@@ -2985,7 +2985,7 @@ lists:
           - email: mark.a.biggar@comcast.net
             name: mark.a.biggar
         subject: 'Re: Numerification of Order:: constants'
-        summary: ~
+        summary: ''
       - date_from: 1155854263
         date_to: 1155854263
         hidden: ~
@@ -3005,7 +3005,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r11113 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155857989
         date_to: 1155922007
         hidden: ~
@@ -3033,7 +3033,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r11116 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155913912
         date_to: 1155913912
         hidden: commit
@@ -3042,7 +3042,7 @@ lists:
           - email: audreyt@cvs.perl.org
             name: audreyt
         subject: '[svn:perl6-synopsis] r11135 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155916840
         date_to: 1155916840
         hidden: commit
@@ -3051,7 +3051,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r11136 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155917368
         date_to: 1155917368
         hidden: commit
@@ -3060,7 +3060,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r11137 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155938261
         date_to: 1156001950
         hidden: ~
@@ -3094,7 +3094,7 @@ lists:
         summary: |-
           Joshua Hoblitt asked how the `#if 0` C preprocessor idiom could be converted to
           Perl. He asked if there was going to be a better approach than using POD hacks.
-          Soe of the suggested approaches were to use multiline block comments, constant
+          Some of the suggested approaches were to use multi-line block comments, constant
           folded if statements, and quote operations with balanced, arbitrary delimiters.
       - date_from: 1155943644
         date_to: 1155943644
@@ -3104,7 +3104,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r11154 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
       - date_from: 1155949036
         date_to: 1155949036
         hidden: commit
@@ -3113,7 +3113,7 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r11155 - doc/trunk/design/syn'
-        summary: ~
+        summary: ''
     title: Language
   - name: perl6-users
     threads:
@@ -3168,6 +3168,6 @@ lists:
           - email: chromatic@wgz.org
             name: chromatic
         subject: designing a test suite for multiple implementations (tools thread)
-        summary: ~
+        summary: ''
     title: Compiler
 title: 'Perl 6 mailing list summary for the month of August, 2006'
