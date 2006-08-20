@@ -104,13 +104,14 @@ classType = mkType "Class"
 -- XXX - need to generalise this
 op2Match :: Val -> Val -> Eval Val
 
-op2Match _ y@(VCode _) = do
+op2Match x y@(VCode _) = do
     (arity :: Int) <- fromVal =<< op1CodeArity y
     res <- fromVal =<< case arity of
-        0 -> evalExp $ App (Val y) Nothing []
+        0 -> do
+            writeVar (cast "$*_") x
+            evalExp $ App (Val y) Nothing []
         1 -> do
-             topic <- readVar (cast "$_")
-             evalExp $ App (Val y) Nothing [Val topic]
+            evalExp $ App (Val y) Nothing [Val x]
         _ -> fail ("Unexpected arity in smart match: " ++ (show arity))
     return $ VBool $ res
 
