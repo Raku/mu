@@ -26,7 +26,9 @@ sub _var_get {
 
     #print "get: $s\n";
     
-    if ( $s =~ /\$\? .* POSITION $/x ) {
+    if  (  defined $s 
+        && $s =~ /\$\? .* POSITION $/x 
+        ) {
         # $?CALLER::CALLER::CALLER::POSITION
         my $code = $s;
         $code =~ s/\$/\&/;
@@ -577,37 +579,39 @@ sub default {
 
         # TODO - other builtins
         my $subname = $n->{sub}{bareword};
-        if ($subname eq 'defined') {
-            my $param = _emit( $n->{param} );
-            # when testing defined-ness of $!, it is testing the emptiness of $@ in perl5.
-            return " length(\$@) " if $param eq '$::_V6_ERR_';
-            return " (defined $param )";
+        if ( $subname ) {
+            if ($subname eq 'defined') {
+                my $param = _emit( $n->{param} );
+                # when testing defined-ness of $!, it is testing the emptiness of $@ in perl5.
+                return " length(\$@) " if $param eq '$::_V6_ERR_';
+                return " (defined $param )";
+            }
+    
+            if ($subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'shift' || $subname eq 'join' || $subname eq 'index' || $subname eq 'undef' || $subname eq 'rand' || $subname eq 'int' || $subname eq 'splice' || $subname eq 'keys' || $subname eq 'values' || $subname eq 'sort' || $subname eq 'chomp') {
+                return $subname . emit_parenthesis( $n->{param} );
+            }
+    
+            # XXX: !(0) is not correctly parsed. workaround here.
+            if ($subname eq '!' || $subname eq 'not') {
+                return $subname.' '._emit($n->{param});
+            }
+            if ($subname eq 'ref') {
+                return 'Pugs::Runtime::Perl6::Scalar::ref( \\'. _emit( $n->{param} ) . ')';
+            }
+            # runtime thunked builtins
+            if ($subname eq 'eval') {
+                return 'Pugs::Runtime::Perl6::eval('. _emit_parameter_capture( $n->{param} ) . ')';
+            }
+            if ($subname eq 'open') {
+                return 'Perl6::Internals::open('. _emit_parameter_capture( $n->{param} ) . ')';
+            }
+        
+            my $sub_name = Pugs::Runtime::Common::mangle_ident( $n->{sub}{bareword} );
+            $sub_name = "\&{'$sub_name'}"
+                if $sub_name =~ /^v6::/;  # avoid perl5 syntax error
+            return ' ' . $sub_name .
+                (exists $n->{param} ? '(' . _emit_parameter_capture( $n->{param} ) . ')' : '()');
         }
-
-        if ($subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'shift' || $subname eq 'join' || $subname eq 'index' || $subname eq 'undef' || $subname eq 'rand' || $subname eq 'int' || $subname eq 'splice' || $subname eq 'keys' || $subname eq 'values' || $subname eq 'sort' || $subname eq 'chomp') {
-            return $subname . emit_parenthesis( $n->{param} );
-        }
-
-        # XXX: !(0) is not correctly parsed. workaround here.
-        if ($subname eq '!' || $subname eq 'not') {
-            return $subname.' '._emit($n->{param});
-        }
-        if ($subname eq 'ref') {
-            return 'Pugs::Runtime::Perl6::Scalar::ref( \\'. _emit( $n->{param} ) . ')';
-        }
-        # runtime thunked builtins
-        if ($subname eq 'eval') {
-            return 'Pugs::Runtime::Perl6::eval('. _emit_parameter_capture( $n->{param} ) . ')';
-        }
-        if ($subname eq 'open') {
-            return 'Perl6::Internals::open('. _emit_parameter_capture( $n->{param} ) . ')';
-        }
-
-        my $sub_name = Pugs::Runtime::Common::mangle_ident( $n->{sub}{bareword} );
-        $sub_name = "\&{'$sub_name'}"
-            if $sub_name =~ /^v6::/;  # avoid perl5 syntax error
-        return ' ' . $sub_name .
-            (exists $n->{param} ? '(' . _emit_parameter_capture( $n->{param} ) . ')' : '()');
     }
     
     if ( exists $n->{op1} && $n->{op1} eq 'method_call' ) {    
