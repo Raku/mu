@@ -401,7 +401,7 @@ runProgramWith ::
     (Env -> Env) -> (Val -> IO a) -> VStr -> [VStr] -> String -> IO a
 runProgramWith fenv f name args prog = do
     env <- prepareEnv name args
-    val <- runEnv $ parseProgram (fenv env) name prog
+    val <- runEnv $ parseProgram (fenv env) name (decodeUTF8 prog)
     f val
 
 createConfigLine :: String -> String
