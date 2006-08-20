@@ -98,9 +98,8 @@ instance YAML a => YAML (Map Var a) where
     asYAML x = asYAMLmap "Map" . sortBy (\x y -> fst x `compare` fst y) $
         [ (cast k, asYAML v) | (k, v) <- Map.toList x ]
     fromYAML node = do
-        list <- fromYAMLmap node
-        fmap Map.fromList . forM list $ \(k, v) -> do
-            return (cast k, v)
+        list <- fromYAMLmapBuf node
+        return (Map.fromList [ (cast k, v) | (k, v) <- list ])
 instance Typeable a => YAML (IVar a) where
     asYAML x = asYAML (MkRef x)
 instance YAML VRef where

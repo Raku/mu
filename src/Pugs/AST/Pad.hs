@@ -1,5 +1,5 @@
 module Pugs.AST.Pad (
-  mkPad, subPad, diffPads, unionPads, updateSubPad, mergePadEntry, padKeys,
+  mkPad, subPad, diffPads, unionPads, updateSubPad, mergePadEntry, padKeys, filterPad,
 ) where
 import Pugs.Internals
 import Pugs.AST.Internals
@@ -62,3 +62,6 @@ updateSubPad sub f = sub
 
 padKeys :: Pad -> Set Var
 padKeys (MkPad pad) = Map.keysSet pad
+
+filterPad :: (Var -> Bool) -> Pad -> Pad
+filterPad f (MkPad pad) = MkPad (Map.filterWithKey (\k _ -> f k) pad)

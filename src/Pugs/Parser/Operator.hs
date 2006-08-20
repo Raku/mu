@@ -123,23 +123,24 @@ data CurrentFunction = MkCurrentFunction
     , f_params  :: !Params
     }
 
--- read just the current state (ie, not a parser)
--- {-# NOINLINE currentFunctions #-}
+-- Read just the current state (i.e. not actually consuming anything)
 currentFunctions :: RuleParser [CurrentFunction]
 currentFunctions = do
     env <- getRuleEnv
-    return $! inlinePerformSTM $! do
+    return . catMaybes $! inlinePerformSTM $! do
         glob <- readTVar $ envGlobal env
-        let syms  = padToList glob ++ padToList (envLexical env)
+        let syms  = padToList (filterPad cur glob)
+                    ++ padToList (filterPad cur (envLexical env))
             pkg   = envPackage env
-            funs  = [ map (\(_, tvar) -> filterFun var tvar) tvars
-                    | (var@MkVar{ v_sigil = SCode }, tvars) <- syms
-                    , inScope pkg var
-                    ] 
-        fmap catMaybes (sequence (concat funs))
+            cur var@MkVar{ v_sigil = SCode} = inScope pkg var
+            cur _ = False
+            vars  = concat [ map (\(_, tvar) -> (var, tvar)) tvars
+                           | (var, tvars) <- syms
+                           ]
+        mapM (uncurry filterFun) (length vars `seq` vars)
 
 {-# NOINLINE _RefToFunction #-}
-_RefToFunction :: Hash.HashTable Int (Maybe CurrentFunction)
+_RefToFunction :: Hash.HashTable Int CurrentFunction
 _RefToFunction = unsafePerformIO (Hash.new (==) Hash.hashInt)
 
 filterFun :: Var -> TVar VRef -> STM (Maybe CurrentFunction)
@@ -147,20 +148,22 @@ filterFun var tvar = do
     let key = unsafeCoerce# tvar
     res <- unsafeIOToSTM (Hash.lookup _RefToFunction key)
     case res of
-        Just rv -> return rv
+        Just rv -> return (Just rv)
         Nothing -> do
             ref <- readTVar tvar
-            let rv = case ref of
-                    MkRef (ICode cv)
-                        | relevantToParsing (code_type cv) (code_assoc cv)
-                        -> Just (MkCurrentFunction var (code_assoc cv) (code_params cv))
-                    MkRef (IScalar sv)
-                        | Just (VCode cv) <- scalar_const sv
-                        , relevantToParsing (code_type cv) (code_assoc cv)
-                        -> Just (MkCurrentFunction var (code_assoc cv) (code_params cv))
-                    _ -> Nothing
-            unsafeIOToSTM (Hash.insert _RefToFunction key rv)
-            return rv
+            case ref of
+                MkRef (ICode cv)
+                    | relevantToParsing (code_type cv) (code_assoc cv) -> do
+                        let rv = MkCurrentFunction var (code_assoc cv) (code_params cv)
+                        unsafeIOToSTM (Hash.insert _RefToFunction key rv)
+                        return (Just rv)
+                MkRef (IScalar sv)
+                    | Just (VCode cv) <- scalar_const sv
+                    , relevantToParsing (code_type cv) (code_assoc cv) -> do
+                        let rv = MkCurrentFunction var (code_assoc cv) (code_params cv)
+                        unsafeIOToSTM (Hash.insert _RefToFunction key rv)
+                        return (Just rv)
+                _ -> return Nothing
 
 inScope :: Pkg -> Var -> Bool
 inScope pkg var
@@ -528,15 +531,15 @@ makeParser simpleTerm ops = do
     where
     MkOpRow rassoc lassoc nassoc prefix postfix optPrefix listAssoc depPostfix term
         = foldr splitOp (MkOpRow [] [] [] [] [] [] [] [] []) ops
-    rassocOp          = choice rassoc
-    lassocOp          = choice lassoc
-    nassocOp          = choice nassoc
-    prefixOp          = choice prefix <?> ""
-    postfixOp         = choice postfix <?> ""
-    optPrefixOp       = choice optPrefix <?> ""
-    listAssocOp       = choice listAssoc
-    depPostfixOp x    = choice (map ($ x) depPostfix) <?> ""
-    termOp            = choice term <|> simpleTerm
+    rassocOp          = {-# SCC "rassocOp" #-}      choice rassoc
+    lassocOp          = {-# SCC "lassocOp" #-}      choice lassoc
+    nassocOp          = {-# SCC "nassocOp" #-}      choice nassoc
+    prefixOp          = {-# SCC "prefixOp" #-}      choice prefix <?> ""
+    postfixOp         = {-# SCC "postfixOp" #-}     choice postfix <?> ""
+    optPrefixOp       = {-# SCC "optPrefixOp" #-}   choice optPrefix <?> ""
+    listAssocOp       = {-# SCC "listAssocOp" #-}   choice listAssoc
+    depPostfixOp x    = {-# SCC "depPostfixOp" #-}  choice (map ($ x) depPostfix) <?> ""
+    termOp            = {-# SCC "termOp" #-}        choice term <|> simpleTerm
 
     ambig assoc op    = try
         (op >> fail ("ambiguous use of a " ++ assoc ++ " associative operator"))
@@ -545,8 +548,8 @@ makeParser simpleTerm ops = do
     ambigNon          = ambig "non" nassocOp
 
     foldOp = foldr (.) id
-    termP = do
-        pres    <- many $ (fmap Left prefixOp) <|> (fmap Right optPrefixOp)
+    termP = {-# SCC "termP" #-} do
+        pres    <-  many $ (fmap Left prefixOp) <|> (fmap Right optPrefixOp)
         -- Here we handle optional-prefix operators.
         x       <- if null pres then termOp else case last pres of
             Left _  -> termOp

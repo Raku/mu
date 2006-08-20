@@ -31,9 +31,9 @@ satisfy f = tokenPrimEx
 
 string :: String -> RuleParser String
 string s = do
-    rv <- tokens show updatePosString s
-    modify $ \state -> state{ s_char = last s }
-    return rv
+    tokens show updatePosString s
+    modify (\state -> state{ s_char = last s })
+    return s
 
 _captureNamed :: ID -> RuleParser a -> RuleParser a
 _captureNamed newState rule = do

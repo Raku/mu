@@ -70,6 +70,15 @@ fromYAMLmap MkNode{n_elem=EMap m} = mapM fromYAMLpair m
     fromYAMLpair e = fail $ "no parse: " ++ show e
 fromYAMLmap e = fail $ "no parse: " ++ show e
 
+fromYAMLmapBuf :: YAML a => YamlNode -> IO [(Buf.ByteString, a)]
+fromYAMLmapBuf MkNode{n_elem=EMap m} = mapM fromYAMLpair m
+    where
+    fromYAMLpair (MkNode{n_elem=EStr k}, v) = do
+        v' <- fromYAML v
+        return (k, v')
+    fromYAMLpair e = fail $ "no parse: " ++ show e
+fromYAMLmapBuf e = fail $ "no parse: " ++ show e
+
 asYAMLcls :: YAMLClass -> EmitAs YamlNode
 asYAMLcls c = return $ mkTagStrNode (tagHs c) c
 
