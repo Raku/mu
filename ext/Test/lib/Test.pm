@@ -468,15 +468,15 @@ in order to still allow that to be tested, and those tests to knowingly
 fail, we provide the `todo` function to TODO the next one test according
 to a given deadline. (See below.)
 
-Take the Pugs implementatio as an examle, when TODOing failing tests before
+Take the Pugs implementation. When TODOing failing tests before
 the Pugs release (say, 6.2.12), the following form of todo should be used:
 
     todo :pugs<6.2.13>;  # version of the next point release
 
-By doing this, temporarily TODO'd tests can get unTODO'd automaticall once
+By doing this, temporarily TODO'd tests can get unTODO'd automatically once
 the the release is done (and the version number gets updated).
 
-The version number fed to `todo` is optional. when omitted,
+The version number fed to `todo` is optional. If omitted,
 the corresponding tests won't get expired unless we unTODO them manually.
 
 The `:depends("string")` parameter to most of the functions is a way
@@ -493,15 +493,15 @@ TODO-ing of tests.
 
 - `todo (*%deadline) returns Bool is export`
 
-If the deadline has been hit (or passed), the next one test will be marked
-as TODO.
+If and only if the deadline has been hit (or passed), the next one test will
+be marked as TODO.
 
 For example:
 
     todo :pugs<6.28.0>;
     is($got, $expected, $desc);
 
-The call to the `&todo` function will mark the next one test as TODO if
+The call to the `todo` function will mark the next one test as TODO if
 and only if the current compiler's $?COMPILER holds a string whose lowercase
 version equals to 'pugs' and $?VERSION holds a value less than '6.28.0'.
 The `todo` functuion will perform partial ordering comparison between version
