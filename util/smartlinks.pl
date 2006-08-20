@@ -1,7 +1,7 @@
 # util/smartlinks.pl - The successor to util/catalog_tests.pl.
 
 # Please look at t/README for documentation.
-# See uitl/t/smartlinks.t for unit tests and usage of the internal API.
+# See util/t/smartlinks.t for unit tests and usage of the internal API.
 # This script is still under development.
 # Contact agentzh on #perl6 if you have a patch or some good idea for this tool.
 # Currently you can use it to verify the smart link used in your script:
@@ -298,7 +298,7 @@ sub gen_code_snippet ($) {
 <div ID=header_hidden_${snippet_id} style="display: block;">- Show $file ($nlines lines) -</div>
 </a>
 </p>
-<div ID=hide_${snippet_id} style="display:none;">
+<div ID=hide_${snippet_id} style="display:none; border:1px solid">
 
 =end html
 
