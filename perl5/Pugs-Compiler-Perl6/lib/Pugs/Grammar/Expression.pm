@@ -130,8 +130,10 @@ sub lexer {
         #                || exists $expect->{'BAREWORD'};
         
         my $expect_end =
-            (  $reentrant == 1 
-            && grep { $_ eq 'postfix:<++>' } @expect
+            (  
+                # $reentrant == 1 &&     # XXX - doesn't work inside sub{}
+                $allow_modifier &&       #     - but this should work
+                grep { $_ eq 'postfix:<++>' } @expect
             );
             
         # a new-line after a block may terminate a statement
