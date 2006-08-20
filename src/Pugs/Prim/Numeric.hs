@@ -13,14 +13,14 @@ import Pugs.Prim.Lifts
 --- XXX wrong: try num first, then int, then vcast to Rat (I think)
 op2Numeric :: (forall a. (Num a) => a -> a -> a) -> Val -> Val -> Eval Val
 op2Numeric f x y
+    | VInt x' <- x, VInt y' <- y  = return $ VInt $ f x' y'
+    | VRat x' <- x, VRat y' <- y  = return $ VRat $ f x' y'
+    | VRat x' <- x, VInt y' <- y  = return $ VRat $ f x' (y' % 1)
+    | VInt x' <- x, VRat y' <- y  = return $ VRat $ f (x' % 1) y'
     | VUndef <- x = op2Numeric f (VInt 0) y
     | VUndef <- y = op2Numeric f x (VInt 0)
     | VType{} <- x = op2Numeric f (VInt 0) y
     | VType{} <- y = op2Numeric f x (VInt 0)
-    | (VInt x', VInt y') <- (x, y)  = return $ VInt $ f x' y'
-    | (VRat x', VInt y') <- (x, y)  = return $ VRat $ f x' (y' % 1)
-    | (VInt x', VRat y') <- (x, y)  = return $ VRat $ f (x' % 1) y'
-    | (VRat x', VRat y') <- (x, y)  = return $ VRat $ f x' y'
     | VRef r <- x = do
         x' <- readRef r
         op2Numeric f x' y
