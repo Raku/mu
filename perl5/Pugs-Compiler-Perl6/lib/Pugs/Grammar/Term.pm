@@ -429,11 +429,18 @@ sub recompile {
                 } } }
             ^ ),
         q() => Pugs::Compiler::Token->compile( q^
-                ### floating point
-                \d+\.\d+ { return { num => $() ,} } 
-            |
-                ### number
-                \d+ { return { int => $() ,} } 
+                ### num/int
+                \d+ 
+                [
+                    \.\d+
+                    [ <[Ee]> <[+-]>? \d+ ]?
+                    { return { num => $() ,} } 
+                |
+                    [ <[Ee]> <[+-]>? \d+ ]?
+                    { return { num => $() ,} } 
+                |
+                    { return { int => $() ,} } 
+                ]
             |
                 <Pugs::Grammar::Perl6.sub_decl>
                     { return $_[0]{'Pugs::Grammar::Perl6.sub_decl'}->();

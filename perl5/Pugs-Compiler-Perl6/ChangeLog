@@ -1,3 +1,5 @@
+- fixed scientific notation
+- implemented given/when/default/break/continue
 - state variables
 - fixed '{}' (empty hash)
 - implemented additional Array and Hash methods
