@@ -6,7 +6,7 @@ Perl6::Overview::Rule - Grammar Rules
 
 =head2 Match object
 
-    $/  -- can be accessed as an array of submatches, e.g. $/[0], $/[1] ...
+    $/  -- can be accessed as an array of sub-matches, e.g. $/[0], $/[1] ...
         -- can be accessed as a hash of named subrules, e.g. $/<foo>
 
     $0, $1, $2, ... -- aliases for $/[0], $/[1], $/[2], ...
@@ -61,7 +61,7 @@ Perl6::Overview::Rule - Grammar Rules
 
     [:ex vs :ov could use clarification.  see
      http://www.nntp.perl.org/group/perl.perl6.language/20985 ]
-    [re :s, except where there is already an explict space rule]
+    [re :s, except where there is already an explicit space rule]
 
 =head2 Built-in assertions
 
@@ -77,7 +77,7 @@ Perl6::Overview::Rule - Grammar Rules
     <before pattern>    Matches only before pattern (zero-width)
     <commit>            Fails the entire match if backtracked over
     <cut>               Fails the entire match if backtracked over,
-                        and removes the portion of the string matched uptil then
+                        and removes the portion of the string matched until then
     <fail>              Fails the entire match if reached
     <null>              Matches null string
     <ident>             Matches an "identifier", same as

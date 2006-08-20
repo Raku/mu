@@ -76,12 +76,12 @@ Slurpy hashes slurp all remaining named arguments:
 
 =head2 "is rw"
 
-By default, all parameters are readonly aliases:
+By default, all parameters are read-only aliases:
 
     sub foo ($var) { $var = 42 };
-    my $bar = 17; foo($bar);  # dies: "Cannot modify readonly variable"
+    my $bar = 17; foo($bar);  # dies: "Cannot modify read-only variable"
 
-    "is rw" causes *no* readonly proxy to be created:
+    "is rw" causes *no* read-only proxy to be created:
 
     sub foo ($var is rw) { $var = 42 };
     my $bar = 17; foo($bar);  # works, $bar is 42 after the function call
@@ -103,25 +103,25 @@ structure:
                       # @some_array[42] changed to 17
 
     sub foo (@array) { push @array, 17 }
-    foo @some_array;  # does not work ("Cannot modify readonly
+    foo @some_array;  # does not work ("Cannot modify read-only
                       # variable")
             
     sub foo (@array is rw) { push @array, 17 }
     foo @some_array;  # does work, 17 appended to @some_array
 
-Similarily, "is rw" and "is copy" may not do what you think they do
+Similarly, "is rw" and "is copy" may not do what you think they do
 on references:
 
     sub foo (Ref $ref) { $$ref = 17 }
     foo $some_ref;  # works, $$some_ref changed to 17
 
     sub foo (Ref $ref) { $ref = \$other_var }
-    foo $some_ref;  # dies ("Cannot modify readonly variable"
+    foo $some_ref;  # dies ("Cannot modify read-only variable"
             
     sub foo (Ref $ref is rw) { $ref = \$other_var }
     foo $some_ref;  # works, $some_ref changed to \$other_var
 
-=head2 Rebinding parameters
+=head2 Re-binding parameters
 
 The following code is legal and does not die:
 
@@ -159,11 +159,11 @@ parameter types]
 
 =head2 "is rw" on a subroutine
 
-    "is rw" applied to a subroutine causes *no* readonly proxy to be
+    "is rw" applied to a subroutine causes *no* read-only proxy to be
     created around the return value of a subroutine:
 
     sub foo { $some_var }
-    foo() = 42;  # error: "Cannot modify readonly variable"
+    foo() = 42;  # error: "Cannot modify read-only variable"
 
     sub foo is rw { $some_var }
     foo() = 42;  # works, $some_var set to 42
@@ -204,7 +204,7 @@ You have to use binding (:=) instead:
 Whitespace matters:
 
     foo 42;           # calls &foo, one positional argument (number 42)
-    foo(42);          # same, the parens are subcall parens (postfix .())
+    foo(42);          # same, the parens are sub call parens (postfix .())
     foo (42);         # same, but the parens are grouping parens
 
     foo 42, 23;       # two positional arguments (42 and 23)
@@ -216,8 +216,8 @@ Parentheses matter:
 
     foo bar => 42;    # one named argument (42)
     foo :bar(42);     # same
-    foo(bar => 42);   # same, the parans are grouping parens
-    foo(:bar(42));    # same, the parans are grouping parens
+    foo(bar => 42);   # same, the parens are grouping parens
+    foo(:bar(42));    # same, the parens are grouping parens
 
     foo (bar => 42);  # one positional argument (the pair (bar => 42))
     foo (:bar(42));   # same, the parens mark the pair to be a Pair object,

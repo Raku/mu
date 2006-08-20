@@ -8,11 +8,11 @@ Perl6::Overview::Object - Object-oriented Programming
 
     class ClassName {
         has $.public_instance_var;
-        # Untyped instance variable, a readonly accessor is automatically
-        # generated. Methods have readwrite access to $.instance_var.
+        # Untyped instance variable, a read-only accessor is automatically
+        # generated. Methods have read-write access to $.instance_var.
 
         has $.public_instance_var is rw;
-        # Untyped instance variable, a readwrite accessor is automatically
+        # Untyped instance variable, a read-write accessor is automatically
         # generated.
 
         has Type $.public_instance_var;

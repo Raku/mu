@@ -50,7 +50,7 @@ Perl6::Overview::Operator - Operators
 =head2 Simple arithmetic operators
 
     4 + 2        # 6, addition
-    4 - 2        # 2, substraction
+    4 - 2        # 2, subtraction
     4 * 2        # 8, multiplication
     4 / 2        # 2, division
     4 ** 2       # 16, exponentiation
@@ -165,7 +165,7 @@ be transformed into its negative by prefixing with !.
     $foo x 3            # $foo ~ $foo ~ $foo
     $foo xx 3           # ($foo, $foo, $foo)
     @foo ¥ @bar ¥ @baz  # zip(@foo, @bar, @baz)
-    @foo Y @bar Y @baz  # non-Unicode saavy syntax for previous
+    @foo Y @bar Y @baz  # non-Unicode savvy syntax for previous
     item ($foo, $bar)   # [ $foo, $bar ]
     1..5                # (1, 2, 3, 4, 5)
     "a".."g"            # <a b c d e f g>

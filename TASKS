@@ -18,7 +18,7 @@ fails, currently it simply uses the last-known-good version of ./pugs binary.
 However, it would be great for the bot to report a build failure (perhaps
 with nopasted log) on the channel.
 
-* Spellcheck and POD format docs/Perl6/Overview/*.pod.
+* POD format docs/Perl6/Overview/*.pod.
 
 * Rearrange t/ so that it is suited for reuse with multiple Perl 6
 implementations.  The generic Perl 6 tests, suitable to all Perl 6

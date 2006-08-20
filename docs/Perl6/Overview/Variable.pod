@@ -71,5 +71,5 @@ There were threads on p6l about unifying all variables which concern the OS or
 the VM ($*UID, $*PROGRAM_NAME, etc.) into two variables, $?ENV (compile-time
 environment) and $*ENV (runtime environment). Larry did like the idea, but
 "ENV" is probably to overloaded to mean the hash of environment variables
-(which would be found under $*ENV.environment or somesuch).
+(which would be found under $*ENV.environment or some-such).
 

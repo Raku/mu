@@ -115,7 +115,7 @@ This also means that
     # the comma operator:
     shift (42,23);    # dies
 
-By contast, Array construction by the [] operator, &circumfix:<[ ]>,
+By contrast, Array construction by the [] operator, &circumfix:<[ ]>,
 does create new containers:
 
     [$foo,$bar][0] =:= $foo;  # false
@@ -291,7 +291,7 @@ Examples:
     #                 1 --> cell 222 --> Num 23,
     #              ]
     # (Changing $grtz still does not have an effect on @array. Changing $foo
-    # (by assignment) does have an effect on @array. Rebinding $foo to some
+    # (by assignment) does have an effect on @array. Re-binding $foo to some
     # other variable causes further assignments to $foo to have no effect on
     # @array again.)
 
