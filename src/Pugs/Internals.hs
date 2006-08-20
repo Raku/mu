@@ -254,10 +254,10 @@ afterPrefix (p:ps) (x:xs)
    | otherwise = Nothing
 
 encodeUTF8 :: String -> String
-encodeUTF8 = map (chr . fromEnum) . encode
+encodeUTF8 str = length str `seq` map (chr . fromEnum) (encode str)
 
 decodeUTF8 :: String -> String
-decodeUTF8 str = fst $ decode bytes
+decodeUTF8 str = length str `seq` fst (decode bytes)
     where
     bytes = map (toEnum . ord) str
 
