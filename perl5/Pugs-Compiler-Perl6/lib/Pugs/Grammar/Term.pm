@@ -436,7 +436,7 @@ sub recompile {
                     [ <[Ee]> <[+-]>? \d+ ]?
                     { return { num => $() ,} } 
                 |
-                    [ <[Ee]> <[+-]>? \d+ ]?
+                    <[Ee]> <[+-]>? \d+ 
                     { return { num => $() ,} } 
                 |
                     { return { int => $() ,} } 
