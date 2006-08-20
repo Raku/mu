@@ -4,6 +4,35 @@ use warnings;
 use base qw(Pugs::Grammar::BaseCategory);
 
 BEGIN {
+    
+    for my $trait ( qw(
+       BEGIN 
+     | CHECK 
+     | INIT 
+     | END
+     | START
+     | FIRST
+     | ENTER
+     | LEAVE
+     | KEEP
+     | UNDO
+     | NEXT
+     | LAST
+     | PRE
+     | POST
+     | CATCH
+     | CONTROL
+    ) ) {
+    __PACKAGE__->add_rule(
+        $trait =>  qq( 
+        <?ws>? <Pugs::Grammar::Perl6.block>        
+            { return { 
+                trait  => '$trait',
+                \%{ \$_[0]{'Pugs::Grammar::Perl6.block'}->() },
+            } }
+        ) );
+    }
+    
     __PACKAGE__->add_rule(
         'continue' =>  q( 
             { return { 

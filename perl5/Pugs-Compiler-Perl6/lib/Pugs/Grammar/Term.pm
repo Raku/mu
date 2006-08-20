@@ -452,6 +452,25 @@ sub recompile {
                 { return { bareword => $/{'Pugs::Grammar::Term.bare_ident'}->() } }
             ^ ),
         );
+        
+    for my $trait ( qw(
+       BEGIN 
+     | CHECK 
+     | INIT 
+     | START
+     | FIRST
+     | ENTER
+    ) ) {
+    __PACKAGE__->add_rule(
+        $trait =>  qq( 
+        <?ws>? <Pugs::Grammar::Perl6.block>        
+            { return { 
+                trait  => '$trait',
+                \%{ \$_[0]{'Pugs::Grammar::Perl6.block'}->() },
+            } }
+        ) );
+    }
+    
     $class->SUPER::recompile;
 }
 

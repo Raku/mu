@@ -343,42 +343,10 @@ use Data::Dumper;
 
 # /class
 
-
-*begin_block = Pugs::Compiler::Token->compile( q(
-    (          
-   BEGIN 
- | CHECK 
- | INIT 
- | END
- | START
- | FIRST
- | ENTER
- | LEAVE
- | KEEP
- | UNDO
- | NEXT
- | LAST
- | PRE
- | POST
- | CATCH
- | CONTROL
-    ) <?ws>? <block>        
-        { return { 
-            trait  => $_[0][0]->(),
-            %{ $_[0]{block}->() },
-        } }
-),
-    { grammar => __PACKAGE__ }
-)->code;
-
 *statement = Pugs::Compiler::Token->compile( q(
     <Pugs::Grammar::StatementControl.parse>
         { 
             return $/->{'Pugs::Grammar::StatementControl.parse'}->();
-        }
-    |
-    <begin_block>
-        { return $_[0]{begin_block}->();
         }
     |
     <Pugs::Grammar::Expression.parse('allow_modifier', 1)> 
