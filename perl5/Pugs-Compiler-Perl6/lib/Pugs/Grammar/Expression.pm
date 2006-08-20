@@ -37,7 +37,7 @@ my $rx_end_no_blocks = qr/
 
 # this is not thread-safe, but it saves time in Parse::Yapp 
 our ( $p, $match, $pos, $rx_end, $allow_modifier, $statement_modifier );
-our $reentrant;
+our ( $reentrant, $last_reentrant ) = (0,0);
 
 sub parse {
     #print "perl6_expression param: ", Dumper @_;
@@ -56,7 +56,8 @@ sub parse {
 
 sub ast {
     local ( $p, $match, $pos, $rx_end, $allow_modifier, $statement_modifier )
-        if $reentrant;
+        if $reentrant && $reentrant >= $last_reentrant;
+    $last_reentrant = $reentrant;
     $reentrant++;
     #print " $reentrant ";
 
