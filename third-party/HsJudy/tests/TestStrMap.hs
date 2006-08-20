@@ -14,7 +14,6 @@ import Judy.Freeze
 import Prelude hiding (lookup)
 
 type M = J.StrMap
-swapMaps = J.swapMaps
 
 newStringInt = new :: IO (M String Int)
 newIntString = new :: IO (M Int String)

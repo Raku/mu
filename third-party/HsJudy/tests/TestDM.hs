@@ -5,7 +5,8 @@ import Test
 import Data.List (sort)
 import System.Mem
 
-import qualified Judy.Hash as J
+import qualified Data.Map as DM
+import Data.IORef
 
 import Judy.Stringable
 import Judy.CollectionsM
@@ -13,7 +14,7 @@ import Judy.Freeze
 
 import Prelude hiding (lookup)
 
-type M = J.Hash
+type M a b = IORef (DM.Map a b)
 
 main = no_plan $ do
     -- FIXME: A better way to organize this tests must exist...
@@ -26,7 +27,7 @@ main = no_plan $ do
     testIntKey
     testIntKeyDelete
     testLotsOfMem
-    testFrozenMap
+    --testFrozenMap
     testSwapMaps
     testAlter
     
@@ -134,6 +135,7 @@ testLotsOfMem = do
     insert "nop" 2 s
     elems s .-= [1, 2, 42]
 
+{-
 testFrozenMap = do
     say "FrozenMap"
     let m = fromListF [(1,2),(2,3),(3,4)] :: Frozen IntIntMap
@@ -142,6 +144,7 @@ testFrozenMap = do
     memberF 42 m ==> False
     lookupF 1 m  ==> Just 2
     lookupF 42 m ==> Nothing
+-}
 
 testSwapMaps = do
     say "SwapMaps"

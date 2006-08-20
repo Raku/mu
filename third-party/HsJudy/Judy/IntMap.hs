@@ -4,7 +4,8 @@
 
 module Judy.IntMap (
     IntMap (..),
-    swapMaps, freeze,
+    
+    freeze,
     toRevList,
     size,
     takeFirstElems, takeFirst,
@@ -47,11 +48,12 @@ instance (ReversibleHashIO k, Refeable a) => CM.MapM (IntMap k a) k a IO where
     elems = elems_
     keys = keys_
     mapToList = mapToList_
+    swapMaps = swapMaps_
 
 instance (ReversibleHashIO k, Refeable a) => Freezable (IntMap k a) where
     freeze m = do
         m' <- new_
-        swapMaps m' m
+        swapMaps_ m' m
         return (Frozen m')
 
 instance (ReversibleHashIO k, Refeable a) => CM.MapF (Frozen (IntMap k a)) k a where
@@ -303,8 +305,8 @@ elems_ = internalMap $ \r _ -> do
     v <- peek r
     fromRef v
 
-swapMaps :: IntMap k a -> IntMap k a -> IO ()
-swapMaps (IntMap j1) (IntMap j2) = do
+swapMaps_ :: IntMap k a -> IntMap k a -> IO ()
+swapMaps_ (IntMap j1) (IntMap j2) = do
     withForeignPtr j1 $ \p1 -> withForeignPtr j2 $ \p2 -> do
         v1 <- peek p1
         v2 <- peek p2

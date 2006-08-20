@@ -2,7 +2,7 @@
 GHC=ghc # -debug
 
 CC=$(GHC)
-TESTS=TestBS TestJL TestJSL TestJHS TestHash TestIntMap TestStrMap
+TESTS=TestBS TestJL TestJSL TestJHS TestHash TestIntMap TestStrMap TestDM
 #HSC2HS=/usr/bin/hsc2hs
 HSC2HS=hsc2hs
 

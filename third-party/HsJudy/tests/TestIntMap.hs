@@ -98,7 +98,7 @@ t "SwapMaps" $ do
     lookup 2 m2 .=> Just 42
     lookup 3 m2 .=> Just 42
 
-    J.swapMaps m1 m2
+    swapMaps m1 m2
     lookup 2 m1 .=> Just 42
     lookup 2 m2 .=> Just 3
     lookup 3 m2 .=> Nothing

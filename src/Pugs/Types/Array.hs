@@ -129,7 +129,7 @@ instance ArrayClass IArraySlice where
 instance ArrayClass IArray where
     array_store (av, s) vals = do
         new <- liftIO $ C.new
-        liftIO $ I.swapMaps new av
+        liftIO $ C.swapMaps new av
         liftIO $ mapM_ (\(k,v) -> C.insert k (lazyScalar v) av) ([0..] `zip` vals)
         liftSTM $ writeTVar s (length vals)
     array_fetchSize (_, s) = do
@@ -138,7 +138,7 @@ instance ArrayClass IArray where
         size <- liftSTM $ readTVar s
         case size `compare` sz of
             GT -> do new <- liftIO $ C.fromList =<< I.takeFirst sz av
-                     liftIO $ I.swapMaps new av
+                     liftIO $ C.swapMaps new av
                      liftSTM $ writeTVar s sz
             EQ -> return ()
             LT -> liftSTM $ writeTVar s sz
@@ -154,18 +154,18 @@ instance ArrayClass IArray where
                             liftIO $ C.delete k av
                             l <- liftIO $ C.mapToList (\k v -> (k-1,v)) av
                             new <- liftIO $ C.fromList l
-                            liftIO $ I.swapMaps new av
+                            liftIO $ C.swapMaps new av
                             readIVar v
                     else do
                             l <- liftIO $ C.mapToList (\k v -> (k-1,v)) av
                             new <- liftIO $ C.fromList l
-                            liftIO $ I.swapMaps new av
+                            liftIO $ C.swapMaps new av
                             return undef
     array_unshift (av, s) vals = do
         let sz = length vals
         l <- liftIO $ C.mapToList (\k v -> (k+sz,v)) av
         new <- liftIO $ C.fromList $ ([0..] `zip` (map lazyScalar vals)) ++ l
-        liftIO $ I.swapMaps new av
+        liftIO $ C.swapMaps new av
         size <- liftSTM $ readTVar s
         liftSTM $ writeTVar s (size+sz)
     array_pop (av, s) = do

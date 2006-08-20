@@ -4,7 +4,7 @@
 
 module Judy.StrMap (
     StrMap (..),
-    swapMaps,
+
     freeze,
     toRevList
 ) where
@@ -45,11 +45,12 @@ instance (Stringable k, Refeable a) => CM.MapM (StrMap k a) k a IO where
     elems = elems_
     keys = keys_
     mapToList = mapToList_
+    swapMaps = swapMaps_
 
 instance (Stringable k, Refeable a) => Freezable (StrMap k a) where
     freeze m = do
         m' <- new_
-        swapMaps m' m
+        swapMaps_ m' m
         return (Frozen m')
 
 instance (Stringable k, Refeable a) => CM.MapF (Frozen (StrMap k a)) k a where
@@ -213,8 +214,8 @@ elems_ = internalMap $ \r _ -> do
     v <- peek r
     fromRef v
 
-swapMaps :: StrMap k a -> StrMap k a -> IO ()
-swapMaps (StrMap j1) (StrMap j2) = do
+swapMaps_ :: StrMap k a -> StrMap k a -> IO ()
+swapMaps_ (StrMap j1) (StrMap j2) = do
     withForeignPtr j1 $ \p1 -> withForeignPtr j2 $ \p2 -> do
         v1 <- peek p1
         v2 <- peek p2

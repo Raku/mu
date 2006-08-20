@@ -3,11 +3,10 @@
 {-# INCLUDE "Judy.h" #-}
 
 module Judy.Hash (
-    Stringable (..),
     Hash (..),
 
     -- FIXME: need to move to MapM api
-    swapMaps, freeze
+    freeze
 ) where
 
 import Data.Typeable
@@ -46,11 +45,12 @@ instance (Stringable k, Refeable a) => CM.MapM (Hash k a) k a IO where
     elems = elems_
     keys = keys_
     mapToList = mapToList_
+    swapMaps = swapMaps_
 
 instance (Stringable k, Refeable a) => Freezable (Hash k a) where
     freeze m = do
         m' <- new_
-        swapMaps m' m
+        swapMaps_ m' m
         return (Frozen m')
 
 instance (Stringable k, Refeable a) => CM.MapF (Frozen (Hash k a)) k a where
@@ -219,8 +219,8 @@ keys_ = internalMap $ \_ cp len -> do
     return v
 
 
-swapMaps :: Hash k a -> Hash k a -> IO ()
-swapMaps (Hash j1) (Hash j2) = do
+swapMaps_ :: Hash k a -> Hash k a -> IO ()
+swapMaps_ (Hash j1) (Hash j2) = do
     withForeignPtr j1 $ \p1 -> withForeignPtr j2 $ \p2 -> do
         v1 <- peek p1
         v2 <- peek p2
