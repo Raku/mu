@@ -127,7 +127,7 @@ data CurrentFunction = MkCurrentFunction
 currentFunctions :: RuleParser [CurrentFunction]
 currentFunctions = do
     env <- getRuleEnv
-    return . catMaybes $! inlinePerformSTM $! do
+    let funs = catMaybes $! inlinePerformSTM $! do
         glob <- readTVar $ envGlobal env
         let syms  = padToList (filterPad cur glob)
                     ++ padToList (filterPad cur (envLexical env))
@@ -137,7 +137,8 @@ currentFunctions = do
             vars  = concat [ map (\(_, tvar) -> (var, tvar)) tvars
                            | (var, tvars) <- syms
                            ]
-        mapM (uncurry filterFun) (length vars `seq` vars)
+        mapM (uncurry filterFun) vars
+    return (length funs `seq` funs)
 
 {-# NOINLINE _RefToFunction #-}
 _RefToFunction :: Hash.HashTable Int CurrentFunction
@@ -148,7 +149,7 @@ filterFun var tvar = do
     let key = unsafeCoerce# tvar
     res <- unsafeIOToSTM (Hash.lookup _RefToFunction key)
     case res of
-        Just rv -> return (Just rv)
+        Just rv -> return (rv `seq` res)
         Nothing -> do
             ref <- readTVar tvar
             case ref of
@@ -156,13 +157,13 @@ filterFun var tvar = do
                     | relevantToParsing (code_type cv) (code_assoc cv) -> do
                         let rv = MkCurrentFunction var (code_assoc cv) (code_params cv)
                         unsafeIOToSTM (Hash.insert _RefToFunction key rv)
-                        return (Just rv)
+                        return (rv `seq` Just rv)
                 MkRef (IScalar sv)
                     | Just (VCode cv) <- scalar_const sv
                     , relevantToParsing (code_type cv) (code_assoc cv) -> do
                         let rv = MkCurrentFunction var (code_assoc cv) (code_params cv)
                         unsafeIOToSTM (Hash.insert _RefToFunction key rv)
-                        return (Just rv)
+                        return (rv `seq` Just rv)
                 _ -> return Nothing
 
 inScope :: Pkg -> Var -> Bool
