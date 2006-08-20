@@ -2,9 +2,9 @@ use v6-alpha;
 
 use Test;
 
-# L<S04/"Statement parsing" /or try \{\.\.\.}\./>
+# L<S04/"Statement parsing"/"or try {...}">
 
-plan 25;
+plan 26;
 
 {
     # simple try
@@ -61,7 +61,7 @@ plan 25;
     eval 'try {
         die "blah"
 
-        CATCH /la/ { $caught = 1 }
+        CATCH { $caught = 1 }
     }';
 
     ok($caught, "exception caught", :todo);
@@ -114,8 +114,10 @@ unless (eval 'Exception.new') {
 
         $not_died = 1;
 
-        CATCH Naughty {
-            $caught = 1;
+        CATCH {
+            when Naughty {
+                $caught = 1;
+            }
         }
     }';
 
@@ -132,12 +134,13 @@ unless (eval 'Exception.new') {
     eval 'try {
         die Naughty::Specific "error";
 
-        CATCH Naughty::Other {
-            $other = 1;
-        }
-    
-        CATCH Naughty {
-            $naughty = 1;
+        CATCH {
+            when Naughty::Other {
+                $other = 1;
+            }
+            when Naughty {
+                $naughty = 1;
+            }
         }
     }';
 
@@ -151,18 +154,21 @@ unless (eval 'Exception.new') {
 
     my ($naughty, $lived);
     eval 'try {
-            die Dandy "error";
+        die Dandy "error";
         
-            CATCH Naughty {
+        CATCH {
+            when Naughty {
                 $naughty = 1;
             }
-        };
+        }
+    };
 
-        $lived = 1;
+    $lived = 1;
     ';
 
     ok(!$lived, "did not live past uncaught throw in try");
     ok(~ref($!), '$! is an object');
+    ok(!$naughty, "did not get caught by wrong handler");
     is(eval('ref($!)'), Dandy, ".. of the right class", :todo<bug>);
 };
 

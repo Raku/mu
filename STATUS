@@ -81,9 +81,10 @@ would like current details, please ask on irc.freenode.net #perl6.
 ** Other implementations have been started, but are currently inactive.
 
 = Test Suite
-[correct as of: 2006-01-30]
+[correct as of: 2006-08-20]
 
-* Currently about 11000 tests, including module tests
+* Currently about 15000 tests, including module tests
 * This is known to be only a small percentage of the total needed to cover
   the currently available Perl 6 design
 * Automated posting to smoke server (http://smoke.pugscode.org/) now possible
+** Many test reports seem to be very old or out of date.
