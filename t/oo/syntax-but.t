@@ -15,7 +15,7 @@ use Test;
 #       $_;
 #   };
 
-plan 10;
+plan 13;
 
 # Without an own class
 {
@@ -27,7 +27,7 @@ plan 10;
     $was_in_but_block++;
     $topic_in_but_block = $_;
     23;
-    # Here is an implicit ($_;) to get 3 back to $num, insteaf of 23.
+    # Here is an implicit ($_;) to get 3 back to $num, instead of 23.
   };
 
   is $num,                3, "syntax but worked on a literal";
@@ -48,7 +48,7 @@ plan 10;
     $topic_in_but_block = $_;
     .attr = 42;
     23;
-    # Here is an implicit ($_;) to get 3 back to $num, insteaf of 23.
+    # Here is an implicit ($_;) to get 3 back to $num, instead of 23.
   };
 
   ok $was_in_but_block, 'syntax but ($obj but {...}) was executed';
@@ -60,7 +60,12 @@ plan 10;
 }
 
 # L<S02/Context/"can override the class definition:">
-my $trueZero;
-eval_ok '$trueZero = 0 but True', "0 but True syntax evaluates";
-ok ($trueZero == 0), "0 but True is numerically equal to 0";
-ok ?($trueZero), "0 but True is true";
+my $true_zero;
+ok((eval '$true_zero = 0 but True; 1'), "0 but True syntax evaluates");
+ok ($true_zero == 0), "0 but True is numerically equal to 0";
+ok ?($true_zero), "0 but True is true";
+# TimToady++ says I can test False as well
+my $false_positive;
+ok(eval('$false_positive = 3 but False; 1'), "3 but False syntax evaluates");
+ok ($false_positive == 3), "3 but False is numerically equal to 3";
+ok !($false_positive), "3 but False is false";
