@@ -256,6 +256,14 @@ sub build_lib {
     # Add GHC to PATH
     local $ENV{PATH} = dirname($ghc) . $Config{path_sep} . $ENV{PATH};
 
+    # Remove all -boot files since GHC 6.4 doesn't track them.
+    # This is not needed for GHC 6.5 which doesn't produce them anyway.
+    my $wanted = sub {
+        return unless $_ =~ /-boot$/;
+        unlink $_;
+    };
+    find $wanted, "dist/build";
+
     unlink $_ for @a_file;
     $run_setup->('build');
     (-e or die "Build failed: $?") for @a_file;
