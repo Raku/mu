@@ -20,14 +20,12 @@ extra:
         This summary can be found in the following places:
         
         * [use.perl.org](http://use.perl.org/)
-        
         * [The pugs blog](http://pugs.blogs.com/)
-        
         * [The perl6-announce mailing list](http://lists.cpan.org/showlist.cgi?name=perl6-announce)
       title: Distribution
   header:
     - body: |-
-        This is the final installment of the older summaries.  I plan to post
+        This is the final installment of the older summaries.  After this week, I plan to post
         weekly summaries on Sundays.
       title: Summary updates
   see_also:
@@ -2238,7 +2236,7 @@ lists:
             name: Audrey Tang
         subject: '===, =:=, ~~, eq and == revisited (blame ajs!)'
         summary: |-
-          In the thread that wouldn't die more questions and clarifications on the
+          In the thread that wouldn't die, more questions and clarifications on the
           semantics of === were raised, especially with respect to arrays, the use of
           sigils during assignment, and cloning.
       - date_from: 1154442073
