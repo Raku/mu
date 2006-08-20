@@ -1,4 +1,5 @@
 ---
+title: 'Perl 6 mailing list summary for the weeks of August 1-19, 2006'
 extra:
   footer:
     - body: |-
@@ -3168,4 +3169,3 @@ lists:
         subject: designing a test suite for multiple implementations (tools thread)
         summary: ''
     title: Compiler
-title: 'Perl 6 mailing list summary for the month of August, 2006'
