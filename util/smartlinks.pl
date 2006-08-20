@@ -15,8 +15,10 @@ use YAML::Syck;
 use Getopt::Long;
 use File::Basename;
 use FindBin;
+use Pod::Html;
+use File::Temp 'tempfile';
 
-my ($check, $count, $broken_count);
+my ($check, $count, $broken_count, $snippet_id);
 
 my %Spec = reverse qw(
     01 Overview 02 Syntax       03 Operator     04 Block
@@ -45,12 +47,14 @@ sub process_t_file ($$) {
     my ($setter, $from, $to);
     while (<$in>) {
         chomp;
+        my $new_from;
         my ($synopsis, $section, $pattern);
         if (/^ \s* \#? \s* L< (S\d+) \/ ([^\/]+) >\s*$/xo) {
             ($synopsis, $section) = ($1, $2);
             $section =~ s/^\s+|\s+$//g;
             $section =~ s/^"(.*)"$/$1/;
             #warn "$synopsis $section" if $synopsis eq 'S06';
+            $new_from = $.;
             $to = $. - 1;
         }
         elsif (/^ \s* \#? \s* L<<? (S\d+) \/ ([^\/]+) \/ (.*) /xo) {
@@ -68,10 +72,13 @@ sub process_t_file ($$) {
                 if (!s/>>?$//) {
                     error "$infile: line $.: smart links must termanate",
                         "in the second line.";
+                    next;
                 }
                 $pattern .= " $_";
+                $new_from = $. - 1;
                 $to = $. - 2;
             } else {
+                $new_from = $.;
                 $to = $. - 1;
                 chop $pattern;
             }
@@ -87,7 +94,7 @@ sub process_t_file ($$) {
         $setter = sub {
             add_link($links, $synopsis, $section, $pattern, $infile, $_[0], $_[1]);
         };
-        $from = $. + 1;
+        $from = $new_from;
     }
     $setter->($from, $.) if $setter and $from;
     close $in;
@@ -102,7 +109,7 @@ sub parse_pod ($) {
     while (<$in>) {
         if (/^ =head(\d+) \s* (.*\S) \s* $/x) {
             #warn "parse_pod: *$1*\n";
-            my $num = $1,
+            my $num = $1;
             $section = $2;
             $podtree->{_sections} ||= [];
             push @{ $podtree->{_sections} }, [$num, $section];
@@ -180,8 +187,142 @@ sub process_paragraph ($) {
     $str;
 }
 
-sub process_syn ($$$) {
-    my ($infile, $out_dir, $links) = @_;
+sub gen_html ($$) {
+    my ($pod, $cssfile) = @_;
+
+    my ($fh, $podfile) = tempfile(SUFFIX => '.pod');
+    print $fh $pod;
+    close $fh;
+    my $htmfile = "$podfile.html";
+
+    pod2html($podfile,
+        "--backlink=Back to Top",
+        "--htmlroot=.",
+        "--recurse",
+        "--infile=$podfile",
+        "--outfile=$htmfile",
+        "--css=$cssfile",
+        "--header",
+        "--quiet",
+    );
+    unlink 'pod2htmd.tmp';
+    unlink 'pod2htmi.tmp';
+
+    open my $in, $htmfile or
+        die "Can't open $htmfile for reading: $!";
+    local $/;
+    my $html = <$in>;
+    close $in;
+
+    my $header = <<'_EOC_';
+<script language="javascript1.2"><!--
+var agt = navigator.userAgent.toLowerCase();
+
+var is_opera = (agt.indexOf("opera") != -1);
+var is_ie = (agt.indexOf("msie") != -1) && document.all && !is_opera;
+var is_ie5 = (agt.indexOf("msie 5") != -1) && document.all;
+
+function tog() {
+  // tog: toggle the visibility of html elements (arguments[1..]) from none to
+  // arguments[0].  Return what should be returned in a javascript onevent().
+  display = arguments[0];
+  for( var i=1; i<arguments.length; i++ ) {    
+    var x = document.getElementById(arguments[i]);
+    if (!x) continue;
+    if (x.style.display == "none" || x.style.display == "") {
+      x.style.display = display;
+    } else {
+      x.style.display = "none";
+    }
+  } 
+
+  var e = is_ie ? window.event : this;
+  if (e) {
+    if (is_ie) {
+      e.cancelBubble = true;
+      e.returnValue = false;
+      return false;
+    } else {
+      return false;
+    }
+  }
+}
+
+function tog_quote( idnum ) {
+  return tog( 'block', 'header_shown_' + idnum, 'header_hidden_' + idnum,
+	   'hide_' + idnum );
+}
+
+//--></script>
+_EOC_
+
+    if ($html !~ s,text/html; charset=[^">]+,text/html; charset=UTF-8,) {
+        $html =~ s,<head>,
+            <meta HTTP-EQUIV="content-type" CONTENT="text/html; charset=UTF-8">
+            <meta name="save" content="history">
+        ,;
+    }
+    $html =~ s,</head>,$header</head>,;
+    $html;
+}
+
+# Note that this function has been optimized for space rather
+# than time.
+sub gen_code_snippet ($) {
+    my $location = shift;
+    my ($file, $from, $to) = @$location;
+    #warn "gen_code_snippet: @$location\n";
+    open my $in, $file or
+        die "Can't open $file for reading: $!\n";
+    my $i = 1;
+    my $src;
+    while (<$in>) {
+        next if $i < $from;
+        last if $i > $to;
+        $src .= "    $_";
+    } continue { $i++ }
+    close $in;
+    $snippet_id++;
+    #warn $snippet_id;
+    #warn "$file $to $from";
+    warn "BBBBBBB @$location $snippet_id" if !defined $src;
+    my $nlines = $to - $from + 1;
+    return <<"_EOC_";
+
+=begin html
+
+<a name="msg_${snippet_id}"></a>
+<a href="?hide_quotes=no#msg_${snippet_id}" onclick="return tog_quote(${snippet_id});">
+<div ID=header_shown_${snippet_id} style="display: none;">- Hide $file (line $from ~ line $to) -
+</div>
+<div ID=header_hidden_${snippet_id} style="display: block;">- Show $file ($nlines lines) -</div>
+</a>
+</p>
+<div ID=hide_${snippet_id} style="display:none;">
+
+=end html
+
+$src
+
+=begin html
+
+</div>
+
+=end html
+
+_EOC_
+}
+
+=begin comment
+
+process_syn: process synopses one by one.
+
+=end comment
+
+=cut
+
+sub process_syn ($$$$) {
+    my ($infile, $out_dir, $cssfile, $links) = @_;
     my $syn_id;
     if ($infile =~ /\bS(\d+)\.pod$/) {
         $syn_id = $1;
@@ -200,6 +341,7 @@ sub process_syn ($$$) {
     if (!$sections) {
         return;
     }
+    $snippet_id = 1;
     while (my ($section, $links) = each %$sections) {
         #warn "checking $section...";
         my @links = @$links;
@@ -211,20 +353,28 @@ sub process_syn ($$$) {
             error "$t_file: line $from:",
                 "section ``$section'' not found in S$syn_id.";
             $broken_count++;
+            next;
         }
         for my $link (@links) {
             my ($pattern, $location) = @$link;
+            my $i = 0;
             if (!$pattern) { # match the whole section
-                # unshift @$paras, gen_snippet($location);
+                if (!$check) {
+                    unshift @$paras, gen_code_snippet($location);
+                    $i = 1;
+                }
                 next;
             }
             my $regex = parse_pattern($pattern);
-            my $i = 0;
             my $matched;
-            for my $para (@$paras) {
+            while ($i < @$paras) {
+                my $para = $paras->[$i];
                 next if !$para;
                 if (process_paragraph($para) =~ /$regex/) {
-                    # splice @$paras, $i, 0, gen_snippet($location);
+                    if (!$check) {
+                        splice @$paras, $i+1, 0, gen_code_snippet($location);
+                        $i++;
+                    }
                     $matched = 1;
                 }
             } continue { $i++ }
@@ -238,12 +388,22 @@ sub process_syn ($$$) {
         }
     }
 
-    my $pod = emit_pod($podtree);
-    #print $pod if $syn_id eq '02';
-    #if ($syn_id eq '02') {
-    #    use File::Slurp;
-    #    write_file("S$syn_id.pod", $pod);
-    #}
+    if (!$check) {
+        my $pod = emit_pod($podtree);
+        #print $pod if $syn_id eq '02';
+        #if ($syn_id eq '02') {
+        #    use File::Slurp;
+        #    write_file("S$syn_id.pod", $pod);
+        #}
+        my $html = gen_html($pod, $cssfile);
+        my $htmfile = "$out_dir/S$syn_id.html";
+        warn "info: generating $htmfile...\n";
+        open my $out, "> $htmfile" or
+            die "Can't open $htmfile for writing: $!\n";
+        print $out $html;
+        close $out;
+    }
+
     #warn "$syn_id: $infile\n";
 }
 
@@ -252,27 +412,31 @@ sub Usage {
 Usage:
   $0 --check t/*/*.t t/*/*/*.t
   $0 --check t/some/test.t
+  $0 --css foo.css --out-dir=. t/syntax/*.t
 _EOC_
     exit(0);
 }
 
 sub main {
-    my ($syn_dir, $out_dir, $help);
+    my ($syn_dir, $out_dir, $help, $cssfile);
     GetOptions(
         'check'   => \$check,
         'syn-dir' => \$syn_dir,
         'out-dir' => \$out_dir,
         'help'    => \$help,
+        'css'     => \$cssfile,
     );
 
     if ($help || !@ARGV) {
         Usage();
     }
 
+    $cssfile ||= 'http://dev.perl.org/css/perl.css';
+
     $count = 0;
     $broken_count = 0;
     
-    $out_dir ||= 'tmp';
+    $out_dir ||= '.';
     mkdir $out_dir if !-d $out_dir;
 
     my @t_files = map glob, @ARGV;
@@ -291,10 +455,10 @@ sub main {
     }
     my @syns = map glob, "$syn_dir/*.pod";
     for my $syn (@syns) {
-        process_syn($syn, $out_dir, $links);
+        process_syn($syn, $out_dir, $cssfile, $links);
     }
-    warn "INFO: for total $count smartlinks found.\n";
-    warn "INFO: $broken_count smartlinks broken.\n";
+    warn "info: for total $count smartlinks found.\n";
+    warn "info: $broken_count smartlinks broken.\n";
     exit if $check;
     exit;
 }
