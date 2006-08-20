@@ -8,8 +8,8 @@ module Judy.CollectionsM (
 import Judy.Freeze
 import Foreign
 import Data.IORef
-import qualified Data.Map as DM
-
+import qualified Data.Map       as DM
+import qualified Data.HashTable as HT
 
 import Prelude hiding (lookup)
 
@@ -129,3 +129,69 @@ instance (Ord k) => MapM (IORef (DM.Map k a)) k a IO where
         y' <- readIORef y
         writeIORef x y'
         writeIORef y x'
+
+instance MapM (HT.HashTable String a) String a IO where
+    new = HT.new (==) HT.hashString
+    delete k m = (HT.delete m k) >> (return True)
+    member k m = do
+        x <- HT.lookup m k
+        return $ case x of
+            Nothing -> False
+            Just _  -> True
+    lookup = flip HT.lookup
+    insert k a m = HT.insert m k a
+    alter f k m = do
+        x <- HT.lookup m k
+        case x of
+            Nothing -> case (f Nothing) of
+                Nothing -> return Nothing
+                Just y  -> (HT.insert m k y) >> (return $ Just y)
+            Just x  -> case (f (Just x)) of
+                Nothing -> (HT.delete m k)   >> (return Nothing)
+                Just y  -> (HT.insert m k y) >> (return $ Just y)
+    fromList = HT.fromList HT.hashString
+    toList = HT.toList
+    elems = (fmap (map snd)) . HT.toList
+    keys  = (fmap (map fst)) . HT.toList
+    mapToList f = (fmap (map f')) . HT.toList
+        where f' (a,b) = f a b
+    swapMaps x y = do
+        x' <- HT.toList x
+        y' <- HT.toList y
+        mapM_ (\(a,_) -> HT.delete x a) x'
+        mapM_ (\(a,_) -> HT.delete y a) y'
+        mapM_ (\(a,b) -> HT.insert x a b) y'
+        mapM_ (\(a,b) -> HT.insert y a b) x'
+
+instance MapM (HT.HashTable Int a) Int a IO where
+    new = HT.new (==) HT.hashInt
+    delete k m = (HT.delete m k) >> (return True)
+    member k m = do
+        x <- HT.lookup m k
+        return $ case x of
+            Nothing -> False
+            Just _  -> True
+    lookup = flip HT.lookup
+    insert k a m = HT.insert m k a
+    alter f k m = do
+        x <- HT.lookup m k
+        case x of
+            Nothing -> case (f Nothing) of
+                Nothing -> return Nothing
+                Just y  -> (HT.insert m k y) >> (return $ Just y)
+            Just x  -> case (f (Just x)) of
+                Nothing -> (HT.delete m k)   >> (return Nothing)
+                Just y  -> (HT.insert m k y) >> (return $ Just y)
+    fromList = HT.fromList HT.hashInt
+    toList = HT.toList
+    elems = (fmap (map snd)) . HT.toList
+    keys  = (fmap (map fst)) . HT.toList
+    mapToList f = (fmap (map f')) . HT.toList
+        where f' (a,b) = f a b
+    swapMaps x y = do
+        x' <- HT.toList x
+        y' <- HT.toList y
+        mapM_ (\(a,_) -> HT.delete x a) x'
+        mapM_ (\(a,_) -> HT.delete y a) y'
+        mapM_ (\(a,b) -> HT.insert x a b) y'
+        mapM_ (\(a,b) -> HT.insert y a b) x'

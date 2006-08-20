@@ -1,6 +1,6 @@
 # Makefile for static linkage
 
-TESTS=TestBS TestJL TestJSL TestJHS TestHash TestIntMap TestStrMap TestDM
+TESTS=TestBS TestJL TestJSL TestJHS TestHash TestIntMap TestStrMap TestDM TestHT
 
 GHC=ghc # -debug
 #GHC=ghc-6.4.2 
