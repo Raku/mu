@@ -2,11 +2,11 @@ use v6-alpha;
 
 use Test;
 
-plan 49;
+plan 56;
 
 =kwid
 
-This tests the smartmatch operator, defined in L<S04/"Smart matching">
+This tests the smartmatch operator, defined in L<S03/"Smart matching">
 
 note that ~~ is currently a stub, and is really eq.
 the reason it's parsed is so that eval '' won't be around everywhere, not for
@@ -171,3 +171,57 @@ my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
     ok((%hash1 !~~ any(%hash4)), "no intersecting keys");
 };
 
+{
+=for Explanation
+
+You may be wondering what the heck is with all these try blocks.
+Prior to r12503, this test caused a horrible death of Pugs which
+magically went away when used inside an eval.  So the try blocks
+caught that case.
+
+=cut
+
+    #L<S09/"Junctions"/grep>
+    my @x = 1..20;
+    my $code = -> $x { $x % 2 };
+    my @result;
+    my $parsed = 0;
+    try {
+        @result = any(@x) ~~ $code;
+        $parsed = 1;
+    };
+    ok $parsed, 'C<my @result = any(@x) ~~ $code> parses';
+    my @expected_result = grep $code, @x;
+    ok @result eqv @expected_result,
+        'C<any(@x) ~~ {...}> works like C<grep>';
+
+    my $result = 0;
+    $parsed = 0;
+    try {
+        $result = all(@x) ~~ { $_ < 21 };
+        $parsed = 1;
+    };
+    ok $parsed, 'C<all(@x) ~~ { ... }> parses';
+    ok $result, 'C<all(@x) ~~ { ... } when true for all';
+
+    $result = 0;
+    try {
+        $result = !(all(@x) ~~ { $_ < 20 });
+    };
+    ok $result,
+        'C<all(@x) ~~ {...} when true for one';
+
+    $result = 0;
+    try {
+        $result = !(all(@x) ~~ { $_ < 12 });
+    };
+    ok $result,
+        'C<all(@x) ~~ {...} when true for most';
+
+    $result = 0;
+    try {
+        $result = !(all(@x) ~~ { $_ < 1  });
+    };
+    ok $result,
+        'C<all(@x) ~~ {...} when true for one';
+};
