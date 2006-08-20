@@ -41,6 +41,9 @@ how i/o can work in a purely functional language
     http://community.livejournal.com/evan_tech/197471.html     - Evan Martin
 applications of monads
     http://community.livejournal.com/evan_tech/198116.html     - Evan Martin
+You Could Have Invented Monads! (And Maybe You Already Have.)
+    http://sigfpe.blogspot.com/2006/08/you-could-have-invented-monads-and.html
+                                                                    - sigfpe
 why type classes are interesting
     http://community.livejournal.com/evan_tech/199837.html     - Evan Martin
 Hitchhikers guide to Haskell
