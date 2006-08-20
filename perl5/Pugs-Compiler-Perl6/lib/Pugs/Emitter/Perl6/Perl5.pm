@@ -14,6 +14,7 @@ use Digest::MD5 'md5_hex';
 # TODO - finish localizing %_V6_ENV at each block
 our %_V6_ENV;
 our $id = int( 1000 + rand(9000) );
+our $_V6_SELF = '$_V6_SELF';
 
 sub _var_get {
     my $n = $_[0];
@@ -44,7 +45,7 @@ sub _var_get {
     }
 
     # default
-    return "\$self->{'" . substr($s,2) . "'}"
+    return "\$_V6_SELF->{'" . substr($s,2) . "'}"
         if substr($s,1,1) eq '.';
     return Pugs::Runtime::Common::mangle_var( $s );
 }
@@ -384,8 +385,13 @@ sub _emit_parameter_capture {
 sub runtime_method {
     my $n = $_[0];
     # runtime decision - method or lib call
+    my $self = _emit( $n->{self} );
+    if ( $self eq $_V6_SELF ) {
+        # '$_V6_SELF' is known to be an object
+        return $self . '->' . _emit( $n->{method} ) . emit_parenthesis( $n->{param} );
+    }
     return 
-        'do { my @_V6_TMP = ' . _emit( $n->{self} ) . "; " .
+        'do { my @_V6_TMP = ' . $self . "; " .
         '( @_V6_TMP == 1 && Scalar::Util::blessed $_V6_TMP[0] ' .
         " ? " .
           '$_V6_TMP[0]->' . 
@@ -798,12 +804,78 @@ sub statement {
         return 
             'next';
     }
-    
-    if ( $n->{statement} eq 'grammar'  ||
-         $n->{statement} eq 'class'    ||
-         $n->{statement} eq 'package'  ||
-         $n->{statement} eq 'module'   ||
-         $n->{statement} eq 'role'     ) {
+    if ( $n->{statement} eq 'for'   ||
+         $n->{statement} eq 'while' ||
+         $n->{statement} eq 'until' ) {
+        #warn "for: ",Dumper $n;
+        if ( exists $n->{exp2}{pointy_block} ) {
+            if ($n->{statement} eq 'for' 
+                && $n->{exp2}{signature} 
+                && @{$n->{exp2}{signature}} > 1) {
+                return 'Pugs::Runtime::Perl6::Array::map([\\'._emit($n->{exp2}).', ['._emit($n->{exp1}).']], {})';
+            }
+            my @sigs = map { { scalar => $_->{name} } } @{$n->{exp2}{signature}};
+            my $sig = $n->{exp2}{signature} ? ' my ' . _emit( @sigs ) : '';
+            my $head = $n->{statement} eq 'for'
+                ?  $n->{statement} . 
+                    $sig . 
+                    emit_parenthesis( $n->{exp1} )
+                :   $n->{statement} . ' ( '.
+                    ( $sig ? $sig . ' = ' : ''
+                    ) . _emit( $n->{exp1} ) . ' )';
+
+            return  $head . 
+                    " { " . _emit( $n->{exp2}{pointy_block} ) . " }";
+        }
+        #die 'for/while/until should contain a block' unless $n->{exp2}{bare_block};
+        return  " " . $n->{statement} . 
+                emit_parenthesis( $n->{exp1} ) . 
+                emit_block( $n->{exp2} );
+    }
+    if ( $n->{statement} eq 'loop' ) {
+        if ( ! exists $n->{exp1} ) {
+            return " while (1) " . emit_block( $n->{content} );
+        }
+        return  " for ( ". 
+            join(';', map { $_->{null} ? ' ' : _emit($_) } @{$n}{qw/exp1 exp2 exp3/}).
+            ")\n" . emit_block( $n->{content} );
+    }
+
+    return _not_implemented( $n, "statement" );
+}
+
+sub autoquote {
+    my $n = $_[0];
+    #print "autoquote: ", Dumper( $n );
+    if ( exists $n->{'op1'} &&
+         $n->{'op1'} eq 'call' &&
+         ! exists $n->{'param'} &&
+         exists $n->{'sub'}{'bareword'}
+       )
+    {
+        return "'" . $n->{'sub'}{'bareword'} . "'";
+    }
+    return _emit( $n );
+}
+
+sub term {
+    my $n = $_[0];
+    #print "term: ", Dumper( $n );
+
+    if ( $n->{term} eq 'self' ) {
+        return $_V6_SELF;
+    }
+    if ( $n->{term} eq 'yada' ) {
+        return  '( die "not implemented" )';
+    }
+    if ( $n->{term} eq 'undef' ) {
+        return ' undef ';
+    }
+    if ( $n->{term} eq 'grammar'  ||
+         $n->{term} eq 'class'    ||
+         $n->{term} eq 'package'  ||
+         $n->{term} eq 'module'   ||
+         $n->{term} eq 'role'     ) {
         # Moose: package xxx; use Moose;
         # class Point;
         # print Dumper($n);
@@ -840,20 +912,20 @@ sub statement {
                     ? ";
                         \$".$namespace."::VERSION = '$version'" 
                     : "" ) .
-                ( $n->{statement} eq 'grammar' 
+                ( $n->{term} eq 'grammar' 
                     ? ";
                         use Pugs::Compiler::Rule;
                         use Moose;
                         use base 'Pugs::Grammar::Base';
                         no strict 'refs'"
                     : "" ) .
-                ( $n->{statement} eq 'class' 
+                ( $n->{term} eq 'class' 
                     ? ";
                         use Moose; 
                         Pugs::Runtime::Perl6->setup_class;
                         no strict 'refs'"
                     : "" ) .
-                ( $n->{statement} eq 'role' 
+                ( $n->{term} eq 'role' 
                     ? ";
                         # use Moose::Role;  XXX - need '\$object does role'
                         use Moose; 
@@ -872,9 +944,9 @@ sub statement {
                 : $decl;
     }
 
-    if ( $n->{statement} eq 'sub'       ||
-         $n->{statement} eq 'submethod' ||
-         $n->{statement} eq 'method'     ) {
+    if ( $n->{term} eq 'sub'       ||
+         $n->{term} eq 'submethod' ||
+         $n->{term} eq 'method'     ) {
         #warn "sub: ",Dumper $n;
         my %old_env = %{ deep_copy( \%_V6_ENV ) };
         local %_V6_ENV = %old_env;
@@ -898,14 +970,15 @@ sub statement {
                 $multi_sub = "BEGIN { Sub::Multi->add_multi('$wrapper_name', \\&$name) }\n";
             }
             # XXX: check incompatible attributes
-            return "local *$name = "._emit_closure($n->{signature}, $n->{block}) if $n->{my};
+            return "local *$name = "._emit_closure($n->{signature}, $n->{block}) 
+                if $n->{my};
 
             return  $export . " sub " . $name . 
                 " {\n" .
                 "   my %_V6_PAD;\n" .
                     (
-                        $n->{statement} =~ /method/
-                        ? " my \$self = shift; "   # default invocant 
+                        $n->{term} =~ /method/
+                        ? " my \$_V6_SELF = shift; "   # default invocant 
                         : ""
                     ) .
                     _emit_parameter_binding( $n->{signature} ) .
@@ -919,48 +992,9 @@ sub statement {
             return _emit_closure($n->{signature}, $n->{block});
         }
     }
-
-    if ( $n->{statement} eq 'for'   ||
-         $n->{statement} eq 'while' ||
-         $n->{statement} eq 'until' ) {
-        #warn "for: ",Dumper $n;
-        if ( exists $n->{exp2}{pointy_block} ) {
-            if ($n->{statement} eq 'for' 
-                && $n->{exp2}{signature} 
-                && @{$n->{exp2}{signature}} > 1) {
-                return 'Pugs::Runtime::Perl6::Array::map([\\'._emit($n->{exp2}).', ['._emit($n->{exp1}).']], {})';
-            }
-            my @sigs = map { { scalar => $_->{name} } } @{$n->{exp2}{signature}};
-            my $sig = $n->{exp2}{signature} ? ' my ' . _emit( @sigs ) : '';
-            my $head = $n->{statement} eq 'for'
-                ?  $n->{statement} . 
-                    $sig . 
-                    emit_parenthesis( $n->{exp1} )
-                :   $n->{statement} . ' ( '.
-                    ( $sig ? $sig . ' = ' : ''
-                    ) . _emit( $n->{exp1} ) . ' )';
-
-            return  $head . 
-                    " { " . _emit( $n->{exp2}{pointy_block} ) . " }";
-        }
-        #die 'for/while/until should contain a block' unless $n->{exp2}{bare_block};
-        return  " " . $n->{statement} . 
-                emit_parenthesis( $n->{exp1} ) . 
-                emit_block( $n->{exp2} );
-    }
-
-    if ( $n->{statement} eq 'loop' ) {
-        if ( ! exists $n->{exp1} ) {
-            return " while (1) " . emit_block( $n->{content} );
-        }
-        return  " for ( ". 
-            join(';', map { $_->{null} ? ' ' : _emit($_) } @{$n}{qw/exp1 exp2 exp3/}).
-            ")\n" . emit_block( $n->{content} );
-    }
-
-    if ( $n->{statement} eq 'rule'  ||
-         $n->{statement} eq 'token' ||
-         $n->{statement} eq 'regex' ) {
+    if ( $n->{term} eq 'rule'  ||
+         $n->{term} eq 'token' ||
+         $n->{term} eq 'regex' ) {
         #warn "rule: ",Dumper $n;
 
         my $name = Pugs::Runtime::Common::mangle_ident( $n->{name} );
@@ -985,37 +1019,6 @@ sub statement {
                 "## Signature for $name\n" .
                 " Data::Bind->sub_signature\n".
                 " (\\&$name, ". _emit_parameter_signature ( $n->{signature} ) . ");\n";
-    }
-
-    return _not_implemented( $n, "statement" );
-}
-
-sub autoquote {
-    my $n = $_[0];
-    #print "autoquote: ", Dumper( $n );
-    if ( exists $n->{'op1'} &&
-         $n->{'op1'} eq 'call' &&
-         ! exists $n->{'param'} &&
-         exists $n->{'sub'}{'bareword'}
-       )
-    {
-        return "'" . $n->{'sub'}{'bareword'} . "'";
-    }
-    return _emit( $n );
-}
-
-sub term {
-    my $n = $_[0];
-    #print "term: ", Dumper( $n );
-
-    if ( $n->{term} eq 'self' ) {
-        return '$self';
-    }
-    if ( $n->{term} eq 'yada' ) {
-        return  '( die "not implemented" )';
-    }
-    if ( $n->{term} eq 'undef' ) {
-        return ' undef ';
     }
 }
 
@@ -1358,6 +1361,12 @@ sub variable_declarator {
          $n->{'variable_declarator'} eq 'our' ) {
         #die "not implemented 'attribute'",Dumper $n
         #    if @{$n->{attribute}};
+        if  (  ref $n->{exp1}
+            && exists $n->{exp1}{term}
+            ) {
+            $n->{exp1}{my} = $n->{'variable_declarator'};
+            return _emit( $n->{exp1} );
+        }
         return $n->{'variable_declarator'} . ' ' . _emit( $n->{exp1} );
     }
 
@@ -1397,7 +1406,7 @@ sub variable_declarator {
             my $raw_name;
             $raw_name = $n->{exp1}{scalar} if exists $n->{exp1}{scalar};
             $_V6_ENV{$raw_name}{set} = sub { 
-                "\$self->" . substr($raw_name,2) . "(" . $_[0] . ")" 
+                "\$_V6_SELF->" . substr($raw_name,2) . "(" . $_[0] . ")" 
             };
             # is rw?
             #warn Dumper @{$n->{attribute}};
@@ -1405,7 +1414,7 @@ sub variable_declarator {
                                $_->[1]{bareword} eq 'rw' } @{$n->{attribute}};
             if ( $is_rw ) {
                 $_V6_ENV{$raw_name}{set} = sub { 
-                    "\$self->{'" . substr($raw_name,2) . "'} = " . $_[0] 
+                    "\$_V6_SELF->{'" . substr($raw_name,2) . "'} = " . $_[0] 
                 }
             }
         
