@@ -752,6 +752,34 @@ sub statement {
     if ( $n->{statement} eq 'do' ) {
         return  'do { ' . _emit( $n->{exp1} ) . ' } ';
     }
+    if ( $n->{statement} eq 'given' ) {
+        return  'for (1) { local $_ = ' . _emit( $n->{exp1} ) . '; ' .
+            _emit( $n->{exp2} ) . '  } ';
+    }
+    if ( $n->{statement} eq 'when' ) {
+        return 
+            'if (' .
+            _emit( 
+                {
+                    exp1 => { scalar => '$_' },
+                    exp2 => $n->{exp1},
+                    op1   => { op => '~~' },
+                    fixity => 'infix',
+                }
+            ) . ') {' . _emit( $n->{exp2} ) . '; last; V6_CONTINUE: ; } ';
+    }
+    if ( $n->{statement} eq 'default' ) {
+        return 
+            '{' . _emit( $n->{exp1} ) . '; last; V6_CONTINUE: ; } ';
+    }
+    if ( $n->{statement} eq 'continue' ) {
+        return 
+            'goto V6_CONTINUE';
+    }
+    if ( $n->{statement} eq 'break' ) {
+        return 
+            'next';
+    }
     
     if ( $n->{statement} eq 'grammar'  ||
          $n->{statement} eq 'class'    ||

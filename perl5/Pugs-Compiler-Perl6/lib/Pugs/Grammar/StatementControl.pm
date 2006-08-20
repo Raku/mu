@@ -5,6 +5,18 @@ use base qw(Pugs::Grammar::BaseCategory);
 
 BEGIN {
     __PACKAGE__->add_rule(
+        'continue' =>  q( 
+            { return { 
+                    statement => 'continue',
+            } }
+        ) );
+    __PACKAGE__->add_rule(
+        'break' =>  q( 
+            { return { 
+                    statement => 'break',
+            } }
+        ) );
+    __PACKAGE__->add_rule(
         'given' =>  q( 
             # { print "statement given \n"; }
             <?ws> 
