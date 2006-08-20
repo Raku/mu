@@ -1,10 +1,11 @@
 module Pugs.AST.Pad (
-  mkPad, subPad, diffPads, unionPads, updateSubPad, mergePadEntry,
+  mkPad, subPad, diffPads, unionPads, updateSubPad, mergePadEntry, padKeys,
 ) where
 import Pugs.Internals
 import Pugs.AST.Internals
 import Pugs.Types
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 
 {-|
 Produce a 'Pad' from a list of bindings. The inverse of 'padToList'.
@@ -58,3 +59,6 @@ updateSubPad :: VCode        -- ^ Initial sub
 updateSubPad sub f = sub
     { subEnv = fmap (\e -> e{ envLexical = f (subPad sub) }) (subEnv sub) 
     }
+
+padKeys :: Pad -> Set Var
+padKeys (MkPad pad) = Map.keysSet pad

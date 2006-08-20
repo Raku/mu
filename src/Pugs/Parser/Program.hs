@@ -9,6 +9,7 @@ import Pugs.Parser
 import Pugs.Rule
 import Text.ParserCombinators.Parsec.Error (showErrorMessages, errorMessages)
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 
 parseProgram :: Env -> FilePath -> String -> Env
 parseProgram = flip runRule ruleProgram
@@ -20,9 +21,10 @@ makeState env = MkState
     , s_dynParsers    = MkDynParsersEmpty
     , s_bracketLevel  = StatementBracket
     , s_char          = ' '
-    , s_name          = ""
+    , s_name          = nullID
     , s_pos           = 0
     , s_blockPads     = Map.empty
+    , s_outerVars     = Set.empty
     }
 
 runRule :: Env -> RuleParser Env -> FilePath -> String -> Env

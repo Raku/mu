@@ -6,7 +6,7 @@ module Pugs.Parser.Types (
     RuleOperator, RuleOperatorTable,
     getRuleEnv, modifyRuleEnv, putRuleEnv, insertIntoPosition,
     clearDynParsers, enterBracketLevel, getCurrCharClass, getPrevCharClass, charClassOf,
-    addBlockPad,
+    addBlockPad, addOuterVar,
     -- Alternate Char implementations that keeps track of s_charClass
     satisfy, string, oneOf, noneOf, char, hexDigit, octDigit,
     digit, upper, anyChar, perl6WhiteSpace,
@@ -15,9 +15,12 @@ module Pugs.Parser.Types (
 ) where
 import Pugs.AST
 import Pugs.Rule
+import Pugs.Types
 import Pugs.Internals
 import Text.ParserCombinators.Parsec.Pos
 import qualified Data.Map as Map
+import qualified Data.Set as Set
+import qualified Data.ByteString.Char8 as Str
 
 satisfy :: (Char -> Bool) -> RuleParser Char
 satisfy f = tokenPrimEx
@@ -32,7 +35,7 @@ string s = do
     modify $ \state -> state{ s_char = last s }
     return rv
 
-_captureNamed :: String -> RuleParser a -> RuleParser a
+_captureNamed :: ID -> RuleParser a -> RuleParser a
 _captureNamed newState rule = do
     prev <- gets s_name
     modify $ \state -> state{ s_name = newState }
@@ -112,16 +115,16 @@ State object that gets passed around during the parsing process.
 data RuleState = MkState
     { s_env           :: Env
     , s_parseProgram  :: (Env -> FilePath -> String -> Env)
-    , s_dynParsers    :: DynParsers  -- ^ Cache for dynamically-generated
-                                       --     parsers
-    , s_bracketLevel  :: !BracketLevel
-                                       -- ^ The kind of "bracket" we are in
-                                       --     part and has to suppress {..} literals
-    , s_char          :: !Char       -- ^ What the previous character contains
-    , s_name          :: !String     -- ^ Capture name
-    , s_pos           :: !Int        -- ^ Capture position
-    , s_blockPads     :: Map Scope Pad
-                                       -- ^ Hoisted pad for this block
+    , s_dynParsers    :: DynParsers     -- ^ Cache for dynamically-generated
+                                        --     parsers
+    , s_bracketLevel  :: !BracketLevel  -- ^ The kind of "bracket" we are in
+                                        --     part and has to suppress {..} literals
+    , s_char          :: !Char          -- ^ What the previous character contains
+    , s_name          :: !ID            -- ^ Capture name
+    , s_pos           :: !Int           -- ^ Capture position
+    , s_blockPads     :: Map Scope Pad  -- ^ Hoisted pad for this block
+    , s_outerVars     :: Set Var        -- ^ OUTER symbols we remembers
+                                       
     }
 
 data BracketLevel
@@ -208,11 +211,25 @@ modifyRuleEnv :: (Env -> Env) -> RuleParser ()
 modifyRuleEnv f = modify $ \state -> state{ s_env = f (s_env state) }
 
 {-|
-Update the 'ruleBlockPostProcessor' in the parser's state by applying a transformation function.
+Update the 's_blockPads' in the parser's state by applying a transformation function.
 -}
 addBlockPad :: Scope -> Pad -> RuleParser ()
-addBlockPad scope pad = modify $ \state ->
-    state{ s_blockPads = Map.insertWith unionPads scope pad (s_blockPads state) }
+addBlockPad scope pad = do
+    -- First we check that our pad does not contain shadows OUTER symbols.
+    state <- get
+    let dupSyms = padKeys pad `Set.intersection` s_outerVars state
+    unless (Set.null dupSyms) $ do
+        unexpected $ "redeclaration of "
+            ++ unwords (map show (Set.elems dupSyms))
+            ++ " conflicts with earlier OUTER references in the same scope"
+    put state{ s_blockPads = Map.insertWith unionPads scope pad (s_blockPads state) }
+
+{-|
+Update the 's_outerVars' in the parser's state by applying a transformation function.
+-}
+addOuterVar :: Var -> RuleParser ()
+addOuterVar var = modify $ \state ->
+    state{ s_outerVars = Set.insert var (s_outerVars state) }
 
 {-|
 Replace the 'Pugs.AST.Internals.Env' in the parser's state with a new one.

@@ -9,6 +9,7 @@ import Pugs.Rule
 
 import Pugs.Parser.Types
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 
 fixities :: [String]
 fixities = ["prefix_circumfix_meta_operator:","infix_circumfix_meta_operator:","prefix_postfix_meta_operator:","postfix_prefix_meta_operator:","infix_postfix_meta_operator:","statement_modifier:","statement_control:","scope_declarator:","trait_auxiliary:","trait_verb:","regex_mod_external:","regex_mod_internal:","regex_assertion:","regex_backslash:","regex_metachar:","postcircumfix:","circumfix:","postfix:","infix:","prefix:","quote:","term:"]
@@ -21,6 +22,7 @@ localEnv m = do
     let env = s_env state
     put state
         { s_blockPads = Map.empty
+        , s_outerVars = Set.empty
         , s_env = env { envOuter = Just env }
         }
     rv      <- m

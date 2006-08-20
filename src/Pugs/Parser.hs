@@ -1657,10 +1657,10 @@ ruleSigiledVar = (<|> ruleSymbolicDeref) . try $ do
                     Just env -> isNothing (envOuter env)
                     _        -> True
             -- If it's visible in the outer lexical scope, yet not
-            -- defined in the current scope, then generate OUTER.
-            if not inTopLevel && outerVisible && not curVisible
-                then return (_Var $ sigil ++ "OUTER::" ++ rest)
-                else return (makeVar name)
+            -- defined in the current scope, we remember that fact.
+            when (not inTopLevel && outerVisible && not curVisible) $
+                addOuterVar (cast name)
+            return (makeVar name)
 
 ruleVar :: RuleParser Exp
 ruleVar = ruleSigiledVar
