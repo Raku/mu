@@ -28,7 +28,7 @@ Here are some basic guidelines to help you get started writing tests for Pugs.
 
 - Prerequisites
 
-Please read the Perl 6 Spec first, namely, the synopses:
+Please read the Perl 6 Spec first, namely, the Synopses:
 
   http://dev.perl.org/perl6/doc/synopsis.html
 
@@ -67,14 +67,14 @@ eventually take catalog_tests.pl's position.
 
 - Use the Test module.
 
-We have a created a basic Test module found in ext/Test/lib/Test.pm. It is 
+We have created a basic Test module found in ext/Test/lib/Test.pm. It is 
 written in Perl 6 and implements the TAP protocol (and so can be used with 
 Test::Harness). The module has its own documentation and I encourage you to 
 read it. 
 
 - Pugs tests should have a non-she-bang line of "use v6-alpha;".
 
-This line helps both Test::Harness as well as the 'prove' utility when 
+This line helps both Test::Harness as well as the 'prove6' utility when 
 running Pugs tests. 
 
 - Place tests in the appropriate folder.
@@ -90,7 +90,7 @@ are not already in some file.
 
 - If possible, please backlink your tests to the Synopsis
 
-Backlinks are planted in the test file, and point to the appropriate sections
+Backlinks are planted in the test file, and are pointed to the appropriate sections
 of the Synopsis you are using to write the test. We call them "smartlinks".
 
 They look like pod links:
@@ -105,7 +105,7 @@ including any POD tags like C<...> and punctuations.
 
 The smartlinks also have a weird extension: you can specify some keywords
 or phrases, to skip forward from the linked section, so the backlink
-is put in a more specific place:
+is put into a more specific place:
 
     L<S05/"Return values from matches"/"In numeric context" number 'matches:'>
 
@@ -169,23 +169,30 @@ Sometimes code is so futuristic, it can even confuse eval. We call this a
 "hard parsefail". When this happens, comment out the failing code, but mark
 it so it doesn't get forgotten, like so:
 
-    flunk("FIXME parsefail", :todo);
+    todo :pugs<6.28.0>, v6_pm<0.110>;
+    flunk("FIXME parsefail");
     #eval_ok('my code here');
     
-Or another alternate style is this:
+Or another alternate style is as follows:
 
     eval_ok('# $code.which(%will, @fail)');
-    
-Which essentially comments out your eval, and returns 'undef' to eval_ok().
+
+    eval_ok q{
+	blah blah blah
+    };
+
+which essentially comments out your eval, and returns 'undef' to eval_ok().
 
 - When TODO and when not TODO.
 
-All of the functions in the Test module also have a named 'todo' parameter. 
+All of the functions in the Test module also have a 'todo' function. (See
+Test.pm's documentation for more details.)
+
 The general rule about todo tests is that if the feature is not
 yet implemented, it is TODO. But if a feature is broken, or a bug is found
 then the tests should fail and *not* be TODO.
 
 The only exception to this rule is that we TODO all failing tests before 
-each weekly release. This is so 'make test' will succeed :)
+each point release. This is so 'make test' will succeed :)
 
 Remember, the failing test *is* your bug report.
