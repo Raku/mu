@@ -5,7 +5,8 @@ extra:
         Yuval Kogman once again contributed summaries for some of the threads.
         
         This summary was prepared using
-        [Mail::Summary::Tools](http://search.cpan.org/dist/Mail-Summary-Tools/)
+        [Mail::Summary::Tools](http://search.cpan.org/dist/Mail-Summary-Tools/),
+        now available on CPAN.
         
         If you appreciate Perl, consider [contributing to the Perl
         Foundation](http://donate.perlfoundation.org) to help support the
@@ -15,10 +16,19 @@ extra:
         suggestions for improving this series.  Comments on this summary can be
         sent to Ann Barcomb, <kudra@domaintje.com>.
       title: Acknowlegements
+    - body: |-
+        This summary can be found in the following places:
+        
+        * [use.perl.org](http://use.perl.org/)
+        
+        * [The pugs blog](http://pugs.blogs.com/)
+        
+        * [The perl6-announce mailing list](http://lists.cpan.org/showlist.cgi?name=perl6-announce)
+      title: Distribution
   header:
     - body: |-
-        This is the last installment of the backlog summaries. Subsequent
-        summaries will follow a weekly schedule, for that summary's week.
+        This is the final installment of the older summaries.  I plan to post
+        weekly summaries on Sundays.
       title: Summary updates
   see_also:
     - name: Perl Foundation activities
@@ -42,6 +52,8 @@ lists:
             name: Chip Salzenberg via RT
           - email: adwaliu@gmail.com
             name: Xinhua Liu
+          - email: adwaliu@gmail.com
+            name: xinhua liu
         rt_ticket: 'perl #39750'
         subject: '[perl #39750] parrot@13183: tru64 core dump: t/examples/japh_12.pasm'
         summary: |-
@@ -322,6 +334,10 @@ lists:
             name: Bob Rogers
           - email: chip@pobox.com
             name: Chip Salzenberg
+          - email: chromatic@wgz.org
+            name: chromatic
+          - email: jerry.gay@gmail.com
+            name: jerry gay
         subject: Implement .loadlib pragma in IMCC
         summary: ~
       - date_from: 1153163540
@@ -345,6 +361,10 @@ lists:
             name: Chip Salzenberg
           - email: jerry.gay@gmail.com
             name: Jerry Gay
+          - email: parrotbug-followup@parrotcode.org
+            name: chromatic
+          - email: jerry.gay@gmail.com
+            name: jerry gay
         rt_ticket: 'perl #39856'
         subject: '[perl #39856] TODO: Produce Single PBC from Multiple PIR Files with -o'
         summary: |-
@@ -416,6 +436,8 @@ lists:
             name: Andy Lester
           - email: lt@toetsch.at
             name: Leopold Toetsch
+          - email: chromatic@wgz.org
+            name: chromatic
         subject: '[perl #39986] Create Default PackFile for New Interpreter (Parrot C API)'
         summary: |-
           This thread was previously completely summarized in July.  
@@ -490,6 +512,8 @@ lists:
             name: Matt Diephouse
           - email: chromatic@wgz.org
             name: Chromatic
+          - email: chromatic@wgz.org
+            name: chromatic
         subject: 'Continuations and inferior runloops:  Analysis and POC'
         summary: |-
           Leopold Toetsch presented an analysis of the the inferior runloops problem -
@@ -514,6 +538,8 @@ lists:
             name: David Romano
           - email: jerry.gay@gmail.com
             name: Jerry Gay
+          - email: jerry.gay@gmail.com
+            name: jerry gay
         rt_ticket: 'perl #39997'
         subject: '[perl #39997] [PATCH] PGE P5 Test Cleanup'
         summary: |-
@@ -566,6 +592,8 @@ lists:
             name: Allison Randal
           - email: jerry.gay@gmail.com
             name: Jerry Gay
+          - email: jerry.gay@gmail.com
+            name: jerry gay
         rt_ticket: 'perl #40002'
         subject: '[perl #40002] TGE Refactor / Compiler Tools Object'
         summary: |-
@@ -630,6 +658,8 @@ lists:
             name: Leopold Toetsch
           - email: mddiep@gmail.com
             name: Matt Diephouse
+          - email: chromatic@wgz.org
+            name: chromatic
         subject: 'resizablepmcarray, assign.'
         summary: |-
           This thread was previously completely summarized in July.  
@@ -671,6 +701,8 @@ lists:
             name: Ron Blaschke
           - email: philip@zaynar.demon.co.uk
             name: Philip Taylor
+          - email: jerry.gay@gmail.com
+            name: jerry gay
         subject: Inf and NaN
         summary: ~
       - date_from: 1154378334
@@ -699,6 +731,8 @@ lists:
             name: fonseka
           - email: nick.glencross@gmail.com
             name: Nick Glencross
+          - email: parrotbug-followup@parrotcode.org
+            name: fonseka @ gmail . com
         rt_ticket: 'perl #40030'
         subject: '[perl #40030] [PATCH] compiler/imcc missing dependency'
         summary: |-
@@ -756,6 +790,8 @@ lists:
             name: Chromatic
           - email: lt@toetsch.at
             name: Leopold Toetsch
+          - email: chromatic@wgz.org
+            name: chromatic
         subject: '[Proposed PATCH lib/Parrot/Test/Embedded.pm] Use Embedded Interpreter for PIR Tests'
         summary: |-
           chromatic posted a patch which adds a new test module.  He wanted
@@ -778,6 +814,8 @@ lists:
             name: Joshua Hoblitt
           - email: chris@clotho.com
             name: Chris Dolan
+          - email: chromatic@wgz.org
+            name: chromatic
         subject: Questions
         summary: |-
           chromatic posted several questions that he needs answered before he
@@ -848,6 +886,8 @@ lists:
             name: Vishal Soni
           - email: chromatic@wgz.org
             name: Chromatic
+          - email: chromatic@wgz.org
+            name: chromatic
         subject: Shared Lib fro Dynamic PMC
         summary: |-
           Vishal Soni wanted to know the best location to store a shared library
@@ -877,6 +917,10 @@ lists:
             name: Chromatic
           - email: jerry.gay@gmail.com
             name: Jerry Gay
+          - email: chromatic@wgz.org
+            name: chromatic
+          - email: jerry.gay@gmail.com
+            name: jerry gay
         subject: "[perl #40048] [CAGE] t/distro/file_metadata.t doesn't like svk"
         summary: |-
           Will Coleda created ticket <rt://perl/40048> to report that 
@@ -959,6 +1003,8 @@ lists:
             name: Jerry Gay
           - email: will@coleda.com
             name: Will Coleda
+          - email: jerry.gay@gmail.com
+            name: jerry gay
         subject: Fix symbol table namespace pollution
         summary: |-
           Chip Salzenberg wanted external functions and variables to have
@@ -1005,6 +1051,8 @@ lists:
             name: Martin D Kealey
           - email: chromatic@wgz.org
             name: Chromatic
+          - email: chromatic@wgz.org
+            name: chromatic
         rt_ticket: 'perl #40058'
         subject: '[perl #40058] Disambiguate usage of class PMCs from class name lookup (pdd15, pdd06, pdd19)'
         summary: |-
@@ -1139,6 +1187,8 @@ lists:
             name: Ambs @ Cpan . Org
           - email: pmichaud@pobox.com
             name: Patrick R. Michaud
+          - email: parrotbug-followup@parrotcode.org
+            name: ambs @ cpan . org
         rt_ticket: 'perl #40069'
         subject: "[perl #40069] [PGE] \"value\" can't be used as a rule name."
         summary: |-
@@ -1257,6 +1307,8 @@ lists:
         posters:
           - email: chromatic@wgz.org
             name: Chromatic
+          - email: chromatic@wgz.org
+            name: chromatic
         subject: Failing t//tools/pbc_merge.t
         summary: |-
           chromatic had a test failure.  He made a patch to highlight the error,
@@ -1294,6 +1346,8 @@ lists:
             name: Ben. B.
           - email: shawnhcorey@magma.ca
             name: Mr. Shawn H. Corey
+          - email: Hugues.Lafarge@afp.com
+            name: hugues
         subject: parrot compile error
         summary: |-
           Hugues reported a parrot compilation issue. Several others reported similar
@@ -1307,6 +1361,8 @@ lists:
         posters:
           - email: kay-uwe.hull@exgate.tek.com
             name: Kay-Uwe Hull
+          - email: kay-uwe.hull@exgate.tek.com
+            name: kay-uwe.hull
         subject: parrot compile error
         summary: ~
       - date_from: 1155053077
@@ -1320,6 +1376,8 @@ lists:
             name: Hugues
           - email: bennymack@gmail.com
             name: Ben. B.
+          - email: Hugues.Lafarge@afp.com
+            name: hugues
         subject: parrot compile error
         summary: ~
       - date_from: 1155059812
@@ -1449,6 +1507,8 @@ lists:
         posters:
           - email: kay-uwe.hull@exgate.tek.com
             name: Kay-Uwe Hull
+          - email: kay-uwe.hull@exgate.tek.com
+            name: kay-uwe.hull
         subject: 'Re: parrot compile error'
         summary: ~
       - date_from: 1155108536
@@ -1509,6 +1569,8 @@ lists:
         posters:
           - email: Hugues.Lafarge@afp.com
             name: Hugues
+          - email: Hugues.Lafarge@afp.com
+            name: hugues
         subject: parrot compile error
         summary: ~
       - date_from: 1155172401
@@ -1602,6 +1664,8 @@ lists:
         posters:
           - email: mestre.smash@gmail.com
             name: Nuno Carvalho
+          - email: mestre.smash@gmail.com
+            name: nuno carvalho
         subject: PGE grammar test file
         summary: |-
           Nuno Carvalho has been working on tests to evaluate simple
@@ -1673,6 +1737,8 @@ lists:
         posters:
           - email: chromatic@wgz.org
             name: Chromatic
+          - email: chromatic@wgz.org
+            name: chromatic
         subject: Improve Library Path Handling
         summary: |-
           chromatic noted that it is currently possible to change the paths
@@ -1696,8 +1762,10 @@ lists:
         posters:
           - email: jerry.gay@gmail.com
             name: Jerry Gay
+          - email: jerry.gay@gmail.com
+            name: jerry gay
         subject: designing a test suite for multiple implementations (repository thread)
-        summary: ''
+        summary: ~
       - date_from: 1155646636
         date_to: 1155646636
         hidden: ~
@@ -1742,6 +1810,10 @@ lists:
             name: Francois PERRAD
           - email: francois.perrad@gadz.org
             name: =?iso-8859-1?Q?Fran=E7ois?= PERRAD
+          - email: chromatic@wgz.org
+            name: chromatic
+          - email: jerry.gay@gmail.com
+            name: jerry gay
         subject: '[PROPOSED PATCH] Add Parrot::Embed to Repository'
         summary: |-
           chromatic proposed adding Parrot::Embed to the repository, and
@@ -1810,6 +1882,8 @@ lists:
         posters:
           - email: parrotbug-followup@parrotcode.org
             name: Nuno Carvalho
+          - email: mestre.smash@gmail.com
+            name: nuno carvalho
         rt_ticket: 'perl #40160'
         subject: '[perl #40160] [PATCH] PGE simple grammar test file '
         summary: ~
@@ -1941,8 +2015,8 @@ lists:
             name: Patrick R. Michaud
           - email: allison@perl.org
             name: Allison Randal
-          - email: parrotbug-followup@parrotcode.org
-            name: Chip Salzenberg
+          - email: jerry.gay@gmail.com
+            name: jerry gay
         subject: 'Re: [perl #40178] None Must Die'
         summary: ~
       - date_from: 1155844812
@@ -1969,6 +2043,8 @@ lists:
             name: Chromatic
           - email: lt@toetsch.at
             name: Leopold Toetsch
+          - email: chromatic@wgz.org
+            name: chromatic
         subject: '[REPATCH] Parrot::Embed Take Two'
         summary: |-
           chromatic submitted a patch for the build file to try to resolve
@@ -1982,10 +2058,74 @@ lists:
         posters:
           - email: mestre.smash@gmail.com
             name: Nuno Carvalho
+          - email: mestre.smash@gmail.com
+            name: nuno carvalho
         subject: 'Re: [perl #39868] [CAGE] convert C<BEGIN { plan tests => NN; }> to C<use Parrot::Test tests => NN;>'
         summary: |-
           Nuno Carvalho included a patch found in <rt://perl/39868> and noted
           problems that it caused.
+      - date_from: 1153942953
+        date_to: 1156004230
+        hidden: from_july
+        message_id: 44C7C58D.3070606@rblasch.org
+        messages:
+          - 6f9c15f80607261321r5d90a63fge7631caebe5ba7ba@mail.gmail.com
+          - 44C88FB0.3050002@rblasch.org
+          - 20060819161653.GB95088@plum.flirble.org
+        posters:
+          - email: mailing-lists@rblasch.org
+            name: Ron Blaschke
+          - email: bill.coffman@gmail.com
+            name: Bill Coffman
+          - email: nick@ccl4.org
+            name: Nicholas Clark
+        subject: '[perl #38887] Result of INFINITY or NAN stringification is platform dependent'
+        summary: ~
+      - date_from: 1155931080
+        date_to: 1156030275
+        hidden: ~
+        message_id: 200608181257.09827.chromatic@wgz.org
+        messages:
+          - 200608191116.34277.lt@toetsch.at
+          - 33f90540608191526h2701a964w51779823e8690f25@mail.gmail.com
+          - 200608200130.57847.lt@toetsch.at
+        posters:
+          - email: chromatic@wgz.org
+            name: chromatic
+          - email: lt@toetsch.at
+            name: Leopold Toetsch
+          - email: cjcollier@gmail.com
+            name: C.J. Collier
+        subject: 'Mono, Bundles, and Ahead-Of-Time Compilation'
+        summary: |-
+          chromatic linked to a
+          [blog post](http://tirania.org/blog/archive/2006/Aug-17.html) by one of the
+          [Mono](http://www.mono-project.com/) developers, which discussed Ahead-Of-Time
+          Compilation, to speed up startup times, asking what Parrot could take from
+          this.
+          
+          Leopold Toetsch replied that Parrot alrady supports the basic features needed
+          for this, but that are not currently being tested or used, and would probably
+          need to be updated.
+      - date_from: 1155960683
+        date_to: 1155999707
+        hidden: ~
+        message_id: rt-3.5.HEAD-31251-1155960674-228.40200-72-0@perl.org
+        messages:
+          - 200608191701.35404.lt@toetsch.at
+        posters:
+          - email: parrotbug-followup@parrotcode.org
+            name: Chip Salzenberg
+          - email: lt@toetsch.at
+            name: Leopold Toetsch
+        rt_ticket: 'perl #40200'
+        subject: '[perl #40200] t/pmc/threads.t test 16 fails under JIT (parrot -j) '
+        summary: |-
+          In ticket <rt://perl/40200>, Chip Salzenberg reported that since
+          the STM merge, all of the `t/pmc/threads.t` succeed, but one of
+          the tests fails under JIT.  Leopold Toetsch clarified that
+          the problem is not linked to JIT, but happens because two threads
+          change the same global.
     title: Parrot Porters
   - name: perl6-language
     threads:
@@ -2585,8 +2725,10 @@ lists:
             name: Agent Zhang
           - email: gaal@forum2.org
             name: Gaal Yahas
+          - email: jerry.gay@gmail.com
+            name: jerry gay
         subject: designing a test suite for multiple implementations
-        summary: ''
+        summary: ~
       - date_from: 1155353292
         date_to: 1155353292
         hidden: 1
@@ -2747,7 +2889,7 @@ lists:
         subject: '[svn:perl6-synopsis] r11047 - doc/trunk/design/syn'
         summary: ~
       - date_from: 1155774089
-        date_to: 1155887085
+        date_to: 1155952159
         hidden: ~
         message_id: 002a01c6c193$1605a5e0$b6194447@JoeGottman1
         messages:
@@ -2808,7 +2950,7 @@ lists:
           StrPos and StrLen types are defined.  He proposed a `.length` method
           which would return a StrLen.
       - date_from: 1155833680
-        date_to: 1155838073
+        date_to: 1155912655
         hidden: ~
         message_id: CC5841641559A4449EE25CD22EBB9F5A045DF530@ATLMSG04.turner.com
         messages:
@@ -2820,6 +2962,8 @@ lists:
             name: David Green
           - email: larry@wall.org
             name: Larry Wall
+          - email: kaa@nightmail.ru
+            name: Alexey A. Kirithun
         subject: 'Numerification of Order:: constants'
         summary: |-
           Mark Reed quoted a section of S03 and asked if Order::Increase should
@@ -2838,6 +2982,8 @@ lists:
         posters:
           - email: mark.a.biggar@comcast.net
             name: Mark A Biggar
+          - email: mark.a.biggar@comcast.net
+            name: mark.a.biggar
         subject: 'Re: Numerification of Order:: constants'
         summary: ~
       - date_from: 1155854263
@@ -2861,7 +3007,7 @@ lists:
         subject: '[svn:perl6-synopsis] r11113 - doc/trunk/design/syn'
         summary: ~
       - date_from: 1155857989
-        date_to: 1155895000
+        date_to: 1155922007
         hidden: ~
         message_id: 20060817233939.60517CB9BB@x12.develooper.com
         messages:
@@ -2871,11 +3017,14 @@ lists:
             name: larry
           - email: malaire@gmail.com
             name: Markus Laire
+          - email: larry@wall.org
+            name: Larry Wall
         subject: '[svn:perl6-synopsis] r11115 - doc/trunk/design/syn'
         summary: |-
           In response to a commit by Larry Wall, Markus Laire asked if switch
           `-abc` would mean `-a -b -c`.  Larry discussed some of his concerns but
-          thought it should probably be possible.
+          thought it should probably be possible.  Markus Laire understood Larry's
+          point, and further elaborated on his proposal.
       - date_from: 1155858331
         date_to: 1155858331
         hidden: 1
@@ -2884,6 +3033,86 @@ lists:
           - email: larry@cvs.perl.org
             name: larry
         subject: '[svn:perl6-synopsis] r11116 - doc/trunk/design/syn'
+        summary: ~
+      - date_from: 1155913912
+        date_to: 1155913912
+        hidden: commit
+        message_id: 20060818151143.876C8CB9BB@x12.develooper.com
+        posters:
+          - email: audreyt@cvs.perl.org
+            name: audreyt
+        subject: '[svn:perl6-synopsis] r11135 - doc/trunk/design/syn'
+        summary: ~
+      - date_from: 1155916840
+        date_to: 1155916840
+        hidden: commit
+        message_id: 20060818160028.07373CB9BB@x12.develooper.com
+        posters:
+          - email: larry@cvs.perl.org
+            name: larry
+        subject: '[svn:perl6-synopsis] r11136 - doc/trunk/design/syn'
+        summary: ~
+      - date_from: 1155917368
+        date_to: 1155917368
+        hidden: commit
+        message_id: 20060818160922.28A20CB9BB@x12.develooper.com
+        posters:
+          - email: larry@cvs.perl.org
+            name: larry
+        subject: '[svn:perl6-synopsis] r11137 - doc/trunk/design/syn'
+        summary: ~
+      - date_from: 1155938261
+        date_to: 1156001950
+        hidden: ~
+        message_id: 20060818215820.GE1167@ifa.hawaii.edu
+        messages:
+          - 20060818232244.GA3239@wall.org
+          - 49b351060608181823m14bc7b39v1b7c70be1a24519b@mail.gmail.com
+          - 20060819015857.GG20021@aaroncrane.co.uk
+          - 7ca3f0160608181926w32f9d4a4y38d8c87035ac4828@mail.gmail.com
+          - 20060819144214.GC64697@plum.flirble.org
+          - 20060819151427.30074.qmail@lists.develooper.com
+          - 20060819163337.5a219b11@mekanori.mon.istic.org
+        posters:
+          - email: jhoblitt@ifa.hawaii.edu
+            name: Joshua Hoblitt
+          - email: larry@wall.org
+            name: Larry Wall
+          - email: scook0@gmail.com
+            name: Stuart Cook
+          - email: perl@aaroncrane.co.uk
+            name: Aaron Crane
+          - email: lrpalmer@gmail.com
+            name: Luke Palmer
+          - email: nick@ccl4.org
+            name: Nicholas Clark
+          - email: rvtol+news@isolution.nl
+            name: Dr.Ruud
+          - email: masoch@istic.org
+            name: Daniel Hulme
+        subject: 'multi-line comments, C macros, & Pod abuse'
+        summary: |-
+          Joshua Hoblitt asked how the `#if 0` C preprocessor idiom could be converted to
+          Perl. He asked if there was going to be a better approach than using POD hacks.
+          Soe of the suggested approaches were to use multiline block comments, constant
+          folded if statements, and quote operations with balanced, arbitrary delimiters.
+      - date_from: 1155943644
+        date_to: 1155943644
+        hidden: commit
+        message_id: 20060818232717.BF653CB9BB@x12.develooper.com
+        posters:
+          - email: larry@cvs.perl.org
+            name: larry
+        subject: '[svn:perl6-synopsis] r11154 - doc/trunk/design/syn'
+        summary: ~
+      - date_from: 1155949036
+        date_to: 1155949036
+        hidden: commit
+        message_id: 20060819005709.CFFEBCB9BB@x12.develooper.com
+        posters:
+          - email: larry@cvs.perl.org
+            name: larry
+        subject: '[svn:perl6-synopsis] r11155 - doc/trunk/design/syn'
         summary: ~
     title: Language
   - name: perl6-users
@@ -2934,7 +3163,11 @@ lists:
             name: Chromatic
           - email: nick@ccl4.org
             name: Nicholas Clark
+          - email: jerry.gay@gmail.com
+            name: jerry gay
+          - email: chromatic@wgz.org
+            name: chromatic
         subject: designing a test suite for multiple implementations (tools thread)
-        summary: ''
+        summary: ~
     title: Compiler
 title: 'Perl 6 mailing list summary for the month of August, 2006'
