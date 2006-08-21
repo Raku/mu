@@ -31,6 +31,7 @@ sub pmc_parse_blocks {
 
 sub pmc_filter {
     my ($class, $module, $line_number, $post_process) = @_;
+    print "Filter: [$module]\n";
     $class->SUPER::pmc_filter($module, 0, $post_process);
 }
 
@@ -114,6 +115,44 @@ if (@ARGV and !caller) {
     }
 
     if (@ARGV and $ARGV[0] =~ s/^-e//) {
+        $code = (length($ARGV[0]) ? $ARGV[0] : $ARGV[1]);
+    }
+    else {
+        local $/;
+        $code = <>;
+    }
+
+    if ($compile_only) {
+        print __PACKAGE__->pmc_compile($code);
+    }
+    else {
+        local $@;
+        eval __PACKAGE__->pmc_compile($code);
+        die $@ if $@;
+        exit 0;
+    }
+}
+elsif ( @ARGV ) {
+    # perl -Ilib -e 'use v6-alpha' ' "hello world".say '
+    my ($compile_only, $code);
+
+    # XXX - this doesn't work
+    if ($ARGV[0] eq '--compile-only') {
+        shift(@ARGV);
+        $compile_only++;
+    }
+
+    shift(@ARGV) if $ARGV[0] =~ /^--pugs/;
+    shift(@ARGV) if $ARGV[0] =~ /^-Bperl5$/i;
+    splice(@ARGV, 0, 2) if $ARGV[0] =~ /^-B$/;
+
+    while (@ARGV and $ARGV[0] =~ /^-(\w)(.+)/) {
+        use Config;
+        $ENV{PERL6LIB} = "$2$Config{path_sep}$ENV{PERL6LIB}" if $1 eq 'I';
+        shift @ARGV;
+    }
+
+    if (@ARGV) {  # and $ARGV[0] =~ s/^-e//) {
         $code = (length($ARGV[0]) ? $ARGV[0] : $ARGV[1]);
     }
     else {
