@@ -164,13 +164,16 @@ currentFunctions = do
     return (length funs `seq` funs)
 
 {-# NOINLINE _RefToFunction #-}
-_RefToFunction :: L.IntMap Int CurrentFunction
+_RefToFunction :: L.IntMap (TVar VRef) CurrentFunction
 _RefToFunction = unsafePerformIO C.new
+
+instance Enum (TVar VRef) where
+    toEnum = unsafeCoerce#
+    fromEnum = unsafeCoerce#
 
 filterFun :: Var -> TVar VRef -> STM (Maybe CurrentFunction)
 filterFun var tvar = do
-    let key = unsafeCoerce# tvar
-    res <- unsafeIOToSTM (C.lookup key _RefToFunction)
+    res <- unsafeIOToSTM (C.lookup tvar _RefToFunction)
     case res of
         Just rv -> return (rv `seq` res)
         Nothing -> do
@@ -179,13 +182,13 @@ filterFun var tvar = do
                 MkRef (ICode cv)
                     | relevantToParsing (code_type cv) (code_assoc cv) -> do
                         let rv = MkCurrentFunction var (code_assoc cv) (code_params cv)
-                        unsafeIOToSTM (C.insert key rv _RefToFunction)
+                        unsafeIOToSTM (C.insert tvar rv _RefToFunction)
                         return (rv `seq` Just rv)
                 MkRef (IScalar sv)
                     | Just (VCode cv) <- scalar_const sv
                     , relevantToParsing (code_type cv) (code_assoc cv) -> do
                         let rv = MkCurrentFunction var (code_assoc cv) (code_params cv)
-                        unsafeIOToSTM (C.insert key rv _RefToFunction)
+                        unsafeIOToSTM (C.insert tvar rv _RefToFunction)
                         return (rv `seq` Just rv)
                 _ -> return Nothing
 
