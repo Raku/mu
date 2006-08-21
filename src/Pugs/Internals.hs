@@ -254,12 +254,15 @@ afterPrefix (p:ps) (x:xs)
    | otherwise = Nothing
 
 encodeUTF8 :: String -> String
-encodeUTF8 str = length str `seq` map (chr . fromEnum) (encode str)
+encodeUTF8 str = length res `seq` res
+    where
+    res = map (chr . fromEnum) (encode str)
 
 decodeUTF8 :: String -> String
-decodeUTF8 str = length str `seq` fst (decode bytes)
+decodeUTF8 str = length res `seq` res
     where
     bytes = map (toEnum . ord) str
+    res   = fst (decode bytes)
 
 {-|
 Take a list of values, and a monad-producing function, and apply that function
