@@ -14,7 +14,7 @@ import Foreign.Ptr
 import Control.Monad.Reader
 import qualified Data.ByteString.Char8 as Buf
 import qualified Data.ByteString as Bytes
-import UTF8
+import Pugs.Internals (encodeUTF8, decodeUTF8)
 
 type Buf = Buf.ByteString
 
@@ -113,8 +113,8 @@ instance YAML Buf where
     fromYAMLElem e = failWith e
 
 instance YAML String where
-    asYAML = return .  mkTagNode "str" . EStr . Bytes.pack . encode
-    fromYAMLElem (EStr str) = return . fst . decode $ Bytes.unpack str
+    asYAML = return .  mkTagNode "str" . EStr . Buf.pack . encodeUTF8
+    fromYAMLElem (EStr str) = return . decodeUTF8 $ Buf.unpack str
     fromYAMLElem e = failWith e
 
 instance YAML Bool where

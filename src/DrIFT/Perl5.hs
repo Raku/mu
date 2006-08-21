@@ -6,7 +6,7 @@ import Data.List (intersperse)
 import Data.Char (chr)
 import qualified Data.ByteString.Char8 as Buf
 import GHC.Exts
-import UTF8
+import Pugs.Internals (encodeUTF8)
 
 type Perl5Class = String
 type Perl5Key = String
@@ -55,7 +55,6 @@ instance Perl5 String where
         escape '@'  = "\\@"
         escape '%'  = "\\%"
         escape x    = x:""
-        encodeUTF8 = map (chr . fromEnum) . encode
 
 instance Perl5 Bool where
     showPerl5 True = "1"

@@ -73,9 +73,6 @@ under a BSD-style license.  See src/RRegex/LICENSE.
 The "Rule" subsystem is derived from Parsec 2.0 by Daan Leijen,
 under a BSD-style license.  See src/Pugs/Rule/LICENSE.
 
-The "UTF8" subsystem is derived from Sven Moritz Hallberg's work,
-under a BSD-style license.  See src/UTF8.lhs.
-
 
 COPYRIGHTED PERL 6 LIBRARY EXTENSIONS
 -------------------------------------

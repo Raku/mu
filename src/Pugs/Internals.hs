@@ -57,7 +57,6 @@ module Pugs.Internals (
     module System.Process,
     module System.Random,
     module System.Time,
-    module UTF8,
     (:>:)(..),
     (:<:)(..),
     internalError,
@@ -86,7 +85,6 @@ module Pugs.Internals (
     __, (+++), nullID,
 ) where
 
-import UTF8
 import Pugs.Compat
 import RRegex
 import RRegex.Syntax
@@ -253,16 +251,88 @@ afterPrefix (p:ps) (x:xs)
    | p == x = afterPrefix ps xs
    | otherwise = Nothing
 
-encodeUTF8 :: String -> String
-encodeUTF8 str = length res `seq` res
-    where
-    res = map (chr . fromEnum) (encode str)
-
+{-# INLINE decodeUTF8 #-}
 decodeUTF8 :: String -> String
-decodeUTF8 str = length res `seq` res
-    where
-    bytes = map (toEnum . ord) str
-    res   = fst (decode bytes)
+decodeUTF8 [] = []
+decodeUTF8 (c:cs)
+    | c < '\x80'
+    = let rest = decodeUTF8 cs
+       in seq rest
+          (c:rest)
+decodeUTF8 (c:d:cs)
+    | '\xC0' <= c, c <= '\xDF'
+    , '\x80' <= d, d <= '\xBF'
+    = let rest = decodeUTF8 cs
+       in seq rest
+          ( toEnum ( (fromEnum c `mod` 0x20) * 0x40
+                   + fromEnum d `mod` 0x40
+                   )
+          : rest
+          )
+decodeUTF8 (c:d:e:cs)
+    | '\xE0' <= c, c <= '\xEF'
+    , '\x80' <= d, d <= '\xBF'
+    , '\x80' <= e, e <= '\xBF'
+    = let rest = decodeUTF8 cs
+       in seq rest
+          ( toEnum ( (fromEnum c `mod` 0x10 * 0x1000)
+                   + (fromEnum d `mod` 0x40) * 0x40
+                   + fromEnum e `mod` 0x40
+                   )
+          : rest
+          )
+decodeUTF8 (c:d:e:f:cs)
+    | '\xF0' <= c, c <= '\xF7'
+    , '\x80' <= d, d <= '\xBF'
+    , '\x80' <= e, e <= '\xBF'
+    , '\x80' <= f, f <= '\xBF'
+    = let rest = decodeUTF8 cs
+       in seq rest
+          ( toEnum ( (fromEnum c `mod` 0x10 * 0x40000)
+                   + (fromEnum d `mod` 0x40) * 0x1000
+                   + (fromEnum e `mod` 0x40) * 0x40
+                   + fromEnum f `mod` 0x40
+                   )
+          : rest
+          )
+decodeUTF8 _ = error "UniChar.decodeUTF8: bad data"
+
+{-# INLINE encodeUTF8 #-}
+encodeUTF8 :: String -> String
+encodeUTF8 [] = []
+encodeUTF8 (c:cs)
+    | c < '\x80'
+    = let rest = encodeUTF8 cs
+       in seq rest
+          (c:rest)
+    | c < '\x800'
+    = let i     = fromEnum c
+          rest  = encodeUTF8 cs
+       in seq rest
+          ( toEnum (0xC0 + i `div` 0x40)
+          : toEnum (0x80 + i `mod` 0x40)
+          : rest
+          )
+    | c < '\x10000'
+    = let i     = fromEnum c
+          rest  = encodeUTF8 cs
+       in seq rest
+          ( toEnum (0xE0 + i `div` 0x1000)
+          : toEnum (0x80 + (i `div` 0x40) `mod` 0x40)
+          : toEnum (0x80 + i `mod` 0x40)
+          : rest
+          )
+    | otherwise
+    = let i     = fromEnum c
+          rest  = encodeUTF8 cs
+       in seq rest
+          ( toEnum (0xF0 + i `div` 0x40000)
+          : toEnum (0x80 + (i `div` 0x1000) `mod` 0x40)
+          : toEnum (0x80 + (i `div` 0x40) `mod` 0x40)
+          : toEnum (0x80 + i `mod` 0x40)
+          : rest
+          )
+
 
 {-|
 Take a list of values, and a monad-producing function, and apply that function
