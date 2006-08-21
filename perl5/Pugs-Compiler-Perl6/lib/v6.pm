@@ -216,6 +216,25 @@ If you see the error below, it may happen that your perl was compiled without PM
 
 Please see L<http://rt.cpan.org/Public/Bug/Display.html?id=20152>
 
+=head1 ENVIRONMENT VARIABLES
+
+* PERL6LIB
+
+Same usage as PERL5LIB - sets the search path for Perl 6 modules.
+
+* V6DUMPAST
+
+If set, the compiler will dump the syntax tree to C<STDOUT> just before emitting code, using C<Data::Dumper>.
+
+=head1 COMMAND LINE SWITCHES
+
+* --compile-only
+
+When using v6.pm from the command line, dumps the emitted code
+to C<STDOUT> and then exit:
+
+    $ perl -Ilib lib/v6.pm --compile-only -e '<hello>.say;'
+
 =head1 AUTHORS
 
 The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
