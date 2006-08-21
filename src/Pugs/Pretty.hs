@@ -151,7 +151,7 @@ instance Pretty Val where
 -}
     format (VRef x) = format x
     format (VList x) = format x
-    format (VCode x) = text . (++ "{...}") $ case subType x of
+    format (VCode x) = (<> braces (format $ subBody x)) . text $ case subType x of
         SubMacro        -> "macro "
         SubRoutine      -> "sub "
         SubMethod       -> "method "
