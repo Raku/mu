@@ -48,16 +48,18 @@ if $*OS eq any(<MSWin32 mingw msys cygwin>) {
 # $! instead of this yucky workaround
 for @files -> $ex is rw {
 
-    if $*OS eq any(<MSWin32 mingw msys cygwin>) {
-        $ex ~~ s:g:P5/\\/\//;
-    }
-    my $cmd = "$pugs -c $ex";
-    my $out = `$cmd`;
+    try {
+        if $*OS eq any(<MSWin32 mingw msys cygwin>) {
+            $ex ~~ s:g:P5/\\/\//;
+        }
+        my $cmd = "$pugs -c $ex";
+        my $out = `$cmd`;
 
-    if $out ~~ m:P5/syntax OK\s*$/ {
-        is 'parse passed', 'parse passed', "$ex parsed correctly";
-    }
-    else {
-        is 'parse failed', 'parse passed', "$ex fails to parse correctly";
+        if $out ~~ m:P5/syntax OK\s*$/ {
+            is 'parse passed', 'parse passed', "$ex parsed correctly";
+        }
+        else {
+            is 'parse failed', 'parse passed', "$ex fails to parse correctly";
+        }
     }
 }
