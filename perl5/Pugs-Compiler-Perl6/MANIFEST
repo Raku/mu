@@ -138,8 +138,8 @@ t/packages/lexical_pragmas.t
 t/packages/scope.t
 t/perl5/return.t
 
-t/statements/array_values_in_bool_context.t
-t/statements/exit_in_begin.t
+# t/statements/array_values_in_bool_context.t
+# t/statements/exit_in_begin.t
 t/statements/for_with_only_one_item.t
 t/statements/last.t
 t/statements/return_from_inner_block.t
@@ -165,8 +165,8 @@ t/var/constant.t
 t/var/passing_the_pair_class_to_a_sub.t
 
 t/xx-uncategorized/cast_undef_shortcircuit.t
-t/xx-uncategorized/class_inheritance_become_infinite_loop.t
-t/xx-uncategorized/class_name_and_attribute_name_confliction.t
+# t/xx-uncategorized/class_inheritance_become_infinite_loop.t
+# t/xx-uncategorized/class_name_and_attribute_name_confliction.t
 t/xx-uncategorized/is_copy_ne_is_rw.t
 t/xx-uncategorized/named_2_positional.t
 t/xx-uncategorized/optional_copy.t
