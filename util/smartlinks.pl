@@ -29,6 +29,9 @@ my %Spec = reverse qw(
 
 sub add_link ($$$$$$$)  {
     my ($links, $synopsis, $section, $pattern, $t_file, $from, $to) = @_;
+    if ($from == $to) {
+        warn "WARNING: empty snippet detected at $t_file (line $from ~ $to).\n";
+    }
     $links->{$synopsis} ||= {};
     $links->{$synopsis}->{$section} ||= [];
     if ($pattern and substr($pattern, -1, 1) eq '/') { $pattern = "/$pattern"; }
