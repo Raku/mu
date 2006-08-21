@@ -8,20 +8,21 @@ import Pugs.Lexer
 import Pugs.Rule
 import {-# SOURCE #-} Pugs.Parser
 import qualified Data.Set as Set
-import qualified Data.HashTable as Hash
 import qualified Data.ByteString.Char8 as Str
+import qualified Judy.IntMap as L
+import qualified Judy.CollectionsM as C
 
 import Pugs.Parser.Types
 import Pugs.Parser.Unsafe
 
 listCons :: [RuleOperator Exp]
-listCons = listSyn (_words ",")                         -- List constructor
+listCons = listSyn (opWords ",")                         -- List constructor
 
 listInfix :: [RuleOperator Exp]
-listInfix = listOps (_words "Y \xA5 ==> <==")  -- List infix
+listInfix = listOps (opWords "Y \xA5 ==> <==")  -- List infix
 
-_words :: String -> Set OpName
-_words xs = Set.fromList (map (MkOpName . cast) (words xs))
+opWords :: String -> Set OpName
+opWords xs = Set.fromList (map (MkOpName . cast) (words xs))
 
 newtype OpName = MkOpName ID
     deriving (Show, Eq, Typeable, (:>:) String, (:>:) ByteString, (:<:) ByteString)
@@ -36,42 +37,64 @@ tightOperators :: RuleParser (Set OpName, RuleOperatorTable Exp)
 tightOperators = do
   tights <- currentTightFunctions
   return $ (,) (r_term tights)
-    [ circumOps (Set.singleton (MkOpName (cast "\\( )")))
-    , methOps   (_words " . .+ .? .* .+ .() .[] .{} .<<>> .= ")  -- Method postfix
-    , postOps   (_words " ++ -- ")
-      ++ preOps (_words " ++ -- ")                               -- Auto-Increment
-    , rightOps  (_words " ** ")                                  -- Exponentiation
-    , optPreSyn (_words " * ")                                   -- Symbolic Unary
-      ++ preOps (_words " = ! + - ~ ? +^ ~^ ?^ \\ ^")
-      ++ preSymOps (r_pre tights)
-      ++ postOps (r_post tights)
-    , leftOps   (_words " * / % x xx +& +< +> ~& ~< ~> ")        -- Multiplicative
-    , leftOps   (_words " + - ~ +| +^ ~| ~^ ?| ")                -- Additive
-      ++ leftOps (r_infix tights)                      -- User defined ops
-    , listOps   (_words " & ")                                   -- Junctive And
-    , listOps   (_words " ^ | ")                                 -- Junctive Or
-    , optOps (r_opt tights)                            -- Named Unary
-      ++ preOps (r_named tights Set.\\ _words " true not ")
-      ++ optSymOps (Set.fromAscList (map (MkOpName . cast . (\x -> ['-', x])) fileTestOperatorNames))
-    , noneSyn   (_words " but does ")                            -- Traits
-      ++ noneOps (_words " leg cmp <=> .. ^.. ..^ ^..^ till ^till till^ ")  -- Non-chaining Binary
-      ++ postOps (_words "...")                                 -- Infinite range
-    , chainOps (_words " != == < <= > >= ~~ eqv eq ne lt le gt ge =:= === ")
+    ( termLevel                     -- Terms and circumfixes
+    : methLevel                     -- Method postfix
+    : incrLevel                     -- Auto-Increment
+    : expoLevel                     -- Exponentiation
+    : (preSymOps (r_pre tights)     -- Symbolic Unary (user-definable)
+        ++ postOps (r_post tights)
+        ++ symbLevel)
+    : multLevel                     -- Multiplicative
+    : (leftOps (r_infix tights)     -- Additive (user-definable)
+        ++ addiLevel
+      )
+    : junaLevel                     -- Junctive And
+    : junoLevel                     -- Junctive Or
+    : (optOps (r_opt tights)        -- Named Unary (user-definable)
+      ++ preOps (r_named tights Set.\\ opWords " true not ")
+      ++ fileTestOps
+      )
+    : staticLevels
+    )
+
+termLevel, methLevel, incrLevel, expoLevel, symbLevel, multLevel, addiLevel, junaLevel, junoLevel :: [RuleOperator Exp]
+termLevel = circumOps (Set.singleton (MkOpName (cast "\\( )")))
+methLevel = methOps (opWords " . .+ .? .* .+ .() .[] .{} .<<>> .= ")
+incrLevel = postOps (opWords " ++ -- ")
+            ++ preOps (opWords " ++ -- ")                               
+expoLevel = rightOps (opWords " ** ")
+symbLevel = optPreSyn (opWords " * ") ++ preOps (opWords " = ! + - ~ ? +^ ~^ ?^ \\ ^")
+multLevel = leftOps (opWords " * / % x xx +& +< +> ~& ~< ~> ")
+addiLevel = leftOps (opWords " + - ~ +| +^ ~| ~^ ?| ")
+junaLevel = listOps (opWords " & ")
+junoLevel = listOps (opWords " ^ | ")
+
+-- The lower levels of immutable ops.  This will be replaced once we have
+-- user-defineable precedences.
+staticLevels :: [[RuleOperator Exp]]
+staticLevels =
+    [ noneSyn   (opWords " but does ")                            -- Traits
+      ++ noneOps (opWords " leg cmp <=> .. ^.. ..^ ^..^ till ^till till^ ")  -- Non-chaining Binary
+      ++ postOps (opWords "...")                                 -- Infinite range
+    , chainOps (opWords " != == < <= > >= ~~ eqv eq ne lt le gt ge =:= === ")
                                                                 -- Chained Binary
-    , leftOps  (_words "&&")                                    -- Tight And
-    , leftOps  (_words " || ^^ // ")                            -- Tight Or
+    , leftOps  (opWords "&&")                                    -- Tight And
+    , leftOps  (opWords " || ^^ // ")                            -- Tight Or
     , [ternOp "??" "!!" "if"]                                   -- Ternary
     -- Assignment
-    , (rightOps (_words " => ") ++) .                           -- Pair constructor
+    , (rightOps (opWords " => ") ++) .                           -- Pair constructor
       (DependentPostfix listAssignment :) .
       (DependentPostfix immediateBinding :) .
       (rightAssignSyn :) .
       (rightDotAssignSyn :) $
-      rightSyn (_words (
+      rightSyn (opWords (
                " := ~= += -= *= /= %= x= Y= \xA5= **= xx= ||= &&= //= ^^= " ++
                " +<= +>= ~<= ~>= +&= +|= +^= ~&= ~|= ~^= ?|= ?^= |= ^= &= "))
-    , preOps (_words " true not ")                              -- Loose unary
+    , preOps (opWords " true not ")                              -- Loose unary
     ]
+
+fileTestOps :: [RuleOperator Exp]
+fileTestOps = optSymOps (Set.fromAscList (map (MkOpName . cast . (\x -> ['-', x])) fileTestOperatorNames))
 
 fromSet :: Set OpName -> [String]
 fromSet = cast . Set.toAscList
@@ -112,9 +135,9 @@ looseOperators = do
     -- names <- currentListFunctions
     return $
         [ -- preOps names                               -- List Operator
-          leftOps  (_words " ==> ")                     -- Pipe Forward
-        , leftOps  (_words " and ")                     -- Loose And
-        , leftOps  (_words " or xor err ")              -- Loose Or
+          leftOps  (opWords " ==> ")                     -- Pipe Forward
+        , leftOps  (opWords " and ")                     -- Loose And
+        , leftOps  (opWords " or xor err ")              -- Loose Or
         ]
 
 data CurrentFunction = MkCurrentFunction
@@ -141,13 +164,13 @@ currentFunctions = do
     return (length funs `seq` funs)
 
 {-# NOINLINE _RefToFunction #-}
-_RefToFunction :: Hash.HashTable Int CurrentFunction
-_RefToFunction = unsafePerformIO (Hash.new (==) Hash.hashInt)
+_RefToFunction :: L.IntMap Int CurrentFunction
+_RefToFunction = unsafePerformIO C.new
 
 filterFun :: Var -> TVar VRef -> STM (Maybe CurrentFunction)
 filterFun var tvar = do
     let key = unsafeCoerce# tvar
-    res <- unsafeIOToSTM (Hash.lookup _RefToFunction key)
+    res <- unsafeIOToSTM (C.lookup key _RefToFunction)
     case res of
         Just rv -> return (rv `seq` res)
         Nothing -> do
@@ -156,13 +179,13 @@ filterFun var tvar = do
                 MkRef (ICode cv)
                     | relevantToParsing (code_type cv) (code_assoc cv) -> do
                         let rv = MkCurrentFunction var (code_assoc cv) (code_params cv)
-                        unsafeIOToSTM (Hash.insert _RefToFunction key rv)
+                        unsafeIOToSTM (C.insert key rv _RefToFunction)
                         return (rv `seq` Just rv)
                 MkRef (IScalar sv)
                     | Just (VCode cv) <- scalar_const sv
                     , relevantToParsing (code_type cv) (code_assoc cv) -> do
                         let rv = MkCurrentFunction var (code_assoc cv) (code_params cv)
-                        unsafeIOToSTM (Hash.insert _RefToFunction key rv)
+                        unsafeIOToSTM (C.insert key rv _RefToFunction)
                         return (rv `seq` Just rv)
                 _ -> return Nothing
 
@@ -663,7 +686,7 @@ ruleFoldOp = verbatimRule "reduce metaoperator" $ try $ do
     return $ "&prefix:[" ++ keep ++ name ++ "]" ++ possiblyHyper
     where
     -- XXX !~~ needs to turn into metaop plus ~~
-    defaultInfixOps = _words $ concat
+    defaultInfixOps = opWords $ concat
         [ " ** * / % x xx +& +< +> ~& ~< ~> "
         , " + - ~ +| +^ ~| ~^ ?| , Y \xA5 "
         , " & ^ | "
