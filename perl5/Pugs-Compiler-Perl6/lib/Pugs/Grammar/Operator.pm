@@ -95,7 +95,16 @@ sub recompile {
         my $p;
         $p = $operator->emit_grammar_perl5;
         #print $p;
-        eval $p;
+        # $p contains 'Pugs::Grammar::Operator::new()'
+        # which calls 'Parse::Yapp::Driver::new()'
+
+        # *** cache initialization data to a global var
+        #print substr( $p, length($p)-1000 );
+        my ( $start, $data, $tail ) = $p =~ /^(.*?) ( yyversion .* \] ) (.*?)$/xs;
+        #print "$start \%yapp_data $tail";
+        our %yapp_data = eval $data;
+        eval $start . '%yapp_data' . $tail;
+        #eval $p;   
         #warn 'compiled grammar';
     }
 }

@@ -36,6 +36,7 @@ my $rx_end_no_blocks = qr/
             /xs;
 
 # this is not thread-safe, but it saves time in Parse::Yapp 
+# XXX - this optimization is no longer needed, as the optimization in Grammar::Operator worked best
 our ( $p, $match, $pos, $rx_end, $allow_modifier, $statement_modifier );
 our ( $reentrant, $last_reentrant ) = (0,0);
 

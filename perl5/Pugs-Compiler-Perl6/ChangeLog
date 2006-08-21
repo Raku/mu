@@ -1,13 +1,16 @@
-- fixed scientific notation
 - implemented given/when/default/break/continue
 - state variables
-- fixed '{}' (empty hash)
 - implemented additional Array and Hash methods
 - $?PUGS_BACKEND returns 'BACKEND_PERL5'
 - implemented @*INC, $?OS, $?COMPILER, $?VERSION
+- implemented statement terminator block
 
+- fixed scientific notation
+- fixed '{}' (empty hash)
 - %hash = ( { a => 1 }, { b => 2 } ) works
 - 'my' works inside '//' and 'err'
+- optimized match object insideout in Pugs::Compiler::Rule
+- optimized operator-precedence parser initialization
 
 0.013  2006-08-09
 
