@@ -73,10 +73,6 @@ under a BSD-style license.  See src/RRegex/LICENSE.
 The "Rule" subsystem is derived from Parsec 2.0 by Daan Leijen,
 under a BSD-style license.  See src/Pugs/Rule/LICENSE.
 
-The "TextRegexLazy" subsystem is derived from Christopher Kuklewic's
-work, under a BSD-style license, except for Text.Regex.Lazy.DFAEngine,
-which is under LGPL.  See third-party/TextRegexLazy/Text/Regex/Lazy/LICENSE.
-
 The "UTF8" subsystem is derived from Sven Moritz Hallberg's work,
 under a BSD-style license.  See src/UTF8.lhs.
 
