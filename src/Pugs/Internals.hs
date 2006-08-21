@@ -300,6 +300,14 @@ decodeUTF8 _ = error "UniChar.decodeUTF8: bad data"
 {-# INLINE encodeUTF8 #-}
 encodeUTF8 :: String -> String
 encodeUTF8 [] = []
+-- In the \0 case, we diverge from the Unicode standard to remove any trace
+-- of embedded nulls in our bytestrings, to allow the use of Judy.StrMap
+-- and to make passing CString around easier.  See Java for the same treatment:
+-- http://java.sun.com/j2se/1.5.0/docs/api/java/io/DataInput.html#modified-utf-8
+encodeUTF8 ('\0':cs)
+    = let rest = encodeUTF8 cs
+       in seq rest
+          ('\xC0':'\x80':rest)
 encodeUTF8 (c:cs)
     | c < '\x80'
     = let rest = encodeUTF8 cs
