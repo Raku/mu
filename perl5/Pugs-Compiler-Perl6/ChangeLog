@@ -1,3 +1,7 @@
+0.014  2006-08-21
+
+- optimized CPU usage (2x less) and RAM usage (3x less)
+
 - implemented given/when/default/break/continue
 - state variables
 - implemented additional Array and Hash methods
@@ -10,7 +14,7 @@
 - %hash = ( { a => 1 }, { b => 2 } ) works
 - 'my' works inside '//' and 'err'
 - optimized match object insideout in Pugs::Compiler::Rule
-- optimized operator-precedence parser initialization
+- optimized operator-precedence parser (Parse::Yapp) initialization
 
 0.013  2006-08-09
 
