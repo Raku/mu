@@ -650,14 +650,14 @@ is more or less equivalent to
 
     <foo(/bar/)>
 
-To pass a regex with leading whitespace you must use the parenthsized form.
+To pass a regex with leading whitespace you must use the parenthesized form.
 
 If the first character is a colon, the rest of the text (following any
 whitespace) is passed as a string, so the previous may also be written as:
 
     <foo: bar>
 
-To pass a string with leading whitespace you must use the parenthsized form.
+To pass a string with leading whitespace you must use the parenthesized form.
 
 If the first character is a plus or minus, the initial identifier is taken
 as a character class, so
