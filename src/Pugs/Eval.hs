@@ -747,9 +747,16 @@ reduceSyn "rx" [exp, adverbs] = do
         Just v  -> fromVal v
         Nothing -> fromAdverb hv ks
 
-reduceSyn "//" exps = reduce (Syn "rx" exps)
+reduceSyn "//" exps = reduceSyn "match" exps -- XXX - this is wrong
 
-reduceSyn "match" exps = reduce (Syn "rx" exps) -- XXX - this is wrong
+reduceSyn "match" exps = do
+    env <- ask
+    let cls = envClasses env
+        cxt = envContext env
+        typ = typeOfCxt cxt
+    if isaType cls "Bool" typ
+        then reduceApp (_Var "&infix:~~") Nothing [_Var "$_", Syn "rx" exps]
+        else reduceSyn "rx" exps
 
 reduceSyn "subst" [exp, subst, adverbs] = do
     (VRule rx)  <- reduce (Syn "rx" [exp, adverbs])
