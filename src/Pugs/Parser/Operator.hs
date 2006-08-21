@@ -65,7 +65,7 @@ incrLevel = postOps (opWords " ++ -- ")
             ++ preOps (opWords " ++ -- ")                               
 expoLevel = rightOps (opWords " ** ")
 symbLevel = optPreSyn (opWords " * ") ++ preOps (opWords " = ! + - ~ ? +^ ~^ ?^ \\ ^")
-multLevel = leftOps (opWords " * / % x xx +& +< +> ~& ~< ~> ")
+multLevel = leftOps (opWords " * / % x xx +& +< +> ~& ~< ~> ?& ")
 addiLevel = leftOps (opWords " + - ~ +| +^ ~| ~^ ?| ")
 junaLevel = listOps (opWords " & ")
 junoLevel = listOps (opWords " ^ | ")
@@ -75,7 +75,7 @@ junoLevel = listOps (opWords " ^ | ")
 staticLevels :: [[RuleOperator Exp]]
 staticLevels =
     [ noneSyn   (opWords " but does ")                            -- Traits
-      ++ noneOps (opWords " leg cmp <=> .. ^.. ..^ ^..^ till ^till till^ ")  -- Non-chaining Binary
+      ++ noneOps (opWords " leg cmp <=> .. ^.. ..^ ^..^ ff ^ff ff^ ^ff^ fff ^fff fff^ ^fff^ ")  -- Non-chaining Binary
       ++ postOps (opWords "...")                                 -- Infinite range
     , chainOps (opWords " != == < <= > >= ~~ eqv eq ne lt le gt ge =:= === ")
                                                                 -- Chained Binary

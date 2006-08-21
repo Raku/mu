@@ -901,6 +901,7 @@ op2 "+|" = op2Int (.|.)
 op2 "+^" = op2Int xor
 op2 "~|" = op2Str $ mapStr2Fill (.|.)
 op2 "?|" = op2Bool (||)
+op2 "?&" = op2Bool (&&)
 op2 "~^" = op2Str $ mapStr2Fill xor
 op2 "=>" = \x y -> return $ castV (x, y)
 op2 "="  = \x y -> evalExp (Syn "=" [Val x, Val y])
@@ -1885,7 +1886,8 @@ initSyms = liftM2 (++) (mapM (primDecl False) syms) (mapM (primDecl True) symsCi
 \\n   Int       left    +^      safe   (Int, Int)\
 \\n   Str       left    ~|      safe   (Str, Str)\
 \\n   Str       left    ~^      safe   (Str, Str)\
-\\n   Str       left    ?|      safe   (Str, Str)\
+\\n   Bool      left    ?|      safe   (Bool, Bool)\
+\\n   Bool      left    ?&      safe   (Bool, Bool)\
 \\n   Pair      right   =>      safe   (Any, Any)\
 \\n   Int       non     cmp     safe   (Str, Str)\
 \\n   Int       non     leg     safe   (Str, Str)\
