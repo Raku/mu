@@ -38,7 +38,7 @@ sub add_link ($$$$$$$)  {
 }
 
 sub error {
-    warn "ERROR: @_\n";
+    if ($check) { warn "ERROR: @_\n"; }
 }
 
 sub process_t_file ($$) {
@@ -382,7 +382,7 @@ sub process_syn ($$$$) {
             if (!$matched) {
                 my ($file, $lineno) = @$location;
                 $lineno--;
-                error("$file: line $lineno: pattern <$pattern> failed to match any",
+                error("$file: line $lineno: pattern ``$pattern'' failed to match any",
                     "paragraph in L<S${syn_id}/${section}>.");
                 $broken_count++;
             }
@@ -458,9 +458,10 @@ sub main {
     for my $syn (@syns) {
         process_syn($syn, $out_dir, $cssfile, $links);
     }
-    warn "info: for total $count smartlinks found.\n";
-    warn "info: $broken_count smartlinks broken.\n";
-    exit if $check;
+    warn "info: $count smartlinks found and $broken_count broken.\n";
+    if (!$check) {
+        warn "hint: use the --check option for details on broken smartlinks.\n";
+    }
     exit;
 }
 
