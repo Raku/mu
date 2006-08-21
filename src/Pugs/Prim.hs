@@ -456,14 +456,16 @@ op1 "IO::Dir::readdir" = \v -> do
 op1 "Pugs::Internals::runShellCommand" = \v -> do
     str <- fromVal v
     cxt <- asks envContext
-    guardIO $ do
+    (res, exitCode) <- guardIO $ do
         (inp,out,_,pid) <- runInteractiveCommand str
         hClose inp
-        res <- hGetContents out
-        waitForProcess pid
-        return $ case cxt of
-            CxtSlurpy{} -> VList (map VStr $ lines res)
-            _           -> VStr res
+        res             <- hGetContents out
+        exitCode        <- waitForProcess pid
+        return (res, exitCode)
+    handleExitCode exitCode 
+    return $ case cxt of
+        CxtSlurpy{} -> VList (map VStr $ lines res)
+        _           -> VStr res
 op1 "Pugs::Internals::runInteractiveCommand" = \v -> do
     str <- fromVal v
     guardIO $ do
@@ -483,13 +485,7 @@ op1 "Pugs::Internals::check_for_io_leak" = \v -> do
 op1 "system" = \v -> do
     cmd         <- fromVal v
     exitCode    <- guardIO $ system cmd
-    case exitCode of
-        ExitFailure x -> do
-            glob    <- askGlobal
-            errSV   <- findSymRef (cast "$!") glob
-            writeRef errSV (VInt $ toInteger x)
-            return $ VBool False
-        ExitSuccess -> return $ VBool True
+    handleExitCode exitCode
 op1 "accept" = \v -> do
     socket      <- fromVal v
     (h, _, _)   <- guardIO $ accept socket
@@ -680,6 +676,15 @@ op1IO = \fun v -> do
 
 returnList :: [Val] -> Eval Val
 returnList = return . VList
+
+handleExitCode :: ExitCode -> Eval Val
+handleExitCode exitCode = do
+    glob    <- askGlobal
+    errSV   <- findSymRef (cast "$!") glob
+    writeRef errSV $ case exitCode of
+        ExitFailure x   -> VInt $ toInteger x
+        ExitSuccess     -> VUndef
+    return (VBool $ exitCode == ExitSuccess)
 
 cascadeMethod :: ([VStr] -> [VStr]) -> VStr -> Val -> Val -> Eval Val
 cascadeMethod f meth v args = do
@@ -1024,13 +1029,7 @@ op2 "system" = \x y -> do
     prog        <- fromVal x
     args        <- fromVals y
     exitCode    <- guardIO $ rawSystem prog args
-    case exitCode of
-        ExitFailure x -> do
-            glob    <- askGlobal
-            errSV   <- findSymRef (cast "$!") glob
-            writeRef errSV (VInt $ toInteger x)
-            return $ VBool False
-        ExitSuccess -> return $ VBool True
+    handleExitCode exitCode
 op2 "chmod" = \x y -> do
     mode  <- fromVal x
     files <- fromVals y
@@ -1121,19 +1120,14 @@ op2Split x y = do
 -- |Implementation of 3-arity primitive operators and functions
 op3 :: String -> Val -> Val -> Val -> Eval Val
 op3 "Pugs::Internals::exec" = \x y z -> do
-    prog  <- fromVal x
-    shell <- fromVal y
-    args  <- fromVals z
+    prog        <- fromVal x
+    shell       <- fromVal y
+    args        <- fromVals z
     exitCode    <- guardIO $ executeFile' prog shell args Nothing
-    case exitCode of
-        ExitFailure x -> do
-            glob    <- askGlobal
-            errSV   <- findSymRef (cast "$!") glob
-            writeRef errSV (VInt $ toInteger x)
-            return $ VBool False
-        ExitSuccess -> do
-            guardIO $ exitWith ExitSuccess
-            return $ VBool True -- not reached ;-)
+    rv          <- handleExitCode exitCode
+    when (rv == VBool True) $ do
+        guardIO $ exitWith ExitSuccess
+    return rv
 op3 "Pugs::Internals::caller" = \x y z -> do
     --kind <- fromVal =<< op1 "ref" x
     kind <- case x of
