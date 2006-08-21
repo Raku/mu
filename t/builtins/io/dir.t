@@ -4,7 +4,7 @@ use Test;
 
 plan 18;
 
-if ($*OS eq any <MSWin32 mingw msys cygwin browser>) {
+if ($*OS eq any <browser>) {
     skip_rest "not supported on this platform";
     exit;
 }
