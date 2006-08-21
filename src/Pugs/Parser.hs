@@ -433,9 +433,13 @@ ruleFormalParam opt = rule "formal parameter" $ do
                   || sigil2 == "?"
                   || sigil1 == ":" && sigil2 /= "!" && "required" `notElem` traits
                   || "optional" `elem` traits
-    let sigil'   = (if isOptional then '?' else '!'):sigil1
+    let sigil'      = (if isOptional then '?' else '!'):sigil1
+        defaultExp  = case name of
+            ('@':_) -> Val (VList [])
+            ('%':_) -> Val (VList [])
+            _       -> Noop
     exp <- case opt of
-        FormalsSimple -> return Noop
+        FormalsSimple -> return defaultExp
         FormalsComplex -> do
             rv <- ruleParamDefault (not isOptional)
             optional $ do
@@ -444,7 +448,9 @@ ruleFormalParam opt = rule "formal parameter" $ do
                     [ ruleType
                     , ruleFormalParam FormalsComplex >> return ""
                     ]
-            return rv
+            return $ case rv of
+                Noop -> defaultExp
+                _    -> rv
     return $ foldr appTrait (buildParam typ sigil' name exp) traits
     where
     appTrait "rw"   x = x { isWritable = True }
