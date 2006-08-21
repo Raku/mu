@@ -1,4 +1,7 @@
-- removed Class::InsideOut dependency
+0.16  2006-08-21
+
+- removed Class::InsideOut dependency - 5% speed optimization, but there
+  seems to be some gain in RAM usage also
 - token <null>
 
 0.15  2006-08-16
