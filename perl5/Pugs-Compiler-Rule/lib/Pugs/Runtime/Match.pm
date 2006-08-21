@@ -6,11 +6,8 @@ use strict;
 use warnings;
 use Data::Dumper;
 use Data::Dump::Streamer;  
-use Class::InsideOut qw( public register id );
-
-# class method
-# ::fail can be called from inside closures
-# sub ::fail { $::_V6_SUCCEED = 0 }
+#use Class::InsideOut qw( public register id );
+use Scalar::Util 'refaddr';
 
 use overload (
     '@{}'    => \&array,
@@ -18,43 +15,36 @@ use overload (
     'bool'   => \&bool,
     '&{}'    => \&code,
     '${}'    => \&scalar,
-    '""'     => \&str,
-    '0+'     => \&str,
+    '""'     => \&flat,
+    '0+'     => \&flat,
     fallback => 1,
 );
 
-public data => my %_data;
+# class method
+# ::fail can be called from inside closures
+# sub ::fail { $::_V6_SUCCEED = 0 }
 
-#my $count = 0;
-#sub DEMOLISH {
-#   print $count, " ";
-#   $count--;
-#}
+my %_data;
 
 sub new {
-    my ($class, $match) = @_;
-    my $obj = register( bless \(my $s), $class );
-    $_data{ id $obj } = $match;
-    #$count++;
+    my $obj = bless \$_[1], $_[0];
+    $_data{ refaddr $obj } = $_[1];
     return $obj;
 }
 
-sub DDS_freeze { 
-    my $str = Data::Dump::Streamer::Dump($_[0]->data)->Out;
-    my $cls = ref($_[0]);
-    $str =~ s/[^=]*=/$cls->new(/;
-    $str =~ s/;/)/;
-    return $str;
+sub DESTROY {  
+    delete $_data{ refaddr $_[0] };
 }
 
-sub from  {  ${$_data{id $_[0]}->{from}}  }
-sub to    {  ${$_data{id $_[0]}->{to}}    }
-sub bool  {  ${$_data{id $_[0]}->{bool}}  }
-sub hash  {  $_data{id $_[0]}->{named} }
-sub array {  $_data{id $_[0]}->{match} }
+sub data  {    $_data{refaddr $_[0]}           }
+sub from  {  ${$_data{refaddr $_[0]}->{from}}  }
+sub to    {  ${$_data{refaddr $_[0]}->{to}}    }
+sub bool  {  ${$_data{refaddr $_[0]}->{bool}}  }
+sub hash  {    $_data{refaddr $_[0]}->{named}  }
+sub array {    $_data{refaddr $_[0]}->{match}  }
 
 sub flat {
-    my $obj = $_data{id $_[0]};
+    my $obj = $_data{refaddr $_[0]};
     my $cap = $obj->{capture};
     #print ref $cap;
     return $$cap
@@ -78,12 +68,12 @@ sub perl {
 # tail() for backwards compatibility
 # - doesn't work on failed matches
 sub tail {
-    return substr( ${$_data{id $_[0]}->{str}}, $_[0]->to );
+    return substr( ${$_data{refaddr $_[0]}->{str}}, $_[0]->to );
 }
 
 # state() is used for multiple matches and backtracking control
 sub state {
-    return $_data{id $_[0]}->{state};
+    return $_data{refaddr $_[0]}->{state};
 }
 
 # return the capture
