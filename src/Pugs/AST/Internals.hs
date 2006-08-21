@@ -1507,7 +1507,7 @@ doHash val f = do
 -- can be factored out
 doArray :: Val -> (forall a. ArrayClass a => a -> b) -> Eval b
 doArray (PerlSV sv) f = return $ f sv
-doArray (VRef (MkRef (IArray hv))) f = return $ f hv
+doArray (VRef (MkRef (IArray av))) f = return $ f av
 doArray (VRef (MkRef (IScalar sv))) f = do
     val <- scalar_fetch sv
     if defined val
@@ -1517,6 +1517,9 @@ doArray (VRef (MkRef (IScalar sv))) f = do
             scalar_store sv (VRef ref)
             return $ f hv
 doArray (VRef (MkRef p@(IPair _))) f = return $ f p
+doArray val@(VRef (MkRef IHash{})) f = do
+    av  <- fromVal val
+    return $ f (av :: VArray)
 doArray val@(VRef _) _ = retError "Cannot cast into Array" val
 doArray (VMatch m) f = do
     return $ f (matchSubPos m)
