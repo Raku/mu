@@ -19,8 +19,7 @@ import ASTUtil
 import ASTDefinition
 
 {-------------
-nodeNamer is parsec parser that parses nodes,
-recursivley parsing child nodes. It has two distinct cases,
+nodeNamer is parsec parser that parses nodes, recursivley parsing child nodes. It has two distinct cases, 
 one for nodes with kids, one for all other nodes.
 ---------------}
 nodeNamer :: Int -> Parser P5AST
@@ -28,12 +27,22 @@ nodeNamer indent = do
     choice[(count indent space),(count 0 space)] --The count 0 space option accounts for nodes after the chomp modifier on a uni block, since the uni block will consume everything up to the '-'
     choice [hereDoc indent, withKids indent , noKids indent , blank indent]
 
+
+{-A blank looks like 
+- ''
+and since it needs to return _something_, it just returns junk with no real text.
+The int parameter is the whitespace it expects.
+-}
 blank :: Int -> Parser P5AST
 blank indent = do
     try (string "- ''")
     newline
     return (LiteralNode "junk" "1" "")
 
+{-
+A node with kids has a nodetype and a list of nodes (which may be empty).
+The int parameter is the whitespace it expects.
+-}
 withKids :: Int -> Parser P5AST
 withKids indent = do
     try (string "- !perl/P5AST::") <?> "P5AST decleration";
@@ -47,6 +56,11 @@ withKids indent = do
         _       -> many . try $ nodeNamer (indent+4)
     return $AbstractNode name kids
 
+
+{-
+A node with kids has a type, and enc and uni fields.
+The int parameter is the whitespace it expects.
+-}
 noKids :: Int -> Parser P5AST
 noKids indent = do
     try (string "- !perl/p5::") <?> "p5 decleration"
@@ -61,6 +75,10 @@ noKids indent = do
     uni <- uniBlock (indent + 4) <?> "uni string/block"
     return $ LiteralNode name enc uni
 
+{-
+A heredoc is basically a node with kids, but it also has a start and an end node.
+The int parameter is the whitespace it expects.
+-}
 hereDoc :: Int -> Parser P5AST
 hereDoc indent = do
     try (string "- !perl/P5AST::heredoc ") <?> "Heredoc decleration";
@@ -126,19 +144,26 @@ uniBlock indent = choice
             else uni
     ]
 
+
 --A wrapper for nodeNamer, to handle the junk at the beginning of the file.
+
 parseInput :: Parser [P5AST]
 parseInput = choice [do{try(manyTill anyToken (string "Kids: \n")); names <- many (nodeNamer 2); eof; return names}, return []]
 
+
+{-This function deals with extra slashes that show up in text -}
+
 getRidOfExtraSlashes :: String -> String
-getRidOfExtraSlashes [] = []
+getRidOfExtraSlashes []   = []
 getRidOfExtraSlashes inSt = if (and [((head inSt)=='\\'), ((head (tail inSt))=='\n')]) then ('\n':(getRidOfExtraSlashes (drop 2 inSt))) else ((head inSt):(getRidOfExtraSlashes (tail inSt)))
 
-{-Function to handle escaped characters in a string scanned from input
+
+{-Function to handle escaped characters in a string scanned from input.
 For example, if the string "blah\n" is scanned, it ends up being represented as
 "blah\\n". This function parses that newline into a literal newline.-}
+
 makeLiterals :: String -> String
-makeLiterals [] = []
+makeLiterals []   = []
 makeLiterals inSt = if ((head inSt)=='\\') then if (head (tail inSt) == '"') then ('\"':(makeLiterals(drop 2 inSt))) else
                                                    if (head (tail inSt) == 'n') then ('\n':(makeLiterals(drop 2 inSt))) else
                                                      if (head (tail inSt) == 't') then ('\t':(makeLiterals(drop 2 inSt))) else
@@ -147,6 +172,7 @@ makeLiterals inSt = if ((head inSt)=='\\') then if (head (tail inSt) == '"') the
                                                            ((makeLiterals(tail inSt)))
                       else ((head inSt):(makeLiterals (tail inSt)))
 
+
 {- No longer a big big messy function to print all the different node types, 
 now a slim function to print everything to a file.
 Only two cases: LiteralNode and AbstractNode.
@@ -154,19 +180,13 @@ For a literal node, print the uni field.
 For an abstract node, recursivley call printTree on the kids (if there are any).
 All output is to a file
 -}
+
 printTree :: Handle -> P5AST -> String -> IO ()
-{------------ Uncomment this section to help find Unknown Nodes
-printTree outFile (LiteralNode UnknownLit _ uni) = do{ hPutStr outFile "UnknownLit";
-                                                       hPutStr outFile uni}
-printTree outFile (AbstractNode UnknownAbs kids) = do{ hPutStr outFile "UnknownAbs";
-                                                       printTree outFile (head kids);
-                                                       printTree outFile (AbstractNode P5AST (tail kids))}
--------------------------------------------------------------}
-printTree outFile (LiteralNode atype _ uni) options = if (and [(atype=="UnknownLit"),('u' `elem` options)]) then do{ hPutStr outFile "UnknownLit"; putStrLn "UNKNOWN: UnknownLit"; hPutStr outFile uni} else (hPutStr outFile uni)
-printTree outFile (AbstractNode atype []) options = if (and [(atype=="UnknownAbs"),('u' `elem` options)]) then do{ hPutStr outFile "UnknownAbs"; putStrLn "UNKNOWN: UnknownAbs"; hPutStr outFile ""} else (hPutStr outFile "")
-printTree outFile (AbstractNode atype kids) options = if (and [(atype=="UnknownAbs"),('u' `elem` options)]) then do{ hPutStr outFile "UnknownAbs"; putStrLn "UNKNOWN: UnknownAbs"; printTree outFile (head kids) options; printTree outFile (AbstractNode "P5AST" (tail kids)) options} else do{ printTree outFile (head kids) options; printTree outFile (AbstractNode "P5AST" (tail kids)) options}
+printTree outFile (LiteralNode atype _ uni) options    = if (and [(atype=="UnknownLit"),('u' `elem` options)]) then do{ hPutStr outFile "UnknownLit"; putStrLn "UNKNOWN: UnknownLit"; hPutStr outFile uni} else (hPutStr outFile uni)
+printTree outFile (AbstractNode atype []) options      = if (and [(atype=="UnknownAbs"),('u' `elem` options)]) then do{ hPutStr outFile "UnknownAbs"; putStrLn "UNKNOWN: UnknownAbs"; hPutStr outFile ""} else (hPutStr outFile "")
+printTree outFile (AbstractNode atype kids) options    = if (and [(atype=="UnknownAbs"),('u' `elem` options)]) then do{ hPutStr outFile "UnknownAbs"; putStrLn "UNKNOWN: UnknownAbs"; printTree outFile (head kids) options; printTree outFile (AbstractNode "P5AST" (tail kids)) options} else do{ printTree outFile (head kids) options; printTree outFile (AbstractNode "P5AST" (tail kids)) options}
 printTree outFile (Heredoc doc start end kids) options = do printTree outFile start options
-                                                            hPutStr outFile ";\n"
-                                                            printTree outFile (AbstractNode "P5AST" kids) options
-                                                            printTree outFile end options
+    hPutStr outFile ";\n"
+    printTree outFile (AbstractNode "P5AST" kids) options
+    printTree outFile end options
 
