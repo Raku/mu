@@ -91,10 +91,21 @@ sub process_t_file ($$) {
         else { next; }
 
         #warn "*$synopsis* *$section*\n";
-        $setter->($from, $to) if $setter and $from;
-        $setter = sub {
-            add_link($links, $synopsis, $section, $pattern, $infile, $_[0], $_[1]);
-        };
+        if ($from and $from == $to) {
+            my $old_setter = $setter;
+            my $old_from = $from;
+            $setter = sub {
+                add_link($links, $synopsis, $section, $pattern, $infile, $_[0], $_[1]);
+                $old_setter->($old_from, $_[1]);
+                #warn "$infile - $old_from ~ $_[1]";
+            };
+            #warn "$infile - $from ~ $to";
+        } else {
+            $setter->($from, $to) if $setter and $from;
+            $setter = sub {
+                add_link($links, $synopsis, $section, $pattern, $infile, $_[0], $_[1]);
+            };
+        }
         $from = $new_from;
     }
     $setter->($from, $.) if $setter and $from;
@@ -293,7 +304,7 @@ sub gen_code_snippet ($) {
     $snippet_id++;
     #warn $snippet_id;
     #warn "$file $to $from";
-    warn "BBBBBBB @$location $snippet_id" if !defined $src;
+    warn "NOT DEFINED!!! @$location $snippet_id" if !defined $src;
     my $nlines = $to - $from + 1;
     return <<"_EOC_";
 
