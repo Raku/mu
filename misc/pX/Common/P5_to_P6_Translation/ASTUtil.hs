@@ -11,6 +11,30 @@ Originally created by Sage LaTorra for Summer of Code 2006.
 ------------------------------}
 import ASTDefinition
 
+{-Removes a given character from a string.-}
+removeChar :: Char -> String -> String
+removeChar _ [] = []
+removeChar todrop instr = case ((head instr)==todrop) of
+                  True  -> (tail instr)
+                  False -> (head instr):(removeChar todrop (tail instr))
+
+--Makes a list of strings from a list of lists of strings.
+makeList :: [[String]] -> [String]
+makeList [] = []
+makeList alist = (head alist)++(makeList (tail alist))
+
+--Take a string and return a list of strings with each element being a word in that string. 
+--The second argument is what's already been collected (allowing you to start the list of words with your own list, if need be)
+--To just get the contents of the string broken into words, just call makeWords instring [""]
+makeWords :: String -> [String] -> [String]
+makeWords [] curout = curout
+makeWords inst curout= if ((head inst)==' ') then (makeWords (drop 2 inst) ([(head (tail inst))]:curout)) else (makeWords (tail inst) (((head curout)++[(head inst)]):(tail curout)))
+
+--drop the leading character if it matches the first argument of the call
+dropLeadingChar :: Char -> String -> String
+dropLeadingChar _ [] = []
+dropLeadingChar todrop astring = if ((head astring)==todrop) then (tail astring) else astring 
+
 --Returns the first instance of a given type of node from a list of nodes. 
 extractNodetype :: P5AST -> [P5AST] -> P5AST
 extractNodetype _ [] = (AbstractNode "UnknownAbs" [])
