@@ -2,11 +2,12 @@
 
 # Please look at t/README for documentation.
 # See util/t/smartlinks.t for unit tests and usage of the internal API.
-# This script is still under development.
+# This program is still under active development.
 # Contact agentzh on #perl6 if you have a patch or some good idea for this tool.
 # Currently you can use it to verify the smart link used in your script:
 #   $ perl util/smartlinks.pl --check t/some/test.t
-# The HTML outputing feature will be implemented *very* soon.
+# and generate HTML files with test snippets embedded:
+#   $ perl util/smartlinks.pl --out-dir=. t/*/*.t t/*/*/*.t
 
 use strict;
 use warnings;
