@@ -50,6 +50,11 @@ extractNodetype _ []       = (AbstractNode "UnknownAbs" [])
 extractNodetype node nlist = if (matchOnType node (head nlist)) then (head nlist) else (extractNodetype node (tail nlist))
 
 
+extractNodetypeSkip :: Int -> P5AST -> [P5AST] -> P5AST
+extractNodetypeSkip 0 node nlist = extractNodetype node nlist
+extractNodetypeSkip _ _ []      = (AbstractNode "UnknownAbs" [])
+extractNodetypeSkip skips node nlist = if (matchOnType node (head nlist)) then (extractNodetypeSkip (skips-1) node (tail nlist)) else (extractNodetypeSkip skips node (tail nlist))
+
 --Get just the kids of a given node ([] in case of literal node).
 
 extractKids :: P5AST -> [P5AST]

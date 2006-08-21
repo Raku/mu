@@ -58,15 +58,34 @@ import List
 --It's pretty ugly, which is why there's a need for a wrapper function
 translate :: P5AST -> String -> P5AST
 translate tree options = if ('n' `elem` options) then (tree) else case [('o' `elem` options), ('r' `elem` options), ('s' `elem` options)] of
-                               [True, False, False]   ->  (decWrapper (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))))))
-                               [True, True, False]  ->  (decWrapper (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (easyRegex (changeVarsInQuotes  (scalarTranslate (regexOnce (hereDocTranslate (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))))))
-                               [False, False, False]  -> (decWrapper (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))))
-                               [False, True, False] -> (decWrapper (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (easyRegex (regexOnce (scalarTranslate (hereDocTranslate (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))
-                               [True, False, True]   ->  (noStrict (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))))))
-                               [True, True, True]  ->  (noStrict (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (easyRegex (changeVarsInQuotes  (scalarTranslate (regexOnce (hereDocTranslate (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))))))
-                               [False, False, True]  -> (noStrict (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))))
-                               [False, True, True] -> (noStrict (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (easyRegex (regexOnce (scalarTranslate (hereDocTranslate (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))
+                               [True, False, False]   ->  (decWrapper (openTranslate (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))))))))
+                               [True, True, False]  ->  (decWrapper (openTranslate (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (easyRegex (changeVarsInQuotes  (scalarTranslate (regexOnce (hereDocTranslate (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))))))
+                               [False, False, False]  -> (decWrapper (openTranslate (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))))
+                               [False, True, False] -> (decWrapper (openTranslate (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (easyRegex (regexOnce (scalarTranslate (hereDocTranslate (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))))
+                               [True, False, True]   ->  (noStrict (openTranslate (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))))))))
+                               [True, True, True]  ->  (noStrict (openTranslate (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (easyRegex (changeVarsInQuotes  (scalarTranslate (regexOnce (hereDocTranslate (foreachTranslation (closeToMethod (lengthToMethod (splitOnMatchTranslate ({-splitQuotes-}(readlineTranslate (toWords (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))))))
+                               [False, False, True]  -> (noStrict (openTranslate (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (regexModifiers (regexOnce (scalarTranslate (hereDocTranslate (regexInternals (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree)))))))))))))))))))
+                               [False, True, True] -> (noStrict (openTranslate (filePrintChange (changeExportOkay (getExportOkay tree) (changeExports (getExports tree) (changeVarsInQuotes (easyRegex (regexOnce (scalarTranslate (hereDocTranslate (foreachTranslation (splitOnMatchTranslate (splitQuotes (readlineTranslate (conditionalExpression (arrayKey (hashKey (equalTildeToTildeTilde tree))))))))))))))))))
 
+
+openTranslate :: P5AST -> P5AST
+openTranslate (AbstractNode "op_open" kids) = case [(isInSequence kids [(AbstractNode "listelem" []), (AbstractNode "listelem" [])]), (isIn (AbstractNode "op_rv2gv" []) kids), (isIn (LiteralNode "punct" "" ";") kids)] of
+    [True, True, False]  -> (AbstractNode "op_sassign" [(extractNodetype (AbstractNode "op_rv2gv" []) kids), (LiteralNode "junk" "" " "), (LiteralNode "operator" "" "="), (LiteralNode "junk" "" " "), (AbstractNode "op_open" [(LiteralNode "operator" "" "open"), (LiteralNode "opener" "" "("), (extractNodetypeSkip 1 (AbstractNode "listelem" []) kids), (convertFileMode (extractNodetype (AbstractNode "listelem" []) kids)), (LiteralNode "closer" "" ")")])])
+    [False, True, False] -> (AbstractNode "op_sassign" [(extractNodetype (AbstractNode "op_rv2gv" []) kids), (LiteralNode "junk" "" " "), (LiteralNode "operator" "" "="), (LiteralNode "junk" "" " "), (AbstractNode "op_open" [(LiteralNode "operator" "" "open"), (LiteralNode "opener" "" "("), (dropComma (extractNodetype (AbstractNode "listelem" []) kids)), (LiteralNode "closer" "" ")")])])
+    [True, True, True]  -> (AbstractNode "op_sassign" [(extractNodetype (AbstractNode "op_rv2gv" []) kids), (LiteralNode "junk" "" " "), (LiteralNode "operator" "" "="), (LiteralNode "junk" "" " "), (AbstractNode "op_open" [(LiteralNode "operator" "" "open"), (LiteralNode "opener" "" "("), (extractNodetypeSkip 1 (AbstractNode "listelem" []) kids), (convertFileMode (extractNodetype (AbstractNode "listelem" []) kids)), (LiteralNode "closer" "" ")"), (LiteralNode "punct" "" ";")])])
+    [False, True, True] -> (AbstractNode "op_sassign" [(extractNodetype (AbstractNode "op_rv2gv" []) kids), (LiteralNode "junk" "" " "), (LiteralNode "operator" "" "="), (LiteralNode "junk" "" " "), (AbstractNode "op_open" [(LiteralNode "operator" "" "open"), (LiteralNode "opener" "" "("), (dropComma (extractNodetype (AbstractNode "listelem" []) kids)), (LiteralNode "closer" "" ")")]), (LiteralNode "punct" "" ";")])
+    _             -> (AbstractNode "op_open" kids)
+openTranslate (AbstractNode atype kids) = (AbstractNode atype (map openTranslate kids))
+openTranslate (LiteralNode atype enc uni) = (LiteralNode atype enc uni)
+openTranslate (Heredoc doc start end kids) = (Heredoc doc start end kids)
+
+convertFileMode :: P5AST -> P5AST
+convertFileMode (AbstractNode "listelem" kids) = case (extractUni (extractNodetype (LiteralNode "text" "" "") (extractKids (extractNodetype (AbstractNode "op_const" []) kids)))) of
+    "<"  -> (AbstractNode "listelem" [(LiteralNode "punct" "" ","),(AbstractNode "op_const" [(LiteralNode "junk" "" " "), (LiteralNode "text" "" ":r")]) ])
+    ">"  -> (AbstractNode "listelem" [(LiteralNode "punct" "" ","),(AbstractNode "op_const" [(LiteralNode "junk" "" " "), (LiteralNode "text" "" ":w")]) ])
+    ">>" -> (AbstractNode "listelem" [(LiteralNode "punct" "" ","),(AbstractNode "op_const" [(LiteralNode "junk" "" " "), (LiteralNode "text" "" ":a")]) ])
+    "+<" -> (AbstractNode "listelem" [(LiteralNode "punct" "" ","),(AbstractNode "op_const" [(LiteralNode "junk" "" " "), (LiteralNode "text" "" ":rw")])])
+    _    -> (AbstractNode "listelem" kids)
 
 --A wrapper to grab the undeclared variable names and add them to the AST
 
@@ -78,7 +97,7 @@ decWrapper tree = (addDecs (getUndeclaredVars tree) tree)
 
 addDecs :: [String] -> P5AST -> P5AST
 addDecs [] (AbstractNode atype kids)   = (AbstractNode atype kids)
-addDecs vars (AbstractNode atype kids) = (addDecs (tail vars) (AbstractNode atype ((AbstractNode "statement" [(LiteralNode "declarator" "" "my"), (LiteralNode "junk" "" " "), (LiteralNode "sigil" "" (head vars)), (LiteralNode "token" "" ";"), (LiteralNode "junk" "" "\n")]):kids)))
+addDecs vars (AbstractNode atype kids) = (addDecs (tail vars) (AbstractNode atype ((AbstractNode "statement" [(LiteralNode "declarator" "" "my"), (LiteralNode "junk" "" " "), (LiteralNode "sigil" "" (head vars)), (LiteralNode "punct" "" ";"), (LiteralNode "junk" "" "\n")]):kids)))
 
 
 --From a P5AST, this function gets a list of undeclared variables by comparing a list of all sigils and a list of declared vars, and returns the undeclared variables
@@ -522,7 +541,7 @@ topicSplit (Heredoc doc start end kids)   = (Heredoc doc start end (map topicSpl
 
 topicMethod :: [P5AST] -> [P5AST]
 topicMethod []   = []
-topicMethod kids = if (not (isIn (AbstractNode "listelem" []) kids)) then [(LiteralNode "junk" "" "")] else kids
+topicMethod kids = if (not (isIn (AbstractNode "listelem" []) kids)) then kids else kids
 
 
 --translates foreach loops:
