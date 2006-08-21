@@ -18,7 +18,7 @@ sub Lexer::import { }
 sub tokens(Code *$input, Str *$label, Str $pattern, Code $maketoken?)
     is exported(:all) {
   ## XXX - slurpy magic doesn't work too well presently ...
-  $maketoken := { [ $^tok_label, $^tok ] }
+  $maketoken := ({ [ $^tok_label, $^tok ] })
     if !defined $maketoken;
   my @tokens;
   my $buf = "";   # set to undef to when input is exhausted
@@ -51,7 +51,7 @@ sub tokens(Code *$input, Str *$label, Str $pattern, Code $maketoken?)
       undefine $buf
         if !defined $i;
 
-      @tokens.=grep:{ $_ ne "" };
+      @tokens .= grep:{ $_ ne "" };
     }
     # say "tokens looks like: {@tokens.perl}";
     return @tokens.shift;

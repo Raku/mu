@@ -39,7 +39,7 @@ sub End_of_Input($input) is exported(:all) {
 
 ## Chapter 8 section 3.1
 
-sub lookfor($wanted, Code $value = { $^v.[1] }, ?$u) is exported(:all) {
+sub lookfor($wanted, Code $value = { $^v.[1] }, $u?) is exported(:all) {
   ## XXX - orig: $wanted = [$wanted] unless ref $wanted;
   my $wp := $wanted.isa(Array) ?? $wanted !! [$wanted];
 
@@ -83,8 +83,7 @@ sub concatenate(Array *@p) is exported(:all) {
 ## Chapter 8 section 3.2
 
 sub alternate(Array *@p) is exported(:all) {
-  return -> { }
-    if +@p == 0;
+  return -> { } if +@p == 0;
   return @p[0]
     if +@p == 1;
 
