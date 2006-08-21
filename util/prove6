@@ -13,6 +13,7 @@ my $blib = 0;
 my $lib = 0;
 my @includes = ();
 my @switches = ();
+my $update_yml = 0;
 
 # Allow cuddling the paths with the -I
 @ARGV = map { /^(-I)(.+)/ ? ($1,$2) : $_ } @ARGV;
@@ -41,6 +42,8 @@ GetOptions(
     'b|blib'        => \$blib,
     'l|lib'         => \$lib,
     'v|verbose'     => \$Test::Harness::verbose,
+
+    'update-yml'    => \$update_yml,
 ) or exit 1;
 
 $ENV{TEST_VERBOSE} = 1 if $Test::Harness::verbose;
@@ -70,6 +73,7 @@ Options:
     -l, --lib     Add lib to the path for your tests.
     -v, --verbose Display standard output of test scripts while running them.
 
+    -update-yml   refresh Test.pm.yml and Prelude.pm.yml
 _EOC_
     exit(0);
 }
@@ -100,6 +104,14 @@ if ( $blib ) {
 # Handle lib includes
 if ( $lib ) {
     unshift @includes, "lib";
+}
+
+# refresh Test.pm.yml and Prelude.pm.yml.
+if ($update_yml) {
+    warn "pugs -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml\n";
+    system('pugs -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml');
+    system("$^X util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p pugs " .
+        "--output blib6/lib/Prelude.pm.yml");
 }
 
 # Build up TH switches
