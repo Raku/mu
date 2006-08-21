@@ -750,14 +750,14 @@ op1StrFirst f = op1Cast $ VStr .
 -- and op1 "getc", but those may be hidden in safe mode. We still want to use
 -- the functionality with the safe variants, hence these functions.
 op1Readline :: Val -> Eval Val
-op1Readline = \v -> op1Read v getLines getLine
+op1Readline = \v -> op1Read v (liftIO . getLines) getLine
     where
-    getLines :: VHandle -> Eval Val
-    getLines fh = do
-        line <- liftIO . unsafeInterleaveIO $ doGetLine fh
+    getLines :: VHandle -> IO Val
+    getLines fh = unsafeInterleaveIO $ do
+        line <- doGetLine fh
         case line of
             Just str -> do
-                VList rest <- getLines fh
+                ~(VList rest) <- getLines fh
                 return $ VList (VStr str:rest)
             _ -> return (VList [])
     getLine :: VHandle -> Eval Val
