@@ -8,7 +8,7 @@ Hash tests
 
 =cut
 
-plan 55;
+plan 57;
 
 # basic lvalue assignment
 
@@ -164,3 +164,14 @@ test2 %h;
 #
 my %dupl = (a => 1, b => 2, a => 3);
 is %dupl<a>, 3, "hash creation with duplicate keys works correctly";
+
+# Moved from t/xx-uncategorized/hashes-segfault.t
+# Caused some versions of pugs to segfault
+my %hash = %(zip('a'..'d';1..4));
+my $i = %hash.elems; # segfaults
+is $i, 4, "%hash.elems works";
+
+$i = 0;
+$i++ for %hash; # segfaults
+is $i, 4, "for %hash works";
+

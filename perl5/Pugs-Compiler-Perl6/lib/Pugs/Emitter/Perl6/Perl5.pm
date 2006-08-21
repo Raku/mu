@@ -584,10 +584,12 @@ sub default {
                 ) {
                 my @param = map { _emit( $_ ) } 
                     @{ $n->{param}{exp1}{list} };
+                my @param2 = map { '$' . substr($_,1) } 
+                    @param;
                 return 
                     "do { " .
                     " my \$n = $param[0] > $param[1] ? $param[0] : $param[1]; " .
-                    " map { ( ".$param[0]."[\$_], ".$param[1]."[\$_] ) } 0..\$n-1" .
+                    " map { ( ".$param2[0]."[\$_], ".$param2[1]."[\$_] ) } 0..\$n-1" .
                     "}" 
             }
         }
