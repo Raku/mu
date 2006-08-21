@@ -264,6 +264,8 @@ _EOC_
         ,;
     }
     $html =~ s,</head>,$header</head>,;
+    # stripped the line prefixes introduced by `gen_code_snippet`:
+    $html =~ s/^QQQ://msg;
     $html;
 }
 
@@ -280,7 +282,12 @@ sub gen_code_snippet ($) {
     while (<$in>) {
         next if $i < $from;
         last if $i > $to;
-        $src .= "    $_";
+        # we need the 'QQQ:' prefix in order to work around
+        # '=begin/=end' in the test snippts themselves:
+        s/\&/&amp;/g;
+        s/</\&lt;/g;
+        s/>/\&gt;/g;
+        $src .= "QQQ:$_";
     } continue { $i++ }
     close $in;
     $snippet_id++;
@@ -300,13 +307,9 @@ sub gen_code_snippet ($) {
 </a>
 </p>
 <div ID=hide_${snippet_id} style="display:none; border:1px solid">
-
-=end html
-
+<pre>
 $src
-
-=begin html
-
+</pre>
 </div>
 
 =end html
@@ -397,6 +400,7 @@ sub process_syn ($$$$) {
         #    write_file("S$syn_id.pod", $pod);
         #}
         my $html = gen_html($pod, $cssfile);
+        $html =~ s,<title>\s*TITLE\s*</title>,<title>S$syn_id</title>,s;
         my $htmfile = "$out_dir/S$syn_id.html";
         warn "info: generating $htmfile...\n";
         open my $out, "> $htmfile" or
@@ -421,11 +425,11 @@ _EOC_
 sub main {
     my ($syn_dir, $out_dir, $help, $cssfile);
     GetOptions(
-        'check'   => \$check,
-        'syn-dir' => \$syn_dir,
-        'out-dir' => \$out_dir,
-        'help'    => \$help,
-        'css'     => \$cssfile,
+        'check'     => \$check,
+        'syn-dir=s' => \$syn_dir,
+        'out-dir=s' => \$out_dir,
+        'help'      => \$help,
+        'css=s'     => \$cssfile,
     );
 
     if ($help || !@ARGV) {
