@@ -14,7 +14,7 @@ $answer = 'The quick ' ~ func() ~ ' over the lazy dog';
 # and end with paranthesis:
 $answer = "STRING &function() MORE STRING";
 $answer = qq/STRING &function() MORE STRING/;  # very liberal interpolation
-$answer = q:f/STRING &function() MORE STRING"; # interpolates functions only
+$answer = q:f/STRING &function() MORE STRING/; # interpolates functions only
 
 # To interpolate a class method, using closure curlies:
 $answer = "STRING {Dog.bark} MORE STRING";
@@ -33,7 +33,7 @@ $phrase = q:c/I have {$n + 1} guanacos./;     # interpolation closures only
 # Interpolate into a here document:
 # XXX: Confirming via p6l that this works as the first param like this:
 # XXX I think s/<<//
-die "Couldn't send mail" unless send_mail <<qq:to/EOTEXT/, $target
+die "Couldn't send mail" unless send_mail(qq:to/EOTEXT/, $target);
     To: $naughty
     From: Your Bank
     Cc: &get_manager_list($naughty)
