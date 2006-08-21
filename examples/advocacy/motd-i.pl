@@ -55,7 +55,7 @@ unless $orig eq ~@list {
 
     # User wants to save changes
     # Save the original $dict to a backup
-    if $ans eq any ('y','Y'){
+    if $ans eq 'y'|'Y' {
         my $backup = $dict;
         my $incr    = 1;
 
