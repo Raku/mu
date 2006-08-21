@@ -126,7 +126,7 @@ sub rx_body {
 ) )->code;
 
 *parenthesis = Pugs::Compiler::Token->compile( q(
-                <?ws>? <Pugs::Grammar::Expression.parse> <?ws>? 
+                <?ws>? <Pugs::Grammar::Expression.parse('allow_semicolon', 1)> <?ws>? 
                 <'\)'>
                 { return {
                     op1 => { op => "(" },

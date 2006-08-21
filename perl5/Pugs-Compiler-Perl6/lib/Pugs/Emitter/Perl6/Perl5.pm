@@ -260,7 +260,7 @@ sub assoc_list {
 
     if ( $n->{op1} eq ';' ||
          $n->{op1} eq ',' ) {
-        return join ( $n->{op1} . "\n", 
+        return join ( ",\n", 
             map { exists $_->{null}
                 ? ()
                 : _emit( $_ ) 
@@ -575,7 +575,22 @@ sub default {
         # ???
         $n->{sub}{bareword} = 'die'
             if $n->{sub}{bareword} eq 'fail';
-            
+          
+        if ( $n->{sub}{bareword} eq 'each' ) {
+            # special case: each ( @a; @b );
+            # works like 'Y'
+            if ( exists $n->{param}{exp1} 
+                && exists $n->{param}{exp1}{list} 
+                ) {
+                my @param = map { _emit( $_ ) } 
+                    @{ $n->{param}{exp1}{list} };
+                return 
+                    "do { " .
+                    " my \$n = $param[0] > $param[1] ? $param[0] : $param[1]; " .
+                    " map { ( ".$param[0]."[\$_], ".$param[1]."[\$_] ) } 0..\$n-1" .
+                    "}" 
+            }
+        }
 
         # TODO - other builtins
         my $subname = $n->{sub}{bareword};
@@ -587,7 +602,7 @@ sub default {
                 return " (defined $param )";
             }
     
-            if ($subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'shift' || $subname eq 'join' || $subname eq 'index' || $subname eq 'undef' || $subname eq 'rand' || $subname eq 'int' || $subname eq 'splice' || $subname eq 'keys' || $subname eq 'values' || $subname eq 'sort' || $subname eq 'chomp') {
+            if ($subname eq 'substr' || $subname eq 'split' || $subname eq 'die' || $subname eq 'return' || $subname eq 'push' || $subname eq 'shift' || $subname eq 'join' || $subname eq 'index' || $subname eq 'undef' || $subname eq 'rand' || $subname eq 'int' || $subname eq 'splice' || $subname eq 'keys' || $subname eq 'values' || $subname eq 'sort' || $subname eq 'chomp' || $subname eq 'lc') {
                 return $subname . emit_parenthesis( $n->{param} );
             }
     
@@ -949,6 +964,7 @@ sub term {
                 use Exporter 'import'; 
                 push our \@ISA, 'Exporter';
                 our \@EXPORT; 
+                bool->import();  # True, False
                 $attributes ";
 
         return ref( $n->{block} ) && exists $n->{block}{bare_block}

@@ -19,7 +19,7 @@ $Data::Dumper::Sortkeys = 1;
 
 my $rx_end_with_blocks = qr/
                 ^ \s* (?: 
-                            [});\]] 
+                            [})\]] 
                           | $
                         )
             /xs;
@@ -28,7 +28,7 @@ my $rx_end_no_blocks = qr/
                 (?: 
                     \s+ {
                   | \s* (?: 
-                            [});\]] 
+                            [})\]] 
                           | -> 
                           | $
                         )  
@@ -37,7 +37,8 @@ my $rx_end_no_blocks = qr/
 
 # this is not thread-safe, but it saves time in Parse::Yapp 
 # XXX - this optimization is no longer needed, as the optimization in Grammar::Operator worked best
-our ( $p, $match, $pos, $rx_end, $allow_modifier, $statement_modifier );
+our ( $p, $match, $pos, $rx_end, $allow_modifier, $statement_modifier,
+    $allow_semicolon );
 our ( $reentrant, $last_reentrant ) = (0,0);
 
 sub parse {
@@ -56,7 +57,9 @@ sub parse {
 };
 
 sub ast {
-    local ( $p, $match, $pos, $rx_end, $allow_modifier, $statement_modifier )
+    local ( $p, $match, $pos, $rx_end, $allow_modifier, $statement_modifier,
+        $allow_semicolon
+        )
         if $reentrant && $reentrant >= $last_reentrant;
     $last_reentrant = $reentrant;
     $reentrant++;
@@ -68,16 +71,22 @@ sub ast {
     #my $s = substr( $_[0], $pos );
     #print "pos: $pos\n";
 
-    my $no_blocks   = exists $param->{args}{no_blocks}      ? 1 : 0;
-    $allow_modifier = exists $param->{args}{allow_modifier} ? 1 : 0;
-    #warn "don't parse blocks: $no_blocks ";
+    my $no_blocks    = exists $param->{args}{no_blocks}       ? 1 : 0;
+    $allow_modifier  = exists $param->{args}{allow_modifier}  ? 1 : 0;
+    $allow_semicolon = exists $param->{args}{allow_semicolon} ? 1 : 0;
+    #print "don't parse blocks: $no_blocks ";
+    #print "allow modifier: $allow_modifier \n";
     $rx_end = $no_blocks 
                 ? $rx_end_no_blocks
                 : $rx_end_with_blocks;
     $statement_modifier = undef;
     
     $match .= '';
-    if ( substr( $match, $pos ) =~ /$rx_end/ ) {
+    if  (  substr( $match, $pos ) =~ /$rx_end/ 
+        || (  !$allow_semicolon
+           && substr( $match, $pos ) =~ /^\s* ; /xs
+           )
+        ) {
         # end of parse
         $reentrant--;
         return (undef, $match);
@@ -116,7 +125,11 @@ sub lexer {
     my ( $match, $pos, $rx_end ) = @_;
 
         #print "Grammar::Expression::ast::lex '$match' \n";
-        if ( substr( $match, $pos ) =~ /$rx_end/ ) {
+        if ( substr( $match, $pos ) =~ /$rx_end/  
+           || (  !$allow_semicolon
+              && substr( $match, $pos ) =~ /^\s* ; /xs
+              )
+           ) {
             #warn "end of expression at: [",substr($match,0,10),"]";
             return ('', '', $pos);
         }
@@ -162,12 +175,13 @@ sub lexer {
         }
         
         # a statement modifier can also terminate a statement
-        if ( $expect_end ) {
-            if ( $allow_modifier ) {
-                $statement_modifier = Pugs::Grammar::StatementModifier->parse( $match, { p => $pos } );
-                return ('', '', $pos)
-                    if $statement_modifier;
-            }
+        #print "test modifier at $pos \n";
+        if (  # $expect_end  && --- XXX not working?
+              $allow_modifier 
+           ) {
+            $statement_modifier = Pugs::Grammar::StatementModifier->parse( $match, { p => $pos } );
+            return ('', '', $pos)
+                if $statement_modifier;
         }
 
         my $m1 = Pugs::Grammar::Operator->parse( $match, { p => $pos } );

@@ -130,6 +130,12 @@ BEGIN {
         precedence => 'equal',
         other => 'Y',
     );
+    __PACKAGE__->add_rule( 
+        name => ';',
+        assoc => 'list',
+        precedence => 'equal',
+        other => 'Y',
+    );
     
     __PACKAGE__->add_rule( 
         name => 'and',
