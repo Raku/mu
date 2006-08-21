@@ -360,7 +360,7 @@ sub process_syn ($$$$) {
     if (!$sections) {
         return;
     }
-    $snippet_id = 1;
+    $snippet_id = 0;
     while (my ($section, $links) = each %$sections) {
         #warn "checking $section...";
         my @links = @$links;
@@ -388,7 +388,7 @@ sub process_syn ($$$$) {
             my $matched;
             while ($i < @$paras) {
                 my $para = $paras->[$i];
-                next if !$para;
+                next if !$para or $para =~ /\?hide_quotes=no/;
                 if (process_paragraph($para) =~ /$regex/) {
                     if (!$check) {
                         splice @$paras, $i+1, 0, gen_code_snippet($location);
