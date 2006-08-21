@@ -123,7 +123,7 @@ sub build {
                 glob("third-party/installed/*/$module-*"),
                 glob("third-party/installed/*/pugs-$module-*"),
             )) {
-            my $_a = ($want_profiling ? '.p_a' : '.a');
+            my $_a = ($want_profiling ? '_p.a' : '.a');
             my $oldest_a_file = max(
                 map {-M $_} (
                     glob("$archive_dir/*$_a"),
