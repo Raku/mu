@@ -1,9 +1,12 @@
 class HQ9Plus;
 
-my subtype HQ9PlusProgram
+# 2006-08-21 subtypes not implemented in pugs
+# Currently fails parsing
+
+my subset HQ9PlusProgram
     where /^<[hq9+]>$/;
 
-my subtype HQ9PlusStep
+my subset HQ9PlusStep
     of HQ9PlusProgram
     where { .chars == 1 };
 
