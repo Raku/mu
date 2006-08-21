@@ -1654,7 +1654,7 @@ The C<but I<NAME> (I<DATA>)> syntax specifies run-time properties on values:
 
     sub system {
         ...
-        return $error but false if $error;
+        return $error but False if $error;
         return 0 but True;
     }
 
