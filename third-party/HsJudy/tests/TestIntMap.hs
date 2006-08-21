@@ -16,6 +16,13 @@ t "Simple" $ do
     insert 1 42 s
     lookup 1 s    .=> Just 42
 
+t "Negative values" $ do
+    s <- new :: IO (IntMap Int Int)
+    insert 1 (-1) s
+    insert 2 (-2) s
+    lookup 1 s      .=> Just (-1)
+    lookup 2 s      .=> Just (-2)
+
 t "Delete" $ do
     s <- new :: IO (IntMap Int Int)
     lookup 3 s    .=> Nothing
@@ -159,5 +166,18 @@ t "TakeLast et al" $ do
     J.takeLastElems 3 m  .=> [196..198]
     J.takeLast 3 m       .=> [96..] `zip` [196..198]
     J.takeLast 1 m       .=> [(98,198)]
+
+t "Negative keys" $ do
+    s <- new :: IO (IntMap Int Int)
+    insert (-1) (-1) s
+    insert (-2) (-2) s
+    insert   1    3  s
+    insert (-3)   4  s
+    lookup (-1) s      .=> Just (-1)
+    lookup (-2) s      .=> Just (-2)
+    lookup   1  s      .=> Just   3
+    lookup (-3) s      .=> Just   4
+
+    
 
 -- TODO: test some crazy haskell type as value (to check stableptrs)

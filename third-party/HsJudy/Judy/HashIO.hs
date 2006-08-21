@@ -9,6 +9,7 @@ module Judy.HashIO (
 import Data.HashTable (hashString)
 
 import Judy.Private
+import GHC.Exts (unsafeCoerce#)
 
 class HashIO a where
     -- Two step conversion, first from a -> Int then Int -> Value
@@ -21,9 +22,9 @@ class UniqueHashIO a => ReversibleHashIO a where
 
 instance Enum a => UniqueHashIO a where
 instance Enum a => HashIO a where
-    hashIO = return . toEnum . fromEnum
+    hashIO = return . unsafeCoerce# . fromEnum
 instance Enum a => ReversibleHashIO a where
-    unHashIO = return . toEnum . fromEnum
+    unHashIO = return . toEnum . unsafeCoerce#
 
 
 instance HashIO Value where
