@@ -23,16 +23,18 @@ for $config<config><statement> -> $o  {
 
 sub match_describe (Match $o, Num $indent) {
    my $desc;
-   if ( @$o.elems ){
+   if @$o.elems {
      $desc ~= "[\n" ~ join("" , map { match_describe($_, $indent + 1) }, @$o ) ~ "{"\t" x $indent}],";
-   } elsif (  %$o.keys.elems ) {
+   }
+   elsif %$o.keys.elems {
       $desc ~= "{"\t" x $indent}\{\n";
       
-      for (keys %$o) {
+      for keys %$o {
         $desc ~= "{"\t" x ($indent+1)}'$_' := { match_describe($o.{$_},$indent + 1)}\n";
       }  
       $desc ~= "{"\t" x $indent}\},\n";
-   } else  {
+   }
+   else {
       $desc ~= "'$o'";
    }
    return "$desc";
@@ -42,7 +44,7 @@ sub match_describe (Match $o, Num $indent) {
 
 sub evaluate (Str $expr) returns Int {
     my @stack;
-    for ($expr.split()) -> $tok {
+    for $expr.split() -> $tok {
         if $tok ~~ /-? \d+/ {
             @stack.push($tok);
             next;
