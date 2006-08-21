@@ -11,7 +11,7 @@ Adding comments about the papers is welcome/encouraged.
 Papers which stick around for a while, or are highly thought of, or
 relevant could be moved to READTHEM.
 
-Last updated 2006-08-19.
+Last updated 2006-08-21.
 
 == Current
 
@@ -28,6 +28,11 @@ http://lambda-the-ultimate.org/node/1248
 Types for Modules
 http://www.dcs.ed.ac.uk/home/cvr/ECS-LFCS-98-389.html
 [mentioned by stevan, 2006-Jan]
+
+Open data types and open functions
+http://lambda-the-ultimate.org/node/1453
+[mentioned by audreyt 2006-07-31]
+http://colabti.de/irclogger/irclogger_log/perl6?date=2006-07-31,Mon&sel=283#l459
 
 Software Extension and Integration with Type Classes
 http://lambda-the-ultimate.org/node/1657
