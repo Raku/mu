@@ -8,6 +8,7 @@
 #   $ perl util/smartlinks.pl --check t/some/test.t
 # and generate HTML files with test snippets embedded:
 #   $ perl util/smartlinks.pl --out-dir=. t/*/*.t t/*/*/*.t
+# Although currently Pod::Html generates malformed HTML, i'll stick with it.
 
 use strict;
 use warnings;
@@ -19,7 +20,8 @@ use FindBin;
 use Pod::Html;
 use File::Temp 'tempfile';
 
-my ($check, $count, $broken_count, $snippet_id);
+my ($check, $count, $broken_count);
+my (@snippets, $snippet_id);
 
 my %Spec = reverse qw(
     01 Overview 02 Syntax       03 Operator     04 Block
@@ -280,7 +282,7 @@ _EOC_
     }
     $html =~ s,</head>,$header</head>,;
     # stripped the line prefixes introduced by `gen_code_snippet`:
-    $html =~ s/^QQQ://msg;
+    $html =~ s,<p>\s*_SMART_LINK_(\d+)\s*</p>,$snippets[$1],sg;
     $html;
 }
 
@@ -297,12 +299,10 @@ sub gen_code_snippet ($) {
     while (<$in>) {
         next if $i < $from;
         last if $i > $to;
-        # we need the 'QQQ:' prefix in order to work around
-        # '=begin/=end' in the test snippts themselves:
         s/\&/&amp;/g;
         s/</\&lt;/g;
         s/>/\&gt;/g;
-        $src .= "QQQ:$_";
+        $src .= $_;
     } continue { $i++ }
     close $in;
     $snippet_id++;
@@ -310,11 +310,8 @@ sub gen_code_snippet ($) {
     #warn "$file $to $from";
     warn "NOT DEFINED!!! @$location $snippet_id" if !defined $src;
     my $nlines = $to - $from + 1;
-    return <<"_EOC_";
-
-=begin html
-
-<a name="msg_${snippet_id}">&nbsp;&nbsp;</a>
+    my $html = <<"_EOC_";
+<a name="msg_${snippet_id}"></a>
 <a href="?hide_quotes=no#msg_${snippet_id}" onclick="return tog_quote(${snippet_id});">
 <div ID="header_shown_${snippet_id}" style="display: none;">
 - Hide the snippet from $file (line $from ~ line $to) -
@@ -328,20 +325,12 @@ sub gen_code_snippet ($) {
 $src
 </pre>
 </div>
-
-=end html
-
 _EOC_
+    $snippets[$snippet_id] = $html;
+    "\n\n_SMART_LINK_$snippet_id\n\n";
 }
 
-=begin comment
-
-process_syn: process synopses one by one.
-
-=end comment
-
-=cut
-
+# process_syn: process synopses one by one.
 sub process_syn ($$$$) {
     my ($infile, $out_dir, $cssfile, $links) = @_;
     my $syn_id;
