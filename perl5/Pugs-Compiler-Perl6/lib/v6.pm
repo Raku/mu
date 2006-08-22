@@ -7,7 +7,7 @@ use strict;
 use warnings;
 use Module::Compile-base;
 use File::Basename;
-use Pugs::Runtime::Perl6;
+# use Pugs::Runtime::Perl6;
 
 my $bin;
 BEGIN { $bin = ((dirname(__FILE__) || '.') . "/..") };
@@ -74,6 +74,7 @@ sub pmc_compile {
         $perl5 . "\n" .
         "; 1;\n";
 
+    unless ( $ENV{V6NOTIDY} )
     {
       # Perl::Tidy is used if available
       local $@;   # don't care if there are errors here
@@ -276,6 +277,11 @@ Same usage as PERL5LIB - sets the search path for Perl 6 modules.
 * V6DUMPAST
 
 If set, the compiler will dump the syntax tree to C<STDOUT> just before emitting code, using C<Data::Dumper>.
+
+* V6NOTIDY
+
+If set, the compiler output will be much less readable, but there will
+be some improvement in compiler speed.
 
 =head1 COMMAND LINE SWITCHES
 
