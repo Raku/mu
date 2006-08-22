@@ -25,21 +25,5 @@ if ($?COMPILER and $?COMPILER eq 'Pugs') {
     #warn ">>> $saved_val\n";
     ok !$saved_val, "todo() didn't set \$Test::todo_next_test to True";
 } else {
-    todo [,] %($?COMPILER => True);  # never unTODO this.
-    my $saved_val = $Test::todo_next_test;
-    ok 0, "this test should be TODO'd";
-    ok $saved_val, 'todo() sets $Test::todo_next_test to True';
-    ok !$Test::todo_next_test, 'todo() only affects the next one test';
-
-    todo [,] %($?COMPILER => '9999' ~ $?VERSION);  # never unTODO this.
-    $saved_val = $Test::todo_next_test;
-    ok 0, "this test should be TODO'd";
-    ok $saved_val, 'todo() sets $Test::todo_next_test to True';
-    ok !$Test::todo_next_test, 'todo() only affects the next one test';
-
-    todo [,] %($?COMPILER => '-10.' ~ $?VERSION);  # never unTODO this.
-    $saved_val = $Test::todo_next_test;
-    ok 1, "this test should not be TODO'd";
-    # warn $saved_val;
-    ok !$saved_val, "todo() didn't set \$Test::todo_next_test to True";
+    skip 9, 'no general tests';
 }
