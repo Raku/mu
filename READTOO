@@ -11,9 +11,40 @@ Adding comments about the papers is welcome/encouraged.
 Papers which stick around for a while, or are highly thought of, or
 relevant could be moved to READTHEM.
 
-Last updated 2006-08-21.
+Last updated 2006-08-22.
 
-== Current
+A Functional Perspective on SSA Optimisation Algorithms
+http://www.cse.unsw.edu.au/~chak/papers/CKZ03.html
+[mentioned by autrijus, 2005-10-03]
+http://colabti.de/irclogger/irclogger_log/perl6?date=2005-10-03,Mon#l1354
+
+The Banana Papers
+Functional Programming with Bananas, Lenses, Envelopes and Barbed Wire
+http://citeseer.ist.psu.edu/meijer91functional.html
+Bananas in Space: Extending Fold and Unfold to Exponential Types
+http://citeseer.ist.psu.edu/293490.html
+Revisiting Catamorphisms over Datatypes with Embedded Functions
+http://citeseer.ist.psu.edu/fegaras96revisiting.html
+Dealing with Large Bananas
+http://citeseer.ist.psu.edu/lammel00dealing.html
+[mentioned by autrijus, 2005-10-11]
+http://colabti.de/irclogger/irclogger_log/perl6?date=2005-10-11,Tue#l849
+
+Object-Oriented Style Overloading for Haskell
+http://research.microsoft.com/Users/simonpj/Papers/oo-haskell/overloading_conf.pdf
+[mentioned by gaal, 2005-10-30]
+http://colabti.de/irclogger/irclogger_log/perl6?date=2005-10-30,Sun#l648
+
+Papers about transactional memory in Haskell
+http://research.microsoft.com/users/simonpj/papers/stm/
+[mentioned by fanf2, 2005-11-03]
+http://colabti.de/irclogger/irclogger_log/perl6?date=2005-11-03,Thu#l373
+
+A Gentle Introduction to Semantic Subtyping
+http://www.cduce.org/papers/gentle.pdf
+http://www.cduce.org/papers.html
+[mentioned by autrijus, 2005-11-26]
+http://colabti.de/irclogger/irclogger_log/perl6?date=2005-11-26,Sat#l78
 
 Hybrid Type Checking
 http://www.soe.ucsc.edu/~cormac/papers/popl06-hybrid.ps
@@ -28,6 +59,55 @@ http://lambda-the-ultimate.org/node/1248
 Types for Modules
 http://www.dcs.ed.ac.uk/home/cvr/ECS-LFCS-98-389.html
 [mentioned by stevan, 2006-Jan]
+
+Scalable Component Abstractions
+http://lamp.epfl.ch/~odersky/papers/ScalableComponent.pdf
+http://lambda-the-ultimate.org/node/926
+[mentioned by putter, 2006-01-16]
+http://colabti.de/irclogger/irclogger_log/perl6?date=2006-01-16,Mon#l44
+
+MapReduce: Simplified Data Processing on Large Clusters
+http://labs.google.com/papers/mapreduce-osdi04-slides/index.html
+[mentioned by nothingmuch, 2006-01-25]
+http://colabti.de/irclogger/irclogger_log/perl6?date=2006-01-25,Wed#l300
+
+Digital Manipulatives: New Toys to Think With
+http://web.media.mit.edu/~mres/papers/chi-98/digital-manip.html
+[mentioned by putter, 2006-01-27]
+http://colabti.de/irclogger/irclogger_log/perl6?date=2006-01-27,Fri#l415
+
+The History of Haskell (draft) 
+http://haskell.org/haskellwiki/History_of_Haskell
+[mentioned by audreyt, 2006-02-11]
+http://colabti.de/irclogger/irclogger_log/perl6?date=2006-02-11,Sat#l263
+
+The 3 early boilerplate papers, by Simon Peyton Jones
+http://www.cs.vu.nl/boilerplate/#papers
+[mentioned by stevan, 2006-03-03]
+http://colabti.de/irclogger/irclogger_log/perl6?date=2006-03-03,Fri#l27
+
+Growing a Language
+http://homepages.inf.ed.ac.uk/wadler/steele-oopsla98.pdf 
+[mentioned by audreyt, 2006-03-14]
+http://colabti.de/irclogger/irclogger_log/perl6?date=2006-03-14,Tue#l1145
+
+Combinators for bi-directional tree transformations
+a linguistic approach to the view update problem
+http://portal.acm.org/citation.cfm?id=1040305.1040325
+[mentioned by audreyt, 2006-04-03]
+http://colabti.de/irclogger/irclogger_log/perl6?date=2006-04-03,Mon#l462
+
+Traits Papers
+http://www.iam.unibe.ch/~scg/Research/Traits/
+[mentioned by stevan, 2006-05-16]
+<stevan> [...] (1st and 3rd papers in the list)
+http://colabti.de/irclogger/irclogger_log/perl6?date=2006-05-16,Tue#l841
+
+SuperGlue: Component Programming with Object-oriented Signals
+http://lamp.epfl.ch/~mcdirmid/papers/mcdirmid06superglue.pdf 
+http://lambda-the-ultimate.org/node/1545
+[mentioned by nothingmuch, 2006-06-07]
+http://colabti.de/irclogger/irclogger_log/perl6?date=2006-06-07,Wed#l484
 
 Open data types and open functions
 http://lambda-the-ultimate.org/node/1453
@@ -47,6 +127,3 @@ http://colabti.de/irclogger/irclogger_log/perl6?date=2006-08-13,Sun&sel=323#l571
 The Semicolon Wars
 http://www.americanscientist.org/template/AssetDetail/assetid/51982
 [mentioned by [particle] 2006-08-14]
-
-== Older
-
