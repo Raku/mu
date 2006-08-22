@@ -421,21 +421,34 @@ sub process_syn ($$$$) {
 sub Usage {
     print <<_EOC_;
 Usage:
+  $0 t/*/*.t t/*/*/*.t
+  $0 --css foo.css --out-dir=public_html t/syntax/*.t
   $0 --check t/*/*.t t/*/*/*.t
   $0 --check t/some/test.t
-  $0 --css foo.css --out-dir=. t/syntax/*.t
+
+Options:
+  --help          Show this help.
+  --check         Only check the validity of the smartlinks, no
+                  HTML outputs.
+  --out-dir <dir> Specify the output directory for HTML files.
+  --css <file>    Specify the CSS file used by the HTML outputs,
+                  defaults to http://dev.perl.org/css/perl.css.
+  --fast          Do not update the Synopses from the web.
+  --syn-dir       Specify the directory where the Synopses live,
+                  defaults to pugs' docs/Perl6/Spec.
 _EOC_
     exit(0);
 }
 
 sub main {
-    my ($syn_dir, $out_dir, $help, $cssfile);
+    my ($syn_dir, $out_dir, $help, $cssfile, $fast);
     GetOptions(
         'check'     => \$check,
         'syn-dir=s' => \$syn_dir,
         'out-dir=s' => \$out_dir,
-        'help'      => \$help,
         'css=s'     => \$cssfile,
+        'help'      => \$help,
+        'fast'      => \$fast,
     );
 
     if ($help || !@ARGV) {
@@ -461,7 +474,9 @@ sub main {
     my $pugs_syn_dir = "$FindBin::Bin/../docs/Perl6/Spec";
     $syn_dir ||= $pugs_syn_dir;
 
-    if ($syn_dir eq $pugs_syn_dir) {
+    #warn "$fast";
+    if (!$fast and $syn_dir eq $pugs_syn_dir) {
+        #warn "HERE";
         system "$^X $syn_dir/update";
     }
     my @syns = map glob, "$syn_dir/*.pod";
