@@ -12,7 +12,7 @@
 use strict;
 use warnings;
 
-use YAML::Syck;
+#use YAML::Syck;
 use Getopt::Long;
 use File::Basename;
 use FindBin;
