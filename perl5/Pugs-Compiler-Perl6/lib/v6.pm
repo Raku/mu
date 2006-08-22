@@ -31,7 +31,8 @@ sub pmc_parse_blocks {
 
 sub pmc_filter {
     my ($class, $module, $line_number, $post_process) = @_;
-    print "Filter: [$module]\n";
+    return 
+        if $module eq '-e';
     $class->SUPER::pmc_filter($module, 0, $post_process);
 }
 
@@ -132,19 +133,26 @@ if (@ARGV and !caller) {
         exit 0;
     }
 }
-elsif ( @ARGV ) {
+elsif ( $0 eq '-e' ) {
     # perl -Ilib -e 'use v6-alpha' ' "hello world".say '
+    # perl -Ilib -e 'use v6-alpha' - ' "hello world".say '
+    # perl -Ilib -e 'use v6-alpha' - --compile-only ' "hello world".say '
+    # perl -Ilib -e 'use v6-alpha' - -Ilib6 ' "hello world".say '
+    # echo 42.say | perl -Ilib -e 'use v6-alpha' 
+    
+    #print "Compile [$0] [@ARGV]\n";
     my ($compile_only, $code);
 
-    # XXX - this doesn't work
-    if ($ARGV[0] eq '--compile-only') {
+    shift(@ARGV) if $ARGV[0] && $ARGV[0] eq '-';
+
+    if ($ARGV[0] && $ARGV[0] eq '--compile-only') {
         shift(@ARGV);
         $compile_only++;
     }
 
-    shift(@ARGV) if $ARGV[0] =~ /^--pugs/;
-    shift(@ARGV) if $ARGV[0] =~ /^-Bperl5$/i;
-    splice(@ARGV, 0, 2) if $ARGV[0] =~ /^-B$/;
+    shift(@ARGV) if $ARGV[0] && $ARGV[0] =~ /^--pugs/;
+    shift(@ARGV) if $ARGV[0] && $ARGV[0] =~ /^-Bperl5$/i;
+    splice(@ARGV, 0, 2) if $ARGV[0] && $ARGV[0] =~ /^-B$/;
 
     while (@ARGV and $ARGV[0] =~ /^-(\w)(.+)/) {
         use Config;
@@ -181,21 +189,25 @@ v6 - An experimental Perl 6 implementation
 
 =head1 SYNOPSIS
 
-Command line:
-
-    $ perl -Ilib lib/v6.pm -e 'for 1,2,3 -> $x { say $x }'
-
-Compile-only:
-
-    $ perl -Ilib lib/v6.pm --compile-only -e '<hello>.say;'
-
-Script or module:
-
     # file: hello_world.pl
     use v6-alpha;
     "hello, world".say;
 
     $ perl hello_world.pl
+
+C<v6-alpha> can be used in one-liners:
+
+    $ perl -e 'use v6-alpha' ' 42.say '
+    $ perl -e 'use v6-alpha' - ' 42.say '
+    $ perl -e 'use v6-alpha' - --compile-only ' 42.say '
+    $ perl -e 'use v6-alpha' - -Ilib6 ' 42.say '
+    $ echo 42.say | perl -e 'use v6-alpha' 
+
+C<v6.pm> can also be used as a plain program. 
+This examples assume that v6.pm is in the C<./lib> directory:
+
+    $ perl lib/v6.pm -e 'for 1,2,3 -> $x { say $x }'
+    $ perl lib/v6.pm --compile-only -e '<hello>.say;'
 
 =head1 DESCRIPTION
 
