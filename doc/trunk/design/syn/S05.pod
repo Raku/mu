@@ -641,7 +641,7 @@ a left parenthesis, it really is a call:
 
     <foo('bar')>
 
-If the first character after the angle is whitespace, the
+If the first character after the identifier is whitespace, the
 subsequent text (following any whitespace) is passed as regex, so:
 
     <foo bar>
