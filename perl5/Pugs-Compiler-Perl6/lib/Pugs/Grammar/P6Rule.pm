@@ -116,7 +116,7 @@ Pugs::Compiler::Token->install(
         \\{ <Pugs::Grammar::Perl6.parse> \\}
         { return { closure => $/{'Pugs::Grammar::Perl6.parse'}() ,} }
     )),
-  Pugs::Compiler::Regex->compile( 
+  Pugs::Compiler::Regex->compile(  
     #special_char => 
     q(
         \\\\ .

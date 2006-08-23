@@ -354,7 +354,7 @@ token Term:<INIT> {
         } }
 }
 
-token Term:<START> {
+token Term:<START> { 
     <?ws>? <Pugs::Grammar::Perl6.block>        
         { return { 
             trait  => 'START',

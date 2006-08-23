@@ -10,7 +10,7 @@ $Data::Dumper::Indent = 1;
 use Pugs::Emitter::Rule::Perl5::Ratchet;
 use Pugs::Runtime::Common;
 use Digest::MD5 'md5_hex';
-use Pugs::Runtime::Perl6;
+use Pugs::Runtime::Perl6; 
 
 # TODO - finish localizing %_V6_ENV at each block
 our %_V6_ENV;

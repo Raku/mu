@@ -180,7 +180,7 @@ use Data::Dumper;
 )->code;
 
 *category_name = Pugs::Compiler::Token->compile( q(
-        <Pugs::Grammar::Term.bare_ident>
+        <Pugs::Grammar::Term.bare_ident> 
         [   <':'> 
             [ 
                 <before \{ > 

@@ -203,7 +203,7 @@ sub recompile {
                 { return { scalar => '$.' . $_[0]->() ,} }
             ),
         '$/' => q(
-                { return { scalar => '$/' ,} }
+                { return { scalar => '$/' ,} } 
             ),
         '$()' => q(
                 { return { 
