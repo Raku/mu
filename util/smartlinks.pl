@@ -220,11 +220,17 @@ sub parse_pattern ($) {
     while (1) {
         if ($pat =~ /\G\s*"([^"]+)"/gc ||
             $pat =~ /\G\s*'([^']+)'/gc ||
-            $pat =~ /\G\s*(\S+)/gco) {
+            $pat =~ /\G\s*(\S+)/gc) {
                 push @keys, $1;
         } else { last }
     }
-    my $str = join('.+?', map quotemeta, @keys);
+    my $str = join('.+?', map {
+        my $key = quotemeta $_;
+        $key =~ s/^\w/\\b$&/;
+        $key =~ s/\w$/$&\\b/;
+        $key;
+    } @keys);
+
     $str;
 }
 
