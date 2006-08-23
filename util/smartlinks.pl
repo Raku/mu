@@ -224,7 +224,7 @@ sub parse_pattern ($) {
                 push @keys, $1;
         } else { last }
     }
-    my $str = join('.*?', map quotemeta, @keys);
+    my $str = join('.+?', map quotemeta, @keys);
     $str;
 }
 
