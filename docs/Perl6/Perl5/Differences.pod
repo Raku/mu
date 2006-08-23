@@ -146,6 +146,16 @@ This can be extended to take more than one element at a time:
     Was:    for  ($i=0; $i<10; $i++) { ... }
     Now:    loop ($i=0; $i<10; $i++) { ... }
 
+=head2 Global Variables have a twigil.
+
+Yes, a twigil. It's the second character in the variable name. For globals,
+it's a C<*>
+
+    Was:    $ENV{FOO}
+    Now:    %ENV<FOO>
+
+For details, see L<S02/"Names and Variables">.
+
 =head1 SEE ALSO
 
 =over
