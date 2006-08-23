@@ -146,6 +146,14 @@ sub _emit_double_quoted {
                      grep { length $_ } @strings);
 }
 
+sub _emit_angle_quoted {
+    my $n = $_[0];
+    return "qw($n)" unless $n =~ /[()]/;
+    return "qw!$n!" unless $n =~ /[!]/;
+    return "qw^$n^" unless $n =~ /[\^]/;
+    die "can't quote string [$n]";
+}
+
 sub _emit {
     my $n = $_[0];
     #die "_emit: ", Dumper( $n ); 
@@ -194,13 +202,13 @@ sub _emit {
     return _var_get( $n )
         if exists $n->{hash};
         
-    return _emit_double_quoted($n->{double_quoted})
+    return _emit_double_quoted( $n->{double_quoted} )
         if exists $n->{double_quoted};
             
     return '\'' . $n->{single_quoted} . '\'' 
         if exists $n->{single_quoted};
             
-    return 'qw(' . $n->{angle_quoted} . ')' 
+    return _emit_angle_quoted( $n->{angle_quoted} )
         if exists $n->{angle_quoted};
             
     return $n->{perl5source}  
@@ -474,7 +482,7 @@ sub _emit_closure {
     return " Data::Bind->sub_signature( sub {" .
         "   my %_V6_PAD;\n" .
         _emit_parameter_binding( $signature ) .
-        _emit( $block ) .
+        emit_block_nobraces( $block ) .
     "\n }, "._emit_parameter_signature( $signature ).")\n";
 }
 
@@ -1084,14 +1092,15 @@ sub term {
         }
         
         if ( $n->{category} ) {
-            $perl5 =~ s/^sub/$name = sub /;
+            # XXX - signature, exports are currently disabled, need more work
+            return "$name = $perl5";
         }
         elsif ( $name ) {
-            $perl5 =~ s/^sub/sub $name/;
+            $perl5 = "*$name = $perl5";
         }
         # TODO - _emit_parameter_binding( $n->{signature} ) .
         return  $export .
-                $perl5 .
+                $perl5 . ";" .
                 "## Signature for $name\n" .
                 " Data::Bind->sub_signature\n".
                 " (\\&$name, ". _emit_parameter_signature ( $n->{signature} ) . ");\n";
@@ -1322,13 +1331,13 @@ sub postcircumfix {
 
         # $/<x>
         return " " . _emit( $n->{exp1} ) . 
-            '->{ qw(' . $n->{exp2}{angle_quoted} . ') }'
+            '->{ ' . _emit_angle_quoted( $n->{exp2}{angle_quoted} ) . ' }'
             if exists $n->{exp1}{scalar};
 
         # looks like a hash slice
         $name =~ s/^(?: \% | \$ ) / \@ /x;
 
-        return $name . '{ qw(' . $n->{exp2}{angle_quoted} . ') }';
+        return $name . '{ ' . _emit_angle_quoted( $n->{exp2}{angle_quoted} ) . ' }';
     }
 
     if ( $n->{op1}{op} eq '{' &&
