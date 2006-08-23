@@ -309,6 +309,10 @@ sub gen_code_snippet ($) {
     #warn $snippet_id;
     #warn "$file $to $from";
     warn "NOT DEFINED!!! @$location $snippet_id" if !defined $src;
+
+    # Strip leading realpath so the names start at t/
+    $file =~ s{.*/t/}{t/};
+
     my $nlines = $to - $from + 1;
     my $html = <<"_EOC_";
 <a name="msg_${snippet_id}"></a>
