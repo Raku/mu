@@ -3,7 +3,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 15;
+use Test::More tests => 16;
 use FindBin;
 
 require "$FindBin::Bin/../smartlinks.pl";
@@ -14,12 +14,13 @@ require "$FindBin::Bin/../smartlinks.pl";
     is $got, 'abc .* C<cd>', 'legacy regex pattern works';
 
     $got = parse_pattern(q{'abc' '"123"' 567});
-    is $got, 'abc.*?\"123\".*?567', 'keyword pattern works';
+    is $got, 'abc.+?\"123\".+?567', 'keyword pattern works';
 
-    like 'abcd is 5"123"567', qr/$got/, 'the regex works';
+    unlike 'abcd is 5"123"567', qr/$got/, 'the regex works';
+    like 'abcd is 5"123" 567', qr/$got/, 'the regex works';
 
     $got = parse_pattern(q{he likes me. right?});
-    is $got, 'he.*?likes.*?me\..*?right\?', 'chars get quoted';
+    is $got, 'he.+?likes.+?me\..+?right\?', 'chars get quoted';
     like 'i do believe he really likes john and me. am i right? hehe.',
         qr/$got/, 'regex matched';
 
@@ -74,7 +75,7 @@ _EOC_
     'paragraph processed as expected';
 
     my $regex = parse_pattern('"#" on "beginning of line" always "line-end comment"');
-    is $regex, '\#.*?on.*?beginning\ of\ line.*?always.*?line\-end\ comment',
+    is $regex, '\#.+?on.+?beginning\ of\ line.+?always.+?line\-end\ comment',
         'regex generated as expected';
     like $str, qr/$regex/, 'text matched';
 }
