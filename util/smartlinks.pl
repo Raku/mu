@@ -410,7 +410,8 @@ sub process_syn ($$$$) {
         #    write_file("S$syn_id.pod", $pod);
         #}
         my $html = gen_html($pod, $cssfile);
-        $html =~ s,<title>\s*TITLE\s*</title>,<title>S$syn_id</title>,s;
+        $html =~ s,<title>\s*TITLE\s*</title>,<title>S$syn_id</title>,si;
+        $html =~ s,<span class="block">&nbsp;TITLE</span>,S$syn_id,si;
         my $htmfile = "$out_dir/S$syn_id.html";
         warn "info: generating $htmfile...\n";
         open my $out, "> $htmfile" or
