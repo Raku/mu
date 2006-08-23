@@ -14,7 +14,7 @@ require "$FindBin::Bin/../smartlinks.pl";
     is $got, 'abc .* C<cd>', 'legacy regex pattern works';
 
     $got = parse_pattern(q{'abc' '"123"' 567});
-    is $got, '\babc\b.+?\"123\".+?\b567\b', 'keyword pattern works';
+    is $got, '\babc\b.+?\"123\".+?\b567\b', 'keyphrase pattern works';
 
     unlike 'abc d is 5"123"567', qr/$got/, 'the regex works';
     unlike 'abcd is 5"123" 567', qr/$got/, 'the regex works';
