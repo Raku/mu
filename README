@@ -45,8 +45,8 @@ be moved to the third-party/ directory.
 The "ByteString" subsystem is derived from Don Stewart et al's work,
 under a BSD-style license.  See third-party/fps/LICENSE.
 
-The "FilePath" subsystem is derived from FilePath 0.1.0 by Isaac Jones,
-under a BSD-style license.  See src/System/LICENSE.
+The "FilePath" subsystem is derived from Neil Mitchell's work,
+under a BSD-style license.  See third-party/filepath/System/FilePath.hs.
 
 The "HsJudy" subsystem is derived from Caio Marcelo de Oliveira Filho's
 work, under a BSD-style license.  See third-party/HsJudy/HsJudy.cabal.
@@ -69,9 +69,6 @@ under the same license as Parrot.  See src/pge/README.
 
 The "RRegex" subsystem is derived from hsregex 0.2 by John Meacham,
 under a BSD-style license.  See src/RRegex/LICENSE.
-
-The "Rule" subsystem is derived from Parsec 2.0 by Daan Leijen,
-under a BSD-style license.  See src/Pugs/Rule/LICENSE.
 
 
 COPYRIGHTED PERL 6 LIBRARY EXTENSIONS

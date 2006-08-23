@@ -118,7 +118,7 @@ sub build {
 
     chdir "../../..";
 
-    foreach my $module (qw< fps HsSyck HsJudy >) {
+    foreach my $module (qw< filepath fps HsSyck HsJudy >) {
         if ( my ($archive_dir) = (
                 glob("third-party/installed/*/$module-*"),
                 glob("third-party/installed/*/pugs-$module-*"),

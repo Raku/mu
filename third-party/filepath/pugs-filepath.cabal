@@ -1,0 +1,13 @@
+Name:           pugs-filepath
+Version:        0.1
+License:        BSD3
+Author:         Neil Mitchell
+Homepage:       http://www-users.cs.york.ac.uk/~ndm/projects/libraries.php
+Category:       System
+Build-Depends:  base
+Synopsis:       Library for manipulating FilePath's in a cross platform way.
+Exposed-modules:
+        System.FilePath
+        System.FilePath.Posix
+        System.FilePath.Windows
+Extensions: CPP
