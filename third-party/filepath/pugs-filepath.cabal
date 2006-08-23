@@ -6,8 +6,5 @@ Homepage:       http://www-users.cs.york.ac.uk/~ndm/projects/libraries.php
 Category:       System
 Build-Depends:  base
 Synopsis:       Library for manipulating FilePath's in a cross platform way.
-Exposed-modules:
-        System.FilePath
-        System.FilePath.Posix
-        System.FilePath.Windows
+Exposed-modules: System.FilePath
 Extensions: CPP
