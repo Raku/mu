@@ -492,7 +492,7 @@ sub default {
     if ( exists $n->{op1} && $n->{op1} eq 'call' ) {
         # warn "call: ",Dumper $n;
 
-        if ($n->{sub}{scalar} || $n->{sub}{statement}) {
+        if ($n->{sub}{scalar} || $n->{sub}{exp1} || $n->{sub}{statement}) {
             return _emit($n->{sub}). '->(' . 
                 _emit_parameter_capture( $n->{param} ) . ')';
         }
@@ -1054,11 +1054,21 @@ sub term {
             }
         }
 
-        my $perl5 = Pugs::Emitter::Rule::Perl5::Ratchet::emit( 
-            'Pugs::Grammar::Base', 
-            $n->{block}, 
-            {},   # options
-        );
+        my $perl5;
+        if ( $n->{term} eq 'regex' ) {
+            $perl5 = Pugs::Emitter::Rule::Perl5::emit( 
+                'Pugs::Grammar::Base', 
+                $n->{block}, 
+                {},   # options
+            );
+        }
+        else {
+            $perl5 = Pugs::Emitter::Rule::Perl5::Ratchet::emit( 
+                'Pugs::Grammar::Base', 
+                $n->{block}, 
+                {},   # options
+            );
+        }
         $perl5 =~ s/^sub/sub $name/ if $name;
         # TODO - _emit_parameter_binding( $n->{signature} ) .
         return  $export .
@@ -1291,6 +1301,11 @@ sub postcircumfix {
         my $name = _emit( $n->{exp1} );
         #$name =~ s/^\%/\$/;
 
+        # $/<x>
+        return " " . _emit( $n->{exp1} ) . 
+            '->{ qw(' . $n->{exp2}{angle_quoted} . ') }'
+            if exists $n->{exp1}{scalar};
+
         # looks like a hash slice
         $name =~ s/^(?: \% | \$ ) / \@ /x;
 
@@ -1300,6 +1315,12 @@ sub postcircumfix {
     if ( $n->{op1}{op} eq '{' &&
          $n->{op2}{op} eq '}' ) {
         my $name = _emit( $n->{exp1} );
+
+        # $/{'x'}
+        return " " . _emit( $n->{exp1} ) . 
+            '->{' . _emit( $n->{exp2}{statements}[0] ) . '}'
+            if exists $n->{exp1}{scalar};
+
         # die "trying to emit ${name}{exp}" unless $name =~ m/^\%/;
         #print "postcircumfix{} ",Dumper( $n->{exp2}{statements} );
         if (  exists $n->{exp2}{statements}[0]{list}

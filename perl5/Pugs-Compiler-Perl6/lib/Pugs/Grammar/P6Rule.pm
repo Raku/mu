@@ -83,8 +83,7 @@ Pugs::Compiler::Token->install(
     )),
   Pugs::Compiler::Regex->compile( 
     #metasyntax => 
-    q(
-        \\< ([ <metasyntax> | \\\\ . | . ]+?) \\>
+    q(  \\< ([ <metasyntax> | \\\\ . | . ]+?) \\>
         { return { metasyntax => $/[0]() ,} }
     )),
   #*named_capture = 
@@ -136,7 +135,7 @@ Pugs::Compiler::Token->install(
     )),
   #*colon = 
   Pugs::Compiler::Token->compile(q(
-        (  \\:\\:\\:  
+        (  <':::'>  
         |  \\:\\?     
         |  \\:\\+     
         |  \\:\\:  |  \\: 
@@ -157,7 +156,7 @@ Pugs::Compiler::Token->install(
             #print "term: ", Dumper( $_[0]->data );
             return $/{'Pugs::Grammar::P6Rule::rule_terms'}() 
         }
-    |  ( <-[ \\] \\} \\\) \\: \\? \\+ \\* \\| \\& ]> )
+    |  ( <-[ \\] \\} \\\) \\> \\: \\? \\+ \\* \\| \\& ]> )
         { 
             #print "constant: ", Dumper( $_[0]->data );
             return { 'constant' => $/[0]->() ,} 
@@ -169,13 +168,13 @@ Pugs::Compiler::Token->install(
     <term> 
     $<ws2>   := (<?ws>?)
     $<quant> := (
-        |  \\?\\?  
-        |  \\*\\?  
-        |  \\+\\? 
-        |  \\?       
-        |  \\*       
-        |  \\+
-        |  <''>   )
+        |  <'??'>  
+        |  <'*?'>  
+        |  <'+?'> 
+        |  <'?'>  
+        |  <'*'>  
+        |  <'+'> 
+        |  <null>   )
     $<ws3>   := (<?ws>?)
     { return {  
             term  => $/{term}(),
