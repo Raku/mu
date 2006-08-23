@@ -197,6 +197,7 @@ sub process_paragraph ($) {
     $str =~ s/L<(.*?)>/$1/go;
     $str =~ s/C<<(.*?)>>/$1/go;
     $str =~ s/C<(.*?)>/$1/go;
+    $str =~ s/F<(.*?)>/$1/go;
     $str =~ s/I<<(.*?)>>/$1/go;
     $str =~ s/I<(.*?)>/$1/go;
     $str =~ s/B<<(.*?)>>/$1/go;
@@ -243,7 +244,7 @@ function tog() {
   // tog: toggle the visibility of html elements (arguments[1..]) from none to
   // arguments[0].  Return what should be returned in a javascript onevent().
   display = arguments[0];
-  for( var i=1; i<arguments.length; i++ ) {    
+  for( var i=1; i<arguments.length; i++ ) {
     var x = document.getElementById(arguments[i]);
     if (!x) continue;
     if (x.style.display == "none" || x.style.display == "") {
@@ -251,7 +252,7 @@ function tog() {
     } else {
       x.style.display = "none";
     }
-  } 
+  }
 
   var e = is_ie ? window.event : this;
   if (e) {
@@ -267,7 +268,7 @@ function tog() {
 
 function tog_quote( idnum ) {
   return tog( 'block', 'header_shown_' + idnum, 'header_hidden_' + idnum,
-	   'hide_' + idnum );
+       'hide_' + idnum );
 }
 
 //--></script>
@@ -281,8 +282,11 @@ _EOC_
         ,;
     }
     $html =~ s,</head>,$header</head>,;
-    # stripped the line prefixes introduced by `gen_code_snippet`:
+
+    # substitutes the placeholders introduced by `gen_code_snippet`
+    # with real code snippets:
     $html =~ s,<p>\s*_SMART_LINK_(\d+)\s*</p>,$snippets[$1],sg;
+
     $html =~ s,<hr />,,g;
     $html;
 }
@@ -326,7 +330,7 @@ sub gen_code_snippet ($) {
 </div>
 </a>
 <div ID="hide_${snippet_id}" style="display:none; border:1px solid">
-<pre>
+<pre style="margin-left: 6px">
 $src
 </pre>
 </div>
@@ -465,7 +469,7 @@ sub main {
 
     $count = 0;
     $broken_count = 0;
-    
+
     $out_dir ||= '.';
     mkdir $out_dir if !-d $out_dir;
 
