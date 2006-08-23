@@ -146,7 +146,14 @@ This can be extended to take more than one element at a time:
     Was:    for  ($i=0; $i<10; $i++) { ... }
     Now:    loop ($i=0; $i<10; $i++) { ... }
 
-=head1 AUTHOR
+=head1 SEE ALSO
+
+=over
+
+=item  L<S03/"Changes to Perl 5 operators">
+
+=back 
+
+=head1 AUTHORS
 
 Kirrily "Skud" Robert, <skud@cpan.org>
-
