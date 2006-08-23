@@ -190,7 +190,7 @@ use Data::Dumper;
                     name       => $_[0]{'Pugs::Grammar::Term::hash'}->(),
                 } }
             | 
-                <before \< > 
+                #<before \< > 
                 <%Pugs::Grammar::Quote::hash>
                 { return { 
                     category   => $_[0]{'Pugs::Grammar::Term.bare_ident'}->(),
