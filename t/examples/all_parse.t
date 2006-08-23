@@ -13,10 +13,11 @@ can compile.  It does not verify run ability or verify output.
 
 my $f = File::Find.new(
     wanted_file => sub ($file, $path, $pathfile) {
-        return 1 if $file ~~ m:P5/^.*\.pl$/;
+        return 0 if $file ~~ m:P5/-p5/;
+        return 1 if $file ~~ m:P5/\.pl$/;
     },
     wanted_dir => sub ($dir, $path, $pathdir) {
-        return 0 if $dir ~~ m:P5/^\.svn$/;
+        return 0 if $dir eq '.svn';
         return 1;
     },
     dirs => qw/examples/
@@ -59,7 +60,10 @@ for @files -> $ex is rw {
             is 'parse passed', 'parse passed', "$ex parsed correctly";
         }
         else {
-            is 'parse failed', 'parse passed', "$ex fails to parse correctly";
+            is 'parse of $ex failed', 'parse passed', "$ex fails to parse correctly";
         }
+    }
+    if $! {
+	is "parse of $ex failed: $!", 'parse passed', "$ex fails to run correctly";
     }
 }
