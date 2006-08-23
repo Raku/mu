@@ -1026,6 +1026,10 @@ sub term {
                 $multi_sub = "BEGIN { Sub::Multi->add_multi('$wrapper_name', \\&$name) }\n";
             }
             # XXX: check incompatible attributes
+
+            return "$name = "._emit_closure($n->{signature}, $n->{block}) 
+                if $n->{category};
+        
             return "local *$name = "._emit_closure($n->{signature}, $n->{block}) 
                 if $n->{my};
 
@@ -1078,7 +1082,13 @@ sub term {
                 {},   # options
             );
         }
-        $perl5 =~ s/^sub/sub $name/ if $name;
+        
+        if ( $n->{category} ) {
+            $perl5 =~ s/^sub/$name = sub /;
+        }
+        elsif ( $name ) {
+            $perl5 =~ s/^sub/sub $name/;
+        }
         # TODO - _emit_parameter_binding( $n->{signature} ) .
         return  $export .
                 $perl5 .
