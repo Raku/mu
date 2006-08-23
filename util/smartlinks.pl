@@ -17,10 +17,11 @@ use warnings;
 use Getopt::Long;
 use File::Basename;
 use FindBin;
-use Pod::Html;
+use Pod::Simple::HTML;
 use File::Temp 'tempfile';
 
-my ($check, $count, $broken_count);
+my $check;
+my ($count, $broken_count);
 my (@snippets, $snippet_id);
 
 my %Spec = reverse qw(
@@ -28,6 +29,48 @@ my %Spec = reverse qw(
     05 Rule     06 Subroutine   09 Structure    10 Package
     11 Module   12 Object       13 Overload     29 Functions
 );
+
+my $javascript = <<'_EOC_';
+<script type="text/javascript">
+var agt = navigator.userAgent.toLowerCase();
+
+var is_opera = (agt.indexOf("opera") != -1);
+var is_ie = (agt.indexOf("msie") != -1) && document.all && !is_opera;
+var is_ie5 = (agt.indexOf("msie 5") != -1) && document.all;
+
+function tog() {
+  // tog: toggle the visibility of html elements (arguments[1..]) from none to
+  // arguments[0].  Return what should be returned in a javascript onevent().
+  display = arguments[0];
+  for( var i=1; i<arguments.length; i++ ) {
+    var x = document.getElementById(arguments[i]);
+    if (!x) continue;
+    if (x.style.display == "none" || x.style.display == "") {
+      x.style.display = display;
+    } else {
+      x.style.display = "none";
+    }
+  }
+
+  var e = is_ie ? window.event : this;
+  if (e) {
+    if (is_ie) {
+      e.cancelBubble = true;
+      e.returnValue = false;
+      return false;
+    } else {
+      return false;
+    }
+  }
+}
+
+function tog_quote( idnum ) {
+  return tog( 'block', 'header_shown_' + idnum, 'header_hidden_' + idnum,
+       'hide_' + idnum );
+}
+
+</script>
+_EOC_
 
 sub add_link ($$$$$$$)  {
     my ($links, $synopsis, $section, $pattern, $t_file, $from, $to) = @_;
@@ -205,26 +248,28 @@ sub process_paragraph ($) {
     $str;
 }
 
-sub gen_html ($$) {
-    my ($pod, $cssfile) = @_;
+sub gen_html ($$$) {
+    my ($pod, $syn_id, $cssfile) = @_;
 
     my ($fh, $podfile) = tempfile(SUFFIX => '.pod');
     print $fh $pod;
     close $fh;
     my $htmfile = "$podfile.html";
 
-    pod2html($podfile,
-        "--backlink=Back to Top",
-        "--htmlroot=.",
-        "--recurse",
-        "--infile=$podfile",
-        "--outfile=$htmfile",
-        "--css=$cssfile",
-        "--header",
-        "--quiet",
-    );
-    unlink 'pod2htmd.tmp';
-    unlink 'pod2htmi.tmp';
+    $Pod::Simple::HTML::Content_decl =
+        q{<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >};
+
+    $Pod::Simple::HTML::Doctype_decl =
+        qq{<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+           "http://www.w3.org/TR/html4/loose.dtd">\n};
+
+    my $pod2html = new Pod::Simple::HTML;
+    $pod2html->index(1);
+    $pod2html->html_css($cssfile);
+    $pod2html->html_javascript($javascript);
+
+    $pod2html->force_title('S'.$syn_id);
+    $pod2html->parse_from_file($podfile, $htmfile);
 
     open my $in, $htmfile or
         die "Can't open $htmfile for reading: $!";
@@ -232,62 +277,9 @@ sub gen_html ($$) {
     my $html = <$in>;
     close $in;
 
-    my $header = <<'_EOC_';
-<script type="text/javascript"><!--
-var agt = navigator.userAgent.toLowerCase();
-
-var is_opera = (agt.indexOf("opera") != -1);
-var is_ie = (agt.indexOf("msie") != -1) && document.all && !is_opera;
-var is_ie5 = (agt.indexOf("msie 5") != -1) && document.all;
-
-function tog() {
-  // tog: toggle the visibility of html elements (arguments[1..]) from none to
-  // arguments[0].  Return what should be returned in a javascript onevent().
-  display = arguments[0];
-  for( var i=1; i<arguments.length; i++ ) {
-    var x = document.getElementById(arguments[i]);
-    if (!x) continue;
-    if (x.style.display == "none" || x.style.display == "") {
-      x.style.display = display;
-    } else {
-      x.style.display = "none";
-    }
-  }
-
-  var e = is_ie ? window.event : this;
-  if (e) {
-    if (is_ie) {
-      e.cancelBubble = true;
-      e.returnValue = false;
-      return false;
-    } else {
-      return false;
-    }
-  }
-}
-
-function tog_quote( idnum ) {
-  return tog( 'block', 'header_shown_' + idnum, 'header_hidden_' + idnum,
-       'hide_' + idnum );
-}
-
-//--></script>
-_EOC_
-
-    if ($html !~ s,text/html; charset=[^">]+,text/html; charset=UTF-8,) {
-        $html =~ s,<head>,
-            <head>
-            <meta HTTP-EQUIV="content-type" CONTENT="text/html; charset=UTF-8" />
-            <meta name="save" content="history">
-        ,;
-    }
-    $html =~ s,</head>,$header</head>,;
-
     # substitutes the placeholders introduced by `gen_code_snippet`
     # with real code snippets:
     $html =~ s,<p>\s*_SMART_LINK_(\d+)\s*</p>,$snippets[$1],sg;
-
-    $html =~ s,<hr />,,g;
     $html;
 }
 
@@ -310,7 +302,11 @@ sub gen_code_snippet ($) {
         $src .= $_;
     } continue { $i++ }
     close $in;
+
+    $src =~ s/\n+$//sg;
+
     $snippet_id++;
+    
     #warn $snippet_id;
     #warn "$file $to $from";
     warn "NOT DEFINED!!! @$location $snippet_id" if !defined $src;
@@ -330,9 +326,7 @@ sub gen_code_snippet ($) {
 </div>
 </a>
 <div ID="hide_${snippet_id}" style="display:none; border:1px solid">
-<pre style="margin-left: 6px">
-$src
-</pre>
+<pre style="margin-left: 6px">$src</pre>
 </div>
 _EOC_
     $snippets[$snippet_id] = $html;
@@ -414,9 +408,7 @@ sub process_syn ($$$$) {
         #    use File::Slurp;
         #    write_file("S$syn_id.pod", $pod);
         #}
-        my $html = gen_html($pod, $cssfile);
-        $html =~ s,<title>\s*TITLE\s*</title>,<title>S$syn_id</title>,si;
-        $html =~ s,<span class="block">&nbsp;TITLE</span>,S$syn_id,si;
+        my $html = gen_html($pod, $syn_id, $cssfile);
         my $htmfile = "$out_dir/S$syn_id.html";
         warn "info: generating $htmfile...\n";
         open my $out, "> $htmfile" or
