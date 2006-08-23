@@ -904,6 +904,15 @@ sub autoquote {
     return _emit( $n );
 }
 
+sub emit_sub_name {
+    my $n = $_[0];
+    print "sub name: ", Dumper( $n );
+    my $name = Pugs::Runtime::Common::mangle_ident( $n->{name} );
+    return $name
+        unless $n->{category};
+    return '$::_V6_GRAMMAR::' . $n->{category} . '{' . _emit( $n->{name} ) . '}';
+}
+
 sub term {
     my $n = $_[0];
     #print "term: ", Dumper( $n );
@@ -998,7 +1007,7 @@ sub term {
         my %old_env = %{ deep_copy( \%_V6_ENV ) };
         local %_V6_ENV = %old_env;
 
-        my $name = Pugs::Runtime::Common::mangle_ident( $n->{name} );
+        my $name = emit_sub_name( $n );
 
         my $export = '';
         for my $attr ( @{$n->{attribute}} ) {
@@ -1044,8 +1053,8 @@ sub term {
          $n->{term} eq 'regex' ) {
         #warn "rule: ",Dumper $n;
 
-        my $name = Pugs::Runtime::Common::mangle_ident( $n->{name} );
-
+        my $name = emit_sub_name( $n );
+        
         my $export = '';
         for my $attr ( @{$n->{attribute}} ) {
             if ( $attr->[0]{bareword} eq 'is' &&
