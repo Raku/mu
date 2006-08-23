@@ -187,14 +187,30 @@ use Data::Dumper;
                 <%Pugs::Grammar::Term::hash> 
                 { return { 
                     category   => $_[0]{'Pugs::Grammar::Term.bare_ident'}->(),
-                    name       => $_[0]{'Pugs::Grammar::Term::hash'}->(),
+                    name       => {
+                        'exp1' => { 
+                            'scalar' => '$::_V6_GRAMMAR::' . 
+                                $_[0]{'Pugs::Grammar::Term.bare_ident'}->(), },
+                        'exp2' => $_[0]{'Pugs::Grammar::Term::hash'}
+                                ->()->{bare_block}, 
+                        'fixity' => 'postcircumfix',
+                        'op1' => { 'op' => '{' },
+                        'op2' => { 'op' => '}' },
+                    }
                 } }
             | 
                 #<before \< > 
                 <%Pugs::Grammar::Quote::hash>
                 { return { 
                     category   => $_[0]{'Pugs::Grammar::Term.bare_ident'}->(),
-                    name       => $_[0]{'Pugs::Grammar::Quote::hash'}->(),
+                    name       => {
+                        'exp1' => { 
+                            'scalar' => '$::_V6_GRAMMAR::' . $_[0]{'Pugs::Grammar::Term.bare_ident'}->(), },
+                        'exp2' => $_[0]{'Pugs::Grammar::Quote::hash'}->(), 
+                        'fixity' => 'postcircumfix',
+                        'op1' => { 'op' => '<' },
+                        'op2' => { 'op' => '>' },
+                    }
                 } }
             ]
         | 

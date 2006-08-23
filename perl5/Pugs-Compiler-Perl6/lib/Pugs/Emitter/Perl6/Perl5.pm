@@ -906,11 +906,11 @@ sub autoquote {
 
 sub emit_sub_name {
     my $n = $_[0];
-    print "sub name: ", Dumper( $n );
+    #print "sub name: ", Dumper( $n );
     my $name = Pugs::Runtime::Common::mangle_ident( $n->{name} );
     return $name
         unless $n->{category};
-    return '$::_V6_GRAMMAR::' . $n->{category} . '{' . _emit( $n->{name} ) . '}';
+    return _emit( $n->{name} );
 }
 
 sub term {
