@@ -283,6 +283,7 @@ _EOC_
     $html =~ s,</head>,$header</head>,;
     # stripped the line prefixes introduced by `gen_code_snippet`:
     $html =~ s,<p>\s*_SMART_LINK_(\d+)\s*</p>,$snippets[$1],sg;
+    $html =~ s,<hr />,,g;
     $html;
 }
 
