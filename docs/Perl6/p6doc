@@ -3,8 +3,25 @@
 use strict;
 use Pod::Perldoc;
 
+my %Spec = qw(
+    1 Overview 2 Syntax       3 Operator     4 Block
+    5 Rule     6 Subroutine   9 Structure    10 Package
+    11 Module 12 Object      13 Overload
+
+    17 Concurrency
+    22 CPAN
+    26 Documentation
+    29 Functions
+);
+
 my $doc = shift || 'doc';
-$doc = "Perl6::\L\u$doc";
+if ($doc =~ /^S?0*(\d+)/i) {
+    $doc = "Perl6::Spec::$Spec{$1}";
+}
+else {
+    # XXX - Be more like "ri" and allow introspection over API etc
+    $doc = "Perl6::\L\u$doc";
+}
 @ARGV = $doc;
 
 exit( Pod::Perldoc->run() );
