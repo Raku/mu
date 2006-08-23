@@ -43,8 +43,9 @@ printCommandLineHelp
         putStrLn "-d               run the program with debug tracing"
         putStrLn "-Bbackend        execute using the compiler backend"
         putStrLn "-Cbackend        compile using the compiler backend"
+        putStrLn "-Mmodule         execute 'use module' before running the program"
+        putStrLn "-Ipath           add path to module search paths in @*INC"
         putStrLn ("                 (valid backends are: " ++ backendsStr ++ ")")
-        putStrLn "-Mmodule         execute 'use module' before executing the program"
         putStrLn "-h or --help     give this message"
         putStrLn "-V               long configuration information & version"
         putStrLn "-V:item          short configuration information for item"
