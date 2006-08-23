@@ -7,10 +7,13 @@ use strict;
 use warnings;
 use Getopt::Long;
 use Test::Harness;
+use File::Spec;
 
 my ($pugs, $pir, $perl5, $help, $inc);
 my $blib = 0;
 my $lib = 0;
+my $recurse = 0;
+my @ext = ();
 my @includes = ();
 my @switches = ();
 my $update_yml = 0;
@@ -42,6 +45,8 @@ GetOptions(
     'b|blib'        => \$blib,
     'l|lib'         => \$lib,
     'v|verbose'     => \$Test::Harness::verbose,
+    'r|recurse'     => \$recurse,
+    'ext=s@'        => \@ext,
 
     'update-yml'    => \$update_yml,
 ) or exit 1;
@@ -72,17 +77,26 @@ Options:
     -b, --blib    Adds blib/lib to the path for your tests, a la "use blib".
     -l, --lib     Add lib to the path for your tests.
     -v, --verbose Display standard output of test scripts while running them.
+    -r, --recurse Recursively descend into directories.
+    --ext=x       Extensions (defaults to .t)
 
     -update-yml   refresh Test.pm.yml and Prelude.pm.yml
 _EOC_
     exit(0);
 }
 
+# Build up extensions regex
+@ext = map { split /,/ } @ext;
+s/^\.// foreach @ext;
+@ext = ("t") unless @ext;
+my $ext_regex = join( "|", map { quotemeta } @ext );
+$ext_regex = qr/\.($ext_regex)$/;
+
 my $sum = do { no warnings; $pugs + $perl5 + $pir };
 if ($sum > 1) { die "error: you can't specify multiple implementations/backends.\n"; }
 if ($sum == 0) { $pugs = 1 } # default to pugs
 
-my @tfiles = sort map glob, @ARGV;
+my @tfiles = sort map { -d $_ ? all_in($_) : $_ } map glob, @ARGV;
 
 $ENV{PERL6LIB} ||= 'blib6/lib';
 my $sep = ($^O eq 'MSWin32')? ';' : ':';
@@ -150,6 +164,35 @@ if ($perl5) {
 }
 
 runtests(@tfiles);
+
+# Stolen directly from 'prove'
+sub all_in {
+    my $start = shift;
+
+    my @hits = ();
+
+    local *DH;
+    if ( opendir( DH, $start ) ) {
+        my @files = sort readdir DH;
+        closedir DH;
+        for my $file ( @files ) {
+            next if $file eq File::Spec->updir || $file eq File::Spec->curdir;
+            next if $file eq ".svn";
+            next if $file eq "CVS";
+
+            my $currfile = File::Spec->catfile( $start, $file );
+            if ( -d $currfile ) {
+                push( @hits, all_in( $currfile ) ) if $recurse;
+            } else {
+                push( @hits, $currfile ) if $currfile =~ $ext_regex;
+            }
+        }
+    } else {
+        warn "$start: $!\n";
+    }
+
+    return @hits;
+}
 
 # Stolen directly from 'prove', which stole from blib.pm
 sub blibdirs {
