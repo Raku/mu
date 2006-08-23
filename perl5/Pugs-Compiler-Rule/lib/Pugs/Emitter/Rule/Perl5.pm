@@ -67,6 +67,7 @@ sub emit {
         "    my \$cap = \$tree->data->{capture};\n" .
         "    if ( ref \$cap eq 'CODE' ) { \n" .
 
+        "        \$::_V6_MATCH_ = \$tree;\n" .
         "        \$tree->data->{capture} = \\(\$cap->( \$tree ));\n" .
 
         "    };\n" .
@@ -254,6 +255,42 @@ sub match_variable {
 sub closure {
     my $code = $_[0]; 
     
+    if ( ref( $code ) ) {
+        if ( defined $Pugs::Compiler::Perl6::VERSION ) {
+            # perl6 compiler is loaded
+            my $perl5 = Pugs::Emitter::Perl6::Perl5::emit( 'grammar', $code, 'self' );
+            return "
+                sub { 
+                    \$::_V6_MATCH_ = \$_[0]; 
+                    local \$::_V6_SUCCEED = 1;
+                    my \$capture = sub { $perl5 }->();
+                    \$_[3] = Pugs::Runtime::Match->new( { 
+                        bool  => \\\$::_V6_SUCCEED, 
+                        str   => \\(\$_[0]),
+                        from  => \\(\$_[7]{p} || 0),
+                        to    => \\(\$_[7]{p} || 0),
+                        match => [],
+                        named => {},
+                        capture => \\\$capture,
+                    } )
+                }\n"
+                unless $perl5 =~ /return/;
+            return "
+                sub { 
+                    \$_[3] = Pugs::Runtime::Match->new( { 
+                        bool  => \\1, 
+                        str   => \\(\$_[0]),
+                        from  => \\(\$_[7]{p} || 0),
+                        to    => \\(\$_[7]{p} || 0),
+                        match => [],
+                        named => {},
+                        capture => sub { $perl5 },
+                        abort => 1,
+                    } )
+                }\n";
+        }        
+    }
+
     # XXX XXX XXX - source-filter - temporary hacks to translate p6 to p5
     # $()<name>
     $code =~ s/ ([^']) \$ \( \) < (.*?) > /$1 \$_[0]->[$2]/sgx;
