@@ -109,7 +109,7 @@ sub rx_body {
         # \.?     # $.x  - XXX causes problems with 1..5 for some reason
         \:?     # $:x
         [
-            [ \:\: ]?
+            [ <'::'> | <null> ]
             [ _ | <?alpha> ]
             [ _ | <?alnum> ]*
         ]+
@@ -119,7 +119,7 @@ sub rx_body {
 
 *bare_ident = Pugs::Compiler::Token->compile( q(
         [
-            [ \:\: ]?
+            [ <'::'> | <null> ]
             [ _ | <?alpha> ]
             [ _ | <?alnum> ]*
         ]+
@@ -201,6 +201,17 @@ sub recompile {
         '$.' => q(
                 <?Pugs::Grammar::Term.ident>
                 { return { scalar => '$.' . $_[0]->() ,} }
+            ),
+        '$/' => q(
+                { return { scalar => '$/' ,} }
+            ),
+        '$()' => q(
+                { return { 
+                      'op1' => 'call',
+                      'sub' => {
+                        'scalar' => '$/'
+                      }
+                } }
             ),
         '$<' => q(
                 ( <?Pugs::Grammar::Term.ident> ) \>
@@ -444,6 +455,10 @@ sub recompile {
             |
                 <Pugs::Grammar::Perl6.sub_decl>
                     { return $_[0]{'Pugs::Grammar::Perl6.sub_decl'}->();
+                    }
+            |
+                <Pugs::Grammar::Perl6.rule_decl>
+                    { return $_[0]{'Pugs::Grammar::Perl6.rule_decl'}->();
                     }
             |
                 <Pugs::Grammar::Perl6.class_decl>

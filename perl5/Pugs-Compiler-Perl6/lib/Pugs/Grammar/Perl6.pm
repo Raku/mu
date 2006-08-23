@@ -179,22 +179,34 @@ use Data::Dumper;
     { grammar => __PACKAGE__ }
 )->code;
 
-*sub_decl_name = Pugs::Compiler::Token->compile( q(
-    ( multi | <null> ) <?ws>?
-    ( submethod | method | sub ) <?ws>? 
-    ( <?Pugs::Grammar::Term.ident>? ) 
-        { return { 
-            multi      => $_[0][0]->(),
-            statement  => $_[0][1]->(),
-            name       => $_[0][2]->(),
-        } }
+*category_name = Pugs::Compiler::Token->compile( q(
+        <Pugs::Grammar::Term.bare_ident>
+        [   <':'> 
+            [ 
+                <before \{ > 
+                <%Pugs::Grammar::Term::hash> 
+                { return { 
+                    category   => $_[0]{'Pugs::Grammar::Term.bare_ident'}->(),
+                    name       => $_[0]{'Pugs::Grammar::Term::hash'}->(),
+                } }
+            | 
+                <before \< > 
+                <%Pugs::Grammar::Quote::hash>
+                { return { 
+                    category   => $_[0]{'Pugs::Grammar::Term.bare_ident'}->(),
+                    name       => $_[0]{'Pugs::Grammar::Quote::hash'}->(),
+                } }
+            ]
+        | 
+            { return { 
+                category   => '',
+                name       => $_[0]{'Pugs::Grammar::Term.bare_ident'}->(),
+            } }
+        ]
     |
-    ( multi ) <?ws>?
-    ( <?Pugs::Grammar::Term.ident>? ) 
         { return { 
-            multi      => $_[0][0]->(),
-            statement  => 'sub',
-            name       => $_[0][1]->(),
+            category   => '',
+            name       => '',
         } }
 ),
     { grammar => __PACKAGE__ }
@@ -213,15 +225,23 @@ use Data::Dumper;
 )->code;
 
 *sub_decl = Pugs::Compiler::Token->compile( q(
-    <sub_decl_name> <?ws>? 
+    [
+        ( multi | <null> )           <?ws>?
+        ( submethod | method | sub ) <?ws>? 
+    |
+        ( multi  ) <?ws>?
+        ( <null> )
+    ]
+    <category_name> <?ws>?
     <sub_signature> <?ws>? 
     <attribute>     <?ws>?
     <block>        
         { 
           return { 
-            multi      => $_[0]{sub_decl_name}->()->{multi},
-            term       => $_[0]{sub_decl_name}->()->{statement},
-            name       => $_[0]{sub_decl_name}->()->{name},
+            multi      => $_[0][0]->(),
+            term       => $_[0][1]->() || 'sub',
+            category   => $_[0]{category_name}->()->{category},
+            name       => $_[0]{category_name}->()->{name},
             attribute  => $_[0]{attribute}->(),
             signature  => $_[0]{sub_signature}->(),
             block      => $_[0]{block}->(),
@@ -230,33 +250,21 @@ use Data::Dumper;
     { grammar => __PACKAGE__ }
 )->code;
 
-
-*rule_decl_name = Pugs::Compiler::Token->compile( q(
+*rule_decl = Pugs::Compiler::Token->compile( q(
     ( multi | <null> )        <?ws>?
     ( rule  | regex | token ) <?ws>?
-    ( <?Pugs::Grammar::Term.ident>? ) 
-        { return { 
-            multi      => $_[0][0]->(),
-            statement  => $_[0][1]->(),
-            name       => $_[0][2]->(),
-        } }
-),
-    { grammar => __PACKAGE__ }
-)->code;
-
-
-*rule_decl = Pugs::Compiler::Token->compile( q(
-        <rule_decl_name> <?ws>?   
-        <sub_signature>  <?ws>? 
-        <attribute>      <?ws>?
-        <'{'>            <?ws>?
+    <category_name>  <?ws>?
+    <sub_signature>  <?ws>? 
+    <attribute>      <?ws>?
+    <'{'>            <?ws>?
     [
-            <Pugs::Grammar::P6Rule.rule> <?ws>?
+        <Pugs::Grammar::P6Rule.rule> <?ws>?
         <'}'>
         { return { 
-                multi      => $_[0]{rule_decl_name}->()->{multi},
-                term       => $_[0]{rule_decl_name}->()->{statement},
-                name       => $_[0]{rule_decl_name}->()->{name},
+                multi      => $_[0][0]->(),
+                term       => $_[0][1]->(),
+                category   => $_[0]{category_name}->()->{category},
+                name       => $_[0]{category_name}->()->{name},
                 attribute  => $_[0]{attribute}->(),
                 signature  => $_[0]{sub_signature}->(),
                 # pass the match tree to the emitter

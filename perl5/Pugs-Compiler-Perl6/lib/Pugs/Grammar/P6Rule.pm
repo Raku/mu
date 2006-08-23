@@ -84,7 +84,7 @@ Pugs::Compiler::Token->install(
   Pugs::Compiler::Regex->compile( 
     #metasyntax => 
     q(
-        \\< ([ <metasyntax> | . ]+?) \\>
+        \\< ([ <metasyntax> | \\\\ . | . ]+?) \\>
         { return { metasyntax => $/[0]() ,} }
     )),
   #*named_capture = 
