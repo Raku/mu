@@ -218,8 +218,8 @@ sub parse_pattern ($) {
     }
     my @keys;
     while (1) {
-        if ($pat =~ /\G\s*"([^"]+)"/gco ||
-            $pat =~ /\G\s*'([^']+)'/gco ||
+        if ($pat =~ /\G\s*"([^"]+)"/gc ||
+            $pat =~ /\G\s*'([^']+)'/gc ||
             $pat =~ /\G\s*(\S+)/gco) {
                 push @keys, $1;
         } else { last }
@@ -233,18 +233,12 @@ sub process_paragraph ($) {
     my $str = shift;
 
     # unwrap lines:
-    $str =~ s/\s*\n\s*/ /go;
+    $str =~ s/\s*\n\s*/ /g;
 
     # strip POD tags:
-    $str =~ s/L<<(.*?)>>/$1/go;
-    $str =~ s/L<(.*?)>/$1/go;
-    $str =~ s/C<<(.*?)>>/$1/go;
-    $str =~ s/C<(.*?)>/$1/go;
-    $str =~ s/F<(.*?)>/$1/go;
-    $str =~ s/I<<(.*?)>>/$1/go;
-    $str =~ s/I<(.*?)>/$1/go;
-    $str =~ s/B<<(.*?)>>/$1/go;
-    $str =~ s/B<(.*?)>/$1/go;
+    $str =~ s/[LCFIB]<<<\s+(.*?)\s+>>>/$1/g;
+    $str =~ s/[LCFIB]<<\s+(.*?)\s+>>/$1/g;
+    $str =~ s/[LCFIB]<(.*?)>/$1/g;
     $str;
 }
 

@@ -52,7 +52,7 @@ _EOC_
 
     is process_paragraph('I I<love> B<perl>!'), 'I love perl!',
         'I<...> and B<...> stripped';
-    is process_paragraph('so C<< a < b >> holds'), 'so  a < b  holds',
+    is process_paragraph('so C<< a < b >> holds'), 'so a < b holds',
         'C<<...>> stripped';
 }
 
