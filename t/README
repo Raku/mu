@@ -107,7 +107,7 @@ They look like pod links:
 The section name should be copied verbatim from the POD (usually after =head),
 including any POD tags like C<...> and punctuations.
 
-The smartlinks also have a weird extension: you can specify some keywords
+The smartlinks also have a weird extension: you can specify some keyphrases
 or phrases, to skip forward from the linked section, so the backlink
 is put into a more specific place:
 
@@ -116,12 +116,12 @@ is put into a more specific place:
 The above smartlink is appropriate next to a test case checking rule application in
 numeric context, and it will place the backlink appropriately.
 
-All the keywords listed after the second slash in a smartlink should appear in
+All the keyphrases listed after the second slash in a smartlink should appear in
 a single sentence from the synopsis text, and the order is significant. If 
-there're spaces in a keyword, quote it using either double-quotes or signle-quotes.
+there're spaces in a keyphrase, quote it using either double-quotes or signle-quotes.
 
 In contrast with the case of section name, you should never use POD tags like
-C<...> in a keyword. util/smartlinks.pl will do the right thing.
+C<...> in a keyphrase. util/smartlinks.pl will do the right thing.
 
 Smartlinks in .t files can be preceded by nothing but spaces or "#", otherwise
 they can't be recognized by tools.
@@ -131,7 +131,7 @@ A smartlink can span at most 2 lines:
    # L<S04/section name/key1
    #   "key2" key3 key4>
 
-Only the keyword list part can continue to the next line. So the following example
+Only the keyphrase list part can continue to the next line. So the following example
 is invalid:
 
    # L<S04/section
