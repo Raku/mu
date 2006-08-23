@@ -54,6 +54,7 @@ To start your web server, run <tt>/usr/sbin/apache -f ~/apache/httpd.conf</tt>.
 To stop it, run <tt>killall apache</tt> (ignore that it couldn't kill the
 system wide apaches).
 </p>
+
 <h1>FAQ: How do I redirect my feather email to my other mail address?</h1>
 <p>
 Use qmail's .qmail system. See <tt>man dot-qmail</tt> for details.
@@ -63,6 +64,67 @@ Use qmail's .qmail system. See <tt>man dot-qmail</tt> for details.
 echo '&amp;other-address@example.org' &gt; ~/.qmail
 </pre>
 </blockquote>
+
+<h1>FAQ: How can I upload files to feather?</h1>
+<p>
+If you are on Windows, you should get the <I>psftp</I> program first. <I>psftp</I> is usually
+bundled with Putty.
+
+To use the proxy settings of Putty in <I>psftp</I>, simply save the Putty session as
+something like "feather", and then enter the following command:
+</p>
+
+<blockquote>
+<pre>
+  C:\> psftp username@feather
+</pre>
+</blockquote>
+
+<p>
+psftp has an interface similar to the <I>ftp</I> utility provided by Windows itself.
+</p>
+
+<h1>FAQ: Can I keep a script running on feather?</h1>
+<p>Surely you can, as long as you use the ``sleep'' command or something like that.</p>
+
+<p>
+If you're trying to instruct feather to do certain things periodically, please consider
+using the <I>cron</I> program. Here's a tutorial on cron:
+</p>
+
+&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="http://www.unixgeeks.org/security/newbie/unix/cron-1.html">
+http://www.unixgeeks.org/security/newbie/unix/cron-1.html
+</a>
+
+<p>
+Use of the ``crontab -e'' command on feather is strongly recommended.
+</p>
+
+<p>
+If you are looking for automatic refreshing of the pugs source tree, you can
+always read ~audreyt/pugs/, which is constantly being updated from svn via evalbot
+according to Audrey.
+</p>
+
+<h1>FAQ: How can I override the default charset of feather's Apache?</h1>
+<p>
+Simply create a .htaccess file under your ~/public_html/ with the following line in it:
+</p>
+
+<blockquote>
+<pre>
+  AddCharset your_encoding .html
+</pre>
+</blockquote>
+
+Usually ``your_encoding'' is set to UTF-8. After that, Apache will use the
+encoding you've specified in .htaccess for all the .html files in the current
+directory I<and> all its subdirectories.
+
+Apache loads .htaccess on every request, so there should be no delay once
+you have set this.
+<p />
 <hr/>
 <p>
 This web site is in Pugs' repository, in docs/feather. If you have the time and skills to improve it, please do not hesitate. In style, structure and contents, it's awful at this moment :) The site is synced every 5 minutes.
