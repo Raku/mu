@@ -1380,6 +1380,10 @@ sub prefix {
         return _emit( $n->{exp1} ) . "  # XXX :\$var not implemented\n";
     }
     
+    if ( $n->{op1}{op} eq 'hash' ) {
+        return '%{' . _emit( $n->{exp1} ) . '}';
+    }
+    
     if ( $n->{op1}{op} eq 'do' ) {
         return $n->{op1}{op} . ' ' . _emit( $n->{exp1} );
     }

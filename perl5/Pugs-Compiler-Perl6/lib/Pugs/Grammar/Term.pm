@@ -229,6 +229,14 @@ sub recompile {
                 <?Pugs::Grammar::Term.ident>
                 { return { hash  => "\%" . $_[0]->() ,} }
             ),
+        '%(' => q(
+                <Pugs::Grammar::Term.parenthesis>
+                { return {
+                    'exp1' => $/{'Pugs::Grammar::Term.parenthesis'}(),
+                    'fixity' => 'prefix',
+                    'op1' => { 'op' => 'hash', }
+                } }
+            ),
         '&' => q(
                 <?Pugs::Grammar::Term.ident>
                 { return { code  => "\&" . $_[0]->() ,} }

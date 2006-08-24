@@ -3,7 +3,8 @@
 
 use v6-alpha;
 
-grammar Pugs::Grammar::Term;
+grammar Pugs::Grammar::Term
+    does Pugs::Grammar::BaseCategory;
 
 token ident {
         \!      # $!
@@ -133,6 +134,13 @@ token term:<@> {
 token term:<%> {
     <?Pugs::Grammar::Term.ident>
     { return { hash  => "\%" ~ $/() ,} } }
+token term:<%(> {
+    <Pugs::Grammar::Term.parenthesis>
+    { return {
+        'exp1' => $/{'Pugs::Grammar::Term.parenthesis'}(),
+        'fixity' => 'prefix',
+        'op1' => { 'op' => 'hash', }
+    } } }
 token term:<&> {
     <?Pugs::Grammar::Term.ident>
     { return { code  => "\&" ~ $/() ,} } }
@@ -374,4 +382,12 @@ token term:<ENTER> {
             trait  => 'ENTER',
             %( $/{'Pugs::Grammar::Perl6.block'}() ),
         } }
+}
+
+token parse {
+    <%::_V6_GRAMMAR::term>
+    { 
+        #print "BaseCategory matched hash ", Dumper( $_[0]->data );
+        return $/{'::_V6_GRAMMAR::term'}();
+    }
 }

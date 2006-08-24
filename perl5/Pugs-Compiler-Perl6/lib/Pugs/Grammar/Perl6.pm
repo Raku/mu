@@ -189,7 +189,7 @@ use Data::Dumper;
                     category   => $_[0]{'Pugs::Grammar::Term.bare_ident'}->(),
                     name       => {
                         'exp1' => { 
-                            'scalar' => '$::_V6_GRAMMAR::' . 
+                            'hash' => '%::_V6_GRAMMAR::' . 
                                 $_[0]{'Pugs::Grammar::Term.bare_ident'}->(), },
                         'exp2' => $_[0]{'Pugs::Grammar::Term::hash'}
                                 ->()->{bare_block}, 
@@ -205,7 +205,7 @@ use Data::Dumper;
                     category   => $_[0]{'Pugs::Grammar::Term.bare_ident'}->(),
                     name       => {
                         'exp1' => { 
-                            'scalar' => '$::_V6_GRAMMAR::' . $_[0]{'Pugs::Grammar::Term.bare_ident'}->(), },
+                            'hash' => '%::_V6_GRAMMAR::' . $_[0]{'Pugs::Grammar::Term.bare_ident'}->(), },
                         'exp2' => $_[0]{'Pugs::Grammar::Quote::hash'}->(), 
                         'fixity' => 'postcircumfix',
                         'op1' => { 'op' => '<' },
