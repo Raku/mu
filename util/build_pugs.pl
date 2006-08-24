@@ -164,6 +164,8 @@ sub build {
         my ($archive_dir) = (
             glob("third-party/installed/*/pugs-$module-*"),
             glob("third-party/installed/*/$module-*"),
+            glob("third-party/installed/pugs-$module-*"),
+            glob("third-party/installed/$module-*"),
         ) or die "Installation failed for $module";
 
         foreach my $a_file (
