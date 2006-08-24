@@ -61,7 +61,7 @@ for @files -> $ex is rw {
             is 'parse passed', 'parse passed', "$ex parsed correctly";
         }
         else {
-            is 'parse of $ex failed', 'parse passed', "$ex fails to parse correctly";
+            is "parse of $ex failed", 'parse passed', "$ex fails to parse correctly";
         }
     }
     if $! {
