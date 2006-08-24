@@ -1,5 +1,6 @@
--- Before you would import Pugs.Parser, now you import Pugs.Parser.Program.
+{-# OPTIONS_GHC -fglasgow-exts #-}
 module Pugs.Parser.Program (
+    -- Before you would import Pugs.Parser, now you import Pugs.Parser.Program.
     parseProgram,
 ) where
 import Pugs.Internals
