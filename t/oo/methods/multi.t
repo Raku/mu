@@ -6,43 +6,43 @@ plan 10;
 
 class Foo {
 
-    multi method bar($self:) {
+    multi method bar() {
         return "Foo.bar() called with no args";
     }
 
-    multi method bar($self: Int $int) {
+    multi method bar(Int $int) {
         return "Foo.bar() called with Int : $int";
     }
     
-    multi method bar($self: Num $num) {
+    multi method bar(Num $num) {
         return "Foo.bar() called with Num : $num";
     }    
     
-    multi method bar($self: Rat $rat) {
+    multi method bar(Rat $rat) {
         return "Foo.bar() called with Rat : $rat";
     }    
     
-    multi method bar($self: Str $str) {
+    multi method bar(Str $str) {
         return "Foo.bar() called with Str : $str";
     } 
        
-    multi method bar($self: Bool $bool) {
+    multi method bar(Bool $bool) {
         return "Foo.bar() called with Bool : {$bool.perl}";
     } 
 
-    multi method bar($self: Sub $sub) {
+    multi method bar(Sub $sub) {
         return "Foo.bar() called with Sub : {$sub()}";
     } 
 
-    multi method bar($self: Array @array) {
+    multi method bar(Array @array) {
         return "Foo.bar() called with Array : { join(', ', @array) }";
     } 
 
-    multi method bar($self: Hash %hash) {
+    multi method bar(Hash %hash) {
         return "Foo.bar() called with Hash : { join(', ', %hash.keys) }";
     } 
     
-    multi method bar($self: IO $fh) {
+    multi method bar(IO $fh) {
         return "Foo.bar() called with IO";
     }     
 
