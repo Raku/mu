@@ -19,6 +19,7 @@ my $f = File::Find.new(
     },
     wanted_dir => sub ($dir, $path, $pathdir) {
         return 0 if $dir eq '.svn';
+        return 0 if $dir eq 'p5';
         return 1;
     },
     dirs => qw/examples/
