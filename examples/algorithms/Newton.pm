@@ -14,10 +14,10 @@ sub approxfprime(Code $f, Num $x) {
 sub newton(
     Num  $target,
     Code $f,
-    Code +$fprime         = &approxfprime.assuming( f => $f ),
-    Num  +$epsilon        = 0.0005,
-    Num  +$max_iterations = 500,
-    Bool +$verbose        = 0
+    Code :$fprime         = &approxfprime.assuming( f => $f ),
+    Num  :$epsilon        = 0.0005,
+    Num  :$max_iterations = 500,
+    Bool :$verbose        = 0
 ) returns Num is export {
     my Num $guess  = $target / 2;
     my Int $count  = 1;
