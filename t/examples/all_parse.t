@@ -54,7 +54,7 @@ for @files -> $ex is rw {
         if $*OS eq any(<MSWin32 mingw msys cygwin>) {
             $ex ~~ s:g:P5/\\/\//;
         }
-        my $cmd = "$pugs -c $ex";
+        my $cmd = "$pugs -c -Iblib6/lib $ex";
         my $out = `$cmd`;
 
         if $out ~~ m:P5/syntax OK\s*$/ {
