@@ -72,9 +72,9 @@ for @*ARGS -> $arg {
     error "The hostname \"$hostname\" contains shell metacharacters.";
   }
 
-  %letter    .{$hostname} = $letter;
-  %interval  .{$hostname} = $interval;
-  %status    .{$hostname} = $UNKNOWN;
+  %letter\    .{$hostname} = $letter;
+  %interval\  .{$hostname} = $interval;
+  %status\    .{$hostname} = $UNKNOWN;
   # We want a more uniformly distributed distribution.
   %last_check.{$hostname} = time - rand $interval;
 }
