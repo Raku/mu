@@ -291,7 +291,7 @@ doExecuteHelper helper args = do
 doParseWith :: (Env -> FilePath -> IO a) -> FilePath -> String -> IO a
 doParseWith f name prog = do
     env <- tabulaRasa name
-    f' $ parseProgram env name $ decodeUTF8 prog
+    f' $ parseProgram env name prog
     where
     f' env | Val err@(VError _ _) <- envBody env = do
         hPutStrLn stderr $ pretty err
@@ -301,7 +301,7 @@ doParseWith f name prog = do
 
 doParse :: Env -> (Exp -> String) -> FilePath -> String -> IO ()
 doParse env prettyFunc name prog = do
-    case envBody $ parseProgram env name (decodeUTF8 prog) of
+    case envBody $ parseProgram env name prog of
         (Val err@(VError _ _)) -> putStrLn $ pretty err
         exp -> putStrLn $ prettyFunc exp
 
@@ -332,7 +332,7 @@ doRunSingle menv opts prog = (`catch` handler) $ do
     parse = do
         env <- liftSTM $ readTVar menv
         return $ envBody $ parseProgram env defaultProgramName $
-          (dropTrailingSemi $ decodeUTF8 prog)
+          (dropTrailingSemi prog)
     dropTrailingSemi = reverse . dropWhile (`elem` " \t\r\n;") . reverse
     theEnv = do
         ref <- if runOptSeparately opts
@@ -401,7 +401,7 @@ runProgramWith ::
     (Env -> Env) -> (Val -> IO a) -> VStr -> [VStr] -> String -> IO a
 runProgramWith fenv f name args prog = do
     env <- prepareEnv name args
-    val <- runEnv $ parseProgram (fenv env) name (decodeUTF8 prog)
+    val <- runEnv $ parseProgram (fenv env) name prog
     f val
 
 createConfigLine :: String -> String

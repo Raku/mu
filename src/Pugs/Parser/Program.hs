@@ -12,7 +12,49 @@ import qualified Data.Map as Map
 import qualified Data.Set as Set
 
 parseProgram :: Env -> FilePath -> String -> Env
-parseProgram = flip runRule ruleProgram
+parseProgram env path str = runRule env ruleProgram path (decodeProgram str)
+
+-- Based on: http://hackage.haskell.org/trac/haskell-prime/wiki/SourceEncodingDetection
+data EncodedSource
+    = UTF8 !String
+    | UTF16 !Endian !String
+    | UTF32 !Endian !String
+ -- | UserDefined ...
+
+data Endian = LittleEndian | BigEndian
+
+decodeProgram :: String -> String
+decodeProgram str = case detectSourceEncoding str of
+    UTF8 x  -> decodeUTF8 x 
+    UTF16{} -> error "UTF16 source not yet handled"
+    UTF32{} -> error "UTF32 source not yet handled"
+
+detectSourceEncoding :: String -> EncodedSource
+detectSourceEncoding bytes = case bytes of
+    []                                  -> UTF8 []
+    ['\x00']                            -> invalidNulls
+    xs@[_]                              -> UTF8 xs
+    ['\xFF', '\xFE']                    -> UTF16 LittleEndian []
+    ('\xFE':'\xFF':xs)                  -> UTF16 BigEndian xs
+    ['\x00', '\x00']                    -> invalidNulls
+    xs@['\x00', _]                      -> UTF16 BigEndian xs
+    xs@[_, '\x00']                      -> UTF16 LittleEndian xs
+    xs@[_, _]                           -> UTF8 xs
+    ['\x00', '\x00', '\x00']            -> invalidNulls
+    xs@[_, _, _]                        -> UTF8 xs
+    ('\xEF':'\xBB':'\xBF':xs)           -> UTF8 xs
+    ('\x00':'\x00':'\xFE':'\xFF':xs)    -> UTF32 BigEndian xs
+    ('\xFF':'\xFE':'\x00':'\x00':xs)    -> UTF32 LittleEndian xs
+    ('\xFF':'\xFE':xs)                  -> UTF16 BigEndian xs
+    ('\x00':'\x00':'\x00':'\x00':_)     -> invalidNulls
+    xs@('\x00':'\x00':'\x00':_)         -> UTF32 BigEndian xs
+    xs@(_:'\x00':'\x00':'\x00':_)       -> UTF32 LittleEndian xs
+    ('\x00':'\x00':_)                   -> invalidNulls
+    xs@('\x00':_)                       -> UTF16 BigEndian xs
+    xs@(_:'\x00':_)                     -> UTF16 LittleEndian xs
+    xs                                  -> UTF8 xs
+    where
+    invalidNulls = error "(invalid nulls)"
 
 makeState :: Env -> RuleState
 makeState env = MkState
