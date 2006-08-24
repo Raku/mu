@@ -371,7 +371,7 @@ token term:<START> {
 }
 token term:<FIRST> {
     <?ws>? <Pugs::Grammar::Perl6.block>        
-        { return { 
+        { return {
             trait  => 'FIRST',
             %( $/{'Pugs::Grammar::Perl6.block'}() ),
         } }

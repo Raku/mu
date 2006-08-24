@@ -6,7 +6,10 @@ use warnings;
 #use Pugs::Compiler::Rule;
 use Pugs::Runtime::Match;
 use Pugs::Grammar::Precedence;
-use Pugs::Grammar::Term;
+
+#use Pugs::Grammar::P6Term;   # pure Perl6 version
+use Pugs::Grammar::Term;    # Perl5+Perl6 version
+
 use Pugs::Grammar::Quote;
 use Pugs::Grammar::Operator;
 use Pugs::Grammar::StatementControl;
@@ -191,7 +194,7 @@ sub lexer {
             $m2 = Pugs::Grammar::Quote->parse( $match, { p => $pos } )
                 unless $m2;
         }
-        #print "m1 = " . Dumper($m1->()) . "m2 = " . Dumper($m2->());
+        #print "m1 = " . Dumper($m1) . "m2 = " . Dumper($m2);
 
         my $pos2;
         while(1) {

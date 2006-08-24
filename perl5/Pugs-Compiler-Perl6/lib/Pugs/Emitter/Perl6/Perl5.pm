@@ -1093,9 +1093,23 @@ sub term {
         
         if ( $n->{category} ) {
             # XXX - signature, exports are currently disabled, need more work
+            $perl5 =~ s/
+              my \s+ \$grammar \s+ = .*? ; \s+
+              my \s+ \$s       \s+ = .*? ;
+            /
+              my \$s       = \$_[0] || '';
+              my \$grammar = \$_[1] || __PACKAGE__;
+            /sx;
             return "$name = $perl5";
         }
         elsif ( $name ) {
+            $perl5 =~ s/
+              (my \s+ \$grammar)
+            /
+              \$_[3] = \$_[2]; 
+              \$_[2] = undef;
+              $1
+            /sx;
             $perl5 = "*$name = $perl5";
         }
         # TODO - _emit_parameter_binding( $n->{signature} ) .
