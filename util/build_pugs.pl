@@ -179,7 +179,12 @@ sub build {
 
 
     # Embedding Judy object files in HsJudy
-    my ($archive_dir) = glob("third-party/installed/*/HsJudy-*");
+    my ($archive_dir) = (
+        glob("third-party/installed/*/pugs-HsJudy-*"),
+        glob("third-party/installed/*/HsJudy-*"),
+        glob("third-party/installed/pugs-HsJudy-*"),
+        glob("third-party/installed/HsJudy-*"),
+    );
     my @archive_files = (
         glob("$archive_dir/*.a"),
         glob("$archive_dir/*/*.a"),
