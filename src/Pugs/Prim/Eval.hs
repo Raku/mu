@@ -77,7 +77,7 @@ opRequire dumpEnv v = do
     fastEval = op1EvalP6Y . VStr
     slowEval pathName' = do 
         str      <- liftIO $ readFile pathName'
-        opEval style pathName' (decodeUTF8 str)
+        opEval style pathName' str
     style = MkEvalStyle
         { evalError  = EvalErrorFatal
         , evalResult = (if dumpEnv == True then EvalResultEnv
@@ -102,7 +102,7 @@ opEvalFile filename = do
         then fail $ "Can't locate " ++ filename ++ "."
         else do
             contents <- liftIO $ readFile filename
-            opEval style filename $ decodeUTF8 contents
+            opEval style filename contents
     where
     style = MkEvalStyle{ evalError=EvalErrorUndef
                        , evalResult=EvalResultLastValue}
