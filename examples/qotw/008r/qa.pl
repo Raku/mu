@@ -8,7 +8,7 @@ my $SEG_LENGTH = 4;
 my %wordmap;
 for =<> -> $word is copy {
     next if $word ~~ /\W/;
-    my $w = lc;
+    my $w = $word.lc;
     my %w = map -> $i { substr($w,$i,$SEG_LENGTH)=>1 },
                    0..$word.chars-$SEG_LENGTH;
 
