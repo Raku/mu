@@ -11,7 +11,8 @@
 
 ## Chapter 8 section 1.4
 
-use lib '../Chap6';
+use FindBin;
+use lib ('../Chap6', $FindBin::RealDir);
 use Stream 'node';
 
 sub iterator_to_stream(Code $it) { # is exported(:all)
