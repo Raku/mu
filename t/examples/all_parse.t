@@ -15,6 +15,7 @@ my $f = File::Find.new(
     wanted_file => sub ($file, $path, $pathfile) {
         return 0 if $file ~~ m:P5/-p5/;
         return 1 if $file ~~ m:P5/\.pl$/;
+        return 1 if $file ~~ m:P5/\.pm$/;
     },
     wanted_dir => sub ($dir, $path, $pathdir) {
         return 0 if $dir eq '.svn';
