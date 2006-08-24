@@ -31,9 +31,23 @@ decodeProgram str = case detectSourceEncoding str of
     UTF32 LittleEndian xs   -> decodeUTF32LE xs
     UTF32 BigEndian xs      -> decodeUTF32BE xs
     where
+    decodeUTF16BE (a:b:c:d:xs)
+        | a >= '\xD8', a <= '\xDB'  -- High surrogate
+        , c >= '\xDC', c <= '\xDF'  -- Low surrogate
+        = let rest = decodeUTF16BE xs
+              hi   = (ord a - 0xD8) * 0x100 + ord b
+              lo   = (ord c - 0xDC) * 0x100 + ord d
+        in seq rest (chr (0x10000 + hi * 0x400 + lo) : rest)
     decodeUTF16BE (a:b:xs) = let rest = decodeUTF16BE xs
         in seq rest (chr (ord a * 0x100 + ord b) : rest)
     decodeUTF16BE _ = []
+    decodeUTF16LE (a:b:c:d:xs)
+        | b >= '\xD8', b <= '\xDB'  -- High surrogate
+        , d >= '\xDC', d <= '\xDF'  -- Low surrogate
+        = let rest = decodeUTF16LE xs
+              hi   = (ord b - 0xD8) * 0x100 + ord a
+              lo   = (ord d - 0xDC) * 0x100 + ord c
+        in seq rest (chr (0x10000 + hi * 0x400 + lo) : rest)
     decodeUTF16LE (a:b:xs) = let rest = decodeUTF16LE xs
         in seq rest (chr (ord b * 0x100 + ord a) : rest)
     decodeUTF16LE _ = []
