@@ -595,8 +595,11 @@ skipToLineEnd = do
     skipMany (satisfy (/= '\n'))
     return ()
         
+-- XXX this should depend on real Unicode definitions
+-- XXX (could probably be more efficient too, since oneOf probably scans)
 simpleSpace =
-    skipMany1 (satisfy isSpace)    
+    skipMany1 $ oneOf " \t\n\f\r\x0085\x00A0\x1680\x180E\x2000\x2001\x2002\x2003\x2004\x2005\x2006\x2007\x2008\x2009\x200A\x2028\x2029\x202F\x205F\x3000\xFEFF"
+
     
 -- XXX - nesting
 multiLineComment = do
