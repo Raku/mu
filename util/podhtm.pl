@@ -73,4 +73,4 @@ $pod2html->perldoc_url_postfix($url_postfix) if defined $url_postfix;
 
 $pod2html->force_title($title) if defined $title;
 $pod2html->parse_from_file($infile, $outfile);
-print "$outfile generated." if -e $outfile;
+print "$outfile generated.\n" if -e $outfile;
