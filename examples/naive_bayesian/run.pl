@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-my $test_file = shift || 'test';
+my $test_file = @*ARGS[0] || 'test';
 
 print(('-' x 80), "\n");
 print "Testing perl5 naive bayesian script with $test_file\n";
