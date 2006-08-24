@@ -1,4 +1,3 @@
-
 # -----------------------------------------------
 #  Copyright (C) 2005 by Andras Barthazi
 #  This code is totally free, use it as you want
@@ -13,10 +12,10 @@ sub IDGenerate {
 }
 
 sub PageHeader (
-    +$status = '200 OK', 
-    +$content_type = 'text/html', 
-    +$charset, 
-    +$location
+    :$status = '200 OK', 
+    :$content_type = 'text/html', 
+    :$charset, 
+    :$location
 ) returns Str {
     # construct our header
     my $header;
