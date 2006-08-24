@@ -2,6 +2,8 @@
 
 use v6-alpha;
 
+use FindBin;
+use lib $FindBin::RealDir;
 use Parser;# :all;
 use Lexer;# :all;
 require 'it2stream.pl';
