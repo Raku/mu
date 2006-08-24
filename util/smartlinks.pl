@@ -1,14 +1,12 @@
+#!/usr/bin/env perl
+
 # util/smartlinks.pl - The successor to util/catalog_tests.pl.
 
-# Please look at t/README for documentation.
+# Please look at t/README and the following article for documentation:
+#   http://pugs.blogs.com/pugs/2006/08/integrating_the.html
 # See util/t/smartlinks.t for unit tests and usage of the internal API.
 # This program is still under active development.
 # Contact agentzh on #perl6 if you have a patch or some good idea for this tool.
-# Currently you can use it to verify the smart link used in your script:
-#   $ perl util/smartlinks.pl --check t/some/test.t
-# and generate HTML files with test snippets embedded:
-#   $ perl util/smartlinks.pl --out-dir=. t/*/*.t t/*/*/*.t
-# Although currently Pod::Html generates malformed HTML, i'll stick with it.
 
 use strict;
 use warnings;
