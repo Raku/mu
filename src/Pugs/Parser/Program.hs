@@ -25,9 +25,24 @@ data Endian = LittleEndian | BigEndian
 
 decodeProgram :: String -> String
 decodeProgram str = case detectSourceEncoding str of
-    UTF8 x  -> decodeUTF8 x 
-    UTF16{} -> error "UTF16 source not yet handled"
-    UTF32{} -> error "UTF32 source not yet handled"
+    UTF8 xs                 -> decodeUTF8 xs
+    UTF16 LittleEndian xs   -> decodeUTF16LE xs
+    UTF16 BigEndian xs      -> decodeUTF16BE xs
+    UTF32 LittleEndian xs   -> decodeUTF32LE xs
+    UTF32 BigEndian xs      -> decodeUTF32BE xs
+    where
+    decodeUTF16BE (a:b:xs) = let rest = decodeUTF16BE xs
+        in seq rest (chr (ord a * 0x100 + ord b) : rest)
+    decodeUTF16BE _ = []
+    decodeUTF16LE (a:b:xs) = let rest = decodeUTF16LE xs
+        in seq rest (chr (ord b * 0x100 + ord a) : rest)
+    decodeUTF16LE _ = []
+    decodeUTF32BE (a:b:c:d:xs) = let rest = decodeUTF32BE xs
+        in seq rest (chr (ord a * 0x1000000 + ord b * 0x10000 + ord c * 0x100 + ord d) : rest)
+    decodeUTF32BE _ = []
+    decodeUTF32LE (a:b:c:d:xs) = let rest = decodeUTF32LE xs
+        in seq rest (chr (ord d * 0x1000000 + ord c * 0x10000 + ord b * 0x100 + ord a) : rest)
+    decodeUTF32LE _ = []
 
 detectSourceEncoding :: String -> EncodedSource
 detectSourceEncoding bytes = case bytes of
