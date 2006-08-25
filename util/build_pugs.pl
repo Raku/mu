@@ -160,9 +160,13 @@ sub build {
         chdir "third-party/$module";
 
         warn join ' ', ("../../Setup$Config{_exe}", 'configure', @configure_args);
+        if (-e '.setup-config') {
+            system("../../Setup$Config{_exe}", 'configure', @configure_args);
+            system("../../Setup$Config{_exe}", 'unregister');
+            system("../../Setup$Config{_exe}", 'clean');
+	}
+
         system("../../Setup$Config{_exe}", 'configure', @configure_args);
-        system("../../Setup$Config{_exe}", 'unregister');
-        system("../../Setup$Config{_exe}", 'clean');
 
         print "*** Building the '$module' dependency.  Please wait...\n\n";
 
