@@ -13,6 +13,8 @@
 # package Parser;
 
 # use lib '../Chap6';
+use FindBin;
+use lib $FindBin::RealDir;
 use Stream;# :all;
 
 # use base Exporter;
