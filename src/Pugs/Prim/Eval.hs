@@ -43,7 +43,8 @@ opRequire dumpEnv v = do
     glob        <- askGlobal
     seen        <- findSymRef (cast "%*INC") glob
     loaded      <- existsFromRef seen v
-    let file    = (concat $ intersperse (getConfig "file_sep") $ split "::" mod) ++ ".pm"
+    let file | '.' `elem` mod = mod
+	     | otherwise      = (concat $ intersperse (getConfig "file_sep") $ split "::" mod) ++ ".pm"
     pathName    <- requireInc incs file (errMsg file incs)
     if loaded then opEval style pathName "" else do
         -- %*INC{mod} = { relname => file, pathname => pathName }

@@ -886,7 +886,7 @@ load the package at runtime.
 anybody has some tuits.)
 -}
 ruleRequireDeclaration :: RuleParser Exp
-ruleRequireDeclaration = rule "require declaration" $ do
+ruleRequireDeclaration = tryRule "require declaration" $ do
     symbol "require"
     (names, _, _) <- rulePackageFullName
     return $ App (_Var "&require") Nothing [Val . VStr $ concat (intersperse "::" names)]
