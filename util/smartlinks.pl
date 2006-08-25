@@ -417,7 +417,8 @@ sub process_syn ($$$$) {
         my $time = sprintf "%04d-%02d-%02d %02d:%02d:%02d GMT",
             $year, $mon, $mday, $hour, $min, $sec;
         $html =~ s{<!-- start doc -->}{$&
-            <I>This page was generated at $time. (syn r$syn_rev)</I>
+            <I>This page was generated at $time.
+            (syn <strong>r$syn_rev</strong>, pugs <strong>r$pugs_rev</strong>)</I>
         };
         my $htmfile = "$out_dir/S$syn_id.html";
         warn "info: generating $htmfile...\n";
@@ -497,10 +498,15 @@ sub main {
         if (open $in, $rev_file) {
             $syn_rev = <$in>;
             chomp $syn_rev;
-            warn "info: synopses are at rev $syn_rev.\n";
+            warn "info: synopses are at r$syn_rev.\n";
             close $in;
         }
     }
+
+    my $stdout = `$^X $FindBin::Bin/version_h.pl`;
+    ($pugs_rev) = ($stdout =~ /Current version is (\d+)/);
+    warn "info: pugs is at r$pugs_rev.\n";
+
     my @syns = map glob, "$syn_dir/*.pod";
     for my $syn (@syns) {
         process_syn($syn, $out_dir, $cssfile, $links);

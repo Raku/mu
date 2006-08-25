@@ -54,6 +54,8 @@ elsif (-r $svn_entries) {
     }
 }
 $revision ||= 0;
+
+# WARNING! don't modify the following output, since smartlinks.pl relies on it.
 print "Current version is $revision\n";
 
 if ($revision != $old_revision) {
