@@ -286,7 +286,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         , ruleSubGlobal
         ]
     optional $ do { symbol "handles"; ruleExpression }
-    assoc   <- option A_left $ do
+    assoc   <- option A_left . try $ do
         symbol "is"
         symbol "assoc"
         lit <- parens qLiteral
