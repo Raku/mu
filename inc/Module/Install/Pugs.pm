@@ -208,13 +208,13 @@ sub assert_ghc {
             } glob(qq/$ghc_root${slash}ghc-*/);
 
             GHC_TEST:
-            for my $ghc_dir (@ghc_choices) {
+            for my $ghc_dir (sort @ghc_choices) {
                 my $ghc_candidate = qq/${ghc_dir}${slash}bin${slash}ghc.exe/;
                 if ($ghc_version = $test_ghc_ver->($ghc_candidate)) {
                     $ghc = $ghc_candidate;
-                    warn "*** Found $ghc\n";
                 }
             }
+            warn "*** Using GHC version: $ghc\n" if $ghc;
         }
     }
 
