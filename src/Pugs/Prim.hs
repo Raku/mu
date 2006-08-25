@@ -276,7 +276,7 @@ op1 "Pugs::Internals::use" = opRequire True
 op1 "Pugs::Internals::require" = opRequire False
 op1 "Pugs::Internals::eval_perl6" = \v -> do
     str <- fromVal v
-    opEval quiet "<eval>" str
+    opEval quiet "<eval>" (encodeUTF8 str)
     where quiet = MkEvalStyle{evalResult=EvalResultLastValue
                              ,evalError=EvalErrorUndef}
 op1 "evalfile" = \v -> do
