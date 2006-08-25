@@ -505,6 +505,18 @@ sub main {
 
     my $stdout = `$^X $FindBin::Bin/version_h.pl`;
     ($pugs_rev) = ($stdout =~ /Current version is (\d+)/);
+    if (!$pugs_rev) {
+        # if we don't have access to others' svk info
+        # (which is the case on feather where i'm using
+        # Audrey's pugs working copy), then parse pugs_version.h
+        # directly:
+        if (open my $in, "$FindBin::Bin/../src/Pugs/pugs_version.h") {
+            warn "reading pugs_version.h...\n";
+            local $/;
+            my $str = <$in>;
+            ($pugs_rev) = ($str =~ /PUGS_SVN_REVISION\s+(\d+)/);
+        }
+    }
     warn "info: pugs is at r$pugs_rev.\n";
 
     my @syns = map glob, "$syn_dir/*.pod";
