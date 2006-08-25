@@ -54,6 +54,15 @@ sub build {
     $want_profiling = grep { /^-prof$/ } @args; 
     @args = grep { !/^-prof$/ } @args; 
 
+    # Set heap options via environment here; Win32 needs it instead
+    # of setting on GHC flags line. 
+    my @rts_args;
+    foreach my $arg (@args) {
+        $_ = $arg;
+        push @rts_args, $_ if s/^\+RTS$// .. s/^-RTS$//;
+    }
+    $ENV{GHCRTS} = join(' ', ($ENV{GHCRTS} ? $ENV{GHC_RTS} : ()), @rts_args);
+
     write_buildinfo($version, $ghc, $ghc_pkg, $ghc_version, @args);
 
     my $pwd = cwd();
@@ -266,6 +275,8 @@ sub build_lib {
 
     # Add GHC to PATH
     local $ENV{PATH} = dirname($ghc) . $Config{path_sep} . $ENV{PATH};
+ 
+    mkdir "dist/build" unless -d "dist/build";
 
     # Remove all -boot files since GHC 6.4 doesn't track them.
     # This is not needed for GHC 6.5 which doesn't produce them anyway.
