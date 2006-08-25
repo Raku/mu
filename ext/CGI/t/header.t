@@ -11,7 +11,9 @@ More tests for CGI header() function
 
 use CGI; pass "(dummy instead of broken use_ok)";
 
-is(header(), 
+my $q = CGI.new;
+
+is($q.header, 
    "Status: 200 OK
 Content-Type: text/html
 
@@ -19,19 +21,19 @@ Content-Type: text/html
 
 # check with positional parameters
 
-is(header('text/html', '404 Not Found'), 
+is($q.header('text/html', '404 Not Found'), 
    "Status: 404 Not Found
 Content-Type: text/html
 
 ", 'got the header we expected (using positional args)');
 
-is(header('text/xml', '404 Not Found'), 
+is($q.header('text/xml', '404 Not Found'), 
    "Status: 404 Not Found
 Content-Type: text/xml
 
 ", 'got the header we expected (using positional args)');
 
-is(header('text/xml', '404 Not Found', 'Latin'), 
+is($q.header('text/xml', '404 Not Found', 'Latin'), 
    "Status: 404 Not Found
 Content-Type: text/xml; charset=Latin
 
@@ -39,38 +41,38 @@ Content-Type: text/xml; charset=Latin
 
 # test it with named args
 
-is(header(charset => 'Latin'), 
+is($q.header(charset => 'Latin'), 
    "Status: 200 OK
 Content-Type: text/html; charset=Latin
 
 ", 'got the header we expected (using named args)');
 
-is(header(charset => 'Arabic', status => '500 Internal Server Error'), 
+is($q.header(charset => 'Arabic', status => '500 Internal Server Error'), 
    "Status: 500 Internal Server Error
 Content-Type: text/html; charset=Arabic
 
 ", 'got the header we expected (using named args)');
 
-is(header(content_type => 'text/xml', charset => 'Chinese', status => '500 Internal Server Error'), 
+is($q.header(content_type => 'text/xml', charset => 'Chinese', status => '500 Internal Server Error'), 
    "Status: 500 Internal Server Error
 Content-Type: text/xml; charset=Chinese
 
 ", 'got the header we expected (using named args)');
 
-is header(cookies => "Foo"),
+is $q.header(cookies => "Foo"),
     "Status: 200 OK
 Content-Type: text/html
 Set-Cookie: Foo
 
 ", "single cookie";
-is header(cookies => ["Foo", "Bar"]),
+is $q.header(cookies => ["Foo", "Bar"]),
     "Status: 200 OK
 Content-Type: text/html
 Set-Cookie: Foo
 Set-Cookie: Bar
 
 ", "two cookies";
-is header(cookies => ["Foo", "Bar", "Baz"]),
+is $q.header(cookies => ["Foo", "Bar", "Baz"]),
     "Status: 200 OK
 Content-Type: text/html
 Set-Cookie: Foo
@@ -79,14 +81,14 @@ Set-Cookie: Baz
 
 ", "three cookies";
 
-is header(cost => "Three smackeroos"),
+is $q.header(cost => "Three smackeroos"),
     "Status: 200 OK
 Content-Type: text/html
 Cost: Three smackeroos
 
 ", 'extra params';
 
-is header(cost => "Three smackeroos", tax_deductible => "Yes"),
+is $q.header(cost => "Three smackeroos", tax_deductible => "Yes"),
     "Status: 200 OK
 Content-Type: text/html
 Cost: Three smackeroos

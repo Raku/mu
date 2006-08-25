@@ -1,3 +1,7 @@
+== Changes for 0.1  Fri Aug 25 19:23:20 EDT 2006
+* refactored into an OO-only module, breaking 
+  backwards compatibility. (Mark Stosberg)
+
 == Changes for 0.0.1
 
 * changelog created May 5, 2005

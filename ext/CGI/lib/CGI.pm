@@ -1,68 +1,73 @@
 use v6-alpha;
-module CGI-0.0.1;
+class CGI-0.1;
+    # XXX Should this all be rw? Should any be public?
+    has %!PARAMS           is rw;
+    has $!REQUEST_METHOD   is rw;
+    has $!CONTENT_LENGTH   is rw;
+    has $!CONTENT_TYPE     is rw;
+    has $!QUERY_STRING     is rw;
+    # I would prefer this syntax, but it seems not be supported yet. 
+    # has $!QS_DELIMITER     is rw = ';';
+    has $!QS_DELIMITER     is rw; 
+    has $!URL_ENCODING     is rw; 
+    has $!IS_PARAMS_LOADED is rw; 
 
-## set up all the globals (which will eventually be object attributes)
+method BUILD {
+        $!QS_DELIMITER     = ';';
+        $!URL_ENCODING     = 'iso-8859-1';
+        $!IS_PARAMS_LOADED = 0;
+}
 
-my %PARAMS;
+## methods
 
-my $REQUEST_METHOD;
-my $CONTENT_LENGTH;
-my $CONTENT_TYPE;
-my $QUERY_STRING;
-my $QS_DELIMITER = ';';
-my $URL_ENCODING = 'iso-8859-1';
-my $IS_PARAMS_LOADED = 0;
+# information methods
 
-## functions
+method clear_params returns Void { %!PARAMS = () }
+method reset_params returns Void { %!PARAMS = (); $!IS_PARAMS_LOADED = 0; }
 
-# information functions
-
-sub clear_params returns Void is export { %PARAMS = () }
-sub reset_params returns Void is export { %PARAMS = (); $IS_PARAMS_LOADED = 0; }
-
-sub query_string   returns Str is export { $QUERY_STRING   }
-sub request_method returns Str is export { $REQUEST_METHOD }
-sub content_type   returns Str is export { $CONTENT_TYPE   }
-sub content_length returns Str is export { $CONTENT_LENGTH }
+method query_string   returns Str { $!QUERY_STRING   }
+method request_method returns Str { $!REQUEST_METHOD }
+method content_type   returns Str { $!CONTENT_TYPE   }
+method content_length returns Str { $!CONTENT_LENGTH }
 
 # make some of the less used values 'on demand'
 
-sub path_info       returns Str is export { %*ENV<PATH_INFO> || '' }
-sub request_uri     returns Str is export { %*ENV<REQUEST_URI>   }
-sub referer         returns Str is export { %*ENV<HTTP_REFERER>  }
-sub document_root   returns Str is export { %*ENV<DOCUMENT_ROOT> }
-sub script_name     returns Str is export { 
+method path_info       returns Str { %*ENV<PATH_INFO> || '' }
+method request_uri     returns Str { %*ENV<REQUEST_URI>   }
+method referer         returns Str { %*ENV<HTTP_REFERER>  }
+method document_root   returns Str { %*ENV<DOCUMENT_ROOT> }
+method script_name     returns Str { 
     %*ENV<SCRIPT_NAME> || $*PROGRAM_NAME
 }
 
 # do we have a way to set "optional" exporting?
-sub set_delimiter(Str $delimiter) is export {
+method set_delimiter(Str $delimiter) {
     unless $delimiter eq (';' | '&') {
         die "Query string delimiter must be a semi-colon or ampersand";
     }
-    $QS_DELIMITER = $delimiter;
+    $!QS_DELIMITER = $delimiter;
 }
 
 # set GET and POST parameters encoding
-sub set_url_encoding(Str $encoding) is export {
+method set_url_encoding(Str $encoding) {
     unless $encoding eq ('iso-8859-1' | 'utf-8') {
     die "Currently iso-8859-1 and utf-8 encodings supported";
     }
-    $URL_ENCODING = $encoding;
+    $!URL_ENCODING = $encoding;
 }
 
 # utility functions
 
-sub header (
+method header (
     Str  $content_type? = 'text/html',
-    Str  $status? = '200 OK',
-    Str  $charset? = undef,
+    Str  $status?       = '200 OK',
+    Str  $charset?      = undef,
     Str :$cookies?,
     Str :$target?,
     :$expires?,
     Bool :$nph?,
     *%extra
-) returns Str is export {
+) returns Str {
     # construct our header
     my $header;
     $header ~= "Status: " ~ $status;
@@ -101,14 +106,14 @@ sub header (
     return "$header\n\n";
 }
 
-sub redirect (
+method redirect (
     Str   $location,
     Str   $target?,
     Str   $status? = "302 Found",
     Str  :$cookie,
     Bool :$nph,
     *%extra
-) returns Str is export {
+) returns Str {
     my %out;
     
     # XXX provide default for $location
@@ -126,21 +131,21 @@ sub redirect (
     if ($target.defined) { %out<Target> = $target; }
     
     for %out.keys -> $key {
-        %out{$key} = unescapeHTML(%out{$key})
+        %out{$key} = self.unescapeHTML(%out{$key})
             unless $key eq "Cookie";
     }
     
     if ($cookie.defined) {
-        return header('', $status, cookies => $cookie, nph => $nph, extra => %out);
+        return self.header('', $status, cookies => $cookie, nph => $nph, extra => %out);
     } else {
-        return header('', $status, nph => $nph, extra => %out);
+        return self.header('', $status, nph => $nph, extra => %out);
     }
 }
 
-sub url_decode (Str $to_decode) returns Str is export {
+method url_decode (Str $to_decode) returns Str {
     my $decoded = $to_decode;
     $decoded ~~ s:perl5:g/\+/ /;
-    given $URL_ENCODING {
+    given $!URL_ENCODING {
         when 'iso-8859-1' {
             $decoded ~~ s:perl5:g/%([\da-fA-F][\da-fA-F])/{chr(:16($0))}/;
         }
@@ -156,7 +161,7 @@ sub url_decode (Str $to_decode) returns Str is export {
     return $decoded;
 }
 
-sub url_encode (Str $to_encode) returns Str is export {
+method url_encode (Str $to_encode) returns Str {
     my $encoded = $to_encode;
     # create a simplistic dec-to-hex converter
     # which will be able to handle the 0-255 values
@@ -171,7 +176,7 @@ sub url_encode (Str $to_encode) returns Str is export {
         elsif ($num < 67108864) { $dec2hex(248+$num/16777216)~$dec2hex(128+($num/262144)%64)~$dec2hex(128+($num/4096)%64)~$dec2hex(128+($num/64)%64)~$dec2hex(128+$num%64); }
         else { $dec2hex(252+$num/1073741824)~$dec2hex(248+($num/16777216)%64)~$dec2hex(128+($num/262144)%64)~$dec2hex(128+($num/4096)%64)~$dec2hex(128+($num/64)%64)~$dec2hex(128+$num%64); }
     };
-    given $URL_ENCODING {
+    given $!URL_ENCODING {
         when 'iso-8859-1' {
             $encoded ~~ s:perl5:g/([^-.\w])/$dec2hex(ord($0))/;
         }
@@ -182,46 +187,46 @@ sub url_encode (Str $to_encode) returns Str is export {
     return $encoded;
 }
 
-sub pack_params returns Str is export {
+method pack_params returns Str {
     my @packed_params;
-    for (%PARAMS.kv) -> $param, $value {
+    for (%!PARAMS.kv) -> $param, $value {
         for $value -> $val {
-            @packed_params.push(url_encode($param) ~ '=' ~ url_encode($val));                            
+            @packed_params.push(self.url_encode($param) ~ '=' ~ self.url_encode($val));                            
         }
     }
-    return join($QS_DELIMITER, @packed_params);
+    return join($!QS_DELIMITER, @packed_params);
 }
 
-sub unpack_params (Str $data) returns Str is export {
+method unpack_params (Str $data) returns Str {
     my @pairs = split(rx:perl5{[&;]}, $data);
     for @pairs -> $pair {
         my ($key, $value) = split('=', $pair);
-        $key = url_decode($key);
-        if (%PARAMS{"$key"}) {
-            my $list := %PARAMS{"$key"};
-            $list.push(url_decode($value));
+        $key = self.url_decode($key);
+        if (%!PARAMS{"$key"}) {
+            my $list := %!PARAMS{"$key"};
+            $list.push(self.url_decode($value));
         }
         else {
-            %PARAMS{"$key"} = [ url_decode($value) ];            
+            %!PARAMS{"$key"} = [ self.url_decode($value) ];            
         }
     }  
 }
 
-sub load_params {
-    $IS_PARAMS_LOADED = 1; 
+method load_params {
+    $!IS_PARAMS_LOADED = 1; 
     ## initialize all the globals
     try {
-        $REQUEST_METHOD = %*ENV<REQUEST_METHOD>;
-        $CONTENT_TYPE   = %*ENV<CONTENT_TYPE>;    
-        $CONTENT_LENGTH = %*ENV<CONTENT_LENGTH>;   
+        $!REQUEST_METHOD = %*ENV<REQUEST_METHOD>;
+        $!CONTENT_TYPE   = %*ENV<CONTENT_TYPE>;    
+        $!CONTENT_LENGTH = %*ENV<CONTENT_LENGTH>;   
             
-        if (lc($REQUEST_METHOD) eq ('get' | 'head')) {
-            $QUERY_STRING = %*ENV<QUERY_STRING>;
-            unpack_params($QUERY_STRING) if $QUERY_STRING;
+        if (lc($!REQUEST_METHOD) eq ('get' | 'head')) {
+            $!QUERY_STRING = %*ENV<QUERY_STRING>;
+            unpack_params($!QUERY_STRING) if $!QUERY_STRING;
         }
-        elsif (lc($REQUEST_METHOD) eq 'post') { 
-            if (!$CONTENT_TYPE || $CONTENT_TYPE eq 'application/x-www-form-urlencoded') {
-                my $content; # = read($*IN, $CONTENT_LENGTH);
+        elsif (lc($!REQUEST_METHOD) eq 'post') { 
+            if (!$!CONTENT_TYPE || $!CONTENT_TYPE eq 'application/x-www-form-urlencoded') {
+                my $content; # = read($*IN, $!CONTENT_LENGTH);
                 unpack_params($content) if $content;
             }
         }
@@ -230,7 +235,7 @@ sub load_params {
             unpack_params($input);
         }
         else {
-            die "Invalid Content Type" if $REQUEST_METHOD; # only die if we are running under CGI
+            die "Invalid Content Type" if $!REQUEST_METHOD; # only die if we are running under CGI
         }
     };
     if ($!) {
@@ -240,7 +245,7 @@ sub load_params {
     }    
 }
 
-sub escapeHTML (Str $string, Bool :$newlines) returns Str is export {
+method escapeHTML (Str $string, Bool :$newlines) returns Str {
     # XXX check for $self.escape == 0
     #unless ($self.escape != 0) { return $toencode; }
     
@@ -279,7 +284,7 @@ sub escapeHTML (Str $string, Bool :$newlines) returns Str is export {
     return $string;
 }
 
-sub unescapeHTML (Str $string) returns Str is export {
+method unescapeHTML (Str $string) returns Str {
     # XXX check $self.charset
     #my $latin = ?(uc $self.charset eq "ISO-8859-1"|"WINDOWS-1252");
     my $latin = 1;
@@ -303,8 +308,8 @@ sub unescapeHTML (Str $string) returns Str is export {
 
 # information functions (again)
 
-multi sub param returns Array is export { unless $IS_PARAMS_LOADED {load_params}; %PARAMS.keys; }
-multi sub param (Str $key) returns Array is export { unless $IS_PARAMS_LOADED {load_params}; (%PARAMS{$key}); }
+multi method param returns Array            { unless $!IS_PARAMS_LOADED {self.load_params}; %!PARAMS.keys;    }
+multi method param (Str $key) returns Array { unless $!IS_PARAMS_LOADED {self.load_params}; (%!PARAMS{$key}); }
 
 =pod
 
@@ -315,13 +320,15 @@ CGI - A module for programming CGI
 =head1 SYNOPSIS
 
     use v6-alpha;
-    require CGI-0.0.1;
+    use CGI;
+
+    my $q = CGI.new;
     
-    print header;
+    print $q.header;
     
-    if (param()) {
-        for param() -> $key {
-            say $key ~ " => " ~ param($key) ~ "<BR>";
+    if ($q.param) {
+        for $q.param -> $key {
+            say $key ~ " => " ~ $q.param($key) ~ "<BR>";
         }
     }
     else {
@@ -400,7 +407,7 @@ figure out a good way to do this without. Either way it is still TODO.
 
 =back
 
-=head1 AUTHOR
+=head1 AUTHORS
 
 stevan little, E<lt>stevan@iinteractive.comE<gt>
 
@@ -412,9 +419,12 @@ Andras Barthazi, E<lt>andras@barthazi.huE<gt>
 
 "Aankhen"
 
+Mark Stosberg
+
 =head1 COPYRIGHT
 
-Copyright (c) 2005. Stevan Little. All rights reserved.
+Parts Copyright (c) 2005. Stevan Little. All rights reserved.
+Parts Copyright (c) 2006. Mark Stosberg. 
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
@@ -422,3 +432,4 @@ it under the same terms as Perl itself.
 See http://www.perl.com/perl/misc/Artistic.html
 
 =cut
+# vim: ft=perl6
