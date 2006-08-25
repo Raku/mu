@@ -294,7 +294,8 @@ sub gen_code_snippet ($) {
     while (<$in>) {
         next if $i < $from;
         last if $i > $to;
-        s/\&/&amp;/g;
+        s/\&/\&amp;/g;
+        s/"/\&quot;/g;
         s/</\&lt;/g;
         s/>/\&gt;/g;
         $src .= $_;
@@ -366,7 +367,7 @@ sub process_syn ($$$$) {
             $broken_count++;
             next;
         }
-        for my $link (@links) {
+        for my $link (reverse @links) {
             my ($pattern, $location) = @$link;
             my $i = 0;
             if (!$pattern) { # match the whole section
