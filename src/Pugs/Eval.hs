@@ -458,14 +458,16 @@ reduceSyn "for" [list, body] = do
     av    <- enterLValue $ enterEvalContext cxtSlurpyAny list
     vsub  <- enterRValue $ enterEvalContext (cxtItem "Code") body
     -- XXX this is wrong -- should use Array.next
-    elms  <- join $ doArray av array_fetchElemAll
+    elms  <- case av of
+        VRef (MkRef sv@IScalar{})   -> return [sv]
+        VList xs                    -> mapM fromVal xs
+        _                           -> join $ doArray av array_fetchElemAll
     sub' <- fromVal vsub
     sub  <- case sub' of
         VCode s -> return s
         VList [] -> fail $ "Invalid codeblock for 'for': did you mean {;}?"
         _ -> fail $ "Invalid codeblock for 'for'"
-    -- XXX: need clarification -- this makes
-    --      for @x { ... } into for @x -> $_ {...}
+    -- This makes "for @x { ... }" into "for @x -> $_ is rw {...}"
     let arity = max 1 $ length (subParams sub)
         runBody [] _ = retVal undef
         runBody vs sub' = do
