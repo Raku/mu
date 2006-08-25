@@ -283,7 +283,7 @@ findSub _var _invs _args = case _invs of
     argSlurpLen :: Exp -> Eval Int
     argSlurpLen (Val val) = valSlurpLen val
     argSlurpLen (Var name) = do
-        val <- evalExp (Var name)
+        val <- enterLValue $ evalExp (Var name)
         valSlurpLen val
     argSlurpLen (Syn "," list) =  return $ length list
     argSlurpLen _ = return 1 -- XXX
