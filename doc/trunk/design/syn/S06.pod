@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 18 Aug 2006
+  Last Modified: 25 Aug 2006
   Number: 6
-  Version: 52
+  Version: 53
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -590,7 +590,7 @@ the default.  Use C<//=> within the body for that.)
 (Conjectural: Within the body you may also use C<exists> on the
 parameter name to determine whether it was passed.  Maybe this will have to
 be restricted to the C<?> form, unless we're willing to admit that a parameter
-could be simultaneously defined and non-existant.)
+could be simultaneously defined and non-existent.)
 
 =head2 Named parameters
 
@@ -1663,7 +1663,14 @@ Properties are predeclared as roles and implemented as mixins--see S12.
 =head2 Subroutine traits
 
 These traits may be declared on the subroutine as a whole (individual
-parameters take other traits).
+parameters take other traits).  Trait syntax depends on the particular
+auxiliary you use, but for C<is>, the subsequent syntax is identical to
+adverbial syntax, except that that colon may be omitted or doubled depending
+on the degree of ambiguity desired:
+
+    is ::Foo[...]	# definitely a parameterized typename
+    is :Foo[...]	# definitely a pair with a list
+    is Foo[...]		# depends on whether Foo is predeclared as type
 
 =over 
 
@@ -1707,27 +1714,79 @@ optimization via inlining.
 =item C<is tighter>/C<is looser>/C<is equiv>
 
 Specifies the precedence of an operator relative to an existing
-operator.  C<equiv> also specifies the default associativity to
-be the same as the operator to which the new operator is equivalent.
-C<tighter> and C<looser> operators default to being left associative.
+operator.  C<tighter> and C<looser> operators default to being left
+associative.
+
+C<equiv> on the other hand also clones other traits, so it specifies
+the default associativity to be the same as the operator to which
+the new operator is equivalent.  The following are the default
+equivalents for various syntactic categories if neither C<equiv> nor
+C<assoc> is specified.  (Many of these have no need of precedence
+or associativity because they are parsed specially.  Nevertheless,
+C<equiv> may be useful for cloning other traits of these operators.)
+
+    term:<*>
+    quote:<q>
+    prefix:<++>
+    infix:<+>
+    postfix:<++>
+    circumfix:<( )>
+    postcircumfix:<( )>
+    regex_metachar:<.>
+    regex_backslash:<w>
+    regex_assertion:<?>
+    regex_mod_internal:<i>
+    regex_mod_external:<i>
+    trait_verb:<of>
+    trait_auxiliary:<is>
+    scope_declarator:<my>
+    statement_control:<if>
+    statement_modifier:<if>
+    infix_prefix_meta_operator:<!>
+    infix_postfix_meta_operator:<=>
+    postfix_prefix_meta_operator:{'»'}
+    prefix_postfix_meta_operator:{'«'}
+    infix_circumfix_meta_operator:{'»','«'}
+    prefix_circumfix_meta_operator:{'[',']'} 
+
+The existing operator may be specified either as a function name
+or as a string slice equivalent to the one that would be used in
+the complete function name.  In string slice form the syntactic
+category will be assumed to be the same as the new declaration.
+Therefore these all have the same effect:
+
+    sub postfix:<!> ($x) is equiv(&postfix:<++>) {...}
+    sub postfix:<!> ($x) is equiv<++> {...}
+    sub postfix:<!> ($x) {...}      # since equiv<++> is the default
+
+Prefix operators that are identifiers are handled specially.  Both of
+
+    sub foo ($) {...}
+    sub prefix:<foo> ($) {...}
+
+default to named unary precedence despite declaring a prefix operator.
+Likewise postfix operators that look like method calls are forced to
+default to the precedence of method calls.
 
 =item C<is assoc>
 
 Specifies the associativity of an operator explicitly.  Valid values are:
 
-    Tag		Examples	Meaning of $a op $b op $c
-    ===		========	=========================
-    left	+ - * / x	($a op $b) op $c
-    right	** =		$a op ($b op $c)
-    non		cmp <=> ..	ILLEGAL
-    chain	== eq ~~	($a op $b) and ($b op $c)
-    list	| & ^ ¥		listop($a, $b, $c) or listop($a; $b; $c)
-
+    Tag		Examples	Meaning of $a op $b op $c	Default equiv
+    ===		========	=========================	=============
+    left	+ - * / x	($a op $b) op $c		+
+    right	** =		$a op ($b op $c)		**
+    non		cmp <=> ..	ILLEGAL				cmp
+    chain	== eq ~~	($a op $b) and ($b op $c)	eqv
+    list	| & ^ ¥		op($a, $b, $c)			|
 
 Note that operators "C<equiv>" to relationals are automatically considered
 chaining operators.  When creating a new precedence level, the chaining
-is determined by the presence or absence of "C<is assoc('chain')>",
+is determined by the presence or absence of "C<< is assoc<chain> >>",
 and other operators defined at that level are required to be the same.
+
+Specifying an C<assoc> without an explicit C<equiv> substitutes a default
+C<equiv> consistent with the associativity, as shown in the final column above.
 
 =item C<PRE>/C<POST>
 
