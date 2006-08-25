@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 26;
+plan 27;
 
 =pod
 
@@ -58,7 +58,8 @@ is("boop"&&&&&, "ANDANDANDANDANDboop",
    "postfix operator overloading for new operator (weird)");
 
 my $var = 0;
-eval_ok('macro circumfix:<!--...-->   ($text) { "" }; <!-- $var = 1; -->; $var == 0;', 'circumfix macro', :todo<feature>);
+eval_ok('macro circumfix:{"<!--","-->"} ($text) is parsed / .*? / { "" }; <!-- $var = 1; -->; $var == 0;', 'circumfix macro {"",""}', :todo<feature>);
+eval_ok('macro circumfix:«<!-- -->» ($text) is parsed / .*? / { "" }; <!-- $var = 1; -->; $var == 0;', 'circumfix macro «»', :todo<feature>);
 
 # demonstrate sum prefix
 
