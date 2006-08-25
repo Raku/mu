@@ -286,6 +286,19 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         , ruleSubGlobal
         ]
     optional $ do { symbol "handles"; ruleExpression }
+    assoc   <- option A_left $ do
+        symbol "is"
+        symbol "assoc"
+        lit <- parens qLiteral
+        case unwrap lit of
+            Val (VStr str) -> case str of
+                "left"  -> return A_left
+                "right" -> return A_right
+                "non"   -> return A_non
+                "chain" -> return A_chain
+                "list"  -> return A_list
+                _       -> fail $ "Invalid associativity: " ++ str
+            _   -> fail $ "Invalid associativity: " ++ show lit
     let returnsOrOf = try (ruleBareTrait "returns" <|> ruleBareTrait "of")
     typ'    <- option typ returnsOrOf
     formal  <- option Nothing $ ruleSubParameters ParensMandatory
@@ -307,7 +320,9 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subEnv        = Just env
             , subType       = if "primitive" `elem` traits
                 then SubPrim else styp
-            , subAssoc      = ANil
+            , subAssoc      = case v_categ var of
+                C_infix -> assoc
+                _       -> ANil
             , subReturns    = mkType typ''
             , subLValue     = "rw" `elem` traits
             , subParams     = self ++ paramsFor styp formal params
@@ -326,6 +341,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         self | styp > SubMethod = []
              | (prm:_) <- params, isInvocant prm = []
              | otherwise = [selfParam . cast $ envPackage env]
+        var = cast nameQualified
         mkExp n = Syn ":=" [_Var n, Syn "sub" [Val sub]]
         mkSym n = _Sym scope (mkMulti n) (mkExp n)
         -- Horrible hack! _Sym "&&" is the multi form.

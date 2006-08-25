@@ -8,6 +8,7 @@ import Pugs.Lexer
 import Pugs.Rule
 import {-# SOURCE #-} Pugs.Parser
 import qualified Data.Set as Set
+import qualified Data.Map as Map
 import qualified Data.ByteString.Char8 as Str
 --import qualified Data.HashTable as Hash
 import qualified Judy.IntMap as L
@@ -46,9 +47,7 @@ tightOperators = do
         ++ postOps (r_post tights)
         ++ symbLevel)
     : multLevel                     -- Multiplicative
-    : (leftOps (r_infix tights)     -- Additive (user-definable)
-        ++ addiLevel
-      )
+    : Map.foldWithKey foldInfix addiLevel (r_infix tights) -- Additive (user-definable)
     : junaLevel                     -- Junctive And
     : junoLevel                     -- Junctive Or
     : (optOps (r_opt tights)        -- Named Unary (user-definable)
@@ -57,6 +56,15 @@ tightOperators = do
       )
     : staticLevels
     )
+    where
+    foldInfix :: OpName -> SubAssoc -> [RuleOperator Exp] -> [RuleOperator Exp]
+    foldInfix op assoc xs = let op' = Set.singleton op in case assoc of
+        A_left  -> leftOps op'  ++ xs
+        A_right -> rightOps op' ++ xs
+        A_non   -> nonOps op'   ++ xs
+        A_chain -> chainOps op' ++ xs
+        A_list  -> listOps op'  ++ xs
+        _ -> error $ "Impossible: " ++ show op ++ " has no assoc?"
 
 termLevel, methLevel, incrLevel, expoLevel, symbLevel, multLevel, addiLevel, junaLevel, junoLevel :: [RuleOperator Exp]
 termLevel = circumOps (Set.singleton (MkOpName (cast "\\( )")))
@@ -74,8 +82,8 @@ junoLevel = listOps (opWords " ^ | ")
 -- user-defineable precedences.
 staticLevels :: [[RuleOperator Exp]]
 staticLevels =
-    [ noneSyn   (opWords " but does ")                            -- Traits
-      ++ noneOps (opWords " leg cmp <=> .. ^.. ..^ ^..^ ff ^ff ff^ ^ff^ fff ^fff fff^ ^fff^ ")  -- Non-chaining Binary
+    [ nonSyn   (opWords " but does ")                            -- Traits
+      ++ nonOps (opWords " leg cmp <=> .. ^.. ..^ ^..^ ff ^ff ff^ ^ff^ fff ^fff fff^ ^fff^ ")  -- Non-chaining Binary
       ++ postOps (opWords "...")                                 -- Infinite range
     , chainOps (opWords " != == < <= > >= ~~ eqv eq ne lt le gt ge =:= === ")
                                                                 -- Chained Binary
@@ -146,6 +154,7 @@ data CurrentFunction = MkCurrentFunction
     , f_assoc   :: !SubAssoc
     , f_params  :: !Params
     }
+    deriving (Show)
 
 -- Read just the current state (i.e. not actually consuming anything)
 currentFunctions :: RuleParser [CurrentFunction]
@@ -228,9 +237,9 @@ currentTightFunctions = do
         (maybeTerm, notTerm)= partition matchTerm funs
         terms               = namesFrom maybeTerm Set.\\ namesFrom notTerm
         termSet             = Set.map MkOpName terms
-        infixOps            = Set.fromList
-            [ MkOpName name
-            | MkCurrentFunction { f_var = MkVar { v_categ = C_infix, v_name = name } } <- notUnary
+        infixOps            = Map.fromList
+            [ (MkOpName name, assoc)
+            | MkCurrentFunction { f_var = MkVar { v_categ = C_infix, v_name = name }, f_assoc = assoc } <- notUnary
             , name /= commaID
             ]
         splitUnary :: CurrentFunction -> TightFunctions -> TightFunctions
@@ -252,12 +261,12 @@ commaID :: ID
 commaID = cast ","
 
 data TightFunctions = MkTightFunctions
-    { r_opt   :: !(Set OpName)
-    , r_named :: !(Set OpName)
-    , r_pre   :: !(Set OpName)
-    , r_post  :: !(Set OpName)
-    , r_term  :: !(Set OpName)
-    , r_infix :: !(Set OpName)
+    { r_opt         :: !(Set OpName)
+    , r_named       :: !(Set OpName)
+    , r_pre         :: !(Set OpName)
+    , r_post        :: !(Set OpName)
+    , r_term        :: !(Set OpName)
+    , r_infix       :: !(Map OpName SubAssoc)
     }
 
 emptySet :: Set OpName
@@ -286,7 +295,7 @@ matchSlurpy _ = False
 fileTestOperatorNames :: String
 fileTestOperatorNames = "rwxoRWXOezsfdlpSbctugkTBMAC"
 
-circumOps, rightSyn, chainOps, noneSyn, listSyn, preSyn, optPreSyn, preOps, preSymOps, optSymOps, postOps, optOps, leftOps, rightOps, noneOps, listOps :: Set OpName -> [RuleOperator Exp]
+circumOps, rightSyn, chainOps, nonSyn, listSyn, preSyn, optPreSyn, preOps, preSymOps, optSymOps, postOps, optOps, leftOps, rightOps, nonOps, listOps :: Set OpName -> [RuleOperator Exp]
 preSyn      = ops  $ makeOp1 Prefix "" Syn
 optPreSyn   = ops  $ makeOp1 OptionalPrefix "" Syn
 preOps      = (ops $ makeOp1 Prefix "&prefix:" doApp) . addHyperPrefix
@@ -296,11 +305,11 @@ postOps     = (ops $ makeOp1 Postfix "&postfix:" doApp) . addHyperPostfix
 optOps      = (ops $ makeOp1 OptionalPrefix "&prefix:" doApp) . addHyperPrefix
 leftOps     = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix
 rightOps    = (ops $ makeOp2 AssocRight "&infix:" doApp) . addHyperInfix
-noneOps     = ops  $ makeOp2 AssocNone "&infix:" doApp
+nonOps      = ops  $ makeOp2 AssocNone "&infix:" doApp
 listOps     = ops  $ makeOp2 AssocLeft "&infix:" doApp
 chainOps    = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix . addNegation
 rightSyn    = ops $ makeOp2 AssocRight "" Syn
-noneSyn     = ops $ makeOp2 AssocNone "" Syn
+nonSyn      = ops $ makeOp2 AssocNone "" Syn
 listSyn     = ops $ makeOp0 AssocList "" Syn
 circumOps   = ops $ makeCircumOp "&circumfix:"
 rightAssignSyn :: RuleOperator Exp
@@ -311,8 +320,6 @@ rightDotAssignSyn = makeOp2DotAssign AssocRight "" Syn
 {-# INLINE ops #-}
 {-# SPECIALISE ops :: (String -> RuleOperator Exp) -> Set OpName -> [RuleOperator Exp] #-}
 {-# SPECIALISE ops :: (String -> RuleParser String) -> Set OpName -> [RuleParser String] #-}
--- 0x10FFFF is the max number "chr" can take, so we use it for longest-token sorting.
--- buildExpressionParser will then use that information to make a longest-token match.
 ops :: (String -> a) -> Set OpName -> [a]
 ops f = map f . cast . Set.toAscList
 
@@ -686,7 +693,7 @@ ruleFoldOp = verbatimRule "reduce metaoperator" $ try $ do
     -- name <- choice $ ops (try . string) (addHyperInfix $ infixOps ++ defaultInfixOps)
     name <- verbatimRule "infix operator" $ do
         choice $ ops (try . string)
-            (addHyperInfix (infixOps `Set.union` defaultInfixOps))
+            (addHyperInfix (Map.keysSet infixOps `Set.union` defaultInfixOps))
     char ']'
     possiblyHyper <- option "" ((char '\171' >> return "<<") <|> (string "<<"))
     return $ "&prefix:[" ++ keep ++ name ++ "]" ++ possiblyHyper
