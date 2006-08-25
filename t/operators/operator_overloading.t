@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 27;
+plan 34;
 
 =pod
 
@@ -161,4 +161,42 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
     skip 1, "Stringification failed";
   };
   is eval('($obj as OtherClass).x'), 23, "our object was coerced correctly", :todo<feature>;
+}
+
+{
+	my sub infix:<X> ($a, $b) {
+		$a ** $b;
+	}
+	is (2 X 1 X 2), 4, "default Left-associative works.";
+}
+
+{
+	my sub infix:<X> is assoc('left') ($a, $b) {
+		$a ** $b;
+	}
+	is (2 X 1 X 2), 4, "Left-associative works.";
+}
+
+{
+	my sub infix:<X> is assoc('right') ($a, $b) {
+		$a ** $b;
+	}
+	is (2 X 1 X 2), 2, "Right-associative works.";
+}
+
+{
+	my sub infix:<X> is assoc('non') ($a, $b) {
+		$a ** $b;
+	}
+	is (2 X 3), (2 ** 3), "Non-associative works for just tow operands.";
+	is ((2 X 2) X 3), (2 ** 2) ** 3, "Non-associative works when used with parens.";
+	# eval_dies_ok '2 X 3 X 4', "Non-associative should die when used chainly."; # I guess we need add eval_dies_ok
+}
+
+{
+	my sub infix:<X> is assoc('chain') ($a, $b) {
+		$a eq $b;
+	}
+	is (1 X 1 X 1), Bool::True, "Chain-associative works.";
+	is (1 X 1 X 2), Bool::False, "Chain-associative works.";
 }
