@@ -6,14 +6,14 @@ use Test;
 
 Tests the "for" statement
 
-This attemps to test as many variations of the
+This attempts to test as many variations of the
 for statement as possible
 
 L<S04/"The C<for> statement">
 
 =cut
 
-plan 36;
+plan 38;
 
 ## for with plain old range operator w/out parens
 # L<S04/"The C<for> statement" /in Perl 6, si it always take a list as an argument/>
@@ -273,3 +273,17 @@ is( %hash_kv.sort, %kv.sort, 'for %hash.kv -> $key, $val is rw { $val++ }', :tod
    is( $sum1, $sum2, '$_.key = 1 for @array1;');
 
 }
+
+# rw scalars
+{
+    my ($a, $b, $c) = 0..2;
+    try { for ($a, $b, $c) { $_++ } };
+    is( [$a,$b,$c], [1,2,3], 'for ($a,$b,$c) { $_++ }');
+
+    ($a, $b, $c) = 0..2;
+    try { for ($a, $b, $c) -> $x is rw { $x++ } };
+    is( [$a,$b,$c], [1,2,3], 'for ($a,$b,$c) -> $x is rw { $x++ }');
+}
+
+
+
