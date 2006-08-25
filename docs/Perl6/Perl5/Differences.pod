@@ -1,35 +1,21 @@
-=begin maintainer_notes
-
-Since I *am* a Perl 5 programmer coming to Perl 6 for the first time, it
-seems appropriate to make notes on what I needed to get used to in Perl
-6.  I'm going to start out more or less making a running list of items,
-and then I guess they can be organised more neatly later on.  -- KR
-
-=end maintainer_notes
-
 =head1 NAME
 
-Perl6::Perl5::Differences -- differences between Perl 5 and Perl 6
+Perl6::Perl5::Differences -- Differences between Perl 5 and Perl 6
 
 =head1 DESCRIPTION
 
-This document is intended to be used by Perl 5 programmers who are new
-to Perl 6 and just want a quick overview of the main differences.  More
-detail on everything can be found in the language reference.
+This document is intended to be used by Perl 5 programmers who are new to Perl
+6 and just want a quick overview of the main differences.  More detail on
+everything can be found in the language reference, which have been linked to
+throughout. 
 
-The ordering of this document is more or less in order from basic stuff
-to complex stuff.  To put it another way, it's been written in the order
-that the topics came up while the author was learning Perl 6.
+This list is currently known to be incomplete.
 
-=head2 say()
+=cut 
 
-This is a version of print() that auto-appends a newline:
+# S02
 
-    Was:    print "Hello, world!\n";
-    Now:    say   "Hello, world!";
-
-Since you want to do that so often anyway, it seemed like a handy thing
-to make part of the language.
+=head1 Bits and Pieces
 
 =head2 Sigils
 
@@ -59,6 +45,18 @@ Again, there is a shorter form:
 
     say "There are %days<February> days in February";
 
+For details, see L<S02/"Names and Variables">.
+
+=head2 Global Variables have a twigil
+
+Yes, a twigil. It's the second character in the variable name. For globals,
+it's a C<*>
+
+    Was:    $ENV{FOO}
+    Now:    %ENV<FOO>
+
+For details, see L<S02/"Names and Variables">.
+
 =head2 New ways of referring to array and hash elements
 
 Number of elements in an array: 
@@ -77,18 +75,20 @@ Therefore, last element in an array:
     Now:    @array[@array.end]
             @array[-1]              # also works
 
-Hash elements no longer auto-quote:
+For details, see L<S02/"Built-In Data Types">
 
-    Was:    $days{February}
-    Now:    %days{'February'}
-    Or:     %days{"February"}
-    Or:     %days<February>
-    Or:     %days<<February>>
+=cut 
 
-The curly-bracket forms still work, but curly-brackets are more
-distinctly block-related now, so in fact what you've got there is a
-block that returns the value "February".  The C<<>> and C<<<>>> forms
-are in fact just quoting mechanisms (see below).
+# S03
+
+=head1 Operators
+
+A comprehensive list of operator changes are documented here:
+
+L<S03/"Changes to Perl 5 operators">
+L<S03/"New operators">
+
+Some highlights:
 
 =head2 q(), qq(), etc have changed
 
@@ -98,24 +98,13 @@ are in fact just quoting mechanisms (see below).
     Was:    qq(foo)
     Now:    <<foo>>
 
-=head2 Method invocation changes from -> to .
+=cut
 
-    Was:    $object->method
-    Now:    $object.method
+# S04
 
-=head2 Built-in functions are now methods
+=head1 Blocks and Statements
 
-Most (all?) built-in functions are now methods of built-in classes such
-as String, Array, etc.
-
-    Was:    my $len = length($string);
-    Now:    my $len = $string.chars;
-
-    Was:    print sort(@array);
-    Now:    print @array.sort;
-            @array.sort.print;
-
-You can still say C<sort(@array)> if you prefer the non-OO idiom.
+See L<S04> for the full specification of blocks and statements in Perl6.
 
 =head2 You don't need parens on control structure conditions
 
@@ -123,6 +112,24 @@ You can still say C<sort(@array)> if you prefer the non-OO idiom.
     Now:    if  $a < $b  { ... }
 
 Likewise for C<while>, C<for>, etc.
+
+=head2 eval {} is now try {}
+
+Using C<eval> on a block is now replaced with C<try>.
+
+    Was:  eval { 
+            # ... 
+          }; 
+          if ($@) { 
+            warn "oops: $@";
+          } 
+    Now:  try  {
+             # ...
+             CATCH { warn "oops: $!" }
+          } 
+
+CATCH provides more flexiblity in handling errors. 
+See L<S04/"Exception_handlers"> for details.
 
 =head2 foreach becomes for
 
@@ -141,47 +148,142 @@ This can be extended to take more than one element at a time:
 
 (Only the C<for> version does not destroy the array.)
 
+See L<S04/"The for statement"> for details. 
+
 =head2 for becomes loop
 
     Was:    for  ($i=0; $i<10; $i++) { ... }
     Now:    loop ($i=0; $i<10; $i++) { ... }
 
-=head2 Global Variables have a twigil
+=cut
 
-Yes, a twigil. It's the second character in the variable name. For globals,
-it's a C<*>
+# S05
 
-    Was:    $ENV{FOO}
-    Now:    %ENV<FOO>
+=head1 Regexes and Rules 
 
-For details, see L<S02/"Names and Variables">.
+=cut
 
-=head2 eval {} is now  try {}
+# S06
 
-Using C<eval> on a block is now replaced with C<try>.
+=head1 Subroutines
 
-    Was:  eval { 
-            # ... 
-          }; 
-          if ($@) { 
-            warn "oops: $@";
-          } 
-    Now:  try  {
-             # ...
-             CATCH { warn "oops: $!" }
-          } 
+=cut 
 
-CATCH provides more flexiblity in handling errors. 
-See L<S04/"Exception_handlers"> for details.
+# S07
 
-=head1 SEE ALSO
+=head1 Formats
 
-=over
+=cut 
 
-=item  L<S03/"Changes to Perl 5 operators">
+=head2 Formats have been replaced with forms. 
 
-=back 
+For details see : 
+
+L<http://dev.perl.org/perl6/doc/design/apo/A07.html> Format Apocalypse
+
+L<http://dev.perl.org/perl6/doc/design/exe/E07.html> Format Exegesis
+
+=cut 
+
+#S10 
+
+=head1 Packages
+
+=cut 
+
+#S11 
+
+=head1 Modules
+
+=cut 
+
+#S12
+
+=head1 Objects
+
+=head2 Method invocation changes from -> to .
+
+    Was:    $object->method
+    Now:    $object.method
+
+#S13
+
+=cut 
+
+=head1 Overloading
+
+=cut 
+
+#S29
+
+=head1 Builtin Functions
+
+A number of builtin's have been removed. For details, see:
+
+L<S29/"Obsolete">
+
+=begin TODO
+
+The new syntax didn't test out to work. Waiting on confirmation
+of correct examples. 
+
+#=head2 ref is gone
+
+  Was: ref $foo eq 'HASH'
+  Now: $foo ~~ 'Hash'
+
+  Was: ref $foo eq 'ARRAY'
+  Now: $foo ~~ 'Array'
+
+  Was: ref $foo eq 'CODE'
+  Now: $foo ~~ 'Code'
+
+The "obsolete" reference above has the details. 
+
+=end TODO
+
+=head2 say()
+
+This is a version of print() that auto-appends a newline:
+
+    Was:    print "Hello, world!\n";
+    Now:    say   "Hello, world!";
+
+Since you want to do that so often anyway, it seemed like a handy thing
+to make part of the language.
+
+=head1 Unfiled
+
+=head2 Hash elements no longer auto-quote
+
+Hash elements no longer auto-quote:
+
+    Was:    $days{February}
+    Now:    %days{'February'}
+    Or:     %days{"February"}
+    Or:     %days<February>
+    Or:     %days<<February>>
+
+The curly-bracket forms still work, but curly-brackets are more
+distinctly block-related now, so in fact what you've got there is a
+block that returns the value "February".  The C<<>> and C<<<>>> forms
+are in fact just quoting mechanisms (see below).
+
+=head2 Built-in functions are now methods
+
+Most (all?) built-in functions are now methods of built-in classes such
+as String, Array, etc.
+
+    Was:    my $len = length($string);
+    Now:    my $len = $string.chars;
+
+    Was:    print sort(@array);
+    Now:    print @array.sort;
+            @array.sort.print;
+
+You can still say C<sort(@array)> if you prefer the non-OO idiom.
 
 =head1 AUTHORS
 
-Kirrily "Skud" Robert, <skud@cpan.org>
+Kirrily "Skud" Robert, <skud@cpan.org>,
+Mark Stosberg
