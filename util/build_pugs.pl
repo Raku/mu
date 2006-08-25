@@ -66,6 +66,8 @@ sub build {
     my $prefix      = File::Spec->rel2abs("$pwd/third-party/installed");
     my $hc_pkg      = File::Spec->rel2abs("$pwd/util/ghc-pkg-wrapper$Config{_exe}");
 
+    mkdir $prefix unless -d $prefix;
+
     # On Win32, a very broken heuristics in Cabal forced us to copy runcompiler.exe
     # over to where GHC was in.
     my ($ghc_inst_path, $ghc_bin_path);
