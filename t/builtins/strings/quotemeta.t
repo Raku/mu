@@ -17,12 +17,16 @@ use v6-alpha;
 # 3. The original test suite used tr/// to count backslashes, here
 #    we use a combination of split and grep to count non-backslashes,
 #    which should be more intuitive.
-#
-# NOTE 2 on porting quotemat.t from 
 
 use Test;
 
-plan 10;
+
+plan 11;
+
+# For the moment I don't know how to handle the lack of Config.pm...
+# Sorry for ebcdic users!
+my %Config; # Empty means there's no 'ebcdic' key defined...
+is('Config.pm', 'available', 'Config.pm availability', :todo<feature>);
 
 # L<S29/"Str" /quotemeta/>
 
@@ -40,7 +44,7 @@ is($x, "HeLLo\\ World\\-72_1", 'quotemeta uses $_ as default');
 }
 
 
-if (%*Config<ebcdic> eq 'define') {
+if (%Config<ebcdic> eq 'define') {
     $_ = (129 .. 233).map({ chr($_); }).join('');
     is($_.chars, 96, "quotemeta starting string");
     
