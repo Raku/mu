@@ -18,14 +18,15 @@ module Pugs.Val (
 
     -- From Code
 	Sig(..), Param(..), ParamAccess(..), ParamDefault(..),
-    Capt(..), Feed(..), Code(..),
-    ValCapt,
+    Capt(..), Feed(..), emptyFeed, Code(..),
+    ValCapt, ValFeed,
 ) where
 import Pugs.Internals
 import GHC.Exts
 import Data.Generics.Basics hiding (cast)
 import qualified Data.Typeable as Typeable
 import qualified Data.ByteString as Buf
+import qualified Data.Map as Map
 
 import Pugs.AST.SIO
 import Pugs.Val.Base
@@ -35,6 +36,7 @@ import Pugs.Val.Base
 import {-# SOURCE #-} Pugs.Exp
 
 import qualified Pugs.Types as Types
+
 
 #include "Val/Code.hs"
 
@@ -305,7 +307,7 @@ type ExtProcess      = ()
 --------------------------------------------------------------------------------------
 
 -- | General purpose mapping from identifiers to values.
-type Table = Map ID Val
+type Table = Map.Map ID Val
 
 
 {- Pad -}
@@ -326,7 +328,7 @@ progressively outer scopes until an item is found. For dynamic variables
 (e.g., "our"), the pad holding the items is located in the package.
 -}
 
-newtype Pad = MkPad { padEntries :: Map Var PadEntry }
+newtype Pad = MkPad { padEntries :: Map.Map Var PadEntry }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 newtype EntryStorage = MkStorage { s_cell :: TVar Val }

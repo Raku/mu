@@ -66,7 +66,7 @@ data Sig
         , s_requiredPositionalCount   :: Int
         , s_requiredNames             :: Set ID
         , s_positionalList            :: [Param]
-        , s_namedSet                  :: Map ID Param
+        , s_namedSet                  :: Map.Map ID Param
         , s_slurpyScalarList          :: [Param]
         , s_slurpyArray               :: Maybe Param
         , s_slurpyHash                :: Maybe Param
@@ -77,7 +77,7 @@ data Sig
         { s_requiredPositionalCount   :: Int
         , s_requiredNames             :: Set ID
         , s_positionalList            :: [Param]
-        , s_namedSet                  :: Map ID Param
+        , s_namedSet                  :: Map.Map ID Param
         , s_slurpyScalarList          :: [Param]
         , s_slurpyArray               :: Maybe Param
         , s_slurpyHash                :: Maybe Param
@@ -156,14 +156,20 @@ data Capt a
 -- | non-invocant arguments.
 data Feed a = MkFeed
     { f_positionals :: [a]
-    , f_nameds      :: Map ID [a]   -- ^ maps to [a] and not a since if the Sig stipulates
+    , f_nameds      :: Map.Map ID [a]   -- ^ maps to [a] and not a since if the Sig stipulates
                                     --   @x, "x => 1, x => 2" constructs @x = (1, 2).
     }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
+emptyFeed :: Feed a
+emptyFeed = MkFeed [] Map.empty
 
 -- | Runtime Capture with dynamic Exp for leaves
 --type ExpCapt = Capt Exp
 -- | Static Capture with Val for leaves
 type ValCapt = Capt Val
+type ValFeed = Feed Val
+
+instance ICoercible P ValCapt where
+        asStr _ = return (cast "<capt>") -- XXX
 

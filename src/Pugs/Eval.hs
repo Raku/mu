@@ -866,6 +866,16 @@ reduceApp (Var var) invs args
 --      &close($fh) => try sub, method is not considered
 -- XXX - special handling of forced-no-invocant-reinterpretation.
 --       (see Eval.Var.)
+    -- XXX absolutely evil bloody hack for captures
+    | var == cast "&circumfix:\\( )" = do
+        feeds <- argsFeed [] Nothing [args]
+        case invs of
+            Just i' -> do
+                invVal  <- reduce i'
+                vv      <- fromVal invVal
+                return $ VV $ val $ CaptMeth{ c_invocant = vv, c_feeds = feeds }
+            Nothing -> do
+                return $ VV $ val $ CaptSub{ c_feeds = feeds }
     | SCodeMulti <- v_sigil var = do
         doCall var{ v_sigil = SCode } invs args
     | SCode <- v_sigil var, Nothing <- invs, [inv] <- args = case inv of
@@ -879,6 +889,35 @@ reduceApp subExp invs args = do
     (`juncApply` [ApplyArg dummyVar vsub False]) $ \[arg] -> do
         sub  <- fromVal $ argValue arg
         apply sub invs args
+
+argsFeed :: [ValFeed] -> Maybe ValFeed -> [[Exp]] -> Eval [ValFeed]
+argsFeed fAcc Nothing [[]] = return $ fAcc
+argsFeed fAcc (Just aAcc) [[]] = return $ fAcc ++ [aAcc]
+argsFeed fAcc _ [] = return fAcc
+argsFeed fAcc aAcc (argl:als) = do
+    acc <- af aAcc argl
+    argsFeed fAcc (Just acc) als
+    where
+    -- af :: Maybe (Feed Val) -> [Exp] -> Eval (Feed Val)
+    af res [] = return $ feed res
+    -- I'm not sure how much reduction should go on here? E.g. call reduceNamedArg, but what about the val?
+    af res (n@(Syn "named" _):args) = do
+        let res' = feed res
+        Syn "named" [key', valExp] <- reduceNamedArg n
+        let (VStr key) = castV key'
+        argVal  <- reduce valExp
+        vv      <- fromVal argVal
+        af (Just $ res'{ f_nameds = addNamed (f_nameds res') key vv }) args
+    af res (x:args) = do
+        let res' = feed res
+        argVal  <- reduce x
+        vv      <- fromVal argVal
+        af (Just res'{ f_positionals = (f_positionals res') ++ [vv] }) args
+    feed res = maybe emptyFeed id res
+    addNamed :: (Map ID [a]) -> VStr -> a -> Map ID [a]
+    addNamed mp k v =
+        let id = cast k in
+        Map.insertWith (flip (++)) id [v] mp
 
 dummyVar :: Var
 dummyVar = cast "$"
