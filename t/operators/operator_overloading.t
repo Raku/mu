@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 34;
+plan 35;
 
 =pod
 
@@ -185,18 +185,18 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
 }
 
 {
-	my sub infix:<X> is assoc('non') ($a, $b) {
-		$a ** $b;
-	}
-	is (2 X 3), (2 ** 3), "Non-associative works for just tow operands.";
-	is ((2 X 2) X 3), (2 ** 2) ** 3, "Non-associative works when used with parens.";
-	# eval_dies_ok '2 X 3 X 4', "Non-associative should die when used chainly."; # I guess we need add eval_dies_ok
-}
-
-{
 	my sub infix:<X> is assoc('chain') ($a, $b) {
 		$a eq $b;
 	}
 	is (1 X 1 X 1), Bool::True, "Chain-associative works.";
 	is (1 X 1 X 2), Bool::False, "Chain-associative works.";
+}
+
+{
+	sub infix:<our_non_assoc_infix> is assoc('non') ($a, $b) {
+		$a ** $b;
+	}
+	is (2 our_non_assoc_infix 3), (2 ** 3), "Non-associative works for just tow operands.";
+	is ((2 our_non_assoc_infix 2) our_non_assoc_infix 3), (2 ** 2) ** 3, "Non-associative works when used with parens.";
+	eval_dies_ok '2 our_non_assoc_infix 3 our_non_assoc_infix 4', "Non-associative should not parsed when used chainly.";
 }
