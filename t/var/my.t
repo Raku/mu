@@ -6,7 +6,7 @@ use Test;
 # my() declarations scopes lexically to the rest of the block; using $MY::x or
 # $::("x") in the block before the actual declaration is erroneous.
 
-plan 11;
+plan 12;
 
 {
   is(eval('my $x; my $x; 1'), 1, "test declare my() variable twice in same scope");
@@ -42,3 +42,18 @@ plan 11;
 }
 
 eval_ok('my $x = my $y = 0; 1', '"my $x = my $y = 0" parses');
+
+
+{
+    my $test = "value should still be set for arg, even if there's a later my";
+    sub foo (*%p) {
+        is(%p<a>, 'b',$test );
+        my %p;
+    }
+    foo('a' => 'b');
+}
+
+
+
+
+
