@@ -4,53 +4,81 @@
 <head>
 	<link rel="stylesheet" type="text/css" href="http://search.cpan.org/s/style.css"
 	      title="Perl-flavoured style" media="screen" />
-	<title>feather.perl6.nl</title>
+	<title>Perl6 Community Development Server</title>
 </head>
 <body>
-<h1>This is feather.perl6.nl</h1>
-See <a href="http://www.mail-archive.com/perl6-language@perl.org/msg20060.html
-">the original announcement</a> for what this box is set up for.
+<h1>Perl6 Community Development Server</h1>
+
+This server, known as "feather", is dedicated to the development
+of Perl6. It provides free resources to Perl6 contributors, including:
+
+<ul>
+ <li>A shell account</li>
+ <li>A recent version of pugs to work with</li>
+ <li><a href="svk.html">svk</a> for source control. (Like svn, but faster)</li>
+ <li>Web space</li>
+<li> <a href="https://feather.perl6.nl/irc/">IRC chat</a> (Freenode #perl6) </li>
+<li> <a href="https://feather.perl6.nl/mail/">Mail</a> </li>
+</ul>
+
+<p>See <a href="http://www.mail-archive.com/perl6-language@perl.org/msg20060.html">the original announcement</a> for
+details, and instructions to ask for an account. </p>
+
+<h2>Getting Started with Perl6</h2>
+
+We maintain our own Perl6 documentation index here. It's cross-referenced
+with the test suite to make it super useful. 
+
+<ul>
+ <li><a href="http://feather.perl6.nl/syn/">Perl6 Documentation</a></li>
+</ul>
+
+Further useful information can be found through our sister sites;
+
+<ul>
+    <li><a href="http://pugs.blogs.com/">The Pug's Blog</a></li>
+    <li><a href="http://www.pugscode.org/">pugscode.org</li>
+    <li><a href="http://dev.perl.org/perl6/">dev.perl.org/perl6</a></li>
+</ul>
+
+We also link back to several pages on the Pugs wiki. It's now preferred to update
+web pages through Subversion, and have them appear here.
+
+<ul>
+    <li><a href="http://pugs.kwiki.org/?PugsArchitectureHistory">PugsArchitectureHistory</a> - A Good place to start.</li>
+    <li><a href="http://pugs.kwiki.org/?PugsDownload">PugsDownload</a></li>
+    <li><a href="http://pugs.kwiki.org/?PugsCommunity">PugsCommunity</a> &#40;irc, mailinglist, people&#41&lt;/li>
+    <li><a href="http://pugs.kwiki.org/?PugsInTheNews">PugsInTheNews</a> &#40;especially the perl.com interview&#41&lt;/li>
+    <li><a href="http://pugs.kwiki.org/?Perl6Talks">Perl6Talks</a> &#40;especially YAPC June 2005&#41&lt;/li>
+    <li><a href="http://pugs.kwiki.org/?FrequentlyAskedQuestions">FrequentlyAskedQuestions</a> &#40;quite rough&#41&lt;/li>
+    <li><a href="http://pugs.kwiki.org/?Perl6Nomenclature">Perl6Nomenclature</a> &#40;glossary&#41&lt;/li>
+    <li><a href="http://pugs.kwiki.org/?SmokedPugs">SmokedPugs</a> &#40 HTML smoke test reports - pretty!&#41&lt;/li>
+        <li><a href="http://pugs.kwiki.org/?ConvertingPerl5ToPerl6">ConvertingPerl5ToPerl6</a></li>
+        <li><a href="http://pugs.kwiki.org/?PreludificationCandidates">PreludificationCandidates</a> &#40;some helpful things to write in Perl 6 - may be outdated&#41&lt;/li>
+        <li><a href="http://www.kwiki.org/?KwikiFormattingRules">KwikiFormattingRules</a> documentation at kwiki.org</li>
+        <li><a href="http://pugs.kwiki.org/?TodoTestsToBeRechecked">TodoTestsToBeRechecked</a> - tests marked TODO/skip that will need to be checked when big subsystems are replaced</li>
+        <li><a href="http://pugs.kwiki.org/?PodTables">PodTables</a> &#40;a proposal for adding tables to the .pod document format&#41&lt;/li>
+        <li>Pugs-related news are available from <a href="http://pugs.kwiki.org/?PlanetSix" class="empty">PlanetSix</a>: <a href="http://planetsix.perlfoundation.org/">http://planetsix.perlfoundation.org/</a></li>
+</ul>
+
+
+<hr/>
+
+<h2>Getting started on Feather</h2>
+
 <p>
-A user 'foo' can publish files in his <a href="~/">~/public_html</a>. They are
-accessible via <a href="~/">http://feather.perl6.nl/~foo/</a>.
+Once you have an account, you can publish files in <a href="~/">~/public_html</a> and they
+will be accessible at <a href="~/">http://feather.perl6.nl/~foo/</a>.
 </p>
 <p>
 To find out what users are doing here and what they have to say, <a
 href="/cgi-bin/finger.pl">finger</a> them. They can hide their ~/.plan from the
 outside world by creating a ~/.nofinger file.
 </p>
-<p>
-<p>
-Secure (enough) web services for authenticated users:
-</p>
-<ul>
-<li> <a href="https://feather.perl6.nl/irc/">IRC chat</a> (Freenode #perl6) </li>
-<li> <a href="https://feather.perl6.nl/mail/">Mail</a> </li>
-</ul>
 
-<p>
-We're also maintaining an HTML version of Perl 6 Synopses on feather
-</p>
+<hr>
 
-<p>
-&nbsp;&nbsp;&nbsp;&nbsp;
-<a href="http://feather.perl6.nl/syn/">http://feather.perl6.nl/syn</a>
-</p>
-
-<p>
-which are also integrated with the Pugs test suite.
-</p>
-
-<hr/>
-
-<p>
-Please <a href="svk.html">read about svk</a>.
-</p>
-
-<p>
-
-<hr/>
-<h1>FAQ: Can I use CGI/mod_perl on feather?</h1>
+<h2>FAQ: Can I use CGI/mod_perl on feather?</h2>
 <p>
 Yes, but not via the default Apache. Every form of web development requires
 specific settings, and that makes maintenance hard. It is, however, very easy
@@ -69,7 +97,7 @@ To stop it, run <tt>killall apache</tt> (ignore that it couldn't kill the
 system wide apaches).
 </p>
 
-<h1>FAQ: How do I redirect my feather email to my other mail address?</h1>
+<h2>FAQ: How do I redirect my feather email to my other mail address?</h2>
 <p>
 Use qmail's .qmail system. See <tt>man dot-qmail</tt> for details.
 </p>
@@ -79,7 +107,7 @@ echo '&amp;other-address@example.org' &gt; ~/.qmail
 </pre>
 </blockquote>
 
-<h1>FAQ: How can I upload files to feather?</h1>
+<h2>FAQ: How can I upload files to feather?</h2>
 <p>
 If you are on Windows, you should get the <I>psftp</I> program first. <I>psftp</I> is usually
 bundled with Putty.
@@ -109,7 +137,7 @@ Putty. For example:
 
 where ``feather'' is the session name saved by Putty's GUI.
 
-<h1>FAQ: Can I keep a script running on feather?</h1>
+<h2>FAQ: Can I keep a script running on feather?</h2>
 <p>Surely you can, as long as you use the ``sleep'' command or something like that.</p>
 
 <p>
@@ -132,7 +160,7 @@ always read ~audreyt/pugs/, which is constantly being updated from svn via evalb
 according to Audrey.
 </p>
 
-<h1>FAQ: How can I override the default charset of feather's Apache?</h1>
+<h2>FAQ: How can I override the default charset of feather's Apache?</h2>
 <p>
 Simply create a .htaccess file under your ~/public_html/ with the following line in it:
 </p>
@@ -152,7 +180,7 @@ you have set this.
 <p />
 <hr/>
 <p>
-This web site is in Pugs' repository, in docs/feather. If you have the time and skills to improve it, please do not hesitate. In style, structure and contents, it's awful at this moment :) The site is synced every 5 minutes.
-</p>
-</body>
-</html>
+This web site is in Pugs' repository, in docs/feather. If you have the time and
+skills to improve it, please do not hesitate. The site is synced every 5
+minutes.  
+</p> </body> </html>
