@@ -9,7 +9,7 @@
 >   And shining spears were laid in hoard...
 -}
 module Pugs.Val (
-    IValue(..), Val(..), ValUndef, ValNative, P,
+    IValue(..), Val(..), ValUndef(..), ValNative, P,
     ICoercible(..), SKID,
     PureBit, PureInt, PureNum, PureStr, PureList, itemVal, listVal,
 

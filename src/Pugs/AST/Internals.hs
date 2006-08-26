@@ -238,6 +238,7 @@ fromVal' (VV v) = fromVV v
 fromVal' v = doCast v
 
 toVV' :: Val -> Eval Val
+toVV' VUndef   = return $ VV $ Val.val $ Val.VUndef $ Val.UUndef
 toVV' (VBool v) = return $ VV $ Val.val $ ((cast v) :: Val.PureBit)
 toVV' (VInt v) = return $ VV $ Val.val $ ((cast v) :: Val.PureInt)
 toVV' (VNum v) = return $ VV $ Val.val $ ((cast v) :: Val.PureNum)
