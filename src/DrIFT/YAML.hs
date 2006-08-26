@@ -71,14 +71,12 @@ fromYAMLmap MkNode{n_elem=EMap m} = mapM fromYAMLpair m
 fromYAMLmap e = fail $ "no parse: " ++ show e
 
 fromYAMLmapBuf :: YAML a => YamlNode -> IO [(Buf.ByteString, a)]
-fromYAMLmapBuf MkNode{n_elem=EMap m} = doMap m
+fromYAMLmapBuf MkNode{n_elem=EMap m} = mapM fromYAMLpair m
     where
-    doMap [] = return []
-    doMap ((MkNode{n_elem=EStr k}, v):xs) = do
-        v'  <- fromYAML v
-        xs' <- doMap xs
-        return (v' `seq` xs' `seq` ((k, v'):xs'))
-    doMap e = fail $ "no parse: " ++ show e
+    fromYAMLpair (MkNode{n_elem=EStr k}, v) = do
+        v' <- fromYAML v
+        return (k, v')
+    fromYAMLpair e = fail $ "no parse: " ++ show e
 fromYAMLmapBuf e = fail $ "no parse: " ++ show e
 
 asYAMLcls :: YAMLClass -> EmitAs YamlNode
