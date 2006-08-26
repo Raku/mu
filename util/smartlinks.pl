@@ -2,11 +2,10 @@
 
 # util/smartlinks.pl - The successor to util/catalog_tests.pl.
 
-# Please look at t/README and the following article for documentation:
-#   http://pugs.blogs.com/pugs/2006/08/integrating_the.html
-# See util/t/smartlinks.t for unit tests and usage of the internal API.
 # This program is still under active development.
-# Contact agentzh on #perl6 if you have a patch or some good idea for this tool.
+# Please read the Pod documentation at the end of file before reading and/or
+# modifying the source.
+# Contact agentzh on #perl6 if you have a patch or any good ideas for this tool.
 
 use strict;
 use warnings;
@@ -23,9 +22,10 @@ my ($count, $broken_count);
 my (@snippets, $snippet_id);
 
 my %Spec = reverse qw(
-    01 Overview 02 Syntax       03 Operator     04 Block
-    05 Rule     06 Subroutine   09 Structure    10 Package
-    11 Module   12 Object       13 Overload     29 Functions
+    01 Overview 02 Syntax        03 Operator     04 Block
+    05 Rule     06 Subroutine    09 Structure    10 Package
+    11 Module   12 Object        13 Overload     17 Concurrency
+    22 CPAN     26 Documentation 29 Functions
 );
 
 my $javascript = <<'_EOC_';
@@ -341,6 +341,10 @@ sub process_syn ($$$$) {
     my $podtree = parse_pod($infile);
     #print Dump $podtree if $syn_id eq '29';
 
+    #use Data::Dumper;
+    #$Data::Dumper::Indent = 1;
+    #print Dumper $linktree if $syn_id eq '02';
+
     my $linktree_sections = $linktree->{"S$syn_id"};
     if (!$linktree_sections) {
         return;
@@ -393,8 +397,9 @@ sub process_syn ($$$$) {
     }
 
     if (!$check) {
-        #use YAML::Syck;
-        #print Dump $podtree;
+        #use Data::Dumper;
+        #$Data::Dumper::Indent = 1;
+        #print Dumper $podtree if $syn_id eq '02';
 
         my $pod = emit_pod($podtree);
         
@@ -529,3 +534,171 @@ sub main {
 main() if ! caller;
 
 1;
+__END__
+
+=head1 NAME
+
+smartlinks.pl - The successor to catalog_tests.pl.
+
+=head1 SYNOPSIS
+
+  smartlinks.pl t/*/*.t t/*/*/*.t
+  smartlinks.pl --css foo.css --out-dir=public_html t/syntax/*.t
+  smartlinks.pl --check t/*/*.t t/*/*/*.t
+  smartlinks.pl --check t/some/test.t
+
+=head1 Design Decisions
+
+=over
+
+=item *
+
+This script should have as few as module dependencies as possible.
+
+=item *
+
+Don't have to build pugs so as to run F<smartlinks.pl>. Of course,
+optional advanced features may require the user to run pugs'
+"make" or even "make smoke".
+
+=back
+
+=head1 Basic Algorithm
+
+=over
+
+=item 1.
+
+We scan over all the specified .t files, collecting smartlinks and positional
+info about the test code snippets as we go. When it's finished, we obtain
+a tree structure, which is named C<$linktree> in the source code.
+
+To this tree minimal, we only store the .t file name and line numbers, rather
+than the snippets' source code itself.
+
+The structure of $linktree is like this:
+
+    {
+      'S12' => {
+        'Traits' => [
+          [
+            undef,
+            [
+              't/oo/traits/basic.t',
+              '13',
+              '38'
+            ]
+          ],
+          [
+            '/If you say/',
+            [
+              't/oo/delegation.t',
+              '56',
+              '69'
+            ]
+          ],
+        ],
+      },
+      'S02' => {
+        'Whitespace and Comments' => [
+          [
+            '"Embedded comments" "#" plus any bracket',
+            [
+              't/syntax/comments.t',
+              10,
+              48
+            ]
+          ],
+        ]
+      }
+    }
+
+This step is mostly done by sub C<process_t_file>.
+
+=item 2.
+
+We process the synopses .pod files one by one, generating
+HTML files integrated with test code snippets using the 
+C<$linktree> structure discussed above.
+
+This is mostly done by sub C<process_syn>.
+
+Because it is a big step, we can further divided it into several
+sub steps:
+
+=over
+
+=item *
+
+Then we parse each .pod into a tree, which is known as C<$podtree> in the
+source code. (See sub C<parse_pod>.)
+
+The structure of C<$podtree> look like this:
+
+    {
+      'Names and Variables' => [
+        '=over 4' . "\n",
+        '=item *' . "\n",
+        'The C<$Package\'var> syntax is gone.  Use C<$Package::var> instead.' . "\n",
+        '=item *' . "\n",
+        'Perl 6 includes a system of B<sigils> to mark the fundamental' . "\n".
+            'structural type of a variable:' . "\n",
+        ...
+      ],
+      ...
+    }
+
+=item *
+
+We look up every related smartlinks from every C<$podtree>, generating .t code
+snippets along the way, and inserting placeholders (like "_SMART_LINK_3" into
+the corresponding C<$podtree>. (See subs C<parse_pattern>, C<process_paragrph>,
+and C<gen_code_snippet>.)
+
+=item *
+
+Now we emit Pod source back from the modified $C<podtree>'s. (See sub C<emit_pod>.)
+
+=item *
+
+After that, we generate HTML source from the Pod source with snippet placeholders
+using Pod::Simple::HTML. (See sub C<gen_html>.)
+
+=item *
+
+At last, we replace every snippet placeholders in the HTML source with the real
+snippet code.
+
+=back
+
+=back
+
+=head1 SEE ALSO
+
+=over
+
+=item *
+
+t/README in the Pugs source tree.
+
+=item * 
+
+The article on Audrey's blogs:
+
+L<http://pugs.blogs.com/pugs/2006/08/integrating_the.html>
+
+=item *
+
+Consult util/t/smartlinks.t in the Pugs source tree for unit 
+tests and usage of the internal API.
+
+=back
+
+=head1 AUTHOR
+
+Agent Zhang (E<lt>agentzh@gmail.comE<gt>) wrote the intial implementation, getting
+help from many others in the Pugs Team.
+
+=head1 COPYRIGHT
+
+Copyright (c) 2006 by the Pugs contributors.
