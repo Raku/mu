@@ -10,67 +10,67 @@ multi sub seconds (Int $value) {
     $value;
 }
 
-our &second:=&second;
+our &second ::= &seconds;
 
 multi sub minutes (Int $value) {
     $value * 60;
 }
 
-our &minute:=&minutes;
+our &minute ::= &minutes;
 
 multi sub hours (Int $value) {
     $value * 60.minutes;
 }
 
-our &hour:=&hours;
+our &hour ::= &hours;
 
 multi sub days (Int $value) {
     $value * 24.hours;
 }
 
-our &day:=&days;
+our &day ::= &days;
 
 multi sub weeks (Int $value) {
     $value * 7.days;
 }
 
-our &week:=&weeks;
+our &week ::= &weeks;
 
 multi sub fortnights (Int $value) {
     $value * 2.weeks;
 }
 
-our &fortnight:=&fortnights;
+our &fortnight ::= &fortnights;
 
 multi sub months (Int $value) {
     $value * 30.days;
 }
 
-our &month:=&months;
+our &month ::= &months;
 
 multi sub years (Int $value) {
     $value * 365.days;
 }
 
-our &year:=&years;
+our &year ::= &years;
 
 multi sub centuries (Int $value) {
     $value * 100.years;
 }
 
-our &century:=&centuries;
+our &century ::= &centuries;
 
 multi sub ago (Int $value; Int :$time = time()) {
     $time - $value;
 }
 
-our &until:=&ago;
+our &until ::= &ago;
 
 multi sub since (Int $value; Int :$time = time()) {
     $time + $value;
 }
 
-our &from_now:=&since;
+our &from_now ::= &since;
 
 say "2 days is " ~ 2.days ~ " seconds.";
 say "4 weeks is " ~ 4.weeks ~ " seconds.";
