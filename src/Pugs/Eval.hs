@@ -867,7 +867,7 @@ reduceApp (Var var) invs args
 -- XXX - special handling of forced-no-invocant-reinterpretation.
 --       (see Eval.Var.)
     -- XXX absolutely evil bloody hack for captures
-    | var == cast "&circumfix:\\( )" = do
+    | var == cast "&circumfix:\\( )" || var == cast "&prefix:\\" = do
         feeds <- argsFeed [] Nothing [args]
         case invs of
             Just i' -> do

@@ -1291,7 +1291,6 @@ parseTerm :: RuleParser Exp
 parseTerm = rule "term" $! do
     term <- choice
         [ ruleDereference
-        , ruleCapture
         , ruleVarDecl
         , ruleVar
         , ruleApply True    -- Folded metaoperators
@@ -1313,14 +1312,6 @@ parseTerm = rule "term" $! do
             -- s_postTerm returns an (Exp -> Exp) that we apply to the original term
             fs <- many s_postTerm
             return $! combine (reverse fs) term
-
-ruleCapture :: RuleParser Exp
-ruleCapture = rule "capture" $ do
-    char '\\'
-    t <- ruleVar
-    -- Here we want to use some safe hooks
-    return $ Syn "newland-capt"
-        [unsafeCoerce# (CaptMeth (EE (MkExpEmeritus t)) []) :: Exp]
 
 ruleTypeVar :: RuleParser Exp
 ruleTypeVar = rule "type" $ do
