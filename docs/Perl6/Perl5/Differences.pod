@@ -274,7 +274,14 @@ L<S29/"Obsolete">
 The new syntax didn't test out to work. Waiting on confirmation
 of correct examples. 
 
-#=head2 ref is gone
+#=head2 references are now Capturers
+
+C<Capture> objects fill the ecological niche of references in Perl 6.
+You can think of them as "fat" references, that is, references that
+can capture not only the current identity of a single object, but
+also the relative identities of several related objects.  Conversely,
+you can think of Perl 5 references as a degenerate form of C<Capture>
+when you want to refer only to a single item.
 
   Was: ref $foo eq 'HASH'
   Now: $foo ~~ 'Hash'
@@ -285,7 +292,8 @@ of correct examples.
   Was: ref $foo eq 'CODE'
   Now: $foo ~~ 'Code'
 
-The "obsolete" reference above has the details. 
+The "obsolete" reference above has the details. Also, look
+for I<Capture> under L<S02/"Names_and_Variables">.
 
 =end TODO
 
