@@ -1,5 +1,5 @@
 use v6-alpha;
-class CGI-0.1;
+class CGI-0.2;
     # XXX Should this all be rw? Should any be public?
     has %!PARAMS           is rw;
     has $!REQUEST_METHOD   is rw;
@@ -12,10 +12,11 @@ class CGI-0.1;
     has $!URL_ENCODING     is rw; 
     has $!IS_PARAMS_LOADED is rw; 
 
-method BUILD {
+submethod BUILD (*%param) {
         $!QS_DELIMITER     = ';';
         $!URL_ENCODING     = 'iso-8859-1';
         $!IS_PARAMS_LOADED = 0;
+        %!PARAMS = %param if %param;
 }
 
 ## methods
@@ -340,9 +341,21 @@ CGI - A module for programming CGI
 
 =head1 DESCRIPTION
 
-CGI for Pugs! 
+CGI for Perl6!
 
-=head1 FUNCTIONS
+=head1 METHODS
+
+=head2 Constructor
+
+=head3 new()
+
+Create a new object CGI object. 
+
+ my $q = CGI.new;
+
+You can also initialize the object with your own hash of parameters:
+
+ my $q = CGI.new( a => 'b');
 
 =head2 Informational
 
@@ -401,9 +414,6 @@ B<The following informational functions are fetched on-demand>
 =over 4
 
 =item I<Cookies>
-
-My inclination is to wait until objects are done for this, but maybe I will
-figure out a good way to do this without. Either way it is still TODO.
 
 =back
 
