@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 7;
+plan 8;
 
 =pod
 
@@ -36,3 +36,8 @@ my $b;
 eval_ok 'class B is cool {}', 'mixing in our role into a class via "is" worked', :todo<feature>;
 eval_ok '$b = B.new()',       'creating an instance worked', :todo<feature>;
 eval_is '$b.is_cool',    42,  'our class "inherited" an attribute', :todo<feature>;
+
+is(!eval('class Foo { }; %!P = 1; 1'),undef, 'calling a trait outside of a class should be a syntax error');
+
+
+
