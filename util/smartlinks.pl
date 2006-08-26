@@ -11,12 +11,11 @@
 use strict;
 use warnings;
 
-use YAML::Syck;
+#use YAML::Syck;
 use Getopt::Long;
 use File::Basename;
 use FindBin;
 use Pod::Simple::HTML;
-use File::Temp 'tempfile';
 
 my $check;
 my ($syn_rev, $pugs_rev);
@@ -250,11 +249,6 @@ sub process_paragraph ($) {
 sub gen_html ($$$) {
     my ($pod, $syn_id, $cssfile) = @_;
 
-    my ($fh, $podfile) = tempfile(SUFFIX => '.pod');
-    print $fh $pod;
-    close $fh;
-    my $htmfile = "$podfile.html";
-
     $Pod::Simple::HTML::Content_decl =
         q{<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >};
 
@@ -266,15 +260,12 @@ sub gen_html ($$$) {
     $pod2html->index(1);
     $pod2html->html_css($cssfile);
     $pod2html->html_javascript($javascript);
-
     $pod2html->force_title('S'.$syn_id);
-    $pod2html->parse_from_file($podfile, $htmfile);
 
-    open my $in, $htmfile or
-        die "Can't open $htmfile for reading: $!";
-    local $/;
-    my $html = <$in>;
-    close $in;
+    my $html;
+    open my $in, '<', \$pod;
+    open my $out, '>', \$html;
+    $pod2html->parse_from_file($in, $out);
 
     # substitutes the placeholders introduced by `gen_code_snippet`
     # with real code snippets:
@@ -406,13 +397,17 @@ sub process_syn ($$$$) {
         #print Dump $podtree;
 
         my $pod = emit_pod($podtree);
+        
         #print $pod if $syn_id eq '02';
-        if ($syn_id eq '29') {
-            use File::Slurp;
-            write_file("S$syn_id.pod", $pod);
-        }
+        #if ($syn_id eq '29') {
+        #    use File::Slurp;
+        #    write_file("db_S$syn_id.pod", $pod);
+        #}
+        
         my $html = gen_html($pod, $syn_id, $cssfile);
-        write_file("S$syn_id.html", $html);
+        
+        #write_file("db_S$syn_id.html", $html);
+        
         my ($sec, $min, $hour, $mday, $mon, $year) = gmtime;
         $year += 1900; $mon += 1;
         my $time = sprintf "%04d-%02d-%02d %02d:%02d:%02d GMT",
