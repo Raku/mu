@@ -1432,7 +1432,7 @@ newObject typ = case showType typ of
     "Hash"      -> do
         h <- liftSTM $ unsafeIOToSTM $ (C.new :: IO IHash)
         return $ hashRef h
-    "Code"      -> liftSTM $ fmap codeRef $ newTVar mkPrim
+    "Code"      -> return $! codeRef $ mkPrim
         { subAssoc = ANil
         , subBody  = Prim . const $ fail "Cannot use Undef as a Code object"
         }
