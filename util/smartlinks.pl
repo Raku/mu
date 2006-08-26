@@ -340,7 +340,9 @@ sub gen_code_snippet ($) {
         };
     }
 
-    my $stat = " &nbsp;&mdash; &nbsp;<code>$ok_count √, $failed_count ×</code>";
+    my $stat = $test_result ?
+        " &nbsp;&mdash; &nbsp;<code>$ok_count √, $failed_count ×</code>" :
+        '';
 
     my $nlines = $to - $from + 1;
     my $html = <<"_EOC_";
