@@ -240,6 +240,7 @@ sub process_paragraph ($) {
     $str =~ s/\s*\n\s*/ /g;
 
     # strip POD tags:
+    # FIXME: obviously we need a better way to do this:
     $str =~ s/[LCFIB]<<<\s+(.*?)\s+>>>/$1/g;
     $str =~ s/[LCFIB]<<\s+(.*?)\s+>>/$1/g;
     $str =~ s/[LCFIB]<(.*?)>/$1/g;
