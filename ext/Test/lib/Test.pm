@@ -110,6 +110,18 @@ sub eval_is (Str $code, Str $expected, Str $desc?, :$todo, :$depends) returns Bo
     }
 }
 
+## eval_dies_ok
+
+sub eval_dies_ok (Str $code, Str $desc?, :$todo, :$depends) returns Bool is export {
+    eval $code;
+    if (defined $!) {
+        &Test::ok.goto(1, $desc, :$todo);
+    }
+    else {
+        Test::proclaim(undef, $desc, $todo, "No exception thrown", :$depends);
+    }
+}
+
 ## cmp_ok
 
 sub cmp_ok (Str $got, Code &compare_func, Str $expected, Str $desc?, :$todo, :$depends) returns Bool is export {
@@ -447,8 +459,11 @@ maintain backwards compatibility as well.
 
 - `eval_is (Str $code, Str $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool`
 
+- `eval_dies_ok (Str $code, Str $desc?, Bool :$todo, Str :$depends) returns Bool`
+
 These functions will eval a code snippet, and then pass the result to is or ok
-on success, or report that the eval was not successful on failure.
+on success, or report that the eval was not successful on failure. In the case of
+eval_dies_ok, unsuccessful or failure was expected.
 
 - `throws_ok (Code &code, Any $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool`
 
@@ -604,6 +619,8 @@ Max Maischein <corion@cpan.org>
 Ingo Blechschmidt <iblech@web.de>
 
 Gaal Yahas <gaal@forum2.org>
+
+Simon Sun <dolmens@gmail.com>
 
 = COPYRIGHT
 
