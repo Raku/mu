@@ -17,6 +17,7 @@ use FindBin;
 use Pod::Simple::HTML;
 
 my $check;
+my $test_result;
 my ($syn_rev, $pugs_rev);
 my ($count, $broken_count);
 my (@snippets, $snippet_id);
@@ -282,8 +283,14 @@ sub gen_code_snippet ($) {
     #warn "gen_code_snippet: @$location\n";
     open my $in, $file or
         die "Can't open $file for reading: $!\n";
+
+    # Strip leading realpath so the names start at t/
+    $file =~ s{.*?/t/}{t/};
+
     my $i = 1;
     my $src;
+    my $file_info;
+    $file_info = $test_result->{$file} if $test_result;
     while (<$in>) {
         next if $i < $from;
         last if $i > $to;
@@ -291,8 +298,24 @@ sub gen_code_snippet ($) {
         s/"/\&quot;/g;
         s/</\&lt;/g;
         s/>/\&gt;/g;
-        $src .= $_;
+        s{^(  *)}{"&nbsp; " x (length($1) / 2)}gem;
+        s/  / &nbsp;/g;
+        if (!$file_info) {
+            $src .= $_;
+            next;
+        }
+        chomp;
+        my $mark;
+        if (!exists $file_info->{$i}) {
+            $mark = '';
+        } elsif ($file_info->{$i}) {
+            $mark = qq{<font style="color: green"> √ </font>};
+        } else {
+            $mark = qq{<font style="color: red"> × </font>};
+        }
+        $src .= qq{<tr><td><code>$mark</code></td><td><code>$_</code></td></tr>};
     } continue { $i++ }
+
     close $in;
 
     $src =~ s/\n+$//sg;
@@ -303,8 +326,16 @@ sub gen_code_snippet ($) {
     #warn "$file $to $from";
     warn "NOT DEFINED!!! @$location $snippet_id" if !defined $src;
 
-    # Strip leading realpath so the names start at t/
-    $file =~ s{.*/t/}{t/};
+    my $snippet;
+    if (!$test_result) {
+        $snippet = qq{<pre style="margin-left: 6px">$src</pre>};
+    } else {
+        $snippet = qq{
+            <table style="margin-left: 6px; border-width: 0; cellspacing: 0; cellpadding: 0">
+                $src
+            </table>
+        };
+    }
 
     my $nlines = $to - $from + 1;
     my $html = <<"_EOC_";
@@ -318,7 +349,7 @@ sub gen_code_snippet ($) {
 </div>
 </a>
 <div ID="hide_${snippet_id}" style="display:none; border:1px solid">
-<pre style="margin-left: 6px">$src</pre>
+$snippet
 </div>
 _EOC_
     $snippets[$snippet_id] = $html;
@@ -433,9 +464,9 @@ sub process_syn ($$$$) {
     #warn "$syn_id: $infile\n";
 }
 
-sub Usage {
+sub help () {
     print <<_EOC_;
-Usage:
+:
   $0 t/*/*.t t/*/*/*.t
   $0 --css foo.css --out-dir=public_html t/syntax/*.t
   $0 --check t/*/*.t t/*/*/*.t
@@ -449,25 +480,32 @@ Options:
   --css <file>    Specify the CSS file used by the HTML outputs,
                   defaults to http://dev.perl.org/css/perl.css.
   --fast          Do not update the Synopses from the web.
+  --test-res <ymlfile>
+                  Set .yml file generated from Test::TAP::Model's
+                  ``structure''. Usually <ymlfile> should be set
+                  to ``tests.yml''.
   --syn-dir       Specify the directory where the Synopses live,
-                  defaults to pugs' docs/Perl6/Spec.
+                  defaults to pugs' docs/Perl6/Spec. Please don't
+                  set syn-dir to elsewhere unless you have a good
+                  reason.
 _EOC_
     exit(0);
 }
 
-sub main {
-    my ($syn_dir, $out_dir, $help, $cssfile, $fast);
+sub main () {
+    my ($syn_dir, $out_dir, $help, $cssfile, $fast, $yml_file);
     GetOptions(
-        'check'     => \$check,
-        'syn-dir=s' => \$syn_dir,
-        'out-dir=s' => \$out_dir,
-        'css=s'     => \$cssfile,
-        'help'      => \$help,
-        'fast'      => \$fast,
+        'check'       => \$check,
+        'syn-dir=s'   => \$syn_dir,
+        'out-dir=s'   => \$out_dir,
+        'css=s'       => \$cssfile,
+        'help'        => \$help,
+        'fast'        => \$fast,
+        'test-res=s'  => \$yml_file,
     );
 
     if ($help || !@ARGV) {
-        Usage();
+        help();
     }
 
     $cssfile ||= 'http://dev.perl.org/css/perl.css';
@@ -519,6 +557,35 @@ sub main {
         }
     }
     warn "info: pugs is at r$pugs_rev.\n";
+
+    if ($yml_file) {
+        eval {
+            require Test::TAP::Model;
+            require YAML::Syck;
+        };
+        if ($@) {
+            die "--smoke-res option requires both Test::TAP::Model and YAML::Syck. ".
+                "At least one of them is not installed.\n";
+        }
+        my $structure = YAML::Syck::LoadFile($yml_file);
+        #warn $structure;
+        if ($structure->{meat}) {
+            $structure = delete $structure->{meat};
+        }
+        my $tap = Test::TAP::Model->new_with_struct($structure);
+        $test_result = {};
+        for my $file ($tap->test_files) {
+            #warn "  $file...\n";
+            (my $fname = $file->name) =~ s{.*?/t/}{t/};
+            my %file_info;
+            $test_result->{$fname} = \%file_info;
+            for my $case ($file->cases) {
+                next if $case->skipped or !$case->test_line;
+                $file_info{$case->test_line} = $case->actual_ok;
+            }
+        }
+        #YAML::Syck::DumpFile('test_result.yml', $test_result);
+    }
 
     my @syns = map glob, "$syn_dir/*.pod";
     for my $syn (@syns) {
