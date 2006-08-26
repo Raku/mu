@@ -291,6 +291,7 @@ sub gen_code_snippet ($) {
     my $src;
     my $file_info;
     $file_info = $test_result->{$file} if $test_result;
+    my ($ok_count, $failed_count) = (0, 0);
     while (<$in>) {
         next if $i < $from;
         last if $i > $to;
@@ -310,10 +311,12 @@ sub gen_code_snippet ($) {
             $mark = '';
         } elsif ($file_info->{$i}) {
             $mark = qq{<span style="color: green; font-weight: bold"> √ </span>};
+            $ok_count++;
         } else {
             $mark = qq{<span style="color: red; font-weight: bold"> × </span>};
+            $failed_count++;
         }
-        $src .= qq{<tr><td><code>$mark</code></td><td><code>$_</code></td></tr>};
+        $src .= qq{<tr><td><code>$mark</code></td><td><code>$_</code></td></tr>\n};
     } continue { $i++ }
 
     close $in;
@@ -337,15 +340,17 @@ sub gen_code_snippet ($) {
         };
     }
 
+    my $stat = " &nbsp;-- &nbsp;<code>$ok_count √, $failed_count ×</code>";
+
     my $nlines = $to - $from + 1;
     my $html = <<"_EOC_";
 <a name="msg_${snippet_id}"></a>
 <a href="?hide_quotes=no#msg_${snippet_id}" onclick="return tog_quote(${snippet_id});">
 <div ID="header_shown_${snippet_id}" style="display: none;">
-- Hide the snippet from $file (line $from ~ line $to) -
+- Hide the snippet from $file (line $from ~ line $to$stat) -
 </div>
 <div ID="header_hidden_${snippet_id}" style="display: block;">
-- Show the snippet from $file (line $from ~ line $to, $nlines lines) -
+- Show the snippet from $file (line $from ~ line $to$stat) -
 </div>
 </a>
 <div ID="hide_${snippet_id}" style="display:none; border:1px solid">
