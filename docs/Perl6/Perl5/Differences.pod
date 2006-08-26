@@ -214,6 +214,53 @@ L<http://dev.perl.org/perl6/doc/design/exe/E07.html> Format Exegesis
 
 =cut 
 
+#S26 
+
+=head1 Documentation
+
+You now use <em>kwid</em> for documentation instead of POD. Kwid
+is a wiki-like syntax that is easy to write, and pleasant to read directly.
+
+Here is a side-by-side comparison of some of the major features of Pod and
+Kwid:
+
+     =head1 Big Thing                    = Big Thing
+
+     =head4 Small Thing                  ==== Small Thing
+
+     A paragraph of                      A paragraph of
+     plain text.                         plain text.
+
+         # verbatim                          # verbatim
+         sub v {                             sub v {
+             shift;                              shift;
+         }                                   }
+
+
+     =item * foo                         * foo
+     =item * bar                         * bar
+     =item2 N<> barber                   ++ barber
+     =item2 N<> bard                     ++ bard
+
+
+     Something B<strong>!                Something *strong*!
+
+     Something I<emphatic>!              Something /emphatic/!
+
+     Some code C<E = M * C ^ 2>!         Some code `E = M * C ^ 2`!
+
+     Some V<B<escaped>> markup           Some \*escaped\* markup
+
+     =begin Section_type                 .Section_type
+
+     =end Section_type                   !Section_type
+
+     =for Section_type                   :Section_type
+
+See L<S26> for details.
+
+=cut 
+
 #S29
 
 =head1 Builtin Functions
