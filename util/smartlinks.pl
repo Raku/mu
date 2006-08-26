@@ -478,7 +478,6 @@ sub main {
     mkdir $out_dir if !-d $out_dir;
 
     my @t_files = map glob, @ARGV;
-    mkdir 'tmp' if !-d 'tmp';
     my $linktree = {};
     for my $t_file (@t_files) {
         process_t_file($t_file, $linktree);
