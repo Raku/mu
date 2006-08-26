@@ -16,7 +16,7 @@ of Perl6. It provides free resources to Perl6 contributors, including:
  <li>A shell account</li>
  <li>A recent version of pugs to work with</li>
  <li><a href="svk.html">svk</a> for source control. (Like svn, but faster)</li>
- <li>Web space</li>
+ <li>Web space (<a href="~">listing</a>)</li>
 <li> <a href="https://feather.perl6.nl/irc/">IRC chat</a> (Freenode #perl6) </li>
 <li> <a href="https://feather.perl6.nl/mail/">Mail</a> </li>
 </ul>
@@ -84,6 +84,7 @@ Yes, but not via the default Apache. Every form of web development requires
 specific settings, and that makes maintenance hard. It is, however, very easy
 to run your own Apache. Here's how:
 </p>
+
 <blockquote>
 <pre>
 cp -rp ~juerd/apache ~
@@ -91,6 +92,7 @@ perl -i -pe's/juerd/$ENV{USER}/g' ~/apache/httpd.conf
 perl -i -pe's/Listen 8000/"Listen " . (7000 + $&lt;)/e' ~/apache/httpd.conf
 </pre>
 </blockquote>
+
 <p>
 To start your web server, run <tt>/usr/sbin/apache -f ~/apache/httpd.conf</tt>.
 To stop it, run <tt>killall apache</tt> (ignore that it couldn't kill the
@@ -108,46 +110,44 @@ echo '&amp;other-address@example.org' &gt; ~/.qmail
 </blockquote>
 
 <h2>FAQ: How can I upload files to feather?</h2>
-<p>
-If you are on Windows, you should get the <I>psftp</I> program first. <I>psftp</I> is usually
-bundled with Putty.
 
-To use the proxy settings of Putty in <I>psftp</I>, simply save the Putty session as
-something like "feather", and then enter the following command:
+<p>
+Via SFTP or SCP, that both work over SSH. Consult the manpages for detailed
+instructions. The simplest invocations are:
 </p>
 
 <blockquote>
 <pre>
-  C:\> psftp username@feather
+scp some.file username@feather.perl6.nl:      # puts it in your homedir
+scp some.file username@feather.perl6.nl:path  # uploads to path
+
+sftp username@feather.perl6.nl                # provides an FTP-like CLI
 </pre>
 </blockquote>
 
 <p>
-psftp has an interface similar to the <I>ftp</I> utility provided by Windows itself.
+Windows users can use the <tt>pscp</tt> and <tt>psftp</tt> instead. These
+utilities can be found on the <a
+href="http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html">PuTTY
+Download Page</a>.
 </p>
 
-Another choice on Win32 is using the <I>pscp</I> utiltiy which is also bundled with
-Putty. For example:
-
-<blockquote>
-<pre>
-	pscp a.html agentzh@feather:public_html
-</pre>
-</blockquote>
-
-where "feather" is the session name saved by Putty's GUI.
+<p>
+Alternatively, for Windows there's also a nice graphical utility called <a
+href="http://winscp.net/">WinSCP</a>, and for Unixlike systems there are
+several integrated solutions, like the "<a
+href="sftp://feather.perl6.nl/">sftp://</a>" protocol in Konqueror and
+Nautilus. 
+</p>
 
 <h2>FAQ: Can I keep a script running on feather?</h2>
 <p>Surely you can, as long as you use the "sleep" command or something like that.</p>
 
 <p>
 If you're trying to instruct feather to do certain things periodically, please consider
-using the <I>cron</I> program. Here's a tutorial on cron:
-</p>
-
-&nbsp;&nbsp;&nbsp;&nbsp;
-<a href="http://www.unixgeeks.org/security/newbie/unix/cron-1.html">
-http://www.unixgeeks.org/security/newbie/unix/cron-1.html
+using the <i>cron</i> program. There's a <a
+href="http://www.unixgeeks.org/security/newbie/unix/cron-1.html">cron
+tutorial</a>.
 </a>
 
 <p>
@@ -183,4 +183,6 @@ you have set this.
 This web site is in Pugs' repository, in docs/feather. If you have the time and
 skills to improve it, please do not hesitate. The site is synced every 5
 minutes.  
-</p> </body> </html>
+</p>
+</body>
+</html>
