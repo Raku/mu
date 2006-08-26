@@ -309,9 +309,9 @@ sub gen_code_snippet ($) {
         if (!exists $file_info->{$i}) {
             $mark = '';
         } elsif ($file_info->{$i}) {
-            $mark = qq{<font style="color: green"> √ </font>};
+            $mark = qq{<span style="color: green; font-weight: bold"> √ </span>};
         } else {
-            $mark = qq{<font style="color: red"> × </font>};
+            $mark = qq{<span style="color: red; font-weight: bold"> × </span>};
         }
         $src .= qq{<tr><td><code>$mark</code></td><td><code>$_</code></td></tr>};
     } continue { $i++ }
