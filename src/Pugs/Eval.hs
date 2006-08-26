@@ -891,9 +891,7 @@ reduceApp subExp invs args = do
         apply sub invs args
 
 argsFeed :: [ValFeed] -> Maybe ValFeed -> [[Exp]] -> Eval [ValFeed]
-argsFeed fAcc Nothing [[]] = return $ fAcc
-argsFeed fAcc (Just aAcc) [[]] = return $ fAcc ++ [aAcc]
-argsFeed fAcc _ [] = return fAcc
+argsFeed fAcc aAcc args | args == [[]] || args == [] = return $ fAcc ++ maybeToList aAcc
 argsFeed fAcc aAcc (argl:als) = do
     acc <- af aAcc argl
     argsFeed fAcc (Just acc) als
@@ -903,16 +901,13 @@ argsFeed fAcc aAcc (argl:als) = do
     -- I'm not sure how much reduction should go on here? E.g. call reduceNamedArg, but what about the val?
     af res (n@(Syn "named" _):args) = do
         let res' = feed res
-        Syn "named" [key', valExp] <- reduceNamedArg n
-        let (VStr key) = castV key'
-        argVal  <- reduce valExp
-        vv      <- fromVal argVal
-        af (Just $ res'{ f_nameds = addNamed (f_nameds res') key vv }) args
+        Syn "named" [Val (VStr key), valExp] <- reduceNamedArg n
+        argVal  <- fromVal =<< reduce valExp
+        af (Just $ res'{ f_nameds = addNamed (f_nameds res') key argVal }) args
     af res (x:args) = do
         let res' = feed res
-        argVal  <- reduce x
-        vv      <- fromVal argVal
-        af (Just res'{ f_positionals = (f_positionals res') ++ [vv] }) args
+        argVal  <- fromVal =<< reduce x
+        af (Just res'{ f_positionals = (f_positionals res') ++ [argVal] }) args
     feed res = maybe emptyFeed id res
     addNamed :: (Map ID [a]) -> VStr -> a -> Map ID [a]
     addNamed mp k v =
