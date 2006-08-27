@@ -12,7 +12,8 @@ class CGI-0.2;
     has $!URL_ENCODING     is rw; 
     has $!IS_PARAMS_LOADED is rw; 
 
-submethod BUILD (*%param) {
+# Use method, not submethod, because we do what these behaviors to be inherited.  
+method BUILD (*%param) {
         $!QS_DELIMITER     = ';';
         $!URL_ENCODING     = 'iso-8859-1';
         $!IS_PARAMS_LOADED = 0;
