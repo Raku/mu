@@ -24,14 +24,14 @@ extra:
         * [The perl6-announce mailing list](http://lists.cpan.org/showlist.cgi?name=perl6-announce)
       title: Distribution
   header:
-    - title: This week on the Perl 6 mailing lists
-      body: |-
+    - body: |-
         "My school's punch card machines were in the same room
         as the TRS-80 Model I ("THE COMPUTER ROOM").  These kids today with
         their hula hoops and fax machines and intarwebs..."
-
+        
         -- Chip Salzenberg, arguing in *favor* of lines in excess of
         80-characters.
+      title: This week on the Perl 6 mailing lists
   see_also:
     - name: Perl Foundation activities
       uri: http://blog.perlfoundation.org
@@ -590,7 +590,7 @@ lists:
           physically support that, at which point Chip showed them he was actually
           older.
           
-          It seems that the general concensus is to try to aim for 80 columns, but that
+          It seems that the general consensus is to try to aim for 80 columns, but that
           a hard limit of 100 will be set for when that doesn't work well.
       - date_from: 1156266884
         date_to: 1156302529
@@ -826,7 +826,7 @@ lists:
         subject: junctions and autothreading
         summary: |-
           Amir E. Aharoni wanted to know what the status of 'autothreading' was,
-          after seeing some tantalising references to it.  Conrad Schneiker
+          after seeing some tantalizing references to it.  Conrad Schneiker
           didn't know, but suggested that looking at the 
           [#perl IRC log search](http://colabti.de/irclogger/irclogger_log_search/perl6)
           as another document resource.
@@ -869,7 +869,7 @@ lists:
             name: Amir E. Aharoni
         subject: 'Latest $1,000 Wiki for Perl 6 proposal/offer.'
         summary: |-
-          Conrad Schneiker brough up the long-running subject of the Perl 6 wiki
+          Conrad Schneiker brought up the long-running subject of the Perl 6 wiki
           bounty (refer to summaries for July and June for more information on the
           history of this topic).  He hoped that TPF could determine the conditions
           of the contest.  Andy Lester replied that he was in the process of
@@ -929,7 +929,7 @@ lists:
         summary: |-
           Agent Zhang announced that the test snippets in the Pugs test suite
           have now been included in the Synopses, thanks to
-          [smartlinks]( http://svn.openfoundry.org/pugs/t/README).
+          [smartlinks](http://svn.openfoundry.org/pugs/t/README).
       - date_from: 1156362443
         date_to: 1156362443
         hidden: ~
