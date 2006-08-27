@@ -473,7 +473,7 @@ sub process_syn ($$$$) {
 
 sub help () {
     print <<_EOC_;
-:
+Usage:
   $0 t/*/*.t t/*/*/*.t
   $0 --css foo.css --out-dir=public_html t/syntax/*.t
   $0 --check t/*/*.t t/*/*/*.t
