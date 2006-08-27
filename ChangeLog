@@ -6,8 +6,10 @@
 
 == Updated modules
 
-* [ext/Set-Relation/] - Renamed from ext/Relation/
+* [ext/CGI/] - refactored to have an OO interface, and the ability to pass
+args to new() was added.
 * [ext/HTTP-Server-Simple/] - switched from non-standard "./" syntax to standard "self." syntax.
+* [ext/Set-Relation/] - Renamed from ext/Relation/
 
 == Perl 6 on Perl 5 (under [misc/pX/Common/])
 
@@ -16,6 +18,11 @@ all the perl5 modules without installing ghc first.
 
 == Test, Examples and Documentations
 
+* A new documentation index was created, which is regularly
+published at http://feather.perl6.nl/syn
+* Perl6::Perl6::Differences was significantly updated. An HTML
+version of it is linked to from the page above. 
+* say() was officially added to the spec
 * Updated util/prove6 to work better when used outside of the pugs try.
 The "--blib", "--lib" and "--verbose" options from prove were added.
 * Updated all tests and examples plus in some docs and other files to
