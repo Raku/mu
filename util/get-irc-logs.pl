@@ -6,8 +6,8 @@ use strict;
 use warnings;
 
 use Getopt::Long;
-#use LWP::UserAgent;
-use LWP::UserAgent::Cached;
+use LWP::UserAgent;
+#use LWP::UserAgent::Cached;  # Debug purpose
 
 my ($all, $out_dir, $help, $channel);
 GetOptions(
@@ -27,8 +27,8 @@ mkdir $out_dir if !-e $out_dir;
 $channel ||= 'perl6';
 $channel =~ s/^\#//;
 
-#my $ua = LWP::UserAgent->new;
-my $ua = LWP::UserAgent::Cached->new; 
+my $ua = LWP::UserAgent->new;
+#my $ua = LWP::UserAgent::Cached->new;  # Debug purpose
 $ua->env_proxy;
 
 my $base_url = "http://colabti.de/irclogger/irclogger_logs";
