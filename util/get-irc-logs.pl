@@ -43,7 +43,7 @@ if ($res->is_success) {
             warn "  $local_file already exists, skipped.\n";
             next;
         } else {
-            warn "generating $local_file...";
+            warn "generating $local_file...\n";
             $ua->mirror("http://colabti.de/$url", $local_file);
         }
     }
