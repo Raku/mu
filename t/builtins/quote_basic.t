@@ -2,29 +2,19 @@ use v6-alpha;
 
 use Test;
 
-plan 20;
+plan 24;
 
 # L<S06/"Generalized quotes may now take adverb:" /for user-defined quotes/>
 
 # q:x
 {
-    # XXX Please fill windows version of this test, As I don't have any
-    # windows installed.
-    if $?OS eq 'MSWin32' {
-
-    } else {
-        is q:x/echo hello/, "hello\n", "Testing for q:x operator.";
-    }
+    is q:x/echo hello/, "hello\n", "Testing for q:x operator.";
 }
 
 # utf8
 {
-    if $?OS eq 'MSWin32' {
-
-    } else {
-        # 你好，世界 means "Hello, world!" in Chinese.
-        is q:x/echo ”你好，世界！"/, "你好，世界！\n", "Testing for q:x operator. (utf8)";
-    }
+    # 一 means "One" in Chinese.
+    is q:x/echo 一/, "一\n", "Testing for q:x operator. (utf8)";
 }
 
 # q:w

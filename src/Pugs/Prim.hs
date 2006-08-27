@@ -457,15 +457,20 @@ op1 "Pugs::Internals::runShellCommand" = \v -> do
     str <- fromVal v
     cxt <- asks envContext
     (res, exitCode) <- guardIO $ do
-        (inp,out,_,pid) <- runInteractiveCommand str
+        (inp,out,_,pid) <- runInteractiveCommand (encodeUTF8 str)
         hClose inp
-        res             <- hGetContents out
+        res             <- fmap (decodeUTF8 . deCRLF) $ hGetContents out
         exitCode        <- waitForProcess pid
         return (res, exitCode)
     handleExitCode exitCode 
     return $ case cxt of
         CxtSlurpy{} -> VList (map VStr $ lines res)
         _           -> VStr res
+    where
+    -- XXX - crude CRLF treatment
+    deCRLF []                   = []
+    deCRLF ('\r':xs@('\n':_))   = xs
+    deCRLF (x:xs)               = (x:deCRLF xs)
 op1 "Pugs::Internals::runInteractiveCommand" = \v -> do
     str <- fromVal v
     guardIO $ do
