@@ -20,7 +20,7 @@ if ( $ARGV[0] eq "-u" ) {
 sub maybe_shorten {
 	my $uri = shift;
 
-	$uri = $conversion->($uri) if $uri =~ $needs_conversion;
+	$uri = $conversion->($uri) || $uri if $uri =~ $needs_conversion;
 
 	return "<$uri>";
 }
