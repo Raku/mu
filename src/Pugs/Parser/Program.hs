@@ -75,7 +75,7 @@ detectSourceEncoding bytes = case bytes of
     ('\xEF':'\xBB':'\xBF':xs)           -> UTF8 xs
     ('\x00':'\x00':'\xFE':'\xFF':xs)    -> UTF32 BigEndian xs
     ('\xFF':'\xFE':'\x00':'\x00':xs)    -> UTF32 LittleEndian xs
-    ('\xFF':'\xFE':xs)                  -> UTF16 BigEndian xs
+    ('\xFF':'\xFE':xs)                  -> UTF16 LittleEndian xs
     ('\x00':'\x00':'\x00':'\x00':_)     -> invalidNulls
     xs@('\x00':'\x00':'\x00':_)         -> UTF32 BigEndian xs
     xs@(_:'\x00':'\x00':'\x00':_)       -> UTF32 LittleEndian xs
