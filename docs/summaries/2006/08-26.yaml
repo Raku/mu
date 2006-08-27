@@ -23,6 +23,15 @@ extra:
         * [The pugs blog](http://pugs.blogs.com/)
         * [The perl6-announce mailing list](http://lists.cpan.org/showlist.cgi?name=perl6-announce)
       title: Distribution
+  header:
+    - title: This week on the Perl 6 mailing lists
+      body: |-
+        "My school's punch card machines were in the same room
+        as the TRS-80 Model I ("THE COMPUTER ROOM").  These kids today with
+        their hula hoops and fax machines and intarwebs..."
+
+        -- Chip Salzenberg, arguing in *favor* of lines in excess of
+        80-characters.
   see_also:
     - name: Perl Foundation activities
       uri: http://blog.perlfoundation.org
@@ -223,11 +232,11 @@ lists:
             name: Gaal Yahas
         subject: Pair of lists => list of pairs?
         summary: |-
-          Mark J. Reed asked how one would idiomatically write `my %h; @h{@keys} = @h{@values}`
-          in Perl 6. Gaal Yahas suggested using Y, the `zip` operator: `my %h = @keys Y @values`.
-          Larry Wall suggested using a hyper pair: `my %h = @keys >>=><< @values`.
-      - TAMARA: too long
-        date_from: 1156371746
+          Mark J. Reed asked how one would idiomatically write
+          `my %h; @h{@keys} = @h{@values}` in Perl 6. Gaal Yahas suggested using ¥, the
+          `zip` operator: `my %h = @keys ¥ @values`.  Larry Wall suggested using a hyper
+          pair: `my %h = @keys »=>« @values`.
+      - date_from: 1156371746
         date_to: 1156531135
         hidden: ~
         message_id: ecikef$641$1@sea.gmane.org
@@ -271,7 +280,15 @@ lists:
           - email: masoch@istic.org
             name: Daniel Hulme
         subject: clarifying the spec for 'ref'
-        summary: ''
+        summary: |-
+          Mark Stosberg wanted Perl 6 to retain the Perl 5 responses to `ref` or justify
+          the change in the documentation.  Larry Wall explained that `ref` will not
+          exist in Perl 6; instead, it will be something like `.what`, which will return
+          the type itself, rather than a string.
+          
+          The thread then moved on to subclassing, after Luke Palmer suggested that
+          `Array` would be a subtype of `Array::Const`, after Larry had stated the
+          reverse.  This led to a lengthy discussion on the subject.
       - date_from: 1156372807
         date_to: 1156514356
         hidden: ~
@@ -303,8 +320,7 @@ lists:
           
           This lead to a discussion on the semantics of hyperoperators in relation
           to finite/infinite sequences.
-      - TAMARA: 'looks like a duplicate but is in fact a repost, should be summarized'
-        date_from: 1156520273
+      - date_from: 1156520273
         date_to: 1156611974
         hidden: duplicate of dc69626e0608231210gf47fa51g5b6134103c380745@mail.gmail.com
         message_id: dc69626e0608250837i3c4ebfdex80101b7c4edb9bc0@mail.gmail.com
@@ -327,6 +343,14 @@ lists:
         summary: |-
           This message was also cross-posted to the user's list as
           <msgid:dc69626e0608231210gf47fa51g5b6134103c380745@mail.gmail.com>.
+          
+          Michael Snoyman asked whether or not arguments of the same name but a different
+          sigil, e.g. `sub foo ( $foo, @foo )` will clash.  Luke Palmer thought it was
+          going to be a compile time error, due the to the arguments do not have the
+          sigil as part of their long name. Mark J. Reed wondered whether or not that is
+          consistent with the rest of Perl 6.  Audrey Tang then explained the syntactic
+          difference between pairs and named arguments with regard to barewords and
+          quoted strings.
       - date_from: 1156534089
         date_to: 1156534089
         hidden: commit
@@ -765,8 +789,7 @@ lists:
           the C source.  Will Coleda disagreed on the grounds that it is a method,
           not an opcode, and that not everything needs to be a PMC.  Jerry Gay
           agreed with Chip.  Chip also replied.
-      - TAMARA: new thread
-        date_from: 1156169813
+      - date_from: 1156169813
         date_to: 1156539815
         hidden: ~
         message_id: rt-3.5.HEAD-31258-1156539808-359.40210-14-0@perl.org
@@ -782,7 +805,10 @@ lists:
             name: Patrick R. Michaud
         rt_ticket: 'perl #40210'
         subject: "[perl #40210] [TODO] Provide a way for PGE's dump to go to string "
-        summary: ''
+        summary: |-
+          Will Coleda created a ticket asking for PGE's `dump` to be able to go to a
+          string, and not just output, for testing purposes. Patrick R. Michaud added a
+          `dump_str` method in r14306, and then closed the ticket.
     title: perl6-internals
   - name: perl6-users
     threads:
