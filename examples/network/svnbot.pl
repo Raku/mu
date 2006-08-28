@@ -178,7 +178,7 @@ sub svn_commits() {
         }
 
         when rx:P5/^   [MAUDCGR] / {
-            $branch = $_ ~~ rx:P5:i{branches/([^/]+)}
+            $branch = $_ ~~ rx:P5:i"branches/([^/]+)"
                 ?? $0
                 !! "trunk";
             $commits ~~ s:P5:g/$subst/$branch/;
