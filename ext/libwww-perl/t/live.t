@@ -43,13 +43,13 @@ sub spawn_server (Int $port) {
       my $hdl = $sock.accept;
 
       my $request = =$hdl;
-      $request ~~ s:Perl5/\s+$//;
+      $request ~~ s:P5/\s+$//;
       #diag $request;
-      if ($request ~~ rx:Perl5{^GET /stop-server/}) {
+      if ($request ~~ rx:P5"^GET /stop-server/") {
         last();
       };
 
-      while (readline($hdl) ~~ rx:Perl5/\S/) { 1 };
+      while (readline($hdl) ~~ rx:P5/\S/) { 1 };
       $hdl.print( "HTTP/1.0 200 OK\r\n"
                 ~ "Content-Type: text/plain; charset=UTF-8\r\n"
                 ~ "Server: Fake local Pugs HTTPd\r\n"
@@ -69,11 +69,11 @@ my $base_url = spawn_server( 8086 );
 
 for @urls -> $t_url {
   my $url = $t_url;
-  $url ~~ s:perl5/%s/$base_url/;
+  $url ~~ s:P5/%s/$base_url/;
 
   diag "Getting HEAD of $url";
   my $head = head($url);
-  ok($head ~~ rx:perl5/.../, "Got some headers as scalar");
+  ok($head ~~ rx:P5/.../, "Got some headers as scalar");
   my @head = head($url);
   ok(@head > 3, "Got more than 1 line as list", :todo);
   my %head = head($url);
@@ -83,7 +83,7 @@ for @urls -> $t_url {
   diag "Retrieving $url";
   my $res = get($url);
   ok(defined $res, "Got some result");
-  ok(defined($res ~~ rx:Perl5/./), "and it's not empty");
+  ok(defined($res ~~ rx:P5/./), "and it's not empty");
 
   # TODO: Uncomment once length() is implemented
   # is( length($res), length($expected), "The response has the correct length");
@@ -103,7 +103,7 @@ get("$base_url/stop");
 for @live_urls -> $url {
   diag "Getting HEAD of $url";
   my $head = head($url);
-  ok( $head ~~ rx:perl5/.../, "Got some headers as scalar");
+  ok( $head ~~ rx:P5/.../, "Got some headers as scalar");
   my @head = head($url);
   todo_ok( @head > 3, "Got more than 1 line as list");
   my %head = head($url);
@@ -113,7 +113,7 @@ for @live_urls -> $url {
   diag "Retrieving $url";
   my $res = get($url);
   ok(defined $res, "Got some result");
-  ok( defined ($res ~~ rx:perl5/./), "and it's not empty");
+  ok( defined ($res ~~ rx:P5/./), "and it's not empty");
 
   # TODO: Uncomment once length() is implemented
   # is( length($res), length($expected), "The response has the correct length");

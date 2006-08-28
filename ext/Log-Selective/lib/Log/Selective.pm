@@ -2,7 +2,7 @@ module Log::Selective-0.01-BRENTDAX;
 
 my $active;
 for split ' ', %*ENV<SELECT_LOGS> -> $_ is copy {
-	s:perl5:g{^:}{};
+	s:P5:g/^://;
 	$active |= $_;
 }
 
@@ -15,7 +15,7 @@ sub note(*@msg is copy, *%tags is copy) is export {
 	
 	unless %tags {
 		my $package=$caller.package;
-		$package ~~ s{.*\:\:}{};
+		$package ~~ s/.*\:\://;
 		%tags{$package}=1;
 	}
 	

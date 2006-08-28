@@ -146,18 +146,18 @@ method redirect (
 
 method url_decode (Str $to_decode) returns Str {
     my $decoded = $to_decode;
-    $decoded ~~ s:perl5:g/\+/ /;
+    $decoded ~~ s:P5:g/\+/ /;
     given $!URL_ENCODING {
         when 'iso-8859-1' {
-            $decoded ~~ s:perl5:g/%([\da-fA-F][\da-fA-F])/{chr(:16($0))}/;
+            $decoded ~~ s:P5:g/%([\da-fA-F][\da-fA-F])/{chr(:16($0))}/;
         }
         when 'utf-8' {
-            $decoded ~~ s:perl5:g:i/%(F[CD])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&1)*1073741824+(:16($1)+&63)*16777216+(:16($2)+&63)*262144+(:16($3)+&63)*4096+(:16($4)+&63)*64+(:16($5)+&63))}/;
-            $decoded ~~ s:perl5:g:i/%(F[8-B])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&3)*16777216+(:16($1)+&63)*262144+(:16($2)+&63)*4096+(:16($3)+&63)*64+(:16($4)+&63))}/;
-            $decoded ~~ s:perl5:g:i/%(F[0-7])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&7)*262144+(:16($1)+&63)*4096+(:16($2)+&63)*64+(:16($3)+&63))}/;
-            $decoded ~~ s:perl5:g:i/%(E[\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&15)*4096+(:16($1)+&63)*64+(:16($2)+&63))}/;
-            $decoded ~~ s:perl5:g:i/%([CD][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&31)*64+(:16($1)+&63))}/;
-            $decoded ~~ s:perl5:g:i/%([0-7][\dA-F])/{chr(:16($0))}/;
+            $decoded ~~ s:P5:g:i/%(F[CD])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&1)*1073741824+(:16($1)+&63)*16777216+(:16($2)+&63)*262144+(:16($3)+&63)*4096+(:16($4)+&63)*64+(:16($5)+&63))}/;
+            $decoded ~~ s:P5:g:i/%(F[8-B])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&3)*16777216+(:16($1)+&63)*262144+(:16($2)+&63)*4096+(:16($3)+&63)*64+(:16($4)+&63))}/;
+            $decoded ~~ s:P5:g:i/%(F[0-7])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&7)*262144+(:16($1)+&63)*4096+(:16($2)+&63)*64+(:16($3)+&63))}/;
+            $decoded ~~ s:P5:g:i/%(E[\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&15)*4096+(:16($1)+&63)*64+(:16($2)+&63))}/;
+            $decoded ~~ s:P5:g:i/%([CD][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&31)*64+(:16($1)+&63))}/;
+            $decoded ~~ s:P5:g:i/%([0-7][\dA-F])/{chr(:16($0))}/;
         }
     }
     return $decoded;
@@ -180,10 +180,10 @@ method url_encode (Str $to_encode) returns Str {
     };
     given $!URL_ENCODING {
         when 'iso-8859-1' {
-            $encoded ~~ s:perl5:g/([^-.\w])/$dec2hex(ord($0))/;
+            $encoded ~~ s:P5:g/([^-.\w])/$dec2hex(ord($0))/;
         }
         when 'utf-8' {
-            $encoded ~~ s:perl5:g/([^-.\w])/$utf82hex(ord($0))/;
+            $encoded ~~ s:P5:g/([^-.\w])/$utf82hex(ord($0))/;
         }
     }
     return $encoded;
@@ -200,7 +200,7 @@ method pack_params returns Str {
 }
 
 method unpack_params (Str $data) returns Str {
-    my @pairs = split(rx:perl5{[&;]}, $data);
+    my @pairs = split(rx:P5/[&;]/, $data);
     for @pairs -> $pair {
         my ($key, $value) = split('=', $pair);
         $key = self.url_decode($key);

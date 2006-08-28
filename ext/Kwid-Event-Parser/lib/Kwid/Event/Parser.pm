@@ -27,14 +27,14 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
     loop {
         my $line = $fh.readline;
         last unless $line.defined; # exit as soon as possible
-        if ($line ~~ rx:perl5{^=kwid}) {
+        if ($line ~~ rx:P5/^=kwid/) {
             $is_parsing = 1;
             %events<start_document>();
         }
         else {
             if ($is_parsing) {
                 given $line {
-                    when rx:perl5{^=cut} { 
+                    when rx:P5/^=cut/ { 
                         if ($in_list) {
                             %events<end_element>('list');
                             $in_list = 0;
@@ -42,7 +42,7 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
                         $is_parsing = 0;
                         %events<end_document>();                    
                     }
-                    when rx:perl5{^(=+)\s(.*?)$} {
+                    when rx:P5/^(=+)\s(.*?)$/ {
                         if ($in_list) {
                             %events<end_element>('list');
                             $in_list = 0;
@@ -52,7 +52,7 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
                         interpolate($1, %events);
                         %events<end_element>('header', $size);                       
                     }
-                    when rx:perl5{^([\*\-]+)\s(.*?)$} {
+                    when rx:P5/^([\*\-]+)\s(.*?)$/ {
                         if (!$in_list) {
                             %events<start_element>('list');
                             $in_list = 1;
@@ -62,7 +62,7 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
                         interpolate($1, %events);
                         %events<end_element>('item');                     
                     }                   
-                    when rx:perl5{^\s(.*?)$} {
+                    when rx:P5/^\s(.*?)$/ {
                         if ($in_list) {
                             %events<end_element>('list');
                             $in_list = 0;
@@ -70,8 +70,8 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
                         my $verbatim = "$0\n";
                         my $_line = $fh.readline;
                         while (defined($_line)             && 
-                              !($_line ~~ rx:perl5{^\n$})  && 
-                                $_line ~~ rx:perl5{^\s(.*?)$} ) {                                
+                              !($_line ~~ rx:P5/^\n$/)  && 
+                                $_line ~~ rx:P5/^\s(.*?)$/ ) {                                
                             $verbatim ~= "$0\n";
                             $_line = $fh.readline;
                         }           
@@ -90,7 +90,7 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
                             interpolate($line, %events);   
                             my $_line = $fh.readline;
                             while (defined($_line)             && 
-                                   !($_line ~~ rx:perl5{^\n$}) ) {
+                                   !($_line ~~ rx:P5/^\n$/) ) {
                                 interpolate($_line, %events);
                                 $_line = $fh.readline;
                             }                          
@@ -110,7 +110,7 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
 sub interpolate (Str $text, Hash %events) returns Void {  
     %events<start_element>('line_interpolation');
     # grab all the tokens with a split
-    my @tokens = split(rx:perl5{([\*\/\`])}, $text); #`
+    my @tokens = split(rx:P5/([\*\/\`])/, $text); #`
     @tokens = @tokens.grep:{ defined($_) }; 
     # this is a memory stack for modifiers
     # it helps us track down problems
@@ -118,7 +118,7 @@ sub interpolate (Str $text, Hash %events) returns Void {
     my $in_code = 0;
     for (@tokens) -> $token {    
         given $token {
-            when rx:perl5{([\*\/\`])} { #`
+            when rx:P5/([\*\/\`])/ { #`
                 if ($in_code && $token ne '`') {
                     %events<string>($token);                    
                 }

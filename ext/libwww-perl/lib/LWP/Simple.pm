@@ -17,7 +17,7 @@ module LWP::Simple-0.0.1;
 # $VERSION = sprintf("%d.%02d", q$Revision: 1.41 $ =~ /(\d+)\.(\d+)/);
 # $FULL_LWP++ if grep {lc($_) eq "http_proxy"}, keys %*ENV;
 
-# my $CRLF = rx:perl5/\x0D?\x0A/;
+# my $CRLF = rx:P5/\x0D?\x0A/;
 my $CRLF = "\x0D\x0A\x0D\x0A";
 my $VERSION = "0.0.1";
 
@@ -67,11 +67,11 @@ sub head (Str $url) is export {
   # This should all be done better so the response doesn't live in
   # memory all at once
 
-  if ($head ~~ rx:Perl5{^HTTP\/\d+\.\d+\s+(\d+) (?:.*?\x0D?\x0A)((?:.*?\x0D?\x0A)*?)\x0D?\x0A}) {
+  if ($head ~~ rx:P5"^HTTP\/\d+\.\d+\s+(\d+) (?:.*?\x0D?\x0A)((?:.*?\x0D?\x0A)*?)\x0D?\x0A") {
     my ($code,$head) = ($0,$1);
 
     # if (want.Boolean) {
-    #  return $code ~~ rx:perl5/^2/;
+    #  return $code ~~ rx:P5/^2/;
     # }
     # if (want.Int) {
     #  return $code
@@ -83,10 +83,10 @@ sub head (Str $url) is export {
     #if (want.Item) {
       return $head
     #};
-    # my @list = "X-LWP-HTTP-Status: $code", (split rx:perl5/\x0D?\x0A/, $head);
+    # my @list = "X-LWP-HTTP-Status: $code", (split rx:P5/\x0D?\x0A/, $head);
     #if (want.List) { return @list };
     #if (want.Hash) {
-    #  my %res = map { rx:perl5/^(.*?): (.*)/; ($0 => $1) }, @list;
+    #  my %res = map { rx:P5/^(.*?): (.*)/; ($0 => $1) }, @list;
     #  return %res
     #} else {
     #  # What context can we also get?
@@ -97,7 +97,7 @@ sub head (Str $url) is export {
 
 # Unify with URI.pm
 sub split_uri (Str $url) {
-  $url ~~ rx:Perl5{^http://([^/:\@]+)(?::(\d+))?(/\S*)?$}; #/#--vim
+  $url ~~ rx:P5"^http://([^/:\@]+)(?::(\d+))?(/\S*)?$"; #/#--vim
 
   my ($host) = $0;
   my ($port) = $1 || 80;
@@ -118,7 +118,7 @@ sub _trivial_http_get (Str $url) returns Str {
   # $hdl.irs = /$CRLF$CRLF/; # <-- make this into a todo test
 
   my $buffer = slurp $hdl;
-  # 1 while ( $buffer ~= $hdl.read() and $buffer !~~ rx:perl5{$CRLF$CRLF} );
+  # 1 while ( $buffer ~= $hdl.read() and $buffer !~~ rx:P5"$CRLF$CRLF" );
   # my ($status,@headers) = split /$CRLF/, $buffer;
   # worry later about large body
 
@@ -126,13 +126,13 @@ sub _trivial_http_get (Str $url) returns Str {
   # This should all be done better so the response doesn't live in
   # memory all at once
 
-  # if ($buffer ~~ s:perl5{^HTTP\/\d+\.\d+\s+(\d+)([^\012]*?\x0D?\x0A)+?\x0D?\x0A}{}) {
-  if ($buffer ~~ s:Perl5{^HTTP\/\d+\.\d+\s+(\d+)([^\x0A]*?\x0D?\x0A)+?\x0D?\x0A}{}) {
+  # if ($buffer ~~ s:P5"^HTTP\/\d+\.\d+\s+(\d+)([^\012]*?\x0D?\x0A)+?\x0D?\x0A"") {
+  if ($buffer ~~ s:P5"^HTTP\/\d+\.\d+\s+(\d+)([^\x0A]*?\x0D?\x0A)+?\x0D?\x0A"") {
     my $code = $0;
 
     # XXX: Add 30[1237] checking/recursion
 
-    if ($code ~~ rx:Perl5/^[^2]../) {  # /#--vim
+    if ($code ~~ rx:P5/^[^2]../) {  # /#--vim
        return ();
     };
 
@@ -160,8 +160,8 @@ sub _send_request (Str $host, Int $port, Str $request) {
 
   my ($h,$p) = ($host,$port);
   my $http_proxy = %*ENV<HTTP_PROXY> // %*ENV<http_proxy>;
-  if defined $http_proxy {
-    if $http_proxy ~~ rx:Perl5!http://()(:(\d+))?$! {
+  if $http_proxy.chars {
+    if $http_proxy ~~ rx:P5!http://()(:(\d+))?$! {
       $h = $0;
       $p = $1 || 80;
     } else {

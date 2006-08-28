@@ -28,8 +28,8 @@ sub manual_cwd () {
 }
 
 if ($?OS eq 'MSWin32') {
-    like(cwd(), rx:perl5{\\}, "cwd() returns a file like value in Win32");
+    like(cwd(), rx:P5"\\", "cwd() returns a file like value in Win32");
 }
 else {
-    like(cwd(), rx:perl5{^\/}, "cwd() returns a file like value in Unix");
+    like(cwd(), rx:P5"^\/", "cwd() returns a file like value in Unix");
 }

@@ -31,13 +31,13 @@ sub spawn_server (Int $port) {
       my $hdl = $sock.accept;
 
       my $request = =$hdl;
-      $request ~~ s:Perl5/\s+$//;
+      $request ~~ s:P5/\s+$//;
       #diag $request;
-      if ($request ~~ rx:Perl5{^GET /stop-server/}) {
+      if ($request ~~ rx:P5"^GET /stop-server/") {
         last();
       };
 
-      while (readline($hdl) ~~ rx:Perl5/\S/) { 1 };
+      while (readline($hdl) ~~ rx:P5/\S/) { 1 };
       $hdl.print( "HTTP/1.0 200 OK\r\n"
                 ~ "Content-Type: text/plain; charset=UTF-8\r\n"
                 ~ "Server: Fake local Pugs HTTPd\r\n"

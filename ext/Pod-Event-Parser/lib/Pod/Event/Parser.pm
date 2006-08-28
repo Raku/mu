@@ -28,43 +28,43 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
     loop {
         my $line = $fh.readline;
         last unless $line.defined; # exit as soon as possible
-        if ($line ~~ rx:P5{^=pod}) {
+        if ($line ~~ rx:P5/^=pod/) {
             $is_parsing = 1;
             %events<start_document>();
         }
         else {
             if ($is_parsing) {
                 given $line {
-                    when m:P5{^=cut} { 
+                    when m:P5/^=cut/ { 
                         $is_parsing = 0;
                         %events<end_document>();                    
                     }
-                    when rx:P5{^=head(\d)\s(.*?)$} {
+                    when rx:P5/^=head(\d)\s(.*?)$/ {
                         my $size = "$0";
                         %events<start_element>('header', $size);
                         interpolate($1, %events);
                         %events<end_element>('header', $size);                       
                     }
-                    when rx:P5{^=over\s(\d)$} {
+                    when rx:P5/^=over\s(\d)$/ {
                         %events<start_element>('list', "$0");
                     }
-                    when rx:P5{^=item\s(.*?)$} {
+                    when rx:P5/^=item\s(.*?)$/ {
                         %events<start_element>('item');
                         interpolate($0, %events);
                         %events<end_element>('item');                     
                     }
-                    when rx:P5{^=back} {
+                    when rx:P5/^=back/ {
                         %events<end_element>('list');
                     }
-                    when rx:P5{^=begin\s(.*?)$} {
+                    when rx:P5/^=begin\s(.*?)$/ {
                         @for_or_begin.push('begin');
                         %events<start_element>('begin', "$0");
                     }                    
-                    when rx:P5{^=for\s(.*?)$} {
+                    when rx:P5/^=for\s(.*?)$/ {
                         @for_or_begin.push('for');
                         %events<start_element>('for', "$0");
                     }                    
-                    when rx:P5{^=end\s(.*?)$} {
+                    when rx:P5/^=end\s(.*?)$/ {
                         my $last_for_or_begin = pop(@for_or_begin);
                         if ($last_for_or_begin eq 'for') {
                             %events<end_element>('for', "$0");
@@ -73,12 +73,12 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
                             %events<end_element>('begin', "$0");
                         }
                     }                    
-                    when rx:P5{^\s(.*?)$} {
+                    when rx:P5/^\s(.*?)$/ {
                         my $verbatim = "$0\n";
                         my $_line = $fh.readline;
                         while (defined($_line)             && 
-                              !($_line ~~ rx:P5{^$})  && 
-                                $_line ~~ rx:P5{^\s(.*?)$} ) {                                
+                              !($_line ~~ rx:P5/^$/)  && 
+                                $_line ~~ rx:P5/^\s(.*?)$/ ) {                                
                             $verbatim ~= "$0\n";
                             $_line = $fh.readline;
                         }                        
@@ -92,7 +92,7 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
                             interpolate($line, %events);   
                             my $_line = $fh.readline;
                             while (defined($_line)             && 
-                                   !($_line ~~ rx:P5{^$}) ) {
+                                   !($_line ~~ rx:P5/^$/) ) {
                                 interpolate($_line, %events);
                                 $_line = $fh.readline;
                             }                          
@@ -112,18 +112,18 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
 sub interpolate (Str $text, Hash %events) returns Void {    
     %events<start_element>('line_interpolation');
     # grab all the tokens with a split
-    my @tokens = split(rx:P5{([A-Z]<\s+|[A-Z]<|\s+>|>)}, $text);
+    my @tokens = split(rx:P5/([A-Z]<\s+|[A-Z]<|\s+>|>)/, $text);
     @tokens = @tokens.grep:{ defined($_) }; 
     # this is a memory stack for modifiers
     # it helps us track down problems
     my @modifier_stack;
     for (@tokens) -> $token {    
         given $token {
-            when rx:P5{^([A-Z])<$} {
+            when rx:P5/^([A-Z])<$/ {
                 @modifier_stack.push($0);
                 %events<start_modifier>($0);
             }
-            when rx:P5{^>$} {
+            when rx:P5/^>$/ {
                 # if we dont have anything on the stack
                 # then we are not balanced, and should die
                 (+@modifier_stack) || die "Unbalanced close modifier (>) found";

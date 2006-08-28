@@ -15,7 +15,7 @@ sub splitdir (Str $directories) returns Array is export {
     # have split(<regexp>, Str) yet.
     my @dirs = split("/", $directories);
     @dirs = @dirs.map:{ split("\\", $_) };
-    if (($directories ~~ rx:perl5{[\\/]\Z(?!\n)})) {
+    if (($directories ~~ rx:P5"[\\/]\Z(?!\n)")) {
         @dirs[@dirs - 1] = '';
     }
     @dirs = map {~$_ }, @dirs;
@@ -25,12 +25,12 @@ sub splitdir (Str $directories) returns Array is export {
 sub splitpath (Str $path, Bool $nofile?) returns Array is export {
     my ($volume, $directory, $file) = ('','','');
     if ($nofile) {
-        $path ~~ rx:perl5{^((?:[a-zA-Z]:|(?:\\\\|//)[^\\/]+[\\/][^\\/]+)?)(.*)};
+        $path ~~ rx:P5"^((?:[a-zA-Z]:|(?:\\\\|//)[^\\/]+[\\/][^\\/]+)?)(.*)";
         $volume    = ~$0;
         $directory = ~$1;
     }
     else {
-        $path ~~ rx:perl5{^((?:[a-zA-Z]:|(?:\\\\|//)[^\\/]+[\\/][^\\/]+)?)((?:.*[\\/](?:\.\.?\Z(?!\n))?)?)(.*)};
+        $path ~~ rx:P5"^((?:[a-zA-Z]:|(?:\\\\|//)[^\\/]+[\\/][^\\/]+)?)((?:.*[\\/](?:\.\.?\Z(?!\n))?)?)(.*)";
         $volume    = ~$0;
         $directory = ~$1;
         $file      = ~$2;
@@ -49,8 +49,8 @@ sub catdir (*@_path) returns Str is export {
     my @new_path;
     my $i = 0;
     loop ($i = 0; $i < @path; $i++) {
-        @path[$i] ~~ s:perl5:g{/}{\\};
-        if (@path[$i] ~~ m:perl5{\\$}) {
+        @path[$i] ~~ s:P5:g"/"\\";
+        if (@path[$i] ~~ m:P5"\\$") {
             push(@new_path, @path[$i]);
         }
         else {
@@ -76,15 +76,15 @@ sub catpath (Str $volume, Str $directory, Str $file) returns Str is export {
     # If it's UNC, make sure the glue separator is there, reusing
     # whatever separator is first in the $volume
     my $vol = $volume;
-    $vol ~= $0 if ($vol ~~ rx:perl5{^([\\/])[\\/][^\\/]+[\\/][^\\/]+$} && $directory ~~ rx:perl5{^[^\\/]});
+    $vol ~= $0 if ($vol ~~ rx:P5"^([\\/])[\\/][^\\/]+[\\/][^\\/]+$" && $directory ~~ rx:P5"^[^\\/]");
     $vol ~= $directory;
     # If the volume is not just A:, make sure the glue separator is
     # there, reusing whatever separator is first in the $volume if possible.
-    if ( !($vol  ~~ rx:perl5{^[a-zA-Z]:$}) &&
-           $vol  ~~ rx:perl5{[^\\/]$}      &&
-           $file ~~ rx:perl5{[^\\/]}
+    if ( !($vol  ~~ rx:P5"^[a-zA-Z]:$") &&
+           $vol  ~~ rx:P5"[^\\/]$"      &&
+           $file ~~ rx:P5"[^\\/]"
        ) {
-        $vol ~~ rx:perl5{([\\/])};
+        $vol ~~ rx:P5"([\\/])";
         my $sep = $0 ?? $0 !! "\\";
         $vol ~= $sep;
     }
@@ -100,20 +100,20 @@ sub canonpath (Str $_path) returns Str is export {
     # trait at some point
     my $path = $_path;
     my $orig_path = $path;
-    $path ~~ s:perl5[^([a-z]:)][{uc$0}];
-    $path ~~ s:perl5:g{/}{\\};
-    $path ~~ s:perl5:g{([^\\])\\+}{$0\\};                                                 # xx\\\\xx  -> xx\xx
-    $path ~~ s:perl5:g{(\\\.)+\\}{\\};                                           # xx\.\.\xx -> xx\xx
-    $path ~~ s:perl5{^(\.\\)+}{} unless $path eq ".\\";                             # .\xx      -> xx
-    $path ~~ s:perl5{\\\Z(?!\n)}{} unless $path ~~ rx:perl5{^([A-Z]:)?\\\Z(?!\n)};  # xx\       -> xx
+    $path ~~ s:P5"^([a-z]:)"{uc$0}";
+    $path ~~ s:P5:g"/"\\";
+    $path ~~ s:P5:g"([^\\])\\+"$0\\";                                                 # xx\\\\xx  -> xx\xx
+    $path ~~ s:P5:g"(\\\.)+\\"\\";                                           # xx\.\.\xx -> xx\xx
+    $path ~~ s:P5"^(\.\\)+"" unless $path eq ".\\";                             # .\xx      -> xx
+    $path ~~ s:P5"\\\Z(?!\n)"" unless $path ~~ rx:P5"^([A-Z]:)?\\\Z(?!\n)";  # xx\       -> xx
     # xx1/xx2/xx3/../../xx -> xx1/xx
-    $path ~~ s:perl5:g{\\\.\.\.\\}{\\\.\.\\\.\.\\};                                # \...\ is 2 levels up
-    $path ~~ s:perl5:g{^\.\.\.\\}{\.\.\\\.\.\\};                                   # ...\ is 2 levels up
-    return $path if $path ~~ rx:perl5{^\.\.};                                       # skip relative paths
-    return $path unless $path ~~ rx:perl5{\.\.};                                    # too few .'s to cleanup
-    return $path if $path ~~ rx:perl5{\.\.\.\.};                                    # too many .'s to cleanup
-    $path ~~ s:perl5{^\\\.\.$}{\\};                                                 # \..    -> \
-    1 while $path ~~ s:perl5{^\\\.\.}{};                                            # \..\xx -> \xx
+    $path ~~ s:P5:g"\\\.\.\.\\"\\\.\.\\\.\.\\";                                # \...\ is 2 levels up
+    $path ~~ s:P5:g"^\.\.\.\\"\.\.\\\.\.\\";                                   # ...\ is 2 levels up
+    return $path if $path ~~ rx:P5"^\.\.";                                       # skip relative paths
+    return $path unless $path ~~ rx:P5"\.\.";                                    # too few .'s to cleanup
+    return $path if $path ~~ rx:P5"\.\.\.\.";                                    # too many .'s to cleanup
+    $path ~~ s:P5"^\\\.\.$"\\";                                                 # \..    -> \
+    1 while $path ~~ s:P5"^\\\.\."";                                            # \..\xx -> \xx
 
     my ($vol, $dirs, $file) = splitpath($path);
     my @dirs = splitdir($dirs);
@@ -154,7 +154,7 @@ sub path returns Array is export {
 }
 
 sub file_name_is_absolute (Str $file) returns Bool is export {
-    ?($file ~~ rx:perl5{^([a-zA-Z]:)?[\\/]})
+    ?($file ~~ rx:P5"^([a-zA-Z]:)?[\\/]")
 }
 
 # This HACK is worse than
