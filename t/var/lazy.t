@@ -44,7 +44,7 @@ plan 15;
 
   ok !$was_in_lazy,         'our lazy block wasn\'t yet executed (2)';
   $sub($var, 0);  
-  ok !$was_in_lazy,         'our lazy block has still not been executed', :todo<unspecced>;
+  ok !$was_in_lazy,         'our lazy block has still not been executed';
   $sub($var, 1);
   ok $was_in_lazy,          'our lazy block has been executed now';
 }

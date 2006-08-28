@@ -26,7 +26,7 @@ plan 28;
   my $z = $x;
   is($z, 'Just Another', 'z is not bound to x');
 
-  ok(!($z =:= $x), 'z is not bound to x (we checked with the =:= identity op)', :todo);
+  ok(!($z =:= $x), 'z is not bound to x (we checked with the =:= identity op)');
 
   $y = 'Perl Hacker';
   is($y, 'Perl Hacker', 'y has been changed to "Perl Hacker"');

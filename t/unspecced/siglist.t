@@ -69,7 +69,7 @@ plan 11;
     my $siglist = eval ':($a)';
 
     ok !($siglist === try { &foo.signature }),
-        "a subroutine's siglist can be accessed via .signature (3)", :todo<feature>;
+        "a subroutine's siglist can be accessed via .signature (3)";
 }
 
 # User-customized binding

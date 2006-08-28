@@ -20,9 +20,9 @@ ok Bar.meta, "definition of a class which does a role worked";
 
 # Smartmatch and .meta.does
 my $bar = Bar.new();
-ok ($bar ~~ Bar),         '... smartmatch our $bar to the Bar class', :todo<feature>;
-ok ($bar.meta.does(Foo)), '.meta.does said our $bar does Foo', :todo<feature>;
-ok ($bar ~~ Foo),         'smartmatch said our $bar does Foo', :todo<feature>;
+ok ($bar ~~ Bar),         '... smartmatch our $bar to the Bar class';
+ok ($bar.meta.does(Foo)), '.meta.does said our $bar does Foo';
+ok ($bar ~~ Foo),         'smartmatch said our $bar does Foo';
 
 # Mixing a Role into an Object using imperative C<does>
 my $baz = 3;

@@ -2,7 +2,7 @@ use v6-alpha;
 use Test;
 
 plan 33;
-force_todo <11 12 21 22 24 26 28 29 30 31 32 33>;
+force_todo <30 32>;
 
 # use_ok( 'Perl6::Container::Array' );
 use Perl6::Container::Array; 

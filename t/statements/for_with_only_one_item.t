@@ -61,7 +61,7 @@ plan 8;
   my $count;
   for ($arrayref) { $count++ }
 
-  is $count, 1, 'for ($arrayref) {...} executes the loop body only once', :todo<feature>;
+  is $count, 1, 'for ($arrayref) {...} executes the loop body only once';
 }
 
 {
@@ -70,5 +70,5 @@ plan 8;
   my $count;
   for $arrayref { $count++ }
 
-  is $count, 1, 'for $arrayref {...} executes the loop body only once', :todo<feature>;
+  is $count, 1, 'for $arrayref {...} executes the loop body only once';
 }

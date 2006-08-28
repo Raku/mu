@@ -20,7 +20,7 @@ class MyValType is value {
   ok $foo ~~ MyValType, "instantiating an own value type worked (2)";
 
   my MyValType $bar = $foo;
-  ok !($bar =:= $foo),  "assigning a value type gets you a copy (1)", :todo<feature>;
+  ok !($bar =:= $foo),  "assigning a value type gets you a copy (1)";
   $bar.data = 23;
   is $bar.data, 23,     "modifying a value type object worked";
   is $foo.data, 42,     "assigning a value type gets you a copy (2)", :todo<feature>;

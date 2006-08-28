@@ -30,7 +30,7 @@ sub always_true  { 1 }
 
 {
     my @result = eval('take 5, { ?(always_true() ff always_true()) }');
-    ok all(@result), "always_true() ff always_true()", :todo<feature>;
+    ok all(@result), "always_true() ff always_true()";
 }
 
 {

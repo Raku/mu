@@ -48,9 +48,9 @@ is( try { $set1.intersects( $set3 ) }, Bool::False, "doesn't intersect", :todo<b
 
 is( try { $set1.intersection( $set2 ).stringify }, '[2,3]', 'intersection', :todo<bug> );
 
-is( try { $set1.union( $set2 ).stringify }, '[1,4]', 'union', :todo<bug> );
-is( try { $set2.union( $set1 ).stringify }, '[1,4]', 'union', :todo<bug> );
-is( try { $set1.union( $set3 ).stringify }, '[1,3],[4,6]', 'union', :todo<bug> );
+is( try { $set1.union( $set2 ).stringify }, '[1,4]', 'union');
+is( try { $set2.union( $set1 ).stringify }, '[1,4]', 'union');
+is( try { $set1.union( $set3 ).stringify }, '[1,3],[4,6]', 'union');
 
 is( try { $set1.complement.stringify }, '(-Inf,1),(3,Inf)', 'complement' );
 is( try { $set1.union( $set3 ).complement.stringify }, '(-Inf,1),(3,4),(6,Inf)', 'complement of union', :todo<bug> );

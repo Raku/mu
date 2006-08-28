@@ -85,10 +85,10 @@ ok not(42 ~~ set(23, 43, 63)), "infix:<~~> works (2)";
 # "Why do you write "+[hash]" instead of "+#" in the test descriptions?"
 # -- The test harness doesn't get that the "#" in "+#" does not start a
 # comment, and thus doesn't interpret the "# TODO feature".
-eval_is '+([1,2,3] +# [1,2,3])',   3, "infix:<+[hash]> works (1)", :todo<feature>;
-eval_is '+([1,2,3] +# [1,2,3,4])', 4, "infix:<+[hash]> works (2)", :todo<feature>;
-eval_is '+([1,2,3] -# [1,2,3])',   0, "infix:<-[hash]> works (1)", :todo<feature>;
-eval_is '+([1,2,3] -# [1,2,3,4])', 0, "infix:<-[hash]> works (2)", :todo<feature>;
+eval_is '+([1,2,3] +# [1,2,3])',   3, "infix:<+[hash]> works (1)";
+eval_is '+([1,2,3] +# [1,2,3,4])', 4, "infix:<+[hash]> works (2)";
+eval_is '+([1,2,3] -# [1,2,3])',   0, "infix:<-[hash]> works (1)";
+eval_is '+([1,2,3] -# [1,2,3,4])', 0, "infix:<-[hash]> works (2)";
 eval_is '+([1,2,3] *# [2,3])',     2, "infix:<*[hash]> works (1)", :todo<feature>;
 eval_is '+([1,2,3] *# [])',        0, "infix:<*[hash]> works (2)", :todo<feature>;
 eval_is '+([1,2,3] %# [1,2,6])',   2, "infix:<%[hash]> works",     :todo<feature>;

@@ -40,15 +40,15 @@ is($foo_bar.super_baz(), 'Foo::baz', '... our subclass can still access the supe
 is($foo_bar.fud(), 'Foo::Bar::fud', '... sanity check on uninherited method');
 
 is($foo_bar.getme, $foo_bar, 'can call inherited methods');
-is($foo_bar.getme.baz, "Foo::Bar::baz", 'chained method dispatch on altered method', :todo<bug>);
+is($foo_bar.getme.baz, "Foo::Bar::baz", 'chained method dispatch on altered method');
 
 is($foo_bar.value, undef, 'value can be used for attribute name in derived classes');
 my $fud;
 
 lives_ok {
     $fud = $foo_bar.getme.fud;
-}, 'chained method dispatch on altered method', :todo<bug>;
-is($fud, "Foo::Bar::fud", "returned value is correct", :todo<bug>);
+}, 'chained method dispatch on altered method';
+is($fud, "Foo::Bar::fud", "returned value is correct");
 
 # See thread "Quick OO .isa question" on p6l started by Ingo Blechschmidt:
 # L<"http://www.nntp.perl.org/group/perl.perl6.language/22220">
@@ -59,8 +59,8 @@ ok  Foo::Bar.isa(Class),    "subclass.isa(Class) is false", :todo<feature>;
 ok  Foo::Bar.does(Class),   "subclass.does(Class) is true", :todo<feature>;
 ok !Foo::Bar.does(::CLASS),   "subclass.does(CLASS) is false";
 ok !Foo::Bar.isa(::CLASS),    "subclass.isa(CLASS) is false";
-ok !Foo::Bar.meta.isa(Foo),      "subclass.meta.isa(superclass) is false", :todo<bug>;
-ok !Foo::Bar.meta.isa(Foo::Bar), "subclass.meta.isa(same_subclass) is false", :todo<bug>;
+ok !Foo::Bar.meta.isa(Foo),      "subclass.meta.isa(superclass) is false";
+ok !Foo::Bar.meta.isa(Foo::Bar), "subclass.meta.isa(same_subclass) is false";
 ok !Foo::Bar.meta.isa(Class),    "subclass.meta.isa(Class) is false";
 ok !Foo::Bar.meta.does(Class),   "subclass.meta.does(Class) is false";
 ok !Foo::Bar.meta.isa(::CLASS),    "subclass.meta.isa(CLASS) is false";

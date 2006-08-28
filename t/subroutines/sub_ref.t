@@ -32,7 +32,7 @@ See L<S06/"Types"> for more information about Code, Routine, Sub, Block, etc.
     isa_ok($foo, 'Sub');
     is $foo.(), 42,                 "basic invocation of an anonymous sub";
     try { $foo.(23) };
-    ok($!, "invocation of an parameterless anonymous sub with a parameter dies",:todo);
+    ok($!, "invocation of an parameterless anonymous sub with a parameter dies");
 }
 
 {
@@ -41,7 +41,7 @@ See L<S06/"Types"> for more information about Code, Routine, Sub, Block, etc.
     isa_ok($foo, 'Block');
     is $foo.(), 42,                 "basic invocation of a pointy block";
     try { $foo.(23) };
-    ok($!, "invocation of an parameterless pointy block with a parameter dies",:todo);
+    ok($!, "invocation of an parameterless pointy block with a parameter dies");
 }
 
 {
@@ -72,7 +72,7 @@ See L<S06/"Types"> for more information about Code, Routine, Sub, Block, etc.
     try{ $foo.() };
     ok($!, "calling an anonymous sub expecting a param without a param dies");
     try{ $foo.(42, 5) };
-    ok($!, "calling an anonymous sub expecting one param with two params dies",:todo);
+    ok($!, "calling an anonymous sub expecting one param with two params dies");
 }
 
 # Confirmed by p6l, see thread "Anonymous macros?" by Ingo Blechschmidt

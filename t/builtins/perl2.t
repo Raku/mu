@@ -66,7 +66,7 @@ sub desc_ref ($obj) {
 
     # Pairs - XXX - Very Broken - FIXME!
     for ((a => 1),:b(2),) -> $obj {
-        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj), :todo<bug>;
+        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj);
         is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
     }
 
@@ -76,7 +76,7 @@ sub desc_ref ($obj) {
     }
 
     for ({ a => 42, },  { :a(1), :b(2), :c(3) },) -> $obj {
-        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj), :todo<bug>;
+        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj);
         is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
     }
 
@@ -87,7 +87,7 @@ sub desc_ref ($obj) {
 
 
     for ({ a => [1,2,3] },) -> $obj {
-        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj), :todo<bug>;
+        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj);
         is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
     }
 
@@ -98,7 +98,7 @@ sub desc_ref ($obj) {
 
     # tests 85-88
     for ({ a => [1,2,3], b => [4,5,6] },) -> $obj {
-        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj), :todo<bug>;
+        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj);
         is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
     }
 

@@ -2,7 +2,7 @@ use v6-alpha;
 use Test;
 
 plan 28;
-force_todo <4 5 6 7 8 16 17 20 21 22 23 25>;
+force_todo <4 5 6 7 8 16 17>;
  
 use Perl6::Value::List;
 
