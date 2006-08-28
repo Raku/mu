@@ -114,7 +114,7 @@ sub on_privmsg($event) {
           if $game<dev> ~~ m:P5:i/[$guess]/ {
             if complete($game) {
               $bot<privmsg>(to => $reply_to, text => "Congratulations! The developer was $game<dev>.");
-              $game = undef;
+              undefine $game;
             } else {
               $bot<privmsg>(to => $reply_to, text => "Yeah, \"$guess\" is in the name.");
               show_game($reply_to, $game);
@@ -125,7 +125,7 @@ sub on_privmsg($event) {
               $bot<privmsg>(to => $reply_to, text => "Sorry, \"$guess\" is not in the name.");
             } else {
               $bot<privmsg>(to => $reply_to, text => "Sorry, you exceedded the maximum number of tries. The developer was $game<dev>.");
-              $game = undef;
+              undefine $game;
             }
           }
         }
