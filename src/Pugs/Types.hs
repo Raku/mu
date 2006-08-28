@@ -427,11 +427,11 @@ doBufToVar buf = MkVar
         | C_prefix <- cat
         , __"[\\" `Str.isPrefixOf` afterCat
         , ']' <- Str.last afterCat
-        = (Str.drop 2 (Str.tail afterCat), MScan)
+        = (Str.drop 2 (Str.init afterCat), MScan)
         | C_prefix <- cat
         , '[' <- Str.head afterCat
         , ']' <- Str.last afterCat
-        = (Str.init (Str.tail afterCat), MFold)
+        = (Str.tail (Str.init afterCat), MFold)
         -- XXX - MHyperFold, MHyperFoldPost, MHyperScan, MHyperScanPost
         | otherwise
         = (afterCat, MNil)
