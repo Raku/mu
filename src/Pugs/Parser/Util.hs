@@ -212,12 +212,12 @@ doSplitStr str = Syn "," $ map (Val . VStr) (perl6Words str)
       where
       (w, s'')  = break isBreakingSpace findSpace
       findSpace = dropWhile isBreakingSpace s
-      
-    isBreakingSpace('\x09') = True
-    isBreakingSpace('\x0a') = True
-    isBreakingSpace('\x0d') = True
-    isBreakingSpace('\x20') = True
-    isBreakingSpace(_)      = False
+    isBreakingSpace :: Char -> Bool
+    isBreakingSpace '\x09'  = True
+    isBreakingSpace '\x0a'  = True
+    isBreakingSpace '\x0d'  = True
+    isBreakingSpace '\x20'  = True
+    isBreakingSpace _       = False
 
 tryFollowedBy :: RuleParser a -> RuleParser b -> RuleParser a
 tryFollowedBy rule after = try $ do
