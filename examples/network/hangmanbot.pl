@@ -1,4 +1,4 @@
-use v6-alpha;
+﻿use v6-alpha;
 use Net::IRC;
 
 # Parse @*ARGS
@@ -111,10 +111,10 @@ sub on_privmsg($event) {
         } else {
           %guesses{$guess}++;
           $game<guesses> = [ %guesses.keys.sort ];
-          if $game<dev> ~~ m:Perl5:i/[$guess]/ {
+          if $game<dev> ~~ m:P5:i/[$guess]/ {
             if complete($game) {
               $bot<privmsg>(to => $reply_to, text => "Congratulations! The developer was $game<dev>.");
-              undef $game;
+              $game = undef;
             } else {
               $bot<privmsg>(to => $reply_to, text => "Yeah, \"$guess\" is in the name.");
               show_game($reply_to, $game);
@@ -125,7 +125,7 @@ sub on_privmsg($event) {
               $bot<privmsg>(to => $reply_to, text => "Sorry, \"$guess\" is not in the name.");
             } else {
               $bot<privmsg>(to => $reply_to, text => "Sorry, you exceedded the maximum number of tries. The developer was $game<dev>.");
-              undef $game;
+              $game = undef;
             }
           }
         }
