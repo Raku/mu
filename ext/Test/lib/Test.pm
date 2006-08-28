@@ -295,8 +295,7 @@ sub proclaim (Bool $cond, Str $desc? is copy, $todo?, Str $got?, Str $expected?,
 
     my $context_out = $context.defined ?? " # $context" !! "";
 
-    print "not " unless $cond;
-    say "ok ", $Test::num_of_tests_run, $out, $context_out;
+    say(($cond ?? "ok " !! "not ok "), $Test::num_of_tests_run, $out, $context_out);
 
     Test::report_failure($context, $got, $expected, $negate) unless $cond;
 
