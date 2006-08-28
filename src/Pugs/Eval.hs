@@ -891,7 +891,8 @@ reduceApp subExp invs args = do
         apply sub invs args
 
 argsFeed :: [ValFeed] -> Maybe ValFeed -> [[Exp]] -> Eval [ValFeed]
-argsFeed fAcc aAcc args | args == [[]] || args == [] = return $ fAcc ++ maybeToList aAcc
+argsFeed fAcc aAcc [] = return $ fAcc ++ maybeToList aAcc
+argsFeed fAcc aAcc [[]] = return $ fAcc ++ maybeToList aAcc
 argsFeed fAcc aAcc (argl:als) = do
     acc <- af aAcc argl
     argsFeed fAcc (Just acc) als

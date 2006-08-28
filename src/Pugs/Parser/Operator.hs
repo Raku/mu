@@ -218,7 +218,7 @@ relevantToParsing :: SubType -> SubAssoc -> Bool
 relevantToParsing SubMethod  _      = False
 relevantToParsing SubPrim    ANil   = True
 relevantToParsing SubPrim    _      = False
-relevantToParsing _          ANil   = False
+relevantToParsing _          AIrrelevantToParsing   = False
 relevantToParsing _          _      = True
 
 -- XXX Very bad hacky kluge just for Parser.Operator

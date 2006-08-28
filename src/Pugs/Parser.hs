@@ -28,7 +28,6 @@ module Pugs.Parser (
 ) where
 import Pugs.Internals
 import Pugs.AST
-import Pugs.Exp hiding (Exp)
 import Pugs.Types
 import Pugs.Version (versnum)
 import Pugs.Lexer
