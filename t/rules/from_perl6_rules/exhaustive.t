@@ -145,7 +145,7 @@ is($/.matches[2]<art>,  'an',    'Rule capture 2 art');
 is($/.matches[2]<noun>, 'arrow', 'Rule capture 2 noun');
 
 
-ok(!( "fooooo" ~~ m:exhaustive{ s o+ } ), 'Subsequent failed any match...');
+ok(!( "fooooo" ~~ m:exhaustive { s o+ } ), 'Subsequent failed any match...');
 ok(@$/ == 0, '...leaves @$/ empty');
 
 }

@@ -34,13 +34,13 @@ sub emit_Sub ( $name, $body, $is_multi, $lvalue, @params, $type ) {
     if @params.elems > 1 {
         for 0 .. @params.elems-2 -> $i {
             # if there are many invocants, separate them with ',' instead of ':'
-            if @params[$i+1] ~~ m:perl5{:$} {
-                @params[$i] ~~ s:perl5{:$}{,};
+            if @params[$i+1] ~~ m:perl5 {:$} {
+                @params[$i] ~~ s:perl5 {:$}{,};
             }
         }
     }
     my $param_list = @params.join(" ");
-    $param_list ~~ s:perl5{,$}{};  # remove last ','
+    $param_list ~~ s:perl5 {,$}{};  # remove last ','
     
     ": $name\n" ~
     "    # TODO - param list (" ~ $param_list ~ ")\n" ~ 
@@ -62,11 +62,11 @@ sub emit_Variable ( $s is copy ) {
     # rewrite PIL2 '"&infix:+"' to p6 '&infix:<+>'
     # but don't re-quote '&main::zz'
     $s ~~ s:perl5/^"(.*)"$/$0/;
-    $s ~~ s:perl5{\&(.+fix:)([^:].*)}{&$0:<$1>}; 
+    $s ~~ s:perl5 {\&(.+fix:)([^:].*)}{&$0:<$1>}; 
 
     # XXX fix corner cases like 'infix:<:>' and '&main::infix:<aaa>'
-    $s ~~ s:perl5{(fix::<)(.*?)>$}{fix:<$1>};   
-    $s ~~ s:perl5{fix::$}{fix:<:>};   
+    $s ~~ s:perl5 {(fix::<)(.*?)>$}{fix:<$1>};   
+    $s ~~ s:perl5 {fix::$}{fix:<:>};   
 
     $s
 }
@@ -103,7 +103,7 @@ sub emit_parameter(
 sub emit_parameter_with_default( $param, $default ) {
     return $param if $default eq '';
     # rewrite '$name,' to '$name = default,'
-    my ($name, $separator) = $param ~~ m:perl5{(.*)(.)};
+    my ($name, $separator) = $param ~~ m:perl5 {(.*)(.)};
     
     $default ~ 
     $name ~ 

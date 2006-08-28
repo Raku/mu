@@ -34,13 +34,13 @@ sub emit_Sub ( $name, $body, $is_multi, $lvalue, @params, $type ) {
     if @params.elems > 1 {
         for 0 .. @params.elems-2 -> $i {
             # if there are many invocants, separate them with ',' instead of ':'
-            if @params[$i+1] ~~ m:perl5{:$} {
-                @params[$i] ~~ s:perl5{:$}{,};
+            if @params[$i+1] ~~ m:perl5 {:$} {
+                @params[$i] ~~ s:perl5 {:$}{,};
             }
         }
     }
     my $param_list = @params.join(" ");
-    $param_list ~~ s:perl5{,$}{};  # remove last ','
+    $param_list ~~ s:perl5 {,$}{};  # remove last ','
     
     "    # TODO - sub definition: $name\n" ~
     "    # TODO - param list (" ~ $param_list ~ ")\n" ~ 
@@ -99,7 +99,7 @@ sub emit_parameter(
 sub emit_parameter_with_default( $param, $default ) {
     return $param if $default eq '';
     # rewrite '$name,' to '$name = default,'
-    my ($name, $separator) = $param ~~ m:perl5{(.*)(.)};
+    my ($name, $separator) = $param ~~ m:perl5 {(.*)(.)};
     
     $default ~ 
     $name ~ 

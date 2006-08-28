@@ -53,7 +53,7 @@ sub initialise () {
     my $password;
 
 
-    ($PROGRAM = $*PROGRAM_NAME) ~~ s:P5{^.*/}{};
+    ($PROGRAM = $*PROGRAM_NAME) ~~ s:P5 {^.*/}{};
 
     #-------------------------------------------------------------------
     # Create an AppConfig::Std object, and define our interface

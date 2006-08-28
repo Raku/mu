@@ -7,7 +7,7 @@ use HTML::Entities;
 # subs and each_line => 1
 
 my $prog_name = $*PROGRAM_NAME;
-$prog_name ~~ s:perl5:g{\\}{\/};
+$prog_name ~~ s:perl5:g {\\}{\/};
 my ( $path ) = splitpath( $prog_name )[1];
 $path ||= '.';
 
@@ -85,7 +85,7 @@ say '' if $dg;
 my $pugs = %conf<pugs>;
 $pugs = catfile( $path, $pugs ) if $pugs ~~ rx:perl5{^[\.\\\/]};
 if ( $os eq 'win32' ) {
-    $pugs ~~ s:perl5:g{\/}{\\};
+    $pugs ~~ s:perl5:g {\/}{\\};
     $pugs ~= '.exe' unless $pugs ~~ rx:perl5{\.exe$};
 }
 say 'pugs: ' ~ $pugs ~ "\n" if $dg;
@@ -163,8 +163,8 @@ sub get_output ( Str $tut_fp, :$each_line = 0 ) {
         if $out_part ~~ rx:perl5{^\s*$} {
             $out_part = undef;
         } else {
-            $out_part ~~ s:perl5{^\n}{};
-            $out_part ~~ s:perl5{\n$}{} if $each_line;
+            $out_part ~~ s:perl5 {^\n}{};
+            $out_part ~~ s:perl5 {\n$}{} if $each_line;
             
         }
         say $out_part.perl if $dg;

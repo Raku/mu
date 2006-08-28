@@ -18,26 +18,26 @@ unless "a" ~~ rx:P5/a/ {
 }
 
 my $foo = "foo";
-$foo ~~ s:perl5{f}{b};
+$foo ~~ s:perl5 {f}{b};
 is($foo, "boo", 'substitute regexp works');
 unless $foo eq "boo" {
   skip_rest "Skipping test which depend on a previous failed test";
 }
 
 my $bar = "barrrr";
-$bar ~~ s:perl5:g{r+}{z};
+$bar ~~ s:perl5:g {r+}{z};
 is($bar, "baz", 'substitute regexp works with :g modifier');
 
 my $path = "/path//to///a//////file";
-$path ~~ s:perl5:g{/+}{/};
+$path ~~ s:perl5:g {/+}{/};
 is($path, "/path/to/a/file", 'substitute regexp works with :g modifier');
 
 my $baz = "baz";
-$baz ~~ s:perl5{.(a)(.)}{$1$0p};
+$baz ~~ s:perl5 {.(a)(.)}{$1$0p};
 is($baz, "zap", 'substitute regexp with capturing variables works');
 
 my $bazz = "bazz";
-$bazz ~~ s:perl5:g{(.)}{x$0};
+$bazz ~~ s:perl5:g {(.)}{x$0};
 is($bazz, "xbxaxzxz", 'substitute regexp with capturing variables works with :g');
 
 my $bad = "1   ";

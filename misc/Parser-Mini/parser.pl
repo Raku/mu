@@ -44,7 +44,7 @@ sub token {
         }
         $line_number++;                
         # print "# $line_number: $line\n";
-        @tokens = $line ~~ m:g:perl5{(\w+|\s+|.+?)};   # \b doesn't work ???
+        @tokens = $line ~~ m:g:perl5 {(\w+|\s+|.+?)};   # \b doesn't work ???
         @tokens = @tokens.map:{ ~$_ };  # force stringify ???
         # say "tokens: ", @tokens.join('|');
     }
