@@ -20,7 +20,7 @@ sub splitpath (Str $path, Bool $nofile?) returns Array is export {
         $directory = $path;
     }
     else {
-        $path ~~ rx:perl5{^((?:.*/(?:\.\.?\Z(?!\n))?)?)([^/]*)};
+        $path ~~ m:P5"^((?:.*/(?:\.\.?\Z(?!\n))?)?)([^/]*)";
         $directory = ~$0;
         $file      = ~$1;
     }
@@ -116,7 +116,7 @@ sub abs2rel (Str $_path, Str $_base) returns Str is export {
     # $base now contains the directories the resulting relative path
     # must ascend out of before it can descend to $path_directory.  So,
     # replace all names with $parentDir
-    $base ~~ s:perl5:g{[^/]+}{..};
+    $base ~~ s:P5:g"[^/]+"..";
 
     # Glue the two together, using a separator if necessary, and preventing an
     # empty result.
@@ -135,11 +135,11 @@ sub canonpath (Str $_path) returns Str is export {
     # replace this with 'is copy' parameter 
     # trait at some point    
     my $path = $_path;
-    $path ~~ s:perl5:g{/+}{/};                            # xx////xx  -> xx/xx
-    $path ~~ s:perl5:g{(/\.)+(/|\Z(?!\n))}{/};            # xx/././xx -> xx/xx
-    $path ~~ s:perl5:g{^(\./)+}{} unless $path eq "./";   # ./xx      -> xx
-    $path ~~ s:perl5:g{^/(\.\./)+}{/};                    # /../../xx -> xx
-    $path ~~ s:perl5:g{/\Z(?!\n)}{} unless $path eq "/";  # xx/       -> xx
+    $path ~~ s:P5:g"/+"/";                            # xx////xx  -> xx/xx
+    $path ~~ s:P5:g"(/\.)+(/|\Z(?!\n))"/";            # xx/././xx -> xx/xx
+    $path ~~ s:P5:g"^(\./)+"" unless $path eq "./";   # ./xx      -> xx
+    $path ~~ s:P5:g"^/(\.\./)+"/";                    # /../../xx -> xx
+    $path ~~ s:P5:g"/\Z(?!\n)"" unless $path eq "/";  # xx/       -> xx
     return $path;
 }
 
@@ -150,7 +150,7 @@ sub no_upwards (*@filenames) returns Array is export {
 }
 
 sub file_name_is_absolute (Str $file) returns Bool is export {
-    ?($file ~~ rx:perl5{^/})  # needs to work in the multi-line string
+    ?($file ~~ m:P5"^/")  # needs to work in the multi-line string
 }
 
 sub path returns Array is export {
