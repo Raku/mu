@@ -3,6 +3,7 @@
 # Because we don't want Pugs to start two times (slow), we have to use
 # BSD::Resouce, and because we can't yet redirect STDOUT and STDERR.
 
+use 5.008;
 use warnings;
 use strict;
 
@@ -11,6 +12,9 @@ use BSD::Resource;
 my ($code, $tmpfile, $pugs) = @ENV{qw<EVALBOT_CODE EVALBOT_TMPFILE EVALBOT_PUGS>};
 die "This program should only be run from evalbot.pl.\n" unless
   defined $code and defined $tmpfile and defined $pugs;
+
+# %ENV does not carry Unicode strings, so we need to do an explicit decode here
+utf8::decode($code);
 
 # 5s-7s CPU time, 100 MiB RAM, maximum of 500 bytes output.
 setrlimit RLIMIT_CPU,   15, 20                  or die "Couldn't setrlimit: $!\n";
