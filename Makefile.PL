@@ -276,7 +276,7 @@ sub set_postamble {
             my @flags = grep { length $_ } split /\s+/, $flags;
             if ($^O eq 'MSWin32') {
                 if ($Config{libperl} =~ /lib(\w+)\.a/) {
-                    push @flags, "-l$1";
+                    $embed_flags .= " -optl-l$1 ";
                 }
                 else {
                     no warnings 'once';
@@ -289,16 +289,16 @@ sub set_postamble {
                     $Config{ccflags} =~ s/-libpath:"?(.*?)"? //g;
                     $Config{ccdlflags} =~ s/-libpath:"?(.*?)"? //g;
                     $Config{lddlflags} =~ s/-libpath:"?(.*?)"? //g;
-                    $Config{ldflags} =~ s/-libpath:"?(.*?)"? //g or die;
+                    $Config{ldflags} =~ s/-libpath:"?(.*?)"? //g or die "ldflags: $Config{ldflags} does not contain -libpath:";
 
                     my $lib = "$1/$Config{libperl}";
+                    $embed_flags .= " -optl\"$lib\" ";
+
                     $flags = "$Config{ccflags} $Config{ccdlflags}";
                     $flags =~ s{([\\"'])}{\\$1}g;
-
                     @flags = grep { length $_ } split /\s+/, $flags;
-                    push @flags, $lib;
                 }
-                push @flags, "-Ddirent=DIRENT";
+                $embed_flags .= " -optc-Ddirent=DIRENT ";
             }
             $ccdlflags .= (/^-D/ ? ' -optc' : ' -optl') . qq["$_" ]
               for @flags;
