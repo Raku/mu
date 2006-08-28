@@ -24,4 +24,4 @@ class Moo {
 }
 
 eval_dies_ok 'sub quuux ($?VERSION) { ... }', 'parser rejects magicals as args (1)';
-eval_dies_ok 'sub quuux ($!) { ... }',        'parser rejects magicals as args (2)';
+eval_dies_ok 'sub quuuux ($!) { ... }',       'parser rejects magicals as args (2)';
