@@ -275,7 +275,6 @@ sub set_postamble {
             $flags =~ s{([\\"'])}{\\$1}g;
             my @flags = grep { length $_ } split /\s+/, $flags;
             if ($^O eq 'MSWin32') {
-                push @flags, "-Ddirent=DIRENT";
                 if ($Config{libperl} =~ /lib(\w+)\.a/) {
                     push @flags, "-l$1";
                 }
@@ -299,6 +298,7 @@ sub set_postamble {
                     @flags = grep { length $_ } split /\s+/, $flags;
                     push @flags, $lib;
                 }
+                push @flags, "-Ddirent=DIRENT";
             }
             $ccdlflags .= (/^-D/ ? ' -optc' : ' -optl') . qq["$_" ]
               for @flags;
