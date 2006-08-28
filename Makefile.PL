@@ -273,8 +273,13 @@ sub set_postamble {
         my $flags = "$Config{ccflags} $Config{ccdlflags}";
         if ($flags =~ /\S/) {
             $flags =~ s{([\\"'])}{\\$1}g;
+            my @flags = grep { length $_ } split /\s+/, $flags;
+            if ($^O eq 'MSWin32' and $Config{libperl} =~ /lib(\w+)/) {
+                push @flags, "-l$1";
+                push @flags, "-Ddirent=DIRENT";
+            }
             $ccdlflags .= (/^-D/ ? ' -optc' : ' -optl') . qq["$_" ]
-              for split /\s+/, $flags;
+              for @flags;
         }
     }
     elsif( $ENV{PUGS_EMBED} and $Config{cc} eq 'cl' and $^O =~ /Win32/ )   {
