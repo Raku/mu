@@ -434,7 +434,7 @@ EOD
 
     my $config = get_pugs_config();
     my $is_win32 = ($^O =~ /MSWin|mingw|cygwin/i);
-    my $threaded = (!$is_win32 and try_compile("main :: IO ()\nmain = return ()", $ghc, "-threaded"))
+    my $threaded = (!$is_win32 and try_compile_and_run("main :: IO ()\nmain = return ()", $ghc, "-threaded"))
         ? '-threaded' : '';
 
     if ($threaded and $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/ and !$Config{usethreads}) {
@@ -750,7 +750,11 @@ sub for_perl5 {
     return join("\n", @cmds);
 }
 
-sub try_compile_and_run { try_compile(@_, 'run') }
+our $do_run;
+sub try_compile_and_run {
+    local $do_run = 1;
+    try_compile(@_);
+}
 
 sub try_compile {
     my $code = shift;
@@ -771,6 +775,10 @@ sub try_compile {
     };
 
     my $ok = -s "$temp.exe";
+
+    if ($do_run) {
+        $ok = 0 unless system(abs_path("$temp.exe")) == 0;
+    }
 
     unlink("$temp.exe");
     unlink("$temp.hs");
