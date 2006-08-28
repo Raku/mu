@@ -489,7 +489,7 @@ op1 "Pugs::Internals::check_for_io_leak" = \v -> do
     return rv
 op1 "system" = \v -> do
     cmd         <- fromVal v
-    exitCode    <- guardIO $ system cmd
+    exitCode    <- guardIO $ system (encodeUTF8 cmd)
     handleExitCode exitCode
 op1 "accept" = \v -> do
     socket      <- fromVal v
@@ -1031,7 +1031,7 @@ op2 "Pugs::Internals::sprintf" = \x y -> do
 op2 "system" = \x y -> do
     prog        <- fromVal x
     args        <- fromVals y
-    exitCode    <- guardIO $ rawSystem prog args
+    exitCode    <- guardIO $ rawSystem (encodeUTF8 prog) (map encodeUTF8 args)
     handleExitCode exitCode
 op2 "chmod" = \x y -> do
     mode  <- fromVal x
