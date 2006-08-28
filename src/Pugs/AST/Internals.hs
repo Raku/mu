@@ -1182,7 +1182,7 @@ more details.
 
 The @Bool@ is a \'freshness\' flag used to ensure that @my@ variable slots
 are re-generated each time we enter their scope; see the
-'Pugs.Eval.reduce' entry for ('Pad' 'SMy' ... ).
+'Pugs.Eval.reduce' entry for ('Pad' 'SMy' ...).
 
 The current global and lexical pads are stored in the current 'Env', which
 is stored in the @Reader@-monad component of the current 'Eval' monad.

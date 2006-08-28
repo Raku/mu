@@ -81,13 +81,13 @@ instance HashClass IHashEnv where
     hash_iType = const $ mkType "Hash::Env"
     hash_fetch _ = do
         envs <- liftIO getEnvironment
-        return . Map.map VStr $ Map.fromList envs
+        return . Map.map (VStr . decodeUTF8) $ Map.fromList envs
     hash_fetchVal _ key = tryIO undef $ do
         str <- getEnv key
-        return $ fromMaybe VUndef (fmap VStr str)
+        return $ fromMaybe VUndef (fmap VStr (decodeUTF8 str))
     hash_storeVal _ key val = do
         str <- fromVal val
-        liftIO $ setEnv key str True
+        liftIO $ setEnv key (encodeUTF8 str) True
     hash_existsElem _ key = tryIO False $ do
         str <- getEnv key
         return (isJust str)
