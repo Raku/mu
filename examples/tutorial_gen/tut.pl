@@ -3,11 +3,11 @@ use File::Spec;
 use HTML::Entities;
 
 # todo_
-# all :perl5
+# all :P5
 # subs and each_line => 1
 
 my $prog_name = $*PROGRAM_NAME;
-$prog_name ~~ s:perl5:g {\\}{\/};
+$prog_name ~~ s:P5:g,\\,/,;
 my ( $path ) = splitpath( $prog_name )[1];
 $path ||= '.';
 
@@ -67,10 +67,10 @@ $os = 'win32' if lc($?OS) eq any <mswin32 mingw>;
 say 'os: ' ~ $os if $dg;
 
 for %conf.keys -> $key {
-    die "Conf keys 'f_*' are reserved!\n" if $key ~~ rx:perl5{^f_};
-    if ( $key ~~ rx:perl5{_fp$} ) {
+    die "Conf keys 'f_*' are reserved!\n" if $key ~~ rx:P5/^f_/;
+    if ( $key ~~ rx:P5/_fp/ ) {
         %conf{'f_'  ~ $key} = catfile( $path, %conf{$key} );
-    } elsif  ( $key ~~ rx:perl5{_dir$} ) {
+    } elsif  ( $key ~~ rx:P5/_dir$/ ) {
         %conf{'f_' ~ $key} = catdir( $path, %conf{$key} );
     } else {
         # todo_
@@ -83,10 +83,10 @@ for %conf.keys -> $key {
 say '' if $dg;
 
 my $pugs = %conf<pugs>;
-$pugs = catfile( $path, $pugs ) if $pugs ~~ rx:perl5{^[\.\\\/]};
+$pugs = catfile( $path, $pugs ) if $pugs ~~ rx:P5/^[\.\\\/]/;
 if ( $os eq 'win32' ) {
-    $pugs ~~ s:perl5:g {\/}{\\};
-    $pugs ~= '.exe' unless $pugs ~~ rx:perl5{\.exe$};
+    $pugs ~~ s:P5:g,\/,\\,;
+    $pugs ~= '.exe' unless $pugs ~~ rx:P5/\.exe$/;
 }
 say 'pugs: ' ~ $pugs ~ "\n" if $dg;
 my $stat = system( "$pugs -v" );
@@ -127,7 +127,7 @@ sub get_output ( Str $tut_fp, :$each_line = 0 ) {
     for @parts.kv -> $part_num, $part {
         $new_pl ~= $part ~ "\n";
         # todo_
-        #unless $part ~~ rx:perl5{^\s*$} {
+        #unless $part ~~ rx:P5/^\s*$/ {
             $new_pl ~= 'print "#~# ' ~ $part_num ~ ' #~#\n";';
             # todo_ waiting for io_redirect_to_scalar
             # $new_pl ~= '$*ERR.print("#!# ' ~ $part_num ~ ' #!#\n");';
@@ -155,16 +155,16 @@ sub get_output ( Str $tut_fp, :$each_line = 0 ) {
     
     say ~ '-' x 60 ~ " out b --\n" ~ $out ~ "\n" ~ '-' x 60 ~ ' out e --' if $dg;
 
-    my @out_parts = split( rx:perl5{#~# \d+ #~#\n}, $out);
+    my @out_parts = split( rx:P5/#~# \d+ #~#\n/, $out);
 
     say @out_parts.perl;
     
     for @out_parts -> $out_part is rw {
-        if $out_part ~~ rx:perl5{^\s*$} {
+        if $out_part ~~ rx:P5/^\s*$/ {
             $out_part = undef;
         } else {
-            $out_part ~~ s:perl5 {^\n}{};
-            $out_part ~~ s:perl5 {\n$}{} if $each_line;
+            $out_part ~~ s:P5/^\n//;
+            $out_part ~~ s:P5/\n$// if $each_line;
             
         }
         say $out_part.perl if $dg;
@@ -269,7 +269,7 @@ if %conf<add_others> {
         #next unless -f $each;
         #next if exists %index{$fn};
         
-        if ( ( $each ~~ rx:perl5{\.pl$} ) && ( -f catfile(%conf<f_tut_src_dir>, $each) ) && ( not %index{$each} ) ) {
+        if ( ( $each ~~ rx:P5/\.pl$/ ) && ( -f catfile(%conf<f_tut_src_dir>, $each) ) && ( not %index{$each} ) ) {
             push @prep_index, $each;
         }
     }

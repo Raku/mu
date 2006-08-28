@@ -42,7 +42,7 @@ sub pick_committer (@committers) returns Str {
 sub draw_board returns Str {
     my $output = '';
     for (0 .. (+@letters - 1)) -> $i {
-        if (@letters[$i] ~~ rx:perl5{[-.,\s]}) {
+        if (@letters[$i] ~~ rx:P5/[-.,\s]/) {
             $output ~= @letters[$i];
             @solution[$i] = @letters[$i];
         }
