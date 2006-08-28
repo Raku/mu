@@ -288,8 +288,8 @@ sub set_postamble {
 
                     $Config{ccflags} =~ s/-libpath:"?(.*?)"? //g;
                     $Config{ccdlflags} =~ s/-libpath:"?(.*?)"? //g;
+                    $Config{lddlflags} =~ s/-libpath:"?(.*?)"? //g;
                     $Config{ldflags} =~ s/-libpath:"?(.*?)"? //g or die;
-                    $Config{lddlflags} =~ s/-libpath:"?(.*?)"? //g or die;
 
                     my $lib = "$1/$Config{libperl}";
                     $flags = "$Config{ccflags} $Config{ccdlflags}";
