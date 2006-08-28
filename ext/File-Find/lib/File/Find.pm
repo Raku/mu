@@ -46,7 +46,7 @@ method find ( $self: :@dirs, :$wanted_dir, :$wanted_file ) {
                 else { say "  -d $abs" if $.debug }
             }
         }
-	say $dh.closedir;
+	$dh.closedir;
 	undefine $dh;
     }
     return $.results;
