@@ -1412,7 +1412,8 @@ is equivalent to:
 
     $a = ('a','b');
 
-which, because the list is in scalar context, is autopromoted an Array object:
+which, because the list is assigned to a scalar, is autopromoted into
+an Array object:
 
     $a = ['a','b'];
 
