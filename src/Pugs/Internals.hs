@@ -295,7 +295,7 @@ decodeUTF8 (c:d:e:f:cs)
                    )
           : rest
           )
-decodeUTF8 _ = error "UniChar.decodeUTF8: bad data"
+decodeUTF8 (x:xs) = trace ("decodeUTF8: bad data: " ++ show x) (x:decodeUTF8 xs)
 
 {-# INLINE encodeUTF8 #-}
 encodeUTF8 :: String -> String
