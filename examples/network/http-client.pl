@@ -9,7 +9,7 @@ $hdl.say(
 );
 $hdl.flush;
 
-if ($hdl.slurp ~~ rx:perl5{<description>(.+)</description>\s*</item>}) {
+if ($hdl.slurp ~~ m:P5 {<description>(.+)</description>\s*</item>}) {
     say $0;
 }
 else {
