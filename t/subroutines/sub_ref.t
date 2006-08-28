@@ -85,14 +85,12 @@ See L<S06/"Types"> for more information about Code, Routine, Sub, Block, etc.
     # So, we wrap the code in a eval() with an inner BEGIN.
     # (The macros are subject to MMD thing still needs to be fleshed out, I
     # think.)
-    eval 'BEGIN {
-        BEGIN { our &foo_macro = macro ($x) { "1000 + $x" } }
-        isa_ok(&foo_macro, "Code");
-        isa_ok(&foo_macro, "Routine");
-        isa_ok(&foo_macro, "Macro", :todo<feature>);
+    our &foo_macro ::= macro ($x) { "1000 + $x" };
+    isa_ok(&foo_macro, "Code");
+    isa_ok(&foo_macro, "Routine");
+    isa_ok(&foo_macro, "Macro", :todo<feature>);
 
-        is foo_macro(3), 1003, "anonymous macro worked";
-    }';
+    is foo_macro(3), 1003, "anonymous macro worked";
 }
 
 {

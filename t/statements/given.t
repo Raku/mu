@@ -51,7 +51,7 @@ Tests the given block, as defined in L<S04/"Switch statements">
     # simple example L<S04/"Switch statements" /You don't have to use an explicit default/>
     my ($result_a, $result_b);
 
-    for (("T", "E", 5) ¥ (10, 11, 5)) -> $digit, $expected {
+    for each(("T", "E", 5) ; (10, 11, 5)) -> $digit, $expected {
         eval '$result_b = given $digit {
             when "T" { 10 }
             when "E" { 11 }
