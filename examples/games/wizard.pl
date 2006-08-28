@@ -8,7 +8,7 @@ multi *prompt ($prompt?) {
     return $input;
 }
 
-multi *prompt ($prompt, @options is copy) {
+multi *prompt ($prompt, @options is rw) {
     my $i = 0;
     .key //= ++$i for @options;
 
@@ -79,12 +79,13 @@ class Mortal is wObject {
     method hit  (Mortal $enemy) {
       my $weapon = $.weapon;
       my $power  = $.weapon.damage;
+      die "No enemy?" unless $enemy;
       if ($power > 0) {
             say "$.name attacks $enemy.name() ",
                 "with $weapon.name() doing $power damage!";
             $enemy.damage($power);
       } elsif ($power < 0) {
-            say "$.name hurts himself doing $power damage!";
+            say "$.name's attack backfires, doing $power damage!";
             self.damage($power);
       }
     }
@@ -103,12 +104,12 @@ class Person is Mortal {
         until ($choice eq 'f' or $enemy.dead) {
             my @options;
             for @.weapons -> $wep {
-                push @options, Option.new(
+                push @options: Option.new(
                      :text("attack with $wep.name()"),
                      :param($wep)
                 );
             }
-            push @options , Option.new( :key<f>, :text("flee for your life"));
+            push @options: Option.new( :key<f>, :text("flee for your life"));
             $choice = prompt("Your choice? ", @options);
             cls;
             given $choice {
@@ -134,13 +135,13 @@ class Person is Mortal {
 
     method attack (Monster $enemy) {
         self.hit($enemy);
-        $enemy.hit($_);
+        $enemy.hit(self);
 
         say '';
         say "Your health: $.life/$.max_life\t",
             "$enemy.name(): $enemy.life()/$enemy.max_life()";
 
-        exit if .dead;
+        exit if self.dead;
     }
 
 
@@ -180,7 +181,7 @@ say "Greetings, $person.name()!";
 say $person.where;
 until ($person.dead) {
   %world.{$person.location}.perl.say if $DEBUG;
-  if (%world.{$person.location}.are_monsters){ 
+  if (%world.{$person.location}.are_monsters) {
      my $monster = %world.{$person.location}.monster;
      unless ( $person.battle($monster) ) {
          push %world.{$person.location}.monsters, $monster;
