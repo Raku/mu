@@ -346,8 +346,7 @@ sub gen_code_snippet ($) {
 
     my $nlines = $to - $from + 1;
     my $html = <<"_EOC_";
-<a name="msg_${snippet_id}"></a>
-<a href="?hide_quotes=no#msg_${snippet_id}" onclick="return tog_quote(${snippet_id});">
+<a href="#" onclick="return tog_quote(${snippet_id});">
 <div ID="header_shown_${snippet_id}" style="display: none;">
 - Hide the snippet from $file (line $from ~ line $to$stat) -
 </div>
