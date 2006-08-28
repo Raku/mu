@@ -203,7 +203,10 @@ makeVarWithSigil s   x = Syn (s:"{}") [x]
 -- | splits the string into expressions on whitespace.
 -- Implements the <> operator at parse-time.
 doSplitStr :: String -> Exp
-doSplitStr str = Syn "," $ map (Val . VStr) (perl6Words str)
+doSplitStr str = case perl6Words str of
+    []  -> Syn "," []
+    [x] -> Val (VStr x)
+    xs  -> Syn "," $ map (Val . VStr) xs
     where
     perl6Words :: String -> [String]
     perl6Words s
