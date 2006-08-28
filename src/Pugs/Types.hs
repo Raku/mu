@@ -443,7 +443,7 @@ doBufToVar buf = MkVar
         _ -> (CNil, afterPkg)
 
 instance ((:>:) Pkg) ByteString where
-    cast = MkPkg . Str.tokens (== ':')
+    cast = MkPkg . filter (not . Str.null) . Str.splitWith (== ':')
 
 instance ((:>:) Pkg) String where
     cast = cast . (cast :: String -> ByteString)

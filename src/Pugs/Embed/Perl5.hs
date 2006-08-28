@@ -2,9 +2,9 @@
 
 #ifndef PUGS_HAVE_PERL5
 module Pugs.Embed.Perl5 
-    ( InvokePerl5Result(..),
-    , svToVBool, svToVInt, svToVNum, svToVStr, vstrToSV, vintToSV, svToVal, bufToSV,
-    , vnumToSV, mkValRef , mkVal, PerlSV, nullSV, evalPerl5, invokePerl5,
+    ( InvokePerl5Result(..)
+    , svToVBool, svToVInt, svToVNum, svToVStr, vstrToSV, vintToSV, svToVal, bufToSV
+    , vnumToSV, mkValRef , mkVal, PerlSV, nullSV, evalPerl5, invokePerl5
     , initPerl5, freePerl5, canPerl5
     )
 where
