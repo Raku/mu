@@ -148,7 +148,7 @@ This can be extended to take more than one element at a time:
 
 (Only the C<for> version does not destroy the array.)
 
-See L<S04/"The for statement"> for details. 
+See L<S04/"The for statement"> and L<S29/"each"> for details.
 
 =head2 for becomes loop
 
