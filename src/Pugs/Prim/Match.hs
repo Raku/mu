@@ -179,13 +179,14 @@ op2Match x (VRule rx) | rxGlobal rx = do
     str     <- fromVal x
     rv      <- matchOnce str
     cxt     <- asks envContext
-    if (not $ isSlurpyCxt cxt)
-        then return (VInt $ genericLength rv)
-        else if rxStringify rx
-            then do
-                strs <- mapM fromVal rv
-                return (VList $ map VStr strs)
-            else return (VList rv)
+    case rxStringify rx of
+        True -> do
+            strs <- mapM fromVal rv
+            return (VList $ map VStr strs)
+        _ | isSlurpyCxt cxt -> do
+            return (VList rv)
+        _ -> do
+            return (VInt $ genericLength rv)
     where
     hasSubpatterns = case rx of
         MkRulePGE{}             -> True -- XXX bogus - use <p6rule> to parse itself

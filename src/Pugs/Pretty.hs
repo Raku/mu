@@ -204,8 +204,8 @@ quoted '@'  = "\\@"
 quoted '%'  = "\\%"
 quoted '&'  = "\\&"
 quoted '^'  = "\\^"
-quoted x | x < ' ' || x > '~' = "\\d[" ++ show (ord x) ++ "]"
-quoted x = [x]
+quoted x | isPrint x = [x]
+quoted x    = "\\x[" ++ showHex (ord x) "]"
 
 doubleBraces :: Doc -> Doc
 doubleBraces x = vcat [ (lbrace <> lbrace), nest defaultIndent x, rbrace <> rbrace]
