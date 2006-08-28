@@ -336,6 +336,7 @@ sub fixpaths {
     my $text = shift;
     my $sep = File::Spec->catdir('');
     $text =~ s{\b/}{$sep}g;
+    $text =~ s/-libpath:"?(.*?)"? //g;
     return $text;
 }
 

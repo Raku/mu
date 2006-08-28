@@ -266,7 +266,7 @@ sub set_postamble {
     my $hsc2hs_flags = "";
     my $ccdlflags = "";
 
-    if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/i  and !($Config{cc} eq 'cl') )  {
+    if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/i) { #  and !($Config{cc} eq 'cl') )  {
         push @prereqs, "src/perl5/p5embed.o"; # XXX
         # $ghc_output .= " src/perl5/p5embed.o ";
         $ghc_flags .= " -DPUGS_HAVE_PERL5 ";
@@ -274,9 +274,31 @@ sub set_postamble {
         if ($flags =~ /\S/) {
             $flags =~ s{([\\"'])}{\\$1}g;
             my @flags = grep { length $_ } split /\s+/, $flags;
-            if ($^O eq 'MSWin32' and $Config{libperl} =~ /lib(\w+)/) {
-                push @flags, "-l$1";
+            if ($^O eq 'MSWin32') {
                 push @flags, "-Ddirent=DIRENT";
+                if ($Config{libperl} =~ /lib(\w+)\.a/) {
+                    push @flags, "-l$1";
+                }
+                else {
+                    no warnings 'once';
+                    our %MY_CONFIG = %Config;
+                    *Config = *MY_CONFIG;
+                    *Config::Config = *MY_CONFIG;
+                    *ExtUtils::MM_Win32::Config = *MY_CONFIG;
+                    *ExtUtils::MM_Unix::Config = *MY_CONFIG;
+
+                    $Config{ccflags} =~ s/-libpath:"?(.*?)"? //g;
+                    $Config{ccdlflags} =~ s/-libpath:"?(.*?)"? //g;
+                    $Config{ldflags} =~ s/-libpath:"?(.*?)"? //g or die;
+                    $Config{lddlflags} =~ s/-libpath:"?(.*?)"? //g or die;
+
+                    my $lib = "$1/$Config{libperl}";
+                    $flags = "$Config{ccflags} $Config{ccdlflags}";
+                    $flags =~ s{([\\"'])}{\\$1}g;
+
+                    @flags = grep { length $_ } split /\s+/, $flags;
+                    push @flags, $lib;
+                }
             }
             $ccdlflags .= (/^-D/ ? ' -optc' : ' -optl') . qq["$_" ]
               for @flags;
