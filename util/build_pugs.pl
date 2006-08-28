@@ -118,9 +118,14 @@ sub build {
         chdir '..';
     } else {
         if (!-e "src/obj/.libs/libJudy.a") {
+            my $make = $Config{make};
+
+            # Judy at this moment wants GNU make.
+            $make = 'gmake' unless `$make --version` =~ /GNU/;
+            
             system("./configure") unless -e "config.status";
-            system("make clean");
-            system("make");
+            system("$make clean");
+            system("$make all");
             #mkdir("../../installed") if !-d "../../installed";
         }
         #copy('src/obj/.libs/libJudy.a', '../../installed') unless -e '../../installed/libJudy.a';
