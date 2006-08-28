@@ -11,7 +11,7 @@ can compile.  It does not verify run ability or verify output.
 
 =cut
 
-my $f = File::Find.new(
+my File::Find $f .= new(
     wanted_file => sub ($file, $path, $pathfile) {
         return 0 if $file ~~ m:P5/-p5/;
         return 1 if $file ~~ m:P5/\.pl$/;
@@ -25,19 +25,14 @@ my $f = File::Find.new(
     dirs => qw[examples]
 );
 
-
 # This should be removed ASAP
 # Currently (2006-08-21) only way Win32 works
 if $*OS eq any(<MSWin32 mingw msys cygwin>) {
-#   $f.debug = 1;
+    $f.debug = 1;
 }
 
 my @files = $f.find;
 plan +@files;
-say "Finito";
-$*OUT.flush;
-exit;
-
 
 if $*OS eq "browser" {
     skip_rest "Programs running in browsers don't have access to regular IO.";
