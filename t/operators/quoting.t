@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 90;
+plan 91;
 
 my $foo = "FOO";
 my $bar = "BAR";
@@ -184,7 +184,7 @@ Tests quoting constructs as defined in L<S02/Literals>
 };
 
 { # qq:ww, interpolating L<S02/Literals /double angles do interpolate/>
-  # L<S02/Literals /Split result on words (with quote protection)/>
+  # L<S02/Literals/"implicit split" "shell-like fashion">
     my (@q1, @q2, @q3, @q4) = ();
     @q1 = qq:ww/$foo "gorch $bar"/;
     @q2 = «$foo "gorch $bar"»; # french
@@ -201,6 +201,13 @@ Tests quoting constructs as defined in L<S02/Literals>
     # L<S02/Literals /the built-in «...» quoter automatically does interpolation equivalent to qq:ww/.../ />
     is(~@q3, 'FOO gorch BAR', ", texas quotes",:todo<bug>);
     is(~@q4, 'FOO gorch BAR', ", and long form",:todo<bug>);
+};
+
+{
+    #L<S02/Literals/"relationship" "single quotes" "double angles">
+    # Pugs was having trouble with this.  Fixed in r12785.
+    my ($x, $y) = <a b>;
+    ok(«$x $y» === <a b>, "«$x $y» interpolation works correctly");
 };
 
 { # qw, interpolating, shell quoting L<S02/Literals /respects quotes in a shell-like fashion/>
