@@ -2,6 +2,7 @@ my $a = 0;
 my $still_running = 2;
 my $thr1 = async {
     say "Thread 1 started";
+    # "contend" does not work in pugs  6.2.12 (r12811)
     contend {
         $a > 5 or defer;
         $a = -1000;
