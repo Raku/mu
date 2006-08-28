@@ -312,7 +312,7 @@ qLiteral1 qStart qEnd flags = do
     -- words() regards \xa0 as (breaking) whitespace. But \xa0 is
     -- a nonbreaking ws char.
     doSplit (Ann (Cxt CxtItem{}) (Val (VStr str))) = doSplitStr str
-    doSplit expr = App (_Var "&infix:~~") Nothing [expr, rxSplit]
+    doSplit expr = Ann (Cxt (CxtSlurpy (mkType "Str"))) (App (_Var "&infix:~~") Nothing [expr, rxSplit])
     rxSplit = Syn "rx" $
         [ Val $ VStr "(\\S+)"
         , Val $ VList
