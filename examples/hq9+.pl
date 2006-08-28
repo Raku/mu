@@ -4,6 +4,7 @@ class HQ9Plus;
 # Currently fails parsing
 
 my subset HQ9PlusProgram
+    of Str
     where /^<[hq9+]>$/;
 
 my subset HQ9PlusStep
