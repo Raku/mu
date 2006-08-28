@@ -103,11 +103,15 @@ pairAdverb = try $ do
     noValue = do
         mandatoryWhiteSpace
         return (Val $ VBool True)
-    valueExp = lexeme $ choice
-        [ verbatimParens ruleBracketedExpression
-        , arrayLiteral
-        , angleBracketLiteral
-        ]
+    valueExp = do
+        lvl <- gets s_bracketLevel
+        let blk | ConditionalBracket <- lvl = id
+                | otherwise                 = (ruleBlockLiteral:)
+        lexeme . choice . blk $
+            [ verbatimParens ruleBracketedExpression
+            , arrayLiteral
+            , angleBracketLiteral
+            ]
 
 
 {-|
