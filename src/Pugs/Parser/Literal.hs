@@ -105,9 +105,8 @@ pairAdverb = try $ do
         return (Val $ VBool True)
     valueExp = do
         lvl <- gets s_bracketLevel
-        -- XXX - the "try" below is needed for some reason. Why?
         let blk | ConditionalBracket <- lvl = id
-                | otherwise                 = (try ruleBlockLiteral:)
+                | otherwise                 = (ruleBlockLiteral:)
         lexeme . choice . blk $
             [ verbatimParens ruleBracketedExpression
             , arrayLiteral
