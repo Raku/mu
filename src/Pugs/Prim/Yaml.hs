@@ -25,10 +25,9 @@ fromYaml :: YamlNode -> Eval Val
 fromYaml MkNode{n_elem=ENil}       = return VUndef
 fromYaml MkNode{n_elem=EStr str}   = return $ VStr $ decodeUTF8 $ unpackBuf str
 fromYaml MkNode{n_elem=ESeq nodes} = do
-    vals    <- mapM fromYaml nodes
-    s       <- liftSTM $ newTVar (0 :: Int)
-    av      <- liftIO $ (C.fromList ([0..] `zip` map lazyScalar vals) :: IO IArray')
-    return $ VRef (arrayRef (av,s))
+    av  <- mapM fromYaml nodes
+    val <- newArray av
+    return (VRef $ MkRef val)
 fromYaml MkNode{n_elem=EMap nodes, n_tag=tag} = do
     case tag of
         Nothing  -> do

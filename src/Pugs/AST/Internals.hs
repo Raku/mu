@@ -249,8 +249,8 @@ toVV' x = error $ "don't know how to toVV': " ++ show x
 getArrayIndex :: Int -> Maybe (IVar VScalar) -> Eval IArray -> Maybe (Eval b) -> Eval (IVar VScalar)
 getArrayIndex idx def getArr _ | idx < 0 = do
     -- first, check if the list is at least abs(idx) long
-    (av, s) <- getArr
-    size <- liftSTM $ readTVar s
+    MkIArray av s <- getArr
+    size <- liftIO $ readIORef s
     if size > (abs (idx+1))
         then do
             e <- liftIO $ C.lookup (idx `mod` size) av
@@ -263,8 +263,8 @@ getArrayIndex idx def getArr ext = do
     let maybeExtend = do case ext of
                              Just doExt -> do { doExt; getArrayIndex idx def getArr Nothing }
                              Nothing    -> errIndex def idx
-    (av, s) <- getArr
-    size <- liftSTM $ readTVar s
+    MkIArray av s <- getArr
+    size <- liftIO $ readIORef s
     if size > idx
         then do
             e <- liftIO $ C.lookup idx av
@@ -1199,15 +1199,15 @@ data PadEntry
 data IHashEnv = MkHashEnv deriving (Show, Typeable) {-!derive: YAML_Pos!-}
 data IScalarCwd = MkScalarCwd deriving (Show, Typeable) {-!derive: YAML_Pos!-}
 
-refreshPad :: (MonadSTM m) => Pad -> m Pad
+refreshPad :: (MonadIO m, MonadSTM m) => Pad -> m Pad
 refreshPad pad = do
-    fmap listToPad $ liftSTM $ forM (padToList pad) $ \(name, tvars) -> do
+    fmap listToPad $ forM (padToList pad) $ \(name, tvars) -> do
         tvars' <- forM tvars $ \orig@(fresh, _) -> do
-            isFresh <- readTVar fresh
-            if isFresh then do { writeTVar fresh False; return orig } else do
+            isFresh <- liftSTM $ readTVar fresh
+            if isFresh then do { liftSTM (writeTVar fresh False); return orig } else do
             -- regen TVar -- this is not the first time entering this scope
             ref <- newObject (typeOfSigilVar name)
-            tvar' <- newTVar ref
+            tvar' <- liftSTM $ newTVar ref
             return (fresh, tvar')
         return (name, tvars')
 
@@ -1421,16 +1421,16 @@ clearRef (MkRef (IPair s))   = pair_storeVal s undef
 clearRef (MkRef (IThunk tv)) = clearRef =<< fromVal =<< thunk_force tv
 clearRef r = retError "Cannot clearRef" r
 
-newObject :: (MonadSTM m) => Type -> m VRef
+newObject :: (MonadSTM m, MonadIO m) => Type -> m VRef
 newObject typ = case showType typ of
     "Item"      -> liftSTM $ fmap scalarRef $ newTVar undef
     "Scalar"    -> liftSTM $ fmap scalarRef $ newTVar undef
-    "Array"     -> do
-        s <- liftSTM $ newTVar (0 :: ArrayIndex)
-        av <- liftSTM $ unsafeIOToSTM $ (C.new :: IO IArray')
-        return $ arrayRef (av,s)
+    "Array"     -> liftIO $ do
+        s   <- newIORef 0
+        av  <- C.new
+        return $ arrayRef (MkIArray av s)
     "Hash"      -> do
-        h <- liftSTM $ unsafeIOToSTM $ (C.new :: IO IHash)
+        h   <- liftIO (C.new :: IO IHash)
         return $ hashRef h
     "Code"      -> return $! codeRef $ mkPrim
         { subAssoc = ANil
@@ -1642,12 +1642,12 @@ pairRef x   = MkRef (IPair x)
 newScalar :: (MonadSTM m) => VScalar -> m (IVar VScalar)
 newScalar = liftSTM . (fmap IScalar) . newTVar
 
-newArray :: (MonadSTM m) => VArray -> m (IVar VArray)
-newArray vals = liftSTM $ do
+newArray :: (MonadIO m) => VArray -> m (IVar VArray)
+newArray vals = liftIO $ do
     --liftSTM $ unsafeIOToSTM $ putStrLn "new array"
-    s <- newTVar (length vals)
-    av <- unsafeIOToSTM $ (C.fromList ([0..] `zip` map lazyScalar vals) :: IO IArray')
-    return $ IArray (av,s)
+    s   <- newIORef (length vals)
+    av  <- C.fromList ([0..] `zip` map lazyScalar vals)
+    return $ IArray (MkIArray av s)
 
 newHash :: (MonadSTM m) => VHash -> m (IVar VHash)
 newHash hash = do
@@ -1679,7 +1679,11 @@ retConstError val = retError "Can't modify constant item" val
 -- Haddock doesn't like these; not sure why ...
 #ifndef HADDOCK
 type IArray'            = I.IntMap ArrayIndex (IVar VScalar)
-type IArray             = (IArray', TVar ArrayIndex) 
+data IArray             = MkIArray
+    { a_data :: !IArray'
+    , a_size :: !(IORef ArrayIndex)
+    }
+    deriving (Typeable)
 type IArraySlice        = [IVar VScalar]
 type IHash              = H.StrMap VStr (IVar VScalar) -- XXX UTF8 handled at Types/Hash.hs
 type IScalar            = TVar Val

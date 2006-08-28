@@ -382,13 +382,13 @@ findSub _var _invs _args = case _invs of
             }
 
     -- possiblyBuildMetaopVCode :: (_args :: [Exp]) => Var -> Eval (Maybe VCode)
-    possiblyBuildMetaopVCode var@MkVar{ v_name = name, v_meta = meta }
-        | MPost     <- meta = buildPrefixHyper var'         -- +<<
-        | MPre      <- meta = buildPostfixHyper var'        -- >>+
-        | MHyper    <- meta = buildInfixHyper var'          -- >>+<<
-        | MFold     <- meta = buildReduce varInfix False    -- [+]
-        | MScan     <- meta = buildReduce varInfix True     -- [\+]
-        | otherwise         = return Nothing
+    possiblyBuildMetaopVCode var@MkVar{ v_meta = meta } = case meta of
+        MPost   -> buildPrefixHyper var'         -- +<<
+        MPre    -> buildPostfixHyper var'        -- >>+
+        MHyper  -> buildInfixHyper var'          -- >>+<<
+        MFold   -> buildReduce varInfix False    -- [+]
+        MScan   -> buildReduce varInfix True     -- [\+]
+        _       -> return Nothing
         where
         var' = var{ v_meta = MNil }
         varInfix = var{ v_meta = MNil, v_categ = C_infix }

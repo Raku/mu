@@ -432,10 +432,10 @@ reduceSyn "sub" [exp] = do
         return $ Pad scope pad' exp
     cloneBodyStates x = return x
     clonePad pad = do
-        fmap listToPad $ liftSTM $ forM (padToList pad) $ \(var, tvars) -> do
+        fmap listToPad $ forM (padToList pad) $ \(var, tvars) -> do
             tvars' <- forM tvars . const $ do
-                fresh'  <- newTVar False
-                tvar'   <- newTVar =<< newObject (typeOfSigilVar var)
+                fresh'  <- liftSTM $ newTVar False
+                tvar'   <- (liftSTM . newTVar) =<< newObject (typeOfSigilVar var)
                 return (fresh', tvar')
             return (var, tvars')
 
