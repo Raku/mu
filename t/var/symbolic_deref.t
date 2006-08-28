@@ -31,7 +31,7 @@ plan 21;
 }
 
 {
-  my &a_var = { 42 };
+  my &a_var := { 42 };
   my $b_var = "a_var";
 
   is &::($b_var)(), 42, 'basic symbolic code dereferentiation works';

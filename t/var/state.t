@@ -85,7 +85,7 @@ plan 16;
 {
     # XXX -- currently this is parsed as \&state()
     my $gen = eval '{ try { \state } }';
-    $gen //= sub { \(my $x) };
+    $gen //= sub { my $x; \$x };
 
     my $svar_ref = $gen();               # $svar == 0
     try { $$svar_ref++; $$svar_ref++ };  # $svar == 2
