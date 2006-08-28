@@ -54,6 +54,8 @@ package grammar1;
                  ,
                    ruleop::constant( "\!" )
                  ,
+                   ruleop::constant( "alpha" )
+                 ,
                    ruleop::constant( "alnum" )
                  ,
                    ruleop::constant( "digit" )

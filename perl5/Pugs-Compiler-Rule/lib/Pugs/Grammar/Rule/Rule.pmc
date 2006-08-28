@@ -2,7 +2,7 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0xD5C899BC or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0xF2CEC2BB or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
 use base 'Pugs::Grammar::LrepBase';
@@ -47,7 +47,7 @@ use Pugs::Runtime::LrepRule;
     my $grammar = shift;
     #warn "rule argument is undefined" unless defined $_[0];
     $_[0] = "" unless defined $_[0];
-    my $bool = $_[0] =~ /^((?:(?:\:\:)?[_[:alnum:]]+)+)(.*)$/sx;
+    my $bool = $_[0] =~ /^((?:(?:\:\:)?[_[:alpha:]][_[:alnum:]]*)+)(.*)$/sx;
     return {
         bool  => $bool,
         match => $1,

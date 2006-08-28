@@ -24,7 +24,7 @@ rule perl5_regex {
         \_   |   \\   |   \^   |   \$   |
         \n   |   \#   |   \-   |   \<   |
         \>   |   \!   |   \%   |   \@   | 
-        alnum  |  digit
+        alpha | alnum  |  digit
     ]*
         { return { perl5_regex => $() ,} }
 }

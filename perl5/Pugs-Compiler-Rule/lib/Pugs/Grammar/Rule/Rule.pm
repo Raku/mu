@@ -21,7 +21,7 @@ rule variable :P5 {^([\$\%\@](?:(?:\:\:)?[_[:alnum:]]+)+)}
 rule positional_variable 
               :P5 {^([\$\%\@]\^(?:[_[:alnum:]]+))}
 
-rule ident    :P5 {^((?:(?:\:\:)?[_[:alnum:]]+)+)}
+rule ident    :P5 {^((?:(?:\:\:)?[_[:alpha:]][_[:alnum:]]*)+)}
 
 rule num_variable :P5 {^(?:\$[[:digit:]]+)}
 
