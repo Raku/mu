@@ -84,7 +84,7 @@ instance HashClass IHashEnv where
         return . Map.map (VStr . decodeUTF8) $ Map.fromList envs
     hash_fetchVal _ key = tryIO undef $ do
         str <- getEnv key
-        return $ fromMaybe VUndef (fmap VStr (decodeUTF8 str))
+        return $ fromMaybe VUndef (fmap (VStr . decodeUTF8) str)
     hash_storeVal _ key val = do
         str <- fromVal val
         liftIO $ setEnv key (encodeUTF8 str) True
