@@ -1,5 +1,6 @@
 == Changes for 0.2 Fri Aug 25 20:55:43 EDT 2006
 * Allow Initializing the object with your hash of params (Mark Stosberg)
+* Added new test for PATH_INFO (Mark Stosberg)
 
 == Changes for 0.1  Fri Aug 25 19:23:20 EDT 2006
 * refactored into an OO-only module, breaking 

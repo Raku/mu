@@ -1,7 +1,7 @@
 use v6-alpha;
 use Test;
 
-plan 21;
+plan 22;
 
 =pod
 
@@ -57,3 +57,6 @@ is($q.document_root, undef, 'the value returned is undef');
 
 # but not this one
 is($q.script_name, $*PROGRAM_NAME, 'the value returned is that of $*PROGRAM_NAME');
+
+%*ENV<PATH_INFO> = 'mark';
+is($q.path_info, %*ENV<PATH_INFO>, "path_info method works as expected");
