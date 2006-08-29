@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 97;
+plan 114;
 
 my $foo = "FOO";
 my $bar = "BAR";
@@ -13,8 +13,8 @@ Tests quoting constructs as defined in L<S02/Literals>
 
 =todo
 
-* q:t - heredocs
-* q:n, q:b, and other interpolation levels
+* q:t - heredocs (done)
+* q:n, q:b, and other interpolation levels (half-done)
 * meaningful quotations (qx, rx, etc)
 * review shell quoting semantics of «»
 * arrays in «»
@@ -355,4 +355,105 @@ FOO
 { # simple test for nested-bracket quoting, per S02
     my $hi = q<<hi>>;
     is($hi, "hi", 'q<<hi>> is "hi"');
+}
+
+
+# L<S02/"Generalized quotes may now take adverb:" /for user-defined quotes/>
+# q:t
+{
+# XXX
+# Pugs has problem for parsing heredoc stream.
+# The one works is:
+# my $t = q:t /STREAM/
+# Hello, world
+# STREAM;
+# But this one doesn't conform to the Synopsis...
+
+    my $t;
+    eval_ok q{$t = q:t /STREAM/;
+Hello, world
+STREAM
+    }, :todo<parsefail>;
+
+    is $t, "Hello, World\n", "Testing for q:t operator.";
+
+    eval_ok qq{
+$t = q:t /结束/;
+Hello, World
+结束
+    }, :todo<parsefail>;
+
+    is $t, "Hello, World\n", "Testing for q:t operator. (utf8)";
+}
+
+# q:n
+{
+    my $s1 = "hello";
+    my $t1 = q:n /$s1, world/;
+    is $t1, '$s1, world', "Testing for q:n operator.";
+
+    my $s2 = "你好";
+    my $t2 = q:n /$s2, 世界/;
+    is $t2, '$s2, 世界', "Testing for q:n operator. (utf8)";
+}
+
+# q:b
+{
+    my $t = q:b /\n\n\n/;
+    is $t, "\n\n\n", "Testing for q:b operator.";
+}
+
+# q:x
+{
+    is q:x/echo hello/, "hello\n", "Testing for q:x operator.";
+}
+# utf8
+{
+    # 一 means "One" in Chinese.
+    is q:x/echo 一/, "一\n", "Testing for q:x operator. (utf8)";
+}
+
+# q:h
+{
+    # Pugs can't parse q:h currently.
+    my %t = (a => "perl", b => "rocks");
+    my $s;
+    eval_ok "$s = q;h /%t<>/", :todo<parsefail>;
+    is $s, ~%t, "Testing for q:h operator.";
+}
+
+# q:f
+{
+    sub f { "hello" };
+    my $t = q:f /&f(), world/;
+    is $t, f() ~ ", world", "Testing for q:f operator.";
+
+    sub f_utf8 { "你好" };
+    $t = q:f /&f_utf8(), 世界/;
+    is $t, f_utf8() ~ ", 世界", "Testing for q:f operator. (utf8)";
+}
+
+# q:c
+{
+    sub f { "hello" };
+    my $t = q:c /{f}, world/;
+    is $t, f() ~ ", world", "Testing for q:c operator.";
+}
+
+# q:a
+{
+    my @t = qw/a b c/;
+    my $s = q:a /@t[]/;
+    is $s, ~@t, "Testing for q:a operator.";
+}
+
+# q:s
+{
+    my $s = "someone is laughing";
+    my $t = q:s /$s/;
+    is $t, $s, "Testing for q:s operator.";
+
+    my $s = "有人在笑";
+    my $t = q:s /$s/;
+    is $t, $s, "Testing for q:s operator. (utf8)";
 }
