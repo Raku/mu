@@ -667,6 +667,8 @@ blib6/lib/Test.pm.yml :: ext/Test/lib/Test.pm
 upload-smoke : smoke.html
 	\$(PERL) util/smokeserv/smokeserv-client.pl smoke.html
 
+smoke-upload : upload-smoke
+
 smoke.html :
 	\$(PERL) util/run-smoke.pl . smoke.html
 
