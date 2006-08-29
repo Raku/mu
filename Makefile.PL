@@ -27,6 +27,7 @@ use File::Spec;
 use File::Copy;
 use File::Basename;
 use FindBin;
+use ExtUtils::Embed;
 BEGIN { chdir $FindBin::RealBin };
 use inc::Module::Install;
 use lib 'inc';
@@ -266,11 +267,13 @@ sub set_postamble {
     my $hsc2hs_flags = "";
     my $ccdlflags = "";
 
-    if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/i) { #  and !($Config{cc} eq 'cl') )  {
+    ###### Uncomment this to enable p5 embed by default
+    ### if (!$ENV{PUGS_EMBED} or $ENV{PUGS_EMBED} !~ /\b[-!]perl5\b/i) {
+    if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/i) {
         push @prereqs, "src/perl5/p5embed.o"; # XXX
         # $ghc_output .= " src/perl5/p5embed.o ";
         $ghc_flags .= " -DPUGS_HAVE_PERL5 ";
-        my $flags = "$Config{ccflags} $Config{ccdlflags}";
+        my $flags = "$Config{ccflags} $Config{ccdlflags} ";
         if ($flags =~ /\S/) {
             $flags =~ s{([\\"'])}{\\$1}g;
             my @flags = grep { length $_ } split /\s+/, $flags;
@@ -299,9 +302,15 @@ sub set_postamble {
                     @flags = grep { length $_ } split /\s+/, $flags;
                 }
                 $embed_flags .= " -optc-Ddirent=DIRENT ";
+                $ccdlflags .= (/^-[ID]/ ? ' -optc' : ' -optl') . qq["$_" ]
+                    for @flags;
             }
-            $ccdlflags .= (/^-D/ ? ' -optc' : ' -optl') . qq["$_" ]
-              for @flags;
+            else {
+                $embed_flags .= " -optc$_" for grep length, split(/\s+/, ccopts());
+                $embed_flags .= " -optl$_" for grep length, split(/\s+/, ldopts());
+                $embed_flags .= " $_" for grep { /-[IL]/ } split(/\s+/, ccopts());
+                $embed_flags .= " $_" for grep { /-[IL]/ } split(/\s+/, ldopts());
+            }
         }
     }
     elsif( $ENV{PUGS_EMBED} and $Config{cc} eq 'cl' and $^O =~ /Win32/ )   {
@@ -492,7 +501,7 @@ EOD
     my $emit = sub {
         my $o = shift;
         my $c = substr($o, 0, -1) . 'c';
-        return "$o : $c\n\t$ghc $threaded $ghc_flags -no-link -no-hs-main -O -o $o $c\n";
+        return "$o : $c\n\t$ghc $threaded $embed_flags $ghc_flags -no-link -no-hs-main -O -o $o $c\n";
     };
 
     mkdir 'dist';
