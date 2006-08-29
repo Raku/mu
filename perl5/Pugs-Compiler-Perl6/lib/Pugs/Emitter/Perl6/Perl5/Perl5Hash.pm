@@ -18,6 +18,12 @@ sub new {
     return $self;
 }
 
+sub dollar_name {
+    my $name = $_[0]->{name};
+    $name =~ s/\%/\$/;
+    return $name;
+}
+
 sub name {
     $_[0]->{name}
 }
@@ -67,6 +73,14 @@ sub hash {
 
 sub array {
     '@{[' . $_[0]->name . ']}';    
+}
+
+sub _123__125_ {
+    # .{}
+    my $self = $_[0];
+    my $other = $self->other_get( $_[1] );
+    return $_[0]->name unless $other;
+    return $self->dollar_name . '{' . $other . '}';
 }
 
 1;

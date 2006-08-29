@@ -13,6 +13,7 @@ use Digest::MD5 'md5_hex';
 use Pugs::Runtime::Perl6; 
 use Scalar::Util 'blessed';
 
+use Pugs::Emitter::Perl6::Perl5::Perl5Scalar;
 use Pugs::Emitter::Perl6::Perl5::Perl5Hash;
 use Pugs::Emitter::Perl6::Perl5::Perl5Array;
 
@@ -167,9 +168,11 @@ sub _emit {
     return ''
         unless defined $n;
     
+    return $n 
+        if blessed( $n );
+
     die "unknown node: ", Dumper( $n )
         unless ref( $n ) eq 'HASH';
-
 
     if (exists $n->{statements}) {
         my $statements = join ( ";\n", 
@@ -196,10 +199,12 @@ sub _emit {
         
     return '{' . _emit( $n->{pair}{key} ) . '=>' . _emit( $n->{pair}{value} ) . '}'
         if exists $n->{pair};
-        
-    return _var_get( $n )
-        if exists $n->{scalar};
-        
+                
+    if ( exists $_[0]->{scalar} ) {
+        $_[0] = Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( { name => $_[0]->{scalar} } );
+        return $_[0]->get;
+    }
+
     if ( exists $_[0]->{array} ) {
         $_[0] = Pugs::Emitter::Perl6::Perl5::Perl5Array->new( { name => $_[0]->{array} } );
         return $_[0]->get;
@@ -645,9 +650,30 @@ sub default {
     }
     
     if ( exists $n->{op1} && $n->{op1} eq 'method_call' ) {    
-        my $s = _emit( $n->{self} );
-        warn "method_call: ", Dumper( $n ), " self = $s \n";
 
+        my $s = _emit( $n->{self} );
+        print "method_call: ", Dumper( $n->{self} );
+        #print "method_call: self = $s \n", Dumper( $n->{self} ), blessed( $n->{self} );
+
+
+            if ( exists $n->{self}{self} ) {
+                if ( blessed( $n->{self}{self} ) ) {
+                    print "chain call\n";
+                    my $method = $n->{self}{method}{dot_bareword};
+                    $n->{self} = $n->{self}{self}->$method( $n->{self}{param} );
+                    my $s = _emit( $n->{self} );
+                    print "chain call got $s\n";
+                }
+            }
+
+        if ( blessed( $n->{self} ) ) {
+            my $method = $n->{method}{dot_bareword} 
+                || $n->{method}{bareword};
+            $method = Pugs::Runtime::Common::mangle_ident( $method );
+            print "method: $method\n", Dumper($n);
+            return $n->{self}->$method( $n->{param} );
+        }
+        
         if ( $n->{method}{dot_bareword} eq 'print' ||
              $n->{method}{dot_bareword} eq 'warn' ) {
             if ( $s eq Pugs::Runtime::Common::mangle_var('$*ERR') ) {  
@@ -708,11 +734,6 @@ sub default {
                 if $n->{method}{dot_bareword} eq 'ref';
             # runtime decision - method or lib call
             return runtime_method( $n );
-        }
-        
-        if ( blessed( $n->{self} ) ) {
-            my $method = $n->{method}{dot_bareword};
-            return $n->{self}->$method( $n->{param} );
         }
         
         if (  exists $n->{self}{array} 

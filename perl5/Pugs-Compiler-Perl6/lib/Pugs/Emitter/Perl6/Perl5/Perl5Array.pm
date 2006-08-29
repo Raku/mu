@@ -86,7 +86,9 @@ sub delete {
 }
 
 sub hash {
-    '%{{' . $_[0]->name . '}}';
+    return Pugs::Emitter::Perl6::Perl5::Perl5Hash->new( {
+        name => '%{{' . $_[0]->name . '}}' 
+    } );
 }
 
 sub array {
