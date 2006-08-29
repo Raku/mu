@@ -4,11 +4,11 @@ use v6-alpha;
 
 use Test;
 
-plan 27;
+plan 35;
 
+# L<S02/"Whitespace and Comments"/"Embedded comments"
+#  "#" plus any bracket>
 {
-    # L<S02/"Whitespace and Comments"/"Embedded comments"
-    #  "#" plus any bracket>
 
     ok #[
         Multiline
@@ -45,8 +45,8 @@ plan 27;
     # characters.
 }
 
+# L<S02/"Whitespace and Comments"/"no space" between "#" and bracket>
 {
-    # L<S02/"Whitespace and Comments"/"no space" between "#" and bracket>
 
     ok !eval("3 * # (invalid comment) 2"), "no space allowed between '#' and '('";
     ok !eval("3 * #\t[invalid comment] 2"), "no tab allowed between '#' and '['";
@@ -54,9 +54,9 @@ plan 27;
     ok !eval("3 * #\n<invalid comment> 2"), "no spaces allowed between '#' and '<'";
 }
 
+# L<S02/"Whitespace and Comments"/"closed by" "same number of"
+#   "closing brackets">
 {
-    # L<S02/"Whitespace and Comments"/"closed by" "same number of"
-    #   "closing brackets">
 
     ok #<<<
         Or this <also> works...
@@ -72,9 +72,9 @@ plan 27;
     is $var, 36, '#<< > >>';
 }
 
+# L<S02/"Whitespace and Comments"/"Counting of nested brackets"
+#   "applies only to" "pairs of brackets of the same length">
 {
-    # L<S02/"Whitespace and Comments"/"Counting of nested brackets"
-    #   "applies only to" "pairs of brackets of the same length">
 
     is 3, #(
         (Nested parens) works also
@@ -90,10 +90,9 @@ plan 27;
     }} 'cat', 'embedded comments with nested/unmatched bracket chars';
 }
 
+# L<S02/"Whitespace and Comments"/
+#   "#" on "beginning of line" always "line-end comment">
 {
-    # L<S02/"Whitespace and Comments"/
-    #   "#" on "beginning of line" always "line-end comment">
-
     is 31,
 #<this is special cased
     31, '#< on the left margin is a line-end comment';
@@ -102,16 +101,16 @@ plan 27;
         'embedded comment not on the left margin';
 }
 
+# L<S02/Whitespace and Comments/"comment may not contain an unspace">
 {
-    # L<S02/Whitespace and Comments/"comment may not contain an unspace">
     my $a;
     ok !eval '$a = #\  (comment) 32', "comments can't contain unspace";
     is $a, undef, '$a remains undef';
 }
 
+# L<S02/Whitespace and Comments/"# may not be used as" 
+#   delimiter quoting>
 {
-    # L<S02/Whitespace and Comments/"# may not be used as" 
-    #   delimiter quoting>
     my $a;
     ok eval '$a = q{ 32 }', 'sanity check';
     is $a, ' 32 ', 'sanity check';
@@ -119,4 +118,72 @@ plan 27;
     $a = undef;
     ok !eval '$a = q# 32 #;', 'misuse of # as quote delimiters';
     is $a, undef, "``#'' can't be used as quote delimiters";
+}
+
+# S02 says this "=begin comment" "=end comment" shouldn't need a "=cut"
+# to indicate the end of the pod.
+{
+    my $a;
+    eval_ok q{
+        my $a =
+
+=begin comment
+
+This is a comment with a "=cut".
+
+=end comment
+
+=cut
+
+    "foo";
+    }, '=begin comment with =cut works (1)';
+
+    is $a, 'foo', '=begin comment with =cut works (2)';
+}
+
+{
+    my $a;
+    eval_ok q{
+        my $a =
+
+=begin comment
+
+This is a comment without a "=cut".
+
+=end comment
+
+=cut
+
+    "bar";
+    }, '=begin comment without =cut works (1)';
+
+    is $a, 'bar', '=begin comment without =cut works (2)';
+}
+
+# L<S02/Whitespace and Comments/"single paragraph comments"
+#   =for comment>
+
+{
+    my $a;
+    eval_ok q{
+        $a =
+
+=for comment TimToady is here!
+
+        32;
+    }, '=for comment works (1)';
+    is $a, 32, '=for comment works (2)';
+}
+
+{
+    my $a;
+    eval_ok q{
+        $a =
+
+=for comment TimToady and audreyt
+are both here, yay!
+
+        32;
+    }, '=for comment works (1)';
+    is $a, 32, '=for comment works (2)';
 }
