@@ -8,7 +8,7 @@ use Test;
 # L<S04/"Conditional statements"/"Conditional statement modifiers"
 #     "work as in Perl 5">
 
-plan 18;
+plan 23;
 
 # postfix if
 {
@@ -116,4 +116,22 @@ plan 18;
     my $a;
     $a ++ until shift(@a) eq 'c';
     is($a, 2, "post until");
+}
+
+# L<S04/The C<for> statement/"for" use a private instance of $_>
+{
+    my $i;
+    $_ = 10;
+    $i += $_ for 1..3;
+    is $_, 10, 'outer $_ did not get updated in lhs of for';
+    is $i, 1+2+3, 'postfix for worked';
+}
+
+# L<S04/The C<for> statement/"given" "use a private instance of" $_>
+{
+    my $i;
+    $_ = 10;
+    eval_ok q{ $i += $_ given $_+3 };
+    is $_, 10, 'outer $_ did not get updated in lhs of given';
+    is $i, 13, 'postfix given worked';
 }
