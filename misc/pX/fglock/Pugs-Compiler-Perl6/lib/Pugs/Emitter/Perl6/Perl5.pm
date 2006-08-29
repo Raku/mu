@@ -14,6 +14,7 @@ use Pugs::Runtime::Perl6;
 use Scalar::Util 'blessed';
 
 use Pugs::Emitter::Perl6::Perl5::Perl5Hash;
+use Pugs::Emitter::Perl6::Perl5::Perl5Array;
 
 # TODO - finish localizing %_V6_ENV at each block
 our %_V6_ENV;
@@ -199,8 +200,10 @@ sub _emit {
     return _var_get( $n )
         if exists $n->{scalar};
         
-    return _var_get( $n )
-        if exists $n->{array};
+    if ( exists $_[0]->{array} ) {
+        $_[0] = Pugs::Emitter::Perl6::Perl5::Perl5Array->new( { name => $_[0]->{array} } );
+        return $_[0]->get;
+    }
         
     if ( exists $_[0]->{hash} ) {
         $_[0] = Pugs::Emitter::Perl6::Perl5::Perl5Hash->new( { name => $_[0]->{hash} } );
@@ -516,10 +519,6 @@ sub default {
             return "super";  # param list?
         }
         
-        if ( $n->{sub}{bareword} eq 'hash' ) {
-            return ' %{{ ' . _emit( $n->{param} ) . ' }} ';
-        }
-
         if (  $n->{sub}{bareword} eq 'use' 
            || $n->{sub}{bareword} eq 'require'
            ) {
@@ -725,33 +724,6 @@ sub default {
                 my $param = $n->{param}{fixity} eq 'circumfix' ? $n->{param}{exp1} : undef;
                 my $code = $param->{bare_block} ? 'sub { '._emit($param).' }' : _emit($param);
                 return 'Pugs::Runtime::Perl6::Array::map([\('.$code.', '. _emit( $n->{self} ).')], {})';
-            }
-            if (  $n->{method}{dot_bareword} eq 'delete' 
-               || $n->{method}{dot_bareword} eq 'exists' 
-               ) {
-                my $self = _emit($n->{self});
-                $self =~ s{\@}{\$};
-                return _emit( $n->{method} ).' '.$self.'['._emit($n->{param}).']';
-            }
-            if ($n->{method}{dot_bareword} eq 'kv') {
-                my $array = emit_parenthesis( $n->{self} );
-                return "( map { ( \$_, ".$array."[\$_] ) } 0..".$array."-1 )"; 
-            }
-            if ($n->{method}{dot_bareword} eq 'keys') {
-                my $array = emit_parenthesis( $n->{self} );
-                return "( 0..".$array."-1 )"; 
-            }
-            if ($n->{method}{dot_bareword} eq 'values') {
-                return emit_parenthesis( $n->{self} );
-            }
-            if ($n->{method}{dot_bareword} eq 'ref') {
-                return 'Pugs::Runtime::Perl6::Scalar::ref( \\'. _emit( $n->{self} ) . ')';
-            }
-            if ($n->{method}{dot_bareword} eq 'isa') {
-                return 'Pugs::Runtime::Perl6::Scalar::isa( \\'. _emit( $n->{self} ) . ', ' . _emit( $n->{param} ) . ')';
-            }
-            if ($n->{method}{dot_bareword} eq 'elems') {
-                return "( scalar "._emit( $n->{self} )." )"; 
             }
             return _emit( $n->{method} ).' '.
                 ( join( ',', 
