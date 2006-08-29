@@ -4,7 +4,7 @@ use v6-alpha;
 
 use Test;
 
-plan 35;
+plan 36;
 
 # L<S02/"Whitespace and Comments"/"Embedded comments"
 #  "#" plus any bracket>
@@ -72,14 +72,20 @@ plan 35;
     is $var, 36, '#<< > >>';
 }
 
-# L<S02/"Whitespace and Comments"/"Counting of nested brackets"
-#   "applies only to" "pairs of brackets of the same length">
+# L<S02/"Whitespace and Comments"/"Brackets may be nested">
 {
-
     is 3, #(
         (Nested parens) works also
     ) 3, 'nested parens #(...(...)...)';
 
+    is 3, #{
+        {Nested parens} works also {}
+    } 3, 'nested parens #(...(...)...)';
+}
+
+# L<S02/"Whitespace and Comments"/"Counting of nested brackets"
+#   "applies only to" "pairs of brackets of the same length">
+{
     is -1 #<<<
         Even <this> <<< also >>> works...
     >>>, -1, 'nested brackets in embedded comment';
@@ -120,8 +126,8 @@ plan 35;
     is $a, undef, "``#'' can't be used as quote delimiters";
 }
 
-# S02 says this "=begin comment" "=end comment" shouldn't need a "=cut"
-# to indicate the end of the pod.
+# L<S02/"Whitespace and Comments"/"Multiline comments" extending POD
+#   without =cut>
 {
     my $a;
     eval_ok q{
