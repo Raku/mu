@@ -8,7 +8,7 @@ use Test;
 # L<S04/"Conditional statements"/"Conditional statement modifiers"
 #     "work as in Perl 5">
 
-plan 23;
+plan 22;
 
 # postfix if
 {
@@ -131,7 +131,7 @@ plan 23;
 {
     my $i;
     $_ = 10;
-    eval_ok q{ $i += $_ given $_+3 };
+    $i += $_ given $_+3;
     is $_, 10, 'outer $_ did not get updated in lhs of given';
     is $i, 13, 'postfix given worked';
 }
