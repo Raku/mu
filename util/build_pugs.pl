@@ -223,8 +223,12 @@ sub build {
         if (!$ar) { $ar = $ghc; $ar =~ s{(.*)ghc}{$1ar}; }
     }
 
+    print "Embedding @o_files into @archive_files\n";
     system($ar, "-r", $_, @o_files) for @archive_files;
   
+    if ($Config{ranlib} ne ':') {
+      system(split(/ /,$Config{ranlib}), $_) for @archive_files;
+    }
 
 
     print "*** Finished building dependencies.\n\n";
