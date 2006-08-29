@@ -1204,7 +1204,7 @@ op3 "Object::new" = \t n p -> do
     attrs   <- liftIO $ (C.new :: IO IHash)
     writeIVar (IHash attrs) named
     uniq    <- newObjectId
-    unless (positionals == VList []) (fail "Must only use named arguments to new() constructor")
+    unless (positionals == VList []) (fail "Must only use named arguments to new() constructor\nBe sure to use bareword keys.")
     let obj = VObject $ MkObject
             { objType   = typ
             , objAttrs  = attrs
