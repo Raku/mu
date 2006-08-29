@@ -4,7 +4,7 @@ use v6-alpha;
 
 use Test;
 
-plan 23;
+plan 27;
 
 {
     # L<S02/"Whitespace and Comments"/"Embedded comments"
@@ -31,7 +31,7 @@ plan 23;
 
     my @list = 'a'..'c';
 
-    # FIXME: $var = @list[ #（注释）2 ];
+    $var = @list[ #（注释）2 ];
     is $var, 'c', 'embedded comment with FULLWIDTH LEFT/RIGHT PARENTHESIS';
 
     $var = @list[ 0 #《注释》];
@@ -107,4 +107,16 @@ plan 23;
     my $a;
     ok !eval '$a = #\  (comment) 32', "comments can't contain unspace";
     is $a, undef, '$a remains undef';
+}
+
+{
+    # L<S02/Whitespace and Comments/"# may not be used as" 
+    #   delimiter quoting>
+    my $a;
+    ok eval '$a = q{ 32 }', 'sanity check';
+    is $a, ' 32 ', 'sanity check';
+
+    $a = undef;
+    ok !eval '$a = q# 32 #;', 'misuse of # as quote delimiters';
+    is $a, undef, "``#'' can't be used as quote delimiters";
 }
