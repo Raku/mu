@@ -5,6 +5,13 @@ package Pugs::Emitter::Perl6::Perl5::Perl5Hash;
 use strict;
 use warnings;
 
+sub other_get {
+    package Pugs::Emitter::Perl6::Perl5;
+    use Data::Dumper;
+    print Dumper( $_[1] );
+    _emit( $_[1] );
+}
+
 sub new {
     my $self = $_[1];  # { name => '%hash5' }
     bless $self, $_[0];
@@ -16,7 +23,12 @@ sub name {
 }
 
 sub ref { 
-    return 'Hash';  # hardcoded 
+    return "'Hash'";  # hardcoded 
+}
+
+sub isa { 
+    my $self = $_[0];
+    return $self->other_get( $_[1] ) . ' eq ' . "'Hash'";  # hardcoded 
 }
 
 sub get {
@@ -26,8 +38,7 @@ sub get {
 
 sub set {
     my $self = $_[0];
-    my $value = $_[1];
-    return $self->name . ' = ' . $value->get;
+    return $self->name . ' = ' . $self->other_get( $_[1] );
 }
 
 sub str {
@@ -49,6 +60,8 @@ sub kv {
 sub elems {
     'scalar keys $_[0]->name';
 }
+
+1;
 
 __END__
 
