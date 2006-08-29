@@ -24,7 +24,7 @@ sub name {
 
 sub dollar_name {
     my $name = $_[0]->{name};
-    $name =~ s/\@/\$/;
+    $name =~ s/^\@/\$/;
     return $name;
 }
 
@@ -60,13 +60,13 @@ sub defined {
 }
 
 sub kv {
-    return "( map { ( \$_, ".$_[0]->name."[\$_] ) } 0..".$_[0]->name."-1 )"; 
-
+    my $tmp = "( map { ( \$_, ".$_[0]->name."[\$_] ) } 0..".$_[0]->name."-1 )"; 
+    return ( ref $_[0] )->new( { name => $tmp } );
 }
 
 sub keys {
-    return "( 0..".$_[0]->name."-1 )"; 
-
+    my $tmp = "( 0..".$_[0]->name."-1 )"; 
+    return ( ref $_[0] )->new( { name => $tmp } );
 }
 
 sub values {
