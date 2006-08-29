@@ -8,7 +8,7 @@ Basic "unless" tests
 
 =cut
 
-plan 14;
+plan 16;
 
 # L<S04/Conditional statements/unless statements 
 #   work as in Perl 5>
