@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 91;
+plan 97;
 
 my $foo = "FOO";
 my $bar = "BAR";
@@ -23,8 +23,41 @@ Tests quoting constructs as defined in L<S02/Literals>
 
 =cut
 
+# L<S02/Lexical Conventions/"bidirectional mirrorings" or "Ps/Pe properties">
+{
+    my $s = q{ foo bar };
+    is $s, ' foo bar ', 'string using q{}';
+}
 
-{ # backslash interpolation only single quotes L<S02/Literals /:single\s+Interpolate \\\\,/>
+{
+    my $s = q「this is a string」;
+    is $s, 'this is a string',
+        'q-style string with LEFT/RIGHT CORNER BRACKET';
+}
+
+{
+    my $s = q『blah blah blah』;
+    is $s, 'blah blah blah',
+        'q-style string with LEFT/RIGHT WHITE CORNER BRACKET';
+}
+
+{
+    my @list = 'a'..'c';
+
+    my $var = @list[ q（2） ];
+    is $var, 'c',
+        'q-style string with FULLWIDTH LEFT/RIGHT PARENTHESIS';
+
+    $var = @list[ q《0》];
+    is $var, 'a',
+        'q-style string with LEFT/RIGHT DOUBLE ANGLE BRACKET';
+
+    $var = @list[q〈1〉];
+    is $var, 'b', 'q-style string with LEFT/RIGHT ANGLE BRACKET';
+}
+
+# L<S02/Literals/":q" ":single" "Interpolate \\, \q and \'">
+{
     my @q = ();
     @q = (q/$foo $bar/);
     is(+@q, 1, 'q// is singular');
