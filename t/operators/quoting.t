@@ -71,7 +71,9 @@ Tests quoting constructs as defined in L<S02/Literals>
     is(@q[0], '$foo $bar', 'and did not interpolate either');
 };
 
-{ # non interpolating single quotes with nested parens L<S02/Literals /That is.*?\(\).*?have no special significance/>
+# L<S02/Literals /That is.*?\(\).*?have no special significance/>
+# non interpolating single quotes with nested parens
+{
     my @q = ();
     try { eval '@q = (q (($foo $bar)))' };
     is(+@q, 1, 'q (()) is singular');
