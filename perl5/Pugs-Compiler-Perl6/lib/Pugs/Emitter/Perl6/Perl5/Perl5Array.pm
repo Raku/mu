@@ -95,6 +95,14 @@ sub array {
     $_[0]->name;
 }
 
+sub _91__93_ {
+    # .[]
+    my $self = $_[0];
+    my $other = $self->other_get( $_[1] );
+    return $_[0]->name unless $other;  # TODO
+    return $self->dollar_name . '[' . $other . ']';
+}
+
 1;
 
 

@@ -79,7 +79,7 @@ sub _123__125_ {
     # .{}
     my $self = $_[0];
     my $other = $self->other_get( $_[1] );
-    return $_[0]->name unless $other;
+    return $_[0]->name unless $other;  # TODO
     return $self->dollar_name . '{' . $other . '}';
 }
 

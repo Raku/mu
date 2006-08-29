@@ -655,7 +655,7 @@ sub default {
         print "method_call: ", Dumper( $n->{self} );
         #print "method_call: self = $s \n", Dumper( $n->{self} ), blessed( $n->{self} );
 
-
+            # TODO - recursive chain call (this is only 2-level)
             if ( exists $n->{self}{self} ) {
                 if ( blessed( $n->{self}{self} ) ) {
                     print "chain call\n";
