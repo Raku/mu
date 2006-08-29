@@ -1,3 +1,7 @@
+* Modify the smoke server/client (under util/) to upload and public tests.yml
+  as well. so that we can take advantage of the smoke result rendering featuer
+  of util/smartlinks.pl.
+
 * BROADCAST TASK - Check ./STATUS and see if systems with which you
   are familiar are correctly described.  Skills: be familiar with some
   system. ;)
