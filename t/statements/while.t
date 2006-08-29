@@ -46,32 +46,26 @@ plan 11;
   is($k, 0, 'while $var {...} works');
 }
 
-# other tests
-{
-  # this seems like a bit of a messy test, but the point is being able to
-  # declare my $x within the while statement more suited for a file read
-  # or iterator, but I didn't feel like creating one just for this test.
-  eval_is(
-    'my $y; while (my $x = 2) == 2 { $y = $x; last; } $y',
-    2,
-    "'my' variable within 'while' conditional");
-}
-
+# L<S04/The C<for> statement/It is also possible to write>
 # while ... -> $x {...}
 {
-  my @array = (0..5);
-  my $was_in_while;
-  my @new;
-  eval 'while @array.shift -> $x { $was_in_while++; push @new, $x }';
-  ok $was_in_while,  'while ... -> $x {...} worked (1)', :todo<bug>;
-  is ~@new, ~@array, 'while ... -> $x {...} worked (1)', :todo<bug>;
+  my @array = 0..5;
+  my $str;
+  eval_ok q{
+      while @array.shift -> $x {
+          $str ~= $x
+      }
+  };
+  is $str, '012345', 'while ... -> $x {...} worked (1)';
 }
 
 {
-  my @array = (0..5);
-  my $was_in_while;
-  my @new;
-  eval 'while shift @array -> $x { $was_in_while++; push @new, $x }';
-  ok $was_in_while,  'while ... -> $x {...} worked (1)', :todo<bug>;
-  is ~@new, ~@array, 'while ... -> $x {...} worked (1)', :todo<bug>;
+  my @array = 0..5;
+  my $str;
+  eval_ok q{
+      while shift @array -> $x {
+          $str ~= $x;
+      }
+  };
+  is $str, '012345', 'while ... -> $x {...} worked (2)';
 }
