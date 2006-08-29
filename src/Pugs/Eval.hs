@@ -454,6 +454,8 @@ reduceSyn name [cond, bodyIf, bodyElse]
             then reduce bodyIf
             else reduce bodyElse
 
+reduceSyn "postfix:for" xs = reduceSyn "for" xs
+
 reduceSyn "for" [list, body] = do
     av    <- enterLValue $ enterEvalContext cxtSlurpyAny list
     vsub  <- enterRValue $ enterEvalContext (cxtItem "Code") body
@@ -508,6 +510,16 @@ reduceSyn "loop" exps = do
         callCC $ \esc -> genSymPrim "&next" (const $ runNext >>= esc) $ \symNext -> do
             valBody <- enterLex [symRedo, symNext] $ evalExp body
             trapVal valBody $ runNext
+
+reduceSyn "postfix:given" [topic, body] = do
+    vtopic  <- fromVal =<< enterLValue (enterEvalContext cxtItemAny topic)
+    vsub    <- enterRValue $ enterEvalContext (cxtItem "Code") body
+    sub'    <- fromVal vsub
+    sub     <- case sub' of
+        VCode s -> return s
+        VList [] -> fail $ "Invalid codeblock for 'for': did you mean {;}?"
+        _ -> fail $ "Invalid codeblock for 'for'"
+    enterGiven vtopic $ enterEvalContext (cxtItem "Code") (subBody sub)
 
 reduceSyn "given" [topic, body] = do
     vtopic <- fromVal =<< enterLValue (enterEvalContext cxtItemAny topic)

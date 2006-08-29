@@ -1189,11 +1189,11 @@ Returns a function that will take the statement proper, and enclose it in
 -}
 s_postIterate :: RuleParser (Exp -> RuleParser Exp)
 s_postIterate = rule "postfix iteration" $ do
-    cond <- choice $ map symbol ["for"]
+    cond <- choice $ map symbol ["for", "given"]
     exp <- ruleExpression
     return $ \body -> do
         block <- retBlock SubBlock Nothing False body
-        return $ Syn cond [exp, block]
+        return $ Syn ("postfix:" ++ cond) [exp, block]
 
 ruleBareOrPointyBlockLiteral :: RuleParser Exp
 ruleBareOrPointyBlockLiteral = rule "bare or pointy block construct" $
@@ -1443,6 +1443,7 @@ ruleSubNameWithoutPostfixModifier = try $ do
         "&unless"   -> fail "postfix op"
         "&while"    -> fail "postfix op"
         "&until"    -> fail "postfix op"
+        "&given"    -> fail "postfix op"
         "&for"      -> fail "postfix op"
         _           -> return name
 
