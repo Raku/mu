@@ -1,6 +1,6 @@
-package Pugs::Emitter::Perl6::Perl5::Perl5Hash;
+package Pugs::Emitter::Perl6::Perl5::Perl5Scalar;
 
-# Compile-time Perl 5 hash object - hardcoded, autoboxed  methods
+# Compile-time Perl 5 scalar object - hardcoded, autoboxed  methods
 
 use strict;
 use warnings;
@@ -13,7 +13,7 @@ sub other_get {
 }
 
 sub new {
-    my $self = $_[1];  # { name => '%hash5' }
+    my $self = $_[1];  # { name => '$scalar5' }
     bless $self, $_[0];
     return $self;
 }
@@ -23,12 +23,12 @@ sub name {
 }
 
 sub ref { 
-    return "'Hash'";  # hardcoded 
+    return "'Scalar'";  # ??? 
 }
 
 sub isa { 
     my $self = $_[0];
-    return $self->other_get( $_[1] ) . ' eq ' . "'Hash'";  # hardcoded 
+    return $self->other_get( $_[1] ) . ' eq ' . "'Scalar'";  # hardcoded 
 }
 
 sub get {
@@ -54,11 +54,11 @@ sub defined {
 }
 
 sub kv {
-    $_[0];   # used as an array    
+    # TODO
 }
 
 sub elems {
-    'scalar keys ' . $_[0]->name;
+    '1';    # ???
 }
 
 1;
