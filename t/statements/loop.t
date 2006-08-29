@@ -10,7 +10,7 @@ L<S04/"The general loop statement">
 
 =cut
 
-plan 26;
+plan 14;
 
 # basic loop
 
