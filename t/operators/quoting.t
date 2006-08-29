@@ -198,7 +198,7 @@ Tests quoting constructs as defined in L<S02/Literals>
 
     is(~@q1, 'FOO gorch BAR', "explicit quote word interpolates", :todo<bug>);
     is(~@q2, 'FOO gorch BAR', "output is the same as french",:todo<bug>);
-    # L<S02/Literals /the built-in «...» quoter automatically does interpolation equivalent to qq:ww/.../ />
+    # L<S02/Literals/the built-in «...» quoter automatically does interpolation equivalent to qq:ww/.../ />
     is(~@q3, 'FOO gorch BAR', ", texas quotes",:todo<bug>);
     is(~@q4, 'FOO gorch BAR', ", and long form",:todo<bug>);
 };
@@ -285,7 +285,8 @@ FOO
     is(@q[0], "foo\\\\bar\$foo", "special chars are meaningless"); # double quoting is to be more explicit
 };
 
-{ # <<:Pair>> L<S02/Literals /"Pair" notation is also recognized inside/>
+{ # L<S02/Literals/"Pair" notation is also recognized inside>
+  # <<:Pair>>
     diag "XXX: pair.perl is broken atm so these tests may be unreliable";
 
     my @q = <<:p(1)>>;
