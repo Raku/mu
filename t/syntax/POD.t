@@ -22,12 +22,12 @@ hello, world!
     my $line = =$fh if $fh;
     is $line, "hello, world!\n", q/$=POD{'DATA'} can be read/;
 
-    # L<S02/"pod stream" "as a scalar" via $=DATA>
+    # L<S02/Literals/"pod stream" "as a scalar" via $=DATA>
     my $str;
     eval_ok '$str = $=DATA', '$=DATA is parsed';
     is $str, "hello, world!\n", '$=DATA contains the right string';
 
-    # L<S02/"pod stream" "as an array" via @=DATA>
+    # L<S02/Literals/"pod stream" "as an array" via @=DATA>
     $str = undef;
     my ($count);
     eval_ok '$str = @=DATA[0]; $count = @=DATA[0].elems';
