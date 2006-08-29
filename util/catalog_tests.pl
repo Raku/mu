@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+# Note: currently no one is maintaining this script, since we already
+#       have util/smartlinks.pl, which is nicer. :)
+
 # Generate .html from .t and test results 
 # Generate cross-referenced html for p6 design docs (optional)
 # FIXOTHERS (smoke): t/01-sanity and others have no pos field
@@ -40,7 +43,7 @@ $0 - Build html test catalog and synopses with hyperlinks to corresponding tests
     --p6design_dir  Directory containing the perl6 design docs apo/exe/syn
     --no_designdocs Do not generate html files for the perl6 design docs (faster)
     --output_dir    Output Directory to put the html files (Default: ./t_index)
-    --test_dirs     Directories containing the tests (Default: take tests from ./tests.yaml)
+    --test_dirs     Directories containing the tests (Default: take tests from ./tests.yml)
     --help          Show this help
 
   Perl6 Documentation:
