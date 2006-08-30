@@ -426,7 +426,6 @@ sub process_syn ($$$$) {
             } continue { $i++ }
             if (!$matched) {
                 my ($file, $lineno) = @$location;
-                $lineno--;
                 error("$file: line $lineno: pattern ``$pattern'' failed to match any",
                     "paragraph in L<S${syn_id}/${section_name}>.");
                 $broken_count++;
