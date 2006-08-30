@@ -73,7 +73,7 @@ sub double_angle_quoted {
     <!before [ <'$'> | <'@'> | <'%'> | <'&'> | <'"'> ] >
     [ <'\"'> | . ]
     <?double_quoted_text>?
-    { return { single_quoted => $/() ,} }
+    { return { double_quoted => $/() ,} }
 ))->code;
 
 *double_quoted = Pugs::Compiler::Token->compile(q(
