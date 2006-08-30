@@ -696,6 +696,12 @@ ghci : @prereqs @derived_srcfiles
 	$ghc $ghc_flags $ghc_output --make -O0 -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Prereqs.hs @prereqs
 	$ghc $ghc_flags $ghc_output --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs -Lthird-party/judy/Judy-1.0.3/src/obj/.libs -lJudy
 
+ctags : @prereqs @derived_srcfiles
+	echo ":ctags" | $ghc $ghc_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs -Lthird-party/judy/Judy-1.0.3/src/obj/.libs -lJudy
+        
+etags : @prereqs @derived_srcfiles
+	echo ":etags" | $ghc $ghc_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs -Lthird-party/judy/Judy-1.0.3/src/obj/.libs -lJudy
+
 pil$Config{_exe} : $config_h $pcre @cbits @srcfiles src/PIL/Native/Bootstrap.hs src/PIL/Native/Syntax.hs
 	$ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -isrc/cbits -Isrc -Isrc/cbits -L. -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs $pcre @cbits
 
