@@ -61,7 +61,7 @@ method set_url_encoding(Str $encoding) {
 # utility functions
 
 method header (
-    Str  $content_type? = 'text/html',
+    Str  $type? = 'text/html',
     Str  $status?       = '200 OK',
     Str  $charset?      = undef,
     Str :$cookies?,
@@ -79,7 +79,7 @@ method header (
     #    Expires:
     #    Pragma: (caching)
     
-    $header ~= "\nContent-Type: " ~ $content_type;
+    $header ~= "\nContent-Type: " ~ $type;
     $header ~= "; charset=$charset" if $charset.defined;
     
     for %extra.kv -> $key, $value {
@@ -204,12 +204,12 @@ method unpack_params (Str $data) returns Str {
     for @pairs -> $pair {
         my ($key, $value) = split('=', $pair);
         $key = self.url_decode($key);
-        if (%!PARAMS{"$key"}) {
-            my $list := %!PARAMS{"$key"};
+        if (%!PARAMS{$key}) {
+            my $list := %!PARAMS{$key};
             $list.push(self.url_decode($value));
         }
         else {
-            %!PARAMS{"$key"} = [ self.url_decode($value) ];            
+            %!PARAMS{$key} = [ self.url_decode($value) ];            
         }
     }  
 }

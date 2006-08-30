@@ -53,7 +53,7 @@ Content-Type: text/html; charset=Arabic
 
 ", 'got the header we expected (using named args)');
 
-is($q.header(content_type => 'text/xml', charset => 'Chinese', status => '500 Internal Server Error'), 
+is($q.header(type => 'text/xml', charset => 'Chinese', status => '500 Internal Server Error'), 
    "Status: 500 Internal Server Error
 Content-Type: text/xml; charset=Chinese
 
