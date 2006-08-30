@@ -40,8 +40,10 @@ sub _var_get {
         if ( exists $n->{bare_block} ) {
             my $block = _emit( $n );
             # TODO - check if it is a comma-delimited list
-            # print "block: [$block]\n";
-            return $block if $block =~ /# hash\n$/s;
+            print "block: [$block]\n";
+            return $block 
+                if $block =~ / \# \s* hash \s* \n \s* }? \s* $/xs;
+            print "sub: [$block]\n";
             return ' sub ' . $block;
         }
         return _emit( $n );
