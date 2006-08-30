@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp -fvia-C #-}
 
 #ifndef PUGS_HAVE_PERL5
 module Pugs.Embed.Perl5 
@@ -94,8 +94,6 @@ import Pugs.Internals
 import Foreign
 import Foreign.C.Types
 import Foreign.C.String
-import Data.IORef (modifyIORef)
-import Pugs.Internals 
 import qualified Data.ByteString.Char8 as Str
 
 type PerlInterpreter = Ptr ()
@@ -112,8 +110,10 @@ foreign import ccall "perl.h perl_destruct"
     perl_destruct :: PerlInterpreter -> IO CInt
 foreign import ccall "perl.h perl_free"
     perl_free :: PerlInterpreter -> IO ()
+{-
 foreign import ccall "perl.h boot_DynaLoader"
     boot_DynaLoader :: Ptr () -> IO ()
+-}
 foreign import ccall "../../perl5/p5embed.h perl5_finalize"
     perl5_finalize :: PerlSV -> IO ()
 foreign import ccall "../../perl5/p5embed.h perl5_SvPV"

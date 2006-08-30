@@ -157,18 +157,21 @@ findSub :: Var        -- ^ Name, with leading @\&@.
         -> Maybe Exp  -- ^ Invocant
         -> [Exp]      -- ^ Other arguments
         -> Eval (Either FindSubFailure VCode)
-findSub _var _invs _args = case _invs of
-    Nothing -> findBuiltinSub NoMatchingMulti _var
-    _ | not (isQualifiedVar _var) -> case unwrap _inv of
+findSub _var _invs _args
+    | Nothing <- _invs = do
+        findBuiltinSub NoMatchingMulti _var
+    | not (isQualifiedVar _var) = case unwrap _inv of
         Val vv@VV{}     -> withExternalCall callMethodVV vv
         Val sv@PerlSV{} -> withExternalCall callMethodPerl5 sv
         inv' -> do
             typ <- evalInvType inv'
-            findTypedSub (cast typ) _var
-      | Just var' <- dropVarPkg _SUPER _var -> do
+            if typ == mkType "Scalar::Perl5"
+                then evalExp inv' >>= withExternalCall callMethodPerl5
+                else findTypedSub (cast typ) _var
+    | Just var' <- dropVarPkg _SUPER _var = do
         pkg <- asks envPackage
         findSuperSub pkg var'
-      | otherwise -> do
+    | otherwise = do
         findBuiltinSub NoMatchingMulti _var
     where
     _inv = fromJust _invs
@@ -241,11 +244,10 @@ findSub _var _invs _args = case _invs of
                 posSVs  <- fromVals pos
                 namSVs  <- fmap concat (fromVals named)
                 let svs = posSVs ++ namSVs
-                found   <- liftIO $ canPerl5 sv name
-                found'  <- liftIO $ if found
-                    then return found
-                    else canPerl5 sv (__"AUTOLOAD")
-                if not found'
+                found   <- liftIO $ do
+                    rv <- canPerl5 sv name
+                    if rv then return rv else canPerl5 sv (__"AUTOLOAD")
+                if not found
                     then do
                         -- XXX - when svs is empty, this could call back here infinitely
                         --       add an extra '&' to force no-reinterpretation.

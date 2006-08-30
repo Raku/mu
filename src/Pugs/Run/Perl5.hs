@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp -fvia-C -optc-w -fno-warn-unused-binds -fno-warn-unused-imports -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp -fvia-C -fno-warn-unused-binds -fno-warn-unused-imports -fallow-overlapping-instances #-}
 
 module Pugs.Run.Perl5 () where
 
