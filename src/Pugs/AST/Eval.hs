@@ -2,22 +2,11 @@
 
 module Pugs.AST.Eval where
 import Pugs.Internals
-import Pugs.Types
 import Pugs.Cont hiding (shiftT, resetT)
 import System.IO.Error (try)
-import qualified Data.Set       as Set
-import qualified Data.Map       as Map
-import qualified Data.IntMap    as IntMap
 
-import Pugs.Parser.Number
-import Pugs.AST.Prag
-import Pugs.AST.Pos
-import Pugs.AST.Scope
 import Pugs.AST.SIO
 import {-# SOURCE #-} Pugs.AST.Internals
-import Pugs.Embed.Perl5
-import qualified Pugs.Val as Val
-import Pugs.Val hiding (Val, IValue, VUndef)
 
 {- Eval Monad -}
 type Eval = EvalT (ContT Val (ReaderT Env SIO))
