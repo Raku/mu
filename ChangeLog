@@ -1,3 +1,12 @@
+﻿######################################################
+# Changelogging starts at rev 10930
+#
+# Some info has been entered in audreyt++ template
+# Unfortunately this was done adhoc
+# Cumulative updates still needed
+# Limbic_Region ends on 10930
+######################################################
+
 = Changes for 6.28.0 (rXXXXX) - July XX, 2006
 
 == New Perl 6 modules
