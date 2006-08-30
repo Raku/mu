@@ -106,6 +106,8 @@ BEGIN {
         q(") =>  q( 
             <Pugs::Grammar::Quote.double_quoted> <'"'>
             { return $/{'Pugs::Grammar::Quote.double_quoted'}->() }
+          | <'"'>
+            { return { double_quoted => '' } }
         ) );
     __PACKAGE__->add_rule(
         q(<) => q(
