@@ -1,4 +1,4 @@
-# Perl6 implementation of the 'Term' syntax category
+# Perl6 implementation of the 'Rule' syntax 
 # author: Flavio S. Glock - fglock@gmail.com
 
 use v6-alpha;
@@ -133,10 +133,10 @@ token named_capture_body {
 ); # /@rule_terms
     
 token term {
-    |  <before \} > { $::_V6_SUCCEED = 0 } 
-    |  <before \] > { $::_V6_SUCCEED = 0 } 
-    |  <before \) > { $::_V6_SUCCEED = 0 } 
-    |  <before \> > { $::_V6_SUCCEED = 0 } 
+    |  <before \} > { fail } 
+    |  <before \] > { fail } 
+    |  <before \) > { fail } 
+    |  <before \> > { fail } 
     |  <@Pugs::Grammar::P6Rule::rule_terms>
         { 
             #print "term: ", Dumper( $_[0]->data );

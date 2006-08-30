@@ -1,1 +1,9 @@
+'v6' is a Perl 6 compiler written in plain-perl6.
+
 This is not the perl5 v6-alpha, see perl5/Pugs-Compiler-Perl6 for that.
+
+There are 2 subprojects:
+
+v6.pm is a plain translation of the perl5 v6.pm compiler, such that the modules could be interchangeable.
+
+v6-Compiler is meant as a more advanced compiler, but it is also more difficult to bootstrap because it needs a more complete Perl 6 compiler.
