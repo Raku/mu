@@ -4,7 +4,7 @@ use v6-alpha;
 
 use Test;
 
-plan 36;
+plan 32;
 
 # L<S02/"Whitespace and Comments"/"Embedded comments"
 #  "#" plus any bracket>
@@ -129,9 +129,8 @@ plan 36;
 # L<S02/"Whitespace and Comments"/"Multiline comments" extending POD
 #   without =cut>
 {
-    my $a;
-    eval_ok q{
-        my $a =
+    my $a = eval q{
+        my $var =
 
 =begin comment
 
@@ -141,16 +140,14 @@ This is a comment with a "=cut".
 
 =cut
 
-    "foo";
-    }, '=begin comment with =cut works (1)';
-
-    is $a, 'foo', '=begin comment with =cut works (2)';
+        "foo";
+    };
+    is $a, 'foo', '=begin comment with =cut works';
 }
 
 {
-    my $a;
-    eval_ok q{
-        my $a =
+    my $a = eval q{
+        my $var =
 
 =begin comment
 
@@ -160,36 +157,33 @@ This is a comment without a "=cut".
 
 =cut
 
-    "bar";
-    }, '=begin comment without =cut works (1)';
-
-    is $a, 'bar', '=begin comment without =cut works (2)';
+        "bar";
+    };
+    is $a, 'bar', '=begin comment without =cut works';
 }
 
 # L<S02/Whitespace and Comments/"single paragraph comments"
 #   =for comment>
 
 {
-    my $a;
-    eval_ok q{
-        $a =
+    my $a = eval q{
+        my $var =
 
 =for comment TimToady is here!
 
         32;
-    }, '=for comment works (1)';
-    is $a, 32, '=for comment works (2)';
+    };
+    is $a, 32, '=for comment works';
 }
 
 {
-    my $a;
-    eval_ok q{
-        $a =
+    my $a = eval q{
+        my $var =
 
 =for comment TimToady and audreyt
 are both here, yay!
 
-        32;
-    }, '=for comment works (1)';
-    is $a, 32, '=for comment works (2)';
+        17;
+    };
+    is $a, 17, '=for comment works';
 }
