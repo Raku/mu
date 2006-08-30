@@ -44,7 +44,7 @@ sub get {
 
 sub set {
     my $self = $_[0];
-    return $self->name . ' = ' . $self->other_get( $_[1] );
+    return $self->name . ' = ' . $self->other_get( $_[1] )->name;
 }
 
 sub str {
@@ -61,12 +61,12 @@ sub defined {
 
 sub kv {
     my $tmp = "( map { ( \$_, ".$_[0]->name."[\$_] ) } 0..".$_[0]->name."-1 )"; 
-    return ( ref $_[0] )->new( { name => $tmp } );
+    return ( CORE::ref( $_[0] ) )->new( { name => $tmp } );
 }
 
 sub keys {
     my $tmp = "( 0..".$_[0]->name."-1 )"; 
-    return ( ref $_[0] )->new( { name => $tmp } );
+    return ( CORE::ref( $_[0] ) )->new( { name => $tmp } );
 }
 
 sub values {
@@ -95,11 +95,23 @@ sub array {
     $_[0]->name;
 }
 
+sub scalar {
+    my $tmp = $_[0]->name;
+    if ( $tmp =~ /^ \@\{ (\[  .*  \]) \} $/x ) {
+        return Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( {
+            name => "bless $1, 'Pugs::Runtime::Perl6::Array'" 
+        } );        
+    }
+    return Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( {
+        name => 'bless \\' . $_[0]->name . ", 'Pugs::Runtime::Perl6::Array'" 
+    } );
+}
+
 sub _91__93_ {
     # .[]
     my $self = $_[0];
     my $other = $self->other_get( $_[1] );
-    return $_[0]->name unless $other;  # TODO
+    return $_[0] unless $other;  # TODO
     return $self->dollar_name . '[' . $other . ']';
 }
 

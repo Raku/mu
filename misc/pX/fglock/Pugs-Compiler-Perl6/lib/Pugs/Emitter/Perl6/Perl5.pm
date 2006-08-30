@@ -16,6 +16,8 @@ use Scalar::Util 'blessed';
 use Pugs::Emitter::Perl6::Perl5::Perl5Scalar;
 use Pugs::Emitter::Perl6::Perl5::Perl5Hash;
 use Pugs::Emitter::Perl6::Perl5::Perl5Array;
+use Pugs::Emitter::Perl6::Perl5::Pair;
+use Pugs::Emitter::Perl6::Perl5::Str;
 
 # TODO - finish localizing %_V6_ENV at each block
 our %_V6_ENV;
@@ -176,10 +178,10 @@ sub _emit {
 
     if (exists $n->{statements}) {
         my $statements = join ( ";\n", 
-            map { defined $_ ? _emit( $_ ) : "" } 
+            map { defined $_ ? _emit( $_ ) : () } 
             @{$n->{statements}}, undef 
         );
-        return length $statements ? $statements : " # empty block\n";
+        return length $statements ? $statements : "";
     }
 
     return Pugs::Runtime::Common::mangle_ident( $n->{bareword} )
@@ -197,9 +199,13 @@ sub _emit {
     return $n->{num} 
         if exists $n->{num};
         
-    return '{' . _emit( $n->{pair}{key} ) . '=>' . _emit( $n->{pair}{value} ) . '}'
-        if exists $n->{pair};
-                
+    if ( exists $_[0]->{pair} ) {
+        $_[0] = Pugs::Emitter::Perl6::Perl5::Pair->new( {
+            key => $n->{pair}{key},
+            value => $n->{pair}{value},
+        } );
+    }
+        
     if ( exists $_[0]->{scalar} ) {
         $_[0] = Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( { name => $_[0]->{scalar} } );
         return $_[0]->get;
@@ -218,7 +224,9 @@ sub _emit {
     return _emit_double_quoted( $n->{double_quoted} )
         if exists $n->{double_quoted};
             
-    return '\'' . $n->{single_quoted} . '\'' 
+    return $_[0] = Pugs::Emitter::Perl6::Perl5::Str->new( { 
+        value => $n->{single_quoted} 
+    } )
         if exists $n->{single_quoted};
             
     return _emit_angle_quoted( $n->{angle_quoted} )
@@ -240,15 +248,15 @@ sub _emit {
         if exists $n->{bare_block};
 
     if ( exists $n->{fixity} ) {
-        return infix( $n )
+        return infix( $_[0] )
             if $n->{fixity} eq 'infix';
         return prefix( $n )
             if $n->{fixity} eq 'prefix';
         return postfix( $n )
             if $n->{fixity} eq 'postfix';
-        return circumfix( $n )
+        return circumfix( $_[0] )
             if $n->{fixity} eq 'circumfix';
-        return postcircumfix( $n )
+        return postcircumfix( $_[0] )
             if $n->{fixity} eq 'postcircumfix';
         return ternary( $n )
             if $n->{fixity} eq 'ternary';
@@ -263,7 +271,7 @@ sub _emit {
     return term( $n )
         if exists $n->{term};
 
-    return default( $n );
+    return default( $_[0] );
 }
 
 sub reduce {
@@ -657,6 +665,7 @@ sub default {
 
             # TODO - recursive chain call (this is only 2-level)
             if ( exists $n->{self}{self} ) {
+                    my $s = _emit( $n->{self}{self} );
                 if ( blessed( $n->{self}{self} ) ) {
                     print "chain call\n";
                     my $method = $n->{self}{method}{dot_bareword};
@@ -671,7 +680,8 @@ sub default {
                 || $n->{method}{bareword};
             $method = Pugs::Runtime::Common::mangle_ident( $method );
             print "method: $method\n", Dumper($n);
-            return $n->{self}->$method( $n->{param} );
+            #print "got: ", $n->{self}->$method( $n->{param} )->name, "\n";
+            return $_[0] = $n->{self}->$method( $n->{param} );
         }
         
         if ( $n->{method}{dot_bareword} eq 'print' ||
@@ -891,7 +901,9 @@ sub autoquote {
          exists $n->{'sub'}{'bareword'}
        )
     {
-        return "'" . $n->{'sub'}{'bareword'} . "'";
+        return Pugs::Emitter::Perl6::Perl5::Str->new( { 
+            value => $n->{'sub'}{'bareword'} 
+        } );
     }
     return _emit( $n );
 }
@@ -1129,7 +1141,10 @@ sub infix {
     }
     if ( $n->{op1}{op} eq '=>' ) {
         #print "autoquote: ", Dumper( $n->{exp1} );
-        return autoquote( $n->{exp1} ) . ' => ' . _emit( $n->{exp2} );
+        $_[0] = Pugs::Emitter::Perl6::Perl5::Pair->new( {
+            key => autoquote( $n->{exp1} ),
+            value => $n->{exp2},
+        } );
     }
     if ( $n->{op1}{op} eq '~=' ) {
         return _emit( $n->{exp1} ) . ' .= ' . _emit( $n->{exp2} );
@@ -1195,7 +1210,12 @@ sub infix {
     }
 
     if ( $n->{op1}{op} eq '=' ) {
-        # print "{'='}: ", Dumper( $n );
+        my $s1 = _emit( $n->{exp1} );
+        my $s2 = _emit( $n->{exp2} );
+        print "{'='}: ", Dumper( $n );
+        if ( blessed $n->{exp1} ) {
+            return $n->{exp1}->set( $n->{exp2} );
+        }
         if ( exists $n->{exp1}{scalar} ) {
             #print "set $n->{exp1}{scalar}";
             return _var_set( $n->{exp1}{scalar} )->( _var_get( $n->{exp2} ) );
@@ -1273,7 +1293,7 @@ sub circumfix {
     
     if ( $n->{op1}{op} eq '(' &&
          $n->{op2}{op} eq ')' ) {
-        return emit_parenthesis( $n->{exp1} );
+        return emit_parenthesis( $_[0] = $n->{exp1} );
     }
     
     if ( $n->{op1}{op} eq '[' &&

@@ -2,14 +2,19 @@ package Pugs::Emitter::Perl6::Perl5::Perl5Scalar;
 
 # Compile-time Perl 5 scalar object - hardcoded, autoboxed  methods
 
+use Data::Dumper;
 use strict;
 use warnings;
 
 sub other_get {
     package Pugs::Emitter::Perl6::Perl5;
     use Data::Dumper;
-    print Dumper( $_[1] );
-    _emit( $_[1] );
+    my $s = _emit( $_[1] );
+    print "Scalar ", Dumper( $_[1] );
+    if ( blessed $_[1] ) {
+        return $_[1]->scalar;
+    }
+    $s;
 }
 
 sub new {
@@ -38,7 +43,8 @@ sub get {
 
 sub set {
     my $self = $_[0];
-    return $self->name . ' = ' . $self->other_get( $_[1] );
+    print "perl5scalar set ", Dumper( $_[1] );
+    return $self->name . ' = ' . $self->other_get( $_[1] )->name;
 }
 
 sub str {
@@ -59,6 +65,10 @@ sub kv {
 
 sub elems {
     '1';    # ???
+}
+
+sub scalar {
+    $_[0]
 }
 
 1;

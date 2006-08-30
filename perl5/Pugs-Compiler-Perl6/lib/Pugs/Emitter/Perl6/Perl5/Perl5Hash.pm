@@ -2,6 +2,7 @@ package Pugs::Emitter::Perl6::Perl5::Perl5Hash;
 
 # Compile-time Perl 5 hash object - hardcoded, autoboxed  methods
 
+use Data::Dumper;
 use strict;
 use warnings;
 
@@ -44,7 +45,8 @@ sub get {
 
 sub set {
     my $self = $_[0];
-    return $self->name . ' = ' . $self->other_get( $_[1] );
+    print "perl5hash set ", Dumper( $_[1] );
+    return $self->name . ' = ' . $self->other_get( $_[1] )->name;
 }
 
 sub str {
@@ -60,11 +62,19 @@ sub defined {
 }
 
 sub kv {
-    $_[0]->name;   # used as an array    
+    $_[0]->array
+}
+
+sub keys {
+    return Pugs::Emitter::Perl6::Perl5::Perl5Array->new( {
+        name => '(keys ' . $_[0]->name . ')'
+    } );    
 }
 
 sub elems {
-    'scalar keys ' . $_[0]->name;
+    return Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( {
+        name => 'scalar keys ' . $_[0]->name
+    } );
 }
 
 sub hash {
@@ -72,14 +82,22 @@ sub hash {
 }
 
 sub array {
-    '@{[' . $_[0]->name . ']}';    
+    return Pugs::Emitter::Perl6::Perl5::Perl5Array->new( {
+        name => '@{[' . $_[0]->name . ']}'
+    } );    
+}
+
+sub scalar {
+    return Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( {
+        name => 'bless \\' . $_[0]->name . ", 'Pugs::Runtime::Perl6::Hash'" 
+    } );
 }
 
 sub _123__125_ {
     # .{}
     my $self = $_[0];
     my $other = $self->other_get( $_[1] );
-    return $_[0]->name unless $other;  # TODO
+    return $_[0] unless $other;  # TODO
     return $self->dollar_name . '{' . $other . '}';
 }
 
