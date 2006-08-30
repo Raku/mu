@@ -284,7 +284,7 @@ you can think of Perl 5 references as a degenerate form of C<Capture>
 when you want to refer only to a single item.
 
   Was: ref $foo eq 'HASH'
-  Now: $foo ~~ 'Hash'
+  Now: $foo ~~ Hash
 
   Was: @new = (ref $old eq 'ARRAY' ) ? @$old : ($old);
   Now: @new = @$old;
