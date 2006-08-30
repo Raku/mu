@@ -268,11 +268,11 @@ sub set_postamble {
     my $ccdlflags = "";
 
     ###### Uncomment this to enable p5 embed by default
-    ### if (!$ENV{PUGS_EMBED} or $ENV{PUGS_EMBED} !~ /\b[-!]perl5\b/i) {
-    if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/i) {
-        push @prereqs, "src/perl5/p5embed.o"; # XXX
+    if (!$ENV{PUGS_EMBED} or $ENV{PUGS_EMBED} !~ /\b[-!]perl5\b/i) {
+    # if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/i) {
+        #push @prereqs, "src/perl5/p5embed.o"; # XXX
         # $ghc_output .= " src/perl5/p5embed.o ";
-        $ghc_flags .= " -DPUGS_HAVE_PERL5 ";
+        $embed_flags .= " -DPUGS_HAVE_PERL5 ";
         my $flags = "$Config{ccflags} $Config{ccdlflags} ";
         if ($flags =~ /\S/) {
             $flags =~ s{([\\"'])}{\\$1}g;
@@ -693,8 +693,8 @@ smoke-perl5 : $pugs util/run-smoke.pl all
 
 
 ghci : @prereqs @derived_srcfiles
-	$ghc $ghc_flags $embed_flags $ghc_output --make -O0 -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Prereqs.hs @prereqs
-	$ghc $ghc_flags $embed_flags $ghc_output --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs -Lthird-party/judy/Judy-1.0.3/src/obj/.libs -lJudy
+	$ghc $ghc_flags $ghc_output --make -O0 -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Prereqs.hs @prereqs
+	$ghc $ghc_flags $ghc_output --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs -Lthird-party/judy/Judy-1.0.3/src/obj/.libs -lJudy
 
 pil$Config{_exe} : $config_h $pcre @cbits @srcfiles src/PIL/Native/Bootstrap.hs src/PIL/Native/Syntax.hs
 	$ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -isrc/cbits -Isrc -Isrc/cbits -L. -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs $pcre @cbits
