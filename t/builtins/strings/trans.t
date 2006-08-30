@@ -9,7 +9,7 @@ L<S05/Transliteration>
 =cut
 
 
-plan 13;
+plan 16;
 
 is("ABC".trans( ('A'=>'a'), ('B'=>'b'), ('C'=>'c') ),"abc",
         "Each side can be individual characters");
