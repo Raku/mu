@@ -134,7 +134,8 @@ plan 32;
 
 =begin comment
 
-This is a comment with a "=cut".
+This is a comment with
+a "=cut".
 
 =end comment
 
@@ -151,7 +152,8 @@ This is a comment with a "=cut".
 
 =begin comment
 
-This is a comment without a "=cut".
+This is a comment without
+a "=cut".
 
 =end comment
 
@@ -166,24 +168,22 @@ This is a comment without a "=cut".
 #   =for comment>
 
 {
-    my $a = eval q{
+    eval_is q{
         my $var =
 
 =for comment TimToady is here!
 
         32;
-    };
-    is $a, 32, '=for comment works';
+    }, 32, '=for comment works';
 }
 
 {
-    my $a = eval q{
+    eval_is q{
         my $var =
 
 =for comment TimToady and audreyt
 are both here, yay!
 
         17;
-    };
-    is $a, 17, '=for comment works';
+    }, 17, '=for comment works';
 }
