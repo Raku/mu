@@ -61,7 +61,23 @@ eval_is('"abc".trans(<== "a" => "A")', "Abc",
     "you're allowed to leave off the (...) named arg parens when you use <==",
     :todo<feature>);
 
-# XXX should this work?
-#eval_is('"abc".trans <== "a" => "A"', "Abc",
-#   "you're allowed to leave off the (...) named arg parens when you use <==",
-#   :todo<feature>);
+# Make sure the tr/// version works, too.  In a try block because it doesn't
+# currently exist at all.
+
+try {
+
+$_ = "ABC";
+tr/ABC/abc/;
+is($_, 'abc', 'tr/// on $_ with explicit character lists');
+
+$_ = "abc";
+tr|a-c|A-C|;
+is($_, 'ABC', 'tr||| on $_ with character range');
+
+{
+my $japh = "Whfg nabgure Crey unpxre";
+$japh ~~ tr(a-zA-Z)(n-za-mN-ZA-M);
+is($japh, "Just another Perl hacker", 'tr()() on lexical var via ~~');
+}
+
+}
