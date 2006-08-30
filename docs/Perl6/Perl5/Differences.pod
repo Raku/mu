@@ -77,6 +77,19 @@ Therefore, last element in an array:
 
 For details, see L<S02/"Built-In Data Types">
 
+=head2 The double-underscore keywords are gone
+
+    Old                 New
+    ---                 ---
+    __LINE__            $?LINE
+    __FILE__            $?FILE
+    __PACKAGE__         $?PACKAGE
+    __END__             =begin END
+    __DATA__            =begin DATA
+
+See L<S02/"double-underscore forms are going away"> for details.
+
+
 =cut 
 
 # S03
