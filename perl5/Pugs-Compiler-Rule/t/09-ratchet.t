@@ -1,5 +1,5 @@
 
-use Test::More tests => 108;
+use Test::More tests => 110;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -708,3 +708,35 @@ TODO:
     is( "$match", ">>", 'literal ">"' );
 }
 
+{
+    my $rule = Pugs::Compiler::Token->compile( q(
+        (a)
+        [
+        |  (a) x b c 
+        |  (a) x x y
+        ]
+    ) );
+    #print $rule->perl;
+    my $match = $rule->match( "aaxxy" );
+    #print Dumper( $match );
+    my @a = @{$match};
+    is( scalar @a, 2, 'alternation array rollback' );
+}
+
+TODO:
+{
+    local $TODO = "failing <alpha> capture";
+
+    my $rule = Pugs::Compiler::Token->compile( q(
+        <alpha>
+        [
+        |  <alpha> x b c 
+        |  <alpha> x x y
+        ]
+    ) );
+    #print $rule->perl;
+    my $match = $rule->match( "aaxxy" );
+    #print Dumper( $match );
+    my %h = %{$match};
+    is( scalar keys %h, 2, 'alternation hash rollback' );
+}
