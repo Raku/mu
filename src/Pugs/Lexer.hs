@@ -281,6 +281,7 @@ charNum = do
         , based 'o'  8 octDigit
         , based 'x' 16 hexDigit
         , based 'd' 10 digit
+        , based '_' 10 digit
         ]
     return $ map (toEnum . fromInteger) codes
     where
