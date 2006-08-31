@@ -1,3 +1,5 @@
+- improved quoted text parsing
+
 0.014  2006-08-21
 
 - optimized CPU usage (2x less) and RAM usage (3x less)

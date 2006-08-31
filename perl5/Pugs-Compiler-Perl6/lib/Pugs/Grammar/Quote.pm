@@ -80,7 +80,7 @@ sub angle_quoted {
 *double_angle_quoted_text = Pugs::Compiler::Token->compile(q(
     (
         <!before [ <'$'> | <'@'> | <'%'> | <'&'> | <'»'> | \>\> ] >
-        [ <'\»'> | \\> | . ]
+        [ <'\»'> | . ]
     )+
     { return { double_quoted => $/() ,} }
 ))->code;
@@ -136,7 +136,7 @@ BEGIN {
         ) );
     __PACKAGE__->add_rule(
         q(<<) => q(
-            <Pugs::Grammar::Quote.double_angle_quoted> <'>>'>
+            <Pugs::Grammar::Quote.double_angle_quoted> \>\>
             { return { 
                     double_angle_quoted => $/{'Pugs::Grammar::Quote.double_angle_quoted'}->(),
                 } 

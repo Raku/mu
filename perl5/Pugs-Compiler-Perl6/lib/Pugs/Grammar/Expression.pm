@@ -308,7 +308,8 @@ sub lexer {
                 next;
             }
             # term<> 
-            if ( $m2 && $m2->tail && $m2->tail =~ /^\</ ) {
+            if ( $m2 && $m2->tail 
+                && $m2->tail =~ /^[<«]/ ) {
                 # XXX - is '<' a quote?
                 my $paren = Pugs::Grammar::Quote->parse( $match, { p => $pos2 } );
                 if ( exists $m2->()->{dot_bareword} ) {
