@@ -282,12 +282,7 @@ A number of builtin's have been removed. For details, see:
 
 L<S29/"Obsolete">
 
-=begin TODO
-
-The new syntax didn't test out to work. Waiting on confirmation
-of correct examples. 
-
-#=head2 references are now Captures
+=head2 references are gone / everything is a reference
 
 C<Capture> objects fill the ecological niche of references in Perl 6.
 You can think of them as "fat" references, that is, references that
@@ -305,11 +300,14 @@ when you want to refer only to a single item.
   Was: %h = ( k => \@a );
   Now: %h = ( k => @a );
 
+To pass an argument to modify by reference:
+
+  Was: sub foo {...};        foo(\$bar) 
+  Now: sub foo ($bar is rw); foo($bar)  
+
 The "obsolete" reference above has the details. Also, look for
 I<Capture> under L<S02/"Names_and_Variables">, or at the Capture FAQ,
 L<Perl6::FAQ::Capture>.
-
-=end TODO
 
 =head2 say()
 
