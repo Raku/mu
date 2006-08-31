@@ -1,5 +1,5 @@
 
-use Test::More tests => 11;
+use Test::More tests => 13;
 use Data::Dumper;
 
 use_ok( 'Pugs::Compiler::Regex' );
@@ -51,4 +51,13 @@ use_ok( 'Pugs::Grammar::Base' );
     #print Dumper( $match->[0]->data );
     is( "$match->[0]", "xyzw", '(\d+) | ([_|\w]+)' );
     is( $match->[0](), "xyzw", '(\d+) | ([_|\w]+)' );
+}
+
+{
+    # non-capture quantified match failure does not propagate
+    my $rule = Pugs::Compiler::Token->compile( ' [ <!before k > . ]+ { return $/() } ' );
+    my $match = $rule->match( "12x31kwww" );
+    #print Dumper( $match->data );
+    is( "$match", "12x31", '[\d]+ as scalar' );
+    is( "" . $match->() , "12x31", '[\d]+ as scalar' );
 }
