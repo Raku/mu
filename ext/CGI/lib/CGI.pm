@@ -61,9 +61,9 @@ method set_url_encoding(Str $encoding) {
 # utility functions
 
 method header (
-    Str  $type? = 'text/html',
-    Str  $status?       = '200 OK',
-    Str  $charset?      = undef,
+    Str  $type?      = 'text/html',
+    Str  $status?    = '200 OK',
+    Str  $charset?   = undef,
     Str :$cookies?,
     Str :$target?,
     :$expires?,
@@ -79,8 +79,10 @@ method header (
     #    Expires:
     #    Pragma: (caching)
     
-    $header ~= "\nContent-Type: " ~ $type;
-    $header ~= "; charset=$charset" if $charset.defined;
+    if $type {
+        $header ~= "\nContent-Type: " ~ $type;
+        $header ~= "; charset=$charset" if $charset.defined;
+    }
     
     for %extra.kv -> $key, $value {
         # XXX use $key is rw;
@@ -117,7 +119,7 @@ method redirect (
     *%extra
 ) returns Str {
     my %out;
-    
+
     # XXX provide default for $location
     #$location //= $self.location;
     
