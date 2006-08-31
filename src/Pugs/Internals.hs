@@ -114,7 +114,7 @@ import System.Mem
 import System.Mem.Weak
 import System.Directory (Permissions(..), getPermissions, getTemporaryDirectory, createDirectory, removeDirectory, removeFile, getDirectoryContents)
 import Control.Exception (catchJust, errorCalls)
-import Control.Monad.RWS
+import Control.Monad.RWS (MonadIO(..), MonadReader(..), MonadState(..), MonadWriter(..), MonadTrans(..), asks, ReaderT(..), WriterT(..), when, join, liftM, filterM, modify, unless, gets, foldM, guard, liftM2, liftM3, fix, mplus, mappend, mzero, mconcat, msum, censor)
 import Control.Monad.Identity (Identity(..))
 import Control.Monad.Error (MonadError(..))
 import Control.Concurrent
@@ -343,6 +343,7 @@ encodeUTF8 (c:cs)
           : rest
           )
 
+-- On GHC 6.6 we actually want to use the builtin forM and forM_ in Control.Monad
 
 {-|
 Take a list of values, and a monad-producing function, and apply that function
@@ -351,6 +352,7 @@ monad producing a list of the resulting values.
 
 (This is just @mapM@ with the arguments reversed.)
 -}
+{-# INLINE forM #-}
 forM :: (Monad m) 
      => [a]        -- ^ List of values to loop over
      -> (a -> m b) -- ^ The \'body\' of the for loop
@@ -364,6 +366,7 @@ function are discarded.
 
 (This is just @mapM_@ with the arguments reversed.)
 -}
+{-# INLINE forM_ #-}
 forM_ :: (Monad m) 
       => [a]        -- ^ List of values to loop over
       -> (a -> m b) -- ^ The \'body\' of the for loop

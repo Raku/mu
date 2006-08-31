@@ -20,8 +20,6 @@ module Pugs.Monads (
     evalVal, tempVar,
     
     MaybeT, runMaybeT,
-
-    module Control.Monad.RWS
 ) where
 import Pugs.Internals
 import Pugs.AST
