@@ -125,9 +125,9 @@ sub rx_body {
         ]+
 ) )->code;
 
-*parenthesis = Pugs::Compiler::Token->compile( q(
+*parenthesis = Pugs::Compiler::Token->compile( q^
                 <?ws>? <Pugs::Grammar::Expression.parse('allow_semicolon', 1)> <?ws>? 
-                <'\)'>
+                <')'>
                 { return {
                     op1 => { op => "(" },
                     op2 => { op => ")" },
@@ -136,7 +136,7 @@ sub rx_body {
                 } }
             |
                 <?ws>? <Pugs::Grammar::Perl6.block> <?ws>? 
-                <'\)'>
+                <')'>
                 { return {
                     op1 => { op => "(" },
                     op2 => { op => ")" },
@@ -145,13 +145,13 @@ sub rx_body {
                 } }
             |
                 <?ws>? 
-                <'\)'>
+                <')'>
                 { return {
                     op1 => { op => "(" },
                     op2 => { op => ")" },
                     fixity => "circumfix",
                 } }
-) )->code;
+^ )->code;
 
 *brackets = Pugs::Compiler::Token->compile( q(
                 <Pugs::Grammar::Infix.parse> 

@@ -1,5 +1,5 @@
 
-use Test::More tests => 110;
+use Test::More tests => 115;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -709,6 +709,24 @@ TODO:
 }
 
 {
+    my $rule = Pugs::Compiler::Rule->compile( q(
+        <'::'> 
+    ) );
+    #print $rule->perl;
+    my $match = $rule->match( "abc::zzz" );
+    is( "$match", "::", 'literal ":"' );
+}
+
+{
+    my $rule = Pugs::Compiler::Rule->compile( q(
+        <'}'> 
+    ) );
+    #print $rule->perl;
+    my $match = $rule->match( "abc}zzz" );
+    is( "$match", "}", 'literal "}"' );
+}
+
+{
     my $rule = Pugs::Compiler::Token->compile( q(
         (a)
         [
@@ -721,6 +739,20 @@ TODO:
     #print Dumper( $match );
     my @a = @{$match};
     is( scalar @a, 2, 'alternation array rollback' );
+}
+
+{
+    my $rule = Pugs::Compiler::Token->compile( q(
+        [
+        |  <alpha> x b c 
+        |  <alpha> x x y
+        ]
+    ) );
+    #print $rule->perl;
+    my $match = $rule->match( "aaxxy" );
+    #print Dumper( $match );
+    my %h = %{$match};
+    is( scalar keys %h, 1, 'alternation hash rollback' );
 }
 
 TODO:
@@ -738,5 +770,17 @@ TODO:
     my $match = $rule->match( "aaxxy" );
     #print Dumper( $match );
     my %h = %{$match};
-    is( scalar keys %h, 2, 'alternation hash rollback' );
+    is( scalar keys %h, 2, 'alternation hash rollback with multiple captures' );
+}
+
+{
+    my $rule = Pugs::Compiler::Token->compile( q(
+        <?alpha>
+    ) );
+    #print $rule->perl;
+    my $match = $rule->match( "aaxxy" );
+    #print Dumper( $match );
+    is( ${$match}, 'a', 'non-capturing char class' );
+    my %h = %{$match};
+    is( scalar keys %h, 0, 'non-capturing char class' );
 }

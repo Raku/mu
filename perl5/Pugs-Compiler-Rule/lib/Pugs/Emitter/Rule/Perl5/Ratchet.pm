@@ -70,7 +70,7 @@ sub emit {
     local $sigspace = $param->{sigspace};   # XXX - $sigspace should be lexical
     local $capture_count = -1;
     local $capture_to_array = 0;
-    #print Dumper( $ast );
+    #print "rule: ", Dumper( $ast );
     return 
         "sub {\n" . 
         "  my \$grammar = \$_[0];\n" .
@@ -671,13 +671,6 @@ sub metasyntax {
                 } 
                 else { 0 }
             }";
-        #return named_capture ( 
-        #    {
-        #        ident => $name,
-        #        rule => { capturing_group => { variable => $cmd } },
-        #    }, 
-        #    $_[1] 
-        #);
     }
 
     if ( $prefix eq '$' ) {
@@ -730,6 +723,14 @@ sub metasyntax {
             warn "code assertion not implemented";
             return;
         }
+        if ( exists $char_class{$cmd} ) {
+            # XXX - inlined char classes are not inheritable, but this should be ok
+            return
+                "$_[1] ( ( substr( \$s, \$pos, 1 ) =~ /[[:$cmd:]]/ ) 
+$_[1]     ? do { $direction$direction\$pos; 1 }
+$_[1]     : 0
+$_[1] )";
+        }
         return
             "$_[1] do { my \$match =\n" .
             call_subrule( $cmd, $_[1] . "          " ) . ";\n" .
@@ -774,14 +775,17 @@ sub metasyntax {
         if ( $cmd eq 'null' ) {
             return "$_[1] 1 # null\n"
         }
-        if ( exists $char_class{$cmd} ) {
-            # XXX - inlined char classes are not inheritable, but this should be ok
-            return
-                "$_[1] ( ( substr( \$s, \$pos, 1 ) =~ /[[:$cmd:]]/ ) 
-$_[1]     ? do { $direction$direction\$pos; 1 }
-$_[1]     : 0
-$_[1] )";
-        }
+
+        # XXX - disabled, because this doesn't capture
+        # if ( exists $char_class{$cmd} ) {
+        #    # XXX - inlined char classes are not inheritable, but this should be ok
+        #    return
+        #        "$_[1] ( ( substr( \$s, \$pos, 1 ) =~ /[[:$cmd:]]/ ) 
+        # $_[1]     ? do { $direction$direction\$pos; 1 }
+        # $_[1]     : 0
+        # $_[1] )";
+        # }
+
         # capturing subrule
         # <subrule ( param, param ) >
         my ( $subrule, $param_list ) = split( /[\(\)]/, $cmd );
