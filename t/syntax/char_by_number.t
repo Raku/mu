@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 35;
+plan 43;
 
 =kwid
 
@@ -25,12 +25,8 @@ is("\x[41,42,43]", 'ABC', '\x[list]');
 is("\x[4f60,597d]", '你好', '\x[a,b]');
 is("\x41,42,43", 'A,42,43', '\xlist not valid');
 
-=kwid
-
-<S02/Literals/"Characters indexed by" octal numbers"
-              with "\o">
-
-=cut
+# <S02/Literals/"Characters indexed by" octal numbers"
+#  with "\o">
 
 is("\o40", ' ', '\o40 normal space');
 is("\o240", ' ', '\o240 non-breaking space');
@@ -46,12 +42,8 @@ is("\o[101,102,103]", 'ABC', '\o[list]');
 is("\o[47540,54575]", '你好', '\o[a,b]');
 is("\o101,102,103", 'A,102,103', '\olist not valid');
 
-=kwid
-
-<S02/Literals/"Characters indexed by" decimal numbers"
-              with "\d">
-
-=cut
+# <S02/Literals/"Characters indexed by" decimal numbers"
+#  with "\d">
 
 is("\d32", ' ', '\d32 normal space');
 is("\d160", ' ', '\d160 non-breaking space');
@@ -67,17 +59,26 @@ is("\d[65,66,67]", 'ABC', '\d[list]');
 is("\d[20320,22909]", '你好', '\d[a,b]');
 is("\d65,66,67", 'A,66,67', '\dlist not valid');
 
-# IRC note
-# ---------------------------------------------------------------
-# <agentzh> auderyt: is "\187 \132" valid in Perl 6? The synopses
-#          don't mention this form of characters indexed by number.
-# <audreyt> oh hm, wait, \187 indeed is not
-# <audreyt> I don't know... I can see that \65 is not as clear
-#           as \d65
-# <agentzh> aye
-# <audreyt> so I'm fine for retiring the \187 form
+# L<S02/Literals/"\123 form" is illegal>
+{
+    eval_dies_ok q{"\123"}, '"\123" form is no longer valid Perl 6';
+    eval_dies_ok q{"\10"}, '"\10" form is no longer valid Perl 6';
+}
 
-eval '"\123"' //
-ok($!, '"\123" form is no longer valid Perl 6');
-eval '"\040"' //
-ok($!, '"\040" form is no longer valid Perl 6');
+# L<S02/Literals/illegal "\0123 form">
+{
+    eval_dies_ok q{"\040"}, '"\040" form is no longer valid Perl 6';
+    eval_dies_ok q{"\0123"}, '"\0123" form is no longer valid Perl 6';
+}
+
+# L<S02/Literals/"Only \0 remains" "only if"
+#   "next character" not in "'0'..'7'">
+{
+    is "\08", chr(0) ~ '8', 'next char of \0 is 8 (> 7)';
+    is "\0fff", chr(0) ~ 'fff', 'next char of \0 is `f`';
+
+    eval_dies_ok q{"\00"}, 'next char of \0 is 0';
+    eval_dies_ok q{"\01"}, 'next char of \0 is 1';
+    eval_dies_ok q{"\05"}, 'next char of \0 is 5';
+    eval_dies_ok q{"\07"}, 'next char of \0 is 7';
+}
