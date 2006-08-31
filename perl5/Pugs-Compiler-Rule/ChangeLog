@@ -1,3 +1,7 @@
+
+- fixed bool result of quantified terms inside tokens
+- fixed parsing of <'>>'>
+
 0.16  2006-08-21
 
 - removed Class::InsideOut dependency - 5% speed optimization, but there

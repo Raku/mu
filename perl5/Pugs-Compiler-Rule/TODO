@@ -1,6 +1,5 @@
 TODO for Pugs::Compiler::Rule (PCR)
 
-- add failing test for <'>>'>
 - add rollback for [ x <!before k> ]+
   - should 'unmatch' last 'x' if there is a 'k' after it
 
