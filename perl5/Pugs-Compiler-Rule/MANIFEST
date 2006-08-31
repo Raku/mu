@@ -45,4 +45,5 @@ t/06-subrule.t
 t/08-hash.t
 t/09-ratchet.t
 t/10-regex_perl5.t
+t/11-quantifier.t
 TODO
