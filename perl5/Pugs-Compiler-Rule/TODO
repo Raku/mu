@@ -1,5 +1,8 @@
 TODO for Pugs::Compiler::Rule (PCR)
 
+- add failing test for <'>>'>
+- add failing test for [ x ]+
+
 - add 'negate' node to Regex
 - add tests for 'negate'
 
