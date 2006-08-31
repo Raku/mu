@@ -2,11 +2,10 @@ use v6-alpha;
 
 use Test;
 
-plan 8;
+plan 5;
 
+# L<S02/Literals/filehandle "named as" %=POD{'DATA'}>
 {
-    # L<S02/Literals/filehandle "named as" %=POD{'DATA'}>
-    my $fh;
     eval_ok q(
 
 =begin DATA
@@ -15,24 +14,25 @@ hello, world!
 
 =end DATA
 
-        $fh = $=POD{'DATA'};
-    ), '=begin DATA works';
+        %=POD{'DATA'};
+    ), '=begin DATA works and %=POD<DATA> defined';
 
-    ok $fh, q/$=POD{'DATA'} defined/;
-    my $line = =$fh if $fh;
-    is $line, "hello, world!\n", q/$=POD{'DATA'} can be read/;
+    eval_is q{
+        my $line = =%=POD<DATA>;
+    }, "hello, world!\n", q/%=POD{'DATA'} can be read/;
+}
 
-    # L<S02/Literals/"pod stream" "as a scalar" via $=DATA>
-    my $str;
-    eval_ok '$str = $=DATA', '$=DATA is parsed';
-    is $str, "hello, world!\n", '$=DATA contains the right string';
+# L<S02/Literals/"pod stream" "as a scalar" via $=DATA>
+{
+    eval_is '$=DATA', "hello, world!\n",
+        '$=DATA contains the right string';
+}
 
-    # L<S02/Literals/"pod stream" "as an array" via @=DATA>
-    $str = undef;
-    my ($count);
-    eval_ok '$str = @=DATA[0]; $count = @=DATA[0].elems';
-    is $count, 1, '@=DATA contains a single elem';
-    is $str, "hello, world!\n", '@=DATA[0] contains the right value';
+# L<S02/Literals/"pod stream" "as an array" via @=DATA>
+{
+    eval_is '@=DATA.elems', 1, '@=DATA contains a single elem';
+    eval_is '@=DATA[0]', "hello, world!\n",
+        '@=DATA[0] contains the right value';
 }
 
 # The following commented-out tests are currnetly unspecified:
