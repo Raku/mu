@@ -267,9 +267,8 @@ sub set_postamble {
     my $hsc2hs_flags = "";
     my $ccdlflags = "";
 
-    ###### Uncomment this to enable p5 embed by default
     if (!$ENV{PUGS_EMBED} or $ENV{PUGS_EMBED} !~ /\b[-!]perl5\b/i) {
-    # if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/i) {
+        $ENV{PUGS_EMBED} .= " perl5 ";
         #push @prereqs, "src/perl5/p5embed.o"; # XXX
         # $ghc_output .= " src/perl5/p5embed.o ";
         $embed_flags .= " -DPUGS_HAVE_PERL5 ";
@@ -313,16 +312,10 @@ sub set_postamble {
             }
         }
     }
-    elsif( $ENV{PUGS_EMBED} and $Config{cc} eq 'cl' and $^O =~ /Win32/ )   {
-        $ENV{PUGS_EMBED} =~ s/\bperl5\b//g;
-        push @warn, << '.'
-*** Perl 5 embedding disabled on Win32 systems.
-.
-    }
     else {
         push @warn, << '.';
 *** Perl 5 embedding disabled.  If you want Perl 5 support, please set the
-    PUGS_EMBED environment variable to contain "perl5".
+    PUGS_EMBED environment variable to not contain "!perl5".
 
 .
     }
