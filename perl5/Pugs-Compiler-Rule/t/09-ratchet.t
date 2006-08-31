@@ -1,5 +1,5 @@
 
-use Test::More tests => 107;
+use Test::More tests => 108;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -698,3 +698,13 @@ TODO:
     $match = $rule1->match("rule1xxrule2abcyy123");
     is($match,'rule1xxrule2abcyy123',"Matched hash inside hash");
 }
+
+{
+    my $rule = Pugs::Compiler::Rule->compile( q(
+        <'>>'> 
+    ) );
+    #print $rule->perl;
+    my $match = $rule->match( "abc>>zzz" );
+    is( "$match", ">>", 'literal ">"' );
+}
+

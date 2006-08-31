@@ -44,6 +44,16 @@ sub literal {
 sub metasyntax {
     my $grammar = shift;
     return $grammar->no_match unless $_[0];
+
+    # <'xxx'> workaroung Text::Balanced bug
+    if ( substr( $_[0], 1, 1 ) eq "'" ) {
+        my $result = $grammar->literal( substr( $_[0], 1 ) );
+        ${$result}->{tail} = substr( ${$result}->{tail}, 1 );
+        ${$result}->{capture} = { metasyntax => "'" . ${$result}->{match} . "'" },
+        #print "metasyntax: ", Dumper( $result );
+        return $result;
+    }
+
     my ($extracted,$remainder) = Text::Balanced::extract_bracketed( $_[0], "<..>" );
     $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
     return Pugs::Runtime::LrepMatch->new( { 
