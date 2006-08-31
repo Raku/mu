@@ -156,7 +156,7 @@ sub quant {
     # TODO: *+ ++ ?+
     # TODO: quantifier + capture creates Array
     return 
-        "$_[1] do { (\n$rul\n" .
+        "$_[1] do { my \$bool; (\n$rul\n" .
         "$_[1] ||\n" .
         "$_[1]   1\n" .
         "$_[1] ) }$ws3"
