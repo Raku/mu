@@ -8,7 +8,7 @@ basic Number tests
 
 =cut
 
-plan 45;
+plan 46;
 
 my $a = 1; "$a";
 isa_ok($a, 'Int');
@@ -99,3 +99,4 @@ is(4_2.01,     42.01,    'underscores in whole part ok');
 ok(!eval('4_2._0_1') && $!, 'single underscores are not ok directly after the dot');
 is(eval('4_2.0_1'), 42.01,  'single underscores are ok');
 
+is 0_1, 1, "0_1 is parsed as 0d1";
