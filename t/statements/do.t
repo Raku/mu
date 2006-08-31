@@ -2,22 +2,14 @@ use v6-alpha;
 
 use Test;
 
-plan 20;
+plan 15;
 
 # L<S04/The do-once loop/"can't" put while or until modifier>
-{
-    my $i;
-    ok !eval 'do { $i++ } while $i < 5; 1',
-        "'do' can't take the 'while' modifier";
-    is $i, undef, 'the code never run';
-}
+eval_dies_ok 'my $i; do { $i++ } while $i < 5;',
+    "'do' can't take the 'while' modifier";
 
-{
-    my $i;
-    ok !eval 'do { $i++ } until $i > 4; 1',
-        "'do' can't take the 'until' modifier";
-    is $i, undef, 'the code never run';
-}
+eval_dies_ok 'my $i; do { $i++ } until $i > 4;',
+    "'do' can't take the 'until' modifier";
 
 # L<S04/The do-once loop/statement "prefixing with" do>
 {
@@ -56,50 +48,62 @@ plan 20;
 
 # L<S04/The do-once loop/"can take" "loop control statements">
 {
-    my $i;
-    eval q{
+    eval_is q{
+        my $i;
         do {
             $i++;
             next;
             $i--;
-        }
-    };
-    is $i, 1, "'next' works in 'do' block";
+        };
+        $i;
+    }, 1, "'next' works in 'do' block";
 }
 
 {
-    my $i;
-    eval q{
+    eval_is q{
+        my $i;
         do {
             $i++;
             last;
             $i--;
         };
-    };
-    is $i, 1, "'last' works in 'do' block";
+        $i;
+    }, 1, "'last' works in 'do' block";
+}
+
+# XXX what will happen if i use `redo' in the do-once loop?
+# XXX is the following test correct?
+{
+    eval_is q{
+        my $i;
+        do {
+            $i++;
+            redo if $i < 3;
+            $i--;
+        };
+        $i;
+    }, 3, "'redo' works in 'do' block";
 }
 
 # L<S04/The do-once loop/"bare block" "no longer a do-once loop">
 {
-    my $i;
-    ok !eval('{ $i++; next; $i--; } 1;'), "bare block can't take 'next'";
-    is $i, undef, "the code snippet never run";
+    eval_dies_ok 'my $i; { $i++; next; $i--; }',
+        "bare block can't take 'next'";
+
+    eval_dies_ok 'my $i; { $i++; last; $i--; }',
+        "bare block can't take 'last'";
+    
+    eval_dies_ok 'my $i; { $i++; redo; $i--; }',
+        "bare block can't take 'last'";
 }
 
+# L<S04/Statement parsing/"final closing curly on a line" 
+#   reverts to semicolon>
 {
-    my $i;
-    ok !eval('{ $i++; last; $i--; } 1;'), "bare block can't take 'last'";
-    is $i, undef, "the code snippet never run";
-}
-
-# L<S04/Statement parsing/"final closing curly on a line" reverts to semicolon>
-{
-    my $a;
-    eval q{
-        $a = do {
+    eval_is q{
+        my $a = do {
             1 + 2;
-        }
-        $a++;
-    };
-    is $a, 4, "final `}' on a line reverted to `;'";
+        }  # no trailing `;'
+        $a;
+    }, 3, "final `}' on a line reverted to `;'";
 }
