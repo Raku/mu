@@ -13,7 +13,24 @@ L<S04/"The C<for> statement">
 
 =cut
 
-plan 38;
+=for comment
+
+I'm in the process of smartlinking all the below tests.
+--trey 31 Aug 2006
+
+=cut
+
+plan 41;
+
+## No foreach
+# L<S04/The C<for> statement/"no foreach statement any more">
+{
+    my $times_run = 0;
+    ok (! eval 'foreach 1..10 { $times_run++ }; 1'), "foreach is gone";
+    ok (! eval 'foreach (1..10) { $times_run++}; 1'),
+        "foreach is gone, even with parens";
+    is $times_run, 0, "foreach doesn't work";
+}
 
 ## for with plain old range operator w/out parens
 # L<S04/"The C<for> statement" /in Perl 6, si it always take a list as an argument/>
@@ -36,7 +53,7 @@ is($b, '012345', 'for 0 .. 5 -> {} works');
     for each(@a; @b) -> $x, $y {
         $str ~= "($x $y)";
     }
-    is $str, "(1 4)(2 5)(3 6)";
+    is $str, "(1 4)(2 5)(3 6)", 'for each(@a; @b) -> $x, $y works';
 }
 
 {
@@ -48,7 +65,7 @@ is($b, '012345', 'for 0 .. 5 -> {} works');
             $str ~= "($x $y)";
         }
     };
-    is $str, "(1 5)(2 4)(3 6)";
+    is $str, "(1 5)(2 4)(3 6)", 'for zip(@a; @b) -> [$x, $y] works';
 }
 
 # ... with sub
@@ -275,6 +292,7 @@ is( %hash_kv.sort, %kv.sort, 'for %hash.kv -> $key, $val is rw { $val++ }', :tod
 }
 
 # rw scalars
+#L<S04/The C<for> statement/implicit parameter to block read/write "by default">
 {
     my ($a, $b, $c) = 0..2;
     try { for ($a, $b, $c) { $_++ } };
@@ -284,6 +302,3 @@ is( %hash_kv.sort, %kv.sort, 'for %hash.kv -> $key, $val is rw { $val++ }', :tod
     try { for ($a, $b, $c) -> $x is rw { $x++ } };
     is( [$a,$b,$c], [1,2,3], 'for ($a,$b,$c) -> $x is rw { $x++ }');
 }
-
-
-
