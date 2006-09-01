@@ -63,14 +63,14 @@ sub ask (
     Str $m1,  
     Str $m2,
     Str $call) {
-    my $q = q:s/given multi a ($m1) {1}; multi a ($m2) {2} pugs will dispatch a($call)/;
-    print "\n$q to [1,2]: ";
+    print "\nAlternatives:\n1:\tmulti a ($m1)\n2:\tmulti a ($m2)\n";
+    print "Call:\ta($call)\nWill Pugs dispatch to {1} or {2}? ";
 
     my $answer = eval q:s/ { multi a ($m1) {1} multi a ($m2) {2} a($call) } / ;
 
     is(
         =$*IN,
         $answer,
-        $q
+        "Arguments ($call) to prototypes ($m1) and ($m2)"
     );
 }
