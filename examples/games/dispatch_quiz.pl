@@ -14,12 +14,42 @@ my $quiz = eval(q{
     m2: @a?
     call: <1 2 3>
 -
+    m1: %h
+    m2: @a
+    call: <1 2 3>
+-
+    m1: %h?
+    m2: @a?
+    call:
+- 
+    m1: %h, *%h
+    call: a => 'b'
+- 
+    m1: *%h
+    call: a => 'b'
+-
     m1: @a?
 -
     m1: 
     m2:
     call:
 }, :lang<yaml>);
+
+# here are some other dispatch oddities which don't fit into
+# the defined quiz format yet:
+# 1. with a sig of (*%h, *@a), a call of ( a => 'b'), /won't/ send
+#    the args to %h. Why? Because 'a' is a named argument matching @a. 
+#    ( Can you turn that off? )
+#
+# 2. Not quite a dispatch issue, but passing arguments through a wrapper
+#    doesn't work like Perl5:
+#        sub core (%h) { say "core" }  
+#        sub wrapper (%h){  core(%h)  }
+#        wrapper( a => b );
+#    The problem is that %h gets seen as a single argument rather than a set of named parameters. 
+#    Audreyt suggested this should work, but is unimplemented in pugs now:
+#        sub wrapper (%h){  core(%h)  }
+
 
 plan $quiz.elems;
 
