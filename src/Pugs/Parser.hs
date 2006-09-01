@@ -1333,7 +1333,7 @@ ruleSignature = rule "Signature" $ do
     reqPosC <- validateRequired True params
     let reqNms   = Set.fromAscList $ sort $ map (p_label . p_param) $ filter p_isRequired params
         posLs    = map p_param $ filter (not . p_isNamed) params
-        nmSt     = Map.fromList $ map (\p -> (p_label $ p_param p, p_param p)) $ filter p_isNamed params
+        nmSt     = Map.fromList [(p_label p, p) | MkParamdec p True _ <- params]
         slpScLs  = []
         slpArrLs = Nothing
         slpHsh   = Nothing
@@ -1351,34 +1351,6 @@ ruleSignature = rule "Signature" $ do
             return $ (fromEnum $ isReqPos x) + next
         isReqPos x = p_isRequired x && (not $ p_isNamed x)
 
-{-
-        { s_requiredPositionalCount   :: Int
-        , s_requiredNames             :: Set ID
-        , s_positionalList            :: [Param]
-        , s_namedSet                  :: Map.Map ID Param
-        , s_slurpyScalarList          :: [Param]
-        , s_slurpyArray               :: Maybe Param
-        , s_slurpyHash                :: Maybe Param
-        , s_slurpyCode                :: Maybe Param
-        , s_slurpyCapture             :: Maybe Param
-
-data Param = MkParam
-    { p_variable    :: ID            -- ^ E.g. $m above
-    , p_types       :: [Types.Type]  -- ^ Static pieces of inferencer-food
-                                     --   E.g. Elk above
-    , p_constraints :: [Code]        -- ^ Dynamic pieces of runtime-mood
-                                     --   E.g. where {...} above
-    , p_unpacking   :: Maybe PureSig -- ^ E.g. BinTree $t (Left $l, Right $r)
-    , p_default     :: ParamDefault  -- ^ E.g. $answer? = 42
-    , p_label       :: ID            -- ^ The external name for the param ('m' above)
-    , p_slots       :: Table         -- ^ Any additional attrib not
-                                     --   explicitly mentioned below
-    , p_hasAccess   :: ParamAccess   -- ^ is ro, is rw, is copy
-    , p_isRef       :: Bool          -- ^ must be true if hasAccess = AccessRW
-    , p_isLazy      :: Bool
-    }
--}
-
 -- we start with basic param parsing only - this'll grow.
 ruleParam :: RuleParser Paramdec
 ruleParam = rule "paramater" $ do
@@ -1388,6 +1360,7 @@ ruleParam = rule "paramater" $ do
         fmap Just $ option DNil $ do
             symbol "="
             fmap (DExp . Exp.EE . Exp.MkExpEmeritus) parseTerm
+    whiteSpace
     access       <- option AccessRO $ try $ do -- XXX: expand this to do arbitrary traits, in any order
         traits   <- ruleTrait ["is"]
         case traits of
