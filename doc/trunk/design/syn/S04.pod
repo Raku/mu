@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 18 Aug 2006
+  Last Modified: 1 Sep 2006
   Number: 4
-  Version: 37
+  Version: 38
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -341,8 +341,8 @@ left side.  But it's what people expect of a pronoun like "it".)
 
 In Perl 5, a bare block is deemed to be a do-once loop.  In Perl 6,
 the bare block is not a do-once.  Instead C<do {...}> is the do-once
-loop (which is another reason you can't put a C<while> or C<until>
-modifier on it; use C<repeat> for that).
+loop (which is another reason you can't put a statement
+modifier on it; use C<repeat> for a test-at-the-end loop).
 
 For any statement, prefixing with a C<do> allows you to 
 return the value of that statement and use it in an expression:
