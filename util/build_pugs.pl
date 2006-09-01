@@ -344,13 +344,16 @@ sub build_lib {
                 or die "Copy '$candidates[0]' => '$target' failed: $!";
         }
 
-        system($ar, r => $_, $target) for @a_file;
+        for (@a_file) {
+            print "==> $ar r $_ $target\n";
+            system($ar, r => $_, $target);
+        }
     };
 
     $fixup->('Pugs.Embed.Perl5') if grep /^-DPUGS_HAVE_PERL5$/, @_;
     $fixup->('Pugs.Embed.Parrot') if grep /^-DPUGS_HAVE_PARROT$/, @_;
 
-    foreach my $a_ext (grep /\.a$/, @_) {
+    foreach my $a_ext (grep { /\.a$/ and !/^-/ } @_) {
         # Do some very sneaky things -- linking other .a with us!
         my $basename = $a_ext;
         $basename =~ s!.*/!!;
@@ -358,7 +361,10 @@ sub build_lib {
         mkdir $dir;
         chdir $dir;
         system($ar, x => $a_ext);
-        system($ar, r => $_, glob("*")) for @a_file;
+        for (@a_file) {
+            print "==> $ar r $_ @{[glob('*')]}\n";
+            system($ar, r => $_, glob("*"));
+        }
         unlink(glob("*"));
         chdir '..';
         chdir '..';
@@ -367,7 +373,10 @@ sub build_lib {
 
     # Run ranlib.
     unless ($^O eq 'MSWin32') {
-        system($ar, s => $_) for @a_file;
+        for (@a_file) {
+            print "==> $ar s $_\n";
+            system($ar, s => $_);
+        }
     }
 }
 
