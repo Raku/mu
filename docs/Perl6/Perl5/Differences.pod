@@ -184,14 +184,22 @@ C<loop> can also be used for infinite loops:
 
 =head1 Regexes and Rules 
 
-Many many changes.  Just read S05.  But if you're in a panic and need
-to get something working now, you just need to know that you can use
-Perl 5-compatible regexes with the C<:P5> modifier.  And that
-modifiers come before, not after, regexes in Perl 6.  Oh, and that
-C<=~> has changed to C<~~>....
+Here's a simple translation of a Perl5 regular expression to Perl6:
 
-    Was:    $str =~ /^\d{2,5}\s/
-    Now:    $str ~~ m:P5/^\d{2,5}\s/
+    Was:    $str =~ m/^\d{2,5}\s/i
+    Now:    $str ~~ m:P5:i/^\d{2,5}\s/
+
+The 'P5' modifier is there because the standard Perl6 syntax is rather
+different, and 'P5' notes a Perl5 compatibility syntax.  For the full
+specification, see L<S05>. See also:
+
+The related Apocalypse, which justifies the changes:
+
+  http://dev.perl.org/perl6/doc/design/apo/A05.html 
+
+And the related Exegesis, wihch explains it more detail:
+
+  http://dev.perl.org/perl6/doc/design/exe/E05.html
 
 =cut
 
