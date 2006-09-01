@@ -1332,7 +1332,7 @@ ruleSignature = rule "Signature" $ do
     params  <- ruleParam `sepEndBy` (symbol ",")
     reqPosC <- validateRequired True params
     let reqNms   = Set.fromAscList $ sort [p_label p | MkParamdec p _ True <- params]
-        posLs    = map p_param $ filter (not . p_isNamed) params
+        posLs    = [p | MkParamdec p False _ <- params]
         nmSt     = Map.fromList [(p_label p, p) | MkParamdec p True _ <- params]
         slpScLs  = []
         slpArrLs = Nothing
@@ -1354,7 +1354,9 @@ ruleSignature = rule "Signature" $ do
 -- we start with basic param parsing only - this'll grow.
 ruleParam :: RuleParser Paramdec
 ruleParam = rule "paramater" $ do
-    name@(s:lab) <- regularVarName
+    staticTypes  <- mapM (return . MkType . cast) =<< (option [] $ many1 ruleQualifiedIdentifier) -- slightly bogus
+    whiteSpace
+    name@(s:lab) <- regularVarName -- XXX: incorrect, since '$.memb' is sometimes valid in params
     def          <- option Nothing $ do
         symbol "?"
         fmap Just $ option DNil $ do
@@ -1368,7 +1370,14 @@ ruleParam = rule "paramater" $ do
             ("is", "rw")   -> return AccessRW
             ("is", "copy") -> return AccessCopy
             _              -> fail $ "unhandled trait: " ++ show traits
-    let p = MkParam (cast name) [] [] Nothing (maybe DNil id def) (cast lab) Map.empty access False False
+    whiteSpace
+    {- We don't have Exp -> Pugs.Val.Code, too bad.
+    code <- many $ do
+        symbol "where"
+        ruleVerbatimBlock
+    -}
+    let code = []
+    let p = MkParam (cast name) staticTypes code Nothing (maybe DNil id def) (cast lab) Map.empty access False False
     return $ MkParamdec{ p_param = p, p_isRequired = isNothing def, p_isNamed = False }
 
 
