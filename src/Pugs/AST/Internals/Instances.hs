@@ -399,20 +399,21 @@ instance Perl5 SubType where
 
 instance YAML Param where
     fromYAML MkNode{n_tag=Just t, n_elem=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackBuf t = case tag of
-	"MkParam" -> do
+	"MkOldParam" -> do
 	    let liftM9 f m1 m2 m3 m4 m5 m6 m7 m8 m9 = do
 		{x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; x7 <- m7; x8 <- m8; x9 <- m9; return (f x1 x2 x3 x4 x5 x6 x7 x8 x9)}
 	    let ESeq [aa, ab, ac, ad, ae, af, ag, ah, ai] = e
-	    liftM9 MkParam (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af) (fromYAML ag) (fromYAML ah) (fromYAML ai)
-	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkParam"] ++ " in node " ++ show e
+	    liftM9 MkOldParam (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af) (fromYAML ag) (fromYAML ah) (fromYAML ai)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkOldParam"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML (MkParam aa ab ac ad ae af ag ah ai) = asYAMLseq "MkParam"
+    asYAML (MkOldParam aa ab ac ad ae af ag ah ai) =
+	   asYAMLseq "MkOldParam"
 	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae, asYAML af,
 	    asYAML ag, asYAML ah, asYAML ai]
 
 instance Perl5 Param where
-    showPerl5 (MkParam aa ab ac ad ae af ag ah ai) =
-	      showP5HashObj "MkParam"
+    showPerl5 (MkOldParam aa ab ac ad ae af ag ah ai) =
+	      showP5HashObj "MkOldParam"
 	      [("isInvocant", showPerl5 aa) , ("isOptional", showPerl5 ab) ,
 	       ("isNamed", showPerl5 ac) , ("isLValue", showPerl5 ad) ,
 	       ("isWritable", showPerl5 ae) , ("isLazy", showPerl5 af) ,
@@ -420,8 +421,8 @@ instance Perl5 Param where
 	       ("paramDefault", showPerl5 ai)]
 
 instance JSON Param where
-    showJSON (MkParam aa ab ac ad ae af ag ah ai) =
-	     showJSHashObj "MkParam"
+    showJSON (MkOldParam aa ab ac ad ae af ag ah ai) =
+	     showJSHashObj "MkOldParam"
 	     [("isInvocant", showJSON aa), ("isOptional", showJSON ab),
 	      ("isNamed", showJSON ac), ("isLValue", showJSON ad),
 	      ("isWritable", showJSON ae), ("isLazy", showJSON af),

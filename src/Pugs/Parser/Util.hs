@@ -114,7 +114,7 @@ doExtract _ formal body = (body, names', params)
     params = map nameToParam (sort names') ++ (maybe [] id formal)
 
 nameToParam :: Var -> Param
-nameToParam name = MkParam
+nameToParam name = MkOldParam
     { isInvocant    = False
     , isOptional    = False
     , isNamed       = False
@@ -150,7 +150,7 @@ processFormals formal = case formal of
 
 -- | A Param representing the default (unnamed) invocant of a method on the given type.
 selfParam :: Type -> Param
-selfParam typ = MkParam
+selfParam typ = MkOldParam
     { isInvocant    = True
     , isOptional    = False
     , isNamed       = False
@@ -222,9 +222,10 @@ doSplitStr str = case perl6Words str of
     isBreakingSpace '\x20'  = True
     isBreakingSpace _       = False
 
-tryFollowedBy :: RuleParser a -> RuleParser b -> RuleParser a
-tryFollowedBy rule after = try $ do
+followedBy, tryFollowedBy :: RuleParser a -> RuleParser b -> RuleParser a
+followedBy rule after = do
     rv <- rule
     after
     return rv
 
+tryFollowedBy = (try .) . followedBy

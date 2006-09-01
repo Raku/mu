@@ -96,7 +96,7 @@ A formal parameter of a sub (or other callable).
 These represent declared parameters; don't confuse them with actual argument
 values.
 -}
-data Param = MkParam
+data SigParam = MkParam
     { p_variable    :: ID            -- ^ E.g. $m above
     , p_types       :: [Types.Type]  -- ^ Static pieces of inferencer-food
                                      --   E.g. Elk above
@@ -112,6 +112,8 @@ data Param = MkParam
     , p_isLazy      :: Bool
     }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+
+type Param = SigParam -- to get around name clashes in Pugs.AST :(
 
 newtype CodeBody = MkCodeBody [Stmt]
     deriving (Typeable)

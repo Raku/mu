@@ -274,7 +274,7 @@ emptySet = Set.empty
 
 matchUnary :: CurrentFunction -> Bool
 matchUnary MkCurrentFunction
-    { f_assoc = ANil, f_params = [MkParam
+    { f_assoc = ANil, f_params = [MkOldParam
         { paramContext = CxtItem{}, isNamed = False }] } = True
 matchUnary _ = False
 
@@ -287,7 +287,7 @@ matchSlurpy :: CurrentFunction -> Bool
 matchSlurpy MkCurrentFunction
     { f_params = (_:_:_) } = True
 matchSlurpy MkCurrentFunction
-    { f_params = [MkParam
+    { f_params = [MkOldParam
         { paramContext = CxtSlurpy{}, paramName = MkVar{ v_sigil = sig } }] }
             = sig == SArray || sig == SArrayMulti
 matchSlurpy _ = False

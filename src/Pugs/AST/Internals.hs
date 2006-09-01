@@ -777,9 +777,9 @@ isSlurpy param = isSlurpyCxt $ paramContext param
 A formal parameter of a sub (or other callable).
 
 These represent declared parameters; don't confuse them with actual parameter 
-values.
+values, which are henceforth termed "arguments".
 -}
-data Param = MkParam
+data Param = MkOldParam -- "Old" because Pugs.Val.Code defined a new one
     { isInvocant    :: !Bool        -- ^ Is it in invocant slot?
     , isOptional    :: !Bool        -- ^ Is it optional?
     , isNamed       :: !Bool        -- ^ Is it named-only?
@@ -796,7 +796,7 @@ data Param = MkParam
 -- | A list of formal parameters.
 type Params     = [Param]
 
-paramToValParam :: Param -> Val.Param
+paramToValParam :: Param -> Val.SigParam
 paramToValParam param = ret
     where 
     ret = Val.MkParam 
@@ -808,9 +808,9 @@ paramToValParam param = ret
         , Val.p_label       = v_name $ paramName param  -- XXX sigility
         , Val.p_slots       = Map.empty
         , Val.p_hasAccess   = case param of
-                                  MkParam { isLValue = True, isWritable = False } -> Val.AccessRO
-                                  MkParam { isLValue = True, isWritable = True }  -> Val.AccessRW
-                                  MkParam { isLValue = False }                    -> Val.AccessCopy
+                                  MkOldParam { isLValue = True, isWritable = False } -> Val.AccessRO
+                                  MkOldParam { isLValue = True, isWritable = True }  -> Val.AccessRW
+                                  MkOldParam { isLValue = False }                    -> Val.AccessCopy
         , Val.p_isRef       = Val.p_hasAccess ret == Val.AccessRW
         , Val.p_isLazy      = isLazy param
         }
@@ -1086,7 +1086,7 @@ buildParam :: String -- ^ Type of the parameter
            -> String -- ^ Name of the parameter (including primary sigil)
            -> Exp    -- ^ Expression for the param's default value
            -> Param
-buildParam typ sigil name e = MkParam
+buildParam typ sigil name e = MkOldParam
     { isInvocant    = False
     , isOptional    = '?' `elem` sigil
     , isNamed       = ':' `elem` sigil

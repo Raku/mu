@@ -294,7 +294,7 @@ genSubs env name gen = sequence
 
 makeParams :: Env -> [Param]
 makeParams MkEnv{ envContext = cxt, envLValue = lv }
-    = [ MkParam
+    = [ MkOldParam
         { isInvocant = False
         , isOptional = False
         , isNamed    = False

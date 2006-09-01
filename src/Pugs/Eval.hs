@@ -1147,7 +1147,7 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
         (syms', restArgs) <- doBind (newSym:syms) rest
         return (syms', ApplyArg var val coll:restArgs)
     expToVal :: Param -> Exp -> Eval (Val, Bool)
-    expToVal MkParam{ isLazy = thunk, isLValue = lv, paramContext = cxt, paramName = var, isWritable = rw } exp = do
+    expToVal MkOldParam{ isLazy = thunk, isLValue = lv, paramContext = cxt, paramName = var, isWritable = rw } exp = do
         env <- ask -- freeze environment at this point for thunks
         let eval = local (const env{ envLValue = lv }) $ do
                 enterEvalContext cxt exp

@@ -28,6 +28,7 @@ module Pugs.Parser (
 ) where
 import Pugs.Internals
 import Pugs.AST
+import qualified Pugs.Exp as Exp
 import Pugs.Types
 import Pugs.Version (versnum)
 import Pugs.Lexer
@@ -41,6 +42,7 @@ import Pugs.Parser.Doc
 import Pugs.Parser.Literal
 import Pugs.Parser.Util
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 
 -- Lexical units --------------------------------------------------
 
@@ -1290,6 +1292,7 @@ parseTerm :: RuleParser Exp
 parseTerm = rule "term" $! do
     term <- choice
         [ ruleDereference
+        , ruleSignatureVal  -- must come before ruleTypeVar
         , ruleVarDecl
         , ruleVar
         , ruleApply True    -- Folded metaoperators
@@ -1311,6 +1314,91 @@ parseTerm = rule "term" $! do
             -- s_postTerm returns an (Exp -> Exp) that we apply to the original term
             fs <- many s_postTerm
             return $! combine (reverse fs) term
+
+ruleSignatureVal :: RuleParser Exp
+ruleSignatureVal = do
+    between (symbol ":(") (symbol ")") ruleSignature
+
+data Paramdec = MkParamdec
+    { p_param      :: SigParam
+    , p_isNamed    :: Bool
+    , p_isRequired :: Bool
+    }
+    deriving (Show)
+
+ruleSignature :: RuleParser Exp
+ruleSignature = rule "Signature" $ do
+    inv     <- option Nothing $ try $ fmap (Just . p_param) $ followedBy ruleParam (symbol ":")
+    params  <- ruleParam `sepEndBy` (symbol ",")
+    reqPosC <- validateRequired True params
+    let reqNms   = Set.fromAscList $ sort $ map (p_label . p_param) $ filter p_isRequired params
+        posLs    = map p_param $ filter (not . p_isNamed) params
+        nmSt     = Map.fromList $ map (\p -> (p_label $ p_param p, p_param p)) $ filter p_isNamed params
+        slpScLs  = []
+        slpArrLs = Nothing
+        slpHsh   = Nothing
+        slpCd    = Nothing
+        slpCapt  = Nothing
+    return $ Val $ VV $ val $ case inv of
+        Nothing -> SigSubSingle    reqPosC reqNms posLs nmSt slpScLs slpArrLs slpHsh slpCd slpCapt
+        Just i  -> SigMethSingle i reqPosC reqNms posLs nmSt slpScLs slpArrLs slpHsh slpCd slpCapt
+    where
+        validateRequired _     []     = return 0
+        validateRequired False (x:_)
+            | isReqPos x              = fail $ "Required parameter cannot come after optional ones: " ++ show x
+        validateRequired _     (x:xs) = do
+            next <- validateRequired (isReqPos x) xs
+            return $ (fromEnum $ isReqPos x) + next
+        isReqPos x = p_isRequired x && (not $ p_isNamed x)
+
+{-
+        { s_requiredPositionalCount   :: Int
+        , s_requiredNames             :: Set ID
+        , s_positionalList            :: [Param]
+        , s_namedSet                  :: Map.Map ID Param
+        , s_slurpyScalarList          :: [Param]
+        , s_slurpyArray               :: Maybe Param
+        , s_slurpyHash                :: Maybe Param
+        , s_slurpyCode                :: Maybe Param
+        , s_slurpyCapture             :: Maybe Param
+
+data Param = MkParam
+    { p_variable    :: ID            -- ^ E.g. $m above
+    , p_types       :: [Types.Type]  -- ^ Static pieces of inferencer-food
+                                     --   E.g. Elk above
+    , p_constraints :: [Code]        -- ^ Dynamic pieces of runtime-mood
+                                     --   E.g. where {...} above
+    , p_unpacking   :: Maybe PureSig -- ^ E.g. BinTree $t (Left $l, Right $r)
+    , p_default     :: ParamDefault  -- ^ E.g. $answer? = 42
+    , p_label       :: ID            -- ^ The external name for the param ('m' above)
+    , p_slots       :: Table         -- ^ Any additional attrib not
+                                     --   explicitly mentioned below
+    , p_hasAccess   :: ParamAccess   -- ^ is ro, is rw, is copy
+    , p_isRef       :: Bool          -- ^ must be true if hasAccess = AccessRW
+    , p_isLazy      :: Bool
+    }
+-}
+
+-- we start with basic param parsing only - this'll grow.
+ruleParam :: RuleParser Paramdec
+ruleParam = rule "paramater" $ do
+    name@(s:lab) <- regularVarName
+    def          <- option Nothing $ do
+        symbol "?"
+        fmap Just $ option DNil $ do
+            symbol "="
+            fmap (DExp . Exp.EE . Exp.MkExpEmeritus) parseTerm
+    access       <- option AccessRO $ try $ do -- XXX: expand this to do arbitrary traits, in any order
+        traits   <- ruleTrait ["is"]
+        case traits of
+            ("is", "ro")   -> return AccessRO
+            ("is", "rw")   -> return AccessRW
+            ("is", "copy") -> return AccessCopy
+            _              -> fail $ "unhandled trait: " ++ show traits
+    let p = MkParam (cast name) [] [] Nothing (maybe DNil id def) (cast lab) Map.empty access False False
+    return $ MkParamdec{ p_param = p, p_isRequired = isNothing def, p_isNamed = False }
+
+
 
 ruleTypeVar :: RuleParser Exp
 ruleTypeVar = rule "type" $ do

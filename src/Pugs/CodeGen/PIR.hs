@@ -14,7 +14,7 @@
 
 module Pugs.CodeGen.PIR (genPIR, genPIR_YAML) where
 import Pugs.Internals
-import Pugs.AST
+import Pugs.AST hiding (Sig)
 import Pugs.Types
 import Pugs.PIL1
 import Emit.PIR.Instances ()
