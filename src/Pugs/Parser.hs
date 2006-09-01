@@ -1351,35 +1351,40 @@ ruleSignature = rule "Signature" $ do
             return $ (fromEnum $ isReqPos x) + next
         isReqPos x = p_isRequired x && (not $ p_isNamed x)
 
--- we start with basic param parsing only - this'll grow.
 ruleParam :: RuleParser Paramdec
 ruleParam = rule "paramater" $ do
-    staticTypes  <- mapM (return . MkType . cast) =<< (option [] $ many1 ruleQualifiedIdentifier) -- slightly bogus
-    whiteSpace
-    name@(s:lab) <- regularVarName -- XXX: incorrect, since '$.memb' is sometimes valid in params
-    def          <- option Nothing $ do
+    staticTypes <- do
+        ty <- many $ followedBy ruleQualifiedIdentifier whiteSpace
+        return $ map (MkType . cast) ty
+
+    name <- regularVarName
+    let label = cast $ dropWhile (not . isAlpha) name
+
+    def <- option Nothing $ do
         symbol "?"
         fmap Just $ option DNil $ do
             symbol "="
             fmap (DExp . Exp.EE . Exp.MkExpEmeritus) parseTerm
     whiteSpace
-    access       <- option AccessRO $ try $ do -- XXX: expand this to do arbitrary traits, in any order
-        traits   <- ruleTrait ["is"]
+    
+    access <- option AccessRO $ do -- XXX: expand this to do arbitrary traits, in any order
+        traits <- ruleTrait ["is"]
         case traits of
             ("is", "ro")   -> return AccessRO
             ("is", "rw")   -> return AccessRW
             ("is", "copy") -> return AccessCopy
             _              -> fail $ "unhandled trait: " ++ show traits
     whiteSpace
+    
     {- We don't have Exp -> Pugs.Val.Code, too bad.
     code <- many $ do
         symbol "where"
         ruleVerbatimBlock
     -}
     let code = []
-    let p = MkParam (cast name) staticTypes code Nothing (maybe DNil id def) (cast lab) Map.empty access False False
+    
+    let p = MkParam (cast name) staticTypes code Nothing (maybe DNil id def) label Map.empty access False False
     return $ MkParamdec{ p_param = p, p_isRequired = isNothing def, p_isNamed = False }
-
 
 
 ruleTypeVar :: RuleParser Exp
