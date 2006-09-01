@@ -173,11 +173,25 @@ See L<S04/"The for statement"> and L<S29/"each"> for details.
     Was:    for  ($i=0; $i<10; $i++) { ... }
     Now:    loop ($i=0; $i<10; $i++) { ... }
 
+C<loop> can also be used for infinite loops:
+
+    Was:    while (1) { ... }
+    Now:    loop { ... }
+
 =cut
 
 # S05
 
 =head1 Regexes and Rules 
+
+Many many changes.  Just read S05.  But if you're in a panic and need
+to get something working now, you just need to know that you can use
+Perl 5-compatible regexes with the C<:P5> modifier.  And that
+modifiers come before, not after, regexes in Perl 6.  Oh, and that
+C<=~> has changed to C<~~>....
+
+    Was:    $str =~ /^\d{2,5}\s/
+    Now:    $str ~~ m:P5/^\d{2,5}\s/
 
 =cut
 
@@ -359,3 +373,4 @@ You can still say C<sort(@array)> if you prefer the non-OO idiom.
 
 Kirrily "Skud" Robert, <skud@cpan.org>,
 Mark Stosberg
+Trey Harris
