@@ -50,10 +50,11 @@ For details, see L<S02/"Names and Variables">.
 =head2 Global Variables have a twigil
 
 Yes, a twigil. It's the second character in the variable name. For globals,
-it's a C<*>
+it's a C<*>; for contextual variables, it's C<+>.
 
     Was:    $ENV{FOO}
-    Now:    %ENV<FOO>
+    Now:    %*ENV<FOO>
+     Or:    $+FOO # might be overridden, but falls back to %*ENV
 
 For details, see L<S02/"Names and Variables">.
 
