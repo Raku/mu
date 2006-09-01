@@ -40,7 +40,6 @@ import Pugs.External
 import Pugs.Eval.Var
 import DrIFT.YAML ()
 
-import RRegex.PCRE as PCRE
 
 {-|
 Construct a new, \'empty\' 'Env' (evaluation environment).
@@ -733,13 +732,8 @@ reduceSyn "rx" [exp, adverbs] = do
     flag_i  <- fromAdverb hv ["i", "ignorecase"]
     flag_s  <- fromAdverb hv ["s", "sigspace"]
     flag_tilde  <- fromAdverb hv ["stringify"] -- XXX hack
-    adverbHash <- reduce adverbs
-    -- XXX - this fix for :global PCRE rules awaits someone with
-    --  the Haskell'Fu to write the ns line below.
-    -- let rx | p5 = MkRulePCRE p5re g ns flag_tilde str adverbHash
-    let rx | p5 = MkRulePCRE p5re g 1 flag_tilde str adverbHash
-           | otherwise = MkRulePGE p6re g flag_tilde adverbHash
-        g = ('g' `elem` p5flags || flag_g)
+    adverbHash  <- reduce adverbs
+    let g = ('g' `elem` p5flags || flag_g)
         p5re = mkRegexWithPCRE (encodeUTF8 str) $
                     [ pcreUtf8
                     , ('i' `elem` p5flags || flag_i) `implies` pcreCaseless
@@ -751,8 +745,10 @@ reduceSyn "rx" [exp, adverbs] = do
                else case str of
                       ':':_ -> ":s"   ++ str
                       _     -> ":s::" ++ str
-        -- ns <- liftIO $ PCRE.numSubs p5re
-    retVal $ VRule rx
+        rx | p5 = do ns <- liftIO $ numSubs p5re
+                     return $ MkRulePCRE p5re g ns flag_tilde str adverbHash
+           | otherwise = return $ MkRulePGE p6re g flag_tilde adverbHash
+    retVal . VRule =<< rx
     where
     implies True  = id
     implies False = const 0

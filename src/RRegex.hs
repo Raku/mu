@@ -17,6 +17,9 @@ module RRegex (
     mkRegexWithPCRE,
     matchRegex,
     matchRegexAll,
+    matchRegexWithPCRE,
+
+    numSubs,
 
     -- Re-exported from PCRE
     pcreCaseless,   --  case insensitive mathing
@@ -39,6 +42,13 @@ import RRegex.PCRE
 import System.IO.Unsafe
 import RRegex.Syntax
 import Data.Array
+
+matchRegexWithPCRE
+    :: Regex                        -- ^ Compiled regular expression
+    -> String                       -- ^ String to match against
+    -> Int                          -- ^ Options
+    -> IO (Maybe (Array Int (Int,Int)))
+matchRegexWithPCRE = execute
 
 -- | Makes a regular expression with the default options (multi-line,
 -- case-sensitive).  The syntax of regular expressions is

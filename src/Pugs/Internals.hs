@@ -138,7 +138,6 @@ import Data.Set (Set)
 import Data.Map (Map)
 import Data.Seq (Seq, singleton)
 import Data.IntMap (IntMap)
-import Data.IORef
 import Debug.Trace
 import GHC.Base (realWorld#)
 import GHC.IOBase (IO(..))

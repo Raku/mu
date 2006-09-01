@@ -9,7 +9,6 @@ import Pugs.AST
 import Pugs.Types
 import Pugs.Config
 import Pugs.Prim.Code
-import qualified RRegex.PCRE as PCRE
 import qualified Data.Map as Map
 import qualified Data.Array as Array
 
@@ -66,7 +65,7 @@ doMatch cs rule@MkRulePGE{ rxRule = ruleStr } = do
             return mkMatchFail
 
 doMatch csChars MkRulePCRE{ rxRegex = re } = do
-    rv <- liftIO $ PCRE.execute re csBytes 0
+    rv <- liftIO $ matchRegexWithPCRE re csBytes 0
     if isNothing rv then return mkMatchFail else do
     let ((fromBytes, lenBytes):subs) = Array.elems (fromJust rv)
         substr str from len = take len (drop from str)
