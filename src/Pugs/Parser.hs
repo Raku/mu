@@ -1331,7 +1331,7 @@ ruleSignature = rule "Signature" $ do
     inv     <- option Nothing $ try $ fmap (Just . p_param) $ followedBy ruleParam (symbol ":")
     params  <- ruleParam `sepEndBy` (symbol ",")
     reqPosC <- validateRequired True params
-    let reqNms   = Set.fromAscList $ sort $ map (p_label . p_param) $ filter p_isRequired params
+    let reqNms   = Set.fromAscList $ sort [p_label p | MkParamdec p _ True <- params]
         posLs    = map p_param $ filter (not . p_isNamed) params
         nmSt     = Map.fromList [(p_label p, p) | MkParamdec p True _ <- params]
         slpScLs  = []
