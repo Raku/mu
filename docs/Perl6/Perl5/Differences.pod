@@ -104,13 +104,17 @@ L<S03/"New operators">
 
 Some highlights:
 
-=head2 q(), qq(), etc have changed
+=head2 qw() has a customary form; new interpolating form
 
-    Was:    q(foo)
+    Was:    qw(foo)
     Now:    <foo>
 
-    Was:    qq(foo)
-    Now:    <<foo>>
+    Was:    ("foo", (split /s+/, $bar), "bat")
+    Now:    <<foo $bar bat>>
+
+Quoting operators now have modifiers that can be used with them (much
+like regexes and substitutions in Perl 5), and you can even define
+your own quoting operators.  See S03 for details.
 
 =cut
 
