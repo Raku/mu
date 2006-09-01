@@ -60,6 +60,7 @@ plan 13;
 }
 
 # L<S02/Context/"can override the class definition:">
+# L<S12/Roles/generalize a particular enumerated value to its role.>
 my $true_zero;
 ok((eval '$true_zero = 0 but True; 1'), "0 but True syntax evaluates");
 ok ($true_zero == 0), "0 but True is numerically equal to 0";
