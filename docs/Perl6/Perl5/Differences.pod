@@ -246,9 +246,9 @@ L<http://dev.perl.org/perl6/doc/design/exe/E07.html> Format Exegesis
     Was:    $object->method
     Now:    $object.method
 
-#S13
-
 =cut 
+
+#S13
 
 =head1 Overloading
 
@@ -380,5 +380,5 @@ You can still say C<sort(@array)> if you prefer the non-OO idiom.
 =head1 AUTHORS
 
 Kirrily "Skud" Robert, <skud@cpan.org>,
-Mark Stosberg
+Mark Stosberg,
 Trey Harris
