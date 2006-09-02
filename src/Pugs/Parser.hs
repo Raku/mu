@@ -1370,9 +1370,9 @@ ruleParam = rule "paramater" $ do
                     , p_default     = maybe DNil id def
                     , p_label       = label
                     , p_slots       = Map.empty
-                    , p_hasAccess   = access $ reverse traits -- we assume "last one wins"
-                    , p_isRef       = ref    $ reverse traits
-                    , p_isLazy      = lazy   $ reverse traits
+                    , p_hasAccess   = withFirst access AccessRO $ reverse traits -- we assume "last one wins"
+                    , p_isRef       = withFirst ref    False    $ reverse traits
+                    , p_isLazy      = withFirst lazy   False    $ reverse traits
                     }
     return $ MkParamdec{ p_param = p, p_isRequired = isNothing def, p_isNamed = False }
     where
@@ -1396,17 +1396,19 @@ ruleParam = rule "paramater" $ do
             ruleVerbatimBlock
         -}
         return []
-    access []                 = AccessRO
-    access (("is", "ro"):_)   = AccessRO
-    access (("is", "rw"):_)   = AccessRW
-    access (("is", "copy"):_) = AccessCopy
-    access (_:xs)             = access xs
-    ref    []                 = False
-    ref    (("is", "ref"):_)  = True
-    ref    (_:xs)             = ref xs
-    lazy   []                 = False
-    lazy   (("is", "lazy"):_) = True
-    lazy   (_:xs)             = lazy xs
+    withFirst :: Show a => (a -> Maybe b) -> b -> [a] -> b
+    withFirst f d [] = d
+    withFirst f d (x:xs) = case f x of
+        Just rv -> rv
+        Nothing -> withFirst f d xs
+    access ("is", "ro")   = Just AccessRO
+    access ("is", "rw")   = Just AccessRW
+    access ("is", "copy") = Just AccessCopy
+    access _              = Nothing
+    ref    ("is", "ref")  = Just True
+    ref    _              = Nothing
+    lazy   ("is", "lazy") = Just True
+    lazy   _              = Nothing
     failReqDef = fail "required parameters cannot have default values"
     withTrailingSpace = (flip followedBy) whiteSpace
 
