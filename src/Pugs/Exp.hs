@@ -39,6 +39,7 @@ data Exp
 -- | Control statement, such as "if".
 data ExpControl
     = CCall        ID     ExpCapt       -- ^ lookup a routine, call it
+    | CCallDyn     Exp    ExpCapt       -- ^ call with a dynamically calculated name
     | CApply       Exp    ExpCapt       -- ^ apply a Code without lookup
     | CCond        Exp    Code          -- ^ 2 if 1
     | CTrenaryCond Exp    Code  Code    -- ^ 1 ?? 2 !! 3
