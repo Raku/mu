@@ -4,7 +4,7 @@ use Test;
 
 =pod
 
-Tests for the pipe operators 
+Tests for the feed operators 
 
     ==> and <== 
     
@@ -23,8 +23,8 @@ plan 7;
     #eval '@c <== @a'; # this yields the error:
     #Fail: cannot cast into a handle: VList [VInt 1,VInt 2]
 
-    is(~@b, ~@a, "ltr pipe as simple assignment", :todo);
-    is(~@c, ~@a, "rtl pipe as simple assignment", :todo);
+    is(~@b, ~@a, "ltr feed as simple assignment", :todo);
+    is(~@c, ~@a, "rtl feed as simple assignment", :todo);
 };
 
 {
@@ -52,6 +52,6 @@ plan 7;
     eval '@a ==> foo "x"';
 
     is($got_x, "x", "x was passed as explicit param", :todo);
-    is($got_y, undef, "optional param y was not bound to piped list");
+    is($got_y, undef, "optional param y was not bound to fed list");
     is(~@got_z, ~@a, '...slurpy array *@z got it', :todo);
 };
