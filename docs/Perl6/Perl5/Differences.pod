@@ -305,7 +305,7 @@ See L<S26> for details.
 
 =head1 Builtin Functions
 
-A number of builtin's have been removed. For details, see:
+A number of builtins have been removed. For details, see:
 
 L<S29/"Obsolete">
 
