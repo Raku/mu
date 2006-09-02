@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 10;
+plan 14;
 
 # L<S12/"Multisubs and Multimethods">
 # L<S12/"Multi dispatch">
@@ -72,3 +72,64 @@ my %hash = ('foo' => 1, 'bar' => 2, 'baz' => 3);
 is($foo.bar(%hash), 'Foo.bar() called with Hash : foo, bar, baz', '... multi-method dispatched on Array', :todo<bug>);
 
 is($foo.bar($*ERR), 'Foo.bar() called with IO', '... multi-method dispatched on IO');
+
+my $yaml_tests = eval(q{
+- 
+    m2: *%h
+    call: a => 'b'
+    expect: 2
+-
+    m1: %h
+    m2: @a?
+    call: <1 2 3>
+    expect: 2
+-
+    m1: %h
+    m2: @a
+    call: <1 2 3>
+    expect: 2
+-
+    m1: @a?
+    expect: 2 
+}, :lang<yaml>);
+
+for each($yaml_tests) -> %h {
+    # I think Perl6 is supposed to offer us a way to just
+    # pass %h on through...
+    test_dispatch( 
+        m1     => %h<m1>,
+        m2     => %h<m2>,
+        call   => %h<call>,
+        expect => %h<expect>,
+     );
+}
+
+sub test_dispatch (
+    Str $m1,  
+    Str $m2,
+    Str $call,
+    Int $expect,
+    ) {
+
+    my $got = eval q:s/ { 
+                            class Foo { 
+                                multi method a ($m1) {1}
+                                multi method a ($m2) {2}
+                            };
+                            Foo.new.a($call);
+                }/;
+
+    if defined $got {
+        is($got , $expect, "Arguments ($call) to signatures 1. ($m1) and 2. ($m2) calls $expect");
+    }
+    else {
+        ok(0, "Failed to compile test! error was was: $!" )
+    }
+
+
+}
+
+
+
+
+
