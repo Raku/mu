@@ -1353,39 +1353,50 @@ ruleSignature = rule "Signature" $ do
 
 ruleParam :: RuleParser Paramdec
 ruleParam = rule "paramater" $ do
-    staticTypes <- do
-        ty <- many $ followedBy ruleQualifiedIdentifier whiteSpace
-        return $ map (MkType . cast) ty
-
-    name <- regularVarName
-    let label = cast $ dropWhile (not . isAlpha) name
-
-    def <- option Nothing $ do
-        symbol "?"
-        fmap Just $ option DNil $ do
-            symbol "="
-            fmap (DExp . Exp.EE . Exp.MkExpEmeritus) parseTerm
-    whiteSpace
-    
-    access <- option AccessRO $ do -- XXX: expand this to do arbitrary traits, in any order
-        traits <- ruleTrait ["is"]
-        case traits of
-            ("is", "ro")   -> return AccessRO
-            ("is", "rw")   -> return AccessRW
-            ("is", "copy") -> return AccessCopy
-            _              -> fail $ "unhandled trait: " ++ show traits
-    whiteSpace
-    
-    {- We don't have Exp -> Pugs.Val.Code, too bad.
-    code <- many $ do
-        symbol "where"
-        ruleVerbatimBlock
-    -}
-    let code = []
-    
-    let p = MkParam (cast name) staticTypes code Nothing (maybe DNil id def) label Map.empty access False False
+    staticTypes   <- rStaticTypes
+    (name, label) <- rParamName
+    def           <- rDefault
+    access        <- rAccess   -- XXX: replace with general trait handler
+    code          <- rCode
+    let p = MkParam { p_variable    = cast name
+                    , p_types       = staticTypes
+                    , p_constraints = code
+                    , p_unpacking   = Nothing
+                    , p_default     = maybe DNil id def
+                    , p_label       = label
+                    , p_slots       = Map.empty
+                    , p_hasAccess   = access
+                    , p_isRef       = False
+                    , p_isLazy      = False
+                    }
     return $ MkParamdec{ p_param = p, p_isRequired = isNothing def, p_isNamed = False }
-
+    where
+        rStaticTypes = do
+            ty <- many $ followedBy ruleQualifiedIdentifier whiteSpace
+            return $ map (MkType . cast) ty
+        rParamName = do
+            name <- regularVarName
+            return (name, cast $ dropWhile (not . isAlpha) name)
+        rDefault = following whiteSpace $ option Nothing $ do
+            symbol "?"
+            fmap Just $ option DNil $ do
+                symbol "="
+                fmap (DExp . Exp.EE . Exp.MkExpEmeritus) parseTerm
+        rAccess = following whiteSpace $ option AccessRO $ do
+            traits <- ruleTrait ["is"]
+            case traits of
+                ("is", "ro")   -> return AccessRO
+                ("is", "rw")   -> return AccessRW
+                ("is", "copy") -> return AccessCopy
+                _              -> fail $ "unhandled trait: " ++ show traits
+        rCode = do
+            {- We don't have Exp -> Pugs.Val.Code, too bad.
+            many $ do
+                symbol "where"
+                ruleVerbatimBlock
+            -}
+            return []
+        following = flip followedBy
 
 ruleTypeVar :: RuleParser Exp
 ruleTypeVar = rule "type" $ do
