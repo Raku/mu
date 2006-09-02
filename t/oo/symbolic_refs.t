@@ -1,5 +1,5 @@
 use Test;
-plan 1;
+plan 2;
 
 # This test could use a peer review to confirm it complies with the spec. 
 # Please update or remove as appropriate. 
@@ -17,5 +17,11 @@ plan 1;
     }
     my $obj = Child.new;
     eval_is( $obj.b, 'found', $test);
+
+    {
+        my $test = q"$obj.$meth is canonical (audreyt says)";
+        my $meth = 'foo';
+        eval_is( $obj.$meth(), 'found', $test);
+    }
 }
 
