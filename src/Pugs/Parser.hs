@@ -1355,7 +1355,12 @@ ruleParam :: RuleParser Paramdec
 ruleParam = rule "paramater" $ do
     staticTypes   <- rStaticTypes
     (name, label) <- rParamName
-    def           <- rDefault
+    isOptional    <- choice
+        [ symbol "!" >> return False
+        , symbol "?" >> return True
+        , lookAhead (char '=') >> return True
+        ]
+    def           <- if isOptional then fmap Just rDefault else return Nothing
     access        <- rAccess   -- XXX: replace with general trait handler
     code          <- rCode
     let p = MkParam { p_variable    = cast name
@@ -1377,9 +1382,7 @@ ruleParam = rule "paramater" $ do
         rParamName = do
             name <- regularVarName
             return (name, cast $ dropWhile (not . isAlpha) name)
-        rDefault = following whiteSpace $ option Nothing $ do
-            symbol "?"
-            fmap Just $ option DNil $ do
+        rDefault = following whiteSpace $ option DNil $ do
                 symbol "="
                 fmap (DExp . Exp.EE . Exp.MkExpEmeritus) parseTerm
         rAccess = following whiteSpace $ option AccessRO $ do
