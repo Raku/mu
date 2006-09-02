@@ -39,8 +39,8 @@ Current settings:
 }
 
 my $run_setup;
-
 my $want_profiling = 0;
+my $AR_EXE;
 
 sub build {
     my($opts) = @_;
@@ -96,6 +96,14 @@ sub build {
         warn "GHC bin path: $ghc_bin_path\n";
         warn "Runcompile: $runcompiler\n";
     }
+    else {
+        foreach my $args (@{$opts->{SETUP}}) {
+            $args =~ /^--with-hsc2hs=(.*[\\\/])/ or next;
+            $ghc_bin_path = $1;
+        }
+    }
+
+    $AR_EXE = $Config{full_ar} || File::Spec->catfile($ghc_bin_path, "ar$Config{_exe}");
 
     my @configure_args = (
         ($want_profiling ?  '--enable-library-profiling' : ()),
@@ -179,9 +187,6 @@ sub build {
         system("../../Setup$Config{_exe}", 'install');
         chdir $pwd;
 
-        my $ar = $Config{full_ar};
-        if (!$ar) { $ar = $ghc; $ar =~ s{(.*)ghc}{$1ar}; }
-
         my ($archive_dir) = (
             glob("third-party/installed/*/pugs-$module-*"),
             glob("third-party/installed/*/$module-*"),
@@ -194,7 +199,7 @@ sub build {
             glob("$archive_dir/*/*.a"),
             glob("$archive_dir/*/*/*.a"),
         ) {
-            system($ar, s => $a_file) unless $^O eq 'MSWin32';
+            system($AR_EXE, s => $a_file) unless $^O eq 'MSWin32';
         }
     }
 
@@ -215,16 +220,8 @@ sub build {
     my @o_files = map { glob("third-party/judy/Judy-1.0.3/src/$_/*.o"), }
                         qw( Judy1 JudyHS JudyCommon JudyL JudySL );
 
-    my $ar;
-    if ($^O eq 'MSWin32') {
-        $ar = "$ghc_inst_path\\bin\\ar";
-    } else {
-        $ar = $Config{full_ar};
-        if (!$ar) { $ar = $ghc; $ar =~ s{(.*)ghc}{$1ar}; }
-    }
-
     print "Embedding @o_files into @archive_files\n";
-    system($ar, "-r", $_, @o_files) for @archive_files;
+    system($AR_EXE, "-r", $_, @o_files) for @archive_files;
   
     if ($Config{ranlib} ne ':') {
         system(split(/ /,$Config{ranlib}), $_) for @archive_files;
@@ -286,7 +283,6 @@ sub build_lib {
     my $version = shift;
     my $ghc     = shift;
 
-    my $ar = $Config{full_ar};
     my @a_file = File::Spec->rel2abs("dist/build/libHSPugs-$version.a");
     push @a_file, File::Spec->rel2abs("dist/build/libHSPugs-${version}_p.a") if $want_profiling;
 
@@ -306,11 +302,6 @@ sub build_lib {
     unlink $_ for @a_file;
     $run_setup->('build');
     (-e or die "Build failed: $?") for @a_file;
-
-    if (!$ar) {
-        $ar = $ghc;
-        $ar =~ s{(.*)ghc}{$1ar};
-    }
 
     my $fixup = sub {
         my $module = shift; # eg. "Data.Yaml.Syck"
@@ -349,8 +340,8 @@ sub build_lib {
         }
 
         for (@a_file) {
-            print "==> $ar r $_ $target\n";
-            system($ar, r => $_, $target);
+            print "==> $AR_EXE r $_ $target\n";
+            system($AR_EXE, r => $_, $target);
         }
     };
 
@@ -364,10 +355,10 @@ sub build_lib {
         my $dir = "dist/tmp-$basename";
         mkdir $dir;
         chdir $dir;
-        system($ar, x => $a_ext);
+        system($AR_EXE, x => $a_ext);
         for (@a_file) {
-            print "==> $ar r $_ @{[glob('*')]}\n";
-            system($ar, r => $_, glob("*"));
+            print "==> $AR_EXE r $_ @{[glob('*')]}\n";
+            system($AR_EXE, r => $_, glob("*"));
         }
         unlink(glob("*"));
         chdir '..';
