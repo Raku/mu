@@ -517,15 +517,18 @@ EOD
 
     my $setup_flags = "--prefix=\$(DESTDIR) --with-hc-pkg=$ghc_pkg --with-hsc2hs=$hsc2hs --ghc --with-compiler=$ghc";
 
+    my $svn_entries = '';
+
+    if (-d '.svn') {
+        $svn_entries = File::Spec->catfile('.svn', 'entries');
+    }
+
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
 	\$(PERL) util/config_h.pl "$ghc $ghc_flags"
 
-$version_h : .svn/entries util/version_h.pl
+$version_h : $svn_entries util/version_h.pl
 	\$(PERL) util/version_h.pl $version_h
-
-.svn/entries :
-	\$(NOOP)
 
 @{[join("\n", map {$emit->($_)} grep { /\.o$/ } @prereqs)]}
 
