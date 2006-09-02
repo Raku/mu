@@ -550,7 +550,7 @@ _________________________________________________________________
  you'd like on the current exception (unthrown outside of CATCH, thrown
  inside).  Unthrown exceptions are typically interesting values of undef.
  
- $$ is now $*PID.  ($$foo is now unambuous.)
+ $$ is now $*PID.  ($$foo is now unambiguous.)
  
  $0 is gone in favor of $*PROGRAM_NAME or some such.
  
