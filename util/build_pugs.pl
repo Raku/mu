@@ -241,11 +241,11 @@ sub build {
         system(split(/ /,$Config{ranlib}), $_) for glob("third-party/installed/lib/Pugs-$version/*.a");
     }
 
-    build_exe($version, $ghc, $ghc_version, @args);
+    build_exe($version, $runcompiler, $ghc_version, @args);
 
     if ($want_profiling) {
         $want_profiling = 0;
-        build_exe($version, $ghc, $ghc_version, @args);
+        build_exe($version, $runcompiler, $ghc_version, @args);
     }
 
     my $pm = "src/perl6/Prelude.pm";
