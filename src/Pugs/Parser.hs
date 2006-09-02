@@ -1455,7 +1455,7 @@ ruleInvocationParens = ruleInvocationCommon True
         
 ruleInvocationCommon :: Bool -> RuleParser (Exp -> Exp)
 ruleInvocationCommon mustHaveParens = do
-    name            <- ruleSubName
+    name            <- ruleSubName <|> ruleVarName
     (invs, args)    <- if mustHaveParens
         then parseHasParenParamList
         else do  --  $obj.foo: arg1, arg2    # listop method call
@@ -1467,7 +1467,9 @@ ruleInvocationCommon mustHaveParens = do
                 then parseNoParenParamList
                 else option (Nothing,[]) $ parseParenParamList
     when (isJust invs) $ fail "Only one invocant allowed"
-    return $ \x -> App (_Var name) (Just x) args
+    return $ \x -> case name of
+        ('&':_) -> App (_Var name) (Just x) args        -- $x.meth
+        _       -> Syn "CCallDyn" (_Var name:x:args)    -- $x.$meth
 
 ruleArraySubscript :: RuleParser (Exp -> Exp)
 ruleArraySubscript = tryVerbatimRule "array subscript" $ do

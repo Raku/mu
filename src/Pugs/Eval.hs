@@ -809,6 +809,10 @@ reduceSyn syn [lhs, exp]
 
 reduceSyn "q:code" [ body ] = expToEvalVal body
 
+reduceSyn "CCallDyn" (methExp:inv:args) = do
+    str <- fromVal =<< enterEvalContext (cxtItem "Str") methExp
+    reduceApp (_Var ('&':str)) (Just inv) args
+
 reduceSyn name exps =
     retError "Unknown syntactic construct" (Syn name exps)
 
