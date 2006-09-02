@@ -4,6 +4,9 @@ use Test;
 
 plan 10;
 
+# L<S12/"Multisubs and Multimethods">
+# L<S12/"Multi dispatch">
+
 class Foo {
 
     multi method bar() {
