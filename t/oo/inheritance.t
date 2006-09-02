@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 27;
+plan 28;
 
 class Foo {
     has $.bar is rw;
@@ -73,7 +73,5 @@ ok  Foo::Bar.meta.does(::CLASS),   "subclass.meta.does(CLASS) is true", :todo<fe
         method foo () { "found" }
     }
     class Child is Foo { }
-    my $obj = Child.new;
-    my $meth = 'foo';
-    eval_is( '$obj.$meth()', 'found', $test);
+    eval_is( 'my $meth = "foo"; my $obj= Child.new; $obj.$meth()', 'found', $test);
 }
