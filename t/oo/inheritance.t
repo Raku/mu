@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 26;
+plan 27;
 
 class Foo {
     has $.bar is rw;
@@ -65,3 +65,15 @@ ok !Foo::Bar.meta.isa(Class),    "subclass.meta.isa(Class) is false";
 ok !Foo::Bar.meta.does(Class),   "subclass.meta.does(Class) is false";
 ok !Foo::Bar.meta.isa(::CLASS),    "subclass.meta.isa(CLASS) is false";
 ok  Foo::Bar.meta.does(::CLASS),   "subclass.meta.does(CLASS) is true", :todo<feature>;
+
+
+{
+    my $test = q"$obj.$meth is canonical (audreyt says)";
+    class Foo {
+        method foo () { "found" }
+    }
+    class Child is Foo { }
+    my $obj = Child.new;
+    my $meth = 'foo';
+    eval_is( '$obj.$meth()', 'found', $test);
+}
