@@ -51,6 +51,7 @@ sub update_pugs {
 
 sub build_pugs {
     print STDERR "*** Rebuilding pugs\n";
+    unlink 'src/Pugs/pugs_version.h';
     system 'perl Makefile.PL';
     system 'make';
 }
