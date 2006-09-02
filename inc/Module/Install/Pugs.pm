@@ -64,6 +64,12 @@ sub set_blib {
       : die "Perl version '$perl_version' is bad. Must be 5 or 6.";
     my $path = File::Spec->catdir($base, $blib);
 
+    if ( basename($Config{make}, $Config{_exe}) =~ /\bdmake\b/ ) {
+        # This is purely for working around sad dmake bug
+        # Which parses C:\work\pugs as C : \work\pugs
+        $path =~ s{^\w:}{}
+    }
+
     $self->makemaker_args->{INST_LIB} =
       File::Spec->catfile($path, "lib");
     $self->makemaker_args->{INST_ARCHLIB} =
