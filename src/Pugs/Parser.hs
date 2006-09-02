@@ -1363,18 +1363,27 @@ ruleParam = rule "paramater" $ do
     def           <- rDefault isOptional
     traits        <- many $ withTrailingSpace $ ruleTrait ["is", "does"]
     code          <- rCode
+    {- setTrait scans the traits list for "interesting" values, weeding
+     - them out. The last interesting value is returned.
+     - We can't let-shadow 'traits', because it's an action :-( . -}
+    let (traits',   access') = setTrait access AccessRO traits
+    let (traits'',  ref')    = setTrait ref    False    traits'
+    let (traits''', lazy')   = setTrait lazy   False    traits''
+    let slots = Map.fromList [(cast t, val $ ((cast True) :: PureBit)) | ("is", t) <- traits''']
+    let isRequired = (not isOptional) || (Map.member (cast "required") slots)
+    when (isOptional && isRequired) failReqDef -- XXX is required(False)
     let p = MkParam { p_variable    = cast name
                     , p_types       = staticTypes
                     , p_constraints = code
                     , p_unpacking   = Nothing
-                    , p_default     = maybe DNil id def
+                    , p_default     = def
                     , p_label       = label
-                    , p_slots       = Map.empty
-                    , p_hasAccess   = withFirst access AccessRO $ reverse traits -- we assume "last one wins"
-                    , p_isRef       = withFirst ref    False    $ reverse traits
-                    , p_isLazy      = withFirst lazy   False    $ reverse traits
+                    , p_slots       = slots
+                    , p_hasAccess   = access'
+                    , p_isRef       = ref'
+                    , p_isLazy      = lazy'
                     }
-    return $ MkParamdec{ p_param = p, p_isRequired = isNothing def, p_isNamed = False }
+    return $ MkParamdec{ p_param = p, p_isRequired = isRequired, p_isNamed = False }
     where
     rStaticTypes = do
         ty <- many $ withTrailingSpace ruleQualifiedIdentifier
@@ -1382,13 +1391,13 @@ ruleParam = rule "paramater" $ do
     rParamName = do
         name <- regularVarName
         return (name, cast $ dropWhile (not . isAlpha) name)
-    rDefault True = withTrailingSpace $ option (Just DNil) $ do
+    rDefault True = withTrailingSpace $ option DNil $ do
         symbol "="
-        fmap (Just . DExp . Exp.EE . Exp.MkExpEmeritus) parseTerm
+        fmap (DExp . Exp.EE . Exp.MkExpEmeritus) parseTerm
     rDefault False = do
         ch <- lookAhead anyChar
         when (ch == '!') failReqDef
-        return Nothing
+        return DNil
     rCode = do
         {- We don't have Exp -> Pugs.Val.Code, too bad.
         many $ do
@@ -1396,11 +1405,12 @@ ruleParam = rule "paramater" $ do
             ruleVerbatimBlock
         -}
         return []
-    withFirst :: Show a => (a -> Maybe b) -> b -> [a] -> b
-    withFirst f d [] = d
-    withFirst f d (x:xs) = case f x of
-        Just rv -> rv
-        Nothing -> withFirst f d xs
+    setTrait :: (a -> Maybe b) -> b -> [a] -> ([a], b)
+    setTrait f d' l = doSetTrait d' [] l where
+        doSetTrait d acc []     = (acc, d)
+        doSetTrait d acc (x:xs) = case f x of
+            Just rv -> doSetTrait rv acc xs
+            Nothing -> doSetTrait d (acc ++ [x]) xs
     access ("is", "ro")   = Just AccessRO
     access ("is", "rw")   = Just AccessRW
     access ("is", "copy") = Just AccessCopy
