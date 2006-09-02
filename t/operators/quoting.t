@@ -415,12 +415,13 @@ Hello, World
     is q:x/echo 一/, "一\n", "Testing for q:x operator. (utf8)";
 }
 
+# L<S02/Literals/"Interpolate % vars">
 # q:h
 {
     # Pugs can't parse q:h currently.
     my %t = (a => "perl", b => "rocks");
     my $s;
-    eval_ok "$s = q;h /%t<>/", :todo<parsefail>;
+    eval_ok "$s = q:h /%t<>/", :todo<parsefail>;
     is $s, ~%t, "Testing for q:h operator.";
 }
 
