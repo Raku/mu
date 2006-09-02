@@ -227,7 +227,7 @@ sub build {
     system($ar, "-r", $_, @o_files) for @archive_files;
   
     if ($Config{ranlib} ne ':') {
-      system(split(/ /,$Config{ranlib}), $_) for @archive_files;
+        system(split(/ /,$Config{ranlib}), $_) for @archive_files;
     }
 
 
@@ -239,6 +239,10 @@ sub build {
     build_lib($version, $ghc, @args);
 
     $run_setup->('install');
+
+    if ($Config{ranlib} ne ':') {
+        system(split(/ /,$Config{ranlib}), $_) for glob("third-party/installed/lib/Pugs-$version/*.a");
+    }
 
     build_exe($version, $ghc, $ghc_version, @args);
 
@@ -372,11 +376,8 @@ sub build_lib {
     }
 
     # Run ranlib.
-    unless ($^O eq 'MSWin32') {
-        for (@a_file) {
-            print "==> $ar s $_\n";
-            system($ar, s => $_);
-        }
+    if ($Config{ranlib} ne ':') {
+        system(split(/ /,$Config{ranlib}), $_) for @a_file;
     }
 }
 
