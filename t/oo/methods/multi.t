@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 14;
+plan 15;
 
 # L<S12/"Multisubs and Multimethods">
 # L<S12/"Multi dispatch">
@@ -91,6 +91,13 @@ my $yaml_tests = eval(q{
 -
     m1: @a?
     expect: 2 
+
+-   
+    m1: 
+    m2: @a?
+    call: <1 2 3>
+    expect: 2
+
 }, :lang<yaml>);
 
 for each($yaml_tests) -> %h {
