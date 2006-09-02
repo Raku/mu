@@ -1361,7 +1361,7 @@ ruleParam = rule "paramater" $ do
         , lookAhead (char '=') >> return True
         ]
     def           <- rDefault isOptional
-    access        <- rAccess   -- XXX: replace with general trait handler
+    traits        <- many $ withTrailingSpace $ ruleTrait ["is", "does"]
     code          <- rCode
     let p = MkParam { p_variable    = cast name
                     , p_types       = staticTypes
@@ -1370,32 +1370,25 @@ ruleParam = rule "paramater" $ do
                     , p_default     = maybe DNil id def
                     , p_label       = label
                     , p_slots       = Map.empty
-                    , p_hasAccess   = access
-                    , p_isRef       = False
-                    , p_isLazy      = False
+                    , p_hasAccess   = access $ reverse traits -- we assume "last one wins"
+                    , p_isRef       = ref    $ reverse traits
+                    , p_isLazy      = lazy   $ reverse traits
                     }
     return $ MkParamdec{ p_param = p, p_isRequired = isNothing def, p_isNamed = False }
     where
     rStaticTypes = do
-        ty <- many $ followedBy ruleQualifiedIdentifier whiteSpace
+        ty <- many $ withTrailingSpace ruleQualifiedIdentifier
         return $ map (MkType . cast) ty
     rParamName = do
         name <- regularVarName
         return (name, cast $ dropWhile (not . isAlpha) name)
-    rDefault True = following whiteSpace $ option (Just DNil) $ do
+    rDefault True = withTrailingSpace $ option (Just DNil) $ do
         symbol "="
         fmap (Just . DExp . Exp.EE . Exp.MkExpEmeritus) parseTerm
     rDefault False = do
         ch <- lookAhead anyChar
-        when (ch == '!') $ fail "required parameters cannot have default values"
+        when (ch == '!') failReqDef
         return Nothing
-    rAccess = following whiteSpace $ option AccessRO $ do
-        traits <- ruleTrait ["is"]
-        case traits of
-            ("is", "ro")   -> return AccessRO
-            ("is", "rw")   -> return AccessRW
-            ("is", "copy") -> return AccessCopy
-            _              -> fail $ "unhandled trait: " ++ show traits
     rCode = do
         {- We don't have Exp -> Pugs.Val.Code, too bad.
         many $ do
@@ -1403,7 +1396,19 @@ ruleParam = rule "paramater" $ do
             ruleVerbatimBlock
         -}
         return []
-    following = flip followedBy
+    access []                 = AccessRO
+    access (("is", "ro"):_)   = AccessRO
+    access (("is", "rw"):_)   = AccessRW
+    access (("is", "copy"):_) = AccessCopy
+    access (_:xs)             = access xs
+    ref    []                 = False
+    ref    (("is", "ref"):_)  = True
+    ref    (_:xs)             = ref xs
+    lazy   []                 = False
+    lazy   (("is", "lazy"):_) = True
+    lazy   (_:xs)             = lazy xs
+    failReqDef = fail "required parameters cannot have default values"
+    withTrailingSpace = (flip followedBy) whiteSpace
 
 ruleTypeVar :: RuleParser Exp
 ruleTypeVar = rule "type" $ do
