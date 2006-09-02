@@ -77,21 +77,22 @@ sub build {
 
     mkdir $prefix unless -d $prefix;
 
-    # On Win32, a very broken heuristics in Cabal forced us to copy runcompiler.exe
-    # over to where GHC was in.
+    # On Win32, a very broken heuristics in Cabal forced us to fake a
+    # gcc-lib\ld.exe under pugs path.
     my ($ghc_inst_path, $ghc_bin_path);
     if ($^O eq 'MSWin32') {
-        my $new_runcompiler;
         foreach my $args (@{$opts->{SETUP}}) {
             $args =~ /^--with-hsc2hs=(.*[\\\/])/ or next;
             $ghc_inst_path = $ghc_bin_path = $1;
             $ghc_inst_path =~ s{[/\\]bin[/\\]?$}{};
             $ENV{PATH} = "$ENV{PATH};$ghc_inst_path;$ghc_bin_path";
-            $new_runcompiler = File::Spec->catfile($ghc_bin_path, "runcompiler$Config{_exe}");
-            copy($runcompiler => $new_runcompiler);
-            $runcompiler = $new_runcompiler;
+
+            if (!-e "gcc-lib/ld.exe" and -e "$ghc_inst_path/gcc-lib/ld.exe") {
+                mkdir "gcc-lib";
+                copy("$ghc_inst_path/gcc-lib/ld.exe" => "gcc-lib/ld.exe");
+            }
         }
-        die "Cannot find hsc2hs path" unless $new_runcompiler;
+        die "Cannot obtain gcc-lib/ld.exe" unless -e "gcc-lib/ld.exe";
         warn "GHC installation path: $ghc_inst_path\n";
         warn "GHC bin path: $ghc_bin_path\n";
         warn "Runcompile: $runcompiler\n";
