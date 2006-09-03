@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 16 Aug 2006
+  Last Modified: 4 Sep 2006
   Number: 3
-  Version: 56
+  Version: 57
 
 =head1 Changes to Perl 5 operators
 
@@ -1116,6 +1116,12 @@ declaring multiple parameters:
     my $a;		# okay
     my ($b, $c);	# okay
     my $b, $c;		# wrong: "Use of undeclared variable: $c"
+
+Types occuring between the declarator and the signature are distributed into
+each variable:
+
+    my Dog ($b, $c);
+    my (Dog $b, Dog $c);    # same thing
 
 [XXX the following probably belongs in S06.]
 The syntax for constructing a C<Signature> object when the parser isn't already
