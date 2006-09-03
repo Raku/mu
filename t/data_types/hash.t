@@ -175,8 +175,5 @@ $i = 0;
 $i++ for %hash; # segfaults
 is $i, 4, "for %hash works";
 
-lives_ok( { @%(a => <b>)<a> }, "doesn't really make sense, but shouldn't segfault, either");
-
-
-
-
+try{ @%(a => <b>)<a> };
+ok( $!, "doesn't really make sense, but shouldn't segfault, either ($!)");
