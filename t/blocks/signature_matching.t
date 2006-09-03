@@ -4,6 +4,7 @@ plan 26;
 
 # check the subroutine with the closest matching signature is called
 #
+#L<S06/"Longname parameters">
 #L<S12/"Multisubs and Multimethods">
 
 multi earth (:$me)               {"me $me"};

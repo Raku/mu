@@ -1,10 +1,11 @@
 use v6-alpha;
-
 use Test;
-
 plan 22;
 
 # type based dispatching
+#
+#L<S06/"Longname parameters">
+#L<S12/"Multisubs and Multimethods">
 
 multi foo (Int $bar)   { "Int "  ~ $bar  }
 multi foo (Str $bar)   { "Str "  ~ $bar  }
