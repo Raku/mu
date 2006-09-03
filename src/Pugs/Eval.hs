@@ -39,6 +39,7 @@ import Pugs.Types
 import Pugs.External
 import Pugs.Eval.Var
 import DrIFT.YAML ()
+import qualified Data.ByteString.Char8 as Str
 
 
 {-|
@@ -267,7 +268,9 @@ reduceVar var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = p
                 | SScalar <- sig    -> enterContext _scalarContext (evalRef ref)
                 | otherwise         -> evalRef ref
             Nothing
-                | sig == SType      -> return $ VType (cast name)
+                | SType <- sig      -> return . VType . cast $ if isQualifiedVar var
+                    then cast $ Str.join (__"::") [cast pkg, cast name]
+                    else name
                 | pkg /= emptyPkg
                 , pkg /= callerPkg
                 , pkg /= outerPkg
