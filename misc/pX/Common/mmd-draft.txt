@@ -87,6 +87,20 @@ but both Dog and Cat are more specific than (Dog|Cat).  That is, "Dog" can
 imply (Dog|Cat), but not the other way around.  However, if "Dog" is a subset
 of "Cat", then (Dog|Cat) is first flattened to "Cat" before comparison.
 
+== Handling Optional and Slurpy Parameters
+
+Optional parameters need special consideration, because they represent two
+options themselves: one with with the argument and one without.  Slurpy
+parameters have the same concern, as they can take zero or more arguments
+themselves.  For each optional parameter, a case with and without the optional
+parameter is considered.
+
+Examples: 
+
+   Arguments (a => 'b') to signatures 1. () and 2. (*%h) calls 2
+   Arguments () to signatures 1. (@a?) and 2. () calls 2
+   Arguments (<1 2 3>) to signatures 1. () and 2. (@a?) calls 2
+
 ------------------------------------------------------------
 Backstory and discussion:
 
@@ -116,3 +130,5 @@ nothingmuch rants disambiguation strategies:
 
 2. annotate "important" roles/types in your given args (partial or full
    signature in caller): f( Storable x => $x ); # more important than another role
+
+# vim ft:text
