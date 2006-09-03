@@ -42,8 +42,8 @@ plan 28;
   }
 
   sub foo {
-    env $a = "foo";
-    env $b := $a;
+    my $a is context = "foo";
+    my $b is context := $a;
     return bar(); # && bar2();
   }
 

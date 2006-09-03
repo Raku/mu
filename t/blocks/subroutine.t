@@ -32,7 +32,7 @@ ok(twice(5) == 10);
 ok(twice(5 - 3) == 4);
 
 # XXX - This should be the default, but here we are testing CALLER, not $_
-env $_;
+my $_ is context;
 
 sub callerunderscore ($foo = $CALLER::_) {
     return "-" ~ $foo ~ "-"

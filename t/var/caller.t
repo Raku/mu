@@ -5,7 +5,7 @@ use Test;
 plan 18;
 
 {
-  env $a = 9;
+  my $a is context = 9;
   my $sub = sub { $CALLER::a };
 
   {
@@ -15,15 +15,15 @@ plan 18;
 }
 
 {
-  env $a = 9;
+  my $a is context = 9;
   my $sub2 = sub { $CALLER::a };
   my $sub1 = sub {
-    env $a = 10;
+    my $a is context = 10;
     $sub2();
   };
 
   {
-    env $a = 11;
+    my $a is context = 11;
     is $sub1(), 10, '$CALLER:: with nested subs works';
   }
 }
@@ -31,11 +31,11 @@ plan 18;
 {
   my $get_caller = sub { return sub { $CALLER::CALLER::a } };
   my $sub1 = sub {
-    env $a = 3;
+    my $a is context = 3;
     $get_caller();
   };
   my $sub2 = sub {
-    env $a = 5;
+    my $a is context = 5;
     $get_caller();
   };
 
@@ -50,7 +50,7 @@ plan 18;
 
 # L<S02/"Names" /The CALLER package refers to the lexical scope/>
 {
-  # $_ is always implicitly declared "env".
+  # $_ is always implicitly declared "is context".
   my sub foo () { $CALLER::_ }
   my sub bar () {
     $_ = 42;
@@ -58,11 +58,11 @@ plan 18;
   }
 
   $_ = 23;
-  is bar(), 42, '$_ is implicitly declared "env" (1)';
+  is bar(), 42, '$_ is implicitly declared "is context" (1)';
 }
 
 {
-  # $_ is always implicitly declared "env".
+  # $_ is always implicitly declared "is context".
   # (And, BTW, $_ is lexical.)
   my sub foo () { $_ = 17; $CALLER::_ }
   my sub bar () {
@@ -71,7 +71,7 @@ plan 18;
   }
 
   $_ = 23;
-  is bar(), 42, '$_ is implicitly declared "env" (2)', :todo<bug>;
+  is bar(), 42, '$_ is implicitly declared "is context" (2)', :todo<bug>;
 }
 
 {
@@ -84,27 +84,27 @@ plan 18;
 
   my $abs = 23;
   dies_ok { bar() },
-    'vars not declared "env" are not accessible via $CALLER::';
+    'vars not declared "is context" are not accessible via $CALLER::';
 }
 
-# Vars declared with env() default to being rw in the creating scope and
+# Vars declared with "is context" default to being rw in the creating scope and
 # readonly when accessed with $CALLER::.
 {
-  env $foo = 42;
+  my $foo is context = 42;
   $foo++;
-  is $foo, 43, "env() vars are rw in the creating scope (1)";
+  is $foo, 43, '"is context" vars are rw in the creating scope (1)';
 }
 
 {
-  env $foo = 42;
+  my $foo is context = 42;
   { $foo++ }
-  is $foo, 43, "env() vars are rw in the creating scope (2)";
+  is $foo, 43, '"is context" vars are rw in the creating scope (2)';
 }
 
 {
   my sub modify { $CALLER::foo++ }
-  env $foo = 42;
-  dies_ok { modify() }, 'env() vars are ro when accessed with $CALLER::';
+  my $foo is context = 42;
+  dies_ok { modify() }, '"is context" vars are ro when accessed with $CALLER::';
 }
 
 {
@@ -116,16 +116,16 @@ plan 18;
 
 {
   my sub modify { $CALLER::foo++ }
-  env $foo is rw = 42;
+  my $foo is context is rw = 42;
   lives_ok { modify() },
-      'env() vars declared "is rw" are rw when accessed with $CALLER:: (1)', :todo<bug>;
+      '"is context" vars declared "is rw" are rw when accessed with $CALLER:: (1)', :todo<bug>;
   is $foo, 43,
-      'env() vars declared "is rw" are rw when accessed with $CALLER:: (2)', :todo<bug>;
+      '"is context" vars declared "is rw" are rw when accessed with $CALLER:: (2)', :todo<bug>;
 }
 
 {
   my sub get_foo { try { $+foo } }
-  env $foo = 42;
+  my $foo is context = 42;
 
   is get_foo(), 42, '$+ is short for $CALLER::';
 }
@@ -134,7 +134,7 @@ plan 18;
 {
   my $other_var = 23;
   my sub rebind_foo { $CALLER::foo := $other_var }
-  env $foo = 42;
+  my $foo is context = 42;
 
   lives_ok { rebind_foo() }, 'rebinding $CALLER:: variables works (1)', :todo<bug>;
   is $foo, 23,               'rebinding $CALLER:: variables works (2)', :todo<bug>;
