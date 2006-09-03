@@ -41,6 +41,7 @@ module Pugs.Internals (
     module Data.Unique,
     module Data.Word,
     module Debug.Trace,
+    module GHC.Exts,
     module Network,
     module Numeric,
     module Pugs.Compat,
@@ -80,7 +81,6 @@ module Pugs.Internals (
     die,
     _GlobalFinalizer,
     unsafeIOToSTM,
-    unsafeCoerce#,
     ID(..), bufToID,
 
     __, (+++), nullID,
@@ -130,7 +130,7 @@ import Data.List (
     )
 import Data.Unique
 import Data.Ratio
-import Data.Word
+import Data.Word hiding (Word)
 import Data.Complex
 import Data.ByteString (ByteString)
 import Data.Tree
@@ -142,7 +142,7 @@ import Debug.Trace
 import GHC.Base (realWorld#)
 import GHC.IOBase (IO(..))
 import GHC.Conc (unsafeIOToSTM)
-import GHC.Exts (unsafeCoerce#)
+import GHC.Exts (unsafeCoerce#, Word(W#), Word#)
 import qualified Data.Seq as Seq
 
 import qualified Judy.StrMap as H
