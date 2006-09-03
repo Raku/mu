@@ -476,6 +476,7 @@ ruleFormalParam opt = rule "formal parameter" $ do
     appTrait "rw"   x = x { isWritable = True }
     appTrait "copy" x = x { isLValue = False, isWritable = True }
     appTrait "lazy" x = x { isLazy = True }
+    appTrait "context" x = x { paramName = (paramName x){ v_twigil = TImplicit } }
     appTrait _      x = x -- error "unknown trait"
 
 ruleParamDefault :: Bool -> RuleParser Exp
@@ -1263,33 +1264,40 @@ ruleBlockFormalPointy = rule "pointy block parameters" $ do
 
 ruleVarDecl :: RuleParser Exp
 ruleVarDecl = rule "variable declaration" $ do
-    scope           <- ruleScope
-    (cxtNames, exp) <- oneDecl <|> manyDecl
+    scope   <- ruleScope
+    -- XXX - the treatment in the cases below is wrong; "is context"
+    --       should be made part of the Pad annotations, as with the
+    --       constraints; for now we abuse ruleFormalParam to add an
+    --       extra "+" as part of the name when "is context" is seen,
+    --       so we can rewrite the declarator to SEnv, but it's Wrong.
+    (cxtNames, exp, seenIsContextXXX) <- oneDecl <|> manyDecl
     let makeBinding (name, cxt)
             | ('$':_) <- name, typ /= anyType   = mkSym . bindSym
             | otherwise                         = mkSym
             where
-            mkSym   = _Sym scope name
+            mkSym   = _Sym scope' name
             bindSym = Stmts (Syn "=" [_Var name, Val (VType typ)])
             typ     = typeOfCxt cxt
+        scope' = if seenIsContextXXX then SEnv else scope -- XXX Hack
     lexDiff <- unsafeEvalLexDiff $ combine (map makeBinding cxtNames) emptyExp
     -- Now hoist the lexDiff to the current block
-    addBlockPad scope lexDiff
-    return (Ann (Decl scope) exp)
+    addBlockPad scope' lexDiff
+    return (Ann (Decl scope') exp)
     where
-    deSigil (sig:'!':rest@(_:_)) = (sig:rest)
-    deSigil (sig:'.':rest) = (sig:rest)
-    deSigil x              = x
     oneDecl = do
         param <- ruleFormalParam FormalsSimple
-        let name = deSigil (cast $ paramName param)
-        return ([(name, paramContext param)], _Var name)
+        let var  = paramName param
+            name = cast var{ v_twigil = TNil }
+            seenIsContextXXX = v_twigil var == TImplicit
+        return ([(name, paramContext param)], _Var name, seenIsContextXXX)
     manyDecl = do
         params <- verbatimParens . enterBracketLevel ParensBracket $
             ruleFormalParam FormalsComplex `sepBy1` ruleComma
-        let names = map (deSigil . cast . paramName) params
+        let vars  = map paramName params
+            names = map (\v -> cast v{ v_twigil = TNil }) vars
             types = map paramContext params
-        return (names `zip` types, Syn "," $ map _Var names)
+            seenIsContextXXX = any ((== TImplicit) . v_twigil) vars
+        return (names `zip` types, Syn "," $ map _Var names, seenIsContextXXX)
 
 parseTerm :: RuleParser Exp
 parseTerm = rule "term" $! do
