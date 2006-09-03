@@ -1376,11 +1376,13 @@ ruleParam = rule "paramater" $ do
     code          <- rCode
     {- setTrait scans the traits list for "interesting" values, weeding
      - them out. The last interesting value is returned.
-     - We can't let-shadow 'traits', because it's an action :-( . -}
-    let (traits',   access') = setTrait access AccessRO traits
-    let (traits'',  ref')    = setTrait ref    False    traits'
-    let (traits''', lazy')   = setTrait lazy   False    traits''
-    let slots = Map.fromList [(cast t, val $ ((cast True) :: PureBit)) | ("is", t) <- traits''']
+     - We can't let-shadow 'traits', because it's an action :-(
+     - XXX - Eventually rewrite with foldr. -}
+    let (traits',   access') = setTrait access  AccessRO traits
+    let (traits'',  ref')    = setTrait ref     False    traits'
+    let (traits''', lazy')   = setTrait lazy    False    traits''
+    let (traits'''',context')= setTrait context False    traits'''
+    let slots = Map.fromList [(cast t, val $ ((cast True) :: PureBit)) | ("is", t) <- traits'''']
     let isRequired = (not isOptional) || (Map.member (cast "required") slots)
     when (isOptional && isRequired) failReqDef -- XXX is required(False)
     let p = MkParam { p_variable    = cast name
@@ -1393,6 +1395,7 @@ ruleParam = rule "paramater" $ do
                     , p_hasAccess   = access'
                     , p_isRef       = ref'
                     , p_isLazy      = lazy'
+                    , p_isContext   = context'
                     }
     return $ MkParamdec{ p_param = p, p_isRequired = isRequired, p_isNamed = False }
     where
@@ -1430,6 +1433,8 @@ ruleParam = rule "paramater" $ do
     ref    _              = Nothing
     lazy   ("is", "lazy") = Just True
     lazy   _              = Nothing
+    context   ("is", "context") = Just True
+    context   _                 = Nothing
     failReqDef = fail "required parameters cannot have default values"
     withTrailingSpace = (flip followedBy) whiteSpace
 
