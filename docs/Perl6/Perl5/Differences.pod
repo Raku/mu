@@ -47,7 +47,7 @@ Again, there is a shorter form:
 
 For details, see L<S02/"Names and Variables">.
 
-=head2 Global Variables have a twigil
+=head2 Global variables have a twigil
 
 Yes, a twigil. It's the second character in the variable name. For globals,
 it's a C<*>; for contextual variables, it's C<+>.
@@ -90,21 +90,18 @@ For details, see L<S02/"Built-In Data Types">
 
 See L<S02/"double-underscore forms are going away"> for details.
 
-
 =cut 
 
 # S03
 
 =head1 Operators
 
-A comprehensive list of operator changes are documented here:
-
-L<S03/"Changes to Perl 5 operators">
-L<S03/"New operators">
+A comprehensive list of operator changes is documented at L<S03/"Changes to
+Perl 5 operators"> and L<S03/"New operators">.
 
 Some highlights:
 
-=head2 qw() has a customary form; new interpolating form
+=head2 C<qw()> has a customary form; new interpolating form
 
     Was:    qw(foo)
     Now:    <foo>
@@ -112,9 +109,9 @@ Some highlights:
     Was:    ("foo", (split /s+/, $bar), "bat")
     Now:    <<foo $bar bat>>
 
-Quoting operators now have modifiers that can be used with them (much
-like regexes and substitutions in Perl 5), and you can even define
-your own quoting operators.  See S03 for details.
+Quoting operators now have modifiers that can be used with them (much like
+regexes and substitutions in Perl 5), and you can even define your own quoting
+operators.  See L<S03> for details.
 
 =cut
 
@@ -164,7 +161,7 @@ This can be extended to take more than one element at a time:
     Was:    while (my($age, $sex, $location) = splice @whatever, 0, 3) { ... }
     Now:    for @whatever -> $age, $sex, $location { ... }
 
-(Only the C<for> version does not destroy the array.)
+(Except the C<for> version does not destroy the array.)
 
 See L<S04/"The for statement"> and L<S29/"each"> for details.
 
@@ -189,7 +186,7 @@ Here's a simple translation of a Perl5 regular expression to Perl6:
     Was:    $str =~ m/^\d{2,5}\s/i
     Now:    $str ~~ m:P5:i/^\d{2,5}\s/
 
-The 'P5' modifier is there because the standard Perl6 syntax is rather
+The C<:P5> modifier is there because the standard Perl6 syntax is rather
 different, and 'P5' notes a Perl5 compatibility syntax.  For the full
 specification, see L<S05>. See also:
 
@@ -197,7 +194,7 @@ The related Apocalypse, which justifies the changes:
 
   http://dev.perl.org/perl6/doc/design/apo/A05.html 
 
-And the related Exegesis, wihch explains it more detail:
+And the related Exegesis, which explains it more detail:
 
   http://dev.perl.org/perl6/doc/design/exe/E05.html
 
@@ -309,7 +306,7 @@ A number of builtins have been removed. For details, see:
 
 L<S29/"Obsolete">
 
-=head2 references are gone / everything is a reference
+=head2 References are gone (or: everything is a reference)
 
 C<Capture> objects fill the ecological niche of references in Perl 6.
 You can think of them as "fat" references, that is, references that
@@ -338,7 +335,7 @@ L<Perl6::FAQ::Capture>.
 
 =head2 say()
 
-This is a version of print() that auto-appends a newline:
+This is a version of C<print> that auto-appends a newline:
 
     Was:    print "Hello, world!\n";
     Now:    say   "Hello, world!";
@@ -366,7 +363,7 @@ are in fact just quoting mechanisms (see below).
 =head2 Built-in functions are now methods
 
 Most (all?) built-in functions are now methods of built-in classes such
-as String, Array, etc.
+as C<String>, C<Array>, etc.
 
     Was:    my $len = length($string);
     Now:    my $len = $string.chars;
