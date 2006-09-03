@@ -1377,6 +1377,7 @@ ruleParam = rule "paramater" $ do
         ]
     def           <- rDefault isOptional
     traits        <- many $ withTrailingSpace $ ruleTrait ["is", "does"]
+    --unpacking     <- option Nothing $ fmap Just rPostVarUnpacking
     code          <- rCode
     {- setTrait scans the traits list for "interesting" values, weeding
      - them out. The last interesting value is returned.
@@ -1392,7 +1393,7 @@ ruleParam = rule "paramater" $ do
     let p = MkParam { p_variable    = cast name
                     , p_types       = staticTypes
                     , p_constraints = code
-                    , p_unpacking   = Nothing
+                    , p_unpacking   = Nothing -- unpacking
                     , p_default     = def
                     , p_label       = label
                     , p_slots       = slots
@@ -1417,10 +1418,13 @@ ruleParam = rule "paramater" $ do
     rDefault True = withTrailingSpace $ option DNil $ do
         symbol "="
         fmap (DExp . Exp.EE . Exp.MkExpEmeritus) parseTerm
-    rDefault False = do
+    rDefault False = withTrailingSpace $ do
         ch <- lookAhead anyChar
         when (ch == '!') failReqDef
         return DNil
+    --rPostVarUnpacking = withTrailingSpace $ do
+    --    optional $ char ':'
+    --    (Val (VV sig')) <- between (symbol "(") (symbol ")") ruleSignature
     rCode = do
         {- We don't have Exp -> Pugs.Val.Code, too bad.
         many $ do
