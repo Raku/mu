@@ -216,7 +216,7 @@ F<examples/golf/> directories in the Pugs repository.
 
 Larry's really bad decisions tend to get fixed later in the design process, we hope.
 If you keep using the same modules over and over, you can make a module that uses all
-of those modules, and still end up with the things getting exported to teh right place.
+of those modules, and still end up with the things getting exported to the right place.
 Individual authors, communities, or style guides could have their own sets.
 Most languages with the possible exception of your $language_of_choice have numberus
 misdecisions.
