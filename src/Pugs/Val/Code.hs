@@ -109,6 +109,7 @@ data SigParam = MkParam
                                      --   explicitly mentioned below
     , p_hasAccess   :: ParamAccess   -- ^ is ro, is rw, is copy
     , p_isRef       :: Bool          -- ^ must be true if hasAccess = AccessRW
+    , p_isContext   :: Bool          -- ^ "is context"
     , p_isLazy      :: Bool
     }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
