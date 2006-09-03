@@ -77,7 +77,7 @@ class ICoercible m a => IValue m a where
     valShow _ = cast "<opaque>"
     -- | Identity.
     valId       :: a -> SKID
-    valId = cast . NUint . unsafeCoerce#
+    valId x = cast (NUint (W# (unsafeCoerce# x)))
     -- | Comparison.
     valCompare  :: a -> a -> Ordering
     valCompare x y = valId x `compare` valId y
