@@ -1612,10 +1612,10 @@ instance Ord (IVar a) where
 instance Ord (TVar a) where
     compare _ _ = EQ
 instance (Typeable a) => Show (IVar a) where
-    show v = "<" ++ showType (refType (MkRef v)) ++ ":0x" ++ showHex (W# addr) ">"
+    show v = addr `seq` ('<' : showType (refType (MkRef v)) ++ ":0x" ++ showHex addr ">")
         where
-        addr :: Word#
-        addr = case v of
+        addr :: Word
+        addr = W# (case v of
             IScalar x -> x `seq` unsafeCoerce# x
             IArray  x -> x `seq` unsafeCoerce# x
             IHash   x -> x `seq` unsafeCoerce# x
@@ -1623,7 +1623,7 @@ instance (Typeable a) => Show (IVar a) where
             IHandle x -> x `seq` unsafeCoerce# x
             IRule   x -> x `seq` unsafeCoerce# x
             IThunk  x -> x `seq` unsafeCoerce# x
-            IPair   x -> x `seq` unsafeCoerce# x
+            IPair   x -> x `seq` unsafeCoerce# x)
 #endif
 
 scalarRef   :: ScalarClass a=> a -> VRef
