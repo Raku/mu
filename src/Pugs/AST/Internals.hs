@@ -813,6 +813,7 @@ paramToValParam param = ret
                                   MkOldParam { isLValue = False }                    -> Val.AccessCopy
         , Val.p_isRef       = Val.p_hasAccess ret == Val.AccessRW
         , Val.p_isLazy      = isLazy param
+        , Val.p_isContext   = False -- XXX - not yet handled
         }
 
 paramsToSig :: Params -> Val.Sig

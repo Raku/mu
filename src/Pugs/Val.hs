@@ -37,7 +37,6 @@ import {-# SOURCE #-} Pugs.Exp
 
 import qualified Pugs.Types as Types
 
-
 #include "Val/Code.hs"
 
 {-|
