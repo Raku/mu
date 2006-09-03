@@ -23,6 +23,7 @@ no warnings qw( once );
     # alpha constant
     my $rule = Pugs::Compiler::Regex->compile( 'xxx' . "\n" . '\n' );
     my $match = $rule->match( "xxx\n" );
+    #print "Ast: ", do{use Data::Dumper; Dumper( Pugs::Grammar::Rule->rule( 'xxx' . "\n" . '\n' )->()  )};
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", $match->perl;
     is( "$match", "xxx\n", 'constant' );
@@ -98,8 +99,10 @@ no warnings qw( once );
     # calling named subrules
     *test::rule_method3 = Pugs::Compiler::Regex->compile( '.' )->code;
     *test::rule_method4 = Pugs::Compiler::Regex->compile( '<rule_method3>' )->code;
+    #print "Source: ", do{use Data::Dumper; Dumper( Pugs::Compiler::Regex->compile( '.' )->{perl5} )};
+    #print "Source: ", do{use Data::Dumper; Dumper( Pugs::Compiler::Regex->compile( '<rule_method3>' )->{perl5} )};
+    #print "Source: ", do{use Data::Dumper; Dumper( Pugs::Grammar::Rule->rule( '<rule_method3>' )->() )};
     my $match = test->rule_method4( "xyzw" );
-    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", $match->perl;
     is( "$match", "x", 'a named subrule calls a named subrule in same grammar' );
 }

@@ -81,10 +81,11 @@ BEGIN {
         ) );
     __PACKAGE__->add_rule(
         'for' =>  q( 
-            # { print "statement for \n"; }
+            #{ print "statement for \n"; }
             <?ws> 
             $<exp1> := <Pugs::Grammar::Expression.parse('no_blocks',0)> <?ws>?
             $<exp2> := <Pugs::Grammar::Perl6.block>        
+            # { print "parsed so far: ", '!', $_[0], '!', Dumper( $_[0]->data ); }
             { return { 
                     statement => 'for',
                     exp1 => $_[0]{exp1}->(),

@@ -51,6 +51,9 @@ sub flat {
         if ref $cap eq 'REF'   ||
            ref $cap eq 'SCALAR';
     return '' unless ${$obj->{bool}};
+    
+    return '' if $_[0]->from > length( ${$obj->{str}} );
+    
     return substr( ${$obj->{str}}, $_[0]->from, $_[0]->to - $_[0]->from );
 }
 

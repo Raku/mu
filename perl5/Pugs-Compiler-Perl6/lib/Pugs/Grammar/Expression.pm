@@ -42,7 +42,7 @@ my $rx_end_no_blocks = qr/
 # XXX - this optimization is no longer needed, as the optimization in Grammar::Operator worked best
 our ( $p, $match, $pos, $rx_end, $allow_modifier, $statement_modifier,
     $allow_semicolon );
-our ( $reentrant, $last_reentrant ) = (0,0);
+# our ( $reentrant, $last_reentrant ) = (0,0);
 
 sub parse {
     #print "perl6_expression param: ", Dumper @_;
@@ -56,16 +56,16 @@ sub parse {
         to      => \$to,
         capture => \$ast,
     } );
+    #print "Expression: ",Dumper( $match->() );
     return $match;
 };
 
 sub ast {
     local ( $p, $match, $pos, $rx_end, $allow_modifier, $statement_modifier,
-        $allow_semicolon
-        )
-        if $reentrant && $reentrant >= $last_reentrant;
-    $last_reentrant = $reentrant;
-    $reentrant++;
+        $allow_semicolon );
+    #    if $reentrant && $reentrant >= $last_reentrant;
+    # $last_reentrant = $reentrant;
+    # $reentrant++;
     #print " $reentrant ";
 
     $match = shift;
@@ -91,7 +91,7 @@ sub ast {
            )
         ) {
         # end of parse
-        $reentrant--;
+        # $reentrant--;
         return (undef, $match);
     }
     #print "Grammar::Expression::ast '$match' \n";
@@ -104,10 +104,10 @@ sub ast {
         },
         yyerror => sub { 
             local $Carp::CarpLevel = 2;
-            croak "parsing error in Expression: ..." . substr($match,0,30) . "... "; 
+            croak "parsing error in Expression: ..." . substr($match,$pos,30) . "... "; 
         },
-    ) unless $p;
-
+    ); 
+    
     my $out=$p->YYParse(yydebug => 0);
 
     if ( $statement_modifier ) {
@@ -120,7 +120,7 @@ sub ast {
     }
 
     #print Dumper $out;
-    $reentrant--;
+    # $reentrant--;
     return ( $out, $pos );
 }
 
@@ -214,6 +214,7 @@ sub lexer {
             # term() 
             if ( $m2 && $m2->tail && $m2->tail =~ /^\(/ ) {
                 my $paren = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
+                #print "paren: ",Dumper($paren);
                 if ( exists $m2->()->{dot_bareword} ) {
                     $paren->data->{capture} = \{ 
                         op1 => 'method_call', 
@@ -360,7 +361,7 @@ sub lexer {
             $m = $m2 if $m2;
         }
         return ('','', $pos) unless ref $m;
-        #print "Term or expression: ",Dumper $m->data;
+        #print "Term or expression: ",Dumper( $m->() );
 
 # <fglock> like: ( name 1, 2 or 3 ) - is it parsed as name(1,2 or 3) or (name(1,2) or 3)
 # <TimToady> it will be taken provisionally as a listop, with listop precedence

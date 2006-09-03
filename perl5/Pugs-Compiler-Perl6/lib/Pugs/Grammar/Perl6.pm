@@ -8,7 +8,7 @@ use Pugs::Grammar::StatementControl;
 use Pugs::Grammar::StatementModifier;
 use Pugs::Grammar::Expression;
 use Pugs::Grammar::Pod;
-use Pugs::Grammar::P6Rule; # our local version of Grammar::Rule.pm
+use Pugs::Grammar::Rule; 
 
 use Data::Dumper;
 
@@ -24,7 +24,7 @@ use Data::Dumper;
 *block = Pugs::Compiler::Token->compile( q(
     \{ <?ws>? <statements> <?ws>? \}
         { 
-            #print "matched block\n", Dumper( $_[0]{statements}->data ); 
+            #print "matched block", Dumper( $_[0]{statements}->data ); 
             return { 
                 bare_block => $_[0]{statements}->(),
             } 
@@ -274,7 +274,7 @@ use Data::Dumper;
     <attribute>      <?ws>?
     <'{'>            <?ws>?
     [
-        <Pugs::Grammar::P6Rule.rule> <?ws>?
+        <Pugs::Grammar::Rule.rule> <?ws>?
         <'}'>
         { return { 
                 multi      => $_[0][0]->(),
@@ -284,7 +284,7 @@ use Data::Dumper;
                 attribute  => $_[0]{attribute}->(),
                 signature  => $_[0]{sub_signature}->(),
                 # pass the match tree to the emitter
-                block      => $_[0]{'Pugs::Grammar::P6Rule.rule'}->(),
+                block      => $_[0]{'Pugs::Grammar::Rule.rule'}->(),
         } }
     |
         # XXX better error messages
@@ -344,16 +344,18 @@ use Data::Dumper;
 *statements = Pugs::Compiler::Token->compile( q(
     [ ; <?ws>? ]*
     [
-        <before <'}'> > { $::_V6_SUCCEED = 0 } 
-    |
+        <!before <'}'> >
         <statement> 
+        #{ print "02 end statement", Dumper( $_[0]{statement}->() ) } 
         <?ws>? [ ; <?ws>? ]*
         [
-            <before <'}'> > { $::_V6_SUCCEED = 0 }
-        |
+            <!before <'}'> >
+            { print "04 another statement\n"; }
             <statements> 
-            { return {
-                statements => [
+            { 
+                #{ print "06 return statements\n"; }
+                return {
+                    statements => [
                         $_[0]{statement}->(),
                         @{ $_[0]{statements}->()->{statements} },
                     ]
@@ -361,10 +363,17 @@ use Data::Dumper;
             }
         |
             { 
-            return {
-                statements => [ $_[0]{statement}->() ],
+                #{ print "08 return statements\n"; }
+                return {
+                    statements => [ $_[0]{statement}->() ],
             } }
         ]
+    |
+            { 
+                #{ print "10 return statements\n"; }
+                return {
+                    statements => [],
+            } }
     ]
 ),
     { grammar => __PACKAGE__ }

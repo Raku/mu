@@ -1,5 +1,5 @@
 
-use Test::More tests => 115;
+use Test::More tests => 116;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -704,6 +704,7 @@ TODO:
         <'>>'> 
     ) );
     #print $rule->perl;
+    #print Dumper( Pugs::Grammar::Rule->rule( " <'>>'> " )->() );
     my $match = $rule->match( "abc>>zzz" );
     is( "$match", ">>", 'literal ">"' );
 }
@@ -724,6 +725,15 @@ TODO:
     #print $rule->perl;
     my $match = $rule->match( "abc}zzz" );
     is( "$match", "}", 'literal "}"' );
+}
+
+{
+    my $rule = Pugs::Compiler::Rule->compile( q^
+        <')'> 
+    ^ );
+    #print $rule->perl;
+    my $match = $rule->match( "abc)zzz" );
+    is( "$match", ")", 'literal ")"' );
 }
 
 {

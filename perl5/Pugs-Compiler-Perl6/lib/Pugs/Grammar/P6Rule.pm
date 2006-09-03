@@ -73,6 +73,13 @@ Pugs::Compiler::Token->install(
             }, } 
         }
     )),
+  Pugs::Compiler::Token->compile(q(
+        \\< \\! before <?ws> <rule> \\> 
+        { return { not_before => { 
+                rule  => $/{rule}(),
+            }, } 
+        }
+    )),
   #*negate = 
   Pugs::Compiler::Token->compile(q(
         \\< \\! <rule> \\> 

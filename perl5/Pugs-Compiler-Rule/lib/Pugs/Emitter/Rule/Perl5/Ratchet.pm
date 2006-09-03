@@ -56,8 +56,9 @@ $_[1] )";
 
 sub call_perl5 {
     my $const = $_[0];
+    #print "CONST: $const - $direction \n";
     return
-    "$_[1] ( ( substr( \$s, \$pos ) =~ m/^$const/s )  
+    "$_[1] ( ( length(\$s) >= \$pos && substr( \$s, \$pos ) =~ m/^$const/s )  
 $_[1]     ? do { \$pos $direction= length \$&; 1 }
 $_[1]     : 0
 $_[1] )";
@@ -192,7 +193,13 @@ sub alt {
         "$_[1] do {
 $_[1]   my \$pos1 = \$pos;
 $_[1]   do {
-" . join( "\n$_[1]   } || do { \$pos = \$pos1;\n", @s ) . "
+" . join( "
+$_[1]   } 
+$_[1]   || do { 
+$_[1]     \$pos = \$pos1; 
+$_[1]     \$bool = 1;\n", 
+          @s 
+    ) . "
 $_[1]   }
 $_[1] }";
 }        
@@ -225,7 +232,12 @@ sub preprocess_hash {
         return sub { 
             my ( $str, $grammar, $args ) = @_;
             #print "data: ", Dumper( \@_ );
-            $h->{$key}->( ); 
+            my $ret = $h->{$key}->( @_ ); 
+            #print "ret: ", Dumper( $ret );
+            
+            return $ret 
+                if ref( $ret ) eq 'Pugs::Runtime::Match';
+            
             Pugs::Runtime::Match->new( { 
                 bool => \1, 
                 str =>  \$str,
@@ -333,7 +345,7 @@ sub variable {
                 \$pos = \$match->to;
                 #print \"match: \$key at \$pos = \", Dumper( \$match->data );
                 \$bool = 1;
-            } else { \$bool = 0 }
+            }; # else { \$bool = 0 }
             \$match;
           }";
         #print $code;
@@ -568,8 +580,22 @@ $_[1]     };
 $_[1] }";
 }
 sub not_before {
-    warn '<!before ...> not implemented';
-    return;
+    my $program = $_[0]{rule};
+    $program = emit_rule( $program, $_[1].'        ' )
+        if ref( $program );
+    return "$_[1] do{ 
+$_[1]     my \$pos1 = \$pos;
+$_[1]     do {
+$_[1]       my \$pos = \$pos1;
+$_[1]       my \$from = \$pos;
+$_[1]       my \@match;
+$_[1]       my \%named;
+$_[1]       my \$bool = 1;
+$_[1]       \$bool = 0 unless
+" .             $program . ";
+$_[1]       ! \$bool;
+$_[1]     };
+$_[1] }";
 }
 sub after {
     local $direction = "-";
@@ -714,6 +740,7 @@ sub metasyntax {
         elsif ( $prefix eq '+' ) {
            $cmd = substr($cmd, 2);
         }
+        $cmd =~ s/\s+|\n//g;
         # XXX <[^a]> means [\^a] instead of [^a] in perl5re
         return call_perl5($cmd, $_[1]);
     }
@@ -725,11 +752,11 @@ sub metasyntax {
         }
         if ( exists $char_class{$cmd} ) {
             # XXX - inlined char classes are not inheritable, but this should be ok
-            return
-                "$_[1] ( ( substr( \$s, \$pos, 1 ) =~ /[[:$cmd:]]/ ) 
-$_[1]     ? do { $direction$direction\$pos; 1 }
-$_[1]     : 0
-$_[1] )";
+            return call_perl5( "[[:$cmd:]]", $_[1] );
+#                "$_[1] ( ( substr( \$s, \$pos, 1 ) =~ /[[:$cmd:]]/ ) 
+# $_[1]     ? do { $direction$direction\$pos; 1 }
+# $_[1]     : 0
+# $_[1] )";
         }
         return
             "$_[1] do { my \$match =\n" .

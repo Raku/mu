@@ -32,7 +32,18 @@ sub code {
 sub literal {
     my $grammar = shift;
     return $grammar->no_match unless $_[0];
+    #print "literal: ", substr( $_[0], 0, 10 ), "\n";
+    
+    # <'}'> workaroung Text::Balanced bug
+    return Pugs::Runtime::LrepMatch->new( { 
+        bool  => 1,
+        match => '}',
+        tail  => substr( $_[0], 3 ),
+    } )
+        if substr( $_[0], 0, 3 ) eq '}';
+    
     my ($extracted,$remainder) = Text::Balanced::extract_delimited( $_[0], "'" );
+    #print "  extracted: ", $extracted, "\n";
     $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
     return Pugs::Runtime::LrepMatch->new( { 
         bool  => ( $extracted ne '' ),
@@ -45,17 +56,22 @@ sub metasyntax {
     my $grammar = shift;
     return $grammar->no_match unless $_[0];
 
+    #print "metasyntax: ", substr( $_[0], 0, 10 ), "\n";
+    return $grammar->no_match 
+        unless substr( $_[0], 0, 1 ) eq "<";
+
     # <'xxx'> workaroung Text::Balanced bug
     if ( substr( $_[0], 1, 1 ) eq "'" ) {
         my $result = $grammar->literal( substr( $_[0], 1 ) );
         ${$result}->{tail} = substr( ${$result}->{tail}, 1 );
         ${$result}->{capture} = { metasyntax => "'" . ${$result}->{match} . "'" },
-        #print "metasyntax: ", Dumper( $result );
+        #print "metasyntax: <''> ", Dumper( $result );
         return $result;
     }
 
     my ($extracted,$remainder) = Text::Balanced::extract_bracketed( $_[0], "<..>" );
     $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
+    #print "metasyntax: <> ", Dumper( $extracted );
     return Pugs::Runtime::LrepMatch->new( { 
         bool  => ( $extracted ne '' ),
         match => $extracted,

@@ -89,7 +89,8 @@ use_ok( 'Pugs::Grammar::Base' );
 
 {
     my $rule = Pugs::Compiler::Regex->compile( '$<z> := (.) { return { x => { %{$_[0]} } ,} } ' );
-    #print $rule->{perl5};
+    print Dumper( Pugs::Grammar::Rule->rule( 'x' )->() );
+    # print $rule->{perl5};
     my $match = $rule->match( "abc" );
     #print "match: ", $match->perl;
     ok( $match, 'true match' );

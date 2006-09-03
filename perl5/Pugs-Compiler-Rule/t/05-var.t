@@ -4,6 +4,7 @@ use Test::More tests => 3;
 use_ok( 'Pugs::Compiler::Rule' );
 use Pugs::Grammar::Base;
 #no warnings qw( once );
+use Data::Dumper;
 
 {
     my $rule = Pugs::Compiler::Regex->compile( '(.)$0' );
@@ -15,6 +16,7 @@ use Pugs::Grammar::Base;
 {
     my $rule = Pugs::Compiler::Regex->compile( '(.)(.)$1' );
     my $match = $rule->match( "xyyz" );
+    #print "Ast: ", Dumper( Pugs::Grammar::Rule->rule( '(.)(.)$1' )->() );
     #print "Source: ", $rule->perl;
     #print "Match: ", $match->perl;
     is( "$match", "xyy", 'match $1' );

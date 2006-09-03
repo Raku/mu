@@ -40,10 +40,10 @@ sub _var_get {
         if ( exists $n->{bare_block} ) {
             my $block = _emit( $n );
             # TODO - check if it is a comma-delimited list
-            print "block: [$block]\n";
+            #print "block: [$block]\n";
             return $block 
                 if $block =~ / \# \s* hash \s* \n \s* }? \s* $/xs;
-            print "sub: [$block]\n";
+            #print "sub: [$block]\n";
             return ' sub ' . $block;
         }
         return _emit( $n );
@@ -1078,6 +1078,13 @@ sub term {
         }
 
         my $perl5;
+        
+        for my $attr ( @{$n->{attribute}} ) {
+            if ( $attr->[0]{bareword} eq ':P5' ) {
+                die "TODO: regex :P5 {...}";
+            }
+        }
+        
         if ( $n->{term} eq 'regex' ) {
             $perl5 = Pugs::Emitter::Rule::Perl5::emit( 
                 'Pugs::Grammar::Base', 
@@ -1114,6 +1121,19 @@ sub term {
             /sx;
             $perl5 = "*$name = $perl5";
         }
+        else {
+            $perl5 =~ s/
+              my \s+ \$grammar \s+ = .*? ; \s+
+              my \s+ \$s       \s+ = .*? ;
+            /
+              my \$s       = \$_[0] || '';
+              my \$grammar = \$_[1] || __PACKAGE__;
+              \$_[3] = \$_[2]; 
+              \$_[2] = undef;
+            /sx;
+            return $perl5;
+        }
+        
         # TODO - _emit_parameter_binding( $n->{signature} ) .
         return  $export .
                 $perl5 . ";" .

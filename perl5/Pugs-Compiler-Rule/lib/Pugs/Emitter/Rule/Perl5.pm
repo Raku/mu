@@ -38,6 +38,9 @@ sub emit {
     local $capture_to_array = 0;
     local %capture_seen = ();
     #print "emit capture_to_array $capture_to_array\n";
+    
+    # print "emit: ", Dumper($ast);
+    
     return 
         "do {\n" .
         "    package Pugs::Runtime::Regex;\n" .

@@ -6,7 +6,7 @@ use 5.006;
 use strict;
 use warnings;
 
-use base 'Pugs::Compiler::Regex';
+#use base 'Pugs::Compiler::Regex';
 
 #use Pugs::Compiler::Regex;
 #sub code { (+shift)->Pugs::Compiler::Regex::code( @_ ) }
@@ -67,7 +67,7 @@ q(sub {
         $self->{perl5};
     die "Error in evaluation: $@\nSource:\n$self->{perl5}\n" if $@;
 
-    bless $self, $class;
+    bless $self, 'Pugs::Compiler::Regex';
 }
 
 1;

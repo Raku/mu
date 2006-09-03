@@ -7,9 +7,10 @@ use strict;
 use warnings;
 
 use Pugs::Grammar::Rule;
+use Pugs::Compiler::RegexPerl5;
+
 use Pugs::Emitter::Rule::Perl5;
 use Pugs::Emitter::Rule::Perl5::Ratchet;
-use Pugs::Compiler::RegexPerl5;
 
 use Pugs::Runtime::Regex;
 
@@ -70,7 +71,7 @@ sub compile {
         #print 'rule source: ', $self->{source}, "\n";
         #print "match: ", Dumper( Pugs::Grammar::Rule->rule( $self->{source} ) );
         my $ast = Pugs::Grammar::Rule->rule( 
-            $self->{source} )->{capture};
+            $self->{source} )->();
         #print "ast: ",Dumper($ast),"\n";
         #die "Error in rule: '$rule_source' at: '$ast->tail'\n" if $ast->tail;
         #print 'rule ast: ', do{use Data::Dumper; Dumper($ast{capture})};

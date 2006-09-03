@@ -1,0 +1,4238 @@
+        package Pugs::Grammar::Rule;
+        no strict 'refs';
+        use Pugs::Runtime::Match;
+        use Pugs::Emitter::Rule::Perl5::Ratchet;
+        our %rule_terms;
+*pod_begin = sub {
+
+  $_[3] = $_[2];
+  $_[2] = undef;
+  my $grammar = $_[0];
+  my $s       = $_[1];
+  my $m;
+  for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    my %index;
+    my @match;
+    my %named;
+    my $bool = 1;
+    $m = Pugs::Runtime::Match->new(
+      {
+        str     => \$s,
+        from    => \( 0 + $pos ),
+        to      => \($pos),
+        bool    => \$bool,
+        match   => \@match,
+        named   => \%named,
+        capture => undef,
+      }
+    );
+    $bool = 0
+      unless do {
+      my $pos1 = $pos;
+      do {
+        (
+          (
+            ( length($s) >= $pos && substr( $s, $pos ) =~ m/^\n/s )
+            ? do { $pos += length $&; 1 }
+            : 0
+          )
+            && (
+            (
+              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '=' )
+              ? do { $pos += 1; 1 }
+              : 0
+            )
+            && (
+              (
+                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'e' )
+                ? do { $pos += 1; 1 }
+                : 0
+              )
+              && (
+                (
+                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'n' )
+                  ? do { $pos += 1; 1 }
+                  : 0
+                )
+                && (
+                  (
+                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'd' )
+                    ? do { $pos += 1; 1 }
+                    : 0
+                  )
+                  && do {
+                    my $bool;
+                    while (
+                      (
+                        ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\n]/s )
+                        ? do { $pos += length $&; 1 }
+                        : 0
+                      )
+                      )
+                    {
+                    }
+                    1;
+                  }
+                )
+              )
+            )
+            )
+        );
+        }
+        || do {
+        $pos  = $pos1;
+        $bool = 1;
+        (
+          do { $pos < length($s) ? ++$pos : 0 }
+            && (
+            do {
+              my $bool;
+              while (
+                (
+                  ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\n]/s )
+                  ? do { $pos += length $&; 1 }
+                  : 0
+                )
+                )
+              {
+              }
+              1;
+            }
+            && do {
+              my $match = $grammar->pod_begin( $s, { p => $pos, args => {} }, undef );
+              my $bool = ( !$match != 1 );
+              $pos = $match->to if $bool;
+              $match;
+            }
+            )
+        );
+        }
+      };
+    last if $m;
+  }
+  $::_V6_MATCH_ = $m;
+  return $m;
+};    ## Signature for pod_begin
+#Data::Bind->sub_signature( \&pod_begin, );
+*pod_other = sub {
+
+  $_[3] = $_[2];
+  $_[2] = undef;
+  my $grammar = $_[0];
+  my $s       = $_[1];
+  my $m;
+  for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    my %index;
+    my @match;
+    my %named;
+    my $bool = 1;
+    $m = Pugs::Runtime::Match->new(
+      {
+        str     => \$s,
+        from    => \( 0 + $pos ),
+        to      => \($pos),
+        bool    => \$bool,
+        match   => \@match,
+        named   => \%named,
+        capture => undef,
+      }
+    );
+    $bool = 0
+      unless do {
+      my $pos1 = $pos;
+      do {
+        (
+          (
+            ( length($s) >= $pos && substr( $s, $pos ) =~ m/^\n/s )
+            ? do { $pos += length $&; 1 }
+            : 0
+          )
+            && (
+            (
+              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '=' )
+              ? do { $pos += 1; 1 }
+              : 0
+            )
+            && (
+              (
+                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'c' )
+                ? do { $pos += 1; 1 }
+                : 0
+              )
+              && (
+                (
+                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'u' )
+                  ? do { $pos += 1; 1 }
+                  : 0
+                )
+                && (
+                  (
+                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 't' )
+                    ? do { $pos += 1; 1 }
+                    : 0
+                  )
+                  && do {
+                    my $bool;
+                    while (
+                      (
+                        ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\n]/s )
+                        ? do { $pos += length $&; 1 }
+                        : 0
+                      )
+                      )
+                    {
+                    }
+                    1;
+                  }
+                )
+              )
+            )
+            )
+        );
+        }
+        || do {
+        $pos  = $pos1;
+        $bool = 1;
+        (
+          do { $pos < length($s) ? ++$pos : 0 }
+            && (
+            do {
+              my $bool;
+              while (
+                (
+                  ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\n]/s )
+                  ? do { $pos += length $&; 1 }
+                  : 0
+                )
+                )
+              {
+              }
+              1;
+            }
+            && do {
+              my $match = $grammar->pod_other( $s, { p => $pos, args => {} }, undef );
+              my $bool = ( !$match != 1 );
+              $pos = $match->to if $bool;
+              $match;
+            }
+            )
+        );
+        }
+      };
+    last if $m;
+  }
+  $::_V6_MATCH_ = $m;
+  return $m;
+};    ## Signature for pod_other
+#Data::Bind->sub_signature( \&pod_other, );
+*ws = sub {
+
+  $_[3] = $_[2];
+  $_[2] = undef;
+  my $grammar = $_[0];
+  my $s       = $_[1];
+  my $m;
+  for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    my %index;
+    my @match;
+    my %named;
+    my $bool = 1;
+    $m = Pugs::Runtime::Match->new(
+      {
+        str     => \$s,
+        from    => \( 0 + $pos ),
+        to      => \($pos),
+        bool    => \$bool,
+        match   => \@match,
+        named   => \%named,
+        capture => undef,
+      }
+    );
+    $bool = 0
+      unless do {
+      (
+        do {
+          my $pos1 = $pos;
+          do {
+            (
+              (
+                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '#' )
+                ? do { $pos += 1; 1 }
+                : 0
+              )
+                && do {
+                my $bool;
+                while (
+                  (
+                    ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\n]/s )
+                    ? do { $pos += length $&; 1 }
+                    : 0
+                  )
+                  )
+                {
+                }
+                1;
+                }
+            );
+            }
+            || do {
+            $pos  = $pos1;
+            $bool = 1;
+            do {
+              my $pos1 = $pos;
+              do {
+                (
+                  (
+                    ( length($s) >= $pos && substr( $s, $pos ) =~ m/^\n/s )
+                    ? do { $pos += length $&; 1 }
+                    : 0
+                  )
+                    && do {
+                    my $bool;
+                    (
+                      (
+                        (
+                          ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '=' )
+                          ? do { $pos += 1; 1 }
+                          : 0
+                        )
+                          && do {
+                          my $bool;
+                          (
+                            do {
+                              my $pos1 = $pos;
+                              do {
+                                (
+                                  (
+                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'b' )
+                                    ? do { $pos += 1; 1 }
+                                    : 0
+                                  )
+                                    && (
+                                    (
+                                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'e' )
+                                      ? do { $pos += 1; 1 }
+                                      : 0
+                                    )
+                                    && (
+                                      (
+                                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'g' )
+                                        ? do { $pos += 1; 1 }
+                                        : 0
+                                      )
+                                      && (
+                                        (
+                                          ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'i' )
+                                          ? do { $pos += 1; 1 }
+                                          : 0
+                                        )
+                                        && (
+                                          (
+                                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'n' )
+                                            ? do { $pos += 1; 1 }
+                                            : 0
+                                          )
+                                          && (
+                                            do {
+                                              my $match = $grammar->ws( $s, { p => $pos, args => {} }, undef );
+                                              my $bool = ( !$match != 1 );
+                                              $pos = $match->to if $bool;
+                                              $match;
+                                            }
+                                            && (
+                                              (
+                                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'E' )
+                                                ? do { $pos += 1; 1 }
+                                                : 0
+                                              )
+                                              && (
+                                                (
+                                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'N' )
+                                                  ? do { $pos += 1; 1 }
+                                                  : 0
+                                                )
+                                                && (
+                                                  (
+                                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'D' )
+                                                    ? do { $pos += 1; 1 }
+                                                    : 0
+                                                  )
+                                                  && (
+                                                    do {
+                                                      my $bool;
+                                                      while (
+                                                        (
+                                                          ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\n]/s )
+                                                          ? do { $pos += length $&; 1 }
+                                                          : 0
+                                                        )
+                                                        )
+                                                      {
+                                                      }
+                                                      1;
+                                                    }
+                                                    && do {
+                                                      my $bool;
+                                                      while (
+                                                        do { $pos < length($s) ? ++$pos : 0 }
+                                                        )
+                                                      {
+                                                      }
+                                                      1;
+                                                    }
+                                                  )
+                                                )
+                                              )
+                                            )
+                                          )
+                                        )
+                                      )
+                                    )
+                                    )
+                                );
+                                }
+                                || do {
+                                $pos  = $pos1;
+                                $bool = 1;
+                                do {
+                                  my $pos1 = $pos;
+                                  do {
+                                    (
+                                      (
+                                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'b' )
+                                        ? do { $pos += 1; 1 }
+                                        : 0
+                                      )
+                                        && (
+                                        (
+                                          ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'e' )
+                                          ? do { $pos += 1; 1 }
+                                          : 0
+                                        )
+                                        && (
+                                          (
+                                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'g' )
+                                            ? do { $pos += 1; 1 }
+                                            : 0
+                                          )
+                                          && (
+                                            (
+                                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'i' )
+                                              ? do { $pos += 1; 1 }
+                                              : 0
+                                            )
+                                            && (
+                                              (
+                                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'n' )
+                                                ? do { $pos += 1; 1 }
+                                                : 0
+                                              )
+                                              && do {
+                                                my $match = $grammar->pod_begin( $s, { p => $pos, args => {} }, undef );
+                                                my $bool = ( !$match != 1 );
+                                                $pos = $match->to if $bool;
+                                                $match;
+                                              }
+                                            )
+                                          )
+                                        )
+                                        )
+                                    );
+                                    }
+                                    || do {
+                                    $pos  = $pos1;
+                                    $bool = 1;
+                                    do {
+                                      my $pos1 = $pos;
+                                      do {
+                                        (
+                                          (
+                                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'k' )
+                                            ? do { $pos += 1; 1 }
+                                            : 0
+                                          )
+                                            && (
+                                            (
+                                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'w' )
+                                              ? do { $pos += 1; 1 }
+                                              : 0
+                                            )
+                                            && (
+                                              (
+                                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'i' )
+                                                ? do { $pos += 1; 1 }
+                                                : 0
+                                              )
+                                              && (
+                                                (
+                                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'd' )
+                                                  ? do { $pos += 1; 1 }
+                                                  : 0
+                                                )
+                                                && do {
+                                                  my $match = $grammar->pod_other( $s, { p => $pos, args => {} }, undef );
+                                                  my $bool = ( !$match != 1 );
+                                                  $pos = $match->to if $bool;
+                                                  $match;
+                                                }
+                                              )
+                                            )
+                                            )
+                                        );
+                                        }
+                                        || do {
+                                        $pos  = $pos1;
+                                        $bool = 1;
+                                        do {
+                                          my $pos1 = $pos;
+                                          do {
+                                            (
+                                              (
+                                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'p' )
+                                                ? do { $pos += 1; 1 }
+                                                : 0
+                                              )
+                                                && (
+                                                (
+                                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'o' )
+                                                  ? do { $pos += 1; 1 }
+                                                  : 0
+                                                )
+                                                && (
+                                                  (
+                                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'd' )
+                                                    ? do { $pos += 1; 1 }
+                                                    : 0
+                                                  )
+                                                  && do {
+                                                    my $match = $grammar->pod_other( $s, { p => $pos, args => {} }, undef );
+                                                    my $bool = ( !$match != 1 );
+                                                    $pos = $match->to if $bool;
+                                                    $match;
+                                                  }
+                                                )
+                                                )
+                                            );
+                                            }
+                                            || do {
+                                            $pos  = $pos1;
+                                            $bool = 1;
+                                            do {
+                                              my $pos1 = $pos;
+                                              do {
+                                                (
+                                                  (
+                                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'f' )
+                                                    ? do { $pos += 1; 1 }
+                                                    : 0
+                                                  )
+                                                    && (
+                                                    (
+                                                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'o' )
+                                                      ? do { $pos += 1; 1 }
+                                                      : 0
+                                                    )
+                                                    && (
+                                                      (
+                                                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'r' )
+                                                        ? do { $pos += 1; 1 }
+                                                        : 0
+                                                      )
+                                                      && do {
+                                                        my $match = $grammar->pod_other( $s, { p => $pos, args => {} }, undef );
+                                                        my $bool = ( !$match != 1 );
+                                                        $pos = $match->to if $bool;
+                                                        $match;
+                                                      }
+                                                    )
+                                                    )
+                                                );
+                                                }
+                                                || do {
+                                                $pos  = $pos1;
+                                                $bool = 1;
+                                                (
+                                                  (
+                                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'h' )
+                                                    ? do { $pos += 1; 1 }
+                                                    : 0
+                                                  )
+                                                    && (
+                                                    (
+                                                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'e' )
+                                                      ? do { $pos += 1; 1 }
+                                                      : 0
+                                                    )
+                                                    && (
+                                                      (
+                                                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'a' )
+                                                        ? do { $pos += 1; 1 }
+                                                        : 0
+                                                      )
+                                                      && (
+                                                        (
+                                                          ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'd' )
+                                                          ? do { $pos += 1; 1 }
+                                                          : 0
+                                                        )
+                                                        && (
+                                                          (
+                                                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '1' )
+                                                            ? do { $pos += 1; 1 }
+                                                            : 0
+                                                          )
+                                                          && do {
+                                                            my $match = $grammar->pod_other( $s, { p => $pos, args => {} }, undef );
+                                                            my $bool = ( !$match != 1 );
+                                                            $pos = $match->to if $bool;
+                                                            $match;
+                                                          }
+                                                        )
+                                                      )
+                                                    )
+                                                    )
+                                                );
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                              || 1
+                          );
+                          }
+                      )
+                        || 1
+                    );
+                    }
+                );
+                }
+                || do {
+                $pos  = $pos1;
+                $bool = 1;
+                (
+                  ( length($s) >= $pos && substr( $s, $pos ) =~ m/^\s/s )
+                  ? do { $pos += length $&; 1 }
+                  : 0
+                );
+                }
+              }
+            }
+          }
+          && do {
+          my $bool;
+          while (
+            do {
+              my $pos1 = $pos;
+              do {
+                (
+                  (
+                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '#' )
+                    ? do { $pos += 1; 1 }
+                    : 0
+                  )
+                    && do {
+                    my $bool;
+                    while (
+                      (
+                        ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\n]/s )
+                        ? do { $pos += length $&; 1 }
+                        : 0
+                      )
+                      )
+                    {
+                    }
+                    1;
+                    }
+                );
+                }
+                || do {
+                $pos  = $pos1;
+                $bool = 1;
+                do {
+                  my $pos1 = $pos;
+                  do {
+                    (
+                      (
+                        ( length($s) >= $pos && substr( $s, $pos ) =~ m/^\n/s )
+                        ? do { $pos += length $&; 1 }
+                        : 0
+                      )
+                        && do {
+                        my $bool;
+                        (
+                          (
+                            (
+                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '=' )
+                              ? do { $pos += 1; 1 }
+                              : 0
+                            )
+                              && do {
+                              my $bool;
+                              (
+                                do {
+                                  my $pos1 = $pos;
+                                  do {
+                                    (
+                                      (
+                                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'b' )
+                                        ? do { $pos += 1; 1 }
+                                        : 0
+                                      )
+                                        && (
+                                        (
+                                          ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'e' )
+                                          ? do { $pos += 1; 1 }
+                                          : 0
+                                        )
+                                        && (
+                                          (
+                                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'g' )
+                                            ? do { $pos += 1; 1 }
+                                            : 0
+                                          )
+                                          && (
+                                            (
+                                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'i' )
+                                              ? do { $pos += 1; 1 }
+                                              : 0
+                                            )
+                                            && (
+                                              (
+                                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'n' )
+                                                ? do { $pos += 1; 1 }
+                                                : 0
+                                              )
+                                              && (
+                                                do {
+                                                  my $match = $grammar->ws( $s, { p => $pos, args => {} }, undef );
+                                                  my $bool = ( !$match != 1 );
+                                                  $pos = $match->to if $bool;
+                                                  $match;
+                                                }
+                                                && (
+                                                  (
+                                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'E' )
+                                                    ? do { $pos += 1; 1 }
+                                                    : 0
+                                                  )
+                                                  && (
+                                                    (
+                                                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'N' )
+                                                      ? do { $pos += 1; 1 }
+                                                      : 0
+                                                    )
+                                                    && (
+                                                      (
+                                                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'D' )
+                                                        ? do { $pos += 1; 1 }
+                                                        : 0
+                                                      )
+                                                      && (
+                                                        do {
+                                                          my $bool;
+                                                          while (
+                                                            (
+                                                              ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\n]/s )
+                                                              ? do { $pos += length $&; 1 }
+                                                              : 0
+                                                            )
+                                                            )
+                                                          {
+                                                          }
+                                                          1;
+                                                        }
+                                                        && do {
+                                                          my $bool;
+                                                          while (
+                                                            do { $pos < length($s) ? ++$pos : 0 }
+                                                            )
+                                                          {
+                                                          }
+                                                          1;
+                                                        }
+                                                      )
+                                                    )
+                                                  )
+                                                )
+                                              )
+                                            )
+                                          )
+                                        )
+                                        )
+                                    );
+                                    }
+                                    || do {
+                                    $pos  = $pos1;
+                                    $bool = 1;
+                                    do {
+                                      my $pos1 = $pos;
+                                      do {
+                                        (
+                                          (
+                                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'b' )
+                                            ? do { $pos += 1; 1 }
+                                            : 0
+                                          )
+                                            && (
+                                            (
+                                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'e' )
+                                              ? do { $pos += 1; 1 }
+                                              : 0
+                                            )
+                                            && (
+                                              (
+                                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'g' )
+                                                ? do { $pos += 1; 1 }
+                                                : 0
+                                              )
+                                              && (
+                                                (
+                                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'i' )
+                                                  ? do { $pos += 1; 1 }
+                                                  : 0
+                                                )
+                                                && (
+                                                  (
+                                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'n' )
+                                                    ? do { $pos += 1; 1 }
+                                                    : 0
+                                                  )
+                                                  && do {
+                                                    my $match = $grammar->pod_begin( $s, { p => $pos, args => {} }, undef );
+                                                    my $bool = ( !$match != 1 );
+                                                    $pos = $match->to if $bool;
+                                                    $match;
+                                                  }
+                                                )
+                                              )
+                                            )
+                                            )
+                                        );
+                                        }
+                                        || do {
+                                        $pos  = $pos1;
+                                        $bool = 1;
+                                        do {
+                                          my $pos1 = $pos;
+                                          do {
+                                            (
+                                              (
+                                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'k' )
+                                                ? do { $pos += 1; 1 }
+                                                : 0
+                                              )
+                                                && (
+                                                (
+                                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'w' )
+                                                  ? do { $pos += 1; 1 }
+                                                  : 0
+                                                )
+                                                && (
+                                                  (
+                                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'i' )
+                                                    ? do { $pos += 1; 1 }
+                                                    : 0
+                                                  )
+                                                  && (
+                                                    (
+                                                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'd' )
+                                                      ? do { $pos += 1; 1 }
+                                                      : 0
+                                                    )
+                                                    && do {
+                                                      my $match = $grammar->pod_other( $s, { p => $pos, args => {} }, undef );
+                                                      my $bool = ( !$match != 1 );
+                                                      $pos = $match->to if $bool;
+                                                      $match;
+                                                    }
+                                                  )
+                                                )
+                                                )
+                                            );
+                                            }
+                                            || do {
+                                            $pos  = $pos1;
+                                            $bool = 1;
+                                            do {
+                                              my $pos1 = $pos;
+                                              do {
+                                                (
+                                                  (
+                                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'p' )
+                                                    ? do { $pos += 1; 1 }
+                                                    : 0
+                                                  )
+                                                    && (
+                                                    (
+                                                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'o' )
+                                                      ? do { $pos += 1; 1 }
+                                                      : 0
+                                                    )
+                                                    && (
+                                                      (
+                                                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'd' )
+                                                        ? do { $pos += 1; 1 }
+                                                        : 0
+                                                      )
+                                                      && do {
+                                                        my $match = $grammar->pod_other( $s, { p => $pos, args => {} }, undef );
+                                                        my $bool = ( !$match != 1 );
+                                                        $pos = $match->to if $bool;
+                                                        $match;
+                                                      }
+                                                    )
+                                                    )
+                                                );
+                                                }
+                                                || do {
+                                                $pos  = $pos1;
+                                                $bool = 1;
+                                                do {
+                                                  my $pos1 = $pos;
+                                                  do {
+                                                    (
+                                                      (
+                                                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'f' )
+                                                        ? do { $pos += 1; 1 }
+                                                        : 0
+                                                      )
+                                                        && (
+                                                        (
+                                                          ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'o' )
+                                                          ? do { $pos += 1; 1 }
+                                                          : 0
+                                                        )
+                                                        && (
+                                                          (
+                                                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'r' )
+                                                            ? do { $pos += 1; 1 }
+                                                            : 0
+                                                          )
+                                                          && do {
+                                                            my $match = $grammar->pod_other( $s, { p => $pos, args => {} }, undef );
+                                                            my $bool = ( !$match != 1 );
+                                                            $pos = $match->to if $bool;
+                                                            $match;
+                                                          }
+                                                        )
+                                                        )
+                                                    );
+                                                    }
+                                                    || do {
+                                                    $pos  = $pos1;
+                                                    $bool = 1;
+                                                    (
+                                                      (
+                                                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'h' )
+                                                        ? do { $pos += 1; 1 }
+                                                        : 0
+                                                      )
+                                                        && (
+                                                        (
+                                                          ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'e' )
+                                                          ? do { $pos += 1; 1 }
+                                                          : 0
+                                                        )
+                                                        && (
+                                                          (
+                                                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'a' )
+                                                            ? do { $pos += 1; 1 }
+                                                            : 0
+                                                          )
+                                                          && (
+                                                            (
+                                                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'd' )
+                                                              ? do { $pos += 1; 1 }
+                                                              : 0
+                                                            )
+                                                            && (
+                                                              (
+                                                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '1' )
+                                                                ? do { $pos += 1; 1 }
+                                                                : 0
+                                                              )
+                                                              && do {
+                                                                my $match = $grammar->pod_other( $s, { p => $pos, args => {} }, undef );
+                                                                my $bool = ( !$match != 1 );
+                                                                $pos = $match->to if $bool;
+                                                                $match;
+                                                              }
+                                                            )
+                                                          )
+                                                        )
+                                                        )
+                                                    );
+                                                    }
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                  || 1
+                              );
+                              }
+                          )
+                            || 1
+                        );
+                        }
+                    );
+                    }
+                    || do {
+                    $pos  = $pos1;
+                    $bool = 1;
+                    (
+                      ( length($s) >= $pos && substr( $s, $pos ) =~ m/^\s/s )
+                      ? do { $pos += length $&; 1 }
+                      : 0
+                    );
+                    }
+                  }
+                }
+            }
+            )
+          {
+          }
+          1;
+          }
+      );
+      };
+    last if $m;
+  }
+  $::_V6_MATCH_ = $m;
+  return $m;
+};    ## Signature for ws
+#Data::Bind->sub_signature( \&ws, );
+*ident = sub {
+
+  $_[3] = $_[2];
+  $_[2] = undef;
+  my $grammar = $_[0];
+  my $s       = $_[1];
+  my $m;
+  for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    my %index;
+    my @match;
+    my %named;
+    my $bool = 1;
+    $m = Pugs::Runtime::Match->new(
+      {
+        str     => \$s,
+        from    => \( 0 + $pos ),
+        to      => \($pos),
+        bool    => \$bool,
+        match   => \@match,
+        named   => \%named,
+        capture => undef,
+      }
+    );
+    $bool = 0
+      unless do {
+      (
+        do {
+          my $pos1 = $pos;
+          do {
+            (
+              ( substr( $s, $pos, 1 ) =~ /[[:alnum:]]/ )
+              ? do { ++$pos; 1 }
+              : 0
+            );
+            }
+            || do {
+            $pos  = $pos1;
+            $bool = 1;
+            do {
+              my $pos1 = $pos;
+              do {
+                (
+                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '_' )
+                  ? do { $pos += 1; 1 }
+                  : 0
+                );
+                }
+                || do {
+                $pos  = $pos1;
+                $bool = 1;
+                (
+                  ( length($s) >= $pos && substr( $s, $pos, 2 ) eq '::' )
+                  ? do { $pos += 2; 1 }
+                  : 0
+                );
+                }
+              }
+            }
+          }
+          && do {
+          my $bool;
+          while (
+            do {
+              my $pos1 = $pos;
+              do {
+                (
+                  ( substr( $s, $pos, 1 ) =~ /[[:alnum:]]/ )
+                  ? do { ++$pos; 1 }
+                  : 0
+                );
+                }
+                || do {
+                $pos  = $pos1;
+                $bool = 1;
+                do {
+                  my $pos1 = $pos;
+                  do {
+                    (
+                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '_' )
+                      ? do { $pos += 1; 1 }
+                      : 0
+                    );
+                    }
+                    || do {
+                    $pos  = $pos1;
+                    $bool = 1;
+                    (
+                      ( length($s) >= $pos && substr( $s, $pos, 2 ) eq '::' )
+                      ? do { $pos += 2; 1 }
+                      : 0
+                    );
+                    }
+                  }
+                }
+            }
+            )
+          {
+          }
+          1;
+          }
+      );
+      };
+    last if $m;
+  }
+  $::_V6_MATCH_ = $m;
+  return $m;
+};    ## Signature for ident
+#Data::Bind->sub_signature( \&ident, );
+*capturing_group = sub {
+
+  $_[3] = $_[2];
+  $_[2] = undef;
+  my $grammar = $_[0];
+  my $s       = $_[1];
+  my $m;
+  for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    my %index;
+    my @match;
+    my %named;
+    my $bool = 1;
+    $m = Pugs::Runtime::Match->new(
+      {
+        str     => \$s,
+        from    => \( 0 + $pos ),
+        to      => \($pos),
+        bool    => \$bool,
+        match   => \@match,
+        named   => \%named,
+        capture => undef,
+      }
+    );
+    $bool = 0
+      unless (
+      (
+        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '(' )
+        ? do { $pos += 1; 1 }
+        : 0
+      )
+      && (
+        do {
+          my $match = $grammar->rule( $s, { p => $pos, args => {} }, undef );
+          if ($match) {
+            $named{'rule'} = $match;
+            $pos = $match->to;
+            1;
+          }
+          else { 0 }
+        }
+        && (
+          (
+            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ')' )
+            ? do { $pos += 1; 1 }
+            : 0
+          )
+          && do {
+            $::_V6_MATCH_ = $m;
+            local $::_V6_SUCCEED = 1;
+            $m->data->{capture} = \(
+              sub {
+                return (
+                  {
+                    'capturing_group' => $::_V6_MATCH_->{'rule'}->()    # hash
+                  }
+                );
+                }
+                ->()
+            );
+            $bool = $::_V6_SUCCEED;
+            $::_V6_MATCH_ = $m if $bool;
+            return $m if $bool;
+          }
+        )
+      )
+      );
+    last if $m;
+  }
+  $::_V6_MATCH_ = $m;
+  return $m;
+};    ## Signature for capturing_group
+#Data::Bind->sub_signature( \&capturing_group, );
+*non_capturing_group = sub {
+
+  $_[3] = $_[2];
+  $_[2] = undef;
+  my $grammar = $_[0];
+  my $s       = $_[1];
+  my $m;
+  for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    my %index;
+    my @match;
+    my %named;
+    my $bool = 1;
+    $m = Pugs::Runtime::Match->new(
+      {
+        str     => \$s,
+        from    => \( 0 + $pos ),
+        to      => \($pos),
+        bool    => \$bool,
+        match   => \@match,
+        named   => \%named,
+        capture => undef,
+      }
+    );
+    $bool = 0
+      unless (
+      (
+        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '[' )
+        ? do { $pos += 1; 1 }
+        : 0
+      )
+      && (
+        do {
+          my $match = $grammar->rule( $s, { p => $pos, args => {} }, undef );
+          if ($match) {
+            $named{'rule'} = $match;
+            $pos = $match->to;
+            1;
+          }
+          else { 0 }
+        }
+        && (
+          (
+            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ']' )
+            ? do { $pos += 1; 1 }
+            : 0
+          )
+          && do {
+            $::_V6_MATCH_ = $m;
+            local $::_V6_SUCCEED = 1;
+            $m->data->{capture} = \(
+              sub {
+                return ( $::_V6_MATCH_->{'rule'}->() );
+                }
+                ->()
+            );
+            $bool = $::_V6_SUCCEED;
+            $::_V6_MATCH_ = $m if $bool;
+            return $m if $bool;
+          }
+        )
+      )
+      );
+    last if $m;
+  }
+  $::_V6_MATCH_ = $m;
+  return $m;
+};    ## Signature for non_capturing_group
+#Data::Bind->sub_signature( \&non_capturing_group, );
+*literal = sub {
+
+  $_[3] = $_[2];
+  $_[2] = undef;
+  my $grammar = $_[0];
+  my $s       = $_[1];
+  my $m;
+  for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    my %index;
+    my @match;
+    my %named;
+    my $bool = 1;
+    $m = Pugs::Runtime::Match->new(
+      {
+        str     => \$s,
+        from    => \( 0 + $pos ),
+        to      => \($pos),
+        bool    => \$bool,
+        match   => \@match,
+        named   => \%named,
+        capture => undef,
+      }
+    );
+    $bool = 0
+      unless do {
+      (
+        do {
+          my $pos1 = $pos;
+          do {
+            (
+              (
+                ( length($s) >= $pos && substr( $s, $pos, 2 ) eq '\\' )
+                ? do { $pos += 2; 1 }
+                : 0
+              )
+                && (
+                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq chr(39) )
+                ? do { $pos += 1; 1 }
+                : 0
+                )
+            );
+            }
+            || do {
+            $pos  = $pos1;
+            $bool = 1;
+            (
+              ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\']/s )
+              ? do { $pos += length $&; 1 }
+              : 0
+            );
+            }
+          }
+          && do {
+          my $bool;
+          while (
+            do {
+              my $pos1 = $pos;
+              do {
+                (
+                  (
+                    ( length($s) >= $pos && substr( $s, $pos, 2 ) eq '\\' )
+                    ? do { $pos += 2; 1 }
+                    : 0
+                  )
+                    && (
+                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq chr(39) )
+                    ? do { $pos += 1; 1 }
+                    : 0
+                    )
+                );
+                }
+                || do {
+                $pos  = $pos1;
+                $bool = 1;
+                (
+                  ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\']/s )
+                  ? do { $pos += length $&; 1 }
+                  : 0
+                );
+                }
+            }
+            )
+          {
+          }
+          1;
+          }
+      );
+      };
+    last if $m;
+  }
+  $::_V6_MATCH_ = $m;
+  return $m;
+};    ## Signature for literal
+#Data::Bind->sub_signature( \&literal, );
+*metasyntax = sub {
+
+  $_[3] = $_[2];
+  $_[2] = undef;
+  my $grammar = $_[0];
+  my $s       = $_[1];
+  my $m;
+  for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    my %index;
+    my @match;
+    my %named;
+    my $bool = 1;
+    $m = Pugs::Runtime::Match->new(
+      {
+        str     => \$s,
+        from    => \( 0 + $pos ),
+        to      => \($pos),
+        bool    => \$bool,
+        match   => \@match,
+        named   => \%named,
+        capture => undef,
+      }
+    );
+    $bool = 0
+      unless (
+      do {
+        (
+          do {
+            my $pos1 = $pos;
+            do {
+              (
+                (
+                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq chr(39) )
+                  ? do { $pos += 1; 1 }
+                  : 0
+                )
+                  && (
+                  do {
+                    my $match = $grammar->literal( $s, { p => $pos, args => {} }, undef );
+                    my $bool = ( !$match != 1 );
+                    $pos = $match->to if $bool;
+                    $match;
+                  }
+                  && (
+                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq chr(39) )
+                    ? do { $pos += 1; 1 }
+                    : 0
+                  )
+                  )
+              );
+              }
+              || do {
+              $pos  = $pos1;
+              $bool = 1;
+              do {
+                my $pos1 = $pos;
+                do {
+                  (
+                    (
+                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '{' )
+                      ? do { $pos += 1; 1 }
+                      : 0
+                    )
+                      && (
+                      do {
+                        my $match = $grammar->code( $s, { p => $pos, args => {} }, undef );
+                        my $bool = ( !$match != 1 );
+                        $pos = $match->to if $bool;
+                        $match;
+                      }
+                      && (
+                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '}' )
+                        ? do { $pos += 1; 1 }
+                        : 0
+                      )
+                      )
+                  );
+                  }
+                  || do {
+                  $pos  = $pos1;
+                  $bool = 1;
+                  do {
+                    my $pos1 = $pos;
+                    do {
+                      (
+                        (
+                          ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '<' )
+                          ? do { $pos += 1; 1 }
+                          : 0
+                        )
+                          && (
+                          do {
+                            my $match = $grammar->metasyntax( $s, { p => $pos, args => {} }, undef );
+                            my $bool = ( !$match != 1 );
+                            $pos = $match->to if $bool;
+                            $match;
+                          }
+                          && (
+                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '>' )
+                            ? do { $pos += 1; 1 }
+                            : 0
+                          )
+                          )
+                      );
+                      }
+                      || do {
+                      $pos  = $pos1;
+                      $bool = 1;
+                      (
+                        ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\>]/s )
+                        ? do { $pos += length $&; 1 }
+                        : 0
+                      );
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            && do {
+            my $bool;
+            while (
+              do {
+                my $pos1 = $pos;
+                do {
+                  (
+                    (
+                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq chr(39) )
+                      ? do { $pos += 1; 1 }
+                      : 0
+                    )
+                      && (
+                      do {
+                        my $match = $grammar->literal( $s, { p => $pos, args => {} }, undef );
+                        my $bool = ( !$match != 1 );
+                        $pos = $match->to if $bool;
+                        $match;
+                      }
+                      && (
+                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq chr(39) )
+                        ? do { $pos += 1; 1 }
+                        : 0
+                      )
+                      )
+                  );
+                  }
+                  || do {
+                  $pos  = $pos1;
+                  $bool = 1;
+                  do {
+                    my $pos1 = $pos;
+                    do {
+                      (
+                        (
+                          ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '{' )
+                          ? do { $pos += 1; 1 }
+                          : 0
+                        )
+                          && (
+                          do {
+                            my $match = $grammar->code( $s, { p => $pos, args => {} }, undef );
+                            my $bool = ( !$match != 1 );
+                            $pos = $match->to if $bool;
+                            $match;
+                          }
+                          && (
+                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '}' )
+                            ? do { $pos += 1; 1 }
+                            : 0
+                          )
+                          )
+                      );
+                      }
+                      || do {
+                      $pos  = $pos1;
+                      $bool = 1;
+                      do {
+                        my $pos1 = $pos;
+                        do {
+                          (
+                            (
+                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '<' )
+                              ? do { $pos += 1; 1 }
+                              : 0
+                            )
+                              && (
+                              do {
+                                my $match = $grammar->metasyntax( $s, { p => $pos, args => {} }, undef );
+                                my $bool = ( !$match != 1 );
+                                $pos = $match->to if $bool;
+                                $match;
+                              }
+                              && (
+                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '>' )
+                                ? do { $pos += 1; 1 }
+                                : 0
+                              )
+                              )
+                          );
+                          }
+                          || do {
+                          $pos  = $pos1;
+                          $bool = 1;
+                          (
+                            ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\>]/s )
+                            ? do { $pos += length $&; 1 }
+                            : 0
+                          );
+                          }
+                        }
+                      }
+                    }
+                  }
+              }
+              )
+            {
+            }
+            1;
+            }
+        );
+      }
+      && do {
+        $::_V6_MATCH_ = $m;
+        local $::_V6_SUCCEED = 1;
+        $m->data->{capture} = \(
+          sub {
+            return (
+              {
+                'metasyntax' => $::_V6_MATCH_->()    # hash
+              }
+            );
+            }
+            ->()
+        );
+        $bool = $::_V6_SUCCEED;
+        $::_V6_MATCH_ = $m if $bool;
+        return $m if $bool;
+      }
+      );
+    last if $m;
+  }
+  $::_V6_MATCH_ = $m;
+  return $m;
+};    ## Signature for metasyntax
+#Data::Bind->sub_signature( \&metasyntax, );
+*code = sub {
+
+  $_[3] = $_[2];
+  $_[2] = undef;
+  my $grammar = $_[0];
+  my $s       = $_[1];
+  my $m;
+  for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    my %index;
+    my @match;
+    my %named;
+    my $bool = 1;
+    $m = Pugs::Runtime::Match->new(
+      {
+        str     => \$s,
+        from    => \( 0 + $pos ),
+        to      => \($pos),
+        bool    => \$bool,
+        match   => \@match,
+        named   => \%named,
+        capture => undef,
+      }
+    );
+    $bool = 0
+      unless (
+      do {
+        (
+          do {
+            my $pos1 = $pos;
+            do {
+              (
+                (
+                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '{' )
+                  ? do { $pos += 1; 1 }
+                  : 0
+                )
+                  && (
+                  do {
+                    my $match = $grammar->code( $s, { p => $pos, args => {} }, undef );
+                    my $bool = ( !$match != 1 );
+                    $pos = $match->to if $bool;
+                    $match;
+                  }
+                  && (
+                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '}' )
+                    ? do { $pos += 1; 1 }
+                    : 0
+                  )
+                  )
+              );
+              }
+              || do {
+              $pos  = $pos1;
+              $bool = 1;
+              (
+                ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\}]/s )
+                ? do { $pos += length $&; 1 }
+                : 0
+              );
+              }
+            }
+            && do {
+            my $bool;
+            while (
+              do {
+                my $pos1 = $pos;
+                do {
+                  (
+                    (
+                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '{' )
+                      ? do { $pos += 1; 1 }
+                      : 0
+                    )
+                      && (
+                      do {
+                        my $match = $grammar->code( $s, { p => $pos, args => {} }, undef );
+                        my $bool = ( !$match != 1 );
+                        $pos = $match->to if $bool;
+                        $match;
+                      }
+                      && (
+                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '}' )
+                        ? do { $pos += 1; 1 }
+                        : 0
+                      )
+                      )
+                  );
+                  }
+                  || do {
+                  $pos  = $pos1;
+                  $bool = 1;
+                  (
+                    ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\}]/s )
+                    ? do { $pos += length $&; 1 }
+                    : 0
+                  );
+                  }
+              }
+              )
+            {
+            }
+            1;
+            }
+        );
+      }
+      && do {
+        $::_V6_MATCH_ = $m;
+        local $::_V6_SUCCEED = 1;
+        $m->data->{capture} = \(
+          sub {
+            return (
+              {
+                'code' => $::_V6_MATCH_->()    # hash
+              }
+            );
+            }
+            ->()
+        );
+        $bool = $::_V6_SUCCEED;
+        $::_V6_MATCH_ = $m if $bool;
+        return $m if $bool;
+      }
+      );
+    last if $m;
+  }
+  $::_V6_MATCH_ = $m;
+  return $m;
+};    ## Signature for code
+#Data::Bind->sub_signature( \&code, );
+*named_capture_body = sub {
+
+  $_[3] = $_[2];
+  $_[2] = undef;
+  my $grammar = $_[0];
+  my $s       = $_[1];
+  my $m;
+  for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    my %index;
+    my @match;
+    my %named;
+    my $bool = 1;
+    $m = Pugs::Runtime::Match->new(
+      {
+        str     => \$s,
+        from    => \( 0 + $pos ),
+        to      => \($pos),
+        bool    => \$bool,
+        match   => \@match,
+        named   => \%named,
+        capture => undef,
+      }
+    );
+    $bool = 0
+      unless do {
+      my $pos1 = $pos;
+      do {
+        (
+          do {
+            my $match = $grammar->capturing_group( $s, { p => $pos, args => {} }, undef );
+            if ($match) {
+              $named{'capturing_group'} = $match;
+              $pos = $match->to;
+              1;
+            }
+            else { 0 }
+            }
+            && do {
+            $::_V6_MATCH_ = $m;
+            local $::_V6_SUCCEED = 1;
+            $m->data->{capture} = \(
+              sub {
+                return (
+                  {
+                    'rule' => $::_V6_MATCH_->{'capturing_group'}->()    # hash
+                  }
+                );
+                }
+                ->()
+            );
+            $bool = $::_V6_SUCCEED;
+            $::_V6_MATCH_ = $m if $bool;
+            return $m if $bool;
+            }
+        );
+        }
+        || do {
+        $pos  = $pos1;
+        $bool = 1;
+        do {
+          my $pos1 = $pos;
+          do {
+            (
+              do {
+                my $match = $grammar->non_capturing_group( $s, { p => $pos, args => {} }, undef );
+                if ($match) {
+                  $named{'non_capturing_group'} = $match;
+                  $pos = $match->to;
+                  1;
+                }
+                else { 0 }
+                }
+                && do {
+                $::_V6_MATCH_ = $m;
+                local $::_V6_SUCCEED = 1;
+                $m->data->{capture} = \(
+                  sub {
+                    return (
+                      {
+                        'rule' => $::_V6_MATCH_->{'non_capturing_group'}->()    # hash
+                      }
+                    );
+                    }
+                    ->()
+                );
+                $bool = $::_V6_SUCCEED;
+                $::_V6_MATCH_ = $m if $bool;
+                return $m if $bool;
+                }
+            );
+            }
+            || do {
+            $pos  = $pos1;
+            $bool = 1;
+            do {
+              my $pos1 = $pos;
+              do {
+                (
+                  (
+                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '<' )
+                    ? do { $pos += 1; 1 }
+                    : 0
+                  )
+                    && (
+                    do {
+                      my $match = $grammar->metasyntax( $s, { p => $pos, args => {} }, undef );
+                      if ($match) {
+                        $named{'metasyntax'} = $match;
+                        $pos = $match->to;
+                        1;
+                      }
+                      else { 0 }
+                    }
+                    && (
+                      (
+                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '>' )
+                        ? do { $pos += 1; 1 }
+                        : 0
+                      )
+                      && do {
+                        $::_V6_MATCH_ = $m;
+                        local $::_V6_SUCCEED = 1;
+                        $m->data->{capture} = \(
+                          sub {
+                            return (
+                              {
+                                'rule' => $::_V6_MATCH_->{'metasyntax'}->()    # hash
+                              }
+                            );
+                            }
+                            ->()
+                        );
+                        $bool = $::_V6_SUCCEED;
+                        $::_V6_MATCH_ = $m if $bool;
+                        return $m if $bool;
+                      }
+                    )
+                    )
+                );
+                }
+                || do {
+                $pos  = $pos1;
+                $bool = 1;
+                do {
+                  $::_V6_MATCH_ = $m;
+                  local $::_V6_SUCCEED = 1;
+                  sub {
+                    die("invalid alias syntax");
+                    }
+                    ->();
+                  $::_V6_SUCCEED;
+                  }
+                }
+              }
+            }
+          }
+        }
+      };
+    last if $m;
+  }
+  $::_V6_MATCH_ = $m;
+  return $m;
+};    ## Signature for named_capture_body
+#Data::Bind->sub_signature( \&named_capture_body, );
+%rule_terms = (
+  '(' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless (
+        do {
+          my $match = $grammar->rule( $s, { p => $pos, args => {} }, undef );
+          if ($match) {
+            $named{'rule'} = $match;
+            $pos = $match->to;
+            1;
+          }
+          else { 0 }
+        }
+        && (
+          (
+            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ')' )
+            ? do { $pos += 1; 1 }
+            : 0
+          )
+          && do {
+            $::_V6_MATCH_ = $m;
+            local $::_V6_SUCCEED = 1;
+            $m->data->{capture} = \(
+              sub {
+                return (
+                  {
+                    'capturing_group' => $::_V6_MATCH_->{'rule'}->()    # hash
+                  }
+                );
+                }
+                ->()
+            );
+            $bool = $::_V6_SUCCEED;
+            $::_V6_MATCH_ = $m if $bool;
+            return $m if $bool;
+          }
+        )
+        );
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  '<after' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless (
+        do {
+          my $match = $grammar->ws( $s, { p => $pos, args => {} }, undef );
+          my $bool = ( !$match != 1 );
+          $pos = $match->to if $bool;
+          $match;
+        }
+        && (
+          do {
+            my $match = $grammar->rule( $s, { p => $pos, args => {} }, undef );
+            if ($match) {
+              $named{'rule'} = $match;
+              $pos = $match->to;
+              1;
+            }
+            else { 0 }
+          }
+          && (
+            (
+              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '>' )
+              ? do { $pos += 1; 1 }
+              : 0
+            )
+            && do {
+              $::_V6_MATCH_ = $m;
+              local $::_V6_SUCCEED = 1;
+              $m->data->{capture} = \(
+                sub {
+                  return (
+                    {
+                      'after' => {
+                        'rule' => $::_V6_MATCH_->{'rule'}->()    # hash
+                        }    # hash
+                    }
+                  );
+                  }
+                  ->()
+              );
+              $bool = $::_V6_SUCCEED;
+              $::_V6_MATCH_ = $m if $bool;
+              return $m if $bool;
+            }
+          )
+        )
+        );
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  '<before' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless (
+        do {
+          my $match = $grammar->ws( $s, { p => $pos, args => {} }, undef );
+          my $bool = ( !$match != 1 );
+          $pos = $match->to if $bool;
+          $match;
+        }
+        && (
+          do {
+            my $match = $grammar->rule( $s, { p => $pos, args => {} }, undef );
+            if ($match) {
+              $named{'rule'} = $match;
+              $pos = $match->to;
+              1;
+            }
+            else { 0 }
+          }
+          && (
+            (
+              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '>' )
+              ? do { $pos += 1; 1 }
+              : 0
+            )
+            && do {
+              $::_V6_MATCH_ = $m;
+              local $::_V6_SUCCEED = 1;
+              $m->data->{capture} = \(
+                sub {
+                  return (
+                    {
+                      'before' => {
+                        'rule' => $::_V6_MATCH_->{'rule'}->()    # hash
+                        }    # hash
+                    }
+                  );
+                  }
+                  ->()
+              );
+              $bool = $::_V6_SUCCEED;
+              $::_V6_MATCH_ = $m if $bool;
+              return $m if $bool;
+            }
+          )
+        )
+        );
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  '<!before' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless (
+        do {
+          my $match = $grammar->ws( $s, { p => $pos, args => {} }, undef );
+          my $bool = ( !$match != 1 );
+          $pos = $match->to if $bool;
+          $match;
+        }
+        && (
+          do {
+            my $match = $grammar->rule( $s, { p => $pos, args => {} }, undef );
+            if ($match) {
+              $named{'rule'} = $match;
+              $pos = $match->to;
+              1;
+            }
+            else { 0 }
+          }
+          && (
+            (
+              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '>' )
+              ? do { $pos += 1; 1 }
+              : 0
+            )
+            && do {
+              $::_V6_MATCH_ = $m;
+              local $::_V6_SUCCEED = 1;
+              $m->data->{capture} = \(
+                sub {
+                  return (
+                    {
+                      'not_before' => {
+                        'rule' => $::_V6_MATCH_->{'rule'}->()    # hash
+                        }    # hash
+                    }
+                  );
+                  }
+                  ->()
+              );
+              $bool = $::_V6_SUCCEED;
+              $::_V6_MATCH_ = $m if $bool;
+              return $m if $bool;
+            }
+          )
+        )
+        );
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  '<!' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless (
+        do {
+          my $match = $grammar->rule( $s, { p => $pos, args => {} }, undef );
+          if ($match) {
+            $named{'rule'} = $match;
+            $pos = $match->to;
+            1;
+          }
+          else { 0 }
+        }
+        && (
+          (
+            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '>' )
+            ? do { $pos += 1; 1 }
+            : 0
+          )
+          && do {
+            $::_V6_MATCH_ = $m;
+            local $::_V6_SUCCEED = 1;
+            $m->data->{capture} = \(
+              sub {
+                return (
+                  {
+                    'negate' => {
+                      'rule' => $::_V6_MATCH_->{'rule'}->()    # hash
+                      }    # hash
+                  }
+                );
+                }
+                ->()
+            );
+            $bool = $::_V6_SUCCEED;
+            $::_V6_MATCH_ = $m if $bool;
+            return $m if $bool;
+          }
+        )
+        );
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  '<' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless (
+        do {
+          my $match = $grammar->metasyntax( $s, { p => $pos, args => {} }, undef );
+          if ($match) {
+            $named{'metasyntax'} = $match;
+            $pos = $match->to;
+            1;
+          }
+          else { 0 }
+        }
+        && (
+          (
+            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '>' )
+            ? do { $pos += 1; 1 }
+            : 0
+          )
+          && do {
+            $::_V6_MATCH_ = $m;
+            local $::_V6_SUCCEED = 1;
+            $m->data->{capture} = \(
+              sub {
+                return ( $::_V6_MATCH_->{'metasyntax'}->() );
+                }
+                ->()
+            );
+            $bool = $::_V6_SUCCEED;
+            $::_V6_MATCH_ = $m if $bool;
+            return $m if $bool;
+          }
+        )
+        );
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  '$<' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless (
+        do {
+          my $match = $grammar->ident( $s, { p => $pos, args => {} }, undef );
+          if ($match) {
+            $named{'ident'} = $match;
+            $pos = $match->to;
+            1;
+          }
+          else { 0 }
+        }
+        && (
+          (
+            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '>' )
+            ? do { $pos += 1; 1 }
+            : 0
+          )
+          && (
+            do {
+              my $bool;
+              (
+                do {
+                  my $match = $grammar->ws( $s, { p => $pos, args => {} }, undef );
+                  my $bool = ( !$match != 1 );
+                  $pos = $match->to if $bool;
+                  $match;
+                  }
+                  || 1
+              );
+            }
+            && (
+              (
+                ( length($s) >= $pos && substr( $s, $pos, 2 ) eq ':=' )
+                ? do { $pos += 2; 1 }
+                : 0
+              )
+              && (
+                do {
+                  my $bool;
+                  (
+                    do {
+                      my $match = $grammar->ws( $s, { p => $pos, args => {} }, undef );
+                      my $bool = ( !$match != 1 );
+                      $pos = $match->to if $bool;
+                      $match;
+                      }
+                      || 1
+                  );
+                }
+                && (
+                  do {
+                    my $match = $grammar->named_capture_body( $s, { p => $pos, args => {} }, undef );
+                    if ($match) {
+                      $named{'named_capture_body'} = $match;
+                      $pos = $match->to;
+                      1;
+                    }
+                    else { 0 }
+                  }
+                  && do {
+                    $::_V6_MATCH_ = $m;
+                    local $::_V6_SUCCEED = 1;
+                    $m->data->{capture} = \(
+                      sub {
+                        my $body = $::_V6_MATCH_->{'named_capture_body'}->();
+                        $body->{'ident'} = $::_V6_MATCH_->{'ident'}->();
+                        return (
+                          {
+                            'named_capture' => $body    # hash
+                          }
+                        );
+                        }
+                        ->()
+                    );
+                    $bool = $::_V6_SUCCEED;
+                    $::_V6_MATCH_ = $m if $bool;
+                    return $m if $bool;
+                  }
+                )
+              )
+            )
+          )
+        )
+        );
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  '$' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless do {
+        my $pos1 = $pos;
+        do {
+          (
+            do {
+              (
+                (
+                  ( length($s) >= $pos && substr( $s, $pos, 1 ) =~ /[[:digit:]]/ )
+                  ? do { ++$pos; 1 }
+                  : 0
+                )
+                  && do {
+                  my $bool;
+                  while (
+                    (
+                      ( length($s) >= $pos && substr( $s, $pos, 1 ) =~ /[[:digit:]]/ )
+                      ? do { ++$pos; 1 }
+                      : 0
+                    )
+                    )
+                  {
+                  }
+                  1;
+                  }
+              );
+              }
+              && do {
+              $::_V6_MATCH_ = $m;
+              local $::_V6_SUCCEED = 1;
+              $m->data->{capture} = \(
+                sub {
+                  return (
+                    {
+                      'match_variable' => '$' . $::_V6_MATCH_->()    # hash
+                    }
+                  );
+                  }
+                  ->()
+              );
+              $bool = $::_V6_SUCCEED;
+              $::_V6_MATCH_ = $m if $bool;
+              return $m if $bool;
+              }
+          );
+          }
+          || do {
+          $pos  = $pos1;
+          $bool = 1;
+          do {
+            my $pos1 = $pos;
+            do {
+              (
+                do {
+                  my $bool;
+                  (
+                    (
+                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '^' )
+                      ? do { $pos += 1; 1 }
+                      : 0
+                    )
+                      || 1
+                  );
+                  }
+                  && (
+                  do {
+                    (
+                      do {
+                        my $pos1 = $pos;
+                        do {
+                          (
+                            ( length($s) >= $pos && substr( $s, $pos, 1 ) =~ /[[:alnum:]]/ )
+                            ? do { ++$pos; 1 }
+                            : 0
+                          );
+                          }
+                          || do {
+                          $pos  = $pos1;
+                          $bool = 1;
+                          do {
+                            my $pos1 = $pos;
+                            do {
+                              (
+                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '_' )
+                                ? do { $pos += 1; 1 }
+                                : 0
+                              );
+                              }
+                              || do {
+                              $pos  = $pos1;
+                              $bool = 1;
+                              (
+                                (
+                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                                  ? do { $pos += 1; 1 }
+                                  : 0
+                                )
+                                  && (
+                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                                  ? do { $pos += 1; 1 }
+                                  : 0
+                                  )
+                              );
+                              }
+                            }
+                          }
+                        }
+                        && do {
+                        my $bool;
+                        while (
+                          do {
+                            my $pos1 = $pos;
+                            do {
+                              (
+                                ( substr( $s, $pos, 1 ) =~ /[[:alnum:]]/ )
+                                ? do { ++$pos; 1 }
+                                : 0
+                              );
+                              }
+                              || do {
+                              $pos  = $pos1;
+                              $bool = 1;
+                              do {
+                                my $pos1 = $pos;
+                                do {
+                                  (
+                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '_' )
+                                    ? do { $pos += 1; 1 }
+                                    : 0
+                                  );
+                                  }
+                                  || do {
+                                  $pos  = $pos1;
+                                  $bool = 1;
+                                  (
+                                    (
+                                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                                      ? do { $pos += 1; 1 }
+                                      : 0
+                                    )
+                                      && (
+                                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                                      ? do { $pos += 1; 1 }
+                                      : 0
+                                      )
+                                  );
+                                  }
+                                }
+                              }
+                          }
+                          )
+                        {
+                        }
+                        1;
+                        }
+                    );
+                  }
+                  && do {
+                    $::_V6_MATCH_ = $m;
+                    local $::_V6_SUCCEED = 1;
+                    $m->data->{capture} = \(
+                      sub {
+                        return (
+                          {
+                            'variable' => '$' . $::_V6_MATCH_->()    # hash
+                          }
+                        );
+                        }
+                        ->()
+                    );
+                    $bool = $::_V6_SUCCEED;
+                    $::_V6_MATCH_ = $m if $bool;
+                    return $m if $bool;
+                  }
+                  )
+              );
+              }
+              || do {
+              $pos  = $pos1;
+              $bool = 1;
+              do {
+                $::_V6_MATCH_ = $m;
+                local $::_V6_SUCCEED = 1;
+                $m->data->{capture} = \(
+                  sub {
+                    return (
+                      {
+                        'colon' => '$'    # hash
+                      }
+                    );
+                    }
+                    ->()
+                );
+                $bool = $::_V6_SUCCEED;
+                $::_V6_MATCH_ = $m if $bool;
+                return $m if $bool;
+                }
+              }
+            }
+          }
+        };
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  '@' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless do {
+        my $pos1 = $pos;
+        do {
+          (
+            do {
+              (
+                (
+                  ( substr( $s, $pos, 1 ) =~ /[[:digit:]]/ )
+                  ? do { ++$pos; 1 }
+                  : 0
+                )
+                  && do {
+                  my $bool;
+                  while (
+                    (
+                      ( substr( $s, $pos, 1 ) =~ /[[:digit:]]/ )
+                      ? do { ++$pos; 1 }
+                      : 0
+                    )
+                    )
+                  {
+                  }
+                  1;
+                  }
+              );
+              }
+              && do {
+              $::_V6_MATCH_ = $m;
+              local $::_V6_SUCCEED = 1;
+              $m->data->{capture} = \(
+                sub {
+                  return (
+                    {
+                      'match_variable' => '@' . $::_V6_MATCH_->()    # hash
+                    }
+                  );
+                  }
+                  ->()
+              );
+              $bool = $::_V6_SUCCEED;
+              $::_V6_MATCH_ = $m if $bool;
+              return $m if $bool;
+              }
+          );
+          }
+          || do {
+          $pos  = $pos1;
+          $bool = 1;
+          (
+            do {
+              my $bool;
+              (
+                (
+                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '^' )
+                  ? do { $pos += 1; 1 }
+                  : 0
+                )
+                  || 1
+              );
+              }
+              && (
+              do {
+                (
+                  do {
+                    my $pos1 = $pos;
+                    do {
+                      (
+                        ( substr( $s, $pos, 1 ) =~ /[[:alnum:]]/ )
+                        ? do { ++$pos; 1 }
+                        : 0
+                      );
+                      }
+                      || do {
+                      $pos  = $pos1;
+                      $bool = 1;
+                      do {
+                        my $pos1 = $pos;
+                        do {
+                          (
+                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '_' )
+                            ? do { $pos += 1; 1 }
+                            : 0
+                          );
+                          }
+                          || do {
+                          $pos  = $pos1;
+                          $bool = 1;
+                          (
+                            (
+                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                              ? do { $pos += 1; 1 }
+                              : 0
+                            )
+                              && (
+                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                              ? do { $pos += 1; 1 }
+                              : 0
+                              )
+                          );
+                          }
+                        }
+                      }
+                    }
+                    && do {
+                    my $bool;
+                    while (
+                      do {
+                        my $pos1 = $pos;
+                        do {
+                          (
+                            ( substr( $s, $pos, 1 ) =~ /[[:alnum:]]/ )
+                            ? do { ++$pos; 1 }
+                            : 0
+                          );
+                          }
+                          || do {
+                          $pos  = $pos1;
+                          $bool = 1;
+                          do {
+                            my $pos1 = $pos;
+                            do {
+                              (
+                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '_' )
+                                ? do { $pos += 1; 1 }
+                                : 0
+                              );
+                              }
+                              || do {
+                              $pos  = $pos1;
+                              $bool = 1;
+                              (
+                                (
+                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                                  ? do { $pos += 1; 1 }
+                                  : 0
+                                )
+                                  && (
+                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                                  ? do { $pos += 1; 1 }
+                                  : 0
+                                  )
+                              );
+                              }
+                            }
+                          }
+                      }
+                      )
+                    {
+                    }
+                    1;
+                    }
+                );
+              }
+              && do {
+                $::_V6_MATCH_ = $m;
+                local $::_V6_SUCCEED = 1;
+                $m->data->{capture} = \(
+                  sub {
+                    return (
+                      {
+                        'variable' => '@' . $::_V6_MATCH_->()    # hash
+                      }
+                    );
+                    }
+                    ->()
+                );
+                $bool = $::_V6_SUCCEED;
+                $::_V6_MATCH_ = $m if $bool;
+                return $m if $bool;
+              }
+              )
+          );
+          }
+        };
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  '%' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless do {
+        my $pos1 = $pos;
+        do {
+          (
+            do {
+              (
+                (
+                  ( substr( $s, $pos, 1 ) =~ /[[:digit:]]/ )
+                  ? do { ++$pos; 1 }
+                  : 0
+                )
+                  && do {
+                  my $bool;
+                  while (
+                    (
+                      ( substr( $s, $pos, 1 ) =~ /[[:digit:]]/ )
+                      ? do { ++$pos; 1 }
+                      : 0
+                    )
+                    )
+                  {
+                  }
+                  1;
+                  }
+              );
+              }
+              && do {
+              $::_V6_MATCH_ = $m;
+              local $::_V6_SUCCEED = 1;
+              $m->data->{capture} = \(
+                sub {
+                  return (
+                    {
+                      'match_variable' => '%' . $::_V6_MATCH_->()    # hash
+                    }
+                  );
+                  }
+                  ->()
+              );
+              $bool = $::_V6_SUCCEED;
+              $::_V6_MATCH_ = $m if $bool;
+              return $m if $bool;
+              }
+          );
+          }
+          || do {
+          $pos  = $pos1;
+          $bool = 1;
+          (
+            do {
+              my $bool;
+              (
+                (
+                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '^' )
+                  ? do { $pos += 1; 1 }
+                  : 0
+                )
+                  || 1
+              );
+              }
+              && (
+              do {
+                (
+                  do {
+                    my $pos1 = $pos;
+                    do {
+                      (
+                        ( substr( $s, $pos, 1 ) =~ /[[:alnum:]]/ )
+                        ? do { ++$pos; 1 }
+                        : 0
+                      );
+                      }
+                      || do {
+                      $pos  = $pos1;
+                      $bool = 1;
+                      do {
+                        my $pos1 = $pos;
+                        do {
+                          (
+                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '_' )
+                            ? do { $pos += 1; 1 }
+                            : 0
+                          );
+                          }
+                          || do {
+                          $pos  = $pos1;
+                          $bool = 1;
+                          (
+                            (
+                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                              ? do { $pos += 1; 1 }
+                              : 0
+                            )
+                              && (
+                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                              ? do { $pos += 1; 1 }
+                              : 0
+                              )
+                          );
+                          }
+                        }
+                      }
+                    }
+                    && do {
+                    my $bool;
+                    while (
+                      do {
+                        my $pos1 = $pos;
+                        do {
+                          (
+                            ( substr( $s, $pos, 1 ) =~ /[[:alnum:]]/ )
+                            ? do { ++$pos; 1 }
+                            : 0
+                          );
+                          }
+                          || do {
+                          $pos  = $pos1;
+                          $bool = 1;
+                          do {
+                            my $pos1 = $pos;
+                            do {
+                              (
+                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '_' )
+                                ? do { $pos += 1; 1 }
+                                : 0
+                              );
+                              }
+                              || do {
+                              $pos  = $pos1;
+                              $bool = 1;
+                              (
+                                (
+                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                                  ? do { $pos += 1; 1 }
+                                  : 0
+                                )
+                                  && (
+                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                                  ? do { $pos += 1; 1 }
+                                  : 0
+                                  )
+                              );
+                              }
+                            }
+                          }
+                      }
+                      )
+                    {
+                    }
+                    1;
+                    }
+                );
+              }
+              && do {
+                $::_V6_MATCH_ = $m;
+                local $::_V6_SUCCEED = 1;
+                $m->data->{capture} = \(
+                  sub {
+                    return (
+                      {
+                        'variable' => '%' . $::_V6_MATCH_->()    # hash
+                      }
+                    );
+                    }
+                    ->()
+                );
+                $bool = $::_V6_SUCCEED;
+                $::_V6_MATCH_ = $m if $bool;
+                return $m if $bool;
+              }
+              )
+          );
+          }
+        };
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  '{' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless (
+        do {
+          my $match = $grammar->code( $s, { p => $pos, args => {} }, undef );
+          if ($match) {
+            $named{'code'} = $match;
+            $pos = $match->to;
+            1;
+          }
+          else { 0 }
+        }
+        && (
+          (
+            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '}' )
+            ? do { $pos += 1; 1 }
+            : 0
+          )
+          && do {
+            $::_V6_MATCH_ = $m;
+            local $::_V6_SUCCEED = 1;
+            $m->data->{capture} = \(
+              sub {
+                return (
+                  {
+                    'closure' => '{' . $::_V6_MATCH_->()    # hash
+                  }
+                );
+                }
+                ->()
+            );
+            $bool = $::_V6_SUCCEED;
+            $::_V6_MATCH_ = $m if $bool;
+            return $m if $bool;
+          }
+        )
+        );
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  '\\' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless (
+        do { $pos < length($s) ? ++$pos : 0 }
+        && do {
+          $::_V6_MATCH_ = $m;
+          local $::_V6_SUCCEED = 1;
+          $m->data->{capture} = \(
+            sub {
+              return (
+                {
+                  'special_char' => '\\' . $::_V6_MATCH_->()    # hash
+                }
+              );
+              }
+              ->()
+          );
+          $bool = $::_V6_SUCCEED;
+          $::_V6_MATCH_ = $m if $bool;
+          return $m if $bool;
+        }
+        );
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  '.' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless do {
+        $::_V6_MATCH_ = $m;
+        local $::_V6_SUCCEED = 1;
+        $m->data->{capture} = \(
+          sub {
+            return (
+              {
+                'dot' => 1    # hash
+              }
+            );
+            }
+            ->()
+        );
+        $bool = $::_V6_SUCCEED;
+        $::_V6_MATCH_ = $m if $bool;
+        return $m if $bool;
+        };
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  '[' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless (
+        do {
+          my $match = $grammar->rule( $s, { p => $pos, args => {} }, undef );
+          if ($match) {
+            $named{'rule'} = $match;
+            $pos = $match->to;
+            1;
+          }
+          else { 0 }
+        }
+        && (
+          (
+            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ']' )
+            ? do { $pos += 1; 1 }
+            : 0
+          )
+          && do {
+            $::_V6_MATCH_ = $m;
+            local $::_V6_SUCCEED = 1;
+            $m->data->{capture} = \(
+              sub {
+                return ( $::_V6_MATCH_->{'rule'}->() );
+                }
+                ->()
+            );
+            $bool = $::_V6_SUCCEED;
+            $::_V6_MATCH_ = $m if $bool;
+            return $m if $bool;
+          }
+        )
+        );
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  ':::' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless do {
+        $::_V6_MATCH_ = $m;
+        local $::_V6_SUCCEED = 1;
+        $m->data->{capture} = \(
+          sub {
+            return (
+              {
+                'colon' => ':::'    # hash
+              }
+            );
+            }
+            ->()
+        );
+        $bool = $::_V6_SUCCEED;
+        $::_V6_MATCH_ = $m if $bool;
+        return $m if $bool;
+        };
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  ':?' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless do {
+        $::_V6_MATCH_ = $m;
+        local $::_V6_SUCCEED = 1;
+        $m->data->{capture} = \(
+          sub {
+            return (
+              {
+                'colon' => ':?'    # hash
+              }
+            );
+            }
+            ->()
+        );
+        $bool = $::_V6_SUCCEED;
+        $::_V6_MATCH_ = $m if $bool;
+        return $m if $bool;
+        };
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  ':+' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless do {
+        $::_V6_MATCH_ = $m;
+        local $::_V6_SUCCEED = 1;
+        $m->data->{capture} = \(
+          sub {
+            return (
+              {
+                'colon' => ':+'    # hash
+              }
+            );
+            }
+            ->()
+        );
+        $bool = $::_V6_SUCCEED;
+        $::_V6_MATCH_ = $m if $bool;
+        return $m if $bool;
+        };
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  '::' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless do {
+        $::_V6_MATCH_ = $m;
+        local $::_V6_SUCCEED = 1;
+        $m->data->{capture} = \(
+          sub {
+            return (
+              {
+                'colon' => '::'    # hash
+              }
+            );
+            }
+            ->()
+        );
+        $bool = $::_V6_SUCCEED;
+        $::_V6_MATCH_ = $m if $bool;
+        return $m if $bool;
+        };
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  ':' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless do {
+        $::_V6_MATCH_ = $m;
+        local $::_V6_SUCCEED = 1;
+        $m->data->{capture} = \(
+          sub {
+            return (
+              {
+                'colon' => ':'    # hash
+              }
+            );
+            }
+            ->()
+        );
+        $bool = $::_V6_SUCCEED;
+        $::_V6_MATCH_ = $m if $bool;
+        return $m if $bool;
+        };
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  '$$' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless do {
+        $::_V6_MATCH_ = $m;
+        local $::_V6_SUCCEED = 1;
+        $m->data->{capture} = \(
+          sub {
+            return (
+              {
+                'colon' => '$$'    # hash
+              }
+            );
+            }
+            ->()
+        );
+        $bool = $::_V6_SUCCEED;
+        $::_V6_MATCH_ = $m if $bool;
+        return $m if $bool;
+        };
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  '^^' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless do {
+        $::_V6_MATCH_ = $m;
+        local $::_V6_SUCCEED = 1;
+        $m->data->{capture} = \(
+          sub {
+            return (
+              {
+                'colon' => '^^'    # hash
+              }
+            );
+            }
+            ->()
+        );
+        $bool = $::_V6_SUCCEED;
+        $::_V6_MATCH_ = $m if $bool;
+        return $m if $bool;
+        };
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  },
+  '^' => sub {
+
+    my $s       = $_[0] || '';
+    my $grammar = $_[1] || __PACKAGE__;
+    $_[3] = $_[2];
+    $_[2] = undef;
+
+    my $m;
+    for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+      my %index;
+      my @match;
+      my %named;
+      my $bool = 1;
+      $m = Pugs::Runtime::Match->new(
+        {
+          str     => \$s,
+          from    => \( 0 + $pos ),
+          to      => \($pos),
+          bool    => \$bool,
+          match   => \@match,
+          named   => \%named,
+          capture => undef,
+        }
+      );
+      $bool = 0
+        unless do {
+        $::_V6_MATCH_ = $m;
+        local $::_V6_SUCCEED = 1;
+        $m->data->{capture} = \(
+          sub {
+            return (
+              {
+                'colon' => '^'    # hash
+              }
+            );
+            }
+            ->()
+        );
+        $bool = $::_V6_SUCCEED;
+        $::_V6_MATCH_ = $m if $bool;
+        return $m if $bool;
+        };
+      last if $m;
+    }
+    $::_V6_MATCH_ = $m;
+    return $m;
+  }
+);
+*term = sub {
+
+  $_[3] = $_[2];
+  $_[2] = undef;
+  my $grammar = $_[0];
+  my $s       = $_[1];
+  my $m;
+  for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    my %index;
+    my @match;
+    my %named;
+    my $bool = 1;
+    $m = Pugs::Runtime::Match->new(
+      {
+        str     => \$s,
+        from    => \( 0 + $pos ),
+        to      => \($pos),
+        bool    => \$bool,
+        match   => \@match,
+        named   => \%named,
+        capture => undef,
+      }
+    );
+    $bool = 0
+      unless do {
+      my $pos1 = $pos;
+      do {
+        (
+          do {
+            my $match = do {
+              our $I1404;
+              our $I1404_sizes;
+              unless ($I1404) {
+                my $hash = \%Pugs::Grammar::Rule::rule_terms;
+                my %sizes = map { length($_) => 1 } keys %$hash;
+                $I1404_sizes = [ sort { $b <=> $a } keys %sizes ];
+                $I1404 = $hash;
+              }
+              my $match = 0;
+              my $key;
+              for (@$I1404_sizes) {
+                $key = (
+                  $pos <= length($s)
+                  ? substr( $s, $pos, $_ )
+                  : ''
+                );
+                if ( exists $I1404->{$key} ) {
+                  $match = Pugs::Emitter::Rule::Perl5::Ratchet::preprocess_hash( $I1404, $key )->( $s, $grammar, { p => ( $pos + $_ ), args => {} }, undef );
+                  last if $match;
+                }
+              }
+              if ($match) {
+                $pos = $match->to;
+
+                #print "match: $key at $pos = ", Dumper( $match->data );
+                $bool = 1;
+              }
+              ;    # else { $bool = 0 }
+              $match;
+            };
+            if ($match) {
+              $named{'Pugs::Grammar::Rule::rule_terms'} = $match;
+              $pos = $match->to;
+              1;
+            }
+            else { 0 }
+            }
+            && do {
+            $::_V6_MATCH_ = $m;
+            local $::_V6_SUCCEED = 1;
+            $m->data->{capture} = \(
+              sub {
+                return ( $::_V6_MATCH_->{'Pugs::Grammar::Rule::rule_terms'}->() );
+                }
+                ->()
+            );
+            $bool = $::_V6_SUCCEED;
+            $::_V6_MATCH_ = $m if $bool;
+            return $m if $bool;
+            }
+        );
+        }
+        || do {
+        $pos  = $pos1;
+        $bool = 1;
+        (
+          (
+            ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\]\}\)\>\:\?\+\*\|\&]/s )
+            ? do { $pos += length $&; 1 }
+            : 0
+          )
+            && do {
+            $::_V6_MATCH_ = $m;
+            local $::_V6_SUCCEED = 1;
+            $m->data->{capture} = \(
+              sub {
+                return (
+                  {
+                    'constant' => $::_V6_MATCH_->()    # hash
+                  }
+                );
+                }
+                ->()
+            );
+            $bool = $::_V6_SUCCEED;
+            $::_V6_MATCH_ = $m if $bool;
+            return $m if $bool;
+            }
+        );
+        }
+      };
+    last if $m;
+  }
+  $::_V6_MATCH_ = $m;
+  return $m;
+};    ## Signature for term
+#Data::Bind->sub_signature( \&term, );
+*quantifier = sub {
+
+  $_[3] = $_[2];
+  $_[2] = undef;
+  my $grammar = $_[0];
+  my $s       = $_[1];
+  my $m;
+  for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    my %index;
+    my @match;
+    my %named;
+    my $bool = 1;
+    $m = Pugs::Runtime::Match->new(
+      {
+        str     => \$s,
+        from    => \( 0 + $pos ),
+        to      => \($pos),
+        bool    => \$bool,
+        match   => \@match,
+        named   => \%named,
+        capture => undef,
+      }
+    );
+    $bool = 0
+      unless (
+      do {
+        my $match = Pugs::Runtime::Match->new(
+          do {
+            my $bool = 1;
+            my $from = $pos;
+            my @match;
+            my %named;
+            $bool = 0 unless do {
+              my $hash = do {
+                my $bool = 1;
+                my $from = $pos;
+                my @match;
+                my %named;
+                $bool = 0
+                  unless do {
+                  my $bool;
+                  (
+                    do {
+                      my $match = $grammar->ws( $s, { p => $pos, args => {} }, undef );
+                      my $bool = ( !$match != 1 );
+                      $pos = $match->to if $bool;
+                      $match;
+                      }
+                      || 1
+                  );
+                  };
+                { str => \$s, from => \$from, match => \@match, named => \%named, bool => \$bool, to => \( 0 + $pos ), capture => undef };
+              };
+              my $bool = ${ $hash->{'bool'} };
+              $match[0] = Pugs::Runtime::Match->new($hash);
+              $bool;
+            };
+            { str => \$s, from => \$from, match => \@match, named => \%named, bool => \$bool, to => \( 0 + $pos ), capture => undef };
+            }
+        );
+        if ($match) {
+          $named{'ws1'} = $match;
+          $pos = $match->to;
+          1;
+        }
+        else { 0 }
+      }
+      && (
+        do {
+          my $pos1 = $pos;
+          do {
+            my $pos  = $pos1;
+            my $from = $pos;
+            my @match;
+            my %named;
+            $bool = 0
+              unless (
+              ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[\}\]\)\>]/s )
+              ? do { $pos += length $&; 1 }
+              : 0
+              );
+            !$bool;
+          };
+        }
+        && (
+          do {
+            my $match = $grammar->term( $s, { p => $pos, args => {} }, undef );
+            if ($match) {
+              $named{'term'} = $match;
+              $pos = $match->to;
+              1;
+            }
+            else { 0 }
+          }
+          && (
+            do {
+              my $match = Pugs::Runtime::Match->new(
+                do {
+                  my $bool = 1;
+                  my $from = $pos;
+                  my @match;
+                  my %named;
+                  $bool = 0 unless do {
+                    my $hash = do {
+                      my $bool = 1;
+                      my $from = $pos;
+                      my @match;
+                      my %named;
+                      $bool = 0
+                        unless do {
+                        my $bool;
+                        (
+                          do {
+                            my $match = $grammar->ws( $s, { p => $pos, args => {} }, undef );
+                            my $bool = ( !$match != 1 );
+                            $pos = $match->to if $bool;
+                            $match;
+                            }
+                            || 1
+                        );
+                        };
+                      { str => \$s, from => \$from, match => \@match, named => \%named, bool => \$bool, to => \( 0 + $pos ), capture => undef };
+                    };
+                    my $bool = ${ $hash->{'bool'} };
+                    $match[0] = Pugs::Runtime::Match->new($hash);
+                    $bool;
+                  };
+                  { str => \$s, from => \$from, match => \@match, named => \%named, bool => \$bool, to => \( 0 + $pos ), capture => undef };
+                  }
+              );
+              if ($match) {
+                $named{'ws2'} = $match;
+                $pos = $match->to;
+                1;
+              }
+              else { 0 }
+            }
+            && (
+              do {
+                my $match = Pugs::Runtime::Match->new(
+                  do {
+                    my $bool = 1;
+                    my $from = $pos;
+                    my @match;
+                    my %named;
+                    $bool = 0 unless do {
+                      my $hash = do {
+                        my $bool = 1;
+                        my $from = $pos;
+                        my @match;
+                        my %named;
+                        $bool = 0
+                          unless (
+                          do {
+                            my $bool;
+                            (
+                              (
+                                ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[\?\*\+]/s )
+                                ? do { $pos += length $&; 1 }
+                                : 0
+                              )
+                                || 1
+                            );
+                          }
+                          && do {
+                            my $bool;
+                            (
+                              (
+                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '?' )
+                                ? do { $pos += 1; 1 }
+                                : 0
+                              )
+                                || 1
+                            );
+                          }
+                          );
+                        { str => \$s, from => \$from, match => \@match, named => \%named, bool => \$bool, to => \( 0 + $pos ), capture => undef };
+                      };
+                      my $bool = ${ $hash->{'bool'} };
+                      $match[0] = Pugs::Runtime::Match->new($hash);
+                      $bool;
+                    };
+                    { str => \$s, from => \$from, match => \@match, named => \%named, bool => \$bool, to => \( 0 + $pos ), capture => undef };
+                    }
+                );
+                if ($match) {
+                  $named{'quant'} = $match;
+                  $pos = $match->to;
+                  1;
+                }
+                else { 0 }
+              }
+              && (
+                do {
+                  my $match = Pugs::Runtime::Match->new(
+                    do {
+                      my $bool = 1;
+                      my $from = $pos;
+                      my @match;
+                      my %named;
+                      $bool = 0 unless do {
+                        my $hash = do {
+                          my $bool = 1;
+                          my $from = $pos;
+                          my @match;
+                          my %named;
+                          $bool = 0
+                            unless do {
+                            my $bool;
+                            (
+                              do {
+                                my $match = $grammar->ws( $s, { p => $pos, args => {} }, undef );
+                                my $bool = ( !$match != 1 );
+                                $pos = $match->to if $bool;
+                                $match;
+                                }
+                                || 1
+                            );
+                            };
+                          { str => \$s, from => \$from, match => \@match, named => \%named, bool => \$bool, to => \( 0 + $pos ), capture => undef };
+                        };
+                        my $bool = ${ $hash->{'bool'} };
+                        $match[0] = Pugs::Runtime::Match->new($hash);
+                        $bool;
+                      };
+                      { str => \$s, from => \$from, match => \@match, named => \%named, bool => \$bool, to => \( 0 + $pos ), capture => undef };
+                      }
+                  );
+                  if ($match) {
+                    $named{'ws3'} = $match;
+                    $pos = $match->to;
+                    1;
+                  }
+                  else { 0 }
+                }
+                && do {
+                  $::_V6_MATCH_ = $m;
+                  local $::_V6_SUCCEED = 1;
+                  $m->data->{capture} = \(
+                    sub {
+                      return (
+                        {
+                          'quant' => {
+                            'term'  => $::_V6_MATCH_->{'term'}->(),
+                            'quant' => $::_V6_MATCH_->{'quant'}->(),
+                            'ws1'   => "" . $::_V6_MATCH_->{'ws1'},
+                            'ws2'   => "" . $::_V6_MATCH_->{'ws2'},
+                            'ws3'   => "" . $::_V6_MATCH_->{'ws3'}     # hash
+                            }    # hash
+                        }
+                      );
+                      }
+                      ->()
+                  );
+                  $bool = $::_V6_SUCCEED;
+                  $::_V6_MATCH_ = $m if $bool;
+                  return $m if $bool;
+                }
+              )
+            )
+          )
+        )
+      )
+      );
+    last if $m;
+  }
+  $::_V6_MATCH_ = $m;
+  return $m;
+};    ## Signature for quantifier
+#Data::Bind->sub_signature( \&quantifier, );
+*concat = sub {
+
+  $_[3] = $_[2];
+  $_[2] = undef;
+  my $grammar = $_[0];
+  my $s       = $_[1];
+  my $m;
+  for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    my %index;
+    my @match;
+    my %named;
+    my $bool = 1;
+    $m = Pugs::Runtime::Match->new(
+      {
+        str     => \$s,
+        from    => \( 0 + $pos ),
+        to      => \($pos),
+        bool    => \$bool,
+        match   => \@match,
+        named   => \%named,
+        capture => undef,
+      }
+    );
+    $bool = 0
+      unless (
+      do {
+        (
+          do {
+            my $match = $grammar->quantifier( $s, { p => $pos, args => {} }, undef );
+            if ($match) {
+              push @{ $named{'quantifier'} }, $match;
+              $pos = $match->to;
+              1;
+            }
+            else { 0 }
+            }
+            && do {
+            my $bool;
+            while (
+              do {
+                my $match = $grammar->quantifier( $s, { p => $pos, args => {} }, undef );
+                if ($match) {
+                  push @{ $named{'quantifier'} }, $match;
+                  $pos = $match->to;
+                  1;
+                }
+                else { 0 }
+              }
+              )
+            {
+            }
+            1;
+            }
+        );
+      }
+      && do {
+        $::_V6_MATCH_ = $m;
+        local $::_V6_SUCCEED = 1;
+        $m->data->{capture} = \(
+          sub {
+            my @a = map { $_->() } @{ $::_V6_MATCH_->{'quantifier'} };
+            return { concat => \@a, } if scalar @a > 1;
+            return $a[0];
+            }
+            ->()
+        );
+        $bool = $::_V6_SUCCEED;
+        $::_V6_MATCH_ = $m if $bool;
+        return $m if $bool;
+      }
+      );
+    last if $m;
+  }
+  $::_V6_MATCH_ = $m;
+  return $m;
+};    ## Signature for concat
+#Data::Bind->sub_signature( \&concat, );
+*rule = sub {
+
+  $_[3] = $_[2];
+  $_[2] = undef;
+  my $grammar = $_[0];
+  my $s       = $_[1];
+  my $m;
+  for my $pos ( defined $_[3]{p} ? $_[3]{p} : ( 0 .. length($s) ) ) {
+    my %index;
+    my @match;
+    my %named;
+    my $bool = 1;
+    $m = Pugs::Runtime::Match->new(
+      {
+        str     => \$s,
+        from    => \( 0 + $pos ),
+        to      => \($pos),
+        bool    => \$bool,
+        match   => \@match,
+        named   => \%named,
+        capture => undef,
+      }
+    );
+    $bool = 0
+      unless (
+      do {
+        my $bool;
+        (
+          (
+            do {
+              my $bool;
+              (
+                do {
+                  my $match = $grammar->ws( $s, { p => $pos, args => {} }, undef );
+                  my $bool = ( !$match != 1 );
+                  $pos = $match->to if $bool;
+                  $match;
+                  }
+                  || 1
+              );
+              }
+              && (
+              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '|' )
+              ? do { $pos += 1; 1 }
+              : 0
+              )
+          )
+            || 1
+        );
+      }
+      && (
+        do {
+          my $match = $grammar->concat( $s, { p => $pos, args => {} }, undef );
+          if ($match) {
+                    push @{ $named{'concat'} }, $match;
+            $pos = $match->to;
+            1;
+          }
+          else { 0 }
+        }
+        && (
+          do {
+            my $bool;
+            while (
+              (
+                (
+                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '|' )
+                  ? do { $pos += 1; 1 }
+                  : 0
+                )
+                && do {
+                  my $match = $grammar->concat( $s, { p => $pos, args => {} }, undef );
+                  if ($match) {
+                    push @{ $named{'concat'} }, $match;
+                    $pos = $match->to;
+                    1;
+                  }
+                  else { 0 }
+                }
+              )
+              )
+            {
+            }
+            1;
+          }
+          && do {
+            $::_V6_MATCH_ = $m;
+            local $::_V6_SUCCEED = 1;
+            $m->data->{capture} = \(
+              sub {
+                my @a = map { $_->() } @{ $::_V6_MATCH_->{'concat'} };
+                return { alt => \@a, } if scalar @a > 1;
+                return $a[0];
+                }
+                ->()
+            );
+            $bool = $::_V6_SUCCEED;
+            $::_V6_MATCH_ = $m if $bool;
+            return $m if $bool;
+          }
+        )
+      )
+      );
+    last if $m;
+  }
+  $::_V6_MATCH_ = $m;
+  return $m;
+};    ## Signature for rule
+#Data::Bind->sub_signature( \&rule, );
+
+1;

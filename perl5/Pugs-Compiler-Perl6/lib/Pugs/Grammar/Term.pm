@@ -258,8 +258,9 @@ sub recompile {
             |
                 <?ws>? <Pugs::Grammar::Perl6.statements> <?ws>? <'}'>
                 { 
-                  return { 
-                    bare_block => $_[0]{'Pugs::Grammar::Perl6.statements'}->(),
+                    #print "Term block\n";
+                    return { 
+                        bare_block => $_[0]{'Pugs::Grammar::Perl6.statements'}->(),
                 } }
             ),
         '->' => q( 
