@@ -98,8 +98,15 @@ parameter is considered.
 Examples: 
 
    Arguments (a => 'b') to signatures 1. () and 2. (*%h) calls 2
-   Arguments () to signatures 1. (@a?) and 2. () calls 2
+   Arguments (<1 2>) to signatures 1. (@a?) and 2. (@a) calls 2
    Arguments (<1 2 3>) to signatures 1. () and 2. (@a?) calls 2
+   Arguments (@a) to signatures 1. (@a?) and 2. (@a) IS TIE
+
+Note that the variant /with/ the parameter can be considered an exact match, but
+but the variant /without/ it cannot be considered an exact match. That rule 
+makes the following example work:
+
+   Arguments () to signatures 1. (@a?) and 2. () calls 2
 
 ------------------------------------------------------------
 Backstory and discussion:
