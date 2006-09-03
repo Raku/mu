@@ -260,9 +260,12 @@ rulePackageHead = do
                        _ -> fail "bug"
         mixinRoles = nub ([ cls | ("does", cls) <- traits])
         parentClasses = nub ("Object":[ cls | ("is", cls) <- traits])
-    if (elem name parentClasses)
-        then return (Left $ "Circular inheritance detected for " ++ sym ++ " '" ++ name ++ "'")
-        else do
+    case () of
+        _ | elem name parentClasses -> do
+            return (Left $ "Circular class inheritance detected for " ++ sym ++ " '" ++ name ++ "'")
+        _ | elem name mixinRoles -> do
+            return (Left $ "Circular role composition detected for " ++ sym ++ " '" ++ name ++ "'")
+        _ -> do
             unsafeEvalExp (newPackage pkgClass newName parentClasses mixinRoles)
             modify $ \state -> state
                 { s_env = (s_env state)
