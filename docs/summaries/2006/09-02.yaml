@@ -4,12 +4,12 @@ extra:
     - body: |-
         This summary was prepared using
         [Mail::Summary::Tools](http://search.cpan.org/dist/Mail-Summary-Tools/),
-        now available on CPAN.
+        now available on CPAN.  A big thank-you to Yuval Kogman.
         
         If you appreciate Perl, consider [contributing to the Perl
         Foundation](http://donate.perlfoundation.org) to help support the
         development of Perl.
-        
+
         Thank you to everyone who has pointed out mistakes and offered
         suggestions for improving this series.  Comments on this summary can be
         sent to Ann Barcomb, <kudra@domaintje.com>.
@@ -24,7 +24,12 @@ extra:
         * [ONLamp](http://www.oreillynet.com/onlamp/blog/)
       title: Distribution
   header:
-    - body: ~
+    - body: |-                          
+        "I once saw an overfilled waterbed that was almost as tall as I am.  I
+        would have called it PHP, but it didn't explode and throw cold water
+        all over the house."            
+                                        
+        -- chromatic
       title: This week on the Perl 6 mailing lists
   see_also:
     - name: Perl Foundation activities
