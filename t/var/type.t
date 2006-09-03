@@ -7,5 +7,5 @@ plan 4;
 ok(try{my Int $foo; 1}, 'compile my Int $foo');
 ok(try{my Str $bar; 1}, 'compile my Str $bar');
 
-ok(try{my Int $foo; $foo ~~ Int}, 'Int $foo isa Int');
-ok(try{my Str $bar; $bar ~~ Str}, 'Str $bar isa Str');
+ok(do{my Int $foo; $foo ~~ Int}, 'Int $foo isa Int');
+ok(do{my Str $bar; $bar ~~ Str}, 'Str $bar isa Str');
