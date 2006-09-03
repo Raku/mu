@@ -47,21 +47,21 @@ plan 11;
 # &sub.signature should return a Siglist object
 {
     my sub foo ($a, $b) {}
-    my $siglist = eval ':($a, $b)';
+    my $siglist = :($a, $b);
 
     ok $siglist,
-        "a subroutine's siglist can be accessed via .signature (1-1)", :todo<feature>;
-    cmp_ok $siglist, &infix:<===>, try { &foo.signature },
-        "a subroutine's siglist can be accessed via .signature (1-2)";
+        "a subroutine's siglist can be accessed via .signature (1-1)";
+    cmp_ok $siglist, &infix:<===>, try {&foo.signature},
+        "a subroutine's siglist can be accessed via .signature (1-2)", :todo<feature>;
 }
 
 # Same as above, but more complex
 {
     my sub foo (Num $a, $b?, *@rest) {}
-    my $siglist = eval ':(Num $a, $b?, *@rest)';
+    my $siglist = :(Num $a, $b?, *@rest);
 
     cmp_ok $siglist, &infix:<===>, try { &foo.signature },
-        "a subroutine's siglist can be accessed via .signature (2)";
+        "a subroutine's siglist can be accessed via .signature (2)", :todo<feature>;
 }
 
 {

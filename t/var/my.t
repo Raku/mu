@@ -47,10 +47,10 @@ eval_ok('my $x = my $y = 0; 1', '"my $x = my $y = 0" parses');
 {
     my $test = "value should still be set for arg, even if there's a later my";
     sub foo (*%p) {
-        is(%p<a>, 'b',$test );
+        is(%p<a>, 'b', $test, :todo<bug> );
         my %p;
     }
-    foo('a' => 'b');
+    foo(a => 'b');
 }
 
 

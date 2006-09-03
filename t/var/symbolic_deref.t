@@ -115,16 +115,13 @@ Following re-specced to be invalid:
 
 # Symbolic dereferentiation of type vars
 {
-  cmp_ok ::Array, &infix:<=:=>, ::("Array"),
+  cmp_ok ::Array, &infix:<===>, ::("Array"),
     "symbolic dereferentiation of type vars works (1)";
 }
 
 {
-  my $ok;
-  eval '
-    class A::B::C {}
-    $ok = ::A::B::C =:= ::A::("B")::C;
-  ';
+  class A::B::C {};
+  my $ok = ::A::B::C === ::A::("B")::C;
   ok $ok, "symbolic dereferentiation of (own) type vars works (2)";
 }
 
