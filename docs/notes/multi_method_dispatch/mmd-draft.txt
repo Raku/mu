@@ -98,7 +98,6 @@ parameter is considered.
 Examples: 
 
    Arguments (a => 'b') to signatures 1. () and 2. (*%h) calls 2
-   Arguments (<1 2>) to signatures 1. (@a?) and 2. (@a) calls 2
    Arguments (<1 2 3>) to signatures 1. () and 2. (@a?) calls 2
    Arguments (@a) to signatures 1. (@a?) and 2. (@a) IS TIE
 
