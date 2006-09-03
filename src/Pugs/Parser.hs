@@ -1334,6 +1334,7 @@ data Paramdec = MkParamdec
     { p_param      :: SigParam
     , p_isNamed    :: Bool
     , p_isRequired :: Bool
+    , p_isSlurpy   :: Bool
     }
     deriving (Show)
 
@@ -1342,9 +1343,11 @@ ruleSignature = rule "Signature" $ do
     inv     <- option Nothing $ try $ fmap (Just . p_param) $ followedBy ruleParam (symbol ":")
     params  <- ruleParam `sepEndBy` (symbol ",")
     reqPosC <- validateRequired True params
-    let reqNms   = Set.fromAscList $ sort [p_label p | MkParamdec p _ True <- params]
-        posLs    = [p | MkParamdec p False _ <- params]
-        nmSt     = Map.fromList [(p_label p, p) | MkParamdec p True _ <- params]
+    let reqNms   = Set.fromList
+            [ p_label p | MkParamdec{ p_param = p, p_isRequired = True } <- params]
+        nmSt     = Map.fromList
+            [ (p_label p, p) | MkParamdec{ p_param = p, p_isNamed = True } <- params]
+        posLs    = [ p | MkParamdec{ p_param = p, p_isNamed = False } <- params ]
         slpScLs  = []
         slpArrLs = Nothing
         slpHsh   = Nothing
@@ -1365,6 +1368,7 @@ ruleSignature = rule "Signature" $ do
 ruleParam :: RuleParser Paramdec
 ruleParam = rule "paramater" $ do
     staticTypes   <- rStaticTypes
+    isSlurpy      <- option False (char '*' >> return True)
     (name, label) <- rParamName
     isOptional    <- option False $ choice
         [ symbol "!" >> return False
@@ -1383,7 +1387,7 @@ ruleParam = rule "paramater" $ do
     let (traits''', lazy')   = setTrait lazy    False    traits''
     let (traits'''',context')= setTrait context False    traits'''
     let slots = Map.fromList [(cast t, val $ ((cast True) :: PureBit)) | ("is", t) <- traits'''']
-    let isRequired = (not isOptional) || (Map.member (cast "required") slots)
+    let isRequired = (not isSlurpy) && ((not isOptional) || (Map.member (cast "required") slots))
     when (isOptional && isRequired) failReqDef -- XXX is required(False)
     let p = MkParam { p_variable    = cast name
                     , p_types       = staticTypes
@@ -1397,7 +1401,12 @@ ruleParam = rule "paramater" $ do
                     , p_isLazy      = lazy'
                     , p_isContext   = context'
                     }
-    return $ MkParamdec{ p_param = p, p_isRequired = isRequired, p_isNamed = False }
+    return MkParamdec
+        { p_param       = p
+        , p_isRequired  = isRequired
+        , p_isSlurpy    = isSlurpy
+        , p_isNamed     = False
+        }
     where
     rStaticTypes = do
         ty <- many $ withTrailingSpace ruleQualifiedIdentifier
