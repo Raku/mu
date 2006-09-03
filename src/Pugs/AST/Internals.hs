@@ -1616,14 +1616,19 @@ instance (Typeable a) => Show (IVar a) where
         where
         addr :: Word
         addr = W# (case v of
-            IScalar x -> x `seq` unsafeCoerce# x
-            IArray  x -> x `seq` unsafeCoerce# x
-            IHash   x -> x `seq` unsafeCoerce# x
-            ICode   x -> x `seq` unsafeCoerce# x
-            IHandle x -> x `seq` unsafeCoerce# x
-            IRule   x -> x `seq` unsafeCoerce# x
-            IThunk  x -> x `seq` unsafeCoerce# x
-            IPair   x -> x `seq` unsafeCoerce# x)
+            IScalar x -> unsafeCoerce# x
+            IArray  x
+                -- Hack - we can't get pointer to a VList, so just stub it with a random IORef
+                | typeOf x == typeOf (undefined :: VList)
+                -> unsafeCoerce# _GlobalFinalizer
+                | otherwise
+                -> unsafeCoerce# x
+            IHash   x -> unsafeCoerce# x
+            ICode   x -> unsafeCoerce# x
+            IHandle x -> unsafeCoerce# x
+            IRule   x -> unsafeCoerce# x
+            IThunk  x -> unsafeCoerce# x
+            IPair   x -> unsafeCoerce# x)
 #endif
 
 scalarRef   :: ScalarClass a=> a -> VRef
