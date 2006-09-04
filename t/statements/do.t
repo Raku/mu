@@ -2,14 +2,26 @@ use v6-alpha;
 
 use Test;
 
-plan 15;
+plan 19;
 
-# L<S04/The do-once loop/"can't" put while or until modifier>
-eval_dies_ok 'my $i; do { $i++ } while $i < 5;',
+# L<S04/The do-once loop/"can't" put "statement modifier">
+eval_dies_ok 'my $i = 1; do { $i++ } while $i < 5;',
     "'do' can't take the 'while' modifier";
 
-eval_dies_ok 'my $i; do { $i++ } until $i > 4;',
+eval_dies_ok 'my $i = 1; do { $i++ } until $i > 4;',
     "'do' can't take the 'until' modifier";
+
+eval_dies_ok 'my $i = 1; do { $i++ } if $i;',
+    "'do' can't take the 'if' modifier";
+
+eval_dies_ok 'my $i; do { $i++ } for 1..3;',
+    "'do' can't take the 'for' modifier";
+
+eval_dies_ok 'my $i; do { $i++ } unless $i;',
+    "'do' can't take the 'unless' modifier";
+
+eval_dies_ok 'my $i; do { $i++ } given $i;',
+    "'do' can't take the 'given' modifier";
 
 # L<S04/The do-once loop/statement "prefixing with" do>
 {
