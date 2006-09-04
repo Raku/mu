@@ -1,4 +1,4 @@
-use Test; plan 10;
+use Test; plan 11;
 
 # L<S12/"Calling Sets of Methods">
 
@@ -46,6 +46,10 @@ class Child is Parent {
     try { $result = $object.*$meth };
     is($object.cnt, 2, "$test: Case 2 visits both Child and Parent (as dynamic method call)");
 
+    my $meth = 'sqrt'; 
+    my $ans = 0;
+    try { $ans = 4.*$meth };
+    is($ans, 2, q"$obj.*$meth works built-in methods like 'sqrt'");
 
 }
 
