@@ -50,8 +50,12 @@ Test.pm itself works, and subsequent t/* use Test.pm
 
 == Feature Changes
 
+* $obj.*$meth() is now implemented, calling zero or more methods named $meth
+in the inheritence tree, returning an unconcatenated list of return values.
+The return value of this is not yet spec'ed. Currently only lookups through
+single inheritence are implemented.  See "Calling Sets of Methods" in S12 for
+more information about related features. 
 * There are now separate `===` and `eqv` operators
-
 
 == Bug Fixes
 
