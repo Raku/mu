@@ -1393,7 +1393,7 @@ ruleParam = rule "parameter" $ do
     let p = MkParam { p_variable    = cast name
                     , p_types       = staticTypes
                     , p_constraints = code
-                    , p_unpacking   = Nothing
+                    , p_unpacking   = unpacking
                     , p_default     = def
                     , p_label       = label
                     , p_slots       = slots
@@ -1425,6 +1425,7 @@ ruleParam = rule "parameter" $ do
     rPostVarUnpacking = try $ do
         optional $ char ':'
         (Val (VV sig)) <- verbatimParens ruleSignature
+        --return $ existentialCoerce# sig
         return sig
     rCode = do
         {- We don't have Exp -> Pugs.Val.Code, too bad.

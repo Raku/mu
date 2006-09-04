@@ -68,6 +68,7 @@ module Pugs.Internals (
     afterPrefix,
     decodeUTF8,
     encodeUTF8,
+    existentialCoerce#,
     forM,
     forM_,
     combine,
@@ -134,6 +135,7 @@ import Data.Word hiding (Word)
 import Data.Complex
 import Data.ByteString (ByteString)
 import Data.Tree
+import qualified Data.Typeable as Typeable
 import Data.Set (Set)
 import Data.Map (Map)
 import Data.Seq (Seq, singleton)
@@ -188,6 +190,7 @@ instance (Monad m, (a :>: b)) => ((:>:) (m a)) b where cast = return . cast
 -- "fmap cast" can be written as "cast"
 instance (Functor f, (a :>: b)) => ((:>:) (f a)) (f b) where cast = fmap cast
 
+existentialCoerce# x = fromJust $ Typeable.gcast x
 
 -- Instances.
 instance Show Unique where
