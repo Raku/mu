@@ -204,6 +204,13 @@ And the related Exegesis, which explains it more detail:
 
 =head1 Subroutines
 
+=head2 Unpack @_ as [,] @_
+
+Notice the space after the [,]:
+
+ Was: my ($s,$href) = @_;
+ Now  my ($s,%h) = [,] @_;
+
 =cut 
 
 # S07
