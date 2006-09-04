@@ -812,7 +812,25 @@ reduceSyn syn [lhs, exp]
 
 reduceSyn "q:code" [ body ] = expToEvalVal body
 
-reduceSyn "CCallDyn" (methExp:inv:args) = do
+reduceSyn "CCallDyn" (Val (VStr "*"):methExp:inv:args) = do
+    -- Experimental support for .*$meth, assuming single inheritance.
+    str     <- fromVal =<< enterEvalContext (cxtItem "Str") methExp
+    let meth = cast ('&':str)
+    inv'    <- enterLValue . enterEvalContext cxtItemAny $ inv
+    subs    <- findAccum meth =<< fromVal inv' -- Given type, get all methods
+    rvs     <- forM (nub subs) $ \sub -> applySub sub (Just (Val inv')) args
+    return (VList rvs)
+    where
+    findAccum meth typ = do
+        found <- findSub meth (Just (Val (VType typ))) args
+        case found of
+            Right sub | Just env <- subEnv sub -> do
+                let thisPkg = envPackage env
+                rest <- findAccum meth{ v_package = nextPkg } (cast thisPkg)
+                return (sub:rest)
+            _         -> return []
+
+reduceSyn "CCallDyn" (_:methExp:inv:args) = do
     str <- fromVal =<< enterEvalContext (cxtItem "Str") methExp
     reduceApp (_Var ('&':str)) (Just inv) args
 
@@ -964,8 +982,7 @@ doCall var invs args = do
             _           -> invs  -- re-evaluation assumed to be ok
     case sub of
         Right sub    -> do
-            val <- applySub sub klugedInvs args
-            return val
+            applySub sub klugedInvs args
         _ | [Syn "," args'] <- unwrap args -> do
             sub <- findSub var klugedInvs args'
             either err (fail errSpcMessage) sub
@@ -978,25 +995,28 @@ doCall var invs args = do
     err NoMatchingMulti    = retError "No compatible subroutine found" var
     err NoSuchSub          = retError "No such sub" var
     err (NoSuchMethod typ) = retError ("No such method in class " ++ showType typ) var
-    applySub :: VCode -> (Maybe Exp) -> [Exp] -> Eval Val
-    applySub sub invs args
-        -- list-associativity
-        | MkCode{ subAssoc = A_list }      <- sub
-        , (App (Var var') Nothing args'):rest  <- args
-        , var == var'
-        = applySub sub invs (args' ++ rest)
-        -- fix subParams to agree with number of actual arguments
-        | MkCode{ subAssoc = A_list, subParams = (p:_) }   <- sub
-        = apply sub{ subParams = (length args) `replicate` p } invs args
-        -- chain-associativity
-        | MkCode{ subAssoc = A_chain }  <- sub
-        , (App _ Nothing _):_                <- args
-        = mungeChainSub sub args
-        | MkCode{ subAssoc = A_chain, subParams = (p:_) }   <- sub
-        = apply sub{ subParams = (length args) `replicate` p } invs args
-        -- normal application
-        | otherwise
-        = apply sub invs args
+
+applySub :: VCode -> (Maybe Exp) -> [Exp] -> Eval Val
+applySub sub invs args
+    -- list-associativity
+    | MkCode{ subAssoc = A_list }           <- sub
+    , (App (Var var') Nothing args'):rest   <- args
+    , C_infix <- v_categ var'
+    , cast (subName sub) == v_name var'
+    = applySub sub invs (args' ++ rest)
+    -- fix subParams to agree with number of actual arguments
+    | MkCode{ subAssoc = A_list, subParams = (p:_) }   <- sub
+    = apply sub{ subParams = (length args) `replicate` p } invs args
+    -- chain-associativity
+    | MkCode{ subAssoc = A_chain }  <- sub
+    , (App _ Nothing _):_                <- args
+    = mungeChainSub sub args
+    | MkCode{ subAssoc = A_chain, subParams = (p:_) }   <- sub
+    = apply sub{ subParams = (length args) `replicate` p } invs args
+    -- normal application
+    | otherwise
+    = apply sub invs args
+    where
     mungeChainSub :: VCode -> [Exp] -> Eval Val
     mungeChainSub sub args = do
         let MkCode{ subAssoc = A_chain, subParams = (p:_) } = sub

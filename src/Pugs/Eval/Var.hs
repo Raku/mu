@@ -153,6 +153,10 @@ data FindSubFailure
 _SUPER :: ByteString
 _SUPER = __"SUPER"
 
+_NEXT :: ByteString
+_NEXT = __"NEXT"
+
+
 findSub :: Var        -- ^ Name, with leading @\&@.
         -> Maybe Exp  -- ^ Invocant
         -> [Exp]      -- ^ Other arguments
@@ -171,6 +175,9 @@ findSub _var _invs _args
     | Just var' <- dropVarPkg _SUPER _var = do
         pkg <- asks envPackage
         findSuperSub pkg var'
+    | Just var' <- dropVarPkg _NEXT _var = do
+        typ <- evalInvType _inv
+        findSuperSub (cast typ) var'
     | otherwise = do
         findBuiltinSub NoMatchingMulti _var
     where

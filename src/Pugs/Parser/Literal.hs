@@ -164,7 +164,6 @@ ruleMatchNamed = do
 ruleDot :: RuleParser ()
 ruleDot = verbatimRule "dot" $ do
     try (char '.' >> notFollowedBy (char '.')) <|> ruleLongDot
-    optional $ oneOf "*+?"
 
 ruleLongDot :: RuleParser ()
 ruleLongDot = do

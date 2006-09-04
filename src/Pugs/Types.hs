@@ -340,6 +340,9 @@ outerPkg = MkPkg [__"OUTER"]
 contextPkg :: Pkg
 contextPkg = MkPkg [__"ENV"] -- XXX wrong
 
+nextPkg :: Pkg
+nextPkg = MkPkg [__"NEXT"] -- XXX noncanonical
+
 toGlobalVar :: Var -> Var
 toGlobalVar var = var{ v_twigil = TGlobal }
 

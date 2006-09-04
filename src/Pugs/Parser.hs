@@ -398,13 +398,13 @@ ruleSubNamePossiblyWithTwigil :: RuleParser String
 ruleSubNamePossiblyWithTwigil = verbatimRule "subroutine name" $ try $ do
     twigil  <- ruleTwigil
     name    <- ruleOperatorName <|> ruleQualifiedIdentifier
-    return $ "&" ++ twigil ++ name
+    return $ ('&':twigil) ++ name
 
 ruleSubName :: RuleParser String
 ruleSubName = verbatimRule "subroutine name" $ do
     twigil  <- option "" (string "*")
     name <- ruleOperatorName <|> ruleQualifiedIdentifier
-    return $ "&" ++ twigil ++ name
+    return $ ('&':twigil) ++ name
 
 ruleOperatorName :: RuleParser String
 ruleOperatorName = verbatimRule "operator name" $ do
@@ -1505,6 +1505,7 @@ ruleInvocationParens = ruleInvocationCommon True
         
 ruleInvocationCommon :: Bool -> RuleParser (Exp -> Exp)
 ruleInvocationCommon mustHaveParens = do
+    quant           <- option "" $ fmap (:[]) (oneOf "*+?")
     name            <- ruleSubName <|> ruleVarName
     (invs, args)    <- if mustHaveParens
         then parseHasParenParamList
@@ -1518,8 +1519,8 @@ ruleInvocationCommon mustHaveParens = do
                 else option (Nothing,[]) $ parseParenParamList
     when (isJust invs) $ fail "Only one invocant allowed"
     return $ \x -> case name of
-        ('&':_) -> App (_Var name) (Just x) args        -- $x.meth
-        _       -> Syn "CCallDyn" (_Var name:x:args)    -- $x.$meth
+        ('&':_) -> App (_Var name) (Just x) args                        -- $x.meth
+        _       -> Syn "CCallDyn" (Val (castV quant):_Var name:x:args)  -- $x.$meth
 
 ruleArraySubscript :: RuleParser (Exp -> Exp)
 ruleArraySubscript = tryVerbatimRule "array subscript" $ do
