@@ -53,10 +53,10 @@ if($runcore eq "vanilla") {
       unless $__evalbot_print++ { 
         Pugs::Safe::safe_print "OUTPUT[";
       }
-      Pugs::Safe::safe_print join "", *@_;
+      Pugs::Safe::safe_print join "", @_;
     }
     sub *say (*@_) {
-      print *@_, "\n";
+      print @_, "\n";
     }
     my $_;
     -> $ret {
