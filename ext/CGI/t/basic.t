@@ -21,7 +21,6 @@ Content-Type: text/html
 
 is($q.redirect("http://www.yahoo.com"),
     "Status: 302 Found
-Content-Type: 
 Location: http://www.yahoo.com
 
 ", 'got the header correctly');

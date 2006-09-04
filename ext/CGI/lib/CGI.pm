@@ -61,9 +61,9 @@ method set_url_encoding(Str $encoding) {
 # utility functions
 
 method header (
-    Str  $type?      = 'text/html',
-    Str  $status?    = '200 OK',
-    Str  $charset?   = undef,
+    Str  $type      = 'text/html',
+    Str  $status    = '200 OK',
+    Str  $charset   = undef,
     Str :$cookies?,
     Str :$target?,
     :$expires?,
