@@ -42,8 +42,9 @@ class Child is Parent {
     is($object.cnt, 2, "$test: Case 2 visits both Child and Parent");
 
     my $meth = 'meth';
+    $object = Child.new;
     try { $result = $object.*$meth };
-    is($object.cnt, 4, "$test: Case 2 visits both Child and Parent (as dynamic method call)");
+    is($object.cnt, 2, "$test: Case 2 visits both Child and Parent (as dynamic method call)");
 
 
 }
