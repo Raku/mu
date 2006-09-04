@@ -812,21 +812,37 @@ reduceSyn syn [lhs, exp]
 
 reduceSyn "q:code" [ body ] = expToEvalVal body
 
-reduceSyn "CCallDyn" (Val (VStr "*"):methExp:inv:args) = do
+reduceSyn "CCallDyn" (Val (VStr "*"):methExp:invExp:args) = do
     -- Experimental support for .*$meth, assuming single inheritance.
     str     <- fromVal =<< enterEvalContext (cxtItem "Str") methExp
     let meth = cast ('&':str)
-    inv'    <- enterLValue . enterEvalContext cxtItemAny $ inv
-    subs    <- findAccum meth =<< fromVal inv' -- Given type, get all methods
-    rvs     <- forM (nub subs) $ \sub -> applySub sub (Just (Val inv')) args
-    return (VList rvs)
+    invVal  <- enterLValue . enterEvalContext cxtItemAny $ invExp
+    found   <- findSub meth (Just (Val invVal)) args
+    case found of
+        Left{}      -> do
+            let klugedInv = case unwrap invExp of
+                    App{}  -> Val invVal    -- no re-evaluation
+                    Syn{}  -> Val invVal    -- no re-evaluation
+                    _      -> invExp        -- re-evaluation assumed to be ok
+            foundSub    <- findSub meth Nothing (klugedInv:args)
+            case foundSub of
+                Left{}      -> retEmpty
+                Right sub   -> applySub sub Nothing (klugedInv:args)
+        Right sub | SubMethod <- subType sub -> do
+            typ     <- fromVal invVal
+            subs    <- findAccum meth{ v_package = nextPkg } typ -- Given type, get all methods
+            rvs     <- forM (nub subs) $ \sub -> applySub sub (Just (Val invVal)) args
+            return (VList rvs)
+        Right sub   -> do
+            -- XXX - Walk multi variants
+            applySub sub (Just (Val invVal)) args
     where
     findAccum meth typ = do
         found <- findSub meth (Just (Val (VType typ))) args
         case found of
             Right sub | Just env <- subEnv sub -> do
                 let thisPkg = envPackage env
-                rest <- findAccum meth{ v_package = nextPkg } (cast thisPkg)
+                rest <- findAccum meth (cast thisPkg)
                 return (sub:rest)
             _         -> return []
 
