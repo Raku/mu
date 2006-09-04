@@ -102,7 +102,8 @@ data SigParam = MkParam
                                      --   E.g. Elk above
     , p_constraints :: [Code]        -- ^ Dynamic pieces of runtime-mood
                                      --   E.g. where {...} above
-    , p_unpacking   :: Maybe PureSig -- ^ E.g. BinTree $t (Left $l, Right $r)
+    , p_unpacking   :: Maybe Val -- XXX: the next line is correct, but how to do Val -> PureSig in Parser?
+    --, p_unpacking   :: Maybe PureSig -- ^ E.g. BinTree $t (Left $l, Right $r)
     , p_default     :: ParamDefault  -- ^ E.g. $answer? = 42
     , p_label       :: ID            -- ^ The external name for the param ('m' above)
     , p_slots       :: Table         -- ^ Any additional attrib not

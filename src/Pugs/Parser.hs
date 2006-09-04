@@ -1366,7 +1366,7 @@ ruleSignature = rule "Signature" $ do
         isReqPos x = p_isRequired x && (not $ p_isNamed x)
 
 ruleParam :: RuleParser Paramdec
-ruleParam = rule "paramater" $ do
+ruleParam = rule "parameter" $ do
     staticTypes   <- rStaticTypes
     isSlurpy      <- option False (char '*' >> return True)
     (name, label) <- rParamName
@@ -1377,7 +1377,7 @@ ruleParam = rule "paramater" $ do
         ]
     def           <- rDefault isOptional
     traits        <- many $ withTrailingSpace $ ruleTrait ["is", "does"]
-    --unpacking     <- option Nothing $ fmap Just rPostVarUnpacking
+    unpacking     <- withTrailingSpace $ option Nothing $ fmap Just rPostVarUnpacking
     code          <- rCode
     {- setTrait scans the traits list for "interesting" values, weeding
      - them out. The last interesting value is returned.
@@ -1393,7 +1393,7 @@ ruleParam = rule "paramater" $ do
     let p = MkParam { p_variable    = cast name
                     , p_types       = staticTypes
                     , p_constraints = code
-                    , p_unpacking   = Nothing -- unpacking
+                    , p_unpacking   = Nothing
                     , p_default     = def
                     , p_label       = label
                     , p_slots       = slots
@@ -1422,9 +1422,10 @@ ruleParam = rule "paramater" $ do
         ch <- lookAhead anyChar
         when (ch == '!') failReqDef
         return DNil
-    --rPostVarUnpacking = withTrailingSpace $ do
-    --    optional $ char ':'
-    --    (Val (VV sig')) <- between (symbol "(") (symbol ")") ruleSignature
+    rPostVarUnpacking = try $ do
+        optional $ char ':'
+        (Val (VV sig)) <- verbatimParens ruleSignature
+        return sig
     rCode = do
         {- We don't have Exp -> Pugs.Val.Code, too bad.
         many $ do
