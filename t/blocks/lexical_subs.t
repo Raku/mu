@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 5;
+plan 6;
 
 sub f() { 
     my sub g(){"g"}; my sub h(){g()}; h();
@@ -26,6 +26,17 @@ sub foo2(&infix:<@@>) {
 }
 
 is(2 @@ 3, 5);
-is(foo2({ $^x * $^y }), 6);
+is(foo2({ $^a * $^b }), 6);
+
+{
+    my sub test_this {
+        ok 1, "Could call ok from within a lexical sub";
+        return 1;
+    }
+    eval 'test_this()';
+    if ($!) {
+        fail "Could call ok from within a lexical sub";
+    }
+}
 
 # vim: ft=perl6 :
