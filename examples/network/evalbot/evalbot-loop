@@ -82,13 +82,13 @@ sub set_nick {
 
 my $rev = update_pugs;
 build_pugs;
-start_pugs "$nick_base\_$rev";
+start_pugs "$nick_base\_r$rev";
 while (1) {
     sleep 300;
     my $newrev = update_pugs;
     if ($newrev > $rev) {
         build_pugs;
         $rev = $newrev;
-        set_nick "$nick_base\_$rev";
+        set_nick "$nick_base\_r$rev";
     }
 }
