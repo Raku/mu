@@ -1,6 +1,7 @@
-use Test; plan 11;
+use Test; plan 12;
 
 # L<S12/"Calling Sets of Methods">
+# L<S12/"Roles">
 
 # Spec:
 # For any method name, there may be some number of candidate methods that could
@@ -11,12 +12,18 @@ use Test; plan 11;
 #      $object.?meth  # calls method if there is one, otherwise undef
 class Parent {
     has Int $.cnt is rw;
+    does plugin_1;
+    does plugin_2;
     method meth {$.cnt++}
 }
 class Child is Parent {
     method meth {$.cnt++}
     method child_only {'child_only'}
 }
+
+role plugin_1 { multi method init_hook { $.cnt += 2 } }
+role plugin_2 { multi method init_hook { $.cnt += 3 } }
+
 
 {
     my $test = q"$object.?meth calls method is there one";
@@ -54,6 +61,17 @@ class Child is Parent {
 }
 
 {
+    # We should not only look in parent classes, but for matching 
+    # multi methods in parent classes!
+    my $test = q"$object.*meth(@args)  # calls all methods (0 or more) works on multi axis, too";
+    my $object = Child.new;
+    my $got = 0;
+    my $meth = 'init_hook';
+    try { $got = $object.*$meth };
+    is($got, 5, $test);
+}
+
+{
     my $test = q"$object.+meth(@args)  # calls all methods (1 or more)";
     my $object = Child.new;
     my $result = 1; # default to one to see if value changes to undef
@@ -71,4 +89,4 @@ class Child is Parent {
 }
 
 ok(0, "STUB: there is more Calling Sets functionality which needs tests", :todo<feature>);
-
+# vim: ft=perl6
