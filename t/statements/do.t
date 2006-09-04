@@ -71,8 +71,6 @@ eval_dies_ok 'my $i; do { $i++ } until $i > 4;',
     }, 1, "'last' works in 'do' block";
 }
 
-# XXX what will happen if i use `redo' in the do-once loop?
-# XXX is the following test correct?
 {
     eval_is q{
         my $i;
