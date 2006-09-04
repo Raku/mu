@@ -14,8 +14,7 @@ use CGI; pass "(dummy instead of broken use_ok)";
 my $q = CGI.new;
 
 is($q.header,
-    "Status: 200 OK
-Content-Type: text/html
+    "Content-Type: text/html
 
 ", 'got the header correctly');
 

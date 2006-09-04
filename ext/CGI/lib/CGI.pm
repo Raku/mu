@@ -62,7 +62,6 @@ method set_url_encoding(Str $encoding) {
 
 method header (
     Str  $type      = 'text/html',
-    Str  $status    = '200 OK',
     Str  $charset   = undef,
     Str :$cookies?,
     Str :$target?,
@@ -72,16 +71,17 @@ method header (
 ) returns Str {
     # construct our header
     my $header;
-    $header ~= "Status: " ~ $status;
     # TODO:
     # Need to add support for -
     #    NPH
     #    Expires:
     #    Pragma: (caching)
+
     
     if $type {
-        $header ~= "\nContent-Type: " ~ $type;
+        $header ~= "Content-Type: " ~ $type;
         $header ~= "; charset=$charset" if $charset.defined;
+        $header ~= "\n";
     }
     
     for %extra.kv -> $key, $value {
@@ -91,8 +91,8 @@ method header (
         $temp_key ~~ s:P5:g/[-_](\w)/-$0.uc()/;
         
         given $key {
-            when "Target" { $header ~= "\nWindow-Target: "     ~ $value; }
-            default       { $header ~= "\n" ~ $temp_key ~ ": " ~ $value; }
+            when "Target" { $header ~= "Window-Target: "     ~ $value~"\n"; }
+            default       { $header ~= "" ~ $temp_key ~ ": " ~ $value~"\n"; }
         }
     }
     
@@ -102,18 +102,18 @@ method header (
         for @cookies -> $cookie {
             #$cookie = ($cookie ~~ CGI::Cookie) ?? $cookie.as_string !! $cookie;
             
-            $header ~= "\nSet-Cookie: " ~ $cookie
+            $header ~= "Set-Cookie: " ~ $cookie~"\n"
                 unless $cookie eq "";
         }
     }
     
-    return "$header\n\n";
+    return "$header\n";
 }
 
 method redirect (
     Str   $location,
     Str   $target?,
-    Str   $status? = "302 Found",
+    Str   $status = "302 Found",
     Str  :$cookie,
     Bool :$nph,
     *%extra
@@ -132,17 +132,19 @@ method redirect (
         %out{$header} = $value;
     }
     
-    if ($target.defined) { %out<Target> = $target; }
+    if $target.defined { %out<Target> = $target; }
     
     for %out.keys -> $key {
         %out{$key} = self.unescapeHTML(%out{$key})
             unless $key eq "Cookie";
     }
+
+    my $header =  "Status: $status\n";
     
-    if ($cookie.defined) {
-        return self.header('', $status, cookies => $cookie, nph => $nph, extra => %out);
+    if $cookie.defined {
+        return $header~self.header('', cookies => $cookie, nph => $nph, extra => %out);
     } else {
-        return self.header('', $status, nph => $nph, extra => %out);
+        return $header~self.header('', nph => $nph, extra => %out);
     }
 }
 
@@ -398,7 +400,7 @@ B<The following informational functions are fetched on-demand>
 
 =over 4
 
-=item B<header (:$status = '200 OK', :$content_type = 'text/html', :$charset, :$location) returns Str>
+=item B<header (:$content_type = 'text/html', :$charset, :$location) returns Str>
 
 =item B<redirect (Str $location) returns Str>
 
