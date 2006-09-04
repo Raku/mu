@@ -1,5 +1,4 @@
 use v6-alpha;
-
 use Test;
 
 =pod
@@ -8,7 +7,13 @@ This tests proper return of values from subroutines.
 
 L<S06/"Subroutines and other code objects">
 
+See also t/blocks/return.t, which overlaps in scope.
+
 =cut
+
+# NOTE: the smart link above actually doesn't go to a good
+# reference for the spec for 'return', but I couldn't find
+# one either. 
 
 plan 63;
 
