@@ -25,6 +25,7 @@ class Child is Parent {
     try { $result = $object.?nope };
     ok($object.?meth, $test);
     is($result,undef, q"                                       ..undef otherwise ");
+    # TODO: add test for $object.?$meth (dynamic method) as well
 }
 
 {
@@ -59,6 +60,8 @@ class Child is Parent {
 
     try { $result = $object.+meth };
     is($object.cnt, 2, "$test: Case 2 visits both Child and Parent");
+
+    # TODO: add test for $object.+$meth (dynamic method) as well
 
 }
 
