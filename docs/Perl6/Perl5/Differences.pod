@@ -243,6 +243,11 @@ L<http://dev.perl.org/perl6/doc/design/exe/E07.html> Format Exegesis
     Was:    $object->method
     Now:    $object.method
 
+=head Using code references in dynamic method calls is gone.
+
+  Was: $self.$coderef() 
+  Now: $coderef(self:)
+
 =cut 
 
 #S13
