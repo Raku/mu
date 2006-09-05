@@ -422,6 +422,7 @@ sub process_syn ($$$$) {
                         $i++;
                     }
                     $matched = 1;
+                    last;
                 }
             } continue { $i++ }
             if (!$matched) {
