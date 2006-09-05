@@ -475,6 +475,13 @@ EOD
 
         $threaded = '';
     }
+    if ($threaded && $ENV{PUGS_NO_THREADS}) {
+        push @warn, << '.';
+*** Thread support disabled due to explicit request in PUGS_NO_THREADS.
+
+.
+        $threaded = '';
+    }
 
     # As of now, Test::TAP::HTMLMatrix is the key dependency for smokes,
     # so we need only check for that.
@@ -689,8 +696,8 @@ smoke-perl5 : $pugs util/run-smoke.pl all
 
 
 ghci : @prereqs @derived_srcfiles
-	$ghc $ghc_flags $ghc_output --make -O0 -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Prereqs.hs @prereqs
-	$ghc $ghc_flags $ghc_output --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs -Lthird-party/judy/Judy-1.0.3/src/obj/.libs -lJudy third-party/judy/Judy-1.0.3/src/Judy*/*.o
+	$ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output --make -O0 -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Prereqs.hs @prereqs
+	$ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs -Lthird-party/judy/Judy-1.0.3/src/obj/.libs -lJudy third-party/judy/Judy-1.0.3/src/Judy*/*.o
 
 ctags : @prereqs @derived_srcfiles
 	echo ":ctags" | $ghc $ghc_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs -Lthird-party/judy/Judy-1.0.3/src/obj/.libs -lJudy

@@ -346,4 +346,11 @@ sub fixpaths {
     return $text;
 }
 
+# assert_ghc makes a call to EU::MM that litters ghc_flags
+# with threading options.
+sub dethread_flags {
+    my (undef, @args) = @_;
+    map { $_ = join ' ', grep { !/thread/i && $_ ne '-lc' } split ' ' } @args;
+}
+
 1;
