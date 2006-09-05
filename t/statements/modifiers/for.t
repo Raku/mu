@@ -4,23 +4,6 @@ use Test;
 
 plan 12;
 
-# The following tests are all legal syntactically, but neither
-# of these do anything other than produce a closure muliple
-# times without calling it.
-# See Larry's clarification on p6l:
-# L<http://www.nntp.perl.org/group/perl.perl6.language/26071>
-{
-    my $a;
-    { $a++ } for 1..3;
-    is $a, undef, 'the closure was never called';
-}
-
-{
-    my $a;
-    -> $i { $a += $i } for 1..3;
-    is $a, undef, 'the closure was never called';
-}
-
 # L<S04/"Conditional statements"/"Conditional statement modifiers"
 #     "work as in Perl 5">
 
@@ -65,6 +48,24 @@ plan 12;
         $i += 2;
     }
     check $_ for @a;
+}
+
+# The following tests are all legal syntactically, but neither
+# of these do anything other than produce a closure muliple
+# times without calling it.
+# See Larry's clarification on p6l:
+# L<http://www.nntp.perl.org/group/perl.perl6.language/26071>
+
+{
+    my $a;
+    { $a++ } for 1..3;
+    is $a, undef, 'the closure was never called';
+}
+
+{
+    my $a;
+    -> $i { $a += $i } for 1..3;
+    is $a, undef, 'the closure was never called';
 }
 
 # L<S04/The C<for> statement/"for" use a private instance of $_>
