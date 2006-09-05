@@ -185,8 +185,8 @@ printTree :: Handle -> P5AST -> String -> IO ()
 printTree outFile (LiteralNode atype _ uni) options    = if (and [(atype=="UnknownLit"),('u' `elem` options)]) then do{ hPutStr outFile "UnknownLit"; putStrLn "UNKNOWN: UnknownLit"; hPutStr outFile uni} else (hPutStr outFile uni)
 printTree outFile (AbstractNode atype []) options      = if (and [(atype=="UnknownAbs"),('u' `elem` options)]) then do{ hPutStr outFile "UnknownAbs"; putStrLn "UNKNOWN: UnknownAbs"; hPutStr outFile ""} else (hPutStr outFile "")
 printTree outFile (AbstractNode atype kids) options    = if (and [(atype=="UnknownAbs"),('u' `elem` options)]) then do{ hPutStr outFile "UnknownAbs"; putStrLn "UNKNOWN: UnknownAbs"; printTree outFile (head kids) options; printTree outFile (AbstractNode "P5AST" (tail kids)) options} else do{ printTree outFile (head kids) options; printTree outFile (AbstractNode "P5AST" (tail kids)) options}
-printTree outFile (Heredoc doc start end kids) options = do printTree outFile start options
-    hPutStr outFile ";\n"
-    printTree outFile (AbstractNode "P5AST" kids) options
-    printTree outFile end options
+printTree outFile (Heredoc doc start end kids) options = do{ printTree outFile start options;
+    hPutStr outFile "\n";
+    printTree outFile (AbstractNode "P5AST" kids) options;
+    printTree outFile end options}
 

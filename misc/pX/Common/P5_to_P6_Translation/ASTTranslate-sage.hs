@@ -883,14 +883,17 @@ main = do
 
 getModifiers :: [String] -> String
 getModifiers []   = " "
-getModifiers args = case (head args) of
-    "-Oo"    ->  ('o':(getModifiers (drop 1 args)))
-    "-V"     ->  ('v':(getModifiers (drop 1 args)))
-    "-U"     ->  ('u':(getModifiers (drop 1 args)))
-    "-R"     ->  ('r':(getModifiers (drop 1 args)))
-    "-N"     ->  ('n':(getModifiers (drop 1 args)))
-    "-S"     ->  ('s':(getModifiers (drop 1 args)))
-    _        ->  (' ':(getModifiers (drop 1 args)))
+getModifiers args = if ((head (head args))=='-') then (multiMods (head args))++(getModifiers (drop 1 args)) else (getModifiers (drop 1 args))
+
+multiMods :: String -> String
+multiMods [] = " "
+multiMods mods = case (head mods) of
+    'O'    -> 'o':(multiMods (tail mods))
+    'U'    -> 'u':(multiMods (tail mods))
+    'V'    -> 'v':(multiMods (tail mods))
+    'S'    -> 's':(multiMods (tail mods))
+    'R'    -> 'r':(multiMods (tail mods))
+    'N'    -> 'n':(multiMods (tail mods))
 
 
 --getFirstFile (oddly enough) gets the first file (which will be the second to last argument). 
