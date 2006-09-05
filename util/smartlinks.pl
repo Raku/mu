@@ -625,11 +625,11 @@ smartlinks.pl - The successor to catalog_tests.pl.
 
 =item *
 
-This script should have as few as module dependencies as possible.
+This script should have as few module dependencies as possible.
 
 =item *
 
-Don't have to build pugs so as to run F<smartlinks.pl>. Of course,
+One doesn't have to build pugs so as to run F<smartlinks.pl>. Of course,
 optional advanced features may require the user to run pugs'
 "make" or even "make smoke".
 
@@ -641,9 +641,9 @@ optional advanced features may require the user to run pugs'
 
 =item 1.
 
-We scan over all the specified .t files, collecting smartlinks and positional
-info about the test code snippets as we go. When it's finished, we obtain
-a tree structure, which is named C<$linktree> in the source code.
+We scan over all the specified .t files; collect smartlinks and positional
+info about the test code snippets as we go. When all these work have been finished,
+we obtain a tree structure, which is named C<$linktree> in the source code.
 
 To this tree minimal, we only store the .t file name and line numbers, rather
 than the snippets' source code itself.
@@ -689,13 +689,13 @@ This step is mostly done by sub C<process_t_file>.
 
 =item 2.
 
-We process the synopses .pod files one by one, generating
+We process the synopses .pod files one by one and generate
 HTML files integrated with test code snippets using the 
 C<$linktree> structure discussed above.
 
 This is mostly done by sub C<process_syn>.
 
-Because it is a big step, we can further divided it into several
+Because it is an enormous step, we can further divide it into several
 sub steps:
 
 =over
@@ -705,7 +705,7 @@ sub steps:
 Then we parse each .pod into a tree, which is known as C<$podtree> in the
 source code. (See sub C<parse_pod>.)
 
-The structure of C<$podtree> look like this:
+The structure of C<$podtree> looks like this:
 
     {
       'Names and Variables' => [
@@ -722,8 +722,8 @@ The structure of C<$podtree> look like this:
 
 =item *
 
-We look up every related smartlinks from every C<$podtree>, generating .t code
-snippets along the way, and inserting placeholders (like "_SMART_LINK_3" into
+We look up every related smartlinks from every C<$podtree>, generate .t code
+snippets along the way, and insert placeholders (like "_SMART_LINK_3" into
 the corresponding C<$podtree>. (See subs C<parse_pattern>, C<process_paragrph>,
 and C<gen_code_snippet>.)
 
@@ -768,7 +768,7 @@ tests and usage of the internal API.
 
 =head1 AUTHOR
 
-Agent Zhang (E<lt>agentzh@gmail.comE<gt>) wrote the intial implementation, getting
+Agent Zhang (E<lt>agentzh@gmail.comE<gt>) wrote the initial implementation, getting
 help from many others in the Pugs Team.
 
 =head1 COPYRIGHT
