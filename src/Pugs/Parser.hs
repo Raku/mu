@@ -360,11 +360,10 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     -- operator that is "standard"
     -- XXX I can't figure out how to do this without trace
     when (isExported && isOperatorName name) $
-        trace 
+        traceM 
             ("You probably don't want to export an operator name; instead\n\
   define a new variant on the new operator (eg. multi sub *infix:<+>): "
                 ++ show name ++ " at " ++ show namePos)
-            (return ())
             
     -- Don't add the sub if it's unsafe and we're in safemode.
     if "unsafe" `elem` traits && safeMode then return emptyExp else do
@@ -1328,7 +1327,7 @@ parseTerm = rule "term" $! do
 
 ruleSignatureVal :: RuleParser Exp
 ruleSignatureVal = do
-    between (symbol ":(") (symbol ")") ruleSignature
+    between (lexeme $ symbol ":(") (lexeme $ char ')') ruleSignature
 
 data Paramdec = MkParamdec
     { p_param      :: SigParam
@@ -1338,10 +1337,30 @@ data Paramdec = MkParamdec
     }
     deriving (Show)
 
+defaultInvocantParam :: SigParam
+defaultInvocantParam = MkParam
+    { p_variable    = cast ""
+    , p_types       = []
+    , p_constraints = []
+    , p_unpacking   = Nothing
+    , p_default     = DNil
+    , p_label       = cast "" -- "self"? no...
+    , p_slots       = Map.empty
+    , p_hasAccess   = AccessRO
+    , p_isRef       = False
+    , p_isContext   = False
+    , p_isLazy      = False
+    }
+
 ruleSignature :: RuleParser Exp
 ruleSignature = rule "Signature" $ do
-    inv     <- option Nothing $ try $ fmap (Just . p_param) $ followedBy ruleParam (symbol ":")
-    params  <- ruleParam `sepEndBy` (symbol ",")
+    inv     <- choice
+               [ (lexeme $ char ':') >> (return $ Just defaultInvocantParam)
+               , try $ fmap (Just . p_param) $ followedBy ruleParam (lexeme $ char ':')
+               , return Nothing
+               ]
+    params  <- ruleParam `sepEndBy` (lexeme $ char ',')
+    whiteSpace
     reqPosC <- validateRequired True params
     let reqNms   = Set.fromList
             [ p_label p | MkParamdec{ p_param = p, p_isRequired = True } <- params]
@@ -1370,16 +1389,16 @@ ruleParam = rule "parameter" $ do
     staticTypes   <- rStaticTypes
     isSlurpy      <- option False (char '*' >> return True)
     (name, label) <- rParamName
-    isOptional    <- option False $ choice
-        [ symbol "!" >> return False
-        , symbol "?" >> return True
-        , lookAhead (whiteSpace >> char '=') >> return True
+    isOptional    <- choice
+        [ (lexeme $ char '!') >> return False
+        , (lexeme $ char '?') >> return True
+        , whiteSpace >> lookAhead anyChar >>= \c -> return (c == '=') -- XXX: is this horribly inefficient?
         ]
     whiteSpace
     def           <- rDefault isOptional
     traits        <- many $ withTrailingSpace $ ruleTrait ["is", "does"]
     unpacking     <- withTrailingSpace $ option Nothing $ fmap Just rPostVarUnpacking
-    code          <- rCode
+    code          <- withTrailingSpace $ rCode
     {- setTrait scans the traits list for "interesting" values, weeding
      - them out. The last interesting value is returned.
      - We can't let-shadow 'traits', because it's an action :-(
@@ -1421,7 +1440,7 @@ ruleParam = rule "parameter" $ do
         fmap (DExp . Exp.EE . Exp.MkExpEmeritus) parseTerm
     rDefault False = withTrailingSpace $ do
         ch <- lookAhead anyChar
-        when (ch == '!') failReqDef
+        when (ch == '=') failReqDef
         return DNil
     rPostVarUnpacking = try $ do
         optional $ char ':'
@@ -1576,8 +1595,7 @@ ruleApplyImplicitMethod = do
     fs <- many s_postTerm
     when (prevChar == '}') $ do
         pos <- getPosition
-        trace ("Warning: '{...}.method' treated as '{...}; .method' at " ++ show pos) $
-            return ()
+        traceM ("Warning: '{...}.method' treated as '{...}; .method' at " ++ show pos)
     return (combine (reverse fs) (_Var "$_"))
 
 ruleSubNameWithoutPostfixModifier :: RuleParser String

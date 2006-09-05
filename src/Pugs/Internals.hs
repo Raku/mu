@@ -78,6 +78,7 @@ module Pugs.Internals (
     unsafePerformSTM,
     maybeM,
     safeMode,
+    traceM,
     warn,
     die,
     _GlobalFinalizer,
@@ -221,6 +222,10 @@ die x y = do
 warn :: (MonadIO m, Show a) => String -> a -> m ()
 warn str val = liftIO $ do
     hPutStrLn stderr $ "*** " ++ str ++ ":\n    " ++ show val
+
+-- | This is just @Debug.Trace.trace@, but allows for cleaner code in do blocks.
+traceM :: Monad m => String -> m ()
+traceM s = trace s $ return ()
 
 split :: (Eq a) => [a] -> [a] -> [[a]]
 split []  _   = internalError "splitting by an empty list"
