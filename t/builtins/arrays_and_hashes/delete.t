@@ -1,8 +1,7 @@
 use v6-alpha;
 
-
 use Test;
-plan 24;
+plan 25;
 
 =head1 DESCRIPTION
 
@@ -75,3 +74,9 @@ is ~%hash.delete("c", "d"), "3 4",
   "deletion of hash elements returned the right values";
 is +%hash, 1, "deletion of hash elements";
 ok !defined(%hash{"a"}), "deleted hash elements are really deleted";
+
+{
+    my $a = 1;
+    try { delete $a; };
+    like($!, rx:P5/Argument is not a Hash or Array element or slice/, "expected message for mis-use of delete");
+}
