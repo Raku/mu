@@ -1373,8 +1373,9 @@ ruleParam = rule "parameter" $ do
     isOptional    <- option False $ choice
         [ symbol "!" >> return False
         , symbol "?" >> return True
-        , lookAhead (char '=') >> return True
+        , lookAhead (whiteSpace >> char '=') >> return True
         ]
+    whiteSpace
     def           <- rDefault isOptional
     traits        <- many $ withTrailingSpace $ ruleTrait ["is", "does"]
     unpacking     <- withTrailingSpace $ option Nothing $ fmap Just rPostVarUnpacking
