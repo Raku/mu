@@ -301,6 +301,9 @@ sub gen_code_snippet ($) {
         s/>/\&gt;/g;
         s{^(  *)}{"&nbsp; " x (length($1) / 2)}gem;
         s/  / &nbsp;/g;
+        s{L\&lt;(http://.*?)\&gt;}{L\&lt;<a href="$1">$1</a>\&gt;}g;
+        s{L\&lt;\&quot;(http://.*?)\&quot;\&gt;}
+         {L\&lt;<a href="$1">\&quot;$1\&quot;</a>\&gt;}g;
         if (!$file_info) {
             $src .= $_;
             next;
