@@ -350,7 +350,7 @@ use Data::Dumper;
         <?ws>? [ ; <?ws>? ]*
         [
             <!before <'}'> >
-            { print "04 another statement\n"; }
+            #{ print "04 another statement\n"; }
             <statements> 
             { 
                 #{ print "06 return statements\n"; }
