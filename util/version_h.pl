@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Cwd;
 
+chdir_to_base();
 my $version_h = shift || Cwd::cwd() . "/src/Pugs/pugs_version.h";
 my $base = shift || Cwd::cwd();
 my $svn_entries = "$base/.svn/entries";
@@ -79,4 +80,30 @@ if ($revision != $old_revision) {
   }
 } elsif ($revision) {
   print "Not writing $version_h because $old_revision == $revision\n";
+}
+
+sub chdir_to_base {
+    # rest of script expects us to be at the base dir, so find it
+    # and chdir to it
+    my $svn_entries = ".svn/entries";
+    if (-r $svn_entries) {
+        open my $fh, "<", $svn_entries
+            or die "Couldn't open $svn_entries: $!\n";
+        my ($url, $repo);
+        while (<$fh>) {
+            if (/^ *url="(.*)"/) {
+                $url = $1
+            } elsif (/^ *repos="(.*)"/) {
+                $repo = $1;
+            }
+            $url && $repo && last;
+        }
+        close $fh;
+        return unless $url && $repo;
+        return if $url eq $repo;
+        $url =~ s|$repo/||;
+        $url =~ s|[^/]+|..|g;
+        chdir $url;
+    }
+    # XXX Make work for svk too
 }
