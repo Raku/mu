@@ -9,15 +9,16 @@ use Getopt::Long;
 use LWP::UserAgent;
 #use LWP::UserAgent::Cached;  # Debug purpose
 
-my ($all, $out_dir, $help, $channel);
+my ($all, $help, $channel);
 GetOptions(
-    'out-dir=s'   => \$out_dir,
-    'channel'     => \$channel,
+    'channel=s'   => \$channel,
     'help'        => \$help,
     'all'         => \$all,
-);
+) or help();
 
-if ($help || @ARGV) {
+my $out_dir = shift || '.';
+
+if ($help) {
     help();
 }
 
@@ -32,7 +33,7 @@ my $ua = LWP::UserAgent->new;
 $ua->env_proxy;
 
 my $base_url = "http://colabti.de/irclogger/irclogger_logs";
-warn "  info: getting $base_url...\n";
+warn "  info: getting $base_url/$channel...\n";
 my $res = $ua->get("$base_url/$channel");
 #warn "Got!";
 if ($res->is_success) {
@@ -56,11 +57,10 @@ sub help {
     print <<_EOC_;
 Usage:
   $0
-  $0 --out-dir=logs
-  $0 --all --out-dir=.
+  $0 <out-dir>
+  $0 --all tmp
 
 Options:
-  --out-dir <dir>  Specify the output directory for IRC log files.
   --channel <name> Specify the IRC channel. Defaults to #perl6.
   --all            Download very log file even if there's one in out-dir.
   --help           Show this help.
