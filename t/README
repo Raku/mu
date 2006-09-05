@@ -64,6 +64,13 @@ file snippets from the test suite using the following command:
 
     $ util/smartlinks.pl t/*/*.t t/*/*/*.t
 
+There's a cross-referenced version of Synopses at
+
+    http://perlcabal.org/syn/
+
+which is automatically updated by the smartlinks.pl script on feather once
+an hour.
+
 - Use the Test module.
 
 We have created a basic Test module found in ext/Test/lib/Test.pm. It is 
@@ -144,7 +151,7 @@ them:
 
 smartlinks.pl can take care of this kind of special cases.
 
-You can put a URL in quotes to create a generic link.
+You can put a URL to create a generic link:
 
    L<"http://groups.google.de/group/perl.perl6.language/msg/07aefb88f5fc8429">
 
