@@ -17,7 +17,8 @@ is(try {my $schloß = 2; sub öok ($x) { $x }; öok($schloß)}, 2, "evaluation")
 
 # monty python
 ok(try {my $møøse; sub bïte {}; 1}, "a møøse once bit my sister");
-is(try {my $møøse = 2; sub såck ($x) { $x }; såck($møøse)}, 2, "møøse bites kan be preti nasti");
+is(try {my $møøse = 2; sub såck ($x) { $x }; såck($møøse)}, 2,
+    "møøse bites kan be preti nasti");
 
 # french
 ok(try {my $un_variable_français; sub blâ {}; 1}, "french declaration");
@@ -45,7 +46,11 @@ is(try {my $באר = 2; sub זהות ($x) { $x }; זהות($באר)}, 2, "evalua
 
 # russian
 ok(try {my $один; sub раз {}; 1}, "russian declaration");
-is(try {my $два = 2; sub идентичный ($x) { $x }; идентичный($два)}, 2, "evaluation");
+is(
+    try {my $два = 2; sub идентичный ($x) { $x }; идентичный($два)},
+    2,
+    "evaluation"
+);
 
 # Unicode subs
 {
@@ -76,5 +81,5 @@ is(try {my $два = 2; sub идентичный ($x) { $x }; идентичны
 # Unicode methods
 {
     my method Str::äöü { ucfirst self }
-    is "pugs".äöü, "Pugs", "Unicode methods";
+    eval_is q{"pugs".äöü}, "Pugs", "Unicode methods";
 }
