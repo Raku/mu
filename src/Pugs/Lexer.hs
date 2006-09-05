@@ -11,7 +11,7 @@
 
 module Pugs.Lexer (
     wordAlpha, wordAny, isWordAlpha, isWordAny,
-    maybeParens, parens, whiteSpace, mandatoryWhiteSpace, lexeme, identifier,
+    maybeParens, parens, whiteSpace, mandatoryWhiteSpace, lexeme, identifier, identLetter,
     braces, brackets, angles, balanced, balancedDelim, decimal,
 
     ruleDelimitedIdentifier, ruleQualifiedIdentifier, ruleWhiteSpaceLine,

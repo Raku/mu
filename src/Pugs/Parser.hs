@@ -1386,15 +1386,14 @@ ruleSignature = rule "Signature" $ do
 
 ruleParam :: RuleParser Paramdec
 ruleParam = rule "parameter" $ do
-    staticTypes   <- rStaticTypes
-    isSlurpy      <- option False (char '*' >> return True)
-    (name, label) <- rParamName
-    isOptional    <- choice
+    staticTypes            <- rStaticTypes
+    isSlurpy               <- option False (char '*' >> return True)
+    (name, label, isNamed) <- rParamName
+    isOptional             <- withTrailingSpace $ choice
         [ (lexeme $ char '!') >> return False
         , (lexeme $ char '?') >> return True
         , whiteSpace >> lookAhead anyChar >>= \c -> return (c == '=') -- XXX: is this horribly inefficient?
         ]
-    whiteSpace
     def           <- rDefault isOptional
     traits        <- many $ withTrailingSpace $ ruleTrait ["is", "does"]
     unpacking     <- withTrailingSpace $ option Nothing $ fmap Just rPostVarUnpacking
@@ -1426,15 +1425,30 @@ ruleParam = rule "parameter" $ do
         { p_param       = p
         , p_isRequired  = isRequired
         , p_isSlurpy    = isSlurpy
-        , p_isNamed     = False
+        , p_isNamed     = isNamed
         }
     where
     rStaticTypes = do
         ty <- many $ withTrailingSpace ruleQualifiedIdentifier
         return $ map (MkType . cast) ty
-    rParamName = do
-        name <- regularVarName
-        return (name, cast $ dropWhile (not . isAlpha) name)
+    rParamName = choice
+        [ do -- named parameter
+            char ':'
+            choice
+                [ do  -- with implicit label
+                    name <- regularVarName
+                    return (name, label name, True)
+                , do  -- with explicit label
+                    explicitLabel <- many identLetter
+                    name <- verbatimParens regularVarName
+                    return (name, cast explicitLabel, True)
+                ]
+        , do -- positional parameter
+            name <- regularVarName
+            return (name, label name, False)
+        ]
+        where
+        label = cast $ dropWhile (not . isAlpha)
     rDefault True = withTrailingSpace $ option DNil $ do
         symbol "="
         fmap (DExp . Exp.EE . Exp.MkExpEmeritus) parseTerm
