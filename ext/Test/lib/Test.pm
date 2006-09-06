@@ -417,10 +417,7 @@ tool, but can be useful in other contexts as well.
 
 =head2 Testing Functions
 
- use_ok (Str $module, Bool :$todo, Str :$depends) returns Bool
-
-B<NOTE:> This function currently uses C<require()> since Pugs does not yet have
-a proper C<use()> builtin.
+  use_ok (Str $module, Bool :$todo, Str :$depends) returns Bool
 
   ok (Bool $cond, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
