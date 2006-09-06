@@ -317,6 +317,28 @@ method unescapeHTML (Str $string) returns Str {
 multi method param returns Array            { unless $!IS_PARAMS_LOADED {self.load_params}; %!PARAMS.keys;    }
 multi method param (Str $key) returns Array { unless $!IS_PARAMS_LOADED {self.load_params}; (%!PARAMS{$key}); }
 
+method Dump {
+    my @result;
+    return '<ul></ul>' unless self.param;
+
+    @result.push("<ul>");
+
+    for self.param -> $param {
+       my $name = self.escapeHTML($param);
+       @result.push("<li><strong>$name </strong></li>");
+       @result.push(" <ul>");
+       for each(self.param($param)) -> $value  {
+           my $esc_val = self.escapeHTML($value);
+           $esc_val ~~ s:g/\n/<br \/>\n/;
+           @result.push("<li>$esc_val </li>");
+       }
+       @result.push("</ul>");
+    }
+
+    push @result, "</ul>";
+    return @result.join("\n");
+}
+
 =pod
 
 =head1 NAME
@@ -413,6 +435,30 @@ B<The following informational functions are fetched on-demand>
 =item B<unpack_params (Str $data) returns Str>
 
 =back
+
+=head1 Debugging
+
+=head2 Dumping Out All the Name/Value pairs
+
+The C<Dump> method produces a string consisting of all the query's
+name/value pairs formatted nicely as a nested list.  This is useful
+for debugging purposes:
+
+    print $q.Dump;
+
+Produces something that looks like:
+
+    <ul>
+        <li>name1
+         <ul>
+            <li>value1
+            <li>value2
+        </ul>
+         <li>name2
+            <ul>
+                <li>value1
+            </ul>
+    </ul>
 
 =head1 TO DO
 

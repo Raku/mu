@@ -1,4 +1,4 @@
-
+* Implement code/docs/test for Dump function from p5:CGI (Mark Stosberg)
 * Use 'type' rather than 'content_type', for compatibility with p5:CGI 
 (Mark Stosberg)
 * Only send the Content-Type header if we have a content-type (Mark Stosberg)
