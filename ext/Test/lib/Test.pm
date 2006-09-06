@@ -2,7 +2,7 @@
 # this is needed by v6.pm (perl6-in-perl5)
 use v6-alpha;
 
-module Test-0.0.6;
+module Test-0.0.7;
 
 ### CONSTANTS
 
@@ -249,7 +249,7 @@ sub diag (Str $diag) is export {
         if ($diag ~~ m:P5/Failed \(TODO.*?\) test/) {
             $*OUT.say("# $line");
         } else {
-            $*ERR.say("# $line");   # we need `warn' to work with `prove6'
+            $*ERR.say("# $line");   # we need warn to work with prove6
         }
     }
 }
@@ -349,14 +349,13 @@ sub test_ends {
 
 END { Test::test_ends() }
 
+=pod
 
-=kwid
-
-= NAME
+=head1 NAME
 
 Test - Test support module for perl6
 
-= SYNOPSIS
+=head1 SYNOPSIS
 
   use v6-alpha;
   require Test;
@@ -390,7 +389,7 @@ Test - Test support module for perl6
   todo :pugs<6.2.13>, :foo<1.23>;
   is foo, bar, '...';
 
-= DESCRIPTION
+=head1 DESCRIPTION
 
 This module was built to facilitate the Pugs test suite. It has the
 distinction of being the very first module written for Pugs.
@@ -403,83 +402,83 @@ added to Pugs, new test functions will be defined to facilitate the
 testing of those features. For more information see the FUTURE PLANS
 section of this document.
 
-= FUNCTIONS
+=head1 FUNCTIONS
 
-- `plan (Int $number_of_tests) returns Void`
+  plan (Int $number_of_tests) returns Void
 
 All tests need a plan. A plan is simply the number of tests which are
 expected to run. This should be specified at the very top of your tests.
 
-- `force_todo (*@todo_tests) returns Void`
+  force_todo (*@todo_tests) returns Void
 
 If you have some tests which you would like to force into being TODO tests
 then you can pass them through this function. This is primarily a release
 tool, but can be useful in other contexts as well.
 
-== Testing Functions
+=head2 Testing Functions
 
-- `use_ok (Str $module, Bool :$todo, Str :$depends) returns Bool`
+ use_ok (Str $module, Bool :$todo, Str :$depends) returns Bool
 
-*NOTE:* This function currently uses `require()` since Pugs does not yet have
-a proper `use()` builtin.
+B<NOTE:> This function currently uses C<require()> since Pugs does not yet have
+a proper C<use()> builtin.
 
-- `ok (Bool $cond, Str $desc?, Bool :$todo, Str :$depends) returns Bool`
+  ok (Bool $cond, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
-- `is (Str $got, Str $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool`
+  is (Str $got, Str $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
-- `isnt (Str $got, Str $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool`
+  isnt (Str $got, Str $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
-- `like (Str $got, Rule $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool is export`
-- `unlike (Str $got, Rule $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool is export`
+  like (Str $got, Rule $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool is export
+  unlike (Str $got, Rule $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool is export
 
 These functions should work with most reg-exps, but given that they are still a
 somewhat experimental feature in Pugs, it is suggested you don't try anything
 too funky.
 
-- `cmp_ok (Str $got, Code &compare_func, Str $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool`
+  cmp_ok (Str $got, Code &compare_func, Str $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
-This function will compare `$got` and `$expected` using `&compare_func`. This will
+This function will compare C<$got> and C<$expected> using C<&compare_func>. This will
 eventually allow Test::More-style cmp_ok() though the following syntax:
 
   cmp_ok('test', &infix:<gt>, 'me', '... testing gt on two strings');
 
-However the `&infix:<gt>` is currently not implemented, so you will have to wait
+However the C<< &infix:<gt> >> is currently not implemented, so you will have to wait
 a little while. Until then, you can just write your own functions like this:
 
   cmp_ok('test', sub ($a, $b) { ?($a gt $b) }, 'me', '... testing gt on two strings');
 
-- `isa_ok ($ref, Str $expected_type, Str $desc?, Bool :$todo, Str :$depends) returns Bool`
+  isa_ok ($ref, Str $expected_type, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
 This function currently on checks with ref() since we do not yet have
 object support. Once object support is created, we will add it here, and
 maintain backwards compatibility as well.
 
-- `eval_ok (Str $code, Str $desc?, Bool :$todo, Str :$depends) returns Bool`
+  eval_ok (Str $code, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
-- `eval_is (Str $code, Str $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool`
+  eval_is (Str $code, Str $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
-- `eval_dies_ok (Str $code, Str $desc?, Bool :$todo, Str :$depends) returns Bool`
+  eval_dies_ok (Str $code, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
 These functions will eval a code snippet, and then pass the result to is or ok
 on success, or report that the eval was not successful on failure. In the case of
 eval_dies_ok, unsuccessful or failure was expected.
 
-- `throws_ok (Code &code, Any $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool`
+  throws_ok (Code &code, Any $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
-This function takes a block of code and runs it. It then smart-matches (`~~`) any `$!`
-value with the `$expected` value.
+This function takes a block of code and runs it. It then smart-matches (C<~~>) any C<$!>
+value with the C<$expected> value.
 
-- `dies_ok (Code &code, Str $desc?, Bool :$todo, Str :$depends) returns Bool`
+  dies_ok (Code &code, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
-- `lives_ok (Code &code, Str $desc?, Bool :$todo, Str :$depends) returns Bool`
+  lives_ok (Code &code, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
 These functions both take blocks of code, run the code, and test whether they live or die.
 
-=== A Note about TODO-ing tests
+=head3 A Note about TODO-ing tests
 
 Sometimes a test is broken because something is not implemented yet. So
 in order to still allow that to be tested, and those tests to knowingly
-fail, we provide the `todo` function to TODO the next one test according
+fail, we provide the C<todo> function to TODO the next one test according
 to a given deadline. (See below.)
 
 Take the Pugs implementation. When TODOing failing tests before
@@ -490,63 +489,63 @@ the Pugs release (say, 6.2.12), the following form of todo should be used:
 By doing this, temporarily TODO'd tests can get unTODO'd automatically once
 the the release is done (and the version number gets updated).
 
-The version number fed to `todo` is optional. If omitted,
+The version number fed to C<todo> is optional. If omitted,
 the corresponding tests won't get expired unless we unTODO them manually.
 
-The `:depends("string")` parameter to most of the functions is a way
+The C<:depends("string")> parameter to most of the functions is a way
 to provide a comment that refers to another file or test which must be
 made to pass before this test can pass (or before an implementation
 could be started).  This is most useful when writing modules and you
 find there is some language feature missing, or core bug that needs to
 be sorted out before you can continue.
 
-It is also possible to use the `force_todo()` function to do large scale
+It is also possible to use the C<force_todo()> function to do large scale
 TODO-ing of tests.
 
-== Misc. Functions
+=head2 Misc. Functions
 
-- `todo (*%deadline) returns Bool is export`
+  todo (*%deadline) returns Bool is export
 
 If and only if the deadline has been hit (or passed), the next one test will
 be marked as TODO.
 
 For example:
 
-    todo :pugs<6.28.0>;
-    is($got, $expected, $desc);
+   todo :pugs<6.28.0>;
+   is($got, $expected, $desc);
 
-The call to the `todo` function will mark the next one test as TODO if
+The call to the C<todo> function will mark the next one test as TODO if
 and only if the current compiler's $?COMPILER holds a string whose lowercase
 version equals to 'pugs' and $?VERSION holds a value less than '6.28.0'.
-The `todo` functuion will perform partial ordering comparison between version
+The C<todo> functuion will perform partial ordering comparison between version
 numbers.
 
-More implementation-specific deadlines can be appended to a single `todo` call:
+More implementation-specific deadlines can be appended to a single C<todo> call:
 
-    todo :pugs<6.28.0>, :p6p5<0.011>, :parrot<0.45>;
+  todo :pugs<6.28.0>, :p6p5<0.011>, :parrot<0.45>;
 
-- `skip (Str $reason?) returns Bool`
-- `skip (Int $count, Str $reason?) returns Bool`
+  skip (Str $reason?) returns Bool
+  skip (Int $count, Str $reason?) returns Bool
 
 If for some reason a test is to be skipped, you can use this
 function to do so.
 
-- `pass (Str $desc?) returns Bool`
+  pass (Str $desc?) returns Bool
 
 Sometimes what you need to test does not fit into one of the standard
 testing functions. In that case, you can use the rather blunt pass()
 functions and its compliment the flunk() function.
 
-- `flunk (Str $desc?, Bool :$todo) returns Bool`
+  flunk (Str $desc?, Bool :$todo) returns Bool
 
 This is the opposite of pass()
 
-- `diag (Str $diag)`
+  diag (Str $diag)
 
 This will print each string with a '#' character appended to it, this is
 ignored by the TAP protocol.
 
-= FUTURE PLANS
+=head1 FUTURE PLANS
 
 This module is still a work in progress. As Pugs grows, so will it's
 testing needs. This module will be the code support for those needs. The
@@ -575,12 +574,12 @@ Because these functions will be mutually recursive, they will easily be
 able handle arbitrarily complex data structures automatically (at least
 that is what I hope).
 
-= ENVIRONMENT
+=head1 ENVIRONMENT
 
 Setting the environment variable TEST_ALWAYS_CALLER to force Test.pm to always
-append the caller information to the test's `$desc`.
+append the caller information to the test's C<$desc>.
 
-= SEE ALSO
+=head1 SEE ALSO
 
 The Perl 5 Test modules
 
@@ -591,7 +590,7 @@ The Perl 5 Test modules
 Information about the TAP protocol can be found in the Test::Harness
 distribution.
 
-= AUTHORS
+=head1 AUTHORS
 
 Audrey Tang <autrijus@autrijus.org>
 
@@ -621,7 +620,7 @@ Gaal Yahas <gaal@forum2.org>
 
 Simon Sun <dolmens@gmail.com>
 
-= COPYRIGHT
+=head1 COPYRIGHT
 
 Copyright (c) 2005, 2006. Audrey Tang. All rights reserved.
 

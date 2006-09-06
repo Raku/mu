@@ -1,3 +1,7 @@
+== Changes for 0.0.7 for Sep 6, 2005  
+* No code changes
+* Convert the documentation from kwid to POD to make it more accessible.
+Once it's easy to view kwid, it can be changed back.  
 
 == Changes for 0.0.6 for May 2, 2005
 
