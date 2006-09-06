@@ -916,8 +916,8 @@ ruleClosureTrait rhs = rule "closure trait" $ do
     block   <- ruleBlock
     let (fun, params) = extractPlaceholderVars block []
     -- Check for placeholder vs formal parameters
-    when (not $ null params) $
-        fail "Closure traits take no formal parameters"
+    when (params /= [] && params /= [cast "$_"]) $
+        fail $ "Closure traits take no formal parameters"++show params
     env <- ask
     let code = VCode mkSub { subName = cast name, subBody = fun, subEnv = Just env } 
     case name of
