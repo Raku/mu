@@ -69,7 +69,7 @@ my $dev_null = File::Spec->devnull;
 my $output ;# = svn("up") or die "Could not update pugs tree: $!";
 system($^X, qw(-w ./util/yaml_harness.pl),@yaml_harness_args) == 0 or die "Could not run yaml harness: $!";
 system($^X, qw(-w ./util/testgraph.pl --inlinecss tests.yml), $html_location) == 0 or die "Could not convert .yml to testgraph: $!";
-upload_smoke($html_location);
+upload_smoke($html_location, 'tests.yml');
 if ($smoke_upload) {
   if (defined $smoke_upload_script) {
     system("$^X $smoke_upload_script $html_location") == 0
@@ -89,9 +89,9 @@ print <<EOF;
 EOF
 }
 sub upload_smoke {
-    my ($loc) = @_;
+    my ($html, $yml) = @_;
     return unless defined $ENV{PUGS_SMOKE_UPLOAD};
-    system("$^X $ENV{PUGS_SMOKE_UPLOAD} $loc") == 0 or die "couldn't run user smoke upload command: $!";
+    system("$^X $ENV{PUGS_SMOKE_UPLOAD} $html $yml") == 0 or die "couldn't run user smoke upload command: $!";
 }
 
 sub check_prereq {

@@ -12,25 +12,27 @@ sub debug($);
 our $compress = sub { return };
 
 GetOptions(
-  "smokeserv=s" =>
-    \(my $smokeserv = "http://m19s28.vlinux.de/cgi-bin/pugs-smokeserv.pl"),
+  "smokeserv=s" => \(my $smokeserver = ""),
   "help"        => \&usage,
   "compress|c!" => \(my $compression_wanted = 1),
   "version"     => sub { print "smokeserv-client.pl v" . VERSION . "\n"; exit },
 ) or usage();
-@ARGV == 1 or usage();
+@ARGV >= 1 or usage();
 
 debug "smokeserv-client v" . VERSION . " started.\n";
+
+my @default_smokeserv = ("http://m19s28.vlinux.de/cgi-bin/pugs-smokeserv.pl");
+my @smokeserv = $smokeserver ? ($smokeserver) : @default_smokeserv;
 
 setup_compression() if $compression_wanted;
 
 my %request = (upload => 1, version => VERSION, smokes => []);
 
 {
-  my $file = shift @ARGV;
-  debug "Reading smoke \"$file\" to upload... ";
+  my ($html, $yml) = @ARGV;
+  debug "Reading smoke \"$html\" to upload... ";
 
-  open my $fh, "<", $file or die "Couldn't open \"$file\" for reading: $!\n";
+  open my $fh, "<", $html or die "Couldn't open \"$html\" for reading: $!\n";
   local $/;
   my $smoke = <$fh>;
 
@@ -40,10 +42,16 @@ my %request = (upload => 1, version => VERSION, smokes => []);
   }
 
   $request{smoke} = $compress->($smoke) || $smoke;
-  debug "ok.\n";
+
+  debug "html ok.\n";
+
+  if(open $fh, '<', $yml) {
+    $smoke = <$fh>;
+    $request{yml} = $compress->($smoke) || $smoke;
+  }
 }
 
-{
+foreach my $smokeserv (@smokeserv) {
   debug "Sending data to smokeserver \"$smokeserv\"... ";
   my $ua = LWP::UserAgent->new;
   $ua->agent("pugs-smokeserv-client/" . VERSION);
@@ -65,7 +73,7 @@ my %request = (upload => 1, version => VERSION, smokes => []);
 }
 
 sub usage { print STDERR <<USAGE; exit }
-Usage: $0 [options] -- smoke1.html smoke2.html ...
+Usage: $0 [options] -- smoke1.html [smoke1.yml]
 
 Available options:
   --smokeserv=http://path/to/smokeserv.pl
