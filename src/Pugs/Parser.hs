@@ -1326,8 +1326,8 @@ parseTerm = rule "term" $! do
             return $! combine (reverse fs) term
 
 ruleSignatureVal :: RuleParser Exp
-ruleSignatureVal = do
-    between (lexeme $ symbol ":(") (lexeme $ char ')') ruleSignature
+ruleSignatureVal = rule "signature value" $ do
+    between (symbol ":(") (lexeme $ char ')') ruleSignature
 
 data Paramdec = MkParamdec
     { p_param      :: SigParam
@@ -1353,7 +1353,7 @@ defaultInvocantParam = MkParam
     }
 
 ruleSignature :: RuleParser Exp
-ruleSignature = rule "Signature" $ do
+ruleSignature = rule "signature" $ do
     inv     <- choice
                [ (lexeme $ char ':') >> (return $ Just defaultInvocantParam)
                , try $ fmap (Just . p_param) $ followedBy ruleParam (lexeme $ char ':')
@@ -1389,15 +1389,15 @@ ruleParam = rule "parameter" $ do
     staticTypes            <- rStaticTypes
     isSlurpy               <- option False (char '*' >> return True)
     (name, label, isNamed) <- rParamName
-    isOptional             <- withTrailingSpace $ choice
-        [ (lexeme $ char '!') >> return False
-        , (lexeme $ char '?') >> return True
-        , whiteSpace >> lookAhead anyChar >>= \c -> return (c == '=') -- XXX: is this horribly inefficient?
+    isOptional             <- choice
+        [ lexeme $ char '!' >> return False
+        , lexeme $ char '?' >> return True
+        , whiteSpace >> lookAhead anyChar >>= return . ('=' ==) -- XXX: is this horribly inefficient?
         ]
     def           <- rDefault isOptional
-    traits        <- many $ withTrailingSpace $ ruleTrait ["is", "does"]
-    unpacking     <- withTrailingSpace $ option Nothing $ fmap Just rPostVarUnpacking
-    code          <- withTrailingSpace $ rCode
+    traits        <- many $ ruleTrait ["is", "does"]
+    unpacking     <- rPostVarUnpacking
+    code          <- rCode
     {- setTrait scans the traits list for "interesting" values, weeding
      - them out. The last interesting value is returned.
      - We can't let-shadow 'traits', because it's an action :-(
@@ -1429,7 +1429,7 @@ ruleParam = rule "parameter" $ do
         }
     where
     rStaticTypes = do
-        ty <- many $ withTrailingSpace ruleQualifiedIdentifier
+        ty <- many $ lexeme ruleQualifiedIdentifier
         return $ map (MkType . cast) ty
     rParamName = choice
         [ do -- named parameter
@@ -1439,7 +1439,7 @@ ruleParam = rule "parameter" $ do
                     name <- regularVarName
                     return (name, label name, True)
                 , do  -- with explicit label
-                    explicitLabel <- many identLetter
+                    explicitLabel <- many1 identLetter
                     name <- verbatimParens regularVarName
                     return (name, cast explicitLabel, True)
                 ]
@@ -1449,19 +1449,19 @@ ruleParam = rule "parameter" $ do
         ]
         where
         label = cast $ dropWhile (not . isAlpha)
-    rDefault True = withTrailingSpace $ option DNil $ do
+    rDefault True = lexeme $ option DNil $ do
         symbol "="
         fmap (DExp . Exp.EE . Exp.MkExpEmeritus) parseTerm
-    rDefault False = withTrailingSpace $ do
+    rDefault False = do
         ch <- lookAhead anyChar
         when (ch == '=') failReqDef
         return DNil
-    rPostVarUnpacking = try $ do
+    rPostVarUnpacking = lexeme $ option Nothing $ try $ do
         optional $ char ':'
         (Val (VV sig)) <- verbatimParens ruleSignature
         --return $ existentialCoerce# sig
-        return sig
-    rCode = do
+        return $ Just sig
+    rCode = lexeme $ do
         {- We don't have Exp -> Pugs.Val.Code, too bad.
         many $ do
             symbol "where"
@@ -1485,7 +1485,6 @@ ruleParam = rule "parameter" $ do
     context   ("is", "context") = Just True
     context   _                 = Nothing
     failReqDef = fail "required parameters cannot have default values"
-    withTrailingSpace = (flip followedBy) whiteSpace
 
 ruleTypeVar :: RuleParser Exp
 ruleTypeVar = rule "type" $ do
