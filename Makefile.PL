@@ -201,6 +201,7 @@ sub set_postamble {
     # Win32 GHC is a memory hog.  We need to provide it with a memory sty.
     # We still use the option from config.yml if available.
 
+    # XXX - This is no longer needed for GHC 6.6!
     if ($Config{osname} eq 'cygwin' or $Config{osname} eq 'MSWin32') {
         $heap = WIN32_GHC_HEAPSIZE;
     }
@@ -270,7 +271,7 @@ sub set_postamble {
         $ENV{PUGS_EMBED} .= " perl5 ";
         #push @prereqs, "src/perl5/p5embed.o"; # XXX
         # $ghc_output .= " src/perl5/p5embed.o ";
-        $embed_flags .= " -DPUGS_HAVE_PERL5 ";
+        $embed_flags .= " -DPUGS_HAVE_PERL5 -isrc/perl5 ";
         my $flags = "$Config{ccflags} $Config{ccdlflags} ";
         if ($flags =~ /\S/) {
             $flags =~ s{([\\"'])}{\\$1}g;
@@ -306,8 +307,8 @@ sub set_postamble {
             else {
                 $embed_flags .= " -optc$_" for grep length, split(/\s+/, ccopts());
                 $embed_flags .= " -optl$_" for grep length, split(/\s+/, ldopts());
-                $embed_flags .= " $_" for grep { /-[IL]/ } split(/\s+/, ccopts());
-                $embed_flags .= " $_" for grep { /-[IL]/ } split(/\s+/, ldopts());
+                $embed_flags .= " $_" for grep { /-[DIL]/ } split(/\s+/, ccopts());
+                $embed_flags .= " $_" for grep { /-[DIL]/ } split(/\s+/, ldopts());
             }
         }
     }
@@ -695,8 +696,9 @@ smoke-perl5 : $pugs util/run-smoke.pl all
 
 
 ghci : @prereqs @derived_srcfiles
-	$ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output --make -O0 -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Prereqs.hs @prereqs
-	$ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs -Lthird-party/judy/Judy-1.0.3/src/obj/.libs -lJudy third-party/judy/Judy-1.0.3/src/Judy*/*.o
+	$ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output -no-link --make -O0 -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Prereqs.hs @prereqs
+	\@\$(RM_RF) src/Pugs/*/*_stub.*
+	$ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs -Lthird-party/judy/Judy-1.0.3/src/obj/.libs -lJudy
 
 ctags : @prereqs @derived_srcfiles
 	echo ":ctags" | $ghc $ghc_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs -Lthird-party/judy/Judy-1.0.3/src/obj/.libs -lJudy
