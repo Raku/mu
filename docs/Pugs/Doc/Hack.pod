@@ -286,6 +286,9 @@ your new file:
 
     $ ./util/add-svn-props.sh newfile1 newfile2
 
+Ideally, this is done after you add the file, but before you commit it. 
+It can be run later if for some reason it's run initially.
+
 If you're on Win32 and can't run shell scripts, run C<svn> manually:
 
     $ svn propset svn:eol-style "native" newfile1 newfile2
