@@ -48,8 +48,8 @@ sub call_constant {
     my $const = quote_constant( $_[0] );
     #print "Const: [$_[0]] $const $len \n";
     return
-    "$_[1] ( ( length(\$s) >= \$pos && substr( \$s, \$pos, $len ) eq $const ) 
-$_[1]     ? do { \$pos $direction= $len; 1 }
+    "$_[1] ( ( substr( \$s, \$pos, $len ) eq $const ) 
+$_[1]     ? ( \$pos $direction= $len or 1 )
 $_[1]     : 0
 $_[1] )";
 }
@@ -58,8 +58,8 @@ sub call_perl5 {
     my $const = $_[0];
     #print "CONST: $const - $direction \n";
     return
-    "$_[1] ( ( length(\$s) >= \$pos && substr( \$s, \$pos ) =~ m/^$const/s )  
-$_[1]     ? do { \$pos $direction= length \$&; 1 }
+    "$_[1] ( ( substr( \$s, \$pos ) =~ m/^$const/s )  
+$_[1]     ? ( \$pos $direction= length( \$& ) or 1 )
 $_[1]     : 0
 $_[1] )";
 }
@@ -76,6 +76,8 @@ sub emit {
         "sub {\n" . 
         "  my \$grammar = \$_[0];\n" .
         "  my \$s = \$_[1];\n" .
+        "  no warnings 'substr', 'uninitialized', 'syntax';\n" .
+        "  my \%pad;\n" .
         #"  my \$pos;\n" .
         #"  print \"match arg_list = \$_[1]\n\";\n" .
         #"  print 'match ', Dumper(\\\@_);\n" .
@@ -157,20 +159,17 @@ sub quant {
     # TODO: *+ ++ ?+
     # TODO: quantifier + capture creates Array
     return 
-        "$_[1] do { my \$bool; (\n$rul\n" .
-        "$_[1] ||\n" .
-        "$_[1]   1\n" .
-        "$_[1] ) }$ws3"
+        "$_[1] (\n$rul\n" .
+        "$_[1] || ( \$bool = 1 )\n" .
+        "$_[1] ) $ws3"
         if $quantifier eq '?';
     return 
-        "$_[1] do { my \$bool; while (\n$rul) {}; 1 }$ws3"
+        "$_[1] do { while (\n$rul) {}; \$bool = 1 }$ws3"
         if $quantifier eq '*';
     return
-        "$_[1] do { \n" . 
         "$_[1] (\n$rul\n" .
-        "$_[1] &&\n" .
-        "$_[1]   do { my \$bool; while (\n$rul) {}; 1 }\n" .
-        "$_[1] ) }$ws3"
+        "$_[1] && do { while (\n$rul) {}; \$bool = 1 }\n" .
+        "$_[1] ) $ws3"
         if $quantifier eq '+';
     die "quantifier not implemented: $quantifier";
 }        
@@ -179,6 +178,7 @@ sub alt {
     # print 'Alt: ';
     my $count = $capture_count;
     my $max = -1;
+    my $id = id();
     for ( @{$_[0]} ) { 
         $capture_count = $count;
         my $tmp = emit_rule( $_, $_[1].'  ' );
@@ -190,22 +190,49 @@ sub alt {
     $capture_count = $max;
     # print " max = $capture_count\n";
     return 
-        "$_[1] do {
-$_[1]   my \$pos1 = \$pos;
-$_[1]   do {
+        "$_[1] (
+$_[1]     ( \$pad{$id} = \$pos or 1 ) 
+$_[1]     && (
 " . join( "
-$_[1]   } 
-$_[1]   || do { 
-$_[1]     \$pos = \$pos1; 
-$_[1]     \$bool = 1;\n", 
+$_[1]     ) 
+$_[1]   || ( 
+$_[1]     ( ( \$bool = 1 ) && ( \$pos = \$pad{$id} ) or 1 ) 
+$_[1]     && ", 
           @s 
     ) . "
-$_[1]   }
-$_[1] }";
+$_[1]   )
+$_[1] )";
 }        
 sub concat {
     my @s;
-    for ( @{$_[0]} ) { 
+
+=for optimizing
+    # optimize for the common case of "words"
+    # Note: this optimization has almost no practical effect
+    my $is_constant = 0;
+    for ( @{$_[0]} ) {
+        if ( ! $sigspace && exists $_->{quant} ) {
+            my $was_constant = $is_constant;
+            $is_constant = 
+                   $_->{quant}->{quant} eq ''
+                && exists $_->{quant}->{term}->{constant};
+            #print "concat: ", Dumper( $_ );
+            if ( $is_constant && $was_constant && $direction ne '-' ) {
+                $s[-1]->{quant}->{term}->{constant} .=
+                    $_->{quant}->{term}->{constant};
+                #print "constant: ",$s[-1]->{quant}->{term}->{constant},"\n";
+                next;
+            }
+        }
+        push @s, $_;
+    }
+
+    for ( @s ) { 
+        $_ = emit_rule( $_, $_[1] );
+    }
+=cut
+
+    for ( @{$_[0]} ) {
         my $tmp = emit_rule( $_, $_[1] );
         push @s, $tmp if $tmp;   
     }
@@ -217,10 +244,10 @@ sub code {
 }        
 sub dot {
     if ( $direction eq '+' ) {
-        "$_[1] do { \$pos < length( \$s ) ? ++\$pos : 0 }"
+        "$_[1] ( \$pos < length( \$s ) ? ++\$pos || 1 : 0 )"
     }
     else {
-        "$_[1] do { \$pos >= 0 ? do{ --\$pos; 1 } : 0 }"
+        "$_[1] ( \$pos >= 0 ? --\$pos || 1 : 0 )"
     }
 }
 

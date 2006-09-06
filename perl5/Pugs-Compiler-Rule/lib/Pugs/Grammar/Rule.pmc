@@ -3,6 +3,9 @@
         use Pugs::Runtime::Match;
         use Pugs::Emitter::Rule::Perl5::Ratchet;
         our %rule_terms;
+
+no warnings 'substr', 'uninitialized'; 
+
 *pod_begin = sub {
 
   $_[3] = $_[2];
@@ -32,31 +35,31 @@
       do {
         (
           (
-            ( length($s) >= $pos && substr( $s, $pos ) =~ m/^\n/s )
+            ( substr( $s, $pos ) =~ m/^\n/s )
             ? do { $pos += length $&; 1 }
             : 0
           )
             && (
             (
-              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '=' )
+              ( substr( $s, $pos, 1 ) eq '=' )
               ? do { $pos += 1; 1 }
               : 0
             )
             && (
               (
-                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'e' )
+                ( substr( $s, $pos, 1 ) eq 'e' )
                 ? do { $pos += 1; 1 }
                 : 0
               )
               && (
                 (
-                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'n' )
+                  ( substr( $s, $pos, 1 ) eq 'n' )
                   ? do { $pos += 1; 1 }
                   : 0
                 )
                 && (
                   (
-                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'd' )
+                    ( substr( $s, $pos, 1 ) eq 'd' )
                     ? do { $pos += 1; 1 }
                     : 0
                   )
@@ -64,7 +67,7 @@
                     my $bool;
                     while (
                       (
-                        ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\n]/s )
+                        ( substr( $s, $pos ) =~ m/^[^\n]/s )
                         ? do { $pos += length $&; 1 }
                         : 0
                       )
@@ -89,7 +92,7 @@
               my $bool;
               while (
                 (
-                  ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\n]/s )
+                  ( substr( $s, $pos ) =~ m/^[^\n]/s )
                   ? do { $pos += length $&; 1 }
                   : 0
                 )
@@ -143,31 +146,31 @@
       do {
         (
           (
-            ( length($s) >= $pos && substr( $s, $pos ) =~ m/^\n/s )
+            ( substr( $s, $pos ) =~ m/^\n/s )
             ? do { $pos += length $&; 1 }
             : 0
           )
             && (
             (
-              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '=' )
+              ( substr( $s, $pos, 1 ) eq '=' )
               ? do { $pos += 1; 1 }
               : 0
             )
             && (
               (
-                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'c' )
+                ( substr( $s, $pos, 1 ) eq 'c' )
                 ? do { $pos += 1; 1 }
                 : 0
               )
               && (
                 (
-                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'u' )
+                  ( substr( $s, $pos, 1 ) eq 'u' )
                   ? do { $pos += 1; 1 }
                   : 0
                 )
                 && (
                   (
-                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 't' )
+                    ( substr( $s, $pos, 1 ) eq 't' )
                     ? do { $pos += 1; 1 }
                     : 0
                   )
@@ -175,7 +178,7 @@
                     my $bool;
                     while (
                       (
-                        ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\n]/s )
+                        ( substr( $s, $pos ) =~ m/^[^\n]/s )
                         ? do { $pos += length $&; 1 }
                         : 0
                       )
@@ -200,7 +203,7 @@
               my $bool;
               while (
                 (
-                  ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\n]/s )
+                  ( substr( $s, $pos ) =~ m/^[^\n]/s )
                   ? do { $pos += length $&; 1 }
                   : 0
                 )
@@ -256,7 +259,7 @@
           do {
             (
               (
-                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '#' )
+                ( substr( $s, $pos, 1 ) eq '#' )
                 ? do { $pos += 1; 1 }
                 : 0
               )
@@ -264,7 +267,7 @@
                 my $bool;
                 while (
                   (
-                    ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\n]/s )
+                    ( substr( $s, $pos ) =~ m/^[^\n]/s )
                     ? do { $pos += length $&; 1 }
                     : 0
                   )
@@ -283,7 +286,7 @@
               do {
                 (
                   (
-                    ( length($s) >= $pos && substr( $s, $pos ) =~ m/^\n/s )
+                    ( substr( $s, $pos ) =~ m/^\n/s )
                     ? do { $pos += length $&; 1 }
                     : 0
                   )
@@ -292,7 +295,7 @@
                     (
                       (
                         (
-                          ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '=' )
+                          ( substr( $s, $pos, 1 ) eq '=' )
                           ? do { $pos += 1; 1 }
                           : 0
                         )
@@ -304,31 +307,31 @@
                               do {
                                 (
                                   (
-                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'b' )
+                                    ( substr( $s, $pos, 1 ) eq 'b' )
                                     ? do { $pos += 1; 1 }
                                     : 0
                                   )
                                     && (
                                     (
-                                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'e' )
+                                      ( substr( $s, $pos, 1 ) eq 'e' )
                                       ? do { $pos += 1; 1 }
                                       : 0
                                     )
                                     && (
                                       (
-                                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'g' )
+                                        ( substr( $s, $pos, 1 ) eq 'g' )
                                         ? do { $pos += 1; 1 }
                                         : 0
                                       )
                                       && (
                                         (
-                                          ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'i' )
+                                          ( substr( $s, $pos, 1 ) eq 'i' )
                                           ? do { $pos += 1; 1 }
                                           : 0
                                         )
                                         && (
                                           (
-                                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'n' )
+                                            ( substr( $s, $pos, 1 ) eq 'n' )
                                             ? do { $pos += 1; 1 }
                                             : 0
                                           )
@@ -341,19 +344,19 @@
                                             }
                                             && (
                                               (
-                                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'E' )
+                                                ( substr( $s, $pos, 1 ) eq 'E' )
                                                 ? do { $pos += 1; 1 }
                                                 : 0
                                               )
                                               && (
                                                 (
-                                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'N' )
+                                                  ( substr( $s, $pos, 1 ) eq 'N' )
                                                   ? do { $pos += 1; 1 }
                                                   : 0
                                                 )
                                                 && (
                                                   (
-                                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'D' )
+                                                    ( substr( $s, $pos, 1 ) eq 'D' )
                                                     ? do { $pos += 1; 1 }
                                                     : 0
                                                   )
@@ -362,7 +365,7 @@
                                                       my $bool;
                                                       while (
                                                         (
-                                                          ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\n]/s )
+                                                          ( substr( $s, $pos ) =~ m/^[^\n]/s )
                                                           ? do { $pos += length $&; 1 }
                                                           : 0
                                                         )
@@ -399,31 +402,31 @@
                                   do {
                                     (
                                       (
-                                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'b' )
+                                        ( substr( $s, $pos, 1 ) eq 'b' )
                                         ? do { $pos += 1; 1 }
                                         : 0
                                       )
                                         && (
                                         (
-                                          ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'e' )
+                                          ( substr( $s, $pos, 1 ) eq 'e' )
                                           ? do { $pos += 1; 1 }
                                           : 0
                                         )
                                         && (
                                           (
-                                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'g' )
+                                            ( substr( $s, $pos, 1 ) eq 'g' )
                                             ? do { $pos += 1; 1 }
                                             : 0
                                           )
                                           && (
                                             (
-                                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'i' )
+                                              ( substr( $s, $pos, 1 ) eq 'i' )
                                               ? do { $pos += 1; 1 }
                                               : 0
                                             )
                                             && (
                                               (
-                                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'n' )
+                                                ( substr( $s, $pos, 1 ) eq 'n' )
                                                 ? do { $pos += 1; 1 }
                                                 : 0
                                               )
@@ -447,25 +450,25 @@
                                       do {
                                         (
                                           (
-                                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'k' )
+                                            ( substr( $s, $pos, 1 ) eq 'k' )
                                             ? do { $pos += 1; 1 }
                                             : 0
                                           )
                                             && (
                                             (
-                                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'w' )
+                                              ( substr( $s, $pos, 1 ) eq 'w' )
                                               ? do { $pos += 1; 1 }
                                               : 0
                                             )
                                             && (
                                               (
-                                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'i' )
+                                                ( substr( $s, $pos, 1 ) eq 'i' )
                                                 ? do { $pos += 1; 1 }
                                                 : 0
                                               )
                                               && (
                                                 (
-                                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'd' )
+                                                  ( substr( $s, $pos, 1 ) eq 'd' )
                                                   ? do { $pos += 1; 1 }
                                                   : 0
                                                 )
@@ -488,19 +491,19 @@
                                           do {
                                             (
                                               (
-                                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'p' )
+                                                ( substr( $s, $pos, 1 ) eq 'p' )
                                                 ? do { $pos += 1; 1 }
                                                 : 0
                                               )
                                                 && (
                                                 (
-                                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'o' )
+                                                  ( substr( $s, $pos, 1 ) eq 'o' )
                                                   ? do { $pos += 1; 1 }
                                                   : 0
                                                 )
                                                 && (
                                                   (
-                                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'd' )
+                                                    ( substr( $s, $pos, 1 ) eq 'd' )
                                                     ? do { $pos += 1; 1 }
                                                     : 0
                                                   )
@@ -522,19 +525,19 @@
                                               do {
                                                 (
                                                   (
-                                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'f' )
+                                                    ( substr( $s, $pos, 1 ) eq 'f' )
                                                     ? do { $pos += 1; 1 }
                                                     : 0
                                                   )
                                                     && (
                                                     (
-                                                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'o' )
+                                                      ( substr( $s, $pos, 1 ) eq 'o' )
                                                       ? do { $pos += 1; 1 }
                                                       : 0
                                                     )
                                                     && (
                                                       (
-                                                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'r' )
+                                                        ( substr( $s, $pos, 1 ) eq 'r' )
                                                         ? do { $pos += 1; 1 }
                                                         : 0
                                                       )
@@ -553,31 +556,31 @@
                                                 $bool = 1;
                                                 (
                                                   (
-                                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'h' )
+                                                    ( substr( $s, $pos, 1 ) eq 'h' )
                                                     ? do { $pos += 1; 1 }
                                                     : 0
                                                   )
                                                     && (
                                                     (
-                                                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'e' )
+                                                      ( substr( $s, $pos, 1 ) eq 'e' )
                                                       ? do { $pos += 1; 1 }
                                                       : 0
                                                     )
                                                     && (
                                                       (
-                                                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'a' )
+                                                        ( substr( $s, $pos, 1 ) eq 'a' )
                                                         ? do { $pos += 1; 1 }
                                                         : 0
                                                       )
                                                       && (
                                                         (
-                                                          ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'd' )
+                                                          ( substr( $s, $pos, 1 ) eq 'd' )
                                                           ? do { $pos += 1; 1 }
                                                           : 0
                                                         )
                                                         && (
                                                           (
-                                                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '1' )
+                                                            ( substr( $s, $pos, 1 ) eq '1' )
                                                             ? do { $pos += 1; 1 }
                                                             : 0
                                                           )
@@ -615,7 +618,7 @@
                 $pos  = $pos1;
                 $bool = 1;
                 (
-                  ( length($s) >= $pos && substr( $s, $pos ) =~ m/^\s/s )
+                  ( substr( $s, $pos ) =~ m/^\s/s )
                   ? do { $pos += length $&; 1 }
                   : 0
                 );
@@ -631,7 +634,7 @@
               do {
                 (
                   (
-                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '#' )
+                    ( substr( $s, $pos, 1 ) eq '#' )
                     ? do { $pos += 1; 1 }
                     : 0
                   )
@@ -639,7 +642,7 @@
                     my $bool;
                     while (
                       (
-                        ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\n]/s )
+                        ( substr( $s, $pos ) =~ m/^[^\n]/s )
                         ? do { $pos += length $&; 1 }
                         : 0
                       )
@@ -658,7 +661,7 @@
                   do {
                     (
                       (
-                        ( length($s) >= $pos && substr( $s, $pos ) =~ m/^\n/s )
+                        ( substr( $s, $pos ) =~ m/^\n/s )
                         ? do { $pos += length $&; 1 }
                         : 0
                       )
@@ -667,7 +670,7 @@
                         (
                           (
                             (
-                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '=' )
+                              ( substr( $s, $pos, 1 ) eq '=' )
                               ? do { $pos += 1; 1 }
                               : 0
                             )
@@ -679,31 +682,31 @@
                                   do {
                                     (
                                       (
-                                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'b' )
+                                        ( substr( $s, $pos, 1 ) eq 'b' )
                                         ? do { $pos += 1; 1 }
                                         : 0
                                       )
                                         && (
                                         (
-                                          ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'e' )
+                                          ( substr( $s, $pos, 1 ) eq 'e' )
                                           ? do { $pos += 1; 1 }
                                           : 0
                                         )
                                         && (
                                           (
-                                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'g' )
+                                            ( substr( $s, $pos, 1 ) eq 'g' )
                                             ? do { $pos += 1; 1 }
                                             : 0
                                           )
                                           && (
                                             (
-                                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'i' )
+                                              ( substr( $s, $pos, 1 ) eq 'i' )
                                               ? do { $pos += 1; 1 }
                                               : 0
                                             )
                                             && (
                                               (
-                                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'n' )
+                                                ( substr( $s, $pos, 1 ) eq 'n' )
                                                 ? do { $pos += 1; 1 }
                                                 : 0
                                               )
@@ -716,19 +719,19 @@
                                                 }
                                                 && (
                                                   (
-                                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'E' )
+                                                    ( substr( $s, $pos, 1 ) eq 'E' )
                                                     ? do { $pos += 1; 1 }
                                                     : 0
                                                   )
                                                   && (
                                                     (
-                                                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'N' )
+                                                      ( substr( $s, $pos, 1 ) eq 'N' )
                                                       ? do { $pos += 1; 1 }
                                                       : 0
                                                     )
                                                     && (
                                                       (
-                                                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'D' )
+                                                        ( substr( $s, $pos, 1 ) eq 'D' )
                                                         ? do { $pos += 1; 1 }
                                                         : 0
                                                       )
@@ -737,7 +740,7 @@
                                                           my $bool;
                                                           while (
                                                             (
-                                                              ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\n]/s )
+                                                              ( substr( $s, $pos ) =~ m/^[^\n]/s )
                                                               ? do { $pos += length $&; 1 }
                                                               : 0
                                                             )
@@ -774,31 +777,31 @@
                                       do {
                                         (
                                           (
-                                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'b' )
+                                            ( substr( $s, $pos, 1 ) eq 'b' )
                                             ? do { $pos += 1; 1 }
                                             : 0
                                           )
                                             && (
                                             (
-                                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'e' )
+                                              ( substr( $s, $pos, 1 ) eq 'e' )
                                               ? do { $pos += 1; 1 }
                                               : 0
                                             )
                                             && (
                                               (
-                                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'g' )
+                                                ( substr( $s, $pos, 1 ) eq 'g' )
                                                 ? do { $pos += 1; 1 }
                                                 : 0
                                               )
                                               && (
                                                 (
-                                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'i' )
+                                                  ( substr( $s, $pos, 1 ) eq 'i' )
                                                   ? do { $pos += 1; 1 }
                                                   : 0
                                                 )
                                                 && (
                                                   (
-                                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'n' )
+                                                    ( substr( $s, $pos, 1 ) eq 'n' )
                                                     ? do { $pos += 1; 1 }
                                                     : 0
                                                   )
@@ -822,25 +825,25 @@
                                           do {
                                             (
                                               (
-                                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'k' )
+                                                ( substr( $s, $pos, 1 ) eq 'k' )
                                                 ? do { $pos += 1; 1 }
                                                 : 0
                                               )
                                                 && (
                                                 (
-                                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'w' )
+                                                  ( substr( $s, $pos, 1 ) eq 'w' )
                                                   ? do { $pos += 1; 1 }
                                                   : 0
                                                 )
                                                 && (
                                                   (
-                                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'i' )
+                                                    ( substr( $s, $pos, 1 ) eq 'i' )
                                                     ? do { $pos += 1; 1 }
                                                     : 0
                                                   )
                                                   && (
                                                     (
-                                                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'd' )
+                                                      ( substr( $s, $pos, 1 ) eq 'd' )
                                                       ? do { $pos += 1; 1 }
                                                       : 0
                                                     )
@@ -863,19 +866,19 @@
                                               do {
                                                 (
                                                   (
-                                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'p' )
+                                                    ( substr( $s, $pos, 1 ) eq 'p' )
                                                     ? do { $pos += 1; 1 }
                                                     : 0
                                                   )
                                                     && (
                                                     (
-                                                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'o' )
+                                                      ( substr( $s, $pos, 1 ) eq 'o' )
                                                       ? do { $pos += 1; 1 }
                                                       : 0
                                                     )
                                                     && (
                                                       (
-                                                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'd' )
+                                                        ( substr( $s, $pos, 1 ) eq 'd' )
                                                         ? do { $pos += 1; 1 }
                                                         : 0
                                                       )
@@ -897,19 +900,19 @@
                                                   do {
                                                     (
                                                       (
-                                                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'f' )
+                                                        ( substr( $s, $pos, 1 ) eq 'f' )
                                                         ? do { $pos += 1; 1 }
                                                         : 0
                                                       )
                                                         && (
                                                         (
-                                                          ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'o' )
+                                                          ( substr( $s, $pos, 1 ) eq 'o' )
                                                           ? do { $pos += 1; 1 }
                                                           : 0
                                                         )
                                                         && (
                                                           (
-                                                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'r' )
+                                                            ( substr( $s, $pos, 1 ) eq 'r' )
                                                             ? do { $pos += 1; 1 }
                                                             : 0
                                                           )
@@ -928,31 +931,31 @@
                                                     $bool = 1;
                                                     (
                                                       (
-                                                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'h' )
+                                                        ( substr( $s, $pos, 1 ) eq 'h' )
                                                         ? do { $pos += 1; 1 }
                                                         : 0
                                                       )
                                                         && (
                                                         (
-                                                          ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'e' )
+                                                          ( substr( $s, $pos, 1 ) eq 'e' )
                                                           ? do { $pos += 1; 1 }
                                                           : 0
                                                         )
                                                         && (
                                                           (
-                                                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'a' )
+                                                            ( substr( $s, $pos, 1 ) eq 'a' )
                                                             ? do { $pos += 1; 1 }
                                                             : 0
                                                           )
                                                           && (
                                                             (
-                                                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq 'd' )
+                                                              ( substr( $s, $pos, 1 ) eq 'd' )
                                                               ? do { $pos += 1; 1 }
                                                               : 0
                                                             )
                                                             && (
                                                               (
-                                                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '1' )
+                                                                ( substr( $s, $pos, 1 ) eq '1' )
                                                                 ? do { $pos += 1; 1 }
                                                                 : 0
                                                               )
@@ -990,7 +993,7 @@
                     $pos  = $pos1;
                     $bool = 1;
                     (
-                      ( length($s) >= $pos && substr( $s, $pos ) =~ m/^\s/s )
+                      ( substr( $s, $pos ) =~ m/^\s/s )
                       ? do { $pos += length $&; 1 }
                       : 0
                     );
@@ -1053,7 +1056,7 @@
               my $pos1 = $pos;
               do {
                 (
-                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '_' )
+                  ( substr( $s, $pos, 1 ) eq '_' )
                   ? do { $pos += 1; 1 }
                   : 0
                 );
@@ -1062,7 +1065,7 @@
                 $pos  = $pos1;
                 $bool = 1;
                 (
-                  ( length($s) >= $pos && substr( $s, $pos, 2 ) eq '::' )
+                  ( substr( $s, $pos, 2 ) eq '::' )
                   ? do { $pos += 2; 1 }
                   : 0
                 );
@@ -1089,7 +1092,7 @@
                   my $pos1 = $pos;
                   do {
                     (
-                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '_' )
+                      ( substr( $s, $pos, 1 ) eq '_' )
                       ? do { $pos += 1; 1 }
                       : 0
                     );
@@ -1098,7 +1101,7 @@
                     $pos  = $pos1;
                     $bool = 1;
                     (
-                      ( length($s) >= $pos && substr( $s, $pos, 2 ) eq '::' )
+                      ( substr( $s, $pos, 2 ) eq '::' )
                       ? do { $pos += 2; 1 }
                       : 0
                     );
@@ -1145,7 +1148,7 @@
     $bool = 0
       unless (
       (
-        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '(' )
+        ( substr( $s, $pos, 1 ) eq '(' )
         ? do { $pos += 1; 1 }
         : 0
       )
@@ -1161,7 +1164,7 @@
         }
         && (
           (
-            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ')' )
+            ( substr( $s, $pos, 1 ) eq ')' )
             ? do { $pos += 1; 1 }
             : 0
           )
@@ -1217,7 +1220,7 @@
     $bool = 0
       unless (
       (
-        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '[' )
+        ( substr( $s, $pos, 1 ) eq '[' )
         ? do { $pos += 1; 1 }
         : 0
       )
@@ -1233,7 +1236,7 @@
         }
         && (
           (
-            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ']' )
+            ( substr( $s, $pos, 1 ) eq ']' )
             ? do { $pos += 1; 1 }
             : 0
           )
@@ -1290,12 +1293,12 @@
           do {
             (
               (
-                ( length($s) >= $pos && substr( $s, $pos, 2 ) eq '\\' )
+                ( substr( $s, $pos, 2 ) eq '\\' )
                 ? do { $pos += 2; 1 }
                 : 0
               )
                 && (
-                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq chr(39) )
+                ( substr( $s, $pos, 1 ) eq chr(39) )
                 ? do { $pos += 1; 1 }
                 : 0
                 )
@@ -1305,7 +1308,7 @@
             $pos  = $pos1;
             $bool = 1;
             (
-              ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\']/s )
+              ( substr( $s, $pos ) =~ m/^[^\']/s )
               ? do { $pos += length $&; 1 }
               : 0
             );
@@ -1319,12 +1322,12 @@
               do {
                 (
                   (
-                    ( length($s) >= $pos && substr( $s, $pos, 2 ) eq '\\' )
+                    ( substr( $s, $pos, 2 ) eq '\\' )
                     ? do { $pos += 2; 1 }
                     : 0
                   )
                     && (
-                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq chr(39) )
+                    ( substr( $s, $pos, 1 ) eq chr(39) )
                     ? do { $pos += 1; 1 }
                     : 0
                     )
@@ -1334,7 +1337,7 @@
                 $pos  = $pos1;
                 $bool = 1;
                 (
-                  ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\']/s )
+                  ( substr( $s, $pos ) =~ m/^[^\']/s )
                   ? do { $pos += length $&; 1 }
                   : 0
                 );
@@ -1385,7 +1388,7 @@
             do {
               (
                 (
-                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq chr(39) )
+                  ( substr( $s, $pos, 1 ) eq chr(39) )
                   ? do { $pos += 1; 1 }
                   : 0
                 )
@@ -1397,7 +1400,7 @@
                     $match;
                   }
                   && (
-                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq chr(39) )
+                    ( substr( $s, $pos, 1 ) eq chr(39) )
                     ? do { $pos += 1; 1 }
                     : 0
                   )
@@ -1412,7 +1415,7 @@
                 do {
                   (
                     (
-                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '{' )
+                      ( substr( $s, $pos, 1 ) eq '{' )
                       ? do { $pos += 1; 1 }
                       : 0
                     )
@@ -1424,7 +1427,7 @@
                         $match;
                       }
                       && (
-                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '}' )
+                        ( substr( $s, $pos, 1 ) eq '}' )
                         ? do { $pos += 1; 1 }
                         : 0
                       )
@@ -1439,7 +1442,7 @@
                     do {
                       (
                         (
-                          ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '<' )
+                          ( substr( $s, $pos, 1 ) eq '<' )
                           ? do { $pos += 1; 1 }
                           : 0
                         )
@@ -1451,7 +1454,7 @@
                             $match;
                           }
                           && (
-                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '>' )
+                            ( substr( $s, $pos, 1 ) eq '>' )
                             ? do { $pos += 1; 1 }
                             : 0
                           )
@@ -1462,7 +1465,7 @@
                       $pos  = $pos1;
                       $bool = 1;
                       (
-                        ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\>]/s )
+                        ( substr( $s, $pos ) =~ m/^[^\>]/s )
                         ? do { $pos += length $&; 1 }
                         : 0
                       );
@@ -1480,7 +1483,7 @@
                 do {
                   (
                     (
-                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq chr(39) )
+                      ( substr( $s, $pos, 1 ) eq chr(39) )
                       ? do { $pos += 1; 1 }
                       : 0
                     )
@@ -1492,7 +1495,7 @@
                         $match;
                       }
                       && (
-                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq chr(39) )
+                        ( substr( $s, $pos, 1 ) eq chr(39) )
                         ? do { $pos += 1; 1 }
                         : 0
                       )
@@ -1507,7 +1510,7 @@
                     do {
                       (
                         (
-                          ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '{' )
+                          ( substr( $s, $pos, 1 ) eq '{' )
                           ? do { $pos += 1; 1 }
                           : 0
                         )
@@ -1519,7 +1522,7 @@
                             $match;
                           }
                           && (
-                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '}' )
+                            ( substr( $s, $pos, 1 ) eq '}' )
                             ? do { $pos += 1; 1 }
                             : 0
                           )
@@ -1534,7 +1537,7 @@
                         do {
                           (
                             (
-                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '<' )
+                              ( substr( $s, $pos, 1 ) eq '<' )
                               ? do { $pos += 1; 1 }
                               : 0
                             )
@@ -1546,7 +1549,7 @@
                                 $match;
                               }
                               && (
-                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '>' )
+                                ( substr( $s, $pos, 1 ) eq '>' )
                                 ? do { $pos += 1; 1 }
                                 : 0
                               )
@@ -1557,7 +1560,7 @@
                           $pos  = $pos1;
                           $bool = 1;
                           (
-                            ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\>]/s )
+                            ( substr( $s, $pos ) =~ m/^[^\>]/s )
                             ? do { $pos += length $&; 1 }
                             : 0
                           );
@@ -1630,7 +1633,7 @@
             do {
               (
                 (
-                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '{' )
+                  ( substr( $s, $pos, 1 ) eq '{' )
                   ? do { $pos += 1; 1 }
                   : 0
                 )
@@ -1642,7 +1645,7 @@
                     $match;
                   }
                   && (
-                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '}' )
+                    ( substr( $s, $pos, 1 ) eq '}' )
                     ? do { $pos += 1; 1 }
                     : 0
                   )
@@ -1653,7 +1656,7 @@
               $pos  = $pos1;
               $bool = 1;
               (
-                ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\}]/s )
+                ( substr( $s, $pos ) =~ m/^[^\}]/s )
                 ? do { $pos += length $&; 1 }
                 : 0
               );
@@ -1667,7 +1670,7 @@
                 do {
                   (
                     (
-                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '{' )
+                      ( substr( $s, $pos, 1 ) eq '{' )
                       ? do { $pos += 1; 1 }
                       : 0
                     )
@@ -1679,7 +1682,7 @@
                         $match;
                       }
                       && (
-                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '}' )
+                        ( substr( $s, $pos, 1 ) eq '}' )
                         ? do { $pos += 1; 1 }
                         : 0
                       )
@@ -1690,7 +1693,7 @@
                   $pos  = $pos1;
                   $bool = 1;
                   (
-                    ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\}]/s )
+                    ( substr( $s, $pos ) =~ m/^[^\}]/s )
                     ? do { $pos += length $&; 1 }
                     : 0
                   );
@@ -1826,7 +1829,7 @@
               do {
                 (
                   (
-                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '<' )
+                    ( substr( $s, $pos, 1 ) eq '<' )
                     ? do { $pos += 1; 1 }
                     : 0
                   )
@@ -1842,7 +1845,7 @@
                     }
                     && (
                       (
-                        ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '>' )
+                        ( substr( $s, $pos, 1 ) eq '>' )
                         ? do { $pos += 1; 1 }
                         : 0
                       )
@@ -1929,7 +1932,7 @@
         }
         && (
           (
-            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ')' )
+            ( substr( $s, $pos, 1 ) eq ')' )
             ? do { $pos += 1; 1 }
             : 0
           )
@@ -2001,7 +2004,7 @@
           }
           && (
             (
-              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '>' )
+              ( substr( $s, $pos, 1 ) eq '>' )
               ? do { $pos += 1; 1 }
               : 0
             )
@@ -2076,7 +2079,7 @@
           }
           && (
             (
-              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '>' )
+              ( substr( $s, $pos, 1 ) eq '>' )
               ? do { $pos += 1; 1 }
               : 0
             )
@@ -2151,7 +2154,7 @@
           }
           && (
             (
-              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '>' )
+              ( substr( $s, $pos, 1 ) eq '>' )
               ? do { $pos += 1; 1 }
               : 0
             )
@@ -2219,7 +2222,7 @@
         }
         && (
           (
-            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '>' )
+            ( substr( $s, $pos, 1 ) eq '>' )
             ? do { $pos += 1; 1 }
             : 0
           )
@@ -2286,7 +2289,7 @@
         }
         && (
           (
-            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '>' )
+            ( substr( $s, $pos, 1 ) eq '>' )
             ? do { $pos += 1; 1 }
             : 0
           )
@@ -2347,7 +2350,7 @@
         }
         && (
           (
-            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '>' )
+            ( substr( $s, $pos, 1 ) eq '>' )
             ? do { $pos += 1; 1 }
             : 0
           )
@@ -2366,7 +2369,7 @@
             }
             && (
               (
-                ( length($s) >= $pos && substr( $s, $pos, 2 ) eq ':=' )
+                ( substr( $s, $pos, 2 ) eq ':=' )
                 ? do { $pos += 2; 1 }
                 : 0
               )
@@ -2455,7 +2458,7 @@
             do {
               (
                 (
-                  ( length($s) >= $pos && substr( $s, $pos, 1 ) =~ /[[:digit:]]/ )
+                  ( substr( $s, $pos, 1 ) =~ /[[:digit:]]/ )
                   ? do { ++$pos; 1 }
                   : 0
                 )
@@ -2463,7 +2466,7 @@
                   my $bool;
                   while (
                     (
-                      ( length($s) >= $pos && substr( $s, $pos, 1 ) =~ /[[:digit:]]/ )
+                      ( substr( $s, $pos, 1 ) =~ /[[:digit:]]/ )
                       ? do { ++$pos; 1 }
                       : 0
                     )
@@ -2504,7 +2507,7 @@
                   my $bool;
                   (
                     (
-                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '^' )
+                      ( substr( $s, $pos, 1 ) eq '^' )
                       ? do { $pos += 1; 1 }
                       : 0
                     )
@@ -2518,7 +2521,7 @@
                         my $pos1 = $pos;
                         do {
                           (
-                            ( length($s) >= $pos && substr( $s, $pos, 1 ) =~ /[[:alnum:]]/ )
+                            ( substr( $s, $pos, 1 ) =~ /[[:alnum:]]/ )
                             ? do { ++$pos; 1 }
                             : 0
                           );
@@ -2530,7 +2533,7 @@
                             my $pos1 = $pos;
                             do {
                               (
-                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '_' )
+                                ( substr( $s, $pos, 1 ) eq '_' )
                                 ? do { $pos += 1; 1 }
                                 : 0
                               );
@@ -2540,12 +2543,12 @@
                               $bool = 1;
                               (
                                 (
-                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                                  ( substr( $s, $pos, 1 ) eq ':' )
                                   ? do { $pos += 1; 1 }
                                   : 0
                                 )
                                   && (
-                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                                  ( substr( $s, $pos, 1 ) eq ':' )
                                   ? do { $pos += 1; 1 }
                                   : 0
                                   )
@@ -2573,7 +2576,7 @@
                                 my $pos1 = $pos;
                                 do {
                                   (
-                                    ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '_' )
+                                    ( substr( $s, $pos, 1 ) eq '_' )
                                     ? do { $pos += 1; 1 }
                                     : 0
                                   );
@@ -2583,12 +2586,12 @@
                                   $bool = 1;
                                   (
                                     (
-                                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                                      ( substr( $s, $pos, 1 ) eq ':' )
                                       ? do { $pos += 1; 1 }
                                       : 0
                                     )
                                       && (
-                                      ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                                      ( substr( $s, $pos, 1 ) eq ':' )
                                       ? do { $pos += 1; 1 }
                                       : 0
                                       )
@@ -2731,7 +2734,7 @@
               my $bool;
               (
                 (
-                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '^' )
+                  ( substr( $s, $pos, 1 ) eq '^' )
                   ? do { $pos += 1; 1 }
                   : 0
                 )
@@ -2757,7 +2760,7 @@
                         my $pos1 = $pos;
                         do {
                           (
-                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '_' )
+                            ( substr( $s, $pos, 1 ) eq '_' )
                             ? do { $pos += 1; 1 }
                             : 0
                           );
@@ -2767,12 +2770,12 @@
                           $bool = 1;
                           (
                             (
-                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                              ( substr( $s, $pos, 1 ) eq ':' )
                               ? do { $pos += 1; 1 }
                               : 0
                             )
                               && (
-                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                              ( substr( $s, $pos, 1 ) eq ':' )
                               ? do { $pos += 1; 1 }
                               : 0
                               )
@@ -2800,7 +2803,7 @@
                             my $pos1 = $pos;
                             do {
                               (
-                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '_' )
+                                ( substr( $s, $pos, 1 ) eq '_' )
                                 ? do { $pos += 1; 1 }
                                 : 0
                               );
@@ -2810,12 +2813,12 @@
                               $bool = 1;
                               (
                                 (
-                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                                  ( substr( $s, $pos, 1 ) eq ':' )
                                   ? do { $pos += 1; 1 }
                                   : 0
                                 )
                                   && (
-                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                                  ( substr( $s, $pos, 1 ) eq ':' )
                                   ? do { $pos += 1; 1 }
                                   : 0
                                   )
@@ -2935,7 +2938,7 @@
               my $bool;
               (
                 (
-                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '^' )
+                  ( substr( $s, $pos, 1 ) eq '^' )
                   ? do { $pos += 1; 1 }
                   : 0
                 )
@@ -2961,7 +2964,7 @@
                         my $pos1 = $pos;
                         do {
                           (
-                            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '_' )
+                            ( substr( $s, $pos, 1 ) eq '_' )
                             ? do { $pos += 1; 1 }
                             : 0
                           );
@@ -2971,12 +2974,12 @@
                           $bool = 1;
                           (
                             (
-                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                              ( substr( $s, $pos, 1 ) eq ':' )
                               ? do { $pos += 1; 1 }
                               : 0
                             )
                               && (
-                              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                              ( substr( $s, $pos, 1 ) eq ':' )
                               ? do { $pos += 1; 1 }
                               : 0
                               )
@@ -3004,7 +3007,7 @@
                             my $pos1 = $pos;
                             do {
                               (
-                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '_' )
+                                ( substr( $s, $pos, 1 ) eq '_' )
                                 ? do { $pos += 1; 1 }
                                 : 0
                               );
@@ -3014,12 +3017,12 @@
                               $bool = 1;
                               (
                                 (
-                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                                  ( substr( $s, $pos, 1 ) eq ':' )
                                   ? do { $pos += 1; 1 }
                                   : 0
                                 )
                                   && (
-                                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ':' )
+                                  ( substr( $s, $pos, 1 ) eq ':' )
                                   ? do { $pos += 1; 1 }
                                   : 0
                                   )
@@ -3098,7 +3101,7 @@
         }
         && (
           (
-            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '}' )
+            ( substr( $s, $pos, 1 ) eq '}' )
             ? do { $pos += 1; 1 }
             : 0
           )
@@ -3260,7 +3263,7 @@
         }
         && (
           (
-            ( length($s) >= $pos && substr( $s, $pos, 1 ) eq ']' )
+            ( substr( $s, $pos, 1 ) eq ']' )
             ? do { $pos += 1; 1 }
             : 0
           )
@@ -3748,7 +3751,7 @@
         $bool = 1;
         (
           (
-            ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[^\]\}\)\>\:\?\+\*\|\&]/s )
+            ( substr( $s, $pos ) =~ m/^[^\]\}\)\>\:\?\+\*\|\&]/s )
             ? do { $pos += length $&; 1 }
             : 0
           )
@@ -3855,7 +3858,7 @@
             my %named;
             $bool = 0
               unless (
-              ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[\}\]\)\>]/s )
+              ( substr( $s, $pos ) =~ m/^[\}\]\)\>]/s )
               ? do { $pos += length $&; 1 }
               : 0
               );
@@ -3935,7 +3938,7 @@
                             my $bool;
                             (
                               (
-                                ( length($s) >= $pos && substr( $s, $pos ) =~ m/^[\?\*\+]/s )
+                                ( substr( $s, $pos ) =~ m/^[\?\*\+]/s )
                                 ? do { $pos += length $&; 1 }
                                 : 0
                               )
@@ -3946,7 +3949,7 @@
                             my $bool;
                             (
                               (
-                                ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '?' )
+                                ( substr( $s, $pos, 1 ) eq '?' )
                                 ? do { $pos += 1; 1 }
                                 : 0
                               )
@@ -4167,7 +4170,7 @@
               );
               }
               && (
-              ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '|' )
+              ( substr( $s, $pos, 1 ) eq '|' )
               ? do { $pos += 1; 1 }
               : 0
               )
@@ -4191,7 +4194,7 @@
             while (
               (
                 (
-                  ( length($s) >= $pos && substr( $s, $pos, 1 ) eq '|' )
+                  ( substr( $s, $pos, 1 ) eq '|' )
                   ? do { $pos += 1; 1 }
                   : 0
                 )
