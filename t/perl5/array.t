@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 13;
+plan 15;
 
 unless try({ eval("1", :lang<perl5>) }) {
     skip_rest;
@@ -69,10 +69,11 @@ is($retarray.exists(10), @array.exists(10), 'retro nonexists' );
 
 is((eval '$p5array.fetch(3)'), @array[3], 'fetch');
 
-# this access ruins pugs::env below
-#lives_ok {
-#    is($retarray.[3], @array[3], 'retro fetch');
-#}
+my $match = 0;
+lives_ok {
+    $match = ?($retarray.[3] ~~ @array[3]);
+}, 'can retro fetch';
+ok $match, 'retro fetch';
 
 # XXX - Infinite loop
 #skip_rest; exit;
