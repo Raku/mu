@@ -6,7 +6,7 @@ plan 5;
 
 # L<S02/Literals/filehandle "named as" %=POD{'DATA'}>
 {
-    eval_ok q(
+    eval_ok q{
 
 =begin DATA
 
@@ -15,7 +15,7 @@ hello, world!
 =end DATA
 
         %=POD{'DATA'};
-    ), '=begin DATA works and %=POD<DATA> defined';
+    }, '=begin DATA works and %=POD<DATA> defined';
 
     eval_is q{
         my $line = =%=POD<DATA>;
