@@ -4,22 +4,57 @@ use Test;
 
 # Mostly copied from Perl 5.8.4 s t/op/bop.t
 
-plan 17;
+plan 22;
 
-# test the bit operators '&', '|', '^', '~', '<<', and '>>'
+# test the bit operators '&', '|', '^', '+<', and '+>'
 
 # numerics
-is(0xdead +& 0xbeef, 0x9ead);
-is(0xdead +| 0xbeef, 0xfeef);
-is(0xdead +^ 0xbeef, 0x6042);
-ok(+^0xdead +& 0xbeef == 0x2042);
-# ok(+^(0xdead +& 0xbeef) == 0x2042); # works
 
-# shifts
-ok(32896 == (257 +< 7));
-#ok((257 +< 7) == 32896); # XXX
-ok(257 == (33023 +> 7));
-#ok((33023 +> 7) == 257); # XXX
+{ # L<S02/Changes to Perl 5 operators/Bitwise operators get a data type prefix>
+
+  # numeric
+  is( 0xdead +& 0xbeef,   0x9ead,    'numeric bitwise +& of hexadecimal' );
+  is( 0xdead +| 0xbeef,   0xfeef,    'numeric bitwise +| of hexadecimal' );
+  is( 0xdead +^ 0xbeef,   0x6042,    'numeric bitwise +^ of hexadecimal' );
+  is( +^0xdead +& 0xbeef, 0x2042,    'numeric bitwise +^ and +& together' );
+                                     
+  # string                           
+  is( 'a' ~& 'A',         'A',       'string bitwise ~& of "a" and "A"' );
+  is( 'a' ~| 'b',         'c',       'string bitwise ~| of "a" and "b"' );
+  is( 'a' ~^ 'B',         '#',       'string bitwise ~^ of "a" and "B"' );
+  is( 'AAAAA' ~& 'zzzzz', '@@@@@',   'short string bitwise ~&' );
+  is( 'AAAAA' ~| 'zzzzz', '{{{{{',   'short string bitwise ~|' );
+  is( 'AAAAA' ~^ 'zzzzz', ';;;;;',   'short string bitwise ~^' );
+  
+  # long strings
+  my $foo = "A" x 150;
+  my $bar = "z" x 75;
+  my $zap = "A" x 75;
+  
+  is( $foo ~& $bar, '@' x 75,        'long string bitwise ~&, truncates' );
+  is( $foo ~| $bar, '{' x 75 ~ $zap, 'long string bitwise ~|, no truncation' );
+  is( $foo ~^ $bar, ';' x 75 ~ $zap, 'long string bitwise ~^, no truncation' );
+
+  # "interesting" tests from a long time back...
+  is( "ok \xFF\xFF\n" ~& "ok 19\n", "ok 19\n", 'stringwise ~&, arbitrary string' );
+  is( "ok 20\n" ~| "ok \0\0\n", "ok 20\n",     'stringwise ~|, arbitrary string' );
+
+  # bit shifting
+  is( 32 +< 1,            64,     'shift one bit left' );
+  is( 32 +> 1,            16,     'shift one bit right' );
+  is( 257 +< 7,           32896,  'shift seven bits left' );
+  is( 33023 +> 7,         257,    'shift seven bits right' ); 
+
+  # Tests to see if you really can do casts negative floats to unsigned properly
+  my $neg1 = -1.0;
+  my $neg7 = -7.0;
+
+  is(+^ $neg1, 0, 'cast numeric float to unsigned' );
+  is(+^ $neg7, 6, 'cast -7 to 6 with +^' );
+  ok(+^ $neg7 == 6, 'cast -7 with equality testing' );
+
+}
+
 
 # signed vs. unsigned
 #ok((+^0 +> 0 && do { use integer; ~0 } == -1));
@@ -44,27 +79,6 @@ ok(257 == (33023 +> 7));
 # instead of $Aaz x 5, literal "@@@@@" is used and thus ascii assumed below
 # (for now...)
 
-# short strings
-is("AAAAA" ~& "zzzzz", '@@@@@');
-is("AAAAA" ~| "zzzzz", '{{{{{');
-is("AAAAA" ~^ "zzzzz", ';;;;;');
-
-# long strings
-my $foo = "A" x 150;
-my $bar = "z" x 75;
-my $zap = "A" x 75;
-# & truncates
-is($foo ~& $bar, '@' x 75);
-# | does not truncate
-is($foo ~| $bar, '{' x 75 ~ $zap);
-# ^ does not truncate
-is($foo ~^ $bar, ';' x 75 ~ $zap);
-
-
-# These ok numbers make absolutely no sense in pugs test suite :)
-# 
-is("ok \xFF\xFF\n" ~& "ok 19\n", "ok 19\n");
-is("ok 20\n" ~| "ok \0\0\n", "ok 20\n");
 
 # currently, pugs recognize octals as "\0o00", not "\o000".
 #if ("o\o000 \0" ~ "1\o000" ~^ "\o000k\02\o000\n" eq "ok 21\n") { say "ok 15" } else { say "not ok 15" }
@@ -81,13 +95,6 @@ is("ok 20\n" ~| "ok \0\0\n", "ok 20\n");
 # More variations on 19 and 22
 #if ("ok \xFF\x{FF}\n" ~& "ok 41\n" eq "ok 41\n") { say "ok 19" } else { say "not ok 19" }
 #if ("ok \x{FF}\xFF\n" ~& "ok 42\n" eq "ok 42\n") { say "ok 20" } else { say "not ok 20" }
-
-# Tests to see if you really can do casts negative floats to unsigned properly
-my $neg1 = -1.0;
-is(+^ $neg1, 0);
-my $neg7 = -7.0;
-is(+^ $neg7, 6);
-ok(+^ $neg7 == 6); # weird == parsing bug: XXX
 
 
 
