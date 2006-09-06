@@ -153,7 +153,11 @@ smartlinks.pl can take care of this kind of special cases.
 
 You can put a URL to create a generic link:
 
-   L<"http://groups.google.de/group/perl.perl6.language/msg/07aefb88f5fc8429">
+  L<"http://groups.google.de/group/perl.perl6.language/msg/07aefb88f5fc8429">
+
+or without quotes:
+
+  L<http://www.nntp.perl.org/group/perl.perl6.language/26071>
 
 Try running 'grep -r "L<" t/' to see some examples, or look at
 t/syntax/comments.t.
