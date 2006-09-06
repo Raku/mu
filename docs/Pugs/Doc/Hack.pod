@@ -83,6 +83,7 @@ Expanding this one level deeper:
     |-- docs               Documentation relating to Pugs/Perl 6/Haskell
     |   |-- AES                Drafts of Perl6::Bible chapters
     |   |-- Perl6
+    |   |-- Pugs               POD docs for Pugs itself
     |   |-- articles
     |   |-- feather
     |   |-- notes              Misc design notes and musings
@@ -179,8 +180,7 @@ Expanding this one level deeper:
     |
     |-- lib                Pugs- and Perl 6-related Perl 5 modules
     |   |-- Inline             Inline::Pugs
-    |   |-- Perl6              Perl6::MakeMaker, Perl6::Pugs
-    |   `-- Pugs               POD docs for Pugs itself
+    |   `-- Perl6              Perl6::MakeMaker, Perl6::Pugs
     |
     |-- misc               Other modules, not directly used by Pugs
     |   |-- Blondie            Intermediate language and compiler collection
