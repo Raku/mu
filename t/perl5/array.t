@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan(11);
+plan 13;
 
 unless try({ eval("1", :lang<perl5>) }) {
     skip_rest;
@@ -12,8 +12,7 @@ unless try({ eval("1", :lang<perl5>) }) {
 die unless
 eval(q/
 package My::Array;
- use strict; # XXX - if 'use' is in first column it got used by pugs!
-print ''; # XXX - voodoo!
+use strict;
 
 sub new {
     my ($class, $ref) = @_;
@@ -60,15 +59,15 @@ my $p5array = $p5ar.new(\@array);
 my $retarray = $p5array.array;
 
 is(eval('$p5array.my_elems'), @array.elems, 'elems');
-is(eval('$retarray.elems'), @array.elems, 'retro elems', :todo<feature>);
+is(eval('$retarray.elems'), @array.elems, 'retro elems');
 
-is($p5array.my_exists(1), @array.exists(1), 'exists');
-is($retarray.exists(1), @array.exists(1), 'retro exists', :todo<feature>);
+is((eval '$p5array.my_exists(1)'), @array.exists(1), 'exists');
+is($retarray.exists(1), @array.exists(1), 'retro exists');
 
-is($p5array.my_exists(10), @array.exists(10), 'nonexists fail');
+is((eval '$p5array.my_exists(10)'), @array.exists(10), 'nonexists fail');
 is($retarray.exists(10), @array.exists(10), 'retro nonexists' );
 
-is($p5array.fetch(3), @array[3], 'fetch');
+is((eval '$p5array.fetch(3)'), @array[3], 'fetch');
 
 # this access ruins pugs::env below
 #lives_ok {
@@ -76,21 +75,21 @@ is($p5array.fetch(3), @array[3], 'fetch');
 #}
 
 # XXX - Infinite loop
-skip_rest; exit;
+#skip_rest; exit;
 
-$p5array.push(9);
+ok (eval '$p5array.push(9)'), 'can push';
 
-is($p5array.fetch(4), 9, 'push result', :todo<feature>);
-is(@array[4], 9, 'push result', :todo<feature>);
+is((eval '$p5array.fetch(4)'), 9, 'push result via obj', :todo<feature>);
+is((eval '@array[4]'), 9, 'push result via array', :todo<feature>);
 
 #$retarray.push(9);  # this will loop
 
 #is($p5array.fetch(5), 9, 'retro push result');
 #is(@array[5], 9, 'retro push result');
 
-$p5array.store(0,3);
+ok (eval '$p5array.store(0,3)'), 'can store';
 
 is(@array[0], 3, 'store result', :todo<feature>);
-is($p5array.fetch(0), 3, 'store result', :todo<feature>);
+is((eval '$p5array.fetch(0)'), 3, 'store result', :todo<feature>);
 
 # TODO: pop, shift, unshift, splice, delete
