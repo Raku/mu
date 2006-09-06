@@ -45,7 +45,6 @@ plan 11;
 }
 
 # IRC note:
-# ---------------------------------------------------------------
 # <TimToady1> also, the INIT's settings are going to get wiped
 #             out when the my is executed, so you probably just
 #             end up with 'o'
@@ -55,11 +54,8 @@ plan 11;
     is $str, 'o', 'the value set by INIT {} wiped out by the initializer of $str';
 }
 
-# IRC note:
-# ---------------------------------------------------------------
-# <TimToady1> INIT runs once just before the mainline code runs.
-# <agentzh> even if INIT is in a block?
-# <TimToady1> yes.
+# L<S04/"Closure traits"/INIT "runs before" "mainline code">
+
 my $str ~= 'o';  # Note that this is different from  "my $str = 'o';".
 {
     INIT { $str ~= 'i' }
