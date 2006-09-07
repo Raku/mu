@@ -412,7 +412,7 @@ EOD
         $rpath_blib =~ s/(^|\s)-/$1-optl-/g;
 
         $embed_flags .= " -I$base/include -L$base/lib -L$base/blib/lib -DPUGS_HAVE_PARROT -L/usr/local/lib $ldflags ";
-        $ghc_output .= " -lparrot $libs $icuflags ";
+        $embed_flags .= " -lparrot $libs $icuflags ";
         my $config = $parrot_libdir."/parrot/config/install_config$Config{_o}";
         $config = $parrot_libdir."/parrot/config/parrot_config$Config{_o}" unless -e $config;
         $config = $parrot_libdir."/parrot/config/null_config$Config{_o}" unless -e $config;
@@ -427,8 +427,8 @@ EOD
         * Place a built Parrot source tree under $build_dir.
 EOD
 
-        $ghc_output .= " $config ";
-        $ccdlflags .= " $rpath_blib " if -d $build_dir;
+        $embed_flags .= " $config ";
+        $embed_flags .= " $rpath_blib " if -d $build_dir;
 
         # parrot include paths for hsc2hs
         $hsc2hs_flags .= " -DPUGS_HAVE_PARROT -I$base/include ";
