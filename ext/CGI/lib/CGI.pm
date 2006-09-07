@@ -195,8 +195,8 @@ method url_encode (Str $to_encode) returns Str {
 
 method pack_params returns Str {
     my @packed_params;
-    for (%!PARAMS.kv) -> $param, $value {
-        for $value -> $val {
+    for (%!PARAMS.kv) -> $param, @values {
+        for @values -> $val {
             @packed_params.push(self.url_encode($param) ~ '=' ~ self.url_encode($val));                            
         }
     }
@@ -208,13 +208,8 @@ method unpack_params (Str $data) returns Str {
     for @pairs -> $pair {
         my ($key, $value) = split('=', $pair);
         $key = self.url_decode($key);
-        if (%!PARAMS{$key}) {
-            my $list := %!PARAMS{$key};
-            $list.push(self.url_decode($value));
-        }
-        else {
-            %!PARAMS{$key} = [ self.url_decode($value) ];            
-        }
+        %!PARAMS{$key} //= [];
+        %!PARAMS{$key}.push( self.url_decode($value) );
     }  
 }
 
@@ -314,8 +309,8 @@ method unescapeHTML (Str $string) returns Str {
 
 # information functions (again)
 
-multi method param returns Array            { unless $!IS_PARAMS_LOADED {self.load_params}; %!PARAMS.keys;    }
-multi method param (Str $key) returns Array { unless $!IS_PARAMS_LOADED {self.load_params}; (%!PARAMS{$key}); }
+multi method param returns Array            { unless $!IS_PARAMS_LOADED {self.load_params}; %!PARAMS.keys;  }
+multi method param (Str $key) returns Array { unless $!IS_PARAMS_LOADED {self.load_params}; %!PARAMS{$key}; }
 
 method Dump {
     my @result;
@@ -338,6 +333,8 @@ method Dump {
     push @result, "</ul>";
     return @result.join("\n");
 }
+
+method as_yaml { %!PARAMS.yaml }
 
 =pod
 
@@ -433,6 +430,8 @@ B<The following informational functions are fetched on-demand>
 =item B<pack_params returns Str>
 
 =item B<unpack_params (Str $data) returns Str>
+
+=item B<as_yaml> - Returns the query parameters as a YAML string.
 
 =back
 

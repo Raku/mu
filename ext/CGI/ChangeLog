@@ -1,3 +1,5 @@
+* Implement code/docs for "as_yaml", a new method to dump the params as yaml
+(Mark Stosberg)
 * Implement code/docs/test for Dump function from p5:CGI (Mark Stosberg)
 * Use 'type' rather than 'content_type', for compatibility with p5:CGI 
 (Mark Stosberg)
