@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 10;
+plan 12;
 
 # L<S29/Str/"identical to" "C library sprintf">
 
@@ -18,3 +18,5 @@ is sprintf("%04b",3),             '0011',   '0-padded sprintf() with %b';
 is sprintf("%4b",3),              '  11',   '" "-padded sprintf() with %b';
 is sprintf("%b",30),              '11110',  'longer string, no padding';
 is sprintf("%2b",30),             '11110',  'padding specified, not needed';
+is sprintf("%03b",7),             '111',    '0 padding, longer string';
+is sprintf("%b %b",3,3),          '11 11',  'two args %b';
