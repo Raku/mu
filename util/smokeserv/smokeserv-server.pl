@@ -270,8 +270,8 @@ sub process_list {
   };
 
   my @smokes  = map { (unpack_smoke($_)),
-                      ((-d synopsis_name($name))
-                       ? (synopsis_link => BASEHTTPDIR . synopsis_name($name))
+                      ((-d synopsis_name($_))
+                       ? (synopsis_link => BASEHTTPDIR . synopsis_name($_))
                        : ()),
                     } glob "pugs-smoke-*.html";
   my %runcores;
