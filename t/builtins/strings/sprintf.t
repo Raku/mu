@@ -12,4 +12,4 @@ is sprintf("%03d %02d", 3, 1),    "003 01", "sprintf() works with two args";
 is sprintf("%d %d %d",  3,1,4),   "3 1 4",  "sprintf() works with three args";
 is sprintf("%d%d%d%d",  3,1,4,1), "3141",   "sprintf() works with four args";
 
-eval_ok('sprintf(%b,1)'),                   'eval of sprintf() with %b';
+eval_ok('sprintf("%b",1)'),                 'eval of sprintf() with %b';
