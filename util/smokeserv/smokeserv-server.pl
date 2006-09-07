@@ -269,7 +269,11 @@ sub process_list {
       $_[0]->{osname};
   };
 
-  my @smokes  = map { unpack_smoke($_) } glob "pugs-smoke-*.html";
+  my @smokes  = map { (unpack_smoke($_)),
+                      ((-d synopsis_name($name))
+                       ? (synopsis_link => BASEHTTPDIR . synopsis_name($name))
+                       : ()),
+                    } glob "pugs-smoke-*.html";
   my %runcores;
   push @{ $runcores{$_->{runcore}}{$category->($_)} }, $_ for @smokes;
 
@@ -357,7 +361,6 @@ sub unpack_smoke {
       id            => $13,
       filename      => $name,
       link          => BASEHTTPDIR . $name, 
-      synopsis_link => BASEHTTPDIR . synopsis_name($name),
     };
   return ();
 }
@@ -548,7 +551,10 @@ $ ./util/smokeserv/smokeserv-client.pl ./smoke.html</pre>
 	    </tmpl_loop>
 	    <td><span title="Details" class="expander" onclick="toggle_visibility('<tmpl_var name=id>')" id="expander_<tmpl_var name=id>">&raquo;</span></td>
 	    <td><a style="text-decoration: none" href="<tmpl_var name=link>" title="Full smoke report">&raquo;</a></td>
-	    <td><a style="text-decoration: none" href="<tmpl_var name=synopsis_link>" title="View correspondig synopses">SYN</a></td>
+	    <td><tmpl_if name=synopsis_link>
+                  <a style="text-decoration: none" href="<tmpl_var name=synopsis_link>" title="View corresponding synopses">SYN</a>
+                </tmpl_if>
+            </td>
           </tr>
           <tr class="details" id="details_<tmpl_var name=id>">
             <td colspan="11" class="indent3">
@@ -561,7 +567,9 @@ $ ./util/smokeserv/smokeserv-client.pl ./smoke.html</pre>
 		<span class="tests_unexpect"><tmpl_var name=unexpect> unexpectedly succeeded</span>
               </tmpl_loop><br />
               <a href="<tmpl_var name=link>" title="Full smoke report">View full smoke report</a><br />
-              <a href="<tmpl_var name=synopsis_link>" title="View correspondig synopses">View corresponding synopses</a>
+	      <tmpl_if name=synopsis_link>
+                  <a href="<tmpl_var name=synopsis_link>" title="View corresponding synopses">View corresponding synopses</a>
+              </tmpl_if>
             </td>
           </tr>
         </tmpl_loop>
