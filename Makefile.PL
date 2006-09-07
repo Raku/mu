@@ -114,7 +114,8 @@ clean_files     (map fixpaths($_),
     temp-test.*.*-out tempfile.*.* create_this_file create_this_file2
     third-party/*/*.hi third-party/*/*.o
     third-party/*/dist
-    )
+    ),
+    object_files("src/Pugs", "src/Pugs/*", "src/Pugs/*/*"),
 );
 
 set_postamble   ();
@@ -136,6 +137,10 @@ print << ".";
 .
 
 ################################################################################
+sub object_files  {
+    map { ("$_/*.o", "$_/*.hi") } @_;
+}
+
 sub set_postamble {
     my @srcfiles = map { glob("$_/*.*hs") } @srcdirs;
     push @srcfiles, map { glob("$_/*.*hs-boot") } @srcdirs;
