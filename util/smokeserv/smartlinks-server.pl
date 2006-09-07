@@ -23,7 +23,7 @@ use constant {
   VERSION     => 0.4,
   MAX_SIZE    => 2**20 * 3.0,  # MiB limit
   BASEDIR     => "/var/www/iblech/stuff/pugs-smokes/",
-  SMARTLINKS  => "/var/www/iblech/stuff/pugs/util/smartlinks.pl",
+  SMARTLINKS  => "/var/www/iblech/stuff/pugs-util/smartlinks.pl",
   BASEHTTPDIR => "/iblech/stuff/pugs-smokes/",
   PUGS_SVN    => "http://svn.openfoundry.org/pugs",
   PUGS_SPEC   => "/var/www/iblech/stuff/pugs-smokes/spec",
@@ -78,6 +78,12 @@ sub uncompress_smoke {
     Compress::Zlib::memGunzip($CGI->param("smoke")) ||
     Compress::Bzip2::memBunzip($CGI->param("smoke")) ||
     $CGI->param("smoke"));
+
+  $CGI->param("yml",
+    Compress::Zlib::memGunzip($CGI->param("yml")) ||
+    Compress::Bzip2::memBunzip($CGI->param("yml")) ||
+    $CGI->param("yml"))
+      if $CGI->param("yml");
 }
 
 sub require_compression_modules {
@@ -153,7 +159,7 @@ sub make_synopses
 
   my $syn_dir = synopsis_name($html_file);  # the output directory
   mkdir $syn_dir;
-  system(PUGS_SPEC . '/update') or warn "Couldn't update synopses";
+  system(PUGS_SPEC . '/update') and warn "Couldn't update synopses";
 
   my $rev = get_revision($html_file);
   my @t_files = make_old_tests($syn_dir, $rev);
@@ -182,7 +188,7 @@ sub make_old_tests
     warn "Strange revision number in .yml; can't checkout tests";
     return ();
   }
-  system('svn', 'co', PUGS_SVN . '/t@' . $revision, "$syn_dir/t") == 0
+  system('svn', 'co', '-q', '-r' => $revision, PUGS_SVN . '/t', "$syn_dir/t") == 0
     or do { warn "Couldn't check out tests"; return (); };
   my @t_files = ();
   my $wanted = sub {
@@ -197,6 +203,7 @@ sub make_old_tests
 sub make_synopsis_index
 {
   my $syn_dir = shift;
+  local $_;
 
   my %spec = qw(
     01 Overview 02 Syntax        03 Operator     04 Block
@@ -207,10 +214,8 @@ sub make_synopsis_index
   open my $fh, '>', "$syn_dir/index.html";
   print $fh "<html><head><title>Synopses with Smoke Results</title>\n";
   print $fh "</head><body>\n$syn_dir<br><br>\n";
-  opendir my ($dir_h), $syn_dir;
-  foreach my $pod (readdir $syn_dir) {
-    next unless($pod =~ m/^S(\d\d)\.pod$/);
-    my $chapter = $1;
+  foreach my $pod (map { (split /\//, $_, 2)[1] } glob "$syn_dir/S??.html") {
+    my $chapter = ($pod =~ /S(\d\d)/)[0];
     print $fh "<a href=\"$pod\">$chapter $spec{$chapter}</a><br>\n";
   }
   print $fh "</body></html>\n";
@@ -230,7 +235,7 @@ sub clean_obsolete_smokes {
   $cats{$_} = [
     (sort {
       $b->{pugs_revision} <=> $a->{pugs_revision} ||
-      $b->{timestamp}[0]  <=> $a->{timestamp}[1]
+      $b->{timestamp}[0]  <=> $a->{timestamp}[0]
     } @{ $cats{$_} })
     [0..MAX_SMOKES_OF_SAME_CATEGORY-1]
   ] for keys %cats;
@@ -247,7 +252,8 @@ sub clean_obsolete_smokes {
     my $yml_file = yml_name($html_file);
     unlink $yml_file if(-e $yml_file);
     my $syn_dir = synopsis_name($html_file);
-    system('rm', '-rf', $syn_dir) if(-d $syn_dir);
+    warn("rm -rf $syn_dir");
+#   system('rm', '-rf', $syn_dir) if(-d $syn_dir);
   }
 }
 
@@ -322,7 +328,7 @@ sub synopsis_name
 sub unpack_smoke {
   my $name = shift;
 
-  /^pugs-smoke-([\d.]+)-r(\d+)-([\w\d]+)-(\w+)--(\d+)-(\d+)--(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)--([a-f0-9]+).html$/
+  $name =~ /^pugs-smoke-([\d.]+)-r(\d+)-([\w\d]+)-(\w+)--(\d+)-(\d+)--(\d+)-(\d+)-(\d+)-(\d+)-(\d+)-(\d+)--([a-f0-9]+).html$/
     and return {
       pugs_version  => $1,
       pugs_revision => $2,
@@ -542,6 +548,7 @@ $ ./util/smokeserv/smokeserv-client.pl ./smoke.html</pre>
 	    </tmpl_loop>
 	    <td><span title="Details" class="expander" onclick="toggle_visibility('<tmpl_var name=id>')" id="expander_<tmpl_var name=id>">&raquo;</span></td>
 	    <td><a style="text-decoration: none" href="<tmpl_var name=link>" title="Full smoke report">&raquo;</a></td>
+	    <td><a style="text-decoration: none" href="<tmpl_var name=synopsis_link>" title="View correspondig synopses">SYN</a></td>
           </tr>
           <tr class="details" id="details_<tmpl_var name=id>">
             <td colspan="11" class="indent3">
@@ -553,7 +560,8 @@ $ ./util/smokeserv/smokeserv-client.pl ./smoke.html</pre>
                 <span class="tests_skipped"><tmpl_var name=skipped> skipped</span> and
 		<span class="tests_unexpect"><tmpl_var name=unexpect> unexpectedly succeeded</span>
               </tmpl_loop><br />
-              <a href="<tmpl_var name=link>" title="Full smoke report">View full smoke report</a>
+              <a href="<tmpl_var name=link>" title="Full smoke report">View full smoke report</a><br />
+              <a href="<tmpl_var name=synopsis_link>" title="View correspondig synopses">View corresponding synopses</a>
             </td>
           </tr>
         </tmpl_loop>

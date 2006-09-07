@@ -45,7 +45,7 @@ my %request = (upload => 1, version => VERSION, smokes => []);
 
   debug "html ok.\n";
 
-  if(open $fh, '<', $yml) {
+  if($yml and open $fh, '<', $yml) {
     $smoke = <$fh>;
     $request{yml} = $compress->($smoke) || $smoke;
   }
@@ -59,7 +59,7 @@ foreach my $smokeserv (@smokeserv) {
 
   my $resp = $ua->post($smokeserv => \%request);
   if($resp->is_success) {
-    if($resp->content =~ /^ok/) {
+    if($resp->content =~ /ok$/) {
       debug "success!\n";
       exit 0;
     } else {
