@@ -602,7 +602,7 @@ ruleVarDeclaration = rule "variable declaration" $ do
     -- XXX always wrap the Pad in a Stmts so that expRule has something to unwrap
     case scope of
         SState -> do
-            implicit_first_block <- vcode2firstBlock $ VCode mkSub { subBody = rhs }
+            implicit_first_block <- vcode2startBlock $ VCode mkSub { subBody = rhs }
             return $ Stmts Noop $ unnestPad $ Pad scope lexDiff implicit_first_block
         _      -> return $ Stmts Noop $ unnestPad $ Pad scope lexDiff rhs
     where
@@ -942,7 +942,7 @@ ruleClosureTrait rhs = rule "closure trait" $ do
         "CHECK" -> vcode2checkBlock code
         "INIT"  -> vcode2initBlock code
 		-- we need to clone this closure sometimes
-        "START" -> vcode2firstBlock code
+        "START" -> vcode2startBlock code
         -- XXX stubs just to make them parse
         "ENTER" -> return emptyExp
         "LEAVE" -> return emptyExp
@@ -994,8 +994,8 @@ possiblyExit (Val (VControl (ControlExit exit))) = do
     return $ unsafePerformIO $ exitWith exit
 possiblyExit x = return x
 
-vcode2firstBlock :: Val -> RuleParser Exp
-vcode2firstBlock code = do
+vcode2startBlock :: Val -> RuleParser Exp
+vcode2startBlock code = do
     -- Ok. Now the tricky thing.
     -- This is the general idea:
     -- START { 42 } is transformed into
@@ -1020,7 +1020,7 @@ vcode2firstBlock code = do
 
 vcode2initBlock :: Val -> RuleParser Exp
 vcode2initBlock code = do
-	body <- vcode2firstBlock code
+	body <- vcode2startBlock code
 	fstcode <- unsafeEvalExp $ Syn "sub" [ Val $ VCode mkSub { subBody = body } ]
 	unsafeEvalExp $
 		App (_Var "&push") (Just $ _Var "@*INIT") [ fstcode ]
@@ -1028,7 +1028,7 @@ vcode2initBlock code = do
 
 vcode2checkBlock :: Val -> RuleParser Exp
 vcode2checkBlock code = do
-	body <- vcode2firstBlock code
+	body <- vcode2startBlock code
 	fstcode <- unsafeEvalExp $ 
 		Syn "sub" [ Val $ VCode mkSub { subBody = checkForIOLeak body } ]
 	unsafeEvalExp $
