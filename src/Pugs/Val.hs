@@ -10,7 +10,7 @@
 -}
 module Pugs.Val (
     IValue(..), Val(..), ValUndef(..), ValNative, P,
-    ICoercible(..), SKID,
+    ICoercible(..), SKID, castVal,
     PureBit, PureBool, PureInt, PureNum, PureStr, PureList, itemVal, listVal,
 
     Table,
@@ -54,6 +54,13 @@ data Val
     | forall a. Mut a  => VMut  !a  -- ^ In-memory mutable structures (ValId = memory addr)
     | forall a. Ext a  => VExt  !a  -- ^ Input/Ouput handles          (ValId = memory addr)
     deriving (Typeable)
+
+castVal :: (Monad m, Typeable a) => Val -> m a
+--castVal (VUndef v)  = return v
+--castVal (VNative v) = return v
+castVal (VPure v)   = fromTypeable v
+castVal (VMut v)    = fromTypeable v
+castVal (VExt v)    = fromTypeable v
 
 -- | Value view. Contains methods for inspecting values: getting
 -- their metaclass, ids, stringification and so on.

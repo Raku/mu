@@ -1458,8 +1458,8 @@ ruleParam = rule "parameter" $ do
         return DNil
     rPostVarUnpacking = lexeme $ option Nothing $ try $ do
         optional $ char ':'
-        (Val (VV sig)) <- verbatimParens ruleSignature
-        --return $ existentialCoerce# sig
+        (Val (VV (sig'))) <- verbatimParens ruleSignature
+        (sig :: Sig) <- castVal sig'
         return $ Just sig
     rCode = lexeme $ do
         {- We don't have Exp -> Pugs.Val.Code, too bad.

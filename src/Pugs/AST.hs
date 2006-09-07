@@ -38,7 +38,7 @@ import Pugs.AST.Pos
 import Pugs.AST.Scope
 import Pugs.AST.SIO
 import Pugs.AST.Pad
-import Pugs.Val (val, PureBit, PureBool, PureStr, PureInt, PureNum, Capt(..), ValCapt, Feed(..), ValFeed, emptyFeed, Sig(..), SigParam(..), ParamAccess(..), ParamDefault(..))
+import Pugs.Val (val, castVal, PureBit, PureBool, PureStr, PureInt, PureNum, Capt(..), ValCapt, Feed(..), ValFeed, emptyFeed, Sig(..), SigParam(..), ParamAccess(..), ParamDefault(..))
 
 {-|
 Return an infinite (lazy) Haskell list of the given string and its

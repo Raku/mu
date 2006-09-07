@@ -68,7 +68,7 @@ module Pugs.Internals (
     afterPrefix,
     decodeUTF8,
     encodeUTF8,
-    existentialCoerce#,
+    fromTypeable,
     forM,
     forM_,
     combine,
@@ -191,7 +191,10 @@ instance (Monad m, (a :>: b)) => ((:>:) (m a)) b where cast = return . cast
 -- "fmap cast" can be written as "cast"
 instance (Functor f, (a :>: b)) => ((:>:) (f a)) (f b) where cast = fmap cast
 
-existentialCoerce# x = fromJust $ Typeable.gcast x
+fromTypeable :: forall m a b. (Monad m, Typeable a, Typeable b) => a -> m b
+fromTypeable x = case Typeable.cast x of
+    Just y -> return y
+    _      -> fail $ "Cannot cast from " ++ (show $ typeOf x) ++ " to " ++ (show $ typeOf (undefined :: b))
 
 -- Instances.
 instance Show Unique where
