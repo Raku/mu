@@ -168,9 +168,20 @@ sub make_synopses
   }
 }
 
+sub get_revision
+{
+  my $html_file = shift;
+  my $metadata = unpack_smoke($html_file);
+  return $$metadata{'pugs_revision'};
+}
+
 sub make_old_tests
 {
   my ($syn_dir, $revision) = @_;
+  unless($revision =~ m/^\d+$/) {
+    warn "Strange revision number in .yml; can't checkout tests";
+    return ();
+  }
   system('svn', 'co', PUGS_SVN . '/t@' . $revision, "$syn_dir/t") == 0
     or do { warn "Couldn't check out tests"; return (); };
   my @t_files = ();
