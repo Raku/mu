@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 17;
+plan 18;
 
 =pod
 
@@ -77,3 +77,14 @@ is($foo.noargs(), 42, "... parentheses after method");
     lives_ok { $val = $foo.callsmethod2() }, 'method calling method with no brackets';
     is($val, 42, '... we got the value correctly');
 };
+
+{
+    # This test could use peer review to make sure it complies with the spec.
+    my $test = "can't call current object methods on lexical data structures";
+    class Zoo {
+        method a { my %s; %s.b }
+        method b { 1 }
+    }
+    dies_ok( { Zoo.new.a }, $test);
+}
+
