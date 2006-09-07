@@ -272,7 +272,7 @@ sub set_postamble {
     my $hsc2hs_flags = "";
     my $ccdlflags = "";
 
-    if (!$ENV{PUGS_EMBED} or $ENV{PUGS_EMBED} !~ /\b[-!]perl5\b/i) {
+    if (!$ENV{PUGS_EMBED} or $ENV{PUGS_EMBED} !~ /[-!]perl5\b/i) {
         $ENV{PUGS_EMBED} .= " perl5 ";
         #push @prereqs, "src/perl5/p5embed.o"; # XXX
         # $ghc_output .= " src/perl5/p5embed.o ";
@@ -286,6 +286,16 @@ sub set_postamble {
                     $embed_flags .= " -optl-l$1 ";
                 }
                 else {
+                    # We are on ActivePerl -- Kluge massively!
+
+                    if ($] < 5.008008) {
+                        die << 'END';
+*** ActivePerl 5.8.7 and below does not support Perl 5 embedding.
+    Please upgrade to 5.8.8 or above, or disable Perl 5 embedding
+    by setting the PUGS_EMBED environment variable to "-perl5".
+END
+                    }
+
                     no warnings 'once';
                     our %MY_CONFIG = %Config;
                     *Config = *MY_CONFIG;
