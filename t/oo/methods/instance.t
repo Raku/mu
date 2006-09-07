@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 18;
+plan 19;
 
 =pod
 
@@ -80,11 +80,12 @@ is($foo.noargs(), 42, "... parentheses after method");
 
 {
     # This test could use peer review to make sure it complies with the spec.
-    my $test = "can't call current object methods on lexical data structures";
     class Zoo {
         method a { my %s; %s.b }
+        method c { my %s; b(%s) }
         method b { 1 }
     }
-    dies_ok( { Zoo.new.a }, $test);
+    dies_ok( { Zoo.new.a }, "can't call current object methods on lexical data structures");
+    dies_ok( { Zoo.new.c }, "meth(%h) is not a valid method call syntax");
 }
 
