@@ -943,18 +943,40 @@ ruleClosureTrait rhs = rule "closure trait" $ do
         "INIT"  -> vcode2initBlock code
 		-- we need to clone this closure sometimes
         "START" -> vcode2startBlock code
-        -- XXX stubs just to make them parse
-        "ENTER" -> return emptyExp
-        "LEAVE" -> return emptyExp
-        "KEEP"  -> return emptyExp
-        "UNDO"  -> return emptyExp
-        "FIRST" -> return emptyExp
-        "NEXT"  -> return emptyExp
-        "LAST"  -> return emptyExp
-        "PRE"   -> return emptyExp
-        "POST"  -> return emptyExp
-        "CATCH" -> return emptyExp
-        "CONTROL" -> return emptyExp
+
+        -- XXX stub just to make them parse
+        "ENTER"   -> retBlock SubBlock Nothing False block
+
+        -- XXX stub just to make them parse
+        "LEAVE"   -> retBlock SubBlock Nothing False block
+
+        -- XXX stub just to make them parse
+        "KEEP"    -> retBlock SubBlock Nothing False block
+
+        -- XXX stub just to make them parse
+        "UNDO"    -> retBlock SubBlock Nothing False block
+
+        -- XXX stub just to make them parse
+        "FIRST"   -> retBlock SubBlock Nothing False block
+
+        -- XXX stub just to make them parse
+        "NEXT"    -> retBlock SubBlock Nothing False block
+
+        -- XXX stub just to make them parse
+        "LAST"    -> retBlock SubBlock Nothing False block
+
+        -- XXX stub just to make them parse
+        "PRE"     -> retBlock SubBlock Nothing False block
+
+        -- XXX stub just to make them parse
+        "POST"    -> retBlock SubBlock Nothing False block
+
+        -- XXX stub just to make them parse
+        "CATCH"   -> retBlock SubBlock Nothing False block
+
+        -- XXX stub just to make them parse
+        "CONTROL" -> retBlock SubBlock Nothing False block
+
         _       -> fail ""
     where
         install [] = return $ ()
