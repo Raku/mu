@@ -39,9 +39,9 @@ my Bool @line = 0 xx ($width-1);
 ##
 # Set an initial state on the left, right, or middle
 given $initial {
-  when 'left'   { @line[$left] = 1 }
-  when 'right'  { @line[$right] = 1 }
-  when 'middle' { @line[$middle] = 1 }
+    when 'left'   { @line[$left] = 1 }
+    when 'right'  { @line[$right] = 1 }
+    when 'middle' { @line[$middle] = 1 }
 }
 
 ##
@@ -50,6 +50,13 @@ given $initial {
 my Bool %rule_hash;
 for ( 0 .. 7 ) -> $key {
     %rule_hash{$key} = ?($rule_number +& (1 ~ 0 x $key) );
+}
+
+##
+# Print the rule hash, using shiny, new sprintf
+say "Rule $rule_number:";
+for %rule_hash.keys -> $key {
+    say sprintf("%03b",$key) ~ " becomes " ~ +%rule_hash{$key};
 }
 
 ##
