@@ -331,7 +331,7 @@ is actually short for:
 so you can modify the current list element in that case.  However,
 any time you specify the arguments, they default to read only.
 
-When used as statement modifers, C<for> and C<given> use a private
+When used as statement modifiers, C<for> and C<given> use a private
 instance of C<$_> for the left side of the statement.  The outer C<$_>
 can be referred to as C<$OUTER::_>.  (And yes, this implies that the
 compiler may have to retroactively change the binding of <$_> on the
