@@ -71,6 +71,11 @@ sub validate_params {
     print "The submitted smoke does not look like a smoke (it doesn't begin with /^<!DOCTYPE html/!";
     exit;
   }
+
+  # This error ist not critical, so don't exit().
+  unless($CGI->param("yml")) {
+    print "Warning: No .yml sent!\n";
+  }
 }
 
 sub uncompress_smoke {
@@ -228,6 +233,8 @@ sub clean_obsolete_smokes {
       $_[0]->{pugs_revision} == 0 ? "release" : "dev",
   };
 
+  # @smokes is an AoH, with the hashes looking like
+  # { pugs_revision => ..., timestamp => ... }
   my %cats;
   my @smokes = map { unpack_smoke($_) } glob "pugs-smoke-*.html";
   push @{ $cats{$category->($_)} }, $_ for @smokes;
@@ -269,11 +276,7 @@ sub process_list {
       $_[0]->{osname};
   };
 
-  my @smokes  = map { (unpack_smoke($_)),
-                      ((-d synopsis_name($_))
-                       ? (synopsis_link => BASEHTTPDIR . synopsis_name($_))
-                       : ()),
-                    } glob "pugs-smoke-*.html";
+  my @smokes  = map { unpack_smoke($_) } glob "pugs-smoke-*.html";
   my %runcores;
   push @{ $runcores{$_->{runcore}}{$category->($_)} }, $_ for @smokes;
 
@@ -361,6 +364,7 @@ sub unpack_smoke {
       id            => $13,
       filename      => $name,
       link          => BASEHTTPDIR . $name, 
+      synopsis_link => -e synopsis_name($name) ? BASEHTTPDIR .  synopsis_name($name) : "",
     };
   return ();
 }
