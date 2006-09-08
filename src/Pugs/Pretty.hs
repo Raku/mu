@@ -12,12 +12,12 @@
 -}
 
 module Pugs.Pretty (
-    Pretty, pretty,
+    Pretty, pretty, priggy,
 ) where
 import Pugs.Internals
 import Pugs.Types
 import Pugs.AST
-import Pugs.Val (valShow)
+import qualified Pugs.Val as Val
 import Pugs.Rule (SourcePos)
 import Text.PrettyPrint
 import qualified Data.Set as Set
@@ -27,8 +27,9 @@ defaultIndent :: Int
 defaultIndent = 2
 
 class (Show a) => Pretty a where
-    format :: a -> Doc
+    format, formatQuite :: a -> Doc
     format x = text $ show x
+    formatQuite = format
 
 instance Pretty VStr
 instance Pretty Var
@@ -189,7 +190,12 @@ instance Pretty Val where
         ]
     format (PerlSV _) = text $ "{obj-perl5}"
     format VUndef = text $ "undef"
-    format (VV x) = text . cast $ valShow x
+    format (VV x) = format x -- === formatVal x
+    formatQuite (VV x) = text . cast $ Val.valShow x
+    formatQuite x = format x
+
+instance Pretty Val.Val where
+    format = formatVal
 
 quoted :: Char -> String
 quoted '\'' = "\\'"
@@ -213,6 +219,6 @@ doubleBraces x = vcat [ (lbrace <> lbrace), nest defaultIndent x, rbrace <> rbra
 joinList :: Doc -> [Doc] -> Doc
 joinList x y = cat $ punctuate x y
 
-pretty :: Pretty a => a -> String
+pretty, priggy :: Pretty a => a -> String
 pretty a = render $ format a
-
+priggy a = render $ formatQuite a

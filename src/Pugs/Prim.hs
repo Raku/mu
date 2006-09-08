@@ -231,15 +231,8 @@ op1 "any"  = op1Cast opJuncAny
 op1 "all"  = op1Cast opJuncAll
 op1 "one"  = op1Cast opJuncOne
 op1 "none" = op1Cast opJuncNone
-op1 "perl" = \v -> do
-    recur   <- liftSTM (newTVar False)
-    let ?seen  = IntSet.empty
-        ?recur = recur
-    rv      <- prettyVal v
-    isRecur <- liftSTM (readTVar recur)
-    if isRecur
-        then return (VStr $ "$_ := " ++ rv)
-        else return (VStr rv)
+op1 "perl" = op1Pretty $ MkPrettyPrinter pretty
+op1 "guts" = op1Pretty $ MkPrettyPrinter priggy
 op1 "yaml" = dumpYaml
 op1 "require_haskell" = \v -> do
     name    <- fromVal v
@@ -1565,8 +1558,23 @@ setFinalization obj = do
         modifyIORef _GlobalFinalizer (>> finalize objRef)
         return obj
 
+-- A "box" to put our polymorphic printer in
+newtype PrettyPrinter = MkPrettyPrinter { runPrinter :: forall a. Pretty a => a -> String }
+
 -- op1 "perl"
-prettyVal :: (?seen :: IntSet.IntSet, ?recur :: TVar Bool) => Val -> Eval VStr
+op1Pretty :: PrettyPrinter -> Val -> Eval Val
+op1Pretty printer v = do
+    recur   <- liftSTM (newTVar False)
+    let ?seen    = IntSet.empty
+        ?recur   = recur
+        ?printer = printer
+    rv      <- prettyVal v
+    isRecur <- liftSTM (readTVar recur)
+    if isRecur
+        then return (VStr $ "$_ := " ++ rv)
+        else return (VStr rv)
+
+prettyVal :: (?seen :: IntSet.IntSet, ?recur :: TVar Bool, ?printer :: PrettyPrinter) => Val -> Eval VStr
 prettyVal v@(VRef r) = do
     ptr <- liftIO (addressOf r)
     if IntSet.member ptr ?seen
@@ -1576,7 +1584,7 @@ prettyVal v@(VRef r) = do
         else let ?seen = IntSet.insert ptr ?seen in doPrettyVal v
 prettyVal v = doPrettyVal v
 
-doPrettyVal :: (?seen :: IntSet.IntSet, ?recur :: TVar Bool) => Val -> Eval VStr
+doPrettyVal :: (?seen :: IntSet.IntSet, ?recur :: TVar Bool, ?printer :: PrettyPrinter) => Val -> Eval VStr
 doPrettyVal v@(VRef r) = do
     v'  <- readRef r
     ifValTypeIsa v "Pair"
@@ -1610,7 +1618,7 @@ doPrettyVal v@(VObject obj) = do
     str     <- prettyVal (VRef (hashRef hash))
     return $ showType (objType obj)
         ++ ".new(" ++ init (tail str) ++ ")"
-doPrettyVal v = return (pretty v)
+doPrettyVal v = return (runPrinter ?printer v)
 
 -- perform char quotation according to original Perl 5 quotemeta
 -- have to return a string because of the quote, this requires
@@ -1754,6 +1762,7 @@ initSyms = mapM primDecl syms
 \\n   Bool      pre     exists  safe   (rw!Hash: Str)\
 \\n   Bool      pre     exists  safe   (rw!Array: Int)\
 \\n   Str       pre     perl    safe   (rw!Any|Junction|Pair)\
+\\n   Str       pre     guts    safe   (rw!Any|Junction|Pair)\
 \\n   Any       pre     try     safe   (Code)\
 \\n   Any       pre     lazy    safe   (Code)\
 \\n   Any       pre     atomically     safe   (Code)\

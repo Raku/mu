@@ -19,7 +19,7 @@ type NativeInt      = Int
 type NativeUint     = Word
 type NativeBuf      = ByteString
 type NativeNum      = Float
-type NativeComplex  = ()
+newtype NativeComplex = MkNComplex { unComplex :: Complex NativeNum }
 
 type P = Identity
 type Table = Map ID Val
