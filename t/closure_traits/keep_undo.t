@@ -43,3 +43,30 @@ plan 8;
     is_pos(-5);
     is $str, '(1>0)(-5<=0)';
 }
+
+# L<S04/Closure traits/"can occur multiple times">
+
+# multiple KEEP/UNDO
+{
+    my $str;
+    {
+        KEEP { $str ~= 'K1 ' }
+        KEEP { $str ~= 'K2 ' }
+        UNDO { $str ~= 'U1 ' }
+        UNDO { $str ~= 'U2 ' }
+        1;
+    }
+    is $str, 'K2 K1 ', '2 KEEP blocks triggered';
+}
+
+{
+    my $str;
+    {
+        KEEP { $str ~= 'K1 ' }
+        KEEP { $str ~= 'K2 ' }
+        UNDO { $str ~= 'U1 ' }
+        UNDO { $str ~= 'U2 ' }
+        0;
+    }
+    is $str, 'U2 U1 ', '2 UNDO blocks triggered';
+}
