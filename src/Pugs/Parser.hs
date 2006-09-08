@@ -155,19 +155,24 @@ ruleDeclaration = rule "declaration" $ choice
     , ruleTrustsDeclaration
     ]
 
+data ImplicitSub = ImplicitNil | ImplicitMulti | ImplicitProto deriving (Eq)
+
 ruleSubHead :: RuleParser (Bool, SubType, String)
 ruleSubHead = rule "subroutine head" $ do
-    isMulti <- option False $ do { symbol "multi" ; return True }
+    prefix <- choice
+        [ symbol "multi" >> return ImplicitMulti
+        , symbol "proto" >> return ImplicitProto
+        , return ImplicitNil
+        ]
+
     -- You're allowed to omit the "sub":
     --   multi sub foo (...) {...}      # legal
     --         sub foo (...) {...}      # legal, too
-    let implicitSub | isMulti == True = return SubRoutine
-                    | otherwise       = pzero
+    let implicitSub | ImplicitNil <- prefix = pzero
+                    | otherwise             = return SubRoutine
     styp    <- choice
         [ do symbol "sub"
              return SubRoutine
-        , do symbol "proto"
-             return SubRoutine -- XXX - need to do some multi-handling here
         , do symbol "coro"
              return SubCoroutine
         , do (symbol "submethod" <|> symbol "method")
@@ -176,7 +181,7 @@ ruleSubHead = rule "subroutine head" $ do
              return SubMacro
         ] <|> implicitSub
     name    <- ruleSubName
-    return (isMulti, styp, name)
+    return (prefix == ImplicitMulti, styp, name)
 
 -- | Scope, context, isMulti, styp, name
 type SubDescription = (Scope, String, Bool, SubType, String)
