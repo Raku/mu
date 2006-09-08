@@ -199,18 +199,8 @@ doCompile backend = doParseWith $ \env _ -> do
         newTVar $ filterUserDefinedPad glob
     codeGen backend env{ envGlobal = globRef }
 
-initCompile :: IO ()
-initCompile = do
-    compPrelude <- getEnv "PUGS_COMPILE_PRELUDE"
-    writeIORef _BypassPreludePC $ case compPrelude of
-        Nothing     -> True
-        Just ""     -> True
-        Just "0"    -> True
-        _           -> False
-
 doCompileDump :: String -> FilePath -> String -> IO ()
 doCompileDump backend file prog = do
-    initCompile
     str <- doCompile backend' file prog
     putStr str
     where
@@ -220,7 +210,6 @@ doCompileDump backend file prog = do
 
 doCompileRun :: String -> FilePath -> String -> IO ()
 doCompileRun backend file prog = do
-    initCompile
     str <- doCompile backend' file prog
     evalEmbedded backend' str
     where

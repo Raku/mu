@@ -16,7 +16,7 @@ module Pugs.Run (
     runAST, runComp,
     getLibs,
     -- mutable global storage
-    _BypassPreludePC, _GlobalFinalizer,
+    _GlobalFinalizer,
 ) where
 import Pugs.Run.Args
 import Pugs.Run.Perl5 ()
@@ -224,13 +224,19 @@ getLibs = do
                  ]
               ++ [ "." ]
 
-{-# NOINLINE _BypassPreludePC #-}
-_BypassPreludePC :: IORef Bool
-_BypassPreludePC = unsafePerformIO $ newIORef False
+bypassPreludePC :: IO Bool
+bypassPreludePC = do
+    compPrelude <- getEnv "PUGS_COMPILE_PRELUDE"
+    return $! case compPrelude of
+        Nothing     -> True
+        Just ""     -> True
+        Just "0"    -> True
+        _           -> False
+
 
 initPreludePC :: Env -> IO Env
 initPreludePC env = do
-    bypass <- readIORef _BypassPreludePC
+    bypass <- bypassPreludePC
     if bypass then return env else do
         let dispProgress = (posName . envPos $ env) == "<interactive>"
         when dispProgress $ putStr "Loading Prelude... "
