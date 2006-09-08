@@ -1,3 +1,6 @@
+
+use v6-alpha;
+
 # Perl6 implementation of the 'Rule' syntax 
 # author: Flavio S. Glock - fglock@gmail.com
 
@@ -14,8 +17,6 @@
         our %rule_terms;
 
 =cut
-
-use v6-alpha;
 
 grammar Pugs::Grammar::Rule;
 
@@ -66,13 +67,14 @@ token non_capturing_group {
 
 token literal {
     [ 
-    |  \\ \'
+    |  \\ .
     |  <-[ \' ]> 
-    ]+ 
+    ]*
 }
 
 token metasyntax {
     [ 
+    |  \\ .
     |  \'  <?literal>     \'
     |  \{  <?code>        \}
     |  \<  <?metasyntax>  \>
@@ -82,11 +84,13 @@ token metasyntax {
 }
 
 token code {
+    # bootstrap code
     [ 
-    |  \{  <?code>  \}
+    |  \\ .
+    |  \'  <?literal>     \'
+    |  \{  <?code>        \}
     |  <-[ \} ]> 
     ]+ 
-    { return { code => $/() ,} }
 }
 
 token named_capture_body {
@@ -137,9 +141,11 @@ token named_capture_body {
     '$<' => token {
         <ident> \> <?ws>? <':='> <?ws>? <named_capture_body>
         { 
+            use v5;
             my $body = $/{'named_capture_body'}();
-            $body{'ident'} = $/{'ident'}();
+            $body->{'ident'} = $/{'ident'}();
             return { named_capture => $body, }; 
+            use v6;
         }
     },
     '$' => token { 
@@ -170,7 +176,7 @@ token named_capture_body {
     },
     '{' => token { 
         <code>  \}
-        { return { closure => '{' ~ $() ,} }
+        { return { closure => $/{'code'}() ,} }
     },
     '\\' => token {  
         .
@@ -220,9 +226,9 @@ token quantifier {
         quant => { 
             term  => $/{'term'}(),
             quant => $/{'quant'}(),
-            ws1   => ~ $/{'ws1'},
-            ws2   => ~ $/{'ws2'},
-            ws3   => ~ $/{'ws3'},
+            ws1   => $/{'ws1'}(),
+            ws2   => $/{'ws2'}(),
+            ws3   => $/{'ws3'}(),
         } }
     }
 }

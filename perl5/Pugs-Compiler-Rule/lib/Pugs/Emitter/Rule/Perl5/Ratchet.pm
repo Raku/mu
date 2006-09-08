@@ -44,9 +44,13 @@ sub quote_constant {
 sub call_constant {
     return " 1 # null constant\n"
         unless length($_[0]);
-    my $len = length( $_[0] );
     my $const = quote_constant( $_[0] );
+    my $len = length( eval $const );
     #print "Const: [$_[0]] $const $len \n";
+    
+    # return "$_[1] ( substr( \$s, \$pos$direction$direction, 1 ) eq $const )"
+    #    if $len == 1;
+    
     return
     "$_[1] ( ( substr( \$s, \$pos, $len ) eq $const ) 
 $_[1]     ? ( \$pos $direction= $len or 1 )
@@ -243,12 +247,13 @@ sub code {
     return "$_[1] $_[0]\n";  
 }        
 sub dot {
-    if ( $direction eq '+' ) {
-        "$_[1] ( \$pos < length( \$s ) ? ++\$pos || 1 : 0 )"
-    }
-    else {
-        "$_[1] ( \$pos >= 0 ? --\$pos || 1 : 0 )"
-    }
+    "$_[1] ( substr( \$s, \$pos$direction$direction, 1 ) ne '' )"
+    #if ( $direction eq '+' ) {
+    #    "$_[1] ( \$pos < length( \$s ) ? ++\$pos || 1 : 0 )"
+    #}
+    #else {
+    #    "$_[1] ( \$pos >= 0 ? --\$pos || 1 : 0 )"
+    #}
 }
 
 sub preprocess_hash {
@@ -409,7 +414,7 @@ sub closure {
     
     if ( ref( $code ) ) {
         if ( defined $Pugs::Compiler::Perl6::VERSION ) {
-            # perl6 compiler is loaded
+            #print " perl6 compiler is loaded \n";
             my $perl5 = Pugs::Emitter::Perl6::Perl5::emit( 'grammar', $code, 'self' );
             return 
                 "do { 
@@ -430,6 +435,8 @@ sub closure {
         }        
     }
 
+    #print " perl6 compiler is NOT loaded \n";
+            
     # XXX XXX XXX - source-filter - temporary hacks to translate p6 to p5
     # $()<name>
     $code =~ s/ ([^']) \$ \( \) < (.*?) > /$1\$_[0]->[$2]/sgx;
@@ -439,11 +446,15 @@ sub closure {
     $code =~ s/ ([^']) \$ \( \) /$1\$_[0]->()/sgx;
     # $/
     $code =~ s/ ([^']) \$ \/ /$1\$_[0]/sgx;
+    
+    $code =~ s/ use \s+ v6 \s* ; / # use v6\n/sgx;
+
     #print "Code: $code\n";
     
     return 
         "$_[1] do {\n" .
         "$_[1]   local \$::_V6_SUCCEED = 1;\n" .
+        "$_[1]   \$::_V6_MATCH_ = \$m;\n" .
         "$_[1]   sub $code->( \$m );\n" .
         "$_[1]   \$::_V6_SUCCEED;\n" .
         "$_[1] }" 
@@ -452,6 +463,7 @@ sub closure {
     return
         "$_[1] do { \n" .
         "$_[1]   local \$::_V6_SUCCEED = 1;\n" .
+        "$_[1]   \$::_V6_MATCH_ = \$m;\n" .
         "$_[1]   \$m->data->{capture} = \\( sub $code->( \$m ) ); \n" .
         "$_[1]   \$bool = \$::_V6_SUCCEED;\n" .
         "$_[1]   \$::_V6_MATCH_ = \$m if \$bool; \n" .

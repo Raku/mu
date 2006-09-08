@@ -8,7 +8,7 @@ use Pugs::Grammar::StatementControl;
 use Pugs::Grammar::StatementModifier;
 use Pugs::Grammar::Expression;
 use Pugs::Grammar::Pod;
-use Pugs::Grammar::Rule; 
+use Pugs::Grammar::P6Rule; 
 
 use Data::Dumper;
 
@@ -274,7 +274,7 @@ use Data::Dumper;
     <attribute>      <?ws>?
     <'{'>            <?ws>?
     [
-        <Pugs::Grammar::Rule.rule> <?ws>?
+        <Pugs::Grammar::P6Rule.rule> <?ws>?
         <'}'>
         { return { 
                 multi      => $_[0][0]->(),
@@ -284,7 +284,7 @@ use Data::Dumper;
                 attribute  => $_[0]{attribute}->(),
                 signature  => $_[0]{sub_signature}->(),
                 # pass the match tree to the emitter
-                block      => $_[0]{'Pugs::Grammar::Rule.rule'}->(),
+                block      => $_[0]{'Pugs::Grammar::P6Rule.rule'}->(),
         } }
     |
         # XXX better error messages

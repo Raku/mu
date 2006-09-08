@@ -7,7 +7,7 @@ use warnings;
 use Pugs::Compiler::Rule;
 use Pugs::Compiler::Token;
 use Pugs::Compiler::Regex;
-use Pugs::Grammar::Perl6;
+#use Pugs::Grammar::Perl6;
 use base qw(Pugs::Grammar::BaseCategory);
 use Pugs::Runtime::Match; # overload doesn't work without this ???
 
@@ -216,4 +216,21 @@ Pugs::Compiler::Token->install(
     ]
 ))->code;
 
+1;
+
+__END__
+
+
+package  Pugs::Grammar::P6Rule;
+use strict;
+use warnings;
+
+use base qw(Pugs::Grammar::Rule);
+use Pugs::Runtime::Match; # overload doesn't work without this ???
+
+*code = Pugs::Compiler::Token->compile( q(
+    \\{ <Pugs::Grammar::Perl6.parse> \\}
+    { return $/{'Pugs::Grammar::Perl6.parse'}() }
+))->code;
+    
 1;
