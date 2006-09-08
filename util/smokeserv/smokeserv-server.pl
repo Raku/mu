@@ -172,6 +172,7 @@ sub make_synopses
      system(SMARTLINKS, '--test-res', $yml_file,
                         '--out-dir', $syn_dir,
                         '--syn-dir', PUGS_SPEC,
+                        '--fast',
                         @t_files) == 0) {
     make_synopsis_index($syn_dir);
   } else {

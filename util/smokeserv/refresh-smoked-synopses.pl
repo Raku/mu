@@ -42,6 +42,7 @@ foreach my $yml_file (glob "pugs-smoke-*.yml") {
   system(SMARTLINKS, '--test-res', $yml_file,
                      '--out-dir', $syn_dir,
                      '--syn-dir', PUGS_SPEC,
+                     '--fast',
                      @t_files)
     or warn "Couldn't update smoked synopses for $yml_file";
 }
