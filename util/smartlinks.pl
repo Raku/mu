@@ -460,7 +460,7 @@ sub process_syn ($$$$) {
             $year, $mon, $mday, $hour, $min, $sec;
         $html =~ s{<!-- start doc -->}{$&
             <I>This page was generated at $time.
-            (syn <strong>r$syn_rev</strong>, pugs <strong>r$pugs_rev</strong>)</I>
+            (syn <strong>$syn_rev</strong>, pugs <strong>$pugs_rev</strong>)</I>
         };
         my $htmfile = "$out_dir/S$syn_id.html";
         warn "info: generating $htmfile...\n";
@@ -546,26 +546,29 @@ sub main () {
         if (open my $in, $rev_file) {
             $syn_rev = <$in>;
             chomp $syn_rev;
-            warn "info: synopses are at r$syn_rev.\n";
             close $in;
         }
     }
 
-    my $stdout = `$^X $FindBin::Bin/version_h.pl`;
-    ($pugs_rev) = ($stdout =~ /Current version is (\d+)/);
-    if (!$pugs_rev) {
-        # if we don't have access to others' svk info
-        # (which is the case on feather where i'm using
-        # Audrey's pugs working copy), then parse pugs_version.h
-        # directly:
-        if (open my $in, "$FindBin::Bin/../src/Pugs/pugs_version.h") {
-            warn "reading pugs_version.h...\n";
-            local $/;
-            my $str = <$in>;
-            ($pugs_rev) = ($str =~ /PUGS_SVN_REVISION\s+(\d+)/);
+    $syn_rev = $syn_rev ? "r$syn_rev" : 'unknown';
+    warn "info: synopses are at $syn_rev.\n";
+
+    if (!$yml_file) {
+        my $stdout = `$^X $FindBin::Bin/version_h.pl`;
+        ($pugs_rev) = ($stdout =~ /Current version is (\d+)/);
+        if (!$pugs_rev) {
+            # if we don't have access to others' svk info
+            # (which is the case on feather where i'm using
+            # Audrey's pugs working copy), then parse pugs_version.h
+            # directly:
+            if (open my $in, "$FindBin::Bin/../src/Pugs/pugs_version.h") {
+                warn "reading pugs_version.h...\n";
+                local $/;
+                my $str = <$in>;
+                ($pugs_rev) = ($str =~ /PUGS_SVN_REVISION\s+(\d+)/);
+            }
         }
     }
-    warn "info: pugs is at r$pugs_rev.\n";
 
     if ($yml_file) {
         eval {
@@ -576,10 +579,11 @@ sub main () {
             die "--smoke-res option requires both Test::TAP::Model and YAML::Syck. ".
                 "At least one of them is not installed.\n";
         }
-        my $structure = YAML::Syck::LoadFile($yml_file);
-        #warn $structure;
-        if ($structure->{meat}) {
-            $structure = delete $structure->{meat};
+        my $data = YAML::Syck::LoadFile($yml_file);
+        #warn $data;
+        my $structure;
+        if ($data->{meat}) {
+            $structure = delete $data->{meat};
         }
         my $tap = Test::TAP::Model->new_with_struct($structure);
         $test_result = {};
@@ -594,7 +598,11 @@ sub main () {
             }
         }
         #YAML::Syck::DumpFile('test_result.yml', $test_result);
+        $pugs_rev = $data->{revision};
     }
+
+    $pugs_rev = $pugs_rev ? "r$pugs_rev" : 'unknown';
+    warn "info: pugs is at $pugs_rev.\n";
 
     my @syns = map glob, "$syn_dir/*.pod";
     for my $syn (@syns) {
