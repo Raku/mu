@@ -98,7 +98,7 @@ sub emit {
         "    my \%named;\n" .
         #"  my \$from = \$pos;\n" .
         "    my \$bool = 1;\n" .
-        #"    my \$capture;\n" .
+        "    \$named{KEY} = \$_[3]{KEY} if exists \$_[3]{KEY};\n" .
         "    \$m = Pugs::Runtime::Match->new( { \n" .
         "      str => \\\$s, from => \\(0+\$pos), to => \\(\$pos), \n" .
         "      bool => \\\$bool, match => \\\@match, named => \\\%named, capture => undef, \n" .
@@ -367,8 +367,12 @@ sub variable {
                             : '' );
                 " . #print \"try ".$name." \$_ = \$key; \$s\\\n\";
                 "if ( exists ". $id ."->{\$key} ) {
+                    #\$named{KEY} = \$key;
+                    #\$::_V6_MATCH_ = \$m; 
+                    #print \"m: \", Dumper( \$::_V6_MATCH_->data )
+                    #    if ( \$key eq 'until' );
                     " . #print \"* ".$name."\{'\$key\'} at \$pos \\\n\";
-                    "\$match = $preprocess_hash( $id, \$key )->( \$s, \$grammar, { p => ( \$pos + \$_ ), args => {} }, undef );
+                    "\$match = $preprocess_hash( $id, \$key )->( \$s, \$grammar, { p => ( \$pos + \$_ ), args => { KEY => \$key } }, undef );
                     " . #print \"match: \", Dumper( \$match->data );
                     "last if \$match;
                 }

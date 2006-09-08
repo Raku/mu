@@ -647,7 +647,14 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     my %test = (
         if =>    2,        # fail (number, not '1')
         iff =>   1,        # match (longer than 'if')
-        until => Pugs::Compiler::Token->compile('(a.a) { return 42 } '),  
+        until => Pugs::Compiler::Token->compile('
+            (a.a) 
+            { 
+                print " # KEY = $::_V6_MATCH_->{KEY} \n";
+                # print " # ", Dumper( $::_V6_MATCH_->data );
+                return 42;
+            } 
+        '),  
                            # subrule - match "until(aa)"
         use =>   sub { $v = 1 },   
                            # closure - print "use()"

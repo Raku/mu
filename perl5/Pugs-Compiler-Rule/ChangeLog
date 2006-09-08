@@ -1,4 +1,4 @@
-
+- implemented $<KEY>
 - fixed bool result of quantified terms inside tokens
 - fixed parsing of <'>>'>
 
