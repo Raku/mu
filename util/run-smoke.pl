@@ -67,9 +67,13 @@ sub make { return `$Config{make} @_` };
 my $dev_null = File::Spec->devnull;
 
 my $output ;# = svn("up") or die "Could not update pugs tree: $!";
-system($^X, qw(-w ./util/yaml_harness.pl),@yaml_harness_args) == 0 or die "Could not run yaml harness: $!";
-system($^X, qw(-w ./util/testgraph.pl --inlinecss tests.yml), $html_location) == 0 or die "Could not convert .yml to testgraph: $!";
-upload_smoke($html_location, 'tests.yml');
+my $yml_location = $html_location;
+$yml_location =~ s/(\.html?(\+)?)?$/.yml$2/;
+push @yaml_harness_args, ('--output-file', $yml_location);
+system($^X, qw(-w ./util/yaml_harness.pl),
+            @yaml_harness_args) == 0 or die "Could not run yaml harness: $!";
+system($^X, qw(-w ./util/testgraph.pl), ('--inlinecss', $yml_location), $html_location) == 0 or die "Could not convert .yml to testgraph: $!";
+upload_smoke($html_location, $yml_location);
 if ($smoke_upload) {
   if (defined $smoke_upload_script) {
     system("$^X $smoke_upload_script $html_location") == 0

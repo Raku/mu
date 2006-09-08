@@ -29,7 +29,14 @@ setup_compression() if $compression_wanted;
 my %request = (upload => 1, version => VERSION, smokes => []);
 
 {
-  my ($html, $yml) = @ARGV;
+  my ($html) = grep { m/\.html?\+?$/ } @ARGV;
+  my ($yml) = grep { m/\.ya?ml\+?$/ } @ARGV;
+
+  unless($html and $yml) {
+    debug "**  Make sure you include both .html and .yml!\n";
+    debug "Aborting.\n\n";
+    exit 1;
+  }
   debug "Reading smoke \"$html\" to upload... ";
 
   open my $fh, "<", $html or die "Couldn't open \"$html\" for reading: $!\n";
@@ -41,12 +48,23 @@ my %request = (upload => 1, version => VERSION, smokes => []);
     exit 1;
   }
 
+  # Check the configuration
+  my $config_re = qr/(Summary of pugs configuration:.*INC:)/s;
+  $smoke =~ $config_re;
+  my $config = $1;
+
   $request{smoke} = $compress->($smoke) || $smoke;
 
   debug "html ok.\n";
 
   if($yml and open $fh, '<', $yml) {
     $smoke = <$fh>;
+
+    unless(($smoke =~ $config_re) and $1 eq $config) {
+      debug "The .yml and .html files don't seem to correspond.  Aborting.\n";
+      exit 1;
+    }
+    
     $request{yml} = $compress->($smoke) || $smoke;
   }
 }
@@ -73,7 +91,7 @@ foreach my $smokeserv (@smokeserv) {
 }
 
 sub usage { print STDERR <<USAGE; exit }
-Usage: $0 [options] -- smoke1.html [smoke1.yml]
+Usage: $0 [options] -- smoke1.html smoke1.yml
 
 Available options:
   --smokeserv=http://path/to/smokeserv.pl

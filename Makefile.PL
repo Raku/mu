@@ -682,12 +682,12 @@ blib6/lib/Test.pm.yml :: ext/Test/lib/Test.pm
 	\$(NOECHO) \$(ECHO) "Precompiling Test.pm..."
 	$thispugs -CParse-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml 
 
-upload-smoke : tests.yml
-	\$(PERL) util/smokeserv/smokeserv-client.pl smoke.html tests.yml
+upload-smoke : smoke.yml
+	\$(PERL) util/smokeserv/smokeserv-client.pl smoke.html smoke.yml
 
 smoke-upload : upload-smoke
 
-tests.yml :
+smoke.yml :
 	\$(PERL) util/run-smoke.pl . smoke.html
 
 smoke : smoke-pugs
