@@ -337,6 +337,10 @@ sub fixpaths {
     my $sep = File::Spec->catdir('');
     $text =~ s{\b/}{$sep}g;
     $text =~ s/-libpath:"?(.*?)"? //g;
+
+    # Don't let ActivePerl HTMLify our PODs.
+    $text =~ s/pure_all\s+htmlifypods/pure_all/g;
+
     return $text;
 }
 
