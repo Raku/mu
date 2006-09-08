@@ -187,8 +187,15 @@ Here's a simple translation of a Perl5 regular expression to Perl6:
     Now:    $str ~~ m:P5:i/^\d{2,5}\s/
 
 The C<:P5> modifier is there because the standard Perl6 syntax is rather
-different, and 'P5' notes a Perl5 compatibility syntax.  For the full
-specification, see L<S05>. See also:
+different, and 'P5' notes a Perl5 compatibility syntax.  For a substitution: 
+
+    Was:    $str =~ s/(a)/$1/e;
+    Now:    $str ~~ s:P5/(a)/{$0}/;
+
+Notice that C<$1> starts at C<$0> now, and C</e> is gone
+in favor of the embedded closure notation. 
+
+For the full specification, see L<S05>. See also:
 
 The related Apocalypse, which justifies the changes:
 
