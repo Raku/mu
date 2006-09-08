@@ -228,11 +228,8 @@ bypassPreludePC :: IO Bool
 bypassPreludePC = do
     compPrelude <- getEnv "PUGS_COMPILE_PRELUDE"
     return $! case compPrelude of
-        Nothing     -> True
-        Just ""     -> True
         Just "0"    -> True
         _           -> False
-
 
 initPreludePC :: Env -> IO Env
 initPreludePC env = do
