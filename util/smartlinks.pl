@@ -536,14 +536,14 @@ sub main () {
     $syn_dir ||= $pugs_syn_dir;
 
     #warn "$fast";
-    if ($syn_dir eq $pugs_syn_dir) {
+    my $update_script = "$syn_dir/update";
+    if (-f $update_script) {
         #warn "HERE";
-        system "$^X $syn_dir/update" if !$fast;
+        system "$^X $update_script" if !$fast;
         my $rev_file = "$syn_dir/.spec-revision";
-        my $in;
         #warn $rev_file;
         #warn -f $rev_file, "\n";
-        if (open $in, $rev_file) {
+        if (open my $in, $rev_file) {
             $syn_rev = <$in>;
             chomp $syn_rev;
             warn "info: synopses are at r$syn_rev.\n";
