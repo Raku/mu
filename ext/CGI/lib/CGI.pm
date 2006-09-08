@@ -11,11 +11,14 @@ class CGI-0.2;
     has $!QS_DELIMITER     is rw; 
     has $!URL_ENCODING     is rw; 
     has $!IS_PARAMS_LOADED is rw; 
+    has $!CHARSET          is rw;
 
 # Use method, not submethod, because we do what these behaviors to be inherited.  
 method BUILD (*%param) {
         $!QS_DELIMITER     = ';';
         $!URL_ENCODING     = 'iso-8859-1';
+        # set charset to the safe ISO-8859-1
+        $!CHARSET          = 'ISO-8859-1';
         $!IS_PARAMS_LOADED = 0;
         %!PARAMS = %param if %param;
 }
@@ -246,7 +249,7 @@ method load_params {
     }    
 }
 
-method escapeHTML (Str $string, Bool :$newlines) returns Str {
+method escapeHTML (Str $string is copy, Bool :$newlines) returns Str {
     # XXX check for $self.escape == 0
     #unless ($self.escape != 0) { return $toencode; }
     
@@ -285,22 +288,19 @@ method escapeHTML (Str $string, Bool :$newlines) returns Str {
     return $string;
 }
 
-method unescapeHTML (Str $string) returns Str {
-    # XXX check $self.charset
-    #my $latin = ?(uc $self.charset eq "ISO-8859-1"|"WINDOWS-1252");
-    my $latin = 1;
-    
+method unescapeHTML (Str $string is copy) returns Str {
+
+    my $latin = ?(uc $!CHARSET ~~ "ISO-8859-1"|"WINDOWS-1252");
+
     $string ~~ s:P5:g/&([^;]*);/{
-        given (lc $1) {
+        given (lc $0) {
             when "amp"  { "&" }
             when "quot" { '"' }
             when "gt"   { ">" }
             when "lt"   { "<" }
-            
-            if ($latin) {
-                when /^#(\d+)$/     { chr($1) }
-                when /^#x(\d+)$/    { chr(:16($1)) }
-            }
+            when m:P5{^#(\d+)$}          && $latin { chr($1) }
+            when m:P5:i{^#x([0-9a-f]+)$} && $latin { chr(hex($1)) }
+            default { $0  }
         }
     }/;
     
