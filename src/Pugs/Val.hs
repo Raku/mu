@@ -194,7 +194,7 @@ newtype NativeComplex = MkNComplex { unComplex :: Complex NativeNum }
 instance Ord NativeComplex where
     compare = error "NativeComplex numbers cannot be ordered"
 instance Data NativeComplex where
-    gunfold    = error "gunfold NativeComplex"
+--  gunfold    = error "gunfold NativeComplex"
     toConstr   = error "toConstr NativeComplex"
     dataTypeOf = error "dataTypeOf NativeComplex"
 
