@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 6;
+plan 11;
 
 # L<S04/Closure traits/ENTER "at every block entry time">
 # L<S04/Closure traits/LEAVE "at every block exit time">
@@ -61,4 +61,33 @@ plan 6;
         LEAVE { $str ~= "L$_ " }
     }
     is $str, 'E1,L1 E2,L2', 'ENTER/LEAVE repeats on loop blocks';
+}
+
+# L<S04/Closure traits/LEAVE "at every block exit time">
+
+# named sub:
+{
+    my $str;
+    my sub is_even ($x) {
+        return 1 if $x % 2 == 0;
+        return 0;
+        LEAVE { $str ~= $x }
+    }
+    is is_even(3), 0, 'basic sanity check (1)';
+    is $str, '3', 'LEAVE executed at the 1st explict return';
+    is is_even(2), 1, 'basic sanity check (2)';
+    is $str, '32', 'LEAVE executed at the 2nd explict return';
+}
+
+# normal closure:
+{
+    eval_is q{
+        my $a;
+        {
+            leave;
+            $a = 100;
+            LEAVE { $a++ }
+        }
+        $a;
+    }, 1, 'leave triggers LEAVE {}';
 }
