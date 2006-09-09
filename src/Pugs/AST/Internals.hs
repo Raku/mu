@@ -226,9 +226,12 @@ fromVal' :: (Value a) => Val -> Eval a
 fromVal' (VRef r) = do
     v <- readRef r
     fromVal v
-fromVal' (VList vs) | not $ null [ undefined | VRef _ <- vs ] = do
+fromVal' (VList vs) | any isRef vs = do
     vs <- forM vs $ \v -> case v of { VRef r -> readRef r; _ -> return v }
     fromVal $ VList vs
+    where
+    isRef VRef{}    = True
+    isRef _         = False
 fromVal' (PerlSV sv) = do
     v <- liftIO $ svToVal sv
     case v of
@@ -1604,7 +1607,21 @@ instance Eq VRef where
 instance Ord VRef where
     compare _ _ = EQ
 instance Show VRef where
-    show (MkRef ivar) = show ivar
+    show ref@(MkRef ivar) = case ivar of
+        IScalar x -> showAddr x
+        IArray  x -> showAddr x
+        IHash   x -> showAddr x
+        ICode   x -> showAddr x
+        IHandle x -> showAddr x
+        IRule   x -> showAddr x
+        IThunk  x -> showAddr x
+        IPair   x -> showAddr x
+        where
+        showAddr v = let addr = W# (unsafeCoerce# v)
+            in addr `seq` ('<' : showType (refType ref) ++ ":0x" ++ showHex addr ">")
+
+instance Typeable a => Show (IVar a) where
+    show ivar = show (MkRef ivar)
 
 instance Eq (IVar a) where
     (==) = const $ const False
@@ -1612,24 +1629,6 @@ instance Ord (IVar a) where
     compare _ _ = EQ
 instance Ord (TVar a) where
     compare _ _ = EQ
-instance (Typeable a) => Show (IVar a) where
-    show v = addr `seq` ('<' : showType (refType (MkRef v)) ++ ":0x" ++ showHex addr ">")
-        where
-        addr :: Word
-        addr = W# (case v of
-            IScalar x -> unsafeCoerce# x
-            IArray  x
-                -- Hack - we can't get pointer to a VList, so just stub it with a random IORef
-                | typeOf x == typeOf (undefined :: VList)
-                -> unsafeCoerce# _GlobalFinalizer
-                | otherwise
-                -> unsafeCoerce# x
-            IHash   x -> unsafeCoerce# x
-            ICode   x -> unsafeCoerce# x
-            IHandle x -> unsafeCoerce# x
-            IRule   x -> unsafeCoerce# x
-            IThunk  x -> unsafeCoerce# x
-            IPair   x -> unsafeCoerce# x)
 #endif
 
 scalarRef   :: ScalarClass a=> a -> VRef
