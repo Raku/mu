@@ -428,6 +428,7 @@ formatVal (VNative v) = text $ case v of
     (NNum x)     -> show x
     (NComplex (MkNComplex x)) -> (show "(") ++ (show $ realPart x) ++ " " ++
         (if (0 >) (imagPart x) then "- " ++ (show $ 0 - imagPart x) else "+ " ++ (show $ imagPart x)) ++ "*Math::i)"
+formatVal x = text $ show x
 
 --    (NComplex r i(s@i')) -> "(" ++ (show r) ++ " " ++
 --        (if s == '-' then ("- " ++ show i') else ("+ " ++ show i)) ++ "*i)"
