@@ -264,7 +264,7 @@ rulePackageHead = do
                        "grammar" -> "Grammar"
                        _ -> fail "bug"
         mixinRoles = nub ([ cls | ("does", cls) <- traits])
-        parentClasses = nub ("Object":[ cls | ("is", cls) <- traits])
+        parentClasses = nub ("Object":[ cls | ("is", cls) <- traits, cls /= "also" ])
     case () of
         _ | elem name parentClasses -> do
             return (Left $ "Circular class inheritance detected for " ++ sym ++ " '" ++ name ++ "'")

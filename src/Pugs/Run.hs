@@ -29,7 +29,6 @@ import Pugs.Prim
 import Pugs.Prim.Eval
 import Pugs.Embed
 import Pugs.Prelude 
-import Data.IORef
 import qualified Data.Map as Map
 import qualified Data.ByteString as Str
 import DrIFT.YAML
