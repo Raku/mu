@@ -144,7 +144,8 @@ instance Compile VObject where
 instance Compile VCode where
     -- compile MkCode{ subBody = Prim _ } = return $ text "return mkPrim"
     compile MkCode{ subBody = Prim _ } = return Str.empty
-    compile (MkCode v1 v2 v3 _ v4 v5 v6 v7 v8 v9 v10 _) = do 
+    -- XXX - Ew. This signature can't be right.
+    compile (MkCode v1 v2 v3 _ v4 v5 v6 v7 v8 v9 v10 _ _ _ _ _ _ _ _ _ _ _ _) = do 
         compWith "MkCode"
             [ compile v1
             , ret (show v2)

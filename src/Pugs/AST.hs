@@ -276,6 +276,17 @@ typeMacro name exp = Syn "sub" . (:[]) . Val . VCode $ MkCode
     , subSlurpLimit = []
     , subBody       = Prim . const . expToEvalVal $ exp
     , subCont       = Nothing
+    , subPreBlocks = []
+    , subPostBlocks = []
+    , subFirstBlocks = []
+    , subLastBlocks = []
+    , subNextBlocks = []
+    , subKeepBlocks = []
+    , subUndoBlocks = []
+    , subEnterBlocks = []
+    , subLeaveBlocks = []
+    , subControlBlocks = []
+    , subCatchBlocks = []
     }
     where
     typ = mkType name

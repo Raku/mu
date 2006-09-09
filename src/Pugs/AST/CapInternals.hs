@@ -642,6 +642,8 @@ data Code
         , c_postBlocks        :: [Code]
         , c_firstBlocks       :: [Code]
         , c_lastBlocks        :: [Code]
+        , c_enterBlocks       :: [Code]
+        , c_leaveBlocks       :: [Code]
         , c_nextBlocks        :: [Code]
         , c_keepBlocks        :: [Code]
         , c_undoBlocks        :: [Code]

@@ -63,7 +63,7 @@ module Pugs.AST.Internals (
     retError, retControl, retEmpty, retIVar, readIVar, writeIVar,
     fromVals, refType,
     refreshPad, lookupPad, padToList, listToPad,
-    mkPrim, mkSub, showRat, showTrueRat,
+    mkPrim, mkSub, mkCode, showRat, showTrueRat,
     cxtOfSigil, cxtOfSigilVar, typeOfSigil, typeOfSigilVar,
     buildParam, defaultArrayParam, defaultHashParam, defaultScalarParam,
 	paramsToSig,
@@ -886,6 +886,17 @@ data VCode = MkCode
     , subLValue     :: !Bool        -- ^ Is this a lvalue sub?
     , subBody       :: !Exp         -- ^ Body of the closure
     , subCont       :: !(Maybe (TVar VThunk)) -- ^ Coroutine re-entry point
+    , subPreBlocks   :: ![VCode]
+    , subPostBlocks  :: ![VCode]
+    , subFirstBlocks :: ![VCode]
+    , subLastBlocks  :: ![VCode]
+    , subNextBlocks  :: ![VCode]
+    , subKeepBlocks  :: ![VCode]
+    , subUndoBlocks  :: ![VCode]
+    , subEnterBlocks :: ![VCode]
+    , subLeaveBlocks :: ![VCode]
+    , subControlBlocks :: ![VCode]
+    , subCatchBlocks  :: ![VCode]
     }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
@@ -908,6 +919,17 @@ mkPrim = MkCode
     , subBody = emptyExp
     , subLValue = False
     , subCont = Nothing
+    , subPreBlocks = []
+    , subPostBlocks = []
+    , subFirstBlocks = []
+    , subLastBlocks = []
+    , subNextBlocks = []
+    , subKeepBlocks = []
+    , subUndoBlocks = []
+    , subEnterBlocks = []
+    , subLeaveBlocks = []
+    , subControlBlocks = []
+    , subCatchBlocks = []
     }
 
 mkSub :: VCode
@@ -924,8 +946,44 @@ mkSub = MkCode
     , subBody = emptyExp
     , subLValue = False
     , subCont = Nothing
+    , subPreBlocks = []
+    , subPostBlocks = []
+    , subFirstBlocks = []
+    , subLastBlocks = []
+    , subNextBlocks = []
+    , subKeepBlocks = []
+    , subUndoBlocks = []
+    , subEnterBlocks = []
+    , subLeaveBlocks = []
+    , subControlBlocks = []
+    , subCatchBlocks = []
     }
 
+mkCode = MkCode
+    { isMulti = False
+    , subName = cast "&"
+    , subType = SubBlock
+    , subEnv = Nothing
+    , subAssoc = ANil
+    , subParams = []
+    , subBindings = []
+    , subSlurpLimit = []
+    , subReturns = anyType
+    , subBody = emptyExp
+    , subLValue = False
+    , subCont = Nothing
+    , subPreBlocks = []
+    , subPostBlocks = []
+    , subFirstBlocks = []
+    , subLastBlocks = []
+    , subNextBlocks = []
+    , subKeepBlocks = []
+    , subUndoBlocks = []
+    , subEnterBlocks = []
+    , subLeaveBlocks = []
+    , subControlBlocks = []
+    , subCatchBlocks = []
+    } 
 instance Ord VComplex where
     compare (a :+ ai) (b :+ bi) = compare (a, ai) (b, bi)
 

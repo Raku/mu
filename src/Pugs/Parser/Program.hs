@@ -96,6 +96,7 @@ makeState env = MkState
     , s_name          = nullID
     , s_pos           = 0
     , s_blockPads     = Map.empty
+    , s_closureTraits = []
     , s_outerVars     = Set.empty
     }
 

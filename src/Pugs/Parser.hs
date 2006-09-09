@@ -323,7 +323,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     when (isJust formal && (not.null) names) $
         fail "Cannot mix placeholder variables with formal parameters"
     env <- ask
-    let sub = VCode $ MkCode
+    let sub = VCode $ mkCode
             { isMulti       = isMulti
             , subName       = cast nameQualified
             , subEnv        = Just env
@@ -948,41 +948,11 @@ ruleClosureTrait rhs = tryRule "closure trait" $ do
         "INIT"  -> vcode2initBlock code
 		-- we need to clone this closure sometimes
         "START" -> vcode2startBlock code
-
-        -- XXX stub just to make them parse
-        "ENTER"   -> retBlock SubBlock Nothing False block
-
-        -- XXX stub just to make them parse
-        "LEAVE"   -> retBlock SubBlock Nothing False block
-
-        -- XXX stub just to make them parse
-        "KEEP"    -> retBlock SubBlock Nothing False block
-
-        -- XXX stub just to make them parse
-        "UNDO"    -> retBlock SubBlock Nothing False block
-
-        -- XXX stub just to make them parse
-        "FIRST"   -> retBlock SubBlock Nothing False block
-
-        -- XXX stub just to make them parse
-        "NEXT"    -> retBlock SubBlock Nothing False block
-
-        -- XXX stub just to make them parse
-        "LAST"    -> retBlock SubBlock Nothing False block
-
-        -- XXX stub just to make them parse
-        "PRE"     -> retBlock SubBlock Nothing False block
-
-        -- XXX stub just to make them parse
-        "POST"    -> retBlock SubBlock Nothing False block
-
-        -- XXX stub just to make them parse
-        "CATCH"   -> retBlock SubBlock Nothing False block
-
-        -- XXX stub just to make them parse
-        "CONTROL" -> retBlock SubBlock Nothing False block
-
-        _       -> fail ""
+        _       -> do 
+                let (VCode code') = code
+                addClosureTrait name code'
+                return emptyExp --retBlock SubBlock Nothing False block 
+                  -- XXX Not the right thing to return
     where
         install [] = return $ ()
         install prag = do
@@ -1253,7 +1223,7 @@ retVerbatimBlock styp formal lvalue body = expRule $ do
     when (isJust formal && (not.null) names) $
         fail "Cannot mix placeholder variables with formal parameters"
     env <- ask
-    let sub = MkCode
+    let sub = mkCode
             { isMulti       = False
             , subName       = __"<anon>"
             , subEnv        = Just env

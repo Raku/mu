@@ -6,7 +6,7 @@ module Pugs.Parser.Types (
     RuleOperator, RuleOperatorTable,
     getRuleEnv, modifyRuleEnv, putRuleEnv, insertIntoPosition,
     clearDynParsers, enterBracketLevel, getCurrCharClass, getPrevCharClass, charClassOf,
-    addBlockPad, addOuterVar,
+    addBlockPad, addClosureTrait, addOuterVar,
     -- Alternate Char implementations that keeps track of s_charClass
     satisfy, string, oneOf, noneOf, char, hexDigit, octDigit,
     digit, upper, anyChar, perl6WhiteSpace,
@@ -18,6 +18,8 @@ import Pugs.Rule
 import Pugs.Types
 import Pugs.Internals
 import Text.ParserCombinators.Parsec.Pos
+import Data.Generics (somewhere)
+import Debug.Trace
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import qualified Data.ByteString.Char8 as Str
@@ -127,6 +129,8 @@ data RuleState = MkState
     , s_blockPads     :: Map Scope Pad  -- ^ Hoisted pad for this block
     , s_outerVars     :: Set Var        -- ^ OUTER symbols we remembers
                                        
+    , s_closureTraits :: [Exp->Maybe Exp] 
+                                       -- ^ Closure traits for this block 
     }
 
 data BracketLevel
@@ -226,6 +230,35 @@ addBlockPad scope pad = do
             ++ " conflicts with earlier OUTER references in the same scope"
     put state{ s_blockPads = Map.insertWith unionPads scope pad (s_blockPads state) }
 
+addClosureTrait :: String -> VCode -> RuleParser ()
+addClosureTrait name trait = do
+  let names = words " ENTER LEAVE KEEP UNDO FIRST NEXT LAST PRE POST CATCH CONTROL "
+  when (not $ name `elem` names) $
+       fail ("Invalid closure trait: " ++ name) 
+  modify $ \state -> state{s_closureTraits = addTrait : s_closureTraits state }
+    where
+      addTrait (Val (VCode block)) = 
+          Just . Val . VCode $ case name of 
+            "CONTROL" -> block{ subControlBlocks = trait:subControlBlocks block }
+            "CATCH" -> block{ subCatchBlocks = trait:subCatchBlocks block }
+            "KEEP" -> block{ subKeepBlocks = trait:subKeepBlocks block }
+            "UNDO" -> block{ subUndoBlocks = trait:subUndoBlocks block }
+            "ENTER" -> block{ subEnterBlocks = trait:subEnterBlocks block }
+            "LEAVE" -> block{ subLeaveBlocks = trait:subLeaveBlocks block }
+            "NEXT" -> block{ subNextBlocks = trait:subNextBlocks block }
+            "LAST" -> block{ subLastBlocks = trait:subLastBlocks block }
+            "PRE" -> trace "PRE case" block{ subPreBlocks = trait:subPreBlocks block }
+            "POST" -> block{ subPostBlocks = trait:subPostBlocks block }
+            "FIRST" -> block{ subFirstBlocks = trait:subFirstBlocks block }
+            _ -> trace ("Wrong name "++name) block
+      addTrait (Ann f x)= liftM (Ann f) $ addTrait x -- XXX Might be done better...
+      addTrait (Stmts x Noop) = addTrait x
+      addTrait (Stmts Noop x) = addTrait x
+      addTrait (Syn typ [x]) = case typ of 
+                                   "sub" -> liftM ((Syn typ) . (:[])) $ addTrait x
+                                   "block" -> liftM ((Syn typ) . (:[])) $ addTrait x
+                                   _ ->       Nothing
+      addTrait x = Nothing
 {-|
 Update the 's_outerVars' in the parser's state by applying a transformation function.
 -}

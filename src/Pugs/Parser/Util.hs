@@ -1,12 +1,14 @@
 {-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
 module Pugs.Parser.Util where
 
+import Debug.Trace (trace)
+import Data.Generics (somewhere)
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
 import Pugs.Lexer
 import Pugs.Rule
-
+import Pugs.Pretty (Pretty, pretty)
 import Pugs.Parser.Types
 import qualified Data.Map as Map
 import qualified Data.Set as Set
@@ -22,6 +24,7 @@ localEnv m = do
     let env = s_env state
     put state
         { s_blockPads = Map.empty
+        , s_closureTraits = []
         , s_outerVars = Set.empty
         , s_env = env { envOuter = Just env }
         }
@@ -36,7 +39,13 @@ localEnv m = do
         }
     -- Hoist all pad-declared entries into this block
     -- XXX - Handle "state" and "constant" here.
-    return $ Map.foldWithKey Pad rv (s_blockPads state')
+    let rv' = putTraits state' rv
+    let rv'' = case rv' of 
+                 Just x  -> x
+                 Nothing -> fromJust $ putTraits state' $ Val $ VCode mkCode { subBody = rv } 
+    return $ Map.foldWithKey Pad rv'' (s_blockPads state')
+    where
+      putTraits state code = foldM (\a f -> f a) code $ s_closureTraits state
 
 ruleParamList :: ParensOption -> RuleParser a -> RuleParser (Maybe [[a]])
 ruleParamList wantParens parse = rule "parameter list" $ do
