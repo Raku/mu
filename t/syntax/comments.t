@@ -148,7 +148,7 @@ a "=cut".
 
 {
     my $a = eval q{
-        my $var =
+        my $var = 1;
 
 =begin comment
 
@@ -169,7 +169,7 @@ a "=cut".
 
 {
     eval_is q{
-        my $var =
+        my $var = 1;
 
 =for comment TimToady is here!
 
@@ -179,7 +179,7 @@ a "=cut".
 
 {
     eval_is q{
-        my $var =
+        my $var = 1;
 
 =for comment TimToady and audreyt
 are both here, yay!
