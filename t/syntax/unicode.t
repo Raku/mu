@@ -80,6 +80,6 @@ is(
 
 # Unicode methods
 {
-    my method Str::äöü { ucfirst self }
-    eval_is q{"pugs".äöü}, "Pugs", "Unicode methods";
+    class Str is also { method äöü { self.ucfirst } };
+    is "pugs".äöü(), "Pugs", "Unicode methods";
 }
