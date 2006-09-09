@@ -84,7 +84,7 @@ print <<EOF;
 *** All done! Smoke matrix saved as '$html_location'.
     You may want to submit the report to the public smokeserver:
 
-        $^X $smoke_upload_script $html_location
+        $^X $smoke_upload_script $html_location $yml_location
 
     Or add
         smoke_upload: 1 
