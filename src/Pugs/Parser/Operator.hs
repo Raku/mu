@@ -35,10 +35,10 @@ instance Ord OpName where
 
 -- Not yet transcribed into a full optable parser with dynamic precedence --
 
-tightOperators :: RuleParser (Set OpName, RuleOperatorTable Exp)
+tightOperators :: RuleParser (TightFunctions, RuleOperatorTable Exp)
 tightOperators = do
   tights <- currentTightFunctions
-  return $ (,) (r_term tights)
+  return $ (,) tights
     ( termLevel                     -- Terms and circumfixes
     : methLevel                     -- Method postfix
     : incrLevel                     -- Auto-Increment
@@ -69,14 +69,18 @@ tightOperators = do
 termLevel, methLevel, incrLevel, expoLevel, symbLevel, multLevel, addiLevel, junaLevel, junoLevel :: [RuleOperator Exp]
 termLevel = circumOps (Set.singleton (MkOpName (cast "\\( )")))
 methLevel = methOps (opWords " . .+ .? .* .+ .() .[] .{} .<<>> .= ")
-incrLevel = postOps (opWords " ++ -- ")
-            ++ preOps (opWords " ++ -- ")                               
+incrLevel = postOps incrOps ++ preOps incrOps
 expoLevel = rightOps (opWords " ** ")
-symbLevel = optPreSyn (opWords " * ") ++ preOps (opWords " = ! + - ~ ? +^ ~^ ?^ \\ ^")
+symbLevel = optPreSyn (opWords " * ") ++ preOps symbPreops
 multLevel = leftOps (opWords " * / % x xx +& +< +> ~& ~< ~> ?& ")
 addiLevel = leftOps (opWords " + - ~ +| +^ ~| ~^ ?| ")
 junaLevel = listOps (opWords " & ")
 junoLevel = listOps (opWords " ^ | ")
+
+symbPreops :: Set OpName
+symbPreops = opWords " = ! + - ~ ? +^ ~^ ?^ \\ ^"
+incrOps :: Set OpName
+incrOps = opWords " ++ -- "
 
 -- The lower levels of immutable ops.  This will be replaced once we have
 -- user-defineable precedences.
@@ -84,7 +88,6 @@ staticLevels :: [[RuleOperator Exp]]
 staticLevels =
     [ nonSyn   (opWords " but does ")                            -- Traits
       ++ nonOps (opWords " leg cmp <=> .. ^.. ..^ ^..^ ff ^ff ff^ ^ff^ fff ^fff fff^ ^fff^ ")  -- Non-chaining Binary
-      ++ postOps (opWords "...")                                 -- Infinite range
     , chainOps (opWords " != == < <= > >= ~~ eqv eq ne lt le gt ge =:= === ")
                                                                 -- Chained Binary
     , leftOps  (opWords "&&")                                    -- Tight And
@@ -647,18 +650,22 @@ splitOp col row@(MkOpRow rassoc lassoc nassoc prefix postfix optPrefix listAssoc
     _ -> internalError $ "Unhandled operator type" ++ show (op_assoc col)
 
 
-refillCache :: RuleState -> (DynParsers -> RuleParser Exp) -> RuleParser Exp
+refillCache :: RuleState -> (DynParsers -> RuleParser a) -> RuleParser a
 refillCache state f = do
-    (terms, opsTight)   <- tightOperators
+    (tights, opsTight)  <- tightOperators
     opsLoose            <- looseOperators
     let tightExprs  = buildExpressionParser opsTight parseTerm
         parseTight  = expRule tightExprs
         parseFull   = expRule (buildExpressionParser opsFull tightExprs)
         parseLit    = expRule (buildExpressionParser opsLoose tightExprs)
-        opParsers   = MkDynParsers parseFull parseTight parseLit parseNullary
+        parsePost   = pp "&postfix:" $ incrOps `Set.union` r_post tights
+     -- parsePre    = pp "&prefix:"  $ symbPreops `Set.union` r_pre tights
+     -- parsePreNam = pp "&"         $ r_named tights `Set.union` r_opt tights
+        pp pre ops  = fmap (pre ++) (tryChoice . map string . fromSet $ ops)
+        opParsers   = MkDynParsers parseFull parseTight parseLit parseNullary parsePost -- <|> parsePre <|> parsePreNam)
         opsFull     = listCons:listInfix:opsLoose
-        parseNullary = try $ do
-            name <- choice . map symbol . fromSet $ terms
+        parseNullary= try $ do
+            name <- choice . map symbol . fromSet $ r_term tights
             notFollowedBy (char '(' <|> (char ':' >> char ':'))
             possiblyApplyMacro $ App (_Var ('&':name)) Nothing []
     setState state{ s_dynParsers = opParsers }
@@ -677,7 +684,7 @@ parseExpWithItemOps :: RuleParser Exp
 parseExpWithItemOps = parseExpWithCachedParser dynParseLitOp
 
 -- was: parseOpWith
-parseExpWithCachedParser :: (DynParsers -> RuleParser Exp) -> RuleParser Exp
+parseExpWithCachedParser :: (DynParsers -> RuleParser a) -> RuleParser a
 parseExpWithCachedParser f = do
     state <- getState
     case s_dynParsers state of

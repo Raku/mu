@@ -1567,8 +1567,12 @@ ruleInvocationParens = ruleInvocationCommon True
         
 ruleInvocationCommon :: Bool -> RuleParser (Exp -> Exp)
 ruleInvocationCommon mustHaveParens = do
-    quant           <- option "" $ fmap (:[]) (oneOf "*+?")
-    name            <- ruleSubName <|> ruleVarName
+    let quantifieableName = ruleSubName <|> ruleVarName 
+    (quant, name)   <- choice
+        [ fmap ((,) "") quantifieableName                               -- .meth
+        , try (oneOf "*+?" >>= \q -> fmap ((,) [q]) quantifieableName ) -- .+meth
+        , fmap ((,) "") (parseExpWithCachedParser dynParsePrePost)      -- .+
+        ]
     (invs, args)    <- if mustHaveParens
         then parseHasParenParamList
         else do  --  $obj.foo: arg1, arg2    # listop method call
