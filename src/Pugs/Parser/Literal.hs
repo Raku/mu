@@ -217,7 +217,7 @@ qInterpolateQuoteConstruct = try $ do
 qInterpolatorPostTerm :: RuleParser (Exp -> Exp)
 qInterpolatorPostTerm = do
     choice
-        [ ruleDot `tryLookAhead` (oneOf "[{(<\xAB" <|> (ruleSubName >> char '('))
+        [ ruleDot `tryLookAhead` (oneOf "[{(<\xAB" <|> (ruleNamedMethodCall >> oneOf ".("))
         , notFollowedBy (ruleDot >> return '.')
         ]
     choice

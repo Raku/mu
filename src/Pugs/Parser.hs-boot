@@ -15,5 +15,6 @@ ruleVarNameString :: RuleParser String
 ruleVerbatimBlock :: RuleParser Exp
 ruleBlockLiteral :: RuleParser Exp
 ruleDoBlock :: RuleParser Exp
+ruleNamedMethodCall :: RuleParser (Maybe Char, String)
 
 regularVarName :: RuleParser String

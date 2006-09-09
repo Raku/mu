@@ -24,7 +24,7 @@ module Pugs.Parser (
     ruleExpression,
     ruleArraySubscript, ruleHashSubscript, ruleCodeSubscript,
     ruleInvocationParens, ruleVarNameString, ruleVerbatimBlock,
-    ruleBlockLiteral, ruleDoBlock, regularVarName,
+    ruleBlockLiteral, ruleDoBlock, regularVarName, ruleNamedMethodCall,
 ) where
 import Pugs.Internals
 import Pugs.AST
@@ -912,13 +912,13 @@ ruleDoBlock = rule "do block" $ do
         ]
 
 ruleClosureTrait :: Bool -> RuleParser Exp
-ruleClosureTrait rhs = rule "closure trait" $ do
+ruleClosureTrait rhs = tryRule "closure trait" $ do
     let rhsTraits = words " BEGIN CHECK INIT START ENTER FIRST "
     let names = words " BEGIN CHECK INIT END START ENTER LEAVE KEEP UNDO FIRST NEXT LAST PRE POST CATCH CONTROL"
     name    <- choice $ map symbol $ names
+    block   <- ruleBlock
     when (rhs && not (name `elem` rhsTraits)) $
         fail (name ++ " may only be used at statement level")
-    block   <- ruleBlock
     let (fun, params) = extractPlaceholderVars block []
     -- Check for placeholder vs formal parameters
     when (params /= [] && params /= [cast "$_"]) $
@@ -1564,17 +1564,23 @@ ruleInvocation = ruleInvocationCommon False
 -- used only by 'qInterpolatorPostTerm'?
 ruleInvocationParens :: RuleParser (Exp -> Exp)
 ruleInvocationParens = ruleInvocationCommon True
-        
+
+ruleNamedMethodCall :: RuleParser (Maybe Char, String)
+ruleNamedMethodCall = do
+    let quantifieableName = ruleSubName <|> ruleVarName 
+    choice
+        [ fmap ((,) Nothing) quantifieableName                                  -- .meth
+        , try (oneOf "*+?" >>= \q -> fmap ((,) (Just q)) quantifieableName )    -- .+meth
+        , fmap ((,) Nothing) (parseExpWithCachedParser dynParsePrePost)         -- .+
+        ]
+
 ruleInvocationCommon :: Bool -> RuleParser (Exp -> Exp)
 ruleInvocationCommon mustHaveParens = do
-    let quantifieableName = ruleSubName <|> ruleVarName 
-    (quant, name)   <- choice
-        [ fmap ((,) "") quantifieableName                               -- .meth
-        , try (oneOf "*+?" >>= \q -> fmap ((,) [q]) quantifieableName ) -- .+meth
-        , fmap ((,) "") (parseExpWithCachedParser dynParsePrePost)      -- .+
-        ]
+    (quant, name)   <- ruleNamedMethodCall
     (invs, args)    <- if mustHaveParens
-        then parseHasParenParamList
+        then do
+            parseHasParenParamList                          -- .foo()
+            <|> (lookAhead (ruleDot >> ruleInvocationParens) >> return (Nothing, [])) -- .foo.bar()
         else do  --  $obj.foo: arg1, arg2    # listop method call
                  -- we require whitespace after the colon (but not before)
                  -- so that @list.map:{...} doesn't get interpreted the
@@ -1585,8 +1591,8 @@ ruleInvocationCommon mustHaveParens = do
                 else option (Nothing,[]) $ parseParenParamList
     when (isJust invs) $ fail "Only one invocant allowed"
     return $ \x -> case name of
-        ('&':_) -> App (_Var name) (Just x) args                        -- $x.meth
-        _       -> Syn "CCallDyn" (Val (castV quant):_Var name:x:args)  -- $x.$meth
+        ('&':_) -> App (_Var name) (Just x) args                                        -- $x.meth
+        _       -> Syn "CCallDyn" (Val (castV (maybeToList quant)):_Var name:x:args)    -- $x.$meth
 
 ruleArraySubscript :: RuleParser (Exp -> Exp)
 ruleArraySubscript = tryVerbatimRule "array subscript" $ do
