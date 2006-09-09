@@ -10,7 +10,7 @@ These tests derived from comments in L<"http://use.perl.org/~autrijus/journal/23
 
 =cut
 
-plan 31;
+plan 33;
 
 my $world = "World";
 my @list  = (1,2);
@@ -59,7 +59,7 @@ is(qa"$world @list[] %hash{}", qn"$world 1 2 %hash{}", "only interpolate array")
 is(qb"$world \\\"\n\t", "\$world \\\"\n\t", "only interpolate backslash");
 is('$world \qq[@list[]] %hash{}', '$world 1 2 %hash{}', "interpolate quoting constructs in ''");
 
-is(" \d[111] \d[107] ", ' o k ', "\\d[] respects whitespaces around it")
+is(" \d[111] \d[107] ", ' o k ', "\\d[] respects whitespaces around it");
 
 # L<S02/"Literals" /any of these by separating the numbers/>
 is("x  \x[41,42,43]  x",     "x  ABC  x",  "\\x[] allows multiple chars (1)");
