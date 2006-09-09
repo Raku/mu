@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse -fno-warn-deprecations -fallow-undecidable-instances -fallow-overlapping-instances -funbox-strict-fields #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse -fno-warn-deprecations -fallow-undecidable-instances -fallow-overlapping-instances -funbox-strict-fields -cpp #-}
 
 {-|
     Internal utilities and library imports.
@@ -454,7 +454,12 @@ safeMode = case (inlinePerformIO $ getEnv "PUGS_SAFEMODE") of
 _GlobalFinalizer :: IORef (IO ())
 _GlobalFinalizer = unsafePerformIO $ newIORef (return ())
 
-data ID = MkID { idKey :: !Int, idBuf :: !ByteString }
+data ID = MkID
+#ifdef PUGS_UNDER_GHCI
+    { idBuf :: !ByteString, idKey :: !Int }
+#else
+    { idKey :: !Int, idBuf :: !ByteString }
+#endif
     deriving (Typeable, Data)
 
 instance Eq ID where
@@ -507,15 +512,10 @@ instance ((:>:) ID) String where
     cast str = unsafePerformIO (bufToID (cast str))
 
 instance ((:>:) String) ID where
-    cast (MkID _ buf) = cast buf
+    cast = cast . idBuf
 
 instance ((:<:) ID) ByteString where
-    castBack (MkID _ buf) = buf
-    {-
-     unsafePerformIO $! do
-        buf <- C.lookup i _ID_to_ByteString
-        maybe (internalError ("ID lookup: " ++ show i)) return buf
-    -}
+    castBack = idBuf
 
 instance ((:<:) ByteString) ID where
     castBack buf = unsafePerformIO (bufToID buf)
@@ -527,7 +527,7 @@ bufToID buf = do
     maybe (do
         i <- Foreign.peek _ID_count
         Foreign.poke _ID_count (i + 2)
-        let a = MkID i buf
+        let a = MkID{ idKey = i, idBuf = buf }
         C.insert i buf _IntToID
         C.insert buf a _BufToID
         return a) return a'
