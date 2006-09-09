@@ -720,10 +720,10 @@ reduceSyn "{}" [listExp, indexExp] = do
     idxVal  <- enterRValue $ enterEvalContext idxCxt indexExp
     lv      <- asks envLValue
     doFetch (mkFetch $ doHash varVal hash_fetchElem)
-            (mkFetch $ doHash varVal hash_fetchVal)
-            (fromVal idxVal) lv $ case idxVal of
-                VList {} -> False
-                _        -> True
+        (mkFetch $ doHash varVal hash_fetchVal)
+        (fromVal idxVal) lv $ case idxVal of
+            VList {} -> False
+            _        -> True
 
 reduceSyn "rx" [exp, adverbs] = do
     hv      <- fromVal =<< evalExp adverbs
@@ -1050,7 +1050,6 @@ applySub sub invs args
         = apply sub{ subParams = (length args) `replicate` p } Nothing args -- XXX Wrong
         | otherwise
         = internalError "applyChainsub did not match a chain subroutine"
-
 
 applyExp :: SubType -> [ApplyArg] -> Exp -> Eval Val
 applyExp _ bound (Prim f) =
