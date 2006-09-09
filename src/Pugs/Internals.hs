@@ -148,8 +148,7 @@ import GHC.Conc (unsafeIOToSTM)
 import GHC.Exts (unsafeCoerce#, Word(W#), Word#)
 import qualified Data.Seq as Seq
 
-import qualified Judy.StrMap as H
-import qualified Judy.IntMap as L
+import qualified Judy.Hash as H
 import qualified Judy.CollectionsM as C
 import qualified Data.ByteString.Char8 as Char8
 import qualified Foreign as Foreign
@@ -313,7 +312,7 @@ decodeUTF8 (x:xs) = trace ("decodeUTF8: bad data: " ++ show x) (x:decodeUTF8 xs)
 encodeUTF8 :: String -> String
 encodeUTF8 [] = []
 -- In the \0 case, we diverge from the Unicode standard to remove any trace
--- of embedded nulls in our bytestrings, to allow the use of Judy.StrMap
+-- of embedded nulls in our bytestrings, to allow the use of Judy.Hash
 -- and to make passing CString around easier.  See Java for the same treatment:
 -- http://java.sun.com/j2se/1.5.0/docs/api/java/io/DataInput.html#modified-utf-8
 encodeUTF8 ('\0':cs)
@@ -474,10 +473,10 @@ instance Ord ID where
     MkID x _ > MkID y _ = x > y
 
 instance Show ID where
-    showsPrec x (MkID _ buf) = showsPrec x buf
+    showsPrec x MkID{ idBuf = buf } = showsPrec x buf
 
 instance Read ID where
-    readsPrec p s = [ (unsafePerformIO (bufToID (Char8.pack x)), y) | (x,y) <- readsPrec p s]
+    readsPrec p s = [ (unsafePerformIO (bufToID (Char8.pack x)), y) | (x, y) <- readsPrec p s]
 
 instance ((:>:) String) ByteString where
     cast = decodeUTF8 . Char8.unpack
@@ -496,12 +495,8 @@ __ = Char8.pack
 (+++) :: ByteString -> ByteString -> ByteString
 (+++) = Char8.append
 
-{-# NOINLINE _IntToID #-}
-_IntToID :: L.IntMap Int ByteString
-_IntToID = unsafePerformIO C.new
-
 {-# NOINLINE _BufToID #-}
-_BufToID :: H.StrMap ByteString ID
+_BufToID :: H.Hash ByteString ID
 _BufToID = unsafePerformIO C.new
 
 {-# NOINLINE _ID_count #-}
@@ -524,11 +519,15 @@ instance ((:<:) ByteString) ID where
 bufToID :: ByteString -> IO ID
 bufToID buf = do
     a' <- C.lookup buf _BufToID
-    maybe (do
-        i <- Foreign.peek _ID_count
-        Foreign.poke _ID_count (i + 2)
-        let a = MkID{ idKey = i, idBuf = buf }
-        C.insert i buf _IntToID
-        C.insert buf a _BufToID
-        return a) return a'
+    case a' of
+        Just a  -> do
+            -- print ("HIT", buf, W# (unsafeCoerce# _BufToID))
+            return a
+        _       -> do
+            i <- Foreign.peek _ID_count
+            -- print ("MISS", buf, W# (unsafeCoerce# _BufToID))
+            Foreign.poke _ID_count (i + 2)
+            let a = MkID{ idKey = i, idBuf = buf }
+            C.insert buf a _BufToID
+            return a
 

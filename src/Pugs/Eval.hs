@@ -58,7 +58,8 @@ emptyEnv name genPad = liftSTM $ do
     pad  <- sequence genPad
     ref  <- newTVar Map.empty
     syms <- initSyms
-    glob <- newTVar (combine (pad ++ syms) $ mkPad [])
+    let globPad = combine (pad ++ syms) $ mkPad []
+    glob <- newTVar globPad
     init <- newTVar $ MkInitDat { initPragmas=[] }
     maxi <- newTVar $ MkObjectId 1
     return $ MkEnv
@@ -66,7 +67,7 @@ emptyEnv name genPad = liftSTM $ do
         , envLexical = mkPad []
         , envImplicit= Map.empty
         , envLValue  = False
-        , envGlobal  = glob
+        , envGlobal  = length (show (padKeys globPad)) `seq` glob -- force eval of all sym names
         , envPackage = cast "main"
         , envClasses = initTree
         , envEval    = evaluate
