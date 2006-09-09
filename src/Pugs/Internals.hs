@@ -453,6 +453,9 @@ safeMode = case (inlinePerformIO $ getEnv "PUGS_SAFEMODE") of
 _GlobalFinalizer :: IORef (IO ())
 _GlobalFinalizer = unsafePerformIO $ newIORef (return ())
 
+-- XXX - Under GHCI, our global _BufToID table could be refreshed into
+--       nonexistence, so we need to compare IDs based on the actual buffer,
+--       not its unique key.
 data ID = MkID
 #ifdef PUGS_UNDER_GHCI
     { idBuf :: !ByteString, idKey :: !Int }
@@ -504,7 +507,7 @@ _ID_count :: Foreign.Ptr Int
 _ID_count = unsafePerformIO (Foreign.new 1)
 
 instance ((:>:) ID) String where
-    cast str = unsafePerformIO (bufToID (cast str))
+    cast str = let i = unsafePerformIO (bufToID (cast str)) in idKey `seq` i
 
 instance ((:>:) String) ID where
     cast = cast . idBuf
@@ -513,7 +516,7 @@ instance ((:<:) ID) ByteString where
     castBack = idBuf
 
 instance ((:<:) ByteString) ID where
-    castBack buf = unsafePerformIO (bufToID buf)
+    castBack buf = let i = unsafePerformIO (bufToID buf) in idKey i `seq` i
 
 {-# NOINLINE bufToID #-}
 bufToID :: ByteString -> IO ID
@@ -521,12 +524,12 @@ bufToID buf = do
     a' <- C.lookup buf _BufToID
     case a' of
         Just a  -> do
-            -- print ("HIT", buf, W# (unsafeCoerce# _BufToID))
+            -- print ("HIT", buf, W# (unsafeCoerce# _BufToID), W# (unsafeCoerce# _ID_count))
             return a
         _       -> do
             i <- Foreign.peek _ID_count
-            -- print ("MISS", buf, W# (unsafeCoerce# _BufToID))
-            Foreign.poke _ID_count (i + 2)
+            -- print ("MISS", buf, W# (unsafeCoerce# _BufToID), W# (unsafeCoerce# _ID_count))
+            Foreign.poke _ID_count (succ i)
             let a = MkID{ idKey = i, idBuf = buf }
             C.insert buf a _BufToID
             return a
