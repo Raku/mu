@@ -30,7 +30,7 @@ newtype OpName = MkOpName ID
     deriving (Show, Eq, Typeable, (:>:) String, (:>:) ByteString, (:<:) ByteString)
 
 instance Ord OpName where
-    compare (MkOpName (MkID a x)) (MkOpName (MkID b y))
+    compare (MkOpName MkID{ idKey = a, idBuf = x }) (MkOpName MkID{ idKey = b, idBuf = y })
         = compare (Str.length y) (Str.length x) `mappend` compare b a
 
 -- Not yet transcribed into a full optable parser with dynamic precedence --
