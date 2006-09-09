@@ -1611,7 +1611,9 @@ ruleHashSubscriptBraces = do
 ruleHashSubscriptQW :: RuleParser (Exp -> Exp)
 ruleHashSubscriptQW = do
     exp <- angleBracketLiteral
-    return $ \x -> Syn "{}" [x, exp]
+    return $ case exp of
+        Syn "," []  -> id   -- %x<> means the same as %x{}
+        _           -> \x -> Syn "{}" [x, exp]
 
 ruleCodeSubscript :: RuleParser (Exp -> Exp)
 ruleCodeSubscript = tryVerbatimRule "code subscript" $ do
