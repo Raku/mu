@@ -148,7 +148,7 @@ import GHC.Conc (unsafeIOToSTM)
 import GHC.Exts (unsafeCoerce#, Word(W#), Word#)
 import qualified Data.Seq as Seq
 
-import qualified Judy.Hash as H
+import qualified Judy.StrMap as H
 import qualified Judy.CollectionsM as C
 import qualified Data.ByteString.Char8 as Char8
 import qualified Foreign as Foreign
@@ -312,7 +312,7 @@ decodeUTF8 (x:xs) = trace ("decodeUTF8: bad data: " ++ show x) (x:decodeUTF8 xs)
 encodeUTF8 :: String -> String
 encodeUTF8 [] = []
 -- In the \0 case, we diverge from the Unicode standard to remove any trace
--- of embedded nulls in our bytestrings, to allow the use of Judy.Hash
+-- of embedded nulls in our bytestrings, to allow the use of Judy.StrMap
 -- and to make passing CString around easier.  See Java for the same treatment:
 -- http://java.sun.com/j2se/1.5.0/docs/api/java/io/DataInput.html#modified-utf-8
 encodeUTF8 ('\0':cs)
@@ -499,7 +499,7 @@ __ = Char8.pack
 (+++) = Char8.append
 
 {-# NOINLINE _BufToID #-}
-_BufToID :: H.Hash ByteString ID
+_BufToID :: H.StrMap ByteString ID
 _BufToID = unsafePerformIO C.new
 
 {-# NOINLINE _ID_count #-}
@@ -521,14 +521,14 @@ instance ((:<:) ByteString) ID where
 {-# NOINLINE bufToID #-}
 bufToID :: ByteString -> IO ID
 bufToID buf = do
-    a' <- C.lookup buf _BufToID
+    a'      <- C.lookup buf _BufToID
     case a' of
         Just a  -> do
-            -- print ("HIT", buf, W# (unsafeCoerce# _BufToID), W# (unsafeCoerce# _ID_count))
+            -- hPrint stderr ("HIT", buf, W# (unsafeCoerce# _BufToID), W# (unsafeCoerce# cache))
             return a
         _       -> do
             i <- Foreign.peek _ID_count
-            -- print ("MISS", buf, W# (unsafeCoerce# _BufToID), W# (unsafeCoerce# _ID_count))
+            -- hPrint stderr ("MISS", buf, W# (unsafeCoerce# _BufToID), W# (unsafeCoerce# cache), i)
             Foreign.poke _ID_count (succ i)
             let a = MkID{ idKey = i, idBuf = buf }
             C.insert buf a _BufToID
