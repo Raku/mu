@@ -1537,7 +1537,8 @@ ruleInvocationParens = ruleInvocationCommon True
 
 ruleNamedMethodCall :: RuleParser (Maybe Char, String)
 ruleNamedMethodCall = do
-    let quantifieableName = ruleSubName <|> ruleVarName 
+    let quantifieableName   = simpleMethName <|> ruleVarName 
+        simpleMethName      = fmap ('&':) (ruleOperatorName <|> ruleQualifiedIdentifier)
     choice
         [ fmap ((,) Nothing) quantifieableName                                  -- .meth
         , try (oneOf "*+?" >>= \q -> fmap ((,) (Just q)) quantifieableName )    -- .+meth
