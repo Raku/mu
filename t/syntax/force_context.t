@@ -8,7 +8,7 @@ Context forcing operators
 
 =cut
 
-plan 36;
+plan 40;
 
 # L<S02/Context/numeric "+">
 # numeric (+) context
@@ -72,6 +72,11 @@ plan 36;
     my $d = 1;
     isa_ok(?$d, Bool, 'it is forced into a Bool');
     ok(?$d, 'it is forced into boolean context');
+
+    my $arrayref is context = list(1,2,3);
+    my $boo is context = 37;
+    eval_ok '?(@$+arrayref)', '?(@$arrayref) syntax works';
+    eval_ok '?(@($+arrayref))', '?(@($arrayref)) syntax works';
 }
 
 # L<S03/Changes to Perl 5 operators/"!TERM" "coerced to boolean">
@@ -92,6 +97,11 @@ plan 36;
     my $d = 1;
     isa_ok(!$d, Bool, 'it is forced into a Bool');
     ok(!(!$d), 'it is forced into boolean context');
+
+    my $arrayref is context = list(1,2,3);
+
+    eval_ok '!(!(@$+arrayref))', '!(@$arrayref) syntax works';
+    eval_ok '!(!(@($+arrayref)))', '!(@($arrayref)) syntax works';
 }
 
 # int context
