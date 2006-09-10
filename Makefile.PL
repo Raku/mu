@@ -564,8 +564,7 @@ src/Pugs/CodeGen/PIR/Prelude.hs : src/gen_prelude$Config{_exe} src/perl6/Prelude
 	\@\$(PERL) -e "mkdir q-src/Pugs/CodeGen/PIR-"
 	src/gen_prelude$Config{_exe} Pugs.CodeGen.PIR.Prelude < src/perl6/Prelude/PIR.pm > src/Pugs/CodeGen/PIR/Prelude.hs
 
-# FIXME: should the path to the .hi file for Pugs.AST be hardcoded here?
-src/Pugs/Prelude.hs : src/perl6/Prelude.pm util/gen_prelude.pl dist/build/Pugs/AST.hi
+src/Pugs/Prelude.hs : src/perl6/Prelude.pm util/gen_prelude.pl
 	\$(PERL) util/gen_prelude.pl -v --touch --inline -i src/perl6/Prelude.pm --output src/Pugs/Prelude.hs
 
 ${() = '%.hpp : %.hs @prereqs $version_h
@@ -712,9 +711,9 @@ smoke-perl5 : $pugs util/run-smoke.pl all
 
 
 ghci : @prereqs @derived_srcfiles
-	$ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output -no-link --make -O0 -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Prereqs.hs @prereqs
+	$ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output -DPUGS_UNDER_GHCI -no-link --make -O0 -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Prereqs.hs @prereqs
 	\@\$(RM_RF) src/Pugs/*/*_stub.*
-	$ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs -Lthird-party/judy/Judy-1.0.3/src/obj/.libs -lJudy
+	$ghc @{[ dethread_flags($ghc_flags) ]} $ghc_output -DPUGS_UNDER_GHCI --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs -Lthird-party/judy/Judy-1.0.3/src/obj/.libs -lJudy
 
 ctags : @prereqs @derived_srcfiles
 	echo ":ctags" | $ghc $ghc_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs -Lthird-party/judy/Judy-1.0.3/src/obj/.libs -lJudy
