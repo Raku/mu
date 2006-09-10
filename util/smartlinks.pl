@@ -105,9 +105,11 @@ sub process_t_file ($$) {
             $new_from = $.;
             $to = $. - 1;
         }
-        elsif (/^ \s* \#? \s* L<<? (S\d+) \/ ([^\/]+) \/ (.*) /xo) {
+        elsif (/^ \s* \#? \s* L(<<?) (S\d+) \/ ([^\/]+) \/ (.*) /xo) {
             #warn "$1, $2, $3\n";
-            ($synopsis, $section, $pattern) = ($1, $2, $3);
+            my $brackets;
+            ($brackets, $synopsis, $section, $pattern) = ($1, $2, $3, $4);
+            $brackets = length($brackets);
             $section =~ s/^\s+|\s+$//g;
             $section =~ s/^"(.*)"$/$1/;
             if (!$section) {
@@ -117,8 +119,8 @@ sub process_t_file ($$) {
             if (substr($pattern, -1, 1) ne '>') {
                 $_ = <$in>;
                 s/^\s*\#?\s*|\s+$//g;
-                if (!s/>>?$//) {
-                    error "$infile: line $.: smart links must termanate",
+                if (!s/>{$brackets}$//) {
+                    error "$infile: line $.: smart links must terminate",
                         "in the second line.";
                     next;
                 }
@@ -128,7 +130,7 @@ sub process_t_file ($$) {
             } else {
                 $new_from = $.;
                 $to = $. - 1;
-                chop $pattern;
+                $pattern =~ s/\s*>{$brackets}$//;
             }
             #warn "*$synopsis* *$section* *$pattern*\n";
         }
