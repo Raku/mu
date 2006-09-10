@@ -116,6 +116,7 @@ plan 12;
     is $str, 'nlnl', 'NEXT {} ran before LEAVE {} (2)';
 }
 
+die "Infinite loop - look at this later";
 # L<S04/Closure traits/NEXT "at loop continuation time">
 
 # L<http://groups.google.com/group/perl.perl6.language/msg/07370316d32890dd>
