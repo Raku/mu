@@ -565,7 +565,7 @@ src/Pugs/CodeGen/PIR/Prelude.hs : src/gen_prelude$Config{_exe} src/perl6/Prelude
 	src/gen_prelude$Config{_exe} Pugs.CodeGen.PIR.Prelude < src/perl6/Prelude/PIR.pm > src/Pugs/CodeGen/PIR/Prelude.hs
 
 # FIXME: should the path to the .hi file for Pugs.AST be hardcoded here?
-src/Pugs/Prelude.hs : src/perl6/Prelude.pm util/gen_prelude.pl \$(wildcard dist/build/Pugs/AST.hi)
+src/Pugs/Prelude.hs : src/perl6/Prelude.pm util/gen_prelude.pl dist/build/Pugs/AST.hi
 	\$(PERL) util/gen_prelude.pl -v --touch --inline -i src/perl6/Prelude.pm --output src/Pugs/Prelude.hs
 
 ${() = '%.hpp : %.hs @prereqs $version_h
