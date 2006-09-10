@@ -71,6 +71,19 @@ function tog_quote( idnum ) {
 </script>
 _EOC_
 
+=begin private
+
+=head2 add_link
+
+  add_link($linktree, $synopsis, $section, $pattern, $infile, $from, $to);
+
+Side Effects:
+ - modifies global C<$count> 
+
+=end private
+
+=cut 
+
 sub add_link ($$$$$$$)  {
     my ($linktree, $synopsis, $section, $pattern, $t_file, $from, $to) = @_;
     if ($from == $to) {
@@ -367,7 +380,21 @@ _EOC_
     "\n\n_SMART_LINK_$snippet_id\n\n";
 }
 
-# process_syn: process synopses one by one.
+=begin private
+
+=head2 process_syn
+
+  process_syn($syn, $out_dir, $cssfile, $linktree);
+
+Process synopses one by one.
+
+Side Effects: 
+  modifies global C<$broken_count>
+
+=end private 
+
+=cut 
+
 sub process_syn ($$$$) {
     my ($infile, $out_dir, $cssfile, $linktree) = @_;
     my $syn_id;
