@@ -52,18 +52,18 @@ is($q.header(type => 'text/xml', charset => 'Chinese'),
 
 ", 'got the header we expected (using named args)');
 
-is $q.header(cookies => "Foo"),
+is $q.header(cookie => "Foo"),
     "Content-Type: text/html
 Set-Cookie: Foo
 
 ", "single cookie";
-is $q.header(cookies => ["Foo", "Bar"]),
+is $q.header(cookie => ["Foo", "Bar"]),
     "Content-Type: text/html
 Set-Cookie: Foo
 Set-Cookie: Bar
 
 ", "two cookies";
-is $q.header(cookies => ["Foo", "Bar", "Baz"]),
+is $q.header(cookie => ["Foo", "Bar", "Baz"]),
     "Content-Type: text/html
 Set-Cookie: Foo
 Set-Cookie: Bar

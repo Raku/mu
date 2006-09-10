@@ -1,3 +1,5 @@
+* change 'cookies' attribute spelling to 'cookie', to stay consistent
+with Perl5. (We could add "cookies" as an alias if you feel strongly...).  (Mark Stosberg)
 * Support for "charset" is improving, but still needs a charset method, and 
 a hook in header(). See CGI.pm-p5 for a reference on this. (Mark Stosberg)
 * Added basic tests for escapeHTML and unescapeHTML, which exposed basic problems
@@ -10,13 +12,14 @@ with them. They should now be be basically working. (Mark Stosberg)
 * Only send the Content-Type header if we have a content-type (Mark Stosberg)
 * Only send "Status: " header if it's a redirect, or it's explicitly added.
 (Mark Stosberg)
+
 == Changes for 0.2 Fri Aug 25 20:55:43 EDT 2006
 * Allow Initializing the object with your hash of params (Mark Stosberg)
 * Added new test for PATH_INFO (Mark Stosberg)
 
 == Changes for 0.1  Fri Aug 25 19:23:20 EDT 2006
 * refactored into an OO-only module, breaking 
-  backwards compatibility. (Mark Stosberg)
+backwards compatibility. (Mark Stosberg)
 
 == Changes for 0.0.1
 

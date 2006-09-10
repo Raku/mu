@@ -64,12 +64,12 @@ method set_url_encoding(Str $encoding) {
 # utility functions
 
 method header (
-    Str  $type      = 'text/html',
-    Str  $charset   = undef,
-    Str :$cookies?,
-    Str :$target?,
-    :$expires?,
-    Bool :$nph?,
+    Str        $type      = 'text/html',
+    Str        $charset   = undef,
+    Str|Array :$cookie?,
+    Str       :$target?,
+              :$expires?,
+    Bool      :$nph?,
     *%extra
 ) returns Str {
     # construct our header
@@ -99,14 +99,11 @@ method header (
         }
     }
     
-    if ($cookies) {
-        my @cookies = ($cookies !~~ Array) ?? ($cookies) !! @$cookies;
-        
-        for @cookies -> $cookie {
+    if ($cookie) {
+        for @$cookie -> $one {
             #$cookie = ($cookie ~~ CGI::Cookie) ?? $cookie.as_string !! $cookie;
             
-            $header ~= "Set-Cookie: " ~ $cookie~"\n"
-                unless $cookie eq "";
+            $header ~= "Set-Cookie: " ~ $one~"\n" if $one.chars;
         }
     }
     
@@ -145,7 +142,7 @@ method redirect (
     my $header =  "Status: $status\n";
     
     if $cookie.defined {
-        return $header~self.header('', cookies => $cookie, nph => $nph, extra => %out);
+        return $header~self.header('', cookie => $cookie, nph => $nph, extra => %out);
     } else {
         return $header~self.header('', nph => $nph, extra => %out);
     }
