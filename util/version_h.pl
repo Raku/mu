@@ -2,14 +2,13 @@
 
 # TODO: add a comment explaining what this small program does.
 
-
 use strict;
 use warnings;
-use Cwd;
+use FindBin qw($Bin);
 
 chdir_to_base();
-my $version_h = shift || Cwd::cwd() . "/src/Pugs/pugs_version.h";
-my $base = shift || Cwd::cwd();
+my $version_h = shift || "$Bin/../src/Pugs/pugs_version.h";
+my $base = shift || "$Bin/../";
 my $svn_entries = "$base/.svn/entries";
 
 my $old_revision = -1;
