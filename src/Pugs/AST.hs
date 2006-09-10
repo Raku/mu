@@ -331,4 +331,4 @@ _reserved = Set.fromList . cast . words $
     "@*ARGS @*INC %*INC $*PUGS_HAS_HSPLUGINS $*EXECUTABLE_NAME " ++
     "$*PROGRAM_NAME $*PID $*UID $*EUID $*GID $*EGID @*CHECK @*INIT $*IN " ++
     "$*OUT $*ERR $*ARGS $/ %*ENV $*CWD @=POD $=POD $?PUGS_VERSION " ++
-    "$*OS &?BLOCK_EXIT %?CONFIG $*_ $*AUTOLOAD"
+    "$*OS &?BLOCK_EXIT %?CONFIG $*_ $*AUTOLOAD $*PUGS_VERSION"
