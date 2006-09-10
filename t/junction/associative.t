@@ -9,7 +9,6 @@ plan 14;
 Checking Junctions' Associativeness
 
 L<S09/"Junctions">
-
 L<S03/"Junctive operators">
 
 =cut
