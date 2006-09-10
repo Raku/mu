@@ -13,15 +13,18 @@ yields
 
 =cut
 
-plan 3;
+plan 4;
 
 class C { has $.a; }
 sub f() { C.new(:a(123)) }
+sub g() { my C $x .= new(:a(123)); $x }
 
 is(C.new(:a(123)).a, 123, 'C.new().a worked');
 
 my $o = f();
 is($o.a, 123, 'my $o = f(); $o.a worked');
 
-is(try { f().a }, 123, 'f().a worked (so the pugsbug is fixed)');
+is(try { f().a }, 123, 'f().a worked (so the pugsbug is fixed (part 1))');
+
+is(try { g().a }, 123, 'g().a worked (so the pugsbug is fixed (part 2))');
 
