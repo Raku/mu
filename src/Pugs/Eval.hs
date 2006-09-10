@@ -567,8 +567,14 @@ reduceSyn name [cond, body]
                     rv <- enterLex [symRedo] $ reduce body
                     case rv of
                         VError _ _  -> retVal rv
-                        _           -> runLoop
+                        _           -> do
+                            runBlocksIn body subNextBlocks
+                            runLoop
                 _ -> retVal vbool
+    runBlocksIn (Syn "block" [Val (VCode cv)]) f = do
+        mapM_ (reduceSyn "block" . (:[]) . Syn "sub" . (:[]) . Val . castV) (f cv)
+    runBlocksIn x _ = do
+        return ()
 
 reduceSyn "=" [lhs, rhs] = do
     refVal  <- enterLValue $ evalExp lhs
