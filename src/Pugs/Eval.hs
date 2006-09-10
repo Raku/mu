@@ -568,7 +568,7 @@ reduceSyn name [cond, body]
                     case rv of
                         VError _ _  -> retVal rv
                         _           -> do
-                            runBlocksIn body subNextBlocks
+                            runBlocksIn body (reverse . subNextBlocks)
                             runLoop
                 _ -> retVal vbool
     runBlocksIn (Syn "block" [Val (VCode cv)]) f = do
