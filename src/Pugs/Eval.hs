@@ -573,8 +573,7 @@ reduceSyn name [cond, body]
                 _ -> retVal vbool
     runBlocksIn (Syn "block" [Val (VCode cv)]) f = do
         mapM_ (reduceSyn "block" . (:[]) . Syn "sub" . (:[]) . Val . castV) (f cv)
-    runBlocksIn x _ = do
-        return ()
+    runBlocksIn _ _ = return ()
 
 reduceSyn "=" [lhs, rhs] = do
     refVal  <- enterLValue $ evalExp lhs

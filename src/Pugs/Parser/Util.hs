@@ -1,14 +1,11 @@
 {-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
 module Pugs.Parser.Util where
 
-import Debug.Trace (trace)
-import Data.Generics (somewhere)
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
 import Pugs.Lexer
 import Pugs.Rule
-import Pugs.Pretty (Pretty, pretty)
 import Pugs.Parser.Types
 import qualified Data.Map as Map
 import qualified Data.Set as Set

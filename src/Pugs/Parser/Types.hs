@@ -18,11 +18,9 @@ import Pugs.Rule
 import Pugs.Types
 import Pugs.Internals
 import Text.ParserCombinators.Parsec.Pos
-import Data.Generics (somewhere)
 import Debug.Trace
 import qualified Data.Map as Map
 import qualified Data.Set as Set
-import qualified Data.ByteString.Char8 as Str
 
 satisfy :: (Char -> Bool) -> RuleParser Char
 satisfy f = tokenPrimEx
@@ -258,7 +256,7 @@ addClosureTrait name trait = do
                                    "sub" -> liftM ((Syn typ) . (:[])) $ addTrait x
                                    "block" -> liftM ((Syn typ) . (:[])) $ addTrait x
                                    _ ->       Nothing
-      addTrait x = Nothing
+      addTrait _ = Nothing
 {-|
 Update the 's_outerVars' in the parser's state by applying a transformation function.
 -}
