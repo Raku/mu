@@ -1,4 +1,8 @@
 #!/usr/bin/perl -w
+
+# TODO: add a comment explaining what this small program does.
+
+
 use strict;
 use warnings;
 use Cwd;
@@ -32,7 +36,7 @@ if (-e "$base/MANIFEST") {
 }
 elsif (-r $svn_entries) {
     print "Writing version from $svn_entries to $version_h\n";
-    open FH, $svn_entries or die $!;
+    open FH, $svn_entries or die "Unable to open file ($svn_entries). Aborting. Error returned was: $!";
     while (<FH>) {
         /^ *committed-rev=.(\d+)./ or next;
         $revision = $1;
@@ -65,7 +69,7 @@ if ($revision != $old_revision) {
   # "io" warnings off, perl will print "Filehandle STDIN reopened...", because
   # our handle for $version_h got slot #0, like STDIN.
   no warnings "io";
-  open OUT, "> $version_h" or die $!;
+  open OUT, "> $version_h" or die "unable to open file ($version_h) for writing. Aborting. Error was: $!";
   print OUT "#undef PUGS_SVN_REVISION\n";
   print OUT "#define PUGS_SVN_REVISION $revision\n";
   close OUT;
