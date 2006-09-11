@@ -1,8 +1,8 @@
 use v6-alpha;
-
 use Test;
-
 plan 2;
+
+# L<S29/"Hash"/"=item exists">
 
 sub gen_hash {
 	my %h{'a'..'z'} = (1..26);

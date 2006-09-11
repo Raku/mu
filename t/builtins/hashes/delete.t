@@ -1,6 +1,8 @@
 use v6-alpha;
-
 use Test;
+plan 4;
+
+# L<S29/"Hash"/"=item delete">
 
 =pod
 
@@ -14,7 +16,6 @@ Test delete method of Spec Functions.
 
 =cut
 
-plan 4;
 
 sub gen_hash {
 	my %h{'a'..'z'} = (1..26);
