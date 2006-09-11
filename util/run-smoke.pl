@@ -68,7 +68,7 @@ my $dev_null = File::Spec->devnull;
 
 my $output ;# = svn("up") or die "Could not update pugs tree: $!";
 my $yml_location = $html_location;
-$yml_location =~ s/(\.html?(\+)?)?$/.yml$2/;
+$yml_location =~ s/(\.html?(\+)?)?$/'.yml'.($2||'')/e;
 push @yaml_harness_args, ('--output-file', $yml_location);
 system($^X, qw(-w ./util/yaml_harness.pl),
             @yaml_harness_args) == 0 or die "Could not run yaml harness: $!";
