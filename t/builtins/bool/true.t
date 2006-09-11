@@ -1,8 +1,8 @@
 use v6-alpha;
-
 use Test;
-
 plan 10;
+
+# true appears not be spec'ed. p6l has been notified. 
 
 ok(true 1,     "true 1 is true");
 ok(true -1,    "true -1 is true");

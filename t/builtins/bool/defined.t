@@ -1,6 +1,8 @@
 use v6-alpha;
-
 use Test;
+plan 21;
+
+# L<S29/"Scalar"/"=item defined">
 
 =pod
 
@@ -8,7 +10,6 @@ Tests for the defined() builtin
 
 =cut
 
-plan 21;
 
 ok(!defined(undef), 'undef is not defined');
 
