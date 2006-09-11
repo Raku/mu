@@ -272,7 +272,17 @@ sub set_postamble {
     my $hsc2hs_flags = "";
     my $ccdlflags = "";
 
-    if (!$ENV{PUGS_EMBED} or $ENV{PUGS_EMBED} !~ /[-!]perl5\b/i) {
+    # [-!]perl5 does not work with the \bFLAG\b convention used in this file.
+    # It should be removed, or the convention, and code, fixed.
+    # Went in 2006-08-30.  Depreciated 2006-09-11.
+    if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /[-!]perl5\b/i) {
+        push @warn,  << '.';
+*** PUGS_EMBED flags "-perl5" and "!perl5" are depreciated and buggy.
+    Please use "noperl5" instead.
+
+.
+    }
+    if (!$ENV{PUGS_EMBED} or $ENV{PUGS_EMBED} !~ /(?:[-!]|\bno)perl5\b/i) {
         $ENV{PUGS_EMBED} .= " perl5 ";
         #push @prereqs, "src/perl5/p5embed.o"; # XXX
         # $ghc_output .= " src/perl5/p5embed.o ";
@@ -292,7 +302,7 @@ sub set_postamble {
                         die << 'END';
 *** ActivePerl 5.8.7 and below does not support Perl 5 embedding.
     Please upgrade to 5.8.8 or above, or disable Perl 5 embedding
-    by setting the PUGS_EMBED environment variable to "-perl5".
+    by setting the PUGS_EMBED environment variable to "noperl5".
 END
                     }
 
@@ -330,7 +340,7 @@ END
     else {
         push @warn, << '.';
 *** Perl 5 embedding disabled.  If you want Perl 5 support, please set the
-    PUGS_EMBED environment variable to not contain "-perl5".
+    PUGS_EMBED environment variable to not contain "noperl5".
 
 .
     }
@@ -367,7 +377,7 @@ END
             die <<EOD;
 *** Could not find libperl.so in: $Config{libpth} $Config{libsdirs}
     Solutions include:
-        * Remove perl5 from PUGS_EMBED
+        * Add noperl5 to PUGS_EMBED
 $message
 EOD
         }
