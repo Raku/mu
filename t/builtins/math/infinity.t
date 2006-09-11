@@ -1,4 +1,4 @@
-uLse v6-alpha;
+use v6-alpha;
 use Test;
 plan 8;
 
