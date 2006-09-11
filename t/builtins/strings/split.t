@@ -2,6 +2,8 @@ use v6-alpha;
 
 use Test;
 
+# L<S29/Str/"=item split">
+
 # XXX - this needs to be updated when Str.split(Str) works again
 # this test really wants is_deeply()
 plan 94;
