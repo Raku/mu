@@ -1,6 +1,8 @@
 use v6-alpha;
-
 use Test;
+
+# L<S09/Subscript and slice notation>
+# (Could use an additional smart link)
 
 =kwid 
 
