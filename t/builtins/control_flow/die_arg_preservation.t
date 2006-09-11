@@ -1,6 +1,8 @@
 use v6-alpha;
-
 use Test;
+plan 10;
+
+# L<S29/"Control::Basic"/"=item die">
 
 =pod
 
@@ -9,7 +11,6 @@ and does not cast its argument as a Str.
 
 =cut
 
-plan 10;
 
 try {
     my Bool $foo = Bool::True;

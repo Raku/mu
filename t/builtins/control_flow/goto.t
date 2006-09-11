@@ -1,6 +1,8 @@
 use v6-alpha;
-
 use Test;
+plan 9;
+
+# L<Block/"The goto statement">
 
 =kwid
 
@@ -10,7 +12,6 @@ We have "phases" to make sure the gotos didn't run wild.
 
 =cut
 
-plan 9;
 
 our $phase;
 

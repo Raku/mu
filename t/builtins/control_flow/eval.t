@@ -1,6 +1,8 @@
 use v6-alpha;
-
 use Test;
+plan 5;
+
+# L<S29/"Control::Basic"/"=item eval">
 
 =pod
 
@@ -8,7 +10,6 @@ Tests for the eval() builtin
 
 =cut
 
-plan 5;
 
 if $?PUGS_BACKEND ne "BACKEND_PUGS" {
   skip_rest "PIL2JS and PIL-Run do not support eval() yet.";
