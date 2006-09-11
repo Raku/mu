@@ -1,4 +1,4 @@
-use Test; plan 12;
+use Test; plan 13;
 
 # L<S12/"Calling Sets of Methods">
 # L<S12/"Roles">
@@ -87,6 +87,8 @@ role plugin_2 { multi method init_hook { $.cnt += 3 } }
     # TODO: add test for $object.+$meth (dynamic method) as well
 
 }
+
+ok(0,q'STUB: $object.*WALK[:breadth:omit($?CLASS)]::meth(@args);', :todo<feature> )
 
 ok(0, "STUB: there is more Calling Sets functionality which needs tests", :todo<feature>);
 # vim: ft=perl6
