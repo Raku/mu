@@ -1,8 +1,8 @@
 use v6-alpha;
-
 use Test;
-
 plan 21;
+
+# L<S29/"List"/"=item sort">
 
 {
     my @a = (4, 5, 3, 2, 5, 1);

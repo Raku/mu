@@ -1,8 +1,8 @@
 use v6-alpha;
-
 use Test;
-
 plan 2;
+
+# L<S29/"List"/"=item map">
 
 my $text  = "abc";
 my %ret;

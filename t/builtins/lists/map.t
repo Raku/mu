@@ -1,6 +1,8 @@
 use v6-alpha;
-
 use Test;
+plan 58;
+
+# L<S29/"List"/"=item map">
 
 =kwid
 
@@ -8,7 +10,6 @@ use Test;
 
 =cut
 
-plan 58;
 
 my @list = (1 .. 5);
 

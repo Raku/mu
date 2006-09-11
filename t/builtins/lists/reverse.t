@@ -1,6 +1,8 @@
 use v6-alpha;
-
 use Test;
+plan 36;
+
+# L<S29/"List"/"=item reverse">
 
 =kwid
 
@@ -10,7 +12,6 @@ NOTE: "reverse" is no longer context-sensitive.  See S29.
 
 =cut
 
-plan 36;
 
 my @a = reverse(1, 2, 3, 4);
 my @e = (4, 3, 2, 1);

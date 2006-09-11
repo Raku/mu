@@ -1,8 +1,8 @@
 use v6-alpha;
-
 use Test;
-
 plan 5;
+
+# L<S29/"List"/"=item map">
 
 # Note: int is only an example, say and all other builtins which default to $_
 # don't work, either.

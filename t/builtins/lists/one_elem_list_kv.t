@@ -1,8 +1,8 @@
 use v6-alpha;
-
 use Test;
+plan 5;
 
-plan(5);
+# L<S29/"Hash"/"=item kv">
 
 # (1,).kv works correctly
 my @a = ();

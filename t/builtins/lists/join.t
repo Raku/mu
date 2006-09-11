@@ -1,8 +1,8 @@
 use v6-alpha;
-
 use Test;
-
 plan 31;
+
+# L<S29/"List"/"=item join">
 
 # test all variants of join() 
 

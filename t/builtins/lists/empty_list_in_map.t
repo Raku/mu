@@ -1,8 +1,8 @@
 use v6-alpha;
-
 use Test;
-
 plan 7;
+
+# L<S29/"List"/"=item map">
 
 # Test was primarily aimed at PIL2JS, which did not pass this test (fixed now).
 {
