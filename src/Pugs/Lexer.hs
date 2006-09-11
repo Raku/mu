@@ -30,6 +30,7 @@ import Pugs.AST
 import Pugs.Rule
 import Pugs.Types
 import Pugs.Parser.Types
+import Pugs.Parser.Charnames
 
 identStart, identLetter :: RuleParser Char
 identStart  = satisfy isWordAlpha
@@ -264,10 +265,17 @@ escapeCode      = charNum <|> ch charEsc <|> ch charAscii <|> ch charControl <|>
     ch = fmap (:[])
 
 charControl :: RuleParser Char
-charControl     = do{ char 'c'
-                    ; code <- upper <|> char '@'
-                    ; return (toEnum (fromEnum code - fromEnum '@'))
-                    }
+charControl = do
+    char 'c'
+    code <- upper <|> oneOf "@["
+    case code of
+        '[' -> do
+            charName <- many (satisfy (/= ']'))
+            char ']'
+            case nameToCode charName of
+                Just c  -> return (chr c)
+                _       -> error $ "Invalid unicode character name: " ++ charName
+        _   -> return (toEnum (fromEnum code - fromEnum '@'))
 
 -- This is currently the only escape that can return multiples.
 charNum :: RuleParser String
@@ -482,7 +490,7 @@ fractFloat n    = do{ f <- fractExponent n
                     }
                     
 fractExponent n = do{ fract <- fraction
-                    ; expo  <- option 1.0 exponent'
+                    ; expo  <- option (1.0 :: Double) exponent'
                     ; return ((fromInteger n + fract)*expo)
                     }
                 <|>
@@ -492,11 +500,11 @@ fractExponent n = do{ fract <- fraction
 
 fraction        = do{ char '.'
                     ; digits <- many1 digit <?> "fraction"
-                    ; return (foldr op 0.0 digits)
+                    ; return (foldr op (0.0 :: Double) digits)
                     }
                     <?> "fraction"
                 where
-                    op d f    = (f + fromIntegral (digitToInt d))/10.0
+                    op d f    = (f + fromIntegral (digitToInt d)) / (10.0 :: Double)
                     
 exponent'       = do{ oneOf "eE"
                     ; f <- sign'
