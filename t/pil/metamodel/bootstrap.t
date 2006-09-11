@@ -40,11 +40,11 @@ pil_is_eq('^Role.identifier()',    '"Role-0.0.1-url:pugscode.org"',    '... ^Rol
 
 # check that they all have ^Class as thier $?CLASS
 
-pil_is_eq('^Class.meta()`eq(^Class)',   'true', '... ^Class.meta.eq(Class)');
-pil_is_eq('^Object.meta()`eq(^Class)',  'true', '... ^Object.meta.eq(Class)');
-pil_is_eq('^Package.meta()`eq(^Class)', 'true', '... ^Package.meta.eq(Class)');
-pil_is_eq('^Module.meta()`eq(^Class)',  'true', '... ^Module.meta.eq(Class)');
-pil_is_eq('^Role.meta()`eq(^Class)',    'true', '... ^Role.meta.eq(Class)');
+pil_is_eq('^Class.META()`eq(^Class)',   'true', '... ^Class.META.eq(Class)');
+pil_is_eq('^Object.META()`eq(^Class)',  'true', '... ^Object.META.eq(Class)');
+pil_is_eq('^Package.META()`eq(^Class)', 'true', '... ^Package.META.eq(Class)');
+pil_is_eq('^Module.META()`eq(^Class)',  'true', '... ^Module.META.eq(Class)');
+pil_is_eq('^Role.META()`eq(^Class)',    'true', '... ^Role.META.eq(Class)');
 
 # check some of our is-a relationships
 

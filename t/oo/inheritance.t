@@ -59,12 +59,12 @@ ok  Foo::Bar.isa(Class),    "subclass.isa(Class) is false", :todo<feature>;
 ok  Foo::Bar.does(Class),   "subclass.does(Class) is true", :todo<feature>;
 ok !Foo::Bar.does(::CLASS),   "subclass.does(CLASS) is false";
 ok !Foo::Bar.isa(::CLASS),    "subclass.isa(CLASS) is false";
-ok !Foo::Bar.meta.isa(Foo),      "subclass.meta.isa(superclass) is false";
-ok !Foo::Bar.meta.isa(Foo::Bar), "subclass.meta.isa(same_subclass) is false";
-ok !Foo::Bar.meta.isa(Class),    "subclass.meta.isa(Class) is false";
-ok !Foo::Bar.meta.does(Class),   "subclass.meta.does(Class) is false";
-ok !Foo::Bar.meta.isa(::CLASS),    "subclass.meta.isa(CLASS) is false";
-ok  Foo::Bar.meta.does(::CLASS),   "subclass.meta.does(CLASS) is true", :todo<feature>;
+ok !Foo::Bar.META.isa(Foo),      "subclass.META.isa(superclass) is false";
+ok !Foo::Bar.META.isa(Foo::Bar), "subclass.META.isa(same_subclass) is false";
+ok !Foo::Bar.META.isa(Class),    "subclass.META.isa(Class) is false";
+ok !Foo::Bar.META.does(Class),   "subclass.META.does(Class) is false";
+ok !Foo::Bar.META.isa(::CLASS),    "subclass.META.isa(CLASS) is false";
+ok  Foo::Bar.META.does(::CLASS),   "subclass.META.does(CLASS) is true", :todo<feature>;
 
 
 {

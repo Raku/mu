@@ -15,19 +15,19 @@ Basic role tests from L<S12/"Roles">
 role Foo {}
 class Bar does Foo;
 
-ok Foo.meta, "definition of a role worked";
-ok Bar.meta, "definition of a class which does a role worked";
+ok Foo.META, "definition of a role worked";
+ok Bar.META, "definition of a class which does a role worked";
 
-# Smartmatch and .meta.does
+# Smartmatch and .META.does
 my $bar = Bar.new();
 ok ($bar ~~ Bar),         '... smartmatch our $bar to the Bar class';
-ok ($bar.meta.does(Foo)), '.meta.does said our $bar does Foo';
+ok ($bar.META.does(Foo)), '.META.does said our $bar does Foo';
 ok ($bar ~~ Foo),         'smartmatch said our $bar does Foo';
 
 # Mixing a Role into an Object using imperative C<does>
 my $baz = 3;
 eval_ok '$baz does Foo',       'mixing in our Foo role into $baz worked', :todo<feature>;
-eval_ok '$baz.meta.does(Foo)', '.meta.does said our $baz now does Foo', :todo<feature>;
+eval_ok '$baz.META.does(Foo)', '.META.does said our $baz now does Foo', :todo<feature>;
 eval_ok '$baz ~~ Baz',         'smartmatch said our $baz now does Foo', :todo<feature>;
 
 # L<S12/"Roles" /but with a role keyword:/>

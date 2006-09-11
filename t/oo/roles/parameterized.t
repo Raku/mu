@@ -25,11 +25,11 @@ ok eval('$a does InitialAttribVal[42]'),
 is try { $a.attr }, 42,
   "attribute was initialized correctly (1)", :todo<feature>;
 # L<A12/"Encapsulated Attributes" /In which case all of these are true:/>
-ok eval('$a.meta.does(InitialAttribVal)'),
-  ".meta.does gives correct information (1-1)", :todo<feature>;
+ok eval('$a.META.does(InitialAttribVal)'),
+  ".META.does gives correct information (1-1)", :todo<feature>;
 # L<A12/"Encapsulated Attributes" /but this is false:/>
-ok eval('!$a.meta.does(InitialAttribVal[42])'),
-  ".meta.does gives correct information (1-2)", :todo<feature>;
+ok eval('!$a.META.does(InitialAttribVal[42])'),
+  ".META.does gives correct information (1-2)", :todo<feature>;
 
 my $b;
 ok eval('$a does InitialAttribVal[23]'),
@@ -37,11 +37,11 @@ ok eval('$a does InitialAttribVal[23]'),
 is try { $a.attr }, 23,
   "attribute was initialized correctly (2)", :todo<feature>;
 # L<A12/"Encapsulated Attributes" /In which case all of these are true:/>
-ok eval('$a.meta.does(InitialAttribVal)'),
-  ".meta.does gives correct information (2-1)", :todo<feature>;
+ok eval('$a.META.does(InitialAttribVal)'),
+  ".META.does gives correct information (2-1)", :todo<feature>;
 # L<A12/"Encapsulated Attributes" /but this is false:/>
-ok eval('!$a.meta.does(InitialAttribVal[23])'),
-  ".meta.does gives correct information (2-2)", :todo<feature>;
+ok eval('!$a.META.does(InitialAttribVal[23])'),
+  ".META.does gives correct information (2-2)", :todo<feature>;
 
 
 
@@ -55,10 +55,10 @@ eval_ok '
 my $c;
 ok eval('$c does InitialAttribType[Code]'),
   "imperative does to apply a parametrized role (3)", :todo<feature>;
-ok eval('$c.meta.does(InitialAttribType)'),
-  ".meta.does gives correct information (3-1)", :todo<feature>;
-ok eval('$c.meta.does(InitialAttribType[Code])'),
-  ".meta.does gives correct information (3-2)", :todo<feature>;
+ok eval('$c.META.does(InitialAttribType)'),
+  ".META.does gives correct information (3-1)", :todo<feature>;
+ok eval('$c.META.does(InitialAttribType[Code])'),
+  ".META.does gives correct information (3-2)", :todo<feature>;
 is try { $c.hi(sub {}) }, 42,
   "type information was processed correctly (1)", :todo<feature>;
 dies_ok { $c.hi("not a code object") },
@@ -91,11 +91,11 @@ ok eval('
 my $d;
 ok eval('$d does InitialAttribBoth["type1", "name1"]'),
   "imperative does to apply a parametrized role (4)", :todo<feature>;
-ok eval('$c.meta.does(InitialAttribType)'),
-  ".meta.does gives correct information (4-1)", :todo<feature>;
-ok eval('$d.meta.does(InitialAttribType["type1"])'),
-  ".meta.does gives correct information (4-2)", :todo<feature>;
-ok eval('!$d.meta.does(InitialAttribType["type1", "name1"])'),
-  ".meta.does gives correct information (4-3)";
+ok eval('$c.META.does(InitialAttribType)'),
+  ".META.does gives correct information (4-1)", :todo<feature>;
+ok eval('$d.META.does(InitialAttribType["type1"])'),
+  ".META.does gives correct information (4-2)", :todo<feature>;
+ok eval('!$d.META.does(InitialAttribType["type1", "name1"])'),
+  ".META.does gives correct information (4-3)";
 is try { $d.type }, "type1", ".type works correctly", :todo<feature>;
 is try { $d.name }, "name1", ".name works correctly", :todo<feature>;
