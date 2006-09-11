@@ -417,6 +417,7 @@ sub process_syn ($$$$) {
 
     my $linktree_sections = $linktree->{"S$syn_id"};
     if (!$linktree_sections) {
+        # We won't generate the HTML file if there's no smartlink in it.
         return;
     }
     $snippet_id = 0;
@@ -465,6 +466,9 @@ sub process_syn ($$$$) {
             }
         }
     }
+
+    # We need this to check invalid smartlinks pointed to unexistent docs:
+    delete $linktree->{"S$syn_id"};
 
     if (!$check) {
         #use Data::Dumper;
@@ -637,6 +641,19 @@ sub main () {
     for my $syn (@syns) {
         process_syn($syn, $out_dir, $cssfile, $linktree);
     }
+
+    # check for hanging smartlinks:
+    while (my ($syn, $linktree_sections) = each %$linktree) {
+        for my $links (values %$linktree_sections) {
+            for my $link (@$links) {
+                my ($file, $lineno) = @{ $link->[1] };
+                error("$file: line $lineno: smartlink pointing to " .
+                    "an unknown synopsis ($syn)"),
+                $broken_count++;
+            }
+        }
+    }
+
     warn "info: $count smartlinks found and $broken_count broken.\n";
     if (!$check) {
         warn "hint: use the --check option for details on broken smartlinks.\n";
@@ -675,6 +692,89 @@ optional advanced features may require the user to run pugs'
 "make" or even "make smoke".
 
 =back
+
+=head1 Smartlink Syntax
+
+Smartlinks are planted in the test file, and are pointed to the appropriate sections
+of the Synopsis you are using to write the test.
+
+They look like pod links:
+
+    L<S06/Blocks>            # "S06" is synopsis 6, and "Blocks" is the section
+    L<S03/"Hyper operators"> # quotes can be used when spaces are in the title,
+                             # but is NOT required.
+    L<S03/Hyper operators>   # just fine
+
+The section name should be copied verbatim from the POD (usually after =head),
+including any POD tags like C<...> and punctuations.
+
+The smartlinks also have a weird (also important) extension: you can specify some 
+keyphrases, to skip forward from the linked section, so the smartlink is put into
+a more specific place:
+
+    L<S05/"Return values from matches"/"In numeric context" number 'matches:'>
+
+The above smartlink is appropriate next to a test case checking rule application in
+numeric context, and it will place the backlink appropriately.
+
+All the keyphrases listed after the second slash in a smartlink should appear in
+a single sentence from the synopsis text, and the order is significant. If 
+there're spaces in a keyphrase, quote it using either double-quotes or signle-quotes.
+
+In contrast with the case of section name, you should never use POD tags like
+C<...> in a keyphrase. util/smartlinks.pl will do the right thing. You can use,
+however, pod directives in the keyphrases, just like this:
+
+    # L<S04/Str/"=item split">
+
+Smartlinks in .t files can be preceded by nothing but spaces or "#", otherwise
+they can't be recognized by tools.
+
+There's also a variant for the smartlink syntax:
+
+   # L<<syn/sec/key phrases>>
+
+A smartlink can span at most 2 lines:
+
+   # L<S04/section name/key1
+   #   "key2" key3 key4>
+
+Only the keyphrase list part can continue to the next line. So the following example
+is invalid:
+
+   # L<S04/section
+   #   name/blah blah blah>      # WRONG!!!
+
+Please don't put a smartlink in the middle of a group of tests. Put it right
+*before* the group of tests it is related to.
+
+Multiple adjacent smartlinks can share the same snippet of tests right below
+them:
+
+    # L<S02/Context/boolean "?">
+    # L<S03/Changes to Perl 5 operators/"?" imposes boolean context>
+    { ... }
+
+smartlinks.pl can take care of this kind of special cases.
+
+You can put a URL to create a generic link:
+
+  L<"http://groups.google.de/group/perl.perl6.language/msg/07aefb88f5fc8429">
+
+or without quotes:
+
+  L<http://www.nntp.perl.org/group/perl.perl6.language/26071>
+
+Try running 'grep -r "L<" t/' to see some examples, or look at
+t/syntax/comments.t.
+
+There're also some legacy smartlinks using the following syntax:
+
+   L<S04/"section name" /regex/>
+   L<<S04/"section name" /regex/>>
+
+They're also supported by util/smartlinks.pl for backward-compatibility,
+but are definitely deprecated now.
 
 =head1 Basic Algorithm
 
