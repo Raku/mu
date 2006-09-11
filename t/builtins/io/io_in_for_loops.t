@@ -3,7 +3,7 @@ use v6-alpha;
 use Test;
 
 plan 49;
-force_todo(26 .. 36, 38 .. 48);
+force_todo(38 .. 48);
 
 if $*OS eq "browser" {
   skip_rest "Programs running in browsers don't have access to regular IO.";
