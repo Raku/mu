@@ -61,12 +61,12 @@ plan 13;
 
 # L<S02/Context/"can override the class definition:">
 # L<S12/Roles/generalize a particular enumerated value to its role.>
-my $true_zero;
-ok((eval '$true_zero = 0 but True; 1'), "0 but True syntax evaluates");
+my $true_zero is context;
+eval_ok '$+true_zero = 0 but True; 1', "0 but True syntax evaluates";
 ok ($true_zero == 0), "0 but True is numerically equal to 0";
 ok ?($true_zero), "0 but True is true";
 # TimToady++ says I can test False as well
-my $false_positive;
-ok(eval('$false_positive = 3 but False; 1'), "3 but False syntax evaluates");
+my $false_positive is context;
+eval_ok '$+false_positive = 3 but False; 1', "3 but False syntax evaluates";
 ok ($false_positive == 3), "3 but False is numerically equal to 3";
 ok !($false_positive), "3 but False is false";
