@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-full-laziness -fno-cse -cpp -fvia-C #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-full-laziness -fno-cse -cpp -fvia-C -fallow-overlapping-instances #-}
 
 module Pugs.Parser.Charnames (nameToCode) where
 
