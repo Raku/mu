@@ -152,6 +152,7 @@ instance IValue P ValNative where
     valMeta NNum{}      = cast "num"
     valMeta NComplex{}  = cast "complex"
     valCompare          = compare
+    valShow             = cast . show
     valId x             = cast x
 
 -- | 'SKID' is an unique ID that distinguishes two @Val@s of the same type from each other.
