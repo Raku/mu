@@ -1,12 +1,15 @@
 use v6-alpha;
-
 use Test;
-
 plan 36;
+
+# L<S29/"Math::Basic"/"=item round">
+# L<S29/"Math::Basic"/"=item floor">
+# L<S29/"Math::Basic"/"=item truncate">
+# L<S29/"Math::Basic"/"=item ceiling">
 
 =pod
 
-Basic tests for the round(), floor(), trunc() and ceil() built-ins
+Basic tests for the round(), floor(), truncate() and ceil() built-ins
 
 =cut
 

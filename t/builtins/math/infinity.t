@@ -1,8 +1,8 @@
-use v6-alpha;
-
+uLse v6-alpha;
 use Test;
-
 plan 8;
+
+# Needs a smartlink, but is currently unspec'ed
 
 {
     my $x = Inf;

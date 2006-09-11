@@ -1,8 +1,8 @@
 use v6-alpha;
-
 use Test;
-
 plan 1;
+
+# L<S29/"Math::Basic"/"=item exp">
 
 =pod 
 

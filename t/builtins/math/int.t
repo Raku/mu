@@ -1,8 +1,10 @@
 use v6-alpha;
-
 use Test;
-
 plan 53;
+
+# L<S29/"Math::Basic"/"=item truncate">
+# truncate and int() are synonynms. 
+# Possibly more tests for truncate should be added here, too. 
 
 =pod
 
