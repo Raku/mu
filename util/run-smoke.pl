@@ -76,7 +76,7 @@ system($^X, qw(-w ./util/testgraph.pl), ('--inlinecss', $yml_location), $html_lo
 upload_smoke($html_location, $yml_location);
 if ($smoke_upload) {
   if (defined $smoke_upload_script) {
-    system("$^X $smoke_upload_script $html_location") == 0
+    system($^X => $smoke_upload_script, $html_location, $yml_location) == 0
         or die "Couln't run smoke upload script: $!";
   }
 } else {
