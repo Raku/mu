@@ -1,0 +1,1 @@
+Automata::Cellular is a Perl 6 class that provides interfaces to print the output of Wolfram-style cellular automata to a terminal.  It is not a port of anything in Perl 5, other than a script whose port to Perl 6 is included in ext/ca_wolfram.pl.
