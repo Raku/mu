@@ -63,10 +63,10 @@ you run "perl Makefile.PL", for example:
 To control which optional subsystems are embedded in Pugs, set the 
 PUGS_EMBED variable. For example: 
  
-    export PUGS_EMBED="!perl5 parrot" (bash)
-    setenv PUGS_EMBED "!perl5 parrot" (csh)
+    export PUGS_EMBED="-perl5 parrot" (bash)
+    setenv PUGS_EMBED "-perl5 parrot" (csh)
 
-Perl5 is now embedded by default.  Use "!perl5" to avoid.
+Perl5 is now embedded by default.  Use "-perl5" to avoid.
 
 To build with an embedded parrot interpreter, make sure the PUGS_EMBED 
 variable contains "parrot", and set the PARROT_PATH variable to point to 

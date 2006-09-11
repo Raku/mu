@@ -330,7 +330,7 @@ END
     else {
         push @warn, << '.';
 *** Perl 5 embedding disabled.  If you want Perl 5 support, please set the
-    PUGS_EMBED environment variable to not contain "!perl5".
+    PUGS_EMBED environment variable to not contain "-perl5".
 
 .
     }
