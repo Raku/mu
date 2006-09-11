@@ -646,7 +646,7 @@ op1 "Pugs::Internals::emit_yaml" = \v -> do
     glob <- filterPrim =<< asks envGlobal
     yml  <- liftIO $ showYaml (filterUserDefinedPad glob, v)
     return $ VStr yml
-op1 "Object::meta" = \v -> do
+op1 "Object::META" = \v -> do
     typ     <- evalValType v
     evalExp $ _Var (':':'*':showType typ)
 op1 "Class::name" = \v -> do
@@ -1953,7 +1953,7 @@ initSyms = mapM primDecl syms
 \\n   Object    pre     DESTROYALL safe   (Object)\
 \\n   Code      pre     TEMP    safe   (rw!Any)\
 \\n   Object    pre     Object::clone   safe   (Object: Named)\
-\\n   Class     pre     Object::meta    safe   (Object)\
+\\n   Class     pre     Object::META    safe   (Object)\
 \\n   Object    pre     META::new     safe   (Object: Named)\
 \\n   Str       pre     Class::name    safe   (Class)\
 \\n   Hash      pre     Class::traits  safe   (Class)\
