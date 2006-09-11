@@ -47,7 +47,7 @@ doMatch cs rule@MkRulePGE{ rxRule = ruleStr } = do
         return (name, text)
     text <- ruleWithAdverbs rule
     pge  <- liftIO $ evalPGE pwd (encodeUTF8 cs) (encodeUTF8 text) subrules
-            `catch` (\e -> return $ ioeGetErrorString e)
+            `catchIO` (\e -> return $ show e)
     rv  <- tryIO Nothing $ fmap Just (readIO $ decodeUTF8 pge)
     let matchToVal PGE_Fail = VMatch mkMatchFail
         matchToVal (PGE_String str) = VStr str

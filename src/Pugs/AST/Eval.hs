@@ -21,7 +21,7 @@ runEvalIO :: Env -> Eval Val -> IO Val
 runEvalIO env = runIO . (`runReaderT` env) . (`runContT` return) . runEvalT
 
 tryIO :: a -> IO a -> Eval a
-tryIO err = lift . liftIO . (`catch` (const $ return err))
+tryIO err = lift . liftIO . (`catchIO` (const $ return err))
 
 {-|
 'shiftT' is like @callCC@, except that when you activate the continuation

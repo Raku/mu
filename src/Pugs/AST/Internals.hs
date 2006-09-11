@@ -959,6 +959,7 @@ mkSub = MkCode
     , subCatchBlocks = []
     }
 
+mkCode :: VCode
 mkCode = MkCode
     { isMulti = False
     , subName = cast "&"
@@ -984,6 +985,7 @@ mkCode = MkCode
     , subControlBlocks = []
     , subCatchBlocks = []
     } 
+
 instance Ord VComplex where
     compare (a :+ ai) (b :+ bi) = compare (a, ai) (b, bi)
 

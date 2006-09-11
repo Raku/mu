@@ -237,9 +237,12 @@ initPreludePC env = do
     if bypass then return env else do
         let dispProgress = (posName . envPos $ env) == "<interactive>"
         when dispProgress $ putStr "Loading Prelude... "
-        catch loadPreludePC $ \e -> do
-            when (isUserError e && not (null (ioeGetErrorString e))) $ do
-                hPrint stderr e
+        catchIO loadPreludePC $ \e -> do
+            case e of
+                IOException ioe
+                    | isUserError ioe, not . null $ ioeGetErrorString ioe
+                    -> hPrint stderr ioe
+                _ -> return ()
             when dispProgress $ do
                 hPutStr stderr "Reloading Prelude from source..."
             evalPrelude

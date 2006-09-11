@@ -81,6 +81,9 @@ module Pugs.Internals (
     traceM,
     warn,
     die,
+
+    catchIO, evaluateIO,
+
     _GlobalFinalizer,
     unsafeIOToSTM,
     ID(..), bufToID,
@@ -115,7 +118,7 @@ import System.IO.Error (ioeGetErrorString, isUserError)
 import System.Mem
 import System.Mem.Weak
 import System.Directory (Permissions(..), getPermissions, getTemporaryDirectory, createDirectory, removeDirectory, removeFile, getDirectoryContents)
-import Control.Exception (catchJust, errorCalls)
+import Control.Exception (catchJust, errorCalls, Exception(..))
 import Control.Monad.RWS (MonadIO(..), MonadReader(..), MonadState(..), MonadWriter(..), MonadTrans(..), asks, ReaderT(..), WriterT(..), when, join, liftM, filterM, modify, unless, gets, foldM, guard, liftM2, liftM3, fix, mplus, mappend, mzero, mconcat, msum, censor)
 import Control.Monad.Identity (Identity(..))
 import Control.Monad.Error (MonadError(..))
@@ -152,6 +155,7 @@ import qualified Judy.StrMap as H
 import qualified Judy.CollectionsM as C
 import qualified Data.ByteString.Char8 as Char8
 import qualified Foreign as Foreign
+import qualified Control.Exception (catch, evaluate)
 
 --
 -- Nominal subtyping relationship with widening cast.
@@ -351,6 +355,12 @@ encodeUTF8 (c:cs)
           : toEnum (0x80 + i `mod` 0x40)
           : rest
           )
+
+catchIO :: IO a -> (Control.Exception.Exception -> IO a) -> IO a
+catchIO = Control.Exception.catch
+
+evaluateIO :: a -> IO a
+evaluateIO = Control.Exception.evaluate
 
 -- On GHC 6.6 we actually want to use the builtin forM and forM_ in Control.Monad
 

@@ -284,7 +284,7 @@ doExecuteHelper helper args = do
     file' x = (file x) ++ (getConfig "exe_ext")
     fileExists path = do
         let (p,f) = splitFileName path
-        dir <- (fmap Just $ getDirectoryContents p) `catch` (const $ return Nothing)
+        dir <- (fmap Just $ getDirectoryContents p) `catchIO` (const $ return Nothing)
         case dir of
             Just dir' -> return $ f `elem` dir'
             _         -> return False
@@ -314,7 +314,7 @@ doLoad env fn = do
     exp = App (_Var "&require") Nothing [Val $ VStr fn]
 
 doRunSingle :: TVar Env -> RunOptions -> String -> IO ()
-doRunSingle menv opts prog = (`catch` handler) $ do
+doRunSingle menv opts prog = (`catchIO` handler) $ do
     exp     <- makeProper =<< parse
     if exp == Noop then return () else do
     env     <- theEnv
@@ -368,10 +368,12 @@ doRunSingle menv opts prog = (`catch` handler) $ do
     makeDumpEnv (Pad x y exp)     = Pad x y   $ makeDumpEnv exp
     makeDumpEnv (Sym x y exp)     = Sym x y   $ makeDumpEnv exp
     makeDumpEnv exp = Stmts exp (Syn "env" [])
-    handler err | isUserError err = do
+    handler (IOException ioe) | isUserError ioe = do
         putStrLn "Internal error while running expression:"
-        putStrLn $ ioeGetErrorString err
-                | otherwise = ioError err
+        putStrLn $ ioeGetErrorString ioe
+    handler err = do
+        putStrLn "Internal error while running expression:"
+        putStrLn $ show err
 
 runImperatively :: TVar Env -> Eval Val -> IO Val
 runImperatively menv eval = do

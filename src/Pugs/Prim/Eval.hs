@@ -120,7 +120,7 @@ op1EvalHaskell cv = do
 op1EvalP6Y :: Val -> Eval Val
 op1EvalP6Y fileName = do
     fileName' <- fromVal fileName
-    yml  <- liftIO $ (`catch` (return . Left . show)) $
+    yml  <- liftIO $ (`catchIO` (return . Left . show)) $
         fmap Right (parseYamlFile fileName')
     case yml of
         Right MkNode{ n_elem=ESeq (v:_) }
@@ -144,14 +144,14 @@ op1EvalP6Y fileName = do
 
 opEval :: EvalStyle -> FilePath -> String -> Eval Val
 opEval style path str = enterCaller $ do
-    env <- ask
-    let env' = parseProgram env path str
-        trans = case evalResult style of
-            EvalResultEnv -> (`mergeStmts` Syn "env" [])
-            _             -> id
-    val <- resetT $ local (const env') $ do
+    env     <- ask
+    let errHandler err = return env{ envBody = Val $ VError (VStr (show err)) [] }
+    env'    <- liftIO $ evaluateIO (parseProgram env path str) `catchIO` errHandler
+    val     <- resetT $ local (const env') $ do
         evl <- asks envEval
-        evl (trans $ envBody env')
+        evl $ case evalResult style of
+            EvalResultEnv   -> envBody env' `mergeStmts` Syn "env" []
+            _               -> envBody env'
     retEvalResult style val
 
 retEvalResult :: EvalStyle -> Val -> Eval Val
