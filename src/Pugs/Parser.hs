@@ -1266,16 +1266,15 @@ ruleVarDecl = rule "variable declaration" $ do
     --       constraints; for now we abuse ruleFormalParam to add an
     --       extra "+" as part of the name when "is context" is seen,
     --       so we can rewrite the declarator to SEnv, but it's Wrong.
-    (cxtNames, exp, seenIsContextXXX) <- oneDecl <|> manyDecl
-    let makeBinding (name, cxt)
+    (nameTypes, exp, seenIsContextXXX) <- try oneDecl <|> manyDecl
+    let makeBinding (name, typ)
             | ('$':_) <- name, typ /= anyType   = mkSym . bindSym
             | otherwise                         = mkSym
             where
             mkSym   = _Sym scope' name
             bindSym = Stmts (Syn "=" [_Var name, Val (VType typ)])
-            typ     = typeOfCxt cxt
         scope' = if seenIsContextXXX then SEnv else scope -- XXX Hack
-    lexDiff <- unsafeEvalLexDiff $ combine (map makeBinding cxtNames) emptyExp
+    lexDiff <- unsafeEvalLexDiff $ combine (map makeBinding nameTypes) emptyExp
     -- Now hoist the lexDiff to the current block
     addBlockPad scope' lexDiff
     return (Ann (Decl scope') exp)
@@ -1285,15 +1284,28 @@ ruleVarDecl = rule "variable declaration" $ do
         let var  = paramName param
             name = cast var{ v_twigil = TNil }
             seenIsContextXXX = v_twigil var == TImplicit
-        return ([(name, paramContext param)], _Var name, seenIsContextXXX)
+            typ  = typeOfCxt (paramContext param)
+            nameType = (name, typ)
+        return ([nameType], makeExpFromNameType nameType, seenIsContextXXX)
     manyDecl = do
-        params <- verbatimParens . enterBracketLevel ParensBracket $
+        defType <- option "" $ ruleType
+        params  <- verbatimParens . enterBracketLevel ParensBracket $
             ruleFormalParam FormalsComplex `sepBy1` ruleComma
         let vars  = map paramName params
             names = map (\v -> cast v{ v_twigil = TNil }) vars
-            types = map paramContext params
+            types = map (maybeDefaultType . typeOfCxt . paramContext) params
+            maybeDefaultType t
+                | t == anyType, defType /= ""   = mkType defType
+                | otherwise                     = t
             seenIsContextXXX = any ((== TImplicit) . v_twigil) vars
-        return (names `zip` types, Syn "," $ map _Var names, seenIsContextXXX)
+            nameTypes = names `zip` types
+        return (nameTypes, Syn "," $ map makeExpFromNameType nameTypes, seenIsContextXXX)
+    -- Note that the reassignment below is _wrong_ when scope is SState.
+    makeExpFromNameType (name@('$':_), typ)
+        | typ /= anyType
+        = Syn "=" [_Var name, Val (VType typ)]
+    makeExpFromNameType (name, _)
+        = _Var name
 
 parseTerm :: RuleParser Exp
 parseTerm = rule "term" $! do
