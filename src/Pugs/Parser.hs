@@ -1843,7 +1843,7 @@ regularVarName = do
 ruleDereference :: RuleParser Exp
 ruleDereference = try $ do
     sigil   <- oneOf "$@%&"
-    exp     <- ruleDereference <|> ruleSigiledVar <|> parens ruleExpression
+    exp     <- ruleDereference <|> ruleSigiledVar <|> verbatimParens ruleExpression
     return $ Syn (sigil:"{}") [exp]
 
 ruleSigiledVar :: RuleParser Exp
@@ -1885,7 +1885,7 @@ ruleSymbolicDeref = do
         -- We've to include ruleTwigil here to make $::?SELF parse.
         -- XXX: This looks slightly odd to me -- is one forced to say
         --  $::("?SELF") instead?
-        (parens ruleExpression) <|> (fmap (Val . VStr) $ do
+        (verbatimParens ruleExpression) <|> (fmap (Val . VStr) $ do
             choice
                 [ string "!"  --  $!
                 , string "/"  --  $/

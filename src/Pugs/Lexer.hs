@@ -49,10 +49,10 @@ maybeParens :: RuleParser a -> RuleParser a
 maybeParens p = choice [ parens p, p ]
 
 parens, braces, angles, brackets :: RuleParser a -> RuleParser a
-parens p        = between (symbol "(") (symbol ")") p
-braces p        = between (symbol "{") (symbol "}") p
-angles p        = between (symbol "<") (symbol ">") p
-brackets p      = between (symbol "[") (symbol "]") p
+parens p        = between (lexeme (char '(')) (lexeme (char ')')) p
+braces p        = between (lexeme (char '{')) (lexeme (char '}')) p
+angles p        = between (lexeme (char '<')) (lexeme (char '>')) p
+brackets p      = between (lexeme (char '[')) (lexeme (char ']')) p
 
 mandatoryWhiteSpace :: RuleParser ()
 mandatoryWhiteSpace = skipMany1 (simpleSpace <|> comment)
