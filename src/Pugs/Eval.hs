@@ -465,7 +465,9 @@ reduceSyn "for" [list, body] = do
     -- XXX this is wrong -- should use Array.next
     elms  <- case av of
         VRef (MkRef sv@IScalar{})   -> return [sv]
-        VList xs                    -> mapM fromVal xs
+        VList xs                    -> return . (`map` xs) $ \x -> case x of
+            VRef (MkRef sv@IScalar{})   -> sv
+            _                           -> (IScalar x)
         _                           -> join $ doArray av array_fetchElemAll
     sub' <- fromVal vsub
     sub  <- case sub' of
