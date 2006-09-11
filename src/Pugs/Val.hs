@@ -152,7 +152,6 @@ instance IValue P ValNative where
     valMeta NNum{}      = cast "num"
     valMeta NComplex{}  = cast "complex"
     valCompare          = compare
-    valShow             = cast . show
     valId x             = cast x
 
 -- | 'SKID' is an unique ID that distinguishes two @Val@s of the same type from each other.
@@ -206,9 +205,11 @@ instance Data NativeComplex where
 -- Identity so that they are at the same monadic depth as Mut and Ext.
 type P = Identity
 
-class (ICoercible P a, Ord a, Show a) => Pure a where {}
-instance (ICoercible P a, Ord a, Show a) => Pure a where {}
+class (ICoercible P a, Ord a, Show a) => Pure a where
+    purePretty :: a -> Doc
+    purePretty = text . show
 
+instance (ICoercible P a, Ord a, Show a) => Pure a where {}
 
 liftP :: Monad m => P a -> m a
 liftP = return . runIdentity
@@ -428,6 +429,7 @@ formatVal (VNative v) = text $ case v of
     (NNum x)     -> show x
     (NComplex (MkNComplex x)) -> (show "(") ++ (show $ realPart x) ++ " " ++
         (if (0 >) (imagPart x) then "- " ++ (show $ 0 - imagPart x) else "+ " ++ (show $ imagPart x)) ++ "*Math::i)"
+formatVal (VPure v) = purePretty v
 formatVal x = text $ show x
 
 --    (NComplex r i(s@i')) -> "(" ++ (show r) ++ " " ++
