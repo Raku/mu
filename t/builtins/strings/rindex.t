@@ -1,6 +1,7 @@
 use v6-alpha;
-
 use Test;
+
+# L<S29/Str/"=item rindex">
 
 plan 30;
 
