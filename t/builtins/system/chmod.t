@@ -1,6 +1,8 @@
 use v6-alpha;
-
 use Test;
+
+# L<S16> # according to S29, this is where 'chmod' will eventually be spec'ed
+#          but currently, there is no spec.   
 
 =kwid
 
