@@ -119,13 +119,14 @@ type Param = SigParam -- to get around name clashes in Pugs.AST :(
 newtype CodeBody = MkCodeBody [Stmt]
     deriving (Typeable)
 
-data ParamDefault
-    = DNil | DExp Exp
+newtype ParamDefault = MkParamDefault { unDefault :: Maybe Exp }
     deriving (Typeable)
 
 instance Eq ParamDefault where _ == _ = True
 instance Ord ParamDefault where compare _ _ = EQ
-instance Show ParamDefault where show _ = "<Param.Default>"
+instance Show ParamDefault where
+    show MkParamDefault{ unDefault = Nothing } = "<ParamDefault:Nothing>"
+    show _    = "<ParamDefault:Just<Exp>>"
 
 instance Eq CodeBody where _ == _ = True
 instance Ord CodeBody where compare _ _ = EQ
@@ -138,11 +139,48 @@ data ParamAccess
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 instance ICoercible P Sig where
-	asStr _ = return (cast "<sig>")  -- XXX
+	asStr = return . cast . render . purePretty
 
-instance Pure Sig where {}
-	
+instance Pure Sig where
+    purePretty s = colon <> (parens $ prettySig s)
+    
+prettySig :: Sig -> Doc
+prettySig s@(SigMethSingle {}) = (prettyParam (s_invocant s) True True) <> colon `invSpace` (prettySubSig s)
+    where
+    invSpace :: Doc -> Doc -> Doc
+    invSpace = if (isEmpty $ prettySubSig s) then (<>) else (<+>)
+prettySig s = prettySubSig s
 
+prettySubSig :: Sig -> Doc
+prettySubSig s = sep $ punctuate comma $ concat [posParams, namedParams]
+    where
+    posParams = [prettyParam p r True | p <- (s_positionalList s) | r <- (replicate (s_requiredPositionalCount s) True) ++ repeat False]
+    namedParams = [prettyParam p (isReqNamed n) False | (n, p) <- Map.toList $ s_namedSet s]
+    isReqNamed n = Set.member n $ s_requiredNames s
+
+prettyParam :: Param -> Bool -> Bool -> Doc
+prettyParam p isReq isPos = staticTypes <+> varName <> defaultHint <+>
+    (if haveDefault then equals <+> text "..." else empty) <+> acc <+> ref <+> lazy <+>
+    slots <+> constraints <+> debugDump
+    where
+    varName
+        | isPos = text (cast $ p_variable p)
+        | Buf.tail (cast $ p_variable p) == (cast $ p_label p) = text $ ":" ++ (cast $ p_variable p)
+        | otherwise = text ":" <> text (cast p_label p) <> (parens $ text (cast p_variable p))
+    -- staticTypes = hsep $ map (text . (cast :: Types.Type -> String)) $ p_types p XXX: why is this wrong?
+    staticTypes = hsep $ map (text . show) $ p_types p
+    defaultHint = if not isReq && not haveDefault then text "?" else empty
+    haveDefault = isJust $ unDefault $ p_default p
+    acc = case p_hasAccess p of
+        AccessRO   -> empty
+        AccessRW   -> text "is rw"
+        AccessCopy -> text "is copy"
+    ref   = if p_isRef  p then text "is ref"  else empty
+    lazy  = if p_isLazy p then text "is lazy" else empty
+    -- slots = hsep [text ("is " ++ (cast aux)) <+> text "..." | (aux, val) <- Map.toList $ p_slots p] XXX: for when traits have args
+    slots = hsep [text ("is " ++ (cast $ fst trait)) | trait <- Map.toList $ p_slots p]
+    constraints = hsep $ replicate (length $ p_constraints p) (text "where {...}")
+    debugDump = if True then empty else braces $ text $ show p -- XXX delme
 --------------------------------------------------------------------------------------
 
 -- | a Capture is a frozen version of the arguments to an application.

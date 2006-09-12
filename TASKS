@@ -95,3 +95,6 @@ Skill: light sysadminship, code a logfile to IRC gateway (reuse a bot?)
      util/gen_prelude.pl -v -i src/perl6/Prelude.pm -p ./pugs --output blib6/lib/Prelude.pm.yml
   A flag to build_pugs to do that, as well as a Makefile.PL rule to
   invoke that would be useful.
+
+* Help out with the introspection interface: write tests and prod for specs.
+  See the bottom of `t/syntax/signature.t`. Also applicable, Capture tests.

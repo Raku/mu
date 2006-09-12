@@ -1352,7 +1352,7 @@ defaultInvocantParam = MkParam
     , p_types       = []
     , p_constraints = []
     , p_unpacking   = Nothing
-    , p_default     = DNil
+    , p_default     = MkParamDefault Nothing
     , p_label       = cast "" -- "self"? no...
     , p_slots       = Map.empty
     , p_hasAccess   = AccessRO
@@ -1363,6 +1363,11 @@ defaultInvocantParam = MkParam
 
 ruleSignature :: RuleParser Exp
 ruleSignature = rule "signature" $ do
+    -- XXX: an inefficiency in the implementation is that on Sigs with no invocant,
+    --      we parse the first Param twice because the second choice here is in a try
+    --      and only fails when the ':' is not found. It would be better to save the
+    --      first param and determine whether it is an invocant or not.
+    -- XXX: what is this? :(:$x) - one named? Or default invocant, one positional?
     inv     <- choice
                [ (lexeme $ char ':') >> (return $ Just defaultInvocantParam)
                , try $ fmap (Just . p_param) $ followedBy ruleParam (lexeme $ char ':')
@@ -1458,13 +1463,13 @@ ruleParam = rule "parameter" $ do
         ]
         where
         label = cast $ dropWhile (not . isAlpha)
-    rDefault True = lexeme $ option DNil $ do
+    rDefault True = lexeme $ option (MkParamDefault Nothing) $ do
         symbol "="
-        fmap (DExp . Exp.EE . Exp.MkExpEmeritus) parseTerm
+        fmap (MkParamDefault . Just . Exp.EE . Exp.MkExpEmeritus) parseTerm
     rDefault False = do
         ch <- lookAhead anyChar
         when (ch == '=') failReqDef
-        return DNil
+        return $ MkParamDefault Nothing
     rPostVarUnpacking = lexeme $ option Nothing $ try $ do
         optional $ char ':'
         (Val (VV (sig'))) <- verbatimParens ruleSignature

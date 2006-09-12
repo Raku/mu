@@ -27,6 +27,7 @@ import Data.Generics.Basics hiding (cast)
 import qualified Data.Typeable as Typeable
 import qualified Data.ByteString as Buf
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 
 import Pugs.AST.SIO
 import Pugs.Val.Base

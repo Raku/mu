@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 11;
+plan 29;
 
 # This is first attempt at rationalizing the := form into a Siglist method call.
 # The :() form constructs signatures similar to how \() constructs arguments.
@@ -84,4 +84,28 @@ plan 11;
     try { $siglist.infix:<:=>(23) };
     is $x, 42,        "user-defined binding worked as expected (1)";
     lives_ok { $x++}, "user-defined binding worked as expected (2)";
+}
+
+# Signature values and pretty-printing
+# L<S06/"Parameters and arguments">
+{
+    # let's start with valid signatures whose canonical stringy form looks
+    # just like their source
+    my @sigs =
+        ( ':($x)',              'single required positional'
+        , ':($x:)',             'invocant only'
+        , ':($x, $y)',          'two required positionals'
+        , ':($x, $y?)',         'required and optional positionals'
+        , ':($x is rw is ref is lazy is moose)', 'traits (including user defined)' # note order matters :/
+        , ':($x, $y, :$z)',     'positional and named'
+        , ':($x, $y?, :$z)',    'optional positional and named'
+        , ':(:$x?)',            'optional named'
+        , ':(: :short($long))', 'short and long names'
+        , # add more here.
+        );
+    for @sigs -> $s, $desc {
+        my $sig is context;
+        eval_ok '$+sig = ' ~ $s, "signature parses      - $desc";
+        is $sig, $s,            "signature stringifies - $desc";
+    }
 }
