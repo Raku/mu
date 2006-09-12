@@ -1,8 +1,8 @@
 use v6-alpha;
-
 use Test;
-
 plan 1;
+
+# L<S29/"Control::Basic"/"=item evalfile">
 
 sub nonce () { return (".$*PID." ~ int rand 1000) }
 
