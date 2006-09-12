@@ -1,5 +1,43 @@
 use v6-alpha;
 
+=head1 NAME
+
+Automata::Cellular - Build and render Cellular Automata on a terminal
+
+=head1 VERSION
+
+Version 0.1
+
+=head1 DESCRIPTION
+
+C<Automata::Cellular> is the meat of this module; everything you need for
+most investigations should be included by:
+
+    use Automata::Cellular;
+
+This code makes use of the object-oriented goodness found in the Moose
+framework.  As such, even if you find A::C useless in terms of performance
+or functionality, you should still be able to enjoy reading the code.
+
+=head1 DEPENDENCIES
+
+C<Automata::Cellular> is written in Perl 6, and currently runs via Pugs
+
+=head1 EXAMPLE
+
+    my Automata::Cellular::Rule $rule .= new(30);
+    my Automata::Cellular $ca .= new( :@state, :$rule, :$steps, :$display_width);
+
+    while($ca++) {
+        say $ca.prettystate();
+    }
+
+=head1 AUTHOR
+
+David Brunton - dbrunton@plusthree.com
+
+=cut
+
 class Automata::Cellular-0.1 
     does Automata::Cellular::Rule
 {
@@ -32,9 +70,5 @@ class Automata::Cellular-0.1
         if $.stage >= $.steps { return Bool::False; }
         else { return Bool::True; }
     }
-
-
-
-
 
 } # class Automata::Cellular
