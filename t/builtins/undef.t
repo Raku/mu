@@ -22,7 +22,7 @@ perl6-specific tests.
 #   
 #   Larry
 
-plan 72;
+plan 74;
 
 our $GLOBAL;
 
@@ -193,7 +193,8 @@ Perl6-specific tests
 
 # rules
 # TODO. refer to S05
-# L<S05/"Hypothetical variables" /backtracks past the closure/>
+# L<S05/Match objects/"they will all be undefined" closure
+#                                 "let keyword">
 
 if !eval('("a" ~~ /a/)') {
   skip 8, "skipped tests - rules support appears to be missing";
@@ -313,3 +314,9 @@ is((undef) * 2, 0, 'undef * 2');
 is(2 * (undef), 0, '2 * undef');
 is((undef) xx 2, [undef, undef], 'undef xx 2');
 is((undef) * (undef), 0, 'undef * undef');
+
+# L<http://colabti.de/irclogger/irclogger_log/perl6?date=2006-09-12,Tue&sel=145#l186>
+# See log above.  From IRC, TimToady says that both of these
+# should be false.  (At time of writing, @(undef,) is true.)
+is ?(@(undef,)), Bool::False, '?(@(undef,)) is false';
+is ?(list(undef,)), Bool::False, '?(@(undef,)) is false';
