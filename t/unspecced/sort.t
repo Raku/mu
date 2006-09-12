@@ -16,11 +16,6 @@ plan 1;
   * Spec
      * clarify KeyExtractor returning multiple types
 
-  * Design cleanup
-     * recursive mergesort won't recurse deep but using
-       slices will keep a lot of data in play.  Rework
-       to use indices or work iteratively.
-
   * Syntax cleanup
      * is a module the best way to package the implementation?
      * guidance on `primitive`
@@ -126,67 +121,71 @@ module Prelude::MergeSort {
     #   stable
 
     our Array
-    sub mergesort (@values is rw, SortCriterion @by, Bit $inplace? = 0)
+    sub mergesort (@values is rw, Code @by? = list(&infix:<cmp>),
+        Bit $inplace? = 0)
     {
-        return @values if ( in_order(@by, @values) );
-
-        my $mid = int( +@values / 2 );
-
-        my @result = merge(
-            mergesort(@values[0..^$mid],
-            mergesort(@values[$mid..^+@values],
-            @by, $inplace
-        );
-
-        return $inplace ?? @values !! @result;
-    }
-
-    our Array
-    sub merge (@left is rw, @right is rw, SortCriterion @by, Bit $inplace? = 0)
-    {
-        unless $inplace {
-            my $lc = 0;
-            my $rc = 0;
-
-            return gather {
-                while ( $lc < +@left && $rc < +@right ) {
-                    take( by_cmp(@by, left[$lc], @right[$rc]) <= 0
-                        ?? @left[$lc++]
-                        !! @right[$rc++] );
-                }
-
-                take(@left[$lc..^+@left]);
-                take(@right[$rc..^+@right]);
-            };
+        if $inplace {
+            inplace_mergesort(@values, 0 => +@values, @by);
+            return @values;
         }
         else {
+            my @copy = @values;
+            inplace_mergesort(@copy, 0 => +@copy, @by);
+            return @copy;
+        }
+    }
+
+    our Pair
+    sub inplace_mergesort (@values is rw, Pair $span, Code @by)
+    {
+        return $span
+            if ( $span.value - $span.key == 1
+            || in_order(@by, @values) );
+
+        my $mid = $span.key + int( ($span.value - $span.key)/ 2 );
+
+        return merge(
+            @values,
+            inplace_mergesort(@values, $span.key => $mid, @by),
+            inplace_mergesort(@values, $mid => $span.value, @by),
+            @by
+        );
+    }
+
+    our Pair
+    sub merge (@values is rw, Pair $lspan, Pair $rspan, Code @by)
+    {
         # copy @left to a scratch area
-        my @scratch = @left;
+        my @scratch = @values[$lspan.key ..^ $lspan.value];
 
         # merge @scratch and @right into and until @left is full
-        my $lc = 0;
-        my $rc = 0;
+        my $lc = $lspan.key;
+        my $rc = $rspan.key;
         my $sc = 0;
 
-        while ( $lc < +@left ) {
-            @left[$lc++] = by_cmp(@by, @scratch[$sc], @right[$rc]) <= 0
+        while ( $lc < $lspan.value ) {
+            @values[$lc++] = by_cmp(@by, @scratch[$sc], @values[$rc]) <= 0
                 ?? @scratch[$sc++]
-                !! @right[$rc++];
+                !! @values[$rc++];
         }
 
         # at this point @left is full.  start populating @right
-        # until @scratch is empty
-        my $ri = 0;
-        while ( $sc < +@scratch ) {
-            @right[$ri++] = by_cmp(@by, @scratch[$sc], @right[$rc]) <= 0
+        # until @scratch or @right is empty
+        my $ri = $rspan.key;
+
+        while ( $sc < +@scratch && $rc < $rspan.value ) {
+            @values[$ri++] = by_cmp(@by, @scratch[$sc], @values[$rc]) <= 0
                 ?? @scratch[$sc++]
-                !! @right[$rc++];
+                !! @values[$rc++];
         }
 
         # anything remaining in @right is in the correct place.
-    }
+            # anything remaining in @scratch needs to be filled into @right
+            @values[$ri..^$rspan.value] = @scratch[$sc..^+@scratch];
 
-    return;
+        # return the merged span
+            return $lspan.key => $rspan.value;
+    }
 }
 
 our Array multi Array::sort( @values is rw, *&by, Bit $inplace? )
