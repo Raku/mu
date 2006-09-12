@@ -1,6 +1,6 @@
 use v6-alpha;
 use Test;
-plan 3;
+plan 5;
 
 # L<S16> # ... when it appears
 
@@ -31,3 +31,16 @@ if $*OS eq "browser" {
     ok(-e 'create_this_file2', 'appending to a non-existent file creates it');
     unlink('create_this_file2');
 }
+
+
+=pod
+
+I/O Redirection to scalar tests
+
+=cut
+
+skip_rest("needs speccing"); exit;
+
+# XXX: gaal: dunno how this should be, but this isn't it.
+ok(try { open $*OUT,">",\$scalar },'Direct STDOUT to a scalar', :todo);
+ok(try { open $*ERR,">",\$scalar },'Direct STDERR to a scalar', :todo);

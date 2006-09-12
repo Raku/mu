@@ -1,6 +1,8 @@
 use v6-alpha;
-
 use Test;
+
+# L<S16>
+# merge this with open.t?
 
 plan 3;
 

@@ -1,6 +1,8 @@
 use v6-alpha;
-
 use Test;
+
+# L<S29/"Control::Basic"/"=item sleep">
+
 
 plan 4;
 
