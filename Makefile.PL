@@ -298,14 +298,6 @@ sub set_postamble {
                 elsif (defined &Win32::BuildNumber) {
                     # We are on ActivePerl -- Kluge massively!
 
-                    if (Win32::BuildNumber() < 815) {
-                        die << 'END';
-*** ActivePerl earlier than 5.8.7 build 815 does not support Perl 5 embedding.
-    Please upgrade your ActivePerl installation, or disable Perl 5 embedding
-    by setting the PUGS_EMBED environment variable to "noperl5".
-END
-                    }
-
                     no warnings 'once';
                     our %MY_CONFIG = %Config;
                     *Config = *MY_CONFIG;
@@ -319,7 +311,7 @@ END
                     $Config{ldflags} =~ s/-libpath:"?(.*?)"? //g or die "ldflags: $Config{ldflags} does not contain -libpath:";
 
                     my $lib = "$1/$Config{libperl}";
-                    $embed_flags .= " -optl\"$lib\" ";
+                    $embed_flags .= " -optl\"$lib\" -D_INTPTR_T_DEFINED -D_UINTPTR_T_DEFINED -optc-D_INTPTR_T_DEFINED -optc-D_UINTPTR_T_DEFINED";
 
                     $flags = "$Config{ccflags} $Config{ccdlflags}";
                     $flags =~ s{([\\"'])}{\\$1}g;
