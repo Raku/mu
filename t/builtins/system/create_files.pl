@@ -1,3 +1,7 @@
+# This script needs a comment explaining it's purpose in the test suite
+# or may be moved or deleted. It doesn't seem to be used by the other
+# "*.t" files in this directory. 
+
 use strict;
 use File::Path;
 use File::Copy;

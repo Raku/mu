@@ -1,4 +1,9 @@
 #!/usr/bin/perl -w
+
+# This script needs a comment explaining it's purpose in the test suite
+# or may be moved or deleted. It doesn't seem to be used by the other
+# "*.t" files in this directory. 
+
 use strict;
 use Test::More tests => 18;
 use File::Temp qw( :mktemp );
