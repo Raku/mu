@@ -7,7 +7,7 @@ use Pugs::Runtime::Match;
 use Pugs::Grammar::StatementControl;
 use Pugs::Grammar::StatementModifier;
 use Pugs::Grammar::Expression;
-use Pugs::Grammar::Pod;
+# use Pugs::Grammar::Pod;
 use Pugs::Grammar::P6Rule; 
 
 use Data::Dumper;

@@ -13,11 +13,13 @@ use Pugs::Compiler::Token;
 
 our %hash;
 
-*cpan_bareword = Pugs::Compiler::Regex->compile( '
-    ([_\w\d\:]+ \- [_\w\d\-\.*]+) 
-    (?= \( | \; | \s | $ ) 
-', 
-    { Perl5 => 1 } 
+*cpan_bareword = Pugs::Compiler::Token->compile( '
+    [ _ | <?alnum> | \: ]+ 
+    \- 
+    [ _ | <?alnum> | \- | \. | \* ]+ 
+    <before \( | \; | \s | $ > 
+',
+    { grammar => __PACKAGE__ }
 )->code;
 
 *perl5source = Pugs::Compiler::Regex->compile( q(
