@@ -176,7 +176,10 @@ token named_capture_body {
     '{' => token { 
 
         <Pugs::Grammar::Perl6.parse> \}
-        { return { closure => $/{'Pugs::Grammar::Perl6.parse'}() ,} }
+
+        { return { closure => 
+           { bare_block => $/{'Pugs::Grammar::Perl6.parse'}() },
+        } }
 
 
     },
