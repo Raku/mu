@@ -1,6 +1,8 @@
 use v6-alpha;
-
 use Test;
+plan 50;
+
+# L<S03/"Reduction operators">
 
 =head1 DESCRIPTION
 
@@ -11,7 +13,6 @@ L<"http://groups.google.de/group/perl.perl6.language/msg/bd9eb275d5da2eda">
 
 =cut
 
-plan 50;
 
 # [...] reduce metaoperator
 {

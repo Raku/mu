@@ -117,7 +117,7 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
 # so we won't test them here.
 
 # Overriding prefix:<if>
-# L<S04/"Statement parsing" /since C<< prefix:<if> >> would hide C<< statement_modifier:<if> >>/>
+# L<S04/"Statement parsing" /"since prefix:<if> would hide statement_modifier:<if>">
 {
     my proto prefix:<if> ($a) { $a*2 }
     is (if 5), 10;

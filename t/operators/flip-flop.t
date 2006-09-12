@@ -4,7 +4,7 @@ use Test;
 
 plan 22;
 
-# L<S03/"Operator renaming" /flipflop operator is now done with/>
+# L<S03/"Changes to Perl 5 operators" /flipflop operator is now done with/>
 
 # XXX tests for fff
 
