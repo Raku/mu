@@ -59,16 +59,6 @@ token ident {
     [ <?alnum> | _ | <'::'> ]+
 }
 
-token capturing_group {
-    \( <rule> \)
-    { return { capturing_group => $/{'rule'}() ,} }
-}
-
-token non_capturing_group {
-    \[ <rule> \] 
-    { return $/{'rule'}() }
-}
-
 token literal {
     [ 
     |  \\ .
@@ -98,9 +88,9 @@ token code {
 }
 
 token named_capture_body {
-    | <capturing_group>     { return $/{'capturing_group'}()     } 
-    | <non_capturing_group> { return $/{'non_capturing_group'}() } 
-    | \<  <metasyntax>  \>  { return $/{'metasyntax'}()          } 
+    | \(  <rule>    \)  { return { capturing_group => $/{'rule'}() ,} } 
+    | \[  <rule>    \]  { return $/{'rule'}() } 
+    | \<  <metasyntax>  \>  { return $/{'metasyntax'}() } 
     | { die "invalid alias syntax" }
 }
 
