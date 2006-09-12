@@ -13,7 +13,7 @@ class Automata::Cellular-0.1
         $.stage = 1;
     }
 
-    method prettystring (Str $true, Str $false) {
+    method prettystate (Str $true, Str $false) {
         my $state = (+<<@.state[$.steps..(@.state.elems() - $.steps)]).join(""); 
         $state ~~ s:g/0/$false/;
         $state ~~ s:g/1/$true/;

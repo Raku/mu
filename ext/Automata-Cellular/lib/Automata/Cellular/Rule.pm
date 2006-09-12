@@ -11,10 +11,14 @@ role Automata::Cellular::Rule {
         }
     }
 
-    method prettyprint {
+    method pretty (Str $true = 'x', Str $false = '.') {
+        my Str $rule_string = '';
         for %.rule.kv -> $k,$v { 
-            say sprintf("%03b",$k) ~ " becomes " ~ +$v;
+             $rule_string ~= "{sprintf("%03b",$k)} becomes {+$v}\n";
         }
+        $rule_string ~~ s:g/1/$true/;
+        $rule_string ~~ s:g/0/$false/;
+        return $rule_string;
     }
 
 }

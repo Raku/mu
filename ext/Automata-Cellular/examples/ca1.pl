@@ -10,8 +10,8 @@ my Int $rule_number   = %opts<r> || 30;
 my Int $steps         = %opts<s> || 30;
 my Int $display_width = %opts<w> || 30;
 my Str $initial       = %opts<i> || 'middle';
-my Str $true_char     = %opts<t> || 'x';
-my Str $false_char    = %opts<f> || '.';
+my Str $true          = %opts<t> || 'x';
+my Str $false         = %opts<f> || '.';
 
 ##
 # "actual" width is wider than display width
@@ -33,16 +33,16 @@ given $initial {
 # initialize the rule and print it
 my Automata::Cellular::Rule $rule .= new(:$rule_number);
 say "Rule Number $rule.rule_number()";
-say $rule.prettyprint(:$true_char,:$false_char);
+say $rule.pretty(:$true,:$false);
 
 ##
 # initialize cellular automaton and print initial state
 my Automata::Cellular $ca .=
     new( :@state, :$rule, :$steps, :$display_width);
-say $ca.prettystring(:true($true_char),:false($false_char));
+say $ca.prettystate(:$true,:$false);
 
 ##
 # Render the output on the terminal
 while ( $ca++ ) {
-    say $ca.prettystring(:true($true_char),:false($false_char));
+    say $ca.prettystate(:$true,:$false);
 }
