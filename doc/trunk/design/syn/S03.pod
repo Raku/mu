@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 4 Sep 2006
+  Last Modified: 12 Sep 2006
   Number: 3
-  Version: 57
+  Version: 58
 
 =head1 Changes to Perl 5 operators
 
@@ -802,8 +802,8 @@ dispatch tables when they know they're likely to be used in hyperops.
 =head2 Reduction operators
 
 The final metaoperator in Perl 6 is the reduction operator.  Any
-infix operator (except for non-associating operators and assignment
-operators) can be surrounded by square brackets in term position to
+infix operator (except for non-associating operators)
+can be surrounded by square brackets in term position to
 create a list operator that reduces using that operation:
 
     [+] 1, 2, 3;      # 1 + 2 + 3 = 6
@@ -979,6 +979,26 @@ On the plus side, this works without a star:
 
     @args = (\%a,'foo','bar');
     $x = [dehash] @args;
+
+Likewise, from the fact that list context flattens inner arrays and
+lists, it follows that a reduced assignment does no special syntactic
+dwimmery, and hence only scalar assigments are supported.  Therefore
+
+    [=] $x, @y, $z, 0
+    [+=] $x, @y, $z, 1
+
+are equivalent to
+
+    $x = @y[0] = @y[1] = @y[2] ... @y[-1] = $z = 0
+    $x += @y[0] += @y[1] += @y[2] ... @y[-1] += $z += 1
+
+rather than
+
+    $x = @y = $z = 0;
+    $x += @y += $z += 1;
+
+(And, in fact, the latter are already easy to express anyway,
+and more obviously nonsensical.)
 
 A reduce operator returns only a scalar result regardless of context.
 (Even C<[,]> returns a single C<Capture> object which is then spliced
