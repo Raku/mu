@@ -62,8 +62,8 @@ sub call_perl5 {
     my $const = $_[0];
     #print "CONST: $const - $direction \n";
     return
-    "$_[1] ( ( substr( \$s, \$pos ) =~ m/^$const/s )  
-$_[1]     ? ( \$pos $direction= length( \$& ) or 1 )
+    "$_[1] ( ( substr( \$s, \$pos ) =~ m/^($const)/s )  
+$_[1]     ? ( \$pos $direction= length( \$1 ) or 1 )
 $_[1]     : 0
 $_[1] )";
 }
@@ -424,7 +424,7 @@ sub closure {
                 "do { 
                     \$::_V6_MATCH_ = \$m; 
                     local \$::_V6_SUCCEED = 1;
-                    \$m->data->{capture} = \\( sub { $perl5 }->() );
+                    \$m->data->{capture} = \\( sub $perl5->() );
                     \$bool = \$::_V6_SUCCEED;
                     \$::_V6_MATCH_ = \$m if \$bool; 
                     return \$m if \$bool;
@@ -433,7 +433,7 @@ sub closure {
                 "do { 
                     \$::_V6_MATCH_ = \$m; 
                     local \$::_V6_SUCCEED = 1;
-                    sub { $perl5 }->();
+                    sub $perl5->();
                     \$::_V6_SUCCEED;
                 }";
         }        
