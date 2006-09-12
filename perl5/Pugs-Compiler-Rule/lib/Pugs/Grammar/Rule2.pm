@@ -88,7 +88,7 @@ token metasyntax {
 }
 
 token code {
-    # bootstrap code
+    # bootstrap "code"
     [ 
     |  \\ .
     |  \'  <?literal>     \'
@@ -98,9 +98,9 @@ token code {
 }
 
 token named_capture_body {
-    | <capturing_group>     { return { rule => $/{'capturing_group'}(), } } 
-    | <non_capturing_group> { return { rule => $/{'non_capturing_group'}(),} } 
-    | \<  <metasyntax>  \>  { return { rule => $/{'metasyntax'}(), } } 
+    | <capturing_group>     { return $/{'capturing_group'}()     } 
+    | <non_capturing_group> { return $/{'non_capturing_group'}() } 
+    | \<  <metasyntax>  \>  { return $/{'metasyntax'}()          } 
     | { die "invalid alias syntax" }
 }
 
@@ -145,11 +145,10 @@ token named_capture_body {
     '$<' => token {
         <ident> \> <?ws>? <':='> <?ws>? <named_capture_body>
         { 
-            use v5;
-            my $body = $::_V6_MATCH_->{'named_capture_body'}();
-            $body->{'ident'} = $::_V6_MATCH_->{'ident'}();
-            return { named_capture => $body, }; 
-            use v6;
+            return { named_capture => {
+                rule =>  $/{'named_capture_body'}(),
+                ident => $/{'ident'}(),
+            }, }; 
         }
     },
     '$' => token { 
