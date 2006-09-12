@@ -6,6 +6,9 @@ use v6-alpha;
 
 # This is the bootstrapped version
 # - it calls back the p6 compiler to parse closures
+#
+# TODO: this grammar should subclass Grammar::Rule(2) 
+#   and then change only the "closure" subrule
 
 =for compiling
 
