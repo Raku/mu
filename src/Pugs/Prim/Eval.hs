@@ -60,25 +60,29 @@ opRequire dumpEnv v = do
         endAV   <- findSymRef (cast "@*END") glob
         ends    <- fromVal =<< readRef endAV
         clearRef endAV
-        rv <- tryFastEval (pathName ++ ".yml") $
-                slowEval pathName
+        rv <- tryFastEval pathName (pathName ++ ".yml")
         endAV'  <- findSymRef (cast "@*END") glob
         doArray (VRef endAV') (`array_unshift` ends)
         return rv
     where
-    tryFastEval pathName' fallback = do
-        ok <- liftIO $ doesFileExist pathName'
-        if not ok then fallback else do
-        rv <- resetT $ fastEval (pathName')
+    tryFastEval pathName pathNameYml = do
+        ok <- liftIO $ doesFileExist pathNameYml
+        if not ok then slowEval pathName else do
+        isYamlStale <- tryIO False $ do
+            timePm  <- getModificationTime pathName
+            timeYml <- getModificationTime pathNameYml
+            return (timeYml < timePm)
+        if isYamlStale then slowEval pathName else do
+        rv <- resetT $ fastEval pathNameYml
         case rv of
-            VError _ [MkPos{posName=""}] -> fallback
-            _                            -> opEval style pathName' ""
+            VError _ [MkPos{posName=""}] -> slowEval pathName
+            _                            -> opEval style pathName ""
         
         
     fastEval = op1EvalP6Y . VStr
-    slowEval pathName' = do 
-        str      <- liftIO $ readFile pathName'
-        opEval style pathName' str
+    slowEval pathName = do 
+        str      <- liftIO $ readFile pathName
+        opEval style pathName str
     style = MkEvalStyle
         { evalError  = EvalErrorFatal
         , evalResult = (if dumpEnv == True then EvalResultEnv

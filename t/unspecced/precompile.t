@@ -1,7 +1,6 @@
 use v6-alpha;
 
 use Test;
-plan 14;
 
 =pod
 
@@ -13,6 +12,10 @@ Tests to see whether precompiled modules are used correctly:
 =cut
 
 # XXX - needs porting, only works on Unixen today
+BEGIN {
+
+plan 14;
+
 if $*OS eq any <MSWin32 mingw msys cygwin browser> {
     skip_rest "tests need to be ported to work on $*OS";
     exit;
@@ -20,6 +23,8 @@ if $*OS eq any <MSWin32 mingw msys cygwin browser> {
 unless try({ eval("1", :lang<perl5>) }) {
     skip_rest "tests require Perl 5 support";
     exit;
+}
+
 }
 
 use File::Spec;
@@ -125,6 +130,7 @@ try {
     # are new .pm's preferred over old .yml's?
     {
         write_class($lib1, 'YAMLbyAge', "old", :precompile);
+        sleep 2;
         write_class($lib1, 'YAMLbyAge', "new");
         use_ok 'YAMLbyAge';
         is YAMLbyAge::value, "new", "New .pm's are preferred to old .yml's";
