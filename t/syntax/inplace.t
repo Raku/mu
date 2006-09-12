@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 14;
+plan 18;
 
 my @a = (1, 2, 3);
 ok(@a .= map:{ $_ + 1 }, '.= parses with adverbial block');

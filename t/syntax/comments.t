@@ -130,7 +130,7 @@ plan 32;
 #   without =cut>
 {
     my $a = eval q{
-        my $var =
+        my $var = 1;
 
 =begin comment
 
@@ -157,11 +157,9 @@ a "=cut".
 
 =end comment
 
-=cut
-
         "bar";
     };
-    is $a, 'bar', '=begin comment without =cut works';
+    is $a, 'bar', '=begin comment without =cut works', :todo<bug>;
 }
 
 # L<S02/Whitespace and Comments/"single paragraph comments"
@@ -174,7 +172,7 @@ a "=cut".
 =for comment TimToady is here!
 
         32;
-    }, 32, '=for comment works';
+    }, 32, '=for comment works', :todo<bug>;
 }
 
 {
@@ -185,5 +183,5 @@ a "=cut".
 are both here, yay!
 
         17;
-    }, 17, '=for comment works';
+    }, 17, '=for comment works', :todo<bug>;
 }
