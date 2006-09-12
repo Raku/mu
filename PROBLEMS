@@ -1,0 +1,43 @@
+It is not uncommon for us to do a release, and find some particular
+system configuration somewhere is having difficulties.  This file is
+intended as a place to accumulate information on symptoms and work
+arounds for the current release.  It is mainly intended for developers,
+rather than users.
+
+----------------------------------------------------------------------
+PROBLEM: make pugs fails at link time, with errors like
+  "undefined reference to `PL_modglobal'".
+
+EXAMPLE:
+*** Building: util/runcompiler -hide-all-packages -package stm -package network
+-package mtl -package template-haskell -package base -package pugs-fps -package
+pugs-HsSyck -package HsJudy -package unix -package readline -package Pugs -optl-Lthird-party/installed -o pugs src/Main.hs -lHSPugs-6.2.12 -optl-fno-strict-aliasing -optl-pipe -optl-Wdeclaration-after-statement -optl-I/usr/local/include -optc-D_LARGEFILE_SOURCE -optc-D_FILE_OFFSET_BITS=64 -optl-I/usr/include/gdbm -optl-Wl,-E -L/usr/local/lib -L/usr/local/lib/perl5/5.8.8/x86_64-linux/CORE -lperl -lnsl -ldl -lm -lcrypt -lutil -lc /usr/local/lib/perl5/5.8.8/x86_64-linux/auto/DynaLoader/DynaLoader.a
+/mumble/pugs/third-party/installed/lib/Pugs-6.2.12/libHSPugs-6.2.12.a(p5embed.o)(.text+0x27a): In function `pugs_getenv':
+: undefined reference to `PL_modglobal'
+
+NOTES:
+You may have a misconfigured perl installation, which is breaking perl5
+embedding.  You can try building without perl5 embedding, or read on.
+
+Perl5 embedding depends on finding C header files like perl.h, and a
+matching perl library (libperl.so, .a, or .dll).  When you run "perl
+Makefile.PL", perl provides -I and -L arguments telling which
+directories to look in, and in what order.  You can see these
+arguments by running "perl -MExtUtils::Embed -e ccopts -e ldopts".
+The headers and library must come from the same version of perl that
+you ran.
+
+If, for example, a second version of perl has also been installed, and
+a libperl.so from it is found earlier in ldopts than the correct one,
+the headers and libperl will not match, and make pugs may fail with
+"undefined reference" errors as described.  You can either (re)move
+the inconsistent file(s), or set LD_LIBRARY_PATH to include the
+correct library directory first (it generally ends in "CORE").
+
+Hypothetically, more subtle problems might perhaps arise if headers
+and library match each other, but not the perl which ran Makefile.PL
+and its Config.  This is never been reported, and even the unsubtle
+version is very uncommon.
+
+There doesn't seem to be an easy way to detect this problem short of
+the current "try to link and see if it works".
