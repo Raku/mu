@@ -1,15 +1,12 @@
 use v6-alpha;
-
-# use strict;
 use Test;
-
 plan 1+322;
 
 skip_rest "This file was in t_disabled/.  Remove this SKIP of it now works.";
 exit;
 
-if ($?OS ne 'MSWin32') {
-   skip_rest;
+if $?OS ne 'MSWin32' {
+   skip_rest "These are Win32-specific tests";
    exit;
 }
 
@@ -28,7 +25,7 @@ which is not really documented and varies between the versions of MSVC.
 So there is no fast and easy way to get automagic command line quoting for all
 programs, especially if double-quotes as parameters are involved.
 
-Haskells automagic quoting seems to be amazingly good though.
+Haskell's automagic quoting seems to be amazingly good though.
 
 =cut
 
