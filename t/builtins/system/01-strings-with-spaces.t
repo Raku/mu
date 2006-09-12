@@ -2,6 +2,8 @@ use v6-alpha;
 use Test;
 plan 1+322;
 
+# L<S29/"OS"/"=item run">
+
 skip_rest "This file was in t_disabled/.  Remove this SKIP of it now works.";
 exit;
 

@@ -1,8 +1,8 @@
 use v6-alpha;
-
 use Test;
-
 plan 6;
+
+# L<S16> 
 
 sub nonce() { ".$*PID." ~ int rand 1000 }
 
