@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 12 Sep 2006
   Number: 3
-  Version: 58
+  Version: 59
 
 =head1 Changes to Perl 5 operators
 
@@ -639,7 +639,7 @@ bitwise C<¬> operator, you'd have the add the C<+¬>, C<~¬>, and C<?¬>
 operators yourself.  Similarly, the carets that exclude the endpoints
 on ranges are there by convention only.
 
-In contrast to that, Perl 6 has four standard metaoperators for
+In contrast to that, Perl 6 has five standard metaoperators for
 turning a given existing operator into a related operator that is
 more powerful (or at least differently powerful).  These differ from a
 mere naming convention in that Perl automatically generates these new
@@ -801,7 +801,7 @@ dispatch tables when they know they're likely to be used in hyperops.
 
 =head2 Reduction operators
 
-The final metaoperator in Perl 6 is the reduction operator.  Any
+The fourth metaoperator in Perl 6 is the reduction operator.  Any
 infix operator (except for non-associating operators)
 can be surrounded by square brackets in term position to
 create a list operator that reduces using that operation:
@@ -1024,6 +1024,52 @@ infix operator beginning with backslash, C<< infix:<\x> >> say, will make it
 impossible to write certain triangular reduction operators, since C<[\x]> would
 mean the normal reduction of C<< infix:<\x> >> operator, not the triangular
 reduction of C<< infix:<x> >>.  This is deemed to be an insignificant problem.
+
+=head1 Cross operators
+
+The final metaoperator is the C<X> metaoperator.  It applies the
+modified operator across all permutations of its list arguments.  All
+C<X> operators are of list infix precedence, and are list associative.
+
+The bare form of C<X> is considered an operator in its own right.
+Saying:
+
+    <a b> X 1,2 X <x y>
+
+produces
+
+    ['a', 1, 'x'],
+    ['a', 1, 'y'],
+    ['a', 2, 'x'],
+    ['a', 2, 'y'],
+    ['b', 1, 'x'],
+    ['b', 1, 'y'],
+    ['b', 2, 'x'],
+    ['b', 2, 'y']
+
+The string concatenating form is:
+
+    <a b> X~ <1 2>           #  'a1', 'a2', 'b1', 'b2'
+
+As a metaoperator, C<X~> operator desugars to something like:
+
+    [~]«( <a b> X <1 2> )  #  'a1', 'a2', 'b1', 'b2'
+
+Any existing, non-mutating infix operator may be used after the C<X>.
+
+    1,2 X* 3,4               # 3,4,6,8
+
+(Note that C<< <== >> and C<< ==> >> are considered mutating, as well as
+all assignment operators.)
+
+If the underlying operator is non-associating, so is the metaoperator:
+
+    @a Xcmp @b Xcmp @c       # ILLEGAL
+    @a Xeq @b Xeq @c         # ok
+
+Unlike bare C<X>, the C<X,> form flattens much like C<[,]> does.
+
+    <a b> X, <1 2>         # 'a', '1', 'a', '2', 'b', '1', 'b', '2'
 
 =head1 Junctive operators
 
@@ -1401,6 +1447,18 @@ it's nice to be explicit about that:
 
     @foo := [[1,2,3],[4,5,6]]; say cat([;] @foo); # 1,2,3,4,5,6
 
+=head1 Crossing arrays
+
+In contrast to the zip operator, the C<X> operator returns all the
+permutations of its sublists.  Hence you may say:
+
+    <a b> X <1 2>
+
+and you end up with
+
+    ['a', '1'], ['a', '2'], ['b', '1'], ['b', '2']
+
+It is really a variant of the C<X> metaoperator mentioned earlier.
 =head1 Minimal whitespace DWIMmery
 
 Whitespace is no longer allowed before the opening bracket of an array
@@ -1481,7 +1539,7 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
 			    !!! ...  ???
 			    [+] [*] [<] [,] [\+] [\*] etc.
 			    (also = as list assignment)
-    list infix          ¥ <== ==>
+    list infix          ¥ <== ==> X X~ X* Xeqv etc.
     loose and           and
     loose or            or xor err
     expr terminator     ; {} as control block, statement modifiers
