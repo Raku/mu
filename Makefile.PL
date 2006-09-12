@@ -311,7 +311,7 @@ sub set_postamble {
                     $Config{ldflags} =~ s/-libpath:"?(.*?)"? //g or die "ldflags: $Config{ldflags} does not contain -libpath:";
 
                     my $lib = "$1/$Config{libperl}";
-                    $embed_flags .= " -optl\"$lib\" -D_INTPTR_T_DEFINED -D_UINTPTR_T_DEFINED -optc-D_INTPTR_T_DEFINED -optc-D_UINTPTR_T_DEFINED";
+                    $embed_flags .= " -optl\"$lib\" ";
 
                     $flags = "$Config{ccflags} $Config{ccdlflags}";
                     $flags =~ s{([\\"'])}{\\$1}g;
@@ -322,7 +322,7 @@ sub set_postamble {
                 }
 
                 $ccdlflags .= (/^-[DIL]/ ? ' -optc' : ' -optl') . qq["$_" ] for @flags;
-                $embed_flags .= " -optc-Ddirent=DIRENT ";
+                $embed_flags .= " -optc-Ddirent=DIRENT -optc-D_INTPTR_T_DEFINED -optc-D_UINTPTR_T_DEFINED ";
             }
             else {
                 $embed_flags .= " -optc$_" for grep length, split(/\s+/, ccopts());
