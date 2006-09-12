@@ -1,6 +1,8 @@
 use v6-alpha;
-
 use Test;
+
+# L<S29/"OS"/"=item run">
+# system may be re-named to run, so link there. 
 
 plan 3;
 
@@ -9,10 +11,9 @@ if $*OS eq "browser" {
   exit;
 }
 
-my $pugs = "./pugs";
-if $*OS eq any <MSWin32 mingw msys cygwin> {
-  $pugs = 'pugs.exe';
-};
+my $pugs = $*OS eq any <MSWin32 mingw msys cygwin> 
+         ?? 'pugs.exe'
+         !! './pugs';
 
 my $res;
 
