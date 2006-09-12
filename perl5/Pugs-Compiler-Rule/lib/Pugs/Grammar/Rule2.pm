@@ -70,21 +70,27 @@ token metasyntax {
     [ 
     |  \\ .
     |  \'  <?literal>     \'
-    |  \{  <?code>        \}
+    |  \{  <?string_code>        \}
     |  \<  <?metasyntax>  \>
     |  <-[ \> ]> 
     ]+ 
     { return { metasyntax => $/() ,} }
 }
 
-token code {
+token string_code {
     # bootstrap "code"
     [ 
     |  \\ .
     |  \'  <?literal>     \'
-    |  \{  <?code>        \}
+    |  \{  <?string_code>        \}
     |  <-[ \} ]> 
     ]+ 
+}
+
+token parsed_code {
+    # this subrule is overridden inside the perl6 compiler
+    <string_code>
+    { return '{' ~ $/{'string_code'}() ~ '}' }
 }
 
 token named_capture_body {
@@ -168,8 +174,8 @@ token named_capture_body {
         { return { variable => '%' ~ $() ,} }
     },
     '{' => token { 
-        <code>  \}
-        { return { closure => '{' ~ $/{'code'}() ~ '}' ,} }
+        <parsed_code>  \}
+        { return { closure => $/{'parsed_code'}() ,} }
     },
     '\\' => token {  
         .
