@@ -120,7 +120,9 @@ Pugs::Compiler::Token->install(
     q(
         # callback perl6 compiler
         \\{ <Pugs::Grammar::Perl6.parse> \\}
-        { return { closure => $/{'Pugs::Grammar::Perl6.parse'}() ,} }
+        { return { closure => 
+           { bare_block => $/{'Pugs::Grammar::Perl6.parse'}() },
+        } }
     )),
   Pugs::Compiler::Regex->compile(  
     #special_char => 

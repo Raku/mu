@@ -15,6 +15,10 @@ use v6-alpha;
         use Pugs::Runtime::Match;
         use Pugs::Emitter::Rule::Perl5::Ratchet;
         our %rule_terms;
+    - replace:
+            $named{'concat'} = $match;
+       - with:
+            push @{ $named{'concat'} }, $match;
 
 =cut
 
@@ -142,8 +146,8 @@ token named_capture_body {
         <ident> \> <?ws>? <':='> <?ws>? <named_capture_body>
         { 
             use v5;
-            my $body = $/{'named_capture_body'}();
-            $body->{'ident'} = $/{'ident'}();
+            my $body = $::_V6_MATCH_->{'named_capture_body'}();
+            $body->{'ident'} = $::_V6_MATCH_->{'ident'}();
             return { named_capture => $body, }; 
             use v6;
         }
@@ -176,7 +180,7 @@ token named_capture_body {
     },
     '{' => token { 
         <code>  \}
-        { return { closure => $/{'code'}() ,} }
+        { return { closure => '{' ~ $/{'code'}() ~ '}' ,} }
     },
     '\\' => token {  
         .
