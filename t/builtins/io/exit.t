@@ -1,6 +1,7 @@
 use v6-alpha;
-
 use Test;
+
+# L<S29/"Control::Basic"/"=item exit">
 
 # This test is primarily aimed at PIL2JS.
 
