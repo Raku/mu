@@ -295,13 +295,13 @@ sub set_postamble {
                 if ($Config{libperl} =~ /lib(\w+)\.a/) {
                     $embed_flags .= " -optl-l$1 ";
                 }
-                else {
+                elsif (defined &Win32::BuildNumber) {
                     # We are on ActivePerl -- Kluge massively!
 
-                    if ($] < 5.008008) {
+                    if (Win32::BuildNumber() < 815) {
                         die << 'END';
-*** ActivePerl 5.8.7 and below does not support Perl 5 embedding.
-    Please upgrade to 5.8.8 or above, or disable Perl 5 embedding
+*** ActivePerl earlier than 5.8.7 build 815 does not support Perl 5 embedding.
+    Please upgrade your ActivePerl installation, or disable Perl 5 embedding
     by setting the PUGS_EMBED environment variable to "noperl5".
 END
                     }
@@ -325,6 +325,10 @@ END
                     $flags =~ s{([\\"'])}{\\$1}g;
                     @flags = grep { length $_ } split /\s+/, $flags;
                 }
+                else {
+                    warn "Unrecognized libperl shared library: $Config{libperl}, proceeding anyway...\n";
+                }
+
                 $ccdlflags .= (/^-[DIL]/ ? ' -optc' : ' -optl') . qq["$_" ] for @flags;
                 $embed_flags .= " -optc-Ddirent=DIRENT ";
             }
