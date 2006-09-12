@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 12 Sep 2006
   Number: 3
-  Version: 59
+  Version: 60
 
 =head1 Changes to Perl 5 operators
 
@@ -982,7 +982,7 @@ On the plus side, this works without a star:
 
 Likewise, from the fact that list context flattens inner arrays and
 lists, it follows that a reduced assignment does no special syntactic
-dwimmery, and hence only scalar assigments are supported.  Therefore
+dwimmery, and hence only scalar assignments are supported.  Therefore
 
     [=] $x, @y, $z, 0
     [+=] $x, @y, $z, 1
@@ -1067,9 +1067,16 @@ If the underlying operator is non-associating, so is the metaoperator:
     @a Xcmp @b Xcmp @c       # ILLEGAL
     @a Xeq @b Xeq @c         # ok
 
+In fact, though the C<X> operators are all list associative
+syntactically, the underlying operator is always applied with its
+own associativity.
+
 Unlike bare C<X>, the C<X,> form flattens much like C<[,]> does.
 
     <a b> X, <1 2>         # 'a', '1', 'a', '2', 'b', '1', 'b', '2'
+
+Note that only the first term of an C<X> operator may reasonably be
+an infinite list.
 
 =head1 Junctive operators
 
@@ -1183,7 +1190,7 @@ declaring multiple parameters:
     my ($b, $c);	# okay
     my $b, $c;		# wrong: "Use of undeclared variable: $c"
 
-Types occuring between the declarator and the signature are distributed into
+Types occurring between the declarator and the signature are distributed into
 each variable:
 
     my Dog ($b, $c);
@@ -1459,6 +1466,7 @@ and you end up with
     ['a', '1'], ['a', '2'], ['b', '1'], ['b', '2']
 
 It is really a variant of the C<X> metaoperator mentioned earlier.
+
 =head1 Minimal whitespace DWIMmery
 
 Whitespace is no longer allowed before the opening bracket of an array
