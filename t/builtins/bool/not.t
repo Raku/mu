@@ -2,7 +2,7 @@ use v6-alpha;
 use Test;
 plan 10;
 
-# add a smart link here once 'not' is actually spec'ed.
+# L<S03/Precedence /loose unary/>
 
 is(not 1,     False, "not 1 is false");
 is(not -1,    False, "not -1 is false");
