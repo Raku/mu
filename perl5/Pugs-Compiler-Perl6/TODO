@@ -1,5 +1,7 @@
 TODO list for v6.pm, Pugs-Compiler-Perl6
 
+- rewrite Term::substitution() using token
+
 - this is giving a wrong result:
   perl -e 'use v6-alpha' - ' grammar E { regex ab { a*b } }; "accaaab"~~ /<E::ab>/; $/.perl.say '
 
