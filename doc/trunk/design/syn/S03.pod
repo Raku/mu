@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 12 Sep 2006
+  Last Modified: 13 Sep 2006
   Number: 3
-  Version: 60
+  Version: 61
 
 =head1 Changes to Perl 5 operators
 
@@ -50,7 +50,7 @@ to being a no-op in Perl 5).  Along the same lines, C<?> imposes
 a boolean (C<Bool>) context, and the C<[,]> list operator imposes
 a function-arguments (C<Capture>) context on its arguments.
 Unary sigils impose the container context implied by their sigil.
-As with Perl 5, however, C<$$foo[bar]> parses as C<$($foo)[bar]>,
+As with Perl 5, however, C<$$foo[bar]> parses as C<( $($foo) )[bar]>,
 so you need C<$($foo[bar])> to mean the other way.
 
 =item * Bitwise operators get a data type prefix: C<+>, C<~>, or C<?>.
@@ -543,7 +543,7 @@ separate entries for lists.
 
     $_      $x        Type of Match Implied    Matching Code
     ======  =====     =====================    =============
-    Any     Code:($)   scalar sub truth         match if $x($_)
+    Any     Code:($)  scalar sub truth         match if $x($_)
     Hash    Hash      hash keys identical      match if $_.keys.sort »eq« $x.keys.sort
     Hash    any(Hash) hash key intersection    match if $_{any(Hash.keys)}
     Hash    Array     hash value slice truth   match if $_{any(@$x)}
@@ -602,7 +602,7 @@ readable alternative to a string of elsifs.  Note, however, that this means
 you can't write:
 
     given $boolean {
-	when True {...}
+	when True  {...}
 	when False {...}
     }
 
@@ -610,7 +610,7 @@ because it will always choose the C<True> case.  Instead use something like:
 
     given $boolean {
 	when .true {...}
-	when .not {...}
+	when .not  {...}
     }
 
 Better, just use an C<if> statement.
@@ -648,7 +648,7 @@ In fact, you're not generally supposed to define the individual
 metaoperations--their semantics are supposed to be self-evident by
 the transformation of the base operator.
 
-Note: spaces are never allowed between any metaoperator and the
+Note: Spaces are never allowed between any metaoperator and the
 operator it's modifying, because all operators including modified
 ones have to be recognized by the Longest-Token Rule, which disallows
 spaces within a token.
@@ -672,7 +672,7 @@ Regardless of the precedence of the base operator, the precedence
 of any assignment operators is forced to be the same as that of
 ordinary assignment.
 
-=head2 Negated relational operators.
+=head2 Negated relational operators
 
 Any infix relational operator may be transformed into its negative
 by prefixing with C<!>.  A couple of these have traditional shortcuts:
@@ -720,7 +720,7 @@ If either argument is insufficiently dimensioned, Perl "upgrades" it:
 In fact, this is the I<only> form that will work for an unordered type
 such as a C<Bag>:
 
-     Bag(3,8,2,9,3,8) >>-<< 1;       # Bag(2,7,1,8,2,7) ~~ Bag(1,2,2,7,7,8)
+     Bag(3,8,2,9,3,8) >>-<< 1;       # Bag(2,7,1,8,2,7) === Bag(1,2,2,7,7,8)
 
 When using a unary operator, only put the "hyper" on the side of the
 single operand:
@@ -870,11 +870,15 @@ different ways to handle the one argument case depending on type:
     multi prefix:<[foo]> (Int $x) { 42 }
     multi prefix:<[foo]> (Str $x) { fail "Can't foo a single Str" }
 
-However, the zero argument case must of necessity be handled by the
-proto version, since there is no type information to dispatch on.
-Operators that wish to specify an identity value should do so by
-specifying the proto listop.  Among the builtin operators, C<[+]()>
-returns 0 and C<[*]()> returns 1, for instance.
+However, the zero argument case cannot be defined this way, since there
+is no type information to dispatch on.  Operators that wish to specify an
+identity value should do so by specifying a multi variant that takes zero
+arguments:
+
+    multi prefix:<[foo]> () { 0 }
+
+Among the builtin operators, C<[+]()> returns 0 and C<[*]()> returns 1,
+for instance.
 
 By default, if there is one argument, the built-in reduce operators
 return that one argument.  However, this default doesn't make sense
