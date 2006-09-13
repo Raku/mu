@@ -23,10 +23,10 @@ my ($count, $broken_count);
 my (@snippets, $snippet_id);
 
 my %Spec = reverse qw(
-    01 Overview 02 Syntax        03 Operator     04 Block
-    05 Rule     06 Subroutine    09 Structure    10 Package
-    11 Module   12 Object        13 Overload     17 Concurrency
-    22 CPAN     26 Documentation 29 Functions
+    01 Overview    02 Syntax        03 Operator      04 Block
+    05 Rule        06 Subroutine    09 Structure     10 Package
+    11 Module      12 Object        13 Overload      16 IO
+    17 Concurrency 22 CPAN          26 Documentation 29 Functions
 );
 
 my $javascript = <<'_EOC_';
