@@ -1,4 +1,16 @@
-TODO list for Pugs-Compiler-Perl6
+TODO list for v6.pm, Pugs-Compiler-Perl6
+
+- this is giving a wrong result:
+  perl -e 'use v6-alpha' - ' grammar E { regex ab { a*b } }; "accaaab"~~ /<E::ab>/; $/.perl.say '
+
+- merge in compile-time objects
+
+- anon classes, roles 
+- merge http://nothingmuch.woobling.org/MO
+
+- merge PIL-Run runtime (lazy lists, junctions)
+
+- fix perl5 calling conventions ('use CGI;', etc)
 
 - semicolons in array slice [1;2]
 
