@@ -4,7 +4,7 @@
         use Pugs::Runtime::Match;
         use Pugs::Emitter::Rule::Perl5::Ratchet;
         our %rule_terms;
-
+ 
 *pod_begin = sub {
 
   $_[3] = $_[2];
