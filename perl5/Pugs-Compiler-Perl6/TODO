@@ -1,5 +1,9 @@
 TODO list for v6.pm, Pugs-Compiler-Perl6
 
+- Rule and Pod grammar from Pugs::Compiler::Rule still need work
+  to compile properly (simplified header, unnecessary use of Data::Bind,
+  wrong compile-time capture count)
+
 - rewrite Term::substitution() using token
 
 - this is giving a wrong result:

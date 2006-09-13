@@ -1,4 +1,15 @@
+
+- MANIFEST only includes passing tests
+- reuse Rule and Pod grammar from Pugs::Compiler::Rule
+  - These grammars are now implemented using v6.pm.
+  - The Rule grammar is subclassed, in order to callback P6 parser to
+  compile closures.
 - improved quoted text parsing
+- gradually replace Text::Balanced with plain rules
+  - Term::substitution() and rx_body() are the last remaining places.
+- experimental implementation of compile-time objects
+  - lib/Pugs/Emitter/Perl6/Perl5/
+  - not merged yet - see misc/pX/fglock
 
 0.014  2006-08-21
 
