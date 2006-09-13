@@ -1363,17 +1363,16 @@ defaultInvocantParam = MkParam
 
 ruleSignature :: RuleParser Exp
 ruleSignature = rule "signature" $ do
-    -- XXX: an inefficiency in the implementation is that on Sigs with no invocant,
-    --      we parse the first Param twice because the second choice here is in a try
-    --      and only fails when the ':' is not found. It would be better to save the
-    --      first param and determine whether it is an invocant or not.
-    -- XXX: what is this? :(:$x) - one named? Or default invocant, one positional?
-    inv     <- choice
-               [ (lexeme $ char ':') >> (return $ Just defaultInvocantParam)
-               , try $ fmap (Just . p_param) $ followedBy ruleParam (lexeme $ char ':')
-               , return Nothing
-               ]
-    params  <- ruleParam `sepEndBy` (lexeme $ char ',')
+    -- Note that :(:$x) is naturally one named parameter here.
+    (inv, params) <- option (Nothing, []) $ do
+        first <- ruleParam
+        option (Nothing, [first]) $ do
+            sep     <- lexeme (oneOf ":,")
+            rest    <- ruleParam `sepEndBy` (lexeme $ char ',')
+            return $ case sep of
+                ':' -> (Just $ p_param first, rest)
+                ',' -> (Nothing, first:rest)
+                _   -> error "Can't happen"
     whiteSpace
     reqPosC <- validateRequired True params
     let reqNms   = Set.fromList
