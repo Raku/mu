@@ -1,4 +1,6 @@
 
+0.17  2006-09-13
+
 - Grammar::Rule is now bootstrapped with v6.pm, instead of lrep
 - implemented $<KEY>
 - fixed bool result of quantified terms inside tokens
