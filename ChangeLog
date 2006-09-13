@@ -26,8 +26,22 @@
 * Added make_build_perl5, to make it possible to build all the perl5 modules
   without installing ghc first. 
 
+==  Documentations
+
+* added util/smartlinks.pl which implements the new generation of
+  smartlinks used in the test suite. it generetes much nicer
+  cross-referenced HTML pages than util/catalog_tests.pl.
+  (See http://perlcabal.org/syn/S02.html for sample outputs.)
+* A new documentation index was created, which is regularly
+  published at http://perlcabal.org/syn and the synopses are
+  updated automatically by util/smartlinks.pl every 1 hour.
+* Perl6::Perl6::Differences was significantly updated. An HTML
+  version of it is linked to from the page above.
+* say() was officially added to the spec
+
 == Examples and the Test Suite
 
+* Added many more smartlinks to the test suite.
 * Rewrote util/prove6 using Perl 5 so that it can now run everywhere.
   You can use this to run only a portion of the test suite or even a single
   file.
@@ -50,38 +64,76 @@
 * Added tests for \o[] and \d[].
 * Added tests for embedded comments.
 
-==  Documentations
-
-* added util/smartlinks.pl which implements the new generation of
-  smartlinks used in the test suite. it generetes much nicer
-  cross-referenced HTML pages than util/catalog_tests.pl.
-  (See http://perlcabal.org/syn/S02.html for sample outputs.)
-* A new documentation index was created, which is regularly
-  published at http://perlcabal.org/syn and the synopses are
-  updated automatically by util/smartlinks.pl every 1 hour.
-* Perl6::Perl6::Differences was significantly updated. An HTML
-  version of it is linked to from the page above.
-* say() was officially added to the spec
-
 == Feature Changes
 
+* Enabled Perl 5 embedding by default.
+** For Windows users, ActivePerl 5.8.8 is required.
+** Set the PUGS_EMBED environment variable to "noperl5" to disable this.
 * $obj.*$meth() is now implemented, calling zero or more methods named $meth
 in the inheritence tree, returning an unconcatenated list of return values.
 The return value of this is not yet spec'ed. Currently only lookups through
 single inheritence are implemented.  See "Calling Sets of Methods" in S12 for
 more information about related features. 
 * There are now separate `===` and `eqv` operators.
-* Characters indexed by names are now supported, e.g., \c[LEFT CORNER BRACKET].
+* Added support for character name escapes:
+    say "\c[LATIN CAPITAL LETTER Y]";
+  With Perl 5 embedding, the full Unicode range is supported via
+  charnames.pm.  Without Perl 5 embedding (e.g. in "make ghci"),
+  only codepoints in the range 0x00-0xFF are supported.
 * Proper support for \digits according to the latest Synopses.
 ** e.g., "\123" is a syntax error while '\123' is not.
 ** e.g., "\08" is allowed while "\03" is not.
 * The "proto" keyword is now supported
-** proto foo {...} works
-** proto sub foo {...} also works
+** "proto foo {...}" works
+** Parse for "proto sub foo {...}"
 * Added support for the `each` builtin, so now you can write
     for each(@a; @b) -> $x, $y { ... }
+* Implemented postfix "given"
+* Added Math::Basic::pi per S29
+* Added *pi(), for backwards compatibility. (This is non-spec.)
+* Renamed .as to .fmt according the recent changes of the Synopses.
+* Implemented staleness checking for .yml/.pm loader.
+* Added support for $?COMPILER and $?VERSION, which are set to
+  "Pugs" and "6.2.13"
+* Support for chained method call in qq interpolation.
+    "$foo.meth.meth.meth.meth()"
+* Allowed "POST(1)" or "BEGIN(2)" to parser as function calls,
+  instead of syntax errors (as in Perl5).
+* Postfix dot methods are now working:
+    .++;        # $_++
+    $x.++;      # $x++
+    $x.\ ++;    # ditto
+    $x.+meth;   # $x.meth but with quantifier
+* Added support for the "%b" modifier in `sprintf` and `fmt`, which
+  requires parrot due to use of rules.
+* Initial support for Capture and Signature objects.
+** Support for:
+    my T ($x, $y, $z)
+   to distribute as:
+    (my T $x, my T $y, my T 4z)
+** Also, "my T $x" now re-assigns T into $x upon closure reentry.
+   Note that this is not strictly correct for "state T $x", but
+   let's do it this way for now.
+
+XXX audreyt and gaal?
+
 
 == Bug Fixes
+
+* in a "for" loop with rvalue lists, don't double-listify
+  its list elements.  This fixes the case of:
+    for %h.pairs -> $p { ... }
+  which used to make $p contain a seq instead of a pair.
+* Allowed double-right-parens to end a "parens" structure:
+    (@(1))
+    (@::("foo"))
+  now all parses correctly without needing a whitespace.
+* Repaired quantified method calls with .*$method by treating
+  .* always as quantifier and never as globalizer.
+* "%x<>" now means "%x{}" -- that is, interpolating the entire hash --
+  rather than "".
+* Parse for "class Foo is also {...}" instead of having Foo
+  inherit from ::also.
 
 = Changes for 6.2.12 (r10930) - June 26, 2006
 
