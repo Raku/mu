@@ -1348,12 +1348,12 @@ data Paramdec = MkParamdec
 
 defaultInvocantParam :: SigParam
 defaultInvocantParam = MkParam
-    { p_variable    = cast ""
+    { p_variable    = varNullScalar
     , p_types       = []
     , p_constraints = []
     , p_unpacking   = Nothing
     , p_default     = MkParamDefault Nothing
-    , p_label       = cast "" -- "self"? no...
+    , p_label       = nullID
     , p_slots       = Map.empty
     , p_hasAccess   = AccessRO
     , p_isRef       = False
@@ -1376,7 +1376,7 @@ ruleSignature = rule "signature" $ do
     whiteSpace
     reqPosC <- validateRequired True params
     let reqNms   = Set.fromList
-            [ p_label p | MkParamdec{ p_param = p, p_isRequired = True } <- params]
+            [ p_label p | MkParamdec{ p_param = p, p_isNamed = True, p_isRequired = True } <- params]
         nmSt     = Map.fromList
             [ (p_label p, p) | MkParamdec{ p_param = p, p_isNamed = True } <- params]
         posLs    = [ p | MkParamdec{ p_param = p, p_isNamed = False } <- params ]

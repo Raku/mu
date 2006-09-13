@@ -105,7 +105,7 @@ plan 29;
         );
     for @sigs -> $s, $desc {
         my $sig is context;
-        eval_ok '$+sig = ' ~ $s, "signature parses      - $desc";
-        is $sig, $s,            "signature stringifies - $desc";
+        eval_ok '$+sig = ' ~ $s, "signature parses      - $desc - $s";
+        is $sig, $s,             "signature stringifies - $desc - $s";
     }
 }

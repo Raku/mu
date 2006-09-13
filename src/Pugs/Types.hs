@@ -156,6 +156,18 @@ data Var = MkVar
     }
     deriving (Eq, Ord, Typeable, Data)
 
+-- | a dummy scalar, used for example as the invocant
+-- in the signature :( $ : $x, $y ).
+varNullScalar :: Var
+varNullScalar = MkVar
+    { v_name    = nullID
+    , v_sigil   = SScalar
+    , v_twigil  = TNil
+    , v_categ   = CNil
+    , v_package = MkPkg []
+    , v_meta    = MNil
+    }
+
 data VarMeta
     = MNil
     | MFold             -- [+]

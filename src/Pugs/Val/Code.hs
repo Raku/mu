@@ -145,8 +145,9 @@ instance Pure Sig where
     purePretty s = colon <> (parens $ prettySig s)
     
 prettySig :: Sig -> Doc
-prettySig s@(SigMethSingle {}) = (prettyParam (s_invocant s) True True) <> colon `invSpace` (prettySubSig s)
+prettySig s@(SigMethSingle {}) = invocant <> colon `invSpace` (prettySubSig s)
     where
+    invocant = if (v_name $ p_variable $ s_invocant s) == nullID then text "$ " else prettyParam (s_invocant s) True True
     invSpace :: Doc -> Doc -> Doc
     invSpace = if (isEmpty $ prettySubSig s) then (<>) else (<+>)
 prettySig s = prettySubSig s

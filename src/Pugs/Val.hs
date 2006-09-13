@@ -492,3 +492,4 @@ instance Ord Val where
     compare (VExt _) (VPure _) = GT
     compare (VExt _) (VMut _) = GT
     compare (VExt aa) (VExt aa') = dynCompare aa aa'
+
