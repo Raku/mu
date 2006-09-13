@@ -17,7 +17,6 @@ plan 1;
      * clarify KeyExtractor returning multiple types
 
   * Syntax cleanup
-     * is a module the best way to package the implementation?
      * guidance on `primitive`
 
 =cut
@@ -31,13 +30,11 @@ subset Comparator   of Code(Any, Any --> Int);
 subset SortCriterion
     of KeyExtractor | Comparator | Pair(KeyExtractor, Comparator);
 
-module Prelude::MergeSort {
-    my &return_ifn0 ::= -> $v { return $v if $v; }
-
+module Prelude::Sort {
     our Any
     sub kex (KeyExtractor $ex, $v) is cached { $ex($v); }
 
-    our Array
+    our List
     sub handle_kex (KeyExtractor $ex, $a, $b)
     {
         my $asc = $ex !~~ descending;
@@ -48,13 +45,16 @@ module Prelude::MergeSort {
         ( $y, $z ) = $y.lc, $z.lc
             if $ex ~~ insensitive;
 
-        return $y, $z;
+        list($y, $z);
     }
 
     our Order
     sub by_cmp (SortCriterion @by, $a, $b)
     {
-        for @by -> $criterion {
+        my $result = Order::Same;
+        my &return_ifn0 ::= -> $v { if $v { $result = $v; leave LOOP; } };
+
+        LOOP: for @by -> $criterion {
             when Comparator {
                 return_ifn0 $criterion($a, $b);
             }
@@ -68,6 +68,16 @@ module Prelude::MergeSort {
                 # will sort numerically within the typographical
                 # sort of strings.  (No more having to fmt('%02d')
                 # all of your ints.)
+                #
+                # Probably more correct would be:
+                #
+                #   given $criterion.isof() {
+                #       when :(Num) { return_inf0 infix:{'<=>'}($ka, $kb); }
+                #       default { return_inf0 infix:<cmp>($ka, $kb); }
+                #   }
+                #
+                # However .isof() is just conjecture at this time for how
+                # you would access the 'of' return-type of a Code object.
 
                 given $ka {
                     when Num {
@@ -98,21 +108,25 @@ module Prelude::MergeSort {
             }
         }
 
-        return Order::Same;
+        $result;
     }
 
-    our Bool
+    our bool
     sub in_order (SortCriterion @by, *$x, *@xs)
     {
+        my $result = 1;
         my $y := $x;
 
         for @xs -> $z {
-            return Bool::False if by_cmp(@by, $y, $z) > 0;
+            if by_cmp(@by, $y, $z) > 0 {
+                $result = 0;
+                last;
+            }
 
             $y := $z;
         }
 
-        return Bool::True;
+        $result;
     }
 
     # mergesort() --
@@ -124,32 +138,38 @@ module Prelude::MergeSort {
     sub mergesort (@values is rw, Code @by? = list(&infix:<cmp>),
         Bit $inplace? = 0)
     {
+        my @result;
+
         if $inplace {
             inplace_mergesort(@values, 0 => +@values, @by);
-            return @values;
+            @result := @values;
         }
         else {
             my @copy = @values;
             inplace_mergesort(@copy, 0 => +@copy, @by);
-            return @copy;
+            @result := @copy;
         }
+
+        @result;
     }
 
     our Pair
     sub inplace_mergesort (@values is rw, Pair $span, Code @by)
     {
-        return $span
-            if ( $span.value - $span.key == 1
-            || in_order(@by, @values) );
+        my $result = $span;
 
-        my $mid = $span.key + int( ($span.value - $span.key)/ 2 );
+        unless ( $span.value - $span.key == 1 || in_order(@by, @values) ) {
+            my $mid = $span.key + int( ($span.value - $span.key)/ 2 );
 
-        return merge(
-            @values,
-            inplace_mergesort(@values, $span.key => $mid, @by),
-            inplace_mergesort(@values, $mid => $span.value, @by),
-            @by
-        );
+            $result = merge(
+                @values,
+                inplace_mergesort(@values, $span.key => $mid, @by),
+                inplace_mergesort(@values, $mid => $span.value, @by),
+                @by
+            );
+        }
+
+        $result;
     }
 
     our Pair
@@ -180,40 +200,40 @@ module Prelude::MergeSort {
         }
 
         # anything remaining in @right is in the correct place.
-            # anything remaining in @scratch needs to be filled into @right
+        # anything remaining in @scratch needs to be filled into @right
             @values[$ri..^$rspan.value] = @scratch[$sc..^+@scratch];
 
         # return the merged span
-            return $lspan.key => $rspan.value;
+        $lspan.key => $rspan.value;
     }
 }
 
 our Array multi Array::sort( @values is rw, *&by, Bit $inplace? )
 {
-    return Prelude::MergeSort::mergesort(@values, list(&by), $inplace);
+    Prelude::Sort::mergesort(@values, list(&by), $inplace);
 }
 
 our Array multi Array::sort( @values is rw, SortCriterion @by, Bit $inplace? )
 {
-    return Prelude::MergeSort::mergesort(@values, @by, $inplace);
+    Prelude::Sort::mergesort(@values, @by, $inplace);
 }
 
 our Array multi Array::sort( @values is rw, SortCriterion $by = &infix:<cmp>,
     Bit $inplace? )
 {
-    return Array::sort(@values, $by, $inplace);
+    Array::sort(@values, $by, $inplace);
 }
 
 our List multi List::sort( SortCriterion @by, *@values )
 {
-    my @result = Prelude::MergeSort::mergesort(@values, @by);
-    return @result[];
+    my @result = Prelude::Sort::mergesort(@values, @by);
+    @result[];
 }
 
 our List multi List::sort( SortCriterion $by = &infix:<cmp>, *@values )
 {
-    my @result = Prelude::MergeSort::mergesort(@values, list($by));
-    return @result[];
+    my @result = Prelude::Sort::mergesort(@values, list($by));
+    @result[];
 }
 END_PRELUDE_SORT;
 
