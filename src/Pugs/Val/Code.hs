@@ -160,9 +160,8 @@ prettySubSig s = sep $ punctuate comma $ concat [posParams, namedParams]
     isReqNamed n = Set.member n $ s_requiredNames s
 
 prettyParam :: Param -> Bool -> Bool -> Doc
-prettyParam p isReq isPos = staticTypes <+> varName <> defaultHint <+>
-    (if haveDefault then equals <+> text "..." else empty) <+> acc <+> ref <+> lazy <+>
-    slots <+> constraints <+> debugDump
+prettyParam p isReq isPos = staticTypes <+> varName <> defaultHint <+> sep
+    [ traits, unpacking, constraints, debugDump ]
     where
     varName
         | isPos = text (cast $ p_variable p)
@@ -172,16 +171,21 @@ prettyParam p isReq isPos = staticTypes <+> varName <> defaultHint <+>
     staticTypes = hsep $ map (text . show) $ p_types p
     defaultHint = if not isReq && not haveDefault then text "?" else empty
     haveDefault = isJust $ unDefault $ p_default p
-    acc = case p_hasAccess p of
+    defaultVal  = if haveDefault then equals <+> text "..." else empty
+    traits      = sep [acc, ref, lazy, slots]
+    unpacking   = case p_unpacking p of
+        (Just s)   -> purePretty s
+        _          -> empty
+    acc         = case p_hasAccess p of
         AccessRO   -> empty
         AccessRW   -> text "is rw"
         AccessCopy -> text "is copy"
-    ref   = if p_isRef  p then text "is ref"  else empty
-    lazy  = if p_isLazy p then text "is lazy" else empty
+    ref         = if p_isRef  p then text "is ref"  else empty
+    lazy        = if p_isLazy p then text "is lazy" else empty
     -- slots = hsep [text ("is " ++ (cast aux)) <+> text "..." | (aux, val) <- Map.toList $ p_slots p] XXX: for when traits have args
-    slots = hsep [text ("is " ++ (cast $ fst trait)) | trait <- Map.toList $ p_slots p]
+    slots       = hsep [text ("is " ++ (cast $ fst trait)) | trait <- Map.toList $ p_slots p]
     constraints = hsep $ replicate (length $ p_constraints p) (text "where {...}")
-    debugDump = if True then empty else braces $ text $ show p -- XXX delme
+    debugDump   = if True then empty else braces $ text $ show p -- XXX delme
 --------------------------------------------------------------------------------------
 
 -- | a Capture is a frozen version of the arguments to an application.

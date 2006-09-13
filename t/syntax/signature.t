@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 29;
+plan 39;
 
 # This is first attempt at rationalizing the := form into a Siglist method call.
 # The :() form constructs signatures similar to how \() constructs arguments.
@@ -90,17 +90,24 @@ plan 29;
 # L<S06/"Parameters and arguments">
 {
     # let's start with valid signatures whose canonical stringy form looks
-    # just like their source
+    # just like their source. I incidentally use different sigils, can't
+    # throw in the complete cartesian product here...
     my @sigs =
         ( ':($x)',              'single required positional'
         , ':($x:)',             'invocant only'
-        , ':($x, $y)',          'two required positionals'
-        , ':($x, $y?)',         'required and optional positionals'
-        , ':($x is rw is ref is lazy is moose)', 'traits (including user defined)' # note order matters :/
+        , ':(@x, $y)',          'two required positionals'
+        , ':($x, %y?)',         'required and optional positionals'
+        , ':($x is rw is ref is lazy is moose)', # note order matters :/
+                                'traits (including user defined)'
         , ':($x, $y, :$z)',     'positional and named'
         , ':($x, $y?, :$z)',    'optional positional and named'
+        , ':(:$x)',             'required named'
         , ':(:$x?)',            'optional named'
-        , ':(: :short($long))', 'short and long names'
+        , ':(:$short($long))',  'long named'
+        , ':(:$short($long)?)', 'optional long named'
+        , ':($ : %x)',          'dummy invocant'
+        , ':($x :($y))',        'unpacking(1)'
+        , ':($x :($y: $z)',     'unpacking(2)'
         , # add more here.
         );
     for @sigs -> $s, $desc {
