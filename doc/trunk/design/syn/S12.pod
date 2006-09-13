@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
   Last Modified: 13 Sept 2006
   Number: 12
-  Version: 22
+  Version: 23
 
 =head1 Overview
 
@@ -1505,6 +1505,12 @@ Metamethods for objects are named with interrogative pronouns in uppercase:
     HOW		the metaclass object: "Higher Order Workings"
     WHEN	(reserved for events?)
     WHY		(reserved for documentation?)
+
+None of these methods takes arguments, so they may also be used as
+named unary operators:
+
+    $obj.WHAT   # method form of P5's ref
+    WHAT $obj   # unary form of P5's ref
 
 In general, use of these in ordinary code should be a red flag that
 Something Very Strange is going on.  (Hence the allcaps.)  Most code
