@@ -1031,14 +1031,22 @@ reduction of C<< infix:<x> >>.  This is deemed to be an insignificant problem.
 
 =head1 Cross operators
 
-The final metaoperator is the C<X> metaoperator.  It applies the
+The final metaoperator is the cross metaoperator.  It is formed syntactically
+by placing an infix operator between two C<X> characters.  It applies the
 modified operator across all permutations of its list arguments.  All
-C<X> operators are of list infix precedence, and are list associative.
+cross operators are of list infix precedence, and are list associative.
 
-The bare form of C<X> is considered an operator in its own right.
-Saying:
+The string concatenating form is:
 
-    <a b> X 1,2 X <x y>
+    <a b> X~X <1 2>           #  'a1', 'a2', 'b1', 'b2'
+
+The C<X~X> operator desugars to something like:
+
+    [~]«( <a b> X <1 2> )  #  'a1', 'a2', 'b1', 'b2'
+
+The list concatenating form
+
+    <a b> X,X 1,2 X,X <x y>
 
 produces
 
@@ -1051,33 +1059,25 @@ produces
     ['b', 2, 'x'],
     ['b', 2, 'y']
 
-The string concatenating form is:
+The string and list forms are common enough to have shortcuts, C<X>
+and C<XX> respectively.  See below.
 
-    <a b> X~ <1 2>           #  'a1', 'a2', 'b1', 'b2'
+For the general form, any existing, non-mutating infix operator
+may be used.
 
-As a metaoperator, C<X~> operator desugars to something like:
-
-    [~]«( <a b> X <1 2> )  #  'a1', 'a2', 'b1', 'b2'
-
-Any existing, non-mutating infix operator may be used after the C<X>.
-
-    1,2 X* 3,4               # 3,4,6,8
+    1,2 X*X 3,4               # 3,4,6,8
 
 (Note that C<< <== >> and C<< ==> >> are considered mutating, as well as
 all assignment operators.)
 
 If the underlying operator is non-associating, so is the metaoperator:
 
-    @a Xcmp @b Xcmp @c       # ILLEGAL
-    @a Xeq @b Xeq @c         # ok
+    @a XcmpX @b XcmpX @c       # ILLEGAL
+    @a XeqX @b XeqX @c         # ok
 
 In fact, though the C<X> operators are all list associative
 syntactically, the underlying operator is always applied with its
-own associativity.
-
-Unlike bare C<X>, the C<X,> form flattens much like C<[,]> does.
-
-    <a b> X, <1 2>         # 'a', '1', 'a', '2', 'b', '1', 'b', '2'
+own associativity, just as the corresponding reduce operator would do.
 
 Note that only the first term of an C<X> operator may reasonably be
 an infinite list.
@@ -1460,16 +1460,24 @@ it's nice to be explicit about that:
 
 =head1 Crossing arrays
 
-In contrast to the zip operator, the C<X> operator returns all the
+In contrast to the zip operator, the C<XX> operator returns all the
 permutations of its sublists.  Hence you may say:
 
-    <a b> X <1 2>
+    <a b> XX <1 2>
 
 and you end up with
 
     ['a', '1'], ['a', '2'], ['b', '1'], ['b', '2']
 
-It is really a variant of the C<X> metaoperator mentioned earlier.
+The C<X> variant crosses the arrays but concatenates strings:
+
+    <a b> X <1 2>
+
+produces
+
+    'a1', 'a2', 'b1', 'b2'
+
+The resemblance to C<x> and C<xx> is not entirely accidental.
 
 =head1 Minimal whitespace DWIMmery
 
@@ -1551,7 +1559,7 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
 			    !!! ...  ???
 			    [+] [*] [<] [,] [\+] [\*] etc.
 			    (also = as list assignment)
-    list infix          ¥ <== ==> X X~ X* Xeqv etc.
+    list infix          ¥ <== ==> X XX X~X X*X XeqvX etc.
     loose and           and
     loose or            or xor err
     expr terminator     ; {} as control block, statement modifiers
