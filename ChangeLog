@@ -61,7 +61,7 @@ XXX Sage: please write something here.
   file. Contrast with the general `prove` utility, `prove6` supports
   multiple Pugs backends and multiple Perl 6 implementations.
 * Updated all tests and examples plus in some docs and other files to
-  remove the #/usr/bin/pugs shebangs and variants thereof.
+  remove the `#/usr/bin/pugs` shebangs and variants thereof.
 * Replaced all "use v6-pugs;" and "use v6;" with "use v6-alpha;" in mostly
   the same places.
   With any such 'use' lines that appeared below other code, moved upwards.
@@ -71,10 +71,10 @@ XXX Sage: please write something here.
 ** Copied ext/Test/t/* to t/02-test-pm/*, moved t/01-sanity/08-test.t to the
    latter as well ... so 01-sanity doesn't use Test.pm, 02-test-pm checks that 
    Test.pm itself works, and subsequent t/* use Test.pm
-** Merged t_disabled/ into t/.
-** Renamed t/subroutines to t/blocks
+** Merged [t_disabled/] into [t/].
+** Renamed [t/subroutines] to [t/blocks]
 * Added t/closure_traits to test closure traits
-* Added tests for \o[] and \d[].
+* Added tests for `\o[]` and `\d[]`.
 * Added tests for embedded comments.
 
 == Feature Changes
