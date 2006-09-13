@@ -90,7 +90,7 @@ op0 "File::Spec::cwd" = const $ do
 op0 "File::Spec::tmpdir" = const $ do
     tmp <- guardIO getTemporaryDirectory
     return $ VStr tmp
-op0 "pi" = constMacro . Val $ VNum pi
+op0 "Pugs::Internals::pi" = constMacro . Val $ VNum pi
 op0 "self" = const $ expToEvalVal (_Var "&self")
 op0 "say" = const $ op1 "IO::say" (VHandle stdout)
 op0 "print" = const $ op1 "IO::print" (VHandle stdout)
@@ -1657,7 +1657,7 @@ initSyms = mapM primDecl syms
 \\n   Num       pre     cos     safe   (Num)\
 \\n   Num       pre     sin     safe   (Num)\
 \\n   Num       pre     tan     safe   (Num)\
-\\n   Any       pre     pi      safe,macro   ()\
+\\n   Any       pre     Pugs::Internals::pi      safe,macro   ()\
 \\n   Any       pre     self    safe,macro   ()\
 \\n   Bool      pre     nothing safe   ()\
 \\n   Num       pre     exp     safe   (Num, ?Num)\
