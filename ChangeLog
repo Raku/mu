@@ -9,6 +9,8 @@
 
 = Changes for 6.28.0 (rXXXXX) - July XX, 2006
 
+# Agent Zhang processed r13048 ~ r13261 (not including fglock's work)
+
 == New Perl 6 modules
 
 
@@ -26,6 +28,12 @@
 * Added make_build_perl5, to make it possible to build all the perl5 modules
   without installing ghc first. 
 
+XXX fglock: please write more here.
+
+== Perl 5 to Perl 6 Translater (under [misc/pX/Common/P5_to_P6_Translation])
+
+XXX Sage: please write something here.
+
 ==  Documentations
 
 * added util/smartlinks.pl which implements the new generation of
@@ -38,15 +46,19 @@
 * Perl6::Perl6::Differences was significantly updated. An HTML
   version of it is linked to from the page above.
 * say() was officially added to the spec
+* Converted Test.pm docs from kwid to POD as there are more tools
+  and familiarity with POD now.
 
 == Examples and the Test Suite
 
+* Updated the smokeserver to join the smartlinking fun
+** smoke client now uploads .yml as well as .html
+** smoke server now render synopses using users' smoke results (see SYN links) 
 * Added many more smartlinks to the test suite.
 * Rewrote util/prove6 using Perl 5 so that it can now run everywhere.
   You can use this to run only a portion of the test suite or even a single
-  file.
-* Updated util/prove6 to work better when used outside of the pugs try.
-  The "--blib", "--lib" and "--verbose" options from prove were added.
+  file. Contrast with the general `prove` utility, `prove6` supports
+  multiple Pugs backends and multiple Perl 6 implementations.
 * Updated all tests and examples plus in some docs and other files to
   remove the #/usr/bin/pugs shebangs and variants thereof.
 * Replaced all "use v6-pugs;" and "use v6;" with "use v6-alpha;" in mostly
@@ -75,6 +87,7 @@ The return value of this is not yet spec'ed. Currently only lookups through
 single inheritence are implemented.  See "Calling Sets of Methods" in S12 for
 more information about related features. 
 * There are now separate `===` and `eqv` operators.
+* Added full support for the START trait blocks.
 * Added support for character name escapes:
     say "\c[LATIN CAPITAL LETTER Y]";
   With Perl 5 embedding, the full Unicode range is supported via
@@ -117,7 +130,6 @@ more information about related features.
 
 XXX audreyt and gaal?
 
-
 == Bug Fixes
 
 * in a "for" loop with rvalue lists, don't double-listify
@@ -134,6 +146,7 @@ XXX audreyt and gaal?
   rather than "".
 * Parse for "class Foo is also {...}" instead of having Foo
   inherit from ::also.
+
 
 = Changes for 6.2.12 (r10930) - June 26, 2006
 
