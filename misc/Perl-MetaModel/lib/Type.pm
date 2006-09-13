@@ -32,7 +32,7 @@ Type - Perl 6 types
 =head1 DESCRIPTION
 
 Every variable in Perl 6 has a type.  This type can be accessed using
-the C<.ref> method, which is available on any type, boxed or unboxed.
+the C<.WHAT> method, which is available on any type, boxed or unboxed.
 
 These objects are what you get from C<::SomeClass> references.
 

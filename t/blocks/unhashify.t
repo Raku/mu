@@ -14,7 +14,7 @@ sub insanity (Hash %baloney) returns Void{
 
 # sanity 0
 my %h = zip 'a'..'d',1..4;
-is(%h.ref,'Hash','%h is a Hash');
+is(%h.WHAT,'Hash','%h is a Hash');
 
 #sanity 1;
 sanity;

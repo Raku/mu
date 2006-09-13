@@ -152,7 +152,7 @@ Some deeper tests were already added.
 
 { # nested, declared in one statement
     my $h = { a => [ 1,2,3 ] };
-    is($h<a>.ref, 'Array', "array nested in hashref in one declaration");
+    is($h<a>.WHAT, 'Array', "array nested in hashref in one declaration");
 }
 
 { # structures deeper than 2 levels

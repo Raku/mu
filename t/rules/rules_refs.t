@@ -18,5 +18,5 @@ unless "a" ~~ rx:P5/a/ {
 my $rule = rx:perl5{\s+};
 isa_ok($rule, 'Pugs::Internals::VRule');
 
-ok("hello world" ~~ $rule, '... applying rule ref returns true');
-ok(!("helloworld" ~~ $rule), '... applying rule ref returns false (correctly)');
+ok("hello world" ~~ $rule, '... applying rule object returns true');
+ok(!("helloworld" ~~ $rule), '... applying rule object returns false (correctly)');

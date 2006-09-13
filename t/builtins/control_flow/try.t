@@ -110,7 +110,7 @@ unless (eval 'Exception.new') {
 
     my ($not_died, $caught);
     eval 'try {
-        die Naughty "error"
+        die Naughty: "error"
 
         $not_died = 1;
 
@@ -132,7 +132,7 @@ unless (eval 'Exception.new') {
 
     my ($other, $naughty);
     eval 'try {
-        die Naughty::Specific "error";
+        die Naughty::Specific: "error";
 
         CATCH {
             when Naughty::Other {
@@ -154,7 +154,7 @@ unless (eval 'Exception.new') {
 
     my ($naughty, $lived);
     eval 'try {
-        die Dandy "error";
+        die Dandy: "error";
         
         CATCH {
             when Naughty {
@@ -167,8 +167,8 @@ unless (eval 'Exception.new') {
     ';
 
     ok(!$lived, "did not live past uncaught throw in try");
-    ok(~ref($!), '$! is an object');
+    ok(~WHAT($!), '$! is an object');
     ok(!$naughty, "did not get caught by wrong handler");
-    is(eval('ref($!)'), Dandy, ".. of the right class", :todo<bug>);
+    is(eval('WHAT($!)'), Dandy, ".. of the right class", :todo<bug>);
 };
 

@@ -1025,14 +1025,14 @@ var _26main_3a_3aref = PIL2JS.Box.constant_func(1, function (args) {
     cc(new PIL2JS.Box.Constant("Match"));
   } else {
     PIL2JS.die(
-      "Internal error: .ref() not yet implemented for " +
+      "Internal error: .WHAT() not yet implemented for " +
       typeof(thing) +
       " (constructor: " + thing.constructor + ", value: " + thing + ")"
     );
   }
 });
-_26main_3a_3aref.perl_name = "&main::ref";
-PIL2JS.addmethod(_3amain_3a_3aAny, "ref", _26main_3a_3aref);
+_26main_3a_3aref.perl_name = "&main::WHAT";
+PIL2JS.addmethod(_3amain_3a_3aAny, "WHAT", _26main_3a_3aref);
 
 // &*isa. hack.
 var _26main_3a_3aisa = PIL2JS.Box.constant_func(1, function (args) {

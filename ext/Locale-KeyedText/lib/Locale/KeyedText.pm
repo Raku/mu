@@ -245,7 +245,7 @@ method template_module_is_loaded (Str $module_name!) returns Bool {
         '$module_name!', $module_name );
     # Note: It is yet unknown whether this is working because the language
     # spec says it is supposed to, or whether is due a fluke or unspecced.
-    # Currently, "::($m).ref" returns 'Type' if the package name in $m is
+    # Currently, "::($m).WHAT" returns 'Type' if the package name in $m is
     # not loaded, and it returns one of ['Class','Module', etc] if it is.
     # Note: 'Package' is checked for instead of 'Module' since all types of
     # packages share the same namespace; any incompat will be caught later.
@@ -653,7 +653,7 @@ This is the main Message constructor method:
 
 This method creates and returns a new Locale::KeyedText::Message object.
 The Message Key attribute of the new object is set from the named parameter
-$msg_key (a string); the optional named parameter %msg_vars (a hash ref)
+$msg_key (a string); the optional named parameter %msg_vars (a hash)
 sets the "Message Variables" attribute if the corresponding argument is
 provided (it defaults to empty if the argument is not provided).
 
@@ -681,7 +681,7 @@ A Message object has these methods:
 
 =item C<export_as_hash()>
 
-This method returns a deep copy of this Message as a Hash ref of 2
+This method returns a deep copy of this Message as a Hash of 2
 elements, which correspond to the 2 named parameters of new().
 
 =item C<get_msg_key()>
@@ -697,7 +697,7 @@ string).
 =item C<get_msg_vars()>
 
 This method returns all Message Variable names and values of this object as
-a hash ref.
+a hash.
 
 =item C<as_debug_string()>
 
@@ -835,8 +835,8 @@ This is the main Translator constructor method:
 
 This method creates and returns a new Locale::KeyedText::Translator object.
 The Set Names property of the new object is set from the named parameter
-@set_names (an array ref), and Member Names is set from the named parameter
-@member_names (an array ref).
+@set_names (an array), and Member Names is set from the named parameter
+@member_names (an array).
 
 Some example usage:
 
@@ -859,17 +859,16 @@ A Translator object has these methods:
 
 =item C<export_as_hash()>
 
-This method returns a deep copy of this Translator as a Hash ref of 2
+This method returns a deep copy of this Translator as a Hash of 2
 elements, which correspond to the 2 named parameters of new().
 
 =item C<get_set_names()>
 
-This method returns all Set Names elements in this object as an array ref.
+This method returns all Set Names elements in this object as an array.
 
 =item C<get_member_names()>
 
-This method returns all Member Names elements in this object as an array
-ref.
+This method returns all Member Names elements in this object as an array.
 
 =item C<as_debug_string()>
 
@@ -881,7 +880,7 @@ coercing this object to a string.
 
 =item C<get_set_member_combinations()>
 
-This method returns an array ref having all combinations of this object's
+This method returns an array having all combinations of this object's
 Set Names and Member Names elements, concatenated in the form
 "<Set><Member>".  All combinations having the same Member Name are adjacent
 to each other in the output; for example, with Sets of ['MyApp','MyLib']
@@ -933,7 +932,7 @@ string if the module recognizes $msg_key, and the undefined value if not.
 =item C<interpolate_vars_into_template_text( $text!, %msg_vars! )>
 
 This method takes a defined (but possibly empty) Template text string in
-its positional parameter $text (a string), and a Message Variables hash ref
+its positional parameter $text (a string), and a Message Variables hash
 in its positional parameter %msg_vars.  It returns a copy of $text modified
 by interpolating the %msg_vars into it, where each variable value is
 substituted for any occurance of its corresponding variable name that is

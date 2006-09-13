@@ -6,16 +6,16 @@ say "1..3";
 
 {
     my $string = "Pugs";
-    if $string.ref eq Str { say "ok 1" } else { say "not ok 1 # TODO" }
+    if $string.WHAT eq Str { say "ok 1" } else { say "not ok 1 # TODO" }
 }
 
 {
     my $bool = ?1;
-    if $bool.ref eq Bool { say "ok 2" } else { say "not ok 2 # TODO" }
+    if $bool.WHAT eq Bool { say "ok 2" } else { say "not ok 2 # TODO" }
 }
 
 {
     my $bool = Bool::True;
-    if $bool.ref eq Bool { say "ok 3" } else { say "not ok 3 # TODO" }
+    if $bool.WHAT eq Bool { say "ok 3" } else { say "not ok 3 # TODO" }
 }
 

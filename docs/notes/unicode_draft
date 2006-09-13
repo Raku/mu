@@ -165,7 +165,7 @@ Bad Ideas
    It may make sense to make buffers mutable (but not resizable), but
    strings should always be "constant" and it's the scalar container
    that changes -- exactly like integers.  This also enables shared
-   string tables ala Ruby, so "str".SKID and "str".SKID would compare
+   string tables ala Ruby, so "str".WHICH and "str".WHICH would compare
    always the same.
 
    In other words, you can ask a string to write itself into a

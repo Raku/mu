@@ -85,7 +85,7 @@ method content ($self: Str $content?, Bool $keep?) is rw {
                     $!content unless $!content.defined;
                     
                     my $old = $!content;
-                    $old = $$old if $old.ref eq "Scalar";
+                    $old = $$old if $old.WHAT eq "Scalar";
                     
                     return $old;
                 }
@@ -95,7 +95,7 @@ method content ($self: Str $content?, Bool $keep?) is rw {
                     $!content unless $!content.defined;
                     
                     my $old = $self!content;
-                    $old = $$old if $old.ref eq "Scalar";
+                    $old = $$old if $old.WHAT eq "Scalar";
                 }
                 
                 $!content = $content;

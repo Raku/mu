@@ -150,7 +150,7 @@ plan 208;
     is($a, 3, "... and second");
     my %hash;
     %hash<foo> //= hash();
-    is(ref %hash<foo>, 'Hash', "Verify //= autovivifies correctly");
+    is(WHAT %hash<foo>, 'Hash', "Verify //= autovivifies correctly");
 }
 
 {

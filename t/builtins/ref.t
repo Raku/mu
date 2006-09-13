@@ -4,7 +4,7 @@ use Test;
 
 plan 16;
 
-# ref() on basic types
+# WHAT() on basic types
 
 my $a;
 isa_ok($a, 'Any', 'it is an Any type');
@@ -15,16 +15,16 @@ isa_ok(@a, 'Array', 'it is an Array type');
 my %a;
 isa_ok(%a, 'Hash', 'it is an Hash type');
 
-# ref() on reference types
+# WHAT() on reference types
 
 my $b1 = [];
-isa_ok($b1, 'List', 'it is a List ref type');
+isa_ok($b1, 'List', 'it is a List type');
 
 # this seems to be the only way to make a hash - ref at the moment
 my %b2 = ("one", 1); my $b2 = %b2;
-isa_ok($b2, 'Hash', 'it is a Hash ref type'); 
+isa_ok($b2, 'Hash', 'it is a Hash type'); 
 
-# ref() on subroutines
+# WHAT() on subroutines
 
 my $s1 = sub {};
 isa_ok($s1, 'Sub', 'it is a Sub type');
@@ -51,7 +51,7 @@ isa_ok($s2a, 'Block', 'it is a Parametric type (bare block with placeholder para
 my $s3 = -> {};
 isa_ok($s3, 'Block', 'it is a Block type (pointy block)');
 
-# ref() on different types of scalars
+# WHAT() on different types of scalars
 
 my $int = 0;
 isa_ok($int, 'Int', 'it is an Int type');

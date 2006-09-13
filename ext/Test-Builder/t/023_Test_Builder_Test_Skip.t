@@ -12,7 +12,7 @@ my $skip_test = Test::Builder::Test::Skip.new(
     reason      => 'reason for skipping'
 );
 
-is( $skip_test.ref, ::Test::Builder::Test::Skip,
+is( $skip_test.WHAT, ::Test::Builder::Test::Skip,
     'new() should return a Test::Builder::Test::Skip instance' );
 
 is( $skip_test.number(), 1, 'number() should return the test number' );

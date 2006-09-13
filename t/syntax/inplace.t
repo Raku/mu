@@ -21,14 +21,14 @@ my $a=3.14;
 $a .= int;
 is($a, 3, "inplace int");
 
-my $b = "a_string"; $b .= ref;
-my $c =         42; $c .= ref;
-my $d =      42.23; $d .= ref;
-my @e = <a b c d>;  @e .= ref;
-is($b,    "Str",   "inplace ref of a Str");
-is($c,    "Int",   "inplace ref of a Num");
-is($d,    "Rat",   "inplace ref of a Rat");
-is(@e[0], "Array", "inplace ref of an Array");
+my $b = "a_string"; $b .= WHAT;
+my $c =         42; $c .= WHAT;
+my $d =      42.23; $d .= WHAT;
+my @e = <a b c d>;  @e .= WHAT;
+is($b,    "Str",   "inplace WHAT of a Str");
+is($c,    "Int",   "inplace WHAT of a Num");
+is($d,    "Rat",   "inplace WHAT of a Rat");
+is(@e[0], "Array", "inplace WHAT of an Array");
 
 my $f = "lowercase"; $f .= uc;
 my $g = "UPPERCASE"; $g .= lc;

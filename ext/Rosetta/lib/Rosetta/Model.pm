@@ -331,7 +331,7 @@ This is the main Document constructor method:
 =item C<new( :@root_nodes? )>
 
 This method creates and returns a new Rosetta::Model::Document object.  If
-the optional named parameter @root_nodes (an array ref) is set, then each
+the optional named parameter @root_nodes is set, then each
 element in it is used to initialize a new Node object (plus an optional
 hierarchy of new child Nodes of that new Node) that gets stored in the Root
 Nodes attribute (that attribute defaults to empty if the parameter's
@@ -368,7 +368,7 @@ Moreover, these data structures are in exactly the right input format for
 Document.new(), by which you can create an identical Document (with member
 Nodes) to the one you first invoked export_as_hash() on.
 
-Specifically, export_as_hash() returns a Perl hash ref whose key list
+Specifically, export_as_hash() returns a Perl hash whose key list
 ('root_nodes') corresponds exactly to the named parameters of
 Document.new(); you can produce a direct clone like this:
 
@@ -444,14 +444,14 @@ This is the main Node constructor method:
 This method creates and returns a new Rosetta::Model::Node object, that
 lives in the Document object given in the named parameter $document, and
 whose Node Type attribute is set from the named parameter $node_type (a
-string); the optional named parameter %attributes (a hash ref) sets the
+string); the optional named parameter %attributes sets the
 "Attributes" attribute if provided (it defaults to empty if the parameter's
 corresponding argument is not provided).  If the optional named parameter
 $parent_node (a Node) is set, then the new Node's "Parent Node" attribute
 is set to it, and the new Node is also stored in $parent_node's Child Nodes
 attribute; if $parent_node is not set, then the new Node is instead stored
 in its Document's "Root Nodes" attribute.  If the optional named parameter
-@child_nodes (an array ref) is set, then each element in it is used to
+@child_nodes is set, then each element in it is used to
 initialize a new Node object (plus an optional hierarchy of new child Nodes
 of that new Node) that gets stored in the Child Nodes attribute (that
 attribute defaults to empty if the corresponding argument is undefined).
@@ -505,7 +505,7 @@ solutions.  Moreover, these data structures are in exactly the right input
 format for Node.new(), by which you can create an identical Node (with
 child Nodes) to the one you first invoked export_as_hash() on.
 
-Specifically, export_as_hash() returns a Perl hash ref whose key list
+Specifically, export_as_hash() returns a Perl hash whose key list
 ('node_type', 'attributes', 'child_nodes') corresponds exactly to the named
 parameters of Node.new(); you need to supply its $document and optional
 $parent_node though; you can produce a direct clone like this:

@@ -105,7 +105,7 @@ op0 other = const $ fail ("Unimplemented listOp: " ++ other)
 -- |Implementation of unary primitive operators and functions
 op1 :: String -> Val -> Eval Val
 op1 "!"    = op1Cast (VBool . not)
-op1 "SKID" = \x -> do
+op1 "WHICH" = \x -> do
     val <- fromVal x
     case val of
         VObject o   -> return . castV . unObjectId $ objId o
@@ -553,7 +553,7 @@ op1 "readline" = op1Readline
 
 op1 "getc"     = op1Getc
 
-op1 "ref"   = fmap VType . evalValType
+op1 "WHAT"   = fmap VType . evalValType
 op1 "List::end"   = \x -> fmap (castV . pred) (join $ doArray x array_fetchSize) -- monadic join
 op1 "List::elems" = \x -> fmap castV (join $ doArray x array_fetchSize) -- monadic join
 op1 "List::pop"   = \x -> join $ doArray x array_pop -- monadic join
@@ -646,7 +646,7 @@ op1 "Pugs::Internals::emit_yaml" = \v -> do
     glob <- filterPrim =<< asks envGlobal
     yml  <- liftIO $ showYaml (filterUserDefinedPad glob, v)
     return $ VStr yml
-op1 "Object::META" = \v -> do
+op1 "Object::HOW" = \v -> do
     typ     <- evalValType v
     evalExp $ _Var (':':'*':showType typ)
 op1 "Class::name" = \v -> do
@@ -1125,7 +1125,7 @@ op3 "Pugs::Internals::exec" = \x y z -> do
         guardIO $ exitWith ExitSuccess
     return rv
 op3 "Pugs::Internals::caller" = \x y z -> do
-    --kind <- fromVal =<< op1 "ref" x
+    --kind <- fromVal =<< op1 "WHAT" x
     kind <- case x of
         VStr str -> return $ mkType str
         _        -> fromVal x
@@ -1167,7 +1167,7 @@ op3 "splice" = \x y z -> do
 op3 "split" = op3Split
 op3 "Str::split" = \x y z -> do
     op3 "split" y x z
-op3 "META::new" = \t n p -> do
+op3 "HOW::new" = \t n p -> do
     cls     <- op3 "Object::new" t n p
     meta    <- readRef =<< fromVal cls
     fetch   <- doHash meta hash_fetchVal
@@ -1788,7 +1788,7 @@ initSyms = mapM primDecl syms
 \\n   Any       pre     exit    unsafe (?Int=0)\
 \\n   Num       pre     rand    safe   (?Num=1)\
 \\n   Bool      pre     defined safe   (Any)\
-\\n   Str       pre     ref     safe   (rw!Any|Junction|Pair)\
+\\n   Str       pre     WHAT     safe   (rw!Any|Junction|Pair)\
 \\n   Str       pre     isa     safe   (rw!Any|Junction|Pair, Str)\
 \\n   Str       pre     does    safe   (rw!Any|Junction|Pair, Str)\
 \\n   Num       pre     time    safe   ()\
@@ -1953,11 +1953,11 @@ initSyms = mapM primDecl syms
 \\n   Object    pre     DESTROYALL safe   (Object)\
 \\n   Code      pre     TEMP    safe   (rw!Any)\
 \\n   Object    pre     Object::clone   safe   (Object: Named)\
-\\n   Class     pre     Object::META    safe   (Object)\
-\\n   Object    pre     META::new     safe   (Object: Named)\
+\\n   Class     pre     Object::HOW    safe   (Object)\
+\\n   Object    pre     HOW::new     safe   (Object: Named)\
 \\n   Str       pre     Class::name    safe   (Class)\
 \\n   Hash      pre     Class::traits  safe   (Class)\
-\\n   Object    pre     SKID      safe   (Any)\
+\\n   Object    pre     WHICH      safe   (Any)\
 \\n   Int       pre     Rat::numerator   safe   (Rat:)\
 \\n   Int       pre     Rat::denominator safe   (Rat:)\
 \\n   Bool      pre     Thread::yield   safe   (Thread)\

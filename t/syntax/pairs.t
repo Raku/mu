@@ -20,7 +20,7 @@ use Test;
 
 plan 39;
 
-sub f1 ($a, $b) { ref($a) ~ ref($b) }
+sub f1 ($a, $b) { WHAT($a) ~ WHAT($b) }
 {
     is f1(a     => 42, 23), "IntInt", "'a => 42' is a named";
     is f1(:a(42),  23),     "IntInt", "':a(42)' is a named";
@@ -36,7 +36,7 @@ sub f1 ($a, $b) { ref($a) ~ ref($b) }
     is f1((:!a),       23), "PairInt",  "'(:a)' is also a pair";
 }
 
-sub f2 (:$a!) { ~ref($a) }
+sub f2 (:$a!) { ~WHAT($a) }
 {
     my $f2 = &f2;
 
@@ -62,7 +62,7 @@ sub f2 (:$a!) { ~ref($a) }
     dies_ok { $f2.(((:a)))    }, "in '\$f2.(((:a)))', '(:a)' is a pair";
 }
 
-sub f3 ($a) { ~ref($a) }
+sub f3 ($a) { ~WHAT($a) }
 {
     my $pair = (a => 42);
 
@@ -70,7 +70,7 @@ sub f3 ($a) { ~ref($a) }
     is f3(*$pair), "Int",    '...but *$pair is', :todo<feature>;
 }
 
-sub f4 ($a)    { ~ref($a) }
+sub f4 ($a)    { ~WHAT($a) }
 sub get_pair () { (a => 42) }
 {
 
@@ -78,7 +78,7 @@ sub get_pair () { (a => 42) }
     is f4(*get_pair()), "Int",    '...but *get_pair() is', :todo<feature>;
 }
 
-sub f5 ($a) { ~ref($a) }
+sub f5 ($a) { ~WHAT($a) }
 {
     my @array_of_pairs = (a => 42);
 
@@ -88,7 +88,7 @@ sub f5 ($a) { ~ref($a) }
         '...and *@array isn\'t either';
 }
 
-sub f6 ($a) { ~ref($a) }
+sub f6 ($a) { ~WHAT($a) }
 {
 
     my %hash_of_pairs = (a => "str");
@@ -97,7 +97,7 @@ sub f6 ($a) { ~ref($a) }
     is f6(*%hash_of_pairs), "Str",  '...but *%hash is', :todo<feature>;
 }
 
-sub f7 (:$bar!) { ~ref($bar) }
+sub f7 (:$bar!) { ~WHAT($bar) }
 {
     my $bar = "bar";
 
@@ -105,7 +105,7 @@ sub f7 (:$bar!) { ~ref($bar) }
         "variables cannot be keys of syntactical pairs (1)";
 }
 
-sub f8 (:$bar!) { ~ref($bar) }
+sub f8 (:$bar!) { ~WHAT($bar) }
 {
     my @array = <bar>;
 
@@ -113,7 +113,7 @@ sub f8 (:$bar!) { ~ref($bar) }
         "variables cannot be keys of syntactical pairs (2)";
 }
 
-sub f9 (:$bar!) { ~ref($bar) }
+sub f9 (:$bar!) { ~WHAT($bar) }
 {
     my $arrayref = <bar>;
 

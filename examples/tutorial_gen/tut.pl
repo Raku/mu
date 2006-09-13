@@ -59,8 +59,8 @@ my %conf = {
     
 };
 
-say %conf.ref ~ ' ' ~ %conf if $dg;
-#say %conf.ref; say %conf.<index>.ref;
+say %conf.WHAT ~ ' ' ~ %conf if $dg;
+#say %conf.WHAT; say %conf.<index>.WHAT;
 
 my $os;
 $os = 'win32' if lc($?OS) eq any <mswin32 mingw>;

@@ -11,7 +11,7 @@ my $num_objects = 20;
 my %foos;
 for (1 .. $num_objects) {
     my $f = Foo.new();
-    %foos{$f.SKID()}++;
+    %foos{$f.WHICH()}++;
 }
 
-is(+%foos, $num_objects, '... all our .SKID()s were unique');
+is(+%foos, $num_objects, '... all our .WHICH()s were unique');

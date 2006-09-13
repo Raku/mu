@@ -73,7 +73,7 @@ sub print_tree ( $tree ) {
     state $depth = 0;
     $depth++;
 
-    if $tree.ref eq 'Array' {
+    if $tree.WHAT eq 'Array' {
 
         return if $tree[0] eq '"pPos"';  # ignore position info
 
@@ -90,7 +90,7 @@ sub print_tree ( $tree ) {
 }
 
 sub traverse_stmts ( $tree ) {
-    if $tree.ref eq 'Array' {
+    if $tree.WHAT eq 'Array' {
         #say $tree.perl;
         if $tree[0] eq '"PApp"' {   
             state $depth = 0;

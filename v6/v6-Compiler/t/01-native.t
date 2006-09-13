@@ -34,8 +34,8 @@ say "1..8";
     # node types
     my $s = '1';
     my $node = ${ v6::Grammar::Native.num( $s ) };
-    #say $node.ref;
-    print "not " if $node.ref ne 'v6::AST::NBit';
+    #say $node.WHAT;
+    print "not " if $node.WHAT ne 'v6::AST::NBit';
     say "ok 5";
 }
 
@@ -43,8 +43,8 @@ say "1..8";
     # node types
     my $s = "'abc'";
     my $node = ${ v6::Grammar::Native.str( $s ) };
-    #say $node.ref;
-    print "not " if $node.ref ne 'v6::AST::NStr';
+    #say $node.WHAT;
+    print "not " if $node.WHAT ne 'v6::AST::NStr';
     say "ok 6";
 }
 

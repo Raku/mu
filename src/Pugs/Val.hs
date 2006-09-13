@@ -10,7 +10,7 @@
 -}
 module Pugs.Val (
     IValue(..), Val(..), ValUndef(..), ValNative, P,
-    ICoercible(..), SKID, castVal, formatVal,
+    ICoercible(..), WHICH, castVal, formatVal,
     PureBit, PureBool, PureInt, PureNum, PureStr, PureList, itemVal, listVal,
 
     Table, Var(..),
@@ -85,7 +85,7 @@ class ICoercible m a => IValue m a where
     valShow     :: a -> PureStr
     valShow _ = cast "<opaque>"
     -- | Identity.
-    valId       :: a -> SKID
+    valId       :: a -> WHICH
     valId x = cast (NUint (W# (unsafeCoerce# x)))
     -- | Comparison.
     valCompare  :: a -> a -> Ordering
@@ -139,7 +139,7 @@ instance IValue SIO Val where
 -- instance Pure PureStr where
 --  pureId x = cast (cast x :: ByteString)
 
-instance ((:>:) SKID) NativeBuf where
+instance ((:>:) WHICH) NativeBuf where
     cast = cast . NBuf
 
 instance ICoercible P ValNative where
@@ -157,10 +157,10 @@ instance IValue P ValNative where
     valShow             = cast . show
     valId x             = cast x
 
--- | 'SKID' is an unique ID that distinguishes two @Val@s of the same type from each other.
-type SKID = Maybe ValNative
+-- | 'WHICH' is an unique ID that distinguishes two @Val@s of the same type from each other.
+type WHICH = Maybe ValNative
 
-instance ((:>:) SKID) ValNative where
+instance ((:>:) WHICH) ValNative where
     cast = Just
 
 --------------------------------------------------------------------------------------
@@ -169,8 +169,8 @@ instance ((:>:) SKID) ValNative where
 data ValUndef
     = UUndef                        -- ^ "my $x"
     | UWhatever                     -- ^ "my $x = *"
-    | UFailure  { f_err  :: !SKID } -- ^ "my $x = fail 'oops'"
-    | UProto    { p_meta :: !SKID } -- ^ "my $x = Dog"
+    | UFailure  { f_err  :: !WHICH } -- ^ "my $x = fail 'oops'"
+    | UProto    { p_meta :: !WHICH } -- ^ "my $x = Dog"
     deriving (Show, Eq, Ord, Data, Typeable)
 
 --------------------------------------------------------------------------------------

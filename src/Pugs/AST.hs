@@ -233,7 +233,7 @@ newPackage cls name classes roles = Stmts metaObj (newType name)
     where
     metaObj = _Sym SGlobal (':':'*':name) $! Syn ":="
         [ _Var (':':'*':name)
-        , App (_Var "&META::new")
+        , App (_Var "&HOW::new")
             (Just $ Val (VType $ mkType cls))
             [ Syn "named"
                 [ Val (VStr "is")

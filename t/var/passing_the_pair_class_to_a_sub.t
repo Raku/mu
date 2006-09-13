@@ -8,7 +8,7 @@ plan 2;
     my sub foo ($x) { $x.perl }
 
     my $pair = (a => 1);
-    my $Pair = $pair.ref;
+    my $Pair = $pair.WHAT;
 
     ok try { foo($Pair) }, "passing ::Pair to a sub works";
 }
@@ -18,7 +18,7 @@ plan 2;
     my sub foo ($x) { $x.perl }
 
     my $int = 42;
-    my $Int = $int.ref;
+    my $Int = $int.WHAT;
 
     ok try { foo($Int) }, "passing ::Int to a sub works";
 }

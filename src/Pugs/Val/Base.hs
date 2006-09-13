@@ -13,7 +13,7 @@ import {-# SOURCE #-} Pugs.Val
 --       still have to maintain a list of builtin bootstrap classes somewhere
 --       but everything else can be reflected via Coercible
 --
--- Plan: Each prim type has a static fixed META class
+-- Plan: Each prim type has a static fixed meta class
 
 class (Monad m, Functor m, Typeable a) => ICoercible m a | a -> m where
     asBit    :: a -> m PureBit

@@ -116,7 +116,7 @@ rule siglet {
 #        [ <type> <zone>? <varlet>? <trait>*     # require type
 #        | <zone> <varlet>? <trait>*             # or zone
 #        | <varlet> <trait>*                     # or varlet
-#        | \[ <siglet> \]        # treat single array ref as an arg list
+#        | \[ <siglet> \]        # treat single array as an arg list
 #        ]
 #}
 # comments appear to be poisonous - 2005 Jul 31
@@ -144,7 +144,7 @@ regex placeholder { <sigil> \^ <identZZ> }
 
 #rule parameter {
 #        [ <type>? <zone>? <variable> <trait>* <defval>?
-#        | \[ <signature> \]     # treat single array ref as an arg list
+#        | \[ <signature> \]     # treat single array as an arg list
 #        ]
 #}
 # comments appear to be poisonous - 2005 Jul 31

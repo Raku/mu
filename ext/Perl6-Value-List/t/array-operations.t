@@ -63,7 +63,7 @@ use Perl6::Value::List;
   my $a1 = Perl6::Value::List.new( cstart => &mylist ); 
   $a1 = $a1.pairs;
   my $p = $a1.shift;
-  is( ~($p.ref),  'Pair',     'pair' );
+  is( ~($p.WHAT),  'Pair',     'pair' );
   is( $p.perl, '(0 => 4)', 'pair' );
 }
 

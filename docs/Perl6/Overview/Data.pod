@@ -193,12 +193,12 @@ C<@foo.concat(@bar)> in other languages.))
     Constructors:
 
     HASH = LIST
-    { PAIR, PAIR, ... }   # anonymous ref
+    { PAIR, PAIR, ... }   # anonymous object
     hash( LIST )
 
 =head2 Pair
 
-    list $foo        # $foo   # ref, so doesn't flatten to $k, $v
+    list $foo        # $foo   # object, so doesn't flatten to $k, $v
         +$foo        # ???
         ~$foo        # ???
         ?$foo        # ???

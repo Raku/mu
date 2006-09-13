@@ -113,16 +113,16 @@ Or a string object can be declared implicitly by assigning a string value to
 a variable, in this case a scalar. 
 
     my $scalar    = 'String';
-    say '$scalar is ' ~ $scalar.ref;   # $scalar is Str
+    say '$scalar is ' ~ $scalar.WHAT;   # $scalar is Str
 
 =cut
 
 my Str $string =  'This is $string: a scalar holding a String';
 say $string ;
-say '$string is ' ~ $string.ref ;                 # Str 
+say '$string is ' ~ $string.WHAT ;                 # Str 
 my  $scalar    =  'This is $scalar holding a String';
 say $scalar ; 
-say '$scalar is ' ~ $scalar.ref ;                 # Str 
+say '$scalar is ' ~ $scalar.WHAT ;                 # Str 
 
 =pod 
 
@@ -131,19 +131,19 @@ appropriate type:
 
 
     my $scalar = 1234;                      
-    say '$scalar is ' ~ $string.ref"   # $scalar is Int
+    say '$scalar is ' ~ $string.WHAT"   # $scalar is Int
 
 An object can be stringified, by using the ~ operator immediately
 prior to the variable's sigil
 
-    say '~$scalar is ' ~ (~$scalar).ref; # ~$scalar is Str 
+    say '~$scalar is ' ~ (~$scalar).WHAT; # ~$scalar is Str 
 
 =cut
 
 $scalar = 1234;
 say $scalar   ;
-say '$scalar is '  ~ $scalar.ref; 
-say '~$scalar is ' ~ (~$scalar).ref; 
+say '$scalar is '  ~ $scalar.WHAT; 
+say '~$scalar is ' ~ (~$scalar).WHAT; 
 
 =pod
 

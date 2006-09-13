@@ -7,18 +7,18 @@ an experiment in using the MOP, and not meant to be anything definitive.
 =cut
 
 
-::Class.meta.add_method('new', method (%params) returns Class { 
+::Class.HOW.add_method('new', method (%params) returns Class { 
     $?CLASS.bless(undef, %params);
 });
 
-::Class.meta.add_method('bless' => method ($canidate, %params) returns Class {
+::Class.HOW.add_method('bless' => method ($canidate, %params) returns Class {
     $canidate //= 'P6opaque'; # opaque is our default
     my Class $self = $?CLASS.CREATE(repr => $canidate, %params);
     $self.BUILDALL(%params);
     return $self;  
 });
 
-::Class.meta.add_method('CREATE' => method (%params) { 
+::Class.HOW.add_method('CREATE' => method (%params) { 
     # this just gathers all the 
     # attributes that were defined
     # for the instances.
@@ -37,14 +37,14 @@ an experiment in using the MOP, and not meant to be anything definitive.
     return $self;
 });
 
-::Class.meta.add_method('BUILDALL' => method (%params) returns Void { 
-    my Dispatcher $dispatcher = $self.meta.dispatcher(:descendant);
+::Class.HOW.add_method('BUILDALL' => method (%params) returns Void { 
+    my Dispatcher $dispatcher = $self.HOW.dispatcher(:descendant);
     for WALKMETH($dispatcher, 'BUILD') -> Method $method { 
         $method.(self, %params);                  
     }      
 });
 
-::Class.meta.add_method('BUILD' => submethod (%params) returns Void {
+::Class.HOW.add_method('BUILD' => submethod (%params) returns Void {
     for %params.keys -> $key {
         # XXX -
         # The default BUILD method should accept
@@ -58,22 +58,22 @@ an experiment in using the MOP, and not meant to be anything definitive.
             # we would peek into the instance structure
             # itself and see if we had the spot, and
             # otherwise ignore it ... but this will do
-            if $self.meta.find_attribute_spec($key);
+            if $self.HOW.find_attribute_spec($key);
     }
 });
 
-::Class.meta.add_method('DESTROYALL' => method returns Void { 
-    my Dispatcher $dispatcher = self.meta.dispatcher(:ascendant);
+::Class.HOW.add_method('DESTROYALL' => method returns Void { 
+    my Dispatcher $dispatcher = self.HOW.dispatcher(:ascendant);
     for WALKMETH($dispatcher, 'BUILD') -> Method $method { 
         $method.(self, %params);                  
     }      
 });
 
-::Class.meta.add_method('isa' => method (Str $class_name) returns Bool { 
+::Class.HOW.add_method('isa' => method (Str $class_name) returns Bool { 
     return undef unless $class_name;
-    my Dispatcher $dispatcher = self.meta.dispatcher(:canonical);
+    my Dispatcher $dispatcher = self.HOW.dispatcher(:canonical);
     while (my $next = $dispatcher.next()) {
-        return bool::true if $class_name eq $next.meta.name;
+        return bool::true if $class_name eq $next.HOW.name;
     }
     # if we are not a class of something
     # maybe they are asking of we are an 
@@ -90,15 +90,15 @@ an experiment in using the MOP, and not meant to be anything definitive.
 
 ## I ended here ... to be continued 
 
-::Class.meta.add_method('can' => method () { 
+::Class.HOW.add_method('can' => method () { 
     my ($self, $label) = @_;
     return undef unless $label;
     return ::WALKMETH(::opaque_instance_class($self)->dispatcher(':canonical'), $label);
 });
 
-::Class.meta.add_method('id' => method () { ::opaque_instance_id($::SELF) });
+::Class.HOW.add_method('id' => method () { ::opaque_instance_id($::SELF) });
 
-::Class.meta.add_method('superclasses' => method () {        
+::Class.HOW.add_method('superclasses' => method () {        
     my ($self, $superclasses) = @_;
     if (defined $superclasses) {
         confess "You must pass the superclasses in an ARRAY ref"
@@ -119,16 +119,16 @@ an experiment in using the MOP, and not meant to be anything definitive.
     ::opaque_instance_attr($self => '@:superclasses');
 });
 
-::Class.meta.add_method('subclasses' => method () {        
+::Class.HOW.add_method('subclasses' => method () {        
     ::opaque_instance_attr($::SELF => '@:subclasses');
 });
 
-::Class.meta.add_method('add_subclass' => method () {      
+::Class.HOW.add_method('add_subclass' => method () {      
     my ($self, $subclass) = @_;  
     push @{::opaque_instance_attr($self => '@:subclasses')} => $subclass;
 });
 
-::Class.meta.add_method('_merge' => ::make_private_method(sub {                
+::Class.HOW.add_method('_merge' => ::make_private_method(sub {                
     my ($self, @seqs) = @_;
     my @res;
     while (1) {
@@ -162,7 +162,7 @@ an experiment in using the MOP, and not meant to be anything definitive.
     }
 });
 
-::Class.meta.add_method('MRO' => method () { 
+::Class.HOW.add_method('MRO' => method () { 
     my $self = shift;
     unless (@{::opaque_instance_attr($self => '@:MRO')}) {
         ::opaque_instance_attr($self => '@:MRO') = [
@@ -176,7 +176,7 @@ an experiment in using the MOP, and not meant to be anything definitive.
     return @{::opaque_instance_attr($self => '@:MRO')};
 });
 
-::Class.meta.add_method('dispatcher' => method () {
+::Class.HOW.add_method('dispatcher' => method () {
     my ($self, $order) = @_;   
     $order = ':ascendant' # C3 is the canonical order
         if not(defined($order)) || $order eq ':canonical';
@@ -199,13 +199,13 @@ an experiment in using the MOP, and not meant to be anything definitive.
     return $dispatcher;  
 });
 
-::Class.meta.add_method('_make_dispatcher_iterator' => ::make_private_method(sub {
+::Class.HOW.add_method('_make_dispatcher_iterator' => ::make_private_method(sub {
     my (undef, @values) = @_;
     my $counter = 0;
     return sub { return $counter if @_; $values[$counter++] };
 });
 
-::Class.meta.add_method('_make_preorder_dispatcher' => ::make_private_method(sub {
+::Class.HOW.add_method('_make_preorder_dispatcher' => ::make_private_method(sub {
     my @stack = $::SELF->_make_dispatcher_iterator($::SELF);
     return sub {
         TOP: {
@@ -232,7 +232,7 @@ an experiment in using the MOP, and not meant to be anything definitive.
     };    
 });
 
-::Class.meta.add_method('_make_breadth_dispatcher' => ::make_private_method(sub {
+::Class.HOW.add_method('_make_breadth_dispatcher' => ::make_private_method(sub {
     my @stack = $::SELF->_make_dispatcher_iterator($::SELF);
     return sub {
         TOP:
@@ -258,17 +258,17 @@ an experiment in using the MOP, and not meant to be anything definitive.
     };
 });
 
-::Class.meta.add_method('_make_descendant_dispatcher' => ::make_private_method(sub {
+::Class.HOW.add_method('_make_descendant_dispatcher' => ::make_private_method(sub {
     my @MRO = $::SELF->MRO();
     return $::SELF->_make_dispatcher_iterator(reverse @MRO);
 });
 
-::Class.meta.add_method('_make_ascendant_dispatcher' => ::make_private_method(sub {
+::Class.HOW.add_method('_make_ascendant_dispatcher' => ::make_private_method(sub {
     my @MRO = $::SELF->MRO();
     return $::SELF->_make_dispatcher_iterator(@MRO);
 });
 
-::Class.meta.add_method('is_a' => method () {        
+::Class.HOW.add_method('is_a' => method () {        
     my ($self, $class) = @_;
     return 0 unless defined $class;
     return 1 if ::opaque_instance_id($self) == ::opaque_instance_id($class);
@@ -279,7 +279,7 @@ an experiment in using the MOP, and not meant to be anything definitive.
     return 0; 
 });
 
-::Class.meta.add_method('_get_method_table' => ::make_private_method(sub {         
+::Class.HOW.add_method('_get_method_table' => ::make_private_method(sub {         
     my ($self, $params) = @_;
     # default to instance ... 
     $params->{for} = 'instance' if not exists $params->{for};
@@ -299,12 +299,12 @@ an experiment in using the MOP, and not meant to be anything definitive.
     }
 });
 
-::Class.meta.add_method('has_method' => method () {
+::Class.HOW.add_method('has_method' => method () {
     my ($self, $label, %params) = @_;
     $self->get_method($label, %params) ? 1 : 0;                    
 });
 
-::Class.meta.add_method('get_method' => method () {
+::Class.HOW.add_method('get_method' => method () {
     my ($self, $label, %params) = @_;
     confess "You must provide a method label"
         unless defined $label;
@@ -312,13 +312,13 @@ an experiment in using the MOP, and not meant to be anything definitive.
     return $method_table->{$label};                
 });
 
-::Class.meta.add_method('get_method_list' => method () {
+::Class.HOW.add_method('get_method_list' => method () {
     my ($self, %params) = @_;
     my $table = $self->_get_method_table(\%params);                  
     return keys %{$table};
 });
 
-::Class.meta.add_method('remove_method' => method () {
+::Class.HOW.add_method('remove_method' => method () {
     my ($self, $label, %params) = @_;
     confess "You must provide a method label"
         unless defined $label;
@@ -326,7 +326,7 @@ an experiment in using the MOP, and not meant to be anything definitive.
     delete $method_table->{$label};   
 });
 
-::Class.meta.add_method('add_attribute' => method () {
+::Class.HOW.add_method('add_attribute' => method () {
     my ($self, $label, $attribute) = @_;
     (defined $label && defined $attribute && blessed($attribute))
         || confess "InsufficientArguments : you must provide an attribute and a label";
@@ -339,7 +339,7 @@ an experiment in using the MOP, and not meant to be anything definitive.
     }    
 });
 
-::Class.meta.add_method('_get_attribute_table' => ::make_private_method(sub {         
+::Class.HOW.add_method('_get_attribute_table' => ::make_private_method(sub {         
     my ($self, $params) = @_;
     # default to instance ... 
     $params->{for} = 'instance' if not exists $params->{for};    
@@ -352,7 +352,7 @@ an experiment in using the MOP, and not meant to be anything definitive.
     }
 });
 
-::Class.meta.add_method('get_attribute' => method () {
+::Class.HOW.add_method('get_attribute' => method () {
     my ($self, $label, %params) = @_;
     (defined $label)
         || confess "InsufficientArguments : you must provide a label";
@@ -361,20 +361,20 @@ an experiment in using the MOP, and not meant to be anything definitive.
 });
 
 
-::Class.meta.add_method('has_attribute' => method () {
+::Class.HOW.add_method('has_attribute' => method () {
     my ($self, $label, %params) = @_;
     return $self->get_attribute($label, %params) ? 1 : 0;
 });
 
 
-::Class.meta.add_method('get_attribute_list' => method () {
+::Class.HOW.add_method('get_attribute_list' => method () {
     my ($self, %params) = @_;
     my $table = $self->_get_attribute_table(\%params);                  
     return keys %{$table};
 });
 
 # "spec" here means "whatever annotation went with this attribute when it's declared"
-::Class.meta.add_method('find_attribute_spec' => method () {
+::Class.HOW.add_method('find_attribute_spec' => method () {
     my ($self, $label, %params) = @_;
     # go in BUILD order
     my $dispatcher = $self->dispatcher(':descendant');
@@ -387,17 +387,17 @@ an experiment in using the MOP, and not meant to be anything definitive.
 
 # now add the $::Class attributes
 
-::Class.meta.add_attribute('@:MRO'              => ::make_attribute('@:MRO'));
-::Class.meta.add_attribute('@:superclasses'     => ::make_attribute('@:superclasses'));
-::Class.meta.add_attribute('@:subclasses'       => ::make_attribute('@:subclasses'));
-::Class.meta.add_attribute('%:private_methods'  => ::make_attribute('%:private_methods'));
-::Class.meta.add_attribute('%:attributes'       => ::make_attribute('%:attributes'));
-::Class.meta.add_attribute('%:methods'          => ::make_attribute('%:methods'));
-::Class.meta.add_attribute('%:class_methods'    => ::make_attribute('%:class_methods'));
+::Class.HOW.add_attribute('@:MRO'              => ::make_attribute('@:MRO'));
+::Class.HOW.add_attribute('@:superclasses'     => ::make_attribute('@:superclasses'));
+::Class.HOW.add_attribute('@:subclasses'       => ::make_attribute('@:subclasses'));
+::Class.HOW.add_attribute('%:private_methods'  => ::make_attribute('%:private_methods'));
+::Class.HOW.add_attribute('%:attributes'       => ::make_attribute('%:attributes'));
+::Class.HOW.add_attribute('%:methods'          => ::make_attribute('%:methods'));
+::Class.HOW.add_attribute('%:class_methods'    => ::make_attribute('%:class_methods'));
 
 ## Now we make Class conform to the Package interface
 
-::Class.meta.add_method('FETCH' => method () {
+::Class.HOW.add_method('FETCH' => method () {
     my ($self, $label) = @_;
     (defined $label && $label)
         || confess "Cannot FETCH at (" . ($label || 'undef') . ")";
@@ -439,7 +439,7 @@ an experiment in using the MOP, and not meant to be anything definitive.
     }    
 });
 
-::Class.meta.add_method('STORE' => method () {
+::Class.HOW.add_method('STORE' => method () {
     my ($self, $label, $value) = @_;
     (defined $label && $label)
         || confess "Cannot STORE at (" . ($label || 'undef') . ")";    

@@ -267,7 +267,7 @@ class Foo {
 class Foo is also {
     has $.c;
 }
-Foo.meta.add_attribute(...)
+Foo.HOW.add_attribute(...)
 
 So, all $!foo $!bar access need to emit
     classoffset

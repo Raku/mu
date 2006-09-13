@@ -35,7 +35,7 @@ sub chain { B.try_it_caller_B(*@_) }
 # must use parentheses after caller
 
 # basic tests of caller object
-chain({ ref caller() },     "Control::Caller", "caller object type");
+chain({ WHAT caller() },     "Control::Caller", "caller object type");
 chain({ caller().package }, "main", "caller package");
 chain({ caller().file },    $?FILE, "caller filename");
 chain({ caller().line },    "30", "caller line");

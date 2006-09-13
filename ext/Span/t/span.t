@@ -62,7 +62,7 @@ is( $span.size, 2, "real size" );
     # is( Span.new( :start(1), :end(3), :int ).size, 3, "integer size" );
 
     is( $ispan.size, 3, "integer size" );
-    is( $ispan.span.ref, "Span::Int", "integer span" );
+    is( $ispan.span.WHAT, "Span::Int", "integer span" );
     # is( {$ispan.span}.density, 1, 'get density integer is 1' );
 }
 

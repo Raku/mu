@@ -11,7 +11,7 @@ my $pass_test = Test::Builder::Test::Pass.new(
         description => 'first test description'
         );
 
-is( $pass_test.ref, ::Test::Builder::Test::Pass,
+is( $pass_test.WHAT, ::Test::Builder::Test::Pass,
     'new() should return a Test::Builder::Test::Pass instance' );
 
 is( $pass_test.number(), 1, 'number() should return the provided test number' );

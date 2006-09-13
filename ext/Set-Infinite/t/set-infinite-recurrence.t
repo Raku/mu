@@ -96,7 +96,7 @@ exit;
 
     my $each_3_span = Set::Infinite.new( spans => Span.new( start => 10, end => 30 ) );
     my $each_3_spancode = $each_3_span.intersection( $each_3_rec );
-    is( $each_3_span.ref, 
+    is( $each_3_span.WHAT, 
         'Set::Infinite', 
         'intersection isa Set::Infinite' );
     is( $each_3_span.stringify, 
@@ -113,7 +113,7 @@ exit;
         'each 2 from 20 to 40' );
 
     my $result = $each_3_spancode.union( $even_spancode );
-    is( $result.ref, 
+    is( $result.WHAT, 
         'Set::Infinite', 
         'union isa Set::Infinite' );
     is( $result.stringify, 

@@ -9,13 +9,13 @@ class Perl::Compiler::CodeGen::Perl5_Str
 
     method generate (Perl::Compiler::PIL::PIL $tree is rw) {
         my $ng = ::Perl::Compiler::CodeGen::NameGen.new(template => { "\$P_$_" });
-        say "{self} / $.ref()";
+        say "{self} / $.WHAT()";
         self.gen($tree, $ng);
     }
 
     method gen (Perl::Compiler::PIL::PIL $tree is rw, PIL::Compiler::CodeGen::NameGen $ng is rw) {
         my $ret = do given $tree {
-            say "Processing $tree / $tree.ref()";
+            say "Processing $tree / $tree.WHAT()";
             
             when ::Perl::Compiler::PIL::PILNil    { "; # Nil\n" }
 
@@ -55,12 +55,12 @@ class Perl::Compiler::CodeGen::Perl5_Str
                     when List { box("P5::PIL::Run::List" => list(map { &OUTER::BLOCK($_) }, *$_)) }
                     when Error { box("P5::PIL::Run::Error", string($_.first), list(@( $_.second ))) }
                     when Junc { die "no junctions yet"; box("P5::PIL::Run::Junction", ...) }
-                    default { die "a value of type $_.ref cannot appear in PIL. Your compiler must be sick." }
+                    default { die "a value of type {.WHAT} cannot appear in PIL. Your compiler must be sick." }
                 }.perl); ''
             }
 
             when ::Perl::Compiler::PIL::PILVar    {
-                # XXX shouldn't need $tree.pad.SKID ; .pad.SKID should do ($tree is topic)
+                # XXX shouldn't need $tree.pad.WHICH ; .pad.WHICH should do ($tree is topic)
                 my $pad = $tree.pad;
                 $ng.ret(self.pad_var($pad) ~ "->\{'{ $tree.value }'}"); ''
             }
@@ -96,7 +96,7 @@ class Perl::Compiler::CodeGen::Perl5_Str
                 $str;
             }
 
-            die "Unknown PIL node type: $tree.ref()";
+            die "Unknown PIL node type: $tree.WHAT()";
         };
 
         say "RETVAL = $ret";
@@ -104,7 +104,7 @@ class Perl::Compiler::CodeGen::Perl5_Str
     }
 
     method pad_var(Perl::Compiler::PIL::Util::Pad $pad) {
-        "\$PAD_" ~ $pad.SKID;
+        "\$PAD_" ~ $pad.WHICH;
     }
 }
 

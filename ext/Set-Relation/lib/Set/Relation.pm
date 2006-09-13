@@ -1147,7 +1147,7 @@ A Set::Relation object has these methods:
 
 =item C<export_as_hash () returns Hash>
 
-This method returns a deep copy of this Set::Relation as a Hash ref of 2
+This method returns a deep copy of this Set::Relation as a Hash of 2
 elements, which correspond to the 2 named parameters of C<new>.
 
 =item C<is_mutable () returns Bool>

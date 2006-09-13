@@ -15,8 +15,8 @@
 ^Object.add_method('BUILDALL',   ^Class.get_method('BUILDALL'));
 ^Object.add_method('DESTROYALL', ^Class.get_method('DESTROYALL'));
 
-^Object.add_method('meta',  -> { self`meta(); });
-^Object.add_method('id',    -> { self`id();   });
+^Object.add_method('HOW',  -> { self`meta(); });
+^Object.add_method('WHICH',    -> { self`id();   });
 
 ^Object.add_method('isa', -> $class {
     $?CLASS.name`eq($class)`if_else(

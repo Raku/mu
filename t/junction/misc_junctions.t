@@ -124,14 +124,14 @@ L<S03/"Junctive operators">
     my ($j,$k,$l);
 
     $j = 1|2;
-    is(ref($j),'Junction', 'basic junction type reference test');
+    is(WHAT($j),'Junction', 'basic junction type reference test');
 
     $k=$j;
-    is(ref($k),'Junction', 'assignment preserves reference');
+    is(WHAT($k),'Junction', 'assignment preserves reference');
 
     # XXX does this next one make any sense?
     $l=\$j;
-    is(ref($l),'Junction', 'hard reference to junction');
+    is(WHAT($l),'Junction', 'hard reference to junction');
 }
 
 

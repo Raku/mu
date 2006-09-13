@@ -134,7 +134,7 @@ sub cmp_ok (Str $got, Code &compare_func, Str $expected, Str $desc?, :$todo, :$d
 sub isa_ok (Any|Junction|Pair $ref is rw, Str $expected_type, Str $desc?, :$todo, :$depends) returns Bool is export {
     my $out := defined($desc) ?? $desc !! "The object is-a '$expected_type'";
     my $test := $ref.isa($expected_type);
-    Test::proclaim($test, $out, $todo, $ref.ref, $expected_type, $depends);
+    Test::proclaim($test, $out, $todo, $ref.WHAT, $expected_type, $depends);
 }
 
 ## use_ok
@@ -446,7 +446,7 @@ a little while. Until then, you can just write your own functions like this:
 
   isa_ok ($ref, Str $expected_type, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
-This function currently on checks with ref() since we do not yet have
+This function currently on checks with WHAT() since we do not yet have
 object support. Once object support is created, we will add it here, and
 maintain backwards compatibility as well.
 

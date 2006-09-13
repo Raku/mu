@@ -39,7 +39,7 @@ role Class::Events::Publisher {
             take $.subscriptions.members;
 
             # FIXME this is bullshit - i ought to read the details
-            #for $class ($self.meta.superclasses){
+            #for $class ($self.HOW.superclasses){
             #    take $class.subscriptions;
             #}
         }

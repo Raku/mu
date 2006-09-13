@@ -180,7 +180,7 @@ method splice (
 { 
     my ( @head, @body, @tail );
     # say "items: ", @.items, " splice: $offset, $length, ", @list;
-    # say 'insert: ', $_, ' ', $_.ref for @list;
+    # say 'insert: ', $_, ' ', $_.WHAT for @list;
     if $offset >= 0 {
         @head = self._shift_n( $offset );
         if $length >= 0 {

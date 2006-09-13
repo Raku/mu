@@ -12,7 +12,7 @@ multi foo (Str $bar)   { "Str "  ~ $bar  }
 multi foo (Num $bar)   { "Num "  ~ $bar  }
 multi foo (Rat $bar)   { "Rat "  ~ $bar  }
 multi foo (Bool $bar)  { "Bool " ~ $bar  }
-multi foo (Rule $bar)  { "Rule " ~ ref( $bar ) } # since Rule's don't stringify
+multi foo (Rule $bar)  { "Rule " ~ WHAT( $bar ) } # since Rule's don't stringify
 multi foo (Sub $bar)   { "Sub " ~ $bar() }
 multi foo (Array @bar) { "Array " ~ join(', ', @bar) }
 multi foo (Hash %bar)  { "Hash " ~ join(', ', %bar.keys) }

@@ -6,7 +6,7 @@ plan 8;
 
 # This next group added by Darren Duncan following discovery while debugging ext/Locale-KeyedText:
 {
-  sub foo( $arg ) { return $arg.ref }
+  sub foo( $arg ) { return $arg.WHAT }
   sub make_array() { return ['were','there'] }
   sub make_hash() { return {'z'=>'y','x'=>'w'} }
 #  my ($temp, @temp, %temp);

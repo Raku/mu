@@ -79,7 +79,7 @@ public abstract class MetaModel {
 
     public static Object SELF () throws Exception {
         if (Method.CURRENT_INVOCANT_STACK.size() == 0)
-            throw new Exception("You cannot call $.SKID from outside of a MetaModel method");
+            throw new Exception("You cannot call $.WHICH from outside of a MetaModel method");
         return (Object)Method.CURRENT_INVOCANT_STACK.peek();
     }
 }

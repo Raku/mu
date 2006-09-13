@@ -26,7 +26,7 @@ pugs_MkValRef ( Val *val )
 
     isa[0] = NULL;
 
-    type = pugs_Apply(pugs_PvToVal("&ref"), val, isa, G_SCALAR);
+    type = pugs_Apply(pugs_PvToVal("&WHAT"), val, isa, G_SCALAR);
 #if PERL5_EMBED_DEBUG
     fprintf(stderr, "query the type: got %s\n", SvPV_nolen(type));
 #endif

@@ -97,10 +97,10 @@ method size ()          returns Object { return $.set.size }
 
 submethod _normalize_parameter ($self: $span) {
     # is it a Set::Infinite ?
-    return $span.set if $span.isa( $self.ref );
+    return $span.set if $span.isa( $self.WHAT );
     # is it a Set::Infinite::Functional ?
     my $span0 = $self.set;
-    return $span if $span.isa( $span0.ref );
+    return $span if $span.isa( $span0.WHAT );
     # new() knows what to do: Span, Span::Num, Span.Int, Object
     my $result = $self.new( spans => $span );
     return $result.set;

@@ -78,11 +78,11 @@ sub traverse_ast ( $tree ) {
         say '  ' x $depth, @s 
     }
     
-    if $tree.ref ne 'Array' {
+    if $tree.WHAT ne 'Array' {
         dbg "  # -- unknown: <$tree>";
         return; 
     }
-    if $tree[0].ref eq 'Array' {
+    if $tree[0].WHAT eq 'Array' {
         #dbg "# [";
         my @ret;
         push @ret, traverse_ast( $_ ) for $tree;

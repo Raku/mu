@@ -56,7 +56,7 @@ CODE,
 
 pil_is_eq($prelude ~ q:to/CODE/
 $iFoo := ^Foo.new({});
-$iFoo.META()`eq(^Foo);
+$iFoo.HOW()`eq(^Foo);
 CODE,
 'true',
 '... we can create an instance of ^Foo');

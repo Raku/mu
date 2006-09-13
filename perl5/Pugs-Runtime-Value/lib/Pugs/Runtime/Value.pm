@@ -100,7 +100,7 @@ class Num is Object {
         Bit.new( unboxed => Pugs::Runtime::Value::Num::to_bit( self.unboxed ) )
     }
     method perl { self.str }
-    method ref  { self.class }
+    method WHAT  { self.class }
 
 }
 
@@ -121,7 +121,7 @@ class Int is Object {
         Bit.new( unboxed => Pugs::Runtime::Value::Int::to_bit( self.unboxed ) )
     }
     method perl { self.str }
-    method ref  { self.class }
+    method WHAT  { self.class }
 
 }
 
@@ -145,7 +145,7 @@ class Str is Object {
         # TODO: escape ' and \
         "'" ~ self ~ "'" 
     }
-    method ref  { self.class }
+    method WHAT  { self.class }
 
 }
 
@@ -166,7 +166,7 @@ class Bit is Object {
         self
     }
     method perl { self.str }
-    method ref  { self.class }
+    method WHAT  { self.class }
 
 }
 
@@ -188,7 +188,7 @@ class Rat is Object {
         Bit.new( unboxed => self.a / self.b )
     }
     method perl { self.str }
-    method ref  { self.class }
+    method WHAT  { self.class }
 
 }
 
@@ -210,7 +210,7 @@ class Pair is Object {
         Bit.new( unboxed => 0 )
     }
     method perl { "(" ~ self.key ~ " => " ~ self.value ~ ")" }
-    method ref  { self.class }
+    method WHAT  { self.class }
 
 }
 
