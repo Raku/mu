@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 27 Aug 2006
+  Last Modified: 13 Sept 2006
   Number: 2
-  Version: 66
+  Version: 67
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -455,13 +455,11 @@ repeated autoboxing can slow your program more than the native type
 can speed it up.)
 
 Some object types can behave as value types.  Every object can produce
-a "safe key identifier" (C<SKID> for short) that uniquely identifies the
+a "WHICH" value that uniquely identifies the
 object for hashing and other value-based comparisons.  Normal objects
 just use their address in memory, but if a class wishes to behave as a
-value type, it can define a C<.SKID> method that makes different objects
+value type, it can define a C<.WHICH> method that makes different objects
 look like the same object if they happen to have the same contents.
-SKID may also stand for "static key id", or "silly key id", or
-"secret key id", or "supercalifragilisticexpialidocious key id".
 
 =item *
 
@@ -483,13 +481,13 @@ can decide whether to self-destruct immediately or shortly thereafter.
 
 =item *
 
-Every object supports a C<META> function/method that returns the
+Every object supports a C<HOW> function/method that returns the
 metaclass instance managing it, regardless of whether the object
 is defined:
 
-    'x'.META.get_method_list;   # get available methods for strings
-    Str.META.get_method_list;   # same thing with the prototype object Str
-    META(Str).get_method_list;  # same thing as function call
+    'x'.HOW.get_method_list;   # get available methods for strings
+    Str.HOW.get_method_list;   # same thing with the prototype object Str
+    HOW(Str).get_method_list;  # same thing as function call
 
     'x'.get_method_list;        # this is an error - not a meta object
     Str.get_method_list;        # same thing

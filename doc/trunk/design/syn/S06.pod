@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 25 Aug 2006
+  Last Modified: 13 Sept 2006
   Number: 6
-  Version: 53
+  Version: 54
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1358,7 +1358,7 @@ are handled.)
 
 Objects with these types behave like values, i.e. C<$x === $y> is true
 if and only if their types and contents are identical (that is, if
-C<$x.SKID> eqv C<$y.SKID>).
+C<$x.WHICH> eqv C<$y.WHICH>).
 
     Bit         Perl single bit (allows traits, aliasing, undef, etc.)
     Int         Perl integer (allows Inf/NaN, arbitrary precision, etc.)
@@ -1382,7 +1382,7 @@ C<$x.SKID> eqv C<$y.SKID>).
 
 =head2 Mutable types
 
-Objects with these types have distinct C<.SKID> values that do not change
+Objects with these types have distinct C<.WHICH> values that do not change
 even if the object's contents change.
 
     Array       Perl array
@@ -2038,10 +2038,10 @@ their own C<.TEMP> methods:
 
     class LoudArray is Array {
         method TEMP {
-            print "Replacing $.SKID() at {caller.location}\n";
+            print "Replacing $.WHICH() at {caller.location}\n";
             my $restorer = $.SUPER::TEMP();
             return { 
-                print "Restoring $.SKID() at {caller.location}\n";
+                print "Restoring $.WHICH() at {caller.location}\n";
                 $restorer();
             };
         }
@@ -2097,7 +2097,7 @@ or less the same effect as:
     &old_thermo := &thermo;
     &thermo := sub ($t) { old_thermo( ($t-32)/1.8 ) }
 
-Except that C<&thermo> is mutated in-place, so C<&thermo.SKID> stays the same
+Except that C<&thermo> is mutated in-place, so C<&thermo.WHICH> stays the same
 after the C<.wrap>.
 
 The call to C<.wrap> returns a unique handle that can later be passed to
@@ -2405,13 +2405,13 @@ The standard C<hash> list operator is equivalent to:
 
 So you may use C<sub> or C<hash> or C<pair> to disambiguate:
 
-    $ref =  sub { 1, 2, 3, 4, 5, 6 };   # Anonymous sub returning list
-    $ref =      { 1, 2, 3, 4, 5, 6 };   # Anonymous sub returning list
-    $ref =      { 1=>2, 3=>4, 5=>6 };   # Anonymous hash
-    $ref =      { 1=>2, 3, 4, 5, 6 };   # Anonymous hash
-    $ref =  hash( 1, 2, 3, 4, 5, 6 );   # Anonymous hash
-    $ref =  hash  1, 2, 3, 4, 5, 6  ;   # Anonymous hash
-    $ref = { pair 1, 2, 3, 4, 5, 6 };   # Anonymous hash
+    $obj =  sub { 1, 2, 3, 4, 5, 6 };   # Anonymous sub returning list
+    $obj =      { 1, 2, 3, 4, 5, 6 };   # Anonymous sub returning list
+    $obj =      { 1=>2, 3=>4, 5=>6 };   # Anonymous hash
+    $obj =      { 1=>2, 3, 4, 5, 6 };   # Anonymous hash
+    $obj =  hash( 1, 2, 3, 4, 5, 6 );   # Anonymous hash
+    $obj =  hash  1, 2, 3, 4, 5, 6  ;   # Anonymous hash
+    $obj = { pair 1, 2, 3, 4, 5, 6 };   # Anonymous hash
 
 
 =head2 Pairs as lvalues

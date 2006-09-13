@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 13 Sep 2006
   Number: 3
-  Version: 62
+  Version: 63
 
 =head1 Changes to Perl 5 operators
 
@@ -373,7 +373,7 @@ It is not true that C<[1,2] === [1,2]> because those are different
 C<Array> objects, but it is true that C<@a === @a> because those are
 the same C<Array> object).
 
-Any object type may pretend to be a value type by defining a C<.SKID>
+Any object type may pretend to be a value type by defining a C<.WHICH>
 method which returns a value type that can be recursively compared
 using C<===>, or in cases where that is impractical, by overloading
 C<===> such that the comparison treats values consistently with their
@@ -494,7 +494,7 @@ If applied to a list, it generates a multidimensional set of subscripts.
     for ^(3,3) { ... } # (0,0)(0,1)(0,2)(1,0)(1,1)(1,2)(2,0)(2,1)(2,2)
 
 If applied to a type name, it indicates the metaclass instance instead,
-so C<^Moose> is short for C<META(Moose)> or C<Moose.META>.  It still kinda
+so C<^Moose> is short for C<HOW(Moose)> or C<Moose.HOW>.  It still kinda
 means "what is this thing's domain" in an abstract sort of way.
 
 =item * The C<...> operator is the "yada, yada, yada" list operator,
@@ -512,7 +512,7 @@ out bad data or programming rather than just an incomplete design.)
 variants C<.*>, C<.?>, and C<.+> to control how multiple related methods
 of the same name are handled.  The C<.=> operator does inplace modification
 of the object on the left.  The C<.^> operator calls a class metamethod;
-C<foo.^bar> is short for C<foo.META.bar>.
+C<foo.^bar> is short for C<foo.HOW.bar>.
 
 =item * Unary C<=> reads lines from a filehandle or filename, or
 iterates an iterator, or in general causes a scalar to explode its guts

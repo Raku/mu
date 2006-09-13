@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
-  Last Modified: 18 Aug 2006
+  Last Modified: 13 Sept 2006
   Number: 9
-  Version: 13
+  Version: 14
 
 =head1 Overview
 
@@ -772,7 +772,7 @@ But these ones I<do> autovivify:
     my $val := %hash<foo><bar>;
 
     my @array;
-    my $ref = \@array[0][0]; # $ref is a Capture object - see S02
+    my $obj = \@array[0][0]; # $obj is a Capture object - see S02
 
     my %hash;
     %hash<foo><bar> = "foo"; # duh

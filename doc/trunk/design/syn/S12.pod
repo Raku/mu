@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 18 Aug 2006
+  Last Modified: 13 Sept 2006
   Number: 12
-  Version: 21
+  Version: 22
 
 =head1 Overview
 
@@ -34,7 +34,7 @@ its type, and the class object can thus be used as a proxy for any
 that type can do.  The class object is an Object, but it is not a
 Class, because there is no mandatory Class class in Perl 6.  We wish
 to support both class-based and prototype-based OO programming.
-So all metaprogramming is done through the current object's C<META>
+So all metaprogramming is done through the current object's C<HOW>
 object, which can delegate metaprogramming to any metamodel it likes.
 However, by default, objects derived from Object support a fairly
 standard class-based model.
@@ -120,19 +120,19 @@ You may put these inside as well:
 
 Every object (including any class object) delegates to an instance of
 its metaclass.  You can get at the metaclass of any object via the
-C<META> method.  A "class" object is just considered an "empty"
+C<HOW> method.  A "class" object is just considered an "empty"
 instance in Perl 6, more properly called a "prototype" object.
 The actual class object is the metaclass object pointed to by the
-C<META> syntax.  So when you say "Dog", you're referring to both a
+C<HOW> syntax.  So when you say "Dog", you're referring to both a
 package and a prototype object, that latter of which points to the
-actual object representing the class via C<META>.  The prototype
+actual object representing the class via C<HOW>.  The prototype
 object differs from an instance object not by having a different
 type but rather in the extent to which it is defined.  Some objects
 may tell you that they are defined, while others may tell you that
 they are undefined.  That's up to the object, and depends on how the
 metaclass chooses to dispatch the .defined method.
 
-The notation C<^Dog> is syntactic sugar for C<Dog.META>, so C<^> can be
+The notation C<^Dog> is syntactic sugar for C<Dog.HOW>, so C<^> can be
 considered the "class" sigil when you want to talk about the current
 metaclass instance.
 
@@ -333,7 +333,7 @@ which as a singleton object knows your package, and can function as a more tradi
     our $count;
     method ^count { return $count }
 
-Such a I<metaclass method> is always delegated to the C<META> object just as methods like
+Such a I<metaclass method> is always delegated to the C<HOW> object just as methods like
 C<.does> are, so it's possible to call this as C<Dog.count> or C<$dog.count>.
 However, best practice is probably to call such a class method as C<Dog.^count>
 or C<$dog.^count> to make it clear that it's in its own namespace separate
@@ -1496,23 +1496,48 @@ C<hides Base> instead of C<is Base>.
 
 =head1 Introspection
 
-Every class has a C<META> function/method that lets you get at the
+Metamethods for objects are named with interrogative pronouns in uppercase:
+
+    WHAT	the prototype object of the type, stringifies to short name
+    WHICH	the object's identity value
+    WHO		the package supporting the object, stringifies to long name
+    WHERE	the memory address of the object
+    HOW		the metaclass object: "Higher Order Workings"
+    WHEN	(reserved for events?)
+    WHY		(reserved for documentation?)
+
+In general, use of these in ordinary code should be a red flag that
+Something Very Strange is going on.  (Hence the allcaps.)  Most code
+should use Perl 6's operators that make use of this information
+implicitly.  For instance, instead of
+
+    $obj.WHAT eq 'Dog'
+    $x.WHICH === $y.WHICH
+    $obj.WHAT.bless(%args)
+
+you usually just want:
+
+    $obj ~~ Dog
+    $x === $y
+    $obj.bless(%args)
+
+Every class has a C<HOW> function/method that lets you get at the
 class's metaobject, which lets you get at all the metadata properties
 for the class (or other metaobject protocol) implementing the objects
 of the class:
 
     MyClass.getmethods()	# call MyClass's .getmethods method (error?)
-    MyClass.META.getmethods()	# get the method list of MyClass
+    MyClass.HOW.getmethods()	# get the method list of MyClass
 
-The C<^> metasyntax is equivalent to .META:
+The C<^> metasyntax is equivalent to .HOW:
 
-    MyClass.META.getmethods()	# get the method list of MyClass
+    MyClass.HOW.getmethods()	# get the method list of MyClass
     ^MyClass.getmethods()	# get the method list of MyClass
     MyClass.^getmethods()	# get the method list of MyClass
 
-Each object of the class also has a C<.META> or C<.^> method:
+Each object of the class also has a C<.HOW> or C<.^> method:
 
-    $obj.META.getmethods();
+    $obj.HOW.getmethods();
     $obj.^getmethods();
 
 Class traits may include:
@@ -1531,7 +1556,17 @@ Class traits may include:
     disambig      how to deal with ambiguous method names from roles
     layout        P6opaque, P6hash, P5hash, P5array, PyDict, Cstruct, etc.
 
-The C<.META.getmethods> method returns method-descriptors containing:
+These are for the standard Perl 6 Meta-Object Protocol, but other MOPs
+may define other traits.  The identifier should probably be accessed
+through the C<.WHO> object in any case, which may have its own object
+methods depending on how type namespaces evolve over time.  Which of
+these items are actually part of the C<.HOW> object and which are
+delegated back to the package and prototype objects is up to the MOP.
+(Note also that anonymous classes may have anonymous packages and
+prototype objects, in which case stringification is not likely to
+produce something of interest to non-gurus.)
+
+The C<.HOW.getmethods> method returns method-descriptors containing:
 
     name		the name of the method
     signature		the parameters of the method
@@ -1558,9 +1593,9 @@ that have traits like these:
 Strictly speaking, metamethods like C<.isa()>, C<.does()>, and C<.can()>
 should be called through the meta object:
 
-    $obj.META.can("bark")
-    $obj.META.does(Dog)
-    $obj.META.isa(Mammal)
+    $obj.HOW.can("bark")
+    $obj.HOW.does(Dog)
+    $obj.HOW.isa(Mammal)
 
 But C<Object> gives you shortcuts to those, if you don't override them.
 
@@ -1570,13 +1605,13 @@ The smartmatch:
 
 actually calls:
 
-    $obj.META.does(Dog)
+    $obj.HOW.does(Dog)
 
 which is true if C<$obj> either "does" or "isa" C<Dog> (or "isa"
 something that "does" C<Dog>).
 
 Unlike in Perl 5 where C<.can> returns a single C<Code> object,
-Perl 6's version of C<.META.can> returns a "WALK" iterator for a
+Perl 6's version of C<.HOW.can> returns a "WALK" iterator for a
 set of routines that match the name, including all autoloaded and
 wildcarded possibilities.  In particular, C<.can> interrogates
 any class package's C<CANDO> method for names that are to be considered autoloadable methods
