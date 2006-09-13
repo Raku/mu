@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 13 Sep 2006
   Number: 3
-  Version: 61
+  Version: 62
 
 =head1 Changes to Perl 5 operators
 
@@ -1042,9 +1042,9 @@ The string concatenating form is:
 
 The C<X~X> operator desugars to something like:
 
-    [~]«( <a b> X <1 2> )  #  'a1', 'a2', 'b1', 'b2'
+    [~]«( <a b> X,X <1 2> )  #  'a1', 'a2', 'b1', 'b2'
 
-The list concatenating form
+The list concatenating form, C<X,X>, when used like this:
 
     <a b> X,X 1,2 X,X <x y>
 
@@ -1081,6 +1081,8 @@ own associativity, just as the corresponding reduce operator would do.
 
 Note that only the first term of an C<X> operator may reasonably be
 an infinite list.
+
+Multidimensional lists should be handled properly.
 
 =head1 Junctive operators
 
