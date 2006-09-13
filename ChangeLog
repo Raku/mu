@@ -1,4 +1,4 @@
-﻿######################################################
+######################################################
 # Changelogging starts at rev 10930
 #
 # Some info has been entered in audreyt++ template
@@ -16,37 +16,52 @@
 == Updated modules
 
 * [ext/CGI/] - refactored to have an OO interface, and the ability to pass
-args to new() was added.
-* [ext/HTTP-Server-Simple/] - switched from non-standard "./" syntax to standard "self." syntax.
+  args to new() was added.
+* [ext/HTTP-Server-Simple/] - switched from non-standard "./" syntax to 
+  standard "self." syntax.
 * [ext/Set-Relation/] - Renamed from ext/Relation/
 
 == Perl 6 on Perl 5 (under [misc/pX/Common/])
 
-* Added make_build_perl5, to make it possible to build 
-all the perl5 modules without installing ghc first. 
+* Added make_build_perl5, to make it possible to build all the perl5 modules
+  without installing ghc first. 
 
-== Test, Examples and Documentations
+== Examples and the Test Suite
 
-* A new documentation index was created, which is regularly
-published at http://feather.perl6.nl/syn
-* Perl6::Perl6::Differences was significantly updated. An HTML
-version of it is linked to from the page above. 
-* say() was officially added to the spec
+* Rewrote util/prove6 using Perl 5 so that it can now run everywhere.
+  You can use this to run only a portion of the test suite or even a single
+  file.
 * Updated util/prove6 to work better when used outside of the pugs try.
-The "--blib", "--lib" and "--verbose" options from prove were added.
+  The "--blib", "--lib" and "--verbose" options from prove were added.
 * Updated all tests and examples plus in some docs and other files to
-remove the #/usr/bin/pugs shebangs and variants thereof.
+  remove the #/usr/bin/pugs shebangs and variants thereof.
 * Replaced all "use v6-pugs;" and "use v6;" with "use v6-alpha;" in mostly
-the same places.
-* With any such 'use' lines that appeared below other code, moved upwards.
+  the same places.
+  With any such 'use' lines that appeared below other code, moved upwards.
 * Renamed all Perl scripts from *.p6 to *.pl and from *.p5 to *-p5.pl;
-all references to them, except in talks, were likewise updated.
-* Merged t_disabled/ into t/.
+  all references to them, except in talks, were likewise updated.
 * Did some rearranging/renaming in t/ so the tests scale better.
-* Copied ext/Test/t/* to t/02-test-pm/*, moved t/01-sanity/08-test.t to the 
-latter as well ... so 01-sanity doesn't use Test.pm, 02-test-pm checks that 
-Test.pm itself works, and subsequent t/* use Test.pm
-... TODO: remove duplicate tests from ext/Test/t/* if not also needed.
+** Copied ext/Test/t/* to t/02-test-pm/*, moved t/01-sanity/08-test.t to the
+   latter as well ... so 01-sanity doesn't use Test.pm, 02-test-pm checks that 
+   Test.pm itself works, and subsequent t/* use Test.pm
+** Merged t_disabled/ into t/.
+** Renamed t/subroutines to t/blocks
+* Added t/closure_traits to test closure traits
+* Added tests for \o[] and \d[].
+* Added tests for embedded comments.
+
+==  Documentations
+
+* added util/smartlinks.pl which implements the new generation of
+  smartlinks used in the test suite. it generetes much nicer
+  cross-referenced HTML pages than util/catalog_tests.pl.
+  (See http://perlcabal.org/syn/S02.html for sample outputs.)
+* A new documentation index was created, which is regularly
+  published at http://perlcabal.org/syn and the synopses are
+  updated automatically by util/smartlinks.pl every 1 hour.
+* Perl6::Perl6::Differences was significantly updated. An HTML
+  version of it is linked to from the page above.
+* say() was officially added to the spec
 
 == Feature Changes
 
@@ -55,7 +70,16 @@ in the inheritence tree, returning an unconcatenated list of return values.
 The return value of this is not yet spec'ed. Currently only lookups through
 single inheritence are implemented.  See "Calling Sets of Methods" in S12 for
 more information about related features. 
-* There are now separate `===` and `eqv` operators
+* There are now separate `===` and `eqv` operators.
+* Characters indexed by names are now supported, e.g., \c[LEFT CORNER BRACKET].
+* Proper support for \digits according to the latest Synopses.
+** e.g., "\123" is a syntax error while '\123' is not.
+** e.g., "\08" is allowed while "\03" is not.
+* The "proto" keyword is now supported
+** proto foo {...} works
+** proto sub foo {...} also works
+* Added support for the `each` builtin, so now you can write
+    for each(@a; @b) -> $x, $y { ... }
 
 == Bug Fixes
 
