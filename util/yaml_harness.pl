@@ -1,68 +1,92 @@
-#!/usr/bin/perl
-
-# Simple YAML test harness written over Test::Harness::Straps.
-# Hacked up from mini_harness.plx in the Test::Harness dist.
-# (And some stuff stolen from prove, too.)
-
-# Please improve me!
-#
-# TODO:
-# 1. Modularize this.
-# 2. Get to work concurrently with 'make test'
-# 3. 'make smoke' make target that uploads the results of this
-#    to a server somewhere.
-
-
 package Test::Harness::YAML;
 use strict;
+use warnings;
 
-use Getopt::Long;
+use Benchmark;
 use Best 0.05 [ [ qw/YAML::Syck YAML/], qw/LoadFile DumpFile/ ];
+use File::Spec;
+use Getopt::Long;
+use List::Util 'shuffle';
 use Test::Harness;
 use Test::TAP::Model;
-use File::Spec;
-use Benchmark;
+
+# Package and global declarations
 our @ISA = qw(Test::TAP::Model);
 our $SMOKERFILE = ".smoker.yml";
+our %Config;
+$ENV{TEST_ALWAYS_CALLER} = 1;
+$Test::Harness::Verbose  = 1;
+@ARGV = sort map glob, "t/*/*.t", "t/*/*/*.t", "ext/*/t/*.t" if ! @ARGV;
 
 $| = 1;
 
-$ENV{TEST_ALWAYS_CALLER} = 1;
-
-GetOptions \our %Config, qw(--output-file|o=s --dry|n --concurrent|j=i
-        --shuffle|s --recurse|r --include=s@ --anonymous|a --exclude|X=s@
-        --help|h);
-fixup_concurrency();
-$Test::Harness::Verbose  = 1;
-$Config{"output-file"} ||= "tests.yml";
-$Config{"recurse"} = 1 if not defined $Config{"recurse"};
-# Needed for smokeserv
-$Config{"pugs-path"} = $ENV{HARNESS_PERL};
-push @{$Config{"exclude"}}, 'Disabled' if not $Config{"exclude"} or not @{$Config{"exclude"}};
-if(!@ARGV) {
-    @ARGV = sort map glob, "t/*/*.t", "t/*/*/*.t", "ext/*/t/*.t"
+sub get_config {
+    GetOptions \%Config, qw(
+        --concurrent|j=i    --shuffle|s   --exclude|X=s@
+        --output-file|o=s   --recurse|r   --anonymous|a
+        --include=s@        --dry|n       --help|h
+    );
+    fix_config();
+    my $Usage = qq{Usage: $0 [OPTIONS] 
+        --help, -h              This help message.
+        --output-file=FILE, -o  Store results in FILE [default: $Config{"output-file"}]
+        --dry, -n               Show which tests would be run but don't run them
+        --concurrent=N, -j      Run N test jobs concurrently (MSWin requires Paralle::ForkManager)
+        --shuffle, -s           Run tests in random order
+        --recurse, -r           Recurse into directories on test include list
+        --incude=I1,[I2,...]    Include files
+        --exclude=E1,[E2,...]   Exclude files
+        --anonymous, -a         Do not include ~/.smoker.yml data in report
+    } . "\n";
+    die $Usage if $Config{help};
 }
 
-help() if $Config{help};
+sub fix_config {
+    $Config{"concurrent"} ||= $ENV{PUGS_TESTS_CONCURRENT} || 1;
+    local $@;
+    eval { require Parallel::ForkManager; };
+    if ($@) {
+        if ($Config{"concurrent"} > 1 && $^O =~ /MSWin32|msys/) { # On cygwin we are okay.
+            warn "Sorry, concurrency not supported on your platform\n";
+            $Config{"concurrent"} = 1;
+        }
+        require POSIX;
+    }
+    else {
+        no warnings 'redefine';
+        *run_children = sub {
+            my ($self, $child_count, $all_tests) = @_;
+            my $pm =  Parallel::ForkManager->new($child_count);
+            my $chunk_size = POSIX::ceil(@$all_tests / $child_count);
 
-_build_include_re();
-_build_exclude_re();
+            for my $child (1 .. $child_count) {
+                my @own_tests = splice @$all_tests, 0, $chunk_size;
+                my $pid = $pm->start and next;
+                # Inside child process now
+                $self->{_child_num} = $child;
+                $self->run_test($_) for @own_tests;
+                $self->emit_chunk();
+                $pm->finish;
+                # Back in parent process now
+                push @{ $self->{_children} }, $pid;
+            }
+            $self->gather_results();
+        }
+    }
+    $Config{"output-file"} ||= "tests.yml";
+    $Config{"recurse"}       = 1 if not defined $Config{"recurse"};
+    # Needed for smokeserv
+    $Config{"pugs-path"} = $ENV{HARNESS_PERL};
+    push @{$Config{"exclude"}}, 'Disabled' if not $Config{"exclude"} or not @{$Config{"exclude"}};
+    _build_include_re();
+    _build_exclude_re();
+}
 
+get_config();
 my $s = __PACKAGE__->new;
 $s->run;
 $s->emit;
 exit 0;
-
-
-sub fixup_concurrency {
-    $Config{"concurrent"} ||= $ENV{PUGS_TESTS_CONCURRENT} || 1;
-    if ($^O =~ /MSWin32|msys/) { # On cygwin we are okay.
-        warn "Sorry, concurrency not supported on your platform\n";
-        $Config{"concurrent"} = 1;
-        return;
-    }
-    require POSIX;
-}
 
 sub all_in {
     my $start = shift;
@@ -91,14 +115,6 @@ sub all_in {
     return @hits;
 }
 
-sub shuffle {
-    # Fisher-Yates shuffle
-    my $i = @_;
-    while ($i) {
-        my $j = rand $i--;
-        @_[$i, $j] = @_[$j, $i];
-    }
-}
 
 # concurrency temp-file. FIXME: use a real temp file?
 sub emit_chunk {
@@ -179,7 +195,7 @@ sub get_tests {
 
     if ( @tests ) {
         if ($Config{shuffle}) {
-            shuffle(@tests)
+            @tests = shuffle(@tests);
         } else {
             # default FS order isn't guaranteed sorted; and sorting
             # helps diffing raw YAML results.
@@ -258,19 +274,16 @@ sub run_test {
     warn "    ".timestr($t)."\n";
 }
 
-sub help {
-    print <<".";
-$0 - run tests and store results in YAML
 
-Usage: $0 [OPTIONS]
-    --output-file=FILE, -o  Store results in FILE [default: $Config{"output-file"}]
-    --dry, -n               Show which tests would be run but don't run them
-    --concurrent=N, -j      Run N test jobs concurrently (unavailable on MSWin)
-    --shuffle, -s           Run tests in random order
-    --recurse, -r           Recurse into directories on test include list
-    --incude=I1,[I2,...]    Include files
-    --exclude=E1,[E2,...]   Exclude files
-    --anonymous, -a         Do not include ~/.smoker.yml data in report
-.
-    exit 0;
-}
+__END__
+# Simple YAML test harness written over Test::Harness::Straps.
+# Hacked up from mini_harness.plx in the Test::Harness dist.
+# (And some stuff stolen from prove, too.)
+
+# Please improve me!
+#
+# TODO:
+# 1. Modularize this.
+# 2. Get to work concurrently with 'make test'
+# 3. 'make smoke' make target that uploads the results of this
+#    to a server somewhere.
