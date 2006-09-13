@@ -9,7 +9,8 @@
 
 = Changes for 6.28.0 (rXXXXX) - July XX, 2006
 
-# Agent Zhang processed r13048 ~ r13261 (not including fglock's work)
+# Agent Zhang has reviewed r12962 ~ r13261
+# (not including fglock's work)
 
 == New Perl 6 modules
 
@@ -119,6 +120,13 @@ more information about related features.
     $x.+meth;   # $x.meth but with quantifier
 * Added support for the "%b" modifier in `sprintf` and `fmt`, which
   requires parrot due to use of rules.
+* The following code is no longer allowed:
+    my $x;
+    {
+        $x = 1;
+        my $x = 2;
+    }
+* "role A does A" is not allowed anymore.
 * Initial support for Capture and Signature objects.
 ** Support for:
     my T ($x, $y, $z)
@@ -127,7 +135,11 @@ more information about related features.
 ** Also, "my T $x" now re-assigns T into $x upon closure reentry.
    Note that this is not strictly correct for "state T $x", but
    let's do it this way for now.
-
+** Handle named parameters in Signatures.
+    :( :$justify )                # which is shorthand for...
+    :( :justify($justify) )       # but you can also say
+    :( :justify($justification) ) # the long name is used inside body;
+                                  # the short name by callers
 XXX audreyt and gaal?
 
 == Bug Fixes
