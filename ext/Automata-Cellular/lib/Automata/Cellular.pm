@@ -41,17 +41,21 @@ David Brunton - dbrunton@plusthree.com
 class Automata::Cellular-0.1 
     does Automata::Cellular::Rule
 {
+
+    # future enhancement: accept a $rule_number, and build a rule in BUILD
     has Automata::Cellular::Rule $.rule;
     has Bool @.state is rw;
     has Int  $.steps;
     has Int  $.display_width;
     has Int  $.stage is rw;
 
+    # used to set initial stage and defaults
     submethod BUILD (:$.rule,:@state,:$.steps,:$.display_width) {
         $.stage = 1;
     }
 
-    method prettystate (Str $true, Str $false) {
+    # "pretty" being a relative term, on a terminal
+    method prettystate (Str $true = 'x', Str $false = '.') {
         my $state = (+<<@.state[$.steps..(@.state.elems() - $.steps)]).join(""); 
         $state ~~ s:g/0/$false/;
         $state ~~ s:g/1/$true/;
@@ -66,7 +70,7 @@ class Automata::Cellular-0.1
             @.state[ $index + 1 ] = $.rule.rule{$index_key};
         }
 
-        $.stage = $.stage + 1; # since we are overloading ++ ;)
+        $.stage = $.stage + 1; # since ++ is overloaded and no OUTER:: yet
         if $.stage >= $.steps { return Bool::False; }
         else { return Bool::True; }
     }
