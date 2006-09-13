@@ -97,7 +97,7 @@ These represent declared parameters; don't confuse them with actual argument
 values.
 -}
 data SigParam = MkParam
-    { p_variable    :: ID            -- ^ E.g. $m above
+    { p_variable    :: Var           -- ^ E.g. $m above
     , p_types       :: [Types.Type]  -- ^ Static pieces of inferencer-food
                                      --   E.g. Elk above
     , p_constraints :: [Code]        -- ^ Dynamic pieces of runtime-mood
@@ -165,7 +165,7 @@ prettyParam p isReq isPos = staticTypes <+> varName <> defaultHint <+>
     where
     varName
         | isPos = text (cast $ p_variable p)
-        | Buf.tail (cast $ p_variable p) == (cast $ p_label p) = text $ ":" ++ (cast $ p_variable p)
+        | v_name (p_variable p) == p_label p = text $ ":" ++ (cast $ p_variable p)
         | otherwise = text ":" <> text (cast p_label p) <> (parens $ text (cast p_variable p))
     -- staticTypes = hsep $ map (text . (cast :: Types.Type -> String)) $ p_types p XXX: why is this wrong?
     staticTypes = hsep $ map (text . show) $ p_types p

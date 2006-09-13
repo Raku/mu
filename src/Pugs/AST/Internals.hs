@@ -803,7 +803,7 @@ paramToValParam :: Param -> Val.SigParam
 paramToValParam param = ret
     where 
     ret = Val.MkParam 
-        { Val.p_variable    = v_name $ paramName param  -- XXX sigilization
+        { Val.p_variable    = paramName param
         , Val.p_types       = []
         , Val.p_constraints = []
         , Val.p_unpacking   = Nothing

@@ -13,11 +13,10 @@ module Pugs.Val (
     ICoercible(..), SKID, castVal, formatVal,
     PureBit, PureBool, PureInt, PureNum, PureStr, PureList, itemVal, listVal,
 
-    Table,
-    Var,
+    Table, Var(..),
 
     -- From Code
-	Sig(..), SigParam(..), ParamAccess(..), ParamDefault(..),
+    Sig(..), SigParam(..), ParamAccess(..), ParamDefault(..),
     Capt(..), Feed(..), emptyFeed, Code(..),
     ValCapt, ValFeed,
 ) where
@@ -36,9 +35,11 @@ import Pugs.Val.Base
 --import Pugs.Exp
 import {-# SOURCE #-} Pugs.Exp
 import qualified Pugs.Types as Types
+import Pugs.Types (Var(..))
 
 import Text.PrettyPrint -- move to Pugs.Val.Pretty?
 
+-- XXX - Once GHC 6.6 is released with bindists, change #include to .hs-boot!
 #include "Val/Code.hs"
 
 {-|
@@ -375,8 +376,12 @@ data PadEntry = MkEntry
 
 --------------------------------------------------------------------------------------
 
+-- type Var = Types.Var
 {- Variable specification. This belongs in an AST .hs file, not here but until
- - it finds its home we will give it boarding. -}
+ - it finds its home we will give it boarding.
+ - XXX - Augment Pugs.Types.Var to reason about caller/outer, not here! -}
+
+ {-
 data Var
     = VarLexical
         { v_name        :: ID
@@ -391,6 +396,7 @@ data Var
         { v_magic       :: Magic
         }
     deriving (Show, Eq, Ord, Data, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
+    -}
 
 data Magic
     = MOS               -- ^ $?OS        Which os am I compiled for?
