@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
   Last Modified: 13 Sept 2006
   Number: 12
-  Version: 23
+  Version: 24
 
 =head1 Overview
 
@@ -1532,19 +1532,19 @@ class's metaobject, which lets you get at all the metadata properties
 for the class (or other metaobject protocol) implementing the objects
 of the class:
 
-    MyClass.getmethods()	# call MyClass's .getmethods method (error?)
-    MyClass.HOW.getmethods()	# get the method list of MyClass
+    MyClass.methods()		# call MyClass's .methods method (error?)
+    MyClass.HOW.methods()	# get the method list of MyClass
 
-The C<^> metasyntax is equivalent to .HOW:
+The C<^> metasyntax is equivalent to C<.HOW>:
 
-    MyClass.HOW.getmethods()	# get the method list of MyClass
-    ^MyClass.getmethods()	# get the method list of MyClass
-    MyClass.^getmethods()	# get the method list of MyClass
+    MyClass.HOW.methods()	# get the method list of MyClass
+    ^MyClass.methods()	# get the method list of MyClass
+    MyClass.^methods()	# get the method list of MyClass
 
 Each object of the class also has a C<.HOW> or C<.^> method:
 
-    $obj.HOW.getmethods();
-    $obj.^getmethods();
+    $obj.HOW.methods();
+    $obj.^methods();
 
 Class traits may include:
 
@@ -1572,7 +1572,7 @@ delegated back to the package and prototype objects is up to the MOP.
 prototype objects, in which case stringification is not likely to
 produce something of interest to non-gurus.)
 
-The C<.HOW.getmethods> method returns method-descriptors containing:
+The C<.HOW.methods> method returns method-descriptors containing:
 
     name		the name of the method
     signature		the parameters of the method
@@ -1580,11 +1580,11 @@ The C<.HOW.getmethods> method returns method-descriptors containing:
     multi		whether duplicate names are allowed
     do			the method body
 
-The C<.getmethods> method has a selector parameter that lets you
+The C<.methods> method has a selector parameter that lets you
 specify whether you want to see a flattened or hierarchical view,
 whether you're interested in private methods, and so forth.
 
-The C<.getattributes> method returns a list of attribute descriptors
+The C<.attributes> method returns a list of attribute descriptors
 that have traits like these:
 
     name
@@ -1603,7 +1603,23 @@ should be called through the meta object:
     $obj.HOW.does(Dog)
     $obj.HOW.isa(Mammal)
 
-But C<Object> gives you shortcuts to those, if you don't override them.
+or
+
+    $obj.^can("bark")
+    $obj.^does(Dog)
+    $obj.^isa(Mammal)
+
+But C<Any> gives you shortcuts to those:
+
+    $obj.can("bark")
+    $obj.does(Dog)
+    $obj.isa(Mammal)
+
+These, may, of course, be overridden in a subclass, so don't use the
+short form unless you wish to allow for overrides.  In general, C<Any>
+will delegate only those metamethods that read well when reasoning
+about an individual object.  Infrastructural methods like C<.methods>
+and C<.attributes> are not delegated, so C<$obj.methods> fails.
 
 The smartmatch:
 

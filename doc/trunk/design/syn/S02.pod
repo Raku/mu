@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
   Last Modified: 13 Sept 2006
   Number: 2
-  Version: 67
+  Version: 68
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -485,12 +485,12 @@ Every object supports a C<HOW> function/method that returns the
 metaclass instance managing it, regardless of whether the object
 is defined:
 
-    'x'.HOW.get_method_list;   # get available methods for strings
-    Str.HOW.get_method_list;   # same thing with the prototype object Str
-    HOW(Str).get_method_list;  # same thing as function call
+    'x'.HOW.methods;   # get available methods for strings
+    Str.HOW.methods;   # same thing with the prototype object Str
+    HOW(Str).methods;  # same thing as function call
 
-    'x'.get_method_list;        # this is an error - not a meta object
-    Str.get_method_list;        # same thing
+    'x'.methods;        # this is likely an error - not a meta object
+    Str.methods;        # same thing
 
 (For a prototype system (a non-class-based object system), all objects are merely managed by the same meta object.)
 
