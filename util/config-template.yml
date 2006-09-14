@@ -25,7 +25,8 @@ precompile_prelude: true
 #
 # Pass a *single line* YAML array of filenames here, comma separated.
 
-# precompile_modules: [ ext/Test/lib/Test.pm ]
+precompile_modules: [ ext/Math-Basic/lib/Math/Basic.pm ]
+# precompile_modules: [ ext/Math-Basic/lib/Math/Basic.pm ext/Test/lib/Test.pm ]
 
 # Set this to a large value (e.g. 320m) if precompiling anything more than
 # the standard Prelude.
