@@ -1,0 +1,9 @@
+Math::Basic is part of the Perl 6 prelude.  See S29.
+
+There is also a Math::Basic in misc/Perl-MetaModel/.
+The two may merge with time.
+
+The current emphasis of this module is to avoid breaking pugs, while
+perhaps becoming the first external module used by Prelude.pm.
+
+As part of the prelude, perhaps this does not belong here in ext/?
