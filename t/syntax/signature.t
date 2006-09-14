@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 39;
+plan 25;
 
 # This is first attempt at rationalizing the := form into a Siglist method call.
 # The :() form constructs signatures similar to how \() constructs arguments.
@@ -103,16 +103,15 @@ plan 39;
         , ':($x, $y?, :$z)',    'optional positional and named'
         , ':(:$x)',             'required named'
         , ':(:$x?)',            'optional named'
-        , ':(:$short($long))',  'long named'
-        , ':(:$short($long)?)', 'optional long named'
+        , ':(:short($long))',   'long named'
+        , ':(:short($long)?)',  'optional long named'
         , ':($ : %x)',          'dummy invocant'
         , ':($x :($y))',        'unpacking(1)'
-        , ':($x :($y: $z)',     'unpacking(2)'
+        , ':($x :($y: $z))',    'unpacking(2)'
         , # add more here.
         );
     for @sigs -> $s, $desc {
-        my $sig is context;
-        eval_ok '$+sig = ' ~ $s, "signature parses      - $desc - $s";
-        is $sig, $s,             "signature stringifies - $desc - $s";
+        eval_is qq{ my \$sig = $s; ~\$sig }, $s,
+            "signature stringifies - $desc - $s";
     }
 }
