@@ -69,7 +69,7 @@ my @array = ('foo', 'bar', 'baz');
 is($foo.bar(@array), 'Foo.bar() called with Array : foo, bar, baz', '... multi-method dispatched on Array');
 
 my %hash = ('foo' => 1, 'bar' => 2, 'baz' => 3);
-is($foo.bar(%hash), 'Foo.bar() called with Hash : foo, bar, baz', '... multi-method dispatched on Array', :todo<bug>);
+is($foo.bar(%hash), 'Foo.bar() called with Hash : foo, bar, baz', '... multi-method dispatched on Hash', :todo<bug>);
 
 is($foo.bar($*ERR), 'Foo.bar() called with IO', '... multi-method dispatched on IO');
 
