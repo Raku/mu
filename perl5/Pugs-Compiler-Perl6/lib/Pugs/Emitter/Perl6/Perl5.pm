@@ -623,7 +623,10 @@ sub default {
             if ($subname eq '!' || $subname eq 'not') {
                 return $subname.' '._emit($n->{param});
             }
-            if ($subname eq 'ref') {
+            if ($subname eq 'WHAT') {
+                # WHAT  was .ref
+                # WHICH was .id was .SKID
+                # HOW (class) was .META
                 return 'Pugs::Runtime::Perl6::Scalar::ref( \\'. _emit( $n->{param} ) . ')';
             }
             # runtime thunked builtins
@@ -702,8 +705,8 @@ sub default {
                 if $n->{self}{scalar} =~ /^\$\./;
             
             # $scalar.++;
-            return _emit( $n->{method} ) . emit_parenthesis( $n->{self} )
-                if $n->{method}{dot_bareword} eq 'ref';
+            return 'ref' . emit_parenthesis( $n->{self} )
+                if $n->{method}{dot_bareword} eq 'WHAT';  # "ref"
             # runtime decision - method or lib call
             return runtime_method( $n );
         }
@@ -713,7 +716,7 @@ sub default {
             if ($n->{method}{dot_bareword} eq 'kv') {
                 return _emit( $n->{self}); # just use it as array
             }
-            if ($n->{method}{dot_bareword} eq 'ref') {
+            if ($n->{method}{dot_bareword} eq 'WHAT') {
                 return 'Pugs::Runtime::Perl6::Scalar::ref( \\'. _emit( $n->{self} ) . ')';
             }
             if ($n->{method}{dot_bareword} eq 'isa') {
@@ -755,7 +758,7 @@ sub default {
             if ($n->{method}{dot_bareword} eq 'values') {
                 return emit_parenthesis( $n->{self} );
             }
-            if ($n->{method}{dot_bareword} eq 'ref') {
+            if ($n->{method}{dot_bareword} eq 'WHAT') {
                 return 'Pugs::Runtime::Perl6::Scalar::ref( \\'. _emit( $n->{self} ) . ')';
             }
             if ($n->{method}{dot_bareword} eq 'isa') {
