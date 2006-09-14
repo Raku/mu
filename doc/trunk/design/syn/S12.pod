@@ -14,7 +14,7 @@ Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
   Last Modified: 14 Sept 2006
   Number: 12
-  Version: 25
+  Version: 26
 
 =head1 Overview
 
@@ -223,13 +223,24 @@ The method name may also be quoted with either single or double quotes:
     $obj.'$methodname'(1,2,3)	# call method with $ in name!
 
 The latter is especially useful for postfix forms that might be confusing
-to the lexer or to the human reader
+to the lexer or to the human reader:
 
     $filename.'-e'	# same as -e $filename.
     .'-e'		# same as -e $_
 
-(The C<q> forms of quoting are not allowed, however, since they'd be
-taken as ordinary method names.)
+And in fact, if there is a choice between a unary prefix and a postfix
+operator, the indirect forms will choose the prefix operator.  See S03.
+Likewise, presuming that C<$op> does not name an ordinary method on
+C<$left>, this calls any arbitrary infix operator:
+
+    $left.$op($right)
+
+Of course you can force that with:
+
+    $left.infix:{$op}($right)
+
+The C<q> forms of quoting are not allowed for method indirection,
+since they'd be taken as ordinary method names.
 
 You must use a special syntax to call a private method:
 
