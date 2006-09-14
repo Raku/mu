@@ -2,7 +2,7 @@ use v6-alpha;
 
 =head1 NAME
 
-Automata::Cellular::rule - Build and render Cellular Automata Wolfram-style
+Automata::Cellular::Rule - Build and render Cellular Automata Wolfram-style
 rules
 
 =head1 VERSION

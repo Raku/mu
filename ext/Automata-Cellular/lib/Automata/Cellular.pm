@@ -46,12 +46,22 @@ class Automata::Cellular-0.1
     has Automata::Cellular::Rule $.rule;
     has Bool @.state is rw;
     has Int  $.steps;
+    has Int  $.rule_number;
     has Int  $.display_width;
     has Int  $.stage is rw;
 
     # used to set initial stage and defaults
-    submethod BUILD (:$.rule,:@state,:$.steps,:$.display_width) {
-        $.stage = 1;
+    submethod BUILD (:$.rule_number, 
+                     :$.steps = 10,
+                     :$.display_width = 30,
+                     :$.stage = 1) {
+
+        $.rule = Automata::Cellular::Rule.new(:$.rule_number);
+
+        my $width = $.display_width + $.steps * 2;
+        
+        @.state = 0 xx $width;
+        @.state[int($width/2)] = 1;
     }
 
     # "pretty" being a relative term, on a terminal
