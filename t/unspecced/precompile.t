@@ -30,7 +30,7 @@ unless try({ eval("1", :lang<perl5>) }) {
 use File::Spec;
 
 # XXX - This should be replaced with something Perl 6-native
-use perl5:File::Temp;
+use perl5:File::Temp <tempdir>;
 
 # XXX - Also, CLEANUP does not seem to work, so tempfiles will
 #       remain after test if we do:
@@ -38,8 +38,8 @@ use perl5:File::Temp;
 #       So we laboriously work around:
 my (@files_created, @dirs_created);
 
-sub tempdir () {
-    my $dir = File::Temp.can('tempdir').()
+sub mktempdir () {
+    my $dir = tempdir()
         err fail;
     @dirs_created.push($dir);
     return $dir;
@@ -88,8 +88,8 @@ sub make_old (Str $filename) {
 # XXX - Wrapping in try so we can cleanup; this can go once File::Temp
 #       is native.
 try { 
-    my $lib1 = tempdir();
-    my $lib2 = tempdir();
+    my $lib1 = mktempdir();
+    my $lib2 = mktempdir();
     diag "Created tempdirs {($lib1, $lib2)}";
 
     my @libdirs = ($lib1, $lib2);
