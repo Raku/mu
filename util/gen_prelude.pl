@@ -156,8 +156,8 @@ sub precomp {
         $output = "> $Config{output}";
     }
 
-    warn("$Config{pugs} -Iblib6/lib -C Parse-YAML $TEMP_PRELUDE $output\n");
-    system("$Config{pugs} -Iblib6/lib -C Parse-YAML $TEMP_PRELUDE $output");
+    warn("$Config{pugs} -C Parse-YAML $TEMP_PRELUDE $output\n");
+    system("$Config{pugs} -C Parse-YAML $TEMP_PRELUDE $output");
 
     if ($Config{output}) {
         open IN, '<:crlf', $Config{output} or die "No output found";
