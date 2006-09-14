@@ -107,7 +107,7 @@ sub emit {
         #"      do { TAILCALL: ;\n" .
         emit_rule( $ast, '   ' ) . ";\n" .
         #"      }\n" .
-        "    last if \$m;\n" .
+        "    last if \$bool;\n" .
         "  }\n" .  # /for
         "  \$::_V6_MATCH_ = \$m; \n" .
         "  return \$m;\n" .
