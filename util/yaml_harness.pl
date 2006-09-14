@@ -16,7 +16,6 @@ our $SMOKERFILE = ".smoker.yml";
 our %Config;
 $ENV{TEST_ALWAYS_CALLER} = 1;
 $Test::Harness::Verbose  = 1;
-@ARGV = sort map glob, "t/*/*.t", "t/*/*/*.t", "ext/*/t/*.t" if ! @ARGV;
 
 $| = 1;
 
@@ -83,6 +82,9 @@ sub fix_config {
 }
 
 get_config();
+
+@ARGV = sort map glob, "t/*/*.t", "t/*/*/*.t", "ext/*/t/*.t" unless @ARGV;
+
 my $s = __PACKAGE__->new;
 $s->run;
 $s->emit;
@@ -229,9 +231,15 @@ sub run {
 
 sub run_children {
     my ($self, $child_count, $all_tests) = @_;
-    my $chunk_size = POSIX::ceil(@$all_tests / $child_count);
+    my $chunk_size = POSIX::ceil(@$all_tests / ($child_count * 3 - 1));
     for my $child (1 .. $child_count) {
-        my @own_tests = splice @$all_tests, 0, $chunk_size;
+        my $this_size = $chunk_size * 3;
+
+        # Heuristic: Most of the first tests (ext/) are slow,
+        # so we arbitrarily lower the first chunk by 1/3.
+        $this_size -= $chunk_size if $child == 1;
+
+        my @own_tests = splice @$all_tests, 0, $this_size;
         defined(my $pid = fork) or die "Can't fork: $!";
         if ($pid) {
             push @{ $self->{_children} }, $pid;
