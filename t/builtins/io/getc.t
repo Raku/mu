@@ -2,7 +2,7 @@ use v6-alpha;
 use Test;
 plan 1;
 
-# L<S16> # Ready for S16 to appear
+# L<S16/"Filehandles, files, and directories"/"getc">
 
 sub nonce () { return (".$*PID." ~ int rand 1000) }
 

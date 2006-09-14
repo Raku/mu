@@ -1,7 +1,7 @@
 use v6-alpha;
 use Test;
 
-# L<S16>
+# L<S16/"Filehandles, files, and directories"/"open">
 
 plan 13; 
 

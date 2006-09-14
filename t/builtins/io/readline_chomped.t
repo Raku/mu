@@ -1,8 +1,7 @@
 use v6-alpha;
 use Test;
 
-# L<S16>
-# merge this with open.t?
+# L<S16/"Filehandles, files, and directories"/"open">
 
 plan 3;
 

@@ -2,7 +2,10 @@ use v6-alpha;
 use Test;
 plan 18;
 
-# L<S16> # not written yet. 
+# L<S16/"Filehandles, files, and directories"/"opendir">
+# L<S16/"Filehandles, files, and directories"/"closedir">
+# L<S16/"Filehandles, files, and directories"/"readdir">
+# L<S16/"Filehandles, files, and directories"/"rewinddir">
 
 if ($*OS eq any <browser>) {
     skip_rest "not supported on this platform";
