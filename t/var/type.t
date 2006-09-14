@@ -1,6 +1,7 @@
 use v6-alpha;
-
 use Test;
+
+# L<S02/"Built-In Data Types"/"A variable's type is a constraint indicating what sorts">
 
 plan 4;
 

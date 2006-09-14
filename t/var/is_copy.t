@@ -1,6 +1,8 @@
 use v6-alpha;
-
 use Test;
+
+# L<S06/"Parameter traits"/"=item is copy">
+# should be moved with other subroutine tests?
 
 plan 3;
 

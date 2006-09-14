@@ -1,7 +1,8 @@
 use v6-alpha;
-
-
 use Test;
+
+# This has some tests for $_, but $_ is under-spec'ed now.
+
 
 plan 4;
 
@@ -13,6 +14,9 @@ if $*OS eq "browser" {
   skip_rest "Programs running in browsers don't have access to regular IO.";
   exit;
 }
+
+# L<S16/"Filehandles, files, and directories"/"=item open">
+# L<S16/"Input and Output"/"=item say">
 
 # work around missing capabilities
 # to get the output of 'say' into a test; 
