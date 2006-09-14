@@ -23,14 +23,14 @@ plan 12;
 
 {
     my $a;
-    $a += $_ for 1 .. 10;
-    is($a, 55, "post for 1 .. 10");
+    $a += $_ for (1 .. 10);
+    is($a, 55, "post for 1 .. 10 with parens");
 }
 
 {
     my $a;
     $a += $_ for 1 .. 10;
-    is($a, 55, "post for 1 .. 10");
+    is($a, 55, "post for 1 .. 10 without parens");
 }
 
 {
