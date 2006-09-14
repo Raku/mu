@@ -45,6 +45,10 @@ sub compile {
     my $source_line_number = 1;
     my $source_pos = 0;
 
+    # POD parser needs tail calls
+    #no warnings 'recursion'; # doesn't seem to work here
+    local $SIG{'__WARN__'} = sub { warn $_[0] if $_[0] !~ /recursion/ };
+
     while ( $pos < length( $source ) ) {
 
         while ( $source_pos < $pos ) {
@@ -63,6 +67,7 @@ sub compile {
         eval {
 
             #print "<ws> until $pos; tail [",substr( $source, $pos, 10 ),"...]\n";
+
             $self->{ast} = Pugs::Grammar::Perl6->statement( $source, { pos => $pos } );
             #print 'match: ', Dumper( $self->{ast}() );
             #print 'match: ', Dumper( $self->{ast}->data );

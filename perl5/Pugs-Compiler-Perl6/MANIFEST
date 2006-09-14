@@ -73,8 +73,6 @@ t/builtins/arity.t
 t/builtins/io/exit-in-if.t
 t/builtins/io/exit.t
 
-t/builtins/math/rand.t
-
 t/builtins/strings/append.t
 
 t/data_types/array_extending.t

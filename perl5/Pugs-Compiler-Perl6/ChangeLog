@@ -1,4 +1,8 @@
 
+0.015  2006-09-14
+
+- improved command-line interface, does not require using v6.pm as a
+  script.
 - MANIFEST only includes passing tests
 - reuse Rule and Pod grammar from Pugs::Compiler::Rule
   - These grammars are now implemented using v6.pm.
