@@ -3,7 +3,7 @@ use Test;
 
 # L<S09/"Autovivification">
 
-plan 20;
+plan 22;
 
 # Simple hash autovivification
 {
@@ -101,3 +101,12 @@ plan 20;
   push %hash<key>, 1,2,3;
   is ~%hash, "key\t1 2 3\n", "autovivification of an hash element to an array by &push";
 }
+
+lives_ok {
+  &New::Package::foo;
+  # this is ok, as you don't have to predeclare globally qualified variables
+}, "using an undeclared globaly qualified code variable in void context is ok";
+
+dies_ok {
+  &New::Package::foo();
+}, "...but invoking undeclared globally qualifed code variable should die";
