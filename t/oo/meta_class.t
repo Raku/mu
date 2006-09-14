@@ -23,11 +23,11 @@ eval_ok("Foo.HOW.name() eq 'Foo'", '... the name() property is Foo');
 eval_ok("Foo.HOW.version() == 0.0.1", '... the version() property is 0.0.1', :todo<feature>);
 eval_ok("(Foo.HOW.isa())[0] ~~ Foo", '... the isa() property returns Foo as the first parent class', :todo<feature>);
 
-# L<S12/"Introspection" /The C\<\.HOW\.getmethods\> method returns method-descriptors containing:/>
+# L<S12/"Introspection" /The C\<\.HOW\.methods\> method returns method-descriptors containing:/>
 
 # NOTE: I am guessing on some of this here, but it's a start for now
 
-my @methods = eval 'Foo.HOW.getmethods()';
+my @methods = eval 'Foo.HOW.methods()';
 eval_is("@methods[0].name eq 'bar'", '... our first method is foo()', :todo<feature>);
 eval_is("@methods[0].signature eq '\$param'", '... our first methods signature is $param', :todo<feature>);
 eval_is("@methods[0].returns ~~ Str", '... our first method returns a Str', :todo<feature>);
