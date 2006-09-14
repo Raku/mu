@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 13 Sept 2006
+  Last Modified: 14 Sept 2006
   Number: 12
-  Version: 24
+  Version: 25
 
 =head1 Overview
 
@@ -217,6 +217,20 @@ It can use a simple scalar variable for the method name:
 
     $obj.$methodname(1,2,3)
 
+The method name may also be quoted with either single or double quotes:
+
+    $obj."$methodname"(1,2,3)	# same as previous
+    $obj.'$methodname'(1,2,3)	# call method with $ in name!
+
+The latter is especially useful for postfix forms that might be confusing
+to the lexer or to the human reader
+
+    $filename.'-e'	# same as -e $filename.
+    .'-e'		# same as -e $_
+
+(The C<q> forms of quoting are not allowed, however, since they'd be
+taken as ordinary method names.)
+
 You must use a special syntax to call a private method:
 
     $mybrain!think($pinky)
@@ -311,7 +325,9 @@ as if it were a method:
 
     if $scalar.VAR.readonly {...}
 
-(But since it's a macro, C<VAR> is not dispatched as a real method.)
+(But since it's a macro, C<VAR> is not dispatched as a real method.
+To dispatch to a real C<.VAR> method use the indirect C<$obj."VAR">
+form.)
 
 You can also get at the container through the appropriate symbol table:
 
@@ -557,6 +573,11 @@ that call some number of methods with the same name:
     $object.?meth(@args)  # calls method if there is one, otherwise undef
     $object.*meth(@args)  # calls all methods (0 or more)
     $object.+meth(@args)  # calls all methods (1 or more)
+
+The method name may be quoted when disambiguation is needed:
+
+    $object."+meth"(@args)
+    $object.'VAR'(@args)
 
 Any method can defer to the next candidate method in the list by
 saying C<next METHOD>.  Any method can stop the progression by saying
@@ -1511,6 +1532,22 @@ named unary operators:
 
     $obj.WHAT   # method form of P5's ref
     WHAT $obj   # unary form of P5's ref
+
+These are all actually macros, not true operators or methods.  If you get
+a foreign object from another language and need to call its C<.WHERE> method,
+you can say:
+
+    $obj."WHERE"
+
+And if you don't know the method name in advance, you'd be using the
+variable form anyway:
+
+    $obj.$somemeth
+
+which also bypasses the macros.
+
+For now Perl 6 reserves the right to change how all these macros and the
+corresponding C<^> forms are defined in terms of each other.
 
 In general, use of these in ordinary code should be a red flag that
 Something Very Strange is going on.  (Hence the allcaps.)  Most code
