@@ -113,7 +113,7 @@ method prepare {
 
 method run {
     $.socket = $.port.listen;
-    say "You can connect to http://localhost:8080";
+    say "You can connect to http://localhost:$.port";
     loop {
         my %env = %*ENV;
         $.remote = $.socket.accept;
