@@ -1,7 +1,8 @@
 use v6-alpha;
 use Test;
 
-# L<S16>
+# L<S16/"Filehandles, files, and directories"/"open">
+# L<S16/"Filehandles, files, and directories"/"close">
 
 plan 49;
 force_todo(38 .. 48);
@@ -102,5 +103,7 @@ my $filename = 'tempfile';
     }
     $fh.close();
 }
+
+# L<S16/"Filehandles, files, and directories"/"unlink">
 
 is(unlink($filename), 1, 'file has been removed');

@@ -2,7 +2,7 @@ use v6-alpha;
 use Test;
 plan 5;
 
-# L<S16> # ... when it appears
+# L<S16/"Filehandles, files, and directories"/"open">
 
 =pod
 
