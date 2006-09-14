@@ -1,6 +1,7 @@
 use v6-alpha;
-
 use Test;
+
+# L<S09/"Autovivification">
 
 plan 20;
 

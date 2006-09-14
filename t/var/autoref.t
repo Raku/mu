@@ -1,15 +1,21 @@
 use v6-alpha;
-
 use Test;
 
-# Tests testing that automatical referentiation (e.g. $arrayref = @array)
-# works. To be more detailled, things tested are:
-# * Implicit&explicit referentiation of arrays&hashes in assignment
-# * Implicit&explicit referentiation of arrays&hashes in assignment to an
-#   array&hash element
-# * Implicit&explicit referentiation of array&hashes&array literals&arrayref
-#   literals&hashref literals in pair creation with key => ... and :key(...)
-#   and ... => key.
+# L<S02/"Literals"/"In scalar context, though, the implied parentheses are not removed">
+
+
+=kwid 
+
+ Tests testing that automatical referentiation (e.g. $arrayref = @array)
+ works. To be more detalled, things tested are:
+ * Implicit & explicit referentiation of arrays & hashes in assignment
+ * Implicit & explicit referentiation of arrays & hashes in assignment to an
+   array & hash element
+ * Implicit & explicit referentiation of array&hashes&array literals&arrayref
+   literals&hashref literals in pair creation with key => ... and :key(...)
+   and ... => key.
+
+=cut
 
 plan 57;
 
