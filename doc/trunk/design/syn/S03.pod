@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 13 Sep 2006
+  Last Modified: 14 Sep 2006
   Number: 3
-  Version: 63
+  Version: 64
 
 =head1 Changes to Perl 5 operators
 
@@ -37,12 +37,15 @@ is likewise C<~=>.
 
 =item * All postfix operators that do not start with a dot also have
 an alternate form that does.  (The converse does not hold--just because
-you can write C<x().foo> doesn't mean you can write C<x()foo>.)  In the
-absence of a postfix interpretation, the dot form will call the corresponding
-prefix operator instead.  So C<x().!> will call C<!x()> unless someone
-defines a postfix C<!> operator.  In particular, you can say things like
-C<$array.@> and C<$filename.-e.-r>, but you can't say C<$fh.=> because
-there's a C<.=> operator already.
+you can write C<x().foo> doesn't mean you can write C<x()foo>.  Likewise
+the ability to say C<$x.'foo'> does not imply that C<$x'foo'> will work.)
+
+The postfix interpretation of an operator may be overridden by
+use of a quoted method call, which calls the prefix form instead.
+So C<x().!> is always the postfix operator, but C<x().'!'> will always
+call C<!x()>.  In particular, you can say things like C<$array.'@'> and
+C<$filename.'-e'.'-r'>.  You may even say things like C<$fh.'='>, which
+because of the quotes will not be confused lexically with C<$fh.=new>.
 
 =item * Unary C<~> now imposes a string (C<Str>) context on its
 argument, and C<+> imposes a numeric (C<Num>) context (as opposed
