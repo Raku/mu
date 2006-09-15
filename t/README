@@ -97,10 +97,12 @@ are not already in some file.
 - If possible, please smart link your tests to the Synopsis
 
 Smart links are explained on the wiki:
-http://rakudo.org/perl6/index.cgi?smart_linking
 
-And also in the POD of smartlinks.pl
-perldoc util/smartlinks.pl
+  http://rakudo.org/perl6/index.cgi?smart_linking
+
+And also in the POD of smartlinks.pl:
+
+  perldoc util/smartlinks.pl
 
 Everytime you have added smartlinks to some .t file, remember to run
 util/smartlinks.pl to verify the links' validity:
@@ -133,6 +135,12 @@ Or another alternate style is as follows:
     eval_ok q{
 	blah blah blah
     };
+
+    eval_is q{
+	my $val;
+	# some code here...
+	$val;
+    }, $expected, 'description';
 
 which essentially comments out your eval, and returns 'undef' to eval_ok().
 
