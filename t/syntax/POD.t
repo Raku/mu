@@ -15,24 +15,24 @@ hello, world!
 =end DATA
 
         %=POD{'DATA'};
-    }, '=begin DATA works and %=POD<DATA> defined';
+    }, '=begin DATA works and %=POD<DATA> defined', :todo<feature>;
 
     eval_is q{
         my $line = =%=POD<DATA>;
-    }, "hello, world!\n", q/%=POD{'DATA'} can be read/;
+    }, "hello, world!\n", q/%=POD{'DATA'} can be read/, :todo<feature>;
 }
 
 # L<S02/Literals/"pod stream" "as a scalar" via $=DATA>
 {
     eval_is '$=DATA', "hello, world!\n",
-        '$=DATA contains the right string';
+        '$=DATA contains the right string', :todo<feature>;
 }
 
 # L<S02/Literals/"pod stream" "as an array" via @=DATA>
 {
-    eval_is '@=DATA.elems', 1, '@=DATA contains a single elem';
+    eval_is '@=DATA.elems', 1, '@=DATA contains a single elem', :todo<feature>;
     eval_is '@=DATA[0]', "hello, world!\n",
-        '@=DATA[0] contains the right value';
+        '@=DATA[0] contains the right value', :todo<feature>;
 }
 
 # The following commented-out tests are currnetly unspecified:
