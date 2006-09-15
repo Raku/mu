@@ -10,19 +10,51 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 24 Oct 2005
+  Last Modified: 14 Sept 2005
   Number: 1
-  Version: 3
+  Version: 4
 
-This document summarizes Apocalypse 1, which covers the initial
-design concept.  (These Synopses also contain updates to reflect
-the evolving design of Perl 6 over time, unlike the Apocalypses,
-which are frozen in time as "historical documents".  These updates are
-not marked--if a Synopsis disagrees with its Apocalypse, assume the
-Synopsis is correct.)
+This document originally summarized Apocalypse 1, which covers the
+initial design concept.  That original summary may be found below
+under "Random Thoughts".  However, these Synopses also contain
+updates to reflect the evolving design of Perl 6 over time, unlike
+the Apocalypses, which are frozen in time as "historical documents".
+These updates are not marked--if a Synopsis disagrees with its
+Apocalypse, assume the Synopsis is correct.
 
-The other basic assumption is that if we don't talk about something in these
-Synopses, it's the same as it was in Perl 5.
+Another assumption has been that if we don't talk about something in these
+Synopses, it's the same as it is in Perl 5.  Soon we plan to fill in
+the gaps with the Perl 5 details though.
+
+=head1 Project Plan
+
+Mostly, we're just a bunch ants all cooperating (sort of) to haul
+food toward the nest (on average).  There are many groups of poeple
+working on various bits and pieces as they see fit, since this is
+primarily a volunteer effort.
+
+This document does not attempt to summarize all these subprojects--see
+the various websites for Parrot and Pugs and Perl 6 for such
+information.  What we can say here is that, unlike how it was with
+Perl 5, none of these projects is designed to be the Official Perl.
+Perl 6 is anything that passes the official test suite.  This test
+suite was initially developed under the Pugs project because that
+project is the furthest along in exploring the high-level semantics
+of Perl 6.  (Other projects are better at other things, such as speed
+or interoperability.)  However, the Pugs project views the test suite
+as community property, and is working towards platform neutrality,
+so that Perl 6 is defined primarily by its desired semantics, not by
+accidents of history.
+
+Another aspect of this is the Perl 6 compiler will be self-hosting.
+That is, the compiler will eventually compile itself, at least down
+to the point where various code-generating backends can take over.
+This largely removes platform dependencies from the frontend, so that
+only the backends need to worry about platform-specific issues.
+
+But above all, our project plan is simply to help people find a
+spot where they can feel like they're creating the future, both for
+themselves and for others.  Around here, that's what we call fun.
 
 =head1 Random Thoughts
 
