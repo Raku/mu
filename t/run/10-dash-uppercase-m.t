@@ -10,7 +10,7 @@ Test handling of C<-Mmodule>.
 
 =cut
 
-my $dir = "t/pugsrun";
+my $dir = "t/run";
 
 my @tests = (
   "-I$dir -MDummy -e load_test",

@@ -12,7 +12,7 @@ skip_rest("skipping because redirection is not portable"); exit;
 # to show up as failures) happen, and test the the output of the test
 # suite is correct.
 
-# ... copied from t/pugsrun/05-unknown-option.t, but it looks wrong :)
+# ... copied from t/run/05-unknown-option.t, but it looks wrong :)
 sub nonce () { return (".$*PID." ~ int rand 1000) }
 my $out_fn = "temp-ex-output" ~ nonce;
 my $redir_pre = "2>&1 >";
