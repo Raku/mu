@@ -49,6 +49,7 @@ XXX Sage: please write something here.
   updated automatically by util/smartlinks.pl every 1 hour.
 * Perl6::Perl6::Differences was significantly updated. An HTML
   version of it is linked to from the page above.
+* Added a draft for S16 ([docs/Perl6/Spec/IO.pod]).
 * say() was officially added to the spec
 * Converted Test.pm docs from kwid to POD as there are more tools
   and familiarity with POD now.
@@ -57,7 +58,9 @@ XXX Sage: please write something here.
 
 * Updated the smokeserver to join the smartlinking fun
 ** smoke client now uploads .yml as well as .html
-** smoke server now render synopses using users' smoke results (see SYN links) 
+** smoke server now renders synopses using users' smoke results
+   (see SYN links on the right margin of
+    http://m19s28.vlinux.de/cgi-bin/pugs-smokeserv.pl?) 
 * Added many more smartlinks to the test suite.
 * Rewrote util/prove6 using Perl 5 so that it can now run everywhere.
   You can use this to run only a portion of the test suite or even a single
@@ -82,6 +85,8 @@ XXX Sage: please write something here.
 
 == Feature Changes
 
+* Integrated the Judy library into the Haskell runtime, resulting in
+  ~10% performace improvement.
 * Enabled Perl 5 embedding by default.
 ** For Windows users, ActivePerl 5.8.8 is required.
 ** Set the PUGS_EMBED environment variable to "noperl5" to disable this.
@@ -130,6 +135,7 @@ more information about related features.
         my $x = 2;
     }
 * "role A does A" is not allowed anymore.
+* Added support for the `quotemeta` builtin.
 * Initial support for Capture and Signature objects.
 ** Support for:
     my T ($x, $y, $z)
