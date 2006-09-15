@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 15;
+plan 17;
 
 # L<S04/The C<repeat> statement/"more Pascal-like repeat loop">
 
@@ -82,6 +82,14 @@ plan 15;
 {
   my $x = 0; repeat until $x >= 10 { $x++ }
   is($x, 10, 'repeat until {}');
+}
+
+{
+  my $x = 0; repeat until $x >= 10 -> $another_x {
+      pass('repeat until with binding starts undefined') unless $another_x.defined;
+      $x++
+  }
+  is($x, 10, 'repeat until -> {}');
 }
 
 {
