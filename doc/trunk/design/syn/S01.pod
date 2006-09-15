@@ -28,7 +28,7 @@ the gaps with the Perl 5 details though.
 
 =head1 Project Plan
 
-Mostly, we're just a bunch ants all cooperating (sort of) to haul
+Mostly, we're just a bunch of ants all cooperating (sort of) to haul
 food toward the nest (on average).  There are many groups of poeple
 working on various bits and pieces as they see fit, since this is
 primarily a volunteer effort.
