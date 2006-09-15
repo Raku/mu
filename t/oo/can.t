@@ -10,6 +10,8 @@ calling can on any object fails.
 
 plan 2;
 
+# L<S12/"Introspection"/"But Any gives you shortcuts to those:">
+
 class Dog {
         method bark {
                 "bow";
