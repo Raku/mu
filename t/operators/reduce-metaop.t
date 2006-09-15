@@ -1,6 +1,6 @@
 use v6-alpha;
 use Test;
-plan 50;
+plan 51;
 
 # L<S03/"Reduction operators">
 
@@ -121,6 +121,16 @@ is(try { [more_than_plus] 1, 2, 3 }, 8, "[...] reduce metaop works on user defin
   $hash<a><c> = $hash;
 
   is try { [.{}] $hash, <a c a c a b> }, 42, '[.{}] works with infinite data structures';
+}
+
+{
+    my $test = "[,] passes arguments as expected";
+    sub prod ($x,*@xs) { 
+        return $x unless @xs; 
+        return $x * prod([,] @xs); 
+    } 
+    my $got = prod(2,3,4);
+    is( $got, 24, $test );
 }
 
 {
