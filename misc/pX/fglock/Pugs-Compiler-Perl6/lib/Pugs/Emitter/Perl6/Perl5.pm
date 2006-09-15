@@ -17,7 +17,7 @@ use Pugs::Emitter::Perl6::Perl5::Perl5Scalar;
 use Pugs::Emitter::Perl6::Perl5::Perl5Hash;
 use Pugs::Emitter::Perl6::Perl5::Perl5Array;
 use Pugs::Emitter::Perl6::Perl5::Pair;
-use Pugs::Emitter::Perl6::Perl5::Str;
+use Pugs::Emitter::Perl6::Perl5::Value;
 
 # TODO - finish localizing %_V6_ENV at each block
 our %_V6_ENV;
@@ -112,10 +112,10 @@ sub emit {
     # rule parameters: see Runtime::Rule.pm
     warn Pugs::Runtime::Perl6::perl( $ast )
         if $ENV{V6DUMPAST}; 
-    return _emit( $ast );
-        #"do{\n" .
-        #_emit( $ast, '    ' ) . "\n" .
-        #"}";
+
+    #print "Emitter: ", Dumper( _emit( $ast ) );
+
+    return _emit( $ast )->perl;
 }
 
 sub _emit_code {
@@ -192,39 +192,38 @@ sub _emit {
         
     return _emit_code($n->{code})
         if exists $n->{code};
+
+    if ( exists $_[0]->{int} ) {
+        return Pugs::Emitter::Perl6::Perl5::Int->new( { name => $_[0]->{int} } );
+    }
         
-    return $n->{int} 
-        if exists $n->{int};
-        
-    return $n->{num} 
-        if exists $n->{num};
+    if ( exists $_[0]->{num} ) {
+        return Pugs::Emitter::Perl6::Perl5::Num->new( { name => $_[0]->{num} } );
+    }
         
     if ( exists $_[0]->{pair} ) {
-        $_[0] = Pugs::Emitter::Perl6::Perl5::Pair->new( {
+        return Pugs::Emitter::Perl6::Perl5::Pair->new( {
             key => $n->{pair}{key},
             value => $n->{pair}{value},
         } );
     }
         
     if ( exists $_[0]->{scalar} ) {
-        $_[0] = Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( { name => $_[0]->{scalar} } );
-        return $_[0]->get;
+        return Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( { name => $_[0]->{scalar} } );
     }
 
     if ( exists $_[0]->{array} ) {
-        $_[0] = Pugs::Emitter::Perl6::Perl5::Perl5Array->new( { name => $_[0]->{array} } );
-        return $_[0]->get;
+        return Pugs::Emitter::Perl6::Perl5::Perl5Array->new( { name => $_[0]->{array} } );
     }
         
     if ( exists $_[0]->{hash} ) {
-        $_[0] = Pugs::Emitter::Perl6::Perl5::Perl5Hash->new( { name => $_[0]->{hash} } );
-        return $_[0]->get;
+        return Pugs::Emitter::Perl6::Perl5::Perl5Hash->new( { name => $_[0]->{hash} } );
     }
         
     return _emit_double_quoted( $n->{double_quoted} )
         if exists $n->{double_quoted};
             
-    return $_[0] = Pugs::Emitter::Perl6::Perl5::Str->new( { 
+    return Pugs::Emitter::Perl6::Perl5::Str->new( { 
         value => $n->{single_quoted} 
     } )
         if exists $n->{single_quoted};
@@ -660,7 +659,13 @@ sub default {
     if ( exists $n->{op1} && $n->{op1} eq 'method_call' ) {    
 
         my $s = _emit( $n->{self} );
-        print "method_call: ", Dumper( $n->{self} );
+        my $method = $n->{method}{dot_bareword};
+        print "method_call: $method - ", Dumper( $s );
+
+        if ( UNIVERSAL::can( $s, $method ) ) {
+            return $s->$method;
+        }
+
         #print "method_call: self = $s \n", Dumper( $n->{self} ), blessed( $n->{self} );
 
             # TODO - recursive chain call (this is only 2-level)
@@ -689,13 +694,13 @@ sub default {
             if ( $s eq Pugs::Runtime::Common::mangle_var('$*ERR') ) {  
                 return " print STDERR '', " . _emit( $n->{param} );
             }
-            return " print '', $s";
+            return " print '', " . $s->str;
         }
         if ( $n->{method}{dot_bareword} eq 'say' ) {
             if ( $s eq Pugs::Runtime::Common::mangle_var('$*ERR') ) { 
                 return " print STDERR '', " . _emit( $n->{param} ) . ', "\n"';
             }
-            return " print '', $s" . ', "\n"';
+            return " print '', "  . $s->str . ', "\n"';
         }
         if ( $n->{method}{dot_bareword} eq 'perl' ) {
             return 'Pugs::Runtime::Perl6::perl' . emit_parenthesis( $n->{self} );
@@ -1137,11 +1142,11 @@ sub infix {
             ')';
     }
     if ( $n->{op1}{op} eq '~' ) {
-        return _emit( $n->{exp1} ) . ' . ' . _emit( $n->{exp2} );
+        return _emit( $n->{exp1} )->get . ' . ' . _emit( $n->{exp2} )->get;
     }
     if ( $n->{op1}{op} eq '=>' ) {
         #print "autoquote: ", Dumper( $n->{exp1} );
-        $_[0] = Pugs::Emitter::Perl6::Perl5::Pair->new( {
+        return Pugs::Emitter::Perl6::Perl5::Pair->new( {
             key => autoquote( $n->{exp1} ),
             value => $n->{exp2},
         } );
@@ -1283,8 +1288,8 @@ sub infix {
             $n->{op1}{op} . ' ' . "sub " . _emit( $n->{exp2} );
     }
 
-    return '(' . _emit( $n->{exp1} ) . ' ' . 
-        $n->{op1}{op} . ' ' . _emit( $n->{exp2} ) . ')';
+    return '(' . _emit( $n->{exp1} )->get . ' ' . 
+        $n->{op1}{op} . ' ' . _emit( $n->{exp2} )->get . ')';
 }
 
 sub circumfix {
