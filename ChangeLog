@@ -22,7 +22,10 @@
   args to new() was added.
 * [ext/HTTP-Server-Simple/] - switched from non-standard "./" syntax to 
   standard "self." syntax.
-* [ext/Set-Relation/] - Renamed from ext/Relation/
+* [ext/Rosetta/] - Significant updates to lib/Rosetta/SeeAlso.pod.
+* [ext/Set-Relation/] - Renamed from ext/Relation/ .
+** Started to rewrite with separate [Heading, Tuple, Relation] classes.
+** Added 2 new test files.
 
 == Perl 6 on Perl 5 (under [misc/pX/Common/])
 

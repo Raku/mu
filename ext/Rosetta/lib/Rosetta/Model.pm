@@ -12,7 +12,7 @@ my Str $EMPTY_STR is readonly = q{};
 ###########################################################################
 ###########################################################################
 
-package Rosetta::Model-0.724.0 {
+package Rosetta::Model-0.724.1 {
     # Note: This given version applies to all of this file's packages.
 } # package Rosetta::Model
 
@@ -248,7 +248,7 @@ Abstract syntax tree for the Rosetta D language
 
 =head1 VERSION
 
-This document describes Rosetta::Model version 0.724.0.
+This document describes Rosetta::Model version 0.724.1.
 
 It also describes the same-number versions of Rosetta::Model::Document
 ("Document") and Rosetta::Model::Node ("Node").

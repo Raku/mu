@@ -364,22 +364,23 @@ I<This documentation is pending.>
 These other Perl 6 packages also work in the problem domain of managing
 data or data definitions or connections to databases:
 
-L<Set::Relation>.
+L<Set::Relation>, L<Set>.
 
 These other Perl 5 packages also work in the problem domain of managing
 data or data definitions or connections to databases:
 
 L<DBI>, L<Tangram>, L<DBIx::Class>, L<HDB>, L<Class::DBI>, L<Pixie>,
 L<Alzabo>, L<DBIx::SQLEngine>, L<Rose::DB>, L<SPOPS>, L<Set::Object>,
-L<Set::Scalar>, L<Object::Relation>, L<DBM::Deep>, L<DBIx::SearchBuilder>,
-L<DBIx::RecordSet>, L<DBIx::Abstract>, L<DBIx::AnyDBD>, L<DBIx::Browse>,
-L<DBIx::DBH>, L<MKDoc::SQL>, L<Data::Transactional>, L<DBIx::ModelUpdate>,
-L<DBIx::ProcedureCall>, L<DB::Ent>, L<DBIx::Romani>, L<DBIx::DBSchema>,
-L<DBIx::Namespace>, L<TripleStore>, L<Data::Table>, L<ORM>, L<OOPS>,
-L<Object::Transaction>, L<Relations>, L<DBIx::SimplePerl>, L<DBIx::YAWM>,
-L<Class::Entity>, L<SQL::Statement>, L<SQL::Parser>, L<SQL::Translator>,
-L<SQL::YASP>, L<SQL::Generator>, L<SQL::Schema>, L<SQL::Abstract>,
-L<SQL::Snippet>, L<SQL::Catalog>.
+L<Set::Scalar>, L<Object::Relation>, L<Oryx>, L<DBM::Deep>,
+L<DBIx::SearchBuilder>, L<DBIx::RecordSet>, L<DBIx::Abstract>,
+L<DBIx::AnyDBD>, L<DBIx::Browse>, L<DBIx::DBH>, L<MKDoc::SQL>,
+L<Data::Transactional>, L<DBIx::ModelUpdate>, L<DBIx::ProcedureCall>,
+L<DB::Ent>, L<DBIx::Romani>, L<DBIx::DBSchema>, L<DBIx::Namespace>,
+L<TripleStore>, L<Data::Table>, L<ORM>, L<OOPS>, L<Object::Transaction>,
+L<Relations>, L<DBIx::SimplePerl>, L<DBIx::YAWM>, L<Class::Entity>,
+L<SQL::Statement>, L<SQL::Parser>, L<SQL::Translator>, L<SQL::YASP>,
+L<SQL::Generator>, L<SQL::Schema>, L<SQL::Abstract>, L<SQL::Snippet>,
+L<SQL::Catalog>.
 
 =head1 AUTHOR
 

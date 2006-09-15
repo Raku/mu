@@ -8,7 +8,7 @@ my Str $EMPTY_STR is readonly = q{};
 ###########################################################################
 ###########################################################################
 
-module Set::Relation-0.1.0 {
+module Set::Relation-0.0.2 {
 
 ###########################################################################
 
@@ -23,12 +23,12 @@ multi sub infix:<===> of Bool
 
 ###########################################################################
 
-} # module Set::Relation-0.1.0
+} # module Set::Relation-0.0.2
 
 ###########################################################################
 ###########################################################################
 
-class Set::Relation::H-0.1.0 {
+class Set::Relation::H-0.0.2 {
 #    has Hash $!attrs = {}; # may be needed for prototype object to work right?
     has Hash $!attrs; # but if we like implicit autoviv, this version is better
     
@@ -97,7 +97,7 @@ method is_equal of Bool (::?CLASS $other!) {
 
 ###########################################################################
 
-} # class Set::Relation::H-0.1.0
+} # class Set::Relation::H-0.0.2
 
 ###########################################################################
 ###########################################################################
@@ -278,7 +278,7 @@ sub RelationBody_valid_for_Heading of Bool
 ###########################################################################
 =x
 
-role Set::Relation::Heading-0.1.0 {
+role Set::Relation::Heading-0.0.2 {
 
 ###########################################################################
 
@@ -357,7 +357,7 @@ method not_equal of Bool (Set::Relation::Heading $other!) {
 ###########################################################################
 ###########################################################################
 
-role Set::Relation::Tuple-0.1.0 {
+role Set::Relation::Tuple-0.0.2 {
 
 ###########################################################################
 
@@ -371,7 +371,7 @@ role Set::Relation::Tuple-0.1.0 {
 ###########################################################################
 ###########################################################################
 
-role Set::Relation-0.1.0 {
+role Set::Relation-0.0.2 {
 
 ###########################################################################
 
@@ -386,7 +386,7 @@ role Set::Relation-0.1.0 {
 ###########################################################################
 =x
 
-class Set::Relation-0.1.0 {
+class Set::Relation-0.0.2 {
 
     # External packages used by the Set::Relation class, that do export symbols:
     # (None Yet)
@@ -992,7 +992,7 @@ Relation data type for Perl
 
 =head1 VERSION
 
-This document describes Set::Relation version 0.1.0.
+This document describes Set::Relation version 0.0.2.
 
 =head1 SYNOPSIS
 

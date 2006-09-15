@@ -10,7 +10,7 @@ my Str %TEXT_STRINGS is readonly = (
 ###########################################################################
 ###########################################################################
 
-module Rosetta::Validator::L::en-0.160.1 {
+module Rosetta::Validator::L::en-0.160.2 {
     sub get_text_by_key (Str $msg_key!) returns Str {
         return %TEXT_STRINGS{$msg_key};
     }
@@ -30,7 +30,7 @@ Localization of Rosetta::Validator for English
 
 =head1 VERSION
 
-This document describes Rosetta::Validator::L::en version 0.160.1.
+This document describes Rosetta::Validator::L::en version 0.160.2.
 
 =head1 SYNOPSIS
 
