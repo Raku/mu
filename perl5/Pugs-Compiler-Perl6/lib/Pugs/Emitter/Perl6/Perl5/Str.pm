@@ -12,7 +12,7 @@ sub new {
     return $self;
 }
 
-sub ref { 
+sub WHAT { 
     return "'Str'";  # hardcoded 
 }
 

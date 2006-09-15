@@ -29,7 +29,7 @@ sub name {
     $_[0]->{name}
 }
 
-sub ref { 
+sub WHAT { 
     return "'Hash'";  # hardcoded 
 }
 

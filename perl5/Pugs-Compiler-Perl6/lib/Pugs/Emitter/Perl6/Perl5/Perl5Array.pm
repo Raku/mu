@@ -28,7 +28,7 @@ sub dollar_name {
     return $name;
 }
 
-sub ref { 
+sub WHAT { 
     return "'Array'";  # hardcoded 
 }
 
