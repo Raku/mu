@@ -28,7 +28,7 @@ sub run_test ($args) {
     return $got;
 }
 
-chdir "t"; chdir "pugsrun";
+chdir "t"; chdir "run";
 is run_test("dump_params.pl 1"), ("1",).perl,     " bare arg works";
 is run_test("dump_params.pl --n"), ("--n",).perl, " --n arg works";
 for (qw/n p c e h V v/) {
