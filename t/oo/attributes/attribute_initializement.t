@@ -4,10 +4,12 @@ use Test;
 
 
 # These tests are not specified by p6l, But these should be right...
+# L<S12/"Attributes">
 
 plan 8;
 
 diag('Test for class attribute initializement');
+
 
 {
 	class T1 { }
