@@ -10,7 +10,7 @@ L<S04/"The C<while> and <until> statements"/>
 
 =cut
 
-plan 11;
+plan 10;
 
 {
   my $i = 0;
@@ -49,23 +49,21 @@ plan 11;
 # L<S04/The C<for> statement/It is also possible to write>
 # while ... -> $x {...}
 {
-  my @array = 0..5;
+  my @array = 1..5;
   my $str;
-  eval_ok q{
-      while @array.shift -> $x {
-          $str ~= $x
-      }
-  };
-  is $str, '012345', 'while ... -> $x {...} worked (1)';
+  while @array.pop -> $x {
+      $str ~= $x;
+  }
+  is $!, undef, 'eval worked';
+  is $str, '54321', 'while ... -> $x {...} worked (1)';
 }
 
 {
   my @array = 0..5;
   my $str;
-  eval_ok q{
-      while shift @array -> $x {
-          $str ~= $x;
-      }
-  };
-  is $str, '012345', 'while ... -> $x {...} worked (2)';
+  while pop @array -> $x {
+      $str ~= $x;
+  }
+  is $!, undef, 'eval worked';
+  is $str, '54321', 'while ... -> $x {...} worked (2)';
 }
