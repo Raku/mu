@@ -3,7 +3,9 @@ use v6-alpha;
 use Test;
 plan 46;
 
-# L<S03/"Reduction operators">
+# smartlink to top and bottom of long table
+# L<S03/Reduction operators/"Builtin reduce operators return the following identity values">
+# L<S03/Reduction operators/"[¥]()       # []">
 
 is ([**] ()), 1, "[**] () eq 1 (arguably nonsensical)";
 is ([*] ()), 1, "[*] () eq 1";
