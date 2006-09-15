@@ -1835,7 +1835,7 @@ ruleVarNameString =   try (string "$/")  -- match object
                   <|> string "$!"  -- error variable
 
 ruleSigil :: RuleParser VarSigil
-ruleSigil = fmap (cast . head) (many1 (satisfy isSigilChar))
+ruleSigil = fmap cast (oneOf "$@%&")
     
 regularVarName :: RuleParser String
 regularVarName = do
