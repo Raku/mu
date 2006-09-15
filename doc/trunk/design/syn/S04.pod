@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 1 Sep 2006
+  Last Modified: 15 Sep 2006
   Number: 4
-  Version: 38
+  Version: 39
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -190,6 +190,20 @@ may leave out the parentheses around the conditional:
 	...
     }
 
+You may optionally bind the result of the conditional expression to a
+parameter of the block:
+
+    while something() -> $thing {
+	...
+    }
+
+Nothing is ever bound implicitly, however, and many conditionals would
+simply bind True or False in an uninteresting fashion.  This mechanism
+is really only good for objects that know how to return a boolean
+value and still remain themselves.  In general, for most iterated
+solutions you should consider using a C<for> loop instead (see below).
+In particular, we now generally use C<for> to iterate filehandles.
+
 =head2 The C<repeat> statement
 
 Unlike in Perl 5, applying a statement modifier to a C<do> block is
@@ -241,6 +255,22 @@ or equivalently:
       {
 	...
       }
+
+As with an ordinary C<while>, you may optionally bind the result of
+the conditional expression to a parameter of the block:
+
+    repeat -> $thing {
+	...
+    } while something();
+
+or
+
+    repeat while something() -> $thing {
+	...
+    }
+
+Since the loop executes once before evaluating the condition, the
+bound parameter will be undefined that first time through the loop,
 
 =head2 The general loop statement
 
