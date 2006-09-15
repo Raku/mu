@@ -1,7 +1,9 @@
+
+# L<S01/"Random Thoughts"/"specifically tell it you're running Perl 6">
 use v6-alpha;
 
-# Checking that testing is sane: TAP output
 
+# Checking that testing is sane: TAP output
 
 say '1..10';
 
