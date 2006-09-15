@@ -1084,7 +1084,7 @@ ruleRepeatConstruct = rule "postfix loop construct" $ do
 
 ruleRepeatPostConstruct :: RuleParser Exp
 ruleRepeatPostConstruct = rule "repeat postfix construct" $ do
-    block <- ruleBlock
+    block   <- ruleBareOrPointyBlockLiteralWithoutDefaultParams
     option (Syn "loop" [block]) $ do
         name <- choice [ symbol "while", symbol "until" ]
         cond <- ruleExpression
@@ -1092,10 +1092,10 @@ ruleRepeatPostConstruct = rule "repeat postfix construct" $ do
 
 ruleRepeatPreConstruct :: RuleParser Exp
 ruleRepeatPreConstruct = rule "repeat prefix construct" $ do
-    name <- choice [ symbol "while", symbol "until" ]
-    cond <- ruleExpression
-    body <- ruleBlock
-    return $ Syn ("post" ++ name) [ cond, body ]
+    name    <- choice [ symbol "while", symbol "until" ]
+    cond    <- ruleCondPart
+    block   <- enterBracketLevel ParensBracket $ ruleBareOrPointyBlockLiteralWithoutDefaultParams
+    return $ Syn ("post" ++ name) [ cond, block ]
 
 ruleCondConstruct :: RuleParser Exp
 ruleCondConstruct = rule "conditional construct" $ do
@@ -1124,9 +1124,9 @@ ruleElseConstruct = rule "else or elsif construct" $
 
 ruleWhileUntilConstruct :: RuleParser Exp
 ruleWhileUntilConstruct = rule "while/until construct" $ do
-    sym <- choice [ symbol "while", symbol "until" ]
-    cond <- ruleCondPart
-    body <- ruleBlock
+    sym     <- choice [ symbol "while", symbol "until" ]
+    cond    <- ruleCondPart
+    body    <- enterBracketLevel ParensBracket $ ruleBareOrPointyBlockLiteralWithoutDefaultParams
     return $ Syn sym [ cond, body ]
 
 ruleGivenConstruct :: RuleParser Exp
@@ -1178,9 +1178,11 @@ appropriate 'Pugs.AST.Internals.Syn' (either @\"while\"@ or @\"until\"@).
 -}
 s_postLoop :: RuleParser (Exp -> RuleParser Exp)
 s_postLoop = rule "postfix loop" $ do
-    cond <- choice $ map symbol ["while", "until"]
-    exp <- ruleExpression
-    return $ \body -> return $ Syn cond [exp, body]
+    cond    <- choice $ map symbol ["while", "until"]
+    exp     <- ruleExpression
+    return $ \body -> do
+        block <- retBlockWithoutDefaultParams SubBlock Nothing False body
+        return $ Syn cond [exp, block]
 
 {-|
 Match a statement's /iterating/ statement-modifier,
@@ -1197,6 +1199,22 @@ s_postIterate = rule "postfix iteration" $ do
         block <- retBlock SubBlock Nothing False body
         return $ Syn ("postfix:" ++ cond) [exp, block]
 
+ruleBareOrPointyBlockLiteralWithoutDefaultParams :: RuleParser Exp
+ruleBareOrPointyBlockLiteralWithoutDefaultParams = rule "bare or pointy block construct" $ do
+    (styp, formal, lvalue) <- option (SubBlock, Nothing, False) ruleBlockFormalPointy
+    -- Cancel out the default $_ on blocks
+    body    <- ruleBlock
+    retBlockWithoutDefaultParams styp formal lvalue body
+
+retBlockWithoutDefaultParams :: SubType -> Maybe [Param] -> Bool -> Exp -> RuleParser Exp
+retBlockWithoutDefaultParams styp formal lvalue body = do
+    blk <- retVerbatimBlock styp formal lvalue body
+    return $ runIdentity (transformExp deParam blk)
+    where
+    deParam (Syn "sub" [Val (VCode sub@MkCode{ subParams = prms })]) = do
+        return (Syn "sub" [Val $ VCode sub{ subParams = maybe [] (const $ prms) formal}])
+    deParam x = return x
+
 ruleBareOrPointyBlockLiteral :: RuleParser Exp
 ruleBareOrPointyBlockLiteral = rule "bare or pointy block construct" $
     ruleBlockVariants [ ruleBlockFormalPointy ]
@@ -1207,10 +1225,11 @@ ruleBlockLiteral = rule "block construct" $
 
 ruleBlockVariants :: [RuleParser (SubType, Maybe [Param], Bool)] -> RuleParser Exp
 ruleBlockVariants variants = do
-    (typ, formal, lvalue) <- option (SubBlock, Nothing, False)
+    (styp, formal, lvalue) <- option (SubBlock, Nothing, False)
         $ choice variants
     body <- ruleBlock
-    retBlock typ formal lvalue body
+    retBlock styp formal lvalue body
+
 
 retBlock :: SubType -> Maybe [Param] -> Bool -> Exp -> RuleParser Exp
 retBlock SubBlock Nothing _ exp | Just hashExp <- extractHash (unwrap exp) = return $ Syn "\\{}" [hashExp]

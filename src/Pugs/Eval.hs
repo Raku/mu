@@ -555,9 +555,10 @@ reduceSyn name [cond, body]
     -- XXX This treatment of while/until loops probably needs work
     doWhileUntil :: (Bool -> Bool) -> Bool -> Eval Val
     doWhileUntil f postloop = do
+        sub <- fromVal =<< (enterRValue $ enterEvalContext (cxtItem "Code") body)
         -- XXX redo for initial run
         if postloop
-            then reduce body
+            then apply sub Nothing [Val . castV $ undef]
             else retEmpty
         enterWhile . fix $ \runLoop -> do
             vbool <- enterEvalContext (cxtItem "Bool") cond
@@ -566,16 +567,15 @@ reduceSyn name [cond, body]
                 True -> fix $ \runBody -> do
                     -- genSymPrim "&redo" (const $ runBody) $ \symRedo -> do
                     callCC $ \esc -> genSymPrim "&redo" (const $ runBody >>= esc) $  \symRedo -> do
-                    rv <- enterLex [symRedo] $ reduce body
+                    rv <- enterLex [symRedo] $ apply sub Nothing [Val vbool]
                     case rv of
                         VError _ _  -> retVal rv
                         _           -> do
-                            runBlocksIn body (reverse . subNextBlocks)
+                            runBlocksIn sub (reverse . subNextBlocks)
                             runLoop
                 _ -> retVal vbool
-    runBlocksIn (Syn "block" [Val (VCode cv)]) f = do
-        mapM_ (reduceSyn "block" . (:[]) . Syn "sub" . (:[]) . Val . castV) (f cv)
-    runBlocksIn _ _ = return ()
+    runBlocksIn MkCode{ subBody = Syn "block" [Val (VCode cv')] } f = runBlocksIn cv' f
+    runBlocksIn cv f = mapM_ (reduceSyn "block" . (:[]) . Syn "sub" . (:[]) . Val . castV) (f cv)
 
 reduceSyn "=" [lhs, rhs] = do
     refVal  <- enterLValue $ evalExp lhs
@@ -990,6 +990,8 @@ doCall :: Var -> Maybe Exp -> [Exp] -> Eval Val
 doCall var invs args = do
     -- First, reduce the invocant fully in item context.
     invs'   <- fmapM (fmap Val . enterLValue . enterEvalContext cxtItemAny) invs
+
+    -- XXX - add support for [,] here!
     sub     <- findSub var invs' args
 
     -- XXX - Consider this case:

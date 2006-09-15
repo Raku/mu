@@ -1365,7 +1365,7 @@ mkCompUnit :: String -> Pad -> Exp -> CompUnit
 mkCompUnit _ pad ast = MkCompUnit compUnitVersion pad ast
 
 compUnitVersion :: Int
-compUnitVersion = 5
+compUnitVersion = 6
 
 {-|
 Retrieve the global 'Pad' from the current evaluation environment.
