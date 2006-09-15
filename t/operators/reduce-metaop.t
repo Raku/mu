@@ -1,6 +1,6 @@
 use v6-alpha;
 use Test;
-plan 51;
+plan 53;
 
 # L<S03/"Reduction operators">
 
@@ -132,6 +132,11 @@ is(try { [more_than_plus] 1, 2, 3 }, 8, "[...] reduce metaop works on user defin
     my $got = prod(2,3,4);
     is( $got, 24, $test );
 }
+
+# L<S03/"Reduction operators"/"Among the builtin operators, [+]() returns 0 and [*]() returns 1">
+
+is( [*](), 1, "[*]() returns 1");
+is( [+](), 0, "[+]() returns 0");
 
 {
   my ($a, $b);
