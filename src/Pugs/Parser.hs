@@ -1457,7 +1457,7 @@ ruleParam = rule "parameter" $ do
                     return (name, cast explicitLabel, True)
                 ]
         , do -- positional parameter
-            name <- regularVarName
+            name <- regularVarWithOptionalName
             return (name, label name, False)
         ]
         where
@@ -1834,15 +1834,27 @@ ruleVarNameString =   try (string "$/")  -- match object
                   <|> try regularVarName
                   <|> string "$!"  -- error variable
 
+ruleSigil :: RuleParser VarSigil
+ruleSigil = fmap (cast . head) (many1 (satisfy isSigilChar))
+    
 regularVarName :: RuleParser String
 regularVarName = do
-    sigil   <- oneOf "$@%&"
-    if sigil == '&' then ruleSubNamePossiblyWithTwigil else do
-    --  ^ placeholder, * global, ? magical, . member, ! private member
-    twigil  <- ruleTwigil
-    -- doesn't handle names /beginning/ with "::"
-    name    <- ruleQualifiedIdentifier
-    return $ (sigil:twigil) ++ name
+    sigil   <- ruleSigil
+    regularVarNameForSigil sigil
+
+regularVarWithOptionalName :: RuleParser String
+regularVarWithOptionalName = do
+    sigil   <- ruleSigil
+    option (show sigil) (regularVarNameForSigil sigil)
+
+-- Twigil: ^ placeholder, * global, ? magical, . member, ! private member
+-- XXX - ruleQualifiedIdentifier doesn't handle names /beginning/ with "::"
+regularVarNameForSigil :: VarSigil -> RuleParser String
+regularVarNameForSigil SCode = ruleSubNamePossiblyWithTwigil
+regularVarNameForSigil sigil = do
+    twi <- ruleTwigil
+    idt <- ruleQualifiedIdentifier
+    return $ show sigil ++ twi ++ idt
 
 ruleDereference :: RuleParser Exp
 ruleDereference = try $ do
