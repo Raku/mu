@@ -5,7 +5,7 @@
 # This program is still under active development.
 # Please read the Pod documentation at the end of file before reading and/or
 # modifying the source.
-# Contact agentzh on #perl6 if you have a patch or any good ideas for this tool.
+# Contact agentzh on #perl6 if you have a patch or any good idea for this tool.
 
 use strict;
 #use warnings;
