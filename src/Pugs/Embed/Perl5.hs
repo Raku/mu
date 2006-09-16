@@ -309,7 +309,11 @@ initPCR path = do
     findPerl5 = do
         rv <- findExecutable "perl"
         case rv of
-            Nothing     -> fail "Cannot find the parrot executable in PATH"
+            Nothing     -> do
+                rv' <- findExecutable "perl.exe"
+                case rv' of
+                    Just cmd    -> return cmd
+                    Nothing     -> fail "Cannot find the parrot executable in PATH"
             Just cmd    -> return cmd
 
 type Perl5Interp = (Handle, Handle, Handle, ProcessHandle)
