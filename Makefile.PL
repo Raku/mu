@@ -322,7 +322,7 @@ sub set_postamble {
                 }
 
                 $ccdlflags .= (/^-[DIL]/ ? ' -optc' : ' -optl') . qq["$_" ] for @flags;
-                $embed_flags .= " -optc-Ddirent=DIRENT";
+                #$embed_flags .= " -optc-D";
             }
             else {
                 $embed_flags .= " -optc$_" for grep length, split(/\s+/, ccopts());

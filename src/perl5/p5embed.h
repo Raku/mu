@@ -1,3 +1,4 @@
+#define dirent DIRENT
 #define _INTPTR_T_DEFINED
 #define _UINTPTR_T_DEFINED
 
