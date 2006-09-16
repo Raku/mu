@@ -71,13 +71,14 @@ module Prelude::Sort {
                 #
                 # Probably more correct would be:
                 #
-                #   given $criterion.isof() {
+                #   given $criterion.of() {
                 #       when :(Num) { return_inf0 infix:{'<=>'}($ka, $kb); }
                 #       default { return_inf0 infix:<cmp>($ka, $kb); }
                 #   }
                 #
-                # However .isof() is just conjecture at this time for how
-                # you would access the 'of' return-type of a Code object.
+                # However .signature..isof() is just conjecture at
+                # this time for how # you would access the 'of'
+                # return-type of a Code object.
 
                 given $ka {
                     when Num {

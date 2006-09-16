@@ -137,3 +137,13 @@ plan 12;
     }
     is $str, '01234';
 }
+
+{
+    my @x = 0..4;
+    my $str;
+    for @x {
+        NEXT { $str ~= $_; }
+    }
+
+    is($str, '01234', 'NEXT {} works in for loop');
+}
