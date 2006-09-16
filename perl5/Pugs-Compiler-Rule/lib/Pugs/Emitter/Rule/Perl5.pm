@@ -62,7 +62,7 @@ sub emit {
 
         "            last if \$tree;\n" .
         "        }\n" .
-        "        \$tree = Pugs::Grammar::RegexBase->no_match(\@_)\n" . 
+        "        \$tree = Pugs::Grammar::Base->no_match(\@_)\n" . 
         "           unless defined \$tree;
 ;\n" .
         "    }\n" .

@@ -26,10 +26,16 @@ sub __CMD__ {
             push @subrules, $line1, $line2;
         }
         elsif ($cmd eq 'match') {
-            my $rv = __PACKAGE__->__RUN__($line1, $line2, @subrules);
-            my $len = bytes::length($rv)+1;
-            print "OK $len\n";
-            print "$rv\n\n";
+            if (my $rv = eval { __PACKAGE__->__RUN__($line1, $line2, @subrules) }) {
+                my $len = bytes::length($rv)+1;
+                print "OK $len\n";
+                print "$rv\n\n";
+            }
+            else {
+                my $err = $@;
+                $err =~ s/([\\\n])/\\$1/g;
+                print "$err\n";
+            }
             @subrules = ();
         }
         else {
