@@ -170,6 +170,18 @@ sub match {
         return $match;  
 }
 
+sub reinstall {
+  my($class, $name, @etc) = @_;
+
+  ## XXX - code duplication with "install" below
+  ## If we have a fully qualified name, use that, otherwise extrapolate.
+  my $rule = index($name, '::') > -1 ? $name : scalar(caller)."::$name";
+  my $slot = qualify_to_ref($rule);
+
+  no warnings 'redefine';
+  *$slot = $class->compile(@etc)->code;
+}
+
 sub install {
   my($class, $name, @etc) = @_;
 

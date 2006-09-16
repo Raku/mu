@@ -2,16 +2,37 @@ package Pugs::Runtime::Match::HsBridge;
 
 use strict;
 use warnings;
-use Pugs::Grammar::Base;
-use Pugs::Compiler::Regex;
+use Pugs::Grammar::Base ();
+use Pugs::Compiler::Regex ();
 use base 'Pugs::Grammar::Base';
+
+sub __RUN__ {
+    my $self        = shift;
+    my $match_text  = shift;
+    my $rule_text   = shift;
+    my %subrules    = @_;
+
+    while (my ($name, $body) = each %subrules) {
+        my %opts = (grammar => __PACKAGE__);
+        ($1 and $opts{$1} = 1) while $body =~ s/^:(\w*)\(1?\)\[(.*)\]\z/$2/s;
+        Pugs::Compiler::Regex->reinstall( $name => $body, \%opts );
+    }
+
+    my %opts = (grammar => __PACKAGE__);
+    ($1 and $opts{$1} = 1) while $rule_text =~ s/^:(\w*)\(1?\)\[(.*)\]\z/$2/s;
+
+    my $rule    = Pugs::Compiler::Regex->compile( $rule_text, \%opts );
+    my $match   = $rule->match( $match_text );
+
+    return $match->dump_hs;
+}
 
 sub __CMD__ {
     local $| = 1;
 
     # Command line shell interface - compatible with run_pge.pir
-    binmode STDIN, ':utf8';
-    binmode STDOUT, ':utf8';
+    binmode STDIN, ':bytes:utf8';
+    binmode STDOUT, ':bytes:utf8';
 
     my @subrules;
     while (<STDIN>) {
@@ -42,31 +63,6 @@ sub __CMD__ {
             die "Unrecognized command: $cmd";
         }
     }
-}
-
-sub __RUN__ {
-    my $self        = shift;
-    my $match_text  = shift;
-    my $rule_text   = shift;
-    my %subrules    = @_;
-
-    while (my ($name, $body) = each %subrules) {
-        my %opts = (grammar => __PACKAGE__);
-        ($1 and $opts{$1} = 1) while $body =~ s/^:(\w*)\(1?\)\[(.*)\]\z/$2/s;
-        Pugs::Compiler::Regex->install( $name => $body, \%opts );
-    }
-
-    my %opts = (grammar => __PACKAGE__);
-    ($1 and $opts{$1} = 1) while $rule_text =~ s/^:(\w*)\(1?\)\[(.*)\]\z/$2/s;
-
-    my $rule    = Pugs::Compiler::Regex->compile( $rule_text, \%opts );
-    my $match   = $rule->match( $match_text );
-
-    # Uninstall the previously registered subrules. 
-    no strict 'refs';
-    #delete @{__PACKAGE__.'::'}{keys %subrules};
-
-    return $match->dump_hs;
 }
 
 1;
