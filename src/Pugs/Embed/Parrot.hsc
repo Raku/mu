@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -fglasgow-exts -cpp -fvia-C -fno-full-laziness -fno-cse #-}
-#if !defined(PUGS_HAVE_PARROT)
+#if !defined(PUGS_HAVE_PARROT_XXX_PARROT_IS_NOW_DISABLED)
 ##undef PUGS_HAVE_POSIX
 ##include "../pugs_config.h"
 
@@ -42,7 +42,7 @@ findExecutableInDirectory dir cmd = do
 
 findParrot :: IO FilePath
 findParrot = do
-    rv <- findExecutable' "parrot"
+    rv <- findExecutable' "perl"
     case rv of
         Nothing     -> fail "Cannot find the parrot executable in PATH"
         Just cmd    -> return cmd
@@ -115,7 +115,11 @@ initPGE path = do
             initPGE path
         Nothing -> do
             cmd <- findParrot
-            interp <- runInteractiveProcess cmd ["run_pge.pir"] (Just path) Nothing 
+            interp <- runInteractiveProcess cmd
+                ["-MPugs::Runtime::Match::HsBridge"
+                , "-ePugs::Runtime::Match::HsBridge::__CMD__"
+                ] (Just path) Nothing 
+            -- perl -MPugs::Runtime::Match::HsBridge -ePugs::Runtime::Match::HsBridge::__CMD__
             writeIORef _ParrotInterp (Just interp)
             return interp
 
