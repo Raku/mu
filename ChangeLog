@@ -88,7 +88,7 @@ XXX Sage: please write something here.
 * Integrated the Judy library into the Haskell runtime, resulting in
   ~10% performace improvement.
 * Enabled Perl 5 embedding by default.
-** For Windows users, ActivePerl 5.8.8 is required.
+** For Windows users, ActivePerl 5.8.x is required.
 ** Set the PUGS_EMBED environment variable to "noperl5" to disable this.
 * $obj.*$meth() is now implemented, calling zero or more methods named $meth
 in the inheritence tree, returning an unconcatenated list of return values.
