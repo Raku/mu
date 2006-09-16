@@ -51,9 +51,11 @@ sub compile {
     $self->{p}        = delete $param->{pos}      ||
                         delete $param->{p};
                         # default = undef;
+    delete $param->{p};
     $self->{sigspace} = delete $param->{sigspace} ||
                         delete $param->{s}        || 
                         0;
+    delete $param->{s};
 
     warn "Error in rule: unknown parameter '$_'" 
         for keys %$param;
