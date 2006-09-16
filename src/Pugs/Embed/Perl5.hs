@@ -6,7 +6,7 @@ module Pugs.Embed.Perl5
     , svToVBool, svToVInt, svToVNum, svToVStr, vstrToSV, vintToSV, svToVal, bufToSV
     , vnumToSV, mkValRef , mkVal, PerlSV, nullSV, evalPerl5, invokePerl5
     , initPerl5, freePerl5, canPerl5
-    , initPCR, evalPCR
+    , evalPCR
     )
 where
 import Foreign.C.Types
@@ -14,6 +14,80 @@ import System.Directory
 import Data.Typeable
 import Pugs.Internals 
 import qualified Data.ByteString.Char8 as Str
+
+evalPCR :: FilePath -> String -> String -> [(String, String)] -> IO String
+evalPCR path match rule subrules = do
+    (inp, out, err, pid) <- initPCR path
+    (`mapM` subrules) $ \(name, rule) -> do
+        let nameStr = escape name
+            ruleStr = escape rule
+        hPutStrLn inp $ unwords
+            ["add_rule", show (length nameStr), show (length ruleStr)]
+        hPutStrLn inp nameStr
+        hPutStrLn inp ruleStr
+    let matchStr = escape match
+        ruleStr  = escape rule
+    hPutStrLn inp $ unwords
+        ["match", show (length matchStr), show (length ruleStr)]
+    hPutStrLn inp $ matchStr
+    hPutStrLn inp $ ruleStr
+    hFlush inp
+    rv <- hGetLine out
+    case rv of
+        ('O':'K':' ':_) -> do
+            -- size <- readIO sizeStr
+            -- rv   <- sequence (replicate size (hGetChar out))
+            ln   <- hGetLine out
+            ln2  <- hGetLine out
+            return $ ln ++ ln2
+        _ -> do
+            errMsg  <- hGetContents err
+            rv      <- waitForProcess pid
+            writeIORef _Perl5Interp Nothing
+            let msg | null errMsg = show rv
+                    | otherwise   = errMsg
+            fail $ "*** Running external 'perl' failed:\n" ++ msg
+    where
+    escape "" = ""
+    escape ('\\':xs) = "\\\\" ++ escape xs
+    escape ('\n':xs) = "\\n" ++ escape xs
+    escape (x:xs) = (x:escape xs)
+
+initPCR :: FilePath -> IO Perl5Interp
+initPCR path = do
+    rv <- readIORef _Perl5Interp
+    case rv of
+        Just interp@(_, _, _, pid) -> do
+            gone <- getProcessExitCode pid
+            if isNothing gone then return interp else do
+            writeIORef _Perl5Interp Nothing
+            initPCR path
+        Nothing -> do
+            cmd <- findPerl5
+            interp <- runInteractiveProcess cmd
+                [ "-Iperl5/Pugs-Compiler-Rule/lib"
+                , "-MPugs::Runtime::Match::HsBridge"
+                , "-ePugs::Runtime::Match::HsBridge::__CMD__"
+                ] (Just path) Nothing 
+            writeIORef _Perl5Interp (Just interp)
+            return interp
+    where
+    findPerl5 :: IO FilePath
+    findPerl5 = do
+        rv <- findExecutable "perl"
+        case rv of
+            Nothing     -> do
+                rv' <- findExecutable "perl.exe"
+                case rv' of
+                    Just cmd    -> return cmd
+                    Nothing     -> fail "Cannot find the parrot executable in PATH"
+            Just cmd    -> return cmd
+
+type Perl5Interp = (Handle, Handle, Handle, ProcessHandle)
+
+{-# NOINLINE _Perl5Interp #-}
+_Perl5Interp :: IORef (Maybe Perl5Interp)
+_Perl5Interp = unsafePerformIO $ newIORef Nothing
 
 type PerlInterpreter = ()
 data PerlSV = MkPerlSV -- phantom type
@@ -247,78 +321,20 @@ freePerl5 my_perl = do
 nullSV :: PerlSV
 nullSV = nullPtr
 
-#endif
-
 evalPCR :: FilePath -> String -> String -> [(String, String)] -> IO String
 evalPCR path match rule subrules = do
-    (inp, out, err, pid) <- initPCR path
-    (`mapM` subrules) $ \(name, rule) -> do
-        let nameStr = escape name
-            ruleStr = escape rule
-        hPutStrLn inp $ unwords
-            ["add_rule", show (length nameStr), show (length ruleStr)]
-        hPutStrLn inp nameStr
-        hPutStrLn inp ruleStr
-    let matchStr = escape match
-        ruleStr  = escape rule
-    hPutStrLn inp $ unwords
-        ["match", show (length matchStr), show (length ruleStr)]
-    hPutStrLn inp $ matchStr
-    hPutStrLn inp $ ruleStr
-    hFlush inp
-    rv <- hGetLine out
+    envSV   <- mkVal ()
+    inv      <- evalPerl5 ("use lib '"++path++"/perl5/Pugs-Compiler-Rule/lib'; use Pugs::Runtime::Match::HsBridge; 'Pugs::Runtime::Match::HsBridge'") envSV 1
+    meth    <- vstrToSV "__RUN__"
+    args    <- mapM vstrToSV $ concatMap (\(x, y) -> [x, y]) ((match, rule):subrules)
+    rv      <- invokePerl5 meth inv args envSV 1
     case rv of
-        ('O':'K':' ':_) -> do
-            -- size <- readIO sizeStr
-            -- rv   <- sequence (replicate size (hGetChar out))
-            ln   <- hGetLine out
-            ln2  <- hGetLine out
-            return $ ln ++ ln2
-        _ -> do
-            errMsg  <- hGetContents err
-            rv      <- waitForProcess pid
-            writeIORef _Perl5Interp Nothing
-            let msg | null errMsg = show rv
-                    | otherwise   = errMsg
-            fail $ "*** Running external 'perl' failed:\n" ++ msg
-    where
-    escape "" = ""
-    escape ('\\':xs) = "\\\\" ++ escape xs
-    escape ('\n':xs) = "\\n" ++ escape xs
-    escape (x:xs) = (x:escape xs)
+        Perl5ReturnValues []    -> return ""
+        Perl5ReturnValues (x:_) -> svToVStr x
+        Perl5ErrorString err    -> return $ "Error: " ++ err
+        Perl5ErrorObject obj    -> do
+            err <- svToVStr obj
+            return $ "Error: " ++ err
 
-initPCR :: FilePath -> IO Perl5Interp
-initPCR path = do
-    rv <- readIORef _Perl5Interp
-    case rv of
-        Just interp@(_, _, _, pid) -> do
-            gone <- getProcessExitCode pid
-            if isNothing gone then return interp else do
-            writeIORef _Perl5Interp Nothing
-            initPCR path
-        Nothing -> do
-            cmd <- findPerl5
-            interp <- runInteractiveProcess cmd
-                [ "-Iperl5/Pugs-Compiler-Rule/lib"
-                , "-MPugs::Runtime::Match::HsBridge"
-                , "-ePugs::Runtime::Match::HsBridge::__CMD__"
-                ] (Just path) Nothing 
-            writeIORef _Perl5Interp (Just interp)
-            return interp
-    where
-    findPerl5 :: IO FilePath
-    findPerl5 = do
-        rv <- findExecutable "perl"
-        case rv of
-            Nothing     -> do
-                rv' <- findExecutable "perl.exe"
-                case rv' of
-                    Just cmd    -> return cmd
-                    Nothing     -> fail "Cannot find the parrot executable in PATH"
-            Just cmd    -> return cmd
+#endif
 
-type Perl5Interp = (Handle, Handle, Handle, ProcessHandle)
-
-{-# NOINLINE _Perl5Interp #-}
-_Perl5Interp :: IORef (Maybe Perl5Interp)
-_Perl5Interp = unsafePerformIO $ newIORef Nothing
