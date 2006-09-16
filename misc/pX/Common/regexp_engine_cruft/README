@@ -1,0 +1,13 @@
+
+This directory contains some code from a slightly updated version of
+misc/pX/Common/regexp_and_parser_spike/ [1].  The main difference is
+some work has been pulled out into a configurable factory class, the
+main item of interest.
+
+These files were ripped from a larger context, slightly massaged, and
+then _not_ tested.  They are mainly intended for reference.
+
+[1] regexp_and_parser_spike was a prototype showing a regular expression
+engine could be written in perl5 with acceptable performance, and then
+that a perl6 parser could be built on top of it.
+
