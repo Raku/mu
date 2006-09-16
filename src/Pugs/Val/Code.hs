@@ -160,9 +160,9 @@ prettySubSig s = sep $ punctuate comma $ concat [posParams, namedParams]
     isReqNamed n = Set.member n $ s_requiredNames s
 
 prettyParam :: Param -> Bool -> Bool -> Doc
-prettyParam p isReq isPos = staticTypes <+> varName <> defaultHint <+> sep
-    [ traits, unpacking, constraints, debugDump ]
+prettyParam p isReq isPos = sep [ staticTypes, varDecl, traits, unpacking, constraints, debugDump ]
     where
+    varDecl = varName <> defaultHint
     varName
         | isPos = text (cast $ p_variable p)
         | v_name (p_variable p) == p_label p = text $ ":" ++ (cast $ p_variable p)

@@ -1365,8 +1365,8 @@ data Paramdec = MkParamdec
     }
     deriving (Show)
 
-defaultInvocantParam :: SigParam
-defaultInvocantParam = MkParam
+dummyParam :: SigParam
+dummyParam = MkParam
     { p_variable    = varNullScalar
     , p_types       = []
     , p_constraints = []
@@ -1494,12 +1494,10 @@ ruleParam = rule "parameter" $ do
         (sig :: Sig) <- castVal sig'
         return $ Just sig
     rCode = lexeme $ do
-        {- We don't have Exp -> Pugs.Val.Code, too bad.
         many $ do
             symbol "where"
-            ruleVerbatimBlock
-        -}
-        return []
+            lexeme $ ruleVerbatimBlock
+        return [] -- We don't have Exp -> Pugs.Val.Code, too bad.
     setTrait :: (a -> Maybe b) -> b -> [a] -> ([a], b)
     setTrait f d' l = doSetTrait d' [] l where
         doSetTrait d acc []     = (acc, d)
