@@ -3,8 +3,8 @@ use v6-alpha;
 use Test;
 plan 1;
 
-# mentions the Code:syntax
 # L<S03/"Smart matching">
+# mentions the Code:syntax
 # Could use another smart link reference!
 
 diag "Testing for subroutine parameter with signature...";
