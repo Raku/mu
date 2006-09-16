@@ -6,7 +6,6 @@ use strict;
 use warnings;
 
 use Parse::Yapp;
-use Data::Dump::Streamer;
 use Digest::MD5 'md5_hex';
 
 my $cache;

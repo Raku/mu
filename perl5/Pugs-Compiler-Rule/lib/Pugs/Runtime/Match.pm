@@ -5,7 +5,6 @@ use 5.006;
 use strict;
 use warnings;
 use Data::Dumper;
-use Data::Dump::Streamer;  
 #use Class::InsideOut qw( public register id );
 use Scalar::Util 'refaddr';
 

@@ -6,7 +6,6 @@ use strict;
 use warnings;
 #use Smart::Comments; #for debugging, look also at Filtered-Comments.pm
 use Data::Dumper;
-use PadWalker qw( peek_my );  # peek_our ); ???
 use Pugs::Runtime::Match;
 
 # note: alternation is first match (not longest). 
@@ -390,7 +389,7 @@ sub get_variable {
     
     local $@;
     my($idx, $pad) = 0;
-    while(eval { $pad = peek_my($idx) }) {
+    while(eval { require PadWalker; $pad = PadWalker::peek_my($idx) }) {
         $idx++, next
           unless exists $pad->{$name};
 
