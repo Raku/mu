@@ -100,12 +100,26 @@ sub gen_source {
     my($target) = @_;
     open my $ofh, ">", $target or die "open: $target: $!";
 
+    my @import_lines;
     {
         my $prelude = shift @{ $Config{precompile} };
         warn "*** warning: Prelude.pm should probably be the first --include\n"
             unless $prelude =~ /Prelude/;
         open my $ifh, $prelude or die "open: $prelude: $!";
-        print $ofh $_ while <$ifh>;
+        while (<$ifh>) {
+            if (/^\s*use (?!v6\b)(\S+)/) {
+                push @import_lines, $_;
+                my $file = $1;
+                my $dir = "ext/$1/lib";
+                $dir =~ s{::}{-}g;
+                $file =~ s{::}{/}g;
+                my $pathname = "$dir/$file.pm";
+                die "Cannot find $pathname" unless -e $pathname;
+                push @{ $Config{precompile} ||= [] }, $pathname;
+                next;
+            }
+            print $ofh $_;
+        }
     }
 
     # manhandle the rest of the inlined modules.
@@ -129,10 +143,11 @@ sub gen_source {
         print $ofh $program;
 
         print STDERR ", $module" if $Config{verbose};
-        $module =~ s#::#/#g;
-        print $ofh "\n};\n%*INC<${module}.pm> = '<precompiled>';\n\n";
+        #$module =~ s#::#/#g;
+        print $ofh "\n};\nBEGIN { %*INC<${module}> = '<precompiled>' };\n\n";
         # (the need for a semicolon in "};" is probably a bug.)
     }
+    # print $ofh @import_lines;
     print STDERR "... " if $Config{verbose};
 }
 
