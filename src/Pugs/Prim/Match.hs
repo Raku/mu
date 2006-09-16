@@ -61,7 +61,7 @@ doMatch cs rule@MkRulePGE{ rxRule = ruleStr } = do
     case rv of
         Just m  -> fromVal (matchToVal m)
         Nothing -> do
-            liftIO $ putStrLn ("*** Cannot parse PGE: " ++ ruleStr ++ "\n*** Error: " ++ pge)
+            liftIO $ putStrLn ("*** Cannot parse regex: " ++ ruleStr ++ "\n*** Error: " ++ pge)
             return mkMatchFail
 
 doMatch csChars MkRulePCRE{ rxRegex = re } = do
