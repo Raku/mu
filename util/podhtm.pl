@@ -51,7 +51,7 @@ my $infile = shift;
 $cssfile ||= 'http://dev.perl.org/css/perl.css';
 
 if (!defined $outfile) {
-    ($outfile = $infile) =~ s/\.pod$/.html/i;
+    $outfile = '-';
 }
 
 if (defined $charset) {
