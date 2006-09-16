@@ -1,3 +1,6 @@
+#define _INTPTR_T_DEFINED
+#define _UINTPTR_T_DEFINED
+
 #include "EXTERN.h"
 #include "perl.h"
 #include "embed.h"
