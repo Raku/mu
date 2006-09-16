@@ -1069,7 +1069,7 @@ lists:
         subject: typo in HTTP::Server::Simple
         summary: |-
           Zack Hobson found a problem with the port number reported in startup
-          by HTTP::Server::Simple in Pugs if the default port is used, and included
+          by HTTP::Server::Simple in Pugs if the default port is not used, and included
           a patch, which Carl Mäsak
           applied.
     title: Compiler
