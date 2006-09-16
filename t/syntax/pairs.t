@@ -16,7 +16,7 @@ use Test;
 #
 #   my $pair = (a => 42);
 #   foo($pair);      # pair passed positionally
-#   foo(*$pair);     # named
+#   foo([,] $pair);     # named
 
 plan 39;
 
@@ -67,7 +67,7 @@ sub f3 ($a) { ~WHAT($a) }
     my $pair = (a => 42);
 
     is f3($pair),  "Pair", 'a $pair is not treated magically...';
-    is f3(*$pair), "Int",    '...but *$pair is', :todo<feature>;
+    is f3([,] $pair), "Int",    '...but [,] $pair is', :todo<feature>;
 }
 
 sub f4 ($a)    { ~WHAT($a) }
@@ -84,8 +84,8 @@ sub f5 ($a) { ~WHAT($a) }
 
     is f5(@array_of_pairs), "Array",
         'an array of pairs is not treated magically...';
-    is f5(*@array_of_pairs), "Array",
-        '...and *@array isn\'t either';
+    is f5([,] @array_of_pairs), "Array",
+        '...and [,] @array isn\'t either';
 }
 
 sub f6 ($a) { ~WHAT($a) }
@@ -94,7 +94,7 @@ sub f6 ($a) { ~WHAT($a) }
     my %hash_of_pairs = (a => "str");
 
     is f6(%hash_of_pairs),  "Hash", 'a hash is not treated magically...';
-    is f6(*%hash_of_pairs), "Str",  '...but *%hash is', :todo<feature>;
+    is f6([,] %hash_of_pairs), "Str",  '...but [,] %hash is', :todo<feature>;
 }
 
 sub f7 (:$bar!) { ~WHAT($bar) }

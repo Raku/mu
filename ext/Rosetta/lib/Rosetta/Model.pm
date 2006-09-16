@@ -44,7 +44,7 @@ submethod BUILD (Hash :@root_nodes? = []) {
     @!all_nodes  = [];
     @!root_nodes = [];
     for @root_nodes -> $root_node {
-        Rosetta::Model::Node.new( document => self, *%$root_node );
+        Rosetta::Model::Node.new( document => self, [,] %$root_node );
     }
 
     return;
@@ -150,7 +150,7 @@ submethod BUILD (
         $?CLASS.new(
             document    => $document,
             parent_node => self,
-            *%$child_node,
+            [,] %$child_node,
         );
     }
 
@@ -373,7 +373,7 @@ Specifically, export_as_hash() returns a Perl hash whose key list
 Document.new(); you can produce a direct clone like this:
 
     my $cloned_doc = Rosetta::Model::Document.new(
-        *%($original_doc.export_as_hash()) );
+        [,] %($original_doc.export_as_hash()) );
 
 Or, to demonstrate the use of a persistence solution:
 
@@ -383,7 +383,7 @@ Or, to demonstrate the use of a persistence solution:
 
     # When restoring.
     my $hash_was_saved = MyPersist.get();
-    my $cloned_doc = Rosetta::Model::Document.new( *%($hash_was_saved) );
+    my $cloned_doc = Rosetta::Model::Document.new( [,] %($hash_was_saved) );
 
 =back
 
@@ -511,7 +511,7 @@ parameters of Node.new(); you need to supply its $document and optional
 $parent_node though; you can produce a direct clone like this:
 
     my $cloned_node = Rosetta::Model::Document.new(
-        document => $document, *%($original_node.export_as_hash()) );
+        document => $document, [,] %($original_node.export_as_hash()) );
 
 Or, to demonstrate the use of a persistence solution:
 
@@ -522,7 +522,7 @@ Or, to demonstrate the use of a persistence solution:
     # When restoring.
     my $hash_was_saved = MyPersist.get();
     my $cloned_node = Rosetta::Model::Document.new(
-        document => $document, *%($hash_was_saved) );
+        document => $document, [,] %($hash_was_saved) );
 
 =back
 

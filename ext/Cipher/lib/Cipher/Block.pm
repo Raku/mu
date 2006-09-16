@@ -12,18 +12,18 @@ method pad() {
     my $bs = .block_size;
     @.buffer.push(128);
     @.buffer.push(0) while @.buffer < $bs;
-    return *.cipher_block(@.buffer);
+    return @.cipher_block(@.buffer);
 }
 
 method _cipher(Array $data) {
-    push @.buffer, *$data;
-    my int $bs = .block_size;
+    push @.buffer, @$data;
+    my int $bs = $.block_size;
     
     gather {
         while @.buffer >= $bs {
             my @data = @.buffer.splice(0, $bs);
             @.buffer.splice(0, $bs, []);
-            take *.cipher_block(@data);
+            take @.cipher_block(@data);
         }
     }
 }

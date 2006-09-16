@@ -19,7 +19,7 @@ multi Array::keys   (@array ; MatchTest *@indextests --> Int|List )
     for @array.kv -> ($k, $v) {
 	push(@ret, $k ) if $k ~~ any(@indextests);
     }
-    *@ret; # want Item ?? +@ret !! *@ret;
+    @ret; # want Item ?? +@ret !! *@ret;
 }
 # signature from S29draft.pod r8593.
 # Prim.hs defines this as List::kv.  And with rw!Array.
@@ -29,7 +29,7 @@ multi Array::kv     (@array ; MatchTest *@indextests --> Int|List )
     for @array.keys -> $k {
 	push(@ret, ($k,@array[$k]) ) if $k ~~ any(@indextests);
     }
-    *@ret; # want Item ?? +@ret !! *@ret;
+    @ret; # want Item ?? +@ret !! *@ret;
 }
 # signature from S29draft.pod r8593.
 # XXX Prim.hs has this as (rw!Array).  Why rw?
@@ -42,7 +42,7 @@ multi Array::pairs  (@array ; MatchTest *@indextests )
     for @array.keys -> $k {
 	push(@ret, Pair($k,@array[$k]) ) if $k ~~ any(@indextests);
     }
-    *@ret; # want Item ?? +@ret !! *@ret;
+    @ret; # want Item ?? +@ret !! *@ret;
 }
 # signature from S29draft.pod r8593.
 # XXX Prim.hs has this as (rw!Array).  Why rw?
@@ -53,7 +53,7 @@ multi Array::values (@array ; MatchTest *@indextests --> Int|List )
     for @array.keys -> $k {
 	push(@ret, @array[$k] ) if $k ~~ any(@indextests);
     }
-    *@ret; # want Item ?? +@ret !! *@ret;
+    @ret; # want Item ?? +@ret !! *@ret;
 }
 
 
@@ -67,7 +67,7 @@ multi method Array::delete (@array : *@indices --> List )
     for @indicies -> $k {
 	push(@ret, @array._delete_key($k) );
     }
-    *@ret;
+    @ret;
 }
 # signature from S29draft.pod r8593.
 # XXX Prim.hs has this as (rw!Array).  Why rw?
@@ -78,7 +78,7 @@ multi method Array::exists (@array : Int *@indices --> Bool )
     for @indicies -> $k {
 	push(@ret, @array._exists_key($k) );
     }
-    *@ret;
+    @ret;
 }
  
 
@@ -209,7 +209,7 @@ multi Array::unshift (@array is rw ; *@values --> Int ) {
 # name from docs/notes/piln_object_repr_types.pod r8593.
 # while (@array: --> List) { seems a preferable phrasing, it doesnt parse.
 multi method Array::as_seq (@array:) returns List {
-    *@array
+    [,] @array
 }
 # name from docs/notes/piln_object_repr_types.pod r8593.
 multi method Array::as_map (@array:) returns Hash {
@@ -260,19 +260,19 @@ multi Array::grep (@values ;      Code *&test   --> Lazy )
 # signature from S29draft.pod 8655.  In the List section.
 multi Array::grep (@values ;  MatchTest $test   --> Lazy )
 {
-    List::grep $test, *@values;
+    List::grep $test, @values;
 }
 
 # signature from S29draft.pod 8655.  In the List section.
 multi Array::join (@values ;  Str $delimiter --> Str )
 {
-    List::join $delimiter, *@values;
+    List::join $delimiter, @values;
 }
 
 # signature from S29draft.pod 8655.  In the List section.
 multi Array::map (@values ;  Code $expression --> Lazy ) 
 {
-    List::map $expression, *@values;
+    List::map $expression, @values;
 }
 
 # signature from S29draft.pod 8651.  In the List section.
@@ -280,24 +280,24 @@ multi Array::map (@values ;  Code $expression --> Lazy )
 # \\n   List      pre     reduce  safe   (Array: Code)\
 multi Array::reduce (@values ; Code *&expression --> Scalar )
 {
-    List::reduce *&expression, *@values;
+    List::reduce *&expression, @values;
 }
 
 # signature from S29draft.pod 8651.  In the List section.
 multi Array::reverse (   @values --> Lazy|Str) {
-    List::reverse *@values;
+    List::reverse @values;
 }
 
 
 # derived from PIL2JS Array.pm r8593.
 # not in S29draft, but test cases exist.
 multi Array::min(@self; Code $cmp = &infix:«<=>» --> Scalar) {
-    List::min $cmp, *@self;
+    List::min $cmp, @self;
 }
 # derived from PIL2JS Array.pm r8593.
 # not in S29draft, but test cases exist.
 multi Array::max(@self; Code $cmp = &infix:«<=>» --> Scalar) {
-    List::max $cmp, *@self;
+    List::max $cmp, @self;
 }
 
 

@@ -228,7 +228,7 @@ for <ok from to str subpos subnamed> -> $attr {
 sub PIL2JS::Internals::Hacks::postcircumfix_for_match_objects (
   Match $match, Int *@idxs
 ) is primitive {
-  $match.subpos[*@idxs];
+  $match.subpos[@idxs];
 }
 
 sub PIL2JS::Internals::Hacks::init_match_postcircumfix_method () is primitive {

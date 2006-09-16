@@ -14,7 +14,7 @@ sub outer(*@vals) {
             # in our sub-helper, and use @rest[1...] as new
             # rest, i.e. all elements of @rest except the
             # first one.
-            helper [ *@prev, $_ ], @rest[1...] for @rest[0];
+            helper [ @prev, $_ ], @rest[1...] for @rest[0];
         }
         else {
             # We don't have to recurse further, so we

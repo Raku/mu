@@ -381,7 +381,7 @@ sub new_bot(
       };
 
       if %handler{$code} {
-        $_($event) for *%handler{$code};
+        $_($event) for %handler{$code}[];
       }
     },
 
@@ -397,7 +397,7 @@ sub new_bot(
       };
 
       if %handler{$command} {
-        $_($event) for *%handler{$command};
+        $_($event) for %handler{$command}[];
       }
     },
 
@@ -409,7 +409,7 @@ sub new_bot(
       };
 
       if %handler{$pseudo} {
-        $_($event) for *%handler{$pseudo};
+        $_($event) for %handler{$pseudo}[];
       }
     },
 

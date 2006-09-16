@@ -39,7 +39,7 @@ sub choose (*@all_choices) {
         give_up;
       }
       else {
-        my($choice, @newchoices) = *@choices;
+        my($choice, @newchoices) = @choices;
         &give_up = sub { $cnt($try(@newchoices)) };
         $choice;
       }
@@ -54,7 +54,7 @@ sub newchoose (*@all_choices) {
     my $try = -> @choices {
       if ! @choices { &give_up = &old_give_up; give_up }
       else {
-        my ($choice, @newchoices) = *@choices;
+        my ($choice, @newchoices) = @choices;
         &give_up = -> { return $try(@newchoices) };
         $choice;
       }

@@ -18,7 +18,7 @@ method name(Code $self:) {
 # }
 method assuming(Code $self: *@args) {
   return sub (*@new_args) {
-    $self(*@args, *@new_args);
+    $self([,] @args, @new_args);
   };
 }
 

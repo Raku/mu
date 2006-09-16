@@ -63,7 +63,7 @@ sub tokens(Code *$input, Str *$label, Str $pattern, Code $maketoken?)
 
 sub make_lexer (Code $lexer is rw, *@args) {
   ## XXX - Surely there's a more p6ish way of doing this?
-  $lexer = tokens($lexer, *@$_)
+  $lexer = tokens($lexer, [,] @$_)
     for @args;
   return $lexer;
 }

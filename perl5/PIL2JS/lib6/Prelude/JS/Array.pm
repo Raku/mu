@@ -42,7 +42,7 @@ method JS::Root::push($self is rw: *@things) is rw {
   })')($self, @things);
 }
 
-method join(@self: Str $sep) { join $sep, *@self }
+method join(@self: Str $sep) { join $sep, @self }
 sub JS::Root::join(Str $sep, *@things) is primitive {
   JS::inline('(
     function (arr, sep) {
@@ -59,7 +59,7 @@ method JS::Root::end(@self:) {
   JS::inline('(function (arr) { return arr.length - 1 })')(@self);
 }
 
-method map(@self is rw: Code $code) { map $code, *@self }
+method map(@self is rw: Code $code) { map $code, @self }
 sub JS::Root::map(Code $code, *@array is rw) is primitive {
   die "&map needs a Code as first argument!" unless $code.isa("Code");
   my $arity = $code.arity;
@@ -75,7 +75,7 @@ sub JS::Root::map(Code $code, *@array is rw) is primitive {
       push @args: undef;
       @args[-1] := @array.shift;
     }
-    push @res, $code(*@args);
+    push @res, $code([,] @args);
   }
 
   @res;
@@ -109,7 +109,7 @@ sub JS::Root::sort(Code $cmp is copy = &infix:<cmp>, *@array) is primitive {
   })')(@array, $cmp);
 }
 
-method reduce(@self: Code $code) { reduce $code, *@self }
+method reduce(@self: Code $code) { reduce $code, @self }
 sub JS::Root::reduce(Code $code, *@array) is primitive {
   die "&reduce needs a Code as first argument!" unless $code.isa("Code");
   my $arity = $code.arity;
@@ -123,14 +123,14 @@ sub JS::Root::reduce(Code $code, *@array) is primitive {
       push @args: undef;
       @args[-1] := @array.shift;
     }
-    $ret = $code($ret, *@args);
+    $ret = $code($ret, @args);
   }
 
   $ret;
 }
 
-method min(@self: Code $cmp = &infix:«<=>») { min $cmp, *@self }
-method max(@self: Code $cmp = &infix:«<=>») { max $cmp, *@self }
+method min(@self: Code $cmp = &infix:«<=>») { min $cmp, @self }
+method max(@self: Code $cmp = &infix:«<=>») { max $cmp, @self }
 sub JS::Root::min(Code $cmp = &infix:«<=>», *@array) is primitive {
   # Hack, see comment at &sort.
   unless $cmp.isa("Code") {
@@ -151,7 +151,7 @@ sub JS::Root::max(Code $cmp = &infix:«<=>», *@array) is primitive {
   $max;
 }
 
-method grep(@self: Code $code) { grep $code, *@self }
+method grep(@self: Code $code) { grep $code, @self }
 sub JS::Root::grep(Code $code, *@array) is primitive {
   #die "Code block for \"grep\" must be unary!" unless $code.arity == 1;
 
@@ -162,7 +162,7 @@ sub JS::Root::grep(Code $code, *@array) is primitive {
   @res;
 }
 
-method sum(@self:) { sum *@self }
+method sum(@self:) { sum @self }
 sub JS::Root::sum(*@vals) is primitive {
   my $sum = 0;
   $sum += +$_ for @vals;
@@ -430,7 +430,7 @@ sub PIL2JS::Internals::Hacks::array_postcircumfix_for_undefs (
   }
 
   $array = [];
-  $array[*@idxs];
+  $array[@idxs];
 }
 
 sub PIL2JS::Internals::Hacks::init_undef_array_postcircumfix_method () is primitive {
@@ -514,8 +514,8 @@ sub splice (@a is rw, $offset=0, $length?, *@list) is primitive {
         }
     }
 
-    #  want.List ?? *@result !! pop(@result)
-    #  want.List ?? *@result !! +@result ?? @result[-1] !! undef;
-    #  *@result;
+    #  want.List ?? @result !! pop(@result)
+    #  want.List ?? @result !! +@result ?? @result[-1] !! undef;
+    #  @result;
     @result;
 }

@@ -254,7 +254,7 @@ The last argument is always the return continuation.
 =head3 Flattening (C<< &prefix:<*> >>)
 
   # Perl 6
-  foo *@a, $x, *@b;
+  foo [,] @a, $x, @b;
 
   # PIL
   foo(&prefix:<*>(@a), $x, &prefix:<*>(@b));

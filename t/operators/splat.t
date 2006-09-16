@@ -11,13 +11,13 @@ plan 3;
 
 {
     my @a = (1, 2, 3);
-    my $b = *@a;
+    my $b = [,] @a;
     is($b, 1, "scalar = *array", :todo);
 };
 
 {
     my $a = (1, 2, 3);
-    my $b = *$a;
+    my $b = [,] $a;
     is($b, [1, 2, 3], "scalar = *arrayref");
 };
 

@@ -99,11 +99,11 @@ type SortCriterion ::= KeyExtractor
 # signature from PIL2JS Array.pm and S29draft.pod's List::zip. r8593.
 # But Prim.hs is \\n   List      list    Y       safe   (Array)\
 #   ie, both return and argument types differ.
-multi infix:«Y» (Array *@arrays --> Lazy) { zip *@arrays }
+multi infix:«Y» (Array *@arrays --> Lazy) { zip @arrays }
 # signature from PIL2JS Array.pm and S29draft.pod's List::zip. r8593.
 # But Prim.hs is \\n   List      list    ¥       safe   (Array)\
 #   ie, both return and argument types differ.
-multi infix:«¥» (Array *@arrays --> Lazy) { zip *@arrays }
+multi infix:«¥» (Array *@arrays --> Lazy) { zip @arrays }
 
 # copied from S29draft.pod 8651.
 multi List::zip ( Array *@lists, Bit :$shortest --> Lazy ) {

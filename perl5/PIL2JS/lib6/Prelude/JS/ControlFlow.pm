@@ -76,7 +76,7 @@ sub statement_control:<for>(*@args) is primitive {
       push @args: undef;
       @args[-1] := @array[$idx++];
     }
-    $code(*@args);
+    $code([,] @args);
   }
 
   undef;

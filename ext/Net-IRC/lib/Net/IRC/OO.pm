@@ -377,7 +377,7 @@ class Net::IRC {
     };
 
     if %!handler{$code} {
-      $_($event) for *%!handler{$code};
+      $_($event) for %!handler{$code}[];
     }
   }
 
@@ -393,7 +393,7 @@ class Net::IRC {
     };
 
     if %!handler{$command} {
-      $_($event) for *%!handler{$command};
+      $_($event) for %!handler{$command}[];
     }
   }
 
@@ -405,7 +405,7 @@ class Net::IRC {
     };
 
     if %!handler{$pseudo} {
-      $_($event) for *%!handler{$pseudo};
+      $_($event) for %!handler{$pseudo}[];
     }
   }
 

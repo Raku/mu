@@ -89,7 +89,7 @@ my sub multidex ($container, $multidex, $value) {
         $value;
     }
     else {
-        my $ret = $container ?? [ *$container ] !! [ ];
+        my $ret = $container ?? [ [,] $container ] !! [ ];
         my $idx = $multidex[0];
         $ret[$idx] = multidex($ret[$idx], $multidex[1..^$multidex], $value);
         $ret;
@@ -154,7 +154,7 @@ method quantify ($p, $low? = 0, $high? = Inf, :$minimal = 0) {
             else {
                 # Each time around the match, we increment the inner multidex index.
                 my $matchy = $match.match;
-                my $multidex = [ *$matchy.multidex ];
+                my $multidex = [ [,] $matchy.multidex ];
                 $multidex[-1]++;
                 match_n($n+1, $m.clone(match => $m.match.clone(multidex => $multidex)), &continue);
             }
@@ -184,7 +184,7 @@ method quantify ($p, $low? = 0, $high? = Inf, :$minimal = 0) {
         # Put another dimension on the multidex and match the recursive match_n
         # combinator.
         match_n(0, $match.clone(
-                      match => $match.match.clone(multidex => [ *$mdex, 0 ])),
+                      match => $match.match.clone(multidex => [ [,] $mdex, 0 ])),
                 -> $m { 
                     &continue($m.clone(match => $m.match.clone(multidex => $mdex)));
                 });

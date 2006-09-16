@@ -29,7 +29,7 @@ multi Args prefix:<*> (Array @array) { ... }
 
 method call_with_options {
     my &bound = try {
-        &mv.assuming(*$args);
+        &mv.assuming([,] $args);
         &mv.assuming(@ARGV[0], @ARGV[1], ...);
         CATCH { ... };
     };
@@ -49,7 +49,7 @@ my @x = <<
 qw< -f -i foo bar>
 
 my $args = massage(@ARGV);
-mv(*$args);
+mv([,] $args);
 
 multi mv (
     Filename $source, Filename $target,

@@ -40,7 +40,7 @@ class POE::Kernel {
   method post (POE::Session $session, Str $event, *@args) {
     # Push our callback on @:events.
     self!enqueue({
-      my $result = $session.dispatch($event, *@args);
+      my $result = $session.dispatch($event, [,] @args);
       $result;
     });
     

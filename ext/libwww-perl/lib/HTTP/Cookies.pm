@@ -209,7 +209,7 @@ class HTTP::Cookies-0.0.1 {
         }
         
         my @array = ($version, $val, $port, $path_spec, $secure, $expires, $discard);
-        @array.push(*%rest) if %rest.keys;
+        @array.push(%rest) if %rest.keys;
         
         @array.pop while !defined @array[-1];
         
@@ -291,7 +291,7 @@ class HTTP::Cookies-0.0.1 {
     }
     
     method clear_temporary_cookies () {
-        self.scan(sub (*@_) { if (@_[9]) || (!@_[8].defined) { @_[8] = -1; self.set_cookie(*@_); } });
+        self.scan(sub (*@_) { if (@_[9]) || (!@_[8].defined) { @_[8] = -1; self.set_cookie([,] @_); } });
     }
     
     method scan (Code $callback) {

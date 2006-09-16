@@ -308,10 +308,10 @@ method finishstr(Cipher $self:) returns Str {
 multi method cipher(Cipher $self: Array $data) returns Array {
     return gather {
         unless $!seen_head {
-            take *$self._head();
+            take @._head();
             $!seen_head = 1;
         }
-        take *$self._cipher($data);
+        take @._cipher($data);
     };
 }
 multi method cipher(Cipher $self: Str $data) {
@@ -319,23 +319,23 @@ multi method cipher(Cipher $self: Str $data) {
 }
 
 method encipher(Class $class: Str $plaintext, *%options) {
-    my $self = $class.new(*%options, :mode<enciphering>);
+    my $self = $class.new([,] %options, :mode<enciphering>);
     return $self.cipher($plaintext) ~ $self.finishstr();
 }
 method decipher(Class $class: Str $ciphertext, *%options) {
-    my $self = $class.new(*%options, :mode<deciphering>);
+    my $self = $class.new([,] %options, :mode<deciphering>);
     return $self.cipher($ciphertext) ~ $self.finishstr();
 }
 
 method encipherer(Class $class: *%options) {
-    my $self = $class.new(:mode<enciphering>, *%options);
+    my $self = $class.new(:mode<enciphering>, [,] %options);
     return sub(Str $plaintext?) {
         if defined $plaintext  { return $self.cipher($plaintext) }
         else                   { return $self.finishstr() }
     };
 }
 method decipherer(Class $class: *%options) {
-    my $self = $class.new(*%options, :mode<deciphering>);
+    my $self = $class.new([,] %options, :mode<deciphering>);
     return sub(Str $ciphertext?) {
         if defined $ciphertext { return $self.cipher($ciphertext) }
         else                   { return $self.finishstr() }
@@ -352,5 +352,5 @@ sub byteify(Str $string) returns Array of Int {
     return map {.ord}, $string.split('');
 }
 sub stringify(Array $array) returns Str {
-    return [~] map {.chr}, *$array;
+    return [~] map {.chr}, [,] $array;
 }

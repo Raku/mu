@@ -118,7 +118,7 @@ exit;
 
     # XXX - or fix me
     # {
-    #    my @a = *$span.lazy;
+    #    my @a = $span.lazy[];
     #    is( @a, "1 2 7 9", "lazy array" );
     # }
 

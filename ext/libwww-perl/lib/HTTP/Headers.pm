@@ -45,10 +45,10 @@ my @entity_headers = <
 my %entity_header = @entity_headers.map:{ %entity_header{uc $_} = 1 };
 
 our @header_order = (
- *@general_headers,
- *@request_headers,
- *@response_headers,
- *@entity_headers,
+ @general_headers,
+ @request_headers,
+ @response_headers,
+ @entity_headers,
 );
 
 # Make alternative representations of @header_order.  This is used
@@ -132,7 +132,7 @@ my method header (Str $field is copy, Str $val is copy, Str $op = "") {
     if $val !~~ Array {
       push @new, $val;
     } else {
-      push @new, *@$val;
+      push @new, @$val;
     }
     %!headers{$field} = @new > 1 ?? \@new !! @new[0];
   }

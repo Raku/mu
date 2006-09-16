@@ -27,7 +27,7 @@ class Cipher::TestGuts is Cipher {
         return map {
             ($self.mode eq 'enciphering' ?? ord 'E' !! ord 'D'), 
             ord $.num_invocations
-        }, *$data;
+        }, @$data;
     }
     
     submethod BUILD() { .zeroize() }

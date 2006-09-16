@@ -58,7 +58,7 @@ class Chat {
     @c   .= map:{ $rgb[$n][$_] * $m };
     my $g = @c[0] * 0.3 + @c[1] * 0.59 + @c[2] * 0.11;
     my $f = $g > 127 ?? "#000000" !! "#ffffff";
-    my $h = sprintf "#%02x%02x%02x", *@c;
+    my $h = sprintf "#%02x%02x%02x", @c;
 
     return [$f, $h];
   }

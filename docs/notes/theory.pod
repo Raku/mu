@@ -85,7 +85,7 @@ uncommon thing), use a null comma at the end:
 Tuples, like lists, may be flattened into other tuples:
 
     my $a = (1,2,3);    # a tuple with positionals 1,2,3
-    my $b = (0,*$a,4);  # a tuple with positionals 0,1,2,3,4
+    my $b = (0, [,]($a), 4);  # a tuple with positionals 0,1,2,3,4
 
 As a special case, function application will automatically (lexically)
 tuplize a single argument:
@@ -111,7 +111,7 @@ introduced for, we can use this:
 The upshot is that you can easily delegate an arbitrary argument list to
 another function:
 
-    sub foo (*$args) { bar(*$args) }   # call bar with whatever args foo
+    sub foo (*$args) { bar([,] $args) }   # call bar with whatever args foo
                                        # was called with
 
 Tuples also have a pattern constructor, comma, for use in signatures and

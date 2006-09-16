@@ -256,7 +256,7 @@ qq|<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 }
 
 
-my @prep_index = *%conf<index>;
+my @prep_index = %conf<index>[];
 if %conf<add_others> { 
     # todo_ maybe
     # my %index{ @prep_index } >>= 1;
@@ -290,7 +290,7 @@ for @prep_index.kv -> $idx, $tut_fn {
     # todo_
     # my ( @parts, @out_parts ) = get_output( $tut_fp, each_line => %conf<each_line> );
     # my ( @parts, @out_parts );  # todo_ - uncomment and you will see for $idx >= 1
-    { my ( @r ) = get_output( $tut_fp, each_line => %conf<each_line> ); @parts = *@r[0]; @out_parts = *@r[1] }
+    { my ( @r ) = get_output( $tut_fp, each_line => %conf<each_line> ); @parts = @r[0][]; @out_parts = @r[1][] }
 
     say "parts: {+@parts}, out_parts: {+@out_parts}" if $dg;
     say 'parts: ' ~ @parts.perl if $dg;

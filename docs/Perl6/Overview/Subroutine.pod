@@ -226,13 +226,13 @@ Parentheses matter:
 Splatting:
 
     foo $pair;        # one positional argument ($pair)
-    foo *$pair;       # one named argument
+    foo [,] $pair;       # one named argument
                       # ($pair.value passed by the name $pair.key)
 
     foo @array;       # one positional argument (the array @array)
-    foo *@array;      # many positional arguments
+    foo [,] @array;      # many positional arguments
                       # (@array's contents are passed positionally)
 
     foo %hash;        # one positional argument (the hash %hash)
-    foo *%hash;       # many named arguments
+    foo [,] %hash;       # many named arguments
                       # (%hash.values are passed by the names %hash.keys)

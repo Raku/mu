@@ -1,4 +1,4 @@
-sub circumfix:<{}>(*@pairs) is primitive { \hash(*@pairs) }
+sub circumfix:<{}>(*@pairs) is primitive { \hash(@pairs) }
 sub hash(*@pairs) is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt   = args.shift();
@@ -140,7 +140,7 @@ sub PIL2JS::Internals::Hacks::hash_postcircumfix_for_undefs (
   }
 
   $hash = hash();
-  $hash{*@keys};
+  $hash{@keys};
 }
 
 sub PIL2JS::Internals::Hacks::init_undef_hash_postcircumfix_method () is primitive {

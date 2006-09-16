@@ -19,7 +19,7 @@ plan 18;
     
     # L<S03/"List flattening" /an Array \(or Arglist\)/>
     my sub foo ($a, $b, $c) { "$a!$b!$c" }
-    dies_ok { foo *$arglist },
+    dies_ok { foo [,] =$arglist },
         "simply arglist creation with \\( works (2)";
 }
 
@@ -28,7 +28,7 @@ plan 18;
     
     # L<S03/"List flattening" /an Array \(or Arglist\)/>
     my sub foo ($a, :$named) { "$a!$named" }
-    is try { foo *$arglist }, "1!arg",
+    is try { foo [,] =$arglist }, "1!arg",
         "simply arglist creation with \\( works (3)", :todo<feature>;
 }
 
@@ -37,7 +37,7 @@ plan 18;
     
     # L<S03/"List flattening" /an Array \(or Arglist\)/>
     my sub foo ($a, $pair) { "$a!$pair" }
-    is try { foo *$arglist }, "1!positional\tpair",
+    is try { foo [,] =$arglist }, "1!positional\tpair",
         "simply arglist creation with \\( works (4)", :todo<feature>;
 }
 
@@ -47,14 +47,14 @@ plan 18;
 
     # L<S03/"List flattening" /an Array \(or Arglist\)/>
     my sub foo (@arr) { ~@arr }
-    is try { foo *$arglist }, "a b c",
+    is try { foo [,] =$arglist }, "a b c",
         "arglist creation with \\( works";
 }
 
 # L<S06/"Argument list binding" /single scalar parameter marked/>
 {
     my sub bar ($a, $b, $c) { "$a!$b!$c" }
-    my sub foo (\$arglist)  { bar *$arglist }
+    my sub foo (\$arglist)  { bar [,] =$arglist }
 
     is try { foo(1,2,3) }, "1!2!3",
         "arglist creation with \\$ works (1)", :todo<feature>;
@@ -87,7 +87,7 @@ plan 18;
     my sub foo ($args) { $arglist1 = $args }
 
     my $arglist2 = \(1,2,3);
-    try { foo $arglist2 };  # note: no *$args here
+    try { foo $arglist2 };  # note: no [,] =$args here
 
     cmp_ok $arglist1, &infix:<===>, $arglist2,
         "unflattened arglists can be passed to subs";
@@ -98,9 +98,9 @@ plan 18;
     my $arglist = \(:foo<bar>, :baz<grtz>);
     my sub foo ($a,$b, :$foo, :$baz) { "$a!$b!$foo!$baz" }
 
-    dies_ok { foo *$arglist },  # too few args
+    dies_ok { foo [,] =$arglist },  # too few args
         "mixing ordinary args with arglists (1)";
-    is try { foo 1,2, *$arglist }, "1!2!bar!grtz",
+    is try { foo 1,2, [,] =$arglist }, "1!2!bar!grtz",
         "mixing ordinary args with arglists (2)", :todo<feature>;
 }
 

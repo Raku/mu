@@ -79,5 +79,5 @@ method zeroize() {
 }
 
 method _cipher(Array $data) {
-    map { %.table{$_} // $_ }, *$data;
+    map { %.table{$_} // $_ }, @$data;
 }

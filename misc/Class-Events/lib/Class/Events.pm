@@ -27,11 +27,11 @@ role Class::Events::Publisher {
     }
     
     method notify (*@args) {
-        .notify(Class::Events::Event.new(*@args));
+        .notify(Class::Events::Event.new([,] @args));
     }
 
     method mk_notifications (*@subscriptions of Class::Events::Subscription) {
-        map { Class::Events::Notification.new(:subscriber($_), :event($event)) }, *@subscriptions;
+        map { Class::Events::Notification.new(:subscriber($_), :event($event)) }, [,] @subscriptions;
     }
     
     method get_subscriptions (Class::Events::Publisher $publisher, Class::Publisher::Event $event) {

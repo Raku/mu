@@ -19,13 +19,13 @@ L<"http://groups.google.de/group/perl.perl6.language/msg/bd9eb275d5da2eda">
   my @array = <5 -3 7 0 1 -9>;
   my $sum   = 5 + -3 + 7 + 0 + 1 + -9; # laziness :)
 
-  is(([+] *@array),      $sum, "[+] works");
+  is(([+] @array),      $sum, "[+] works");
   is(([*]  1,2,3),    (1*2*3), "[*] works");
   is(([-]  1,2,3),    (1-2-3), "[-] works");
   is(([/]  12,4,3),  (12/4/3), "[/] works");
   is(([**] 2,2,3),  (2**2**3), "[**] works");
 
-  is((~ [\+] *@array), "5 2 9 9 10 1", "[\\+] works");
+  is((~ [\+] @array), "5 2 9 9 10 1", "[\\+] works");
   is((~ [\-] 1, 2, 3), "1 -1 -4",      "[\\-] works");
 }
 
@@ -58,14 +58,14 @@ L<"http://groups.google.de/group/perl.perl6.language/msg/bd9eb275d5da2eda">
 
 {
   my @array = (undef, undef, 3, undef, 5);
-  is ([//]  *@array), 3, "[//] works";
-  is ([err] *@array), 3, "[err] works";
+  is ([//]  @array), 3, "[//] works";
+  is ([err] @array), 3, "[err] works";
 }
 
 {
   my @array = (undef, undef, 0, 3, undef, 5);
-  is ([||] *@array), 3, "[||] works";
-  is ([or] *@array), 3, "[or] works";
+  is ([||] @array), 3, "[||] works";
+  is ([or] @array), 3, "[or] works";
 
   # undefs as well as [//] should work too, but testing it like
   # this would presumably emit warnings when we have them.

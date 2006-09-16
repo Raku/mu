@@ -26,7 +26,7 @@ multi submethod BUILD (HTTP::Headers $header, Str $content = "") {
 }
 
 multi submethod BUILD (%header, Str $content = "") {
-    $!headers = HTTP::Headers.new(*%header);
+    $!headers = HTTP::Headers.new([,] %header);
     $!content = $content;
 }
 

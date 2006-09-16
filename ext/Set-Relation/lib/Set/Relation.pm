@@ -337,7 +337,7 @@ method any_names_exist of Bool (Set::Relation::AttrName *@attr_names) {
 }
 
 method no_names_exist of Bool (Set::Relation::AttrName *@attr_names) {
-    return !self.all_exist( *@attr_names );
+    return !self.all_exist( @attr_names );
 }
 
 ###########################################################################
@@ -761,7 +761,7 @@ multi method product (Set::Relation *@others) returns Set::Relation {
         return self;
     }
 
-    my Set::Relation @sources = (self, *@others);
+    my Set::Relation @sources = (self, @others);
     while (my $r1 = @sources.shift()) {
         for @sources -> $r2 {
             die "The heading of at least one given relation in @others has"
@@ -835,7 +835,7 @@ multi method join (Set::Relation *@others) returns Set::Relation {
         return self;
     }
 
-    my Set::Relation @sources = (self, *@others);
+    my Set::Relation @sources = (self, @others);
     my Set::Relation @r_with_zero_tuples;
     my Set::Relation @r_with_shared_attrs;
     my Set::Relation @r_with_disjoint_attrs;

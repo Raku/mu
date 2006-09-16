@@ -219,13 +219,13 @@ You've probably seen Perl 5 functions that go out of their way to accept
 either positional args, or a hash or hashref with named args. There's no
 need to do that any more. If you have a function you'll be calling many
 times with a changing set of arguments, you can keep them in a hash and
-use the I<splat> operator C<*> to flatten it:
+use the I<comma reduce> operator C<[,]> to flatten it:
 
   sub make_many_cars ($howmany) {
       my @cars;
       for 1 .. $howmany {         # the parens can be omitted here in Perl 6
           my %car_prefs = get_user_prefs();
-          push @cars, make_car(*%car_prefs);
+          push @cars, make_car([,]%car_prefs);
       }
       return @cars;
   }

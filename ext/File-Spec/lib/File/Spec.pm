@@ -40,11 +40,11 @@ sub splitpath (Str $path, Bool $nofile?) returns Array is export {
 }
 
 sub catdir (*@path) returns Str is export {
-    return &::($worker_pkg)::catdir( *@path );
+    return &::($worker_pkg)::catdir( @path );
 }
 
 sub catfile (*@_path) returns Str is export {
-    return &::($worker_pkg)::catfile( *@_path );
+    return &::($worker_pkg)::catfile( @_path );
 }
 
 sub catpath (Str $volume, Str $directory, Str $file) returns Str is export {
@@ -64,7 +64,7 @@ sub canonpath (Str $_path) returns Str is export {
 }
 
 sub no_upwards (*@filenames) returns Array is export {
-    return &::($worker_pkg)::no_upwards( *@filenames );
+    return &::($worker_pkg)::no_upwards( @filenames );
 }
 
 sub file_name_is_absolute (Str $file) returns Bool is export {
