@@ -56,6 +56,7 @@ sub __CMD__ {
                 my $err = $@;
                 $err =~ s/([\\\n])/\\$1/g;
                 print "$err\n";
+                exit(1);
             }
             @subrules = ();
         }
