@@ -25,6 +25,7 @@ ruleLit = do
         , undefLiteral
         , namedLiteral "NaN"    (VNum $ 0/0)
         , namedLiteral "Inf"    (VNum $ 1/0)
+        , namedLiteral "*"      (VNum $ 1/0)
         , yadaLiteral
         , qLiteral
         , rxLiteral

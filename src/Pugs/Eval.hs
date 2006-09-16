@@ -632,11 +632,13 @@ reduceSyn ":=" [var, vexp] = do
 
 reduceSyn "*" [] = return (VNum (1/0))
 
-reduceSyn "*" [exp] = do
+{-
+reduceSyn "[,]" [exp] = do
     val <- enterRValue $ enterEvalContext cxtSlurpyAny exp
     return . VList =<< fromVal val
     -- vals <- fromVals val
     -- return $ VList $ concat vals
+-}
 
 reduceSyn "," exps = do
     vals <- mapM (enterEvalContext cxtSlurpyAny) exps

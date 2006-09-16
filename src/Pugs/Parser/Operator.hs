@@ -71,7 +71,7 @@ termLevel = circumOps (Set.singleton (MkOpName (cast "\\( )")))
 methLevel = methOps (opWords " . .+ .? .* .+ .() .[] .{} .<<>> .= ")
 incrLevel = postOps incrOps ++ preOps incrOps
 expoLevel = rightOps (opWords " ** ")
-symbLevel = optPreSyn (opWords " * ") ++ preOps symbPreops
+symbLevel = preOps symbPreops
 multLevel = leftOps (opWords " * / % x xx +& +< +> ~& ~< ~> ?& ")
 addiLevel = leftOps (opWords " + - ~ +| +^ ~| ~^ ?| ")
 junaLevel = listOps (opWords " & ")
