@@ -8,13 +8,13 @@
 # Contact agentzh on #perl6 if you have a patch or any good ideas for this tool.
 
 use strict;
-use warnings;
+#use warnings;
 
 #use YAML::Syck;
 use Getopt::Long;
 use File::Basename;
 use FindBin;
-use Pod::Simple::HTML;
+#use Pod::Simple::HTML;
 
 my $check;
 my $test_result;
@@ -265,6 +265,10 @@ sub process_paragraph ($) {
 
 sub gen_html ($$$) {
     my ($pod, $syn_id, $cssfile) = @_;
+
+    eval { require Pod::Simple::HTML };
+    die "error: Pod::Simple::HTML is not installed on your machine.\n"
+        if $@;
 
     $Pod::Simple::HTML::Content_decl =
         q{<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >};
@@ -727,8 +731,15 @@ however, pod directives in the keyphrases, just like this:
 
     # L<S04/Str/"=item split">
 
-Smartlinks in .t files can be preceded by nothing but spaces or "#", otherwise
-they can't be recognized by tools.
+Smartlinks in .t files can be preceded by nothing but spaces or "#", furthermore,
+there should be no trailing text on the same line, otherwise
+they can't be recognized by tools. Here're some *invalid* samples:
+
+    # the following smartlink is INVALID!!!
+    # Link is L<S04/Str>
+
+    # the following smartlink is INVALID TOO!!!
+    # L<S04/Str> # This is a comment
 
 There's also a variant for the smartlink syntax:
 
