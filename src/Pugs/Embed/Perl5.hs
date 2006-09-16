@@ -268,11 +268,12 @@ evalPCR path match rule subrules = do
     hFlush inp
     rv <- hGetLine out
     case rv of
-        ('O':'K':' ':sizeStr) -> do
-            size <- readIO sizeStr
-            rv   <- sequence (replicate size (hGetChar out))
+        ('O':'K':' ':_) -> do
+            -- size <- readIO sizeStr
+            -- rv   <- sequence (replicate size (hGetChar out))
             ln   <- hGetLine out
-            return $ rv ++ ln
+            ln2  <- hGetLine out
+            return $ ln ++ ln2
         _ -> do
             errMsg  <- hGetContents err
             rv      <- waitForProcess pid
