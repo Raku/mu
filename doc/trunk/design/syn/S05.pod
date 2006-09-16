@@ -1534,7 +1534,7 @@ Or cast it into an array:
 Note that, as a scalar variable, C<$/> doesn't automatically flatten
 in list context.  Use C<@()> as a shorthand for C<@($/)> to flatten
 the positional captures under list context.  Note that a C<Match> object
-is allowed to evaluate its match lazily in list context.  Use C<**@()>
+is allowed to evaluate its match lazily in list context.  Use C<eager @()>
 to force an eager match.
 
 =item *

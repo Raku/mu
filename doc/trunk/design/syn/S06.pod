@@ -2124,7 +2124,7 @@ The wrapper is not required to call the original routine; it can call another
 C<Code> object by passing the C<Capture> to its C<call> method:
 
     # Transparently redirect all calls to &thermo to &other_thermo
-    &thermo.wrap( -> \$args { &other_thermo.call(*$args) } );
+    &thermo.wrap( -> \$args { &other_thermo.call([,] =$args) } );
 
 Outside a wrapper, C<call> implicitly calls the next-most-likely method
 or multi-sub; see S12 for details.
@@ -2132,9 +2132,9 @@ or multi-sub; see S12 for details.
 As with any return value, you may capture the returned C<Capture> of C<call>
 by binding:
 
-    my \$retval := call(*$args);
+    my \$retval := call([,] =$args);
     ... # postprocessing
-    return *$retval;
+    return [,] =$retval;
 
 =head2 The C<&?ROUTINE> object
 
