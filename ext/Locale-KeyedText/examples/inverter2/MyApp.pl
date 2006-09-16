@@ -8,8 +8,7 @@ use MyLib;
 
 sub main () {
     # user indicates language pref as command line argument
-#    my Str @user_lang_prefs = grep { $_ ~~ m/^<[a-zA-Z]>+$/ }, @*ARGS;
-    my Str @user_lang_prefs = grep { $_ ~~ m:perl5/^[a-zA-Z]+$/ }, @*ARGS; #:
+    my Str @user_lang_prefs = @*ARGS.grep:{ $_ ~~ m/^<[a-zA-Z]>+$/ };
     @user_lang_prefs = 'Eng'
         if @user_lang_prefs == 0;
 

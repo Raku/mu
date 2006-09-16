@@ -300,9 +300,8 @@ method interpolate_vars_into_template_text
         '%msg_vars!', %msg_vars );
 
     for %msg_vars.kv -> $var_name, $var_value {
-        my Str $var_value_as_str = $var_value // $EMPTY_STR; #/
-#        $text ~~ s:g/\<$var_name\>/$var_value_as_str/; #: v req PGE/Parrot
-        $text ~~ s:perl5:g/\<$var_name\>/$var_value_as_str/; #: v req Pugs
+        my Str $var_value_as_str = $var_value // $EMPTY_STR;
+        $text ~~ s:g/\<$var_name\>/$var_value_as_str/;
     }
 
     return $text;

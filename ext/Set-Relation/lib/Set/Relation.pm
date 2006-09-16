@@ -31,7 +31,7 @@ multi sub infix:<===> of Bool
 class Set::Relation::H-0.0.2 {
 #    has Hash $!attrs = {}; # may be needed for prototype object to work right?
     has Hash $!attrs; # but if we like implicit autoviv, this version is better
-    
+
 #    multi Set::Relation::H () { ::?CLASS.new() } # for prototype?
 
 ###########################################################################
