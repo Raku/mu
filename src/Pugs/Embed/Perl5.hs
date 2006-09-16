@@ -41,7 +41,7 @@ evalPCR path match rule subrules = do
             ln2  <- hGetLine out
             return $ ln ++ ln2
         _ -> do
-            errMsg  <- hGetContents err
+            errMsg  <- rv ++ hGetContents err
             rv      <- waitForProcess pid
             writeIORef _Perl5Interp Nothing
             let msg | null errMsg = show rv
