@@ -84,6 +84,7 @@ plan 17;
   is($x, 10, 'repeat until {}');
 }
 
+# L<S04/The C<repeat> statement/"bind the result">
 {
   my $x = 0; repeat until $x >= 10 -> $another_x {
       pass('repeat until with binding starts undefined') unless $another_x.defined;
