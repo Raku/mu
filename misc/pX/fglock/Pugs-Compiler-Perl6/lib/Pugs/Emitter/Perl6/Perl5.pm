@@ -18,6 +18,7 @@ use Pugs::Emitter::Perl6::Perl5::Perl5Hash;
 use Pugs::Emitter::Perl6::Perl5::Perl5Array;
 use Pugs::Emitter::Perl6::Perl5::Pair;
 use Pugs::Emitter::Perl6::Perl5::Value;
+use Pugs::Emitter::Perl6::Perl5::Statements;
 
 # TODO - finish localizing %_V6_ENV at each block
 our %_V6_ENV;
@@ -177,11 +178,7 @@ sub _emit {
         unless ref( $n ) eq 'HASH';
 
     if (exists $n->{statements}) {
-        my $statements = join ( ";\n", 
-            map { defined $_ ? _emit( $_ ) : () } 
-            @{$n->{statements}}, undef 
-        );
-        return length $statements ? $statements : "";
+        return Pugs::Emitter::Perl6::Perl5::Statements->new( $n->{statements} );
     }
 
     return Pugs::Runtime::Common::mangle_ident( $n->{bareword} )
@@ -224,7 +221,7 @@ sub _emit {
         if exists $n->{double_quoted};
             
     return Pugs::Emitter::Perl6::Perl5::Str->new( { 
-        value => $n->{single_quoted} 
+        name => $n->{single_quoted} 
     } )
         if exists $n->{single_quoted};
             

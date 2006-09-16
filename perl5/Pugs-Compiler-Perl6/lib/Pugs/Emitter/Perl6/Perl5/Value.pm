@@ -7,7 +7,7 @@ package Pugs::Emitter::Perl6::Perl5::Value;
 package Pugs::Emitter::Perl6::Perl5::Bool;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
     sub WHAT { 
-        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => "'Bool'" } );
+        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Bool' } );
     }
     sub str {
         # TODO
@@ -18,10 +18,10 @@ package Pugs::Emitter::Perl6::Perl5::Bool;
 package Pugs::Emitter::Perl6::Perl5::Str;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
     sub WHAT { 
-        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => "'Str'" } );
+        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Str' } );
     }
     sub str {
-        # TODO
+        "'" . $_[0]->{name} . "'"
     }
     sub perl {
         "'" . $_[0]->{name} . "'"
@@ -35,7 +35,7 @@ package Pugs::Emitter::Perl6::Perl5::Str;
 package Pugs::Emitter::Perl6::Perl5::Int;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
     sub WHAT { 
-        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => "'Int'" } );
+        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Int' } );
     }
     sub str {
         $_[0]->{name}
@@ -46,7 +46,18 @@ package Pugs::Emitter::Perl6::Perl5::Int;
 package Pugs::Emitter::Perl6::Perl5::Num;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
     sub WHAT { 
-        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => "'Num'" } );
+        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Num' } );
+    }
+    sub str {
+        $_[0]->{name}
+    }
+    sub perl {
+        $_[0]->{name}
+    }
+package Pugs::Emitter::Perl6::Perl5::Code;
+    use base 'Pugs::Emitter::Perl6::Perl5::Value';
+    sub WHAT { 
+        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Code' } );
     }
     sub str {
         $_[0]->{name}

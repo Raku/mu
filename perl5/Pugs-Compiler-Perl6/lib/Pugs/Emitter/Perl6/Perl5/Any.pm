@@ -26,7 +26,7 @@ sub dollar_name {
 }
 
 sub WHAT { 
-    return "'Any'";  # hardcoded 
+    return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Any' } );
 }
 
 sub isa { 
@@ -109,6 +109,18 @@ sub _91__93_ {
     my $other = $self->other_get( $_[1] );
     return $_[0] unless $other;  # TODO
     return $self->dollar_name . '[' . $other . ']';
+}
+
+sub print {
+    return Pugs::Emitter::Perl6::Perl5::Code->new( {
+        name => 'print ' . $_[0]->str
+    } );
+}
+
+sub say {
+    return Pugs::Emitter::Perl6::Perl5::Code->new( {
+        name => 'print ' . $_[0]->str . ', "\n";'
+    } );
 }
 
 1;
