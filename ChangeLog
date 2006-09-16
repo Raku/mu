@@ -18,8 +18,22 @@
 
 == Updated modules
 
-* [ext/CGI/] - refactored to have an OO interface, and the ability to pass
-  args to new() was added.
+* [ext/CGI/] 
+** change 'cookies' attribute spelling to 'cookie', to stay consistent with
+   Perl5. (We could add "cookies" as an alias if you feel strongly...).  
+** Support for "charset" is improving, but still needs a charset method, and a
+   hook in header(). See CGI.pm-p5 for a reference on this. 
+** Added basic tests for escapeHTML and unescapeHTML, which exposed basic
+   problems with them. They should now be be basically working. 
+** Implement code/docs for "as_yaml", a new method to dump the params as yaml
+** Implement code/docs/test for Dump function from p5:CGI 
+** Use 'type' rather than 'content_type', for compatibility with p5:CGI 
+** Only send the Content-Type header if we have a content-type 
+** Only send "Status: " header if it's a redirect, or it's explicitly added.
+** Allow Initializing the object with your hash of params 
+** Added new test for PATH_INFO 
+** refactored into an OO-only module, breaking backwards compatibility. 
+
 * [ext/HTTP-Server-Simple/] - switched from non-standard "./" syntax to 
   standard "self." syntax.
 * [ext/Rosetta/] - Significant updates to lib/Rosetta/SeeAlso.pod.
