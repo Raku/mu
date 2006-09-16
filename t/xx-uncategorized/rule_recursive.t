@@ -9,7 +9,7 @@ use Test;
 
 =cut
 
-plan 16;
+plan 20;
 
 unless "a" ~~ rx/a/ {
   skip_rest "skipped tests - rule support appears to be missing";
@@ -38,4 +38,12 @@ ok "xx" ~~ /<r>$/, '"xx" ~~ /<r>$/ matched';
 is $/, "xx", 'with "xx"';
 is $/.from, 0, 'from 0';
 is $/.to, 2, 'to 2';
+
+
+rule r2 { <null> | <r2> x }
+
+ok "x" ~~ /<r2>$/, '"x" ~~ /<r2>$/ matched';
+is $/, "x", 'with "x"';
+is $/.from, 0, 'from 0';
+is $/.to, 1, 'to 1';
 
