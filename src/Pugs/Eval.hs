@@ -744,6 +744,7 @@ reduceSyn "rx" [exp, adverbs] = do
     flag_g  <- fromAdverb hv ["g", "global"]
     flag_i  <- fromAdverb hv ["i", "ignorecase"]
     flag_s  <- fromAdverb hv ["s", "sigspace"]
+    flag_r  <- fromAdverb hv ["ratchet"]
     flag_tilde  <- fromAdverb hv ["stringify"] -- XXX hack
     adverbHash  <- reduce adverbs
     let g = ('g' `elem` p5flags || flag_g)
@@ -754,10 +755,15 @@ reduceSyn "rx" [exp, adverbs] = do
                     , ('s' `elem` p5flags) `implies` pcreDotall
                     , ('x' `elem` p5flags) `implies` pcreExtended
                     ]
-        p6re = if not flag_s then str
-               else case str of
-                      ':':_ -> ":s"   ++ str
-                      _     -> ":s::" ++ str
+        p6re = combine
+            [ if flag_s then (\x -> ":sigspace(1)[" ++ x ++ "]") else id
+            , if flag_r then (\x -> ":ratchet(1)[" ++ x ++ "]") else id
+            ] str
+        {-
+        p6re | null p6reAdvs = str
+             | ':':_ <- str  = p6reAdvs ++ str
+             | otherwise     = p6reAdvs ++ "::" ++ str
+        -}
         rx | p5 = do ns <- liftIO $ numSubs p5re
                      return $ MkRulePCRE p5re g ns flag_tilde str adverbHash
            | otherwise = return $ MkRulePGE p6re g flag_tilde adverbHash
