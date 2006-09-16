@@ -79,7 +79,7 @@ sub dump_hs {
 
     if ($obj) {
         # Ok, this is a genuine Match object.
-        return "PGE_Fail" unless $obj->{bool};
+        return "PGE_Fail" unless ${$obj->{bool}};
 
         # Now we matched; dump the rest of data
         join(' ', 'PGE_Match', ${$obj->{from}}, ${$obj->{to}},

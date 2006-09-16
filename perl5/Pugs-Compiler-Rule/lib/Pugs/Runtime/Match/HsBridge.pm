@@ -7,6 +7,8 @@ use Pugs::Compiler::Regex;
 use base 'Pugs::Grammar::Base';
 
 sub __CMD__ {
+    local $| = 1;
+
     # Command line shell interface - compatible with run_pge.pir
     binmode STDIN, ':utf8';
     binmode STDOUT, ':utf8';
@@ -24,8 +26,11 @@ sub __CMD__ {
             push @subrules, $line1, $line2;
         }
         elsif ($cmd eq 'match') {
-            print __PACKAGE__->__RUN__($line1, $line2, @subrules), "\n";
-            exit;
+            my $rv = __PACKAGE__->__RUN__($line1, $line2, @subrules);
+            my $len = bytes::length($rv)+1;
+            print "OK $len\n";
+            print "$rv\n\n";
+            @subrules = ();
         }
         else {
             die "Unrecognized command: $cmd";
@@ -41,12 +46,12 @@ sub __RUN__ {
 
     while (my ($name, $body) = each %subrules) {
         my %opts = (grammar => __PACKAGE__);
-        $opts{$1} = 1 while $body =~ s/^:(\w+)\(1\)\[(.+)\]\z/$2/s;
+        ($1 and $opts{$1} = 1) while $body =~ s/^:(\w*)\(1?\)\[(.*)\]\z/$2/s;
         Pugs::Compiler::Regex->install( $name => $body, \%opts );
     }
 
-    my %opts    = (grammar => __PACKAGE__);
-    $opts{$1}   = 1 while $rule_text =~ s/^:(\w+)\(1\)\[(.+)\]\z/$2/s;
+    my %opts = (grammar => __PACKAGE__);
+    ($1 and $opts{$1} = 1) while $rule_text =~ s/^:(\w*)\(1?\)\[(.*)\]\z/$2/s;
 
     my $rule    = Pugs::Compiler::Regex->compile( $rule_text, \%opts );
     my $match   = $rule->match( $match_text );
