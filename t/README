@@ -109,7 +109,7 @@ util/smartlinks.pl to verify the links' validity:
 
    $ perl util/smartlinks.pl --check t/some/test.t
 
-By default, the freshness of the synopses will checked every time. use "--fast"
+By default, the freshness of the synopses will checked every time. Use "--fast"
 to skip that step.
 
 - Dealing with parse failures
