@@ -196,6 +196,18 @@ token named_capture_body {
     '$$'  => token { { return { colon => '$$' ,} } },
     '^^'  => token { { return { colon => '^^' ,} } },
     '^'   => token { { return { colon => '^'  ,} } },
+
+    ':i'           => token { { return { modifier => 'ignorecase'  ,} } },
+    ':ignorecase'  => token { { return { modifier => 'ignorecase'  ,} } },
+    ':s'           => token { { return { modifier => 'sigspace'  ,} } },
+    ':sigspace'    => token { { return { modifier => 'sigspace'  ,} } },
+    ':P5'          => token { { return { modifier => 'Perl5'  ,} } },
+    ':Perl5'       => token { { return { modifier => 'Perl5'  ,} } },
+    ':bytes'       => token { { return { modifier => 'bytes'  ,} } },
+    ':codes'       => token { { return { modifier => 'codes'  ,} } },
+    ':graphs'      => token { { return { modifier => 'graphs' ,} } },
+    ':langs'       => token { { return { modifier => 'langs'  ,} } },
+
 ); # /%rule_terms
     
 token term {

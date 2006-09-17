@@ -678,6 +678,10 @@ sub colon {
 
     die "'$str' not implemented";
 }
+sub modifier {
+    my $str = $_[0];
+    die "modifier '$str' not implemented";
+}
 sub constant {
     call_constant( @_ );
 }

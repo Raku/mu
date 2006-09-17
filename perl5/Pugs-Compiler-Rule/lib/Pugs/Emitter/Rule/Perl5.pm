@@ -366,6 +366,10 @@ sub colon {
         if $str eq '$$';
     die "'$str' not implemented";
 }
+sub modifier {
+    my $str = $_[0];
+    die "modifier '$str' not implemented";
+}
 sub constant {
     my $char = $_[0] eq '\\' ? '\\\\' : $_[0];
     return "$_[1] constant( q!$char! )\n" unless $char =~ /!/;
