@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 14 Sep 2006
+  Last Modified: 16 Sep 2006
   Number: 3
-  Version: 64
+  Version: 65
 
 =head1 Changes to Perl 5 operators
 
@@ -34,6 +34,19 @@ forms are now C<$(...)>, C<@(...)>, C<%(...)>, etc. instead.
 =item * The string concatenation C<.> becomes C<~>.  Think of it as
 "stitching" the two ends of its arguments together.  String append
 is likewise C<~=>.
+
+=item * The filetest operators now return a result that is both a boolean
+and a stat buffer, so there is no longer any need for Perl 5's C<_> term.
+Instead just cascade tests to "and" them:
+
+    if -r -w -x $filename {...}
+
+Or put the value in a variable to do anything fancier:
+
+    $sb = -e $filename;
+    if -r $sb {...}
+    if -w $sb {...}
+    if -x $sb {...}
 
 =item * All postfix operators that do not start with a dot also have
 an alternate form that does.  (The converse does not hold--just because
