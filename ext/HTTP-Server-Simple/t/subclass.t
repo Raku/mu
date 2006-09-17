@@ -6,7 +6,7 @@ plan 1;
 use HTTP::Server::Simple;
 class MyServer is HTTP::Server::Simple {
     method handler {
-        say "stuff";
+        $.remote.say("stuff");
     }
 }
 
@@ -30,9 +30,9 @@ while !$fh {
 }
 
 my $nl = chr(13) ~ chr(10);
-$fh.print("GET / HTTP/1.0$nl$nl");
+$fh.print("GET / HTTP/1.0{$nl}Hostme: localhost$nl$nl");
 $fh.flush();
-ok index($fh.readline, "HTTP/") > -1, "connected to a subclassed server"
+ok index($fh.readline, "stuff") > -1, "connected to a subclassed server";
 
 # vi:set ft=perl6:
 
