@@ -4,7 +4,6 @@ use Test;
 plan 1;
 
 use HTTP::Server::Simple;
-our $DID_HANDLER = 0;
 class MyServer is HTTP::Server::Simple {
     method handler {
         say "stuff";
@@ -21,7 +20,7 @@ my $fh;
 my $count = 0;
 while !$fh {
     try {
-        $fh = connect "localhost", 8000;
+        $fh = connect "localhost", 8080;
     }
     if ++$count > 3 {
         ok 0, "could not connect to a subclassed server";
