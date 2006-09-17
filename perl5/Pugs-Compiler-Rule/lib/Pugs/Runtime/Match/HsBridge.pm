@@ -5,7 +5,7 @@ use warnings;
 use Pugs::Grammar::Base ();
 use Pugs::Compiler::Regex ();
 use base 'Pugs::Grammar::Base';
-use ops ':default', 'binmode', 'entereval';
+use ops ($ENV{PUGS_SAFEMODE} ? (':default', 'binmode', 'entereval') : ());
 
 sub __RUN__ {
     my $self        = shift;
