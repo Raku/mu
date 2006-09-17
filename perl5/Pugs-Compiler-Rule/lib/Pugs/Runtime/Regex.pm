@@ -386,15 +386,19 @@ sub hash {
 }
 
 sub end_of_string {
+    no warnings qw( uninitialized );
     return sub {
-        $_[3] = { 
-            bool  => ($_[0] eq ''),
-            match => '',
-            # TODO
-        };
-        return;
-    };
-}
+        $_[3] = Pugs::Runtime::Match->new({ 
+                bool  => \( $_[5] == length( $_[0] ) ),
+                str   => \$_[0],
+                from  => \(0 + $_[5]),
+                to    => \(0 + $_[5]),
+                named => {},
+                match => [],
+                abort => 0,
+            });
+    }
+};
 
 # not a 'rule node'
 # gets a variable from the user's pad

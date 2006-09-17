@@ -1,5 +1,5 @@
 
-use Test::More tests => 31;
+use Test::More tests => 33;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -241,4 +241,17 @@ no warnings qw( once );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", $match->perl;
     is( "$match", "x", 'at-start' );
+}
+
+{
+    my $rule = Pugs::Compiler::Regex->compile( 'x$' );
+    my $match = $rule->match( "\nx\n" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "", 'at-end - not' );
+
+    $match = $rule->match( "\nx" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "x", 'at-end' );
 }
