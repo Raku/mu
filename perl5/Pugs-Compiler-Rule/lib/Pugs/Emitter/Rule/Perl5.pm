@@ -354,6 +354,8 @@ sub before {
 }
 sub colon {
     my $str = $_[0];
+    return "$_[1] at_start() \n"
+        if $str eq '^';
     return "$_[1] alternation( [ null(), failed_abort() ] ) \n"
         if $str eq ':';
     return "$_[1] end_of_string() \n" 

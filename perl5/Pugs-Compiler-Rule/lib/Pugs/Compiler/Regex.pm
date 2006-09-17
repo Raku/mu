@@ -78,6 +78,10 @@ sub compile {
         #die "Error in rule: '$rule_source' at: '$ast->tail'\n" if $ast->tail;
         #print 'rule ast: ', do{use Data::Dumper; Dumper($ast{capture})};
 
+        #use Pugs::Emitter::Rule::Perl5::Preprocess;
+        #my $ast2 = Pugs::Emitter::Rule::Perl5::Preprocess::emit( 
+        #         $self->{grammar}, $ast, $self );
+
         if ( $self->{ratchet} ) {
             $self->{perl5} = Pugs::Emitter::Rule::Perl5::Ratchet::emit( 
                  $self->{grammar}, $ast, $self );

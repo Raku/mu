@@ -279,6 +279,21 @@ sub before {
     };
 }
 
+sub at_start {
+    no warnings qw( uninitialized );
+    return sub {
+        $_[3] = Pugs::Runtime::Match->new({ 
+                bool  => \( $_[5] == 0 ),
+                str   => \$_[0],
+                from  => \(0 + $_[5]),
+                to    => \(0 + $_[5]),
+                named => {},
+                match => [],
+                abort => 0,
+            });
+    }
+};
+
 # ------- higher-order ruleops
 
 sub optional {

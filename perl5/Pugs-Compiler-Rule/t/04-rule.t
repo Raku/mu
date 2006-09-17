@@ -1,5 +1,5 @@
 
-use Test::More tests => 29;
+use Test::More tests => 31;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -230,3 +230,15 @@ no warnings qw( once );
     is( "$match", "x", 'a named subrule calls a lexical unnamed subrule' );
 }
 
+{
+    my $rule = Pugs::Compiler::Regex->compile( '^x' );
+    my $match = $rule->match( "\nx\n" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "", 'at-start - not' );
+
+    $match = $rule->match( "x\n" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "x", 'at-start' );
+}
