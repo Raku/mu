@@ -263,6 +263,19 @@ L<http://dev.perl.org/perl6/doc/design/exe/E07.html> Format Exegesis
 
 =cut 
 
+#S16
+
+=head1
+
+=head2 Chaining file test operators has changed
+
+    Was: if (-r $file && -x _) {...}
+    Now: if -r -x $file {...}
+
+For details, see L<S03/"Changes to Perl 5 operators"/"The filetest operators now return a result that is both a boolean">
+
+=cut 
+
 #S26 
 
 =head1 Documentation
