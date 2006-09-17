@@ -1,5 +1,5 @@
 
-use Test::More tests => 33;
+use Test::More tests => 43;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -255,3 +255,66 @@ no warnings qw( once );
     #print "Match: ", $match->perl;
     is( "$match", "x", 'at-end' );
 }
+
+{
+    my $rule = Pugs::Compiler::Regex->compile( '^^x' );
+    my $match = $rule->match( "\nyx\n" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "", 'at-line-start - not' );
+
+    $match = $rule->match( "\nxy\n" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "x", 'at-line-start' );
+    
+    $match = $rule->match( "xy\n" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "x", 'at-line-start, pos==0' );
+}
+
+{
+    my $rule = Pugs::Compiler::Regex->compile( 'x$$' );
+    my $match = $rule->match( "\nyxz\n" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "", 'at-line-end - not' );
+
+    $match = $rule->match( "\nyx\n" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "x", 'at-line-end' );
+    
+    $match = $rule->match( "\nyx" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "x", 'at-line-end, pos==end' );
+}
+
+{
+    my $rule = Pugs::Compiler::Regex->compile( '^x+$' );
+    my $match = $rule->match( "\nyxxz\n" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "", 'anchored at both sides - not' );
+
+    $match = $rule->match( "xxx" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "xxx", 'anchored at both sides' );
+}
+
+{
+    my $rule = Pugs::Compiler::Regex->compile( '^^x+$$' );
+    my $match = $rule->match( "\nyxxz\n" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "", 'anchored at line start/end - not' );
+
+    $match = $rule->match( "yxxz\nxxx\nk" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "xxx", 'anchored at line start/end' );
+}
+

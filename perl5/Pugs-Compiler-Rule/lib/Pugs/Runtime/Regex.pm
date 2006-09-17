@@ -296,6 +296,55 @@ sub at_start {
     }
 };
 
+sub at_line_start {
+    no warnings qw( uninitialized );
+    return sub {
+        my $bool = $_[5] == 0
+            ||  substr( $_[0], 0, $_[5] ) =~ /\n$/s;
+        $_[3] = Pugs::Runtime::Match->new({ 
+                bool  => \$bool,
+                str   => \$_[0],
+                from  => \(0 + $_[5]),
+                to    => \(0 + $_[5]),
+                named => {},
+                match => [],
+                abort => 0,
+            });
+    }
+};
+
+sub at_line_end {
+    no warnings qw( uninitialized );
+    return sub {
+        my $bool = $_[5] >= length( $_[0] )
+            ||  substr( $_[0], $_[5] ) =~ /^\n/s;
+        $_[3] = Pugs::Runtime::Match->new({ 
+                bool  => \$bool,
+                str   => \$_[0],
+                from  => \(0 + $_[5]),
+                to    => \(0 + $_[5]),
+                named => {},
+                match => [],
+                abort => 0,
+            });
+    }
+};
+
+sub at_end_of_string {
+    no warnings qw( uninitialized );
+    return sub {
+        $_[3] = Pugs::Runtime::Match->new({ 
+                bool  => \( $_[5] == length( $_[0] ) ),
+                str   => \$_[0],
+                from  => \(0 + $_[5]),
+                to    => \(0 + $_[5]),
+                named => {},
+                match => [],
+                abort => 0,
+            });
+    }
+};
+
 # ------- higher-order ruleops
 
 sub optional {
@@ -386,21 +435,6 @@ sub hash {
     } @keys;
     return alternation( \@keys );
 }
-
-sub end_of_string {
-    no warnings qw( uninitialized );
-    return sub {
-        $_[3] = Pugs::Runtime::Match->new({ 
-                bool  => \( $_[5] == length( $_[0] ) ),
-                str   => \$_[0],
-                from  => \(0 + $_[5]),
-                to    => \(0 + $_[5]),
-                named => {},
-                match => [],
-                abort => 0,
-            });
-    }
-};
 
 # not a 'rule node'
 # gets a variable from the user's pad

@@ -358,8 +358,12 @@ sub colon {
         if $str eq '^';
     return "$_[1] alternation( [ null(), failed_abort() ] ) \n"
         if $str eq ':';
-    return "$_[1] end_of_string() \n" 
+    return "$_[1] at_end_of_string() \n" 
         if $str eq '$';
+    return "$_[1] at_line_start() \n"
+        if $str eq '^^';
+    return "$_[1] at_line_end() \n"
+        if $str eq '$$';
     die "'$str' not implemented";
 }
 sub constant {
