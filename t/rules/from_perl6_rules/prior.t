@@ -21,7 +21,7 @@ if !eval('("a" ~~ /a/)') {
 ok(!eval(' "A" ~~ m/<?prior>/ '), 'No prior successful match');
 ok($!, 'Error', :todo<feature> );
 
-ok("A" ~~ m/<[A-Z]>/, 'Successful match', :todo<feature> );
+ok("A" ~~ m/<[A-Z]>/, 'Successful match');
 
 ok("B" ~~ m/<?prior>/, 'Prior successful match', :todo<feature> );
 ok(!( "!" ~~ m/<?prior>/ ), 'Prior successful non-match');
@@ -35,7 +35,7 @@ ok("AB" ~~ m/A <?prior>/, 'Nested prior successful match', :todo<feature> );
 ok(!( "A" ~~ m/A <?prior>/ ), 'Nested prior successful non-match');
 ok("B" ~~ m/<?prior>/, 'And even now prior successful match', :todo<feature> );
 
-ok("!" ~~ m/<-[A-Z]>/, 'New successful match', :todo<feature> );
+ok("!" ~~ m/<-[A-Z]>/, 'New successful match');
 
 ok(!( "B" ~~ m/<?prior>/ ), 'New prior successful non-match');
 ok("!" ~~ m/<?prior>/, 'New prior successful match', :todo<feature> );
@@ -50,7 +50,7 @@ ok(!( "A" ~~ m/A <?prior>/ ), 'New nested prior successful non-match');
 ok("^" ~~ m/<?prior>/, 'New and even now prior successful match', :todo<feature> );
 
 
-ok("A" ~~ m/<[A-Z]>/, 'Another successful match', :todo<feature> );
+ok("A" ~~ m/<[A-Z]>/, 'Another successful match');
 ok("AA" ~~ m/^ <?prior>+ $/, 'Repeated prior', :todo<feature> );
 is($/, "AA", 'Matched fully', :todo<feature> );
 

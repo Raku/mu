@@ -25,8 +25,8 @@ my $caught = "oops!";
 ok("abc" ~~ m/a(bc){$caught = $0}/, 'Outer match', :todo<feature>);
 is($caught, "bc", 'Outer caught', :todo<feature>);
 
-ok("abc" ~~ m/a(bc){$0 = uc $0}/, 'Numeric match', :todo<feature>);
-is($/, "abc", 'Numeric matched', :todo<feature>);
+ok("abc" ~~ m/a(bc){$0 = uc $0}/, 'Numeric match');
+is($/, "abc", 'Numeric matched');
 is($0, "BC", 'Numeric caught', :todo<feature>);
 
 eval_ok(' "abc" ~~ m/a(bc){$/ = Match.new(uc $0)}/ ', 'Zero match', :todo<feature>);

@@ -34,8 +34,8 @@ ok(!( "y" ~~ m/(<[a..z]-[aeiou]-[y]>)/ ), 'Multi-difference set failure');
 ok("f" ~~ m/(<[a..z]-[aeiou]-[y]>)/, 'Multi-difference set match', :todo<feature>);
 is($0, 'f', 'Multi-difference set capture', :todo<feature>);
 
-ok(']' ~~ m/(<[]]>)/, 'LSB match', :todo<feature>);
-is($0, ']', 'LSB capture', :todo<feature>);
+ok(']' ~~ m/(<[]]>)/, 'LSB match');
+is($0, ']', 'LSB capture');
 ok(']' ~~ m/(<[\]]>)/, 'quoted close LSB match');
 is($0, ']', 'quoted close LSB capture');
 ok('[' ~~ m/(<[\[]>)/, 'quoted open LSB match');

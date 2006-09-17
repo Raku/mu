@@ -120,7 +120,7 @@ ok('{n' ~~ m/<+alnum>/, q{Match unanchored alnum as charset} , :todo<bug>);
 
 # ascii
 
-ok("+" ~~ m/^<?ascii>$/, q{Match ascii as subrule} , :todo<bug>);
+ok("+" ~~ m/^<?ascii>$/, q{Match ascii as subrule});
 ok(!( "+" ~~ m/^<!ascii>.$/ ), q{Don't match negated ascii as subrule} );
 ok(!( "+" ~~ m/^<-ascii>$/ ), q{Don't match inverted ascii as subrule} );
 
@@ -260,7 +260,7 @@ ok("\x[5F]A" ~~ m/<+upper>/, q{Match unanchored upper as charset} , :todo<bug>);
 
 # word
 
-ok("b" ~~ m/^<?word>$/, q{Match word as subrule} , :todo<bug>);
+ok("b" ~~ m/^<?word>$/, q{Match word as subrule});
 ok(!( "b" ~~ m/^<!word>.$/ ), q{Don't match negated word as subrule} );
 ok(!( "b" ~~ m/^<-word>$/ ), q{Don't match inverted word as subrule} );
 ok(!( '{'  ~~ m/^<?word>$/ ), q{Don't match unrelated word as subrule} );
