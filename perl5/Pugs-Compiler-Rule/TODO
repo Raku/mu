@@ -1,5 +1,8 @@
 TODO for Pugs::Compiler::Rule (PCR)
 
+- fix static count for repeated captures: 
+  { <x> <x>+ }  -- the first capture is not captured to array
+
 - add rollback for [ x <!before k> ]+
   - should 'unmatch' last 'x' if there is a 'k' after it
 

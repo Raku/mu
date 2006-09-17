@@ -1,3 +1,4 @@
+- fixed '^' and '$' in regexes
 
 0.17  2006-09-13
 
