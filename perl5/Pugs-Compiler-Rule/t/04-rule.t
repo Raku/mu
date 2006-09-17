@@ -1,5 +1,5 @@
 
-use Test::More tests => 46;
+use Test::More tests => 47;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -337,5 +337,13 @@ no warnings qw( once );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", $match->perl;
     is( "$match", "xy", 'null between terms' );
+}
+
+{
+    my $rule = Pugs::Compiler::Regex->compile( '<ident>' );
+    my $match = $rule->match( "\n1xy2\n" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "xy2", 'ident' );
 }
 

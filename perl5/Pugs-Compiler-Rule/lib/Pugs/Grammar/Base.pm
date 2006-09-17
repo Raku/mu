@@ -27,14 +27,18 @@ sub no_match {
     '.' 
 )->code;
 
+# specced methods
+
 *null = Pugs::Compiler::RegexPerl5->compile( 
     '' 
 )->code;
 
-# specced methods
-
 *ws = Pugs::Compiler::RegexPerl5->compile( 
     '(?:(?<!\w)|(?!\w)|\s)\s*' 
+)->code;
+
+*ident = Pugs::Compiler::RegexPerl5->compile( 
+    '[[:alpha:]_][[:alnum:]_]*' 
 )->code;
 
 BEGIN {
