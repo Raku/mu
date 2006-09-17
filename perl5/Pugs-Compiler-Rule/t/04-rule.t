@@ -1,5 +1,5 @@
 
-use Test::More tests => 43;
+use Test::More tests => 46;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -316,5 +316,26 @@ no warnings qw( once );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", $match->perl;
     is( "$match", "xxx", 'anchored at line start/end' );
+}
+
+{
+    my $rule = Pugs::Compiler::Regex->compile( '<null>' );
+    my $match = $rule->match( "" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "", 'plain null' );
+
+    $match = $rule->match( "xxx");
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( ($match ? 1 : 0 ), 1, 'null but true' );
+}
+
+{
+    my $rule = Pugs::Compiler::Regex->compile( 'x<null>y' );
+    my $match = $rule->match( "xy" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "xy", 'null between terms' );
 }
 

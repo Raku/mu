@@ -475,10 +475,11 @@ sub metasyntax {
             warn "<$cmd> not implemented";
             return;
         }
-        if ( $cmd eq 'null' ) {
-            warn "<$cmd> not implemented";
-            return;
-        }
+        # if ( $cmd eq 'null' ) {
+        #    warn "<$cmd> not implemented";
+        #    return;
+        # }
+        
         # capturing subrule
         # <subrule ( param, param ) >
         my ( $name, $param_list ) = split( /[\(\)]/, $cmd );

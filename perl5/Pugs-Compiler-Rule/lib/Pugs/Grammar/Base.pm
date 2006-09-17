@@ -27,6 +27,10 @@ sub no_match {
     '.' 
 )->code;
 
+*null = Pugs::Compiler::RegexPerl5->compile( 
+    '' 
+)->code;
+
 # specced methods
 
 *ws = Pugs::Compiler::RegexPerl5->compile( 
