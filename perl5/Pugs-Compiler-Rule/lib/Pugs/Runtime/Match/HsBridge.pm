@@ -5,6 +5,7 @@ use warnings;
 use Pugs::Grammar::Base ();
 use Pugs::Compiler::Regex ();
 use base 'Pugs::Grammar::Base';
+use ops ':default', 'binmode', 'entereval';
 
 sub __RUN__ {
     my $self        = shift;
@@ -56,7 +57,6 @@ sub __CMD__ {
                 my $err = $@;
                 $err =~ s/([\\\n])/\\$1/g;
                 print "$err\n";
-                exit(1);
             }
             @subrules = ();
         }
