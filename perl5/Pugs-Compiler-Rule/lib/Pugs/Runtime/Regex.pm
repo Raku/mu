@@ -4,6 +4,8 @@ package Pugs::Runtime::Regex;
 
 use strict;
 use warnings;
+use warnings FATAL => qw(recursion);
+
 #use Smart::Comments; #for debugging, look also at Filtered-Comments.pm
 use Data::Dumper;
 use Pugs::Runtime::Match;
