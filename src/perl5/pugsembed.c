@@ -54,8 +54,9 @@ pugs_MkValRef ( Val *val )
 Val *pugs_getenv ()
 {
     SV** rv = hv_fetch(PL_modglobal, "PugsEnv", 7, 0);
-    if (rv == NULL)
-        Perl_croak(aTHX_ "hate software so much");
+    if (rv == NULL) {
+        Perl_croak(aTHX_ "PugsEnv uninitialized; please call pugs_setenv() first.");
+    }
     IV tmp = SvIV((SV*)SvRV(*rv));
     return ((Val *)tmp);
 }
