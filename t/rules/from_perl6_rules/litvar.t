@@ -55,8 +55,9 @@ ok("c" ~~ m/@var/, 'Simple array interpolation (c)', :todo<feature>);
 ok(!( "d" ~~ m/@var/ ), 'Simple array interpolation (d)');
 ok("ddddaddddd" ~~ m/@var/, 'Nested array interpolation (a)', :todo<feature>);
 
-ok("abca" ~~ m/^@var+$/, 'Multiple array matching', :todo<feature>);
 flunk "Test hangs", :todo<bug>;
+flunk "Test hangs", :todo<bug>;
+# ok("abca" ~~ m/^@var+$/, 'Multiple array matching', :todo<feature>);
 # ok(!( "abcad" ~~ m/^@var+$/ ), 'Multiple array non-matching');
 
 

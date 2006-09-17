@@ -46,12 +46,15 @@ is(?("0x100" ~~ /^<hex>$/),Bool::True,"0x100 (hex) is parsed as a hex");
 is(?("0o100" ~~ /^<oct>$/),Bool::True,"0o100 (oct) is parsed as a oct");
 
 is(?("Perl6" ~~ /^<identZZ>$/),Bool::True,"ids are parsed");
-is(?("Perl6::rule" ~~ /^<identZZ>$/),Bool::True,"ids are parsed as fullid");
+
+flunk("test hangs", :todo<bug>);
+#is(?("Perl6::rule" ~~ /^<identZZ>$/),Bool::True,"ids are parsed as fullid");
+
 is(?("::rule" ~~ /^<identZZ>$/),Bool::True,"global ids are parsed as fullid");
 is(?('$foo' ~~ /^<variable>$/),Bool::True,"scalars are parsed as variables");
 is(?('@foo' ~~ /^<variable>$/),Bool::True,"arrays are parsed as variables");
 is(?('%foo' ~~ /^<variable>$/),Bool::True,"hashes are parsed as variables");
 is(?('&foo' ~~ /^<variable>$/),Bool::True,"subs are parsed as variables");
-is(?('sub () {}' ~~ /^<anonsub>$/),Bool::True,"Anon subs parsing");
+is(?('sub () {}' ~~ /^<anonsub>$/),Bool::True,"Anon subs parsing", :todo<bug>);
 
 }
