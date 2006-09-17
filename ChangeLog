@@ -10,7 +10,7 @@
 = Changes for 6.2.13 (rXXXXX) - September XX, 2006
 
 # Agent Zhang has reviewed r12962 ~ r13261
-# (not including fglock's work)
+# (and possibly some more, but not including fglock's work)
 
 == New Perl 6 modules
 
@@ -99,11 +99,13 @@ XXX Sage: please write something here.
 
 == Feature Changes
 
-* Integrated the Judy library into the Haskell runtime, resulting in
-  ~10% performace improvement.
-* Enabled Perl 5 embedding by default.
+* Enabled Perl 5 embedding by default. Now Pugs heavily depends on p5 embedding.
 ** For Windows users, ActivePerl 5.8.x is required.
 ** Set the PUGS_EMBED environment variable to "noperl5" to disable this.
+* Replaced PGE with Pugs::Compiler::Rule in Pugs. So now we no longer depend on
+  parrot/PGE to do rules any more.
+* Integrated the Judy library into the Haskell runtime, resulting in
+  ~10% performace improvement.
 * $obj.*$meth() is now implemented, calling zero or more methods named $meth
 in the inheritence tree, returning an unconcatenated list of return values.
 The return value of this is not yet spec'ed. Currently only lookups through
