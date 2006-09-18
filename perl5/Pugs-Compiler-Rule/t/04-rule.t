@@ -1,5 +1,5 @@
 
-use Test::More tests => 47;
+use Test::More tests => 48;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -345,5 +345,13 @@ no warnings qw( once );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", $match->perl;
     is( "$match", "xy2", 'ident' );
+
+  {
+    my $rule = Pugs::Compiler::Regex->compile( '<prior>' );
+    my $match = $rule->match( "\n1xy2\n" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "xy2", 'prior' );
+  }
 }
 

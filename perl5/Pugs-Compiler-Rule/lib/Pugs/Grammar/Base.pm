@@ -33,8 +33,8 @@ sub no_match {
 sub prior {
     warn "Error: <prior> is undefined" 
         unless defined $::_V6_PRIOR_;
-    #print "<prior> ", $::_V6_PRIOR_,"\n";
-    my $match = $::_V6_PRIOR_->( @_ );
+    #print "<prior> ", $::_V6_PRIOR_," pos $_[2]{p}\n";
+    my $match = $::_V6_PRIOR_->( @_[0,1,2,2] );  # XXX fix parameter list
     #print "match: ",Dumper($match);
     return $match;
 }

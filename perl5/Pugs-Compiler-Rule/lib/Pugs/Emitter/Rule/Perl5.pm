@@ -53,12 +53,12 @@ sub emit {
         #"    print \"match args: \",Dumper(\@_);\n" .
         "    my \$tree;\n" .
         "    if ( defined \$_[3]{p} ) {\n" .
-        "        local \$::_V6_PRIOR_;\n" .
+        "        #local \$::_V6_PRIOR_;  # XXX this should work\n" .
         "        \$matcher->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$_[3]{p}, \$_[1], \$_[3] );\n" .
         "    }\n" .
         "    else {\n" .
 
-        "        local \$::_V6_PRIOR_;\n" .
+        "        #local \$::_V6_PRIOR_;  # XXX this should work\n" .
         "        for my \$pos ( 0 .. length( \$_[1] ) - 1 ) {\n" .
         "            my \$param = { \%{\$_[3]}, p => \$pos };\n" .           
         "            \$matcher->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$pos, \$_[1], \$param );\n" .

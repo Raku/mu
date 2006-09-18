@@ -871,9 +871,9 @@ TODO:
     #print "Match: ", $match->perl;
     is( "$match", "xy2", 'ident' );
 
-  TODO: 
+  #TODO: 
   {
-    local $TODO = "<prior> not ready";
+    #local $TODO = "<prior> not ready";
     my $rule = Pugs::Compiler::Token->compile( '<prior>' );
     my $match = $rule->match( "\n1xy2\n" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
