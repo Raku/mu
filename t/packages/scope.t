@@ -8,6 +8,7 @@ use Test;
 plan 22;
 
 # 4 different ways to be imported
+# L<S10/"Packages" /A bare/>
 {
     package Test1;
     sub ns  { "Test1" }
@@ -22,21 +23,22 @@ use t::packages::Test;
 # test that all the functions are in the right place
 
 # sanity test
-is($?PACKAGE, "main", 'no declarations broke main $?PACKAGE');
+# L<S10/"Packages" /package for Perl 6 code/>
+is($?PACKAGE, "Main", 'no declarations broke Main $?PACKAGE');
 
 # block level
 is(Test1::ns, "Test1", "block-level package declarations");
-is(Test1::pkg, "Test1", 'block-level $?PACKAGE var');
-ok((Test1::pkg() === ::Test1), '$?PACKAGE is a type object');
+is(Test1::pkg, "Main::Test1", 'block-level $?PACKAGE var');
+ok((Test1::pkg() === ::Main::Test1), '$?PACKAGE is a type object');
 dies_ok { test1_export() }, "export was not imported implicitly";
 
 # declared packages
 is(Test2::ns, "Test2", "declared package");
-is(Test2::pkg, "Test2", 'declared package $?PACKAGE');
+is(Test2::pkg, "Main::Test2", 'declared package $?PACKAGE');
 
 # string eval'ed packages
-is(Test3::pkg, "Test3", 'eval\'ed package $?PACKAGE');
-ok(Test3::pkg() === ::Test3, 'eval\'ed package type object');
+is(Test3::pkg, "Main::Test3", 'eval\'ed package $?PACKAGE');
+ok(Test3::pkg() === ::Main::Test3, 'eval\'ed package type object');
 
 # this one came from t/packages/Test.pm
 is(t::packages::Test::ns, "t::packages::Test", "loaded package");

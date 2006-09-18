@@ -1,6 +1,9 @@
-use v6-alpha;
+# The semicolon form of "package" would be illegal in the
+# middle of a Perl 6 file.
+# At the top, it would mean the rest of the file was Perl 5 code.
+# So we use "package" with a block:
 
-package t::packages::Test;
+package t::packages::Test {
 
 sub ns  { "t::packages::Test" }
 
@@ -34,3 +37,5 @@ sub cant_see_pkg {
 }
 
 sub dummy_sub_with_params($arg1, $arg2) is export { "[$arg1] [$arg2]" }
+
+}
