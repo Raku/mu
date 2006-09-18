@@ -48,7 +48,7 @@ sub call_constant {
     my $len = length( eval $const );
     #print "Const: [$_[0]] $const $len \n";    
     return
-    "$_[1] ( ( substr( \$s, \$pos, $len ) eq $const ) 
+"$_[1] ( ( substr( \$s, \$pos, $len ) eq $const ) 
 $_[1]     ? ( \$pos $direction= $len or 1 )
 $_[1]     : 0
 $_[1] )";
@@ -58,7 +58,7 @@ sub call_perl5 {
     my $const = $_[0];
     #print "CONST: $const - $direction \n";
     return
-    "$_[1] ( ( substr( \$s, \$pos ) =~ m/^($const)/s )  
+"$_[1] ( ( substr( \$s, \$pos ) =~ m/^($const)/s )  
 $_[1]     ? ( \$pos $direction= length( \$1 ) or 1 )
 $_[1]     : 0
 $_[1] )";
