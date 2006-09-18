@@ -23,7 +23,7 @@ module Pugs.Parser (
     -- Circularity: Used in Pugs.Parser.Literal
     ruleExpression,
     ruleArraySubscript, ruleHashSubscript, ruleCodeSubscript,
-    ruleInvocationParens, ruleVarNameString, ruleVerbatimBlock,
+    ruleInvocationParens, verbatimVarNameString, ruleVerbatimBlock,
     ruleBlockLiteral, ruleDoBlock, regularVarName, ruleNamedMethodCall,
 ) where
 import Pugs.Internals
@@ -1841,12 +1841,12 @@ ruleParamName = literalRule "parameter name" $ do
                     _   -> many1 wordAny
                 return $ sigil ++ twigil ++ name
 
--- XXX - Eventually return "Var" here and ruleVarNameString can be the "String" form
+-- XXX - Eventually return "Var" here and verbatimVarNameString can be the "String" form
 ruleVarName :: RuleParser String
-ruleVarName = ruleVarNameString
+ruleVarName = lexeme verbatimVarNameString
 
-ruleVarNameString :: RuleParser String
-ruleVarNameString = (<?> "variable name") $ choice
+verbatimVarNameString :: RuleParser String
+verbatimVarNameString = (<?> "variable name") $ choice
     [ try (string "$/")     -- match object
     , try ruleMatchPos
     , try ruleMatchNamed
@@ -1884,7 +1884,7 @@ ruleDereference = try $ do
 
 ruleSigiledVar :: RuleParser Exp
 ruleSigiledVar = (<|> ruleSymbolicDeref) . try $ do
-    name <- ruleVarNameString
+    name <- verbatimVarNameString
     let (sigil, rest) = span (`elem` "$@%&:") name
     case rest of
         [] -> return (makeVar name)

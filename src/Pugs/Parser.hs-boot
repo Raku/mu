@@ -11,7 +11,7 @@ ruleArraySubscript :: RuleParser (Exp -> Exp)
 ruleHashSubscript :: RuleParser (Exp -> Exp)
 ruleCodeSubscript :: RuleParser (Exp -> Exp)
 ruleInvocationParens :: RuleParser (Exp -> Exp)
-ruleVarNameString :: RuleParser String
+verbatimVarNameString :: RuleParser String
 ruleVerbatimBlock :: RuleParser Exp
 ruleBlockLiteral :: RuleParser Exp
 ruleDoBlock :: RuleParser Exp
