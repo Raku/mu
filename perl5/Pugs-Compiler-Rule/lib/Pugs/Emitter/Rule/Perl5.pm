@@ -23,10 +23,12 @@ sub call_subrule {
 
     return 
         "$tab sub{ \n" .
+        "$tab     my \$prior = \$::_V6_PRIOR_;\n" .
         #"$tab     print \"param: \",Dumper( \@_ );\n" .
         "$tab     my \$param = { \%{ \$_[7] || {} }, args => {" . join(", ",@param) . "} };\n" .
         "$tab     \$_[3] = $subrule( \$_[0], \$param, \$_[3],  );\n" .
         #"$tab     print \"subrule match: \",Dumper(\$_[3]->data);\n" .
+        "$tab     \$::_V6_PRIOR_ = \$prior;\n" .
         "$tab }\n";
 }
 
@@ -53,12 +55,9 @@ sub emit {
         #"    print \"match args: \",Dumper(\@_);\n" .
         "    my \$tree;\n" .
         "    if ( defined \$_[3]{p} ) {\n" .
-        "        #local \$::_V6_PRIOR_;  # XXX this should work\n" .
         "        \$matcher->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$_[3]{p}, \$_[1], \$_[3] );\n" .
         "    }\n" .
         "    else {\n" .
-
-        "        #local \$::_V6_PRIOR_;  # XXX this should work\n" .
         "        for my \$pos ( 0 .. length( \$_[1] ) - 1 ) {\n" .
         "            my \$param = { \%{\$_[3]}, p => \$pos };\n" .           
         "            \$matcher->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$pos, \$_[1], \$param );\n" .

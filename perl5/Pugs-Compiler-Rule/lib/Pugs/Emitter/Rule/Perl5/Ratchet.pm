@@ -104,7 +104,6 @@ sub emit {
         "      bool => \\\$bool, match => \\\@match, named => \\\%named, capture => undef, \n" .
         "    } );\n" .
         "    {\n" .
-        "      #local \$::_V6_PRIOR_;  # XXX this should work\n" .
         "      \$bool = 0 unless\n" .
         #"      do { TAILCALL: ;\n" .
         emit_rule( $ast, '    ' ) . ";\n" .
@@ -532,8 +531,10 @@ sub named_capture {
         $param_list = '' unless defined $param_list;
         my @param = split( ',', $param_list );
         return "$_[1] do { 
+                my \$prior = \$::_V6_PRIOR_; 
                 my \$match = \n" . 
                     call_subrule( $subrule, $_[1]."        ", @param ) . ";
+                \$::_V6_PRIOR_ = \$prior; 
                 if ( \$match ) {" .
                     ( $capture_to_array 
                     ? " push \@{\$named{'$name'}}, \$match;" 
@@ -817,13 +818,18 @@ sub metasyntax {
 # $_[1]     : 0
 # $_[1] )";
         }
+        my @param; # TODO
+        my $subrule = $cmd;
         return
-            "$_[1] do { my \$match =\n" .
-            call_subrule( $cmd, $_[1] . "          " ) . ";\n" .
-            "$_[1]      my \$bool = (!\$match != 1);\n" .
-            "$_[1]      \$pos = \$match->to if \$bool;\n" .
-            "$_[1]      \$match;\n" .
-            "$_[1] }";
+"$_[1] do { 
+$_[1]      my \$prior = \$::_V6_PRIOR_; 
+$_[1]      my \$match = \n" . 
+                    call_subrule( $subrule, $_[1]."        ", @param ) . ";
+$_[1]      \$::_V6_PRIOR_ = \$prior; 
+$_[1]      my \$bool = (!\$match != 1);
+$_[1]      \$pos = \$match->to if \$bool;
+$_[1]      \$match;
+$_[1] }";
     }
     if ( $prefix eq '!' ) {   # negated_subrule / code assertion 
         $cmd = substr( $cmd, 1 );
