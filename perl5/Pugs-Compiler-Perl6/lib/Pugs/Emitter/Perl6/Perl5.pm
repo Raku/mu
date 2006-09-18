@@ -631,7 +631,33 @@ sub default {
             }
             # runtime thunked builtins
             if ($subname eq 'eval') {
-                return 'Pugs::Runtime::Perl6::eval('. _emit_parameter_capture( $n->{param} ) . ')';
+
+                my $s = 'do {';
+                my ($string, $lang);
+                if ( exists $n->{param}{list} ) {
+                    $s .= 'my $_string = '._emit( $n->{param}{list}[0] ).';';
+                    # $s .= '$lang   = '._emit( $n->{param}{list}[1] ).';';
+                }
+                else {
+                    $s .= 'my $_string = '._emit($n->{param}).';';
+                }
+                $lang ||= 'perl6';  # TODO
+                # print "param: ($string, $lang)\n";
+                if ($lang eq 'perl6') {
+                    $s .= 'require Pugs::Compiler::Perl6;
+        my $p6 = Pugs::Compiler::Perl6->compile( $_string );
+        print "compile to: ($p6->{perl5})\n";
+        eval $p6->{perl5}';
+                # return $p6->{perl5};
+                return $s . '}';
+    }
+    elsif ($lang ne 'perl5') {
+        die;
+    }
+    return $string;
+
+    # $::_V6_ERR_ = $@;
+
             }
             if ($subname eq 'open') {
                 return 'Perl6::Internals::open('. _emit_parameter_capture( $n->{param} ) . ')';
