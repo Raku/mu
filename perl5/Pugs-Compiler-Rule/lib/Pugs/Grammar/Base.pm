@@ -2,6 +2,7 @@ package Pugs::Grammar::Base;
 use Pugs::Runtime::Match;
 use Pugs::Compiler::RegexPerl5;
 use Pugs::Compiler::Regex;
+use Data::Dumper;
 
 # This class defines <ws>, unicode character classes, etc
 
@@ -28,6 +29,15 @@ sub no_match {
 )->code;
 
 # specced methods
+
+sub prior {
+    warn "Error: <prior> is undefined" 
+        unless defined $::_V6_PRIOR_;
+    #print "<prior> ", $::_V6_PRIOR_,"\n";
+    my $match = $::_V6_PRIOR_->( @_ );
+    #print "match: ",Dumper($match);
+    return $match;
+}
 
 *null = Pugs::Compiler::RegexPerl5->compile( 
     '' 

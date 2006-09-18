@@ -1,5 +1,5 @@
 
-use Test::More tests => 127;
+use Test::More tests => 128;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -870,5 +870,15 @@ TODO:
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", $match->perl;
     is( "$match", "xy2", 'ident' );
+
+  TODO: 
+  {
+    local $TODO = "<prior> not ready";
+    my $rule = Pugs::Compiler::Token->compile( '<prior>' );
+    my $match = $rule->match( "\n1xy2\n" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "xy2", 'prior' );
+  }
 }
 

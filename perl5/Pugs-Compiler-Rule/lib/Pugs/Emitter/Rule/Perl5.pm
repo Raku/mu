@@ -47,15 +47,18 @@ sub emit {
         #"    use Pugs::Grammar::RegexBase;\n" .
         "    my \$matcher = \n" . 
         emit_rule( $ast, '    ' ) . "  ;\n" .
+        "  my \$rule; \$rule =\n" . 
         "  sub {\n" . 
         # grammar, string, state, args
         #"    print \"match args: \",Dumper(\@_);\n" .
         "    my \$tree;\n" .
         "    if ( defined \$_[3]{p} ) {\n" .
+        "        local \$::_V6_PRIOR_;\n" .
         "        \$matcher->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$_[3]{p}, \$_[1], \$_[3] );\n" .
         "    }\n" .
         "    else {\n" .
 
+        "        local \$::_V6_PRIOR_;\n" .
         "        for my \$pos ( 0 .. length( \$_[1] ) - 1 ) {\n" .
         "            my \$param = { \%{\$_[3]}, p => \$pos };\n" .           
         "            \$matcher->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$pos, \$_[1], \$param );\n" .
@@ -74,6 +77,7 @@ sub emit {
         "        \$tree->data->{capture} = \\(\$cap->( \$tree ));\n" .
 
         "    };\n" .
+        "    if ( \$tree ) { \$::_V6_PRIOR_ = \$rule }\n" .
         "    return \$tree;\n" .
         "  }\n" .
         "}\n";
@@ -475,10 +479,10 @@ sub metasyntax {
             warn "<$cmd> not implemented";
             return;
         }
-        if ( $cmd eq 'prior' ) {
-            warn "<$cmd> not implemented";
-            return;
-        }
+        #if ( $cmd eq 'prior' ) {
+        #    warn "<$cmd> not implemented";
+        #    return;
+        #}
         # if ( $cmd eq 'null' ) {
         #    warn "<$cmd> not implemented";
         #    return;

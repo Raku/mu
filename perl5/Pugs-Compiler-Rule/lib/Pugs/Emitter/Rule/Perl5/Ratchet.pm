@@ -77,7 +77,7 @@ sub emit {
     local $capture_to_array = 0;
     #print "rule: ", Dumper( $ast );
     return 
-        "sub {\n" . 
+        "do { my \$rule; \$rule = sub {\n" . 
         "  my \$grammar = \$_[0];\n" .
         "  my \$s = \$_[1];\n" .
         "  no warnings 'substr', 'uninitialized', 'syntax';\n" .
@@ -103,15 +103,21 @@ sub emit {
         "      str => \\\$s, from => \\(0+\$pos), to => \\(\$pos), \n" .
         "      bool => \\\$bool, match => \\\@match, named => \\\%named, capture => undef, \n" .
         "    } );\n" .
-        "    \$bool = 0 unless\n" .
+        "    {\n" .
+        "      #local \$::_V6_PRIOR_;  # XXX this should work\n" .
+        "      \$bool = 0 unless\n" .
         #"      do { TAILCALL: ;\n" .
-        emit_rule( $ast, '   ' ) . ";\n" .
-        #"      }\n" .
-        "    last if \$bool;\n" .
+        emit_rule( $ast, '    ' ) . ";\n" .
+        "    }\n" .
+        "    if ( \$bool ) {\n" .
+        "      \$::_V6_PRIOR_ = \$rule;\n" .
+        "      #print \"rule = \$::_V6_PRIOR_ \\n\";\n" .
+        "      last;\n" .
+        "    }\n" .
         "  }\n" .  # /for
         "  \$::_V6_MATCH_ = \$m; \n" .
         "  return \$m;\n" .
-        "}\n";
+        "} }\n";
 }
 
 sub emit_rule {
@@ -848,10 +854,10 @@ sub metasyntax {
             warn "<$cmd> not implemented";
             return;
         }
-        if ( $cmd eq 'prior' ) {
-            warn "<$cmd> not implemented";
-            return;
-        }
+        #if ( $cmd eq 'prior' ) {
+        #    warn "<$cmd> not implemented";
+        #    return;
+        #}
         if ( $cmd eq 'null' ) {
             return "$_[1] 1 # null\n"
         }
