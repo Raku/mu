@@ -41,10 +41,10 @@ evalPCR path match rule subrules = do
             ln2  <- hGetLine out
             return $ ln ++ ln2
         _ -> do
-            errMsg  <- rv ++ hGetContents err
-            rv      <- waitForProcess pid
+            errMsg  <- fmap (rv ++) (hGetContents err)
+            rc      <- waitForProcess pid
             writeIORef _Perl5Interp Nothing
-            let msg | null errMsg = show rv
+            let msg | null errMsg = show rc
                     | otherwise   = errMsg
             fail $ "*** Running external 'perl' failed:\n" ++ msg
     where
