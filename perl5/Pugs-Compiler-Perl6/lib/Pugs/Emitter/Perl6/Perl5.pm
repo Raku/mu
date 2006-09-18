@@ -632,32 +632,22 @@ sub default {
             # runtime thunked builtins
             if ($subname eq 'eval') {
 
-                my $s = 'do {';
-                my ($string, $lang);
-                if ( exists $n->{param}{list} ) {
-                    $s .= 'my $_string = '._emit( $n->{param}{list}[0] ).';';
-                    # $s .= '$lang   = '._emit( $n->{param}{list}[1] ).';';
+                return
+            'sub {
+                my $_eval_string = Pugs::Runtime::Perl6::eval_preprocess('. _emit_parameter_capture( $n->{param} ) . ');
+                local $@;
+                no warnings;
+                my @result;
+                if (wantarray) {
+                    @result = eval $_eval_string;
                 }
                 else {
-                    $s .= 'my $_string = '._emit($n->{param}).';';
+                    $result[0] = eval $_eval_string;
                 }
-                $lang ||= 'perl6';  # TODO
-                # print "param: ($string, $lang)\n";
-                if ($lang eq 'perl6') {
-                    $s .= 'require Pugs::Compiler::Perl6;
-        my $p6 = Pugs::Compiler::Perl6->compile( $_string );
-        #print "compile to: ($p6->{perl5})\n";
-        eval $p6->{perl5}';
-                # return $p6->{perl5};
-                return $s . '}';
-    }
-    elsif ($lang ne 'perl5') {
-        die;
-    }
-    return $string;
-
-    # $::_V6_ERR_ = $@;
-
+                $::_V6_ERR_ = $@;
+                #warn $::_V6_ERR_ if $::_V6_ERR_;
+                wantarray ? @result : $result[0];' . 
+            "\n}->()";
             }
             if ($subname eq 'open') {
                 return 'Perl6::Internals::open('. _emit_parameter_capture( $n->{param} ) . ')';

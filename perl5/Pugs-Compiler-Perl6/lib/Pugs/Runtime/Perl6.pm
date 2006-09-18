@@ -34,7 +34,7 @@ sub perl {
 	return $dumped;
 }
 
-sub eval {
+sub eval_preprocess {
     my ($string, $lang);
     Data::Bind->arg_bind(\@_);
     $lang ||= 'perl6';
@@ -48,23 +48,10 @@ sub eval {
     elsif ($lang ne 'perl5') {
         die;
     }
-
-    local $@;
-    no warnings;
-    my @result;
-    if (wantarray) {
-        @result = eval $eval_string;
-    }
-    else {
-        $result[0] = eval $eval_string;
-    }
-    $::_V6_ERR_ = $@;
-    #warn $::_V6_ERR_ if $::_V6_ERR_;
-    return wantarray ? @result : $result[0];
-
+    return $eval_string;
 }
 
-Data::Bind->sub_signature(\&eval, { var => '$string' }, { var => '$lang', optional => 1});
+Data::Bind->sub_signature(\&eval_preprocess, { var => '$string' }, { var => '$lang', optional => 1});
 
 sub setup_class {
     my ($class) = caller;
