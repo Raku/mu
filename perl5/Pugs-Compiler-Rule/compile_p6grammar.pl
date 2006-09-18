@@ -97,7 +97,7 @@ use base 'Pugs::Grammar::Base';
 
 package main;
 use IO::File;
-use Pugs::Runtime::Match::Ratchet;
+use Pugs::Runtime::Match;
 
 my $source_file = shift(@ARGV);
 my $source = slurp($source_file);
