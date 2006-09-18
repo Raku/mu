@@ -46,11 +46,7 @@ sub call_constant {
         unless length($_[0]);
     my $const = quote_constant( $_[0] );
     my $len = length( eval $const );
-    #print "Const: [$_[0]] $const $len \n";
-    
-    # return "$_[1] ( substr( \$s, \$pos$direction$direction, 1 ) eq $const )"
-    #    if $len == 1;
-    
+    #print "Const: [$_[0]] $const $len \n";    
     return
     "$_[1] ( ( substr( \$s, \$pos, $len ) eq $const ) 
 $_[1]     ? ( \$pos $direction= $len or 1 )
@@ -77,46 +73,43 @@ sub emit {
     local $capture_to_array = 0;
     #print "rule: ", Dumper( $ast );
     return 
-        "do { my \$rule; \$rule = sub {\n" . 
-        "  my \$grammar = \$_[0];\n" .
-        "  my \$s = \$_[1];\n" .
-        "  no warnings 'substr', 'uninitialized', 'syntax';\n" .
-        "  my \%pad;\n" .
+        "do { my \$rule; \$rule = sub {
+  my \$grammar = \$_[0];
+  my \$s = \$_[1];
+  no warnings 'substr', 'uninitialized', 'syntax';
+  my \%pad;\n" .
         #"  my \$pos;\n" .
         #"  print \"match arg_list = \$_[1]\n\";\n" .
         #"  print 'match ', Dumper(\\\@_);\n" .
         #"  print \"match arg_list = \@{[\%{\$_[1]} ]}\n\" if defined \$_[1];\n" .
-        #"  \$pos = 0 unless defined \$pos;   # TODO - .*? \$match \n" .
         #"  print \"match pos = \$pos\n\";\n" .
-        "  my \$m;\n" .
-
-        #"  for my \$pos ( defined \$_[3]{p} ? \$_[3]{p} : ( 0 .. length( \$s ) - 1 ) ) {\n" .
-        "  for my \$pos ( defined \$_[3]{p} ? \$_[3]{p} : ( 0 .. length( \$s ) ) ) {\n" .
-
-        "    my \%index;\n" . 
-        "    my \@match;\n" .
-        "    my \%named;\n" .
-        #"  my \$from = \$pos;\n" .
-        "    my \$bool = 1;\n" .
-        "    \$named{KEY} = \$_[3]{KEY} if exists \$_[3]{KEY};\n" .
-        "    \$m = Pugs::Runtime::Match->new( { \n" .
-        "      str => \\\$s, from => \\(0+\$pos), to => \\(\$pos), \n" .
-        "      bool => \\\$bool, match => \\\@match, named => \\\%named, capture => undef, \n" .
-        "    } );\n" .
-        "    {\n" .
-        "      \$bool = 0 unless\n" .
+"  my \$m;
+  for my \$pos ( defined \$_[3]{p} ? \$_[3]{p} : ( 0 .. length( \$s ) ) ) {
+    my \%index; 
+    my \@match;
+    my \%named;
+    my \$bool = 1;
+    \$named{KEY} = \$_[3]{KEY} if exists \$_[3]{KEY};
+    \$m = Pugs::Runtime::Match->new( { 
+      str => \\\$s, from => \\(0+\$pos), to => \\(\$pos), 
+      bool => \\\$bool, match => \\\@match, named => \\\%named, capture => undef, 
+    } );
+    {
+      \$bool = 0 unless
+" .
         #"      do { TAILCALL: ;\n" .
-        emit_rule( $ast, '    ' ) . ";\n" .
-        "    }\n" .
-        "    if ( \$bool ) {\n" .
-        "      \$::_V6_PRIOR_ = \$rule;\n" .
-        "      #print \"rule = \$::_V6_PRIOR_ \\n\";\n" .
-        "      last;\n" .
-        "    }\n" .
-        "  }\n" .  # /for
-        "  \$::_V6_MATCH_ = \$m; \n" .
-        "  return \$m;\n" .
-        "} }\n";
+        emit_rule( $ast, '    ' ) . ";
+    }
+    if ( \$bool ) {
+      \$::_V6_PRIOR_ = \$rule;
+      #print \"rule = \$::_V6_PRIOR_ \\n\";
+      last;
+    }
+  } # /for
+  \$::_V6_MATCH_ = \$m;
+  return \$m;
+} }
+";
 }
 
 sub emit_rule {
@@ -253,16 +246,10 @@ sub code {
 }        
 sub dot {
     "$_[1] ( substr( \$s, \$pos$direction$direction, 1 ) ne '' )"
-    #if ( $direction eq '+' ) {
-    #    "$_[1] ( \$pos < length( \$s ) ? ++\$pos || 1 : 0 )"
-    #}
-    #else {
-    #    "$_[1] ( \$pos >= 0 ? --\$pos || 1 : 0 )"
-    #}
 }
 
 sub preprocess_hash {
-    # TODO - move to Runtime/
+    # TODO - move to Pugs::Runtime::Regex
     my ( $h, $key ) = @_;
     # returns AST depending on $h
     if ( ref( $h->{$key} ) eq 'CODE') {
@@ -696,21 +683,11 @@ sub constant {
 use vars qw( %char_class );
 BEGIN {
     %char_class = map { $_ => 1 } qw( 
-alpha
-alnum
-ascii
-blank
-cntrl
-digit
-graph
-lower
-print
-punct
-space
-upper
-word
-xdigit
-);
+        alpha alnum ascii blank
+        cntrl digit graph lower
+        print punct space upper
+        word  xdigit
+    );
 }
 
 sub metasyntax {
@@ -813,10 +790,6 @@ sub metasyntax {
         if ( exists $char_class{$cmd} ) {
             # XXX - inlined char classes are not inheritable, but this should be ok
             return call_perl5( "[[:$cmd:]]", $_[1] );
-#                "$_[1] ( ( substr( \$s, \$pos, 1 ) =~ /[[:$cmd:]]/ ) 
-# $_[1]     ? do { $direction$direction\$pos; 1 }
-# $_[1]     : 0
-# $_[1] )";
         }
         my @param; # TODO
         my $subrule = $cmd;
@@ -824,34 +797,14 @@ sub metasyntax {
 "$_[1] do { 
 $_[1]      my \$prior = \$::_V6_PRIOR_; 
 $_[1]      my \$match = \n" . 
-                    call_subrule( $subrule, $_[1]."        ", @param ) . ";
+               call_subrule( $subrule, $_[1]."        ", @param ) . ";
 $_[1]      \$::_V6_PRIOR_ = \$prior; 
 $_[1]      my \$bool = (!\$match != 1);
 $_[1]      \$pos = \$match->to if \$bool;
 $_[1]      \$match;
 $_[1] }";
     }
-    if ( $prefix eq '!' ) {   # negated_subrule / code assertion 
-        $cmd = substr( $cmd, 1 );
-        if ( $cmd =~ /^{/ ) {
-            warn "code assertion not implemented";
-            return;
-        }
-        return 
-            "$_[1] ... negate( '$_[0]', \n" .
-            call_subrule( $_[0], $_[1]."  " ) .
-            "$_[1] )\n";
-    }
-    if ( $cmd eq '.' ) {
-            warn "<$cmd> not implemented";
-            return;
-    }
     if ( $prefix =~ /[_[:alnum:]]/ ) {  
-        # "before" and "after" are handled in a separate rule
-        #if ( $cmd eq 'redo' ) {
-        #    # tailcall - this is an unauthorized extension
-        #    "$_[1]      goto TAILCALL;\n";
-        #}
         if ( $cmd eq 'cut' ) {
             warn "<$cmd> not implemented";
             return;
@@ -860,24 +813,9 @@ $_[1] }";
             warn "<$cmd> not implemented";
             return;
         }
-        #if ( $cmd eq 'prior' ) {
-        #    warn "<$cmd> not implemented";
-        #    return;
-        #}
         if ( $cmd eq 'null' ) {
             return "$_[1] 1 # null\n"
         }
-
-        # XXX - disabled, because this doesn't capture
-        # if ( exists $char_class{$cmd} ) {
-        #    # XXX - inlined char classes are not inheritable, but this should be ok
-        #    return
-        #        "$_[1] ( ( substr( \$s, \$pos, 1 ) =~ /[[:$cmd:]]/ ) 
-        # $_[1]     ? do { $direction$direction\$pos; 1 }
-        # $_[1]     : 0
-        # $_[1] )";
-        # }
-
         # capturing subrule
         # <subrule ( param, param ) >
         my ( $subrule, $param_list ) = split( /[\(\)]/, $cmd );
