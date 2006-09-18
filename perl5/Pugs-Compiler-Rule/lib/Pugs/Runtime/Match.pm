@@ -42,7 +42,8 @@ sub bool  {  ${$_data{refaddr $_[0]}->{bool}}  }
 sub hash  {    $_data{refaddr $_[0]}->{named}  }
 sub array {    $_data{refaddr $_[0]}->{match}  }
 
-sub keys  { CORE::keys %{$_data{refaddr $_[0]}->{named}} }
+sub keys   { CORE::keys   %{$_data{refaddr $_[0]}->{named}} }
+sub values { CORE::values %{$_data{refaddr $_[0]}->{named}} }
 
 sub flat {
     my $obj = $_data{refaddr $_[0]};
