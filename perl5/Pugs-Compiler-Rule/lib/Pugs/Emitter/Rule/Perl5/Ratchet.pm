@@ -248,57 +248,6 @@ sub dot {
     "$_[1] ( substr( \$s, \$pos$direction$direction, 1 ) ne '' )"
 }
 
-sub preprocess_hash {
-    # TODO - move to Pugs::Runtime::Regex
-    my ( $h, $key ) = @_;
-    # returns AST depending on $h
-    if ( ref( $h->{$key} ) eq 'CODE') {
-        return sub { 
-            my ( $str, $grammar, $args ) = @_;
-            #print "data: ", Dumper( \@_ );
-            my $ret = $h->{$key}->( @_ ); 
-            #print "ret: ", Dumper( $ret );
-            
-            return $ret 
-                if ref( $ret ) eq 'Pugs::Runtime::Match';
-            
-            Pugs::Runtime::Match->new( { 
-                bool => \1, 
-                str =>  \$str,
-                from => \( 0 + ( $args->{p} || 0 ) ),
-                to =>   \( 0 + ( $args->{p} || 0 ) ),
-            } ) }
-    } 
-    if ( ref( $h->{$key} ) =~ /Pugs::Compiler::/ ) {
-        return sub { $h->{$key}->match( @_ ) };
-    }
-    # fail is number != 1 
-    if ( $h->{$key} =~ /^(\d+)$/ ) {
-        return sub { 
-            my ( $str, $grammar, $args ) = @_;
-            Pugs::Runtime::Match->new( { 
-                bool => \0, 
-                str =>  \$str,
-                from => \( 0 + ( $args->{p} || 0 ) ),
-                to =>   \( 0 + ( $args->{p} || 0 ) ),
-            } ) } unless $1 == 1;
-        return sub { 
-            my ( $str, $grammar, $args ) = @_;
-            Pugs::Runtime::Match->new( { 
-                bool => \1, 
-                str =>  \$str,
-                from => \( 0 + ( $args->{p} || 0 ) ),
-                to =>   \( 0 + ( $args->{p} || 0 ) ),
-            } ) };
-    }
-    # subrule
-    #print "compile: ",$h->{$key}, "\n";
-    my $r = Pugs::Compiler::Token->compile( $h->{$key} );
-    $h->{$key} = $r;
-    return sub { $r->match( @_ ) };
-    # return sub { warn "uncompiled subrule: $h->{$key} - not implemented " };
-}
-
 sub variable {
     my $name = "$_[0]";
     my $value = undef;
@@ -328,7 +277,7 @@ sub variable {
     $value = join('', eval $name) if $name =~ /^\@/;
     if ( $name =~ /^%/ ) {
         my $id = '$' . id();
-        my $preprocess_hash = 'Pugs::Emitter::Rule::Perl5::Ratchet::preprocess_hash';
+        my $preprocess_hash = 'Pugs::Runtime::Regex::preprocess_hash';
         my $code = "
           do {
             our $id;

@@ -13,7 +13,7 @@ use v6-alpha;
         package Pugs::Grammar::Rule;
         no strict 'refs';
         use Pugs::Runtime::Match;
-        use Pugs::Emitter::Rule::Perl5::Ratchet;
+        use Pugs::Runtime::Regex;
         our %rule_terms;
     - replace:
             $named{'concat'} = $match;

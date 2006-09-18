@@ -391,34 +391,63 @@ sub non_greedy_plus {
 }
 
 
-sub _preprocess_hash {
-    my $h = shift;
-    #print "hash: ",ref($h),"\n";
-    if ( ref($h) eq 'CODE') {
-        return sub {
-            $h->();
-            return null()->(@_);
-        };
-    } 
-    if ( ref($h) =~ /^Pugs::Compiler::/ ) {
-        #print "compiling subrule\n";
-        #return $h->code;
+sub preprocess_hash {
+    # TODO - move to Pugs::Runtime::Regex
+    my ( $h, $key ) = @_;
+    # returns AST depending on $h
+    if ( ref( $h->{$key} ) eq 'CODE') {
         return sub { 
-            #print "into subrule - $_[0] - grammar $_[4] - ", Dumper($_[7]); 
-            #print $h->{perl5};
-            my $match = $h->match( $_[0], $_[4], $_[7], $_[1] );
-            #print "match: ",$match->(),"\n";
-            $_[3] = $match;
-        };
+            my ( $str, $grammar, $args ) = @_;
+            #print "data: ", Dumper( \@_ );
+            my $ret = $h->{$key}->( @_ ); 
+            #print "ret: ", Dumper( $ret );
+            
+            return $ret 
+                if ref( $ret ) eq 'Pugs::Runtime::Match';
+            
+            Pugs::Runtime::Match->new( { 
+                bool => \1, 
+                str =>  \$str,
+                from => \( 0 + ( $args->{p} || 0 ) ),
+                to =>   \( 0 + ( $args->{p} || 0 ) ),
+                named => {},
+                match => [],
+            } ) }
+    } 
+    if ( ref( $h->{$key} ) =~ /Pugs::Compiler::/ ) {
+        return sub { $h->{$key}->match( @_ ) };
     }
     # fail is number != 1 
-    if ( $h =~ /^(\d+)$/ ) {
-        return failed unless $1 == 1;
-        return null;
+    if ( $h->{$key} =~ /^(\d+)$/ ) {
+        return sub { 
+            my ( $str, $grammar, $args ) = @_;
+            Pugs::Runtime::Match->new( { 
+                bool => \0, 
+                str =>  \$str,
+                from => \( 0 + ( $args->{p} || 0 ) ),
+                to =>   \( 0 + ( $args->{p} || 0 ) ),
+                named => {},
+                match => [],
+            } ) } unless $1 == 1;
+        return sub { 
+            my ( $str, $grammar, $args ) = @_;
+            Pugs::Runtime::Match->new( { 
+                bool => \1, 
+                str =>  \$str,
+                from => \( 0 + ( $args->{p} || 0 ) ),
+                to =>   \( 0 + ( $args->{p} || 0 ) ),
+                named => {},
+                match => [],
+            } ) };
     }
     # subrule
-    warn "uncompiled subrule: $h - not implemented";
-    return failed;
+    #print "compile: ",$h->{$key}, "\n";
+
+    # XXX - compile to Token or to Regex ? (v6.pm needs Token)
+    my $r = Pugs::Compiler::Token->compile( $h->{$key} );
+    $h->{$key} = $r;
+    return sub { $r->match( @_ ) };
+    # return sub { warn "uncompiled subrule: $h->{$key} - not implemented " };
 }
 
 # see commit #9783 for an alternate implementation
@@ -427,12 +456,20 @@ sub hash {
     #print "HASH: @{[ %hash ]}\n";
     my @keys = sort {length $b <=> length $a } keys %hash;
     #print "hash keys [ @keys ]\n";
-    @keys = map {
-        concat( [
-            constant( $_ ),
-            _preprocess_hash( $hash{$_} ),
-        ] )
-    } @keys;
+    for ( @keys ) {
+        my $h = preprocess_hash( \%hash, $_ );
+        my $key = $_;
+        $_ = 
+          concat( [
+            constant( $key ),
+            sub { 
+              # print "hash param: ",Dumper(\@_);
+              # TODO - add $<KEY> to $_[7]
+              $_[3] = $h->( $_[0], $_[4], $_[7], $_[3], undef );
+              # print "result: ",Dumper($_[3]);
+            }
+          ] );
+    }
     return alternation( \@keys );
 }
 

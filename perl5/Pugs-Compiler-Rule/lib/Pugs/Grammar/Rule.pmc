@@ -1,7 +1,7 @@
         package Pugs::Grammar::Rule;
         no strict 'refs';
         use Pugs::Runtime::Match;
-        use Pugs::Emitter::Rule::Perl5::Ratchet;
+        use Pugs::Runtime::Regex;
         our %rule_terms;
 
 *pod_begin = sub {
@@ -3482,7 +3482,7 @@
                   #$::_V6_MATCH_ = $m;
                   #print "m: ", Dumper( $::_V6_MATCH_->data )
                   #    if ( $key eq 'until' );
-                  $match = Pugs::Emitter::Rule::Perl5::Ratchet::preprocess_hash( $I1788, $key )->( $s, $grammar, { p => ( $pos + $_ ), args => { KEY => $key } }, undef );
+                  $match = Pugs::Runtime::Regex::preprocess_hash( $I1788, $key )->( $s, $grammar, { p => ( $pos + $_ ), args => { KEY => $key } }, undef );
                   last if $match;
                 }
               }
