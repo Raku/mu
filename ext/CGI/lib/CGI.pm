@@ -1,17 +1,17 @@
 use v6-alpha;
 class CGI-0.2;
     # XXX Should this all be rw? Should any be public?
-    has %!PARAMS           is rw;
-    has $!REQUEST_METHOD   is rw;
-    has $!CONTENT_LENGTH   is rw;
-    has $!CONTENT_TYPE     is rw;
-    has $!QUERY_STRING     is rw;
+    has %!PARAMS;
+    has $!REQUEST_METHOD;
+    has $!CONTENT_LENGTH;
+    has $!CONTENT_TYPE;
+    has $!QUERY_STRING;
     # I would prefer this syntax, but it seems not be supported yet. 
-    # has $!QS_DELIMITER     is rw = ';';
-    has $!QS_DELIMITER     is rw; 
-    has $!URL_ENCODING     is rw; 
-    has $!IS_PARAMS_LOADED is rw; 
-    has $!CHARSET          is rw;
+    # has $!QS_DELIMITER = ';';
+    has $!QS_DELIMITER; 
+    has $!URL_ENCODING; 
+    has $!IS_PARAMS_LOADED; 
+    has $!CHARSET;
 
 # Use method, not submethod, because we do what these behaviors to be inherited.  
 method BUILD (*%param) {
