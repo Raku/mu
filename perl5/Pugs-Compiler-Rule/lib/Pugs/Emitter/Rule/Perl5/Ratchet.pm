@@ -3,8 +3,6 @@ package Pugs::Emitter::Rule::Perl5::Ratchet;
 # p6-rule perl5 emitter for ":ratchet" (non-backtracking)
 # see: RuleInline.pl, RuleInline-more.pl for a program prototype
 
-# XXX - cleanup unused nodes
-
 use strict;
 use warnings;
 use Data::Dumper;
@@ -18,13 +16,15 @@ our $capture_to_array;
 our $count = 1000 + int(rand(1000));
 sub id { 'I' . ($count++) }
 
-# XXX - reuse this sub in metasyntax()
 sub call_subrule {
     my ( $subrule, $tab, @param ) = @_;
-    $subrule = "\$grammar->" . $subrule unless $subrule =~ / :: | \. | -> /x;
+    $subrule = "\$grammar->" . $subrule 
+        unless $subrule =~ / :: | \. | -> /x;
     $subrule =~ s/\./->/;   # XXX - source filter
     return 
-        "$tab     $subrule( \$s, { p => \$pos, args => {" . join(", ",@param) . "} }, undef )";
+"$tab     $subrule( \$s, { p => \$pos, args => {" .
+             join(", ",@param) . 
+         "} }, undef )";
 }
 
 sub quote_constant {
@@ -120,7 +120,6 @@ sub emit_rule {
     #print "NODE ", Dumper($n);
     my ($k) = keys %$n;
     my $v = $$n{$k};
-    #my ( $k, $v ) = each %$n;
     # XXX - use real references
     no strict 'refs';
     #print "NODE ", Dumper($k), ", ", Dumper($v);
@@ -292,11 +291,6 @@ sub variable {
                 my \%sizes = map { length(\$_) => 1 } keys \%\$hash;
                 ${id}_sizes = [ sort { \$b <=> \$a } keys \%sizes ];
                 " . #print \"sizes: \@${id}_sizes\\n\";
-                #$id = {
-                #        map  { \$_ =>
-                #               Pugs::Emitter::Rule::Perl5::Ratchet::preprocess_hash( \$hash, \$_ ) }
-                #        keys \%\$hash
-                #};
                 "$id = \$hash;
             }
             " . #print 'keys: ',Dumper( $id );

@@ -4,8 +4,6 @@ use Pugs::Emitter::Rule::Perl5::Ratchet;
 
 # p6-rule perl5 emitter
 
-# XXX - cleanup unused nodes
-
 use strict;
 use warnings;
 use Data::Dumper;
@@ -23,7 +21,8 @@ sub call_subrule {
     return 
 "$tab sub{ 
 $tab     my \$prior = \$::_V6_PRIOR_;
-$tab     my \$param = { \%{ \$_[7] || {} }, args => {" . join(", ",@param) . "} };
+$tab     my \$param = { \%{ \$_[7] || {} }, args => {" . 
+            join(", ",@param) . "} };
 $tab     \$_[3] = $subrule( \$_[0], \$param, \$_[3],  );
 $tab     \$::_V6_PRIOR_ = \$prior;
 $tab }
@@ -82,7 +81,6 @@ sub emit_rule {
     #print "NODE ", Dumper($n);
     my ($k) = keys %$n;
     my $v = $$n{$k};
-    #my ( $k, $v ) = each %$n;
     # XXX - use real references
     no strict 'refs';
     my $code = &$k( $v, $tab );
@@ -109,8 +107,7 @@ sub capturing_group {
         ( $capture_to_array || ( $capture_seen{$capture_count} > 1 ? 1 : 0 ) ) .  
         ", \n" .
         $program . 
-        "$_[1] )\n" .
-        '';
+        "$_[1] )\n";
 }        
 sub non_capturing_group {
     return emit_rule( $_[0], $_[1] );

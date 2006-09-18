@@ -8,9 +8,6 @@ use Data::Dumper;
 
 # internal methods - not in spec
 
-# *no_match = Pugs::Compiler::RegexPerl5->compile( 
-#    '\²\$\£\%\"\^\¬' 
-# )->code;
 sub no_match {
     my $grammar = shift;
     my $pos = $_[1]{p} || 0;

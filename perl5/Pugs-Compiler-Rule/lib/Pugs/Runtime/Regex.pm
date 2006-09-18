@@ -465,7 +465,7 @@ sub hash {
             sub { 
               # print "hash param: ",Dumper(\@_);
               # TODO - add $<KEY> to $_[7]
-              $_[3] = $h->( $_[0], $_[4], $_[7], $_[3], undef );
+              $_[3] = $h->( $_[0], $_[4], $_[7], $_[1] );
               # print "result: ",Dumper($_[3]);
             }
           ] );
