@@ -1252,7 +1252,7 @@ sub infix {
                 my $regex = $rx->{rx};
                 # XXX: hack for /$pattern/
                 $regex = 'q{'.$regex.'}' unless $regex =~ m/^\$[\w\d]+/;
-                return '$::_V6_MATCH_ = Pugs::Compiler::Regex->compile( '.$regex.' )->match('._emit($n->{exp1}).')';
+                return '$::_V6_MATCH_ = Pugs::Compiler::Regex->compile( '.$regex.', { grammar => __PACKAGE__ } )->match('._emit($n->{exp1}).')';
             }
         }
         return _emit( $n->{exp1} ) . ' =~ (ref' . emit_parenthesis( $n->{exp2} ).' eq "Regexp" '.

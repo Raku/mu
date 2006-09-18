@@ -50,6 +50,11 @@ sub pmc_compile {
 
     # $perl5 =~ s/do\{(.*)\}/$1/s;
     my ($package, $file) = caller(4);
+
+    # allow 'regex' declarations:
+    #     use base 'Pugs::Grammar::Base';  
+    #   see: t/rules/from_perl6_rules/capture.t
+
     $perl5 = 
         ( $package 
             ? "package $package;\n" 
@@ -61,6 +66,7 @@ sub pmc_compile {
         "use Scalar::Util;
          use Pugs::Runtime::Perl6;
          use Pugs::Runtime::Perl6Prelude;
+         use base 'Pugs::Grammar::Base';  
          use strict;
          no strict 'refs';
          no warnings ('void', 'uninitialized');
