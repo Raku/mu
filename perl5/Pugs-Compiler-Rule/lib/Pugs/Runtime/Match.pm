@@ -42,6 +42,8 @@ sub bool  {  ${$_data{refaddr $_[0]}->{bool}}  }
 sub hash  {    $_data{refaddr $_[0]}->{named}  }
 sub array {    $_data{refaddr $_[0]}->{match}  }
 
+sub keys  { CORE::keys %{$_data{refaddr $_[0]}->{named}} }
+
 sub flat {
     my $obj = $_data{refaddr $_[0]};
     my $cap = $obj->{capture};
@@ -88,7 +90,7 @@ sub dump_hs {
                 my $str = $_;
                 $str =~ s/([^ \!\#\$\%\&\x28-\x5B\x5D-\x7E])/'\\'.ord($1)/eg;
                 '("' . $str . '", ' . dump_hs($obj->{named}{$_}) . ')';
-            } sort keys %{$obj->{named}||{}} ).']'),
+            } sort CORE::keys %{$obj->{named}||{}} ).']'),
         )
     }
     elsif (ref($_[0]) eq 'ARRAY') {
