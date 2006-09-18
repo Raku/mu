@@ -646,7 +646,7 @@ sub default {
                 if ($lang eq 'perl6') {
                     $s .= 'require Pugs::Compiler::Perl6;
         my $p6 = Pugs::Compiler::Perl6->compile( $_string );
-        print "compile to: ($p6->{perl5})\n";
+        #print "compile to: ($p6->{perl5})\n";
         eval $p6->{perl5}';
                 # return $p6->{perl5};
                 return $s . '}';
