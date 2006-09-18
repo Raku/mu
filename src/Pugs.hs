@@ -352,7 +352,7 @@ doRunSingle menv opts prog = (`catchIO` handler) $ do
     makeProper exp = case exp of
         Val err@(VError (VStr msg) _)
             | runOptShowPretty opts
-            , any (== "unexpected end of input") (lines msg) -> do
+            , any (== "Unexpected end of input") (lines msg) -> do
             cont <- readline "....> "
             case cont of
                 Just line   -> do

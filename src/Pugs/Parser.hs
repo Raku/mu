@@ -98,7 +98,7 @@ One of the sub-rules used by 'ruleStatementList'.
 ruleStatement :: RuleParser Exp
 ruleStatement = do
     exp <- ruleExpression
-    f <- option return $ choice
+    f   <- (<?> "statement modifier") $ option return $ choice
         [ s_postConditional
         , s_postLoop
         , s_postIterate
@@ -1841,15 +1841,18 @@ ruleParamName = literalRule "parameter name" $ do
                     _   -> many1 wordAny
                 return $ sigil ++ twigil ++ name
 
+-- XXX - Eventually return "Var" here and ruleVarNameString can be the "String" form
 ruleVarName :: RuleParser String
-ruleVarName = rule "variable name" ruleVarNameString
+ruleVarName = ruleVarNameString
 
 ruleVarNameString :: RuleParser String
-ruleVarNameString =   try (string "$/")  -- match object
-                  <|> try ruleMatchPos
-                  <|> try ruleMatchNamed
-                  <|> try regularVarName
-                  <|> string "$!"  -- error variable
+ruleVarNameString = (<?> "variable name") $ choice
+    [ try (string "$/")     -- match object
+    , try ruleMatchPos
+    , try ruleMatchNamed
+    , try regularVarName
+    , string "$!"           -- error variable
+    ]
 
 ruleSigil :: RuleParser VarSigil
 ruleSigil = fmap cast (oneOf "$@%&")

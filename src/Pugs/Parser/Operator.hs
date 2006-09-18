@@ -571,13 +571,13 @@ makeParser simpleTerm ops = do
     where
     MkOpRow rassoc lassoc nassoc prefix postfix optPrefix listAssoc depPostfix term
         = foldr splitOp (MkOpRow [] [] [] [] [] [] [] [] []) ops
-    rassocOp          = {-# SCC "rassocOp" #-}      choice rassoc
-    lassocOp          = {-# SCC "lassocOp" #-}      choice lassoc
-    nassocOp          = {-# SCC "nassocOp" #-}      choice nassoc
+    rassocOp          = {-# SCC "rassocOp" #-}      choice rassoc <?> ""
+    lassocOp          = {-# SCC "lassocOp" #-}      choice lassoc <?> ""
+    nassocOp          = {-# SCC "nassocOp" #-}      choice nassoc <?> ""
     prefixOp          = {-# SCC "prefixOp" #-}      choice prefix <?> ""
     postfixOp         = {-# SCC "postfixOp" #-}     choice postfix <?> ""
     optPrefixOp       = {-# SCC "optPrefixOp" #-}   choice optPrefix <?> ""
-    listAssocOp       = {-# SCC "listAssocOp" #-}   choice listAssoc
+    listAssocOp       = {-# SCC "listAssocOp" #-}   choice listAssoc <?> ""
     depPostfixOp x    = {-# SCC "depPostfixOp" #-}  choice (map ($ x) depPostfix) <?> ""
     termOp            = {-# SCC "termOp" #-}        choice term <|> simpleTerm
 
@@ -665,7 +665,7 @@ refillCache state f = do
         opParsers   = MkDynParsers parseFull parseTight parseLit parseNullary parsePost -- <|> parsePre <|> parsePreNam)
         opsFull     = listCons:listInfix:opsLoose
         parseNullary= try $ do
-            name <- choice . map symbol . fromSet $ r_term tights
+            name <- (choice . map symbol . fromSet $ r_term tights) <?> "term"
             notFollowedBy (char '(' <|> (char ':' >> char ':'))
             possiblyApplyMacro $ App (_Var ('&':name)) Nothing []
     setState state{ s_dynParsers = opParsers }

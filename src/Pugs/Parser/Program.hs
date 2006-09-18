@@ -105,14 +105,33 @@ runRule env p name str =
     case ( runParser p (makeState env) name str ) of
         Left err    -> env { envBody = Val $ VError (VStr msg) [mkPos pos pos] }
             where
+            msg = concat (intersperse "\n" (map filterUnexpected $ lines (showErr err)))
             pos = errorPos err
-            msg = showErr err
+            cur = case takeSameClassWords (dropUntilPos pos str) of
+                ""  -> "end of input"
+                xs  -> show xs
+            filterUnexpected ('!':_)    = "Unexpected " ++ cur
+            filterUnexpected line       = line
         Right env'  -> env'
+
+takeSameClassWords :: String -> String
+takeSameClassWords "" = ""
+takeSameClassWords (x:xs) = case charClassOf x of
+    SpaceClass  -> x : takeSameClassWords xs
+    cls         -> x : takeWhile ((== cls) . charClassOf) xs
+
+dropUntilPos :: SourcePos -> String -> String
+dropUntilPos pos str
+    | (curline:_) <- drop (ln - 1) (lines str) = drop (col - 1) curline
+    | otherwise = ""
+    where
+    col = sourceColumn pos
+    ln  = sourceLine pos
 
 showErr :: ParseError -> String
 showErr err =
       showErrorMessages "or" "unknown parse error"
-                        "expecting" "unexpected" "end of input"
+                        "expecting" "!" "end of input"
                        (errorMessages err)
 
 -- Lexical units --------------------------------------------------
