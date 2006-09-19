@@ -557,7 +557,7 @@ EOD
         $cleanjudy = 'cd third-party\judy\Judy-1.0.3\src && '.
             'nmake /nologo /F Makefile.win32 clean';
     } else {
-        $cleanjudy = 'cd third-party/judy/Judy-1.0.3 && make clean';
+        $cleanjudy = 'cd third-party/judy/Judy-1.0.3/src && make -f Makefile.win32 clean';
     }
 
     postamble(fixpaths(<< "."));
