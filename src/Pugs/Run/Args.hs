@@ -55,7 +55,7 @@ concatDashE xs = xs
 data Arg
     = File !String
     | Switch !Char
-    | Opt { optFlag :: !String, optArg :: !String }
+    | Opt { _optFlag :: !String, optArg :: !String }
     deriving Show
 
 procArg :: Arg -> [String]

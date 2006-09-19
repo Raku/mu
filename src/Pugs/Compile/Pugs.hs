@@ -28,7 +28,7 @@ instance Compile (Maybe Exp) where
     compile Nothing = return $ Str.pack "Nothing"
     compile (Just exp) = compWith "Just" [compile exp]
 
-pl, pr, bl, br :: Str
+pl, pr, bl, br, cm :: Str
 pl = Str.pack "("
 pr = Str.pack ")"
 bl = Str.pack "["

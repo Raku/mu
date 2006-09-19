@@ -17,8 +17,6 @@ import Pugs.PIL2
 import Emit.PIR
 import Text.PrettyPrint
 
-import qualified Data.ByteString.Char8 as Str
-
 tcVoid, tcLValue :: TCxt
 tcVoid      = TCxtVoid
 tcLValue    = TCxtLValue anyType

@@ -11,7 +11,6 @@ module Pugs.Embed.Perl5
 where
 import Foreign.C.Types
 import System.Directory
-import Data.Typeable
 import Pugs.Internals 
 import qualified Data.ByteString.Char8 as Str
 
@@ -148,16 +147,18 @@ invokePerl5 :: PerlSV -> PerlSV -> [PerlSV] -> PugsVal -> CInt -> IO InvokePerl5
 invokePerl5 _ _ _ _ = constFail
 
 canPerl5 :: PerlSV -> ByteString -> IO Bool
-canPerl5 _ = constFail
+canPerl5 MkPerlSV = constFail
 
 nullSV :: PerlSV
 nullSV = error "perl5 not embedded"
 
-mkSV :: IO PerlSV -> IO PerlSV
-mkSV = id
+-- Below are unused
 
-perl5_SvROK :: IO PerlSV -> IO Bool
-perl5_SvROK _ = return False
+-- mkSV :: IO PerlSV -> IO PerlSV
+-- mkSV = id
+
+-- perl5_SvROK :: IO PerlSV -> IO Bool
+-- perl5_SvROK _ = return False
 
 #else
 #undef RETURN
