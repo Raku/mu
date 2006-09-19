@@ -98,12 +98,15 @@ One of the sub-rules used by 'ruleStatementList'.
 ruleStatement :: RuleParser Exp
 ruleStatement = do
     exp <- ruleExpression
-    f   <- (<?> "statement modifier") $ option return $ choice
-        [ s_postConditional
-        , s_postLoop
-        , s_postIterate
-        ]
+    f   <- ruleStatementModifier
     f exp
+
+ruleStatementModifier :: RuleParser (Exp -> RuleParser Exp)
+ruleStatementModifier = verbatimRule "statement modifier" . option return $ choice
+    [ s_postConditional
+    , s_postLoop
+    , s_postIterate
+    ]
 
 ruleStatementList :: RuleParser Exp
 ruleStatementList = rule "statements" .
@@ -904,7 +907,7 @@ ruleDoBlock :: RuleParser Exp
 ruleDoBlock = rule "do block" $ do
     symbol "do"
     enterBracketLevel StatementBracket $ choice
-        [ ruleVerbatimBlock
+        [ do { rv <- ruleBlock ; notFollowedBy (ruleStatementModifier >> return ' ') ; return rv }
         , ruleBlockDeclaration
         , ruleDeclaration
         , ruleConstruct
