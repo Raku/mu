@@ -445,6 +445,8 @@ $_[1] }";
 }        
 sub named_capture {
     my $name    = $_[0]{ident};
+    $name = $name->{match_variable} if ref($name) eq 'HASH';
+    $name =~ s/^[\$\@\%]//;  # TODO - change semantics as needed
     my $program = $_[0]{rule};
     #print "name [$name]\n";
     
