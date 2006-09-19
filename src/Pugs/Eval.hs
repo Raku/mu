@@ -272,7 +272,7 @@ reduceVar var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = p
                 | SType <- sig      -> return . VType . cast $ if isQualifiedVar var
                     then cast $ Str.join (__"::") [cast pkg, cast name]
                     else name
-                | isGlobalVar var || pkg `elem` [emptyPkg, callerPkg, outerPkg, contextPkg] -> do
+                | isGlobalVar var || pkg `notElem` [emptyPkg, callerPkg, outerPkg, contextPkg] -> do
                     -- $Qualified::Var is not found.  Vivify at lvalue context.
                     lv <- asks envLValue
                     if lv then evalExp (Sym SGlobal var (Var var)) else retEmpty
