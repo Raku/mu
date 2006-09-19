@@ -362,7 +362,7 @@ no warnings qw( once );
         sub meth { $_[0]{v} eq 'True' }
     }
 
-    my $rule = Pugs::Compiler::Regex->compile( '<.meth>' );
+    my $rule = Pugs::Compiler::Regex->compile( '<.can("meth")>' );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
 
     my $object = bless { v => 'True' }, 'Test1';

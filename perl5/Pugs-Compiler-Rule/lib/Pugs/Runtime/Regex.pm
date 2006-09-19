@@ -122,9 +122,9 @@ sub try_method {
     my $method = shift;
     my $param_list = shift;  # XXX
     no warnings qw( uninitialized );
-    return sub {
-        my $bool = $_[0]->$method( $param_list ) ? 1 : 0;
-        #print "call $method ( $param_list ) on ", Dumper($_[0])," : $bool\n";
+    # XXX method call must be inlined, due to inheritance problems
+    my $sub = 'sub {
+        my $bool = $_[0]->'.$method.'( '.$param_list.' ) ? 1 : 0;
         $_[3] = Pugs::Runtime::Match->new({ 
                 bool  => \$bool,
                 str   => \$_[0],
@@ -133,7 +133,9 @@ sub try_method {
                 named => {},
                 match => [],
             });
-    }
+    }';
+    #print "sub: $sub\n";
+    return eval $sub;
 }
 
 sub constant { 
