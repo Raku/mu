@@ -138,6 +138,9 @@ EOF
   $smoke{id}              = $id;
   my $filename            = pack_smoke(%smoke);
   my $yml_filename        = yml_name($filename);
+  my $syn_dir             = synopsis_name($filename);
+
+  $html =~ s:t_index/t:$syn_dir/t:g;
 
   open my $fh, ">", $filename or
     die "Couldn't open \"$filename\" for writing: $!\n";
