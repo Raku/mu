@@ -227,6 +227,11 @@ _alias_a_to_b(SVREF a, SVREF b, int read_only)
                 croak("don't know what to do yet for %d", type);
         }
     }
+    else if (type == SVt_RV && SvAMAGIC(b)) {
+	SV *x = sv_newmortal();
+	sv_setsv(a, newRV_inc(SvRV(b)));
+	SvAMAGIC_on(a);
+    }
     else {
         sv_magicext(a, b, PERL_MAGIC_ext, &alias_vtbl, 0, 0);
         mg_get(a);
