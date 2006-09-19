@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 13 Sept 2006
+  Last Modified: 18 Sept 2006
   Number: 2
-  Version: 68
+  Version: 69
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -343,6 +343,25 @@ Perl 6 has an optional type system that helps you write safer
 code that performs better.  The compiler is free to infer what type
 information it can from the types you supply, but will not complain
 about missing type information unless you ask it to.
+
+=item *
+
+Types are officially compared using name equivalence rather than
+structural equivalence.  However, we're rather liberal in what we
+consider a name.  For example, the name includes the version and
+authority associated with the module defining the type (even if
+the type itself is "anonymous").  Beyond that, when you instantiate
+a parametric type, the arguments are considered part of the "long
+name" of the resulting type, so one C<Array of Int> is equivalent to
+another C<Array of Int>.  (Another way to look at it is that the type
+instantiation "factory" is memoized.)  Typename aliases are considered
+equivalent to the original type.
+
+This name equivalence of parametric types extends only to parameters
+that can be considered immutable (or that at least can have an
+immutable snapshot taken of them).  Two distinct classes are never
+considered equivalent even if they have the same attributes because
+classes are not considered immutable.
 
 =item *
 
