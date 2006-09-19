@@ -1,6 +1,7 @@
 @echo off
 
 rem WARMING!!! Don't Edit This File!!! Pugs' Build System Depends On This!
+rem This file is no longer used by pugs. Pugs now invokes Makefile.win32 instead.
 
 rem --- Set Compiler
 rem set CC=D:\ghc\ghc-6.4.2\gcc.exe
