@@ -1,5 +1,5 @@
 
-use Test::More tests => 48;
+use Test::More tests => 49;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -353,5 +353,22 @@ no warnings qw( once );
     #print "Match: ", $match->perl;
     is( "$match", "xy2", 'prior' );
   }
+}
+
+{
+
+    { 
+        package Test1;
+        sub meth { $_[0]{v} eq 'True' }
+    }
+
+    my $rule = Pugs::Compiler::Regex->compile( '<.meth>' );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+
+    my $object = bless { v => 'True' }, 'Test1';
+
+    my $match = $rule->match( $object );
+    #print "Match: ", $match->perl;
+    is( ( $match ? 1 : 0 ) , 1, 'object matches' );
 }
 

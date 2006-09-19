@@ -118,6 +118,24 @@ sub concat {
     }
 }
 
+sub try_method { 
+    my $method = shift;
+    my $param_list = shift;  # XXX
+    no warnings qw( uninitialized );
+    return sub {
+        my $bool = $_[0]->$method( $param_list ) ? 1 : 0;
+        #print "call $method ( $param_list ) on ", Dumper($_[0])," : $bool\n";
+        $_[3] = Pugs::Runtime::Match->new({ 
+                bool  => \$bool,
+                str   => \$_[0],
+                from  => \(0 + $_[5]),
+                to    => \(0 + $_[5]),
+                named => {},
+                match => [],
+            });
+    }
+}
+
 sub constant { 
     my $const = shift;
     my $lconst = length( $const );

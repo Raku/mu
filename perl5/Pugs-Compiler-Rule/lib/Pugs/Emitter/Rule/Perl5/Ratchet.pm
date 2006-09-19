@@ -772,6 +772,12 @@ $_[1] }";
             $_[1],    
         );
     }
+    if ( $prefix eq '.' ) {  
+        my ( $method, $param_list ) = split( /[\(\)]/, $cmd );
+        $method =~ s/^\.//;
+        $param_list ||= '';
+        return " ( \$s->$method( $param_list ) ? 1 : 0 ) ";
+    }
     die "<$cmd> not implemented";
 }
 
