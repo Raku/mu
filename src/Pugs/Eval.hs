@@ -1,4 +1,4 @@
-    {-# OPTIONS_GHC -fglasgow-exts -cpp -fno-warn-deprecations -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp -fno-warn-deprecations -fallow-overlapping-instances #-}
 
 {-|
     Evaluation and reduction engine.
