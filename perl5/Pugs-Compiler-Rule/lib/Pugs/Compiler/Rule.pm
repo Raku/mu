@@ -66,9 +66,9 @@ Rules may have parameters:
 This module provides an implementation for Perl 6 Rules.  It is a front-end
 to several other modules:
 
-=over 4
+Front-end Modules
 
-* Front-end Modules
+=over 4
 
 =item * L<Pugs::Compiler::Rule> compiles Perl 6 Rules to Perl 5.
 
@@ -78,7 +78,11 @@ to several other modules:
 
 =item * L<Pugs::Compiler::RegexPerl5> wraps Perl 5 Regexes to return a B<Match> object.
 
-* Runtime Classes
+=back
+
+Runtime Classes
+
+=over 4
 
 =item * L<Pugs::Runtime::Rule> provides the runtime engine for Rules.
 
@@ -86,15 +90,21 @@ to several other modules:
 
 =item * L<Pugs::Runtime::Grammar> represents a B<Grammar> class / object.
 
-* Grammars
+=back
+
+Grammars
+
+=over 4
 
 =item * L<Pugs::Grammar::Rule> parses the Rules syntax.
 
-=item * L<Pugs::Grammar::Rule::Rule> specifies the Rules syntax with Rules.
-
 =item * L<Pugs::Grammar::Base> is the base Grammar: <ws>, <space>.
 
-* Code Emitters
+=back
+
+Code Emitters
+
+=over 4
 
 =item * L<Pugs::Emitter::Rule::Perl5> converts parsed Rules to Perl 5 code.
 

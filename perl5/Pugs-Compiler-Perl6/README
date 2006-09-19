@@ -1,25 +1,29 @@
 NAME
-    v6-pugs - an experimental Perl 6 implementation
+    v6 - An experimental Perl 6 implementation
 
 SYNOPSIS
-    Command line:
-
-        $ perl -Ilib lib/v6.pm -e ' for 1,2,3 -> $x { say $x }'
-
-    Compile-only:
-
-        $ perl -Ilib lib/v6.pm --compile-only -e ' <hello>.say; '
-
-    Script or module:
-
         # file: hello_world.pl
         use v6-alpha;
         "hello, world".say;
 
         $ perl hello_world.pl
 
+    "v6-alpha" can be used in one-liners:
+
+        $ perl -e 'use v6-alpha' ' 42.say '
+        $ perl -e 'use v6-alpha' - ' 42.say '
+        $ perl -e 'use v6-alpha' - --compile-only ' 42.say '
+        $ perl -e 'use v6-alpha' - -Ilib6 ' 42.say '
+        $ echo 42.say | perl -e 'use v6-alpha'
+
+    "v6.pm" can also be used as a plain program. This examples assume that
+    v6.pm is in the "./lib" directory:
+
+        $ perl lib/v6.pm -e 'for 1,2,3 -> $x { say $x }'
+        $ perl lib/v6.pm --compile-only -e '<hello>.say;'
+
 DESCRIPTION
-    The "v6-pugs" module is a front-end to the experimental Perl6-to-Perl5
+    The "v6" module is a front-end to the experimental Perl6-to-Perl5
     compiler.
 
     The current state of this compiler implementation only provides a small
@@ -29,10 +33,10 @@ DESCRIPTION
     The Pugs/Haskell Perl 6 is currently the most complete implementation.
     Pugs currently has some issues with Perl 5 interoperability.
 
-    Parrot Perl 6 is the best performing implementation by far. The Parrot
-    implementation is currently at a comparable state as v6.pm.
+    Parrot Perl 6 aims to become the best performing implementation, but
+    currently is less complete than both "v6.pm" and Pugs/Haskell.
 
-    Although running "v6-pugs" requires the installation of a lot of Perl 5
+    Although running "v6.pm" requires the installation of a lot of Perl 5
     modules, it is completely independent of Pugs or Parrot.
 
 REQUIREMENTS
@@ -74,6 +78,29 @@ REQUIREMENTS
       Can't locate object method "compile" via package "Pugs::Compiler::Perl6"
 
     Please see <http://rt.cpan.org/Public/Bug/Display.html?id=20152>
+
+ENVIRONMENT VARIABLES
+    * PERL6LIB
+
+    Same usage as PERL5LIB - sets the search path for Perl 6 modules.
+
+    * V6DUMPAST
+
+    If set, the compiler will dump the syntax tree to "STDOUT" just before
+    emitting code, using "Data::Dumper".
+
+    * V6NOTIDY
+
+    If set, the compiler output will be much less readable, but there will
+    be some improvement in compiler speed.
+
+COMMAND LINE SWITCHES
+    * --compile-only
+
+    When using v6.pm from the command line, dumps the emitted code to
+    "STDOUT" and then exit:
+
+        $ perl -Ilib lib/v6.pm --compile-only -e '<hello>.say;'
 
 AUTHORS
     The Pugs Team <perl6-compiler@perl.org>.

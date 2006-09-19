@@ -2,6 +2,8 @@ NAME
     Pugs::Compiler::Rule - Compiler for Perl 6 Rules
 
 SYNOPSIS
+    Un-named rules are objects:
+
         use Pugs::Compiler::Rule;
 
         my $rule = Pugs::Compiler::Rule->compile( '((.).).' );
@@ -15,83 +17,109 @@ SYNOPSIS
             print $match->[0][0];   # "a"
         }
 
+    Named rules are methods in a Grammar:
+
+        package MyGrammar;
+        use Pugs::Compiler::Rule;
+        use base 'Pugs::Grammar::Base';
+
+        Pugs::Compiler::Rule->install( rule => '((.).).' );
+        my $match = MyGrammar->rule( 'abc' );
+
+    Rules may have parameters:
+
+        $grammar->install(subrule => $source, { signature => $sig } );
+
+        $grammar->install(rule => q{
+                <subrule: param1, param2>
+        });
+
 DESCRIPTION
     This module provides an implementation for Perl 6 Rules. It is a
     front-end to several other modules:
 
-    * Pugs::Grammar::Rule parses the Rules syntax.
-    * Pugs::Grammar::Rule::Rule specifies the Rules syntax with Rules.
-    * Pugs::Emitter::Rule::Perl5 converts parsed Rules to Perl 5 code.
-    * Pugs::Runtime::Rule provides the runtime engine for Rules.
-    * Pugs::Runtime::Match represents a Match object.
+    Front-end Modules
 
-  Implemented Features
-     . ? * + *? +? ??
-     \char <ws> <word> literal
-     $variable @variable
-     <'literal'>
-     [] 
-     ()     
-     <subrule>
-     <namespace::subrule>
-     <?subrule>
-     <!subrule>
-     |
-     <@var>             -- special-cased for array-of-rule (but not Rule|Str)
-     {code}             -- non-capturing closure
-                        -- perl5 syntax inside closure
-                        -- $/ doesn't work yet
-     { return code }    -- capturing closure
-                        -- perl5 syntax inside closure
-                        -- $/ works
-     $var := (capture)  -- capture aliasing
-     $<> $/<>           -- special variables can't be used inside a match yet
-     $/ 
-     $<0> $<1>
-     <$var>             -- untested
+    *   Pugs::Compiler::Rule compiles Perl 6 Rules to Perl 5.
 
-  Unimplemented Features
-     $/<0> $/<1>
-     $/0 $/1
-     $0 $1
-     <"literal">
-     ^ ^^ $ $$
-     <unicode-class> <+unicode-class> <+unicode-class+unicode-class>
-     <&var> 
-     <%var>
-     **{n..m}
-     : :: :::   (commit)
-     $var := [non-capture]
-     $var := <rule>
-     <(closure-assertion)> <{code-returns-rule}>
-     <<character-class>> <[character-class]>
-     :flag :flag() :flag[]
-     lookahead lookbehind
-     #comment\n
-     \x0a \o123 ...
-     <?ws>                      -- optional whitespace ???
-     &    
-     <!abc>                     -- is this !<abc> or !abc ?
-     \n \N
+    *   Pugs::Compiler::Token compiles Perl 6 Tokens to Perl 5.
+
+    *   Pugs::Compiler::Regex compiles Perl 6 Regexes to Perl 5.
+
+    *   Pugs::Compiler::RegexPerl5 wraps Perl 5 Regexes to return a Match
+        object.
+
+    Runtime Classes
+
+    *   Pugs::Runtime::Rule provides the runtime engine for Rules.
+
+    *   Pugs::Runtime::Match represents a Match object.
+
+    *   Pugs::Runtime::Grammar represents a Grammar class / object.
+
+    Grammars
+
+    *   Pugs::Grammar::Rule parses the Rules syntax.
+
+    *   Pugs::Grammar::Base is the base Grammar: <ws>, <space>.
+
+    Code Emitters
+
+    *   Pugs::Emitter::Rule::Perl5 converts parsed Rules to Perl 5 code.
+
+    *   Pugs::Emitter::Rule::Perl5::Ratchet converts parsed :ratchet Rules
+        to Perl 5 code.
 
 METHODS
-  compile (Str $rule_source)
-    Class method. Returns a compiled rule object, or throws an exception on
-    invalid rule syntax.
+    compile (Str $rule_source, \%options)
+        Class method. Returns a compiled rule object, or throws an exception
+        on invalid rule syntax.
 
-  match (Str $match_against)
-    Instance method. Returns a Pugs::Runtime::Match object.
+        options:
+
+        *   grammar => $class
+
+            Specify which namespace (Grammar) the rule belongs to.
+
+        *   ratchet => 1
+
+            Disable backtracking. Match faster. Defaults to 1 in Rules and
+            Tokens.
+
+        *   pos => $pos
+
+            Specify a string position to match. Starts in zero. Defaults to
+            "undef", which matches anywhere in the string.
+
+        *   sigspace => 1
+
+            Whitespace is significant. Defaults to 1 in Rules.
+
+        *   Perl5 => 1
+
+            Use Perl 5 grammar and semantics for Regex.
+
+    match (Str $match_against)
+        Instance method. Returns a Pugs::Runtime::Match object.
+
+    install (Str $name, Str $rule_source, \%options)
+        Install a rule into the method $name. If $name is fully qualified
+        then it will be installed into that path e.g "MyGrammar::rulename",
+        otherwise it will install it into the current package.
+
+    perl
+        Instance method. Returns a string that can be eval'ed into a
+        rule/token/regex object.
 
 CAVEATS
-    This is an experimental development version. There are currently no
-    support for match flags, and the API is still in flux.
+    This is an experimental development version. The API is still in flux.
 
-    It is currently unsuitable for just about any use other than Pugs
-    development. Please join us on irc.freenode.net #perl6 if you'd like to
-    participate. :-)
+    The set of implemented features depends on the "ratchet" switch.
 
 AUTHORS
-    The Pugs Team <perl6-compiler@perl.org>.
+    The Pugs Team "<perl6-compiler@perl.org>".
+
+    Please join us on irc.freenode.net #perl6 if you'd like to participate.
 
 SEE ALSO
     The Perl 6 Rules Spec:
