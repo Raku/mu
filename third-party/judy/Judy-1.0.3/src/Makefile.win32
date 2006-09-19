@@ -1,12 +1,12 @@
 # This file is provided for Windows users
 
 # Set Compiler
-CC = D:\ghc\ghc-6.4.2\gcc.exe
+#CC = D:\ghc\ghc-6.4.2\gcc.exe
 
 # Set Optimization
 # COPT = '-O'
-COPT = -ID:\ghc\ghc-6.4.2\include\mingw -ID:\ghc\ghc-6.4.2\gcc-lib\include \
-	-BD:\ghc\ghc-6.4.2\gcc-lib
+#COPT = -ID:\ghc\ghc-6.4.2\include\mingw -ID:\ghc\ghc-6.4.2\gcc-lib\include \
+#	-BD:\ghc\ghc-6.4.2\gcc-lib
 
 # Set Shared library option
 # CPIC = -fPIC
