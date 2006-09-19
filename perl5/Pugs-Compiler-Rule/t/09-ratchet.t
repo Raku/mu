@@ -552,7 +552,7 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
 
 {
     my $rule = Pugs::Compiler::Rule->compile( '$<z> := (.)(.)' );
-    print "Rule: ", $rule->{perl5};
+    #print "Rule: ", $rule->{perl5};
     my $match = $rule->match( "abc" );
     ok( $match, 'true match' );
     is( "$match->{z}", "a", 'named capture on parentheses' );
