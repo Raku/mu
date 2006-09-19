@@ -553,11 +553,11 @@ EOD
     $svn_entries = 'force_run';
 
     my $cleanjudy;
-    if ($^X eq 'MSWin32') {
-        $cleanjudy = 'cd third-party/judy/Judy-1.0.3 && make clean';
-    } else {
+    if ($Config{osname} eq 'MSWin32') {
         $cleanjudy = 'cd third-party\judy\Judy-1.0.3\src && '.
             'nmake /nologo /F Makefile.win32 clean';
+    } else {
+        $cleanjudy = 'cd third-party/judy/Judy-1.0.3 && make clean';
     }
 
     postamble(fixpaths(<< "."));
