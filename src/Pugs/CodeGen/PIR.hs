@@ -397,6 +397,9 @@ genPIR = genPIRWith $ \globPIR mainPIR penv -> do
             , InsNew tempPMC PerlArray
             , "store_global"    .- [lit "@*END", tempPMC]
             , "store_global"    .- [lit "@END", tempPMC]
+	    , InsNew tempPMC PerlArray
+	    , "store_global"	.- [lit "@*CHECK", tempPMC]
+	    , "store_global"	.- [lit "@CHECK", tempPMC]
             , "getstdin"        .- [tempPMC]
             , "store_global"    .- [lit "$*IN", tempPMC]
             , "store_global"    .- [lit "$IN", tempPMC]
