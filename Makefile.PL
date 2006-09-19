@@ -552,6 +552,14 @@ EOD
     #}
     $svn_entries = 'force_run';
 
+    my $judy_clean;
+    if ($^X eq 'MSWin32') {
+        $judy_clean = 'cd third-party/judy/Judy-1.0.3 && make clean';
+    } else {
+        $judy_clean = 'cd third-party\judy\Judy-1.0.3\src && '.
+            'nmake /nologo /F Makefile.win32 clean';
+    }
+
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
 	\$(PERL) util/config_h.pl "$ghc $ghc_flags"
@@ -764,12 +772,12 @@ clean ::
 	-cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) clean
 ")]}
 
-realclean ::
+judy_clean:
+	$judy_clean
+
+realclean :: judy_clean
 	\@\$(RM_RF) third-party/installed
-	\@\$(RM_F) third-party/judy/Judy-*/src/*.a
-	\@\$(RM_F) third-party/judy/Judy-*/src/*/*.o
-	\@\$(RM_F) third-party/judy/Judy-*/src/*/*.lo
-	\@\$(RM_F) third-party/judy/Judy-*/src/obj/.libs/*
+
 @{[for_perl5("
 	-cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) realclean
 ")]}
