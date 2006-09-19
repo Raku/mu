@@ -552,11 +552,11 @@ EOD
     #}
     $svn_entries = 'force_run';
 
-    my $judy_clean;
+    my $cleanjudy;
     if ($^X eq 'MSWin32') {
-        $judy_clean = 'cd third-party/judy/Judy-1.0.3 && make clean';
+        $cleanjudy = 'cd third-party/judy/Judy-1.0.3 && make clean';
     } else {
-        $judy_clean = 'cd third-party\judy\Judy-1.0.3\src && '.
+        $cleanjudy = 'cd third-party\judy\Judy-1.0.3\src && '.
             'nmake /nologo /F Makefile.win32 clean';
     }
 
@@ -772,10 +772,10 @@ clean ::
 	-cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) clean
 ")]}
 
-judy_clean:
-	$judy_clean
+cleanjudy:
+	$cleanjudy
 
-realclean :: judy_clean
+realclean :: cleanjudy
 	\@\$(RM_RF) third-party/installed
 
 @{[for_perl5("
