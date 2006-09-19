@@ -74,7 +74,7 @@ sub compile {
         #print "match: ", Dumper( Pugs::Grammar::Rule->rule( $self->{source} ) );
         my $ast = Pugs::Grammar::Rule->rule( 
             $self->{source} )->();
-        print "ast: ",Dumper($ast),"\n";
+        #print "ast: ",Dumper($ast),"\n";
         #die "Error in rule: '$rule_source' at: '$ast->tail'\n" if $ast->tail;
         #print 'rule ast: ', do{use Data::Dumper; Dumper($ast{capture})};
 

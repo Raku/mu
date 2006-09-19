@@ -1,5 +1,5 @@
 
-use Test::More tests => 49;
+use Test::More tests => 50;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -372,3 +372,10 @@ no warnings qw( once );
     is( ( $match ? 1 : 0 ) , 1, 'object matches' );
 }
 
+{
+    my $rule = Pugs::Compiler::Regex->compile( 'x <at(1)>' );
+    my $match = $rule->match( "xy" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( "$match", "x", 'ident' );
+}

@@ -18,6 +18,9 @@ sub call_subrule {
     $subrule = "\$_[4]->" . $subrule unless $subrule =~ / :: | \. | -> /x;
     $subrule =~ s/\./->/;   # XXX - source filter
 
+    push @param, 1 if @param == 1;  # odd number of elements in hash
+    #print "PARAM: ",Dumper(@param);
+
     return 
 "$tab sub{ 
 $tab     my \$prior = \$::_V6_PRIOR_;

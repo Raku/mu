@@ -27,6 +27,21 @@ sub no_match {
 
 # specced methods
 
+sub at {
+    my $grammar = shift;
+    my $pos = $_[1]{p} || 0;
+    my ( $arg ) = keys %{ $_[1]{args} };  # XXX positional
+    # print "at: ",Dumper( @_ );
+    return Pugs::Runtime::Match->new( { 
+        bool    => \( $pos == $arg ),
+        str     => \$_[0],
+        match   => [],
+        from    => \$pos,
+        to      => \$pos,
+        capture => undef,
+    } );
+}
+
 sub prior {
     warn "Error: <prior> is undefined" 
         unless defined $main::_V6_PRIOR_;

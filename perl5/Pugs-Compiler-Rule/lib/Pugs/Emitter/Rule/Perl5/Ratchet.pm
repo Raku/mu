@@ -761,9 +761,15 @@ $_[1] }";
         if ( $cmd eq 'null' ) {
             return "$_[1] 1 # null\n"
         }
-        # capturing subrule
         # <subrule ( param, param ) >
         my ( $subrule, $param_list ) = split( /[\(\)]/, $cmd );
+        $param_list ||= '';
+
+        if ( $subrule eq 'at' ) {
+            $param_list ||= 0;   # XXX compile-time only
+            return "$_[1] ( \$pos == $param_list )\n"
+        }
+
         return named_capture(
             { 
                 ident => $subrule, 
