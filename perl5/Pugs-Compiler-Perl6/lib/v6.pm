@@ -296,6 +296,8 @@ be some improvement in compiler speed.
 When using v6.pm from the command line, dumps the emitted code
 to C<STDOUT> and then exit:
 
+    $ perl -e 'use v6-alpha' - --compile-only ' 42.say '
+
     $ perl -Ilib lib/v6.pm --compile-only -e '<hello>.say;'
 
 =head1 AUTHORS
