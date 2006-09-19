@@ -123,7 +123,7 @@ sub build {
         $ENV{COPT} = "-I$ghc_inst_path\\include\\mingw -I$ghc_inst_path\\gcc-lib\\include " .
             "-B$ghc_inst_path\\gcc-lib";
         warn "\nCC = $ENV{CC}\nCOPT = $ENV{COPT}\n";
-        system("nmake /F Makefile.win32");
+        system("nmake /F Makefile.win32 /NOLOGO");
         chdir '..';
     } else {
         if (!-e "src/obj/.libs/libJudy.a") {
