@@ -62,6 +62,8 @@ $revision ||= 0;
 # WARNING! don't modify the following output, since smartlinks.pl relies on it.
 print "Current version is $revision\n";
 
+#utime undef, undef, "$base/src/Pugs/Version.hs";
+
 if ($revision != $old_revision) {
   # As we've closed STDIN (filehandle #0), slot #0 is available for new
   # filehandles again. If we opened a new file ($version_h) without turning
@@ -72,6 +74,10 @@ if ($revision != $old_revision) {
   print OUT "#undef PUGS_SVN_REVISION\n";
   print OUT "#define PUGS_SVN_REVISION $revision\n";
   close OUT;
+
+  my $hs_file = "$base/src/Pugs/Version.hs";
+  warn "===> touching $hs_file\n";
+  utime undef, undef, $hs_file;
 
   if ($revision != 0) {
     # rebuild Help.hs to show new revision number

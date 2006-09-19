@@ -547,9 +547,10 @@ EOD
 
     my $svn_entries = '';
 
-    if (-d '.svn') {
-        $svn_entries = File::Spec->catfile('.svn', 'entries');
-    }
+    #if (-d '.svn') {
+        #$svn_entries = File::Spec->catfile('.svn', 'entries');
+    #}
+    $svn_entries = 'force_run';
 
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
@@ -557,6 +558,8 @@ $config_h : lib/Perl6/Pugs.pm util/config_h.pl
 
 $version_h : $svn_entries util/version_h.pl
 	\$(PERL) util/version_h.pl $version_h
+
+force_run:
 
 @{[join("\n", map {$emit->($_)} grep { /\.o$/ } @prereqs)]}
 
