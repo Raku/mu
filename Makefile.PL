@@ -552,6 +552,16 @@ EOD
     #}
     $svn_entries = 'force_run';
 
+    # logic for Judy:
+
+    if ($Config{osname} ne 'MSWin32') {
+        warn "Configuring Judy...\n";
+        chdir "third-party/judy/Judy-1.0.3";
+        copy('src/Judy.h', '../../HsJudy');
+        system("./configure") unless -e "config.status" and -e "Makefile";
+        chdir "../../..";
+    }
+
     my $cleanjudy;
     if ($Config{osname} eq 'MSWin32') {
         $cleanjudy = 'cd third-party\judy\Judy-1.0.3\src && '.
