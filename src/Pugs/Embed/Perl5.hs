@@ -325,7 +325,15 @@ nullSV = nullPtr
 evalPCR :: FilePath -> String -> String -> [(String, String)] -> IO String
 evalPCR path match rule subrules = do
     envSV   <- mkVal ()
-    inv      <- evalPerl5 ("use lib '"++path++"/perl5/Pugs-Compiler-Rule/lib'; use Pugs::Runtime::Match::HsBridge; 'Pugs::Runtime::Match::HsBridge'") envSV 1
+    let bridgeMod   = "Pugs::Runtime::Match::HsBridge"
+        bridgeFile  = "Pugs/Runtime/Match/HsBridge.pm";
+    inv     <- evalPerl5 (unlines
+        [ "if (!$INC{'"++bridgeFile++"'}) {"
+        , "    unshift @INC, '"++path++"/perl5/Pugs-Compiler-Rule/lib';"
+        , "    eval q[require '"++bridgeFile++"'];"
+        , "}"
+        , "'"++bridgeMod++"'"
+        ]) envSV 1
     meth    <- vstrToSV "__RUN__"
     args    <- mapM vstrToSV $ concatMap (\(x, y) -> [x, y]) ((match, rule):subrules)
     rv      <- invokePerl5 meth inv args envSV 1
