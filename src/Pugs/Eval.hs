@@ -554,9 +554,9 @@ reduceSyn name [cond, body]
     doWhileUntil f postloop = do
         sub <- fromVal =<< (enterRValue $ enterEvalContext (cxtItem "Code") body)
         -- XXX redo for initial run
-        if postloop
-            then apply sub Nothing [Val . castV $ undef]
-            else retEmpty
+        if not postloop then retEmpty else fix $ \runBody -> do
+            callCC $ \esc -> genSymPrim "&redo" (const $ runBody >>= esc) $ \symRedo -> do
+                enterLex [symRedo] $ apply sub Nothing [Val . castV $ undef]
         enterWhile . fix $ \runLoop -> do
             vbool <- enterEvalContext (cxtItem "Bool") cond
             vb    <- fromVal vbool

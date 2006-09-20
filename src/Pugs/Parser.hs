@@ -1088,11 +1088,10 @@ ruleRepeatConstruct = rule "postfix loop construct" $ do
 
 ruleRepeatPostConstruct :: RuleParser Exp
 ruleRepeatPostConstruct = rule "repeat postfix construct" $ do
-    block   <- ruleBareOrPointyBlockLiteralWithoutDefaultParams
-    option (Syn "loop" [block]) $ do
-        name <- choice [ symbol "while", symbol "until" ]
-        cond <- ruleExpression
-        return $ Syn ("post" ++ name) [cond, block]
+    block   <- enterBracketLevel ParensBracket $ ruleBareOrPointyBlockLiteralWithoutDefaultParams
+    name    <- choice [ symbol "while", symbol "until" ]
+    cond    <- ruleExpression
+    return $ Syn ("post" ++ name) [cond, block]
 
 ruleRepeatPreConstruct :: RuleParser Exp
 ruleRepeatPreConstruct = rule "repeat prefix construct" $ do
