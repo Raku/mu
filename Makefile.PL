@@ -464,7 +464,7 @@ EOD
         # parrot include paths for hsc2hs
         $hsc2hs_flags .= " -DPUGS_HAVE_PARROT -I$base/include ";
 
-        print @warn << ".";
+        push @warn, << ".";
 *** Embedded 'parrot' enabled.  You can use it for Perl 6 regex support by
     setting the PUGS_REGEX_ENGINE environment variable to "PGE" at runtime.
 .
