@@ -89,7 +89,7 @@ sub write_config_module {
     } sort keys %$config;
     $template =~ s/#all_fields#/$all_fields/;
 
-    my $all_definitions = join ",\n\t", map {
+    my $all_definitions = join ",\n    ", map {
         my $name = $_;
         my $value = $config->{$name};
         $value =~ s{\\}{\\\\}g;
