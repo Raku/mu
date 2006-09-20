@@ -60,7 +60,7 @@ ruleDocBlock = verbatimRule "Doc block" $ do
             cs <- many $ satisfy (not . isSpace)
             return (c:cs)
         param <- option "" $ do
-            satisfy isSpace
+            char ' '
             -- XXX: drop trailing spaces?
             many $ satisfy (/= '\n')
         return (section == "begin" && param == "END")
