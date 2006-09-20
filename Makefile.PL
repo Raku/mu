@@ -568,7 +568,12 @@ EOD
         $judyclean = 'cd third-party\judy\Judy-1.0.3\src && '.
             'nmake /nologo /F Makefile.win32 clean';
     } else {
-        $judyclean = 'cd third-party/judy/Judy-1.0.3 && make clean && perl cleanmore.pl';
+        my $make = $Config{make};
+
+        # Judy at this moment wants GNU make.
+        $make = 'gmake' unless `$make --version` =~ /GNU/;
+
+        $judyclean = "cd third-party/judy/Judy-1.0.3 \&\& $make clean \&\& perl cleanmore.pl";
     }
 
     postamble(fixpaths(<< "."));
