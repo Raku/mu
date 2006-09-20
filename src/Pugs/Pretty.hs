@@ -12,7 +12,7 @@
 -}
 
 module Pugs.Pretty (
-    Pretty, pretty, priggy,
+    Pretty(..), pretty, priggy,
 ) where
 import Pugs.Internals
 import Pugs.Types

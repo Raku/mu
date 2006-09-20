@@ -169,8 +169,9 @@ prettyParam p isReq isPos = sep [ staticTypes, varDecl, defaultVal, traits, unpa
         | otherwise = text ":" <> text (cast p_label p) <> (parens $ text (cast p_variable p))
     staticTypes = hsep $ map (text . Types.showType) $ p_types p
     defaultHint = if not isReq && not haveDefault then text "?" else empty
-    haveDefault = isJust $ unDefault $ p_default p
-    defaultVal  = if haveDefault then equals <+> text "{...}" else empty -- FIXME: pretty the exp, if we lift into Eval?
+    defaultExp  = fromJust .  unDefault $ p_default p
+    haveDefault = isJust . unDefault $ p_default p
+    defaultVal  = if haveDefault then equals <+> prettyExp defaultExp else empty
     traits      = sep [acc, ref, lazy, slots]
     unpacking   = case p_unpacking p of
         (Just s)   -> purePretty s

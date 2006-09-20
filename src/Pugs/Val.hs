@@ -60,7 +60,6 @@ data Val
     | forall a. Ext a  => VExt  !a  -- ^ Input/Ouput handles          (ValId = memory addr)
     deriving (Typeable)
 
-
 castVal :: (Monad m, Typeable a) => Val -> m a
 --castVal (VUndef v)  = return v
 --castVal (VNative v) = return v
