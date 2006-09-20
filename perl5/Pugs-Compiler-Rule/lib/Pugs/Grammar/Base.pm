@@ -45,7 +45,10 @@ sub at {
 sub prior {
     warn "Error: <prior> is undefined" 
         unless defined $main::_V6_PRIOR_;
-    return $main::_V6_PRIOR_->( @_[0,1,2,2] );  # XXX fix parameter list
+
+    use warnings FATAL => 'recursion';
+    @_ = @_[0, 1, 2, 2];
+    goto &{$main::_V6_PRIOR_};  # XXX fix parameter list
 }
 
 *null = Pugs::Compiler::RegexPerl5->compile( 
