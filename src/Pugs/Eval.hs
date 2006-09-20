@@ -448,7 +448,7 @@ reduceSyn name [cond, bodyIf, bodyElse]
     where
     doCond :: (Bool -> Bool) -> Eval Val
     doCond f = do
-        vbool     <- enterEvalContext (cxtItem "Bool") cond
+        vbool     <- enterRValue $ enterEvalContext (cxtItem "Bool") cond
         vb        <- fromVal vbool
         if (f vb)
             then reduce bodyIf
