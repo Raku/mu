@@ -336,6 +336,8 @@ sub set_postamble {
 
             if ($Config{osname} eq 'cygwin') {
                 $embed_flags =~ s{/cygdrive/(\w)/}{$1:/}g;
+                $embed_flags =~ s{(/usr/\S+)}{`cygpath -w $1`}eg;
+                $embed_flags =~ s/[\r\n]//g;
             }
         }
     }
