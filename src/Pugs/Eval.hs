@@ -912,14 +912,27 @@ reduceApp (Var var) invs args
         let callerEnv :: Env -> Env
             callerEnv env = let caller = maybe env id (envCaller env) in
                 env{ envCaller  = envCaller caller
-                , envContext = envContext caller
-                , envLValue  = envLValue caller
-                , envDepth   = envDepth caller
-                , envPos     = envPos caller
-                }
+                   , envContext = envContext caller
+                   , envLValue  = envLValue caller
+                   , envDepth   = envDepth caller
+                   , envPos     = envPos caller
+                   }
         local callerEnv $ do
             val <- apply sub Nothing args
             shiftT $ const (retVal val)
+    -- XXX absolutely evil bloody hack for "call"
+    | var == cast "&call", Just subExp <- invs = do
+        vsub <- enterEvalContext (cxtItem "Code") subExp
+        sub <- fromVal vsub
+        let callerEnv :: Env -> Env
+            callerEnv env = let caller = maybe env id (envCaller env) in
+                env{ envCaller  = envCaller caller
+                   , envContext = envContext caller
+                   , envLValue  = envLValue caller
+                   , envDepth   = envDepth caller
+                   , envPos     = envPos caller
+                   }
+        local callerEnv $ apply sub Nothing args
     -- XXX absolutely evil bloody hack for "assuming"
     | var == cast "&assuming", Just subExp <- invs = do
         vsub <- enterEvalContext (cxtItem "Code") subExp
