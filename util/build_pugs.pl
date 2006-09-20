@@ -133,17 +133,19 @@ sub build {
         system("nmake /F Makefile.win32 /NOLOGO");
         chdir '..';
     } else {
-        if (!-e "src/obj/.libs/libJudy.a") {
+        #if (!-e "src/obj/.libs/libJudy.a") {
             my $make = $Config{make};
 
             # Judy at this moment wants GNU make.
             $make = 'gmake' unless `$make --version` =~ /GNU/;
             
-            system("./configure") unless -e "config.status" and -e "Makefile";
-            system("$make clean");
-            system("$make all");
+            system("./configure") unless -e "src/Makefile";
+            #system("$make clean");
+            chdir 'src';
+            system("$make");
+            chdir '..';
             #mkdir("../../installed") if !-d "../../installed";
-        }
+        #}
         #copy('src/obj/.libs/libJudy.a', '../../installed') unless -e '../../installed/libJudy.a';
         #copy('src/obj/.libs/libJudy.a', '../../HsJudy') unless -e '../../HsJudy/libJudy.a';
     }
