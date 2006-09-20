@@ -152,7 +152,6 @@ sub set_postamble {
     my $ghc_wrapper = File::Spec->catfile(".", "util", "runcompiler$Config{_exe}");
     my $ghc_pkg_wrapper = File::Spec->catfile(".", "util", "ghc-pkg-wrapper$Config{_exe}");
     my $config_path = File::Spec->catfile(cwd(), 'third-party', 'installed', 'packages.conf');
-    $config_path =~ s{^/cygdrive/(\w)/}{$1:/} if ($Config{osname} eq 'cygwin');
 
     if (!$hsc2hs) {
         $hsc2hs = $ghc;
@@ -169,9 +168,9 @@ sub set_postamble {
     preprocess(
             File::Spec->catfile('util', 'ghc-pkg-wrapper.hs.in'),
             File::Spec->catfile('util', 'ghc-pkg-wrapper.hs'),
+            CONFIG_PATH => $config_path,
             GHC => $ghc,
             GHC_PKG => $ghc_pkg,
-            CONFIG_PATH => $config_path,
     );
 
     # set up install path for third-party modules
@@ -915,6 +914,10 @@ sub preprocess {
 
     open IN, '<', $infile or die "failed to open $infile ($!)";
     open OUT, '>', $outfile or die "failed to open $outfile ($!)";
+
+    if ($Config{osname} eq 'cygwin') {
+        s{^/cygdrive/(\w)/}{$1:/} for values %substitutions;
+    }
 
     while (<IN>) {
         while (my ($pat, $subst) = each(%substitutions)) {
