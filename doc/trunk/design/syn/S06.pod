@@ -15,7 +15,7 @@ Allison Randal <al@shadowed.net>
   Date: 21 Mar 2003
   Last Modified: 20 Sept 2006
   Number: 6
-  Version: 55
+  Version: 56
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -2118,7 +2118,7 @@ The entire argument list may be captured by the C<\$args> parameter.
 It can then be passed to C<call> as C<*$args>:
 
     # Double the return value for &thermo
-    &thermo.wrap( -> \$args { call(*$args) * 2 } );
+    &thermo.wrap( -> \$args { call([,] =$args) * 2 } );
 
 The wrapper is not required to call the original routine; it can call another
 C<Code> object by passing the C<Capture> to its C<call> method:
