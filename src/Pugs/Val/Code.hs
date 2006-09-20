@@ -206,6 +206,11 @@ data Feed a = MkFeed
     }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
+instance Monoid (Feed a) where
+    mempty = MkFeed mempty mempty
+    mappend (MkFeed x1 x2) (MkFeed y1 y2) = MkFeed (mappend x1 y1) (mappend x2 y2)
+    mconcat xs = MkFeed (mconcat (map f_positionals xs)) (mconcat (map f_nameds xs))
+
 emptyFeed :: Feed a
 emptyFeed = MkFeed [] Map.empty
 

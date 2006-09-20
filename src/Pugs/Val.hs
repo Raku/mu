@@ -27,6 +27,7 @@ import qualified Data.Typeable as Typeable
 import qualified Data.ByteString as Buf
 import qualified Data.Map as Map
 import qualified Data.Set as Set
+import Data.Monoid
 
 import Pugs.AST.SIO
 import Pugs.Val.Base
@@ -58,6 +59,7 @@ data Val
     | forall a. Mut a  => VMut  !a  -- ^ In-memory mutable structures (ValId = memory addr)
     | forall a. Ext a  => VExt  !a  -- ^ Input/Ouput handles          (ValId = memory addr)
     deriving (Typeable)
+
 
 castVal :: (Monad m, Typeable a) => Val -> m a
 --castVal (VUndef v)  = return v

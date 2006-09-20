@@ -74,6 +74,10 @@ data PureInt
 
 instance ICoercible P PureInt where
     asInt = return . cast
+    asStr INotANumber           = cast "NaN"
+    asStr (IInfinite SPositive) = cast "Inf"
+    asStr (IInfinite SNegative) = cast "-Inf"
+    asStr (IFinite n)           = cast (show n)
     asNum INotANumber           = return $ cast ( (0/0) :: Double)
     asNum (IInfinite SPositive) = return $ cast ( (1/0) :: Double)
     asNum (IInfinite SNegative) = return $ cast ((-1/0) :: Double)
