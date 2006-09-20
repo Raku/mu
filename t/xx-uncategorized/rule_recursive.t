@@ -13,7 +13,6 @@ plan 20;
 
 unless "a" ~~ rx/a/ {
   skip_rest "skipped tests - rule support appears to be missing";
-die "foo!";
   exit;
 }
 
