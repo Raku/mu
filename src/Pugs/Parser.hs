@@ -1369,8 +1369,9 @@ data Paramdec = MkParamdec
     }
     deriving (Show)
 
-dummyParam :: SigParam
-dummyParam = MkParam
+-- XXX - Unused?
+_dummyParam :: SigParam
+_dummyParam = MkParam
     { p_variable    = varNullScalar
     , p_types       = []
     , p_constraints = []
