@@ -604,18 +604,25 @@ reduceSyn ":=" exps
             Syn [sigil,':',':','(',')'] [vexp]
                 | Val (VStr name) <- unwrap vexp -> return $ cast (sigil:name)
             _        -> retError "Cannot bind this as lhs" var
-        bindings <- forM (names `zip` vexps) $ \(var, vexp) -> do
+        bindings <- forM (names `zip` vexps) $ \(var, vexp) -> enterLValue $ do
             {- FULL THUNKING
             let ref = thunkRef . MkThunk $ do
                     local (const env'{ envLValue = True }) $ do
                         enterEvalContext (cxtOfSigil $ head name) vexp
             -}
-            val  <- enterLValue $ enterEvalContext (cxtOfSigilVar var) vexp
+            val  <- enterEvalContext (cxtOfSigilVar var) vexp
             ref  <- fromVal val
             rv   <- findVarRef var
             case rv of
-                Just ioRef -> return (ioRef, ref)
-                _ -> retError "Bind to undeclared variable" var
+                Just tvar -> return (tvar, ref)
+                _ | isGlobalVar var || v_package var `notElem` [emptyPkg, callerPkg, outerPkg, contextPkg] -> do
+                    -- $Qualified::Var is not found.  Vivify at lvalue context.
+                    evalExp (Sym SGlobal var Noop)
+                    rv' <- findVarRef var
+                    case rv' of
+                        Just tvar   -> return (tvar, ref)
+                        _           -> retError "Bind to undeclared variable" var
+                _   -> retError "Bind to undeclared variable" var
         forM_ bindings $ \(ioRef, ref) -> do
             liftSTM $ writeTVar ioRef ref
         return $ case map (VRef . snd) bindings of
