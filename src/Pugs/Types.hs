@@ -801,7 +801,10 @@ rawTree = fmap cast $! Node "Object"
                     ]
                 , Node "Rul" []
                 , Node "Pugs::Internals::VRule" []
-                , Node "Match" []
+                , Node "Signature"
+                , Node "Capture"
+                    [ Node "Match" []
+                    ]
                 , Node "Scalar::Const" []
                 , Node "Scalar::Proxy" []
                 , Node "Scalar::Lazy" []
