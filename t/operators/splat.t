@@ -5,20 +5,20 @@ use Test;
 plan 3;
 
 {
-    my $a = *(1, 2, 3);
-    is($a, 1, "scalar = *list", :todo);
+    my ($a) = [,](1, 2, 3);
+    is($a, 1, "(scalar) = [,]list");
 };
 
 {
     my @a = (1, 2, 3);
-    my $b = [,] @a;
-    is($b, 1, "scalar = *array", :todo);
+    my ($b) = [,] @a;
+    is($b, 1, "(scalar) = [,]array");
 };
 
 {
     my $a = (1, 2, 3);
     my $b = [,] $a;
-    is($b, [1, 2, 3], "scalar = *arrayref");
+    is($b, [1, 2, 3], "scalar = [,]arrayref");
 };
 
 =begin END
