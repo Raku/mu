@@ -328,10 +328,15 @@ sub set_postamble {
             else {
                 $embed_flags .= " -optc$_" for grep length, split(/\s+/, ccopts());
                 $embed_flags .= " -optl$_" for grep length, split(/\s+/, ldopts());
+
             }
 
             $embed_flags .= " $_" for grep { /-[DIL]/ } split(/\s+/, ccopts());
             $embed_flags .= " $_" for grep { /-[DIL]/ } split(/\s+/, ldopts());
+
+            if ($Config{osname} eq 'cygwin') {
+                $embed_flags =~ s{/cygdrive/(\w)/}{$1:/}g;
+            }
         }
     }
     else {
