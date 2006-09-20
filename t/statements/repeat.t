@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 17;
+plan 16;
 
 # L<S04/The C<repeat> statement/"more Pascal-like repeat loop">
 
@@ -52,13 +52,11 @@ plan 17;
 
 {
     my $x = 0;
-    eval_ok q{
-        repeat {
-            $x++;
-            $x += 2;
-        }
-        while $x < 10;
-    }, 'repeat with "}\n while';
+    repeat {
+        $x++;
+        $x += 2;
+    }
+    while $x < 10;
 
     is $x, 12, 'repeat with "}\n while"';
 }
