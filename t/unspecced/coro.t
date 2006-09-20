@@ -49,8 +49,8 @@ sub grab (Int $n, Code &f) { (1..$n).map:{ f() } }
 {
   my @array = grab 5, {
     coro {
+      state $num;
       while 1 {
-        state $num;
         yield ++$num;
       }
     };
@@ -66,8 +66,8 @@ try {
   my @array = grab 5, {
     coro {
         (sub {
+          state $num;
           while 1 {
-            state $num;
             yield ++$num;
           }
         })();
