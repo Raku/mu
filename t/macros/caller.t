@@ -40,4 +40,4 @@ is ast_current_line, $?LINE,
     'macros with AST do not introduce new CALLER frame';
 
 is closure_current_line, $closure_line,
-    'macros with closures do not introduce new CALLER frame';
+    'macros with closures *do* introduce a new CALLER frame';
