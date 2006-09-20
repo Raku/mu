@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 13 Sept 2006
+  Last Modified: 20 Sept 2006
   Number: 6
-  Version: 54
+  Version: 55
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -2124,7 +2124,7 @@ The wrapper is not required to call the original routine; it can call another
 C<Code> object by passing the C<Capture> to its C<call> method:
 
     # Transparently redirect all calls to &thermo to &other_thermo
-    &thermo.wrap( -> \$args { &other_thermo.call([,] =$args) } );
+    &thermo.wrap( -> \$args { &other_thermo.call($args) } );
 
 Outside a wrapper, C<call> implicitly calls the next-most-likely method
 or multi-sub; see S12 for details.
