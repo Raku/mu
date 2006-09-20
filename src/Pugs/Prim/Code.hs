@@ -46,8 +46,8 @@ op1CodePos v = do
 
 op1CodeSignature :: Val -> Eval Val
 op1CodeSignature v = do
-	code <- fromVal v
-	return . VV . Val.val . paramsToSig . subParams $ code
+    code <- fromVal v
+    return . VV . Val.val . paramsToSig . subParams $ code
 
 {- On Code::Exp -}
 

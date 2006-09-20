@@ -72,4 +72,4 @@ ruleDocBlock = verbatimRule "Doc block" $ do
         else do
             ruleDocBody
             whiteSpace
-	    return emptyExp
+            return emptyExp

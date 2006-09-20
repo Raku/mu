@@ -84,11 +84,10 @@ whiteSpace  = satisfy (\c -> charClassOf c == SpaceClass)
                                     <?> "whitespace"
 
 perl6WhiteSpace :: RuleParser String
-perl6WhiteSpace = do cls <- getPrevCharClass 
-		     let mod = if cls == WordClass then many1 else many
-		     do mod whiteSpace
-		        <|>
-		        (satisfy (\c -> charClassOf c /= WordClass) >> return "")
+perl6WhiteSpace = do
+    cls <- getPrevCharClass 
+    let mod = if cls == WordClass then many1 else many
+    mod whiteSpace <|> (satisfy (\c -> charClassOf c /= WordClass) >> return "")
 
 anyChar :: RuleParser Char
 anyChar     = satisfy (const True)

@@ -139,7 +139,7 @@ data ParamAccess
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 instance ICoercible P Sig where
-	asStr = return . cast . render . purePretty
+    asStr = return . cast . render . purePretty
 
 instance Pure Sig where
     purePretty s = colon <> (parens $ prettySig s)

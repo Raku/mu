@@ -949,22 +949,22 @@ ruleClosureTrait rhs = tryRule "closure trait" $ do
             return val
         "CHECK" -> vcode2checkBlock code
         "INIT"  -> vcode2initBlock code
-		-- we need to clone this closure sometimes
+            -- we need to clone this closure sometimes
         "START" -> vcode2startBlock code
         _       -> do 
-                let (VCode code') = code
-                addClosureTrait name code'
-                return emptyExp --retBlock SubBlock Nothing False block 
-                  -- XXX Not the right thing to return
+            let (VCode code') = code
+            addClosureTrait name code'
+            return emptyExp --retBlock SubBlock Nothing False block 
+            -- XXX Not the right thing to return
     where
-        install [] = return $ ()
-        install prag = do
-            env' <- ask
-            let env'' = envCaller env'  -- not sure about this.
-            case env'' of
-                Just target -> do
-                    putRuleEnv target { envPragmas = prag ++ envPragmas target }
-                _ -> fail "no caller env to install pragma in"
+    install [] = return $ ()
+    install prag = do
+        env' <- ask
+        let env'' = envCaller env'  -- not sure about this.
+        case env'' of
+            Just target -> do
+                putRuleEnv target { envPragmas = prag ++ envPragmas target }
+            _ -> fail "no caller env to install pragma in"
 
 {-| Match a @q:code { ... }@ quotation -}
 ruleCodeQuotation :: RuleParser Exp
@@ -1000,7 +1000,8 @@ vcode2startBlock code = do
     -- This is the general idea:
     -- START { 42 } is transformed into
     -- {
-    --   state $?START_RESULT;	XXX these should not be $? vars!!!
+    --   # XXX these should not be $? vars!!!
+    --   state $?START_RESULT;
     --   state $?START_RUN;
     --   $?START_RUN++ ?? $?START_RESULT !! $?START_RESULT = { 42 }();
     -- }
@@ -1020,20 +1021,20 @@ vcode2startBlock code = do
 
 vcode2initBlock :: Val -> RuleParser Exp
 vcode2initBlock code = do
-	body <- vcode2startBlock code
-	fstcode <- unsafeEvalExp $ Syn "sub" [ Val $ VCode mkSub { subBody = body } ]
-	unsafeEvalExp $
-		App (_Var "&push") (Just $ _Var "@*INIT") [ fstcode ]
-	return $ App fstcode Nothing []
+    body <- vcode2startBlock code
+    fstcode <- unsafeEvalExp $ Syn "sub" [ Val $ VCode mkSub { subBody = body } ]
+    unsafeEvalExp $
+        App (_Var "&push") (Just $ _Var "@*INIT") [ fstcode ]
+    return $ App fstcode Nothing []
 
 vcode2checkBlock :: Val -> RuleParser Exp
 vcode2checkBlock code = do
-	body <- vcode2startBlock code
-	fstcode <- unsafeEvalExp $ 
-		Syn "sub" [ Val $ VCode mkSub { subBody = checkForIOLeak body } ]
-	unsafeEvalExp $
-		App (_Var "&unshift") (Just $ _Var "@*CHECK") [ fstcode ]
-	return $ App fstcode Nothing []
+    body <- vcode2startBlock code
+    fstcode <- unsafeEvalExp $ 
+        Syn "sub" [ Val $ VCode mkSub { subBody = checkForIOLeak body } ]
+    unsafeEvalExp $
+        App (_Var "&unshift") (Just $ _Var "@*CHECK") [ fstcode ]
+    return $ App fstcode Nothing []
 
 -- Constructs ------------------------------------------------
 

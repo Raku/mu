@@ -49,7 +49,7 @@ module Pugs.AST.Internals (
 
     -- MonadEval(..),
 
-	transformExp,
+    transformExp,
 
     runEvalSTM, runEvalIO, shiftT, resetT, callCC,
     undef, defined, tryIO, guardSTM, guardIO, guardIOexcept,
@@ -66,7 +66,7 @@ module Pugs.AST.Internals (
     mkPrim, mkSub, mkCode, showRat, showTrueRat,
     cxtOfSigil, cxtOfSigilVar, typeOfSigil, typeOfSigilVar,
     buildParam, defaultArrayParam, defaultHashParam, defaultScalarParam,
-	paramsToSig,
+    paramsToSig,
     emptyExp,
     isSlurpy, envWant,
     extractPlaceholderVars, fromObject, createObject, createObjectRaw,
@@ -827,10 +827,9 @@ paramsToSig params =
         , Val.s_requiredNames =
             Set.fromList $ map (v_name . paramName) $ filter (not . isOptional) params
         , Val.s_positionalList = map paramToValParam $ filter (not . isNamed) params
-        , Val.s_namedSet = 
-			Map.fromList $ 
-				map (\p -> (v_name (paramName p), paramToValParam p)) $ 
-				   filter isNamed params
+        , Val.s_namedSet = Map.fromList $ 
+            map (\p -> (v_name (paramName p), paramToValParam p)) $ 
+                filter isNamed params
         , Val.s_slurpyScalarList = []  -- XXX unimplemented
         , Val.s_slurpyArray   = Nothing  -- XXX ditto
         , Val.s_slurpyHash    = Nothing  -- XXX yep

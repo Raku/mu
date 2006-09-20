@@ -205,19 +205,19 @@ readDirStream (DirStream dirp) =
     resetErrno
     r <- readdir dirp ptr_dEnt
     if (r == 0)
-	 then do dEnt <- peek ptr_dEnt
-		 if (dEnt == nullPtr)
-		    then return []
-		    else do
-	 	     entry <- (d_name dEnt >>= peekCString)
-		     freeDirEnt dEnt
-		     return entry
-	 else do errno <- getErrno
-		 if (errno == eINTR) then loop ptr_dEnt else do
-		 let (Errno eo) = errno
-		 if (eo == end_of_dir)
-		    then return []
-		    else throwErrno "readDirStream"
+        then do
+            dEnt <- peek ptr_dEnt
+            if (dEnt == nullPtr) then return [] else do
+                entry <- (d_name dEnt >>= peekCString)
+                freeDirEnt dEnt
+                return entry
+        else do
+            errno <- getErrno
+            if (errno == eINTR) then loop ptr_dEnt else do
+                let (Errno eo) = errno
+                if (eo == end_of_dir)
+                    then return []
+                    else throwErrno "readDirStream"
 
 rewindDirStream :: DirStream -> IO ()
 rewindDirStream (DirStream dirp) = do
