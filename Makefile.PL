@@ -151,6 +151,8 @@ sub set_postamble {
     my $setup = File::Spec->catfile(".", "Setup$Config{_exe}");
     my $ghc_wrapper = File::Spec->catfile(".", "util", "runcompiler$Config{_exe}");
     my $ghc_pkg_wrapper = File::Spec->catfile(".", "util", "ghc-pkg-wrapper$Config{_exe}");
+    my $config_path = File::Spec->catfile(cwd(), 'third-party', 'installed', 'packages.conf');
+    $config_path =~ s{^/cygdrive/(\w)/}{$1:/} if ($Config{osname} eq 'cygwin');
 
     if (!$hsc2hs) {
         $hsc2hs = $ghc;
@@ -160,7 +162,7 @@ sub set_postamble {
     preprocess(
             File::Spec->catfile('util', 'runcompiler.hs.in'),
             File::Spec->catfile('util', 'runcompiler.hs'),
-            CONFIG_PATH => File::Spec->catfile(cwd(), 'third-party', 'installed', 'packages.conf'),
+            CONFIG_PATH => $config_path,
             GHC => $ghc,
             GHC_PKG => $ghc_pkg,
     );
@@ -169,7 +171,7 @@ sub set_postamble {
             File::Spec->catfile('util', 'ghc-pkg-wrapper.hs'),
             GHC => $ghc,
             GHC_PKG => $ghc_pkg,
-            CONFIG_PATH => File::Spec->catfile(cwd(), 'third-party', 'installed', 'packages.conf'),
+            CONFIG_PATH => $config_path,
     );
 
     # set up install path for third-party modules
