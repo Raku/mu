@@ -10,7 +10,7 @@ Some failing tests from the top of S29.
 
 plan 13;
 
-my sub eval_ok1($code, :$todo?) { eval_ok($code,$code,:$todo) }
+my sub eval_ok1($code, :$todo = 'feature') { &Test::eval_ok.goto($code,$code,:$todo) }
 
 eval_ok1('AnyChar.isa(Str)');
 eval_ok1('Char.isa(Str)');
