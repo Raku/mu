@@ -38,8 +38,7 @@
   standard "self." syntax.
 * [ext/Rosetta/] - Significant updates to lib/Rosetta/SeeAlso.pod.
 * [ext/Set-Relation/] - Renamed from ext/Relation/ .
-** Started to rewrite with separate [Heading, Tuple, Relation] classes.
-** Added 2 new test files.
+** Started to rewrite with separate [Set::Tuple, Set::Relation] classes.
 
 == Perl 6 on Perl 5 (under [misc/pX/Common/])
 
