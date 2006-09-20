@@ -343,6 +343,7 @@ sub set_postamble {
                 };
                 $embed_flags =~ s{(/usr/\S+)}{$cygpath->($1)}eg;
                 $embed_flags =~ s{/cygdrive/(\w)/}{$1:/}g;
+                #warn "** Cygwin embedding flags: embed_flags\n";
             }
         }
     }

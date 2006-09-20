@@ -63,6 +63,35 @@ sub build {
     }
     $ENV{GHCRTS} = join(' ', ($ENV{GHCRTS} ? $ENV{GHC_RTS} : ()), @rts_args);
 
+    if ($Config{osname} eq 'cygwin') {
+        my $cygwin_path = `cygpath -w /`;
+        my $cygpath = sub {
+            my $path = shift;
+            #warn "<> processing $path...\n";
+            my $retval = `cygpath -w $path`;
+            chomp $retval;
+            $retval =~ s{\\}{/}g;
+            #warn "<> Now it is $retval...\n";
+            return $retval;
+        };
+
+        #unshift @args, '-optc-ID:\ghc\ghc-6.4.2\include\mingw', '-optc-ID:\ghc\ghc-6.4.2\gcc-lib\include', '-optc-I/usr/include', '-optc-I/usr/include/cygwin', '-D__CYGWIN__',
+        unshift @args, '-I/usr/lib/perl5/5.8/cygwin/CORE',
+            '-optc-ID:\ghc\ghc-6.4.2\include\mingw',
+            '-optc-I/usr/include',
+            '-optl-I/usr/include/cygwin';
+        for my $arg (@args) {
+            $arg =~ s{(-optc-[IL]|-optl|-optl-L|-I|-L)(/\S+)}{$1 . $cygpath->($2)}eg;
+            #if ($arg =~ m{D:/cygwin/usr/include}i) {
+            #    $arg = '-optc-ID:\ghc\ghc-6.4.2\include\mingw';
+            #}
+        }
+
+        #push @args, '-optc-I$cywin_path/lib/perl5/5.8/cygwin/CORE',
+        #    '-optl-L$cygwin_path/lib/perl5/5.8/cygwin/CORE';
+        #warn "\n\n [248] !!!\n\n @args \n\n !!!!\n\n";
+    }
+
     write_buildinfo($version, $ghc, $ghc_pkg, $ghc_version, @args);
 
     my $pwd = cwd();
@@ -248,7 +277,8 @@ sub build {
     $run_setup->('install');
 
     if ($Config{ranlib} ne ':') {
-        system(split(/ /,$Config{ranlib}), $_) for glob("third-party/installed/lib/Pugs-$version/*.a");
+        system(split(/ /,$Config{ranlib}), $_)
+            for glob("third-party/installed/lib/Pugs-$version/*.a");
     }
 
     build_exe($version, $runcompiler, $ghc_version, @args);
