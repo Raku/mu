@@ -2115,7 +2115,7 @@ temporization:
     temp &thermo.wrap( { call($^t + 273.16) } );
 
 The entire argument list may be captured by the C<\$args> parameter.
-It can then be passed to C<call> as C<*$args>:
+It can then be passed to C<call> as C<[,] =$args>:
 
     # Double the return value for &thermo
     &thermo.wrap( -> \$args { call([,] =$args) * 2 } );
