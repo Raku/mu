@@ -562,12 +562,12 @@ EOD
         chdir "../../..";
     }
 
-    my $cleanjudy;
+    my $judyclean;
     if ($Config{osname} eq 'MSWin32') {
-        $cleanjudy = 'cd third-party\judy\Judy-1.0.3\src && '.
+        $judyclean = 'cd third-party\judy\Judy-1.0.3\src && '.
             'nmake /nologo /F Makefile.win32 clean';
     } else {
-        $cleanjudy = 'cd third-party/judy/Judy-1.0.3 && make clean';
+        $judyclean = 'cd third-party/judy/Judy-1.0.3 && make clean && perl cleanmore.pl';
     }
 
     postamble(fixpaths(<< "."));
@@ -782,10 +782,10 @@ clean ::
 	-cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) clean
 ")]}
 
-cleanjudy:
-	$cleanjudy
+judyclean:
+	$judyclean
 
-realclean :: cleanjudy
+realclean :: judyclean
 	\@\$(RM_RF) third-party/installed
 
 @{[for_perl5("

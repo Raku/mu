@@ -132,7 +132,7 @@ sub build {
             # Judy at this moment wants GNU make.
             $make = 'gmake' unless `$make --version` =~ /GNU/;
             
-            system("./configure") unless -e "config.status";
+            system("./configure") unless -e "config.status" and -e "Makefile";
             system("$make clean");
             system("$make all");
             #mkdir("../../installed") if !-d "../../installed";
