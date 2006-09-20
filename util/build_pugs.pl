@@ -75,6 +75,13 @@ sub build {
     my $prefix      = File::Spec->rel2abs("$pwd/third-party/installed");
     my $hc_pkg      = File::Spec->rel2abs("$pwd/util/ghc-pkg-wrapper$Config{_exe}");
 
+    if ($Config{osname} eq 'cygwin') {
+        # NB.  We're exploiting for's aliasing of variables.
+        foreach my $path ($runcompiler, $prefix, $hc_pkg) {
+            $path =~ s{^/cygdrive/(\w)/}{$1:/};
+        }
+    }
+
     mkdir $prefix unless -d $prefix;
 
     # On Win32, a very broken heuristics in Cabal forced us to fake a
