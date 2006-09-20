@@ -73,14 +73,14 @@ for @forms -> $form {
     my $iso = $form;
     # note: no support for :e perl5 modifier to s//
 
-    #for ( rx:perl5/YYYY/ => { ($year = r(100)+1950).as("%04d") },
-    #     rx:perl5/YY/   => { ( $year = r(100)).as("%02d") },
-    #     rx:perl5/WNN/  => { ( $week = r(53)+1 ).as("W%02d") },
-    #     rx:perl5/MM/   => { ( $month = r(12)+1 ).as("W%02d") },
+    #for ( rx:perl5/YYYY/ => { ($year = r(100)+1950).fmt("%04d") },
+    #     rx:perl5/YY/   => { ( $year = r(100)).fmt("%02d") },
+    #     rx:perl5/WNN/  => { ( $week = r(53)+1 ).fmt("W%02d") },
+    #     rx:perl5/MM/   => { ( $month = r(12)+1 ).fmt("W%02d") },
     #     rx:perl5/DDD/  => { ( $doy = r($year % 4 ?? 365 !! 366)+1 )
-    #                         .as("W%03d") },
-    #     rx:perl5/DD/   => { ( $month = r(31)+1 ).as("W%02d") },
-    #     rx:perl5/D/    => { ( $wday = r(7)+1 ).as("W%01d") },
+    #                         .fmt("W%03d") },
+    #     rx:perl5/DD/   => { ( $month = r(31)+1 ).fmt("W%02d") },
+    #     rx:perl5/D/    => { ( $wday = r(7)+1 ).fmt("W%01d") },
     #   ) -> ($rx, $do) {
     #   if ( $iso ~~ $rx ) {
     #       substr($iso, $/.from, $/.chars) = $rx();

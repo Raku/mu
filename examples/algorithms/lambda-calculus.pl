@@ -36,7 +36,7 @@ our $SUCC = -> $n { -> $f { -> $x { $f.($n.($f)($x)) }}};
 sub num2int($n){ $n.(sub($i){ 1 + $i })(0) }
 sub num2str($n){ [~]
     'sub($f){ sub($x) { ',
-        $n.( sub($s){ $s.as('$f.(%s)') } )('$x'),
+        $n.( sub($s){ $s.fmt('$f.(%s)') } )('$x'),
     ' }}'
 }
 sub int2num($n){ ($n == 0) ?? $ZERO !! $SUCC.(int2num($n - 1)) }

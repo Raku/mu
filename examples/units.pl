@@ -6,7 +6,7 @@ class Unit {
     method set    ($self: Num $value) { $.q = $value; $self; };
     multi method string ($self:) {$self.q ~ $self.abbreviation; } 
     multi method string ($self: Num $prec) {
-        return $self.q.as('%.' ~ $prec ~ 'f') ~ $self.abbreviation;
+        return $self.q.fmt('%.' ~ $prec ~ 'f') ~ $self.abbreviation;
     }
 
     method toBase($self:)     { $.q * $self.baseFactor }
