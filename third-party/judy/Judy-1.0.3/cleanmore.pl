@@ -53,3 +53,4 @@ for (@leftover) {
 }
 unlink "Makefile";
 unlink "config.status";
+warn "info: Leftover files removed.\n";
