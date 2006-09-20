@@ -260,13 +260,9 @@ sub set_postamble {
     my $o = sub { map { substr($_, 0, -1) . 'o' } @_ };
 
     my $pcre_c    = "src/pcre/pcre.c";
-    my @cbits_c   = glob("src/cbits/*.c");
-    my @syck_c    = glob("src/syck/*.c");
     my ($pcre)    = $o->($pcre_c);
-    my @cbits     = $o->(@cbits_c);
-    my @syck      = $o->(@syck_c);
 
-    my @prereqs = ($pcre, @syck, @cbits);
+    my @prereqs = ($pcre);
     my @derived_srcfiles = qw< src/Pugs/Embed/Parrot.hs src/Pugs/pugs_config.h src/Pugs/pugs_version.h src/Pugs/Config.hs src/Pugs/Prelude.hs src/Pugs/CodeGen/PIR/Prelude.hs >;
 
     my $embed_flags = "";
@@ -467,34 +463,31 @@ EOD
 
         # parrot include paths for hsc2hs
         $hsc2hs_flags .= " -DPUGS_HAVE_PARROT -I$base/include ";
+
+        print @warn << ".";
+*** Embedded 'parrot' enabled.  You can use it for Perl 6 regex support by
+    setting the PUGS_REGEX_ENGINE environment variable to "PGE" at runtime.
+.
     }
     else {
         my $whichparrot = can_run('parrot');
 
         if ($whichparrot) {
             push @warn, << ".";
-*** Parrot linking disabled; external 'parrot' executable will be used for
-    Rules support. The executable is available in your PATH at
+*** External 'parrot' executable found in your PATH at:
+
         $whichparrot
-    If you want to link against Parrot, set the PUGS_EMBED
-    environment variable to contain 'parrot', the PARROT_PATH environment
-    variable to the path of a built parrot tree, then run Makefile.PL again.
+
+    You can use it for Perl 6 regex support by setting the
+    PUGS_REGEX_ENGINE environment variable to "PGE" at runtime.
+
+    If you want to link against Parrot, set the PUGS_EMBED environment
+    variable to contain 'parrot', the PARROT_PATH environment variable to
+    the path of a built parrot tree, then run Makefile.PL again.
 
 .
-        } else {
-            push @warn, << '.';
-*** Parrot linking disabled; if you want to link against Parrot, set the
-    PUGS_EMBED environment variable to contain 'parrot', the PARROT_PATH
-    environment variable to the path of a built parrot tree, then run
-    Makefile.PL again.
-    External 'parrot' executable is not available in your PATH, either;
-    cannot be used for Rules support.
-
-.
-        };
+        }
     }
-
-    $hsc2hs_flags .= " -Isrc/syck "; # for Data.Yaml
 
     my $config = get_pugs_config();
     my $is_win32 = ($^O =~ /MSWin|mingw|cygwin/i);
@@ -767,11 +760,11 @@ ctags : @prereqs @derived_srcfiles
 etags : @prereqs @derived_srcfiles
 	echo ":etags" | $ghc $ghc_flags $ghc_output --interactive -osuf moose -hisuf miise -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs -Lthird-party/judy/Judy-1.0.3/src/obj/.libs -lJudy
 
-pil$Config{_exe} : $config_h $pcre @cbits @srcfiles src/PIL/Native/Bootstrap.hs src/PIL/Native/Syntax.hs
-	$ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -isrc/cbits -Isrc -Isrc/cbits -L. -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs $pcre @cbits
+pil$Config{_exe} : $config_h $pcre @srcfiles src/PIL/Native/Bootstrap.hs src/PIL/Native/Syntax.hs
+	$ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -Isrc -L. -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs $pcre
 
 pili : pil$Config{_exe}
-	$ghc --interactive -fglasgow-exts -isrc -isrc/cbits -Isrc -Isrc/cbits -L. -static -fno-warn-name-shadowing src/PIL.hs $pcre @cbits
+	$ghc --interactive -fglasgow-exts -isrc -Isrc -L. -static -fno-warn-name-shadowing src/PIL.hs $pcre
 
 tags : @srcfiles
 	$hasktags -c @{[ grep { !/PIL/ } @srcfiles ]}
