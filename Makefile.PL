@@ -547,10 +547,10 @@ EOD
 
     my $svn_entries = '';
 
-    #if (-d '.svn') {
-        #$svn_entries = File::Spec->catfile('.svn', 'entries');
-    #}
-    $svn_entries = 'force_run';
+    if (-d '.svn') {
+        $svn_entries = File::Spec->catfile('.svn', 'entries');
+    }
+    #$svn_entries = 'force_run';
 
     # logic for Judy:
 
@@ -574,7 +574,7 @@ EOD
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
 	\$(PERL) util/config_h.pl "$ghc $ghc_flags"
 
-$version_h : $svn_entries util/version_h.pl
+$version_h : force_run
 	\$(PERL) util/version_h.pl $version_h
 
 force_run:
