@@ -45,6 +45,20 @@ instance Pretty Exp where
     format (Pad scope pad exp) = text "Pad" <+> text (show scope) <+> format pad $+$ format exp
     format (Ann _ exp) = format exp
     format x = text $ show x
+    formatQuite (Syn "," xs) = parens (formatQuite xs)
+    formatQuite (App (Var var) Nothing args)
+        | C_infix <- v_categ var
+        = parens (hsep (punctuate (text . (' ':) . cast $ v_name var) (map formatQuite args)))
+        | otherwise
+        = text (showsVar var "") <> parens (formatQuite args)
+    formatQuite (App (Var var) (Just inv) args)
+        = formatQuite inv <> char '.' <> text (cast $ v_name var) <> parens (formatQuite args)
+    formatQuite (Ann _ exp) = formatQuite exp
+    formatQuite x = format x
+
+instance Pretty [Exp] where
+    format xs = hsep (punctuate comma (map format xs))
+    formatQuite xs = hsep (punctuate comma (map formatQuite xs))
 
 instance Pretty (TVar Bool, TVar VRef) where
     format (_, tvar) = format tvar

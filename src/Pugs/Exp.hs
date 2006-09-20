@@ -9,8 +9,8 @@ module Pugs.Exp where
 import Pugs.Pretty
 import Text.PrettyPrint
 import Pugs.Internals
-import {-# SOURCE #-} qualified Pugs.AST.Internals (Exp)
 import Pugs.Val
+import qualified Pugs.AST.Internals (Exp)
 
 
 type ExpVar = Var
@@ -38,7 +38,7 @@ data Exp
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl6Class, MooseClass!-}
 
 prettyExp :: Exp -> Doc
-prettyExp (EE e) = format (ee e)
+prettyExp (EE e) = formatQuite (ee e)
 prettyExp exp    = text (show exp)
 
 
