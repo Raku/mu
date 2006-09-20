@@ -91,7 +91,7 @@ sub dump_hs {
                 my $str = $_;
                 $str =~ s/([^ \!\#\$\%\&\x28-\x5B\x5D-\x7E])/'\\'.ord($1)/eg;
                 '("' . $str . '", ' . dump_hs($obj->{named}{$_}) . ')';
-            } sort CORE::keys %{$obj->{named}||{}} ).']'),
+            } sort(CORE::keys(%{$obj->{named}||{}})) ).']'),
         )
     }
     elsif (ref($_[0]) eq 'ARRAY') {
