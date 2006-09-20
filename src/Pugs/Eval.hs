@@ -923,7 +923,7 @@ reduceApp (Var var) invs args
     -- XXX absolutely evil bloody hack for "call"
     | var == cast "&call", Just subExp <- invs = do
         vsub <- enterEvalContext (cxtItem "Code") subExp
-        sub <- fromVal vsub
+        sub  <- fromVal vsub
         let callerEnv :: Env -> Env
             callerEnv env = let caller = maybe env id (envCaller env) in
                 env{ envCaller  = envCaller caller
@@ -932,7 +932,10 @@ reduceApp (Var var) invs args
                    , envDepth   = envDepth caller
                    , envPos     = envPos caller
                    }
-        local callerEnv $ apply sub Nothing args
+        vcap <- case args of
+            []      -> return (CaptSub { c_feeds = [] })
+            (x:_)   -> castVal =<< fromVal =<< enterEvalContext (cxtItem "Capture") x
+        local callerEnv $ applyCapture sub vcap
     -- XXX absolutely evil bloody hack for "assuming"
     | var == cast "&assuming", Just subExp <- invs = do
         vsub <- enterEvalContext (cxtItem "Code") subExp
@@ -971,6 +974,16 @@ reduceApp subExp invs args = do
     (`juncApply` [ApplyArg dummyVar vsub False]) $ \[arg] -> do
         sub  <- fromVal $ argValue arg
         apply sub invs args
+
+applyCapture :: VCode -> ValCapt -> Eval Val
+applyCapture sub capt = apply sub inv (argsPos ++ argsNam)
+    where
+    argsPos = map (Val . castV) (f_positionals feed)
+    argsNam = [Syn "named" [Val (VStr (cast k)), Val (castV (last vs))] | (k, vs@(_:_)) <- Map.toList $ f_nameds feed ]
+    feed = mconcat (c_feeds capt)
+    inv  = case capt of 
+        CaptMeth { c_invocant = val }   -> Just (Val (castV val))
+        _                               -> Nothing
 
 argsFeed :: [ValFeed] -> Maybe ValFeed -> [[Exp]] -> Eval [ValFeed]
 argsFeed fAcc aAcc [] = return $ fAcc ++ maybeToList aAcc
