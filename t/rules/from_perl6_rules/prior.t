@@ -23,7 +23,7 @@ ok($!, 'Error', :todo<feature> );
 
 ok("A" ~~ m/<[A-Z]>/, 'Successful match');
 
-ok("B" ~~ m/<?prior>/, 'Prior successful match', :todo<feature> );
+ok("B" ~~ m/<?prior>/, 'Prior successful match');
 ok(!( "!" ~~ m/<?prior>/ ), 'Prior successful non-match');
 
 ok(!( "A" ~~ m/B/ ), 'Unsuccessful match');
@@ -38,7 +38,7 @@ ok("B" ~~ m/<?prior>/, 'And even now prior successful match', :todo<feature> );
 ok("!" ~~ m/<-[A-Z]>/, 'New successful match');
 
 ok(!( "B" ~~ m/<?prior>/ ), 'New prior successful non-match');
-ok("!" ~~ m/<?prior>/, 'New prior successful match', :todo<feature> );
+ok("!" ~~ m/<?prior>/, 'New prior successful match' );
 
 ok(!( "A" ~~ m/B/ ), 'New unsuccessful match');
 
@@ -51,8 +51,8 @@ ok("^" ~~ m/<?prior>/, 'New and even now prior successful match', :todo<feature>
 
 
 ok("A" ~~ m/<[A-Z]>/, 'Another successful match');
-ok("AA" ~~ m/^ <?prior>+ $/, 'Repeated prior', :todo<feature> );
-is($/, "AA", 'Matched fully', :todo<feature> );
+ok("AA" ~~ m/^ <?prior>+ $/, 'Repeated prior' );
+is($/, "AA", 'Matched fully' );
 
 ok("A" ~~ m/^ <prior> $/, 'Captured prior', :todo<feature> );
 is($/<prior>, "A", 'Captured correctly', :todo<feature> );
