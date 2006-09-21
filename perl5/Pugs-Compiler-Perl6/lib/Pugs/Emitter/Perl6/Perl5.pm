@@ -1240,9 +1240,15 @@ sub infix {
         if ( my $rx = $n->{exp2}{rx} ) {
             if ( !$rx->{options}{perl5} ) {
                 my $regex = $rx->{rx};
+                my %options = %{$rx->{options}};
+                # print "Options: @{[ %options ]} \n";
+                my $opt = '';
+                if ( exists $options{'c'} ) {
+                    $opt .= 'p => ( $::_V6_MATCH_ ? ( $::_V6_MATCH_->from + 1 ) : undef )';
+                }
                 # XXX: hack for /$pattern/
                 $regex = 'q{'.$regex.'}' unless $regex =~ m/^\$[\w\d]+/;
-                return '$::_V6_MATCH_ = Pugs::Compiler::Regex->compile( '.$regex.', { grammar => __PACKAGE__ } )->match('._emit($n->{exp1}).')';
+                return '$::_V6_MATCH_ = Pugs::Compiler::Regex->compile( '.$regex.', { grammar => __PACKAGE__ } )->match('._emit($n->{exp1}).', { '.$opt.' } )';
             }
         }
         return _emit( $n->{exp1} ) . ' =~ (ref' . emit_parenthesis( $n->{exp2} ).' eq "Regexp" '.
