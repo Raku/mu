@@ -112,6 +112,24 @@ sub capturing_group {
         $program . 
         "$_[1] )\n";
 }        
+sub capture_as_result {
+    my $program = $_[0];
+    
+    $capture_count++;
+    {
+        $capture_seen{$capture_count}++;
+        local $capture_count = -1;
+        local $capture_to_array = 0;
+        local %capture_seen = ();
+        $program = emit_rule( $program, $_[1].'      ' )
+            if ref( $program );
+    }
+    
+    return 
+        "$_[1] capture_as_result( \n" .
+        $program . 
+        "$_[1] )\n";
+}        
 sub non_capturing_group {
     return emit_rule( $_[0], $_[1] );
 }        

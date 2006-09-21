@@ -109,7 +109,7 @@ sub concat {
                 %{$_[3]->data},
                 bool    => \($m2->bool),
                 to      => \($m2->to),
-                capture => $m2->data->{capture},
+                capture => $m2->data->{capture} || $_[3]->data->{capture},
                 abort   => $m2->data->{abort},
                 state   => ( defined $state[0] || defined $state[1] 
                              ? \@state 
@@ -256,6 +256,30 @@ sub positional {
                 named => {},
                 match => \@matches,
                 capture => $match->data->{capture},
+                state => $match->state,
+            });
+    }
+}
+
+sub capture_as_result {
+    # return a capture as the result object
+    my $node = shift;
+    sub {
+        my $match;
+        $node->( @_[0,1,2], $match, @_[4,5,6,7] );
+        $_[3] = Pugs::Runtime::Match->new({ 
+                bool  => \( $match->bool ),
+                str   => \$_[0],
+                from  => \( $match->from ),
+                to    => \( $match->to ),
+                named => {},
+                match => [],
+                capture => ( 
+                    sub {
+                        # print "Match: ", Dumper( $match );
+                        '' . $match 
+                    } 
+                ),
                 state => $match->state,
             });
     }
