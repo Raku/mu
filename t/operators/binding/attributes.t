@@ -1,6 +1,7 @@
 use v6-alpha;
-
 use Test;
+
+# L<S03/"Binding">
 
 plan 12;
 

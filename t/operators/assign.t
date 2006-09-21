@@ -1,6 +1,7 @@
 use v6-alpha;
-
 use Test;
+
+# L<S03/"Changes to Perl 5 operators"/"The list assignment operator now parses on the right">
 
 plan 208;
 
