@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 3;
+plan 5;
 
 {
     my ($a) = [,](1, 2, 3);
@@ -19,6 +19,18 @@ plan 3;
     my $a = (1, 2, 3);
     my $b = [,] $a;
     is($b, [1, 2, 3], "scalar = [,]arrayref");
+};
+
+{
+    my $a = (1, 2, 3);
+    my ($b) = [,] @$a;
+    is($b, 1, "(scalar) = [,] dereffed arrayref");
+};
+
+{
+    my $a = (1, 2, 3);
+    my ($b) = @$a;
+    is($b, 1, "(scalar) = dereffed arrayref");
 };
 
 =begin END
