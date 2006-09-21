@@ -471,33 +471,31 @@ value with the C<$expected> value.
 
 These functions both take blocks of code, run the code, and test whether they live or die.
 
-=head3 A Note about TODO-ing tests
+=head3 is_deeply
 
-Sometimes a test is broken because something is not implemented yet. So
-in order to still allow that to be tested, and those tests to knowingly
-fail, we provide the C<todo> function to TODO the next one test according
-to a given deadline. (See below.)
+ is_deeply(Any $got, Any $expected, Str $desc?, :$todo, :$depends) returns Bool
 
-Take the Pugs implementation. When TODOing failing tests before
-the Pugs release (say, 6.2.12), the following form of todo should be used:
+Similar to is(), except that if $this and $that are references, it
+does a deep comparison walking each data structure to see if they are
+equivalent.  
 
-    todo :pugs<6.2.13>;  # version of the next point release
+=begin is_deeply_comment
 
-By doing this, temporarily TODO'd tests can get unTODO'd automatically once
-the the release is done (and the version number gets updated).
+The plan currently is to implement this as a mutually recursive multi-
+sub which will be able to handle structures of arbitrary depth and of
+an arbitrary type. The function signatures will likely look something
+like this:
 
-The version number fed to C<todo> is optional. If omitted,
-the corresponding tests won't get expired unless we unTODO them manually.
+  multi sub is_deeply (Array @got, Array @expected, Str $desc?) returns Bool;
+  multi sub is_deeply (List  $got, List  $expected, Str $desc?) returns Bool;
+  multi sub is_deeply (Hash  %got, Hash  %expected, Str $desc?) returns Bool;
+  multi sub is_deeply (Pair  $got, Pair  $expected, Str $desc?) returns Bool;
 
-The C<:depends("string")> parameter to most of the functions is a way
-to provide a comment that refers to another file or test which must be
-made to pass before this test can pass (or before an implementation
-could be started).  This is most useful when writing modules and you
-find there is some language feature missing, or core bug that needs to
-be sorted out before you can continue.
+Because these functions will be mutually recursive, they will easily be
+able handle arbitrarily complex data structures automatically (at least
+that is what I hope).
 
-It is also possible to use the C<force_todo()> function to do large scale
-TODO-ing of tests.
+=end is_deeply_comment
 
 =head2 Misc. Functions
 
@@ -542,6 +540,35 @@ This is the opposite of pass()
 This will print each string with a '#' character appended to it, this is
 ignored by the TAP protocol.
 
+=head3 A Note about TODO-ing tests
+
+Sometimes a test is broken because something is not implemented yet. So
+in order to still allow that to be tested, and those tests to knowingly
+fail, we provide the C<todo> function to TODO the next one test according
+to a given deadline. (See below.)
+
+Take the Pugs implementation. When TODOing failing tests before
+the Pugs release (say, 6.2.12), the following form of todo should be used:
+
+    todo :pugs<6.2.13>;  # version of the next point release
+
+By doing this, temporarily TODO'd tests can get unTODO'd automatically once
+the the release is done (and the version number gets updated).
+
+The version number fed to C<todo> is optional. If omitted,
+the corresponding tests won't get expired unless we unTODO them manually.
+
+The C<:depends("string")> parameter to most of the functions is a way
+to provide a comment that refers to another file or test which must be
+made to pass before this test can pass (or before an implementation
+could be started).  This is most useful when writing modules and you
+find there is some language feature missing, or core bug that needs to
+be sorted out before you can continue.
+
+It is also possible to use the C<force_todo()> function to do large scale
+TODO-ing of tests.
+
+
 =head1 FUTURE PLANS
 
 This module is still a work in progress. As Pugs grows, so will it's
@@ -552,24 +579,6 @@ following is a list of future features planned for this module.
 
 The error handling capabilities need to be expanded more to handle the
 error reporting needs of the cmp_ok() function.
-
-- is_deeply
-
-Once nested data structures are implemented, we will need an easy way
-to test them. So we will implement the Test::More function is_deeply.
-The plan currently is to implement this as a mutually recursive multi-
-sub which will be able to handle structures of arbitrary depth and of
-an arbitrary type. The function signatures will likely look something
-like this:
-
-  multi sub is_deeply (Array @got, Array @expected, Str $desc?) returns Bool;
-  multi sub is_deeply (List  $got, List  $expected, Str $desc?) returns Bool;
-  multi sub is_deeply (Hash  %got, Hash  %expected, Str $desc?) returns Bool;
-  multi sub is_deeply (Pair  $got, Pair  $expected, Str $desc?) returns Bool;
-
-Because these functions will be mutually recursive, they will easily be
-able handle arbitrarily complex data structures automatically (at least
-that is what I hope).
 
 =head1 ENVIRONMENT
 
