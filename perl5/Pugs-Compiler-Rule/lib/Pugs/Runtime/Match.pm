@@ -70,6 +70,13 @@ sub perl {
     return __PACKAGE__ . "->new( " . Dumper( $_[0]->data ) . ")\n";
 }
 
+sub yaml {
+    eval { use YAML::Syck };
+    # interoperability with other YAML/Syck bindings:
+    $YAML::Syck::ImplicitTyping = 1;
+    Dump( $_[0] );
+}
+
 # for Pugs interoperability
 sub dump_hs {
     my $obj;
