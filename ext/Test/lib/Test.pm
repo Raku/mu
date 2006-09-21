@@ -472,9 +472,13 @@ maintain backwards compatibility as well.
   eval_is      (Str $code, Str $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool
   eval_dies_ok (Str $code, Str $desc?,                Bool :$todo, Str :$depends) returns Bool
 
-These functions will eval a code snippet, and then pass the result to is or ok
-on success, or report that the eval was not successful on failure. In the case of
-eval_dies_ok, unsuccessful or failure was expected.
+These are the functions to use if you have a piece of code that would otherwise
+failed to be parsed. If the code parses, but may die at run time, consider 
+using C<dies_ok> or C<lives_ok>, which have lower overhead. 
+
+They C<eval> a string, and then pass the result to C<is> or C<ok>
+on success, or report that the C<eval> was not successful on failure. In the case of
+C<eval_dies_ok>, unsuccessful or failure was expected.
 
 =head3 throws_ok
 
@@ -490,7 +494,9 @@ value with the C<$expected> value.
   dies_ok  (Code &code, Str $desc?, Bool :$todo, Str :$depends) returns Bool
   lives_ok (Code &code, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
-These functions both take blocks of code, run the code, and test whether they live or die.
+These functions both take blocks of code, and test whether they live or die using C<try>
+
+The code must at least be parsable. If the code might not parse, see L<eval_ok|eval_ok> above.
 
 =head3 is_deeply
 
