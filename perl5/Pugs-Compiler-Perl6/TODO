@@ -4,6 +4,8 @@ TODO list for v6.pm, Pugs-Compiler-Perl6
   to compile properly (simplified header, unnecessary use of Data::Bind,
   wrong compile-time capture count)
 
+- 'my A $x' parses to 'my A; $x'  ('A' is a Type), reported by ajs
+
 - rewrite Term::substitution() using token
 
 - this is giving a wrong result:
