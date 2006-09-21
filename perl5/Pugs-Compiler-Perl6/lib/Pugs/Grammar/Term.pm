@@ -215,6 +215,14 @@ sub recompile {
                       }
                 } }
             ),
+        '$$/' => q(
+                { return { 
+                      'op1' => 'call',
+                      'sub' => {
+                        'scalar' => '$/'
+                      }
+                } }
+            ),
         '$<' => q(
                 ( <?Pugs::Grammar::Term.ident> ) \>
                 { return { scalar => { match_variable => $_[0][0]->() ,} } }
