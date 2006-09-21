@@ -1,5 +1,5 @@
 
-use Test::More tests => 131;
+use Test::More tests => 132;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -904,5 +904,13 @@ TODO:
     my $match = $rule->match( "xy" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", $match->perl;
-    is( "$match", "x", 'ident' );
+    is( "$match", "x", 'at' );
+}
+
+{
+    my $rule = Pugs::Compiler::Token->compile( 'x <(y)> z' );
+    my $match = $rule->match( "xyz" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( $$match, "y", 'return capture' );
 }

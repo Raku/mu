@@ -443,6 +443,32 @@ $_[1]     \$match[ $capture_count ] = Pugs::Runtime::Match->new( \$hash );"
 $_[1]     \$bool;
 $_[1] }";
 }        
+
+sub capture_as_result {
+    my $program = $_[0];
+
+    $capture_count++;
+    {
+        local $capture_count = -1;
+        local $capture_to_array = 0;
+        $program = emit_rule( $program, $_[1].'      ' )
+            if ref( $program );
+    }
+    return "$_[1] do{ 
+$_[1]     my \$hash = do {
+$_[1]       my \$bool = 1;
+$_[1]       my \$from = \$pos;
+$_[1]       my \@match;
+$_[1]       my \%named;
+$_[1]       \$bool = 0 unless
+" .             $program . ";
+$_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \\\$bool, to => \\(0+\$pos), capture => undef }
+$_[1]     };
+$_[1]     my \$bool = \${\$hash->{'bool'}};
+$_[1]     \$m->data->{capture} = \\( \"\" . Pugs::Runtime::Match->new( \$hash ) );
+$_[1]     \$bool;
+$_[1] }";
+}        
 sub named_capture {
     my $name    = $_[0]{ident};
     $name = $name->{match_variable} if ref($name) eq 'HASH';
