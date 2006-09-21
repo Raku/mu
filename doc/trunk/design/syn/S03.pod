@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 16 Sep 2006
+  Last Modified: 20 Sept 2006
   Number: 3
-  Version: 66
+  Version: 67
 
 =head1 Changes to Perl 5 operators
 
@@ -65,7 +65,8 @@ because of the quotes will not be confused lexically with C<$fh.=new>.
 argument, and C<+> imposes a numeric (C<Num>) context (as opposed
 to being a no-op in Perl 5).  Along the same lines, C<?> imposes
 a boolean (C<Bool>) context, and the C<[,]> list operator imposes
-a function-arguments (C<Capture>) context on its arguments.
+a function-arguments (C<Capture>) context on its arguments (as does
+the C<|> sigil when used as an operator).
 Unary sigils impose the container context implied by their sigil.
 As with Perl 5, however, C<$$foo[bar]> parses as C<( $($foo) )[bar]>,
 so you need C<$($foo[bar])> to mean the other way.
@@ -1295,11 +1296,14 @@ instead the C<[,]> reduction operator serves as an
 interpolator, by casting its operands to C<Capture> objects
 and inserting them into the current argument list.
 
-It can be used to interpolate an C<Array> or C<Hash> into the current
-call, as positional and named arguments respectively.
+The C<|> capture sigil may also be used for this when you want to
+interpolate a single item.
+
+Either of these can be used to interpolate an C<Array> or C<Hash>
+into the current call, as positional and named arguments respectively.
 
 Note that those arguments still must comply with the subroutine's
-signature, but the presence of C<[,]> defers that test until run time for
+signature, but the presence of C<|> or C<[,]> defers that test until run time for
 that argument (and for any subsequent arguments):
 
     my @args = \@foo, @bar;
@@ -1312,7 +1316,16 @@ is equivalent to:
 as is this:
 
     my $args = \(@foo, @bar);    # construct a Capture object
-    push [,] @$args;
+    push |$args;
+
+The C<|> sigil functions as a unary form of the C<[,]>
+list operator, so we could have written the earlier example as:
+
+    my @args = \@foo, @bar;
+    push |@args;
+
+To the extent possible, the C<|> will treat its argument as
+a C<Capture> even if it isn't.
 
 In list context, a C<Scalar> holding an C<Array> object does not flatten.  Hence
 
@@ -1320,15 +1333,16 @@ In list context, a C<Scalar> holding an C<Array> object does not flatten.  Hence
     push @foo, $bar;
 
 merely pushes a single C<Array> object onto C<@foo>.  You can
-explicitly flatten it in either of these ways:
+explicitly flatten it in one of these ways:
 
     push @foo, @$bar;
     push @foo, $bar[];
+    push @foo, |$bar;
 
-Those two forms work because the slurpy array in C<push>'s signature
+Those three forms work because the slurpy array in C<push>'s signature
 flattens the C<Array> object into a list argument.
 
-Note that those two forms also allow you to specify list context on
+Note that the first two forms also allow you to specify list context on
 assignment:
 
     @$bar = 1,2,3;
@@ -1351,18 +1365,20 @@ returning no elements.  Likewise for C<{}> and C<.{}> on hashes,
 as well as the C<< <> >>, C<< .<> >>, C<«»>, and C<.«»> constant and
 interpolating slice subscripting forms.
 
-The C<[,]> operator interpolates lazily for C<Array> and C<Range> objects.
+The C<[,]> and C<|> operators interpolate lazily for C<Array> and C<Range> objects.
 To get an immediate interpolation like Perl 5 does, add the C<eager> list
 operator:
 
     func([,] 1..Inf);         # works fine
     func([,] eager 1..Inf);   # never terminates
 
-To interpolate a function's return value, you must say:
+To interpolate a function's return value, you must say one of:
 
     push [,] func();
+    push |(func());
+    push |func();     # WRONG, would parse as (|func).()
 
-Within the argument list of a C<[,]>, function return values are
+Within such an argument list, function return values are
 automatically exploded into their various parts, as if you'd said:
 
     my \$capture := func();
@@ -1375,12 +1391,17 @@ else just becomes a positional argument at the front of its list,
 as if its colon changed back to a comma.
 
 If you already have a capture variable, you can interpolate all of
-its bits at once using the C<< prefix:<=> >> operator, which serves
-to iterate or dereference a scalar that would otherwise stay packed
-into its scalar value.  The above is equivalent to:
+its bits at once using the C<< prefix:<|> >> operator (really a sigil).
 
     my \$capture := func();
-    push [,] =$capture;
+    push |$capture;
+
+Or you can use the bare sigiled forms:
+
+    my |capture := func();
+    push |capture;
+
+Bare lvalue capture variables may only be bound, not assigned.
 
 =head1 Feed operators
 
@@ -1551,7 +1572,7 @@ Perl 6 has 22 precedence levels (which is fewer than Perl 5):
     method postfix      .meth .+ .? .* .() .[] .{} .<> .«» .:: .= .^
     autoincrement       ++ --
     exponentiation      **
-    symbolic unary      ! + - ~ ? $ @ % & +^ ~^ ?^ \ ^ =
+    symbolic unary      ! + - ~ ? $ @ % & | +^ ~^ ?^ \ ^ =
     multiplicative      * / % x xx +& +< +> ~& ~< ~> ?&
     additive            + - ~ +| +^ ~| ~^ ?| ?^
     junctive and (all)  &

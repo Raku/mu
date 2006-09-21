@@ -373,23 +373,21 @@ Only bare keys with valid identifier names are recognized as named arguments:
     doit :123<now>;	        # always a positional arg
 
 Going the other way, pairs intended as named arguments that don't look
-like pairs must be introduced with the C<[,]> reduction operator:
+like pairs must be introduced with the C<[,]> reduction operator or
+the C<|> capture sigil:
 
     $pair = :when<now>;
-    doit $pair,1,2,3;                   # always a positional arg
-    doit [,] %$pair,1,2,3;              # always a named arg
-    doit [,] %(get_pair()),1,2,3;       # always a named arg
-    doit [,] %('when' => 'now'),1,2,3;  # always a named arg
-
-Note that, to apply C<[,]> to a single arg you may need to use parentheses.
-In general it doesn't matter.
+    doit $pair,1,2,3;                # always a positional arg
+    doit |%$pair,1,2,3;              # always a named arg
+    doit |%(get_pair()),1,2,3;       # always a named arg
+    doit |%('when' => 'now'),1,2,3;  # always a named arg
 
 Likewise, if you wish to pass a hash and have its entries treated as
-named arguments, you must dereference it with a C<[,]>:
+named arguments, you must dereference it with a C<[,]> or C<|>:
 
     %pairs = {:when<now> :what<any>};
     doit %pairs,1,2,3;		# always a positional arg
-    doit [,](%pairs),1,2,3;	# always named args
+    doit |%pairs,1,2,3;		# always named args
 
 Variables with a C<:> prefix in rvalue context autogenerate pairs, so you
 can also say this:
@@ -465,7 +463,7 @@ This means a hash holding default values must come I<before> known named
 parameters, similar to how hash constructors work:
 
     # Allow "x" and "y" in %defaults to be overridden
-    f( [,](%defaults), x => 1, y => 2 );
+    f( |%defaults, x => 1, y => 2 );
 
 =head2 Invocant parameters
 
@@ -699,41 +697,39 @@ last if you want to force it to come in as the last argument.
 =head2 Argument list binding
 
 The underlying C<Capture> object may be bound to a single scalar
-parameter marked with a C<\>.
+parameter marked with a C<|> sigil.
 
     sub bar ($a,$b,$c,:$mice) { say $mice }
-    sub foo (\$args) { say $args.perl; &bar.call($args); }
+    sub foo (|args) { say |args.perl; &bar.callargs(|args); }
 
-The C<.call> method of C<Code> objects accepts a single C<Capture>
-object, and calls it without introducing a C<CALLER> frame.
+The C<.callargs> method of C<Code> objects accepts an argument list,
+(which can be specified as a Capture object as above), and calls it
+without introducing an official C<CALLER> frame.
 
     foo 1,2,3,:mice<blind>;	# says "\(1,2,3,:mice<blind>)" then "blind"
 
-It is allowed to specify a return type:
+It is allowed to specify additional parameters. The Capture binding merely
+takes a snapshot of what's left of the Capture at that point and then
+continues binding as if the Capture parameter weren't there:
 
-    sub foo (\$args --> Num) { ... }
-
-Apart from that, no other parameters are allowed in the signature
-after the C<Capture>.  Parameters before the C<Capture> either do not show up in
-the C<Capture> or are marked as already bound somehow.  In other words,
-parameters are bound normally up to the C<Capture> parameter, and then
-C<\$args> takes a snapshot of the remaining input without further
-attempts at binding.
+    sub compare (|args Num $x, Num $y --> Bool) { ... }
 
 =head2 Flattening argument lists
 
 The reduce operator C<[,]> casts each of its arguments to a C<Capture>
 object, then splices each of those captures into the argument list
-it occurs in.
+it occurs in.  The unary C<|> sigil has the same effect on a single
+argument.
 
 Casting C<Capture> to C<Capture> is a no-op:
 
     [,](\(1, x=>2));    # Capture, becomes \(1, x=>2)
+      |(\(1, x=>2));    # Capture, becomes \(1, x=>2)
 
 C<Pair> and C<Hash> become named arguments:
 
-    [,](x=>1);          # Pair, becomes \(x=>1)
-    [,]{x=>1, y=>2};    # Hash, becomes \(x=>1, y=>2)
+    |(x=>1);          # Pair, becomes \(x=>1)
+    |{x=>1, y=>2};    # Hash, becomes \(x=>1, y=>2)
 
 C<List> (also C<Seq>, C<Range>, etc.) are simply turned into
 positional arguments:
@@ -750,7 +746,7 @@ For example:
 
     foo(1,2,3);                  # okay:  three args found
     foo(@onetothree);            # error: only one arg
-    foo([,]@onetothree);         # okay:  @onetothree flattened to three args
+    foo(|@onetothree);           # okay:  @onetothree flattened to three args
 
 The C<[,]> operator flattens lazily -- the array is flattened only if
 flattening is actually required within the subroutine. To flatten before
@@ -1922,7 +1918,7 @@ were the argument to a C<return> list operator (with whitespace):
 On the caller's end, the C<Capture> is interpolated into any new argument list
 much like an array would be, that is, as a scalar in scalar context, and as a
 list in list context.  This is the default behavior, but as with an array, the
-caller may use C<< prefix:<[,]> >> to inline the returned values as part of the
+caller may use C<< prefix:<[,]> >> or the C<|> sigil to inline the returned values as part of the
 new argument list.  The caller may also bind the returned C<Capture> directly.
 
 =head2 The C<caller> function
@@ -2081,16 +2077,20 @@ globals in the face of multithreading.
 =head2 Wrapping
 
 Every C<Routine> object has a C<.wrap> method. This method expects a single
-C<Code> argument. Within the code, the special C<call> function will invoke
-the original routine, but does not introduce a C<CALLER> frame:
+C<Code> argument. Within the code, the special C<call> and C<callargs> functions will invoke
+the original routine, but do not introduce an official C<CALLER> frame:
 
     sub thermo ($t) {...}   # set temperature in Celsius, returns old value
 
     # Add a wrapper to convert from Fahrenheit...
-    $handle = &thermo.wrap( { call( ($^t-32)/1.8 ) } );
+    $handle = &thermo.wrap( { callargs( ($^t-32)/1.8 ) } );
+
+The C<callargs> function lets you pass your own arguments to the wrapped
+function.  The C<call> function takes no arguments and implicitly passes
+the original argument list through unchanged.
 
 The call to C<.wrap> replaces the original C<Routine> with the C<Code>
-argument, and arranges that the call to C<call> invokes the previous
+argument, and arranges that the call to C<call> or C<callargs> invokes the previous
 version of the routine. In other words, the call to C<.wrap> has more
 or less the same effect as:
 
@@ -2112,29 +2112,35 @@ temporization:
 
     # Add a wrapper to convert from Kelvin
     # wrapper self-unwraps at end of current scope
-    temp &thermo.wrap( { call($^t + 273.16) } );
+    temp &thermo.wrap( { callargs($^t + 273.16) } );
 
-The entire argument list may be captured by the C<\$args> parameter.
-It can then be passed to C<call> as C<[,] =$args>:
+The entire argument list may be captured by binding to a Capture parameter.
+It can then be passed to C<callargs> using that name:
 
     # Double the return value for &thermo
-    &thermo.wrap( -> \$args { call([,] =$args) * 2 } );
+    &thermo.wrap( -> |args { callargs(|args) * 2 } );
+
+In this case only the return value is changed.
 
 The wrapper is not required to call the original routine; it can call another
 C<Code> object by passing the C<Capture> to its C<call> method:
 
     # Transparently redirect all calls to &thermo to &other_thermo
-    &thermo.wrap( -> \$args { &other_thermo.call($args) } );
+    &thermo.wrap( -> |args { &other_thermo.callargs(|args) } );
 
-Outside a wrapper, C<call> implicitly calls the next-most-likely method
-or multi-sub; see S12 for details.
+or more briefly:
+
+    &thermo.wrap( { &other_thermo.call } );
+
+Outside a wrapper, the various C<call> functions and methods implicitly
+call the next-most-likely method or multi-sub; see S12 for details.
 
 As with any return value, you may capture the returned C<Capture> of C<call>
 by binding:
 
-    my \$retval := call([,] =$args);
+    my |retval := callargs(|args);
     ... # postprocessing
-    return [,] =$retval;
+    return |retval;
 
 =head2 The C<&?ROUTINE> object
 
@@ -2584,7 +2590,7 @@ explicitly.  For instance, you can parse your arguments with a grammar
 and pass the resulting C<Match> object as a C<Capture> to C<MAIN>:
 
     @*ARGS ~~ /<MyGrammar::top>/;
-    MAIN([,] =$/);
+    MAIN(|$/);
     exit;
 
     sub MAIN ($frompart, $topart, *@rest) {
