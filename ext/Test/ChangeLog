@@ -1,3 +1,4 @@
+* Further POD formatting improvements (Mark Stosberg)
 == Changes for 0.0.7 for Sep 6, 2005  
 * No code changes
 * Convert the documentation from kwid to POD to make it more accessible.

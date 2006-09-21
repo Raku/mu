@@ -417,20 +417,33 @@ tool, but can be useful in other contexts as well.
 
 =head2 Testing Functions
 
+=head3 use_ok
+
   use_ok (Str $module, Bool :$todo, Str :$depends) returns Bool
+
+=head3 ok
 
   ok (Bool $cond, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
-  is (Str $got, Str $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool
+=head3 is
 
+=head3 isnt
+
+  is   (Str $got, Str $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool
   isnt (Str $got, Str $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
-  like (Str $got, Rule $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool is export
+=head3 like
+
+=head3 unlike
+
+  like   (Str $got, Rule $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool is export
   unlike (Str $got, Rule $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool is export
 
 These functions should work with most reg-exps, but given that they are still a
 somewhat experimental feature in Pugs, it is suggested you don't try anything
 too funky.
+
+=head3 cmp_ok
 
   cmp_ok (Str $got, Code &compare_func, Str $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
@@ -443,30 +456,38 @@ However the C<< &infix:<gt> >> is currently not implemented, so you will have to
 a little while. Until then, you can just write your own functions like this:
 
   cmp_ok('test', sub ($a, $b) { ?($a gt $b) }, 'me', '... testing gt on two strings');
-
   isa_ok ($ref, Str $expected_type, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
 This function currently on checks with WHAT() since we do not yet have
 object support. Once object support is created, we will add it here, and
 maintain backwards compatibility as well.
 
-  eval_ok (Str $code, Str $desc?, Bool :$todo, Str :$depends) returns Bool
+=head3 eval_ok
 
-  eval_is (Str $code, Str $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool
+=head3 eval_is
 
-  eval_dies_ok (Str $code, Str $desc?, Bool :$todo, Str :$depends) returns Bool
+=head3 eval_dies_ok
+
+  eval_ok      (Str $code, Str $desc?,                Bool :$todo, Str :$depends) returns Bool
+  eval_is      (Str $code, Str $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool
+  eval_dies_ok (Str $code, Str $desc?,                Bool :$todo, Str :$depends) returns Bool
 
 These functions will eval a code snippet, and then pass the result to is or ok
 on success, or report that the eval was not successful on failure. In the case of
 eval_dies_ok, unsuccessful or failure was expected.
+
+=head3 throws_ok
 
   throws_ok (Code &code, Any $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
 This function takes a block of code and runs it. It then smart-matches (C<~~>) any C<$!>
 value with the C<$expected> value.
 
-  dies_ok (Code &code, Str $desc?, Bool :$todo, Str :$depends) returns Bool
+=head3 dies_ok
 
+=head3 lives_ok
+
+  dies_ok  (Code &code, Str $desc?, Bool :$todo, Str :$depends) returns Bool
   lives_ok (Code &code, Str $desc?, Bool :$todo, Str :$depends) returns Bool
 
 These functions both take blocks of code, run the code, and test whether they live or die.
@@ -499,6 +520,8 @@ that is what I hope).
 
 =head2 Misc. Functions
 
+=head3 todo
+
   todo (*%deadline) returns Bool is export
 
 If and only if the deadline has been hit (or passed), the next one test will
@@ -519,11 +542,17 @@ More implementation-specific deadlines can be appended to a single C<todo> call:
 
   todo :pugs<6.28.0>, :p6p5<0.011>, :parrot<0.45>;
 
+=head3 skip
+
   skip (Str $reason?) returns Bool
   skip (Int $count, Str $reason?) returns Bool
 
 If for some reason a test is to be skipped, you can use this
 function to do so.
+
+=head3 pass
+
+=head3 flunk
 
   pass (Str $desc?) returns Bool
 
@@ -535,12 +564,14 @@ functions and its compliment the flunk() function.
 
 This is the opposite of pass()
 
+=head3 diag
+
   diag (Str $diag)
 
 This will print each string with a '#' character appended to it, this is
 ignored by the TAP protocol.
 
-=head3 A Note about TODO-ing tests
+=head1 A Note about TODO-ing tests
 
 Sometimes a test is broken because something is not implemented yet. So
 in order to still allow that to be tested, and those tests to knowingly
@@ -623,6 +654,8 @@ Max Maischein <corion@cpan.org>
 Ingo Blechschmidt <iblech@web.de>
 
 Gaal Yahas <gaal@forum2.org>
+
+Mark Stosberg
 
 Simon Sun <dolmens@gmail.com>
 
