@@ -1244,7 +1244,9 @@ sub infix {
                 # print "Options: @{[ %options ]} \n";
                 my $opt = '';
                 if ( exists $options{'c'} ) {
-                    $opt .= 'p => ( $::_V6_MATCH_ ? ( $::_V6_MATCH_->from + 1 ) : undef )';
+                    $opt .= 'p => ( $::_V6_MATCH_ ? ( 
+                       $::_V6_MATCH_->from + 1 
+                    ) : undef )';
                 }
                 # XXX: hack for /$pattern/
                 $regex = 'q{'.$regex.'}' unless $regex =~ m/^\$[\w\d]+/;

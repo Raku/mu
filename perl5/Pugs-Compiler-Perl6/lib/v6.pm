@@ -73,6 +73,7 @@ sub pmc_compile {
          \$::_V6_COMPILER_OS      = '$^O';
          \$::_V6_COMPILER_NAME    = 'v6.pm';
          \$::_V6_COMPILER_VERSION = '$v6::VERSION';
+         undef \$::_V6_MATCH_;
          my \%_V6_PAD;
          our \%_V6_STATE;
         " .  
