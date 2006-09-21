@@ -637,6 +637,7 @@ sub default {
                 my $_eval_string = Pugs::Runtime::Perl6::eval_preprocess('. _emit_parameter_capture( $n->{param} ) . ');
                 local $@;
                 no warnings;
+                # print "EVAL: < $_eval_string >\n";
                 my @result;
                 if (wantarray) {
                     @result = eval $_eval_string;

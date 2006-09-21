@@ -40,7 +40,21 @@ sub eval_preprocess {
     $lang ||= 'perl6';
     my $eval_string;
     Data::Bind::bind_op2(\$eval_string, \$string);
-    if ($lang eq 'perl6') {
+    # print "LANG: $lang\n";
+    if ($lang eq 'yaml') {
+        # print "YAML: $eval_string\n";
+        my $code = 
+        'do{
+            use YAML::Syck;
+            # interoperability with other YAML/Syck bindings:
+            $YAML::Syck::ImplicitTyping = 1;
+print "EVAL: $string\n";
+            Load(\'' . $string . '\' );
+        }';
+        Data::Bind::bind_op2(\$eval_string, \$code);
+        print "YAML: $eval_string\n";
+    }
+    elsif ($lang eq 'perl6') {
         require Pugs::Compiler::Perl6;
         my $p6 = Pugs::Compiler::Perl6->compile( $string );
         Data::Bind::bind_op2(\$eval_string, \$p6->{perl5});
@@ -112,6 +126,13 @@ sub arity {
 
 package Pugs::Runtime::Perl6::Scalar;
 use Scalar::Util qw(looks_like_number);
+
+sub yaml {
+    eval { use YAML::Syck };
+    # interoperability with other YAML/Syck bindings:
+    $YAML::Syck::ImplicitTyping = 1;
+    Dump(@_);
+}
 
 sub defined { CORE::defined(@_) }
 
