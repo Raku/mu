@@ -1,10 +1,11 @@
 use v6-alpha;
-
 use Test;
+
+# L<S29/"Type Declarations">
 
 =kwid
 
-Some failing tests from the top of S29.
+Test for some type declarations for built-in functions. 
 
 =cut
 
