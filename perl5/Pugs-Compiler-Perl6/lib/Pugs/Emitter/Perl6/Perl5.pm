@@ -681,6 +681,9 @@ sub default {
         if ( $n->{method}{dot_bareword} eq 'perl' ) {
             return 'Pugs::Runtime::Perl6::perl' . emit_parenthesis( $n->{self} );
         }
+        if ( $n->{method}{dot_bareword} eq 'yaml' ) {
+            return 'Pugs::Runtime::Perl6::Scalar::yaml' . emit_parenthesis( $n->{self} );
+        }
         # TODO: other builtins
         if ( $n->{method}{dot_bareword} eq 'defined' ) {
             return '(defined ' . _emit( $n->{self} ) . ")\n";
