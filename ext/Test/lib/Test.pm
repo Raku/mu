@@ -577,7 +577,9 @@ This is the opposite of pass()
 This will print each string with a '#' character appended to it, this is
 ignored by the TAP protocol.
 
-=head1 A Note about TODO-ing tests
+=head1 Common options
+
+=head2 :todo
 
 Sometimes a test is broken because something is not implemented yet. So
 in order to still allow that to be tested, and those tests to knowingly
@@ -595,16 +597,17 @@ the the release is done (and the version number gets updated).
 The version number fed to C<todo> is optional. If omitted,
 the corresponding tests won't get expired unless we unTODO them manually.
 
-The C<:depends("string")> parameter to most of the functions is a way
-to provide a comment that refers to another file or test which must be
-made to pass before this test can pass (or before an implementation
-could be started).  This is most useful when writing modules and you
-find there is some language feature missing, or core bug that needs to
-be sorted out before you can continue.
-
 It is also possible to use the C<force_todo()> function to do large scale
 TODO-ing of tests.
 
+=head2 :depends
+
+The C<:depends("string")> parameter to most of the functions is a way to
+provide more context in the case of a failure.  It should refer to another file
+or test which must be made to pass before this test can pass (or before an
+implementation could be started).  This is most useful when writing modules and
+you find there is some language feature missing, or core bug that needs to be
+sorted out before you can continue.
 
 =head1 FUTURE PLANS
 
