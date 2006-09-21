@@ -1,3 +1,5 @@
+
+- implemented capturing to return object with <(...)>
 - implemented Matching against non-strings
    my $rule = Pugs::Compiler::Regex->compile( '<.meth("param")>' );
    my $match = $rule->match( $object );- implemented <at($pos)>
