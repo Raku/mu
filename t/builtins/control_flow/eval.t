@@ -1,6 +1,6 @@
 use v6-alpha;
 use Test;
-plan 5;
+plan 6;
 
 # L<S29/"Control::Basic"/"=item eval">
 
@@ -25,6 +25,9 @@ my $foo = 1234;
 is(eval('$foo'), $foo);
 
 # traps die?
-ok(!eval('die; 1'));
+ok(!eval('die; 1'), "eval can trap die");
 
 ok(!eval('my @a = (1); @a<0>'), "eval returns undef on syntax error");
+
+ok(!eval('use Poison; 1'), "eval can trap a fatal use statement");
+
