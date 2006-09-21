@@ -142,6 +142,10 @@ token named_capture_body {
         <rule> \)
         { return { capturing_group => $/{'rule'}() ,} }
     },
+    '<(' => token {
+        <rule>  <')>'>
+        { return { capture_as_result => $/{'rule'}() ,} }
+    },
     '<after' => token {
         <?ws> <rule> \> 
         { return { after => {
