@@ -1,4 +1,6 @@
 
+0.18  2006-09-21
+
 - implemented capturing to return object with <(...)>
 - implemented Matching against non-strings
    my $rule = Pugs::Compiler::Regex->compile( '<.meth("param")>' );
