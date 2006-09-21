@@ -9,6 +9,13 @@ Math::Basic API reference
 
 use Math::Basic
 
+=head2 Tags
+
+The following export tags are available:
+
+ :UNI
+ :compat
+ :constants
 
 =head2 Constants
 
@@ -152,14 +159,37 @@ C<$x>, the one closest to zero is returned.
 
 For complex numbers, C<truncate> has the following behavior: TODO
 
-C<int> is 
+=item exp
+
  our Num multi Math::Basic::exp ( Num $exponent, Num :$base = Num::e )
+
+=item log
+
+=item log10
+
  our Num multi Math::Basic::log ( Num $x, Num :$base )
  our Num multi Math::Basic::log10 (Num $x);
+
+=item rand
+
  our Num multi Math::Basic::rand ( Num $x = 1 )
+
+=item sign
+
  our Int multi Math::Basic::sign ( Num $x )
+
+=item srand
+
  our multi Math::Basic::srand ( Num $seed = default_seed_algorithm())
+
+=item sqrt
+
+=item √
+
  our Num multi Math::Basic::sqrt ( Num $x )
+ our Num multi prefix:Math::Basic::<√> ( Num $x )
+
+√ is only exported with the C<:UNI> tag.
 
 =head2 Methods
 
