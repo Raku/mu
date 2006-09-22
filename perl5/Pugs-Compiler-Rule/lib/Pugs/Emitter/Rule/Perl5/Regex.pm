@@ -16,7 +16,7 @@ our $count = 1000 + int(rand(1000));
 sub id { 'I' . ($count++) }
 
 sub call_subrule {
-    die "can't call subrules";
+    die "can't call subrules: $_[0]";
     my ( $subrule, $tab, @param ) = @_;
     $subrule = "\$grammar->" . $subrule 
         unless $subrule =~ / :: | \. | -> /x;
@@ -44,8 +44,8 @@ sub quote_constant {
 sub call_constant {
     return ""
         unless length($_[0]);
-    my $const = quote_constant( $_[0] );
-    my $len = length( eval $const );
+    my $const = $_[0];   # quote_constant( $_[0] );
+    #my $len = length( eval $const );
     #print "Const: [$_[0]] $const $len \n"; 
     # TODO - direction   
     return "$const";
@@ -98,7 +98,7 @@ sub quant {
     #print "QUANT: ",Dumper($_[0]);
     # TODO: fix grammar to not emit empty quantifier
     my $tab = ( $quantifier eq '' ) ? $_[1] : $_[1] . "  ";
-    my $ws = metasyntax( '?ws', $tab );
+    my $ws = '';   # metasyntax( '?ws', $tab );  - TODO
     my $ws3 = ( $sigspace && $_[0]->{ws3} ne '' ) ? " &&\n$ws" : '';
 
     my $rul;
@@ -171,7 +171,7 @@ sub concat {
         push @s, $tmp if $tmp;   
     }
     @s = reverse @s if $direction eq '-';
-    return "$_[1] (\n" . join( "\n$_[1] &&\n", @s ) . "\n$_[1] )";
+    return join( "", @s );
 }        
 sub code {
     return "$_[1] $_[0]\n";  
