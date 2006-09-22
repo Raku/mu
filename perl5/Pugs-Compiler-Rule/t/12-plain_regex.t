@@ -100,6 +100,6 @@ sub compile {
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( $match?1:0, 1, 'booleanify' );
-    is( "$match", "ad", 'stringify negated special char' );
+    is( "$match", "ad", 'stringify <before ...>' );
 }
 
