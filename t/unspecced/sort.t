@@ -7,11 +7,12 @@ plan 28;
 # This is a perl6 implementation of L<S29/List/"=item sort">
 # based on mergesort.
 
-=for TODO
+=begin TODO
 
   * Pugs
      * `subset`
-     * return signature using `-->`
+     * of signature using `-->` on Code.
+        * E.g., subset KeyExtractor of Code(Any --> Any);
 
   * Spec
      * clarify KeyExtractor returning multiple types
@@ -21,6 +22,8 @@ plan 28;
 
   * Syntax cleanup
      * guidance on making this the builtin sort()
+
+=end TODO
 
 =cut
 

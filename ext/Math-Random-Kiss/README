@@ -1,0 +1,4 @@
+Math::Random::Kiss is a simple rand() generator.
+
+Ideally this was to have been the basis for an early rand()/srand()
+in Pugs but currently it's *much* slower than the builtin.
