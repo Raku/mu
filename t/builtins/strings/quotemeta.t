@@ -1,7 +1,7 @@
 use v6-alpha;
 # vim: filetype=perl6 :
 
-# NOTES ON PORTING QUOTEMETA.T FROM Perl 5.9.3
+# NOTES ON PORTING quotemeta.t FROM Perl 5.9.3
 #
 # 1. The original test suite did include may tests to exercise the
 #    behaviour in double-quotes interpolation with \Q and \E, and their 
@@ -12,7 +12,9 @@ use v6-alpha;
 #    for the whole 0-255 Unicode character set. Extending that test
 #    suite to include all of these characters basically yields the
 #    modified tests included here FOR THE ASCII VARIANT ONLY.
-#    Tests for EBCDIC have not been (yet) extended.
+#    Tests for EBCDIC have not been (yet) extended, this is most
+#    due to the fact that the Config.pm mechanism is not available
+#    to date.
 #
 # 3. The original test suite used tr/// to count backslashes, here
 #    we use a combination of split and grep to count non-backslashes,
@@ -30,7 +32,7 @@ is('Config.pm', 'available', 'Config.pm availability', :todo<feature>);
 
 # L<S29/"Str" /quotemeta/>
 
-is(quotemeta("HeLLo World-72_1"), "HeLLo\\ World\\-72_1", "simple lc test");
+is(quotemeta("HeLLo World-72_1"), "HeLLo\\ World\\-72_1", "simple quotemeta test");
 is(quotemeta(""), "", "empty string");
 
 $_ = "HeLLo World-72_1"; 
