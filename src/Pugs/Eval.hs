@@ -922,7 +922,7 @@ reduceApp (Var var) invs args
             shiftT $ const (retVal val)
     -- XXX absolutely evil bloody hack for "call"
     | var == cast "&call", Just subExp <- invs = do
-        vsub <- enterEvalContext (cxtItem "Code") subExp
+        vsub <- enterRValue (enterEvalContext (cxtItem "Code") subExp)
         sub  <- fromVal vsub
         let callerEnv :: Env -> Env
             callerEnv env = let caller = maybe env id (envCaller env) in
@@ -934,7 +934,7 @@ reduceApp (Var var) invs args
                    }
         vcap <- case args of
             []      -> return (CaptSub { c_feeds = [] })
-            (x:_)   -> castVal =<< fromVal =<< enterEvalContext (cxtItem "Capture") x
+            (x:_)   -> castVal =<< fromVal =<< enterRValue (enterEvalContext (cxtItem "Capture") x)
         local callerEnv $ applyCapture sub vcap
     -- XXX absolutely evil bloody hack for "assuming"
     | var == cast "&assuming", Just subExp <- invs = do
