@@ -1,3 +1,4 @@
+use strict;
 =for fyi
 
 2006-09-19 - The idea here is Perl6::Compiler::Rule needs ranges
@@ -15,6 +16,7 @@ Plan:
 =cut
 
 package Backtrack;
+use Carp;
 
 sub new {
   my $cls = shift;
@@ -32,7 +34,7 @@ sub new {
 # Do-nothing continuation
 #
 # Evaluate your code with a lexical $noop defined, ie
-#    my $noop = $this_api->continuation_noop();
+#    my $noop = $this_api->sub_noop();
 #    ...your generated code here...
 # eval_with_noop() is simply eval() with this extra line.
 #
@@ -50,21 +52,29 @@ sub noop_definition {
     }, 'Backtrack::Noop';";
 }
 
-sub continuation_noop {
+sub sub_noop {
   my($o)=@_;
-  my $key = 'cached_continuation_noop';
+  my $key = 'cached_sub_noop';
   if(not exists $o->{$key}) {
-    $o->{$key} = eval($o->noop_definition()); die $@ if $@;
+    my $noop;
+    $o->{$key} = $noop = eval($o->noop_definition()); die $@ if $@;
   }
   $o->{$key};
 }
 
-# Convenience wrapper around "my $noop = $o->continuation_noop();".
+# Convenience wrapper around "my $noop = $o->sub_noop();".
 sub eval_with_noop {
   my($o,$code)=@_;
-  my $noop = $o->continuation_noop;
+  my $noop = $o->sub_noop;
   eval($code);
 }
+sub _eval_code {
+  my($o,$code)=@_;
+  my $result = $o->eval_with_noop($code);
+  die $@.$code if $@;
+  $result;
+}
+
 
 sub is_noop {
   my($o,$var)=@_;
@@ -152,9 +162,10 @@ sub general_let {
   $o->general_alt($vars,[$body],@rest);
 }
 
+sub _genstr {sprintf("%x",int(rand(1_000_000_000)));} # XXX
 sub general_alt {
   my($o,$vars,$bodies,$code_on_success,$code_on_failure,$code_on_each_failure)=@_;
-  my $uniq = $o->genstr;
+  my $uniq = $o->_genstr;
   my $v  = '$v_'.$uniq;
   my $ok = '$ok_'.$uniq;
   my $tmpstem = '$tmp'; my $tmpcnt = 0;
@@ -174,13 +185,13 @@ sub general_alt {
   my $vars_local = "local($varl)=($varl);";
   my $vars_save  = "($tmpl)=($varl);";
   my $vars_set   = "($varl)=($tmpl);";
-  if($varl eq '') {
-    $vars_setup = $vars_reset = $vars_local = $vars_save = $vars_set = "";
-  }
   if(@$bodies == 0) { $bodies = ['undef'] }
   if(@$bodies == 1) {
     $vars_setup = "my($tmpl);";
     $vars_reset = "";
+  }
+  if($varl eq '') {
+    $vars_setup = $vars_reset = $vars_local = $vars_save = $vars_set = "";
   }
 
   my $code = $failure;
@@ -238,21 +249,16 @@ sub alt_on_array {
 ';
 }
 
-1;
-__END__
-
-These havent be stripped down yet.
-
 #----------------------------------------------------------------------
 # repeat
 
 sub sub_repeat {
   my($o,$f,$min,$max,$ng)=@_;
   $min = 0 if !defined $min;
-  $max = (1000**1000**1000) if !defined $max;
+  $max = (1000**1000**1000) if !defined $max; # Inf
   $min += 0; $max += 0;
   $ng = $ng ? 'nongreedy' : 'greedy';
-  Carp::confess "sub_repeat: min cant be greater than max" if $min > $max;
+  Carp::confess("sub_repeat: min cant be greater than max") if $min > $max;
   my $stem = 'cached_sub_repeat_';
   my $key =  'cached_sub_repeat_'.$ng;
   if(not exists $o->{$key}) {
@@ -262,7 +268,7 @@ sub sub_repeat {
 #line 2 "cached_sub_repeat"
       sub {
         my($o,$f,$min,$max)=@_;
-        '.$o->subwrap("'$key'",'sub{
+        sub{
           my $c = $_[0];
           my $pos_old = -1;
           my $i = 0;
@@ -285,13 +291,13 @@ sub sub_repeat {
               '.$o->tailcall('$c').';
             }
             $i++;
-            my $v = '.$o->source_let_vars($o->config_backtrack_vars,
-                                          $o->call(@$first)).';
+            my $v = '.$o->general_let($o->config_backtrack_vars,
+                                      $o->call(@$first)).';
             return $v if '.$o->is_not_failure('$v').';
             '.$o->tailcall(@$second).';
           };
           goto &$fmin;
-        }').'
+        }
       }';
     };
     my $recurse = ['$f','$fagain'];
@@ -301,9 +307,8 @@ sub sub_repeat {
     $o->{$stem.'greedy'}    = $o->_eval_code($code_g);
     $o->{$stem.'nongreedy'} = $o->_eval_code($code_ng);
   }
-  $o->{$key}($o,$f,$min,$max,$ng);
+  $o->{$key}($o,$f,$min,$max);
 }
-
 
 sub sub_concat { # XXX - currently ignoring the code_tailcall abstractions
   my($o,$afs)=@_;
@@ -331,5 +336,10 @@ sub sub_concat { # XXX - currently ignoring the code_tailcall abstractions
   }
   $o->{$key}($o,$afs);
 }
+
+
+1;
+__END__
+
 
 
