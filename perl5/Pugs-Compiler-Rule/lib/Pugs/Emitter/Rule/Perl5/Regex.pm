@@ -87,7 +87,7 @@ sub emit_rule {
 #rule nodes
 
 sub non_capturing_group {
-    return emit_rule( $_[0], $_[1] );
+    return "(?:" . emit_rule( $_[0], $_[1] ) . ")";
 }        
 sub quant {
     my $term = $_[0]->{'term'};
@@ -150,9 +150,9 @@ sub alt {
     $capture_count = $max;
     # print " max = $capture_count\n";
     return 
-        "" . join( "|", 
+        "(?:" . join( "|", 
           @s 
-    ) . "";
+    ) . ")";
 }        
 sub concat {
     my @s;

@@ -1,5 +1,5 @@
 
-use Test::More tests => 11;
+use Test::More tests => 14;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -64,5 +64,15 @@ sub compile {
     is( $match?1:0, 1, 'booleanify' );
     is( "$match", "ayc", 'stringify alternation' );
     is( "$match->[0]", "y", 'stringify alternation capture[0]' );
+}
+
+{
+    my $rule = __PACKAGE__->compile( 'a[x|y](c)' );
+    my $match = $rule->match( "xaycde" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( $match?1:0, 1, 'booleanify' );
+    is( "$match", "ayc", 'stringify non-capturing group' );
+    is( "$match->[0]", "c", 'stringify capture[0]' );
 }
 
