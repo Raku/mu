@@ -43,7 +43,7 @@ for 0 .. $n*$n {
 };
 
 my $format = " %" ~ $v.chars ~ "d";
-for @s { $_ .= as($format) };
+for @s { $_ .= fmt($format) };
 
 for 0 .. $n - 1 -> $y {
     my $start = ($y * ($n+1));
