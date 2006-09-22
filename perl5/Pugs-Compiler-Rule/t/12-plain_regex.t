@@ -1,5 +1,5 @@
 
-use Test::More tests => 20;
+use Test::More tests => 23;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -101,5 +101,18 @@ sub compile {
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( $match?1:0, 1, 'booleanify' );
     is( "$match", "ad", 'stringify <before ...>' );
+}
+
+{
+    my $rule = __PACKAGE__->compile( '^ab<null>c$' );
+    my $match = $rule->match( "abc" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( $match?1:0, 1, 'booleanify' );
+    is( "$match", "abc", 'stringify ^ $ <null>' );
+    my $match = $rule->match( "abc\nd" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( $match?1:0, 0, 'booleanify' );
 }
 

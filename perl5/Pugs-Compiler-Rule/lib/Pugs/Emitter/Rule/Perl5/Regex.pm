@@ -150,13 +150,10 @@ sub alt {
     $capture_count = $max;
     # print " max = $capture_count\n";
     return 
-        "(?:" . join( "|", 
-          @s 
-    ) . ")";
+        "(?:" . join( "|", @s ) . ")";
 }        
 sub concat {
     my @s;
-
     for ( @{$_[0]} ) {
         my $tmp = emit_rule( $_, $_[1] );
         push @s, $tmp if $tmp;   
@@ -196,54 +193,6 @@ sub variable {
     }
     
     $value = join('', eval $name) if $name =~ /^\@/;
-    if ( $name =~ /^%/ ) {
-        my $id = '$' . id();
-        my $preprocess_hash = 'Pugs::Runtime::Regex::preprocess_hash';
-        my $code = "
-          do {
-            our $id;
-            our ${id}_sizes;
-            unless ( $id ) {
-                my \$hash = " . 
-                ( $name =~ /::/ 
-                    ? "\\$name" 
-                    : "Pugs::Runtime::Regex::get_variable( '$name' )"
-                ) . 
-                ";
-                my \%sizes = map { length(\$_) => 1 } keys \%\$hash;
-                ${id}_sizes = [ sort { \$b <=> \$a } keys \%sizes ];
-                " . #print \"sizes: \@${id}_sizes\\n\";
-                "$id = \$hash;
-            }
-            " . #print 'keys: ',Dumper( $id );
-            "my \$match = 0;
-            my \$key;
-            for ( \@". $id ."_sizes ) {
-                \$key = ( \$pos <= length( \$s ) 
-                            ? substr( \$s, \$pos, \$_ )
-                            : '' );
-                " . #print \"try ".$name." \$_ = \$key; \$s\\\n\";
-                "if ( exists ". $id ."->{\$key} ) {
-                    #\$named{KEY} = \$key;
-                    #\$::_V6_MATCH_ = \$m; 
-                    #print \"m: \", Dumper( \$::_V6_MATCH_->data )
-                    #    if ( \$key eq 'until' );
-                    " . #print \"* ".$name."\{'\$key\'} at \$pos \\\n\";
-                    "\$match = $preprocess_hash( $id, \$key )->( \$s, \$grammar, { p => ( \$pos + \$_ ), args => { KEY => \$key } }, undef );
-                    " . #print \"match: \", Dumper( \$match->data );
-                    "last if \$match;
-                }
-            }
-            if ( \$match ) {
-                \$pos = \$match->to;
-                #print \"match: \$key at \$pos = \", Dumper( \$match->data );
-                \$bool = 1;
-            }; # else { \$bool = 0 }
-            \$match;
-          }";
-        #print $code;
-        return $code;
-    }
     die "interpolation of $name not implemented"
         unless defined $value;
 
@@ -259,6 +208,7 @@ sub special_char {
     return call_constant( $char, $_[1] );
 }
 sub match_variable {
+    die "no match variables yet";
     my $name = $_[0];
     my $num = substr($name,1);
     #print "var name: ", $num, "\n";
@@ -294,6 +244,7 @@ sub named_capture {
     die "no named captures";
 }
 sub negate {
+    die "no negate";
     my $program = $_[0];
     # print Dumper($_[0]);
     $program = emit_rule( $program, $_[1].'        ' )
@@ -338,19 +289,20 @@ sub not_after {
 }
 sub colon {
     my $str = $_[0];
-    return "$_[1] 1 # : no-op\n"
-        if $str eq ':';
-    return "$_[1] ( \$pos >= length( \$s ) ) \n" 
+    return '$' 
         if $str eq '$';
-    return "$_[1] ( \$pos == 0 ) \n" 
+    return "^" 
         if $str eq '^';
         
+    die "'$str' not implemented";
+
+    return "$_[1] 1 # : no-op\n"
+        if $str eq ':';
     return "$_[1] ( \$pos >= length( \$s ) || substr( \$s, \$pos ) =~ /^\\n/s ) \n" 
         if $str eq '$$';
     return "$_[1] ( \$pos == 0 || substr( \$s, 0, \$pos ) =~ /\\n\$/s ) \n" 
         if $str eq '^^';
 
-    die "'$str' not implemented";
 }
 sub modifier {
     my $str = $_[0];
@@ -486,15 +438,15 @@ $_[1] }";
     }
     if ( $prefix =~ /[_[:alnum:]]/ ) {  
         if ( $cmd eq 'cut' ) {
-            warn "<$cmd> not implemented";
+            die "<$cmd> not implemented";
             return;
         }
         if ( $cmd eq 'commit' ) {
-            warn "<$cmd> not implemented";
+            die "<$cmd> not implemented";
             return;
         }
         if ( $cmd eq 'null' ) {
-            return "$_[1] 1 # null\n"
+            return ""
         }
         # <subrule ( param, param ) >
         my ( $subrule, $param_list ) = split( /[\(\)]/, $cmd );
@@ -505,6 +457,7 @@ $_[1] }";
             return "$_[1] ( \$pos == $param_list )\n"
         }
 
+        die "<$cmd> not implemented";
         return named_capture(
             { 
                 ident => $subrule, 
@@ -514,6 +467,7 @@ $_[1] }";
         );
     }
     if ( $prefix eq '.' ) {  
+        die "<$cmd> not implemented";
         my ( $method, $param_list ) = split( /[\(\)]/, $cmd );
         $method =~ s/^\.//;
         $param_list ||= '';
