@@ -9,6 +9,10 @@ plan 28;
 
 =begin TODO
 
+  * Existence
+     * Clarify why this implementation of a spec'ed feature
+       exists in the "unspecced" directory of the test suite. 
+
   * Pugs
      * `subset`
      * of signature using `-->` on Code.
