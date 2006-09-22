@@ -22,6 +22,8 @@ sub __RUN__ {
     my %opts = (grammar => __PACKAGE__);
     ($1 and $opts{$1} = 1) while $rule_text =~ s/^:(\w*)\(1?\)\[(.*)\]\z/$2/s;
 
+    local $SIG{__WARN__} = sub { 1 };
+
     my $rule    = Pugs::Compiler::Regex->compile( $rule_text, \%opts );
     my $match   = $rule->match( $match_text );
 
