@@ -12,6 +12,14 @@ because we are using this module to test Pugs itself,
 so I want to be sure that the error is not coming from 
 within this module.
 
+We need to test that these functions produce 'not ok' at the
+right times, too.  Here, we do that by abusing :todo to mean
+"supposed to fail."  Thus, no ":todo" failure indicates
+a missing feature.
+
+If there is a bug in the implementation, you will see
+a (non-TODO) failure or an unexpected success.
+
 =cut
 
 ## ok
