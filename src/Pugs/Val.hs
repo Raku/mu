@@ -94,6 +94,8 @@ class ICoercible m a => IValue m a where
 
 instance ICoercible SIO Val where
     -- XXX - have to invent a generic map somehow -- DrIFT anyone?
+    asBit VUndef{}      = cast False
+    asBit (VNative x)   = cast $ asBit x
     asBit (VPure x)     = cast $ asBit x
     asBit (VMut x)      = cast $ asBit x
     asInt (VPure x)     = cast $ asInt x
