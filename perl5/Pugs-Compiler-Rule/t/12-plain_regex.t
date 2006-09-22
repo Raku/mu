@@ -1,5 +1,5 @@
 
-use Test::More tests => 18;
+use Test::More tests => 20;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -92,5 +92,14 @@ sub compile {
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( $match?1:0, 1, 'booleanify' );
     is( "$match", "ayc", 'stringify negated special char' );
+}
+
+{
+    my $rule = __PACKAGE__->compile( 'a.<before c>' );
+    my $match = $rule->match( "xayycadce" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( $match?1:0, 1, 'booleanify' );
+    is( "$match", "ad", 'stringify negated special char' );
 }
 

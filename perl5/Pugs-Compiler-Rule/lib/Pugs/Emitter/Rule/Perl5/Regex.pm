@@ -314,36 +314,13 @@ sub before {
     my $program = $_[0]{rule};
     $program = emit_rule( $program, $_[1].'        ' )
         if ref( $program );
-    return "$_[1] do{ 
-$_[1]     my \$pos1 = \$pos;
-$_[1]     do {
-$_[1]       my \$pos = \$pos1;
-$_[1]       my \$from = \$pos;
-$_[1]       my \@match;
-$_[1]       my \%named;
-$_[1]       \$bool = 0 unless
-" .             $program . ";
-$_[1]       \$bool;
-$_[1]     };
-$_[1] }";
+    return "(?=" . $program . ")";
 }
 sub not_before {
     my $program = $_[0]{rule};
     $program = emit_rule( $program, $_[1].'        ' )
         if ref( $program );
-    return "$_[1] do{ 
-$_[1]     my \$pos1 = \$pos;
-$_[1]     do {
-$_[1]       my \$pos = \$pos1;
-$_[1]       my \$from = \$pos;
-$_[1]       my \@match;
-$_[1]       my \%named;
-$_[1]       my \$bool = 1;
-$_[1]       \$bool = 0 unless
-" .             $program . ";
-$_[1]       ! \$bool;
-$_[1]     };
-$_[1] }";
+    return "(?!" . $program . ")";
 }
 sub after {
     local $direction = "-";
