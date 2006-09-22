@@ -1248,7 +1248,7 @@ sub infix {
                 my $opt = '';
                 if ( exists $options{'c'} ) {
                     $opt .= 'p => ( $::_V6_MATCH_ ? ( 
-                       $::_V6_MATCH_->from + 1 
+                       $::_V6_MATCH_->to 
                     ) : undef )';
                 }
                 # XXX: hack for /$pattern/
