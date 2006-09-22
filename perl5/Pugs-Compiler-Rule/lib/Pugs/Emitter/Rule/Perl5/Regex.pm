@@ -293,23 +293,7 @@ sub capturing_group {
             if ref( $program );
     }
 
-    return "$_[1] do{ 
-$_[1]     my \$hash = do {
-$_[1]       \$bool = 0 unless
-" .             $program . ";
-$_[1]       { str => \\\$s, from => \\\$from, match => \\\@match, named => \\\%named, bool => \\\$bool, to => \\(0+\$pos), capture => undef }
-$_[1]     };
-$_[1]     my \$bool = \${\$hash->{'bool'}};" .
-        ( $capture_to_array 
-        ? "
-$_[1]     if ( \$bool ) {
-$_[1]         push \@{ \$match[ $capture_count ] }, Pugs::Runtime::Match->new( \$hash );
-$_[1]     }"
-        : "
-$_[1]     \$match[ $capture_count ] = Pugs::Runtime::Match->new( \$hash );"
-        ) . "
-$_[1]     \$bool;
-$_[1] }";
+    return "(" . $program . ")"
 }        
 
 sub capture_as_result {
