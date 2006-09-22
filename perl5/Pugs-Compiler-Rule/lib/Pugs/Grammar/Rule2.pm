@@ -242,23 +242,28 @@ token term {
         }
 }
 
+token quant {
+    |   <'**'> <?ws>? \{  <parsed_code>  \}
+        { return { closure => $/{'parsed_code'}() ,} }
+    |   <[  \? \* \+  ]>?
+}
+
 token quantifier {
     $<ws1>   := (<?ws>?)
     <!before  <[   \} \] \) \>   ]> >
     <term> 
     $<ws2>   := (<?ws>?)
-    $<quant> := (
-        <[  \? \* \+  ]>?
-        <'?'>?
-    )
+    <quant>
+    $<greedy> := (<[  \? \+  ]>?)
     $<ws3>   := (<?ws>?)
     { return { 
         quant => { 
-            term  => $/{'term'}(),
-            quant => $/{'quant'}(),
-            ws1   => $/{'ws1'}(),
-            ws2   => $/{'ws2'}(),
-            ws3   => $/{'ws3'}(),
+            term    => $/{'term'}(),
+            quant   => $/{'quant'}(),
+            greedy  => $/{'greedy'}(),
+            ws1     => $/{'ws1'}(),
+            ws2     => $/{'ws2'}(),
+            ws3     => $/{'ws3'}(),
         } }
     }
 }

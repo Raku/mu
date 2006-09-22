@@ -135,8 +135,9 @@ sub non_capturing_group {
 }        
 sub quant {
     my $term = $_[0]->{'term'};
-    my $quantifier = $_[0]->{quant};
-    $quantifier = '' unless defined $quantifier;
+    my $quantifier = $_[0]->{quant}  || '';
+    my $greedy     = $_[0]->{greedy} || '';   # + ?    
+    my $quant = $quantifier . $greedy;
     my $sub = { 
             '*' =>'greedy_star',     
             '+' =>'greedy_plus',
@@ -145,14 +146,14 @@ sub quant {
             '?' =>'optional',
             '??'=>'null_or_optional',
             ''  => '',
-        }->{$quantifier};
-    die "quantifier not implemented: $quantifier" 
+        }->{$quant};
+    die "quantifier not implemented: $quant" 
         unless defined $sub;
         
     my $rul;
     {
         my $cap = $capture_to_array;
-        local $capture_to_array = $cap || ( $quantifier ne '' ? 1 : 0 );
+        local $capture_to_array = $cap || ( $quant ne '' ? 1 : 0 );
         $rul = emit_rule( $term, $_[1] . '  ' );
     }
 

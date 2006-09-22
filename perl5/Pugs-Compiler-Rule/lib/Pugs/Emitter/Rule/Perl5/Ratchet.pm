@@ -134,9 +134,11 @@ sub non_capturing_group {
 }        
 sub quant {
     my $term = $_[0]->{'term'};
-    my $quantifier = $_[0]->{quant};
+    my $quantifier = $_[0]->{quant}  || '';
+    my $greedy     = $_[0]->{greedy} || '';   # + ?
+    die "greediness control not implemented: $greedy"
+        if $greedy;
     #print "QUANT: ",Dumper($_[0]);
-    $quantifier = '' unless defined $quantifier;
     # TODO: fix grammar to not emit empty quantifier
     my $tab = ( $quantifier eq '' ) ? $_[1] : $_[1] . "  ";
     my $ws = metasyntax( '?ws', $tab );
