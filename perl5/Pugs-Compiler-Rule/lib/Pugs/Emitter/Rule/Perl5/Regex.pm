@@ -2,6 +2,16 @@ package Pugs::Emitter::Rule::Perl5::Regex;
 
 # p6-rule perl5 emitter for emitting perl5 regexes
 
+=for TODO
+
+    \.  (test)
+    ^^  
+    $$
+    <[lcrtmbios]>
+    quantifiers
+
+=cut
+
 use strict;
 use warnings;
 use Data::Dumper;
@@ -288,6 +298,24 @@ sub not_after {
     return "(?<!" . $program . ")";
 }
 sub colon {
+
+    # <fglock> TimToady: I'm considering using something like 
+    #    [^|<after \n>] for ^^, so I can mix ^ and ^^ in the same sentence
+    # <TimToady> alternately, just throw /m in there and use \A and \z for ^ and $
+    # <TimToady> I think that'd be a lot faster and simpler.
+
+    # <fglock> plain :P5 uses /s by default, right?
+    # <TimToady> I wouldn't think so.
+    # <TimToady> ?eval "\n" ~~ m:P5/./
+    # *** evalbot_r13567 is now known as evalbot_r13572
+    # <evalbot_r13572> Match.new(   ok => Bool::False,    from => 0,    to => 0,    str => "",    sub_pos => (),    sub_named => {} )
+    # <TimToady> no, it doesn't
+    # <TimToady> ?eval "\n" ~~ m:P5/(?s)./
+    # <evalbot_r13572> Match.new(   ok => Bool::True,    from => 0,    to => 1,    str => "\n",    sub_pos => (),    sub_named => {} )
+    # <TimToady> that's how you turn /s on under :P5
+
+    # TODO - pass /m modifier to RegexPerl5
+
     my $str = $_[0];
     return '$' 
         if $str eq '$';

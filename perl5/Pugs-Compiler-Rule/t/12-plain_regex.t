@@ -116,3 +116,5 @@ sub compile {
     is( $match?1:0, 0, 'booleanify' );
 }
 
+# <TimToady> ?eval "a\nb" ~~ /^a$$.^^b$/
+# "a\nb" ~~ m:P5/(?smx) \A a $ . ^ b \z/
