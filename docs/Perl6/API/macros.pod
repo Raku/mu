@@ -81,9 +81,6 @@ Circumfix macros take a single C<Expression> as a parameter.
 Postcircumfix macros take two parameters. The first a C<Value>. The
 second is an C<Expression> that comes inside of the circumfix delimeters.
 
-The "is parsed" trait cannot be used with this sort of macro because
-the parameter is found before the macro name in the program text.
-
 =item regex_metachar
 
 =item regex_backslash
