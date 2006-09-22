@@ -47,19 +47,36 @@ sub concat {
         #print "enter state ",Dumper(\@state);
         my $m2;
         do {
+
+            my %param1 = defined $_[7] ? %{$_[7]} : ();
+            #print "concat 1: @{[ %param1 ]} \n";
+
             $nodes->[0]->( $_[0], $state[0], @_[2..7] );
             return if ! $_[3] 
                    || $_[3]->data->{abort};
+            my $is_empty = $_[3]->from == $_[3]->to;
+
+            if ( $param1{was_empty} && $is_empty ) {
+                # perl5 perlre says "the following match after a zero-length match
+                #   is prohibited to have a length of zero"
+                return;
+            }
+
             my $param = { ( defined $_[7] ? %{$_[7]} : () ), 
-                          p => $_[3]->to };     
+                          p => $_[3]->to,
+                          was_empty => $is_empty,
+                        };     
             # TODO - retry the second submatch only, until it fails
             my $next_state = $_[3]->state;
             #print "next_state ",Dumper($next_state);
+            #print "concat 2: "," \n";
             $nodes->[1]->( $_[0], $state[1], $_[2], $m2, 
                            $_[4], $_[3]->to, $_[6], $param );
             $state[1] = $m2->state;
             $state[0] = $next_state unless $state[1];
+            #print "concat 3: "," \n";
             #print "return state ",Dumper(\@state);
+
         } while ! $m2 && 
                 ! $m2->data->{abort} &&
                 defined $state[0]; 

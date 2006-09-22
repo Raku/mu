@@ -1,5 +1,5 @@
 
-use Test::More tests => 51;
+use Test::More tests => 52;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -386,4 +386,12 @@ no warnings qw( once );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", $match->perl;
     is( $$match, "y", 'return capture' );
+}
+
+{
+    my $rule = Pugs::Compiler::Regex->compile( 'x<null>+' );
+    my $match = $rule->match( "xyz" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", $match->perl;
+    is( $$match, "x", 'doesn\'t loop forever' );
 }
