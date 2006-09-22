@@ -150,18 +150,9 @@ sub alt {
     $capture_count = $max;
     # print " max = $capture_count\n";
     return 
-        "$_[1] (
-$_[1]     ( \$pad{$id} = \$pos or 1 ) 
-$_[1]     && (
-" . join( "
-$_[1]     ) 
-$_[1]   || ( 
-$_[1]     ( ( \$bool = 1 ) && ( \$pos = \$pad{$id} ) or 1 ) 
-$_[1]     && ", 
+        "" . join( "|", 
           @s 
-    ) . "
-$_[1]   )
-$_[1] )";
+    ) . "";
 }        
 sub concat {
     my @s;
