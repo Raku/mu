@@ -1,5 +1,49 @@
-use strict;
 =for fyi
+
+This module encapsulates a backtracking protocol.
+
+Notes
+
+Most of the methods take perl code strings, and return them wrapped in
+code to do backtracking things.  A few of the methods, named
+sub_whatever, take and return continuations, which are what the
+backtracker is built of.  One method, sub_makesub, takes code and
+returns a continuation.
+
+A continuation is a sub of a single argument, its own continuation.
+Return values of undef and negative numbers are reserved for the
+backtracker.  Undef means simple failure, ie, time to backtrack.
+Negative numbers mean an exception, ie, a jump up the backtrack stack.
+For example, a fail match, rule, or group.
+
+Why only one argument?  Pushing and poping arguments from the stack is
+slowwww.  Better to use locals, perhaps unless the variable changes
+with almost every call.  pos is may be the only good candidate.  If
+application arguments get implemented, it would be worth trying.
+
+What is up with the noop ref checking?  It is fast, and since one of
+the many places it gets called is at ultimate match success, it seemed
+worth making flexible.  An alternative might be to have a single
+canonical noop, and a local() callback called by noop when noop(noop).
+But that could be problematic.
+
+config_backtrack_vars is an array of local() variables (specified by
+name), that should be localized on each choice point, and restored if
+backtracking occurs.
+
+config_pos_var is a local() variable which contains string scan
+position.  It should probably be one of the config_backtrack_vars.
+It is needed only in sub_repeat, to do the "making progress?" test.
+
+The only dependency on the string search task is in one method,
+repeat, aka quantification, which needs a concept of position to
+determine if progress is being made.
+
+A mutant regexp_engine_spike (not included), with backtrack_api
+swapped in as the backtracking core, still passes re_tests.
+
+
+History
 
 2006-09-19 - The idea here is Perl6::Compiler::Rule needs ranges
 {n..m} and tailcalls implemented, and perhaps performance tuning.
@@ -7,16 +51,11 @@ The old regexp_spike code has these.  This file is a snapshot of
 a quick attempt to strip the old code down to be easily used by
 perl5/Pugs-Compiler-Rule/lib/Pugs/Emitter/Rule/Perl5.pm
 
-Plan:
- Finish stripping down the code.
- Use a test jig(DONE) to run it against re_tests, to assure nothing broke.
- Integrate with PCR.  Perhaps an experimental Emitter/Perl5x.pm.
-
-
 =cut
 
 package Backtrack;
 use Carp;
+use strict;
 
 sub new {
   my $cls = shift;
@@ -29,6 +68,19 @@ sub new {
 # unimplemented.
 # Passing arguments is not fast.  So locals are often a better way to
 # pass data.  But it may be needed.
+
+#----------------------------------------------------------------------
+# sub_makesub
+# An attempt to make the backtracking api cleaner.
+# Client code gets the contination in $c, and doesn't have to care
+# where exactly it came from, and what other arguments might be present.
+# It is not yet clear this is actually useful.
+
+sub sub_makesub { # XXX - Untested
+  my($o,$name_for_debugging,$code)=@_;
+  my $fullcode = 'sub { my $c = $_[0]; '.$code.' }';
+  $o->_eval_code($code);
+}
 
 #----------------------------------------------------------------------
 # Do-nothing continuation
@@ -92,10 +144,6 @@ sub general_tailcall {
   my($o,$f,@args)=@_;
   '@_=('.join(',',@args)."); goto \&{$f};";
 }
-#sub general_tailcall_safely { # goto apparently sometimes kills lexical vars?
-#  my($o,$f,@args)=@_;
-#  'return('.$o->call($f,@args).');';
-#}
 
 sub call {
   my($o,$f,$c)=@_;
@@ -107,11 +155,6 @@ sub tailcall {
   $c = '$noop' if !defined $c;
   $o->general_tailcall($f,$c);
 }
-#sub tailcall_safely {
-#  my($o,$f,$c)=@_;
-#  $c = '$noop' if !defined $c;
-#  $o->general_tailcall_safely($f,$c);
-#}
 
 
 #----------------------------------------------------------------------
@@ -135,7 +178,7 @@ sub is_exception {
   my($o,$var)=@_;
   "(defined($var) && !ref($var) && $var <= 0)";
 }
-sub propagate_failure {
+sub propagate_failure { # XXX - Untested
   my($o,$var)=@_;
   'if('.$o->is_failure($var).') {'.$o->fail($var).'}';
 }
@@ -150,7 +193,7 @@ sub propagate_exceptions {
 #----------------------------------------------------------------------
 # temp / let / alt
 
-sub general_temp {
+sub general_temp { # XXX - Untested
   my($o,$vars,$body)=@_;
   my $varl = join(",",@$vars);
   return ("(do{ $body })") if $varl eq "";
@@ -165,6 +208,7 @@ sub general_let {
 sub _genstr {sprintf("%x",int(rand(1_000_000_000)));} # XXX
 sub general_alt {
   my($o,$vars,$bodies,$code_on_success,$code_on_failure,$code_on_each_failure)=@_;
+  # The $code_on_whatever code can see the body result in $_v_.
   my $uniq = $o->_genstr;
   my $v  = '$v_'.$uniq;
   my $ok = '$ok_'.$uniq;
@@ -216,17 +260,17 @@ sub config_backtrack_vars {
 }
 
 
-sub temp {
+sub temp { # XXX - Untested
   my($o,$body)=@_;
   $o->general_temp($o->config_backtrack_vars, $body);
 }
 
-sub let {
+sub let { # XXX - Untested
   my($o,$body)=@_;
   $o->general_let($o->config_backtrack_vars, $body);
 }
 
-sub alt {
+sub alt { # XXX - Untested
   my($o,$bodies)=@_;
   $o->general_alt($o->config_backtrack_vars,
 		  $bodies,
@@ -310,7 +354,7 @@ sub sub_repeat {
   $o->{$key}($o,$f,$min,$max);
 }
 
-sub sub_concat { # XXX - currently ignoring the code_tailcall abstractions
+sub sub_concat { # XXX - currently ignoring the tailcall() abstraction
   my($o,$afs)=@_;
   my $key = 'cached_sub_concat_v0';
   if(not exists $o->{$key}) {
@@ -318,7 +362,7 @@ sub sub_concat { # XXX - currently ignoring the code_tailcall abstractions
       sub {
         my($o,$afs)=@_;
 	my @fs = @$afs;
-	return $o->noop if @fs == 0;
+	return $o->sub_noop if @fs == 0;
 	return $fs[0] if @fs == 1;
 	my $code1 = ""; my $code2 = "";
 	my $code0 = "my \$f0 = \$fs[0]; ";
@@ -328,7 +372,7 @@ sub sub_concat { # XXX - currently ignoring the code_tailcall abstractions
 	  $code2 .= ";goto \&\$f$i}";
 	}
 	my $code = $code0."\n sub{my \$cn = \$_[0]; \@_=".$code1."\$cn".$code2.";goto \&\$f0}\n";
-	#print $code;
+	print $code;
 	eval($code) || die $@.$code;
       }
     ';
@@ -336,7 +380,6 @@ sub sub_concat { # XXX - currently ignoring the code_tailcall abstractions
   }
   $o->{$key}($o,$afs);
 }
-
 
 1;
 __END__
