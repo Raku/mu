@@ -1,0 +1,6 @@
+regexp_tests is a modified copy of parrot's t/compilers/pge/p6regex/regex_tests
+
+It seems likely we will copy this regexp_tests file from parrot
+repeatedly.  It would be nice if, rather than hand editing it,
+instead p6regex.t knew which tests needed to be skipped, and what
+needed to be massaged.  Like parrot's pge/p6regex/01-regex.t does.
