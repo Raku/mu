@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 20 Sept 2006
+  Last Modified: 23 Sept 2006
   Number: 3
-  Version: 67
+  Version: 68
 
 =head1 Changes to Perl 5 operators
 
@@ -911,7 +911,7 @@ the effect of dereferencing its arguments into another argument list
 as if they'd been placed there directly.
 
     @args = \@foo,1,2,3;
-    push [,] @args;	# same as push @foo,1,2,3
+    push [,] @args;	# same as push(@foo: 1,2,3)
 
 See S06 for more.
 
@@ -1311,33 +1311,39 @@ that argument (and for any subsequent arguments):
 
 is equivalent to:
 
-    push @foo, @bar;
+    push @foo: @bar;
 
-as is this:
+which is just another way to write:
 
-    my $args = \(@foo, @bar);    # construct a Capture object
-    push |$args;
+    @foo.push(@bar);
 
-The C<|> sigil functions as a unary form of the C<[,]>
-list operator, so we could have written the earlier example as:
+The C<|> sigil functions as a unary form of the C<[,]> list operator,
+so the examples above can also be written as.
 
-    my @args = \@foo, @bar;
-    push |@args;
+    my $args = \(@foo: @bar);   # construct a Capture object
+    push |$args;                # push(@foo: @bar)
 
-To the extent possible, the C<|> will treat its argument as
-a C<Capture> even if it isn't.
+Unlike C<[,]>, C<|> does not flatten its argument, but instead directly
+converts its argument into a C<Capture>:
+
+    my @args = \$x, 1, 2, 3;
+    say [,] @args;  # say($x: 1, 2, 3);
+    say |@args;     # say(\$x, 1, 2, 3);
+
+Because of this, C<|%args> always produces named arguments, and
+C<|@args> always produces positional arguments.
 
 In list context, a C<Scalar> holding an C<Array> object does not flatten.  Hence
 
     $bar = @bar;
-    push @foo, $bar;
+    @foo.push($bar);
 
 merely pushes a single C<Array> object onto C<@foo>.  You can
 explicitly flatten it in one of these ways:
 
-    push @foo, @$bar;
-    push @foo, $bar[];
-    push @foo, |$bar;
+    @foo.push(@$bar);
+    @foo.push($bar[]);
+    @foo.push(|$bar);
 
 Those three forms work because the slurpy array in C<push>'s signature
 flattens the C<Array> object into a list argument.
@@ -1382,7 +1388,7 @@ Within such an argument list, function return values are
 automatically exploded into their various parts, as if you'd said:
 
     my \$capture := func();
-    push [,] $$capture: @$capture, %$capture;
+    push($$capture: @$capture, %$capture);
 
 or some such.  The C<[,]> then handles the various zones appropriately
 depending on the context.  An invocant only makes sense as the first
