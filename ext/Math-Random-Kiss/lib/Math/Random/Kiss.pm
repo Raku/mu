@@ -34,7 +34,6 @@ class Math::Random::Kiss
     has int $.w;
     has int $.jsr;
     has int $.jcong;
-    has Num $!crnt;
 
     submethod BUILD ( Int $z?, Int $w?, Int $jsr?, Int $jcong? ) {
         my $mask = self.default_seed_algorithm();
@@ -60,7 +59,7 @@ class Math::Random::Kiss
         my int $myc = self.cong();
         my int $mys = self.shr3();
 
-        $!crnt = ( (($mym +^ $myc) + $mys) +& 0x7FFFFFFF ) / 2147483648.0;
+        ( (($mym +^ $myc) + $mys) +& 0x7FFFFFFF ) / 2147483648.0;
     }
 
     method default_seed_algorithm () {

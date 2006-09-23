@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan tests => 2 + 2*10 + 2;
+plan tests => 4 + 2*10 + 2;
 
 use Math::Random::Kiss;
 
