@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 20 Sept 2006
+  Last Modified: 22 Sept 2006
   Number: 6
-  Version: 56
+  Version: 57
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1762,7 +1762,8 @@ Prefix operators that are identifiers are handled specially.  Both of
 
 default to named unary precedence despite declaring a prefix operator.
 Likewise postfix operators that look like method calls are forced to
-default to the precedence of method calls.
+default to the precedence of method calls.  Any prefix operator that
+requires multiple arguments default to listop precedence.
 
 =item C<is assoc>
 
