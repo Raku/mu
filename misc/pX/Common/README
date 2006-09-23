@@ -1,15 +1,19 @@
-What is this?
+Common ia an area for especially collaborative development, and a
+nursery for new ideas.  Feel free to drop files and directories of any
+type here.
 
-"pX" was the name of a now discarded strawman proposal for a project.
-This directory was created to sketch how development for it might occur.
+Common/lrep/README describes a major project.
 
-It's now (2006-Feb-12) morphing into something else. :) Perhaps an
-experiment in a different collaboration style than we usually use.
-Perhaps a p6 on p5 implementation.
+Q - What is the connection with ext/?  When should development take place
+there instead?
+A - People are less likely to see things in ext/, thus less likely to
+help, and less likely to make major changes without consulting with
+the original author.  A possible rule of thumb might be to start in
+Common, and shift to ext as something matures.
 
-From the original proposal: (now modified - feel free to morph)
+The idea:
 
-  We currently have a development problem of zones-of-ownership being
+  We [used to] have a development problem of zones-of-ownership being
 entagled with subparts-of-p6-development.  So person foo is working on
 Bar::Hee with is intended to be the wizget implentation for pugs/p6.
 And there isn't much code discussion or collaboration.  The objective
@@ -43,6 +47,24 @@ of ownership.
   Maybe this would help.  Maybe this can work.  Maybe not.  Thoughts
 welcome.
 
-#XXX - what is the connection with ext/?  When should development take
-place there instead?
+History:
+
+Once upon a time, the lambdacamels were pondering possible development
+paths to a working perl6.  One strawman proposal, which lasted only a
+day or two, never the less included a useful idea.  At the time, pieces
+of the pugs development tree were too tightly tied to individual people.
+It was interfering with collaborative development.  So part of the
+proposal was to have a place for personal directories, so that need
+wouldn't have to be met elsewhere.  And at the other extreme, to have a
+playpen, a "scratch" directory, for more free wheeling collaboration
+than one might want in the "working" tree.  Such directories were
+created for illustration, and though the proposal didn't last, the
+directories did.  ../Aside/PXNotes is the original stawman proposal.
+
+"pX" was the name of a now discarded strawman proposal for a project.
+This directory was created to sketch how development for it might occur.
+
+It's now (2006-Feb-12) morphing into something else. :) Perhaps an
+experiment in a different collaboration style than we usually use.
+Perhaps a p6 on p5 implementation.  (Turned out to be both!:)
 
