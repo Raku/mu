@@ -1,0 +1,5 @@
+Here is the parrot regexp test suite.
+It would be nice to integrate it with ours.
+With minimal changes, so it is easily updated from parrot.
+
+pge is t/compilers/pge from parrot 0.4.6 release.
