@@ -5,7 +5,7 @@ use Test;
 # test that packages work.  Note that the correspondance between type
 # objects as obtained via the ::() syntax and packages is only hinted
 # at in L<S10/"Packages" /or use the sigil-like/>
-plan 22;
+plan 24;
 
 # 4 different ways to be imported
 # L<S10/"Packages" /A bare/>
@@ -14,7 +14,7 @@ plan 22;
     sub ns  { "Test1" }
     sub pkg { $?PACKAGE }
     sub test1_export is export { "export yourself!" }
-    package Test2 { sub ns { "Test2" } sub pkg { $?PACKAGE } }
+    package Test2 { sub ns { "Test2" } sub pkg { $?PACKAGE } our $scalar = 42 }
     package Test3; sub pkg { $?PACKAGE }
 }
 
@@ -69,3 +69,12 @@ lives_ok { $pkg = t::packages::Test::my_pkg() },
     "can see package declared in same scope";
 is($pkg, ::My::Package, 'correct $?PACKAGE');
 ok(!($pkg === ::*My::Package), 'not the same as global type object');
+
+# Check temporization of variables in external packages
+{
+  {
+    eval_ok('temp $Test2::scalar; 1', "parse for temp package vars");
+    $Test2::scalar++;
+  }
+  is($Test2::scalar, 42, 'temporization of external package variables');
+}
