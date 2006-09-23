@@ -1763,7 +1763,8 @@ Prefix operators that are identifiers are handled specially.  Both of
 default to named unary precedence despite declaring a prefix operator.
 Likewise postfix operators that look like method calls are forced to
 default to the precedence of method calls.  Any prefix operator that
-requires multiple arguments default to listop precedence.
+requires multiple arguments defaults to listop precedence, even if it
+is not an identifier.
 
 =item C<is assoc>
 
