@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 22 Sept 2006
+  Last Modified: 24 Sept 2006
   Number: 6
-  Version: 57
+  Version: 58
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1891,11 +1891,11 @@ The C<return> function preserves its argument list as a C<Capture> object, and
 responds to the left-hand C<Signature> in a binding.  This allows named return
 values if the caller expects one:
 
-    sub f { return :x<1> }
+    sub f () { return :x<1> }
     sub g ($x) { print $x }
 
-    my $x := *f();  # binds 1 to $x, via a named argument
-    g(*f());        # prints 1, via a named argument
+    my $x := |(f);  # binds 1 to $x, via a named argument
+    g(|(f));        # prints 1, via a named argument
 
 To return a literal C<Pair> object, always put it in an additional set of
 parentheses:
