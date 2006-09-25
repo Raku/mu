@@ -35,6 +35,7 @@ import Pugs.Eval.Var
 import qualified Data.Map as Map
 import Data.IORef
 import System.IO.Error (isEOFError)
+import Control.Exception (ioErrors)
 
 import qualified Judy.CollectionsM as C
 --import qualified Judy.StrMap         as H
@@ -53,6 +54,7 @@ import qualified Data.IntSet as IntSet
 import DrIFT.YAML
 import GHC.Exts (unsafeCoerce#)
 import GHC.Unicode
+import qualified Data.ByteString.Char8 as Str
 
 constMacro :: Exp -> [Val] -> Eval Val
 constMacro = const . expToEvalVal
@@ -292,10 +294,16 @@ op1 "atomically" = \v -> do
             guardSTM . runEvalSTM env . evalExp $ App (Val v) Nothing []
 op1 "try" = \v -> do
     sub <- fromVal v
-    val <- resetT $ evalExp (App (Val $ VCode sub) Nothing [])
-    retEvalResult quiet val
-    where quiet = MkEvalStyle{evalResult=EvalResultLastValue
-                             ,evalError=EvalErrorUndef}
+    env <- ask
+    val <- resetT $ case envAtomic env of
+        True    -> guardSTM . runEvalSTM env . evalExp $ App (Val $ VCode sub) Nothing []
+        False   -> guardIO . runEvalIO env . evalExp $ App (Val $ VCode sub) Nothing []
+    retEvalResult style val
+    where
+    style = MkEvalStyle
+        { evalResult = EvalResultLastValue
+        , evalError  = EvalErrorUndef
+        }
 -- Tentative implementation of nothingsmuch's lazy proposal.
 op1 "lazy" = \v -> do
     sub     <- fromVal v
@@ -413,8 +421,8 @@ op1 "slurp" = \v -> do
     ifValTypeIsa v "IO"
         (do h <- fromVal v
             ifListContext (strictify $! op1 "=" v) $ do
-                content <- guardIO $ hGetContents h
-                return $! VStr $! decodeUTF8 $! length content `seq` content)
+                content <- guardIO $ Str.hGetContents h
+                return . VStr . decodeUTF8 $ Str.unpack content)
         (do
             fileName    <- fromVal v
             ifListContext
@@ -426,8 +434,8 @@ op1 "slurp" = \v -> do
         return $ VList (length lines `seq` lines)
     slurpList file = strictify $! op1 "=" (VList [VStr file])
     slurpScalar file = do
-        content <- guardIO (readFile file)
-        return $! VStr $! decodeUTF8 $! length content `seq` content
+        content <- guardIO $ Str.readFile file
+        return . VStr . decodeUTF8 $ Str.unpack content
 op1 "opendir" = \v -> do
     str <- fromVal v
     dir <- guardIO $ openDirStream str
@@ -767,15 +775,20 @@ op1Readline = \v -> op1Read v (liftIO . getLines) getLine
             Just str    -> return $! VStr $! (length str `seq` str)
             _           -> return undef
     doGetLine :: VHandle -> IO (Maybe VStr)
-    doGetLine fh = guardIOexcept [(isEOFError, Nothing)] $ do
+    doGetLine fh = guardIOexcept [(isIOError isEOFError, Nothing)] $ do
         line <- hGetLine fh
         return . Just . decodeUTF8 $ line
+
+isIOError :: (IOError -> Bool) -> Exception -> Bool
+isIOError f err = case ioErrors err of
+    Just ioe    -> f ioe
+    Nothing     -> False
 
 op1Getc :: Val -> Eval Val
 op1Getc = \v -> op1Read v (getChar) (getChar)
     where
     getChar :: VHandle -> Eval Val
-    getChar fh = guardIOexcept [(isEOFError, undef)] $ do
+    getChar fh = guardIOexcept [(isIOError isEOFError, undef)] $ do
         char <- hGetChar fh
         str  <- getChar' fh char
         return $ VStr $ decodeUTF8 str
@@ -921,8 +934,9 @@ op2 "gt" = op2Cmp vCastStr (>)
 op2 "ge" = op2Cmp vCastStr (>=)
 op2 "~~" = op2Match
 op2 "=:=" = \x y -> do
-    return $ castV (unsafeCoerce# x == (unsafeCoerce# y :: Int))
-op2 "===" = op2Identity -- XXX wrong, needs to compare objects only
+    return $ castV (W# (unsafeCoerce# x :: Word#) == W# (unsafeCoerce# y :: Word#))
+op2 "===" = \x y -> do
+    return $ castV (x == y)
 op2 "eqv" = op2Identity -- XXX wrong, needs to compare full objects
 op2 "&&" = op2Logical (fmap not . fromVal)
 op2 "||" = op2Logical (fmap id . fromVal)
