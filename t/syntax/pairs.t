@@ -75,7 +75,7 @@ sub get_pair () { (a => 42) }
 {
 
     is f4(get_pair()),  "Pair", 'get_pair() is not treated magically...';
-    is f4(*get_pair()), "Int",    '...but *get_pair() is', :todo<feature>;
+    is f4([,] get_pair()), "Int",    '...but *get_pair() is', :todo<feature>;
 }
 
 sub f5 ($a) { ~WHAT($a) }
