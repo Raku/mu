@@ -410,6 +410,7 @@ doBufToVar buf = MkVar
     toPkg (pkg, rest) = (MkPkg pkg, rest)
     tokenPkg str = case Str.findSubstring (__"::") str of
         Nothing  -> ([], str)
+        Just 0   -> tokenPkg (Str.drop 2 str) -- $::x is the same as $x
         Just idx -> let (rest, final) = tokenPkg (Str.drop (idx + 2) str) in
             ((Str.take idx str:rest), final)
     (cat, afterCat)
