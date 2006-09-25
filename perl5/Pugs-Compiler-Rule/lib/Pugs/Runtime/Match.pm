@@ -6,7 +6,7 @@ use strict;
 use warnings;
 use Data::Dumper;
 #use Class::InsideOut qw( public register id );
-use Scalar::Util 'refaddr';
+use Scalar::Util qw( refaddr blessed );
 
 use overload (
     '@{}'    => \&array,
@@ -100,8 +100,13 @@ sub dump_hs {
             ('['.join(', ', map { dump_hs($_) } @{$obj->{match}||[]} ).']'),
             ('['.join(', ', map {
                 my $str = $_;
-                $str =~ s/([^ \!\#\$\%\&\x28-\x5B\x5D-\x7E])/'\\'.ord($1)/eg;
-                '("' . $str . '", ' . dump_hs($obj->{named}{$_}) . ')';
+                if ( my $dump = dump_hs($obj->{named}{$_}) ) {
+                    $str =~ s/([^ \!\#\$\%\&\x28-\x5B\x5D-\x7E])/'\\'.ord($1)/eg;
+                    qq[("$str", $dump)];
+                }
+                else {
+                    ();
+                }
             } sort(CORE::keys(%{$obj->{named}||{}})) ).']'),
         )
     }
