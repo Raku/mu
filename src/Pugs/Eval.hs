@@ -549,28 +549,29 @@ reduceSyn name [cond, body]
     | "postwhile" <- name = doWhileUntil id True
     | "postuntil" <- name = doWhileUntil not True
     where
-    -- XXX This treatment of while/until loops probably needs work
+    -- XXX The "first" loop should be merged into the normal runloop
     doWhileUntil :: (Bool -> Bool) -> Bool -> Eval Val
-    doWhileUntil f postloop = do
+    doWhileUntil f postloop = genSymCC "&last" $ \symLast -> do
         sub <- fromVal =<< (enterRValue $ enterEvalContext (cxtItem "Code") body)
-        -- XXX redo for initial run
-        if not postloop then retEmpty else fix $ \runBody -> do
+        rv  <- if not postloop then retEmpty else genSymCC "&next" $ \symNext -> fix $ \runBody -> do
             callCC $ \esc -> genSymPrim "&redo" (const $ runBody >>= esc) $ \symRedo -> do
-                enterLex [symRedo] $ apply sub Nothing [Val . castV $ undef]
-        enterWhile . fix $ \runLoop -> do
-            vbool <- enterEvalContext (cxtItem "Bool") cond
-            vb    <- fromVal vbool
-            case f vb of
-                True -> fix $ \runBody -> do
-                    -- genSymPrim "&redo" (const $ runBody) $ \symRedo -> do
-                    callCC $ \esc -> genSymPrim "&redo" (const $ runBody >>= esc) $  \symRedo -> do
-                    rv <- enterLex [symRedo] $ apply sub Nothing [Val vbool]
-                    case rv of
-                        VError _ _  -> retVal rv
-                        _           -> do
-                            runBlocksIn sub (reverse . subNextBlocks)
-                            runLoop
-                _ -> retVal vbool
+                apply (updateSubPad sub (symRedo . symNext . symLast)) Nothing [Val $ castV undef]
+        case rv of
+            VError{}    -> retVal rv
+            _           -> do
+                runBlocksIn sub (reverse . subNextBlocks)
+                ($ rv) . fix $ \runLoop prev -> do
+                    vbool <- enterEvalContext (cxtItem "Bool") cond
+                    vb    <- fromVal vbool
+                    if (not $ f vb) then retVal prev else fix $ \runBody -> do
+                        callCC $ \esc -> genSymPrim "&redo" (const $ runBody >>= esc) $  \symRedo -> do
+                            genSymCC "&next" $ \symNext -> do
+                                rv <- apply (updateSubPad sub (symRedo . symNext . symLast)) Nothing [Val vbool]
+                                case rv of
+                                    VError{}    -> retVal rv
+                                    _           -> do
+                                        runBlocksIn sub (reverse . subNextBlocks)
+                                        runLoop prev
     runBlocksIn MkCode{ subBody = Syn "block" [Val (VCode cv')] } f = runBlocksIn cv' f
     runBlocksIn cv f = mapM_ (reduceSyn "block" . (:[]) . Syn "sub" . (:[]) . Val . castV) (f cv)
 
@@ -698,6 +699,9 @@ reduceSyn "[...]" [listExp, indexExp] = do
     list    <- fromVal listVal
     -- elms    <- mapM fromVal list -- flatten
     retVal $ VList (drop idx $ list)
+
+-- XXX - Wrong!
+reduceSyn "|{}" [exp] = evalExp exp
 
 reduceSyn "@{}" [exp] = do
     val     <- enterEvalContext (cxtItem "Array") exp
@@ -995,15 +999,20 @@ argsFeed fAcc aAcc (argl:als) = do
     -- af :: Maybe (Feed Val) -> [Exp] -> Eval (Feed Val)
     af res [] = return $ feed res
     -- I'm not sure how much reduction should go on here? E.g. call reduceNamedArg, but what about the val?
-    af res (n@(Syn "named" _):args) = do
-        let res' = feed res
-        Syn "named" [Val (VStr key), valExp] <- reduceNamedArg n
-        argVal  <- fromVal =<< reduce valExp
-        af (Just $ res'{ f_nameds = addNamed (f_nameds res') key argVal }) args
-    af res (x:args) = do
-        let res' = feed res
-        argVal  <- fromVal =<< reduce x
-        af (Just res'{ f_positionals = (f_positionals res') ++ [argVal] }) args
+    af res (n:args)
+        | Syn "named" _ <- unwrapN = do
+            Syn "named" [Val (VStr key), valExp] <- reduceNamedArg n
+            argVal  <- fromVal =<< reduce valExp
+            af (Just $ resFeed{ f_nameds = addNamed (f_nameds resFeed) key argVal }) args
+        | Syn "|{}" (capExp:_) <- unwrapN = do
+            cap <- castVal =<< fromVal =<< enterRValue (enterEvalContext (cxtItem "Capture") capExp)
+            af (Just (mconcat (resFeed:c_feeds cap))) args
+        | otherwise = do
+            argVal  <- fromVal =<< reduce n
+            af (Just resFeed{ f_positionals = (f_positionals resFeed) ++ [argVal] }) args
+        where
+        unwrapN = unwrap n
+        resFeed = feed res
     feed res = maybe emptyFeed id res
     addNamed :: (Map ID [a]) -> VStr -> a -> Map ID [a]
     addNamed mp k v =
