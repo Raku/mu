@@ -50,7 +50,7 @@ package Pugs::Emitter::Perl6::Perl5::Str;
         } );
     }
     sub eq {
-        Pugs::Emitter::Perl6::Perl5::Bool->new( 
+        Pugs::Emitter::Perl6::Perl5::BoolExpression->new( 
             { name => $_[0] . " eq " . $_[1]->str } );
     }
 package Pugs::Emitter::Perl6::Perl5::Int;

@@ -4,6 +4,9 @@ use warnings;
 
 package Pugs::Emitter::Perl6::Perl5::Expression;
     use base 'Pugs::Emitter::Perl6::Perl5::Any';
+    sub perl {
+        $_[0]->str;
+    }
 package Pugs::Emitter::Perl6::Perl5::BoolExpression;
     use base 'Pugs::Emitter::Perl6::Perl5::Expression';
     use overload (
@@ -16,9 +19,6 @@ package Pugs::Emitter::Perl6::Perl5::BoolExpression;
     sub str {
         return Pugs::Emitter::Perl6::Perl5::Str->new( 
             { name => '( '. $_[0]->{name} . ' ? 1 : 0 )' } );
-    }
-    sub perl {
-        $_[0]->str;
     }
     sub true {
         $_[0];
@@ -39,9 +39,6 @@ package Pugs::Emitter::Perl6::Perl5::StrExpression;
     sub str {
         $_[0]
     }
-    sub perl {
-        $_[0]
-    }
     sub scalar {
         return Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( {
             name => 'bless \\' . $_[0]->perl . 
@@ -49,7 +46,7 @@ package Pugs::Emitter::Perl6::Perl5::StrExpression;
         } );
     }
     sub eq {
-        Pugs::Emitter::Perl6::Perl5::Bool->new( 
+        Pugs::Emitter::Perl6::Perl5::BoolExpression->new( 
             { name => $_[0] . " eq " . $_[1]->str } );
     }
 package Pugs::Emitter::Perl6::Perl5::IntExpression;
@@ -62,7 +59,7 @@ package Pugs::Emitter::Perl6::Perl5::IntExpression;
         return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Int' } );
     }
     sub str {
-        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => $_[0]->{name} } );
+        return Pugs::Emitter::Perl6::Perl5::StrExpression->new( { name => $_[0]->{name} } );
     }
     sub perl {
         $_[0]->str
@@ -77,10 +74,7 @@ package Pugs::Emitter::Perl6::Perl5::NumExpression;
         return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Num' } );
     }
     sub str {
-        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => $_[0]->{name} } );
-    }
-    sub perl {
-        $_[0]->str
+        return Pugs::Emitter::Perl6::Perl5::StrExpression->new( { name => $_[0]->{name} } );
     }
 package Pugs::Emitter::Perl6::Perl5::CodeExpression;
     use base 'Pugs::Emitter::Perl6::Perl5::Expression';
@@ -92,10 +86,7 @@ package Pugs::Emitter::Perl6::Perl5::CodeExpression;
         return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Code' } );
     }
     sub str {
-        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => $_[0]->{name} } );
-    }
-    sub perl {
-        $_[0]->str
+        return Pugs::Emitter::Perl6::Perl5::StrExpression->new( { name => $_[0]->{name} } );
     }
 
 1;
