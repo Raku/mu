@@ -56,7 +56,7 @@ sub emit {
       \$matcher->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$_[3]{p}, \$_[1], \$_[3] );
     }
     else {
-      for my \$pos ( 0 .. length( \$_[1] ) - 1 ) {
+      for my \$pos ( 0 .. length( \$_[1] ) ) {
         my \$param = { \%{\$_[3]}, p => \$pos };
         \$matcher->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$pos, \$_[1], \$param );
         last if \$tree;
