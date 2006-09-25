@@ -67,6 +67,8 @@ XXX Sage: please write something here.
 * Converted Test.pm docs from kwid to POD as there are more tools
   and familiarity with POD now.
 * Pugs::Doc::Hack::Style - Haskell style guide for Pugs hackers
+* docs/talks/extraction.xul - Nathan Gray's talk 'Practical Extraction with
+  Perl 6'
 
 == Examples and the Test Suite
 
