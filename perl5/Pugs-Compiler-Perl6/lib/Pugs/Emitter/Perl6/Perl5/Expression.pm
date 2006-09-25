@@ -2,10 +2,10 @@ use strict;
 use warnings;
 # Compile-time Perl 5 thing, with hardcoded, autoboxed  methods
 
-package Pugs::Emitter::Perl6::Perl5::Value;
+package Pugs::Emitter::Perl6::Perl5::Expression;
     use base 'Pugs::Emitter::Perl6::Perl5::Any';
-package Pugs::Emitter::Perl6::Perl5::Bool;
-    use base 'Pugs::Emitter::Perl6::Perl5::Value';
+package Pugs::Emitter::Perl6::Perl5::BoolExpression;
+    use base 'Pugs::Emitter::Perl6::Perl5::Expression';
     use overload (
         '""'     => sub { $_[0]->{name} },
         fallback => 1,
@@ -28,8 +28,8 @@ package Pugs::Emitter::Perl6::Perl5::Bool;
         ? Pugs::Emitter::Perl6::Perl5::Bool->new( { name => 0 } ) 
         : Pugs::Emitter::Perl6::Perl5::Bool->new( { name => 1 } )
     }
-package Pugs::Emitter::Perl6::Perl5::Str;
-    use base 'Pugs::Emitter::Perl6::Perl5::Value';
+package Pugs::Emitter::Perl6::Perl5::StrExpression;
+    use base 'Pugs::Emitter::Perl6::Perl5::Expression';
     use overload (
         '""'     => sub { "'" . $_[0]->{name} . "'" },
         fallback => 1,
@@ -53,8 +53,8 @@ package Pugs::Emitter::Perl6::Perl5::Str;
         Pugs::Emitter::Perl6::Perl5::Bool->new( 
             { name => $_[0] . " eq " . $_[1]->str } );
     }
-package Pugs::Emitter::Perl6::Perl5::Int;
-    use base 'Pugs::Emitter::Perl6::Perl5::Value';
+package Pugs::Emitter::Perl6::Perl5::IntExpression;
+    use base 'Pugs::Emitter::Perl6::Perl5::Expression';
     use overload (
         '""'     => sub { $_[0]->{name} },
         fallback => 1,
@@ -68,8 +68,8 @@ package Pugs::Emitter::Perl6::Perl5::Int;
     sub perl {
         $_[0]->str
     }
-package Pugs::Emitter::Perl6::Perl5::Num;
-    use base 'Pugs::Emitter::Perl6::Perl5::Value';
+package Pugs::Emitter::Perl6::Perl5::NumExpression;
+    use base 'Pugs::Emitter::Perl6::Perl5::Expression';
     use overload (
         '""'     => sub { $_[0]->{name} },
         fallback => 1,
@@ -83,8 +83,8 @@ package Pugs::Emitter::Perl6::Perl5::Num;
     sub perl {
         $_[0]->str
     }
-package Pugs::Emitter::Perl6::Perl5::Code;
-    use base 'Pugs::Emitter::Perl6::Perl5::Value';
+package Pugs::Emitter::Perl6::Perl5::CodeExpression;
+    use base 'Pugs::Emitter::Perl6::Perl5::Expression';
     use overload (
         '""'     => sub { 'sub { ' . $_[0]->{name} . ' } ' },
         fallback => 1,
