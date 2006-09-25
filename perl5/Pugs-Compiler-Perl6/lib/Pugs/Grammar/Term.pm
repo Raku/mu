@@ -7,6 +7,15 @@ use Pugs::Compiler::Token;
 
 our %hash;
 
+# <audreyt>
+# $infix:<plus>     plus => $infix<plus>
+# :$<foo> is a special case of that
+# :$/<foo> is not valid
+# $/:<foo> would be the currently specced equiv
+# another thought is to make :%h<foo> parse as foo=>%h<foo>
+# not (h=>%h)<foo> which is likely nonsensical
+
+
 *cpan_bareword = Pugs::Compiler::Token->compile( '
     [ _ | <?alnum> | \: ]+ 
     \- 
@@ -183,7 +192,7 @@ sub recompile {
     my $class = shift;
     %hash = (
         '$' => q(
-                | <before <[  \{ \[ \<  ]> >
+                | <before <[  \{ \[ \< \« ]> >
                   { return { scalar => '$/' ,} }
                 | <?Pugs::Grammar::Term.ident>
                   { return { scalar => '$' . $_[0] ,} }

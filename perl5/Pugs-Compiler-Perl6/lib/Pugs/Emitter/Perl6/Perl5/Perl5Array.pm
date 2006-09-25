@@ -13,7 +13,7 @@ sub other_get {
 }
 
 sub new {
-    my $self = $_[1];  # { name => '%hash5' }
+    my $self = $_[1];  # { name => '@array5' }
     bless $self, $_[0];
     return $self;
 }
@@ -34,7 +34,7 @@ sub WHAT {
 
 sub isa { 
     my $self = $_[0];
-    return $self->other_get( $_[1] ) . ' eq ' . "'Array'";  # hardcoded 
+    return $_[1]->str . ' eq ' . $self->WHAT; 
 }
 
 sub get {

@@ -6,25 +6,42 @@ package Pugs::Emitter::Perl6::Perl5::Value;
     use base 'Pugs::Emitter::Perl6::Perl5::Any';
 package Pugs::Emitter::Perl6::Perl5::Bool;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
+    use overload (
+        '""'     => sub { $_[0]->{name} },
+        fallback => 1,
+    );
     sub WHAT { 
         return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Bool' } );
     }
     sub str {
-        # TODO
+        return Pugs::Emitter::Perl6::Perl5::Str->new( 
+            { name => ( $_[0]->{name} ? '1' : '0' ) } );
     }
     sub perl {
-        # TODO
+        $_[0]->str;
+    }
+    sub true {
+        $_[0]
+    }
+    sub not {
+        $_[0]->{name} 
+        ? Pugs::Emitter::Perl6::Perl5::Bool->new( { name => 0 } ) 
+        : Pugs::Emitter::Perl6::Perl5::Bool->new( { name => 1 } )
     }
 package Pugs::Emitter::Perl6::Perl5::Str;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
+    use overload (
+        '""'     => sub { "'" . $_[0]->{name} . "'" },
+        fallback => 1,
+    );
     sub WHAT { 
         return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Str' } );
     }
     sub str {
-        "'" . $_[0]->{name} . "'"
+        $_[0]
     }
     sub perl {
-        "'" . $_[0]->{name} . "'"
+        $_[0]
     }
     sub scalar {
         return Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( {
@@ -32,38 +49,53 @@ package Pugs::Emitter::Perl6::Perl5::Str;
                     ", 'Pugs::Runtime::Perl6::Str'" 
         } );
     }
+    sub eq {
+        $_[0] . " eq " . $_[1]->str;
+    }
 package Pugs::Emitter::Perl6::Perl5::Int;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
+    use overload (
+        '""'     => sub { $_[0]->{name} },
+        fallback => 1,
+    );
     sub WHAT { 
         return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Int' } );
     }
     sub str {
-        $_[0]->{name}
+        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => $_[0]->{name} } );
     }
     sub perl {
-        $_[0]->{name}
+        $_[0]->str
     }
 package Pugs::Emitter::Perl6::Perl5::Num;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
+    use overload (
+        '""'     => sub { $_[0]->{name} },
+        fallback => 1,
+    );
     sub WHAT { 
         return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Num' } );
     }
     sub str {
-        $_[0]->{name}
+        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => $_[0]->{name} } );
     }
     sub perl {
-        $_[0]->{name}
+        $_[0]->str
     }
 package Pugs::Emitter::Perl6::Perl5::Code;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
+    use overload (
+        '""'     => sub { 'sub { ' . $_[0]->{name} . ' } ' },
+        fallback => 1,
+    );
     sub WHAT { 
         return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Code' } );
     }
     sub str {
-        $_[0]->{name}
+        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => $_[0]->{name} } );
     }
     sub perl {
-        $_[0]->{name}
+        $_[0]->str
     }
 
 1;
