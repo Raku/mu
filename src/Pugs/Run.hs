@@ -208,7 +208,7 @@ getLibs = do
     return $ filter (not . null) (libs lib $ canonicalArgs args)
     where
     -- broken, need real parser
-    inclibs ("-I":dir:rest) = inclibs rest ++ [dir]
+    inclibs ("-I":dir:rest) = (dir:inclibs rest)
     inclibs (_:rest)        = inclibs rest
     inclibs ([])            = []
     libs p6lib args = (inclibs args)
