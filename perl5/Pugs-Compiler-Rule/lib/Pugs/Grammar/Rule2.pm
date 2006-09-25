@@ -76,7 +76,7 @@ token metasyntax {
     |  \<  <?metasyntax>  \>
     |  <-[ \> ]> 
     ]+ 
-    { return { metasyntax => $/() ,} }
+    { return { metasyntax => $$/ ,} }
 }
 
 token string_code {
@@ -91,14 +91,14 @@ token string_code {
 
 token parsed_code {
     # this subrule is overridden inside the perl6 compiler
-    <string_code>
-    { return '{' ~ $/{'string_code'}() ~ '}' }
+    <?string_code>
+    { return '{' ~ $/ ~ '}' }
 }
 
 token named_capture_body {
-    | \(  <rule>    \)  { return { capturing_group => $/{'rule'}() ,} } 
-    | \[  <rule>    \]  { return $/{'rule'}() } 
-    | \<  <metasyntax>  \>  { return $/{'metasyntax'}() } 
+    | \(  <rule>        \)  { return { capturing_group => $$<rule> ,} } 
+    | \[  <rule>        \]  { return $$<rule> } 
+    | \<  <metasyntax>  \>  { return $$<metasyntax> } 
     | { die "invalid alias syntax" }
 }
 
@@ -106,31 +106,31 @@ token named_capture_body {
 
     '$<' => token {
         <ident> \> 
-        { return { match_variable => '$' ~ $/{'ident'}() ,} }
+        { return { match_variable => '$' ~ $/<ident> ,} }
     },
     '$' => token { 
         <?digit>+
-        { return { match_variable => '$' ~ $/() ,} }
+        { return { match_variable => '$' ~ $/ ,} }
     |
         \^?
         [ <?alnum> | _ | \: \: ]+
-        { return { variable => '$' ~ $() ,} }
+        { return { variable => '$' ~ $/ ,} }
     },
     '@' => token { 
         <?digit>+
-        { return { match_variable => '@' ~ $/() ,} }
+        { return { match_variable => '@' ~ $/ ,} }
     |
         \^?
         [ <?alnum> | _ | \: \: ]+
-        { return { variable => '@' ~ $() ,} }
+        { return { variable => '@' ~ $/ ,} }
     },
     '%' => token { 
         <?digit>+
-        { return { match_variable => '%' ~ $/() ,} }
+        { return { match_variable => '%' ~ $/ ,} }
     |
         \^?
         [ <?alnum> | _ | \: \: ]+
-        { return { variable => '%' ~ $() ,} }
+        { return { variable => '%' ~ $/ ,} }
     },
 
 ); # /%variables
@@ -140,58 +140,46 @@ token named_capture_body {
 
     '(' => token {
         <rule> \)
-        { return { capturing_group => $/{'rule'}() ,} }
+        { return { capturing_group => $$<rule> ,} }
     },
     '<(' => token {
         <rule>  <')>'>
-        { return { capture_as_result => $/{'rule'}() ,} }
+        { return { capture_as_result => $$<rule> ,} }
     },
     '<after' => token {
         <?ws> <rule> \> 
-        { return { after => {
-                rule  => $/{'rule'}(),
-            }, } 
-        }
+        { return { after => :$$<rule>, } }
     },
     '<before' => token {
         <?ws> <rule> \> 
-        { return { before => {
-                rule  => $/{'rule'}(),
-            }, } 
-        }
+        { return { before => :$$<rule>, } }
     },
     '<!before' => token {
         <?ws> <rule> \> 
-        { return { not_before => {
-                rule  => $/{'rule'}(),
-            }, } 
-        }
+        { return { not_before => :$$<rule>, } }
     },
     '<!' => token {
         <rule> \> 
-        { return { negate => {
-                rule  => $/{'rule'}(),
-            }, } 
-        }
+        { return { negate  => :$$<rule>, } }
     },
     '<' => token { 
         <metasyntax>  \>
-        { return $/{'metasyntax'}() }
+        { return $$<metasyntax> }
     },
     '{' => token { 
         <parsed_code>  \}
-        { return { closure => $/{'parsed_code'}() ,} }
+        { return { closure => $$<parsed_code> ,} }
     },
     '\\' => token {  
         .
-        { return { special_char => '\\' ~ $(), } } 
+        { return { special_char => '\\' ~ $/ , } } 
     },
     '.' => token { 
         { return { 'dot' => 1 ,} }
     },
     '[' => token { 
         <rule> \] 
-        { return $/{'rule'}() }
+        { return $$<rule> }
     },
     ':::' => token { { return { colon => ':::' ,} } },
     ':?'  => token { { return { colon => ':?' ,} } },
@@ -221,30 +209,30 @@ token term {
        [  <?ws>? <':='> <?ws>? <named_capture_body>
           { 
             return { named_capture => {
-                rule =>  $/{'named_capture_body'}(),
-                ident => $/{'Pugs::Grammar::Rule::variables'}(),
+                rule =>  $$<named_capture_body>,
+                ident => $$<Pugs::Grammar::Rule::variables>,
             }, }; 
           }
        |
           { 
-            return $/{'Pugs::Grammar::Rule::variables'}() 
+            return $$<Pugs::Grammar::Rule::variables> 
           }
        ]
     |  <%Pugs::Grammar::Rule::rule_terms>
         { 
             #print "term: ", Dumper( $_[0]->data );
-            return $/{'Pugs::Grammar::Rule::rule_terms'}() 
+            return $$<Pugs::Grammar::Rule::rule_terms> 
         }
     |  <-[ \] \} \) \> \: \? \+ \* \| \& ]> 
         { 
             #print "constant: ", Dumper( $_[0]->data );
-            return { 'constant' => $() ,} 
+            return { 'constant' => $$/ ,} 
         }
 }
 
 token quant {
     |   <'**'> <?ws>? \{  <parsed_code>  \}
-        { return { closure => $/{'parsed_code'}() ,} }
+        { return { closure => $$<parsed_code> ,} }
     |   <[  \? \* \+  ]>?
 }
 
@@ -258,12 +246,12 @@ token quantifier {
     $<ws3>   := (<?ws>?)
     { return { 
         quant => { 
-            term    => $/{'term'}(),
-            quant   => $/{'quant'}(),
-            greedy  => $/{'greedy'}(),
-            ws1     => $/{'ws1'}(),
-            ws2     => $/{'ws2'}(),
-            ws3     => $/{'ws3'}(),
+            term    => $$/{'term'},
+            quant   => $$/{'quant'},
+            greedy  => $$/{'greedy'},
+            ws1     => $$/{'ws1'},
+            ws2     => $$/{'ws2'},
+            ws3     => $$/{'ws3'},
         } }
     }
 }
@@ -289,7 +277,7 @@ token rule {
     
     {             
       use v5;
-        my @a = map {  $_->()  }  @{ $::_V6_MATCH_->{'concat'} };
+        my @a = map {  $$_  }  @{ $::_V6_MATCH_->{'concat'} };
         return { alt => \@a ,}  if scalar @a > 1;
         return $a[0];
       use v6;

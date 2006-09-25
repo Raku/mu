@@ -35,7 +35,7 @@
       {
         $bool = 0
           unless (
-          ( $pad{I1585} = $pos or 1 )
+          ( $pad{I1096} = $pos or 1 )
           && (
             (
               (
@@ -65,7 +65,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1585} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1096} ) or 1 )
             && (
               ( substr( $s, $pos++, 1 ) ne '' )
               && do {
@@ -127,7 +127,7 @@
       {
         $bool = 0
           unless (
-          ( $pad{I1586} = $pos or 1 )
+          ( $pad{I1097} = $pos or 1 )
           && (
             (
               (
@@ -157,7 +157,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1586} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1097} ) or 1 )
             && (
               ( substr( $s, $pos++, 1 ) ne '' )
               && do {
@@ -220,7 +220,7 @@
         $bool = 0
           unless (
           (
-            ( $pad{I1587} = $pos or 1 )
+            ( $pad{I1098} = $pos or 1 )
             && (
               (
                 (
@@ -235,7 +235,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1587} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1098} ) or 1 )
               && (
                 (
                   ( substr( $s, $pos ) =~ m/^(\n)/s ) ? ( $pos += length($1) or 1 )
@@ -249,7 +249,7 @@
                     )
                     && (
                       (
-                        ( $pad{I1588} = $pos or 1 )
+                        ( $pad{I1099} = $pos or 1 )
                         && (
                           (
                             (
@@ -303,7 +303,7 @@
                           )
                         )
                         || (
-                          ( ( $bool = 1 ) && ( $pos = $pad{I1588} ) or 1 )
+                          ( ( $bool = 1 ) && ( $pos = $pad{I1099} ) or 1 )
                           && (
                             (
                               ( substr( $s, $pos, 1 ) eq 'b' ) ? ( $pos += 1 or 1 )
@@ -336,7 +336,7 @@
                           )
                         )
                         || (
-                          ( ( $bool = 1 ) && ( $pos = $pad{I1588} ) or 1 )
+                          ( ( $bool = 1 ) && ( $pos = $pad{I1099} ) or 1 )
                           && (
                             (
                               ( substr( $s, $pos, 1 ) eq 'k' ) ? ( $pos += 1 or 1 )
@@ -365,7 +365,7 @@
                           )
                         )
                         || (
-                          ( ( $bool = 1 ) && ( $pos = $pad{I1588} ) or 1 )
+                          ( ( $bool = 1 ) && ( $pos = $pad{I1099} ) or 1 )
                           && (
                             (
                               ( substr( $s, $pos, 1 ) eq 'p' ) ? ( $pos += 1 or 1 )
@@ -390,7 +390,7 @@
                           )
                         )
                         || (
-                          ( ( $bool = 1 ) && ( $pos = $pad{I1588} ) or 1 )
+                          ( ( $bool = 1 ) && ( $pos = $pad{I1099} ) or 1 )
                           && (
                             (
                               ( substr( $s, $pos, 1 ) eq 'f' ) ? ( $pos += 1 or 1 )
@@ -415,7 +415,7 @@
                           )
                         )
                         || (
-                          ( ( $bool = 1 ) && ( $pos = $pad{I1588} ) or 1 )
+                          ( ( $bool = 1 ) && ( $pos = $pad{I1099} ) or 1 )
                           && (
                             (
                               ( substr( $s, $pos, 1 ) eq 'h' ) ? ( $pos += 1 or 1 )
@@ -456,7 +456,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1587} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1098} ) or 1 )
               && (
                   ( substr( $s, $pos ) =~ m/^(\s)/s )
                 ? ( $pos += length($1) or 1 )
@@ -467,7 +467,7 @@
           && do {
             while (
               (
-                ( $pad{I1587} = $pos or 1 )
+                ( $pad{I1098} = $pos or 1 )
                 && (
                   (
                     (
@@ -482,7 +482,7 @@
                   )
                 )
                 || (
-                  ( ( $bool = 1 ) && ( $pos = $pad{I1587} ) or 1 )
+                  ( ( $bool = 1 ) && ( $pos = $pad{I1098} ) or 1 )
                   && (
                     (
                       ( substr( $s, $pos ) =~ m/^(\n)/s ) ? ( $pos += length($1) or 1 )
@@ -496,7 +496,7 @@
                         )
                         && (
                           (
-                            ( $pad{I1588} = $pos or 1 )
+                            ( $pad{I1099} = $pos or 1 )
                             && (
                               (
                                 (
@@ -550,7 +550,7 @@
                               )
                             )
                             || (
-                              ( ( $bool = 1 ) && ( $pos = $pad{I1588} ) or 1 )
+                              ( ( $bool = 1 ) && ( $pos = $pad{I1099} ) or 1 )
                               && (
                                 (
                                   ( substr( $s, $pos, 1 ) eq 'b' ) ? ( $pos += 1 or 1 )
@@ -583,7 +583,7 @@
                               )
                             )
                             || (
-                              ( ( $bool = 1 ) && ( $pos = $pad{I1588} ) or 1 )
+                              ( ( $bool = 1 ) && ( $pos = $pad{I1099} ) or 1 )
                               && (
                                 (
                                   ( substr( $s, $pos, 1 ) eq 'k' ) ? ( $pos += 1 or 1 )
@@ -612,7 +612,7 @@
                               )
                             )
                             || (
-                              ( ( $bool = 1 ) && ( $pos = $pad{I1588} ) or 1 )
+                              ( ( $bool = 1 ) && ( $pos = $pad{I1099} ) or 1 )
                               && (
                                 (
                                   ( substr( $s, $pos, 1 ) eq 'p' ) ? ( $pos += 1 or 1 )
@@ -637,7 +637,7 @@
                               )
                             )
                             || (
-                              ( ( $bool = 1 ) && ( $pos = $pad{I1588} ) or 1 )
+                              ( ( $bool = 1 ) && ( $pos = $pad{I1099} ) or 1 )
                               && (
                                 (
                                   ( substr( $s, $pos, 1 ) eq 'f' ) ? ( $pos += 1 or 1 )
@@ -662,7 +662,7 @@
                               )
                             )
                             || (
-                              ( ( $bool = 1 ) && ( $pos = $pad{I1588} ) or 1 )
+                              ( ( $bool = 1 ) && ( $pos = $pad{I1099} ) or 1 )
                               && (
                                 (
                                   ( substr( $s, $pos, 1 ) eq 'h' ) ? ( $pos += 1 or 1 )
@@ -703,7 +703,7 @@
                   )
                 )
                 || (
-                  ( ( $bool = 1 ) && ( $pos = $pad{I1587} ) or 1 )
+                  ( ( $bool = 1 ) && ( $pos = $pad{I1098} ) or 1 )
                   && (
                       ( substr( $s, $pos ) =~ m/^(\s)/s )
                     ? ( $pos += length($1) or 1 )
@@ -762,7 +762,7 @@
         $bool = 0
           unless (
           (
-            ( $pad{I1589} = $pos or 1 )
+            ( $pad{I1100} = $pos or 1 )
             && (
               (
                 ( substr( $s, $pos ) =~ m/^([[:alnum:]])/s ) ? ( $pos += length($1) or 1 )
@@ -770,14 +770,14 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1589} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1100} ) or 1 )
               && (
                 ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 )
                 : 0
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1589} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1100} ) or 1 )
               && (
                 ( substr( $s, $pos, 2 ) eq '::' ) ? ( $pos += 2 or 1 )
                 : 0
@@ -785,7 +785,7 @@
             )
           )
           && do {
-            while ( ( ( $pad{I1589} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/s ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1589} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1589} ) or 1 ) && ( ( substr( $s, $pos, 2 ) eq '::' ) ? ( $pos += 2 or 1 ) : 0 ) ) ) ) { }
+            while ( ( ( $pad{I1100} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/s ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1100} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1100} ) or 1 ) && ( ( substr( $s, $pos, 2 ) eq '::' ) ? ( $pos += 2 or 1 ) : 0 ) ) ) ) { }
             $bool = 1;
           }
           );
@@ -833,7 +833,7 @@
       {
         $bool = 0
           unless do {
-          while ( ( ( $pad{I1590} = $pos or 1 ) && ( ( ( ( substr( $s, $pos, 1 ) eq '\\' ) ? ( $pos += 1 or 1 ) : 0 ) && ( substr( $s, $pos++, 1 ) ne '' ) ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1590} ) or 1 ) && ( ( substr( $s, $pos ) =~ m/^([^\'])/s ) ? ( $pos += length($1) or 1 ) : 0 ) ) ) ) { }
+          while ( ( ( $pad{I1101} = $pos or 1 ) && ( ( ( ( substr( $s, $pos, 1 ) eq '\\' ) ? ( $pos += 1 or 1 ) : 0 ) && ( substr( $s, $pos++, 1 ) ne '' ) ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1101} ) or 1 ) && ( ( substr( $s, $pos ) =~ m/^([^\'])/s ) ? ( $pos += length($1) or 1 ) : 0 ) ) ) ) { }
           $bool = 1;
           };
       }
@@ -882,7 +882,7 @@
           unless (
           (
             (
-              ( $pad{I1591} = $pos or 1 )
+              ( $pad{I1102} = $pos or 1 )
               && (
                 (
                   (
@@ -893,7 +893,7 @@
                 )
               )
               || (
-                ( ( $bool = 1 ) && ( $pos = $pad{I1591} ) or 1 )
+                ( ( $bool = 1 ) && ( $pos = $pad{I1102} ) or 1 )
                 && (
                   (
                     ( substr( $s, $pos, 1 ) eq chr(39) ) ? ( $pos += 1 or 1 )
@@ -914,7 +914,7 @@
                 )
               )
               || (
-                ( ( $bool = 1 ) && ( $pos = $pad{I1591} ) or 1 )
+                ( ( $bool = 1 ) && ( $pos = $pad{I1102} ) or 1 )
                 && (
                   (
                     ( substr( $s, $pos, 1 ) eq '{' ) ? ( $pos += 1 or 1 )
@@ -935,7 +935,7 @@
                 )
               )
               || (
-                ( ( $bool = 1 ) && ( $pos = $pad{I1591} ) or 1 )
+                ( ( $bool = 1 ) && ( $pos = $pad{I1102} ) or 1 )
                 && (
                   (
                     ( substr( $s, $pos, 1 ) eq '<' ) ? ( $pos += 1 or 1 )
@@ -956,7 +956,7 @@
                 )
               )
               || (
-                ( ( $bool = 1 ) && ( $pos = $pad{I1591} ) or 1 )
+                ( ( $bool = 1 ) && ( $pos = $pad{I1102} ) or 1 )
                 && (
                   ( substr( $s, $pos ) =~ m/^([^\>])/s ) ? ( $pos += length($1) or 1 )
                   : 0
@@ -966,7 +966,7 @@
             && do {
               while (
                 (
-                  ( $pad{I1591} = $pos or 1 )
+                  ( $pad{I1102} = $pos or 1 )
                   && (
                     (
                       (
@@ -977,7 +977,7 @@
                     )
                   )
                   || (
-                    ( ( $bool = 1 ) && ( $pos = $pad{I1591} ) or 1 )
+                    ( ( $bool = 1 ) && ( $pos = $pad{I1102} ) or 1 )
                     && (
                       (
                         ( substr( $s, $pos, 1 ) eq chr(39) ) ? ( $pos += 1 or 1 )
@@ -998,7 +998,7 @@
                     )
                   )
                   || (
-                    ( ( $bool = 1 ) && ( $pos = $pad{I1591} ) or 1 )
+                    ( ( $bool = 1 ) && ( $pos = $pad{I1102} ) or 1 )
                     && (
                       (
                         ( substr( $s, $pos, 1 ) eq '{' ) ? ( $pos += 1 or 1 )
@@ -1019,7 +1019,7 @@
                     )
                   )
                   || (
-                    ( ( $bool = 1 ) && ( $pos = $pad{I1591} ) or 1 )
+                    ( ( $bool = 1 ) && ( $pos = $pad{I1102} ) or 1 )
                     && (
                       (
                         ( substr( $s, $pos, 1 ) eq '<' ) ? ( $pos += 1 or 1 )
@@ -1040,7 +1040,7 @@
                     )
                   )
                   || (
-                    ( ( $bool = 1 ) && ( $pos = $pad{I1591} ) or 1 )
+                    ( ( $bool = 1 ) && ( $pos = $pad{I1102} ) or 1 )
                     && (
                       ( substr( $s, $pos ) =~ m/^([^\>])/s ) ? ( $pos += length($1) or 1 )
                       : 0
@@ -1060,7 +1060,7 @@
               sub {
                 return (
                   {
-                    'metasyntax' => $::_V6_MATCH_->()    # hash
+                    'metasyntax' => ${$::_V6_MATCH_}    # hash
                   }
                 );
                 }
@@ -1116,7 +1116,7 @@
         $bool = 0
           unless (
           (
-            ( $pad{I1592} = $pos or 1 )
+            ( $pad{I1103} = $pos or 1 )
             && (
               (
                 (
@@ -1127,7 +1127,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1592} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1103} ) or 1 )
               && (
                 (
                   ( substr( $s, $pos, 1 ) eq chr(39) ) ? ( $pos += 1 or 1 )
@@ -1148,7 +1148,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1592} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1103} ) or 1 )
               && (
                 (
                   ( substr( $s, $pos, 1 ) eq '{' ) ? ( $pos += 1 or 1 )
@@ -1169,7 +1169,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1592} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1103} ) or 1 )
               && (
                 ( substr( $s, $pos ) =~ m/^([^\}])/s ) ? ( $pos += length($1) or 1 )
                 : 0
@@ -1179,7 +1179,7 @@
           && do {
             while (
               (
-                ( $pad{I1592} = $pos or 1 )
+                ( $pad{I1103} = $pos or 1 )
                 && (
                   (
                     (
@@ -1190,7 +1190,7 @@
                   )
                 )
                 || (
-                  ( ( $bool = 1 ) && ( $pos = $pad{I1592} ) or 1 )
+                  ( ( $bool = 1 ) && ( $pos = $pad{I1103} ) or 1 )
                   && (
                     (
                       ( substr( $s, $pos, 1 ) eq chr(39) ) ? ( $pos += 1 or 1 )
@@ -1211,7 +1211,7 @@
                   )
                 )
                 || (
-                  ( ( $bool = 1 ) && ( $pos = $pad{I1592} ) or 1 )
+                  ( ( $bool = 1 ) && ( $pos = $pad{I1103} ) or 1 )
                   && (
                     (
                       ( substr( $s, $pos, 1 ) eq '{' ) ? ( $pos += 1 or 1 )
@@ -1232,7 +1232,7 @@
                   )
                 )
                 || (
-                  ( ( $bool = 1 ) && ( $pos = $pad{I1592} ) or 1 )
+                  ( ( $bool = 1 ) && ( $pos = $pad{I1103} ) or 1 )
                   && (
                     ( substr( $s, $pos ) =~ m/^([^\}])/s ) ? ( $pos += length($1) or 1 )
                     : 0
@@ -1293,19 +1293,16 @@
             my $prior = $::_V6_PRIOR_;
             my $match = $grammar->string_code( $s, { p => $pos, args => {} }, undef );
             $::_V6_PRIOR_ = $prior;
-            if ($match) {
-              $named{'string_code'} = $match;
-              $pos = $match->to;
-              1;
-            }
-            else { 0 }
+            my $bool = ( !$match != 1 );
+            $pos = $match->to if $bool;
+            $match;
           }
           && do {
             $::_V6_MATCH_ = $m;
             local $::_V6_SUCCEED = 1;
             $m->data->{capture} = \(
               sub {
-                return ( '{' . $::_V6_MATCH_->{'string_code'}->() . '}' );
+                return ( '{' . $::_V6_MATCH_ . '}' );
                 }
                 ->()
             );
@@ -1358,7 +1355,7 @@
       {
         $bool = 0
           unless (
-          ( $pad{I1593} = $pos or 1 )
+          ( $pad{I1104} = $pos or 1 )
           && (
             (
               (
@@ -1389,7 +1386,7 @@
                   sub {
                     return (
                       {
-                        'capturing_group' => $::_V6_MATCH_->{'rule'}->()    # hash
+                        'capturing_group' => ${ $::_V6_MATCH_->{qw(rule)} }    # hash
                       }
                     );
                     }
@@ -1402,7 +1399,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1593} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1104} ) or 1 )
             && (
               (
                   ( substr( $s, $pos, 1 ) eq '[' )
@@ -1430,7 +1427,7 @@
                 local $::_V6_SUCCEED = 1;
                 $m->data->{capture} = \(
                   sub {
-                    return ( $::_V6_MATCH_->{'rule'}->() );
+                    return ( ${ $::_V6_MATCH_->{qw(rule)} } );
                     }
                     ->()
                 );
@@ -1441,7 +1438,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1593} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1104} ) or 1 )
             && (
               (
                   ( substr( $s, $pos, 1 ) eq '<' )
@@ -1469,7 +1466,7 @@
                 local $::_V6_SUCCEED = 1;
                 $m->data->{capture} = \(
                   sub {
-                    return ( $::_V6_MATCH_->{'metasyntax'}->() );
+                    return ( ${ $::_V6_MATCH_->{qw(metasyntax)} } );
                     }
                     ->()
                 );
@@ -1480,7 +1477,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1593} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1104} ) or 1 )
             && do {
               $::_V6_MATCH_ = $m;
               local $::_V6_SUCCEED = 1;
@@ -1561,7 +1558,7 @@
                 sub {
                   return (
                     {
-                      'match_variable' => '$' . $::_V6_MATCH_->{'ident'}->()    # hash
+                      'match_variable' => '$' . $::_V6_MATCH_->{qw(ident)}    # hash
                     }
                   );
                   }
@@ -1616,7 +1613,7 @@
         {
           $bool = 0
             unless (
-            ( $pad{I1594} = $pos or 1 )
+            ( $pad{I1105} = $pos or 1 )
             && (
               (
                 (
@@ -1637,7 +1634,7 @@
                     sub {
                       return (
                         {
-                          'match_variable' => '$' . $::_V6_MATCH_->()    # hash
+                          'match_variable' => '$' . $::_V6_MATCH_    # hash
                         }
                       );
                       }
@@ -1650,7 +1647,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1594} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1105} ) or 1 )
               && (
                 (
                   (
@@ -1661,7 +1658,7 @@
                 )
                 && (
                   (
-                    ( $pad{I1595} = $pos or 1 )
+                    ( $pad{I1106} = $pos or 1 )
                     && (
                       (
                         ( substr( $s, $pos ) =~ m/^([[:alnum:]])/s ) ? ( $pos += length($1) or 1 )
@@ -1669,14 +1666,14 @@
                       )
                     )
                     || (
-                      ( ( $bool = 1 ) && ( $pos = $pad{I1595} ) or 1 )
+                      ( ( $bool = 1 ) && ( $pos = $pad{I1106} ) or 1 )
                       && (
                         ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 )
                         : 0
                       )
                     )
                     || (
-                      ( ( $bool = 1 ) && ( $pos = $pad{I1595} ) or 1 )
+                      ( ( $bool = 1 ) && ( $pos = $pad{I1106} ) or 1 )
                       && (
                         (
                           ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 )
@@ -1690,7 +1687,7 @@
                     )
                   )
                   && do {
-                    while ( ( ( $pad{I1595} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/s ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1595} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1595} ) or 1 ) && ( ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) && ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) ) ) ) ) { }
+                    while ( ( ( $pad{I1106} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/s ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1106} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1106} ) or 1 ) && ( ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) && ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) ) ) ) ) { }
                     $bool = 1;
                   }
                 )
@@ -1701,7 +1698,7 @@
                     sub {
                       return (
                         {
-                          'variable' => '$' . $::_V6_MATCH_->()    # hash
+                          'variable' => '$' . $::_V6_MATCH_    # hash
                         }
                       );
                       }
@@ -1758,7 +1755,7 @@
         {
           $bool = 0
             unless (
-            ( $pad{I1596} = $pos or 1 )
+            ( $pad{I1107} = $pos or 1 )
             && (
               (
                 (
@@ -1779,7 +1776,7 @@
                     sub {
                       return (
                         {
-                          'match_variable' => '@' . $::_V6_MATCH_->()    # hash
+                          'match_variable' => '@' . $::_V6_MATCH_    # hash
                         }
                       );
                       }
@@ -1792,7 +1789,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1596} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1107} ) or 1 )
               && (
                 (
                   (
@@ -1803,7 +1800,7 @@
                 )
                 && (
                   (
-                    ( $pad{I1597} = $pos or 1 )
+                    ( $pad{I1108} = $pos or 1 )
                     && (
                       (
                         ( substr( $s, $pos ) =~ m/^([[:alnum:]])/s ) ? ( $pos += length($1) or 1 )
@@ -1811,14 +1808,14 @@
                       )
                     )
                     || (
-                      ( ( $bool = 1 ) && ( $pos = $pad{I1597} ) or 1 )
+                      ( ( $bool = 1 ) && ( $pos = $pad{I1108} ) or 1 )
                       && (
                         ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 )
                         : 0
                       )
                     )
                     || (
-                      ( ( $bool = 1 ) && ( $pos = $pad{I1597} ) or 1 )
+                      ( ( $bool = 1 ) && ( $pos = $pad{I1108} ) or 1 )
                       && (
                         (
                           ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 )
@@ -1832,7 +1829,7 @@
                     )
                   )
                   && do {
-                    while ( ( ( $pad{I1597} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/s ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1597} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1597} ) or 1 ) && ( ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) && ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) ) ) ) ) { }
+                    while ( ( ( $pad{I1108} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/s ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1108} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1108} ) or 1 ) && ( ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) && ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) ) ) ) ) { }
                     $bool = 1;
                   }
                 )
@@ -1843,7 +1840,7 @@
                     sub {
                       return (
                         {
-                          'variable' => '@' . $::_V6_MATCH_->()    # hash
+                          'variable' => '@' . $::_V6_MATCH_    # hash
                         }
                       );
                       }
@@ -1900,7 +1897,7 @@
         {
           $bool = 0
             unless (
-            ( $pad{I1598} = $pos or 1 )
+            ( $pad{I1109} = $pos or 1 )
             && (
               (
                 (
@@ -1921,7 +1918,7 @@
                     sub {
                       return (
                         {
-                          'match_variable' => '%' . $::_V6_MATCH_->()    # hash
+                          'match_variable' => '%' . $::_V6_MATCH_    # hash
                         }
                       );
                       }
@@ -1934,7 +1931,7 @@
               )
             )
             || (
-              ( ( $bool = 1 ) && ( $pos = $pad{I1598} ) or 1 )
+              ( ( $bool = 1 ) && ( $pos = $pad{I1109} ) or 1 )
               && (
                 (
                   (
@@ -1945,7 +1942,7 @@
                 )
                 && (
                   (
-                    ( $pad{I1599} = $pos or 1 )
+                    ( $pad{I1110} = $pos or 1 )
                     && (
                       (
                         ( substr( $s, $pos ) =~ m/^([[:alnum:]])/s ) ? ( $pos += length($1) or 1 )
@@ -1953,14 +1950,14 @@
                       )
                     )
                     || (
-                      ( ( $bool = 1 ) && ( $pos = $pad{I1599} ) or 1 )
+                      ( ( $bool = 1 ) && ( $pos = $pad{I1110} ) or 1 )
                       && (
                         ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 )
                         : 0
                       )
                     )
                     || (
-                      ( ( $bool = 1 ) && ( $pos = $pad{I1599} ) or 1 )
+                      ( ( $bool = 1 ) && ( $pos = $pad{I1110} ) or 1 )
                       && (
                         (
                           ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 )
@@ -1974,7 +1971,7 @@
                     )
                   )
                   && do {
-                    while ( ( ( $pad{I1599} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/s ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1599} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1599} ) or 1 ) && ( ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) && ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) ) ) ) ) { }
+                    while ( ( ( $pad{I1110} = $pos or 1 ) && ( ( ( substr( $s, $pos ) =~ m/^([[:alnum:]])/s ) ? ( $pos += length($1) or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1110} ) or 1 ) && ( ( substr( $s, $pos, 1 ) eq '_' ) ? ( $pos += 1 or 1 ) : 0 ) ) || ( ( ( $bool = 1 ) && ( $pos = $pad{I1110} ) or 1 ) && ( ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) && ( ( substr( $s, $pos, 1 ) eq ':' ) ? ( $pos += 1 or 1 ) : 0 ) ) ) ) ) { }
                     $bool = 1;
                   }
                 )
@@ -1985,7 +1982,7 @@
                     sub {
                       return (
                         {
-                          'variable' => '%' . $::_V6_MATCH_->()    # hash
+                          'variable' => '%' . $::_V6_MATCH_    # hash
                         }
                       );
                       }
@@ -2067,7 +2064,7 @@
                 sub {
                   return (
                     {
-                      'capturing_group' => $::_V6_MATCH_->{'rule'}->()    # hash
+                      'capturing_group' => ${ $::_V6_MATCH_->{qw(rule)} }    # hash
                     }
                   );
                   }
@@ -2145,7 +2142,7 @@
                 sub {
                   return (
                     {
-                      'capture_as_result' => $::_V6_MATCH_->{'rule'}->()    # hash
+                      'capture_as_result' => ${ $::_V6_MATCH_->{qw(rule)} }    # hash
                     }
                   );
                   }
@@ -2231,9 +2228,7 @@
                 sub {
                   return (
                     {
-                      'after' => {
-                        'rule' => $::_V6_MATCH_->{'rule'}->()    # hash
-                        }    # hash
+                      'after' => { 'rule' => ${ $::_V6_MATCH_->{qw(rule)} } }    # hash
                     }
                   );
                   }
@@ -2319,9 +2314,7 @@
                 sub {
                   return (
                     {
-                      'before' => {
-                        'rule' => $::_V6_MATCH_->{'rule'}->()    # hash
-                        }    # hash
+                      'before' => { 'rule' => ${ $::_V6_MATCH_->{qw(rule)} } }    # hash
                     }
                   );
                   }
@@ -2407,9 +2400,7 @@
                 sub {
                   return (
                     {
-                      'not_before' => {
-                        'rule' => $::_V6_MATCH_->{'rule'}->()    # hash
-                        }    # hash
+                      'not_before' => { 'rule' => ${ $::_V6_MATCH_->{qw(rule)} } }    # hash
                     }
                   );
                   }
@@ -2487,9 +2478,7 @@
                 sub {
                   return (
                     {
-                      'negate' => {
-                        'rule' => $::_V6_MATCH_->{'rule'}->()    # hash
-                        }    # hash
+                      'negate' => { 'rule' => ${ $::_V6_MATCH_->{qw(rule)} } }    # hash
                     }
                   );
                   }
@@ -2565,7 +2554,7 @@
               local $::_V6_SUCCEED = 1;
               $m->data->{capture} = \(
                 sub {
-                  return ( $::_V6_MATCH_->{'metasyntax'}->() );
+                  return ( ${ $::_V6_MATCH_->{qw(metasyntax)} } );
                   }
                   ->()
               );
@@ -2641,7 +2630,7 @@
                 sub {
                   return (
                     {
-                      'closure' => $::_V6_MATCH_->{'parsed_code'}->()    # hash
+                      'closure' => ${ $::_V6_MATCH_->{qw(parsed_code)} }    # hash
                     }
                   );
                   }
@@ -2704,7 +2693,7 @@
                 sub {
                   return (
                     {
-                      'special_char' => '\\' . $::_V6_MATCH_->()    # hash
+                      'special_char' => '\\' . $::_V6_MATCH_    # hash
                     }
                   );
                   }
@@ -2840,7 +2829,7 @@
               local $::_V6_SUCCEED = 1;
               $m->data->{capture} = \(
                 sub {
-                  return ( $::_V6_MATCH_->{'rule'}->() );
+                  return ( ${ $::_V6_MATCH_->{qw(rule)} } );
                   }
                   ->()
               );
@@ -4033,34 +4022,34 @@
       {
         $bool = 0
           unless (
-          ( $pad{I1600} = $pos or 1 )
+          ( $pad{I1111} = $pos or 1 )
           && (
             (
               do {
                 my $match = do {
-                  our $I1601;
-                  our $I1601_sizes;
-                  unless ($I1601) {
+                  our $I1112;
+                  our $I1112_sizes;
+                  unless ($I1112) {
                     my $hash = \%Pugs::Grammar::Rule::variables;
                     my %sizes = map { length($_) => 1 } keys %$hash;
-                    $I1601_sizes = [ sort { $b <=> $a } keys %sizes ];
-                    $I1601 = $hash;
+                    $I1112_sizes = [ sort { $b <=> $a } keys %sizes ];
+                    $I1112 = $hash;
                   }
                   my $match = 0;
                   my $key;
-                  for (@$I1601_sizes) {
+                  for (@$I1112_sizes) {
                     $key = (
                       $pos <= length($s)
                       ? substr( $s, $pos, $_ )
                       : ''
                     );
-                    if ( exists $I1601->{$key} ) {
+                    if ( exists $I1112->{$key} ) {
 
                       #$named{KEY} = $key;
                       #$::_V6_MATCH_ = $m;
                       #print "m: ", Dumper( $::_V6_MATCH_->data )
                       #    if ( $key eq 'until' );
-                      $match = Pugs::Runtime::Regex::preprocess_hash( $I1601, $key )->( $s, $grammar, { p => ( $pos + $_ ), args => { KEY => $key } }, undef );
+                      $match = Pugs::Runtime::Regex::preprocess_hash( $I1112, $key )->( $s, $grammar, { p => ( $pos + $_ ), args => { KEY => $key } }, undef );
                       last if $match;
                     }
                   }
@@ -4081,7 +4070,7 @@
                 else { 0 }
               }
               && (
-                ( $pad{I1602} = $pos or 1 )
+                ( $pad{I1113} = $pos or 1 )
                 && (
                   (
                     (
@@ -4130,8 +4119,8 @@
                           return (
                             {
                               'named_capture' => {
-                                'rule'  => $::_V6_MATCH_->{'named_capture_body'}->(),
-                                'ident' => $::_V6_MATCH_->{'Pugs::Grammar::Rule::variables'}->()    # hash
+                                'rule'  => ${ $::_V6_MATCH_->{qw(named_capture_body)} },
+                                'ident' => ${ $::_V6_MATCH_->{qw(Pugs::Grammar::Rule::variables)} }    # hash
                                 }    # hash
                             }
                           );
@@ -4145,13 +4134,13 @@
                   )
                 )
                 || (
-                  ( ( $bool = 1 ) && ( $pos = $pad{I1602} ) or 1 )
+                  ( ( $bool = 1 ) && ( $pos = $pad{I1113} ) or 1 )
                   && do {
                     $::_V6_MATCH_ = $m;
                     local $::_V6_SUCCEED = 1;
                     $m->data->{capture} = \(
                       sub {
-                        return ( $::_V6_MATCH_->{'Pugs::Grammar::Rule::variables'}->() );
+                        return ( ${ $::_V6_MATCH_->{qw(Pugs::Grammar::Rule::variables)} } );
                         }
                         ->()
                     );
@@ -4164,33 +4153,33 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1600} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1111} ) or 1 )
             && (
               do {
                 my $match = do {
-                  our $I1603;
-                  our $I1603_sizes;
-                  unless ($I1603) {
+                  our $I1114;
+                  our $I1114_sizes;
+                  unless ($I1114) {
                     my $hash = \%Pugs::Grammar::Rule::rule_terms;
                     my %sizes = map { length($_) => 1 } keys %$hash;
-                    $I1603_sizes = [ sort { $b <=> $a } keys %sizes ];
-                    $I1603 = $hash;
+                    $I1114_sizes = [ sort { $b <=> $a } keys %sizes ];
+                    $I1114 = $hash;
                   }
                   my $match = 0;
                   my $key;
-                  for (@$I1603_sizes) {
+                  for (@$I1114_sizes) {
                     $key = (
                       $pos <= length($s)
                       ? substr( $s, $pos, $_ )
                       : ''
                     );
-                    if ( exists $I1603->{$key} ) {
+                    if ( exists $I1114->{$key} ) {
 
                       #$named{KEY} = $key;
                       #$::_V6_MATCH_ = $m;
                       #print "m: ", Dumper( $::_V6_MATCH_->data )
                       #    if ( $key eq 'until' );
-                      $match = Pugs::Runtime::Regex::preprocess_hash( $I1603, $key )->( $s, $grammar, { p => ( $pos + $_ ), args => { KEY => $key } }, undef );
+                      $match = Pugs::Runtime::Regex::preprocess_hash( $I1114, $key )->( $s, $grammar, { p => ( $pos + $_ ), args => { KEY => $key } }, undef );
                       last if $match;
                     }
                   }
@@ -4215,7 +4204,7 @@
                 local $::_V6_SUCCEED = 1;
                 $m->data->{capture} = \(
                   sub {
-                    return ( $::_V6_MATCH_->{'Pugs::Grammar::Rule::rule_terms'}->() );
+                    return ( ${ $::_V6_MATCH_->{qw(Pugs::Grammar::Rule::rule_terms)} } );
                     }
                     ->()
                 );
@@ -4226,7 +4215,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1600} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1111} ) or 1 )
             && (
               (
                   ( substr( $s, $pos ) =~ m/^([^\]\}\)\>\:\?\+\*\|\&])/s )
@@ -4240,7 +4229,7 @@
                   sub {
                     return (
                       {
-                        'constant' => $::_V6_MATCH_->()    # hash
+                        'constant' => ${$::_V6_MATCH_}    # hash
                       }
                     );
                     }
@@ -4297,7 +4286,7 @@
       {
         $bool = 0
           unless (
-          ( $pad{I1604} = $pos or 1 )
+          ( $pad{I1115} = $pos or 1 )
           && (
             (
               (
@@ -4344,7 +4333,7 @@
                   sub {
                     return (
                       {
-                        'closure' => $::_V6_MATCH_->{'parsed_code'}->()    # hash
+                        'closure' => ${ $::_V6_MATCH_->{qw(parsed_code)} }    # hash
                       }
                     );
                     }
@@ -4357,7 +4346,7 @@
             )
           )
           || (
-            ( ( $bool = 1 ) && ( $pos = $pad{I1604} ) or 1 )
+            ( ( $bool = 1 ) && ( $pos = $pad{I1115} ) or 1 )
             && (
               (
                   ( substr( $s, $pos ) =~ m/^([\?\*\+])/s )
@@ -4620,12 +4609,12 @@
                 return (
                   {
                     'quant' => {
-                      'term'   => $::_V6_MATCH_->{'term'}->(),
-                      'quant'  => $::_V6_MATCH_->{'quant'}->(),
-                      'greedy' => $::_V6_MATCH_->{'greedy'}->(),
-                      'ws1'    => $::_V6_MATCH_->{'ws1'}->(),
-                      'ws2'    => $::_V6_MATCH_->{'ws2'}->(),
-                      'ws3'    => $::_V6_MATCH_->{'ws3'}->()       # hash
+                      'term'   => ${ $::_V6_MATCH_->{'term'} },
+                      'quant'  => ${ $::_V6_MATCH_->{'quant'} },
+                      'greedy' => ${ $::_V6_MATCH_->{'greedy'} },
+                      'ws1'    => ${ $::_V6_MATCH_->{'ws1'} },
+                      'ws2'    => ${ $::_V6_MATCH_->{'ws2'} },
+                      'ws3'    => ${ $::_V6_MATCH_->{'ws3'} }       # hash
                       }    # hash
                   }
                 );
@@ -4798,7 +4787,7 @@
             my $match = $grammar->concat( $s, { p => $pos, args => {} }, undef );
             $::_V6_PRIOR_ = $prior;
             if ($match) {
-              push @{ $named{'concat'} }, $match;
+                    push @{ $named{'concat'} }, $match;
               $pos = $match->to;
               1;
             }
@@ -4834,7 +4823,7 @@
             local $::_V6_SUCCEED = 1;
             $m->data->{capture} = \(
               sub {
-                my @a = map { $_->() } @{ $::_V6_MATCH_->{'concat'} };
+                my @a = map { $$_ } @{ $::_V6_MATCH_->{'concat'} };
                 return { alt => \@a, } if scalar @a > 1;
                 return $a[0];
                 }
