@@ -11,7 +11,7 @@ package Pugs::Emitter::Perl6::Perl5::Value;
 package Pugs::Emitter::Perl6::Perl5::Bool;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
     use overload (
-        '""'     => sub { $_[0]->{name} },
+        '""'     => sub { $_[0]->{name} ? '1' : '0' },
         fallback => 1,
     );
     sub WHAT { 
@@ -87,8 +87,7 @@ package Pugs::Emitter::Perl6::Perl5::Int;
         $_[0]->str
     }
     sub _61__61_ {  # ==
-        Pugs::Emitter::Perl6::Perl5::BoolExpression->new( 
-            { name => $_[0] . " == " . $_[1]->num } );
+        $_[0]->num->_61__61_( $_[1] );
     }
 package Pugs::Emitter::Perl6::Perl5::Num;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
@@ -104,6 +103,14 @@ package Pugs::Emitter::Perl6::Perl5::Num;
     }
     sub perl {
         $_[0]->str
+    }
+    sub _61__61_ {  # ==
+        my $tmp = $_[1]->num;
+        return Pugs::Emitter::Perl6::Perl5::Bool->new( 
+            { name => ( $_[0] == $tmp ) } )
+            if ref( $tmp ) eq 'Pugs::Emitter::Perl6::Perl5::Num';
+        return Pugs::Emitter::Perl6::Perl5::BoolExpression->new( 
+            { name => $_[0] . " == " . $tmp } );
     }
 package Pugs::Emitter::Perl6::Perl5::Code;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
