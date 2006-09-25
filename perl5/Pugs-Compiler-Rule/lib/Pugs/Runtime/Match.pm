@@ -84,7 +84,7 @@ sub flat {
 }
 
 sub str {
-    $_[0]->flat;
+    "" . $_[0]->flat;
 }
 
 sub perl {
@@ -178,25 +178,53 @@ Pugs::Runtime::Match - Match object created by rules
 
 * array
 
+- return the positional matches
+
 * hash
+
+- return both the named and positional (numbered) matches
 
 * str
 
-* data
+- return the stringified capture object. 
+If there is no capture, return the matched substring
 
-- return the internal representation
+* scalar
+
+- return the capture object
+If there is no capture, return the matched substring
 
 * bool
 
+- return whether there was a match
+
 * from
 
+- return the string position where the match started
+
 * to
+
+- return the string position immediately after where the match finished
+
+=head1 "Hash" methods
+
+* elems
+
+* kv
+
+* keys
+
+* values
+
+=head1 "Str" methods
+
+* chars
 
 =head1 OVERLOADS
 
 * $match->()
 
-- return the capture
+- return the capture object
 
 * $match->[$n]
 
@@ -210,9 +238,28 @@ Pugs::Runtime::Match - Match object created by rules
 
 - return whether there was a match
 
+=head1 Dumper methods
+
+* data
+
+- return the internal representation as a data structure.
+
+* perl
+
+- return the internal representation as Perl source code. 
+
+* yaml
+
+- return the internal representation as YAML. 
+Requires the C<YAML::Syck> module.
+
+* dump_hs
+
+- for Pugs interoperability
+
 =head1 SEE ALSO
 
-Pugs::Runtime::Match
+C<v6> on CPAN
 
 =head1 AUTHORS
 

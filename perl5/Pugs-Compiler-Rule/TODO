@@ -1,5 +1,7 @@
 TODO for Pugs::Compiler::Rule (PCR)
 
+- integrate pure-regex into the main compiler
+
 - fix static count for repeated captures: 
   { <x> <x>+ }  -- the first capture is not captured to array
 
@@ -8,9 +10,6 @@ TODO for Pugs::Compiler::Rule (PCR)
 
 - add 'negate' node to Regex
 - add tests for 'negate'
-
-- document new Match methods: data, str, perl, capture, state
-
 - finish remaining metasyntax in <!...> Grammar
 
 - static signature for '$^a' 
@@ -70,17 +69,11 @@ Bugs:
 
 - $variable should look into the user pad
 
-- in Pugs::Emitter::Rule::Perl5.pm
- * <[^a]> should be [\^a]
- * fix <[!)]>
-
 Categories (some things belong to P::C::Perl6) :
 
 - see "Syntactic categories" in S05 (extensibility)
 
 - finish documenting add_op( %options )
-
-- return AST
 
 - memoize/recompile dynamically
 
@@ -104,11 +97,7 @@ Tests:
 
 Related projects:
 
-- implement (optional?) PCR in pugs
 - implement PCR using pugs
-
-- use PCR in lrep
-  - merge the 'dual engine' in PCR (used by the lrep-compiled grammar)
 
 - implement Pugs::Compiler::PILN ?
   - not a priority - p5 could load ready-made YAML from Pugs
@@ -116,8 +105,6 @@ Related projects:
 Other:
 
 - see 'not implemented' messages in Pugs::Emitter::Rule::Perl5
-
-- migrate Pugs::Grammar::Rule::Rule compilation to PCR
 
 - closures should be called on the Match object
 
@@ -129,10 +116,7 @@ Other:
 
 - More switches (:p, :ratchet, :sigspace are implemented)
 
-- 'Pugs::Grammar::Rule' - old p5 code... -- 'use' in P:G:R
-
 - optimization: inline code in the non-ratchet Engine; 
-- "pre-generate" engine output?
 - see "benchmark.pl"
 
 - cached precompiled variable rules, per S05
@@ -154,11 +138,8 @@ TODO for Pugs-Compiler-Precedence
 
 - add is-parsed to the appropriate category in op-precedence and tokenizer
 
-- The P::Yapp 'expect' state can be verified inside
-    %{$self->{STATES}[$self->{STACK}[-1][0]]{ACTIONS}}
 
-
-= Implemented Features
+= Implemented Features  -- update this!
 
   <ws> 
   #comment\n 
@@ -198,9 +179,14 @@ TODO for Pugs-Compiler-Precedence
   $^a $^b            -- positional parameters (must start with $^a)
   ^ $
   :
+  $/ $()  - global match variables 
+  $var := [non-capture]
+  $var := <rule>
 
 = Unimplemented or untested features
 
+  @var := [non-capture]
+  @var := <rule>
   $variable 
   @variable
   $/<0> $/<1>
@@ -212,12 +198,9 @@ TODO for Pugs-Compiler-Precedence
   <%var>
   **{n..m}
   :: :::   (commit)
-  $var := [non-capture]
-  $var := <rule>
-  <(closure-assertion)> <{code-returns-rule}>
+  <(return-object)> <{code-returns-rule}>
   <<character-class>> <[character-class]>
   :flag :flag() :flag[]
   \x0a \o123 ...
   &    
   $1      - lvalue match variables
-  $/ $()  - global match variables 
