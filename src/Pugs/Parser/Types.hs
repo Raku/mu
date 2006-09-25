@@ -222,7 +222,7 @@ addBlockPad scope pad = do
     state <- get
     let dupSyms = padKeys pad `Set.intersection` s_outerVars state
     unless (Set.null dupSyms) $ do
-        unexpected $ "redeclaration of "
+        fail $ "Redeclaration of "
             ++ unwords (map show (Set.elems dupSyms))
             ++ " conflicts with earlier OUTER references in the same scope"
     put state{ s_blockPads = Map.insertWith unionPads scope pad (s_blockPads state) }
