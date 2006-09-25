@@ -562,7 +562,7 @@ magicalMap = Map.fromList
     , (cast "$?LINE"     , posSym posBeginLine)
     , (cast "$?COLUMN"   , posSym posBeginColumn)
     , (cast "$?POSITION" , posSym pretty)
-    , (cast "$?MODULE"   , constSym "main")
+    , (cast "$?MODULE"   , constSym "Main")
     , (cast "$?OS"       , constSym (getConfig "osname"))
     , (cast "$?CLASS"    , fmap (Just . VType . cast) (asks envPackage))
     , (cast ":?CLASS"    , fmap (Just . VType . cast) (asks envPackage))

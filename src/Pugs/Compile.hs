@@ -99,7 +99,7 @@ instance Compile Pad [PIL_Decl] where
                 bodyC   = PStmts (PStmt . PExp $ assignC) PNil
                 initL   = "__init_" ++ (render $ varText name)
                 name' | ':' `elem` name = name
-                      | otherwise = "main::" ++ name -- XXX wrong
+                      | otherwise = "Main::" ++ name -- XXX wrong
             return [PSub initL SubPrim [] False False bodyC]
         canCompile _ = return []
         doCode name vsub = case subBody vsub of

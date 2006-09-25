@@ -157,7 +157,7 @@ instance Translate PIL_Decl Decl where
                     _    -> trans body >> lastPMC
                 tellIns $ "set_returns" .- retSigList [bodyC]
                 tellIns $ "returncc" .- []
-        return (DeclSub name [SubOUTER "main"] stmts)
+        return (DeclSub name [SubOUTER "MAIN"] stmts)
 
 instance Translate PIL_Literal Expression where
     trans (PVal (VBool bool)) = return $ ExpLit (LitInt (toInteger $ fromEnum bool))
@@ -382,7 +382,7 @@ genPIR = genPIRWith $ \globPIR mainPIR penv -> do
         [ "#!/usr/bin/env parrot"
         , renderStyle (Style PageMode 0 0) $ preludePIR $+$ vcat
         -- Namespaces have bugs in both pugs and parrot.
-        [ emit $ DeclNS "main"
+        [ emit $ DeclNS "Main"
         [ DeclSub "init" [SubMAIN, SubANON] $ map StmtIns (
             -- Eventually, we'll have to write our own find_name wrapper (or
             -- fix Parrot's find_name appropriately). See Pugs.Eval.Var.
@@ -420,12 +420,12 @@ genPIR = genPIRWith $ \globPIR mainPIR penv -> do
             , InsNew tempPMC PerlScalar
             , "store_global"    .- [lit "$_", tempPMC]
             ]) ++ [ StmtRaw (text (name ++ "()")) | PSub name@('_':'_':_) _ _ _ _ _ <- pilGlob penv ] ++
-            [ StmtRaw (text "main()")
+            [ StmtRaw (text "MAIN()")
             , StmtIns $ tempPMC  <-- "find_global" $ [lit "Perl6::Internals", lit "&exit"]
             , StmtIns $ "set_args" .- sigList [MkSig [] lit0]
             , StmtIns $ "invokecc" .- [tempPMC]
             ]
-        , DeclSub "main" [SubANON] mainPIR ]
+        , DeclSub "MAIN" [SubANON] mainPIR ]
         , emit globPIR ] ]
 
 genPIRWith :: ([Decl] -> [Stmt] -> PIL_Environment -> Eval a) -> Eval a
