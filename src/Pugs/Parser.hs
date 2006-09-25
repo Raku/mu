@@ -18,13 +18,13 @@ module Pugs.Parser (
     module Pugs.Parser.Operator,
 
     -- Circularity: Used in Pugs.Parser.Operator
-    parseTerm, parseNoParenParamList, ruleSubName,
+    parseTerm, parseNoParenParamList, ruleSubName, ruleSigil,
 
     -- Circularity: Used in Pugs.Parser.Literal
     ruleExpression,
     ruleArraySubscript, ruleHashSubscript, ruleCodeSubscript,
     ruleInvocationParens, verbatimVarNameString, ruleVerbatimBlock,
-    ruleBlockLiteral, ruleDoBlock, regularVarName, ruleNamedMethodCall,
+    ruleBlockLiteral, ruleDoBlock, regularVarName, regularVarNameForSigil, ruleNamedMethodCall,
 ) where
 import Pugs.Internals
 import Pugs.AST
@@ -1653,8 +1653,8 @@ ruleApply :: Bool -- ^ @True@ if we are parsing for the reduce-metaop
           -> RuleParser Exp
 ruleApply isFolded = tryVerbatimRule "apply" $ 
     if isFolded
-        then ruleApplySub isFolded
-        else ruleApplyImplicitMethod <|> ruleApplySub isFolded
+        then ruleApplySub True
+        else ruleApplyImplicitMethod <|> ruleApplySub False
 
 ruleApplyImplicitMethod :: RuleParser Exp
 ruleApplyImplicitMethod = do
@@ -1844,7 +1844,7 @@ parseNoParenParamList = do
 ruleParamName :: RuleParser String
 ruleParamName = literalRule "parameter name" $ do
     -- Valid param names: $foo, @bar, &baz, %grtz, ::baka
-    sigil   <- choice [ oneOf "$@%&" >>= return . (:""), string "::" ]
+    sigil   <- choice [ fmap show ruleSigil, string "::" ]
     if sigil == "&"
         then ruleSubNamePossiblyWithTwigil
         else do twigil <- ruleTwigil
@@ -1868,8 +1868,8 @@ verbatimVarNameString = (<?> "variable name") $ choice
     ]
 
 ruleSigil :: RuleParser VarSigil
-ruleSigil = fmap cast (oneOf "$@%&")
-    
+ruleSigil = fmap cast (oneOf "|$@%&")
+
 regularVarName :: RuleParser String
 regularVarName = do
     sigil   <- ruleSigil
@@ -1887,18 +1887,18 @@ regularVarNameForSigil SCode = ruleSubNamePossiblyWithTwigil
 regularVarNameForSigil sigil = do
     twi <- ruleTwigil
     idt <- ruleQualifiedIdentifier
-    return $ show sigil ++ twi ++ idt
+    return $ shows sigil (twi ++ idt)
 
 ruleDereference :: RuleParser Exp
 ruleDereference = try $ do
-    sigil   <- oneOf "$@%&|"
+    sigil   <- ruleSigil
     exp     <- ruleDereference <|> ruleSigiledVar <|> verbatimParens ruleExpression
-    return $ Syn (sigil:"{}") [exp]
+    return $ Syn (shows sigil "{}") [exp]
 
 ruleSigiledVar :: RuleParser Exp
-ruleSigiledVar = (<|> ruleSymbolicDeref) . try $ do
+ruleSigiledVar = try . (<|> ruleSymbolicDeref) $ do
     name <- verbatimVarNameString
-    let (sigil, rest) = span (`elem` "$@%&:") name
+    let (sigil, rest) = span isSigilChar name
     case rest of
         [] -> return (makeVar name)
         _ | any (not . isWordAny) rest -> return (makeVar name)
@@ -1927,7 +1927,7 @@ ruleVar = ruleSigiledVar
 
 ruleSymbolicDeref :: RuleParser Exp
 ruleSymbolicDeref = do
-    sigil    <- oneOf "$@%&"
+    sigil    <- ruleSigil
     nameExps <- many1 $ try $ do
         string "::"
         -- nameExp is the expression which will yield the varname.
@@ -1939,5 +1939,5 @@ ruleSymbolicDeref = do
                 [ string "!"  --  $!
                 , string "/"  --  $/
                 , fmap concat $ sequence [ruleTwigil, many1 wordAny] ])
-    return $ Syn (sigil:"::()") nameExps
+    return $ Syn (shows sigil "::()") nameExps
 

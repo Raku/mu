@@ -265,7 +265,7 @@ data VarCateg
     | C_term
     deriving (Show, Enum, Eq, Ord, Typeable, Data, Read)
 
-data VarSigil = SScalar | SArray | SHash | SType | SCode | SRegex | SCodeMulti | SArrayMulti
+data VarSigil = SScalar | SArray | SHash | SType | SCode | SCapture | SRegex | SCodeMulti | SArrayMulti
     deriving (Enum, Eq, Ord, Typeable, Data)
 
 data VarTwigil = TNil | TAttribute | TPrivate | TImplicit | TMagical | TDoc
@@ -279,6 +279,7 @@ isSigilChar '%' = True
 isSigilChar '&' = True
 isSigilChar '<' = True -- XXX wrong
 isSigilChar ':' = True
+isSigilChar '|' = True
 isSigilChar _   = False
 
 instance Show VarSigil where
@@ -288,6 +289,7 @@ instance Show VarSigil where
         SHash       -> ('%':)
         SCode       -> ('&':)
         SRegex      -> ('<':)
+        SCapture    -> ('|':)
         SType       -> \x -> (':':':':x)
         SCodeMulti  -> \x -> ('&':'&':x)
         SArrayMulti -> \x -> ('@':'@':x)
@@ -315,6 +317,7 @@ instance ((:>:) VarSigil) Char where
     cast '&'    = SCode
     cast '<'    = SRegex
     cast ':'    = SType
+    cast '|'    = SCapture
     cast x      = internalError $ "Invalid sigil " ++ show x
 
 instance ((:>:) VarSigil) ByteString where
@@ -800,8 +803,7 @@ rawTree = fmap cast $! Node "Object"
                         , Node "Macro" [] ]
                     , Node "Block" []
                     ]
-                , Node "Rul" []
-                , Node "Pugs::Internals::VRule" []
+                , Node "Regex" []
                 , Node "Signature" []
                 , Node "Capture"
                     [ Node "Match" []

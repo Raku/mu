@@ -692,8 +692,19 @@ parseExpWithCachedParser f = do
         MkDynParsersEmpty   -> refillCache state f
         p                   -> f p
 
+
+ruleHyperPost :: RuleParser String
+ruleHyperPost = ((char '\171' >> return "<<") <|> (string "<<"))
+
+ruleSigilHyper :: RuleParser String
+ruleSigilHyper = verbatimRule "" $ try $ do
+    sig <- ruleSigil
+    ruleHyperPost
+    return $ "&prefix:" ++ shows sig "<<"
+
+-- XXX - the ruleSigilHyper below should be more generic and put all +<< etc to listop level
 ruleFoldOp :: RuleParser String
-ruleFoldOp = verbatimRule "reduce metaoperator" $ try $ do
+ruleFoldOp = (<|> ruleSigilHyper) $ verbatimRule "reduce metaoperator" $ try $ do
     char '['
     keep <- option "" $ string "\\"
     -- XXX - Instead of a lookup, add a cached parseInfix here!
@@ -703,7 +714,7 @@ ruleFoldOp = verbatimRule "reduce metaoperator" $ try $ do
         choice $ ops (try . string)
             (addHyperInfix (Map.keysSet infixOps `Set.union` defaultInfixOps))
     char ']'
-    possiblyHyper <- option "" ((char '\171' >> return "<<") <|> (string "<<"))
+    possiblyHyper <- option "" ruleHyperPost
     return $ "&prefix:[" ++ keep ++ name ++ "]" ++ possiblyHyper
     where
     -- XXX !~~ needs to turn into metaop plus ~~

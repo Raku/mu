@@ -965,6 +965,8 @@ reduceApp (Var var) invs args
                 return $ VV $ val $ CaptMeth{ c_invocant = vv, c_feeds = feeds }
             Nothing -> do
                 return $ VV $ val $ CaptSub{ c_feeds = feeds }
+    | var == cast "&prefix:|<<" = do -- XXX this is wrong as well - should handle at args level
+        reduceSyn "," $ maybeToList invs ++ args 
     | SCodeMulti <- v_sigil var = do
         doCall var{ v_sigil = SCode } invs args
     | SCode <- v_sigil var, Nothing <- invs, [inv] <- args = case inv of

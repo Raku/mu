@@ -589,6 +589,10 @@ op1 "Thread::yield" = const $ do
 op1 "DESTROYALL" = \x -> cascadeMethod id "DESTROY" x VUndef
 -- [,] is a noop -- It simply returns the input list
 op1 "prefix:[,]" = return
+op1 "prefix:$<<" = op1SigilHyper SScalar
+op1 "prefix:@<<" = op1SigilHyper SArray
+op1 "prefix:%<<" = op1SigilHyper SHash
+op1 "prefix:&<<" = op1SigilHyper SCode
 op1 "Code::assoc" = op1CodeAssoc
 op1 "Code::name"  = op1CodeName
 op1 "Code::arity" = op1CodeArity
@@ -676,6 +680,11 @@ op1IO :: Value a => (Handle -> IO a) -> Val -> Eval Val
 op1IO = \fun v -> do
     val <- fromVal v
     fmap castV (guardIO $ fun val)
+
+op1SigilHyper :: VarSigil -> Val -> Eval Val
+op1SigilHyper sig val = do
+    vs <- fromVal val
+    evalExp $ Syn "," (map (\x -> Syn (shows sig "{}") [Val x]) vs)
 
 returnList :: [Val] -> Eval Val
 returnList = return . VList
@@ -1877,13 +1886,13 @@ initSyms = mapM primDecl syms
 \\n   Str       pre     readlink unsafe (Str)\
 \\n   List      pre     Str::split   safe   (Str)\
 \\n   List      pre     Str::split   safe   (Str: Str)\
-\\n   List      pre     Str::split   safe   (Str: Pugs::Internals::VRule)\
+\\n   List      pre     Str::split   safe   (Str: Regex)\
 \\n   List      pre     Str::split   safe   (Str: Str, Int)\
-\\n   List      pre     Str::split   safe   (Str: Pugs::Internals::VRule, Int)\
+\\n   List      pre     Str::split   safe   (Str: Regex, Int)\
 \\n   List      pre     split   safe   (Str, Str)\
 \\n   List      pre     split   safe   (Str, Str, Int)\
-\\n   List      pre     split   safe   (Pugs::Internals::VRule, Str)\
-\\n   List      pre     split   safe   (Pugs::Internals::VRule, Str, Int)\
+\\n   List      pre     split   safe   (Regex, Str)\
+\\n   List      pre     split   safe   (Regex, Str, Int)\
 \\n   Str       spre    =       safe   (Any)\
 \\n   List      spre    =       safe   (Any)\
 \\n   Junction  list    |       safe   (Any|Junction|Pair)\
@@ -1993,6 +2002,10 @@ initSyms = mapM primDecl syms
 \\n   Bool      pre     True  safe,macro   ()\
 \\n   Bool      pre     False safe,macro   ()\
 \\n   List      spre    prefix:[,]  safe   (List)\
+\\n   List      spre    prefix:@<<    safe   (List)\
+\\n   List      spre    prefix:$<<    safe   (List)\
+\\n   List      spre    prefix:&<<    safe   (List)\
+\\n   List      spre    prefix:%<<    safe   (List)\
 \\n   Str       pre     Code::name    safe   (Code:)\
 \\n   Int       pre     Code::arity   safe   (Code:)\
 \\n   Str       pre     Code::assoc   safe   (Code:)\
@@ -2006,8 +2019,8 @@ initSyms = mapM primDecl syms
 \\n   Bool      pre     IO::Dir::closedir   unsafe (IO::Dir)\
 \\n   Bool      pre     IO::Dir::rewinddir  unsafe (IO::Dir)\
 \\n   Any       pre     Pugs::Internals::reduceVar  unsafe (Str)\
-\\n   Str       pre     Pugs::Internals::rule_pattern safe (Pugs::Internals::VRule)\
-\\n   Hash      pre     Pugs::Internals::rule_adverbs safe (Pugs::Internals::VRule)\
+\\n   Str       pre     Pugs::Internals::rule_pattern safe (Regex)\
+\\n   Hash      pre     Pugs::Internals::rule_adverbs safe (Regex)\
 \\n   Int       pre     Pugs::Internals::install_pragma_value safe (Str, Int)\
 \\n   Bool      pre     Pugs::Internals::current_pragma_value safe (Str)\
 \\n   Bool      pre     Pugs::Internals::caller_pragma_value safe (Str)\

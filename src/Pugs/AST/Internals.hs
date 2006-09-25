@@ -737,7 +737,7 @@ valType (VSocket  _)    = mkType "Socket"
 valType (VThread  _)    = mkType "Thread"
 valType (VProcess _)    = mkType "Process"
 valType (VControl _)    = mkType "Control"
-valType (VRule    _)    = mkType "Pugs::Internals::VRule"
+valType (VRule    _)    = mkType "Regex"
 valType (VSubst   _)    = mkType "Subst"
 valType (VMatch   _)    = mkType "Match"
 valType (VType    t)    = t
@@ -1504,8 +1504,8 @@ newObject typ = case showType typ of
         key <- newObject (mkType "Scalar")
         val <- newObject (mkType "Scalar")
         return $ MkRef (IPair (VRef key, VRef val))
-    "Pugs::Internals::VRule"
-                -> liftSTM $ fmap scalarRef $ newTVar undef
+    "Regex"     -> liftSTM $ fmap scalarRef $ newTVar undef -- XXX Wrong
+    "Capture"   -> liftSTM $ fmap scalarRef $ newTVar undef -- XXX Wrong
     _           -> fail ("Cannot create object: " ++ showType typ)
 
 doPair :: Val -> (forall a. PairClass a => a -> b) -> Eval b
