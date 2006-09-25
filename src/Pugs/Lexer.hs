@@ -357,7 +357,7 @@ tryRule :: String -> RuleParser a -> RuleParser a
 tryRule name = (<?> name) . lexeme . try
 
 tryVerbatimRule :: String -> RuleParser a -> RuleParser a
-tryVerbatimRule name = (<?> name)
+tryVerbatimRule name = (<?> name) . try
 
 ruleScope :: RuleParser Scope
 ruleScope = rule "scope" $ do
