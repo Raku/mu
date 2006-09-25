@@ -51,7 +51,7 @@ XXX fglock: please write more here.
 
 XXX Sage: please write something here.
 
-==  Documentations
+==  Documentation
 
 * added util/smartlinks.pl which implements the new generation of
   smartlinks used in the test suite. it generetes much nicer
@@ -66,6 +66,7 @@ XXX Sage: please write something here.
 * say() was officially added to the spec
 * Converted Test.pm docs from kwid to POD as there are more tools
   and familiarity with POD now.
+* Pugs::Doc::Hack::Style - Haskell style guide for Pugs hackers
 
 == Examples and the Test Suite
 
@@ -79,6 +80,7 @@ XXX Sage: please write something here.
   You can use this to run only a portion of the test suite or even a single
   file. Contrast with the general `prove` utility, `prove6` supports
   multiple Pugs backends and multiple Perl 6 implementations.
+* Speed up the test suite by compiling Test.pm
 * Updated all tests and examples plus in some docs and other files to
   remove the `#/usr/bin/pugs` shebangs and variants thereof.
 * Replaced all "use v6-pugs;" and "use v6;" with "use v6-alpha;" in mostly
@@ -105,6 +107,9 @@ XXX Sage: please write something here.
   parrot/PGE to do rules any more.
 * Integrated the Judy library into the Haskell runtime, resulting in
   ~10% performace improvement.
+* Begin integration of new AST into Pugs. This AST is planned to be shared
+  with other implementations, so macros are portable even if they don't
+  operate on the source level.
 * $obj.*$meth() is now implemented, calling zero or more methods named $meth
 in the inheritence tree, returning an unconcatenated list of return values.
 The return value of this is not yet spec'ed. Currently only lookups through
@@ -126,6 +131,10 @@ more information about related features.
 * Added support for the `each` builtin, so now you can write
     for each(@a; @b) -> $x, $y { ... }
 * Implemented postfix "given"
+* New Prims: `Pugs::Safe::safe_getc` and `Pugs::Safe::safe_readline`,
+  allowing evalservers to interface an interactive Pugs
+* New `Perl6::Internals::emit_yaml` prim to dump AST programmatically
+  as YAML
 * Added Math::Basic::pi per S29
 * Added *pi(), for backwards compatibility. (This is non-spec.)
 * Renamed .as to .fmt according the recent changes of the Synopses.
@@ -152,6 +161,8 @@ more information about related features.
 * "role A does A" is not allowed anymore.
 * Added support for the `quotemeta` builtin.
 * Initial support for Capture and Signature objects.
+** :( $inv : $required, $optional is copy = 42, :lab($rador) is lazy )
+*** Partially pretty-printable; introspection API for next release.
 ** Support for:
     my T ($x, $y, $z)
    to distribute as:
@@ -159,11 +170,7 @@ more information about related features.
 ** Also, "my T $x" now re-assigns T into $x upon closure reentry.
    Note that this is not strictly correct for "state T $x", but
    let's do it this way for now.
-** Handle named parameters in Signatures.
-    :( :$justify )                # which is shorthand for...
-    :( :justify($justify) )       # but you can also say
-    :( :justify($justification) ) # the long name is used inside body;
-                                  # the short name by callers
+
 XXX audreyt and gaal?
 
 == Bug Fixes
