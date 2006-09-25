@@ -16,8 +16,9 @@ our %hash;
     { grammar => __PACKAGE__ }
 )->code;
 
-*perl5source = Pugs::Compiler::Regex->compile( q(
-    (.*?) [ ; | <?ws> ] use <?ws> v6 (.)*? ; 
+*perl5source = Pugs::Compiler::Token->compile( q(
+    ( [ <!before [ ; | <?ws> ] use <?ws> v6 > . ]+ )
+    <-[;]>* ; 
         { return { 
             perl5source => $_[0][0]->() 
         } }
