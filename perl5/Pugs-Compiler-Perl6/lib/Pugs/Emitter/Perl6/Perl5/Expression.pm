@@ -15,18 +15,17 @@ package Pugs::Emitter::Perl6::Perl5::BoolExpression;
     }
     sub str {
         return Pugs::Emitter::Perl6::Perl5::Str->new( 
-            { name => ( $_[0]->{name} ? '1' : '0' ) } );
+            { name => '( '. $_[0]->{name} . ' ? 1 : 0 )' } );
     }
     sub perl {
         $_[0]->str;
     }
     sub true {
-        $_[0]
+        $_[0];
     }
     sub not {
-        $_[0]->{name} 
-        ? Pugs::Emitter::Perl6::Perl5::Bool->new( { name => 0 } ) 
-        : Pugs::Emitter::Perl6::Perl5::Bool->new( { name => 1 } )
+        return Pugs::Emitter::Perl6::Perl5::BoolExpression->new( 
+            { name => '( '. $_[0]->{name} . ' ? 0 : 1 )' } );
     }
 package Pugs::Emitter::Perl6::Perl5::StrExpression;
     use base 'Pugs::Emitter::Perl6::Perl5::Expression';
