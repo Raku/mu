@@ -5,26 +5,26 @@ use Test;
 plan 5;
 
 {
-    my ($a) = [,](1, 2, 3);
-    is($a, 1, "(scalar) = [,]list");
+    my ($a) = |(1, 2, 3);
+    is($a, 1, "(scalar) = |list");
 };
 
 {
     my @a = (1, 2, 3);
-    my ($b) = [,] @a;
-    is($b, 1, "(scalar) = [,]array");
+    my ($b) = |@a;
+    is($b, 1, "(scalar) = |array");
 };
 
 {
     my $a = (1, 2, 3);
-    my $b = [,] $a;
-    is($b, [1, 2, 3], "scalar = [,]arrayref");
+    my $b = |$a;
+    is($b, [1, 2, 3], "scalar = |arrayref");
 };
 
 {
     my $a = (1, 2, 3);
-    my ($b) = [,] @$a;
-    is($b, 1, "(scalar) = [,] dereffed arrayref");
+    my ($b) = |@$a;
+    is($b, 1, "(scalar) = |dereffed arrayref");
 };
 
 {

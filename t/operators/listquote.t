@@ -40,7 +40,7 @@ plan 1;
 my $s = join 'a', <x y z>;
 is($s, "xayaz", 'list context <list>');
 
-my $s = join [,] <a x y z>;
+my $s = join |<< <a x y z>;
 is($s, "xayaz", 'listop <list>');
 
 my $x = try { [1,2,3].join<a b c> };
