@@ -31,25 +31,24 @@ use t::packages::Test;
 
 # sanity test
 # L<S10/"Packages" /package for Perl 6 code/>
-is($?PACKAGE, "Main", 'no declarations broke Main $?PACKAGE');
+is($?PACKAGE, "Main", 'The Main $?PACKAGE was not broken by any declarations');
 
 # block level
 is(Test1::ns, "Test1", "block-level package declarations");
-is(Test1::pkg, "Main::Test1", 'block-level $?PACKAGE var');
-ok((Test1::pkg() === ::Main::Test1), '$?PACKAGE is a type object');
+cmp_ok(Test1::pkg, &infix:<===>, ::Test1::, 'block-level $?PACKAGE var');
 dies_ok { test1_export() }, "export was not imported implicitly";
 
 # declared packages
 is(Test2::ns, "Test2", "declared package");
-is(Test2::pkg, "Main::Test2", 'declared package $?PACKAGE');
+cmp_ok(Test2::pkg, &infix:<===>, ::Test2::, 'declared package $?PACKAGE');
 
 # string eval'ed packages
-is(Test3::pkg, "Main::Test3", 'eval\'ed package $?PACKAGE');
-ok(Test3::pkg() === ::Main::Test3, 'eval\'ed package type object');
+is(Test3::pkg, ::Test3::, 'eval\'ed package $?PACKAGE');
+cmp_ok(Test3::pkg, &infix:<===>, ::Test3::, 'eval\'ed package type object');
 
 # this one came from t/packages/Test.pm
 is(t::packages::Test::ns, "t::packages::Test", "loaded package");
-ok(t::packages::Test::pkg() === ::t::packages::Test, 'loaded package $?PACKAGE object');
+cmp_ok(t::packages::Test::pkg, &infix:<===>, ::t::packages::Test::, 'loaded package $?PACKAGE object');
 my $x;
 lives_ok { $x = test_export() }, "export was imported successfully";
 is($x, "party island", "exported OK");
@@ -61,7 +60,7 @@ dies_ok { ns() }, "no ns() leaked";
 my $pkg;
 dies_ok  { $pkg = Our::Package::pkg },
     "Can't see `our' packages out of scope", :todo<feature>;
-lives_ok { $pkg = t::packages::Test::get_our_pkg },
+lives_ok { $pkg = t::packages::Test::get_our_pkg() },
     "Package in scope can see `our' package declarations";
 is($pkg, Our::Package, 'correct $?PACKAGE');
 ok(!($pkg === ::Our::Package),
@@ -74,8 +73,8 @@ dies_ok { $pkg = t::packages::Test::cant_see_pkg() },
     "can't see package declared out of scope", :todo<feature>;
 lives_ok { $pkg = t::packages::Test::my_pkg() },
     "can see package declared in same scope";
-is($pkg, ::My::Package, 'correct $?PACKAGE');
-ok(!($pkg === ::*My::Package), 'not the same as global type object');
+is($pkg, ::My::Package::, 'correct $?PACKAGE');
+ok($pkg !=== ::*My::Package::, 'not the same as global type object');
 
 # Check temporization of variables in external packages
 {

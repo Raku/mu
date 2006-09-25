@@ -19,7 +19,7 @@ my @tests = (
 for @tests -> $mod, $expected_ret {
 
   my @strings = (
-    "use ::$mod",
+    "use $mod",
     "require '{ $mod.split("::").join("/") ~ ".pm" }'",
   );
 

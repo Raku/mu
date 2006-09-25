@@ -15,16 +15,16 @@ TODO:
 
 =cut
 
-our $GLOBAL = "main global";
+our $GLOBAL = "Main global";
 
-is($?PACKAGE, "main", "default package is 'main'");
-is($GLOBAL, "main global", "global var");
+is($?PACKAGE, ::Main::, "default package is ::Main::");
+is($GLOBAL, "Main global", "global var");
 
 package A;
 
 Test::is($?PACKAGE, "A", "switching package, file scope");
 Test::lives_ok({ $GLOBAL = 1 }, "'our' is lexically scoped, even across namespaces", :todo<feature>);
-Test::eval_is('$main::GLOBAL', "main global", "fully qualified name, main::");
+Test::eval_is('$Main::GLOBAL', "Main global", "fully qualified name, Main::");
 
 eval '$A::GLOBAL = "A global"';
 

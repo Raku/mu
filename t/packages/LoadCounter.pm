@@ -2,12 +2,12 @@ use v6-alpha;
 
 package t::packages::LoadCounter;
 
-$main::loaded++;
+$Main::loaded++;
 
 sub import {
-    $main::imported++;
+    $Main::imported++;
 }
 
 sub unimport {
-    $main::imported--;
+    $Main::imported--;
 }
