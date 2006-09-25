@@ -987,7 +987,7 @@ possiblyExit :: Exp -> RuleParser Exp
 possiblyExit (Val (VControl (ControlExit exit))) = do
     -- Run all @*END blocks...
     unsafeEvalExp $ Syn "for"
-        [ _Var "@main::END"
+        [ _Var "@Main::END"
         , Syn "sub"
             [ Val . VCode $ mkSub
                 { subBody   = App (_Var "$_") Nothing []
@@ -1528,9 +1528,12 @@ ruleParam = rule "parameter" $ do
 ruleTypeVar :: RuleParser Exp
 ruleTypeVar = rule "type" $ do
     -- We've to allow symbolic references with type vars, too.
-    nameExps <- many1 $ do
-        string "::"
-        (parens ruleExpression) <|> (fmap (Val . VStr . concat) $ sequence [ruleTwigil, many1 wordAny])
+    string "::"
+    -- XXX - Instead of handling &postfix:<::>, we directly turn ::Foo::
+    --       into a package literal -- which is to say a string -- for now.
+    nameExps <- (`sepEndBy1` string "::") $ do
+        verbatimParens ruleExpression <|> (fmap (Val . VStr . concat) $ sequence [ruleTwigil, many1 wordAny])
+
     -- Optimization: We don't have to construct a symbolic deref syn (":::()"),
     -- but can use a simple Var, if nameExps consists of only one expression
     -- and this expression is a plain string, i.e. it is not a
