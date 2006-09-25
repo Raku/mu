@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fallow-overlapping-instances -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fallow-overlapping-instances -cpp -funbox-strict-fields #-}
 {-! global : YAML_Pos, Perl6Class, MooseClass !-}
 {-|
     Perl 6 Values.
@@ -60,9 +60,10 @@ data Val
     | forall a. Ext a  => VExt  !a  -- ^ Input/Ouput handles          (ValId = memory addr)
     deriving (Typeable)
 
-castVal :: (Monad m, Typeable a) => Val -> m a
---castVal (VUndef v)  = return v
---castVal (VNative v) = return v
+castVal :: forall a m . (Monad m, Typeable a) => Val -> m a
+--castVal = gmapQi 0 fromTypeable -- when we have 6.6, and can make all Val in Data.
+castVal (VUndef v)  = fromTypeable v
+castVal (VNative v) = fromTypeable v
 castVal (VPure v)   = fromTypeable v
 castVal (VMut v)    = fromTypeable v
 castVal (VExt v)    = fromTypeable v
