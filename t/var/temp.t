@@ -33,7 +33,7 @@ plan 31;
   my $get_a = { $a };
   {
     temp $a = 23;
-    ok $a =:= $get_a(), "temp() shouldn't change the variable containers";
+    ok $a =:= $get_a(), "temp() shouldn't change the variable containers", :todo<bug>;
   }
 }
 
