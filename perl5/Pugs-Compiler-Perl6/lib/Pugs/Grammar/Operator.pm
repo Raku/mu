@@ -80,6 +80,7 @@ sub recompile {
         %Pugs::Grammar::Postcircumfix::hash,
         %Pugs::Grammar::Ternary::hash,
     );
+    #print "Operator: Hash keys: @{[ keys %hash ]}\n";
     $class->SUPER::recompile;
 
     {
@@ -91,17 +92,17 @@ sub recompile {
         #warn 'compiling grammar';
         # operator-precedence
         my $g = $operator->emit_yapp;
-        #print $g;
+        #print "Operator: Yapp grammar: \n", $g;
         my $p;
         $p = $operator->emit_grammar_perl5;
-        #print $p;
         # $p contains 'Pugs::Grammar::Operator::new()'
         # which calls 'Parse::Yapp::Driver::new()'
 
         # *** cache initialization data to a global var
-        #print substr( $p, length($p)-1000 );
+        #print "Operator: Yapp grammar: \n" . $p;
+        #print "Operator: Yapp grammar: \n" . substr( $p, length($p)-1000 );
         my ( $start, $data, $tail ) = $p =~ /^(.*?) ( yyversion .* \] ) (.*?)$/xs;
-        #print "$start \%yapp_data $tail";
+        #print "Operator: Yapp grammar: \n" . "$start \%yapp_data $tail";
         our %yapp_data = eval $data;
         eval $start . '%yapp_data' . $tail;
         #eval $p;   

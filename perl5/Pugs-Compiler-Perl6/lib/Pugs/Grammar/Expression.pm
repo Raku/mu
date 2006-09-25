@@ -100,6 +100,7 @@ sub ast {
         yylex => sub {
             my ( $label, $node );
             ( $label, $node, $pos ) = lexer( $match, $pos, $rx_end );
+            #print "Expression: at $pos\n";
             ( $label, $node );
         },
         yyerror => sub { 
@@ -119,7 +120,7 @@ sub ast {
         }; 
     }
 
-    #print Dumper $out;
+    #print "Expression: ", Dumper( $out );
     # $reentrant--;
     return ( $out, $pos );
 }
@@ -127,6 +128,7 @@ sub ast {
 sub lexer {
     my ( $match, $pos, $rx_end ) = @_;
 
+        #print "Lexer: start\n";
         #print "Grammar::Expression::ast::lex '$match' \n";
         if ( substr( $match, $pos ) =~ /$rx_end/  
            || (  !$allow_semicolon
@@ -187,14 +189,18 @@ sub lexer {
                 if $statement_modifier;
         }
 
+        #print "Lexer: try <Operator|Term|Quote>\n";
+
         my $m1 = Pugs::Grammar::Operator->parse( $match, { p => $pos } );
+        #print "Lexer: Operator done\n";
         my $m2;
         if ( $expect_term ) {
             $m2 = Pugs::Grammar::Term->parse( $match, { p => $pos } );
+            #print "Lexer: Term done\n";
             $m2 = Pugs::Grammar::Quote->parse( $match, { p => $pos } )
                 unless $m2;
         }
-        #print "m1 = " . Dumper($m1) . "m2 = " . Dumper($m2);
+        #print "Lexer: m1 = " . Dumper($m1) . "m2 = " . Dumper($m2);
 
         my $pos2;
         while(1) {
@@ -361,7 +367,7 @@ sub lexer {
             $m = $m2 if $m2;
         }
         return ('','', $pos) unless ref $m;
-        #print "Term or expression: ",Dumper( $m->() );
+        #print "Lexer: Term or expression: ",Dumper( $m->() );
 
 # <fglock> like: ( name 1, 2 or 3 ) - is it parsed as name(1,2 or 3) or (name(1,2) or 3)
 # <TimToady> it will be taken provisionally as a listop, with listop precedence

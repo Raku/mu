@@ -1,15 +1,9 @@
 ﻿package Pugs::Grammar::Prefix;
 use strict;
 use warnings;
-#use base qw(Pugs::Grammar::Operator);
 use Pugs::Grammar::Operator;
 use base qw(Pugs::Grammar::BaseCategory);
-
 use Pugs::Grammar::Infix;
-
-# TODO - generate AST
-# TODO - prefix:{'+'}
-# TODO - ~ ? 
 
 sub add_rule {
     my $self = shift;
@@ -25,12 +19,13 @@ sub add_rule {
         assoc => 'non',
         name => 'prefix:<' . $opt{name} . '>',
     );
+    my $name = quotemeta( $opt{name} );
     $self->SUPER::add_rule( 
         $opt{name}, 
-        '{ return { op => "' . $opt{name} . '" ,} }' );
+        '{ return { op => "' . $name . '" ,} }' );
     $self->SUPER::add_rule( 
         "prefix:<" . $opt{name} . ">",
-        '{ return { op => "prefix:<' . $opt{name} . '>" ,} }' );
+        '{ return { op => "prefix:<' . $name . '>" ,} }' );
 }
 
 
@@ -66,6 +61,18 @@ BEGIN {
         other => 'prefix:<+>',
     );
     __PACKAGE__->add_rule(
+        name => '%',
+        assoc => 'left',
+        precedence => 'equal',
+        other => 'prefix:<+>',
+    );
+    __PACKAGE__->add_rule(
+        name => '$',
+        assoc => 'left',
+        precedence => 'equal',
+        other => 'prefix:<+>',
+    );
+    __PACKAGE__->add_rule(
         name => '&',
         assoc => 'left',
         precedence => 'equal',
@@ -95,20 +102,6 @@ BEGIN {
         precedence => 'equal',
         other => 'prefix:<+>',
     );
-    
-    #__PACKAGE__->add_rule(
-    #    name => 'say',
-    #    assoc => 'left',
-    #    precedence => 'looser',
-    #    other => 'infix:<,>',
-    #);
-    #__PACKAGE__->add_rule(
-    #    name => 'substr',
-    #    assoc => 'left',
-    #    precedence => 'equal',
-    #    other => 'prefix:<say>',
-    #);
-    
     __PACKAGE__->add_rule( 
         name => '++',
         assoc => 'left',

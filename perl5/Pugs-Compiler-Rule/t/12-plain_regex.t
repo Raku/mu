@@ -1,5 +1,5 @@
 
-use Test::More tests => 23;
+use Test::More tests => 35;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -38,12 +38,12 @@ sub compile {
 }
 
 {
-    my $rule = __PACKAGE__->compile( 'a.c' );
+    my $rule = __PACKAGE__->compile( '<?alpha>.c' );
     my $match = $rule->match( "xabcde" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( $match?1:0, 1, 'booleanify' );
-    is( "$match", "abc", 'stringify dot' );
+    is( "$match", "abc", 'stringify dot; <?alpha>' );
 }
 
 {
@@ -105,16 +105,115 @@ sub compile {
 
 {
     my $rule = __PACKAGE__->compile( '^ab<null>c$' );
+    {
     my $match = $rule->match( "abc" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( $match?1:0, 1, 'booleanify' );
     is( "$match", "abc", 'stringify ^ $ <null>' );
+    }
+    {
     my $match = $rule->match( "abc\nd" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( $match?1:0, 0, 'booleanify' );
+    }
 }
 
 # <TimToady> ?eval "a\nb" ~~ /^a$$.^^b$/
 # "a\nb" ~~ m:P5/(?smx) \A a $ . ^ b \z/
+
+{
+    my $rule = __PACKAGE__->compile( '^a$$.^^b$' );
+    my $match = $rule->match( "a\nb" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( $match?1:0, 1, 'booleanify' );
+    is( "$match", "a\nb", 'stringify ^a$$.^^b$' );
+}
+
+{
+    my $rule = __PACKAGE__->compile( '^a$$\n^^b$' );
+    my $match = $rule->match( "a\nb" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( $match?1:0, 1, 'booleanify' );
+    is( "$match", "a\nb", 'stringify ^a$$\n^^b$' );
+}
+
+{
+    my $rule = __PACKAGE__->compile( '^a\Nb$' );
+    my $match = $rule->match( "a\nb" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( $match?0:1, 1, 'booleanify \N, no-match' );
+}
+
+{
+    my $rule = __PACKAGE__->compile( '^a\Nb$' );
+    my $match = $rule->match( "axb" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( $match?1:0, 1, 'booleanify \N' );
+    is( "$match", "axb", 'stringify \N' );
+}
+
+{
+    my $rule = __PACKAGE__->compile( '[ab]+' );
+    my $match = $rule->match( "xxabababb" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "ababab", 'stringify +' );
+}
+
+{
+    my $rule = __PACKAGE__->compile( q( <'[ab]+$a@b\'"%c/'> \$ x / \\\\ \\/ \. ) );
+    my $match = $rule->match( q([ab]+$a@b'"%c/$x/\\/.) );
+    #print "Source: ", $rule->{perl5};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", q([ab]+$a@b'"%c/$x/\\/.), 'stringify literals' );
+}
+
+{
+    my $rule = __PACKAGE__->compile( q( <[abc]> x ) );
+    my $match = $rule->match( q(bx) );
+    #print "Source: ", $rule->{perl5};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", q(bx), 'stringify char class' );
+}
+
+{
+    my $rule = __PACKAGE__->compile( q( <+[abc]> x ) );
+    my $match = $rule->match( q(bx) );
+    #print "Source: ", $rule->{perl5};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", q(bx), 'stringify char class' );
+}
+
+{
+    my $rule = __PACKAGE__->compile( q( <-[abc]> x ) );
+    my $match = $rule->match( q(zx) );
+    #print "Source: ", $rule->{perl5};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", q(zx), 'stringify negated char class' );
+}
+
+{
+    # quantified captures not implemented
+    # dies_ok( __PACKAGE__->compile( '[a(b)]+' ) );
+;}
+
+{
+    # named captures not implemented
+    # dies_ok( __PACKAGE__->compile( '<alpha>' ) );
+;}
+
+{
+    # nested captures not implemented
+    # dies_ok( __PACKAGE__->compile( '(a(b))' ) );
+;}
+
+{
+    # set operations not implemented
+    # dies_ok( __PACKAGE__->compile( '<[<alpha>]-[abc]>' ) );
+;}

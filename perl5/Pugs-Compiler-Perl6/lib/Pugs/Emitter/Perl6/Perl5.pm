@@ -53,10 +53,11 @@ sub _var_get {
         if exists $_V6_ENV{$s} &&
            exists $_V6_ENV{$s}{get};
     
-    if ( ref $s eq 'HASH' ) {
-        my $v = $s->{match_variable};
-        return Pugs::Runtime::Common::mangle_var( '$/' ) . '->{' . $v . '}';
-    }
+    #if ( ref $s eq 'HASH' ) {
+    #    my $v = $s->{match_variable};
+    #    $v = _emit( $v ) if ref( $v );
+    #    return Pugs::Runtime::Common::mangle_var( '$/' ) . '->{' . $v . '}';
+    #}
 
     # default
     return "\$_V6_SELF->{'" . substr($s,2) . "'}"
@@ -1163,6 +1164,8 @@ sub term {
                 " Data::Bind->sub_signature\n".
                 " (\\&$name, ". _emit_parameter_signature ( $n->{signature} ) . ");\n";
     }
+    
+    return _not_implemented( $n, "term" );
 }
 
 sub infix {
@@ -1441,14 +1444,60 @@ sub postcircumfix {
 sub prefix {
     my $n = $_[0];
     # print "prefix: ", Dumper( $n );
-    
-    if ( $n->{op1}{op} eq ':' ) {
-        return _emit( $n->{exp1} ) . "  # XXX :\$var not implemented\n";
+
+    #-- coercions
+
+    if (  $n->{op1}{op} eq 'str' 
+       || $n->{op1}{op} eq '~' 
+       ) {
+        return ' Pugs::Runtime::Perl6::Hash::str( \\' . _emit( $n->{exp1} ) . ' ) '
+            if $n->{exp1}{hash};
+        return ' "' . _emit( $n->{exp1} ) . '"' 
+            if $n->{exp1}{array};
+        return ' "" . ' . _emit( $n->{exp1} );
+    }
+
+    if (  $n->{op1}{op} eq 'num' 
+       || $n->{op1}{op} eq '+' 
+       ) {
+        return '(0+('._emit($n->{exp1}).'))';
+    }
+
+    if (  $n->{op1}{op} eq 'int' ) {
+        return 'int('._emit($n->{exp1}).')';
+    }
+
+    if (  $n->{op1}{op} eq 'true' 
+       || $n->{op1}{op} eq '?' 
+       ) {
+        return '('._emit($n->{exp1}).' ? 1 : 0 )';
+    }
+
+    if (  $n->{op1}{op} eq 'not' 
+       || $n->{op1}{op} eq '!' 
+       ) {
+        return _emit( $n->{exp1} ) . ' ? 0 : 1 ';
     }
     
-    if ( $n->{op1}{op} eq 'hash' ) {
+    if (  $n->{op1}{op} eq 'scalar' 
+       || $n->{op1}{op} eq '$' 
+       ) {
+        return '${' . _emit( $n->{exp1} ) . '}';
+    }
+    
+    if (  $n->{op1}{op} eq 'hash' 
+       || $n->{op1}{op} eq '%' 
+       ) {
         return '%{' . _emit( $n->{exp1} ) . '}';
     }
+    
+    if (  $n->{op1}{op} eq 'array' 
+       || $n->{op1}{op} eq '@' 
+       ) {
+        return '@{' . _emit( $n->{exp1} ) . '}';
+    }
+    
+    #-- /coercions
     
     if ( $n->{op1}{op} eq 'do' ) {
         return $n->{op1}{op} . ' ' . _emit( $n->{exp1} );
@@ -1464,28 +1513,11 @@ sub prefix {
         return 'do { $_V6_PAD{'.$id1.'} = [ eval ' . _emit( $n->{exp1} ) . " ]; " . 
             Pugs::Runtime::Common::mangle_var( '$!' ) . ' = $@; @{$_V6_PAD{'.$id1.'}} }';
     }
-    if ( $n->{op1}{op} eq '~' ) {
-        return ' Pugs::Runtime::Perl6::Hash::str( \\' . _emit( $n->{exp1} ) . ' ) '
-            if $n->{exp1}{hash};
-        return ' "' . _emit( $n->{exp1} ) . '"' 
-            if $n->{exp1}{array};
-        return ' "" . ' . _emit( $n->{exp1} );
-    }
-    if ( $n->{op1}{op} eq '!' ) {
-        return _emit( $n->{exp1} ) . ' ? 0 : 1 ';
-    }
-    if ($n->{op1}{op} eq '+' && exists $n->{exp1}{array}) { # num context
-        return 'scalar '._emit( $n->{exp1} );
-    }
     if ( $n->{op1}{op} eq '++' ||
          $n->{op1}{op} eq '--' ||
          $n->{op1}{op} eq '+'  ||
          $n->{op1}{op} eq '-'  ) {
         return $n->{op1}{op} . _emit( $n->{exp1} );
-    }
-
-    if ($n->{op1}{op} eq '?') { # bool
-        return '('._emit($n->{exp1}).' ? 1 : 0 )';
     }
 
     if ($n->{op1}{op} eq '=') { # iterate

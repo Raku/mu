@@ -42,8 +42,12 @@ sub bool  {  ${$_data{refaddr $_[0]}->{bool}}  }
 sub hash  {    $_data{refaddr $_[0]}->{named}  }
 sub array {    $_data{refaddr $_[0]}->{match}  }
 
+# TODO - add Array keys, values
+# TODO - .elems, .kv
 sub keys   { CORE::keys   %{$_data{refaddr $_[0]}->{named}} }
 sub values { CORE::values %{$_data{refaddr $_[0]}->{named}} }
+
+sub chars  { CORE::length $_[0]->str }
 
 sub flat {
     my $obj = $_data{refaddr $_[0]};

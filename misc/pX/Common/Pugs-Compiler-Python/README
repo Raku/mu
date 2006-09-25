@@ -1,0 +1,7 @@
+Grammar::Python
+
+experimental Perl6 implementation of the 'Python' syntax 
+author: Flavio S. Glock - fglock@gmail.com
+
+See also: Parrot languages/python/python.bnf
+

@@ -1,0 +1,8 @@
+Grammar::Python
+
+0.01  2006-07-23
+
+- Takes an indented statement list and creates a statement tree.
+  Does not parse the statements; does not test for empty lines.
+
+  perl -Ilib t\00-grammar.t

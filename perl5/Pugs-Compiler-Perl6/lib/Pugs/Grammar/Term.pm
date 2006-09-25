@@ -5,12 +5,6 @@ use base qw(Pugs::Grammar::BaseCategory);
 use Pugs::Runtime::Match;
 use Pugs::Compiler::Token;
 
-# TODO - implement the "magic hash" dispatcher
-# TODO - term:<...> !!! ??? 
-# moose=>1
-# moose:<elk>
-# moose:{antler()}
-
 our %hash;
 
 *cpan_bareword = Pugs::Compiler::Token->compile( '
@@ -194,11 +188,27 @@ sub recompile {
     my $class = shift;
     %hash = (
         '$' => q(
-                [ <?Pugs::Grammar::Term.ident>
-                  { return { scalar => '$' . $_[0]->() ,} }
+                | <before <[  \{ \[ \<  ]> >
+                  { return { scalar => '$/' ,} }
+                | <?Pugs::Grammar::Term.ident>
+                  { return { scalar => '$' . $_[0] ,} }
                 | (\d+)
-                  { return { scalar => '$' . $_[0]->() ,} }
-                ]
+                  { return {                          
+                              'exp1' => {
+                                'scalar' => '$/'
+                              },
+                              'exp2' => {
+                                'int' => $/[0]()
+                              },
+                              'fixity' => 'postcircumfix',
+                              'op1' => {
+                                'op' => '['
+                              },
+                              'op2' => {
+                                'op' => ']'
+                              },                    
+                        },   
+                  } 
             ),
         '$.' => q(
                 <?Pugs::Grammar::Term.ident>
@@ -206,26 +216,6 @@ sub recompile {
             ),
         '$/' => q(
                 { return { scalar => '$/' ,} } 
-            ),
-        '$()' => q(
-                { return { 
-                      'op1' => 'call',
-                      'sub' => {
-                        'scalar' => '$/'
-                      }
-                } }
-            ),
-        '$$/' => q(
-                { return { 
-                      'op1' => 'call',
-                      'sub' => {
-                        'scalar' => '$/'
-                      }
-                } }
-            ),
-        '$<' => q(
-                ( <?Pugs::Grammar::Term.ident> ) \>
-                { return { scalar => { match_variable => $_[0][0]->() ,} } }
             ),
         '@' => q(
                 # XXX t/subroutines/multidimensional_arglists.t
@@ -238,14 +228,6 @@ sub recompile {
         '%' => q(
                 <?Pugs::Grammar::Term.ident>
                 { return { hash  => "\%" . $_[0]->() ,} }
-            ),
-        '%(' => q(
-                <Pugs::Grammar::Term.parenthesis>
-                { return {
-                    'exp1' => $/{'Pugs::Grammar::Term.parenthesis'}(),
-                    'fixity' => 'prefix',
-                    'op1' => { 'op' => 'hash', }
-                } }
             ),
         '&' => q(
                 <?Pugs::Grammar::Term.ident>
@@ -297,6 +279,12 @@ sub recompile {
             ),
         '...' => q(
             { return { term => "yada" } }
+            ),
+        '???' => q(
+            { return { term => "???" } }
+            ),
+        '!!!' => q(
+            { return { term => "!!!" } }
             ),
         'self' => q(
             { return { term => "self" } }
@@ -440,6 +428,28 @@ sub recompile {
                     pair => { 
                         key   => { single_quoted => $/[0]() }, 
                         value => { scalar  => '$' . $/[0]() }, 
+                } } }
+            |
+                # :$<foo>
+                <'$<'> ((_|\w)+) \>
+                { return {
+                    pair => { 
+                        key   => { single_quoted => $/[0]() }, 
+                        value => {                         
+                              'exp1' => {
+                                'scalar' => '$/'
+                              },
+                              'exp2' => {
+                                'angle_quoted' => $/[0]()
+                              },
+                              'fixity' => 'postcircumfix',
+                              'op1' => {
+                                'op' => '<'
+                              },
+                              'op2' => {
+                                'op' => '>'
+                              },                    
+                        },                        
                 } } }
             |
                 # :foo 

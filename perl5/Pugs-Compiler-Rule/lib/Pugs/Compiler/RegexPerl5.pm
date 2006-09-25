@@ -19,6 +19,9 @@ sub compile {
     $param = ref $param ? { %$param } : {}; 
     delete $param->{P5};
     delete $param->{Perl5};
+    my $modifiers = '';
+    $modifiers .= delete $param->{$_} || '' 
+      for qw( i m s x );
     warn "Error in rule: unknown parameter '$_'" 
         for keys %$param;
     my $self = { source => $rule_source };
@@ -29,7 +32,7 @@ q(sub {
 
   if ( defined $_[3]{p} ) {
     pos($s) = $_[3]{p};
-    my $bool = \( $s =~ /\G) . $rule_source . q(/sx \) ? 1 : 0;
+    my $bool = \( $s =~ /\G) . $rule_source . q(/) . $modifiers . q( \) ? 1 : 0;
     #print "matching P5/$rule_source/ at $_[3]{p} in '$s', '$1', $bool\n";
     my @match;
     for ( 1 .. $#+ ) {
@@ -44,8 +47,8 @@ q(sub {
     });
   }
 
-  my $bool = \( $s =~ /) . $rule_source . q(/sx \) ? 1 : 0;
-  # print "matching P5/$rule_source/ at $_[3]{p} in '$s', '$1'\n";
+  my $bool = \( $s =~ /) . $rule_source . q(/) . $modifiers . q( \) ? 1 : 0;
+  #print "matching P5/$rule_source/ at $_[3]{p} in '$s', '$1'\n";
   my @match;
   for ( 1 .. $#+ ) {
       push @match, Pugs::Runtime::Match->new({

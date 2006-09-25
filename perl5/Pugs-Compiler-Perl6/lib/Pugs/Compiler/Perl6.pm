@@ -65,7 +65,6 @@ sub compile {
         last if $pos >= length( $source );
 
         eval {
-
             #print "<ws> until $pos; tail [",substr( $source, $pos, 10 ),"...]\n";
 
             $self->{ast} = Pugs::Grammar::Perl6->statement( $source, { pos => $pos } );
@@ -77,6 +76,12 @@ sub compile {
 
         if ( $@ ) {
             carp "Error in perl 6 parser: $@\nSource:\n'" .
+                 substr( $rule_source, 0, 30 ) . "...\n";
+            $error = 1;
+            last;
+        }
+        elsif ( ! defined $self->{ast} ) {
+            carp "Error in perl 6 parser: No match found for:\n'" .
                  substr( $rule_source, 0, 30 ) . "...\n";
             $error = 1;
             last;

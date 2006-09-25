@@ -456,6 +456,7 @@ sub preprocess_hash {
     # TODO - move to Pugs::Runtime::Regex
     my ( $h, $key ) = @_;
     # returns AST depending on $h
+    #print "preprocess_hash: ", Dumper( \@_ );
     if ( ref( $h->{$key} ) eq 'CODE') {
         return sub { 
             my ( $str, $grammar, $args ) = @_;
