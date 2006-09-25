@@ -217,6 +217,21 @@ sub recompile {
         '$/' => q(
                 { return { scalar => '$/' ,} } 
             ),
+        '$()' => q(
+                { return 
+    {
+      'exp1' => {
+        'pos' => 2,
+        'scalar' => '$/'
+      },
+      'fixity' => 'prefix',
+      'op1' => {
+        'op' => '$',
+        'pos' => 1
+      }
+    }
+                }
+            ),
         '@' => q(
                 # XXX t/subroutines/multidimensional_arglists.t
                 \; <?Pugs::Grammar::Term.ident>
@@ -225,9 +240,39 @@ sub recompile {
                 <?Pugs::Grammar::Term.ident>
                 { return { array => "\@" . $_[0]->() ,} }
             ),
+        '@()' => q(
+                { return 
+    {
+      'exp1' => {
+        'pos' => 2,
+        'scalar' => '$/'
+      },
+      'fixity' => 'prefix',
+      'op1' => {
+        'op' => '@',
+        'pos' => 1
+      }
+    }
+                }
+            ),
         '%' => q(
                 <?Pugs::Grammar::Term.ident>
                 { return { hash  => "\%" . $_[0]->() ,} }
+            ),
+        '%()' => q(
+                { return 
+    {
+      'exp1' => {
+        'pos' => 2,
+        'scalar' => '$/'
+      },
+      'fixity' => 'prefix',
+      'op1' => {
+        'op' => '%',
+        'pos' => 1
+      }
+    }
+                }
             ),
         '&' => q(
                 <?Pugs::Grammar::Term.ident>
@@ -449,6 +494,35 @@ sub recompile {
                               'op2' => {
                                 'op' => '>'
                               },                    
+                        },                        
+                } } }
+            |
+                # :$$<foo>
+                <'$$<'> ((_|\w)+) \>
+                { return {
+                    pair => { 
+                        key   => { single_quoted => $/[0]() }, 
+                        value =>     
+      {
+      'exp1' => {
+        'exp1' => {
+          'scalar' => '$/'
+        },
+        'exp2' => {
+          'angle_quoted' => $/[0]()
+        },
+        'fixity' => 'postcircumfix',
+        'op1' => {
+          'op' => '<'
+        },
+        'op2' => {
+          'op' => '>'
+        },
+      },
+      'fixity' => 'prefix',
+      'op1' => {
+        'op' => '$',
+      }
                         },                        
                 } } }
             |
