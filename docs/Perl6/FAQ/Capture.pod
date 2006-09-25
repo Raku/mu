@@ -52,7 +52,7 @@ Here's how Captures look like deferred argument lists:
   my $car_cap = \("Model T", doors => 2);
 
   # passing the opaque Capture as actual function arguments  
-  my $car = make_car([,]=$car_cap);
+  my $car = make_car(|$car_cap);
 
   # extracting a specific positional argument
   say "The thing is $car_cap[0]"; # Model T
@@ -160,28 +160,28 @@ it expands to a list of all arguments (in the order they were specified).
 Otherwise (i.e. if it's bound to a scalar or a slurpy hash), the last
 argument overrides the previous ones.
 
-=head3 What do [,]$x, [,]@x and [,]%x mean?
+=head3 What do |$x, |@x and |%x mean?
 
-The prefix C<[,]> operator casts objects into Captures, and merges them
+The prefix C<|> operator casts objects into Captures, and merges them
 t into the Capture currently being constructed (e.g. an argument list):
 
     my $cap = \(1, 2, x=>42);
-    f([,] =$cap);   # f(1, 2, x=>42)
+    f(|$cap);   # f(1, 2, x=>42)
 
 Array, List, Hash and Pair objects cast into Capture objects in obvious
 ways:
 
-    my $a = [1, 2];     f([,] @$a);     # f(1, 2)
-    my $l = (1, 2);     f([,] @$l);     # f(1, 2)
-    my $h = {x => 42};  f([,] %$h);     # f(x => 42)
-    my $p = (x => 42);  f([,] %$p);     # f(x => 42)
+    my $a = [1, 2];     f(|@$a);     # f(1, 2)
+    my $l = (1, 2);     f(|@$l);     # f(1, 2)
+    my $h = {x => 42};  f(|%$h);     # f(x => 42)
+    my $p = (x => 42);  f(|%$p);     # f(x => 42)
 
 It also works with C<@> and C<%> variables:
 
-    my @a = (1, 2);     f([,] @a);     # f(1, 2)
-    my @a := [1, 2];    f([,] @a);     # f(1, 2)
-    my %h = (x => 42);  f([,] %a);     # f(x => 42)
-    my %h := {x => 42}; f([,] %h);     # f(x => 42)
+    my @a = (1, 2);     f(|@a);     # f(1, 2)
+    my @a := [1, 2];    f(|@a);     # f(1, 2)
+    my %h = (x => 42);  f(|%a);     # f(x => 42)
+    my %h := {x => 42}; f(|%h);     # f(x => 42)
 
 
 =head3 What does $x = \@y mean?
@@ -235,7 +235,7 @@ slot:
 
 Yes, using the C<\$> signature:
 
-    sub f (\$args) { g([,] =$args) }
+    sub f (\$args) { g(|$args) }
     f(1, 2, x => 42);   # same as g(1, 2, x => 42)
 
 The C<$args> above becomes a Capture object.
@@ -247,14 +247,14 @@ more control over invocation, you can take advantage of the default Signature
 for methods, which puts all positionals in C<@_> and named arguments in C<%_>:
 
   method front_meth {
-    $!real_obj.back_meth( [,] @_, %_ );
+    $!real_obj.back_meth( |<< @_, %_ );
   }
 
 You can also take the argument list as a Capture object, and merge it with
 another method invocation:
 
   method front_meth (\$args) {
-    $!real_obj_A.back_meth( [,] =$args );
+    $!real_obj_A.back_meth( |$args );
   }
 
 This works because when there is already an invocant present, further
@@ -348,7 +348,7 @@ and also binding into an integer:
 
 In the context of rules, Captures are superclasses of Match. So in the example of:
     
-    my $rv = ("x-y-z-moose" ~~ /(.)-(.)-(.)-<animal> :{ return give_birth([,] =$/) })
+    my $rv = ("x-y-z-moose" ~~ /(.)-(.)-(.)-<animal> :{ return give_birth(|$/) })
 
 C<give_birth()> gets called with 'x', 'y', and 'z' as positional arguments,
 and :animal<moose> as a named argument.  C<give_birth()> can return a Moose object -
