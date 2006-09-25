@@ -100,18 +100,12 @@ sub rx_body {
 };
 
 *ident = Pugs::Compiler::Token->compile( q(
-        \!      # $!
-    |   \??     # $?CALLER
-        \*?     # $*x
-        # \.?     # $.x  - XXX causes problems with 1..5 for some reason
-        \:?     # $:x
+        <[ \? \* \: ]>?     # $?CALLER  $*x  $:x
         [
             [ <'::'> | <null> ]
             [ _ | <?alpha> ]
             [ _ | <?alnum> ]*
         ]+
-    |   <before \< | \[ | \{ >   # $<thing> == $/<thing>; $[thing] = $/[thing]
-    |   \/      # $/
 ) )->code;
 
 *bare_ident = Pugs::Compiler::Token->compile( q(
@@ -218,6 +212,9 @@ sub recompile {
         '$/' => q(
                 { return { scalar => '$/' ,} } 
             ),
+        '$!' => q(
+                { return { scalar => '$!' ,} } 
+            ),
         '$()' => q(
                 { return 
     {
@@ -228,7 +225,6 @@ sub recompile {
       'fixity' => 'prefix',
       'op1' => {
         'op' => '$',
-        'pos' => 1
       }
     }
                 }
@@ -251,7 +247,6 @@ sub recompile {
       'fixity' => 'prefix',
       'op1' => {
         'op' => '@',
-        'pos' => 1
       }
     }
                 }
@@ -270,7 +265,6 @@ sub recompile {
       'fixity' => 'prefix',
       'op1' => {
         'op' => '%',
-        'pos' => 1
       }
     }
                 }
