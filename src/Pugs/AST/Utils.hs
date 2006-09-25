@@ -167,7 +167,6 @@ cxtOfSigil SScalar      = cxtItemAny
 cxtOfSigil SArray       = cxtSlurpyAny
 cxtOfSigil SArrayMulti  = cxtSlurpyAny
 cxtOfSigil SHash        = cxtSlurpyAny
-cxtOfSigil SCapture     = CxtItem $ mkType "Capture"
 cxtOfSigil SCode        = CxtItem $ mkType "Code"
 cxtOfSigil SCodeMulti   = CxtItem $ mkType "Code"
 cxtOfSigil SRegex       = CxtItem $ mkType "Regex"
@@ -187,7 +186,6 @@ typeOfSigil SArrayMulti = mkType "Array"
 typeOfSigil SHash       = mkType "Hash"
 typeOfSigil SCode       = mkType "Code"
 typeOfSigil SCodeMulti  = mkType "Code"
-typeOfSigil SCapture    = mkType "Capture"
 typeOfSigil SRegex      = mkType "Regex"
 typeOfSigil SType       = mkType "Type"
 

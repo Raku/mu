@@ -1868,7 +1868,7 @@ verbatimVarNameString = (<?> "variable name") $ choice
     ]
 
 ruleSigil :: RuleParser VarSigil
-ruleSigil = fmap cast (oneOf "|$@%&")
+ruleSigil = fmap cast (oneOf "$@%&")
 
 regularVarName :: RuleParser String
 regularVarName = do

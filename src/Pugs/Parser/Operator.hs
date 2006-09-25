@@ -72,7 +72,7 @@ termLevel = circumOps (Set.singleton (MkOpName (cast "\\( )")))
 methLevel = methOps (opWords " . .+ .? .* .+ .() .[] .{} .<<>> .= ")
 incrLevel = postOps incrOps ++ preOps incrOps
 expoLevel = rightOps (opWords " ** ")
-symbLevel = preOps symbPreops
+symbLevel = preSyn (Set.singleton (MkOpName (cast "|"))) ++ preOps symbPreops
 multLevel = leftOps (opWords " * / % x xx +& +< +> ~& ~< ~> ?& ")
 addiLevel = leftOps (opWords " + - ~ +| +^ ~| ~^ ?| ")
 junaLevel = listOps (opWords " & ")
@@ -698,9 +698,9 @@ ruleHyperPost = ((char '\171' >> return "<<") <|> (string "<<"))
 
 ruleSigilHyper :: RuleParser String
 ruleSigilHyper = verbatimRule "" $ try $ do
-    sig <- ruleSigil
+    sig <- (fmap show ruleSigil) <|> string "|"
     ruleHyperPost
-    return $ "&prefix:" ++ shows sig "<<"
+    return $ "&prefix:" ++ sig ++ "<<"
 
 -- XXX - the ruleSigilHyper below should be more generic and put all +<< etc to listop level
 ruleFoldOp :: RuleParser String
