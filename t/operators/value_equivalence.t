@@ -4,18 +4,10 @@ use Test;
 
 =pod
 
-This is going to be in S03 (mail from Luke to p6l:
-L<"http://www.nntp.perl.org/group/perl.perl6.language/22849">).
 L<S03/"New operators" /Binary ===>
-Binary C<eqv> tests value equivalence: for two value types, tests whether they
-are the same value (eg. C<1 eqv 1>); for two reference types, checks whether
-they are the same reference (eg. it is not true that C<[1,2] eqv [1,2]>, but it
-is true that C<\@a eqv \@a>).
 
-Update (2005-11-13): C<eqv> is now spelled C<===>.
-
-Update (2006-07): C<===> and C<eqv> are 2 distinct operators, where C<===>
-tests value equivalence for immutable types and reference equivalence for 
+C<===> and C<eqv> are 2 distinct operators, where C<===> tests value
+equivalence for immutable types and reference equivalence for 
 mutable types, and C<eqv> tests value equivalence for snapshots of mutable
 types.  So C<(1,2) === (1,2)> returns true but C<[1,2] === [1,2]> returns 
 false, and C<[1,2] eqv [1,2]> returns true.
@@ -55,9 +47,9 @@ plan 76;
   my @a = (1,2,3);
   my @b = (1,2,3);
 
-  ok  (\@a === \@a), "=== on array references (1)";
-  ok  (\@b === \@b), "=== on array references (2)";
-  ok !(\@a === \@b), "=== on array references (3)", :todo<bug>;
+  ok  (\@a === \@a), "=== on array references (1)", :todo<bug>;
+  ok  (\@b === \@b), "=== on array references (2)", :todo<bug>;
+  ok !(\@a === \@b), "=== on array references (3)";
 }
 
 {
@@ -96,8 +88,8 @@ plan 76;
 
 {
   ok !([1,2,3] === [4,5,6]), "=== on anonymous array references (1)";
-  ok !([1,2,3] === [1,2,3]), "=== on anonymous array references (2)", :todo<bug>;
-  ok !([]      === []),      "=== on anonymous array references (3)", :todo<bug>;
+  ok !([1,2,3] === [1,2,3]), "=== on anonymous array references (2)";
+  ok !([]      === []),      "=== on anonymous array references (3)";
 }
 
 {
