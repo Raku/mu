@@ -907,12 +907,17 @@ ruleDoBlock :: RuleParser Exp
 ruleDoBlock = rule "do block" $ do
     symbol "do"
     enterBracketLevel StatementBracket $ choice
-        [ do { rv <- ruleBlock ; notFollowedBy (ruleStatementModifier >> return ' ') ; return rv }
+        [ ruleDoOnceBlock
         , ruleBlockDeclaration
         , ruleDeclaration
         , ruleConstruct
         , ruleStatement
         ]
+    where
+    ruleDoOnceBlock = do
+        rv <- ruleBareOrPointyBlockLiteralWithoutDefaultParams
+        notFollowedBy (ruleStatementModifier >> return ' ')
+        return $ Syn "postwhile" [Val (castV False), rv]
 
 ruleClosureTrait :: Bool -> RuleParser Exp
 ruleClosureTrait rhs = tryRule "closure trait" $ do
@@ -1587,7 +1592,7 @@ ruleInvocationCommon mustHaveParens = do
     (quant, name)   <- ruleNamedMethodCall
     (invs, args)    <- if mustHaveParens
         then do
-            parseHasParenParamList                          -- .foo()
+            ruleParenArgs                          -- .foo()
             <|> (lookAhead (ruleDot >> ruleInvocationParens) >> return (Nothing, [])) -- .foo.bar()
         else do  --  $obj.foo: arg1, arg2    # listop method call
                  -- we require whitespace after the colon (but not before)
@@ -1625,7 +1630,7 @@ ruleHashSubscriptQW = do
 
 ruleCodeSubscript :: RuleParser (Exp -> Exp)
 ruleCodeSubscript = tryVerbatimRule "code subscript" $ do
-    (invs, args) <- parseHasParenParamList
+    (invs, args) <- ruleParenArgs
     return $ \x -> App x invs args
 
 {-|
@@ -1677,7 +1682,7 @@ ruleApplySub isFolded = do
         else ruleSubNameWithoutPostfixModifier
 
     (paramListInv, args) <- choice $
-        [ (ruleDot `tryLookAhead` char '(') >> parseHasParenParamList
+        [ (ruleDot `tryLookAhead` char '(') >> ruleParenArgs
         , parseParenParamList
         , mandatoryWhiteSpace >> parseNoParenParamList
         , return (Nothing, [])
@@ -1687,7 +1692,7 @@ ruleApplySub isFolded = do
     -- True for `foo. .($bar)`-style applications
     let takeArguments = do
             (paramListInv, args) <- choice $
-                [ (ruleDot `tryLookAhead` char '(') >> parseHasParenParamList
+                [ (ruleDot `tryLookAhead` char '(') >> ruleParenArgs
                 , parseParenParamList
                 , mandatoryWhiteSpace >> parseNoParenParamList
                 ] ++ (if isFolded then [return (Nothing, [])] else [])
@@ -1704,7 +1709,7 @@ parseParenParamList = parseParenParamListCommon True
 parseParenParamListCommon :: Bool -> RuleParser (Maybe Exp, [Exp])
 parseParenParamListCommon mustHaveParens = do
     leading     <- option [] $ try $ many namedAdverb
-    params      <- option Nothing . fmap Just $ parseHasParenParamList
+    params      <- option Nothing . fmap Just $ ruleParenArgs
     trailing    <- option [] $ try $ many pairOrBlockAdverb
     when (mustHaveParens && isNothing params && null trailing && null leading) $ fail ""
     let (inv, args) = fromMaybe (Nothing, []) params
@@ -1738,8 +1743,8 @@ blockAdverb = do
     char ':' `tryLookAhead` char '{'
     ruleBlockLiteral
 
-parseHasParenParamList :: RuleParser (Maybe Exp, [Exp])
-parseHasParenParamList = verbatimParens . enterBracketLevel ParensBracket $ do
+ruleParenArgs :: RuleParser (Maybe Exp, [Exp])
+ruleParenArgs = verbatimParens . enterBracketLevel ParensBracket $ do
     -- formal :: [[Exp]]
     -- outer level of listness provided by `sepEndBy`
     -- the inner (`fix`ed) part returns [Exp]
@@ -1747,8 +1752,9 @@ parseHasParenParamList = verbatimParens . enterBracketLevel ParensBracket $ do
         rv <- option Nothing $ do
             fmap Just $ choice
                 [ try $ do
+                    -- e.g. f( :$x :$y :$z );
                     x <- pairOrBlockAdverb
-                    -- lookAhead (noneOf ",;")
+                    whiteSpace
                     return ([x], optional ruleCommaOrSemicolon)
                 , do x <- namedArgOr parseExpWithItemOps
                      a <- option [] $ try $ many pairOrBlockAdverb
@@ -1762,7 +1768,7 @@ parseHasParenParamList = verbatimParens . enterBracketLevel ParensBracket $ do
     processFormals formal
 -- FAILED PARSER PATCH
 {-
-parseHasParenParamList = (<?> "paren arg-list") $ try $ verbatimParens $ do
+ruleParenArgs = (<?> "paren arg-list") $ try $ verbatimParens $ do
     invocant        <- option Nothing $ try $ do
         inv <- parseExpWithItemOps
         doParseInvocantColon
@@ -1882,7 +1888,7 @@ regularVarNameForSigil sigil = do
 
 ruleDereference :: RuleParser Exp
 ruleDereference = try $ do
-    sigil   <- oneOf "$@%&"
+    sigil   <- oneOf "$@%&|"
     exp     <- ruleDereference <|> ruleSigiledVar <|> verbatimParens ruleExpression
     return $ Syn (sigil:"{}") [exp]
 
