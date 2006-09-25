@@ -146,16 +146,16 @@ ruleCommaOrSemicolon = do
     return ()
 
 ruleTwigil :: RuleParser String
-ruleTwigil = option "" . choice . map string $ words " ^ * ? . ! + ; "
+ruleTwigil = verbatimRule "twigil" . option "" . choice . map string $ words " ^ * ? . ! + ; "
 
 ruleMatchPos :: RuleParser String
-ruleMatchPos = do
+ruleMatchPos = verbatimRule "positional match variable" $ do
     sigil   <- oneOf "$@%"
     digits  <- many1 digit
     return $ (sigil:digits)
 
 ruleMatchNamed :: RuleParser String
-ruleMatchNamed = do
+ruleMatchNamed = verbatimRule "named match variable" $ do
     sigil   <- oneOf "$@%"
     twigil  <- char '<'
     name    <- many (do { char '\\'; anyChar } <|> satisfy (/= '>'))
@@ -167,7 +167,7 @@ ruleDot = verbatimRule "dot" $ do
     try (char '.' >> notFollowedBy (char '.')) <|> ruleLongDot
 
 ruleLongDot :: RuleParser ()
-ruleLongDot = do
+ruleLongDot = verbatimRule "long dot" $ do
     try (char '\\' >> notFollowedBy (char '('))
     whiteSpace
     char '.'
@@ -175,7 +175,7 @@ ruleLongDot = do
 
 -- zero-width, non-consuming word boundary assertion (\b)
 ruleWordBoundary :: RuleParser ()
-ruleWordBoundary = do
+ruleWordBoundary = verbatimRule "word boundary" $ do
     cls <- getPrevCharClass
     look $ if (cls == SpaceClass) then (/=) else (==)
     return ()
@@ -524,7 +524,7 @@ ruleRegexDeclarator = choice
     adv _ _ = internalError "unexpected regex adverb specifier"
 
 rxLiteral :: RuleParser Exp
-rxLiteral = do
+rxLiteral = verbatimBrackets "regex expression" $ do
     (withAdvs, decl) <- choice
         [ symbol "rx" >> return (id, "rx")
         , symbol "m"  >> return (id, "match")
@@ -538,7 +538,7 @@ rxLiteral = do
     return $ Syn decl [expr, adverbs]
 
 rxLiteralBare :: RuleParser Exp
-rxLiteralBare = do
+rxLiteralBare = verbatimBrackets "regex expressions" $ do
     ch      <- char '/'
     expr    <- rxLiteral6 ch (balancedDelim ch)
     return $ Syn "//" [expr, Val undef]

@@ -175,7 +175,7 @@ ruleQualifiedIdentifier = verbatimRule "qualified identifier" $ do
     return $ concat (intersperse "::" chunks)
 
 ruleVerbatimIdentifier :: RuleParser String
-ruleVerbatimIdentifier = (<?> "identifier") $ do
+ruleVerbatimIdentifier = verbatimRule "identifier" $ do
     c  <- identStart
     cs <- many identLetter
     return (c:cs)
