@@ -64,7 +64,8 @@ tightOperators = do
         A_non   -> nonOps op'   ++ xs
         A_chain -> chainOps op' ++ xs
         A_list  -> listOps op'  ++ xs
-        _ -> error $ "Impossible: " ++ show op ++ " has no assoc?"
+        _       -> leftOps op'  ++ xs   -- Default to left-assoc
+        -- _ -> error $ "Impossible: " ++ show op ++ " has no assoc?"
 
 termLevel, methLevel, incrLevel, expoLevel, symbLevel, multLevel, addiLevel, junaLevel, junoLevel :: [RuleOperator Exp]
 termLevel = circumOps (Set.singleton (MkOpName (cast "\\( )")))
