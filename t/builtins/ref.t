@@ -73,4 +73,4 @@ my $pair = ("foo" => "bar");
 isa_ok($pair, 'Pair', 'it is a Pair type');
 
 my $rule = rx:P5/^hello\sworld$/;
-isa_ok($rule, 'Pugs::Internals::VRule', 'it is a Rule type');
+isa_ok($rule, 'Regex', 'it is a Regex type');
