@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="chrome://global/skin/" type="text/css"?><?xml-stylesheet href="takahashi.css" type="text/css"?><page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" id="presentation" xmlns:html="http:/www.w3.org/1999/xhtml" orient="vertical" onkeypress="Presentation.onKeyPress(event);"><html:textarea id="builtinCode" style="visibility: collapse">
+
+Practical Extraction
+with Perl 6
+ 
+{{#q|Nathan Gray}}
+----
+Practical Extraction
+with Perl 5
+ 
+{{#q|Nathan Gray}}
+----
+ s:g/5/6/;
+----
+Practical Extraction
+with Perl {{#c|6}}
+ 
+{{#q|Nathan Gray}}
+----
+http://pghpw.org/schedule.html
+----
+ -talk: 
+   presenter: brian d foy
+   title: Making Perl Work for You
+ -talk:
+   presenter: Beth Skwarecki
+   title: Make your database work for you
+----
+ &lt;tr&gt;
+      &lt;td class="time"&gt;9:45 AM&lt;/td&gt;
+      &lt;td class="beginner" rowspan="2"&gt;
+        &lt;span class="talk"&gt;&lt;a href="schedule/making_perl_work_for_you.html"&gt;Making Perl Work for You&lt;/a&gt;&lt;/span&gt;
+        &lt;span class="speaker"&gt;&lt;tt&gt;brian d foy&lt;/tt&gt;&lt;/span&gt;
+      &lt;/td&gt;
+      &lt;td class="advanced"&gt;
+        &lt;span class="talk"&gt;&lt;a href="schedule/make_your_database_work_for_you.html"&gt;Make your database work for you&lt;/a&gt;&lt;/span&gt;
+        &lt;span class="speaker"&gt;Beth Skwarecki&lt;/span&gt;
+      &lt;/td&gt;
+ &lt;/tr&gt;
+----
+ &lt;tr&gt;
+      &lt;td class="time"&gt;9:45 AM&lt;/td&gt;
+      &lt;td class="beginner" rowspan="2"&gt;
+        &lt;span class="talk"&gt;&lt;a href="schedule/making_perl_work_for_you.html"&gt;Making Perl Work for You&lt;/a&gt;&lt;/span&gt;
+        &lt;span class="speaker"&gt;{{#c|&lt;tt&gt;brian d foy&lt;/tt&gt;}}&lt;/span&gt;
+      &lt;/td&gt;
+      &lt;td class="advanced"&gt;
+        &lt;span class="talk"&gt;&lt;a href="schedule/make_your_database_work_for_you.html"&gt;Make your database work for you&lt;/a&gt;&lt;/span&gt;
+        &lt;span class="speaker"&gt;{{#c|Beth Skwarecki}}&lt;/span&gt;
+      &lt;/td&gt;
+ &lt;/tr&gt;
+----
+ package main;
+ 
+ my $content = slurp @*ARGS[0];
+ while (my $match = $content ~~ m:c /&lt;talk&gt;/) {
+     say $match;
+ }
+----
+ package main;
+ 
+ my $content = slurp @*ARGS[0];
+ {{#c|for $content ~~ m:g /&lt;talk&gt;/ -> $match}} {
+     say $match;
+ }
+----
+ package main;
+ 
+ my $content = slurp @*ARGS[0];
+ for $content ~~ m:g /{{#c|&lt;talk&gt;}}/ -> $match {
+     say $match;
+ }
+----
+ use v6-alpha;
+ 
+ grammar workshop;
+ 
+ token {{#c|talk}} { &lt;presenter&gt; }
+ token presenter {
+     &lt;'&lt;span class="speaker"&gt;'&gt; .+? &lt;'&lt;/span&gt;'&gt;
+ }
+----
+ use v6-alpha;
+ 
+ grammar workshop;
+ 
+ token talk { &lt;presenter&gt; }
+ token presenter {
+     &lt;'&lt;span class="speaker"&gt;'&gt; {{#c|.+?}} &lt;'&lt;/span&gt;'&gt;
+ }
+----
+ &lt;span class="speaker"&gt;&lt;tt&gt;brian d foy&lt;/tt&gt;&lt;/span&gt;
+
+ &lt;span class="speaker"&gt;Beth Skwarecki&lt;/span&gt;
+----
+ &lt;span class="speaker"&gt;{{#c|&lt;tt&gt;brian d foy&lt;/tt&gt;}}&lt;/span&gt;
+
+ &lt;span class="speaker"&gt;{{#c|Beth Skwarecki}}&lt;/span&gt;
+----
+ use v6-alpha;
+ 
+ grammar workshop;
+ 
+ token talk { &lt;presenter&gt; }
+ token presenter {
+     &lt;'&lt;span class="speaker"&gt;'&gt; {{#c|&lt;( .+? )&gt;}} &lt;'&lt;/span&gt;'&gt;
+ }
+----
+ &lt;tt&gt;brian d foy&lt;/tt&gt;
+
+ Beth Skwarecki
+----
+ {{#c|&lt;tt&gt;}}brian d foy{{#c|&lt;/tt&gt;}}
+
+ Beth Skwarecki
+----
+ use v6-alpha;
+ 
+ grammar workshop;
+ 
+ token talk { &lt;presenter&gt; }
+ token presenter {
+     &lt;'&lt;span class="speaker"&gt;'&gt; &lt;( .+? )&gt; &lt;'&lt;/span&gt;'&gt;
+     {{#c|{ return strip_html($$/) } }}
+ }
+----
+ brian d foy
+
+ Beth Skwarecki
+----
+<!-- want to show how to turn $match into a yml structure -->
+ use v6-alpha;
+ 
+ grammar workshop;
+ 
+ token talk { 
+     &lt;presenter&gt; 
+     {{#c|{ return { talk => $$&lt;presenter&gt; } } }}
+ }
+ token presenter {
+     &lt;'&lt;span class="speaker"&gt;'&gt; &lt;( .+? )&gt; &lt;'&lt;/span&gt;'&gt;
+     {{#c|{ return { presenter => strip_html($$/) } } }}
+ }
+----
+ package main;
+ 
+ my $content = slurp @*ARGS[0];
+ for $content ~~ m:g /&lt;talk&gt;/ -> $match {
+     say {{#c|$$match.yaml}};
+ }
+----
+ -talk:
+   presenter: brian d foy
+ -talk:
+   presenter: Beth Skwarecki
+----
+ &lt;tr&gt;
+      &lt;td class="time"&gt;9:45 AM&lt;/td&gt;
+      &lt;td class="beginner" rowspan="2"&gt;
+        &lt;span class="talk"&gt;&lt;a href="schedule/making_perl_work_for_you.html"&gt;{{#c|Making Perl Work for You}}&lt;/a&gt;&lt;/span&gt;
+        &lt;span class="speaker"&gt;&lt;tt&gt;brian d foy&lt;/tt&gt;&lt;/span&gt;
+      &lt;/td&gt;
+      &lt;td class="advanced"&gt;
+        &lt;span class="talk"&gt;&lt;a href="schedule/make_your_database_work_for_you.html"&gt;{{#c|Make your database work for you}}&lt;/a&gt;&lt;/span&gt;
+        &lt;span class="speaker"&gt;Beth Skwarecki&lt;/span&gt;
+      &lt;/td&gt;
+ &lt;/tr&gt;
+----
+ use v6-alpha;
+ 
+ grammar workshop;
+ 
+ token talk { 
+     &lt;presenter&gt; 
+     { return { talk => $$&lt;presenter&gt; } }
+ }
+ token presenter {
+     &lt;'&lt;span class="speaker"&gt;'&gt; &lt;( .+? )&gt; &lt;'&lt;/span&gt;'&gt;
+     { return { presenter => strip_html($$/) } }
+ }
+ {{#c|token link { }}
+ {{#c|    &lt;'&lt;a href="'&gt; $&lt;url&gt; := (.+?) &lt;'"&gt;'&gt; $&lt;label&gt; := (.+?) &lt;'&lt;/a&gt;'&gt; }}
+ {{#c|} }}
+----
+ use v6-alpha;
+ 
+ grammar workshop;
+ 
+ token talk { 
+     &lt;title&gt; &lt;ws&gt; &lt;presenter&gt; 
+     { return { 
+         talk => { $$&lt;presenter&gt;, $$&lt;title&gt; }
+     } }
+ }
+ token presenter {
+     &lt;'&lt;span class="speaker"&gt;'&gt; &lt;( .+? )&gt; &lt;'&lt;/span&gt;'&gt;
+     { return { presenter => strip_html($$/) } }
+ }
+ {{#c|token title { }}
+ {{#c|    &lt;'&lt;span class="talk"&gt;'&gt; &lt;link&gt; &lt;'&lt;/span&gt;'&gt; }}
+ {{#c|    { return { title =&gt; $&lt;link&gt;&lt;label&gt; } } }}
+ {{#c|} }}
+ token link {
+     &lt;'&lt;a href="'&gt; $&lt;url&gt; := (.+?) &lt;'"&gt;'&gt; $&lt;label&gt; := (.+?) &lt;'&lt;/a&gt;'&gt;
+ }
+----
+ use v6-alpha;
+ 
+ grammar workshop;
+ 
+ token talk { 
+     {{#c|&lt;title&gt; &lt;ws&gt;}} &lt;presenter&gt; 
+     { return { 
+         talk => {{#c|{ $$&lt;presenter&gt;, $$&lt;title&gt; } }}
+     } }
+ }
+ token presenter {
+     &lt;'&lt;span class="speaker"&gt;'&gt; &lt;( .+? )&gt; &lt;'&lt;/span&gt;'&gt;
+     { return { presenter => strip_html($$/) } }
+ }
+ token title {
+     &lt;'&lt;span class="talk"&gt;'&gt; &lt;link&gt; &lt;'&lt;/span&gt;'&gt;
+     { return { title =&gt; $&lt;link&gt;&lt;label&gt; } }
+ }
+ token link {
+     &lt;'&lt;a href="'&gt; $&lt;url&gt; := (.+?) &lt;'"&gt;'&gt; $&lt;label&gt; := (.+?) &lt;'&lt;/a&gt;'&gt;
+ }
+----
+ token title {
+     &lt;'&lt;span class="talk"&gt;'&gt; &lt;link&gt; &lt;'&lt;/span&gt;'&gt;
+     { return { title =&gt; $&lt;link&gt;&lt;label&gt; } }
+ }
+----
+$&lt;link&gt;&lt;label&gt;
+=
+$&lt;link&gt;{'label'}
+----
+ -talk: 
+   presenter: brian d foy
+   title: Making Perl Work for You
+ -talk:
+   presenter: Beth Skwarecki
+   title: Make your database work for you
+----
+ token talk { 
+     &lt;title&gt; &lt;ws&gt; &lt;presenter&gt; 
+     { return { 
+         talk => { $$&lt;presenter&gt;, $$&lt;title&gt; }
+     } }
+ }
+----
+ {{#c|rule}} talk { 
+     &lt;title&gt; &lt;presenter&gt; 
+     { return { 
+         talk => { $$&lt;presenter&gt;, $$&lt;title&gt; }
+     } }
+ }
+----
+regex { ... }
+----
+regex :ratchet { ... }
+=
+token { ... }
+----
+token :sigspace { ... }
+=
+rule { ... }
+----
+ rule talk { 
+     &lt;title&gt; &lt;presenter&gt; 
+     { return { 
+         talk => { 
+             $$&lt;presenter&gt;, 
+             $$&lt;title&gt;
+         }
+     } }
+ }
+----
+ rule talk { 
+     &lt;title&gt; &lt;presenter&gt; 
+     { return { 
+         talk => { 
+             :$&lt;presenter&gt;, 
+             :$&lt;title&gt;
+         }
+     } }
+ }
+----
+ token presenter {
+     &lt;'&lt;span class="speaker"&gt;'&gt; &lt;( .+? )&gt; &lt;'&lt;/span&gt;'&gt;
+     { return { presenter => strip_html($$/) } }
+ }
+----
+ token presenter {
+     &lt;'&lt;span class="speaker"&gt;'&gt; &lt;( .+? )&gt; &lt;'&lt;/span&gt;'&gt;
+     { return strip_html($$/) }
+ }
+----
+ rule talk { 
+     &lt;title&gt; &lt;presenter&gt; 
+ }
+----
+ package main;
+ 
+ my $content = slurp @*ARGS[0];
+ for $content ~~ m:g /&lt;talk&gt;/ -> $match {
+     say $$match.yaml;
+ }
+----
+ package main;
+ 
+ my $content = slurp @*ARGS[0];
+ for $content ~~ m:g /&lt;talk&gt;/ -> $match {
+     say hash($match.kv.map( -> $k, $v { $k => ~$v } )).yaml;
+ }
+----
+magic hand waving
+----
+ -talk: 
+   presenter: brian d foy
+   time: 9:45 AM
+   title: Making Perl Work for You
+ -talk:
+   presenter: Beth Skwarecki
+   time: 9:45 AM
+   title: Make your database work for you
+----
+{{#q|Thank you!}}
+{{#c|☺}}
+----
+Credits
+ 
+ 
+ Larry Wall:        creating the syntax and finding my typos
+ Audrey Tang:       making my insane &lt;ws&gt; a reality and
+                    syntax improvements
+ Patrick Michaud:   writing PGE - my initial testing ground
+ Gaal Yahas:        helping me realize I had to speak
+ Jerry Gay:         syntax improvements
+ Flavio S. Glock:   writing Pugs::Compiler::Rule and
+                    implementing missing features in v6.pm
+ Capitol Advantage: employing Perl programmers (like me)
+</html:textarea>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<deck flex="1" id="deck"><vbox flex="1" onmousemove="Presentation.onMouseMoveOnCanvas(event);"><toolbox id="canvasToolbar"><toolbar><toolbarbutton oncommand="Presentation.home()" label="|&lt;&lt;" observes="canBack"/><toolbarbutton oncommand="Presentation.back()" label="&lt;" observes="canBack"/><toolbarbutton oncommand="Presentation.forward()" label="&gt;" observes="canForward"/><toolbarbutton oncommand="Presentation.end()" label="&gt;&gt;|" observes="canForward"/><toolbarseparator/><hbox align="center"><textbox id="current_page" size="4" oninput="if (this.value) Presentation.showPage(parseInt(this.value)-1);"/><description value="/"/><description id="max_page"/></hbox><toolbarseparator/><vbox flex="2"><spacer flex="1"/><scrollbar id="scroller" align="center" orient="horizontal" oncommand="Presentation.showPage(parseInt(event.target.getAttribute('curpos')));" onclick="Presentation.showPage(parseInt(event.target.getAttribute('curpos')));" onmousedown="Presentation.onScrollerDragStart();" onmousemove="Presentation.onScrollerDragMove();" onmouseup="Presentation.onScrollerDragDrop();"/><spacer flex="1"/></vbox><toolbarseparator/><spacer flex="1"/><toolbarseparator/><toolbarbutton id="toggleEva" label="Eva" type="checkbox" autoCheck="false" oncommand="Presentation.toggleEvaMode();"/><toolbarseparator/><toolbarbutton label="Edit" oncommand="Presentation.toggleEditMode();"/><toolbarbutton oncommand="Presentation.reload();" label="Reload"/></toolbar></toolbox><vbox flex="1" id="canvas" onclick="Presentation.onPresentationClick(event);"><spacer flex="1"/><hbox flex="1"><spacer flex="1"/><vbox id="content"/><spacer flex="1"/></hbox><spacer flex="1"/></vbox></vbox><vbox flex="1" id="edit"><toolbox><toolbar><toolbarbutton label="New Page" oncommand="Presentation.addPage()"/><spacer flex="1"/><toolbarseparator/><toolbarbutton label="View" oncommand="Presentation.toggleEditMode();"/><toolbarbutton oncommand="Presentation.reload();" label="Reload"/></toolbar></toolbox><textbox id="textField" flex="1" multiline="true" oninput="Presentation.onEdit()"/><hbox collapsed="true"><iframe id="dataLoader" onload="if (window.Presentation) Presentation.onDataLoad();"/></hbox></vbox></deck><broadcasterset><broadcaster id="canBack"/><broadcaster id="canForward"/></broadcasterset><commandset><command id="cmd_forward" oncommand="if (Presentation.isPresentationMode) Presentation.forward();"/><command id="cmd_back" oncommand="if (Presentation.isPresentationMode) Presentation.back();"/><command id="cmd_home" oncommand="if (Presentation.isPresentationMode) Presentation.home();"/><command id="cmd_end" oncommand="if (Presentation.isPresentationMode) Presentation.end();"/></commandset><keyset><key keycode="VK_ENTER"      command="cmd_forward"/><key keycode="VK_RETURN"     command="cmd_forward"/><key key=" " command="cmd_forward"/><key keycode="VK_PAGE_DOWN"  command="cmd_forward"/><key keycode="VK_RIGHT"      command="cmd_forward"/><key keycode="VK_DOWN"       command="cmd_forward"/><!--key keycode="VK_BACK_SPACE" command="cmd_back"/--><key keycode="VK_UP"    command="cmd_back"/><key keycode="VK_PAGE_UP"    command="cmd_back"/><!--<key keycode="VK_BACK_UP"    command="cmd_back"/>--><!--<key keycode="VK_BACK_LEFT"  command="cmd_back"/>--><key keycode="VK_HOME"       command="cmd_home"/><!--<key keycode="VK_END"        command="cmd_end"/>--><key key="n" modifiers="accel" oncommand="Presentation.addPage();"/><key key="r" modifiers="accel" oncommand="window.location.reload();"/><key key="e" modifiers="accel" oncommand="Presentation.toggleEditMode();"/><key key="a" modifiers="accel" oncommand="Presentation.toggleEvaMode();"/></keyset><script src="takahashi.js" type="application/x-javascript" /></page>
+<!-- ***** BEGIN LICENSE BLOCK *****
+   - Version: MPL 1.1
+   -
+   - The contents of this file are subject to the Mozilla Public License Version
+   - 1.1 (the "License"); you may not use this file except in compliance with
+   - the License. You may obtain a copy of the License at
+   - http://www.mozilla.org/MPL/
+   -
+   - Software distributed under the License is distributed on an "AS IS" basis,
+   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+   - for the specific language governing rights and limitations under the
+   - License.
+   -
+   - The Original Code is the Takahashi-Method-based Presentation Tool in XUL.
+   -
+   - The Initial Developer of the Original Code is SHIMODA Hiroshi.
+   - Portions created by the Initial Developer are Copyright (C) 2005
+   - the Initial Developer. All Rights Reserved.
+   -
+   - Contributor(s): SHIMODA Hiroshi <piro@p.club.ne.jp>
+   -
+   - ***** END LICENSE BLOCK ***** -->

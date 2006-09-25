@@ -50,3 +50,8 @@ sources are elsewhere: "Introducing Perl - Version VI: A New Hope" (English)
   HTML version: http://wellington.pm.org/archive/200506/perl6-intro/html/index.html
   Sources: http://wellington.pm.org/archive/200506/perl6-intro/
 
+extraction.xul: "Practical Extraction with Perl 6" (English):
+  Talk by Nathan Gray for Pittsburgh Perl Workshop September 2006
+  requires Mozilla browser, takahashi.css and takahashi.js
+  Audio: http://feather.perl6.nl/~kolibrie/extraction.mp3
+
