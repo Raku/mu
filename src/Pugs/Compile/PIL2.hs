@@ -259,7 +259,7 @@ askTCxt = do
             CxtItem typ     -> TCxtItem typ
             CxtSlurpy typ   -> TCxtSlurpy typ
 
-instance (Show (m a), FunctorM m, Typeable1 m, Compile a b) => Compile (m a) (m b) where
+instance (Compile a b) => Compile [a] [b] where
     compile = fmapM compile
 
 instance (Compile a b, Compile a c) => Compile [a] (b, c) where
