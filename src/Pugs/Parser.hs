@@ -402,7 +402,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
 
 
 ruleSubNamePossiblyWithTwigil :: RuleParser String
-ruleSubNamePossiblyWithTwigil = verbatimRule "subroutine name" $ try $ do
+ruleSubNamePossiblyWithTwigil = tryVerbatimRule "subroutine name" $ do
     twigil  <- ruleTwigil
     name    <- ruleOperatorName <|> ruleQualifiedIdentifier
     return $ ('&':twigil) ++ name
@@ -1592,7 +1592,7 @@ ruleNamedMethodCall = do
 
 ruleInvocationCommon :: Bool -> RuleParser (Exp -> Exp)
 ruleInvocationCommon mustHaveParens = do
-    (quant, name)   <- ruleNamedMethodCall
+    (quant, name)   <- ruleNamedMethodCall -- XXX - .'+'?
     (invs, args)    <- if mustHaveParens
         then do
             ruleParenArgs                          -- .foo()
@@ -1611,12 +1611,12 @@ ruleInvocationCommon mustHaveParens = do
         _       -> Syn "CCallDyn" (Val (castV (maybeToList quant)):_Var name:x:args)    -- $x.$meth
 
 ruleArraySubscript :: RuleParser (Exp -> Exp)
-ruleArraySubscript = tryVerbatimRule "array subscript" $ do
+ruleArraySubscript = verbatimRule "array subscript" $ do
     between (symbol "[") (char ']') $ option id $ do
         exp <- ruleExpression; return $ \x -> Syn "[]" [x, exp]
 
 ruleHashSubscript :: RuleParser (Exp -> Exp)
-ruleHashSubscript = tryVerbatimRule "hash subscript" $ do
+ruleHashSubscript = verbatimRule "hash subscript" $ do
     choice [ ruleHashSubscriptBraces, ruleHashSubscriptQW ]
 
 ruleHashSubscriptBraces :: RuleParser (Exp -> Exp)
@@ -1632,7 +1632,7 @@ ruleHashSubscriptQW = do
         _           -> \x -> Syn "{}" [x, exp]
 
 ruleCodeSubscript :: RuleParser (Exp -> Exp)
-ruleCodeSubscript = tryVerbatimRule "code subscript" $ do
+ruleCodeSubscript = verbatimRule "code subscript" $ do
     (invs, args) <- ruleParenArgs
     return $ \x -> App x invs args
 
@@ -1651,7 +1651,7 @@ forms get parsed, so if they need to be changed\/killed, this is the place./
 -}
 ruleApply :: Bool -- ^ @True@ if we are parsing for the reduce-metaop
           -> RuleParser Exp
-ruleApply isFolded = tryVerbatimRule "apply" $ 
+ruleApply isFolded = verbatimRule "apply" $ 
     if isFolded
         then ruleApplySub True
         else ruleApplyImplicitMethod <|> ruleApplySub False
@@ -1859,12 +1859,12 @@ ruleVarName :: RuleParser String
 ruleVarName = lexeme verbatimVarNameString
 
 verbatimVarNameString :: RuleParser String
-verbatimVarNameString = (<?> "variable name") $ choice
-    [ try (string "$/")     -- match object
-    , try ruleMatchPos
-    , try ruleMatchNamed
-    , try regularVarName
-    , string "$!"           -- error variable
+verbatimVarNameString = verbatimRule "variable name" $ tryChoice
+    [ string "$/"   -- match object
+    , ruleMatchPos
+    , ruleMatchNamed
+    , regularVarName
+    , string "$!"   -- error variable
     ]
 
 ruleSigil :: RuleParser VarSigil
@@ -1896,7 +1896,7 @@ ruleDereference = try $ do
     return $ Syn (shows sigil "{}") [exp]
 
 ruleSigiledVar :: RuleParser Exp
-ruleSigiledVar = try . (<|> ruleSymbolicDeref) $ do
+ruleSigiledVar = (<|> ruleSymbolicDeref) $ do
     name <- verbatimVarNameString
     let (sigil, rest) = span isSigilChar name
     case rest of
@@ -1928,7 +1928,7 @@ ruleVar = ruleSigiledVar
 ruleSymbolicDeref :: RuleParser Exp
 ruleSymbolicDeref = do
     sigil    <- ruleSigil
-    nameExps <- many1 $ try $ do
+    nameExps <- many1 $ do
         string "::"
         -- nameExp is the expression which will yield the varname.
         -- We've to include ruleTwigil here to make $::?SELF parse.
