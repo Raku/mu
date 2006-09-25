@@ -143,7 +143,8 @@ use Pugs::Runtime::Match; # overload doesn't work without this ???
     #print "Source: ", do{use Data::Dumper; Dumper( $rule->perl5 ) };
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "xy", 'built-in rule <alpha>' );
-    is( join( '', $match->keys ), "alpha", 'keys() method' );
+    is( join( ' ', $match->keys ), "alpha", 'keys() method' );
+    # is( join( ' ', $match->kv ), "alpha xy", 'kv() method' );
 }
 
 {
