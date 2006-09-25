@@ -701,7 +701,7 @@ reduceSyn "[...]" [listExp, indexExp] = do
     retVal $ VList (drop idx $ list)
 
 -- XXX - Wrong!
-reduceSyn "|{}" [exp] = evalExp exp
+reduceSyn "|" [exp] = evalExp exp
 
 reduceSyn "@{}" [exp] = do
     val     <- enterEvalContext (cxtItem "Array") exp
@@ -1006,9 +1006,13 @@ argsFeed fAcc aAcc (argl:als) = do
             Syn "named" [Val (VStr key), valExp] <- reduceNamedArg n
             argVal  <- fromVal =<< reduce valExp
             af (Just $ resFeed{ f_nameds = addNamed (f_nameds resFeed) key argVal }) args
-        | Syn "|{}" (capExp:_) <- unwrapN = do
+        | Syn "|" (capExp:_) <- unwrapN = do
             cap <- castVal =<< fromVal =<< enterRValue (enterEvalContext (cxtItem "Capture") capExp)
             af (Just (mconcat (resFeed:c_feeds cap))) args
+        | App (Var var) Nothing capExps <- unwrapN
+        , var == cast "&prefix:|<<" = do
+            caps    <- mapM castVal =<< fromVals =<< (enterRValue $ enterEvalContext (cxtSlurpy "Capture") (Syn "," capExps))
+            af (Just (mconcat (resFeed:concatMap c_feeds caps))) args
         | otherwise = do
             argVal  <- fromVal =<< reduce n
             af (Just resFeed{ f_positionals = (f_positionals resFeed) ++ [argVal] }) args
