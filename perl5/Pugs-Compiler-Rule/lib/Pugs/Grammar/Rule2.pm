@@ -159,8 +159,8 @@ token named_capture_body {
         { return { not_before => :$$<rule>, } }
     },
     '<!' => token {
-        <rule> \> 
-        { return { negate  => :$$<rule>, } }
+        <metasyntax> \> 
+        { return { negate  => :$$<metasyntax>, } }
     },
     '<' => token { 
         <metasyntax>  \>
