@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 22 Sept 2006
+  Last Modified: 25 Sept 2006
   Number: 2
-  Version: 71
+  Version: 72
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -670,7 +670,6 @@ structural type of a variable:
     @   ordered array
     %   unordered hash (associative array)
     &   code/rule/token/regex
-    |   capture/arguments/match
     ::  package/module/class/role/subset/enum/type/grammar
     @@  multislice view of @
 
@@ -818,22 +817,14 @@ You may retrieve parts from a C<Capture> object with a prefix sigil operator:
     $$args;         # same as "$args as Scalar" or "Scalar($args)"
     @$args;         # same as "$args as Array"  or "Array($args)"
     %$args;         # same as "$args as Hash"   or "Hash($args)"
-    |$args;         # all of the above
 
 When cast into an array, you can access all the positional arguments; into a
 hash, all named arguments; into a scalar, its invocant.
 
-When stored in a variable using the C<|> sigil, the capture autointerpolates
-into argument lists much like C<@> autoflattens into lists:
-
-    |args := \($a, @b, :option($c));
-    somefunc(|args); 	# same as somefunc($a, @b, :option($c))
-
 All prefix sigil operators accept one positional argument, evaluated in
 scalar context as a rvalue.  They can interpolate in strings if called with
 parentheses.  The special syntax form C<$()> translates into C<$( $/ )> 
-to operate on the current match object; the same applies to C<@()>, C<%()> and
-C<|()> forms.
+to operate on the current match object; the same applies to C<@()> and C<%()>.
 
 C<Capture> objects fill the ecological niche of references in Perl 6.
 You can think of them as "fat" references, that is, references that
@@ -2153,9 +2144,10 @@ at least one comma.  But it's more readable in some situations.)
 
 =item *
 
-The C<[,]> list operator may be used to force list context on its
+The C<|> prefix operator may be used to force "capture" context on its
 argument and I<also> defeat any scalar argument checking imposed by
-subroutine signature declarations.  This list flattens lazily.
+subroutine signature declarations.  Any resulting list arguments are
+then evaluated lazily.
 
 =item *
 
