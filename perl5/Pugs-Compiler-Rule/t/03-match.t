@@ -1,9 +1,17 @@
 
-use Test::More tests => 49;
+use Test::More tests => 50;
 use Data::Dumper;
 
 use_ok( 'Pugs::Compiler::Regex' );
 use_ok( 'Pugs::Grammar::Base' );
+
+{
+    my $rule = Pugs::Compiler::Regex->compile( '<null>' );
+    #print $rule->{perl5};
+    my $match = $rule->match( "" );
+    #print "match: ", $match->perl;
+    is( $match ? 1 : 0, 1, 'boolean true' );
+}
 
 {
     my $rule = Pugs::Compiler::Regex->compile( '.' );
