@@ -25,13 +25,16 @@ data EncodedSource
 data Endian = LittleEndian | BigEndian
 
 decodeProgram :: String -> String
-decodeProgram str = case detectSourceEncoding str of
+decodeProgram str = removeCRLF $! case detectSourceEncoding str of
     UTF8 xs                 -> decodeUTF8 xs
     UTF16 LittleEndian xs   -> decodeUTF16LE xs
     UTF16 BigEndian xs      -> decodeUTF16BE xs
     UTF32 LittleEndian xs   -> decodeUTF32LE xs
     UTF32 BigEndian xs      -> decodeUTF32BE xs
     where
+    removeCRLF ('\r':'\n':xs)   = let rest = removeCRLF xs in seq rest ('\n':rest)
+    removeCRLF (x:xs)           = let rest = removeCRLF xs in seq rest (x:rest)
+    removeCRLF []               = []
     decodeUTF16BE (a:b:c:d:xs)
         | a >= '\xD8', a <= '\xDB'  -- High surrogate
         , c >= '\xDC', c <= '\xDF'  -- Low surrogate
