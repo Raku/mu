@@ -76,7 +76,7 @@ naturalOrRat = (<?> "number") $ do
 
     decimalLiteral         = number 10
     hexadecimal     = do{ char 'x'; number 16  }
-    decimal         = do{ char 'd'; number 10  }
+    decimal         = do{ oneOf "_d"; number 10  }
     octal           = do{ char 'o'; number 8 }
     octalBad        = do{ many1 octDigit ; fail "0100 is not octal in perl6 any more, use 0o100 instead." }
     binary          = do{ char 'b'; number 2  }
