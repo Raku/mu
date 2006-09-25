@@ -513,7 +513,7 @@ substLiteral = do
     return $ Syn "subst" [expr, subst, adverbs]
 
 ruleRegexDeclarator :: RuleParser (Exp -> Exp)
-ruleRegexDeclarator = choice
+ruleRegexDeclarator = verbatimRule "regex expression" $ choice
     [ symbol "rule"     >> return (adv "ratchet" . adv "sigspace")
     , symbol "token"    >> return (adv "ratchet")
     , symbol "regex"    >> return id
@@ -524,7 +524,7 @@ ruleRegexDeclarator = choice
     adv _ _ = internalError "unexpected regex adverb specifier"
 
 rxLiteral :: RuleParser Exp
-rxLiteral = verbatimBrackets "regex expression" $ do
+rxLiteral = verbatimRule "regex expression" $ do
     (withAdvs, decl) <- choice
         [ symbol "rx" >> return (id, "rx")
         , symbol "m"  >> return (id, "match")
@@ -538,7 +538,7 @@ rxLiteral = verbatimBrackets "regex expression" $ do
     return $ Syn decl [expr, adverbs]
 
 rxLiteralBare :: RuleParser Exp
-rxLiteralBare = verbatimBrackets "regex expressions" $ do
+rxLiteralBare = verbatimRule "regex expressions" $ do
     ch      <- char '/'
     expr    <- rxLiteral6 ch (balancedDelim ch)
     return $ Syn "//" [expr, Val undef]
