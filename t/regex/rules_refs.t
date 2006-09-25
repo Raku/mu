@@ -15,7 +15,7 @@ unless "a" ~~ rx:P5/a/ {
   exit;
 }
 
-my $rule = rx:perl5{\s+};
+my $rule = rx:P5/\s+/;
 isa_ok($rule, 'Pugs::Internals::VRule');
 
 ok("hello world" ~~ $rule, '... applying rule object returns true');

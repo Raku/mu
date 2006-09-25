@@ -63,7 +63,7 @@ eval_ok('macro circumfix:«<!-- -->» ($text) is parsed / .*? / { "" }; <!-- $va
 
 # demonstrate sum prefix
 
-sub prefix:<Σ> ($x) { [+] *$x }
+sub prefix:<Σ> (@x) { [+] @x }
 is(Σ [1..10], 55, "sum prefix operator");
 
 # check that the correct overloaded method is called

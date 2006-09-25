@@ -60,15 +60,13 @@ eval_dies_ok 'my $i; do { $i++ } given $i;',
 
 # L<S04/The do-once loop/"can take" "loop control statements">
 {
-    eval_is q{
-        my $i;
-        do {
-            $i++;
-            next;
-            $i--;
-        };
-        $i;
-    }, 1, "'next' works in 'do' block";
+    my $i;
+    do {
+        $i++;
+        next;
+        $i--;
+    };
+    is $i, 1, "'next' works in 'do' block";
 }
 
 {
@@ -113,10 +111,8 @@ eval_dies_ok 'my $i; do { $i++ } given $i;',
 # L<S04/Statement parsing/"final closing curly on a line" 
 #   reverts to semicolon>
 {
-    eval_is q{
-        my $a = do {
-            1 + 2;
-        }  # no trailing `;'
-        $a;
-    }, 3, "final `}' on a line reverted to `;'";
+    my $a = do {
+        1 + 2;
+    }  # no trailing `;'
+    is $a, 3, "final `}' on a line reverted to `;'";
 }

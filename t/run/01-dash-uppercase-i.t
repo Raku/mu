@@ -25,12 +25,11 @@ entries C<lib/> in C<@INC>.
 
 my $fragment = '-e "@INC.perl.say"';
 
-# ugly syntax due to Perl6 list/comma parsing bug
 my @tests = (
-    'foo'
-  , 'foo$bar'
-  , 'foo bar$baz'
-  , 'foo$foo'
+    'foo',
+    'foo$bar',
+    'foo bar$baz',
+    'foo$foo',
 );
 
 plan @tests*2;

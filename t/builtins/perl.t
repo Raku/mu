@@ -10,7 +10,7 @@ my @tests = (
     "a string", "", "\0", "\t", "\n", "\r\n", "\o7", '{', '}', "\d123", '$a @string %with &sigils()',
     ?1, ?0,
     undef,
-    rx:Perl5{foo}, rx:Perl5{}, rx:Perl5{^.*$},
+    rx:P5/foo/, rx:P5//, rx:P5/^.*$/,
 
     # References to scalars
     \42, \Inf, \-Inf, \NaN, \"string", \"", \?1, \?0, \undef,

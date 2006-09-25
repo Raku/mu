@@ -65,7 +65,7 @@ is($b, '012345', 'for 0 .. 5 -> {} works');
             $str ~= "($x $y)";
         }
     };
-    is $str, "(1 5)(2 4)(3 6)", 'for zip(@a; @b) -> [$x, $y] works';
+    is $str, "(1 5)(2 4)(3 6)", 'for zip(@a; @b) -> [$x, $y] works', :todo<bug>;
 }
 
 # ... with sub

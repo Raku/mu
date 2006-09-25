@@ -25,7 +25,7 @@ is($result2, 6, 'the &?ROUTINE magical works correctly in anon-subs');
 
 sub postfix:<!> (Int $n) { $n < 2 ?? 1 !! $n * &?ROUTINE($n - 1) }
 my $result3 = 3!;
-is($result3, 6, 'the &?ROUTINE magical works correctly in overloaded operators' };
+is($result3, 6, 'the &?ROUTINE magical works correctly in overloaded operators' );
 
 my $baz = try { &?ROUTINE };
 ok(!defined($baz), '&?ROUTINE not defined outside of a sub');

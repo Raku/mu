@@ -9,9 +9,6 @@ unless eval 'eval("1", :lang<perl5>)' {
     exit;
 }
 
-skip_rest; # XXX - for release
-exit;
-
 die unless
 eval(q/
 package My::Hash;

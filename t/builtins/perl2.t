@@ -54,7 +54,7 @@ sub desc_ref ($obj) {
         is  $obj.perl.eval.WHAT,  $obj.WHAT, desc_ref($obj);
     }
 
-    for (rx:Perl5{foo}, rx:Perl5{}, rx:Perl5{^.*$},) -> $obj {
+    for (rx:P5/foo/, rx:P5//, rx:P5/^.*$/,) -> $obj {
         is ~$obj.perl.eval    , ~$obj    , desc_perl($obj), :todo<bug>;
         is  $obj.perl.eval.WHAT,  $obj.WHAT, desc_ref($obj), :todo<bug>;
     }

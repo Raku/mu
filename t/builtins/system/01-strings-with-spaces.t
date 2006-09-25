@@ -148,7 +148,7 @@ for @command -> $cmd {
     $fh.say("system(");
     #say @cmd;
     #say @args;
-    for *@cmd,*@args -> $l {
+    for @cmd, @args -> $l {
       my $line = $l.perl();
       #say $line;
       $line ~~ s:P5/^\\//;

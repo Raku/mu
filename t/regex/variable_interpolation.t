@@ -10,21 +10,21 @@ unless "a" ~~ rx:P5/a/ {
 }
 
 my $rule = '\d+';
-ok('2342' ~~ rx:perl5{$rule}, 'interpolated rule applied successfully');
+ok('2342' ~~ rx:P5/$rule/, 'interpolated rule applied successfully');
 
 my $rule2 = 'he(l)+o';
-ok('hello' ~~ rx:perl5{$rule2}, 'interpolated rule applied successfully');
+ok('hello' ~~ rx:P5/$rule2/, 'interpolated rule applied successfully');
 
 my $rule3 = 'r+';
 my $subst = 'z';
 my $bar = "barrrr"; 
-$bar ~~ s:perl5:g {$rule3}{$subst}; 
+$bar ~~ s:P5:g {$rule3}{$subst}; 
 is($bar, "baz", 'variable interpolation in substitute regexp works with :g modifier');
 
 my $a = 'a:';
-$a ~~ s:perl5 [(..)][{uc $0}];
+$a ~~ s:P5 [(..)][{uc $0}];
 is($a, 'A:', 'closure interpolation with [] as delimiter');
 
 my $b = 'b:';
-$b ~~ s:perl5 {(..)}{{uc $0}};
+$b ~~ s:P5 {(..)}{{uc $0}};
 is($b, 'B:', 'closure interpolation with {} as delimiter');

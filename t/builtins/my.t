@@ -38,10 +38,12 @@ is($c, 2, '$c is available, and the outer value has been changed');
 # and that lexical does not leak out into the outer scope
 
 my $d = 1;
-if (1) { # create a new lexical scope
+{ # create a new lexical scope
     is($d, 1, '$d is still the outer $d');
-    my $d = 2;
-    is($d, 2, '$d is now the lexical (inner) $d');    
+    { # create another new lexical scope
+        my $d = 2;
+        is($d, 2, '$d is now the lexical (inner) $d');    
+    }
 }
 is($d, 1, '$d is available, and the outer value has not changed');
 

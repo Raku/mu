@@ -68,23 +68,14 @@ sub run_pugs ($c) {
   my $command = "$pugs $c $redir $tempfile";
   diag $command;
   system $command;
-  my $res = slurp $tempfile;
+  my $res = -s $tempfile;
   unlink $tempfile;
   return $res;
 }
 
-my $dump_file = "dump.ast";
-
 for @tests_ok -> $test {
-
-  my $fh = open("$dump_file", :w);
-  $fh.close();
-
   my $f = run_pugs($test);
   ok( defined $f, "dump file was created" );
-  ok( $f ~~ rx:perl5/.../, "... and it contains some output" );
-
-  unlink($dump_file)
-    or diag "$dump_file was not removed for next run";
+  ok( $f >= 3, "... and it contains some output" );
 };
 

@@ -10,12 +10,19 @@ plan 24;
 # 4 different ways to be imported
 # L<S10/"Packages" /A bare/>
 {
-    package Test1;
-    sub ns  { "Test1" }
-    sub pkg { $?PACKAGE }
-    sub test1_export is export { "export yourself!" }
-    package Test2 { sub ns { "Test2" } sub pkg { $?PACKAGE } our $scalar = 42 }
-    package Test3; sub pkg { $?PACKAGE }
+    package Test1 {
+        sub ns  { "Test1" }
+        sub pkg { $?PACKAGE }
+        sub test1_export is export { "export yourself!" }
+    }
+    package Test2 {
+        sub ns { "Test2" }
+        sub pkg { $?PACKAGE }
+        our $scalar = 42;
+    }
+    package Test3 {
+        sub pkg { $?PACKAGE }
+    }
 }
 
 use t::packages::Test;
@@ -73,8 +80,8 @@ ok(!($pkg === ::*My::Package), 'not the same as global type object');
 # Check temporization of variables in external packages
 {
   {
-    eval_ok('temp $Test2::scalar; 1', "parse for temp package vars");
+    eval_ok('temp $Test2::scalar; 1', "parse for temp package vars", :todo<bug>);
     $Test2::scalar++;
   }
-  is($Test2::scalar, 42, 'temporization of external package variables');
+  is($Test2::scalar, 42, 'temporization of external package variables', :todo<bug>);
 }

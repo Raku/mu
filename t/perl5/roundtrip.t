@@ -39,9 +39,6 @@ my %hash = (foo => 'bar', hate => 'software');
     }
 }
 
-skip_rest; # XXX - for release
-exit;
-
 {
     lives_ok { # is_deeply
         cmp_ok(%hash.keys, &infix:<cmp>, $keys_p5.(%hash));

@@ -132,7 +132,7 @@ is ~@array12,'a b c d', "assignment to neg index correctly alters the array";
 
 my @array13 = ('a', 'b', 'c', 'd'); 
 # negative index range as lvalue
-@array13[-4 .. -1]   = ('d', 'c', 'b', 'a'); #('a'..'d').reverse
+@array13[-4 .. -1]   = ('d', 'c', 'b', 'a'); # ('a'..'d').reverse
 is ~@array13, 'd c b a', "negative range as lvalue"; 
 
 #hat trick

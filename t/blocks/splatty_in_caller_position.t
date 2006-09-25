@@ -9,7 +9,7 @@ plan 4;
 # try to flatten the args for baz() to match
 
 sub baz ($a, $b) { return "a: $a b: $b"}
-sub invoke (*@args) { baz(*@args) }
+sub invoke (*@args) { baz(|@args) }
 
 my $val;
 lives_ok {
@@ -20,7 +20,7 @@ is($val, 'a: 1 b: 2', '... slurpy args flattening and matching parameters', :tod
 
 # try to flatten the args for the anon sub to match
 
-sub invoke2 ($f, *@args) { $f(*@args) }; 
+sub invoke2 ($f, *@args) { $f(|@args) }; 
 is(try { invoke2(sub ($a, $b) { return "a: $a b: $b"}, 1, 2) }, 'a: 1 b: 2', 
     '... slurpy args flattening and matching parameters', :todo<bug>);    
 
