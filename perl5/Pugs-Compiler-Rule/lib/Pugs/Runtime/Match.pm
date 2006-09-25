@@ -39,9 +39,18 @@ sub data  {    $_data{refaddr $_[0]}           }
 sub from  {  ${$_data{refaddr $_[0]}->{from}}  }
 sub to    {  ${$_data{refaddr $_[0]}->{to}}    }
 sub bool  {  ${$_data{refaddr $_[0]}->{bool}}  }
-sub hash  {    $_data{refaddr $_[0]}->{named}  }   # TODO - include array
 sub array {    $_data{refaddr $_[0]}->{match}  }
 
+sub hash  {   
+    my $array = $_data{refaddr $_[0]}->{match};
+    return {
+        %{ $_data{refaddr $_[0]}->{named} },
+        (
+        map { ( $_, $array->[$_] ) } 
+            0 .. $#$array
+        ),
+    }
+}
 sub keys   { 
     CORE::keys   %{$_data{refaddr $_[0]}->{named}},
     0 .. $#{ $_[0]->array }
@@ -51,18 +60,11 @@ sub values {
     @{ $_[0]->array }
 }
 sub kv {
-    (
     map { ( $_, $_[0]->{$_} ) } 
         $_[0]->keys 
-    ),
-    (
-    map { ( $_, $_[0]->[$_] ) } 
-        0 .. $#{ $_[0]->array }
-    ),
 }
 sub elems  { 
-     scalar( CORE::keys   %{$_data{refaddr $_[0]}->{named}} )
-   + scalar( @{ $_[0]->array } )
+    scalar $_[0]->keys
 }
 
 sub chars  { CORE::length $_[0]->str }
