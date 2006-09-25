@@ -111,7 +111,7 @@ op1 "WHICH" = \x -> do
     val <- fromVal x
     case val of
         VObject o   -> return . castV . unObjectId $ objId o
-        _           -> return undef
+        _           -> return val
 op1 "chop" = \x -> do
     str <- fromVal x
     if null str
