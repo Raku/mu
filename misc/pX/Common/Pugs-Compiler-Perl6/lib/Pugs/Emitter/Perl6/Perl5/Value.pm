@@ -2,6 +2,10 @@ use strict;
 use warnings;
 # Compile-time Perl 5 thing, with hardcoded, autoboxed  methods
 
+# operator name mangler:
+# perl Runtime::Common -e ' print Pugs::Runtime::Common::mangle_ident("==") '
+
+
 package Pugs::Emitter::Perl6::Perl5::Value;
     use base 'Pugs::Emitter::Perl6::Perl5::Any';
 package Pugs::Emitter::Perl6::Perl5::Bool;
@@ -17,6 +21,14 @@ package Pugs::Emitter::Perl6::Perl5::Bool;
         return Pugs::Emitter::Perl6::Perl5::Str->new( 
             { name => ( $_[0]->{name} ? '1' : '0' ) } );
     }
+    sub int {
+        return Pugs::Emitter::Perl6::Perl5::Int->new( 
+            { name => ( $_[0]->{name} ? '1' : '0' ) } );
+    }
+    sub num {
+        return Pugs::Emitter::Perl6::Perl5::Num->new( 
+            { name => ( $_[0]->{name} ? '1' : '0' ) } );
+    }
     sub perl {
         $_[0]->str;
     }
@@ -27,6 +39,9 @@ package Pugs::Emitter::Perl6::Perl5::Bool;
         $_[0]->{name} 
         ? Pugs::Emitter::Perl6::Perl5::Bool->new( { name => 0 } ) 
         : Pugs::Emitter::Perl6::Perl5::Bool->new( { name => 1 } )
+    }
+    sub _61__61_ {  # ==
+        $_[0]->int->_61__61_( $_[1] );
     }
 package Pugs::Emitter::Perl6::Perl5::Str;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
@@ -65,8 +80,15 @@ package Pugs::Emitter::Perl6::Perl5::Int;
     sub str {
         return Pugs::Emitter::Perl6::Perl5::Str->new( { name => $_[0]->{name} } );
     }
+    sub num {
+        return Pugs::Emitter::Perl6::Perl5::Num->new( { name => $_[0]->{name} } );
+    }
     sub perl {
         $_[0]->str
+    }
+    sub _61__61_ {  # ==
+        Pugs::Emitter::Perl6::Perl5::BoolExpression->new( 
+            { name => $_[0] . " == " . $_[1]->num } );
     }
 package Pugs::Emitter::Perl6::Perl5::Num;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
