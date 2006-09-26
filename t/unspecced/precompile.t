@@ -87,7 +87,7 @@ sub make_old (Str $filename) {
 
 # XXX - Wrapping in try so we can cleanup; this can go once File::Temp
 #       is native.
-try { 
+try {
     my $lib1 = mktempdir();
     my $lib2 = mktempdir();
     diag "Created tempdirs {($lib1, $lib2)}";
@@ -165,6 +165,8 @@ try {
             q".yml's with no matching .pm are skipped";
     }
 } # try
+
+diag "Error: $!" if $!;
 
 # XXX - More tempdir workaround
 for @files_created { .unlink err diag "Couldn't unlink $_" }
