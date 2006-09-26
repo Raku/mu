@@ -272,6 +272,7 @@ ab:::cd | gh:::ij	xyabghij	n	rule cut at top
 
 ##    Enumerated character lists
 <[c]>			abcdef		y	character class
+<[ z ]>			abc def		n	character class ignores ws
 <[dcb]>**{3}		abcdef		y	repeated character class
 ^<[a]>			abcdef		y	anchored character class
 <-[e]>			abcdef		y	negated character class
@@ -281,11 +282,13 @@ ab:::cd | gh:::ij	xyabghij	n	rule cut at top
 ^<-[e]>			abcdef		y	anchored negated character class
 ^<-[a]>			abcdef		n	anchored negated character class
 <[b..d]>		abcdef		y	character range
+<[b .. d]>		c		y	character range ignores ws
 <[b..d]>		abxxef		y	character range
 <[b..d]>		axcxef		y	character range
 <[b..d]>		axxdef		y	character range
 <[b..d]>		axxxef		n	character range
 <-[b..d]>		abcdef		y	negated character range
+<- [b..d]>		abcdef		y	negated allows ws
 <-[b..d]>		bbccdd		n	negated character range
 <-[d..b]>		bbccdd		/parse error/	TODO: illegal character range
 <[\-]>			ab-def		y	escaped hyphen
@@ -484,6 +487,7 @@ ab [:i cd ] ef		abCDEf	n	ignorecase, lexical (:i)
 :i a [:i(0) b [:i(1) c [:0i d [:1i e [:i(0) f ] ] ] ] ]		AbCdEF		n	ignorecase, lexical (:i)
 :i aa [:i(0) bb [:i(1) cc [:0i dd [:1i ee [:i(0) ff ] ] ] ] ]	AabbCcddEeFf	n	ignorecase, lexical (:i)
 :i ab [:i(0) cd ] ef	AbcdeF	y	ignorecase, lexical repetition (:i)
+:i ab [:!i cd ] ef	AbcdeF	y	ignorecase, lexical repetition (:i)
 :i ab [:0i cd ] ef	AbcdeF	y	ignorecase, lexical repetition (:i)
 :0i ab [:1i cd ] ef	abCDef	y	ignorecase, lexical repetition (:i)
 :0i ab [:1i cd ] ef	AbCDeF	n	ignorecase, lexical repetition (:i)
@@ -518,8 +522,11 @@ ab [:ignorecase cd ] ef		aBCDef	n	ignorecase, lexical (:ignorecase)
 :sigspace b c d		ab c d ef	n	sigspace (:sigspace)
 :s(1) b c [:s(0) d e f ]	a b c def	y	sigspace, lexical repetition (:s)
 :s(1) b c [:s(0) d e f ]	a b c def	y	sigspace, lexical repetition (:s)
+:s b c [:!s d e f ]	a b c def	y	sigspace, lexical repetition (:s)
 :s(0) b c [:s(1) d e f ]	a b c def	n	sigspace, lexical repetition (:s)
+:!s b c [:s d e f ]	a b c def	n	sigspace, lexical repetition (:s)
 :s(0) b c [:s(0) d e f ]	a b c def	n	sigspace, lexical repetition (:s)
+:!s b c [:!s d e f ]	a b c def	n	sigspace, lexical repetition (:s)
 :s ab 				ab		y	sigspace, trailing ws
 foo\s*-?\s*bar			foo\t \n-\n\t bar	y	basic match
 foo\s*-?\s*bar			foo - bar	y	basic match

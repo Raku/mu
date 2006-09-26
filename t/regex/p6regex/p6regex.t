@@ -6,7 +6,7 @@ use Test;
 
 # XXX: add sanity check to see we can run the test or skip
 
-plan 527;
+plan 525;
 
 
 #my $test_data = slurp 'regex_tests';
