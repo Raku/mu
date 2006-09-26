@@ -1151,13 +1151,21 @@ will not complain if $b happens to contain a junction at runtime.
 =head1 Chained comparisons
 
 Perl 6 supports the natural extension to the comparison operators,
-allowing multiple operands.
+allowing multiple operands:
 
     if 1 < $a < 100 { say "Good, you picked a number *between* 1 and 100." }
 
     if 3 < $roll <= 6              { print "High roll" }
 
     if 1 <= $roll1 == $roll2 <= 6  { print "Doubles!" }
+
+A chain of comparisons short-circuits if the first comparison fails:
+
+    1 > 2 > die("this is never reached");
+
+Each argument in the chain will evaluate at most once:
+
+    1 > $x++ > 2    # $x increments exactly once
 
 Note: any operator beginning with C<< < >> must have whitespace
 in front of it, or it will be interpreted as a hash subscript instead.
