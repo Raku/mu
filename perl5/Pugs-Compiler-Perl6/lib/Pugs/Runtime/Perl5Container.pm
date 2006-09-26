@@ -62,6 +62,12 @@ sub map {
     }
     return bless \@result, , 'Pugs::Runtime::Perl5Container::Array';
 }
+sub yaml {
+    eval { use YAML::Syck };
+    $YAML::Syck::ImplicitTyping = 1;
+    Dump( @{$_[0]} );
+}
+
   
 package Pugs::Runtime::Perl5Container::Hash;
 use strict;
@@ -119,6 +125,11 @@ sub array {
 }
 sub map {
     $_[0]->array->map( $_[1] )
+}
+sub yaml {
+    eval { use YAML::Syck };
+    $YAML::Syck::ImplicitTyping = 1;
+    Dump( @{$_[0]} );
 }
     
 1;
