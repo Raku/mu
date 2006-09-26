@@ -165,20 +165,24 @@ op2ReduceL keep list sub = do
     op2Reduce keep list $ VCode code{ subAssoc = A_left }
 
 op2Reduce :: Bool -> Val -> Val -> Eval Val
-op2Reduce keep sub@(VCode _) list = op2Reduce keep list sub
+op2Reduce keep sub@VCode{} list = op2Reduce keep list sub
 op2Reduce keep list sub = do
     code <- fromVal sub
     args <- fromVal list
+    if null args then identityVal (subName code) else do
     -- cxt  <- asks envContext
-    let (reduceM, reduceMn) = if keep then (scanM, scanMn) else (foldM, foldMn)
     let arity = length $ subParams code
+        (reduceM, reduceMn) = if keep then (scanM, scanMn) else (foldM, foldMn)
+        applyListAssoc = do
+            evl <- asks envEval
+            evl $ App (Val $ VCode code{ subParams = length args `replicate` head (subParams code)}) Nothing (map Val args)
+    if subAssoc code == A_list then applyListAssoc else do
     if arity < 2 then fail "Cannot reduce() using a unary or nullary function." else do
     -- n is the number of *additional* arguments to be passed to the sub.
     -- Ex.: reduce { $^a + $^b       }, ...   # n = 1
     -- Ex.: reduce { $^a + $^b + $^c }, ...   # n = 2
     let n = arity - 1
     -- Break on empty list.
-    if null args then return undef else do
     let doFold xs = do
         evl <- asks envEval
         local (\e -> e{ envContext = cxtItemAny }) $ do
@@ -217,6 +221,66 @@ op2Reduce keep list sub = do
             fqx  <- f q x
             rest <- fromVal =<< scanM f fqx xs
             return $ VList (q:rest)
+    identityVal name = case nameStr of
+        "**"    -> _1
+        "*"     -> _1
+        "/"     -> _fail
+        "%"     -> _fail
+        "x"     -> _fail
+        "xx"    -> _fail
+        "+&"    -> _neg1
+        "+<"    -> _fail
+        "+>"    -> _fail
+        "~&"    -> _fail
+        "~<"    -> _fail
+        "~>"    -> _fail
+        "+"     -> _0
+        "-"     -> _0
+        "~"     -> _''
+        "+|"    -> _0
+        "+^"    -> _0
+        "~|"    -> _''
+        "~^"    -> _''
+        "&"     -> _junc JAll
+        "|"     -> _junc JAny
+        "^"     -> _junc JOne
+        "!="    -> _false
+        "=="    -> _true
+        "<"     -> _true
+        "<="    -> _true
+        ">"     -> _true
+        ">="    -> _true
+        "~~"    -> _true
+        "eq"    -> _true
+        "ne"    -> _false
+        "lt"    -> _true
+        "le"    -> _true
+        "gt"    -> _true
+        "ge"    -> _true
+        "=:="   -> _true
+        "==="   -> _true
+        "eqv"   -> _true
+        "&&"    -> _true
+        "||"    -> _false
+        "^^"    -> _false
+        ","     -> _list
+        "Y"     -> _list
+     -- "\xA5"      -> _list
+        "\xC2\xA5"  -> _list
+        ('!':_) -> _false
+        _           -> _undef
+        where
+        nameStr = cast name
+        _0      = return (VInt 0)
+        _1      = return (VInt 1)
+        _undef  = return undef
+        _false  = return (VBool False)
+        _true   = return (VBool True)
+        _list   = return (VList [])
+        _neg1   = return (VInt (toInteger (complement 0 :: Word)))
+        _junc   = \jtyp -> return . VJunc $ MkJunc jtyp Set.empty Set.empty
+        _''     = return (VStr "")
+        _fail   = fail $ "reduce is nonsensical for " ++ cast name
 
 op2Grep :: Val -> Val -> Eval Val
 op2Grep sub@(VCode _) list = op2Grep list sub
