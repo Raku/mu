@@ -14,9 +14,9 @@ use perl5:Carp;
 
 my $err;
 lives_ok({ try{ Carp.croak() }; $err = $! }, "Perl 5 exception (die) caught");
-like($err, rx:Perl5{Carp}, "Exception is propagated to Perl 6 land");
+like($err, rx:P5/Carp/, "Exception is propagated to Perl 6 land");
 
-eval(q/
+eval(q[
 package Foo;
 
 sub new {
@@ -29,7 +29,7 @@ sub error {
 }
 
 sub test { "1" }
-/,:lang<perl5>);
+], :lang<perl5>);
 
 my $foo = eval("Foo",:lang<perl5>);
 try { $foo.error };
