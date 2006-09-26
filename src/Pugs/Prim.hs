@@ -332,9 +332,15 @@ op1 "take" = \v -> do
 op1 "sign" = \v -> withDefined [v] $
     op1Cast (VInt . signum) v
 
+op1 "srand" = \v -> do
+    x    <- fromVal v
+    flbk <- guardSTM . unsafeIOToSTM $ randomRIO (0, 2^31)
+    guardIO $ setStdGen $ mkStdGen $ if x == 0 then flbk else x
+    return (castV True)
 op1 "rand"  = \v -> do
     x    <- fromVal v
-    rand <- guardSTM . unsafeIOToSTM $ randomRIO (0, if x == 0 then 1 else x)
+    rand <- guardSTM . unsafeIOToSTM
+               $ getStdRandom (randomR (0, if x == 0 then 1 else x))
     return $ VNum rand
 op1 "say" = op2 "IO::say" (VHandle stdout)
 op1 "print" = op2 "IO::print" (VHandle stdout)
@@ -1809,6 +1815,7 @@ initSyms = mapM primDecl syms
 \\n   Any       pre     next    safe   (?Int=1)\
 \\n   Any       pre     redo    safe   (?Int=1)\
 \\n   Any       pre     exit    unsafe (?Int=0)\
+\\n   Any       pre     srand   safe   (?Num)\
 \\n   Num       pre     rand    safe   (?Num=1)\
 \\n   Bool      pre     defined safe   (Any)\
 \\n   Str       pre     WHAT     safe   (rw!Any|Junction|Pair)\

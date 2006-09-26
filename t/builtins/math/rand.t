@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan tests => 2 + 2*10 + 2;
+plan 2 + 2*10 + 2;
 
 =pod 
 
@@ -22,7 +22,7 @@ for 1 .. 10 {
 
 # L<S29/"Math::Basic" /srand/>
 
-eval_ok('srand(1)', 'srand(1) compiles', :todo);
+ok(srand(1), 'srand(1) parses');
 
 sub repeat_rand ($seed) {
 	srand($seed);
@@ -30,7 +30,5 @@ sub repeat_rand ($seed) {
 	return rand();
 }
 
-eval_ok( 'repeat_rand(314159) == repeat_rand(314159)',
-    'srand() provides repeatability for rand()',
-    :todo, :depends('srand()')
-);
+ok(repeat_rand(314159) == repeat_rand(314159),
+    'srand() provides repeatability for rand()');
