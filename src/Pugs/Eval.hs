@@ -1055,6 +1055,7 @@ chainFun p1 f1 p2 f2 (v1:v2:vs) = do
     chainArg (p, v) = ApplyArg (paramName p) v False
     forceThunk (VRef (MkRef (IThunk tv)))   = thunk_force tv
     forceThunk x                            = return x
+chainFun _ _ _ _ _ = fail "Impossible: Chained function with less than 2 arguments?"
 
 doCall :: Var -> Maybe Exp -> [Exp] -> Eval Val
 doCall var invs args = do
