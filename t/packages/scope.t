@@ -5,7 +5,7 @@ use Test;
 # test that packages work.  Note that the correspondance between type
 # objects as obtained via the ::() syntax and packages is only hinted
 # at in L<S10/"Packages" /or use the sigil-like/>
-plan 24;
+plan 23;
 
 # 4 different ways to be imported
 # L<S10/"Packages" /A bare/>
