@@ -433,9 +433,13 @@ reduceSyn "sub" [exp] = do
     cloneBodyStates x = return x
     clonePad pad = do
         fmap listToPad $ forM (padToList pad) $ \(var, tvars) -> do
-            tvars' <- forM tvars . const $ do
+            tvars' <- forM tvars $ \(_, tvar) -> do
                 fresh'  <- liftSTM $ newTVar False
-                tvar'   <- (liftSTM . newTVar) =<< newObject (typeOfSigilVar var)
+                tvar'   <- (liftSTM . newTVar) =<< case v_sigil var of
+                    SType       -> liftSTM $ readTVar tvar
+                    SCode       -> liftSTM $ readTVar tvar
+                    SCodeMulti  -> liftSTM $ readTVar tvar
+                    _           -> newObject (typeOfSigilVar var)
                 return (fresh', tvar')
             return (var, tvars')
 
