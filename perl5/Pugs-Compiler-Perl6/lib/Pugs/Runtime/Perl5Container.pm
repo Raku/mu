@@ -129,7 +129,7 @@ sub map {
 sub yaml {
     eval { use YAML::Syck };
     $YAML::Syck::ImplicitTyping = 1;
-    Dump( @{$_[0]} );
+    Dump( %{$_[0]} );
 }
     
 1;
