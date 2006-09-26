@@ -1040,16 +1040,17 @@ chainFun :: Params -> Exp -> Params -> Exp -> [Val] -> Eval Val
 chainFun p1 f1 p2 f2 (v1:v2:vs) = do
     v1' <- forceThunk v1
     v2' <- forceThunk v2
-    val <- applyExp SubPrim (chainArgs p1 [v1', v2']) f1
-    case val of
-        VBool False -> return val
-        _           -> do
+    val <- juncApply (\args -> applyExp SubPrim args f1) (chainArgs p1 [v1', v2'])
+    vb  <- fromVal val
+    case vb of
+        False -> return val
+        True  -> do
             vs' <- case vs of
                 (v3:rest)   -> do
                     v3' <- forceThunk v3
                     return (v3':rest)
                 _           -> return vs
-            applyExp SubPrim (chainArgs p2 (v2':vs')) f2
+            juncApply (\args -> applyExp SubPrim args f2) (chainArgs p2 (v2':vs'))
     where
     chainArgs prms vals = map chainArg (prms `zip` vals)
     chainArg (p, v) = ApplyArg (paramName p) v False
