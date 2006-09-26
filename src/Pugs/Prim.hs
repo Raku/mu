@@ -952,7 +952,12 @@ op2 "gt" = op2Cmp vCastStr (>)
 op2 "ge" = op2Cmp vCastStr (>=)
 op2 "~~" = op2Match
 op2 "=:=" = \x y -> do
-    return $ castV (W# (unsafeCoerce# x :: Word#) == W# (unsafeCoerce# y :: Word#))
+    case x of
+        VRef xr | VRef yr <- y -> do
+            -- Take advantage of the pointer address built-in with (Show VRef)
+            return $ castV (show xr == show yr)
+        _   -> do
+            return $ castV (W# (unsafeCoerce# x :: Word#) == W# (unsafeCoerce# y :: Word#))
 op2 "===" = \x y -> do
     return $ castV (x == y)
 op2 "eqv" = op2Identity -- XXX wrong, needs to compare full objects
