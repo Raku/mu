@@ -408,9 +408,13 @@ runInvokePerl5 sub inv args = do
         Perl5ErrorString str    -> fail str
         Perl5ErrorObject err    -> throwError (PerlSV err)
     where
+#ifdef PUGS_HAVE_PERL5
     svToVal ptr = liftIO $ do
         pv  <- pugs_SvToVal ptr
         deRefStablePtr (castPtrToStablePtr pv)
+#else
+    svToVal _ = fail "Perl 5 not embedded"
+#endif
 
 instance Value VBool where
     castV = VBool
