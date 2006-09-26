@@ -4,19 +4,40 @@ extern int __init;
 Val *
 pugs_SvToVal ( SV *sv )
 {
-    if (!sv_isa(sv, "pugs")) {
-        return (pugs_MkSvRef(sv));
+    svtype ty = SvTYPE(sv);
+
+    if (sv_isa(sv, "pugs")) {
+        IV tmp = SvIV((SV*)SvRV(sv));
+        return ((Val *)tmp);
     }
-    IV tmp = SvIV((SV*)SvRV(sv));
-    return ((Val *)tmp);
+    else if (SvROK(sv)) {
+        return pugs_MkSvRef(sv);
+    }
+    else if (ty == SVt_NULL) {
+        return pugs_UndefVal();
+    }
+    else if (SvNIOKp(sv) && (sv_len(sv) != 0)) {
+        if (SvNOK(sv)) {
+            return pugs_NvToVal(SvNVX(sv));
+        }
+        else {
+            return pugs_IvToVal(SvIVX(sv));
+        }
+    }
+    else if (SvPOKp(sv)) {
+        return pugs_PvToVal(SvPVX(sv));
+    }
+    else {
+        return pugs_MkSvRef(sv);
+    }
 }
 
 SV *
-pugs_MkValRef ( Val *val )
+pugs_MkValRef ( Val *val, char *typeStr )
 {
     SV *sv = newSV(0);
     Val *isa[2];
-    SV *stack[8], *type;
+    SV *stack[8];
 
     sv_setref_pv(sv, "pugs", val);
 
@@ -26,19 +47,30 @@ pugs_MkValRef ( Val *val )
 
     isa[0] = NULL;
 
-    type = pugs_Apply(pugs_PvToVal("&WHAT"), val, isa, G_SCALAR);
-#if PERL5_EMBED_DEBUG
-    fprintf(stderr, "query the type: got %s\n", SvPV_nolen(type));
-#endif
-    if (SvTRUE( type )) {
+    /* fprintf(stderr, "query the type: got %s\n", typeStr); */
+
+    if ((typeStr == NULL) || (*typeStr == '\0')) {
+        SV *typeSV = pugs_Apply(pugs_PvToVal("&WHAT"), val, isa, G_SCALAR);
+        typeStr = SvPV_nolen(typeSV);
+    }
+
+    if ((typeStr != NULL) && (*typeStr != '\0')) {
         SV **rv;
-        stack[0] = type;
+        SV *typeSV = newSVpv(typeStr, 0);
+        stack[0] = typeSV;
         stack[1] = NULL;
         rv = perl5_apply(newSVpv("can", 0), newSVpv("pugs::guts", 0), stack, NULL, G_SCALAR);
-        if (SvTRUE( rv[0] )) {
+        if ((rv[0] == NULL) && SvTRUE( rv[1] )) {
             stack[0] = sv;
-            rv = perl5_apply(type, newSVpv("pugs::guts", 0), stack, NULL, G_SCALAR);
-            sv = rv[0];
+            rv = perl5_apply(typeSV, newSVpv("pugs::guts", 0), stack, NULL, G_SCALAR);
+            if (rv[0] == NULL) {
+                /* no error happened -- used the tied obj */
+                sv = rv[1];
+            }
+            else {
+                fprintf(stderr, "error in pugs::guts application on type: %s\n", typeStr);
+                sv_dump(rv[0]);
+            }
         }
         else {
             /* for scalar ref, should still turn into tied one */

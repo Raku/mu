@@ -9,6 +9,7 @@ typedef HsStablePtr Val;
 extern Val *pugs_Eval ( char *code );
 extern SV *pugs_Apply ( Val *sub, Val *inv, Val **args, int cxt );
 
+extern Val *pugs_UndefVal ();
 extern Val *pugs_IvToVal ( IV iv );
 extern Val *pugs_NvToVal ( NV iv );
 extern Val *pugs_PvToVal ( char *pv );
@@ -20,7 +21,7 @@ extern NV   pugs_ValToNv ( Val *val );
 extern char *pugs_ValToPv ( Val *val );
 
 Val *pugs_SvToVal ( SV *sv );
-SV  *pugs_MkValRef ( Val *val );
+SV  *pugs_MkValRef ( Val *val, char *typeStr );
 
 Val *pugs_getenv ();
 void pugs_setenv ( Val *env );

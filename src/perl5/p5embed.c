@@ -35,7 +35,7 @@ const char pugs_guts_code[] =
 
 "package pugs::guts;\n"
 "our @ISA=('pugs');\n"
-"sub Block { my ($class, $val) = @_;\n"
+"sub Code { my ($class, $val) = @_;\n"
 "            sub { pugs::guts::invoke($val, undef, @_) } }\n"
 
 "sub Array { my ($class, $val) = @_;\n"
@@ -48,16 +48,28 @@ oRZ"   warn 'returning '.$array;\n"
 oRZ"   warn 'returning '.$hash;\n"
 "            return $hash; }\n\n"
 
+"sub Pair { goto &Hash }\n"
+
+"sub Scalar { my ($class, $val) = @_;\n"
+"           my $scalar; tie $$scalar, 'pugs::scalar', $val;\n"
+oRZ"   warn 'returning '.$scalar;\n"
+"            return $scalar; }\n\n"
+
+"sub Handle { my ($class, $val) = @_;\n"
+"           tie *FH, 'pugs::handle', $val;\n"
+oRZ"   warn 'returning '.$handle;\n"
+"            return *FH; }\n\n"
+
 "our $AUTOLOAD;\n"
 "sub AUTOLOAD { my $type = $AUTOLOAD; $type =~ s/.*:://;\n"
-"               return if $type =~ m/^[A-Z]*$/; die 'unhandled supported type: '.$type } \n"
+"               return if $type =~ m/^[A-Z]*$/; die 'unhandled support type: '.$type } \n"
 oRZ"warn 'compiled .'.__PACKAGE__;\n\n"
 
 "package pugs::array;\n"
 
 "our $AUTOLOAD;\n"
 "sub AUTOLOAD { my $type = $AUTOLOAD; $type =~ s/.*:://;\n"
-"               warn 'unhandled supported: '.$type } \n"
+"               warn 'unhandled support type: '.$type } \n"
 
 "sub TIEARRAY {\n"
 "       my ($class, $val) = @_;\n"
@@ -66,15 +78,15 @@ oRZ"warn 'compiled .'.__PACKAGE__;\n\n"
 "sub STORE {\n"
 "       my ($self, $index, $elem) = @_;\n"
 oRZ"    warn 'store! '.$elem;\n"
-"       pugs::guts::eval_apply('sub ($x is rw, $y, $z) { $x[$y] = $z;\n"
+"       pugs::guts::eval_apply('sub ($x is rw, $y is rw, $z is rw) { $x[$y] = $z;\n"
 oRZ"                                                     warn $x\n"
 "                               }', $$self, $index, $elem) }\n\n"
 
 "sub PUSH {\n"
-"       my ($self, $elem) = @_;\n"
-"       pugs::guts::eval_apply('sub ($x is rw, $z) { $x.push($z);\n"
+"       my ($self, @elems) = @_;\n"
+"       pugs::guts::eval_apply('sub ($x is rw, @*y) { $x.push(@y);\n"
 oRZ"                                                 warn $x\n"
-"                               }', $$self, $elem) }\n\n"
+"                               }', $$self, @elems) }\n\n"
 
 "sub FETCHSIZE {\n"
 "       my ($self) = @_;\n"
@@ -95,11 +107,32 @@ oRZ"    warn 'FETCH: '.$index;\n"
 
 "our $AUTOLOAD;\n"
 "sub AUTOLOAD { my $type = $AUTOLOAD; $type =~ s/.*:://;\n"
-"               warn 'unhandled supported: '.$type } \n"
+"               warn 'unhandled support type: '.$type } \n"
 
 "sub TIEHASH {\n"
 "       my ($class, $val) = @_;\n"
 "       bless [$val,0], $class; }\n\n"
+
+"sub FETCH {\n"
+"       my ($self, $index) = @_;\n"
+oRZ"    warn 'FETCH: '.$index;\n"
+"       pugs::guts::eval_apply('sub ($x, $y) { $x.{$y} }', $self->[0], $index) }\n"
+
+"sub DELETE {\n"
+"       my ($self, $index) = @_;\n"
+oRZ"    warn 'DELETE: '.$index;\n"
+"       pugs::guts::eval_apply('sub ($x, $y) { $x.delete($y) }', $self->[0], $index) }\n"
+
+"sub CLEAR {\n"
+"       my ($self) = @_;\n"
+"       pugs::guts::eval_apply('sub ($x) { $x.delete($x.keys) }', $self->[0]) }\n"
+
+"sub STORE {\n"
+"       my ($self, $index, $elem) = @_;\n"
+oRZ"    warn 'store! '.$elem;\n"
+"       pugs::guts::eval_apply('sub ($x is rw, $y, $z) { $x{$y} = $z;\n"
+oRZ"                                                     warn $x\n"
+"                               }', $self->[0], $index, $elem) }\n\n"
 
 "sub FIRSTKEY {\n"
 "       my ($self) = @_;\n"
@@ -113,6 +146,51 @@ oRZ"       warn $ret;\n"
 "       return undef if $self->[1] > $#{$self->[2]};"
 "       $self->[2]->[$self->[1]++]; }"
 
+"package pugs::scalar;\n"
+
+"our $AUTOLOAD;\n"
+"sub AUTOLOAD { my $type = $AUTOLOAD; $type =~ s/.*:://;\n"
+"               warn 'unhandled support type: '.$type } \n"
+
+"sub TIESCALAR {\n"
+"       my ($class, $val) = @_;\n"
+"       bless \\$val, $class; }\n\n"
+
+"sub FETCH {\n"
+"       my ($self) = @_;\n"
+"       pugs::guts::eval_apply('sub ($x is rw) { $$x }', $$self) }\n"
+
+"sub STORE {\n"
+"       my ($self, $val) = @_;\n"
+"       pugs::guts::eval_apply('sub ($x is rw, $y) { $$x = $y;\n"
+oRZ"                                                     warn $x\n"
+"                               }', $$self, $val) }\n\n"
+
+"package pugs::handle;\n"
+
+"our $AUTOLOAD;\n"
+"sub AUTOLOAD { my $type = $AUTOLOAD; $type =~ s/.*:://;\n"
+"               warn 'unhandled support type: '.$type } \n"
+
+"sub TIEHANDLE {\n"
+"       my ($class, $val) = @_;\n"
+"       bless \\$val, $class; }\n\n"
+
+"sub PRINT {\n"
+"       my ($self, @vals) = shift;\n"
+"       pugs::guts::eval_apply('sub ($x, *@y) { $x.print(@y) }', $$self, @vals) }\n"
+
+"sub READLINE {\n"
+"       my ($self) = @_;\n"
+"       pugs::guts::eval_apply('sub ($x) { ~($x.readline);\n"
+oRZ"                                                     warn $x\n"
+"                               }', $$self) }\n\n"
+
+"sub GETC {\n"
+"       my ($self) = @_;\n"
+"       pugs::guts::eval_apply('sub ($x) { ~($x.getc);\n"
+oRZ"                                                     warn $x\n"
+"                               }', $$self) }\n\n"
 
 oRZ"warn 'compiled';\n"
 "1;\n";

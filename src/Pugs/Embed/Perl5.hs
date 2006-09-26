@@ -6,7 +6,7 @@ module Pugs.Embed.Perl5
     , svToVBool, svToVInt, svToVNum, svToVStr, vstrToSV, vintToSV, svToVal, bufToSV
     , vnumToSV, mkValRef , mkVal, PerlSV, nullSV, evalPerl5, invokePerl5
     , initPerl5, freePerl5, canPerl5
-    , evalPCR
+    , evalPCR, pugs_SvToVal
     )
 where
 import Foreign.C.Types
@@ -128,8 +128,8 @@ svToVal = constFail
 mkVal :: (Show a) => a -> IO PugsVal
 mkVal = constFail
 
-mkValRef :: a -> IO PerlSV
-mkValRef = constFail
+mkValRef :: a -> String -> IO PerlSV
+mkValRef _ = constFail
 
 vstrToSV :: String -> IO PerlSV
 vstrToSV = constFail
@@ -148,6 +148,9 @@ invokePerl5 _ _ _ _ = constFail
 
 canPerl5 :: PerlSV -> ByteString -> IO Bool
 canPerl5 MkPerlSV = constFail
+
+pugs_SvToVal :: PerlSV -> IO PugsVal
+pugs_SvToVal = constFail
 
 nullSV :: PerlSV
 nullSV = error "perl5 not embedded"
@@ -213,7 +216,7 @@ foreign import ccall "../../perl5/p5embed.h perl5_newSVnv"
 foreign import ccall "../../perl5/p5embed.h perl5_get_sv"
     perl5_get_sv :: CString -> IO PerlSV
 foreign import ccall "../../perl5/p5embed.h perl5_apply"
-    perl5_apply :: PerlSV -> PerlSV -> Ptr PerlSV -> PugsVal -> CInt -> IO (Ptr PerlSV)
+    perl5_apply :: PerlSV -> PerlSV -> Ptr PerlSV -> PugsVal -> CInt -> IO (Ptr PugsVal)
 foreign import ccall "../../perl5/p5embed.h perl5_can"
     perl5_can :: PerlSV -> CString -> IO Bool
 foreign import ccall "../../perl5/p5embed.h perl5_eval"
@@ -229,7 +232,7 @@ foreign import ccall "../../perl5/pugsembed.h pugs_setenv"
 foreign import ccall "../../perl5/pugsembed.h pugs_SvToVal"
     pugs_SvToVal :: PerlSV -> IO PugsVal
 foreign import ccall "../../perl5/pugsembed.h pugs_MkValRef"
-    pugs_MkValRef :: PugsVal -> IO PerlSV
+    pugs_MkValRef :: PugsVal -> CString -> IO PerlSV
 
 initPerl5 :: (Show a) => String -> Maybe a -> IO PerlInterpreter
 initPerl5 str env = do
@@ -262,10 +265,10 @@ svToVal sv = do
     ptr <- pugs_SvToVal sv
     deRefStablePtr (castPtrToStablePtr ptr)
 
-mkValRef :: a -> IO PerlSV
-mkValRef x = do
+mkValRef :: a -> String -> IO PerlSV
+mkValRef x typ = do
     ptr <- fmap castStablePtrToPtr $ newStablePtr x
-    pugs_MkValRef ptr
+    withCString typ (pugs_MkValRef ptr)
 
 vstrToSV :: String -> IO PerlSV
 vstrToSV str = withCString str perl5_newSVpv 
@@ -278,6 +281,7 @@ vintToSV int = perl5_newSViv (fromIntegral int)
 
 vnumToSV :: (Real a) => a -> IO PerlSV
 vnumToSV int = perl5_newSVnv (realToFrac int)
+
 
 data InvokePerl5Result
     = Perl5ReturnValues [PerlSV]
@@ -293,7 +297,7 @@ invokePerl5 sub inv args env cxt = do
         -- If it's empty, no error occured (see p5embed.c on out[0]).
         -- Otherwise, the second slot may be a stringified version we should use.
         case svs of
-            []      -> fmap Perl5ReturnValues (peekArray0 nullPtr (rv `advancePtr` 1))
+            []      -> fmap Perl5ReturnValues $ peekArray0 nullPtr (rv `advancePtr` 1)
             [err]   -> return $ Perl5ErrorObject err
             (_:x:_) -> do
                 str <- svToVStr x

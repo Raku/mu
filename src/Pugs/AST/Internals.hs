@@ -77,6 +77,8 @@ module Pugs.AST.Internals (
     errStrPos, errValPos, enterAtomicEnv, valToBool, envPos', -- for circularity
     expToEvalVal, -- Hack, should be removed once it's figured out how
 
+    newSVval, -- used in Run.Perl5
+
     DebugInfo, _Sym, _Var, -- String -> ByteString constructors
 ) where
 import Pugs.Internals
@@ -100,6 +102,7 @@ import Pugs.AST.SIO
 import Pugs.Embed.Perl5
 import qualified Pugs.Val as Val
 import qualified Data.ByteString.Char8 as Str
+import Foreign.StablePtr
 
 {- <DrIFT> Imports for the DrIFT
 import Pugs.AST.Scope
@@ -400,10 +403,14 @@ runInvokePerl5 sub inv args = do
         envSV   <- mkVal (VControl $ ControlEnv env)
         invokePerl5 sub inv args envSV (enumCxt $ envContext env)
     case rv of
-        Perl5ReturnValues [x]   -> return $ PerlSV x
-        Perl5ReturnValues xs    -> return $ VList (map PerlSV xs)
+        Perl5ReturnValues [x]   -> svToVal x
+        Perl5ReturnValues xs    -> fmap VList (mapM svToVal xs)
         Perl5ErrorString str    -> fail str
         Perl5ErrorObject err    -> throwError (PerlSV err)
+    where
+    svToVal ptr = liftIO $ do
+        pv  <- pugs_SvToVal ptr
+        deRefStablePtr (castPtrToStablePtr pv)
 
 instance Value VBool where
     castV = VBool
@@ -541,13 +548,37 @@ instance Value [PerlSV] where
     doCast v = castFailM v "[PerlSV]"
 
 instance Value PerlSV where
-    fromVal (PerlSV sv) = return sv
-    fromVal (VStr str) = liftIO $ vstrToSV str
-    fromVal (VInt int) = liftIO $ vintToSV int
-    fromVal (VRat int) = liftIO $ vnumToSV int
-    fromVal (VNum int) = liftIO $ vnumToSV int
-    fromVal v = liftIO $ mkValRef v
+    fromVal val = liftIO $ newSVval val
     doCast v = castFailM v "PerlSV"
+
+newSVval :: Val -> IO PerlSV
+newSVval val = case val of
+    PerlSV sv   -> return sv
+    VStr str    -> vstrToSV str
+    VType typ   -> vstrToSV (showType typ)
+    VBool bool  -> vintToSV (fromEnum bool)
+    VInt int    -> vintToSV int
+    VRat rat    -> vnumToSV rat
+    VNum num    -> vnumToSV num
+    VRef ref    -> vrefToSV ref
+    VCode{}     -> mkValRef val "Code"
+    VBlock{}    -> mkValRef val "Code"
+    VHandle{}   -> mkValRef val "Handle"
+    VSocket{}   -> mkValRef val "Socket"
+    VList{}     -> mkValRef val "Array"
+    _           -> mkValRef val ""
+
+vrefToSV :: VRef -> IO PerlSV
+vrefToSV ref = mkValRef (VRef ref) $ case ref of
+    MkRef IScalar{}   -> "Scalar"
+    MkRef IArray{}    -> "Array"
+    MkRef IHash{}     -> "Hash"
+    MkRef ICode{}     -> "Code"
+    MkRef IHandle{}   -> "Handle"
+    MkRef IRule{}     -> "Rule"
+    MkRef IThunk{}    -> "Thunk"
+    MkRef IPair{}     -> "Pair"
+
 
 instance Value Val.Val where
     fromVal (VV vv) = return vv

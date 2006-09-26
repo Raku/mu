@@ -44,6 +44,9 @@ foreign export ccall "pugs_NvToVal"
 foreign export ccall "pugs_PvToVal"
     pvToVal :: CString -> IO PugsVal
 
+foreign export ccall "pugs_UndefVal"
+    undefVal :: IO PugsVal
+
 askPerl5Env :: IO Env
 askPerl5Env = do
     val <- deVal =<< pugs_getenv
@@ -92,17 +95,6 @@ valToSv ptr = do
     val <- deVal ptr
     newSVval val
 
-newSVval :: Val -> IO PerlSV
-newSVval val = case val of
-    PerlSV sv   -> return sv
-    VStr str    -> vstrToSV str
-    VType typ   -> vstrToSV (showType typ)
-    VBool bool  -> vintToSV (fromEnum bool)
-    VInt int    -> vintToSV int
-    VRat rat    -> vnumToSV rat
-    VNum num    -> vnumToSV num
-    _           -> mkValRef val
-
 valToIv :: PugsVal -> IO CInt
 valToIv ptr = do
     val     <- deVal ptr
@@ -138,5 +130,8 @@ pvToVal cstr = do
     str <- peekCString cstr
     ptr <- mkVal $ VStr str
     return ptr
+
+undefVal :: IO PugsVal
+undefVal = mkVal VUndef
 
 #endif
