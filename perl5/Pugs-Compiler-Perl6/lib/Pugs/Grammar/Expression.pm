@@ -206,7 +206,7 @@ sub lexer {
         while(1) {
             $pos2 = $m2->to if $m2;
             # term.meth() 
-            if ( $m2 && $m2->tail && $m2->tail =~ /^\.[^.]/ ) {
+            if ( $m2 && $m2->tail && $m2->tail =~ /^\.[^.([{<«]/ ) {
                 my $meth = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
                 $meth->data->{capture} = \{ 
                     op1  => 'method_call', 
@@ -217,8 +217,12 @@ sub lexer {
                 $m2 = $meth;
                 next;
             }
+            # term.() 
+            if ( $m2 && $m2->tail && $m2->tail =~ /^\.[([{<«]/ ) {
+                $pos2++;
+            }
             # term() 
-            if ( $m2 && $m2->tail && $m2->tail =~ /^\(/ ) {
+            if ( $m2 && $m2->tail && $m2->tail =~ /^\.?\(/ ) {
                 my $paren = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
                 #print "paren: ",Dumper($paren);
                 if ( exists $m2->()->{dot_bareword} ) {
@@ -249,7 +253,7 @@ sub lexer {
                 next;
             }
             # term[] 
-            if ( $m2 && $m2->tail && $m2->tail =~ /^\[/ ) {
+            if ( $m2 && $m2->tail && $m2->tail =~ /^\.?\[/ ) {
                 my $paren = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
                 if ( exists $m2->()->{dot_bareword} ) {
                     $paren->data->{capture} = \{ 
@@ -282,7 +286,7 @@ sub lexer {
                 next;
             }
             # term{} 
-            if ( $m2 && $m2->tail && $m2->tail =~ /^\{/ ) {
+            if ( $m2 && $m2->tail && $m2->tail =~ /^\.?\{/ ) {
                 my $paren = Pugs::Grammar::Term->parse( $match, { p => $pos2 } );
                 if ( exists $m2->()->{dot_bareword} ) {
                     $paren->data->{capture} = \{ 
@@ -316,7 +320,7 @@ sub lexer {
             }
             # term<> 
             if ( $m2 && $m2->tail 
-                && $m2->tail =~ /^[<«]/ ) {
+                && $m2->tail =~ /^\.?[<«]/ ) {
                 # XXX - is '<' a quote?
                 my $paren = Pugs::Grammar::Quote->parse( $match, { p => $pos2 } );
                 if ( exists $m2->()->{dot_bareword} ) {

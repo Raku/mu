@@ -342,57 +342,67 @@ sub recompile {
             { return { term => "undef" } }
             ),
         'my' => q(
-            <?ws> <Pugs::Grammar::Term.parse>
+            <?ws> <Pugs::Grammar::Perl6.signature_term_type>
+            <?ws>? <Pugs::Grammar::Term.parse>
             <?ws>? <Pugs::Grammar::Perl6.attribute>
             { 
                 return { 
                     exp1 => $/{'Pugs::Grammar::Term.parse'}->(),
                     attribute  => $/{'Pugs::Grammar::Perl6.attribute'}->(),
                     variable_declarator => "my",
+                    type  => $/{'Pugs::Grammar::Perl6.signature_term_type'}->(),
                 } 
             }
             ),
         'our' => q(
-            <?ws> <Pugs::Grammar::Term.parse>
+            <?ws> <Pugs::Grammar::Perl6.signature_term_type>
+            <?ws>? <Pugs::Grammar::Term.parse>
             <?ws>? <Pugs::Grammar::Perl6.attribute>
             { 
                 return { 
                     exp1 => $/{'Pugs::Grammar::Term.parse'}->(),
                     attribute  => $/{'Pugs::Grammar::Perl6.attribute'}->(),
                     variable_declarator => "our",
+                    type  => $/{'Pugs::Grammar::Perl6.signature_term_type'}->(),
                 } 
             }
             ),
         'has' => q(
-            <?ws> <Pugs::Grammar::Term.parse>
+            <?ws> <Pugs::Grammar::Perl6.signature_term_type>
+            <?ws>? <Pugs::Grammar::Term.parse>
             <?ws>? <Pugs::Grammar::Perl6.attribute>
             { 
                 return { 
                     exp1 => $/{'Pugs::Grammar::Term.parse'}->(),
                     attribute  => $/{'Pugs::Grammar::Perl6.attribute'}->(),
                     variable_declarator => "has",
+                    type  => $/{'Pugs::Grammar::Perl6.signature_term_type'}->(),
                 } 
             }
             ),
         'state' => q(
-            <?ws> <Pugs::Grammar::Term.parse>
+            <?ws> <Pugs::Grammar::Perl6.signature_term_type>
+            <?ws>? <Pugs::Grammar::Term.parse>
             <?ws>? <Pugs::Grammar::Perl6.attribute>
             { 
                 return { 
                     exp1 => $/{'Pugs::Grammar::Term.parse'}->(),
                     attribute  => $/{'Pugs::Grammar::Perl6.attribute'}->(),
                     variable_declarator => "state",
+                    type  => $/{'Pugs::Grammar::Perl6.signature_term_type'}->(),
                 } 
             }
             ),
         'constant' => q(
-            <?ws> <Pugs::Grammar::Term.parse>
+            <?ws> <Pugs::Grammar::Perl6.signature_term_type>
+            <?ws>? <Pugs::Grammar::Term.parse>
             <?ws>? <Pugs::Grammar::Perl6.attribute>
             { 
                 return { 
                     exp1 => $/{'Pugs::Grammar::Term.parse'}->(),
                     attribute  => $/{'Pugs::Grammar::Perl6.attribute'}->(),
                     variable_declarator => "constant",
+                    type  => $/{'Pugs::Grammar::Perl6.signature_term_type'}->(),
                 } 
             }
             ),
