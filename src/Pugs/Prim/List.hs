@@ -173,37 +173,36 @@ op2Reduce keep list sub = do
     -- cxt  <- asks envContext
     let arity = length $ subParams code
         (reduceM, reduceMn) = if keep then (scanM, scanMn) else (foldM, foldMn)
-        applyListAssoc = do
-            evl <- asks envEval
-            evl $ App (Val $ VCode code{ subParams = length args `replicate` head (subParams code)}) Nothing (map Val args)
-    if subAssoc code == A_list then applyListAssoc else do
-    if arity < 2 then fail "Cannot reduce() using a unary or nullary function." else do
-    -- n is the number of *additional* arguments to be passed to the sub.
-    -- Ex.: reduce { $^a + $^b       }, ...   # n = 1
-    -- Ex.: reduce { $^a + $^b + $^c }, ...   # n = 2
-    let n = arity - 1
-    -- Break on empty list.
-    let doFold xs = do
-        evl <- asks envEval
-        local (\e -> e{ envContext = cxtItemAny }) $ do
-            evl (App (Val sub) Nothing (map Val xs))
-    case subAssoc code of
-        A_right -> do
-            let args' = reverse args
-            reduceMn args' n (doFold . reverse)
-        A_chain -> if arity /= 2            -- FIXME: incorrect for scans
-            then fail
-                "When reducing using a chain-associative sub,\nthe sub must take exactly two arguments."
-            else callCC $ \esc -> do
-                let doFold' x y = do
-                    val <- doFold [x, y]
-                    case val of
-                        VBool False -> esc val
-                        _           -> return y
-                reduceM doFold' (head args) (tail args)
-                return $ VBool True
-        A_non   -> fail $ "Cannot reduce over non-associativity"
-        _       -> reduceMn args n doFold -- "left", "pre"
+    if subAssoc code == A_list
+        then asks envEval >>= \evl -> evl $ App (Val $ VCode code{ subParams = length args `replicate` head (subParams code)}) Nothing (map Val args)
+        else do
+            when (arity < 2) $ fail "Cannot reduce() using a unary or nullary function."
+            -- n is the number of *additional* arguments to be passed to the sub.
+            -- Ex.: reduce { $^a + $^b       }, ...   # n = 1
+            -- Ex.: reduce { $^a + $^b + $^c }, ...   # n = 2
+            let n = arity - 1
+            -- Break on empty list.
+            let doFold xs = do
+                evl <- asks envEval
+                local (\e -> e{ envContext = cxtItemAny }) $ do
+                    evl (App (Val sub) Nothing (map Val xs))
+            case subAssoc code of
+                A_right -> do
+                    let args' = reverse args
+                    reduceMn args' n (doFold . reverse)
+                A_chain -> if arity /= 2            -- FIXME: incorrect for scans
+                    then fail
+                        "When reducing using a chain-associative sub,\nthe sub must take exactly two arguments."
+                    else callCC $ \esc -> do
+                        let doFold' x y = do
+                            val <- doFold [x, y]
+                            case val of
+                                VBool False -> esc val
+                                _           -> return y
+                        reduceM doFold' (head args) (tail args)
+                        return $ VBool True
+                A_non   -> fail $ "Cannot reduce over non-associativity"
+                _       -> reduceMn args n doFold -- "left", "pre"
     where
     -- This is a generalized foldM.
     -- It takes an input list (from which the first elem will be used as start
