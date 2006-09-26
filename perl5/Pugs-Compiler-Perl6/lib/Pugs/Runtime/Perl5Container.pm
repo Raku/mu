@@ -49,7 +49,7 @@ sub map {
 
     if ( $arity == 1 ) {
         return bless [
-                map { $run->( $_ ) } @{$array}
+                map { $run->( [ \$_ ], {} ) } @{$array}
             ], 'Pugs::Runtime::Perl5Container::Array';
     }
 
