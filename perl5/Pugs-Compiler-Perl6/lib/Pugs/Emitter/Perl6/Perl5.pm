@@ -22,7 +22,10 @@ sub _var_get {
     my $s;
 
     for ( qw( scalar array hash ) ) {
-        $s = $n->{$_} if exists $n->{$_};
+        next unless exists $n->{$_};
+        $s = $n->{$_};
+        # $s =~ s/^\@/\$_V6_Array_/;
+        # $s =~ s/^\%/\$_V6_Hash_/;
     }
 
     #print "get: $s\n";
@@ -1403,21 +1406,25 @@ sub postcircumfix {
 
         if ( ! exists $n->{exp2} ) {
             # $array[]
+            # TODO - bless
             return '@{ ' . _emit( $n->{exp1} ) . ' }';
         }
                 
-        # avoid p5 warning - "@a[1] better written as $a[1]"
-        if (   (  exists $n->{exp2}{int} 
-               || exists $n->{exp2}{scalar} 
-               || exists $n->{exp2}{op1} 
-               ) 
-               && exists $n->{exp1}{array} ) {
+        if  (  exists $n->{exp1}{array}           #  @array
+            ||     exists $n->{exp1}{op1}         #  (1,2,3)
+                && $n->{exp1}{op1}{op} eq '('
+                && exists $n->{exp1}{exp1}{op1}
+                && $n->{exp1}{exp1}{op1} eq ','
+            ) {
+            #print ".[] = " . Dumper( $n->{exp2} );
+            
             my $name = _emit( $n->{exp1} );
-            $name =~ s/^\@/\$/;
-            return $name . '[' . _emit( $n->{exp2} ) . ']';
+            # the extra parenthesis avoid p5 warning - "@a[1] better written as $a[1]"
+            return $name . '[(' . _emit( $n->{exp2} ) . ')]';
         }
         
-        return _emit( $n->{exp1} ) . '->[' . _emit( $n->{exp2} ) . ']';
+        return '@{' . _emit( $n->{exp1} ) . '}[(' . _emit( $n->{exp2} ) . ')]';
+        #return _emit( $n->{exp1} ) . '->[' . _emit( $n->{exp2} ) . ']';
     }
     
     if ( $n->{op1}{op} eq '<' &&
@@ -1477,10 +1484,13 @@ sub prefix {
     if (  $n->{op1}{op} eq 'str' 
        || $n->{op1}{op} eq '~' 
        ) {
+        #print Dumper( $n );
         return ' Pugs::Runtime::Perl6::Hash::str( \\' . _emit( $n->{exp1} ) . ' ) '
-            if $n->{exp1}{hash};
+            if exists $n->{exp1}{hash};
         return ' "' . _emit( $n->{exp1} ) . '"' 
-            if $n->{exp1}{array};
+            if      exists $n->{exp1}{array}
+                ||  exists $n->{exp1}{op1}
+                    && $n->{exp1}{op1}{op} eq '[';
         return ' "" . ' . _emit( $n->{exp1} );
     }
 
@@ -1537,8 +1547,23 @@ sub prefix {
         #    return $n->{trait} . " {\n" . _emit( $n->{bare_block} ) . "\n }";
         #}
         my $id1 = $id++;
-        return 'do { $_V6_PAD{'.$id1.'} = [ eval ' . _emit( $n->{exp1} ) . " ]; " . 
-            Pugs::Runtime::Common::mangle_var( '$!' ) . ' = $@; @{$_V6_PAD{'.$id1.'}} }';
+        #return 'do { $_V6_PAD{'.$id1.'} = [ eval ' . _emit( $n->{exp1} ) . " ]; " . 
+        #    Pugs::Runtime::Common::mangle_var( '$!' ) . ' = $@; @{$_V6_PAD{'.$id1.'}} }';
+        return
+            'sub {
+                local $@;
+                no warnings;
+                my @result;
+                if (wantarray) {
+                    @result = eval ' . _emit( $n->{exp1} ) . ';
+                }
+                else {
+                    $result[0] = eval ' . _emit( $n->{exp1} ) . ';
+                }
+                $::_V6_ERR_ = $@;
+                #warn $::_V6_ERR_ if $::_V6_ERR_;
+                wantarray ? @result : $result[0];' . 
+            "\n}->()";
     }
     if ( $n->{op1}{op} eq '++' ||
          $n->{op1}{op} eq '--' ||
