@@ -967,6 +967,10 @@ reduceApp (Var var) invs args
                 return $ VV $ val $ CaptSub{ c_feeds = feeds }
     | var == cast "&prefix:|<<" = do -- XXX this is wrong as well - should handle at args level
         reduceSyn "," $ maybeToList invs ++ args 
+    | C_postcircumfix <- v_categ var = do
+        -- XXX Hack - This turns "postcircumfix:[ ]" into Syn "[]".
+        let syn = filter (not . isSpace) (cast (v_name var))
+        reduceSyn syn (maybeToList invs ++ args)
     | SCodeMulti <- v_sigil var = do
         doCall var{ v_sigil = SCode } invs args
     | SCode <- v_sigil var, Nothing <- invs, [inv] <- args = case inv of
