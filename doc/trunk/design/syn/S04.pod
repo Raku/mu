@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 24 Sep 2006
+  Last Modified: 26 Sep 2006
   Number: 4
-  Version: 40
+  Version: 41
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -933,7 +933,7 @@ So any Perl 6 function can say
 and not care about whether the function is being called in scalar or list
 context.  To return an explicit scalar undef, you can always say
 
-    return scalar(undef);
+    return item(undef);
 
 Then in list context, you're returning a list of length 1, which is
 defined (much like in Perl 5).  But generally you should be using

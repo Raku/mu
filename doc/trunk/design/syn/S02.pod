@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 25 Sept 2006
+  Last Modified: 26 Sept 2006
   Number: 2
-  Version: 72
+  Version: 73
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1481,6 +1481,8 @@ following table shows the correspondence to the "fatarrow" notation:
     a => $a		:$a
     a => @a		:@a
     a => %a		:%a
+    a => $$a		:$$a
+    a => @$$a		:@$$a (etc.)
     a => %foo<a>	%foo:<a>
 
 Note that as usual the C<{...}> form can indicate either a closure or a hash
@@ -2141,6 +2143,8 @@ In list context, it flattens lazily.  In a scalar context, it returns
 the resulting list as a single C<List> object.  (So the C<list> operator
 really does exactly the same thing as putting a list in parentheses with
 at least one comma.  But it's more readable in some situations.)
+
+To force a non-flattening scalar context, use the "C<item>" operator.
 
 =item *
 
