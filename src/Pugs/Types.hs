@@ -443,12 +443,26 @@ doBufToVar buf = MkVar
         | C_prefix <- cat
         , __"[\\" `Str.isPrefixOf` afterCat
         , ']' <- Str.last afterCat
-        = (Str.drop 2 (Str.init afterCat), MScan)
+        = case Str.drop 2 (Str.init afterCat) of
+            maybeHyper | __">>" `Str.isPrefixOf` maybeHyper
+                       , __"<<" `Str.isSuffixOf` maybeHyper 
+                -> (Str.drop 2 (dropEnd 2 maybeHyper), MHyperScan)
+            maybeHyper | __"\194\187" `Str.isPrefixOf` maybeHyper
+                       , __"\194\171" `Str.isSuffixOf` maybeHyper 
+                -> (Str.drop 2 (dropEnd 2 maybeHyper), MHyperScan)
+            other -> (other, MScan)
         | C_prefix <- cat
         , '[' <- Str.head afterCat
         , ']' <- Str.last afterCat
-        = (Str.tail (Str.init afterCat), MFold)
-        -- XXX - MHyperFold, MHyperFoldPost, MHyperScan, MHyperScanPost
+        = case Str.tail (Str.init afterCat) of
+            maybeHyper | __">>" `Str.isPrefixOf` maybeHyper
+                       , __"<<" `Str.isSuffixOf` maybeHyper 
+                -> (Str.drop 2 (dropEnd 2 maybeHyper), MHyperFold)
+            maybeHyper | __"\194\187" `Str.isPrefixOf` maybeHyper
+                       , __"\194\171" `Str.isSuffixOf` maybeHyper 
+                -> (Str.drop 2 (dropEnd 2 maybeHyper), MHyperFold)
+            other -> (other, MFold)
+        -- XXX - MHyperFoldPost, MHyperScanPost
         | otherwise
         = (afterCat, MNil)
 

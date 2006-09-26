@@ -369,13 +369,15 @@ findSub _var _invs _args
     buildInfixHyper var = do
         let rv = fmap (either (const Nothing) Just) $
                 findSub var Nothing firstTwoArgs
-        maybeM rv $ \code -> return $ metaPrim
-            { subAssoc    = subAssoc code
-            , subParams   = makeParams ["Any", "Any"]
-            , subBody     = Prim (\[x, y] -> op2Hyper code x y)
-            }
+        maybeM rv (return . makeInfixHyperCode)
 
-    buildReduce var keep = do
+    makeInfixHyperCode code = metaPrim
+        { subAssoc    = subAssoc code
+        , subParams   = makeParams ["Any", "Any"]
+        , subBody     = Prim (\[x, y] -> op2Hyper code x y)
+        }
+
+    buildReduce var foldOrScan nilOrHyper = do
         let rv = fmap (either (const Nothing) Just) $
                 findSub var Nothing firstTwoArgs
         maybeM rv $ \code -> return $ metaPrim
@@ -387,17 +389,21 @@ findSub _var _invs _args
             , subReturns  = anyType
             , subBody     = Prim $ \[vs] -> do
                 list_of_args <- fromVal vs
-                op2Reduce keep list_of_args (VCode code)
+                op2Reduce (foldOrScan == MScan) list_of_args . VCode $ case nilOrHyper of
+                    MHyper  -> makeInfixHyperCode code
+                    _       -> code
             }
 
     -- possiblyBuildMetaopVCode :: (_args :: [Exp]) => Var -> Eval (Maybe VCode)
     possiblyBuildMetaopVCode var@MkVar{ v_meta = meta } = case meta of
-        MPost   -> buildPrefixHyper var'         -- +<<
-        MPre    -> buildPostfixHyper var'        -- >>+
-        MHyper  -> buildInfixHyper var'          -- >>+<<
-        MFold   -> buildReduce varInfix False    -- [+]
-        MScan   -> buildReduce varInfix True     -- [\+]
-        _       -> return Nothing
+        MPost       -> buildPrefixHyper var'                -- +<<
+        MPre        -> buildPostfixHyper var'               -- >>+
+        MHyper      -> buildInfixHyper var'                 -- >>+<<
+        MFold       -> buildReduce varInfix MFold MNil      -- [+]
+        MScan       -> buildReduce varInfix MScan MNil      -- [\+]
+        MHyperFold  -> buildReduce varInfix MFold MHyper    -- [>>+<<]
+        MHyperScan  -> buildReduce varInfix MScan MHyper    -- [>>+<<]
+        _           -> return Nothing
         where
         var' = var{ v_meta = MNil }
         varInfix = var{ v_meta = MNil, v_categ = C_infix }
