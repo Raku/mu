@@ -132,10 +132,7 @@ plan 34;
     is(+@a0, 0, "'or' operator seems to be working with list assignment");
 }
 
-# L<E03/"Don't break the chain">
-#
-# Chained comparisons are supposed to short-circuit.  Do they?
-
+# L<S03/"Each argument in the chain will evaluate at most once">
 {
     my $x = 0;
     my $y = 0;
@@ -144,6 +141,7 @@ plan 34;
     is($y, 2, "chained comparison short-circuit: not re-evaluating middle");
 }
 
+# L<S03/"A chain of comparisons short-circuits">
 {
     my $x = 0;
     my $y = 0;
