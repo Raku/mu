@@ -1095,11 +1095,11 @@ applySub sub invs args
     | MkCode{ subAssoc = A_list, subParams = (p:_) }   <- sub
     = apply sub{ subParams = (length args) `replicate` p } invs args
     -- chain-associativity
-    | MkCode{ subAssoc = A_chain }  <- sub
-    , (App _ Nothing _):_                <- args
-    = mungeChainSub sub args
-    | MkCode{ subAssoc = A_chain, subParams = (p:_) }   <- sub
-    = apply sub{ subParams = (length args) `replicate` p } invs args
+    | MkCode{ subAssoc = A_chain }      <- sub
+    , Nothing                           <- invs
+    = case args of
+        (App _ Nothing _:_) -> mungeChainSub sub args
+        _                   -> applyChainSub sub args
     -- normal application
     | otherwise
     = apply sub invs args
@@ -1110,17 +1110,24 @@ applySub sub invs args
             (App (Var name') invs' args'):rest = args
         theSub   <- findSub name' invs' args'
         case theSub of
-            Right sub'    -> applyChainSub sub args sub' args' rest
-            Left _        -> apply sub{ subParams = (length args) `replicate` p } Nothing args -- XXX Wrong
-    applyChainSub :: VCode -> [Exp] -> VCode -> [Exp] -> [Exp] -> Eval Val
-    applyChainSub sub args sub' args' rest
-        | MkCode{ subAssoc = A_chain, subBody = fun, subParams = prm }   <- sub
-        , MkCode{ subAssoc = A_chain, subBody = fun', subParams = prm' } <- sub'
-        = applySub sub{ subParams = prm ++ tail prm', subBody = Prim $ chainFun prm' fun' prm fun } Nothing (args' ++ rest)
-        | MkCode{ subAssoc = A_chain, subParams = (p:_) }   <- sub
-        = apply sub{ subParams = (length args) `replicate` p } Nothing args -- XXX Wrong
-        | otherwise
-        = internalError "applyChainsub did not match a chain subroutine"
+            Right sub' | A_chain <- subAssoc sub'
+                -> augmentChainSub sub sub' args' rest
+            _ -> applyChainSub sub args
+    augmentChainSub :: VCode -> VCode -> [Exp] -> [Exp] -> Eval Val
+    augmentChainSub sub sub' args' rest = do
+        let MkCode{ subBody = fun, subParams = prm } = sub
+            MkCode{ subBody = fun', subParams = prm' } = sub'
+            augmentedSub = sub
+                { subParams = prm' ++ [(last prm){ isLazy = True }]
+                , subBody   = Prim $ chainFun prm' fun' prm fun
+                }
+        applySub augmentedSub Nothing (args' ++ rest)
+    applyChainSub :: VCode -> [Exp] -> Eval Val
+    applyChainSub sub args = do
+        -- Align the argument number against the parameter number
+        let prms    = subParams sub
+            prms'   = take (length args) (prms ++ repeat (last prms))
+        apply sub{ subParams = prms' } Nothing args
 
 applyExp :: SubType -> [ApplyArg] -> Exp -> Eval Val
 applyExp _ bound (Prim f) =
@@ -1261,8 +1268,15 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
         let eval = local (const env{ envLValue = lv }) $ do
                 enterEvalContext cxt exp
             thunkify = do
-                -- typ <- inferExpType exp
-                return . VRef . thunkRef $ MkThunk eval (anyType)
+                memo    <- liftSTM $ newTVar Nothing
+                let forceThunk = do
+                        res <- eval
+                        liftSTM $ writeTVar memo (Just res)
+                        return res
+                    evalThunk = do
+                        cur <- liftSTM $readTVar memo
+                        maybe forceThunk return cur
+                return . VRef . thunkRef $ MkThunk evalThunk anyType
         val <- if thunk then thunkify else do
             v   <- eval
             typ <- evalValType v

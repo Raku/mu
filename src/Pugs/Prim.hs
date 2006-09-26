@@ -307,14 +307,14 @@ op1 "try" = \v -> do
 -- Tentative implementation of nothingsmuch's lazy proposal.
 op1 "lazy" = \v -> do
     sub     <- fromVal v
-    result  <- liftSTM $ newTVar Nothing
+    memo    <- liftSTM $ newTVar Nothing
     let exp = App (Val $ VCode sub) Nothing []
         thunk = do
-            cur <- liftSTM $ readTVar result
+            cur <- liftSTM $ readTVar memo
             maybe eval return cur
         eval = do
             res <- evalExp exp
-            liftSTM $ writeTVar result (Just res)
+            liftSTM $ writeTVar memo (Just res)
             return res
     typ <- inferExpType exp
     return . VRef . thunkRef $ MkThunk thunk typ
