@@ -1892,7 +1892,7 @@ regularVarNameForSigil sigil = do
 ruleDereference :: RuleParser Exp
 ruleDereference = try $ do
     sigil   <- ruleSigil
-    exp     <- ruleDereference <|> ruleSigiledVar <|> verbatimParens ruleExpression
+    exp     <- ruleDereference <|> ruleSigiledVar <|> verbatimParens (option (_Var "$/") ruleExpression)
     return $ Syn (shows sigil "{}") [exp]
 
 ruleSigiledVar :: RuleParser Exp
