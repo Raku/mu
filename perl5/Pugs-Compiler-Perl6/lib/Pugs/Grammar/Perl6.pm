@@ -86,18 +86,28 @@ use Data::Dumper;
 )->code;
 
 # Str|Num
-*signature_term_type = Pugs::Compiler::Regex->compile( q(
+*signature_term_type_2 = Pugs::Compiler::Regex->compile( q(
         <Pugs::Grammar::Term.bare_ident>
         [
-            <?ws>? \| <?ws>? <signature_term_type>
+            <?ws>? \| <?ws>? <signature_term_type_2>
             { return {
                 op1 => '|',
                 exp1 => $_[0]{'Pugs::Grammar::Term.bare_ident'}->(),
-                exp2 => $<signature_term_type>->(),
+                exp2 => $<signature_term_type_2>->(),
             } }
         |
             { return $_[0]{'Pugs::Grammar::Term.bare_ident'}->() }
         ]
+    |
+        { return undef }
+),
+    { grammar => __PACKAGE__ }
+)->code;
+
+*signature_term_type = Pugs::Compiler::Token->compile( q(
+        <!before <'sub'> >   # TODO
+        <signature_term_type_2>
+        { return $_[0]{'signature_term_type_2'}->() }
     |
         { return undef }
 ),
