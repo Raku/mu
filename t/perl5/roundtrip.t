@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan(6);
+plan(7);
 
 unless eval 'eval("1", :lang<perl5>)' {
     skip_rest;
@@ -41,6 +41,6 @@ my %hash = (foo => 'bar', hate => 'software');
 
 {
     lives_ok { # is_deeply
-        cmp_ok(%hash.keys, &infix:<cmp>, $keys_p5.(%hash));
+        cmp_ok(%hash.keys, &infix:<cmp>, $keys_p5(VAR %hash));
     }
 }
