@@ -6,7 +6,7 @@ use Test;
 
 # XXX - this needs to be updated when Str.split(Str) works again
 # this test really wants is_deeply()
-plan 94;
+plan 98;
 
 # split on an empty string
 
@@ -35,10 +35,18 @@ split_test split("", "forty-two"),
            qw/f o r t y - t w o/,
            q{split "", Str};
 
+split_test "forty-two".comb(/./),
+           qw/f o r t y - t w o/,
+           q{Str.comb(/./)}, :todo<feature>;
+
 # split on a space
 split_test split(' ', 'split this string'),
            qw/split this string/,
            q{split ' ', Str};
+
+split_test 'split this string'.comb,
+           <split this string>,
+           q{Str.comb}, :todo<feature>;
 
 # split on a single character delimiter
 split_test split('$', 'try$this$string'),
