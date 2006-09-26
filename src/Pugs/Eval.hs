@@ -1284,7 +1284,7 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
                         liftSTM $ writeTVar memo (Just res)
                         return res
                     evalThunk = do
-                        cur <- liftSTM $readTVar memo
+                        cur <- liftSTM $ readTVar memo
                         maybe forceThunk return cur
                 return . VRef . thunkRef $ MkThunk evalThunk anyType
         val <- if thunk then thunkify else do
