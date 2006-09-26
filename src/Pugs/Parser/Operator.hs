@@ -696,15 +696,16 @@ parseExpWithCachedParser f = do
 ruleHyperPost :: RuleParser String
 ruleHyperPost = ((char '\171' >> return "<<") <|> (string "<<"))
 
-ruleSigilHyper :: RuleParser String
-ruleSigilHyper = verbatimRule "" $ try $ do
-    sig <- (fmap show ruleSigil) <|> string "|"
+-- XXX - the rulePipeHyper below should be more generic and put all +<< etc to listop level
+rulePipeHyper :: RuleParser String
+rulePipeHyper = verbatimRule "" $ do
+    -- sig <- (fmap show ruleSigil) <|> string "|"
+    char '|'
     ruleHyperPost
-    return $ "&prefix:" ++ sig ++ "<<"
+    return $ "&prefix:|<<"
 
--- XXX - the ruleSigilHyper below should be more generic and put all +<< etc to listop level
 ruleFoldOp :: RuleParser String
-ruleFoldOp = (<|> ruleSigilHyper) $ verbatimRule "reduce metaoperator" $ try $ do
+ruleFoldOp = tryVerbatimRule "reduce metaoperator" $ (rulePipeHyper <|>) $ do
     char '['
     keep <- option "" $ string "\\"
     -- XXX - Instead of a lookup, add a cached parseInfix here!
