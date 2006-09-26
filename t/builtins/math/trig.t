@@ -2,7 +2,7 @@ use v6-alpha;
 use Test;
 plan 51;
 
-# L<S29/"Math::Trig">
+# L<S29/"The :Trig tag">
 
 =head1 DESCRIPTION
 

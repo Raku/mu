@@ -2,7 +2,7 @@ use v6-alpha;
 use Test;
 plan 1;
 
-# L<S29/"Math::Basic"/"=item exp">
+# L<S29/Num/"=item exp">
 
 =pod 
 

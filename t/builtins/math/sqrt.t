@@ -2,7 +2,7 @@ use v6-alpha;
 use Test;
 plan 2;
 
-# L<S29/"Math::Basic"/"=item sqrt">
+# L<S29/Num/"=item sqrt">
 
 =pod 
 

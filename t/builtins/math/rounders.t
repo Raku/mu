@@ -2,10 +2,10 @@ use v6-alpha;
 use Test;
 plan 36;
 
-# L<S29/"Math::Basic"/"=item round">
-# L<S29/"Math::Basic"/"=item floor">
-# L<S29/"Math::Basic"/"=item truncate">
-# L<S29/"Math::Basic"/"=item ceiling">
+# L<S29/Num/"=item round">
+# L<S29/Num/"=item floor">
+# L<S29/Num/"=item truncate">
+# L<S29/Num/"=item ceiling">
 
 =pod
 
