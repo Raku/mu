@@ -3,6 +3,7 @@ use Data::Dumper;
 package Pugs::Runtime::Perl5Container::Array;
 use strict;
 use warnings;
+use Pugs::Runtime::Perl6;
 
 # my $a = bless [ 1, 2, 3 ], 'Pugs::Runtime::Perl5Container::Array';
 
@@ -39,7 +40,29 @@ sub perl {
 sub hash {
     return bless { @{$_[0]} }, 'Pugs::Runtime::Perl5Container::Hash' 
 }
-    
+sub map {
+    my ($array, $code) = @_;
+    my $run = ref($code) eq 'Pugs::Runtime::Perl6::Routine' 
+        ? $code->code 
+        : $code;
+    my $arity = Pugs::Runtime::Perl6::Routine->new($run)->arity || 1;
+
+    if ( $arity == 1 ) {
+        return bless [
+                map { $run->( $_ ) } @{$array}
+            ], 'Pugs::Runtime::Perl5Container::Array';
+    }
+
+    my @result;
+    my $i = 0;
+    while ( $i <= $#{$array} ) {
+       	my @x = @{$array}[$i..$i+$arity-1];
+        push @result, $run->([map { \$_ } @x], {});
+        $i += $arity;
+    }
+    return bless \@result, , 'Pugs::Runtime::Perl5Container::Array';
+}
+  
 package Pugs::Runtime::Perl5Container::Hash;
 use strict;
 use warnings;
@@ -93,6 +116,9 @@ sub str {
 }
 sub array {
     bless [  %{$_[0]}  ], 'Pugs::Runtime::Perl5Container::Array';
+}
+sub map {
+    $_[0]->array->map( $_[1] )
 }
     
 1;

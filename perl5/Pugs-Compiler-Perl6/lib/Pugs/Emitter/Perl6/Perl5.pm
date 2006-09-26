@@ -666,7 +666,15 @@ sub default {
     }
     
     if ( exists $n->{op1} && $n->{op1} eq 'method_call' ) {    
-        #warn "method_call: ", Dumper( $n );
+        # print "method_call: ", Dumper( $n );
+
+        if ($n->{method}{dot_bareword} eq 'map') {
+            my $param = $n->{param}{fixity} eq 'circumfix' ? $n->{param}{exp1} : undef;
+            my $code = $param->{bare_block} ? 'sub { '._emit($param).' }' : _emit($param);
+            return _emit( $n->{self} ) . '->' . 'map( '.$code.' )';
+            # return 'Pugs::Runtime::Perl6::Array::map([\('.$code.', '. _emit( $n->{self} ).')], {})';
+        }
+
         if ( $n->{method}{dot_bareword} eq 'print' ||
              $n->{method}{dot_bareword} eq 'warn' ) {
             my $s = _emit( $n->{self} );
