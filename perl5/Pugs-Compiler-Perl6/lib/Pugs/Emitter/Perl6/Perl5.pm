@@ -1266,9 +1266,36 @@ sub infix {
     }
 
     if ( $n->{op1}{op} eq '=' ) {
-        # print "{'='}: ", Dumper( $n );
+        #print "{'='}: ", Dumper( $n );
+                
+        if ( exists $n->{exp1}{variable_declarator} 
+            && exists $n->{exp1}{exp1}{scalar} ) {
+            #print "set $n->{exp1}{exp1}{scalar}";
+            #print "{'='}: set scalar ",Dumper($n->{exp2});
+            if ( exists $n->{exp2}{array} ) {
+                return _emit( $n->{exp1} ) . ' = ' . 
+                    "bless \\" . $n->{exp2}{array} . ", 'Pugs::Runtime::Perl5Container::Array' "
+                ;
+            }
+            if ( exists $n->{exp2}{hash} ) {
+                return _emit( $n->{exp1} ) . ' = ' . 
+                    "bless \\" . $n->{exp2}{hash} . ", 'Pugs::Runtime::Perl5Container::Hash' "
+                ;
+            }
+        }
         if ( exists $n->{exp1}{scalar} ) {
             #print "set $n->{exp1}{scalar}";
+            #print "{'='}: set scalar ",Dumper($n->{exp2});
+            if ( exists $n->{exp2}{array} ) {
+                return _var_set( $n->{exp1}{scalar} )->( 
+                    "bless \\" . $n->{exp2}{array} . ", 'Pugs::Runtime::Perl5Container::Array' "
+                );
+            }
+            if ( exists $n->{exp2}{hash} ) {
+                return _var_set( $n->{exp1}{scalar} )->( 
+                    "bless \\" . $n->{exp2}{hash} . ", 'Pugs::Runtime::Perl5Container::Hash' "
+                );
+            }
             return _var_set( $n->{exp1}{scalar} )->( _var_get( $n->{exp2} ) );
         }
         if ( exists $n->{exp1}{hash} ) {
@@ -1488,13 +1515,13 @@ sub prefix {
     if (  $n->{op1}{op} eq 'hash' 
        || $n->{op1}{op} eq '%' 
        ) {
-        return '%{' . _emit( $n->{exp1} ) . '}';
+        return '(bless \%{' . _emit( $n->{exp1} ) . "}, 'Pugs::Runtime::Perl5Container::Hash')";
     }
     
     if (  $n->{op1}{op} eq 'array' 
        || $n->{op1}{op} eq '@' 
        ) {
-        return '@{' . _emit( $n->{exp1} ) . '}';
+        return '(bless \@{' . _emit( $n->{exp1} ) . "}, 'Pugs::Runtime::Perl5Container::Array')";
     }
     
     #-- /coercions

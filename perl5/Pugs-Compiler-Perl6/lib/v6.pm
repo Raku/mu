@@ -58,7 +58,7 @@ sub pmc_compile {
     $perl5 = 
         ( $package 
             ? "package $package;\n" 
-            : "package main; # no package name\n" ).
+            : "package Main; # no package name\n" ).
         ((!$package or ($package eq 'main')) ? (
             "use Config;\n".
             "use lib split(/\\Q\$Config{path_sep}/, \$ENV{PERL6LIB} || '');\n"
@@ -66,6 +66,7 @@ sub pmc_compile {
         "use Scalar::Util;
          use Pugs::Runtime::Perl6;
          use Pugs::Runtime::Perl6Prelude;
+         use Pugs::Runtime::Perl5Container;
          use base 'Pugs::Grammar::Base';  
          use strict;
          no strict 'refs';
