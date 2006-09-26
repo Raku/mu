@@ -333,12 +333,12 @@ op1 "sign" = \v -> withDefined [v] $
     op1Cast (VInt . signum) v
 
 op1 "srand" = \v -> do
-    x    <- fromVal v
+    x <- fromVal v
     guardSTM . unsafeIOToSTM $ do
-        seed <- case x of
-            0 -> randomRIO (0, 2^(31::Int))
-            _ -> return x
-        setStdGen $ mkStdGen seed
+       seed <- if ( defined v )
+          then return x
+          else randomRIO (0, 2^(31::Int))
+       setStdGen $ mkStdGen seed
     return (castV True)
 op1 "rand"  = \v -> do
     x    <- fromVal v

@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 2 + 2*10 + 3;
+plan 2 + 2*10 + 4;
 
 =pod 
 
@@ -34,4 +34,7 @@ ok(repeat_rand(314159) == repeat_rand(314159),
     'srand() provides repeatability for rand()');
 
 ok(repeat_rand(0) == repeat_rand(0),
-    'srand(0) uses generate_default_seed()', :todo);
+    'edge case: srand(0) provides repeatability');
+
+ok(repeat_rand(0) != repeat_rand(1),
+    'edge case: srand(0) not the same as srand(1)');
