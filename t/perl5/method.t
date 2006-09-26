@@ -49,9 +49,7 @@ sub many {
 
 sub modify_array {
     my ($class, $val) = @_;
-    warn $val;
-    warn $#{$val};
-    $val->[0]++;
+    $val->[0] = 99;
 }
 
 # takes an object and invoke me on that
@@ -118,12 +116,8 @@ my $obj;
     is($obj.invoke($obj6), 'Foo6invoking', 'invoke pugs method from p5');
 }
 
-# XXX Core dump
-flunk("modify a scalar ref", :todo<feature>); exit;
-
 {
-    my @rw = (1);
-    my $r = \@rw;
-    $obj.modify_array($r);
-    is(@rw[0], 2, 'modify a scalar ref', :todo<feature>);
+    my @rw = (1, 2, 3);
+    $obj.modify_array(VAR @rw);
+    is(@rw[0], 99, 'modify a scalar ref');
 }

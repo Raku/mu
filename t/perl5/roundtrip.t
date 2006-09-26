@@ -28,7 +28,7 @@ my $id   = eval("Id", :lang<perl5>);
 is($id.new($japh).identity.('Pugs'), 'Just another Pugs hacker', "Closure roundtrips");
 is($id.new($japh2).identity.('Pugs'), 'Just another Pugs hacker', "Closure roundtrips");
 
-my $keys_p5 = eval('sub {warn join(",",@_); return keys %{$_[0]}}', :lang<perl5>);
+my $keys_p5 = eval('sub {keys %{$_[0]}}', :lang<perl5>);
 my $tohash_p5 = eval('sub { return {map {$_ => 1} @_ } }', :lang<perl5>);
 my %hash = (foo => 'bar', hate => 'software');
 {
