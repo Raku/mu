@@ -1024,7 +1024,7 @@ instance Ord VComplex where
     compare (a :+ ai) (b :+ bi) = compare (a, ai) (b, bi)
 
 instance (Typeable a) => Show (TVar a) where
-    show tv = "<ref:0x" ++ showHex (unsafeCoerce# tv :: Word) ">"
+    show tv = "<ref:0x" ++ showHex (W# (unsafeCoerce# tv :: Word#)) ">"
 
 {- Expression annotation
 -}
