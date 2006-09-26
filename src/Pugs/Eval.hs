@@ -1037,12 +1037,19 @@ dummyVar :: Var
 dummyVar = cast "$"
 
 chainFun :: Params -> Exp -> Params -> Exp -> [Val] -> Eval Val
-chainFun p1 f1 p2 f2 vals = do
-    (v1:v2:vs)  <- mapM forceThunk vals
-    val <- applyExp SubPrim (chainArgs p1 [v1, v2]) f1
+chainFun p1 f1 p2 f2 (v1:v2:vs) = do
+    v1' <- forceThunk v1
+    v2' <- forceThunk v2
+    val <- applyExp SubPrim (chainArgs p1 [v1', v2']) f1
     case val of
         VBool False -> return val
-        _           -> applyExp SubPrim (chainArgs p2 (v2:vs)) f2
+        _           -> do
+            vs' <- case vs of
+                (v3:rest)   -> do
+                    v3' <- forceThunk v3
+                    return (v3':rest)
+                _           -> return vs
+            applyExp SubPrim (chainArgs p2 (v2':vs')) f2
     where
     chainArgs prms vals = map chainArg (prms `zip` vals)
     chainArg (p, v) = ApplyArg (paramName p) v False
