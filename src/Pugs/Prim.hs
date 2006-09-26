@@ -334,8 +334,11 @@ op1 "sign" = \v -> withDefined [v] $
 
 op1 "srand" = \v -> do
     x    <- fromVal v
-    flbk <- guardSTM . unsafeIOToSTM $ randomRIO (0, 2^31)
-    guardIO $ setStdGen $ mkStdGen $ if x == 0 then flbk else x
+    guardSTM . unsafeIOToSTM $ do
+        seed <- case x of
+            0 -> randomRIO (0, 2^(31::Int))
+            _ -> return x
+        setStdGen $ mkStdGen seed
     return (castV True)
 op1 "rand"  = \v -> do
     x    <- fromVal v
