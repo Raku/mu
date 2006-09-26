@@ -6,7 +6,7 @@ use Test;
 
 # XXX: add sanity check to see we can run the test or skip
 
-plan 494;
+plan 527;
 
 
 #my $test_data = slurp 'regex_tests';
@@ -53,7 +53,8 @@ for slurp($fh) -> $line {
     $target ~~ s:P5:g/\\t/\t/;
     $target ~~ s:P5:g/\\f/\f/;
     $target ~~ s:P5:g/\\(\d{3})/{chr(:8($1))}/;
-    $target ~~ s:P5:g/\\x(..)/{chr(:16($1))}/;
+    $target ~~ s:P5:g/\\x\[([a-fA-F0-9]+)\]/{chr(:16($1))}/;
+    $target ~~ s:P5:g/\\x([a-fA-F0-9]+)/{chr(:16($1))}/;
 
     my $todo;
 
