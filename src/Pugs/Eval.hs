@@ -1037,7 +1037,8 @@ dummyVar :: Var
 dummyVar = cast "$"
 
 chainFun :: Params -> Exp -> Params -> Exp -> [Val] -> Eval Val
-chainFun p1 f1 p2 f2 (v1:v2:vs) = do
+chainFun p1 f1 p2 f2 vals = do
+    (v1:v2:vs)  <- mapM forceThunk vals
     val <- applyExp SubPrim (chainArgs p1 [v1, v2]) f1
     case val of
         VBool False -> return val
@@ -1045,7 +1046,8 @@ chainFun p1 f1 p2 f2 (v1:v2:vs) = do
     where
     chainArgs prms vals = map chainArg (prms `zip` vals)
     chainArg (p, v) = ApplyArg (paramName p) v False
-chainFun _ _ _ _ _ = internalError "chainFun: Not enough parameters in Val list"
+    forceThunk (VRef (MkRef (IThunk tv)))   = thunk_force tv
+    forceThunk x                            = return x
 
 doCall :: Var -> Maybe Exp -> [Exp] -> Eval Val
 doCall var invs args = do
@@ -1093,7 +1095,7 @@ applySub sub invs args
     = applySub sub invs (args' ++ rest)
     -- fix subParams to agree with number of actual arguments
     | MkCode{ subAssoc = A_list, subParams = (p:_) }   <- sub
-    = apply sub{ subParams = (length args) `replicate` p } invs args
+    = apply sub{ subParams = length args `replicate` p } invs args
     -- chain-associativity
     | MkCode{ subAssoc = A_chain }      <- sub
     , Nothing                           <- invs
@@ -1106,7 +1108,7 @@ applySub sub invs args
     where
     mungeChainSub :: VCode -> [Exp] -> Eval Val
     mungeChainSub sub args = do
-        let MkCode{ subAssoc = A_chain, subParams = (p:_) } = sub
+        let MkCode{ subAssoc = A_chain, subParams = [_,_] } = sub
             (App (Var name') invs' args'):rest = args
         theSub   <- findSub name' invs' args'
         case theSub of
