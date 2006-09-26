@@ -89,11 +89,14 @@ pairAdverb = try $ do
         key <- many1 wordAny
         return $ App (_Var "&infix:=>") Nothing [Val (VStr key), Val (VBool False)]
     shortcutPair = do
-        (s:ss)  <- fmap reverse (many1 ruleSigil)
-        key     <- regularVarNameForSigil s
+        (s:ss)              <- fmap reverse (many1 ruleSigil)
+        varExp@(Var var)    <- fmap _Var (regularVarNameForSigil s)
         -- This turns ":$$$x" into "x=>$$$x"
         let appCast sig exp = Syn (shows sig "{}") [exp]
-        return $ App (_Var "&infix:=>") Nothing [Val (VStr key), foldr appCast (_Var key) ss]
+        return $ App (_Var "&infix:=>") Nothing
+            [ Val (VStr $ cast (v_name var))
+            , foldr appCast varExp ss
+            ]
     regularPair = do
         key <- many1 wordAny
         val <- option (Val $ VBool True) $ choice [ valueDot, noValue, valueExp ]
