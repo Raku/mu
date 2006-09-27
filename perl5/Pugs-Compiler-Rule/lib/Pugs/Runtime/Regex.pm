@@ -451,11 +451,9 @@ sub non_greedy_plus {
         my $state = $_[1] 
             || { node  => concat( [ ( $node ) x $min_count ] ), 
                  count => $min_count };
-        my $in_range = ( $state->{count} <= $max_count ) ? 1 : 0;
-        #print "Testing state $state->{count} $in_range \n";
         $state->{node}->( $_[0], undef, @_[2..7] );
-        #print "Current node: ", Dumper( $_[3] );
-        $_[3]->data->{bool} = \0 unless $in_range;
+        $_[3]->data->{bool} = \0 
+            if $state->{count} > $max_count;
         $_[3]->data->{state} = 
             { node  => concat( [ $node, $state->{node} ] ), 
               count => $state->{count} + 1 };
