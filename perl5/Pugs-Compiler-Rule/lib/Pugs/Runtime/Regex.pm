@@ -213,6 +213,7 @@ sub failed {
                 to    => \(0 + $_[5]),
                 named => {},
                 match => [],
+                state => undef,
             });
     }
 };
@@ -451,9 +452,9 @@ sub non_greedy_plus {
         my $state = $_[1] 
             || { node  => concat( [ ( $node ) x $min_count ] ), 
                  count => $min_count };
-        $state->{node}->( $_[0], undef, @_[2..7] );
-        $_[3]->data->{bool} = \0 
+        return failed()->(@_)
             if $state->{count} > $max_count;
+        $state->{node}->( $_[0], undef, @_[2..7] );
         $_[3]->data->{state} = 
             { node  => concat( [ $node, $state->{node} ] ), 
               count => $state->{count} + 1 };
