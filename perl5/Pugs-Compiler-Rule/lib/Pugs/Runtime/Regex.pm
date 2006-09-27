@@ -451,6 +451,112 @@ sub non_greedy_plus {
     }
 }
 
+sub greedy_range {
+    my $node = shift;
+    my $min_count = shift;
+    my $max_count = shift;
+    return sub {
+        my $continuation = $_[1]; #XXX need more, yes?
+
+        my $count = 0;
+        my $old_pos = -1;
+
+        my ( $get_required_min, $check_pos_then_extend, $extend );
+
+        my $continue_getting_min;
+        $get_required_min = sub {
+            if ( $count < $min_count ) {
+                $count++;
+                goto &$continue_getting_min;
+            } else {
+                goto &$check_pos_then_extend;
+            }
+        };
+        $continue_getting_min = concat( [ $node, $get_required_min ] );
+
+        $check_pos_then_extend = sub {
+            if ( $old_pos < $_[5] ) {
+                $old_pos = $_[5];
+                goto &$extend;
+            } else { # extending did not advance pos.
+                goto &$continuation;
+            }
+        };
+
+        my $continue_extending;
+        $extend = sub {
+            if ( $count < $max_count ) {
+                $count++;
+                # XXX - This section needs to be filled in.
+                # try $continue_extending
+                #  if successful, return.
+                #  if abort, whatever.
+                #  if failed, undo any changes from the try, so we can...
+                goto &$continuation;
+            } else { # did max_count.
+                goto &$continuation;
+            }
+        };
+        $continue_extending = concat( [ $node, $check_pos_then_extend ] );
+
+        # We start here.
+        goto &$get_required_min;
+    }
+}
+# There is only a two line difference between greedy and non-greedy range.
+sub non_greedy_range {
+    my $node = shift;
+    my $min_count = shift;
+    my $max_count = shift;
+    return sub {
+        my $continuation = $_[1]; #XXX need more, yes?
+
+        my $count = 0;
+        my $old_pos = -1;
+
+        my ( $get_required_min, $check_pos_then_extend, $extend );
+
+        my $continue_getting_min;
+        $get_required_min = sub {
+            if ( $count < $min_count ) {
+                $count++;
+                goto &$continue_getting_min;
+            } else {
+                goto &$check_pos_then_extend;
+            }
+        };
+        $continue_getting_min = concat( [ $node, $get_required_min ] );
+
+        $check_pos_then_extend = sub {
+            if ( $old_pos < $_[5] ) {
+                $old_pos = $_[5];
+                goto &$extend;
+            } else { # extending did not advance pos.
+                goto &$continuation;
+            }
+        };
+
+        my $continue_extending;
+        $extend = sub {
+            if ( $count < $max_count ) {
+                $count++;
+                # XXX - This section needs to be filled in.
+                # try $continuation        # 1st difference from greedy
+                #  if successful, return.
+                #  if abort, whatever.
+                #  if failed, undo any changes from the try, so we can...
+                goto &$continue_extending; # 2nd difference from greedy
+            } else { # did max_count.
+                goto &$continuation;
+            }
+        };
+        $continue_extending = concat( [ $node, $check_pos_then_extend ] );
+
+        # We start here.
+        goto &$get_required_min;
+    }
+}
+
 
 sub preprocess_hash {
     # TODO - move to Pugs::Runtime::Regex
