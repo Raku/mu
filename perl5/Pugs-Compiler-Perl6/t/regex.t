@@ -3,7 +3,7 @@
 
 use strict;
 use warnings;
-use Test::More tests => 494;
+use Test::More tests => 525;
 
 # XXX: Port this to Perl6.
 
@@ -28,7 +28,7 @@ tabs):
 
 =cut
 
-my $tests = '../../t/p6regex/regex_tests';
+my $tests = '../../t/regex/p6regex/regex_tests';
 
 ##   Perform the tests.
 open TESTS, "<$tests" or die "Can't open $tests";
@@ -64,7 +64,7 @@ my $x = m/perl5/ ? 1 : 0;
 }
 
 use Pugs::Compiler::Rule;
-use Pugs::Runtime::Match::Ratchet;
+#use Pugs::Runtime::Match::Ratchet;
 use base 'Pugs::Grammar::Base';
 
 sub match {
