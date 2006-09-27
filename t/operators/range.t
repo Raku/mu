@@ -38,7 +38,7 @@ is ["a"..^"z"], ["a".."y"], "top-exclusive string range (..^) works";
 is ["a"^..^"z"], ["b".."y"], "double-exclusive string range (^..^) works";
 is ['a'^..^'b'], [], "double-exclusive string range (^..^) can produce null range";
 
-is 1.5 ~~ 1^..^2, Bool::True, "lazy evaluation of the range operator";
+is 1.5 ~~ 1^..^2, Bool::True, "lazy evaluation of the range operator", :todo<bug>;
 
 # Test the unary ^ operator
 is ~(^5), "0 1 2 3 4", "unary ^num produces the range 0..^num";
