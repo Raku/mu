@@ -436,10 +436,17 @@ sub greedy_star {
 }
 
 sub non_greedy_star { 
+
+    # avoid matching <null> is $min > 0
+    return non_greedy_plus( @_ )
+        if $_[1] > 0;
+
     my $node = shift;
+    my $min_count = shift || 1;  
+    my $max_count = shift || 1e99;
     alternation( [ 
         null(),
-        non_greedy_plus( $node ) 
+        non_greedy_plus( $node, $min_count, $max_count ) 
     ] );
 }
 
