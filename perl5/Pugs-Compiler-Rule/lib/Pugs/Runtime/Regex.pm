@@ -36,6 +36,7 @@ sub alternation {
 sub concat {
     my $nodes = shift;
     $nodes = [ $nodes, @_ ] unless ref($nodes) eq 'ARRAY';  # backwards compat
+    return $nodes->[0] if @$nodes == 1;
     if ( @$nodes > 2 ) {
         return concat(
             concat( [ $nodes->[0], $nodes->[1] ] ),
@@ -441,13 +442,23 @@ sub non_greedy_star {
     ] );
 }
 
+# XXX - needs optimization for faster backtracking, less stack usage
 sub non_greedy_plus { 
     my $node = shift;
-    # XXX - needs optimization for faster backtracking, less stack usage
+    my $min_count = shift || 1;
+    my $max_count = shift || 1e99;
     return sub {
-        my $state = $_[1] || $node;
-        $state->( $_[0], undef, @_[2..7] );
-        $_[3]->data->{state} = concat( [ $node, $state ] );
+        my $state = $_[1] 
+            || { node  => concat( [ ( $node ) x $min_count ] ), 
+                 count => $min_count };
+        my $in_range = ( $state->{count} <= $max_count ) ? 1 : 0;
+        #print "Testing state $state->{count} $in_range \n";
+        $state->{node}->( $_[0], undef, @_[2..7] );
+        #print "Current node: ", Dumper( $_[3] );
+        $_[3]->data->{bool} = \0 unless $in_range;
+        $_[3]->data->{state} = 
+            { node  => concat( [ $node, $state->{node} ] ), 
+              count => $state->{count} + 1 };
     }
 }
 
