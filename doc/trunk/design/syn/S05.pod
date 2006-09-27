@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 21 Aug 2006
+   Last Modified: 27 Sept 2006
    Number: 5
-   Version: 33
+   Version: 34
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -331,6 +331,23 @@ The new C<:ratchet> modifier causes this regex to not backtrack by default.
 C<token> and C<rule> declarations.)  The effect of this modifier is
 to imply a C<:> after every construct that could backtrack, including
 bare C<*>, C<+>, and C<?> quantifiers, as well as alternations.
+
+The C<:ratchet> modifier also implies that the anchoring on either
+end is controlled by context.  When a ratcheted regex is called as
+a subrule, the front is anchored to the current position (as with
+C<:p>), while the end is not anchored, since the calling context
+will likely wish to continue parsing.  However, when a ratcheted
+regex is called directly, it is automatically anchored on both ends.
+(You may override this with an explicit C<:p> or C<:c>.)  Thus,
+you can do direct pattern matching using a token or rule:
+
+    $string ~~ token { \d+ }
+    $string ~~ rule { \d+ }
+
+and these are equivalent to
+
+    $string ~~ m/^ \d+: $/;
+    $string ~~ m/^ <ws> \d+: <ws> $/;
 
 =item *
 
