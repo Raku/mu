@@ -420,8 +420,14 @@ sub null_or_optional {
     alternation( [ null(), $node ] );
 }
 
+# XXX - needs optimization for faster backtracking, less stack usage
+# TODO - run-time ranges (iterator)
 sub greedy_plus { 
     my $node = shift;
+    my $min_count = shift || 1;
+    my $max_count = shift || 1e99;
+    # TODO - implement ranges
+
     my $alt;
     $alt = concat( [
         $node, 
@@ -432,6 +438,10 @@ sub greedy_plus {
 
 sub greedy_star { 
     my $node = shift;
+    my $min_count = shift || 1;
+    my $max_count = shift || 1e99;
+    # TODO - implement ranges
+
     optional( greedy_plus( $node ) );
 }
 
@@ -444,13 +454,13 @@ sub non_greedy_star {
     my $node = shift;
     my $min_count = shift || 1;  
     my $max_count = shift || 1e99;
-    alternation( [ 
-        null(),
+    null_or_optional(
         non_greedy_plus( $node, $min_count, $max_count ) 
-    ] );
+    )
 }
 
 # XXX - needs optimization for faster backtracking, less stack usage
+# TODO - run-time ranges (iterator)
 sub non_greedy_plus { 
     my $node = shift;
     my $min_count = shift || 1;
