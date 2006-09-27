@@ -7,7 +7,6 @@ use Test::More tests => 28;
 # use Data::Dumper;
 # $Data::Dumper::Indent = 1;
 # $Data::Dumper::Pad = '# ';
-use Data::Dump::Streamer;
 
 use_ok( 'Pugs::Runtime::Regex' );
 use Pugs::Runtime::Match;

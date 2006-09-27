@@ -1,10 +1,49 @@
 
+0.19  2006-09-27
+
+- removed dependency Data::Dump::Streamer (t/01-iterator_engine.t)
+- updated Pugs::Runtime::Match pod
+- $/{0} === $/[0]
+- Match.kv, Match.elems, Match.chars, Match.yaml
+- RegexPerl5 accepts parameters  i m s x 
+- <! ...> takes a metasyntax expression (not a rule pattern)
+- Regex wasn't allowed to match at end of string
+- Regex runtime detects infinite loop in <null>+ and fails
+- more detailed quantifier parsing;
+  added '**{range}' quantifier (needs emitter support)
+
+- HsBridge - implements a Pugs/Haskell-compatible API
+
+[ features available inside v6.pm only ]
+
+- refactored Rule grammar to use shortcuts, such as
+    { return { after => :$$<rule>, } }
+- fixed '${...}', '$[...]', ':$<...>', '$0'
+- fixed coercions in emitter
+
+[ devel (svn.openfoundry.org/pugs/perl5) version only ]
+
+"plain_regex"
+- code cleanup; added bug list
+- added  ^^ $$ \n \N  - TimToady++
+- /./ matches 2-char newline
+- <'literal'>
+- simple character classes, negated char classes
+- ^ $ <null> \s, \S, etc
+- <after ...>, <!after ...>, <before ...>, <!before ...>
+- non-capturing group, captures, dot
+
+"Pugs::Grammar::RulePure"
+  pure-Perl6 version of the Rule grammar;
+  this file currently can't be run due to PCR/v6 incompatible 
+  calling conventions
+
 0.18  2006-09-21
 
 - implemented capturing to return object with <(...)>
 - implemented Matching against non-strings
    my $rule = Pugs::Compiler::Regex->compile( '<.meth("param")>' );
-   my $match = $rule->match( $object );- implemented <at($pos)>
+   my $match = $rule->match( $object );
 - implemented <at($pos)>
 - fixed '^' and '$' in regexes
 
