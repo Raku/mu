@@ -2,7 +2,7 @@ use v6-alpha;
 use Test;
 plan 21;
 
-# L<S29/"Scalar"/"=item defined">
+# L<S29/Scalar>
 
 =pod
 
