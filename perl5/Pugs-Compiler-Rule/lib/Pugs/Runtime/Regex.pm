@@ -478,110 +478,87 @@ sub non_greedy_plus {
     }
 }
 
-sub greedy_range {
+sub range {
     my $node = shift;
     my $min_count = shift;
     my $max_count = shift;
+    my $greedy = not shift;
     return sub {
-        my $continuation = $_[1]; #XXX need more, yes?
+
+        my $continuation = $_[1]; #XXX how do optional continuations work?
+
+        # Forward declarations
+
+        my $try_getting_more;
+
+        my $default_behavior;
+        my $fallback_behavior;
+
+        # Loop variables
 
         my $count = 0;
-        my $old_pos = -1;
+        my $previous_pos = -1;
 
-        my ( $get_required_min, $check_pos_then_extend, $extend );
+        # Loop 1 - getting to min_count
 
-        my $continue_getting_min;
-        $get_required_min = sub {
+        my $continue_towards_min;
+        my $get_minimum = sub {
             if ( $count < $min_count ) {
                 $count++;
-                goto &$continue_getting_min;
+                goto &$continue_towards_min;
             } else {
-                goto &$check_pos_then_extend;
+                goto &$try_getting_more;
             }
         };
-        $continue_getting_min = concat( [ $node, $get_required_min ] );
+        $continue_towards_min = concat( [ $node, $get_minimum ] );
 
-        $check_pos_then_extend = sub {
-            if ( $old_pos < $_[5] ) {
-                $old_pos = $_[5];
-                goto &$extend;
-            } else { # extending did not advance pos.
+        # Loop 2 - beyond the minimum
+
+        $try_getting_more = sub {
+
+            my $current_pos = $_[5];
+
+            # (1) Stop when max_count is reached, or if pos does not move.
+
+            if ( !( $count < $max_count ) ||
+                 !( $previous_pos < $current_pos ) )
+            {
                 goto &$continuation;
             }
+            $count++;
+            $previous_pos = $current_pos;
+
+            # (2) Attempt the default behavior.
+
+            # XXX - This section needs to be filled in.
+            # try $default_behavior
+            #  if successful, return.
+            #  if abort, do whatever is needed.
+            #  if fail, we need to backtrack:
+            #    undo any side-effects from trying the $default_behavior,
+            #    so we can do the $fallback_behavior.
+
+            # (3) Since the default behavior failed, do the fall-back beharvior.
+
+            goto &$fallback_behavior;
+
         };
+        my $get_one_and_maybe_more = concat( [ $node, $try_getting_more ] );
 
-        my $continue_extending;
-        $extend = sub {
-            if ( $count < $max_count ) {
-                $count++;
-                # XXX - This section needs to be filled in.
-                # try $continue_extending
-                #  if successful, return.
-                #  if abort, whatever.
-                #  if failed, undo any changes from the try, so we can...
-                goto &$continuation;
-            } else { # did max_count.
-                goto &$continuation;
-            }
-        };
-        $continue_extending = concat( [ $node, $check_pos_then_extend ] );
+        # Final preparations.
 
-        # We start here.
-        goto &$get_required_min;
-    }
-}
-# There is only a two line difference between greedy and non-greedy range.
-sub non_greedy_range {
-    my $node = shift;
-    my $min_count = shift;
-    my $max_count = shift;
-    return sub {
-        my $continuation = $_[1]; #XXX need more, yes?
+        if ( $greedy ) {
+            $default_behavior = $get_one_and_maybe_more;
+            $fallback_behavior = $continuation;
+        } else { # non-greedy
+            $default_behavior = $continuation;
+            $fallback_behavior = $get_one_and_maybe_more;
+        }
 
-        my $count = 0;
-        my $old_pos = -1;
+        # Start.
 
-        my ( $get_required_min, $check_pos_then_extend, $extend );
-
-        my $continue_getting_min;
-        $get_required_min = sub {
-            if ( $count < $min_count ) {
-                $count++;
-                goto &$continue_getting_min;
-            } else {
-                goto &$check_pos_then_extend;
-            }
-        };
-        $continue_getting_min = concat( [ $node, $get_required_min ] );
-
-        $check_pos_then_extend = sub {
-            if ( $old_pos < $_[5] ) {
-                $old_pos = $_[5];
-                goto &$extend;
-            } else { # extending did not advance pos.
-                goto &$continuation;
-            }
-        };
-
-        my $continue_extending;
-        $extend = sub {
-            if ( $count < $max_count ) {
-                $count++;
-                # XXX - This section needs to be filled in.
-                # try $continuation        # 1st difference from greedy
-                #  if successful, return.
-                #  if abort, whatever.
-                #  if failed, undo any changes from the try, so we can...
-                goto &$continue_extending; # 2nd difference from greedy
-            } else { # did max_count.
-                goto &$continuation;
-            }
-        };
-        $continue_extending = concat( [ $node, $check_pos_then_extend ] );
-
-        # We start here.
-        goto &$get_required_min;
-    }
+        goto &$get_minimum;
+    };
 }
 
 
