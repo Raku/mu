@@ -49,7 +49,7 @@ doMatch cs rule@MkRulePGE{ rxRule = ruleStr } = do
     rv   <- liftIO $ fmap (fmap (fmap toUpper)) (getEnv "PUGS_REGEX_ENGINE")
     let ruleEngine | Just "PGE" <- rv   = evalPGE
                    | otherwise          = evalPCR
-    pge  <- liftIO $ ruleEngine pwd (encodeUTF8 cs) (encodeUTF8 text) subrules
+    pge  <- liftIO $ ruleEngine pwd cs text subrules
             `catchIO` (\e -> return $ show e)
     rv  <- tryIO Nothing $ fmap Just (readIO $ decodeUTF8 pge)
     let matchToVal PGE_Fail = VMatch mkMatchFail

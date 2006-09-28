@@ -41,8 +41,8 @@ foreign export ccall "pugs_IvToVal"
 foreign export ccall "pugs_NvToVal"
     nvToVal :: CDouble -> IO PugsVal
 
-foreign export ccall "pugs_PvToVal"
-    pvToVal :: CString -> IO PugsVal
+foreign export ccall "pugs_PvnToVal"
+    pvnToVal :: CString -> CInt -> IO PugsVal
 
 foreign export ccall "pugs_UndefVal"
     undefVal :: IO PugsVal
@@ -125,10 +125,10 @@ ivToVal = mkVal . VInt . fromIntegral
 nvToVal :: CDouble -> IO PugsVal
 nvToVal = mkVal . VNum . realToFrac
 
-pvToVal :: CString -> IO PugsVal
-pvToVal cstr = do
-    str <- peekCString cstr
-    ptr <- mkVal $ VStr str
+pvnToVal :: CString -> CInt -> IO PugsVal
+pvnToVal cstr len = do
+    str <- peekCStringLen (cstr, fromEnum len)
+    ptr <- mkVal $ VStr (decodeUTF8 str)
     return ptr
 
 undefVal :: IO PugsVal

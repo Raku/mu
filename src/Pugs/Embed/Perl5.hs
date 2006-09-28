@@ -207,8 +207,8 @@ foreign import ccall "../../perl5/p5embed.h perl5_SvTRUE"
     perl5_SvTRUE :: PerlSV -> IO Bool
 foreign import ccall "../../perl5/p5embed.h perl5_SvROK"
     perl5_SvROK :: PerlSV -> IO Bool
-foreign import ccall "../../perl5/p5embed.h perl5_newSVpv"
-    perl5_newSVpv :: CString -> IO PerlSV
+foreign import ccall "../../perl5/p5embed.h perl5_newSVpvn"
+    perl5_newSVpvn :: CString -> CInt -> IO PerlSV
 foreign import ccall "../../perl5/p5embed.h perl5_newSViv"
     perl5_newSViv :: CInt -> IO PerlSV
 foreign import ccall "../../perl5/p5embed.h perl5_newSVnv"
@@ -271,10 +271,10 @@ mkValRef x typ = do
     withCString typ (pugs_MkValRef ptr)
 
 vstrToSV :: String -> IO PerlSV
-vstrToSV str = withCString str perl5_newSVpv 
+vstrToSV str = withCStringLen (encodeUTF8 str) $ \(cstr, len) -> perl5_newSVpvn cstr (toEnum len)
 
 bufToSV :: ByteString -> IO PerlSV
-bufToSV str = Str.useAsCString str perl5_newSVpv 
+bufToSV str = Str.useAsCStringLen str $ \(cstr, len) -> perl5_newSVpvn cstr (toEnum len)
 
 vintToSV :: (Integral a) => a -> IO PerlSV
 vintToSV int = perl5_newSViv (fromIntegral int)
@@ -316,7 +316,7 @@ action = do
 -}
 
 evalPerl5 :: String -> PugsVal -> CInt -> IO PerlSV
-evalPerl5 str env cxt = mkSV $ withCString str $ \cstr -> perl5_eval cstr env cxt
+evalPerl5 str env cxt = mkSV $ withCString (encodeUTF8 str) $ \cstr -> perl5_eval cstr env cxt
 
 freePerl5 :: PerlInterpreter -> IO ()
 freePerl5 my_perl = do

@@ -13,6 +13,7 @@ import System.IO.Unsafe
 import Data.Maybe
 import Control.Monad
 import Pugs.Compat (getEnv)
+import Pugs.Internals (encodeUTF8)
 
 findExecutable' :: String -> IO (Maybe FilePath)
 findExecutable' cmd = do
@@ -99,10 +100,11 @@ evalPGE path match rule subrules = do
                     | otherwise   = errMsg
             fail $ "*** Running external 'parrot' failed:\n" ++ msg
     where
-    escape "" = ""
-    escape ('\\':xs) = "\\\\" ++ escape xs
-    escape ('\n':xs) = "\\n" ++ escape xs
-    escape (x:xs) = (x:escape xs)
+    escape = escape . encodeUTF8
+    _escape "" = ""
+    _escape ('\\':xs) = "\\\\" ++ _escape xs
+    _escape ('\n':xs) = "\\n" ++ _escape xs
+    _escape (x:xs) = (x:_escape xs)
 
 initPGE :: FilePath -> IO ParrotInterp
 initPGE path = do

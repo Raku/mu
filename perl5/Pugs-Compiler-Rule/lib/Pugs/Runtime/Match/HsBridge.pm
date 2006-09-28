@@ -34,8 +34,10 @@ sub __CMD__ {
     local $| = 1;
 
     # Command line shell interface - compatible with run_pge.pir
-    binmode STDIN, ':bytes:utf8';
-    binmode STDOUT, ':bytes:utf8';
+    if ($] >= 5.007) {
+        binmode STDIN, ':utf8';
+        binmode STDOUT, ':utf8';
+    }
 
     my @subrules;
     while (<STDIN>) {

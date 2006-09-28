@@ -25,7 +25,12 @@ pugs_SvToVal ( SV *sv )
         }
     }
     else if (SvPOKp(sv)) {
-        return pugs_PvToVal(SvPVX(sv));
+        /* XXX - This is wrong; byte buffers in Perl5 land will be autoupgraded via Latin1!
+         *       A better way, once we have a native Buf type in Pugs, is to check SvUTF8
+         *       and convert to Buf if it's off.
+         */
+        STRLEN len = sv_len(sv);
+        return pugs_PvnToVal(SvPV_nolen(sv), (int)len);
     }
     else {
         return pugs_MkSvRef(sv);
@@ -50,7 +55,7 @@ pugs_MkValRef ( Val *val, char *typeStr )
     /* fprintf(stderr, "query the type: got %s\n", typeStr); */
 
     if ((typeStr == NULL) || (*typeStr == '\0')) {
-        SV *typeSV = pugs_Apply(pugs_PvToVal("&WHAT"), val, isa, G_SCALAR);
+        SV *typeSV = pugs_Apply(pugs_PvnToVal("&WHAT", 5), val, isa, G_SCALAR);
         typeStr = SvPV_nolen(typeSV);
     }
 

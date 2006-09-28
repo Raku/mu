@@ -213,11 +213,12 @@ XS(_pugs_guts_invoke) {
         fullname = SvPV_nolen(sv);
         method = strrchr(fullname, ':');
         method = method ? method+1 : fullname;
-        val = pugs_PvToVal(method);
+        val = pugs_PvnToVal(method, strlen(method));
     }
     inv = SvOK(ST(1)) ? pugs_SvToVal(ST(1)) : NULL;
 
-    stack = (Val **)malloc(sizeof(Val*)*items-1);
+    New(6, stack, items, Val*);
+
     for (i = 2; i < items; ++i) {
         stack[i-2] = pugs_SvToVal(ST(i));
     }
@@ -225,7 +226,7 @@ XS(_pugs_guts_invoke) {
     
     ST(0) = pugs_Apply(val, inv, stack, GIMME_V);
     /* sv_dump (ret); */
-    free (stack);
+    Safefree(stack);
     
     XSRETURN(1);
 }
@@ -241,7 +242,8 @@ XS(_pugs_guts_eval_apply) {
 
     val = pugs_Eval(SvPV_nolen(ST(0)));
 
-    stack = (Val **)malloc(sizeof(Val*)*items-1);
+    New(6, stack, items, Val*);
+
     for (i = 1; i < items; ++i) {
 #if PERL5_EMBED_DEBUG
         fprintf(stderr, "put into stack: %s\n", SvPV_nolen(ST(i)));
@@ -251,7 +253,7 @@ XS(_pugs_guts_eval_apply) {
     stack[i-1] = NULL;
     
     ST(0) = pugs_Apply(val, NULL, stack, GIMME_V);
-    free (stack);
+    Safefree(stack);
     
     XSRETURN(1);
 }
@@ -400,9 +402,13 @@ perl5_SvROK ( SV * sv )
 }
 
 SV *
-perl5_newSVpv ( char * pv )
+perl5_newSVpvn ( char * pv, int len )
 {
-    return(newSVpv(pv, 0));
+    SV *sv = newSVpvn(pv, len);
+#ifdef SvUTF8_on
+    SvUTF8_on(sv);
+#endif
+    return(sv);
 }
 
 SV *
@@ -504,6 +510,9 @@ perl5_eval(char *code, void *env, int cxt)
     pugs_setenv(env);
 
     sv = newSVpv(code, 0);
+#ifdef SvUTF8_on
+    SvUTF8_on(sv);
+#endif
     eval_sv(sv, cxt);
     SvREFCNT_dec(sv);
 
