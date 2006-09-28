@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 23;
+plan 24;
 
 # 3..2 must *not* produce "3 2".  Use reverse to get a reversed range. -lwall
 
