@@ -263,8 +263,7 @@ sub clean_obsolete_smokes {
     my $yml_file = yml_name($html_file);
     unlink $yml_file if(-e $yml_file);
     my $syn_dir = synopsis_name($html_file);
-    warn("rm -rf $syn_dir");
-#   system('rm', '-rf', $syn_dir) if(-d $syn_dir);
+    system('rm', '-rf', $syn_dir) if(-d $syn_dir);
   }
 }
 
@@ -558,9 +557,9 @@ $ ./util/smokeserv/smokeserv-client.pl ./smoke.html</pre>
 	      <td class="num tests_unexpect"><span title="<tmpl_var name=unexpect> unexpectedly succeeded"><tmpl_var name=unexpect></span></td>
 	    </tmpl_loop>
 	    <td><span title="Details" class="expander" onclick="toggle_visibility('<tmpl_var name=id>')" id="expander_<tmpl_var name=id>">&raquo;</span></td>
-	    <td><a style="text-decoration: none" href="<tmpl_var name=link>" title="Full smoke report">&raquo;</a></td>
+	    <td><a style="text-decoration: none" href="<tmpl_var name=link>" title="Full smoke report" rel="nofollow">&raquo;</a></td>
 	    <td><tmpl_if name=synopsis_link>
-                  <a style="text-decoration: none" href="<tmpl_var name=synopsis_link>" title="View corresponding synopses">SYN</a>
+                  <a style="text-decoration: none" href="<tmpl_var name=synopsis_link>" title="View corresponding synopses" rel="nofollow">SYN</a>
                 </tmpl_if>
             </td>
           </tr>
@@ -574,9 +573,9 @@ $ ./util/smokeserv/smokeserv-client.pl ./smoke.html</pre>
                 <span class="tests_skipped"><tmpl_var name=skipped> skipped</span> and
 		<span class="tests_unexpect"><tmpl_var name=unexpect> unexpectedly succeeded</span>
               </tmpl_loop><br />
-              <a href="<tmpl_var name=link>" title="Full smoke report">View full smoke report</a><br />
+              <a href="<tmpl_var name=link>" title="Full smoke report" rel="nofollow">View full smoke report</a><br />
 	      <tmpl_if name=synopsis_link>
-                  <a href="<tmpl_var name=synopsis_link>" title="View corresponding synopses">View corresponding synopses</a>
+                  <a href="<tmpl_var name=synopsis_link>" title="View corresponding synopses" rel="nofollow">View corresponding synopses</a>
               </tmpl_if>
             </td>
           </tr>
