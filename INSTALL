@@ -14,10 +14,10 @@ ExtUtils::ParseXS first. Satisfy all with one command:
     $ sudo cpan -fi ExtUtils::CBuilder ExtUtils::ParseXS Module::Build \
           Devel::Caller Module::Compile Pugs::Compiler::Rule
 
-http://www.jwcs.net/~jonathan/perl6/ and http://pxperl.com/ both have 
-binary builds for Win32, and http://www.unobe.com/packages/ has binary
-builds for Mac OS X on PowerPC.  If you'd like to build Pugs by hand,
-http://wiki.kn.vutbr.cz/mj/?Perl%206%20and%20Parrot has some instructions.
+http://jnthn.net/perl6/ has binary builds for Win32.  For Mac OS X (PowerPC),
+http://www.unobe.com/packages/ has binary builds too. If you'd like to build
+Pugs by hand, http://wiki.kn.vutbr.cz/mj/?Perl%206%20and%20Parrot has some
+instructions.
 
 For dynamic loading/inlining of Haskell modules, you should install the
 hs-plugin library, available here:
@@ -78,27 +78,19 @@ MAKE TARGETS
 The default make target builds an optimized Pugs. This means that Pugs will
 be slower to compile, but will run much faster. To disable this, run:
     
-    make unoptimized  # unoptimised will work, too. We're not picky.
+    make fast
 
-To run the test suite:
-
-    make test
-
-To make a pretty HTML matrix showing test results:
+To run the test suite with a pretty HTML matrix showing test results:
 
     make smoke
-    
-To run the test suite using the PIR backend:
-    
-    make pirtest
-    
-To make a pretty HTML matrix showing test results using the PIR backend:
-
-    make pirsmoke
 
 To turn on profiling in the GHC compiler:
  
-    make profiled
+    make prof
+
+To hack on Pugs using the GHC interactive shell:
+
+    make ghci
 
 BUILD CONFIGURATION CONSOLIDATION VIA config.yml
 ------------------------------------------------
@@ -142,9 +134,3 @@ See `util/config-template.yml` for more information.
 
 [1] See <http://yaml.org/>. Only a subset of the YAML syntax is permitted
 at the moment, to avoid a dependency on the full parser.
-
-CAVEATS FOR Win32 USERS
--------------------------
-
-Embedding Perl5 is disabled GHC is built with MinGW/GCC and Perl 
-is usually built with VC++, they cannot embed one another.
