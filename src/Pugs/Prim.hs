@@ -216,7 +216,7 @@ op1 "pair" = op1Cast $ VList . (map $ \(k, v) -> castV ((VStr k, v) :: VPair))
 op1 "~"    = op1Cast VStr
 op1 "?"    = op1Cast VBool
 op1 "int"  = op1Cast VInt
-op1 "+^"   = op1Cast (VInt . (toInteger . (complement :: Word -> Word)))
+op1 "+^"   = op1Cast (VInt . pred . negate) -- Arbitrary precision complement- 0 ==> -1 / 1 ==> -2
 op1 "~^"   = op1Cast (VStr . mapStr complement)
 op1 "?^"   = op1 "!"
 op1 "\\"   = \v -> do
