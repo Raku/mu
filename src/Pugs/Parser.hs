@@ -1593,6 +1593,10 @@ ruleNamedMethodCall = do
 ruleInvocationCommon :: Bool -> RuleParser (Exp -> Exp)
 ruleInvocationCommon mustHaveParens = do
     (quant, name)   <- ruleNamedMethodCall -- XXX - .'+'?
+    ruleInvocationArguments quant name mustHaveParens
+
+ruleInvocationArguments :: Maybe Char -> String -> Bool -> RuleParser (Exp -> Exp)
+ruleInvocationArguments quant name mustHaveParens = do
     (invs, args)    <- if mustHaveParens
         then do
             ruleParenArgs                          -- .foo()
@@ -1923,7 +1927,15 @@ ruleSigiledVar = (<|> ruleSymbolicDeref) $ do
             return (makeVar name)
 
 ruleVar :: RuleParser Exp
-ruleVar = ruleSigiledVar
+ruleVar = do
+    exp <- ruleSigiledVar
+    case exp of
+        Var var | TAttribute <- v_twigil var -> do
+            postApp <- ruleInvocationArguments Nothing ('&':cast (v_name var)) False
+            case postApp (_Var "&self") of
+                App _ _ []  -> return exp
+                exp'        -> return exp'
+        _   -> return exp
 
 ruleSymbolicDeref :: RuleParser Exp
 ruleSymbolicDeref = do
