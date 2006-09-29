@@ -434,8 +434,16 @@ sub non_greedy_star {
 sub greedy_plus { 
     my $node = shift;
     my $min_count = defined( $_[0] ) ? $_[0] : 1;
-    my $max_count = shift || 1e99;   # TODO - max_count
-
+    my $max_count = $_[1];  
+    if (  defined $max_count 
+       && $max_count < 1e99
+       ) {
+        return concat( [ 
+            ( $node )             x $min_count, 
+            ( optional( $node ) ) x ($max_count - $min_count) 
+        ] );
+    }
+    # $max_count == infinity
     my $alt;
     $alt = concat( [
         $node, 

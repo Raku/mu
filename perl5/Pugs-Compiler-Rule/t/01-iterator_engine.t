@@ -126,9 +126,9 @@ my ( $rule, $match );
       3, 
     );
   $rule->( 'aaaa', undef, {}, $match );
-  is ( "$match", "aaaa", "/a**{2..*}/" );
+  is ( "$match", "aaaa", "/a**{3..*}/" );
   $rule->( 'aaa', undef, {}, $match );
-  is ( "$match", "aaa", "/a**{2..*}/" );
+  is ( "$match", "aaa", "/a**{3..*}/" );
   $rule->( 'aa', undef, {}, $match );
   ok ( ! $match->bool, "rejects unmatching text" );
 }
