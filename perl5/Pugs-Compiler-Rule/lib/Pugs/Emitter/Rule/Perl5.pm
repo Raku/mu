@@ -247,6 +247,12 @@ sub variable {
 }
 sub special_char {
     my $char = substr($_[0],1);
+
+    return  "$_[1] perl5( '(?:\n\r?|\r\n?)' )\n"
+        if $char eq 'n';
+    return  "$_[1] perl5( '(?!\n\r?|\r\n?).' )\n"
+        if $char eq 'N';
+
     for ( qw( r n t e f w d s ) ) {
         return "$_[1] perl5( '\\$_' )\n" if $char eq $_;
         return "$_[1] perl5( '[^\\$_]' )\n" if $char eq uc($_);

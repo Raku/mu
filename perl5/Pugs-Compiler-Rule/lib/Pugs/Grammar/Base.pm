@@ -59,6 +59,11 @@ sub prior {
     '(?:(?<!\w)|(?!\w)|\s)\s*' 
 )->code;
 
+# <wb> = word boundary - from regex_tests
+*wb = Pugs::Compiler::RegexPerl5->compile( 
+    '\b' 
+)->code;
+
 *ident = Pugs::Compiler::RegexPerl5->compile( 
     '[[:alpha:]_][[:alnum:]_]*' 
 )->code;
