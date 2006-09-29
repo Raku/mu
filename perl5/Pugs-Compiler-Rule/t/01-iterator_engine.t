@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 32;
+use Test::More tests => 33;
 # use Data::Dumper;
 # $Data::Dumper::Indent = 1;
 # $Data::Dumper::Pad = '# ';
@@ -253,5 +253,15 @@ my ( $rule, $match );
     );
   $rule->( 'aacacb', undef, {capture=>1}, $match );
   ok ( $match ? 0 : 1, "/[a|c]+?cb/ with bad range fails" );
+}
+
+{
+  # -- concat() empty array
+  $rule = 
+    Pugs::Runtime::Regex::concat( [] );
+  my $str = 'abbb';
+  $rule->( $str, undef, {}, $match );
+  #print "state 1: ", Dumper($match->state), "\n";
+  is ( $match->str, '', "empty concat" );
 }
 

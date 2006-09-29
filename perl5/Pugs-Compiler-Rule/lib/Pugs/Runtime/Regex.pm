@@ -36,6 +36,7 @@ sub alternation {
 sub concat {
     my $nodes = shift;
     $nodes = [ $nodes, @_ ] unless ref($nodes) eq 'ARRAY';  # backwards compat
+    return null()      if ! @$nodes;
     return $nodes->[0] if @$nodes == 1;
     if ( @$nodes > 2 ) {
         return concat(
@@ -446,25 +447,15 @@ sub greedy_star {
 }
 
 sub non_greedy_star { 
-
-    # avoid matching <null> is $min > 0
-    return non_greedy_plus( @_ )
-        if $_[1] > 0;
-
-    my $node = shift;
-    my $min_count = shift || 1;  
-    my $max_count = shift || 1e99;
-    null_or_optional(
-        non_greedy_plus( $node, $min_count, $max_count ) 
-    )
+    non_greedy_plus( $_[0], $_[1] || 0, $_[2] ) 
 }
 
 # XXX - needs optimization for faster backtracking, less stack usage
 # TODO - run-time ranges (iterator)
 sub non_greedy_plus { 
     my $node = shift;
-    my $min_count = shift || 1;
-    my $max_count = shift || 1e99;
+    my $min_count = defined( $_[0] ) ? $_[0] : 1;
+    my $max_count = $_[1] || 1e99;
     return sub {
         my $state = $_[1] 
             || { node  => concat( [ ( $node ) x $min_count ] ), 
