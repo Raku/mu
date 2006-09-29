@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 4;
+plan 8;
 
 # L<S29/Container/"=item roundrobin">
 
@@ -15,12 +15,22 @@ Tests of
 
 =cut
 
-my @a = 1;
-my @b = 1..2;
-my @c = 1..3;
+ok(roundrobin() eqv (), 'roundrobin null identity');
 
-ok(roundrobin( 1; 1..2; 1..3 ) eqv (1, 1, 1, 2, 2, 3) , 'roundrobin lists');
-ok(roundrobin( @a; @b; @c ) eqv (1, 1, 1, 2, 2, 3) , 'roundrobin arrays');
+ok(roundrobin(1) eqv (1,), 'roundrobin scalar identity');
+
+ok(roundrobin(1..3) eqv 1..3, 'roundrobin list identity');
+
+ok(roundrobin([1..3]) eqv 1..3, 'roundrobin array identity');
+
+# Next 2 work.  Just waiting on eqv.
+
+ok(roundrobin({'a'=>1,'b'=>2,'c'=>3}) eqv ('a'=>1,'b'=>2,'c'=>3),
+    'roundrobin hash identity', :todo<feature>, depends<eqv>);
+
+ok(roundrobin((); 1; 2..4; [5..7]; {'a'=>1,'b'=>2})
+    eqv (1, 2, 5, 'a'=>1, 3, 6, 'b'=>2, 4, 7), 'basic roundrobin',
+    :todo<feature>, :depends<eqv>);
 
 ok(roundrobin(:shortest, 1; 1..2; 1..3) eqv (1), 'roundrobin :shortest',
     :todo<feature>);
