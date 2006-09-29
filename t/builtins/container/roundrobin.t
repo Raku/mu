@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 1;
+plan 4;
 
 # L<S29/Container/"=item roundrobin">
 
@@ -19,18 +19,17 @@ my @a = 1;
 my @b = 1..2;
 my @c = 1..3;
 
-eval_ok('roundrobin( @a; @b; @c )', 'parse of roundrobin', :todo<feature>);
+ok(roundrobin( 1; 1..2; 1..3 ) eqv (1, 1, 1, 2, 2, 3) , 'roundrobin lists');
+ok(roundrobin( @a; @b; @c ) eqv (1, 1, 1, 2, 2, 3) , 'roundrobin arrays');
 
-=begin TODO
+ok(roundrobin(:shortest, 1; 1..2; 1..3) eqv (1), 'roundrobin :shortest',
+    :todo<feature>);
 
-my @ans01 = gather {
-    for roundrobin( @a; @b; @c ) -> $v {
-        take($v);
-    }
-}
+flunk('roundrobin :finite', :todo<feature>, :depends<lazy roundrobin>);
 
-ok(@ans01.fmt('%s', ':') eq '1:1:1:2:2:3', 'basic roundrobin');
+=begin lazy_roundrobin
 
-=end TODO
+ok(roundrobin(:finite, 1; 1..2; 1..3) eqv (1), 'roundrobin :shortest',
+    :todo<feature>);
 
 =cut

@@ -32,7 +32,7 @@ import Pugs.AST
 import Pugs.Junc
 import Pugs.Bind
 import Pugs.Prim
-import Pugs.Prim.List (op0Zip, op0Each)
+import Pugs.Prim.List (op0Zip, op0Each, op0RoundRobin)
 import Pugs.Monads
 import Pugs.Pretty
 import Pugs.Types
@@ -902,6 +902,10 @@ reduceApp (Var var) invs args
     | var == cast "&each", Nothing <- invs = do
         vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) args
         val  <- op0Each vals
+        retVal val
+    | var == cast "&roundrobin", Nothing <- invs = do
+        vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) args
+        val  <- op0RoundRobin vals
         retVal val
     | var == cast "&zip", Nothing <- invs = do
         vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) args
