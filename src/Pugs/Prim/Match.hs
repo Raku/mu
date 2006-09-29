@@ -184,7 +184,9 @@ op2Match x (VRule rx) | rxGlobal rx = do
     case rxStringify rx of
         True -> do
             strs <- mapM fromVal rv
-            return (VList $ map VStr strs)
+            return $ case strs of
+                [str]   -> VStr str
+                _       -> VList $ map VStr strs
         _ | isSlurpyCxt cxt -> do
             return (VList rv)
         _ -> do
