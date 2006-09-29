@@ -1,5 +1,5 @@
 
-use Test::More tests => 29;
+use Test::More tests => 27;
 use Data::Dumper;
 
 use_ok( 'Pugs::Grammar::Rule' );
@@ -27,12 +27,12 @@ use_ok( 'Pugs::Grammar::Term' );
 
 use_ok( 'Pugs::Grammar::Quote' );
 
-{
-  my $match = Pugs::Grammar::Quote->single_quoted( "'abc-1.0'", { p => 1 } );
-  #print "match: ", Dumper( $match->data );
-  is( "" . $$match , "abc-1.0", "single_quoted" );
-  is( $match->to, 9, ".to" );
-}
+#{
+#  my $match = Pugs::Grammar::Quote->single_quoted( "'abc-1.0'", { p => 1 } );
+#  #print "match: ", Dumper( $match->data );
+#  is( "" . $$match , "abc-1.0", "single_quoted" );
+#  is( $match->to, 9, ".to" );
+#}
 {
   my $match = Pugs::Grammar::Quote->double_quoted( '"abc-1.0"', { p => 1 } );
   #print Dumper( $$match );
