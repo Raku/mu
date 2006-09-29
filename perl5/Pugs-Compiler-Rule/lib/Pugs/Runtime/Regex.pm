@@ -435,7 +435,7 @@ sub greedy_plus {
     ] );
     return optional( $alt ) if $min_count < 1;
     return $alt if $min_count == 1;
-    return concat( [ ( $node ) x $min_count, $alt ] );
+    return concat( [ ( $node ) x ($min_count - 1), $alt ] );
 }
 
 sub greedy_star { 
