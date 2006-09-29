@@ -345,11 +345,7 @@ foreign import ccall "const_string"
 foreign import ccall "string_make"
     string_make :: ParrotInterp -> CString -> Int -> CString -> CInt -> IO ParrotString
 
-#if (PARROT_MAJOR_VERSION > 0) || (PARROT_MINOR_VERSION > 4) || (PARROT_MINOR_VERSION == 4 && PARROT_PATCH_VERSION > 5) || (PARROT_MINOR_VERSION == 4 && PARROT_PATCH_VERSION == 5 && PARROT_REVISION > 0)
-foreign import ccall "Parrot_find_global_s"
-#else
-foreign import ccall "Parrot_find_global"
-#endif
+foreign import ccall "Pugs_get_base_global"
     parrot_find_global :: ParrotInterp -> ParrotString -> ParrotString -> IO ParrotPMC
 
 foreign import ccall "Parrot_get_strreg"

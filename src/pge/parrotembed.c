@@ -29,3 +29,12 @@ void* Pugs_callSubSSS(void *i, void *p, void *x, void *y) {
 
     return rv;
 }
+
+void* Pugs_get_base_global(Parrot_Interp i, STRING *ns, STRING *sym) {
+    return Parrot_get_global(
+        i,
+        Parrot_get_namespace_keyed_str(i, i->root_namespace, ns),
+        sym
+    );
+}
+
