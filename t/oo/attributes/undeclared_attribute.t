@@ -10,9 +10,9 @@ use Test;
 plan 12;
 
 
-dies_ok { class A { method a { $.a = 1 }}; A.new.a; },
+dies_ok { class A { method set_a { $.a = 1 }}; A.new.set_a; },
     "Test Undeclared public attribute assignment from a class", :todo<bug>;
-dies_ok { role B { method b { $.b = 1 }};class C does B{ }; C.new.b; },
+dies_ok { role B { method set_b { $.b = 1 }};class C does B{ }; C.new.set_b; },
     "Test Undeclared public attribute assignment from a role", :todo<bug>;
 
 dies_ok { class D { method d { $!d = 1 }}; D.new.d; },
@@ -21,9 +21,9 @@ dies_ok { role E { method e { $!e = 1 }};class F does E{ }; F.new.e; },
     "Test Undeclared private attribute assignment from a role", :todo<bug>;
 
 ##### access the undeclared attribute
-dies_ok { class H { method h { $.h }}; H.new.h; },
+dies_ok { class H { method set_h { $.h }}; H.new.set_h; },
     "Test Undeclared public attribute access from a class", :todo<bug>;
-dies_ok { role I { method i { $.i }};class J does I{ }; J.new.i; },
+dies_ok { role I { method set_i { $.i }};class J does I{ }; J.new.set_i; },
     "Test Undeclared public attribute access from a role", :todo<bug>;
 
 dies_ok { class K { method k { $!k }}; K.new.k; },
@@ -32,9 +32,9 @@ dies_ok { role L { method l { $!l }};class M does L{ }; M.new.l; },
     "Test Undeclared private attribute access from a role", :todo<bug>;
 
 
-dies_ok { class N { method n { $.n := 1 }}; N.new.n; },
+dies_ok { class N { method set_n { $.n := 1 }}; N.new.set_n; },
     "Test Undeclared public attribute binding from a class";
-dies_ok { role O { method o { $.o := 1 }}; class P does O{ }; P.new.o },
+dies_ok { role O { method set_o { $.o := 1 }}; class P does O{ }; P.new.set_o },
     "Test Undeclared public attribute binding from a role";
 
 dies_ok { class Q { method q { $!q := 1 }}; Q.new.q; },
