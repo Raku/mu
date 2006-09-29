@@ -140,7 +140,8 @@ EOF
   my $yml_filename        = yml_name($filename);
   my $syn_dir             = synopsis_name($filename);
 
-  $html =~ s:t_index/t:$syn_dir/t:g;
+  $html =~ s:("t_index/[^#"]*)\.html([#"]):$1.t$2:g; # change .html to .t
+  $html =~ s:"t_index:\"$syn_dir:g;       # replace t_index with $syn_dir
 
   open my $fh, ">", $filename or
     die "Couldn't open \"$filename\" for writing: $!\n";
@@ -180,6 +181,7 @@ sub make_synopses
     make_synopsis_index($syn_dir);
   } else {
     warn "Couldn't run smartlinks";
+    rmdir $syn_dir;  # may help some broken links
   }
 }
 
