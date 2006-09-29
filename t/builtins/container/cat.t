@@ -14,9 +14,4 @@ Tests of
 
 =cut
 
-my @foo := [[1,2,3],[4,5,6]];
-
-my $answer = list(1..6);
-
-eval_ok('cat([;] @foo) eqv (@foo[0], @foo[1])', 'basic cat() test',
-    :todo<feature>);
+ok(cat(1..3; [4,5,6]) eqv 1..6, 'basic cat() test');

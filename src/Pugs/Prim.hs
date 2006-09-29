@@ -1784,6 +1784,7 @@ initSyms = mapM primDecl syms
 \\n   Str       pre     join    safe   (Str, List)\
 \\n   Any       pre     join    safe   (Thread)\
 \\n   Bool      pre     detach  safe   (Thread)\
+\\n   List      pre     cat     safe   (List)\
 \\n   List      pre     zip     safe   (List)\
 \\n   List      pre     each    safe   (List)\
 \\n   List      pre     roundrobin    safe   (List)\

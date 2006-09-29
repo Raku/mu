@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances #-}
 
 module Pugs.Prim.List (
-    op0Zip, op0Each, op0RoundRobin, op1Pick, op1Sum,
+    op0Zip, op0Cat, op0Each, op0RoundRobin, op1Pick, op1Sum,
     op1Min, op1Max, op1Uniq,
     op2ReduceL, op2Reduce, op2Grep, op2Map, op2Join,
     sortByM,
@@ -15,6 +15,9 @@ import qualified Data.Set as Set
 
 import Pugs.Prim.Numeric
 import Pugs.Prim.Lifts
+
+op0Cat :: [Val] -> Eval Val
+op0Cat = fmap (VList . concat) . mapM fromVal
 
 op0Zip :: [Val] -> Eval Val
 op0Zip = fmap (VList . fmap VList . op0Zip') . mapM fromVal
