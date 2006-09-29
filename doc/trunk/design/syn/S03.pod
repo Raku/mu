@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 25 Sept 2006
+  Last Modified: 28 Sept 2006
   Number: 3
-  Version: 68
+  Version: 69
 
 =head1 Changes to Perl 5 operators
 
@@ -923,7 +923,7 @@ Builtin reduce operators return the following identity values:
     [%]()       # fail  (reduce is nonsensical)
     [x]()       # fail  (reduce is nonsensical)
     [xx]()      # fail  (reduce is nonsensical)
-    [+&]()      # +^0   (-1 on 2's complement machine)
+    [+&]()      # -1    (from +^0, the 2's complement in arbitrary precision)
     [+<]()      # fail  (reduce is nonsensical)
     [+>]()      # fail  (reduce is nonsensical)
     [~&]()      # fail  (sensical but 1's length indeterminate)
