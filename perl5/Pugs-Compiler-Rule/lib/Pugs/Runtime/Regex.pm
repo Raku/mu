@@ -425,25 +425,21 @@ sub null_or_optional {
 # TODO - run-time ranges (iterator)
 sub greedy_plus { 
     my $node = shift;
-    my $min_count = shift || 1;
-    my $max_count = shift || 1e99;
-    # TODO - implement ranges
+    my $min_count = defined( $_[0] ) ? $_[0] : 1;
+    my $max_count = shift || 1e99;   # TODO - max_count
 
     my $alt;
     $alt = concat( [
         $node, 
         optional( sub{ goto $alt } ),  
     ] );
-    return $alt;
+    return optional( $alt ) if $min_count < 1;
+    return $alt if $min_count == 1;
+    return concat( [ ( $node ) x $min_count, $alt ] );
 }
 
 sub greedy_star { 
-    my $node = shift;
-    my $min_count = shift || 1;
-    my $max_count = shift || 1e99;
-    # TODO - implement ranges
-
-    optional( greedy_plus( $node ) );
+    greedy_plus( $_[0], $_[1] || 0, $_[2] ) 
 }
 
 sub non_greedy_star { 
