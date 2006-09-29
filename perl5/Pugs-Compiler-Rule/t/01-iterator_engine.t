@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 33;
+use Test::More tests => 36;
 # use Data::Dumper;
 # $Data::Dumper::Indent = 1;
 # $Data::Dumper::Pad = '# ';
@@ -116,6 +116,20 @@ my ( $rule, $match );
   $rule->( 'aa', undef, {}, $match );
   ok ( $match->bool, "/a+/" );
   $rule->( '!!', undef, {}, $match );
+  ok ( ! $match->bool, "rejects unmatching text" );
+}
+
+{
+  $rule = 
+    Pugs::Runtime::Regex::greedy_plus( 
+      Pugs::Runtime::Regex::constant( 'a' ),
+      3, 
+    );
+  $rule->( 'aaaa', undef, {}, $match );
+  is ( "$match", "aaaa", "/a**{2..*}/" );
+  $rule->( 'aaa', undef, {}, $match );
+  is ( "$match", "aaa", "/a**{2..*}/" );
+  $rule->( 'aa', undef, {}, $match );
   ok ( ! $match->bool, "rejects unmatching text" );
 }
 

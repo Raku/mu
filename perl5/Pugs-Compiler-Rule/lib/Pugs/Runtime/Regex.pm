@@ -421,6 +421,14 @@ sub null_or_optional {
     alternation( [ null(), $node ] );
 }
 
+sub greedy_star { 
+    greedy_plus( $_[0], $_[1] || 0, $_[2] ) 
+}
+
+sub non_greedy_star { 
+    non_greedy_plus( $_[0], $_[1] || 0, $_[2] ) 
+}
+
 # XXX - needs optimization for faster backtracking, less stack usage
 # TODO - run-time ranges (iterator)
 sub greedy_plus { 
@@ -434,16 +442,7 @@ sub greedy_plus {
         optional( sub{ goto $alt } ),  
     ] );
     return optional( $alt ) if $min_count < 1;
-    return $alt if $min_count == 1;
     return concat( [ ( $node ) x ($min_count - 1), $alt ] );
-}
-
-sub greedy_star { 
-    greedy_plus( $_[0], $_[1] || 0, $_[2] ) 
-}
-
-sub non_greedy_star { 
-    non_greedy_plus( $_[0], $_[1] || 0, $_[2] ) 
 }
 
 # XXX - needs optimization for faster backtracking, less stack usage
