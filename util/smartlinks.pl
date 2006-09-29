@@ -19,7 +19,7 @@ use FindBin;
 my $check;
 my $test_result;
 my ($syn_rev, $pugs_rev);
-my ($count, $broken_count);
+my ($link_count, $broken_link_count);
 my (@snippets, $snippet_id);
 
 my %Spec = reverse qw(
@@ -78,7 +78,7 @@ _EOC_
   add_link($linktree, $synopsis, $section, $pattern, $infile, $from, $to);
 
 Side Effects:
- - modifies global C<$count> 
+ - modifies global C<$link_count> 
 
 =end private
 
@@ -94,7 +94,7 @@ sub add_link ($$$$$$$)  {
     if ($pattern and substr($pattern, -1, 1) eq '/') { $pattern = "/$pattern"; }
     push @{ $linktree->{$synopsis}->{$section} },
         [$pattern => [$t_file, $from, $to]];
-    $count++;
+    $link_count++;
 }
 
 sub error {
@@ -393,7 +393,7 @@ _EOC_
 Process synopses one by one.
 
 Side Effects: 
-  modifies global C<$broken_count>
+  modifies global C<$broken_link_count>
 
 =end private 
 
@@ -435,7 +435,7 @@ sub process_syn ($$$$) {
             $from--;
             error "$t_file: line $from:",
                 "section ``$section_name'' not found in S$syn_id.";
-            $broken_count++;
+            $broken_link_count++;
             next;
         }
         for my $link (reverse @links) {
@@ -466,7 +466,7 @@ sub process_syn ($$$$) {
                 my ($file, $lineno) = @$location;
                 error("$file: line $lineno: pattern ``$pattern'' failed to match any",
                     "paragraph in L<S${syn_id}/${section_name}>.");
-                $broken_count++;
+                $broken_link_count++;
             }
         }
     }
@@ -556,8 +556,8 @@ sub main () {
 
     $cssfile ||= 'http://dev.perl.org/css/perl.css';
 
-    $count = 0;
-    $broken_count = 0;
+    $link_count = 0;
+    $broken_link_count = 0;
 
     $out_dir ||= '.';
     mkdir $out_dir if !-d $out_dir;
@@ -653,12 +653,12 @@ sub main () {
                 my ($file, $lineno) = @{ $link->[1] };
                 error("$file: line $lineno: smartlink pointing to " .
                     "an unknown synopsis ($syn)"),
-                $broken_count++;
+                $broken_link_count++;
             }
         }
     }
 
-    warn "info: $count smartlinks found and $broken_count broken.\n";
+    warn "info: $link_count smartlinks found and $broken_link_count broken.\n";
     if (!$check) {
         warn "hint: use the --check option for details on broken smartlinks.\n";
     }
