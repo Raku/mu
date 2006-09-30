@@ -200,7 +200,7 @@ op2Match x (VRule rx) | rxGlobal rx = do
         match <- str `doMatch` rx
         if not (matchOk match) then return [] else do
         let ret x = return $ if hasSubpatterns
-                        then (matchSubPos match) ++ x
+                        then [ m | m@(VMatch MkMatch{ matchOk = True }) <- matchSubPos match ] ++ x
                         else (VMatch match):x
         case (matchTo match, matchFrom match) of
             (0, 0) -> if null str then ret [] else do
