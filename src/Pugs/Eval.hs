@@ -833,10 +833,12 @@ reduceSyn "=>" [keyExp, valExp] = do
     val <- enterEvalContext cxtItemAny valExp
     retItem $ castV (key, val)
 
-reduceSyn syn [lhs, exp]
+reduceSyn syn [lhsExp, rhsExp]
     | last syn == '=' = do
         let op = "&infix:" ++ init syn
-        evalExp $ Syn "=" [lhs, App (_Var op) Nothing [lhs, exp]]
+        lhs <- enterLValue $ evalExp lhsExp
+        val <- readRef =<< fromVal lhs
+        evalExp $ Syn "=" [Val lhs, App (_Var op) Nothing [Val val, rhsExp]]
 
 reduceSyn "q:code" [ body ] = expToEvalVal body
 

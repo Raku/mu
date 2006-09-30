@@ -1699,11 +1699,11 @@ initSyms = mapM primDecl syms
 \\n   Bool      pre     nothing safe   ()\
 \\n   Num       pre     exp     safe   (Num, ?Num)\
 \\n   Num       pre     sqrt    safe   (Num)\
+\\n   Bool      spre    -z      unsafe (Str)\
 \\n   Bool      spre    -r      unsafe (Str)\
 \\n   Bool      spre    -w      unsafe (Str)\
 \\n   Bool      spre    -x      unsafe (Str)\
 \\n   Bool      spre    -e      unsafe (Str)\
-\\n   Bool      spre    -z      unsafe (Str)\
 \\n   Int       spre    -s      unsafe (Str)\
 \\n   Bool      spre    -f      unsafe (Str)\
 \\n   Bool      spre    -d      unsafe (Str)\

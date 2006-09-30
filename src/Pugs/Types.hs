@@ -172,6 +172,8 @@ data VarMeta
     = MNil
     | MFold             -- [+]
     | MScan             -- [\+]
+    | MFoldPost         -- [+]<<
+    | MScanPost         -- [\+]<<
     | MPre              -- >>+
     | MPost             -- +<<
     | MHyper            -- >>+<<
@@ -225,6 +227,8 @@ showsMeta :: VarMeta -> (String -> String) -> String -> String
 showsMeta MNil              f x = f x
 showsMeta MFold             f x = ('[':f (']':x))
 showsMeta MScan             f x = ('[':'\\':f (']':x))
+showsMeta MFoldPost         f x = ('[':f (']':'<':'<':x))
+showsMeta MScanPost         f x = ('[':'\\':f (']':'<':'<':x))
 showsMeta MPre              f x = ('>':'>':f x)
 showsMeta MPost             f x = f ('<':'<':x)
 showsMeta MHyper            f x = ('>':'>':f ('<':'<':x))
@@ -424,10 +428,6 @@ doBufToVar buf = MkVar
                         in (c, Str.take idx afterPkg +++ n)
         | otherwise = tokenizeCategory afterPkg
     (name, meta)
-        | C_prefix <- cat, __"\194\171" `Str.isSuffixOf` afterCat
-        = (dropEnd 2 afterCat, MPost)
-        | C_prefix <- cat, __"<<" `Str.isSuffixOf` afterCat
-        = (dropEnd 2 afterCat, MPost)
         | C_postfix <- cat, __"\194\187" `Str.isPrefixOf` afterCat
         = (Str.drop 2 afterCat, MPre)
         | C_postfix <- cat, __">>" `Str.isPrefixOf` afterCat
@@ -462,7 +462,33 @@ doBufToVar buf = MkVar
                        , __"\194\171" `Str.isSuffixOf` maybeHyper 
                 -> (Str.drop 2 (dropEnd 2 maybeHyper), MHyperFold)
             other -> (other, MFold)
-        -- XXX - MHyperFoldPost, MHyperScanPost
+        -- XXX - massive cut-n-paste!
+        | C_prefix <- cat
+        , __"[\\" `Str.isPrefixOf` afterCat
+        , __"]\194\171" `Str.isSuffixOf` afterCat || __"]<<" `Str.isSuffixOf` afterCat
+        = case Str.drop 2 (dropEnd 3 afterCat) of
+            maybeHyper | __">>" `Str.isPrefixOf` maybeHyper
+                       , __"<<" `Str.isSuffixOf` maybeHyper 
+                -> (Str.drop 2 (dropEnd 2 maybeHyper), MHyperScanPost)
+            maybeHyper | __"\194\187" `Str.isPrefixOf` maybeHyper
+                       , __"\194\171" `Str.isSuffixOf` maybeHyper 
+                -> (Str.drop 2 (dropEnd 2 maybeHyper), MHyperScanPost)
+            other -> (other, MScanPost)
+        | C_prefix <- cat
+        , '[' <- Str.head afterCat
+        , __"]\194\171" `Str.isSuffixOf` afterCat || __"]<<" `Str.isSuffixOf` afterCat
+        = case Str.tail (dropEnd 3 afterCat) of
+            maybeHyper | __">>" `Str.isPrefixOf` maybeHyper
+                       , __"<<" `Str.isSuffixOf` maybeHyper 
+                -> (Str.drop 2 (dropEnd 2 maybeHyper), MHyperFoldPost)
+            maybeHyper | __"\194\187" `Str.isPrefixOf` maybeHyper
+                       , __"\194\171" `Str.isSuffixOf` maybeHyper 
+                -> (Str.drop 2 (dropEnd 2 maybeHyper), MHyperFoldPost)
+            other -> (other, MFoldPost)
+        | C_prefix <- cat, __"\194\171" `Str.isSuffixOf` afterCat
+        = (dropEnd 2 afterCat, MPost)
+        | C_prefix <- cat, __"<<" `Str.isSuffixOf` afterCat
+        = (dropEnd 2 afterCat, MPost)
         | otherwise
         = (afterCat, MNil)
 
