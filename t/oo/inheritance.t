@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 28;
+plan 30;
 
 class Foo {
     has $.bar is rw;
@@ -75,3 +75,17 @@ ok  Foo::Bar.HOW.does(::CLASS),   "subclass.HOW.does(CLASS) is true", :todo<feat
     class Child is Foo { }
     eval_is( 'my $meth = "foo"; my $obj= Child.new; $obj.$meth()', 'found', $test);
 }
+
+# Erroneous dispatch found by TimToady++
+
+class X {
+    method j () { 'X' }
+};
+class Y is X {
+    method k () { Z.new.j() }
+    method j () { 'Y' }
+};
+class Z is X {}
+
+is(Z.new.j(), 'X', 'inherited method dispatch works');
+is(Y.new.k(), 'X', 'inherited method dispatch works inside another class with same-named method');
