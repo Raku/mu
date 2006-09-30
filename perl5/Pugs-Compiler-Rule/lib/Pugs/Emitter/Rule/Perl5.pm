@@ -393,6 +393,10 @@ sub colon {
         if $str eq '^^';
     return "$_[1] at_line_end() \n"
         if $str eq '$$';
+    return metasyntax( '?_wb_left', $_[1] )
+        if $str eq '<<';
+    return metasyntax( '?_wb_right', $_[1] )
+        if $str eq '>>';
     die "'$str' not implemented";
 }
 sub modifier {

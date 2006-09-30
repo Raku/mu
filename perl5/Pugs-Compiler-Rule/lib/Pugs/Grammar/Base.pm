@@ -25,6 +25,16 @@ sub no_match {
     '.' 
 )->code;
 
+# <<word
+*_wb_left = Pugs::Compiler::RegexPerl5->compile( 
+    '\b(?=\w)' 
+)->code;
+
+# word>>
+*_wb_right = Pugs::Compiler::RegexPerl5->compile( 
+    '(?<=\w)\b' 
+)->code;
+
 # specced methods
 
 sub at {

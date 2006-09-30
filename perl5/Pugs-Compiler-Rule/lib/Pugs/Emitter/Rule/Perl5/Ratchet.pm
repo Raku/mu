@@ -647,6 +647,11 @@ sub colon {
     return "$_[1] ( \$pos == 0 || substr( \$s, 0, \$pos ) =~ /(?:\n\r?|\r\n?)\$/m ) \n" 
         if $str eq '^^';
 
+    return metasyntax( '?_wb_left', $_[1] )
+        if $str eq '<<';
+    return metasyntax( '?_wb_right', $_[1] )
+        if $str eq '>>';
+        
     die "'$str' not implemented";
 }
 sub modifier {
