@@ -278,7 +278,9 @@ findSub _var _invs _args
         -- get superclasses
         attrs <- fmap (fmap (filter (/= pkg) . nub)) $ findAttrs pkg
         if isNothing attrs || null (fromJust attrs) then fmap (err NoMatchingMulti) (findSub' var) else do
-        (`fix` (fromJust attrs)) $ \run pkgs -> do
+        -- XXX - "reverse" below is a crude hack before we have C3 dispatch;
+        --     - this is such that "class X is Object is Moose" can dispatch with Moose first.
+        (`fix` (reverse $ fromJust attrs)) $ \run pkgs -> do
             if null pkgs then return (Left $ NoSuchMethod (cast pkg)) else do
             subs <- findWithPkg (head pkgs) var
             either (const $ run (tail pkgs)) (return . Right) subs
