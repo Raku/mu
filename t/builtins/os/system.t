@@ -18,7 +18,7 @@ my $pugs = $*OS eq any <MSWin32 mingw msys cygwin>
 my $res;
 
 $res = system($pugs,'-e1');
-ok($res,"system() to an existing program does not die (and returns something true)");
+ok($res,"system() to an existing program does not die (and returns something true)", :todo<feature>, :depends<0 but True>);
 
 $res = system("program_that_does_not_exist_ignore_this_error_please.exe");
 ok(!$res, "system() to a nonexisting program does not die (and returns something false)");
