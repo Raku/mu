@@ -12,15 +12,13 @@ plan 28;
   * Existence
      * Clarify why this implementation of a spec'ed feature
        exists in the "unspecced" directory of the test suite. 
+        * That was where suggested when asked for suggestions
+          on #perl6.  Other suggestions welcome.
 
   * Pugs
      * `subset`
-     * of signature using `-->` on Code.
-        * E.g., subset KeyExtractor of Code(Any --> Any);
 
   * Spec
-     * clarify KeyExtractor returning multiple types
-        * check type of return or Code.of()
      * any SortCriterion has traits or only top level?
         *  {-M} is descending => &fuzzy_cmp is insensitive
 
@@ -34,10 +32,12 @@ plan 28;
 # L<S29/"List"/"=item sort">
 
 my $prelude_sort = q:to'END_PRELUDE_SORT';
-    subset KeyExtractor of Code(Any --> Any);
-    subset Comparator   of Code(Any, Any --> Int);
+    subset KeyExtractor of Code where { .sig === :(Any --> Any) };
+    subset Comparator   of Code where { .sig === :(Any, Any --> Int) };
+    subset SortCriterionPair
+        of Pair where { .key ~~ KeyExtractor && .value ~~ Comparator };
     subset SortCriterion
-        of KeyExtractor | Comparator | Pair(KeyExtractor, Comparator);
+        of Signature | KeyExtractor | Comparator | SortCriterionPair;
 
     module Prelude::Sort {
         our Any
@@ -79,29 +79,27 @@ my $prelude_sort = q:to'END_PRELUDE_SORT';
         {
             gather {
                 for @by -> $criterion {
-                    when Comparator {
-                        my Comparator $cmpr = $criterion;
+                    when Signature {
+                        my Signature $sig := $crierion;
 
-                        if ( $criterion ~~ insensitive ) {
-                            $cmpr = -> $a, $b { $cmpr(lc $a, lc $b) };
-                        }
-
-                        if ( $criterion ~~ descending ) {
-                            $cmpr = -> $a, $b { $cmpr($b, $a) };
-                        }
-
-                        take($cmpr);
+                        # Build a KeyExtractor given $sig
+                        # Build a Comparator given $sig
+                        # Don't forget  to take into account
+                        #   is insensitive, is descending
+                        # Add to gather
                     }
 
                     when KeyExtractor {
-                        my KeyExtractor $ex = $criterion;
+                        my KeyExtractor $ex := $criterion;
 
-                        my $cmpr = $ex.is ~~ :(Num)
-                            ?? &infix:{'<=>'}
-                            !! &infix:<cmp>;
+                        my $cmpr = &cmp;
 
                         if ( $ex ~~ insensitive ) {
-                            $cmpr = -> $a, $b { $cmpr(lc $a, lc $b) };
+                            $cmpr = -> $a, $b {
+                                $a = lc($a) if $a.can('lc');
+                                $b = lc($b) if $b.can('lc');
+                                $cmpr($a, $b)
+                                };
                         }
 
                         if ( $ex ~~ descending ) {
@@ -111,18 +109,40 @@ my $prelude_sort = q:to'END_PRELUDE_SORT';
                         take( -> $a, $b { $cmpr(kex($ex, $a), kex($ex, $b)) } );
                     }
 
-                    when Pair {
-                        my Pair $pair := $criterion;
+                    when Comparator {
+                        my Comparator $cmpr = $criterion;
 
-                        my KeyExtractor $ex := $criterion.key;
-                        my Comparator $cmpr := $criterion.value;
+                        if ( $criterion ~~ insensitive ) {
+                            $cmpr = -> $a, $b {
+                                $a = lc($a) if $a.can('lc');
+                                $b = lc($b) if $b.can('lc');
+                                $cmpr($a, $b)
+                                };
+                        }
+
+                        if ( $criterion ~~ descending ) {
+                            $cmpr = -> $a, $b { $cmpr($b, $a) };
+                        }
+
+                        take($cmpr);
+                    }
+
+                    when Pair {
+                        my SortCriterionPair $scp := $criterion;
+
+                        my KeyExtractor $ex = $scp.key;
+                        my Comparator $cmpr = $scp.value;
                 
                         if ( $pair ~~ insensitive ) {
-                            $cmpr := -> $a, $b { $cmpr(lc $a, lc $b) };
+                            $cmpr = -> $a, $b {
+                                $a = lc($a) if $a.can('lc');
+                                $b = lc($b) if $b.can('lc');
+                                $cmpr($a, $b)
+                                };
                         }
 
                         if ( $pair ~~ descending ) {
-                            $cmpr := -> $a, $b { $cmpr($b, $a) };
+                            $cmpr = -> $a, $b { $cmpr($b, $a) };
                         }
 
                         take( -> $a, $b { $cmpr(kex($ex, $a), kex($ex, $b)) } );
