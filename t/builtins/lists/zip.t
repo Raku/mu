@@ -49,15 +49,18 @@ plan 12;
     my @b = (2, 6);
     my @c = (1, 3, 5, 7);
 
-    my @e = (0 .. 7);
+    # [((0, 2), 1), ((4, 6), 3), (undef, 5), (undef, 7)]
+    my $todo = 'Seq(Seq(0,2),1), Seq(Seq(0,2),1), Seq(undef,5), Seq(undef,7)';
+    my @e = eval $todo;
 
     my @z; @z = zip(zip(@a; @b); @c);
     my @y; @y = ((@a ¥ @b) ¥ @c);
     my @x; @x = ((@a Y @b) Y @c);
 
-    is(~@z, ~@e, "zip of zipped arrays with other array");
-    is(~@y, ~@e, "also as ¥");
-    is(~@x, ~@e, "also as Y");
+    is(~@z, ~@e, "zip of zipped arrays with other array", :todo<feature>,
+        :depends<Seq>);
+    is(~@y, ~@e, "also as ¥", :todo<feature>, :depends<Seq>);
+    is(~@x, ~@e, "also as Y", :todo<feature>, :depends<Seq>);
 };
 
 {
@@ -66,7 +69,7 @@ plan 12;
     my @e = (0, 1, 2, 3, undef, 5);
 
     my @z = (@a ¥ @b);
-    is(@z, @e, "bug in zipping - should use length of longest");
+    is(@z, @e, "zip uses length of longest");
 }
 
 {
@@ -74,6 +77,7 @@ plan 12;
     my @b;
 
     (@a ¥ @b) = (1, 2, 3, 4);
+    # XXX - The arrays below are most likely Seq's
     is(@a, [1, 3], "first half of two zipped arrays as lvalues", :todo);
     is(@b, [2, 4], "second half of the lvalue zip", :todo);
 }
