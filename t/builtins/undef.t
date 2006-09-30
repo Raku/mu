@@ -318,5 +318,6 @@ is((undef) * (undef), 0, 'undef * undef');
 # L<http://colabti.de/irclogger/irclogger_log/perl6?date=2006-09-12,Tue&sel=145#l186>
 # See log above.  From IRC, TimToady says that both of these
 # should be false.  (At time of writing, @(undef,) is true.)
-is ?(@(undef,)), Bool::False, '?(@(undef,)) is false';
+is ?(@(undef,)), Bool::False, '?(@(undef,)) is false', :todo<feature>,
+    :depends<@() imposing context and not [] constructor>;
 is ?(list(undef,)), Bool::False, '?(@(undef,)) is false';
