@@ -10,8 +10,8 @@ import Pugs.Parser.Types
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 
-fixities :: [String]
-fixities = ["prefix_circumfix_meta_operator:","infix_circumfix_meta_operator:","prefix_postfix_meta_operator:","postfix_prefix_meta_operator:","infix_postfix_meta_operator:","statement_modifier:","statement_control:","scope_declarator:","trait_auxiliary:","trait_verb:","regex_mod_external:","regex_mod_internal:","regex_assertion:","regex_backslash:","regex_metachar:","postcircumfix:","circumfix:","postfix:","infix:","prefix:","quote:","term:"]
+grammaticalCategories :: [String]
+grammaticalCategories = ["prefix_circumfix_meta_operator:","infix_circumfix_meta_operator:","prefix_postfix_meta_operator:","postfix_prefix_meta_operator:","infix_postfix_meta_operator:","statement_modifier:","statement_control:","scope_declarator:","trait_auxiliary:","trait_verb:","regex_mod_external:","regex_mod_internal:","regex_assertion:","regex_backslash:","regex_metachar:","postcircumfix:","circumfix:","postfix:","infix:","prefix:","quote:","term:"]
 
 -- around a block body we save the package and the current lexical pad
 -- at the start, so that they can be restored after parsing the body
@@ -77,7 +77,7 @@ isOperatorName :: String -> Bool
 isOperatorName ('&':name) = any hasOperatorPrefix [name, tail name]
     where
     hasOperatorPrefix :: String -> Bool
-    hasOperatorPrefix name = any (`isPrefixOf` name) fixities
+    hasOperatorPrefix name = any (`isPrefixOf` name) grammaticalCategories
 isOperatorName _ = False
 
 
@@ -198,8 +198,12 @@ makeVar (s:"<>") =
     makeVarWithSigil s $ _Var "$/"
 makeVar (s:rest) | all (`elem` "1234567890") rest =
     makeVarWithSigil s $ Syn "[]" [_Var "$/", Val $ VInt (read rest)]
+makeVar (s:'<':'<':name) =
+    makeVarWithSigil s $ Syn "{}" [_Var "$/", doSplitStr shellWords (init (init name))]
+makeVar (s:'\171':name) =
+    makeVarWithSigil s $ Syn "{}" [_Var "$/", doSplitStr shellWords (init name)]
 makeVar (s:'<':name) =
-    makeVarWithSigil s $ Syn "{}" [_Var "$/", doSplitStr (init name)]
+    makeVarWithSigil s $ Syn "{}" [_Var "$/", doSplitStr perl6Words (init name)]
 makeVar var = _Var var
 
 makeVarWithSigil :: Char -> Exp -> Exp
@@ -208,25 +212,26 @@ makeVarWithSigil s   x = Syn (s:"{}") [x]
 
 -- | splits the string into expressions on whitespace.
 -- Implements the <> operator at parse-time.
-doSplitStr :: String -> Exp
-doSplitStr str = case perl6Words str of
+doSplitStr :: (String -> [String]) -> String -> Exp
+doSplitStr f str = case f str of
     []  -> Syn "," []
     [x] -> Val (VStr x)
     xs  -> Syn "," $ map (Val . VStr) xs
+
+perl6Words :: String -> [String]
+perl6Words s
+    | [] <- findSpace = []
+    | otherwise       = w : words s''
     where
-    perl6Words :: String -> [String]
-    perl6Words s
-      | findSpace == [] = []
-      | otherwise       = w : words s''
-      where
-      (w, s'')  = break isBreakingSpace findSpace
-      findSpace = dropWhile isBreakingSpace s
-    isBreakingSpace :: Char -> Bool
-    isBreakingSpace '\x09'  = True
-    isBreakingSpace '\x0a'  = True
-    isBreakingSpace '\x0d'  = True
-    isBreakingSpace '\x20'  = True
-    isBreakingSpace _       = False
+    (w, s'')  = break isBreakingSpace findSpace
+    findSpace = dropWhile isBreakingSpace s
+
+isBreakingSpace :: Char -> Bool
+isBreakingSpace '\x09'  = True
+isBreakingSpace '\x0a'  = True
+isBreakingSpace '\x0d'  = True
+isBreakingSpace '\x20'  = True
+isBreakingSpace _       = False
 
 followedBy, tryFollowedBy :: RuleParser a -> RuleParser b -> RuleParser a
 followedBy rule after = do
@@ -235,3 +240,38 @@ followedBy rule after = do
     return rv
 
 tryFollowedBy = (try .) . followedBy
+
+-- XXX - Naive implementation of << 1 '2' 3 >>, only used in $<< 'foo' >> so far
+
+data ShellWordsState = MkShellWordsState
+    { s_escape  :: Bool
+    , s_quote   :: (Maybe Char)
+    , s_cur     :: Maybe String
+    , s_acc     :: [String]
+    }
+
+shellWords :: String -> [String]
+shellWords = postProc . foldl doShellWords (MkShellWordsState False Nothing Nothing [])
+    where
+    doShellWords state ch
+        | s_escape state
+        = normalChar{ s_escape = False }
+        | '\\' <- ch
+        = state{ s_escape = True }
+        | Just q <- s_quote state
+        = if ch == q then closeQuote else normalChar
+        | isBreakingSpace ch
+        = nextWord
+        | '"' <- ch     = beginQuote
+        | '\'' <- ch    = beginQuote
+        | otherwise     = normalChar
+        where
+        cur = s_cur state
+        acc = s_acc state
+        normalChar = state{ s_cur = Just (maybe [ch] (ch:) cur) }
+        beginQuote = state{ s_quote = Just ch }
+        closeQuote = state{ s_quote = Nothing, s_cur = Just (maybe "" id cur) }
+        nextWord   = state{ s_acc = maybe acc (:acc) cur, s_cur = Nothing }
+    postProc MkShellWordsState{ s_cur = cur, s_acc = acc } = reverse (map reverse acc')
+        where
+        acc' = maybe acc (:acc) cur

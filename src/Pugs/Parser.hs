@@ -415,7 +415,7 @@ ruleSubName = verbatimRule "subroutine name" $ do
 
 ruleOperatorName :: RuleParser String
 ruleOperatorName = verbatimRule "operator name" $ do
-    fixity  <- choice (map (try . string) fixities) `tryLookAhead` (oneOf "\xAB<{")
+    categ   <- choice (map (try . string) grammaticalCategories) `tryLookAhead` (oneOf "\xAB<{")
     name    <- do
         -- char ':'
         sub <- ruleHashSubscript
@@ -426,7 +426,7 @@ ruleOperatorName = verbatimRule "operator name" $ do
             Nothing 
             (Val (VStr " ") : [expr])
         return name
-    return $ fixity ++ name
+    return $ categ ++ name
 
 
 ruleSubParameters :: ParensOption -> RuleParser (Maybe [Param])

@@ -1060,8 +1060,11 @@ chainFun p1 f1 p2 f2 (v1:v2:vs) = do
                 _           -> return vs
             juncApply (\args -> applyExp SubPrim args f2) (chainArgs p2 (v2':vs'))
     where
-    chainArgs prms vals = map chainArg (prms `zip` vals)
-    chainArg (p, v) = ApplyArg (paramName p) v False
+    chainArgs prms vals =
+        [ ApplyArg name v False
+        | name  <- map paramName (prms ++ repeat (last prms))
+        | v     <- vals
+        ]
     forceThunk (VRef (MkRef (IThunk tv)))   = thunk_force tv
     forceThunk x                            = return x
 chainFun _ _ _ _ _ = fail "Impossible: Chained function with less than 2 arguments?"
@@ -1144,9 +1147,28 @@ applySub sub invs args
     applyChainSub :: VCode -> [Exp] -> Eval Val
     applyChainSub sub args = do
         -- Align the argument number against the parameter number
-        let prms    = subParams sub
-            prms'   = take (length args) (prms ++ repeat (last prms))
-        apply sub{ subParams = prms' } Nothing args
+        ifListContext (tryAnyComprehension [] args) vanillaApply
+        where
+        vanillaApply = apply sub' Nothing args
+        tryAnyComprehension _ [] = vanillaApply
+        tryAnyComprehension pre (pivot:post)
+            | App (Var var') invs' args'    <- unwrap pivot
+            , var' == cast "&any" = do
+                -- List comprehension!  This:
+                --      1 < any(@x) < 2
+                -- Becomes this:
+                --      list(@x).grep:{ 1 < $_ < 2 }
+                -- Except we don't introduce a $_ variable, as to avoid shadowing.
+                items <- fromVal =<< reduceApp (_Var "&list") invs' args'
+                fmap VList . (`filterM` items) $ \item -> do
+                    vbool <- enterRValue . enterContext (cxtItem "Bool") $ do
+                        apply sub' Nothing (reverse pre ++ (Val item:post))
+                    fromVal vbool
+            | otherwise = do
+                -- Accumulate pre and scan to the next.  Note pre must be reversed as above.
+                tryAnyComprehension (pivot:pre) post
+        prms    = subParams sub
+        sub'    = sub{ subParams = take (length args) (prms ++ repeat (last prms)) }
 
 applyExp :: SubType -> [ApplyArg] -> Exp -> Eval Val
 applyExp _ bound (Prim f) =

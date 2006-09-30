@@ -237,9 +237,14 @@ qInterpolator :: QFlags -> RuleParser Exp
 qInterpolator flags = choice [
         closure,
         backslash,
-        variable
+        variable,
+        substring
     ]
     where
+        substring = if qfSplitWords flags == QS_Protect 
+            -- "Ann Parens" here means no double-interpolation in q:ww
+            then fmap (Ann Parens) (lookAhead (oneOf "'\"") >> qLiteral)
+            else mzero
         closure = if qfInterpolateClosure flags
             then ruleVerbatimBlock
             else mzero
@@ -286,12 +291,48 @@ qLiteral :: RuleParser Exp
 qLiteral = do -- This should include q:anything// as well as '' "" <>
     (try qLiteralToEof) <|> do
     (qStart, qEnd, flags) <- getQDelim
-    if not (qfHereDoc flags) then
-        qLiteral1 qStart qEnd flags
-      else do -- XXX an ugly kludge providing crude heredocs
-        endMarker <- (fmap string $ many1 wordAny)
-        qEnd; ruleWhiteSpaceLine
-        qLiteral1 (fail "never match") endMarker flags
+    if not (qfHereDoc flags) then qLiteral1 qStart qEnd flags else do
+        markerExp  <- qLiteral1 qStart qEnd qFlags
+        case unwrap markerExp of
+            Val (VStr endMarker) -> do
+                (restOfLine:restOfInput)    <- fmap lines getInput
+                -- When end marker is "END", a line matches it if it looks like "   END".
+                let foundEndMarker line
+                        = (endMarker `isSuffixOf` line)
+                            && (all isSpace (take (length line - length endMarker) line))
+                case break foundEndMarker restOfInput of
+                    (_, []) -> fail $ "Cannot find q:to END marker: " ++ show endMarker
+                    (pre, (pivot:post)) -> do
+                        -- Strip indent; 
+                        let indent = indentLevelOf (take (length pivot - length endMarker) pivot)
+                        -- Now reparse hereDoc using the original qFlags
+                        setInput $ unlines (map (stripIndent indent) pre)
+                        docExp <- qLiteral1 (fail "") (eof >> return "") flags
+                        -- Now restore the original input stream with hereDoc stuffed with \n
+                        setInput (restOfLine ++ (replicate (length pre + 1) '\n') ++ unlines post)
+                        return docExp
+            others -> do
+                fail $ "Cannot handle q:to END marker: " ++ show others
+
+indentLevelOf :: String -> Int
+indentLevelOf = foldl doIndentLevelOf 0
+    where
+    -- XXX - S02 says hard tab _is_ 8 spaces, instead of aligning to 8 spaces.
+    -- doIndentLevelOf lvl '\t' = (lvl + 8) `div` 8
+    doIndentLevelOf lvl c
+        | '\t' <- c  = lvl + 8 
+        | isSpace c  = lvl + 1
+        | otherwise  = lvl
+
+stripIndent :: Int -> String -> String
+stripIndent 0 str   = str
+stripIndent _ []    = trace ("Warning: Insufficient indent level in heredoc") ""
+stripIndent lvl ('\t':cs)
+    | lvl >= 8  = stripIndent (lvl - 8) cs
+    | otherwise = (replicate (8 - lvl) ' ') ++ cs
+stripIndent lvl str@(c:cs)
+    | isSpace c = stripIndent (lvl - 1) cs
+    | otherwise = trace ("Warning: Insufficient indent level in heredoc " ++ show str) str
 
 qLiteralToEof :: RuleParser Exp
 qLiteralToEof = do
@@ -308,18 +349,60 @@ qLiteral1 qStart qEnd flags = do
     -- qEnd
     case qfSplitWords flags of
         -- expr ~~ rx:perl5:g/(\S+)/
-        QS_Yes      -> return (doSplit expr)
-        QS_Protect  -> return (doSplit expr)
+        QS_Yes      -> return (doSplitWords expr)
+        QS_Protect  -> return $ case unwindGroups (unwindConcat (unwrap expr)) of
+            []  -> Syn "," []
+            [x] -> x
+            xs  -> Syn "," xs
         QS_No       -> return $ case qfExecute flags of
             True -> App (_Var "&Pugs::Internals::runShellCommand") Nothing [expr]
             _    -> expr
     where
+    -- Glue toward left/right via "Noop" as separation markers, so << 123'456'789 >> can parse as one.
+    unwindConcat :: Exp -> [Exp]
+    unwindConcat (App _ Nothing [l, r]) = unwindConcat l ++ unwindConcat r
+    unwindConcat (Val (VStr str))
+        | null str  = []
+        | otherwise = sepBegin (sepEnd (intersperse Noop splitted))
+        where
+        splitted = map (Val . VStr) (perl6Words str)
+        sepBegin = if isBreakingSpace (head str) then (Noop:) else id
+        sepEnd   = if isBreakingSpace (last str) then (++ [Noop]) else id
+    unwindConcat expr = [expr]
+
+    unwindGroups :: [Exp] -> [Exp]
+    unwindGroups es = case dropWhile (== Noop) es of
+        []  -> []
+        es' -> unwindFirst : unwindGroups rest
+            where
+            (first, rest) = break (== Noop) es'
+            concatFirst = foldr1 (\x y -> App (_Var "&infix:~") Nothing [x, y]) first
+            unwindFirst
+                | any needSplit first   = splitFirst
+                | otherwise             = concatFirst
+            splitFirst = Ann (Cxt cxtSlurpyAny) (App (_Var "&infix:~~") Nothing [concatFirst, rxSplit])
+            needSplit Val{} = False
+            needSplit (Ann Parens _) = False
+            needSplit _ = True
+
     -- words() regards \xa0 as (breaking) whitespace. But \xa0 is
     -- a nonbreaking ws char.
-    doSplit (Ann (Cxt CxtItem{}) (Val (VStr str))) = doSplitStr str
-    doSplit expr = Ann (Cxt cxtSlurpyAny) (App (_Var "&infix:~~") Nothing [expr, rxSplit])
+    doSplitWords expr
+        | Val (VStr str) <- unwrap expr = doSplitStr perl6Words str
+        | otherwise                     = Ann (Cxt cxtSlurpyAny) (App (_Var "&infix:~~") Nothing [expr, rxSplit])
+    {-
+    -- XXX - Not sure what to do here - should we analyze << "$x" '$x' >> and interpolate differently?
+    rxSplitShell = Syn "rx" $
+        [ Val $ VStr "'([^']*)'|\"([^\"]*)\"|([^'\"\\x09\\x0a\\x0d\\x20][^\\x09\\x0a\\x0d\\x20]*)"
+        , Val $ VList
+            [ castV (VStr "P5", VInt 1)
+            , castV (VStr "g", VInt 1)
+            , castV (VStr "stringify", VInt 1)
+            ]
+        ]
+    -}
     rxSplit = Syn "rx" $
-        [ Val $ VStr "(\\S+)"
+        [ Val $ VStr "([^\\x09\\x0a\\x0d\\x20]+)"
         , Val $ VList
             [ castV (VStr "P5", VInt 1)
             , castV (VStr "g", VInt 1)
@@ -340,8 +423,8 @@ angleBracketLiteral = try $
             { qfSplitWords = QS_Yes, qfProtectedChar = '>' }
     <|> do
         symbol "\xAB"
-        qLiteral1 (symbol "\xAB") (string "\xBB") $ qFlags
-            { qfSplitWords = QS_Yes, qfProtectedChar = '\xBB' }
+        qLiteral1 (symbol "\xAB") (string "\xBB") $ qqFlags
+            { qfSplitWords = QS_Protect, qfProtectedChar = '\xBB' }
 
 -- Quoting delimitor and flags
 -- qfProtectedChar is the character to be
@@ -404,11 +487,11 @@ getQFlags flagnames protectedChar =
           useflag _ qf            = qf { qfFailed = True }
 
 
-{- | XXX can be later defined to exclude alphanumerics, maybe also exclude
-closing delims from being openers (disallow q]a]) -}
 openingDelim :: RuleParser (Int, Char)
 openingDelim = do
     ch  <- anyChar
+    if isWordAny ch then fail ("Invalid quote delimiter: " ++ show ch) else do
+    if balancedDelim ch == ch then return (1, ch) else do
     rep <- many (char ch)
     return (length rep + 1, ch)
 
@@ -417,30 +500,28 @@ qStructure =
     do char 'q'
        flags <- do
            firstFlag <- option ' ' alphaNum
+           notFollowedBy (char '(') -- Special case: q() is always function call
+           whiteSpace
            allFlags  <- many oneFlag
            case firstFlag of
                'q' -> return ("qq":allFlags) -- Special case: qq() means q:qq()
                ' ' -> return allFlags
                _   -> return ([firstFlag]:allFlags)
-
-       notFollowedBy alphaNum
-       whiteSpace
        (rep, delim) <- openingDelim
        let qflags = getQFlags flags $ balancedDelim delim
        when (qfFailed qflags) $ fail ""
        return ( (string (replicate rep delim)), (string (replicate rep $ balancedDelim delim)), qflags)
     where
-    oneFlag = do
+    oneFlag = lexeme $ do
         char ':'
         many alphaNum
-
 
 getQDelim :: RuleParser (RuleParser String, RuleParser String, QFlags)
 getQDelim = try qStructure
     <|> try (do
         string "<<"
         return (string "<<", string ">>",
-            qqFlags { qfSplitWords = QS_Yes, qfProtectedChar = '>' }))
+            qqFlags { qfSplitWords = QS_Protect, qfProtectedChar = '>' }))
     <|> do
         delim <- oneOf "`\"'<\xab"
         case delim of
