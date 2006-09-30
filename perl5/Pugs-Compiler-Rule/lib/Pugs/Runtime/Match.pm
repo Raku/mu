@@ -95,10 +95,10 @@ sub perl {
 }
 
 sub yaml {
-    eval { use YAML::Syck };
+    require YAML::Syck;
     # interoperability with other YAML/Syck bindings:
     $YAML::Syck::ImplicitTyping = 1;
-    Dump( $_[0] );
+    YAML::Syck::Dump( $_[0] );
 }
 
 # for Pugs interoperability
