@@ -58,7 +58,7 @@ sub call_perl5 {
     my $const = $_[0];
     #print "CONST: $const - $direction \n";
     return
-"$_[1] ( ( substr( \$s, \$pos ) =~ m/^($const)/s )  
+"$_[1] ( ( substr( \$s, \$pos ) =~ m/^($const)/ )  
 $_[1]     ? ( \$pos $direction= length( \$1 ) or 1 )
 $_[1]     : 0
 $_[1] )";
@@ -331,6 +331,10 @@ sub variable {
 }
 sub special_char {
     my $char = substr($_[0],1);
+    return  call_perl5( '(?:\n\r?|\r\n?)', $_[1] )
+        if $char eq 'n';
+    return  call_perl5( '(?!\n\r?|\r\n?).', $_[1] )
+        if $char eq 'N';
     for ( qw( r n t e f w d s ) ) {
         return call_perl5(   "\\$_",  $_[1] ) if $char eq $_;
         return call_perl5( "[^\\$_]", $_[1] ) if $char eq uc($_);
@@ -638,9 +642,9 @@ sub colon {
     return "$_[1] ( \$pos == 0 ) \n" 
         if $str eq '^';
         
-    return "$_[1] ( \$pos >= length( \$s ) || substr( \$s, \$pos ) =~ /^\\n/s ) \n" 
+    return "$_[1] ( \$pos >= length( \$s ) || substr( \$s, \$pos ) =~ /^(?:\n\r?|\r\n?)/m ) \n" 
         if $str eq '$$';
-    return "$_[1] ( \$pos == 0 || substr( \$s, 0, \$pos ) =~ /\\n\$/s ) \n" 
+    return "$_[1] ( \$pos == 0 || substr( \$s, 0, \$pos ) =~ /(?:\n\r?|\r\n?)\$/m ) \n" 
         if $str eq '^^';
 
     die "'$str' not implemented";

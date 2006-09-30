@@ -84,7 +84,7 @@ token string_code {
     [ 
     |  \\ .
     |  \'  <?literal>     \'
-    |  \{  <?string_code>        \}
+    |  \{  <?string_code> \}
     |  <-[ \} ]> 
     ]+ 
 }
@@ -190,6 +190,10 @@ token named_capture_body {
     '$'   => token { { return { colon => '$'  ,} } },
     '^^'  => token { { return { colon => '^^' ,} } },
     '^'   => token { { return { colon => '^'  ,} } },
+    #'<<'  => token { { return { colon => '<<' ,} } },
+    #'>>'  => token { { return { colon => '>>' ,} } },
+    #'«'   => token { { return { colon => '«'  ,} } },
+    #'»'   => token { { return { colon => '»'  ,} } },
 
     ':i'           => token { { return { modifier => 'ignorecase'  ,} } },
     ':ignorecase'  => token { { return { modifier => 'ignorecase'  ,} } },
