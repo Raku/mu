@@ -115,11 +115,12 @@ sub build {
 
     # On Win32, a very broken heuristics in Cabal forced us to fake a
     # gcc-lib\ld.exe under pugs path.
-    my ($ghc_inst_path, $ghc_bin_path);
+    my ($ghc_inst_path, $ghc_bin_path, $hsc2hs);
     if ($^O eq 'MSWin32') {
         foreach my $args (@{$opts->{SETUP}}) {
-            $args =~ /^--with-hsc2hs=(.*[\\\/])/ or next;
-            $ghc_inst_path = $ghc_bin_path = $1;
+            $args =~ /^--with-hsc2hs=((.*[\\\/]).*)/ or next;
+            $hsc2hs = $1;
+            $ghc_inst_path = $ghc_bin_path = $2;
             $ghc_inst_path =~ s{[/\\]bin[/\\]?$}{};
             $ENV{PATH} = "$ENV{PATH};$ghc_inst_path;$ghc_bin_path";
 
@@ -135,17 +136,20 @@ sub build {
     }
     else {
         foreach my $args (@{$opts->{SETUP}}) {
-            $args =~ /^--with-hsc2hs=(.*[\\\/])/ or next;
-            $ghc_bin_path = $1;
+            $args =~ /^--with-hsc2hs=((.*[\\\/]).*)/ or next;
+            $hsc2hs = $1;
+            $ghc_bin_path = $2;
         }
     }
 
+    $hsc2hs ||= $ENV{HSC2HS};
     $AR_EXE = $Config{full_ar} || File::Spec->catfile($ghc_bin_path, "ar$Config{_exe}");
 
     my @configure_args = (
         ($want_profiling ?  '--enable-library-profiling' : ()),
         '--with-compiler=' . $runcompiler,
         '--with-hc-pkg='   . $hc_pkg,
+        '--with-hsc2hs='   . $hsc2hs,
         '--prefix='        . $prefix
     );
 
@@ -481,14 +485,14 @@ sub write_buildinfo {
         $depends .= ', readline -any';
     }
 
-    my $unicode_c = '';
-    if ($ghc_version =~ /^6\.4(?:\.0)?$/) {
-        $unicode_c = 'src/UnicodeC.c';
-    }
-
     my $perl5_c = '';
     if (grep /^-DPUGS_HAVE_PERL5$/, @_) {
         $perl5_c = 'src/perl5/p5embed.c';
+    }
+
+    my $parrot_c = '';
+    if (grep /^-DPUGS_HAVE_PARROT$/, @_) {
+        $parrot_c = 'src/pge/parrotembed.c';
     }
 
     # Remove -Wl flags in Perl5 embedding.
@@ -516,8 +520,8 @@ sub write_buildinfo {
         s/__OPTIONS__/@_/;
         s/__VERSION__/$version/;
         s/__DEPENDS__/$depends/;
-        s/__UNICODE_C__/$unicode_c/;
         s/__PERL5_C__/$perl5_c/;
+        s/__PARROT_C__/$parrot_c/;
         s/__INCLUDE_DIRS__/@include_dirs/;
         s/__LIBS__/@libs/;
         s/__LIB_DIRS__/@lib_dirs/;
