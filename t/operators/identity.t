@@ -58,14 +58,15 @@ ok(!("7" =:= 7), "identify checks type mismatch");
   ok  ($b =:= $b),     "=:= is true after rebinding (3-6)";
 }
 
-# Rebinding of array elements
+# Rebinding of array elements - unspecced!
 {
   my @a = (1,2,3);
   my @b = (1,2,3);
 
   ok !(@b[1] =:= @a[1]), "rebinding of array elements (1)";
+
   try { @b[1] := @a[1] };
-  ok  (@b[1] =:= @a[1]), "rebinding of array elements (2)";
+  ok  (@b[1] =:= @a[1]), "rebinding of array elements (2)", :todo<unspecced>;
 
   @b = (1,2,3);
   ok !(@b[1] =:= @a[1]), "assignment destroyed the bindings (1)";
@@ -77,7 +78,7 @@ ok(!("7" =:= 7), "identify checks type mismatch");
 # Subparam binding
 {
   my ($foo, $bar);
-  my $test = -> $arg { $foo =:= $arg };
+  my $test = -> $arg is rw { $foo =:= $arg };
 
   ok  $test($foo), "binding of scalar subparam retains =:= (1)";
   ok !$test($bar), "binding of scalar subparam retains =:= (2)";
@@ -95,24 +96,26 @@ ok(!("7" =:= 7), "identify checks type mismatch");
   ok  $test($bar), "binding of scalar subparam marked is rw retains =:= (3)";
 }
 
+# Again, unspecced that @args[0] can participate in =:=
 {
   my ($foo, $bar);
   my $test = -> *@args { $foo =:= @args[0] };
 
-  ok  $test($foo), "binding of slurpy array subparam retains =:= (1)";
+  ok  $test($foo), "binding of slurpy array subparam retains =:= (1)", :todo<unspecced>;
   ok !$test($bar), "binding of slurpy array subparam retains =:= (2)";
   $bar := $foo;
-  ok  $test($bar), "binding of slurpy array subparam retains =:= (3)";
+  ok  $test($bar), "binding of slurpy array subparam retains =:= (3)", :todo<unspecced>;
 }
 
+# Again, unspecced that @args[0] can participate in =:=
 {
   my ($foo, $bar);
   my $test = sub { $foo =:= @_[0] };
 
-  ok  $test($foo), "binding of implicit @_ subparam retains =:= (1)";
+  ok  $test($foo), "binding of implicit @_ subparam retains =:= (1)", :todo<unspecced>;
   ok !$test($bar), "binding of implicit @_ subparam retains =:= (2)";
   $bar := $foo;
-  ok  $test($bar), "binding of implicit @_ subparam retains =:= (3)";
+  ok  $test($bar), "binding of implicit @_ subparam retains =:= (3)", :todo<unspecced>;
 }
 
 class TestObj { has $!a }
