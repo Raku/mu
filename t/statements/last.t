@@ -13,9 +13,18 @@ last <label> in nested loops
 
 =cut
 
-plan 7;
+plan 8;
 
 # test for loops with last
+
+{
+    eval_is(
+        'sub mylast { last; }; my $tracker = 0; for 1 .. 5 { $tracker = $_; mylast(); } $tracker',
+        1,
+        "tracker is 1 because mylast exits loop",
+        :todo(1)
+    );
+}
 
 {
     my $tracker = 0;
