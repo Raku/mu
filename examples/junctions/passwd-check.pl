@@ -1,5 +1,5 @@
 sub retrieve_passwords {
-  qw(x y z);
+  <x y z>;
 }
 
 sub verify($password) {

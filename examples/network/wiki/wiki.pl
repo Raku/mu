@@ -2,7 +2,7 @@ BEGIN {unshift @*INC, "/home/eric256/auto/pugs/ext/CGI/lib" };
 use CGI;
 use FindBin;
 #use perl5:HTML::Template;
-#use perl5:Text::Textile qw(textile);
+#use perl5:Text::Textile <textile>;
 
 chdir $FindBin::Dir or die $!;
 

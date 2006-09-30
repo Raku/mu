@@ -13,6 +13,6 @@ sub time_eval($codestr) {
     eval $codestr;
     return time - $start;
 }
-my $short = time_eval q("$1$2$3$4       {}{}{}{}      );
-my $long  = time_eval q("$1$2$3$4$5$6$7 {}{}{}{}{}{}{});
+my $short = time_eval q["$1$2$3$4       {}{}{}{}      ];
+my $long  = time_eval q["$1$2$3$4$5$6$7 {}{}{}{}{}{}{}];
 cmp_ok($long, &infix:«<=», $short * 10, "No degenerate case when parsing unterminated strings");

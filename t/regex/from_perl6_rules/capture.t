@@ -12,7 +12,7 @@ be valid perl6.
 
 =cut
 
-plan 65;
+plan 64;
 
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
@@ -78,15 +78,14 @@ eval_ok(' !( "bokeper" ~~ m/<single> ($/<single>)/ ) ', 'Failed named backref', 
 
 is("\$0", '$'~'1', 'Non-translation of non-interpolated "\\$0"', :todo<feature> );
 is('$0',  '$'~'1', 'Non-translation of non-interpolated \'$0\'', :todo<feature> );
-is(q($0), '$'~'1', 'Non-translation of non-interpolated q($0)', :todo<feature>);
 is(q{$0}, '$'~'1', 'Non-translation of non-interpolated q{$0}', :todo<feature>);
 is(q[$0], '$'~'1', 'Non-translation of non-interpolated q[$0]', :todo<feature>);
 is(q<$0>, '$'~'1', 'Non-translation of non-interpolated q<$0>', :todo<feature>);
-eval_ok(q( q<$0 <<<>>>> eq '$'~'1 <<<>>>' ), 'Non-translation of nested q<$0>', :todo<feature>);
+eval_ok(q/ q<$0 <<<>>>> eq '$'~'1 <<<>>>' /, 'Non-translation of nested q<$0>', :todo<feature>);
 is(q/$0/, '$'~'1', 'Non-translation of non-interpolated q/$0/', :todo<feature>);
 is(q!$0!, '$'~'1', 'Non-translation of non-interpolated q!$0!', :todo<feature>);
 is(q|$0|, '$'~'1', 'Non-translation of non-interpolated q|$0|', :todo<feature>);
-eval_is(q( q#$0#, '$'~'0' ), 'Non-translation of non-interpolated q#$0#', :todo<feature>);
+eval_is(q/ q#$0#, '$'~'0' /, 'Non-translation of non-interpolated q#$0#', :todo<feature>);
 
 
 grammar English { rule name { john } }

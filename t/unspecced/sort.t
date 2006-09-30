@@ -33,214 +33,213 @@ plan 28;
 
 # L<S29/"List"/"=item sort">
 
-my $prelude_sort = q:to'END_PRELUDE_SORT'
+my $prelude_sort = q:to'END_PRELUDE_SORT';
+    subset KeyExtractor of Code(Any --> Any);
+    subset Comparator   of Code(Any, Any --> Int);
+    subset SortCriterion
+        of KeyExtractor | Comparator | Pair(KeyExtractor, Comparator);
 
-subset KeyExtractor of Code(Any --> Any);
-subset Comparator   of Code(Any, Any --> Int);
-subset SortCriterion
-    of KeyExtractor | Comparator | Pair(KeyExtractor, Comparator);
+    module Prelude::Sort {
+        our Any
+        sub kex (KeyExtractor $ex, $v) is cached { $ex($v); }
 
-module Prelude::Sort {
-    our Any
-    sub kex (KeyExtractor $ex, $v) is cached { $ex($v); }
+        our Order
+        sub qby_cmp (Code @qby, $a, $b)
+        {
+            my $result        = Order::Same;
+            my &return_ifn0 ::= -> $v { if $v { $result = $v; leave LOOP; } };
 
-    our Order
-    sub qby_cmp (Code @qby, $a, $b)
-    {
-        my $result        = Order::Same;
-        my &return_ifn0 ::= -> $v { if $v { $result = $v; leave LOOP; } };
-
-        LOOP: for @by -> $cmpr {
-            return_ifn0 $cmpr($a, $b);
-        }
-
-        $result;
-    }
-
-    our bool
-    sub in_order (Code @qby, *$x, *@xs)
-    {
-        my $result = 1;
-        my $y := $x;
-
-        for @xs -> $z {
-            if by_cmp(@qby, $y, $z) > 0 {
-                $result = 0;
-                last;
+            LOOP: for @by -> $cmpr {
+                return_ifn0 $cmpr($a, $b);
             }
 
-            $y := $z;
+            $result;
         }
 
-        $result;
-    }
+        our bool
+        sub in_order (Code @qby, *$x, *@xs)
+        {
+            my $result = 1;
+            my $y := $x;
 
-    our Array of Code
-    sub qualify_by (SortCriterion @by)
-    {
-        gather {
-            for @by -> $criterion {
-                when Comparator {
-                    my Comparator $cmpr = $criterion;
-
-                    if ( $criterion ~~ insensitive ) {
-                        $cmpr = -> $a, $b { $cmpr(lc $a, lc $b) };
-                    }
-
-                    if ( $criterion ~~ descending ) {
-                        $cmpr = -> $a, $b { $cmpr($b, $a) };
-                    }
-
-                    take($cmpr);
+            for @xs -> $z {
+                if by_cmp(@qby, $y, $z) > 0 {
+                    $result = 0;
+                    last;
                 }
 
-                when KeyExtractor {
-                    my KeyExtractor $ex = $criterion;
+                $y := $z;
+            }
 
-                    my $cmpr = $ex.is ~~ :(Num)
-                        ?? &infix:{'<=>'}
-                        !! &infix:<cmp>;
+            $result;
+        }
 
-                    if ( $ex ~~ insensitive ) {
-                        $cmpr = -> $a, $b { $cmpr(lc $a, lc $b) };
+        our Array of Code
+        sub qualify_by (SortCriterion @by)
+        {
+            gather {
+                for @by -> $criterion {
+                    when Comparator {
+                        my Comparator $cmpr = $criterion;
+
+                        if ( $criterion ~~ insensitive ) {
+                            $cmpr = -> $a, $b { $cmpr(lc $a, lc $b) };
+                        }
+
+                        if ( $criterion ~~ descending ) {
+                            $cmpr = -> $a, $b { $cmpr($b, $a) };
+                        }
+
+                        take($cmpr);
                     }
 
-                    if ( $ex ~~ descending ) {
-                        $cmpr = -> $a, $b { $cmpr($b, $a) };
+                    when KeyExtractor {
+                        my KeyExtractor $ex = $criterion;
+
+                        my $cmpr = $ex.is ~~ :(Num)
+                            ?? &infix:{'<=>'}
+                            !! &infix:<cmp>;
+
+                        if ( $ex ~~ insensitive ) {
+                            $cmpr = -> $a, $b { $cmpr(lc $a, lc $b) };
+                        }
+
+                        if ( $ex ~~ descending ) {
+                            $cmpr = -> $a, $b { $cmpr($b, $a) };
+                        }
+
+                        take( -> $a, $b { $cmpr(kex($ex, $a), kex($ex, $b)) } );
                     }
 
-                    take( -> $a, $b { $cmpr(kex($ex, $a), kex($ex, $b)) } );
-                }
+                    when Pair {
+                        my Pair $pair := $criterion;
 
-                when Pair {
-                    my Pair $pair := $criterion;
+                        my KeyExtractor $ex := $criterion.key;
+                        my Comparator $cmpr := $criterion.value;
+                
+                        if ( $pair ~~ insensitive ) {
+                            $cmpr := -> $a, $b { $cmpr(lc $a, lc $b) };
+                        }
 
-                    my KeyExtractor $ex := $criterion.key;
-                    my Comparator $cmpr := $criterion.value;
-            
-                    if ( $pair ~~ insensitive ) {
-                        $cmpr := -> $a, $b { $cmpr(lc $a, lc $b) };
+                        if ( $pair ~~ descending ) {
+                            $cmpr := -> $a, $b { $cmpr($b, $a) };
+                        }
+
+                        take( -> $a, $b { $cmpr(kex($ex, $a), kex($ex, $b)) } );
                     }
-
-                    if ( $pair ~~ descending ) {
-                        $cmpr := -> $a, $b { $cmpr($b, $a) };
-                    }
-
-                    take( -> $a, $b { $cmpr(kex($ex, $a), kex($ex, $b)) } );
                 }
             }
         }
+
+        # mergesort() --
+        #   O(N*log(N)) time
+        #   O(N*log(N)) space
+        #   stable
+
+        our Array
+        sub mergesort (@values is rw, SortCriterion @by? = list(&infix:<cmp>),
+            Bit $inplace?)
+        {
+            my @result;
+
+            my @qby = qualify_by(@by);
+
+            if $inplace {
+                inplace_mergesort(@values, 0 => +@values, @qby);
+                @result := @values;
+            }
+            else {
+                my @copy = @values;
+                inplace_mergesort(@copy, 0 => +@copy, @qby);
+                @result := @copy;
+            }
+
+            @result;
+        }
+
+        our Pair
+        sub inplace_mergesort (@values is rw, Pair $span, Code @qby)
+        {
+            my $result = $span;
+
+            unless ( $span.value - $span.key == 1 || in_order(@qby, @values) ) {
+                my $mid = $span.key + int( ($span.value - $span.key)/ 2 );
+
+                $result = merge(
+                    @values,
+                    inplace_mergesort(@values, $span.key => $mid, @qby),
+                    inplace_mergesort(@values, $mid => $span.value, @qby),
+                    @qby
+                );
+            }
+
+            $result;
+        }
+
+        our Pair
+        sub merge (@values is rw, Pair $lspan, Pair $rspan, Code @qby)
+        {
+            # copy @left to a scratch area
+            my @scratch = @values[$lspan.key ..^ $lspan.value];
+
+            # merge @scratch and @right into and until @left is full
+            my $lc = $lspan.key;
+            my $rc = $rspan.key;
+            my $sc = 0;
+
+            while ( $lc < $lspan.value ) {
+                @values[$lc++] = by_cmp(@qby, @scratch[$sc], @values[$rc]) <= 0
+                    ?? @scratch[$sc++]
+                    !! @values[$rc++];
+            }
+
+            # at this point @left is full.  start populating @right
+            # until @scratch or @right is empty
+            my $ri = $rspan.key;
+
+            while ( $sc < +@scratch && $rc < $rspan.value ) {
+                @values[$ri++] = by_cmp(@qby, @scratch[$sc], @values[$rc]) <= 0
+                    ?? @scratch[$sc++]
+                    !! @values[$rc++];
+            }
+
+            # anything remaining in @right is in the correct place.
+            # anything remaining in @scratch needs to be filled into @right
+                @values[$ri..^$rspan.value] = @scratch[$sc..^+@scratch];
+
+            # return the merged span
+            $lspan.key => $rspan.value;
+        }
     }
 
-    # mergesort() --
-    #   O(N*log(N)) time
-    #   O(N*log(N)) space
-    #   stable
-
-    our Array
-    sub mergesort (@values is rw, SortCriterion @by? = list(&infix:<cmp>),
-        Bit $inplace?)
+    our Array multi Array::p6sort( @values is rw, *&by, Bit $inplace? )
     {
-        my @result;
-
-        my @qby = qualify_by(@by);
-
-        if $inplace {
-            inplace_mergesort(@values, 0 => +@values, @qby);
-            @result := @values;
-        }
-        else {
-            my @copy = @values;
-            inplace_mergesort(@copy, 0 => +@copy, @qby);
-            @result := @copy;
-        }
-
-        @result;
+        Prelude::Sort::mergesort(@values, list(&by), $inplace);
     }
 
-    our Pair
-    sub inplace_mergesort (@values is rw, Pair $span, Code @qby)
+    our Array multi Array::p6sort( @values is rw, SortCriterion @by, Bit $inplace? )
     {
-        my $result = $span;
-
-        unless ( $span.value - $span.key == 1 || in_order(@qby, @values) ) {
-            my $mid = $span.key + int( ($span.value - $span.key)/ 2 );
-
-            $result = merge(
-                @values,
-                inplace_mergesort(@values, $span.key => $mid, @qby),
-                inplace_mergesort(@values, $mid => $span.value, @qby),
-                @qby
-            );
-        }
-
-        $result;
+        Prelude::Sort::mergesort(@values, @by, $inplace);
     }
 
-    our Pair
-    sub merge (@values is rw, Pair $lspan, Pair $rspan, Code @qby)
+    our Array multi Array::p6sort( @values is rw, SortCriterion $by = &infix:<cmp>,
+        Bit $inplace? )
     {
-        # copy @left to a scratch area
-        my @scratch = @values[$lspan.key ..^ $lspan.value];
-
-        # merge @scratch and @right into and until @left is full
-        my $lc = $lspan.key;
-        my $rc = $rspan.key;
-        my $sc = 0;
-
-        while ( $lc < $lspan.value ) {
-            @values[$lc++] = by_cmp(@qby, @scratch[$sc], @values[$rc]) <= 0
-                ?? @scratch[$sc++]
-                !! @values[$rc++];
-        }
-
-        # at this point @left is full.  start populating @right
-        # until @scratch or @right is empty
-        my $ri = $rspan.key;
-
-        while ( $sc < +@scratch && $rc < $rspan.value ) {
-            @values[$ri++] = by_cmp(@qby, @scratch[$sc], @values[$rc]) <= 0
-                ?? @scratch[$sc++]
-                !! @values[$rc++];
-        }
-
-        # anything remaining in @right is in the correct place.
-        # anything remaining in @scratch needs to be filled into @right
-            @values[$ri..^$rspan.value] = @scratch[$sc..^+@scratch];
-
-        # return the merged span
-        $lspan.key => $rspan.value;
+        Array::sort(@values, $by, $inplace);
     }
-}
 
-our Array multi Array::p6sort( @values is rw, *&by, Bit $inplace? )
-{
-    Prelude::Sort::mergesort(@values, list(&by), $inplace);
-}
+    our List multi List::p6sort( SortCriterion @by, *@values )
+    {
+        my @result = Prelude::Sort::mergesort(@values, @by);
+        @result[];
+    }
 
-our Array multi Array::p6sort( @values is rw, SortCriterion @by, Bit $inplace? )
-{
-    Prelude::Sort::mergesort(@values, @by, $inplace);
-}
-
-our Array multi Array::p6sort( @values is rw, SortCriterion $by = &infix:<cmp>,
-    Bit $inplace? )
-{
-    Array::sort(@values, $by, $inplace);
-}
-
-our List multi List::p6sort( SortCriterion @by, *@values )
-{
-    my @result = Prelude::Sort::mergesort(@values, @by);
-    @result[];
-}
-
-our List multi List::p6sort( SortCriterion $by = &infix:<cmp>, *@values )
-{
-    my @result = Prelude::Sort::mergesort(@values, list($by));
-    @result[];
-}
-END_PRELUDE_SORT;
+    our List multi List::p6sort( SortCriterion $by = &infix:<cmp>, *@values )
+    {
+        my @result = Prelude::Sort::mergesort(@values, list($by));
+        @result[];
+    }
+END_PRELUDE_SORT
 
 eval_ok($prelude_sort, 'prelude sort parses', :todo<sort>,
     :depends<subset and argument list return signatures>);

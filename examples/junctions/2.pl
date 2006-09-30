@@ -1,6 +1,6 @@
 # read from STDIN and print
 
-my @color = qw(red green blue);
+my @color = <red green blue>;
 
 my $x = any @color;
 

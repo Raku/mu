@@ -6,7 +6,7 @@
 
 use strict;
 use Test::More tests => 18;
-use File::Temp qw( :mktemp );
+use File::Temp <:mktemp>;
 
 #use CORE::system;
 

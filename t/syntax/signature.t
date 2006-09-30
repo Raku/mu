@@ -121,7 +121,7 @@ plan 40;
         , ':(:x(%y) = (1 => 2))', 'longnamed hash with default'
         );
     for @sigs -> $sig, $desc {
-        eval_is "my \$s = $sig; qq(\$s)", $sig, "signature stringifies - $desc";
+        eval_is "my \$s = $sig; qq[\$s]", $sig, "signature stringifies - $desc";
     }
 
     # ("" ~ :() is just an interim hack to dispatch into pretty-newval. will be removed.)

@@ -10,7 +10,7 @@ method source($self:) {
 }
 
 method dom_fields($self:) {
-    $self.SUPER::dom_fields, qw(content);
+    $self.SUPER::dom_fields, <content>;
 }
 
 method dom_attr($self:) returns Hash {

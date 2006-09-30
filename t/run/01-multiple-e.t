@@ -49,7 +49,7 @@ for @examples -> $ex {
   is $got, $expected, "Multiple -e switches work and append the script";
 }
 
-my $command = qq($pugs -e @ARGS.perl.say -e "" Hello Pugs $redir $out_fn);
+my $command = qq[$pugs -e @ARGS.perl.say -e "" Hello Pugs $redir $out_fn];
 diag $command;
 system $command;
 

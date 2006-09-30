@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
 use Test tests => 18;
-use File::Temp qw( :mktemp );
+use File::Temp <:mktemp>;
 
 #use CORE::system;
 
@@ -19,7 +19,7 @@ BEGIN {
     #}
 };
 
-#use vars qw($testdir $exename $plxname );
+#use vars qw/$testdir $exename $plxname/;
 #$testdir = "t e s t";
 #$exename = "showav";
 #$plxname = "showargv";
@@ -34,7 +34,7 @@ sub params_ok {
   my $count = scalar @$args;
   my $tempfile = mktemp("systemXXXXXXX");
 
-  my %sep = map { $_ => 1 } ( "\0", "\t", qw( _ : . ), '(', ')', '*', ',' );
+  my %sep = map { $_ => 1 } ( "\0", "\t", qw/ _ : . /, '(', ')', '*', ',' );
 
   for my $arg (@$args) {
     for (sort keys (%sep)) {

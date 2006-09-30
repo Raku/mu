@@ -1,4 +1,4 @@
-my @new_quote = qw(7.5 6.5 5.5);
+my @new_quote = <7.5 6.5 5.5>;
 my $old_quote = 5;
 
 if (any(@new_quote) < $old_quote) {

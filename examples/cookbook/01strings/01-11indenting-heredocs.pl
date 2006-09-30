@@ -14,7 +14,7 @@ indentation removed during processing.
 Perl 6 lets you indent your here documents as much as you want, and then will
 remove any indentation up to the amount preceding the terminating string.
 
-    $var = qq:to/HERE_TARGET/
+    $var = qq:to/HERE_TARGET/;
         your text
         goes here
         HERE_TARGET
@@ -22,7 +22,7 @@ remove any indentation up to the amount preceding the terminating string.
 Since here document indentation will only be removed by the amount that the 
 terminating string is indented, poetry is preserved.
 
-    $poem = qq:to/EVER_ON_AND_ON/
+    $poem = qq:to/EVER_ON_AND_ON/;
         Now far ahead the Road has gone,
             And I must follow, if I can,
         Pursuing it with eager feet,

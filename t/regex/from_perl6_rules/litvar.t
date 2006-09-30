@@ -19,7 +19,7 @@ if !eval('("a" ~~ /a/)') {
 } else {
 
 my $var = "a*b";
-my @var = qw(a b c);
+my @var = <a b c>;
 my %var = (a=>1, b=>2, c=>3);
 my $aref = \@var;
 my $href = \%var;

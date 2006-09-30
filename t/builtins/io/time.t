@@ -18,14 +18,14 @@ sub is_dt (Str $datetime) returns Bool {
     my ($dow, $mon, $day, $time, $year) = split(' ', $datetime);
     my $result = 0;
 
-    for qw(Sun Mon Tue Wed Thu Fri Sat) {
+    for < Sun Mon Tue Wed Thu Fri Sat > {
         if $dow eq $_ {
             $result++;
             last();
         }
     }
 
-    for qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec) {
+    for < Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec > {
         if  $mon eq $_ {
             $result++;
             last();

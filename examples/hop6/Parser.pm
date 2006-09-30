@@ -18,10 +18,10 @@ use lib $FindBin::RealDir;
 use Stream;# :all;
 
 # use base Exporter;
-# @EXPORT_OK = qw(parser nothing End_of_Input lookfor
+# @EXPORT_OK =   <parser nothing End_of_Input lookfor
 #                 alternate concatenate star list_of 
 #                 operator T 
-#                 error action test);
+#                 error action test>;
 # %EXPORT_TAGS = ('all' => \@EXPORT_OK);
 
 ## Chapter 8 section 3.1

@@ -28,7 +28,7 @@ is($n, 42, "called lots of times :-)");
 
 ok( $answer == "1 + 9 = 10", "found right answer");
 
-my @array = qw(1 2 3 4 5 6 7 8);
+my @array = <1 2 3 4 5 6 7 8>;
 
 ok( all(@array) == one(@array), "all(@x) == one(@x) tests uniqueness(+ve)" );
 

@@ -1,11 +1,11 @@
 use v6-alpha;
 module LWP::Simple-0.0.1;
 
-# use vars qw($ua %loop_check $FULL_LWP @EXPORT @EXPORT_OK $VERSION);
+# use vars <$ua %loop_check $FULL_LWP @EXPORT @EXPORT_OK $VERSION>;
 # .. we won't need these
 
-# @EXPORT = qw(get head getprint getstore mirror);
-# @EXPORT_OK = qw($ua);
+# @EXPORT = <get head getprint getstore mirror>;
+# @EXPORT_OK = <$ua>;
 # How do we get these ?
 
 # I really hate this.  I was a bad idea to do it in the first place.

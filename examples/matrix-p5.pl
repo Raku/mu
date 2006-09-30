@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-use List::Util qw(sum);
+use List::Util <sum>;
 use strict;
 
 print "5x5 matrix in one line: " unless @ARGV;

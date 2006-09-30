@@ -47,7 +47,7 @@ shell usage. People might get the impression that quote escaping is enough.
 
 Escaping for VMS DCL:
 
-    $string = q(Mom said, "Don't do that.");
+    $string = q[Mom said, "Don't do that."];
     $string ~~ s:g/(<['"]>)/$0$0/g;
 XXX I don't get at all why this example is included, seems very
     obscure ~gcomnz

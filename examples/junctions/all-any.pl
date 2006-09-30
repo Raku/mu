@@ -3,8 +3,8 @@ use v6-alpha;
 # Please remember to update t/examples/examples.t and rename
 # examples/output/junctions/all-any if you rename/move this file.
 
-my @new_data   = qw(100 90 70);
-my @old_data   = qw(55 35 5);
+my @new_data   = <100 90 70>;
+my @old_data   = <55 35 5>;
 
 my $epsilon = 50;
 

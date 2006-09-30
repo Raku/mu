@@ -50,7 +50,7 @@ method _nine  () {
     my int $i = 99;
 
     while $i {
-        say qq:to/END/
+        say qq:to/END/;
             $i bottles of beer on the wall
             $i bottles of beer!
             Take one down, pass it around

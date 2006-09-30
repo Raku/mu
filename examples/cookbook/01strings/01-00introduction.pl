@@ -272,13 +272,15 @@ for user-defined quotes.
     say q"Many delimiters are available for quoting";
     say q`Many delimiters are available for quoting`;
     say q[Many delimiters are available for quoting];
-    say q(Many delimiters are available for quoting);
     say q<Many delimiters are available for quoting>;
     say q{Many delimiters are available for quoting};
     say q?Many delimiters are available for quoting?;
     
     # But not the colon B<:>
     q:illegal_perl6:; #legal perl 5
+
+    # Also a space is needed below, because q() is a function call
+    say q (Many delimiters are available for quoting);
 
 =head2 Advanced Interpolation Control
 
@@ -394,7 +396,7 @@ Multiline strings (here documents) can be defined using the q// and qq//
 operators with the :to adverb added.
 
     # A double quoted multiline string:
-    my $a = qq:to/EOF/
+    my $a = qq:to/EOF/;
         This is a multiline here document terminated by EOF on a
         line by itself with any amount of whitespace before or
         after the termination string. Leading whitespace equivalent
@@ -411,7 +413,7 @@ string. For instance you can specify that you only want scalars
 interpolated by adding the :s adverb.
 
     # This multiline string will only interpolate scalars
-    my $multiline = q:s:to/EOF/
+    my $multiline = q:s:to/EOF/;
         This $scalar will be interpolated, but this @array won't be.
         EOF
 

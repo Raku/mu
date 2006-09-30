@@ -91,7 +91,7 @@ Tests the given block, as defined in L<S04/"Switch statements">
 {
     # topic not given by 'given' L<S04/"Switch statements" /including a for loop/>
     my ($b_one, $b_two, $b_three,$panic) = (0,0,0,0);
-    for (qw(1 2 3)) {
+    for (qw[ 1 2 3 ]) {
         when 1 {$b_one = 1}
         when 2 {$b_two = 1}
         when 3 {$b_three = 1}

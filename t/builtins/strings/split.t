@@ -68,12 +68,12 @@ split_test split($delimiter, "Perl6::Pugs::Test"),
 # split with a reg-exp
 split_test split(rx:Perl5 {,}, "split,me"),
            qw/split me/,
-           q(split rx:Perl5 {,}, Str);
+           q/split rx:Perl5 {,}, Str/;
 
 # split on multiple space characters
 split_test split(rx:Perl5 {\s+}, "Hello World    Goodbye   Mars"),
            qw/Hello World Goodbye Mars/,
-           q(split rx:Perl5 {\s+}, Str);
+           q/split rx:Perl5 {\s+}, Str/;
 
 split_test split(rx:Perl5 {(\s+)}, "Hello test"),
            ('Hello', ("Hello test" ~~ rx:Perl5 {(\s+)}), 'test'),
@@ -90,11 +90,11 @@ split_test "this will be split".split(rx:Perl5 { }),
 # split on multiple space characters
 split_test split(rx:Perl5 {\s+}, "Hello World    Goodbye   Mars", 3),
            ( qw/Hello World/, "Goodbye   Mars" ),
-           q(split rx:Perl5 {\s+}, Str, limit);
+           q/split rx:Perl5 {\s+}, Str, limit/;
 
 split_test split(" ", "Hello World    Goodbye   Mars", 3),
            ( qw/Hello World/, "   Goodbye   Mars" ),
-           q(split " ", Str, limit);
+           q/split " ", Str, limit/;
 
 split_test  "Hello World    Goodbye   Mars".split(rx:Perl5 {\s+}, 3),
            ( qw/Hello World/, "Goodbye   Mars" ),
@@ -104,7 +104,7 @@ split_test  "Hello World    Goodbye   Mars".split(" ", 3),
            ( qw/Hello World/, "   Goodbye   Mars" ),
            q/Str.split(" ", limit)/;
 
-split_test  "Word".split("", 3), qw(W o rd),
+split_test  "Word".split("", 3), qw/W o rd/,
            q/Str.split("", limit)/;
 
 # XXX: S29 split is not specified. :-(

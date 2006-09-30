@@ -14,7 +14,7 @@ sub authorize_movie(@grade) {
 }
 
 sub load_grades {
-  qw(50 80 90);
+  <50 80 90>;
 }
 
 my @grade = load_grades();

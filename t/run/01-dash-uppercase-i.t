@@ -64,7 +64,7 @@ for @tests -> $t {
   my $command;
   # This should be smarter about quoting
   # (currently, this should work for WinNT and Unix shells)
-  $command = join " ", map { qq("-I$_") }, @dirs;
+  $command = join " ", map { qq["-I$_"] }, @dirs;
   my $got = run_pugs( $command ~ " $fragment" );
   $got .= chomp;
 
@@ -79,7 +79,7 @@ for @tests -> $t {
 
   is @got, @expected, "'" ~ @dirs ~ "' works";
 
-  $command = join " ", map { qq(-I "$_") }, @dirs;
+  $command = join " ", map { qq[-I "$_"] }, @dirs;
   $got = run_pugs( $command ~ " $fragment" );
   
   $got .= chomp;

@@ -140,7 +140,7 @@ Some deeper tests were already added.
 }
 
 { # Hashref survive addition to an array.
-  my %h = qw(a 5 b 6);
+  my %h = qw<a 5 b 6>;
   my $hr = \%h;
   my $a0 = [ \%h ,'extra' ];
   my $a1 = [ \%h ];

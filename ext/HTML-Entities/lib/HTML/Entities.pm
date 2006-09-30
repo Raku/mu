@@ -1,8 +1,8 @@
 use v6-alpha;
 module HTML::Entities-0.2;
 
-#@EXPORT = qw(encode_entities decode_entities _decode_entities);
-#@EXPORT_OK = qw(%entity_to_char %char_to_entity encode_entities_numeric);
+#@EXPORT = <encode_entities decode_entities _decode_entities>;
+#@EXPORT_OK = <%entity_to_char %char_to_entity encode_entities_numeric>;
 
 my %entity_to_char = (
  # Some normal chars that have special meaning in SGML context
@@ -457,8 +457,8 @@ example, C<escape_entities("r\xF4le")> returns "r&ocirc;le", but
 C<escape_entities_numeric("r\xF4le")> returns "r&#xF4;le".
 
 This routine is I<not> exported by default.  But you can always
-export it with C<use HTML::Entities qw(encode_entities_numeric);>
-or even C<use HTML::Entities qw(:DEFAULT encode_entities_numeric);>
+export it with C<<use HTML::Entities <encode_entities_numeric>;>>
+or even C<<use HTML::Entities <:DEFAULT encode_entities_numeric>;>>
 
 =back
 

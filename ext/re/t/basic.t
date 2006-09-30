@@ -14,12 +14,12 @@ plan 5;
 }
 
 {
-  eval q(use re);
+  eval q[use re];
   is(%ENV<PUGS_REGEX_ENGINE>, 'PCR', 'argument must be provided');
 }
 
 {
-  eval q(use re 'garbage');
+  eval q[use re 'garbage'];
   is(%ENV<PUGS_REGEX_ENGINE>, 'PCR', 'garbage value not accepted');
 }
 

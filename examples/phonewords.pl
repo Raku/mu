@@ -9,14 +9,14 @@
 use v6-alpha;
 
 my %digit_letters = (
-    2 => [qw(a b c)],
-    3 => [qw(d e f)],
-    4 => [qw(g h i)],
-    5 => [qw(j k l)],
-    6 => [qw(m n o)],
-    7 => [qw(p r s)],
-    8 => [qw(t u v)],
-    9 => [qw(w x y)],
+    2 => [<a b c>],
+    3 => [<d e f>],
+    4 => [<g h i>],
+    5 => [<j k l>],
+    6 => [<m n o>],
+    7 => [<p r s>],
+    8 => [<t u v>],
+    9 => [<w x y>],
 );
 
 my @letterchoices;

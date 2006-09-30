@@ -6,7 +6,7 @@ use strict;
 # to some expected set of results
 # later it can be modifed to be somehow incorporated in the test suit
 
-use File::Compare qw(compare);
+use File::Compare <compare>;
 
 
 my $pugs = "../../pugs";

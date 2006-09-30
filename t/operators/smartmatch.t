@@ -221,7 +221,7 @@ caught that case.
     ok $parsed, 'C<my @result = any(@x) ~~ $code> parses';
     my @expected_result = grep $code, @x;
     ok @result ~~ @expected_result,
-        'C<any(@x) ~~ {...}> works like C<grep>';
+        'C<any(@x) ~~ {...}> works like C<grep>', :todo<feature>;
 
     my $result = 0;
     $parsed = 0;
