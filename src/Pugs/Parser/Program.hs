@@ -13,7 +13,13 @@ import qualified Data.Map as Map
 import qualified Data.Set as Set
 
 parseProgram :: Env -> FilePath -> String -> Env
-parseProgram env path str = runRule env ruleProgram path (decodeProgram str)
+parseProgram env path str = runRule env ruleProgram path progWithEOL
+    where
+    prog = decodeProgram str
+    progWithEOL
+        | [] <- prog        = "\n"
+        | last prog == '\n' = prog
+        | otherwise         = prog ++ "\n"
 
 -- Based on: http://hackage.haskell.org/trac/haskell-prime/wiki/SourceEncodingDetection
 data EncodedSource
