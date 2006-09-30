@@ -28,13 +28,13 @@ plan 16;
   my $foo = 42;
 
   ok ($foo, "does_not_matter")[0] =:= $foo,
-    "list construction should not create new containers";
+    "list construction should not create new containers", :todo<unspecced>;
 }
 
 {
   my $foo = 42;
   ok ($foo, "does_not_matter", 17)[0,1][0] =:= $foo,
-    "list construction and list slicing should not create new containers";
+    "list construction and list slicing should not create new containers", :todo<unspecced>;
 }
 
 # Lists as lvalues

@@ -48,7 +48,7 @@ plan 18;
     # L<S03/"List flattening" /an Array \(or Arglist\)/>
     my sub foo (@arr) { ~@arr }
     is try { &foo.call($arglist) }, "a b c",
-        "arglist creation with \\( works";
+        "arglist creation with \\( works", :todo<feature>;
 }
 
 # L<S06/"Argument list binding" /single scalar parameter marked/>
