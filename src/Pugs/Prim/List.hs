@@ -63,10 +63,10 @@ op1Sum list = do
     foldM (op2Numeric (+)) undef vals
 
 op1Min :: Val -> Eval Val
-op1Min v = op1MinMax (== False) v
+op1Min v = op1MinMax not v
 
 op1Max :: Val -> Eval Val
-op1Max v = op1MinMax (== True) v
+op1Max v = op1MinMax id v
 
 -- min_or_max is a function which negates truth/falsehood.
 -- This is necessary as op1MinMax should cope with min() as well as max().
@@ -90,7 +90,7 @@ op1MinMax min_or_max v = do
     -- The min or max of an empty list is undef.
     op1MinMax' _ _ [] = return undef
     -- We have to supply our own comparator...
-    op1MinMax' _ Nothing valList = foldM default_compare (head valList) valList
+    op1MinMax' _ Nothing valList = foldM default_compare (head valList) (tail valList)
     -- or use the one of the user
     op1MinMax' min_or_max (Just subVal) valList = do
           sub <- fromVal subVal
@@ -105,7 +105,7 @@ op1MinMax min_or_max v = do
               --    0 ==> a == b
               --   +1 ==> a > b
               -- We call min_or_max so we can work for both min() and max().
-              return $ if min_or_max (int > (0::VInt)) then a else b) (head valList) valList
+              return $ if min_or_max (int > (0::VInt)) then a else b) (head valList) (tail valList)
     -- This is the default comparision function, which will be used if the user
     -- hasn't specified a own comparision function.
     default_compare a b = do
