@@ -148,9 +148,8 @@ also used effectively by MySQL AB and others.
 
 Note that I plan to relicense these same components explicitly under the
 GPL version 3 (or later) when that GPL version is finalized, barring any
-unexpected difficulties.  The first GPL v3 draft, published 2006.01.16 at
-L<http://gplv3.fsf.org/>, already looks good.  And it natively includes
-terms like my linking exception to v2 for other free software.
+unexpected difficulties.  The second GPL v3 discussion draft, published
+2006.07.27 at L<http://gplv3.fsf.org/>, already looks good.
 
 I have no intention of broadly releasing Rosetta under any open source
 license but the GPL, such as the Perl or Artistic or BSD licenses, because
