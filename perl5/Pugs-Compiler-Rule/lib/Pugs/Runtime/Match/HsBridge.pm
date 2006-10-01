@@ -22,6 +22,12 @@ sub __RUN__ {
     my %opts = (grammar => __PACKAGE__);
     ($1 and $opts{$1} = 1) while $rule_text =~ s/^:(\w*)\(1?\)\[(.*)\]\z/$2/s;
 
+    # L<S05/Modifiers/"The C<:ratchet> modifier also implies that the anchoring">
+    if ( $opts{ratchet} ) {
+        $rule_text  = "^$rule_text" unless $opts{p} or $opts{pos};
+        $rule_text .= '$'           unless $opts{c} or $opts{continue};
+    }
+
     local $SIG{__WARN__} = sub { 1 };
 
     my $rule    = Pugs::Compiler::Regex->compile( $rule_text, \%opts );
