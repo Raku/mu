@@ -1152,7 +1152,7 @@ applySub sub invs args
         vanillaApply = apply sub' Nothing args
         tryAnyComprehension _ [] = vanillaApply
         tryAnyComprehension pre (pivot:post)
-            | App (Var var') invs' args'    <- unwrap pivot
+            | App (Var var') _ _    <- unwrap pivot
             , var' == cast "&list" = do
                 -- List comprehension!  This:
                 --      1 < list(@x) < 2

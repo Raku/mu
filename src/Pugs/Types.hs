@@ -172,15 +172,15 @@ data VarMeta
     = MNil
     | MFold             -- [+]
     | MScan             -- [\+]
-    | MFoldPost         -- [+]<<
-    | MScanPost         -- [\+]<<
+--  | MFoldPost         -- [+]<<
+--  | MScanPost         -- [\+]<<
     | MPre              -- >>+
     | MPost             -- +<<
     | MHyper            -- >>+<<
     | MHyperFold        -- [>>+<<]
-    | MHyperFoldPost    -- [>>+<<]<<
+--  | MHyperFoldPost    -- [>>+<<]<<
     | MHyperScan        -- [\>>+<<]
-    | MHyperScanPost    -- [\>>+<<]<<
+--  | MHyperScanPost    -- [\>>+<<]<<
     deriving (Show, Enum, Eq, Ord, Typeable, Data, Read)
 
 isQualifiedVar :: Var -> Bool
@@ -227,15 +227,15 @@ showsMeta :: VarMeta -> (String -> String) -> String -> String
 showsMeta MNil              f x = f x
 showsMeta MFold             f x = ('[':f (']':x))
 showsMeta MScan             f x = ('[':'\\':f (']':x))
-showsMeta MFoldPost         f x = ('[':f (']':'<':'<':x))
-showsMeta MScanPost         f x = ('[':'\\':f (']':'<':'<':x))
+--showsMeta MFoldPost         f x = ('[':f (']':'<':'<':x))
+--showsMeta MScanPost         f x = ('[':'\\':f (']':'<':'<':x))
 showsMeta MPre              f x = ('>':'>':f x)
 showsMeta MPost             f x = f ('<':'<':x)
 showsMeta MHyper            f x = ('>':'>':f ('<':'<':x))
 showsMeta MHyperFold        f x = ('[':'>':'>':f ('<':'<':']':x))
-showsMeta MHyperFoldPost    f x = ('[':'>':'>':f ('<':'<':']':'<':'<':x))
+--showsMeta MHyperFoldPost    f x = ('[':'>':'>':f ('<':'<':']':'<':'<':x))
 showsMeta MHyperScan        f x = ('[':'\\':'>':'>':f ('<':'<':']':x))
-showsMeta MHyperScanPost    f x = ('[':'\\':'>':'>':f ('<':'<':']':'<':'<':x))
+--showsMeta MHyperScanPost    f x = ('[':'\\':'>':'>':f ('<':'<':']':'<':'<':x))
 
 instance ((:>:) String) Var where
     cast var = showsVar var ""
@@ -463,6 +463,7 @@ doBufToVar buf = MkVar
                 -> (Str.drop 2 (dropEnd 2 maybeHyper), MHyperFold)
             other -> (other, MFold)
         -- XXX - massive cut-n-paste!
+        {-
         | C_prefix <- cat
         , __"[\\" `Str.isPrefixOf` afterCat
         , __"]\194\171" `Str.isSuffixOf` afterCat || __"]<<" `Str.isSuffixOf` afterCat
@@ -485,6 +486,7 @@ doBufToVar buf = MkVar
                        , __"\194\171" `Str.isSuffixOf` maybeHyper 
                 -> (Str.drop 2 (dropEnd 2 maybeHyper), MHyperFoldPost)
             other -> (other, MFoldPost)
+        -}
         | C_prefix <- cat, __"\194\171" `Str.isSuffixOf` afterCat
         = (dropEnd 2 afterCat, MPost)
         | C_prefix <- cat, __"<<" `Str.isSuffixOf` afterCat
@@ -838,7 +840,8 @@ rawTree = fmap cast $! Node "Object"
                             , Node "Submethod" []  -- why isn't this a node off Method? - mugwump
                             ]
                         , Node "Macro" [] ]
-                    , Node "Block" []
+                    , Node "Block"
+                        [ Node "Loop" [] ]
                     ]
                 , Node "Regex" []
                 , Node "Signature" []

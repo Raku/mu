@@ -409,12 +409,12 @@ findSub _var _invs _args
         MHyper          -> buildInfixHyper var'                     -- >>+<<
         MFold           -> buildReduce varInfix MFold MNil MNil     -- [+]
         MScan           -> buildReduce varInfix MScan MNil MNil     -- [\+]
-        MFoldPost       -> buildReduce varInfix MFold MNil MPost    -- [+]
-        MScanPost       -> buildReduce varInfix MScan MNil MPost    -- [\+]
+--      MFoldPost       -> buildReduce varInfix MFold MNil MPost    -- [+]
+--      MScanPost       -> buildReduce varInfix MScan MNil MPost    -- [\+]
         MHyperFold      -> buildReduce varInfix MFold MHyper MNil   -- [>>+<<]
         MHyperScan      -> buildReduce varInfix MScan MHyper MNil   -- [>>+<<]
-        MHyperFoldPost  -> buildReduce varInfix MFold MHyper MPost  -- [>>+<<]
-        MHyperScanPost  -> buildReduce varInfix MScan MHyper MPost  -- [>>+<<]
+--      MHyperFoldPost  -> buildReduce varInfix MFold MHyper MPost  -- [>>+<<]
+--      MHyperScanPost  -> buildReduce varInfix MScan MHyper MPost  -- [>>+<<]
         _               -> return Nothing
         where
         var' = var{ v_meta = MNil }

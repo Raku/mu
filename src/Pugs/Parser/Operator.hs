@@ -715,8 +715,8 @@ ruleFoldOp = tryVerbatimRule "reduce metaoperator" $ (rulePipeHyper <|>) $ do
         choice $ ops (try . string)
             (addHyperInfix (Map.keysSet infixOps `Set.union` defaultInfixOps))
     char ']'
-    possiblyHyper <- option "" ruleHyperPost
-    return $ "&prefix:[" ++ keep ++ name ++ "]" ++ possiblyHyper
+--    possiblyHyper <- option "" ruleHyperPost
+    return $ "&prefix:[" ++ keep ++ name ++ "]" -- ++ possiblyHyper
     where
     -- XXX !~~ needs to turn into metaop plus ~~
     defaultInfixOps = opWords $ concat
