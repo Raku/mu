@@ -27,12 +27,9 @@ extra:
       title: Distribution
   header:
     - body: |-
-        "Larry Wall wrote:
-        > but only if self.HOW does Hash.
+        "And here I thought you were a responsible, law-abiding citizen... :P "
         
-        And here I thought you were a responsible, law-abiding citizen... :P "
-        
-        -- Jonathan Lang
+        -- Jonathan Lang, commenting on Larry Wall's `self.HOW does Hash`
       title: This week on the Perl 6 mailing lists
   see_also:
     - name: Perl Foundation activities
