@@ -1147,21 +1147,19 @@ applySub sub invs args
                 }
         applySub augmentedSub Nothing (args' ++ rest)
     applyChainSub :: VCode -> [Exp] -> Eval Val
-    applyChainSub sub args = do
-        -- Align the argument number against the parameter number
-        ifListContext (tryAnyComprehension [] args) vanillaApply
+    applyChainSub sub args = tryAnyComprehension [] args
         where
         vanillaApply = apply sub' Nothing args
         tryAnyComprehension _ [] = vanillaApply
         tryAnyComprehension pre (pivot:post)
             | App (Var var') invs' args'    <- unwrap pivot
-            , var' == cast "&any" = do
+            , var' == cast "&list" = do
                 -- List comprehension!  This:
-                --      1 < any(@x) < 2
+                --      1 < list(@x) < 2
                 -- Becomes this:
                 --      list(@x).grep:{ 1 < $_ < 2 }
                 -- Except we don't introduce a $_ variable, as to avoid shadowing.
-                items <- fromVal =<< reduceApp (_Var "&list") invs' args'
+                items <- fromVal =<< reduce pivot
                 fmap VList . (`filterM` items) $ \item -> do
                     vbool <- enterRValue . enterContext (cxtItem "Bool") $ do
                         apply sub' Nothing (reverse pre ++ (Val item:post))
@@ -1170,6 +1168,7 @@ applySub sub invs args
                 -- Accumulate pre and scan to the next.  Note pre must be reversed as above.
                 tryAnyComprehension (pivot:pre) post
         prms    = subParams sub
+        -- Align the argument number against the parameter number
         sub'    = sub{ subParams = take (length args) (prms ++ repeat (last prms)) }
 
 applyExp :: SubType -> [ApplyArg] -> Exp -> Eval Val
