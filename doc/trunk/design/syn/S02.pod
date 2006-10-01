@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 26 Sept 2006
+  Last Modified: 1 Oct 2006
   Number: 2
-  Version: 73
+  Version: 74
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -2145,6 +2145,32 @@ really does exactly the same thing as putting a list in parentheses with
 at least one comma.  But it's more readable in some situations.)
 
 To force a non-flattening scalar context, use the "C<item>" operator.
+
+=item *
+
+When evaluating chained operators, if a C<list()> occurs anywhere in that
+chain, the chain will be transformed first into a C<grep>.  That is,
+
+    for 0 <= list(@x) < all(@y) {...}
+
+becomes
+
+    for @x.grep:{ 0 <= $_ < all(@y) } {...}
+
+Because of this, the original ordering C<@x> is guaranteed to be
+preserved in the returned list, and duplicate elements in C<@x> are
+preserved as well.  In particular,
+
+    @result = list(@x) ~~ {...};
+
+is equivalent to
+
+    @result = @x.grep:{...};
+
+However, this I<list() comprehension> is strictly a syntactic transformation,
+so a list computed any other way will not triger the rewrite:
+
+    @result = (@x = list(@y)) ~~ {...}; # not a comprehension
 
 =item *
 
