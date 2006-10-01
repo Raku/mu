@@ -603,22 +603,6 @@ may autothread.  (Note that positional array and hash parameters are
 in fact scalar parameters, though, so you could pass a junction of
 array or hash objects.)
 
-For junctions used with chained operators in a list context, the resulting
-value will be a subset of the first C<any> used in comparison:
-
-    for 0 <= any(@x) < all(@y) {...}
-
-will use only those values from C<@x> that satisfy the constraint.
-Usually junctions do not guarantee order of evalution, but in
-this particular case, the original ordering C<@x> is guaranteed to
-be preserved in the returned list.  In particular,
-
-    @result = any(@x) ~~ {...};
-
-is equivalent to
-
-    @result = grep {...}, @x;
-
 =head1 Parallelized parameters and autothreading
 
 Within the scope of a C<use autoindex> pragma (or equivalent, such as
