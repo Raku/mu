@@ -40,7 +40,7 @@ is max(@array), 7, "basic subroutine form of max works";
 
 is @array.max:{ $^a <=> $^b }, 7,
   "method form of max with identity comparison block works";
-isnt @array.max:{ $^a <=> abs $^b }, -9,
+isnt @array.max:{ $^a <=> $^b }, -9,
   "bug -- method form of max with identity comparison block returning min";
 
 is max({ $^a <=> $^b }, @array), 7,
