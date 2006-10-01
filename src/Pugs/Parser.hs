@@ -927,9 +927,9 @@ ruleClosureTrait rhs = tryRule "closure trait" $ do
     block   <- ruleBlock
     when (rhs && not (name `elem` rhsTraits)) $
         fail (name ++ " may only be used at statement level")
-    let (fun, params) = extractPlaceholderVars block []
+    let (fun, params) = extractPlaceholderVars block Set.empty
     -- Check for placeholder vs formal parameters
-    when (params /= [] && params /= [cast "$_"]) $
+    unless (Set.null $ Set.delete _dollarUnderscore params) $
         fail "Closure traits take no formal parameters"
     env <- ask
     let code = VCode mkSub { subName = cast name, subBody = fun, subEnv = Just env } 

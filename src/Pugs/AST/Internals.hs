@@ -1137,13 +1137,13 @@ instance Eq VProcess
 instance Ord VProcess where
     compare _ _ = EQ
 
-extractPlaceholderVarsExp :: Exp -> ([Exp], [Var]) -> ([Exp], [Var])
+extractPlaceholderVarsExp :: Exp -> ([Exp], Set Var) -> ([Exp], Set Var)
 extractPlaceholderVarsExp ex (exps, vs) = (ex':exps, vs')
     where
     (ex', vs') = extractPlaceholderVars ex vs
 
 {-| Deduce the placeholder vars ($^a, $^x etc.) used by a block). -}
-extractPlaceholderVars :: Exp -> [Var] -> (Exp, [Var])
+extractPlaceholderVars :: Exp -> Set Var -> (Exp, Set Var)
 extractPlaceholderVars (App n invs args) vs = (App n' invs' args', vs''')
     where
     (n', vs')      = extractPlaceholderVars n vs
@@ -1157,15 +1157,15 @@ extractPlaceholderVars (Syn n exps) vs = (Syn n exps', vs'')
     where
     (exps', vs') = foldr extractPlaceholderVarsExp ([], vs) exps
     vs'' = case n of
-        "when"  -> nub (cast "$_" : vs')
-        "given" -> delete (cast "$_") vs'
+        "when"  -> Set.insert (cast "$_") vs'
+        "given" -> Set.delete (cast "$_") vs'
         _       -> vs'
 extractPlaceholderVars (Var var) vs
     | TImplicit <- v_twigil var
     , var' <- var{ v_twigil = TNil }
-    = (Var var', nub (var':vs))
+    = (Var var', Set.insert var' vs)
     | var == cast "$_"
-    = (Var var, nub (var:vs))
+    = (Var var, Set.insert var vs)
     | otherwise
     = (Var var, vs)
 extractPlaceholderVars (Ann ann ex) vs = ((Ann ann ex'), vs')

@@ -102,22 +102,25 @@ _dollarUnderscore = cast "$_"
 doExtract :: SubType -> Maybe [Param] -> Exp -> (Exp, [Var], [Param])
 doExtract SubBlock formal body = (fun, names', params)
     where
-    (fun, names) = extractPlaceholderVars body []
+    (fun, names) = extractPlaceholderVars body Set.empty
     names' | isJust formal
-           = filter (/= _dollarUnderscore) names
+           = sortNames (Set.delete _dollarUnderscore names)
            | otherwise
-           = names
-    params = map nameToParam (sort names') ++ (maybe [] id formal)
+           = sortNames names
+    params = map nameToParam names' ++ (maybe [] id formal)
 doExtract SubPointy formal body = (body, [], maybe [] id formal)
 doExtract SubMethod formal body = (body, [], maybe [] id formal)
 doExtract _ formal body = (body, names', params)
     where
-    (_, names) = extractPlaceholderVars body []
+    (_, names) = extractPlaceholderVars body Set.empty
     names' | isJust formal
-           = filter (/= _dollarUnderscore) names
+           = sortNames (Set.delete _dollarUnderscore names)
            | otherwise
-           = filter (== _dollarUnderscore) names
-    params = map nameToParam (sort names') ++ (maybe [] id formal)
+           = sortNames (Set.filter (== _dollarUnderscore) names)
+    params = map nameToParam names' ++ (maybe [] id formal)
+
+sortNames :: Set Var -> [Var]
+sortNames = sortBy (\x y -> v_name x `compare` v_name y) . Set.toList
 
 nameToParam :: Var -> Param
 nameToParam name = MkOldParam
