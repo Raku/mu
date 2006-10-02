@@ -12,7 +12,7 @@ Tests of roles with SUPER
 
 my $call_count = 0;
 
-role ParentRole
+class ParentClass
 {
     method interesting
     {
@@ -20,14 +20,14 @@ role ParentRole
     }
 }
 
-role ChildRole does ParentRole
+role ChildRole is ParentClass
 {
     method interesting ( $self: )
     {
         return if $call_count++ > 1;
         my $rv;
         try {
-           # XXX - SUPER and Roles?
+           # SUPER should be able to visit a parent Class of a Role
            $rv = $self.SUPER::interesting();
         };
         return $rv;
@@ -40,5 +40,4 @@ my $class       = MyClass.new();
 my $interesting = $class.interesting();
 
 is($call_count, 1, 'SUPER() should not hit the same class multiple times');
-is($interesting, 'How Interesting', '... instead hitting parentmost method',
-        :todo<bug>);
+is($interesting, 'How Interesting', '... instead hitting parentmost method');

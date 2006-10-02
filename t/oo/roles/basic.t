@@ -34,7 +34,7 @@ eval_ok '$baz ~~ Baz',         'smartmatch said our $baz now does Foo', :todo<fe
 # Roles may have methods
 eval_ok 'role A { method say_hello(Str $to) { "Hello, $to" } }',
   "definition of a role with a method worked", :todo<feature>;
-eval_ok 'my Foo $a does A .= new()', 'mixing A into $a worked';
+eval_ok '(my Foo $a does A) .= new()', 'mixing A into $a worked';
 eval_is '$a.say_hello("Ingo")', "Ingo",
   'our $a "inherited" the .say_hello method of A', :todo<feature>;
 
