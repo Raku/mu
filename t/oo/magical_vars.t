@@ -117,5 +117,5 @@ class SimpleClass does Bar {}
 }
 
 {
-  dies_ok { self }, "there is no self outside of a method";
+  dies_ok { self }, "there is no self outside of a method", :todo<bug>;
 }

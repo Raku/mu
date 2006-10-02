@@ -15,7 +15,7 @@ class Foo-0.0.1 { method bar ($param) returns Str { return "baz" ~ $param } };
 # L<S12/"Introspection" /should be called through the meta object\:/>
 
 eval_ok("Foo.HOW.can('bar')", '... Foo can bar', :todo<feature>);
-eval_ok("Foo.HOW.isa(Foo)", '... Foo is-a Foo (of course)');
+eval_ok("Foo.HOW.isa(Foo)", '... Foo is-a Foo (of course)', :todo<bug>);
 
 # L<S12/"Introspection" /Class traits may include\:/>
 

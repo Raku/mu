@@ -61,7 +61,7 @@ ok !Foo::Bar.does(::CLASS),   "subclass.does(CLASS) is false";
 ok !Foo::Bar.isa(::CLASS),    "subclass.isa(CLASS) is false";
 ok !Foo::Bar.HOW.isa(Foo),      "subclass.HOW.isa(superclass) is false";
 ok !Foo::Bar.HOW.isa(Foo::Bar), "subclass.HOW.isa(same_subclass) is false";
-ok !Foo::Bar.HOW.isa(Class),    "subclass.HOW.isa(Class) is false";
+ok !Foo::Bar.HOW.isa(Class),    "subclass.HOW.isa(Class) is false", :todo<bug>;
 ok !Foo::Bar.HOW.does(Class),   "subclass.HOW.does(Class) is false";
 ok !Foo::Bar.HOW.isa(::CLASS),    "subclass.HOW.isa(CLASS) is false";
 ok  Foo::Bar.HOW.does(::CLASS),   "subclass.HOW.does(CLASS) is true", :todo<feature>;
