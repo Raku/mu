@@ -77,7 +77,7 @@ for my $file ($html_location, $yml_location) {
     my $newfile = $file;
     $newfile =~ s/[.](html?|yml)/.last.$1/;
     rename $file, $newfile
-        or die "Couldn't save backup $file to $newfile: $!";
+        or die "Couldn't save backup of $file to $newfile: $!";
     push @saved_backup, [$file, $newfile];
 }
 
@@ -105,7 +105,7 @@ if ($smoke_upload) {
 EOF
 
     for my $filepair (@saved_backup) {
-        print "\nYour old $filepair->[0] has been saved to $filepair->[1].\n"
+        print "\n    Your old $filepair->[0] has been saved to $filepair->[1].\n"
     }
 }
 sub upload_smoke {
