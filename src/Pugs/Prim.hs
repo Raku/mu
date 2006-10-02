@@ -1105,6 +1105,14 @@ op2 "Pugs::Internals::base" = \x y -> do
         _       -> do
             str <- fromVal y
             op2BasedDigits base [ s | Just s <- map baseDigit str ]
+op2 "HOW::does" = \t p -> do
+    meta    <- readRef =<< fromVal t
+    fetch   <- doHash meta hash_fetchVal
+    name    <- fromVal =<< fetch "name"
+    roles   <- fromVals p
+    mixinRoles name roles
+    return undef
+
 op2 ('!':name) = \x y -> op1Cast (VBool . not) =<< op2 name x y
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
 
@@ -1222,17 +1230,9 @@ op3 "HOW::new" = \t n p -> do
     -- XXX - also do renaming of concrete types mentioned in roles
     -- XXX - also, rewrite subEnv mentioned in the subs
     -- XXX - also, copy over the inheritance chain from role's metaobject
-    glob <- asks envGlobal
-    let rolePkgs = map cast roles
-        thisPkg  = cast name
-
-    liftSTM . modifyTVar glob $ \(MkPad entries) ->
-        MkPad . Map.unionWith mergePadEntry entries . Map.fromList $
-            [ (k{ v_package = thisPkg }, v)
-            | (k, v) <- Map.assocs entries
-            , v_package k `elem` rolePkgs
-            ]
+    mixinRoles name roles
     return cls
+
 op3 "Object::new" = \t n p -> do
     positionals <- fromVal p
     typ     <- fromVal t
@@ -1301,6 +1301,19 @@ op3 "Pugs::Internals::hSeek" = \x y z -> do
         modeOf 2 = SeekFromEnd
         modeOf m = error ("Unknown seek mode: " ++ (show m))
 op3 other = \_ _ _ -> fail ("Unimplemented 3-ary op: " ++ other)
+
+mixinRoles :: String -> [String] -> Eval ()
+mixinRoles name roles = do
+    glob    <- asks envGlobal
+    let rolePkgs = map cast roles
+        thisPkg  = cast name
+
+    liftSTM . modifyTVar glob $ \(MkPad entries) ->
+        MkPad . Map.unionWith mergePadEntry entries . Map.fromList $
+            [ (k{ v_package = thisPkg }, v)
+            | (k, v) <- Map.assocs entries
+            , v_package k `elem` rolePkgs
+            ]
 
 op3Split :: Val -> Val -> Val -> Eval Val
 op3Split x y z = do
@@ -2006,6 +2019,7 @@ initSyms = mapM primDecl syms
 \\n   Object    pre     Object::clone   safe   (Object: Named)\
 \\n   Class     pre     Object::HOW    safe   (Object)\
 \\n   Object    pre     HOW::new     safe   (Object: Named)\
+\\n   Object    pre     HOW::does     safe   (Object: List)\
 \\n   Str       pre     Class::name    safe   (Class)\
 \\n   Hash      pre     Class::traits  safe   (Class)\
 \\n   Object    pre     WHICH      safe   (Any)\

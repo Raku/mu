@@ -509,11 +509,15 @@ ruleTraitDeclaration = try $ do
     (aux, trait) <- ruleTrait ["is", "does"]
     lookAhead (eof <|> (oneOf ";}" >> return ()))
     env     <- ask
-    let pkg = _Var (':':'*':cast (envPackage env))
-    return $ Syn "="
-        [ Syn "{}" [pkg, Val (VStr aux)]
-        , Syn "," [Syn "@{}" [Syn "{}" [pkg, Val (VStr aux)]], Val (VStr trait)]
-        ]
+    let meta = _Var (':':'*':cast (envPackage env))
+        expMeta = Syn "="
+            [ Syn "{}" [meta, Val (VStr aux)]
+            , Syn "," [Syn "@{}" [Syn "{}" [meta, Val (VStr aux)]], Val (VStr trait)]
+            ]
+        addDoes | "does" <- aux = Stmts (App (_Var "&HOW::does") (Just meta) [Val (VStr trait)])
+                | otherwise     = id
+    unsafeEvalExp $ addDoes expMeta
+    return Noop
 
 ruleMemberDeclaration :: RuleParser Exp
 ruleMemberDeclaration = do
