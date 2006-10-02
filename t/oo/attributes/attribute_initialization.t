@@ -8,7 +8,7 @@ use Test;
 
 plan 8;
 
-diag('Test for class attribute initializement');
+diag('Test for class attribute initialization');
 
 
 {
