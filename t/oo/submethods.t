@@ -75,9 +75,10 @@ Basic submethod tests. See L<S12/"Submethods">
 {
   my $was_in_a1_build = 0;
   my $was_in_a2_build = 0;
-  role RoleA1  { submethod BUILD() { $was_in_a1_build++ } }
-  role RoleA2  { submethod BUILD() { $was_in_a2_build++ } }
+  role RoleA1  { multi submethod BUILD() { $was_in_a1_build++ } }
+  role RoleA2  { multi submethod BUILD() { $was_in_a2_build++ } }
   class ClassA does RoleA1 does RoleA2 {}
+
   ClassA.new;
 
   is $was_in_a1_build, 1, "roles' BUILD submethods were called when mixed in a class (1)";
@@ -87,8 +88,8 @@ Basic submethod tests. See L<S12/"Submethods">
 {
   my $was_in_b1_build = 0;
   my $was_in_b2_build = 0;
-  role RoleB1  { submethod BUILD() { $was_in_b1_build++ } }
-  role RoleB2  { submethod BUILD() { $was_in_b2_build++ } }
+  role RoleB1  { multi submethod BUILD() { $was_in_b1_build++ } }
+  role RoleB2  { multi submethod BUILD() { $was_in_b2_build++ } }
   class ClassB {}
 
   my $B = ClassB.new;

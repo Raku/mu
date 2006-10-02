@@ -14,7 +14,7 @@ Basic traits tests, see L<S12/Traits>.
 # Basic definition
 my $was_in_any_sub   = 0;
 my $was_in_class_sub = 0;
-eval_ok 'role cool {
+role cool {
   has $.is_cool = 42;
 
   multi sub trait_auxiliary:<is>(cool $trait, Any $container:) {
@@ -26,20 +26,20 @@ eval_ok 'role cool {
     $was_in_class_sub++;
     $container does cool;
   }
-', "role definition worked";
+}
+ok(::cool.HOW, "role definition worked");
 
-eval_ok 'my $a is cool', 'mixing in our role into a scalar via "is" worked';
-is $was_in_any_sub, 1, 'trait_auxiliary:is was called on container';
-eval_is '$a.is_cool', 'our var "inherited" an attribute';
+eval_ok 'my $a is cool; 1', 'mixing in our role into a scalar via "is" worked';
+is $was_in_any_sub, 1, 'trait_auxiliary:is was called on container', :todo<feature>;
+eval_is '$a.is_cool', 'our var "inherited" an attribute', :todo<feature>;
 
 my $b;
-eval_ok 'class B is cool {}', 'mixing in our role into a class via "is" worked';
-is $was_in_class_sub, 1, 'trait_auxiliary:is was called on class';
-eval_ok '$b = B.new()',       'creating an instance worked';
-eval_is '$b.is_cool',    42,  'our class "inherited" an attribute';
+class B is cool;
+ok(::B.HOW, 'mixing in our role into a class via "is" worked');
+is $was_in_class_sub, 1, 'trait_auxiliary:is was called on class', :todo<feature>;
+$b = B.new;
+ok($b, 'creating an instance worked');
+is($b.is_cool,    42,  'our class "inherited" an attribute', :todo<feature>);
 
-is(!eval('class Foo { }; %!P = 1; 1'),
-   undef, 'calling a trait outside of a class should be a syntax error');
-
-
-
+is(!eval(' %!P = 1; 1'),
+   undef, 'calling a trait outside of a class should be a syntax error', :todo<bug>);
