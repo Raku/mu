@@ -30,11 +30,11 @@ ok eval('Baz.yada = 42; $test3 = Baz.yada'), 'inherited rw class attribute acces
 is $test3, 42, 'inherited rw class attributes really work', :todo<feature>;
 
 eval_ok 'class Quux is Foo { has $.bar = 17; }; 1',
-    'overriding with instance method allowed', :todo<feature>;
+    'overriding with instance method allowed';
 my $test4 = 0;
 ok eval('$test4 = Quux.new()'),
     'Can instantiate with overridden instance method';
-is $test4.bar, 17, 'Instance call gets instance attribute, not class attribute', :todo<feature>;
+is $test4.bar, 17, 'Instance call gets instance attribute, not class attribute';
 my $test5 = 0;
 ok eval('$test5 = Quux.bar'), 'class attribute still accessible via class name', :todo<feature>;
 is $test5, 23, 'class attribute really works, even when overridden', :todo<feature>;

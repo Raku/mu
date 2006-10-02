@@ -14,17 +14,15 @@ diag('Test for class attribute initializement');
 {
 	class T1 { }
 	class T2 { }
-	eval_ok q|class T1 { has $.t = 1 }; 1|,
-		"Try to initialize public attribute",
-		:todo<unspecced>;
+	eval_ok q|class T1 is also { has $.t = 1 }; 1|,
+		"Try to initialize public attribute";
 
 	eval_ok q|
-		class T2 {
+		class T2 is also {
 		    has $!t = 2;
 		    method get { $!t };
 		}; 1 |,
-		"Try to initialize private attribute",
-		:todo<unspecced>;
+		"Try to initialize private attribute";
 
 
 	my T1 $o1;
@@ -33,11 +31,11 @@ diag('Test for class attribute initializement');
 	$o1 = T1.new();
 	$o2 = T2.new();
 	is $o1.t, 1,
-		"Testing value for initialized public attribute.", :todo<feature>;
+		"Testing value for initialized public attribute.";
 	dies_ok { $o2.t },
 		"Try to access the initialized private attribute.";
 	is try { $o2.get }, 2,
-		"Testing value for initialized private attribue.", :todo<feature>;
+		"Testing value for initialized private attribue.";
 
 	$o1 = T1.new( t => 3 );
 	$o2 = T2.new( t => 4 );
@@ -46,5 +44,5 @@ diag('Test for class attribute initializement');
 	dies_ok { $o2.t },
 		"Try to access the private attribute which is initialized by constructor.";
 	is try { $o2.get }, 4,
-		"Testing value for private attribue which is initialized by constructor.", :todo<feature>;
+		"Testing value for private attribue which is initialized by constructor.";
 }
