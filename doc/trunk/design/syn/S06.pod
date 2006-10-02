@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 25 Sept 2006
+  Last Modified: 2 Oct 2006
   Number: 6
-  Version: 58
+  Version: 59
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -52,7 +52,7 @@ source code string or a parse-tree.
 
 =head1 Routine modifiers
 
-B<Multimethods> (keyword: C<multi>) are routines that can have multiple
+B<Multis> (keyword: C<multi>) are routines that can have multiple
 variants that share the same name, selected by arity, types, or some
 other constraints.
 
@@ -1978,8 +1978,8 @@ while C<.count> considers also optional ones, including C<*$>:
 =head2 The C<leave> function
 
 As mentioned above, a C<return> call causes the innermost
-surrounding subroutine, method, rule, token, regex (as a keyword),
-macro, or multimethod to return.  Only declarations with an explicit
+surrounding subroutine, method, rule, token, regex (as a keyword)
+or macro to return.  Only declarations with an explicit
 keyword such as "sub" may be returned from.  You may not return from
 a quotelike operator such as C<rx//>.
 
@@ -2212,7 +2212,7 @@ module's subroutines/methods/etc. simultaneously:
 
 This special form should generally be restricted to named parameters.
 
-To curry a particular multimethod it may be necessary to specify the type
+To curry a particular multi variant, it may be necessary to specify the type
 for one or more of its parameters:
 
     &woof ::= &bark:(Dog).assuming :pitch<low>;
