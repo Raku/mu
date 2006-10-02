@@ -280,7 +280,7 @@ for 0 .. 255 -> $ascii_val {
     %char_to_entity{~chr($ascii_val)} //= "&#$ascii_val;";
 }
 
-multi sub decode_entities($string is rw) is export
+multi decode_entities(Str $string is rw) is export
 {
     my $result = $string;
     
@@ -293,12 +293,12 @@ multi sub decode_entities($string is rw) is export
     return $result;
 }
 
-multi sub decode_entities(*@strings is rw) is export
+multi decode_entities(Str @strings is rw) is export
 {
     @strings.map: -> $string is copy { decode_entities($string); };
 }
 
-multi sub decode_entities(@strings is rw) is export
+multi decode_entities(Str *@strings is rw) is export
 {
     @strings.map: -> $string is copy { decode_entities($string); };
 }
