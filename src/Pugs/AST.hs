@@ -247,6 +247,10 @@ newPackage cls name classes roles = Stmts metaObj (newType name)
                 [ Val (VStr "name")
                 , Val (VStr name)
                 ]
+            , Syn "named"
+                [ Val (VStr "attrs")
+                , Syn "\\{}" [Noop]
+                ]
             ]
         ]
 

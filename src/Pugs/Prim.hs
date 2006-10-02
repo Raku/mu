@@ -715,15 +715,21 @@ cascadeMethod f meth v args = do
         VUndef -> return Map.empty
         VType{}-> return Map.empty
         _      -> join $ doHash args hash_fetch
-    forM_ pkgs $ \pkg -> do
-        let sym = ('&':pkg) ++ "::" ++ meth
-        maybeM (fmap (findSym $ cast sym) askGlobal) . const $ do
-            enterEvalContext CxtVoid $
-                App (_Var sym) (Just $ Val v)
-                    [ Syn "named" [Val (VStr key), Val val]
-                    | (key, val) <- Map.assocs named
-                    ]
-    return VUndef
+
+    -- Here syms is a list of (sym, tvar) tuples where tvar is the physical coderef
+    -- The monad in the "do" below is List.
+    syms <- forM pkgs $ \pkg -> do
+        let sym = cast $ ('&':pkg) ++ "::" ++ meth
+        maybeM (fmap (findSym sym) askGlobal) $ \ref -> do
+            return (sym, ref)
+
+    forM_ (nubBy (\(_, x) (_, y) -> x == y) (catMaybes syms)) $ \(sym, _) -> do
+        enterEvalContext CxtVoid $
+            App (Var sym) (Just $ Val v)
+                [ Syn "named" [Val (VStr key), Val val]
+                | (key, val) <- Map.assocs named
+                ]
+    return undef
 
 op1Return :: Eval Val -> Eval Val
 op1Return action = do
@@ -1221,7 +1227,7 @@ op3 "HOW::new" = \t n p -> do
         thisPkg  = cast name
 
     liftSTM . modifyTVar glob $ \(MkPad entries) ->
-        MkPad . Map.union entries . Map.fromList $
+        MkPad . Map.unionWith mergePadEntry entries . Map.fromList $
             [ (k{ v_package = thisPkg }, v)
             | (k, v) <- Map.assocs entries
             , v_package k `elem` rolePkgs
@@ -1231,8 +1237,13 @@ op3 "Object::new" = \t n p -> do
     positionals <- fromVal p
     typ     <- fromVal t
     named   <- fromVal n
+
+    meta    <- readRef =<< fromVal =<< evalExp (_Var (':':'*':showType typ))
+    fetch   <- doHash meta hash_fetchVal
+    defs    <- fromVal =<< fetch "attrs"
+
     attrs   <- liftIO $ (C.new :: IO IHash)
-    writeIVar (IHash attrs) named
+    writeIVar (IHash attrs) (named `Map.union` defs)
     uniq    <- newObjectId
     unless (positionals == VList []) (fail "Must only use named arguments to new() constructor\nBe sure to use bareword keys.")
     let obj = VObject $ MkObject

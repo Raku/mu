@@ -529,8 +529,9 @@ ruleMemberDeclaration = do
         _           -> fail $ "Invalid member variable name '" ++ attr ++ "'"
     traits  <- ruleTraitsIsOnly
     optional $ do { symbol "handles"; ruleExpression }
+    def     <- ruleParamDefault False
     env     <- ask
-    -- manufacture an accessor
+    -- manufacture an accessor, and register this slot into metaobject
     let sub = mkPrim
             { isMulti       = False
             , subName       = cast name
@@ -546,7 +547,9 @@ ruleMemberDeclaration = do
              | otherwise     = '&':(pkg ++ "::" ++ (twigil:key))
         fun = Ann (Cxt (cxtOfSigil $ cast sigil)) (Syn "{}" [_Var "&self", Val (VStr key)])
         pkg = cast (envPackage env)
-    unsafeEvalExp (_Sym SGlobal name exp)
+        metaObj = _Var (':':'*':pkg)
+        attrDef = Syn "{}" [Syn "{}" [metaObj, Val (VStr "attrs")], Val (VStr key)]
+    unsafeEvalExp (Stmts (_Sym SGlobal name exp) (Syn "=" [attrDef, def]))
     return emptyExp
 
 {-
