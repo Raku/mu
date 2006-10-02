@@ -18,6 +18,9 @@ use overload (
 );
 sub elems { scalar @{$_[0]} }
 sub WHICH { 'Array' }
+sub isa { 
+    $_[1] eq 'Array' || Universal::isa( @_ ) 
+}
 sub keys  { 
     bless [ 0 .. $#{$_[0]} ], 'Pugs::Runtime::Perl5Container::Array';
 }
@@ -86,6 +89,9 @@ use overload (
 );
 sub elems { scalar keys %{$_[0]} }
 sub WHICH { 'Hash' }
+sub isa { 
+    $_[1] eq 'Hash' || Universal::isa( @_ ) 
+}
 sub keys  { 
     bless [ CORE::keys %{$_[0]} ], 'Pugs::Runtime::Perl5Container::Array';
 }
@@ -130,6 +136,65 @@ sub yaml {
     eval { use YAML::Syck };
     $YAML::Syck::ImplicitTyping = 1;
     Dump( %{$_[0]} );
+}
+    
+package Pugs::Runtime::Perl5Container::Code;
+use strict;
+use warnings;
+
+# my $a = bless sub { 1 }, 'Pugs::Runtime::Perl5Container::Code';
+
+use overload (
+    # '&{}'    => native
+    '@{}'    => \&array,
+    '%{}'    => \&hash,
+    'bool'   => \&elems,
+    '${}'    => \&values,
+    '""'     => \&str,
+    '0+'     => \&elems,
+    fallback => 1,
+);
+sub elems { 
+    # TODO
+    scalar $_[0]->() 
+}
+sub WHICH { 'Code' }
+sub isa { 
+    $_[1] eq 'Code' || Universal::isa( @_ ) 
+}
+sub keys  { 
+    # TODO
+    bless [ CORE::keys %{$_[0]} ], 'Pugs::Runtime::Perl5Container::Array';
+}
+sub values { 
+    # TODO
+    bless [ CORE::values %{$_[0]} ], 'Pugs::Runtime::Perl5Container::Array';
+}
+sub kv {
+    # TODO
+    bless [  %{$_[0]}  ], 'Pugs::Runtime::Perl5Container::Array';
+}
+sub perl {
+    # TODO
+    "sub {...}"
+}
+sub str {
+    # TODO
+    "sub {...}"
+}
+sub array {
+    # TODO
+    bless [  %{$_[0]}  ], 'Pugs::Runtime::Perl5Container::Array';
+}
+sub map {
+    # TODO
+    $_[0]->array->map( $_[1] )
+}
+sub yaml {
+    # TODO
+    eval { use YAML::Syck };
+    $YAML::Syck::ImplicitTyping = 1;
+    Dump( $_[0] );
 }
     
 1;

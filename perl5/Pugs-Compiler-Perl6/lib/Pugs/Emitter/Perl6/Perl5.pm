@@ -440,6 +440,36 @@ sub emit_parenthesis {
     return '(' . ( defined $n ? _emit($n) : '' ) . ')';
 }
 
+sub closure_is_hash {
+    my $n = $_[0];
+    return 0
+        if $n && !$n->{bare_block};
+    #<audreyt> If the closure
+    #<audreyt> appears to delimit nothing but a comma-separated list starting with
+    #<audreyt> a pair (counting a single pair as a list of one element), the closure
+    #<audreyt> will be immediately executed as a hash composer.
+    #<audreyt> also, {} is a hash
+    #warn "block: ",Dumper $n;
+    if ( exists $n->{bare_block}{statements} ) {
+        if ( @{$n->{bare_block}{statements}} == 0 ) {
+            return 1;
+        }
+        if (
+            @{$n->{bare_block}{statements}} == 1        &&
+            exists $n->{bare_block}{statements}[0]{op1} &&
+            (   $n->{bare_block}{statements}[0]{op1} eq ',' 
+            ||  (  ref $n->{bare_block}{statements}[0]{op1} eq 'HASH'
+                && $n->{bare_block}{statements}[0]{op1}{op} eq '=>' 
+                )
+            )
+            # TODO -   && is it a pair?
+        ) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 sub emit_block_nobraces {
     my $n = $_[0];
     $n = { bare_block => $n } 
@@ -1279,35 +1309,47 @@ sub infix {
     if ( $n->{op1}{op} eq '=' ) {
         #print "{'='}: ", Dumper( $n );
                 
-        if ( exists $n->{exp1}{variable_declarator} 
-            && exists $n->{exp1}{exp1}{scalar} ) {
+        if (  exists $n->{exp1}{variable_declarator} 
+              && exists $n->{exp1}{exp1}{scalar} 
+           || exists $n->{exp1}{scalar} 
+           ) {
             #print "set $n->{exp1}{exp1}{scalar}";
             #print "{'='}: set scalar ",Dumper($n->{exp2});
             if ( exists $n->{exp2}{array} ) {
                 return _emit( $n->{exp1} ) . ' = ' . 
-                    "bless \\" . $n->{exp2}{array} . ", 'Pugs::Runtime::Perl5Container::Array' "
-                ;
+                    "bless \\" . $n->{exp2}{array} . ", 'Pugs::Runtime::Perl5Container::Array' ";
             }
             if ( exists $n->{exp2}{hash} ) {
                 return _emit( $n->{exp1} ) . ' = ' . 
-                    "bless \\" . $n->{exp2}{hash} . ", 'Pugs::Runtime::Perl5Container::Hash' "
-                ;
+                    "bless \\" . $n->{exp2}{hash} . ", 'Pugs::Runtime::Perl5Container::Hash' ";
             }
-        }
-        if ( exists $n->{exp1}{scalar} ) {
-            #print "set $n->{exp1}{scalar}";
-            #print "{'='}: set scalar ",Dumper($n->{exp2});
-            if ( exists $n->{exp2}{array} ) {
-                return _var_set( $n->{exp1}{scalar} )->( 
-                    "bless \\" . $n->{exp2}{array} . ", 'Pugs::Runtime::Perl5Container::Array' "
-                );
-            }
-            if ( exists $n->{exp2}{hash} ) {
-                return _var_set( $n->{exp1}{scalar} )->( 
-                    "bless \\" . $n->{exp2}{hash} . ", 'Pugs::Runtime::Perl5Container::Hash' "
-                );
-            }
-            return _var_set( $n->{exp1}{scalar} )->( _var_get( $n->{exp2} ) );
+            if  (  exists $n->{exp2}{'fixity'} 
+                && $n->{exp2}{'fixity'} eq 'circumfix'
+                && $n->{exp2}{'op1'}{'op'} eq '('
+                && exists $n->{exp2}{'exp1'}{'list'} 
+                ) {
+                return _emit( $n->{exp1} ) . ' = ' . 
+                    "bless [" . _emit( $n->{exp2}{exp1} ) . "], 'Pugs::Runtime::Perl5Container::Array' ";
+            }                
+            if  (  exists $n->{exp2}{'fixity'} 
+                && $n->{exp2}{'fixity'} eq 'circumfix'
+                && $n->{exp2}{'op1'}{'op'} eq '['
+                && exists $n->{exp2}{'exp1'}{'list'} 
+                ) {
+                return _emit( $n->{exp1} ) . ' = ' . 
+                    "bless " . _emit( $n->{exp2} ) . ", 'Pugs::Runtime::Perl5Container::Array' ";
+            }                
+            if  (  exists $n->{exp2}{'bare_block'} 
+                ) {
+                if ( closure_is_hash( $n->{exp2} ) ) {
+                    return _emit( $n->{exp1} ) . ' = ' . 
+                        "bless " . _emit( $n->{exp2} ) . ", 'Pugs::Runtime::Perl5Container::Hash' ";
+                }
+                return _emit( $n->{exp1} ) . ' = ' . 
+                    "bless sub " . _emit( $n->{exp2} ) . ", 'Pugs::Runtime::Perl5Container::Code' ";
+            }                
+            return _emit( $n->{exp1} ) . ' = ' . _emit( $n->{exp2} );
+            #return _var_set( $n->{exp1}{scalar} )->( _var_get( $n->{exp2} ) );
         }
         if ( exists $n->{exp1}{hash} ) {
             my $exp2 = $n->{exp2};
