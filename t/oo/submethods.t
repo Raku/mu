@@ -82,7 +82,7 @@ Basic submethod tests. See L<S12/"Submethods">
   ClassA.new;
 
   is $was_in_a1_build, 1, "roles' BUILD submethods were called when mixed in a class (1)";
-  is $was_in_a2_build, 1, "roles' BUILD submethods were called when mixed in a class (2)", :todo<bug>;
+  is $was_in_a2_build, 1, "roles' BUILD submethods were called when mixed in a class (2)";
 }
 
 {
