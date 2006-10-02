@@ -628,8 +628,8 @@ reduceSyn ":=" exps
                         Just tvar   -> return (tvar, ref)
                         _           -> retError "Bind to undeclared variable" var
                 _   -> retError "Bind to undeclared variable" var
-        forM_ bindings $ \(ioRef, ref) -> do
-            liftSTM $ writeTVar ioRef ref
+        forM_ bindings $ \(tvar, ref) -> do
+            liftSTM $ writeTVar tvar ref
         return $ case map (VRef . snd) bindings of
             [v] -> v
             vs  -> VList vs
@@ -803,8 +803,9 @@ reduceSyn "subst" [exp, subst, adverbs] = do
     (VRule rx)  <- reduce (Syn "rx" [exp, adverbs])
     retVal $ VSubst (rx, subst)
 
-reduceSyn "is" _ = do
-    retEmpty
+-- XXX - Runtime mixin
+reduceSyn "is" (lhs:_) = reduce lhs
+reduceSyn "does" (lhs:_) = reduce lhs
 
 reduceSyn "package" [kind, exp] = reduceSyn "namespace" [kind, exp, emptyExp]
 
