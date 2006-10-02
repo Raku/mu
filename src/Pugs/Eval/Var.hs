@@ -288,7 +288,7 @@ findSub _var _invs _args
     -- findSub' :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp]) => Var -> Eval (Maybe VCode)
     findSub' var = do
         subSyms     <- findSyms var
-        lens        <- mapM argSlurpLen (unwrap $ maybeToList _invs ++ _args)
+        lens        <- mapM argSlurpLen _invs_args
         doFindSub (sum lens) subSyms
 
     argSlurpLen :: Exp -> Eval Int
@@ -296,7 +296,8 @@ findSub _var _invs _args
     argSlurpLen (Var name) = do
         val <- enterLValue $ evalExp (Var name)
         valSlurpLen val
-    argSlurpLen (Syn "," list) =  return $ length list
+    argSlurpLen (Syn "," list) = return $ length list
+    argSlurpLen (Syn "named" _) = return 0
     argSlurpLen _ = return 1 -- XXX
 
     valSlurpLen :: Val -> Eval Int
@@ -315,15 +316,20 @@ findSub _var _invs _args
             ((_, sub):_)    -> Just sub
             _               -> Nothing
 
+    _invs_args = map unwrap (maybe _args (:_args) _invs)
+
     -- subs :: (_invs :: Maybe Exp, _args :: [Exp])
     --     => Int -> [(Var, Val)] -> Eval [((Bool, Bool, Int, Int), VCode)]
     subs slurpLen subSyms = fmap catMaybes . forM subSyms $ \(_, val) -> do
         sub@(MkCode{ subReturns = ret, subParams = prms }) <- fromVal val
-        let rv = return $ arityMatch sub (length (maybeToList _invs ++ _args)) slurpLen
+        let (named, positional) = partition isNamedArg _invs_args
+            isNamedArg (Syn "named" _) = True
+            isNamedArg _               = False
+            rv = return $ arityMatch sub (length positional) (length named) slurpLen
         maybeM rv $ \fun -> do
+
             -- if deltaFromCxt ret == 0 then return Nothing else do
-            let pairs = map (typeOfCxt . paramContext) prms
-                            `zip` (map unwrap $ maybeToList _invs ++ _args)
+            let pairs = [ typeOfParam p | p <- prms, not (isSlurpy p) ] `zip` _invs_args
             deltaCxt    <- deltaFromCxt ret
             deltaArgs   <- mapM deltaFromPair pairs
             let bound = either (const False) (const True) $ bindParams sub _invs _args
@@ -419,6 +425,12 @@ findSub _var _invs _args
         where
         var' = var{ v_meta = MNil }
         varInfix = var{ v_meta = MNil, v_categ = C_infix }
+
+typeOfParam :: Param -> Type
+typeOfParam p = case v_sigil (paramName p) of
+    SScalar -> typeOfCxt (paramContext p)
+    s       -> typeOfSigil s
+
 
 metaVar :: Pkg -> Var
 -- metaVar = MkVar SType TNil globalPkg CNil . cast
@@ -641,29 +653,32 @@ findSyms var
     padSym :: Pad -> Var -> MaybeT Eval [(Var, Val)]
     padSym pad var = do
         case lookupPad var pad of
-            Just tvar -> lift $ do
-                refs <- liftSTM $ mapM readTVar tvar
+            Just tvars -> lift $ do
+                refs <- liftSTM $ mapM readTVar tvars
                 forM refs $ \ref -> do
                     val <- readRef ref
                     return (var, val)
             Nothing -> mzero
         
-arityMatch :: VCode -> Int -> Int -> Maybe VCode
-arityMatch sub@MkCode{ subAssoc = assoc, subParams = prms } argLen argSlurpLen
+arityMatch :: VCode -> Int -> Int -> Int -> Maybe VCode
+arityMatch sub@MkCode{ subAssoc = assoc, subParams = prms } posLen namLen argSlurpLen
     | A_list <- assoc = Just sub
     | A_chain <- assoc = Just sub
     | isNothing $ find (not . isSlurpy) prms -- XXX - what about empty ones?
     , slurpLen <- length $ filter (\p -> isSlurpy p && v_sigil (paramName p) == SScalar) prms
-    , hasArray <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) /= SScalar) prms
+    , hasArray <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) == SArray) prms
     , if hasArray then slurpLen <= argSlurpLen else slurpLen == argSlurpLen
     = Just sub
     | reqLen <- length $ filter (\p -> not (isOptional p || isSlurpy p)) prms
     , optLen <- length $ filter (\p -> isOptional p) prms
-    , hasArray <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) /= SScalar) prms
-    , argLen >= reqLen && (hasArray || argLen <= (reqLen + optLen))
+    , hasArray <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) == SArray) prms
+    , hasHash  <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) == SHash) prms
+    , argLen >= reqLen && (hasArray || (if hasHash then posLen else argLen) <= (reqLen + optLen))
     = Just sub
     | otherwise
     = Nothing
+    where
+    argLen = posLen + namLen
 
 toPackage :: Pkg -> Var -> Var
 toPackage pkg var
