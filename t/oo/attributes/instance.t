@@ -10,9 +10,8 @@ Class attributes tests from L<S12/"Attributes">
 
 =cut
 
-dies_ok {
-    has $.x;
-}, "has only works inside of class|role definitions", :todo<feature>;
+eval 'has $.x;';
+ok $!, "'has' only works inside of class|role definitions";
 
 # L<S12/"Attributes" /the automatic generation of an accessor method of the same name\./>
 
@@ -188,7 +187,7 @@ class Foo6b {
 
 # L<A12/"Default Values">
 eval_ok 'class Foo7 { has $.attr = 42 }', "class definition worked", :todo<feature>;
-eval_is 'Foo7.new.attr', 42,              "default attribute value (1)", :todo<feature>;
+eval_is 'Foo7.new.attr', 42,              "default attribute value (1)";
 
 # L<A12/"Default Values" /is equivalent to this:/>
 eval_ok 'class Foo8 { has $.attr is build(42) }',
