@@ -208,6 +208,9 @@ op1 "sort" = \v -> do
 op1 "Scalar::reverse" = \v -> do
     str     <- fromVal v
     return (VStr $ reverse str)
+op1 "List::reverse" = \v -> do
+    vlist <- fromVal v
+    return (VList $ reverse vlist)
 op1 "reverse" = \v -> do
     vlist <- fromVal v
     return (VList $ reverse vlist)
@@ -1747,6 +1750,7 @@ initSyms = mapM primDecl syms
 \\n   List      pre     pair    safe   (List)\
 \\n   Scalar    pre     item    safe   (Scalar)\
 \\n   Str       pre     Scalar::reverse safe   (Scalar)\
+\\n   Any       pre     List::reverse safe   (Array)\
 \\n   Any       pre     reverse safe   (List)\
 \\n   List      pre     eager   safe   (List)\
 \\n   Int       spre    +^      safe   (Int)\
