@@ -21,4 +21,5 @@ eval '
   $line = =$fh;
 ';
 
-is($line, "use v6-alpha;", "first line was chomped");
+is($line, "use v6-alpha;", "first line was chomped", :todo<feature>,
+    :depends<'is chomped'>);
