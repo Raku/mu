@@ -89,7 +89,7 @@ is($quux.key, 'quux', "lhs quotes" );
     is ~(%$pair), "when\tnow";
     # hold back this one according to audreyt
     #ok $pair.does(Hash), 'Pair does Hash';
-    ok (%$pair).does(Hash), '%() makes Pair to does Hash';
+    ok (%$pair).does(Hash), '%() makes Pair to does Hash', :todo<bug>;
 }
 
 # lvalue Pair assignments from S06 and thread starting with
