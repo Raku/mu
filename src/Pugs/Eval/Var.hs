@@ -665,7 +665,7 @@ arityMatch sub@MkCode{ subAssoc = assoc, subParams = prms } posLen namLen argSlu
     , if hasArray then slurpLen <= argSlurpLen else slurpLen == argSlurpLen
     = Just sub
 
-    | reqLen    <- length $ filter (\p -> not (isOptional p) || isSlurpy p && v_sigil (paramName p) == SScalar) prms
+    | reqLen    <- length $ filter (\p -> not (isOptional p || (isSlurpy p && v_sigil (paramName p) /= SScalar))) prms
     , optLen    <- length $ filter (\p -> isOptional p) prms
     , hasArray  <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) == SArray) prms
     , hasHash   <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) == SHash) prms
