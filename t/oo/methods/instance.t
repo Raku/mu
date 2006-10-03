@@ -81,11 +81,11 @@ is($foo.noargs(), 42, "... parentheses after method");
 {
     # This test could use peer review to make sure it complies with the spec.
     class Zoo {
-        method a { my %s; %s.b }
-        method c { my %s; b(%s) }
-        method b { 1 }
+        method a () { my %s; %s.b }
+        method c () { my %s; b(%s) }
+        method b () { 1 }
     }
-    dies_ok( { Zoo.new.a }, "can't call current object methods on lexical data structures");
-    dies_ok( { Zoo.new.c }, "meth(%h) is not a valid method call syntax");
+    dies_ok( { Zoo.new.a }, "can't call current object methods on lexical data structures", :todo<bug>);
+    dies_ok( { Zoo.new.c }, "meth(%h) is not a valid method call syntax", :todo<bug>);
 }
 

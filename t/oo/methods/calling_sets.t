@@ -14,10 +14,10 @@ class Parent {
     has Int $.cnt is rw;
     does plugin_1;
     does plugin_2;
-    method meth {$.cnt++}
+    method meth {++$.cnt}
 }
 class Child is Parent {
-    method meth {$.cnt++}
+    method meth {++$.cnt}
     method child_only {'child_only'}
 }
 
@@ -26,7 +26,7 @@ role plugin_2 { multi method init_hook { $.cnt += 3 } }
 
 
 {
-    my $test = q"$object.?meth calls method is there one";
+    my $test = q"$object.?meth calls method if there is one";
     my $object = Child.new;
     my $result = 1; # default to one to see if value changes to undef
     try { $result = $object.?nope };
@@ -43,7 +43,7 @@ role plugin_2 { multi method init_hook { $.cnt += 3 } }
     is($result,undef, q"$test: Case 0 returns undef");
 
     try { $result = $object.*child_only };
-    is($result, 'child_only', "$test: Case 1 fines one result"); 
+    is($result, 'child_only', "$test: Case 1 finds one result"); 
 
     try { $result = $object.*meth };
     is($object.cnt, 2, "$test: Case 2 visits both Child and Parent");
@@ -68,7 +68,7 @@ role plugin_2 { multi method init_hook { $.cnt += 3 } }
     my $got = 0;
     my $meth = 'init_hook';
     try { $got = $object.*$meth };
-    is($got, 5, $test);
+    is($got, 5, $test, :todo<feature>);
 }
 
 {
