@@ -9,6 +9,19 @@ The compile-time system builds a Program object.
 
 Program.print emits the compiled code.
 
+Methods
+
+."" (overloaded stringification) - outputs source code
+.box - creates a boxed object. Example: int.embox -> Int
+.WHAT - returns the class as a Class (which stringifies to the class name)
+
+Coercions
+
+.str .num .int
+.array .hash .scalar
+
+--------------
+
 Seq
 List
 
