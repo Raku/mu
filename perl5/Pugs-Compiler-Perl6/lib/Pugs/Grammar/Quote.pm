@@ -50,9 +50,7 @@ sub angle_quoted {
             exp1 => $/{q1}(), 
             exp2 => $/{q2}(),
             'fixity' => 'infix',
-            'op1' => {
-                'op' => '~',
-            }
+            'op1' => '~',
         } } 
     |   { return $/{q1}() } 
     ]
@@ -77,9 +75,7 @@ sub angle_quoted {
             exp1 => $/{q1}(), 
             exp2 => $/{q2}(),
             'fixity' => 'infix',
-            'op1' => {
-                'op' => '~',
-            }
+            'op1' => '~',
         } } 
     |   { return $/{q1}() } 
     ]

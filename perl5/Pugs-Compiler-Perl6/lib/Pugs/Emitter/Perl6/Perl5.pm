@@ -261,8 +261,7 @@ sub _emit {
 
 sub reduce {
     my $n = $_[0];
-    # print "list emit_rule: ", Dumper( $n );
-
+    #print "reduce emit_rule: ", Dumper( $n );
     return 
         "( List::Util::reduce { \$a " .
         $n->{op}{op} . " \$b } " . _emit( $n->{param} ) .
@@ -390,7 +389,7 @@ sub _emit_parameter_capture {
         if (my $pair = $_->{pair}) {
             push @named, $pair->{key}{single_quoted}.' => \\'.emit_parenthesis($pair->{value});
         }
-        elsif ($_->{fixity} && $_->{fixity} eq 'infix' && $_->{op1}{op} eq '=>') {
+        elsif ($_->{fixity} && $_->{fixity} eq 'infix' && $_->{op1} eq '=>') {
             push @named, autoquote($_->{exp1}).' => \\'.emit_parenthesis($_->{exp2});
         }
         else {
@@ -435,8 +434,8 @@ sub emit_parenthesis {
         if  ref( $n ) 
             && exists $n->{'fixity'}
             && $n->{'fixity'} eq 'circumfix'
-            && $n->{'op1'}{'op'} eq '('
-            && $n->{'op2'}{'op'} eq ')';
+            && $n->{'op1'} eq '('
+            && $n->{'op2'} eq ')';
     return '(' . ( defined $n ? _emit($n) : '' ) . ')';
 }
 
@@ -459,7 +458,7 @@ sub closure_is_hash {
             exists $n->{bare_block}{statements}[0]{op1} &&
             (   $n->{bare_block}{statements}[0]{op1} eq ',' 
             ||  (  ref $n->{bare_block}{statements}[0]{op1} eq 'HASH'
-                && $n->{bare_block}{statements}[0]{op1}{op} eq '=>' 
+                && $n->{bare_block}{statements}[0]{op1} eq '=>' 
                 )
             )
             # TODO -   && is it a pair?
@@ -490,7 +489,7 @@ sub emit_block_nobraces {
             exists $n->{bare_block}{statements}[0]{op1} &&
             (   $n->{bare_block}{statements}[0]{op1} eq ',' 
             ||  (  ref $n->{bare_block}{statements}[0]{op1} eq 'HASH'
-                && $n->{bare_block}{statements}[0]{op1}{op} eq '=>' 
+                && $n->{bare_block}{statements}[0]{op1} eq '=>' 
                 )
             )
             # TODO -   && is it a pair?
@@ -1213,13 +1212,13 @@ sub infix {
     my $n = $_[0];
     #print "infix: ", Dumper( $n );
 
-    if ( $n->{op1}{op} eq 'xx' ) {
+    if ( $n->{op1} eq 'xx' ) {
         return 
             'do { my @_V6_TMP1 = ' . _emit( $n->{exp1} ) . '; ' . 
             ' my @_V6_TMP2; push @_V6_TMP2, @_V6_TMP1 for 1..' . 
             _emit( $n->{exp2} ) . '; @_V6_TMP2 } ';
     }
-    if ( $n->{op1}{op} eq 'xx=' ) {
+    if ( $n->{op1} eq 'xx=' ) {
         return 
             '(' .
             _emit( $n->{exp1} ) . ' = ' .
@@ -1228,18 +1227,18 @@ sub infix {
             _emit( $n->{exp2} ) . '; @_V6_TMP2 } ' .
             ')';
     }
-    if ( $n->{op1}{op} eq '~' ) {
+    if ( $n->{op1} eq '~' ) {
         return _emit( $n->{exp1} ) . ' . ' . _emit( $n->{exp2} );
     }
-    if ( $n->{op1}{op} eq '=>' ) {
+    if ( $n->{op1} eq '=>' ) {
         #print "autoquote: ", Dumper( $n->{exp1} );
         return autoquote( $n->{exp1} ) . ' => ' . _emit( $n->{exp2} );
     }
-    if ( $n->{op1}{op} eq '~=' ) {
+    if ( $n->{op1} eq '~=' ) {
         return _emit( $n->{exp1} ) . ' .= ' . _emit( $n->{exp2} );
     }
-    if ( $n->{op1}{op} eq '//'  ||
-         $n->{op1}{op} eq 'err' ) {
+    if ( $n->{op1} eq '//'  ||
+         $n->{op1} eq 'err' ) {
 
         # ( !defined ($::TMP=( my $x = $v )) ? $y : $::TMP )
         my $id1 = $id++;
@@ -1248,34 +1247,34 @@ sub infix {
             ' ? ( ' . _emit( $n->{exp2} ) . ' ) ' . 
             ' : $_V6_PAD{'.$id1.'} ) ';
     }
-    if ( $n->{op1}{op} eq 'does' ) {
+    if ( $n->{op1} eq 'does' ) {
         # XXX - fix this when Moose implements '$object does'
         #print Dumper( $n->{exp2} );
         return "'" . $n->{exp2}{sub}{bareword} . "'" .
              '->new( ' . _emit( $n->{exp1} ) . ' )'
     }
 
-    if ( $n->{op1}{op} eq '=:=' ) {
+    if ( $n->{op1} eq '=:=' ) {
         # XXX: Data::Bind needs to provide an API.  we are now
         # actually with different address using the magic proxying in D::B.
         return 'Scalar::Util::refaddr(\\'._emit($n->{exp1}).
           ') == Scalar::Util::refaddr(\\'._emit($n->{exp2}).')';
     }
 
-    if ( $n->{op1}{op} eq ':=' ) {
+    if ( $n->{op1} eq ':=' ) {
         #warn "bind: ", Dumper( $n );
         # The hassle here is that we can't use \(@x) or \(my @x)
         my $_emit_value = sub { exists $_[0]->{array} ||
                                 (exists $_[0]->{fixity} && $_[0]->{fixity} eq 'prefix' &&
-                                 exists $_[0]->{op1}{op} &&
-                                 $_[0]->{op1}{op} eq 'my' && exists $_[0]->{exp1}{array})
+                                 exists $_[0]->{op1} &&
+                                 $_[0]->{op1} eq 'my' && exists $_[0]->{exp1}{array})
                                 ? '\\' . _emit($_[0]) 
                                 : '\\'.  emit_parenthesis($_[0]) 
                             };
         return " Data::Bind::bind_op2( " . $_emit_value->( $n->{exp1} ) . ','
             . 'scalar '.$_emit_value->( $n->{exp2} ). ' )';
     }
-    if ( $n->{op1}{op} eq '~~' ) {
+    if ( $n->{op1} eq '~~' ) {
         if ( my $subs = $n->{exp2}{substitution} ) {
             # XXX: use Pugs::Compiler::RegexPerl5
             # XXX: escape
@@ -1306,7 +1305,7 @@ sub infix {
             ')';
     }
 
-    if ( $n->{op1}{op} eq '=' ) {
+    if ( $n->{op1} eq '=' ) {
         #print "{'='}: ", Dumper( $n );
                 
         if (  exists $n->{exp1}{variable_declarator} 
@@ -1325,7 +1324,7 @@ sub infix {
             }
             if  (  exists $n->{exp2}{'fixity'} 
                 && $n->{exp2}{'fixity'} eq 'circumfix'
-                && $n->{exp2}{'op1'}{'op'} eq '('
+                && $n->{exp2}{'op1'} eq '('
                 && exists $n->{exp2}{'exp1'}{'list'} 
                 ) {
                 return _emit( $n->{exp1} ) . ' = ' . 
@@ -1333,7 +1332,7 @@ sub infix {
             }                
             if  (  exists $n->{exp2}{'fixity'} 
                 && $n->{exp2}{'fixity'} eq 'circumfix'
-                && $n->{exp2}{'op1'}{'op'} eq '['
+                && $n->{exp2}{'op1'} eq '['
                 && exists $n->{exp2}{'exp1'}{'list'} 
                 ) {
                 return _emit( $n->{exp1} ) . ' = ' . 
@@ -1356,7 +1355,7 @@ sub infix {
             $exp2 = $exp2->{exp1}
                 if     exists $exp2->{'fixity'} 
                     && $exp2->{'fixity'} eq 'circumfix'
-                    && $exp2->{'op1'}{'op'} eq '(';
+                    && $exp2->{'op1'} eq '(';
             #print "{'='}: set hash ",Dumper($exp2);
             # Note - the AST is changed in-place here
             if ( exists $exp2->{'list'} ) {
@@ -1375,7 +1374,7 @@ sub infix {
                 " = " . emit_parenthesis( $exp2 );
         }
         if ( exists $n->{exp1}{op1}  && ref $n->{exp1}{op1} &&
-             $n->{exp1}{op1}{op} eq 'has' ) {
+             $n->{exp1}{op1} eq 'has' ) {
             #print "{'='}: ", Dumper( $n );
             # XXX - changes the AST
             push @{ $n->{exp1}{attribute} },
@@ -1389,7 +1388,7 @@ sub infix {
             " = " . _var_get( $n->{exp2} );
     }
 
-    if ( $n->{op1}{op} eq '+=' ) {
+    if ( $n->{op1} eq '+=' ) {
         #print "{'='}: ", Dumper( $n );
         if ( exists $n->{exp1}{scalar} ) {
             #warn "set $n->{exp1}{scalar}";
@@ -1411,24 +1410,24 @@ sub infix {
     if ( exists $n->{exp2}{bare_block} ) {
         # $a = { 42 } 
         return " " . _emit( $n->{exp1} ) . ' ' . 
-            $n->{op1}{op} . ' ' . "sub " . _emit( $n->{exp2} );
+            $n->{op1} . ' ' . "sub " . _emit( $n->{exp2} );
     }
 
     return '(' . _emit( $n->{exp1} ) . ' ' . 
-        $n->{op1}{op} . ' ' . _emit( $n->{exp2} ) . ')';
+        $n->{op1} . ' ' . _emit( $n->{exp2} ) . ')';
 }
 
 sub circumfix {
     my $n = $_[0];
     #print "circumfix: ", Dumper( $n );
     
-    if ( $n->{op1}{op} eq '(' &&
-         $n->{op2}{op} eq ')' ) {
+    if ( $n->{op1} eq '(' &&
+         $n->{op2} eq ')' ) {
         return emit_parenthesis( $n->{exp1} );
     }
     
-    if ( $n->{op1}{op} eq '[' &&
-         $n->{op2}{op} eq ']' ) {
+    if ( $n->{op1} eq '[' &&
+         $n->{op2} eq ']' ) {
         return '[]'
             unless defined  $n->{exp1};
         return '[' . _emit( $n->{exp1} ) . ']';
@@ -1441,8 +1440,8 @@ sub postcircumfix {
     my $n = $_[0];
     #warn "postcircumfix: ", Dumper( $n );
     
-    if ( $n->{op1}{op} eq '(' &&
-         $n->{op2}{op} eq ')' ) {
+    if ( $n->{op1} eq '(' &&
+         $n->{op2} eq ')' ) {
         # warn "postcircumfix:<( )> ", Dumper( $n );
         # $.scalar(@param)
         return " " . _emit( $n->{exp1} ) . 
@@ -1451,8 +1450,8 @@ sub postcircumfix {
                $n->{exp1}{scalar} =~ /^\$\./;
     }
             
-    if ( $n->{op1}{op} eq '[' &&
-         $n->{op2}{op} eq ']' ) {
+    if ( $n->{op1} eq '[' &&
+         $n->{op2} eq ']' ) {
 
         if ( ! exists $n->{exp2} ) {
             # $array[]
@@ -1462,7 +1461,7 @@ sub postcircumfix {
                 
         if  (  exists $n->{exp1}{array}           #  @array
             ||     exists $n->{exp1}{op1}         #  (1,2,3)
-                && $n->{exp1}{op1}{op} eq '('
+                && $n->{exp1}{op1} eq '('
                 && exists $n->{exp1}{exp1}{op1}
                 && $n->{exp1}{exp1}{op1} eq ','
             ) {
@@ -1477,8 +1476,8 @@ sub postcircumfix {
         #return _emit( $n->{exp1} ) . '->[' . _emit( $n->{exp2} ) . ']';
     }
     
-    if ( $n->{op1}{op} eq '<' &&
-         $n->{op2}{op} eq '>' ) {
+    if ( $n->{op1} eq '<' &&
+         $n->{op2} eq '>' ) {
         my $name = _emit( $n->{exp1} );
         #$name =~ s/^\%/\$/;
 
@@ -1493,8 +1492,8 @@ sub postcircumfix {
         return $name . '{ ' . _emit_angle_quoted( $n->{exp2}{angle_quoted} ) . ' }';
     }
 
-    if ( $n->{op1}{op} eq '{' &&
-         $n->{op2}{op} eq '}' ) {
+    if ( $n->{op1} eq '{' &&
+         $n->{op2} eq '}' ) {
         my $name = _emit( $n->{exp1} );
 
         # $/{'x'}
@@ -1531,8 +1530,8 @@ sub prefix {
 
     #-- coercions
 
-    if (  $n->{op1}{op} eq 'str' 
-       || $n->{op1}{op} eq '~' 
+    if (  $n->{op1} eq 'str' 
+       || $n->{op1} eq '~' 
        ) {
         #print Dumper( $n );
         return ' Pugs::Runtime::Perl6::Hash::str( \\' . _emit( $n->{exp1} ) . ' ) '
@@ -1540,57 +1539,57 @@ sub prefix {
         return ' "' . _emit( $n->{exp1} ) . '"' 
             if      exists $n->{exp1}{array}
                 ||  exists $n->{exp1}{op1}
-                    && $n->{exp1}{op1}{op} eq '[';
+                    && $n->{exp1}{op1} eq '[';
         return ' "" . ' . _emit( $n->{exp1} );
     }
 
-    if (  $n->{op1}{op} eq 'num' 
-       || $n->{op1}{op} eq '+' 
+    if (  $n->{op1} eq 'num' 
+       || $n->{op1} eq '+' 
        ) {
         return '(0+('._emit($n->{exp1}).'))';
     }
 
-    if (  $n->{op1}{op} eq 'int' ) {
+    if (  $n->{op1} eq 'int' ) {
         return 'int('._emit($n->{exp1}).')';
     }
 
-    if (  $n->{op1}{op} eq 'true' 
-       || $n->{op1}{op} eq '?' 
+    if (  $n->{op1} eq 'true' 
+       || $n->{op1} eq '?' 
        ) {
         return '('._emit($n->{exp1}).' ? 1 : 0 )';
     }
 
-    if (  $n->{op1}{op} eq 'not' 
-       || $n->{op1}{op} eq '!' 
+    if (  $n->{op1} eq 'not' 
+       || $n->{op1} eq '!' 
        ) {
         return _emit( $n->{exp1} ) . ' ? 0 : 1 ';
     }
     
-    if (  $n->{op1}{op} eq 'scalar' 
-       || $n->{op1}{op} eq '$' 
+    if (  $n->{op1} eq 'scalar' 
+       || $n->{op1} eq '$' 
        ) {
         return '${' . _emit( $n->{exp1} ) . '}';
     }
     
-    if (  $n->{op1}{op} eq 'hash' 
-       || $n->{op1}{op} eq '%' 
+    if (  $n->{op1} eq 'hash' 
+       || $n->{op1} eq '%' 
        ) {
         return '(bless \%{' . _emit( $n->{exp1} ) . "}, 'Pugs::Runtime::Perl5Container::Hash')";
     }
     
-    if (  $n->{op1}{op} eq 'array' 
-       || $n->{op1}{op} eq '@' 
+    if (  $n->{op1} eq 'array' 
+       || $n->{op1} eq '@' 
        ) {
         return '(bless \@{' . _emit( $n->{exp1} ) . "}, 'Pugs::Runtime::Perl5Container::Array')";
     }
     
     #-- /coercions
     
-    if ( $n->{op1}{op} eq 'do' ) {
-        return $n->{op1}{op} . ' ' . _emit( $n->{exp1} );
+    if ( $n->{op1} eq 'do' ) {
+        return $n->{op1} . ' ' . _emit( $n->{exp1} );
     }
 
-    if ( $n->{op1}{op} eq 'try' ) {
+    if ( $n->{op1} eq 'try' ) {
         #warn "try: ", Dumper( $n );
         #if ( exists $n->{trait} ) {
         #    # CATCH/CONTROL
@@ -1615,14 +1614,14 @@ sub prefix {
                 wantarray ? @result : $result[0];' . 
             "\n}->()";
     }
-    if ( $n->{op1}{op} eq '++' ||
-         $n->{op1}{op} eq '--' ||
-         $n->{op1}{op} eq '+'  ||
-         $n->{op1}{op} eq '-'  ) {
-        return $n->{op1}{op} . _emit( $n->{exp1} );
+    if ( $n->{op1} eq '++' ||
+         $n->{op1} eq '--' ||
+         $n->{op1} eq '+'  ||
+         $n->{op1} eq '-'  ) {
+        return $n->{op1} . _emit( $n->{exp1} );
     }
 
-    if ($n->{op1}{op} eq '=') { # iterate
+    if ($n->{op1} eq '=') { # iterate
         return _emit($n->{exp1}).'->getline';
     }
     
@@ -1633,9 +1632,9 @@ sub postfix {
     my $n = $_[0];
     # print "postfix: ", Dumper( $n );
 
-    if ( $n->{op1}{op} eq '++' ||
-         $n->{op1}{op} eq '--' ) {
-        return _emit( $n->{exp1} ) . $n->{op1}{op};
+    if ( $n->{op1} eq '++' ||
+         $n->{op1} eq '--' ) {
+        return _emit( $n->{exp1} ) . $n->{op1};
     }
 
     return _not_implemented( $n, "postfix" );
@@ -1645,8 +1644,8 @@ sub ternary {
     my $n = $_[0];
     # print "ternary: ", Dumper( $n );
 
-    if ( $n->{op1}{op} eq '??' ||
-         $n->{op2}{op} eq '!!' ) {
+    if ( $n->{op1} eq '??' ||
+         $n->{op2} eq '!!' ) {
         return _emit( $n->{exp1} ) . 
             ' ? ' . _emit( $n->{exp2} ) .
             ' : ' . _emit( $n->{exp3} ) ;

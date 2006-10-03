@@ -129,8 +129,8 @@ sub rx_body {
                 <?ws>? <Pugs::Grammar::Expression.parse('allow_semicolon', 1)> <?ws>? 
                 <')'>
                 { return {
-                    op1 => { op => "(" },
-                    op2 => { op => ")" },
+                    op1 => "(",
+                    op2 => ")",
                     fixity => "circumfix",
                     exp1 => $_[0]{'Pugs::Grammar::Expression.parse'}->() 
                 } }
@@ -138,8 +138,8 @@ sub rx_body {
                 <?ws>? <Pugs::Grammar::Perl6.block> <?ws>? 
                 <')'>
                 { return {
-                    op1 => { op => "(" },
-                    op2 => { op => ")" },
+                    op1 => "(",
+                    op2 => ")",
                     fixity => "circumfix",
                     exp1 => $_[0]{'Pugs::Grammar::Perl6.block'}->() 
                 } }
@@ -147,8 +147,8 @@ sub rx_body {
                 <?ws>? 
                 <')'>
                 { return {
-                    op1 => { op => "(" },
-                    op2 => { op => ")" },
+                    op1 => "(",
+                    op2 => ")",
                     fixity => "circumfix",
                 } }
 ^ )->code;
@@ -164,8 +164,8 @@ sub rx_body {
                 <?ws>? <Pugs::Grammar::Expression.parse> <?ws>? 
                 <']'>
                 { return {
-                    op1 => { op => "[" },
-                    op2 => { op => "]" },
+                    op1 => "[",
+                    op2 => "]",
                     fixity => "circumfix",
                     exp1 => $_[0]{'Pugs::Grammar::Expression.parse'}->() 
                 } }
@@ -173,8 +173,8 @@ sub rx_body {
                 <?ws>? <Pugs::Grammar::Perl6.block> <?ws>? 
                 <']'>
                 { return {
-                    op1 => { op => "[" },
-                    op2 => { op => "]" },
+                    op1 => "[",
+                    op2 => "]",
                     fixity => "circumfix",
                     exp1 => $_[0]{'Pugs::Grammar::Perl6.block'}->() 
                 } }
@@ -182,8 +182,8 @@ sub rx_body {
                 <?ws>? 
                 <']'>
                 { return {
-                    op1 => { op => "[" },
-                    op2 => { op => "]" },
+                    op1 => "[",
+                    op2 => "]",
                     fixity => "circumfix",
                 } }
 ) )->code;
@@ -205,12 +205,8 @@ sub recompile {
                                 'int' => $/[0]()
                               },
                               'fixity' => 'postcircumfix',
-                              'op1' => {
-                                'op' => '['
-                              },
-                              'op2' => {
-                                'op' => ']'
-                              },                    
+                              'op1' => '[',
+                              'op2' => ']',                    
                         },   
                   } 
             ),
@@ -226,16 +222,14 @@ sub recompile {
             ),
         '$()' => q(
                 { return 
-    {
-      'exp1' => {
-        'pos' => 2,
-        'scalar' => '$/'
-      },
-      'fixity' => 'prefix',
-      'op1' => {
-        'op' => '$',
-      }
-    }
+                    {
+                      'exp1' => {
+                        'pos' => 2,
+                        'scalar' => '$/'
+                      },
+                      'fixity' => 'prefix',
+                      'op1' => '$',
+                    }
                 }
             ),
         '@' => q(
@@ -248,16 +242,14 @@ sub recompile {
             ),
         '@()' => q(
                 { return 
-    {
-      'exp1' => {
-        'pos' => 2,
-        'scalar' => '$/'
-      },
-      'fixity' => 'prefix',
-      'op1' => {
-        'op' => '@',
-      }
-    }
+                    {
+                      'exp1' => {
+                        'pos' => 2,
+                        'scalar' => '$/'
+                      },
+                      'fixity' => 'prefix',
+                      'op1' => '@',
+                    }
                 }
             ),
         '%' => q(
@@ -266,16 +258,14 @@ sub recompile {
             ),
         '%()' => q(
                 { return 
-    {
-      'exp1' => {
-        'pos' => 2,
-        'scalar' => '$/'
-      },
-      'fixity' => 'prefix',
-      'op1' => {
-        'op' => '%',
-      }
-    }
+                    {
+                      'exp1' => {
+                        'pos' => 2,
+                        'scalar' => '$/'
+                      },
+                      'fixity' => 'prefix',
+                      'op1' => '%',
+                    }
                 }
             ),
         '&' => q(
@@ -502,12 +492,8 @@ sub recompile {
                                 'angle_quoted' => $/[0]()
                               },
                               'fixity' => 'postcircumfix',
-                              'op1' => {
-                                'op' => '<'
-                              },
-                              'op2' => {
-                                'op' => '>'
-                              },                    
+                              'op1' => '<',
+                              'op2' => '>',                    
                         },                        
                 } } }
             |
@@ -517,26 +503,20 @@ sub recompile {
                     pair => { 
                         key   => { single_quoted => $/[0]() }, 
                         value =>     
-      {
-      'exp1' => {
-        'exp1' => {
-          'scalar' => '$/'
-        },
-        'exp2' => {
-          'angle_quoted' => $/[0]()
-        },
-        'fixity' => 'postcircumfix',
-        'op1' => {
-          'op' => '<'
-        },
-        'op2' => {
-          'op' => '>'
-        },
-      },
-      'fixity' => 'prefix',
-      'op1' => {
-        'op' => '$',
-      }
+                          {
+                          'exp1' => {
+                            'exp1' => {
+                              'scalar' => '$/'
+                            },
+                            'exp2' => {
+                              'angle_quoted' => $/[0]()
+                            },
+                            'fixity' => 'postcircumfix',
+                            'op1' => '<',
+                            'op2' => '>',
+                          },
+                          'fixity' => 'prefix',
+                          'op1' => '$',
                         },                        
                 } } }
             |

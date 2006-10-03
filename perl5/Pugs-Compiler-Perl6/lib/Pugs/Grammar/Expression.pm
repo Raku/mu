@@ -276,8 +276,8 @@ sub lexer {
                 else {
                     $paren->data->{capture} = \{ 
                         fixity => 'postcircumfix', 
-                        op1 => { op => "[" }, 
-                        op2 => { op => "]" }, 
+                        op1 => "[", 
+                        op2 => "]", 
                         exp1 => $m2->(), 
                         exp2 => $paren->()->{exp1}, 
                     };
@@ -309,8 +309,8 @@ sub lexer {
                 else {
                     $paren->data->{capture} = \{ 
                         fixity => 'postcircumfix', 
-                        op1 => { op => "{" }, 
-                        op2 => { op => "}" }, 
+                        op1 => "{", 
+                        op2 => "}", 
                         exp1 => $m2->(), 
                         exp2 => $paren->()->{'bare_block'}, 
                     };
@@ -344,8 +344,8 @@ sub lexer {
                 else {
                     $paren->data->{capture} = \{ 
                         fixity => 'postcircumfix', 
-                        op1 => { op => "<" }, 
-                        op2 => { op => ">" }, 
+                        op1 => "<", 
+                        op2 => ">", 
                         exp1 => $m2->(), 
                         exp2 => $paren->(), 
                     };
@@ -392,7 +392,7 @@ sub lexer {
                 $t = [ 'REDUCE' => $ast ]
             }
             else {
-                $t = [ $ast->{op} => $ast ];
+                $t = [ $ast->{op} => $ast->{op} ];
             }
         }
         elsif ( exists $ast->{bareword} ) {
@@ -404,7 +404,7 @@ sub lexer {
         else {
             $t = [ 'NUM' => $ast ]
         }
-        #warn "Term: ",Dumper($t), "MATCH $match\n";
+        #print "Term: ",Dumper($t), "MATCH $match\n";
         $t=['',''] unless $ast;  #$match; # defined($t);
 
         #print "expect NUM \n" if grep { $_ eq 'NUM' } @expect;
