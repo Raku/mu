@@ -16,7 +16,7 @@ import Pugs.Embed.Perl5
 nameToCode :: String -> Maybe Int
 nameToCode name = inlinePerformIO $ do
     envSV   <- mkVal ()
-    sv      <- evalPerl5 ("require charnames; charnames::vianame(qq["++name++"])") envSV 1
+    sv      <- evalPerl5 ("use utf8; use charnames ':full'; ord(qq[\\N{"++name++"}])") envSV 1
     svToVInt sv >>= \iv -> case iv of
         0 -> svToVStr sv >>= \pv -> case pv of
             "0" -> return (Just 0)
