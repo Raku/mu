@@ -66,7 +66,7 @@ dies_ok { foo 1, n => 20, y => 300 },
 my sub foo ($n, *%h) { };
 ## NOTE: *NOT* sub foo ($n, *%h, *@a)
 dies_ok { foo 1, x => 20, y => 300, 4000 },
-  'Testing: `sub foo($n, *%h) { }; foo 1, x => 20, y => 300, 4000`', :todo<bug>;
+  'Testing: `sub foo($n, *%h) { }; foo 1, x => 20, y => 300, 4000`';
 }
 
 
