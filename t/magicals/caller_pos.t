@@ -4,26 +4,26 @@ use Test;
 
 plan 8;
 
-is($?POSITION, "$?FILE line 8, column 4-14", 'plain old $?POSITION');
+is($?POSITION, "$?FILE line 7, column 4-14", 'plain old $?POSITION');
 
 sub foo { return "$?CALLER::POSITION" }
 sub bar { gorch("$?CALLER::POSITION") }
 sub gorch (Str $str) { return $str }
 
-is(foo(), "$?FILE line 14, column 4-9", "basic caller position interpolation");
+is(foo(), "$?FILE line 13, column 4-9", "basic caller position interpolation");
 
 # in the second test case the position is evaluated where gorch is concerned
 # this, bar's call to gorch().
 
 # the variable is interpolated in bar(), and that's where in the call stack
 # this should be relevant to.
-is(bar(), "$?FILE line 21, column 4-9", "indirect interpolation (wtf?!)");
+is(bar(), "$?FILE line 20, column 4-9", "indirect interpolation (wtf?!)");
 
 sub inner { return join("\n", $?CALLER::CALLER::CALLER::POSITION, $?CALLER::CALLER::POSITION, $?CALLER::POSITION) }
 sub outer { inner() }
 sub very  { outer() }
 
-is(very(), "$?FILE line 27, column 4-10\n$?FILE line 25, column 13-21\n$?FILE line 24, column 13-21", "caller::caller notation works");
+is(very(), "$?FILE line 26, column 4-10\n$?FILE line 24, column 13-21\n$?FILE line 23, column 13-21", "caller::caller notation works");
 
 ok(!(eval '$CALLER::CALLER::CALLER::_; 1'), "can't look beyond top level caller");
 

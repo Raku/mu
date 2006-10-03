@@ -6,7 +6,7 @@ use Test;
 plan 2;
 
 # L<S02/"Names" /Which line am I in/>
-is($?LINE, 10, '$?LINE works');
+is($?LINE, 9, '$?LINE works');
 
 # L<S02/"Names" /Which file am I in/>
 ok($?FILE eq ('t/magicals/file_line.t' | 't\\magicals\\file_line.t'), '$?FILE works');
