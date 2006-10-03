@@ -326,8 +326,8 @@ findSub _var _invs _args
             isNamedArg (Syn "named" _) = True
             isNamedArg _               = False
             rv = return $ arityMatch sub (length positional) (length named) slurpLen
-        maybeM rv $ \fun -> do
 
+        maybeM rv $ \fun -> do
             -- if deltaFromCxt ret == 0 then return Nothing else do
             let pairs = [ typeOfParam p | p <- prms, not (isSlurpy p) ] `zip` _invs_args
             deltaCxt    <- deltaFromCxt ret
@@ -656,19 +656,22 @@ findSyms var
         
 arityMatch :: VCode -> Int -> Int -> Int -> Maybe VCode
 arityMatch sub@MkCode{ subAssoc = assoc, subParams = prms } posLen namLen argSlurpLen
-    | A_list <- assoc = Just sub
-    | A_chain <- assoc = Just sub
+    | A_list    <- assoc = Just sub
+    | A_chain   <- assoc = Just sub
+
     | isNothing $ find (not . isSlurpy) prms -- XXX - what about empty ones?
-    , slurpLen <- length $ filter (\p -> isSlurpy p && v_sigil (paramName p) == SScalar) prms
-    , hasArray <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) == SArray) prms
+    , slurpLen  <- length $ filter (\p -> isSlurpy p && v_sigil (paramName p) == SScalar) prms
+    , hasArray  <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) == SArray) prms
     , if hasArray then slurpLen <= argSlurpLen else slurpLen == argSlurpLen
     = Just sub
-    | reqLen <- length $ filter (\p -> not (isOptional p || isSlurpy p)) prms
-    , optLen <- length $ filter (\p -> isOptional p) prms
-    , hasArray <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) == SArray) prms
-    , hasHash  <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) == SHash) prms
+
+    | reqLen    <- length $ filter (\p -> not (isOptional p) || isSlurpy p && v_sigil (paramName p) == SScalar) prms
+    , optLen    <- length $ filter (\p -> isOptional p) prms
+    , hasArray  <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) == SArray) prms
+    , hasHash   <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) == SHash) prms
     , argLen >= reqLen && (hasArray || (if hasHash then posLen else argLen) <= (reqLen + optLen))
     = Just sub
+
     | otherwise
     = Nothing
     where
