@@ -1,26 +1,35 @@
 
 Compile-Time objects
 
-* this document is still TODO
-
 See Also: S06 
 
-The compile-time system builds a Program object.
+The compile-time system builds a 'Program' object.
 
-Program.print emits the compiled code.
+"$program" stringifies to compiled code.
 
 Methods
 
-."" (overloaded stringification) - outputs source code
-.box - creates a boxed object. Example: int.embox -> Int
+."" (overloaded stringification) - stringifies to source code
+.box - creates a boxed object. Example: int.box -> Int
 .WHAT - returns the class as a Class (which stringifies to the class name)
+.perl - returns the object, dumped as Perl6 source code
+.print - not sure about this - either returns the '.print' code, or actually prints the string representation to STDOUT
 
 Coercions
 
-.str .num .int
+.str .num .int .bool
 .array .hash .scalar
 
+Class-specific operations - for example:
+
+.true
+.not
+.== (encoded to ASCII, as '_61__61_')
+.eq
+
 --------------
+
+# TODO ...
 
 Seq
 List
