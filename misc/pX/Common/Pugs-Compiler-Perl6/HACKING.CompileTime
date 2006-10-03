@@ -5,6 +5,10 @@ Compile-Time objects
 
 See Also: S06 
 
+The compile-time system builds a Program object.
+
+Program.print emits the compiled code.
+
 Seq
 List
 
