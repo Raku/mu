@@ -75,27 +75,26 @@ is($foo.bar($*ERR), 'Foo.bar() called with IO', '... multi-method dispatched on 
 
 my $yaml_tests = eval(q{
 - 
-    m2: *%h
-    call: a => 'b'
+    m2: %h
+    call: "{a => 'b'}"
     expect: 2
 -
     m1: %h
     m2: @a?
-    call: <1 2 3>
-    expect: 2
--
-    m1: %h
-    m2: @a
-    call: <1 2 3>
+    call: "[1,2,3]"
     expect: 2
 -
     m1: @a?
     expect: 2 
-
+-
+    m1: %h
+    m2: @a
+    call: "[1,2,3]"
+    expect: 2
 -   
     m1: 
     m2: @a?
-    call: <1 2 3>
+    call: "[1,2,3]"
     expect: 2
 
 }, :lang<yaml>);
@@ -118,13 +117,16 @@ sub test_dispatch (
     Int $expect,
     ) {
 
-    my $got = eval q:s/ { 
-                            class Foo { 
-                                multi method a ($m1) {1}
-                                multi method a ($m2) {2}
-                            };
-                            Foo.new.a($call);
-                }/;
+    state $cls = 'Foo000';
+    $cls++;
+
+    my $got = eval qq/
+        class $cls \{
+            multi method a ($m1) \{1\}
+            multi method a ($m2) \{2\}
+        \};
+        {$cls}.a($call);
+    /;
 
     if defined $got {
         is($got , $expect, "Arguments ($call) to signatures 1. ($m1) and 2. ($m2) calls $expect");
