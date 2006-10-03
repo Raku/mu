@@ -7,13 +7,17 @@ The compile-time system builds a 'Program' object.
 
 "$program" stringifies to compiled code.
 
+Environment
+
+- contains the declarations in scope: variables, subroutines
+- maybe contains also 'want'.
+
 Methods
 
 ."" (overloaded stringification) - stringifies to source code
 .box - creates a boxed object. Example: int.box -> Int
 .WHAT - returns the class as a Class (which stringifies to the class name)
-.perl - returns the object, dumped as Perl6 source code
-.print - not sure about this - either returns the '.print' code, or actually prints the string representation to STDOUT
+.perl - returns a Str, which contains the object dumped as Perl6 source code  
 
 Coercions
 
@@ -22,6 +26,7 @@ Coercions
 
 Class-specific operations - for example:
 
+.print - returns the code to execute '.print'
 .true
 .not
 .== (encoded to ASCII, as '_61__61_')
@@ -29,10 +34,39 @@ Class-specific operations - for example:
 
 --------------
 
-# TODO ...
+Classes
+
+See also: S06:Built-in Types
+
+Native types
+
+...
+
+
+Undefined types
+
+...
+
+
+Immutable types
 
 Seq
 List
+...
+
+Mutable types
 
 Array
 Hash
+...
+
+Other types - See S06
+
+Value types, Implementation types, Hierarchical types, Polymorphic types, Parameter types, Generic types, Return types
+
+Special Classes
+
+These classes can be used internally for optimization.
+
+Perl5Array - An Array that doesn't contain Lazy components. This can be represented by a Perl5 Array.
+Perl5Hash - A Hash that only has Stringified keys. This can be represented by a Perl5 Hash.
