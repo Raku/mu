@@ -15,9 +15,9 @@ TODO: {
 };
 __END__
 
-sub exp {
-    return node( 'Int', 
-        if ( exists
+sub emit {
+    return node( 'int', $_[0]{int}
+        if ( exists $_[0]{int} );
 }
 
 # 1+1
