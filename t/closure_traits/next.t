@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 12;
+plan 13;
 
 # L<S04/Closure traits/NEXT executes "only if" 
 #   "end of the loop block" or "explicit next">
