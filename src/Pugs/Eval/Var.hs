@@ -289,7 +289,7 @@ findSub _var _invs _args
     findSub' var = do
         subSyms     <- findSyms var
         lens        <- mapM argSlurpLen _invs_args
-        doFindSub (sum lens) subSyms
+        doFindSub lens subSyms
 
     argSlurpLen :: Exp -> Eval Int
     argSlurpLen (Val val) = valSlurpLen val
@@ -308,8 +308,8 @@ findSub _var _invs _args
 
     -- doFindSub :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp])
     --     => Int -> [(Var, Val)] -> Eval (Maybe VCode)
-    doFindSub slurpLen subSyms = do
-        subs' <- subs slurpLen subSyms
+    doFindSub slurpLens subSyms = do
+        subs' <- subs slurpLens subSyms
         -- let foo (x, sub) = show x ++ show (map paramContext $ subParams sub)
         -- trace (unlines $ map foo $ sort subs') return ()
         return $ case sort subs' of
@@ -320,12 +320,12 @@ findSub _var _invs _args
 
     -- subs :: (_invs :: Maybe Exp, _args :: [Exp])
     --     => Int -> [(Var, Val)] -> Eval [((Bool, Bool, Int, Int), VCode)]
-    subs slurpLen subSyms = fmap catMaybes . forM subSyms $ \(_, val) -> do
+    subs slurpLens subSyms = fmap catMaybes . forM subSyms $ \(_, val) -> do
         sub@(MkCode{ subReturns = ret, subParams = prms }) <- fromVal val
         let (named, positional) = partition isNamedArg _invs_args
             isNamedArg (Syn "named" _) = True
             isNamedArg _               = False
-            rv = return $ arityMatch sub (length positional) (length named) slurpLen
+            rv = return $ arityMatch sub (length positional) (length named) slurpLens
 
         maybeM rv $ \fun -> do
             -- if deltaFromCxt ret == 0 then return Nothing else do
@@ -654,22 +654,26 @@ findSyms var
                     return (var, val)
             Nothing -> mzero
         
-arityMatch :: VCode -> Int -> Int -> Int -> Maybe VCode
-arityMatch sub@MkCode{ subAssoc = assoc, subParams = prms } posLen namLen argSlurpLen
+arityMatch :: VCode -> Int -> Int -> [Int] -> Maybe VCode
+arityMatch sub@MkCode{ subAssoc = assoc, subParams = prms } posLen namLen argSlurpLens
     | A_list    <- assoc = Just sub
     | A_chain   <- assoc = Just sub
 
+{-
     | isNothing $ find (not . isSlurpy) prms -- XXX - what about empty ones?
     , slurpLen  <- length $ filter (\p -> isSlurpy p && v_sigil (paramName p) == SScalar) prms
     , hasArray  <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) == SArray) prms
     , if hasArray then slurpLen <= argSlurpLen else slurpLen == argSlurpLen
     = Just sub
+-}
 
-    | reqLen    <- length $ filter (\p -> not (isOptional p || (isSlurpy p && v_sigil (paramName p) /= SScalar))) prms
+    | reqLen    <- length $ filter (\p -> not (isOptional p || isSlurpy p)) prms
     , optLen    <- length $ filter (\p -> isOptional p) prms
     , hasArray  <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) == SArray) prms
     , hasHash   <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) == SHash) prms
+    , slurpLen  <- length $ filter (\p -> isSlurpy p && v_sigil (paramName p) == SScalar) prms
     , argLen >= reqLen && (hasArray || (if hasHash then posLen else argLen) <= (reqLen + optLen))
+    , if hasArray then slurpLen <= sum (drop reqLen argSlurpLens) else slurpLen == sum (drop argLen argSlurpLens)
     = Just sub
 
     | otherwise
