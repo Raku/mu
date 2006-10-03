@@ -3,22 +3,18 @@ use Test;
 
 =pod
 
-This file was derived from the perl5 CPAN module Perl6::Rules,
+This file was originally derived from the perl5 CPAN module Perl6::Rules,
 version 0.3 (12 Apr 2004), file t/counted.t.
-
-It has (hopefully) been, and should continue to be, updated to
-be valid perl6.
 
 =cut
 
-skip_rest "This file was in t_disabled/.  Remove this SKIP when it works.";
-=begin END
-
-plan 152;
+plan 172;
 
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
+
+force_todo(4,5,6,7,8,9,10,11,12,13,17,18,19,20,21,22,23,24,25,26,30,32,34,36,38,39,43,45,47,49,51,52,56,58,60,62,64,65,69,71,73,75,77,78,79,80,84,86,88,90,92,93,94,96,98,99,100,101,105,106,107,108,109,110,111,112,113,114,115,116,120,121,122,123,124,125,126,127,128,129,133,135,137,139,141,142,143,144,148,150,152,154,156,158,162,164,166,168,170,171,172);
 
 my $data = "f fo foo fooo foooo fooooo foooooo";
 my $sub1 = "f bar foo fooo foooo fooooo foooooo";

@@ -3,22 +3,18 @@ use Test;
 
 =pod
 
-This file was derived from the perl5 CPAN module Perl6::Rules,
+This file was originally derived from the perl5 CPAN module Perl6::Rules,
 version 0.3 (12 Apr 2004), file t/overlapping.t.
 
-It has (hopefully) been, and should continue to be, updated to
-be valid perl6.
-
 =cut
-
-skip_rest "This file was in t_disabled/.  Remove this SKIP when it works.";
-=begin END
 
 plan 10;
 
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
+
+force_todo(2,3,5,6,10);
 
 my $str = "abrAcadAbbra";
 

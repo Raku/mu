@@ -3,22 +3,18 @@ use Test;
 
 =pod
 
-This file was derived from the perl5 CPAN module Perl6::Rules,
+This file was originally derived from the perl5 CPAN module Perl6::Rules,
 version 0.3 (12 Apr 2004), file t/exhaustive.t.
-
-It has (hopefully) been, and should continue to be, updated to
-be valid perl6.
 
 =cut
 
-skip_rest "This file was in t_disabled/.  Remove this SKIP when it works.";
-=begin END
-
-plan 45;
+plan 44; # Will need to be changed once :exhaustive starts working.
 
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
+
+force_todo(2,3,5,6,10,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42);
 
 my $str = "abrAcadAbbra";
 
@@ -62,11 +58,11 @@ for (@$/) {
     delete %expected{$_};
 }
 
-my @adj  = qw(time);
-my @noun = qw(time flies arrow);
-my @verb = qw(time flies like);
-my @art  = qw(an);
-my @prep = qw(like);
+my @adj  = <time>;
+my @noun = <time flies arrow>;
+my @verb = <time flies like>;
+my @art  = <an>;
+my @prep = <like>;
 
 ok( "time flies like an arrow" ~~
     m:s:ex/^    [
@@ -90,23 +86,23 @@ ok( "time flies like an arrow" ~~
               ]
            /, 'Multiple capturing');
 
-is($/.matches[0]<adj>,  'time',  'Capture 0 adj');
-is($/.matches[0]<subj>, 'flies', 'Capture 0 subj');
-is($/.matches[0]<verb>, 'like',  'Capture 0 verb');
-is($/.matches[0]<art>,  'an',    'Capture 0 art');
-is($/.matches[0]<obj>,  'arrow', 'Capture 0 obj');
+eval_is(q{$/.matches[0]<adj>},  'time',  'Capture 0 adj');
+eval_is(q{$/.matches[0]<subj>}, 'flies', 'Capture 0 subj');
+eval_is(q{$/.matches[0]<verb>}, 'like',  'Capture 0 verb');
+eval_is(q{$/.matches[0]<art>},  'an',    'Capture 0 art');
+eval_is(q{$/.matches[0]<obj>},  'arrow', 'Capture 0 obj');
 
-is($/.matches[1]<subj>, 'time',  'Capture 1 subj');
-is($/.matches[1]<verb>, 'flies', 'Capture 1 verb');
-is($/.matches[1]<prep>, 'like',  'Capture 1 prep');
-is($/.matches[1]<art>,  'an',    'Capture 1 art');
-is($/.matches[1]<obj>,  'arrow', 'Capture 1 obj');
+eval_is(q{$/.matches[1]<subj>}, 'time',  'Capture 1 subj');
+eval_is(q{$/.matches[1]<verb>}, 'flies', 'Capture 1 verb');
+eval_is(q{$/.matches[1]<prep>}, 'like',  'Capture 1 prep');
+eval_is(q{$/.matches[1]<art>},  'an',    'Capture 1 art');
+eval_is(q{$/.matches[1]<obj>},  'arrow', 'Capture 1 obj');
 
-is($/.matches[2]<verb>, 'time',  'Capture 2 verb');
-is($/.matches[2]<obj>,  'flies', 'Capture 2 obj');
-is($/.matches[2]<prep>, 'like',  'Capture 2 prep');
-is($/.matches[2]<art>,  'an',    'Capture 2 art');
-is($/.matches[2]<noun>, 'arrow', 'Capture 2 noun');
+eval_is(q{$/.matches[2]<verb>}, 'time',  'Capture 2 verb');
+eval_is(q{$/.matches[2]<obj>},  'flies', 'Capture 2 obj');
+eval_is(q{$/.matches[2]<prep>}, 'like',  'Capture 2 prep');
+eval_is(q{$/.matches[2]<art>},  'an',    'Capture 2 art');
+eval_is(q{$/.matches[2]<noun>}, 'arrow', 'Capture 2 noun');
 
 
 rule subj  { <?noun> }
@@ -126,23 +122,23 @@ ok("time   flies   like    an     arrow" ~~
     "Any with capturing rules"
 );
 
-is($/.matches[0]<adj>,  'time',  'Rule capture 0 adj');
-is($/.matches[0]<subj>, 'flies', 'Rule capture 0 subj');
-is($/.matches[0]<verb>, 'like',  'Rule capture 0 verb');
-is($/.matches[0]<art>,  'an',    'Rule capture 0 art');
-is($/.matches[0]<obj>,  'arrow', 'Rule capture 0 obj');
+eval_is(q{$/.matches[0]<adj>},  'time',  'Rule capture 0 adj');
+eval_is(q{$/.matches[0]<subj>}, 'flies', 'Rule capture 0 subj');
+eval_is(q{$/.matches[0]<verb>}, 'like',  'Rule capture 0 verb');
+eval_is(q{$/.matches[0]<art>},  'an',    'Rule capture 0 art');
+eval_is(q{$/.matches[0]<obj>},  'arrow', 'Rule capture 0 obj');
 
-is($/.matches[1]<subj>, 'time',  'Rule capture 1 subj');
-is($/.matches[1]<verb>, 'flies', 'Rule capture 1 verb');
-is($/.matches[1]<prep>, 'like',  'Rule capture 1 prep');
-is($/.matches[1]<art>,  'an',    'Rule capture 1 art');
-is($/.matches[1]<noun>, 'arrow', 'Rule capture 1 noun');
+eval_is(q{$/.matches[1]<subj>}, 'time',  'Rule capture 1 subj');
+eval_is(q{$/.matches[1]<verb>}, 'flies', 'Rule capture 1 verb');
+eval_is(q{$/.matches[1]<prep>}, 'like',  'Rule capture 1 prep');
+eval_is(q{$/.matches[1]<art>},  'an',    'Rule capture 1 art');
+eval_is(q{$/.matches[1]<noun>}, 'arrow', 'Rule capture 1 noun');
 
-is($/.matches[2]<verb>, 'time',  'Rule capture 2 verb');
-is($/.matches[2]<obj>,  'flies', 'Rule capture 2 obj');
-is($/.matches[2]<prep>, 'like',  'Rule capture 2 prep');
-is($/.matches[2]<art>,  'an',    'Rule capture 2 art');
-is($/.matches[2]<noun>, 'arrow', 'Rule capture 2 noun');
+eval_is(q{$/.matches[2]<verb>}, 'time',  'Rule capture 2 verb');
+eval_is(q{$/.matches[2]<obj>},  'flies', 'Rule capture 2 obj');
+eval_is(q{$/.matches[2]<prep>}, 'like',  'Rule capture 2 prep');
+eval_is(q{$/.matches[2]<art>},  'an',    'Rule capture 2 art');
+eval_is(q{$/.matches[2]<noun>}, 'arrow', 'Rule capture 2 noun');
 
 
 ok(!( "fooooo" ~~ m:exhaustive { s o+ } ), 'Subsequent failed any match...');

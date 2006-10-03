@@ -3,16 +3,10 @@ use Test;
 
 =pod
 
-This file was derived from the perl5 CPAN module Perl6::Rules,
+This file was originally derived from the perl5 CPAN module Perl6::Rules,
 version 0.3 (12 Apr 2004), file t/named_chars.t.
 
-It has (hopefully) been, and should continue to be, updated to
-be valid perl6.
-
 =cut
-
-skip_rest "This file was in t_disabled/.  Remove this SKIP when it works.";
-=begin END
 
 plan 419;
 
@@ -20,13 +14,15 @@ if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
+force_todo(1,2,3,4,5,6,7,8,9,10,13,15,18,19,20,21,22,23,24,25,28,30,33,34,35,36,37,38,39,40,43,45,48,49,50,135,136,137,138,139,140,143,145,148,149,150,151,152,153,154,155,158,160,163,164,165,166,167,168,169,170,173,175,178,179,180,181,182,183,184,185,188,190,193,194,195,196,197,198,199,200,203,205,208,209,210,211,212,213,214,215,218,220,223,224,225,226,227,228,229,230,233,235,238,239,240,241,242,243,244,245,248,250,253,254,255,256,257,258,259,260,263,265,268,269,270,271,272,273,274,275,278,280,283,284,285,286,287,288,289,290,293,295,298,299,300,301,302,303,304,305,308,310,313,314,315,316,317,318,319,320,323,325,328,329,330,331,332,333,334,335,338,340,343,344,345,346,347,348,349,350,353,355,358,359,360,361,362,363,364,365,368,370,373,374,375,376,377,378,379,380,383,385,388,389,390,391,392,393,394,395,398,400,403,404,405,406,407,408,409,410,413,415,418,419);
+
 ok("abc\x[a]def" ~~ m/\c[LINE FEED (LF)]/, 'Unanchored named LINE FEED (LF)');
 ok("abc\c[LINE FEED (LF)]def" ~~ m/\x[A]/, 'Unanchored \x[A]');
-ok("abc\c[LINE FEED (LF)]def" ~~ m/\0[12]/, 'Unanchored \0[12]');
+ok("abc\c[LINE FEED (LF)]def" ~~ m/\o[12]/, 'Unanchored \o[12]');
 ok("abc\x[a]def" ~~ m/^ abc \c[LINE FEED (LF)] def $/, 'Anchored LINE FEED (LF)');
 ok("abc\x[c]def" ~~ m/\c[FORM FEED (FF)]/, 'Unanchored named FORM FEED (FF)');
 ok("abc\c[FORM FEED (FF)]def" ~~ m/\x[C]/, 'Unanchored \x[C]');
-ok("abc\c[FORM FEED (FF)]def" ~~ m/\0[14]/, 'Unanchored \0[14]');
+ok("abc\c[FORM FEED (FF)]def" ~~ m/\o[14]/, 'Unanchored \o[14]');
 ok("abc\x[c]def" ~~ m/^ abc \c[FORM FEED (FF)] def $/, 'Anchored FORM FEED (FF)');
 ok("abc\x[c]\x[a]def" ~~ m/\c[FORM FEED (FF); LINE FEED (LF)]/, 'Multiple FORM FEED (FF); LINE FEED (LF)');
 ok("\x[c]\x[a]" ~~ m/<[\c[FORM FEED (FF); LINE FEED (LF)]]>/, 'Charclass multiple FORM FEED (FF); LINE FEED (LF)');
@@ -41,7 +37,7 @@ ok("\x[c]" ~~ m/^ \X[A]/, 'Negative hex \X[A] match');
 ok("\x[c]" ~~ m/^ <[\X[A]]>/, 'Negative charclass hex \X[A] match');
 ok("abc\x[d]def" ~~ m/\c[CARRIAGE RETURN (CR)]/, 'Unanchored named CARRIAGE RETURN (CR)');
 ok("abc\c[CARRIAGE RETURN (CR)]def" ~~ m/\x[d]/, 'Unanchored \x[d]');
-ok("abc\c[CARRIAGE RETURN (CR)]def" ~~ m/\0[15]/, 'Unanchored \0[15]');
+ok("abc\c[CARRIAGE RETURN (CR)]def" ~~ m/\o[15]/, 'Unanchored \o[15]');
 ok("abc\x[d]def" ~~ m/^ abc \c[CARRIAGE RETURN (CR)] def $/, 'Anchored CARRIAGE RETURN (CR)');
 ok("abc\x[d]\x[c]def" ~~ m/\c[CARRIAGE RETURN (CR); FORM FEED (FF)]/, 'Multiple CARRIAGE RETURN (CR); FORM FEED (FF)');
 ok("\x[d]\x[c]" ~~ m/<[\c[CARRIAGE RETURN (CR); FORM FEED (FF)]]>/, 'Charclass multiple CARRIAGE RETURN (CR); FORM FEED (FF)');
@@ -56,7 +52,7 @@ ok("\x[d]" ~~ m/^ \X[C]/, 'Negative hex \X[C] match');
 ok("\x[d]" ~~ m/^ <[\X[C]]>/, 'Negative charclass hex \X[C] match');
 ok("abc\x[85]def" ~~ m/\c[NEXT LINE (NEL)]/, 'Unanchored named NEXT LINE (NEL)');
 ok("abc\c[NEXT LINE (NEL)]def" ~~ m/\x[85]/, 'Unanchored \x[85]');
-ok("abc\c[NEXT LINE (NEL)]def" ~~ m/\0[205]/, 'Unanchored \0[205]');
+ok("abc\c[NEXT LINE (NEL)]def" ~~ m/\o[205]/, 'Unanchored \o[205]');
 ok("abc\x[85]def" ~~ m/^ abc \c[NEXT LINE (NEL)] def $/, 'Anchored NEXT LINE (NEL)');
 ok("abc\x[85]\x[d]def" ~~ m/\c[NEXT LINE (NEL); CARRIAGE RETURN (CR)]/, 'Multiple NEXT LINE (NEL); CARRIAGE RETURN (CR)');
 ok("\x[85]\x[d]" ~~ m/<[\c[NEXT LINE (NEL); CARRIAGE RETURN (CR)]]>/, 'Charclass multiple NEXT LINE (NEL); CARRIAGE RETURN (CR)');
@@ -69,6 +65,11 @@ ok(!( "\x[85]" ~~ m/^ \X[85]/ ), 'Negative hex \X[85] nomatch');
 ok(!( "\x[85]" ~~ m/^ <[\X[85]]>/ ), 'Negative charclass hex \X[85] nomatch');
 ok("\x[85]" ~~ m/^ \X[D]/, 'Negative hex \X[D] match');
 ok("\x[85]" ~~ m/^ <[\X[D]]>/, 'Negative charclass hex \X[D] match');
+
+flunk("FIXME unicode aliases are not working in pugs");
+skip(82,"unicode aliases are not working in pugs",:todo<bug>);
+=pod
+
 ok("abc\c[LINE FEED]def" ~~ m/\c[LINE FEED]/, 'Unanchored named LINE FEED');
 ok("abc\c[LINE FEED]def" ~~ m/^ abc \c[LINE FEED] def $/, 'Anchored LINE FEED');
 ok("abc\c[LINE FEED]\x[85]def" ~~ m/\c[LINE FEED; NEXT LINE (NEL)]/, 'Multiple LINE FEED; NEXT LINE (NEL)');
@@ -143,7 +144,7 @@ ok(!( "\c[NEL]" ~~ m/^ <[\C[NEL]]>/ ), 'Negative charclass named NEL nomatch');
 ok("\c[CR]" ~~ m/^ <[\C[NEL]]>/, 'Negative charclass named NEL match');
 ok("abc\x[fd55]def" ~~ m/\c[ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM]/, 'Unanchored named ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM');
 ok("abc\c[ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM]def" ~~ m/\x[fd55]/, 'Unanchored \x[fd55]');
-ok("abc\c[ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM]def" ~~ m/\0[176525]/, 'Unanchored \0[176525]');
+ok("abc\c[ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM]def" ~~ m/\o[176525]/, 'Unanchored \o[176525]');
 ok("abc\x[fd55]def" ~~ m/^ abc \c[ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM] def $/, 'Anchored ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM');
 ok("abc\x[fd55]\c[NEL]def" ~~ m/\c[ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM;NEL]/, 'Multiple ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM;NEL');
 ok("\x[fd55]\c[NEL]" ~~ m/<[\c[ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM;NEL]]>/, 'Charclass multiple ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM;NEL');
@@ -152,11 +153,14 @@ ok(!( "\x[fd55]" ~~ m/^ \C[ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM]
 ok("\c[NEL]" ~~ m/^ \C[ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM]/, 'Negative named ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM match');
 ok(!( "\x[fd55]" ~~ m/^ <[\C[ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM]]>/ ), 'Negative charclass named ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM nomatch');
 ok("\c[NEL]" ~~ m/^ <[\C[ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM]]>/, 'Negative charclass named ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM match');
+
+=cut
+
 ok(!( "\x[fd55]" ~~ m/^ \X[FD55]/ ), 'Negative hex \X[FD55] nomatch');
 ok(!( "\x[fd55]" ~~ m/^ <[\X[FD55]]>/ ), 'Negative charclass hex \X[FD55] nomatch');
 ok("abc\x[5b4]def" ~~ m/\c[HEBREW POINT HIRIQ]/, 'Unanchored named HEBREW POINT HIRIQ');
 ok("abc\c[HEBREW POINT HIRIQ]def" ~~ m/\x[5B4]/, 'Unanchored \x[5B4]');
-ok("abc\c[HEBREW POINT HIRIQ]def" ~~ m/\0[2664]/, 'Unanchored \0[2664]');
+ok("abc\c[HEBREW POINT HIRIQ]def" ~~ m/\o[2664]/, 'Unanchored \o[2664]');
 ok("abc\x[5b4]def" ~~ m/^ abc \c[HEBREW POINT HIRIQ] def $/, 'Anchored HEBREW POINT HIRIQ');
 ok("abc\x[5b4]\x[fd55]def" ~~ m/\c[HEBREW POINT HIRIQ;ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM]/, 'Multiple HEBREW POINT HIRIQ;ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM');
 ok("\x[5b4]\x[fd55]" ~~ m/<[\c[HEBREW POINT HIRIQ;ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM]]>/, 'Charclass multiple HEBREW POINT HIRIQ;ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM');
@@ -171,7 +175,7 @@ ok("\x[5b4]" ~~ m/^ \X[FD55]/, 'Negative hex \X[FD55] match');
 ok("\x[5b4]" ~~ m/^ <[\X[FD55]]>/, 'Negative charclass hex \X[FD55] match');
 ok("abc\x[1ea2]def" ~~ m/\c[LATIN CAPITAL LETTER A WITH HOOK ABOVE]/, 'Unanchored named LATIN CAPITAL LETTER A WITH HOOK ABOVE');
 ok("abc\c[LATIN CAPITAL LETTER A WITH HOOK ABOVE]def" ~~ m/\x[1EA2]/, 'Unanchored \x[1EA2]');
-ok("abc\c[LATIN CAPITAL LETTER A WITH HOOK ABOVE]def" ~~ m/\0[17242]/, 'Unanchored \0[17242]');
+ok("abc\c[LATIN CAPITAL LETTER A WITH HOOK ABOVE]def" ~~ m/\o[17242]/, 'Unanchored \o[17242]');
 ok("abc\x[1ea2]def" ~~ m/^ abc \c[LATIN CAPITAL LETTER A WITH HOOK ABOVE] def $/, 'Anchored LATIN CAPITAL LETTER A WITH HOOK ABOVE');
 ok("abc\x[1ea2]\x[5b4]def" ~~ m/\c[LATIN CAPITAL LETTER A WITH HOOK ABOVE;HEBREW POINT HIRIQ]/, 'Multiple LATIN CAPITAL LETTER A WITH HOOK ABOVE;HEBREW POINT HIRIQ');
 ok("\x[1ea2]\x[5b4]" ~~ m/<[\c[LATIN CAPITAL LETTER A WITH HOOK ABOVE;HEBREW POINT HIRIQ]]>/, 'Charclass multiple LATIN CAPITAL LETTER A WITH HOOK ABOVE;HEBREW POINT HIRIQ');
@@ -186,7 +190,7 @@ ok("\x[1ea2]" ~~ m/^ \X[5B4]/, 'Negative hex \X[5B4] match');
 ok("\x[1ea2]" ~~ m/^ <[\X[5B4]]>/, 'Negative charclass hex \X[5B4] match');
 ok("abc\x[565]def" ~~ m/\c[ARMENIAN SMALL LETTER ECH]/, 'Unanchored named ARMENIAN SMALL LETTER ECH');
 ok("abc\c[ARMENIAN SMALL LETTER ECH]def" ~~ m/\x[565]/, 'Unanchored \x[565]');
-ok("abc\c[ARMENIAN SMALL LETTER ECH]def" ~~ m/\0[2545]/, 'Unanchored \0[2545]');
+ok("abc\c[ARMENIAN SMALL LETTER ECH]def" ~~ m/\o[2545]/, 'Unanchored \o[2545]');
 ok("abc\x[565]def" ~~ m/^ abc \c[ARMENIAN SMALL LETTER ECH] def $/, 'Anchored ARMENIAN SMALL LETTER ECH');
 ok("abc\x[565]\x[1ea2]def" ~~ m/\c[ARMENIAN SMALL LETTER ECH;LATIN CAPITAL LETTER A WITH HOOK ABOVE]/, 'Multiple ARMENIAN SMALL LETTER ECH;LATIN CAPITAL LETTER A WITH HOOK ABOVE');
 ok("\x[565]\x[1ea2]" ~~ m/<[\c[ARMENIAN SMALL LETTER ECH;LATIN CAPITAL LETTER A WITH HOOK ABOVE]]>/, 'Charclass multiple ARMENIAN SMALL LETTER ECH;LATIN CAPITAL LETTER A WITH HOOK ABOVE');
@@ -201,7 +205,7 @@ ok("\x[565]" ~~ m/^ \X[1EA2]/, 'Negative hex \X[1EA2] match');
 ok("\x[565]" ~~ m/^ <[\X[1EA2]]>/, 'Negative charclass hex \X[1EA2] match');
 ok("abc\x[25db]def" ~~ m/\c[LOWER HALF INVERSE WHITE CIRCLE]/, 'Unanchored named LOWER HALF INVERSE WHITE CIRCLE');
 ok("abc\c[LOWER HALF INVERSE WHITE CIRCLE]def" ~~ m/\x[25DB]/, 'Unanchored \x[25DB]');
-ok("abc\c[LOWER HALF INVERSE WHITE CIRCLE]def" ~~ m/\0[22733]/, 'Unanchored \0[22733]');
+ok("abc\c[LOWER HALF INVERSE WHITE CIRCLE]def" ~~ m/\o[22733]/, 'Unanchored \o[22733]');
 ok("abc\x[25db]def" ~~ m/^ abc \c[LOWER HALF INVERSE WHITE CIRCLE] def $/, 'Anchored LOWER HALF INVERSE WHITE CIRCLE');
 ok("abc\x[25db]\x[565]def" ~~ m/\c[LOWER HALF INVERSE WHITE CIRCLE;ARMENIAN SMALL LETTER ECH]/, 'Multiple LOWER HALF INVERSE WHITE CIRCLE;ARMENIAN SMALL LETTER ECH');
 ok("\x[25db]\x[565]" ~~ m/<[\c[LOWER HALF INVERSE WHITE CIRCLE;ARMENIAN SMALL LETTER ECH]]>/, 'Charclass multiple LOWER HALF INVERSE WHITE CIRCLE;ARMENIAN SMALL LETTER ECH');
@@ -216,7 +220,7 @@ ok("\x[25db]" ~~ m/^ \X[565]/, 'Negative hex \X[565] match');
 ok("\x[25db]" ~~ m/^ <[\X[565]]>/, 'Negative charclass hex \X[565] match');
 ok("abc\x[fe7d]def" ~~ m/\c[ARABIC SHADDA MEDIAL FORM]/, 'Unanchored named ARABIC SHADDA MEDIAL FORM');
 ok("abc\c[ARABIC SHADDA MEDIAL FORM]def" ~~ m/\x[fe7d]/, 'Unanchored \x[fe7d]');
-ok("abc\c[ARABIC SHADDA MEDIAL FORM]def" ~~ m/\0[177175]/, 'Unanchored \0[177175]');
+ok("abc\c[ARABIC SHADDA MEDIAL FORM]def" ~~ m/\o[177175]/, 'Unanchored \o[177175]');
 ok("abc\x[fe7d]def" ~~ m/^ abc \c[ARABIC SHADDA MEDIAL FORM] def $/, 'Anchored ARABIC SHADDA MEDIAL FORM');
 ok("abc\x[fe7d]\x[25db]def" ~~ m/\c[ARABIC SHADDA MEDIAL FORM;LOWER HALF INVERSE WHITE CIRCLE]/, 'Multiple ARABIC SHADDA MEDIAL FORM;LOWER HALF INVERSE WHITE CIRCLE');
 ok("\x[fe7d]\x[25db]" ~~ m/<[\c[ARABIC SHADDA MEDIAL FORM;LOWER HALF INVERSE WHITE CIRCLE]]>/, 'Charclass multiple ARABIC SHADDA MEDIAL FORM;LOWER HALF INVERSE WHITE CIRCLE');
@@ -231,7 +235,7 @@ ok("\x[fe7d]" ~~ m/^ \X[25DB]/, 'Negative hex \X[25DB] match');
 ok("\x[fe7d]" ~~ m/^ <[\X[25DB]]>/, 'Negative charclass hex \X[25DB] match');
 ok("abc\x[a15d]def" ~~ m/\c[YI SYLLABLE NDO]/, 'Unanchored named YI SYLLABLE NDO');
 ok("abc\c[YI SYLLABLE NDO]def" ~~ m/\x[A15D]/, 'Unanchored \x[A15D]');
-ok("abc\c[YI SYLLABLE NDO]def" ~~ m/\0[120535]/, 'Unanchored \0[120535]');
+ok("abc\c[YI SYLLABLE NDO]def" ~~ m/\o[120535]/, 'Unanchored \o[120535]');
 ok("abc\x[a15d]def" ~~ m/^ abc \c[YI SYLLABLE NDO] def $/, 'Anchored YI SYLLABLE NDO');
 ok("abc\x[a15d]\x[fe7d]def" ~~ m/\c[YI SYLLABLE NDO; ARABIC SHADDA MEDIAL FORM]/, 'Multiple YI SYLLABLE NDO; ARABIC SHADDA MEDIAL FORM');
 ok("\x[a15d]\x[fe7d]" ~~ m/<[\c[YI SYLLABLE NDO; ARABIC SHADDA MEDIAL FORM]]>/, 'Charclass multiple YI SYLLABLE NDO; ARABIC SHADDA MEDIAL FORM');
@@ -246,7 +250,7 @@ ok("\x[a15d]" ~~ m/^ \X[FE7D]/, 'Negative hex \X[FE7D] match');
 ok("\x[a15d]" ~~ m/^ <[\X[FE7D]]>/, 'Negative charclass hex \X[FE7D] match');
 ok("abc\x[2964]def" ~~ m/\c[RIGHTWARDS HARPOON WITH BARB UP ABOVE RIGHTWARDS HARPOON WITH BARB DOWN]/, 'Unanchored named RIGHTWARDS HARPOON WITH BARB UP ABOVE RIGHTWARDS HARPOON WITH BARB DOWN');
 ok("abc\c[RIGHTWARDS HARPOON WITH BARB UP ABOVE RIGHTWARDS HARPOON WITH BARB DOWN]def" ~~ m/\x[2964]/, 'Unanchored \x[2964]');
-ok("abc\c[RIGHTWARDS HARPOON WITH BARB UP ABOVE RIGHTWARDS HARPOON WITH BARB DOWN]def" ~~ m/\0[24544]/, 'Unanchored \0[24544]');
+ok("abc\c[RIGHTWARDS HARPOON WITH BARB UP ABOVE RIGHTWARDS HARPOON WITH BARB DOWN]def" ~~ m/\o[24544]/, 'Unanchored \o[24544]');
 ok("abc\x[2964]def" ~~ m/^ abc \c[RIGHTWARDS HARPOON WITH BARB UP ABOVE RIGHTWARDS HARPOON WITH BARB DOWN] def $/, 'Anchored RIGHTWARDS HARPOON WITH BARB UP ABOVE RIGHTWARDS HARPOON WITH BARB DOWN');
 ok("abc\x[2964]\x[a15d]def" ~~ m/\c[RIGHTWARDS HARPOON WITH BARB UP ABOVE RIGHTWARDS HARPOON WITH BARB DOWN;YI SYLLABLE NDO]/, 'Multiple RIGHTWARDS HARPOON WITH BARB UP ABOVE RIGHTWARDS HARPOON WITH BARB DOWN;YI SYLLABLE NDO');
 ok("\x[2964]\x[a15d]" ~~ m/<[\c[RIGHTWARDS HARPOON WITH BARB UP ABOVE RIGHTWARDS HARPOON WITH BARB DOWN;YI SYLLABLE NDO]]>/, 'Charclass multiple RIGHTWARDS HARPOON WITH BARB UP ABOVE RIGHTWARDS HARPOON WITH BARB DOWN;YI SYLLABLE NDO');
@@ -261,7 +265,7 @@ ok("\x[2964]" ~~ m/^ \X[A15D]/, 'Negative hex \X[A15D] match');
 ok("\x[2964]" ~~ m/^ <[\X[A15D]]>/, 'Negative charclass hex \X[A15D] match');
 ok("abc\x[ff6d]def" ~~ m/\c[HALFWIDTH KATAKANA LETTER SMALL YU]/, 'Unanchored named HALFWIDTH KATAKANA LETTER SMALL YU');
 ok("abc\c[HALFWIDTH KATAKANA LETTER SMALL YU]def" ~~ m/\x[FF6D]/, 'Unanchored \x[FF6D]');
-ok("abc\c[HALFWIDTH KATAKANA LETTER SMALL YU]def" ~~ m/\0[177555]/, 'Unanchored \0[177555]');
+ok("abc\c[HALFWIDTH KATAKANA LETTER SMALL YU]def" ~~ m/\o[177555]/, 'Unanchored \o[177555]');
 ok("abc\x[ff6d]def" ~~ m/^ abc \c[HALFWIDTH KATAKANA LETTER SMALL YU] def $/, 'Anchored HALFWIDTH KATAKANA LETTER SMALL YU');
 ok("abc\x[ff6d]\x[2964]def" ~~ m/\c[HALFWIDTH KATAKANA LETTER SMALL YU; RIGHTWARDS HARPOON WITH BARB UP ABOVE RIGHTWARDS HARPOON WITH BARB DOWN]/, 'Multiple HALFWIDTH KATAKANA LETTER SMALL YU; RIGHTWARDS HARPOON WITH BARB UP ABOVE RIGHTWARDS HARPOON WITH BARB DOWN');
 ok("\x[ff6d]\x[2964]" ~~ m/<[\c[HALFWIDTH KATAKANA LETTER SMALL YU; RIGHTWARDS HARPOON WITH BARB UP ABOVE RIGHTWARDS HARPOON WITH BARB DOWN]]>/, 'Charclass multiple HALFWIDTH KATAKANA LETTER SMALL YU; RIGHTWARDS HARPOON WITH BARB UP ABOVE RIGHTWARDS HARPOON WITH BARB DOWN');
@@ -276,7 +280,7 @@ ok("\x[ff6d]" ~~ m/^ \X[2964]/, 'Negative hex \X[2964] match');
 ok("\x[ff6d]" ~~ m/^ <[\X[2964]]>/, 'Negative charclass hex \X[2964] match');
 ok("abc\x[36]def" ~~ m/\c[DIGIT SIX]/, 'Unanchored named DIGIT SIX');
 ok("abc\c[DIGIT SIX]def" ~~ m/\x[36]/, 'Unanchored \x[36]');
-ok("abc\c[DIGIT SIX]def" ~~ m/\0[66]/, 'Unanchored \0[66]');
+ok("abc\c[DIGIT SIX]def" ~~ m/\o[66]/, 'Unanchored \o[66]');
 ok("abc\x[36]def" ~~ m/^ abc \c[DIGIT SIX] def $/, 'Anchored DIGIT SIX');
 ok("abc\x[36]\x[ff6d]def" ~~ m/\c[DIGIT SIX;HALFWIDTH KATAKANA LETTER SMALL YU]/, 'Multiple DIGIT SIX;HALFWIDTH KATAKANA LETTER SMALL YU');
 ok("\x[36]\x[ff6d]" ~~ m/<[\c[DIGIT SIX;HALFWIDTH KATAKANA LETTER SMALL YU]]>/, 'Charclass multiple DIGIT SIX;HALFWIDTH KATAKANA LETTER SMALL YU');
@@ -291,7 +295,7 @@ ok("\x[36]" ~~ m/^ \X[FF6D]/, 'Negative hex \X[FF6D] match');
 ok("\x[36]" ~~ m/^ <[\X[FF6D]]>/, 'Negative charclass hex \X[FF6D] match');
 ok("abc\x[1323]def" ~~ m/\c[ETHIOPIC SYLLABLE THAA]/, 'Unanchored named ETHIOPIC SYLLABLE THAA');
 ok("abc\c[ETHIOPIC SYLLABLE THAA]def" ~~ m/\x[1323]/, 'Unanchored \x[1323]');
-ok("abc\c[ETHIOPIC SYLLABLE THAA]def" ~~ m/\0[11443]/, 'Unanchored \0[11443]');
+ok("abc\c[ETHIOPIC SYLLABLE THAA]def" ~~ m/\o[11443]/, 'Unanchored \o[11443]');
 ok("abc\x[1323]def" ~~ m/^ abc \c[ETHIOPIC SYLLABLE THAA] def $/, 'Anchored ETHIOPIC SYLLABLE THAA');
 ok("abc\x[1323]\x[36]def" ~~ m/\c[ETHIOPIC SYLLABLE THAA; DIGIT SIX]/, 'Multiple ETHIOPIC SYLLABLE THAA; DIGIT SIX');
 ok("\x[1323]\x[36]" ~~ m/<[\c[ETHIOPIC SYLLABLE THAA; DIGIT SIX]]>/, 'Charclass multiple ETHIOPIC SYLLABLE THAA; DIGIT SIX');
@@ -306,7 +310,7 @@ ok("\x[1323]" ~~ m/^ \X[36]/, 'Negative hex \X[36] match');
 ok("\x[1323]" ~~ m/^ <[\X[36]]>/, 'Negative charclass hex \X[36] match');
 ok("abc\x[1697]def" ~~ m/\c[OGHAM LETTER UILLEANN]/, 'Unanchored named OGHAM LETTER UILLEANN');
 ok("abc\c[OGHAM LETTER UILLEANN]def" ~~ m/\x[1697]/, 'Unanchored \x[1697]');
-ok("abc\c[OGHAM LETTER UILLEANN]def" ~~ m/\0[13227]/, 'Unanchored \0[13227]');
+ok("abc\c[OGHAM LETTER UILLEANN]def" ~~ m/\o[13227]/, 'Unanchored \o[13227]');
 ok("abc\x[1697]def" ~~ m/^ abc \c[OGHAM LETTER UILLEANN] def $/, 'Anchored OGHAM LETTER UILLEANN');
 ok("abc\x[1697]\x[1323]def" ~~ m/\c[OGHAM LETTER UILLEANN;ETHIOPIC SYLLABLE THAA]/, 'Multiple OGHAM LETTER UILLEANN;ETHIOPIC SYLLABLE THAA');
 ok("\x[1697]\x[1323]" ~~ m/<[\c[OGHAM LETTER UILLEANN;ETHIOPIC SYLLABLE THAA]]>/, 'Charclass multiple OGHAM LETTER UILLEANN;ETHIOPIC SYLLABLE THAA');
@@ -321,7 +325,7 @@ ok("\x[1697]" ~~ m/^ \X[1323]/, 'Negative hex \X[1323] match');
 ok("\x[1697]" ~~ m/^ <[\X[1323]]>/, 'Negative charclass hex \X[1323] match');
 ok("abc\x[fe8b]def" ~~ m/\c[ARABIC LETTER YEH WITH HAMZA ABOVE INITIAL FORM]/, 'Unanchored named ARABIC LETTER YEH WITH HAMZA ABOVE INITIAL FORM');
 ok("abc\c[ARABIC LETTER YEH WITH HAMZA ABOVE INITIAL FORM]def" ~~ m/\x[fe8b]/, 'Unanchored \x[fe8b]');
-ok("abc\c[ARABIC LETTER YEH WITH HAMZA ABOVE INITIAL FORM]def" ~~ m/\0[177213]/, 'Unanchored \0[177213]');
+ok("abc\c[ARABIC LETTER YEH WITH HAMZA ABOVE INITIAL FORM]def" ~~ m/\o[177213]/, 'Unanchored \o[177213]');
 ok("abc\x[fe8b]def" ~~ m/^ abc \c[ARABIC LETTER YEH WITH HAMZA ABOVE INITIAL FORM] def $/, 'Anchored ARABIC LETTER YEH WITH HAMZA ABOVE INITIAL FORM');
 ok("abc\x[fe8b]\x[1697]def" ~~ m/\c[ARABIC LETTER YEH WITH HAMZA ABOVE INITIAL FORM;OGHAM LETTER UILLEANN]/, 'Multiple ARABIC LETTER YEH WITH HAMZA ABOVE INITIAL FORM;OGHAM LETTER UILLEANN');
 ok("\x[fe8b]\x[1697]" ~~ m/<[\c[ARABIC LETTER YEH WITH HAMZA ABOVE INITIAL FORM;OGHAM LETTER UILLEANN]]>/, 'Charclass multiple ARABIC LETTER YEH WITH HAMZA ABOVE INITIAL FORM;OGHAM LETTER UILLEANN');
@@ -336,7 +340,7 @@ ok("\x[fe8b]" ~~ m/^ \X[1697]/, 'Negative hex \X[1697] match');
 ok("\x[fe8b]" ~~ m/^ <[\X[1697]]>/, 'Negative charclass hex \X[1697] match');
 ok("abc\x[16de]def" ~~ m/\c[RUNIC LETTER DAGAZ DAEG D]/, 'Unanchored named RUNIC LETTER DAGAZ DAEG D');
 ok("abc\c[RUNIC LETTER DAGAZ DAEG D]def" ~~ m/\x[16DE]/, 'Unanchored \x[16DE]');
-ok("abc\c[RUNIC LETTER DAGAZ DAEG D]def" ~~ m/\0[13336]/, 'Unanchored \0[13336]');
+ok("abc\c[RUNIC LETTER DAGAZ DAEG D]def" ~~ m/\o[13336]/, 'Unanchored \o[13336]');
 ok("abc\x[16de]def" ~~ m/^ abc \c[RUNIC LETTER DAGAZ DAEG D] def $/, 'Anchored RUNIC LETTER DAGAZ DAEG D');
 ok("abc\x[16de]\x[fe8b]def" ~~ m/\c[RUNIC LETTER DAGAZ DAEG D;ARABIC LETTER YEH WITH HAMZA ABOVE INITIAL FORM]/, 'Multiple RUNIC LETTER DAGAZ DAEG D;ARABIC LETTER YEH WITH HAMZA ABOVE INITIAL FORM');
 ok("\x[16de]\x[fe8b]" ~~ m/<[\c[RUNIC LETTER DAGAZ DAEG D;ARABIC LETTER YEH WITH HAMZA ABOVE INITIAL FORM]]>/, 'Charclass multiple RUNIC LETTER DAGAZ DAEG D;ARABIC LETTER YEH WITH HAMZA ABOVE INITIAL FORM');
@@ -351,7 +355,7 @@ ok("\x[16de]" ~~ m/^ \X[FE8B]/, 'Negative hex \X[FE8B] match');
 ok("\x[16de]" ~~ m/^ <[\X[FE8B]]>/, 'Negative charclass hex \X[FE8B] match');
 ok("abc\x[64]def" ~~ m/\c[LATIN SMALL LETTER D]/, 'Unanchored named LATIN SMALL LETTER D');
 ok("abc\c[LATIN SMALL LETTER D]def" ~~ m/\x[64]/, 'Unanchored \x[64]');
-ok("abc\c[LATIN SMALL LETTER D]def" ~~ m/\0[144]/, 'Unanchored \0[144]');
+ok("abc\c[LATIN SMALL LETTER D]def" ~~ m/\o[144]/, 'Unanchored \o[144]');
 ok("abc\x[64]def" ~~ m/^ abc \c[LATIN SMALL LETTER D] def $/, 'Anchored LATIN SMALL LETTER D');
 ok("abc\x[64]\x[16de]def" ~~ m/\c[LATIN SMALL LETTER D;RUNIC LETTER DAGAZ DAEG D]/, 'Multiple LATIN SMALL LETTER D;RUNIC LETTER DAGAZ DAEG D');
 ok("\x[64]\x[16de]" ~~ m/<[\c[LATIN SMALL LETTER D;RUNIC LETTER DAGAZ DAEG D]]>/, 'Charclass multiple LATIN SMALL LETTER D;RUNIC LETTER DAGAZ DAEG D');
@@ -366,7 +370,7 @@ ok("\x[64]" ~~ m/^ \X[16DE]/, 'Negative hex \X[16DE] match');
 ok("\x[64]" ~~ m/^ <[\X[16DE]]>/, 'Negative charclass hex \X[16DE] match');
 ok("abc\x[2724]def" ~~ m/\c[HEAVY FOUR BALLOON-SPOKED ASTERISK]/, 'Unanchored named HEAVY FOUR BALLOON-SPOKED ASTERISK');
 ok("abc\c[HEAVY FOUR BALLOON-SPOKED ASTERISK]def" ~~ m/\x[2724]/, 'Unanchored \x[2724]');
-ok("abc\c[HEAVY FOUR BALLOON-SPOKED ASTERISK]def" ~~ m/\0[23444]/, 'Unanchored \0[23444]');
+ok("abc\c[HEAVY FOUR BALLOON-SPOKED ASTERISK]def" ~~ m/\o[23444]/, 'Unanchored \o[23444]');
 ok("abc\x[2724]def" ~~ m/^ abc \c[HEAVY FOUR BALLOON-SPOKED ASTERISK] def $/, 'Anchored HEAVY FOUR BALLOON-SPOKED ASTERISK');
 ok("abc\x[2724]\x[64]def" ~~ m/\c[HEAVY FOUR BALLOON-SPOKED ASTERISK;LATIN SMALL LETTER D]/, 'Multiple HEAVY FOUR BALLOON-SPOKED ASTERISK;LATIN SMALL LETTER D');
 ok("\x[2724]\x[64]" ~~ m/<[\c[HEAVY FOUR BALLOON-SPOKED ASTERISK;LATIN SMALL LETTER D]]>/, 'Charclass multiple HEAVY FOUR BALLOON-SPOKED ASTERISK;LATIN SMALL LETTER D');
@@ -381,7 +385,7 @@ ok("\x[2724]" ~~ m/^ \X[64]/, 'Negative hex \X[64] match');
 ok("\x[2724]" ~~ m/^ <[\X[64]]>/, 'Negative charclass hex \X[64] match');
 ok("abc\x[2719]def" ~~ m/\c[OUTLINED GREEK CROSS]/, 'Unanchored named OUTLINED GREEK CROSS');
 ok("abc\c[OUTLINED GREEK CROSS]def" ~~ m/\x[2719]/, 'Unanchored \x[2719]');
-ok("abc\c[OUTLINED GREEK CROSS]def" ~~ m/\0[23431]/, 'Unanchored \0[23431]');
+ok("abc\c[OUTLINED GREEK CROSS]def" ~~ m/\o[23431]/, 'Unanchored \o[23431]');
 ok("abc\x[2719]def" ~~ m/^ abc \c[OUTLINED GREEK CROSS] def $/, 'Anchored OUTLINED GREEK CROSS');
 ok("abc\x[2719]\x[2724]def" ~~ m/\c[OUTLINED GREEK CROSS;HEAVY FOUR BALLOON-SPOKED ASTERISK]/, 'Multiple OUTLINED GREEK CROSS;HEAVY FOUR BALLOON-SPOKED ASTERISK');
 ok("\x[2719]\x[2724]" ~~ m/<[\c[OUTLINED GREEK CROSS;HEAVY FOUR BALLOON-SPOKED ASTERISK]]>/, 'Charclass multiple OUTLINED GREEK CROSS;HEAVY FOUR BALLOON-SPOKED ASTERISK');
@@ -396,7 +400,7 @@ ok("\x[2719]" ~~ m/^ \X[2724]/, 'Negative hex \X[2724] match');
 ok("\x[2719]" ~~ m/^ <[\X[2724]]>/, 'Negative charclass hex \X[2724] match');
 ok("abc\x[e97]def" ~~ m/\c[LAO LETTER THO TAM]/, 'Unanchored named LAO LETTER THO TAM');
 ok("abc\c[LAO LETTER THO TAM]def" ~~ m/\x[e97]/, 'Unanchored \x[e97]');
-ok("abc\c[LAO LETTER THO TAM]def" ~~ m/\0[7227]/, 'Unanchored \0[7227]');
+ok("abc\c[LAO LETTER THO TAM]def" ~~ m/\o[7227]/, 'Unanchored \o[7227]');
 ok("abc\x[e97]def" ~~ m/^ abc \c[LAO LETTER THO TAM] def $/, 'Anchored LAO LETTER THO TAM');
 ok("abc\x[e97]\x[2719]def" ~~ m/\c[LAO LETTER THO TAM; OUTLINED GREEK CROSS]/, 'Multiple LAO LETTER THO TAM; OUTLINED GREEK CROSS');
 ok("\x[e97]\x[2719]" ~~ m/<[\c[LAO LETTER THO TAM; OUTLINED GREEK CROSS]]>/, 'Charclass multiple LAO LETTER THO TAM; OUTLINED GREEK CROSS');
@@ -411,7 +415,7 @@ ok("\x[e97]" ~~ m/^ \X[2719]/, 'Negative hex \X[2719] match');
 ok("\x[e97]" ~~ m/^ <[\X[2719]]>/, 'Negative charclass hex \X[2719] match');
 ok("abc\x[a42d]def" ~~ m/\c[YI SYLLABLE JJYT]/, 'Unanchored named YI SYLLABLE JJYT');
 ok("abc\c[YI SYLLABLE JJYT]def" ~~ m/\x[a42d]/, 'Unanchored \x[a42d]');
-ok("abc\c[YI SYLLABLE JJYT]def" ~~ m/\0[122055]/, 'Unanchored \0[122055]');
+ok("abc\c[YI SYLLABLE JJYT]def" ~~ m/\o[122055]/, 'Unanchored \o[122055]');
 ok("abc\x[a42d]def" ~~ m/^ abc \c[YI SYLLABLE JJYT] def $/, 'Anchored YI SYLLABLE JJYT');
 ok("abc\x[a42d]\x[e97]def" ~~ m/\c[YI SYLLABLE JJYT;LAO LETTER THO TAM]/, 'Multiple YI SYLLABLE JJYT;LAO LETTER THO TAM');
 ok("\x[a42d]\x[e97]" ~~ m/<[\c[YI SYLLABLE JJYT;LAO LETTER THO TAM]]>/, 'Charclass multiple YI SYLLABLE JJYT;LAO LETTER THO TAM');
@@ -426,7 +430,7 @@ ok("\x[a42d]" ~~ m/^ \X[E97]/, 'Negative hex \X[E97] match');
 ok("\x[a42d]" ~~ m/^ <[\X[E97]]>/, 'Negative charclass hex \X[E97] match');
 ok("abc\x[ff6e]def" ~~ m/\c[HALFWIDTH KATAKANA LETTER SMALL YO]/, 'Unanchored named HALFWIDTH KATAKANA LETTER SMALL YO');
 ok("abc\c[HALFWIDTH KATAKANA LETTER SMALL YO]def" ~~ m/\x[FF6E]/, 'Unanchored \x[FF6E]');
-ok("abc\c[HALFWIDTH KATAKANA LETTER SMALL YO]def" ~~ m/\0[177556]/, 'Unanchored \0[177556]');
+ok("abc\c[HALFWIDTH KATAKANA LETTER SMALL YO]def" ~~ m/\o[177556]/, 'Unanchored \o[177556]');
 ok("abc\x[ff6e]def" ~~ m/^ abc \c[HALFWIDTH KATAKANA LETTER SMALL YO] def $/, 'Anchored HALFWIDTH KATAKANA LETTER SMALL YO');
 ok("abc\x[ff6e]\x[a42d]def" ~~ m/\c[HALFWIDTH KATAKANA LETTER SMALL YO;YI SYLLABLE JJYT]/, 'Multiple HALFWIDTH KATAKANA LETTER SMALL YO;YI SYLLABLE JJYT');
 ok("\x[ff6e]\x[a42d]" ~~ m/<[\c[HALFWIDTH KATAKANA LETTER SMALL YO;YI SYLLABLE JJYT]]>/, 'Charclass multiple HALFWIDTH KATAKANA LETTER SMALL YO;YI SYLLABLE JJYT');

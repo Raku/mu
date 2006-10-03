@@ -3,3322 +3,3321 @@ use Test;
 
 =pod
 
-This file was derived from the perl5 CPAN module Perl6::Rules,
+This file was originally derived from the perl5 CPAN module Perl6::Rules,
 version 0.3 (12 Apr 2004), file t/propcharset_slow_to_compile.t.
-
-It has (hopefully) been, and should continue to be, updated to
-be valid perl6.
 
 =cut
 
-skip_rest "This file was in t_disabled/.  Remove this SKIP when it works.";
-=begin END
-
 plan 2349;
+
 
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
+  force_todo(1..2,7..11,16..20,25..26,28..32,37..41,46..47,49..53,58..59,61..65,70..71,73..77,82..86,91..92,94..98,103..107,112..113,115..119,124..128,133..134,136..140,145..149,154..158,163..164,166..170,175..179,184..185,187..191,196..200,205..206,208..212,217..221,226..230,235..239,244..245,247..251,256..260,265..266,268..272,277..278,280..284,289..290,292..296,301..305,310..314,319..323,328..329,331..335,340..344,349..350,352..356,361..365,370..371,373..377,382..386,391..392,394..398,403..407,412..413,415..419,424..428,433..434,436..440,445..449,454..455,457..461,466..470,475..479,484..488,493..494,496..500,505..506,508..512,517..518,520..524,529..533,538..539,541..545,550..551,553..557,562..563,565..569,574..578,583..587,592..593,595..599,604..605,607..611,616..617,619..623,628..629,631..635,640..641,643..647,652..653,655..659,664..665,667..671,676..680,685..689,694..695,697..701,706..707,709..713,718..719,721..725,730..734,739..743,748..752,757..761,766..770,775..779,784..788,793..797,802..806,811..815,820..824,829..830,832..836,841..842,844..848,853..854,856..858,860..863,868..872,877..881,886..888,890..893,898..902,907..911,916..920,925..929,934..938,943..947,952..956,961..965,970..974,979..983,988..992,997..1001,1006..1007,1009..1013,1018..1019,1021..1025,1030..1031,1033..1037,1042..1043,1045..1049,1054..1055,1057..1061,1066..1068,1070..1073,1078..1082,1087..1091,1096..1097,1099..1103,1108..1109,1111..1115,1120..1124,1129..1133,1138..1142,1147..1151,1156..1160,1165..1169,1174..1178,1183..1187,1192..1196,1201..1205,1210..1214,1219..1223,1228..1232,1237..1241,1246..1250,1255..1259,1264..1268,1273..1277,1282..1286,1291..1292,1294..1296,1298..1299,1301..1304,1309..1313,1318..1322,1327..1331,1336..1340,1345..1349,1354..1358,1363..1367,1372..1376,1381..1382,1384..1388,1393..1397,1402..1406,1411..1415,1420..1424,1429..1430,1432..1436,1441..1445,1450..1451,1453..1457,1462..1466,1471..1475,1479..1481,1486..1490,1495..1499,1504..1505,1507..1509,1511..1514,1519..1521,1523..1524,1526..1529,1534..1538,1543..1547,1552..1556,1561..1565,1570..1574,1579..1583,1588..1592,1597..1601,1606..1610,1615..1617,1619..1622,1627..1629,1631..1632,1634..1635,1637..1640,1645..1649,1654..1658,1663..1667,1672..1674,1676..1679,1684..1688,1693..1697,1702..1704,1706..1709,1714..1718,1723..1727,1732..1736,1741..1743,1745..1748,1753..1757,1762..1766,1771..1775,1780..1784,1789..1793,1798..1802,1807..1811,1816..1818,1820..1823,1828..1832,1837..1841,1846..1850,1855..1857,1859..1862,1867..1871,1876..1880,1885..1889,1894..1898,1903..1905,1907..1908,1910..1913,1918..1922,1927..1931,1936..1940,1945..1949,1954..1958,1963..1967,1972..1976,1981..1985,1990..1994,1999..2003,2008..2012,2017..2021,2026..2030,2035..2039,2044..2046,2048..2051,2056..2058,2060..2063,2068..2072,2077..2081,2086..2090,2095..2099,2104..2108,2113..2115,2117..2120,2125..2129,2134..2138,2143..2145,2147..2150,2155..2159,2164..2166,2168..2171,2176..2180,2185..2187,2189..2192,2197..2199,2201..2204,2209..2213,2218..2222,2227..2231,2236..2238,2240..2241,2243..2246,2251..2255,2260..2264,2269..2271,2273..2276,2281..2285,2290..2294,2299..2303,2308..2312,2317..2321,2326..2328,2330..2333,2338..2342,2347..2349);  # Unicode property character sets are :todo<feature>.
+
+
 # L           Letter
 
 
-ok("\x[45CD]" ~~ m/^<+<L>>$/, q{Match <L> (Letter)} );
-ok("\x[45CD]" ~~ m/^<[A]+<L>>$/, q{Match compound <L> (Letter)} );
-ok(!( "\x[45CD]" ~~ m/^<-<L>>$/ ), q{Don't match externally inverted <L> (Letter)} );
-ok(!( "\x[45CD]" ~~ m/^<[A]-<L>>$/ ), q{Don't match compound inverted <L> (Letter)} );
-ok(!( "\x[45CD]" ~~ m/^<+<-L>>$/ ), q{Don't match internally inverted <L> (Letter)} );
-ok(!( "\x[4DB6]"  ~~ m/^<+<L>>$/ ), q{Don't match unrelated <L> (Letter)} );
-ok("\x[4DB6]"  ~~ m/^<-<L>>$/, q{Match unrelated externally inverted <L> (Letter)} );
-ok("\x[4DB6]"  ~~ m/^<+<-L>>$/, q{Match unrelated internally inverted <L> (Letter)} );
-ok("\x[4DB6]\x[45CD]" ~~ m/<+<L>>/, q{Match unanchored <L> (Letter)} );
+ok("\x[45CD]" ~~ m/^<+<isL>>$/, q{Match <isL> (Letter)} );
+ok("\x[45CD]" ~~ m/^<[A]+<isL>>$/, q{Match compound <isL> (Letter)} );
+ok(!( "\x[45CD]" ~~ m/^<-<isL>>$/ ), q{Don't match externally inverted <isL> (Letter)} );
+ok(!( "\x[45CD]" ~~ m/^<[A]-<isL>>$/ ), q{Don't match compound inverted <isL> (Letter)} );
+ok(!( "\x[45CD]" ~~ m/^<+<-isL>>$/ ), q{Don't match internally inverted <isL> (Letter)} );
+ok(!( "\x[4DB6]"  ~~ m/^<+<isL>>$/ ), q{Don't match unrelated <isL> (Letter)} );
+ok("\x[4DB6]"  ~~ m/^<-<isL>>$/, q{Match unrelated externally inverted <isL> (Letter)} );
+ok("\x[4DB6]"  ~~ m/^<+<-isL>>$/, q{Match unrelated internally inverted <isL> (Letter)} );
+ok("\x[4DB6]\x[45CD]" ~~ m/<+<isL>>/, q{Match unanchored <isL> (Letter)} );
 
-ok("\c[HANGUL LETTER SIOS-PIEUP]" ~~ m/^<+<?Letter>>$/, q{Match <?Letter>} );
-ok("\c[HANGUL LETTER SIOS-PIEUP]" ~~ m/^<[A]+<?Letter>>$/, q{Match compound <?Letter>} );
-ok(!( "\c[HANGUL LETTER SIOS-PIEUP]" ~~ m/^<-<?Letter>>$/ ), q{Don't match externally inverted <?Letter>} );
-ok(!( "\c[HANGUL LETTER SIOS-PIEUP]" ~~ m/^<[A]-<?Letter>>$/ ), q{Don't match compound inverted <?Letter>} );
-ok(!( "\c[HANGUL LETTER SIOS-PIEUP]" ~~ m/^<+<-Letter>>$/ ), q{Don't match internally inverted <?Letter>} );
-ok(!( "\x[318F]"  ~~ m/^<+<?Letter>>$/ ), q{Don't match unrelated <?Letter>} );
-ok("\x[318F]"  ~~ m/^<-<?Letter>>$/, q{Match unrelated externally inverted <?Letter>} );
-ok("\x[318F]"  ~~ m/^<+<-Letter>>$/, q{Match unrelated internally inverted <?Letter>} );
-ok("\x[318F]\c[HANGUL LETTER SIOS-PIEUP]" ~~ m/<+<?Letter>>/, q{Match unanchored <?Letter>} );
+ok("\c[HANGUL LETTER SIOS-PIEUP]" ~~ m/^<+<?isLetter>>$/, q{Match <?isLetter>} );
+ok("\c[HANGUL LETTER SIOS-PIEUP]" ~~ m/^<[A]+<?isLetter>>$/, q{Match compound <?isLetter>} );
+ok(!( "\c[HANGUL LETTER SIOS-PIEUP]" ~~ m/^<-<?isLetter>>$/ ), q{Don't match externally inverted <?isLetter>} );
+ok(!( "\c[HANGUL LETTER SIOS-PIEUP]" ~~ m/^<[A]-<?isLetter>>$/ ), q{Don't match compound inverted <?isLetter>} );
+ok(!( "\c[HANGUL LETTER SIOS-PIEUP]" ~~ m/^<+<-isLetter>>$/ ), q{Don't match internally inverted <?isLetter>} );
+ok(!( "\x[318F]"  ~~ m/^<+<?isLetter>>$/ ), q{Don't match unrelated <?isLetter>} );
+ok("\x[318F]"  ~~ m/^<-<?isLetter>>$/, q{Match unrelated externally inverted <?isLetter>} );
+ok("\x[318F]"  ~~ m/^<+<-isLetter>>$/, q{Match unrelated internally inverted <?isLetter>} );
+ok("\x[318F]\c[HANGUL LETTER SIOS-PIEUP]" ~~ m/<+<?isLetter>>/, q{Match unanchored <?isLetter>} );
 
 # Lu          UppercaseLetter
 
 
-ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<?Lu>>$/, q{Match <?Lu> (UppercaseLetter)} );
-ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<[A]+<?Lu>>$/, q{Match compound <?Lu> (UppercaseLetter)} );
-ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<-<?Lu>>$/ ), q{Don't match externally inverted <?Lu> (UppercaseLetter)} );
-ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<[A]-<?Lu>>$/ ), q{Don't match compound inverted <?Lu> (UppercaseLetter)} );
-ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<-Lu>>$/ ), q{Don't match internally inverted <?Lu> (UppercaseLetter)} );
-ok(!( "\x[5E52]"  ~~ m/^<+<?Lu>>$/ ), q{Don't match unrelated <?Lu> (UppercaseLetter)} );
-ok("\x[5E52]"  ~~ m/^<-<?Lu>>$/, q{Match unrelated externally inverted <?Lu> (UppercaseLetter)} );
-ok("\x[5E52]"  ~~ m/^<+<-Lu>>$/, q{Match unrelated internally inverted <?Lu> (UppercaseLetter)} );
-ok(!( "\x[5E52]" ~~ m/^<+<?Lu>>$/ ), q{Don't match related <?Lu> (UppercaseLetter)} );
-ok("\x[5E52]" ~~ m/^<+<-Lu>>$/, q{Match related internally inverted <?Lu> (UppercaseLetter)} );
-ok("\x[5E52]" ~~ m/^<-<?Lu>>$/, q{Match related externally inverted <?Lu> (UppercaseLetter)} );
-ok("\x[5E52]\x[5E52]\c[LATIN CAPITAL LETTER A]" ~~ m/<+<?Lu>>/, q{Match unanchored <?Lu> (UppercaseLetter)} );
+ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<?isLu>>$/, q{Match <?isLu> (UppercaseLetter)} );
+ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<[A]+<?isLu>>$/, q{Match compound <?isLu> (UppercaseLetter)} );
+ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<-<?isLu>>$/ ), q{Don't match externally inverted <?isLu> (UppercaseLetter)} );
+ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<[A]-<?isLu>>$/ ), q{Don't match compound inverted <?isLu> (UppercaseLetter)} );
+ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<-isLu>>$/ ), q{Don't match internally inverted <?isLu> (UppercaseLetter)} );
+ok(!( "\x[5E52]"  ~~ m/^<+<?isLu>>$/ ), q{Don't match unrelated <?isLu> (UppercaseLetter)} );
+ok("\x[5E52]"  ~~ m/^<-<?isLu>>$/, q{Match unrelated externally inverted <?isLu> (UppercaseLetter)} );
+ok("\x[5E52]"  ~~ m/^<+<-isLu>>$/, q{Match unrelated internally inverted <?isLu> (UppercaseLetter)} );
+ok(!( "\x[5E52]" ~~ m/^<+<?isLu>>$/ ), q{Don't match related <?isLu> (UppercaseLetter)} );
+ok("\x[5E52]" ~~ m/^<+<-isLu>>$/, q{Match related internally inverted <?isLu> (UppercaseLetter)} );
+ok("\x[5E52]" ~~ m/^<-<?isLu>>$/, q{Match related externally inverted <?isLu> (UppercaseLetter)} );
+ok("\x[5E52]\x[5E52]\c[LATIN CAPITAL LETTER A]" ~~ m/<+<?isLu>>/, q{Match unanchored <?isLu> (UppercaseLetter)} );
 
-ok("\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<+<?UppercaseLetter>>$/, q{Match <?UppercaseLetter>} );
-ok("\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<[A]+<?UppercaseLetter>>$/, q{Match compound <?UppercaseLetter>} );
-ok(!( "\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<-<?UppercaseLetter>>$/ ), q{Don't match externally inverted <?UppercaseLetter>} );
-ok(!( "\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<[A]-<?UppercaseLetter>>$/ ), q{Don't match compound inverted <?UppercaseLetter>} );
-ok(!( "\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<+<-UppercaseLetter>>$/ ), q{Don't match internally inverted <?UppercaseLetter>} );
-ok(!( "\x[1DB9]"  ~~ m/^<+<?UppercaseLetter>>$/ ), q{Don't match unrelated <?UppercaseLetter>} );
-ok("\x[1DB9]"  ~~ m/^<-<?UppercaseLetter>>$/, q{Match unrelated externally inverted <?UppercaseLetter>} );
-ok("\x[1DB9]"  ~~ m/^<+<-UppercaseLetter>>$/, q{Match unrelated internally inverted <?UppercaseLetter>} );
-ok("\x[1DB9]\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/<+<?UppercaseLetter>>/, q{Match unanchored <?UppercaseLetter>} );
+ok("\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<+<?isUppercaseLetter>>$/, q{Match <?isUppercaseLetter>} );
+ok("\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<[A]+<?isUppercaseLetter>>$/, q{Match compound <?isUppercaseLetter>} );
+ok(!( "\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<-<?isUppercaseLetter>>$/ ), q{Don't match externally inverted <?isUppercaseLetter>} );
+ok(!( "\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<[A]-<?isUppercaseLetter>>$/ ), q{Don't match compound inverted <?isUppercaseLetter>} );
+ok(!( "\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<+<-isUppercaseLetter>>$/ ), q{Don't match internally inverted <?isUppercaseLetter>} );
+ok(!( "\x[1DB9]"  ~~ m/^<+<?isUppercaseLetter>>$/ ), q{Don't match unrelated <?isUppercaseLetter>} );
+ok("\x[1DB9]"  ~~ m/^<-<?isUppercaseLetter>>$/, q{Match unrelated externally inverted <?isUppercaseLetter>} );
+ok("\x[1DB9]"  ~~ m/^<+<-isUppercaseLetter>>$/, q{Match unrelated internally inverted <?isUppercaseLetter>} );
+ok("\x[1DB9]\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/<+<?isUppercaseLetter>>/, q{Match unanchored <?isUppercaseLetter>} );
 
 # Ll          LowercaseLetter
 
 
-ok("\c[LATIN SMALL LETTER A]" ~~ m/^<+<?Ll>>$/, q{Match <?Ll> (LowercaseLetter)} );
-ok("\c[LATIN SMALL LETTER A]" ~~ m/^<[A]+<?Ll>>$/, q{Match compound <?Ll> (LowercaseLetter)} );
-ok(!( "\c[LATIN SMALL LETTER A]" ~~ m/^<-<?Ll>>$/ ), q{Don't match externally inverted <?Ll> (LowercaseLetter)} );
-ok(!( "\c[LATIN SMALL LETTER A]" ~~ m/^<[A]-<?Ll>>$/ ), q{Don't match compound inverted <?Ll> (LowercaseLetter)} );
-ok(!( "\c[LATIN SMALL LETTER A]" ~~ m/^<+<-Ll>>$/ ), q{Don't match internally inverted <?Ll> (LowercaseLetter)} );
-ok(!( "\x[83AD]"  ~~ m/^<+<?Ll>>$/ ), q{Don't match unrelated <?Ll> (LowercaseLetter)} );
-ok("\x[83AD]"  ~~ m/^<-<?Ll>>$/, q{Match unrelated externally inverted <?Ll> (LowercaseLetter)} );
-ok("\x[83AD]"  ~~ m/^<+<-Ll>>$/, q{Match unrelated internally inverted <?Ll> (LowercaseLetter)} );
-ok(!( "\x[83AD]" ~~ m/^<+<?Ll>>$/ ), q{Don't match related <?Ll> (LowercaseLetter)} );
-ok("\x[83AD]" ~~ m/^<+<-Ll>>$/, q{Match related internally inverted <?Ll> (LowercaseLetter)} );
-ok("\x[83AD]" ~~ m/^<-<?Ll>>$/, q{Match related externally inverted <?Ll> (LowercaseLetter)} );
-ok("\x[83AD]\x[83AD]\c[LATIN SMALL LETTER A]" ~~ m/<+<?Ll>>/, q{Match unanchored <?Ll> (LowercaseLetter)} );
+ok("\c[LATIN SMALL LETTER A]" ~~ m/^<+<?isLl>>$/, q{Match <?isLl> (LowercaseLetter)} );
+ok("\c[LATIN SMALL LETTER A]" ~~ m/^<[A]+<?isLl>>$/, q{Match compound <?isLl> (LowercaseLetter)} );
+ok(!( "\c[LATIN SMALL LETTER A]" ~~ m/^<-<?isLl>>$/ ), q{Don't match externally inverted <?isLl> (LowercaseLetter)} );
+ok(!( "\c[LATIN SMALL LETTER A]" ~~ m/^<[A]-<?isLl>>$/ ), q{Don't match compound inverted <?isLl> (LowercaseLetter)} );
+ok(!( "\c[LATIN SMALL LETTER A]" ~~ m/^<+<-isLl>>$/ ), q{Don't match internally inverted <?isLl> (LowercaseLetter)} );
+ok(!( "\x[83AD]"  ~~ m/^<+<?isLl>>$/ ), q{Don't match unrelated <?isLl> (LowercaseLetter)} );
+ok("\x[83AD]"  ~~ m/^<-<?isLl>>$/, q{Match unrelated externally inverted <?isLl> (LowercaseLetter)} );
+ok("\x[83AD]"  ~~ m/^<+<-isLl>>$/, q{Match unrelated internally inverted <?isLl> (LowercaseLetter)} );
+ok(!( "\x[83AD]" ~~ m/^<+<?isLl>>$/ ), q{Don't match related <?isLl> (LowercaseLetter)} );
+ok("\x[83AD]" ~~ m/^<+<-isLl>>$/, q{Match related internally inverted <?isLl> (LowercaseLetter)} );
+ok("\x[83AD]" ~~ m/^<-<?isLl>>$/, q{Match related externally inverted <?isLl> (LowercaseLetter)} );
+ok("\x[83AD]\x[83AD]\c[LATIN SMALL LETTER A]" ~~ m/<+<?isLl>>/, q{Match unanchored <?isLl> (LowercaseLetter)} );
 
-ok("\c[LATIN SMALL LETTER A]" ~~ m/^<+<?LowercaseLetter>>$/, q{Match <?LowercaseLetter>} );
-ok("\c[LATIN SMALL LETTER A]" ~~ m/^<[A]+<?LowercaseLetter>>$/, q{Match compound <?LowercaseLetter>} );
-ok(!( "\c[LATIN SMALL LETTER A]" ~~ m/^<-<?LowercaseLetter>>$/ ), q{Don't match externally inverted <?LowercaseLetter>} );
-ok(!( "\c[LATIN SMALL LETTER A]" ~~ m/^<[A]-<?LowercaseLetter>>$/ ), q{Don't match compound inverted <?LowercaseLetter>} );
-ok(!( "\c[LATIN SMALL LETTER A]" ~~ m/^<+<-LowercaseLetter>>$/ ), q{Don't match internally inverted <?LowercaseLetter>} );
-ok(!( "\x[A9A8]"  ~~ m/^<+<?LowercaseLetter>>$/ ), q{Don't match unrelated <?LowercaseLetter>} );
-ok("\x[A9A8]"  ~~ m/^<-<?LowercaseLetter>>$/, q{Match unrelated externally inverted <?LowercaseLetter>} );
-ok("\x[A9A8]"  ~~ m/^<+<-LowercaseLetter>>$/, q{Match unrelated internally inverted <?LowercaseLetter>} );
-ok(!( "\x[AC00]" ~~ m/^<+<?LowercaseLetter>>$/ ), q{Don't match related <?LowercaseLetter>} );
-ok("\x[AC00]" ~~ m/^<+<-LowercaseLetter>>$/, q{Match related internally inverted <?LowercaseLetter>} );
-ok("\x[AC00]" ~~ m/^<-<?LowercaseLetter>>$/, q{Match related externally inverted <?LowercaseLetter>} );
-ok("\x[A9A8]\x[AC00]\c[LATIN SMALL LETTER A]" ~~ m/<+<?LowercaseLetter>>/, q{Match unanchored <?LowercaseLetter>} );
+ok("\c[LATIN SMALL LETTER A]" ~~ m/^<+<?isLowercaseLetter>>$/, q{Match <?isLowercaseLetter>} );
+ok("\c[LATIN SMALL LETTER A]" ~~ m/^<[A]+<?isLowercaseLetter>>$/, q{Match compound <?isLowercaseLetter>} );
+ok(!( "\c[LATIN SMALL LETTER A]" ~~ m/^<-<?isLowercaseLetter>>$/ ), q{Don't match externally inverted <?isLowercaseLetter>} );
+ok(!( "\c[LATIN SMALL LETTER A]" ~~ m/^<[A]-<?isLowercaseLetter>>$/ ), q{Don't match compound inverted <?isLowercaseLetter>} );
+ok(!( "\c[LATIN SMALL LETTER A]" ~~ m/^<+<-isLowercaseLetter>>$/ ), q{Don't match internally inverted <?isLowercaseLetter>} );
+ok(!( "\x[A9A8]"  ~~ m/^<+<?isLowercaseLetter>>$/ ), q{Don't match unrelated <?isLowercaseLetter>} );
+ok("\x[A9A8]"  ~~ m/^<-<?isLowercaseLetter>>$/, q{Match unrelated externally inverted <?isLowercaseLetter>} );
+ok("\x[A9A8]"  ~~ m/^<+<-isLowercaseLetter>>$/, q{Match unrelated internally inverted <?isLowercaseLetter>} );
+ok(!( "\x[AC00]" ~~ m/^<+<?isLowercaseLetter>>$/ ), q{Don't match related <?isLowercaseLetter>} );
+ok("\x[AC00]" ~~ m/^<+<-isLowercaseLetter>>$/, q{Match related internally inverted <?isLowercaseLetter>} );
+ok("\x[AC00]" ~~ m/^<-<?isLowercaseLetter>>$/, q{Match related externally inverted <?isLowercaseLetter>} );
+ok("\x[A9A8]\x[AC00]\c[LATIN SMALL LETTER A]" ~~ m/<+<?isLowercaseLetter>>/, q{Match unanchored <?isLowercaseLetter>} );
 
 # Lt          TitlecaseLetter
 
 
-ok("\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<+<?Lt>>$/, q{Match <?Lt> (TitlecaseLetter)} );
-ok("\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<[A]+<?Lt>>$/, q{Match compound <?Lt> (TitlecaseLetter)} );
-ok(!( "\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<-<?Lt>>$/ ), q{Don't match externally inverted <?Lt> (TitlecaseLetter)} );
-ok(!( "\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<[A]-<?Lt>>$/ ), q{Don't match compound inverted <?Lt> (TitlecaseLetter)} );
-ok(!( "\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<+<-Lt>>$/ ), q{Don't match internally inverted <?Lt> (TitlecaseLetter)} );
-ok(!( "\x[D187]"  ~~ m/^<+<?Lt>>$/ ), q{Don't match unrelated <?Lt> (TitlecaseLetter)} );
-ok("\x[D187]"  ~~ m/^<-<?Lt>>$/, q{Match unrelated externally inverted <?Lt> (TitlecaseLetter)} );
-ok("\x[D187]"  ~~ m/^<+<-Lt>>$/, q{Match unrelated internally inverted <?Lt> (TitlecaseLetter)} );
-ok(!( "\x[D187]" ~~ m/^<+<?Lt>>$/ ), q{Don't match related <?Lt> (TitlecaseLetter)} );
-ok("\x[D187]" ~~ m/^<+<-Lt>>$/, q{Match related internally inverted <?Lt> (TitlecaseLetter)} );
-ok("\x[D187]" ~~ m/^<-<?Lt>>$/, q{Match related externally inverted <?Lt> (TitlecaseLetter)} );
-ok("\x[D187]\x[D187]\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/<+<?Lt>>/, q{Match unanchored <?Lt> (TitlecaseLetter)} );
+ok("\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<+<?isLt>>$/, q{Match <?isLt> (TitlecaseLetter)} );
+ok("\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<[A]+<?isLt>>$/, q{Match compound <?isLt> (TitlecaseLetter)} );
+ok(!( "\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<-<?isLt>>$/ ), q{Don't match externally inverted <?isLt> (TitlecaseLetter)} );
+ok(!( "\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<[A]-<?isLt>>$/ ), q{Don't match compound inverted <?isLt> (TitlecaseLetter)} );
+ok(!( "\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<+<-isLt>>$/ ), q{Don't match internally inverted <?isLt> (TitlecaseLetter)} );
+ok(!( "\x[D187]"  ~~ m/^<+<?isLt>>$/ ), q{Don't match unrelated <?isLt> (TitlecaseLetter)} );
+ok("\x[D187]"  ~~ m/^<-<?isLt>>$/, q{Match unrelated externally inverted <?isLt> (TitlecaseLetter)} );
+ok("\x[D187]"  ~~ m/^<+<-isLt>>$/, q{Match unrelated internally inverted <?isLt> (TitlecaseLetter)} );
+ok(!( "\x[D187]" ~~ m/^<+<?isLt>>$/ ), q{Don't match related <?isLt> (TitlecaseLetter)} );
+ok("\x[D187]" ~~ m/^<+<-isLt>>$/, q{Match related internally inverted <?isLt> (TitlecaseLetter)} );
+ok("\x[D187]" ~~ m/^<-<?isLt>>$/, q{Match related externally inverted <?isLt> (TitlecaseLetter)} );
+ok("\x[D187]\x[D187]\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/<+<?isLt>>/, q{Match unanchored <?isLt> (TitlecaseLetter)} );
 
-ok("\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<+<?TitlecaseLetter>>$/, q{Match <?TitlecaseLetter>} );
-ok("\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<[A]+<?TitlecaseLetter>>$/, q{Match compound <?TitlecaseLetter>} );
-ok(!( "\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<-<?TitlecaseLetter>>$/ ), q{Don't match externally inverted <?TitlecaseLetter>} );
-ok(!( "\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<[A]-<?TitlecaseLetter>>$/ ), q{Don't match compound inverted <?TitlecaseLetter>} );
-ok(!( "\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<+<-TitlecaseLetter>>$/ ), q{Don't match internally inverted <?TitlecaseLetter>} );
-ok(!( "\x[C2A9]"  ~~ m/^<+<?TitlecaseLetter>>$/ ), q{Don't match unrelated <?TitlecaseLetter>} );
-ok("\x[C2A9]"  ~~ m/^<-<?TitlecaseLetter>>$/, q{Match unrelated externally inverted <?TitlecaseLetter>} );
-ok("\x[C2A9]"  ~~ m/^<+<-TitlecaseLetter>>$/, q{Match unrelated internally inverted <?TitlecaseLetter>} );
-ok("\x[C2A9]\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/<+<?TitlecaseLetter>>/, q{Match unanchored <?TitlecaseLetter>} );
+ok("\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<+<?isTitlecaseLetter>>$/, q{Match <?isTitlecaseLetter>} );
+ok("\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<[A]+<?isTitlecaseLetter>>$/, q{Match compound <?isTitlecaseLetter>} );
+ok(!( "\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<-<?isTitlecaseLetter>>$/ ), q{Don't match externally inverted <?isTitlecaseLetter>} );
+ok(!( "\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<[A]-<?isTitlecaseLetter>>$/ ), q{Don't match compound inverted <?isTitlecaseLetter>} );
+ok(!( "\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/^<+<-isTitlecaseLetter>>$/ ), q{Don't match internally inverted <?isTitlecaseLetter>} );
+ok(!( "\x[C2A9]"  ~~ m/^<+<?isTitlecaseLetter>>$/ ), q{Don't match unrelated <?isTitlecaseLetter>} );
+ok("\x[C2A9]"  ~~ m/^<-<?isTitlecaseLetter>>$/, q{Match unrelated externally inverted <?isTitlecaseLetter>} );
+ok("\x[C2A9]"  ~~ m/^<+<-isTitlecaseLetter>>$/, q{Match unrelated internally inverted <?isTitlecaseLetter>} );
+ok("\x[C2A9]\c[LATIN CAPITAL LETTER D WITH SMALL LETTER Z WITH CARON]" ~~ m/<+<?isTitlecaseLetter>>/, q{Match unanchored <?isTitlecaseLetter>} );
 
 # Lm          ModifierLetter
 
 
-ok("\c[MODIFIER LETTER SMALL H]" ~~ m/^<+<?Lm>>$/, q{Match <?Lm> (ModifierLetter)} );
-ok("\c[MODIFIER LETTER SMALL H]" ~~ m/^<[A]+<?Lm>>$/, q{Match compound <?Lm> (ModifierLetter)} );
-ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<-<?Lm>>$/ ), q{Don't match externally inverted <?Lm> (ModifierLetter)} );
-ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<[A]-<?Lm>>$/ ), q{Don't match compound inverted <?Lm> (ModifierLetter)} );
-ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<+<-Lm>>$/ ), q{Don't match internally inverted <?Lm> (ModifierLetter)} );
-ok(!( "\x[8C34]"  ~~ m/^<+<?Lm>>$/ ), q{Don't match unrelated <?Lm> (ModifierLetter)} );
-ok("\x[8C34]"  ~~ m/^<-<?Lm>>$/, q{Match unrelated externally inverted <?Lm> (ModifierLetter)} );
-ok("\x[8C34]"  ~~ m/^<+<-Lm>>$/, q{Match unrelated internally inverted <?Lm> (ModifierLetter)} );
-ok(!( "\x[8C34]" ~~ m/^<+<?Lm>>$/ ), q{Don't match related <?Lm> (ModifierLetter)} );
-ok("\x[8C34]" ~~ m/^<+<-Lm>>$/, q{Match related internally inverted <?Lm> (ModifierLetter)} );
-ok("\x[8C34]" ~~ m/^<-<?Lm>>$/, q{Match related externally inverted <?Lm> (ModifierLetter)} );
-ok("\x[8C34]\x[8C34]\c[MODIFIER LETTER SMALL H]" ~~ m/<+<?Lm>>/, q{Match unanchored <?Lm> (ModifierLetter)} );
+ok("\c[MODIFIER LETTER SMALL H]" ~~ m/^<+<?isLm>>$/, q{Match <?isLm> (ModifierLetter)} );
+ok("\c[MODIFIER LETTER SMALL H]" ~~ m/^<[A]+<?isLm>>$/, q{Match compound <?isLm> (ModifierLetter)} );
+ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<-<?isLm>>$/ ), q{Don't match externally inverted <?isLm> (ModifierLetter)} );
+ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<[A]-<?isLm>>$/ ), q{Don't match compound inverted <?isLm> (ModifierLetter)} );
+ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<+<-isLm>>$/ ), q{Don't match internally inverted <?isLm> (ModifierLetter)} );
+ok(!( "\x[8C34]"  ~~ m/^<+<?isLm>>$/ ), q{Don't match unrelated <?isLm> (ModifierLetter)} );
+ok("\x[8C34]"  ~~ m/^<-<?isLm>>$/, q{Match unrelated externally inverted <?isLm> (ModifierLetter)} );
+ok("\x[8C34]"  ~~ m/^<+<-isLm>>$/, q{Match unrelated internally inverted <?isLm> (ModifierLetter)} );
+ok(!( "\x[8C34]" ~~ m/^<+<?isLm>>$/ ), q{Don't match related <?isLm> (ModifierLetter)} );
+ok("\x[8C34]" ~~ m/^<+<-isLm>>$/, q{Match related internally inverted <?isLm> (ModifierLetter)} );
+ok("\x[8C34]" ~~ m/^<-<?isLm>>$/, q{Match related externally inverted <?isLm> (ModifierLetter)} );
+ok("\x[8C34]\x[8C34]\c[MODIFIER LETTER SMALL H]" ~~ m/<+<?isLm>>/, q{Match unanchored <?isLm> (ModifierLetter)} );
 
-ok("\c[MODIFIER LETTER SMALL H]" ~~ m/^<+<?ModifierLetter>>$/, q{Match <?ModifierLetter>} );
-ok("\c[MODIFIER LETTER SMALL H]" ~~ m/^<[A]+<?ModifierLetter>>$/, q{Match compound <?ModifierLetter>} );
-ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<-<?ModifierLetter>>$/ ), q{Don't match externally inverted <?ModifierLetter>} );
-ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<[A]-<?ModifierLetter>>$/ ), q{Don't match compound inverted <?ModifierLetter>} );
-ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<+<-ModifierLetter>>$/ ), q{Don't match internally inverted <?ModifierLetter>} );
-ok(!( "\c[YI SYLLABLE NZAX]"  ~~ m/^<+<?ModifierLetter>>$/ ), q{Don't match unrelated <?ModifierLetter>} );
-ok("\c[YI SYLLABLE NZAX]"  ~~ m/^<-<?ModifierLetter>>$/, q{Match unrelated externally inverted <?ModifierLetter>} );
-ok("\c[YI SYLLABLE NZAX]"  ~~ m/^<+<-ModifierLetter>>$/, q{Match unrelated internally inverted <?ModifierLetter>} );
-ok("\c[YI SYLLABLE NZAX]\c[MODIFIER LETTER SMALL H]" ~~ m/<+<?ModifierLetter>>/, q{Match unanchored <?ModifierLetter>} );
+ok("\c[MODIFIER LETTER SMALL H]" ~~ m/^<+<?isModifierLetter>>$/, q{Match <?isModifierLetter>} );
+ok("\c[MODIFIER LETTER SMALL H]" ~~ m/^<[A]+<?isModifierLetter>>$/, q{Match compound <?isModifierLetter>} );
+ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<-<?isModifierLetter>>$/ ), q{Don't match externally inverted <?isModifierLetter>} );
+ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<[A]-<?isModifierLetter>>$/ ), q{Don't match compound inverted <?isModifierLetter>} );
+ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<+<-isModifierLetter>>$/ ), q{Don't match internally inverted <?isModifierLetter>} );
+ok(!( "\c[YI SYLLABLE NZAX]"  ~~ m/^<+<?isModifierLetter>>$/ ), q{Don't match unrelated <?isModifierLetter>} );
+ok("\c[YI SYLLABLE NZAX]"  ~~ m/^<-<?isModifierLetter>>$/, q{Match unrelated externally inverted <?isModifierLetter>} );
+ok("\c[YI SYLLABLE NZAX]"  ~~ m/^<+<-isModifierLetter>>$/, q{Match unrelated internally inverted <?isModifierLetter>} );
+ok("\c[YI SYLLABLE NZAX]\c[MODIFIER LETTER SMALL H]" ~~ m/<+<?isModifierLetter>>/, q{Match unanchored <?isModifierLetter>} );
 
 # Lo          OtherLetter
 
 
-ok("\x[8CC9]" ~~ m/^<+<?Lo>>$/, q{Match <?Lo> (OtherLetter)} );
-ok("\x[8CC9]" ~~ m/^<[A]+<?Lo>>$/, q{Match compound <?Lo> (OtherLetter)} );
-ok(!( "\x[8CC9]" ~~ m/^<-<?Lo>>$/ ), q{Don't match externally inverted <?Lo> (OtherLetter)} );
-ok(!( "\x[8CC9]" ~~ m/^<[A]-<?Lo>>$/ ), q{Don't match compound inverted <?Lo> (OtherLetter)} );
-ok(!( "\x[8CC9]" ~~ m/^<+<-Lo>>$/ ), q{Don't match internally inverted <?Lo> (OtherLetter)} );
-ok(!( "\x[9FA6]"  ~~ m/^<+<?Lo>>$/ ), q{Don't match unrelated <?Lo> (OtherLetter)} );
-ok("\x[9FA6]"  ~~ m/^<-<?Lo>>$/, q{Match unrelated externally inverted <?Lo> (OtherLetter)} );
-ok("\x[9FA6]"  ~~ m/^<+<-Lo>>$/, q{Match unrelated internally inverted <?Lo> (OtherLetter)} );
-ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<?Lo>>$/ ), q{Don't match related <?Lo> (OtherLetter)} );
-ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<-Lo>>$/, q{Match related internally inverted <?Lo> (OtherLetter)} );
-ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<-<?Lo>>$/, q{Match related externally inverted <?Lo> (OtherLetter)} );
-ok("\x[9FA6]\c[LATIN CAPITAL LETTER A]\x[8CC9]" ~~ m/<+<?Lo>>/, q{Match unanchored <?Lo> (OtherLetter)} );
+ok("\x[8CC9]" ~~ m/^<+<?isLo>>$/, q{Match <?isLo> (OtherLetter)} );
+ok("\x[8CC9]" ~~ m/^<[A]+<?isLo>>$/, q{Match compound <?isLo> (OtherLetter)} );
+ok(!( "\x[8CC9]" ~~ m/^<-<?isLo>>$/ ), q{Don't match externally inverted <?isLo> (OtherLetter)} );
+ok(!( "\x[8CC9]" ~~ m/^<[A]-<?isLo>>$/ ), q{Don't match compound inverted <?isLo> (OtherLetter)} );
+ok(!( "\x[8CC9]" ~~ m/^<+<-isLo>>$/ ), q{Don't match internally inverted <?isLo> (OtherLetter)} );
+ok(!( "\x[9FA6]"  ~~ m/^<+<?isLo>>$/ ), q{Don't match unrelated <?isLo> (OtherLetter)} );
+ok("\x[9FA6]"  ~~ m/^<-<?isLo>>$/, q{Match unrelated externally inverted <?isLo> (OtherLetter)} );
+ok("\x[9FA6]"  ~~ m/^<+<-isLo>>$/, q{Match unrelated internally inverted <?isLo> (OtherLetter)} );
+ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<?isLo>>$/ ), q{Don't match related <?isLo> (OtherLetter)} );
+ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<-isLo>>$/, q{Match related internally inverted <?isLo> (OtherLetter)} );
+ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<-<?isLo>>$/, q{Match related externally inverted <?isLo> (OtherLetter)} );
+ok("\x[9FA6]\c[LATIN CAPITAL LETTER A]\x[8CC9]" ~~ m/<+<?isLo>>/, q{Match unanchored <?isLo> (OtherLetter)} );
 
-ok("\x[BC7D]" ~~ m/^<+<?OtherLetter>>$/, q{Match <?OtherLetter>} );
-ok("\x[BC7D]" ~~ m/^<[A]+<?OtherLetter>>$/, q{Match compound <?OtherLetter>} );
-ok(!( "\x[BC7D]" ~~ m/^<-<?OtherLetter>>$/ ), q{Don't match externally inverted <?OtherLetter>} );
-ok(!( "\x[BC7D]" ~~ m/^<[A]-<?OtherLetter>>$/ ), q{Don't match compound inverted <?OtherLetter>} );
-ok(!( "\x[BC7D]" ~~ m/^<+<-OtherLetter>>$/ ), q{Don't match internally inverted <?OtherLetter>} );
-ok(!( "\x[D7A4]"  ~~ m/^<+<?OtherLetter>>$/ ), q{Don't match unrelated <?OtherLetter>} );
-ok("\x[D7A4]"  ~~ m/^<-<?OtherLetter>>$/, q{Match unrelated externally inverted <?OtherLetter>} );
-ok("\x[D7A4]"  ~~ m/^<+<-OtherLetter>>$/, q{Match unrelated internally inverted <?OtherLetter>} );
-ok("\x[D7A4]\x[BC7D]" ~~ m/<+<?OtherLetter>>/, q{Match unanchored <?OtherLetter>} );
+ok("\x[BC7D]" ~~ m/^<+<?isOtherLetter>>$/, q{Match <?isOtherLetter>} );
+ok("\x[BC7D]" ~~ m/^<[A]+<?isOtherLetter>>$/, q{Match compound <?isOtherLetter>} );
+ok(!( "\x[BC7D]" ~~ m/^<-<?isOtherLetter>>$/ ), q{Don't match externally inverted <?isOtherLetter>} );
+ok(!( "\x[BC7D]" ~~ m/^<[A]-<?isOtherLetter>>$/ ), q{Don't match compound inverted <?isOtherLetter>} );
+ok(!( "\x[BC7D]" ~~ m/^<+<-isOtherLetter>>$/ ), q{Don't match internally inverted <?isOtherLetter>} );
+ok(!( "\x[D7A4]"  ~~ m/^<+<?isOtherLetter>>$/ ), q{Don't match unrelated <?isOtherLetter>} );
+ok("\x[D7A4]"  ~~ m/^<-<?isOtherLetter>>$/, q{Match unrelated externally inverted <?isOtherLetter>} );
+ok("\x[D7A4]"  ~~ m/^<+<-isOtherLetter>>$/, q{Match unrelated internally inverted <?isOtherLetter>} );
+ok("\x[D7A4]\x[BC7D]" ~~ m/<+<?isOtherLetter>>/, q{Match unanchored <?isOtherLetter>} );
 
 # Lr             # Alias for "Ll", "Lu", and "Lt".
 
 
-ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<?Lr>>$/, q{Match (Alias for "Ll", "Lu", and "Lt".)} );
-ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<[A]+<?Lr>>$/, q{Match compound (Alias for "Ll", "Lu", and "Lt".)} );
-ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<-<?Lr>>$/ ), q{Don't match externally inverted (Alias for "Ll", "Lu", and "Lt".)} );
-ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<[A]-<?Lr>>$/ ), q{Don't match compound inverted (Alias for "Ll", "Lu", and "Lt".)} );
-ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<-Lr>>$/ ), q{Don't match internally inverted (Alias for "Ll", "Lu", and "Lt".)} );
-ok(!( "\x[CD29]"  ~~ m/^<+<?Lr>>$/ ), q{Don't match unrelated (Alias for "Ll", "Lu", and "Lt".)} );
-ok("\x[CD29]"  ~~ m/^<-<?Lr>>$/, q{Match unrelated externally inverted (Alias for "Ll", "Lu", and "Lt".)} );
-ok("\x[CD29]"  ~~ m/^<+<-Lr>>$/, q{Match unrelated internally inverted (Alias for "Ll", "Lu", and "Lt".)} );
-ok(!( "\x[CD29]" ~~ m/^<+<?Lr>>$/ ), q{Don't match related (Alias for "Ll", "Lu", and "Lt".)} );
-ok("\x[CD29]" ~~ m/^<+<-Lr>>$/, q{Match related internally inverted (Alias for "Ll", "Lu", and "Lt".)} );
-ok("\x[CD29]" ~~ m/^<-<?Lr>>$/, q{Match related externally inverted (Alias for "Ll", "Lu", and "Lt".)} );
-ok("\x[CD29]\x[CD29]\c[LATIN CAPITAL LETTER A]" ~~ m/<+<?Lr>>/, q{Match unanchored (Alias for "Ll", "Lu", and "Lt".)} );
+ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<?isLr>>$/, q{Match (Alias for "Ll", "Lu", and "Lt".)} );
+ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<[A]+<?isLr>>$/, q{Match compound (Alias for "Ll", "Lu", and "Lt".)} );
+ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<-<?isLr>>$/ ), q{Don't match externally inverted (Alias for "Ll", "Lu", and "Lt".)} );
+ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<[A]-<?isLr>>$/ ), q{Don't match compound inverted (Alias for "Ll", "Lu", and "Lt".)} );
+ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<-isLr>>$/ ), q{Don't match internally inverted (Alias for "Ll", "Lu", and "Lt".)} );
+ok(!( "\x[CD29]"  ~~ m/^<+<?isLr>>$/ ), q{Don't match unrelated (Alias for "Ll", "Lu", and "Lt".)} );
+ok("\x[CD29]"  ~~ m/^<-<?isLr>>$/, q{Match unrelated externally inverted (Alias for "Ll", "Lu", and "Lt".)} );
+ok("\x[CD29]"  ~~ m/^<+<-isLr>>$/, q{Match unrelated internally inverted (Alias for "Ll", "Lu", and "Lt".)} );
+ok(!( "\x[CD29]" ~~ m/^<+<?isLr>>$/ ), q{Don't match related (Alias for "Ll", "Lu", and "Lt".)} );
+ok("\x[CD29]" ~~ m/^<+<-isLr>>$/, q{Match related internally inverted (Alias for "Ll", "Lu", and "Lt".)} );
+ok("\x[CD29]" ~~ m/^<-<?isLr>>$/, q{Match related externally inverted (Alias for "Ll", "Lu", and "Lt".)} );
+ok("\x[CD29]\x[CD29]\c[LATIN CAPITAL LETTER A]" ~~ m/<+<?isLr>>/, q{Match unanchored (Alias for "Ll", "Lu", and "Lt".)} );
 
 
 # M           Mark
 
 
-ok("\c[TAGALOG VOWEL SIGN I]" ~~ m/^<+<M>>$/, q{Match <M> (Mark)} );
-ok("\c[TAGALOG VOWEL SIGN I]" ~~ m/^<[A]+<M>>$/, q{Match compound <M> (Mark)} );
-ok(!( "\c[TAGALOG VOWEL SIGN I]" ~~ m/^<-<M>>$/ ), q{Don't match externally inverted <M> (Mark)} );
-ok(!( "\c[TAGALOG VOWEL SIGN I]" ~~ m/^<[A]-<M>>$/ ), q{Don't match compound inverted <M> (Mark)} );
-ok(!( "\c[TAGALOG VOWEL SIGN I]" ~~ m/^<+<-M>>$/ ), q{Don't match internally inverted <M> (Mark)} );
-ok(!( "\c[CANADIAN SYLLABICS KAAI]"  ~~ m/^<+<M>>$/ ), q{Don't match unrelated <M> (Mark)} );
-ok("\c[CANADIAN SYLLABICS KAAI]"  ~~ m/^<-<M>>$/, q{Match unrelated externally inverted <M> (Mark)} );
-ok("\c[CANADIAN SYLLABICS KAAI]"  ~~ m/^<+<-M>>$/, q{Match unrelated internally inverted <M> (Mark)} );
-ok("\c[CANADIAN SYLLABICS KAAI]\c[TAGALOG VOWEL SIGN I]" ~~ m/<+<M>>/, q{Match unanchored <M> (Mark)} );
+ok("\c[TAGALOG VOWEL SIGN I]" ~~ m/^<+<isM>>$/, q{Match <isM> (Mark)} );
+ok("\c[TAGALOG VOWEL SIGN I]" ~~ m/^<[A]+<isM>>$/, q{Match compound <isM> (Mark)} );
+ok(!( "\c[TAGALOG VOWEL SIGN I]" ~~ m/^<-<isM>>$/ ), q{Don't match externally inverted <isM> (Mark)} );
+ok(!( "\c[TAGALOG VOWEL SIGN I]" ~~ m/^<[A]-<isM>>$/ ), q{Don't match compound inverted <isM> (Mark)} );
+ok(!( "\c[TAGALOG VOWEL SIGN I]" ~~ m/^<+<-isM>>$/ ), q{Don't match internally inverted <isM> (Mark)} );
+ok(!( "\c[CANADIAN SYLLABICS KAAI]"  ~~ m/^<+<isM>>$/ ), q{Don't match unrelated <isM> (Mark)} );
+ok("\c[CANADIAN SYLLABICS KAAI]"  ~~ m/^<-<isM>>$/, q{Match unrelated externally inverted <isM> (Mark)} );
+ok("\c[CANADIAN SYLLABICS KAAI]"  ~~ m/^<+<-isM>>$/, q{Match unrelated internally inverted <isM> (Mark)} );
+ok("\c[CANADIAN SYLLABICS KAAI]\c[TAGALOG VOWEL SIGN I]" ~~ m/<+<isM>>/, q{Match unanchored <isM> (Mark)} );
 
-ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<?Mark>>$/, q{Match <?Mark>} );
-ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<[A]+<?Mark>>$/, q{Match compound <?Mark>} );
-ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<-<?Mark>>$/ ), q{Don't match externally inverted <?Mark>} );
-ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<[A]-<?Mark>>$/ ), q{Don't match compound inverted <?Mark>} );
-ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<-Mark>>$/ ), q{Don't match internally inverted <?Mark>} );
-ok(!( "\x[4BF0]"  ~~ m/^<+<?Mark>>$/ ), q{Don't match unrelated <?Mark>} );
-ok("\x[4BF0]"  ~~ m/^<-<?Mark>>$/, q{Match unrelated externally inverted <?Mark>} );
-ok("\x[4BF0]"  ~~ m/^<+<-Mark>>$/, q{Match unrelated internally inverted <?Mark>} );
-ok("\x[4BF0]\c[COMBINING GRAVE ACCENT]" ~~ m/<+<?Mark>>/, q{Match unanchored <?Mark>} );
+ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<?isMark>>$/, q{Match <?isMark>} );
+ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<[A]+<?isMark>>$/, q{Match compound <?isMark>} );
+ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<-<?isMark>>$/ ), q{Don't match externally inverted <?isMark>} );
+ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<[A]-<?isMark>>$/ ), q{Don't match compound inverted <?isMark>} );
+ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<-isMark>>$/ ), q{Don't match internally inverted <?isMark>} );
+ok(!( "\x[4BF0]"  ~~ m/^<+<?isMark>>$/ ), q{Don't match unrelated <?isMark>} );
+ok("\x[4BF0]"  ~~ m/^<-<?isMark>>$/, q{Match unrelated externally inverted <?isMark>} );
+ok("\x[4BF0]"  ~~ m/^<+<-isMark>>$/, q{Match unrelated internally inverted <?isMark>} );
+ok("\x[4BF0]\c[COMBINING GRAVE ACCENT]" ~~ m/<+<?isMark>>/, q{Match unanchored <?isMark>} );
 
 # Mn          NonspacingMark
 
 
-ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<?Mn>>$/, q{Match <?Mn> (NonspacingMark)} );
-ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<[A]+<?Mn>>$/, q{Match compound <?Mn> (NonspacingMark)} );
-ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<-<?Mn>>$/ ), q{Don't match externally inverted <?Mn> (NonspacingMark)} );
-ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<[A]-<?Mn>>$/ ), q{Don't match compound inverted <?Mn> (NonspacingMark)} );
-ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<-Mn>>$/ ), q{Don't match internally inverted <?Mn> (NonspacingMark)} );
-ok(!( "\x[CF2C]"  ~~ m/^<+<?Mn>>$/ ), q{Don't match unrelated <?Mn> (NonspacingMark)} );
-ok("\x[CF2C]"  ~~ m/^<-<?Mn>>$/, q{Match unrelated externally inverted <?Mn> (NonspacingMark)} );
-ok("\x[CF2C]"  ~~ m/^<+<-Mn>>$/, q{Match unrelated internally inverted <?Mn> (NonspacingMark)} );
-ok(!( "\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<+<?Mn>>$/ ), q{Don't match related <?Mn> (NonspacingMark)} );
-ok("\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<+<-Mn>>$/, q{Match related internally inverted <?Mn> (NonspacingMark)} );
-ok("\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<-<?Mn>>$/, q{Match related externally inverted <?Mn> (NonspacingMark)} );
-ok("\x[CF2C]\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]\c[COMBINING GRAVE ACCENT]" ~~ m/<+<?Mn>>/, q{Match unanchored <?Mn> (NonspacingMark)} );
+ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<?isMn>>$/, q{Match <?isMn> (NonspacingMark)} );
+ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<[A]+<?isMn>>$/, q{Match compound <?isMn> (NonspacingMark)} );
+ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<-<?isMn>>$/ ), q{Don't match externally inverted <?isMn> (NonspacingMark)} );
+ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<[A]-<?isMn>>$/ ), q{Don't match compound inverted <?isMn> (NonspacingMark)} );
+ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<-isMn>>$/ ), q{Don't match internally inverted <?isMn> (NonspacingMark)} );
+ok(!( "\x[CF2C]"  ~~ m/^<+<?isMn>>$/ ), q{Don't match unrelated <?isMn> (NonspacingMark)} );
+ok("\x[CF2C]"  ~~ m/^<-<?isMn>>$/, q{Match unrelated externally inverted <?isMn> (NonspacingMark)} );
+ok("\x[CF2C]"  ~~ m/^<+<-isMn>>$/, q{Match unrelated internally inverted <?isMn> (NonspacingMark)} );
+ok(!( "\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<+<?isMn>>$/ ), q{Don't match related <?isMn> (NonspacingMark)} );
+ok("\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<+<-isMn>>$/, q{Match related internally inverted <?isMn> (NonspacingMark)} );
+ok("\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<-<?isMn>>$/, q{Match related externally inverted <?isMn> (NonspacingMark)} );
+ok("\x[CF2C]\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]\c[COMBINING GRAVE ACCENT]" ~~ m/<+<?isMn>>/, q{Match unanchored <?isMn> (NonspacingMark)} );
 
-ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<?NonspacingMark>>$/, q{Match <?NonspacingMark>} );
-ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<[A]+<?NonspacingMark>>$/, q{Match compound <?NonspacingMark>} );
-ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<-<?NonspacingMark>>$/ ), q{Don't match externally inverted <?NonspacingMark>} );
-ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<[A]-<?NonspacingMark>>$/ ), q{Don't match compound inverted <?NonspacingMark>} );
-ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<-NonspacingMark>>$/ ), q{Don't match internally inverted <?NonspacingMark>} );
-ok(!( "\x[B617]"  ~~ m/^<+<?NonspacingMark>>$/ ), q{Don't match unrelated <?NonspacingMark>} );
-ok("\x[B617]"  ~~ m/^<-<?NonspacingMark>>$/, q{Match unrelated externally inverted <?NonspacingMark>} );
-ok("\x[B617]"  ~~ m/^<+<-NonspacingMark>>$/, q{Match unrelated internally inverted <?NonspacingMark>} );
-ok("\x[B617]\c[COMBINING GRAVE ACCENT]" ~~ m/<+<?NonspacingMark>>/, q{Match unanchored <?NonspacingMark>} );
+ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<?isNonspacingMark>>$/, q{Match <?isNonspacingMark>} );
+ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<[A]+<?isNonspacingMark>>$/, q{Match compound <?isNonspacingMark>} );
+ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<-<?isNonspacingMark>>$/ ), q{Don't match externally inverted <?isNonspacingMark>} );
+ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<[A]-<?isNonspacingMark>>$/ ), q{Don't match compound inverted <?isNonspacingMark>} );
+ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<-isNonspacingMark>>$/ ), q{Don't match internally inverted <?isNonspacingMark>} );
+ok(!( "\x[B617]"  ~~ m/^<+<?isNonspacingMark>>$/ ), q{Don't match unrelated <?isNonspacingMark>} );
+ok("\x[B617]"  ~~ m/^<-<?isNonspacingMark>>$/, q{Match unrelated externally inverted <?isNonspacingMark>} );
+ok("\x[B617]"  ~~ m/^<+<-isNonspacingMark>>$/, q{Match unrelated internally inverted <?isNonspacingMark>} );
+ok("\x[B617]\c[COMBINING GRAVE ACCENT]" ~~ m/<+<?isNonspacingMark>>/, q{Match unanchored <?isNonspacingMark>} );
 
 # Mc          SpacingMark
 
 
-ok("\c[DEVANAGARI SIGN VISARGA]" ~~ m/^<+<?Mc>>$/, q{Match <?Mc> (SpacingMark)} );
-ok("\c[DEVANAGARI SIGN VISARGA]" ~~ m/^<[A]+<?Mc>>$/, q{Match compound <?Mc> (SpacingMark)} );
-ok(!( "\c[DEVANAGARI SIGN VISARGA]" ~~ m/^<-<?Mc>>$/ ), q{Don't match externally inverted <?Mc> (SpacingMark)} );
-ok(!( "\c[DEVANAGARI SIGN VISARGA]" ~~ m/^<[A]-<?Mc>>$/ ), q{Don't match compound inverted <?Mc> (SpacingMark)} );
-ok(!( "\c[DEVANAGARI SIGN VISARGA]" ~~ m/^<+<-Mc>>$/ ), q{Don't match internally inverted <?Mc> (SpacingMark)} );
-ok(!( "\c[BALLOT BOX WITH CHECK]"  ~~ m/^<+<?Mc>>$/ ), q{Don't match unrelated <?Mc> (SpacingMark)} );
-ok("\c[BALLOT BOX WITH CHECK]"  ~~ m/^<-<?Mc>>$/, q{Match unrelated externally inverted <?Mc> (SpacingMark)} );
-ok("\c[BALLOT BOX WITH CHECK]"  ~~ m/^<+<-Mc>>$/, q{Match unrelated internally inverted <?Mc> (SpacingMark)} );
-ok(!( "\c[IDEOGRAPHIC LEVEL TONE MARK]" ~~ m/^<+<?Mc>>$/ ), q{Don't match related <?Mc> (SpacingMark)} );
-ok("\c[IDEOGRAPHIC LEVEL TONE MARK]" ~~ m/^<+<-Mc>>$/, q{Match related internally inverted <?Mc> (SpacingMark)} );
-ok("\c[IDEOGRAPHIC LEVEL TONE MARK]" ~~ m/^<-<?Mc>>$/, q{Match related externally inverted <?Mc> (SpacingMark)} );
-ok("\c[BALLOT BOX WITH CHECK]\c[IDEOGRAPHIC LEVEL TONE MARK]\c[DEVANAGARI SIGN VISARGA]" ~~ m/<+<?Mc>>/, q{Match unanchored <?Mc> (SpacingMark)} );
+ok("\c[DEVANAGARI SIGN VISARGA]" ~~ m/^<+<?isMc>>$/, q{Match <?isMc> (SpacingMark)} );
+ok("\c[DEVANAGARI SIGN VISARGA]" ~~ m/^<[A]+<?isMc>>$/, q{Match compound <?isMc> (SpacingMark)} );
+ok(!( "\c[DEVANAGARI SIGN VISARGA]" ~~ m/^<-<?isMc>>$/ ), q{Don't match externally inverted <?isMc> (SpacingMark)} );
+ok(!( "\c[DEVANAGARI SIGN VISARGA]" ~~ m/^<[A]-<?isMc>>$/ ), q{Don't match compound inverted <?isMc> (SpacingMark)} );
+ok(!( "\c[DEVANAGARI SIGN VISARGA]" ~~ m/^<+<-isMc>>$/ ), q{Don't match internally inverted <?isMc> (SpacingMark)} );
+ok(!( "\c[BALLOT BOX WITH CHECK]"  ~~ m/^<+<?isMc>>$/ ), q{Don't match unrelated <?isMc> (SpacingMark)} );
+ok("\c[BALLOT BOX WITH CHECK]"  ~~ m/^<-<?isMc>>$/, q{Match unrelated externally inverted <?isMc> (SpacingMark)} );
+ok("\c[BALLOT BOX WITH CHECK]"  ~~ m/^<+<-isMc>>$/, q{Match unrelated internally inverted <?isMc> (SpacingMark)} );
+ok(!( "\c[IDEOGRAPHIC LEVEL TONE MARK]" ~~ m/^<+<?isMc>>$/ ), q{Don't match related <?isMc> (SpacingMark)} );
+ok("\c[IDEOGRAPHIC LEVEL TONE MARK]" ~~ m/^<+<-isMc>>$/, q{Match related internally inverted <?isMc> (SpacingMark)} );
+ok("\c[IDEOGRAPHIC LEVEL TONE MARK]" ~~ m/^<-<?isMc>>$/, q{Match related externally inverted <?isMc> (SpacingMark)} );
+ok("\c[BALLOT BOX WITH CHECK]\c[IDEOGRAPHIC LEVEL TONE MARK]\c[DEVANAGARI SIGN VISARGA]" ~~ m/<+<?isMc>>/, q{Match unanchored <?isMc> (SpacingMark)} );
 
-ok("\c[MALAYALAM SIGN ANUSVARA]" ~~ m/^<+<?SpacingMark>>$/, q{Match <?SpacingMark>} );
-ok("\c[MALAYALAM SIGN ANUSVARA]" ~~ m/^<[A]+<?SpacingMark>>$/, q{Match compound <?SpacingMark>} );
-ok(!( "\c[MALAYALAM SIGN ANUSVARA]" ~~ m/^<-<?SpacingMark>>$/ ), q{Don't match externally inverted <?SpacingMark>} );
-ok(!( "\c[MALAYALAM SIGN ANUSVARA]" ~~ m/^<[A]-<?SpacingMark>>$/ ), q{Don't match compound inverted <?SpacingMark>} );
-ok(!( "\c[MALAYALAM SIGN ANUSVARA]" ~~ m/^<+<-SpacingMark>>$/ ), q{Don't match internally inverted <?SpacingMark>} );
-ok(!( "\c[KANNADA LETTER VOCALIC LL]"  ~~ m/^<+<?SpacingMark>>$/ ), q{Don't match unrelated <?SpacingMark>} );
-ok("\c[KANNADA LETTER VOCALIC LL]"  ~~ m/^<-<?SpacingMark>>$/, q{Match unrelated externally inverted <?SpacingMark>} );
-ok("\c[KANNADA LETTER VOCALIC LL]"  ~~ m/^<+<-SpacingMark>>$/, q{Match unrelated internally inverted <?SpacingMark>} );
-ok("\c[KANNADA LETTER VOCALIC LL]\c[MALAYALAM SIGN ANUSVARA]" ~~ m/<+<?SpacingMark>>/, q{Match unanchored <?SpacingMark>} );
+ok("\c[MALAYALAM SIGN ANUSVARA]" ~~ m/^<+<?isSpacingMark>>$/, q{Match <?isSpacingMark>} );
+ok("\c[MALAYALAM SIGN ANUSVARA]" ~~ m/^<[A]+<?isSpacingMark>>$/, q{Match compound <?isSpacingMark>} );
+ok(!( "\c[MALAYALAM SIGN ANUSVARA]" ~~ m/^<-<?isSpacingMark>>$/ ), q{Don't match externally inverted <?isSpacingMark>} );
+ok(!( "\c[MALAYALAM SIGN ANUSVARA]" ~~ m/^<[A]-<?isSpacingMark>>$/ ), q{Don't match compound inverted <?isSpacingMark>} );
+ok(!( "\c[MALAYALAM SIGN ANUSVARA]" ~~ m/^<+<-isSpacingMark>>$/ ), q{Don't match internally inverted <?isSpacingMark>} );
+ok(!( "\c[KANNADA LETTER VOCALIC LL]"  ~~ m/^<+<?isSpacingMark>>$/ ), q{Don't match unrelated <?isSpacingMark>} );
+ok("\c[KANNADA LETTER VOCALIC LL]"  ~~ m/^<-<?isSpacingMark>>$/, q{Match unrelated externally inverted <?isSpacingMark>} );
+ok("\c[KANNADA LETTER VOCALIC LL]"  ~~ m/^<+<-isSpacingMark>>$/, q{Match unrelated internally inverted <?isSpacingMark>} );
+ok("\c[KANNADA LETTER VOCALIC LL]\c[MALAYALAM SIGN ANUSVARA]" ~~ m/<+<?isSpacingMark>>/, q{Match unanchored <?isSpacingMark>} );
 
 # Me          EnclosingMark
 
 
-ok("\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<+<?Me>>$/, q{Match <?Me> (EnclosingMark)} );
-ok("\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<[A]+<?Me>>$/, q{Match compound <?Me> (EnclosingMark)} );
-ok(!( "\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<-<?Me>>$/ ), q{Don't match externally inverted <?Me> (EnclosingMark)} );
-ok(!( "\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<[A]-<?Me>>$/ ), q{Don't match compound inverted <?Me> (EnclosingMark)} );
-ok(!( "\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<+<-Me>>$/ ), q{Don't match internally inverted <?Me> (EnclosingMark)} );
-ok(!( "\x[C680]"  ~~ m/^<+<?Me>>$/ ), q{Don't match unrelated <?Me> (EnclosingMark)} );
-ok("\x[C680]"  ~~ m/^<-<?Me>>$/, q{Match unrelated externally inverted <?Me> (EnclosingMark)} );
-ok("\x[C680]"  ~~ m/^<+<-Me>>$/, q{Match unrelated internally inverted <?Me> (EnclosingMark)} );
-ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<?Me>>$/ ), q{Don't match related <?Me> (EnclosingMark)} );
-ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<-Me>>$/, q{Match related internally inverted <?Me> (EnclosingMark)} );
-ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<-<?Me>>$/, q{Match related externally inverted <?Me> (EnclosingMark)} );
-ok("\x[C680]\c[COMBINING GRAVE ACCENT]\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/<+<?Me>>/, q{Match unanchored <?Me> (EnclosingMark)} );
+ok("\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<+<?isMe>>$/, q{Match <?isMe> (EnclosingMark)} );
+ok("\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<[A]+<?isMe>>$/, q{Match compound <?isMe> (EnclosingMark)} );
+ok(!( "\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<-<?isMe>>$/ ), q{Don't match externally inverted <?isMe> (EnclosingMark)} );
+ok(!( "\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<[A]-<?isMe>>$/ ), q{Don't match compound inverted <?isMe> (EnclosingMark)} );
+ok(!( "\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<+<-isMe>>$/ ), q{Don't match internally inverted <?isMe> (EnclosingMark)} );
+ok(!( "\x[C680]"  ~~ m/^<+<?isMe>>$/ ), q{Don't match unrelated <?isMe> (EnclosingMark)} );
+ok("\x[C680]"  ~~ m/^<-<?isMe>>$/, q{Match unrelated externally inverted <?isMe> (EnclosingMark)} );
+ok("\x[C680]"  ~~ m/^<+<-isMe>>$/, q{Match unrelated internally inverted <?isMe> (EnclosingMark)} );
+ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<?isMe>>$/ ), q{Don't match related <?isMe> (EnclosingMark)} );
+ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<-isMe>>$/, q{Match related internally inverted <?isMe> (EnclosingMark)} );
+ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<-<?isMe>>$/, q{Match related externally inverted <?isMe> (EnclosingMark)} );
+ok("\x[C680]\c[COMBINING GRAVE ACCENT]\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/<+<?isMe>>/, q{Match unanchored <?isMe> (EnclosingMark)} );
 
-ok("\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<+<?EnclosingMark>>$/, q{Match <?EnclosingMark>} );
-ok("\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<[A]+<?EnclosingMark>>$/, q{Match compound <?EnclosingMark>} );
-ok(!( "\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<-<?EnclosingMark>>$/ ), q{Don't match externally inverted <?EnclosingMark>} );
-ok(!( "\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<[A]-<?EnclosingMark>>$/ ), q{Don't match compound inverted <?EnclosingMark>} );
-ok(!( "\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<+<-EnclosingMark>>$/ ), q{Don't match internally inverted <?EnclosingMark>} );
-ok(!( "\x[911E]"  ~~ m/^<+<?EnclosingMark>>$/ ), q{Don't match unrelated <?EnclosingMark>} );
-ok("\x[911E]"  ~~ m/^<-<?EnclosingMark>>$/, q{Match unrelated externally inverted <?EnclosingMark>} );
-ok("\x[911E]"  ~~ m/^<+<-EnclosingMark>>$/, q{Match unrelated internally inverted <?EnclosingMark>} );
-ok("\x[911E]\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/<+<?EnclosingMark>>/, q{Match unanchored <?EnclosingMark>} );
+ok("\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<+<?isEnclosingMark>>$/, q{Match <?isEnclosingMark>} );
+ok("\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<[A]+<?isEnclosingMark>>$/, q{Match compound <?isEnclosingMark>} );
+ok(!( "\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<-<?isEnclosingMark>>$/ ), q{Don't match externally inverted <?isEnclosingMark>} );
+ok(!( "\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<[A]-<?isEnclosingMark>>$/ ), q{Don't match compound inverted <?isEnclosingMark>} );
+ok(!( "\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/^<+<-isEnclosingMark>>$/ ), q{Don't match internally inverted <?isEnclosingMark>} );
+ok(!( "\x[911E]"  ~~ m/^<+<?isEnclosingMark>>$/ ), q{Don't match unrelated <?isEnclosingMark>} );
+ok("\x[911E]"  ~~ m/^<-<?isEnclosingMark>>$/, q{Match unrelated externally inverted <?isEnclosingMark>} );
+ok("\x[911E]"  ~~ m/^<+<-isEnclosingMark>>$/, q{Match unrelated internally inverted <?isEnclosingMark>} );
+ok("\x[911E]\c[COMBINING CYRILLIC HUNDRED THOUSANDS SIGN]" ~~ m/<+<?isEnclosingMark>>/, q{Match unanchored <?isEnclosingMark>} );
 
 # N           Number
 
 
-ok("\c[DIGIT ZERO]" ~~ m/^<+<N>>$/, q{Match <N> (Number)} );
-ok("\c[DIGIT ZERO]" ~~ m/^<[A]+<N>>$/, q{Match compound <N> (Number)} );
-ok(!( "\c[DIGIT ZERO]" ~~ m/^<-<N>>$/ ), q{Don't match externally inverted <N> (Number)} );
-ok(!( "\c[DIGIT ZERO]" ~~ m/^<[A]-<N>>$/ ), q{Don't match compound inverted <N> (Number)} );
-ok(!( "\c[DIGIT ZERO]" ~~ m/^<+<-N>>$/ ), q{Don't match internally inverted <N> (Number)} );
-ok(!( "\x[3BA3]"  ~~ m/^<+<N>>$/ ), q{Don't match unrelated <N> (Number)} );
-ok("\x[3BA3]"  ~~ m/^<-<N>>$/, q{Match unrelated externally inverted <N> (Number)} );
-ok("\x[3BA3]"  ~~ m/^<+<-N>>$/, q{Match unrelated internally inverted <N> (Number)} );
-ok("\x[3BA3]\c[DIGIT ZERO]" ~~ m/<+<N>>/, q{Match unanchored <N> (Number)} );
+ok("\c[DIGIT ZERO]" ~~ m/^<+<isN>>$/, q{Match <isN> (Number)} );
+ok("\c[DIGIT ZERO]" ~~ m/^<[A]+<isN>>$/, q{Match compound <isN> (Number)} );
+ok(!( "\c[DIGIT ZERO]" ~~ m/^<-<isN>>$/ ), q{Don't match externally inverted <isN> (Number)} );
+ok(!( "\c[DIGIT ZERO]" ~~ m/^<[A]-<isN>>$/ ), q{Don't match compound inverted <isN> (Number)} );
+ok(!( "\c[DIGIT ZERO]" ~~ m/^<+<-isN>>$/ ), q{Don't match internally inverted <isN> (Number)} );
+ok(!( "\x[3BA3]"  ~~ m/^<+<isN>>$/ ), q{Don't match unrelated <isN> (Number)} );
+ok("\x[3BA3]"  ~~ m/^<-<isN>>$/, q{Match unrelated externally inverted <isN> (Number)} );
+ok("\x[3BA3]"  ~~ m/^<+<-isN>>$/, q{Match unrelated internally inverted <isN> (Number)} );
+ok("\x[3BA3]\c[DIGIT ZERO]" ~~ m/<+<isN>>/, q{Match unanchored <isN> (Number)} );
 
-ok("\c[DIGIT ZERO]" ~~ m/^<+<?Number>>$/, q{Match <?Number>} );
-ok("\c[DIGIT ZERO]" ~~ m/^<[A]+<?Number>>$/, q{Match compound <?Number>} );
-ok(!( "\c[DIGIT ZERO]" ~~ m/^<-<?Number>>$/ ), q{Don't match externally inverted <?Number>} );
-ok(!( "\c[DIGIT ZERO]" ~~ m/^<[A]-<?Number>>$/ ), q{Don't match compound inverted <?Number>} );
-ok(!( "\c[DIGIT ZERO]" ~~ m/^<+<-Number>>$/ ), q{Don't match internally inverted <?Number>} );
-ok(!( "\x[37D0]"  ~~ m/^<+<?Number>>$/ ), q{Don't match unrelated <?Number>} );
-ok("\x[37D0]"  ~~ m/^<-<?Number>>$/, q{Match unrelated externally inverted <?Number>} );
-ok("\x[37D0]"  ~~ m/^<+<-Number>>$/, q{Match unrelated internally inverted <?Number>} );
-ok("\x[37D0]\c[DIGIT ZERO]" ~~ m/<+<?Number>>/, q{Match unanchored <?Number>} );
+ok("\c[DIGIT ZERO]" ~~ m/^<+<?isNumber>>$/, q{Match <?isNumber>} );
+ok("\c[DIGIT ZERO]" ~~ m/^<[A]+<?isNumber>>$/, q{Match compound <?isNumber>} );
+ok(!( "\c[DIGIT ZERO]" ~~ m/^<-<?isNumber>>$/ ), q{Don't match externally inverted <?isNumber>} );
+ok(!( "\c[DIGIT ZERO]" ~~ m/^<[A]-<?isNumber>>$/ ), q{Don't match compound inverted <?isNumber>} );
+ok(!( "\c[DIGIT ZERO]" ~~ m/^<+<-isNumber>>$/ ), q{Don't match internally inverted <?isNumber>} );
+ok(!( "\x[37D0]"  ~~ m/^<+<?isNumber>>$/ ), q{Don't match unrelated <?isNumber>} );
+ok("\x[37D0]"  ~~ m/^<-<?isNumber>>$/, q{Match unrelated externally inverted <?isNumber>} );
+ok("\x[37D0]"  ~~ m/^<+<-isNumber>>$/, q{Match unrelated internally inverted <?isNumber>} );
+ok("\x[37D0]\c[DIGIT ZERO]" ~~ m/<+<?isNumber>>/, q{Match unanchored <?isNumber>} );
 
 # Nd          DecimalNumber
 
 
-ok("\c[DIGIT ZERO]" ~~ m/^<+<?Nd>>$/, q{Match <?Nd> (DecimalNumber)} );
-ok("\c[DIGIT ZERO]" ~~ m/^<[A]+<?Nd>>$/, q{Match compound <?Nd> (DecimalNumber)} );
-ok(!( "\c[DIGIT ZERO]" ~~ m/^<-<?Nd>>$/ ), q{Don't match externally inverted <?Nd> (DecimalNumber)} );
-ok(!( "\c[DIGIT ZERO]" ~~ m/^<[A]-<?Nd>>$/ ), q{Don't match compound inverted <?Nd> (DecimalNumber)} );
-ok(!( "\c[DIGIT ZERO]" ~~ m/^<+<-Nd>>$/ ), q{Don't match internally inverted <?Nd> (DecimalNumber)} );
-ok(!( "\x[8536]"  ~~ m/^<+<?Nd>>$/ ), q{Don't match unrelated <?Nd> (DecimalNumber)} );
-ok("\x[8536]"  ~~ m/^<-<?Nd>>$/, q{Match unrelated externally inverted <?Nd> (DecimalNumber)} );
-ok("\x[8536]"  ~~ m/^<+<-Nd>>$/, q{Match unrelated internally inverted <?Nd> (DecimalNumber)} );
-ok(!( "\c[SUPERSCRIPT TWO]" ~~ m/^<+<?Nd>>$/ ), q{Don't match related <?Nd> (DecimalNumber)} );
-ok("\c[SUPERSCRIPT TWO]" ~~ m/^<+<-Nd>>$/, q{Match related internally inverted <?Nd> (DecimalNumber)} );
-ok("\c[SUPERSCRIPT TWO]" ~~ m/^<-<?Nd>>$/, q{Match related externally inverted <?Nd> (DecimalNumber)} );
-ok("\x[8536]\c[SUPERSCRIPT TWO]\c[DIGIT ZERO]" ~~ m/<+<?Nd>>/, q{Match unanchored <?Nd> (DecimalNumber)} );
+ok("\c[DIGIT ZERO]" ~~ m/^<+<?isNd>>$/, q{Match <?isNd> (DecimalNumber)} );
+ok("\c[DIGIT ZERO]" ~~ m/^<[A]+<?isNd>>$/, q{Match compound <?isNd> (DecimalNumber)} );
+ok(!( "\c[DIGIT ZERO]" ~~ m/^<-<?isNd>>$/ ), q{Don't match externally inverted <?isNd> (DecimalNumber)} );
+ok(!( "\c[DIGIT ZERO]" ~~ m/^<[A]-<?isNd>>$/ ), q{Don't match compound inverted <?isNd> (DecimalNumber)} );
+ok(!( "\c[DIGIT ZERO]" ~~ m/^<+<-isNd>>$/ ), q{Don't match internally inverted <?isNd> (DecimalNumber)} );
+ok(!( "\x[8536]"  ~~ m/^<+<?isNd>>$/ ), q{Don't match unrelated <?isNd> (DecimalNumber)} );
+ok("\x[8536]"  ~~ m/^<-<?isNd>>$/, q{Match unrelated externally inverted <?isNd> (DecimalNumber)} );
+ok("\x[8536]"  ~~ m/^<+<-isNd>>$/, q{Match unrelated internally inverted <?isNd> (DecimalNumber)} );
+ok(!( "\c[SUPERSCRIPT TWO]" ~~ m/^<+<?isNd>>$/ ), q{Don't match related <?isNd> (DecimalNumber)} );
+ok("\c[SUPERSCRIPT TWO]" ~~ m/^<+<-isNd>>$/, q{Match related internally inverted <?isNd> (DecimalNumber)} );
+ok("\c[SUPERSCRIPT TWO]" ~~ m/^<-<?isNd>>$/, q{Match related externally inverted <?isNd> (DecimalNumber)} );
+ok("\x[8536]\c[SUPERSCRIPT TWO]\c[DIGIT ZERO]" ~~ m/<+<?isNd>>/, q{Match unanchored <?isNd> (DecimalNumber)} );
 
-ok("\c[KHMER DIGIT ZERO]" ~~ m/^<+<?DecimalNumber>>$/, q{Match <?DecimalNumber>} );
-ok("\c[KHMER DIGIT ZERO]" ~~ m/^<[A]+<?DecimalNumber>>$/, q{Match compound <?DecimalNumber>} );
-ok(!( "\c[KHMER DIGIT ZERO]" ~~ m/^<-<?DecimalNumber>>$/ ), q{Don't match externally inverted <?DecimalNumber>} );
-ok(!( "\c[KHMER DIGIT ZERO]" ~~ m/^<[A]-<?DecimalNumber>>$/ ), q{Don't match compound inverted <?DecimalNumber>} );
-ok(!( "\c[KHMER DIGIT ZERO]" ~~ m/^<+<-DecimalNumber>>$/ ), q{Don't match internally inverted <?DecimalNumber>} );
-ok(!( "\c[CANADIAN SYLLABICS NWE]"  ~~ m/^<+<?DecimalNumber>>$/ ), q{Don't match unrelated <?DecimalNumber>} );
-ok("\c[CANADIAN SYLLABICS NWE]"  ~~ m/^<-<?DecimalNumber>>$/, q{Match unrelated externally inverted <?DecimalNumber>} );
-ok("\c[CANADIAN SYLLABICS NWE]"  ~~ m/^<+<-DecimalNumber>>$/, q{Match unrelated internally inverted <?DecimalNumber>} );
-ok("\c[CANADIAN SYLLABICS NWE]\c[KHMER DIGIT ZERO]" ~~ m/<+<?DecimalNumber>>/, q{Match unanchored <?DecimalNumber>} );
+ok("\c[KHMER DIGIT ZERO]" ~~ m/^<+<?isDecimalNumber>>$/, q{Match <?isDecimalNumber>} );
+ok("\c[KHMER DIGIT ZERO]" ~~ m/^<[A]+<?isDecimalNumber>>$/, q{Match compound <?isDecimalNumber>} );
+ok(!( "\c[KHMER DIGIT ZERO]" ~~ m/^<-<?isDecimalNumber>>$/ ), q{Don't match externally inverted <?isDecimalNumber>} );
+ok(!( "\c[KHMER DIGIT ZERO]" ~~ m/^<[A]-<?isDecimalNumber>>$/ ), q{Don't match compound inverted <?isDecimalNumber>} );
+ok(!( "\c[KHMER DIGIT ZERO]" ~~ m/^<+<-isDecimalNumber>>$/ ), q{Don't match internally inverted <?isDecimalNumber>} );
+ok(!( "\c[CANADIAN SYLLABICS NWE]"  ~~ m/^<+<?isDecimalNumber>>$/ ), q{Don't match unrelated <?isDecimalNumber>} );
+ok("\c[CANADIAN SYLLABICS NWE]"  ~~ m/^<-<?isDecimalNumber>>$/, q{Match unrelated externally inverted <?isDecimalNumber>} );
+ok("\c[CANADIAN SYLLABICS NWE]"  ~~ m/^<+<-isDecimalNumber>>$/, q{Match unrelated internally inverted <?isDecimalNumber>} );
+ok("\c[CANADIAN SYLLABICS NWE]\c[KHMER DIGIT ZERO]" ~~ m/<+<?isDecimalNumber>>/, q{Match unanchored <?isDecimalNumber>} );
 
 # Nl          LetterNumber
 
 
-ok("\c[ROMAN NUMERAL ONE]" ~~ m/^<+<?Nl>>$/, q{Match <?Nl> (LetterNumber)} );
-ok("\c[ROMAN NUMERAL ONE]" ~~ m/^<[A]+<?Nl>>$/, q{Match compound <?Nl> (LetterNumber)} );
-ok(!( "\c[ROMAN NUMERAL ONE]" ~~ m/^<-<?Nl>>$/ ), q{Don't match externally inverted <?Nl> (LetterNumber)} );
-ok(!( "\c[ROMAN NUMERAL ONE]" ~~ m/^<[A]-<?Nl>>$/ ), q{Don't match compound inverted <?Nl> (LetterNumber)} );
-ok(!( "\c[ROMAN NUMERAL ONE]" ~~ m/^<+<-Nl>>$/ ), q{Don't match internally inverted <?Nl> (LetterNumber)} );
-ok(!( "\x[1B95]"  ~~ m/^<+<?Nl>>$/ ), q{Don't match unrelated <?Nl> (LetterNumber)} );
-ok("\x[1B95]"  ~~ m/^<-<?Nl>>$/, q{Match unrelated externally inverted <?Nl> (LetterNumber)} );
-ok("\x[1B95]"  ~~ m/^<+<-Nl>>$/, q{Match unrelated internally inverted <?Nl> (LetterNumber)} );
-ok(!( "\c[SUPERSCRIPT ZERO]" ~~ m/^<+<?Nl>>$/ ), q{Don't match related <?Nl> (LetterNumber)} );
-ok("\c[SUPERSCRIPT ZERO]" ~~ m/^<+<-Nl>>$/, q{Match related internally inverted <?Nl> (LetterNumber)} );
-ok("\c[SUPERSCRIPT ZERO]" ~~ m/^<-<?Nl>>$/, q{Match related externally inverted <?Nl> (LetterNumber)} );
-ok("\x[1B95]\c[SUPERSCRIPT ZERO]\c[ROMAN NUMERAL ONE]" ~~ m/<+<?Nl>>/, q{Match unanchored <?Nl> (LetterNumber)} );
+ok("\c[ROMAN NUMERAL ONE]" ~~ m/^<+<?isNl>>$/, q{Match <?isNl> (LetterNumber)} );
+ok("\c[ROMAN NUMERAL ONE]" ~~ m/^<[A]+<?isNl>>$/, q{Match compound <?isNl> (LetterNumber)} );
+ok(!( "\c[ROMAN NUMERAL ONE]" ~~ m/^<-<?isNl>>$/ ), q{Don't match externally inverted <?isNl> (LetterNumber)} );
+ok(!( "\c[ROMAN NUMERAL ONE]" ~~ m/^<[A]-<?isNl>>$/ ), q{Don't match compound inverted <?isNl> (LetterNumber)} );
+ok(!( "\c[ROMAN NUMERAL ONE]" ~~ m/^<+<-isNl>>$/ ), q{Don't match internally inverted <?isNl> (LetterNumber)} );
+ok(!( "\x[1B95]"  ~~ m/^<+<?isNl>>$/ ), q{Don't match unrelated <?isNl> (LetterNumber)} );
+ok("\x[1B95]"  ~~ m/^<-<?isNl>>$/, q{Match unrelated externally inverted <?isNl> (LetterNumber)} );
+ok("\x[1B95]"  ~~ m/^<+<-isNl>>$/, q{Match unrelated internally inverted <?isNl> (LetterNumber)} );
+ok(!( "\c[SUPERSCRIPT ZERO]" ~~ m/^<+<?isNl>>$/ ), q{Don't match related <?isNl> (LetterNumber)} );
+ok("\c[SUPERSCRIPT ZERO]" ~~ m/^<+<-isNl>>$/, q{Match related internally inverted <?isNl> (LetterNumber)} );
+ok("\c[SUPERSCRIPT ZERO]" ~~ m/^<-<?isNl>>$/, q{Match related externally inverted <?isNl> (LetterNumber)} );
+ok("\x[1B95]\c[SUPERSCRIPT ZERO]\c[ROMAN NUMERAL ONE]" ~~ m/<+<?isNl>>/, q{Match unanchored <?isNl> (LetterNumber)} );
 
-ok("\c[RUNIC ARLAUG SYMBOL]" ~~ m/^<+<?LetterNumber>>$/, q{Match <?LetterNumber>} );
-ok("\c[RUNIC ARLAUG SYMBOL]" ~~ m/^<[A]+<?LetterNumber>>$/, q{Match compound <?LetterNumber>} );
-ok(!( "\c[RUNIC ARLAUG SYMBOL]" ~~ m/^<-<?LetterNumber>>$/ ), q{Don't match externally inverted <?LetterNumber>} );
-ok(!( "\c[RUNIC ARLAUG SYMBOL]" ~~ m/^<[A]-<?LetterNumber>>$/ ), q{Don't match compound inverted <?LetterNumber>} );
-ok(!( "\c[RUNIC ARLAUG SYMBOL]" ~~ m/^<+<-LetterNumber>>$/ ), q{Don't match internally inverted <?LetterNumber>} );
-ok(!( "\x[9B4F]"  ~~ m/^<+<?LetterNumber>>$/ ), q{Don't match unrelated <?LetterNumber>} );
-ok("\x[9B4F]"  ~~ m/^<-<?LetterNumber>>$/, q{Match unrelated externally inverted <?LetterNumber>} );
-ok("\x[9B4F]"  ~~ m/^<+<-LetterNumber>>$/, q{Match unrelated internally inverted <?LetterNumber>} );
-ok(!( "\x[9B4F]" ~~ m/^<+<?LetterNumber>>$/ ), q{Don't match related <?LetterNumber>} );
-ok("\x[9B4F]" ~~ m/^<+<-LetterNumber>>$/, q{Match related internally inverted <?LetterNumber>} );
-ok("\x[9B4F]" ~~ m/^<-<?LetterNumber>>$/, q{Match related externally inverted <?LetterNumber>} );
-ok("\x[9B4F]\x[9B4F]\c[RUNIC ARLAUG SYMBOL]" ~~ m/<+<?LetterNumber>>/, q{Match unanchored <?LetterNumber>} );
+ok("\c[RUNIC ARLAUG SYMBOL]" ~~ m/^<+<?isLetterNumber>>$/, q{Match <?isLetterNumber>} );
+ok("\c[RUNIC ARLAUG SYMBOL]" ~~ m/^<[A]+<?isLetterNumber>>$/, q{Match compound <?isLetterNumber>} );
+ok(!( "\c[RUNIC ARLAUG SYMBOL]" ~~ m/^<-<?isLetterNumber>>$/ ), q{Don't match externally inverted <?isLetterNumber>} );
+ok(!( "\c[RUNIC ARLAUG SYMBOL]" ~~ m/^<[A]-<?isLetterNumber>>$/ ), q{Don't match compound inverted <?isLetterNumber>} );
+ok(!( "\c[RUNIC ARLAUG SYMBOL]" ~~ m/^<+<-isLetterNumber>>$/ ), q{Don't match internally inverted <?isLetterNumber>} );
+ok(!( "\x[9B4F]"  ~~ m/^<+<?isLetterNumber>>$/ ), q{Don't match unrelated <?isLetterNumber>} );
+ok("\x[9B4F]"  ~~ m/^<-<?isLetterNumber>>$/, q{Match unrelated externally inverted <?isLetterNumber>} );
+ok("\x[9B4F]"  ~~ m/^<+<-isLetterNumber>>$/, q{Match unrelated internally inverted <?isLetterNumber>} );
+ok(!( "\x[9B4F]" ~~ m/^<+<?isLetterNumber>>$/ ), q{Don't match related <?isLetterNumber>} );
+ok("\x[9B4F]" ~~ m/^<+<-isLetterNumber>>$/, q{Match related internally inverted <?isLetterNumber>} );
+ok("\x[9B4F]" ~~ m/^<-<?isLetterNumber>>$/, q{Match related externally inverted <?isLetterNumber>} );
+ok("\x[9B4F]\x[9B4F]\c[RUNIC ARLAUG SYMBOL]" ~~ m/<+<?isLetterNumber>>/, q{Match unanchored <?isLetterNumber>} );
 
 # No          OtherNumber
 
 
-ok("\c[SUPERSCRIPT TWO]" ~~ m/^<+<?No>>$/, q{Match <?No> (OtherNumber)} );
-ok("\c[SUPERSCRIPT TWO]" ~~ m/^<[A]+<?No>>$/, q{Match compound <?No> (OtherNumber)} );
-ok(!( "\c[SUPERSCRIPT TWO]" ~~ m/^<-<?No>>$/ ), q{Don't match externally inverted <?No> (OtherNumber)} );
-ok(!( "\c[SUPERSCRIPT TWO]" ~~ m/^<[A]-<?No>>$/ ), q{Don't match compound inverted <?No> (OtherNumber)} );
-ok(!( "\c[SUPERSCRIPT TWO]" ~~ m/^<+<-No>>$/ ), q{Don't match internally inverted <?No> (OtherNumber)} );
-ok(!( "\x[8F9A]"  ~~ m/^<+<?No>>$/ ), q{Don't match unrelated <?No> (OtherNumber)} );
-ok("\x[8F9A]"  ~~ m/^<-<?No>>$/, q{Match unrelated externally inverted <?No> (OtherNumber)} );
-ok("\x[8F9A]"  ~~ m/^<+<-No>>$/, q{Match unrelated internally inverted <?No> (OtherNumber)} );
-ok(!( "\c[DIGIT ZERO]" ~~ m/^<+<?No>>$/ ), q{Don't match related <?No> (OtherNumber)} );
-ok("\c[DIGIT ZERO]" ~~ m/^<+<-No>>$/, q{Match related internally inverted <?No> (OtherNumber)} );
-ok("\c[DIGIT ZERO]" ~~ m/^<-<?No>>$/, q{Match related externally inverted <?No> (OtherNumber)} );
-ok("\x[8F9A]\c[DIGIT ZERO]\c[SUPERSCRIPT TWO]" ~~ m/<+<?No>>/, q{Match unanchored <?No> (OtherNumber)} );
+ok("\c[SUPERSCRIPT TWO]" ~~ m/^<+<?isNo>>$/, q{Match <?isNo> (OtherNumber)} );
+ok("\c[SUPERSCRIPT TWO]" ~~ m/^<[A]+<?isNo>>$/, q{Match compound <?isNo> (OtherNumber)} );
+ok(!( "\c[SUPERSCRIPT TWO]" ~~ m/^<-<?isNo>>$/ ), q{Don't match externally inverted <?isNo> (OtherNumber)} );
+ok(!( "\c[SUPERSCRIPT TWO]" ~~ m/^<[A]-<?isNo>>$/ ), q{Don't match compound inverted <?isNo> (OtherNumber)} );
+ok(!( "\c[SUPERSCRIPT TWO]" ~~ m/^<+<-isNo>>$/ ), q{Don't match internally inverted <?isNo> (OtherNumber)} );
+ok(!( "\x[8F9A]"  ~~ m/^<+<?isNo>>$/ ), q{Don't match unrelated <?isNo> (OtherNumber)} );
+ok("\x[8F9A]"  ~~ m/^<-<?isNo>>$/, q{Match unrelated externally inverted <?isNo> (OtherNumber)} );
+ok("\x[8F9A]"  ~~ m/^<+<-isNo>>$/, q{Match unrelated internally inverted <?isNo> (OtherNumber)} );
+ok(!( "\c[DIGIT ZERO]" ~~ m/^<+<?isNo>>$/ ), q{Don't match related <?isNo> (OtherNumber)} );
+ok("\c[DIGIT ZERO]" ~~ m/^<+<-isNo>>$/, q{Match related internally inverted <?isNo> (OtherNumber)} );
+ok("\c[DIGIT ZERO]" ~~ m/^<-<?isNo>>$/, q{Match related externally inverted <?isNo> (OtherNumber)} );
+ok("\x[8F9A]\c[DIGIT ZERO]\c[SUPERSCRIPT TWO]" ~~ m/<+<?isNo>>/, q{Match unanchored <?isNo> (OtherNumber)} );
 
-ok("\c[BENGALI CURRENCY NUMERATOR ONE]" ~~ m/^<+<?OtherNumber>>$/, q{Match <?OtherNumber>} );
-ok("\c[BENGALI CURRENCY NUMERATOR ONE]" ~~ m/^<[A]+<?OtherNumber>>$/, q{Match compound <?OtherNumber>} );
-ok(!( "\c[BENGALI CURRENCY NUMERATOR ONE]" ~~ m/^<-<?OtherNumber>>$/ ), q{Don't match externally inverted <?OtherNumber>} );
-ok(!( "\c[BENGALI CURRENCY NUMERATOR ONE]" ~~ m/^<[A]-<?OtherNumber>>$/ ), q{Don't match compound inverted <?OtherNumber>} );
-ok(!( "\c[BENGALI CURRENCY NUMERATOR ONE]" ~~ m/^<+<-OtherNumber>>$/ ), q{Don't match internally inverted <?OtherNumber>} );
-ok(!( "\x[0522]"  ~~ m/^<+<?OtherNumber>>$/ ), q{Don't match unrelated <?OtherNumber>} );
-ok("\x[0522]"  ~~ m/^<-<?OtherNumber>>$/, q{Match unrelated externally inverted <?OtherNumber>} );
-ok("\x[0522]"  ~~ m/^<+<-OtherNumber>>$/, q{Match unrelated internally inverted <?OtherNumber>} );
-ok("\x[0522]\c[BENGALI CURRENCY NUMERATOR ONE]" ~~ m/<+<?OtherNumber>>/, q{Match unanchored <?OtherNumber>} );
+ok("\c[BENGALI CURRENCY NUMERATOR ONE]" ~~ m/^<+<?isOtherNumber>>$/, q{Match <?isOtherNumber>} );
+ok("\c[BENGALI CURRENCY NUMERATOR ONE]" ~~ m/^<[A]+<?isOtherNumber>>$/, q{Match compound <?isOtherNumber>} );
+ok(!( "\c[BENGALI CURRENCY NUMERATOR ONE]" ~~ m/^<-<?isOtherNumber>>$/ ), q{Don't match externally inverted <?isOtherNumber>} );
+ok(!( "\c[BENGALI CURRENCY NUMERATOR ONE]" ~~ m/^<[A]-<?isOtherNumber>>$/ ), q{Don't match compound inverted <?isOtherNumber>} );
+ok(!( "\c[BENGALI CURRENCY NUMERATOR ONE]" ~~ m/^<+<-isOtherNumber>>$/ ), q{Don't match internally inverted <?isOtherNumber>} );
+ok(!( "\x[0522]"  ~~ m/^<+<?isOtherNumber>>$/ ), q{Don't match unrelated <?isOtherNumber>} );
+ok("\x[0522]"  ~~ m/^<-<?isOtherNumber>>$/, q{Match unrelated externally inverted <?isOtherNumber>} );
+ok("\x[0522]"  ~~ m/^<+<-isOtherNumber>>$/, q{Match unrelated internally inverted <?isOtherNumber>} );
+ok("\x[0522]\c[BENGALI CURRENCY NUMERATOR ONE]" ~~ m/<+<?isOtherNumber>>/, q{Match unanchored <?isOtherNumber>} );
 
 # P           Punctuation
 
 
-ok("\c[EXCLAMATION MARK]" ~~ m/^<+<P>>$/, q{Match <P> (Punctuation)} );
-ok("\c[EXCLAMATION MARK]" ~~ m/^<[A]+<P>>$/, q{Match compound <P> (Punctuation)} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<-<P>>$/ ), q{Don't match externally inverted <P> (Punctuation)} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<[A]-<P>>$/ ), q{Don't match compound inverted <P> (Punctuation)} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<-P>>$/ ), q{Don't match internally inverted <P> (Punctuation)} );
-ok(!( "\x[3753]"  ~~ m/^<+<P>>$/ ), q{Don't match unrelated <P> (Punctuation)} );
-ok("\x[3753]"  ~~ m/^<-<P>>$/, q{Match unrelated externally inverted <P> (Punctuation)} );
-ok("\x[3753]"  ~~ m/^<+<-P>>$/, q{Match unrelated internally inverted <P> (Punctuation)} );
-ok("\x[3753]\c[EXCLAMATION MARK]" ~~ m/<+<P>>/, q{Match unanchored <P> (Punctuation)} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<+<isP>>$/, q{Match <isP> (Punctuation)} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<[A]+<isP>>$/, q{Match compound <isP> (Punctuation)} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<-<isP>>$/ ), q{Don't match externally inverted <isP> (Punctuation)} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<[A]-<isP>>$/ ), q{Don't match compound inverted <isP> (Punctuation)} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<-isP>>$/ ), q{Don't match internally inverted <isP> (Punctuation)} );
+ok(!( "\x[3753]"  ~~ m/^<+<isP>>$/ ), q{Don't match unrelated <isP> (Punctuation)} );
+ok("\x[3753]"  ~~ m/^<-<isP>>$/, q{Match unrelated externally inverted <isP> (Punctuation)} );
+ok("\x[3753]"  ~~ m/^<+<-isP>>$/, q{Match unrelated internally inverted <isP> (Punctuation)} );
+ok("\x[3753]\c[EXCLAMATION MARK]" ~~ m/<+<isP>>/, q{Match unanchored <isP> (Punctuation)} );
 
-ok("\c[EXCLAMATION MARK]" ~~ m/^<+<?Punctuation>>$/, q{Match <?Punctuation>} );
-ok("\c[EXCLAMATION MARK]" ~~ m/^<[A]+<?Punctuation>>$/, q{Match compound <?Punctuation>} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<-<?Punctuation>>$/ ), q{Don't match externally inverted <?Punctuation>} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<[A]-<?Punctuation>>$/ ), q{Don't match compound inverted <?Punctuation>} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<-Punctuation>>$/ ), q{Don't match internally inverted <?Punctuation>} );
-ok(!( "\x[9C5E]"  ~~ m/^<+<?Punctuation>>$/ ), q{Don't match unrelated <?Punctuation>} );
-ok("\x[9C5E]"  ~~ m/^<-<?Punctuation>>$/, q{Match unrelated externally inverted <?Punctuation>} );
-ok("\x[9C5E]"  ~~ m/^<+<-Punctuation>>$/, q{Match unrelated internally inverted <?Punctuation>} );
-ok("\x[9C5E]\c[EXCLAMATION MARK]" ~~ m/<+<?Punctuation>>/, q{Match unanchored <?Punctuation>} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<+<?isPunctuation>>$/, q{Match <?isPunctuation>} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<[A]+<?isPunctuation>>$/, q{Match compound <?isPunctuation>} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<-<?isPunctuation>>$/ ), q{Don't match externally inverted <?isPunctuation>} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<[A]-<?isPunctuation>>$/ ), q{Don't match compound inverted <?isPunctuation>} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<-isPunctuation>>$/ ), q{Don't match internally inverted <?isPunctuation>} );
+ok(!( "\x[9C5E]"  ~~ m/^<+<?isPunctuation>>$/ ), q{Don't match unrelated <?isPunctuation>} );
+ok("\x[9C5E]"  ~~ m/^<-<?isPunctuation>>$/, q{Match unrelated externally inverted <?isPunctuation>} );
+ok("\x[9C5E]"  ~~ m/^<+<-isPunctuation>>$/, q{Match unrelated internally inverted <?isPunctuation>} );
+ok("\x[9C5E]\c[EXCLAMATION MARK]" ~~ m/<+<?isPunctuation>>/, q{Match unanchored <?isPunctuation>} );
 
 # Pc          ConnectorPunctuation
 
 
-ok("\c[LOW LINE]" ~~ m/^<+<?Pc>>$/, q{Match <?Pc> (ConnectorPunctuation)} );
-ok("\c[LOW LINE]" ~~ m/^<[A]+<?Pc>>$/, q{Match compound <?Pc> (ConnectorPunctuation)} );
-ok(!( "\c[LOW LINE]" ~~ m/^<-<?Pc>>$/ ), q{Don't match externally inverted <?Pc> (ConnectorPunctuation)} );
-ok(!( "\c[LOW LINE]" ~~ m/^<[A]-<?Pc>>$/ ), q{Don't match compound inverted <?Pc> (ConnectorPunctuation)} );
-ok(!( "\c[LOW LINE]" ~~ m/^<+<-Pc>>$/ ), q{Don't match internally inverted <?Pc> (ConnectorPunctuation)} );
-ok(!( "\x[B2C9]"  ~~ m/^<+<?Pc>>$/ ), q{Don't match unrelated <?Pc> (ConnectorPunctuation)} );
-ok("\x[B2C9]"  ~~ m/^<-<?Pc>>$/, q{Match unrelated externally inverted <?Pc> (ConnectorPunctuation)} );
-ok("\x[B2C9]"  ~~ m/^<+<-Pc>>$/, q{Match unrelated internally inverted <?Pc> (ConnectorPunctuation)} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<?Pc>>$/ ), q{Don't match related <?Pc> (ConnectorPunctuation)} );
-ok("\c[EXCLAMATION MARK]" ~~ m/^<+<-Pc>>$/, q{Match related internally inverted <?Pc> (ConnectorPunctuation)} );
-ok("\c[EXCLAMATION MARK]" ~~ m/^<-<?Pc>>$/, q{Match related externally inverted <?Pc> (ConnectorPunctuation)} );
-ok("\x[B2C9]\c[EXCLAMATION MARK]\c[LOW LINE]" ~~ m/<+<?Pc>>/, q{Match unanchored <?Pc> (ConnectorPunctuation)} );
+ok("\c[LOW LINE]" ~~ m/^<+<?isPc>>$/, q{Match <?isPc> (ConnectorPunctuation)} );
+ok("\c[LOW LINE]" ~~ m/^<[A]+<?isPc>>$/, q{Match compound <?isPc> (ConnectorPunctuation)} );
+ok(!( "\c[LOW LINE]" ~~ m/^<-<?isPc>>$/ ), q{Don't match externally inverted <?isPc> (ConnectorPunctuation)} );
+ok(!( "\c[LOW LINE]" ~~ m/^<[A]-<?isPc>>$/ ), q{Don't match compound inverted <?isPc> (ConnectorPunctuation)} );
+ok(!( "\c[LOW LINE]" ~~ m/^<+<-isPc>>$/ ), q{Don't match internally inverted <?isPc> (ConnectorPunctuation)} );
+ok(!( "\x[B2C9]"  ~~ m/^<+<?isPc>>$/ ), q{Don't match unrelated <?isPc> (ConnectorPunctuation)} );
+ok("\x[B2C9]"  ~~ m/^<-<?isPc>>$/, q{Match unrelated externally inverted <?isPc> (ConnectorPunctuation)} );
+ok("\x[B2C9]"  ~~ m/^<+<-isPc>>$/, q{Match unrelated internally inverted <?isPc> (ConnectorPunctuation)} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<?isPc>>$/ ), q{Don't match related <?isPc> (ConnectorPunctuation)} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<+<-isPc>>$/, q{Match related internally inverted <?isPc> (ConnectorPunctuation)} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<-<?isPc>>$/, q{Match related externally inverted <?isPc> (ConnectorPunctuation)} );
+ok("\x[B2C9]\c[EXCLAMATION MARK]\c[LOW LINE]" ~~ m/<+<?isPc>>/, q{Match unanchored <?isPc> (ConnectorPunctuation)} );
 
-ok("\c[LOW LINE]" ~~ m/^<+<?ConnectorPunctuation>>$/, q{Match <?ConnectorPunctuation>} );
-ok("\c[LOW LINE]" ~~ m/^<[A]+<?ConnectorPunctuation>>$/, q{Match compound <?ConnectorPunctuation>} );
-ok(!( "\c[LOW LINE]" ~~ m/^<-<?ConnectorPunctuation>>$/ ), q{Don't match externally inverted <?ConnectorPunctuation>} );
-ok(!( "\c[LOW LINE]" ~~ m/^<[A]-<?ConnectorPunctuation>>$/ ), q{Don't match compound inverted <?ConnectorPunctuation>} );
-ok(!( "\c[LOW LINE]" ~~ m/^<+<-ConnectorPunctuation>>$/ ), q{Don't match internally inverted <?ConnectorPunctuation>} );
-ok(!( "\x[AEFC]"  ~~ m/^<+<?ConnectorPunctuation>>$/ ), q{Don't match unrelated <?ConnectorPunctuation>} );
-ok("\x[AEFC]"  ~~ m/^<-<?ConnectorPunctuation>>$/, q{Match unrelated externally inverted <?ConnectorPunctuation>} );
-ok("\x[AEFC]"  ~~ m/^<+<-ConnectorPunctuation>>$/, q{Match unrelated internally inverted <?ConnectorPunctuation>} );
-ok("\x[AEFC]\c[LOW LINE]" ~~ m/<+<?ConnectorPunctuation>>/, q{Match unanchored <?ConnectorPunctuation>} );
+ok("\c[LOW LINE]" ~~ m/^<+<?isConnectorPunctuation>>$/, q{Match <?isConnectorPunctuation>} );
+ok("\c[LOW LINE]" ~~ m/^<[A]+<?isConnectorPunctuation>>$/, q{Match compound <?isConnectorPunctuation>} );
+ok(!( "\c[LOW LINE]" ~~ m/^<-<?isConnectorPunctuation>>$/ ), q{Don't match externally inverted <?isConnectorPunctuation>} );
+ok(!( "\c[LOW LINE]" ~~ m/^<[A]-<?isConnectorPunctuation>>$/ ), q{Don't match compound inverted <?isConnectorPunctuation>} );
+ok(!( "\c[LOW LINE]" ~~ m/^<+<-isConnectorPunctuation>>$/ ), q{Don't match internally inverted <?isConnectorPunctuation>} );
+ok(!( "\x[AEFC]"  ~~ m/^<+<?isConnectorPunctuation>>$/ ), q{Don't match unrelated <?isConnectorPunctuation>} );
+ok("\x[AEFC]"  ~~ m/^<-<?isConnectorPunctuation>>$/, q{Match unrelated externally inverted <?isConnectorPunctuation>} );
+ok("\x[AEFC]"  ~~ m/^<+<-isConnectorPunctuation>>$/, q{Match unrelated internally inverted <?isConnectorPunctuation>} );
+ok("\x[AEFC]\c[LOW LINE]" ~~ m/<+<?isConnectorPunctuation>>/, q{Match unanchored <?isConnectorPunctuation>} );
 
 # Pd          DashPunctuation
 
 
-ok("\c[HYPHEN-MINUS]" ~~ m/^<+<?Pd>>$/, q{Match <?Pd> (DashPunctuation)} );
-ok("\c[HYPHEN-MINUS]" ~~ m/^<[A]+<?Pd>>$/, q{Match compound <?Pd> (DashPunctuation)} );
-ok(!( "\c[HYPHEN-MINUS]" ~~ m/^<-<?Pd>>$/ ), q{Don't match externally inverted <?Pd> (DashPunctuation)} );
-ok(!( "\c[HYPHEN-MINUS]" ~~ m/^<[A]-<?Pd>>$/ ), q{Don't match compound inverted <?Pd> (DashPunctuation)} );
-ok(!( "\c[HYPHEN-MINUS]" ~~ m/^<+<-Pd>>$/ ), q{Don't match internally inverted <?Pd> (DashPunctuation)} );
-ok(!( "\x[86C8]"  ~~ m/^<+<?Pd>>$/ ), q{Don't match unrelated <?Pd> (DashPunctuation)} );
-ok("\x[86C8]"  ~~ m/^<-<?Pd>>$/, q{Match unrelated externally inverted <?Pd> (DashPunctuation)} );
-ok("\x[86C8]"  ~~ m/^<+<-Pd>>$/, q{Match unrelated internally inverted <?Pd> (DashPunctuation)} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<?Pd>>$/ ), q{Don't match related <?Pd> (DashPunctuation)} );
-ok("\c[EXCLAMATION MARK]" ~~ m/^<+<-Pd>>$/, q{Match related internally inverted <?Pd> (DashPunctuation)} );
-ok("\c[EXCLAMATION MARK]" ~~ m/^<-<?Pd>>$/, q{Match related externally inverted <?Pd> (DashPunctuation)} );
-ok("\x[86C8]\c[EXCLAMATION MARK]\c[HYPHEN-MINUS]" ~~ m/<+<?Pd>>/, q{Match unanchored <?Pd> (DashPunctuation)} );
+ok("\c[HYPHEN-MINUS]" ~~ m/^<+<?isPd>>$/, q{Match <?isPd> (DashPunctuation)} );
+ok("\c[HYPHEN-MINUS]" ~~ m/^<[A]+<?isPd>>$/, q{Match compound <?isPd> (DashPunctuation)} );
+ok(!( "\c[HYPHEN-MINUS]" ~~ m/^<-<?isPd>>$/ ), q{Don't match externally inverted <?isPd> (DashPunctuation)} );
+ok(!( "\c[HYPHEN-MINUS]" ~~ m/^<[A]-<?isPd>>$/ ), q{Don't match compound inverted <?isPd> (DashPunctuation)} );
+ok(!( "\c[HYPHEN-MINUS]" ~~ m/^<+<-isPd>>$/ ), q{Don't match internally inverted <?isPd> (DashPunctuation)} );
+ok(!( "\x[86C8]"  ~~ m/^<+<?isPd>>$/ ), q{Don't match unrelated <?isPd> (DashPunctuation)} );
+ok("\x[86C8]"  ~~ m/^<-<?isPd>>$/, q{Match unrelated externally inverted <?isPd> (DashPunctuation)} );
+ok("\x[86C8]"  ~~ m/^<+<-isPd>>$/, q{Match unrelated internally inverted <?isPd> (DashPunctuation)} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<?isPd>>$/ ), q{Don't match related <?isPd> (DashPunctuation)} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<+<-isPd>>$/, q{Match related internally inverted <?isPd> (DashPunctuation)} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<-<?isPd>>$/, q{Match related externally inverted <?isPd> (DashPunctuation)} );
+ok("\x[86C8]\c[EXCLAMATION MARK]\c[HYPHEN-MINUS]" ~~ m/<+<?isPd>>/, q{Match unanchored <?isPd> (DashPunctuation)} );
 
-ok("\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<+<?DashPunctuation>>$/, q{Match <?DashPunctuation>} );
-ok("\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<[A]+<?DashPunctuation>>$/, q{Match compound <?DashPunctuation>} );
-ok(!( "\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<-<?DashPunctuation>>$/ ), q{Don't match externally inverted <?DashPunctuation>} );
-ok(!( "\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<[A]-<?DashPunctuation>>$/ ), q{Don't match compound inverted <?DashPunctuation>} );
-ok(!( "\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<+<-DashPunctuation>>$/ ), q{Don't match internally inverted <?DashPunctuation>} );
-ok(!( "\c[HIRAGANA LETTER NI]"  ~~ m/^<+<?DashPunctuation>>$/ ), q{Don't match unrelated <?DashPunctuation>} );
-ok("\c[HIRAGANA LETTER NI]"  ~~ m/^<-<?DashPunctuation>>$/, q{Match unrelated externally inverted <?DashPunctuation>} );
-ok("\c[HIRAGANA LETTER NI]"  ~~ m/^<+<-DashPunctuation>>$/, q{Match unrelated internally inverted <?DashPunctuation>} );
-ok("\c[HIRAGANA LETTER NI]\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/<+<?DashPunctuation>>/, q{Match unanchored <?DashPunctuation>} );
+ok("\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<+<?isDashPunctuation>>$/, q{Match <?isDashPunctuation>} );
+ok("\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<[A]+<?isDashPunctuation>>$/, q{Match compound <?isDashPunctuation>} );
+ok(!( "\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<-<?isDashPunctuation>>$/ ), q{Don't match externally inverted <?isDashPunctuation>} );
+ok(!( "\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<[A]-<?isDashPunctuation>>$/ ), q{Don't match compound inverted <?isDashPunctuation>} );
+ok(!( "\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<+<-isDashPunctuation>>$/ ), q{Don't match internally inverted <?isDashPunctuation>} );
+ok(!( "\c[HIRAGANA LETTER NI]"  ~~ m/^<+<?isDashPunctuation>>$/ ), q{Don't match unrelated <?isDashPunctuation>} );
+ok("\c[HIRAGANA LETTER NI]"  ~~ m/^<-<?isDashPunctuation>>$/, q{Match unrelated externally inverted <?isDashPunctuation>} );
+ok("\c[HIRAGANA LETTER NI]"  ~~ m/^<+<-isDashPunctuation>>$/, q{Match unrelated internally inverted <?isDashPunctuation>} );
+ok("\c[HIRAGANA LETTER NI]\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/<+<?isDashPunctuation>>/, q{Match unanchored <?isDashPunctuation>} );
 
 # Ps          OpenPunctuation
 
 
-ok("\c[LEFT PARENTHESIS]" ~~ m/^<+<?Ps>>$/, q{Match <?Ps> (OpenPunctuation)} );
-ok("\c[LEFT PARENTHESIS]" ~~ m/^<[A]+<?Ps>>$/, q{Match compound <?Ps> (OpenPunctuation)} );
-ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<-<?Ps>>$/ ), q{Don't match externally inverted <?Ps> (OpenPunctuation)} );
-ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<[A]-<?Ps>>$/ ), q{Don't match compound inverted <?Ps> (OpenPunctuation)} );
-ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<+<-Ps>>$/ ), q{Don't match internally inverted <?Ps> (OpenPunctuation)} );
-ok(!( "\x[B601]"  ~~ m/^<+<?Ps>>$/ ), q{Don't match unrelated <?Ps> (OpenPunctuation)} );
-ok("\x[B601]"  ~~ m/^<-<?Ps>>$/, q{Match unrelated externally inverted <?Ps> (OpenPunctuation)} );
-ok("\x[B601]"  ~~ m/^<+<-Ps>>$/, q{Match unrelated internally inverted <?Ps> (OpenPunctuation)} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<?Ps>>$/ ), q{Don't match related <?Ps> (OpenPunctuation)} );
-ok("\c[EXCLAMATION MARK]" ~~ m/^<+<-Ps>>$/, q{Match related internally inverted <?Ps> (OpenPunctuation)} );
-ok("\c[EXCLAMATION MARK]" ~~ m/^<-<?Ps>>$/, q{Match related externally inverted <?Ps> (OpenPunctuation)} );
-ok("\x[B601]\c[EXCLAMATION MARK]\c[LEFT PARENTHESIS]" ~~ m/<+<?Ps>>/, q{Match unanchored <?Ps> (OpenPunctuation)} );
+ok("\c[LEFT PARENTHESIS]" ~~ m/^<+<?isPs>>$/, q{Match <?isPs> (OpenPunctuation)} );
+ok("\c[LEFT PARENTHESIS]" ~~ m/^<[A]+<?isPs>>$/, q{Match compound <?isPs> (OpenPunctuation)} );
+ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<-<?isPs>>$/ ), q{Don't match externally inverted <?isPs> (OpenPunctuation)} );
+ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<[A]-<?isPs>>$/ ), q{Don't match compound inverted <?isPs> (OpenPunctuation)} );
+ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<+<-isPs>>$/ ), q{Don't match internally inverted <?isPs> (OpenPunctuation)} );
+ok(!( "\x[B601]"  ~~ m/^<+<?isPs>>$/ ), q{Don't match unrelated <?isPs> (OpenPunctuation)} );
+ok("\x[B601]"  ~~ m/^<-<?isPs>>$/, q{Match unrelated externally inverted <?isPs> (OpenPunctuation)} );
+ok("\x[B601]"  ~~ m/^<+<-isPs>>$/, q{Match unrelated internally inverted <?isPs> (OpenPunctuation)} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<?isPs>>$/ ), q{Don't match related <?isPs> (OpenPunctuation)} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<+<-isPs>>$/, q{Match related internally inverted <?isPs> (OpenPunctuation)} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<-<?isPs>>$/, q{Match related externally inverted <?isPs> (OpenPunctuation)} );
+ok("\x[B601]\c[EXCLAMATION MARK]\c[LEFT PARENTHESIS]" ~~ m/<+<?isPs>>/, q{Match unanchored <?isPs> (OpenPunctuation)} );
 
-ok("\c[LEFT PARENTHESIS]" ~~ m/^<+<?OpenPunctuation>>$/, q{Match <?OpenPunctuation>} );
-ok("\c[LEFT PARENTHESIS]" ~~ m/^<[A]+<?OpenPunctuation>>$/, q{Match compound <?OpenPunctuation>} );
-ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<-<?OpenPunctuation>>$/ ), q{Don't match externally inverted <?OpenPunctuation>} );
-ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<[A]-<?OpenPunctuation>>$/ ), q{Don't match compound inverted <?OpenPunctuation>} );
-ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<+<-OpenPunctuation>>$/ ), q{Don't match internally inverted <?OpenPunctuation>} );
-ok(!( "\x[89C1]"  ~~ m/^<+<?OpenPunctuation>>$/ ), q{Don't match unrelated <?OpenPunctuation>} );
-ok("\x[89C1]"  ~~ m/^<-<?OpenPunctuation>>$/, q{Match unrelated externally inverted <?OpenPunctuation>} );
-ok("\x[89C1]"  ~~ m/^<+<-OpenPunctuation>>$/, q{Match unrelated internally inverted <?OpenPunctuation>} );
-ok("\x[89C1]\c[LEFT PARENTHESIS]" ~~ m/<+<?OpenPunctuation>>/, q{Match unanchored <?OpenPunctuation>} );
+ok("\c[LEFT PARENTHESIS]" ~~ m/^<+<?isOpenPunctuation>>$/, q{Match <?isOpenPunctuation>} );
+ok("\c[LEFT PARENTHESIS]" ~~ m/^<[A]+<?isOpenPunctuation>>$/, q{Match compound <?isOpenPunctuation>} );
+ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<-<?isOpenPunctuation>>$/ ), q{Don't match externally inverted <?isOpenPunctuation>} );
+ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<[A]-<?isOpenPunctuation>>$/ ), q{Don't match compound inverted <?isOpenPunctuation>} );
+ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<+<-isOpenPunctuation>>$/ ), q{Don't match internally inverted <?isOpenPunctuation>} );
+ok(!( "\x[89C1]"  ~~ m/^<+<?isOpenPunctuation>>$/ ), q{Don't match unrelated <?isOpenPunctuation>} );
+ok("\x[89C1]"  ~~ m/^<-<?isOpenPunctuation>>$/, q{Match unrelated externally inverted <?isOpenPunctuation>} );
+ok("\x[89C1]"  ~~ m/^<+<-isOpenPunctuation>>$/, q{Match unrelated internally inverted <?isOpenPunctuation>} );
+ok("\x[89C1]\c[LEFT PARENTHESIS]" ~~ m/<+<?isOpenPunctuation>>/, q{Match unanchored <?isOpenPunctuation>} );
 
 # Pe          ClosePunctuation
 
 
-ok("\c[RIGHT PARENTHESIS]" ~~ m/^<+<?Pe>>$/, q{Match <?Pe> (ClosePunctuation)} );
-ok("\c[RIGHT PARENTHESIS]" ~~ m/^<[A]+<?Pe>>$/, q{Match compound <?Pe> (ClosePunctuation)} );
-ok(!( "\c[RIGHT PARENTHESIS]" ~~ m/^<-<?Pe>>$/ ), q{Don't match externally inverted <?Pe> (ClosePunctuation)} );
-ok(!( "\c[RIGHT PARENTHESIS]" ~~ m/^<[A]-<?Pe>>$/ ), q{Don't match compound inverted <?Pe> (ClosePunctuation)} );
-ok(!( "\c[RIGHT PARENTHESIS]" ~~ m/^<+<-Pe>>$/ ), q{Don't match internally inverted <?Pe> (ClosePunctuation)} );
-ok(!( "\x[5561]"  ~~ m/^<+<?Pe>>$/ ), q{Don't match unrelated <?Pe> (ClosePunctuation)} );
-ok("\x[5561]"  ~~ m/^<-<?Pe>>$/, q{Match unrelated externally inverted <?Pe> (ClosePunctuation)} );
-ok("\x[5561]"  ~~ m/^<+<-Pe>>$/, q{Match unrelated internally inverted <?Pe> (ClosePunctuation)} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<?Pe>>$/ ), q{Don't match related <?Pe> (ClosePunctuation)} );
-ok("\c[EXCLAMATION MARK]" ~~ m/^<+<-Pe>>$/, q{Match related internally inverted <?Pe> (ClosePunctuation)} );
-ok("\c[EXCLAMATION MARK]" ~~ m/^<-<?Pe>>$/, q{Match related externally inverted <?Pe> (ClosePunctuation)} );
-ok("\x[5561]\c[EXCLAMATION MARK]\c[RIGHT PARENTHESIS]" ~~ m/<+<?Pe>>/, q{Match unanchored <?Pe> (ClosePunctuation)} );
+ok("\c[RIGHT PARENTHESIS]" ~~ m/^<+<?isPe>>$/, q{Match <?isPe> (ClosePunctuation)} );
+ok("\c[RIGHT PARENTHESIS]" ~~ m/^<[A]+<?isPe>>$/, q{Match compound <?isPe> (ClosePunctuation)} );
+ok(!( "\c[RIGHT PARENTHESIS]" ~~ m/^<-<?isPe>>$/ ), q{Don't match externally inverted <?isPe> (ClosePunctuation)} );
+ok(!( "\c[RIGHT PARENTHESIS]" ~~ m/^<[A]-<?isPe>>$/ ), q{Don't match compound inverted <?isPe> (ClosePunctuation)} );
+ok(!( "\c[RIGHT PARENTHESIS]" ~~ m/^<+<-isPe>>$/ ), q{Don't match internally inverted <?isPe> (ClosePunctuation)} );
+ok(!( "\x[5561]"  ~~ m/^<+<?isPe>>$/ ), q{Don't match unrelated <?isPe> (ClosePunctuation)} );
+ok("\x[5561]"  ~~ m/^<-<?isPe>>$/, q{Match unrelated externally inverted <?isPe> (ClosePunctuation)} );
+ok("\x[5561]"  ~~ m/^<+<-isPe>>$/, q{Match unrelated internally inverted <?isPe> (ClosePunctuation)} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<?isPe>>$/ ), q{Don't match related <?isPe> (ClosePunctuation)} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<+<-isPe>>$/, q{Match related internally inverted <?isPe> (ClosePunctuation)} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<-<?isPe>>$/, q{Match related externally inverted <?isPe> (ClosePunctuation)} );
+ok("\x[5561]\c[EXCLAMATION MARK]\c[RIGHT PARENTHESIS]" ~~ m/<+<?isPe>>/, q{Match unanchored <?isPe> (ClosePunctuation)} );
 
-ok("\c[RIGHT PARENTHESIS]" ~~ m/^<+<?ClosePunctuation>>$/, q{Match <?ClosePunctuation>} );
-ok("\c[RIGHT PARENTHESIS]" ~~ m/^<[A]+<?ClosePunctuation>>$/, q{Match compound <?ClosePunctuation>} );
-ok(!( "\c[RIGHT PARENTHESIS]" ~~ m/^<-<?ClosePunctuation>>$/ ), q{Don't match externally inverted <?ClosePunctuation>} );
-ok(!( "\c[RIGHT PARENTHESIS]" ~~ m/^<[A]-<?ClosePunctuation>>$/ ), q{Don't match compound inverted <?ClosePunctuation>} );
-ok(!( "\c[RIGHT PARENTHESIS]" ~~ m/^<+<-ClosePunctuation>>$/ ), q{Don't match internally inverted <?ClosePunctuation>} );
-ok(!( "\x[98D0]"  ~~ m/^<+<?ClosePunctuation>>$/ ), q{Don't match unrelated <?ClosePunctuation>} );
-ok("\x[98D0]"  ~~ m/^<-<?ClosePunctuation>>$/, q{Match unrelated externally inverted <?ClosePunctuation>} );
-ok("\x[98D0]"  ~~ m/^<+<-ClosePunctuation>>$/, q{Match unrelated internally inverted <?ClosePunctuation>} );
-ok("\x[98D0]\c[RIGHT PARENTHESIS]" ~~ m/<+<?ClosePunctuation>>/, q{Match unanchored <?ClosePunctuation>} );
+ok("\c[RIGHT PARENTHESIS]" ~~ m/^<+<?isClosePunctuation>>$/, q{Match <?isClosePunctuation>} );
+ok("\c[RIGHT PARENTHESIS]" ~~ m/^<[A]+<?isClosePunctuation>>$/, q{Match compound <?isClosePunctuation>} );
+ok(!( "\c[RIGHT PARENTHESIS]" ~~ m/^<-<?isClosePunctuation>>$/ ), q{Don't match externally inverted <?isClosePunctuation>} );
+ok(!( "\c[RIGHT PARENTHESIS]" ~~ m/^<[A]-<?isClosePunctuation>>$/ ), q{Don't match compound inverted <?isClosePunctuation>} );
+ok(!( "\c[RIGHT PARENTHESIS]" ~~ m/^<+<-isClosePunctuation>>$/ ), q{Don't match internally inverted <?isClosePunctuation>} );
+ok(!( "\x[98D0]"  ~~ m/^<+<?isClosePunctuation>>$/ ), q{Don't match unrelated <?isClosePunctuation>} );
+ok("\x[98D0]"  ~~ m/^<-<?isClosePunctuation>>$/, q{Match unrelated externally inverted <?isClosePunctuation>} );
+ok("\x[98D0]"  ~~ m/^<+<-isClosePunctuation>>$/, q{Match unrelated internally inverted <?isClosePunctuation>} );
+ok("\x[98D0]\c[RIGHT PARENTHESIS]" ~~ m/<+<?isClosePunctuation>>/, q{Match unanchored <?isClosePunctuation>} );
 
 # Pi          InitialPunctuation
 
 
-ok("\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<+<?Pi>>$/, q{Match <?Pi> (InitialPunctuation)} );
-ok("\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<[A]+<?Pi>>$/, q{Match compound <?Pi> (InitialPunctuation)} );
-ok(!( "\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<-<?Pi>>$/ ), q{Don't match externally inverted <?Pi> (InitialPunctuation)} );
-ok(!( "\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<[A]-<?Pi>>$/ ), q{Don't match compound inverted <?Pi> (InitialPunctuation)} );
-ok(!( "\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<+<-Pi>>$/ ), q{Don't match internally inverted <?Pi> (InitialPunctuation)} );
-ok(!( "\x[D76F]"  ~~ m/^<+<?Pi>>$/ ), q{Don't match unrelated <?Pi> (InitialPunctuation)} );
-ok("\x[D76F]"  ~~ m/^<-<?Pi>>$/, q{Match unrelated externally inverted <?Pi> (InitialPunctuation)} );
-ok("\x[D76F]"  ~~ m/^<+<-Pi>>$/, q{Match unrelated internally inverted <?Pi> (InitialPunctuation)} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<?Pi>>$/ ), q{Don't match related <?Pi> (InitialPunctuation)} );
-ok("\c[EXCLAMATION MARK]" ~~ m/^<+<-Pi>>$/, q{Match related internally inverted <?Pi> (InitialPunctuation)} );
-ok("\c[EXCLAMATION MARK]" ~~ m/^<-<?Pi>>$/, q{Match related externally inverted <?Pi> (InitialPunctuation)} );
-ok("\x[D76F]\c[EXCLAMATION MARK]\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/<+<?Pi>>/, q{Match unanchored <?Pi> (InitialPunctuation)} );
+ok("\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<+<?isPi>>$/, q{Match <?isPi> (InitialPunctuation)} );
+ok("\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<[A]+<?isPi>>$/, q{Match compound <?isPi> (InitialPunctuation)} );
+ok(!( "\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<-<?isPi>>$/ ), q{Don't match externally inverted <?isPi> (InitialPunctuation)} );
+ok(!( "\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<[A]-<?isPi>>$/ ), q{Don't match compound inverted <?isPi> (InitialPunctuation)} );
+ok(!( "\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<+<-isPi>>$/ ), q{Don't match internally inverted <?isPi> (InitialPunctuation)} );
+ok(!( "\x[D76F]"  ~~ m/^<+<?isPi>>$/ ), q{Don't match unrelated <?isPi> (InitialPunctuation)} );
+ok("\x[D76F]"  ~~ m/^<-<?isPi>>$/, q{Match unrelated externally inverted <?isPi> (InitialPunctuation)} );
+ok("\x[D76F]"  ~~ m/^<+<-isPi>>$/, q{Match unrelated internally inverted <?isPi> (InitialPunctuation)} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<?isPi>>$/ ), q{Don't match related <?isPi> (InitialPunctuation)} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<+<-isPi>>$/, q{Match related internally inverted <?isPi> (InitialPunctuation)} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<-<?isPi>>$/, q{Match related externally inverted <?isPi> (InitialPunctuation)} );
+ok("\x[D76F]\c[EXCLAMATION MARK]\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/<+<?isPi>>/, q{Match unanchored <?isPi> (InitialPunctuation)} );
 
-ok("\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<+<?InitialPunctuation>>$/, q{Match <?InitialPunctuation>} );
-ok("\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<[A]+<?InitialPunctuation>>$/, q{Match compound <?InitialPunctuation>} );
-ok(!( "\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<-<?InitialPunctuation>>$/ ), q{Don't match externally inverted <?InitialPunctuation>} );
-ok(!( "\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<[A]-<?InitialPunctuation>>$/ ), q{Don't match compound inverted <?InitialPunctuation>} );
-ok(!( "\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<+<-InitialPunctuation>>$/ ), q{Don't match internally inverted <?InitialPunctuation>} );
-ok(!( "\x[C96E]"  ~~ m/^<+<?InitialPunctuation>>$/ ), q{Don't match unrelated <?InitialPunctuation>} );
-ok("\x[C96E]"  ~~ m/^<-<?InitialPunctuation>>$/, q{Match unrelated externally inverted <?InitialPunctuation>} );
-ok("\x[C96E]"  ~~ m/^<+<-InitialPunctuation>>$/, q{Match unrelated internally inverted <?InitialPunctuation>} );
-ok("\x[C96E]\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/<+<?InitialPunctuation>>/, q{Match unanchored <?InitialPunctuation>} );
+ok("\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<+<?isInitialPunctuation>>$/, q{Match <?isInitialPunctuation>} );
+ok("\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<[A]+<?isInitialPunctuation>>$/, q{Match compound <?isInitialPunctuation>} );
+ok(!( "\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<-<?isInitialPunctuation>>$/ ), q{Don't match externally inverted <?isInitialPunctuation>} );
+ok(!( "\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<[A]-<?isInitialPunctuation>>$/ ), q{Don't match compound inverted <?isInitialPunctuation>} );
+ok(!( "\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/^<+<-isInitialPunctuation>>$/ ), q{Don't match internally inverted <?isInitialPunctuation>} );
+ok(!( "\x[C96E]"  ~~ m/^<+<?isInitialPunctuation>>$/ ), q{Don't match unrelated <?isInitialPunctuation>} );
+ok("\x[C96E]"  ~~ m/^<-<?isInitialPunctuation>>$/, q{Match unrelated externally inverted <?isInitialPunctuation>} );
+ok("\x[C96E]"  ~~ m/^<+<-isInitialPunctuation>>$/, q{Match unrelated internally inverted <?isInitialPunctuation>} );
+ok("\x[C96E]\c[LEFT-POINTING DOUBLE ANGLE QUOTATION MARK]" ~~ m/<+<?isInitialPunctuation>>/, q{Match unanchored <?isInitialPunctuation>} );
 
 # Pf          FinalPunctuation
 
 
-ok("\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<+<?Pf>>$/, q{Match <?Pf> (FinalPunctuation)} );
-ok("\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<[A]+<?Pf>>$/, q{Match compound <?Pf> (FinalPunctuation)} );
-ok(!( "\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<-<?Pf>>$/ ), q{Don't match externally inverted <?Pf> (FinalPunctuation)} );
-ok(!( "\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<[A]-<?Pf>>$/ ), q{Don't match compound inverted <?Pf> (FinalPunctuation)} );
-ok(!( "\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<+<-Pf>>$/ ), q{Don't match internally inverted <?Pf> (FinalPunctuation)} );
-ok(!( "\x[0515]"  ~~ m/^<+<?Pf>>$/ ), q{Don't match unrelated <?Pf> (FinalPunctuation)} );
-ok("\x[0515]"  ~~ m/^<-<?Pf>>$/, q{Match unrelated externally inverted <?Pf> (FinalPunctuation)} );
-ok("\x[0515]"  ~~ m/^<+<-Pf>>$/, q{Match unrelated internally inverted <?Pf> (FinalPunctuation)} );
-ok(!( "\c[ARMENIAN APOSTROPHE]" ~~ m/^<+<?Pf>>$/ ), q{Don't match related <?Pf> (FinalPunctuation)} );
-ok("\c[ARMENIAN APOSTROPHE]" ~~ m/^<+<-Pf>>$/, q{Match related internally inverted <?Pf> (FinalPunctuation)} );
-ok("\c[ARMENIAN APOSTROPHE]" ~~ m/^<-<?Pf>>$/, q{Match related externally inverted <?Pf> (FinalPunctuation)} );
-ok("\x[0515]\c[ARMENIAN APOSTROPHE]\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/<+<?Pf>>/, q{Match unanchored <?Pf> (FinalPunctuation)} );
+ok("\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<+<?isPf>>$/, q{Match <?isPf> (FinalPunctuation)} );
+ok("\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<[A]+<?isPf>>$/, q{Match compound <?isPf> (FinalPunctuation)} );
+ok(!( "\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<-<?isPf>>$/ ), q{Don't match externally inverted <?isPf> (FinalPunctuation)} );
+ok(!( "\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<[A]-<?isPf>>$/ ), q{Don't match compound inverted <?isPf> (FinalPunctuation)} );
+ok(!( "\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<+<-isPf>>$/ ), q{Don't match internally inverted <?isPf> (FinalPunctuation)} );
+ok(!( "\x[0515]"  ~~ m/^<+<?isPf>>$/ ), q{Don't match unrelated <?isPf> (FinalPunctuation)} );
+ok("\x[0515]"  ~~ m/^<-<?isPf>>$/, q{Match unrelated externally inverted <?isPf> (FinalPunctuation)} );
+ok("\x[0515]"  ~~ m/^<+<-isPf>>$/, q{Match unrelated internally inverted <?isPf> (FinalPunctuation)} );
+ok(!( "\c[ARMENIAN APOSTROPHE]" ~~ m/^<+<?isPf>>$/ ), q{Don't match related <?isPf> (FinalPunctuation)} );
+ok("\c[ARMENIAN APOSTROPHE]" ~~ m/^<+<-isPf>>$/, q{Match related internally inverted <?isPf> (FinalPunctuation)} );
+ok("\c[ARMENIAN APOSTROPHE]" ~~ m/^<-<?isPf>>$/, q{Match related externally inverted <?isPf> (FinalPunctuation)} );
+ok("\x[0515]\c[ARMENIAN APOSTROPHE]\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/<+<?isPf>>/, q{Match unanchored <?isPf> (FinalPunctuation)} );
 
-ok("\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<+<?FinalPunctuation>>$/, q{Match <?FinalPunctuation>} );
-ok("\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<[A]+<?FinalPunctuation>>$/, q{Match compound <?FinalPunctuation>} );
-ok(!( "\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<-<?FinalPunctuation>>$/ ), q{Don't match externally inverted <?FinalPunctuation>} );
-ok(!( "\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<[A]-<?FinalPunctuation>>$/ ), q{Don't match compound inverted <?FinalPunctuation>} );
-ok(!( "\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<+<-FinalPunctuation>>$/ ), q{Don't match internally inverted <?FinalPunctuation>} );
-ok(!( "\c[MODIFIER LETTER PRIME]"  ~~ m/^<+<?FinalPunctuation>>$/ ), q{Don't match unrelated <?FinalPunctuation>} );
-ok("\c[MODIFIER LETTER PRIME]"  ~~ m/^<-<?FinalPunctuation>>$/, q{Match unrelated externally inverted <?FinalPunctuation>} );
-ok("\c[MODIFIER LETTER PRIME]"  ~~ m/^<+<-FinalPunctuation>>$/, q{Match unrelated internally inverted <?FinalPunctuation>} );
-ok("\c[MODIFIER LETTER PRIME]\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/<+<?FinalPunctuation>>/, q{Match unanchored <?FinalPunctuation>} );
+ok("\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<+<?isFinalPunctuation>>$/, q{Match <?isFinalPunctuation>} );
+ok("\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<[A]+<?isFinalPunctuation>>$/, q{Match compound <?isFinalPunctuation>} );
+ok(!( "\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<-<?isFinalPunctuation>>$/ ), q{Don't match externally inverted <?isFinalPunctuation>} );
+ok(!( "\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<[A]-<?isFinalPunctuation>>$/ ), q{Don't match compound inverted <?isFinalPunctuation>} );
+ok(!( "\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/^<+<-isFinalPunctuation>>$/ ), q{Don't match internally inverted <?isFinalPunctuation>} );
+ok(!( "\c[MODIFIER LETTER PRIME]"  ~~ m/^<+<?isFinalPunctuation>>$/ ), q{Don't match unrelated <?isFinalPunctuation>} );
+ok("\c[MODIFIER LETTER PRIME]"  ~~ m/^<-<?isFinalPunctuation>>$/, q{Match unrelated externally inverted <?isFinalPunctuation>} );
+ok("\c[MODIFIER LETTER PRIME]"  ~~ m/^<+<-isFinalPunctuation>>$/, q{Match unrelated internally inverted <?isFinalPunctuation>} );
+ok("\c[MODIFIER LETTER PRIME]\c[RIGHT SINGLE QUOTATION MARK]" ~~ m/<+<?isFinalPunctuation>>/, q{Match unanchored <?isFinalPunctuation>} );
 
 # Po          OtherPunctuation
 
 
-ok("\c[EXCLAMATION MARK]" ~~ m/^<+<?Po>>$/, q{Match <?Po> (OtherPunctuation)} );
-ok("\c[EXCLAMATION MARK]" ~~ m/^<[A]+<?Po>>$/, q{Match compound <?Po> (OtherPunctuation)} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<-<?Po>>$/ ), q{Don't match externally inverted <?Po> (OtherPunctuation)} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<[A]-<?Po>>$/ ), q{Don't match compound inverted <?Po> (OtherPunctuation)} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<-Po>>$/ ), q{Don't match internally inverted <?Po> (OtherPunctuation)} );
-ok(!( "\x[A586]"  ~~ m/^<+<?Po>>$/ ), q{Don't match unrelated <?Po> (OtherPunctuation)} );
-ok("\x[A586]"  ~~ m/^<-<?Po>>$/, q{Match unrelated externally inverted <?Po> (OtherPunctuation)} );
-ok("\x[A586]"  ~~ m/^<+<-Po>>$/, q{Match unrelated internally inverted <?Po> (OtherPunctuation)} );
-ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<+<?Po>>$/ ), q{Don't match related <?Po> (OtherPunctuation)} );
-ok("\c[LEFT PARENTHESIS]" ~~ m/^<+<-Po>>$/, q{Match related internally inverted <?Po> (OtherPunctuation)} );
-ok("\c[LEFT PARENTHESIS]" ~~ m/^<-<?Po>>$/, q{Match related externally inverted <?Po> (OtherPunctuation)} );
-ok("\x[A586]\c[LEFT PARENTHESIS]\c[EXCLAMATION MARK]" ~~ m/<+<?Po>>/, q{Match unanchored <?Po> (OtherPunctuation)} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<+<?isPo>>$/, q{Match <?isPo> (OtherPunctuation)} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<[A]+<?isPo>>$/, q{Match compound <?isPo> (OtherPunctuation)} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<-<?isPo>>$/ ), q{Don't match externally inverted <?isPo> (OtherPunctuation)} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<[A]-<?isPo>>$/ ), q{Don't match compound inverted <?isPo> (OtherPunctuation)} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<-isPo>>$/ ), q{Don't match internally inverted <?isPo> (OtherPunctuation)} );
+ok(!( "\x[A586]"  ~~ m/^<+<?isPo>>$/ ), q{Don't match unrelated <?isPo> (OtherPunctuation)} );
+ok("\x[A586]"  ~~ m/^<-<?isPo>>$/, q{Match unrelated externally inverted <?isPo> (OtherPunctuation)} );
+ok("\x[A586]"  ~~ m/^<+<-isPo>>$/, q{Match unrelated internally inverted <?isPo> (OtherPunctuation)} );
+ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<+<?isPo>>$/ ), q{Don't match related <?isPo> (OtherPunctuation)} );
+ok("\c[LEFT PARENTHESIS]" ~~ m/^<+<-isPo>>$/, q{Match related internally inverted <?isPo> (OtherPunctuation)} );
+ok("\c[LEFT PARENTHESIS]" ~~ m/^<-<?isPo>>$/, q{Match related externally inverted <?isPo> (OtherPunctuation)} );
+ok("\x[A586]\c[LEFT PARENTHESIS]\c[EXCLAMATION MARK]" ~~ m/<+<?isPo>>/, q{Match unanchored <?isPo> (OtherPunctuation)} );
 
-ok("\c[EXCLAMATION MARK]" ~~ m/^<+<?OtherPunctuation>>$/, q{Match <?OtherPunctuation>} );
-ok("\c[EXCLAMATION MARK]" ~~ m/^<[A]+<?OtherPunctuation>>$/, q{Match compound <?OtherPunctuation>} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<-<?OtherPunctuation>>$/ ), q{Don't match externally inverted <?OtherPunctuation>} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<[A]-<?OtherPunctuation>>$/ ), q{Don't match compound inverted <?OtherPunctuation>} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<-OtherPunctuation>>$/ ), q{Don't match internally inverted <?OtherPunctuation>} );
-ok(!( "\x[5FBD]"  ~~ m/^<+<?OtherPunctuation>>$/ ), q{Don't match unrelated <?OtherPunctuation>} );
-ok("\x[5FBD]"  ~~ m/^<-<?OtherPunctuation>>$/, q{Match unrelated externally inverted <?OtherPunctuation>} );
-ok("\x[5FBD]"  ~~ m/^<+<-OtherPunctuation>>$/, q{Match unrelated internally inverted <?OtherPunctuation>} );
-ok("\x[5FBD]\c[EXCLAMATION MARK]" ~~ m/<+<?OtherPunctuation>>/, q{Match unanchored <?OtherPunctuation>} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<+<?isOtherPunctuation>>$/, q{Match <?isOtherPunctuation>} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<[A]+<?isOtherPunctuation>>$/, q{Match compound <?isOtherPunctuation>} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<-<?isOtherPunctuation>>$/ ), q{Don't match externally inverted <?isOtherPunctuation>} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<[A]-<?isOtherPunctuation>>$/ ), q{Don't match compound inverted <?isOtherPunctuation>} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<-isOtherPunctuation>>$/ ), q{Don't match internally inverted <?isOtherPunctuation>} );
+ok(!( "\x[5FBD]"  ~~ m/^<+<?isOtherPunctuation>>$/ ), q{Don't match unrelated <?isOtherPunctuation>} );
+ok("\x[5FBD]"  ~~ m/^<-<?isOtherPunctuation>>$/, q{Match unrelated externally inverted <?isOtherPunctuation>} );
+ok("\x[5FBD]"  ~~ m/^<+<-isOtherPunctuation>>$/, q{Match unrelated internally inverted <?isOtherPunctuation>} );
+ok("\x[5FBD]\c[EXCLAMATION MARK]" ~~ m/<+<?isOtherPunctuation>>/, q{Match unanchored <?isOtherPunctuation>} );
 
 # S           Symbol
 
 
-ok("\c[GUJARATI RUPEE SIGN]" ~~ m/^<+<S>>$/, q{Match <S> (Symbol)} );
-ok("\c[GUJARATI RUPEE SIGN]" ~~ m/^<[A]+<S>>$/, q{Match compound <S> (Symbol)} );
-ok(!( "\c[GUJARATI RUPEE SIGN]" ~~ m/^<-<S>>$/ ), q{Don't match externally inverted <S> (Symbol)} );
-ok(!( "\c[GUJARATI RUPEE SIGN]" ~~ m/^<[A]-<S>>$/ ), q{Don't match compound inverted <S> (Symbol)} );
-ok(!( "\c[GUJARATI RUPEE SIGN]" ~~ m/^<+<-S>>$/ ), q{Don't match internally inverted <S> (Symbol)} );
-ok(!( "\c[GURMUKHI SIGN ADAK BINDI]"  ~~ m/^<+<S>>$/ ), q{Don't match unrelated <S> (Symbol)} );
-ok("\c[GURMUKHI SIGN ADAK BINDI]"  ~~ m/^<-<S>>$/, q{Match unrelated externally inverted <S> (Symbol)} );
-ok("\c[GURMUKHI SIGN ADAK BINDI]"  ~~ m/^<+<-S>>$/, q{Match unrelated internally inverted <S> (Symbol)} );
-ok("\c[GURMUKHI SIGN ADAK BINDI]\c[GUJARATI RUPEE SIGN]" ~~ m/<+<S>>/, q{Match unanchored <S> (Symbol)} );
+ok("\c[GUJARATI RUPEE SIGN]" ~~ m/^<+<isS>>$/, q{Match <isS> (Symbol)} );
+ok("\c[GUJARATI RUPEE SIGN]" ~~ m/^<[A]+<isS>>$/, q{Match compound <isS> (Symbol)} );
+ok(!( "\c[GUJARATI RUPEE SIGN]" ~~ m/^<-<isS>>$/ ), q{Don't match externally inverted <isS> (Symbol)} );
+ok(!( "\c[GUJARATI RUPEE SIGN]" ~~ m/^<[A]-<isS>>$/ ), q{Don't match compound inverted <isS> (Symbol)} );
+ok(!( "\c[GUJARATI RUPEE SIGN]" ~~ m/^<+<-isS>>$/ ), q{Don't match internally inverted <isS> (Symbol)} );
+ok(!( "\c[GURMUKHI SIGN ADAK BINDI]"  ~~ m/^<+<isS>>$/ ), q{Don't match unrelated <isS> (Symbol)} );
+ok("\c[GURMUKHI SIGN ADAK BINDI]"  ~~ m/^<-<isS>>$/, q{Match unrelated externally inverted <isS> (Symbol)} );
+ok("\c[GURMUKHI SIGN ADAK BINDI]"  ~~ m/^<+<-isS>>$/, q{Match unrelated internally inverted <isS> (Symbol)} );
+ok("\c[GURMUKHI SIGN ADAK BINDI]\c[GUJARATI RUPEE SIGN]" ~~ m/<+<isS>>/, q{Match unanchored <isS> (Symbol)} );
 
-ok("\c[LIMBU SIGN LOO]" ~~ m/^<+<?Symbol>>$/, q{Match <?Symbol>} );
-ok("\c[LIMBU SIGN LOO]" ~~ m/^<[A]+<?Symbol>>$/, q{Match compound <?Symbol>} );
-ok(!( "\c[LIMBU SIGN LOO]" ~~ m/^<-<?Symbol>>$/ ), q{Don't match externally inverted <?Symbol>} );
-ok(!( "\c[LIMBU SIGN LOO]" ~~ m/^<[A]-<?Symbol>>$/ ), q{Don't match compound inverted <?Symbol>} );
-ok(!( "\c[LIMBU SIGN LOO]" ~~ m/^<+<-Symbol>>$/ ), q{Don't match internally inverted <?Symbol>} );
-ok(!( "\x[192C]"  ~~ m/^<+<?Symbol>>$/ ), q{Don't match unrelated <?Symbol>} );
-ok("\x[192C]"  ~~ m/^<-<?Symbol>>$/, q{Match unrelated externally inverted <?Symbol>} );
-ok("\x[192C]"  ~~ m/^<+<-Symbol>>$/, q{Match unrelated internally inverted <?Symbol>} );
-ok("\x[192C]\c[LIMBU SIGN LOO]" ~~ m/<+<?Symbol>>/, q{Match unanchored <?Symbol>} );
+ok("\c[LIMBU SIGN LOO]" ~~ m/^<+<?isSymbol>>$/, q{Match <?isSymbol>} );
+ok("\c[LIMBU SIGN LOO]" ~~ m/^<[A]+<?isSymbol>>$/, q{Match compound <?isSymbol>} );
+ok(!( "\c[LIMBU SIGN LOO]" ~~ m/^<-<?isSymbol>>$/ ), q{Don't match externally inverted <?isSymbol>} );
+ok(!( "\c[LIMBU SIGN LOO]" ~~ m/^<[A]-<?isSymbol>>$/ ), q{Don't match compound inverted <?isSymbol>} );
+ok(!( "\c[LIMBU SIGN LOO]" ~~ m/^<+<-isSymbol>>$/ ), q{Don't match internally inverted <?isSymbol>} );
+ok(!( "\x[192C]"  ~~ m/^<+<?isSymbol>>$/ ), q{Don't match unrelated <?isSymbol>} );
+ok("\x[192C]"  ~~ m/^<-<?isSymbol>>$/, q{Match unrelated externally inverted <?isSymbol>} );
+ok("\x[192C]"  ~~ m/^<+<-isSymbol>>$/, q{Match unrelated internally inverted <?isSymbol>} );
+ok("\x[192C]\c[LIMBU SIGN LOO]" ~~ m/<+<?isSymbol>>/, q{Match unanchored <?isSymbol>} );
 
 # Sm          MathSymbol
 
 
-ok("\c[PLUS SIGN]" ~~ m/^<+<?Sm>>$/, q{Match <?Sm> (MathSymbol)} );
-ok("\c[PLUS SIGN]" ~~ m/^<[A]+<?Sm>>$/, q{Match compound <?Sm> (MathSymbol)} );
-ok(!( "\c[PLUS SIGN]" ~~ m/^<-<?Sm>>$/ ), q{Don't match externally inverted <?Sm> (MathSymbol)} );
-ok(!( "\c[PLUS SIGN]" ~~ m/^<[A]-<?Sm>>$/ ), q{Don't match compound inverted <?Sm> (MathSymbol)} );
-ok(!( "\c[PLUS SIGN]" ~~ m/^<+<-Sm>>$/ ), q{Don't match internally inverted <?Sm> (MathSymbol)} );
-ok(!( "\x[769B]"  ~~ m/^<+<?Sm>>$/ ), q{Don't match unrelated <?Sm> (MathSymbol)} );
-ok("\x[769B]"  ~~ m/^<-<?Sm>>$/, q{Match unrelated externally inverted <?Sm> (MathSymbol)} );
-ok("\x[769B]"  ~~ m/^<+<-Sm>>$/, q{Match unrelated internally inverted <?Sm> (MathSymbol)} );
-ok(!( "\c[YI RADICAL QOT]" ~~ m/^<+<?Sm>>$/ ), q{Don't match related <?Sm> (MathSymbol)} );
-ok("\c[YI RADICAL QOT]" ~~ m/^<+<-Sm>>$/, q{Match related internally inverted <?Sm> (MathSymbol)} );
-ok("\c[YI RADICAL QOT]" ~~ m/^<-<?Sm>>$/, q{Match related externally inverted <?Sm> (MathSymbol)} );
-ok("\x[769B]\c[YI RADICAL QOT]\c[PLUS SIGN]" ~~ m/<+<?Sm>>/, q{Match unanchored <?Sm> (MathSymbol)} );
+ok("\c[PLUS SIGN]" ~~ m/^<+<?isSm>>$/, q{Match <?isSm> (MathSymbol)} );
+ok("\c[PLUS SIGN]" ~~ m/^<[A]+<?isSm>>$/, q{Match compound <?isSm> (MathSymbol)} );
+ok(!( "\c[PLUS SIGN]" ~~ m/^<-<?isSm>>$/ ), q{Don't match externally inverted <?isSm> (MathSymbol)} );
+ok(!( "\c[PLUS SIGN]" ~~ m/^<[A]-<?isSm>>$/ ), q{Don't match compound inverted <?isSm> (MathSymbol)} );
+ok(!( "\c[PLUS SIGN]" ~~ m/^<+<-isSm>>$/ ), q{Don't match internally inverted <?isSm> (MathSymbol)} );
+ok(!( "\x[769B]"  ~~ m/^<+<?isSm>>$/ ), q{Don't match unrelated <?isSm> (MathSymbol)} );
+ok("\x[769B]"  ~~ m/^<-<?isSm>>$/, q{Match unrelated externally inverted <?isSm> (MathSymbol)} );
+ok("\x[769B]"  ~~ m/^<+<-isSm>>$/, q{Match unrelated internally inverted <?isSm> (MathSymbol)} );
+ok(!( "\c[YI RADICAL QOT]" ~~ m/^<+<?isSm>>$/ ), q{Don't match related <?isSm> (MathSymbol)} );
+ok("\c[YI RADICAL QOT]" ~~ m/^<+<-isSm>>$/, q{Match related internally inverted <?isSm> (MathSymbol)} );
+ok("\c[YI RADICAL QOT]" ~~ m/^<-<?isSm>>$/, q{Match related externally inverted <?isSm> (MathSymbol)} );
+ok("\x[769B]\c[YI RADICAL QOT]\c[PLUS SIGN]" ~~ m/<+<?isSm>>/, q{Match unanchored <?isSm> (MathSymbol)} );
 
-ok("\c[FRACTION SLASH]" ~~ m/^<+<?MathSymbol>>$/, q{Match <?MathSymbol>} );
-ok("\c[FRACTION SLASH]" ~~ m/^<[A]+<?MathSymbol>>$/, q{Match compound <?MathSymbol>} );
-ok(!( "\c[FRACTION SLASH]" ~~ m/^<-<?MathSymbol>>$/ ), q{Don't match externally inverted <?MathSymbol>} );
-ok(!( "\c[FRACTION SLASH]" ~~ m/^<[A]-<?MathSymbol>>$/ ), q{Don't match compound inverted <?MathSymbol>} );
-ok(!( "\c[FRACTION SLASH]" ~~ m/^<+<-MathSymbol>>$/ ), q{Don't match internally inverted <?MathSymbol>} );
-ok(!( "\c[GREEK SMALL LETTER ALPHA WITH PERISPOMENI AND YPOGEGRAMMENI]"  ~~ m/^<+<?MathSymbol>>$/ ), q{Don't match unrelated <?MathSymbol>} );
-ok("\c[GREEK SMALL LETTER ALPHA WITH PERISPOMENI AND YPOGEGRAMMENI]"  ~~ m/^<-<?MathSymbol>>$/, q{Match unrelated externally inverted <?MathSymbol>} );
-ok("\c[GREEK SMALL LETTER ALPHA WITH PERISPOMENI AND YPOGEGRAMMENI]"  ~~ m/^<+<-MathSymbol>>$/, q{Match unrelated internally inverted <?MathSymbol>} );
-ok(!( "\c[COMBINING LEFT HARPOON ABOVE]" ~~ m/^<+<?MathSymbol>>$/ ), q{Don't match related <?MathSymbol>} );
-ok("\c[COMBINING LEFT HARPOON ABOVE]" ~~ m/^<+<-MathSymbol>>$/, q{Match related internally inverted <?MathSymbol>} );
-ok("\c[COMBINING LEFT HARPOON ABOVE]" ~~ m/^<-<?MathSymbol>>$/, q{Match related externally inverted <?MathSymbol>} );
-ok("\c[GREEK SMALL LETTER ALPHA WITH PERISPOMENI AND YPOGEGRAMMENI]\c[COMBINING LEFT HARPOON ABOVE]\c[FRACTION SLASH]" ~~ m/<+<?MathSymbol>>/, q{Match unanchored <?MathSymbol>} );
+ok("\c[FRACTION SLASH]" ~~ m/^<+<?isMathSymbol>>$/, q{Match <?isMathSymbol>} );
+ok("\c[FRACTION SLASH]" ~~ m/^<[A]+<?isMathSymbol>>$/, q{Match compound <?isMathSymbol>} );
+ok(!( "\c[FRACTION SLASH]" ~~ m/^<-<?isMathSymbol>>$/ ), q{Don't match externally inverted <?isMathSymbol>} );
+ok(!( "\c[FRACTION SLASH]" ~~ m/^<[A]-<?isMathSymbol>>$/ ), q{Don't match compound inverted <?isMathSymbol>} );
+ok(!( "\c[FRACTION SLASH]" ~~ m/^<+<-isMathSymbol>>$/ ), q{Don't match internally inverted <?isMathSymbol>} );
+ok(!( "\c[GREEK SMALL LETTER ALPHA WITH PERISPOMENI AND YPOGEGRAMMENI]"  ~~ m/^<+<?isMathSymbol>>$/ ), q{Don't match unrelated <?isMathSymbol>} );
+ok("\c[GREEK SMALL LETTER ALPHA WITH PERISPOMENI AND YPOGEGRAMMENI]"  ~~ m/^<-<?isMathSymbol>>$/, q{Match unrelated externally inverted <?isMathSymbol>} );
+ok("\c[GREEK SMALL LETTER ALPHA WITH PERISPOMENI AND YPOGEGRAMMENI]"  ~~ m/^<+<-isMathSymbol>>$/, q{Match unrelated internally inverted <?isMathSymbol>} );
+ok(!( "\c[COMBINING LEFT HARPOON ABOVE]" ~~ m/^<+<?isMathSymbol>>$/ ), q{Don't match related <?isMathSymbol>} );
+ok("\c[COMBINING LEFT HARPOON ABOVE]" ~~ m/^<+<-isMathSymbol>>$/, q{Match related internally inverted <?isMathSymbol>} );
+ok("\c[COMBINING LEFT HARPOON ABOVE]" ~~ m/^<-<?isMathSymbol>>$/, q{Match related externally inverted <?isMathSymbol>} );
+ok("\c[GREEK SMALL LETTER ALPHA WITH PERISPOMENI AND YPOGEGRAMMENI]\c[COMBINING LEFT HARPOON ABOVE]\c[FRACTION SLASH]" ~~ m/<+<?isMathSymbol>>/, q{Match unanchored <?isMathSymbol>} );
 
 # Sc          CurrencySymbol
 
 
-ok("\c[DOLLAR SIGN]" ~~ m/^<+<?Sc>>$/, q{Match <?Sc> (CurrencySymbol)} );
-ok("\c[DOLLAR SIGN]" ~~ m/^<[A]+<?Sc>>$/, q{Match compound <?Sc> (CurrencySymbol)} );
-ok(!( "\c[DOLLAR SIGN]" ~~ m/^<-<?Sc>>$/ ), q{Don't match externally inverted <?Sc> (CurrencySymbol)} );
-ok(!( "\c[DOLLAR SIGN]" ~~ m/^<[A]-<?Sc>>$/ ), q{Don't match compound inverted <?Sc> (CurrencySymbol)} );
-ok(!( "\c[DOLLAR SIGN]" ~~ m/^<+<-Sc>>$/ ), q{Don't match internally inverted <?Sc> (CurrencySymbol)} );
-ok(!( "\x[B6B4]"  ~~ m/^<+<?Sc>>$/ ), q{Don't match unrelated <?Sc> (CurrencySymbol)} );
-ok("\x[B6B4]"  ~~ m/^<-<?Sc>>$/, q{Match unrelated externally inverted <?Sc> (CurrencySymbol)} );
-ok("\x[B6B4]"  ~~ m/^<+<-Sc>>$/, q{Match unrelated internally inverted <?Sc> (CurrencySymbol)} );
-ok(!( "\c[PLUS SIGN]" ~~ m/^<+<?Sc>>$/ ), q{Don't match related <?Sc> (CurrencySymbol)} );
-ok("\c[PLUS SIGN]" ~~ m/^<+<-Sc>>$/, q{Match related internally inverted <?Sc> (CurrencySymbol)} );
-ok("\c[PLUS SIGN]" ~~ m/^<-<?Sc>>$/, q{Match related externally inverted <?Sc> (CurrencySymbol)} );
-ok("\x[B6B4]\c[PLUS SIGN]\c[DOLLAR SIGN]" ~~ m/<+<?Sc>>/, q{Match unanchored <?Sc> (CurrencySymbol)} );
+ok("\c[DOLLAR SIGN]" ~~ m/^<+<?isSc>>$/, q{Match <?isSc> (CurrencySymbol)} );
+ok("\c[DOLLAR SIGN]" ~~ m/^<[A]+<?isSc>>$/, q{Match compound <?isSc> (CurrencySymbol)} );
+ok(!( "\c[DOLLAR SIGN]" ~~ m/^<-<?isSc>>$/ ), q{Don't match externally inverted <?isSc> (CurrencySymbol)} );
+ok(!( "\c[DOLLAR SIGN]" ~~ m/^<[A]-<?isSc>>$/ ), q{Don't match compound inverted <?isSc> (CurrencySymbol)} );
+ok(!( "\c[DOLLAR SIGN]" ~~ m/^<+<-isSc>>$/ ), q{Don't match internally inverted <?isSc> (CurrencySymbol)} );
+ok(!( "\x[B6B4]"  ~~ m/^<+<?isSc>>$/ ), q{Don't match unrelated <?isSc> (CurrencySymbol)} );
+ok("\x[B6B4]"  ~~ m/^<-<?isSc>>$/, q{Match unrelated externally inverted <?isSc> (CurrencySymbol)} );
+ok("\x[B6B4]"  ~~ m/^<+<-isSc>>$/, q{Match unrelated internally inverted <?isSc> (CurrencySymbol)} );
+ok(!( "\c[PLUS SIGN]" ~~ m/^<+<?isSc>>$/ ), q{Don't match related <?isSc> (CurrencySymbol)} );
+ok("\c[PLUS SIGN]" ~~ m/^<+<-isSc>>$/, q{Match related internally inverted <?isSc> (CurrencySymbol)} );
+ok("\c[PLUS SIGN]" ~~ m/^<-<?isSc>>$/, q{Match related externally inverted <?isSc> (CurrencySymbol)} );
+ok("\x[B6B4]\c[PLUS SIGN]\c[DOLLAR SIGN]" ~~ m/<+<?isSc>>/, q{Match unanchored <?isSc> (CurrencySymbol)} );
 
-ok("\c[EURO-CURRENCY SIGN]" ~~ m/^<+<?CurrencySymbol>>$/, q{Match <?CurrencySymbol>} );
-ok("\c[EURO-CURRENCY SIGN]" ~~ m/^<[A]+<?CurrencySymbol>>$/, q{Match compound <?CurrencySymbol>} );
-ok(!( "\c[EURO-CURRENCY SIGN]" ~~ m/^<-<?CurrencySymbol>>$/ ), q{Don't match externally inverted <?CurrencySymbol>} );
-ok(!( "\c[EURO-CURRENCY SIGN]" ~~ m/^<[A]-<?CurrencySymbol>>$/ ), q{Don't match compound inverted <?CurrencySymbol>} );
-ok(!( "\c[EURO-CURRENCY SIGN]" ~~ m/^<+<-CurrencySymbol>>$/ ), q{Don't match internally inverted <?CurrencySymbol>} );
-ok(!( "\x[1CD3]"  ~~ m/^<+<?CurrencySymbol>>$/ ), q{Don't match unrelated <?CurrencySymbol>} );
-ok("\x[1CD3]"  ~~ m/^<-<?CurrencySymbol>>$/, q{Match unrelated externally inverted <?CurrencySymbol>} );
-ok("\x[1CD3]"  ~~ m/^<+<-CurrencySymbol>>$/, q{Match unrelated internally inverted <?CurrencySymbol>} );
-ok("\x[1CD3]\c[EURO-CURRENCY SIGN]" ~~ m/<+<?CurrencySymbol>>/, q{Match unanchored <?CurrencySymbol>} );
+ok("\c[EURO-CURRENCY SIGN]" ~~ m/^<+<?isCurrencySymbol>>$/, q{Match <?isCurrencySymbol>} );
+ok("\c[EURO-CURRENCY SIGN]" ~~ m/^<[A]+<?isCurrencySymbol>>$/, q{Match compound <?isCurrencySymbol>} );
+ok(!( "\c[EURO-CURRENCY SIGN]" ~~ m/^<-<?isCurrencySymbol>>$/ ), q{Don't match externally inverted <?isCurrencySymbol>} );
+ok(!( "\c[EURO-CURRENCY SIGN]" ~~ m/^<[A]-<?isCurrencySymbol>>$/ ), q{Don't match compound inverted <?isCurrencySymbol>} );
+ok(!( "\c[EURO-CURRENCY SIGN]" ~~ m/^<+<-isCurrencySymbol>>$/ ), q{Don't match internally inverted <?isCurrencySymbol>} );
+ok(!( "\x[1CD3]"  ~~ m/^<+<?isCurrencySymbol>>$/ ), q{Don't match unrelated <?isCurrencySymbol>} );
+ok("\x[1CD3]"  ~~ m/^<-<?isCurrencySymbol>>$/, q{Match unrelated externally inverted <?isCurrencySymbol>} );
+ok("\x[1CD3]"  ~~ m/^<+<-isCurrencySymbol>>$/, q{Match unrelated internally inverted <?isCurrencySymbol>} );
+ok("\x[1CD3]\c[EURO-CURRENCY SIGN]" ~~ m/<+<?isCurrencySymbol>>/, q{Match unanchored <?isCurrencySymbol>} );
 
 # Sk          ModifierSymbol
 
 
-ok("\c[CIRCUMFLEX ACCENT]" ~~ m/^<+<?Sk>>$/, q{Match <?Sk> (ModifierSymbol)} );
-ok("\c[CIRCUMFLEX ACCENT]" ~~ m/^<[A]+<?Sk>>$/, q{Match compound <?Sk> (ModifierSymbol)} );
-ok(!( "\c[CIRCUMFLEX ACCENT]" ~~ m/^<-<?Sk>>$/ ), q{Don't match externally inverted <?Sk> (ModifierSymbol)} );
-ok(!( "\c[CIRCUMFLEX ACCENT]" ~~ m/^<[A]-<?Sk>>$/ ), q{Don't match compound inverted <?Sk> (ModifierSymbol)} );
-ok(!( "\c[CIRCUMFLEX ACCENT]" ~~ m/^<+<-Sk>>$/ ), q{Don't match internally inverted <?Sk> (ModifierSymbol)} );
-ok(!( "\x[68FA]"  ~~ m/^<+<?Sk>>$/ ), q{Don't match unrelated <?Sk> (ModifierSymbol)} );
-ok("\x[68FA]"  ~~ m/^<-<?Sk>>$/, q{Match unrelated externally inverted <?Sk> (ModifierSymbol)} );
-ok("\x[68FA]"  ~~ m/^<+<-Sk>>$/, q{Match unrelated internally inverted <?Sk> (ModifierSymbol)} );
-ok(!( "\c[YI RADICAL QOT]" ~~ m/^<+<?Sk>>$/ ), q{Don't match related <?Sk> (ModifierSymbol)} );
-ok("\c[YI RADICAL QOT]" ~~ m/^<+<-Sk>>$/, q{Match related internally inverted <?Sk> (ModifierSymbol)} );
-ok("\c[YI RADICAL QOT]" ~~ m/^<-<?Sk>>$/, q{Match related externally inverted <?Sk> (ModifierSymbol)} );
-ok("\x[68FA]\c[YI RADICAL QOT]\c[CIRCUMFLEX ACCENT]" ~~ m/<+<?Sk>>/, q{Match unanchored <?Sk> (ModifierSymbol)} );
+ok("\c[CIRCUMFLEX ACCENT]" ~~ m/^<+<?isSk>>$/, q{Match <?isSk> (ModifierSymbol)} );
+ok("\c[CIRCUMFLEX ACCENT]" ~~ m/^<[A]+<?isSk>>$/, q{Match compound <?isSk> (ModifierSymbol)} );
+ok(!( "\c[CIRCUMFLEX ACCENT]" ~~ m/^<-<?isSk>>$/ ), q{Don't match externally inverted <?isSk> (ModifierSymbol)} );
+ok(!( "\c[CIRCUMFLEX ACCENT]" ~~ m/^<[A]-<?isSk>>$/ ), q{Don't match compound inverted <?isSk> (ModifierSymbol)} );
+ok(!( "\c[CIRCUMFLEX ACCENT]" ~~ m/^<+<-isSk>>$/ ), q{Don't match internally inverted <?isSk> (ModifierSymbol)} );
+ok(!( "\x[68FA]"  ~~ m/^<+<?isSk>>$/ ), q{Don't match unrelated <?isSk> (ModifierSymbol)} );
+ok("\x[68FA]"  ~~ m/^<-<?isSk>>$/, q{Match unrelated externally inverted <?isSk> (ModifierSymbol)} );
+ok("\x[68FA]"  ~~ m/^<+<-isSk>>$/, q{Match unrelated internally inverted <?isSk> (ModifierSymbol)} );
+ok(!( "\c[YI RADICAL QOT]" ~~ m/^<+<?isSk>>$/ ), q{Don't match related <?isSk> (ModifierSymbol)} );
+ok("\c[YI RADICAL QOT]" ~~ m/^<+<-isSk>>$/, q{Match related internally inverted <?isSk> (ModifierSymbol)} );
+ok("\c[YI RADICAL QOT]" ~~ m/^<-<?isSk>>$/, q{Match related externally inverted <?isSk> (ModifierSymbol)} );
+ok("\x[68FA]\c[YI RADICAL QOT]\c[CIRCUMFLEX ACCENT]" ~~ m/<+<?isSk>>/, q{Match unanchored <?isSk> (ModifierSymbol)} );
 
-ok("\c[CIRCUMFLEX ACCENT]" ~~ m/^<+<?ModifierSymbol>>$/, q{Match <?ModifierSymbol>} );
-ok("\c[CIRCUMFLEX ACCENT]" ~~ m/^<[A]+<?ModifierSymbol>>$/, q{Match compound <?ModifierSymbol>} );
-ok(!( "\c[CIRCUMFLEX ACCENT]" ~~ m/^<-<?ModifierSymbol>>$/ ), q{Don't match externally inverted <?ModifierSymbol>} );
-ok(!( "\c[CIRCUMFLEX ACCENT]" ~~ m/^<[A]-<?ModifierSymbol>>$/ ), q{Don't match compound inverted <?ModifierSymbol>} );
-ok(!( "\c[CIRCUMFLEX ACCENT]" ~~ m/^<+<-ModifierSymbol>>$/ ), q{Don't match internally inverted <?ModifierSymbol>} );
-ok(!( "\x[69E7]"  ~~ m/^<+<?ModifierSymbol>>$/ ), q{Don't match unrelated <?ModifierSymbol>} );
-ok("\x[69E7]"  ~~ m/^<-<?ModifierSymbol>>$/, q{Match unrelated externally inverted <?ModifierSymbol>} );
-ok("\x[69E7]"  ~~ m/^<+<-ModifierSymbol>>$/, q{Match unrelated internally inverted <?ModifierSymbol>} );
-ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<?ModifierSymbol>>$/ ), q{Don't match related <?ModifierSymbol>} );
-ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<-ModifierSymbol>>$/, q{Match related internally inverted <?ModifierSymbol>} );
-ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<-<?ModifierSymbol>>$/, q{Match related externally inverted <?ModifierSymbol>} );
-ok("\x[69E7]\c[COMBINING GRAVE ACCENT]\c[CIRCUMFLEX ACCENT]" ~~ m/<+<?ModifierSymbol>>/, q{Match unanchored <?ModifierSymbol>} );
+ok("\c[CIRCUMFLEX ACCENT]" ~~ m/^<+<?isModifierSymbol>>$/, q{Match <?isModifierSymbol>} );
+ok("\c[CIRCUMFLEX ACCENT]" ~~ m/^<[A]+<?isModifierSymbol>>$/, q{Match compound <?isModifierSymbol>} );
+ok(!( "\c[CIRCUMFLEX ACCENT]" ~~ m/^<-<?isModifierSymbol>>$/ ), q{Don't match externally inverted <?isModifierSymbol>} );
+ok(!( "\c[CIRCUMFLEX ACCENT]" ~~ m/^<[A]-<?isModifierSymbol>>$/ ), q{Don't match compound inverted <?isModifierSymbol>} );
+ok(!( "\c[CIRCUMFLEX ACCENT]" ~~ m/^<+<-isModifierSymbol>>$/ ), q{Don't match internally inverted <?isModifierSymbol>} );
+ok(!( "\x[69E7]"  ~~ m/^<+<?isModifierSymbol>>$/ ), q{Don't match unrelated <?isModifierSymbol>} );
+ok("\x[69E7]"  ~~ m/^<-<?isModifierSymbol>>$/, q{Match unrelated externally inverted <?isModifierSymbol>} );
+ok("\x[69E7]"  ~~ m/^<+<-isModifierSymbol>>$/, q{Match unrelated internally inverted <?isModifierSymbol>} );
+ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<?isModifierSymbol>>$/ ), q{Don't match related <?isModifierSymbol>} );
+ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<-isModifierSymbol>>$/, q{Match related internally inverted <?isModifierSymbol>} );
+ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<-<?isModifierSymbol>>$/, q{Match related externally inverted <?isModifierSymbol>} );
+ok("\x[69E7]\c[COMBINING GRAVE ACCENT]\c[CIRCUMFLEX ACCENT]" ~~ m/<+<?isModifierSymbol>>/, q{Match unanchored <?isModifierSymbol>} );
 
 # So          OtherSymbol
 
 
-ok("\c[YI RADICAL QOT]" ~~ m/^<+<?So>>$/, q{Match <?So> (OtherSymbol)} );
-ok("\c[YI RADICAL QOT]" ~~ m/^<[A]+<?So>>$/, q{Match compound <?So> (OtherSymbol)} );
-ok(!( "\c[YI RADICAL QOT]" ~~ m/^<-<?So>>$/ ), q{Don't match externally inverted <?So> (OtherSymbol)} );
-ok(!( "\c[YI RADICAL QOT]" ~~ m/^<[A]-<?So>>$/ ), q{Don't match compound inverted <?So> (OtherSymbol)} );
-ok(!( "\c[YI RADICAL QOT]" ~~ m/^<+<-So>>$/ ), q{Don't match internally inverted <?So> (OtherSymbol)} );
-ok(!( "\x[8C90]"  ~~ m/^<+<?So>>$/ ), q{Don't match unrelated <?So> (OtherSymbol)} );
-ok("\x[8C90]"  ~~ m/^<-<?So>>$/, q{Match unrelated externally inverted <?So> (OtherSymbol)} );
-ok("\x[8C90]"  ~~ m/^<+<-So>>$/, q{Match unrelated internally inverted <?So> (OtherSymbol)} );
-ok(!( "\c[DOLLAR SIGN]" ~~ m/^<+<?So>>$/ ), q{Don't match related <?So> (OtherSymbol)} );
-ok("\c[DOLLAR SIGN]" ~~ m/^<+<-So>>$/, q{Match related internally inverted <?So> (OtherSymbol)} );
-ok("\c[DOLLAR SIGN]" ~~ m/^<-<?So>>$/, q{Match related externally inverted <?So> (OtherSymbol)} );
-ok("\x[8C90]\c[DOLLAR SIGN]\c[YI RADICAL QOT]" ~~ m/<+<?So>>/, q{Match unanchored <?So> (OtherSymbol)} );
+ok("\c[YI RADICAL QOT]" ~~ m/^<+<?isSo>>$/, q{Match <?isSo> (OtherSymbol)} );
+ok("\c[YI RADICAL QOT]" ~~ m/^<[A]+<?isSo>>$/, q{Match compound <?isSo> (OtherSymbol)} );
+ok(!( "\c[YI RADICAL QOT]" ~~ m/^<-<?isSo>>$/ ), q{Don't match externally inverted <?isSo> (OtherSymbol)} );
+ok(!( "\c[YI RADICAL QOT]" ~~ m/^<[A]-<?isSo>>$/ ), q{Don't match compound inverted <?isSo> (OtherSymbol)} );
+ok(!( "\c[YI RADICAL QOT]" ~~ m/^<+<-isSo>>$/ ), q{Don't match internally inverted <?isSo> (OtherSymbol)} );
+ok(!( "\x[8C90]"  ~~ m/^<+<?isSo>>$/ ), q{Don't match unrelated <?isSo> (OtherSymbol)} );
+ok("\x[8C90]"  ~~ m/^<-<?isSo>>$/, q{Match unrelated externally inverted <?isSo> (OtherSymbol)} );
+ok("\x[8C90]"  ~~ m/^<+<-isSo>>$/, q{Match unrelated internally inverted <?isSo> (OtherSymbol)} );
+ok(!( "\c[DOLLAR SIGN]" ~~ m/^<+<?isSo>>$/ ), q{Don't match related <?isSo> (OtherSymbol)} );
+ok("\c[DOLLAR SIGN]" ~~ m/^<+<-isSo>>$/, q{Match related internally inverted <?isSo> (OtherSymbol)} );
+ok("\c[DOLLAR SIGN]" ~~ m/^<-<?isSo>>$/, q{Match related externally inverted <?isSo> (OtherSymbol)} );
+ok("\x[8C90]\c[DOLLAR SIGN]\c[YI RADICAL QOT]" ~~ m/<+<?isSo>>/, q{Match unanchored <?isSo> (OtherSymbol)} );
 
-ok("\c[YI RADICAL QOT]" ~~ m/^<+<?OtherSymbol>>$/, q{Match <?OtherSymbol>} );
-ok("\c[YI RADICAL QOT]" ~~ m/^<[A]+<?OtherSymbol>>$/, q{Match compound <?OtherSymbol>} );
-ok(!( "\c[YI RADICAL QOT]" ~~ m/^<-<?OtherSymbol>>$/ ), q{Don't match externally inverted <?OtherSymbol>} );
-ok(!( "\c[YI RADICAL QOT]" ~~ m/^<[A]-<?OtherSymbol>>$/ ), q{Don't match compound inverted <?OtherSymbol>} );
-ok(!( "\c[YI RADICAL QOT]" ~~ m/^<+<-OtherSymbol>>$/ ), q{Don't match internally inverted <?OtherSymbol>} );
-ok(!( "\x[95A7]"  ~~ m/^<+<?OtherSymbol>>$/ ), q{Don't match unrelated <?OtherSymbol>} );
-ok("\x[95A7]"  ~~ m/^<-<?OtherSymbol>>$/, q{Match unrelated externally inverted <?OtherSymbol>} );
-ok("\x[95A7]"  ~~ m/^<+<-OtherSymbol>>$/, q{Match unrelated internally inverted <?OtherSymbol>} );
-ok("\x[95A7]\c[YI RADICAL QOT]" ~~ m/<+<?OtherSymbol>>/, q{Match unanchored <?OtherSymbol>} );
+ok("\c[YI RADICAL QOT]" ~~ m/^<+<?isOtherSymbol>>$/, q{Match <?isOtherSymbol>} );
+ok("\c[YI RADICAL QOT]" ~~ m/^<[A]+<?isOtherSymbol>>$/, q{Match compound <?isOtherSymbol>} );
+ok(!( "\c[YI RADICAL QOT]" ~~ m/^<-<?isOtherSymbol>>$/ ), q{Don't match externally inverted <?isOtherSymbol>} );
+ok(!( "\c[YI RADICAL QOT]" ~~ m/^<[A]-<?isOtherSymbol>>$/ ), q{Don't match compound inverted <?isOtherSymbol>} );
+ok(!( "\c[YI RADICAL QOT]" ~~ m/^<+<-isOtherSymbol>>$/ ), q{Don't match internally inverted <?isOtherSymbol>} );
+ok(!( "\x[95A7]"  ~~ m/^<+<?isOtherSymbol>>$/ ), q{Don't match unrelated <?isOtherSymbol>} );
+ok("\x[95A7]"  ~~ m/^<-<?isOtherSymbol>>$/, q{Match unrelated externally inverted <?isOtherSymbol>} );
+ok("\x[95A7]"  ~~ m/^<+<-isOtherSymbol>>$/, q{Match unrelated internally inverted <?isOtherSymbol>} );
+ok("\x[95A7]\c[YI RADICAL QOT]" ~~ m/<+<?isOtherSymbol>>/, q{Match unanchored <?isOtherSymbol>} );
 
 # Z           Separator
 
 
-ok("\c[SPACE]" ~~ m/^<+<Z>>$/, q{Match <Z> (Separator)} );
-ok("\c[SPACE]" ~~ m/^<[A]+<Z>>$/, q{Match compound <Z> (Separator)} );
-ok(!( "\c[SPACE]" ~~ m/^<-<Z>>$/ ), q{Don't match externally inverted <Z> (Separator)} );
-ok(!( "\c[SPACE]" ~~ m/^<[A]-<Z>>$/ ), q{Don't match compound inverted <Z> (Separator)} );
-ok(!( "\c[SPACE]" ~~ m/^<+<-Z>>$/ ), q{Don't match internally inverted <Z> (Separator)} );
-ok(!( "\x[D222]"  ~~ m/^<+<Z>>$/ ), q{Don't match unrelated <Z> (Separator)} );
-ok("\x[D222]"  ~~ m/^<-<Z>>$/, q{Match unrelated externally inverted <Z> (Separator)} );
-ok("\x[D222]"  ~~ m/^<+<-Z>>$/, q{Match unrelated internally inverted <Z> (Separator)} );
-ok("\x[D222]\c[SPACE]" ~~ m/<+<Z>>/, q{Match unanchored <Z> (Separator)} );
+ok("\c[SPACE]" ~~ m/^<+<isZ>>$/, q{Match <isZ> (Separator)} );
+ok("\c[SPACE]" ~~ m/^<[A]+<isZ>>$/, q{Match compound <isZ> (Separator)} );
+ok(!( "\c[SPACE]" ~~ m/^<-<isZ>>$/ ), q{Don't match externally inverted <isZ> (Separator)} );
+ok(!( "\c[SPACE]" ~~ m/^<[A]-<isZ>>$/ ), q{Don't match compound inverted <isZ> (Separator)} );
+ok(!( "\c[SPACE]" ~~ m/^<+<-isZ>>$/ ), q{Don't match internally inverted <isZ> (Separator)} );
+ok(!( "\x[D222]"  ~~ m/^<+<isZ>>$/ ), q{Don't match unrelated <isZ> (Separator)} );
+ok("\x[D222]"  ~~ m/^<-<isZ>>$/, q{Match unrelated externally inverted <isZ> (Separator)} );
+ok("\x[D222]"  ~~ m/^<+<-isZ>>$/, q{Match unrelated internally inverted <isZ> (Separator)} );
+ok("\x[D222]\c[SPACE]" ~~ m/<+<isZ>>/, q{Match unanchored <isZ> (Separator)} );
 
-ok("\c[SPACE]" ~~ m/^<+<?Separator>>$/, q{Match <?Separator>} );
-ok("\c[SPACE]" ~~ m/^<[A]+<?Separator>>$/, q{Match compound <?Separator>} );
-ok(!( "\c[SPACE]" ~~ m/^<-<?Separator>>$/ ), q{Don't match externally inverted <?Separator>} );
-ok(!( "\c[SPACE]" ~~ m/^<[A]-<?Separator>>$/ ), q{Don't match compound inverted <?Separator>} );
-ok(!( "\c[SPACE]" ~~ m/^<+<-Separator>>$/ ), q{Don't match internally inverted <?Separator>} );
-ok(!( "\x[D7B7]"  ~~ m/^<+<?Separator>>$/ ), q{Don't match unrelated <?Separator>} );
-ok("\x[D7B7]"  ~~ m/^<-<?Separator>>$/, q{Match unrelated externally inverted <?Separator>} );
-ok("\x[D7B7]"  ~~ m/^<+<-Separator>>$/, q{Match unrelated internally inverted <?Separator>} );
-ok(!( "\c[DOLLAR SIGN]" ~~ m/^<+<?Separator>>$/ ), q{Don't match related <?Separator>} );
-ok("\c[DOLLAR SIGN]" ~~ m/^<+<-Separator>>$/, q{Match related internally inverted <?Separator>} );
-ok("\c[DOLLAR SIGN]" ~~ m/^<-<?Separator>>$/, q{Match related externally inverted <?Separator>} );
-ok("\x[D7B7]\c[DOLLAR SIGN]\c[SPACE]" ~~ m/<+<?Separator>>/, q{Match unanchored <?Separator>} );
+ok("\c[SPACE]" ~~ m/^<+<?isSeparator>>$/, q{Match <?isSeparator>} );
+ok("\c[SPACE]" ~~ m/^<[A]+<?isSeparator>>$/, q{Match compound <?isSeparator>} );
+ok(!( "\c[SPACE]" ~~ m/^<-<?isSeparator>>$/ ), q{Don't match externally inverted <?isSeparator>} );
+ok(!( "\c[SPACE]" ~~ m/^<[A]-<?isSeparator>>$/ ), q{Don't match compound inverted <?isSeparator>} );
+ok(!( "\c[SPACE]" ~~ m/^<+<-isSeparator>>$/ ), q{Don't match internally inverted <?isSeparator>} );
+ok(!( "\x[D7B7]"  ~~ m/^<+<?isSeparator>>$/ ), q{Don't match unrelated <?isSeparator>} );
+ok("\x[D7B7]"  ~~ m/^<-<?isSeparator>>$/, q{Match unrelated externally inverted <?isSeparator>} );
+ok("\x[D7B7]"  ~~ m/^<+<-isSeparator>>$/, q{Match unrelated internally inverted <?isSeparator>} );
+ok(!( "\c[DOLLAR SIGN]" ~~ m/^<+<?isSeparator>>$/ ), q{Don't match related <?isSeparator>} );
+ok("\c[DOLLAR SIGN]" ~~ m/^<+<-isSeparator>>$/, q{Match related internally inverted <?isSeparator>} );
+ok("\c[DOLLAR SIGN]" ~~ m/^<-<?isSeparator>>$/, q{Match related externally inverted <?isSeparator>} );
+ok("\x[D7B7]\c[DOLLAR SIGN]\c[SPACE]" ~~ m/<+<?isSeparator>>/, q{Match unanchored <?isSeparator>} );
 
 # Zs          SpaceSeparator
 
 
-ok("\c[SPACE]" ~~ m/^<+<?Zs>>$/, q{Match <?Zs> (SpaceSeparator)} );
-ok("\c[SPACE]" ~~ m/^<[A]+<?Zs>>$/, q{Match compound <?Zs> (SpaceSeparator)} );
-ok(!( "\c[SPACE]" ~~ m/^<-<?Zs>>$/ ), q{Don't match externally inverted <?Zs> (SpaceSeparator)} );
-ok(!( "\c[SPACE]" ~~ m/^<[A]-<?Zs>>$/ ), q{Don't match compound inverted <?Zs> (SpaceSeparator)} );
-ok(!( "\c[SPACE]" ~~ m/^<+<-Zs>>$/ ), q{Don't match internally inverted <?Zs> (SpaceSeparator)} );
-ok(!( "\x[5918]"  ~~ m/^<+<?Zs>>$/ ), q{Don't match unrelated <?Zs> (SpaceSeparator)} );
-ok("\x[5918]"  ~~ m/^<-<?Zs>>$/, q{Match unrelated externally inverted <?Zs> (SpaceSeparator)} );
-ok("\x[5918]"  ~~ m/^<+<-Zs>>$/, q{Match unrelated internally inverted <?Zs> (SpaceSeparator)} );
-ok(!( "\c[LINE SEPARATOR]" ~~ m/^<+<?Zs>>$/ ), q{Don't match related <?Zs> (SpaceSeparator)} );
-ok("\c[LINE SEPARATOR]" ~~ m/^<+<-Zs>>$/, q{Match related internally inverted <?Zs> (SpaceSeparator)} );
-ok("\c[LINE SEPARATOR]" ~~ m/^<-<?Zs>>$/, q{Match related externally inverted <?Zs> (SpaceSeparator)} );
-ok("\x[5918]\c[LINE SEPARATOR]\c[SPACE]" ~~ m/<+<?Zs>>/, q{Match unanchored <?Zs> (SpaceSeparator)} );
+ok("\c[SPACE]" ~~ m/^<+<?isZs>>$/, q{Match <?isZs> (SpaceSeparator)} );
+ok("\c[SPACE]" ~~ m/^<[A]+<?isZs>>$/, q{Match compound <?isZs> (SpaceSeparator)} );
+ok(!( "\c[SPACE]" ~~ m/^<-<?isZs>>$/ ), q{Don't match externally inverted <?isZs> (SpaceSeparator)} );
+ok(!( "\c[SPACE]" ~~ m/^<[A]-<?isZs>>$/ ), q{Don't match compound inverted <?isZs> (SpaceSeparator)} );
+ok(!( "\c[SPACE]" ~~ m/^<+<-isZs>>$/ ), q{Don't match internally inverted <?isZs> (SpaceSeparator)} );
+ok(!( "\x[5918]"  ~~ m/^<+<?isZs>>$/ ), q{Don't match unrelated <?isZs> (SpaceSeparator)} );
+ok("\x[5918]"  ~~ m/^<-<?isZs>>$/, q{Match unrelated externally inverted <?isZs> (SpaceSeparator)} );
+ok("\x[5918]"  ~~ m/^<+<-isZs>>$/, q{Match unrelated internally inverted <?isZs> (SpaceSeparator)} );
+ok(!( "\c[LINE SEPARATOR]" ~~ m/^<+<?isZs>>$/ ), q{Don't match related <?isZs> (SpaceSeparator)} );
+ok("\c[LINE SEPARATOR]" ~~ m/^<+<-isZs>>$/, q{Match related internally inverted <?isZs> (SpaceSeparator)} );
+ok("\c[LINE SEPARATOR]" ~~ m/^<-<?isZs>>$/, q{Match related externally inverted <?isZs> (SpaceSeparator)} );
+ok("\x[5918]\c[LINE SEPARATOR]\c[SPACE]" ~~ m/<+<?isZs>>/, q{Match unanchored <?isZs> (SpaceSeparator)} );
 
-ok("\c[SPACE]" ~~ m/^<+<?SpaceSeparator>>$/, q{Match <?SpaceSeparator>} );
-ok("\c[SPACE]" ~~ m/^<[A]+<?SpaceSeparator>>$/, q{Match compound <?SpaceSeparator>} );
-ok(!( "\c[SPACE]" ~~ m/^<-<?SpaceSeparator>>$/ ), q{Don't match externally inverted <?SpaceSeparator>} );
-ok(!( "\c[SPACE]" ~~ m/^<[A]-<?SpaceSeparator>>$/ ), q{Don't match compound inverted <?SpaceSeparator>} );
-ok(!( "\c[SPACE]" ~~ m/^<+<-SpaceSeparator>>$/ ), q{Don't match internally inverted <?SpaceSeparator>} );
-ok(!( "\x[3704]"  ~~ m/^<+<?SpaceSeparator>>$/ ), q{Don't match unrelated <?SpaceSeparator>} );
-ok("\x[3704]"  ~~ m/^<-<?SpaceSeparator>>$/, q{Match unrelated externally inverted <?SpaceSeparator>} );
-ok("\x[3704]"  ~~ m/^<+<-SpaceSeparator>>$/, q{Match unrelated internally inverted <?SpaceSeparator>} );
-ok(!( "\c[HEXAGRAM FOR THE CREATIVE HEAVEN]" ~~ m/^<+<?SpaceSeparator>>$/ ), q{Don't match related <?SpaceSeparator>} );
-ok("\c[HEXAGRAM FOR THE CREATIVE HEAVEN]" ~~ m/^<+<-SpaceSeparator>>$/, q{Match related internally inverted <?SpaceSeparator>} );
-ok("\c[HEXAGRAM FOR THE CREATIVE HEAVEN]" ~~ m/^<-<?SpaceSeparator>>$/, q{Match related externally inverted <?SpaceSeparator>} );
-ok("\x[3704]\c[HEXAGRAM FOR THE CREATIVE HEAVEN]\c[SPACE]" ~~ m/<+<?SpaceSeparator>>/, q{Match unanchored <?SpaceSeparator>} );
+ok("\c[SPACE]" ~~ m/^<+<?isSpaceSeparator>>$/, q{Match <?isSpaceSeparator>} );
+ok("\c[SPACE]" ~~ m/^<[A]+<?isSpaceSeparator>>$/, q{Match compound <?isSpaceSeparator>} );
+ok(!( "\c[SPACE]" ~~ m/^<-<?isSpaceSeparator>>$/ ), q{Don't match externally inverted <?isSpaceSeparator>} );
+ok(!( "\c[SPACE]" ~~ m/^<[A]-<?isSpaceSeparator>>$/ ), q{Don't match compound inverted <?isSpaceSeparator>} );
+ok(!( "\c[SPACE]" ~~ m/^<+<-isSpaceSeparator>>$/ ), q{Don't match internally inverted <?isSpaceSeparator>} );
+ok(!( "\x[3704]"  ~~ m/^<+<?isSpaceSeparator>>$/ ), q{Don't match unrelated <?isSpaceSeparator>} );
+ok("\x[3704]"  ~~ m/^<-<?isSpaceSeparator>>$/, q{Match unrelated externally inverted <?isSpaceSeparator>} );
+ok("\x[3704]"  ~~ m/^<+<-isSpaceSeparator>>$/, q{Match unrelated internally inverted <?isSpaceSeparator>} );
+ok(!( "\c[HEXAGRAM FOR THE CREATIVE HEAVEN]" ~~ m/^<+<?isSpaceSeparator>>$/ ), q{Don't match related <?isSpaceSeparator>} );
+ok("\c[HEXAGRAM FOR THE CREATIVE HEAVEN]" ~~ m/^<+<-isSpaceSeparator>>$/, q{Match related internally inverted <?isSpaceSeparator>} );
+ok("\c[HEXAGRAM FOR THE CREATIVE HEAVEN]" ~~ m/^<-<?isSpaceSeparator>>$/, q{Match related externally inverted <?isSpaceSeparator>} );
+ok("\x[3704]\c[HEXAGRAM FOR THE CREATIVE HEAVEN]\c[SPACE]" ~~ m/<+<?isSpaceSeparator>>/, q{Match unanchored <?isSpaceSeparator>} );
 
 # Zl          LineSeparator
 
 
-ok("\c[LINE SEPARATOR]" ~~ m/^<+<?Zl>>$/, q{Match <?Zl> (LineSeparator)} );
-ok("\c[LINE SEPARATOR]" ~~ m/^<[A]+<?Zl>>$/, q{Match compound <?Zl> (LineSeparator)} );
-ok(!( "\c[LINE SEPARATOR]" ~~ m/^<-<?Zl>>$/ ), q{Don't match externally inverted <?Zl> (LineSeparator)} );
-ok(!( "\c[LINE SEPARATOR]" ~~ m/^<[A]-<?Zl>>$/ ), q{Don't match compound inverted <?Zl> (LineSeparator)} );
-ok(!( "\c[LINE SEPARATOR]" ~~ m/^<+<-Zl>>$/ ), q{Don't match internally inverted <?Zl> (LineSeparator)} );
-ok(!( "\x[ADAD]"  ~~ m/^<+<?Zl>>$/ ), q{Don't match unrelated <?Zl> (LineSeparator)} );
-ok("\x[ADAD]"  ~~ m/^<-<?Zl>>$/, q{Match unrelated externally inverted <?Zl> (LineSeparator)} );
-ok("\x[ADAD]"  ~~ m/^<+<-Zl>>$/, q{Match unrelated internally inverted <?Zl> (LineSeparator)} );
-ok(!( "\c[SPACE]" ~~ m/^<+<?Zl>>$/ ), q{Don't match related <?Zl> (LineSeparator)} );
-ok("\c[SPACE]" ~~ m/^<+<-Zl>>$/, q{Match related internally inverted <?Zl> (LineSeparator)} );
-ok("\c[SPACE]" ~~ m/^<-<?Zl>>$/, q{Match related externally inverted <?Zl> (LineSeparator)} );
-ok("\x[ADAD]\c[SPACE]\c[LINE SEPARATOR]" ~~ m/<+<?Zl>>/, q{Match unanchored <?Zl> (LineSeparator)} );
+ok("\c[LINE SEPARATOR]" ~~ m/^<+<?isZl>>$/, q{Match <?isZl> (LineSeparator)} );
+ok("\c[LINE SEPARATOR]" ~~ m/^<[A]+<?isZl>>$/, q{Match compound <?isZl> (LineSeparator)} );
+ok(!( "\c[LINE SEPARATOR]" ~~ m/^<-<?isZl>>$/ ), q{Don't match externally inverted <?isZl> (LineSeparator)} );
+ok(!( "\c[LINE SEPARATOR]" ~~ m/^<[A]-<?isZl>>$/ ), q{Don't match compound inverted <?isZl> (LineSeparator)} );
+ok(!( "\c[LINE SEPARATOR]" ~~ m/^<+<-isZl>>$/ ), q{Don't match internally inverted <?isZl> (LineSeparator)} );
+ok(!( "\x[ADAD]"  ~~ m/^<+<?isZl>>$/ ), q{Don't match unrelated <?isZl> (LineSeparator)} );
+ok("\x[ADAD]"  ~~ m/^<-<?isZl>>$/, q{Match unrelated externally inverted <?isZl> (LineSeparator)} );
+ok("\x[ADAD]"  ~~ m/^<+<-isZl>>$/, q{Match unrelated internally inverted <?isZl> (LineSeparator)} );
+ok(!( "\c[SPACE]" ~~ m/^<+<?isZl>>$/ ), q{Don't match related <?isZl> (LineSeparator)} );
+ok("\c[SPACE]" ~~ m/^<+<-isZl>>$/, q{Match related internally inverted <?isZl> (LineSeparator)} );
+ok("\c[SPACE]" ~~ m/^<-<?isZl>>$/, q{Match related externally inverted <?isZl> (LineSeparator)} );
+ok("\x[ADAD]\c[SPACE]\c[LINE SEPARATOR]" ~~ m/<+<?isZl>>/, q{Match unanchored <?isZl> (LineSeparator)} );
 
-ok("\c[LINE SEPARATOR]" ~~ m/^<+<?LineSeparator>>$/, q{Match <?LineSeparator>} );
-ok("\c[LINE SEPARATOR]" ~~ m/^<[A]+<?LineSeparator>>$/, q{Match compound <?LineSeparator>} );
-ok(!( "\c[LINE SEPARATOR]" ~~ m/^<-<?LineSeparator>>$/ ), q{Don't match externally inverted <?LineSeparator>} );
-ok(!( "\c[LINE SEPARATOR]" ~~ m/^<[A]-<?LineSeparator>>$/ ), q{Don't match compound inverted <?LineSeparator>} );
-ok(!( "\c[LINE SEPARATOR]" ~~ m/^<+<-LineSeparator>>$/ ), q{Don't match internally inverted <?LineSeparator>} );
-ok(!( "\x[C5E7]"  ~~ m/^<+<?LineSeparator>>$/ ), q{Don't match unrelated <?LineSeparator>} );
-ok("\x[C5E7]"  ~~ m/^<-<?LineSeparator>>$/, q{Match unrelated externally inverted <?LineSeparator>} );
-ok("\x[C5E7]"  ~~ m/^<+<-LineSeparator>>$/, q{Match unrelated internally inverted <?LineSeparator>} );
-ok(!( "\x[C5E7]" ~~ m/^<+<?LineSeparator>>$/ ), q{Don't match related <?LineSeparator>} );
-ok("\x[C5E7]" ~~ m/^<+<-LineSeparator>>$/, q{Match related internally inverted <?LineSeparator>} );
-ok("\x[C5E7]" ~~ m/^<-<?LineSeparator>>$/, q{Match related externally inverted <?LineSeparator>} );
-ok("\x[C5E7]\x[C5E7]\c[LINE SEPARATOR]" ~~ m/<+<?LineSeparator>>/, q{Match unanchored <?LineSeparator>} );
+ok("\c[LINE SEPARATOR]" ~~ m/^<+<?isLineSeparator>>$/, q{Match <?isLineSeparator>} );
+ok("\c[LINE SEPARATOR]" ~~ m/^<[A]+<?isLineSeparator>>$/, q{Match compound <?isLineSeparator>} );
+ok(!( "\c[LINE SEPARATOR]" ~~ m/^<-<?isLineSeparator>>$/ ), q{Don't match externally inverted <?isLineSeparator>} );
+ok(!( "\c[LINE SEPARATOR]" ~~ m/^<[A]-<?isLineSeparator>>$/ ), q{Don't match compound inverted <?isLineSeparator>} );
+ok(!( "\c[LINE SEPARATOR]" ~~ m/^<+<-isLineSeparator>>$/ ), q{Don't match internally inverted <?isLineSeparator>} );
+ok(!( "\x[C5E7]"  ~~ m/^<+<?isLineSeparator>>$/ ), q{Don't match unrelated <?isLineSeparator>} );
+ok("\x[C5E7]"  ~~ m/^<-<?isLineSeparator>>$/, q{Match unrelated externally inverted <?isLineSeparator>} );
+ok("\x[C5E7]"  ~~ m/^<+<-isLineSeparator>>$/, q{Match unrelated internally inverted <?isLineSeparator>} );
+ok(!( "\x[C5E7]" ~~ m/^<+<?isLineSeparator>>$/ ), q{Don't match related <?isLineSeparator>} );
+ok("\x[C5E7]" ~~ m/^<+<-isLineSeparator>>$/, q{Match related internally inverted <?isLineSeparator>} );
+ok("\x[C5E7]" ~~ m/^<-<?isLineSeparator>>$/, q{Match related externally inverted <?isLineSeparator>} );
+ok("\x[C5E7]\x[C5E7]\c[LINE SEPARATOR]" ~~ m/<+<?isLineSeparator>>/, q{Match unanchored <?isLineSeparator>} );
 
 # Zp          ParagraphSeparator
 
 
-ok("\c[PARAGRAPH SEPARATOR]" ~~ m/^<+<?Zp>>$/, q{Match <?Zp> (ParagraphSeparator)} );
-ok("\c[PARAGRAPH SEPARATOR]" ~~ m/^<[A]+<?Zp>>$/, q{Match compound <?Zp> (ParagraphSeparator)} );
-ok(!( "\c[PARAGRAPH SEPARATOR]" ~~ m/^<-<?Zp>>$/ ), q{Don't match externally inverted <?Zp> (ParagraphSeparator)} );
-ok(!( "\c[PARAGRAPH SEPARATOR]" ~~ m/^<[A]-<?Zp>>$/ ), q{Don't match compound inverted <?Zp> (ParagraphSeparator)} );
-ok(!( "\c[PARAGRAPH SEPARATOR]" ~~ m/^<+<-Zp>>$/ ), q{Don't match internally inverted <?Zp> (ParagraphSeparator)} );
-ok(!( "\c[KHMER SYMBOL LEK ATTAK PRAM-BUON]"  ~~ m/^<+<?Zp>>$/ ), q{Don't match unrelated <?Zp> (ParagraphSeparator)} );
-ok("\c[KHMER SYMBOL LEK ATTAK PRAM-BUON]"  ~~ m/^<-<?Zp>>$/, q{Match unrelated externally inverted <?Zp> (ParagraphSeparator)} );
-ok("\c[KHMER SYMBOL LEK ATTAK PRAM-BUON]"  ~~ m/^<+<-Zp>>$/, q{Match unrelated internally inverted <?Zp> (ParagraphSeparator)} );
-ok(!( "\c[MONGOLIAN VOWEL SEPARATOR]" ~~ m/^<+<?Zp>>$/ ), q{Don't match related <?Zp> (ParagraphSeparator)} );
-ok("\c[MONGOLIAN VOWEL SEPARATOR]" ~~ m/^<+<-Zp>>$/, q{Match related internally inverted <?Zp> (ParagraphSeparator)} );
-ok("\c[MONGOLIAN VOWEL SEPARATOR]" ~~ m/^<-<?Zp>>$/, q{Match related externally inverted <?Zp> (ParagraphSeparator)} );
-ok("\c[KHMER SYMBOL LEK ATTAK PRAM-BUON]\c[MONGOLIAN VOWEL SEPARATOR]\c[PARAGRAPH SEPARATOR]" ~~ m/<+<?Zp>>/, q{Match unanchored <?Zp> (ParagraphSeparator)} );
+ok("\c[PARAGRAPH SEPARATOR]" ~~ m/^<+<?isZp>>$/, q{Match <?isZp> (ParagraphSeparator)} );
+ok("\c[PARAGRAPH SEPARATOR]" ~~ m/^<[A]+<?isZp>>$/, q{Match compound <?isZp> (ParagraphSeparator)} );
+ok(!( "\c[PARAGRAPH SEPARATOR]" ~~ m/^<-<?isZp>>$/ ), q{Don't match externally inverted <?isZp> (ParagraphSeparator)} );
+ok(!( "\c[PARAGRAPH SEPARATOR]" ~~ m/^<[A]-<?isZp>>$/ ), q{Don't match compound inverted <?isZp> (ParagraphSeparator)} );
+ok(!( "\c[PARAGRAPH SEPARATOR]" ~~ m/^<+<-isZp>>$/ ), q{Don't match internally inverted <?isZp> (ParagraphSeparator)} );
+ok(!( "\c[KHMER SYMBOL LEK ATTAK PRAM-BUON]"  ~~ m/^<+<?isZp>>$/ ), q{Don't match unrelated <?isZp> (ParagraphSeparator)} );
+ok("\c[KHMER SYMBOL LEK ATTAK PRAM-BUON]"  ~~ m/^<-<?isZp>>$/, q{Match unrelated externally inverted <?isZp> (ParagraphSeparator)} );
+ok("\c[KHMER SYMBOL LEK ATTAK PRAM-BUON]"  ~~ m/^<+<-isZp>>$/, q{Match unrelated internally inverted <?isZp> (ParagraphSeparator)} );
+ok(!( "\c[MONGOLIAN VOWEL SEPARATOR]" ~~ m/^<+<?isZp>>$/ ), q{Don't match related <?isZp> (ParagraphSeparator)} );
+ok("\c[MONGOLIAN VOWEL SEPARATOR]" ~~ m/^<+<-isZp>>$/, q{Match related internally inverted <?isZp> (ParagraphSeparator)} );
+ok("\c[MONGOLIAN VOWEL SEPARATOR]" ~~ m/^<-<?isZp>>$/, q{Match related externally inverted <?isZp> (ParagraphSeparator)} );
+ok("\c[KHMER SYMBOL LEK ATTAK PRAM-BUON]\c[MONGOLIAN VOWEL SEPARATOR]\c[PARAGRAPH SEPARATOR]" ~~ m/<+<?isZp>>/, q{Match unanchored <?isZp> (ParagraphSeparator)} );
 
-ok("\c[PARAGRAPH SEPARATOR]" ~~ m/^<+<?ParagraphSeparator>>$/, q{Match <?ParagraphSeparator>} );
-ok("\c[PARAGRAPH SEPARATOR]" ~~ m/^<[A]+<?ParagraphSeparator>>$/, q{Match compound <?ParagraphSeparator>} );
-ok(!( "\c[PARAGRAPH SEPARATOR]" ~~ m/^<-<?ParagraphSeparator>>$/ ), q{Don't match externally inverted <?ParagraphSeparator>} );
-ok(!( "\c[PARAGRAPH SEPARATOR]" ~~ m/^<[A]-<?ParagraphSeparator>>$/ ), q{Don't match compound inverted <?ParagraphSeparator>} );
-ok(!( "\c[PARAGRAPH SEPARATOR]" ~~ m/^<+<-ParagraphSeparator>>$/ ), q{Don't match internally inverted <?ParagraphSeparator>} );
-ok(!( "\c[HIRAGANA LETTER KA]"  ~~ m/^<+<?ParagraphSeparator>>$/ ), q{Don't match unrelated <?ParagraphSeparator>} );
-ok("\c[HIRAGANA LETTER KA]"  ~~ m/^<-<?ParagraphSeparator>>$/, q{Match unrelated externally inverted <?ParagraphSeparator>} );
-ok("\c[HIRAGANA LETTER KA]"  ~~ m/^<+<-ParagraphSeparator>>$/, q{Match unrelated internally inverted <?ParagraphSeparator>} );
-ok(!( "\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<+<?ParagraphSeparator>>$/ ), q{Don't match related <?ParagraphSeparator>} );
-ok("\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<+<-ParagraphSeparator>>$/, q{Match related internally inverted <?ParagraphSeparator>} );
-ok("\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<-<?ParagraphSeparator>>$/, q{Match related externally inverted <?ParagraphSeparator>} );
-ok("\c[HIRAGANA LETTER KA]\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]\c[PARAGRAPH SEPARATOR]" ~~ m/<+<?ParagraphSeparator>>/, q{Match unanchored <?ParagraphSeparator>} );
+ok("\c[PARAGRAPH SEPARATOR]" ~~ m/^<+<?isParagraphSeparator>>$/, q{Match <?isParagraphSeparator>} );
+ok("\c[PARAGRAPH SEPARATOR]" ~~ m/^<[A]+<?isParagraphSeparator>>$/, q{Match compound <?isParagraphSeparator>} );
+ok(!( "\c[PARAGRAPH SEPARATOR]" ~~ m/^<-<?isParagraphSeparator>>$/ ), q{Don't match externally inverted <?isParagraphSeparator>} );
+ok(!( "\c[PARAGRAPH SEPARATOR]" ~~ m/^<[A]-<?isParagraphSeparator>>$/ ), q{Don't match compound inverted <?isParagraphSeparator>} );
+ok(!( "\c[PARAGRAPH SEPARATOR]" ~~ m/^<+<-isParagraphSeparator>>$/ ), q{Don't match internally inverted <?isParagraphSeparator>} );
+ok(!( "\c[HIRAGANA LETTER KA]"  ~~ m/^<+<?isParagraphSeparator>>$/ ), q{Don't match unrelated <?isParagraphSeparator>} );
+ok("\c[HIRAGANA LETTER KA]"  ~~ m/^<-<?isParagraphSeparator>>$/, q{Match unrelated externally inverted <?isParagraphSeparator>} );
+ok("\c[HIRAGANA LETTER KA]"  ~~ m/^<+<-isParagraphSeparator>>$/, q{Match unrelated internally inverted <?isParagraphSeparator>} );
+ok(!( "\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<+<?isParagraphSeparator>>$/ ), q{Don't match related <?isParagraphSeparator>} );
+ok("\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<+<-isParagraphSeparator>>$/, q{Match related internally inverted <?isParagraphSeparator>} );
+ok("\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<-<?isParagraphSeparator>>$/, q{Match related externally inverted <?isParagraphSeparator>} );
+ok("\c[HIRAGANA LETTER KA]\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]\c[PARAGRAPH SEPARATOR]" ~~ m/<+<?isParagraphSeparator>>/, q{Match unanchored <?isParagraphSeparator>} );
 
 # C           Other
 
 
-ok("\x[9FA6]" ~~ m/^<+<C>>$/, q{Match <C> (Other)} );
-ok("\x[9FA6]" ~~ m/^<[A]+<C>>$/, q{Match compound <C> (Other)} );
-ok(!( "\x[9FA6]" ~~ m/^<-<C>>$/ ), q{Don't match externally inverted <C> (Other)} );
-ok(!( "\x[9FA6]" ~~ m/^<[A]-<C>>$/ ), q{Don't match compound inverted <C> (Other)} );
-ok(!( "\x[9FA6]" ~~ m/^<+<-C>>$/ ), q{Don't match internally inverted <C> (Other)} );
-ok(!( "\x[56E6]"  ~~ m/^<+<C>>$/ ), q{Don't match unrelated <C> (Other)} );
-ok("\x[56E6]"  ~~ m/^<-<C>>$/, q{Match unrelated externally inverted <C> (Other)} );
-ok("\x[56E6]"  ~~ m/^<+<-C>>$/, q{Match unrelated internally inverted <C> (Other)} );
-ok("\x[56E6]\x[9FA6]" ~~ m/<+<C>>/, q{Match unanchored <C> (Other)} );
+ok("\x[9FA6]" ~~ m/^<+<isC>>$/, q{Match <isC> (Other)} );
+ok("\x[9FA6]" ~~ m/^<[A]+<isC>>$/, q{Match compound <isC> (Other)} );
+ok(!( "\x[9FA6]" ~~ m/^<-<isC>>$/ ), q{Don't match externally inverted <isC> (Other)} );
+ok(!( "\x[9FA6]" ~~ m/^<[A]-<isC>>$/ ), q{Don't match compound inverted <isC> (Other)} );
+ok(!( "\x[9FA6]" ~~ m/^<+<-isC>>$/ ), q{Don't match internally inverted <isC> (Other)} );
+ok(!( "\x[56E6]"  ~~ m/^<+<isC>>$/ ), q{Don't match unrelated <isC> (Other)} );
+ok("\x[56E6]"  ~~ m/^<-<isC>>$/, q{Match unrelated externally inverted <isC> (Other)} );
+ok("\x[56E6]"  ~~ m/^<+<-isC>>$/, q{Match unrelated internally inverted <isC> (Other)} );
+ok("\x[56E6]\x[9FA6]" ~~ m/<+<isC>>/, q{Match unanchored <isC> (Other)} );
 
-ok("\x[0EAC]" ~~ m/^<+<?Other>>$/, q{Match <?Other>} );
-ok("\x[0EAC]" ~~ m/^<[A]+<?Other>>$/, q{Match compound <?Other>} );
-ok(!( "\x[0EAC]" ~~ m/^<-<?Other>>$/ ), q{Don't match externally inverted <?Other>} );
-ok(!( "\x[0EAC]" ~~ m/^<[A]-<?Other>>$/ ), q{Don't match compound inverted <?Other>} );
-ok(!( "\x[0EAC]" ~~ m/^<+<-Other>>$/ ), q{Don't match internally inverted <?Other>} );
-ok(!( "\c[LAO LETTER HO SUNG]"  ~~ m/^<+<?Other>>$/ ), q{Don't match unrelated <?Other>} );
-ok("\c[LAO LETTER HO SUNG]"  ~~ m/^<-<?Other>>$/, q{Match unrelated externally inverted <?Other>} );
-ok("\c[LAO LETTER HO SUNG]"  ~~ m/^<+<-Other>>$/, q{Match unrelated internally inverted <?Other>} );
-ok("\c[LAO LETTER HO SUNG]\x[0EAC]" ~~ m/<+<?Other>>/, q{Match unanchored <?Other>} );
+ok("\x[0EAC]" ~~ m/^<+<?isOther>>$/, q{Match <?isOther>} );
+ok("\x[0EAC]" ~~ m/^<[A]+<?isOther>>$/, q{Match compound <?isOther>} );
+ok(!( "\x[0EAC]" ~~ m/^<-<?isOther>>$/ ), q{Don't match externally inverted <?isOther>} );
+ok(!( "\x[0EAC]" ~~ m/^<[A]-<?isOther>>$/ ), q{Don't match compound inverted <?isOther>} );
+ok(!( "\x[0EAC]" ~~ m/^<+<-isOther>>$/ ), q{Don't match internally inverted <?isOther>} );
+ok(!( "\c[LAO LETTER HO SUNG]"  ~~ m/^<+<?isOther>>$/ ), q{Don't match unrelated <?isOther>} );
+ok("\c[LAO LETTER HO SUNG]"  ~~ m/^<-<?isOther>>$/, q{Match unrelated externally inverted <?isOther>} );
+ok("\c[LAO LETTER HO SUNG]"  ~~ m/^<+<-isOther>>$/, q{Match unrelated internally inverted <?isOther>} );
+ok("\c[LAO LETTER HO SUNG]\x[0EAC]" ~~ m/<+<?isOther>>/, q{Match unanchored <?isOther>} );
 
 # Cc          Control
 
 
-ok("\c[NULL]" ~~ m/^<+<?Cc>>$/, q{Match <?Cc> (Control)} );
-ok("\c[NULL]" ~~ m/^<[A]+<?Cc>>$/, q{Match compound <?Cc> (Control)} );
-ok(!( "\c[NULL]" ~~ m/^<-<?Cc>>$/ ), q{Don't match externally inverted <?Cc> (Control)} );
-ok(!( "\c[NULL]" ~~ m/^<[A]-<?Cc>>$/ ), q{Don't match compound inverted <?Cc> (Control)} );
-ok(!( "\c[NULL]" ~~ m/^<+<-Cc>>$/ ), q{Don't match internally inverted <?Cc> (Control)} );
-ok(!( "\c[OGONEK]"  ~~ m/^<+<?Cc>>$/ ), q{Don't match unrelated <?Cc> (Control)} );
-ok("\c[OGONEK]"  ~~ m/^<-<?Cc>>$/, q{Match unrelated externally inverted <?Cc> (Control)} );
-ok("\c[OGONEK]"  ~~ m/^<+<-Cc>>$/, q{Match unrelated internally inverted <?Cc> (Control)} );
-ok(!( "\x[0358]" ~~ m/^<+<?Cc>>$/ ), q{Don't match related <?Cc> (Control)} );
-ok("\x[0358]" ~~ m/^<+<-Cc>>$/, q{Match related internally inverted <?Cc> (Control)} );
-ok("\x[0358]" ~~ m/^<-<?Cc>>$/, q{Match related externally inverted <?Cc> (Control)} );
-ok("\c[OGONEK]\x[0358]\c[NULL]" ~~ m/<+<?Cc>>/, q{Match unanchored <?Cc> (Control)} );
+ok("\c[NULL]" ~~ m/^<+<?isCc>>$/, q{Match <?isCc> (Control)} );
+ok("\c[NULL]" ~~ m/^<[A]+<?isCc>>$/, q{Match compound <?isCc> (Control)} );
+ok(!( "\c[NULL]" ~~ m/^<-<?isCc>>$/ ), q{Don't match externally inverted <?isCc> (Control)} );
+ok(!( "\c[NULL]" ~~ m/^<[A]-<?isCc>>$/ ), q{Don't match compound inverted <?isCc> (Control)} );
+ok(!( "\c[NULL]" ~~ m/^<+<-isCc>>$/ ), q{Don't match internally inverted <?isCc> (Control)} );
+ok(!( "\c[OGONEK]"  ~~ m/^<+<?isCc>>$/ ), q{Don't match unrelated <?isCc> (Control)} );
+ok("\c[OGONEK]"  ~~ m/^<-<?isCc>>$/, q{Match unrelated externally inverted <?isCc> (Control)} );
+ok("\c[OGONEK]"  ~~ m/^<+<-isCc>>$/, q{Match unrelated internally inverted <?isCc> (Control)} );
+ok(!( "\x[0358]" ~~ m/^<+<?isCc>>$/ ), q{Don't match related <?isCc> (Control)} );
+ok("\x[0358]" ~~ m/^<+<-isCc>>$/, q{Match related internally inverted <?isCc> (Control)} );
+ok("\x[0358]" ~~ m/^<-<?isCc>>$/, q{Match related externally inverted <?isCc> (Control)} );
+ok("\c[OGONEK]\x[0358]\c[NULL]" ~~ m/<+<?isCc>>/, q{Match unanchored <?isCc> (Control)} );
 
-ok("\c[NULL]" ~~ m/^<+<?Control>>$/, q{Match <?Control>} );
-ok("\c[NULL]" ~~ m/^<[A]+<?Control>>$/, q{Match compound <?Control>} );
-ok(!( "\c[NULL]" ~~ m/^<-<?Control>>$/ ), q{Don't match externally inverted <?Control>} );
-ok(!( "\c[NULL]" ~~ m/^<[A]-<?Control>>$/ ), q{Don't match compound inverted <?Control>} );
-ok(!( "\c[NULL]" ~~ m/^<+<-Control>>$/ ), q{Don't match internally inverted <?Control>} );
-ok(!( "\x[4A20]"  ~~ m/^<+<?Control>>$/ ), q{Don't match unrelated <?Control>} );
-ok("\x[4A20]"  ~~ m/^<-<?Control>>$/, q{Match unrelated externally inverted <?Control>} );
-ok("\x[4A20]"  ~~ m/^<+<-Control>>$/, q{Match unrelated internally inverted <?Control>} );
-ok(!( "\x[4DB6]" ~~ m/^<+<?Control>>$/ ), q{Don't match related <?Control>} );
-ok("\x[4DB6]" ~~ m/^<+<-Control>>$/, q{Match related internally inverted <?Control>} );
-ok("\x[4DB6]" ~~ m/^<-<?Control>>$/, q{Match related externally inverted <?Control>} );
-ok("\x[4A20]\x[4DB6]\c[NULL]" ~~ m/<+<?Control>>/, q{Match unanchored <?Control>} );
+ok("\c[NULL]" ~~ m/^<+<?isControl>>$/, q{Match <?isControl>} );
+ok("\c[NULL]" ~~ m/^<[A]+<?isControl>>$/, q{Match compound <?isControl>} );
+ok(!( "\c[NULL]" ~~ m/^<-<?isControl>>$/ ), q{Don't match externally inverted <?isControl>} );
+ok(!( "\c[NULL]" ~~ m/^<[A]-<?isControl>>$/ ), q{Don't match compound inverted <?isControl>} );
+ok(!( "\c[NULL]" ~~ m/^<+<-isControl>>$/ ), q{Don't match internally inverted <?isControl>} );
+ok(!( "\x[4A20]"  ~~ m/^<+<?isControl>>$/ ), q{Don't match unrelated <?isControl>} );
+ok("\x[4A20]"  ~~ m/^<-<?isControl>>$/, q{Match unrelated externally inverted <?isControl>} );
+ok("\x[4A20]"  ~~ m/^<+<-isControl>>$/, q{Match unrelated internally inverted <?isControl>} );
+ok(!( "\x[4DB6]" ~~ m/^<+<?isControl>>$/ ), q{Don't match related <?isControl>} );
+ok("\x[4DB6]" ~~ m/^<+<-isControl>>$/, q{Match related internally inverted <?isControl>} );
+ok("\x[4DB6]" ~~ m/^<-<?isControl>>$/, q{Match related externally inverted <?isControl>} );
+ok("\x[4A20]\x[4DB6]\c[NULL]" ~~ m/<+<?isControl>>/, q{Match unanchored <?isControl>} );
 
 # Cf          Format
 
 
-ok("\c[SOFT HYPHEN]" ~~ m/^<+<?Cf>>$/, q{Match <?Cf> (Format)} );
-ok("\c[SOFT HYPHEN]" ~~ m/^<[A]+<?Cf>>$/, q{Match compound <?Cf> (Format)} );
-ok(!( "\c[SOFT HYPHEN]" ~~ m/^<-<?Cf>>$/ ), q{Don't match externally inverted <?Cf> (Format)} );
-ok(!( "\c[SOFT HYPHEN]" ~~ m/^<[A]-<?Cf>>$/ ), q{Don't match compound inverted <?Cf> (Format)} );
-ok(!( "\c[SOFT HYPHEN]" ~~ m/^<+<-Cf>>$/ ), q{Don't match internally inverted <?Cf> (Format)} );
-ok(!( "\x[AECE]"  ~~ m/^<+<?Cf>>$/ ), q{Don't match unrelated <?Cf> (Format)} );
-ok("\x[AECE]"  ~~ m/^<-<?Cf>>$/, q{Match unrelated externally inverted <?Cf> (Format)} );
-ok("\x[AECE]"  ~~ m/^<+<-Cf>>$/, q{Match unrelated internally inverted <?Cf> (Format)} );
-ok(!( "\x[D7A4]" ~~ m/^<+<?Cf>>$/ ), q{Don't match related <?Cf> (Format)} );
-ok("\x[D7A4]" ~~ m/^<+<-Cf>>$/, q{Match related internally inverted <?Cf> (Format)} );
-ok("\x[D7A4]" ~~ m/^<-<?Cf>>$/, q{Match related externally inverted <?Cf> (Format)} );
-ok("\x[AECE]\x[D7A4]\c[SOFT HYPHEN]" ~~ m/<+<?Cf>>/, q{Match unanchored <?Cf> (Format)} );
+ok("\c[SOFT HYPHEN]" ~~ m/^<+<?isCf>>$/, q{Match <?isCf> (Format)} );
+ok("\c[SOFT HYPHEN]" ~~ m/^<[A]+<?isCf>>$/, q{Match compound <?isCf> (Format)} );
+ok(!( "\c[SOFT HYPHEN]" ~~ m/^<-<?isCf>>$/ ), q{Don't match externally inverted <?isCf> (Format)} );
+ok(!( "\c[SOFT HYPHEN]" ~~ m/^<[A]-<?isCf>>$/ ), q{Don't match compound inverted <?isCf> (Format)} );
+ok(!( "\c[SOFT HYPHEN]" ~~ m/^<+<-isCf>>$/ ), q{Don't match internally inverted <?isCf> (Format)} );
+ok(!( "\x[AECE]"  ~~ m/^<+<?isCf>>$/ ), q{Don't match unrelated <?isCf> (Format)} );
+ok("\x[AECE]"  ~~ m/^<-<?isCf>>$/, q{Match unrelated externally inverted <?isCf> (Format)} );
+ok("\x[AECE]"  ~~ m/^<+<-isCf>>$/, q{Match unrelated internally inverted <?isCf> (Format)} );
+ok(!( "\x[D7A4]" ~~ m/^<+<?isCf>>$/ ), q{Don't match related <?isCf> (Format)} );
+ok("\x[D7A4]" ~~ m/^<+<-isCf>>$/, q{Match related internally inverted <?isCf> (Format)} );
+ok("\x[D7A4]" ~~ m/^<-<?isCf>>$/, q{Match related externally inverted <?isCf> (Format)} );
+ok("\x[AECE]\x[D7A4]\c[SOFT HYPHEN]" ~~ m/<+<?isCf>>/, q{Match unanchored <?isCf> (Format)} );
 
-ok("\c[SOFT HYPHEN]" ~~ m/^<+<?Format>>$/, q{Match <?Format>} );
-ok("\c[SOFT HYPHEN]" ~~ m/^<[A]+<?Format>>$/, q{Match compound <?Format>} );
-ok(!( "\c[SOFT HYPHEN]" ~~ m/^<-<?Format>>$/ ), q{Don't match externally inverted <?Format>} );
-ok(!( "\c[SOFT HYPHEN]" ~~ m/^<[A]-<?Format>>$/ ), q{Don't match compound inverted <?Format>} );
-ok(!( "\c[SOFT HYPHEN]" ~~ m/^<+<-Format>>$/ ), q{Don't match internally inverted <?Format>} );
-ok(!( "\x[5382]"  ~~ m/^<+<?Format>>$/ ), q{Don't match unrelated <?Format>} );
-ok("\x[5382]"  ~~ m/^<-<?Format>>$/, q{Match unrelated externally inverted <?Format>} );
-ok("\x[5382]"  ~~ m/^<+<-Format>>$/, q{Match unrelated internally inverted <?Format>} );
-ok("\x[5382]\c[SOFT HYPHEN]" ~~ m/<+<?Format>>/, q{Match unanchored <?Format>} );
+ok("\c[SOFT HYPHEN]" ~~ m/^<+<?isFormat>>$/, q{Match <?isFormat>} );
+ok("\c[SOFT HYPHEN]" ~~ m/^<[A]+<?isFormat>>$/, q{Match compound <?isFormat>} );
+ok(!( "\c[SOFT HYPHEN]" ~~ m/^<-<?isFormat>>$/ ), q{Don't match externally inverted <?isFormat>} );
+ok(!( "\c[SOFT HYPHEN]" ~~ m/^<[A]-<?isFormat>>$/ ), q{Don't match compound inverted <?isFormat>} );
+ok(!( "\c[SOFT HYPHEN]" ~~ m/^<+<-isFormat>>$/ ), q{Don't match internally inverted <?isFormat>} );
+ok(!( "\x[5382]"  ~~ m/^<+<?isFormat>>$/ ), q{Don't match unrelated <?isFormat>} );
+ok("\x[5382]"  ~~ m/^<-<?isFormat>>$/, q{Match unrelated externally inverted <?isFormat>} );
+ok("\x[5382]"  ~~ m/^<+<-isFormat>>$/, q{Match unrelated internally inverted <?isFormat>} );
+ok("\x[5382]\c[SOFT HYPHEN]" ~~ m/<+<?isFormat>>/, q{Match unanchored <?isFormat>} );
 
 # BidiL       # Left-to-Right
 
 
-ok("\c[YI SYLLABLE IT]" ~~ m/^<+<?BidiL>>$/, q{Match (Left-to-Right)} );
-ok("\c[YI SYLLABLE IT]" ~~ m/^<[A]+<?BidiL>>$/, q{Match compound (Left-to-Right)} );
-ok(!( "\c[YI SYLLABLE IT]" ~~ m/^<-<?BidiL>>$/ ), q{Don't match externally inverted (Left-to-Right)} );
-ok(!( "\c[YI SYLLABLE IT]" ~~ m/^<[A]-<?BidiL>>$/ ), q{Don't match compound inverted (Left-to-Right)} );
-ok(!( "\c[YI SYLLABLE IT]" ~~ m/^<+<-BidiL>>$/ ), q{Don't match internally inverted (Left-to-Right)} );
-ok(!( "\x[5BF5]"  ~~ m/^<+<?BidiL>>$/ ), q{Don't match unrelated (Left-to-Right)} );
-ok("\x[5BF5]"  ~~ m/^<-<?BidiL>>$/, q{Match unrelated externally inverted (Left-to-Right)} );
-ok("\x[5BF5]"  ~~ m/^<+<-BidiL>>$/, q{Match unrelated internally inverted (Left-to-Right)} );
-ok("\x[5BF5]\c[YI SYLLABLE IT]" ~~ m/<+<?BidiL>>/, q{Match unanchored (Left-to-Right)} );
+ok("\c[YI SYLLABLE IT]" ~~ m/^<+<?isBidiL>>$/, q{Match (Left-to-Right)} );
+ok("\c[YI SYLLABLE IT]" ~~ m/^<[A]+<?isBidiL>>$/, q{Match compound (Left-to-Right)} );
+ok(!( "\c[YI SYLLABLE IT]" ~~ m/^<-<?isBidiL>>$/ ), q{Don't match externally inverted (Left-to-Right)} );
+ok(!( "\c[YI SYLLABLE IT]" ~~ m/^<[A]-<?isBidiL>>$/ ), q{Don't match compound inverted (Left-to-Right)} );
+ok(!( "\c[YI SYLLABLE IT]" ~~ m/^<+<-isBidiL>>$/ ), q{Don't match internally inverted (Left-to-Right)} );
+ok(!( "\x[5BF5]"  ~~ m/^<+<?isBidiL>>$/ ), q{Don't match unrelated (Left-to-Right)} );
+ok("\x[5BF5]"  ~~ m/^<-<?isBidiL>>$/, q{Match unrelated externally inverted (Left-to-Right)} );
+ok("\x[5BF5]"  ~~ m/^<+<-isBidiL>>$/, q{Match unrelated internally inverted (Left-to-Right)} );
+ok("\x[5BF5]\c[YI SYLLABLE IT]" ~~ m/<+<?isBidiL>>/, q{Match unanchored (Left-to-Right)} );
 
 # BidiEN      # European Number
 
 
-ok("\c[DIGIT ZERO]" ~~ m/^<+<?BidiEN>>$/, q{Match (European Number)} );
-ok("\c[DIGIT ZERO]" ~~ m/^<[A]+<?BidiEN>>$/, q{Match compound (European Number)} );
-ok(!( "\c[DIGIT ZERO]" ~~ m/^<-<?BidiEN>>$/ ), q{Don't match externally inverted (European Number)} );
-ok(!( "\c[DIGIT ZERO]" ~~ m/^<[A]-<?BidiEN>>$/ ), q{Don't match compound inverted (European Number)} );
-ok(!( "\c[DIGIT ZERO]" ~~ m/^<+<-BidiEN>>$/ ), q{Don't match internally inverted (European Number)} );
-ok(!( "\x[5596]"  ~~ m/^<+<?BidiEN>>$/ ), q{Don't match unrelated (European Number)} );
-ok("\x[5596]"  ~~ m/^<-<?BidiEN>>$/, q{Match unrelated externally inverted (European Number)} );
-ok("\x[5596]"  ~~ m/^<+<-BidiEN>>$/, q{Match unrelated internally inverted (European Number)} );
-ok("\x[5596]\c[DIGIT ZERO]" ~~ m/<+<?BidiEN>>/, q{Match unanchored (European Number)} );
+ok("\c[DIGIT ZERO]" ~~ m/^<+<?isBidiEN>>$/, q{Match (European Number)} );
+ok("\c[DIGIT ZERO]" ~~ m/^<[A]+<?isBidiEN>>$/, q{Match compound (European Number)} );
+ok(!( "\c[DIGIT ZERO]" ~~ m/^<-<?isBidiEN>>$/ ), q{Don't match externally inverted (European Number)} );
+ok(!( "\c[DIGIT ZERO]" ~~ m/^<[A]-<?isBidiEN>>$/ ), q{Don't match compound inverted (European Number)} );
+ok(!( "\c[DIGIT ZERO]" ~~ m/^<+<-isBidiEN>>$/ ), q{Don't match internally inverted (European Number)} );
+ok(!( "\x[5596]"  ~~ m/^<+<?isBidiEN>>$/ ), q{Don't match unrelated (European Number)} );
+ok("\x[5596]"  ~~ m/^<-<?isBidiEN>>$/, q{Match unrelated externally inverted (European Number)} );
+ok("\x[5596]"  ~~ m/^<+<-isBidiEN>>$/, q{Match unrelated internally inverted (European Number)} );
+ok("\x[5596]\c[DIGIT ZERO]" ~~ m/<+<?isBidiEN>>/, q{Match unanchored (European Number)} );
 
 # BidiES      # European Number Separator
 
 
-ok("\c[SOLIDUS]" ~~ m/^<+<?BidiES>>$/, q{Match (European Number Separator)} );
-ok("\c[SOLIDUS]" ~~ m/^<[A]+<?BidiES>>$/, q{Match compound (European Number Separator)} );
-ok(!( "\c[SOLIDUS]" ~~ m/^<-<?BidiES>>$/ ), q{Don't match externally inverted (European Number Separator)} );
-ok(!( "\c[SOLIDUS]" ~~ m/^<[A]-<?BidiES>>$/ ), q{Don't match compound inverted (European Number Separator)} );
-ok(!( "\c[SOLIDUS]" ~~ m/^<+<-BidiES>>$/ ), q{Don't match internally inverted (European Number Separator)} );
-ok(!( "\x[85D3]"  ~~ m/^<+<?BidiES>>$/ ), q{Don't match unrelated (European Number Separator)} );
-ok("\x[85D3]"  ~~ m/^<-<?BidiES>>$/, q{Match unrelated externally inverted (European Number Separator)} );
-ok("\x[85D3]"  ~~ m/^<+<-BidiES>>$/, q{Match unrelated internally inverted (European Number Separator)} );
-ok("\x[85D3]\c[SOLIDUS]" ~~ m/<+<?BidiES>>/, q{Match unanchored (European Number Separator)} );
+ok("\c[SOLIDUS]" ~~ m/^<+<?isBidiES>>$/, q{Match (European Number Separator)} );
+ok("\c[SOLIDUS]" ~~ m/^<[A]+<?isBidiES>>$/, q{Match compound (European Number Separator)} );
+ok(!( "\c[SOLIDUS]" ~~ m/^<-<?isBidiES>>$/ ), q{Don't match externally inverted (European Number Separator)} );
+ok(!( "\c[SOLIDUS]" ~~ m/^<[A]-<?isBidiES>>$/ ), q{Don't match compound inverted (European Number Separator)} );
+ok(!( "\c[SOLIDUS]" ~~ m/^<+<-isBidiES>>$/ ), q{Don't match internally inverted (European Number Separator)} );
+ok(!( "\x[85D3]"  ~~ m/^<+<?isBidiES>>$/ ), q{Don't match unrelated (European Number Separator)} );
+ok("\x[85D3]"  ~~ m/^<-<?isBidiES>>$/, q{Match unrelated externally inverted (European Number Separator)} );
+ok("\x[85D3]"  ~~ m/^<+<-isBidiES>>$/, q{Match unrelated internally inverted (European Number Separator)} );
+ok("\x[85D3]\c[SOLIDUS]" ~~ m/<+<?isBidiES>>/, q{Match unanchored (European Number Separator)} );
 
 # BidiET      # European Number Terminator
 
 
-ok("\c[NUMBER SIGN]" ~~ m/^<+<?BidiET>>$/, q{Match (European Number Terminator)} );
-ok("\c[NUMBER SIGN]" ~~ m/^<[A]+<?BidiET>>$/, q{Match compound (European Number Terminator)} );
-ok(!( "\c[NUMBER SIGN]" ~~ m/^<-<?BidiET>>$/ ), q{Don't match externally inverted (European Number Terminator)} );
-ok(!( "\c[NUMBER SIGN]" ~~ m/^<[A]-<?BidiET>>$/ ), q{Don't match compound inverted (European Number Terminator)} );
-ok(!( "\c[NUMBER SIGN]" ~~ m/^<+<-BidiET>>$/ ), q{Don't match internally inverted (European Number Terminator)} );
-ok(!( "\x[9AFC]"  ~~ m/^<+<?BidiET>>$/ ), q{Don't match unrelated (European Number Terminator)} );
-ok("\x[9AFC]"  ~~ m/^<-<?BidiET>>$/, q{Match unrelated externally inverted (European Number Terminator)} );
-ok("\x[9AFC]"  ~~ m/^<+<-BidiET>>$/, q{Match unrelated internally inverted (European Number Terminator)} );
-ok("\x[9AFC]\c[NUMBER SIGN]" ~~ m/<+<?BidiET>>/, q{Match unanchored (European Number Terminator)} );
+ok("\c[NUMBER SIGN]" ~~ m/^<+<?isBidiET>>$/, q{Match (European Number Terminator)} );
+ok("\c[NUMBER SIGN]" ~~ m/^<[A]+<?isBidiET>>$/, q{Match compound (European Number Terminator)} );
+ok(!( "\c[NUMBER SIGN]" ~~ m/^<-<?isBidiET>>$/ ), q{Don't match externally inverted (European Number Terminator)} );
+ok(!( "\c[NUMBER SIGN]" ~~ m/^<[A]-<?isBidiET>>$/ ), q{Don't match compound inverted (European Number Terminator)} );
+ok(!( "\c[NUMBER SIGN]" ~~ m/^<+<-isBidiET>>$/ ), q{Don't match internally inverted (European Number Terminator)} );
+ok(!( "\x[9AFC]"  ~~ m/^<+<?isBidiET>>$/ ), q{Don't match unrelated (European Number Terminator)} );
+ok("\x[9AFC]"  ~~ m/^<-<?isBidiET>>$/, q{Match unrelated externally inverted (European Number Terminator)} );
+ok("\x[9AFC]"  ~~ m/^<+<-isBidiET>>$/, q{Match unrelated internally inverted (European Number Terminator)} );
+ok("\x[9AFC]\c[NUMBER SIGN]" ~~ m/<+<?isBidiET>>/, q{Match unanchored (European Number Terminator)} );
 
 # BidiWS      # Whitespace
 
 
-ok("\c[FORM FEED (FF)]" ~~ m/^<+<?BidiWS>>$/, q{Match (Whitespace)} );
-ok("\c[FORM FEED (FF)]" ~~ m/^<[A]+<?BidiWS>>$/, q{Match compound (Whitespace)} );
-ok(!( "\c[FORM FEED (FF)]" ~~ m/^<-<?BidiWS>>$/ ), q{Don't match externally inverted (Whitespace)} );
-ok(!( "\c[FORM FEED (FF)]" ~~ m/^<[A]-<?BidiWS>>$/ ), q{Don't match compound inverted (Whitespace)} );
-ok(!( "\c[FORM FEED (FF)]" ~~ m/^<+<-BidiWS>>$/ ), q{Don't match internally inverted (Whitespace)} );
-ok(!( "\x[4441]"  ~~ m/^<+<?BidiWS>>$/ ), q{Don't match unrelated (Whitespace)} );
-ok("\x[4441]"  ~~ m/^<-<?BidiWS>>$/, q{Match unrelated externally inverted (Whitespace)} );
-ok("\x[4441]"  ~~ m/^<+<-BidiWS>>$/, q{Match unrelated internally inverted (Whitespace)} );
-ok("\x[4441]\c[FORM FEED (FF)]" ~~ m/<+<?BidiWS>>/, q{Match unanchored (Whitespace)} );
+ok("\c[FORM FEED (FF)]" ~~ m/^<+<?isBidiWS>>$/, q{Match (Whitespace)} );
+ok("\c[FORM FEED (FF)]" ~~ m/^<[A]+<?isBidiWS>>$/, q{Match compound (Whitespace)} );
+ok(!( "\c[FORM FEED (FF)]" ~~ m/^<-<?isBidiWS>>$/ ), q{Don't match externally inverted (Whitespace)} );
+ok(!( "\c[FORM FEED (FF)]" ~~ m/^<[A]-<?isBidiWS>>$/ ), q{Don't match compound inverted (Whitespace)} );
+ok(!( "\c[FORM FEED (FF)]" ~~ m/^<+<-isBidiWS>>$/ ), q{Don't match internally inverted (Whitespace)} );
+ok(!( "\x[4441]"  ~~ m/^<+<?isBidiWS>>$/ ), q{Don't match unrelated (Whitespace)} );
+ok("\x[4441]"  ~~ m/^<-<?isBidiWS>>$/, q{Match unrelated externally inverted (Whitespace)} );
+ok("\x[4441]"  ~~ m/^<+<-isBidiWS>>$/, q{Match unrelated internally inverted (Whitespace)} );
+ok("\x[4441]\c[FORM FEED (FF)]" ~~ m/<+<?isBidiWS>>/, q{Match unanchored (Whitespace)} );
 
 # Arabic
 
 
-ok("\c[ARABIC LETTER HAMZA]" ~~ m/^<+<?Arabic>>$/, q{Match <?Arabic>} );
-ok("\c[ARABIC LETTER HAMZA]" ~~ m/^<[A]+<?Arabic>>$/, q{Match compound <?Arabic>} );
-ok(!( "\c[ARABIC LETTER HAMZA]" ~~ m/^<-<?Arabic>>$/ ), q{Don't match externally inverted <?Arabic>} );
-ok(!( "\c[ARABIC LETTER HAMZA]" ~~ m/^<[A]-<?Arabic>>$/ ), q{Don't match compound inverted <?Arabic>} );
-ok(!( "\c[ARABIC LETTER HAMZA]" ~~ m/^<+<-Arabic>>$/ ), q{Don't match internally inverted <?Arabic>} );
-ok(!( "\c[YI SYLLABLE RYRX]"  ~~ m/^<+<?Arabic>>$/ ), q{Don't match unrelated <?Arabic>} );
-ok("\c[YI SYLLABLE RYRX]"  ~~ m/^<-<?Arabic>>$/, q{Match unrelated externally inverted <?Arabic>} );
-ok("\c[YI SYLLABLE RYRX]"  ~~ m/^<+<-Arabic>>$/, q{Match unrelated internally inverted <?Arabic>} );
-ok("\c[YI SYLLABLE RYRX]\c[ARABIC LETTER HAMZA]" ~~ m/<+<?Arabic>>/, q{Match unanchored <?Arabic>} );
+ok("\c[ARABIC LETTER HAMZA]" ~~ m/^<+<?isArabic>>$/, q{Match <?isArabic>} );
+ok("\c[ARABIC LETTER HAMZA]" ~~ m/^<[A]+<?isArabic>>$/, q{Match compound <?isArabic>} );
+ok(!( "\c[ARABIC LETTER HAMZA]" ~~ m/^<-<?isArabic>>$/ ), q{Don't match externally inverted <?isArabic>} );
+ok(!( "\c[ARABIC LETTER HAMZA]" ~~ m/^<[A]-<?isArabic>>$/ ), q{Don't match compound inverted <?isArabic>} );
+ok(!( "\c[ARABIC LETTER HAMZA]" ~~ m/^<+<-isArabic>>$/ ), q{Don't match internally inverted <?isArabic>} );
+ok(!( "\c[YI SYLLABLE RYRX]"  ~~ m/^<+<?isArabic>>$/ ), q{Don't match unrelated <?isArabic>} );
+ok("\c[YI SYLLABLE RYRX]"  ~~ m/^<-<?isArabic>>$/, q{Match unrelated externally inverted <?isArabic>} );
+ok("\c[YI SYLLABLE RYRX]"  ~~ m/^<+<-isArabic>>$/, q{Match unrelated internally inverted <?isArabic>} );
+ok("\c[YI SYLLABLE RYRX]\c[ARABIC LETTER HAMZA]" ~~ m/<+<?isArabic>>/, q{Match unanchored <?isArabic>} );
 
 # Armenian
 
 
-ok("\c[ARMENIAN CAPITAL LETTER AYB]" ~~ m/^<+<?Armenian>>$/, q{Match <?Armenian>} );
-ok("\c[ARMENIAN CAPITAL LETTER AYB]" ~~ m/^<[A]+<?Armenian>>$/, q{Match compound <?Armenian>} );
-ok(!( "\c[ARMENIAN CAPITAL LETTER AYB]" ~~ m/^<-<?Armenian>>$/ ), q{Don't match externally inverted <?Armenian>} );
-ok(!( "\c[ARMENIAN CAPITAL LETTER AYB]" ~~ m/^<[A]-<?Armenian>>$/ ), q{Don't match compound inverted <?Armenian>} );
-ok(!( "\c[ARMENIAN CAPITAL LETTER AYB]" ~~ m/^<+<-Armenian>>$/ ), q{Don't match internally inverted <?Armenian>} );
-ok(!( "\x[B2ED]"  ~~ m/^<+<?Armenian>>$/ ), q{Don't match unrelated <?Armenian>} );
-ok("\x[B2ED]"  ~~ m/^<-<?Armenian>>$/, q{Match unrelated externally inverted <?Armenian>} );
-ok("\x[B2ED]"  ~~ m/^<+<-Armenian>>$/, q{Match unrelated internally inverted <?Armenian>} );
-ok("\x[B2ED]\c[ARMENIAN CAPITAL LETTER AYB]" ~~ m/<+<?Armenian>>/, q{Match unanchored <?Armenian>} );
+ok("\c[ARMENIAN CAPITAL LETTER AYB]" ~~ m/^<+<?isArmenian>>$/, q{Match <?isArmenian>} );
+ok("\c[ARMENIAN CAPITAL LETTER AYB]" ~~ m/^<[A]+<?isArmenian>>$/, q{Match compound <?isArmenian>} );
+ok(!( "\c[ARMENIAN CAPITAL LETTER AYB]" ~~ m/^<-<?isArmenian>>$/ ), q{Don't match externally inverted <?isArmenian>} );
+ok(!( "\c[ARMENIAN CAPITAL LETTER AYB]" ~~ m/^<[A]-<?isArmenian>>$/ ), q{Don't match compound inverted <?isArmenian>} );
+ok(!( "\c[ARMENIAN CAPITAL LETTER AYB]" ~~ m/^<+<-isArmenian>>$/ ), q{Don't match internally inverted <?isArmenian>} );
+ok(!( "\x[B2ED]"  ~~ m/^<+<?isArmenian>>$/ ), q{Don't match unrelated <?isArmenian>} );
+ok("\x[B2ED]"  ~~ m/^<-<?isArmenian>>$/, q{Match unrelated externally inverted <?isArmenian>} );
+ok("\x[B2ED]"  ~~ m/^<+<-isArmenian>>$/, q{Match unrelated internally inverted <?isArmenian>} );
+ok("\x[B2ED]\c[ARMENIAN CAPITAL LETTER AYB]" ~~ m/<+<?isArmenian>>/, q{Match unanchored <?isArmenian>} );
 
 # Bengali
 
 
-ok("\c[BENGALI SIGN CANDRABINDU]" ~~ m/^<+<?Bengali>>$/, q{Match <?Bengali>} );
-ok("\c[BENGALI SIGN CANDRABINDU]" ~~ m/^<[A]+<?Bengali>>$/, q{Match compound <?Bengali>} );
-ok(!( "\c[BENGALI SIGN CANDRABINDU]" ~~ m/^<-<?Bengali>>$/ ), q{Don't match externally inverted <?Bengali>} );
-ok(!( "\c[BENGALI SIGN CANDRABINDU]" ~~ m/^<[A]-<?Bengali>>$/ ), q{Don't match compound inverted <?Bengali>} );
-ok(!( "\c[BENGALI SIGN CANDRABINDU]" ~~ m/^<+<-Bengali>>$/ ), q{Don't match internally inverted <?Bengali>} );
-ok(!( "\x[4AFD]"  ~~ m/^<+<?Bengali>>$/ ), q{Don't match unrelated <?Bengali>} );
-ok("\x[4AFD]"  ~~ m/^<-<?Bengali>>$/, q{Match unrelated externally inverted <?Bengali>} );
-ok("\x[4AFD]"  ~~ m/^<+<-Bengali>>$/, q{Match unrelated internally inverted <?Bengali>} );
-ok("\x[4AFD]\c[BENGALI SIGN CANDRABINDU]" ~~ m/<+<?Bengali>>/, q{Match unanchored <?Bengali>} );
+ok("\c[BENGALI SIGN CANDRABINDU]" ~~ m/^<+<?isBengali>>$/, q{Match <?isBengali>} );
+ok("\c[BENGALI SIGN CANDRABINDU]" ~~ m/^<[A]+<?isBengali>>$/, q{Match compound <?isBengali>} );
+ok(!( "\c[BENGALI SIGN CANDRABINDU]" ~~ m/^<-<?isBengali>>$/ ), q{Don't match externally inverted <?isBengali>} );
+ok(!( "\c[BENGALI SIGN CANDRABINDU]" ~~ m/^<[A]-<?isBengali>>$/ ), q{Don't match compound inverted <?isBengali>} );
+ok(!( "\c[BENGALI SIGN CANDRABINDU]" ~~ m/^<+<-isBengali>>$/ ), q{Don't match internally inverted <?isBengali>} );
+ok(!( "\x[4AFD]"  ~~ m/^<+<?isBengali>>$/ ), q{Don't match unrelated <?isBengali>} );
+ok("\x[4AFD]"  ~~ m/^<-<?isBengali>>$/, q{Match unrelated externally inverted <?isBengali>} );
+ok("\x[4AFD]"  ~~ m/^<+<-isBengali>>$/, q{Match unrelated internally inverted <?isBengali>} );
+ok("\x[4AFD]\c[BENGALI SIGN CANDRABINDU]" ~~ m/<+<?isBengali>>/, q{Match unanchored <?isBengali>} );
 
 # Bopomofo
 
 
-ok("\c[BOPOMOFO LETTER B]" ~~ m/^<+<?Bopomofo>>$/, q{Match <?Bopomofo>} );
-ok("\c[BOPOMOFO LETTER B]" ~~ m/^<[A]+<?Bopomofo>>$/, q{Match compound <?Bopomofo>} );
-ok(!( "\c[BOPOMOFO LETTER B]" ~~ m/^<-<?Bopomofo>>$/ ), q{Don't match externally inverted <?Bopomofo>} );
-ok(!( "\c[BOPOMOFO LETTER B]" ~~ m/^<[A]-<?Bopomofo>>$/ ), q{Don't match compound inverted <?Bopomofo>} );
-ok(!( "\c[BOPOMOFO LETTER B]" ~~ m/^<+<-Bopomofo>>$/ ), q{Don't match internally inverted <?Bopomofo>} );
-ok(!( "\x[8369]"  ~~ m/^<+<?Bopomofo>>$/ ), q{Don't match unrelated <?Bopomofo>} );
-ok("\x[8369]"  ~~ m/^<-<?Bopomofo>>$/, q{Match unrelated externally inverted <?Bopomofo>} );
-ok("\x[8369]"  ~~ m/^<+<-Bopomofo>>$/, q{Match unrelated internally inverted <?Bopomofo>} );
-ok("\x[8369]\c[BOPOMOFO LETTER B]" ~~ m/<+<?Bopomofo>>/, q{Match unanchored <?Bopomofo>} );
+ok("\c[BOPOMOFO LETTER B]" ~~ m/^<+<?isBopomofo>>$/, q{Match <?isBopomofo>} );
+ok("\c[BOPOMOFO LETTER B]" ~~ m/^<[A]+<?isBopomofo>>$/, q{Match compound <?isBopomofo>} );
+ok(!( "\c[BOPOMOFO LETTER B]" ~~ m/^<-<?isBopomofo>>$/ ), q{Don't match externally inverted <?isBopomofo>} );
+ok(!( "\c[BOPOMOFO LETTER B]" ~~ m/^<[A]-<?isBopomofo>>$/ ), q{Don't match compound inverted <?isBopomofo>} );
+ok(!( "\c[BOPOMOFO LETTER B]" ~~ m/^<+<-isBopomofo>>$/ ), q{Don't match internally inverted <?isBopomofo>} );
+ok(!( "\x[8369]"  ~~ m/^<+<?isBopomofo>>$/ ), q{Don't match unrelated <?isBopomofo>} );
+ok("\x[8369]"  ~~ m/^<-<?isBopomofo>>$/, q{Match unrelated externally inverted <?isBopomofo>} );
+ok("\x[8369]"  ~~ m/^<+<-isBopomofo>>$/, q{Match unrelated internally inverted <?isBopomofo>} );
+ok("\x[8369]\c[BOPOMOFO LETTER B]" ~~ m/<+<?isBopomofo>>/, q{Match unanchored <?isBopomofo>} );
 
 # Buhid
 
 
-ok("\c[BUHID LETTER A]" ~~ m/^<+<?Buhid>>$/, q{Match <?Buhid>} );
-ok("\c[BUHID LETTER A]" ~~ m/^<[A]+<?Buhid>>$/, q{Match compound <?Buhid>} );
-ok(!( "\c[BUHID LETTER A]" ~~ m/^<-<?Buhid>>$/ ), q{Don't match externally inverted <?Buhid>} );
-ok(!( "\c[BUHID LETTER A]" ~~ m/^<[A]-<?Buhid>>$/ ), q{Don't match compound inverted <?Buhid>} );
-ok(!( "\c[BUHID LETTER A]" ~~ m/^<+<-Buhid>>$/ ), q{Don't match internally inverted <?Buhid>} );
-ok(!( "\x[877F]"  ~~ m/^<+<?Buhid>>$/ ), q{Don't match unrelated <?Buhid>} );
-ok("\x[877F]"  ~~ m/^<-<?Buhid>>$/, q{Match unrelated externally inverted <?Buhid>} );
-ok("\x[877F]"  ~~ m/^<+<-Buhid>>$/, q{Match unrelated internally inverted <?Buhid>} );
-ok("\x[877F]\c[BUHID LETTER A]" ~~ m/<+<?Buhid>>/, q{Match unanchored <?Buhid>} );
+ok("\c[BUHID LETTER A]" ~~ m/^<+<?isBuhid>>$/, q{Match <?isBuhid>} );
+ok("\c[BUHID LETTER A]" ~~ m/^<[A]+<?isBuhid>>$/, q{Match compound <?isBuhid>} );
+ok(!( "\c[BUHID LETTER A]" ~~ m/^<-<?isBuhid>>$/ ), q{Don't match externally inverted <?isBuhid>} );
+ok(!( "\c[BUHID LETTER A]" ~~ m/^<[A]-<?isBuhid>>$/ ), q{Don't match compound inverted <?isBuhid>} );
+ok(!( "\c[BUHID LETTER A]" ~~ m/^<+<-isBuhid>>$/ ), q{Don't match internally inverted <?isBuhid>} );
+ok(!( "\x[877F]"  ~~ m/^<+<?isBuhid>>$/ ), q{Don't match unrelated <?isBuhid>} );
+ok("\x[877F]"  ~~ m/^<-<?isBuhid>>$/, q{Match unrelated externally inverted <?isBuhid>} );
+ok("\x[877F]"  ~~ m/^<+<-isBuhid>>$/, q{Match unrelated internally inverted <?isBuhid>} );
+ok("\x[877F]\c[BUHID LETTER A]" ~~ m/<+<?isBuhid>>/, q{Match unanchored <?isBuhid>} );
 
 # CanadianAboriginal
 
 
-ok("\c[CANADIAN SYLLABICS E]" ~~ m/^<+<?CanadianAboriginal>>$/, q{Match <?CanadianAboriginal>} );
-ok("\c[CANADIAN SYLLABICS E]" ~~ m/^<[A]+<?CanadianAboriginal>>$/, q{Match compound <?CanadianAboriginal>} );
-ok(!( "\c[CANADIAN SYLLABICS E]" ~~ m/^<-<?CanadianAboriginal>>$/ ), q{Don't match externally inverted <?CanadianAboriginal>} );
-ok(!( "\c[CANADIAN SYLLABICS E]" ~~ m/^<[A]-<?CanadianAboriginal>>$/ ), q{Don't match compound inverted <?CanadianAboriginal>} );
-ok(!( "\c[CANADIAN SYLLABICS E]" ~~ m/^<+<-CanadianAboriginal>>$/ ), q{Don't match internally inverted <?CanadianAboriginal>} );
-ok(!( "\x[3A42]"  ~~ m/^<+<?CanadianAboriginal>>$/ ), q{Don't match unrelated <?CanadianAboriginal>} );
-ok("\x[3A42]"  ~~ m/^<-<?CanadianAboriginal>>$/, q{Match unrelated externally inverted <?CanadianAboriginal>} );
-ok("\x[3A42]"  ~~ m/^<+<-CanadianAboriginal>>$/, q{Match unrelated internally inverted <?CanadianAboriginal>} );
-ok(!( "\x[4DB6]" ~~ m/^<+<?CanadianAboriginal>>$/ ), q{Don't match related <?CanadianAboriginal>} );
-ok("\x[4DB6]" ~~ m/^<+<-CanadianAboriginal>>$/, q{Match related internally inverted <?CanadianAboriginal>} );
-ok("\x[4DB6]" ~~ m/^<-<?CanadianAboriginal>>$/, q{Match related externally inverted <?CanadianAboriginal>} );
-ok("\x[3A42]\x[4DB6]\c[CANADIAN SYLLABICS E]" ~~ m/<+<?CanadianAboriginal>>/, q{Match unanchored <?CanadianAboriginal>} );
+ok("\c[CANADIAN SYLLABICS E]" ~~ m/^<+<?isCanadianAboriginal>>$/, q{Match <?isCanadianAboriginal>} );
+ok("\c[CANADIAN SYLLABICS E]" ~~ m/^<[A]+<?isCanadianAboriginal>>$/, q{Match compound <?isCanadianAboriginal>} );
+ok(!( "\c[CANADIAN SYLLABICS E]" ~~ m/^<-<?isCanadianAboriginal>>$/ ), q{Don't match externally inverted <?isCanadianAboriginal>} );
+ok(!( "\c[CANADIAN SYLLABICS E]" ~~ m/^<[A]-<?isCanadianAboriginal>>$/ ), q{Don't match compound inverted <?isCanadianAboriginal>} );
+ok(!( "\c[CANADIAN SYLLABICS E]" ~~ m/^<+<-isCanadianAboriginal>>$/ ), q{Don't match internally inverted <?isCanadianAboriginal>} );
+ok(!( "\x[3A42]"  ~~ m/^<+<?isCanadianAboriginal>>$/ ), q{Don't match unrelated <?isCanadianAboriginal>} );
+ok("\x[3A42]"  ~~ m/^<-<?isCanadianAboriginal>>$/, q{Match unrelated externally inverted <?isCanadianAboriginal>} );
+ok("\x[3A42]"  ~~ m/^<+<-isCanadianAboriginal>>$/, q{Match unrelated internally inverted <?isCanadianAboriginal>} );
+ok(!( "\x[4DB6]" ~~ m/^<+<?isCanadianAboriginal>>$/ ), q{Don't match related <?isCanadianAboriginal>} );
+ok("\x[4DB6]" ~~ m/^<+<-isCanadianAboriginal>>$/, q{Match related internally inverted <?isCanadianAboriginal>} );
+ok("\x[4DB6]" ~~ m/^<-<?isCanadianAboriginal>>$/, q{Match related externally inverted <?isCanadianAboriginal>} );
+ok("\x[3A42]\x[4DB6]\c[CANADIAN SYLLABICS E]" ~~ m/<+<?isCanadianAboriginal>>/, q{Match unanchored <?isCanadianAboriginal>} );
 
 # Cherokee
 
 
-ok("\c[CHEROKEE LETTER A]" ~~ m/^<+<?Cherokee>>$/, q{Match <?Cherokee>} );
-ok("\c[CHEROKEE LETTER A]" ~~ m/^<[A]+<?Cherokee>>$/, q{Match compound <?Cherokee>} );
-ok(!( "\c[CHEROKEE LETTER A]" ~~ m/^<-<?Cherokee>>$/ ), q{Don't match externally inverted <?Cherokee>} );
-ok(!( "\c[CHEROKEE LETTER A]" ~~ m/^<[A]-<?Cherokee>>$/ ), q{Don't match compound inverted <?Cherokee>} );
-ok(!( "\c[CHEROKEE LETTER A]" ~~ m/^<+<-Cherokee>>$/ ), q{Don't match internally inverted <?Cherokee>} );
-ok(!( "\x[A9EF]"  ~~ m/^<+<?Cherokee>>$/ ), q{Don't match unrelated <?Cherokee>} );
-ok("\x[A9EF]"  ~~ m/^<-<?Cherokee>>$/, q{Match unrelated externally inverted <?Cherokee>} );
-ok("\x[A9EF]"  ~~ m/^<+<-Cherokee>>$/, q{Match unrelated internally inverted <?Cherokee>} );
-ok(!( "\x[A9EF]" ~~ m/^<+<?Cherokee>>$/ ), q{Don't match related <?Cherokee>} );
-ok("\x[A9EF]" ~~ m/^<+<-Cherokee>>$/, q{Match related internally inverted <?Cherokee>} );
-ok("\x[A9EF]" ~~ m/^<-<?Cherokee>>$/, q{Match related externally inverted <?Cherokee>} );
-ok("\x[A9EF]\x[A9EF]\c[CHEROKEE LETTER A]" ~~ m/<+<?Cherokee>>/, q{Match unanchored <?Cherokee>} );
+ok("\c[CHEROKEE LETTER A]" ~~ m/^<+<?isCherokee>>$/, q{Match <?isCherokee>} );
+ok("\c[CHEROKEE LETTER A]" ~~ m/^<[A]+<?isCherokee>>$/, q{Match compound <?isCherokee>} );
+ok(!( "\c[CHEROKEE LETTER A]" ~~ m/^<-<?isCherokee>>$/ ), q{Don't match externally inverted <?isCherokee>} );
+ok(!( "\c[CHEROKEE LETTER A]" ~~ m/^<[A]-<?isCherokee>>$/ ), q{Don't match compound inverted <?isCherokee>} );
+ok(!( "\c[CHEROKEE LETTER A]" ~~ m/^<+<-isCherokee>>$/ ), q{Don't match internally inverted <?isCherokee>} );
+ok(!( "\x[A9EF]"  ~~ m/^<+<?isCherokee>>$/ ), q{Don't match unrelated <?isCherokee>} );
+ok("\x[A9EF]"  ~~ m/^<-<?isCherokee>>$/, q{Match unrelated externally inverted <?isCherokee>} );
+ok("\x[A9EF]"  ~~ m/^<+<-isCherokee>>$/, q{Match unrelated internally inverted <?isCherokee>} );
+ok(!( "\x[A9EF]" ~~ m/^<+<?isCherokee>>$/ ), q{Don't match related <?isCherokee>} );
+ok("\x[A9EF]" ~~ m/^<+<-isCherokee>>$/, q{Match related internally inverted <?isCherokee>} );
+ok("\x[A9EF]" ~~ m/^<-<?isCherokee>>$/, q{Match related externally inverted <?isCherokee>} );
+ok("\x[A9EF]\x[A9EF]\c[CHEROKEE LETTER A]" ~~ m/<+<?isCherokee>>/, q{Match unanchored <?isCherokee>} );
 
 # Cyrillic
 
 
-ok("\c[CYRILLIC LETTER SMALL CAPITAL EL]" ~~ m/^<+<?Cyrillic>>$/, q{Match <?Cyrillic>} );
-ok("\c[CYRILLIC LETTER SMALL CAPITAL EL]" ~~ m/^<[A]+<?Cyrillic>>$/, q{Match compound <?Cyrillic>} );
-ok(!( "\c[CYRILLIC LETTER SMALL CAPITAL EL]" ~~ m/^<-<?Cyrillic>>$/ ), q{Don't match externally inverted <?Cyrillic>} );
-ok(!( "\c[CYRILLIC LETTER SMALL CAPITAL EL]" ~~ m/^<[A]-<?Cyrillic>>$/ ), q{Don't match compound inverted <?Cyrillic>} );
-ok(!( "\c[CYRILLIC LETTER SMALL CAPITAL EL]" ~~ m/^<+<-Cyrillic>>$/ ), q{Don't match internally inverted <?Cyrillic>} );
-ok(!( "\x[07EF]"  ~~ m/^<+<?Cyrillic>>$/ ), q{Don't match unrelated <?Cyrillic>} );
-ok("\x[07EF]"  ~~ m/^<-<?Cyrillic>>$/, q{Match unrelated externally inverted <?Cyrillic>} );
-ok("\x[07EF]"  ~~ m/^<+<-Cyrillic>>$/, q{Match unrelated internally inverted <?Cyrillic>} );
-ok(!( "\x[07EF]" ~~ m/^<+<?Cyrillic>>$/ ), q{Don't match related <?Cyrillic>} );
-ok("\x[07EF]" ~~ m/^<+<-Cyrillic>>$/, q{Match related internally inverted <?Cyrillic>} );
-ok("\x[07EF]" ~~ m/^<-<?Cyrillic>>$/, q{Match related externally inverted <?Cyrillic>} );
-ok("\x[07EF]\x[07EF]\c[CYRILLIC LETTER SMALL CAPITAL EL]" ~~ m/<+<?Cyrillic>>/, q{Match unanchored <?Cyrillic>} );
+ok("\c[CYRILLIC LETTER SMALL CAPITAL EL]" ~~ m/^<+<?isCyrillic>>$/, q{Match <?isCyrillic>} );
+ok("\c[CYRILLIC LETTER SMALL CAPITAL EL]" ~~ m/^<[A]+<?isCyrillic>>$/, q{Match compound <?isCyrillic>} );
+ok(!( "\c[CYRILLIC LETTER SMALL CAPITAL EL]" ~~ m/^<-<?isCyrillic>>$/ ), q{Don't match externally inverted <?isCyrillic>} );
+ok(!( "\c[CYRILLIC LETTER SMALL CAPITAL EL]" ~~ m/^<[A]-<?isCyrillic>>$/ ), q{Don't match compound inverted <?isCyrillic>} );
+ok(!( "\c[CYRILLIC LETTER SMALL CAPITAL EL]" ~~ m/^<+<-isCyrillic>>$/ ), q{Don't match internally inverted <?isCyrillic>} );
+ok(!( "\x[07EF]"  ~~ m/^<+<?isCyrillic>>$/ ), q{Don't match unrelated <?isCyrillic>} );
+ok("\x[07EF]"  ~~ m/^<-<?isCyrillic>>$/, q{Match unrelated externally inverted <?isCyrillic>} );
+ok("\x[07EF]"  ~~ m/^<+<-isCyrillic>>$/, q{Match unrelated internally inverted <?isCyrillic>} );
+ok(!( "\x[07EF]" ~~ m/^<+<?isCyrillic>>$/ ), q{Don't match related <?isCyrillic>} );
+ok("\x[07EF]" ~~ m/^<+<-isCyrillic>>$/, q{Match related internally inverted <?isCyrillic>} );
+ok("\x[07EF]" ~~ m/^<-<?isCyrillic>>$/, q{Match related externally inverted <?isCyrillic>} );
+ok("\x[07EF]\x[07EF]\c[CYRILLIC LETTER SMALL CAPITAL EL]" ~~ m/<+<?isCyrillic>>/, q{Match unanchored <?isCyrillic>} );
 
 # Deseret
 
 
-ok(!( "\x[65BD]"  ~~ m/^<+<?Deseret>>$/ ), q{Don't match unrelated <?Deseret>} );
-ok("\x[65BD]"  ~~ m/^<-<?Deseret>>$/, q{Match unrelated externally inverted <?Deseret>} );
-ok("\x[65BD]"  ~~ m/^<+<-Deseret>>$/, q{Match unrelated internally inverted <?Deseret>} );
+ok(!( "\x[65BD]"  ~~ m/^<+<?isDeseret>>$/ ), q{Don't match unrelated <?isDeseret>} );
+ok("\x[65BD]"  ~~ m/^<-<?isDeseret>>$/, q{Match unrelated externally inverted <?isDeseret>} );
+ok("\x[65BD]"  ~~ m/^<+<-isDeseret>>$/, q{Match unrelated internally inverted <?isDeseret>} );
 
 # Devanagari
 
 
-ok("\c[DEVANAGARI SIGN CANDRABINDU]" ~~ m/^<+<?Devanagari>>$/, q{Match <?Devanagari>} );
-ok("\c[DEVANAGARI SIGN CANDRABINDU]" ~~ m/^<[A]+<?Devanagari>>$/, q{Match compound <?Devanagari>} );
-ok(!( "\c[DEVANAGARI SIGN CANDRABINDU]" ~~ m/^<-<?Devanagari>>$/ ), q{Don't match externally inverted <?Devanagari>} );
-ok(!( "\c[DEVANAGARI SIGN CANDRABINDU]" ~~ m/^<[A]-<?Devanagari>>$/ ), q{Don't match compound inverted <?Devanagari>} );
-ok(!( "\c[DEVANAGARI SIGN CANDRABINDU]" ~~ m/^<+<-Devanagari>>$/ ), q{Don't match internally inverted <?Devanagari>} );
-ok(!( "\x[653B]"  ~~ m/^<+<?Devanagari>>$/ ), q{Don't match unrelated <?Devanagari>} );
-ok("\x[653B]"  ~~ m/^<-<?Devanagari>>$/, q{Match unrelated externally inverted <?Devanagari>} );
-ok("\x[653B]"  ~~ m/^<+<-Devanagari>>$/, q{Match unrelated internally inverted <?Devanagari>} );
-ok("\x[653B]\c[DEVANAGARI SIGN CANDRABINDU]" ~~ m/<+<?Devanagari>>/, q{Match unanchored <?Devanagari>} );
+ok("\c[DEVANAGARI SIGN CANDRABINDU]" ~~ m/^<+<?isDevanagari>>$/, q{Match <?isDevanagari>} );
+ok("\c[DEVANAGARI SIGN CANDRABINDU]" ~~ m/^<[A]+<?isDevanagari>>$/, q{Match compound <?isDevanagari>} );
+ok(!( "\c[DEVANAGARI SIGN CANDRABINDU]" ~~ m/^<-<?isDevanagari>>$/ ), q{Don't match externally inverted <?isDevanagari>} );
+ok(!( "\c[DEVANAGARI SIGN CANDRABINDU]" ~~ m/^<[A]-<?isDevanagari>>$/ ), q{Don't match compound inverted <?isDevanagari>} );
+ok(!( "\c[DEVANAGARI SIGN CANDRABINDU]" ~~ m/^<+<-isDevanagari>>$/ ), q{Don't match internally inverted <?isDevanagari>} );
+ok(!( "\x[653B]"  ~~ m/^<+<?isDevanagari>>$/ ), q{Don't match unrelated <?isDevanagari>} );
+ok("\x[653B]"  ~~ m/^<-<?isDevanagari>>$/, q{Match unrelated externally inverted <?isDevanagari>} );
+ok("\x[653B]"  ~~ m/^<+<-isDevanagari>>$/, q{Match unrelated internally inverted <?isDevanagari>} );
+ok("\x[653B]\c[DEVANAGARI SIGN CANDRABINDU]" ~~ m/<+<?isDevanagari>>/, q{Match unanchored <?isDevanagari>} );
 
 # Ethiopic
 
 
-ok("\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<+<?Ethiopic>>$/, q{Match <?Ethiopic>} );
-ok("\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<[A]+<?Ethiopic>>$/, q{Match compound <?Ethiopic>} );
-ok(!( "\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<-<?Ethiopic>>$/ ), q{Don't match externally inverted <?Ethiopic>} );
-ok(!( "\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<[A]-<?Ethiopic>>$/ ), q{Don't match compound inverted <?Ethiopic>} );
-ok(!( "\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<+<-Ethiopic>>$/ ), q{Don't match internally inverted <?Ethiopic>} );
-ok(!( "\x[482C]"  ~~ m/^<+<?Ethiopic>>$/ ), q{Don't match unrelated <?Ethiopic>} );
-ok("\x[482C]"  ~~ m/^<-<?Ethiopic>>$/, q{Match unrelated externally inverted <?Ethiopic>} );
-ok("\x[482C]"  ~~ m/^<+<-Ethiopic>>$/, q{Match unrelated internally inverted <?Ethiopic>} );
-ok("\x[482C]\c[ETHIOPIC SYLLABLE HA]" ~~ m/<+<?Ethiopic>>/, q{Match unanchored <?Ethiopic>} );
+ok("\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<+<?isEthiopic>>$/, q{Match <?isEthiopic>} );
+ok("\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<[A]+<?isEthiopic>>$/, q{Match compound <?isEthiopic>} );
+ok(!( "\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<-<?isEthiopic>>$/ ), q{Don't match externally inverted <?isEthiopic>} );
+ok(!( "\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<[A]-<?isEthiopic>>$/ ), q{Don't match compound inverted <?isEthiopic>} );
+ok(!( "\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<+<-isEthiopic>>$/ ), q{Don't match internally inverted <?isEthiopic>} );
+ok(!( "\x[482C]"  ~~ m/^<+<?isEthiopic>>$/ ), q{Don't match unrelated <?isEthiopic>} );
+ok("\x[482C]"  ~~ m/^<-<?isEthiopic>>$/, q{Match unrelated externally inverted <?isEthiopic>} );
+ok("\x[482C]"  ~~ m/^<+<-isEthiopic>>$/, q{Match unrelated internally inverted <?isEthiopic>} );
+ok("\x[482C]\c[ETHIOPIC SYLLABLE HA]" ~~ m/<+<?isEthiopic>>/, q{Match unanchored <?isEthiopic>} );
 
 # Georgian
 
 
-ok("\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<+<?Georgian>>$/, q{Match <?Georgian>} );
-ok("\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<[A]+<?Georgian>>$/, q{Match compound <?Georgian>} );
-ok(!( "\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<-<?Georgian>>$/ ), q{Don't match externally inverted <?Georgian>} );
-ok(!( "\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<[A]-<?Georgian>>$/ ), q{Don't match compound inverted <?Georgian>} );
-ok(!( "\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<+<-Georgian>>$/ ), q{Don't match internally inverted <?Georgian>} );
-ok(!( "\x[9BE5]"  ~~ m/^<+<?Georgian>>$/ ), q{Don't match unrelated <?Georgian>} );
-ok("\x[9BE5]"  ~~ m/^<-<?Georgian>>$/, q{Match unrelated externally inverted <?Georgian>} );
-ok("\x[9BE5]"  ~~ m/^<+<-Georgian>>$/, q{Match unrelated internally inverted <?Georgian>} );
-ok("\x[9BE5]\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/<+<?Georgian>>/, q{Match unanchored <?Georgian>} );
+ok("\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<+<?isGeorgian>>$/, q{Match <?isGeorgian>} );
+ok("\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<[A]+<?isGeorgian>>$/, q{Match compound <?isGeorgian>} );
+ok(!( "\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<-<?isGeorgian>>$/ ), q{Don't match externally inverted <?isGeorgian>} );
+ok(!( "\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<[A]-<?isGeorgian>>$/ ), q{Don't match compound inverted <?isGeorgian>} );
+ok(!( "\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<+<-isGeorgian>>$/ ), q{Don't match internally inverted <?isGeorgian>} );
+ok(!( "\x[9BE5]"  ~~ m/^<+<?isGeorgian>>$/ ), q{Don't match unrelated <?isGeorgian>} );
+ok("\x[9BE5]"  ~~ m/^<-<?isGeorgian>>$/, q{Match unrelated externally inverted <?isGeorgian>} );
+ok("\x[9BE5]"  ~~ m/^<+<-isGeorgian>>$/, q{Match unrelated internally inverted <?isGeorgian>} );
+ok("\x[9BE5]\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/<+<?isGeorgian>>/, q{Match unanchored <?isGeorgian>} );
 
 # Gothic
 
 
-ok(!( "\x[4ED2]"  ~~ m/^<+<?Gothic>>$/ ), q{Don't match unrelated <?Gothic>} );
-ok("\x[4ED2]"  ~~ m/^<-<?Gothic>>$/, q{Match unrelated externally inverted <?Gothic>} );
-ok("\x[4ED2]"  ~~ m/^<+<-Gothic>>$/, q{Match unrelated internally inverted <?Gothic>} );
+ok(!( "\x[4ED2]"  ~~ m/^<+<?isGothic>>$/ ), q{Don't match unrelated <?isGothic>} );
+ok("\x[4ED2]"  ~~ m/^<-<?isGothic>>$/, q{Match unrelated externally inverted <?isGothic>} );
+ok("\x[4ED2]"  ~~ m/^<+<-isGothic>>$/, q{Match unrelated internally inverted <?isGothic>} );
 
 # Greek
 
 
-ok("\c[MICRO SIGN]" ~~ m/^<+<?Greek>>$/, q{Match <?Greek>} );
-ok("\c[MICRO SIGN]" ~~ m/^<[A]+<?Greek>>$/, q{Match compound <?Greek>} );
-ok(!( "\c[MICRO SIGN]" ~~ m/^<-<?Greek>>$/ ), q{Don't match externally inverted <?Greek>} );
-ok(!( "\c[MICRO SIGN]" ~~ m/^<[A]-<?Greek>>$/ ), q{Don't match compound inverted <?Greek>} );
-ok(!( "\c[MICRO SIGN]" ~~ m/^<+<-Greek>>$/ ), q{Don't match internally inverted <?Greek>} );
-ok(!( "\x[D486]"  ~~ m/^<+<?Greek>>$/ ), q{Don't match unrelated <?Greek>} );
-ok("\x[D486]"  ~~ m/^<-<?Greek>>$/, q{Match unrelated externally inverted <?Greek>} );
-ok("\x[D486]"  ~~ m/^<+<-Greek>>$/, q{Match unrelated internally inverted <?Greek>} );
-ok("\x[D486]\c[MICRO SIGN]" ~~ m/<+<?Greek>>/, q{Match unanchored <?Greek>} );
+ok("\c[MICRO SIGN]" ~~ m/^<+<?isGreek>>$/, q{Match <?isGreek>} );
+ok("\c[MICRO SIGN]" ~~ m/^<[A]+<?isGreek>>$/, q{Match compound <?isGreek>} );
+ok(!( "\c[MICRO SIGN]" ~~ m/^<-<?isGreek>>$/ ), q{Don't match externally inverted <?isGreek>} );
+ok(!( "\c[MICRO SIGN]" ~~ m/^<[A]-<?isGreek>>$/ ), q{Don't match compound inverted <?isGreek>} );
+ok(!( "\c[MICRO SIGN]" ~~ m/^<+<-isGreek>>$/ ), q{Don't match internally inverted <?isGreek>} );
+ok(!( "\x[D486]"  ~~ m/^<+<?isGreek>>$/ ), q{Don't match unrelated <?isGreek>} );
+ok("\x[D486]"  ~~ m/^<-<?isGreek>>$/, q{Match unrelated externally inverted <?isGreek>} );
+ok("\x[D486]"  ~~ m/^<+<-isGreek>>$/, q{Match unrelated internally inverted <?isGreek>} );
+ok("\x[D486]\c[MICRO SIGN]" ~~ m/<+<?isGreek>>/, q{Match unanchored <?isGreek>} );
 
 # Gujarati
 
 
-ok("\c[GUJARATI SIGN CANDRABINDU]" ~~ m/^<+<?Gujarati>>$/, q{Match <?Gujarati>} );
-ok("\c[GUJARATI SIGN CANDRABINDU]" ~~ m/^<[A]+<?Gujarati>>$/, q{Match compound <?Gujarati>} );
-ok(!( "\c[GUJARATI SIGN CANDRABINDU]" ~~ m/^<-<?Gujarati>>$/ ), q{Don't match externally inverted <?Gujarati>} );
-ok(!( "\c[GUJARATI SIGN CANDRABINDU]" ~~ m/^<[A]-<?Gujarati>>$/ ), q{Don't match compound inverted <?Gujarati>} );
-ok(!( "\c[GUJARATI SIGN CANDRABINDU]" ~~ m/^<+<-Gujarati>>$/ ), q{Don't match internally inverted <?Gujarati>} );
-ok(!( "\x[B3F3]"  ~~ m/^<+<?Gujarati>>$/ ), q{Don't match unrelated <?Gujarati>} );
-ok("\x[B3F3]"  ~~ m/^<-<?Gujarati>>$/, q{Match unrelated externally inverted <?Gujarati>} );
-ok("\x[B3F3]"  ~~ m/^<+<-Gujarati>>$/, q{Match unrelated internally inverted <?Gujarati>} );
-ok("\x[B3F3]\c[GUJARATI SIGN CANDRABINDU]" ~~ m/<+<?Gujarati>>/, q{Match unanchored <?Gujarati>} );
+ok("\c[GUJARATI SIGN CANDRABINDU]" ~~ m/^<+<?isGujarati>>$/, q{Match <?isGujarati>} );
+ok("\c[GUJARATI SIGN CANDRABINDU]" ~~ m/^<[A]+<?isGujarati>>$/, q{Match compound <?isGujarati>} );
+ok(!( "\c[GUJARATI SIGN CANDRABINDU]" ~~ m/^<-<?isGujarati>>$/ ), q{Don't match externally inverted <?isGujarati>} );
+ok(!( "\c[GUJARATI SIGN CANDRABINDU]" ~~ m/^<[A]-<?isGujarati>>$/ ), q{Don't match compound inverted <?isGujarati>} );
+ok(!( "\c[GUJARATI SIGN CANDRABINDU]" ~~ m/^<+<-isGujarati>>$/ ), q{Don't match internally inverted <?isGujarati>} );
+ok(!( "\x[B3F3]"  ~~ m/^<+<?isGujarati>>$/ ), q{Don't match unrelated <?isGujarati>} );
+ok("\x[B3F3]"  ~~ m/^<-<?isGujarati>>$/, q{Match unrelated externally inverted <?isGujarati>} );
+ok("\x[B3F3]"  ~~ m/^<+<-isGujarati>>$/, q{Match unrelated internally inverted <?isGujarati>} );
+ok("\x[B3F3]\c[GUJARATI SIGN CANDRABINDU]" ~~ m/<+<?isGujarati>>/, q{Match unanchored <?isGujarati>} );
 
 # Gurmukhi
 
 
-ok("\c[GURMUKHI SIGN BINDI]" ~~ m/^<+<?Gurmukhi>>$/, q{Match <?Gurmukhi>} );
-ok("\c[GURMUKHI SIGN BINDI]" ~~ m/^<[A]+<?Gurmukhi>>$/, q{Match compound <?Gurmukhi>} );
-ok(!( "\c[GURMUKHI SIGN BINDI]" ~~ m/^<-<?Gurmukhi>>$/ ), q{Don't match externally inverted <?Gurmukhi>} );
-ok(!( "\c[GURMUKHI SIGN BINDI]" ~~ m/^<[A]-<?Gurmukhi>>$/ ), q{Don't match compound inverted <?Gurmukhi>} );
-ok(!( "\c[GURMUKHI SIGN BINDI]" ~~ m/^<+<-Gurmukhi>>$/ ), q{Don't match internally inverted <?Gurmukhi>} );
-ok(!( "\x[6469]"  ~~ m/^<+<?Gurmukhi>>$/ ), q{Don't match unrelated <?Gurmukhi>} );
-ok("\x[6469]"  ~~ m/^<-<?Gurmukhi>>$/, q{Match unrelated externally inverted <?Gurmukhi>} );
-ok("\x[6469]"  ~~ m/^<+<-Gurmukhi>>$/, q{Match unrelated internally inverted <?Gurmukhi>} );
-ok("\x[6469]\c[GURMUKHI SIGN BINDI]" ~~ m/<+<?Gurmukhi>>/, q{Match unanchored <?Gurmukhi>} );
+ok("\c[GURMUKHI SIGN BINDI]" ~~ m/^<+<?isGurmukhi>>$/, q{Match <?isGurmukhi>} );
+ok("\c[GURMUKHI SIGN BINDI]" ~~ m/^<[A]+<?isGurmukhi>>$/, q{Match compound <?isGurmukhi>} );
+ok(!( "\c[GURMUKHI SIGN BINDI]" ~~ m/^<-<?isGurmukhi>>$/ ), q{Don't match externally inverted <?isGurmukhi>} );
+ok(!( "\c[GURMUKHI SIGN BINDI]" ~~ m/^<[A]-<?isGurmukhi>>$/ ), q{Don't match compound inverted <?isGurmukhi>} );
+ok(!( "\c[GURMUKHI SIGN BINDI]" ~~ m/^<+<-isGurmukhi>>$/ ), q{Don't match internally inverted <?isGurmukhi>} );
+ok(!( "\x[6469]"  ~~ m/^<+<?isGurmukhi>>$/ ), q{Don't match unrelated <?isGurmukhi>} );
+ok("\x[6469]"  ~~ m/^<-<?isGurmukhi>>$/, q{Match unrelated externally inverted <?isGurmukhi>} );
+ok("\x[6469]"  ~~ m/^<+<-isGurmukhi>>$/, q{Match unrelated internally inverted <?isGurmukhi>} );
+ok("\x[6469]\c[GURMUKHI SIGN BINDI]" ~~ m/<+<?isGurmukhi>>/, q{Match unanchored <?isGurmukhi>} );
 
 # Han
 
 
-ok("\x[9DB5]" ~~ m/^<+<?Han>>$/, q{Match <?Han>} );
-ok("\x[9DB5]" ~~ m/^<[A]+<?Han>>$/, q{Match compound <?Han>} );
-ok(!( "\x[9DB5]" ~~ m/^<-<?Han>>$/ ), q{Don't match externally inverted <?Han>} );
-ok(!( "\x[9DB5]" ~~ m/^<[A]-<?Han>>$/ ), q{Don't match compound inverted <?Han>} );
-ok(!( "\x[9DB5]" ~~ m/^<+<-Han>>$/ ), q{Don't match internally inverted <?Han>} );
-ok(!( "\x[9FA6]"  ~~ m/^<+<?Han>>$/ ), q{Don't match unrelated <?Han>} );
-ok("\x[9FA6]"  ~~ m/^<-<?Han>>$/, q{Match unrelated externally inverted <?Han>} );
-ok("\x[9FA6]"  ~~ m/^<+<-Han>>$/, q{Match unrelated internally inverted <?Han>} );
-ok("\x[9FA6]\x[9DB5]" ~~ m/<+<?Han>>/, q{Match unanchored <?Han>} );
+ok("\x[9DB5]" ~~ m/^<+<?isHan>>$/, q{Match <?isHan>} );
+ok("\x[9DB5]" ~~ m/^<[A]+<?isHan>>$/, q{Match compound <?isHan>} );
+ok(!( "\x[9DB5]" ~~ m/^<-<?isHan>>$/ ), q{Don't match externally inverted <?isHan>} );
+ok(!( "\x[9DB5]" ~~ m/^<[A]-<?isHan>>$/ ), q{Don't match compound inverted <?isHan>} );
+ok(!( "\x[9DB5]" ~~ m/^<+<-isHan>>$/ ), q{Don't match internally inverted <?isHan>} );
+ok(!( "\x[9FA6]"  ~~ m/^<+<?isHan>>$/ ), q{Don't match unrelated <?isHan>} );
+ok("\x[9FA6]"  ~~ m/^<-<?isHan>>$/, q{Match unrelated externally inverted <?isHan>} );
+ok("\x[9FA6]"  ~~ m/^<+<-isHan>>$/, q{Match unrelated internally inverted <?isHan>} );
+ok("\x[9FA6]\x[9DB5]" ~~ m/<+<?isHan>>/, q{Match unanchored <?isHan>} );
 
 # Hangul
 
 
-ok("\x[AC00]" ~~ m/^<+<?Hangul>>$/, q{Match <?Hangul>} );
-ok("\x[AC00]" ~~ m/^<[A]+<?Hangul>>$/, q{Match compound <?Hangul>} );
-ok(!( "\x[AC00]" ~~ m/^<-<?Hangul>>$/ ), q{Don't match externally inverted <?Hangul>} );
-ok(!( "\x[AC00]" ~~ m/^<[A]-<?Hangul>>$/ ), q{Don't match compound inverted <?Hangul>} );
-ok(!( "\x[AC00]" ~~ m/^<+<-Hangul>>$/ ), q{Don't match internally inverted <?Hangul>} );
-ok(!( "\x[9E09]"  ~~ m/^<+<?Hangul>>$/ ), q{Don't match unrelated <?Hangul>} );
-ok("\x[9E09]"  ~~ m/^<-<?Hangul>>$/, q{Match unrelated externally inverted <?Hangul>} );
-ok("\x[9E09]"  ~~ m/^<+<-Hangul>>$/, q{Match unrelated internally inverted <?Hangul>} );
-ok("\x[9E09]\x[AC00]" ~~ m/<+<?Hangul>>/, q{Match unanchored <?Hangul>} );
+ok("\x[AC00]" ~~ m/^<+<?isHangul>>$/, q{Match <?isHangul>} );
+ok("\x[AC00]" ~~ m/^<[A]+<?isHangul>>$/, q{Match compound <?isHangul>} );
+ok(!( "\x[AC00]" ~~ m/^<-<?isHangul>>$/ ), q{Don't match externally inverted <?isHangul>} );
+ok(!( "\x[AC00]" ~~ m/^<[A]-<?isHangul>>$/ ), q{Don't match compound inverted <?isHangul>} );
+ok(!( "\x[AC00]" ~~ m/^<+<-isHangul>>$/ ), q{Don't match internally inverted <?isHangul>} );
+ok(!( "\x[9E09]"  ~~ m/^<+<?isHangul>>$/ ), q{Don't match unrelated <?isHangul>} );
+ok("\x[9E09]"  ~~ m/^<-<?isHangul>>$/, q{Match unrelated externally inverted <?isHangul>} );
+ok("\x[9E09]"  ~~ m/^<+<-isHangul>>$/, q{Match unrelated internally inverted <?isHangul>} );
+ok("\x[9E09]\x[AC00]" ~~ m/<+<?isHangul>>/, q{Match unanchored <?isHangul>} );
 
 # Hanunoo
 
 
-ok("\c[HANUNOO LETTER A]" ~~ m/^<+<?Hanunoo>>$/, q{Match <?Hanunoo>} );
-ok("\c[HANUNOO LETTER A]" ~~ m/^<[A]+<?Hanunoo>>$/, q{Match compound <?Hanunoo>} );
-ok(!( "\c[HANUNOO LETTER A]" ~~ m/^<-<?Hanunoo>>$/ ), q{Don't match externally inverted <?Hanunoo>} );
-ok(!( "\c[HANUNOO LETTER A]" ~~ m/^<[A]-<?Hanunoo>>$/ ), q{Don't match compound inverted <?Hanunoo>} );
-ok(!( "\c[HANUNOO LETTER A]" ~~ m/^<+<-Hanunoo>>$/ ), q{Don't match internally inverted <?Hanunoo>} );
-ok(!( "\x[580B]"  ~~ m/^<+<?Hanunoo>>$/ ), q{Don't match unrelated <?Hanunoo>} );
-ok("\x[580B]"  ~~ m/^<-<?Hanunoo>>$/, q{Match unrelated externally inverted <?Hanunoo>} );
-ok("\x[580B]"  ~~ m/^<+<-Hanunoo>>$/, q{Match unrelated internally inverted <?Hanunoo>} );
-ok("\x[580B]\c[HANUNOO LETTER A]" ~~ m/<+<?Hanunoo>>/, q{Match unanchored <?Hanunoo>} );
+ok("\c[HANUNOO LETTER A]" ~~ m/^<+<?isHanunoo>>$/, q{Match <?isHanunoo>} );
+ok("\c[HANUNOO LETTER A]" ~~ m/^<[A]+<?isHanunoo>>$/, q{Match compound <?isHanunoo>} );
+ok(!( "\c[HANUNOO LETTER A]" ~~ m/^<-<?isHanunoo>>$/ ), q{Don't match externally inverted <?isHanunoo>} );
+ok(!( "\c[HANUNOO LETTER A]" ~~ m/^<[A]-<?isHanunoo>>$/ ), q{Don't match compound inverted <?isHanunoo>} );
+ok(!( "\c[HANUNOO LETTER A]" ~~ m/^<+<-isHanunoo>>$/ ), q{Don't match internally inverted <?isHanunoo>} );
+ok(!( "\x[580B]"  ~~ m/^<+<?isHanunoo>>$/ ), q{Don't match unrelated <?isHanunoo>} );
+ok("\x[580B]"  ~~ m/^<-<?isHanunoo>>$/, q{Match unrelated externally inverted <?isHanunoo>} );
+ok("\x[580B]"  ~~ m/^<+<-isHanunoo>>$/, q{Match unrelated internally inverted <?isHanunoo>} );
+ok("\x[580B]\c[HANUNOO LETTER A]" ~~ m/<+<?isHanunoo>>/, q{Match unanchored <?isHanunoo>} );
 
 # Hebrew
 
 
-ok("\c[HEBREW LETTER ALEF]" ~~ m/^<+<?Hebrew>>$/, q{Match <?Hebrew>} );
-ok("\c[HEBREW LETTER ALEF]" ~~ m/^<[A]+<?Hebrew>>$/, q{Match compound <?Hebrew>} );
-ok(!( "\c[HEBREW LETTER ALEF]" ~~ m/^<-<?Hebrew>>$/ ), q{Don't match externally inverted <?Hebrew>} );
-ok(!( "\c[HEBREW LETTER ALEF]" ~~ m/^<[A]-<?Hebrew>>$/ ), q{Don't match compound inverted <?Hebrew>} );
-ok(!( "\c[HEBREW LETTER ALEF]" ~~ m/^<+<-Hebrew>>$/ ), q{Don't match internally inverted <?Hebrew>} );
-ok(!( "\x[62B4]"  ~~ m/^<+<?Hebrew>>$/ ), q{Don't match unrelated <?Hebrew>} );
-ok("\x[62B4]"  ~~ m/^<-<?Hebrew>>$/, q{Match unrelated externally inverted <?Hebrew>} );
-ok("\x[62B4]"  ~~ m/^<+<-Hebrew>>$/, q{Match unrelated internally inverted <?Hebrew>} );
-ok("\x[62B4]\c[HEBREW LETTER ALEF]" ~~ m/<+<?Hebrew>>/, q{Match unanchored <?Hebrew>} );
+ok("\c[HEBREW LETTER ALEF]" ~~ m/^<+<?isHebrew>>$/, q{Match <?isHebrew>} );
+ok("\c[HEBREW LETTER ALEF]" ~~ m/^<[A]+<?isHebrew>>$/, q{Match compound <?isHebrew>} );
+ok(!( "\c[HEBREW LETTER ALEF]" ~~ m/^<-<?isHebrew>>$/ ), q{Don't match externally inverted <?isHebrew>} );
+ok(!( "\c[HEBREW LETTER ALEF]" ~~ m/^<[A]-<?isHebrew>>$/ ), q{Don't match compound inverted <?isHebrew>} );
+ok(!( "\c[HEBREW LETTER ALEF]" ~~ m/^<+<-isHebrew>>$/ ), q{Don't match internally inverted <?isHebrew>} );
+ok(!( "\x[62B4]"  ~~ m/^<+<?isHebrew>>$/ ), q{Don't match unrelated <?isHebrew>} );
+ok("\x[62B4]"  ~~ m/^<-<?isHebrew>>$/, q{Match unrelated externally inverted <?isHebrew>} );
+ok("\x[62B4]"  ~~ m/^<+<-isHebrew>>$/, q{Match unrelated internally inverted <?isHebrew>} );
+ok("\x[62B4]\c[HEBREW LETTER ALEF]" ~~ m/<+<?isHebrew>>/, q{Match unanchored <?isHebrew>} );
 
 # Hiragana
 
 
-ok("\c[HIRAGANA LETTER SMALL A]" ~~ m/^<+<?Hiragana>>$/, q{Match <?Hiragana>} );
-ok("\c[HIRAGANA LETTER SMALL A]" ~~ m/^<[A]+<?Hiragana>>$/, q{Match compound <?Hiragana>} );
-ok(!( "\c[HIRAGANA LETTER SMALL A]" ~~ m/^<-<?Hiragana>>$/ ), q{Don't match externally inverted <?Hiragana>} );
-ok(!( "\c[HIRAGANA LETTER SMALL A]" ~~ m/^<[A]-<?Hiragana>>$/ ), q{Don't match compound inverted <?Hiragana>} );
-ok(!( "\c[HIRAGANA LETTER SMALL A]" ~~ m/^<+<-Hiragana>>$/ ), q{Don't match internally inverted <?Hiragana>} );
-ok(!( "\x[9504]"  ~~ m/^<+<?Hiragana>>$/ ), q{Don't match unrelated <?Hiragana>} );
-ok("\x[9504]"  ~~ m/^<-<?Hiragana>>$/, q{Match unrelated externally inverted <?Hiragana>} );
-ok("\x[9504]"  ~~ m/^<+<-Hiragana>>$/, q{Match unrelated internally inverted <?Hiragana>} );
-ok("\x[9504]\c[HIRAGANA LETTER SMALL A]" ~~ m/<+<?Hiragana>>/, q{Match unanchored <?Hiragana>} );
+ok("\c[HIRAGANA LETTER SMALL A]" ~~ m/^<+<?isHiragana>>$/, q{Match <?isHiragana>} );
+ok("\c[HIRAGANA LETTER SMALL A]" ~~ m/^<[A]+<?isHiragana>>$/, q{Match compound <?isHiragana>} );
+ok(!( "\c[HIRAGANA LETTER SMALL A]" ~~ m/^<-<?isHiragana>>$/ ), q{Don't match externally inverted <?isHiragana>} );
+ok(!( "\c[HIRAGANA LETTER SMALL A]" ~~ m/^<[A]-<?isHiragana>>$/ ), q{Don't match compound inverted <?isHiragana>} );
+ok(!( "\c[HIRAGANA LETTER SMALL A]" ~~ m/^<+<-isHiragana>>$/ ), q{Don't match internally inverted <?isHiragana>} );
+ok(!( "\x[9504]"  ~~ m/^<+<?isHiragana>>$/ ), q{Don't match unrelated <?isHiragana>} );
+ok("\x[9504]"  ~~ m/^<-<?isHiragana>>$/, q{Match unrelated externally inverted <?isHiragana>} );
+ok("\x[9504]"  ~~ m/^<+<-isHiragana>>$/, q{Match unrelated internally inverted <?isHiragana>} );
+ok("\x[9504]\c[HIRAGANA LETTER SMALL A]" ~~ m/<+<?isHiragana>>/, q{Match unanchored <?isHiragana>} );
 
 # Inherited
 
 
-ok("\c[MONGOLIAN FREE VARIATION SELECTOR ONE]" ~~ m/^<+<?Inherited>>$/, q{Match <?Inherited>} );
-ok("\c[MONGOLIAN FREE VARIATION SELECTOR ONE]" ~~ m/^<[A]+<?Inherited>>$/, q{Match compound <?Inherited>} );
-ok(!( "\c[MONGOLIAN FREE VARIATION SELECTOR ONE]" ~~ m/^<-<?Inherited>>$/ ), q{Don't match externally inverted <?Inherited>} );
-ok(!( "\c[MONGOLIAN FREE VARIATION SELECTOR ONE]" ~~ m/^<[A]-<?Inherited>>$/ ), q{Don't match compound inverted <?Inherited>} );
-ok(!( "\c[MONGOLIAN FREE VARIATION SELECTOR ONE]" ~~ m/^<+<-Inherited>>$/ ), q{Don't match internally inverted <?Inherited>} );
-ok(!( "\c[TAMIL LETTER RRA]"  ~~ m/^<+<?Inherited>>$/ ), q{Don't match unrelated <?Inherited>} );
-ok("\c[TAMIL LETTER RRA]"  ~~ m/^<-<?Inherited>>$/, q{Match unrelated externally inverted <?Inherited>} );
-ok("\c[TAMIL LETTER RRA]"  ~~ m/^<+<-Inherited>>$/, q{Match unrelated internally inverted <?Inherited>} );
-ok("\c[TAMIL LETTER RRA]\c[MONGOLIAN FREE VARIATION SELECTOR ONE]" ~~ m/<+<?Inherited>>/, q{Match unanchored <?Inherited>} );
+ok("\c[MONGOLIAN FREE VARIATION SELECTOR ONE]" ~~ m/^<+<?isInherited>>$/, q{Match <?isInherited>} );
+ok("\c[MONGOLIAN FREE VARIATION SELECTOR ONE]" ~~ m/^<[A]+<?isInherited>>$/, q{Match compound <?isInherited>} );
+ok(!( "\c[MONGOLIAN FREE VARIATION SELECTOR ONE]" ~~ m/^<-<?isInherited>>$/ ), q{Don't match externally inverted <?isInherited>} );
+ok(!( "\c[MONGOLIAN FREE VARIATION SELECTOR ONE]" ~~ m/^<[A]-<?isInherited>>$/ ), q{Don't match compound inverted <?isInherited>} );
+ok(!( "\c[MONGOLIAN FREE VARIATION SELECTOR ONE]" ~~ m/^<+<-isInherited>>$/ ), q{Don't match internally inverted <?isInherited>} );
+ok(!( "\c[TAMIL LETTER RRA]"  ~~ m/^<+<?isInherited>>$/ ), q{Don't match unrelated <?isInherited>} );
+ok("\c[TAMIL LETTER RRA]"  ~~ m/^<-<?isInherited>>$/, q{Match unrelated externally inverted <?isInherited>} );
+ok("\c[TAMIL LETTER RRA]"  ~~ m/^<+<-isInherited>>$/, q{Match unrelated internally inverted <?isInherited>} );
+ok("\c[TAMIL LETTER RRA]\c[MONGOLIAN FREE VARIATION SELECTOR ONE]" ~~ m/<+<?isInherited>>/, q{Match unanchored <?isInherited>} );
 
 # Kannada
 
 
-ok("\c[KANNADA SIGN ANUSVARA]" ~~ m/^<+<?Kannada>>$/, q{Match <?Kannada>} );
-ok("\c[KANNADA SIGN ANUSVARA]" ~~ m/^<[A]+<?Kannada>>$/, q{Match compound <?Kannada>} );
-ok(!( "\c[KANNADA SIGN ANUSVARA]" ~~ m/^<-<?Kannada>>$/ ), q{Don't match externally inverted <?Kannada>} );
-ok(!( "\c[KANNADA SIGN ANUSVARA]" ~~ m/^<[A]-<?Kannada>>$/ ), q{Don't match compound inverted <?Kannada>} );
-ok(!( "\c[KANNADA SIGN ANUSVARA]" ~~ m/^<+<-Kannada>>$/ ), q{Don't match internally inverted <?Kannada>} );
-ok(!( "\c[BLACK RIGHT-POINTING SMALL TRIANGLE]"  ~~ m/^<+<?Kannada>>$/ ), q{Don't match unrelated <?Kannada>} );
-ok("\c[BLACK RIGHT-POINTING SMALL TRIANGLE]"  ~~ m/^<-<?Kannada>>$/, q{Match unrelated externally inverted <?Kannada>} );
-ok("\c[BLACK RIGHT-POINTING SMALL TRIANGLE]"  ~~ m/^<+<-Kannada>>$/, q{Match unrelated internally inverted <?Kannada>} );
-ok("\c[BLACK RIGHT-POINTING SMALL TRIANGLE]\c[KANNADA SIGN ANUSVARA]" ~~ m/<+<?Kannada>>/, q{Match unanchored <?Kannada>} );
+ok("\c[KANNADA SIGN ANUSVARA]" ~~ m/^<+<?isKannada>>$/, q{Match <?isKannada>} );
+ok("\c[KANNADA SIGN ANUSVARA]" ~~ m/^<[A]+<?isKannada>>$/, q{Match compound <?isKannada>} );
+ok(!( "\c[KANNADA SIGN ANUSVARA]" ~~ m/^<-<?isKannada>>$/ ), q{Don't match externally inverted <?isKannada>} );
+ok(!( "\c[KANNADA SIGN ANUSVARA]" ~~ m/^<[A]-<?isKannada>>$/ ), q{Don't match compound inverted <?isKannada>} );
+ok(!( "\c[KANNADA SIGN ANUSVARA]" ~~ m/^<+<-isKannada>>$/ ), q{Don't match internally inverted <?isKannada>} );
+ok(!( "\c[BLACK RIGHT-POINTING SMALL TRIANGLE]"  ~~ m/^<+<?isKannada>>$/ ), q{Don't match unrelated <?isKannada>} );
+ok("\c[BLACK RIGHT-POINTING SMALL TRIANGLE]"  ~~ m/^<-<?isKannada>>$/, q{Match unrelated externally inverted <?isKannada>} );
+ok("\c[BLACK RIGHT-POINTING SMALL TRIANGLE]"  ~~ m/^<+<-isKannada>>$/, q{Match unrelated internally inverted <?isKannada>} );
+ok("\c[BLACK RIGHT-POINTING SMALL TRIANGLE]\c[KANNADA SIGN ANUSVARA]" ~~ m/<+<?isKannada>>/, q{Match unanchored <?isKannada>} );
 
 # Katakana
 
 
-ok("\c[KATAKANA LETTER SMALL A]" ~~ m/^<+<?Katakana>>$/, q{Match <?Katakana>} );
-ok("\c[KATAKANA LETTER SMALL A]" ~~ m/^<[A]+<?Katakana>>$/, q{Match compound <?Katakana>} );
-ok(!( "\c[KATAKANA LETTER SMALL A]" ~~ m/^<-<?Katakana>>$/ ), q{Don't match externally inverted <?Katakana>} );
-ok(!( "\c[KATAKANA LETTER SMALL A]" ~~ m/^<[A]-<?Katakana>>$/ ), q{Don't match compound inverted <?Katakana>} );
-ok(!( "\c[KATAKANA LETTER SMALL A]" ~~ m/^<+<-Katakana>>$/ ), q{Don't match internally inverted <?Katakana>} );
-ok(!( "\x[40DB]"  ~~ m/^<+<?Katakana>>$/ ), q{Don't match unrelated <?Katakana>} );
-ok("\x[40DB]"  ~~ m/^<-<?Katakana>>$/, q{Match unrelated externally inverted <?Katakana>} );
-ok("\x[40DB]"  ~~ m/^<+<-Katakana>>$/, q{Match unrelated internally inverted <?Katakana>} );
-ok("\x[40DB]\c[KATAKANA LETTER SMALL A]" ~~ m/<+<?Katakana>>/, q{Match unanchored <?Katakana>} );
+ok("\c[KATAKANA LETTER SMALL A]" ~~ m/^<+<?isKatakana>>$/, q{Match <?isKatakana>} );
+ok("\c[KATAKANA LETTER SMALL A]" ~~ m/^<[A]+<?isKatakana>>$/, q{Match compound <?isKatakana>} );
+ok(!( "\c[KATAKANA LETTER SMALL A]" ~~ m/^<-<?isKatakana>>$/ ), q{Don't match externally inverted <?isKatakana>} );
+ok(!( "\c[KATAKANA LETTER SMALL A]" ~~ m/^<[A]-<?isKatakana>>$/ ), q{Don't match compound inverted <?isKatakana>} );
+ok(!( "\c[KATAKANA LETTER SMALL A]" ~~ m/^<+<-isKatakana>>$/ ), q{Don't match internally inverted <?isKatakana>} );
+ok(!( "\x[40DB]"  ~~ m/^<+<?isKatakana>>$/ ), q{Don't match unrelated <?isKatakana>} );
+ok("\x[40DB]"  ~~ m/^<-<?isKatakana>>$/, q{Match unrelated externally inverted <?isKatakana>} );
+ok("\x[40DB]"  ~~ m/^<+<-isKatakana>>$/, q{Match unrelated internally inverted <?isKatakana>} );
+ok("\x[40DB]\c[KATAKANA LETTER SMALL A]" ~~ m/<+<?isKatakana>>/, q{Match unanchored <?isKatakana>} );
 
 # Khmer
 
 
-ok("\c[KHMER LETTER KA]" ~~ m/^<+<?Khmer>>$/, q{Match <?Khmer>} );
-ok("\c[KHMER LETTER KA]" ~~ m/^<[A]+<?Khmer>>$/, q{Match compound <?Khmer>} );
-ok(!( "\c[KHMER LETTER KA]" ~~ m/^<-<?Khmer>>$/ ), q{Don't match externally inverted <?Khmer>} );
-ok(!( "\c[KHMER LETTER KA]" ~~ m/^<[A]-<?Khmer>>$/ ), q{Don't match compound inverted <?Khmer>} );
-ok(!( "\c[KHMER LETTER KA]" ~~ m/^<+<-Khmer>>$/ ), q{Don't match internally inverted <?Khmer>} );
-ok(!( "\x[AC3E]"  ~~ m/^<+<?Khmer>>$/ ), q{Don't match unrelated <?Khmer>} );
-ok("\x[AC3E]"  ~~ m/^<-<?Khmer>>$/, q{Match unrelated externally inverted <?Khmer>} );
-ok("\x[AC3E]"  ~~ m/^<+<-Khmer>>$/, q{Match unrelated internally inverted <?Khmer>} );
-ok("\x[AC3E]\c[KHMER LETTER KA]" ~~ m/<+<?Khmer>>/, q{Match unanchored <?Khmer>} );
+ok("\c[KHMER LETTER KA]" ~~ m/^<+<?isKhmer>>$/, q{Match <?isKhmer>} );
+ok("\c[KHMER LETTER KA]" ~~ m/^<[A]+<?isKhmer>>$/, q{Match compound <?isKhmer>} );
+ok(!( "\c[KHMER LETTER KA]" ~~ m/^<-<?isKhmer>>$/ ), q{Don't match externally inverted <?isKhmer>} );
+ok(!( "\c[KHMER LETTER KA]" ~~ m/^<[A]-<?isKhmer>>$/ ), q{Don't match compound inverted <?isKhmer>} );
+ok(!( "\c[KHMER LETTER KA]" ~~ m/^<+<-isKhmer>>$/ ), q{Don't match internally inverted <?isKhmer>} );
+ok(!( "\x[AC3E]"  ~~ m/^<+<?isKhmer>>$/ ), q{Don't match unrelated <?isKhmer>} );
+ok("\x[AC3E]"  ~~ m/^<-<?isKhmer>>$/, q{Match unrelated externally inverted <?isKhmer>} );
+ok("\x[AC3E]"  ~~ m/^<+<-isKhmer>>$/, q{Match unrelated internally inverted <?isKhmer>} );
+ok("\x[AC3E]\c[KHMER LETTER KA]" ~~ m/<+<?isKhmer>>/, q{Match unanchored <?isKhmer>} );
 
 # Lao
 
 
-ok("\c[LAO LETTER KO]" ~~ m/^<+<?Lao>>$/, q{Match <?Lao>} );
-ok("\c[LAO LETTER KO]" ~~ m/^<[A]+<?Lao>>$/, q{Match compound <?Lao>} );
-ok(!( "\c[LAO LETTER KO]" ~~ m/^<-<?Lao>>$/ ), q{Don't match externally inverted <?Lao>} );
-ok(!( "\c[LAO LETTER KO]" ~~ m/^<[A]-<?Lao>>$/ ), q{Don't match compound inverted <?Lao>} );
-ok(!( "\c[LAO LETTER KO]" ~~ m/^<+<-Lao>>$/ ), q{Don't match internally inverted <?Lao>} );
-ok(!( "\c[MODIFIER LETTER UNASPIRATED]"  ~~ m/^<+<?Lao>>$/ ), q{Don't match unrelated <?Lao>} );
-ok("\c[MODIFIER LETTER UNASPIRATED]"  ~~ m/^<-<?Lao>>$/, q{Match unrelated externally inverted <?Lao>} );
-ok("\c[MODIFIER LETTER UNASPIRATED]"  ~~ m/^<+<-Lao>>$/, q{Match unrelated internally inverted <?Lao>} );
-ok(!( "\c[MODIFIER LETTER DOUBLE APOSTROPHE]" ~~ m/^<+<?Lao>>$/ ), q{Don't match related <?Lao>} );
-ok("\c[MODIFIER LETTER DOUBLE APOSTROPHE]" ~~ m/^<+<-Lao>>$/, q{Match related internally inverted <?Lao>} );
-ok("\c[MODIFIER LETTER DOUBLE APOSTROPHE]" ~~ m/^<-<?Lao>>$/, q{Match related externally inverted <?Lao>} );
-ok("\c[MODIFIER LETTER UNASPIRATED]\c[MODIFIER LETTER DOUBLE APOSTROPHE]\c[LAO LETTER KO]" ~~ m/<+<?Lao>>/, q{Match unanchored <?Lao>} );
+ok("\c[LAO LETTER KO]" ~~ m/^<+<?isLao>>$/, q{Match <?isLao>} );
+ok("\c[LAO LETTER KO]" ~~ m/^<[A]+<?isLao>>$/, q{Match compound <?isLao>} );
+ok(!( "\c[LAO LETTER KO]" ~~ m/^<-<?isLao>>$/ ), q{Don't match externally inverted <?isLao>} );
+ok(!( "\c[LAO LETTER KO]" ~~ m/^<[A]-<?isLao>>$/ ), q{Don't match compound inverted <?isLao>} );
+ok(!( "\c[LAO LETTER KO]" ~~ m/^<+<-isLao>>$/ ), q{Don't match internally inverted <?isLao>} );
+ok(!( "\c[MODIFIER LETTER UNASPIRATED]"  ~~ m/^<+<?isLao>>$/ ), q{Don't match unrelated <?isLao>} );
+ok("\c[MODIFIER LETTER UNASPIRATED]"  ~~ m/^<-<?isLao>>$/, q{Match unrelated externally inverted <?isLao>} );
+ok("\c[MODIFIER LETTER UNASPIRATED]"  ~~ m/^<+<-isLao>>$/, q{Match unrelated internally inverted <?isLao>} );
+ok(!( "\c[MODIFIER LETTER DOUBLE APOSTROPHE]" ~~ m/^<+<?isLao>>$/ ), q{Don't match related <?isLao>} );
+ok("\c[MODIFIER LETTER DOUBLE APOSTROPHE]" ~~ m/^<+<-isLao>>$/, q{Match related internally inverted <?isLao>} );
+ok("\c[MODIFIER LETTER DOUBLE APOSTROPHE]" ~~ m/^<-<?isLao>>$/, q{Match related externally inverted <?isLao>} );
+ok("\c[MODIFIER LETTER UNASPIRATED]\c[MODIFIER LETTER DOUBLE APOSTROPHE]\c[LAO LETTER KO]" ~~ m/<+<?isLao>>/, q{Match unanchored <?isLao>} );
 
 # Latin
 
 
-ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<?Latin>>$/, q{Match <?Latin>} );
-ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<[A]+<?Latin>>$/, q{Match compound <?Latin>} );
-ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<-<?Latin>>$/ ), q{Don't match externally inverted <?Latin>} );
-ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<[A]-<?Latin>>$/ ), q{Don't match compound inverted <?Latin>} );
-ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<-Latin>>$/ ), q{Don't match internally inverted <?Latin>} );
-ok(!( "\x[6B4C]"  ~~ m/^<+<?Latin>>$/ ), q{Don't match unrelated <?Latin>} );
-ok("\x[6B4C]"  ~~ m/^<-<?Latin>>$/, q{Match unrelated externally inverted <?Latin>} );
-ok("\x[6B4C]"  ~~ m/^<+<-Latin>>$/, q{Match unrelated internally inverted <?Latin>} );
-ok(!( "\x[6B4C]" ~~ m/^<+<?Latin>>$/ ), q{Don't match related <?Latin>} );
-ok("\x[6B4C]" ~~ m/^<+<-Latin>>$/, q{Match related internally inverted <?Latin>} );
-ok("\x[6B4C]" ~~ m/^<-<?Latin>>$/, q{Match related externally inverted <?Latin>} );
-ok("\x[6B4C]\x[6B4C]\c[LATIN CAPITAL LETTER A]" ~~ m/<+<?Latin>>/, q{Match unanchored <?Latin>} );
+ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<?isLatin>>$/, q{Match <?isLatin>} );
+ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<[A]+<?isLatin>>$/, q{Match compound <?isLatin>} );
+ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<-<?isLatin>>$/ ), q{Don't match externally inverted <?isLatin>} );
+ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<[A]-<?isLatin>>$/ ), q{Don't match compound inverted <?isLatin>} );
+ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<-isLatin>>$/ ), q{Don't match internally inverted <?isLatin>} );
+ok(!( "\x[6B4C]"  ~~ m/^<+<?isLatin>>$/ ), q{Don't match unrelated <?isLatin>} );
+ok("\x[6B4C]"  ~~ m/^<-<?isLatin>>$/, q{Match unrelated externally inverted <?isLatin>} );
+ok("\x[6B4C]"  ~~ m/^<+<-isLatin>>$/, q{Match unrelated internally inverted <?isLatin>} );
+ok(!( "\x[6B4C]" ~~ m/^<+<?isLatin>>$/ ), q{Don't match related <?isLatin>} );
+ok("\x[6B4C]" ~~ m/^<+<-isLatin>>$/, q{Match related internally inverted <?isLatin>} );
+ok("\x[6B4C]" ~~ m/^<-<?isLatin>>$/, q{Match related externally inverted <?isLatin>} );
+ok("\x[6B4C]\x[6B4C]\c[LATIN CAPITAL LETTER A]" ~~ m/<+<?isLatin>>/, q{Match unanchored <?isLatin>} );
 
 # Malayalam
 
 
-ok("\c[MALAYALAM LETTER TA]" ~~ m/^<+<?Malayalam>>$/, q{Match <?Malayalam>} );
-ok("\c[MALAYALAM LETTER TA]" ~~ m/^<[A]+<?Malayalam>>$/, q{Match compound <?Malayalam>} );
-ok(!( "\c[MALAYALAM LETTER TA]" ~~ m/^<-<?Malayalam>>$/ ), q{Don't match externally inverted <?Malayalam>} );
-ok(!( "\c[MALAYALAM LETTER TA]" ~~ m/^<[A]-<?Malayalam>>$/ ), q{Don't match compound inverted <?Malayalam>} );
-ok(!( "\c[MALAYALAM LETTER TA]" ~~ m/^<+<-Malayalam>>$/ ), q{Don't match internally inverted <?Malayalam>} );
-ok(!( "\x[0D29]"  ~~ m/^<+<?Malayalam>>$/ ), q{Don't match unrelated <?Malayalam>} );
-ok("\x[0D29]"  ~~ m/^<-<?Malayalam>>$/, q{Match unrelated externally inverted <?Malayalam>} );
-ok("\x[0D29]"  ~~ m/^<+<-Malayalam>>$/, q{Match unrelated internally inverted <?Malayalam>} );
-ok(!( "\c[SINHALA SIGN ANUSVARAYA]" ~~ m/^<+<?Malayalam>>$/ ), q{Don't match related <?Malayalam>} );
-ok("\c[SINHALA SIGN ANUSVARAYA]" ~~ m/^<+<-Malayalam>>$/, q{Match related internally inverted <?Malayalam>} );
-ok("\c[SINHALA SIGN ANUSVARAYA]" ~~ m/^<-<?Malayalam>>$/, q{Match related externally inverted <?Malayalam>} );
-ok("\x[0D29]\c[SINHALA SIGN ANUSVARAYA]\c[MALAYALAM LETTER TA]" ~~ m/<+<?Malayalam>>/, q{Match unanchored <?Malayalam>} );
+ok("\c[MALAYALAM LETTER TA]" ~~ m/^<+<?isMalayalam>>$/, q{Match <?isMalayalam>} );
+ok("\c[MALAYALAM LETTER TA]" ~~ m/^<[A]+<?isMalayalam>>$/, q{Match compound <?isMalayalam>} );
+ok(!( "\c[MALAYALAM LETTER TA]" ~~ m/^<-<?isMalayalam>>$/ ), q{Don't match externally inverted <?isMalayalam>} );
+ok(!( "\c[MALAYALAM LETTER TA]" ~~ m/^<[A]-<?isMalayalam>>$/ ), q{Don't match compound inverted <?isMalayalam>} );
+ok(!( "\c[MALAYALAM LETTER TA]" ~~ m/^<+<-isMalayalam>>$/ ), q{Don't match internally inverted <?isMalayalam>} );
+ok(!( "\x[0D29]"  ~~ m/^<+<?isMalayalam>>$/ ), q{Don't match unrelated <?isMalayalam>} );
+ok("\x[0D29]"  ~~ m/^<-<?isMalayalam>>$/, q{Match unrelated externally inverted <?isMalayalam>} );
+ok("\x[0D29]"  ~~ m/^<+<-isMalayalam>>$/, q{Match unrelated internally inverted <?isMalayalam>} );
+ok(!( "\c[SINHALA SIGN ANUSVARAYA]" ~~ m/^<+<?isMalayalam>>$/ ), q{Don't match related <?isMalayalam>} );
+ok("\c[SINHALA SIGN ANUSVARAYA]" ~~ m/^<+<-isMalayalam>>$/, q{Match related internally inverted <?isMalayalam>} );
+ok("\c[SINHALA SIGN ANUSVARAYA]" ~~ m/^<-<?isMalayalam>>$/, q{Match related externally inverted <?isMalayalam>} );
+ok("\x[0D29]\c[SINHALA SIGN ANUSVARAYA]\c[MALAYALAM LETTER TA]" ~~ m/<+<?isMalayalam>>/, q{Match unanchored <?isMalayalam>} );
 
 # Mongolian
 
 
-ok("\c[MONGOLIAN DIGIT ZERO]" ~~ m/^<+<?Mongolian>>$/, q{Match <?Mongolian>} );
-ok("\c[MONGOLIAN DIGIT ZERO]" ~~ m/^<[A]+<?Mongolian>>$/, q{Match compound <?Mongolian>} );
-ok(!( "\c[MONGOLIAN DIGIT ZERO]" ~~ m/^<-<?Mongolian>>$/ ), q{Don't match externally inverted <?Mongolian>} );
-ok(!( "\c[MONGOLIAN DIGIT ZERO]" ~~ m/^<[A]-<?Mongolian>>$/ ), q{Don't match compound inverted <?Mongolian>} );
-ok(!( "\c[MONGOLIAN DIGIT ZERO]" ~~ m/^<+<-Mongolian>>$/ ), q{Don't match internally inverted <?Mongolian>} );
-ok(!( "\x[70C0]"  ~~ m/^<+<?Mongolian>>$/ ), q{Don't match unrelated <?Mongolian>} );
-ok("\x[70C0]"  ~~ m/^<-<?Mongolian>>$/, q{Match unrelated externally inverted <?Mongolian>} );
-ok("\x[70C0]"  ~~ m/^<+<-Mongolian>>$/, q{Match unrelated internally inverted <?Mongolian>} );
-ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<?Mongolian>>$/ ), q{Don't match related <?Mongolian>} );
-ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<-Mongolian>>$/, q{Match related internally inverted <?Mongolian>} );
-ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<-<?Mongolian>>$/, q{Match related externally inverted <?Mongolian>} );
-ok("\x[70C0]\c[COMBINING GRAVE ACCENT]\c[MONGOLIAN DIGIT ZERO]" ~~ m/<+<?Mongolian>>/, q{Match unanchored <?Mongolian>} );
+ok("\c[MONGOLIAN DIGIT ZERO]" ~~ m/^<+<?isMongolian>>$/, q{Match <?isMongolian>} );
+ok("\c[MONGOLIAN DIGIT ZERO]" ~~ m/^<[A]+<?isMongolian>>$/, q{Match compound <?isMongolian>} );
+ok(!( "\c[MONGOLIAN DIGIT ZERO]" ~~ m/^<-<?isMongolian>>$/ ), q{Don't match externally inverted <?isMongolian>} );
+ok(!( "\c[MONGOLIAN DIGIT ZERO]" ~~ m/^<[A]-<?isMongolian>>$/ ), q{Don't match compound inverted <?isMongolian>} );
+ok(!( "\c[MONGOLIAN DIGIT ZERO]" ~~ m/^<+<-isMongolian>>$/ ), q{Don't match internally inverted <?isMongolian>} );
+ok(!( "\x[70C0]"  ~~ m/^<+<?isMongolian>>$/ ), q{Don't match unrelated <?isMongolian>} );
+ok("\x[70C0]"  ~~ m/^<-<?isMongolian>>$/, q{Match unrelated externally inverted <?isMongolian>} );
+ok("\x[70C0]"  ~~ m/^<+<-isMongolian>>$/, q{Match unrelated internally inverted <?isMongolian>} );
+ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<?isMongolian>>$/ ), q{Don't match related <?isMongolian>} );
+ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<-isMongolian>>$/, q{Match related internally inverted <?isMongolian>} );
+ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<-<?isMongolian>>$/, q{Match related externally inverted <?isMongolian>} );
+ok("\x[70C0]\c[COMBINING GRAVE ACCENT]\c[MONGOLIAN DIGIT ZERO]" ~~ m/<+<?isMongolian>>/, q{Match unanchored <?isMongolian>} );
 
 # Myanmar
 
 
-ok("\c[MYANMAR LETTER KA]" ~~ m/^<+<?Myanmar>>$/, q{Match <?Myanmar>} );
-ok("\c[MYANMAR LETTER KA]" ~~ m/^<[A]+<?Myanmar>>$/, q{Match compound <?Myanmar>} );
-ok(!( "\c[MYANMAR LETTER KA]" ~~ m/^<-<?Myanmar>>$/ ), q{Don't match externally inverted <?Myanmar>} );
-ok(!( "\c[MYANMAR LETTER KA]" ~~ m/^<[A]-<?Myanmar>>$/ ), q{Don't match compound inverted <?Myanmar>} );
-ok(!( "\c[MYANMAR LETTER KA]" ~~ m/^<+<-Myanmar>>$/ ), q{Don't match internally inverted <?Myanmar>} );
-ok(!( "\x[3CE3]"  ~~ m/^<+<?Myanmar>>$/ ), q{Don't match unrelated <?Myanmar>} );
-ok("\x[3CE3]"  ~~ m/^<-<?Myanmar>>$/, q{Match unrelated externally inverted <?Myanmar>} );
-ok("\x[3CE3]"  ~~ m/^<+<-Myanmar>>$/, q{Match unrelated internally inverted <?Myanmar>} );
-ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<?Myanmar>>$/ ), q{Don't match related <?Myanmar>} );
-ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<-Myanmar>>$/, q{Match related internally inverted <?Myanmar>} );
-ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<-<?Myanmar>>$/, q{Match related externally inverted <?Myanmar>} );
-ok("\x[3CE3]\c[COMBINING GRAVE ACCENT]\c[MYANMAR LETTER KA]" ~~ m/<+<?Myanmar>>/, q{Match unanchored <?Myanmar>} );
+ok("\c[MYANMAR LETTER KA]" ~~ m/^<+<?isMyanmar>>$/, q{Match <?isMyanmar>} );
+ok("\c[MYANMAR LETTER KA]" ~~ m/^<[A]+<?isMyanmar>>$/, q{Match compound <?isMyanmar>} );
+ok(!( "\c[MYANMAR LETTER KA]" ~~ m/^<-<?isMyanmar>>$/ ), q{Don't match externally inverted <?isMyanmar>} );
+ok(!( "\c[MYANMAR LETTER KA]" ~~ m/^<[A]-<?isMyanmar>>$/ ), q{Don't match compound inverted <?isMyanmar>} );
+ok(!( "\c[MYANMAR LETTER KA]" ~~ m/^<+<-isMyanmar>>$/ ), q{Don't match internally inverted <?isMyanmar>} );
+ok(!( "\x[3CE3]"  ~~ m/^<+<?isMyanmar>>$/ ), q{Don't match unrelated <?isMyanmar>} );
+ok("\x[3CE3]"  ~~ m/^<-<?isMyanmar>>$/, q{Match unrelated externally inverted <?isMyanmar>} );
+ok("\x[3CE3]"  ~~ m/^<+<-isMyanmar>>$/, q{Match unrelated internally inverted <?isMyanmar>} );
+ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<?isMyanmar>>$/ ), q{Don't match related <?isMyanmar>} );
+ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<-isMyanmar>>$/, q{Match related internally inverted <?isMyanmar>} );
+ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<-<?isMyanmar>>$/, q{Match related externally inverted <?isMyanmar>} );
+ok("\x[3CE3]\c[COMBINING GRAVE ACCENT]\c[MYANMAR LETTER KA]" ~~ m/<+<?isMyanmar>>/, q{Match unanchored <?isMyanmar>} );
 
 # Ogham
 
 
-ok("\c[OGHAM LETTER BEITH]" ~~ m/^<+<?Ogham>>$/, q{Match <?Ogham>} );
-ok("\c[OGHAM LETTER BEITH]" ~~ m/^<[A]+<?Ogham>>$/, q{Match compound <?Ogham>} );
-ok(!( "\c[OGHAM LETTER BEITH]" ~~ m/^<-<?Ogham>>$/ ), q{Don't match externally inverted <?Ogham>} );
-ok(!( "\c[OGHAM LETTER BEITH]" ~~ m/^<[A]-<?Ogham>>$/ ), q{Don't match compound inverted <?Ogham>} );
-ok(!( "\c[OGHAM LETTER BEITH]" ~~ m/^<+<-Ogham>>$/ ), q{Don't match internally inverted <?Ogham>} );
-ok(!( "\x[077B]"  ~~ m/^<+<?Ogham>>$/ ), q{Don't match unrelated <?Ogham>} );
-ok("\x[077B]"  ~~ m/^<-<?Ogham>>$/, q{Match unrelated externally inverted <?Ogham>} );
-ok("\x[077B]"  ~~ m/^<+<-Ogham>>$/, q{Match unrelated internally inverted <?Ogham>} );
-ok("\x[077B]\c[OGHAM LETTER BEITH]" ~~ m/<+<?Ogham>>/, q{Match unanchored <?Ogham>} );
+ok("\c[OGHAM LETTER BEITH]" ~~ m/^<+<?isOgham>>$/, q{Match <?isOgham>} );
+ok("\c[OGHAM LETTER BEITH]" ~~ m/^<[A]+<?isOgham>>$/, q{Match compound <?isOgham>} );
+ok(!( "\c[OGHAM LETTER BEITH]" ~~ m/^<-<?isOgham>>$/ ), q{Don't match externally inverted <?isOgham>} );
+ok(!( "\c[OGHAM LETTER BEITH]" ~~ m/^<[A]-<?isOgham>>$/ ), q{Don't match compound inverted <?isOgham>} );
+ok(!( "\c[OGHAM LETTER BEITH]" ~~ m/^<+<-isOgham>>$/ ), q{Don't match internally inverted <?isOgham>} );
+ok(!( "\x[077B]"  ~~ m/^<+<?isOgham>>$/ ), q{Don't match unrelated <?isOgham>} );
+ok("\x[077B]"  ~~ m/^<-<?isOgham>>$/, q{Match unrelated externally inverted <?isOgham>} );
+ok("\x[077B]"  ~~ m/^<+<-isOgham>>$/, q{Match unrelated internally inverted <?isOgham>} );
+ok("\x[077B]\c[OGHAM LETTER BEITH]" ~~ m/<+<?isOgham>>/, q{Match unanchored <?isOgham>} );
 
 # OldItalic
 
 
-ok(!( "\x[562B]"  ~~ m/^<+<?OldItalic>>$/ ), q{Don't match unrelated <?OldItalic>} );
-ok("\x[562B]"  ~~ m/^<-<?OldItalic>>$/, q{Match unrelated externally inverted <?OldItalic>} );
-ok("\x[562B]"  ~~ m/^<+<-OldItalic>>$/, q{Match unrelated internally inverted <?OldItalic>} );
+ok(!( "\x[562B]"  ~~ m/^<+<?isOldItalic>>$/ ), q{Don't match unrelated <?isOldItalic>} );
+ok("\x[562B]"  ~~ m/^<-<?isOldItalic>>$/, q{Match unrelated externally inverted <?isOldItalic>} );
+ok("\x[562B]"  ~~ m/^<+<-isOldItalic>>$/, q{Match unrelated internally inverted <?isOldItalic>} );
 
 # Oriya
 
 
-ok("\c[ORIYA SIGN CANDRABINDU]" ~~ m/^<+<?Oriya>>$/, q{Match <?Oriya>} );
-ok("\c[ORIYA SIGN CANDRABINDU]" ~~ m/^<[A]+<?Oriya>>$/, q{Match compound <?Oriya>} );
-ok(!( "\c[ORIYA SIGN CANDRABINDU]" ~~ m/^<-<?Oriya>>$/ ), q{Don't match externally inverted <?Oriya>} );
-ok(!( "\c[ORIYA SIGN CANDRABINDU]" ~~ m/^<[A]-<?Oriya>>$/ ), q{Don't match compound inverted <?Oriya>} );
-ok(!( "\c[ORIYA SIGN CANDRABINDU]" ~~ m/^<+<-Oriya>>$/ ), q{Don't match internally inverted <?Oriya>} );
-ok(!( "\x[3CE7]"  ~~ m/^<+<?Oriya>>$/ ), q{Don't match unrelated <?Oriya>} );
-ok("\x[3CE7]"  ~~ m/^<-<?Oriya>>$/, q{Match unrelated externally inverted <?Oriya>} );
-ok("\x[3CE7]"  ~~ m/^<+<-Oriya>>$/, q{Match unrelated internally inverted <?Oriya>} );
-ok("\x[3CE7]\c[ORIYA SIGN CANDRABINDU]" ~~ m/<+<?Oriya>>/, q{Match unanchored <?Oriya>} );
+ok("\c[ORIYA SIGN CANDRABINDU]" ~~ m/^<+<?isOriya>>$/, q{Match <?isOriya>} );
+ok("\c[ORIYA SIGN CANDRABINDU]" ~~ m/^<[A]+<?isOriya>>$/, q{Match compound <?isOriya>} );
+ok(!( "\c[ORIYA SIGN CANDRABINDU]" ~~ m/^<-<?isOriya>>$/ ), q{Don't match externally inverted <?isOriya>} );
+ok(!( "\c[ORIYA SIGN CANDRABINDU]" ~~ m/^<[A]-<?isOriya>>$/ ), q{Don't match compound inverted <?isOriya>} );
+ok(!( "\c[ORIYA SIGN CANDRABINDU]" ~~ m/^<+<-isOriya>>$/ ), q{Don't match internally inverted <?isOriya>} );
+ok(!( "\x[3CE7]"  ~~ m/^<+<?isOriya>>$/ ), q{Don't match unrelated <?isOriya>} );
+ok("\x[3CE7]"  ~~ m/^<-<?isOriya>>$/, q{Match unrelated externally inverted <?isOriya>} );
+ok("\x[3CE7]"  ~~ m/^<+<-isOriya>>$/, q{Match unrelated internally inverted <?isOriya>} );
+ok("\x[3CE7]\c[ORIYA SIGN CANDRABINDU]" ~~ m/<+<?isOriya>>/, q{Match unanchored <?isOriya>} );
 
 # Runic
 
 
-ok("\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<+<?Runic>>$/, q{Match <?Runic>} );
-ok("\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<[A]+<?Runic>>$/, q{Match compound <?Runic>} );
-ok(!( "\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<-<?Runic>>$/ ), q{Don't match externally inverted <?Runic>} );
-ok(!( "\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<[A]-<?Runic>>$/ ), q{Don't match compound inverted <?Runic>} );
-ok(!( "\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<+<-Runic>>$/ ), q{Don't match internally inverted <?Runic>} );
-ok(!( "\c[BLACK HEART SUIT]"  ~~ m/^<+<?Runic>>$/ ), q{Don't match unrelated <?Runic>} );
-ok("\c[BLACK HEART SUIT]"  ~~ m/^<-<?Runic>>$/, q{Match unrelated externally inverted <?Runic>} );
-ok("\c[BLACK HEART SUIT]"  ~~ m/^<+<-Runic>>$/, q{Match unrelated internally inverted <?Runic>} );
-ok("\c[BLACK HEART SUIT]\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/<+<?Runic>>/, q{Match unanchored <?Runic>} );
+ok("\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<+<?isRunic>>$/, q{Match <?isRunic>} );
+ok("\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<[A]+<?isRunic>>$/, q{Match compound <?isRunic>} );
+ok(!( "\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<-<?isRunic>>$/ ), q{Don't match externally inverted <?isRunic>} );
+ok(!( "\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<[A]-<?isRunic>>$/ ), q{Don't match compound inverted <?isRunic>} );
+ok(!( "\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<+<-isRunic>>$/ ), q{Don't match internally inverted <?isRunic>} );
+ok(!( "\c[BLACK HEART SUIT]"  ~~ m/^<+<?isRunic>>$/ ), q{Don't match unrelated <?isRunic>} );
+ok("\c[BLACK HEART SUIT]"  ~~ m/^<-<?isRunic>>$/, q{Match unrelated externally inverted <?isRunic>} );
+ok("\c[BLACK HEART SUIT]"  ~~ m/^<+<-isRunic>>$/, q{Match unrelated internally inverted <?isRunic>} );
+ok("\c[BLACK HEART SUIT]\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/<+<?isRunic>>/, q{Match unanchored <?isRunic>} );
 
 # Sinhala
 
 
-ok("\c[SINHALA SIGN ANUSVARAYA]" ~~ m/^<+<?Sinhala>>$/, q{Match <?Sinhala>} );
-ok("\c[SINHALA SIGN ANUSVARAYA]" ~~ m/^<[A]+<?Sinhala>>$/, q{Match compound <?Sinhala>} );
-ok(!( "\c[SINHALA SIGN ANUSVARAYA]" ~~ m/^<-<?Sinhala>>$/ ), q{Don't match externally inverted <?Sinhala>} );
-ok(!( "\c[SINHALA SIGN ANUSVARAYA]" ~~ m/^<[A]-<?Sinhala>>$/ ), q{Don't match compound inverted <?Sinhala>} );
-ok(!( "\c[SINHALA SIGN ANUSVARAYA]" ~~ m/^<+<-Sinhala>>$/ ), q{Don't match internally inverted <?Sinhala>} );
-ok(!( "\c[MYANMAR VOWEL SIGN II]"  ~~ m/^<+<?Sinhala>>$/ ), q{Don't match unrelated <?Sinhala>} );
-ok("\c[MYANMAR VOWEL SIGN II]"  ~~ m/^<-<?Sinhala>>$/, q{Match unrelated externally inverted <?Sinhala>} );
-ok("\c[MYANMAR VOWEL SIGN II]"  ~~ m/^<+<-Sinhala>>$/, q{Match unrelated internally inverted <?Sinhala>} );
-ok(!( "\c[KHMER CURRENCY SYMBOL RIEL]" ~~ m/^<+<?Sinhala>>$/ ), q{Don't match related <?Sinhala>} );
-ok("\c[KHMER CURRENCY SYMBOL RIEL]" ~~ m/^<+<-Sinhala>>$/, q{Match related internally inverted <?Sinhala>} );
-ok("\c[KHMER CURRENCY SYMBOL RIEL]" ~~ m/^<-<?Sinhala>>$/, q{Match related externally inverted <?Sinhala>} );
-ok("\c[MYANMAR VOWEL SIGN II]\c[KHMER CURRENCY SYMBOL RIEL]\c[SINHALA SIGN ANUSVARAYA]" ~~ m/<+<?Sinhala>>/, q{Match unanchored <?Sinhala>} );
+ok("\c[SINHALA SIGN ANUSVARAYA]" ~~ m/^<+<?isSinhala>>$/, q{Match <?isSinhala>} );
+ok("\c[SINHALA SIGN ANUSVARAYA]" ~~ m/^<[A]+<?isSinhala>>$/, q{Match compound <?isSinhala>} );
+ok(!( "\c[SINHALA SIGN ANUSVARAYA]" ~~ m/^<-<?isSinhala>>$/ ), q{Don't match externally inverted <?isSinhala>} );
+ok(!( "\c[SINHALA SIGN ANUSVARAYA]" ~~ m/^<[A]-<?isSinhala>>$/ ), q{Don't match compound inverted <?isSinhala>} );
+ok(!( "\c[SINHALA SIGN ANUSVARAYA]" ~~ m/^<+<-isSinhala>>$/ ), q{Don't match internally inverted <?isSinhala>} );
+ok(!( "\c[MYANMAR VOWEL SIGN II]"  ~~ m/^<+<?isSinhala>>$/ ), q{Don't match unrelated <?isSinhala>} );
+ok("\c[MYANMAR VOWEL SIGN II]"  ~~ m/^<-<?isSinhala>>$/, q{Match unrelated externally inverted <?isSinhala>} );
+ok("\c[MYANMAR VOWEL SIGN II]"  ~~ m/^<+<-isSinhala>>$/, q{Match unrelated internally inverted <?isSinhala>} );
+ok(!( "\c[KHMER CURRENCY SYMBOL RIEL]" ~~ m/^<+<?isSinhala>>$/ ), q{Don't match related <?isSinhala>} );
+ok("\c[KHMER CURRENCY SYMBOL RIEL]" ~~ m/^<+<-isSinhala>>$/, q{Match related internally inverted <?isSinhala>} );
+ok("\c[KHMER CURRENCY SYMBOL RIEL]" ~~ m/^<-<?isSinhala>>$/, q{Match related externally inverted <?isSinhala>} );
+ok("\c[MYANMAR VOWEL SIGN II]\c[KHMER CURRENCY SYMBOL RIEL]\c[SINHALA SIGN ANUSVARAYA]" ~~ m/<+<?isSinhala>>/, q{Match unanchored <?isSinhala>} );
 
 # Syriac
 
 
-ok("\c[SYRIAC LETTER ALAPH]" ~~ m/^<+<?Syriac>>$/, q{Match <?Syriac>} );
-ok("\c[SYRIAC LETTER ALAPH]" ~~ m/^<[A]+<?Syriac>>$/, q{Match compound <?Syriac>} );
-ok(!( "\c[SYRIAC LETTER ALAPH]" ~~ m/^<-<?Syriac>>$/ ), q{Don't match externally inverted <?Syriac>} );
-ok(!( "\c[SYRIAC LETTER ALAPH]" ~~ m/^<[A]-<?Syriac>>$/ ), q{Don't match compound inverted <?Syriac>} );
-ok(!( "\c[SYRIAC LETTER ALAPH]" ~~ m/^<+<-Syriac>>$/ ), q{Don't match internally inverted <?Syriac>} );
-ok(!( "\x[7BAA]"  ~~ m/^<+<?Syriac>>$/ ), q{Don't match unrelated <?Syriac>} );
-ok("\x[7BAA]"  ~~ m/^<-<?Syriac>>$/, q{Match unrelated externally inverted <?Syriac>} );
-ok("\x[7BAA]"  ~~ m/^<+<-Syriac>>$/, q{Match unrelated internally inverted <?Syriac>} );
-ok(!( "\c[YI RADICAL QOT]" ~~ m/^<+<?Syriac>>$/ ), q{Don't match related <?Syriac>} );
-ok("\c[YI RADICAL QOT]" ~~ m/^<+<-Syriac>>$/, q{Match related internally inverted <?Syriac>} );
-ok("\c[YI RADICAL QOT]" ~~ m/^<-<?Syriac>>$/, q{Match related externally inverted <?Syriac>} );
-ok("\x[7BAA]\c[YI RADICAL QOT]\c[SYRIAC LETTER ALAPH]" ~~ m/<+<?Syriac>>/, q{Match unanchored <?Syriac>} );
+ok("\c[SYRIAC LETTER ALAPH]" ~~ m/^<+<?isSyriac>>$/, q{Match <?isSyriac>} );
+ok("\c[SYRIAC LETTER ALAPH]" ~~ m/^<[A]+<?isSyriac>>$/, q{Match compound <?isSyriac>} );
+ok(!( "\c[SYRIAC LETTER ALAPH]" ~~ m/^<-<?isSyriac>>$/ ), q{Don't match externally inverted <?isSyriac>} );
+ok(!( "\c[SYRIAC LETTER ALAPH]" ~~ m/^<[A]-<?isSyriac>>$/ ), q{Don't match compound inverted <?isSyriac>} );
+ok(!( "\c[SYRIAC LETTER ALAPH]" ~~ m/^<+<-isSyriac>>$/ ), q{Don't match internally inverted <?isSyriac>} );
+ok(!( "\x[7BAA]"  ~~ m/^<+<?isSyriac>>$/ ), q{Don't match unrelated <?isSyriac>} );
+ok("\x[7BAA]"  ~~ m/^<-<?isSyriac>>$/, q{Match unrelated externally inverted <?isSyriac>} );
+ok("\x[7BAA]"  ~~ m/^<+<-isSyriac>>$/, q{Match unrelated internally inverted <?isSyriac>} );
+ok(!( "\c[YI RADICAL QOT]" ~~ m/^<+<?isSyriac>>$/ ), q{Don't match related <?isSyriac>} );
+ok("\c[YI RADICAL QOT]" ~~ m/^<+<-isSyriac>>$/, q{Match related internally inverted <?isSyriac>} );
+ok("\c[YI RADICAL QOT]" ~~ m/^<-<?isSyriac>>$/, q{Match related externally inverted <?isSyriac>} );
+ok("\x[7BAA]\c[YI RADICAL QOT]\c[SYRIAC LETTER ALAPH]" ~~ m/<+<?isSyriac>>/, q{Match unanchored <?isSyriac>} );
 
 # Tagalog
 
 
-ok("\c[TAGALOG LETTER A]" ~~ m/^<+<?Tagalog>>$/, q{Match <?Tagalog>} );
-ok("\c[TAGALOG LETTER A]" ~~ m/^<[A]+<?Tagalog>>$/, q{Match compound <?Tagalog>} );
-ok(!( "\c[TAGALOG LETTER A]" ~~ m/^<-<?Tagalog>>$/ ), q{Don't match externally inverted <?Tagalog>} );
-ok(!( "\c[TAGALOG LETTER A]" ~~ m/^<[A]-<?Tagalog>>$/ ), q{Don't match compound inverted <?Tagalog>} );
-ok(!( "\c[TAGALOG LETTER A]" ~~ m/^<+<-Tagalog>>$/ ), q{Don't match internally inverted <?Tagalog>} );
-ok(!( "\x[50F2]"  ~~ m/^<+<?Tagalog>>$/ ), q{Don't match unrelated <?Tagalog>} );
-ok("\x[50F2]"  ~~ m/^<-<?Tagalog>>$/, q{Match unrelated externally inverted <?Tagalog>} );
-ok("\x[50F2]"  ~~ m/^<+<-Tagalog>>$/, q{Match unrelated internally inverted <?Tagalog>} );
-ok("\x[50F2]\c[TAGALOG LETTER A]" ~~ m/<+<?Tagalog>>/, q{Match unanchored <?Tagalog>} );
+ok("\c[TAGALOG LETTER A]" ~~ m/^<+<?isTagalog>>$/, q{Match <?isTagalog>} );
+ok("\c[TAGALOG LETTER A]" ~~ m/^<[A]+<?isTagalog>>$/, q{Match compound <?isTagalog>} );
+ok(!( "\c[TAGALOG LETTER A]" ~~ m/^<-<?isTagalog>>$/ ), q{Don't match externally inverted <?isTagalog>} );
+ok(!( "\c[TAGALOG LETTER A]" ~~ m/^<[A]-<?isTagalog>>$/ ), q{Don't match compound inverted <?isTagalog>} );
+ok(!( "\c[TAGALOG LETTER A]" ~~ m/^<+<-isTagalog>>$/ ), q{Don't match internally inverted <?isTagalog>} );
+ok(!( "\x[50F2]"  ~~ m/^<+<?isTagalog>>$/ ), q{Don't match unrelated <?isTagalog>} );
+ok("\x[50F2]"  ~~ m/^<-<?isTagalog>>$/, q{Match unrelated externally inverted <?isTagalog>} );
+ok("\x[50F2]"  ~~ m/^<+<-isTagalog>>$/, q{Match unrelated internally inverted <?isTagalog>} );
+ok("\x[50F2]\c[TAGALOG LETTER A]" ~~ m/<+<?isTagalog>>/, q{Match unanchored <?isTagalog>} );
 
 # Tagbanwa
 
 
-ok("\c[TAGBANWA LETTER A]" ~~ m/^<+<?Tagbanwa>>$/, q{Match <?Tagbanwa>} );
-ok("\c[TAGBANWA LETTER A]" ~~ m/^<[A]+<?Tagbanwa>>$/, q{Match compound <?Tagbanwa>} );
-ok(!( "\c[TAGBANWA LETTER A]" ~~ m/^<-<?Tagbanwa>>$/ ), q{Don't match externally inverted <?Tagbanwa>} );
-ok(!( "\c[TAGBANWA LETTER A]" ~~ m/^<[A]-<?Tagbanwa>>$/ ), q{Don't match compound inverted <?Tagbanwa>} );
-ok(!( "\c[TAGBANWA LETTER A]" ~~ m/^<+<-Tagbanwa>>$/ ), q{Don't match internally inverted <?Tagbanwa>} );
-ok(!( "\x[8843]"  ~~ m/^<+<?Tagbanwa>>$/ ), q{Don't match unrelated <?Tagbanwa>} );
-ok("\x[8843]"  ~~ m/^<-<?Tagbanwa>>$/, q{Match unrelated externally inverted <?Tagbanwa>} );
-ok("\x[8843]"  ~~ m/^<+<-Tagbanwa>>$/, q{Match unrelated internally inverted <?Tagbanwa>} );
-ok("\x[8843]\c[TAGBANWA LETTER A]" ~~ m/<+<?Tagbanwa>>/, q{Match unanchored <?Tagbanwa>} );
+ok("\c[TAGBANWA LETTER A]" ~~ m/^<+<?isTagbanwa>>$/, q{Match <?isTagbanwa>} );
+ok("\c[TAGBANWA LETTER A]" ~~ m/^<[A]+<?isTagbanwa>>$/, q{Match compound <?isTagbanwa>} );
+ok(!( "\c[TAGBANWA LETTER A]" ~~ m/^<-<?isTagbanwa>>$/ ), q{Don't match externally inverted <?isTagbanwa>} );
+ok(!( "\c[TAGBANWA LETTER A]" ~~ m/^<[A]-<?isTagbanwa>>$/ ), q{Don't match compound inverted <?isTagbanwa>} );
+ok(!( "\c[TAGBANWA LETTER A]" ~~ m/^<+<-isTagbanwa>>$/ ), q{Don't match internally inverted <?isTagbanwa>} );
+ok(!( "\x[8843]"  ~~ m/^<+<?isTagbanwa>>$/ ), q{Don't match unrelated <?isTagbanwa>} );
+ok("\x[8843]"  ~~ m/^<-<?isTagbanwa>>$/, q{Match unrelated externally inverted <?isTagbanwa>} );
+ok("\x[8843]"  ~~ m/^<+<-isTagbanwa>>$/, q{Match unrelated internally inverted <?isTagbanwa>} );
+ok("\x[8843]\c[TAGBANWA LETTER A]" ~~ m/<+<?isTagbanwa>>/, q{Match unanchored <?isTagbanwa>} );
 
 # Tamil
 
 
-ok("\c[TAMIL SIGN ANUSVARA]" ~~ m/^<+<?Tamil>>$/, q{Match <?Tamil>} );
-ok("\c[TAMIL SIGN ANUSVARA]" ~~ m/^<[A]+<?Tamil>>$/, q{Match compound <?Tamil>} );
-ok(!( "\c[TAMIL SIGN ANUSVARA]" ~~ m/^<-<?Tamil>>$/ ), q{Don't match externally inverted <?Tamil>} );
-ok(!( "\c[TAMIL SIGN ANUSVARA]" ~~ m/^<[A]-<?Tamil>>$/ ), q{Don't match compound inverted <?Tamil>} );
-ok(!( "\c[TAMIL SIGN ANUSVARA]" ~~ m/^<+<-Tamil>>$/ ), q{Don't match internally inverted <?Tamil>} );
-ok(!( "\x[76C0]"  ~~ m/^<+<?Tamil>>$/ ), q{Don't match unrelated <?Tamil>} );
-ok("\x[76C0]"  ~~ m/^<-<?Tamil>>$/, q{Match unrelated externally inverted <?Tamil>} );
-ok("\x[76C0]"  ~~ m/^<+<-Tamil>>$/, q{Match unrelated internally inverted <?Tamil>} );
-ok("\x[76C0]\c[TAMIL SIGN ANUSVARA]" ~~ m/<+<?Tamil>>/, q{Match unanchored <?Tamil>} );
+ok("\c[TAMIL SIGN ANUSVARA]" ~~ m/^<+<?isTamil>>$/, q{Match <?isTamil>} );
+ok("\c[TAMIL SIGN ANUSVARA]" ~~ m/^<[A]+<?isTamil>>$/, q{Match compound <?isTamil>} );
+ok(!( "\c[TAMIL SIGN ANUSVARA]" ~~ m/^<-<?isTamil>>$/ ), q{Don't match externally inverted <?isTamil>} );
+ok(!( "\c[TAMIL SIGN ANUSVARA]" ~~ m/^<[A]-<?isTamil>>$/ ), q{Don't match compound inverted <?isTamil>} );
+ok(!( "\c[TAMIL SIGN ANUSVARA]" ~~ m/^<+<-isTamil>>$/ ), q{Don't match internally inverted <?isTamil>} );
+ok(!( "\x[76C0]"  ~~ m/^<+<?isTamil>>$/ ), q{Don't match unrelated <?isTamil>} );
+ok("\x[76C0]"  ~~ m/^<-<?isTamil>>$/, q{Match unrelated externally inverted <?isTamil>} );
+ok("\x[76C0]"  ~~ m/^<+<-isTamil>>$/, q{Match unrelated internally inverted <?isTamil>} );
+ok("\x[76C0]\c[TAMIL SIGN ANUSVARA]" ~~ m/<+<?isTamil>>/, q{Match unanchored <?isTamil>} );
 
 # Telugu
 
 
-ok("\c[TELUGU SIGN CANDRABINDU]" ~~ m/^<+<?Telugu>>$/, q{Match <?Telugu>} );
-ok("\c[TELUGU SIGN CANDRABINDU]" ~~ m/^<[A]+<?Telugu>>$/, q{Match compound <?Telugu>} );
-ok(!( "\c[TELUGU SIGN CANDRABINDU]" ~~ m/^<-<?Telugu>>$/ ), q{Don't match externally inverted <?Telugu>} );
-ok(!( "\c[TELUGU SIGN CANDRABINDU]" ~~ m/^<[A]-<?Telugu>>$/ ), q{Don't match compound inverted <?Telugu>} );
-ok(!( "\c[TELUGU SIGN CANDRABINDU]" ~~ m/^<+<-Telugu>>$/ ), q{Don't match internally inverted <?Telugu>} );
-ok(!( "\x[60BD]"  ~~ m/^<+<?Telugu>>$/ ), q{Don't match unrelated <?Telugu>} );
-ok("\x[60BD]"  ~~ m/^<-<?Telugu>>$/, q{Match unrelated externally inverted <?Telugu>} );
-ok("\x[60BD]"  ~~ m/^<+<-Telugu>>$/, q{Match unrelated internally inverted <?Telugu>} );
-ok("\x[60BD]\c[TELUGU SIGN CANDRABINDU]" ~~ m/<+<?Telugu>>/, q{Match unanchored <?Telugu>} );
+ok("\c[TELUGU SIGN CANDRABINDU]" ~~ m/^<+<?isTelugu>>$/, q{Match <?isTelugu>} );
+ok("\c[TELUGU SIGN CANDRABINDU]" ~~ m/^<[A]+<?isTelugu>>$/, q{Match compound <?isTelugu>} );
+ok(!( "\c[TELUGU SIGN CANDRABINDU]" ~~ m/^<-<?isTelugu>>$/ ), q{Don't match externally inverted <?isTelugu>} );
+ok(!( "\c[TELUGU SIGN CANDRABINDU]" ~~ m/^<[A]-<?isTelugu>>$/ ), q{Don't match compound inverted <?isTelugu>} );
+ok(!( "\c[TELUGU SIGN CANDRABINDU]" ~~ m/^<+<-isTelugu>>$/ ), q{Don't match internally inverted <?isTelugu>} );
+ok(!( "\x[60BD]"  ~~ m/^<+<?isTelugu>>$/ ), q{Don't match unrelated <?isTelugu>} );
+ok("\x[60BD]"  ~~ m/^<-<?isTelugu>>$/, q{Match unrelated externally inverted <?isTelugu>} );
+ok("\x[60BD]"  ~~ m/^<+<-isTelugu>>$/, q{Match unrelated internally inverted <?isTelugu>} );
+ok("\x[60BD]\c[TELUGU SIGN CANDRABINDU]" ~~ m/<+<?isTelugu>>/, q{Match unanchored <?isTelugu>} );
 
 # Thaana
 
 
-ok("\c[THAANA LETTER HAA]" ~~ m/^<+<?Thaana>>$/, q{Match <?Thaana>} );
-ok("\c[THAANA LETTER HAA]" ~~ m/^<[A]+<?Thaana>>$/, q{Match compound <?Thaana>} );
-ok(!( "\c[THAANA LETTER HAA]" ~~ m/^<-<?Thaana>>$/ ), q{Don't match externally inverted <?Thaana>} );
-ok(!( "\c[THAANA LETTER HAA]" ~~ m/^<[A]-<?Thaana>>$/ ), q{Don't match compound inverted <?Thaana>} );
-ok(!( "\c[THAANA LETTER HAA]" ~~ m/^<+<-Thaana>>$/ ), q{Don't match internally inverted <?Thaana>} );
-ok(!( "\x[2E74]"  ~~ m/^<+<?Thaana>>$/ ), q{Don't match unrelated <?Thaana>} );
-ok("\x[2E74]"  ~~ m/^<-<?Thaana>>$/, q{Match unrelated externally inverted <?Thaana>} );
-ok("\x[2E74]"  ~~ m/^<+<-Thaana>>$/, q{Match unrelated internally inverted <?Thaana>} );
-ok("\x[2E74]\c[THAANA LETTER HAA]" ~~ m/<+<?Thaana>>/, q{Match unanchored <?Thaana>} );
+ok("\c[THAANA LETTER HAA]" ~~ m/^<+<?isThaana>>$/, q{Match <?isThaana>} );
+ok("\c[THAANA LETTER HAA]" ~~ m/^<[A]+<?isThaana>>$/, q{Match compound <?isThaana>} );
+ok(!( "\c[THAANA LETTER HAA]" ~~ m/^<-<?isThaana>>$/ ), q{Don't match externally inverted <?isThaana>} );
+ok(!( "\c[THAANA LETTER HAA]" ~~ m/^<[A]-<?isThaana>>$/ ), q{Don't match compound inverted <?isThaana>} );
+ok(!( "\c[THAANA LETTER HAA]" ~~ m/^<+<-isThaana>>$/ ), q{Don't match internally inverted <?isThaana>} );
+ok(!( "\x[2E74]"  ~~ m/^<+<?isThaana>>$/ ), q{Don't match unrelated <?isThaana>} );
+ok("\x[2E74]"  ~~ m/^<-<?isThaana>>$/, q{Match unrelated externally inverted <?isThaana>} );
+ok("\x[2E74]"  ~~ m/^<+<-isThaana>>$/, q{Match unrelated internally inverted <?isThaana>} );
+ok("\x[2E74]\c[THAANA LETTER HAA]" ~~ m/<+<?isThaana>>/, q{Match unanchored <?isThaana>} );
 
 # Thai
 
 
-ok("\c[THAI CHARACTER KO KAI]" ~~ m/^<+<?Thai>>$/, q{Match <?Thai>} );
-ok("\c[THAI CHARACTER KO KAI]" ~~ m/^<[A]+<?Thai>>$/, q{Match compound <?Thai>} );
-ok(!( "\c[THAI CHARACTER KO KAI]" ~~ m/^<-<?Thai>>$/ ), q{Don't match externally inverted <?Thai>} );
-ok(!( "\c[THAI CHARACTER KO KAI]" ~~ m/^<[A]-<?Thai>>$/ ), q{Don't match compound inverted <?Thai>} );
-ok(!( "\c[THAI CHARACTER KO KAI]" ~~ m/^<+<-Thai>>$/ ), q{Don't match internally inverted <?Thai>} );
-ok(!( "\x[A929]"  ~~ m/^<+<?Thai>>$/ ), q{Don't match unrelated <?Thai>} );
-ok("\x[A929]"  ~~ m/^<-<?Thai>>$/, q{Match unrelated externally inverted <?Thai>} );
-ok("\x[A929]"  ~~ m/^<+<-Thai>>$/, q{Match unrelated internally inverted <?Thai>} );
-ok("\x[A929]\c[THAI CHARACTER KO KAI]" ~~ m/<+<?Thai>>/, q{Match unanchored <?Thai>} );
+ok("\c[THAI CHARACTER KO KAI]" ~~ m/^<+<?isThai>>$/, q{Match <?isThai>} );
+ok("\c[THAI CHARACTER KO KAI]" ~~ m/^<[A]+<?isThai>>$/, q{Match compound <?isThai>} );
+ok(!( "\c[THAI CHARACTER KO KAI]" ~~ m/^<-<?isThai>>$/ ), q{Don't match externally inverted <?isThai>} );
+ok(!( "\c[THAI CHARACTER KO KAI]" ~~ m/^<[A]-<?isThai>>$/ ), q{Don't match compound inverted <?isThai>} );
+ok(!( "\c[THAI CHARACTER KO KAI]" ~~ m/^<+<-isThai>>$/ ), q{Don't match internally inverted <?isThai>} );
+ok(!( "\x[A929]"  ~~ m/^<+<?isThai>>$/ ), q{Don't match unrelated <?isThai>} );
+ok("\x[A929]"  ~~ m/^<-<?isThai>>$/, q{Match unrelated externally inverted <?isThai>} );
+ok("\x[A929]"  ~~ m/^<+<-isThai>>$/, q{Match unrelated internally inverted <?isThai>} );
+ok("\x[A929]\c[THAI CHARACTER KO KAI]" ~~ m/<+<?isThai>>/, q{Match unanchored <?isThai>} );
 
 # Tibetan
 
 
-ok("\c[TIBETAN SYLLABLE OM]" ~~ m/^<+<?Tibetan>>$/, q{Match <?Tibetan>} );
-ok("\c[TIBETAN SYLLABLE OM]" ~~ m/^<[A]+<?Tibetan>>$/, q{Match compound <?Tibetan>} );
-ok(!( "\c[TIBETAN SYLLABLE OM]" ~~ m/^<-<?Tibetan>>$/ ), q{Don't match externally inverted <?Tibetan>} );
-ok(!( "\c[TIBETAN SYLLABLE OM]" ~~ m/^<[A]-<?Tibetan>>$/ ), q{Don't match compound inverted <?Tibetan>} );
-ok(!( "\c[TIBETAN SYLLABLE OM]" ~~ m/^<+<-Tibetan>>$/ ), q{Don't match internally inverted <?Tibetan>} );
-ok(!( "\x[19C9]"  ~~ m/^<+<?Tibetan>>$/ ), q{Don't match unrelated <?Tibetan>} );
-ok("\x[19C9]"  ~~ m/^<-<?Tibetan>>$/, q{Match unrelated externally inverted <?Tibetan>} );
-ok("\x[19C9]"  ~~ m/^<+<-Tibetan>>$/, q{Match unrelated internally inverted <?Tibetan>} );
-ok("\x[19C9]\c[TIBETAN SYLLABLE OM]" ~~ m/<+<?Tibetan>>/, q{Match unanchored <?Tibetan>} );
+ok("\c[TIBETAN SYLLABLE OM]" ~~ m/^<+<?isTibetan>>$/, q{Match <?isTibetan>} );
+ok("\c[TIBETAN SYLLABLE OM]" ~~ m/^<[A]+<?isTibetan>>$/, q{Match compound <?isTibetan>} );
+ok(!( "\c[TIBETAN SYLLABLE OM]" ~~ m/^<-<?isTibetan>>$/ ), q{Don't match externally inverted <?isTibetan>} );
+ok(!( "\c[TIBETAN SYLLABLE OM]" ~~ m/^<[A]-<?isTibetan>>$/ ), q{Don't match compound inverted <?isTibetan>} );
+ok(!( "\c[TIBETAN SYLLABLE OM]" ~~ m/^<+<-isTibetan>>$/ ), q{Don't match internally inverted <?isTibetan>} );
+ok(!( "\x[19C9]"  ~~ m/^<+<?isTibetan>>$/ ), q{Don't match unrelated <?isTibetan>} );
+ok("\x[19C9]"  ~~ m/^<-<?isTibetan>>$/, q{Match unrelated externally inverted <?isTibetan>} );
+ok("\x[19C9]"  ~~ m/^<+<-isTibetan>>$/, q{Match unrelated internally inverted <?isTibetan>} );
+ok("\x[19C9]\c[TIBETAN SYLLABLE OM]" ~~ m/<+<?isTibetan>>/, q{Match unanchored <?isTibetan>} );
 
 # Yi
 
 
-ok("\c[YI SYLLABLE IT]" ~~ m/^<+<?Yi>>$/, q{Match <?Yi>} );
-ok("\c[YI SYLLABLE IT]" ~~ m/^<[A]+<?Yi>>$/, q{Match compound <?Yi>} );
-ok(!( "\c[YI SYLLABLE IT]" ~~ m/^<-<?Yi>>$/ ), q{Don't match externally inverted <?Yi>} );
-ok(!( "\c[YI SYLLABLE IT]" ~~ m/^<[A]-<?Yi>>$/ ), q{Don't match compound inverted <?Yi>} );
-ok(!( "\c[YI SYLLABLE IT]" ~~ m/^<+<-Yi>>$/ ), q{Don't match internally inverted <?Yi>} );
-ok(!( "\x[3A38]"  ~~ m/^<+<?Yi>>$/ ), q{Don't match unrelated <?Yi>} );
-ok("\x[3A38]"  ~~ m/^<-<?Yi>>$/, q{Match unrelated externally inverted <?Yi>} );
-ok("\x[3A38]"  ~~ m/^<+<-Yi>>$/, q{Match unrelated internally inverted <?Yi>} );
-ok("\x[3A38]\c[YI SYLLABLE IT]" ~~ m/<+<?Yi>>/, q{Match unanchored <?Yi>} );
+ok("\c[YI SYLLABLE IT]" ~~ m/^<+<?isYi>>$/, q{Match <?isYi>} );
+ok("\c[YI SYLLABLE IT]" ~~ m/^<[A]+<?isYi>>$/, q{Match compound <?isYi>} );
+ok(!( "\c[YI SYLLABLE IT]" ~~ m/^<-<?isYi>>$/ ), q{Don't match externally inverted <?isYi>} );
+ok(!( "\c[YI SYLLABLE IT]" ~~ m/^<[A]-<?isYi>>$/ ), q{Don't match compound inverted <?isYi>} );
+ok(!( "\c[YI SYLLABLE IT]" ~~ m/^<+<-isYi>>$/ ), q{Don't match internally inverted <?isYi>} );
+ok(!( "\x[3A38]"  ~~ m/^<+<?isYi>>$/ ), q{Don't match unrelated <?isYi>} );
+ok("\x[3A38]"  ~~ m/^<-<?isYi>>$/, q{Match unrelated externally inverted <?isYi>} );
+ok("\x[3A38]"  ~~ m/^<+<-isYi>>$/, q{Match unrelated internally inverted <?isYi>} );
+ok("\x[3A38]\c[YI SYLLABLE IT]" ~~ m/<+<?isYi>>/, q{Match unanchored <?isYi>} );
 
 # ASCIIHexDigit
 
 
-ok("\c[DIGIT ZERO]" ~~ m/^<+<?ASCIIHexDigit>>$/, q{Match <?ASCIIHexDigit>} );
-ok("\c[DIGIT ZERO]" ~~ m/^<[A]+<?ASCIIHexDigit>>$/, q{Match compound <?ASCIIHexDigit>} );
-ok(!( "\c[DIGIT ZERO]" ~~ m/^<-<?ASCIIHexDigit>>$/ ), q{Don't match externally inverted <?ASCIIHexDigit>} );
-ok(!( "\c[DIGIT ZERO]" ~~ m/^<[A]-<?ASCIIHexDigit>>$/ ), q{Don't match compound inverted <?ASCIIHexDigit>} );
-ok(!( "\c[DIGIT ZERO]" ~~ m/^<+<-ASCIIHexDigit>>$/ ), q{Don't match internally inverted <?ASCIIHexDigit>} );
-ok(!( "\x[55D7]"  ~~ m/^<+<?ASCIIHexDigit>>$/ ), q{Don't match unrelated <?ASCIIHexDigit>} );
-ok("\x[55D7]"  ~~ m/^<-<?ASCIIHexDigit>>$/, q{Match unrelated externally inverted <?ASCIIHexDigit>} );
-ok("\x[55D7]"  ~~ m/^<+<-ASCIIHexDigit>>$/, q{Match unrelated internally inverted <?ASCIIHexDigit>} );
-ok("\x[55D7]\c[DIGIT ZERO]" ~~ m/<+<?ASCIIHexDigit>>/, q{Match unanchored <?ASCIIHexDigit>} );
+ok("\c[DIGIT ZERO]" ~~ m/^<+<?isASCIIHexDigit>>$/, q{Match <?isASCIIHexDigit>} );
+ok("\c[DIGIT ZERO]" ~~ m/^<[A]+<?isASCIIHexDigit>>$/, q{Match compound <?isASCIIHexDigit>} );
+ok(!( "\c[DIGIT ZERO]" ~~ m/^<-<?isASCIIHexDigit>>$/ ), q{Don't match externally inverted <?isASCIIHexDigit>} );
+ok(!( "\c[DIGIT ZERO]" ~~ m/^<[A]-<?isASCIIHexDigit>>$/ ), q{Don't match compound inverted <?isASCIIHexDigit>} );
+ok(!( "\c[DIGIT ZERO]" ~~ m/^<+<-isASCIIHexDigit>>$/ ), q{Don't match internally inverted <?isASCIIHexDigit>} );
+ok(!( "\x[55D7]"  ~~ m/^<+<?isASCIIHexDigit>>$/ ), q{Don't match unrelated <?isASCIIHexDigit>} );
+ok("\x[55D7]"  ~~ m/^<-<?isASCIIHexDigit>>$/, q{Match unrelated externally inverted <?isASCIIHexDigit>} );
+ok("\x[55D7]"  ~~ m/^<+<-isASCIIHexDigit>>$/, q{Match unrelated internally inverted <?isASCIIHexDigit>} );
+ok("\x[55D7]\c[DIGIT ZERO]" ~~ m/<+<?isASCIIHexDigit>>/, q{Match unanchored <?isASCIIHexDigit>} );
 
 # Dash
 
 
-ok("\c[HYPHEN-MINUS]" ~~ m/^<+<?Dash>>$/, q{Match <?Dash>} );
-ok("\c[HYPHEN-MINUS]" ~~ m/^<[A]+<?Dash>>$/, q{Match compound <?Dash>} );
-ok(!( "\c[HYPHEN-MINUS]" ~~ m/^<-<?Dash>>$/ ), q{Don't match externally inverted <?Dash>} );
-ok(!( "\c[HYPHEN-MINUS]" ~~ m/^<[A]-<?Dash>>$/ ), q{Don't match compound inverted <?Dash>} );
-ok(!( "\c[HYPHEN-MINUS]" ~~ m/^<+<-Dash>>$/ ), q{Don't match internally inverted <?Dash>} );
-ok(!( "\x[4C7F]"  ~~ m/^<+<?Dash>>$/ ), q{Don't match unrelated <?Dash>} );
-ok("\x[4C7F]"  ~~ m/^<-<?Dash>>$/, q{Match unrelated externally inverted <?Dash>} );
-ok("\x[4C7F]"  ~~ m/^<+<-Dash>>$/, q{Match unrelated internally inverted <?Dash>} );
-ok("\x[4C7F]\c[HYPHEN-MINUS]" ~~ m/<+<?Dash>>/, q{Match unanchored <?Dash>} );
+ok("\c[HYPHEN-MINUS]" ~~ m/^<+<?isDash>>$/, q{Match <?isDash>} );
+ok("\c[HYPHEN-MINUS]" ~~ m/^<[A]+<?isDash>>$/, q{Match compound <?isDash>} );
+ok(!( "\c[HYPHEN-MINUS]" ~~ m/^<-<?isDash>>$/ ), q{Don't match externally inverted <?isDash>} );
+ok(!( "\c[HYPHEN-MINUS]" ~~ m/^<[A]-<?isDash>>$/ ), q{Don't match compound inverted <?isDash>} );
+ok(!( "\c[HYPHEN-MINUS]" ~~ m/^<+<-isDash>>$/ ), q{Don't match internally inverted <?isDash>} );
+ok(!( "\x[4C7F]"  ~~ m/^<+<?isDash>>$/ ), q{Don't match unrelated <?isDash>} );
+ok("\x[4C7F]"  ~~ m/^<-<?isDash>>$/, q{Match unrelated externally inverted <?isDash>} );
+ok("\x[4C7F]"  ~~ m/^<+<-isDash>>$/, q{Match unrelated internally inverted <?isDash>} );
+ok("\x[4C7F]\c[HYPHEN-MINUS]" ~~ m/<+<?isDash>>/, q{Match unanchored <?isDash>} );
 
 # Diacritic
 
 
-ok("\c[CIRCUMFLEX ACCENT]" ~~ m/^<+<?Diacritic>>$/, q{Match <?Diacritic>} );
-ok("\c[CIRCUMFLEX ACCENT]" ~~ m/^<[A]+<?Diacritic>>$/, q{Match compound <?Diacritic>} );
-ok(!( "\c[CIRCUMFLEX ACCENT]" ~~ m/^<-<?Diacritic>>$/ ), q{Don't match externally inverted <?Diacritic>} );
-ok(!( "\c[CIRCUMFLEX ACCENT]" ~~ m/^<[A]-<?Diacritic>>$/ ), q{Don't match compound inverted <?Diacritic>} );
-ok(!( "\c[CIRCUMFLEX ACCENT]" ~~ m/^<+<-Diacritic>>$/ ), q{Don't match internally inverted <?Diacritic>} );
-ok(!( "\x[398E]"  ~~ m/^<+<?Diacritic>>$/ ), q{Don't match unrelated <?Diacritic>} );
-ok("\x[398E]"  ~~ m/^<-<?Diacritic>>$/, q{Match unrelated externally inverted <?Diacritic>} );
-ok("\x[398E]"  ~~ m/^<+<-Diacritic>>$/, q{Match unrelated internally inverted <?Diacritic>} );
-ok("\x[398E]\c[CIRCUMFLEX ACCENT]" ~~ m/<+<?Diacritic>>/, q{Match unanchored <?Diacritic>} );
+ok("\c[CIRCUMFLEX ACCENT]" ~~ m/^<+<?isDiacritic>>$/, q{Match <?isDiacritic>} );
+ok("\c[CIRCUMFLEX ACCENT]" ~~ m/^<[A]+<?isDiacritic>>$/, q{Match compound <?isDiacritic>} );
+ok(!( "\c[CIRCUMFLEX ACCENT]" ~~ m/^<-<?isDiacritic>>$/ ), q{Don't match externally inverted <?isDiacritic>} );
+ok(!( "\c[CIRCUMFLEX ACCENT]" ~~ m/^<[A]-<?isDiacritic>>$/ ), q{Don't match compound inverted <?isDiacritic>} );
+ok(!( "\c[CIRCUMFLEX ACCENT]" ~~ m/^<+<-isDiacritic>>$/ ), q{Don't match internally inverted <?isDiacritic>} );
+ok(!( "\x[398E]"  ~~ m/^<+<?isDiacritic>>$/ ), q{Don't match unrelated <?isDiacritic>} );
+ok("\x[398E]"  ~~ m/^<-<?isDiacritic>>$/, q{Match unrelated externally inverted <?isDiacritic>} );
+ok("\x[398E]"  ~~ m/^<+<-isDiacritic>>$/, q{Match unrelated internally inverted <?isDiacritic>} );
+ok("\x[398E]\c[CIRCUMFLEX ACCENT]" ~~ m/<+<?isDiacritic>>/, q{Match unanchored <?isDiacritic>} );
 
 # Extender
 
 
-ok("\c[MIDDLE DOT]" ~~ m/^<+<?Extender>>$/, q{Match <?Extender>} );
-ok("\c[MIDDLE DOT]" ~~ m/^<[A]+<?Extender>>$/, q{Match compound <?Extender>} );
-ok(!( "\c[MIDDLE DOT]" ~~ m/^<-<?Extender>>$/ ), q{Don't match externally inverted <?Extender>} );
-ok(!( "\c[MIDDLE DOT]" ~~ m/^<[A]-<?Extender>>$/ ), q{Don't match compound inverted <?Extender>} );
-ok(!( "\c[MIDDLE DOT]" ~~ m/^<+<-Extender>>$/ ), q{Don't match internally inverted <?Extender>} );
-ok(!( "\x[3F66]"  ~~ m/^<+<?Extender>>$/ ), q{Don't match unrelated <?Extender>} );
-ok("\x[3F66]"  ~~ m/^<-<?Extender>>$/, q{Match unrelated externally inverted <?Extender>} );
-ok("\x[3F66]"  ~~ m/^<+<-Extender>>$/, q{Match unrelated internally inverted <?Extender>} );
-ok("\x[3F66]\c[MIDDLE DOT]" ~~ m/<+<?Extender>>/, q{Match unanchored <?Extender>} );
+ok("\c[MIDDLE DOT]" ~~ m/^<+<?isExtender>>$/, q{Match <?isExtender>} );
+ok("\c[MIDDLE DOT]" ~~ m/^<[A]+<?isExtender>>$/, q{Match compound <?isExtender>} );
+ok(!( "\c[MIDDLE DOT]" ~~ m/^<-<?isExtender>>$/ ), q{Don't match externally inverted <?isExtender>} );
+ok(!( "\c[MIDDLE DOT]" ~~ m/^<[A]-<?isExtender>>$/ ), q{Don't match compound inverted <?isExtender>} );
+ok(!( "\c[MIDDLE DOT]" ~~ m/^<+<-isExtender>>$/ ), q{Don't match internally inverted <?isExtender>} );
+ok(!( "\x[3F66]"  ~~ m/^<+<?isExtender>>$/ ), q{Don't match unrelated <?isExtender>} );
+ok("\x[3F66]"  ~~ m/^<-<?isExtender>>$/, q{Match unrelated externally inverted <?isExtender>} );
+ok("\x[3F66]"  ~~ m/^<+<-isExtender>>$/, q{Match unrelated internally inverted <?isExtender>} );
+ok("\x[3F66]\c[MIDDLE DOT]" ~~ m/<+<?isExtender>>/, q{Match unanchored <?isExtender>} );
 
 # GraphemeLink
 
 
-ok("\c[COMBINING GRAPHEME JOINER]" ~~ m/^<+<?GraphemeLink>>$/, q{Match <?GraphemeLink>} );
-ok("\c[COMBINING GRAPHEME JOINER]" ~~ m/^<[A]+<?GraphemeLink>>$/, q{Match compound <?GraphemeLink>} );
-ok(!( "\c[COMBINING GRAPHEME JOINER]" ~~ m/^<-<?GraphemeLink>>$/ ), q{Don't match externally inverted <?GraphemeLink>} );
-ok(!( "\c[COMBINING GRAPHEME JOINER]" ~~ m/^<[A]-<?GraphemeLink>>$/ ), q{Don't match compound inverted <?GraphemeLink>} );
-ok(!( "\c[COMBINING GRAPHEME JOINER]" ~~ m/^<+<-GraphemeLink>>$/ ), q{Don't match internally inverted <?GraphemeLink>} );
-ok(!( "\x[34DA]"  ~~ m/^<+<?GraphemeLink>>$/ ), q{Don't match unrelated <?GraphemeLink>} );
-ok("\x[34DA]"  ~~ m/^<-<?GraphemeLink>>$/, q{Match unrelated externally inverted <?GraphemeLink>} );
-ok("\x[34DA]"  ~~ m/^<+<-GraphemeLink>>$/, q{Match unrelated internally inverted <?GraphemeLink>} );
-ok("\x[34DA]\c[COMBINING GRAPHEME JOINER]" ~~ m/<+<?GraphemeLink>>/, q{Match unanchored <?GraphemeLink>} );
+ok("\c[COMBINING GRAPHEME JOINER]" ~~ m/^<+<?isGraphemeLink>>$/, q{Match <?isGraphemeLink>} );
+ok("\c[COMBINING GRAPHEME JOINER]" ~~ m/^<[A]+<?isGraphemeLink>>$/, q{Match compound <?isGraphemeLink>} );
+ok(!( "\c[COMBINING GRAPHEME JOINER]" ~~ m/^<-<?isGraphemeLink>>$/ ), q{Don't match externally inverted <?isGraphemeLink>} );
+ok(!( "\c[COMBINING GRAPHEME JOINER]" ~~ m/^<[A]-<?isGraphemeLink>>$/ ), q{Don't match compound inverted <?isGraphemeLink>} );
+ok(!( "\c[COMBINING GRAPHEME JOINER]" ~~ m/^<+<-isGraphemeLink>>$/ ), q{Don't match internally inverted <?isGraphemeLink>} );
+ok(!( "\x[34DA]"  ~~ m/^<+<?isGraphemeLink>>$/ ), q{Don't match unrelated <?isGraphemeLink>} );
+ok("\x[34DA]"  ~~ m/^<-<?isGraphemeLink>>$/, q{Match unrelated externally inverted <?isGraphemeLink>} );
+ok("\x[34DA]"  ~~ m/^<+<-isGraphemeLink>>$/, q{Match unrelated internally inverted <?isGraphemeLink>} );
+ok("\x[34DA]\c[COMBINING GRAPHEME JOINER]" ~~ m/<+<?isGraphemeLink>>/, q{Match unanchored <?isGraphemeLink>} );
 
 # HexDigit
 
 
-ok("\c[DIGIT ZERO]" ~~ m/^<+<?HexDigit>>$/, q{Match <?HexDigit>} );
-ok("\c[DIGIT ZERO]" ~~ m/^<[A]+<?HexDigit>>$/, q{Match compound <?HexDigit>} );
-ok(!( "\c[DIGIT ZERO]" ~~ m/^<-<?HexDigit>>$/ ), q{Don't match externally inverted <?HexDigit>} );
-ok(!( "\c[DIGIT ZERO]" ~~ m/^<[A]-<?HexDigit>>$/ ), q{Don't match compound inverted <?HexDigit>} );
-ok(!( "\c[DIGIT ZERO]" ~~ m/^<+<-HexDigit>>$/ ), q{Don't match internally inverted <?HexDigit>} );
-ok(!( "\x[D446]"  ~~ m/^<+<?HexDigit>>$/ ), q{Don't match unrelated <?HexDigit>} );
-ok("\x[D446]"  ~~ m/^<-<?HexDigit>>$/, q{Match unrelated externally inverted <?HexDigit>} );
-ok("\x[D446]"  ~~ m/^<+<-HexDigit>>$/, q{Match unrelated internally inverted <?HexDigit>} );
-ok("\x[D446]\c[DIGIT ZERO]" ~~ m/<+<?HexDigit>>/, q{Match unanchored <?HexDigit>} );
+ok("\c[DIGIT ZERO]" ~~ m/^<+<?isHexDigit>>$/, q{Match <?isHexDigit>} );
+ok("\c[DIGIT ZERO]" ~~ m/^<[A]+<?isHexDigit>>$/, q{Match compound <?isHexDigit>} );
+ok(!( "\c[DIGIT ZERO]" ~~ m/^<-<?isHexDigit>>$/ ), q{Don't match externally inverted <?isHexDigit>} );
+ok(!( "\c[DIGIT ZERO]" ~~ m/^<[A]-<?isHexDigit>>$/ ), q{Don't match compound inverted <?isHexDigit>} );
+ok(!( "\c[DIGIT ZERO]" ~~ m/^<+<-isHexDigit>>$/ ), q{Don't match internally inverted <?isHexDigit>} );
+ok(!( "\x[D446]"  ~~ m/^<+<?isHexDigit>>$/ ), q{Don't match unrelated <?isHexDigit>} );
+ok("\x[D446]"  ~~ m/^<-<?isHexDigit>>$/, q{Match unrelated externally inverted <?isHexDigit>} );
+ok("\x[D446]"  ~~ m/^<+<-isHexDigit>>$/, q{Match unrelated internally inverted <?isHexDigit>} );
+ok("\x[D446]\c[DIGIT ZERO]" ~~ m/<+<?isHexDigit>>/, q{Match unanchored <?isHexDigit>} );
 
 # Hyphen
 
 
-ok("\c[HYPHEN-MINUS]" ~~ m/^<+<?Hyphen>>$/, q{Match <?Hyphen>} );
-ok("\c[HYPHEN-MINUS]" ~~ m/^<[A]+<?Hyphen>>$/, q{Match compound <?Hyphen>} );
-ok(!( "\c[HYPHEN-MINUS]" ~~ m/^<-<?Hyphen>>$/ ), q{Don't match externally inverted <?Hyphen>} );
-ok(!( "\c[HYPHEN-MINUS]" ~~ m/^<[A]-<?Hyphen>>$/ ), q{Don't match compound inverted <?Hyphen>} );
-ok(!( "\c[HYPHEN-MINUS]" ~~ m/^<+<-Hyphen>>$/ ), q{Don't match internally inverted <?Hyphen>} );
-ok(!( "\c[YI SYLLABLE WOX]"  ~~ m/^<+<?Hyphen>>$/ ), q{Don't match unrelated <?Hyphen>} );
-ok("\c[YI SYLLABLE WOX]"  ~~ m/^<-<?Hyphen>>$/, q{Match unrelated externally inverted <?Hyphen>} );
-ok("\c[YI SYLLABLE WOX]"  ~~ m/^<+<-Hyphen>>$/, q{Match unrelated internally inverted <?Hyphen>} );
-ok("\c[YI SYLLABLE WOX]\c[HYPHEN-MINUS]" ~~ m/<+<?Hyphen>>/, q{Match unanchored <?Hyphen>} );
+ok("\c[HYPHEN-MINUS]" ~~ m/^<+<?isHyphen>>$/, q{Match <?isHyphen>} );
+ok("\c[HYPHEN-MINUS]" ~~ m/^<[A]+<?isHyphen>>$/, q{Match compound <?isHyphen>} );
+ok(!( "\c[HYPHEN-MINUS]" ~~ m/^<-<?isHyphen>>$/ ), q{Don't match externally inverted <?isHyphen>} );
+ok(!( "\c[HYPHEN-MINUS]" ~~ m/^<[A]-<?isHyphen>>$/ ), q{Don't match compound inverted <?isHyphen>} );
+ok(!( "\c[HYPHEN-MINUS]" ~~ m/^<+<-isHyphen>>$/ ), q{Don't match internally inverted <?isHyphen>} );
+ok(!( "\c[YI SYLLABLE WOX]"  ~~ m/^<+<?isHyphen>>$/ ), q{Don't match unrelated <?isHyphen>} );
+ok("\c[YI SYLLABLE WOX]"  ~~ m/^<-<?isHyphen>>$/, q{Match unrelated externally inverted <?isHyphen>} );
+ok("\c[YI SYLLABLE WOX]"  ~~ m/^<+<-isHyphen>>$/, q{Match unrelated internally inverted <?isHyphen>} );
+ok("\c[YI SYLLABLE WOX]\c[HYPHEN-MINUS]" ~~ m/<+<?isHyphen>>/, q{Match unanchored <?isHyphen>} );
 
 # Ideographic
 
 
-ok("\c[IDEOGRAPHIC CLOSING MARK]" ~~ m/^<+<?Ideographic>>$/, q{Match <?Ideographic>} );
-ok("\c[IDEOGRAPHIC CLOSING MARK]" ~~ m/^<[A]+<?Ideographic>>$/, q{Match compound <?Ideographic>} );
-ok(!( "\c[IDEOGRAPHIC CLOSING MARK]" ~~ m/^<-<?Ideographic>>$/ ), q{Don't match externally inverted <?Ideographic>} );
-ok(!( "\c[IDEOGRAPHIC CLOSING MARK]" ~~ m/^<[A]-<?Ideographic>>$/ ), q{Don't match compound inverted <?Ideographic>} );
-ok(!( "\c[IDEOGRAPHIC CLOSING MARK]" ~~ m/^<+<-Ideographic>>$/ ), q{Don't match internally inverted <?Ideographic>} );
-ok(!( "\x[CB86]"  ~~ m/^<+<?Ideographic>>$/ ), q{Don't match unrelated <?Ideographic>} );
-ok("\x[CB86]"  ~~ m/^<-<?Ideographic>>$/, q{Match unrelated externally inverted <?Ideographic>} );
-ok("\x[CB86]"  ~~ m/^<+<-Ideographic>>$/, q{Match unrelated internally inverted <?Ideographic>} );
-ok("\x[CB86]\c[IDEOGRAPHIC CLOSING MARK]" ~~ m/<+<?Ideographic>>/, q{Match unanchored <?Ideographic>} );
+ok("\c[IDEOGRAPHIC CLOSING MARK]" ~~ m/^<+<?isIdeographic>>$/, q{Match <?isIdeographic>} );
+ok("\c[IDEOGRAPHIC CLOSING MARK]" ~~ m/^<[A]+<?isIdeographic>>$/, q{Match compound <?isIdeographic>} );
+ok(!( "\c[IDEOGRAPHIC CLOSING MARK]" ~~ m/^<-<?isIdeographic>>$/ ), q{Don't match externally inverted <?isIdeographic>} );
+ok(!( "\c[IDEOGRAPHIC CLOSING MARK]" ~~ m/^<[A]-<?isIdeographic>>$/ ), q{Don't match compound inverted <?isIdeographic>} );
+ok(!( "\c[IDEOGRAPHIC CLOSING MARK]" ~~ m/^<+<-isIdeographic>>$/ ), q{Don't match internally inverted <?isIdeographic>} );
+ok(!( "\x[CB86]"  ~~ m/^<+<?isIdeographic>>$/ ), q{Don't match unrelated <?isIdeographic>} );
+ok("\x[CB86]"  ~~ m/^<-<?isIdeographic>>$/, q{Match unrelated externally inverted <?isIdeographic>} );
+ok("\x[CB86]"  ~~ m/^<+<-isIdeographic>>$/, q{Match unrelated internally inverted <?isIdeographic>} );
+ok("\x[CB86]\c[IDEOGRAPHIC CLOSING MARK]" ~~ m/<+<?isIdeographic>>/, q{Match unanchored <?isIdeographic>} );
 
 # IDSBinaryOperator
 
 
-ok("\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<+<?IDSBinaryOperator>>$/, q{Match <?IDSBinaryOperator>} );
-ok("\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<[A]+<?IDSBinaryOperator>>$/, q{Match compound <?IDSBinaryOperator>} );
-ok(!( "\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<-<?IDSBinaryOperator>>$/ ), q{Don't match externally inverted <?IDSBinaryOperator>} );
-ok(!( "\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<[A]-<?IDSBinaryOperator>>$/ ), q{Don't match compound inverted <?IDSBinaryOperator>} );
-ok(!( "\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<+<-IDSBinaryOperator>>$/ ), q{Don't match internally inverted <?IDSBinaryOperator>} );
-ok(!( "\x[54A0]"  ~~ m/^<+<?IDSBinaryOperator>>$/ ), q{Don't match unrelated <?IDSBinaryOperator>} );
-ok("\x[54A0]"  ~~ m/^<-<?IDSBinaryOperator>>$/, q{Match unrelated externally inverted <?IDSBinaryOperator>} );
-ok("\x[54A0]"  ~~ m/^<+<-IDSBinaryOperator>>$/, q{Match unrelated internally inverted <?IDSBinaryOperator>} );
-ok("\x[54A0]\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/<+<?IDSBinaryOperator>>/, q{Match unanchored <?IDSBinaryOperator>} );
+ok("\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<+<?isIDSBinaryOperator>>$/, q{Match <?isIDSBinaryOperator>} );
+ok("\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<[A]+<?isIDSBinaryOperator>>$/, q{Match compound <?isIDSBinaryOperator>} );
+ok(!( "\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<-<?isIDSBinaryOperator>>$/ ), q{Don't match externally inverted <?isIDSBinaryOperator>} );
+ok(!( "\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<[A]-<?isIDSBinaryOperator>>$/ ), q{Don't match compound inverted <?isIDSBinaryOperator>} );
+ok(!( "\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<+<-isIDSBinaryOperator>>$/ ), q{Don't match internally inverted <?isIDSBinaryOperator>} );
+ok(!( "\x[54A0]"  ~~ m/^<+<?isIDSBinaryOperator>>$/ ), q{Don't match unrelated <?isIDSBinaryOperator>} );
+ok("\x[54A0]"  ~~ m/^<-<?isIDSBinaryOperator>>$/, q{Match unrelated externally inverted <?isIDSBinaryOperator>} );
+ok("\x[54A0]"  ~~ m/^<+<-isIDSBinaryOperator>>$/, q{Match unrelated internally inverted <?isIDSBinaryOperator>} );
+ok("\x[54A0]\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/<+<?isIDSBinaryOperator>>/, q{Match unanchored <?isIDSBinaryOperator>} );
 
 # IDSTrinaryOperator
 
 
-ok("\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO MIDDLE AND RIGHT]" ~~ m/^<+<?IDSTrinaryOperator>>$/, q{Match <?IDSTrinaryOperator>} );
-ok("\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO MIDDLE AND RIGHT]" ~~ m/^<[A]+<?IDSTrinaryOperator>>$/, q{Match compound <?IDSTrinaryOperator>} );
-ok(!( "\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO MIDDLE AND RIGHT]" ~~ m/^<-<?IDSTrinaryOperator>>$/ ), q{Don't match externally inverted <?IDSTrinaryOperator>} );
-ok(!( "\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO MIDDLE AND RIGHT]" ~~ m/^<[A]-<?IDSTrinaryOperator>>$/ ), q{Don't match compound inverted <?IDSTrinaryOperator>} );
-ok(!( "\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO MIDDLE AND RIGHT]" ~~ m/^<+<-IDSTrinaryOperator>>$/ ), q{Don't match internally inverted <?IDSTrinaryOperator>} );
-ok(!( "\x[4900]"  ~~ m/^<+<?IDSTrinaryOperator>>$/ ), q{Don't match unrelated <?IDSTrinaryOperator>} );
-ok("\x[4900]"  ~~ m/^<-<?IDSTrinaryOperator>>$/, q{Match unrelated externally inverted <?IDSTrinaryOperator>} );
-ok("\x[4900]"  ~~ m/^<+<-IDSTrinaryOperator>>$/, q{Match unrelated internally inverted <?IDSTrinaryOperator>} );
-ok("\x[4900]\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO MIDDLE AND RIGHT]" ~~ m/<+<?IDSTrinaryOperator>>/, q{Match unanchored <?IDSTrinaryOperator>} );
+ok("\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO MIDDLE AND RIGHT]" ~~ m/^<+<?isIDSTrinaryOperator>>$/, q{Match <?isIDSTrinaryOperator>} );
+ok("\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO MIDDLE AND RIGHT]" ~~ m/^<[A]+<?isIDSTrinaryOperator>>$/, q{Match compound <?isIDSTrinaryOperator>} );
+ok(!( "\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO MIDDLE AND RIGHT]" ~~ m/^<-<?isIDSTrinaryOperator>>$/ ), q{Don't match externally inverted <?isIDSTrinaryOperator>} );
+ok(!( "\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO MIDDLE AND RIGHT]" ~~ m/^<[A]-<?isIDSTrinaryOperator>>$/ ), q{Don't match compound inverted <?isIDSTrinaryOperator>} );
+ok(!( "\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO MIDDLE AND RIGHT]" ~~ m/^<+<-isIDSTrinaryOperator>>$/ ), q{Don't match internally inverted <?isIDSTrinaryOperator>} );
+ok(!( "\x[4900]"  ~~ m/^<+<?isIDSTrinaryOperator>>$/ ), q{Don't match unrelated <?isIDSTrinaryOperator>} );
+ok("\x[4900]"  ~~ m/^<-<?isIDSTrinaryOperator>>$/, q{Match unrelated externally inverted <?isIDSTrinaryOperator>} );
+ok("\x[4900]"  ~~ m/^<+<-isIDSTrinaryOperator>>$/, q{Match unrelated internally inverted <?isIDSTrinaryOperator>} );
+ok("\x[4900]\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO MIDDLE AND RIGHT]" ~~ m/<+<?isIDSTrinaryOperator>>/, q{Match unanchored <?isIDSTrinaryOperator>} );
 
 # JoinControl
 
 
-ok("\c[ZERO WIDTH NON-JOINER]" ~~ m/^<+<?JoinControl>>$/, q{Match <?JoinControl>} );
-ok("\c[ZERO WIDTH NON-JOINER]" ~~ m/^<[A]+<?JoinControl>>$/, q{Match compound <?JoinControl>} );
-ok(!( "\c[ZERO WIDTH NON-JOINER]" ~~ m/^<-<?JoinControl>>$/ ), q{Don't match externally inverted <?JoinControl>} );
-ok(!( "\c[ZERO WIDTH NON-JOINER]" ~~ m/^<[A]-<?JoinControl>>$/ ), q{Don't match compound inverted <?JoinControl>} );
-ok(!( "\c[ZERO WIDTH NON-JOINER]" ~~ m/^<+<-JoinControl>>$/ ), q{Don't match internally inverted <?JoinControl>} );
-ok(!( "\c[CYRILLIC CAPITAL LETTER OT]"  ~~ m/^<+<?JoinControl>>$/ ), q{Don't match unrelated <?JoinControl>} );
-ok("\c[CYRILLIC CAPITAL LETTER OT]"  ~~ m/^<-<?JoinControl>>$/, q{Match unrelated externally inverted <?JoinControl>} );
-ok("\c[CYRILLIC CAPITAL LETTER OT]"  ~~ m/^<+<-JoinControl>>$/, q{Match unrelated internally inverted <?JoinControl>} );
-ok("\c[CYRILLIC CAPITAL LETTER OT]\c[ZERO WIDTH NON-JOINER]" ~~ m/<+<?JoinControl>>/, q{Match unanchored <?JoinControl>} );
+ok("\c[ZERO WIDTH NON-JOINER]" ~~ m/^<+<?isJoinControl>>$/, q{Match <?isJoinControl>} );
+ok("\c[ZERO WIDTH NON-JOINER]" ~~ m/^<[A]+<?isJoinControl>>$/, q{Match compound <?isJoinControl>} );
+ok(!( "\c[ZERO WIDTH NON-JOINER]" ~~ m/^<-<?isJoinControl>>$/ ), q{Don't match externally inverted <?isJoinControl>} );
+ok(!( "\c[ZERO WIDTH NON-JOINER]" ~~ m/^<[A]-<?isJoinControl>>$/ ), q{Don't match compound inverted <?isJoinControl>} );
+ok(!( "\c[ZERO WIDTH NON-JOINER]" ~~ m/^<+<-isJoinControl>>$/ ), q{Don't match internally inverted <?isJoinControl>} );
+ok(!( "\c[CYRILLIC CAPITAL LETTER OT]"  ~~ m/^<+<?isJoinControl>>$/ ), q{Don't match unrelated <?isJoinControl>} );
+ok("\c[CYRILLIC CAPITAL LETTER OT]"  ~~ m/^<-<?isJoinControl>>$/, q{Match unrelated externally inverted <?isJoinControl>} );
+ok("\c[CYRILLIC CAPITAL LETTER OT]"  ~~ m/^<+<-isJoinControl>>$/, q{Match unrelated internally inverted <?isJoinControl>} );
+ok("\c[CYRILLIC CAPITAL LETTER OT]\c[ZERO WIDTH NON-JOINER]" ~~ m/<+<?isJoinControl>>/, q{Match unanchored <?isJoinControl>} );
 
 # LogicalOrderException
 
 
-ok("\c[THAI CHARACTER SARA E]" ~~ m/^<+<?LogicalOrderException>>$/, q{Match <?LogicalOrderException>} );
-ok("\c[THAI CHARACTER SARA E]" ~~ m/^<[A]+<?LogicalOrderException>>$/, q{Match compound <?LogicalOrderException>} );
-ok(!( "\c[THAI CHARACTER SARA E]" ~~ m/^<-<?LogicalOrderException>>$/ ), q{Don't match externally inverted <?LogicalOrderException>} );
-ok(!( "\c[THAI CHARACTER SARA E]" ~~ m/^<[A]-<?LogicalOrderException>>$/ ), q{Don't match compound inverted <?LogicalOrderException>} );
-ok(!( "\c[THAI CHARACTER SARA E]" ~~ m/^<+<-LogicalOrderException>>$/ ), q{Don't match internally inverted <?LogicalOrderException>} );
-ok(!( "\x[88D2]"  ~~ m/^<+<?LogicalOrderException>>$/ ), q{Don't match unrelated <?LogicalOrderException>} );
-ok("\x[88D2]"  ~~ m/^<-<?LogicalOrderException>>$/, q{Match unrelated externally inverted <?LogicalOrderException>} );
-ok("\x[88D2]"  ~~ m/^<+<-LogicalOrderException>>$/, q{Match unrelated internally inverted <?LogicalOrderException>} );
-ok(!( "\x[88D2]" ~~ m/^<+<?LogicalOrderException>>$/ ), q{Don't match related <?LogicalOrderException>} );
-ok("\x[88D2]" ~~ m/^<+<-LogicalOrderException>>$/, q{Match related internally inverted <?LogicalOrderException>} );
-ok("\x[88D2]" ~~ m/^<-<?LogicalOrderException>>$/, q{Match related externally inverted <?LogicalOrderException>} );
-ok("\x[88D2]\x[88D2]\c[THAI CHARACTER SARA E]" ~~ m/<+<?LogicalOrderException>>/, q{Match unanchored <?LogicalOrderException>} );
+ok("\c[THAI CHARACTER SARA E]" ~~ m/^<+<?isLogicalOrderException>>$/, q{Match <?isLogicalOrderException>} );
+ok("\c[THAI CHARACTER SARA E]" ~~ m/^<[A]+<?isLogicalOrderException>>$/, q{Match compound <?isLogicalOrderException>} );
+ok(!( "\c[THAI CHARACTER SARA E]" ~~ m/^<-<?isLogicalOrderException>>$/ ), q{Don't match externally inverted <?isLogicalOrderException>} );
+ok(!( "\c[THAI CHARACTER SARA E]" ~~ m/^<[A]-<?isLogicalOrderException>>$/ ), q{Don't match compound inverted <?isLogicalOrderException>} );
+ok(!( "\c[THAI CHARACTER SARA E]" ~~ m/^<+<-isLogicalOrderException>>$/ ), q{Don't match internally inverted <?isLogicalOrderException>} );
+ok(!( "\x[88D2]"  ~~ m/^<+<?isLogicalOrderException>>$/ ), q{Don't match unrelated <?isLogicalOrderException>} );
+ok("\x[88D2]"  ~~ m/^<-<?isLogicalOrderException>>$/, q{Match unrelated externally inverted <?isLogicalOrderException>} );
+ok("\x[88D2]"  ~~ m/^<+<-isLogicalOrderException>>$/, q{Match unrelated internally inverted <?isLogicalOrderException>} );
+ok(!( "\x[88D2]" ~~ m/^<+<?isLogicalOrderException>>$/ ), q{Don't match related <?isLogicalOrderException>} );
+ok("\x[88D2]" ~~ m/^<+<-isLogicalOrderException>>$/, q{Match related internally inverted <?isLogicalOrderException>} );
+ok("\x[88D2]" ~~ m/^<-<?isLogicalOrderException>>$/, q{Match related externally inverted <?isLogicalOrderException>} );
+ok("\x[88D2]\x[88D2]\c[THAI CHARACTER SARA E]" ~~ m/<+<?isLogicalOrderException>>/, q{Match unanchored <?isLogicalOrderException>} );
 
 # NoncharacterCodePoint
 
 
-ok(!( "\c[CIRCLED HANGUL NIEUN A]"  ~~ m/^<+<?NoncharacterCodePoint>>$/ ), q{Don't match unrelated <?NoncharacterCodePoint>} );
-ok("\c[CIRCLED HANGUL NIEUN A]"  ~~ m/^<-<?NoncharacterCodePoint>>$/, q{Match unrelated externally inverted <?NoncharacterCodePoint>} );
-ok("\c[CIRCLED HANGUL NIEUN A]"  ~~ m/^<+<-NoncharacterCodePoint>>$/, q{Match unrelated internally inverted <?NoncharacterCodePoint>} );
-ok(!( "\c[CIRCLED IDEOGRAPH ONE]" ~~ m/^<+<?NoncharacterCodePoint>>$/ ), q{Don't match related <?NoncharacterCodePoint>} );
-ok("\c[CIRCLED IDEOGRAPH ONE]" ~~ m/^<+<-NoncharacterCodePoint>>$/, q{Match related internally inverted <?NoncharacterCodePoint>} );
-ok("\c[CIRCLED IDEOGRAPH ONE]" ~~ m/^<-<?NoncharacterCodePoint>>$/, q{Match related externally inverted <?NoncharacterCodePoint>} );
+ok(!( "\c[CIRCLED HANGUL NIEUN A]"  ~~ m/^<+<?isNoncharacterCodePoint>>$/ ), q{Don't match unrelated <?isNoncharacterCodePoint>} );
+ok("\c[CIRCLED HANGUL NIEUN A]"  ~~ m/^<-<?isNoncharacterCodePoint>>$/, q{Match unrelated externally inverted <?isNoncharacterCodePoint>} );
+ok("\c[CIRCLED HANGUL NIEUN A]"  ~~ m/^<+<-isNoncharacterCodePoint>>$/, q{Match unrelated internally inverted <?isNoncharacterCodePoint>} );
+ok(!( "\c[CIRCLED IDEOGRAPH ONE]" ~~ m/^<+<?isNoncharacterCodePoint>>$/ ), q{Don't match related <?isNoncharacterCodePoint>} );
+ok("\c[CIRCLED IDEOGRAPH ONE]" ~~ m/^<+<-isNoncharacterCodePoint>>$/, q{Match related internally inverted <?isNoncharacterCodePoint>} );
+ok("\c[CIRCLED IDEOGRAPH ONE]" ~~ m/^<-<?isNoncharacterCodePoint>>$/, q{Match related externally inverted <?isNoncharacterCodePoint>} );
 
 # OtherAlphabetic
 
 
-ok("\c[COMBINING GREEK YPOGEGRAMMENI]" ~~ m/^<+<?OtherAlphabetic>>$/, q{Match <?OtherAlphabetic>} );
-ok("\c[COMBINING GREEK YPOGEGRAMMENI]" ~~ m/^<[A]+<?OtherAlphabetic>>$/, q{Match compound <?OtherAlphabetic>} );
-ok(!( "\c[COMBINING GREEK YPOGEGRAMMENI]" ~~ m/^<-<?OtherAlphabetic>>$/ ), q{Don't match externally inverted <?OtherAlphabetic>} );
-ok(!( "\c[COMBINING GREEK YPOGEGRAMMENI]" ~~ m/^<[A]-<?OtherAlphabetic>>$/ ), q{Don't match compound inverted <?OtherAlphabetic>} );
-ok(!( "\c[COMBINING GREEK YPOGEGRAMMENI]" ~~ m/^<+<-OtherAlphabetic>>$/ ), q{Don't match internally inverted <?OtherAlphabetic>} );
-ok(!( "\x[7B02]"  ~~ m/^<+<?OtherAlphabetic>>$/ ), q{Don't match unrelated <?OtherAlphabetic>} );
-ok("\x[7B02]"  ~~ m/^<-<?OtherAlphabetic>>$/, q{Match unrelated externally inverted <?OtherAlphabetic>} );
-ok("\x[7B02]"  ~~ m/^<+<-OtherAlphabetic>>$/, q{Match unrelated internally inverted <?OtherAlphabetic>} );
-ok("\x[7B02]\c[COMBINING GREEK YPOGEGRAMMENI]" ~~ m/<+<?OtherAlphabetic>>/, q{Match unanchored <?OtherAlphabetic>} );
+ok("\c[COMBINING GREEK YPOGEGRAMMENI]" ~~ m/^<+<?isOtherAlphabetic>>$/, q{Match <?isOtherAlphabetic>} );
+ok("\c[COMBINING GREEK YPOGEGRAMMENI]" ~~ m/^<[A]+<?isOtherAlphabetic>>$/, q{Match compound <?isOtherAlphabetic>} );
+ok(!( "\c[COMBINING GREEK YPOGEGRAMMENI]" ~~ m/^<-<?isOtherAlphabetic>>$/ ), q{Don't match externally inverted <?isOtherAlphabetic>} );
+ok(!( "\c[COMBINING GREEK YPOGEGRAMMENI]" ~~ m/^<[A]-<?isOtherAlphabetic>>$/ ), q{Don't match compound inverted <?isOtherAlphabetic>} );
+ok(!( "\c[COMBINING GREEK YPOGEGRAMMENI]" ~~ m/^<+<-isOtherAlphabetic>>$/ ), q{Don't match internally inverted <?isOtherAlphabetic>} );
+ok(!( "\x[7B02]"  ~~ m/^<+<?isOtherAlphabetic>>$/ ), q{Don't match unrelated <?isOtherAlphabetic>} );
+ok("\x[7B02]"  ~~ m/^<-<?isOtherAlphabetic>>$/, q{Match unrelated externally inverted <?isOtherAlphabetic>} );
+ok("\x[7B02]"  ~~ m/^<+<-isOtherAlphabetic>>$/, q{Match unrelated internally inverted <?isOtherAlphabetic>} );
+ok("\x[7B02]\c[COMBINING GREEK YPOGEGRAMMENI]" ~~ m/<+<?isOtherAlphabetic>>/, q{Match unanchored <?isOtherAlphabetic>} );
 
 # OtherDefaultIgnorableCodePoint
 
 
-ok("\c[COMBINING GRAPHEME JOINER]" ~~ m/^<+<?OtherDefaultIgnorableCodePoint>>$/, q{Match <?OtherDefaultIgnorableCodePoint>} );
-ok("\c[COMBINING GRAPHEME JOINER]" ~~ m/^<[A]+<?OtherDefaultIgnorableCodePoint>>$/, q{Match compound <?OtherDefaultIgnorableCodePoint>} );
-ok(!( "\c[COMBINING GRAPHEME JOINER]" ~~ m/^<-<?OtherDefaultIgnorableCodePoint>>$/ ), q{Don't match externally inverted <?OtherDefaultIgnorableCodePoint>} );
-ok(!( "\c[COMBINING GRAPHEME JOINER]" ~~ m/^<[A]-<?OtherDefaultIgnorableCodePoint>>$/ ), q{Don't match compound inverted <?OtherDefaultIgnorableCodePoint>} );
-ok(!( "\c[COMBINING GRAPHEME JOINER]" ~~ m/^<+<-OtherDefaultIgnorableCodePoint>>$/ ), q{Don't match internally inverted <?OtherDefaultIgnorableCodePoint>} );
-ok(!( "\x[42DA]"  ~~ m/^<+<?OtherDefaultIgnorableCodePoint>>$/ ), q{Don't match unrelated <?OtherDefaultIgnorableCodePoint>} );
-ok("\x[42DA]"  ~~ m/^<-<?OtherDefaultIgnorableCodePoint>>$/, q{Match unrelated externally inverted <?OtherDefaultIgnorableCodePoint>} );
-ok("\x[42DA]"  ~~ m/^<+<-OtherDefaultIgnorableCodePoint>>$/, q{Match unrelated internally inverted <?OtherDefaultIgnorableCodePoint>} );
-ok("\x[42DA]\c[COMBINING GRAPHEME JOINER]" ~~ m/<+<?OtherDefaultIgnorableCodePoint>>/, q{Match unanchored <?OtherDefaultIgnorableCodePoint>} );
+ok("\c[COMBINING GRAPHEME JOINER]" ~~ m/^<+<?isOtherDefaultIgnorableCodePoint>>$/, q{Match <?isOtherDefaultIgnorableCodePoint>} );
+ok("\c[COMBINING GRAPHEME JOINER]" ~~ m/^<[A]+<?isOtherDefaultIgnorableCodePoint>>$/, q{Match compound <?isOtherDefaultIgnorableCodePoint>} );
+ok(!( "\c[COMBINING GRAPHEME JOINER]" ~~ m/^<-<?isOtherDefaultIgnorableCodePoint>>$/ ), q{Don't match externally inverted <?isOtherDefaultIgnorableCodePoint>} );
+ok(!( "\c[COMBINING GRAPHEME JOINER]" ~~ m/^<[A]-<?isOtherDefaultIgnorableCodePoint>>$/ ), q{Don't match compound inverted <?isOtherDefaultIgnorableCodePoint>} );
+ok(!( "\c[COMBINING GRAPHEME JOINER]" ~~ m/^<+<-isOtherDefaultIgnorableCodePoint>>$/ ), q{Don't match internally inverted <?isOtherDefaultIgnorableCodePoint>} );
+ok(!( "\x[42DA]"  ~~ m/^<+<?isOtherDefaultIgnorableCodePoint>>$/ ), q{Don't match unrelated <?isOtherDefaultIgnorableCodePoint>} );
+ok("\x[42DA]"  ~~ m/^<-<?isOtherDefaultIgnorableCodePoint>>$/, q{Match unrelated externally inverted <?isOtherDefaultIgnorableCodePoint>} );
+ok("\x[42DA]"  ~~ m/^<+<-isOtherDefaultIgnorableCodePoint>>$/, q{Match unrelated internally inverted <?isOtherDefaultIgnorableCodePoint>} );
+ok("\x[42DA]\c[COMBINING GRAPHEME JOINER]" ~~ m/<+<?isOtherDefaultIgnorableCodePoint>>/, q{Match unanchored <?isOtherDefaultIgnorableCodePoint>} );
 
 # OtherGraphemeExtend
 
 
-ok("\c[BENGALI VOWEL SIGN AA]" ~~ m/^<+<?OtherGraphemeExtend>>$/, q{Match <?OtherGraphemeExtend>} );
-ok("\c[BENGALI VOWEL SIGN AA]" ~~ m/^<[A]+<?OtherGraphemeExtend>>$/, q{Match compound <?OtherGraphemeExtend>} );
-ok(!( "\c[BENGALI VOWEL SIGN AA]" ~~ m/^<-<?OtherGraphemeExtend>>$/ ), q{Don't match externally inverted <?OtherGraphemeExtend>} );
-ok(!( "\c[BENGALI VOWEL SIGN AA]" ~~ m/^<[A]-<?OtherGraphemeExtend>>$/ ), q{Don't match compound inverted <?OtherGraphemeExtend>} );
-ok(!( "\c[BENGALI VOWEL SIGN AA]" ~~ m/^<+<-OtherGraphemeExtend>>$/ ), q{Don't match internally inverted <?OtherGraphemeExtend>} );
-ok(!( "\c[TAI LE LETTER KHA]"  ~~ m/^<+<?OtherGraphemeExtend>>$/ ), q{Don't match unrelated <?OtherGraphemeExtend>} );
-ok("\c[TAI LE LETTER KHA]"  ~~ m/^<-<?OtherGraphemeExtend>>$/, q{Match unrelated externally inverted <?OtherGraphemeExtend>} );
-ok("\c[TAI LE LETTER KHA]"  ~~ m/^<+<-OtherGraphemeExtend>>$/, q{Match unrelated internally inverted <?OtherGraphemeExtend>} );
-ok("\c[TAI LE LETTER KHA]\c[BENGALI VOWEL SIGN AA]" ~~ m/<+<?OtherGraphemeExtend>>/, q{Match unanchored <?OtherGraphemeExtend>} );
+ok("\c[BENGALI VOWEL SIGN AA]" ~~ m/^<+<?isOtherGraphemeExtend>>$/, q{Match <?isOtherGraphemeExtend>} );
+ok("\c[BENGALI VOWEL SIGN AA]" ~~ m/^<[A]+<?isOtherGraphemeExtend>>$/, q{Match compound <?isOtherGraphemeExtend>} );
+ok(!( "\c[BENGALI VOWEL SIGN AA]" ~~ m/^<-<?isOtherGraphemeExtend>>$/ ), q{Don't match externally inverted <?isOtherGraphemeExtend>} );
+ok(!( "\c[BENGALI VOWEL SIGN AA]" ~~ m/^<[A]-<?isOtherGraphemeExtend>>$/ ), q{Don't match compound inverted <?isOtherGraphemeExtend>} );
+ok(!( "\c[BENGALI VOWEL SIGN AA]" ~~ m/^<+<-isOtherGraphemeExtend>>$/ ), q{Don't match internally inverted <?isOtherGraphemeExtend>} );
+ok(!( "\c[TAI LE LETTER KHA]"  ~~ m/^<+<?isOtherGraphemeExtend>>$/ ), q{Don't match unrelated <?isOtherGraphemeExtend>} );
+ok("\c[TAI LE LETTER KHA]"  ~~ m/^<-<?isOtherGraphemeExtend>>$/, q{Match unrelated externally inverted <?isOtherGraphemeExtend>} );
+ok("\c[TAI LE LETTER KHA]"  ~~ m/^<+<-isOtherGraphemeExtend>>$/, q{Match unrelated internally inverted <?isOtherGraphemeExtend>} );
+ok("\c[TAI LE LETTER KHA]\c[BENGALI VOWEL SIGN AA]" ~~ m/<+<?isOtherGraphemeExtend>>/, q{Match unanchored <?isOtherGraphemeExtend>} );
 
 # OtherLowercase
 
 
-ok("\c[MODIFIER LETTER SMALL H]" ~~ m/^<+<?OtherLowercase>>$/, q{Match <?OtherLowercase>} );
-ok("\c[MODIFIER LETTER SMALL H]" ~~ m/^<[A]+<?OtherLowercase>>$/, q{Match compound <?OtherLowercase>} );
-ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<-<?OtherLowercase>>$/ ), q{Don't match externally inverted <?OtherLowercase>} );
-ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<[A]-<?OtherLowercase>>$/ ), q{Don't match compound inverted <?OtherLowercase>} );
-ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<+<-OtherLowercase>>$/ ), q{Don't match internally inverted <?OtherLowercase>} );
-ok(!( "\x[8153]"  ~~ m/^<+<?OtherLowercase>>$/ ), q{Don't match unrelated <?OtherLowercase>} );
-ok("\x[8153]"  ~~ m/^<-<?OtherLowercase>>$/, q{Match unrelated externally inverted <?OtherLowercase>} );
-ok("\x[8153]"  ~~ m/^<+<-OtherLowercase>>$/, q{Match unrelated internally inverted <?OtherLowercase>} );
-ok("\x[8153]\c[MODIFIER LETTER SMALL H]" ~~ m/<+<?OtherLowercase>>/, q{Match unanchored <?OtherLowercase>} );
+ok("\c[MODIFIER LETTER SMALL H]" ~~ m/^<+<?isOtherLowercase>>$/, q{Match <?isOtherLowercase>} );
+ok("\c[MODIFIER LETTER SMALL H]" ~~ m/^<[A]+<?isOtherLowercase>>$/, q{Match compound <?isOtherLowercase>} );
+ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<-<?isOtherLowercase>>$/ ), q{Don't match externally inverted <?isOtherLowercase>} );
+ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<[A]-<?isOtherLowercase>>$/ ), q{Don't match compound inverted <?isOtherLowercase>} );
+ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<+<-isOtherLowercase>>$/ ), q{Don't match internally inverted <?isOtherLowercase>} );
+ok(!( "\x[8153]"  ~~ m/^<+<?isOtherLowercase>>$/ ), q{Don't match unrelated <?isOtherLowercase>} );
+ok("\x[8153]"  ~~ m/^<-<?isOtherLowercase>>$/, q{Match unrelated externally inverted <?isOtherLowercase>} );
+ok("\x[8153]"  ~~ m/^<+<-isOtherLowercase>>$/, q{Match unrelated internally inverted <?isOtherLowercase>} );
+ok("\x[8153]\c[MODIFIER LETTER SMALL H]" ~~ m/<+<?isOtherLowercase>>/, q{Match unanchored <?isOtherLowercase>} );
 
 # OtherMath
 
 
-ok("\c[LEFT PARENTHESIS]" ~~ m/^<+<?OtherMath>>$/, q{Match <?OtherMath>} );
-ok("\c[LEFT PARENTHESIS]" ~~ m/^<[A]+<?OtherMath>>$/, q{Match compound <?OtherMath>} );
-ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<-<?OtherMath>>$/ ), q{Don't match externally inverted <?OtherMath>} );
-ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<[A]-<?OtherMath>>$/ ), q{Don't match compound inverted <?OtherMath>} );
-ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<+<-OtherMath>>$/ ), q{Don't match internally inverted <?OtherMath>} );
-ok(!( "\x[6D2F]"  ~~ m/^<+<?OtherMath>>$/ ), q{Don't match unrelated <?OtherMath>} );
-ok("\x[6D2F]"  ~~ m/^<-<?OtherMath>>$/, q{Match unrelated externally inverted <?OtherMath>} );
-ok("\x[6D2F]"  ~~ m/^<+<-OtherMath>>$/, q{Match unrelated internally inverted <?OtherMath>} );
-ok("\x[6D2F]\c[LEFT PARENTHESIS]" ~~ m/<+<?OtherMath>>/, q{Match unanchored <?OtherMath>} );
+ok("\c[LEFT PARENTHESIS]" ~~ m/^<+<?isOtherMath>>$/, q{Match <?isOtherMath>} );
+ok("\c[LEFT PARENTHESIS]" ~~ m/^<[A]+<?isOtherMath>>$/, q{Match compound <?isOtherMath>} );
+ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<-<?isOtherMath>>$/ ), q{Don't match externally inverted <?isOtherMath>} );
+ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<[A]-<?isOtherMath>>$/ ), q{Don't match compound inverted <?isOtherMath>} );
+ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<+<-isOtherMath>>$/ ), q{Don't match internally inverted <?isOtherMath>} );
+ok(!( "\x[6D2F]"  ~~ m/^<+<?isOtherMath>>$/ ), q{Don't match unrelated <?isOtherMath>} );
+ok("\x[6D2F]"  ~~ m/^<-<?isOtherMath>>$/, q{Match unrelated externally inverted <?isOtherMath>} );
+ok("\x[6D2F]"  ~~ m/^<+<-isOtherMath>>$/, q{Match unrelated internally inverted <?isOtherMath>} );
+ok("\x[6D2F]\c[LEFT PARENTHESIS]" ~~ m/<+<?isOtherMath>>/, q{Match unanchored <?isOtherMath>} );
 
 # OtherUppercase
 
 
-ok("\c[ROMAN NUMERAL ONE]" ~~ m/^<+<?OtherUppercase>>$/, q{Match <?OtherUppercase>} );
-ok("\c[ROMAN NUMERAL ONE]" ~~ m/^<[A]+<?OtherUppercase>>$/, q{Match compound <?OtherUppercase>} );
-ok(!( "\c[ROMAN NUMERAL ONE]" ~~ m/^<-<?OtherUppercase>>$/ ), q{Don't match externally inverted <?OtherUppercase>} );
-ok(!( "\c[ROMAN NUMERAL ONE]" ~~ m/^<[A]-<?OtherUppercase>>$/ ), q{Don't match compound inverted <?OtherUppercase>} );
-ok(!( "\c[ROMAN NUMERAL ONE]" ~~ m/^<+<-OtherUppercase>>$/ ), q{Don't match internally inverted <?OtherUppercase>} );
-ok(!( "\x[A746]"  ~~ m/^<+<?OtherUppercase>>$/ ), q{Don't match unrelated <?OtherUppercase>} );
-ok("\x[A746]"  ~~ m/^<-<?OtherUppercase>>$/, q{Match unrelated externally inverted <?OtherUppercase>} );
-ok("\x[A746]"  ~~ m/^<+<-OtherUppercase>>$/, q{Match unrelated internally inverted <?OtherUppercase>} );
-ok("\x[A746]\c[ROMAN NUMERAL ONE]" ~~ m/<+<?OtherUppercase>>/, q{Match unanchored <?OtherUppercase>} );
+ok("\c[ROMAN NUMERAL ONE]" ~~ m/^<+<?isOtherUppercase>>$/, q{Match <?isOtherUppercase>} );
+ok("\c[ROMAN NUMERAL ONE]" ~~ m/^<[A]+<?isOtherUppercase>>$/, q{Match compound <?isOtherUppercase>} );
+ok(!( "\c[ROMAN NUMERAL ONE]" ~~ m/^<-<?isOtherUppercase>>$/ ), q{Don't match externally inverted <?isOtherUppercase>} );
+ok(!( "\c[ROMAN NUMERAL ONE]" ~~ m/^<[A]-<?isOtherUppercase>>$/ ), q{Don't match compound inverted <?isOtherUppercase>} );
+ok(!( "\c[ROMAN NUMERAL ONE]" ~~ m/^<+<-isOtherUppercase>>$/ ), q{Don't match internally inverted <?isOtherUppercase>} );
+ok(!( "\x[A746]"  ~~ m/^<+<?isOtherUppercase>>$/ ), q{Don't match unrelated <?isOtherUppercase>} );
+ok("\x[A746]"  ~~ m/^<-<?isOtherUppercase>>$/, q{Match unrelated externally inverted <?isOtherUppercase>} );
+ok("\x[A746]"  ~~ m/^<+<-isOtherUppercase>>$/, q{Match unrelated internally inverted <?isOtherUppercase>} );
+ok("\x[A746]\c[ROMAN NUMERAL ONE]" ~~ m/<+<?isOtherUppercase>>/, q{Match unanchored <?isOtherUppercase>} );
 
 # QuotationMark
 
 
-ok("\c[LEFT SINGLE QUOTATION MARK]" ~~ m/^<+<?QuotationMark>>$/, q{Match <?QuotationMark>} );
-ok("\c[LEFT SINGLE QUOTATION MARK]" ~~ m/^<[A]+<?QuotationMark>>$/, q{Match compound <?QuotationMark>} );
-ok(!( "\c[LEFT SINGLE QUOTATION MARK]" ~~ m/^<-<?QuotationMark>>$/ ), q{Don't match externally inverted <?QuotationMark>} );
-ok(!( "\c[LEFT SINGLE QUOTATION MARK]" ~~ m/^<[A]-<?QuotationMark>>$/ ), q{Don't match compound inverted <?QuotationMark>} );
-ok(!( "\c[LEFT SINGLE QUOTATION MARK]" ~~ m/^<+<-QuotationMark>>$/ ), q{Don't match internally inverted <?QuotationMark>} );
-ok(!( "\c[GURMUKHI VOWEL SIGN AI]"  ~~ m/^<+<?QuotationMark>>$/ ), q{Don't match unrelated <?QuotationMark>} );
-ok("\c[GURMUKHI VOWEL SIGN AI]"  ~~ m/^<-<?QuotationMark>>$/, q{Match unrelated externally inverted <?QuotationMark>} );
-ok("\c[GURMUKHI VOWEL SIGN AI]"  ~~ m/^<+<-QuotationMark>>$/, q{Match unrelated internally inverted <?QuotationMark>} );
-ok("\c[GURMUKHI VOWEL SIGN AI]\c[LEFT SINGLE QUOTATION MARK]" ~~ m/<+<?QuotationMark>>/, q{Match unanchored <?QuotationMark>} );
+ok("\c[LEFT SINGLE QUOTATION MARK]" ~~ m/^<+<?isQuotationMark>>$/, q{Match <?isQuotationMark>} );
+ok("\c[LEFT SINGLE QUOTATION MARK]" ~~ m/^<[A]+<?isQuotationMark>>$/, q{Match compound <?isQuotationMark>} );
+ok(!( "\c[LEFT SINGLE QUOTATION MARK]" ~~ m/^<-<?isQuotationMark>>$/ ), q{Don't match externally inverted <?isQuotationMark>} );
+ok(!( "\c[LEFT SINGLE QUOTATION MARK]" ~~ m/^<[A]-<?isQuotationMark>>$/ ), q{Don't match compound inverted <?isQuotationMark>} );
+ok(!( "\c[LEFT SINGLE QUOTATION MARK]" ~~ m/^<+<-isQuotationMark>>$/ ), q{Don't match internally inverted <?isQuotationMark>} );
+ok(!( "\c[GURMUKHI VOWEL SIGN AI]"  ~~ m/^<+<?isQuotationMark>>$/ ), q{Don't match unrelated <?isQuotationMark>} );
+ok("\c[GURMUKHI VOWEL SIGN AI]"  ~~ m/^<-<?isQuotationMark>>$/, q{Match unrelated externally inverted <?isQuotationMark>} );
+ok("\c[GURMUKHI VOWEL SIGN AI]"  ~~ m/^<+<-isQuotationMark>>$/, q{Match unrelated internally inverted <?isQuotationMark>} );
+ok("\c[GURMUKHI VOWEL SIGN AI]\c[LEFT SINGLE QUOTATION MARK]" ~~ m/<+<?isQuotationMark>>/, q{Match unanchored <?isQuotationMark>} );
 
 # Radical
 
 
-ok("\c[CJK RADICAL REPEAT]" ~~ m/^<+<?Radical>>$/, q{Match <?Radical>} );
-ok("\c[CJK RADICAL REPEAT]" ~~ m/^<[A]+<?Radical>>$/, q{Match compound <?Radical>} );
-ok(!( "\c[CJK RADICAL REPEAT]" ~~ m/^<-<?Radical>>$/ ), q{Don't match externally inverted <?Radical>} );
-ok(!( "\c[CJK RADICAL REPEAT]" ~~ m/^<[A]-<?Radical>>$/ ), q{Don't match compound inverted <?Radical>} );
-ok(!( "\c[CJK RADICAL REPEAT]" ~~ m/^<+<-Radical>>$/ ), q{Don't match internally inverted <?Radical>} );
-ok(!( "\c[RUNIC LETTER ETH]"  ~~ m/^<+<?Radical>>$/ ), q{Don't match unrelated <?Radical>} );
-ok("\c[RUNIC LETTER ETH]"  ~~ m/^<-<?Radical>>$/, q{Match unrelated externally inverted <?Radical>} );
-ok("\c[RUNIC LETTER ETH]"  ~~ m/^<+<-Radical>>$/, q{Match unrelated internally inverted <?Radical>} );
-ok("\c[RUNIC LETTER ETH]\c[CJK RADICAL REPEAT]" ~~ m/<+<?Radical>>/, q{Match unanchored <?Radical>} );
+ok("\c[CJK RADICAL REPEAT]" ~~ m/^<+<?isRadical>>$/, q{Match <?isRadical>} );
+ok("\c[CJK RADICAL REPEAT]" ~~ m/^<[A]+<?isRadical>>$/, q{Match compound <?isRadical>} );
+ok(!( "\c[CJK RADICAL REPEAT]" ~~ m/^<-<?isRadical>>$/ ), q{Don't match externally inverted <?isRadical>} );
+ok(!( "\c[CJK RADICAL REPEAT]" ~~ m/^<[A]-<?isRadical>>$/ ), q{Don't match compound inverted <?isRadical>} );
+ok(!( "\c[CJK RADICAL REPEAT]" ~~ m/^<+<-isRadical>>$/ ), q{Don't match internally inverted <?isRadical>} );
+ok(!( "\c[RUNIC LETTER ETH]"  ~~ m/^<+<?isRadical>>$/ ), q{Don't match unrelated <?isRadical>} );
+ok("\c[RUNIC LETTER ETH]"  ~~ m/^<-<?isRadical>>$/, q{Match unrelated externally inverted <?isRadical>} );
+ok("\c[RUNIC LETTER ETH]"  ~~ m/^<+<-isRadical>>$/, q{Match unrelated internally inverted <?isRadical>} );
+ok("\c[RUNIC LETTER ETH]\c[CJK RADICAL REPEAT]" ~~ m/<+<?isRadical>>/, q{Match unanchored <?isRadical>} );
 
 # SoftDotted
 
 
-ok("\c[LATIN SMALL LETTER I WITH TILDE BELOW]" ~~ m/^<+<?SoftDotted>>$/, q{Match <?SoftDotted>} );
-ok("\c[LATIN SMALL LETTER I WITH TILDE BELOW]" ~~ m/^<[A]+<?SoftDotted>>$/, q{Match compound <?SoftDotted>} );
-ok(!( "\c[LATIN SMALL LETTER I WITH TILDE BELOW]" ~~ m/^<-<?SoftDotted>>$/ ), q{Don't match externally inverted <?SoftDotted>} );
-ok(!( "\c[LATIN SMALL LETTER I WITH TILDE BELOW]" ~~ m/^<[A]-<?SoftDotted>>$/ ), q{Don't match compound inverted <?SoftDotted>} );
-ok(!( "\c[LATIN SMALL LETTER I WITH TILDE BELOW]" ~~ m/^<+<-SoftDotted>>$/ ), q{Don't match internally inverted <?SoftDotted>} );
-ok(!( "\c[LATIN CAPITAL LETTER B WITH DOT ABOVE]"  ~~ m/^<+<?SoftDotted>>$/ ), q{Don't match unrelated <?SoftDotted>} );
-ok("\c[LATIN CAPITAL LETTER B WITH DOT ABOVE]"  ~~ m/^<-<?SoftDotted>>$/, q{Match unrelated externally inverted <?SoftDotted>} );
-ok("\c[LATIN CAPITAL LETTER B WITH DOT ABOVE]"  ~~ m/^<+<-SoftDotted>>$/, q{Match unrelated internally inverted <?SoftDotted>} );
-ok(!( "\c[GREEK KORONIS]" ~~ m/^<+<?SoftDotted>>$/ ), q{Don't match related <?SoftDotted>} );
-ok("\c[GREEK KORONIS]" ~~ m/^<+<-SoftDotted>>$/, q{Match related internally inverted <?SoftDotted>} );
-ok("\c[GREEK KORONIS]" ~~ m/^<-<?SoftDotted>>$/, q{Match related externally inverted <?SoftDotted>} );
-ok("\c[LATIN CAPITAL LETTER B WITH DOT ABOVE]\c[GREEK KORONIS]\c[LATIN SMALL LETTER I WITH TILDE BELOW]" ~~ m/<+<?SoftDotted>>/, q{Match unanchored <?SoftDotted>} );
+ok("\c[LATIN SMALL LETTER I WITH TILDE BELOW]" ~~ m/^<+<?isSoftDotted>>$/, q{Match <?isSoftDotted>} );
+ok("\c[LATIN SMALL LETTER I WITH TILDE BELOW]" ~~ m/^<[A]+<?isSoftDotted>>$/, q{Match compound <?isSoftDotted>} );
+ok(!( "\c[LATIN SMALL LETTER I WITH TILDE BELOW]" ~~ m/^<-<?isSoftDotted>>$/ ), q{Don't match externally inverted <?isSoftDotted>} );
+ok(!( "\c[LATIN SMALL LETTER I WITH TILDE BELOW]" ~~ m/^<[A]-<?isSoftDotted>>$/ ), q{Don't match compound inverted <?isSoftDotted>} );
+ok(!( "\c[LATIN SMALL LETTER I WITH TILDE BELOW]" ~~ m/^<+<-isSoftDotted>>$/ ), q{Don't match internally inverted <?isSoftDotted>} );
+ok(!( "\c[LATIN CAPITAL LETTER B WITH DOT ABOVE]"  ~~ m/^<+<?isSoftDotted>>$/ ), q{Don't match unrelated <?isSoftDotted>} );
+ok("\c[LATIN CAPITAL LETTER B WITH DOT ABOVE]"  ~~ m/^<-<?isSoftDotted>>$/, q{Match unrelated externally inverted <?isSoftDotted>} );
+ok("\c[LATIN CAPITAL LETTER B WITH DOT ABOVE]"  ~~ m/^<+<-isSoftDotted>>$/, q{Match unrelated internally inverted <?isSoftDotted>} );
+ok(!( "\c[GREEK KORONIS]" ~~ m/^<+<?isSoftDotted>>$/ ), q{Don't match related <?isSoftDotted>} );
+ok("\c[GREEK KORONIS]" ~~ m/^<+<-isSoftDotted>>$/, q{Match related internally inverted <?isSoftDotted>} );
+ok("\c[GREEK KORONIS]" ~~ m/^<-<?isSoftDotted>>$/, q{Match related externally inverted <?isSoftDotted>} );
+ok("\c[LATIN CAPITAL LETTER B WITH DOT ABOVE]\c[GREEK KORONIS]\c[LATIN SMALL LETTER I WITH TILDE BELOW]" ~~ m/<+<?isSoftDotted>>/, q{Match unanchored <?isSoftDotted>} );
 
 # TerminalPunctuation
 
 
-ok("\c[EXCLAMATION MARK]" ~~ m/^<+<?TerminalPunctuation>>$/, q{Match <?TerminalPunctuation>} );
-ok("\c[EXCLAMATION MARK]" ~~ m/^<[A]+<?TerminalPunctuation>>$/, q{Match compound <?TerminalPunctuation>} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<-<?TerminalPunctuation>>$/ ), q{Don't match externally inverted <?TerminalPunctuation>} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<[A]-<?TerminalPunctuation>>$/ ), q{Don't match compound inverted <?TerminalPunctuation>} );
-ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<-TerminalPunctuation>>$/ ), q{Don't match internally inverted <?TerminalPunctuation>} );
-ok(!( "\x[B43A]"  ~~ m/^<+<?TerminalPunctuation>>$/ ), q{Don't match unrelated <?TerminalPunctuation>} );
-ok("\x[B43A]"  ~~ m/^<-<?TerminalPunctuation>>$/, q{Match unrelated externally inverted <?TerminalPunctuation>} );
-ok("\x[B43A]"  ~~ m/^<+<-TerminalPunctuation>>$/, q{Match unrelated internally inverted <?TerminalPunctuation>} );
-ok("\x[B43A]\c[EXCLAMATION MARK]" ~~ m/<+<?TerminalPunctuation>>/, q{Match unanchored <?TerminalPunctuation>} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<+<?isTerminalPunctuation>>$/, q{Match <?isTerminalPunctuation>} );
+ok("\c[EXCLAMATION MARK]" ~~ m/^<[A]+<?isTerminalPunctuation>>$/, q{Match compound <?isTerminalPunctuation>} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<-<?isTerminalPunctuation>>$/ ), q{Don't match externally inverted <?isTerminalPunctuation>} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<[A]-<?isTerminalPunctuation>>$/ ), q{Don't match compound inverted <?isTerminalPunctuation>} );
+ok(!( "\c[EXCLAMATION MARK]" ~~ m/^<+<-isTerminalPunctuation>>$/ ), q{Don't match internally inverted <?isTerminalPunctuation>} );
+ok(!( "\x[B43A]"  ~~ m/^<+<?isTerminalPunctuation>>$/ ), q{Don't match unrelated <?isTerminalPunctuation>} );
+ok("\x[B43A]"  ~~ m/^<-<?isTerminalPunctuation>>$/, q{Match unrelated externally inverted <?isTerminalPunctuation>} );
+ok("\x[B43A]"  ~~ m/^<+<-isTerminalPunctuation>>$/, q{Match unrelated internally inverted <?isTerminalPunctuation>} );
+ok("\x[B43A]\c[EXCLAMATION MARK]" ~~ m/<+<?isTerminalPunctuation>>/, q{Match unanchored <?isTerminalPunctuation>} );
 
 # UnifiedIdeograph
 
 
-ok("\x[88D8]" ~~ m/^<+<?UnifiedIdeograph>>$/, q{Match <?UnifiedIdeograph>} );
-ok("\x[88D8]" ~~ m/^<[A]+<?UnifiedIdeograph>>$/, q{Match compound <?UnifiedIdeograph>} );
-ok(!( "\x[88D8]" ~~ m/^<-<?UnifiedIdeograph>>$/ ), q{Don't match externally inverted <?UnifiedIdeograph>} );
-ok(!( "\x[88D8]" ~~ m/^<[A]-<?UnifiedIdeograph>>$/ ), q{Don't match compound inverted <?UnifiedIdeograph>} );
-ok(!( "\x[88D8]" ~~ m/^<+<-UnifiedIdeograph>>$/ ), q{Don't match internally inverted <?UnifiedIdeograph>} );
-ok(!( "\x[9FA6]"  ~~ m/^<+<?UnifiedIdeograph>>$/ ), q{Don't match unrelated <?UnifiedIdeograph>} );
-ok("\x[9FA6]"  ~~ m/^<-<?UnifiedIdeograph>>$/, q{Match unrelated externally inverted <?UnifiedIdeograph>} );
-ok("\x[9FA6]"  ~~ m/^<+<-UnifiedIdeograph>>$/, q{Match unrelated internally inverted <?UnifiedIdeograph>} );
-ok("\x[9FA6]\x[88D8]" ~~ m/<+<?UnifiedIdeograph>>/, q{Match unanchored <?UnifiedIdeograph>} );
+ok("\x[88D8]" ~~ m/^<+<?isUnifiedIdeograph>>$/, q{Match <?isUnifiedIdeograph>} );
+ok("\x[88D8]" ~~ m/^<[A]+<?isUnifiedIdeograph>>$/, q{Match compound <?isUnifiedIdeograph>} );
+ok(!( "\x[88D8]" ~~ m/^<-<?isUnifiedIdeograph>>$/ ), q{Don't match externally inverted <?isUnifiedIdeograph>} );
+ok(!( "\x[88D8]" ~~ m/^<[A]-<?isUnifiedIdeograph>>$/ ), q{Don't match compound inverted <?isUnifiedIdeograph>} );
+ok(!( "\x[88D8]" ~~ m/^<+<-isUnifiedIdeograph>>$/ ), q{Don't match internally inverted <?isUnifiedIdeograph>} );
+ok(!( "\x[9FA6]"  ~~ m/^<+<?isUnifiedIdeograph>>$/ ), q{Don't match unrelated <?isUnifiedIdeograph>} );
+ok("\x[9FA6]"  ~~ m/^<-<?isUnifiedIdeograph>>$/, q{Match unrelated externally inverted <?isUnifiedIdeograph>} );
+ok("\x[9FA6]"  ~~ m/^<+<-isUnifiedIdeograph>>$/, q{Match unrelated internally inverted <?isUnifiedIdeograph>} );
+ok("\x[9FA6]\x[88D8]" ~~ m/<+<?isUnifiedIdeograph>>/, q{Match unanchored <?isUnifiedIdeograph>} );
 
 # WhiteSpace
 
 
-ok("\c[CHARACTER TABULATION]" ~~ m/^<+<?WhiteSpace>>$/, q{Match <?WhiteSpace>} );
-ok("\c[CHARACTER TABULATION]" ~~ m/^<[A]+<?WhiteSpace>>$/, q{Match compound <?WhiteSpace>} );
-ok(!( "\c[CHARACTER TABULATION]" ~~ m/^<-<?WhiteSpace>>$/ ), q{Don't match externally inverted <?WhiteSpace>} );
-ok(!( "\c[CHARACTER TABULATION]" ~~ m/^<[A]-<?WhiteSpace>>$/ ), q{Don't match compound inverted <?WhiteSpace>} );
-ok(!( "\c[CHARACTER TABULATION]" ~~ m/^<+<-WhiteSpace>>$/ ), q{Don't match internally inverted <?WhiteSpace>} );
-ok(!( "\x[4345]"  ~~ m/^<+<?WhiteSpace>>$/ ), q{Don't match unrelated <?WhiteSpace>} );
-ok("\x[4345]"  ~~ m/^<-<?WhiteSpace>>$/, q{Match unrelated externally inverted <?WhiteSpace>} );
-ok("\x[4345]"  ~~ m/^<+<-WhiteSpace>>$/, q{Match unrelated internally inverted <?WhiteSpace>} );
-ok("\x[4345]\c[CHARACTER TABULATION]" ~~ m/<+<?WhiteSpace>>/, q{Match unanchored <?WhiteSpace>} );
+ok("\c[CHARACTER TABULATION]" ~~ m/^<+<?isWhiteSpace>>$/, q{Match <?isWhiteSpace>} );
+ok("\c[CHARACTER TABULATION]" ~~ m/^<[A]+<?isWhiteSpace>>$/, q{Match compound <?isWhiteSpace>} );
+ok(!( "\c[CHARACTER TABULATION]" ~~ m/^<-<?isWhiteSpace>>$/ ), q{Don't match externally inverted <?isWhiteSpace>} );
+ok(!( "\c[CHARACTER TABULATION]" ~~ m/^<[A]-<?isWhiteSpace>>$/ ), q{Don't match compound inverted <?isWhiteSpace>} );
+ok(!( "\c[CHARACTER TABULATION]" ~~ m/^<+<-isWhiteSpace>>$/ ), q{Don't match internally inverted <?isWhiteSpace>} );
+ok(!( "\x[4345]"  ~~ m/^<+<?isWhiteSpace>>$/ ), q{Don't match unrelated <?isWhiteSpace>} );
+ok("\x[4345]"  ~~ m/^<-<?isWhiteSpace>>$/, q{Match unrelated externally inverted <?isWhiteSpace>} );
+ok("\x[4345]"  ~~ m/^<+<-isWhiteSpace>>$/, q{Match unrelated internally inverted <?isWhiteSpace>} );
+ok("\x[4345]\c[CHARACTER TABULATION]" ~~ m/<+<?isWhiteSpace>>/, q{Match unanchored <?isWhiteSpace>} );
 
 # Alphabetic      # Lu + Ll + Lt + Lm + Lo + OtherAlphabetic
 
 
-ok("\x[3816]" ~~ m/^<+<?Alphabetic>>$/, q{Match (Lu + Ll + Lt + Lm + Lo + OtherAlphabetic)} );
-ok("\x[3816]" ~~ m/^<[A]+<?Alphabetic>>$/, q{Match compound (Lu + Ll + Lt + Lm + Lo + OtherAlphabetic)} );
-ok(!( "\x[3816]" ~~ m/^<-<?Alphabetic>>$/ ), q{Don't match externally inverted (Lu + Ll + Lt + Lm + Lo + OtherAlphabetic)} );
-ok(!( "\x[3816]" ~~ m/^<[A]-<?Alphabetic>>$/ ), q{Don't match compound inverted (Lu + Ll + Lt + Lm + Lo + OtherAlphabetic)} );
-ok(!( "\x[3816]" ~~ m/^<+<-Alphabetic>>$/ ), q{Don't match internally inverted (Lu + Ll + Lt + Lm + Lo + OtherAlphabetic)} );
-ok(!( "\x[4DB6]"  ~~ m/^<+<?Alphabetic>>$/ ), q{Don't match unrelated (Lu + Ll + Lt + Lm + Lo + OtherAlphabetic)} );
-ok("\x[4DB6]"  ~~ m/^<-<?Alphabetic>>$/, q{Match unrelated externally inverted (Lu + Ll + Lt + Lm + Lo + OtherAlphabetic)} );
-ok("\x[4DB6]"  ~~ m/^<+<-Alphabetic>>$/, q{Match unrelated internally inverted (Lu + Ll + Lt + Lm + Lo + OtherAlphabetic)} );
-ok("\x[4DB6]\x[3816]" ~~ m/<+<?Alphabetic>>/, q{Match unanchored (Lu + Ll + Lt + Lm + Lo + OtherAlphabetic)} );
+ok("\x[3816]" ~~ m/^<+<?isAlphabetic>>$/, q{Match (Lu + Ll + Lt + Lm + Lo + OtherAlphabetic)} );
+ok("\x[3816]" ~~ m/^<[A]+<?isAlphabetic>>$/, q{Match compound (Lu + Ll + Lt + Lm + Lo + OtherAlphabetic)} );
+ok(!( "\x[3816]" ~~ m/^<-<?isAlphabetic>>$/ ), q{Don't match externally inverted (Lu + Ll + Lt + Lm + Lo + OtherAlphabetic)} );
+ok(!( "\x[3816]" ~~ m/^<[A]-<?isAlphabetic>>$/ ), q{Don't match compound inverted (Lu + Ll + Lt + Lm + Lo + OtherAlphabetic)} );
+ok(!( "\x[3816]" ~~ m/^<+<-isAlphabetic>>$/ ), q{Don't match internally inverted (Lu + Ll + Lt + Lm + Lo + OtherAlphabetic)} );
+ok(!( "\x[4DB6]"  ~~ m/^<+<?isAlphabetic>>$/ ), q{Don't match unrelated (Lu + Ll + Lt + Lm + Lo + OtherAlphabetic)} );
+ok("\x[4DB6]"  ~~ m/^<-<?isAlphabetic>>$/, q{Match unrelated externally inverted (Lu + Ll + Lt + Lm + Lo + OtherAlphabetic)} );
+ok("\x[4DB6]"  ~~ m/^<+<-isAlphabetic>>$/, q{Match unrelated internally inverted (Lu + Ll + Lt + Lm + Lo + OtherAlphabetic)} );
+ok("\x[4DB6]\x[3816]" ~~ m/<+<?isAlphabetic>>/, q{Match unanchored (Lu + Ll + Lt + Lm + Lo + OtherAlphabetic)} );
 
 # Lowercase       # Ll + OtherLowercase
 
 
-ok("\c[LATIN LETTER SMALL CAPITAL A]" ~~ m/^<+<?Lowercase>>$/, q{Match (Ll + OtherLowercase)} );
-ok("\c[LATIN LETTER SMALL CAPITAL A]" ~~ m/^<[A]+<?Lowercase>>$/, q{Match compound (Ll + OtherLowercase)} );
-ok(!( "\c[LATIN LETTER SMALL CAPITAL A]" ~~ m/^<-<?Lowercase>>$/ ), q{Don't match externally inverted (Ll + OtherLowercase)} );
-ok(!( "\c[LATIN LETTER SMALL CAPITAL A]" ~~ m/^<[A]-<?Lowercase>>$/ ), q{Don't match compound inverted (Ll + OtherLowercase)} );
-ok(!( "\c[LATIN LETTER SMALL CAPITAL A]" ~~ m/^<+<-Lowercase>>$/ ), q{Don't match internally inverted (Ll + OtherLowercase)} );
-ok(!( "\x[0D3D]"  ~~ m/^<+<?Lowercase>>$/ ), q{Don't match unrelated (Ll + OtherLowercase)} );
-ok("\x[0D3D]"  ~~ m/^<-<?Lowercase>>$/, q{Match unrelated externally inverted (Ll + OtherLowercase)} );
-ok("\x[0D3D]"  ~~ m/^<+<-Lowercase>>$/, q{Match unrelated internally inverted (Ll + OtherLowercase)} );
-ok(!( "\c[MALAYALAM LETTER VOCALIC RR]" ~~ m/^<+<?Lowercase>>$/ ), q{Don't match related (Ll + OtherLowercase)} );
-ok("\c[MALAYALAM LETTER VOCALIC RR]" ~~ m/^<+<-Lowercase>>$/, q{Match related internally inverted (Ll + OtherLowercase)} );
-ok("\c[MALAYALAM LETTER VOCALIC RR]" ~~ m/^<-<?Lowercase>>$/, q{Match related externally inverted (Ll + OtherLowercase)} );
-ok("\x[0D3D]\c[MALAYALAM LETTER VOCALIC RR]\c[LATIN LETTER SMALL CAPITAL A]" ~~ m/<+<?Lowercase>>/, q{Match unanchored (Ll + OtherLowercase)} );
+ok("\c[LATIN LETTER SMALL CAPITAL A]" ~~ m/^<+<?isLowercase>>$/, q{Match (Ll + OtherLowercase)} );
+ok("\c[LATIN LETTER SMALL CAPITAL A]" ~~ m/^<[A]+<?isLowercase>>$/, q{Match compound (Ll + OtherLowercase)} );
+ok(!( "\c[LATIN LETTER SMALL CAPITAL A]" ~~ m/^<-<?isLowercase>>$/ ), q{Don't match externally inverted (Ll + OtherLowercase)} );
+ok(!( "\c[LATIN LETTER SMALL CAPITAL A]" ~~ m/^<[A]-<?isLowercase>>$/ ), q{Don't match compound inverted (Ll + OtherLowercase)} );
+ok(!( "\c[LATIN LETTER SMALL CAPITAL A]" ~~ m/^<+<-isLowercase>>$/ ), q{Don't match internally inverted (Ll + OtherLowercase)} );
+ok(!( "\x[0D3D]"  ~~ m/^<+<?isLowercase>>$/ ), q{Don't match unrelated (Ll + OtherLowercase)} );
+ok("\x[0D3D]"  ~~ m/^<-<?isLowercase>>$/, q{Match unrelated externally inverted (Ll + OtherLowercase)} );
+ok("\x[0D3D]"  ~~ m/^<+<-isLowercase>>$/, q{Match unrelated internally inverted (Ll + OtherLowercase)} );
+ok(!( "\c[MALAYALAM LETTER VOCALIC RR]" ~~ m/^<+<?isLowercase>>$/ ), q{Don't match related (Ll + OtherLowercase)} );
+ok("\c[MALAYALAM LETTER VOCALIC RR]" ~~ m/^<+<-isLowercase>>$/, q{Match related internally inverted (Ll + OtherLowercase)} );
+ok("\c[MALAYALAM LETTER VOCALIC RR]" ~~ m/^<-<?isLowercase>>$/, q{Match related externally inverted (Ll + OtherLowercase)} );
+ok("\x[0D3D]\c[MALAYALAM LETTER VOCALIC RR]\c[LATIN LETTER SMALL CAPITAL A]" ~~ m/<+<?isLowercase>>/, q{Match unanchored (Ll + OtherLowercase)} );
 
 # Uppercase       # Lu + OtherUppercase
 
 
-ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<?Uppercase>>$/, q{Match (Lu + OtherUppercase)} );
-ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<[A]+<?Uppercase>>$/, q{Match compound (Lu + OtherUppercase)} );
-ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<-<?Uppercase>>$/ ), q{Don't match externally inverted (Lu + OtherUppercase)} );
-ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<[A]-<?Uppercase>>$/ ), q{Don't match compound inverted (Lu + OtherUppercase)} );
-ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<-Uppercase>>$/ ), q{Don't match internally inverted (Lu + OtherUppercase)} );
-ok(!( "\x[C107]"  ~~ m/^<+<?Uppercase>>$/ ), q{Don't match unrelated (Lu + OtherUppercase)} );
-ok("\x[C107]"  ~~ m/^<-<?Uppercase>>$/, q{Match unrelated externally inverted (Lu + OtherUppercase)} );
-ok("\x[C107]"  ~~ m/^<+<-Uppercase>>$/, q{Match unrelated internally inverted (Lu + OtherUppercase)} );
-ok("\x[C107]\c[LATIN CAPITAL LETTER A]" ~~ m/<+<?Uppercase>>/, q{Match unanchored (Lu + OtherUppercase)} );
+ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<?isUppercase>>$/, q{Match (Lu + OtherUppercase)} );
+ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<[A]+<?isUppercase>>$/, q{Match compound (Lu + OtherUppercase)} );
+ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<-<?isUppercase>>$/ ), q{Don't match externally inverted (Lu + OtherUppercase)} );
+ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<[A]-<?isUppercase>>$/ ), q{Don't match compound inverted (Lu + OtherUppercase)} );
+ok(!( "\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<-isUppercase>>$/ ), q{Don't match internally inverted (Lu + OtherUppercase)} );
+ok(!( "\x[C107]"  ~~ m/^<+<?isUppercase>>$/ ), q{Don't match unrelated (Lu + OtherUppercase)} );
+ok("\x[C107]"  ~~ m/^<-<?isUppercase>>$/, q{Match unrelated externally inverted (Lu + OtherUppercase)} );
+ok("\x[C107]"  ~~ m/^<+<-isUppercase>>$/, q{Match unrelated internally inverted (Lu + OtherUppercase)} );
+ok("\x[C107]\c[LATIN CAPITAL LETTER A]" ~~ m/<+<?isUppercase>>/, q{Match unanchored (Lu + OtherUppercase)} );
 
 # Math            # Sm + OtherMath
 
 
-ok("\c[LEFT PARENTHESIS]" ~~ m/^<+<?Math>>$/, q{Match (Sm + OtherMath)} );
-ok("\c[LEFT PARENTHESIS]" ~~ m/^<[A]+<?Math>>$/, q{Match compound (Sm + OtherMath)} );
-ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<-<?Math>>$/ ), q{Don't match externally inverted (Sm + OtherMath)} );
-ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<[A]-<?Math>>$/ ), q{Don't match compound inverted (Sm + OtherMath)} );
-ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<+<-Math>>$/ ), q{Don't match internally inverted (Sm + OtherMath)} );
-ok(!( "\x[D73F]"  ~~ m/^<+<?Math>>$/ ), q{Don't match unrelated (Sm + OtherMath)} );
-ok("\x[D73F]"  ~~ m/^<-<?Math>>$/, q{Match unrelated externally inverted (Sm + OtherMath)} );
-ok("\x[D73F]"  ~~ m/^<+<-Math>>$/, q{Match unrelated internally inverted (Sm + OtherMath)} );
-ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<?Math>>$/ ), q{Don't match related (Sm + OtherMath)} );
-ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<-Math>>$/, q{Match related internally inverted (Sm + OtherMath)} );
-ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<-<?Math>>$/, q{Match related externally inverted (Sm + OtherMath)} );
-ok("\x[D73F]\c[COMBINING GRAVE ACCENT]\c[LEFT PARENTHESIS]" ~~ m/<+<?Math>>/, q{Match unanchored (Sm + OtherMath)} );
+ok("\c[LEFT PARENTHESIS]" ~~ m/^<+<?isMath>>$/, q{Match (Sm + OtherMath)} );
+ok("\c[LEFT PARENTHESIS]" ~~ m/^<[A]+<?isMath>>$/, q{Match compound (Sm + OtherMath)} );
+ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<-<?isMath>>$/ ), q{Don't match externally inverted (Sm + OtherMath)} );
+ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<[A]-<?isMath>>$/ ), q{Don't match compound inverted (Sm + OtherMath)} );
+ok(!( "\c[LEFT PARENTHESIS]" ~~ m/^<+<-isMath>>$/ ), q{Don't match internally inverted (Sm + OtherMath)} );
+ok(!( "\x[D73F]"  ~~ m/^<+<?isMath>>$/ ), q{Don't match unrelated (Sm + OtherMath)} );
+ok("\x[D73F]"  ~~ m/^<-<?isMath>>$/, q{Match unrelated externally inverted (Sm + OtherMath)} );
+ok("\x[D73F]"  ~~ m/^<+<-isMath>>$/, q{Match unrelated internally inverted (Sm + OtherMath)} );
+ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<?isMath>>$/ ), q{Don't match related (Sm + OtherMath)} );
+ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<-isMath>>$/, q{Match related internally inverted (Sm + OtherMath)} );
+ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<-<?isMath>>$/, q{Match related externally inverted (Sm + OtherMath)} );
+ok("\x[D73F]\c[COMBINING GRAVE ACCENT]\c[LEFT PARENTHESIS]" ~~ m/<+<?isMath>>/, q{Match unanchored (Sm + OtherMath)} );
 
 # ID_Start        # Lu + Ll + Lt + Lm + Lo + Nl
 
 
-ok("\x[4E5B]" ~~ m/^<+<?ID_Start>>$/, q{Match (Lu + Ll + Lt + Lm + Lo + Nl)} );
-ok("\x[4E5B]" ~~ m/^<[A]+<?ID_Start>>$/, q{Match compound (Lu + Ll + Lt + Lm + Lo + Nl)} );
-ok(!( "\x[4E5B]" ~~ m/^<-<?ID_Start>>$/ ), q{Don't match externally inverted (Lu + Ll + Lt + Lm + Lo + Nl)} );
-ok(!( "\x[4E5B]" ~~ m/^<[A]-<?ID_Start>>$/ ), q{Don't match compound inverted (Lu + Ll + Lt + Lm + Lo + Nl)} );
-ok(!( "\x[4E5B]" ~~ m/^<+<-ID_Start>>$/ ), q{Don't match internally inverted (Lu + Ll + Lt + Lm + Lo + Nl)} );
-ok(!( "\x[9FA6]"  ~~ m/^<+<?ID_Start>>$/ ), q{Don't match unrelated (Lu + Ll + Lt + Lm + Lo + Nl)} );
-ok("\x[9FA6]"  ~~ m/^<-<?ID_Start>>$/, q{Match unrelated externally inverted (Lu + Ll + Lt + Lm + Lo + Nl)} );
-ok("\x[9FA6]"  ~~ m/^<+<-ID_Start>>$/, q{Match unrelated internally inverted (Lu + Ll + Lt + Lm + Lo + Nl)} );
-ok("\x[9FA6]\x[4E5B]" ~~ m/<+<?ID_Start>>/, q{Match unanchored (Lu + Ll + Lt + Lm + Lo + Nl)} );
+ok("\x[4E5B]" ~~ m/^<+<?isID_Start>>$/, q{Match (Lu + Ll + Lt + Lm + Lo + Nl)} );
+ok("\x[4E5B]" ~~ m/^<[A]+<?isID_Start>>$/, q{Match compound (Lu + Ll + Lt + Lm + Lo + Nl)} );
+ok(!( "\x[4E5B]" ~~ m/^<-<?isID_Start>>$/ ), q{Don't match externally inverted (Lu + Ll + Lt + Lm + Lo + Nl)} );
+ok(!( "\x[4E5B]" ~~ m/^<[A]-<?isID_Start>>$/ ), q{Don't match compound inverted (Lu + Ll + Lt + Lm + Lo + Nl)} );
+ok(!( "\x[4E5B]" ~~ m/^<+<-isID_Start>>$/ ), q{Don't match internally inverted (Lu + Ll + Lt + Lm + Lo + Nl)} );
+ok(!( "\x[9FA6]"  ~~ m/^<+<?isID_Start>>$/ ), q{Don't match unrelated (Lu + Ll + Lt + Lm + Lo + Nl)} );
+ok("\x[9FA6]"  ~~ m/^<-<?isID_Start>>$/, q{Match unrelated externally inverted (Lu + Ll + Lt + Lm + Lo + Nl)} );
+ok("\x[9FA6]"  ~~ m/^<+<-isID_Start>>$/, q{Match unrelated internally inverted (Lu + Ll + Lt + Lm + Lo + Nl)} );
+ok("\x[9FA6]\x[4E5B]" ~~ m/<+<?isID_Start>>/, q{Match unanchored (Lu + Ll + Lt + Lm + Lo + Nl)} );
 
 # ID_Continue     # ID_Start + Mn + Mc + Nd + Pc
 
 
-ok("\c[IDEOGRAPHIC ITERATION MARK]" ~~ m/^<+<?ID_Continue>>$/, q{Match (ID_Start + Mn + Mc + Nd + Pc)} );
-ok("\c[IDEOGRAPHIC ITERATION MARK]" ~~ m/^<[A]+<?ID_Continue>>$/, q{Match compound (ID_Start + Mn + Mc + Nd + Pc)} );
-ok(!( "\c[IDEOGRAPHIC ITERATION MARK]" ~~ m/^<-<?ID_Continue>>$/ ), q{Don't match externally inverted (ID_Start + Mn + Mc + Nd + Pc)} );
-ok(!( "\c[IDEOGRAPHIC ITERATION MARK]" ~~ m/^<[A]-<?ID_Continue>>$/ ), q{Don't match compound inverted (ID_Start + Mn + Mc + Nd + Pc)} );
-ok(!( "\c[IDEOGRAPHIC ITERATION MARK]" ~~ m/^<+<-ID_Continue>>$/ ), q{Don't match internally inverted (ID_Start + Mn + Mc + Nd + Pc)} );
-ok(!( "\c[APL FUNCTIONAL SYMBOL UP TACK JOT]"  ~~ m/^<+<?ID_Continue>>$/ ), q{Don't match unrelated (ID_Start + Mn + Mc + Nd + Pc)} );
-ok("\c[APL FUNCTIONAL SYMBOL UP TACK JOT]"  ~~ m/^<-<?ID_Continue>>$/, q{Match unrelated externally inverted (ID_Start + Mn + Mc + Nd + Pc)} );
-ok("\c[APL FUNCTIONAL SYMBOL UP TACK JOT]"  ~~ m/^<+<-ID_Continue>>$/, q{Match unrelated internally inverted (ID_Start + Mn + Mc + Nd + Pc)} );
-ok("\c[APL FUNCTIONAL SYMBOL UP TACK JOT]\c[IDEOGRAPHIC ITERATION MARK]" ~~ m/<+<?ID_Continue>>/, q{Match unanchored (ID_Start + Mn + Mc + Nd + Pc)} );
+ok("\c[IDEOGRAPHIC ITERATION MARK]" ~~ m/^<+<?isID_Continue>>$/, q{Match (ID_Start + Mn + Mc + Nd + Pc)} );
+ok("\c[IDEOGRAPHIC ITERATION MARK]" ~~ m/^<[A]+<?isID_Continue>>$/, q{Match compound (ID_Start + Mn + Mc + Nd + Pc)} );
+ok(!( "\c[IDEOGRAPHIC ITERATION MARK]" ~~ m/^<-<?isID_Continue>>$/ ), q{Don't match externally inverted (ID_Start + Mn + Mc + Nd + Pc)} );
+ok(!( "\c[IDEOGRAPHIC ITERATION MARK]" ~~ m/^<[A]-<?isID_Continue>>$/ ), q{Don't match compound inverted (ID_Start + Mn + Mc + Nd + Pc)} );
+ok(!( "\c[IDEOGRAPHIC ITERATION MARK]" ~~ m/^<+<-isID_Continue>>$/ ), q{Don't match internally inverted (ID_Start + Mn + Mc + Nd + Pc)} );
+ok(!( "\c[APL FUNCTIONAL SYMBOL UP TACK JOT]"  ~~ m/^<+<?isID_Continue>>$/ ), q{Don't match unrelated (ID_Start + Mn + Mc + Nd + Pc)} );
+ok("\c[APL FUNCTIONAL SYMBOL UP TACK JOT]"  ~~ m/^<-<?isID_Continue>>$/, q{Match unrelated externally inverted (ID_Start + Mn + Mc + Nd + Pc)} );
+ok("\c[APL FUNCTIONAL SYMBOL UP TACK JOT]"  ~~ m/^<+<-isID_Continue>>$/, q{Match unrelated internally inverted (ID_Start + Mn + Mc + Nd + Pc)} );
+ok("\c[APL FUNCTIONAL SYMBOL UP TACK JOT]\c[IDEOGRAPHIC ITERATION MARK]" ~~ m/<+<?isID_Continue>>/, q{Match unanchored (ID_Start + Mn + Mc + Nd + Pc)} );
 
 # Any             # Any character
 
 
-ok("\c[SYRIAC LETTER TAW]" ~~ m/^<+<?Any>>$/, q{Match (Any character)} );
-ok("\c[SYRIAC LETTER TAW]" ~~ m/^<[A]+<?Any>>$/, q{Match compound (Any character)} );
-ok(!( "\c[SYRIAC LETTER TAW]" ~~ m/^<-<?Any>>$/ ), q{Don't match externally inverted (Any character)} );
-ok(!( "\c[SYRIAC LETTER TAW]" ~~ m/^<[A]-<?Any>>$/ ), q{Don't match compound inverted (Any character)} );
-ok(!( "\c[SYRIAC LETTER TAW]" ~~ m/^<+<-Any>>$/ ), q{Don't match internally inverted (Any character)} );
-ok("\c[SYRIAC LETTER TAW]" ~~ m/<+<?Any>>/, q{Match unanchored (Any character)} );
+ok("\c[SYRIAC LETTER TAW]" ~~ m/^<+<?isAny>>$/, q{Match (Any character)} );
+ok("\c[SYRIAC LETTER TAW]" ~~ m/^<[A]+<?isAny>>$/, q{Match compound (Any character)} );
+ok(!( "\c[SYRIAC LETTER TAW]" ~~ m/^<-<?isAny>>$/ ), q{Don't match externally inverted (Any character)} );
+ok(!( "\c[SYRIAC LETTER TAW]" ~~ m/^<[A]-<?isAny>>$/ ), q{Don't match compound inverted (Any character)} );
+ok(!( "\c[SYRIAC LETTER TAW]" ~~ m/^<+<-isAny>>$/ ), q{Don't match internally inverted (Any character)} );
+ok("\c[SYRIAC LETTER TAW]" ~~ m/<+<?isAny>>/, q{Match unanchored (Any character)} );
 
 # Assigned        # Any non-Cn character (i.e. synonym for \P{Cn})
 
 
-ok("\x[AC00]" ~~ m/^<+<?Assigned>>$/, q{Match (Any non-Cn character (i.e. synonym for \P{Cn}))} );
-ok("\x[AC00]" ~~ m/^<[A]+<?Assigned>>$/, q{Match compound (Any non-Cn character (i.e. synonym for \P{Cn}))} );
-ok(!( "\x[AC00]" ~~ m/^<-<?Assigned>>$/ ), q{Don't match externally inverted (Any non-Cn character (i.e. synonym for \P{Cn}))} );
-ok(!( "\x[AC00]" ~~ m/^<[A]-<?Assigned>>$/ ), q{Don't match compound inverted (Any non-Cn character (i.e. synonym for \P{Cn}))} );
-ok(!( "\x[AC00]" ~~ m/^<+<-Assigned>>$/ ), q{Don't match internally inverted (Any non-Cn character (i.e. synonym for \P{Cn}))} );
-ok(!( "\x[AB08]"  ~~ m/^<+<?Assigned>>$/ ), q{Don't match unrelated (Any non-Cn character (i.e. synonym for \P{Cn}))} );
-ok("\x[AB08]"  ~~ m/^<-<?Assigned>>$/, q{Match unrelated externally inverted (Any non-Cn character (i.e. synonym for \P{Cn}))} );
-ok("\x[AB08]"  ~~ m/^<+<-Assigned>>$/, q{Match unrelated internally inverted (Any non-Cn character (i.e. synonym for \P{Cn}))} );
-ok("\x[AB08]\x[AC00]" ~~ m/<+<?Assigned>>/, q{Match unanchored (Any non-Cn character (i.e. synonym for \P{Cn}))} );
+ok("\x[AC00]" ~~ m/^<+<?isAssigned>>$/, q{Match (Any non-Cn character (i.e. synonym for \P{Cn}))} );
+ok("\x[AC00]" ~~ m/^<[A]+<?isAssigned>>$/, q{Match compound (Any non-Cn character (i.e. synonym for \P{Cn}))} );
+ok(!( "\x[AC00]" ~~ m/^<-<?isAssigned>>$/ ), q{Don't match externally inverted (Any non-Cn character (i.e. synonym for \P{Cn}))} );
+ok(!( "\x[AC00]" ~~ m/^<[A]-<?isAssigned>>$/ ), q{Don't match compound inverted (Any non-Cn character (i.e. synonym for \P{Cn}))} );
+ok(!( "\x[AC00]" ~~ m/^<+<-isAssigned>>$/ ), q{Don't match internally inverted (Any non-Cn character (i.e. synonym for \P{Cn}))} );
+ok(!( "\x[AB08]"  ~~ m/^<+<?isAssigned>>$/ ), q{Don't match unrelated (Any non-Cn character (i.e. synonym for \P{Cn}))} );
+ok("\x[AB08]"  ~~ m/^<-<?isAssigned>>$/, q{Match unrelated externally inverted (Any non-Cn character (i.e. synonym for \P{Cn}))} );
+ok("\x[AB08]"  ~~ m/^<+<-isAssigned>>$/, q{Match unrelated internally inverted (Any non-Cn character (i.e. synonym for \P{Cn}))} );
+ok("\x[AB08]\x[AC00]" ~~ m/<+<?isAssigned>>/, q{Match unanchored (Any non-Cn character (i.e. synonym for \P{Cn}))} );
 
 # Unassigned      # Synonym for \p{Cn}
 
 
-ok("\x[1738]" ~~ m/^<+<?Unassigned>>$/, q{Match (Synonym for \p{Cn})} );
-ok("\x[1738]" ~~ m/^<[A]+<?Unassigned>>$/, q{Match compound (Synonym for \p{Cn})} );
-ok(!( "\x[1738]" ~~ m/^<-<?Unassigned>>$/ ), q{Don't match externally inverted (Synonym for \p{Cn})} );
-ok(!( "\x[1738]" ~~ m/^<[A]-<?Unassigned>>$/ ), q{Don't match compound inverted (Synonym for \p{Cn})} );
-ok(!( "\x[1738]" ~~ m/^<+<-Unassigned>>$/ ), q{Don't match internally inverted (Synonym for \p{Cn})} );
-ok(!( "\c[BUHID LETTER A]"  ~~ m/^<+<?Unassigned>>$/ ), q{Don't match unrelated (Synonym for \p{Cn})} );
-ok("\c[BUHID LETTER A]"  ~~ m/^<-<?Unassigned>>$/, q{Match unrelated externally inverted (Synonym for \p{Cn})} );
-ok("\c[BUHID LETTER A]"  ~~ m/^<+<-Unassigned>>$/, q{Match unrelated internally inverted (Synonym for \p{Cn})} );
-ok("\c[BUHID LETTER A]\x[1738]" ~~ m/<+<?Unassigned>>/, q{Match unanchored (Synonym for \p{Cn})} );
+ok("\x[1738]" ~~ m/^<+<?isUnassigned>>$/, q{Match (Synonym for \p{Cn})} );
+ok("\x[1738]" ~~ m/^<[A]+<?isUnassigned>>$/, q{Match compound (Synonym for \p{Cn})} );
+ok(!( "\x[1738]" ~~ m/^<-<?isUnassigned>>$/ ), q{Don't match externally inverted (Synonym for \p{Cn})} );
+ok(!( "\x[1738]" ~~ m/^<[A]-<?isUnassigned>>$/ ), q{Don't match compound inverted (Synonym for \p{Cn})} );
+ok(!( "\x[1738]" ~~ m/^<+<-isUnassigned>>$/ ), q{Don't match internally inverted (Synonym for \p{Cn})} );
+ok(!( "\c[BUHID LETTER A]"  ~~ m/^<+<?isUnassigned>>$/ ), q{Don't match unrelated (Synonym for \p{Cn})} );
+ok("\c[BUHID LETTER A]"  ~~ m/^<-<?isUnassigned>>$/, q{Match unrelated externally inverted (Synonym for \p{Cn})} );
+ok("\c[BUHID LETTER A]"  ~~ m/^<+<-isUnassigned>>$/, q{Match unrelated internally inverted (Synonym for \p{Cn})} );
+ok("\c[BUHID LETTER A]\x[1738]" ~~ m/<+<?isUnassigned>>/, q{Match unanchored (Synonym for \p{Cn})} );
 
 # Common          # Codepoint not explicitly assigned to a script
 
 
-ok("\c[LEFT RIGHT DOUBLE ARROW WITH VERTICAL STROKE]" ~~ m/^<+<?Common>>$/, q{Match (Codepoint not explicitly assigned to a script)} );
-ok("\c[LEFT RIGHT DOUBLE ARROW WITH VERTICAL STROKE]" ~~ m/^<[A]+<?Common>>$/, q{Match compound (Codepoint not explicitly assigned to a script)} );
-ok(!( "\c[LEFT RIGHT DOUBLE ARROW WITH VERTICAL STROKE]" ~~ m/^<-<?Common>>$/ ), q{Don't match externally inverted (Codepoint not explicitly assigned to a script)} );
-ok(!( "\c[LEFT RIGHT DOUBLE ARROW WITH VERTICAL STROKE]" ~~ m/^<[A]-<?Common>>$/ ), q{Don't match compound inverted (Codepoint not explicitly assigned to a script)} );
-ok(!( "\c[LEFT RIGHT DOUBLE ARROW WITH VERTICAL STROKE]" ~~ m/^<+<-Common>>$/ ), q{Don't match internally inverted (Codepoint not explicitly assigned to a script)} );
-ok(!( "\c[CJK RADICAL REPEAT]"  ~~ m/^<+<?Common>>$/ ), q{Don't match unrelated (Codepoint not explicitly assigned to a script)} );
-ok("\c[CJK RADICAL REPEAT]"  ~~ m/^<-<?Common>>$/, q{Match unrelated externally inverted (Codepoint not explicitly assigned to a script)} );
-ok("\c[CJK RADICAL REPEAT]"  ~~ m/^<+<-Common>>$/, q{Match unrelated internally inverted (Codepoint not explicitly assigned to a script)} );
-ok(!( "\c[ARABIC END OF AYAH]" ~~ m/^<+<?Common>>$/ ), q{Don't match related (Codepoint not explicitly assigned to a script)} );
-ok("\c[ARABIC END OF AYAH]" ~~ m/^<+<-Common>>$/, q{Match related internally inverted (Codepoint not explicitly assigned to a script)} );
-ok("\c[ARABIC END OF AYAH]" ~~ m/^<-<?Common>>$/, q{Match related externally inverted (Codepoint not explicitly assigned to a script)} );
-ok("\c[CJK RADICAL REPEAT]\c[ARABIC END OF AYAH]\c[LEFT RIGHT DOUBLE ARROW WITH VERTICAL STROKE]" ~~ m/<+<?Common>>/, q{Match unanchored (Codepoint not explicitly assigned to a script)} );
+ok("\c[LEFT RIGHT DOUBLE ARROW WITH VERTICAL STROKE]" ~~ m/^<+<?isCommon>>$/, q{Match (Codepoint not explicitly assigned to a script)} );
+ok("\c[LEFT RIGHT DOUBLE ARROW WITH VERTICAL STROKE]" ~~ m/^<[A]+<?isCommon>>$/, q{Match compound (Codepoint not explicitly assigned to a script)} );
+ok(!( "\c[LEFT RIGHT DOUBLE ARROW WITH VERTICAL STROKE]" ~~ m/^<-<?isCommon>>$/ ), q{Don't match externally inverted (Codepoint not explicitly assigned to a script)} );
+ok(!( "\c[LEFT RIGHT DOUBLE ARROW WITH VERTICAL STROKE]" ~~ m/^<[A]-<?isCommon>>$/ ), q{Don't match compound inverted (Codepoint not explicitly assigned to a script)} );
+ok(!( "\c[LEFT RIGHT DOUBLE ARROW WITH VERTICAL STROKE]" ~~ m/^<+<-isCommon>>$/ ), q{Don't match internally inverted (Codepoint not explicitly assigned to a script)} );
+ok(!( "\c[CJK RADICAL REPEAT]"  ~~ m/^<+<?isCommon>>$/ ), q{Don't match unrelated (Codepoint not explicitly assigned to a script)} );
+ok("\c[CJK RADICAL REPEAT]"  ~~ m/^<-<?isCommon>>$/, q{Match unrelated externally inverted (Codepoint not explicitly assigned to a script)} );
+ok("\c[CJK RADICAL REPEAT]"  ~~ m/^<+<-isCommon>>$/, q{Match unrelated internally inverted (Codepoint not explicitly assigned to a script)} );
+ok(!( "\c[ARABIC END OF AYAH]" ~~ m/^<+<?isCommon>>$/ ), q{Don't match related (Codepoint not explicitly assigned to a script)} );
+ok("\c[ARABIC END OF AYAH]" ~~ m/^<+<-isCommon>>$/, q{Match related internally inverted (Codepoint not explicitly assigned to a script)} );
+ok("\c[ARABIC END OF AYAH]" ~~ m/^<-<?isCommon>>$/, q{Match related externally inverted (Codepoint not explicitly assigned to a script)} );
+ok("\c[CJK RADICAL REPEAT]\c[ARABIC END OF AYAH]\c[LEFT RIGHT DOUBLE ARROW WITH VERTICAL STROKE]" ~~ m/<+<?isCommon>>/, q{Match unanchored (Codepoint not explicitly assigned to a script)} );
 
 # InAlphabeticPresentationForms
 
 
-ok(!( "\x[5A81]"  ~~ m/^<+<?InAlphabeticPresentationForms>>$/ ), q{Don't match unrelated <?InAlphabeticPresentationForms>} );
-ok("\x[5A81]"  ~~ m/^<-<?InAlphabeticPresentationForms>>$/, q{Match unrelated externally inverted <?InAlphabeticPresentationForms>} );
-ok("\x[5A81]"  ~~ m/^<+<-InAlphabeticPresentationForms>>$/, q{Match unrelated internally inverted <?InAlphabeticPresentationForms>} );
+ok(!( "\x[5A81]"  ~~ m/^<+<?isInAlphabeticPresentationForms>>$/ ), q{Don't match unrelated <?isInAlphabeticPresentationForms>} );
+ok("\x[5A81]"  ~~ m/^<-<?isInAlphabeticPresentationForms>>$/, q{Match unrelated externally inverted <?isInAlphabeticPresentationForms>} );
+ok("\x[5A81]"  ~~ m/^<+<-isInAlphabeticPresentationForms>>$/, q{Match unrelated internally inverted <?isInAlphabeticPresentationForms>} );
 
 # InArabic
 
 
-ok("\c[ARABIC NUMBER SIGN]" ~~ m/^<+<?InArabic>>$/, q{Match <?InArabic>} );
-ok("\c[ARABIC NUMBER SIGN]" ~~ m/^<[A]+<?InArabic>>$/, q{Match compound <?InArabic>} );
-ok(!( "\c[ARABIC NUMBER SIGN]" ~~ m/^<-<?InArabic>>$/ ), q{Don't match externally inverted <?InArabic>} );
-ok(!( "\c[ARABIC NUMBER SIGN]" ~~ m/^<[A]-<?InArabic>>$/ ), q{Don't match compound inverted <?InArabic>} );
-ok(!( "\c[ARABIC NUMBER SIGN]" ~~ m/^<+<-InArabic>>$/ ), q{Don't match internally inverted <?InArabic>} );
-ok(!( "\x[8D16]"  ~~ m/^<+<?InArabic>>$/ ), q{Don't match unrelated <?InArabic>} );
-ok("\x[8D16]"  ~~ m/^<-<?InArabic>>$/, q{Match unrelated externally inverted <?InArabic>} );
-ok("\x[8D16]"  ~~ m/^<+<-InArabic>>$/, q{Match unrelated internally inverted <?InArabic>} );
-ok("\x[8D16]\c[ARABIC NUMBER SIGN]" ~~ m/<+<?InArabic>>/, q{Match unanchored <?InArabic>} );
+ok("\c[ARABIC NUMBER SIGN]" ~~ m/^<+<?isInArabic>>$/, q{Match <?isInArabic>} );
+ok("\c[ARABIC NUMBER SIGN]" ~~ m/^<[A]+<?isInArabic>>$/, q{Match compound <?isInArabic>} );
+ok(!( "\c[ARABIC NUMBER SIGN]" ~~ m/^<-<?isInArabic>>$/ ), q{Don't match externally inverted <?isInArabic>} );
+ok(!( "\c[ARABIC NUMBER SIGN]" ~~ m/^<[A]-<?isInArabic>>$/ ), q{Don't match compound inverted <?isInArabic>} );
+ok(!( "\c[ARABIC NUMBER SIGN]" ~~ m/^<+<-isInArabic>>$/ ), q{Don't match internally inverted <?isInArabic>} );
+ok(!( "\x[8D16]"  ~~ m/^<+<?isInArabic>>$/ ), q{Don't match unrelated <?isInArabic>} );
+ok("\x[8D16]"  ~~ m/^<-<?isInArabic>>$/, q{Match unrelated externally inverted <?isInArabic>} );
+ok("\x[8D16]"  ~~ m/^<+<-isInArabic>>$/, q{Match unrelated internally inverted <?isInArabic>} );
+ok("\x[8D16]\c[ARABIC NUMBER SIGN]" ~~ m/<+<?isInArabic>>/, q{Match unanchored <?isInArabic>} );
 
 # InArabicPresentationFormsA
 
 
-ok(!( "\x[C775]"  ~~ m/^<+<?InArabicPresentationFormsA>>$/ ), q{Don't match unrelated <?InArabicPresentationFormsA>} );
-ok("\x[C775]"  ~~ m/^<-<?InArabicPresentationFormsA>>$/, q{Match unrelated externally inverted <?InArabicPresentationFormsA>} );
-ok("\x[C775]"  ~~ m/^<+<-InArabicPresentationFormsA>>$/, q{Match unrelated internally inverted <?InArabicPresentationFormsA>} );
+ok(!( "\x[C775]"  ~~ m/^<+<?isInArabicPresentationFormsA>>$/ ), q{Don't match unrelated <?isInArabicPresentationFormsA>} );
+ok("\x[C775]"  ~~ m/^<-<?isInArabicPresentationFormsA>>$/, q{Match unrelated externally inverted <?isInArabicPresentationFormsA>} );
+ok("\x[C775]"  ~~ m/^<+<-isInArabicPresentationFormsA>>$/, q{Match unrelated internally inverted <?isInArabicPresentationFormsA>} );
 
 # InArabicPresentationFormsB
 
 
-ok(!( "\x[B2EA]"  ~~ m/^<+<?InArabicPresentationFormsB>>$/ ), q{Don't match unrelated <?InArabicPresentationFormsB>} );
-ok("\x[B2EA]"  ~~ m/^<-<?InArabicPresentationFormsB>>$/, q{Match unrelated externally inverted <?InArabicPresentationFormsB>} );
-ok("\x[B2EA]"  ~~ m/^<+<-InArabicPresentationFormsB>>$/, q{Match unrelated internally inverted <?InArabicPresentationFormsB>} );
+ok(!( "\x[B2EA]"  ~~ m/^<+<?isInArabicPresentationFormsB>>$/ ), q{Don't match unrelated <?isInArabicPresentationFormsB>} );
+ok("\x[B2EA]"  ~~ m/^<-<?isInArabicPresentationFormsB>>$/, q{Match unrelated externally inverted <?isInArabicPresentationFormsB>} );
+ok("\x[B2EA]"  ~~ m/^<+<-isInArabicPresentationFormsB>>$/, q{Match unrelated internally inverted <?isInArabicPresentationFormsB>} );
 
 # InArmenian
 
 
-ok("\x[0530]" ~~ m/^<+<?InArmenian>>$/, q{Match <?InArmenian>} );
-ok("\x[0530]" ~~ m/^<[A]+<?InArmenian>>$/, q{Match compound <?InArmenian>} );
-ok(!( "\x[0530]" ~~ m/^<-<?InArmenian>>$/ ), q{Don't match externally inverted <?InArmenian>} );
-ok(!( "\x[0530]" ~~ m/^<[A]-<?InArmenian>>$/ ), q{Don't match compound inverted <?InArmenian>} );
-ok(!( "\x[0530]" ~~ m/^<+<-InArmenian>>$/ ), q{Don't match internally inverted <?InArmenian>} );
-ok(!( "\c[ETHIOPIC SYLLABLE QHWAA]"  ~~ m/^<+<?InArmenian>>$/ ), q{Don't match unrelated <?InArmenian>} );
-ok("\c[ETHIOPIC SYLLABLE QHWAA]"  ~~ m/^<-<?InArmenian>>$/, q{Match unrelated externally inverted <?InArmenian>} );
-ok("\c[ETHIOPIC SYLLABLE QHWAA]"  ~~ m/^<+<-InArmenian>>$/, q{Match unrelated internally inverted <?InArmenian>} );
-ok("\c[ETHIOPIC SYLLABLE QHWAA]\x[0530]" ~~ m/<+<?InArmenian>>/, q{Match unanchored <?InArmenian>} );
+ok("\x[0530]" ~~ m/^<+<?isInArmenian>>$/, q{Match <?isInArmenian>} );
+ok("\x[0530]" ~~ m/^<[A]+<?isInArmenian>>$/, q{Match compound <?isInArmenian>} );
+ok(!( "\x[0530]" ~~ m/^<-<?isInArmenian>>$/ ), q{Don't match externally inverted <?isInArmenian>} );
+ok(!( "\x[0530]" ~~ m/^<[A]-<?isInArmenian>>$/ ), q{Don't match compound inverted <?isInArmenian>} );
+ok(!( "\x[0530]" ~~ m/^<+<-isInArmenian>>$/ ), q{Don't match internally inverted <?isInArmenian>} );
+ok(!( "\c[ETHIOPIC SYLLABLE QHWAA]"  ~~ m/^<+<?isInArmenian>>$/ ), q{Don't match unrelated <?isInArmenian>} );
+ok("\c[ETHIOPIC SYLLABLE QHWAA]"  ~~ m/^<-<?isInArmenian>>$/, q{Match unrelated externally inverted <?isInArmenian>} );
+ok("\c[ETHIOPIC SYLLABLE QHWAA]"  ~~ m/^<+<-isInArmenian>>$/, q{Match unrelated internally inverted <?isInArmenian>} );
+ok("\c[ETHIOPIC SYLLABLE QHWAA]\x[0530]" ~~ m/<+<?isInArmenian>>/, q{Match unanchored <?isInArmenian>} );
 
 # InArrows
 
 
-ok("\c[LEFTWARDS ARROW]" ~~ m/^<+<?InArrows>>$/, q{Match <?InArrows>} );
-ok("\c[LEFTWARDS ARROW]" ~~ m/^<[A]+<?InArrows>>$/, q{Match compound <?InArrows>} );
-ok(!( "\c[LEFTWARDS ARROW]" ~~ m/^<-<?InArrows>>$/ ), q{Don't match externally inverted <?InArrows>} );
-ok(!( "\c[LEFTWARDS ARROW]" ~~ m/^<[A]-<?InArrows>>$/ ), q{Don't match compound inverted <?InArrows>} );
-ok(!( "\c[LEFTWARDS ARROW]" ~~ m/^<+<-InArrows>>$/ ), q{Don't match internally inverted <?InArrows>} );
-ok(!( "\x[74FA]"  ~~ m/^<+<?InArrows>>$/ ), q{Don't match unrelated <?InArrows>} );
-ok("\x[74FA]"  ~~ m/^<-<?InArrows>>$/, q{Match unrelated externally inverted <?InArrows>} );
-ok("\x[74FA]"  ~~ m/^<+<-InArrows>>$/, q{Match unrelated internally inverted <?InArrows>} );
-ok("\x[74FA]\c[LEFTWARDS ARROW]" ~~ m/<+<?InArrows>>/, q{Match unanchored <?InArrows>} );
+ok("\c[LEFTWARDS ARROW]" ~~ m/^<+<?isInArrows>>$/, q{Match <?isInArrows>} );
+ok("\c[LEFTWARDS ARROW]" ~~ m/^<[A]+<?isInArrows>>$/, q{Match compound <?isInArrows>} );
+ok(!( "\c[LEFTWARDS ARROW]" ~~ m/^<-<?isInArrows>>$/ ), q{Don't match externally inverted <?isInArrows>} );
+ok(!( "\c[LEFTWARDS ARROW]" ~~ m/^<[A]-<?isInArrows>>$/ ), q{Don't match compound inverted <?isInArrows>} );
+ok(!( "\c[LEFTWARDS ARROW]" ~~ m/^<+<-isInArrows>>$/ ), q{Don't match internally inverted <?isInArrows>} );
+ok(!( "\x[74FA]"  ~~ m/^<+<?isInArrows>>$/ ), q{Don't match unrelated <?isInArrows>} );
+ok("\x[74FA]"  ~~ m/^<-<?isInArrows>>$/, q{Match unrelated externally inverted <?isInArrows>} );
+ok("\x[74FA]"  ~~ m/^<+<-isInArrows>>$/, q{Match unrelated internally inverted <?isInArrows>} );
+ok("\x[74FA]\c[LEFTWARDS ARROW]" ~~ m/<+<?isInArrows>>/, q{Match unanchored <?isInArrows>} );
 
 # InBasicLatin
 
 
-ok("\c[NULL]" ~~ m/^<+<?InBasicLatin>>$/, q{Match <?InBasicLatin>} );
-ok("\c[NULL]" ~~ m/^<[A]+<?InBasicLatin>>$/, q{Match compound <?InBasicLatin>} );
-ok(!( "\c[NULL]" ~~ m/^<-<?InBasicLatin>>$/ ), q{Don't match externally inverted <?InBasicLatin>} );
-ok(!( "\c[NULL]" ~~ m/^<[A]-<?InBasicLatin>>$/ ), q{Don't match compound inverted <?InBasicLatin>} );
-ok(!( "\c[NULL]" ~~ m/^<+<-InBasicLatin>>$/ ), q{Don't match internally inverted <?InBasicLatin>} );
-ok(!( "\x[ADFF]"  ~~ m/^<+<?InBasicLatin>>$/ ), q{Don't match unrelated <?InBasicLatin>} );
-ok("\x[ADFF]"  ~~ m/^<-<?InBasicLatin>>$/, q{Match unrelated externally inverted <?InBasicLatin>} );
-ok("\x[ADFF]"  ~~ m/^<+<-InBasicLatin>>$/, q{Match unrelated internally inverted <?InBasicLatin>} );
-ok("\x[ADFF]\c[NULL]" ~~ m/<+<?InBasicLatin>>/, q{Match unanchored <?InBasicLatin>} );
+ok("\c[NULL]" ~~ m/^<+<?isInBasicLatin>>$/, q{Match <?isInBasicLatin>} );
+ok("\c[NULL]" ~~ m/^<[A]+<?isInBasicLatin>>$/, q{Match compound <?isInBasicLatin>} );
+ok(!( "\c[NULL]" ~~ m/^<-<?isInBasicLatin>>$/ ), q{Don't match externally inverted <?isInBasicLatin>} );
+ok(!( "\c[NULL]" ~~ m/^<[A]-<?isInBasicLatin>>$/ ), q{Don't match compound inverted <?isInBasicLatin>} );
+ok(!( "\c[NULL]" ~~ m/^<+<-isInBasicLatin>>$/ ), q{Don't match internally inverted <?isInBasicLatin>} );
+ok(!( "\x[ADFF]"  ~~ m/^<+<?isInBasicLatin>>$/ ), q{Don't match unrelated <?isInBasicLatin>} );
+ok("\x[ADFF]"  ~~ m/^<-<?isInBasicLatin>>$/, q{Match unrelated externally inverted <?isInBasicLatin>} );
+ok("\x[ADFF]"  ~~ m/^<+<-isInBasicLatin>>$/, q{Match unrelated internally inverted <?isInBasicLatin>} );
+ok("\x[ADFF]\c[NULL]" ~~ m/<+<?isInBasicLatin>>/, q{Match unanchored <?isInBasicLatin>} );
 
 # InBengali
 
 
-ok("\x[0980]" ~~ m/^<+<?InBengali>>$/, q{Match <?InBengali>} );
-ok("\x[0980]" ~~ m/^<[A]+<?InBengali>>$/, q{Match compound <?InBengali>} );
-ok(!( "\x[0980]" ~~ m/^<-<?InBengali>>$/ ), q{Don't match externally inverted <?InBengali>} );
-ok(!( "\x[0980]" ~~ m/^<[A]-<?InBengali>>$/ ), q{Don't match compound inverted <?InBengali>} );
-ok(!( "\x[0980]" ~~ m/^<+<-InBengali>>$/ ), q{Don't match internally inverted <?InBengali>} );
-ok(!( "\x[3409]"  ~~ m/^<+<?InBengali>>$/ ), q{Don't match unrelated <?InBengali>} );
-ok("\x[3409]"  ~~ m/^<-<?InBengali>>$/, q{Match unrelated externally inverted <?InBengali>} );
-ok("\x[3409]"  ~~ m/^<+<-InBengali>>$/, q{Match unrelated internally inverted <?InBengali>} );
-ok("\x[3409]\x[0980]" ~~ m/<+<?InBengali>>/, q{Match unanchored <?InBengali>} );
+ok("\x[0980]" ~~ m/^<+<?isInBengali>>$/, q{Match <?isInBengali>} );
+ok("\x[0980]" ~~ m/^<[A]+<?isInBengali>>$/, q{Match compound <?isInBengali>} );
+ok(!( "\x[0980]" ~~ m/^<-<?isInBengali>>$/ ), q{Don't match externally inverted <?isInBengali>} );
+ok(!( "\x[0980]" ~~ m/^<[A]-<?isInBengali>>$/ ), q{Don't match compound inverted <?isInBengali>} );
+ok(!( "\x[0980]" ~~ m/^<+<-isInBengali>>$/ ), q{Don't match internally inverted <?isInBengali>} );
+ok(!( "\x[3409]"  ~~ m/^<+<?isInBengali>>$/ ), q{Don't match unrelated <?isInBengali>} );
+ok("\x[3409]"  ~~ m/^<-<?isInBengali>>$/, q{Match unrelated externally inverted <?isInBengali>} );
+ok("\x[3409]"  ~~ m/^<+<-isInBengali>>$/, q{Match unrelated internally inverted <?isInBengali>} );
+ok("\x[3409]\x[0980]" ~~ m/<+<?isInBengali>>/, q{Match unanchored <?isInBengali>} );
 
 # InBlockElements
 
 
-ok("\c[UPPER HALF BLOCK]" ~~ m/^<+<?InBlockElements>>$/, q{Match <?InBlockElements>} );
-ok("\c[UPPER HALF BLOCK]" ~~ m/^<[A]+<?InBlockElements>>$/, q{Match compound <?InBlockElements>} );
-ok(!( "\c[UPPER HALF BLOCK]" ~~ m/^<-<?InBlockElements>>$/ ), q{Don't match externally inverted <?InBlockElements>} );
-ok(!( "\c[UPPER HALF BLOCK]" ~~ m/^<[A]-<?InBlockElements>>$/ ), q{Don't match compound inverted <?InBlockElements>} );
-ok(!( "\c[UPPER HALF BLOCK]" ~~ m/^<+<-InBlockElements>>$/ ), q{Don't match internally inverted <?InBlockElements>} );
-ok(!( "\x[77B1]"  ~~ m/^<+<?InBlockElements>>$/ ), q{Don't match unrelated <?InBlockElements>} );
-ok("\x[77B1]"  ~~ m/^<-<?InBlockElements>>$/, q{Match unrelated externally inverted <?InBlockElements>} );
-ok("\x[77B1]"  ~~ m/^<+<-InBlockElements>>$/, q{Match unrelated internally inverted <?InBlockElements>} );
-ok("\x[77B1]\c[UPPER HALF BLOCK]" ~~ m/<+<?InBlockElements>>/, q{Match unanchored <?InBlockElements>} );
+ok("\c[UPPER HALF BLOCK]" ~~ m/^<+<?isInBlockElements>>$/, q{Match <?isInBlockElements>} );
+ok("\c[UPPER HALF BLOCK]" ~~ m/^<[A]+<?isInBlockElements>>$/, q{Match compound <?isInBlockElements>} );
+ok(!( "\c[UPPER HALF BLOCK]" ~~ m/^<-<?isInBlockElements>>$/ ), q{Don't match externally inverted <?isInBlockElements>} );
+ok(!( "\c[UPPER HALF BLOCK]" ~~ m/^<[A]-<?isInBlockElements>>$/ ), q{Don't match compound inverted <?isInBlockElements>} );
+ok(!( "\c[UPPER HALF BLOCK]" ~~ m/^<+<-isInBlockElements>>$/ ), q{Don't match internally inverted <?isInBlockElements>} );
+ok(!( "\x[77B1]"  ~~ m/^<+<?isInBlockElements>>$/ ), q{Don't match unrelated <?isInBlockElements>} );
+ok("\x[77B1]"  ~~ m/^<-<?isInBlockElements>>$/, q{Match unrelated externally inverted <?isInBlockElements>} );
+ok("\x[77B1]"  ~~ m/^<+<-isInBlockElements>>$/, q{Match unrelated internally inverted <?isInBlockElements>} );
+ok("\x[77B1]\c[UPPER HALF BLOCK]" ~~ m/<+<?isInBlockElements>>/, q{Match unanchored <?isInBlockElements>} );
 
 # InBopomofo
 
 
-ok("\x[3100]" ~~ m/^<+<?InBopomofo>>$/, q{Match <?InBopomofo>} );
-ok("\x[3100]" ~~ m/^<[A]+<?InBopomofo>>$/, q{Match compound <?InBopomofo>} );
-ok(!( "\x[3100]" ~~ m/^<-<?InBopomofo>>$/ ), q{Don't match externally inverted <?InBopomofo>} );
-ok(!( "\x[3100]" ~~ m/^<[A]-<?InBopomofo>>$/ ), q{Don't match compound inverted <?InBopomofo>} );
-ok(!( "\x[3100]" ~~ m/^<+<-InBopomofo>>$/ ), q{Don't match internally inverted <?InBopomofo>} );
-ok(!( "\x[701E]"  ~~ m/^<+<?InBopomofo>>$/ ), q{Don't match unrelated <?InBopomofo>} );
-ok("\x[701E]"  ~~ m/^<-<?InBopomofo>>$/, q{Match unrelated externally inverted <?InBopomofo>} );
-ok("\x[701E]"  ~~ m/^<+<-InBopomofo>>$/, q{Match unrelated internally inverted <?InBopomofo>} );
-ok("\x[701E]\x[3100]" ~~ m/<+<?InBopomofo>>/, q{Match unanchored <?InBopomofo>} );
+ok("\x[3100]" ~~ m/^<+<?isInBopomofo>>$/, q{Match <?isInBopomofo>} );
+ok("\x[3100]" ~~ m/^<[A]+<?isInBopomofo>>$/, q{Match compound <?isInBopomofo>} );
+ok(!( "\x[3100]" ~~ m/^<-<?isInBopomofo>>$/ ), q{Don't match externally inverted <?isInBopomofo>} );
+ok(!( "\x[3100]" ~~ m/^<[A]-<?isInBopomofo>>$/ ), q{Don't match compound inverted <?isInBopomofo>} );
+ok(!( "\x[3100]" ~~ m/^<+<-isInBopomofo>>$/ ), q{Don't match internally inverted <?isInBopomofo>} );
+ok(!( "\x[701E]"  ~~ m/^<+<?isInBopomofo>>$/ ), q{Don't match unrelated <?isInBopomofo>} );
+ok("\x[701E]"  ~~ m/^<-<?isInBopomofo>>$/, q{Match unrelated externally inverted <?isInBopomofo>} );
+ok("\x[701E]"  ~~ m/^<+<-isInBopomofo>>$/, q{Match unrelated internally inverted <?isInBopomofo>} );
+ok("\x[701E]\x[3100]" ~~ m/<+<?isInBopomofo>>/, q{Match unanchored <?isInBopomofo>} );
 
 # InBopomofoExtended
 
 
-ok("\c[BOPOMOFO LETTER BU]" ~~ m/^<+<?InBopomofoExtended>>$/, q{Match <?InBopomofoExtended>} );
-ok("\c[BOPOMOFO LETTER BU]" ~~ m/^<[A]+<?InBopomofoExtended>>$/, q{Match compound <?InBopomofoExtended>} );
-ok(!( "\c[BOPOMOFO LETTER BU]" ~~ m/^<-<?InBopomofoExtended>>$/ ), q{Don't match externally inverted <?InBopomofoExtended>} );
-ok(!( "\c[BOPOMOFO LETTER BU]" ~~ m/^<[A]-<?InBopomofoExtended>>$/ ), q{Don't match compound inverted <?InBopomofoExtended>} );
-ok(!( "\c[BOPOMOFO LETTER BU]" ~~ m/^<+<-InBopomofoExtended>>$/ ), q{Don't match internally inverted <?InBopomofoExtended>} );
-ok(!( "\c[YI SYLLABLE TIE]"  ~~ m/^<+<?InBopomofoExtended>>$/ ), q{Don't match unrelated <?InBopomofoExtended>} );
-ok("\c[YI SYLLABLE TIE]"  ~~ m/^<-<?InBopomofoExtended>>$/, q{Match unrelated externally inverted <?InBopomofoExtended>} );
-ok("\c[YI SYLLABLE TIE]"  ~~ m/^<+<-InBopomofoExtended>>$/, q{Match unrelated internally inverted <?InBopomofoExtended>} );
-ok("\c[YI SYLLABLE TIE]\c[BOPOMOFO LETTER BU]" ~~ m/<+<?InBopomofoExtended>>/, q{Match unanchored <?InBopomofoExtended>} );
+ok("\c[BOPOMOFO LETTER BU]" ~~ m/^<+<?isInBopomofoExtended>>$/, q{Match <?isInBopomofoExtended>} );
+ok("\c[BOPOMOFO LETTER BU]" ~~ m/^<[A]+<?isInBopomofoExtended>>$/, q{Match compound <?isInBopomofoExtended>} );
+ok(!( "\c[BOPOMOFO LETTER BU]" ~~ m/^<-<?isInBopomofoExtended>>$/ ), q{Don't match externally inverted <?isInBopomofoExtended>} );
+ok(!( "\c[BOPOMOFO LETTER BU]" ~~ m/^<[A]-<?isInBopomofoExtended>>$/ ), q{Don't match compound inverted <?isInBopomofoExtended>} );
+ok(!( "\c[BOPOMOFO LETTER BU]" ~~ m/^<+<-isInBopomofoExtended>>$/ ), q{Don't match internally inverted <?isInBopomofoExtended>} );
+ok(!( "\c[YI SYLLABLE TIE]"  ~~ m/^<+<?isInBopomofoExtended>>$/ ), q{Don't match unrelated <?isInBopomofoExtended>} );
+ok("\c[YI SYLLABLE TIE]"  ~~ m/^<-<?isInBopomofoExtended>>$/, q{Match unrelated externally inverted <?isInBopomofoExtended>} );
+ok("\c[YI SYLLABLE TIE]"  ~~ m/^<+<-isInBopomofoExtended>>$/, q{Match unrelated internally inverted <?isInBopomofoExtended>} );
+ok("\c[YI SYLLABLE TIE]\c[BOPOMOFO LETTER BU]" ~~ m/<+<?isInBopomofoExtended>>/, q{Match unanchored <?isInBopomofoExtended>} );
 
 # InBoxDrawing
 
 
-ok("\c[BOX DRAWINGS LIGHT HORIZONTAL]" ~~ m/^<+<?InBoxDrawing>>$/, q{Match <?InBoxDrawing>} );
-ok("\c[BOX DRAWINGS LIGHT HORIZONTAL]" ~~ m/^<[A]+<?InBoxDrawing>>$/, q{Match compound <?InBoxDrawing>} );
-ok(!( "\c[BOX DRAWINGS LIGHT HORIZONTAL]" ~~ m/^<-<?InBoxDrawing>>$/ ), q{Don't match externally inverted <?InBoxDrawing>} );
-ok(!( "\c[BOX DRAWINGS LIGHT HORIZONTAL]" ~~ m/^<[A]-<?InBoxDrawing>>$/ ), q{Don't match compound inverted <?InBoxDrawing>} );
-ok(!( "\c[BOX DRAWINGS LIGHT HORIZONTAL]" ~~ m/^<+<-InBoxDrawing>>$/ ), q{Don't match internally inverted <?InBoxDrawing>} );
-ok(!( "\x[D2FB]"  ~~ m/^<+<?InBoxDrawing>>$/ ), q{Don't match unrelated <?InBoxDrawing>} );
-ok("\x[D2FB]"  ~~ m/^<-<?InBoxDrawing>>$/, q{Match unrelated externally inverted <?InBoxDrawing>} );
-ok("\x[D2FB]"  ~~ m/^<+<-InBoxDrawing>>$/, q{Match unrelated internally inverted <?InBoxDrawing>} );
-ok("\x[D2FB]\c[BOX DRAWINGS LIGHT HORIZONTAL]" ~~ m/<+<?InBoxDrawing>>/, q{Match unanchored <?InBoxDrawing>} );
+ok("\c[BOX DRAWINGS LIGHT HORIZONTAL]" ~~ m/^<+<?isInBoxDrawing>>$/, q{Match <?isInBoxDrawing>} );
+ok("\c[BOX DRAWINGS LIGHT HORIZONTAL]" ~~ m/^<[A]+<?isInBoxDrawing>>$/, q{Match compound <?isInBoxDrawing>} );
+ok(!( "\c[BOX DRAWINGS LIGHT HORIZONTAL]" ~~ m/^<-<?isInBoxDrawing>>$/ ), q{Don't match externally inverted <?isInBoxDrawing>} );
+ok(!( "\c[BOX DRAWINGS LIGHT HORIZONTAL]" ~~ m/^<[A]-<?isInBoxDrawing>>$/ ), q{Don't match compound inverted <?isInBoxDrawing>} );
+ok(!( "\c[BOX DRAWINGS LIGHT HORIZONTAL]" ~~ m/^<+<-isInBoxDrawing>>$/ ), q{Don't match internally inverted <?isInBoxDrawing>} );
+ok(!( "\x[D2FB]"  ~~ m/^<+<?isInBoxDrawing>>$/ ), q{Don't match unrelated <?isInBoxDrawing>} );
+ok("\x[D2FB]"  ~~ m/^<-<?isInBoxDrawing>>$/, q{Match unrelated externally inverted <?isInBoxDrawing>} );
+ok("\x[D2FB]"  ~~ m/^<+<-isInBoxDrawing>>$/, q{Match unrelated internally inverted <?isInBoxDrawing>} );
+ok("\x[D2FB]\c[BOX DRAWINGS LIGHT HORIZONTAL]" ~~ m/<+<?isInBoxDrawing>>/, q{Match unanchored <?isInBoxDrawing>} );
 
 # InBraillePatterns
 
 
-ok("\c[BRAILLE PATTERN BLANK]" ~~ m/^<+<?InBraillePatterns>>$/, q{Match <?InBraillePatterns>} );
-ok("\c[BRAILLE PATTERN BLANK]" ~~ m/^<[A]+<?InBraillePatterns>>$/, q{Match compound <?InBraillePatterns>} );
-ok(!( "\c[BRAILLE PATTERN BLANK]" ~~ m/^<-<?InBraillePatterns>>$/ ), q{Don't match externally inverted <?InBraillePatterns>} );
-ok(!( "\c[BRAILLE PATTERN BLANK]" ~~ m/^<[A]-<?InBraillePatterns>>$/ ), q{Don't match compound inverted <?InBraillePatterns>} );
-ok(!( "\c[BRAILLE PATTERN BLANK]" ~~ m/^<+<-InBraillePatterns>>$/ ), q{Don't match internally inverted <?InBraillePatterns>} );
-ok(!( "\x[4FE4]"  ~~ m/^<+<?InBraillePatterns>>$/ ), q{Don't match unrelated <?InBraillePatterns>} );
-ok("\x[4FE4]"  ~~ m/^<-<?InBraillePatterns>>$/, q{Match unrelated externally inverted <?InBraillePatterns>} );
-ok("\x[4FE4]"  ~~ m/^<+<-InBraillePatterns>>$/, q{Match unrelated internally inverted <?InBraillePatterns>} );
-ok("\x[4FE4]\c[BRAILLE PATTERN BLANK]" ~~ m/<+<?InBraillePatterns>>/, q{Match unanchored <?InBraillePatterns>} );
+ok("\c[BRAILLE PATTERN BLANK]" ~~ m/^<+<?isInBraillePatterns>>$/, q{Match <?isInBraillePatterns>} );
+ok("\c[BRAILLE PATTERN BLANK]" ~~ m/^<[A]+<?isInBraillePatterns>>$/, q{Match compound <?isInBraillePatterns>} );
+ok(!( "\c[BRAILLE PATTERN BLANK]" ~~ m/^<-<?isInBraillePatterns>>$/ ), q{Don't match externally inverted <?isInBraillePatterns>} );
+ok(!( "\c[BRAILLE PATTERN BLANK]" ~~ m/^<[A]-<?isInBraillePatterns>>$/ ), q{Don't match compound inverted <?isInBraillePatterns>} );
+ok(!( "\c[BRAILLE PATTERN BLANK]" ~~ m/^<+<-isInBraillePatterns>>$/ ), q{Don't match internally inverted <?isInBraillePatterns>} );
+ok(!( "\x[4FE4]"  ~~ m/^<+<?isInBraillePatterns>>$/ ), q{Don't match unrelated <?isInBraillePatterns>} );
+ok("\x[4FE4]"  ~~ m/^<-<?isInBraillePatterns>>$/, q{Match unrelated externally inverted <?isInBraillePatterns>} );
+ok("\x[4FE4]"  ~~ m/^<+<-isInBraillePatterns>>$/, q{Match unrelated internally inverted <?isInBraillePatterns>} );
+ok("\x[4FE4]\c[BRAILLE PATTERN BLANK]" ~~ m/<+<?isInBraillePatterns>>/, q{Match unanchored <?isInBraillePatterns>} );
 
 # InBuhid
 
 
-ok("\c[BUHID LETTER A]" ~~ m/^<+<?InBuhid>>$/, q{Match <?InBuhid>} );
-ok("\c[BUHID LETTER A]" ~~ m/^<[A]+<?InBuhid>>$/, q{Match compound <?InBuhid>} );
-ok(!( "\c[BUHID LETTER A]" ~~ m/^<-<?InBuhid>>$/ ), q{Don't match externally inverted <?InBuhid>} );
-ok(!( "\c[BUHID LETTER A]" ~~ m/^<[A]-<?InBuhid>>$/ ), q{Don't match compound inverted <?InBuhid>} );
-ok(!( "\c[BUHID LETTER A]" ~~ m/^<+<-InBuhid>>$/ ), q{Don't match internally inverted <?InBuhid>} );
-ok(!( "\x[996F]"  ~~ m/^<+<?InBuhid>>$/ ), q{Don't match unrelated <?InBuhid>} );
-ok("\x[996F]"  ~~ m/^<-<?InBuhid>>$/, q{Match unrelated externally inverted <?InBuhid>} );
-ok("\x[996F]"  ~~ m/^<+<-InBuhid>>$/, q{Match unrelated internally inverted <?InBuhid>} );
-ok("\x[996F]\c[BUHID LETTER A]" ~~ m/<+<?InBuhid>>/, q{Match unanchored <?InBuhid>} );
+ok("\c[BUHID LETTER A]" ~~ m/^<+<?isInBuhid>>$/, q{Match <?isInBuhid>} );
+ok("\c[BUHID LETTER A]" ~~ m/^<[A]+<?isInBuhid>>$/, q{Match compound <?isInBuhid>} );
+ok(!( "\c[BUHID LETTER A]" ~~ m/^<-<?isInBuhid>>$/ ), q{Don't match externally inverted <?isInBuhid>} );
+ok(!( "\c[BUHID LETTER A]" ~~ m/^<[A]-<?isInBuhid>>$/ ), q{Don't match compound inverted <?isInBuhid>} );
+ok(!( "\c[BUHID LETTER A]" ~~ m/^<+<-isInBuhid>>$/ ), q{Don't match internally inverted <?isInBuhid>} );
+ok(!( "\x[996F]"  ~~ m/^<+<?isInBuhid>>$/ ), q{Don't match unrelated <?isInBuhid>} );
+ok("\x[996F]"  ~~ m/^<-<?isInBuhid>>$/, q{Match unrelated externally inverted <?isInBuhid>} );
+ok("\x[996F]"  ~~ m/^<+<-isInBuhid>>$/, q{Match unrelated internally inverted <?isInBuhid>} );
+ok("\x[996F]\c[BUHID LETTER A]" ~~ m/<+<?isInBuhid>>/, q{Match unanchored <?isInBuhid>} );
 
 # InByzantineMusicalSymbols
 
 
-ok(!( "\x[802A]"  ~~ m/^<+<?InByzantineMusicalSymbols>>$/ ), q{Don't match unrelated <?InByzantineMusicalSymbols>} );
-ok("\x[802A]"  ~~ m/^<-<?InByzantineMusicalSymbols>>$/, q{Match unrelated externally inverted <?InByzantineMusicalSymbols>} );
-ok("\x[802A]"  ~~ m/^<+<-InByzantineMusicalSymbols>>$/, q{Match unrelated internally inverted <?InByzantineMusicalSymbols>} );
+ok(!( "\x[802A]"  ~~ m/^<+<?isInByzantineMusicalSymbols>>$/ ), q{Don't match unrelated <?isInByzantineMusicalSymbols>} );
+ok("\x[802A]"  ~~ m/^<-<?isInByzantineMusicalSymbols>>$/, q{Match unrelated externally inverted <?isInByzantineMusicalSymbols>} );
+ok("\x[802A]"  ~~ m/^<+<-isInByzantineMusicalSymbols>>$/, q{Match unrelated internally inverted <?isInByzantineMusicalSymbols>} );
 
 # InCJKCompatibility
 
 
-ok("\c[SQUARE APAATO]" ~~ m/^<+<?InCJKCompatibility>>$/, q{Match <?InCJKCompatibility>} );
-ok("\c[SQUARE APAATO]" ~~ m/^<[A]+<?InCJKCompatibility>>$/, q{Match compound <?InCJKCompatibility>} );
-ok(!( "\c[SQUARE APAATO]" ~~ m/^<-<?InCJKCompatibility>>$/ ), q{Don't match externally inverted <?InCJKCompatibility>} );
-ok(!( "\c[SQUARE APAATO]" ~~ m/^<[A]-<?InCJKCompatibility>>$/ ), q{Don't match compound inverted <?InCJKCompatibility>} );
-ok(!( "\c[SQUARE APAATO]" ~~ m/^<+<-InCJKCompatibility>>$/ ), q{Don't match internally inverted <?InCJKCompatibility>} );
-ok(!( "\x[2B99]"  ~~ m/^<+<?InCJKCompatibility>>$/ ), q{Don't match unrelated <?InCJKCompatibility>} );
-ok("\x[2B99]"  ~~ m/^<-<?InCJKCompatibility>>$/, q{Match unrelated externally inverted <?InCJKCompatibility>} );
-ok("\x[2B99]"  ~~ m/^<+<-InCJKCompatibility>>$/, q{Match unrelated internally inverted <?InCJKCompatibility>} );
-ok("\x[2B99]\c[SQUARE APAATO]" ~~ m/<+<?InCJKCompatibility>>/, q{Match unanchored <?InCJKCompatibility>} );
+ok("\c[SQUARE APAATO]" ~~ m/^<+<?isInCJKCompatibility>>$/, q{Match <?isInCJKCompatibility>} );
+ok("\c[SQUARE APAATO]" ~~ m/^<[A]+<?isInCJKCompatibility>>$/, q{Match compound <?isInCJKCompatibility>} );
+ok(!( "\c[SQUARE APAATO]" ~~ m/^<-<?isInCJKCompatibility>>$/ ), q{Don't match externally inverted <?isInCJKCompatibility>} );
+ok(!( "\c[SQUARE APAATO]" ~~ m/^<[A]-<?isInCJKCompatibility>>$/ ), q{Don't match compound inverted <?isInCJKCompatibility>} );
+ok(!( "\c[SQUARE APAATO]" ~~ m/^<+<-isInCJKCompatibility>>$/ ), q{Don't match internally inverted <?isInCJKCompatibility>} );
+ok(!( "\x[2B99]"  ~~ m/^<+<?isInCJKCompatibility>>$/ ), q{Don't match unrelated <?isInCJKCompatibility>} );
+ok("\x[2B99]"  ~~ m/^<-<?isInCJKCompatibility>>$/, q{Match unrelated externally inverted <?isInCJKCompatibility>} );
+ok("\x[2B99]"  ~~ m/^<+<-isInCJKCompatibility>>$/, q{Match unrelated internally inverted <?isInCJKCompatibility>} );
+ok("\x[2B99]\c[SQUARE APAATO]" ~~ m/<+<?isInCJKCompatibility>>/, q{Match unanchored <?isInCJKCompatibility>} );
 
 # InCJKCompatibilityForms
 
 
-ok(!( "\x[342B]"  ~~ m/^<+<?InCJKCompatibilityForms>>$/ ), q{Don't match unrelated <?InCJKCompatibilityForms>} );
-ok("\x[342B]"  ~~ m/^<-<?InCJKCompatibilityForms>>$/, q{Match unrelated externally inverted <?InCJKCompatibilityForms>} );
-ok("\x[342B]"  ~~ m/^<+<-InCJKCompatibilityForms>>$/, q{Match unrelated internally inverted <?InCJKCompatibilityForms>} );
+ok(!( "\x[342B]"  ~~ m/^<+<?isInCJKCompatibilityForms>>$/ ), q{Don't match unrelated <?isInCJKCompatibilityForms>} );
+ok("\x[342B]"  ~~ m/^<-<?isInCJKCompatibilityForms>>$/, q{Match unrelated externally inverted <?isInCJKCompatibilityForms>} );
+ok("\x[342B]"  ~~ m/^<+<-isInCJKCompatibilityForms>>$/, q{Match unrelated internally inverted <?isInCJKCompatibilityForms>} );
 
 # InCJKCompatibilityIdeographs
 
 
-ok(!( "\c[BLACK SQUARE]"  ~~ m/^<+<?InCJKCompatibilityIdeographs>>$/ ), q{Don't match unrelated <?InCJKCompatibilityIdeographs>} );
-ok("\c[BLACK SQUARE]"  ~~ m/^<-<?InCJKCompatibilityIdeographs>>$/, q{Match unrelated externally inverted <?InCJKCompatibilityIdeographs>} );
-ok("\c[BLACK SQUARE]"  ~~ m/^<+<-InCJKCompatibilityIdeographs>>$/, q{Match unrelated internally inverted <?InCJKCompatibilityIdeographs>} );
+ok(!( "\c[BLACK SQUARE]"  ~~ m/^<+<?isInCJKCompatibilityIdeographs>>$/ ), q{Don't match unrelated <?isInCJKCompatibilityIdeographs>} );
+ok("\c[BLACK SQUARE]"  ~~ m/^<-<?isInCJKCompatibilityIdeographs>>$/, q{Match unrelated externally inverted <?isInCJKCompatibilityIdeographs>} );
+ok("\c[BLACK SQUARE]"  ~~ m/^<+<-isInCJKCompatibilityIdeographs>>$/, q{Match unrelated internally inverted <?isInCJKCompatibilityIdeographs>} );
 
 # InCJKCompatibilityIdeographsSupplement
 
 
-ok(!( "\x[A90E]"  ~~ m/^<+<?InCJKCompatibilityIdeographsSupplement>>$/ ), q{Don't match unrelated <?InCJKCompatibilityIdeographsSupplement>} );
-ok("\x[A90E]"  ~~ m/^<-<?InCJKCompatibilityIdeographsSupplement>>$/, q{Match unrelated externally inverted <?InCJKCompatibilityIdeographsSupplement>} );
-ok("\x[A90E]"  ~~ m/^<+<-InCJKCompatibilityIdeographsSupplement>>$/, q{Match unrelated internally inverted <?InCJKCompatibilityIdeographsSupplement>} );
+ok(!( "\x[A90E]"  ~~ m/^<+<?isInCJKCompatibilityIdeographsSupplement>>$/ ), q{Don't match unrelated <?isInCJKCompatibilityIdeographsSupplement>} );
+ok("\x[A90E]"  ~~ m/^<-<?isInCJKCompatibilityIdeographsSupplement>>$/, q{Match unrelated externally inverted <?isInCJKCompatibilityIdeographsSupplement>} );
+ok("\x[A90E]"  ~~ m/^<+<-isInCJKCompatibilityIdeographsSupplement>>$/, q{Match unrelated internally inverted <?isInCJKCompatibilityIdeographsSupplement>} );
 
 # InCJKRadicalsSupplement
 
 
-ok("\c[CJK RADICAL REPEAT]" ~~ m/^<+<?InCJKRadicalsSupplement>>$/, q{Match <?InCJKRadicalsSupplement>} );
-ok("\c[CJK RADICAL REPEAT]" ~~ m/^<[A]+<?InCJKRadicalsSupplement>>$/, q{Match compound <?InCJKRadicalsSupplement>} );
-ok(!( "\c[CJK RADICAL REPEAT]" ~~ m/^<-<?InCJKRadicalsSupplement>>$/ ), q{Don't match externally inverted <?InCJKRadicalsSupplement>} );
-ok(!( "\c[CJK RADICAL REPEAT]" ~~ m/^<[A]-<?InCJKRadicalsSupplement>>$/ ), q{Don't match compound inverted <?InCJKRadicalsSupplement>} );
-ok(!( "\c[CJK RADICAL REPEAT]" ~~ m/^<+<-InCJKRadicalsSupplement>>$/ ), q{Don't match internally inverted <?InCJKRadicalsSupplement>} );
-ok(!( "\x[563B]"  ~~ m/^<+<?InCJKRadicalsSupplement>>$/ ), q{Don't match unrelated <?InCJKRadicalsSupplement>} );
-ok("\x[563B]"  ~~ m/^<-<?InCJKRadicalsSupplement>>$/, q{Match unrelated externally inverted <?InCJKRadicalsSupplement>} );
-ok("\x[563B]"  ~~ m/^<+<-InCJKRadicalsSupplement>>$/, q{Match unrelated internally inverted <?InCJKRadicalsSupplement>} );
-ok("\x[563B]\c[CJK RADICAL REPEAT]" ~~ m/<+<?InCJKRadicalsSupplement>>/, q{Match unanchored <?InCJKRadicalsSupplement>} );
+ok("\c[CJK RADICAL REPEAT]" ~~ m/^<+<?isInCJKRadicalsSupplement>>$/, q{Match <?isInCJKRadicalsSupplement>} );
+ok("\c[CJK RADICAL REPEAT]" ~~ m/^<[A]+<?isInCJKRadicalsSupplement>>$/, q{Match compound <?isInCJKRadicalsSupplement>} );
+ok(!( "\c[CJK RADICAL REPEAT]" ~~ m/^<-<?isInCJKRadicalsSupplement>>$/ ), q{Don't match externally inverted <?isInCJKRadicalsSupplement>} );
+ok(!( "\c[CJK RADICAL REPEAT]" ~~ m/^<[A]-<?isInCJKRadicalsSupplement>>$/ ), q{Don't match compound inverted <?isInCJKRadicalsSupplement>} );
+ok(!( "\c[CJK RADICAL REPEAT]" ~~ m/^<+<-isInCJKRadicalsSupplement>>$/ ), q{Don't match internally inverted <?isInCJKRadicalsSupplement>} );
+ok(!( "\x[563B]"  ~~ m/^<+<?isInCJKRadicalsSupplement>>$/ ), q{Don't match unrelated <?isInCJKRadicalsSupplement>} );
+ok("\x[563B]"  ~~ m/^<-<?isInCJKRadicalsSupplement>>$/, q{Match unrelated externally inverted <?isInCJKRadicalsSupplement>} );
+ok("\x[563B]"  ~~ m/^<+<-isInCJKRadicalsSupplement>>$/, q{Match unrelated internally inverted <?isInCJKRadicalsSupplement>} );
+ok("\x[563B]\c[CJK RADICAL REPEAT]" ~~ m/<+<?isInCJKRadicalsSupplement>>/, q{Match unanchored <?isInCJKRadicalsSupplement>} );
 
 # InCJKSymbolsAndPunctuation
 
 
-ok("\c[IDEOGRAPHIC SPACE]" ~~ m/^<+<?InCJKSymbolsAndPunctuation>>$/, q{Match <?InCJKSymbolsAndPunctuation>} );
-ok("\c[IDEOGRAPHIC SPACE]" ~~ m/^<[A]+<?InCJKSymbolsAndPunctuation>>$/, q{Match compound <?InCJKSymbolsAndPunctuation>} );
-ok(!( "\c[IDEOGRAPHIC SPACE]" ~~ m/^<-<?InCJKSymbolsAndPunctuation>>$/ ), q{Don't match externally inverted <?InCJKSymbolsAndPunctuation>} );
-ok(!( "\c[IDEOGRAPHIC SPACE]" ~~ m/^<[A]-<?InCJKSymbolsAndPunctuation>>$/ ), q{Don't match compound inverted <?InCJKSymbolsAndPunctuation>} );
-ok(!( "\c[IDEOGRAPHIC SPACE]" ~~ m/^<+<-InCJKSymbolsAndPunctuation>>$/ ), q{Don't match internally inverted <?InCJKSymbolsAndPunctuation>} );
-ok(!( "\x[3BE6]"  ~~ m/^<+<?InCJKSymbolsAndPunctuation>>$/ ), q{Don't match unrelated <?InCJKSymbolsAndPunctuation>} );
-ok("\x[3BE6]"  ~~ m/^<-<?InCJKSymbolsAndPunctuation>>$/, q{Match unrelated externally inverted <?InCJKSymbolsAndPunctuation>} );
-ok("\x[3BE6]"  ~~ m/^<+<-InCJKSymbolsAndPunctuation>>$/, q{Match unrelated internally inverted <?InCJKSymbolsAndPunctuation>} );
-ok("\x[3BE6]\c[IDEOGRAPHIC SPACE]" ~~ m/<+<?InCJKSymbolsAndPunctuation>>/, q{Match unanchored <?InCJKSymbolsAndPunctuation>} );
+ok("\c[IDEOGRAPHIC SPACE]" ~~ m/^<+<?isInCJKSymbolsAndPunctuation>>$/, q{Match <?isInCJKSymbolsAndPunctuation>} );
+ok("\c[IDEOGRAPHIC SPACE]" ~~ m/^<[A]+<?isInCJKSymbolsAndPunctuation>>$/, q{Match compound <?isInCJKSymbolsAndPunctuation>} );
+ok(!( "\c[IDEOGRAPHIC SPACE]" ~~ m/^<-<?isInCJKSymbolsAndPunctuation>>$/ ), q{Don't match externally inverted <?isInCJKSymbolsAndPunctuation>} );
+ok(!( "\c[IDEOGRAPHIC SPACE]" ~~ m/^<[A]-<?isInCJKSymbolsAndPunctuation>>$/ ), q{Don't match compound inverted <?isInCJKSymbolsAndPunctuation>} );
+ok(!( "\c[IDEOGRAPHIC SPACE]" ~~ m/^<+<-isInCJKSymbolsAndPunctuation>>$/ ), q{Don't match internally inverted <?isInCJKSymbolsAndPunctuation>} );
+ok(!( "\x[3BE6]"  ~~ m/^<+<?isInCJKSymbolsAndPunctuation>>$/ ), q{Don't match unrelated <?isInCJKSymbolsAndPunctuation>} );
+ok("\x[3BE6]"  ~~ m/^<-<?isInCJKSymbolsAndPunctuation>>$/, q{Match unrelated externally inverted <?isInCJKSymbolsAndPunctuation>} );
+ok("\x[3BE6]"  ~~ m/^<+<-isInCJKSymbolsAndPunctuation>>$/, q{Match unrelated internally inverted <?isInCJKSymbolsAndPunctuation>} );
+ok("\x[3BE6]\c[IDEOGRAPHIC SPACE]" ~~ m/<+<?isInCJKSymbolsAndPunctuation>>/, q{Match unanchored <?isInCJKSymbolsAndPunctuation>} );
 
 # InCJKUnifiedIdeographs
 
 
-ok("\x[4E00]" ~~ m/^<+<?InCJKUnifiedIdeographs>>$/, q{Match <?InCJKUnifiedIdeographs>} );
-ok("\x[4E00]" ~~ m/^<[A]+<?InCJKUnifiedIdeographs>>$/, q{Match compound <?InCJKUnifiedIdeographs>} );
-ok(!( "\x[4E00]" ~~ m/^<-<?InCJKUnifiedIdeographs>>$/ ), q{Don't match externally inverted <?InCJKUnifiedIdeographs>} );
-ok(!( "\x[4E00]" ~~ m/^<[A]-<?InCJKUnifiedIdeographs>>$/ ), q{Don't match compound inverted <?InCJKUnifiedIdeographs>} );
-ok(!( "\x[4E00]" ~~ m/^<+<-InCJKUnifiedIdeographs>>$/ ), q{Don't match internally inverted <?InCJKUnifiedIdeographs>} );
-ok(!( "\x[436E]"  ~~ m/^<+<?InCJKUnifiedIdeographs>>$/ ), q{Don't match unrelated <?InCJKUnifiedIdeographs>} );
-ok("\x[436E]"  ~~ m/^<-<?InCJKUnifiedIdeographs>>$/, q{Match unrelated externally inverted <?InCJKUnifiedIdeographs>} );
-ok("\x[436E]"  ~~ m/^<+<-InCJKUnifiedIdeographs>>$/, q{Match unrelated internally inverted <?InCJKUnifiedIdeographs>} );
-ok("\x[436E]\x[4E00]" ~~ m/<+<?InCJKUnifiedIdeographs>>/, q{Match unanchored <?InCJKUnifiedIdeographs>} );
+ok("\x[4E00]" ~~ m/^<+<?isInCJKUnifiedIdeographs>>$/, q{Match <?isInCJKUnifiedIdeographs>} );
+ok("\x[4E00]" ~~ m/^<[A]+<?isInCJKUnifiedIdeographs>>$/, q{Match compound <?isInCJKUnifiedIdeographs>} );
+ok(!( "\x[4E00]" ~~ m/^<-<?isInCJKUnifiedIdeographs>>$/ ), q{Don't match externally inverted <?isInCJKUnifiedIdeographs>} );
+ok(!( "\x[4E00]" ~~ m/^<[A]-<?isInCJKUnifiedIdeographs>>$/ ), q{Don't match compound inverted <?isInCJKUnifiedIdeographs>} );
+ok(!( "\x[4E00]" ~~ m/^<+<-isInCJKUnifiedIdeographs>>$/ ), q{Don't match internally inverted <?isInCJKUnifiedIdeographs>} );
+ok(!( "\x[436E]"  ~~ m/^<+<?isInCJKUnifiedIdeographs>>$/ ), q{Don't match unrelated <?isInCJKUnifiedIdeographs>} );
+ok("\x[436E]"  ~~ m/^<-<?isInCJKUnifiedIdeographs>>$/, q{Match unrelated externally inverted <?isInCJKUnifiedIdeographs>} );
+ok("\x[436E]"  ~~ m/^<+<-isInCJKUnifiedIdeographs>>$/, q{Match unrelated internally inverted <?isInCJKUnifiedIdeographs>} );
+ok("\x[436E]\x[4E00]" ~~ m/<+<?isInCJKUnifiedIdeographs>>/, q{Match unanchored <?isInCJKUnifiedIdeographs>} );
 
 # InCJKUnifiedIdeographsExtensionA
 
 
-ok("\x[4993]" ~~ m/^<+<?InCJKUnifiedIdeographsExtensionA>>$/, q{Match <?InCJKUnifiedIdeographsExtensionA>} );
-ok("\x[4993]" ~~ m/^<[A]+<?InCJKUnifiedIdeographsExtensionA>>$/, q{Match compound <?InCJKUnifiedIdeographsExtensionA>} );
-ok(!( "\x[4993]" ~~ m/^<-<?InCJKUnifiedIdeographsExtensionA>>$/ ), q{Don't match externally inverted <?InCJKUnifiedIdeographsExtensionA>} );
-ok(!( "\x[4993]" ~~ m/^<[A]-<?InCJKUnifiedIdeographsExtensionA>>$/ ), q{Don't match compound inverted <?InCJKUnifiedIdeographsExtensionA>} );
-ok(!( "\x[4993]" ~~ m/^<+<-InCJKUnifiedIdeographsExtensionA>>$/ ), q{Don't match internally inverted <?InCJKUnifiedIdeographsExtensionA>} );
-ok(!( "\c[HEXAGRAM FOR THE CREATIVE HEAVEN]"  ~~ m/^<+<?InCJKUnifiedIdeographsExtensionA>>$/ ), q{Don't match unrelated <?InCJKUnifiedIdeographsExtensionA>} );
-ok("\c[HEXAGRAM FOR THE CREATIVE HEAVEN]"  ~~ m/^<-<?InCJKUnifiedIdeographsExtensionA>>$/, q{Match unrelated externally inverted <?InCJKUnifiedIdeographsExtensionA>} );
-ok("\c[HEXAGRAM FOR THE CREATIVE HEAVEN]"  ~~ m/^<+<-InCJKUnifiedIdeographsExtensionA>>$/, q{Match unrelated internally inverted <?InCJKUnifiedIdeographsExtensionA>} );
-ok("\c[HEXAGRAM FOR THE CREATIVE HEAVEN]\x[4993]" ~~ m/<+<?InCJKUnifiedIdeographsExtensionA>>/, q{Match unanchored <?InCJKUnifiedIdeographsExtensionA>} );
+ok("\x[4993]" ~~ m/^<+<?isInCJKUnifiedIdeographsExtensionA>>$/, q{Match <?isInCJKUnifiedIdeographsExtensionA>} );
+ok("\x[4993]" ~~ m/^<[A]+<?isInCJKUnifiedIdeographsExtensionA>>$/, q{Match compound <?isInCJKUnifiedIdeographsExtensionA>} );
+ok(!( "\x[4993]" ~~ m/^<-<?isInCJKUnifiedIdeographsExtensionA>>$/ ), q{Don't match externally inverted <?isInCJKUnifiedIdeographsExtensionA>} );
+ok(!( "\x[4993]" ~~ m/^<[A]-<?isInCJKUnifiedIdeographsExtensionA>>$/ ), q{Don't match compound inverted <?isInCJKUnifiedIdeographsExtensionA>} );
+ok(!( "\x[4993]" ~~ m/^<+<-isInCJKUnifiedIdeographsExtensionA>>$/ ), q{Don't match internally inverted <?isInCJKUnifiedIdeographsExtensionA>} );
+ok(!( "\c[HEXAGRAM FOR THE CREATIVE HEAVEN]"  ~~ m/^<+<?isInCJKUnifiedIdeographsExtensionA>>$/ ), q{Don't match unrelated <?isInCJKUnifiedIdeographsExtensionA>} );
+ok("\c[HEXAGRAM FOR THE CREATIVE HEAVEN]"  ~~ m/^<-<?isInCJKUnifiedIdeographsExtensionA>>$/, q{Match unrelated externally inverted <?isInCJKUnifiedIdeographsExtensionA>} );
+ok("\c[HEXAGRAM FOR THE CREATIVE HEAVEN]"  ~~ m/^<+<-isInCJKUnifiedIdeographsExtensionA>>$/, q{Match unrelated internally inverted <?isInCJKUnifiedIdeographsExtensionA>} );
+ok("\c[HEXAGRAM FOR THE CREATIVE HEAVEN]\x[4993]" ~~ m/<+<?isInCJKUnifiedIdeographsExtensionA>>/, q{Match unanchored <?isInCJKUnifiedIdeographsExtensionA>} );
 
 # InCJKUnifiedIdeographsExtensionB
 
 
-ok(!( "\x[3E5A]"  ~~ m/^<+<?InCJKUnifiedIdeographsExtensionB>>$/ ), q{Don't match unrelated <?InCJKUnifiedIdeographsExtensionB>} );
-ok("\x[3E5A]"  ~~ m/^<-<?InCJKUnifiedIdeographsExtensionB>>$/, q{Match unrelated externally inverted <?InCJKUnifiedIdeographsExtensionB>} );
-ok("\x[3E5A]"  ~~ m/^<+<-InCJKUnifiedIdeographsExtensionB>>$/, q{Match unrelated internally inverted <?InCJKUnifiedIdeographsExtensionB>} );
+ok(!( "\x[3E5A]"  ~~ m/^<+<?isInCJKUnifiedIdeographsExtensionB>>$/ ), q{Don't match unrelated <?isInCJKUnifiedIdeographsExtensionB>} );
+ok("\x[3E5A]"  ~~ m/^<-<?isInCJKUnifiedIdeographsExtensionB>>$/, q{Match unrelated externally inverted <?isInCJKUnifiedIdeographsExtensionB>} );
+ok("\x[3E5A]"  ~~ m/^<+<-isInCJKUnifiedIdeographsExtensionB>>$/, q{Match unrelated internally inverted <?isInCJKUnifiedIdeographsExtensionB>} );
 
 # InCherokee
 
 
-ok("\c[CHEROKEE LETTER A]" ~~ m/^<+<?InCherokee>>$/, q{Match <?InCherokee>} );
-ok("\c[CHEROKEE LETTER A]" ~~ m/^<[A]+<?InCherokee>>$/, q{Match compound <?InCherokee>} );
-ok(!( "\c[CHEROKEE LETTER A]" ~~ m/^<-<?InCherokee>>$/ ), q{Don't match externally inverted <?InCherokee>} );
-ok(!( "\c[CHEROKEE LETTER A]" ~~ m/^<[A]-<?InCherokee>>$/ ), q{Don't match compound inverted <?InCherokee>} );
-ok(!( "\c[CHEROKEE LETTER A]" ~~ m/^<+<-InCherokee>>$/ ), q{Don't match internally inverted <?InCherokee>} );
-ok(!( "\x[B311]"  ~~ m/^<+<?InCherokee>>$/ ), q{Don't match unrelated <?InCherokee>} );
-ok("\x[B311]"  ~~ m/^<-<?InCherokee>>$/, q{Match unrelated externally inverted <?InCherokee>} );
-ok("\x[B311]"  ~~ m/^<+<-InCherokee>>$/, q{Match unrelated internally inverted <?InCherokee>} );
-ok("\x[B311]\c[CHEROKEE LETTER A]" ~~ m/<+<?InCherokee>>/, q{Match unanchored <?InCherokee>} );
+ok("\c[CHEROKEE LETTER A]" ~~ m/^<+<?isInCherokee>>$/, q{Match <?isInCherokee>} );
+ok("\c[CHEROKEE LETTER A]" ~~ m/^<[A]+<?isInCherokee>>$/, q{Match compound <?isInCherokee>} );
+ok(!( "\c[CHEROKEE LETTER A]" ~~ m/^<-<?isInCherokee>>$/ ), q{Don't match externally inverted <?isInCherokee>} );
+ok(!( "\c[CHEROKEE LETTER A]" ~~ m/^<[A]-<?isInCherokee>>$/ ), q{Don't match compound inverted <?isInCherokee>} );
+ok(!( "\c[CHEROKEE LETTER A]" ~~ m/^<+<-isInCherokee>>$/ ), q{Don't match internally inverted <?isInCherokee>} );
+ok(!( "\x[B311]"  ~~ m/^<+<?isInCherokee>>$/ ), q{Don't match unrelated <?isInCherokee>} );
+ok("\x[B311]"  ~~ m/^<-<?isInCherokee>>$/, q{Match unrelated externally inverted <?isInCherokee>} );
+ok("\x[B311]"  ~~ m/^<+<-isInCherokee>>$/, q{Match unrelated internally inverted <?isInCherokee>} );
+ok("\x[B311]\c[CHEROKEE LETTER A]" ~~ m/<+<?isInCherokee>>/, q{Match unanchored <?isInCherokee>} );
 
 # InCombiningDiacriticalMarks
 
 
-ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<?InCombiningDiacriticalMarks>>$/, q{Match <?InCombiningDiacriticalMarks>} );
-ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<[A]+<?InCombiningDiacriticalMarks>>$/, q{Match compound <?InCombiningDiacriticalMarks>} );
-ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<-<?InCombiningDiacriticalMarks>>$/ ), q{Don't match externally inverted <?InCombiningDiacriticalMarks>} );
-ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<[A]-<?InCombiningDiacriticalMarks>>$/ ), q{Don't match compound inverted <?InCombiningDiacriticalMarks>} );
-ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<-InCombiningDiacriticalMarks>>$/ ), q{Don't match internally inverted <?InCombiningDiacriticalMarks>} );
-ok(!( "\x[81B8]"  ~~ m/^<+<?InCombiningDiacriticalMarks>>$/ ), q{Don't match unrelated <?InCombiningDiacriticalMarks>} );
-ok("\x[81B8]"  ~~ m/^<-<?InCombiningDiacriticalMarks>>$/, q{Match unrelated externally inverted <?InCombiningDiacriticalMarks>} );
-ok("\x[81B8]"  ~~ m/^<+<-InCombiningDiacriticalMarks>>$/, q{Match unrelated internally inverted <?InCombiningDiacriticalMarks>} );
-ok("\x[81B8]\c[COMBINING GRAVE ACCENT]" ~~ m/<+<?InCombiningDiacriticalMarks>>/, q{Match unanchored <?InCombiningDiacriticalMarks>} );
+ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<?isInCombiningDiacriticalMarks>>$/, q{Match <?isInCombiningDiacriticalMarks>} );
+ok("\c[COMBINING GRAVE ACCENT]" ~~ m/^<[A]+<?isInCombiningDiacriticalMarks>>$/, q{Match compound <?isInCombiningDiacriticalMarks>} );
+ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<-<?isInCombiningDiacriticalMarks>>$/ ), q{Don't match externally inverted <?isInCombiningDiacriticalMarks>} );
+ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<[A]-<?isInCombiningDiacriticalMarks>>$/ ), q{Don't match compound inverted <?isInCombiningDiacriticalMarks>} );
+ok(!( "\c[COMBINING GRAVE ACCENT]" ~~ m/^<+<-isInCombiningDiacriticalMarks>>$/ ), q{Don't match internally inverted <?isInCombiningDiacriticalMarks>} );
+ok(!( "\x[81B8]"  ~~ m/^<+<?isInCombiningDiacriticalMarks>>$/ ), q{Don't match unrelated <?isInCombiningDiacriticalMarks>} );
+ok("\x[81B8]"  ~~ m/^<-<?isInCombiningDiacriticalMarks>>$/, q{Match unrelated externally inverted <?isInCombiningDiacriticalMarks>} );
+ok("\x[81B8]"  ~~ m/^<+<-isInCombiningDiacriticalMarks>>$/, q{Match unrelated internally inverted <?isInCombiningDiacriticalMarks>} );
+ok("\x[81B8]\c[COMBINING GRAVE ACCENT]" ~~ m/<+<?isInCombiningDiacriticalMarks>>/, q{Match unanchored <?isInCombiningDiacriticalMarks>} );
 
 # InCombiningDiacriticalMarksforSymbols
 
 
-ok("\c[COMBINING LEFT HARPOON ABOVE]" ~~ m/^<+<?InCombiningDiacriticalMarksforSymbols>>$/, q{Match <?InCombiningDiacriticalMarksforSymbols>} );
-ok("\c[COMBINING LEFT HARPOON ABOVE]" ~~ m/^<[A]+<?InCombiningDiacriticalMarksforSymbols>>$/, q{Match compound <?InCombiningDiacriticalMarksforSymbols>} );
-ok(!( "\c[COMBINING LEFT HARPOON ABOVE]" ~~ m/^<-<?InCombiningDiacriticalMarksforSymbols>>$/ ), q{Don't match externally inverted <?InCombiningDiacriticalMarksforSymbols>} );
-ok(!( "\c[COMBINING LEFT HARPOON ABOVE]" ~~ m/^<[A]-<?InCombiningDiacriticalMarksforSymbols>>$/ ), q{Don't match compound inverted <?InCombiningDiacriticalMarksforSymbols>} );
-ok(!( "\c[COMBINING LEFT HARPOON ABOVE]" ~~ m/^<+<-InCombiningDiacriticalMarksforSymbols>>$/ ), q{Don't match internally inverted <?InCombiningDiacriticalMarksforSymbols>} );
-ok(!( "\c[YI SYLLABLE NZOX]"  ~~ m/^<+<?InCombiningDiacriticalMarksforSymbols>>$/ ), q{Don't match unrelated <?InCombiningDiacriticalMarksforSymbols>} );
-ok("\c[YI SYLLABLE NZOX]"  ~~ m/^<-<?InCombiningDiacriticalMarksforSymbols>>$/, q{Match unrelated externally inverted <?InCombiningDiacriticalMarksforSymbols>} );
-ok("\c[YI SYLLABLE NZOX]"  ~~ m/^<+<-InCombiningDiacriticalMarksforSymbols>>$/, q{Match unrelated internally inverted <?InCombiningDiacriticalMarksforSymbols>} );
-ok("\c[YI SYLLABLE NZOX]\c[COMBINING LEFT HARPOON ABOVE]" ~~ m/<+<?InCombiningDiacriticalMarksforSymbols>>/, q{Match unanchored <?InCombiningDiacriticalMarksforSymbols>} );
+ok("\c[COMBINING LEFT HARPOON ABOVE]" ~~ m/^<+<?isInCombiningDiacriticalMarksforSymbols>>$/, q{Match <?isInCombiningDiacriticalMarksforSymbols>} );
+ok("\c[COMBINING LEFT HARPOON ABOVE]" ~~ m/^<[A]+<?isInCombiningDiacriticalMarksforSymbols>>$/, q{Match compound <?isInCombiningDiacriticalMarksforSymbols>} );
+ok(!( "\c[COMBINING LEFT HARPOON ABOVE]" ~~ m/^<-<?isInCombiningDiacriticalMarksforSymbols>>$/ ), q{Don't match externally inverted <?isInCombiningDiacriticalMarksforSymbols>} );
+ok(!( "\c[COMBINING LEFT HARPOON ABOVE]" ~~ m/^<[A]-<?isInCombiningDiacriticalMarksforSymbols>>$/ ), q{Don't match compound inverted <?isInCombiningDiacriticalMarksforSymbols>} );
+ok(!( "\c[COMBINING LEFT HARPOON ABOVE]" ~~ m/^<+<-isInCombiningDiacriticalMarksforSymbols>>$/ ), q{Don't match internally inverted <?isInCombiningDiacriticalMarksforSymbols>} );
+ok(!( "\c[YI SYLLABLE NZOX]"  ~~ m/^<+<?isInCombiningDiacriticalMarksforSymbols>>$/ ), q{Don't match unrelated <?isInCombiningDiacriticalMarksforSymbols>} );
+ok("\c[YI SYLLABLE NZOX]"  ~~ m/^<-<?isInCombiningDiacriticalMarksforSymbols>>$/, q{Match unrelated externally inverted <?isInCombiningDiacriticalMarksforSymbols>} );
+ok("\c[YI SYLLABLE NZOX]"  ~~ m/^<+<-isInCombiningDiacriticalMarksforSymbols>>$/, q{Match unrelated internally inverted <?isInCombiningDiacriticalMarksforSymbols>} );
+ok("\c[YI SYLLABLE NZOX]\c[COMBINING LEFT HARPOON ABOVE]" ~~ m/<+<?isInCombiningDiacriticalMarksforSymbols>>/, q{Match unanchored <?isInCombiningDiacriticalMarksforSymbols>} );
 
 # InCombiningHalfMarks
 
 
-ok(!( "\x[7140]"  ~~ m/^<+<?InCombiningHalfMarks>>$/ ), q{Don't match unrelated <?InCombiningHalfMarks>} );
-ok("\x[7140]"  ~~ m/^<-<?InCombiningHalfMarks>>$/, q{Match unrelated externally inverted <?InCombiningHalfMarks>} );
-ok("\x[7140]"  ~~ m/^<+<-InCombiningHalfMarks>>$/, q{Match unrelated internally inverted <?InCombiningHalfMarks>} );
+ok(!( "\x[7140]"  ~~ m/^<+<?isInCombiningHalfMarks>>$/ ), q{Don't match unrelated <?isInCombiningHalfMarks>} );
+ok("\x[7140]"  ~~ m/^<-<?isInCombiningHalfMarks>>$/, q{Match unrelated externally inverted <?isInCombiningHalfMarks>} );
+ok("\x[7140]"  ~~ m/^<+<-isInCombiningHalfMarks>>$/, q{Match unrelated internally inverted <?isInCombiningHalfMarks>} );
 
 # InControlPictures
 
 
-ok("\c[SYMBOL FOR NULL]" ~~ m/^<+<?InControlPictures>>$/, q{Match <?InControlPictures>} );
-ok("\c[SYMBOL FOR NULL]" ~~ m/^<[A]+<?InControlPictures>>$/, q{Match compound <?InControlPictures>} );
-ok(!( "\c[SYMBOL FOR NULL]" ~~ m/^<-<?InControlPictures>>$/ ), q{Don't match externally inverted <?InControlPictures>} );
-ok(!( "\c[SYMBOL FOR NULL]" ~~ m/^<[A]-<?InControlPictures>>$/ ), q{Don't match compound inverted <?InControlPictures>} );
-ok(!( "\c[SYMBOL FOR NULL]" ~~ m/^<+<-InControlPictures>>$/ ), q{Don't match internally inverted <?InControlPictures>} );
-ok(!( "\x[CBBF]"  ~~ m/^<+<?InControlPictures>>$/ ), q{Don't match unrelated <?InControlPictures>} );
-ok("\x[CBBF]"  ~~ m/^<-<?InControlPictures>>$/, q{Match unrelated externally inverted <?InControlPictures>} );
-ok("\x[CBBF]"  ~~ m/^<+<-InControlPictures>>$/, q{Match unrelated internally inverted <?InControlPictures>} );
-ok("\x[CBBF]\c[SYMBOL FOR NULL]" ~~ m/<+<?InControlPictures>>/, q{Match unanchored <?InControlPictures>} );
+ok("\c[SYMBOL FOR NULL]" ~~ m/^<+<?isInControlPictures>>$/, q{Match <?isInControlPictures>} );
+ok("\c[SYMBOL FOR NULL]" ~~ m/^<[A]+<?isInControlPictures>>$/, q{Match compound <?isInControlPictures>} );
+ok(!( "\c[SYMBOL FOR NULL]" ~~ m/^<-<?isInControlPictures>>$/ ), q{Don't match externally inverted <?isInControlPictures>} );
+ok(!( "\c[SYMBOL FOR NULL]" ~~ m/^<[A]-<?isInControlPictures>>$/ ), q{Don't match compound inverted <?isInControlPictures>} );
+ok(!( "\c[SYMBOL FOR NULL]" ~~ m/^<+<-isInControlPictures>>$/ ), q{Don't match internally inverted <?isInControlPictures>} );
+ok(!( "\x[CBBF]"  ~~ m/^<+<?isInControlPictures>>$/ ), q{Don't match unrelated <?isInControlPictures>} );
+ok("\x[CBBF]"  ~~ m/^<-<?isInControlPictures>>$/, q{Match unrelated externally inverted <?isInControlPictures>} );
+ok("\x[CBBF]"  ~~ m/^<+<-isInControlPictures>>$/, q{Match unrelated internally inverted <?isInControlPictures>} );
+ok("\x[CBBF]\c[SYMBOL FOR NULL]" ~~ m/<+<?isInControlPictures>>/, q{Match unanchored <?isInControlPictures>} );
 
 # InCurrencySymbols
 
 
-ok("\c[EURO-CURRENCY SIGN]" ~~ m/^<+<?InCurrencySymbols>>$/, q{Match <?InCurrencySymbols>} );
-ok("\c[EURO-CURRENCY SIGN]" ~~ m/^<[A]+<?InCurrencySymbols>>$/, q{Match compound <?InCurrencySymbols>} );
-ok(!( "\c[EURO-CURRENCY SIGN]" ~~ m/^<-<?InCurrencySymbols>>$/ ), q{Don't match externally inverted <?InCurrencySymbols>} );
-ok(!( "\c[EURO-CURRENCY SIGN]" ~~ m/^<[A]-<?InCurrencySymbols>>$/ ), q{Don't match compound inverted <?InCurrencySymbols>} );
-ok(!( "\c[EURO-CURRENCY SIGN]" ~~ m/^<+<-InCurrencySymbols>>$/ ), q{Don't match internally inverted <?InCurrencySymbols>} );
-ok(!( "\x[D040]"  ~~ m/^<+<?InCurrencySymbols>>$/ ), q{Don't match unrelated <?InCurrencySymbols>} );
-ok("\x[D040]"  ~~ m/^<-<?InCurrencySymbols>>$/, q{Match unrelated externally inverted <?InCurrencySymbols>} );
-ok("\x[D040]"  ~~ m/^<+<-InCurrencySymbols>>$/, q{Match unrelated internally inverted <?InCurrencySymbols>} );
-ok("\x[D040]\c[EURO-CURRENCY SIGN]" ~~ m/<+<?InCurrencySymbols>>/, q{Match unanchored <?InCurrencySymbols>} );
+ok("\c[EURO-CURRENCY SIGN]" ~~ m/^<+<?isInCurrencySymbols>>$/, q{Match <?isInCurrencySymbols>} );
+ok("\c[EURO-CURRENCY SIGN]" ~~ m/^<[A]+<?isInCurrencySymbols>>$/, q{Match compound <?isInCurrencySymbols>} );
+ok(!( "\c[EURO-CURRENCY SIGN]" ~~ m/^<-<?isInCurrencySymbols>>$/ ), q{Don't match externally inverted <?isInCurrencySymbols>} );
+ok(!( "\c[EURO-CURRENCY SIGN]" ~~ m/^<[A]-<?isInCurrencySymbols>>$/ ), q{Don't match compound inverted <?isInCurrencySymbols>} );
+ok(!( "\c[EURO-CURRENCY SIGN]" ~~ m/^<+<-isInCurrencySymbols>>$/ ), q{Don't match internally inverted <?isInCurrencySymbols>} );
+ok(!( "\x[D040]"  ~~ m/^<+<?isInCurrencySymbols>>$/ ), q{Don't match unrelated <?isInCurrencySymbols>} );
+ok("\x[D040]"  ~~ m/^<-<?isInCurrencySymbols>>$/, q{Match unrelated externally inverted <?isInCurrencySymbols>} );
+ok("\x[D040]"  ~~ m/^<+<-isInCurrencySymbols>>$/, q{Match unrelated internally inverted <?isInCurrencySymbols>} );
+ok("\x[D040]\c[EURO-CURRENCY SIGN]" ~~ m/<+<?isInCurrencySymbols>>/, q{Match unanchored <?isInCurrencySymbols>} );
 
 # InCyrillic
 
 
-ok("\c[CYRILLIC CAPITAL LETTER IE WITH GRAVE]" ~~ m/^<+<?InCyrillic>>$/, q{Match <?InCyrillic>} );
-ok("\c[CYRILLIC CAPITAL LETTER IE WITH GRAVE]" ~~ m/^<[A]+<?InCyrillic>>$/, q{Match compound <?InCyrillic>} );
-ok(!( "\c[CYRILLIC CAPITAL LETTER IE WITH GRAVE]" ~~ m/^<-<?InCyrillic>>$/ ), q{Don't match externally inverted <?InCyrillic>} );
-ok(!( "\c[CYRILLIC CAPITAL LETTER IE WITH GRAVE]" ~~ m/^<[A]-<?InCyrillic>>$/ ), q{Don't match compound inverted <?InCyrillic>} );
-ok(!( "\c[CYRILLIC CAPITAL LETTER IE WITH GRAVE]" ~~ m/^<+<-InCyrillic>>$/ ), q{Don't match internally inverted <?InCyrillic>} );
-ok(!( "\x[9C58]"  ~~ m/^<+<?InCyrillic>>$/ ), q{Don't match unrelated <?InCyrillic>} );
-ok("\x[9C58]"  ~~ m/^<-<?InCyrillic>>$/, q{Match unrelated externally inverted <?InCyrillic>} );
-ok("\x[9C58]"  ~~ m/^<+<-InCyrillic>>$/, q{Match unrelated internally inverted <?InCyrillic>} );
-ok("\x[9C58]\c[CYRILLIC CAPITAL LETTER IE WITH GRAVE]" ~~ m/<+<?InCyrillic>>/, q{Match unanchored <?InCyrillic>} );
+ok("\c[CYRILLIC CAPITAL LETTER IE WITH GRAVE]" ~~ m/^<+<?isInCyrillic>>$/, q{Match <?isInCyrillic>} );
+ok("\c[CYRILLIC CAPITAL LETTER IE WITH GRAVE]" ~~ m/^<[A]+<?isInCyrillic>>$/, q{Match compound <?isInCyrillic>} );
+ok(!( "\c[CYRILLIC CAPITAL LETTER IE WITH GRAVE]" ~~ m/^<-<?isInCyrillic>>$/ ), q{Don't match externally inverted <?isInCyrillic>} );
+ok(!( "\c[CYRILLIC CAPITAL LETTER IE WITH GRAVE]" ~~ m/^<[A]-<?isInCyrillic>>$/ ), q{Don't match compound inverted <?isInCyrillic>} );
+ok(!( "\c[CYRILLIC CAPITAL LETTER IE WITH GRAVE]" ~~ m/^<+<-isInCyrillic>>$/ ), q{Don't match internally inverted <?isInCyrillic>} );
+ok(!( "\x[9C58]"  ~~ m/^<+<?isInCyrillic>>$/ ), q{Don't match unrelated <?isInCyrillic>} );
+ok("\x[9C58]"  ~~ m/^<-<?isInCyrillic>>$/, q{Match unrelated externally inverted <?isInCyrillic>} );
+ok("\x[9C58]"  ~~ m/^<+<-isInCyrillic>>$/, q{Match unrelated internally inverted <?isInCyrillic>} );
+ok("\x[9C58]\c[CYRILLIC CAPITAL LETTER IE WITH GRAVE]" ~~ m/<+<?isInCyrillic>>/, q{Match unanchored <?isInCyrillic>} );
 
 # InCyrillicSupplementary
 
 
-ok("\c[CYRILLIC CAPITAL LETTER KOMI DE]" ~~ m/^<+<?InCyrillicSupplementary>>$/, q{Match <?InCyrillicSupplementary>} );
-ok("\c[CYRILLIC CAPITAL LETTER KOMI DE]" ~~ m/^<[A]+<?InCyrillicSupplementary>>$/, q{Match compound <?InCyrillicSupplementary>} );
-ok(!( "\c[CYRILLIC CAPITAL LETTER KOMI DE]" ~~ m/^<-<?InCyrillicSupplementary>>$/ ), q{Don't match externally inverted <?InCyrillicSupplementary>} );
-ok(!( "\c[CYRILLIC CAPITAL LETTER KOMI DE]" ~~ m/^<[A]-<?InCyrillicSupplementary>>$/ ), q{Don't match compound inverted <?InCyrillicSupplementary>} );
-ok(!( "\c[CYRILLIC CAPITAL LETTER KOMI DE]" ~~ m/^<+<-InCyrillicSupplementary>>$/ ), q{Don't match internally inverted <?InCyrillicSupplementary>} );
-ok(!( "\x[857A]"  ~~ m/^<+<?InCyrillicSupplementary>>$/ ), q{Don't match unrelated <?InCyrillicSupplementary>} );
-ok("\x[857A]"  ~~ m/^<-<?InCyrillicSupplementary>>$/, q{Match unrelated externally inverted <?InCyrillicSupplementary>} );
-ok("\x[857A]"  ~~ m/^<+<-InCyrillicSupplementary>>$/, q{Match unrelated internally inverted <?InCyrillicSupplementary>} );
-ok("\x[857A]\c[CYRILLIC CAPITAL LETTER KOMI DE]" ~~ m/<+<?InCyrillicSupplementary>>/, q{Match unanchored <?InCyrillicSupplementary>} );
+ok("\c[CYRILLIC CAPITAL LETTER KOMI DE]" ~~ m/^<+<?isInCyrillicSupplementary>>$/, q{Match <?isInCyrillicSupplementary>} );
+ok("\c[CYRILLIC CAPITAL LETTER KOMI DE]" ~~ m/^<[A]+<?isInCyrillicSupplementary>>$/, q{Match compound <?isInCyrillicSupplementary>} );
+ok(!( "\c[CYRILLIC CAPITAL LETTER KOMI DE]" ~~ m/^<-<?isInCyrillicSupplementary>>$/ ), q{Don't match externally inverted <?isInCyrillicSupplementary>} );
+ok(!( "\c[CYRILLIC CAPITAL LETTER KOMI DE]" ~~ m/^<[A]-<?isInCyrillicSupplementary>>$/ ), q{Don't match compound inverted <?isInCyrillicSupplementary>} );
+ok(!( "\c[CYRILLIC CAPITAL LETTER KOMI DE]" ~~ m/^<+<-isInCyrillicSupplementary>>$/ ), q{Don't match internally inverted <?isInCyrillicSupplementary>} );
+ok(!( "\x[857A]"  ~~ m/^<+<?isInCyrillicSupplementary>>$/ ), q{Don't match unrelated <?isInCyrillicSupplementary>} );
+ok("\x[857A]"  ~~ m/^<-<?isInCyrillicSupplementary>>$/, q{Match unrelated externally inverted <?isInCyrillicSupplementary>} );
+ok("\x[857A]"  ~~ m/^<+<-isInCyrillicSupplementary>>$/, q{Match unrelated internally inverted <?isInCyrillicSupplementary>} );
+ok("\x[857A]\c[CYRILLIC CAPITAL LETTER KOMI DE]" ~~ m/<+<?isInCyrillicSupplementary>>/, q{Match unanchored <?isInCyrillicSupplementary>} );
 
 # InDeseret
 
 
-ok(!( "\c[LATIN SMALL LETTER I WITH DOUBLE GRAVE]"  ~~ m/^<+<?InDeseret>>$/ ), q{Don't match unrelated <?InDeseret>} );
-ok("\c[LATIN SMALL LETTER I WITH DOUBLE GRAVE]"  ~~ m/^<-<?InDeseret>>$/, q{Match unrelated externally inverted <?InDeseret>} );
-ok("\c[LATIN SMALL LETTER I WITH DOUBLE GRAVE]"  ~~ m/^<+<-InDeseret>>$/, q{Match unrelated internally inverted <?InDeseret>} );
+ok(!( "\c[LATIN SMALL LETTER I WITH DOUBLE GRAVE]"  ~~ m/^<+<?isInDeseret>>$/ ), q{Don't match unrelated <?isInDeseret>} );
+ok("\c[LATIN SMALL LETTER I WITH DOUBLE GRAVE]"  ~~ m/^<-<?isInDeseret>>$/, q{Match unrelated externally inverted <?isInDeseret>} );
+ok("\c[LATIN SMALL LETTER I WITH DOUBLE GRAVE]"  ~~ m/^<+<-isInDeseret>>$/, q{Match unrelated internally inverted <?isInDeseret>} );
 
 # InDevanagari
 
 
-ok("\x[0900]" ~~ m/^<+<?InDevanagari>>$/, q{Match <?InDevanagari>} );
-ok("\x[0900]" ~~ m/^<[A]+<?InDevanagari>>$/, q{Match compound <?InDevanagari>} );
-ok(!( "\x[0900]" ~~ m/^<-<?InDevanagari>>$/ ), q{Don't match externally inverted <?InDevanagari>} );
-ok(!( "\x[0900]" ~~ m/^<[A]-<?InDevanagari>>$/ ), q{Don't match compound inverted <?InDevanagari>} );
-ok(!( "\x[0900]" ~~ m/^<+<-InDevanagari>>$/ ), q{Don't match internally inverted <?InDevanagari>} );
-ok(!( "\x[3837]"  ~~ m/^<+<?InDevanagari>>$/ ), q{Don't match unrelated <?InDevanagari>} );
-ok("\x[3837]"  ~~ m/^<-<?InDevanagari>>$/, q{Match unrelated externally inverted <?InDevanagari>} );
-ok("\x[3837]"  ~~ m/^<+<-InDevanagari>>$/, q{Match unrelated internally inverted <?InDevanagari>} );
-ok("\x[3837]\x[0900]" ~~ m/<+<?InDevanagari>>/, q{Match unanchored <?InDevanagari>} );
+ok("\x[0900]" ~~ m/^<+<?isInDevanagari>>$/, q{Match <?isInDevanagari>} );
+ok("\x[0900]" ~~ m/^<[A]+<?isInDevanagari>>$/, q{Match compound <?isInDevanagari>} );
+ok(!( "\x[0900]" ~~ m/^<-<?isInDevanagari>>$/ ), q{Don't match externally inverted <?isInDevanagari>} );
+ok(!( "\x[0900]" ~~ m/^<[A]-<?isInDevanagari>>$/ ), q{Don't match compound inverted <?isInDevanagari>} );
+ok(!( "\x[0900]" ~~ m/^<+<-isInDevanagari>>$/ ), q{Don't match internally inverted <?isInDevanagari>} );
+ok(!( "\x[3837]"  ~~ m/^<+<?isInDevanagari>>$/ ), q{Don't match unrelated <?isInDevanagari>} );
+ok("\x[3837]"  ~~ m/^<-<?isInDevanagari>>$/, q{Match unrelated externally inverted <?isInDevanagari>} );
+ok("\x[3837]"  ~~ m/^<+<-isInDevanagari>>$/, q{Match unrelated internally inverted <?isInDevanagari>} );
+ok("\x[3837]\x[0900]" ~~ m/<+<?isInDevanagari>>/, q{Match unanchored <?isInDevanagari>} );
 
 # InDingbats
 
 
-ok("\x[2700]" ~~ m/^<+<?InDingbats>>$/, q{Match <?InDingbats>} );
-ok("\x[2700]" ~~ m/^<[A]+<?InDingbats>>$/, q{Match compound <?InDingbats>} );
-ok(!( "\x[2700]" ~~ m/^<-<?InDingbats>>$/ ), q{Don't match externally inverted <?InDingbats>} );
-ok(!( "\x[2700]" ~~ m/^<[A]-<?InDingbats>>$/ ), q{Don't match compound inverted <?InDingbats>} );
-ok(!( "\x[2700]" ~~ m/^<+<-InDingbats>>$/ ), q{Don't match internally inverted <?InDingbats>} );
-ok(!( "\x[C9CC]"  ~~ m/^<+<?InDingbats>>$/ ), q{Don't match unrelated <?InDingbats>} );
-ok("\x[C9CC]"  ~~ m/^<-<?InDingbats>>$/, q{Match unrelated externally inverted <?InDingbats>} );
-ok("\x[C9CC]"  ~~ m/^<+<-InDingbats>>$/, q{Match unrelated internally inverted <?InDingbats>} );
-ok("\x[C9CC]\x[2700]" ~~ m/<+<?InDingbats>>/, q{Match unanchored <?InDingbats>} );
+ok("\x[2700]" ~~ m/^<+<?isInDingbats>>$/, q{Match <?isInDingbats>} );
+ok("\x[2700]" ~~ m/^<[A]+<?isInDingbats>>$/, q{Match compound <?isInDingbats>} );
+ok(!( "\x[2700]" ~~ m/^<-<?isInDingbats>>$/ ), q{Don't match externally inverted <?isInDingbats>} );
+ok(!( "\x[2700]" ~~ m/^<[A]-<?isInDingbats>>$/ ), q{Don't match compound inverted <?isInDingbats>} );
+ok(!( "\x[2700]" ~~ m/^<+<-isInDingbats>>$/ ), q{Don't match internally inverted <?isInDingbats>} );
+ok(!( "\x[C9CC]"  ~~ m/^<+<?isInDingbats>>$/ ), q{Don't match unrelated <?isInDingbats>} );
+ok("\x[C9CC]"  ~~ m/^<-<?isInDingbats>>$/, q{Match unrelated externally inverted <?isInDingbats>} );
+ok("\x[C9CC]"  ~~ m/^<+<-isInDingbats>>$/, q{Match unrelated internally inverted <?isInDingbats>} );
+ok("\x[C9CC]\x[2700]" ~~ m/<+<?isInDingbats>>/, q{Match unanchored <?isInDingbats>} );
 
 # InEnclosedAlphanumerics
 
 
-ok("\c[CIRCLED DIGIT ONE]" ~~ m/^<+<?InEnclosedAlphanumerics>>$/, q{Match <?InEnclosedAlphanumerics>} );
-ok("\c[CIRCLED DIGIT ONE]" ~~ m/^<[A]+<?InEnclosedAlphanumerics>>$/, q{Match compound <?InEnclosedAlphanumerics>} );
-ok(!( "\c[CIRCLED DIGIT ONE]" ~~ m/^<-<?InEnclosedAlphanumerics>>$/ ), q{Don't match externally inverted <?InEnclosedAlphanumerics>} );
-ok(!( "\c[CIRCLED DIGIT ONE]" ~~ m/^<[A]-<?InEnclosedAlphanumerics>>$/ ), q{Don't match compound inverted <?InEnclosedAlphanumerics>} );
-ok(!( "\c[CIRCLED DIGIT ONE]" ~~ m/^<+<-InEnclosedAlphanumerics>>$/ ), q{Don't match internally inverted <?InEnclosedAlphanumerics>} );
-ok(!( "\x[CCB8]"  ~~ m/^<+<?InEnclosedAlphanumerics>>$/ ), q{Don't match unrelated <?InEnclosedAlphanumerics>} );
-ok("\x[CCB8]"  ~~ m/^<-<?InEnclosedAlphanumerics>>$/, q{Match unrelated externally inverted <?InEnclosedAlphanumerics>} );
-ok("\x[CCB8]"  ~~ m/^<+<-InEnclosedAlphanumerics>>$/, q{Match unrelated internally inverted <?InEnclosedAlphanumerics>} );
-ok("\x[CCB8]\c[CIRCLED DIGIT ONE]" ~~ m/<+<?InEnclosedAlphanumerics>>/, q{Match unanchored <?InEnclosedAlphanumerics>} );
+ok("\c[CIRCLED DIGIT ONE]" ~~ m/^<+<?isInEnclosedAlphanumerics>>$/, q{Match <?isInEnclosedAlphanumerics>} );
+ok("\c[CIRCLED DIGIT ONE]" ~~ m/^<[A]+<?isInEnclosedAlphanumerics>>$/, q{Match compound <?isInEnclosedAlphanumerics>} );
+ok(!( "\c[CIRCLED DIGIT ONE]" ~~ m/^<-<?isInEnclosedAlphanumerics>>$/ ), q{Don't match externally inverted <?isInEnclosedAlphanumerics>} );
+ok(!( "\c[CIRCLED DIGIT ONE]" ~~ m/^<[A]-<?isInEnclosedAlphanumerics>>$/ ), q{Don't match compound inverted <?isInEnclosedAlphanumerics>} );
+ok(!( "\c[CIRCLED DIGIT ONE]" ~~ m/^<+<-isInEnclosedAlphanumerics>>$/ ), q{Don't match internally inverted <?isInEnclosedAlphanumerics>} );
+ok(!( "\x[CCB8]"  ~~ m/^<+<?isInEnclosedAlphanumerics>>$/ ), q{Don't match unrelated <?isInEnclosedAlphanumerics>} );
+ok("\x[CCB8]"  ~~ m/^<-<?isInEnclosedAlphanumerics>>$/, q{Match unrelated externally inverted <?isInEnclosedAlphanumerics>} );
+ok("\x[CCB8]"  ~~ m/^<+<-isInEnclosedAlphanumerics>>$/, q{Match unrelated internally inverted <?isInEnclosedAlphanumerics>} );
+ok("\x[CCB8]\c[CIRCLED DIGIT ONE]" ~~ m/<+<?isInEnclosedAlphanumerics>>/, q{Match unanchored <?isInEnclosedAlphanumerics>} );
 
 # InEnclosedCJKLettersAndMonths
 
 
-ok("\c[PARENTHESIZED HANGUL KIYEOK]" ~~ m/^<+<?InEnclosedCJKLettersAndMonths>>$/, q{Match <?InEnclosedCJKLettersAndMonths>} );
-ok("\c[PARENTHESIZED HANGUL KIYEOK]" ~~ m/^<[A]+<?InEnclosedCJKLettersAndMonths>>$/, q{Match compound <?InEnclosedCJKLettersAndMonths>} );
-ok(!( "\c[PARENTHESIZED HANGUL KIYEOK]" ~~ m/^<-<?InEnclosedCJKLettersAndMonths>>$/ ), q{Don't match externally inverted <?InEnclosedCJKLettersAndMonths>} );
-ok(!( "\c[PARENTHESIZED HANGUL KIYEOK]" ~~ m/^<[A]-<?InEnclosedCJKLettersAndMonths>>$/ ), q{Don't match compound inverted <?InEnclosedCJKLettersAndMonths>} );
-ok(!( "\c[PARENTHESIZED HANGUL KIYEOK]" ~~ m/^<+<-InEnclosedCJKLettersAndMonths>>$/ ), q{Don't match internally inverted <?InEnclosedCJKLettersAndMonths>} );
-ok(!( "\x[8883]"  ~~ m/^<+<?InEnclosedCJKLettersAndMonths>>$/ ), q{Don't match unrelated <?InEnclosedCJKLettersAndMonths>} );
-ok("\x[8883]"  ~~ m/^<-<?InEnclosedCJKLettersAndMonths>>$/, q{Match unrelated externally inverted <?InEnclosedCJKLettersAndMonths>} );
-ok("\x[8883]"  ~~ m/^<+<-InEnclosedCJKLettersAndMonths>>$/, q{Match unrelated internally inverted <?InEnclosedCJKLettersAndMonths>} );
-ok("\x[8883]\c[PARENTHESIZED HANGUL KIYEOK]" ~~ m/<+<?InEnclosedCJKLettersAndMonths>>/, q{Match unanchored <?InEnclosedCJKLettersAndMonths>} );
+ok("\c[PARENTHESIZED HANGUL KIYEOK]" ~~ m/^<+<?isInEnclosedCJKLettersAndMonths>>$/, q{Match <?isInEnclosedCJKLettersAndMonths>} );
+ok("\c[PARENTHESIZED HANGUL KIYEOK]" ~~ m/^<[A]+<?isInEnclosedCJKLettersAndMonths>>$/, q{Match compound <?isInEnclosedCJKLettersAndMonths>} );
+ok(!( "\c[PARENTHESIZED HANGUL KIYEOK]" ~~ m/^<-<?isInEnclosedCJKLettersAndMonths>>$/ ), q{Don't match externally inverted <?isInEnclosedCJKLettersAndMonths>} );
+ok(!( "\c[PARENTHESIZED HANGUL KIYEOK]" ~~ m/^<[A]-<?isInEnclosedCJKLettersAndMonths>>$/ ), q{Don't match compound inverted <?isInEnclosedCJKLettersAndMonths>} );
+ok(!( "\c[PARENTHESIZED HANGUL KIYEOK]" ~~ m/^<+<-isInEnclosedCJKLettersAndMonths>>$/ ), q{Don't match internally inverted <?isInEnclosedCJKLettersAndMonths>} );
+ok(!( "\x[8883]"  ~~ m/^<+<?isInEnclosedCJKLettersAndMonths>>$/ ), q{Don't match unrelated <?isInEnclosedCJKLettersAndMonths>} );
+ok("\x[8883]"  ~~ m/^<-<?isInEnclosedCJKLettersAndMonths>>$/, q{Match unrelated externally inverted <?isInEnclosedCJKLettersAndMonths>} );
+ok("\x[8883]"  ~~ m/^<+<-isInEnclosedCJKLettersAndMonths>>$/, q{Match unrelated internally inverted <?isInEnclosedCJKLettersAndMonths>} );
+ok("\x[8883]\c[PARENTHESIZED HANGUL KIYEOK]" ~~ m/<+<?isInEnclosedCJKLettersAndMonths>>/, q{Match unanchored <?isInEnclosedCJKLettersAndMonths>} );
 
 # InEthiopic
 
 
-ok("\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<+<?InEthiopic>>$/, q{Match <?InEthiopic>} );
-ok("\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<[A]+<?InEthiopic>>$/, q{Match compound <?InEthiopic>} );
-ok(!( "\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<-<?InEthiopic>>$/ ), q{Don't match externally inverted <?InEthiopic>} );
-ok(!( "\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<[A]-<?InEthiopic>>$/ ), q{Don't match compound inverted <?InEthiopic>} );
-ok(!( "\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<+<-InEthiopic>>$/ ), q{Don't match internally inverted <?InEthiopic>} );
-ok(!( "\c[MALAYALAM DIGIT NINE]"  ~~ m/^<+<?InEthiopic>>$/ ), q{Don't match unrelated <?InEthiopic>} );
-ok("\c[MALAYALAM DIGIT NINE]"  ~~ m/^<-<?InEthiopic>>$/, q{Match unrelated externally inverted <?InEthiopic>} );
-ok("\c[MALAYALAM DIGIT NINE]"  ~~ m/^<+<-InEthiopic>>$/, q{Match unrelated internally inverted <?InEthiopic>} );
-ok("\c[MALAYALAM DIGIT NINE]\c[ETHIOPIC SYLLABLE HA]" ~~ m/<+<?InEthiopic>>/, q{Match unanchored <?InEthiopic>} );
+ok("\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<+<?isInEthiopic>>$/, q{Match <?isInEthiopic>} );
+ok("\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<[A]+<?isInEthiopic>>$/, q{Match compound <?isInEthiopic>} );
+ok(!( "\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<-<?isInEthiopic>>$/ ), q{Don't match externally inverted <?isInEthiopic>} );
+ok(!( "\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<[A]-<?isInEthiopic>>$/ ), q{Don't match compound inverted <?isInEthiopic>} );
+ok(!( "\c[ETHIOPIC SYLLABLE HA]" ~~ m/^<+<-isInEthiopic>>$/ ), q{Don't match internally inverted <?isInEthiopic>} );
+ok(!( "\c[MALAYALAM DIGIT NINE]"  ~~ m/^<+<?isInEthiopic>>$/ ), q{Don't match unrelated <?isInEthiopic>} );
+ok("\c[MALAYALAM DIGIT NINE]"  ~~ m/^<-<?isInEthiopic>>$/, q{Match unrelated externally inverted <?isInEthiopic>} );
+ok("\c[MALAYALAM DIGIT NINE]"  ~~ m/^<+<-isInEthiopic>>$/, q{Match unrelated internally inverted <?isInEthiopic>} );
+ok("\c[MALAYALAM DIGIT NINE]\c[ETHIOPIC SYLLABLE HA]" ~~ m/<+<?isInEthiopic>>/, q{Match unanchored <?isInEthiopic>} );
 
 # InGeneralPunctuation
 
 
-ok("\c[EN QUAD]" ~~ m/^<+<?InGeneralPunctuation>>$/, q{Match <?InGeneralPunctuation>} );
-ok("\c[EN QUAD]" ~~ m/^<[A]+<?InGeneralPunctuation>>$/, q{Match compound <?InGeneralPunctuation>} );
-ok(!( "\c[EN QUAD]" ~~ m/^<-<?InGeneralPunctuation>>$/ ), q{Don't match externally inverted <?InGeneralPunctuation>} );
-ok(!( "\c[EN QUAD]" ~~ m/^<[A]-<?InGeneralPunctuation>>$/ ), q{Don't match compound inverted <?InGeneralPunctuation>} );
-ok(!( "\c[EN QUAD]" ~~ m/^<+<-InGeneralPunctuation>>$/ ), q{Don't match internally inverted <?InGeneralPunctuation>} );
-ok(!( "\x[BBC9]"  ~~ m/^<+<?InGeneralPunctuation>>$/ ), q{Don't match unrelated <?InGeneralPunctuation>} );
-ok("\x[BBC9]"  ~~ m/^<-<?InGeneralPunctuation>>$/, q{Match unrelated externally inverted <?InGeneralPunctuation>} );
-ok("\x[BBC9]"  ~~ m/^<+<-InGeneralPunctuation>>$/, q{Match unrelated internally inverted <?InGeneralPunctuation>} );
-ok("\x[BBC9]\c[EN QUAD]" ~~ m/<+<?InGeneralPunctuation>>/, q{Match unanchored <?InGeneralPunctuation>} );
+ok("\c[EN QUAD]" ~~ m/^<+<?isInGeneralPunctuation>>$/, q{Match <?isInGeneralPunctuation>} );
+ok("\c[EN QUAD]" ~~ m/^<[A]+<?isInGeneralPunctuation>>$/, q{Match compound <?isInGeneralPunctuation>} );
+ok(!( "\c[EN QUAD]" ~~ m/^<-<?isInGeneralPunctuation>>$/ ), q{Don't match externally inverted <?isInGeneralPunctuation>} );
+ok(!( "\c[EN QUAD]" ~~ m/^<[A]-<?isInGeneralPunctuation>>$/ ), q{Don't match compound inverted <?isInGeneralPunctuation>} );
+ok(!( "\c[EN QUAD]" ~~ m/^<+<-isInGeneralPunctuation>>$/ ), q{Don't match internally inverted <?isInGeneralPunctuation>} );
+ok(!( "\x[BBC9]"  ~~ m/^<+<?isInGeneralPunctuation>>$/ ), q{Don't match unrelated <?isInGeneralPunctuation>} );
+ok("\x[BBC9]"  ~~ m/^<-<?isInGeneralPunctuation>>$/, q{Match unrelated externally inverted <?isInGeneralPunctuation>} );
+ok("\x[BBC9]"  ~~ m/^<+<-isInGeneralPunctuation>>$/, q{Match unrelated internally inverted <?isInGeneralPunctuation>} );
+ok("\x[BBC9]\c[EN QUAD]" ~~ m/<+<?isInGeneralPunctuation>>/, q{Match unanchored <?isInGeneralPunctuation>} );
 
 # InGeometricShapes
 
 
-ok("\c[BLACK SQUARE]" ~~ m/^<+<?InGeometricShapes>>$/, q{Match <?InGeometricShapes>} );
-ok("\c[BLACK SQUARE]" ~~ m/^<[A]+<?InGeometricShapes>>$/, q{Match compound <?InGeometricShapes>} );
-ok(!( "\c[BLACK SQUARE]" ~~ m/^<-<?InGeometricShapes>>$/ ), q{Don't match externally inverted <?InGeometricShapes>} );
-ok(!( "\c[BLACK SQUARE]" ~~ m/^<[A]-<?InGeometricShapes>>$/ ), q{Don't match compound inverted <?InGeometricShapes>} );
-ok(!( "\c[BLACK SQUARE]" ~~ m/^<+<-InGeometricShapes>>$/ ), q{Don't match internally inverted <?InGeometricShapes>} );
-ok(!( "\x[C58A]"  ~~ m/^<+<?InGeometricShapes>>$/ ), q{Don't match unrelated <?InGeometricShapes>} );
-ok("\x[C58A]"  ~~ m/^<-<?InGeometricShapes>>$/, q{Match unrelated externally inverted <?InGeometricShapes>} );
-ok("\x[C58A]"  ~~ m/^<+<-InGeometricShapes>>$/, q{Match unrelated internally inverted <?InGeometricShapes>} );
-ok("\x[C58A]\c[BLACK SQUARE]" ~~ m/<+<?InGeometricShapes>>/, q{Match unanchored <?InGeometricShapes>} );
+ok("\c[BLACK SQUARE]" ~~ m/^<+<?isInGeometricShapes>>$/, q{Match <?isInGeometricShapes>} );
+ok("\c[BLACK SQUARE]" ~~ m/^<[A]+<?isInGeometricShapes>>$/, q{Match compound <?isInGeometricShapes>} );
+ok(!( "\c[BLACK SQUARE]" ~~ m/^<-<?isInGeometricShapes>>$/ ), q{Don't match externally inverted <?isInGeometricShapes>} );
+ok(!( "\c[BLACK SQUARE]" ~~ m/^<[A]-<?isInGeometricShapes>>$/ ), q{Don't match compound inverted <?isInGeometricShapes>} );
+ok(!( "\c[BLACK SQUARE]" ~~ m/^<+<-isInGeometricShapes>>$/ ), q{Don't match internally inverted <?isInGeometricShapes>} );
+ok(!( "\x[C58A]"  ~~ m/^<+<?isInGeometricShapes>>$/ ), q{Don't match unrelated <?isInGeometricShapes>} );
+ok("\x[C58A]"  ~~ m/^<-<?isInGeometricShapes>>$/, q{Match unrelated externally inverted <?isInGeometricShapes>} );
+ok("\x[C58A]"  ~~ m/^<+<-isInGeometricShapes>>$/, q{Match unrelated internally inverted <?isInGeometricShapes>} );
+ok("\x[C58A]\c[BLACK SQUARE]" ~~ m/<+<?isInGeometricShapes>>/, q{Match unanchored <?isInGeometricShapes>} );
 
 # InGeorgian
 
 
-ok("\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<+<?InGeorgian>>$/, q{Match <?InGeorgian>} );
-ok("\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<[A]+<?InGeorgian>>$/, q{Match compound <?InGeorgian>} );
-ok(!( "\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<-<?InGeorgian>>$/ ), q{Don't match externally inverted <?InGeorgian>} );
-ok(!( "\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<[A]-<?InGeorgian>>$/ ), q{Don't match compound inverted <?InGeorgian>} );
-ok(!( "\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<+<-InGeorgian>>$/ ), q{Don't match internally inverted <?InGeorgian>} );
-ok(!( "\c[ARMENIAN CAPITAL LETTER BEN]"  ~~ m/^<+<?InGeorgian>>$/ ), q{Don't match unrelated <?InGeorgian>} );
-ok("\c[ARMENIAN CAPITAL LETTER BEN]"  ~~ m/^<-<?InGeorgian>>$/, q{Match unrelated externally inverted <?InGeorgian>} );
-ok("\c[ARMENIAN CAPITAL LETTER BEN]"  ~~ m/^<+<-InGeorgian>>$/, q{Match unrelated internally inverted <?InGeorgian>} );
-ok("\c[ARMENIAN CAPITAL LETTER BEN]\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/<+<?InGeorgian>>/, q{Match unanchored <?InGeorgian>} );
+ok("\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<+<?isInGeorgian>>$/, q{Match <?isInGeorgian>} );
+ok("\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<[A]+<?isInGeorgian>>$/, q{Match compound <?isInGeorgian>} );
+ok(!( "\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<-<?isInGeorgian>>$/ ), q{Don't match externally inverted <?isInGeorgian>} );
+ok(!( "\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<[A]-<?isInGeorgian>>$/ ), q{Don't match compound inverted <?isInGeorgian>} );
+ok(!( "\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/^<+<-isInGeorgian>>$/ ), q{Don't match internally inverted <?isInGeorgian>} );
+ok(!( "\c[ARMENIAN CAPITAL LETTER BEN]"  ~~ m/^<+<?isInGeorgian>>$/ ), q{Don't match unrelated <?isInGeorgian>} );
+ok("\c[ARMENIAN CAPITAL LETTER BEN]"  ~~ m/^<-<?isInGeorgian>>$/, q{Match unrelated externally inverted <?isInGeorgian>} );
+ok("\c[ARMENIAN CAPITAL LETTER BEN]"  ~~ m/^<+<-isInGeorgian>>$/, q{Match unrelated internally inverted <?isInGeorgian>} );
+ok("\c[ARMENIAN CAPITAL LETTER BEN]\c[GEORGIAN CAPITAL LETTER AN]" ~~ m/<+<?isInGeorgian>>/, q{Match unanchored <?isInGeorgian>} );
 
 # InGothic
 
 
-ok(!( "\x[1A5A]"  ~~ m/^<+<?InGothic>>$/ ), q{Don't match unrelated <?InGothic>} );
-ok("\x[1A5A]"  ~~ m/^<-<?InGothic>>$/, q{Match unrelated externally inverted <?InGothic>} );
-ok("\x[1A5A]"  ~~ m/^<+<-InGothic>>$/, q{Match unrelated internally inverted <?InGothic>} );
+ok(!( "\x[1A5A]"  ~~ m/^<+<?isInGothic>>$/ ), q{Don't match unrelated <?isInGothic>} );
+ok("\x[1A5A]"  ~~ m/^<-<?isInGothic>>$/, q{Match unrelated externally inverted <?isInGothic>} );
+ok("\x[1A5A]"  ~~ m/^<+<-isInGothic>>$/, q{Match unrelated internally inverted <?isInGothic>} );
 
 # InGreekExtended
 
 
-ok("\c[GREEK SMALL LETTER ALPHA WITH PSILI]" ~~ m/^<+<?InGreekExtended>>$/, q{Match <?InGreekExtended>} );
-ok("\c[GREEK SMALL LETTER ALPHA WITH PSILI]" ~~ m/^<[A]+<?InGreekExtended>>$/, q{Match compound <?InGreekExtended>} );
-ok(!( "\c[GREEK SMALL LETTER ALPHA WITH PSILI]" ~~ m/^<-<?InGreekExtended>>$/ ), q{Don't match externally inverted <?InGreekExtended>} );
-ok(!( "\c[GREEK SMALL LETTER ALPHA WITH PSILI]" ~~ m/^<[A]-<?InGreekExtended>>$/ ), q{Don't match compound inverted <?InGreekExtended>} );
-ok(!( "\c[GREEK SMALL LETTER ALPHA WITH PSILI]" ~~ m/^<+<-InGreekExtended>>$/ ), q{Don't match internally inverted <?InGreekExtended>} );
-ok(!( "\x[39F3]"  ~~ m/^<+<?InGreekExtended>>$/ ), q{Don't match unrelated <?InGreekExtended>} );
-ok("\x[39F3]"  ~~ m/^<-<?InGreekExtended>>$/, q{Match unrelated externally inverted <?InGreekExtended>} );
-ok("\x[39F3]"  ~~ m/^<+<-InGreekExtended>>$/, q{Match unrelated internally inverted <?InGreekExtended>} );
-ok("\x[39F3]\c[GREEK SMALL LETTER ALPHA WITH PSILI]" ~~ m/<+<?InGreekExtended>>/, q{Match unanchored <?InGreekExtended>} );
+ok("\c[GREEK SMALL LETTER ALPHA WITH PSILI]" ~~ m/^<+<?isInGreekExtended>>$/, q{Match <?isInGreekExtended>} );
+ok("\c[GREEK SMALL LETTER ALPHA WITH PSILI]" ~~ m/^<[A]+<?isInGreekExtended>>$/, q{Match compound <?isInGreekExtended>} );
+ok(!( "\c[GREEK SMALL LETTER ALPHA WITH PSILI]" ~~ m/^<-<?isInGreekExtended>>$/ ), q{Don't match externally inverted <?isInGreekExtended>} );
+ok(!( "\c[GREEK SMALL LETTER ALPHA WITH PSILI]" ~~ m/^<[A]-<?isInGreekExtended>>$/ ), q{Don't match compound inverted <?isInGreekExtended>} );
+ok(!( "\c[GREEK SMALL LETTER ALPHA WITH PSILI]" ~~ m/^<+<-isInGreekExtended>>$/ ), q{Don't match internally inverted <?isInGreekExtended>} );
+ok(!( "\x[39F3]"  ~~ m/^<+<?isInGreekExtended>>$/ ), q{Don't match unrelated <?isInGreekExtended>} );
+ok("\x[39F3]"  ~~ m/^<-<?isInGreekExtended>>$/, q{Match unrelated externally inverted <?isInGreekExtended>} );
+ok("\x[39F3]"  ~~ m/^<+<-isInGreekExtended>>$/, q{Match unrelated internally inverted <?isInGreekExtended>} );
+ok("\x[39F3]\c[GREEK SMALL LETTER ALPHA WITH PSILI]" ~~ m/<+<?isInGreekExtended>>/, q{Match unanchored <?isInGreekExtended>} );
 
 # InGreekAndCoptic
 
 
-ok("\x[0370]" ~~ m/^<+<?InGreekAndCoptic>>$/, q{Match <?InGreekAndCoptic>} );
-ok("\x[0370]" ~~ m/^<[A]+<?InGreekAndCoptic>>$/, q{Match compound <?InGreekAndCoptic>} );
-ok(!( "\x[0370]" ~~ m/^<-<?InGreekAndCoptic>>$/ ), q{Don't match externally inverted <?InGreekAndCoptic>} );
-ok(!( "\x[0370]" ~~ m/^<[A]-<?InGreekAndCoptic>>$/ ), q{Don't match compound inverted <?InGreekAndCoptic>} );
-ok(!( "\x[0370]" ~~ m/^<+<-InGreekAndCoptic>>$/ ), q{Don't match internally inverted <?InGreekAndCoptic>} );
-ok(!( "\x[8CFE]"  ~~ m/^<+<?InGreekAndCoptic>>$/ ), q{Don't match unrelated <?InGreekAndCoptic>} );
-ok("\x[8CFE]"  ~~ m/^<-<?InGreekAndCoptic>>$/, q{Match unrelated externally inverted <?InGreekAndCoptic>} );
-ok("\x[8CFE]"  ~~ m/^<+<-InGreekAndCoptic>>$/, q{Match unrelated internally inverted <?InGreekAndCoptic>} );
-ok("\x[8CFE]\x[0370]" ~~ m/<+<?InGreekAndCoptic>>/, q{Match unanchored <?InGreekAndCoptic>} );
+ok("\x[0370]" ~~ m/^<+<?isInGreekAndCoptic>>$/, q{Match <?isInGreekAndCoptic>} );
+ok("\x[0370]" ~~ m/^<[A]+<?isInGreekAndCoptic>>$/, q{Match compound <?isInGreekAndCoptic>} );
+ok(!( "\x[0370]" ~~ m/^<-<?isInGreekAndCoptic>>$/ ), q{Don't match externally inverted <?isInGreekAndCoptic>} );
+ok(!( "\x[0370]" ~~ m/^<[A]-<?isInGreekAndCoptic>>$/ ), q{Don't match compound inverted <?isInGreekAndCoptic>} );
+ok(!( "\x[0370]" ~~ m/^<+<-isInGreekAndCoptic>>$/ ), q{Don't match internally inverted <?isInGreekAndCoptic>} );
+ok(!( "\x[8CFE]"  ~~ m/^<+<?isInGreekAndCoptic>>$/ ), q{Don't match unrelated <?isInGreekAndCoptic>} );
+ok("\x[8CFE]"  ~~ m/^<-<?isInGreekAndCoptic>>$/, q{Match unrelated externally inverted <?isInGreekAndCoptic>} );
+ok("\x[8CFE]"  ~~ m/^<+<-isInGreekAndCoptic>>$/, q{Match unrelated internally inverted <?isInGreekAndCoptic>} );
+ok("\x[8CFE]\x[0370]" ~~ m/<+<?isInGreekAndCoptic>>/, q{Match unanchored <?isInGreekAndCoptic>} );
 
 # InGujarati
 
 
-ok("\x[0A80]" ~~ m/^<+<?InGujarati>>$/, q{Match <?InGujarati>} );
-ok("\x[0A80]" ~~ m/^<[A]+<?InGujarati>>$/, q{Match compound <?InGujarati>} );
-ok(!( "\x[0A80]" ~~ m/^<-<?InGujarati>>$/ ), q{Don't match externally inverted <?InGujarati>} );
-ok(!( "\x[0A80]" ~~ m/^<[A]-<?InGujarati>>$/ ), q{Don't match compound inverted <?InGujarati>} );
-ok(!( "\x[0A80]" ~~ m/^<+<-InGujarati>>$/ ), q{Don't match internally inverted <?InGujarati>} );
-ok(!( "\x[B022]"  ~~ m/^<+<?InGujarati>>$/ ), q{Don't match unrelated <?InGujarati>} );
-ok("\x[B022]"  ~~ m/^<-<?InGujarati>>$/, q{Match unrelated externally inverted <?InGujarati>} );
-ok("\x[B022]"  ~~ m/^<+<-InGujarati>>$/, q{Match unrelated internally inverted <?InGujarati>} );
-ok("\x[B022]\x[0A80]" ~~ m/<+<?InGujarati>>/, q{Match unanchored <?InGujarati>} );
+ok("\x[0A80]" ~~ m/^<+<?isInGujarati>>$/, q{Match <?isInGujarati>} );
+ok("\x[0A80]" ~~ m/^<[A]+<?isInGujarati>>$/, q{Match compound <?isInGujarati>} );
+ok(!( "\x[0A80]" ~~ m/^<-<?isInGujarati>>$/ ), q{Don't match externally inverted <?isInGujarati>} );
+ok(!( "\x[0A80]" ~~ m/^<[A]-<?isInGujarati>>$/ ), q{Don't match compound inverted <?isInGujarati>} );
+ok(!( "\x[0A80]" ~~ m/^<+<-isInGujarati>>$/ ), q{Don't match internally inverted <?isInGujarati>} );
+ok(!( "\x[B022]"  ~~ m/^<+<?isInGujarati>>$/ ), q{Don't match unrelated <?isInGujarati>} );
+ok("\x[B022]"  ~~ m/^<-<?isInGujarati>>$/, q{Match unrelated externally inverted <?isInGujarati>} );
+ok("\x[B022]"  ~~ m/^<+<-isInGujarati>>$/, q{Match unrelated internally inverted <?isInGujarati>} );
+ok("\x[B022]\x[0A80]" ~~ m/<+<?isInGujarati>>/, q{Match unanchored <?isInGujarati>} );
 
 # InGurmukhi
 
 
-ok("\x[0A00]" ~~ m/^<+<?InGurmukhi>>$/, q{Match <?InGurmukhi>} );
-ok("\x[0A00]" ~~ m/^<[A]+<?InGurmukhi>>$/, q{Match compound <?InGurmukhi>} );
-ok(!( "\x[0A00]" ~~ m/^<-<?InGurmukhi>>$/ ), q{Don't match externally inverted <?InGurmukhi>} );
-ok(!( "\x[0A00]" ~~ m/^<[A]-<?InGurmukhi>>$/ ), q{Don't match compound inverted <?InGurmukhi>} );
-ok(!( "\x[0A00]" ~~ m/^<+<-InGurmukhi>>$/ ), q{Don't match internally inverted <?InGurmukhi>} );
-ok(!( "\x[8FC3]"  ~~ m/^<+<?InGurmukhi>>$/ ), q{Don't match unrelated <?InGurmukhi>} );
-ok("\x[8FC3]"  ~~ m/^<-<?InGurmukhi>>$/, q{Match unrelated externally inverted <?InGurmukhi>} );
-ok("\x[8FC3]"  ~~ m/^<+<-InGurmukhi>>$/, q{Match unrelated internally inverted <?InGurmukhi>} );
-ok("\x[8FC3]\x[0A00]" ~~ m/<+<?InGurmukhi>>/, q{Match unanchored <?InGurmukhi>} );
+ok("\x[0A00]" ~~ m/^<+<?isInGurmukhi>>$/, q{Match <?isInGurmukhi>} );
+ok("\x[0A00]" ~~ m/^<[A]+<?isInGurmukhi>>$/, q{Match compound <?isInGurmukhi>} );
+ok(!( "\x[0A00]" ~~ m/^<-<?isInGurmukhi>>$/ ), q{Don't match externally inverted <?isInGurmukhi>} );
+ok(!( "\x[0A00]" ~~ m/^<[A]-<?isInGurmukhi>>$/ ), q{Don't match compound inverted <?isInGurmukhi>} );
+ok(!( "\x[0A00]" ~~ m/^<+<-isInGurmukhi>>$/ ), q{Don't match internally inverted <?isInGurmukhi>} );
+ok(!( "\x[8FC3]"  ~~ m/^<+<?isInGurmukhi>>$/ ), q{Don't match unrelated <?isInGurmukhi>} );
+ok("\x[8FC3]"  ~~ m/^<-<?isInGurmukhi>>$/, q{Match unrelated externally inverted <?isInGurmukhi>} );
+ok("\x[8FC3]"  ~~ m/^<+<-isInGurmukhi>>$/, q{Match unrelated internally inverted <?isInGurmukhi>} );
+ok("\x[8FC3]\x[0A00]" ~~ m/<+<?isInGurmukhi>>/, q{Match unanchored <?isInGurmukhi>} );
 
 # InHalfwidthAndFullwidthForms
 
 
-ok(!( "\x[36A3]"  ~~ m/^<+<?InHalfwidthAndFullwidthForms>>$/ ), q{Don't match unrelated <?InHalfwidthAndFullwidthForms>} );
-ok("\x[36A3]"  ~~ m/^<-<?InHalfwidthAndFullwidthForms>>$/, q{Match unrelated externally inverted <?InHalfwidthAndFullwidthForms>} );
-ok("\x[36A3]"  ~~ m/^<+<-InHalfwidthAndFullwidthForms>>$/, q{Match unrelated internally inverted <?InHalfwidthAndFullwidthForms>} );
+ok(!( "\x[36A3]"  ~~ m/^<+<?isInHalfwidthAndFullwidthForms>>$/ ), q{Don't match unrelated <?isInHalfwidthAndFullwidthForms>} );
+ok("\x[36A3]"  ~~ m/^<-<?isInHalfwidthAndFullwidthForms>>$/, q{Match unrelated externally inverted <?isInHalfwidthAndFullwidthForms>} );
+ok("\x[36A3]"  ~~ m/^<+<-isInHalfwidthAndFullwidthForms>>$/, q{Match unrelated internally inverted <?isInHalfwidthAndFullwidthForms>} );
 
 # InHangulCompatibilityJamo
 
 
-ok("\x[3130]" ~~ m/^<+<?InHangulCompatibilityJamo>>$/, q{Match <?InHangulCompatibilityJamo>} );
-ok("\x[3130]" ~~ m/^<[A]+<?InHangulCompatibilityJamo>>$/, q{Match compound <?InHangulCompatibilityJamo>} );
-ok(!( "\x[3130]" ~~ m/^<-<?InHangulCompatibilityJamo>>$/ ), q{Don't match externally inverted <?InHangulCompatibilityJamo>} );
-ok(!( "\x[3130]" ~~ m/^<[A]-<?InHangulCompatibilityJamo>>$/ ), q{Don't match compound inverted <?InHangulCompatibilityJamo>} );
-ok(!( "\x[3130]" ~~ m/^<+<-InHangulCompatibilityJamo>>$/ ), q{Don't match internally inverted <?InHangulCompatibilityJamo>} );
-ok(!( "\x[BAF0]"  ~~ m/^<+<?InHangulCompatibilityJamo>>$/ ), q{Don't match unrelated <?InHangulCompatibilityJamo>} );
-ok("\x[BAF0]"  ~~ m/^<-<?InHangulCompatibilityJamo>>$/, q{Match unrelated externally inverted <?InHangulCompatibilityJamo>} );
-ok("\x[BAF0]"  ~~ m/^<+<-InHangulCompatibilityJamo>>$/, q{Match unrelated internally inverted <?InHangulCompatibilityJamo>} );
-ok("\x[BAF0]\x[3130]" ~~ m/<+<?InHangulCompatibilityJamo>>/, q{Match unanchored <?InHangulCompatibilityJamo>} );
+ok("\x[3130]" ~~ m/^<+<?isInHangulCompatibilityJamo>>$/, q{Match <?isInHangulCompatibilityJamo>} );
+ok("\x[3130]" ~~ m/^<[A]+<?isInHangulCompatibilityJamo>>$/, q{Match compound <?isInHangulCompatibilityJamo>} );
+ok(!( "\x[3130]" ~~ m/^<-<?isInHangulCompatibilityJamo>>$/ ), q{Don't match externally inverted <?isInHangulCompatibilityJamo>} );
+ok(!( "\x[3130]" ~~ m/^<[A]-<?isInHangulCompatibilityJamo>>$/ ), q{Don't match compound inverted <?isInHangulCompatibilityJamo>} );
+ok(!( "\x[3130]" ~~ m/^<+<-isInHangulCompatibilityJamo>>$/ ), q{Don't match internally inverted <?isInHangulCompatibilityJamo>} );
+ok(!( "\x[BAF0]"  ~~ m/^<+<?isInHangulCompatibilityJamo>>$/ ), q{Don't match unrelated <?isInHangulCompatibilityJamo>} );
+ok("\x[BAF0]"  ~~ m/^<-<?isInHangulCompatibilityJamo>>$/, q{Match unrelated externally inverted <?isInHangulCompatibilityJamo>} );
+ok("\x[BAF0]"  ~~ m/^<+<-isInHangulCompatibilityJamo>>$/, q{Match unrelated internally inverted <?isInHangulCompatibilityJamo>} );
+ok("\x[BAF0]\x[3130]" ~~ m/<+<?isInHangulCompatibilityJamo>>/, q{Match unanchored <?isInHangulCompatibilityJamo>} );
 
 # InHangulJamo
 
 
-ok("\c[HANGUL CHOSEONG KIYEOK]" ~~ m/^<+<?InHangulJamo>>$/, q{Match <?InHangulJamo>} );
-ok("\c[HANGUL CHOSEONG KIYEOK]" ~~ m/^<[A]+<?InHangulJamo>>$/, q{Match compound <?InHangulJamo>} );
-ok(!( "\c[HANGUL CHOSEONG KIYEOK]" ~~ m/^<-<?InHangulJamo>>$/ ), q{Don't match externally inverted <?InHangulJamo>} );
-ok(!( "\c[HANGUL CHOSEONG KIYEOK]" ~~ m/^<[A]-<?InHangulJamo>>$/ ), q{Don't match compound inverted <?InHangulJamo>} );
-ok(!( "\c[HANGUL CHOSEONG KIYEOK]" ~~ m/^<+<-InHangulJamo>>$/ ), q{Don't match internally inverted <?InHangulJamo>} );
-ok(!( "\x[4EB3]"  ~~ m/^<+<?InHangulJamo>>$/ ), q{Don't match unrelated <?InHangulJamo>} );
-ok("\x[4EB3]"  ~~ m/^<-<?InHangulJamo>>$/, q{Match unrelated externally inverted <?InHangulJamo>} );
-ok("\x[4EB3]"  ~~ m/^<+<-InHangulJamo>>$/, q{Match unrelated internally inverted <?InHangulJamo>} );
-ok("\x[4EB3]\c[HANGUL CHOSEONG KIYEOK]" ~~ m/<+<?InHangulJamo>>/, q{Match unanchored <?InHangulJamo>} );
+ok("\c[HANGUL CHOSEONG KIYEOK]" ~~ m/^<+<?isInHangulJamo>>$/, q{Match <?isInHangulJamo>} );
+ok("\c[HANGUL CHOSEONG KIYEOK]" ~~ m/^<[A]+<?isInHangulJamo>>$/, q{Match compound <?isInHangulJamo>} );
+ok(!( "\c[HANGUL CHOSEONG KIYEOK]" ~~ m/^<-<?isInHangulJamo>>$/ ), q{Don't match externally inverted <?isInHangulJamo>} );
+ok(!( "\c[HANGUL CHOSEONG KIYEOK]" ~~ m/^<[A]-<?isInHangulJamo>>$/ ), q{Don't match compound inverted <?isInHangulJamo>} );
+ok(!( "\c[HANGUL CHOSEONG KIYEOK]" ~~ m/^<+<-isInHangulJamo>>$/ ), q{Don't match internally inverted <?isInHangulJamo>} );
+ok(!( "\x[4EB3]"  ~~ m/^<+<?isInHangulJamo>>$/ ), q{Don't match unrelated <?isInHangulJamo>} );
+ok("\x[4EB3]"  ~~ m/^<-<?isInHangulJamo>>$/, q{Match unrelated externally inverted <?isInHangulJamo>} );
+ok("\x[4EB3]"  ~~ m/^<+<-isInHangulJamo>>$/, q{Match unrelated internally inverted <?isInHangulJamo>} );
+ok("\x[4EB3]\c[HANGUL CHOSEONG KIYEOK]" ~~ m/<+<?isInHangulJamo>>/, q{Match unanchored <?isInHangulJamo>} );
 
 # InHangulSyllables
 
 
-ok("\x[AC00]" ~~ m/^<+<?InHangulSyllables>>$/, q{Match <?InHangulSyllables>} );
-ok("\x[AC00]" ~~ m/^<[A]+<?InHangulSyllables>>$/, q{Match compound <?InHangulSyllables>} );
-ok(!( "\x[AC00]" ~~ m/^<-<?InHangulSyllables>>$/ ), q{Don't match externally inverted <?InHangulSyllables>} );
-ok(!( "\x[AC00]" ~~ m/^<[A]-<?InHangulSyllables>>$/ ), q{Don't match compound inverted <?InHangulSyllables>} );
-ok(!( "\x[AC00]" ~~ m/^<+<-InHangulSyllables>>$/ ), q{Don't match internally inverted <?InHangulSyllables>} );
-ok(!( "\x[7D7E]"  ~~ m/^<+<?InHangulSyllables>>$/ ), q{Don't match unrelated <?InHangulSyllables>} );
-ok("\x[7D7E]"  ~~ m/^<-<?InHangulSyllables>>$/, q{Match unrelated externally inverted <?InHangulSyllables>} );
-ok("\x[7D7E]"  ~~ m/^<+<-InHangulSyllables>>$/, q{Match unrelated internally inverted <?InHangulSyllables>} );
-ok("\x[7D7E]\x[AC00]" ~~ m/<+<?InHangulSyllables>>/, q{Match unanchored <?InHangulSyllables>} );
+ok("\x[AC00]" ~~ m/^<+<?isInHangulSyllables>>$/, q{Match <?isInHangulSyllables>} );
+ok("\x[AC00]" ~~ m/^<[A]+<?isInHangulSyllables>>$/, q{Match compound <?isInHangulSyllables>} );
+ok(!( "\x[AC00]" ~~ m/^<-<?isInHangulSyllables>>$/ ), q{Don't match externally inverted <?isInHangulSyllables>} );
+ok(!( "\x[AC00]" ~~ m/^<[A]-<?isInHangulSyllables>>$/ ), q{Don't match compound inverted <?isInHangulSyllables>} );
+ok(!( "\x[AC00]" ~~ m/^<+<-isInHangulSyllables>>$/ ), q{Don't match internally inverted <?isInHangulSyllables>} );
+ok(!( "\x[7D7E]"  ~~ m/^<+<?isInHangulSyllables>>$/ ), q{Don't match unrelated <?isInHangulSyllables>} );
+ok("\x[7D7E]"  ~~ m/^<-<?isInHangulSyllables>>$/, q{Match unrelated externally inverted <?isInHangulSyllables>} );
+ok("\x[7D7E]"  ~~ m/^<+<-isInHangulSyllables>>$/, q{Match unrelated internally inverted <?isInHangulSyllables>} );
+ok("\x[7D7E]\x[AC00]" ~~ m/<+<?isInHangulSyllables>>/, q{Match unanchored <?isInHangulSyllables>} );
 
 # InHanunoo
 
 
-ok("\c[HANUNOO LETTER A]" ~~ m/^<+<?InHanunoo>>$/, q{Match <?InHanunoo>} );
-ok("\c[HANUNOO LETTER A]" ~~ m/^<[A]+<?InHanunoo>>$/, q{Match compound <?InHanunoo>} );
-ok(!( "\c[HANUNOO LETTER A]" ~~ m/^<-<?InHanunoo>>$/ ), q{Don't match externally inverted <?InHanunoo>} );
-ok(!( "\c[HANUNOO LETTER A]" ~~ m/^<[A]-<?InHanunoo>>$/ ), q{Don't match compound inverted <?InHanunoo>} );
-ok(!( "\c[HANUNOO LETTER A]" ~~ m/^<+<-InHanunoo>>$/ ), q{Don't match internally inverted <?InHanunoo>} );
-ok(!( "\x[BD8A]"  ~~ m/^<+<?InHanunoo>>$/ ), q{Don't match unrelated <?InHanunoo>} );
-ok("\x[BD8A]"  ~~ m/^<-<?InHanunoo>>$/, q{Match unrelated externally inverted <?InHanunoo>} );
-ok("\x[BD8A]"  ~~ m/^<+<-InHanunoo>>$/, q{Match unrelated internally inverted <?InHanunoo>} );
-ok("\x[BD8A]\c[HANUNOO LETTER A]" ~~ m/<+<?InHanunoo>>/, q{Match unanchored <?InHanunoo>} );
+ok("\c[HANUNOO LETTER A]" ~~ m/^<+<?isInHanunoo>>$/, q{Match <?isInHanunoo>} );
+ok("\c[HANUNOO LETTER A]" ~~ m/^<[A]+<?isInHanunoo>>$/, q{Match compound <?isInHanunoo>} );
+ok(!( "\c[HANUNOO LETTER A]" ~~ m/^<-<?isInHanunoo>>$/ ), q{Don't match externally inverted <?isInHanunoo>} );
+ok(!( "\c[HANUNOO LETTER A]" ~~ m/^<[A]-<?isInHanunoo>>$/ ), q{Don't match compound inverted <?isInHanunoo>} );
+ok(!( "\c[HANUNOO LETTER A]" ~~ m/^<+<-isInHanunoo>>$/ ), q{Don't match internally inverted <?isInHanunoo>} );
+ok(!( "\x[BD8A]"  ~~ m/^<+<?isInHanunoo>>$/ ), q{Don't match unrelated <?isInHanunoo>} );
+ok("\x[BD8A]"  ~~ m/^<-<?isInHanunoo>>$/, q{Match unrelated externally inverted <?isInHanunoo>} );
+ok("\x[BD8A]"  ~~ m/^<+<-isInHanunoo>>$/, q{Match unrelated internally inverted <?isInHanunoo>} );
+ok("\x[BD8A]\c[HANUNOO LETTER A]" ~~ m/<+<?isInHanunoo>>/, q{Match unanchored <?isInHanunoo>} );
 
 # InHebrew
 
 
-ok("\x[0590]" ~~ m/^<+<?InHebrew>>$/, q{Match <?InHebrew>} );
-ok("\x[0590]" ~~ m/^<[A]+<?InHebrew>>$/, q{Match compound <?InHebrew>} );
-ok(!( "\x[0590]" ~~ m/^<-<?InHebrew>>$/ ), q{Don't match externally inverted <?InHebrew>} );
-ok(!( "\x[0590]" ~~ m/^<[A]-<?InHebrew>>$/ ), q{Don't match compound inverted <?InHebrew>} );
-ok(!( "\x[0590]" ~~ m/^<+<-InHebrew>>$/ ), q{Don't match internally inverted <?InHebrew>} );
-ok(!( "\x[7EB3]"  ~~ m/^<+<?InHebrew>>$/ ), q{Don't match unrelated <?InHebrew>} );
-ok("\x[7EB3]"  ~~ m/^<-<?InHebrew>>$/, q{Match unrelated externally inverted <?InHebrew>} );
-ok("\x[7EB3]"  ~~ m/^<+<-InHebrew>>$/, q{Match unrelated internally inverted <?InHebrew>} );
-ok("\x[7EB3]\x[0590]" ~~ m/<+<?InHebrew>>/, q{Match unanchored <?InHebrew>} );
+ok("\x[0590]" ~~ m/^<+<?isInHebrew>>$/, q{Match <?isInHebrew>} );
+ok("\x[0590]" ~~ m/^<[A]+<?isInHebrew>>$/, q{Match compound <?isInHebrew>} );
+ok(!( "\x[0590]" ~~ m/^<-<?isInHebrew>>$/ ), q{Don't match externally inverted <?isInHebrew>} );
+ok(!( "\x[0590]" ~~ m/^<[A]-<?isInHebrew>>$/ ), q{Don't match compound inverted <?isInHebrew>} );
+ok(!( "\x[0590]" ~~ m/^<+<-isInHebrew>>$/ ), q{Don't match internally inverted <?isInHebrew>} );
+ok(!( "\x[7EB3]"  ~~ m/^<+<?isInHebrew>>$/ ), q{Don't match unrelated <?isInHebrew>} );
+ok("\x[7EB3]"  ~~ m/^<-<?isInHebrew>>$/, q{Match unrelated externally inverted <?isInHebrew>} );
+ok("\x[7EB3]"  ~~ m/^<+<-isInHebrew>>$/, q{Match unrelated internally inverted <?isInHebrew>} );
+ok("\x[7EB3]\x[0590]" ~~ m/<+<?isInHebrew>>/, q{Match unanchored <?isInHebrew>} );
 
 # InHighPrivateUseSurrogates
 
 
-ok(!( "\x[9EC6]"  ~~ m/^<+<?InHighPrivateUseSurrogates>>$/ ), q{Don't match unrelated <?InHighPrivateUseSurrogates>} );
-ok("\x[9EC6]"  ~~ m/^<-<?InHighPrivateUseSurrogates>>$/, q{Match unrelated externally inverted <?InHighPrivateUseSurrogates>} );
-ok("\x[9EC6]"  ~~ m/^<+<-InHighPrivateUseSurrogates>>$/, q{Match unrelated internally inverted <?InHighPrivateUseSurrogates>} );
+ok(!( "\x[9EC6]"  ~~ m/^<+<?isInHighPrivateUseSurrogates>>$/ ), q{Don't match unrelated <?isInHighPrivateUseSurrogates>} );
+ok("\x[9EC6]"  ~~ m/^<-<?isInHighPrivateUseSurrogates>>$/, q{Match unrelated externally inverted <?isInHighPrivateUseSurrogates>} );
+ok("\x[9EC6]"  ~~ m/^<+<-isInHighPrivateUseSurrogates>>$/, q{Match unrelated internally inverted <?isInHighPrivateUseSurrogates>} );
 
 # InHighSurrogates
 
 
-ok(!( "\x[BC8F]"  ~~ m/^<+<?InHighSurrogates>>$/ ), q{Don't match unrelated <?InHighSurrogates>} );
-ok("\x[BC8F]"  ~~ m/^<-<?InHighSurrogates>>$/, q{Match unrelated externally inverted <?InHighSurrogates>} );
-ok("\x[BC8F]"  ~~ m/^<+<-InHighSurrogates>>$/, q{Match unrelated internally inverted <?InHighSurrogates>} );
+ok(!( "\x[BC8F]"  ~~ m/^<+<?isInHighSurrogates>>$/ ), q{Don't match unrelated <?isInHighSurrogates>} );
+ok("\x[BC8F]"  ~~ m/^<-<?isInHighSurrogates>>$/, q{Match unrelated externally inverted <?isInHighSurrogates>} );
+ok("\x[BC8F]"  ~~ m/^<+<-isInHighSurrogates>>$/, q{Match unrelated internally inverted <?isInHighSurrogates>} );
 
 # InHiragana
 
 
-ok("\x[3040]" ~~ m/^<+<?InHiragana>>$/, q{Match <?InHiragana>} );
-ok("\x[3040]" ~~ m/^<[A]+<?InHiragana>>$/, q{Match compound <?InHiragana>} );
-ok(!( "\x[3040]" ~~ m/^<-<?InHiragana>>$/ ), q{Don't match externally inverted <?InHiragana>} );
-ok(!( "\x[3040]" ~~ m/^<[A]-<?InHiragana>>$/ ), q{Don't match compound inverted <?InHiragana>} );
-ok(!( "\x[3040]" ~~ m/^<+<-InHiragana>>$/ ), q{Don't match internally inverted <?InHiragana>} );
-ok(!( "\c[ARABIC SIGN ALAYHE ASSALLAM]"  ~~ m/^<+<?InHiragana>>$/ ), q{Don't match unrelated <?InHiragana>} );
-ok("\c[ARABIC SIGN ALAYHE ASSALLAM]"  ~~ m/^<-<?InHiragana>>$/, q{Match unrelated externally inverted <?InHiragana>} );
-ok("\c[ARABIC SIGN ALAYHE ASSALLAM]"  ~~ m/^<+<-InHiragana>>$/, q{Match unrelated internally inverted <?InHiragana>} );
-ok("\c[ARABIC SIGN ALAYHE ASSALLAM]\x[3040]" ~~ m/<+<?InHiragana>>/, q{Match unanchored <?InHiragana>} );
+ok("\x[3040]" ~~ m/^<+<?isInHiragana>>$/, q{Match <?isInHiragana>} );
+ok("\x[3040]" ~~ m/^<[A]+<?isInHiragana>>$/, q{Match compound <?isInHiragana>} );
+ok(!( "\x[3040]" ~~ m/^<-<?isInHiragana>>$/ ), q{Don't match externally inverted <?isInHiragana>} );
+ok(!( "\x[3040]" ~~ m/^<[A]-<?isInHiragana>>$/ ), q{Don't match compound inverted <?isInHiragana>} );
+ok(!( "\x[3040]" ~~ m/^<+<-isInHiragana>>$/ ), q{Don't match internally inverted <?isInHiragana>} );
+ok(!( "\c[ARABIC SIGN ALAYHE ASSALLAM]"  ~~ m/^<+<?isInHiragana>>$/ ), q{Don't match unrelated <?isInHiragana>} );
+ok("\c[ARABIC SIGN ALAYHE ASSALLAM]"  ~~ m/^<-<?isInHiragana>>$/, q{Match unrelated externally inverted <?isInHiragana>} );
+ok("\c[ARABIC SIGN ALAYHE ASSALLAM]"  ~~ m/^<+<-isInHiragana>>$/, q{Match unrelated internally inverted <?isInHiragana>} );
+ok("\c[ARABIC SIGN ALAYHE ASSALLAM]\x[3040]" ~~ m/<+<?isInHiragana>>/, q{Match unanchored <?isInHiragana>} );
 
 # InIPAExtensions
 
 
-ok("\c[LATIN SMALL LETTER TURNED A]" ~~ m/^<+<?InIPAExtensions>>$/, q{Match <?InIPAExtensions>} );
-ok("\c[LATIN SMALL LETTER TURNED A]" ~~ m/^<[A]+<?InIPAExtensions>>$/, q{Match compound <?InIPAExtensions>} );
-ok(!( "\c[LATIN SMALL LETTER TURNED A]" ~~ m/^<-<?InIPAExtensions>>$/ ), q{Don't match externally inverted <?InIPAExtensions>} );
-ok(!( "\c[LATIN SMALL LETTER TURNED A]" ~~ m/^<[A]-<?InIPAExtensions>>$/ ), q{Don't match compound inverted <?InIPAExtensions>} );
-ok(!( "\c[LATIN SMALL LETTER TURNED A]" ~~ m/^<+<-InIPAExtensions>>$/ ), q{Don't match internally inverted <?InIPAExtensions>} );
-ok(!( "\x[0DFC]"  ~~ m/^<+<?InIPAExtensions>>$/ ), q{Don't match unrelated <?InIPAExtensions>} );
-ok("\x[0DFC]"  ~~ m/^<-<?InIPAExtensions>>$/, q{Match unrelated externally inverted <?InIPAExtensions>} );
-ok("\x[0DFC]"  ~~ m/^<+<-InIPAExtensions>>$/, q{Match unrelated internally inverted <?InIPAExtensions>} );
-ok("\x[0DFC]\c[LATIN SMALL LETTER TURNED A]" ~~ m/<+<?InIPAExtensions>>/, q{Match unanchored <?InIPAExtensions>} );
+ok("\c[LATIN SMALL LETTER TURNED A]" ~~ m/^<+<?isInIPAExtensions>>$/, q{Match <?isInIPAExtensions>} );
+ok("\c[LATIN SMALL LETTER TURNED A]" ~~ m/^<[A]+<?isInIPAExtensions>>$/, q{Match compound <?isInIPAExtensions>} );
+ok(!( "\c[LATIN SMALL LETTER TURNED A]" ~~ m/^<-<?isInIPAExtensions>>$/ ), q{Don't match externally inverted <?isInIPAExtensions>} );
+ok(!( "\c[LATIN SMALL LETTER TURNED A]" ~~ m/^<[A]-<?isInIPAExtensions>>$/ ), q{Don't match compound inverted <?isInIPAExtensions>} );
+ok(!( "\c[LATIN SMALL LETTER TURNED A]" ~~ m/^<+<-isInIPAExtensions>>$/ ), q{Don't match internally inverted <?isInIPAExtensions>} );
+ok(!( "\x[0DFC]"  ~~ m/^<+<?isInIPAExtensions>>$/ ), q{Don't match unrelated <?isInIPAExtensions>} );
+ok("\x[0DFC]"  ~~ m/^<-<?isInIPAExtensions>>$/, q{Match unrelated externally inverted <?isInIPAExtensions>} );
+ok("\x[0DFC]"  ~~ m/^<+<-isInIPAExtensions>>$/, q{Match unrelated internally inverted <?isInIPAExtensions>} );
+ok("\x[0DFC]\c[LATIN SMALL LETTER TURNED A]" ~~ m/<+<?isInIPAExtensions>>/, q{Match unanchored <?isInIPAExtensions>} );
 
 # InIdeographicDescriptionCharacters
 
 
-ok("\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<+<?InIdeographicDescriptionCharacters>>$/, q{Match <?InIdeographicDescriptionCharacters>} );
-ok("\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<[A]+<?InIdeographicDescriptionCharacters>>$/, q{Match compound <?InIdeographicDescriptionCharacters>} );
-ok(!( "\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<-<?InIdeographicDescriptionCharacters>>$/ ), q{Don't match externally inverted <?InIdeographicDescriptionCharacters>} );
-ok(!( "\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<[A]-<?InIdeographicDescriptionCharacters>>$/ ), q{Don't match compound inverted <?InIdeographicDescriptionCharacters>} );
-ok(!( "\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<+<-InIdeographicDescriptionCharacters>>$/ ), q{Don't match internally inverted <?InIdeographicDescriptionCharacters>} );
-ok(!( "\c[LATIN CAPITAL LETTER AE]"  ~~ m/^<+<?InIdeographicDescriptionCharacters>>$/ ), q{Don't match unrelated <?InIdeographicDescriptionCharacters>} );
-ok("\c[LATIN CAPITAL LETTER AE]"  ~~ m/^<-<?InIdeographicDescriptionCharacters>>$/, q{Match unrelated externally inverted <?InIdeographicDescriptionCharacters>} );
-ok("\c[LATIN CAPITAL LETTER AE]"  ~~ m/^<+<-InIdeographicDescriptionCharacters>>$/, q{Match unrelated internally inverted <?InIdeographicDescriptionCharacters>} );
-ok("\c[LATIN CAPITAL LETTER AE]\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/<+<?InIdeographicDescriptionCharacters>>/, q{Match unanchored <?InIdeographicDescriptionCharacters>} );
+ok("\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<+<?isInIdeographicDescriptionCharacters>>$/, q{Match <?isInIdeographicDescriptionCharacters>} );
+ok("\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<[A]+<?isInIdeographicDescriptionCharacters>>$/, q{Match compound <?isInIdeographicDescriptionCharacters>} );
+ok(!( "\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<-<?isInIdeographicDescriptionCharacters>>$/ ), q{Don't match externally inverted <?isInIdeographicDescriptionCharacters>} );
+ok(!( "\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<[A]-<?isInIdeographicDescriptionCharacters>>$/ ), q{Don't match compound inverted <?isInIdeographicDescriptionCharacters>} );
+ok(!( "\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/^<+<-isInIdeographicDescriptionCharacters>>$/ ), q{Don't match internally inverted <?isInIdeographicDescriptionCharacters>} );
+ok(!( "\c[LATIN CAPITAL LETTER AE]"  ~~ m/^<+<?isInIdeographicDescriptionCharacters>>$/ ), q{Don't match unrelated <?isInIdeographicDescriptionCharacters>} );
+ok("\c[LATIN CAPITAL LETTER AE]"  ~~ m/^<-<?isInIdeographicDescriptionCharacters>>$/, q{Match unrelated externally inverted <?isInIdeographicDescriptionCharacters>} );
+ok("\c[LATIN CAPITAL LETTER AE]"  ~~ m/^<+<-isInIdeographicDescriptionCharacters>>$/, q{Match unrelated internally inverted <?isInIdeographicDescriptionCharacters>} );
+ok("\c[LATIN CAPITAL LETTER AE]\c[IDEOGRAPHIC DESCRIPTION CHARACTER LEFT TO RIGHT]" ~~ m/<+<?isInIdeographicDescriptionCharacters>>/, q{Match unanchored <?isInIdeographicDescriptionCharacters>} );
 
 # InKanbun
 
 
-ok("\c[IDEOGRAPHIC ANNOTATION LINKING MARK]" ~~ m/^<+<?InKanbun>>$/, q{Match <?InKanbun>} );
-ok("\c[IDEOGRAPHIC ANNOTATION LINKING MARK]" ~~ m/^<[A]+<?InKanbun>>$/, q{Match compound <?InKanbun>} );
-ok(!( "\c[IDEOGRAPHIC ANNOTATION LINKING MARK]" ~~ m/^<-<?InKanbun>>$/ ), q{Don't match externally inverted <?InKanbun>} );
-ok(!( "\c[IDEOGRAPHIC ANNOTATION LINKING MARK]" ~~ m/^<[A]-<?InKanbun>>$/ ), q{Don't match compound inverted <?InKanbun>} );
-ok(!( "\c[IDEOGRAPHIC ANNOTATION LINKING MARK]" ~~ m/^<+<-InKanbun>>$/ ), q{Don't match internally inverted <?InKanbun>} );
-ok(!( "\x[93AB]"  ~~ m/^<+<?InKanbun>>$/ ), q{Don't match unrelated <?InKanbun>} );
-ok("\x[93AB]"  ~~ m/^<-<?InKanbun>>$/, q{Match unrelated externally inverted <?InKanbun>} );
-ok("\x[93AB]"  ~~ m/^<+<-InKanbun>>$/, q{Match unrelated internally inverted <?InKanbun>} );
-ok("\x[93AB]\c[IDEOGRAPHIC ANNOTATION LINKING MARK]" ~~ m/<+<?InKanbun>>/, q{Match unanchored <?InKanbun>} );
+ok("\c[IDEOGRAPHIC ANNOTATION LINKING MARK]" ~~ m/^<+<?isInKanbun>>$/, q{Match <?isInKanbun>} );
+ok("\c[IDEOGRAPHIC ANNOTATION LINKING MARK]" ~~ m/^<[A]+<?isInKanbun>>$/, q{Match compound <?isInKanbun>} );
+ok(!( "\c[IDEOGRAPHIC ANNOTATION LINKING MARK]" ~~ m/^<-<?isInKanbun>>$/ ), q{Don't match externally inverted <?isInKanbun>} );
+ok(!( "\c[IDEOGRAPHIC ANNOTATION LINKING MARK]" ~~ m/^<[A]-<?isInKanbun>>$/ ), q{Don't match compound inverted <?isInKanbun>} );
+ok(!( "\c[IDEOGRAPHIC ANNOTATION LINKING MARK]" ~~ m/^<+<-isInKanbun>>$/ ), q{Don't match internally inverted <?isInKanbun>} );
+ok(!( "\x[93AB]"  ~~ m/^<+<?isInKanbun>>$/ ), q{Don't match unrelated <?isInKanbun>} );
+ok("\x[93AB]"  ~~ m/^<-<?isInKanbun>>$/, q{Match unrelated externally inverted <?isInKanbun>} );
+ok("\x[93AB]"  ~~ m/^<+<-isInKanbun>>$/, q{Match unrelated internally inverted <?isInKanbun>} );
+ok("\x[93AB]\c[IDEOGRAPHIC ANNOTATION LINKING MARK]" ~~ m/<+<?isInKanbun>>/, q{Match unanchored <?isInKanbun>} );
 
 # InKangxiRadicals
 
 
-ok("\c[KANGXI RADICAL ONE]" ~~ m/^<+<?InKangxiRadicals>>$/, q{Match <?InKangxiRadicals>} );
-ok("\c[KANGXI RADICAL ONE]" ~~ m/^<[A]+<?InKangxiRadicals>>$/, q{Match compound <?InKangxiRadicals>} );
-ok(!( "\c[KANGXI RADICAL ONE]" ~~ m/^<-<?InKangxiRadicals>>$/ ), q{Don't match externally inverted <?InKangxiRadicals>} );
-ok(!( "\c[KANGXI RADICAL ONE]" ~~ m/^<[A]-<?InKangxiRadicals>>$/ ), q{Don't match compound inverted <?InKangxiRadicals>} );
-ok(!( "\c[KANGXI RADICAL ONE]" ~~ m/^<+<-InKangxiRadicals>>$/ ), q{Don't match internally inverted <?InKangxiRadicals>} );
-ok(!( "\x[363D]"  ~~ m/^<+<?InKangxiRadicals>>$/ ), q{Don't match unrelated <?InKangxiRadicals>} );
-ok("\x[363D]"  ~~ m/^<-<?InKangxiRadicals>>$/, q{Match unrelated externally inverted <?InKangxiRadicals>} );
-ok("\x[363D]"  ~~ m/^<+<-InKangxiRadicals>>$/, q{Match unrelated internally inverted <?InKangxiRadicals>} );
-ok("\x[363D]\c[KANGXI RADICAL ONE]" ~~ m/<+<?InKangxiRadicals>>/, q{Match unanchored <?InKangxiRadicals>} );
+ok("\c[KANGXI RADICAL ONE]" ~~ m/^<+<?isInKangxiRadicals>>$/, q{Match <?isInKangxiRadicals>} );
+ok("\c[KANGXI RADICAL ONE]" ~~ m/^<[A]+<?isInKangxiRadicals>>$/, q{Match compound <?isInKangxiRadicals>} );
+ok(!( "\c[KANGXI RADICAL ONE]" ~~ m/^<-<?isInKangxiRadicals>>$/ ), q{Don't match externally inverted <?isInKangxiRadicals>} );
+ok(!( "\c[KANGXI RADICAL ONE]" ~~ m/^<[A]-<?isInKangxiRadicals>>$/ ), q{Don't match compound inverted <?isInKangxiRadicals>} );
+ok(!( "\c[KANGXI RADICAL ONE]" ~~ m/^<+<-isInKangxiRadicals>>$/ ), q{Don't match internally inverted <?isInKangxiRadicals>} );
+ok(!( "\x[363D]"  ~~ m/^<+<?isInKangxiRadicals>>$/ ), q{Don't match unrelated <?isInKangxiRadicals>} );
+ok("\x[363D]"  ~~ m/^<-<?isInKangxiRadicals>>$/, q{Match unrelated externally inverted <?isInKangxiRadicals>} );
+ok("\x[363D]"  ~~ m/^<+<-isInKangxiRadicals>>$/, q{Match unrelated internally inverted <?isInKangxiRadicals>} );
+ok("\x[363D]\c[KANGXI RADICAL ONE]" ~~ m/<+<?isInKangxiRadicals>>/, q{Match unanchored <?isInKangxiRadicals>} );
 
 # InKannada
 
 
-ok("\x[0C80]" ~~ m/^<+<?InKannada>>$/, q{Match <?InKannada>} );
-ok("\x[0C80]" ~~ m/^<[A]+<?InKannada>>$/, q{Match compound <?InKannada>} );
-ok(!( "\x[0C80]" ~~ m/^<-<?InKannada>>$/ ), q{Don't match externally inverted <?InKannada>} );
-ok(!( "\x[0C80]" ~~ m/^<[A]-<?InKannada>>$/ ), q{Don't match compound inverted <?InKannada>} );
-ok(!( "\x[0C80]" ~~ m/^<+<-InKannada>>$/ ), q{Don't match internally inverted <?InKannada>} );
-ok(!( "\x[9093]"  ~~ m/^<+<?InKannada>>$/ ), q{Don't match unrelated <?InKannada>} );
-ok("\x[9093]"  ~~ m/^<-<?InKannada>>$/, q{Match unrelated externally inverted <?InKannada>} );
-ok("\x[9093]"  ~~ m/^<+<-InKannada>>$/, q{Match unrelated internally inverted <?InKannada>} );
-ok("\x[9093]\x[0C80]" ~~ m/<+<?InKannada>>/, q{Match unanchored <?InKannada>} );
+ok("\x[0C80]" ~~ m/^<+<?isInKannada>>$/, q{Match <?isInKannada>} );
+ok("\x[0C80]" ~~ m/^<[A]+<?isInKannada>>$/, q{Match compound <?isInKannada>} );
+ok(!( "\x[0C80]" ~~ m/^<-<?isInKannada>>$/ ), q{Don't match externally inverted <?isInKannada>} );
+ok(!( "\x[0C80]" ~~ m/^<[A]-<?isInKannada>>$/ ), q{Don't match compound inverted <?isInKannada>} );
+ok(!( "\x[0C80]" ~~ m/^<+<-isInKannada>>$/ ), q{Don't match internally inverted <?isInKannada>} );
+ok(!( "\x[9093]"  ~~ m/^<+<?isInKannada>>$/ ), q{Don't match unrelated <?isInKannada>} );
+ok("\x[9093]"  ~~ m/^<-<?isInKannada>>$/, q{Match unrelated externally inverted <?isInKannada>} );
+ok("\x[9093]"  ~~ m/^<+<-isInKannada>>$/, q{Match unrelated internally inverted <?isInKannada>} );
+ok("\x[9093]\x[0C80]" ~~ m/<+<?isInKannada>>/, q{Match unanchored <?isInKannada>} );
 
 # InKatakana
 
 
-ok("\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<+<?InKatakana>>$/, q{Match <?InKatakana>} );
-ok("\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<[A]+<?InKatakana>>$/, q{Match compound <?InKatakana>} );
-ok(!( "\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<-<?InKatakana>>$/ ), q{Don't match externally inverted <?InKatakana>} );
-ok(!( "\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<[A]-<?InKatakana>>$/ ), q{Don't match compound inverted <?InKatakana>} );
-ok(!( "\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<+<-InKatakana>>$/ ), q{Don't match internally inverted <?InKatakana>} );
-ok(!( "\x[75DA]"  ~~ m/^<+<?InKatakana>>$/ ), q{Don't match unrelated <?InKatakana>} );
-ok("\x[75DA]"  ~~ m/^<-<?InKatakana>>$/, q{Match unrelated externally inverted <?InKatakana>} );
-ok("\x[75DA]"  ~~ m/^<+<-InKatakana>>$/, q{Match unrelated internally inverted <?InKatakana>} );
-ok("\x[75DA]\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/<+<?InKatakana>>/, q{Match unanchored <?InKatakana>} );
+ok("\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<+<?isInKatakana>>$/, q{Match <?isInKatakana>} );
+ok("\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<[A]+<?isInKatakana>>$/, q{Match compound <?isInKatakana>} );
+ok(!( "\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<-<?isInKatakana>>$/ ), q{Don't match externally inverted <?isInKatakana>} );
+ok(!( "\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<[A]-<?isInKatakana>>$/ ), q{Don't match compound inverted <?isInKatakana>} );
+ok(!( "\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/^<+<-isInKatakana>>$/ ), q{Don't match internally inverted <?isInKatakana>} );
+ok(!( "\x[75DA]"  ~~ m/^<+<?isInKatakana>>$/ ), q{Don't match unrelated <?isInKatakana>} );
+ok("\x[75DA]"  ~~ m/^<-<?isInKatakana>>$/, q{Match unrelated externally inverted <?isInKatakana>} );
+ok("\x[75DA]"  ~~ m/^<+<-isInKatakana>>$/, q{Match unrelated internally inverted <?isInKatakana>} );
+ok("\x[75DA]\c[KATAKANA-HIRAGANA DOUBLE HYPHEN]" ~~ m/<+<?isInKatakana>>/, q{Match unanchored <?isInKatakana>} );
 
 # InKatakanaPhoneticExtensions
 
 
-ok("\c[KATAKANA LETTER SMALL KU]" ~~ m/^<+<?InKatakanaPhoneticExtensions>>$/, q{Match <?InKatakanaPhoneticExtensions>} );
-ok("\c[KATAKANA LETTER SMALL KU]" ~~ m/^<[A]+<?InKatakanaPhoneticExtensions>>$/, q{Match compound <?InKatakanaPhoneticExtensions>} );
-ok(!( "\c[KATAKANA LETTER SMALL KU]" ~~ m/^<-<?InKatakanaPhoneticExtensions>>$/ ), q{Don't match externally inverted <?InKatakanaPhoneticExtensions>} );
-ok(!( "\c[KATAKANA LETTER SMALL KU]" ~~ m/^<[A]-<?InKatakanaPhoneticExtensions>>$/ ), q{Don't match compound inverted <?InKatakanaPhoneticExtensions>} );
-ok(!( "\c[KATAKANA LETTER SMALL KU]" ~~ m/^<+<-InKatakanaPhoneticExtensions>>$/ ), q{Don't match internally inverted <?InKatakanaPhoneticExtensions>} );
-ok(!( "\c[GREEK SMALL LETTER EPSILON WITH DASIA AND VARIA]"  ~~ m/^<+<?InKatakanaPhoneticExtensions>>$/ ), q{Don't match unrelated <?InKatakanaPhoneticExtensions>} );
-ok("\c[GREEK SMALL LETTER EPSILON WITH DASIA AND VARIA]"  ~~ m/^<-<?InKatakanaPhoneticExtensions>>$/, q{Match unrelated externally inverted <?InKatakanaPhoneticExtensions>} );
-ok("\c[GREEK SMALL LETTER EPSILON WITH DASIA AND VARIA]"  ~~ m/^<+<-InKatakanaPhoneticExtensions>>$/, q{Match unrelated internally inverted <?InKatakanaPhoneticExtensions>} );
-ok("\c[GREEK SMALL LETTER EPSILON WITH DASIA AND VARIA]\c[KATAKANA LETTER SMALL KU]" ~~ m/<+<?InKatakanaPhoneticExtensions>>/, q{Match unanchored <?InKatakanaPhoneticExtensions>} );
+ok("\c[KATAKANA LETTER SMALL KU]" ~~ m/^<+<?isInKatakanaPhoneticExtensions>>$/, q{Match <?isInKatakanaPhoneticExtensions>} );
+ok("\c[KATAKANA LETTER SMALL KU]" ~~ m/^<[A]+<?isInKatakanaPhoneticExtensions>>$/, q{Match compound <?isInKatakanaPhoneticExtensions>} );
+ok(!( "\c[KATAKANA LETTER SMALL KU]" ~~ m/^<-<?isInKatakanaPhoneticExtensions>>$/ ), q{Don't match externally inverted <?isInKatakanaPhoneticExtensions>} );
+ok(!( "\c[KATAKANA LETTER SMALL KU]" ~~ m/^<[A]-<?isInKatakanaPhoneticExtensions>>$/ ), q{Don't match compound inverted <?isInKatakanaPhoneticExtensions>} );
+ok(!( "\c[KATAKANA LETTER SMALL KU]" ~~ m/^<+<-isInKatakanaPhoneticExtensions>>$/ ), q{Don't match internally inverted <?isInKatakanaPhoneticExtensions>} );
+ok(!( "\c[GREEK SMALL LETTER EPSILON WITH DASIA AND VARIA]"  ~~ m/^<+<?isInKatakanaPhoneticExtensions>>$/ ), q{Don't match unrelated <?isInKatakanaPhoneticExtensions>} );
+ok("\c[GREEK SMALL LETTER EPSILON WITH DASIA AND VARIA]"  ~~ m/^<-<?isInKatakanaPhoneticExtensions>>$/, q{Match unrelated externally inverted <?isInKatakanaPhoneticExtensions>} );
+ok("\c[GREEK SMALL LETTER EPSILON WITH DASIA AND VARIA]"  ~~ m/^<+<-isInKatakanaPhoneticExtensions>>$/, q{Match unrelated internally inverted <?isInKatakanaPhoneticExtensions>} );
+ok("\c[GREEK SMALL LETTER EPSILON WITH DASIA AND VARIA]\c[KATAKANA LETTER SMALL KU]" ~~ m/<+<?isInKatakanaPhoneticExtensions>>/, q{Match unanchored <?isInKatakanaPhoneticExtensions>} );
 
 # InKhmer
 
 
-ok("\c[KHMER LETTER KA]" ~~ m/^<+<?InKhmer>>$/, q{Match <?InKhmer>} );
-ok("\c[KHMER LETTER KA]" ~~ m/^<[A]+<?InKhmer>>$/, q{Match compound <?InKhmer>} );
-ok(!( "\c[KHMER LETTER KA]" ~~ m/^<-<?InKhmer>>$/ ), q{Don't match externally inverted <?InKhmer>} );
-ok(!( "\c[KHMER LETTER KA]" ~~ m/^<[A]-<?InKhmer>>$/ ), q{Don't match compound inverted <?InKhmer>} );
-ok(!( "\c[KHMER LETTER KA]" ~~ m/^<+<-InKhmer>>$/ ), q{Don't match internally inverted <?InKhmer>} );
-ok(!( "\x[508C]"  ~~ m/^<+<?InKhmer>>$/ ), q{Don't match unrelated <?InKhmer>} );
-ok("\x[508C]"  ~~ m/^<-<?InKhmer>>$/, q{Match unrelated externally inverted <?InKhmer>} );
-ok("\x[508C]"  ~~ m/^<+<-InKhmer>>$/, q{Match unrelated internally inverted <?InKhmer>} );
-ok("\x[508C]\c[KHMER LETTER KA]" ~~ m/<+<?InKhmer>>/, q{Match unanchored <?InKhmer>} );
+ok("\c[KHMER LETTER KA]" ~~ m/^<+<?isInKhmer>>$/, q{Match <?isInKhmer>} );
+ok("\c[KHMER LETTER KA]" ~~ m/^<[A]+<?isInKhmer>>$/, q{Match compound <?isInKhmer>} );
+ok(!( "\c[KHMER LETTER KA]" ~~ m/^<-<?isInKhmer>>$/ ), q{Don't match externally inverted <?isInKhmer>} );
+ok(!( "\c[KHMER LETTER KA]" ~~ m/^<[A]-<?isInKhmer>>$/ ), q{Don't match compound inverted <?isInKhmer>} );
+ok(!( "\c[KHMER LETTER KA]" ~~ m/^<+<-isInKhmer>>$/ ), q{Don't match internally inverted <?isInKhmer>} );
+ok(!( "\x[508C]"  ~~ m/^<+<?isInKhmer>>$/ ), q{Don't match unrelated <?isInKhmer>} );
+ok("\x[508C]"  ~~ m/^<-<?isInKhmer>>$/, q{Match unrelated externally inverted <?isInKhmer>} );
+ok("\x[508C]"  ~~ m/^<+<-isInKhmer>>$/, q{Match unrelated internally inverted <?isInKhmer>} );
+ok("\x[508C]\c[KHMER LETTER KA]" ~~ m/<+<?isInKhmer>>/, q{Match unanchored <?isInKhmer>} );
 
 # InLao
 
 
-ok("\x[0E80]" ~~ m/^<+<?InLao>>$/, q{Match <?InLao>} );
-ok("\x[0E80]" ~~ m/^<[A]+<?InLao>>$/, q{Match compound <?InLao>} );
-ok(!( "\x[0E80]" ~~ m/^<-<?InLao>>$/ ), q{Don't match externally inverted <?InLao>} );
-ok(!( "\x[0E80]" ~~ m/^<[A]-<?InLao>>$/ ), q{Don't match compound inverted <?InLao>} );
-ok(!( "\x[0E80]" ~~ m/^<+<-InLao>>$/ ), q{Don't match internally inverted <?InLao>} );
-ok(!( "\c[PARENTHESIZED IDEOGRAPH CONGRATULATION]"  ~~ m/^<+<?InLao>>$/ ), q{Don't match unrelated <?InLao>} );
-ok("\c[PARENTHESIZED IDEOGRAPH CONGRATULATION]"  ~~ m/^<-<?InLao>>$/, q{Match unrelated externally inverted <?InLao>} );
-ok("\c[PARENTHESIZED IDEOGRAPH CONGRATULATION]"  ~~ m/^<+<-InLao>>$/, q{Match unrelated internally inverted <?InLao>} );
-ok("\c[PARENTHESIZED IDEOGRAPH CONGRATULATION]\x[0E80]" ~~ m/<+<?InLao>>/, q{Match unanchored <?InLao>} );
+ok("\x[0E80]" ~~ m/^<+<?isInLao>>$/, q{Match <?isInLao>} );
+ok("\x[0E80]" ~~ m/^<[A]+<?isInLao>>$/, q{Match compound <?isInLao>} );
+ok(!( "\x[0E80]" ~~ m/^<-<?isInLao>>$/ ), q{Don't match externally inverted <?isInLao>} );
+ok(!( "\x[0E80]" ~~ m/^<[A]-<?isInLao>>$/ ), q{Don't match compound inverted <?isInLao>} );
+ok(!( "\x[0E80]" ~~ m/^<+<-isInLao>>$/ ), q{Don't match internally inverted <?isInLao>} );
+ok(!( "\c[PARENTHESIZED IDEOGRAPH CONGRATULATION]"  ~~ m/^<+<?isInLao>>$/ ), q{Don't match unrelated <?isInLao>} );
+ok("\c[PARENTHESIZED IDEOGRAPH CONGRATULATION]"  ~~ m/^<-<?isInLao>>$/, q{Match unrelated externally inverted <?isInLao>} );
+ok("\c[PARENTHESIZED IDEOGRAPH CONGRATULATION]"  ~~ m/^<+<-isInLao>>$/, q{Match unrelated internally inverted <?isInLao>} );
+ok("\c[PARENTHESIZED IDEOGRAPH CONGRATULATION]\x[0E80]" ~~ m/<+<?isInLao>>/, q{Match unanchored <?isInLao>} );
 
 # InLatin1Supplement
 
 
-ok("\x[0080]" ~~ m/^<+<?InLatin1Supplement>>$/, q{Match <?InLatin1Supplement>} );
-ok("\x[0080]" ~~ m/^<[A]+<?InLatin1Supplement>>$/, q{Match compound <?InLatin1Supplement>} );
-ok(!( "\x[0080]" ~~ m/^<-<?InLatin1Supplement>>$/ ), q{Don't match externally inverted <?InLatin1Supplement>} );
-ok(!( "\x[0080]" ~~ m/^<[A]-<?InLatin1Supplement>>$/ ), q{Don't match compound inverted <?InLatin1Supplement>} );
-ok(!( "\x[0080]" ~~ m/^<+<-InLatin1Supplement>>$/ ), q{Don't match internally inverted <?InLatin1Supplement>} );
-ok(!( "\x[3A43]"  ~~ m/^<+<?InLatin1Supplement>>$/ ), q{Don't match unrelated <?InLatin1Supplement>} );
-ok("\x[3A43]"  ~~ m/^<-<?InLatin1Supplement>>$/, q{Match unrelated externally inverted <?InLatin1Supplement>} );
-ok("\x[3A43]"  ~~ m/^<+<-InLatin1Supplement>>$/, q{Match unrelated internally inverted <?InLatin1Supplement>} );
-ok("\x[3A43]\x[0080]" ~~ m/<+<?InLatin1Supplement>>/, q{Match unanchored <?InLatin1Supplement>} );
+ok("\x[0080]" ~~ m/^<+<?isInLatin1Supplement>>$/, q{Match <?isInLatin1Supplement>} );
+ok("\x[0080]" ~~ m/^<[A]+<?isInLatin1Supplement>>$/, q{Match compound <?isInLatin1Supplement>} );
+ok(!( "\x[0080]" ~~ m/^<-<?isInLatin1Supplement>>$/ ), q{Don't match externally inverted <?isInLatin1Supplement>} );
+ok(!( "\x[0080]" ~~ m/^<[A]-<?isInLatin1Supplement>>$/ ), q{Don't match compound inverted <?isInLatin1Supplement>} );
+ok(!( "\x[0080]" ~~ m/^<+<-isInLatin1Supplement>>$/ ), q{Don't match internally inverted <?isInLatin1Supplement>} );
+ok(!( "\x[3A43]"  ~~ m/^<+<?isInLatin1Supplement>>$/ ), q{Don't match unrelated <?isInLatin1Supplement>} );
+ok("\x[3A43]"  ~~ m/^<-<?isInLatin1Supplement>>$/, q{Match unrelated externally inverted <?isInLatin1Supplement>} );
+ok("\x[3A43]"  ~~ m/^<+<-isInLatin1Supplement>>$/, q{Match unrelated internally inverted <?isInLatin1Supplement>} );
+ok("\x[3A43]\x[0080]" ~~ m/<+<?isInLatin1Supplement>>/, q{Match unanchored <?isInLatin1Supplement>} );
 
 # InLatinExtendedA
 
 
-ok("\c[LATIN CAPITAL LETTER A WITH MACRON]" ~~ m/^<+<?InLatinExtendedA>>$/, q{Match <?InLatinExtendedA>} );
-ok("\c[LATIN CAPITAL LETTER A WITH MACRON]" ~~ m/^<[A]+<?InLatinExtendedA>>$/, q{Match compound <?InLatinExtendedA>} );
-ok(!( "\c[LATIN CAPITAL LETTER A WITH MACRON]" ~~ m/^<-<?InLatinExtendedA>>$/ ), q{Don't match externally inverted <?InLatinExtendedA>} );
-ok(!( "\c[LATIN CAPITAL LETTER A WITH MACRON]" ~~ m/^<[A]-<?InLatinExtendedA>>$/ ), q{Don't match compound inverted <?InLatinExtendedA>} );
-ok(!( "\c[LATIN CAPITAL LETTER A WITH MACRON]" ~~ m/^<+<-InLatinExtendedA>>$/ ), q{Don't match internally inverted <?InLatinExtendedA>} );
-ok(!( "\c[ARROW POINTING RIGHTWARDS THEN CURVING UPWARDS]"  ~~ m/^<+<?InLatinExtendedA>>$/ ), q{Don't match unrelated <?InLatinExtendedA>} );
-ok("\c[ARROW POINTING RIGHTWARDS THEN CURVING UPWARDS]"  ~~ m/^<-<?InLatinExtendedA>>$/, q{Match unrelated externally inverted <?InLatinExtendedA>} );
-ok("\c[ARROW POINTING RIGHTWARDS THEN CURVING UPWARDS]"  ~~ m/^<+<-InLatinExtendedA>>$/, q{Match unrelated internally inverted <?InLatinExtendedA>} );
-ok("\c[ARROW POINTING RIGHTWARDS THEN CURVING UPWARDS]\c[LATIN CAPITAL LETTER A WITH MACRON]" ~~ m/<+<?InLatinExtendedA>>/, q{Match unanchored <?InLatinExtendedA>} );
+ok("\c[LATIN CAPITAL LETTER A WITH MACRON]" ~~ m/^<+<?isInLatinExtendedA>>$/, q{Match <?isInLatinExtendedA>} );
+ok("\c[LATIN CAPITAL LETTER A WITH MACRON]" ~~ m/^<[A]+<?isInLatinExtendedA>>$/, q{Match compound <?isInLatinExtendedA>} );
+ok(!( "\c[LATIN CAPITAL LETTER A WITH MACRON]" ~~ m/^<-<?isInLatinExtendedA>>$/ ), q{Don't match externally inverted <?isInLatinExtendedA>} );
+ok(!( "\c[LATIN CAPITAL LETTER A WITH MACRON]" ~~ m/^<[A]-<?isInLatinExtendedA>>$/ ), q{Don't match compound inverted <?isInLatinExtendedA>} );
+ok(!( "\c[LATIN CAPITAL LETTER A WITH MACRON]" ~~ m/^<+<-isInLatinExtendedA>>$/ ), q{Don't match internally inverted <?isInLatinExtendedA>} );
+ok(!( "\c[ARROW POINTING RIGHTWARDS THEN CURVING UPWARDS]"  ~~ m/^<+<?isInLatinExtendedA>>$/ ), q{Don't match unrelated <?isInLatinExtendedA>} );
+ok("\c[ARROW POINTING RIGHTWARDS THEN CURVING UPWARDS]"  ~~ m/^<-<?isInLatinExtendedA>>$/, q{Match unrelated externally inverted <?isInLatinExtendedA>} );
+ok("\c[ARROW POINTING RIGHTWARDS THEN CURVING UPWARDS]"  ~~ m/^<+<-isInLatinExtendedA>>$/, q{Match unrelated internally inverted <?isInLatinExtendedA>} );
+ok("\c[ARROW POINTING RIGHTWARDS THEN CURVING UPWARDS]\c[LATIN CAPITAL LETTER A WITH MACRON]" ~~ m/<+<?isInLatinExtendedA>>/, q{Match unanchored <?isInLatinExtendedA>} );
 
 # InLatinExtendedAdditional
 
 
-ok("\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<+<?InLatinExtendedAdditional>>$/, q{Match <?InLatinExtendedAdditional>} );
-ok("\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<[A]+<?InLatinExtendedAdditional>>$/, q{Match compound <?InLatinExtendedAdditional>} );
-ok(!( "\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<-<?InLatinExtendedAdditional>>$/ ), q{Don't match externally inverted <?InLatinExtendedAdditional>} );
-ok(!( "\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<[A]-<?InLatinExtendedAdditional>>$/ ), q{Don't match compound inverted <?InLatinExtendedAdditional>} );
-ok(!( "\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<+<-InLatinExtendedAdditional>>$/ ), q{Don't match internally inverted <?InLatinExtendedAdditional>} );
-ok(!( "\x[36E7]"  ~~ m/^<+<?InLatinExtendedAdditional>>$/ ), q{Don't match unrelated <?InLatinExtendedAdditional>} );
-ok("\x[36E7]"  ~~ m/^<-<?InLatinExtendedAdditional>>$/, q{Match unrelated externally inverted <?InLatinExtendedAdditional>} );
-ok("\x[36E7]"  ~~ m/^<+<-InLatinExtendedAdditional>>$/, q{Match unrelated internally inverted <?InLatinExtendedAdditional>} );
-ok("\x[36E7]\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/<+<?InLatinExtendedAdditional>>/, q{Match unanchored <?InLatinExtendedAdditional>} );
+ok("\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<+<?isInLatinExtendedAdditional>>$/, q{Match <?isInLatinExtendedAdditional>} );
+ok("\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<[A]+<?isInLatinExtendedAdditional>>$/, q{Match compound <?isInLatinExtendedAdditional>} );
+ok(!( "\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<-<?isInLatinExtendedAdditional>>$/ ), q{Don't match externally inverted <?isInLatinExtendedAdditional>} );
+ok(!( "\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<[A]-<?isInLatinExtendedAdditional>>$/ ), q{Don't match compound inverted <?isInLatinExtendedAdditional>} );
+ok(!( "\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/^<+<-isInLatinExtendedAdditional>>$/ ), q{Don't match internally inverted <?isInLatinExtendedAdditional>} );
+ok(!( "\x[36E7]"  ~~ m/^<+<?isInLatinExtendedAdditional>>$/ ), q{Don't match unrelated <?isInLatinExtendedAdditional>} );
+ok("\x[36E7]"  ~~ m/^<-<?isInLatinExtendedAdditional>>$/, q{Match unrelated externally inverted <?isInLatinExtendedAdditional>} );
+ok("\x[36E7]"  ~~ m/^<+<-isInLatinExtendedAdditional>>$/, q{Match unrelated internally inverted <?isInLatinExtendedAdditional>} );
+ok("\x[36E7]\c[LATIN CAPITAL LETTER A WITH RING BELOW]" ~~ m/<+<?isInLatinExtendedAdditional>>/, q{Match unanchored <?isInLatinExtendedAdditional>} );
 
 # InLatinExtendedB
 
 
-ok("\c[LATIN SMALL LETTER B WITH STROKE]" ~~ m/^<+<?InLatinExtendedB>>$/, q{Match <?InLatinExtendedB>} );
-ok("\c[LATIN SMALL LETTER B WITH STROKE]" ~~ m/^<[A]+<?InLatinExtendedB>>$/, q{Match compound <?InLatinExtendedB>} );
-ok(!( "\c[LATIN SMALL LETTER B WITH STROKE]" ~~ m/^<-<?InLatinExtendedB>>$/ ), q{Don't match externally inverted <?InLatinExtendedB>} );
-ok(!( "\c[LATIN SMALL LETTER B WITH STROKE]" ~~ m/^<[A]-<?InLatinExtendedB>>$/ ), q{Don't match compound inverted <?InLatinExtendedB>} );
-ok(!( "\c[LATIN SMALL LETTER B WITH STROKE]" ~~ m/^<+<-InLatinExtendedB>>$/ ), q{Don't match internally inverted <?InLatinExtendedB>} );
-ok(!( "\x[877E]"  ~~ m/^<+<?InLatinExtendedB>>$/ ), q{Don't match unrelated <?InLatinExtendedB>} );
-ok("\x[877E]"  ~~ m/^<-<?InLatinExtendedB>>$/, q{Match unrelated externally inverted <?InLatinExtendedB>} );
-ok("\x[877E]"  ~~ m/^<+<-InLatinExtendedB>>$/, q{Match unrelated internally inverted <?InLatinExtendedB>} );
-ok("\x[877E]\c[LATIN SMALL LETTER B WITH STROKE]" ~~ m/<+<?InLatinExtendedB>>/, q{Match unanchored <?InLatinExtendedB>} );
+ok("\c[LATIN SMALL LETTER B WITH STROKE]" ~~ m/^<+<?isInLatinExtendedB>>$/, q{Match <?isInLatinExtendedB>} );
+ok("\c[LATIN SMALL LETTER B WITH STROKE]" ~~ m/^<[A]+<?isInLatinExtendedB>>$/, q{Match compound <?isInLatinExtendedB>} );
+ok(!( "\c[LATIN SMALL LETTER B WITH STROKE]" ~~ m/^<-<?isInLatinExtendedB>>$/ ), q{Don't match externally inverted <?isInLatinExtendedB>} );
+ok(!( "\c[LATIN SMALL LETTER B WITH STROKE]" ~~ m/^<[A]-<?isInLatinExtendedB>>$/ ), q{Don't match compound inverted <?isInLatinExtendedB>} );
+ok(!( "\c[LATIN SMALL LETTER B WITH STROKE]" ~~ m/^<+<-isInLatinExtendedB>>$/ ), q{Don't match internally inverted <?isInLatinExtendedB>} );
+ok(!( "\x[877E]"  ~~ m/^<+<?isInLatinExtendedB>>$/ ), q{Don't match unrelated <?isInLatinExtendedB>} );
+ok("\x[877E]"  ~~ m/^<-<?isInLatinExtendedB>>$/, q{Match unrelated externally inverted <?isInLatinExtendedB>} );
+ok("\x[877E]"  ~~ m/^<+<-isInLatinExtendedB>>$/, q{Match unrelated internally inverted <?isInLatinExtendedB>} );
+ok("\x[877E]\c[LATIN SMALL LETTER B WITH STROKE]" ~~ m/<+<?isInLatinExtendedB>>/, q{Match unanchored <?isInLatinExtendedB>} );
 
 # InLetterlikeSymbols
 
 
-ok("\c[ACCOUNT OF]" ~~ m/^<+<?InLetterlikeSymbols>>$/, q{Match <?InLetterlikeSymbols>} );
-ok("\c[ACCOUNT OF]" ~~ m/^<[A]+<?InLetterlikeSymbols>>$/, q{Match compound <?InLetterlikeSymbols>} );
-ok(!( "\c[ACCOUNT OF]" ~~ m/^<-<?InLetterlikeSymbols>>$/ ), q{Don't match externally inverted <?InLetterlikeSymbols>} );
-ok(!( "\c[ACCOUNT OF]" ~~ m/^<[A]-<?InLetterlikeSymbols>>$/ ), q{Don't match compound inverted <?InLetterlikeSymbols>} );
-ok(!( "\c[ACCOUNT OF]" ~~ m/^<+<-InLetterlikeSymbols>>$/ ), q{Don't match internally inverted <?InLetterlikeSymbols>} );
-ok(!( "\c[CIRCLED IDEOGRAPH TWO]"  ~~ m/^<+<?InLetterlikeSymbols>>$/ ), q{Don't match unrelated <?InLetterlikeSymbols>} );
-ok("\c[CIRCLED IDEOGRAPH TWO]"  ~~ m/^<-<?InLetterlikeSymbols>>$/, q{Match unrelated externally inverted <?InLetterlikeSymbols>} );
-ok("\c[CIRCLED IDEOGRAPH TWO]"  ~~ m/^<+<-InLetterlikeSymbols>>$/, q{Match unrelated internally inverted <?InLetterlikeSymbols>} );
-ok("\c[CIRCLED IDEOGRAPH TWO]\c[ACCOUNT OF]" ~~ m/<+<?InLetterlikeSymbols>>/, q{Match unanchored <?InLetterlikeSymbols>} );
+ok("\c[ACCOUNT OF]" ~~ m/^<+<?isInLetterlikeSymbols>>$/, q{Match <?isInLetterlikeSymbols>} );
+ok("\c[ACCOUNT OF]" ~~ m/^<[A]+<?isInLetterlikeSymbols>>$/, q{Match compound <?isInLetterlikeSymbols>} );
+ok(!( "\c[ACCOUNT OF]" ~~ m/^<-<?isInLetterlikeSymbols>>$/ ), q{Don't match externally inverted <?isInLetterlikeSymbols>} );
+ok(!( "\c[ACCOUNT OF]" ~~ m/^<[A]-<?isInLetterlikeSymbols>>$/ ), q{Don't match compound inverted <?isInLetterlikeSymbols>} );
+ok(!( "\c[ACCOUNT OF]" ~~ m/^<+<-isInLetterlikeSymbols>>$/ ), q{Don't match internally inverted <?isInLetterlikeSymbols>} );
+ok(!( "\c[CIRCLED IDEOGRAPH TWO]"  ~~ m/^<+<?isInLetterlikeSymbols>>$/ ), q{Don't match unrelated <?isInLetterlikeSymbols>} );
+ok("\c[CIRCLED IDEOGRAPH TWO]"  ~~ m/^<-<?isInLetterlikeSymbols>>$/, q{Match unrelated externally inverted <?isInLetterlikeSymbols>} );
+ok("\c[CIRCLED IDEOGRAPH TWO]"  ~~ m/^<+<-isInLetterlikeSymbols>>$/, q{Match unrelated internally inverted <?isInLetterlikeSymbols>} );
+ok("\c[CIRCLED IDEOGRAPH TWO]\c[ACCOUNT OF]" ~~ m/<+<?isInLetterlikeSymbols>>/, q{Match unanchored <?isInLetterlikeSymbols>} );
 
 # InLowSurrogates
 
 
-ok(!( "\x[B611]"  ~~ m/^<+<?InLowSurrogates>>$/ ), q{Don't match unrelated <?InLowSurrogates>} );
-ok("\x[B611]"  ~~ m/^<-<?InLowSurrogates>>$/, q{Match unrelated externally inverted <?InLowSurrogates>} );
-ok("\x[B611]"  ~~ m/^<+<-InLowSurrogates>>$/, q{Match unrelated internally inverted <?InLowSurrogates>} );
+ok(!( "\x[B611]"  ~~ m/^<+<?isInLowSurrogates>>$/ ), q{Don't match unrelated <?isInLowSurrogates>} );
+ok("\x[B611]"  ~~ m/^<-<?isInLowSurrogates>>$/, q{Match unrelated externally inverted <?isInLowSurrogates>} );
+ok("\x[B611]"  ~~ m/^<+<-isInLowSurrogates>>$/, q{Match unrelated internally inverted <?isInLowSurrogates>} );
 
 # InMalayalam
 
 
-ok("\x[0D00]" ~~ m/^<+<?InMalayalam>>$/, q{Match <?InMalayalam>} );
-ok("\x[0D00]" ~~ m/^<[A]+<?InMalayalam>>$/, q{Match compound <?InMalayalam>} );
-ok(!( "\x[0D00]" ~~ m/^<-<?InMalayalam>>$/ ), q{Don't match externally inverted <?InMalayalam>} );
-ok(!( "\x[0D00]" ~~ m/^<[A]-<?InMalayalam>>$/ ), q{Don't match compound inverted <?InMalayalam>} );
-ok(!( "\x[0D00]" ~~ m/^<+<-InMalayalam>>$/ ), q{Don't match internally inverted <?InMalayalam>} );
-ok(!( "\x[C011]"  ~~ m/^<+<?InMalayalam>>$/ ), q{Don't match unrelated <?InMalayalam>} );
-ok("\x[C011]"  ~~ m/^<-<?InMalayalam>>$/, q{Match unrelated externally inverted <?InMalayalam>} );
-ok("\x[C011]"  ~~ m/^<+<-InMalayalam>>$/, q{Match unrelated internally inverted <?InMalayalam>} );
-ok("\x[C011]\x[0D00]" ~~ m/<+<?InMalayalam>>/, q{Match unanchored <?InMalayalam>} );
+ok("\x[0D00]" ~~ m/^<+<?isInMalayalam>>$/, q{Match <?isInMalayalam>} );
+ok("\x[0D00]" ~~ m/^<[A]+<?isInMalayalam>>$/, q{Match compound <?isInMalayalam>} );
+ok(!( "\x[0D00]" ~~ m/^<-<?isInMalayalam>>$/ ), q{Don't match externally inverted <?isInMalayalam>} );
+ok(!( "\x[0D00]" ~~ m/^<[A]-<?isInMalayalam>>$/ ), q{Don't match compound inverted <?isInMalayalam>} );
+ok(!( "\x[0D00]" ~~ m/^<+<-isInMalayalam>>$/ ), q{Don't match internally inverted <?isInMalayalam>} );
+ok(!( "\x[C011]"  ~~ m/^<+<?isInMalayalam>>$/ ), q{Don't match unrelated <?isInMalayalam>} );
+ok("\x[C011]"  ~~ m/^<-<?isInMalayalam>>$/, q{Match unrelated externally inverted <?isInMalayalam>} );
+ok("\x[C011]"  ~~ m/^<+<-isInMalayalam>>$/, q{Match unrelated internally inverted <?isInMalayalam>} );
+ok("\x[C011]\x[0D00]" ~~ m/<+<?isInMalayalam>>/, q{Match unanchored <?isInMalayalam>} );
 
 # InMathematicalAlphanumericSymbols
 
 
-ok(!( "\x[73FA]"  ~~ m/^<+<?InMathematicalAlphanumericSymbols>>$/ ), q{Don't match unrelated <?InMathematicalAlphanumericSymbols>} );
-ok("\x[73FA]"  ~~ m/^<-<?InMathematicalAlphanumericSymbols>>$/, q{Match unrelated externally inverted <?InMathematicalAlphanumericSymbols>} );
-ok("\x[73FA]"  ~~ m/^<+<-InMathematicalAlphanumericSymbols>>$/, q{Match unrelated internally inverted <?InMathematicalAlphanumericSymbols>} );
+ok(!( "\x[73FA]"  ~~ m/^<+<?isInMathematicalAlphanumericSymbols>>$/ ), q{Don't match unrelated <?isInMathematicalAlphanumericSymbols>} );
+ok("\x[73FA]"  ~~ m/^<-<?isInMathematicalAlphanumericSymbols>>$/, q{Match unrelated externally inverted <?isInMathematicalAlphanumericSymbols>} );
+ok("\x[73FA]"  ~~ m/^<+<-isInMathematicalAlphanumericSymbols>>$/, q{Match unrelated internally inverted <?isInMathematicalAlphanumericSymbols>} );
 
 # InMathematicalOperators
 
 
-ok("\c[FOR ALL]" ~~ m/^<+<?InMathematicalOperators>>$/, q{Match <?InMathematicalOperators>} );
-ok("\c[FOR ALL]" ~~ m/^<[A]+<?InMathematicalOperators>>$/, q{Match compound <?InMathematicalOperators>} );
-ok(!( "\c[FOR ALL]" ~~ m/^<-<?InMathematicalOperators>>$/ ), q{Don't match externally inverted <?InMathematicalOperators>} );
-ok(!( "\c[FOR ALL]" ~~ m/^<[A]-<?InMathematicalOperators>>$/ ), q{Don't match compound inverted <?InMathematicalOperators>} );
-ok(!( "\c[FOR ALL]" ~~ m/^<+<-InMathematicalOperators>>$/ ), q{Don't match internally inverted <?InMathematicalOperators>} );
-ok(!( "\x[B389]"  ~~ m/^<+<?InMathematicalOperators>>$/ ), q{Don't match unrelated <?InMathematicalOperators>} );
-ok("\x[B389]"  ~~ m/^<-<?InMathematicalOperators>>$/, q{Match unrelated externally inverted <?InMathematicalOperators>} );
-ok("\x[B389]"  ~~ m/^<+<-InMathematicalOperators>>$/, q{Match unrelated internally inverted <?InMathematicalOperators>} );
-ok("\x[B389]\c[FOR ALL]" ~~ m/<+<?InMathematicalOperators>>/, q{Match unanchored <?InMathematicalOperators>} );
+ok("\c[FOR ALL]" ~~ m/^<+<?isInMathematicalOperators>>$/, q{Match <?isInMathematicalOperators>} );
+ok("\c[FOR ALL]" ~~ m/^<[A]+<?isInMathematicalOperators>>$/, q{Match compound <?isInMathematicalOperators>} );
+ok(!( "\c[FOR ALL]" ~~ m/^<-<?isInMathematicalOperators>>$/ ), q{Don't match externally inverted <?isInMathematicalOperators>} );
+ok(!( "\c[FOR ALL]" ~~ m/^<[A]-<?isInMathematicalOperators>>$/ ), q{Don't match compound inverted <?isInMathematicalOperators>} );
+ok(!( "\c[FOR ALL]" ~~ m/^<+<-isInMathematicalOperators>>$/ ), q{Don't match internally inverted <?isInMathematicalOperators>} );
+ok(!( "\x[B389]"  ~~ m/^<+<?isInMathematicalOperators>>$/ ), q{Don't match unrelated <?isInMathematicalOperators>} );
+ok("\x[B389]"  ~~ m/^<-<?isInMathematicalOperators>>$/, q{Match unrelated externally inverted <?isInMathematicalOperators>} );
+ok("\x[B389]"  ~~ m/^<+<-isInMathematicalOperators>>$/, q{Match unrelated internally inverted <?isInMathematicalOperators>} );
+ok("\x[B389]\c[FOR ALL]" ~~ m/<+<?isInMathematicalOperators>>/, q{Match unanchored <?isInMathematicalOperators>} );
 
 # InMiscellaneousMathematicalSymbolsA
 
 
-ok("\x[27C0]" ~~ m/^<+<?InMiscellaneousMathematicalSymbolsA>>$/, q{Match <?InMiscellaneousMathematicalSymbolsA>} );
-ok("\x[27C0]" ~~ m/^<[A]+<?InMiscellaneousMathematicalSymbolsA>>$/, q{Match compound <?InMiscellaneousMathematicalSymbolsA>} );
-ok(!( "\x[27C0]" ~~ m/^<-<?InMiscellaneousMathematicalSymbolsA>>$/ ), q{Don't match externally inverted <?InMiscellaneousMathematicalSymbolsA>} );
-ok(!( "\x[27C0]" ~~ m/^<[A]-<?InMiscellaneousMathematicalSymbolsA>>$/ ), q{Don't match compound inverted <?InMiscellaneousMathematicalSymbolsA>} );
-ok(!( "\x[27C0]" ~~ m/^<+<-InMiscellaneousMathematicalSymbolsA>>$/ ), q{Don't match internally inverted <?InMiscellaneousMathematicalSymbolsA>} );
-ok(!( "\x[AAB2]"  ~~ m/^<+<?InMiscellaneousMathematicalSymbolsA>>$/ ), q{Don't match unrelated <?InMiscellaneousMathematicalSymbolsA>} );
-ok("\x[AAB2]"  ~~ m/^<-<?InMiscellaneousMathematicalSymbolsA>>$/, q{Match unrelated externally inverted <?InMiscellaneousMathematicalSymbolsA>} );
-ok("\x[AAB2]"  ~~ m/^<+<-InMiscellaneousMathematicalSymbolsA>>$/, q{Match unrelated internally inverted <?InMiscellaneousMathematicalSymbolsA>} );
-ok("\x[AAB2]\x[27C0]" ~~ m/<+<?InMiscellaneousMathematicalSymbolsA>>/, q{Match unanchored <?InMiscellaneousMathematicalSymbolsA>} );
+ok("\x[27C0]" ~~ m/^<+<?isInMiscellaneousMathematicalSymbolsA>>$/, q{Match <?isInMiscellaneousMathematicalSymbolsA>} );
+ok("\x[27C0]" ~~ m/^<[A]+<?isInMiscellaneousMathematicalSymbolsA>>$/, q{Match compound <?isInMiscellaneousMathematicalSymbolsA>} );
+ok(!( "\x[27C0]" ~~ m/^<-<?isInMiscellaneousMathematicalSymbolsA>>$/ ), q{Don't match externally inverted <?isInMiscellaneousMathematicalSymbolsA>} );
+ok(!( "\x[27C0]" ~~ m/^<[A]-<?isInMiscellaneousMathematicalSymbolsA>>$/ ), q{Don't match compound inverted <?isInMiscellaneousMathematicalSymbolsA>} );
+ok(!( "\x[27C0]" ~~ m/^<+<-isInMiscellaneousMathematicalSymbolsA>>$/ ), q{Don't match internally inverted <?isInMiscellaneousMathematicalSymbolsA>} );
+ok(!( "\x[AAB2]"  ~~ m/^<+<?isInMiscellaneousMathematicalSymbolsA>>$/ ), q{Don't match unrelated <?isInMiscellaneousMathematicalSymbolsA>} );
+ok("\x[AAB2]"  ~~ m/^<-<?isInMiscellaneousMathematicalSymbolsA>>$/, q{Match unrelated externally inverted <?isInMiscellaneousMathematicalSymbolsA>} );
+ok("\x[AAB2]"  ~~ m/^<+<-isInMiscellaneousMathematicalSymbolsA>>$/, q{Match unrelated internally inverted <?isInMiscellaneousMathematicalSymbolsA>} );
+ok("\x[AAB2]\x[27C0]" ~~ m/<+<?isInMiscellaneousMathematicalSymbolsA>>/, q{Match unanchored <?isInMiscellaneousMathematicalSymbolsA>} );
 
 # InMiscellaneousMathematicalSymbolsB
 
 
-ok("\c[TRIPLE VERTICAL BAR DELIMITER]" ~~ m/^<+<?InMiscellaneousMathematicalSymbolsB>>$/, q{Match <?InMiscellaneousMathematicalSymbolsB>} );
-ok("\c[TRIPLE VERTICAL BAR DELIMITER]" ~~ m/^<[A]+<?InMiscellaneousMathematicalSymbolsB>>$/, q{Match compound <?InMiscellaneousMathematicalSymbolsB>} );
-ok(!( "\c[TRIPLE VERTICAL BAR DELIMITER]" ~~ m/^<-<?InMiscellaneousMathematicalSymbolsB>>$/ ), q{Don't match externally inverted <?InMiscellaneousMathematicalSymbolsB>} );
-ok(!( "\c[TRIPLE VERTICAL BAR DELIMITER]" ~~ m/^<[A]-<?InMiscellaneousMathematicalSymbolsB>>$/ ), q{Don't match compound inverted <?InMiscellaneousMathematicalSymbolsB>} );
-ok(!( "\c[TRIPLE VERTICAL BAR DELIMITER]" ~~ m/^<+<-InMiscellaneousMathematicalSymbolsB>>$/ ), q{Don't match internally inverted <?InMiscellaneousMathematicalSymbolsB>} );
-ok(!( "\x[5793]"  ~~ m/^<+<?InMiscellaneousMathematicalSymbolsB>>$/ ), q{Don't match unrelated <?InMiscellaneousMathematicalSymbolsB>} );
-ok("\x[5793]"  ~~ m/^<-<?InMiscellaneousMathematicalSymbolsB>>$/, q{Match unrelated externally inverted <?InMiscellaneousMathematicalSymbolsB>} );
-ok("\x[5793]"  ~~ m/^<+<-InMiscellaneousMathematicalSymbolsB>>$/, q{Match unrelated internally inverted <?InMiscellaneousMathematicalSymbolsB>} );
-ok("\x[5793]\c[TRIPLE VERTICAL BAR DELIMITER]" ~~ m/<+<?InMiscellaneousMathematicalSymbolsB>>/, q{Match unanchored <?InMiscellaneousMathematicalSymbolsB>} );
+ok("\c[TRIPLE VERTICAL BAR DELIMITER]" ~~ m/^<+<?isInMiscellaneousMathematicalSymbolsB>>$/, q{Match <?isInMiscellaneousMathematicalSymbolsB>} );
+ok("\c[TRIPLE VERTICAL BAR DELIMITER]" ~~ m/^<[A]+<?isInMiscellaneousMathematicalSymbolsB>>$/, q{Match compound <?isInMiscellaneousMathematicalSymbolsB>} );
+ok(!( "\c[TRIPLE VERTICAL BAR DELIMITER]" ~~ m/^<-<?isInMiscellaneousMathematicalSymbolsB>>$/ ), q{Don't match externally inverted <?isInMiscellaneousMathematicalSymbolsB>} );
+ok(!( "\c[TRIPLE VERTICAL BAR DELIMITER]" ~~ m/^<[A]-<?isInMiscellaneousMathematicalSymbolsB>>$/ ), q{Don't match compound inverted <?isInMiscellaneousMathematicalSymbolsB>} );
+ok(!( "\c[TRIPLE VERTICAL BAR DELIMITER]" ~~ m/^<+<-isInMiscellaneousMathematicalSymbolsB>>$/ ), q{Don't match internally inverted <?isInMiscellaneousMathematicalSymbolsB>} );
+ok(!( "\x[5793]"  ~~ m/^<+<?isInMiscellaneousMathematicalSymbolsB>>$/ ), q{Don't match unrelated <?isInMiscellaneousMathematicalSymbolsB>} );
+ok("\x[5793]"  ~~ m/^<-<?isInMiscellaneousMathematicalSymbolsB>>$/, q{Match unrelated externally inverted <?isInMiscellaneousMathematicalSymbolsB>} );
+ok("\x[5793]"  ~~ m/^<+<-isInMiscellaneousMathematicalSymbolsB>>$/, q{Match unrelated internally inverted <?isInMiscellaneousMathematicalSymbolsB>} );
+ok("\x[5793]\c[TRIPLE VERTICAL BAR DELIMITER]" ~~ m/<+<?isInMiscellaneousMathematicalSymbolsB>>/, q{Match unanchored <?isInMiscellaneousMathematicalSymbolsB>} );
 
 # InMiscellaneousSymbols
 
 
-ok("\c[BLACK SUN WITH RAYS]" ~~ m/^<+<?InMiscellaneousSymbols>>$/, q{Match <?InMiscellaneousSymbols>} );
-ok("\c[BLACK SUN WITH RAYS]" ~~ m/^<[A]+<?InMiscellaneousSymbols>>$/, q{Match compound <?InMiscellaneousSymbols>} );
-ok(!( "\c[BLACK SUN WITH RAYS]" ~~ m/^<-<?InMiscellaneousSymbols>>$/ ), q{Don't match externally inverted <?InMiscellaneousSymbols>} );
-ok(!( "\c[BLACK SUN WITH RAYS]" ~~ m/^<[A]-<?InMiscellaneousSymbols>>$/ ), q{Don't match compound inverted <?InMiscellaneousSymbols>} );
-ok(!( "\c[BLACK SUN WITH RAYS]" ~~ m/^<+<-InMiscellaneousSymbols>>$/ ), q{Don't match internally inverted <?InMiscellaneousSymbols>} );
-ok(!( "\x[39D9]"  ~~ m/^<+<?InMiscellaneousSymbols>>$/ ), q{Don't match unrelated <?InMiscellaneousSymbols>} );
-ok("\x[39D9]"  ~~ m/^<-<?InMiscellaneousSymbols>>$/, q{Match unrelated externally inverted <?InMiscellaneousSymbols>} );
-ok("\x[39D9]"  ~~ m/^<+<-InMiscellaneousSymbols>>$/, q{Match unrelated internally inverted <?InMiscellaneousSymbols>} );
-ok("\x[39D9]\c[BLACK SUN WITH RAYS]" ~~ m/<+<?InMiscellaneousSymbols>>/, q{Match unanchored <?InMiscellaneousSymbols>} );
+ok("\c[BLACK SUN WITH RAYS]" ~~ m/^<+<?isInMiscellaneousSymbols>>$/, q{Match <?isInMiscellaneousSymbols>} );
+ok("\c[BLACK SUN WITH RAYS]" ~~ m/^<[A]+<?isInMiscellaneousSymbols>>$/, q{Match compound <?isInMiscellaneousSymbols>} );
+ok(!( "\c[BLACK SUN WITH RAYS]" ~~ m/^<-<?isInMiscellaneousSymbols>>$/ ), q{Don't match externally inverted <?isInMiscellaneousSymbols>} );
+ok(!( "\c[BLACK SUN WITH RAYS]" ~~ m/^<[A]-<?isInMiscellaneousSymbols>>$/ ), q{Don't match compound inverted <?isInMiscellaneousSymbols>} );
+ok(!( "\c[BLACK SUN WITH RAYS]" ~~ m/^<+<-isInMiscellaneousSymbols>>$/ ), q{Don't match internally inverted <?isInMiscellaneousSymbols>} );
+ok(!( "\x[39D9]"  ~~ m/^<+<?isInMiscellaneousSymbols>>$/ ), q{Don't match unrelated <?isInMiscellaneousSymbols>} );
+ok("\x[39D9]"  ~~ m/^<-<?isInMiscellaneousSymbols>>$/, q{Match unrelated externally inverted <?isInMiscellaneousSymbols>} );
+ok("\x[39D9]"  ~~ m/^<+<-isInMiscellaneousSymbols>>$/, q{Match unrelated internally inverted <?isInMiscellaneousSymbols>} );
+ok("\x[39D9]\c[BLACK SUN WITH RAYS]" ~~ m/<+<?isInMiscellaneousSymbols>>/, q{Match unanchored <?isInMiscellaneousSymbols>} );
 
 # InMiscellaneousTechnical
 
 
-ok("\c[DIAMETER SIGN]" ~~ m/^<+<?InMiscellaneousTechnical>>$/, q{Match <?InMiscellaneousTechnical>} );
-ok("\c[DIAMETER SIGN]" ~~ m/^<[A]+<?InMiscellaneousTechnical>>$/, q{Match compound <?InMiscellaneousTechnical>} );
-ok(!( "\c[DIAMETER SIGN]" ~~ m/^<-<?InMiscellaneousTechnical>>$/ ), q{Don't match externally inverted <?InMiscellaneousTechnical>} );
-ok(!( "\c[DIAMETER SIGN]" ~~ m/^<[A]-<?InMiscellaneousTechnical>>$/ ), q{Don't match compound inverted <?InMiscellaneousTechnical>} );
-ok(!( "\c[DIAMETER SIGN]" ~~ m/^<+<-InMiscellaneousTechnical>>$/ ), q{Don't match internally inverted <?InMiscellaneousTechnical>} );
-ok(!( "\x[528A]"  ~~ m/^<+<?InMiscellaneousTechnical>>$/ ), q{Don't match unrelated <?InMiscellaneousTechnical>} );
-ok("\x[528A]"  ~~ m/^<-<?InMiscellaneousTechnical>>$/, q{Match unrelated externally inverted <?InMiscellaneousTechnical>} );
-ok("\x[528A]"  ~~ m/^<+<-InMiscellaneousTechnical>>$/, q{Match unrelated internally inverted <?InMiscellaneousTechnical>} );
-ok("\x[528A]\c[DIAMETER SIGN]" ~~ m/<+<?InMiscellaneousTechnical>>/, q{Match unanchored <?InMiscellaneousTechnical>} );
+ok("\c[DIAMETER SIGN]" ~~ m/^<+<?isInMiscellaneousTechnical>>$/, q{Match <?isInMiscellaneousTechnical>} );
+ok("\c[DIAMETER SIGN]" ~~ m/^<[A]+<?isInMiscellaneousTechnical>>$/, q{Match compound <?isInMiscellaneousTechnical>} );
+ok(!( "\c[DIAMETER SIGN]" ~~ m/^<-<?isInMiscellaneousTechnical>>$/ ), q{Don't match externally inverted <?isInMiscellaneousTechnical>} );
+ok(!( "\c[DIAMETER SIGN]" ~~ m/^<[A]-<?isInMiscellaneousTechnical>>$/ ), q{Don't match compound inverted <?isInMiscellaneousTechnical>} );
+ok(!( "\c[DIAMETER SIGN]" ~~ m/^<+<-isInMiscellaneousTechnical>>$/ ), q{Don't match internally inverted <?isInMiscellaneousTechnical>} );
+ok(!( "\x[528A]"  ~~ m/^<+<?isInMiscellaneousTechnical>>$/ ), q{Don't match unrelated <?isInMiscellaneousTechnical>} );
+ok("\x[528A]"  ~~ m/^<-<?isInMiscellaneousTechnical>>$/, q{Match unrelated externally inverted <?isInMiscellaneousTechnical>} );
+ok("\x[528A]"  ~~ m/^<+<-isInMiscellaneousTechnical>>$/, q{Match unrelated internally inverted <?isInMiscellaneousTechnical>} );
+ok("\x[528A]\c[DIAMETER SIGN]" ~~ m/<+<?isInMiscellaneousTechnical>>/, q{Match unanchored <?isInMiscellaneousTechnical>} );
 
 # InMongolian
 
 
-ok("\c[MONGOLIAN BIRGA]" ~~ m/^<+<?InMongolian>>$/, q{Match <?InMongolian>} );
-ok("\c[MONGOLIAN BIRGA]" ~~ m/^<[A]+<?InMongolian>>$/, q{Match compound <?InMongolian>} );
-ok(!( "\c[MONGOLIAN BIRGA]" ~~ m/^<-<?InMongolian>>$/ ), q{Don't match externally inverted <?InMongolian>} );
-ok(!( "\c[MONGOLIAN BIRGA]" ~~ m/^<[A]-<?InMongolian>>$/ ), q{Don't match compound inverted <?InMongolian>} );
-ok(!( "\c[MONGOLIAN BIRGA]" ~~ m/^<+<-InMongolian>>$/ ), q{Don't match internally inverted <?InMongolian>} );
-ok(!( "\x[3985]"  ~~ m/^<+<?InMongolian>>$/ ), q{Don't match unrelated <?InMongolian>} );
-ok("\x[3985]"  ~~ m/^<-<?InMongolian>>$/, q{Match unrelated externally inverted <?InMongolian>} );
-ok("\x[3985]"  ~~ m/^<+<-InMongolian>>$/, q{Match unrelated internally inverted <?InMongolian>} );
-ok("\x[3985]\c[MONGOLIAN BIRGA]" ~~ m/<+<?InMongolian>>/, q{Match unanchored <?InMongolian>} );
+ok("\c[MONGOLIAN BIRGA]" ~~ m/^<+<?isInMongolian>>$/, q{Match <?isInMongolian>} );
+ok("\c[MONGOLIAN BIRGA]" ~~ m/^<[A]+<?isInMongolian>>$/, q{Match compound <?isInMongolian>} );
+ok(!( "\c[MONGOLIAN BIRGA]" ~~ m/^<-<?isInMongolian>>$/ ), q{Don't match externally inverted <?isInMongolian>} );
+ok(!( "\c[MONGOLIAN BIRGA]" ~~ m/^<[A]-<?isInMongolian>>$/ ), q{Don't match compound inverted <?isInMongolian>} );
+ok(!( "\c[MONGOLIAN BIRGA]" ~~ m/^<+<-isInMongolian>>$/ ), q{Don't match internally inverted <?isInMongolian>} );
+ok(!( "\x[3985]"  ~~ m/^<+<?isInMongolian>>$/ ), q{Don't match unrelated <?isInMongolian>} );
+ok("\x[3985]"  ~~ m/^<-<?isInMongolian>>$/, q{Match unrelated externally inverted <?isInMongolian>} );
+ok("\x[3985]"  ~~ m/^<+<-isInMongolian>>$/, q{Match unrelated internally inverted <?isInMongolian>} );
+ok("\x[3985]\c[MONGOLIAN BIRGA]" ~~ m/<+<?isInMongolian>>/, q{Match unanchored <?isInMongolian>} );
 
 # InMusicalSymbols
 
 
-ok(!( "\x[7A59]"  ~~ m/^<+<?InMusicalSymbols>>$/ ), q{Don't match unrelated <?InMusicalSymbols>} );
-ok("\x[7A59]"  ~~ m/^<-<?InMusicalSymbols>>$/, q{Match unrelated externally inverted <?InMusicalSymbols>} );
-ok("\x[7A59]"  ~~ m/^<+<-InMusicalSymbols>>$/, q{Match unrelated internally inverted <?InMusicalSymbols>} );
+ok(!( "\x[7A59]"  ~~ m/^<+<?isInMusicalSymbols>>$/ ), q{Don't match unrelated <?isInMusicalSymbols>} );
+ok("\x[7A59]"  ~~ m/^<-<?isInMusicalSymbols>>$/, q{Match unrelated externally inverted <?isInMusicalSymbols>} );
+ok("\x[7A59]"  ~~ m/^<+<-isInMusicalSymbols>>$/, q{Match unrelated internally inverted <?isInMusicalSymbols>} );
 
 # InMyanmar
 
 
-ok("\c[MYANMAR LETTER KA]" ~~ m/^<+<?InMyanmar>>$/, q{Match <?InMyanmar>} );
-ok("\c[MYANMAR LETTER KA]" ~~ m/^<[A]+<?InMyanmar>>$/, q{Match compound <?InMyanmar>} );
-ok(!( "\c[MYANMAR LETTER KA]" ~~ m/^<-<?InMyanmar>>$/ ), q{Don't match externally inverted <?InMyanmar>} );
-ok(!( "\c[MYANMAR LETTER KA]" ~~ m/^<[A]-<?InMyanmar>>$/ ), q{Don't match compound inverted <?InMyanmar>} );
-ok(!( "\c[MYANMAR LETTER KA]" ~~ m/^<+<-InMyanmar>>$/ ), q{Don't match internally inverted <?InMyanmar>} );
-ok(!( "\x[5698]"  ~~ m/^<+<?InMyanmar>>$/ ), q{Don't match unrelated <?InMyanmar>} );
-ok("\x[5698]"  ~~ m/^<-<?InMyanmar>>$/, q{Match unrelated externally inverted <?InMyanmar>} );
-ok("\x[5698]"  ~~ m/^<+<-InMyanmar>>$/, q{Match unrelated internally inverted <?InMyanmar>} );
-ok("\x[5698]\c[MYANMAR LETTER KA]" ~~ m/<+<?InMyanmar>>/, q{Match unanchored <?InMyanmar>} );
+ok("\c[MYANMAR LETTER KA]" ~~ m/^<+<?isInMyanmar>>$/, q{Match <?isInMyanmar>} );
+ok("\c[MYANMAR LETTER KA]" ~~ m/^<[A]+<?isInMyanmar>>$/, q{Match compound <?isInMyanmar>} );
+ok(!( "\c[MYANMAR LETTER KA]" ~~ m/^<-<?isInMyanmar>>$/ ), q{Don't match externally inverted <?isInMyanmar>} );
+ok(!( "\c[MYANMAR LETTER KA]" ~~ m/^<[A]-<?isInMyanmar>>$/ ), q{Don't match compound inverted <?isInMyanmar>} );
+ok(!( "\c[MYANMAR LETTER KA]" ~~ m/^<+<-isInMyanmar>>$/ ), q{Don't match internally inverted <?isInMyanmar>} );
+ok(!( "\x[5698]"  ~~ m/^<+<?isInMyanmar>>$/ ), q{Don't match unrelated <?isInMyanmar>} );
+ok("\x[5698]"  ~~ m/^<-<?isInMyanmar>>$/, q{Match unrelated externally inverted <?isInMyanmar>} );
+ok("\x[5698]"  ~~ m/^<+<-isInMyanmar>>$/, q{Match unrelated internally inverted <?isInMyanmar>} );
+ok("\x[5698]\c[MYANMAR LETTER KA]" ~~ m/<+<?isInMyanmar>>/, q{Match unanchored <?isInMyanmar>} );
 
 # InNumberForms
 
 
-ok("\x[2150]" ~~ m/^<+<?InNumberForms>>$/, q{Match <?InNumberForms>} );
-ok("\x[2150]" ~~ m/^<[A]+<?InNumberForms>>$/, q{Match compound <?InNumberForms>} );
-ok(!( "\x[2150]" ~~ m/^<-<?InNumberForms>>$/ ), q{Don't match externally inverted <?InNumberForms>} );
-ok(!( "\x[2150]" ~~ m/^<[A]-<?InNumberForms>>$/ ), q{Don't match compound inverted <?InNumberForms>} );
-ok(!( "\x[2150]" ~~ m/^<+<-InNumberForms>>$/ ), q{Don't match internally inverted <?InNumberForms>} );
-ok(!( "\x[C41B]"  ~~ m/^<+<?InNumberForms>>$/ ), q{Don't match unrelated <?InNumberForms>} );
-ok("\x[C41B]"  ~~ m/^<-<?InNumberForms>>$/, q{Match unrelated externally inverted <?InNumberForms>} );
-ok("\x[C41B]"  ~~ m/^<+<-InNumberForms>>$/, q{Match unrelated internally inverted <?InNumberForms>} );
-ok("\x[C41B]\x[2150]" ~~ m/<+<?InNumberForms>>/, q{Match unanchored <?InNumberForms>} );
+ok("\x[2150]" ~~ m/^<+<?isInNumberForms>>$/, q{Match <?isInNumberForms>} );
+ok("\x[2150]" ~~ m/^<[A]+<?isInNumberForms>>$/, q{Match compound <?isInNumberForms>} );
+ok(!( "\x[2150]" ~~ m/^<-<?isInNumberForms>>$/ ), q{Don't match externally inverted <?isInNumberForms>} );
+ok(!( "\x[2150]" ~~ m/^<[A]-<?isInNumberForms>>$/ ), q{Don't match compound inverted <?isInNumberForms>} );
+ok(!( "\x[2150]" ~~ m/^<+<-isInNumberForms>>$/ ), q{Don't match internally inverted <?isInNumberForms>} );
+ok(!( "\x[C41B]"  ~~ m/^<+<?isInNumberForms>>$/ ), q{Don't match unrelated <?isInNumberForms>} );
+ok("\x[C41B]"  ~~ m/^<-<?isInNumberForms>>$/, q{Match unrelated externally inverted <?isInNumberForms>} );
+ok("\x[C41B]"  ~~ m/^<+<-isInNumberForms>>$/, q{Match unrelated internally inverted <?isInNumberForms>} );
+ok("\x[C41B]\x[2150]" ~~ m/<+<?isInNumberForms>>/, q{Match unanchored <?isInNumberForms>} );
 
 # InOgham
 
 
-ok("\c[OGHAM SPACE MARK]" ~~ m/^<+<?InOgham>>$/, q{Match <?InOgham>} );
-ok("\c[OGHAM SPACE MARK]" ~~ m/^<[A]+<?InOgham>>$/, q{Match compound <?InOgham>} );
-ok(!( "\c[OGHAM SPACE MARK]" ~~ m/^<-<?InOgham>>$/ ), q{Don't match externally inverted <?InOgham>} );
-ok(!( "\c[OGHAM SPACE MARK]" ~~ m/^<[A]-<?InOgham>>$/ ), q{Don't match compound inverted <?InOgham>} );
-ok(!( "\c[OGHAM SPACE MARK]" ~~ m/^<+<-InOgham>>$/ ), q{Don't match internally inverted <?InOgham>} );
-ok(!( "\x[2C8C]"  ~~ m/^<+<?InOgham>>$/ ), q{Don't match unrelated <?InOgham>} );
-ok("\x[2C8C]"  ~~ m/^<-<?InOgham>>$/, q{Match unrelated externally inverted <?InOgham>} );
-ok("\x[2C8C]"  ~~ m/^<+<-InOgham>>$/, q{Match unrelated internally inverted <?InOgham>} );
-ok("\x[2C8C]\c[OGHAM SPACE MARK]" ~~ m/<+<?InOgham>>/, q{Match unanchored <?InOgham>} );
+ok("\c[OGHAM SPACE MARK]" ~~ m/^<+<?isInOgham>>$/, q{Match <?isInOgham>} );
+ok("\c[OGHAM SPACE MARK]" ~~ m/^<[A]+<?isInOgham>>$/, q{Match compound <?isInOgham>} );
+ok(!( "\c[OGHAM SPACE MARK]" ~~ m/^<-<?isInOgham>>$/ ), q{Don't match externally inverted <?isInOgham>} );
+ok(!( "\c[OGHAM SPACE MARK]" ~~ m/^<[A]-<?isInOgham>>$/ ), q{Don't match compound inverted <?isInOgham>} );
+ok(!( "\c[OGHAM SPACE MARK]" ~~ m/^<+<-isInOgham>>$/ ), q{Don't match internally inverted <?isInOgham>} );
+ok(!( "\x[2C8C]"  ~~ m/^<+<?isInOgham>>$/ ), q{Don't match unrelated <?isInOgham>} );
+ok("\x[2C8C]"  ~~ m/^<-<?isInOgham>>$/, q{Match unrelated externally inverted <?isInOgham>} );
+ok("\x[2C8C]"  ~~ m/^<+<-isInOgham>>$/, q{Match unrelated internally inverted <?isInOgham>} );
+ok("\x[2C8C]\c[OGHAM SPACE MARK]" ~~ m/<+<?isInOgham>>/, q{Match unanchored <?isInOgham>} );
 
 # InOldItalic
 
 
-ok(!( "\c[YI SYLLABLE MGAT]"  ~~ m/^<+<?InOldItalic>>$/ ), q{Don't match unrelated <?InOldItalic>} );
-ok("\c[YI SYLLABLE MGAT]"  ~~ m/^<-<?InOldItalic>>$/, q{Match unrelated externally inverted <?InOldItalic>} );
-ok("\c[YI SYLLABLE MGAT]"  ~~ m/^<+<-InOldItalic>>$/, q{Match unrelated internally inverted <?InOldItalic>} );
+ok(!( "\c[YI SYLLABLE MGAT]"  ~~ m/^<+<?isInOldItalic>>$/ ), q{Don't match unrelated <?isInOldItalic>} );
+ok("\c[YI SYLLABLE MGAT]"  ~~ m/^<-<?isInOldItalic>>$/, q{Match unrelated externally inverted <?isInOldItalic>} );
+ok("\c[YI SYLLABLE MGAT]"  ~~ m/^<+<-isInOldItalic>>$/, q{Match unrelated internally inverted <?isInOldItalic>} );
 
 # InOpticalCharacterRecognition
 
 
-ok("\c[OCR HOOK]" ~~ m/^<+<?InOpticalCharacterRecognition>>$/, q{Match <?InOpticalCharacterRecognition>} );
-ok("\c[OCR HOOK]" ~~ m/^<[A]+<?InOpticalCharacterRecognition>>$/, q{Match compound <?InOpticalCharacterRecognition>} );
-ok(!( "\c[OCR HOOK]" ~~ m/^<-<?InOpticalCharacterRecognition>>$/ ), q{Don't match externally inverted <?InOpticalCharacterRecognition>} );
-ok(!( "\c[OCR HOOK]" ~~ m/^<[A]-<?InOpticalCharacterRecognition>>$/ ), q{Don't match compound inverted <?InOpticalCharacterRecognition>} );
-ok(!( "\c[OCR HOOK]" ~~ m/^<+<-InOpticalCharacterRecognition>>$/ ), q{Don't match internally inverted <?InOpticalCharacterRecognition>} );
-ok(!( "\x[CB83]"  ~~ m/^<+<?InOpticalCharacterRecognition>>$/ ), q{Don't match unrelated <?InOpticalCharacterRecognition>} );
-ok("\x[CB83]"  ~~ m/^<-<?InOpticalCharacterRecognition>>$/, q{Match unrelated externally inverted <?InOpticalCharacterRecognition>} );
-ok("\x[CB83]"  ~~ m/^<+<-InOpticalCharacterRecognition>>$/, q{Match unrelated internally inverted <?InOpticalCharacterRecognition>} );
-ok("\x[CB83]\c[OCR HOOK]" ~~ m/<+<?InOpticalCharacterRecognition>>/, q{Match unanchored <?InOpticalCharacterRecognition>} );
+ok("\c[OCR HOOK]" ~~ m/^<+<?isInOpticalCharacterRecognition>>$/, q{Match <?isInOpticalCharacterRecognition>} );
+ok("\c[OCR HOOK]" ~~ m/^<[A]+<?isInOpticalCharacterRecognition>>$/, q{Match compound <?isInOpticalCharacterRecognition>} );
+ok(!( "\c[OCR HOOK]" ~~ m/^<-<?isInOpticalCharacterRecognition>>$/ ), q{Don't match externally inverted <?isInOpticalCharacterRecognition>} );
+ok(!( "\c[OCR HOOK]" ~~ m/^<[A]-<?isInOpticalCharacterRecognition>>$/ ), q{Don't match compound inverted <?isInOpticalCharacterRecognition>} );
+ok(!( "\c[OCR HOOK]" ~~ m/^<+<-isInOpticalCharacterRecognition>>$/ ), q{Don't match internally inverted <?isInOpticalCharacterRecognition>} );
+ok(!( "\x[CB83]"  ~~ m/^<+<?isInOpticalCharacterRecognition>>$/ ), q{Don't match unrelated <?isInOpticalCharacterRecognition>} );
+ok("\x[CB83]"  ~~ m/^<-<?isInOpticalCharacterRecognition>>$/, q{Match unrelated externally inverted <?isInOpticalCharacterRecognition>} );
+ok("\x[CB83]"  ~~ m/^<+<-isInOpticalCharacterRecognition>>$/, q{Match unrelated internally inverted <?isInOpticalCharacterRecognition>} );
+ok("\x[CB83]\c[OCR HOOK]" ~~ m/<+<?isInOpticalCharacterRecognition>>/, q{Match unanchored <?isInOpticalCharacterRecognition>} );
 
 # InOriya
 
 
-ok("\x[0B00]" ~~ m/^<+<?InOriya>>$/, q{Match <?InOriya>} );
-ok("\x[0B00]" ~~ m/^<[A]+<?InOriya>>$/, q{Match compound <?InOriya>} );
-ok(!( "\x[0B00]" ~~ m/^<-<?InOriya>>$/ ), q{Don't match externally inverted <?InOriya>} );
-ok(!( "\x[0B00]" ~~ m/^<[A]-<?InOriya>>$/ ), q{Don't match compound inverted <?InOriya>} );
-ok(!( "\x[0B00]" ~~ m/^<+<-InOriya>>$/ ), q{Don't match internally inverted <?InOriya>} );
-ok(!( "\x[6CE7]"  ~~ m/^<+<?InOriya>>$/ ), q{Don't match unrelated <?InOriya>} );
-ok("\x[6CE7]"  ~~ m/^<-<?InOriya>>$/, q{Match unrelated externally inverted <?InOriya>} );
-ok("\x[6CE7]"  ~~ m/^<+<-InOriya>>$/, q{Match unrelated internally inverted <?InOriya>} );
-ok("\x[6CE7]\x[0B00]" ~~ m/<+<?InOriya>>/, q{Match unanchored <?InOriya>} );
+ok("\x[0B00]" ~~ m/^<+<?isInOriya>>$/, q{Match <?isInOriya>} );
+ok("\x[0B00]" ~~ m/^<[A]+<?isInOriya>>$/, q{Match compound <?isInOriya>} );
+ok(!( "\x[0B00]" ~~ m/^<-<?isInOriya>>$/ ), q{Don't match externally inverted <?isInOriya>} );
+ok(!( "\x[0B00]" ~~ m/^<[A]-<?isInOriya>>$/ ), q{Don't match compound inverted <?isInOriya>} );
+ok(!( "\x[0B00]" ~~ m/^<+<-isInOriya>>$/ ), q{Don't match internally inverted <?isInOriya>} );
+ok(!( "\x[6CE7]"  ~~ m/^<+<?isInOriya>>$/ ), q{Don't match unrelated <?isInOriya>} );
+ok("\x[6CE7]"  ~~ m/^<-<?isInOriya>>$/, q{Match unrelated externally inverted <?isInOriya>} );
+ok("\x[6CE7]"  ~~ m/^<+<-isInOriya>>$/, q{Match unrelated internally inverted <?isInOriya>} );
+ok("\x[6CE7]\x[0B00]" ~~ m/<+<?isInOriya>>/, q{Match unanchored <?isInOriya>} );
 
 # InPrivateUseArea
 
 
-ok(!( "\x[7662]"  ~~ m/^<+<?InPrivateUseArea>>$/ ), q{Don't match unrelated <?InPrivateUseArea>} );
-ok("\x[7662]"  ~~ m/^<-<?InPrivateUseArea>>$/, q{Match unrelated externally inverted <?InPrivateUseArea>} );
-ok("\x[7662]"  ~~ m/^<+<-InPrivateUseArea>>$/, q{Match unrelated internally inverted <?InPrivateUseArea>} );
+ok(!( "\x[7662]"  ~~ m/^<+<?isInPrivateUseArea>>$/ ), q{Don't match unrelated <?isInPrivateUseArea>} );
+ok("\x[7662]"  ~~ m/^<-<?isInPrivateUseArea>>$/, q{Match unrelated externally inverted <?isInPrivateUseArea>} );
+ok("\x[7662]"  ~~ m/^<+<-isInPrivateUseArea>>$/, q{Match unrelated internally inverted <?isInPrivateUseArea>} );
 
 # InRunic
 
 
-ok("\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<+<?InRunic>>$/, q{Match <?InRunic>} );
-ok("\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<[A]+<?InRunic>>$/, q{Match compound <?InRunic>} );
-ok(!( "\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<-<?InRunic>>$/ ), q{Don't match externally inverted <?InRunic>} );
-ok(!( "\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<[A]-<?InRunic>>$/ ), q{Don't match compound inverted <?InRunic>} );
-ok(!( "\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<+<-InRunic>>$/ ), q{Don't match internally inverted <?InRunic>} );
-ok(!( "\x[47A1]"  ~~ m/^<+<?InRunic>>$/ ), q{Don't match unrelated <?InRunic>} );
-ok("\x[47A1]"  ~~ m/^<-<?InRunic>>$/, q{Match unrelated externally inverted <?InRunic>} );
-ok("\x[47A1]"  ~~ m/^<+<-InRunic>>$/, q{Match unrelated internally inverted <?InRunic>} );
-ok("\x[47A1]\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/<+<?InRunic>>/, q{Match unanchored <?InRunic>} );
+ok("\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<+<?isInRunic>>$/, q{Match <?isInRunic>} );
+ok("\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<[A]+<?isInRunic>>$/, q{Match compound <?isInRunic>} );
+ok(!( "\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<-<?isInRunic>>$/ ), q{Don't match externally inverted <?isInRunic>} );
+ok(!( "\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<[A]-<?isInRunic>>$/ ), q{Don't match compound inverted <?isInRunic>} );
+ok(!( "\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/^<+<-isInRunic>>$/ ), q{Don't match internally inverted <?isInRunic>} );
+ok(!( "\x[47A1]"  ~~ m/^<+<?isInRunic>>$/ ), q{Don't match unrelated <?isInRunic>} );
+ok("\x[47A1]"  ~~ m/^<-<?isInRunic>>$/, q{Match unrelated externally inverted <?isInRunic>} );
+ok("\x[47A1]"  ~~ m/^<+<-isInRunic>>$/, q{Match unrelated internally inverted <?isInRunic>} );
+ok("\x[47A1]\c[RUNIC LETTER FEHU FEOH FE F]" ~~ m/<+<?isInRunic>>/, q{Match unanchored <?isInRunic>} );
 
 # InSinhala
 
 
-ok("\x[0D80]" ~~ m/^<+<?InSinhala>>$/, q{Match <?InSinhala>} );
-ok("\x[0D80]" ~~ m/^<[A]+<?InSinhala>>$/, q{Match compound <?InSinhala>} );
-ok(!( "\x[0D80]" ~~ m/^<-<?InSinhala>>$/ ), q{Don't match externally inverted <?InSinhala>} );
-ok(!( "\x[0D80]" ~~ m/^<[A]-<?InSinhala>>$/ ), q{Don't match compound inverted <?InSinhala>} );
-ok(!( "\x[0D80]" ~~ m/^<+<-InSinhala>>$/ ), q{Don't match internally inverted <?InSinhala>} );
-ok(!( "\x[1C39]"  ~~ m/^<+<?InSinhala>>$/ ), q{Don't match unrelated <?InSinhala>} );
-ok("\x[1C39]"  ~~ m/^<-<?InSinhala>>$/, q{Match unrelated externally inverted <?InSinhala>} );
-ok("\x[1C39]"  ~~ m/^<+<-InSinhala>>$/, q{Match unrelated internally inverted <?InSinhala>} );
-ok("\x[1C39]\x[0D80]" ~~ m/<+<?InSinhala>>/, q{Match unanchored <?InSinhala>} );
+ok("\x[0D80]" ~~ m/^<+<?isInSinhala>>$/, q{Match <?isInSinhala>} );
+ok("\x[0D80]" ~~ m/^<[A]+<?isInSinhala>>$/, q{Match compound <?isInSinhala>} );
+ok(!( "\x[0D80]" ~~ m/^<-<?isInSinhala>>$/ ), q{Don't match externally inverted <?isInSinhala>} );
+ok(!( "\x[0D80]" ~~ m/^<[A]-<?isInSinhala>>$/ ), q{Don't match compound inverted <?isInSinhala>} );
+ok(!( "\x[0D80]" ~~ m/^<+<-isInSinhala>>$/ ), q{Don't match internally inverted <?isInSinhala>} );
+ok(!( "\x[1C39]"  ~~ m/^<+<?isInSinhala>>$/ ), q{Don't match unrelated <?isInSinhala>} );
+ok("\x[1C39]"  ~~ m/^<-<?isInSinhala>>$/, q{Match unrelated externally inverted <?isInSinhala>} );
+ok("\x[1C39]"  ~~ m/^<+<-isInSinhala>>$/, q{Match unrelated internally inverted <?isInSinhala>} );
+ok("\x[1C39]\x[0D80]" ~~ m/<+<?isInSinhala>>/, q{Match unanchored <?isInSinhala>} );
 
 # InSmallFormVariants
 
 
-ok(!( "\c[YI SYLLABLE FAP]"  ~~ m/^<+<?InSmallFormVariants>>$/ ), q{Don't match unrelated <?InSmallFormVariants>} );
-ok("\c[YI SYLLABLE FAP]"  ~~ m/^<-<?InSmallFormVariants>>$/, q{Match unrelated externally inverted <?InSmallFormVariants>} );
-ok("\c[YI SYLLABLE FAP]"  ~~ m/^<+<-InSmallFormVariants>>$/, q{Match unrelated internally inverted <?InSmallFormVariants>} );
+ok(!( "\c[YI SYLLABLE FAP]"  ~~ m/^<+<?isInSmallFormVariants>>$/ ), q{Don't match unrelated <?isInSmallFormVariants>} );
+ok("\c[YI SYLLABLE FAP]"  ~~ m/^<-<?isInSmallFormVariants>>$/, q{Match unrelated externally inverted <?isInSmallFormVariants>} );
+ok("\c[YI SYLLABLE FAP]"  ~~ m/^<+<-isInSmallFormVariants>>$/, q{Match unrelated internally inverted <?isInSmallFormVariants>} );
 
 # InSpacingModifierLetters
 
 
-ok("\c[MODIFIER LETTER SMALL H]" ~~ m/^<+<?InSpacingModifierLetters>>$/, q{Match <?InSpacingModifierLetters>} );
-ok("\c[MODIFIER LETTER SMALL H]" ~~ m/^<[A]+<?InSpacingModifierLetters>>$/, q{Match compound <?InSpacingModifierLetters>} );
-ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<-<?InSpacingModifierLetters>>$/ ), q{Don't match externally inverted <?InSpacingModifierLetters>} );
-ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<[A]-<?InSpacingModifierLetters>>$/ ), q{Don't match compound inverted <?InSpacingModifierLetters>} );
-ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<+<-InSpacingModifierLetters>>$/ ), q{Don't match internally inverted <?InSpacingModifierLetters>} );
-ok(!( "\x[08E8]"  ~~ m/^<+<?InSpacingModifierLetters>>$/ ), q{Don't match unrelated <?InSpacingModifierLetters>} );
-ok("\x[08E8]"  ~~ m/^<-<?InSpacingModifierLetters>>$/, q{Match unrelated externally inverted <?InSpacingModifierLetters>} );
-ok("\x[08E8]"  ~~ m/^<+<-InSpacingModifierLetters>>$/, q{Match unrelated internally inverted <?InSpacingModifierLetters>} );
-ok("\x[08E8]\c[MODIFIER LETTER SMALL H]" ~~ m/<+<?InSpacingModifierLetters>>/, q{Match unanchored <?InSpacingModifierLetters>} );
+ok("\c[MODIFIER LETTER SMALL H]" ~~ m/^<+<?isInSpacingModifierLetters>>$/, q{Match <?isInSpacingModifierLetters>} );
+ok("\c[MODIFIER LETTER SMALL H]" ~~ m/^<[A]+<?isInSpacingModifierLetters>>$/, q{Match compound <?isInSpacingModifierLetters>} );
+ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<-<?isInSpacingModifierLetters>>$/ ), q{Don't match externally inverted <?isInSpacingModifierLetters>} );
+ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<[A]-<?isInSpacingModifierLetters>>$/ ), q{Don't match compound inverted <?isInSpacingModifierLetters>} );
+ok(!( "\c[MODIFIER LETTER SMALL H]" ~~ m/^<+<-isInSpacingModifierLetters>>$/ ), q{Don't match internally inverted <?isInSpacingModifierLetters>} );
+ok(!( "\x[08E8]"  ~~ m/^<+<?isInSpacingModifierLetters>>$/ ), q{Don't match unrelated <?isInSpacingModifierLetters>} );
+ok("\x[08E8]"  ~~ m/^<-<?isInSpacingModifierLetters>>$/, q{Match unrelated externally inverted <?isInSpacingModifierLetters>} );
+ok("\x[08E8]"  ~~ m/^<+<-isInSpacingModifierLetters>>$/, q{Match unrelated internally inverted <?isInSpacingModifierLetters>} );
+ok("\x[08E8]\c[MODIFIER LETTER SMALL H]" ~~ m/<+<?isInSpacingModifierLetters>>/, q{Match unanchored <?isInSpacingModifierLetters>} );
 
 # InSpecials
 
 
-ok(!( "\x[0C7E]"  ~~ m/^<+<?InSpecials>>$/ ), q{Don't match unrelated <?InSpecials>} );
-ok("\x[0C7E]"  ~~ m/^<-<?InSpecials>>$/, q{Match unrelated externally inverted <?InSpecials>} );
-ok("\x[0C7E]"  ~~ m/^<+<-InSpecials>>$/, q{Match unrelated internally inverted <?InSpecials>} );
+ok(!( "\x[0C7E]"  ~~ m/^<+<?isInSpecials>>$/ ), q{Don't match unrelated <?isInSpecials>} );
+ok("\x[0C7E]"  ~~ m/^<-<?isInSpecials>>$/, q{Match unrelated externally inverted <?isInSpecials>} );
+ok("\x[0C7E]"  ~~ m/^<+<-isInSpecials>>$/, q{Match unrelated internally inverted <?isInSpecials>} );
 
 # InSuperscriptsAndSubscripts
 
 
-ok("\c[SUPERSCRIPT ZERO]" ~~ m/^<+<?InSuperscriptsAndSubscripts>>$/, q{Match <?InSuperscriptsAndSubscripts>} );
-ok("\c[SUPERSCRIPT ZERO]" ~~ m/^<[A]+<?InSuperscriptsAndSubscripts>>$/, q{Match compound <?InSuperscriptsAndSubscripts>} );
-ok(!( "\c[SUPERSCRIPT ZERO]" ~~ m/^<-<?InSuperscriptsAndSubscripts>>$/ ), q{Don't match externally inverted <?InSuperscriptsAndSubscripts>} );
-ok(!( "\c[SUPERSCRIPT ZERO]" ~~ m/^<[A]-<?InSuperscriptsAndSubscripts>>$/ ), q{Don't match compound inverted <?InSuperscriptsAndSubscripts>} );
-ok(!( "\c[SUPERSCRIPT ZERO]" ~~ m/^<+<-InSuperscriptsAndSubscripts>>$/ ), q{Don't match internally inverted <?InSuperscriptsAndSubscripts>} );
-ok(!( "\x[D378]"  ~~ m/^<+<?InSuperscriptsAndSubscripts>>$/ ), q{Don't match unrelated <?InSuperscriptsAndSubscripts>} );
-ok("\x[D378]"  ~~ m/^<-<?InSuperscriptsAndSubscripts>>$/, q{Match unrelated externally inverted <?InSuperscriptsAndSubscripts>} );
-ok("\x[D378]"  ~~ m/^<+<-InSuperscriptsAndSubscripts>>$/, q{Match unrelated internally inverted <?InSuperscriptsAndSubscripts>} );
-ok("\x[D378]\c[SUPERSCRIPT ZERO]" ~~ m/<+<?InSuperscriptsAndSubscripts>>/, q{Match unanchored <?InSuperscriptsAndSubscripts>} );
+ok("\c[SUPERSCRIPT ZERO]" ~~ m/^<+<?isInSuperscriptsAndSubscripts>>$/, q{Match <?isInSuperscriptsAndSubscripts>} );
+ok("\c[SUPERSCRIPT ZERO]" ~~ m/^<[A]+<?isInSuperscriptsAndSubscripts>>$/, q{Match compound <?isInSuperscriptsAndSubscripts>} );
+ok(!( "\c[SUPERSCRIPT ZERO]" ~~ m/^<-<?isInSuperscriptsAndSubscripts>>$/ ), q{Don't match externally inverted <?isInSuperscriptsAndSubscripts>} );
+ok(!( "\c[SUPERSCRIPT ZERO]" ~~ m/^<[A]-<?isInSuperscriptsAndSubscripts>>$/ ), q{Don't match compound inverted <?isInSuperscriptsAndSubscripts>} );
+ok(!( "\c[SUPERSCRIPT ZERO]" ~~ m/^<+<-isInSuperscriptsAndSubscripts>>$/ ), q{Don't match internally inverted <?isInSuperscriptsAndSubscripts>} );
+ok(!( "\x[D378]"  ~~ m/^<+<?isInSuperscriptsAndSubscripts>>$/ ), q{Don't match unrelated <?isInSuperscriptsAndSubscripts>} );
+ok("\x[D378]"  ~~ m/^<-<?isInSuperscriptsAndSubscripts>>$/, q{Match unrelated externally inverted <?isInSuperscriptsAndSubscripts>} );
+ok("\x[D378]"  ~~ m/^<+<-isInSuperscriptsAndSubscripts>>$/, q{Match unrelated internally inverted <?isInSuperscriptsAndSubscripts>} );
+ok("\x[D378]\c[SUPERSCRIPT ZERO]" ~~ m/<+<?isInSuperscriptsAndSubscripts>>/, q{Match unanchored <?isInSuperscriptsAndSubscripts>} );
 
 # InSupplementalArrowsA
 
 
-ok("\c[UPWARDS QUADRUPLE ARROW]" ~~ m/^<+<?InSupplementalArrowsA>>$/, q{Match <?InSupplementalArrowsA>} );
-ok("\c[UPWARDS QUADRUPLE ARROW]" ~~ m/^<[A]+<?InSupplementalArrowsA>>$/, q{Match compound <?InSupplementalArrowsA>} );
-ok(!( "\c[UPWARDS QUADRUPLE ARROW]" ~~ m/^<-<?InSupplementalArrowsA>>$/ ), q{Don't match externally inverted <?InSupplementalArrowsA>} );
-ok(!( "\c[UPWARDS QUADRUPLE ARROW]" ~~ m/^<[A]-<?InSupplementalArrowsA>>$/ ), q{Don't match compound inverted <?InSupplementalArrowsA>} );
-ok(!( "\c[UPWARDS QUADRUPLE ARROW]" ~~ m/^<+<-InSupplementalArrowsA>>$/ ), q{Don't match internally inverted <?InSupplementalArrowsA>} );
-ok(!( "\c[LIMBU DIGIT SEVEN]"  ~~ m/^<+<?InSupplementalArrowsA>>$/ ), q{Don't match unrelated <?InSupplementalArrowsA>} );
-ok("\c[LIMBU DIGIT SEVEN]"  ~~ m/^<-<?InSupplementalArrowsA>>$/, q{Match unrelated externally inverted <?InSupplementalArrowsA>} );
-ok("\c[LIMBU DIGIT SEVEN]"  ~~ m/^<+<-InSupplementalArrowsA>>$/, q{Match unrelated internally inverted <?InSupplementalArrowsA>} );
-ok("\c[LIMBU DIGIT SEVEN]\c[UPWARDS QUADRUPLE ARROW]" ~~ m/<+<?InSupplementalArrowsA>>/, q{Match unanchored <?InSupplementalArrowsA>} );
+ok("\c[UPWARDS QUADRUPLE ARROW]" ~~ m/^<+<?isInSupplementalArrowsA>>$/, q{Match <?isInSupplementalArrowsA>} );
+ok("\c[UPWARDS QUADRUPLE ARROW]" ~~ m/^<[A]+<?isInSupplementalArrowsA>>$/, q{Match compound <?isInSupplementalArrowsA>} );
+ok(!( "\c[UPWARDS QUADRUPLE ARROW]" ~~ m/^<-<?isInSupplementalArrowsA>>$/ ), q{Don't match externally inverted <?isInSupplementalArrowsA>} );
+ok(!( "\c[UPWARDS QUADRUPLE ARROW]" ~~ m/^<[A]-<?isInSupplementalArrowsA>>$/ ), q{Don't match compound inverted <?isInSupplementalArrowsA>} );
+ok(!( "\c[UPWARDS QUADRUPLE ARROW]" ~~ m/^<+<-isInSupplementalArrowsA>>$/ ), q{Don't match internally inverted <?isInSupplementalArrowsA>} );
+ok(!( "\c[LIMBU DIGIT SEVEN]"  ~~ m/^<+<?isInSupplementalArrowsA>>$/ ), q{Don't match unrelated <?isInSupplementalArrowsA>} );
+ok("\c[LIMBU DIGIT SEVEN]"  ~~ m/^<-<?isInSupplementalArrowsA>>$/, q{Match unrelated externally inverted <?isInSupplementalArrowsA>} );
+ok("\c[LIMBU DIGIT SEVEN]"  ~~ m/^<+<-isInSupplementalArrowsA>>$/, q{Match unrelated internally inverted <?isInSupplementalArrowsA>} );
+ok("\c[LIMBU DIGIT SEVEN]\c[UPWARDS QUADRUPLE ARROW]" ~~ m/<+<?isInSupplementalArrowsA>>/, q{Match unanchored <?isInSupplementalArrowsA>} );
 
 # InSupplementalArrowsB
 
 
-ok("\c[RIGHTWARDS TWO-HEADED ARROW WITH VERTICAL STROKE]" ~~ m/^<+<?InSupplementalArrowsB>>$/, q{Match <?InSupplementalArrowsB>} );
-ok("\c[RIGHTWARDS TWO-HEADED ARROW WITH VERTICAL STROKE]" ~~ m/^<[A]+<?InSupplementalArrowsB>>$/, q{Match compound <?InSupplementalArrowsB>} );
-ok(!( "\c[RIGHTWARDS TWO-HEADED ARROW WITH VERTICAL STROKE]" ~~ m/^<-<?InSupplementalArrowsB>>$/ ), q{Don't match externally inverted <?InSupplementalArrowsB>} );
-ok(!( "\c[RIGHTWARDS TWO-HEADED ARROW WITH VERTICAL STROKE]" ~~ m/^<[A]-<?InSupplementalArrowsB>>$/ ), q{Don't match compound inverted <?InSupplementalArrowsB>} );
-ok(!( "\c[RIGHTWARDS TWO-HEADED ARROW WITH VERTICAL STROKE]" ~~ m/^<+<-InSupplementalArrowsB>>$/ ), q{Don't match internally inverted <?InSupplementalArrowsB>} );
-ok(!( "\x[1D7D]"  ~~ m/^<+<?InSupplementalArrowsB>>$/ ), q{Don't match unrelated <?InSupplementalArrowsB>} );
-ok("\x[1D7D]"  ~~ m/^<-<?InSupplementalArrowsB>>$/, q{Match unrelated externally inverted <?InSupplementalArrowsB>} );
-ok("\x[1D7D]"  ~~ m/^<+<-InSupplementalArrowsB>>$/, q{Match unrelated internally inverted <?InSupplementalArrowsB>} );
-ok("\x[1D7D]\c[RIGHTWARDS TWO-HEADED ARROW WITH VERTICAL STROKE]" ~~ m/<+<?InSupplementalArrowsB>>/, q{Match unanchored <?InSupplementalArrowsB>} );
+ok("\c[RIGHTWARDS TWO-HEADED ARROW WITH VERTICAL STROKE]" ~~ m/^<+<?isInSupplementalArrowsB>>$/, q{Match <?isInSupplementalArrowsB>} );
+ok("\c[RIGHTWARDS TWO-HEADED ARROW WITH VERTICAL STROKE]" ~~ m/^<[A]+<?isInSupplementalArrowsB>>$/, q{Match compound <?isInSupplementalArrowsB>} );
+ok(!( "\c[RIGHTWARDS TWO-HEADED ARROW WITH VERTICAL STROKE]" ~~ m/^<-<?isInSupplementalArrowsB>>$/ ), q{Don't match externally inverted <?isInSupplementalArrowsB>} );
+ok(!( "\c[RIGHTWARDS TWO-HEADED ARROW WITH VERTICAL STROKE]" ~~ m/^<[A]-<?isInSupplementalArrowsB>>$/ ), q{Don't match compound inverted <?isInSupplementalArrowsB>} );
+ok(!( "\c[RIGHTWARDS TWO-HEADED ARROW WITH VERTICAL STROKE]" ~~ m/^<+<-isInSupplementalArrowsB>>$/ ), q{Don't match internally inverted <?isInSupplementalArrowsB>} );
+ok(!( "\x[1D7D]"  ~~ m/^<+<?isInSupplementalArrowsB>>$/ ), q{Don't match unrelated <?isInSupplementalArrowsB>} );
+ok("\x[1D7D]"  ~~ m/^<-<?isInSupplementalArrowsB>>$/, q{Match unrelated externally inverted <?isInSupplementalArrowsB>} );
+ok("\x[1D7D]"  ~~ m/^<+<-isInSupplementalArrowsB>>$/, q{Match unrelated internally inverted <?isInSupplementalArrowsB>} );
+ok("\x[1D7D]\c[RIGHTWARDS TWO-HEADED ARROW WITH VERTICAL STROKE]" ~~ m/<+<?isInSupplementalArrowsB>>/, q{Match unanchored <?isInSupplementalArrowsB>} );
 
 # InSupplementalMathematicalOperators
 
 
-ok("\c[N-ARY CIRCLED DOT OPERATOR]" ~~ m/^<+<?InSupplementalMathematicalOperators>>$/, q{Match <?InSupplementalMathematicalOperators>} );
-ok("\c[N-ARY CIRCLED DOT OPERATOR]" ~~ m/^<[A]+<?InSupplementalMathematicalOperators>>$/, q{Match compound <?InSupplementalMathematicalOperators>} );
-ok(!( "\c[N-ARY CIRCLED DOT OPERATOR]" ~~ m/^<-<?InSupplementalMathematicalOperators>>$/ ), q{Don't match externally inverted <?InSupplementalMathematicalOperators>} );
-ok(!( "\c[N-ARY CIRCLED DOT OPERATOR]" ~~ m/^<[A]-<?InSupplementalMathematicalOperators>>$/ ), q{Don't match compound inverted <?InSupplementalMathematicalOperators>} );
-ok(!( "\c[N-ARY CIRCLED DOT OPERATOR]" ~~ m/^<+<-InSupplementalMathematicalOperators>>$/ ), q{Don't match internally inverted <?InSupplementalMathematicalOperators>} );
-ok(!( "\c[YI SYLLABLE TAX]"  ~~ m/^<+<?InSupplementalMathematicalOperators>>$/ ), q{Don't match unrelated <?InSupplementalMathematicalOperators>} );
-ok("\c[YI SYLLABLE TAX]"  ~~ m/^<-<?InSupplementalMathematicalOperators>>$/, q{Match unrelated externally inverted <?InSupplementalMathematicalOperators>} );
-ok("\c[YI SYLLABLE TAX]"  ~~ m/^<+<-InSupplementalMathematicalOperators>>$/, q{Match unrelated internally inverted <?InSupplementalMathematicalOperators>} );
-ok("\c[YI SYLLABLE TAX]\c[N-ARY CIRCLED DOT OPERATOR]" ~~ m/<+<?InSupplementalMathematicalOperators>>/, q{Match unanchored <?InSupplementalMathematicalOperators>} );
+ok("\c[N-ARY CIRCLED DOT OPERATOR]" ~~ m/^<+<?isInSupplementalMathematicalOperators>>$/, q{Match <?isInSupplementalMathematicalOperators>} );
+ok("\c[N-ARY CIRCLED DOT OPERATOR]" ~~ m/^<[A]+<?isInSupplementalMathematicalOperators>>$/, q{Match compound <?isInSupplementalMathematicalOperators>} );
+ok(!( "\c[N-ARY CIRCLED DOT OPERATOR]" ~~ m/^<-<?isInSupplementalMathematicalOperators>>$/ ), q{Don't match externally inverted <?isInSupplementalMathematicalOperators>} );
+ok(!( "\c[N-ARY CIRCLED DOT OPERATOR]" ~~ m/^<[A]-<?isInSupplementalMathematicalOperators>>$/ ), q{Don't match compound inverted <?isInSupplementalMathematicalOperators>} );
+ok(!( "\c[N-ARY CIRCLED DOT OPERATOR]" ~~ m/^<+<-isInSupplementalMathematicalOperators>>$/ ), q{Don't match internally inverted <?isInSupplementalMathematicalOperators>} );
+ok(!( "\c[YI SYLLABLE TAX]"  ~~ m/^<+<?isInSupplementalMathematicalOperators>>$/ ), q{Don't match unrelated <?isInSupplementalMathematicalOperators>} );
+ok("\c[YI SYLLABLE TAX]"  ~~ m/^<-<?isInSupplementalMathematicalOperators>>$/, q{Match unrelated externally inverted <?isInSupplementalMathematicalOperators>} );
+ok("\c[YI SYLLABLE TAX]"  ~~ m/^<+<-isInSupplementalMathematicalOperators>>$/, q{Match unrelated internally inverted <?isInSupplementalMathematicalOperators>} );
+ok("\c[YI SYLLABLE TAX]\c[N-ARY CIRCLED DOT OPERATOR]" ~~ m/<+<?isInSupplementalMathematicalOperators>>/, q{Match unanchored <?isInSupplementalMathematicalOperators>} );
 
 # InSupplementaryPrivateUseAreaA
 
 
-ok(!( "\c[TIBETAN LETTER PHA]"  ~~ m/^<+<?InSupplementaryPrivateUseAreaA>>$/ ), q{Don't match unrelated <?InSupplementaryPrivateUseAreaA>} );
-ok("\c[TIBETAN LETTER PHA]"  ~~ m/^<-<?InSupplementaryPrivateUseAreaA>>$/, q{Match unrelated externally inverted <?InSupplementaryPrivateUseAreaA>} );
-ok("\c[TIBETAN LETTER PHA]"  ~~ m/^<+<-InSupplementaryPrivateUseAreaA>>$/, q{Match unrelated internally inverted <?InSupplementaryPrivateUseAreaA>} );
+ok(!( "\c[TIBETAN LETTER PHA]"  ~~ m/^<+<?isInSupplementaryPrivateUseAreaA>>$/ ), q{Don't match unrelated <?isInSupplementaryPrivateUseAreaA>} );
+ok("\c[TIBETAN LETTER PHA]"  ~~ m/^<-<?isInSupplementaryPrivateUseAreaA>>$/, q{Match unrelated externally inverted <?isInSupplementaryPrivateUseAreaA>} );
+ok("\c[TIBETAN LETTER PHA]"  ~~ m/^<+<-isInSupplementaryPrivateUseAreaA>>$/, q{Match unrelated internally inverted <?isInSupplementaryPrivateUseAreaA>} );
 
 # InSupplementaryPrivateUseAreaB
 
 
-ok(!( "\x[7E65]"  ~~ m/^<+<?InSupplementaryPrivateUseAreaB>>$/ ), q{Don't match unrelated <?InSupplementaryPrivateUseAreaB>} );
-ok("\x[7E65]"  ~~ m/^<-<?InSupplementaryPrivateUseAreaB>>$/, q{Match unrelated externally inverted <?InSupplementaryPrivateUseAreaB>} );
-ok("\x[7E65]"  ~~ m/^<+<-InSupplementaryPrivateUseAreaB>>$/, q{Match unrelated internally inverted <?InSupplementaryPrivateUseAreaB>} );
+ok(!( "\x[7E65]"  ~~ m/^<+<?isInSupplementaryPrivateUseAreaB>>$/ ), q{Don't match unrelated <?isInSupplementaryPrivateUseAreaB>} );
+ok("\x[7E65]"  ~~ m/^<-<?isInSupplementaryPrivateUseAreaB>>$/, q{Match unrelated externally inverted <?isInSupplementaryPrivateUseAreaB>} );
+ok("\x[7E65]"  ~~ m/^<+<-isInSupplementaryPrivateUseAreaB>>$/, q{Match unrelated internally inverted <?isInSupplementaryPrivateUseAreaB>} );
 
 # InSyriac
 
 
-ok("\c[SYRIAC END OF PARAGRAPH]" ~~ m/^<+<?InSyriac>>$/, q{Match <?InSyriac>} );
-ok("\c[SYRIAC END OF PARAGRAPH]" ~~ m/^<[A]+<?InSyriac>>$/, q{Match compound <?InSyriac>} );
-ok(!( "\c[SYRIAC END OF PARAGRAPH]" ~~ m/^<-<?InSyriac>>$/ ), q{Don't match externally inverted <?InSyriac>} );
-ok(!( "\c[SYRIAC END OF PARAGRAPH]" ~~ m/^<[A]-<?InSyriac>>$/ ), q{Don't match compound inverted <?InSyriac>} );
-ok(!( "\c[SYRIAC END OF PARAGRAPH]" ~~ m/^<+<-InSyriac>>$/ ), q{Don't match internally inverted <?InSyriac>} );
-ok(!( "\x[CA1C]"  ~~ m/^<+<?InSyriac>>$/ ), q{Don't match unrelated <?InSyriac>} );
-ok("\x[CA1C]"  ~~ m/^<-<?InSyriac>>$/, q{Match unrelated externally inverted <?InSyriac>} );
-ok("\x[CA1C]"  ~~ m/^<+<-InSyriac>>$/, q{Match unrelated internally inverted <?InSyriac>} );
-ok("\x[CA1C]\c[SYRIAC END OF PARAGRAPH]" ~~ m/<+<?InSyriac>>/, q{Match unanchored <?InSyriac>} );
+ok("\c[SYRIAC END OF PARAGRAPH]" ~~ m/^<+<?isInSyriac>>$/, q{Match <?isInSyriac>} );
+ok("\c[SYRIAC END OF PARAGRAPH]" ~~ m/^<[A]+<?isInSyriac>>$/, q{Match compound <?isInSyriac>} );
+ok(!( "\c[SYRIAC END OF PARAGRAPH]" ~~ m/^<-<?isInSyriac>>$/ ), q{Don't match externally inverted <?isInSyriac>} );
+ok(!( "\c[SYRIAC END OF PARAGRAPH]" ~~ m/^<[A]-<?isInSyriac>>$/ ), q{Don't match compound inverted <?isInSyriac>} );
+ok(!( "\c[SYRIAC END OF PARAGRAPH]" ~~ m/^<+<-isInSyriac>>$/ ), q{Don't match internally inverted <?isInSyriac>} );
+ok(!( "\x[CA1C]"  ~~ m/^<+<?isInSyriac>>$/ ), q{Don't match unrelated <?isInSyriac>} );
+ok("\x[CA1C]"  ~~ m/^<-<?isInSyriac>>$/, q{Match unrelated externally inverted <?isInSyriac>} );
+ok("\x[CA1C]"  ~~ m/^<+<-isInSyriac>>$/, q{Match unrelated internally inverted <?isInSyriac>} );
+ok("\x[CA1C]\c[SYRIAC END OF PARAGRAPH]" ~~ m/<+<?isInSyriac>>/, q{Match unanchored <?isInSyriac>} );
 
 # InTagalog
 
 
-ok("\c[TAGALOG LETTER A]" ~~ m/^<+<?InTagalog>>$/, q{Match <?InTagalog>} );
-ok("\c[TAGALOG LETTER A]" ~~ m/^<[A]+<?InTagalog>>$/, q{Match compound <?InTagalog>} );
-ok(!( "\c[TAGALOG LETTER A]" ~~ m/^<-<?InTagalog>>$/ ), q{Don't match externally inverted <?InTagalog>} );
-ok(!( "\c[TAGALOG LETTER A]" ~~ m/^<[A]-<?InTagalog>>$/ ), q{Don't match compound inverted <?InTagalog>} );
-ok(!( "\c[TAGALOG LETTER A]" ~~ m/^<+<-InTagalog>>$/ ), q{Don't match internally inverted <?InTagalog>} );
-ok(!( "\x[D49E]"  ~~ m/^<+<?InTagalog>>$/ ), q{Don't match unrelated <?InTagalog>} );
-ok("\x[D49E]"  ~~ m/^<-<?InTagalog>>$/, q{Match unrelated externally inverted <?InTagalog>} );
-ok("\x[D49E]"  ~~ m/^<+<-InTagalog>>$/, q{Match unrelated internally inverted <?InTagalog>} );
-ok("\x[D49E]\c[TAGALOG LETTER A]" ~~ m/<+<?InTagalog>>/, q{Match unanchored <?InTagalog>} );
+ok("\c[TAGALOG LETTER A]" ~~ m/^<+<?isInTagalog>>$/, q{Match <?isInTagalog>} );
+ok("\c[TAGALOG LETTER A]" ~~ m/^<[A]+<?isInTagalog>>$/, q{Match compound <?isInTagalog>} );
+ok(!( "\c[TAGALOG LETTER A]" ~~ m/^<-<?isInTagalog>>$/ ), q{Don't match externally inverted <?isInTagalog>} );
+ok(!( "\c[TAGALOG LETTER A]" ~~ m/^<[A]-<?isInTagalog>>$/ ), q{Don't match compound inverted <?isInTagalog>} );
+ok(!( "\c[TAGALOG LETTER A]" ~~ m/^<+<-isInTagalog>>$/ ), q{Don't match internally inverted <?isInTagalog>} );
+ok(!( "\x[D49E]"  ~~ m/^<+<?isInTagalog>>$/ ), q{Don't match unrelated <?isInTagalog>} );
+ok("\x[D49E]"  ~~ m/^<-<?isInTagalog>>$/, q{Match unrelated externally inverted <?isInTagalog>} );
+ok("\x[D49E]"  ~~ m/^<+<-isInTagalog>>$/, q{Match unrelated internally inverted <?isInTagalog>} );
+ok("\x[D49E]\c[TAGALOG LETTER A]" ~~ m/<+<?isInTagalog>>/, q{Match unanchored <?isInTagalog>} );
 
 # InTagbanwa
 
 
-ok("\c[TAGBANWA LETTER A]" ~~ m/^<+<?InTagbanwa>>$/, q{Match <?InTagbanwa>} );
-ok("\c[TAGBANWA LETTER A]" ~~ m/^<[A]+<?InTagbanwa>>$/, q{Match compound <?InTagbanwa>} );
-ok(!( "\c[TAGBANWA LETTER A]" ~~ m/^<-<?InTagbanwa>>$/ ), q{Don't match externally inverted <?InTagbanwa>} );
-ok(!( "\c[TAGBANWA LETTER A]" ~~ m/^<[A]-<?InTagbanwa>>$/ ), q{Don't match compound inverted <?InTagbanwa>} );
-ok(!( "\c[TAGBANWA LETTER A]" ~~ m/^<+<-InTagbanwa>>$/ ), q{Don't match internally inverted <?InTagbanwa>} );
-ok(!( "\x[AFAA]"  ~~ m/^<+<?InTagbanwa>>$/ ), q{Don't match unrelated <?InTagbanwa>} );
-ok("\x[AFAA]"  ~~ m/^<-<?InTagbanwa>>$/, q{Match unrelated externally inverted <?InTagbanwa>} );
-ok("\x[AFAA]"  ~~ m/^<+<-InTagbanwa>>$/, q{Match unrelated internally inverted <?InTagbanwa>} );
-ok("\x[AFAA]\c[TAGBANWA LETTER A]" ~~ m/<+<?InTagbanwa>>/, q{Match unanchored <?InTagbanwa>} );
+ok("\c[TAGBANWA LETTER A]" ~~ m/^<+<?isInTagbanwa>>$/, q{Match <?isInTagbanwa>} );
+ok("\c[TAGBANWA LETTER A]" ~~ m/^<[A]+<?isInTagbanwa>>$/, q{Match compound <?isInTagbanwa>} );
+ok(!( "\c[TAGBANWA LETTER A]" ~~ m/^<-<?isInTagbanwa>>$/ ), q{Don't match externally inverted <?isInTagbanwa>} );
+ok(!( "\c[TAGBANWA LETTER A]" ~~ m/^<[A]-<?isInTagbanwa>>$/ ), q{Don't match compound inverted <?isInTagbanwa>} );
+ok(!( "\c[TAGBANWA LETTER A]" ~~ m/^<+<-isInTagbanwa>>$/ ), q{Don't match internally inverted <?isInTagbanwa>} );
+ok(!( "\x[AFAA]"  ~~ m/^<+<?isInTagbanwa>>$/ ), q{Don't match unrelated <?isInTagbanwa>} );
+ok("\x[AFAA]"  ~~ m/^<-<?isInTagbanwa>>$/, q{Match unrelated externally inverted <?isInTagbanwa>} );
+ok("\x[AFAA]"  ~~ m/^<+<-isInTagbanwa>>$/, q{Match unrelated internally inverted <?isInTagbanwa>} );
+ok("\x[AFAA]\c[TAGBANWA LETTER A]" ~~ m/<+<?isInTagbanwa>>/, q{Match unanchored <?isInTagbanwa>} );
 
 # InTags
 
 
-ok(!( "\x[CA38]"  ~~ m/^<+<?InTags>>$/ ), q{Don't match unrelated <?InTags>} );
-ok("\x[CA38]"  ~~ m/^<-<?InTags>>$/, q{Match unrelated externally inverted <?InTags>} );
-ok("\x[CA38]"  ~~ m/^<+<-InTags>>$/, q{Match unrelated internally inverted <?InTags>} );
+ok(!( "\x[CA38]"  ~~ m/^<+<?isInTags>>$/ ), q{Don't match unrelated <?isInTags>} );
+ok("\x[CA38]"  ~~ m/^<-<?isInTags>>$/, q{Match unrelated externally inverted <?isInTags>} );
+ok("\x[CA38]"  ~~ m/^<+<-isInTags>>$/, q{Match unrelated internally inverted <?isInTags>} );
 
 # InTamil
 
 
-ok("\x[0B80]" ~~ m/^<+<?InTamil>>$/, q{Match <?InTamil>} );
-ok("\x[0B80]" ~~ m/^<[A]+<?InTamil>>$/, q{Match compound <?InTamil>} );
-ok(!( "\x[0B80]" ~~ m/^<-<?InTamil>>$/ ), q{Don't match externally inverted <?InTamil>} );
-ok(!( "\x[0B80]" ~~ m/^<[A]-<?InTamil>>$/ ), q{Don't match compound inverted <?InTamil>} );
-ok(!( "\x[0B80]" ~~ m/^<+<-InTamil>>$/ ), q{Don't match internally inverted <?InTamil>} );
-ok(!( "\x[D44B]"  ~~ m/^<+<?InTamil>>$/ ), q{Don't match unrelated <?InTamil>} );
-ok("\x[D44B]"  ~~ m/^<-<?InTamil>>$/, q{Match unrelated externally inverted <?InTamil>} );
-ok("\x[D44B]"  ~~ m/^<+<-InTamil>>$/, q{Match unrelated internally inverted <?InTamil>} );
-ok("\x[D44B]\x[0B80]" ~~ m/<+<?InTamil>>/, q{Match unanchored <?InTamil>} );
+ok("\x[0B80]" ~~ m/^<+<?isInTamil>>$/, q{Match <?isInTamil>} );
+ok("\x[0B80]" ~~ m/^<[A]+<?isInTamil>>$/, q{Match compound <?isInTamil>} );
+ok(!( "\x[0B80]" ~~ m/^<-<?isInTamil>>$/ ), q{Don't match externally inverted <?isInTamil>} );
+ok(!( "\x[0B80]" ~~ m/^<[A]-<?isInTamil>>$/ ), q{Don't match compound inverted <?isInTamil>} );
+ok(!( "\x[0B80]" ~~ m/^<+<-isInTamil>>$/ ), q{Don't match internally inverted <?isInTamil>} );
+ok(!( "\x[D44B]"  ~~ m/^<+<?isInTamil>>$/ ), q{Don't match unrelated <?isInTamil>} );
+ok("\x[D44B]"  ~~ m/^<-<?isInTamil>>$/, q{Match unrelated externally inverted <?isInTamil>} );
+ok("\x[D44B]"  ~~ m/^<+<-isInTamil>>$/, q{Match unrelated internally inverted <?isInTamil>} );
+ok("\x[D44B]\x[0B80]" ~~ m/<+<?isInTamil>>/, q{Match unanchored <?isInTamil>} );
 
 # InTelugu
 
 
-ok("\x[0C00]" ~~ m/^<+<?InTelugu>>$/, q{Match <?InTelugu>} );
-ok("\x[0C00]" ~~ m/^<[A]+<?InTelugu>>$/, q{Match compound <?InTelugu>} );
-ok(!( "\x[0C00]" ~~ m/^<-<?InTelugu>>$/ ), q{Don't match externally inverted <?InTelugu>} );
-ok(!( "\x[0C00]" ~~ m/^<[A]-<?InTelugu>>$/ ), q{Don't match compound inverted <?InTelugu>} );
-ok(!( "\x[0C00]" ~~ m/^<+<-InTelugu>>$/ ), q{Don't match internally inverted <?InTelugu>} );
-ok(!( "\x[D3E7]"  ~~ m/^<+<?InTelugu>>$/ ), q{Don't match unrelated <?InTelugu>} );
-ok("\x[D3E7]"  ~~ m/^<-<?InTelugu>>$/, q{Match unrelated externally inverted <?InTelugu>} );
-ok("\x[D3E7]"  ~~ m/^<+<-InTelugu>>$/, q{Match unrelated internally inverted <?InTelugu>} );
-ok("\x[D3E7]\x[0C00]" ~~ m/<+<?InTelugu>>/, q{Match unanchored <?InTelugu>} );
+ok("\x[0C00]" ~~ m/^<+<?isInTelugu>>$/, q{Match <?isInTelugu>} );
+ok("\x[0C00]" ~~ m/^<[A]+<?isInTelugu>>$/, q{Match compound <?isInTelugu>} );
+ok(!( "\x[0C00]" ~~ m/^<-<?isInTelugu>>$/ ), q{Don't match externally inverted <?isInTelugu>} );
+ok(!( "\x[0C00]" ~~ m/^<[A]-<?isInTelugu>>$/ ), q{Don't match compound inverted <?isInTelugu>} );
+ok(!( "\x[0C00]" ~~ m/^<+<-isInTelugu>>$/ ), q{Don't match internally inverted <?isInTelugu>} );
+ok(!( "\x[D3E7]"  ~~ m/^<+<?isInTelugu>>$/ ), q{Don't match unrelated <?isInTelugu>} );
+ok("\x[D3E7]"  ~~ m/^<-<?isInTelugu>>$/, q{Match unrelated externally inverted <?isInTelugu>} );
+ok("\x[D3E7]"  ~~ m/^<+<-isInTelugu>>$/, q{Match unrelated internally inverted <?isInTelugu>} );
+ok("\x[D3E7]\x[0C00]" ~~ m/<+<?isInTelugu>>/, q{Match unanchored <?isInTelugu>} );
 
 # InThaana
 
 
-ok("\c[THAANA LETTER HAA]" ~~ m/^<+<?InThaana>>$/, q{Match <?InThaana>} );
-ok("\c[THAANA LETTER HAA]" ~~ m/^<[A]+<?InThaana>>$/, q{Match compound <?InThaana>} );
-ok(!( "\c[THAANA LETTER HAA]" ~~ m/^<-<?InThaana>>$/ ), q{Don't match externally inverted <?InThaana>} );
-ok(!( "\c[THAANA LETTER HAA]" ~~ m/^<[A]-<?InThaana>>$/ ), q{Don't match compound inverted <?InThaana>} );
-ok(!( "\c[THAANA LETTER HAA]" ~~ m/^<+<-InThaana>>$/ ), q{Don't match internally inverted <?InThaana>} );
-ok(!( "\c[YI SYLLABLE QIT]"  ~~ m/^<+<?InThaana>>$/ ), q{Don't match unrelated <?InThaana>} );
-ok("\c[YI SYLLABLE QIT]"  ~~ m/^<-<?InThaana>>$/, q{Match unrelated externally inverted <?InThaana>} );
-ok("\c[YI SYLLABLE QIT]"  ~~ m/^<+<-InThaana>>$/, q{Match unrelated internally inverted <?InThaana>} );
-ok("\c[YI SYLLABLE QIT]\c[THAANA LETTER HAA]" ~~ m/<+<?InThaana>>/, q{Match unanchored <?InThaana>} );
+ok("\c[THAANA LETTER HAA]" ~~ m/^<+<?isInThaana>>$/, q{Match <?isInThaana>} );
+ok("\c[THAANA LETTER HAA]" ~~ m/^<[A]+<?isInThaana>>$/, q{Match compound <?isInThaana>} );
+ok(!( "\c[THAANA LETTER HAA]" ~~ m/^<-<?isInThaana>>$/ ), q{Don't match externally inverted <?isInThaana>} );
+ok(!( "\c[THAANA LETTER HAA]" ~~ m/^<[A]-<?isInThaana>>$/ ), q{Don't match compound inverted <?isInThaana>} );
+ok(!( "\c[THAANA LETTER HAA]" ~~ m/^<+<-isInThaana>>$/ ), q{Don't match internally inverted <?isInThaana>} );
+ok(!( "\c[YI SYLLABLE QIT]"  ~~ m/^<+<?isInThaana>>$/ ), q{Don't match unrelated <?isInThaana>} );
+ok("\c[YI SYLLABLE QIT]"  ~~ m/^<-<?isInThaana>>$/, q{Match unrelated externally inverted <?isInThaana>} );
+ok("\c[YI SYLLABLE QIT]"  ~~ m/^<+<-isInThaana>>$/, q{Match unrelated internally inverted <?isInThaana>} );
+ok("\c[YI SYLLABLE QIT]\c[THAANA LETTER HAA]" ~~ m/<+<?isInThaana>>/, q{Match unanchored <?isInThaana>} );
 
 # InThai
 
 
-ok("\x[0E00]" ~~ m/^<+<?InThai>>$/, q{Match <?InThai>} );
-ok("\x[0E00]" ~~ m/^<[A]+<?InThai>>$/, q{Match compound <?InThai>} );
-ok(!( "\x[0E00]" ~~ m/^<-<?InThai>>$/ ), q{Don't match externally inverted <?InThai>} );
-ok(!( "\x[0E00]" ~~ m/^<[A]-<?InThai>>$/ ), q{Don't match compound inverted <?InThai>} );
-ok(!( "\x[0E00]" ~~ m/^<+<-InThai>>$/ ), q{Don't match internally inverted <?InThai>} );
-ok(!( "\x[BCED]"  ~~ m/^<+<?InThai>>$/ ), q{Don't match unrelated <?InThai>} );
-ok("\x[BCED]"  ~~ m/^<-<?InThai>>$/, q{Match unrelated externally inverted <?InThai>} );
-ok("\x[BCED]"  ~~ m/^<+<-InThai>>$/, q{Match unrelated internally inverted <?InThai>} );
-ok("\x[BCED]\x[0E00]" ~~ m/<+<?InThai>>/, q{Match unanchored <?InThai>} );
+ok("\x[0E00]" ~~ m/^<+<?isInThai>>$/, q{Match <?isInThai>} );
+ok("\x[0E00]" ~~ m/^<[A]+<?isInThai>>$/, q{Match compound <?isInThai>} );
+ok(!( "\x[0E00]" ~~ m/^<-<?isInThai>>$/ ), q{Don't match externally inverted <?isInThai>} );
+ok(!( "\x[0E00]" ~~ m/^<[A]-<?isInThai>>$/ ), q{Don't match compound inverted <?isInThai>} );
+ok(!( "\x[0E00]" ~~ m/^<+<-isInThai>>$/ ), q{Don't match internally inverted <?isInThai>} );
+ok(!( "\x[BCED]"  ~~ m/^<+<?isInThai>>$/ ), q{Don't match unrelated <?isInThai>} );
+ok("\x[BCED]"  ~~ m/^<-<?isInThai>>$/, q{Match unrelated externally inverted <?isInThai>} );
+ok("\x[BCED]"  ~~ m/^<+<-isInThai>>$/, q{Match unrelated internally inverted <?isInThai>} );
+ok("\x[BCED]\x[0E00]" ~~ m/<+<?isInThai>>/, q{Match unanchored <?isInThai>} );
 
 # InTibetan
 
 
-ok("\c[TIBETAN SYLLABLE OM]" ~~ m/^<+<?InTibetan>>$/, q{Match <?InTibetan>} );
-ok("\c[TIBETAN SYLLABLE OM]" ~~ m/^<[A]+<?InTibetan>>$/, q{Match compound <?InTibetan>} );
-ok(!( "\c[TIBETAN SYLLABLE OM]" ~~ m/^<-<?InTibetan>>$/ ), q{Don't match externally inverted <?InTibetan>} );
-ok(!( "\c[TIBETAN SYLLABLE OM]" ~~ m/^<[A]-<?InTibetan>>$/ ), q{Don't match compound inverted <?InTibetan>} );
-ok(!( "\c[TIBETAN SYLLABLE OM]" ~~ m/^<+<-InTibetan>>$/ ), q{Don't match internally inverted <?InTibetan>} );
-ok(!( "\c[ARABIC SIGN SINDHI AMPERSAND]"  ~~ m/^<+<?InTibetan>>$/ ), q{Don't match unrelated <?InTibetan>} );
-ok("\c[ARABIC SIGN SINDHI AMPERSAND]"  ~~ m/^<-<?InTibetan>>$/, q{Match unrelated externally inverted <?InTibetan>} );
-ok("\c[ARABIC SIGN SINDHI AMPERSAND]"  ~~ m/^<+<-InTibetan>>$/, q{Match unrelated internally inverted <?InTibetan>} );
-ok("\c[ARABIC SIGN SINDHI AMPERSAND]\c[TIBETAN SYLLABLE OM]" ~~ m/<+<?InTibetan>>/, q{Match unanchored <?InTibetan>} );
+ok("\c[TIBETAN SYLLABLE OM]" ~~ m/^<+<?isInTibetan>>$/, q{Match <?isInTibetan>} );
+ok("\c[TIBETAN SYLLABLE OM]" ~~ m/^<[A]+<?isInTibetan>>$/, q{Match compound <?isInTibetan>} );
+ok(!( "\c[TIBETAN SYLLABLE OM]" ~~ m/^<-<?isInTibetan>>$/ ), q{Don't match externally inverted <?isInTibetan>} );
+ok(!( "\c[TIBETAN SYLLABLE OM]" ~~ m/^<[A]-<?isInTibetan>>$/ ), q{Don't match compound inverted <?isInTibetan>} );
+ok(!( "\c[TIBETAN SYLLABLE OM]" ~~ m/^<+<-isInTibetan>>$/ ), q{Don't match internally inverted <?isInTibetan>} );
+ok(!( "\c[ARABIC SIGN SINDHI AMPERSAND]"  ~~ m/^<+<?isInTibetan>>$/ ), q{Don't match unrelated <?isInTibetan>} );
+ok("\c[ARABIC SIGN SINDHI AMPERSAND]"  ~~ m/^<-<?isInTibetan>>$/, q{Match unrelated externally inverted <?isInTibetan>} );
+ok("\c[ARABIC SIGN SINDHI AMPERSAND]"  ~~ m/^<+<-isInTibetan>>$/, q{Match unrelated internally inverted <?isInTibetan>} );
+ok("\c[ARABIC SIGN SINDHI AMPERSAND]\c[TIBETAN SYLLABLE OM]" ~~ m/<+<?isInTibetan>>/, q{Match unanchored <?isInTibetan>} );
 
 # InUnifiedCanadianAboriginalSyllabics
 
 
-ok("\x[1400]" ~~ m/^<+<?InUnifiedCanadianAboriginalSyllabics>>$/, q{Match <?InUnifiedCanadianAboriginalSyllabics>} );
-ok("\x[1400]" ~~ m/^<[A]+<?InUnifiedCanadianAboriginalSyllabics>>$/, q{Match compound <?InUnifiedCanadianAboriginalSyllabics>} );
-ok(!( "\x[1400]" ~~ m/^<-<?InUnifiedCanadianAboriginalSyllabics>>$/ ), q{Don't match externally inverted <?InUnifiedCanadianAboriginalSyllabics>} );
-ok(!( "\x[1400]" ~~ m/^<[A]-<?InUnifiedCanadianAboriginalSyllabics>>$/ ), q{Don't match compound inverted <?InUnifiedCanadianAboriginalSyllabics>} );
-ok(!( "\x[1400]" ~~ m/^<+<-InUnifiedCanadianAboriginalSyllabics>>$/ ), q{Don't match internally inverted <?InUnifiedCanadianAboriginalSyllabics>} );
-ok(!( "\x[49D8]"  ~~ m/^<+<?InUnifiedCanadianAboriginalSyllabics>>$/ ), q{Don't match unrelated <?InUnifiedCanadianAboriginalSyllabics>} );
-ok("\x[49D8]"  ~~ m/^<-<?InUnifiedCanadianAboriginalSyllabics>>$/, q{Match unrelated externally inverted <?InUnifiedCanadianAboriginalSyllabics>} );
-ok("\x[49D8]"  ~~ m/^<+<-InUnifiedCanadianAboriginalSyllabics>>$/, q{Match unrelated internally inverted <?InUnifiedCanadianAboriginalSyllabics>} );
-ok("\x[49D8]\x[1400]" ~~ m/<+<?InUnifiedCanadianAboriginalSyllabics>>/, q{Match unanchored <?InUnifiedCanadianAboriginalSyllabics>} );
+ok("\x[1400]" ~~ m/^<+<?isInUnifiedCanadianAboriginalSyllabics>>$/, q{Match <?isInUnifiedCanadianAboriginalSyllabics>} );
+ok("\x[1400]" ~~ m/^<[A]+<?isInUnifiedCanadianAboriginalSyllabics>>$/, q{Match compound <?isInUnifiedCanadianAboriginalSyllabics>} );
+ok(!( "\x[1400]" ~~ m/^<-<?isInUnifiedCanadianAboriginalSyllabics>>$/ ), q{Don't match externally inverted <?isInUnifiedCanadianAboriginalSyllabics>} );
+ok(!( "\x[1400]" ~~ m/^<[A]-<?isInUnifiedCanadianAboriginalSyllabics>>$/ ), q{Don't match compound inverted <?isInUnifiedCanadianAboriginalSyllabics>} );
+ok(!( "\x[1400]" ~~ m/^<+<-isInUnifiedCanadianAboriginalSyllabics>>$/ ), q{Don't match internally inverted <?isInUnifiedCanadianAboriginalSyllabics>} );
+ok(!( "\x[49D8]"  ~~ m/^<+<?isInUnifiedCanadianAboriginalSyllabics>>$/ ), q{Don't match unrelated <?isInUnifiedCanadianAboriginalSyllabics>} );
+ok("\x[49D8]"  ~~ m/^<-<?isInUnifiedCanadianAboriginalSyllabics>>$/, q{Match unrelated externally inverted <?isInUnifiedCanadianAboriginalSyllabics>} );
+ok("\x[49D8]"  ~~ m/^<+<-isInUnifiedCanadianAboriginalSyllabics>>$/, q{Match unrelated internally inverted <?isInUnifiedCanadianAboriginalSyllabics>} );
+ok("\x[49D8]\x[1400]" ~~ m/<+<?isInUnifiedCanadianAboriginalSyllabics>>/, q{Match unanchored <?isInUnifiedCanadianAboriginalSyllabics>} );
 
 # InVariationSelectors
 
 
-ok(!( "\x[5307]"  ~~ m/^<+<?InVariationSelectors>>$/ ), q{Don't match unrelated <?InVariationSelectors>} );
-ok("\x[5307]"  ~~ m/^<-<?InVariationSelectors>>$/, q{Match unrelated externally inverted <?InVariationSelectors>} );
-ok("\x[5307]"  ~~ m/^<+<-InVariationSelectors>>$/, q{Match unrelated internally inverted <?InVariationSelectors>} );
+ok(!( "\x[5307]"  ~~ m/^<+<?isInVariationSelectors>>$/ ), q{Don't match unrelated <?isInVariationSelectors>} );
+ok("\x[5307]"  ~~ m/^<-<?isInVariationSelectors>>$/, q{Match unrelated externally inverted <?isInVariationSelectors>} );
+ok("\x[5307]"  ~~ m/^<+<-isInVariationSelectors>>$/, q{Match unrelated internally inverted <?isInVariationSelectors>} );
 
 # InYiRadicals
 
 
-ok("\c[YI RADICAL QOT]" ~~ m/^<+<?InYiRadicals>>$/, q{Match <?InYiRadicals>} );
-ok("\c[YI RADICAL QOT]" ~~ m/^<[A]+<?InYiRadicals>>$/, q{Match compound <?InYiRadicals>} );
-ok(!( "\c[YI RADICAL QOT]" ~~ m/^<-<?InYiRadicals>>$/ ), q{Don't match externally inverted <?InYiRadicals>} );
-ok(!( "\c[YI RADICAL QOT]" ~~ m/^<[A]-<?InYiRadicals>>$/ ), q{Don't match compound inverted <?InYiRadicals>} );
-ok(!( "\c[YI RADICAL QOT]" ~~ m/^<+<-InYiRadicals>>$/ ), q{Don't match internally inverted <?InYiRadicals>} );
-ok(!( "\x[7CAD]"  ~~ m/^<+<?InYiRadicals>>$/ ), q{Don't match unrelated <?InYiRadicals>} );
-ok("\x[7CAD]"  ~~ m/^<-<?InYiRadicals>>$/, q{Match unrelated externally inverted <?InYiRadicals>} );
-ok("\x[7CAD]"  ~~ m/^<+<-InYiRadicals>>$/, q{Match unrelated internally inverted <?InYiRadicals>} );
-ok("\x[7CAD]\c[YI RADICAL QOT]" ~~ m/<+<?InYiRadicals>>/, q{Match unanchored <?InYiRadicals>} );
+ok("\c[YI RADICAL QOT]" ~~ m/^<+<?isInYiRadicals>>$/, q{Match <?isInYiRadicals>} );
+ok("\c[YI RADICAL QOT]" ~~ m/^<[A]+<?isInYiRadicals>>$/, q{Match compound <?isInYiRadicals>} );
+ok(!( "\c[YI RADICAL QOT]" ~~ m/^<-<?isInYiRadicals>>$/ ), q{Don't match externally inverted <?isInYiRadicals>} );
+ok(!( "\c[YI RADICAL QOT]" ~~ m/^<[A]-<?isInYiRadicals>>$/ ), q{Don't match compound inverted <?isInYiRadicals>} );
+ok(!( "\c[YI RADICAL QOT]" ~~ m/^<+<-isInYiRadicals>>$/ ), q{Don't match internally inverted <?isInYiRadicals>} );
+ok(!( "\x[7CAD]"  ~~ m/^<+<?isInYiRadicals>>$/ ), q{Don't match unrelated <?isInYiRadicals>} );
+ok("\x[7CAD]"  ~~ m/^<-<?isInYiRadicals>>$/, q{Match unrelated externally inverted <?isInYiRadicals>} );
+ok("\x[7CAD]"  ~~ m/^<+<-isInYiRadicals>>$/, q{Match unrelated internally inverted <?isInYiRadicals>} );
+ok("\x[7CAD]\c[YI RADICAL QOT]" ~~ m/<+<?isInYiRadicals>>/, q{Match unanchored <?isInYiRadicals>} );
 
 # InYiSyllables
 
 
-ok("\c[YI SYLLABLE IT]" ~~ m/^<+<?InYiSyllables>>$/, q{Match <?InYiSyllables>} );
-ok("\c[YI SYLLABLE IT]" ~~ m/^<[A]+<?InYiSyllables>>$/, q{Match compound <?InYiSyllables>} );
-ok(!( "\c[YI SYLLABLE IT]" ~~ m/^<-<?InYiSyllables>>$/ ), q{Don't match externally inverted <?InYiSyllables>} );
-ok(!( "\c[YI SYLLABLE IT]" ~~ m/^<[A]-<?InYiSyllables>>$/ ), q{Don't match compound inverted <?InYiSyllables>} );
-ok(!( "\c[YI SYLLABLE IT]" ~~ m/^<+<-InYiSyllables>>$/ ), q{Don't match internally inverted <?InYiSyllables>} );
-ok(!( "\c[BRAILLE PATTERN DOTS-1578]"  ~~ m/^<+<?InYiSyllables>>$/ ), q{Don't match unrelated <?InYiSyllables>} );
-ok("\c[BRAILLE PATTERN DOTS-1578]"  ~~ m/^<-<?InYiSyllables>>$/, q{Match unrelated externally inverted <?InYiSyllables>} );
-ok("\c[BRAILLE PATTERN DOTS-1578]"  ~~ m/^<+<-InYiSyllables>>$/, q{Match unrelated internally inverted <?InYiSyllables>} );
-ok("\c[BRAILLE PATTERN DOTS-1578]\c[YI SYLLABLE IT]" ~~ m/<+<?InYiSyllables>>/, q{Match unanchored <?InYiSyllables>} );
+ok("\c[YI SYLLABLE IT]" ~~ m/^<+<?isInYiSyllables>>$/, q{Match <?isInYiSyllables>} );
+ok("\c[YI SYLLABLE IT]" ~~ m/^<[A]+<?isInYiSyllables>>$/, q{Match compound <?isInYiSyllables>} );
+ok(!( "\c[YI SYLLABLE IT]" ~~ m/^<-<?isInYiSyllables>>$/ ), q{Don't match externally inverted <?isInYiSyllables>} );
+ok(!( "\c[YI SYLLABLE IT]" ~~ m/^<[A]-<?isInYiSyllables>>$/ ), q{Don't match compound inverted <?isInYiSyllables>} );
+ok(!( "\c[YI SYLLABLE IT]" ~~ m/^<+<-isInYiSyllables>>$/ ), q{Don't match internally inverted <?isInYiSyllables>} );
+ok(!( "\c[BRAILLE PATTERN DOTS-1578]"  ~~ m/^<+<?isInYiSyllables>>$/ ), q{Don't match unrelated <?isInYiSyllables>} );
+ok("\c[BRAILLE PATTERN DOTS-1578]"  ~~ m/^<-<?isInYiSyllables>>$/, q{Match unrelated externally inverted <?isInYiSyllables>} );
+ok("\c[BRAILLE PATTERN DOTS-1578]"  ~~ m/^<+<-isInYiSyllables>>$/, q{Match unrelated internally inverted <?isInYiSyllables>} );
+ok("\c[BRAILLE PATTERN DOTS-1578]\c[YI SYLLABLE IT]" ~~ m/<+<?isInYiSyllables>>/, q{Match unanchored <?isInYiSyllables>} );
+
 
 }
 

@@ -3,16 +3,10 @@ use Test;
 
 =pod
 
-This file was derived from the perl5 CPAN module Perl6::Rules,
+This file was originally derived from the perl5 CPAN module Perl6::Rules,
 version 0.3 (12 Apr 2004), file t/noncap.t.
 
-It has (hopefully) been, and should continue to be, updated to
-be valid perl6.
-
 =cut
-
-skip_rest "This file was in t_disabled/.  Remove this SKIP when it works.";
-=begin END
 
 plan 8;
 
@@ -30,7 +24,7 @@ is($/[0], substr($str,1,-1), 'Correctly captured 1');
 ok($str ~~ m{a[b+]c}, 'Matched 2');
 ok($/, 'Saved 2');
 is($/, $str, 'Grabbed all 2');
-ok(!defined $/[0], "Correctly didn't capture 2");
+ok(!defined($/[0]), "Correctly didn't capture 2");
 
 }
 
