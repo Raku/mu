@@ -480,6 +480,10 @@ They C<eval> a string, and then pass the result to C<is> or C<ok>
 on success, or report that the C<eval> was not successful on failure. In the case of
 C<eval_dies_ok>, unsuccessful or failure was expected.
 
+The C<eval> does not occur in the context of the caller.
+Non-global lexicals will not be accessible, and the package will be different.
+If you need context, use a normal C<eval> inside a C<ok>, C<is> or C<dies_ok>.
+
 =head3 throws_ok
 
   throws_ok (Code &code, Any $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool
