@@ -843,7 +843,7 @@ reduceSyn syn [lhsExp, rhsExp]
 
 reduceSyn "q:code" [ body ] = expToEvalVal body
 
-reduceSyn "CCallDyn" (Val (VStr "*"):methExp:invExp:args) = do
+reduceSyn "CCallDyn" (Val (VStr quant):methExp:invExp:args) = do
     -- Experimental support for .*$meth, assuming single inheritance.
     str     <- fromVal =<< enterEvalContext (cxtItem "Str") methExp
     let meth = cast ('&':str)
@@ -857,12 +857,17 @@ reduceSyn "CCallDyn" (Val (VStr "*"):methExp:invExp:args) = do
                     _      -> invExp        -- re-evaluation assumed to be ok
             foundSub    <- findSub meth Nothing (klugedInv:args)
             case foundSub of
-                Left{}      -> retEmpty
+                Left{}      -> case quant of
+                    "+" -> do
+                        typ     <- fromVal invVal
+                        retError ("No such method in class " ++ showType typ) meth
+                    _   -> do
+                        retEmpty
                 Right sub   -> applySub sub Nothing (klugedInv:args)
-        Right sub | SubMethod <- subType sub -> do
+        Right sub | SubMethod <- subType sub, quant /= "?" -> do
             typ     <- fromVal invVal
             subs    <- findAccum meth{ v_package = nextPkg } typ -- Given type, get all methods
-            rvs     <- forM (nub subs) $ \sub -> applySub sub (Just (Val invVal)) args
+            rvs     <- forM (nub (sub:subs)) $ \sub -> applySub sub (Just (Val invVal)) args
             return (VList rvs)
         Right sub   -> do
             -- XXX - Walk multi variants
@@ -876,10 +881,6 @@ reduceSyn "CCallDyn" (Val (VStr "*"):methExp:invExp:args) = do
                 rest <- findAccum meth (cast thisPkg)
                 return (sub:rest)
             _         -> return []
-
-reduceSyn "CCallDyn" (_:methExp:inv:args) = do
-    str <- fromVal =<< enterEvalContext (cxtItem "Str") methExp
-    reduceApp (_Var ('&':str)) (Just inv) args
 
 reduceSyn name exps =
     retError "Unknown syntactic construct" (Syn name exps)

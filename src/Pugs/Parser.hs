@@ -522,7 +522,13 @@ ruleTraitDeclaration = try $ do
 ruleMemberDeclaration :: RuleParser Exp
 ruleMemberDeclaration = do
     symbol "has"
-    typ  <- option "" $ lexeme ruleQualifiedIdentifier
+    typ  <- option "" $ do
+        optional (string "::")
+        lexeme $ choice
+            [ ruleQualifiedIdentifier
+            -- ::?CLASS, ::?ROLE, etc.
+            , char '?' >> ruleQualifiedIdentifier >> fmap cast (asks envPackage)
+            ]
     attr <- ruleVarName
     (sigil:twigil:key) <- case attr of
         (_:'.':_)   -> return attr
@@ -542,14 +548,14 @@ ruleMemberDeclaration = do
             , subEnv        = Nothing
             , subReturns    = if null typ then typeOfSigil (cast sigil) else mkType typ
             , subBody       = fun
-            , subParams     = [selfParam $ cast $ envPackage env]
+            , subParams     = [selfParam $ cast (envPackage env)]
             , subLValue     = "rw" `elem` traits
             , subType       = SubMethod
             }
         exp = Syn ":=" [_Var name, Syn "sub" [Val $ VCode sub]]
         name | twigil == '.' = '&':(pkg ++ "::" ++ key)
              | otherwise     = '&':(pkg ++ "::" ++ (twigil:key))
-        fun = Ann (Cxt (cxtOfSigil $ cast sigil)) (Syn "{}" [_Var "&self", Val (VStr key)])
+        fun = Syn (sigil:"{}") [Ann (Cxt (cxtOfSigil $ cast sigil)) (Syn "{}" [_Var "&self", Val (VStr key)])]
         pkg = cast (envPackage env)
         metaObj = _Var (':':'*':pkg)
         attrDef = Syn "{}" [Syn "{}" [metaObj, Val (VStr "attrs")], Val (VStr key)]
@@ -1300,7 +1306,7 @@ ruleVarDecl = rule "variable declaration" $ do
     --       constraints; for now we abuse ruleFormalParam to add an
     --       extra "+" as part of the name when "is context" is seen,
     --       so we can rewrite the declarator to SEnv, but it's Wrong.
-    (nameTypes, exp, seenIsContextXXX) <- try oneDecl <|> manyDecl
+    (nameTypes, exp, accessors, seenIsContextXXX) <- try oneDecl <|> manyDecl
     let makeBinding (name, typ)
             | ('$':_) <- name, typ /= anyType   = mkSym . bindSym
             | otherwise                         = mkSym
@@ -1311,6 +1317,7 @@ ruleVarDecl = rule "variable declaration" $ do
     lexDiff <- unsafeEvalLexDiff $ combine (map makeBinding nameTypes) emptyExp
     -- Now hoist the lexDiff to the current block
     addBlockPad scope' lexDiff
+    forM_ accessors makeAccessor
     return (Ann (Decl scope') exp)
     where
     oneDecl = do
@@ -1320,7 +1327,10 @@ ruleVarDecl = rule "variable declaration" $ do
             seenIsContextXXX = v_twigil var == TImplicit
             typ  = typeOfCxt (paramContext param)
             nameType = (name, typ)
-        return ([nameType], makeExpFromNameType nameType, seenIsContextXXX)
+            accessors
+                | TAttribute <- v_twigil var    = [param]
+                | otherwise                     = []
+        return ([nameType], makeExpFromNameType nameType, accessors, seenIsContextXXX)
     manyDecl = do
         defType <- option "" $ ruleType
         params  <- verbatimParens . enterBracketLevel ParensBracket $
@@ -1333,7 +1343,25 @@ ruleVarDecl = rule "variable declaration" $ do
                 | otherwise                     = t
             seenIsContextXXX = any ((== TImplicit) . v_twigil) vars
             nameTypes = names `zip` types
-        return (nameTypes, Syn "," $ map makeExpFromNameType nameTypes, seenIsContextXXX)
+            accessors = filter ((== TAttribute) . v_twigil . paramName) params
+        return (nameTypes, Syn "," $ map makeExpFromNameType nameTypes, accessors, seenIsContextXXX)
+    makeAccessor prm = do
+        -- Generate accessor for class attributes.
+        pkg <- asks envPackage
+        let sub = mkPrim
+                { isMulti       = False
+                , subName       = cast (showsVar accessor "")
+                , subEnv        = Nothing
+                , subReturns    = typeOfParam prm
+                , subBody       = if isWritable prm then fun else Syn "val" [fun]
+                , subParams     = [selfParam $ cast pkg]
+                , subLValue     = isWritable prm
+                , subType       = SubMethod
+                }
+            fun = Var var{ v_twigil = TNil }
+            var = paramName prm
+            accessor = var{ v_package = pkg, v_sigil = SCode, v_twigil = TNil }
+        unsafeEvalExp $ Syn ":=" [Var accessor, Syn "sub" [Val $ VCode sub]]
     -- Note that the reassignment below is _wrong_ when scope is SState.
     makeExpFromNameType (name@('$':_), typ)
         | typ /= anyType
@@ -1618,7 +1646,9 @@ ruleInvocationArguments quant name mustHaveParens = do
                 else option (Nothing,[]) $ parseParenParamList
     when (isJust invs) $ fail "Only one invocant allowed"
     return $ \x -> case name of
-        ('&':_) -> App (_Var name) (Just x) args                                        -- $x.meth
+        ('&':rest) -> case quant of
+            Just q  -> Syn "CCallDyn" ((Val (castV [q])):Val (VStr rest):x:args)         -- $x.*meth
+            _       -> App (_Var name) (Just x) args                                    -- $x.meth
         _       -> Syn "CCallDyn" (Val (castV (maybeToList quant)):_Var name:x:args)    -- $x.$meth
 
 ruleArraySubscript :: RuleParser (Exp -> Exp)
