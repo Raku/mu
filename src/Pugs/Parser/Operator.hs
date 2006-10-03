@@ -597,7 +597,9 @@ makeParser simpleTerm ops = do
             _       -> option emptyTerm termOp
         x'      <- depPostP x
         posts   <- many postfixOp
-        return $ foldOp posts $ foldOp (map liftEither pres) x'
+        fmap (foldOp posts) $ foldM maybeApplyPrefixMacro x' (map liftEither $ reverse pres)
+
+    maybeApplyPrefixMacro t f = possiblyApplyMacro (f t)
 
     liftEither (Left x) = x
     liftEither (Right x) = x
