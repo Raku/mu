@@ -28,7 +28,7 @@ sub split_test(@splitted, @expected, Str $desc, $todo = 0) {
   is @splitted[$_], @expected[$_],
      "the %ords{$_ + 1} value matched for: $desc", :todo($todo)
     for 0 .. @splitted.end;
-  is_deeply @splitted, @expected, "values match", todo($todo); 
+  is_deeply @splitted, @expected, "values match", :todo($todo); 
 }
 
 split_test split("", "forty-two"),
