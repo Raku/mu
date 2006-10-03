@@ -17,7 +17,7 @@ module Pugs.AST (
     strRangeInf, strRange, strInc,
     mergeStmts, isEmptyParams,
     newPackage, newType, newMetaType, typeMacro, isScalarLValue,
-    filterPrim, filterUserDefinedPad,
+    filterPrim, filterUserDefinedPad, typeOfParam,
 
     module Pugs.AST.Internals,
     module Pugs.AST.Prag,
@@ -336,3 +336,10 @@ _reserved = Set.fromList . cast . words $
     "$*PROGRAM_NAME $*PID $*UID $*EUID $*GID $*EGID @*CHECK @*INIT $*IN " ++
     "$*OUT $*ERR $*ARGS $/ %*ENV $*CWD @=POD $=POD $?PUGS_VERSION " ++
     "$*OS &?BLOCK_EXIT %?CONFIG $*_ $*AUTOLOAD $*PUGS_VERSION"
+
+typeOfParam :: Param -> Type
+typeOfParam p = case v_sigil (paramName p) of
+    SScalar -> typeOfCxt (paramContext p)
+    s       -> typeOfSigil s
+
+

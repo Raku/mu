@@ -426,12 +426,6 @@ findSub _var _invs _args
         var' = var{ v_meta = MNil }
         varInfix = var{ v_meta = MNil, v_categ = C_infix }
 
-typeOfParam :: Param -> Type
-typeOfParam p = case v_sigil (paramName p) of
-    SScalar -> typeOfCxt (paramContext p)
-    s       -> typeOfSigil s
-
-
 metaVar :: Pkg -> Var
 -- metaVar = MkVar SType TNil globalPkg CNil . cast
 metaVar pkg = cast (':':'*':cast pkg)
