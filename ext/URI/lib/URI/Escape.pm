@@ -41,14 +41,16 @@ module URI::Escape-0.6 {
         ...
     }
     
-    multi sub uri_unescape ($str is copy) returns Str is export(:DEFAULT) {
-        $str ~~ s:P5:g/%([0-9A-Fa-f]{2})/{ chr(:16($0)) }/;
-        
-        return $str;
-    }
+#    multi sub uri_unescape ($str is copy) returns Str is export(:DEFAULT) {
+#        $str ~~ s:P5:g/%([0-9A-Fa-f]{2})/{ chr(:16($0)) }/;
+#        
+#        return $str;
+#    }
     
-    multi sub uri_unescape (*@str is copy) returns Array is export(:DEFAULT) {
-        @str = @str.map:{ uri_unescape($_) };
+    multi sub uri_unescape (*@str is copy) returns List is export(:DEFAULT) {
+	for @str {
+	    s:P5:g/%([0-9A-Fa-f]{2})/{ chr(:16($0)) }/;
+	}
         
         return @str;
     }
