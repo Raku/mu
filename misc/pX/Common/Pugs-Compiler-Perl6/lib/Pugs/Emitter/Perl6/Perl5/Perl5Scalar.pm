@@ -6,15 +6,9 @@ use Data::Dumper;
 use strict;
 use warnings;
 
-sub new {
-    my $self = $_[1];  # { name => '$scalar5' }
-    bless $self, $_[0];
-    return $self;
-}
-
 sub WHAT { 
     # XXX depends on the contents
-    return Pugs::Emitter::Perl6::Perl5::str->new( name => 'Scalar' );
+    $_[0]->node( 'Str', 'Scalar' );
 }
 
 sub isa { 

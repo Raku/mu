@@ -6,12 +6,6 @@ use Data::Dumper;
 use strict;
 use warnings;
 
-sub new {
-    my $self = $_[1];  # { key => 'x', value => 'y' }
-    bless $self, $_[0];
-    return $self;
-}
-
 sub WHAT { 
     return "'Pair'";  # hardcoded 
 }

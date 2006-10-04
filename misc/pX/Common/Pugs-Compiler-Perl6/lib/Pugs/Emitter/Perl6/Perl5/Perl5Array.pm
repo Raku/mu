@@ -5,12 +5,6 @@ package Pugs::Emitter::Perl6::Perl5::Perl5Array;
 use strict;
 use warnings;
 
-sub new {
-    my $self = $_[1];  # { name => '@array5' }
-    bless $self, $_[0];
-    return $self;
-}
-
 sub _dollar_name {
     my $name = $_[0]->{name};
     $name =~ s/^\@/\$/;
@@ -18,7 +12,7 @@ sub _dollar_name {
 }
 
 sub WHAT { 
-    return Pugs::Emitter::Perl6::Perl5::str->new( name => 'Array' );
+    $_[0]->node( 'Str', 'Array' );
 }
 
 sub isa { 

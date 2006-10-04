@@ -6,22 +6,12 @@ use strict;
 use warnings;
 use base 'Pugs::Emitter::Perl6::Perl5::node';
 
-sub other_get {
-    Pugs::Emitter::Perl6::Perl5::_emit( $_[1] );
-}
-
 sub name {
     $_[0]->{name}
 }
 
-sub dollar_name {
-    my $name = $_[0]->{name};
-    $name =~ s/^\@/\$/;
-    return $name;
-}
-
 sub WHAT { 
-    return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Any' } );
+    $_[0]->node( 'Str', 'Any' );
 }
 
 sub isa { 
@@ -47,7 +37,7 @@ sub perl {
 }
     
 sub defined {
-    'defined ' . $_[0]->dollar_name;
+    'defined ' . $_[0];
 }
 
 sub kv {
@@ -69,17 +59,15 @@ sub elems {
 }
 
 sub exists {
-    'exists ' . $_[0]->dollar_name . '[' . $_[0]->other_get( $_[1] ) . ']';
+    'exists ' . $_[0] . '[' . $_[1] . ']';
 }
 
 sub delete {
-    'delete ' . $_[0]->dollar_name . '[' . $_[0]->other_get( $_[1] ) . ']';
+    'delete ' . $_[0] . '[' . $_[1] . ']';
 }
 
 sub hash {
-    return Pugs::Emitter::Perl6::Perl5::Perl5Hash->new( {
-        name => '%{{' . $_[0]->name . '}}' 
-    } );
+    $_[0]->node( 'Perl5Hash', '%{{' . $_[0]->name . '}}' );
 }
 
 sub array {
@@ -89,13 +77,9 @@ sub array {
 sub scalar {
     my $tmp = $_[0]->name;
     if ( $tmp =~ /^ \@\{ (\[  .*  \]) \} $/x ) {
-        return Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( {
-            name => "bless $1, 'Pugs::Runtime::Perl6::Array'" 
-        } );        
+        return $_[0]->node( 'Perl5Scalar', "bless $1, 'Pugs::Runtime::Perl6::Array'" );        
     }
-    return Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( {
-        name => 'bless \\' . $_[0]->name . ", 'Pugs::Runtime::Perl6::Array'" 
-    } );
+    return $_[0]->node( 'Perl5Scalar', 'bless \\' . $_[0]->name . ", 'Pugs::Runtime::Perl6::Array'" );
 }
 
 sub _91__93_ {
@@ -103,19 +87,15 @@ sub _91__93_ {
     my $self = $_[0];
     my $other = $self->other_get( $_[1] );
     return $_[0] unless $other;  # TODO
-    return $self->dollar_name . '[' . $other . ']';
+    return $self . '[' . $other . ']';
 }
 
 sub print {
-    return Pugs::Emitter::Perl6::Perl5::Code->new( {
-        name => 'print ' . $_[0]->str
-    } );
+    $_[0]->node( 'Code', 'print ' . $_[0]->str );
 }
 
 sub say {
-    return Pugs::Emitter::Perl6::Perl5::Code->new( {
-        name => 'print ' . $_[0]->str . ', "\n";'
-    } );
+    $_[0]->node( 'Code', 'print ' . $_[0]->str . ', "\n";' );
 }
 
 1;

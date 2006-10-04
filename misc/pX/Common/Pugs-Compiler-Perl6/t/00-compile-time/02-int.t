@@ -5,13 +5,8 @@ use Pugs::Emitter::Perl6::Perl5::Value;
 use Pugs::Emitter::Perl6::Perl5::Native;
 use Pugs::Emitter::Perl6::Perl5::Expression;
 
-sub node {
-    eval 'use Pugs::Emitter::Perl6::Perl5::' . $_[0];
-    ( 'Pugs::Emitter::Perl6::Perl5::' . $_[0] )->new( { name => $_[1] } );
-}
-
 sub emit {
-    return node( 'int', $_[0]{int} )
+    return Pugs::Emitter::Perl6::Perl5::node->node( 'int', $_[0]{int} )
         if ( exists $_[0]{int} );
     return emit( $_[0]{exp1} )->_43_( emit( $_[0]{exp1} ) )
         if (  exists $_[0]{fixity}
