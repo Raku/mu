@@ -141,7 +141,7 @@ class Foo6 {
     ok($foo ~~ Foo6, '... our Foo6 instance was created');
         
     is($foo.bar,        1, "getting a public rw attribute (1)"  );
-    is($foo.baz,        2, "getting a public rw attribute (2)"  );
+    is($foo.baz,        2, "getting a public ro attribute (2)"  );
     is($foo.get_hidden, 3, "getting a private ro attribute (3)" );
 }
 
