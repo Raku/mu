@@ -28,6 +28,7 @@ eval {
 sub new { $_[0] }
 
 sub compile {
+    local $::_V6_MATCH_;  # avoid messing with global $/
     
     # $class->compile( $source )
     # $class->compile( $source, { p=>1 } )
