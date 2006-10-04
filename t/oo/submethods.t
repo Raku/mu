@@ -9,7 +9,7 @@ plan 26;
 Basic submethod tests. See L<S12/"Submethods">
 
 =cut
-
+# L<S12/Submethods>
 {
   my $was_in_foo_build = 0;
   my $was_in_bar_build = 0;
