@@ -261,7 +261,7 @@ my $prelude_sort = q:to'END_PRELUDE_SORT';
     }
 END_PRELUDE_SORT
 
-eval_ok($prelude_sort, 'prelude sort parses', :todo<sort>,
+ok(eval($prelude_sort), 'prelude sort parses', :todo<sort>,
     :depends<subset and argument list return signatures>);
 
 ## tests
@@ -308,7 +308,7 @@ my @unsorted_things = sample(@sorted_things);
 {
     my @sorted;
     
-    eval_ok('@sorted = p6sort @str;', 'parse of p6sort',
+    ok(eval('@sorted = p6sort @str;'), 'parse of p6sort',
         :todo<feature>);
 
     ok(@sorted eqv @sorted_str, 'string ascending; default cmp',
@@ -318,7 +318,7 @@ my @unsorted_things = sample(@sorted_things);
 {
     my @sorted;
     
-    eval_ok('@sorted = p6sort { $^a <=> $^b }, @num;', 'parse of p6sort',
+    ok(eval('@sorted = p6sort { $^a <=> $^b }, @num;'), 'parse of p6sort',
         :todo<feature>);
 
     ok(@sorted eqv @sorted_num, 'number ascending; Comparator',
@@ -328,7 +328,7 @@ my @unsorted_things = sample(@sorted_things);
 {
     my @sorted;
     
-    eval_ok('@sorted = p6sort { lc $^b.name cmp lc $^a.name }, @unsorted_things;',
+    ok(eval('@sorted = p6sort { lc $^b.name cmp lc $^a.name }, @unsorted_things;'),
         'parse of p6sort', :todo<feature>);
 
     ok(@sorted eqv reverse(@sorted_things), 'string descending; Comparator',
@@ -338,7 +338,7 @@ my @unsorted_things = sample(@sorted_things);
 {
     my @sorted;
     
-    eval_ok('@sorted = p6sort { $^b.name cmp $^a.name } is insensitive, @str;',
+    ok(eval('@sorted = p6sort { $^b.name cmp $^a.name } is insensitive, @str;'),
         'parse trait on block closure',
         :todo<feature>, 
         :depends<traits on block closures>);
@@ -352,8 +352,7 @@ my @unsorted_things = sample(@sorted_things);
 {
     my @sorted;
     
-    eval_ok('@sorted = p6sort { $^a.name cmp $^b.name } is descending is insensitive,
-        @str;',
+    ok(eval('@sorted = p6sort { $^a.name cmp $^b.name } is descending is insensitive, @str;'),
         'parse trait on block closure',
         :todo<feature>,
         :depends<traits on block closures>);
@@ -391,7 +390,7 @@ sub fuzzy_cmp($x, $y) returns Int
 
     my @sorted;
     
-    eval_ok('@sorted = p6sort &fuzzy_cmp, @unsorted;',
+    ok(eval('@sorted = p6sort &fuzzy_cmp, @unsorted;'),
         'parse of p6sort', :todo<feature>);
 
     ok(@sorted eqv @answer, 'number fuzzy; Comparator', :todo,
@@ -401,14 +400,14 @@ sub fuzzy_cmp($x, $y) returns Int
 {
     my @sorted;
     
-    eval_ok('@sorted = p6sort { + $^elem }, @num_as_str;',
+    ok(eval('@sorted = p6sort { + $^elem }, @num_as_str;'),
         'parse of p6sort', :todo<feature>);
 
     ok(@sorted eqv @sorted_num,
         'number ascending; KeyExtractor uses context',
         :todo, :depends<p6sort>);
 
-    eval_ok('@sorted = p6sort { + $_ }, @num_as_str;',
+    ok(eval('@sorted = p6sort { + $_ }, @num_as_str;'),
         'parse of p6sort', :todo<feature>);
 
     ok(@sorted eqv @sorted_num,
@@ -428,8 +427,7 @@ my @unsorted_things = sample(@sorted_things);
 {
     my @sorted;
     
-    eval_ok('@sorted = p6sort { ~ $^elem.name } is descending is insensitive,
-        @unsorted_things;',
+    ok(eval('@sorted = p6sort { ~ $^elem.name } is descending is insensitive, @unsorted_things;'),
         'parse trait on block closure',
         :todo<feature>,
         :depends<traits on block closures>);
@@ -438,7 +436,7 @@ my @unsorted_things = sample(@sorted_things);
         'string descending; KeyExtractor is descending is insensitive',
         :todo, :depends<p6sort>);
 
-    eval_ok('@sorted = p6sort { lc $^elem.name } is descending, @unsorted_things;',
+    ok(eval('@sorted = p6sort { lc $^elem.name } is descending, @unsorted_things;'),
         'parse trait on block closure',
         :todo<feature>,
         :depends<traits on block closures>);
@@ -447,7 +445,7 @@ my @unsorted_things = sample(@sorted_things);
         'string descending; KeyExtractor is descending uses context',
         :todo, :depends<p6sort>);
 
-    eval_ok('@sorted = p6sort { lc .name } is descending, @unsorted_things;',
+    ok(eval('@sorted = p6sort { lc .name } is descending, @unsorted_things;'),
         'parse trait on block closure',
         :todo<feature>,
         :depends<traits on block closures>);
@@ -469,7 +467,7 @@ sub get_key ($elem) { return $elem.name; }
 {
     my @sorted;
     
-    eval_ok('@sorted = p6sort &get_key, @unsorted_things;',
+    ok(eval('@sorted = p6sort &get_key, @unsorted_things;'),
         'parse of p6sort', :todo<feature>);
 
     ok(@sorted eqv @sorted_things,
@@ -486,7 +484,7 @@ my @sorted_di_numstr = list(<z y x>, <C B A>, reverse(1..3, 10..12)),
     # Not sure you can have traits on objects but
     # L<S29/List/=item sort> says that any SortCriterion
     # can have `descending` and `insensitive` traits.
-    eval_ok('@sorted = p6sort ( { $_ } => {
+    ok(eval('@sorted = p6sort ( { $_ } => {
         given $^a {
             when Num {
                 given $^b {
@@ -497,7 +495,7 @@ my @sorted_di_numstr = list(<z y x>, <C B A>, reverse(1..3, 10..12)),
             default { $^a cmp $^b }
         }
         }) is descending is insensitive,
-        @numstr;',
+        @numstr;'),
         'parse trait on object',
         :todo<feature>,
         :depends<traits on objects>);
@@ -549,7 +547,7 @@ my @inplace = @str;
 {
     ok(@inplace !eqv @sorted_str, 'sampled data differs from answer');
 
-    eval_ok('@inplace.p6sort(:inplace);', 'parse of p6sort with optional $inplace',
+    ok(eval('@inplace.p6sort(:inplace);', 'parse of p6sort with optional $inplace'),
         :todo<feature>);
 
     ok(@inplace eqv @sorted_str, 'inplace sort on array', :todo,
