@@ -18,9 +18,9 @@ force_todo(1,2,3,4,6);
 
 for ("abcdef") {
     ok(m:pos/abc/, "Matched 1: '$/'" );
-    eval_ok(q{.pos == 3}, 'Interim position correct');
+    ok(eval(q{.pos == 3}), 'Interim position correct');
     ok(m:pos/ghi|def/, "Matched 2: '$/'" );
-    eval_ok(q{.pos == 6}, 'Final position correct');
+    ok(eval(q{.pos == 6}), 'Final position correct');
 }
 
 my $_ = "foofoofoo foofoofoo";

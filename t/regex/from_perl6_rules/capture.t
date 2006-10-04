@@ -65,7 +65,7 @@ is(try { $0[0] }, 'ee', 'Captured', :todo<feature>);
 
 rule single { o | k | e };
 
-eval_ok(' "bookkeeper" ~~ m/<single> ($/<single>)/ ', 'Named backref', :todo<feature>);
+ok(eval(' "bookkeeper" ~~ m/<single> ($/<single>)/ '), 'Named backref', :todo<feature>);
 is($/<single>, 'o', 'Named capture', :todo<feature>);
 is($0, 'o', 'Backref capture', :todo<feature>);
 
@@ -74,18 +74,18 @@ is($0, 'o', 'Named capture');
 is($1, 'o', 'Backref capture');
 
 ok(!( "bokeper" ~~ m/(<?single>) ($0)/ ), 'Failed positional backref');
-eval_ok(' !( "bokeper" ~~ m/<single> ($/<single>)/ ) ', 'Failed named backref', :todo<feature>);
+ok(eval(' !( "bokeper" ~~ m/<single> ($/<single>)/ ) '), 'Failed named backref', :todo<feature>);
 
 is("\$0", '$'~'1', 'Non-translation of non-interpolated "\\$0"', :todo<feature> );
 is('$0',  '$'~'1', 'Non-translation of non-interpolated \'$0\'', :todo<feature> );
 is(q{$0}, '$'~'1', 'Non-translation of non-interpolated q{$0}', :todo<feature>);
 is(q[$0], '$'~'1', 'Non-translation of non-interpolated q[$0]', :todo<feature>);
 is(q<$0>, '$'~'1', 'Non-translation of non-interpolated q<$0>', :todo<feature>);
-eval_ok(q/ q<$0 <<<>>>> eq '$'~'1 <<<>>>' /, 'Non-translation of nested q<$0>', :todo<feature>);
+ok(eval(q/ q<$0 <<<>>>> eq '$'~'1 <<<>>>' /), 'Non-translation of nested q<$0>', :todo<feature>);
 is(q/$0/, '$'~'1', 'Non-translation of non-interpolated q/$0/', :todo<feature>);
 is(q!$0!, '$'~'1', 'Non-translation of non-interpolated q!$0!', :todo<feature>);
 is(q|$0|, '$'~'1', 'Non-translation of non-interpolated q|$0|', :todo<feature>);
-eval_is(q/ q#$0#, '$'~'0' /, 'Non-translation of non-interpolated q#$0#', :todo<feature>);
+is(eval(q/ q#$0#, '$'~'0' /), 'Non-translation of non-interpolated q#$0#', :todo<feature>);
 
 
 grammar English { rule name { john } }

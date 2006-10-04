@@ -29,7 +29,7 @@ ok("abc" ~~ m/a(bc){$0 = uc $0}/, 'Numeric match');
 is($/, "abc", 'Numeric matched');
 is($0, "BC", 'Numeric caught', :todo<feature>);
 
-eval_ok(' "abc" ~~ m/a(bc){$/ = Match.new(uc $0)}/ ', 'Zero match', :todo<feature>);
+ok(eval(' "abc" ~~ m/a(bc){$/ = Match.new(uc $0)}/ '), 'Zero match', :todo<feature>);
 is($/, "BC", 'Zero matched', :todo<feature>);
 is($0, "bc", 'One matched', :todo<feature>);
 

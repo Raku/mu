@@ -19,23 +19,23 @@ force_todo(1..7);
 my $str = "abcabcabc";
 ok($str ~~ m:p/abc/, 'Continued match');
 
-eval_ok(q{$str.pos == 3}, 'Continued match pos');
+ok(eval(q{$str.pos == 3}), 'Continued match pos');
 
 $str = "abcabcabc";
 my $x = $str ~~ m:i:p/abc/;
-eval_ok(q{$str.pos == 3}, 'Insensitive continued match pos');
+ok(eval(q{$str.pos == 3}), 'Insensitive continued match pos');
 
 $x = $str ~~ m:i:p/abc/;
-eval_ok(q{$str.pos == 6}, 'Insensitive recontinued match pos');
+ok(eval(q{$str.pos == 6}), 'Insensitive recontinued match pos');
 
 $str = "abcabcabc";
 my @x = $str ~~ m:i:g:p/abc/;
 is("@x", "abc abc abc", 'Insensitive repeated continued match');
-eval_ok(q{$str.pos == 9}, 'Insensitive repeated continued match pos');
+ok(eval(q{$str.pos == 9}), 'Insensitive repeated continued match pos');
 
 $str = "abcabcabc";
 @x = ?($str ~~ m:p:i:g/abc/);
-eval_ok(q{$str.pos == 3}, 'Insensitive scalar repeated continued match pos');
+ok(eval(q{$str.pos == 3}), 'Insensitive scalar repeated continued match pos');
 
 }
 

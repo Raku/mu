@@ -86,23 +86,23 @@ ok( "time flies like an arrow" ~~
               ]
            /, 'Multiple capturing');
 
-eval_is(q{$/.matches[0]<adj>},  'time',  'Capture 0 adj');
-eval_is(q{$/.matches[0]<subj>}, 'flies', 'Capture 0 subj');
-eval_is(q{$/.matches[0]<verb>}, 'like',  'Capture 0 verb');
-eval_is(q{$/.matches[0]<art>},  'an',    'Capture 0 art');
-eval_is(q{$/.matches[0]<obj>},  'arrow', 'Capture 0 obj');
+ok(eval(q{$/.matches[0]<adj>}),  'time',  'Capture 0 adj');
+ok(eval(q{$/.matches[0]<subj>}), 'flies', 'Capture 0 subj');
+ok(eval(q{$/.matches[0]<verb>}), 'like',  'Capture 0 verb');
+ok(eval(q{$/.matches[0]<art>}),  'an',    'Capture 0 art');
+ok(eval(q{$/.matches[0]<obj>}),  'arrow', 'Capture 0 obj');
 
-eval_is(q{$/.matches[1]<subj>}, 'time',  'Capture 1 subj');
-eval_is(q{$/.matches[1]<verb>}, 'flies', 'Capture 1 verb');
-eval_is(q{$/.matches[1]<prep>}, 'like',  'Capture 1 prep');
-eval_is(q{$/.matches[1]<art>},  'an',    'Capture 1 art');
-eval_is(q{$/.matches[1]<obj>},  'arrow', 'Capture 1 obj');
+ok(eval(q{$/.matches[1]<subj>}), 'time',  'Capture 1 subj');
+ok(eval(q{$/.matches[1]<verb>}), 'flies', 'Capture 1 verb');
+ok(eval(q{$/.matches[1]<prep>}), 'like',  'Capture 1 prep');
+ok(eval(q{$/.matches[1]<art>}),  'an',    'Capture 1 art');
+ok(eval(q{$/.matches[1]<obj>}),  'arrow', 'Capture 1 obj');
 
-eval_is(q{$/.matches[2]<verb>}, 'time',  'Capture 2 verb');
-eval_is(q{$/.matches[2]<obj>},  'flies', 'Capture 2 obj');
-eval_is(q{$/.matches[2]<prep>}, 'like',  'Capture 2 prep');
-eval_is(q{$/.matches[2]<art>},  'an',    'Capture 2 art');
-eval_is(q{$/.matches[2]<noun>}, 'arrow', 'Capture 2 noun');
+ok(eval(q{$/.matches[2]<verb>}), 'time',  'Capture 2 verb');
+ok(eval(q{$/.matches[2]<obj>}),  'flies', 'Capture 2 obj');
+ok(eval(q{$/.matches[2]<prep>}), 'like',  'Capture 2 prep');
+ok(eval(q{$/.matches[2]<art>}),  'an',    'Capture 2 art');
+ok(eval(q{$/.matches[2]<noun>}), 'arrow', 'Capture 2 noun');
 
 
 rule subj  { <?noun> }
@@ -122,23 +122,23 @@ ok("time   flies   like    an     arrow" ~~
     "Any with capturing rules"
 );
 
-eval_is(q{$/.matches[0]<adj>},  'time',  'Rule capture 0 adj');
-eval_is(q{$/.matches[0]<subj>}, 'flies', 'Rule capture 0 subj');
-eval_is(q{$/.matches[0]<verb>}, 'like',  'Rule capture 0 verb');
-eval_is(q{$/.matches[0]<art>},  'an',    'Rule capture 0 art');
-eval_is(q{$/.matches[0]<obj>},  'arrow', 'Rule capture 0 obj');
+ok(eval(q{$/.matches[0]<adj>}),  'time',  'Rule capture 0 adj');
+ok(eval(q{$/.matches[0]<subj>}), 'flies', 'Rule capture 0 subj');
+ok(eval(q{$/.matches[0]<verb>}), 'like',  'Rule capture 0 verb');
+ok(eval(q{$/.matches[0]<art>}),  'an',    'Rule capture 0 art');
+ok(eval(q{$/.matches[0]<obj>}),  'arrow', 'Rule capture 0 obj');
 
-eval_is(q{$/.matches[1]<subj>}, 'time',  'Rule capture 1 subj');
-eval_is(q{$/.matches[1]<verb>}, 'flies', 'Rule capture 1 verb');
-eval_is(q{$/.matches[1]<prep>}, 'like',  'Rule capture 1 prep');
-eval_is(q{$/.matches[1]<art>},  'an',    'Rule capture 1 art');
-eval_is(q{$/.matches[1]<noun>}, 'arrow', 'Rule capture 1 noun');
+ok(eval(q{$/.matches[1]<subj>}), 'time',  'Rule capture 1 subj');
+ok(eval(q{$/.matches[1]<verb>}), 'flies', 'Rule capture 1 verb');
+ok(eval(q{$/.matches[1]<prep>}), 'like',  'Rule capture 1 prep');
+ok(eval(q{$/.matches[1]<art>}),  'an',    'Rule capture 1 art');
+ok(eval(q{$/.matches[1]<noun>}), 'arrow', 'Rule capture 1 noun');
 
-eval_is(q{$/.matches[2]<verb>}, 'time',  'Rule capture 2 verb');
-eval_is(q{$/.matches[2]<obj>},  'flies', 'Rule capture 2 obj');
-eval_is(q{$/.matches[2]<prep>}, 'like',  'Rule capture 2 prep');
-eval_is(q{$/.matches[2]<art>},  'an',    'Rule capture 2 art');
-eval_is(q{$/.matches[2]<noun>}, 'arrow', 'Rule capture 2 noun');
+ok(eval(q{$/.matches[2]<verb>}), 'time',  'Rule capture 2 verb');
+ok(eval(q{$/.matches[2]<obj>}),  'flies', 'Rule capture 2 obj');
+ok(eval(q{$/.matches[2]<prep>}), 'like',  'Rule capture 2 prep');
+ok(eval(q{$/.matches[2]<art>}),  'an',    'Rule capture 2 art');
+ok(eval(q{$/.matches[2]<noun>}), 'arrow', 'Rule capture 2 noun');
 
 
 ok(!( "fooooo" ~~ m:exhaustive { s o+ } ), 'Subsequent failed any match...');
