@@ -40,7 +40,7 @@ is $got, 'x 123', 'called pointy immediately: -> $x { ... }(...)';
 # L<S06/""Pointy blocks"" /not require a preceding comma when included in a list/>
 # Is this what is really intended?
 # my @a;
-# eval_ok '@a = ("one" -> $x { $x**2 }, "three")', 
+# ok eval('@a = ("one" -> $x { $x**2 }, "three")'), 
 #         'pointy sub without preceding comma';
 # is @a[0], 'one', 'pointy sub in list';
 # isa_ok @a[1], 'Code', 'pointy sub in list';
