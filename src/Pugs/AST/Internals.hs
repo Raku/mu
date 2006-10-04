@@ -365,9 +365,10 @@ instance Value VHash where
         fmap Map.fromList $ forM list $ \(k, v) -> do
             str <- fromVal k
             return (str, v)
-    doCast v = castFailM v "[VPair]"
+    doCast v = castFailM v "VHash"
 
 instance Value [VPair] where
+    fromVal VUndef = return []
     fromVal v = do
         list <- fromVals v
         doFrom $ concat list
@@ -377,10 +378,8 @@ instance Value [VPair] where
         doFrom (k:v:list) = do
             rest <- doFrom list
             return ((k, v):rest)
-        doFrom [k] = do
-            -- XXX: warn about odd elements?
-            return [(k, undef)]
-    doCast v = castFailM v "[VPair]"
+        doFrom [k] = fail $ "Odd number of elements found where hash expected: " ++ show v
+    doCast v = castFailM v "Hash"
 
 instance Value VCode where
     castV = VCode
