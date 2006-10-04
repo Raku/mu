@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -cpp -fffi -fglasgow-exts #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts #-}
 --
 -- Module      : Data.ByteString.UTF8
 -- Copyright   : (c) Martin Norbäck 2006
@@ -190,7 +190,7 @@ import Data.ByteString (empty,null,append
                        )
 
 import Data.ByteString.Base
-                       ( ByteString(..), unsafeUseAsCString, unsafeUseAsCStringLen, unsafeCreate
+                       ( ByteString(..), unsafeUseAsCString, unsafeUseAsCStringLen, unsafeCreate, memcpy
                        )
 import Data.ByteString.Char8
                        (getLine, hGetLine, hGetNonBlocking
@@ -308,14 +308,14 @@ unpackCStringUtf8 addr len
 cons :: Char -> ByteString -> ByteString
 cons c (PS x s l) = let w = numBytes c in
   unsafeCreate (l + w) $ \p -> withForeignPtr x $ \f -> do
-    memcpy (p `plusPtr` w) (f `plusPtr` s) l
+    memcpy (p `plusPtr` w) (f `plusPtr` s) (fromIntegral l)
     n <- putUTF8 p c
     assert (w == n) $ return ()
 
 snoc :: ByteString -> Char -> ByteString
 snoc (PS x s l) c = let w = numBytes c in
   unsafeCreate (l + w) $ \p -> withForeignPtr x $ \f -> do
-    memcpy p (f `plusPtr` s) l
+    memcpy p (f `plusPtr` s) (fromIntegral l)
     n <- putUTF8 (p `plusPtr` l) c
     assert (w == n) $ return ()
 
@@ -475,9 +475,6 @@ b11110000 = 0xf0
 b11100000 = 0xe0
 b11000000 = 0xc0
 b10000000 = 0x80
-
-foreign import ccall unsafe "string.h memcpy" memcpy
-    :: Ptr Word8 -> Ptr Word8 -> Int -> IO ()
 
 -- Common up near identical calls to `error' to reduce the number
 -- constant strings created when compiled:
