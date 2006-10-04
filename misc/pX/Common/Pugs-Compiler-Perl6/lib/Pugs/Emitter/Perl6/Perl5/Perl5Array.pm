@@ -5,36 +5,25 @@ package Pugs::Emitter::Perl6::Perl5::Perl5Array;
 use strict;
 use warnings;
 
-sub other_get {
-    package Pugs::Emitter::Perl6::Perl5;
-    use Data::Dumper;
-    print Dumper( $_[1] );
-    _emit( $_[1] );
-}
-
 sub new {
     my $self = $_[1];  # { name => '@array5' }
     bless $self, $_[0];
     return $self;
 }
 
-sub name {
-    $_[0]->{name}
-}
-
-sub dollar_name {
+sub _dollar_name {
     my $name = $_[0]->{name};
     $name =~ s/^\@/\$/;
     return $name;
 }
 
 sub WHAT { 
-    return "'Array'";  # hardcoded 
+    return Pugs::Emitter::Perl6::Perl5::str->new( name => 'Array' );
 }
 
 sub isa { 
     my $self = $_[0];
-    return $_[1]->str . ' eq ' . $self->WHAT; 
+    return $_[0]->WHAT->eq( $_[1]->WHAT ); 
 }
 
 sub get {
@@ -44,7 +33,8 @@ sub get {
 
 sub set {
     my $self = $_[0];
-    return $self->name . ' = ' . $self->other_get( $_[1] )->name;
+    # XXX box
+    return $self->name . ' = ' . $_[1]->array->get;
 }
 
 sub str {
@@ -56,15 +46,18 @@ sub perl {
 }
     
 sub defined {
-    'defined ' . $_[0]->dollar_name . '[' . $_[0]->other_get( $_[1] ) . ']';
+    # XXX move to BoolExpression
+    'defined ' . $_[0]->_dollar_name . '[' . $_[0]->other_get( $_[1] ) . ']';
 }
 
 sub kv {
+    # XXX move to ArrayExpression
     my $tmp = "( map { ( \$_, ".$_[0]->name."[\$_] ) } 0..".$_[0]->name."-1 )"; 
     return ( CORE::ref( $_[0] ) )->new( { name => $tmp } );
 }
 
 sub keys {
+    # XXX move to ArrayExpression
     my $tmp = "( 0..".$_[0]->name."-1 )"; 
     return ( CORE::ref( $_[0] ) )->new( { name => $tmp } );
 }
@@ -78,14 +71,15 @@ sub elems {
 }
 
 sub exists {
-    'exists ' . $_[0]->dollar_name . '[' . $_[0]->other_get( $_[1] ) . ']';
+    'exists ' . $_[0]->_dollar_name . '[' . $_[0]->other_get( $_[1] ) . ']';
 }
 
 sub delete {
-    'delete ' . $_[0]->dollar_name . '[' . $_[0]->other_get( $_[1] ) . ']';
+    'delete ' . $_[0]->_dollar_name . '[' . $_[0]->other_get( $_[1] ) . ']';
 }
 
 sub hash {
+    # XXX HashExpression
     return Pugs::Emitter::Perl6::Perl5::Perl5Hash->new( {
         name => '%{{' . $_[0]->name . '}}' 
     } );
@@ -97,6 +91,8 @@ sub array {
 
 sub scalar {
     my $tmp = $_[0]->name;
+
+    # XXX move to ArrayExpression
     if ( $tmp =~ /^ \@\{ (\[  .*  \]) \} $/x ) {
         return Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( {
             name => "bless $1, 'Pugs::Runtime::Perl6::Array'" 
@@ -110,9 +106,9 @@ sub scalar {
 sub _91__93_ {
     # .[]
     my $self = $_[0];
-    my $other = $self->other_get( $_[1] );
+    my $other = $_[1]->list;
     return $_[0] unless $other;  # TODO
-    return $self->dollar_name . '[' . $other . ']';
+    return $self->_dollar_name . '[' . $other . ']';
 }
 
 1;

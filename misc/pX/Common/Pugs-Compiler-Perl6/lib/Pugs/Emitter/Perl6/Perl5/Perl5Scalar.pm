@@ -6,34 +6,20 @@ use Data::Dumper;
 use strict;
 use warnings;
 
-sub other_get {
-    package Pugs::Emitter::Perl6::Perl5;
-    use Data::Dumper;
-    my $s = _emit( $_[1] );
-    print "Scalar ", Dumper( $_[1] );
-    if ( blessed $_[1] ) {
-        return $_[1]->scalar;
-    }
-    $s;
-}
-
 sub new {
     my $self = $_[1];  # { name => '$scalar5' }
     bless $self, $_[0];
     return $self;
 }
 
-sub name {
-    $_[0]->{name}
-}
-
 sub WHAT { 
-    return "'Scalar'";  # ??? 
+    # XXX depends on the contents
+    return Pugs::Emitter::Perl6::Perl5::str->new( name => 'Scalar' );
 }
 
 sub isa { 
     my $self = $_[0];
-    return $self->other_get( $_[1] ) . ' eq ' . "'Scalar'";  # hardcoded 
+    return $_[0]->WHAT->eq( $_[1]->WHAT ); 
 }
 
 sub get {
@@ -44,7 +30,7 @@ sub get {
 sub set {
     my $self = $_[0];
     print "perl5scalar set ", Dumper( $_[1] );
-    return $self->name . ' = ' . $self->other_get( $_[1] )->name;
+    return $self->name . ' = ' . $_[1]->scalar->get;
 }
 
 sub str {

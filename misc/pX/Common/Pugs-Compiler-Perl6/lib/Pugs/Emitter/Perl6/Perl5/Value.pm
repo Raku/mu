@@ -5,6 +5,7 @@ use warnings;
 # operator name mangler:
 # perl -MPugs::Runtime::Common -e ' print Pugs::Runtime::Common::mangle_ident("==") '
 
+# TODO - List, Seq, ...
 
 package Pugs::Emitter::Perl6::Perl5::Value;
     use base 'Pugs::Emitter::Perl6::Perl5::Any';

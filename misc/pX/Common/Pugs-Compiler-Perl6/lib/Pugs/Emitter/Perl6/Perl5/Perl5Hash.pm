@@ -6,36 +6,25 @@ use Data::Dumper;
 use strict;
 use warnings;
 
-sub other_get {
-    package Pugs::Emitter::Perl6::Perl5;
-    use Data::Dumper;
-    print Dumper( $_[1] );
-    _emit( $_[1] );
-}
-
 sub new {
     my $self = $_[1];  # { name => '%hash5' }
     bless $self, $_[0];
     return $self;
 }
 
-sub dollar_name {
+sub _dollar_name {
     my $name = $_[0]->{name};
     $name =~ s/\%/\$/;
     return $name;
 }
 
-sub name {
-    $_[0]->{name}
-}
-
 sub WHAT { 
-    return "'Hash'";  # hardcoded 
+    return Pugs::Emitter::Perl6::Perl5::str->new( name => 'Hash' );
 }
 
 sub isa { 
     my $self = $_[0];
-    return $self->other_get( $_[1] ) . ' eq ' . "'Hash'";  # hardcoded 
+    return $_[0]->WHAT->eq( $_[1]->WHAT ); 
 }
 
 sub get {
@@ -46,7 +35,7 @@ sub get {
 sub set {
     my $self = $_[0];
     print "perl5hash set ", Dumper( $_[1] );
-    return $self->name . ' = ' . $self->other_get( $_[1] )->name;
+    return $self->name . ' = ' . $_[1]->hash->get;
 }
 
 sub str {
@@ -96,9 +85,9 @@ sub scalar {
 sub _123__125_ {
     # .{}
     my $self = $_[0];
-    my $other = $self->other_get( $_[1] );
+    my $other = $_[1]->list;
     return $_[0] unless $other;  # TODO
-    return $self->dollar_name . '{' . $other . '}';
+    return $self->_dollar_name . '{' . $other . '}';
 }
 
 1;
