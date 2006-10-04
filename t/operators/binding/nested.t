@@ -285,7 +285,7 @@ plan 43;
     ];
 
     try { $struct[1]<key><subkey>[1] := $struct[1]<key> };
-    is $struct[1]<key><subkey>[1]<foo>, "bar",
+    is try { $struct[1]<key><subkey>[1]<foo> }, "bar",
         "binding an element of a structure to an element of the same structure works (1)", :todo<bug>;
 
     try { $struct[1]<key><subkey>[1]<foo> = "new_value" };
@@ -293,7 +293,7 @@ plan 43;
         "binding an element of a structure to an element of the same structure works (2)", :todo<bug>;
 
     $struct[1]<key><foo> = "very_new_value";
-    is $struct[1]<key><subkey>[1]<foo>, "very_new_value",
+    is try { $struct[1]<key><subkey>[1]<foo> }, "very_new_value",
         "binding an element of a structure to an element of the same structure works (3)", :todo<bug>;
 
     $struct[1]<key><subkey>[1] = 23;

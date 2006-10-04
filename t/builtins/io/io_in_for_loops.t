@@ -4,8 +4,7 @@ use Test;
 # L<S16/"Filehandles, files, and directories"/"open">
 # L<S16/"Filehandles, files, and directories"/"close">
 
-plan 49;
-force_todo(38 .. 48);
+plan 37;
 
 if $*OS eq "browser" {
   skip_rest "Programs running in browsers don't have access to regular IO.";

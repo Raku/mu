@@ -4,7 +4,7 @@ use Test;
 
 # L<S04/"Statement parsing"/"or try {...}">
 
-plan 26;
+plan 25;
 
 {
     # simple try
@@ -27,21 +27,13 @@ plan 26;
 }
 
 {
-    my %hash = try { "a" };
+    my %hash = try { 'a', 1 };
     is +%hash,        1, '%hash = try {...} worked (1)';
     is ~%hash.keys, "a", '%hash = try {...} worked (2)';
 }
 
 {
-    my %hash = try { ("a",) };
-    is +%hash,        1, '%hash = try {...} worked (3)';
-    is ~%hash.keys, "a", '%hash = try {...} worked (4)';
-}
-
-{
-    warn "Please ignore the next warning about odd number of elements,\n";
-    warn "it's expected.\n";
-    my %hash = try { hash("a",) };
+    my %hash = try { hash("a", 1) };
     is +%hash,        1, '%hash = try {...} worked (5)';
     is ~%hash.keys, "a", '%hash = try {...} worked (6)';
 }

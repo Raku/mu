@@ -33,7 +33,8 @@ plan 18;
 # Of course, these (should) give a warning ("odd number in hash construction").
 {
   my $hashref = {:a(1), :b(2), :c(3)};
-  my %hash    = ($hashref,);
+  my %hash;
+  try { %hash = ($hashref,) };
 
   is +%hash, 1, '%hash = ($hashref,) does not flatten the hashref', :todo<bug>;
 }

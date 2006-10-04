@@ -43,9 +43,9 @@ is($s, "xayaz", 'list context <list>');
 my $s = join |<< <a x y z>;
 is($s, "xayaz", 'listop |<< <list>', :todo<bug>);
 
-my $x = [1,2,3].join<a b c>;
-ok(!$!, '.join<abc> parses but semantic error');
-is($x, [1,2,3].join()<a b c>, '.join()<a b c> not treated as argument');
+my $x = try { [1,2,3].join<a b c> };
+ok($!, '.join<abc> parses but semantic error');
+is($x, try { [1,2,3].join()<a b c> }, '.join()<a b c> not treated as argument');
 
 my @y = try { {:a<1>, :b(2)}<a b c> };
 is(@y, [1,2,undef], '{...}<a b c> is hash subscript');
