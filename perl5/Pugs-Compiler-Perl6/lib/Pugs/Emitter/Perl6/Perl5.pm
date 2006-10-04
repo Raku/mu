@@ -1275,6 +1275,7 @@ sub infix {
             . 'scalar '.$_emit_value->( $n->{exp2} ). ' )';
     }
     if ( $n->{op1} eq '~~' ) {
+        #print "infix:<~~> \n";
         if ( my $subs = $n->{exp2}{substitution} ) {
             # XXX: use Pugs::Compiler::RegexPerl5
             # XXX: escape
@@ -1287,8 +1288,32 @@ sub infix {
             if ( !$rx->{options}{perl5} ) {
                 my $regex = $rx->{rx};
                 my %options = %{$rx->{options}};
-                # print "Options: @{[ %options ]} \n";
+                #print "Options: @{[ %options ]} \n";
                 my $opt = '';
+
+                if ( exists $options{'g'} ) {
+                    $opt .= 'p => ( $_V6_M ? ( 
+                       $_V6_M->to 
+                    ) : undef )';
+                    # XXX: hack for /$pattern/
+                    $regex = 'q{'.$regex.'}' unless $regex =~ m/^\$[\w\d]+/;
+
+                    return
+                    'do { 
+                        undef $::_V6_MATCH_;
+                        my @_V6_TMP;
+                        my $_V6_RX = Pugs::Compiler::Regex->compile( '.$regex.', { grammar => __PACKAGE__ } );
+                        my $_V6_M;
+                        while (
+                            $_V6_M = $_V6_RX->match('._emit($n->{exp1}).', { '.$opt.' } )
+                        ) { 
+                            #print "Match: $_V6_M \n"; 
+                            push @_V6_TMP, $_V6_M 
+                        }
+                        @_V6_TMP;
+                    }';
+                }
+
                 if ( exists $options{'c'} ) {
                     $opt .= 'p => ( $::_V6_MATCH_ ? ( 
                        $::_V6_MATCH_->to 

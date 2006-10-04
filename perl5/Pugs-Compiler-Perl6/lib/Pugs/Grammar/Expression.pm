@@ -404,7 +404,7 @@ sub lexer {
         else {
             $t = [ 'NUM' => $ast ]
         }
-        #print "Term: ",Dumper($t), "MATCH $match\n";
+        #print "Term: ",Dumper($t); #, "MATCH $match\n";
         $t=['',''] unless $ast;  #$match; # defined($t);
 
         #print "expect NUM \n" if grep { $_ eq 'NUM' } @expect;
