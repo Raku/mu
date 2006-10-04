@@ -47,7 +47,7 @@ our %perl5_name = reverse %perl6_name;
 sub mangle_ident {
     my $s = shift;
     Carp::confess unless defined $s;
-    $s =~ s/ ([^a-zA-Z0-9_:]) / '_'.ord($1).'_' /xge;
+    $s =~ s/ ([^a-zA-Z0-9_:] | :(?!:) ) / '_'.ord($1).'_' /xge;
     return $s;
 }
 
@@ -55,7 +55,7 @@ sub mangle_var {
     my $s = $_[0];
     #warn "mangle: $s";
     return $perl5_name{$s} if exists $perl5_name{$s};
-    substr($s,1) =~ s/ ([^a-zA-Z0-9_:]) / '_'.ord($1).'_' /xge;
+    substr($s,1) =~ s/ ([^a-zA-Z0-9_:] | :(?!:)) / '_'.ord($1).'_' /xge;
     return $s;
 }
 
