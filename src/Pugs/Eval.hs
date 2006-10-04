@@ -1103,10 +1103,17 @@ isInterpolated (Syn "|" _)      = True
 isInterpolated (Syn "|<<" _)    = True
 isInterpolated _                = False
 
+evalInvocant :: Exp -> Eval Val
+evalInvocant exp
+    | Syn "," xs <- unwrap exp = do
+        enterLValue . enterEvalContext cxtItemAny $
+            Syn "," (map (\x -> Syn "val" [x]) xs)
+    | otherwise = enterLValue $ enterEvalContext cxtItemAny exp
+
 doCall :: Var -> Maybe Exp -> [Exp] -> Eval Val
 doCall var invs origArgs = do
     -- First, reduce the invocant fully in item context.
-    invs'   <- fmapM (fmap Val . enterLValue . enterEvalContext cxtItemAny) invs
+    invs'   <- fmapM (fmap Val . evalInvocant) invs
 
     -- Support for |$foo here
     args    <- if any isInterpolated origArgs
