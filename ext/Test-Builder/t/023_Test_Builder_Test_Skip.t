@@ -1,7 +1,7 @@
 use v6-alpha;
 use Test;
 
-plan 11;
+plan 13;
 
 use Test::Builder::Test;
 
