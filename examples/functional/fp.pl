@@ -7,15 +7,18 @@ use v6-alpha;
 # Please remember to update t/examples/examples.t and rename
 # examples/output/functional/fp if you rename/move this file.
 
-multi sub length ()          returns Int { 0               }
-multi sub length (*$x, *@xs) returns Int { 1 + length(@xs) }
+multi length ()          returns Int { 0                }
+multi length (*$x, *@xs) returns Int { 1 + length(|@xs) }
 
-sub length2(*@x) returns Int{
-    multi sub iter(*$curr) returns Int{ $curr }
-    multi sub iter(*$curr, *$x, *@xs) returns Int{
-        iter($curr + 1, @xs);
+sub length2 (*@x) returns Int{
+    multi iter(*$curr) returns Int {
+        $curr
     }
-    iter(0, @x);
+    multi iter(*$curr, *$x, *@xs) returns Int {
+        say "==> @xs[]";
+        iter($curr+1, |@xs);
+    }
+    iter(0, |@x);
 }
 
 say "... length";
@@ -25,8 +28,8 @@ say length2(1, 'foo', 3, 4, 'bar');
 say length2('foo');            
 # say length();
 
-multi sub sum ()          returns Int { 0             }
-multi sub sum (*$x, *@xs) returns Int { $x + sum(@xs) }
+multi sum ()          returns Int { 0             }
+multi sum (*$x, *@xs) returns Int { $x + sum(|@xs) }
 
 say "... sum";
 say sum(1 .. 10);
@@ -42,8 +45,8 @@ say is_odd(4);
 say is_even(5);
 say is_odd(5);
 
-multi sub rev ()          { ()                 }
-multi sub rev (*$x, *@xs) { (rev(@xs), $x) }
+multi rev ()          { ()                 }
+multi rev (*$x, *@xs) { (rev(|@xs), $x) }
 
 say "... reverse";
 my @result = rev(1, 'foo', 3, 4, 'bar');
@@ -55,16 +58,16 @@ say join ", ", @result;
 # my @result = reverse();
 # say join ", ", @result; 
 
-multi sub member (*$val)            returns Bool { 0 }
-multi sub member (*$val, *$x, *@xs) returns Bool { ($val eq $x) || member($val, @xs) }
+multi member (*$val)            returns Bool { 0 }
+multi member (*$val, *$x, *@xs) returns Bool { ($val eq $x) || member($val, |@xs) }
 
 say "... member";
 say member('foo', 1, 'foo', 3, 4, 'bar'); 
 say member('baz', 1, 'foo', 3, 4, 'bar');
 say member('bar', 1, 'foo', 3, 4, 'bar');           
 
-multi sub unique ()          { () }
-multi sub unique (*$x, *@xs) { member($x, @xs) ?? unique(@xs) !! ($x, unique(@xs)) }
+multi unique ()          { () }
+multi unique (*$x, *@xs) { member($x, |@xs) ?? unique(|@xs) !! ($x, unique(|@xs)) }
 
 say "... unique";
 my @result = unique('foo', 5, 4, 3, 3, 3, 3, 1, 'foo', 3, 4, 'bar'); 
