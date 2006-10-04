@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp -fallow-overlapping-instances -funbox-strict-fields #-}
 
 module Pugs.Eval.Var (
     findVar, findVarRef, findSub,
@@ -17,7 +17,7 @@ import Pugs.Pretty
 import Pugs.Config
 import Pugs.Monads
 import qualified Pugs.Val as Val
-import qualified Data.ByteString.Char8 as Str
+import qualified Data.ByteString.Char8 as Buf
 
 findVar :: Var -> Eval (Maybe VRef)
 findVar var
@@ -190,7 +190,7 @@ findSub _var _invs _args
         subs'   <- either (flip findBuiltinSub var) (return . Right) subs
         case subs' of
             -- Recursion prevention -- SUPER::foo should not go back to ThisClas::foo
-            Right sub | cast (Str.cons '&' $ subName sub) == var{ v_package = pkg } -> do
+            Right sub | cast (Buf.cons '&' $ subName sub) == var{ v_package = pkg } -> do
                 return (Left . NoSuchMethod $ cast pkg)
             _   -> do
                 return subs'
@@ -653,33 +653,44 @@ findSyms var
                     val <- readRef ref
                     return (var, val)
             Nothing -> mzero
-        
+
+
+data ArityMatchData = MkArityMatchData
+    { d_reqLen      :: !Int
+    , d_optLen      :: !Int
+    , d_slurpLen    :: !Int
+    , d_hasArray    :: !Bool
+    , d_hasHash     :: !Bool
+    }
+
 arityMatch :: VCode -> Int -> Int -> [Int] -> Maybe VCode
 arityMatch sub@MkCode{ subAssoc = assoc, subParams = prms } posLen namLen argSlurpLens
     | A_list    <- assoc = Just sub
     | A_chain   <- assoc = Just sub
 
-{-
-    | isNothing $ find (not . isSlurpy) prms -- XXX - what about empty ones?
-    , slurpLen  <- length $ filter (\p -> isSlurpy p && v_sigil (paramName p) == SScalar) prms
-    , hasArray  <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) == SArray) prms
+    | argLen >= reqLen
+    , hasArray || ((if hasHash then posLen else argLen) <= (reqLen + optLen + slurpLen))
     , if hasArray then slurpLen <= argSlurpLen else slurpLen == argSlurpLen
-    = Just sub
--}
-
-    | reqLen    <- length $ filter (\p -> not (isOptional p || isSlurpy p)) prms
-    , optLen    <- length $ filter (\p -> isOptional p) prms
-    , hasArray  <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) == SArray) prms
-    , hasHash   <- isJust $ find (\p -> isSlurpy p && v_sigil (paramName p) == SHash) prms
-    , slurpLen  <- length $ filter (\p -> isSlurpy p && v_sigil (paramName p) == SScalar) prms
-    , argLen >= reqLen && (hasArray || (if hasHash then posLen else argLen) <= (reqLen + optLen))
-    , if hasArray then slurpLen <= sum (drop reqLen argSlurpLens) else slurpLen == sum (drop argLen argSlurpLens)
     = Just sub
 
     | otherwise
     = Nothing
     where
-    argLen = posLen + namLen
+    argLen      = posLen + namLen
+    argSlurpLen = sum (drop (reqLen + optLen) argSlurpLens)
+    ~(MkArityMatchData reqLen optLen slurpLen hasArray hasHash) = foldl unwindPrm initArityMatchData prms
+
+initArityMatchData :: ArityMatchData
+initArityMatchData = MkArityMatchData 0 0 0 False False
+
+unwindPrm :: ArityMatchData -> Param -> ArityMatchData
+unwindPrm dat p
+    | isSlurpy p = case v_sigil (paramName p) of
+        SArray  -> dat{ d_hasArray = True }
+        SHash   -> dat{ d_hasHash  = True }
+        _       -> dat{ d_slurpLen = succ (d_slurpLen dat) }
+    | isOptional p  = dat{ d_optLen = succ (d_optLen dat) }
+    | otherwise     = dat{ d_reqLen = succ (d_reqLen dat) }
 
 toPackage :: Pkg -> Var -> Var
 toPackage pkg var
