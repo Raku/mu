@@ -990,8 +990,9 @@ reduceApp (Var var) invs args
     | SCodeMulti <- v_sigil var = do
         doCall var{ v_sigil = SCode } invs args
     | SCode <- v_sigil var, Nothing <- invs, [inv] <- args = case inv of
-        Syn "named" _ -> doCall var Nothing [inv]
-        _             -> doCall var (Just inv) []
+        Syn "named" _           -> doCall var Nothing [inv]
+        _ | isInterpolated inv  -> doCall var Nothing [inv]
+        _                       -> doCall var (Just inv) []
     | otherwise = do
         doCall var invs args
 
@@ -1073,12 +1074,45 @@ chainFun p1 f1 p2 f2 (v1:v2:vs) = do
     forceThunk x                            = return x
 chainFun _ _ _ _ _ = fail "Impossible: Chained function with less than 2 arguments?"
 
+interpolateExp :: Exp -> Eval [Exp]
+interpolateExp exp
+    | Syn "|" [x] <- unwrapped      = do
+        val <- enterRValue (enterEvalContext (cxtItem "Capture") x)
+        interpolateVal val
+--  | Syn "|<<" [x] <- unwrapped    = do
+--      fail "moose"
+    | otherwise                     = return [exp]
+    where
+    unwrapped = unwrap exp
+
+interpolateVal :: Val -> Eval [Exp]
+interpolateVal (VRef (MkRef (IArray av))) = do
+    vs <- array_fetch av
+    return (map Val vs)
+interpolateVal (VRef (MkRef (IHash hv))) = do
+    vs <- hash_fetch hv
+    return [ Syn "named" [Val (VStr k), Val v] | (k, v) <- Map.toList vs ]
+interpolateVal (VRef (MkRef (IPair pv))) = do
+    (k, v) <- pair_fetch pv
+    return [ Syn "named" [Val k, Val v] ]
+interpolateVal val = return [Val val]
+
+isInterpolated :: Exp -> Bool
+isInterpolated (Ann _ exp)      = isInterpolated exp
+isInterpolated (Syn "|" _)      = True
+isInterpolated (Syn "|<<" _)    = True
+isInterpolated _                = False
+
 doCall :: Var -> Maybe Exp -> [Exp] -> Eval Val
-doCall var invs args = do
+doCall var invs origArgs = do
     -- First, reduce the invocant fully in item context.
     invs'   <- fmapM (fmap Val . enterLValue . enterEvalContext cxtItemAny) invs
 
-    -- XXX - add support for [,] here!
+    -- Support for |$foo here
+    args    <- if any isInterpolated origArgs
+        then fmap concat (mapM interpolateExp origArgs)
+        else return origArgs
+
     sub     <- findSub var invs' args
 
     -- XXX - Consider this case:
