@@ -149,7 +149,7 @@ sub {
 
   $sig = Data::Bind->sig
       ({ var => '$a' }, { var => '@tail', is_slurpy => 1 });
-  $sig->bind({ positional => [\1,\2,\3] });
+  $sig->[0]->bind({ positional => [\1,\2,\3] });
 
   ok($a == 1 && eq_array(\@tail, [2, 3]), 'bound slurpy');
 }->();

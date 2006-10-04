@@ -1,7 +1,7 @@
 package Data::Bind;
 use 5.008;
 use strict;
-our $VERSION = '0.28';
+our $VERSION = '0.29';
 
 use base 'Exporter';
 our @EXPORT = qw(bind_op bind_op2);
@@ -16,8 +16,8 @@ sub bind_op {
     my %vars = @_;
 
     my $sig = Data::Bind->sig(map { { var => $_, is_rw => 1 } } keys %vars);
-    $sig->bind({ positional => [ values %vars ],
-		 named => {} }, 2);
+    $sig->[0]->bind({ positional => [ values %vars ],
+		      named => {} }, 2);
 
     # XXX: probably returning the var
     return;
@@ -33,12 +33,25 @@ sub bind_op2 {
 }
 
 sub sig {
+    my ($class, @sigs) = @_;
+
+    if (ref $sigs[0] eq 'HASH') { # one element
+	@sigs = ([@sigs]);
+    }
+
+    return Data::Bind::SigCollection->new( [ map { $class->sig_element(@$_) } @sigs ] );
+}
+
+
+sub sig_element {
     my $class = shift;
     my $now_named = 0;
     my ($named, $positional, $named_slurpy) = ({}, []);
     my $invocant;
+    my $multidim;
 
     for my $param (@_) {
+	die 'more than one multidimensional slurpy argument' if $multidim;
 	my $db_param = Data::Bind::Param->new
 	    ({ container_var => $param->{var},
 	       named_only    => $param->{named_only},
@@ -48,6 +61,9 @@ sub sig {
 	       constraint    => $param->{constraint},
 	       p5type        => substr($param->{var}, 0, 1),
 	       name          => substr($param->{var}, 1) });
+
+	$multidim = $param->{is_multidimension};
+	$db_param->is_slurpy(1) if $multidim;
 
 	if ($param->{invocant}) {
 	    $db_param->is_optional(1)
@@ -78,6 +94,7 @@ sub sig {
 
     return Data::Bind::Sig->new
 	({ named => $named, positional => $positional,
+	   is_multidimension => $multidim,
 	   invocant => $invocant,
 	   named_slurpy => $named_slurpy });
 }
@@ -110,12 +127,10 @@ sub sub_signature {
 
 sub arg_bind {
     my $cv = _get_cv(caller_cv(1));
-    my $invocant  = ref($_[1][0]) && ref($_[1][0]) eq 'ARRAY' ? undef : shift @{$_[1]};
-    return unless defined $invocant || @{$_[1]};
-    my $install_local = *$cv->{sig}->bind({ invocant => $invocant, positional => $_[1][0], named => $_[1][1] }, 2);
+    my @install_local = @{ *$cv->{sig}->bind_all($_[1], 2) };
     # We have to install the locals here, otherwise there can be
     # side-effects when it's too many levels away.
-    for (@$install_local) {
+    for (@install_local) {
 	my ($name, $code) = @$_;
 	no strict 'refs';
 	no warnings 'redefine';
@@ -176,9 +191,73 @@ See L<http://www.perl.com/perl/misc/Artistic.html>
 
 =cut
 
+package Data::Bind::SigCollection;
+use Data::Capture;
+
+sub new {
+    my ($class, $sigs) = @_;
+    bless $sigs, $class;
+}
+
+use List::Util 'reduce';
+
+sub arity {
+    my $self = shift;
+    reduce { $a + $b } map { $self->[$_]->arity } 0..$#{$self}
+}
+
+sub bind_all {
+    my ($self, $arg, $lv) = @_;
+    my @install_local;
+    ++$lv;
+    my $i = 0;
+    my $multidim = $self->[0]->is_multidimension;
+    my @x;
+    while (@$arg) {
+	my $inv  = ref($arg->[0]) && ref($arg->[0]) eq 'ARRAY' ? undef : shift @$arg;
+	last unless defined $inv || @$arg;
+	my $pos = shift @$arg;
+	my $named = shift @$arg;
+
+	if ($multidim) {
+	    push @x, \Data::Capture->new( { invocant => $inv, positional => $pos, named => $named });
+	}
+	else {
+	    die 'wrong dimension' unless $self->[$i];
+	    push @install_local,
+		@{ $self->[$i++]->bind({ invocant => $inv, positional => $pos, named => $named }, $lv) };
+	}
+    }
+
+    if ($multidim) {
+	$self->[0]->bind( { positional => \@x }, $lv );
+    }
+
+    return \@install_local;
+}
+
+
+sub is_compatible {
+    my $self = shift;
+    no warnings 'redefine';
+    local *Data::Bind::Param::slurpy_bind = sub {};
+    local *Data::Bind::Param::bind = sub {};
+    local *Data::Bind::Array::bind = sub {};
+    local $@;
+    eval { $self->bind_all(\@_) };
+    return $@ ? 0 : 1;
+}
+
+sub bind {
+    # XXX: old api
+    my $self = shift;
+    die 'old api used with multidimension sig' if $#{$self};
+    $self->[0]->bind($_[0], $_[1] || 2);
+}
+
 package Data::Bind::Sig;
 use base 'Class::Accessor::Fast';
-__PACKAGE__->mk_accessors(qw(positional invocant named named_slurpy));
+__PACKAGE__->mk_accessors(qw(positional invocant named named_slurpy is_multidimension));
 use Carp qw(croak);
 use PadWalker qw(peek_my);
 
@@ -246,18 +325,6 @@ sub bind {
     return \@ret;
 }
 
-
-sub is_compatible {
-    my $self = shift;
-    no warnings 'redefine';
-    local *Data::Bind::Param::slurpy_bind = sub {};
-    local *Data::Bind::Param::bind = sub {};
-    local *Data::Bind::Array::bind = sub {};
-    my $invocant  = ref($_[0]) && ref($_[0]) eq 'ARRAY' ? undef : shift;
-    local $@;
-    eval { $self->bind({ invocant => $invocant, positional => [@{$_[0]}], named => {%{$_[1]}} }, 0)};
-    return $@ ? 0 : 1;
-}
 
 sub arity {
     my $self = shift;

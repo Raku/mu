@@ -17,6 +17,7 @@ t/arrays.t
 t/coderef.t
 t/compat.t
 t/highlevel.t
+t/multidimension.t
 t/scalars.t
 t/slurpy_param.t
 t/sub.t
