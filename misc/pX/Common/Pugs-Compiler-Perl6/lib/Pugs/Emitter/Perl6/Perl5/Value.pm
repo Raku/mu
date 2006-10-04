@@ -16,19 +16,16 @@ package Pugs::Emitter::Perl6::Perl5::Bool;
         fallback => 1,
     );
     sub WHAT { 
-        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Bool' } );
+        $_[0]->node( 'Str', 'Bool' );
     }
     sub str {
-        return Pugs::Emitter::Perl6::Perl5::Str->new( 
-            { name => ( $_[0]->{name} ? '1' : '0' ) } );
+        $_[0]->node( 'Str', ( $_[0]->{name} ? '1' : '0' ) );
     }
     sub int {
-        return Pugs::Emitter::Perl6::Perl5::Int->new( 
-            { name => ( $_[0]->{name} ? '1' : '0' ) } );
+        $_[0]->node( 'Int', ( $_[0]->{name} ? '1' : '0' ) );
     }
     sub num {
-        return Pugs::Emitter::Perl6::Perl5::Num->new( 
-            { name => ( $_[0]->{name} ? '1' : '0' ) } );
+        $_[0]->node( 'Num', ( $_[0]->{name} ? '1' : '0' ) );
     }
     sub perl {
         $_[0]->str;
@@ -38,8 +35,8 @@ package Pugs::Emitter::Perl6::Perl5::Bool;
     }
     sub not {
         $_[0]->{name} 
-        ? Pugs::Emitter::Perl6::Perl5::Bool->new( { name => 0 } ) 
-        : Pugs::Emitter::Perl6::Perl5::Bool->new( { name => 1 } )
+        ? $_[0]->node( 'Bool', 0 ) 
+        : $_[0]->node( 'Bool', 1 )
     }
     sub _61__61_ {  # ==
         $_[0]->int->_61__61_( $_[1] );
@@ -51,7 +48,7 @@ package Pugs::Emitter::Perl6::Perl5::Str;
         fallback => 1,
     );
     sub WHAT { 
-        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Str' } );
+        $_[0]->node( 'Str', 'Str' );
     }
     sub str {
         $_[0]
@@ -60,14 +57,12 @@ package Pugs::Emitter::Perl6::Perl5::Str;
         $_[0]
     }
     sub scalar {
-        return Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( {
-            name => 'bless \\' . $_[0]->perl . 
+        $_[0]->node( 'Perl5Scalar', 'bless \\' . $_[0]->perl . 
                     ", 'Pugs::Runtime::Perl6::Str'" 
-        } );
+        );
     }
     sub eq {
-        Pugs::Emitter::Perl6::Perl5::BoolExpression->new( 
-            { name => $_[0] . " eq " . $_[1]->str } );
+        $_[0]->node( 'BoolExpression', $_[0] . " eq " . $_[1]->str );
     }
 package Pugs::Emitter::Perl6::Perl5::Int;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
@@ -76,13 +71,13 @@ package Pugs::Emitter::Perl6::Perl5::Int;
         fallback => 1,
     );
     sub WHAT { 
-        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Int' } );
+        $_[0]->node( 'Str', 'Int' );
     }
     sub str {
-        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => $_[0]->{name} } );
+        $_[0]->node( 'Str', $_[0]->{name} );
     }
     sub num {
-        return Pugs::Emitter::Perl6::Perl5::Num->new( { name => $_[0]->{name} } );
+        $_[0]->node( 'Num', $_[0]->{name} );
     }
     sub perl {
         $_[0]->str
@@ -97,21 +92,19 @@ package Pugs::Emitter::Perl6::Perl5::Num;
         fallback => 1,
     );
     sub WHAT { 
-        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Num' } );
+        $_[0]->node( 'Str', 'Num' );
     }
     sub str {
-        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => $_[0]->{name} } );
+        $_[0]->node( 'Str', $_[0]->{name} );
     }
     sub perl {
         $_[0]->str
     }
     sub _61__61_ {  # ==
         my $tmp = $_[1]->num;
-        return Pugs::Emitter::Perl6::Perl5::Bool->new( 
-            { name => ( $_[0] == $tmp ) } )
+        return $_[0]->node( 'Bool', ( $_[0] == $tmp ) )
             if ref( $tmp ) eq 'Pugs::Emitter::Perl6::Perl5::Num';
-        return Pugs::Emitter::Perl6::Perl5::BoolExpression->new( 
-            { name => $_[0] . " == " . $tmp } );
+        return $_[0]->node( 'BoolExpression', $_[0] . " == " . $tmp );
     }
 package Pugs::Emitter::Perl6::Perl5::Code;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
@@ -120,10 +113,10 @@ package Pugs::Emitter::Perl6::Perl5::Code;
         fallback => 1,
     );
     sub WHAT { 
-        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Code' } );
+        $_[0]->node( 'Str', 'Code' );
     }
     sub str {
-        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => $_[0]->{name} } );
+        $_[0]->node( 'Str', $_[0]->{name} );
     }
     sub perl {
         $_[0]->str

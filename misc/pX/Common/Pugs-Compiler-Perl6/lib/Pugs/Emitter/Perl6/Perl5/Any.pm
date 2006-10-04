@@ -4,15 +4,10 @@ package Pugs::Emitter::Perl6::Perl5::Any;
 
 use strict;
 use warnings;
+use base 'Pugs::Emitter::Perl6::Perl5::node';
 
 sub other_get {
     Pugs::Emitter::Perl6::Perl5::_emit( $_[1] );
-}
-
-sub new {
-    my $self = $_[1];  # { name => '%hash5' }
-    bless $self, $_[0];
-    return $self;
 }
 
 sub name {
