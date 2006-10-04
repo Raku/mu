@@ -79,13 +79,13 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
     my $string is context = "foo";
     eval_ok '(%+hash5 ~~ .{$+string})', 'hash.{Any} truth', :todo;
     $string = "gorch";
-    eval_ok '!(%+hash5 ~~ .{$+string})', 'hash.{Any} untruth';
+    eval_ok '!(%+hash5 ~~ .{$+string})', 'hash.{Any} untruth', :todo;
 };
 
 #L<<S03/Smart matching/Hash .<string> "hash element truth*">>
 { 
     eval_ok '(%+hash5 ~~ .<foo>)', "hash<string> truth", :todo;
-    eval_ok '!(%+hash5 ~~ .<gorch>)', "hash<string> untruth";
+    eval_ok '!(%+hash5 ~~ .<gorch>)', "hash<string> untruth", :todo;
 };
 
 #L<<S03/Smart matching/Array Array "arrays are comparable" »~~«>>
