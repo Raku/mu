@@ -14,7 +14,7 @@ import Pugs.AST
 import Pugs.Pretty
 import Pugs.Internals
 import Pugs.CodeGen.PIL1 (genPIL1)
-import Pugs.CodeGen.PIL2 (genPIL2, genPIL2Perl5, genPIL2JSON, genPIL2YAML)
+-- import Pugs.CodeGen.PIL2 (genPIL2, genPIL2Perl5, genPIL2JSON, genPIL2YAML)
 import Pugs.CodeGen.PIR (genPIR, genPIR_YAML)
 import Pugs.CodeGen.Perl5 (genPerl5)
 import Pugs.CodeGen.YAML (genParseYAML, genParseHsYAML, genYAML)
@@ -35,10 +35,10 @@ generators = Map.fromList $
     , ("PIL1-Perl5",  genPerl5)
     , ("PIL1-JSON",   genJSON)
     , ("PIL1-YAML",   genYAML)
-    , ("PIL2",        genPIL2)
-    , ("PIL2-Perl5",  genPIL2Perl5)
-    , ("PIL2-JSON",   genPIL2JSON)
-    , ("PIL2-YAML",   genPIL2YAML)
+--  , ("PIL2",        genPIL2)
+--  , ("PIL2-Perl5",  genPIL2Perl5)
+--  , ("PIL2-JSON",   genPIL2JSON)
+--  , ("PIL2-YAML",   genPIL2YAML)
     , ("Pugs",        genPugs)
     , ("Parse-YAML",  genParseYAML)
     , ("Parse-HsYAML",genParseHsYAML)
@@ -58,16 +58,16 @@ norm = norm' . map toLower . filter isAlphaNum
     norm' "piryaml"= "PIR-YAML"
     norm' "pil"    = "!PIL1"
     norm' "pil1"   = "PIL1"
-    norm' "pil2"   = "PIL2"
+--  norm' "pil2"   = "PIL2"
     norm' "perl5"  = "!PIL1-Perl5"
     norm' "json"   = "!PIL1-JSON"
     norm' "yaml"   = "!PIL1-YAML"
     norm' "pil1perl5"  = "PIL1-Perl5"
     norm' "pil1json"   = "PIL1-JSON"
     norm' "pil1yaml"   = "PIL1-YAML"
-    norm' "pil2perl5"  = "PIL2-Perl5"
-    norm' "pil2json"   = "PIL2-JSON"
-    norm' "pil2yaml"   = "PIL2-YAML"
+--  norm' "pil2perl5"  = "PIL2-Perl5"
+--  norm' "pil2json"   = "PIL2-JSON"
+--  norm' "pil2yaml"   = "PIL2-YAML"
     norm' "parseyaml"  = "Parse-YAML"
     norm' "parsehsyaml"= "Parse-HsYAML"
     norm' "parsepretty"= "Parse-Pretty"

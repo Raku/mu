@@ -4,7 +4,7 @@ module Pugs.Compile.Pugs (genPugs) where
 import Pugs.AST
 import Pugs.Types
 import Pugs.Internals
-import qualified Data.ByteString.Char8 as Str
+import qualified UTF8 as Str
 import qualified Data.Map as Map
 
 type Str = Str.ByteString
