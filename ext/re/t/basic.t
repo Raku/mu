@@ -4,7 +4,7 @@ use Test;
 plan 5;
 
 {
-  eval_ok((eval q{use re 'pge'; 1}), 'can import the re module');
+  ok( eval(q{use re 'pge'; 1}), 'can import the re module');
   is(%ENV<PUGS_REGEX_ENGINE>, 'PGE', 're module can set engine to PGE');
 }
 
