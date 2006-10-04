@@ -19,7 +19,7 @@ plan 28;
      * `subset`
 
   * Spec
-     * any SortCriterion has traits or only top level?
+     * any Ordering has traits or only top level?
         *  {-M} is descending => &fuzzy_cmp is insensitive
 
   * Syntax cleanup
@@ -34,15 +34,12 @@ plan 28;
 my $prelude_sort = q:to'END_PRELUDE_SORT';
     subset KeyExtractor of Code where { .sig === :(Any --> Any) };
     subset Comparator   of Code where { .sig === :(Any, Any --> Int) };
-    subset SortCriterionPair
+    subset OrderingPair
         of Pair where { .key ~~ KeyExtractor && .value ~~ Comparator };
-    subset SortCriterion
-        of Signature | KeyExtractor | Comparator | SortCriterionPair;
+    subset Ordering
+        of Signature | KeyExtractor | Comparator | OrderingPair;
 
     module Prelude::Sort {
-        our Any
-        sub kex (KeyExtractor $ex, $v) is cached { $ex($v); }
-
         our Order
         sub qby_cmp (Code @qby, $a, $b)
         {
@@ -75,29 +72,61 @@ my $prelude_sort = q:to'END_PRELUDE_SORT';
         }
 
         our Array of Code
-        sub qualify_by (SortCriterion @by)
+        sub qualify_by (Ordering @by)
         {
+            my Any sub keyex (KeyExtractor $ex, Any $v) is cached
+                { $ex($v); }
+
+            my Array sub sigkex (Signature $sig is copy, Any $v) is cached
+                { $sig := $v; @$sig; }
+
             gather {
                 for @by -> $criterion {
                     when Signature {
                         my Signature $sig := $crierion;
+                        my Array &kex     := &sigkex;
 
-                        # Build a KeyExtractor given $sig
-                        # Build a Comparator given $sig
-                        # Don't forget  to take into account
-                        #   is insensitive, is descending
-                        # Add to gather
+                        my $cmpr -> $a, $b {
+                            my $value;
+
+                            for zip(@$a; @$b; @$sig) -> $x, $y, ::T {
+                                my $u;
+                                my $v;
+
+                                if ( ::T ~~ canonicalized ) {
+                                    $u = ::T.canonicalized.($x);
+                                    $v = ::T.canonicalized.($y);
+                                }
+                                else {
+                                    $u := $x;
+                                    $v := $y;
+                                }
+
+                                last if $value = $u cmp $v;
+                            }
+
+                            $value;
+                        }
+
+                        if ( $sig ~~ descending ) {
+                            $cmpr = -> $a, $b { $cmpr($b, $a) };
+                        }
+
+                        take( -> $a, $b {
+                            $cmpr(kex($sig, $a), kex($sig, $b))
+                            });
                     }
 
                     when KeyExtractor {
                         my KeyExtractor $ex := $criterion;
+                        my &kex             := &keyex;
 
                         my $cmpr = &cmp;
 
-                        if ( $ex ~~ insensitive ) {
-                            $cmpr = -> $a, $b {
-                                $a = lc($a) if $a.can('lc');
-                                $b = lc($b) if $b.can('lc');
+                        if ( $ex ~~ canonicalized ) {
+                            $cmpr = -> $a is copy, $b is copy {
+                                $a = $ex.canonicalized.($a);
+                                $b = $ex.canonicalized.($b);
                                 $cmpr($a, $b)
                                 };
                         }
@@ -114,8 +143,8 @@ my $prelude_sort = q:to'END_PRELUDE_SORT';
 
                         if ( $criterion ~~ insensitive ) {
                             $cmpr = -> $a, $b {
-                                $a = lc($a) if $a.can('lc');
-                                $b = lc($b) if $b.can('lc');
+                                $a = $criterion.canonicalized.($a);
+                                $b = $criterion.canonicalized.($b);
                                 $cmpr($a, $b)
                                 };
                         }
@@ -128,15 +157,16 @@ my $prelude_sort = q:to'END_PRELUDE_SORT';
                     }
 
                     when Pair {
-                        my SortCriterionPair $scp := $criterion;
+                        my OrderingPair $scp := $criterion;
+                        my &kex              := &keyex;
 
                         my KeyExtractor $ex = $scp.key;
                         my Comparator $cmpr = $scp.value;
-                
-                        if ( $pair ~~ insensitive ) {
+
+                        if ( $pair ~~ canonicalized ) {
                             $cmpr = -> $a, $b {
-                                $a = lc($a) if $a.can('lc');
-                                $b = lc($b) if $b.can('lc');
+                                $a = $pair.canonicalized.($a);
+                                $b = $pair.canonicalized.($b);
                                 $cmpr($a, $b)
                                 };
                         }
@@ -157,7 +187,7 @@ my $prelude_sort = q:to'END_PRELUDE_SORT';
         #   stable
 
         our Array
-        sub mergesort (@values is rw, SortCriterion @by? = list(&infix:<cmp>),
+        sub mergesort (@values is rw, Ordering @by? = list(&infix:<cmp>),
             Bit $inplace?)
         {
             my @result;
@@ -237,24 +267,24 @@ my $prelude_sort = q:to'END_PRELUDE_SORT';
         Prelude::Sort::mergesort(@values, list(&by), $inplace);
     }
 
-    our Array multi Array::p6sort( @values is rw, SortCriterion @by, Bit $inplace? )
+    our Array multi Array::p6sort( @values is rw, Ordering @by, Bit $inplace? )
     {
         Prelude::Sort::mergesort(@values, @by, $inplace);
     }
 
-    our Array multi Array::p6sort( @values is rw, SortCriterion $by = &infix:<cmp>,
+    our Array multi Array::p6sort( @values is rw, Ordering $by = &infix:<cmp>,
         Bit $inplace? )
     {
         Array::sort(@values, $by, $inplace);
     }
 
-    our List multi List::p6sort( SortCriterion @by, *@values )
+    our List multi List::p6sort( Ordering @by, *@values )
     {
         my @result = Prelude::Sort::mergesort(@values, @by);
         @result[];
     }
 
-    our List multi List::p6sort( SortCriterion $by = &infix:<cmp>, *@values )
+    our List multi List::p6sort( Ordering $by = &infix:<cmp>, *@values )
     {
         my @result = Prelude::Sort::mergesort(@values, list($by));
         @result[];
@@ -482,8 +512,8 @@ my @sorted_di_numstr = list(<z y x>, <C B A>, reverse(1..3, 10..12)),
     my @sorted;
 
     # Not sure you can have traits on objects but
-    # L<S29/List/=item sort> says that any SortCriterion
-    # can have `descending` and `insensitive` traits.
+    # L<S29/List/=item sort> says that any Ordering
+    # can have `descending` and `canonicalized($how)` traits.
     ok(eval('@sorted = p6sort ( { $_ } => {
         given $^a {
             when Num {
@@ -494,7 +524,7 @@ my @sorted_di_numstr = list(<z y x>, <C B A>, reverse(1..3, 10..12)),
             }
             default { $^a cmp $^b }
         }
-        }) is descending is insensitive,
+        }) is descending is canonicalized({$^v ~~ Str ?? lc($v) !! $v}),
         @numstr;'),
         'parse trait on object',
         :todo<feature>,
