@@ -89,6 +89,9 @@ package Pugs::Emitter::Perl6::Perl5::int;
     sub _61__61_ {  # ==
         $_[0]->num->_61__61_( $_[1] );
     }
+    sub _43_ {   # +
+        $_[0]->num->_43_( $_[1] );
+    }
 package Pugs::Emitter::Perl6::Perl5::num;
     use base 'Pugs::Emitter::Perl6::Perl5::Native';
     use overload (
@@ -111,6 +114,14 @@ package Pugs::Emitter::Perl6::Perl5::num;
             if ref( $tmp ) eq 'Pugs::Emitter::Perl6::Perl5::Num';
         return Pugs::Emitter::Perl6::Perl5::BoolExpression->new( 
             { name => $_[0] . " == " . $tmp } );
+    }
+    sub _43_ {   # +
+        my $tmp = $_[1]->num;
+        return Pugs::Emitter::Perl6::Perl5::num->new( 
+            { name => ( $_[0]->{name} + $tmp ) } )
+            if ref( $tmp ) eq 'Pugs::Emitter::Perl6::Perl5::num';
+        return Pugs::Emitter::Perl6::Perl5::NumExpression->new( 
+            { name => $_[0] . " + " . $tmp } );
     }
 
 1;

@@ -3,7 +3,7 @@ use warnings;
 # Compile-time Perl 5 thing, with hardcoded, autoboxed  methods
 
 # operator name mangler:
-# perl Runtime::Common -e ' print Pugs::Runtime::Common::mangle_ident("==") '
+# perl -MPugs::Runtime::Common -e ' print Pugs::Runtime::Common::mangle_ident("==") '
 
 
 package Pugs::Emitter::Perl6::Perl5::Value;
