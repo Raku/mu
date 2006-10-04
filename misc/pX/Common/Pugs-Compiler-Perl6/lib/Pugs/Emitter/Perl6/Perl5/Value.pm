@@ -38,9 +38,9 @@ package Pugs::Emitter::Perl6::Perl5::Bool;
         ? $_[0]->node( 'Bool', 0 ) 
         : $_[0]->node( 'Bool', 1 )
     }
-    sub _61__61_ {  # ==
-        $_[0]->int->_61__61_( $_[1] );
-    }
+    ::unicode_sub 'infix:<==>', sub{ 
+        $_[0]->int->infix_58__60__61__61__62_( $_[1] );
+    };
 package Pugs::Emitter::Perl6::Perl5::Str;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
     use overload (
@@ -56,9 +56,18 @@ package Pugs::Emitter::Perl6::Perl5::Str;
     sub perl {
         $_[0]
     }
+    sub num {
+        $_[0]->node( 'Num', $_[0]->{name} + 0 );
+    }
+    sub int {
+        $_[0]->num->int;
+    }
+    sub true {
+        $_[0]->num->true;  # XXX
+    }
     sub scalar {
-        $_[0]->node( 'Perl5Scalar', 'bless \\' . $_[0]->perl . 
-                    ", 'Pugs::Runtime::Perl6::Str'" 
+        $_[0]->node( 'Perl5Scalar', 
+            'bless \\' . $_[0]->perl . ", 'Pugs::Runtime::Perl6::Str'" 
         );
     }
     sub eq {
@@ -79,12 +88,15 @@ package Pugs::Emitter::Perl6::Perl5::Int;
     sub num {
         $_[0]->node( 'Num', $_[0]->{name} );
     }
+    sub int {
+        $_[0];
+    }
     sub perl {
         $_[0]->str
     }
-    sub _61__61_ {  # ==
-        $_[0]->num->_61__61_( $_[1] );
-    }
+    ::unicode_sub 'infix:<==>', sub{ 
+        $_[0]->num->infix_58__60__61__61__62_( $_[1] );
+    };
 package Pugs::Emitter::Perl6::Perl5::Num;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
     use overload (
@@ -97,15 +109,21 @@ package Pugs::Emitter::Perl6::Perl5::Num;
     sub str {
         $_[0]->node( 'Str', $_[0]->{name} );
     }
+    sub num {
+        $_[0];
+    }
+    sub int {
+        $_[0]->node( 'Int', int( $_[0]->{name} ) );
+    }
     sub perl {
         $_[0]->str
     }
-    sub _61__61_ {  # ==
+    ::unicode_sub 'infix:<==>', sub{ 
         my $tmp = $_[1]->num;
         return $_[0]->node( 'Bool', ( $_[0] == $tmp ) )
             if ref( $tmp ) eq 'Pugs::Emitter::Perl6::Perl5::Num';
         return $_[0]->node( 'BoolExpression', $_[0] . " == " . $tmp );
-    }
+    };
 package Pugs::Emitter::Perl6::Perl5::Code;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
     use overload (

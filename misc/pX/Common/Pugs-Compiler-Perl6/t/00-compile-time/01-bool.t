@@ -18,9 +18,10 @@ use Pugs::Emitter::Perl6::Perl5::Expression;
     is( "" . $b->num, "1", 'emit bool.num' );
     is( "" . $b->true, "1", 'emit bool.true' );
 
-    # ==
+    # 'infix:<==>' eq infix_58__60__61__61__62_
+
     my $i = Pugs::Emitter::Perl6::Perl5::node->node( 'Int', 42 );
-    is( "" . $b->_61__61_( $i ) , "0", 'emit bool.==(num)' );
-    is( "" . $b->_61__61_( $i )->not , "1", 'emit bool.==(num).not' );
+    is( "" . $b->infix_58__60__61__61__62_( $i ) , "0", 'emit bool.==(num)' );
+    is( "" . $b->infix_58__60__61__61__62_( $i )->not , "1", 'emit bool.==(num).not' );
 
 }
