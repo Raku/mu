@@ -53,5 +53,6 @@ plan 11;
     eval_is q{
         my @pairs = (100 => 'lovely');
         @pairs.fmt("%d ==> %s", "\n") 
-    }, "100 ==> lovely", '.fmt works with lists of a single pair';
+    }, "100 ==> lovely", '.fmt works with lists of a single pair',
+    :todo<feature>, :depends<list of single pair>;
 }
