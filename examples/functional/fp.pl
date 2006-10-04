@@ -15,7 +15,6 @@ sub length2 (*@x) returns Int{
         $curr
     }
     multi iter(*$curr, *$x, *@xs) returns Int {
-        say "==> @xs[]";
         iter($curr+1, |@xs);
     }
     iter(0, |@x);
