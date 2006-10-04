@@ -32,7 +32,7 @@ import Data.Bits (shiftL)
 import qualified Judy.StrMap as H
 import qualified Judy.CollectionsM as C
 import qualified Data.IntMap as IntMap
-import qualified Data.ByteString.Char8 as Str
+import qualified Data.ByteString.Char8 as Buf
 
 data Type
     = MkType !ID         -- ^ A regular type
@@ -200,7 +200,7 @@ instance Show Pkg where
     show pkg = cast (cast pkg :: ByteString)
 
 instance ((:>:) ByteString) Pkg where
-    cast (MkPkg ns) = Str.join (__"::") ns
+    cast (MkPkg ns) = Buf.join (__"::") ns
 
 instance Show Var where
     showsPrec _ var = ('"':) . showsVar var . ('"':)
@@ -391,117 +391,117 @@ doBufToVar buf = MkVar
     , v_name    = cast name
     }
     where
-    (sig, afterSig) = Str.span isSigilChar buf
-    sig' = if Str.null sig then internalError $ "Sigilless var: " ++ show buf else cast sig
-    len = Str.length afterSig
+    (sig, afterSig) = Buf.span isSigilChar buf
+    sig' = if Buf.null sig then internalError $ "Sigilless var: " ++ show buf else cast sig
+    len = Buf.length afterSig
     (twi, (pkg, afterPkg))
         | len == 0 = (TNil, (emptyPkg, afterSig))
-        | len == 1 = case Str.head afterSig of
+        | len == 1 = case Buf.head afterSig of
             '!' -> (TGlobal, (emptyPkg, afterSig))  -- XXX $! always global - WRONG
             '/' -> (TGlobal, (emptyPkg, afterSig))  -- XXX $/ always global - WRONG
             _   -> (TNil, (emptyPkg, afterSig))
-        | otherwise = case Str.head afterSig of
+        | otherwise = case Buf.head afterSig of
             '.' -> (TAttribute, toPkg afterTwi)
             '^' -> (TImplicit, toPkg afterTwi)
             '?' -> (TMagical, toPkg afterTwi)
             '!' -> (TPrivate, toPkg afterTwi)
             '=' -> (TDoc, toPkg afterTwi)
---          '*' -> (TNil, (globalPkg, Str.tail afterSig))
+--          '*' -> (TNil, (globalPkg, Buf.tail afterSig))
             '*' -> (TGlobal, toPkg afterTwi)
-            '+' -> (TNil, (contextPkg, Str.tail afterSig))
+            '+' -> (TNil, (contextPkg, Buf.tail afterSig))
             _   -> (TNil, toPkg (tokenPkg afterSig))
-    afterTwi = tokenPkg (Str.tail afterSig)
+    afterTwi = tokenPkg (Buf.tail afterSig)
     toPkg (pkg, rest) = (MkPkg pkg, rest)
-    tokenPkg str = case Str.findSubstring (__"::") str of
+    tokenPkg str = case Buf.findSubstring (__"::") str of
         Nothing  -> ([], str)
-        Just 0   -> tokenPkg (Str.drop 2 str) -- $::x is the same as $x
-        Just idx -> let (rest, final) = tokenPkg (Str.drop (idx + 2) str) in
-            ((Str.take idx str:rest), final)
+        Just 0   -> tokenPkg (Buf.drop 2 str) -- $::x is the same as $x
+        Just idx -> let (rest, final) = tokenPkg (Buf.drop (idx + 2) str) in
+            ((Buf.take idx str:rest), final)
     (cat, afterCat)
         | twi == TGlobal =
             -- XXX special case for "$*X::Y::Z".  Currently we encode that
             --     as a twigil of *, and then the name part contains
-            case Str.findSubstrings (__"::") afterPkg of
+            case Buf.findSubstrings (__"::") afterPkg of
                 [] -> tokenizeCategory afterPkg
                 xs -> let idx = last xs
-                          (c, n) = tokenizeCategory (Str.drop (idx + 2) afterPkg)
-                        in (c, Str.take idx afterPkg +++ n)
+                          (c, n) = tokenizeCategory (Buf.drop (idx + 2) afterPkg)
+                        in (c, Buf.take idx afterPkg +++ n)
         | otherwise = tokenizeCategory afterPkg
     (name, meta)
-        | C_postfix <- cat, __"\194\187" `Str.isPrefixOf` afterCat
-        = (Str.drop 2 afterCat, MPre)
-        | C_postfix <- cat, __">>" `Str.isPrefixOf` afterCat
-        = (Str.drop 2 afterCat, MPre)
+        | C_postfix <- cat, __"\187" `Buf.isPrefixOf` afterCat
+        = (Buf.drop 2 afterCat, MPre)
+        | C_postfix <- cat, __">>" `Buf.isPrefixOf` afterCat
+        = (Buf.drop 2 afterCat, MPre)
         | C_infix <- cat
-        , __"\194\187" `Str.isPrefixOf` afterCat
-        , __"\194\171" `Str.isSuffixOf` afterCat
-        = (Str.drop 2 (dropEnd 2 afterCat), MHyper)
+        , __"\187" `Buf.isPrefixOf` afterCat
+        , __"\171" `Buf.isSuffixOf` afterCat
+        = (Buf.drop 2 (dropEnd 2 afterCat), MHyper)
         | C_infix <- cat
-        , __">>" `Str.isPrefixOf` afterCat
-        , __"<<" `Str.isSuffixOf` afterCat 
-        = (Str.drop 2 (dropEnd 2 afterCat), MHyper)
+        , __">>" `Buf.isPrefixOf` afterCat
+        , __"<<" `Buf.isSuffixOf` afterCat 
+        = (Buf.drop 2 (dropEnd 2 afterCat), MHyper)
         | C_prefix <- cat
-        , __"[\\" `Str.isPrefixOf` afterCat
-        , ']' <- Str.last afterCat
-        = case Str.drop 2 (Str.init afterCat) of
-            maybeHyper | __">>" `Str.isPrefixOf` maybeHyper
-                       , __"<<" `Str.isSuffixOf` maybeHyper 
-                -> (Str.drop 2 (dropEnd 2 maybeHyper), MHyperScan)
-            maybeHyper | __"\194\187" `Str.isPrefixOf` maybeHyper
-                       , __"\194\171" `Str.isSuffixOf` maybeHyper 
-                -> (Str.drop 2 (dropEnd 2 maybeHyper), MHyperScan)
+        , __"[\\" `Buf.isPrefixOf` afterCat
+        , ']' <- Buf.last afterCat
+        = case Buf.drop 2 (Buf.init afterCat) of
+            maybeHyper | __">>" `Buf.isPrefixOf` maybeHyper
+                       , __"<<" `Buf.isSuffixOf` maybeHyper 
+                -> (Buf.drop 2 (dropEnd 2 maybeHyper), MHyperScan)
+            maybeHyper | __"\187" `Buf.isPrefixOf` maybeHyper
+                       , __"\171" `Buf.isSuffixOf` maybeHyper 
+                -> (Buf.drop 2 (dropEnd 2 maybeHyper), MHyperScan)
             other -> (other, MScan)
         | C_prefix <- cat
-        , '[' <- Str.head afterCat
-        , ']' <- Str.last afterCat
-        = case Str.tail (Str.init afterCat) of
-            maybeHyper | __">>" `Str.isPrefixOf` maybeHyper
-                       , __"<<" `Str.isSuffixOf` maybeHyper 
-                -> (Str.drop 2 (dropEnd 2 maybeHyper), MHyperFold)
-            maybeHyper | __"\194\187" `Str.isPrefixOf` maybeHyper
-                       , __"\194\171" `Str.isSuffixOf` maybeHyper 
-                -> (Str.drop 2 (dropEnd 2 maybeHyper), MHyperFold)
+        , '[' <- Buf.head afterCat
+        , ']' <- Buf.last afterCat
+        = case Buf.tail (Buf.init afterCat) of
+            maybeHyper | __">>" `Buf.isPrefixOf` maybeHyper
+                       , __"<<" `Buf.isSuffixOf` maybeHyper 
+                -> (Buf.drop 2 (dropEnd 2 maybeHyper), MHyperFold)
+            maybeHyper | __"\187" `Buf.isPrefixOf` maybeHyper
+                       , __"\171" `Buf.isSuffixOf` maybeHyper 
+                -> (Buf.drop 2 (dropEnd 2 maybeHyper), MHyperFold)
             other -> (other, MFold)
         -- XXX - massive cut-n-paste!
         {-
         | C_prefix <- cat
-        , __"[\\" `Str.isPrefixOf` afterCat
-        , __"]\194\171" `Str.isSuffixOf` afterCat || __"]<<" `Str.isSuffixOf` afterCat
-        = case Str.drop 2 (dropEnd 3 afterCat) of
-            maybeHyper | __">>" `Str.isPrefixOf` maybeHyper
-                       , __"<<" `Str.isSuffixOf` maybeHyper 
-                -> (Str.drop 2 (dropEnd 2 maybeHyper), MHyperScanPost)
-            maybeHyper | __"\194\187" `Str.isPrefixOf` maybeHyper
-                       , __"\194\171" `Str.isSuffixOf` maybeHyper 
-                -> (Str.drop 2 (dropEnd 2 maybeHyper), MHyperScanPost)
+        , __"[\\" `Buf.isPrefixOf` afterCat
+        , __"]\171" `Buf.isSuffixOf` afterCat || __"]<<" `Buf.isSuffixOf` afterCat
+        = case Buf.drop 2 (dropEnd 3 afterCat) of
+            maybeHyper | __">>" `Buf.isPrefixOf` maybeHyper
+                       , __"<<" `Buf.isSuffixOf` maybeHyper 
+                -> (Buf.drop 2 (dropEnd 2 maybeHyper), MHyperScanPost)
+            maybeHyper | __"\187" `Buf.isPrefixOf` maybeHyper
+                       , __"\171" `Buf.isSuffixOf` maybeHyper 
+                -> (Buf.drop 2 (dropEnd 2 maybeHyper), MHyperScanPost)
             other -> (other, MScanPost)
         | C_prefix <- cat
-        , '[' <- Str.head afterCat
-        , __"]\194\171" `Str.isSuffixOf` afterCat || __"]<<" `Str.isSuffixOf` afterCat
-        = case Str.tail (dropEnd 3 afterCat) of
-            maybeHyper | __">>" `Str.isPrefixOf` maybeHyper
-                       , __"<<" `Str.isSuffixOf` maybeHyper 
-                -> (Str.drop 2 (dropEnd 2 maybeHyper), MHyperFoldPost)
-            maybeHyper | __"\194\187" `Str.isPrefixOf` maybeHyper
-                       , __"\194\171" `Str.isSuffixOf` maybeHyper 
-                -> (Str.drop 2 (dropEnd 2 maybeHyper), MHyperFoldPost)
+        , '[' <- Buf.head afterCat
+        , __"]\171" `Buf.isSuffixOf` afterCat || __"]<<" `Buf.isSuffixOf` afterCat
+        = case Buf.tail (dropEnd 3 afterCat) of
+            maybeHyper | __">>" `Buf.isPrefixOf` maybeHyper
+                       , __"<<" `Buf.isSuffixOf` maybeHyper 
+                -> (Buf.drop 2 (dropEnd 2 maybeHyper), MHyperFoldPost)
+            maybeHyper | __"\187" `Buf.isPrefixOf` maybeHyper
+                       , __"\171" `Buf.isSuffixOf` maybeHyper 
+                -> (Buf.drop 2 (dropEnd 2 maybeHyper), MHyperFoldPost)
             other -> (other, MFoldPost)
         -}
-        | C_prefix <- cat, __"\194\171" `Str.isSuffixOf` afterCat
+        | C_prefix <- cat, __"\171" `Buf.isSuffixOf` afterCat
         = (dropEnd 2 afterCat, MPost)
-        | C_prefix <- cat, __"<<" `Str.isSuffixOf` afterCat
+        | C_prefix <- cat, __"<<" `Buf.isSuffixOf` afterCat
         = (dropEnd 2 afterCat, MPost)
         | otherwise
         = (afterCat, MNil)
 
-    tokenizeCategory str = case Str.elemIndex ':' str of
-        Just idx -> if isUpper (Str.head str)
+    tokenizeCategory str = case Buf.elemIndex ':' str of
+        Just idx -> if isUpper (Buf.head str)
             then internalError (show buf)
-            else (cast (Str.take idx str), Str.drop (succ idx) str)
+            else (cast (Buf.take idx str), Buf.drop (succ idx) str)
         _ -> (CNil, afterPkg)
 
 instance ((:>:) Pkg) ByteString where
-    cast = MkPkg . filter (not . Str.null) . Str.splitWith (== ':')
+    cast = MkPkg . filter (not . Buf.null) . Buf.splitWith (== ':')
 
 instance ((:>:) Pkg) String where
     cast = cast . (cast :: String -> ByteString)
@@ -516,19 +516,19 @@ possiblyFixOperatorName :: Var -> Var
 possiblyFixOperatorName var@MkVar{ v_categ = CNil } = var
 possiblyFixOperatorName var@MkVar{ v_sigil = sig, v_name = name }
     | sig /= SCode, sig /= SCodeMulti = var
-    | __"\194\171" `Str.isPrefixOf` buf, __"\194\187" `Str.isSuffixOf` buf
-    = var{ v_name = cast (dropEnd 2 (Str.drop 2 buf)) }
-    | __"<<" `Str.isPrefixOf` buf, __">>" `Str.isSuffixOf` buf
-    = var{ v_name = cast (dropEnd 2 (Str.drop 2 buf)) }
-    | Str.head buf == '<', Str.last buf == '>', buf /= __"<=>"
-    = var{ v_name = cast (Str.init (Str.tail buf)) }
+    | __"\171" `Buf.isPrefixOf` buf, __"\187" `Buf.isSuffixOf` buf
+    = var{ v_name = cast (dropEnd 2 (Buf.drop 2 buf)) }
+    | __"<<" `Buf.isPrefixOf` buf, __">>" `Buf.isSuffixOf` buf
+    = var{ v_name = cast (dropEnd 2 (Buf.drop 2 buf)) }
+    | Buf.head buf == '<', Buf.last buf == '>', buf /= __"<=>"
+    = var{ v_name = cast (Buf.init (Buf.tail buf)) }
     | otherwise
     = var
     where
     buf = cast name
 
 dropEnd :: Int -> ByteString -> ByteString
-dropEnd i buf = Str.take (Str.length buf - i) buf
+dropEnd i buf = Buf.take (Buf.length buf - i) buf
 
 -- | Uses Haskell's underlying representation for strings.
 type VStr  = String

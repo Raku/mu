@@ -39,7 +39,7 @@ import Pugs.Types
 import Pugs.External
 import Pugs.Eval.Var
 import DrIFT.YAML ()
-import qualified Data.ByteString.Char8 as Str
+import qualified Data.ByteString.Char8 as Buf
 
 
 {-|
@@ -270,7 +270,7 @@ reduceVar var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = p
                 | otherwise         -> evalRef ref
             Nothing
                 | SType <- sig      -> return . VType . cast $ if isQualifiedVar var
-                    then cast $ Str.join (__"::") [cast pkg, cast name]
+                    then cast $ Buf.join (__"::") [cast pkg, cast name]
                     else name
                 | isGlobalVar var || pkg `notElem` [emptyPkg, callerPkg, outerPkg, contextPkg] -> do
                     -- $Qualified::Var is not found.  Vivify at lvalue context.

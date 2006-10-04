@@ -151,9 +151,9 @@ import GHC.Conc (unsafeIOToSTM)
 import GHC.Exts (unsafeCoerce#, Word(W#), Word#)
 import qualified Data.Seq as Seq
 
+import qualified UTF8
 import qualified Judy.StrMap as H
 import qualified Judy.CollectionsM as C
-import qualified Data.ByteString.Char8 as Char8
 import qualified Foreign as Foreign
 import qualified Control.Exception (catch, evaluate)
 
@@ -489,12 +489,12 @@ instance Show ID where
     showsPrec x MkID{ idBuf = buf } = showsPrec x buf
 
 instance Read ID where
-    readsPrec p s = [ (unsafePerformIO (bufToID (Char8.pack x)), y) | (x, y) <- readsPrec p s]
+    readsPrec p s = [ (unsafePerformIO (bufToID (UTF8.pack x)), y) | (x, y) <- readsPrec p s]
 
 instance ((:>:) String) ByteString where
-    cast = decodeUTF8 . Char8.unpack
+    cast = UTF8.unpack
 instance ((:<:) String) ByteString where
-    castBack = Char8.pack . encodeUTF8
+    castBack = UTF8.pack
 
 {-# NOINLINE nullID #-}
 nullID :: ID
@@ -502,11 +502,11 @@ nullID = cast ""
 
 {-# INLINE __ #-}
 __ :: String -> ByteString
-__ = Char8.pack
+__ = UTF8.pack
 
 {-# INLINE (+++) #-}
 (+++) :: ByteString -> ByteString -> ByteString
-(+++) = Char8.append
+(+++) = UTF8.append
 
 {-# NOINLINE _BufToID #-}
 _BufToID :: H.StrMap ByteString ID

@@ -54,7 +54,7 @@ import qualified Data.IntSet as IntSet
 import DrIFT.YAML
 import GHC.Exts (unsafeCoerce#)
 import GHC.Unicode
-import qualified Data.ByteString.Char8 as Str
+import qualified UTF8 as Str
 
 constMacro :: Exp -> [Val] -> Eval Val
 constMacro = const . expToEvalVal
@@ -354,10 +354,10 @@ op1 "IO::say" = \v -> op2 "IO::say" v $ VList []
 op1 "IO::print" = \v -> op2 "IO::print" v $ VList []
 op1 "IO::next" = \v -> do
     fh  <- fromVal v
-    guardIO $ fmap (VStr . (++ "\n") . decodeUTF8) (hGetLine fh)
+    guardIO $ fmap (VStr . (++ "\n") . Str.unpack) (Str.hGetLine fh)
 op1 "Pugs::Safe::safe_print" = \v -> do
     str  <- fromVal v
-    guardIO $ hPutStr stdout $ encodeUTF8 str
+    guardIO . Str.hPut stdout $ Str.pack str
     return $ VBool True
 op1 "die" = \v -> do
     pos <- asks envPos
@@ -434,7 +434,7 @@ op1 "slurp" = \v -> do
         (do h <- fromVal v
             ifListContext (strictify $! op1 "=" v) $ do
                 content <- guardIO $ Str.hGetContents h
-                return . VStr . decodeUTF8 $ Str.unpack content)
+                return . VStr $ Str.unpack content)
         (do
             fileName    <- fromVal v
             ifListContext
@@ -447,7 +447,7 @@ op1 "slurp" = \v -> do
     slurpList file = strictify $! op1 "=" (VList [VStr file])
     slurpScalar file = do
         content <- guardIO $ Str.readFile file
-        return . VStr . decodeUTF8 $ Str.unpack content
+        return . VStr $ Str.unpack content
 op1 "opendir" = \v -> do
     str <- fromVal v
     dir <- guardIO $ openDirStream str

@@ -9,7 +9,7 @@ import Pugs.Rule
 import {-# SOURCE #-} Pugs.Parser
 import qualified Data.Set as Set
 import qualified Data.Map as Map
-import qualified Data.ByteString.Char8 as Str
+import qualified Data.ByteString.Char8 as Buf
 --import qualified Data.HashTable as Hash
 import qualified Judy.IntMap as L
 import qualified Judy.CollectionsM as C
@@ -31,7 +31,7 @@ newtype OpName = MkOpName ID
 
 instance Ord OpName where
     compare (MkOpName MkID{ idKey = a, idBuf = x }) (MkOpName MkID{ idKey = b, idBuf = y })
-        = compare (Str.length y) (Str.length x) `mappend` compare b a
+        = compare (Buf.length y) (Buf.length x) `mappend` compare b a
 
 -- Not yet transcribed into a full optable parser with dynamic precedence --
 
@@ -447,8 +447,8 @@ addHyperInfix xs = xs `Set.union` hyperTexan `Set.union` hyperFrench
     where
     hyperTexan = Set.mapMonotonic texan xs
     hyperFrench = Set.mapMonotonic french xs
-    texan x = cast (Str.concat [__">>", cast x, __"<<"])
-    french x = cast (Str.concat [__"\194\187", cast x, __"\194\171"])
+    texan x = cast (Buf.concat [__">>", cast x, __"<<"])
+    french x = cast (Buf.concat [__"\187", cast x, __"\171"])
 
 {-|
 Similar to 'addHyperInfix', but for prefix ops.
@@ -462,7 +462,7 @@ addHyperPrefix xs = xs `Set.union` hyperTexan `Set.union` hyperFrench
     hyperTexan = Set.mapMonotonic texan xs
     hyperFrench = Set.mapMonotonic french xs
     texan x = cast (cast x +++ __"<<")
-    french x = cast (cast x +++ __"\194\171")
+    french x = cast (cast x +++ __"\171")
 
 {-|
 Similar to 'addHyperInfix', but for postfix ops.
@@ -476,15 +476,15 @@ addHyperPostfix xs = xs `Set.union` hyperTexan `Set.union` hyperFrench
     hyperTexan = Set.mapMonotonic texan xs
     hyperFrench = Set.mapMonotonic french xs
     texan x = cast (__">>" +++ cast x)
-    french x = cast (__"\194\187" +++ cast x)
+    french x = cast (cast "\187" +++ cast x)
 
 addNegation :: Set OpName -> Set OpName
 addNegation xs = xs `Set.union` Set.mapMonotonic negation xs
     where
     negation x = let buf = cast x in
-        if Str.head buf == '!'
+        if Buf.head buf == '!'
             then x
-            else cast (Str.cons '!' (cast x))
+            else cast (Buf.cons '!' (cast x))
 
 methOps             :: a -> [b]
 methOps _ = []

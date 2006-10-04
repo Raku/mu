@@ -404,7 +404,8 @@ instance Compile Exp PIL_Expr where
     compile (Syn "match" exp) = compile $ Syn "rx" exp -- wrong
     compile (Syn "//" exp) = compile $ Syn "rx" exp
     compile (Syn "rx" [exp, _]) = compile exp -- XXX WRONG - use PCRE
-    compile (Syn "subst" [exp, _, _]) = compile exp -- XXX WRONG - use PCRE
+    compile (Syn "|" [exp]) = compile exp -- XXX WRONG
+    compile (Syn "|<<" [exp]) = compile exp -- XXX WRONG
     compile exp@(App _ _ _) = fmap PExp $ compile exp
     compile exp@(Syn _ _) = fmap PExp $ compile exp
     compile exp = compError exp

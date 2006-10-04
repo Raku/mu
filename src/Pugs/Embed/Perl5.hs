@@ -12,7 +12,7 @@ where
 import Foreign.C.Types
 import System.Directory
 import Pugs.Internals 
-import qualified Data.ByteString.Char8 as Str
+import qualified UTF8 as Str
 
 evalPCR :: FilePath -> String -> String -> [(String, String)] -> IO String
 evalPCR path match rule subrules = do
@@ -175,7 +175,7 @@ import System.Directory
 import Foreign
 import Foreign.C.Types
 import Foreign.C.String
-import qualified Data.ByteString.Char8 as Str
+import qualified UTF8 as Str
 
 type PerlInterpreter = Ptr ()
 type PerlSV = Ptr ()
@@ -271,7 +271,7 @@ mkValRef x typ = do
     withCString typ (pugs_MkValRef ptr)
 
 vstrToSV :: String -> IO PerlSV
-vstrToSV str = withCStringLen (encodeUTF8 str) $ \(cstr, len) -> perl5_newSVpvn cstr (toEnum len)
+vstrToSV str = Str.useAsCStringLen (cast str) $ \(cstr, len) -> perl5_newSVpvn cstr (toEnum len)
 
 bufToSV :: ByteString -> IO PerlSV
 bufToSV str = Str.useAsCStringLen str $ \(cstr, len) -> perl5_newSVpvn cstr (toEnum len)
@@ -316,7 +316,7 @@ action = do
 -}
 
 evalPerl5 :: String -> PugsVal -> CInt -> IO PerlSV
-evalPerl5 str env cxt = mkSV $ withCString (encodeUTF8 str) $ \cstr -> perl5_eval cstr env cxt
+evalPerl5 str env cxt = mkSV $ Str.useAsCString (cast str) $ \cstr -> perl5_eval cstr env cxt
 
 freePerl5 :: PerlInterpreter -> IO ()
 freePerl5 my_perl = do
