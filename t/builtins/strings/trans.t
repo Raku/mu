@@ -9,7 +9,7 @@ L<S05/Transliteration>
 =cut
 
 
-plan 16;
+plan 18;
 
 is("ABC".trans( ('A'=>'a'), ('B'=>'b'), ('C'=>'c') ),"abc",
         "Each side can be individual characters");
@@ -64,16 +64,25 @@ eval_is('"abc".trans(<== "a" => "A")', "Abc",
 # Make sure the tr/// version works, too.  
 
 $_ = "ABC";
-eval "tr/ABC/abc/";
+tr/ABC/abc/;
 is($_, 'abc', 'tr/// on $_ with explicit character lists');
 
 $_ = "abc";
-eval "tr|a-c|A-C|";
+tr|a-c|A-C|;
 is($_, 'ABC', 'tr||| on $_ with character range');
+
+# Ditto for ty///
+$_ = "ABC";
+y/ABC/abc/;
+is($_, 'abc', 'y/// on $_ with explicit character lists');
+
+$_ = "abc";
+y|a-c|A-C|;
+is($_, 'ABC', 'y||| on $_ with character range');
 
 {
 my $japh = "Whfg nabgure Crey unpxre";
-eval '$japh ~~ tr(a-zA-Z)(n-za-mN-ZA-M)';
+$japh ~~ tr(a-zA-Z)(n-za-mN-ZA-M);
 is($japh, "Just another Perl hacker", 'tr()() on lexical var via ~~');
 }
 
