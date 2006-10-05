@@ -1,4 +1,6 @@
 package Pugs::Emitter::Perl6::Perl5;
+$Pugs::Emitter::Perl6::Perl5::VERSION = '0.01';
+use 5.006;
 
 # p6-ast to perl5 emitter
 
@@ -1780,3 +1782,38 @@ sub variable_declarator {
 }
 
 1;
+
+__END__
+
+=head1 NAME 
+
+Pugs::Emitter::Perl6::Perl5 - Code generator for the Perl6-to-Perl5 compiler
+
+=head1 SYNOPSIS
+
+  # TODO
+
+=head1 DESCRIPTION
+
+This module provides the Perl5 code generator for the C<v6.pm> Perl6 compiler. 
+
+=head1 AUTHORS
+
+The Pugs Team C<< <perl6-compiler@perl.org> >>.
+
+Please join us on irc.freenode.net #perl6 if you'd like to participate.
+
+=head1 SEE ALSO
+
+The Perl 6 Spec: L<http://dev.perl.org>
+
+=head1 COPYRIGHT
+
+Copyright 2006 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
+
+=cut

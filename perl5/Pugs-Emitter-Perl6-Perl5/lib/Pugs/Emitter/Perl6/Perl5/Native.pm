@@ -89,9 +89,9 @@ package Pugs::Emitter::Perl6::Perl5::int;
     sub _61__61_ {  # ==
         $_[0]->num->_61__61_( $_[1] );
     }
-    sub _43_ {   # +
-        $_[0]->num->_43_( $_[1] );
-    }
+    ::unicode_sub 'infix:<+>', sub{ 
+        $_[0]->num->infix_58__60__43__62_( $_[1] );
+    };
 package Pugs::Emitter::Perl6::Perl5::num;
     use base 'Pugs::Emitter::Perl6::Perl5::Native';
     use overload (

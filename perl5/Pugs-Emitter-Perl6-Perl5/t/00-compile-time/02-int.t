@@ -8,7 +8,7 @@ use Pugs::Emitter::Perl6::Perl5::Expression;
 sub emit {
     return Pugs::Emitter::Perl6::Perl5::node->node( 'int', $_[0]{int} )
         if ( exists $_[0]{int} );
-    return emit( $_[0]{exp1} )->_43_( emit( $_[0]{exp1} ) )
+    return emit( $_[0]{exp1} )->infix_58__60__43__62_( emit( $_[0]{exp1} ) )
         if (  exists $_[0]{fixity}
            && $_[0]{fixity} eq 'infix'
            && $_[0]{op1} eq '+' );
