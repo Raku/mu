@@ -306,6 +306,11 @@ instance Show VarTwigil where
         TDoc        -> ('=':)
         TGlobal     -> ('*':)
 
+instance ((:>:) (Maybe VarCateg)) ByteString where
+    cast buf = case reads ('C':'_':cast buf) of
+        ((x, _):_)  -> Just x
+        _           -> Nothing
+
 instance ((:>:) VarCateg) ByteString where
     -- XXX slow
     cast buf = case reads ('C':'_':cast buf) of
@@ -394,12 +399,12 @@ doBufToVar buf = MkVar
     (sig, afterSig) = Buf.span isSigilChar buf
     sig' = if Buf.null sig then internalError $ "Sigilless var: " ++ show buf else cast sig
     len = Buf.length afterSig
-    (twi, (pkg, afterPkg))
-        | len == 0 = (TNil, (emptyPkg, afterSig))
+    (twi, (pkg, (cat, afterCat)))
+        | len == 0 = (TNil, (emptyPkg, (CNil, afterSig)))
         | len == 1 = case Buf.head afterSig of
-            '!' -> (TGlobal, (emptyPkg, afterSig))  -- XXX $! always global - WRONG
-            '/' -> (TGlobal, (emptyPkg, afterSig))  -- XXX $/ always global - WRONG
-            _   -> (TNil, (emptyPkg, afterSig))
+            '!' -> (TGlobal, (emptyPkg, (CNil, afterSig)))  -- XXX $! always global - WRONG
+            '/' -> (TGlobal, (emptyPkg, (CNil, afterSig)))  -- XXX $/ always global - WRONG
+            _   -> (TNil, (emptyPkg, (CNil, afterSig)))
         | otherwise = case Buf.head afterSig of
             '.' -> (TAttribute, toPkg afterTwi)
             '^' -> (TImplicit, toPkg afterTwi)
@@ -408,25 +413,24 @@ doBufToVar buf = MkVar
             '=' -> (TDoc, toPkg afterTwi)
 --          '*' -> (TNil, (globalPkg, Buf.tail afterSig))
             '*' -> (TGlobal, toPkg afterTwi)
-            '+' -> (TNil, (contextPkg, Buf.tail afterSig))
+            '+' -> (TNil, (contextPkg, snd afterTwi))
             _   -> (TNil, toPkg (tokenPkg afterSig))
     afterTwi = tokenPkg (Buf.tail afterSig)
     toPkg (pkg, rest) = (MkPkg pkg, rest)
-    tokenPkg str = case Buf.findSubstring (__"::") str of
-        Nothing  -> ([], str)
-        Just 0   -> tokenPkg (Buf.drop 2 str) -- $::x is the same as $x
-        Just idx -> let (rest, final) = tokenPkg (Buf.drop (idx + 2) str) in
-            ((Buf.take idx str:rest), final)
-    (cat, afterCat)
-        | twi == TGlobal =
-            -- XXX special case for "$*X::Y::Z".  Currently we encode that
-            --     as a twigil of *, and then the name part contains
-            case Buf.findSubstrings (__"::") afterPkg of
-                [] -> tokenizeCategory afterPkg
-                xs -> let idx = last xs
-                          (c, n) = tokenizeCategory (Buf.drop (idx + 2) afterPkg)
-                        in (c, Buf.take idx afterPkg +++ n)
-        | otherwise = tokenizeCategory afterPkg
+    tokenPkg :: ByteString -> ([ByteString], (VarCateg, ByteString))
+    tokenPkg str = case Buf.elemIndex ':' str of
+        Just idx1 -> case Buf.findSubstring (__"::") str of
+            Nothing  -> ([], (cast (Buf.take idx1 str), Buf.drop (succ idx1) str))
+            Just 0   -> tokenPkg (Buf.drop 2 str) -- $::x is the same as $x
+            Just idx
+                | idx == idx1 -> case cast (Buf.take idx1 str) of
+                    -- &infix::= should parse as infix:<:=>, not infix::<=>
+                    Just cat -> ([], (cat, Buf.drop (succ idx1) str))
+                    -- &Infix::= should parse as Infix::<=>, not Infix:<:=>
+                    _        -> let (rest, final) = tokenPkg (Buf.drop (idx + 2) str) in
+                        ((Buf.take idx str:rest), final)
+                | otherwise -> ([], (cast (Buf.take idx1 str), Buf.drop (succ idx1) str))
+        _ -> ([], (CNil, str))
     (name, meta)
         | C_postfix <- cat, __"\187" `Buf.isPrefixOf` afterCat
         = (Buf.drop 2 afterCat, MPre)
@@ -493,12 +497,6 @@ doBufToVar buf = MkVar
         = (dropEnd 2 afterCat, MPost)
         | otherwise
         = (afterCat, MNil)
-
-    tokenizeCategory str = case Buf.elemIndex ':' str of
-        Just idx -> if isUpper (Buf.head str)
-            then internalError (show buf)
-            else (cast (Buf.take idx str), Buf.drop (succ idx) str)
-        _ -> (CNil, afterPkg)
 
 instance ((:>:) Pkg) ByteString where
     cast = MkPkg . filter (not . Buf.null) . Buf.splitWith (== ':')
