@@ -4,7 +4,7 @@ use Test;
 
 =pod
 
-  Infix comparison operators L<S03/"Changes to Perl 5 operators">
+  Infix comparison operators L<S03/"Changes to Perl 5 operators"/"stealth postfix">
 
 =cut
 
