@@ -16,52 +16,61 @@ use warnings;
 
 sub compile {
     my ( $class, $rule_source, $param ) = @_;
+    my $self = { source => $rule_source };
     $param = ref $param ? { %$param } : {}; 
     delete $param->{P5};
     delete $param->{Perl5};
-    my $modifiers = '';
-    $modifiers .= delete $param->{$_} || '' 
-      for qw( i m s x );
+    $self->{continue} = delete $param->{continue} ||
+                        delete $param->{c}        || 
+                        0;
     warn "Error in rule: unknown parameter '$_'" 
         for keys %$param;
-    my $self = { source => $rule_source };
+        
+    # TODO - set "prior"
+        
+    my $captures = q'
+      for ( 1 .. $#+ ) {
+        push @match, Pugs::Runtime::Match->new({
+          str => $_[1], from => \\(0+$-[$_]), to => \\(0+$+[$_]),
+          bool => \\1, match => [], named => {}, capture => undef,
+        });
+      }
+      return Pugs::Runtime::Match->new({
+        str => $_[1], from => \\(0+$-[0]), to => \\(0+$+[0]),
+        bool => \\$bool, match => \\@match, named => {}, capture => undef,
+      });
+      ';
     $self->{perl5} = 
-q(sub {
+q(do {
+  my $rule; 
+  $rule = sub { # grammar, string, state, args
   no warnings 'uninitialized';
-  my $s = $_[1];
-
-  if ( defined $_[3]{p} ) {
-    pos($s) = $_[3]{p};
-    my $bool = \( $s =~ /\G) . $rule_source . q(/) . $modifiers . q( \) ? 1 : 0;
-    #print "matching P5/$rule_source/ at $_[3]{p} in '$s', '$1', $bool\n";
-    my @match;
-    for ( 1 .. $#+ ) {
-      push @match, Pugs::Runtime::Match->new({
-        str => \\$s, from => \\(0+$-[$_]), to => \\(0+$+[$_]),
-        bool => \\1, match => [], named => {}, capture => undef,
-      });
-    }
-    return Pugs::Runtime::Match->new({
-      str => \\$s, from => \\(0+$-[0]), to => \\(0+$+[0]),
-      bool => \\$bool, match => \\@match, named => {}, capture => undef,
-    });
-  }
-
-  my $bool = \( $s =~ /) . $rule_source . q(/) . $modifiers . q( \) ? 1 : 0;
-  #print "matching P5/$rule_source/ at $_[3]{p} in '$s', '$1'\n";
+  my $bool;
   my @match;
-  for ( 1 .. $#+ ) {
-      push @match, Pugs::Runtime::Match->new({
-        str => \\$s, from => \\(0+$-[$_]), to => \\(0+$+[$_]),
-        bool => \\1, match => [], named => {}, capture => undef,
-      });
+  
+  return $rule->($_[0], \\$_[1], $_[2], $_[3])
+    unless ref( $_[1] );  # backwards compatibility
+  
+  #print "POS ${$_[1]} ",pos(${$_[1]}),"\n";
+  
+  if( $_[3]{continue} ) {
+    pos(${$_[1]}) = $_[3]{p}
+      if defined $_[3]{p};
+    $bool = \( ${$_[1]} =~ /) . $rule_source . q(/g \) ? 1 : 0; ) . 
+    $captures . q(
   }
-  return Pugs::Runtime::Match->new({
-    str => \\$s, from => \\(0+$-[0]), to => \\(0+$+[0]),
-    bool => \\$bool, match => \\@match, named => {}, capture => undef,
-  });
-
+  
+  if ( defined $_[3]{p} ) {
+      pos(${$_[1]}) = $_[3]{p};
+      $bool = \( ${$_[1]} =~ /\G) . $rule_source . q(/ \) ? 1 : 0; ) . 
+      $captures . q(
+  }
+  else {
+      $bool = \( ${$_[1]} =~ /) . $rule_source . q(/ \) ? 1 : 0; ) . 
+      $captures . q(
+  }
 };
+}
 );
     # print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
 
