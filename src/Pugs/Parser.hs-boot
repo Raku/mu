@@ -4,7 +4,7 @@ import Pugs.Parser.Types
 import Pugs.Types
 
 parseTerm :: RuleParser Exp
-parseNoParenParamList :: RuleParser (Maybe Exp, [Exp])
+parseNoParenArgList :: RuleParser (Maybe Exp, [Exp])
 
 ruleExpression :: RuleParser Exp
 ruleSubName :: RuleParser String

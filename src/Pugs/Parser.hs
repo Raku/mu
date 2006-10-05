@@ -18,7 +18,7 @@ module Pugs.Parser (
     module Pugs.Parser.Operator,
 
     -- Circularity: Used in Pugs.Parser.Operator
-    parseTerm, parseNoParenParamList, ruleSubName, ruleSigil,
+    parseTerm, parseNoParenArgList, ruleSubName, ruleSigil,
 
     -- Circularity: Used in Pugs.Parser.Literal
     ruleExpression,
@@ -1646,8 +1646,8 @@ ruleInvocationArguments quant name mustHaveParens = do
                  -- wrong way.
             listcolon <- option False $ try $ do { char ':'; mandatoryWhiteSpace; return True }
             if listcolon
-                then parseNoParenParamList
-                else option (Nothing,[]) $ parseParenParamList
+                then parseNoParenArgList
+                else option (Nothing,[]) $ parseParenArgList
     when (isJust invs) $ fail "Only one invocant allowed"
     return $ \x -> case name of
         ('&':rest) -> case quant of
@@ -1731,8 +1731,8 @@ ruleApplySub isFolded = do
 
     (paramListInv, args) <- choice $
         [ (ruleDot `tryLookAhead` char '(') >> ruleParenArgs
-        , parseParenParamList
-        , mandatoryWhiteSpace >> parseNoParenParamList
+        , parseParenArgList
+        , mandatoryWhiteSpace >> parseNoParenArgList
         , return (Nothing, [])
         ]
     possiblyApplyMacro $ App (_Var name) paramListInv args
@@ -1741,8 +1741,8 @@ ruleApplySub isFolded = do
     let takeArguments = do
             (paramListInv, args) <- choice $
                 [ (ruleDot `tryLookAhead` char '(') >> ruleParenArgs
-                , parseParenParamList
-                , mandatoryWhiteSpace >> parseNoParenParamList
+                , parseParenArgList
+                , mandatoryWhiteSpace >> parseNoParenArgList
                 ] ++ (if isFolded then [return (Nothing, [])] else [])
             possiblyApplyMacro $ App (Var name) paramListInv args
     takeArguments
@@ -1751,11 +1751,11 @@ ruleApplySub isFolded = do
 -}
 
 -- used only by 'ruleCodeSubscript'!
-parseParenParamList :: RuleParser (Maybe Exp, [Exp])
-parseParenParamList = parseParenParamListCommon True
+parseParenArgList :: RuleParser (Maybe Exp, [Exp])
+parseParenArgList = parseParenArgListCommon True
 
-parseParenParamListCommon :: Bool -> RuleParser (Maybe Exp, [Exp])
-parseParenParamListCommon mustHaveParens = do
+parseParenArgListCommon :: Bool -> RuleParser (Maybe Exp, [Exp])
+parseParenArgListCommon mustHaveParens = do
     leading     <- option [] $ try $ many namedAdverb
     params      <- option Nothing . fmap Just $ ruleParenArgs
     trailing    <- option [] $ try $ many pairOrBlockAdverb
@@ -1845,7 +1845,7 @@ ruleParenArgs = (<?> "paren arg-list") $ try $ verbatimParens $ do
 {-
 Used by:
 ~~~~~~~~
-parseParamList (after trying parseParenParamList)
+parseParamList (after trying parseParenArgList)
 ruleInvocationParens (<= qInterpolatorPostTerm)
 ruleApply (when `foo .($bar)`?) (after whitespace when there's no implicit-inv)
 
@@ -1853,23 +1853,31 @@ The only difference with parseParamList is that NoParens has to be careful not
 to swallow `{}.blah`.
 
 -}
-parseNoParenParamList :: RuleParser (Maybe Exp, [Exp])
-parseNoParenParamList = do
-    formal <- formalSegment `sepEndBy1` (symbol ":")
+parseNoParenArgList :: RuleParser (Maybe Exp, [Exp])
+parseNoParenArgList = do
+    lvl <- gets s_bracketLevel
+    formal <- formalSegment lvl `sepEndBy1` (symbol ":")
     processFormals formal
+
+formalSegment :: BracketLevel -> RuleParser [Exp]
+formalSegment lvl = do
+    rv <- option Nothing . fmap Just . choice $ segmentPart
+    case rv of
+        Nothing           -> return []
+        Just (exp, trail) -> do
+            rest <- option [] $ do { trail; formalSegment lvl }
+            return (exp ++ rest)
     where
-    formalSegment :: RuleParser [Exp]
-    formalSegment = do
-        rv <- option Nothing . fmap Just . choice $
+    segmentPart
+        | ConditionalBracket <- lvl =
+            [ argBlockWith pairOrBlockAdverb
+            , notFollowedBy (char '{') >> argVanilla
+            ]
+        | otherwise = 
             [ argListEndingBlock
             , argBlockWith pairOrBlockAdverb
             , argVanilla
             ]
-        case rv of
-            Nothing           -> return []
-            Just (exp, trail) -> do
-                rest <- option [] $ do { trail; formalSegment }
-                return (exp ++ rest)
     argListEndingBlock = do
         x <- ruleBareOrPointyBlockLiteral
         (ruleComma >> return ([x], return ())) <|> do
