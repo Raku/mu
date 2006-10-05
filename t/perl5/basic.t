@@ -1,6 +1,6 @@
 use v6-alpha;
 use Test;
-plan 14;
+plan 17;
 
 unless try({ eval("1", :lang<perl5>) }) {
     skip_rest;
@@ -23,7 +23,7 @@ unless try({ eval("1", :lang<perl5>) }) {
 }
 
 
-my $p5_dumper = eval('sub {use Data::Dumper; return @_; }', :lang<perl5>);
+my $p5_dumper = eval('sub {use Data::Dumper; return(wantarray ? @_ : $_[0]); }', :lang<perl5>);
 
 my %h = ( a => 1 );
 
@@ -77,17 +77,17 @@ my $s = 'str';
 {
    my $test = q{ $p5_dumper($s);      # received as scalar };
    my $o = $p5_dumper($s);
-   is ($o, $s, $test);
+   is($o, $s, $test);
 }
 
 {
    my $test = q{ $p5_dumper(\$s);      # received as scalarref };
    my $o = $p5_dumper(\$s);
-   is ($$o, $s, $test);
+   is($$o, $s, $test);
 }
 
 {
    my $test = q{ $p5_dumper(VAR $s);      # received as scalarref };
    my $o = $p5_dumper(VAR $s);
-   is ($$o, $s, $test);
+   is($$o, $s, $test);
 }
