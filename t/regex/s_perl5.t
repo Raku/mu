@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 6;
+plan 7;
 
 =pod
 
@@ -43,3 +43,11 @@ is($bazz, "xbxaxzxz", 'substitute regexp with capturing variables works with :g'
 my $bad = "1   ";
 $bad ~~ s:perl5:g/\s*//;
 is($bad, "1", 'Zero width replace works with :g');
+
+{
+	my $r;
+	temp $_ = 'heaao';
+	s:perl5 /aa/ll/ && ($r = $_);
+	is $r, 'hello', 's/// in boolean context properly defaults to $_';
+}
+
