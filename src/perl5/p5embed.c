@@ -475,8 +475,8 @@ perl5_apply(SV *sub, SV *inv, SV** args, void *env, int cxt)
 
         out[0] = NULL;
 
-        for (i=0; i<count; ++i) {
-            out[i+1] = newSVsv(POPs);
+        for (i=count; i>0; --i) {
+            out[i] = newSVsv(POPs);
         }
         out[count+1] = NULL;
     }
