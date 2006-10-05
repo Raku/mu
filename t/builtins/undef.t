@@ -174,21 +174,21 @@ Perl6-specific tests
     ok(try { !defined($an_ary.pop) }, "comes to shove");
 
     my Hash $a_hash;
+
     ok(!defined($a_hash), "my Hash");
     ok(try { !defined($a_hash<blergh>) }, "my Hash subscript - undef");
     ok(try { !defined($a_hash<blergh>) }, "my Hash subscript - undef, no autovivification happened");
-    try { $a_hash<blergh> = 1 };
-    ok(try { defined($a_hash.delete("blergh")) }, "delete", :todo<bug>);
-    ok(try { !defined($a_hash.delete("blergh")) }, " - once only");
 
-    eval '
-        class Dog {};
-        my Dog $spot;
-    ';
+    $a_hash<blergh> = 1;
+    ok(defined($a_hash.delete('blergh')), "delete");
+    ok(!defined($a_hash.delete("blergh")), " - once only");
 
-    ok(eval('!defined $spot'), "Unelaborated mutt", :todo);
-    eval '$spot .= .new();';
-    ok(eval('defined $spot'), " - now real", :todo);
+    class Dog {};
+    my Dog $spot;
+
+    ok(!defined($spot), "Unelaborated mutt");
+    $spot .= new;
+    ok(defined $spot, " - now real");
 }
 
 # rules
