@@ -215,7 +215,7 @@ sub build {
 
         chdir "third-party/$module";
 
-        warn join ' ', ("../../Setup$Config{_exe}", 'configure', @configure_args);
+        warn join ' ', ("../../Setup$Config{_exe}", 'configure', @configure_args), $/;
         if (-e '.setup-config') {
             system("../../Setup$Config{_exe}", 'configure', @configure_args);
             system("../../Setup$Config{_exe}", 'unregister');
@@ -298,7 +298,7 @@ sub build {
 
     if ((!-s $ppc_yml) or -M $ppc_yml > -M $ppc_hs) {
         # can't assume blib6/lib exists: the user may be running
-        # `make unoptimzed` which doesn't create it.
+        # `make unoptimised` which doesn't create it.
         mkpath(dirname($ppc_yml));
         
         run($^X, qw<util/gen_prelude.pl -v -i src/perl6/Prelude.pm>,
@@ -452,7 +452,7 @@ sub build_exe {
 
     push @pkgs, "-package" => "Pugs"; #-$version";
 
-    @_ = (@pkgs, qw(-optl-Lthird-party/installed -o ), $out, qw( src/Main.hs ), @libs);
+    @_ = ('--make', @pkgs, qw(-optl-Lthird-party/installed -o ), $out, qw( src/Main.hs ), @libs);
     #@_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -o pugs src/Main.hs), @libs);
     print "*** Building: ", join(' ', $ghc, @_), $/;
     system $ghc, @_;
