@@ -109,9 +109,9 @@ my @array10 = (1, 2, 3,);
 is(+@array10, 3, "trailing commas make correct array"); 
 
 # declare a multidimension array
-eval_ok('my @multidim[0..3; 0..1]', "multidimension array", :todo);
-eval_ok('my @array11 is shape(2,4)', "another way to declare a multidimension array", :todo);
-eval_ok('@array11[2,0] = 12', "push the value to a multidimension array", :todo);
+ok(eval('my @multidim[0..3; 0..1]'), "multidimension array", :todo);
+ok(eval('my @array11 is shape(2,4)'), "another way to declare a multidimension array", :todo);
+ok(eval('@array11[2,0] = 12'), "push the value to a multidimension array", :todo);
 
 # declare the array with data type
 my Int @array;

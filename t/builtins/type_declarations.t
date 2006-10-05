@@ -11,22 +11,22 @@ Test for some type declarations for built-in functions.
 
 plan 11;
 
-my sub eval_ok1($code, :$todo = 'feature') { &Test::eval_ok.goto($code,$code,:$todo) }
+my sub ok_eval1($code, :$todo = 'feature') { &Test::ok.goto(eval($code),$code,:$todo) }
 
-eval_ok1('AnyChar.isa(Str)');
-eval_ok1('Char.isa(Str)');
-eval_ok1('Codepoint =:= Uni');
-eval_ok1('CharLingua.isa(AnyChar)');
-eval_ok1('Grapheme.isa(AnyChar)');
-eval_ok1('Codepoint.isa(AnyChar)');
-eval_ok1('Byte.isa(AnyChar)');
-eval_ok1('Byte.isa(Num)');
+ok_eval1('AnyChar.isa(Str)');
+ok_eval1('Char.isa(Str)');
+ok_eval1('Codepoint =:= Uni');
+ok_eval1('CharLingua.isa(AnyChar)');
+ok_eval1('Grapheme.isa(AnyChar)');
+ok_eval1('Codepoint.isa(AnyChar)');
+ok_eval1('Byte.isa(AnyChar)');
+ok_eval1('Byte.isa(Num)');
 {
-  eval_ok1('subset MatchTest of Item | Junction;');
+  ok_eval1('subset MatchTest of Item | Junction;');
 }
 {
-  eval_ok1('use Math::Basic :constants; 3 < pi < 4;');
+  ok_eval1('use Math::Basic :constants; 3 < pi < 4;');
 }
 {
-  eval_ok1('use Math::Basic; 3 < Math::Basic::pi < 4;');
+  ok_eval1('use Math::Basic; 3 < Math::Basic::pi < 4;');
 }

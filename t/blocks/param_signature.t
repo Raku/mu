@@ -8,8 +8,8 @@ plan 1;
 # Could use another smart link reference!
 
 diag "Testing for subroutine parameter with signature...";
-eval_ok q{
+ok eval(q{
 	sub foo(Code:($a --> $b) &bar, Code:($a, $b --> $c) &baz) { }
 	1;
-}, 
+}), 
 "Declare subroutine parameters with signature. (Compile-time)", :todo<feature>;

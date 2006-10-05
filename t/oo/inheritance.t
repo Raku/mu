@@ -73,7 +73,7 @@ ok  Foo::Bar.HOW.does(::CLASS),   "subclass.HOW.does(CLASS) is true", :todo<feat
         method foo () { "found" }
     }
     class Child is Foo { }
-    eval_is( 'my $meth = "foo"; my $obj= Child.new; $obj.$meth()', 'found', $test);
+    is( eval('my $meth = "foo"; my $obj= Child.new; $obj.$meth()'), 'found', $test);
 }
 
 # Erroneous dispatch found by TimToady++

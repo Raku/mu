@@ -109,17 +109,17 @@ my $v = $s();
 is($v, q[&test number 1], "AUTOSUB sanity test");
 
 $v="";
-eval_ok q{ $s = &OughtaWork::foo; $v = $s(); },
+ok eval(q{ $s = &OughtaWork::foo; $v = $s(); }),
         "AUTOSUB - first", :todo<feature>;
 is($v, q[&foo number 2], "Returns correct var", :todo<feature>);
 
 $v="";
-eval_ok q{ $s = &OughtaWork::foo; $v = $s();  },
+ok eval(q{ $s = &OughtaWork::foo; $v = $s();  }),
         "AUTOSUB - repeat", :todo<feature>;
 is($v, q[&foo number 2], "AUTOSUB only called once", :todo<feature>);
 
 $v="";
-eval_ok q{ $s = &OughtaWork::bar; $v = $s();  },
+ok eval(q{ $s = &OughtaWork::bar; $v = $s();  }),
         "AUTOSUB - second", :todo<feature>;
 is($v, q[&bar number 3], "Returns correct var", :todo<feature>);
 
@@ -128,20 +128,20 @@ is($v, q[&bar number 3], "Returns correct var", :todo<feature>);
 # methods"; they have to be classes or roles for AUTOMETH to be method
 # lookups.
 my $inv = ::OughtaWork;
-eval_ok q{ $s = OughtaWork.AUTOMETH("test"); $v = $s($inv:) },
+ok eval(q{ $s = OughtaWork.AUTOMETH("test"); $v = $s($inv:) }),
         "AUTOMETH - sanity", :todo<bug>;
 is($v, q[OughtaWork.test number 1], "AUTOMETH sanity test", :todo<bug>);
 
 $v = "";
-eval_ok q{ $s = OughtaWork.foo; $v = $s($inv:) },
+ok eval(q{ $s = OughtaWork.foo; $v = $s($inv:) }),
         "AUTOMETH - first", :todo<feature>;
 is($x, q[OughtaWork.foo number 2], "Returns correct var", :todo<feature>);
 
 $s = sub { };
-eval_ok q{ $s = OughtaWork.foo; $v = $s($inv:)  },
+ok eval(q{ $s = OughtaWork.foo; $v = $s($inv:)  }),
         "AUTOMETH - repeat", :todo<feature>;
 is($x, q[OughtaWork.foo number 2], "AUTOMETH only called once", :todo<feature>);
-eval_ok q{ $s = OughtaWork.bar; $v = $s($inv:)  },
+ok eval(q{ $s = OughtaWork.bar; $v = $s($inv:)  }),
         "AUTOMETH - second", :todo<feature>;
 is($x, q[OughtaWork.bar number 3], "Returns correct var", :todo<feature>);
 

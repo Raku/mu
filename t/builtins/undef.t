@@ -95,10 +95,10 @@ ok(!defined(undef), "undef is not defined");
     sub a_sub { "møøse" }
 
     ok(defined(&a_sub), "defined sub");
-    eval_ok('defined(%«$?PACKAGE\::»<&a_sub>)', "defined sub (symbol table)", :todo<parsefail>);
+    ok(eval('defined(%«$?PACKAGE\::»<&a_sub>)'), "defined sub (symbol table)", :todo<parsefail>);
 
-    eval_ok('!defined(&a_subwoofer)', "undefined sub",:todo<feature>);
-    eval_ok('!defined(%«$?PACKAGE\::»<&a_subwoofer>)', "undefined sub (symbol table)", :todo<feature>);
+    ok(eval('!defined(&a_subwoofer)'), "undefined sub",:todo<feature>);
+    ok(eval('!defined(%«$?PACKAGE\::»<&a_subwoofer>)'), "undefined sub (symbol table)", :todo<feature>);
 }
 
 # TODO: find a read-only value to try and assign to, since we don't

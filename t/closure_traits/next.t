@@ -63,14 +63,14 @@ plan 13;
 }
 
 {
-    eval_is q{
+    is eval(q{
         my $str;
         for 1..5 {
             NEXT { $str ~= $_ }
             leave if $_ > 3;
         }
         $str;
-    }, '123', "leave didn't trigger NEXT \{}";
+    }), '123', "leave didn't trigger NEXT \{}";
 }
 
 {

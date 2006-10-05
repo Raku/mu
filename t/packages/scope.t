@@ -79,7 +79,7 @@ ok($pkg !=== ::*My::Package::, 'not the same as global type object');
 # Check temporization of variables in external packages
 {
   {
-    eval_ok('temp $Test2::scalar; 1', "parse for temp package vars", :todo<bug>);
+    ok(eval('temp $Test2::scalar; 1'), "parse for temp package vars", :todo<bug>);
     $Test2::scalar++;
   }
   is($Test2::scalar, 42, 'temporization of external package variables', :todo<bug>);

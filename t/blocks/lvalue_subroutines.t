@@ -84,7 +84,7 @@ is($errors, "wrong password", 'checklastval STORE can die', :todo<feature>);
 
 # Above test may well die for the wrong reason, if the Proxy stuff didn't
 # parse OK, it will complain that it couldn't find the desired subroutine
-eval_is('checklastval("fish") = 12; $val2', 12, 'proxy lvalue subroutine STORE works', :todo<feature>);
+is(eval('checklastval("fish") = 12; $val2'), 12, 'proxy lvalue subroutine STORE works', :todo<feature>);
 my $resultval;
 eval '$resultval = checklastval("fish");';
 is($resultval, 12, 'proxy lvalue subroutine FETCH works', :todo<feature>);

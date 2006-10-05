@@ -41,7 +41,7 @@ plan 12;
   is(do{1; my $a = 3; $a}, 3, 'do{1; my $a = 3; $a} works');
 }
 
-eval_ok('my $x = my $y = 0; 1', '"my $x = my $y = 0" parses');
+ok(eval('my $x = my $y = 0; 1'), '"my $x = my $y = 0" parses');
 
 
 {

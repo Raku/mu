@@ -21,21 +21,21 @@ multi sub my_abs (Num where { $^n >= 0 } $n){ $n }
 multi sub my_abs (Num where { $^n <  0 } $n){ -$n }
 ';
 
-eval_ok("$abs; 1", "we can compile subtype declarations", :todo<feature>);
+ok(eval("$abs; 1"), "we can compile subtype declarations", :todo<feature>);
 
-eval_is("$abs; my_abs(3)", 3, "and we can use them, too", :todo<feature>);
-eval_is("$abs; my_abs(-5)", 5, "and they actually work", :todo<feature>);
+is(eval("$abs; my_abs(3)"), 3, "and we can use them, too", :todo<feature>);
+is(eval("$abs; my_abs(-5)"), 5, "and they actually work", :todo<feature>);
 
 
 # Basic subtype creation
-eval_ok 'subtype Num::Odd of Num where { $^num % 2 == 1 }',
+ok eval('subtype Num::Odd of Num where { $^num % 2 == 1 }'),
   "subtype is correctly parsed", :todo<feature>;
-eval_is 'my Num::Odd $a = 3', 3, "3 is an odd num";
+is eval('my Num::Odd $a = 3'), 3, "3 is an odd num";
 # The eval inside the eval is/will be necessary to hider our smarty
 # compiler's compile-time from bailing.
 # (Actually, if the compiler is *really* smarty, it will notice our eval trick,
 # too :))
-eval_is 'my Num::Odd $b = 3; try { $a = eval 4 }; $a', 3,
+is eval('my Num::Odd $b = 3; try { $a = eval 4 }; $a'), 3,
   "objects of Num::Odd don't get even", :todo<feature>;
 
 # The same, but lexically
@@ -47,22 +47,22 @@ my $eval1 = '{
   is $c, 6, "setting a Num::Even to an odd value dies", :todo<feature>;
 }';
 eval $eval1;
-eval_ok '!try { my Num::Even $d }',
+ok eval('!try { my Num::Even $d }'),
   "lexically declared subtype went out of scope";
 
 # Subs with arguments of a subtype
-eval_ok 'sub only_accepts_odds(Num::Odd $odd) { $odd + 1 }',
+ok eval('sub only_accepts_odds(Num::Odd $odd) { $odd + 1 }'),
   "sub requiring a Num::Odd as argument defined (1)", :todo<feature>;
-eval_is 'only_accepts_odds(3)', 4,
+is eval('only_accepts_odds(3)'), 4,
   "calling sub worked";
-eval_ok '!try { only_accepts_odds(4) }',
+ok eval('!try { only_accepts_odds(4) }'),
   "calling sub did not work", :todo<feature>;
 
 # Normal Ints automatically morphed to Num::Odd
-eval_ok 'sub is_num_odd(Num::Odd $odd) { $odd ~~ Num::Odd }',
+ok eval('sub is_num_odd(Num::Odd $odd) { $odd ~~ Num::Odd }'),
   "sub requiring a Num::Odd as argument defined (2)", :todo<feature>;
-eval_ok 'is_num_odd(3)', "Int automatically morphed to Num::Odd", :todo<feature>;
-eval_is 'only_accepts_odds("3")', 4, "Str automatically morphed to Num::Odd";
+ok eval('is_num_odd(3)'), "Int automatically morphed to Num::Odd", :todo<feature>;
+is eval('only_accepts_odds("3")'), 4, "Str automatically morphed to Num::Odd";
 
 # Following code is evil, but should work:
 my $eval2 = '

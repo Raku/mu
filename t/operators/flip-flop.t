@@ -14,7 +14,7 @@ sub always_true  { 1 }
 
 # Basic ff
 {
-   eval_ok '1 ff 1', 'flip-flop operator implemented', :todo<feature>;
+   ok eval('1 ff 1'), 'flip-flop operator implemented', :todo<feature>;
 
 }
 
@@ -85,9 +85,9 @@ sub always_true  { 1 }
 
 # RHS not evaluated when in "false" state (perldoc perlop, /flip-flop)
 {
-    { my $bug; eval_ok '0 ff {$bug=2};$bug ||=1',:todo<feature>; ok ($bug == 1), "RHS not evaluated in \"false\" state (ff)", :todo<feature>; }
-    { my $bug; eval_ok '0 ^ff {$bug=2};$bug ||=1',:todo<feature>; ok ($bug == 1), "RHS not evaluated in \"false\" state (^ff)", :todo<feature>; }
-    { my $bug; eval_ok '0 ff^ {$bug=2};$bug ||=1',:todo<feature>; ok ($bug == 1), "RHS not evaluated in \"false\" state (ff^)", :todo<feature>; }
+    { my $bug; ok eval('0 ff {$bug=2};$bug ||=1'),:todo<feature>; ok ($bug == 1), "RHS not evaluated in \"false\" state (ff)", :todo<feature>; }
+    { my $bug; ok eval('0 ^ff {$bug=2};$bug ||=1'),:todo<feature>; ok ($bug == 1), "RHS not evaluated in \"false\" state (^ff)", :todo<feature>; }
+    { my $bug; ok eval('0 ff^ {$bug=2};$bug ||=1'),:todo<feature>; ok ($bug == 1), "RHS not evaluated in \"false\" state (ff^)", :todo<feature>; }
 }
 
 # LHS not evaluated when in "true" state (perldoc perlop, /flip-flop)
@@ -100,11 +100,11 @@ sub always_true  { 1 }
             die;
         }
     }
-    eval_ok 'true_then_die()  ff  always_false();true_then_die() ff always_false()',
+    ok eval('true_then_die()  ff  always_false();true_then_die() ff always_false()'),
         "LHS not evaluated in \"true\" state (ff)", :todo<feature>;
-    eval_ok 'true_then_die() ^ff  always_false();true_then_die() ^ff always_false()',
+    ok eval('true_then_die() ^ff  always_false();true_then_die() ^ff always_false()'),
         "LHS not evaluated in \"true\" state (^ff)", :todo<feature>;
-    eval_ok 'true_then_die()  ff^ always_false();true_the_die() ff^ always_false()',
+    ok eval('true_then_die()  ff^ always_false();true_the_die() ff^ always_false()'),
         "LHS not evaluated in \"true\" state (ff^)", :todo<feature>;
 }
 
@@ -112,6 +112,6 @@ sub always_true  { 1 }
 # Blechschmidt, especially Larry's reply:
 # http://www.nntp.perl.org/group/perl.perl6.language/24098
 {
-    eval_ok 'my sub foo ($x) { try { $x ff 0 } }; if foo(0) || !foo(1) || !foo(0) { die }',
+    ok eval('my sub foo ($x) { try { $x ff 0 } }; if foo(0) || !foo(1) || !foo(0) { die }'),
     	"all sub invocations share the same ff-state", :todo<feature>;
 }

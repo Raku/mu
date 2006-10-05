@@ -107,7 +107,7 @@ skip 4, "more discussion needed";
 # from L<S09/"Junctions" /Each of the resulting set of calls is then recursively autothreaded/>
 # See also t/junctions/s09eg.t
 # This test is not working as-is
-#    eval_is('substr("camel", 0|1, 2&3)', (("ca"|"am") & ("cam"|"ame")), "junctive substr", :todo);
+#    is(eval('substr("camel", 0|1, 2&3)'), (("ca"|"am") & ("cam"|"ame")), "junctive substr", :todo);
 }
 
 

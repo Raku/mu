@@ -75,8 +75,8 @@ plan 40;
 
     my $arrayref is context = list(1,2,3);
     my $boo is context = 37;
-    eval_ok '?(@$+arrayref)', '?(@$arrayref) syntax works';
-    eval_ok '?(@($+arrayref))', '?(@($arrayref)) syntax works';
+    ok eval('?(@$+arrayref)'), '?(@$arrayref) syntax works';
+    ok eval('?(@($+arrayref))'), '?(@($arrayref)) syntax works';
 }
 
 # L<S03/Changes to Perl 5 operators/"!TERM" "coerced to boolean">
@@ -100,8 +100,8 @@ plan 40;
 
     my $arrayref is context = list(1,2,3);
 
-    eval_ok '!(!(@$+arrayref))', '!(@$arrayref) syntax works';
-    eval_ok '!(!(@($+arrayref)))', '!(@($arrayref)) syntax works';
+    ok eval('!(!(@$+arrayref))'), '!(@$arrayref) syntax works';
+    ok eval('!(!(@($+arrayref)))'), '!(@($arrayref)) syntax works';
 }
 
 # int context

@@ -121,19 +121,19 @@ plan 40;
         , ':(:x(%y) = (1 => 2))', 'longnamed hash with default'
         );
     for @sigs -> $sig, $desc {
-        eval_is "my \$s = $sig; qq[\$s]", $sig, "signature stringifies - $desc";
+        is eval("my \$s = $sig; qq[\$s]"), $sig, "signature stringifies - $desc";
     }
 
     # ("" ~ :() is just an interim hack to dispatch into pretty-newval. will be removed.)
     # canonized version is different from source
-    eval_is '""~:($x!)',          ':($x)',      'required positional with hint';
-    eval_is '""~:($x? = 42)',     ':($x = 42)', 'positional with default and hint';
-    eval_is '""~:(@y? = (1, 2))', ':(@y = (1, 2))',
+    is eval('""~:($x!)'),          ':($x)',      'required positional with hint';
+    is eval('""~:($x? = 42)'),     ':($x = 42)', 'positional with default and hint';
+    is eval('""~:(@y? = (1, 2))'), ':(@y = (1, 2))',
                                                 'named array with default and hint';
 
-    eval_is '""~:($x is rw is ro is rw is copy is ro is rw)',
+    is eval('""~:($x is rw is ro is rw is copy is ro is rw)'),
                                 ':($x is rw)',  'last repeated trait wins'; # XXX: spec
-    eval_is '""~:($x is moose is ref is ro is lazy)', # 'is ro' is default thus not printed
+    is eval('""~:($x is moose is ref is ro is lazy)'), # 'is ro' is default thus not printed
                                 ':($x is ref is lazy is moose)',
                                 'interleaved traits'; # XXX spec this minor point?
 

@@ -70,7 +70,7 @@ eval_dies_ok 'my $i; do { $i++ } given $i;',
 }
 
 {
-    eval_is q{
+    is eval(q{
         my $i;
         do {
             $i++;
@@ -78,14 +78,14 @@ eval_dies_ok 'my $i; do { $i++ } given $i;',
             $i--;
         };
         $i;
-    }, 1, "'last' works in 'do' block";
+    }), 1, "'last' works in 'do' block";
 }
 
 # IRC notes:
 # <agentzh> audreyt: btw, can i use redo in the do-once loop?
 # <audreyt> it can, and it will redo it
 {
-    eval_is q{
+    is eval(q{
         my $i;
         do {
             $i++;
@@ -93,7 +93,7 @@ eval_dies_ok 'my $i; do { $i++ } given $i;',
             $i--;
         };
         $i;
-    }, 2, "'redo' works in 'do' block";
+    }), 2, "'redo' works in 'do' block";
 }
 
 # L<S04/The do-once loop/"bare block" "no longer a do-once loop">

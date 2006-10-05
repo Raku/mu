@@ -81,7 +81,7 @@ plan 11;
 
 # normal closure:
 {
-    eval_is q{
+    is eval(q{
         my $a;
         {
             leave;
@@ -89,5 +89,5 @@ plan 11;
             LEAVE { $a++ }
         }
         $a;
-    }, 1, 'leave triggers LEAVE {}';
+    }), 1, 'leave triggers LEAVE {}';
 }

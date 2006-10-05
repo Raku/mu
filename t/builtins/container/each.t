@@ -44,7 +44,7 @@ flunk('each(:finite, ...)', :todo<feature>, :depends<lazy each>);
 
 =begin lazy_each
 
-eval_ok('each(:finite, 1..Inf; [1..6])', 'parse of each(:finite, ...)',
+ok(eval('each(:finite, 1..Inf; [1..6])'), 'parse of each(:finite, ...)',
    :todo<feature>);
 
 =cut

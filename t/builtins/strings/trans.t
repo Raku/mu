@@ -56,7 +56,7 @@ is(" <>&".trans( ([' ',      '<',    '>',    '&'    ] =>
                   ['&nbsp;', '&lt;', '&gt;', '&amp;' ])),"&nbsp;&lt;&gt;&amp;",
          "The array version can map one-or-more characters to one-or-more characters");
 
-eval_is('"abc".trans(<== "a" => "A")', "Abc",
+is(eval('"abc".trans(<== "a" => "A")'), "Abc",
     "you're allowed to leave off the (...) named arg parens when you use <==",
     :todo<feature>);
 

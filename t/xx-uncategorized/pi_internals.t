@@ -17,4 +17,4 @@ r13255.
 
 plan 1;
 
-eval_ok '3.14 < Pugs::Internals::pi() < 3.15','Pugs::Internals::pi works, bug fixed.';
+ok eval('3.14 < Pugs::Internals::pi() < 3.15'),'Pugs::Internals::pi works, bug fixed.';

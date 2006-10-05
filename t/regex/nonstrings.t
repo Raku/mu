@@ -18,8 +18,8 @@ rule cheese { camembert | cheddar  };
 my $stream;
 eval '$stream is from($fh)';
 
-eval_ok('$stream ~~ /<cheese>/', 'rules on streams, positive', :todo<feature>); # should match
-eval_ok('! ($stream ~~ /<monster>/)', 'rules on streams, negative', :todo<feature>); # shouldn't match
+ok(eval('$stream ~~ /<cheese>/'), 'rules on streams, positive', :todo<feature>); # should match
+ok(eval('! ($stream ~~ /<monster>/)'), 'rules on streams, negative', :todo<feature>); # shouldn't match
 
 # And arrays...
 
@@ -29,8 +29,8 @@ my Fish $c;
 
 my @array = ($a, $b, $c);
 
-eval_ok('rule canine { <.isa(Dog)> }; @array ~~ /<canine>/', 'rules on an array - positive', :todo<feature>);
-eval_ok('rule herbivore { <.isa(Antelope)> }; ! @array ~~ /<herbivore>/', 'rules on an array - negative', :todo<feature>);
+ok(eval('rule canine { <.isa(Dog)> }; @array ~~ /<canine>/'), 'rules on an array - positive', :todo<feature>);
+ok(eval('rule herbivore { <.isa(Antelope)> }; ! @array ~~ /<herbivore>/'), 'rules on an array - negative', :todo<feature>);
 # These seem to be failing for some sort of scoping error rather than a problem with the 
 # rule matching itself.
 
@@ -39,4 +39,4 @@ eval_ok('rule herbivore { <.isa(Antelope)> }; ! @array ~~ /<herbivore>/', 'rules
 
 my @names = ('zaphod', 'ford', 'arthur', 'slartibartfast');
 my $arrr = rule { ar };
-eval_is('@names>>.match($arrr)', 2, 'matching with hyper-operator', :todo<feature>);
+is(eval('@names>>.match($arrr)'), 2, 'matching with hyper-operator', :todo<feature>);

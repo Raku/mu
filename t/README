@@ -118,7 +118,7 @@ When developing tests for features that have not been implemented yet,
 often you find yourself writing code that doesn't compile. Don't get
 stuck on this: wrap the new code with eval and test it anyway. Just make
 sure that the test fails as long as the eval does, and until the feature
-has been implemented correctly. You can use the eval_* functions for this.
+has been implemented correctly.
 
 Sometimes code is so futuristic, it can even confuse eval. We call this a
 "hard parsefail". When this happens, comment out the failing code, but mark
@@ -126,23 +126,23 @@ it so it doesn't get forgotten, like so:
 
     todo :pugs<6.28.0>, v6_pm<0.110>;
     flunk("FIXME parsefail");
-    #eval_ok('my code here');
+    #ok eval('my code here');
     
 Or another alternate style is as follows:
 
-    eval_ok('# $code.which(%will, @fail)');
+    ok eval('# $code.which(%will, @fail)');
 
-    eval_ok q{
+    ok eval(q{
 	blah blah blah
-    };
+    });
 
-    eval_is q{
+    is(eval(q{
 	my $val;
 	# some code here...
 	$val;
-    }, $expected, 'description';
+    }), $expected, 'description');
 
-which essentially comments out your eval, and returns 'undef' to eval_ok().
+which essentially comments out your eval, and returns 'undef' to ok().
 
 - When TODO and when not TODO.
 

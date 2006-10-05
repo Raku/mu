@@ -29,9 +29,9 @@ role cool {
 }
 ok(::cool.HOW, "role definition worked");
 
-eval_ok 'my $a is cool; 1', 'mixing in our role into a scalar via "is" worked';
+ok eval('my $a is cool; 1'), 'mixing in our role into a scalar via "is" worked';
 is $was_in_any_sub, 1, 'trait_auxiliary:is was called on container', :todo<feature>;
-eval_is '$a.is_cool', 'our var "inherited" an attribute', :todo<feature>;
+is eval('$a.is_cool'), 'our var "inherited" an attribute', :todo<feature>;
 
 my $b;
 class B is cool;

@@ -6,7 +6,7 @@ plan 21;
 
 # L<S04/"Closure traits"/START "runs separately for each clone">
 {
-    eval_is q{
+    is(eval(q{
         my $str;
         for 1..2 {
             my $sub = {
@@ -16,7 +16,7 @@ plan 21;
             $sub();
         }
         $str;
-    }, '12';
+    }), '12');
 };
 
 # L<S04/"Closure traits"/START "puts off" initialization till

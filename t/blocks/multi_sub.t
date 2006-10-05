@@ -36,12 +36,12 @@ is(foo(%hash), 'Hash foo, bar, baz', 'dispatched to the Hash sub', :todo<bug>);
 
 is(foo($*ERR), 'IO', 'dispatched to the IO sub');
 
-eval_ok('multi sub foo( (Int, Str) $tuple: ) '
-    ~ '{ "Tuple(2) " ~ $tuple.join(",") }',
+ok(eval('multi sub foo( (Int, Str) $tuple: ) '
+    ~ '{ "Tuple(2) " ~ $tuple.join(",") }'),
     "declare sub with tuple argument", :todo<feature>);
 
-eval_ok('multi sub foo( (Int, Str, Str) $tuple: ) '
-    ~ '{ "Tuple(3) " ~ $tuple.join(",") }',
+ok(eval('multi sub foo( (Int, Str, Str) $tuple: ) '
+    ~ '{ "Tuple(3) " ~ $tuple.join(",") }'),
     "declare multi sub with tuple argument", :todo<feature>);
 
 is(foo([3, "Four"]), "Tuple(2) 3,Four", "call tuple multi sub", :todo<feature>);

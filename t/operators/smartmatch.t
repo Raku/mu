@@ -32,8 +32,8 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 #L<<S03/Smart matching/Hash "hash keys identical"
 #   if $_.keys.sort »eq« $x.keys.sort>>
 { 
-    eval_ok '(%+hash1 ~~ %+hash2)', "hash keys identical", :todo;
-    eval_ok '!(%+hash1 ~~ %+hash4)', "hash keys differ";
+    ok eval('(%+hash1 ~~ %+hash2)'), "hash keys identical", :todo;
+    ok eval('!(%+hash1 ~~ %+hash4)'), "hash keys differ";
 };
 
 #L<<S03/Smart matching/Hash any(Hash) "hash key intersection" match>>
@@ -77,15 +77,15 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 #L<<S03/Smart matching/Hash .{Any} "hash element truth*">>
 { 
     my $string is context = "foo";
-    eval_ok '(%+hash5 ~~ .{$+string})', 'hash.{Any} truth', :todo;
+    ok eval('(%+hash5 ~~ .{$+string})'), 'hash.{Any} truth', :todo;
     $string = "gorch";
-    eval_ok '!(%+hash5 ~~ .{$+string})', 'hash.{Any} untruth', :todo;
+    ok eval('!(%+hash5 ~~ .{$+string})'), 'hash.{Any} untruth', :todo;
 };
 
 #L<<S03/Smart matching/Hash .<string> "hash element truth*">>
 { 
-    eval_ok '(%+hash5 ~~ .<foo>)', "hash<string> truth", :todo;
-    eval_ok '!(%+hash5 ~~ .<gorch>)', "hash<string> untruth", :todo;
+    ok eval('(%+hash5 ~~ .<foo>)'), "hash<string> truth", :todo;
+    ok eval('!(%+hash5 ~~ .<gorch>)'), "hash<string> untruth", :todo;
 };
 
 #L<<S03/Smart matching/Array Array "arrays are comparable" »~~«>>
@@ -119,9 +119,9 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 
 #L<<S03/Smart matching/Array .[number] "array element truth*">>
 { 
-    eval_ok '((undef, 1, undef) ~~ .[1])',
+    ok eval('((undef, 1, undef) ~~ .[1])'),
         "element 1 of (undef, 1, undef) is true", :todo;
-    eval_ok '!((undef, undef) ~~ .[0])',
+    ok eval('!((undef, undef) ~~ .[0])'),
         "element 0 of (undef, undef) is false";
 };
 
@@ -147,8 +147,8 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
     class Cat {}
     class Chihuahua is Dog {} # i'm afraid class Pugs will get in the way ;-)
 
-    eval_ok '(Chihuahua ~~ Dog)', "chihuahua isa dog";
-    eval_ok '!(Chihuahua ~~ Cat)', "chihuahua is not a cat";
+    ok eval('(Chihuahua ~~ Dog)'), "chihuahua isa dog";
+    ok eval('!(Chihuahua ~~ Cat)'), "chihuahua is not a cat";
 };
 
 #Any     Role      role playing             match if \$_.does(\$x)

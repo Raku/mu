@@ -44,6 +44,6 @@ is($foo, 2, 'is ref works', :todo);
 # is context
 # Doesn't even compile, which is lucky, because I don't understand it well
 # enough to write an actual test...
-eval_ok('sub my_format (*@data is context(Item)) { }; 1', "is context - compile check");
+ok(eval('sub my_format (*@data is context(Item)) { }; 1'), "is context - compile check");
 
 # To do - check that is context actually works

@@ -166,22 +166,22 @@ a "=cut".
 #   =for comment>
 
 {
-    eval_is q{
+    is eval(q{
         my $var = 1;
 
 =for comment TimToady is here!
 
         32;
-    }, 32, '=for comment works', :todo<bug>;
+    }), 32, '=for comment works', :todo<bug>;
 }
 
 {
-    eval_is q{
+    is eval(q{
         my $var = 1;
 
 =for comment TimToady and audreyt
 are both here, yay!
 
         17;
-    }, 17, '=for comment works', :todo<bug>;
+    }), 17, '=for comment works', :todo<bug>;
 }

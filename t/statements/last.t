@@ -18,8 +18,8 @@ plan 8;
 # test for loops with last
 
 {
-    eval_is(
-        'sub mylast { last; }; my $tracker = 0; for 1 .. 5 { $tracker = $_; mylast(); } $tracker',
+    is(
+        eval('sub mylast { last; }; my $tracker = 0; for 1 .. 5 { $tracker = $_; mylast(); } $tracker'),
         1,
         "tracker is 1 because mylast exits loop",
         :todo(1)
@@ -63,8 +63,8 @@ plan 8;
 }
 
 {
-    eval_is(
-        'my $var=0; DONE: for (1..2) { last DONE; $var++;} $var',
+    is(
+        eval('my $var=0; DONE: for (1..2) { last DONE; $var++;} $var'),
         0,
         "var is 0 because last before increment",
         :todo(1)
@@ -83,8 +83,8 @@ plan 8;
 }
 
 {
-    eval_is(
-        'my $var=0; OUT: for (1..2) { IN: for (1..2) { last OUT } $var++;} $var',
+    is(
+        eval('my $var=0; OUT: for (1..2) { IN: for (1..2) { last OUT } $var++;} $var'),
         0,
         "var is 0 because last before increment in nested loop",
         :todo(1)

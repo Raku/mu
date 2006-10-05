@@ -192,10 +192,10 @@ Tests the given block, as defined in L<S04/"Switch statements">
 {
     class TestIt { method passit { 1; }; has %.testing is rw; };
     my $passed = 0;
-    eval_ok( 'given TestIt.new { $_.passit; };', '$_. method calls' );
-    eval_ok( 'given TestIt.new { .passit; };'  , '. method calls' );
-    eval_ok( 'given TestIt.new { $_.testing<a> = 1; };','$_. attribute access' );
-    eval_ok( 'given TestIt.new { .testing<a> = 1; };',  '. attribute access' );
+    ok( eval('given TestIt.new { $_.passit; };'), '$_. method calls' );
+    ok( eval('given TestIt.new { .passit; };'), '. method calls' );
+    ok( eval('given TestIt.new { $_.testing<a> = 1; };'),'$_. attribute access' );
+    ok( eval('given TestIt.new { .testing<a> = 1; };'),  '. attribute access' );
     my $t = TestIt.new;
     given $t { when TestIt { $passed = 1;} };
     is($passed, 1,"when Type {}");
