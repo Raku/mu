@@ -187,8 +187,8 @@ initClassObjects uniq parent (MkClassTree (Node typ children)) = do
     objSV   <- newScalar (VObject obj)
     rest    <- forM children $
         initClassObjects (MkObjectId . pred $ unObjectId uniq) [typ] . MkClassTree
-    let metaSym  = genSym (cast (':':'*':name)) $ MkRef objSV
-        codeSym  = genMultiSym (cast ('&':'*':name)) $ codeRef typeCode
+    let metaSym  = genSym (cast (":*"++name)) $ MkRef objSV
+        codeSym  = genMultiSym (cast ("&*term:"++name)) $ codeRef typeCode
         name     = showType typ
         typeBody = Val . VType . mkType $ name
         Syn "sub" [Val (VCode typeCode)] = typeMacro name typeBody

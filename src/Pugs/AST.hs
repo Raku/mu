@@ -262,27 +262,32 @@ newPackage cls name classes roles = Stmts metaObj (newType name)
         ]
 
 newType :: String -> Exp
-newType name = _Sym SGlobal ('&':'&':'*':name) $! Syn ":="
-    [ _Var ('&':'*':name)
+newType name = _Sym SGlobal ('&':'&':'*':termName) $! Syn ":="
+    [ _Var ('&':'*':termName)
     , typeMacro name (Val . VType . mkType $ name)
     ]
+    where
+    termName = "term:" ++ name
+
 
 newMetaType :: String -> Exp
-newMetaType name = _Sym SGlobal ('&':'&':'*':name) $! Syn ":="
-    [ _Var ('&':'*':name)
+newMetaType name = _Sym SGlobal ('&':'&':'*':termName) $! Syn ":="
+    [ _Var ('&':'*':termName)
     , typeMacro name (_Var (':':'*':name))
     ]
+    where
+    termName = "term:" ++ name
 
 typeMacro :: String -> Exp -> Exp
 typeMacro name exp = Syn "sub" . (:[]) . Val . VCode $ MkCode
     { isMulti       = True
-    , subName       = cast ('&':name)
+    , subName       = cast ("&term:" ++ name)
     , subEnv        = Nothing
     , subType       = SubMacro
     , subAssoc      = ANil
     , subReturns    = typ
     , subLValue     = False
-    , subParams     = [defaultHashParam{ paramName = cast "%?" }]
+    , subParams     = [ defaultArrayParam, defaultHashParam ]
     , subBindings   = []
     , subSlurpLimit = []
     , subBody       = Prim $ \v -> do
