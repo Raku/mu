@@ -597,7 +597,7 @@ src/Pugs/Config.hs : util/PugsConfig.pm
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs
 
 src/gen_prelude$Config{_exe} : src/gen_prelude.hs
-	$ghc -O0 -o src/gen_prelude$Config{_exe} src/gen_prelude.hs
+	$ghc -O0 --make -o src/gen_prelude$Config{_exe} src/gen_prelude.hs
 
 src/Pugs/CodeGen/PIR/Prelude.hs : src/gen_prelude$Config{_exe} src/perl6/Prelude/PIR.pm
 	\@\$(PERL) -e "mkdir q-src/Pugs/CodeGen/PIR-"
