@@ -52,11 +52,14 @@ sub emit {
         #"    print \"match args: \",Dumper(\@_);\n" .
         "
     my \$tree;
-    if ( defined \$_[3]{p} ) {
+    if (  defined \$_[3]{p} 
+       && ! \$_[3]{continue}
+       ) {
       \$matcher->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$_[3]{p}, \$_[1], \$_[3] );
     }
     else {
-      for my \$pos ( 0 .. length( \$_[1] ) ) {
+      \$_[3]{p} ||= 0;
+      for my \$pos ( \$_[3]{p} .. length( \$_[1] ) ) {
         my \$param = { \%{\$_[3]}, p => \$pos };
         \$matcher->( \$_[1], \$_[2], \$tree, \$tree, \$_[0], \$pos, \$_[1], \$param );
         last if \$tree;

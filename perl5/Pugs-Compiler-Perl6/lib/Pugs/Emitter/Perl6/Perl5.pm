@@ -1292,7 +1292,7 @@ sub infix {
                 my $opt = '';
 
                 if ( exists $options{'g'} ) {
-                    $opt .= 'p => ( $_V6_M ? ( 
+                    $opt .= 'continue => 1, p => ( $_V6_M ? ( 
                        $_V6_M->to 
                     ) : undef )';
                     # XXX: hack for /$pattern/
@@ -1315,7 +1315,7 @@ sub infix {
                 }
 
                 if ( exists $options{'c'} ) {
-                    $opt .= 'p => ( $::_V6_MATCH_ ? ( 
+                    $opt .= 'continue => 1, p => ( $::_V6_MATCH_ ? ( 
                        $::_V6_MATCH_->to 
                     ) : undef )';
                 }

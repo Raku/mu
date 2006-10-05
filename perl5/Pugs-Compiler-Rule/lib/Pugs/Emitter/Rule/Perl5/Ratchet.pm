@@ -84,7 +84,9 @@ sub emit {
         #"  print \"match arg_list = \@{[\%{\$_[1]} ]}\n\" if defined \$_[1];\n" .
         #"  print \"match pos = \$pos\n\";\n" .
 "  my \$m;
-  for my \$pos ( defined \$_[3]{p} ? \$_[3]{p} : ( 0 .. length( \$s ) ) ) {
+  for my \$pos ( defined \$_[3]{p} && ! \$_[3]{continue} 
+        ? \$_[3]{p} 
+        : ( ( \$_[3]{p} || 0 ) .. length( \$s ) ) ) {
     my \%index; 
     my \@match;
     my \%named;
