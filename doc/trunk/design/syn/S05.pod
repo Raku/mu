@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 27 Sept 2006
+   Last Modified: 4 Oct 2006
    Number: 5
-   Version: 34
+   Version: 35
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -2843,6 +2843,9 @@ produces a pair list:
 Use the C<.=> form to do a translation in place:
 
      $str.=trans( %mapping.pairs.sort );
+
+(Perl 6 does not support the C<y///> form, which was only in C<sed> because
+they were running out of single letters.)
 
 =item *
 
