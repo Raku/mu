@@ -508,15 +508,19 @@ ruleTraitDeclaration = try $ do
     --   is eval(...), ...    # sub call
     (aux, trait) <- ruleTrait ["is", "does"]
     lookAhead (eof <|> (oneOf ";}" >> return ()))
-    env     <- ask
-    let meta = _Var (':':'*':cast (envPackage env))
+    pkg <- asks envPackage
+    let meta = _Var (':':'*':cast pkg)
         expMeta = Syn "="
             [ Syn "{}" [meta, Val (VStr aux)]
             , Syn "," [Syn "@{}" [Syn "{}" [meta, Val (VStr aux)]], Val (VStr trait)]
             ]
         addDoes | "does" <- aux = Stmts (App (_Var "&HOW::does") (Just meta) [Val (VStr trait)])
                 | otherwise     = id
-    unsafeEvalExp $ addDoes expMeta
+    unsafeEvalExp $ Syn "if"
+        [ meta
+        , addDoes expMeta
+        , App (_Var "&die") Nothing [Val (VStr $ "Can't add trait to non-class package: " ++ show pkg)]
+        ]
     return Noop
 
 ruleMemberDeclaration :: RuleParser Exp
