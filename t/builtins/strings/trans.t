@@ -28,7 +28,6 @@ is("ABC-DEF".trans(("A-YZ-" => "a-z_")),"abc_def",
            "If the last character is a dash it isn't part of a range");
 
 
-#skip 2, "loops forever with Pugs 6.2.10";
 is("ABCDEF".trans( ('AB-E' => 'ab-e') ), "abcdeF",
                   "The two sides can consists of both chars and ranges");
 is("ABCDEFGH".trans( ('A-CE-G' => 'a-ce-g') ),"abcDefgH",
@@ -71,7 +70,7 @@ $_ = "abc";
 tr|a-c|A-C|;
 is($_, 'ABC', 'tr||| on $_ with character range');
 
-# Ditto for ty///
+# Ditto for y///
 $_ = "ABC";
 y/ABC/abc/;
 is($_, 'abc', 'y/// on $_ with explicit character lists');
