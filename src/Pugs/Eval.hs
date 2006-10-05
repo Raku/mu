@@ -198,12 +198,19 @@ evalRef ref = do
         when isCollectionRef $ esc (castV ref)
         val <- readRef ref
         let isAutovivify = and $
-                [ not (defined val)
-                , isItemCxt cxt
+                [ isItemCxt cxt
+                , isUndefinedVal val
                 , (typ ==) `any` [mkType "Array", mkType "Hash"]
                 ]
+            isUndefinedVal VUndef   = True
+            isUndefinedVal VType{}  = True
+            isUndefinedVal _        = False
+            -- Here we ensutre "my Hash $x" can only vivify into Hash no matter how it's asked.
+            typ' = case val of
+                VType t -> t
+                _       -> typ 
         when isAutovivify $ do
-            ref' <- newObject typ
+            ref' <- newObject typ'
             writeRef ref (VRef ref')
         return $ castV ref
     retVal val
@@ -258,16 +265,14 @@ reduceVal v = retVal v
 -- Reduction for variables
 reduceVar :: Var -> Eval Val
 reduceVar var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = pkg }
-    | twi == TAttribute
+    | TAttribute <- twi
     = reduceSyn (show sig ++ "{}") [ Syn "{}" [_Var "&self", Val (VStr $ cast name)] ]
-    | twi == TPrivate
+    | TPrivate <- twi
     = reduceSyn (show sig ++ "{}") [ Syn "{}" [_Var "&self", Val (VStr $ cast name)] ]
     | otherwise = do
         v <- findVar var
         case v of
-            Just ref
-                | SScalar <- sig    -> enterContext _scalarContext (evalRef ref)
-                | otherwise         -> evalRef ref
+            Just ref -> evalRef ref
             Nothing
                 | SType <- sig      -> return . VType . cast $ if isQualifiedVar var
                     then cast $ Buf.join (__"::") [cast pkg, cast name]
@@ -906,8 +911,8 @@ reduceApp (Var var) invs args
             exps  -> Syn "," exps
     | var == cast "&item" = do
         case maybeToList invs ++ args of
-            [exp] -> enterEvalContext cxtItemAny exp
-            _     -> enterEvalContext cxtItemAny $ Syn "," (maybeToList invs ++ args)
+            [exp] -> enterRValue $ enterEvalContext cxtItemAny exp
+            _     -> enterRValue $ enterEvalContext cxtItemAny $ Syn "," (maybeToList invs ++ args)
     | var == cast "&cat", Nothing <- invs = do
         vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) args
         val  <- op0Cat vals
@@ -994,10 +999,16 @@ reduceApp (Var var) invs args
         reduceSyn syn (maybeToList invs ++ args)
     | SCodeMulti <- v_sigil var = do
         doCall var{ v_sigil = SCode } invs args
-    | SCode <- v_sigil var, Nothing <- invs, [inv] <- args = case inv of
-        Syn "named" _           -> doCall var Nothing [inv]
-        _ | isInterpolated inv  -> doCall var Nothing [inv]
-        _                       -> doCall var (Just inv) []
+    | SCode <- v_sigil var, Nothing <- invs, [inv] <- args = 
+        let dispatchSub  = doCall var Nothing [inv]
+            dispatchMeth = doCall var (Just inv) [] -- XXX - This will go away!
+        in case inv of
+            Syn "named" _           -> dispatchSub
+            _ | isInterpolated inv  -> dispatchSub
+            _                       -> do
+                -- Try a local lookup of subs only.  If found, don't bother a method lookup.
+                rv <- findVar var
+                if isJust rv then dispatchSub else dispatchMeth
     | otherwise = do
         doCall var invs args
 
@@ -1134,7 +1145,8 @@ doCall var invs origArgs = do
     -- We can't go back and re-evaluate the =$fh call under list context
     -- after it failed its method lookup; however, we really need to go back
     -- and re-evaluate @foo under list context.  So we use a klugy heuristic
-    -- before this is resolved:
+    -- before this is resolved (by explicit "method is export" and removal
+    -- of the one-arg-fallback-to-method altogether):
     let klugedInvs = case fmap unwrap invs of
             Just App{}  -> invs' -- no re-evaluation
             Just Syn{}  -> invs' -- no re-evaluation
