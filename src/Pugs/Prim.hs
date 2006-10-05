@@ -1017,12 +1017,12 @@ op2 "does"   = \x y -> do
         _        -> fromVal y
     op2Match x (VType typY)
 op2 "delete" = \x y -> do
-    ref             <- fromVal x
-    rv@(VList ls)   <- deleteFromRef ref y
+    ref <- fromVal x
+    rv  <- deleteFromRef ref y
     -- S29: delete always returns the full list regardless of context.
-    case ls of
-        [x] -> return x
-        _   -> return (VList ls)
+    case rv of
+        VList [x]   -> return x
+        _           -> return rv
 op2 "exists" = \x y -> do
     ref <- fromVal x
     fmap VBool (existsFromRef ref y)
@@ -1549,12 +1549,17 @@ withDefined (_:xs) c = withDefined xs c
 -- the default is 'op0'.
 -- The Pad symbol name is prefixed with \"&*\" for functions and
 -- \"&*\" ~ fixity ~ \":\" for operators.
-primOp :: String -> String -> Params -> String -> Bool -> Bool -> STM PadMutator
-primOp sym assoc prms ret isSafe isMacro = do
+primOp :: String -> String -> Params -> String -> Bool -> Bool -> Bool -> STM PadMutator
+primOp sym assoc prms ret isSafe isMacro isExport = do
     prim <- genMultiSym (cast name) (sub (isSafe || not safeMode))
     case assoc of
+        -- Manufacture &infix:<!===> from &infix:<===>.
         "chain" | head sym /= '!' -> do
-            prim' <- primOp ('!':sym) assoc prms ret isSafe isMacro
+            prim' <- primOp ('!':sym) assoc prms ret isSafe isMacro isExport
+            return (prim . prim')
+        _       | isExport -> do
+            -- Here we rewrite a multi form that redispatches into the method form.
+            prim' <- genMultiSym ((cast name){ v_package = emptyPkg }) (sub (isSafe || not safeMode))
             return (prim . prim')
         _       -> return prim
     where
@@ -1620,9 +1625,12 @@ data Arity = Arity0 | Arity1 | Arity2
 
 -- |Produce a Pad update transaction with 'primOp' from a string description
 primDecl :: String -> STM PadMutator
-primDecl str = primOp sym assoc params ret ("safe" `isPrefixOf` safe) ("macro" `isSuffixOf` safe)
+primDecl str = primOp sym assoc params ret
+    ("safe" `isPrefixOf` traits)
+    ("macro" `isSuffixOf` traits)
+    ("export" `isSuffixOf` traits)
     where
-    (ret:assoc:sym:safe:prms) = words str
+    (ret:assoc:sym:traits:prms) = words str
     takeWord = takeWhile isWord . dropWhile (not . isWord)
     isWord = not . (`elem` "(),:")
     prms'  = map takeWord prms
@@ -2059,7 +2067,7 @@ initSyms = mapM primDecl syms
 \\n   List      pre     Pugs::Internals::runInteractiveCommand  unsafe (Str)\
 \\n   Bool      pre     Pugs::Internals::hSetBinaryMode         unsafe (IO, Str)\
 \\n   Void      pre     Pugs::Internals::hSeek                  unsafe (IO, Int, Int)\
-\\n   Int       pre     IO::tell                                unsafe (IO)\
+\\n   Int       pre     IO::tell                                unsafe,export (IO)\
 \\n   Bool      pre     Pugs::Internals::hIsOpen                unsafe (IO)\
 \\n   Bool      pre     Pugs::Internals::hIsClosed              unsafe (IO)\
 \\n   Bool      pre     Pugs::Internals::hIsReadable            unsafe (IO)\
@@ -2085,10 +2093,10 @@ initSyms = mapM primDecl syms
 \\n   Any       pre     Code::signature     safe   (Code:)\
 \\n   Any       pre     Code::retry_with    safe   (List)\
 \\n   IO::Dir   pre     opendir    unsafe (Str)\
-\\n   Str       pre     IO::Dir::readdir    unsafe (IO::Dir)\
-\\n   List      pre     IO::Dir::readdir    unsafe (IO::Dir)\
-\\n   Bool      pre     IO::Dir::closedir   unsafe (IO::Dir)\
-\\n   Bool      pre     IO::Dir::rewinddir  unsafe (IO::Dir)\
+\\n   Str       pre     IO::Dir::readdir    unsafe,export (IO::Dir)\
+\\n   List      pre     IO::Dir::readdir    unsafe,export (IO::Dir)\
+\\n   Bool      pre     IO::Dir::closedir   unsafe,export (IO::Dir)\
+\\n   Bool      pre     IO::Dir::rewinddir  unsafe,export (IO::Dir)\
 \\n   Any       pre     Pugs::Internals::reduceVar  unsafe (Str)\
 \\n   Str       pre     Pugs::Internals::rule_pattern safe (Regex)\
 \\n   Hash      pre     Pugs::Internals::rule_adverbs safe (Regex)\
