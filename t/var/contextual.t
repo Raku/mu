@@ -12,12 +12,12 @@ plan 4;
 
 {
 	delete %*ENV<THIS_NEVER_EXISTS>;
-	eval_ok '$+THIS_NEVER_EXISTS', "Testing for accessing contextual which is deleted.";
+	ok eval('$+THIS_NEVER_EXISTS'), "Testing for accessing contextual which is deleted.";
 	is $+THIS_NEVER_EXISTS, undef, "Testing for value of contextual varaibale.";
 }
 
 {
-	eval_ok '$+ABCDEFG', "Test for contextual which doesn't exists.", :todo<bug>;
+	ok eval('$+ABCDEFG'), "Test for contextual which doesn't exists.", :todo<bug>;
 #	is $+ABCDEFG, undef, "Test for contextual which doesn't exists.";
 }
 
