@@ -587,8 +587,14 @@ ruleAdverbHash = do
 
 substLiteral :: RuleParser Exp
 substLiteral = do
-    symbol "s"
-    adverbs     <- ruleAdverbHash
+    declarator <- choice
+        [ symbol "s" >> return "subst"
+        , symbol "y" >> return "trans"
+        , symbol "tr" >> return "trans"
+        ]
+    adverbs     <- case declarator of
+        "subst" -> ruleAdverbHash
+        _       -> return emptyExp
     (rep, ch)   <- openingDelim
     let endch = balancedDelim ch
     -- XXX - probe for adverbs to determine p5 vs p6
@@ -596,7 +602,7 @@ substLiteral = do
     ch      <- if ch == endch then return ch else do { whiteSpace ; anyChar }
     let endch = balancedDelim ch
     subst   <- qLiteral1 (string (replicate rep ch)) (string (replicate rep endch)) qqFlags { qfProtectedChar = endch }
-    return $ Syn "subst" [expr, subst, adverbs]
+    return $ Syn declarator [expr, subst, adverbs]
 
 ruleRegexDeclarator :: RuleParser (Exp -> Exp)
 ruleRegexDeclarator = verbatimRule "regex expression" $ choice

@@ -801,7 +801,12 @@ reduceSyn "match" exps = do
 
 reduceSyn "subst" [exp, subst, adverbs] = do
     (VRule rx)  <- reduce (Syn "rx" [exp, adverbs])
-    retVal $ VSubst (rx, subst)
+    retVal $ VSubst (MkSubst rx subst)
+
+reduceSyn "trans" (fromExp:toExp:_) = do
+    from <- fromVal =<< reduce fromExp
+    to   <- fromVal =<< reduce toExp
+    retVal $ VSubst (MkTrans from to)
 
 -- XXX - Runtime mixin
 reduceSyn "is" (lhs:_) = reduce lhs

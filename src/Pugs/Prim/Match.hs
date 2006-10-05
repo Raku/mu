@@ -135,7 +135,20 @@ op2Match x y@(VObject MkObject{ objType = cls }) | cls == classType = do
     name    <- fromVal =<< fetch "name"
     op2Match x (VType (mkType name))
 
-op2Match x (VSubst (rx, subst)) | rxGlobal rx = do
+-- $x ~~ tr/x/y/ ==> $x = ~$x.trans('x' => 'y')
+op2Match x (VSubst (MkTrans from to)) = do
+    str <- fromVal x
+    evalExp $ Syn "="
+        [ Val x
+        , App (_Var "&trans") (Just (Val (VStr str)))
+            [ App (_Var "&infix:=>") Nothing
+                [ Val (VStr from)
+                , Val (VStr to)
+                ]
+            ]
+        ]
+
+op2Match x (VSubst (MkSubst rx subst)) | rxGlobal rx = do
     str         <- fromVal x
     (str', cnt) <- doReplace str 0
     if cnt == 0 then return (VBool False) else do
@@ -161,7 +174,7 @@ op2Match x (VSubst (rx, subst)) | rxGlobal rx = do
                 (after', ok') <- doReplace (genericDrop to str) (ok + 1)
                 return (concat [genericTake from str, str', after'], ok')
 
-op2Match x (VSubst (rx, subst)) = do
+op2Match x (VSubst (MkSubst rx subst)) = do
     str     <- fromVal x
     ref     <- fromVal x
     match   <- str `doMatch` rx

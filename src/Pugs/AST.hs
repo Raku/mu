@@ -201,9 +201,9 @@ mergeStmts (Sym scope name x) y = Sym scope name (mergeStmts x y)
 mergeStmts (Pad scope lex x) y = Pad scope lex (mergeStmts x y)
 mergeStmts (Syn "package" [kind, pkg@(Val (VStr _))]) y =
     Syn "namespace" [kind, pkg, y]
-mergeStmts x@(Ann ann (Syn syn _)) y | (syn ==) `any` words "subst match //"  =
+mergeStmts x@(Ann ann (Syn syn _)) y | isImplicitTopic syn =
     mergeStmts (Ann ann (App (_Var "&infix:~~") Nothing [_Var "$_", x])) y
-mergeStmts x y@(Ann ann (Syn syn _)) | (syn ==) `any` words "subst match //"  =
+mergeStmts x y@(Ann ann (Syn syn _)) | isImplicitTopic syn =
     mergeStmts x (Ann ann (App (_Var "&infix:~~") Nothing [_Var "$_", y]))
 mergeStmts (Ann ann (Syn "sub" [Val (VCode sub)])) y | subType sub == SubBlock =
     -- bare Block in statement level; annul all its parameters and run it!
@@ -214,6 +214,12 @@ mergeStmts x (Ann ann (Syn "sub" [Val (VCode sub)])) | subType sub == SubBlock =
 mergeStmts x (Stmts y Noop) = mergeStmts x y
 mergeStmts x (Stmts Noop y) = mergeStmts x y
 mergeStmts x y = Stmts x y
+
+isImplicitTopic "subst" = True
+isImplicitTopic "match" = True
+isImplicitTopic "trans" = True
+isImplicitTopic "//"    = True
+isImplicitTopic _       = False
 
 isEmptyParams :: [Param] -> Bool
 isEmptyParams [] = True

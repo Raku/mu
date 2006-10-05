@@ -778,8 +778,8 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
             "perl5" -> App (_Var "&map") Nothing [Syn "sub"
                 [ Val . VCode $ mkSub
                     { subBody   = Syn ","
-                        [ App (_Var "&prefix:<~>") (Just $ _Var "$_") []
-                        , Syn "\\[]" [ App (_Var "&can") (Just $ _Var (':':'*':pkg)) [_Var "$_"] ]
+                        [ App (_Var "&prefix:<~>") (Just $ Var _dollarUnderscore) []
+                        , Syn "\\[]" [ App (_Var "&can") (Just $ _Var (':':'*':pkg)) [Var _dollarUnderscore] ]
                         ]
                     , subParams = [defaultScalarParam]
                     }
@@ -1003,7 +1003,7 @@ possiblyExit (Val (VControl (ControlExit exit))) = do
         [ _Var "@Main::END"
         , Syn "sub"
             [ Val . VCode $ mkSub
-                { subBody   = App (_Var "$_") Nothing []
+                { subBody   = App (Var _dollarUnderscore) Nothing []
                 , subParams = [defaultScalarParam]
                 }
             ]
@@ -1705,7 +1705,7 @@ ruleApplyImplicitMethod = do
     when (prevChar == '}') $ do
         pos <- getPosition
         traceM ("Warning: '{...}.method' treated as '{...}; .method' at " ++ show pos)
-    return (combine (reverse fs) (_Var "$_"))
+    return (combine (reverse fs) (Var _dollarUnderscore))
 
 ruleSubNameWithoutPostfixModifier :: RuleParser String
 ruleSubNameWithoutPostfixModifier = try $ do
