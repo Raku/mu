@@ -27,7 +27,7 @@ opWords :: String -> Set OpName
 opWords xs = Set.fromList (map (MkOpName . cast) (words xs))
 
 newtype OpName = MkOpName ID
-    deriving (Show, Eq, Typeable, (:>:) String, (:>:) ByteString, (:<:) ByteString)
+    deriving (Show, Eq, Typeable, (:>:) String, (:>:) ByteString, (:<:) ByteString, (:>:) ID)
 
 instance Ord OpName where
     compare (MkOpName MkID{ idKey = a, idBuf = x }) (MkOpName MkID{ idKey = b, idBuf = y })
@@ -169,7 +169,7 @@ currentFunctions = do
         let syms  = padToList (filterPad cur glob)
                     ++ padToList (filterPad cur (envLexical env))
             pkg   = envPackage env
-            cur var@MkVar{ v_sigil = SCode} = inScope pkg var
+            cur var@MkVar{ v_sigil = SCode } = inScope pkg var
             cur _ = False
             vars  = concat [ map (\(_, tvar) -> (var, tvar)) tvars
                            | (var, tvars) <- syms
@@ -234,22 +234,27 @@ listPkg = cast (mkType "List")
 currentTightFunctions :: RuleParser TightFunctions
 currentTightFunctions = do
     funs    <- currentFunctions
-    let finalResult = foldr splitUnary initResult unary
-        initResult  = MkTightFunctions emptySet emptySet emptySet emptySet termSet infixOps
+    let finalResult = foldr splitUnary termResult unary
+        termResult  = foldr splitTerm initResult maybeTerm
+        initResult  = MkTightFunctions emptySet emptySet emptySet emptySet emptyMap infixOps
         (unary, notUnary)   = partition matchUnary funs
         slurpyNames         = namesFrom (filter matchSlurpy notUnary)
         (maybeTerm, notTerm)= partition matchTerm funs
-        terms               = namesFrom maybeTerm Set.\\ namesFrom notTerm
-        termSet             = Set.map MkOpName terms
+        nonTermNames        = namesFrom notTerm
         infixOps            = Map.fromList
             [ (MkOpName name, assoc)
             | MkCurrentFunction { f_var = MkVar { v_categ = C_infix, v_name = name }, f_assoc = assoc } <- notUnary
             , name /= commaID
             ]
+        splitTerm :: CurrentFunction -> TightFunctions -> TightFunctions
+        splitTerm (MkCurrentFunction MkVar{ v_categ = cat, v_name = n } _ _)
+            res@MkTightFunctions{ r_term = term }
+                | n `Set.member` nonTermNames   = res
+                | otherwise                     = res{ r_term = Map.insert (MkOpName n) cat term }
+
         splitUnary :: CurrentFunction -> TightFunctions -> TightFunctions
         splitUnary (MkCurrentFunction MkVar{ v_categ = cat, v_name = n } _ [param])
-            res@MkTightFunctions
-                { r_opt = opt, r_named = named, r_pre = pre, r_post = post }
+            res@MkTightFunctions{ r_opt = opt, r_named = named, r_pre = pre, r_post = post }
                 | n `Set.member` slurpyNames    = res
                 | isOptional param              = res{ r_opt    = Set.insert (MkOpName n) opt }
                 | C_prefix <- cat               = res{ r_pre    = Set.insert (MkOpName n) pre }
@@ -269,12 +274,15 @@ data TightFunctions = MkTightFunctions
     , r_named       :: !(Set OpName)
     , r_pre         :: !(Set OpName)
     , r_post        :: !(Set OpName)
-    , r_term        :: !(Set OpName)
+    , r_term        :: !(Map OpName VarCateg)
     , r_infix       :: !(Map OpName SubAssoc)
     }
 
 emptySet :: Set OpName
 emptySet = Set.empty
+
+emptyMap :: Map OpName VarCateg
+emptyMap = Map.empty
 
 matchUnary :: CurrentFunction -> Bool
 matchUnary MkCurrentFunction
@@ -283,10 +291,8 @@ matchUnary MkCurrentFunction
 matchUnary _ = False
 
 matchTerm :: CurrentFunction -> Bool
-matchTerm MkCurrentFunction
-    { f_assoc = ANil, f_params = [] } = True
-matchTerm MkCurrentFunction
-    { f_assoc = ANil, f_params = [MkOldParam{ paramContext = CxtSlurpy{}, paramName = MkVar { v_sigil = SHash }} ] } = True
+matchTerm MkCurrentFunction{ f_var = MkVar{ v_categ = C_term } } = True
+matchTerm MkCurrentFunction{ f_assoc = ANil, f_params = [] } = True
 matchTerm _ = False
 
 matchSlurpy :: CurrentFunction -> Bool
@@ -670,9 +676,19 @@ refillCache state f = do
         opParsers   = MkDynParsers parseFull parseTight parseLit parseNullary parsePost -- <|> parsePre <|> parsePreNam)
         opsFull     = listCons:listInfix:opsLoose
         parseNullary= try $ do
-            name <- (choice . map symbol . fromSet $ r_term tights) <?> "term"
+            var <- (choice . map parseOneTerm . Map.toAscList $ r_term tights) <?> "term"
             notFollowedBy (char '(' <|> (char ':' >> char ':'))
-            possiblyApplyMacro $ App (_Var ('&':name)) Nothing []
+            possiblyApplyMacro $ App (Var var) Nothing []
+        parseOneTerm (name, categ) = do
+            symbol (cast name)
+            return MkVar
+                { v_name    = cast name
+                , v_sigil   = SCode
+                , v_twigil  = TNil
+                , v_categ   = categ
+                , v_package = emptyPkg
+                , v_meta    = MNil
+                }
     setState state{ s_dynParsers = opParsers }
     f opParsers
 
