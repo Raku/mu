@@ -215,6 +215,7 @@ mergeStmts x (Stmts y Noop) = mergeStmts x y
 mergeStmts x (Stmts Noop y) = mergeStmts x y
 mergeStmts x y = Stmts x y
 
+isImplicitTopic :: String -> Bool
 isImplicitTopic "subst" = True
 isImplicitTopic "match" = True
 isImplicitTopic "trans" = True
@@ -281,10 +282,14 @@ typeMacro name exp = Syn "sub" . (:[]) . Val . VCode $ MkCode
     , subAssoc      = ANil
     , subReturns    = typ
     , subLValue     = False
-    , subParams     = []
+    , subParams     = [defaultArrayParam, defaultHashParam{ paramName = cast "%" }]
     , subBindings   = []
     , subSlurpLimit = []
-    , subBody       = Prim . const . expToEvalVal $ exp
+    , subBody       = Prim $ \v -> do
+        list <- mapM fromVals v :: Eval [VList]
+        case concat list of
+            []  -> expToEvalVal $ exp
+            xs  -> retError ("Cannot coerce to " ++ name) xs
     , subCont       = Nothing
     , subPreBlocks = []
     , subPostBlocks = []
