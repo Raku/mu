@@ -589,7 +589,6 @@ substLiteral :: RuleParser Exp
 substLiteral = do
     declarator <- choice
         [ symbol "s" >> return "subst"
-        , symbol "y" >> return "trans"
         , symbol "tr" >> return "trans"
         ]
     adverbs     <- case declarator of

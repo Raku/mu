@@ -9,7 +9,7 @@ L<S05/Transliteration>
 =cut
 
 
-plan 18;
+plan 16;
 
 is("ABC".trans( ('A'=>'a'), ('B'=>'b'), ('C'=>'c') ),"abc",
         "Each side can be individual characters");
@@ -69,15 +69,6 @@ is($_, 'abc', 'tr/// on $_ with explicit character lists');
 $_ = "abc";
 tr|a-c|A-C|;
 is($_, 'ABC', 'tr||| on $_ with character range');
-
-# Ditto for y///
-$_ = "ABC";
-y/ABC/abc/;
-is($_, 'abc', 'y/// on $_ with explicit character lists');
-
-$_ = "abc";
-y|a-c|A-C|;
-is($_, 'ABC', 'y||| on $_ with character range');
 
 {
 my $japh = "Whfg nabgure Crey unpxre";
