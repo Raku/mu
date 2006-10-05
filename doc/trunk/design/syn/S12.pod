@@ -12,7 +12,7 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 20 Sept 2006
+  Last Modified: 4 Oct 2006
   Number: 12
   Version: 28
 
