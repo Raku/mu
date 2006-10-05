@@ -120,9 +120,9 @@ my @tmp = (1..10);
 @a = indirect_slurpy_context( @a );
 @tmp = (1..10);
 @b = indirect_slurpy_context( splice @tmp, 5, 3 );
-is( @b, @a, "Calling splice with immediate and indirect context returns consistent results" );
+is( @b, @a, "Calling splice with immediate and indirect context returns consistent results", :todo<bug> );
 is( @a, [6,7,8], "Explicit call/assignment gives the expected results");
-is( @b, [6,7,8], "Implicit context gives the expected results" );
+is( @b, [6,7,8], "Implicit context gives the expected results", :todo<bug> ); # this is due to the method-fallback bug
 
 my @tmp = (1..10);
 @a = item splice @tmp, 5, 3;
