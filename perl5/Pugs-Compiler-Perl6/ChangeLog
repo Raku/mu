@@ -1,6 +1,6 @@
 
 - implemented $$/
-- implemented :c switch in rules:
+- implemented :c and :g switches in rules:
   ' my $content = "xyz"; while $content ~~ m:c/<alpha>/ { say $/ } '
   x \n y \n z \n
 - implemented  '$x.yaml'  and  'eval( $x, :lang<yaml> )'
