@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 26 Sep 2006
+  Last Modified: 5 Sep 2006
   Number: 4
-  Version: 41
+  Version: 42
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -138,11 +138,14 @@ this still works:
         sub { 3 }   # the statement won't terminate here 
     ];
 
-However, a nested hash block must be disambiguated by a trailing comma:
+However, a hash composer may never occur at the end of a line.  If the
+parser sees anything that looks like a hash composer at the end of
+the line, it fails with "closing hash curly may not terminate line"
+or some such.
 
-    # Without the trailing comma, this becomes a code block
     my $hash = {
-        1 => { 2 => 3, 4 => 5 },
+        1 => { 2 => 3, 4 => 5 },  # OK
+        2 => { 6 => 7, 8 => 9 }	  # ERROR
     };
 
 Because subroutine declarations are expressions, not statements,
