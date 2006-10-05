@@ -102,6 +102,8 @@ op0 "take" = const $ retEmpty
 op0 "nothing" = const . return $ VBool True
 op0 "Pugs::Safe::safe_getc" = const . op1Getc $ VHandle stdin
 op0 "Pugs::Safe::safe_readline" = const . op1Readline $ VHandle stdin
+op0 "reverse" = const $ return (VList [])
+op0 "chomp" = const $ return (VList [])
 op0 other = const $ fail ("Unimplemented listOp: " ++ other)
 
 -- |Implementation of unary primitive operators and functions
@@ -1017,9 +1019,10 @@ op2 "does"   = \x y -> do
 op2 "delete" = \x y -> do
     ref             <- fromVal x
     rv@(VList ls)   <- deleteFromRef ref y
-    ifListContext
-        (return rv)
-        (return $ if null ls then undef else last ls)
+    -- S29: delete always returns the full list regardless of context.
+    case ls of
+        [x] -> return x
+        _   -> return (VList ls)
 op2 "exists" = \x y -> do
     ref <- fromVal x
     fmap VBool (existsFromRef ref y)
@@ -1772,6 +1775,7 @@ initSyms = mapM primDecl syms
 \\n   Str       pre     Scalar::reverse safe   (Scalar)\
 \\n   Any       pre     List::reverse safe   (Array)\
 \\n   Any       pre     reverse safe   (Scalar, List)\
+\\n   Any       pre     reverse safe   ()\
 \\n   List      pre     eager   safe   (List)\
 \\n   Int       spre    +^      safe   (Int)\
 \\n   Int       spre    ~^      safe   (Str)\
@@ -1785,6 +1789,7 @@ initSyms = mapM primDecl syms
 \\n   Str       pre     chop    safe   (Str)\
 \\n   Str       pre     Scalar::chomp   safe   (Scalar)\
 \\n   Any       pre     chomp   safe   (Scalar, List)\
+\\n   Any       pre     chomp   safe   ()\
 \\n   Any       right   =       safe   (rw!Any, Any)\
 \\n   Int       pre     index   safe   (Str, Str, ?Int=0)\
 \\n   Int       pre     rindex  safe   (Str, Str, ?Int)\
