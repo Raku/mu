@@ -119,14 +119,7 @@ op1 "chop" = \x -> do
         else return $ VStr $ init str
 op1 "Scalar::chomp" = \x -> do
     str <- fromVal x
-    if null str || last str /= '\n'
-        then return $ VStr str
-        else do
-            -- writeRef ref $ VStr (init str)
-            return $ VStr $ init str
-op1 "chomp" = \v -> do
-    vlist <- fromVal v
-    fmap VList $ forM vlist (op1 "Scalar::chomp")
+    return $ op1Chomp str
 op1 "Str::split" = op1Cast (castV . words)
 op1 "lc" = op1Cast (VStr . map toLower)
 op1 "lcfirst" = op1StrFirst toLower
@@ -209,9 +202,6 @@ op1 "Scalar::reverse" = \v -> do
     str     <- fromVal v
     return (VStr $ reverse str)
 op1 "List::reverse" = \v -> do
-    vlist <- fromVal v
-    return (VList $ reverse vlist)
-op1 "reverse" = \v -> do
     vlist <- fromVal v
     return (VList $ reverse vlist)
 op1 "list" = op1Cast VList
@@ -910,6 +900,11 @@ mapStr2Fill f x y = map (chr . fromEnum . uncurry f) $ x `zipFill` y
     zipFill [] bs = zip (repeat 0) bs
     zipFill (a:as) (b:bs) = (a,b) : zipFill as bs
 
+op1Chomp :: VStr -> Val
+op1Chomp "" = VStr ""
+op1Chomp str
+    | last str == '\n'  = VStr (init str)
+    | otherwise         = VStr str
 
 -- |Implementation of 2-arity primitive operators and functions
 op2 :: String -> Val -> Val -> Eval Val
@@ -995,6 +990,8 @@ op2 "map"  = op2Map
 op2 "join" = op2Join
 op2 "reduce" = op2ReduceL False
 op2 "produce" = op2ReduceL True
+op2 "reverse" = op2MaybeListop (VList . reverse) (VStr . reverse)
+op2 "chomp" = op2MaybeListop (VList . map op1Chomp) op1Chomp
 op2 "kill" = \s v -> do
     sig  <- fromVal s
     pids <- fromVals v
@@ -1018,8 +1015,11 @@ op2 "does"   = \x y -> do
         _        -> fromVal y
     op2Match x (VType typY)
 op2 "delete" = \x y -> do
-    ref <- fromVal x
-    deleteFromRef ref y
+    ref             <- fromVal x
+    rv@(VList ls)   <- deleteFromRef ref y
+    ifListContext
+        (return rv)
+        (return $ if null ls then undef else last ls)
 op2 "exists" = \x y -> do
     ref <- fromVal x
     fmap VBool (existsFromRef ref y)
@@ -1166,6 +1166,26 @@ op2Split x y = do
     split' :: VStr -> VStr -> Val
     split' [] xs = VList $ map (VStr . (:[])) xs
     split' glue xs = VList $ map VStr $ split glue xs
+
+op2MaybeListop :: forall tlist titem. (Value tlist, Value [tlist], Value titem) =>
+    ([tlist] -> Val) -> (titem -> Val) -> Val -> Val -> Eval Val
+op2MaybeListop flist fitem lead rest = case lead of
+    VList{} -> do
+        lead' <- fromVal lead
+        rest' <- fromVal rest
+        return (flist $ lead' ++ rest')
+    VRef ref -> do
+        vs      <- fromVal =<< readRef ref
+        vlist   <- fromVal rest
+        return (flist $ vs ++ vlist)
+    _ | VList [] <- rest -> do
+        -- Probably a single item.
+        item    <- fromVal lead 
+        return (fitem item)
+    _ -> do
+        lead'   <- fromVal lead
+        rest'   <- fromVal rest
+        return (flist (lead':rest'))
 
 -- |Implementation of 3-arity primitive operators and functions
 op3 :: String -> Val -> Val -> Val -> Eval Val
@@ -1751,7 +1771,7 @@ initSyms = mapM primDecl syms
 \\n   Scalar    pre     item    safe   (Scalar)\
 \\n   Str       pre     Scalar::reverse safe   (Scalar)\
 \\n   Any       pre     List::reverse safe   (Array)\
-\\n   Any       pre     reverse safe   (List)\
+\\n   Any       pre     reverse safe   (Scalar, List)\
 \\n   List      pre     eager   safe   (List)\
 \\n   Int       spre    +^      safe   (Int)\
 \\n   Int       spre    ~^      safe   (Str)\
@@ -1764,7 +1784,7 @@ initSyms = mapM primDecl syms
 \\n   Any       pre     undefine  safe   (?rw!Any)\
 \\n   Str       pre     chop    safe   (Str)\
 \\n   Str       pre     Scalar::chomp   safe   (Scalar)\
-\\n   Any       pre     chomp   safe   (List)\
+\\n   Any       pre     chomp   safe   (Scalar, List)\
 \\n   Any       right   =       safe   (rw!Any, Any)\
 \\n   Int       pre     index   safe   (Str, Str, ?Int=0)\
 \\n   Int       pre     rindex  safe   (Str, Str, ?Int)\
