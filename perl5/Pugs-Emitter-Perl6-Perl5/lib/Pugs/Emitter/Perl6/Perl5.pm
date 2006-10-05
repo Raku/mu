@@ -1175,6 +1175,13 @@ sub term {
                 {},   # options
             );
         }
+        elsif ( $n->{term} eq 'rule' ) {
+            $perl5 = Pugs::Emitter::Rule::Perl5::Ratchet::emit( 
+                'Pugs::Grammar::Base', 
+                $n->{block}, 
+                { sigspace => 1 },   # options
+            );
+        }
         else {
             $perl5 = Pugs::Emitter::Rule::Perl5::Ratchet::emit( 
                 'Pugs::Grammar::Base', 
