@@ -42,7 +42,7 @@ plan 12;
     ok !$defined,
         'defined @array[$index_out_of_bounds] should be false';
     is +@array, 4,
-        'defined @array[$index_out_of_bounds] should not have altered @array', :todo<feature>;
+        'defined @array[$index_out_of_bounds] should not have altered @array';
 }
 
 {
