@@ -376,10 +376,10 @@ instance Value [VPair] where
         where
         doFrom :: [Val] -> Eval [VPair]
         doFrom [] = return []
+        doFrom [_] = fail $ "Odd number of elements found where hash expected: " ++ show v
         doFrom (k:v:list) = do
             rest <- doFrom list
             return ((k, v):rest)
-        doFrom [k] = fail $ "Odd number of elements found where hash expected: " ++ show v
     doCast v = castFailM v "Hash"
 
 instance Value VCode where
