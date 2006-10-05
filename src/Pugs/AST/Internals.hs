@@ -23,7 +23,7 @@ module Pugs.AST.Internals (
     VScalar, -- uses Val
     VPair, -- uses Val
     VList, -- uses Val
-    VSubst, -- uses VRule, Expr
+    VSubst(..),  -- uses VRule, VStr, Exp
     VArray, -- uses Val
     VHash, -- uses VStr, Val
     VThunk(..), -- uses Eval, Val
@@ -360,6 +360,7 @@ instance Value VHash where
     fromVal (VObject o) = do
         l <- liftIO $ C.mapToList (\k ivar -> do { v <- readIVar ivar; return (k, v) }) (objAttrs o)
         fmap Map.fromList $ sequence l
+    fromVal VType{} = return Map.empty -- ::Hash<foo>
     fromVal v = do
         list <- fromVal v
         fmap Map.fromList $ forM list $ \(k, v) -> do
@@ -657,7 +658,16 @@ intCast :: Num b => Val -> Eval b
 intCast x = fmap fromIntegral (fromVal x :: Eval VInt)
 
 type VList = [Val]
-type VSubst = (VRule, Exp)
+data VSubst
+    = MkSubst
+        { substRegex    :: !VRule
+        , substExp      :: !Exp
+        }
+    | MkTrans
+        { transFrom     :: !VStr
+        , transTo       :: !VStr
+        }
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 type VArray = [Val]
 type VHash = Map VStr Val
 
