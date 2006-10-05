@@ -18,6 +18,10 @@ plan 2;
 # The switch to the new P6AST fixes this issue.
 # -- based on audreyt's explanation on #perl6.
 
+class Bar {
+	method value { "1" }
+}
+
 class Foo {
 	method test1 {
 		my $var = Bar.new;
@@ -27,10 +31,6 @@ class Foo {
 		my Bar $var .= new;
 		return $var.value;
 	}
-}
-
-class Bar {
-	method value { "1" }
 }
 
 my Foo $baz .= new;
