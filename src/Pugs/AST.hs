@@ -282,7 +282,7 @@ typeMacro name exp = Syn "sub" . (:[]) . Val . VCode $ MkCode
     , subAssoc      = ANil
     , subReturns    = typ
     , subLValue     = False
-    , subParams     = [defaultArrayParam, defaultHashParam{ paramName = cast "%" }]
+    , subParams     = [defaultHashParam{ paramName = cast "%" }]
     , subBindings   = []
     , subSlurpLimit = []
     , subBody       = Prim $ \v -> do
