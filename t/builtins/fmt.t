@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 11;
+plan 12;
 
 # L<S02/"Names and Variables"/"formatted representation"
 #   of "any scalar value" ".fmt('%03d')">
@@ -55,4 +55,8 @@ plan 11;
         @pairs.fmt("%d ==> %s", "\n") 
     }), "100 ==> lovely", '.fmt works with lists of a single pair'
     :todo<feature>, :depends<list of single pair>);
+
+    # a single pair:
+    my $pair = (100 => 'lovely');
+    is $pair.fmt("%d ==> %s", "\n"), "100 ==> lovely", '.fmt works with a single pair';
 }
