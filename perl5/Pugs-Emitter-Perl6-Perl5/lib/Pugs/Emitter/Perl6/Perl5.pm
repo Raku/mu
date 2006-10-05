@@ -1122,6 +1122,7 @@ sub term {
             return "$name = "._emit_closure($n->{signature}, $n->{block}) 
                 if $n->{category};
         
+            #print "Term: ", Dumper( $n );
             return "local *$name = "._emit_closure($n->{signature}, $n->{block}) 
                 if $n->{my};
 

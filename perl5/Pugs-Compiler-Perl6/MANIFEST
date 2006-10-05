@@ -14,7 +14,7 @@ inc/Module/Install/WriteAll.pm
 inc/Module/Install/PMC.pm
 
 lib/Pugs/Compiler/Perl6.pm
-lib/Pugs/Emitter/Perl6/Perl5.pm
+# lib/Pugs/Emitter/Perl6/Perl5.pm
 lib/Pugs/Grammar/BaseCategory.pm
 lib/Pugs/Grammar/Circumfix.pm
 lib/Pugs/Grammar/Expression.pm
