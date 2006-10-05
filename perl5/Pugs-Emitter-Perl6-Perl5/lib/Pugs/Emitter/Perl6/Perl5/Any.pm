@@ -91,11 +91,19 @@ sub _91__93_ {
 }
 
 sub print {
-    $_[0]->node( 'Code', 'print ' . $_[0]->str );
+    $_[0]->node( 'AnyExpression', '( print ' . $_[0]->str . ' )' );
 }
 
 sub say {
-    $_[0]->node( 'Code', 'print ' . $_[0]->str . ', "\n";' );
+    $_[0]->node( 'AnyExpression', '( print ' . $_[0]->str . ', "\n" )' );
+}
+
+sub warn {
+    $_[0]->node( 'AnyExpression', '( warn ' . $_[0]->str . ' )' );
+}
+
+sub yaml {
+    $_[0]->node( 'StrExpression', 'Pugs::Runtime::Perl6::Scalar::yaml( ' . $_[0] . ' )' );
 }
 
 1;

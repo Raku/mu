@@ -2,15 +2,23 @@ use strict;
 use warnings;
 # Compile-time Perl 5 thing, with hardcoded, autoboxed  methods
 
+# TODO - TypedExpression base module
 # TODO - ArrayExpression, ScalarExpression, HashExpression
 
-package Pugs::Emitter::Perl6::Perl5::Expression;
+package Pugs::Emitter::Perl6::Perl5::AnyExpression;
     use base 'Pugs::Emitter::Perl6::Perl5::Any';
+    use overload (
+        '""'     => sub { $_[0]->{name} },
+        fallback => 1,
+    );
+    sub WHAT {
+        $_[0]->node( 'StrExpression', $_[0] . '->WHAT' );
+    }
     sub perl {
         $_[0]->str;
     }
 package Pugs::Emitter::Perl6::Perl5::BoolExpression;
-    use base 'Pugs::Emitter::Perl6::Perl5::Expression';
+    use base 'Pugs::Emitter::Perl6::Perl5::AnyExpression';
     use overload (
         '""'     => sub { $_[0]->{name} },
         fallback => 1,
@@ -30,7 +38,7 @@ package Pugs::Emitter::Perl6::Perl5::BoolExpression;
             { name => '( '. $_[0]->{name} . ' ? 0 : 1 )' } );
     }
 package Pugs::Emitter::Perl6::Perl5::StrExpression;
-    use base 'Pugs::Emitter::Perl6::Perl5::Expression';
+    use base 'Pugs::Emitter::Perl6::Perl5::AnyExpression';
     use overload (
         '""'     => sub { "'" . $_[0]->{name} . "'" },
         fallback => 1,
@@ -52,7 +60,7 @@ package Pugs::Emitter::Perl6::Perl5::StrExpression;
             { name => $_[0] . " eq " . $_[1]->str } );
     }
 package Pugs::Emitter::Perl6::Perl5::IntExpression;
-    use base 'Pugs::Emitter::Perl6::Perl5::Expression';
+    use base 'Pugs::Emitter::Perl6::Perl5::AnyExpression';
     use overload (
         '""'     => sub { $_[0]->{name} },
         fallback => 1,
@@ -67,7 +75,7 @@ package Pugs::Emitter::Perl6::Perl5::IntExpression;
         $_[0]->str
     }
 package Pugs::Emitter::Perl6::Perl5::NumExpression;
-    use base 'Pugs::Emitter::Perl6::Perl5::Expression';
+    use base 'Pugs::Emitter::Perl6::Perl5::AnyExpression';
     use overload (
         '""'     => sub { $_[0]->{name} },
         fallback => 1,
@@ -79,7 +87,7 @@ package Pugs::Emitter::Perl6::Perl5::NumExpression;
         return Pugs::Emitter::Perl6::Perl5::StrExpression->new( { name => $_[0]->{name} } );
     }
 package Pugs::Emitter::Perl6::Perl5::CodeExpression;
-    use base 'Pugs::Emitter::Perl6::Perl5::Expression';
+    use base 'Pugs::Emitter::Perl6::Perl5::AnyExpression';
     use overload (
         '""'     => sub { 'sub { ' . $_[0]->{name} . ' } ' },
         fallback => 1,

@@ -45,10 +45,10 @@ sub eval_preprocess {
         # print "YAML: $eval_string\n";
         my $code = 
         'do{
-            eval { use YAML::Syck };
+            require YAML::Syck;
             # interoperability with other YAML/Syck bindings:
             $YAML::Syck::ImplicitTyping = 1;
-            Load(\'' . $string . '\' );
+            YAML::Syck::Load(\'' . $string . '\' );
         }';
         Data::Bind::bind_op2(\$eval_string, \$code);
         # print "YAML: $eval_string\n";
@@ -127,10 +127,10 @@ package Pugs::Runtime::Perl6::Scalar;
 use Scalar::Util qw(looks_like_number);
 
 sub yaml {
-    eval { use YAML::Syck };
+    require YAML::Syck;
     # interoperability with other YAML/Syck bindings:
     $YAML::Syck::ImplicitTyping = 1;
-    Dump(@_);
+    YAML::Syck::Dump( $_[0] );
 }
 
 sub defined { CORE::defined(@_) }

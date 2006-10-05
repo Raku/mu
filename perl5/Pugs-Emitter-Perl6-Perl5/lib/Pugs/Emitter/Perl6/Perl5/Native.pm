@@ -99,29 +99,33 @@ package Pugs::Emitter::Perl6::Perl5::num;
         fallback => 1,
     );
     sub WHAT { 
-        return Pugs::Emitter::Perl6::Perl5::str->new( { name => 'Num' } );
+        $_[0]->node( 'str', 'Num' );
     }
     sub str {
-        return Pugs::Emitter::Perl6::Perl5::str->new( { name => $_[0]->{name} } );
+        $_[0]->node( 'str', $_[0]->{name} );
+    }
+    sub num {
+        $_[0];
+    }
+    sub int {
+        $_[0]->node( 'int', int( $_[0]->{name} ) );
     }
     sub perl {
         $_[0]->str
     }
-    sub _61__61_ {  # ==
+    ::unicode_sub 'infix:<==>', sub{ 
         my $tmp = $_[1]->num;
-        return Pugs::Emitter::Perl6::Perl5::bool->new( 
-            { name => ( $_[0] == $tmp ) } )
+        return $_[0]->node( 'bool', ( $_[0] == $tmp ) )
             if ref( $tmp ) eq 'Pugs::Emitter::Perl6::Perl5::Num';
-        return Pugs::Emitter::Perl6::Perl5::BoolExpression->new( 
-            { name => $_[0] . " == " . $tmp } );
-    }
-    sub _43_ {   # +
+        return $_[0]->node( 'BoolExpression', $_[0] . " == " . $tmp );
+    };
+    ::unicode_sub 'infix:<+>', sub{ 
         my $tmp = $_[1]->num;
         return Pugs::Emitter::Perl6::Perl5::num->new( 
             { name => ( $_[0]->{name} + $tmp ) } )
             if ref( $tmp ) eq 'Pugs::Emitter::Perl6::Perl5::num';
         return Pugs::Emitter::Perl6::Perl5::NumExpression->new( 
             { name => $_[0] . " + " . $tmp } );
-    }
+    };
 
 1;
