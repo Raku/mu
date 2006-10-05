@@ -285,6 +285,8 @@ matchUnary _ = False
 matchTerm :: CurrentFunction -> Bool
 matchTerm MkCurrentFunction
     { f_assoc = ANil, f_params = [] } = True
+matchTerm MkCurrentFunction
+    { f_assoc = ANil, f_params = [MkOldParam{ paramContext = CxtSlurpy{}, paramName = MkVar { v_sigil = SHash }} ] } = True
 matchTerm _ = False
 
 matchSlurpy :: CurrentFunction -> Bool
@@ -370,7 +372,7 @@ makeCircumOp :: String -> String -> RuleOperator Exp
 makeCircumOp sigil op = Term . try $
     between (lexeme $ string opener) (string closer) $
         enterBracketLevel ParensBracket $ do
-            (invs, args) <- option (Nothing, []) parseNoParenParamList
+            (invs, args) <- option (Nothing, []) parseNoParenArgList
             possiblyApplyMacro $ App (_Var name) invs args
     where
     name = sigil ++ opener ++ " " ++ closer
