@@ -81,11 +81,11 @@ ok  Foo::Bar.HOW.does(::CLASS),   "subclass.HOW.does(CLASS) is true", :todo<feat
 class X {
     method j () { 'X' }
 };
+class Z is X {}
 class Y is X {
     method k () { Z.new.j() }
     method j () { 'Y' }
 };
-class Z is X {}
 
 is(Z.new.j(), 'X', 'inherited method dispatch works');
 is(Y.new.k(), 'X', 'inherited method dispatch works inside another class with same-named method');
