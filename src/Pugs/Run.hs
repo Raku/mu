@@ -94,6 +94,7 @@ prepareEnv name args = do
     gid     <- getRealGroupID
     gidSV   <- newScalar (VInt $ toInteger gid)
     egid    <- getEffectiveGroupID
+    failSV  <- newScalar (VBool False)
     egidSV  <- newScalar (VInt $ toInteger egid)
     execSV  <- newScalar (VStr exec)
     progSV  <- newScalar (VStr name)
@@ -134,6 +135,7 @@ prepareEnv name args = do
         , gen "$*EUID"       $ hideInSafemode $ MkRef euidSV
         , gen "$*GID"        $ hideInSafemode $ MkRef gidSV
         , gen "$*EGID"       $ hideInSafemode $ MkRef egidSV
+        , gen "$*FAIL_SHOULD_DIE"$ hideInSafemode $ MkRef failSV
         , gen "@*CHECK"      $ MkRef checkAV
         , gen "@*INIT"       $ MkRef initAV
         , gen "@*END"        $ MkRef endAV

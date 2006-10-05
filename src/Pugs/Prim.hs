@@ -372,7 +372,7 @@ op1 "warn" = \v -> do
     errmsg x  = VStr x
 op1 "fail" = op1 "fail_" -- XXX - to be replaced by Prelude later
 op1 "fail_" = \v -> do
-    throw <- fromVal =<< readVar (cast "$?FAIL_SHOULD_DIE")
+    throw <- fromVal =<< readVar (cast "$*FAIL_SHOULD_DIE")
     if throw then op1 "die" (errmsg v) else do
     pos   <- asks envPos
     let die = shiftT . const . return $ VError (errmsg v) [pos]
