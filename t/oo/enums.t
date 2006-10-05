@@ -32,7 +32,7 @@ sub test_stuff($x) {
   my $x = 1;
   is $x, 1, "basic sanity (1)";
   # L<S12/"Enums" /has the right semantics mixed in:/>
-  ok eval('$x does Tue'), "basic enum mixing worked (1-1)", :todo<feature>;
+  ok eval('$x does Tue'), "basic enum mixing worked (1-1)";
   test_stuff($x);
 }
 
@@ -40,7 +40,7 @@ sub test_stuff($x) {
   my $x = 2;
   is $x, 2, "basic sanity (2)";
   # L<S12/"Enums" /or pseudo-hash form:/>
-  ok eval('$x does day<Tue>'), "basic enum mixing worked (2-1)", :todo<feature>;
+  ok eval('$x does day<Tue>'), "basic enum mixing worked (2-1)";
   test_stuff($x);
 }
 
@@ -48,7 +48,7 @@ sub test_stuff($x) {
   my $x = 3;
   is $x, 3, "basic sanity (3)";
   # L<S12/"Enums" /is the same as/>
-  ok eval('$x does day::Tue'), "basic enum mixing worked (3-1)", :todo<feature>;
+  ok eval('$x does day::Tue'), "basic enum mixing worked (3-1)";
   test_stuff($x);
 }
 
@@ -56,7 +56,7 @@ sub test_stuff($x) {
   my $x = 4;
   is $x, 4, "basic sanity (4)";
   # L<S12/"Enums" /which is short for something like:/>
-  ok eval('$x does day'),            "basic enum mixing worked (4-0)", :todo<feature>;
+  ok eval('$x does day'),            "basic enum mixing worked (4-0)";
   ok eval('$x.day = &day::("Tue")'), "basic enum mixing worked (4-1)", :todo<feature>;
   test_stuff($x);
 }

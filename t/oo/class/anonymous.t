@@ -16,9 +16,9 @@ ok eval('$class = class { method meth() { return 42 } }'),
 ok eval('$class ~~ Class'), "an anonymous class isa Class", :todo<feature>;
 
 my $a;
-ok eval('$a = $class.new'), "instantiation of anonymous class", :todo<feature>;
+ok eval('$a = $class.new'), "instantiation of anonymous class";
 is eval('$a.meth'), 42,
-  "calling a method on an instance of an anonymous class (1)", :todo<feature>;
+  "calling a method on an instance of an anonymous class (1)";
 
 # And the same w/o using a $class variable:
 is eval('class { method meth() { return 42 } }.new.meth'), 42,

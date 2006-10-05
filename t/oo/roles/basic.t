@@ -26,7 +26,7 @@ ok ($bar ~~ Foo),         'smartmatch said our $bar does Foo';
 
 # Mixing a Role into an Object using imperative C<does>
 my $baz = 3;
-ok eval('$baz does Foo'),       'mixing in our Foo role into $baz worked', :todo<feature>;
+ok eval('$baz does Foo'),       'mixing in our Foo role into $baz worked';
 ok eval('$baz.HOW.does(Foo)'), '.HOW.does said our $baz now does Foo', :todo<feature>;
 ok eval('$baz ~~ Baz'),         'smartmatch said our $baz now does Foo', :todo<feature>;
 

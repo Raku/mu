@@ -18,8 +18,8 @@ plan 14;
   my $a = 3;
   is $a, 3, "basic sanity";
   my $role;
-  ok eval('my $role = role { has $.cool = "yeah" }'), "anonymous role definition", :todo<feature>;
-  ok eval('$a does $role'), "anonymous role variable mixin", :todo<feature>;
+  ok eval('$role = role { has $.cool = "yeah" }'), "anonymous role definition", :todo<feature>;
+  ok eval('$a does $role'), "anonymous role variable mixin");
   is $a, 3, "still basic sanity";
   is eval('$a.cool'), "yeah", "anonymous role variable gave us an attribute", :todo<feature>;
 }
@@ -36,7 +36,7 @@ plan 14;
 
   my $a = 3;
   is $a, 3, "basic sanity";
-  ok eval('$a does role_generator("hi")'), "role generating function mixin", :todo<feature>;
+  ok eval('$a does role_generator("hi")'), "role generating function mixin";
   is $a, 3, "still basic sanity";
   is eval('$a.cool'), "hi", "role generating function gave us an attribute", :todo<feature>;
 }

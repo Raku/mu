@@ -8,6 +8,6 @@ plan 5;
 ok eval('my property answer'), "basic property declaration", :todo<feature>;
 my $a = 3;
 is $a, 3, "basic sanity";
-ok eval('$a does answer(42)'), "property mixin", :todo<feature>;
+ok eval('$a does answer(42)'), "property mixin";
 is eval('$a.answer'), 42,      "attribute mixin worked correctly", :todo<feature>;
 ok eval('$a ~~ answer'),       "var now does 'answer'", :todo<feature>;
