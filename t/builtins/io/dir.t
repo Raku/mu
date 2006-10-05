@@ -19,7 +19,7 @@ opendir/readdir support
 =cut
 
 my $dir = opendir('.');
-isa_ok($dir, 'IO::Dir', "opendir worked");
+isa_ok($dir, IO::Dir, "opendir worked");
 
 my @files = readdir($dir);
 ok(@files, "seems readdir worked too");
