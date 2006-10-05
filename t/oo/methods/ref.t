@@ -16,12 +16,10 @@ class Foo {
   lives_ok { $foo.bar_ref }, "returning a method reference works";
 }
 
-try {
-  class Baz {
+class Baz {
     method bar() { 42 }
     our &baz ::= &bar;
-  }
-};
+}
 
 {
   my $ret;
