@@ -141,9 +141,9 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
 # L<A12/"Overloading" /Coercions to other classes can also be defined:/>
 {
     class MyClass {
-      method prefix:<~> { "hi" }
-      method prefix:<+> { 42   }
-      method infix:<as>($self, OtherClass $to) {
+      method prefix:<~> is export { "hi" }
+      method prefix:<+> is export { 42   }
+      method infix:<as>($self, OtherClass $to) is export {
         my $obj = $to.new;
         $obj.x = 23;
         return $obj;
@@ -158,7 +158,7 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
   lives_ok { $obj = MyClass.new }, "instantiation of a prefix:<...> and infix:<as> overloading class worked";
   my $try = lives_ok { ~$obj }, "our object was stringified correctly";
   if ($try) {
-   is ~$obj, "hi", "our object was stringified correctly";
+   is ~$obj, "hi", "our object was stringified correctly", :todo<feature>;
   } else {
     skip 1, "Stringification failed";
   };
