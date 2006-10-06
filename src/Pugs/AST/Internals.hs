@@ -79,7 +79,7 @@ module Pugs.AST.Internals (
 
     newSVval, -- used in Run.Perl5
 
-    DebugInfo, _Sym, _Var, -- String -> ByteString constructors
+    DebugInfo, _Sym, _Var -- String -> ByteString constructors
 ) where
 import Pugs.Internals
 import Pugs.Types
@@ -1491,6 +1491,7 @@ readRef (MkRef (IHash hv)) = do
 readRef (MkRef (IArray av)) = do
     vals <- array_fetch av
     return $ VList vals
+-- XXX - This case is entirely bogus; but no time to fix it now.
 readRef (MkRef (IPair pv)) = do
     (k, v) <- pair_fetch pv
     return $ VList [k, v]

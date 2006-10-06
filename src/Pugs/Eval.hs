@@ -193,7 +193,9 @@ evalRef ref = do
             when (isCollectionRef && isItemCxt cxt) $ do
                 -- auto-enreference
                 esc $ VRef ref
-            esc =<< readRef ref
+            case ref of
+                MkRef IPair{}   -> esc (VRef ref)
+                _               -> esc =<< readRef ref
         -- LValue here
         when isCollectionRef $ esc (castV ref)
         val <- readRef ref

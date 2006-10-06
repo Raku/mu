@@ -41,6 +41,7 @@ instance ScalarClass IScalarCwd where
 
 instance ScalarClass VScalar where
     scalar_iType = const $ mkType "Scalar::Const"
+    scalar_fetch v@(VRef (MkRef IPair{})) = return v
     scalar_fetch (VRef ref) = readRef ref
     scalar_fetch v = return v
     scalar_store d _ = retConstError d
