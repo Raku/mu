@@ -282,14 +282,21 @@ sub assoc_list {
     my $n = $_[0];
     # print "list emit_rule: ", Dumper( $n );
 
-    if ( $n->{op1} eq ';' ||
-         $n->{op1} eq ',' ) {
-        return join ( ",\n", 
-            map { exists $_->{null}
+    my @list = map { exists $_->{null}
                 ? ()
                 : _emit( $_ ) 
-            } @{$n->{list}} 
-        );
+            } @{$n->{list}}; 
+
+
+    if ( ! grep { ! ref( $_ ) } @list ) {
+        #my $seq = Pugs::Emitter::Perl6::Perl5::node->node( 'Seq', \@list );
+        #print "Creating Seq $seq - @{[ $seq->WHAT ]}\n";
+        return Pugs::Emitter::Perl6::Perl5::node->node( 'Seq', \@list )
+    }
+
+    if ( $n->{op1} eq ';' ||
+         $n->{op1} eq ',' ) {
+        return join ( ",\n", @list );
     }
     
     return _not_implemented( $n->{op1}, "list-op" );

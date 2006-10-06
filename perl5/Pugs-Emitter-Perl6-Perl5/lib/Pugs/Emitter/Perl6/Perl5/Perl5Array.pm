@@ -12,7 +12,7 @@ sub _dollar_name {
 }
 
 sub WHAT { 
-    $_[0]->node( 'Str', 'Array' );
+    $_[0]->node( 'str', 'Array' );
 }
 
 sub isa { 

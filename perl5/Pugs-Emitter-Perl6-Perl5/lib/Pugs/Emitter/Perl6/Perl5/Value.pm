@@ -131,13 +131,24 @@ package Pugs::Emitter::Perl6::Perl5::Code;
         fallback => 1,
     );
     sub WHAT { 
-        $_[0]->node( 'Str', 'Code' );
+        $_[0]->node( 'str', 'Code' );
     }
     sub str {
-        $_[0]->node( 'Str', $_[0]->{name} );
+        $_[0]->node( 'str', $_[0]->{name} );
     }
     sub perl {
         $_[0]->str
+    }
+package Pugs::Emitter::Perl6::Perl5::Seq;
+    use base 'Pugs::Emitter::Perl6::Perl5::Value';
+    use overload (
+        '""'     => sub { 
+            '(' . join( ', ', @{$_[0]->{name}} ) . ')' 
+        },
+        fallback => 1,
+    );
+    sub WHAT { 
+        $_[0]->node( 'str', 'Seq' );
     }
 
 1;

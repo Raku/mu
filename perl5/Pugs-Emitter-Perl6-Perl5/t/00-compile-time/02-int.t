@@ -5,6 +5,8 @@ use Pugs::Emitter::Perl6::Perl5::Value;
 use Pugs::Emitter::Perl6::Perl5::Native;
 use Pugs::Emitter::Perl6::Perl5::Expression;
 
+# 'infix:<+>' eq infix_58__60__43__62_
+
 sub emit {
     return Pugs::Emitter::Perl6::Perl5::node->node( 'int', $_[0]{int} )
         if ( exists $_[0]{int} );
