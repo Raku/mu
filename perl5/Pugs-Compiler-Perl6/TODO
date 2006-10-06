@@ -1,5 +1,9 @@
 TODO list for v6.pm, Pugs-Compiler-Perl6
 
+- precedence problem:
+<fglock> TimToady: S03 says .<> is tighter than $ - v6.pm translates $$foo<bar> to ${ $foo->{qw(bar)} }
+<TimToady>  S03.pod:As with Perl 5, however, C<$$foo[bar]> parses as C<( $($foo) )[bar]>
+
 - Rule and Pod grammar from Pugs::Compiler::Rule still need work
   to compile properly (simplified header, unnecessary use of Data::Bind,
   wrong compile-time capture count)

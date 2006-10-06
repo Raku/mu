@@ -1,4 +1,5 @@
 
+- moved Perl5 emitter to a separate module
 - implemented $$/
 - implemented :c and :g switches in rules:
   ' my $content = "xyz"; while $content ~~ m:c/<alpha>/ { say $/ } '
