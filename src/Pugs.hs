@@ -131,7 +131,6 @@ repLoop = do
                 env <- liftSTM (readTVar tvEnv)
                 doParse env f defaultProgramName prog
             resetEnv = do
-                tabulaRasa defaultProgramName
                 env <- fmap noEnvDebug (tabulaRasa defaultProgramName)
                 liftSTM (writeTVar tvEnv env)
         case command of
