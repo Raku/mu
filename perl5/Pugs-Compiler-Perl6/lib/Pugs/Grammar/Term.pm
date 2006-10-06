@@ -566,9 +566,16 @@ sub recompile {
                 <Pugs::Grammar::Term.cpan_bareword> 
                 { return { cpan_bareword => $/{'Pugs::Grammar::Term.cpan_bareword'}->() } }
             |
-                ### Test::More
+                ### Test => ... - autoquote before '=>'
                 <Pugs::Grammar::Term.bare_ident> 
+                [
+                    <before <?ws>? \=\> >
+                    { return { single_quoted => $/{'Pugs::Grammar::Term.bare_ident'}->() } } 
+                
+                |
+                ### Test::More
                 { return { bareword => $/{'Pugs::Grammar::Term.bare_ident'}->() } }
+                ]
             ^ ),
         );
         

@@ -104,16 +104,16 @@ package Pugs::Emitter::Perl6::Perl5::Num;
         fallback => 1,
     );
     sub WHAT { 
-        $_[0]->node( 'Str', 'Num' );
+        $_[0]->node( 'str', 'Num' );
     }
     sub str {
-        $_[0]->node( 'Str', $_[0]->{name} );
+        $_[0]->node( 'str', $_[0]->{name} );
     }
     sub num {
         $_[0];
     }
     sub int {
-        $_[0]->node( 'Int', int( $_[0]->{name} ) );
+        $_[0]->node( 'int', int( $_[0]->{name} ) );
     }
     sub perl {
         $_[0]->str
@@ -154,66 +154,67 @@ package Pugs::Emitter::Perl6::Perl5::Pair;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
     use overload (
         '""'     => sub { 
-            '(' . join( ', ', @{$_[0]->{name}} ) . ')' 
+            '(' . join( ' => ', @{$_[0]->{name}} ) . ')' 
         },
         fallback => 1,
     );
     sub WHAT { 
         $_[0]->node( 'str', 'Pair' );
     }
+    sub str {
+        $_[0]->node( 'str', join( "\t", @{$_[0]->{name}} ) );
+    }
+    sub key {
+        $_[0]->{name}[0];
+    }
+    sub value {
+        $_[0]->{name}[1];
+    }
+    sub kv {
+        $_[0]->node( 'Seq', $_[0]->{name} );
+    }
+    sub perl {
+        "$_[0]"
+    }
 
 sub isa { 
+    die "TODO";
     my $self = $_[0];
     return $self->other_get( $_[1] ) . ' eq ' . "'Pair'";  # hardcoded 
 }
 
-sub key {
-    $_[0]->{key};
-}
-
-sub value {
-    $_[0]->{value};
-}
-
-sub str {
-    # TODO
-}
-
-sub perl {
-    # TODO
-}
     
 sub defined {
-    # TODO
-}
-
-sub kv {
-    $_[0]->array
+    die "TODO";
 }
 
 sub elems {
+    die "TODO";
     return Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( {
         name => '1'
     } );
 }
 
 sub hash {
-    # TODO
+    die "TODO";
 }
 
 sub array {
+    die "TODO";
     return Pugs::Emitter::Perl6::Perl5::Perl5Array->new( {
         name => '(' . $_[0]->key->name . ',' . $_[0]->value->name . ')'
     } );    
 }
 
 sub scalar {
+    die "TODO";
     return Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( {
         name => 'bless {' . $_[0]->key->name . '=>' . $_[0]->value->name . "}, 'Pugs::Runtime::Perl6::Pair'" 
     } );
 }
 
 sub _123__125_ {
+    die "TODO";
     # .{}
     my $self = $_[0];
     my $other = $self->other_get( $_[1] );

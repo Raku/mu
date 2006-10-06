@@ -167,6 +167,14 @@ sub _emit_angle_quoted {
     die "can't quote string [$n]";
 }
 
+sub _emit_pair {
+    my ( $k, $v ) = ( _emit( $_[0] ), _emit( $_[1] ) );
+    return Pugs::Emitter::Perl6::Perl5::node->node( 'Pair', [ $k, $v ] )
+            if     Scalar::Util::blessed $k 
+                && Scalar::Util::blessed $v;
+    return "{ $k => $v }";
+}
+
 sub _emit {
     my $n = $_[0];
     #die "_emit: ", Dumper( $n ); 
@@ -210,7 +218,7 @@ sub _emit {
     return _emit_code($n->{code})
         if exists $n->{code};
         
-    return '{' . _emit( $n->{pair}{key} ) . '=>' . _emit( $n->{pair}{value} ) . '}'
+    return _emit_pair( $n->{pair}{key}, $n->{pair}{value} )
         if exists $n->{pair};
         
     return _var_get( $n )
@@ -408,7 +416,7 @@ sub _emit_parameter_capture {
             push @named, $pair->{key}{single_quoted}.' => \\'.emit_parenthesis($pair->{value});
         }
         elsif ($_->{fixity} && $_->{fixity} eq 'infix' && $_->{op1} eq '=>') {
-            push @named, autoquote($_->{exp1}).' => \\'.emit_parenthesis($_->{exp2});
+            push @named, _emit($_->{exp1}).' => \\'.emit_parenthesis($_->{exp2});
         }
         else {
             # \($scalar, 123, ), \@array, \($orz)
@@ -992,20 +1000,6 @@ sub statement {
     return _not_implemented( $n, "statement" );
 }
 
-sub autoquote {
-    my $n = $_[0];
-    #print "autoquote: ", Dumper( $n );
-    if ( exists $n->{'op1'} &&
-         $n->{'op1'} eq 'call' &&
-         ! exists $n->{'param'} &&
-         exists $n->{'sub'}{'bareword'}
-       )
-    {
-        return "'" . $n->{'sub'}{'bareword'} . "'";
-    }
-    return _emit( $n );
-}
-
 sub emit_sub_name {
     my $n = $_[0];
     #print "sub name: ", Dumper( $n );
@@ -1275,8 +1269,7 @@ sub infix {
         return _emit( $n->{exp1} ) . ' . ' . _emit( $n->{exp2} );
     }
     if ( $n->{op1} eq '=>' ) {
-        #print "autoquote: ", Dumper( $n->{exp1} );
-        return autoquote( $n->{exp1} ) . ' => ' . _emit( $n->{exp2} );
+        return _emit_pair( $n->{exp1}, $n->{exp2} );
     }
     if ( $n->{op1} eq '~=' ) {
         return _emit( $n->{exp1} ) . ' .= ' . _emit( $n->{exp2} );
@@ -1492,6 +1485,9 @@ sub circumfix {
     
     if ( $n->{op1} eq '(' &&
          $n->{op2} eq ')' ) {
+        my $v = _emit( $n->{exp1} );
+        return $v
+            if Scalar::Util::blessed( $v );
         return emit_parenthesis( $n->{exp1} );
     }
     
