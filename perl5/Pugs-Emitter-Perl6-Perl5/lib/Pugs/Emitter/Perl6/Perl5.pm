@@ -732,6 +732,7 @@ sub default {
             # XXX encode $method to longname & ASCII
             my $method = $n->{method}{dot_bareword};
             # eval is needed to enable method dispatch
+            print "CALL METHOD: $method \n";
             return eval '$self->' . $method . '( _emit( $n->{param} ) )';
         }
 

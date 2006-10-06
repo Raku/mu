@@ -98,5 +98,14 @@ package Pugs::Emitter::Perl6::Perl5::CodeExpression;
     sub str {
         return Pugs::Emitter::Perl6::Perl5::StrExpression->new( { name => $_[0]->{name} } );
     }
+package Pugs::Emitter::Perl6::Perl5::ListExpression;
+    use base 'Pugs::Emitter::Perl6::Perl5::AnyExpression';
+    use overload (
+        '""'     => sub { $_[0]->{name} },
+        fallback => 1,
+    );
+    sub WHAT { 
+        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'List' } );
+    }
 
 1;

@@ -57,7 +57,7 @@ sub kv {
 sub keys {
     # XXX move to ArrayExpression
     my $tmp = "( 0..".$_[0]->name."-1 )"; 
-    return ( CORE::ref( $_[0] ) )->new( { name => $tmp } );
+    return $_[0]->node( 'ListExpression',  $tmp );
 }
 
 sub values {
