@@ -289,8 +289,6 @@ op2Reduce keep list sub = do
 
 op2Grep :: Val -> Val -> Eval Val
 op2Grep sub@(VCode _) list = op2Grep list sub
--- op2Grep (VList [v@(VRef (MkRef IArray{}))]) sub = op2Grep v sub
--- op2Grep (VList [v@(VRef (MkRef IHash{}))]) sub = op2Grep v sub
 op2Grep list sub = do
     args <- fromVal list
     vals <- (`filterM` args) $ \x -> do
@@ -302,8 +300,6 @@ op2Grep list sub = do
 
 op2Map :: Val -> Val -> Eval Val
 op2Map sub@(VCode _) list = op2Map list sub
--- op2Map (VList [v@(VRef (MkRef IArray{}))]) sub = op2Map v sub
--- op2Map (VList [v@(VRef (MkRef IHash{}))]) sub = op2Map v sub
 op2Map list sub = do
     args  <- fromVal list
     arity <- fmap (length . subParams) (fromVal sub)
