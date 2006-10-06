@@ -1,3 +1,10 @@
+--------------
+
+Miscellaneus 
+
+* use ::unicode_sub sub {...} to define methods with non alphanumeric names
+
+--------------
 
 Compile-Time objects
 
