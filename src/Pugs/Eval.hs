@@ -252,6 +252,8 @@ reduce (App subExp inv args) = reduceApp subExp inv args
 reduce exp = retError "Invalid expression" exp
 
 reduceVal :: Val -> Eval Val
+reduceVal v@(VRef (MkRef IPair{})) = return v
+
 -- Reduction for mutables
 reduceVal v@(VRef var) = do
     lv <- asks envLValue
@@ -704,7 +706,7 @@ reduceSyn "[]" exps
 reduceSyn "[...]" [listExp, indexExp] = do
     idxVal  <- enterRValue $ enterEvalContext (cxtItem "Int") indexExp
     idx     <- fromVal idxVal
-    listVal <- enterRValue $ enterEvalContext (cxtItem "Array") listExp
+    listVal <- enterRValue $ enterEvalContext cxtSlurpyAny listExp
     list    <- fromVal listVal
     -- elms    <- mapM fromVal list -- flatten
     retVal $ VList (drop idx $ list)

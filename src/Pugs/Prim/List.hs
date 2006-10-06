@@ -289,7 +289,8 @@ op2Reduce keep list sub = do
 
 op2Grep :: Val -> Val -> Eval Val
 op2Grep sub@(VCode _) list = op2Grep list sub
-op2Grep (VList [v@(VRef _)]) sub = op2Grep v sub
+-- op2Grep (VList [v@(VRef (MkRef IArray{}))]) sub = op2Grep v sub
+-- op2Grep (VList [v@(VRef (MkRef IHash{}))]) sub = op2Grep v sub
 op2Grep list sub = do
     args <- fromVal list
     vals <- (`filterM` args) $ \x -> do
@@ -301,10 +302,11 @@ op2Grep list sub = do
 
 op2Map :: Val -> Val -> Eval Val
 op2Map sub@(VCode _) list = op2Map list sub
-op2Map (VList [v@(VRef _)]) sub = op2Map v sub
+-- op2Map (VList [v@(VRef (MkRef IArray{}))]) sub = op2Map v sub
+-- op2Map (VList [v@(VRef (MkRef IHash{}))]) sub = op2Map v sub
 op2Map list sub = do
     args  <- fromVal list
-    arity <- fmap length $ (fromVal sub >>= return . subParams)
+    arity <- fmap (length . subParams) (fromVal sub)
     evl  <- asks envEval
     vals <- mapMn args arity $ \x -> do
         rv  <- local (\e -> e{ envContext = cxtSlurpyAny }) $ do
@@ -341,7 +343,7 @@ list2LoL n list
     | otherwise        = fail "Invalid arguments to internal function list2LoL passed."
 
 op2Join :: Val -> Val -> Eval Val
-op2Join (VList [x@(VRef _)]) y = op2Join x y
+-- op2Join (VList [x@(VRef _)]) y = op2Join x y
 op2Join x y = do
     (strVal, listVal) <- ifValTypeIsa x "Scalar"
         (return (x, y))

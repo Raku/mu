@@ -1861,8 +1861,8 @@ initSyms = mapM primDecl syms
 \\n   Scalar    pre     delete  safe   (rw!Array: List)\
 \\n   Bool      pre     exists  safe   (rw!Hash: Str)\
 \\n   Bool      pre     exists  safe   (rw!Array: Int)\
-\\n   Str       pre     perl    safe   (rw!Any|Junction|Pair)\
-\\n   Str       pre     guts    safe   (rw!Any|Junction|Pair)\
+\\n   Str       pre     perl    safe   (rw!Any|Junction)\
+\\n   Str       pre     guts    safe   (rw!Any|Junction)\
 \\n   Any       pre     try     safe   (Code)\
 \\n   Any       pre     lazy    safe   (Code)\
 \\n   Any       pre     atomically     safe   (Code)\
@@ -1874,7 +1874,7 @@ initSyms = mapM primDecl syms
 \\n   Any       pre     Pugs::Internals::eval_p6y unsafe (Str)\
 \\n   Any       pre     Pugs::Internals::eval_yaml    safe   (Str)\
 \\n   Any       pre     Pugs::Internals::emit_yaml    unsafe   (rw!Any)\
-\\n   Str       pre     yaml    safe   (rw!Any|Junction|Pair)\
+\\n   Str       pre     yaml    safe   (rw!Any|Junction)\
 \\n   Any       pre     Pugs::Internals::require unsafe (Str)\
 \\n   Any       pre     Pugs::Internals::use     unsafe (Str)\
 \\n   Any       pre     require unsafe (Str)\
@@ -1889,9 +1889,9 @@ initSyms = mapM primDecl syms
 \\n   Any       pre     srand   safe   (?Num)\
 \\n   Num       pre     rand    safe   (?Num=1)\
 \\n   Bool      pre     defined safe   (Any)\
-\\n   Str       pre     WHAT     safe   (rw!Any|Junction|Pair)\
-\\n   Str       pre     isa     safe   (rw!Any|Junction|Pair, Str)\
-\\n   Str       pre     does    safe   (rw!Any|Junction|Pair, Str)\
+\\n   Str       pre     WHAT     safe   (rw!Any|Junction)\
+\\n   Str       pre     isa     safe   (rw!Any|Junction, Str)\
+\\n   Str       pre     does    safe   (rw!Any|Junction, Str)\
 \\n   Num       pre     time    safe   ()\
 \\n   List      pre     times   safe   ()\
 \\n   List      pre     Pugs::Internals::localtime   safe   (Bool, Int, Int)\
@@ -1956,7 +1956,7 @@ initSyms = mapM primDecl syms
 \\n   List      pre     values  safe   (Pair|Junction)\
 \\n   List      pre     Pair::kv      safe   (rw!Pair)\
 \\n   List      pre     pairs   safe   (rw!Pair)\
-\\n   Any       pre     pick    safe   (Any|Junction|Pair)\
+\\n   Any       pre     pick    safe   (Any|Junction)\
 \\n   Bool      pre     rename  unsafe (Str, Str)\
 \\n   Bool      pre     symlink unsafe (Str, Str)\
 \\n   Bool      pre     link    unsafe (Str, Str)\
@@ -1973,9 +1973,9 @@ initSyms = mapM primDecl syms
 \\n   List      pre     split   safe   (Regex, Str, Int)\
 \\n   Str       spre    =       safe   (Any)\
 \\n   List      spre    =       safe   (Any)\
-\\n   Junction  list    |       safe   (Any|Junction|Pair)\
-\\n   Junction  list    &       safe   (Any|Junction|Pair)\
-\\n   Junction  list    ^       safe   (Any|Junction|Pair)\
+\\n   Junction  list    |       safe   (Any|Junction)\
+\\n   Junction  list    &       safe   (Any|Junction)\
+\\n   Junction  list    ^       safe   (Any|Junction)\
 \\n   Num       left    *       safe   (Num, Num)\
 \\n   Num       left    /       safe   (Num, Num)\
 \\n   Num       left    %       safe   (Num, Num)\
