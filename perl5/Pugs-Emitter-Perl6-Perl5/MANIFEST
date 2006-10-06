@@ -4,10 +4,11 @@ lib/Pugs/Emitter/Perl6/Perl5/Any.pm
 lib/Pugs/Emitter/Perl6/Perl5/Expression.pm
 lib/Pugs/Emitter/Perl6/Perl5/Native.pm
 lib/Pugs/Emitter/Perl6/Perl5/node.pm
-lib/Pugs/Emitter/Perl6/Perl5/Pair.pm
+# lib/Pugs/Emitter/Perl6/Perl5/Pair.pm
 lib/Pugs/Emitter/Perl6/Perl5/Perl5Array.pm
 lib/Pugs/Emitter/Perl6/Perl5/Perl5Hash.pm
 lib/Pugs/Emitter/Perl6/Perl5/Perl5Scalar.pm
+lib/Pugs/Emitter/Perl6/Perl5/Perl5Range.pm
 lib/Pugs/Emitter/Perl6/Perl5/Statements.pm
 lib/Pugs/Emitter/Perl6/Perl5/Value.pm
 Makefile.PL
