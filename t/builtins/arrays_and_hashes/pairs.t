@@ -70,7 +70,7 @@ Basic C<pairs> tests, see S29.
   is( $hash_of_2_pairs.pairs.sort.map:{ .key~'='~.value }.join( ',' ), 'a=b,c=d', 
     "pairs() on 2-elem hash, 2-depth joined" );
   is( try { $hash_of_1_pair.pairs.sort.map:{ .key~'='~.value }.join( ',' ) }, 'a=b', 
-    "pairs() on 1-elem hash, 2-depth joined", :todo<bug> );
+    "pairs() on 1-elem hash, 2-depth joined" );
 }
 
 {

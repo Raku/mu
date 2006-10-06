@@ -50,11 +50,8 @@ plan 12;
         "fmt() works with lists of pairs";
 
     # list of a single pair:
-    is(eval(q{
-        my @pairs = (100 => 'lovely');
-        @pairs.fmt("%d ==> %s", "\n") 
-    }), "100 ==> lovely", '.fmt works with lists of a single pair'
-    :todo<feature>, :depends<list of single pair>);
+    my @pairs = (100 => 'lovely');
+    is(@pairs.fmt("%d ==> %s", "\n"), "100 ==> lovely", '.fmt works with lists of a single pair');
 
     # a single pair:
     my $pair = (100 => 'lovely');
