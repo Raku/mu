@@ -18,6 +18,8 @@ if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
+force_todo(3,6,7,9,10,11,12,15,16,17,18,19,20,21,22,23);
+
 ok("abcd" ~~ m/a  $<foo>:=(..)  d/, 'Hypothetical variable capture');
 is($/<foo>, "bc", 'Hypothetical variable captured');
 

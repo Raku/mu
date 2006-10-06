@@ -19,6 +19,8 @@ if !eval('("a" ~~ /a/)') {
   exit;
 }
 
+force_todo(9,12,13,15,16,22,35,49,63,86,100,114,128,142,156,170,198);
+
 ok("abc1_2" ~~ m/^ <ident> $/, '<ident>');
 is($/<ident>, 'abc1_2', 'Captured <ident>');
 ok("abc1_2" ~~ m/^ <?ident> $/, '<?ident>');
@@ -40,11 +42,6 @@ ok(!( " \t\n " ~~ m/^ (\h+) $/ ), 'not \h');
 ok("\n\n" ~~ m/^ (\v+) $/, '\v');
 is($/, "\n\n", 'captured \v');
 ok(!( " \t\n " ~~ m/^ (\v+) $/ ), 'not \v');
-
-#flunk "skipped tests - exteral PGE appears to be erratic", :todo<bug>;
-#skip_rest "skipped tests - exteral PGE appears to be erratic";
-
-#=begin END
 
 # alpha
 

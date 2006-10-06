@@ -24,18 +24,13 @@ regex dotdot { (.)(.) };
 ok("zzzabcdefzzz" ~~ m/(a.)<?dotdot>(..)/, 'Match');
 ok($/, 'Matched');
 is($/, "abcdef", 'Captured');
-is($/[0], 'ab', '$/[0]');
-is($0, 'ab', '$0');
-is($/[1], 'ef', '$/[1]');
-is($1, 'ef', '$1');
+is($/[0], 'ab', '$/[0]', :todo<bug>);
+is($0, 'ab', '$0', :todo<bug>);
+is($/[1], 'ef', '$/[1]', :todo<bug>);
+is($1, 'ef', '$1', :todo<bug>);
 ok(!defined($/[2]), 'no $/[2]');
 ok(!defined($2), 'no $2');
 ok(!defined($/<dotdot>), 'no $/<dotdot>');
-
-flunk "erratic behaviour with external PGE", :todo<bug>;
-skip_rest "erratic behaviour with external PGE";
-
-=begin END 
 
 ok("zzzabcdefzzz" ~~ m/(a.)<dotdot>(..)/, 'Match');
 ok($/, 'Matched');
@@ -69,9 +64,9 @@ ok(eval(' "bookkeeper" ~~ m/<single> ($/<single>)/ '), 'Named backref', :todo<fe
 is($/<single>, 'o', 'Named capture', :todo<feature>);
 is($0, 'o', 'Backref capture', :todo<feature>);
 
-ok("bookkeeper" ~~ m/(<?single>) ($0)/, 'Positional backref');
-is($0, 'o', 'Named capture');
-is($1, 'o', 'Backref capture');
+ok("bookkeeper" ~~ m/(<?single>) ($0)/, 'Positional backref', :todo<bug>);
+is($0, 'o', 'Named capture', :todo<bug>);
+is($1, 'o', 'Backref capture', :todo<bug>);
 
 ok(!( "bokeper" ~~ m/(<?single>) ($0)/ ), 'Failed positional backref');
 ok(eval(' !( "bokeper" ~~ m/<single> ($/<single>)/ ) '), 'Failed named backref', :todo<feature>);
@@ -97,23 +92,19 @@ is($/, "john", 'Match is john', :todo<feature>);
 ok($/ ne "jean", "Match isn't jean");
 is($/<name>, "john", 'Name is john', :todo<feature>);
 
-flunk "Test hangs", :todo<bug>;
-# ok("jean" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'French name', :todo<feature>);
+ok("jean" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'French name', :todo<feature>);
 is($/, "jean", 'Match is jean', :todo<feature>);
 is($/<name>, "jean", 'Name is jean', :todo<feature>);
 
-flunk "Test hangs", :todo<bug>;
-# ok("ivan" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'Russian name', :todo<feature>);
+ok("ivan" ~~ m/<?English.name> | <?French.name> | <?Russian.name>/, 'Russian name', :todo<feature>);
 is($/, "ivan", 'Match is ivan', :todo<feature>);
 is($/<name>, "ivan", 'Name is ivan', :todo<feature>);
 
 rule name { <?English.name> | <?French.name> | <?Russian.name> }
  
-flunk "Test hangs", :todo<bug>;
-# ok("john" ~~ m/<name>/, 'English metaname', :todo<feature>);
+ok("john" ~~ m/<name>/, 'English metaname', :todo<feature>);
 is($/, "john", 'Metaname match is john', :todo<feature>);
 ok($/ ne "jean", "Metaname match isn't jean");
 is($/<name>, "john", 'Metaname is john', :todo<feature>);
 is(try { $/<name><name> }, "john", 'Metaname name is john', :todo<feature>);
 
-=end

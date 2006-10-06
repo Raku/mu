@@ -2,12 +2,14 @@ use v6-alpha;
 
 use Test;
 
-plan 100;
+plan 102;
 
 unless "a" ~~ rx:P5/a/ {
   skip_rest "skipped tests - P5 regex support appears to be missing";
   exit;
 }
+
+force_todo(83,84); # PCRE hard parsefails
 
 my $b = 'x';
 my $backspace = "\b";
@@ -95,8 +97,10 @@ is(("caaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" ~~ rx:P5/(?:c|d)(?:)(?:aaaaaaaa(
 is(("Ab4ab" ~~ rx:P5/(?i)(ab)\d\1/ && $0), "Ab", 're_tests 728/1 (924)');
 is(("ab4Ab" ~~ rx:P5/(?i)(ab)\d\1/ && $0), "ab", 're_tests 730/1 (926)');
 is(("foobar1234baz" ~~ rx:P5/foo\w*\d{4}baz/ && $/), "foobar1234baz", 're_tests 732/0 (928)');
-#todo_is(("cabd" ~~ rx:P5/a(?{})b/ && $/), "ab", 're_tests 734/0 (930)');
-#todo_is(("cabd" ~~ rx:P5/a(?{"\{"})b/ && $/), "ab", 're_tests 735/0 (931)');
+flunk("PCRE hard parsefail");
+#is(("cabd" ~~ rx:P5/a(?{})b/ && $/), "ab", 're_tests 734/0 (930)');
+flunk("PCRE hard parsefail");
+#is(("cabd" ~~ rx:P5/a(?{"\{"})b/ && $/), "ab", 're_tests 735/0 (931)');
 ok(("x~~" ~~ rx:P5/x(~~)*(?:(?:F)?)?/), 're_tests 736  (932)');
 is(("aaac" ~~ rx:P5/^a(?#xxx){3}c/ && $/), "aaac", 're_tests 738/0 (934)');
 is(("aaac" ~~ rx:P5/(?x)^a (?#xxx) (?#yyy) {3}c/ && $/), "aaac", 're_tests 739/0 (935)');

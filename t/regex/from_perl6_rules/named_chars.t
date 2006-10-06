@@ -14,7 +14,7 @@ if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
-force_todo(1,2,3,4,5,6,7,8,9,10,13,15,18,19,20,21,22,23,24,25,28,30,33,34,35,36,37,38,39,40,43,45,48,49,50,135,136,137,138,139,140,143,145,148,149,150,151,152,153,154,155,158,160,163,164,165,166,167,168,169,170,173,175,178,179,180,181,182,183,184,185,188,190,193,194,195,196,197,198,199,200,203,205,208,209,210,211,212,213,214,215,218,220,223,224,225,226,227,228,229,230,233,235,238,239,240,241,242,243,244,245,248,250,253,254,255,256,257,258,259,260,263,265,268,269,270,271,272,273,274,275,278,280,283,284,285,286,287,288,289,290,293,295,298,299,300,301,302,303,304,305,308,310,313,314,315,316,317,318,319,320,323,325,328,329,330,331,332,333,334,335,338,340,343,344,345,346,347,348,349,350,353,355,358,359,360,361,362,363,364,365,368,370,373,374,375,376,377,378,379,380,383,385,388,389,390,391,392,393,394,395,398,400,403,404,405,406,407,408,409,410,413,415,418,419);
+force_todo(1..10,13,15,18..25,28,30,33..40,43,45,48..53,56,58..62,65,67..71,74,76..80,83,85..89,92,94..98,101,103..107,110,112..116,119,121..127,130,132,135..140,143,145,148..155,158,160,163..170,173,175,178..185,188,190,193..200,203,205,208..215,218,220,223..230,233,235,238..245,248,250,253..260,263,265,268..275,278,280,283..290,293,295,298..305,308,310,313..320,323,325,328..335,338,340,343..350,353,355,358..365,368,370,373..380,383,385,388..395,398,400,403..410,413,415,418..419);
 
 ok("abc\x[a]def" ~~ m/\c[LINE FEED (LF)]/, 'Unanchored named LINE FEED (LF)');
 ok("abc\c[LINE FEED (LF)]def" ~~ m/\x[A]/, 'Unanchored \x[A]');
@@ -65,10 +65,6 @@ ok(!( "\x[85]" ~~ m/^ \X[85]/ ), 'Negative hex \X[85] nomatch');
 ok(!( "\x[85]" ~~ m/^ <[\X[85]]>/ ), 'Negative charclass hex \X[85] nomatch');
 ok("\x[85]" ~~ m/^ \X[D]/, 'Negative hex \X[D] match');
 ok("\x[85]" ~~ m/^ <[\X[D]]>/, 'Negative charclass hex \X[D] match');
-
-flunk("FIXME unicode aliases are not working in pugs");
-skip(82,"unicode aliases are not working in pugs",:todo<bug>);
-=pod
 
 ok("abc\c[LINE FEED]def" ~~ m/\c[LINE FEED]/, 'Unanchored named LINE FEED');
 ok("abc\c[LINE FEED]def" ~~ m/^ abc \c[LINE FEED] def $/, 'Anchored LINE FEED');
@@ -153,8 +149,6 @@ ok(!( "\x[fd55]" ~~ m/^ \C[ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM]
 ok("\c[NEL]" ~~ m/^ \C[ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM]/, 'Negative named ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM match');
 ok(!( "\x[fd55]" ~~ m/^ <[\C[ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM]]>/ ), 'Negative charclass named ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM nomatch');
 ok("\c[NEL]" ~~ m/^ <[\C[ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM]]>/, 'Negative charclass named ARABIC LIGATURE TEH WITH MEEM WITH JEEM INITIAL FORM match');
-
-=cut
 
 ok(!( "\x[fd55]" ~~ m/^ \X[FD55]/ ), 'Negative hex \X[FD55] nomatch');
 ok(!( "\x[fd55]" ~~ m/^ <[\X[FD55]]>/ ), 'Negative charclass hex \X[FD55] nomatch');

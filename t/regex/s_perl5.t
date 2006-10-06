@@ -48,6 +48,6 @@ is($bad, "1", 'Zero width replace works with :g');
 	my $r;
 	temp $_ = 'heaao';
 	s:perl5 /aa/ll/ && ($r = $_);
-	is $r, 'hello', 's/// in boolean context properly defaults to $_';
+	is $r, 'hello', 's/// in boolean context properly defaults to $_', :todo<bug>;
 }
 

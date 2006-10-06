@@ -2,12 +2,14 @@ use v6-alpha;
 
 use Test;
 
-plan 100;
+plan 104;
 
 unless "a" ~~ rx:P5/a/ {
   skip_rest "skipped tests - P5 regex support appears to be missing";
   exit;
 }
+
+force_todo(15..18); # PCRE hard parsefails
 
 my $b = 'x';
 my $backspace = "\b";
@@ -27,10 +29,14 @@ ok((not ("(blah" ~~ rx:P5/^(\()?blah(?(1)(\)))$/)), 're_tests 782  (978)');
 is(("(blah)" ~~ rx:P5/^(\(+)?blah(?(1)(\)))$/ && $1), ")", 're_tests 784/2 (980)');
 ok((not ("blah)" ~~ rx:P5/^(\(+)?blah(?(1)(\)))$/)), 're_tests 786  (982)');
 ok((not ("(blah" ~~ rx:P5/^(\(+)?blah(?(1)(\)))$/)), 're_tests 788  (984)');
-#todo_ok((not ("a" ~~ rx:P5/(?(?{0})a|b)/)), 're_tests 790  (986)');
-#todo_is(("a" ~~ rx:P5/(?(?{0})b|a)/ && $/), "a", 're_tests 791/0 (987)');
-#todo_ok((not ("a" ~~ rx:P5/(?(?{1})b|a)/)), 're_tests 792  (988)');
-#todo_is(("a" ~~ rx:P5/(?(?{1})a|b)/ && $/), "a", 're_tests 793/0 (989)');
+flunk("PCRE hard parsefail");
+#ok((not ("a" ~~ rx:P5/(?(?{0})a|b)/)), 're_tests 790  (986)');
+flunk("PCRE hard parsefail");
+#is(("a" ~~ rx:P5/(?(?{0})b|a)/ && $/), "a", 're_tests 791/0 (987)');
+flunk("PCRE hard parsefail");
+#ok((not ("a" ~~ rx:P5/(?(?{1})b|a)/)), 're_tests 792  (988)');
+flunk("PCRE hard parsefail");
+#is(("a" ~~ rx:P5/(?(?{1})a|b)/ && $/), "a", 're_tests 793/0 (989)');
 ok((not ("a" ~~ rx:P5/(?(?!a)a|b)/)), 're_tests 794  (990)');
 is(("a" ~~ rx:P5/(?(?!a)b|a)/ && $/), "a", 're_tests 795/0 (991)');
 ok((not ("a" ~~ rx:P5/(?(?=a)b|a)/)), 're_tests 796  (992)');

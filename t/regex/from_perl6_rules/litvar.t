@@ -27,8 +27,8 @@ my $href = \%var;
 
 # SCALARS
 
-ok($var ~~ m/$var/, 'Simple scalar interpolation');
-ok("zzzzzz{$var}zzzzzz" ~~ m/$var/, 'Nested scalar interpolation');
+ok($var ~~ m/$var/, 'Simple scalar interpolation', :todo<bug>);
+ok("zzzzzz{$var}zzzzzz" ~~ m/$var/, 'Nested scalar interpolation', :todo<bug>);
 ok(!( "aaaaab" ~~ m/$var/ ), 'Rulish scalar interpolation');
 
 ok('a' ~~ m/$aref[0]/, 'Array ref 0', :todo<feature>);
@@ -52,13 +52,11 @@ ok(!( '1' ~~ m/%var{b}/ ), 'Hash B');
 ok("a" ~~ m/@var/, 'Simple array interpolation (a)');
 ok("b" ~~ m/@var/, 'Simple array interpolation (b)');
 ok("c" ~~ m/@var/, 'Simple array interpolation (c)');
-ok(!( "d" ~~ m/@var/ ), 'Simple array interpolation (d)');
+ok(!( "d" ~~ m/@var/ ), 'Simple array interpolation (d)', :todo<bug>);
 ok("ddddaddddd" ~~ m/@var/, 'Nested array interpolation (a)');
 
-flunk "Test hangs", :todo<bug>;
-flunk "Test hangs", :todo<bug>;
-# ok("abca" ~~ m/^@var+$/, 'Multiple array matching', :todo<feature>);
-# ok(!( "abcad" ~~ m/^@var+$/ ), 'Multiple array non-matching');
+ok("abca" ~~ m/^@var+$/, 'Multiple array matching', :todo<feature>);
+ok(!( "abcad" ~~ m/^@var+$/ ), 'Multiple array non-matching');
 
 
 # HASHES

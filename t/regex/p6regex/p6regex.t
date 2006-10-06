@@ -8,6 +8,7 @@ use Test;
 
 plan 525;
 
+my @force_todo = ();
 
 #my $test_data = slurp 'regex_tests';
 #ok $test_data, 'slurp data successful';
@@ -38,7 +39,7 @@ sub p6rule_like( $target, $pattern, $expected, $description?, :$todo ) {
     like( $! ?? $! !! "$/", $expected, $description, :$todo );
 }
 
-my $line_count;
+my $line_count = 1;
 for slurp($fh) -> $line {
     next unless $line ~~ rx:P5/\t/;
     next if $line ~~ rx:P5/^#/;
@@ -60,7 +61,10 @@ for slurp($fh) -> $line {
 
     if $description ~~ rx:P5 {TODO:} {
 	$todo = $description;
+    } else {
+        $todo = 'for release' if $line_count ~~ any(@force_todo);
     }
+
 
     if $result ~~ rx:P5 {^/(.*)/$} {
         p6rule_like($target, $pattern, rx:P5/$1/, $description, :$todo);

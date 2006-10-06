@@ -20,9 +20,7 @@ if !eval('("a" ~~ /a/)') {
 ok("ab cd" ~~ m/a <'b c'> d/, 'ab cd 1');
 ok(!( "abcd" ~~ m/a <'b c'> d/ ), 'not abcd 1');
 ok("ab cd" ~~ m/ab <' '> c d/, 'ab cd 2');
-eval q[
-    ok("ab/cd" ~~ m/ab <'/'> c d/, 'ab/cd');
-];
+ok(eval(q["ab/cd" ~~ m/ab <'/'> c d/]), 'ab/cd', :todo<bug>);
 
 }
 

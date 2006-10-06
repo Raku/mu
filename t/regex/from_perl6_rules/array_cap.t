@@ -12,13 +12,13 @@ be valid perl6.
 
 =cut
 
-plan 42;
+plan 45;
 
 if !eval('("a" ~~ /a/)') {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
-force_todo 1..12, 14..42;
+force_todo 1..12, 14..18,20..45;
 
 ok("  a b\tc" ~~ m/@<chars>:=[ \s+ \S+ ]+/, 'Named simple array capture');
 is(join("|", @<chars>), "  a| b|\tc", 'Captured strings');
@@ -35,34 +35,29 @@ ok("abcd" ~~ m/a  @<foo>:=(.(.))  d/, 'Hypothetical array capture');
 is("@<foo>", "c", 'Hypothetical variable captured');
 
 our @GA;
-flunk "Test hangs", :todo<bug>;
-# ok("abcxyd" ~~ m/a  @GA:=(.(.))+  d/, 'Global array capture');
+ok("abcxyd" ~~ m/a  @GA:=(.(.))+  d/, 'Global array capture');
 is("@GA[]", "c y", 'Global array captured');
 ok(%$/.keys == 0, 'No vestigal captures');
 
 my @foo;
-flunk "Test hangs", :todo<bug>;
-# ok("abcxyd" ~~ m/a  @foo:=(.(.))+  d/, 'Package array capture');
+ok("abcxyd" ~~ m/a  @foo:=(.(.))+  d/, 'Package array capture');
 is("@foo[]", "c y", 'Package array captured');
 
 rule two {..}
 
-flunk "Test hangs", :todo<bug>;
-# ok("abcd" ~~ m/a  @<foo>:=(<two>)  d/, 'Compound hypothetical capture');
+ok("abcd" ~~ m/a  @<foo>:=(<two>)  d/, 'Compound hypothetical capture');
 {
   my $ret;
   lives_ok { $ret = $/[0]<two> }, 'Implicit hypothetical variable captured -- lives_ok';
   is $ret, "bc", 'Implicit hypothetical variable captured -- retval is correct';
 }
-ok(! @<foo>, 'Explicit hypothetical variable not captured', :todo<bug>);
+ok(! eval('@<foo>'), 'Explicit hypothetical variable not captured');
 
-flunk "Test hangs", :todo<bug>;
-# ok("  a b\tc" ~~ m/@<chars>:=( @<spaces>:=[\s+] (\S+))+/, 'Nested array capture');
+ok("  a b\tc" ~~ m/@<chars>:=( @<spaces>:=[\s+] (\S+))+/, 'Nested array capture');
 is("@<chars>", "a b c", 'Outer array capture');
 is(join("|", @<spaces>), "  | |\t", 'Inner array capture');
 
-# FIXME parsefail
-eval('  rule spaces { @<spaces>:=[(\s+)] }  ');
+rule spaces { @<spaces>:=[(\s+)] }
 
 ok("  a b\tc" ~~ m/@<chars>:=( <spaces> (\S+))+/, 'Subrule array capture');
 
@@ -92,10 +87,10 @@ my @bases = ();
 ok("GATTACA" ~~ m/ @bases:=[A|C|G|T]+ /, 'All your bases...');
 is("@bases", "G A T T A C A", '...are belong to us');
 
-#@bases = ();
-#ok("GATTACA" ~~ m/ @bases:=[A|C|G|T]**{4} (@bases+) /, 'Array reinterpolation');
-#is("@bases[]", "G A T T", '...are belong to...');
-#is("$0", "A", '...A');
+@bases = ();
+ok("GATTACA" ~~ m/ @bases:=[A|C|G|T]**{4} (@bases+) /, 'Array reinterpolation');
+is("@bases[]", "G A T T", '...are belong to...');
+is("$0", "A", '...A');
 
 }
 

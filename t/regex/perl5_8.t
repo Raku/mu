@@ -2,12 +2,14 @@ use v6-alpha;
 
 use Test;
 
-plan 100;
+plan 103;
 
 unless "a" ~~ rx:P5/a/ {
   skip_rest "skipped tests - P5 regex support appears to be missing";
   exit;
 }
+
+force_todo(73..75); # PCRE hard parsefails
 
 my $b = 'x';
 my $backspace = "\b";
@@ -85,9 +87,12 @@ ok(("xxxtt" ~~ rx:P5/tt+$/), 're_tests 1151  (1355)');
 is(("za-9z" ~~ rx:P5/([a-\d]+)/ && $0), "a-9", 're_tests 1153/1 (1357)');
 is(("a0-za" ~~ rx:P5/([\d-z]+)/ && $0), "0-z", 're_tests 1155/1 (1359)');
 is(("a0- z" ~~ rx:P5/([\d-\s]+)/ && $0), "0- ", 're_tests 1157/1 (1361)');
-#todo_is(("za-9z" ~~ rx:P5/([a-[:digit:]]+)/ && $0), "a-9", 're_tests 1159/1 (1363)');
-#todo_is(("=0-z=" ~~ rx:P5/([[:digit:]-z]+)/ && $0), "0-z", 're_tests 1160/1 (1364)');
-#todo_is(("=0-z=" ~~ rx:P5/([[:digit:]-[:alpha:]]+)/ && $0), "0-z", 're_tests 1161/1 (1365)');
+flunk("PCRE hard parsefail");
+#is(("za-9z" ~~ rx:P5/([a-[:digit:]]+)/ && $0), "a-9", 're_tests 1159/1 (1363)');
+flunk("PCRE hard parsefail");
+#is(("=0-z=" ~~ rx:P5/([[:digit:]-z]+)/ && $0), "0-z", 're_tests 1160/1 (1364)');
+flunk("PCRE hard parsefail");
+#is(("=0-z=" ~~ rx:P5/([[:digit:]-[:alpha:]]+)/ && $0), "0-z", 're_tests 1161/1 (1365)');
 ok((not ("aaaXbX" ~~ rx:P5/\GX.*X/)), 're_tests 1162  (1366)');
 is(("3.1415926" ~~ rx:P5/(\d+\.\d+)/ && $0), "3.1415926", 're_tests 1163/1 (1367)');
 is(("have a web browser" ~~ rx:P5/(\ba.{0,10}br)/ && $0), "a web br", 're_tests 1165/1 (1369)');

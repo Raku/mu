@@ -63,27 +63,21 @@ is(eval('$/<def><eh>'), "e", '?def $/<def><eh>', :todo<feature>);
 
 # Test rederivation and polymorphism...
 
-flunk("FIXME parsefail", :todo);
-#ok(eval(q{'abc' ~~ m/^ (<Yet::Another.abc>) $/ }), '<Yet::Another.abc>', :todo<feature>);
+ok(eval(q{'abc' ~~ m/^ (<Yet::Another.abc>) $/ }), '<Yet::Another.abc>', :todo<feature>);
 is($/, "abc", 'abc $/', :todo<feature>);
 is($0, "abc", 'abc $0', :todo<feature>);
 
-flunk("FIXME parsefail", :todo);
-#ok(eval(q{!( 'abc' ~~ m/ (<Yet::Another.bee>) / ) }), 'abc <Yet::Another.bee>');
-flunk("FIXME parsefail", :todo);
-#ok(eval(q{'aBc' ~~ m/ (<Yet::Another.bee>) / }), 'aBc <Yet::Another.bee>', :todo<feature>);
+ok(eval(q{!( 'abc' ~~ m/ (<Yet::Another.bee>) / ) }), 'abc <Yet::Another.bee>');
+ok(eval(q{'aBc' ~~ m/ (<Yet::Another.bee>) / }), 'aBc <Yet::Another.bee>', :todo<feature>);
 is($/, "B", 'Yet::Another::bee $/', :todo<feature>);
 is($0, "B", 'Yet::Another::bee $0', :todo<feature>);
 
-flunk("FIXME parsefail", :todo);
-#ok(eval(q{!( 'def' ~~ m/^ (<Yet::Another.def>) $/ ) }), 'def (<Yet::Another.def>)');
-flunk("FIXME parsefail", :todo);
-#ok(eval(q{'DeF' ~~ m/^ (<Yet::Another.def>) $/ }), 'DeF (<Yet::Another.def>)', :todo<feature>);
+ok(eval(q{!( 'def' ~~ m/^ (<Yet::Another.def>) $/ ) }), 'def (<Yet::Another.def>)');
+ok(eval(q{'DeF' ~~ m/^ (<Yet::Another.def>) $/ }), 'DeF (<Yet::Another.def>)', :todo<feature>);
 is($/, "DeF", 'DeF $/', :todo<feature>);
 is($0, "DeF", 'DeF $0', :todo<feature>);
 
-flunk("FIXME parsefail", :todo);
-#ok('DeF' ~~ m/^ <?Yet::Another.def> $/, '<?Yet::Another.def>', :todo<feature>);
+ok('DeF' ~~ m/^ <?Yet::Another.def> $/, '<?Yet::Another.def>', :todo<feature>);
 is($/, "DeF", '?Yet::Another.def $/', :todo<feature>);
 ok($0 ne "DeF", '?Yet::Another.def $0');
 is($/<def>, "DeF", '?def $/<def>', :todo<feature>);
@@ -92,8 +86,7 @@ is(eval('$/<def><eh>'), "e", '?def $/<def><eh>', :todo<feature>);
 
 # Non-existent rules...
 
-flunk("FIXME parsefail", :todo);
-#ok(!eval(q{ 'abc' ~~ m/ (<Another.sea>) /  }), '<Another.sea>');
+ok(!eval(q{ 'abc' ~~ m/ (<Another.sea>) /  }), '<Another.sea>');
 is($!, 'Error', :todo<feature>);
 
 }

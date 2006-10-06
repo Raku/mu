@@ -2,12 +2,14 @@ use v6-alpha;
 
 use Test;
 
-plan 82;
+plan 84;
 
 unless "a" ~~ rx:P5/a/ {
   skip_rest "skipped tests - P5 regex support appears to be missing";
   exit;
 }
+
+force_todo(18,67); # PCRE hard parsefails
 
 my $b = 'x';
 my $backspace = "\b";
@@ -30,7 +32,8 @@ is(("abc" ~~ rx:P5/(abc)?(abc)+/ && $0), "", 're_tests 1236/1 (1444)');
 is(("abc" ~~ rx:P5/(abc)?(abc)+/ && $1), "abc", 're_tests 1236/2 (1445)');
 ok((not ("a\nb\n" ~~ rx:P5/(?m)b\s^/)), 're_tests 1238  (1448)', :todo<bug>);
 ok(("a" ~~ rx:P5/\ba/), 're_tests 1239  (1449)');
-#todo_is(("ab" ~~ rx:P5/^(a(??{"(?!)"})|(a)(?{1}))b/ && $1), "a", 're_tests 1241/2 (1451)');
+flunk("PCRE hard parsefail");
+#is(("ab" ~~ rx:P5/^(a(??{"(?!)"})|(a)(?{1}))b/ && $1), "a", 're_tests 1241/2 (1451)');
 ok((not ("AbCd" ~~ rx:P5/ab(?i)cd/)), 're_tests 1242  (1452)');
 ok(("abCd" ~~ rx:P5/ab(?i)cd/), 're_tests 1244  (1454)');
 is(("CD" ~~ rx:P5/(A|B)*(?(1)(CD)|(CD))/ && $1), "", 're_tests 1246/2 (1456)');
@@ -79,7 +82,8 @@ is(("abcd" ~~ rx:P5/(.*?)(?<=c|b)c/ && $0), "ab", 're_tests 1321/1 (1539)');
 is(("abcd" ~~ rx:P5/(.*?)(?<=[bc])/ && $0), "ab", 're_tests 1323/1 (1541)');
 is(("abcd" ~~ rx:P5/(.*?)(?<=[bc])c/ && $0), "ab", 're_tests 1325/1 (1543)');
 is(("2" ~~ rx:P5/2(]*)?$\1/ && $/), "2", 're_tests 1327/0 (1545)');
-#todo_ok(("x" ~~ rx:P5/(??{})/), 're_tests 1329  (1547)');
+flunk("PCRE hard parsefail");
+#ok(("x" ~~ rx:P5/(??{})/), 're_tests 1329  (1547)');
 is(("foobarbar" ~~ rx:P5/^.{3,4}(.+)\1\z/ && $0), "bar", 're_tests 1330/1 (1548)');
 is(("foobarbar" ~~ rx:P5/^(?:f|o|b){3,4}(.+)\1\z/ && $0), "bar", 're_tests 1332/1 (1550)');
 is(("foobarbar" ~~ rx:P5/^.{3,4}((?:b|a|r)+)\1\z/ && $0), "bar", 're_tests 1334/1 (1552)');

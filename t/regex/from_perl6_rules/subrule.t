@@ -51,10 +51,6 @@ is($/<cap><abc>, "abc", 'Cap abc captured');
 ok(@$/ == 0, 'Cap no array capture');
 ok(%$/.keys == 1, 'Cap hash capture');
 
-flunk('repetitive capture subrules is not yet supported', :todo<bug>);
-
-=begin END
-
 rule repcap {<abc>**{4}}
 
 ok("abcabcabcabcd" ~~ m/<repcap>/, 'Repcap match');
@@ -76,4 +72,3 @@ is($/, "abcabcabcabc", 'Caprep matched');
 is($/<caprep>, "abcabcabcabc", 'Caprep captured');
 is(eval('$/<caprep>[0]'), "abcabcabcabc", 'Caprep abc one captured');
 
-=end

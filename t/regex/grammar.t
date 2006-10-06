@@ -47,4 +47,4 @@ $content = '<title>Exactly</title> aosihdas
 <small>D</small>';
 
 is($content ~~ m/<title>/, '<title>Exactly</title>', 'match token');
-is($content ~~ m/<schedule>/, $content, 'match rule');
+is($content ~~ m/<schedule>/, $content, 'match rule', :todo<bug>);
