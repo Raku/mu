@@ -4,6 +4,9 @@ use strict;
 use warnings;
 use Pugs::Runtime::Common;
 
+our $id = 'n' . int( 1000 + rand(9000) );
+sub new_id { $id++ }
+
 sub root {
     'Pugs::Emitter::Perl6::Perl5::'
 }

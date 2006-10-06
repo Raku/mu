@@ -227,6 +227,56 @@ sub str {
     );
 }
 
+package Pugs::Runtime::Perl6::Bool;
+    use overload (
+        '""'     => sub { ${$_[0]} ? 'Bool::True' : 'Bool::False' },
+        '0+'     => sub { ${$_[0]} },
+        'bool'   => sub { ${$_[0]} },
+        fallback => 1,
+    );
+    sub WHAT { 
+        'Bool';  # XXX box
+    }
+package Pugs::Runtime::Perl6::Str;
+    use overload (
+        '""'     => sub { ${$_[0]} },
+        '0+'     => sub { ${$_[0]} },
+        'bool'   => sub { ${$_[0]} },
+        fallback => 1,
+    );
+    sub pos { pos( ${$_[0]} ) }
+    sub WHAT { 
+        'Str';  # XXX box
+    }
+package Pugs::Runtime::Perl6::Int;
+    use overload (
+        '""'     => sub { ${$_[0]} },
+        '0+'     => sub { ${$_[0]} },
+        'bool'   => sub { ${$_[0]} },
+        fallback => 1,
+    );
+    sub WHAT { 
+        'Int';  # XXX box
+    }
+package Pugs::Runtime::Perl6::Num;
+    use overload (
+        '""'     => \&str,
+        '0+'     => sub { ${$_[0]} },
+        'bool'   => sub { ${$_[0]} },
+        fallback => 1,
+    );
+    sub WHAT { 
+        'Num';  # XXX box
+    }
+    sub str { 
+        my $n = ${$_[0]}; 
+        $n == 'Inf' 
+        ? 'Inf'
+        : $n == 'NaN'
+        ? 'NaN'
+        : $n
+    }
+
 1;
 
 __END__

@@ -886,7 +886,7 @@ sub statement {
                 {
                     exp1 => { scalar => '$_' },
                     exp2 => $n->{exp1},
-                    op1   => { op => '~~' },
+                    op1   => '~~',
                     fixity => 'infix',
                 }
             ) . ') {' . emit_block_nobraces( $n->{exp2} ) . '; last; V6_CONTINUE: ; } ';
@@ -1381,7 +1381,7 @@ sub infix {
                 _emit(
                   {
                     fixity => 'infix',
-                    op1 => { op => '+' },
+                    op1 => '+',
                     exp1 => $n->{exp1},
                     exp2 => $n->{exp2},
                   }

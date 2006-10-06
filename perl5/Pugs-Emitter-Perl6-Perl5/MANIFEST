@@ -1,4 +1,4 @@
-HACKING.CompileTime
+HACKING
 lib/Pugs/Emitter/Perl6/Perl5.pm
 lib/Pugs/Emitter/Perl6/Perl5/Any.pm
 lib/Pugs/Emitter/Perl6/Perl5/Expression.pm
@@ -19,4 +19,4 @@ ChangeLog
 MANIFEST			This list of files
 t/00-compile-time/01-bool.t
 t/00-compile-time/02-int.t
-TODO.CompileTime
+TODO

@@ -19,7 +19,7 @@ package Pugs::Emitter::Perl6::Perl5::bool;
     }
     sub str {
         return Pugs::Emitter::Perl6::Perl5::str->new( 
-            { name => ( $_[0]->{name} ? '1' : '0' ) } );
+            { name => ( $_[0]->{name} ? 'Bool::True' : 'Bool::False' ) } );
     }
     sub int {
         return Pugs::Emitter::Perl6::Perl5::int->new( 
@@ -30,7 +30,7 @@ package Pugs::Emitter::Perl6::Perl5::bool;
             { name => ( $_[0]->{name} ? '1' : '0' ) } );
     }
     sub perl {
-        $_[0]->str;
+        $_[0]
     }
     sub true {
         $_[0]
@@ -39,6 +39,10 @@ package Pugs::Emitter::Perl6::Perl5::bool;
         $_[0]->{name} 
         ? Pugs::Emitter::Perl6::Perl5::bool->new( { name => 0 } ) 
         : Pugs::Emitter::Perl6::Perl5::bool->new( { name => 1 } )
+    }
+    sub scalar {
+        $_[0]->node( 'Scalar', 'bless \\( my $' . $_[0]->new_id . '=' . $_[0] . 
+                    "), 'Pugs::Runtime::Perl6::Bool'" );
     }
     sub _61__61_ {  # ==
         $_[0]->int->_61__61_( $_[1] );
@@ -59,10 +63,8 @@ package Pugs::Emitter::Perl6::Perl5::str;
         $_[0]
     }
     sub scalar {
-        return Pugs::Emitter::Perl6::Perl5::Scalar->new( {
-            name => 'bless \\' . $_[0]->perl . 
-                    ", 'Pugs::Runtime::Perl6::Str'" 
-        } );
+        $_[0]->node( 'Scalar', 'bless \\( my $' . $_[0]->new_id . '=' . $_[0]->perl . 
+                    "), 'Pugs::Runtime::Perl6::Str'" );
     }
     sub eq {
         Pugs::Emitter::Perl6::Perl5::BoolExpression->new( 
@@ -80,6 +82,9 @@ package Pugs::Emitter::Perl6::Perl5::int;
     sub str {
         return Pugs::Emitter::Perl6::Perl5::str->new( { name => $_[0]->{name} } );
     }
+    sub true {
+        $_[0]->node( 'bool', $_[0]->{name} );
+    }
     sub num {
         return Pugs::Emitter::Perl6::Perl5::num->new( { name => $_[0]->{name} } );
     }
@@ -89,13 +94,17 @@ package Pugs::Emitter::Perl6::Perl5::int;
     sub _61__61_ {  # ==
         $_[0]->num->_61__61_( $_[1] );
     }
+    sub scalar {
+        $_[0]->node( 'Scalar', 'bless \\( my $' . $_[0]->new_id . '=' . $_[0]->perl . 
+                    "), 'Pugs::Runtime::Perl6::Int'" );
+    }
     ::unicode_sub 'infix:<+>', sub{ 
         $_[0]->num->infix_58__60__43__62_( $_[1] );
     };
 package Pugs::Emitter::Perl6::Perl5::num;
     use base 'Pugs::Emitter::Perl6::Perl5::Native';
     use overload (
-        '""'     => sub { $_[0]->{name} },
+        '""'     => sub { $_[0]->{name} },   # XXX Inf NaN
         fallback => 1,
     );
     sub WHAT { 
@@ -103,6 +112,9 @@ package Pugs::Emitter::Perl6::Perl5::num;
     }
     sub str {
         $_[0]->node( 'str', $_[0]->{name} );
+    }
+    sub true {
+        $_[0]->node( 'bool', $_[0]->{name} );
     }
     sub num {
         $_[0];
@@ -112,6 +124,10 @@ package Pugs::Emitter::Perl6::Perl5::num;
     }
     sub perl {
         $_[0]->str
+    }
+    sub scalar {
+        $_[0]->node( 'Scalar', 'bless \\( my $' . $_[0]->new_id . '=' . $_[0]->perl . 
+                    "), 'Pugs::Runtime::Perl6::Num'" );
     }
     ::unicode_sub 'infix:<==>', sub{ 
         my $tmp = $_[1]->num;

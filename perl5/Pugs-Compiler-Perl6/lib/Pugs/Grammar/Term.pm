@@ -325,6 +325,12 @@ sub recompile {
         '!!!' => q(
             { return { term => "!!!" } }
             ),
+        'Inf' => q(
+            { return { num => "Inf" } }
+            ),
+        'NaN' => q(
+            { return { num => "NaN" } }
+            ),
         'self' => q(
             { return { term => "self" } }
             ),
