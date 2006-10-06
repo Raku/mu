@@ -7,7 +7,7 @@
 # Limbic_Region ends on 10930
 ######################################################
 
-= Changes for 6.2.13 (rXXXXX) - September XX, 2006
+= Changes for 6.2.13 (rXXXXX) - October XX, 2006
 
 # Agent Zhang has reviewed r12962 ~ r13261
 # (and possibly some more, but not including fglock's work)
@@ -39,6 +39,7 @@
 * [ext/Rosetta/] - Significant updates to lib/Rosetta/SeeAlso.pod.
 * [ext/Set-Relation/] - Renamed from ext/Relation/ .
 ** Started to rewrite with separate [Set::Tuple, Set::Relation] classes.
+* [ext/Test/] - Removed eval_ok and eval_is which were confusing people.
 
 == Perl 6 on Perl 5 (under [misc/pX/Common/])
 

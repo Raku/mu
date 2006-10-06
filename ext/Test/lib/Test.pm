@@ -84,31 +84,7 @@ sub unlike (Str $got, Rule $expected, Str $desc?, :$todo, :$depends) returns Boo
     Test::proclaim($test, $desc, $todo, $got, $expected, $depends, :negate);
 }
 
-## eval_ok
-
-sub eval_ok (Str $code, Str $desc?, :$todo, :$depends) returns Bool is export {
-    my $result := eval $code;
-    if (defined $!) {
-        Test::proclaim(undef, $desc, $todo, "eval was fatal: $!", :$depends);
-    }
-    else {
-        #diag "'$desc' was non-fatal and maybe shouldn't use eval_ok()";
-        &Test::ok.goto($result, $desc, :$todo, :$depends);
-    }
-}
-
-## eval_is
-
-sub eval_is (Str $code, Str $expected, Str $desc?, :$todo, :$depends) returns Bool is export {
-    my $result := eval $code;
-    if (defined $!) {
-        Test::proclaim(undef, $desc, $todo, "eval was fatal: $!", $expected, $depends);
-    }
-    else {
-        #diag "'$desc' was non-fatal and maybe shouldn't use eval_is()";
-        &Test::is.goto($result, $expected, $desc, :$todo, :$depends);
-    }
-}
+# eval_ok eval_is - removed.
 
 ## eval_dies_ok
 
@@ -314,7 +290,7 @@ sub report_failure (Str $todo?, Str $got?, Str $expected?, Bool $negate?) return
 
     # As PIL2JS doesn't support junctions yet, skip the junction part when
     # running under PIL2JS.
-    if (index('&Test::is &Test::isnt &Test::cmp_ok &Test::eval_is &Test::isa_ok &Test::is_deeply &Test::todo_is &Test::todo_isnt &Test::todo_cmp_ok &Test::todo_eval_is &Test::todo_isa_ok ', &?CALLER::CALLER::ROUTINE.name ~ ' ') >= 0) {
+    if (index('&Test::is &Test::isnt &Test::cmp_ok &Test::isa_ok &Test::is_deeply &Test::todo_is &Test::todo_isnt &Test::todo_cmp_ok &Test::todo_eval_is &Test::todo_isa_ok ', &?CALLER::CALLER::ROUTINE.name ~ ' ') >= 0) {
         Test::diag("  $wanted: '" ~ ($expected.defined ?? $expected !! "undef") ~ "'");
         Test::diag("    Actual: '" ~ ($got.defined ?? $got !! "undef") ~ "'");
     }
@@ -462,27 +438,18 @@ This function currently on checks with WHAT() since we do not yet have
 object support. Once object support is created, we will add it here, and
 maintain backwards compatibility as well.
 
-=head3 eval_ok
-
-=head3 eval_is
-
 =head3 eval_dies_ok
 
-  eval_ok      (Str $code, Str $desc?,                Bool :$todo, Str :$depends) returns Bool
-  eval_is      (Str $code, Str $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool
   eval_dies_ok (Str $code, Str $desc?,                Bool :$todo, Str :$depends) returns Bool
 
-These are the functions to use if you have a piece of code that would otherwise
+This is the function to use if you have a piece of code that would otherwise
 failed to be parsed. If the code parses, but may die at run time, consider 
 using C<dies_ok> or C<lives_ok>, which have lower overhead. 
 
-They C<eval> a string, and then pass the result to C<is> or C<ok>
-on success, or report that the C<eval> was not successful on failure. In the case of
-C<eval_dies_ok>, unsuccessful or failure was expected.
+C<eval> a string - unsuccessful or failure was expected.
 
 The C<eval> does not occur in the context of the caller.
 Non-global lexicals will not be accessible, and the package will be different.
-If you need context, use a normal C<eval> inside a C<ok>, C<is> or C<dies_ok>.
 
 =head3 throws_ok
 
@@ -500,7 +467,7 @@ value with the C<$expected> value.
 
 These functions both take blocks of code, and test whether they live or die using C<try>
 
-The code must at least be parsable. If the code might not parse, see L<eval_ok|eval_ok> above.
+The code must at least be parsable. If the code might not parse, wrap it in C<eval>.
 
 =head3 is_deeply
 

@@ -24,20 +24,6 @@ sub isnt ($v,$v2, $msg="", $todo?) {
     else { say "not ok $count - $msg"~$st }
 }
 
-sub eval_ok ($v, $msg="", $todo?) {
-    my $st = ref($todo) eq 'Pair' ?? " # TODO "~$todo.value !! "";
-    $count++;
-    if eval($v) { say "ok $count - $msg"~$st }
-    else { say "not ok $count - $msg"~$st }
-}
-
-sub eval_is ($v,$v2, $msg="", $todo?) {
-    my $st = ref($todo) eq 'Pair' ?? " # TODO "~$todo.value !! "";
-    $count++;
-    if eval($v) eq $v2 { say "ok $count - $msg"~$st }
-    else { say "not ok $count - $msg"~$st }
-}
-
 sub dies_ok ($c, $msg="", $todo?) {
     my $st = ref($todo) eq 'Pair' ?? " # TODO "~$todo.value !! "";
     $count++;

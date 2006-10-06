@@ -1,7 +1,7 @@
 use v6-alpha;
 use Test;
 
-plan 71;
+plan 60;
 
 =kwid
 
@@ -108,36 +108,6 @@ cmp_ok('test', sub ($a, $b) { ?($a gt $b) }, 'me', :desc('... testing gt on two 
 
 cmp_ok('test', sub ($a, $b) { ?($a gt $b) }, 'you', :todo(1), desc => '... testing gt on two strings');
 cmp_ok('test', sub ($a, $b) { ?($a gt $b) }, 'you', :desc('... testing gt on two strings'), todo => 1);
-
-## eval_ok
-
-eval_ok('my $a = 1; $a', "eval_ok");
-$! = undef; # clear $!
-eval_ok('my $a = 1; $a', desc => "eval_ok");
-$! = undef; # clear $!
-eval_ok('my $a = 1; $a', :desc("eval_ok"));
-$! = undef; # clear $!
-
-eval_ok('my my my $a = 1; $a', desc => "eval_ok", :todo(1));
-$! = undef; # clear $!
-eval_ok('my my my $a = 1; $a', :desc("eval_ok"), todo => 1);
-$! = undef; # clear $!
-
-## eval_is
-
-eval_is('my $a = 1; $a', 1, "eval_is");
-$! = undef; # clear $!
-eval_is('my $a = 1; $a', 1, desc => "eval_is");
-$! = undef; # clear $!
-eval_is('my $a = 1; $a', 1, :desc("eval_is"));
-$! = undef; # clear $!
-
-eval_is('my $$$$$a = 1; $a', 1, "eval_is", :todo(1));
-$! = undef; # clear $!
-eval_is('my $$$$$$a = 1; $a', 1, desc => "eval_is", todo => 1);
-$! = undef; # clear $!
-eval_is('my $$$$$a = 1; $a', 1, :desc("eval_is"), :todo(1));
-$! = undef; # clear $!
 
 ## use_ok
 
