@@ -66,7 +66,7 @@ package Pugs::Emitter::Perl6::Perl5::Str;
         $_[0]->num->true;  # XXX
     }
     sub scalar {
-        $_[0]->node( 'Perl5Scalar', 
+        $_[0]->node( 'Scalar', 
             'bless \\' . $_[0]->perl . ", 'Pugs::Runtime::Perl6::Str'" 
         );
     }
@@ -150,6 +150,9 @@ package Pugs::Emitter::Perl6::Perl5::Seq;
     sub WHAT { 
         $_[0]->node( 'str', 'Seq' );
     }
+    sub scalar {
+        return $_[0]->node( 'Array', '( bless [' . join( ', ', @{$_[0]->{name}} ) . "], 'Pugs::Runtime::Perl5Container::Array' )" )
+    }
 package Pugs::Emitter::Perl6::Perl5::Pair;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
     use overload (
@@ -190,7 +193,7 @@ sub defined {
 
 sub elems {
     die "TODO";
-    return Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( {
+    return Pugs::Emitter::Perl6::Perl5::Scalar->new( {
         name => '1'
     } );
 }
@@ -208,7 +211,7 @@ sub array {
 
 sub scalar {
     die "TODO";
-    return Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( {
+    return Pugs::Emitter::Perl6::Perl5::Scalar->new( {
         name => 'bless {' . $_[0]->key->name . '=>' . $_[0]->value->name . "}, 'Pugs::Runtime::Perl6::Pair'" 
     } );
 }

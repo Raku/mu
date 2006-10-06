@@ -17,6 +17,9 @@ package Pugs::Emitter::Perl6::Perl5::AnyExpression;
     sub perl {
         $_[0]->str;
     }
+    sub true { 
+        return $_[0]->node( 'BoolExpression', $_[0] )
+    }
 package Pugs::Emitter::Perl6::Perl5::BoolExpression;
     use base 'Pugs::Emitter::Perl6::Perl5::AnyExpression';
     use overload (
@@ -24,18 +27,16 @@ package Pugs::Emitter::Perl6::Perl5::BoolExpression;
         fallback => 1,
     );
     sub WHAT { 
-        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Bool' } );
+        return $_[0]->node( 'str', 'Bool' );
     }
     sub str {
-        return Pugs::Emitter::Perl6::Perl5::Str->new( 
-            { name => '( '. $_[0]->{name} . ' ? 1 : 0 )' } );
+        return $_[0]->node( 'StrExpression', '( '. $_[0]->{name} . ' ? 1 : 0 )' );
     }
     sub true {
         $_[0];
     }
     sub not {
-        return Pugs::Emitter::Perl6::Perl5::BoolExpression->new( 
-            { name => '( '. $_[0]->{name} . ' ? 0 : 1 )' } );
+        return $_[0]->node( 'BoolExpression', '( '. $_[0]->{name} . ' ? 0 : 1 )' );
     }
 package Pugs::Emitter::Perl6::Perl5::StrExpression;
     use base 'Pugs::Emitter::Perl6::Perl5::AnyExpression';
@@ -50,7 +51,7 @@ package Pugs::Emitter::Perl6::Perl5::StrExpression;
         $_[0]
     }
     sub scalar {
-        return Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( {
+        return Pugs::Emitter::Perl6::Perl5::Scalar->new( {
             name => 'bless \\' . $_[0]->perl . 
                     ", 'Pugs::Runtime::Perl6::Str'" 
         } );

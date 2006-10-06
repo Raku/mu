@@ -22,6 +22,7 @@ use Pugs::Emitter::Perl6::Perl5::Perl5Array;
 use Pugs::Emitter::Perl6::Perl5::Perl5Hash;
 use Pugs::Emitter::Perl6::Perl5::Array;
 use Pugs::Emitter::Perl6::Perl5::Hash;
+use Pugs::Emitter::Perl6::Perl5::Scalar;
 
 # TODO - finish localizing %_V6_ENV at each block
 our %_V6_ENV;
@@ -225,7 +226,7 @@ sub _emit {
     return _emit_pair( $n->{pair}{key}, $n->{pair}{value} )
         if exists $n->{pair};
         
-    return _var_get( $n )
+    return Pugs::Emitter::Perl6::Perl5::node->node( 'Scalar', $n->{scalar} )
         if exists $n->{scalar};
         
     return Pugs::Emitter::Perl6::Perl5::node->node( 'Perl5Array', $n->{array} )
@@ -734,7 +735,9 @@ sub default {
             # XXX encode $method to longname & ASCII
             my $method = $n->{method}{dot_bareword};
             # eval is needed to enable method dispatch
-            return eval '$self->' . $method . '( _emit( $n->{param} ) )';
+            my $code = eval '$self->' . $method . '( _emit( $n->{param} ) )';
+            die $@ if $@;
+            return $code;
         }
 
 
@@ -1316,30 +1319,10 @@ sub infix {
            ) {
             #print "set $n->{exp1}{exp1}{scalar}";
             #print "{'='}: set scalar ",Dumper($n->{exp2});
-            if ( exists $n->{exp2}{array} ) {
-                return _emit( $n->{exp1} ) . ' = ' . 
-                    "bless \\" . $n->{exp2}{array} . ", 'Pugs::Runtime::Perl5Container::Array' ";
-            }
-            if ( exists $n->{exp2}{hash} ) {
-                return _emit( $n->{exp1} ) . ' = ' . 
-                    "bless \\" . $n->{exp2}{hash} . ", 'Pugs::Runtime::Perl5Container::Hash' ";
-            }
-            if  (  exists $n->{exp2}{'fixity'} 
-                && $n->{exp2}{'fixity'} eq 'circumfix'
-                && $n->{exp2}{'op1'} eq '('
-                && exists $n->{exp2}{'exp1'}{'list'} 
-                ) {
-                return _emit( $n->{exp1} ) . ' = ' . 
-                    "bless [" . _emit( $n->{exp2}{exp1} ) . "], 'Pugs::Runtime::Perl5Container::Array' ";
-            }                
-            if  (  exists $n->{exp2}{'fixity'} 
-                && $n->{exp2}{'fixity'} eq 'circumfix'
-                && $n->{exp2}{'op1'} eq '['
-                && exists $n->{exp2}{'exp1'}{'list'} 
-                ) {
-                return _emit( $n->{exp1} ) . ' = ' . 
-                    "bless " . _emit( $n->{exp2} ) . ", 'Pugs::Runtime::Perl5Container::Array' ";
-            }                
+
+            my $v = _emit( $n->{exp2} );
+            return _emit( $n->{exp1} ) . ' = ' . $v->scalar
+                if Scalar::Util::blessed $v;              
             if  (  exists $n->{exp2}{'bare_block'} 
                 ) {
                 if ( closure_is_hash( $n->{exp2} ) ) {
@@ -1565,6 +1548,8 @@ sub prefix {
     if (  $n->{op1} eq 'true' 
        || $n->{op1} eq '?' 
        ) {
+        return $v->true
+            if Scalar::Util::blessed $v;
         return '('._emit($n->{exp1}).' ? 1 : 0 )';
     }
 
@@ -1587,7 +1572,6 @@ sub prefix {
        ) {
         return $v->hash
             if Scalar::Util::blessed $v;
-        return '(bless \%{' . _emit( $n->{exp1} ) . "}, 'Pugs::Runtime::Perl5Container::Hash')";
     }
     
     if (  $n->{op1} eq 'array' 
@@ -1595,7 +1579,6 @@ sub prefix {
        ) {
         return $v->array
             if Scalar::Util::blessed $v;
-        return '(bless \@{' . _emit( $n->{exp1} ) . "}, 'Pugs::Runtime::Perl5Container::Array')";
     }
     
     #-- /coercions
@@ -1658,9 +1641,16 @@ sub postfix {
 sub ternary {
     my $n = $_[0];
     # print "ternary: ", Dumper( $n );
+    my $v = _emit( $n->{exp1} );
 
     if ( $n->{op1} eq '??' ||
          $n->{op2} eq '!!' ) {
+
+        return $v->true . 
+            ' ? ' . _emit( $n->{exp2} ) .
+            ' : ' . _emit( $n->{exp3} ) 
+            if Scalar::Util::blessed $v;
+
         return _emit( $n->{exp1} ) . 
             ' ? ' . _emit( $n->{exp2} ) .
             ' : ' . _emit( $n->{exp3} ) ;

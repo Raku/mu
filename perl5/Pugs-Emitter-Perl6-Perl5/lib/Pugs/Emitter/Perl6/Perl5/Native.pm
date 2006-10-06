@@ -59,7 +59,7 @@ package Pugs::Emitter::Perl6::Perl5::str;
         $_[0]
     }
     sub scalar {
-        return Pugs::Emitter::Perl6::Perl5::Perl5Scalar->new( {
+        return Pugs::Emitter::Perl6::Perl5::Scalar->new( {
             name => 'bless \\' . $_[0]->perl . 
                     ", 'Pugs::Runtime::Perl6::Str'" 
         } );

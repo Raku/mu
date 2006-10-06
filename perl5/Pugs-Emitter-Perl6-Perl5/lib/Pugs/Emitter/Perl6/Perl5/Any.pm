@@ -77,9 +77,9 @@ sub array {
 sub scalar {
     my $tmp = $_[0]->name;
     if ( $tmp =~ /^ \@\{ (\[  .*  \]) \} $/x ) {
-        return $_[0]->node( 'Perl5Scalar', "bless $1, 'Pugs::Runtime::Perl6::Array'" );        
+        return $_[0]->node( 'Scalar', "bless $1, 'Pugs::Runtime::Perl6::Array'" );        
     }
-    return $_[0]->node( 'Perl5Scalar', 'bless \\' . $_[0]->name . ", 'Pugs::Runtime::Perl6::Array'" );
+    return $_[0]->node( 'Scalar', 'bless \\' . $_[0]->name . ", 'Pugs::Runtime::Perl6::Array'" );
 }
 
 sub _91__93_ {

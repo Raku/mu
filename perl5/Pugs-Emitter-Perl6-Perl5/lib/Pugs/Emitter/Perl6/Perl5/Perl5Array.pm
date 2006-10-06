@@ -71,6 +71,10 @@ sub elems {
     return $_[0]->node( 'IntExpression',  'scalar ' . $_[0]->name )
 }
 
+sub true { 
+    return $_[0]->node( 'BoolExpression', $_[0]->elems )
+}
+
 sub defined {
     return $_[0]->node( 'BoolExpression',  
         '(defined ' . $_[0]->_dollar_name . '[' . $_[1] . '])' )
@@ -95,7 +99,7 @@ sub array {
 }
 
 sub scalar {
-    return $_[0]->node( 'Array', '( bless \\' . $_[0] . ", 'Pugs::Runtime::Perl6::Array' )" )
+    return $_[0]->node( 'Array', '( bless \\' . $_[0] . ", 'Pugs::Runtime::Perl5Container::Array' )" )
 }
 
 sub _91__93_ {

@@ -1,23 +1,17 @@
-package Pugs::Emitter::Perl6::Perl5::Perl5Hash;
+package Pugs::Emitter::Perl6::Perl5::Scalar;
     use strict;
     use warnings;
     use base 'Pugs::Emitter::Perl6::Perl5::Value'; # XXX
     use overload (
         '""'     => sub { 
-            Pugs::Runtime::Common::mangle_var( $_[0]->{name} )
+            $_[0]->{name} 
         },
         fallback => 1,
     );
 
     sub WHAT { 
-        $_[0]->node( 'str', 'Hash' );
+        $_[0]->node( 'str', 'Scalar' );
     }
-
-sub _dollar_name {
-    my $name = $_[0]->{name};
-    $name =~ s/\%/\$/;
-    return $name;
-}
 
 sub isa { 
     my $self = $_[0];
@@ -31,12 +25,11 @@ sub get {
 
 sub set {
     my $self = $_[0];
-    print "perl5hash set ", Dumper( $_[1] );
     return $self->name . ' = ' . $_[1]->hash->get;
 }
 
 sub str {
-    return $_[0]->node( 'StrExpression', ' Pugs::Runtime::Perl6::Hash::str( \\' . $_[0] . ' ) ' )
+    return $_[0]->node( 'StrExpression', '( "" . ' . $_[0] . ' )' )
 }
 
 sub perl {
@@ -48,41 +41,35 @@ sub defined {
 }
 
 sub kv {
-    $_[0]->array
+    return $_[0]->node( 'ListExpression', $_[0] . '->kv' )   
 }
 
 sub keys {
-    return $_[0]->node( 'ListExpression', '(keys ' . $_[0]->name . ')' )   
+    return $_[0]->node( 'ListExpression', $_[0] . '->keys' )   
 }
 
 sub num {
-    return $_[0]->elems
+    return $_[0]->node( 'IntExpression',  $_[0] . '->num' )
 } 
 
 sub int {
-    return $_[0]->elems
+    return $_[0]->node( 'IntExpression',  $_[0] . '->int' )
 } 
 
-sub true { 
-    return $_[0]->node( 'BoolExpression', $_[0]->elems )
-}
-
 sub elems {
-    return $_[0]->node( 'IntExpression',  '(scalar keys ' . $_[0]->name . ')' )
+    return $_[0]->node( 'IntExpression',  $_[0] . '->elems' )
 }
-
 
 sub hash {
-    $_[0]
+    return $_[0]->node( 'HashExpression', $_[0] . '->hash' )
 }
 
 sub array {
-    return $_[0]->node( 'ListExpression',  
-        '@{[' . $_[0]->name . ']}' )   
+    return $_[0]->node( 'ListExpression', $_[0] . '->array' )
 }
 
 sub scalar {
-    return $_[0]->node( 'Hash', '( bless \\' . $_[0] . ", 'Pugs::Runtime::Perl6::Hash' )" )
+    return $_[0]
 }
 
 sub _123__125_ {
