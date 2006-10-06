@@ -1,10 +1,10 @@
-package Pugs::Emitter::Perl6::Perl5::Perl5Hash;
+package Pugs::Emitter::Perl6::Perl5::Hash;
     use strict;
     use warnings;
     use base 'Pugs::Emitter::Perl6::Perl5::Value'; # XXX
     use overload (
         '""'     => sub { 
-            Pugs::Runtime::Common::mangle_var( $_[0]->{name} )
+            $_[0]->{name} 
         },
         fallback => 1,
     );
@@ -12,12 +12,6 @@ package Pugs::Emitter::Perl6::Perl5::Perl5Hash;
     sub WHAT { 
         $_[0]->node( 'str', 'Hash' );
     }
-
-sub _dollar_name {
-    my $name = $_[0]->{name};
-    $name =~ s/\%/\$/;
-    return $name;
-}
 
 sub isa { 
     my $self = $_[0];

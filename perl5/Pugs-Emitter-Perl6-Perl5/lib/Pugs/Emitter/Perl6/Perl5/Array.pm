@@ -1,4 +1,4 @@
-package Pugs::Emitter::Perl6::Perl5::Perl5Array;
+package Pugs::Emitter::Perl6::Perl5::Array;
 
     # TODO after __END__
 
@@ -7,7 +7,7 @@ package Pugs::Emitter::Perl6::Perl5::Perl5Array;
     use base 'Pugs::Emitter::Perl6::Perl5::Value'; # XXX
     use overload (
         '""'     => sub { 
-            Pugs::Runtime::Common::mangle_var( $_[0]->{name} )
+            $_[0]->{name}
         },
         fallback => 1,
     );
@@ -15,12 +15,6 @@ package Pugs::Emitter::Perl6::Perl5::Perl5Array;
     sub WHAT { 
         $_[0]->node( 'str', 'Array' );
     }
-
-sub _dollar_name {
-    my $name = $_[0]->{name};
-    $name =~ s/^\@/\$/;
-    return $name;
-}
 
 sub isa { 
     return $_[0]->WHAT->eq( $_[1] ); 
@@ -87,7 +81,7 @@ sub delete {
 }
 
 sub hash {
-    return $_[0]->node( 'HashExpression', '%{{' . $_[0] . '}}' )
+    return $_[0]->node( 'HashExpression', '%{{' . $_[0]->name . '}}' )
 }
 
 sub array {
@@ -95,7 +89,7 @@ sub array {
 }
 
 sub scalar {
-    return $_[0]->node( 'Array', '( bless \\' . $_[0] . ", 'Pugs::Runtime::Perl6::Array' )" )
+    return $_[0]->node( 'Array', 'bless \\' . $_[0]->name . ", 'Pugs::Runtime::Perl6::Array'" )
 }
 
 sub _91__93_ {

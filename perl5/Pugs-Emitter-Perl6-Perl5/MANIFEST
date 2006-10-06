@@ -11,6 +11,8 @@ lib/Pugs/Emitter/Perl6/Perl5/Perl5Scalar.pm
 lib/Pugs/Emitter/Perl6/Perl5/Perl5Range.pm
 lib/Pugs/Emitter/Perl6/Perl5/Statements.pm
 lib/Pugs/Emitter/Perl6/Perl5/Value.pm
+# lib/Pugs/Emitter/Perl6/Perl5/Array.pm
+# lib/Pugs/Emitter/Perl6/Perl5/Hash.pm
 Makefile.PL
 ChangeLog
 MANIFEST			This list of files

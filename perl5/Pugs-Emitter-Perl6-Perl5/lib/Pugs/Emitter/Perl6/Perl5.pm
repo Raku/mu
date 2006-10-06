@@ -20,6 +20,8 @@ use Pugs::Emitter::Perl6::Perl5::Expression;
 use Pugs::Emitter::Perl6::Perl5::Perl5Range;
 use Pugs::Emitter::Perl6::Perl5::Perl5Array;
 use Pugs::Emitter::Perl6::Perl5::Perl5Hash;
+use Pugs::Emitter::Perl6::Perl5::Array;
+use Pugs::Emitter::Perl6::Perl5::Hash;
 
 # TODO - finish localizing %_V6_ENV at each block
 our %_V6_ENV;
@@ -732,7 +734,6 @@ sub default {
             # XXX encode $method to longname & ASCII
             my $method = $n->{method}{dot_bareword};
             # eval is needed to enable method dispatch
-            print "CALL METHOD: $method \n";
             return eval '$self->' . $method . '( _emit( $n->{param} ) )';
         }
 
@@ -811,70 +812,6 @@ sub default {
             return runtime_method( $n );
         }
         
-        if ( exists $n->{self}{hash} ) {
-            # %hash.keys
-            if ($n->{method}{dot_bareword} eq 'kv') {
-                return _emit( $n->{self}); # just use it as array
-            }
-            if ($n->{method}{dot_bareword} eq 'WHAT') {
-                return 'Pugs::Runtime::Perl6::Scalar::ref( \\'. _emit( $n->{self} ) . ')';
-            }
-            if ($n->{method}{dot_bareword} eq 'isa') {
-                return 'Pugs::Runtime::Perl6::Scalar::isa( \\'. _emit( $n->{self} ) . ', ' . _emit( $n->{param} ) . ')';
-            }
-            if ($n->{method}{dot_bareword} eq 'elems') {
-                return "( scalar keys "._emit( $n->{self} )." )"; 
-            }
-            return " (" . 
-                _emit( $n->{method} ) . ' ' .
-                _emit( $n->{self}   ) . ')';
-        }
-        
-        if (  exists $n->{self}{array} 
-           || (  exists $n->{self}{exp1}{assoc} 
-              && $n->{self}{exp1}{assoc} eq 'list'
-              )
-           ) {
-            if ($n->{method}{dot_bareword} eq 'map') {
-                my $param = $n->{param}{fixity} eq 'circumfix' ? $n->{param}{exp1} : undef;
-                my $code = $param->{bare_block} ? 'sub { '._emit($param).' }' : _emit($param);
-                return 'Pugs::Runtime::Perl6::Array::map([\('.$code.', '. _emit( $n->{self} ).')], {})';
-            }
-            if (  $n->{method}{dot_bareword} eq 'delete' 
-               || $n->{method}{dot_bareword} eq 'exists' 
-               ) {
-                my $self = _emit($n->{self});
-                $self =~ s{\@}{\$};
-                return _emit( $n->{method} ).' '.$self.'['._emit($n->{param}).']';
-            }
-            if ($n->{method}{dot_bareword} eq 'kv') {
-                my $array = emit_parenthesis( $n->{self} );
-                return "( map { ( \$_, ".$array."[\$_] ) } 0..".$array."-1 )"; 
-            }
-            if ($n->{method}{dot_bareword} eq 'keys') {
-                my $array = emit_parenthesis( $n->{self} );
-                return "( 0..".$array."-1 )"; 
-            }
-            if ($n->{method}{dot_bareword} eq 'values') {
-                return emit_parenthesis( $n->{self} );
-            }
-            if ($n->{method}{dot_bareword} eq 'WHAT') {
-                return 'Pugs::Runtime::Perl6::Scalar::ref( \\'. _emit( $n->{self} ) . ')';
-            }
-            if ($n->{method}{dot_bareword} eq 'isa') {
-                return 'Pugs::Runtime::Perl6::Scalar::isa( \\'. _emit( $n->{self} ) . ', ' . _emit( $n->{param} ) . ')';
-            }
-            if ($n->{method}{dot_bareword} eq 'elems') {
-                return "( scalar "._emit( $n->{self} )." )"; 
-            }
-            return _emit( $n->{method} ).' '.
-                ( join( ',', 
-                    grep { length $_ } 
-                    map { _emit($_) } 
-                    ( $n->{self}, $n->{param} )
-                ) );
-        }
-
         if (  exists $n->{self}{op1} 
            || exists $n->{self}{term} 
            ) {
@@ -1595,18 +1532,18 @@ sub postcircumfix {
 sub prefix {
     my $n = $_[0];
     # print "prefix: ", Dumper( $n );
+    my $v = _emit( $n->{exp1} );
 
     #-- coercions
 
     if (  $n->{op1} eq 'str' 
        || $n->{op1} eq '~' 
        ) {
+        return $v->str
+            if Scalar::Util::blessed $v;
         #print Dumper( $n );
-        return ' Pugs::Runtime::Perl6::Hash::str( \\' . _emit( $n->{exp1} ) . ' ) '
-            if exists $n->{exp1}{hash};
         return ' "' . _emit( $n->{exp1} ) . '"' 
-            if      exists $n->{exp1}{array}
-                ||  exists $n->{exp1}{op1}
+            if  exists $n->{exp1}{op1}
                     && $n->{exp1}{op1} eq '[';
         return ' "" . ' . _emit( $n->{exp1} );
     }
@@ -1614,10 +1551,14 @@ sub prefix {
     if (  $n->{op1} eq 'num' 
        || $n->{op1} eq '+' 
        ) {
+        return $v->num
+            if Scalar::Util::blessed $v;
         return '(0+('._emit($n->{exp1}).'))';
     }
 
     if (  $n->{op1} eq 'int' ) {
+        return $v->int
+            if Scalar::Util::blessed $v;
         return 'int('._emit($n->{exp1}).')';
     }
 
@@ -1636,18 +1577,24 @@ sub prefix {
     if (  $n->{op1} eq 'scalar' 
        || $n->{op1} eq '$' 
        ) {
+        return $v->scalar
+            if Scalar::Util::blessed $v;
         return '${' . _emit( $n->{exp1} ) . '}';
     }
     
     if (  $n->{op1} eq 'hash' 
        || $n->{op1} eq '%' 
        ) {
+        return $v->hash
+            if Scalar::Util::blessed $v;
         return '(bless \%{' . _emit( $n->{exp1} ) . "}, 'Pugs::Runtime::Perl5Container::Hash')";
     }
     
     if (  $n->{op1} eq 'array' 
        || $n->{op1} eq '@' 
        ) {
+        return $v->array
+            if Scalar::Util::blessed $v;
         return '(bless \@{' . _emit( $n->{exp1} ) . "}, 'Pugs::Runtime::Perl5Container::Array')";
     }
     

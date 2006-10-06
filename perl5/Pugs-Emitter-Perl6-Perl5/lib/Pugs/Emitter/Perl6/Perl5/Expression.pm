@@ -3,7 +3,7 @@ use warnings;
 # Compile-time Perl 5 thing, with hardcoded, autoboxed  methods
 
 # TODO - TypedExpression base module
-# TODO - ArrayExpression, ScalarExpression, HashExpression
+# TODO - ScalarExpression, HashExpression
 
 package Pugs::Emitter::Perl6::Perl5::AnyExpression;
     use base 'Pugs::Emitter::Perl6::Perl5::Any';
@@ -40,7 +40,7 @@ package Pugs::Emitter::Perl6::Perl5::BoolExpression;
 package Pugs::Emitter::Perl6::Perl5::StrExpression;
     use base 'Pugs::Emitter::Perl6::Perl5::AnyExpression';
     use overload (
-        '""'     => sub { "'" . $_[0]->{name} . "'" },
+        '""'     => sub { $_[0]->{name} },
         fallback => 1,
     );
     sub WHAT { 
@@ -106,6 +106,15 @@ package Pugs::Emitter::Perl6::Perl5::ListExpression;
     );
     sub WHAT { 
         return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'List' } );
+    }
+package Pugs::Emitter::Perl6::Perl5::HashExpression;
+    use base 'Pugs::Emitter::Perl6::Perl5::AnyExpression';
+    use overload (
+        '""'     => sub { $_[0]->{name} },
+        fallback => 1,
+    );
+    sub WHAT { 
+        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Hash' } );
     }
 
 1;
