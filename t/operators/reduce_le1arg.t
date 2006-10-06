@@ -1,7 +1,7 @@
 use v6-alpha;
 
 use Test;
-plan 46;
+plan 49;
 
 # smartlink to top and bottom of long table
 # L<S03/Reduction operators/"Builtin reduce operators return the following identity values">
@@ -26,35 +26,35 @@ is ([+|] ()), 0, "[+|] () eq 0";
 is ([+^] ()), 0, "[+^] () eq 0";
 is ([~|] ()), '', "[~|] () eq ''";
 is ([~^] ()), '', "[~^] () eq ''";
-# is eval("[&] ()"), all(), "[&] () eq all()";
-# is eval("[|] ()"), any(), "[|] () eq any()";
-# is eval("[^] ()"), one(), "[^] () eq one()";
-is eval("[!==] ()"), Bool::False, "[!==] () eq False";
+is ([&] ()).perl, all().perl, "[&] () eq all()";
+is ([|] ()).perl, any().perl, "[|] () eq any()";
+is ([^] ()).perl, one().perl, "[^] () eq one()";
+is ([!==] ()), Bool::False, "[!==] () eq False";
 is ([==] ()), Bool::True, "[==] () eq True";
 is ([<] ()), Bool::True, "[<] () eq True";
 is ([<=] ()), Bool::True, "[<=] () eq True";
 is ([>] ()), Bool::True, "[>] () eq True";
 is ([>=] ()), Bool::True, "[>=] () eq True";
 is ([~~] ()), Bool::True, "[~~] () eq True";
-is eval("[!~~] ()"), Bool::False, "[!~~] () eq False";
+is ([!~~] ()), Bool::False, "[!~~] () eq False";
 is ([eq] ()), Bool::True, "[eq] () eq True)";
-is eval("[!eq] ()"), Bool::False, "[!eq] () eq False";
+is ([!eq] ()), Bool::False, "[!eq] () eq False";
 is ([lt] ()), Bool::True, "[lt] () eq True";
 is ([le] ()), Bool::True, "[le] () eq True";
 is ([gt] ()), Bool::True, "[gt] () eq True";
 is ([ge] ()), Bool::True, "[ge] () eq True";
 is ([=:=] ()), Bool::True, "[=:=] () eq True";
-is eval("[!=:=] ()"), Bool::False, "[!=:=] () eq False";
+is ([!=:=] ()), Bool::False, "[!=:=] () eq False";
 is ([===] ()), Bool::True, "[===] () eq True";
-is eval("[!===] ()"), Bool::False, "[!===] () eq False";
-is eval("[eqv] ()"), Bool::True, "[eqv] () eq True";
-is eval("[!eqv] ()"), Bool::False, "[!eqv] () eq False";
+is ([!===] ()), Bool::False, "[!===] () eq False";
+is ([eqv] ()), Bool::True, "[eqv] () eq True";
+is ([!eqv] ()), Bool::False, "[!eqv] () eq False";
 is ([&&] ()), Bool::True, "[&&] () eq True";
 is ([||] ()), Bool::False, "[||] () eq False";
 is ([^^] ()), Bool::False, "[^^] () eq False";
 is (defined ([//] ())), Bool::False, "[//] () not defined";
 is (defined ([=] ())), Bool::False, "[=] () not defined";
 is ([,] ()), (), "[,] () eq ()";
-is eval("[¥] ()"), [], "[¥] () eq []";
+is ([¥] ()), [], "[¥] () eq []";
 
 # need to add one elems list cases
