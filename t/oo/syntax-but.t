@@ -17,6 +17,8 @@ use Test;
 
 plan 13;
 
+sub eval_elsewhere($code){ eval($code) }
+
 # Without an own class
 {
   my $was_in_but_block;
@@ -61,12 +63,14 @@ plan 13;
 
 # L<S02/Context/"can override the class definition:">
 # L<S12/Roles/generalize a particular enumerated value to its role.>
-my $true_zero is context;
-ok eval('$+true_zero = 0 but True; 1'), "0 but True syntax evaluates", :todo<bug>;
-ok ($true_zero == 0), "0 but True is numerically equal to 0";
-ok ?($true_zero), "0 but True is true", :todo<bug>;
-# TimToady++ says I can test False as well
-my $false_positive is context;
-ok eval('$+false_positive = 3 but False; 1'), "3 but False syntax evaluates", :todo<bug>;
-ok ($false_positive == 3), "3 but False is numerically equal to 3", :todo<bug>;
-ok !($false_positive), "3 but False is false";
+{
+  my $true_zero is context;
+  ok eval_elsewhere('$+true_zero = 0 but True; 1'), "0 but True syntax evaluates", :todo<bug>;
+  ok ($true_zero == 0), "0 but True is numerically equal to 0";
+  ok ?($true_zero), "0 but True is true", :todo<bug>;
+  # TimToady++ says I can test False as well
+  my $false_positive is context;
+  ok eval_elsewhere('$+false_positive = 3 but False; 1'), "3 but False syntax evaluates", :todo<bug>;
+  ok ($false_positive == 3), "3 but False is numerically equal to 3", :todo<bug>;
+  ok !($false_positive), "3 but False is false";
+}

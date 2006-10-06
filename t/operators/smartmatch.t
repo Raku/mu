@@ -14,6 +14,8 @@ emulation.
 
 =cut
 
+sub eval_elsewhere($code){ eval($code) }
+
 { #L<<S03/"Smart matching" /Any Code:($) scalar sub truth match>>
     sub uhuh { 1 }
     sub nuhuh { undef }
@@ -32,8 +34,8 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 #L<<S03/Smart matching/Hash "hash keys identical"
 #   if $_.keys.sort »eq« $x.keys.sort>>
 { 
-    ok eval('(%+hash1 ~~ %+hash2)'), "hash keys identical", :todo;
-    ok eval('!(%+hash1 ~~ %+hash4)'), "hash keys differ";
+    ok eval_elsewhere('(%+hash1 ~~ %+hash2)'), "hash keys identical", :todo;
+    ok eval_elsewhere('!(%+hash1 ~~ %+hash4)'), "hash keys differ";
 };
 
 #L<<S03/Smart matching/Hash any(Hash) "hash key intersection" match>>
@@ -77,15 +79,15 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 #L<<S03/Smart matching/Hash .{Any} "hash element truth*">>
 { 
     my $string is context = "foo";
-    ok eval('(%+hash5 ~~ .{$+string})'), 'hash.{Any} truth', :todo;
+    ok eval_elsewhere('(%+hash5 ~~ .{$+string})'), 'hash.{Any} truth', :todo;
     $string = "gorch";
-    ok eval('!(%+hash5 ~~ .{$+string})'), 'hash.{Any} untruth', :todo;
+    ok eval_elsewhere('!(%+hash5 ~~ .{$+string})'), 'hash.{Any} untruth', :todo;
 };
 
 #L<<S03/Smart matching/Hash .<string> "hash element truth*">>
 { 
-    ok eval('(%+hash5 ~~ .<foo>)'), "hash<string> truth", :todo;
-    ok eval('!(%+hash5 ~~ .<gorch>)'), "hash<string> untruth", :todo;
+    ok eval_elsewhere('(%+hash5 ~~ .<foo>)'), "hash<string> truth", :todo;
+    ok eval_elsewhere('!(%+hash5 ~~ .<gorch>)'), "hash<string> untruth", :todo;
 };
 
 #L<<S03/Smart matching/Array Array "arrays are comparable" »~~«>>

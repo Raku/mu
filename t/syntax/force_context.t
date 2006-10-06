@@ -10,6 +10,9 @@ Context forcing operators
 
 plan 40;
 
+sub eval_elsewhere($code){ eval($code) }
+
+
 # L<S02/Context/numeric "+">
 # numeric (+) context
 {
@@ -75,8 +78,8 @@ plan 40;
 
     my $arrayref is context = list(1,2,3);
     my $boo is context = 37;
-    ok eval('?(@$+arrayref)'), '?(@$arrayref) syntax works';
-    ok eval('?(@($+arrayref))'), '?(@($arrayref)) syntax works';
+    ok eval_elsewhere('?(@$+arrayref)'), '?(@$arrayref) syntax works';
+    ok eval_elsewhere('?(@($+arrayref))'), '?(@($arrayref)) syntax works';
 }
 
 # L<S03/Changes to Perl 5 operators/"!TERM" "coerced to boolean">
@@ -100,8 +103,8 @@ plan 40;
 
     my $arrayref is context = list(1,2,3);
 
-    ok eval('!(!(@$+arrayref))'), '!(@$arrayref) syntax works';
-    ok eval('!(!(@($+arrayref)))'), '!(@($arrayref)) syntax works';
+    ok eval_elsewhere('!(!(@$+arrayref))'), '!(@$arrayref) syntax works';
+    ok eval_elsewhere('!(!(@($+arrayref)))'), '!(@($arrayref)) syntax works';
 }
 
 # int context
