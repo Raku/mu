@@ -8,7 +8,7 @@ use Test;
 
 =cut
 
-plan 46;
+plan 52;
 
 { # binary infix
         my @r;
@@ -257,4 +257,19 @@ plan 46;
 
     my $part = join '', eval '@array[0,1]>>.<key>';
     is($part, 'valval', 'hyper-dereference an array slice',:todo);
+}
+
+{ # junction hyper -- regression?
+    my @a = 1..3;
+    my @b = 4..6;
+    ok eval('@a »|« @b; 1'), '»|« hyperjunction evals', :todo<feature>;
+    ok eval('@a >>|<< @b; 1'), '>>|<< hyperjunction evals, ASCII',
+        :todo<feature>;
+    ok eval('@a »&« @b; 1'), '»&« hyperjunction evals', :todo<feature>;
+    ok eval('@a >>&<< @b; 1'), '»&« hyperjunction evals, ASCII',
+        :todo<feature>;
+    is eval('(@a »|« @b).perl'), (1|4,2|5,3|6).perl,
+        '»|« returns correct values', :todo<feature>;
+    is eval('(@a »&« @b).perl'), (1&4,2&5,3&6).perl,
+        '»&« returns correct values', :todo<feature>;
 }
