@@ -17,6 +17,7 @@ use Pugs::Runtime::Perl6;
 use Pugs::Emitter::Perl6::Perl5::Value;
 use Pugs::Emitter::Perl6::Perl5::Native;
 use Pugs::Emitter::Perl6::Perl5::Expression;
+use Pugs::Emitter::Perl6::Perl5::Perl5Range;
 
 # TODO - finish localizing %_V6_ENV at each block
 our %_V6_ENV;
@@ -1248,6 +1249,13 @@ sub infix {
     my $n = $_[0];
     #print "infix: ", Dumper( $n );
 
+    if ( $n->{op1} eq '..' ) {
+        my $v1 = _emit( $n->{exp1} );
+        my $v2 = _emit( $n->{exp2} );
+        return Pugs::Emitter::Perl6::Perl5::node->node( 'Perl5Range', [ $v1, $v2 ] )
+            if     Scalar::Util::blessed $v1 
+                && Scalar::Util::blessed $v2;
+    }
     if ( $n->{op1} eq 'xx' ) {
         return 
             'do { my @_V6_TMP1 = ' . _emit( $n->{exp1} ) . '; ' . 
