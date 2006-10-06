@@ -8,7 +8,7 @@ Hash tests
 
 =cut
 
-plan 57;
+plan 59;
 
 # basic lvalue assignment
 
@@ -175,3 +175,8 @@ $i = 0;
 $i++ for %hash; # segfaults
 is $i, 4, "for %hash works";
 
+{ "a" => 1 };
+is 1, 1, "Single element anon hash works";
+
+my $hash = { a => 1 };
+is $hash<a>, 1, "Assigment and lookup on single element anon hash works";
