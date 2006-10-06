@@ -1,18 +1,22 @@
 package Pugs::Emitter::Perl6::Perl5::Perl5Array;
+    use strict;
+    use warnings;
+    use base 'Pugs::Emitter::Perl6::Perl5::Value'; # XXX
+    use overload (
+        '""'     => sub { 
+            Pugs::Runtime::Common::mangle_var( $_[0]->{name} )
+        },
+        fallback => 1,
+    );
 
-# Compile-time Perl 5 array object - hardcoded, autoboxed  methods
-
-use strict;
-use warnings;
+    sub WHAT { 
+        $_[0]->node( 'str', 'Array' );
+    }
 
 sub _dollar_name {
     my $name = $_[0]->{name};
     $name =~ s/^\@/\$/;
     return $name;
-}
-
-sub WHAT { 
-    $_[0]->node( 'str', 'Array' );
 }
 
 sub isa { 

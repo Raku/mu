@@ -18,6 +18,8 @@ use Pugs::Emitter::Perl6::Perl5::Value;
 use Pugs::Emitter::Perl6::Perl5::Native;
 use Pugs::Emitter::Perl6::Perl5::Expression;
 use Pugs::Emitter::Perl6::Perl5::Perl5Range;
+use Pugs::Emitter::Perl6::Perl5::Perl5Array;
+use Pugs::Emitter::Perl6::Perl5::Perl5Hash;
 
 # TODO - finish localizing %_V6_ENV at each block
 our %_V6_ENV;
@@ -224,10 +226,10 @@ sub _emit {
     return _var_get( $n )
         if exists $n->{scalar};
         
-    return _var_get( $n )
+    return Pugs::Emitter::Perl6::Perl5::node->node( 'Perl5Array', $n->{array} )
         if exists $n->{array};
         
-    return _var_get( $n )
+    return Pugs::Emitter::Perl6::Perl5::node->node( 'Perl5Hash', $n->{hash} )
         if exists $n->{hash};
         
     return _emit_double_quoted( $n->{double_quoted} )
