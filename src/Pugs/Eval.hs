@@ -574,7 +574,7 @@ reduceSyn name [cond, body]
         case rv of
             VError{}    -> retVal rv
             _           -> do
-                runBlocksIn sub (reverse . subNextBlocks)
+                runBlocksIn sub subNextBlocks
                 ($ rv) . fix $ \runLoop prev -> do
                     vbool <- enterEvalContext (cxtItem "Bool") cond
                     vb    <- fromVal vbool
@@ -585,7 +585,7 @@ reduceSyn name [cond, body]
                                 case rv of
                                     VError{}    -> retVal rv
                                     _           -> do
-                                        runBlocksIn sub (reverse . subNextBlocks)
+                                        runBlocksIn sub subNextBlocks
                                         runLoop prev
     runBlocksIn MkCode{ subBody = Syn "block" [Val (VCode cv')] } f = runBlocksIn cv' f
     runBlocksIn cv f = mapM_ (reduceSyn "block" . (:[]) . Syn "sub" . (:[]) . Val . castV) (f cv)

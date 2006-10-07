@@ -253,13 +253,13 @@ addClosureTrait name trait = do
         "CATCH"     -> block{ subCatchBlocks = trait:subCatchBlocks block }
         "KEEP"      -> block{ subKeepBlocks = trait:subKeepBlocks block }
         "UNDO"      -> block{ subUndoBlocks = trait:subUndoBlocks block }
-        "ENTER"     -> block{ subEnterBlocks = trait:subEnterBlocks block }
+        "ENTER"     -> block{ subEnterBlocks = subEnterBlocks block ++ [trait] }
         "LEAVE"     -> block{ subLeaveBlocks = trait:subLeaveBlocks block }
         "NEXT"      -> block{ subNextBlocks = trait:subNextBlocks block }
         "LAST"      -> block{ subLastBlocks = trait:subLastBlocks block }
-        "PRE"       -> trace "PRE case" block{ subPreBlocks = trait:subPreBlocks block }
+        "PRE"       -> trace "PRE case" block{ subPreBlocks = subPreBlocks block ++ [trait] }
         "POST"      -> block{ subPostBlocks = trait:subPostBlocks block }
-        "FIRST"     -> block{ subFirstBlocks = trait:subFirstBlocks block }
+        "FIRST"     -> block{ subFirstBlocks = subFirstBlocks block ++ [trait] }
         _           -> trace ("Wrong closure trait name: "++name) block
 {-|
 Update the 's_outerVars' in the parser's state by applying a transformation function.
