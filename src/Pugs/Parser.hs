@@ -955,13 +955,14 @@ ruleClosureTrait rhs = tryRule "closure trait" $ do
             -- We unshift END blocks to @*END at compile-time.
             -- They're then run at the end of runtime or at the end of the
             -- whole program.
-            unsafeEvalExp $ 
+            pkg <- asks envPackage
+            rv  <- unsafeEvalExp $ 
                 App (_Var "&unshift")
-                    (Just (_Var "@*END"))
+                    (Just (_Var (if pkg == mainPkg then "@Main::END" else "@*END")))
                     [Val code]
-            return emptyExp
+            return (rv `seq` emptyExp)
         "BEGIN" -> do
-            -- We've to exit if the user has written code like BEGIN { exit }.
+            -- We have to exit if the user has written code like BEGIN { exit }.
             val <- possiblyExit =<< unsafeEvalExp (checkForIOLeak fun)
             -- And install any pragmas they've requested.
             env <- ask
@@ -1003,7 +1004,7 @@ ruleCodeQuotation = rule "code quotation" $ do
 possiblyExit :: Exp -> RuleParser Exp
 possiblyExit (Val (VControl (ControlExit exit))) = do
     -- Run all @*END blocks...
-    unsafeEvalExp $ Syn "for"
+    rv <- unsafeEvalExp $ Stmts (Syn "for"
         [ _Var "@Main::END"
         , Syn "sub"
             [ Val . VCode $ mkSub
@@ -1011,9 +1012,9 @@ possiblyExit (Val (VControl (ControlExit exit))) = do
                 , subParams = [defaultScalarParam]
                 }
             ]
-        ]
+        ]) (_Var "@Main::END")
     -- ...and then exit.
-    return $ unsafePerformIO $ exitWith exit
+    return $ unsafePerformIO $ exitWith (rv `seq` exit)
 possiblyExit x = return x
 
 vcode2startBlock :: Val -> RuleParser Exp

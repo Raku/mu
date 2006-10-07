@@ -352,6 +352,9 @@ emptyPkg = MkPkg []
 -- globalPkg :: Pkg
 -- globalPkg = MkPkg [__"GLOBAL"]
 
+mainPkg :: Pkg
+mainPkg = MkPkg [__"Main"]
+
 callerPkg :: Pkg
 callerPkg = MkPkg [__"CALLER"]
 

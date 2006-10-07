@@ -284,9 +284,9 @@ parserWarn str val = do
     currPos <- getPosition
     traceM (pretty (VError (VStr $ str ++ showVal) [mkPos currPos currPos]))
     where
-    showVal = case fromTypeable val of
-        Just () -> ""
-        _       -> ":\n    " ++ show val
+    showVal = case show val of
+        "()" -> ""
+        txt  -> ":\n    " ++ txt
 
 
 {-|
