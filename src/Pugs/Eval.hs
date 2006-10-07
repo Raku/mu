@@ -126,7 +126,7 @@ evaluateMain exp = do
     endMainAV   <- reduceVar $ cast "@Main::END"
     endMainSubs <- fromVals endMainAV
     enterContext CxtVoid $ do
-        mapM_ evalExp [ App (Val sub) Nothing [] | sub@VCode{} <- endSubs ++ endMainSubs ]
+        mapM_ evalExp [ App (Val sub) Nothing [] | sub@VCode{} <- endMainSubs ++ endSubs ]
     return val
 
 {-|
