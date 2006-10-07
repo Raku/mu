@@ -44,7 +44,7 @@ BEGIN {
     $var_at_begin = $var;
 }
 
-is $hist, 'begin check init first ', 'BEGIN {} runs only once';
+is $hist, 'begin check init ', 'BEGIN {} runs only once';
 is $var_at_begin, undef, 'BEGIN {...} ran at compile time';
 is $var_at_check, undef, 'CHECK {...} ran at compile time';
 is $var_at_init, undef, 'INIT {...} ran at runtime, but ASAP';
