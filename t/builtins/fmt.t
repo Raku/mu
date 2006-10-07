@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 12;
+plan 19;
 
 # L<S02/"Names and Variables"/"formatted representation"
 #   of "any scalar value" ".fmt('%03d')">
@@ -46,15 +46,40 @@ plan 12;
 {
     # a single pair:
     my $pair = (100 => 'lovely');
-    is eval('$pair.fmt("%d ==> %s", "\n")'), "100 ==> lovely", '.fmt works with a single pair';
+    is $pair.fmt("%d ==> %s"), "100 ==> lovely", '.fmt works with a single pair';
 
     # list of a single pair:
     my @pairs = (100 => 'lovely');
-    is(eval('@pairs.fmt("%d ==> %s", "\n")'), "100 ==> lovely", '.fmt works with lists of a single pair');
+    is(@pairs.fmt("%d ==> %s", "\n"), "100 ==> lovely", '.fmt works with lists of a single pair');
 
     # list of pair:
     my @pairs = (a => 1.3, b => 2.4);
-    is eval('@pairs.fmt("%s:%d", "_")'), "a:1_b:2", "fmt() works with lists of pairs";
-    is eval('@pairs.fmt("(%s => %f)", "")'), "(a => 1.3)(b => 2.4)",
+    is @pairs.fmt("%s:%d", "_"), "a:1_b:2", "fmt() works with lists of pairs";
+    is @pairs.fmt("(%s => %f)", ""), "(a => 1.3)(b => 2.4)",
         "fmt() works with lists of pairs";
+}
+
+# Test defaults on $comma
+{
+    is([1..3].fmt("%d"), "1 2 3", 'default $comma for array');
+
+    my $hash = {
+        a => 1.3,
+        b => 2.4,
+    };
+    my $str = $hash.fmt("%s:%d");
+    if $str eq "a:1\nb:2" || $str eq "b:2\na:1" {
+        pass 'default $comma works with hashes';
+    } else {
+        flunk 'default $comma jfails to work with hashes';
+    }
+}
+
+# Some failure modes
+{
+    eval_dies_ok '(1).fmt()', 'scalar .fmt fails without $fmt';
+    eval_dies_ok '(1=>"a").fmt()', 'pair .fmt fails without $fmt';
+    eval_dies_ok '(1,2).fmt()', 'list .fmt fails without $fmt';
+    eval_dies_ok '[1,2].fmt()', 'array .fmt fails without $fmt';
+    eval_dies_ok '{1=>"a"}.fmt()', 'hash .fmt fails without $fmt';
 }
