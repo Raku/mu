@@ -1,0 +1,157 @@
+RedSix was an attempt to build a perl6 implementation on ruby.
+See the History section for motivation.  It is currently abandoned.
+
+To run it, use ruby 1.9.0 of Spring'06.  More recent versions may also
+work.  "mkdir cache" before running.  You can swap the file for the
+pugs executable, and run make test.
+
+History
+
+In Spring 2006, perl6 object and regex/rule support had significant
+limitations.  It wasn't yet plausible to write a large application
+using them.  And it wasn't clear when this would change.  Object
+support had been wedged for almost a year.  It seemed to me it might
+become usable over a weekend, or remain broken for another year.
+
+RedSix (once aka "RedClam"), was an attempt to bootstrap a perl6
+implementation, written mostly in perl6 itself, that was independent
+of pugs, and thus of pugs' parser and runtime limitations.  The
+project exceeded its time budget and was killed.  Since then, the pugs
+limitations which motivated it have been addressed.  Maybe?[1]
+
+
+History - Questions
+
+- What was the project context?
+
+  The objective was to become able to write a not-small applications
+in perl6.  This was not possible with existing tools, but that might
+change at any time.  Over a weekend even.  So, "be quick, plan to
+throw away most of the code, and the whole thing may become
+uninteresting at any time".
+
+- What was the plan?
+
+  The development plan was to quickly write enough ruby and perl6 to
+get perl6 oo working, and then write normal perl6 code to replace most
+of the ruby.  First replacing the regex engine, then the parser.
+Basically a bootstrap spike.
+
+  Resulting in a self hosting perl6.  With a real, lexically
+overrideable, rules-based parser.  Perl6 ast and compilation.  A real
+class/role hierarchy.  A MOP-ishly overridable p6 implementation.  Not
+just because these would be powerful, but hypothesizing they would
+constitute a rapid development path.
+
+- Quick sketch of the code?
+
+  A minimal regex engine handling subrules, a operator precedence
+parser, a "full"-ish (as opposed to minimal) set of p6 rules derived
+from Parser.hs, and runtime written in ruby and p6.  Wrapped in a
+caching bootstrap, with a shell.
+
+- How far did it get?
+
+  The next large steps were to get inheritance and multimethods
+working, and then to start on the regex engine replacement.  Parser
+after that.
+
+  Something vaguely like 20% of the pugs testsuite was passing, though
+that is much less impressive than it sounds - one can pass an amazing
+number of tests with core functionality completely absent.  A
+simplified Test.pm was used.
+
+  The push was to get multis working, then write the real
+implementation in p6.  So static grammar.  Arity kludged.  Limited
+attention to expressions (no hyperops, junctions, etc).
+
+- Why no "commit early, commit often"?  Why now?
+
+  Concern for distracting effort from the critical path.
+  In the past, I'd seen my introduction of new systems refocus
+development attention, even from things I thought critical path.
+Attention to the then new perl5 v6 implementation, and even to pugs,
+at the time felt to me a bit... fragile.  So the plan was to take a
+couple of weeks, offline, to get at least to working oo.  So redsix
+would actually have some new capability to contribute.  Then I could
+check on folks' thoughts about adding it the mix.  Over time-budget,
+it died first.  Not working, it seemed much less valuable.  (And beginning
+a job search, I was hesitant to expose some really grody throw-away code;)
+
+  Now v6 and pugs are progressing nicely, so there seems no real
+downside.  No great upside either, but oh well.
+
+- What's up with that one enormous 3k line file?
+
+  Two things.  First, parallel development.  After the initial
+bootstrap, there are several development directions which could be
+pursued independently.  One big limitation, in pugs and it's subsystems,
+has been we lack the infrastructure to easily maintain parallel forks.
+Technically we could do it, with multiple people running svk
+repositories.  But we don't.  The single file permits trivial forking.
+  Second, it simplifies bootstrapping.  One can take large steps,
+rather than doing creeping synchronization of multiple files.
+  That said, the idea was that post-bootstrap, the stable parts could
+start being spun off.
+
+- What's up with that mess of a regex engine?
+
+  That was a mistake.  I wasn't thrilled by the performance numbers of
+a partial transliteration of a working regex engine.  So I thought,
+let's quickly roll a new one, tailored to ruby.  Not quite that bad,
+but close.  You'd think the bloodstains from several previous walks
+down this rathole would have dissuaded.  But no.  And the "quick" and
+sloppy part just shifted effort to debugging, which didn't help the
+time budget.
+
+- What about the rest of the parser?
+
+  The whole parsing story for perl6 was very much in flux during the
+creation of redsix.  So there are bags and patches.  And it doesn't
+match the current story.  It was "one to throw away".  By one written
+in pure clean perl6.
+
+- Why separate the parser from ast generation?
+
+  My experience is developing language parsers and "ASTs" (syntax /
+semantic graphs) are both hard problems, and attempting to mix them,
+makes them even harder.  Far harder than the glue needed to separate
+them, at least when using nice high level languages.
+
+- Conformance?
+
+  Not great.  The language has changed since, and conformance was
+never a high priority for the bootstrap.
+
+- Future?
+
+  Not really.  The motivating conditions are gone.[1]
+
+  Ruby is still a potentially nice vm for perl6.  Existing oo
+infrastructure.  Clean C implementation, easily modified.
+Continuations.  But using it for a from-scratch bootstrap no longer
+makes sense.  It's now better to create a ruby backend using an
+existing perl6 implementation, and bootstrap that way.[1]
+
+- Counter point
+
+  Expectation management duties fulfilled, I note that the project was
+still kind of neat.  "Scheme in one defun" -> "Perl6 in one ruby file".
+A few bits of not entirely graceless architecture.  Fastest p6
+implementation for week or two until pugs dramatically improved.
+
+- Ideas to keep?
+
+ Interactive shell with persistent history.
+
+ ... hmm, what else?  XXX
+
+[1] Re motivating pugs limitations being gone... I'm not sure.
+That was written in anticipation of a somewhat later release.  Oo is
+currently better, but still may have problems.  Rules support has
+recently gotten much worse, but is improving.  And p5's Moose provides
+a way to prototype p6 on p5.  So... I'm not sure how one might best
+proceed now.  ("One" who is not me - I'll never do a needed job search
+if I take on something this interesting;).  Certainly it seems worth
+pushing on pugs p6 oo to see where the current limits are.
+2006-10-06
