@@ -73,7 +73,7 @@ emptyEnv name genPad = liftSTM $ do
         , envEval    = evaluate
         , envCaller  = Nothing
         , envOuter   = Nothing
-        , envDepth   = 0
+        , envDepth   = []
         , envBody    = Val undef
         , envDebug   = Just ref -- Set to "Nothing" to disable debugging
         , envPos     = MkPos name 1 1 1 1
@@ -117,17 +117,17 @@ evaluateMain exp = do
     initAV   <- reduceVar $ cast "@*INIT"
     initSubs <- fromVals initAV
     enterContext CxtVoid $ do
-        mapM_ evalExp [ App (Val sub) Nothing [] | sub <- initSubs ]
+        mapM_ evalExp [ App (Val sub) Nothing [] | sub@VCode{} <- initSubs ]
+    evalExp (Syn "=" [_Var "@*INIT", Syn "," []])
     -- The main runtime
-    val      <- resetT $ evaluate exp
-    -- S04: END {...}       at run time, ALAP
-    endAV       <- reduceVar $ cast "@*END"
-    endSubs     <- fromVals endAV
-    endMainAV   <- reduceVar $ cast "@Main::END"
-    endMainSubs <- fromVals endMainAV
-    enterContext CxtVoid $ do
-        mapM_ evalExp [ App (Val sub) Nothing [] | sub@VCode{} <- endMainSubs ++ endSubs ]
-    return val
+    resetT (evaluate exp) `finallyM` do
+        -- S04: END {...}       at run time, ALAP
+        endAV       <- reduceVar $ cast "@*END"
+        endSubs     <- fromVals endAV
+        endMainAV   <- reduceVar $ cast "@Main::END"
+        endMainSubs <- fromVals endMainAV
+        enterContext CxtVoid $ do
+            mapM_ evalExp [ App (Val sub) Nothing [] | sub@VCode{} <- endMainSubs ++ endSubs ]
 
 {-|
 Evaluate an expression.
@@ -144,7 +144,7 @@ evaluate exp = do
             want <- asks envWant
             debug ref (cast "indent") ('-':) (" Evl [" ++ want ++ "]:\n") exp
             val <- local (\e -> e{ envBody = exp }) $ reduce exp
-            debug ref (cast "indent") (tail) "- Ret: " val
+            debug ref (cast "indent") (\x -> if null x then [] else tail x) "- Ret: " val
             trapVal val (return val)
         Nothing -> do
             val <- local (\e -> e{ envBody = exp }) (reduce exp)
@@ -343,10 +343,8 @@ reducePad STemp lex exp = do
     -- default to nonlocal exit
     isNonLocal  <- liftSTM $ newTVar True
     val <- resetT $ do
-        val' <- evalExp exp
-        -- exp evaluated without error; no need to shift out
-        liftSTM $ writeTVar isNonLocal False
-        return val'
+        -- if the liftSTM is reached, exp evaluated without error; no need to shift out
+        evalExp exp `finallyM` liftSTM (writeTVar isNonLocal False)
     mapM_ (\tmp -> evalExp $ App (Val tmp) Nothing []) tmps
     isn <- liftSTM $ readTVar isNonLocal
     (if isn then (shiftT . const) else id) (return val)
@@ -407,18 +405,15 @@ reduceSyn "env" [] = do
     -- writeVar "$*_" val
     return . VControl $ ControlEnv env
 
-reduceSyn "block" [Ann _ (Syn "sub" [Val (VCode sub)])]
-    | subType sub == SubBlock = if isEmptyParams (subParams sub) 
-        then enterBlock $ reduce (subBody sub)
-        else fail "Blocks with implicit params cannot occcur at statement level"
-
-reduceSyn "block" [Syn "sub" [Val (VCode sub)]]
-    | subType sub == SubBlock = if isEmptyParams (subParams sub) 
-        then enterBlock $ reduce (subBody sub)
-        else fail "Blocks with implicit params cannot occcur at statement level"
-
-reduceSyn "block" [body] = do
-    enterBlock $ reduce body
+reduceSyn "block" [exp]
+    | Syn "sub" [Val (VCode sub@MkCode{ subType = SubBlock })] <- unwrap exp = do
+        unless (isEmptyParams (subParams sub)) $
+            fail "Blocks with implicit params cannot occur at statement level"
+        env <- ask
+        enterSub (sub{ subEnv = Just env }) . reduce $ case unwrap (subBody sub) of
+            Syn "block" [exp]   -> exp
+            _                   -> subBody sub
+    | otherwise = enterBlock $ reduce exp
     
 reduceSyn "sub" [exp] = do
     (VCode sub) <- enterEvalContext (cxtItem "Code") exp
@@ -471,9 +466,9 @@ reduceSyn name [cond, bodyIf, bodyElse]
 
 reduceSyn "postfix:for" xs = reduceSyn "for" xs
 
-reduceSyn "for" [list, body] = do
+reduceSyn "for" [list, body] = enterLoop $ do
     av    <- enterLValue $ enterEvalContext cxtSlurpyAny list
-    vsub  <- enterRValue $ enterEvalContext (cxtItem "Code") body
+    sub   <- fromCodeExp body
     -- XXX this is wrong -- should use Array.next
     elms  <- case av of
         VRef (MkRef sv@IScalar{})   -> return [sv]
@@ -481,26 +476,21 @@ reduceSyn "for" [list, body] = do
             VRef (MkRef sv@IScalar{})   -> sv
             _                           -> (IScalar x)
         _                           -> join $ doArray av array_fetchElemAll
-    sub' <- fromVal vsub
-    sub  <- case sub' of
-        VCode s -> return s
-        VList [] -> fail $ "Invalid codeblock for 'for': did you mean {;}?"
-        _ -> fail $ "Invalid codeblock for 'for'"
     -- This makes "for @x { ... }" into "for @x -> $_ is rw {...}"
     let arity = max 1 $ length (subParams sub)
-        runBody [] _ = retVal undef
-        runBody vs sub' = do
+        runBody [] _ _ = retVal undef
+        runBody vs sub' isFirst = do
             let (these, rest) = arity `splitAt` vs
-            callCC $ \esc -> genSymPrim "&redo" (const $ (runBody vs sub') >>= esc) $  \symRedo -> do
-                genSymCC "&next" $ \symNext -> do
-                    apply (updateSubPad sub' (symRedo . symNext)) Nothing $
-                        map (Val . VRef . MkRef) these
-                runBody rest sub'
-    genSymCC "&last" $ \symLast -> do
-        let munge sub | subParams sub == [defaultArrayParam] =
-                munge sub{ subParams = [defaultScalarParam] }
-            munge sub = updateSubPad sub symLast
-        runBody elms $ munge sub
+                realSub
+                    = (if null rest then (`afterLeave` subLastBlocks) else id)
+                    . (`beforeLeave` subNextBlocks)
+                    $ if isFirst then sub' `beforeEnter` subFirstBlocks else sub'
+            rv <- apply realSub Nothing $ map (Val . VRef . MkRef) these
+            case rv of
+                VControl (ControlLoop LoopRedo) -> runBody vs sub' isFirst
+                VControl (ControlLoop LoopLast) -> retVal undef
+                _                               -> runBody rest sub' False
+    runBody elms sub True
 
 reduceSyn "gather" [exp] = do
     sub     <- fromVal =<< evalExp exp
@@ -509,54 +499,44 @@ reduceSyn "gather" [exp] = do
     apply (updateSubPad sub symTake) Nothing []
     fmap VList $ readIVar av
 
-reduceSyn "loop" exps = do
+reduceSyn "loop" exps = enterLoop $ do
     let [pre, cond, post, body] = case exps of { [_] -> exps'; _ -> exps }
         exps' = [emptyExp, Val (VBool True), emptyExp] ++ exps
         evalCond | unwrap cond == Noop = return True
                  | otherwise = fromVal =<< enterEvalContext (cxtItem "Bool") cond
+    sub     <- fromVal =<< (enterRValue $ enterEvalContext (cxtItem "Code") body)
     evalExp pre
-    vb  <- evalCond
-    if not vb then retEmpty else do
-    genSymCC "&last" $ \symLast -> enterLex [symLast] $ fix $ \runBody -> do
-        -- genSymPrim "&redo" (const $ runBody) $ \symRedo -> do
-        callCC $ \esc -> genSymPrim "&redo" (const $ runBody >>= esc) $ \symRedo -> do
-        let runNext = do
-            valPost <- evalExp post
-            vb      <- evalCond
-            trapVal valPost $ if vb then runBody else retEmpty
-        callCC $ \esc -> genSymPrim "&next" (const $ runNext >>= esc) $ \symNext -> do
-            valBody <- enterLex [symRedo, symNext] $ evalExp body
-            trapVal valBody $ runNext
+    vb      <- evalCond
+    if not vb then retEmpty else fix $ \runBody -> do
+        valBody <- apply (sub `beforeLeave` subNextBlocks) Nothing []
+        case valBody of
+            VControl (ControlLoop LoopRedo) -> runBody
+            VControl (ControlLoop LoopLast) -> retEmpty
+            _                               -> trapVal valBody $ do
+                valPost <- evalExp post
+                vb      <- evalCond
+                trapVal valPost $ if vb then runBody else retEmpty
 
-reduceSyn "postfix:given" [topic, body] = do
-    vtopic  <- fromVal =<< enterLValue (enterEvalContext cxtItemAny topic)
-    vsub    <- enterRValue $ enterEvalContext (cxtItem "Code") body
-    sub'    <- fromVal vsub
-    sub     <- case sub' of
-        VCode s -> return s
-        VList [] -> fail $ "Invalid codeblock for 'for': did you mean {;}?"
-        _ -> fail $ "Invalid codeblock for 'for'"
-    enterGiven vtopic $ enterEvalContext (cxtItem "Code") (subBody sub)
+reduceSyn "postfix:given" [topic, body] = enterGiven $ do
+    sub     <- fromCodeExp body
+    apply sub Nothing [App (_Var "&VAR") (Just topic) []]
 
-reduceSyn "given" [topic, body] = do
-    vtopic <- fromVal =<< enterLValue (enterEvalContext cxtItemAny topic)
-    enterGiven vtopic $ enterEvalContext (cxtItem "Code") body
+reduceSyn "given" [topic, body] = enterGiven $ do
+    sub     <- fromCodeExp body
+    apply sub Nothing [App (_Var "&VAR") (Just topic) []]
 
 reduceSyn "when" [match, body] = do
-    break  <- reduceVar $ cast "&?BLOCK_EXIT"
-    vbreak <- fromVal break
-    result <- reduce $ case unwrap match of
+    result  <- reduce $ case unwrap match of
         App _ (Just (Var var)) _ | var == cast "$_" -> match
         _ -> App (_Var "&*infix:~~") Nothing [(_Var "$_"), match]
-    rb     <- fromVal result
-    if rb
-        then enterWhen (subBody vbreak) $ apply vbreak Nothing [body]
-        else retVal undef
+    rb      <- fromVal result
+    if not rb then retEmpty else do
+        sub     <- fromCodeExp body
+        enterWhen $ apply sub Nothing []
 
 reduceSyn "default" [body] = do
-    break  <- reduceVar $ cast "&?BLOCK_EXIT"
-    vbreak <- fromVal break
-    enterWhen (subBody vbreak) $ apply vbreak Nothing [body]
+    sub     <- fromCodeExp body
+    enterWhen $ apply sub Nothing []
 
 reduceSyn name [cond, body]
     | "while" <- name = doWhileUntil id False
@@ -566,29 +546,32 @@ reduceSyn name [cond, body]
     where
     -- XXX The "first" loop should be merged into the normal runloop
     doWhileUntil :: (Bool -> Bool) -> Bool -> Eval Val
-    doWhileUntil f postloop = genSymCC "&last" $ \symLast -> do
-        sub <- fromVal =<< (enterRValue $ enterEvalContext (cxtItem "Code") body)
-        rv  <- if not postloop then retEmpty else genSymCC "&next" $ \symNext -> fix $ \runBody -> do
-            callCC $ \esc -> genSymPrim "&redo" (const $ runBody >>= esc) $ \symRedo -> do
-                apply (updateSubPad sub (symRedo . symNext . symLast)) Nothing [Val $ castV undef]
+    doWhileUntil f postloop = enterLoop $ do
+        origSub <- fromVal =<< (enterRValue $ enterEvalContext (cxtItem "Code") body)
+        let sub = origSub `beforeLeave` subNextBlocks
+        rv  <- if not postloop then retEmpty else fix $ \runBody -> do
+            rv <- apply sub Nothing [Val $ castV undef]
+            case rv of
+                VControl (ControlLoop LoopRedo) -> runBody
+                _                               -> return rv
         case rv of
-            VError{}    -> retVal rv
-            _           -> do
-                runBlocksIn sub subNextBlocks
+            VError{}                        -> retVal rv
+            VControl (ControlLoop LoopLast) -> retEmpty
+            _                               -> do
                 ($ rv) . fix $ \runLoop prev -> do
                     vbool <- enterEvalContext (cxtItem "Bool") cond
                     vb    <- fromVal vbool
-                    if (not $ f vb) then retVal prev else fix $ \runBody -> do
-                        callCC $ \esc -> genSymPrim "&redo" (const $ runBody >>= esc) $  \symRedo -> do
-                            genSymCC "&next" $ \symNext -> do
-                                rv <- apply (updateSubPad sub (symRedo . symNext . symLast)) Nothing [Val vbool]
-                                case rv of
-                                    VError{}    -> retVal rv
-                                    _           -> do
-                                        runBlocksIn sub subNextBlocks
-                                        runLoop prev
-    runBlocksIn MkCode{ subBody = Syn "block" [Val (VCode cv')] } f = runBlocksIn cv' f
-    runBlocksIn cv f = mapM_ (reduceSyn "block" . (:[]) . Syn "sub" . (:[]) . Val . castV) (f cv)
+                    if f vb
+                        then fix $ \runBody -> do
+                            rv <- apply sub Nothing [Val vbool]
+                            case rv of
+                                VControl (ControlLoop LoopRedo) -> runBody
+                                VControl (ControlLoop LoopLast) -> retVal prev
+                                VError{}    -> retVal rv
+                                _           -> runLoop prev
+                        else case prev of
+                            VControl ControlLoop{}  -> retEmpty
+                            _                       -> retVal rv
 
 reduceSyn "=" [lhs, rhs] = do
     refVal  <- enterLValue $ evalExp lhs
@@ -907,7 +890,9 @@ reduceApp (Var var) invs args
     | var == cast "&VAR" = do
         res <- forM (maybeToList invs ++ args) $ \exp -> do
             enterLValue (enterEvalContext cxtItemAny exp)
-        return $ VList res
+        case res of
+            [x] -> return x
+            _   -> return $ VList res
     | var == cast "&hash" = do
         enterEvalContext cxtItemAny $ Syn "\\{}" [Syn "," $ maybeToList invs ++ args]
     | var == cast "&list" = do
@@ -937,10 +922,11 @@ reduceApp (Var var) invs args
         retVal val
     -- XXX absolutely evil bloody hack for "return"
     | var == cast "&return" = do
-        op1Return . shiftT . const $ case maybeToList invs ++ args of
-            []      -> retEmpty
-            [arg]   -> evalExp arg
-            args    -> evalExp (Syn "," args)
+        op1Return . shiftT . const . fmap (VControl . ControlLeave (<= SubRoutine) 0) $ 
+            case maybeToList invs ++ args of
+                []      -> retEmpty
+                [arg]   -> evalExp arg
+                args    -> evalExp (Syn "," args)
     -- XXX absolutely evil bloody hack for "goto"
     | var == cast "&goto", Just subExp <- invs = do
         vsub <- enterEvalContext (cxtItem "Code") subExp
@@ -1321,19 +1307,18 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
                         "Too many slurpy arguments for " ++ cast (subName sub) ++ ": "
                         ++ show ((genericLength (take 1000 extra)) + n) ++ " actual, "
                         ++ show n ++ " expected"
-            enterScope $ do
-                (syms, bound) <- doBind [] (subBindings sub)
-                -- trace (show bound) $ return ()
-                val <- local fixEnv $ enterLex syms $ do
-                    (`juncApply` bound) $ \realBound -> do
-                        enterSub sub $ case cont of
-                            Just tvar   -> do
-                                thunk <- liftSTM $ readTVar tvar
-                                applyThunk (subType sub) realBound thunk
-                            Nothing     -> applyExp (subType sub) realBound fun
-                case typ of 
-                    SubMacro    -> applyMacroResult val 
-                    _           -> retVal val
+            (syms, bound) <- doBind [] (subBindings sub)
+            -- trace (show bound) $ return ()
+            val <- local fixEnv $ enterLex syms $ do
+                (`juncApply` bound) $ \realBound -> do
+                    enterSub sub $ case cont of
+                        Just tvar   -> do
+                            thunk <- liftSTM $ readTVar tvar
+                            applyThunk (subType sub) realBound thunk
+                        Nothing     -> applyExp (subType sub) realBound fun
+            case typ of 
+                SubMacro    -> applyMacroResult val 
+                _           -> retVal val
     where
     applyMacroResult :: Val -> Eval Val
     applyMacroResult (VObject o)
@@ -1342,10 +1327,6 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
     applyMacroResult code@VCode{}   = reduceApp (Val code) Nothing []
     applyMacroResult VUndef         = retEmpty
     applyMacroResult _              = fail "Macro did not return an AST, a Str or a Code!"
-    enterScope :: Eval Val -> Eval Val
-    enterScope
-        | typ >= SubBlock = id
-        | otherwise       = resetT
     fixSub MkCode{ subType = SubPrim } env = env
     fixSub sub env = env
         { envLexical = subPad sub
@@ -1458,3 +1439,20 @@ mkFetch f v = do
     v' <- fromVal v
     f' v'
 
+afterLeave :: VCode -> (VCode -> [VCode]) -> VCode
+afterLeave code@MkCode{ subBody = Syn "block" [Val (VCode code')] } f =
+    code{ subBody = Syn "block" [Val (VCode (afterLeave code' f))] }
+afterLeave code f = code{ subLeaveBlocks = subLeaveBlocks code ++ f code }
+
+beforeLeave :: VCode -> (VCode -> [VCode]) -> VCode
+beforeLeave code@MkCode{ subBody = Syn "block" [Val (VCode code')] } f =
+    code{ subBody = Syn "block" [Val (VCode (afterLeave code' f))] }
+beforeLeave code f = code{ subLeaveBlocks = f code ++ subLeaveBlocks code }
+
+beforeEnter :: VCode -> (VCode -> [VCode]) -> VCode
+beforeEnter code@MkCode{ subBody = Syn "block" [Val (VCode code')] } f =
+    code{ subBody = Syn "block" [Val (VCode (beforeEnter code' f))] }
+beforeEnter code f = code{ subEnterBlocks = f code ++ subEnterBlocks code }
+
+fromCodeExp :: Exp -> Eval VCode
+fromCodeExp = (fromVal =<<) . enterRValue . enterEvalContext (cxtItem "Code")
