@@ -10,7 +10,8 @@ package Pugs::Emitter::Perl6::Perl5::Scalar;
     );
 
     sub WHAT { 
-        $_[0]->node( 'str', 'Scalar' );
+        $_[0]->node( 'StrExpression',
+                'Pugs::Runtime::Perl6::Scalar::ref( \\'. $_[0] . ')' );
     }
 
 sub isa { 
@@ -28,14 +29,19 @@ sub set {
     return $self->name . ' = ' . $_[1]->hash->get;
 }
 
-sub str {
-    return $_[0]->node( 'StrExpression', '( "" . ' . $_[0] . ' )' )
-}
-
-sub perl {
-    # TODO
-}
+    sub perl {
+        $_[0]->node( 'StrExpression',
+                'Pugs::Runtime::Perl6::Scalar::perl( '. $_[0] . ')' );
+    }
     
+    sub yaml {
+        $_[0]->node( 'StrExpression',
+                'Pugs::Runtime::Perl6::Scalar::yaml( '. $_[0] . ')' );
+    }
+    sub str {
+        return $_[0]->node( 'StrExpression', '( "" . ' . $_[0] . ' )' )
+    }
+
 sub defined {
     # TODO
 }

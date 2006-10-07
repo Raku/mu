@@ -29,65 +29,15 @@ sub set {
 }
 
 sub str {
-    # TODO
+    $_[0]->node( 'StrExpression', '( "" . ' . $_[0] . ' )' );
 }
 
 sub perl {
-    # TODO
+    $_[0]->node( 'StrExpression', 'Pugs::Runtime::Perl6::Scalar::perl( ' . $_[0] . ' )' );
 }
     
 sub defined {
     'defined ' . $_[0];
-}
-
-sub kv {
-    my $tmp = "( map { ( \$_, ".$_[0]->name."[\$_] ) } 0..".$_[0]->name."-1 )"; 
-    return ( CORE::ref( $_[0] ) )->new( { name => $tmp } );
-}
-
-sub keys {
-    my $tmp = "( 0..".$_[0]->name."-1 )"; 
-    return ( CORE::ref( $_[0] ) )->new( { name => $tmp } );
-}
-
-sub values {
-    return $_[0]->name; 
-} 
-
-sub elems {
-    'scalar ' . $_[0]->name;
-}
-
-sub exists {
-    'exists ' . $_[0] . '[' . $_[1] . ']';
-}
-
-sub delete {
-    'delete ' . $_[0] . '[' . $_[1] . ']';
-}
-
-sub hash {
-    $_[0]->node( 'Perl5Hash', '%{{' . $_[0]->name . '}}' );
-}
-
-sub array {
-    $_[0]->name;
-}
-
-sub scalar {
-    my $tmp = $_[0]->name;
-    if ( $tmp =~ /^ \@\{ (\[  .*  \]) \} $/x ) {
-        return $_[0]->node( 'Scalar', "bless $1, 'Pugs::Runtime::Perl6::Array'" );        
-    }
-    return $_[0]->node( 'Scalar', 'bless \\' . $_[0]->name . ", 'Pugs::Runtime::Perl6::Array'" );
-}
-
-sub _91__93_ {
-    # .[]
-    my $self = $_[0];
-    my $other = $self->other_get( $_[1] );
-    return $_[0] unless $other;  # TODO
-    return $self . '[' . $other . ']';
 }
 
 sub print {

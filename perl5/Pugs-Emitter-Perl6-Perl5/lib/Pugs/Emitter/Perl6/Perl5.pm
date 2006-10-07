@@ -121,7 +121,7 @@ sub emit {
     my ($grammar, $ast) = @_;
     # runtime parameters: $grammar, $string, $state, $arg_list
     # rule parameters: see Runtime::Rule.pm
-    warn Pugs::Runtime::Perl6::perl( $ast )
+    warn Pugs::Runtime::Perl6::Scalar::perl( $ast )
         if $ENV{V6DUMPAST}; 
     return _emit( $ast );
         #"do{\n" .
@@ -764,7 +764,7 @@ sub default {
             return " print '', $s" . ', "\n"';
         }
         if ( $n->{method}{dot_bareword} eq 'perl' ) {
-            return 'Pugs::Runtime::Perl6::perl' . emit_parenthesis( $n->{self} );
+            return 'Pugs::Runtime::Perl6::Scalar::perl' . emit_parenthesis( $n->{self} );
         }
         if ( $n->{method}{dot_bareword} eq 'yaml' ) {
             return 'Pugs::Runtime::Perl6::Scalar::yaml' . emit_parenthesis( $n->{self} );
