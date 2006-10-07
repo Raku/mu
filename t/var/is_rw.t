@@ -29,12 +29,12 @@ plan 6;
   my %hash = (a => 23);
   # First check .value = ... works (as this is a dependency for the next test)
   try { %hash.pairs[0].value = 42 };
-  is %hash<a>, 42, "pairs are mutable", :todo<feature>;
+  is %hash<a>, 42, "pairs are mutable";
 
   for %hash.pairs -> $pair {     # Note: No "is rw"!
     try { $pair.value += 100 };  # Modifies %hash
   }
-  is %hash<a>, 142, "'is rw' not necessary on objects/references", :todo<feature>;
+  is %hash<a>, 142, "'is rw' not necessary on objects/references";
 }
 
 # for ... -> ... is rw {...} already tested for in t/statements/for.t.

@@ -78,9 +78,9 @@ Basic C<pairs> tests, see S29.
 
     lives_ok { for %hash.pairs -> $pair {
         $pair.value += 100;
-    } }, 'aliases returned by %hash.pairs should be rw (1)', :todo<bug>;
+    } }, 'aliases returned by %hash.pairs should be rw (1)';
 
-    is %hash<b>, 102, 'aliases returned by %hash.pairs should be rw (2)', :todo<bug>;
+    is %hash<b>, 102, 'aliases returned by %hash.pairs should be rw (2)';
 }
 
 {

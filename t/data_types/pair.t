@@ -118,7 +118,7 @@ my %hash  = ('foo' => 'bar');
 for  %hash.pairs -> $pair {
     isa_ok($pair,'Pair') ; 
     my $testpair = $pair;
-    isa_ok($testpair, 'Pair', :todo<bug>); # new lvalue variable is also a Pair
+    isa_ok($testpair, 'Pair'); # new lvalue variable is also a Pair
     my $boundpair := $pair;
     isa_ok($boundpair,'Pair'); # bound variable is also a Pair
     is($pair.key, 'foo', 'in for loop got the right $pair.key');

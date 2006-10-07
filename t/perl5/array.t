@@ -67,7 +67,7 @@ my $match = 0;
 lives_ok {
     $match = ?($retarray.[3] ~~ @array[3]);
 }, 'can retro fetch';
-ok $match, 'retro fetch', :todo<bug>;
+ok $match, 'retro fetch';
 
 # XXX - Infinite loop
 skip_rest; exit;
