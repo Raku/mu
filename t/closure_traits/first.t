@@ -41,5 +41,5 @@ plan 4;
         ENTER { $str ~= 'e' }
         FIRST { $str ~= 'f2' }
     }
-    is $str, 'f1f2e', 'FIRST {} ran before ENTER {}';
+    is $str, 'f1f2ee', 'FIRST {} ran before ENTER {}';
 }
