@@ -1222,7 +1222,7 @@ s_postIterate = rule "postfix iteration" $ do
     exp <- ruleExpression
     return $ \body -> do
         block <- retBlock SubBlock Nothing False body
-        return $ Syn ("postfix:" ++ cond) [exp, block]
+        return $ Syn cond [exp, block]
 
 ruleBareOrPointyBlockLiteralWithoutDefaultParams :: RuleParser Exp
 ruleBareOrPointyBlockLiteralWithoutDefaultParams = rule "bare or pointy block construct" $ do
