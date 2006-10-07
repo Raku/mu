@@ -15,7 +15,7 @@
 module Pugs.Monads (
     enterLValue, enterRValue,
     enterLex, enterContext, enterEvalContext, enterPackage, enterCaller,
-    enterGiven, enterWhen, enterWhile, genSymPrim, genSymCC,
+    enterGiven, enterWhen, enterLoop, genSymPrim, genSymCC,
     enterBlock, enterSub, envEnterCaller,
     evalVal, tempVar,
     
@@ -24,7 +24,7 @@ module Pugs.Monads (
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
-import Control.Monad.RWS
+import Control.Monad.RWS (MonadPlus(..))
 import qualified Data.Map as Map
 
 
@@ -105,7 +105,7 @@ envEnterCaller env = env
     { envCaller = Just env
         { envLexical = MkPad (lex `Map.intersection` envImplicit env)
         }
-    , envDepth = envDepth env + 1
+    , envDepth = (FrameRoutine:envDepth env)
     , envImplicit = Map.fromList [(cast "$_", ())]
     }
     where
@@ -117,57 +117,31 @@ the specified evaluation in that scope.
 
 Used by "Pugs.Eval"'s implementation of 'Pugs.Eval.reduce' for @\"given\"@.
 -}
-enterGiven :: VRef   -- ^ Reference to the value to topicalise
-           -> Eval a -- ^ Action to perform within the new scope
+enterGiven :: Eval a -- ^ Action to perform within the new scope
            -> Eval a
-enterGiven topic action = do
-    sym <- genSym (cast "$_") topic
-    enterLex [sym] action
+enterGiven = local (\e -> e{ envDepth = (FrameGiven:envDepth e) })
 
 {-|
-Bind @&continue@ and @&break@ to subs that break out of the @when@ body
-and topicalising block respectively, then perform the given evaluation
-in the new lexical scope.
-
 Note that this function is /not/ responsible for performing the actual @when@
 test, nor is it responsible for adding the implicit @break@ to the end of the
 @when@'s block--those are already taken care of by 'Pugs.Eval.reduce'
 (see the entry for @('Syn' \"when\" ... )@).
 -}
-enterWhen :: Exp      -- ^ The expression that @&break@ should be bound to
-          -> Eval Val -- ^ The @when@'s body block, as an evaluation
+enterWhen :: Eval Val -- ^ The @when@'s body block, as an evaluation
           -> Eval Val
-enterWhen break action = callCC $ \esc -> do
-    env <- ask
-    contRec  <- genSubs env "&continue" $ continueSub esc
-    breakRec <- genSubs env "&break" $ breakSub
-    enterLex (contRec ++ breakRec) action
-    where
-    continueSub esc env = mkPrim
-        { subName = __"continue"
-        , subParams = makeParams env
-        , subBody = Prim ((esc =<<) . headVal)
-        }
-    breakSub env = mkPrim
-        { subName = __"break"
-        , subParams = makeParams env
-        , subBody = break
-        }
+enterWhen action = do
+    rv  <- action
+    case rv of
+        VControl (ControlGiven GivenContinue)   -> retEmpty
+        VControl (ControlGiven GivenBreak)      -> retShiftEmpty
+        _                                       -> retShift rv
 
 {-|
-Bind @&last@ and @&next@ to subs that respectively break-out-of and repeat the 
-@while@\/@until@, then perform the given evaluation in the new lexical scope.
-
-Note that this function is /not/ responsible for performing the actual
-@while@\/@until@ test; it is the responsibility of the caller to add such a
-test to the top of the body evaluation.
+Register the fact that we are inside a loop block.
 -}
-enterWhile :: Eval Val -- ^ Evaluation representing loop test & body
-           -> Eval Val
-enterWhile action = genSymCC "&last" $ \symLast -> do
-    -- genSymPrim "&next" (const action) $ \symNext -> do
-    callCC $ \esc -> genSymPrim "&next" (const $ action >>= esc) $ \symNext -> do
-        enterLex [symLast, symNext] action
+enterLoop :: Eval Val -- ^ Evaluation representing loop test & body
+          -> Eval Val
+enterLoop = local (\e -> e{ envDepth = (FrameLoop:envDepth e) })
 
 {-|
 Generate a new Perl 6 operation from a Haskell function, give it a name, and
@@ -215,39 +189,55 @@ genSymCC symName action = callCC $ \esc -> do
     genSymPrim symName (const $ esc undef) action
 
 {-|
-Create a Perl 6 @&?BLOCK_EXIT@ function that, when activated, breaks out of
-the block scope by activating the current continuation. The block body
-evaluation is then performed in a new lexical scope with @&?BLOCK_EXIT@
-installed.
-
 Used by 'Pugs.Eval.reduce' when evaluating @('Syn' \"block\" ... )@ 
 expressions.
 -}
 enterBlock :: Eval Val -> Eval Val
-enterBlock action = callCC $ \esc -> do
-    env <- ask
-    exitRec <- genSubs env "&?BLOCK_EXIT" $ escSub esc
-    local (\e -> e{ envOuter = Just env }) $ enterLex exitRec action
-    where
-    escSub esc env = mkPrim
-        { subName = __"BLOCK_EXIT"
-        , subParams = makeParams env
-        , subBody = Prim ((esc =<<) . headVal)
-        }
+enterBlock action = local (\e -> e{ envOuter = Just e }) action
 
 enterSub :: VCode -> Eval Val -> Eval Val
 enterSub sub action
-    | typ >= SubPrim = action -- primitives just happen
+    | typ >= SubPrim = runAction -- primitives just happen
     | otherwise     = do
         env <- ask
-        if typ >= SubBlock
-            then do
+        rv  <- if typ >= SubBlock
+            then resetT $ do
                 doFix <- fixEnv return env
-                local doFix action
-            else resetT $ callCC $ \cc -> do
+                local doFix runAction
+            else resetT . callCC $ \cc -> do
                 doFix <- fixEnv cc env
-                local doFix action
+                local doFix runAction
+        runBlocks (filter (rejectKeepUndo rv . subName) . subLeaveBlocks)
+
+        when (rv == VControl (ControlLoop LoopLast)) $
+            -- We won't have a chance to run the LAST block
+            -- once we exit outside the lexical block, so do it now
+            runBlocks subLastBlocks
+
+        assertBlocks subPostBlocks "POST"
+        case rv of
+            VControl l@(ControlLeave ftyp depth val) -> do
+                let depth' = if ftyp typ then depth - 1 else depth
+                if depth' < 0
+                    then return val
+                    else retControl l{ leaveDepth = depth' }
+            VControl ControlExit{} -> retShift rv
+            _ -> return rv
     where
+    rejectKeepUndo VUndef     = (/= __"KEEP")
+    rejectKeepUndo (VControl (ControlLeave _ _ val)) = \n -> rejectKeepUndo val n && (n /= __"NEXT")
+    rejectKeepUndo (VControl (ControlLoop LoopNext)) = (/= __"KEEP")
+    rejectKeepUndo VControl{} = \n -> (n /= __"KEEP") && (n /= __"NEXT")
+    rejectKeepUndo VError{}   = \n -> (n /= __"KEEP") && (n /= __"NEXT")
+    rejectKeepUndo _          = (/= __"UNDO")
+    runAction = do
+        assertBlocks subPreBlocks "PRE"
+        runBlocks subEnterBlocks
+        action
+    runBlocks f = mapM_ (evalExp . Syn "block" . (:[]) . Syn "sub" . (:[]) . Val . castV) (f sub)
+    assertBlocks f name = forM_ (f sub) $ \cv -> do
+        rv <- fromVal =<< (evalExp . Syn "block" . (:[]) . Syn "sub" . (:[]) . Val . castV $ cv)
+        if rv then return () else retError (name ++ " assertion failed") (subName sub)
     typ = subType sub
     doCC :: (Val -> Eval b) -> [Val] -> Eval b
     doCC cc [v] = cc =<< evalVal v
@@ -321,10 +311,6 @@ evalVal val = do
             evalVal =<< readRef ref
         _ -> do
             return val
-
-headVal :: [Val] -> Eval Val
-headVal []    = retEmpty
-headVal (v:_) = return v
 
 tempVar :: Var -> Val -> Eval a -> Eval a
 tempVar var val action = do
