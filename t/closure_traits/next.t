@@ -125,8 +125,8 @@ plan 13;
     my $n = 0;
     my $i;
     while $n < 5 {
-        NEXT { $str ~= $n }
-        NEXT { ++$n }
+        NEXT { ++$n }       # this gets run second (LIFO)
+        NEXT { $str ~= $n } # this gets run first (LIFO)
         last if $i++ > 100; # recursion prevension
     }
     is $str, '01234', 'NEXT {} ran in reversed order';
