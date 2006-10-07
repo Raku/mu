@@ -14,7 +14,7 @@ use_ok('Automata::Cellular', 'Automata::Cellular loaded');
 
     my Automata::Cellular $ca .= new(:@state, :$rule, :$steps, :$display_width);
 
-    is($ca ~~ Automata::Cellular, Bool::True, '$ca object instantiated');
+    is($ca ~~ ::Automata::Cellular, Bool::True, '$ca object instantiated');
 
     is($ca.stage,  1,                   'instantiated with stage 0');
     is($ca.state,  '0 0 0 0 1 0 0 0 0', 'correct initial state');
