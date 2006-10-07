@@ -20,6 +20,7 @@ module Pugs.AST.Internals (
     VRef(..), -- uses IVar
     VOpaque(..), -- uses Value
     VControl(..), -- uses Env, Eval, Val
+    ControlLoop(..), ControlGiven(..), Frame(..),
     VScalar, -- uses Val
     VPair, -- uses Val
     VList, -- uses Val
@@ -60,7 +61,7 @@ module Pugs.AST.Internals (
     scalarRef, codeRef, arrayRef, hashRef, thunkRef, pairRef,
     newScalar, newArray, newHash, newHandle, newObject,
     proxyScalar, constScalar, lazyScalar, lazyUndef, constArray,
-    retError, retControl, retEmpty, retIVar, readIVar, writeIVar,
+    retError, retControl, retShift, retShiftEmpty, retEmpty, retIVar, readIVar, writeIVar,
     fromVals, refType,
     refreshPad, lookupPad, padToList, listToPad,
     mkPrim, mkSub, mkCode, showRat, showTrueRat,
@@ -798,7 +799,25 @@ type VBlock = Exp
 data VControl
     = ControlExit  !ExitCode
     | ControlEnv   !Env
+    | ControlLoop  !ControlLoop
+    | ControlGiven !ControlGiven
+    | ControlLeave
+        { leaveType     :: !(SubType -> Bool)
+        , leaveDepth    :: !Int
+        , leaveValue    :: !Val
+        }
 -- \| ControlLeave !(Env -> Eval Bool) !Val
+    deriving (Show, Eq, Ord, Typeable) -- don't derive YAML for now
+
+data ControlLoop
+    = LoopNext
+    | LoopRedo
+    | LoopLast
+    deriving (Show, Eq, Ord, Typeable) -- don't derive YAML for now
+
+data ControlGiven
+    = GivenContinue
+    | GivenBreak
     deriving (Show, Eq, Ord, Typeable) -- don't derive YAML for now
 
 {-|
@@ -814,7 +833,7 @@ data SubType = SubMethod    -- ^ Method
              | SubMacro     -- ^ Macro
              | SubRoutine   -- ^ Regular subroutine
              | SubBlock     -- ^ Bare block
-             | SubPointy    -- ^ Pointy sub
+             | SubPointy    -- ^ Pointy block
              | SubPrim      -- ^ Built-in primitive operator (see "Pugs.Prim")
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, JSON, Perl5!-}
 
@@ -1240,7 +1259,7 @@ data Env = MkEnv
     , envCaller  :: !(Maybe Env)         -- ^ Caller's "env" pad
     , envOuter   :: !(Maybe Env)         -- ^ Outer block's env
     , envBody    :: !Exp                 -- ^ Current AST expression
-    , envDepth   :: !Int                 -- ^ Recursion depth
+    , envDepth   :: ![Frame]             -- ^ Recursion depth
     , envDebug   :: !DebugInfo           -- ^ Debug info map
     , envPos     :: !Pos                 -- ^ Source position range
     , envPragmas :: ![Pragma]            -- ^ List of pragmas in effect
@@ -1248,6 +1267,12 @@ data Env = MkEnv
     , envMaxId   :: !(TVar ObjectId)     -- ^ Current max object id
     , envAtomic  :: !Bool                -- ^ Are we in an atomic transaction?
     } 
+    deriving (Show, Eq, Ord, Typeable) -- don't derive YAML for now
+
+data Frame
+    = FrameLoop
+    | FrameGiven
+    | FrameRoutine
     deriving (Show, Eq, Ord, Typeable) -- don't derive YAML for now
 
 envPos' :: Env -> Pos
@@ -1409,7 +1434,7 @@ mkCompUnit :: String -> Pad -> Exp -> CompUnit
 mkCompUnit _ pad ast = MkCompUnit compUnitVersion pad ast
 
 compUnitVersion :: Int
-compUnitVersion = 6
+compUnitVersion = 7
 
 {-|
 Retrieve the global 'Pad' from the current evaluation environment.
@@ -1458,6 +1483,12 @@ emptyExp = Noop
 
 retControl :: VControl -> Eval a
 retControl c = shiftT $ const (return $ VControl c)
+
+retShift :: Val -> Eval a
+retShift = shiftT . const . return
+
+retShiftEmpty :: Eval a
+retShiftEmpty = shiftT (const retEmpty)
 
 defined :: VScalar -> Bool
 defined VUndef  = False
@@ -1849,7 +1880,7 @@ _FakeEnv = unsafePerformIO $ liftSTM $ do
         , envEval    = const (return VUndef)
         , envCaller  = Nothing
         , envOuter   = Nothing
-        , envDepth   = 0
+        , envDepth   = []
         , envBody    = Val undef
         , envDebug   = Just ref -- Set to "Nothing" to disable debugging
         , envPos     = MkPos "<null>" 1 1 1 1
