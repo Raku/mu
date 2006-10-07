@@ -10,7 +10,7 @@ plan 10;
 {
     my $str;
     my sub is_pos ($n) {
-        return ($n > 0);
+        return (($n > 0) ?? 1 !! undef);
         KEEP { $str ~= "$n > 0 " }
         UNDO { $str ~= "$n <= 0 " }
     }
@@ -30,7 +30,7 @@ plan 10;
 {
     my $str;
     my sub is_pos($n) {
-        return $n > 0;
+        return (($n > 0) ?? 1 !! undef);
         LEAVE { $str ~= ")" }
         KEEP { $str ~= "$n > 0" }
         UNDO { $str ~= "$n <= 0" }
@@ -38,10 +38,10 @@ plan 10;
     }
 
     is_pos(1);
-    is $str, '(1 > 0)';
+    is $str, '(1 > 0)', 'KEEP triggered as part of LEAVE blocks';
 
     is_pos(-5);
-    is $str, '(1 > 0)(-5 <= 0)';
+    is $str, '(1 > 0)(-5 <= 0)', 'UNDO triggered as part of LEAVE blocks';
 }
 
 # L<S04/Closure traits/"can occur multiple times">
@@ -66,7 +66,6 @@ plan 10;
         KEEP { $str ~= 'K2 ' }
         UNDO { $str ~= 'U1 ' }
         UNDO { $str ~= 'U2 ' }
-        0;
     }
     is $str, 'U2 U1 ', '2 UNDO blocks triggered';
 }
