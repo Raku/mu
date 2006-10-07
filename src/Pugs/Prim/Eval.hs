@@ -16,6 +16,7 @@ import Pugs.Internals
 import Pugs.Pretty
 import Pugs.Config
 import Pugs.Prim.Keyed
+import Pugs.Types
 import DrIFT.YAML
 import Data.Yaml.Syck
 
@@ -153,6 +154,10 @@ opEval style path str = enterCaller $ do
     env'    <- liftIO $ evaluateIO (parseProgram env path str) `catchIO` errHandler
     val     <- resetT $ local (const env') $ do
         evl <- asks envEval
+        initAV   <- evalExp (_Var "@*INIT")
+        initSubs <- fromVals initAV
+        mapM_ evalExp [ Ann (Cxt CxtVoid) (App (Val sub) Nothing []) | sub@VCode{} <- initSubs ]
+        evalExp (Syn "=" [_Var "@*INIT", Syn "," []])
         evl $ case evalResult style of
             EvalResultEnv   -> envBody env' `mergeStmts` Syn "env" []
             _               -> envBody env'
