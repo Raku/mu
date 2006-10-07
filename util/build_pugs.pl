@@ -337,8 +337,9 @@ sub build_lib {
 
     # Remove all -boot files since GHC 6.4 doesn't track them.
     # This is not needed for GHC 6.5 which doesn't produce them anyway.
+    # Also, remove Version.o and Version.hi so -v will report correctly.
     my $wanted = sub {
-        return unless $_ =~ /-boot$/;
+        return unless $_ =~ /-boot$/ or $_ =~ /Version\.\w+$/;
         unlink $_;
     };
     find $wanted, "dist/build";
@@ -452,12 +453,18 @@ sub build_exe {
 
     push @pkgs, "-package" => "Pugs"; #-$version";
 
-    @_ = ('--make', @pkgs, qw(-optl-Lthird-party/installed -o ), $out, qw( src/Main.hs ), @libs);
+    @_ = ('--make', @pkgs, qw(-optl-Lthird-party/installed -o ), "$out.new", qw( src/Main.hs ), @libs);
     #@_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -o pugs src/Main.hs), @libs);
     print "*** Building: ", join(' ', $ghc, @_), $/;
     system $ghc, @_;
 
-    die "Build failed: $?" unless -e $out;
+    die "Build failed: $?" unless -e "$out.new";
+
+    if (-e $out) {
+        unlink $out or die "Cannot remove $out: $!";
+    }
+
+    rename "$out.new" => $out;
 }
 
 sub write_buildinfo { 
