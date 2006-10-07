@@ -205,12 +205,12 @@ mergeStmts x@(Ann ann (Syn syn _)) y | isImplicitTopic syn =
     mergeStmts (Ann ann (App (_Var "&infix:~~") Nothing [_Var "$_", x])) y
 mergeStmts x y@(Ann ann (Syn syn _)) | isImplicitTopic syn =
     mergeStmts x (Ann ann (App (_Var "&infix:~~") Nothing [_Var "$_", y]))
-mergeStmts (Ann ann (Syn "sub" [Val (VCode sub)])) y | subType sub == SubBlock =
+mergeStmts x@(Ann _ (Syn "sub" [Val (VCode sub)])) y | subType sub == SubBlock =
     -- bare Block in statement level; annul all its parameters and run it!
-    mergeStmts (Ann ann $ subBody sub) y
-mergeStmts x (Ann ann (Syn "sub" [Val (VCode sub)])) | subType sub == SubBlock =
+    mergeStmts (Syn "block" [x]) y
+mergeStmts x y@(Ann _ (Syn "sub" [Val (VCode sub)])) | subType sub == SubBlock =
     -- bare Block in statement level; annul all its parameters and run it!
-    mergeStmts x (Ann ann $ subBody sub)
+    mergeStmts x (Syn "block" [y])
 mergeStmts x (Stmts y Noop) = mergeStmts x y
 mergeStmts x (Stmts Noop y) = mergeStmts x y
 mergeStmts x y = Stmts x y
@@ -281,7 +281,7 @@ newMetaType name = _Sym SGlobal ('&':'&':'*':termName) $! Syn ":="
 typeMacro :: String -> Exp -> Exp
 typeMacro name exp = Syn "sub" . (:[]) . Val . VCode $ MkCode
     { isMulti       = True
-    , subName       = cast ("&term:" ++ name)
+    , subName       = cast name
     , subEnv        = Nothing
     , subType       = SubMacro
     , subAssoc      = ANil
@@ -351,7 +351,7 @@ _reserved = Set.fromList . cast . words $
     "@*ARGS @*INC %*INC $*PUGS_HAS_HSPLUGINS $*EXECUTABLE_NAME " ++
     "$*PROGRAM_NAME $*PID $*UID $*EUID $*GID $*EGID @*CHECK @*INIT $*IN " ++
     "$*OUT $*ERR $*ARGS $/ %*ENV $*CWD @=POD $=POD $?PUGS_VERSION " ++
-    "$*OS &?BLOCK_EXIT %?CONFIG $*_ $*AUTOLOAD $*PUGS_VERSION"
+    "$*OS %?CONFIG $*_ $*AUTOLOAD $*PUGS_VERSION"
 
 typeOfParam :: Param -> Type
 typeOfParam p = case v_sigil (paramName p) of
