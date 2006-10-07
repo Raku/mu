@@ -320,13 +320,31 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     -- XXX - We have the prototype now; install it immediately?
 
     -- bodyPos <- getPosition
-    body    <- ruleBlock
+    body    <- localEnv ruleBlock
     let (fun, names, params) = doExtract styp formal body
     -- Check for placeholder vs formal parameters
     when (isJust formal && (not.null) names) $
         fail "Cannot mix placeholder variables with formal parameters"
     env <- ask
-    let sub = VCode $ mkCode
+    let pkg = cast (envPackage env)
+        nameQualified | ':' `elem` name     = name
+                      | scope <= SMy        = name
+                      | isGlobal            = name
+                      | isBuiltin           = (head name:'*':tail name)
+                      | otherwise           = (head name:pkg) ++ "::" ++ tail name
+        self :: [Param]
+        self | styp > SubMethod = []
+             | (prm:_) <- params, isInvocant prm = []
+             | otherwise = [selfParam . cast $ envPackage env]
+        var = cast nameQualified
+        -- Horrible hack! _Sym "&&" is the multi form.
+        mkMulti | isMulti   = ('&':)
+                | otherwise = id
+        isGlobal = '*' `elem` name
+        isBuiltin = ("builtin" `elem` traits)
+        isExported = ("export" `elem` traits)
+
+    sub <- fmap VCode . collectTraits $ mkCode
             { isMulti       = isMulti
             , subName       = cast nameQualified
             , subEnv        = Just env
@@ -343,25 +361,9 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subBody       = fun
             , subCont       = Nothing
             }
-        pkg = cast (envPackage env)
-        nameQualified | ':' `elem` name     = name
-                      | scope <= SMy        = name
-                      | isGlobal            = name
-                      | isBuiltin           = (head name:'*':tail name)
-                      | otherwise           = (head name:pkg) ++ "::" ++ tail name
-        self :: [Param]
-        self | styp > SubMethod = []
-             | (prm:_) <- params, isInvocant prm = []
-             | otherwise = [selfParam . cast $ envPackage env]
-        var = cast nameQualified
-        mkExp n = Syn ":=" [_Var n, Syn "sub" [Val sub]]
+
+    let mkExp n = Syn ":=" [_Var n, Syn "sub" [Val sub]]
         mkSym n = _Sym scope (mkMulti n) (mkExp n)
-        -- Horrible hack! _Sym "&&" is the multi form.
-        mkMulti | isMulti   = ('&':)
-                | otherwise = id
-        isGlobal = '*' `elem` name
-        isBuiltin = ("builtin" `elem` traits)
-        isExported = ("export" `elem` traits)
         
     -- XXX this belongs in semantic analysis, not in the parser
     -- also, maybe we should only warn when you try to export an
@@ -1070,18 +1072,17 @@ ruleConstruct = rule "construct" $ choice
     , ruleCondConstruct
     , ruleWhileUntilConstruct
 --  , ruleStandaloneBlock
-    , ruleGivenConstruct
     , ruleWhenConstruct
     , ruleDefaultConstruct
     , yadaLiteral
     ]
 
 ruleForConstruct :: RuleParser Exp
-ruleForConstruct = rule "for construct" $ do
-    symbol "for"
+ruleForConstruct = rule "loop construct" $ do
+    sym     <- symbol "for" <|> symbol "given"
     cond    <- ruleCondPart
     body    <- enterBracketLevel ParensBracket $ ruleBlockLiteral
-    return $ Syn "for" [cond, body]
+    return $ Syn sym [cond, body]
 
 ruleLoopConstruct :: RuleParser Exp
 ruleLoopConstruct = rule "loop construct" $ do
@@ -1097,13 +1098,17 @@ ruleSemiLoopConstruct = rule "for-like loop construct" $ do
         symbol ";"
         c <- option emptyExp ruleExpression
         return [a,b,c]
-    block <- ruleBlock
+    block <- retBlockWithoutDefaultParams SubBlock Nothing False =<< ruleBlock
     return $ Syn "loop" (conds ++ [block])
 
 ruleBareLoopConstruct :: RuleParser Exp
 ruleBareLoopConstruct = rule "for-like loop construct" $ do
-    block <- ruleBlock
-    return $ Syn "loop" ([] ++ [block])
+    block <- ruleBareBlock
+    return $ Syn "loop" [block]
+
+ruleBareBlock :: RuleParser Exp
+ruleBareBlock = do
+    retBlockWithoutDefaultParams SubBlock Nothing False =<< ruleBlock
 
 ruleRepeatConstruct :: RuleParser Exp
 ruleRepeatConstruct = rule "postfix loop construct" $ do
@@ -1156,26 +1161,19 @@ ruleWhileUntilConstruct = rule "while/until construct" $ do
     body    <- enterBracketLevel ParensBracket $ ruleBareOrPointyBlockLiteralWithoutDefaultParams
     return $ Syn sym [ cond, body ]
 
-ruleGivenConstruct :: RuleParser Exp
-ruleGivenConstruct = rule "given construct" $ do
-    sym <- symbol "given"
-    topic <- ruleCondPart
-    body <- ruleBlock
-    return $ Syn sym [ topic, body ]
-
 ruleWhenConstruct :: RuleParser Exp
 ruleWhenConstruct = rule "when construct" $ do
-    sym <- symbol "when"
-    match <- ruleCondPart
-    body <- ruleBlock
+    sym     <- symbol "when"
+    match   <- ruleCondPart
+    body    <- ruleBareBlock
     return $ Syn sym [ match, body ]
 
 -- XXX: make this translate into when true, when smartmatch
 -- against true works
 ruleDefaultConstruct :: RuleParser Exp
 ruleDefaultConstruct = rule "default construct" $ do
-    sym <- symbol "default"
-    body <- ruleBlock
+    sym     <- symbol "default"
+    body    <- ruleBareBlock
     return $ Syn sym [ body ]
 
 -- Expressions ------------------------------------------------
@@ -1269,7 +1267,7 @@ retVerbatimBlock styp formal lvalue body = expRule $ do
     when (isJust formal && (not.null) names) $
         fail "Cannot mix placeholder variables with formal parameters"
     env <- ask
-    let sub = mkCode
+    sub <- collectTraits $ mkCode
             { isMulti       = False
             , subName       = __"<anon>"
             , subEnv        = Just env
@@ -1283,9 +1281,14 @@ retVerbatimBlock styp formal lvalue body = expRule $ do
             , subBody       = fun
             , subCont       = Nothing
             }
+    return (Syn "sub" [Val $ VCode sub])
+
+collectTraits :: VCode -> RuleParser VCode
+collectTraits sub = do
     (withTraitBlocks:prevLevel) <- gets s_closureTraits
     modify $ \state -> state{ s_closureTraits = if null prevLevel then [id] else prevLevel }
-    return (Syn "sub" [Val . VCode $ withTraitBlocks sub])
+    return $ withTraitBlocks sub
+
 
 ruleBlockFormalStandard :: RuleParser (SubType, Maybe [Param], Bool)
 ruleBlockFormalStandard = rule "standard block parameters" $ do
