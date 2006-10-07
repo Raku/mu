@@ -46,7 +46,7 @@ plan 12;
 {
     # a single pair:
     my $pair = (100 => 'lovely');
-    is $pair.fmt("%d ==> %s", "\n"), "100 ==> lovely", '.fmt works with a single pair';
+    is eval('$pair.fmt("%d ==> %s", "\n")'), "100 ==> lovely", '.fmt works with a single pair';
 
     # list of a single pair:
     my @pairs = (100 => 'lovely');
