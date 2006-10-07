@@ -36,11 +36,13 @@ localEnv m = do
         }
     -- Hoist all pad-declared entries into this block
     -- XXX - Handle "state" and "constant" here.
-    let rv' = putTraits state' rv
-    let rv'' = case rv' of 
-                 Just x  -> x
-                 Nothing -> fromJust $ putTraits state' $ Val $ VCode mkCode { subBody = rv } 
-    return $ Map.foldWithKey Pad rv'' (s_blockPads state')
+    case putTraits state' rv of 
+        Just rv' -> return $ Map.foldWithKey Pad rv' (s_blockPads state')
+        Nothing -> do
+            -- Hanging a closure trait on the main program body is currently unsupported.
+            parserWarn "Attempt to set closure traits outside a closure" ()
+            -- fromJust $ putTraits state' $ Val $ VCode mkCode { subBody = rv } 
+            return $ Map.foldWithKey Pad rv (s_blockPads state')
     where
       putTraits state code = foldM (\a f -> f a) code $ s_closureTraits state
 

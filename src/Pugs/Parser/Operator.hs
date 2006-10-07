@@ -503,37 +503,6 @@ doAppSym (sigil:name) args = App (_Var (sigil:("prefix:"++name))) Nothing args
 doAppSym _ _ = error "doAppSym: bad name"
 
 
-{-|
-Record the current parser position, invoke the given subrule, then record the
-parser's new position and encapsulate the subrule's result in a
-'Pugs.AST.Internals.Pos' indicating the source region matched by the rule.
-
-Also applies 'unwrap' to the result of the given parser.
--}
-expRule :: RuleParser Exp -- ^ Sub-rule to invoke
-        -> RuleParser Exp
-expRule rule = do
-    pos1 <- getPosition
-    exp  <- rule
-    pos2 <- getPosition
-    return $ Ann (Pos (mkPos pos1 pos2)) (unwrap exp)
-
-{-|
-Create a Pugs 'Pugs.AST.Pos' (for storing in the AST) from two Parsec
-@SourcePos@ positions, being the start and end respectively of the current
-region.
--}
-mkPos :: SourcePos -- ^ Starting position of the region
-      -> SourcePos -- ^ Ending position of the region
-      -> Pos
-mkPos pos1 pos2 = MkPos
-    { posName         = sourceName pos1 
-    , posBeginLine    = sourceLine pos1
-    , posBeginColumn  = sourceColumn pos1
-    , posEndLine      = sourceLine pos2
-    , posEndColumn    = sourceColumn pos2
-    }
-
 ternOp :: String -> String -> String -> RuleOperator Exp
 ternOp pre post syn = (`Infix` AssocRight) $ do
     symbol pre
