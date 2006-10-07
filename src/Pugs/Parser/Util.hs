@@ -21,7 +21,7 @@ localEnv m = do
     let env = s_env state
     put state
         { s_blockPads = Map.empty
-        , s_closureTraits = []
+        , s_closureTraits = (id : s_closureTraits state)
         , s_outerVars = Set.empty
         , s_env = env { envOuter = Just env }
         }
@@ -33,18 +33,9 @@ localEnv m = do
             , envLexical = envLexical env
             , envOuter   = envOuter env
             }
+        , s_closureTraits = s_closureTraits state'
         }
-    -- Hoist all pad-declared entries into this block
-    -- XXX - Handle "state" and "constant" here.
-    case putTraits state' rv of 
-        Just rv' -> return $ Map.foldWithKey Pad rv' (s_blockPads state')
-        Nothing -> do
-            -- Hanging a closure trait on the main program body is currently unsupported.
-            parserWarn "Attempt to set closure traits outside a closure" ()
-            -- fromJust $ putTraits state' $ Val $ VCode mkCode { subBody = rv } 
-            return $ Map.foldWithKey Pad rv (s_blockPads state')
-    where
-      putTraits state code = foldM (\a f -> f a) code $ s_closureTraits state
+    return $ Map.foldWithKey Pad rv (s_blockPads state')
 
 ruleParamList :: ParensOption -> RuleParser a -> RuleParser (Maybe [[a]])
 ruleParamList wantParens parse = rule "parameter list" $ do

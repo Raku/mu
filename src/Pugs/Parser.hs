@@ -1282,7 +1282,9 @@ retVerbatimBlock styp formal lvalue body = expRule $ do
             , subBody       = fun
             , subCont       = Nothing
             }
-    return (Syn "sub" [Val $ VCode sub])
+    (withTraitBlocks:prevLevel) <- gets s_closureTraits
+    modify $ \state -> state{ s_closureTraits = if null prevLevel then [id] else prevLevel }
+    return (Syn "sub" [Val . VCode $ withTraitBlocks sub])
 
 ruleBlockFormalStandard :: RuleParser (SubType, Maybe [Param], Bool)
 ruleBlockFormalStandard = rule "standard block parameters" $ do
