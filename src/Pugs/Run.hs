@@ -25,7 +25,6 @@ import Pugs.Config
 import Pugs.AST
 import Pugs.Types
 import Pugs.Eval
-import Pugs.Prim
 import Pugs.Prim.Eval
 import Pugs.Embed
 import Pugs.Prelude 
@@ -118,10 +117,7 @@ prepareEnv name args = do
 #else
     hspluginsSV <- newScalar (VInt 0)
 #endif
-    let subExit = \x -> case x of
-            [x] -> op1Exit x     -- needs refactoring (out of Prim)
-            _   -> op1Exit undef
-        gen = genSym . cast
+    let gen = genSym . cast
     env <- emptyEnv name $
         [ gen "@*ARGS"       $ hideInSafemode $ MkRef argsAV
         , gen "@*INC"        $ hideInSafemode $ MkRef incAV
@@ -160,10 +156,6 @@ prepareEnv name args = do
         , gen "$?COMPILER"   $ MkRef $ constScalar (VStr "Pugs")
         , gen "$?VERSION"    $ MkRef $ constScalar (VStr $ getConfig "pugs_versnum")
         , gen "$*OS"         $ hideInSafemode $ MkRef $ constScalar (VStr $ getConfig "osname")
-        , gen "&?BLOCK_EXIT" $ codeRef $ mkPrim
-            { subName = cast "&?BLOCK_EXIT"
-            , subBody = Prim subExit
-            }
         , gen "%?CONFIG" $ hideInSafemode $ hashRef confHV
         , gen "$*_" $ MkRef defSV
         , gen "$*AUTOLOAD" $ MkRef autoSV
