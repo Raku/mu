@@ -99,11 +99,11 @@ method quarter () returns Int {
 }
 
 method day_of_quarter () returns Int {
-    my $doy = $.day_of_year;
+    my $doy = self.day_of_year;
 
     my @doy := _is_leap_year($.year) ?? @PreviousMonthDoLY !! @PreviousMonthDoY;
 
-    return $doy - @doy[ ( 3 * $.quarter ) - 3 ];
+    return $doy - @doy[ ( 3 * self.quarter ) - 3 ];
 }
 
 method day_of_year () returns Int {
