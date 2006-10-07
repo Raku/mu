@@ -44,16 +44,17 @@ plan 12;
 
 # L<S02/"Names and Variables"/"list of pairs" "formats for both key and value">
 {
-    my @pairs = (a => 1.3, b => 2.4);
-    is @pairs.fmt("%s:%d", "_"), "a:1_b:2", "fmt() works with lists of pairs";
-    is @pairs.fmt("(%s => %f)", ""), "(a => 1.3)(b => 2.4)",
-        "fmt() works with lists of pairs";
-
-    # list of a single pair:
-    my @pairs = (100 => 'lovely');
-    is(@pairs.fmt("%d ==> %s", "\n"), "100 ==> lovely", '.fmt works with lists of a single pair');
-
     # a single pair:
     my $pair = (100 => 'lovely');
     is $pair.fmt("%d ==> %s", "\n"), "100 ==> lovely", '.fmt works with a single pair';
+
+    # list of a single pair:
+    my @pairs = (100 => 'lovely');
+    is(eval('@pairs.fmt("%d ==> %s", "\n")'), "100 ==> lovely", '.fmt works with lists of a single pair');
+
+    # list of pair:
+    my @pairs = (a => 1.3, b => 2.4);
+    is eval('@pairs.fmt("%s:%d", "_")'), "a:1_b:2", "fmt() works with lists of pairs";
+    is eval('@pairs.fmt("(%s => %f)", "")'), "(a => 1.3)(b => 2.4)",
+        "fmt() works with lists of pairs";
 }
