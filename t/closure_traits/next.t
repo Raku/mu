@@ -53,24 +53,24 @@ plan 13;
 
 {
     my $str;
-    eval q{
+    try {
         for 1..5 {
             NEXT { $str ~= $_ }
             die if $_ > 3;
         }
-    };
+    }
     is $str, '123', "die didn't trigger NEXT \{}";
 }
 
 {
-    is eval(q{
-        my $str;
+    my $str;
+    try {
         for 1..5 {
             NEXT { $str ~= $_ }
             leave if $_ > 3;
         }
-        $str;
-    }), '123', "leave didn't trigger NEXT \{}";
+    }
+    is $str, '123', "leave didn't trigger NEXT \{}";
 }
 
 {
@@ -137,7 +137,7 @@ plan 13;
     loop (my $n = 0; $n < 5; ++$n) {
        NEXT { $str ~= $n }
     }
-    is $str, '01234';
+    is $str, '01234', 'NEXT {} works in loop (;;) {}';
 }
 
 {
