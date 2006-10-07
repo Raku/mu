@@ -13,7 +13,7 @@ next <label> in nested loops
 
 =cut
 
-plan 11;
+plan 12;
 
 # test for loops with next
 
