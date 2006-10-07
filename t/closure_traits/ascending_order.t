@@ -6,7 +6,7 @@ use v6-alpha;
 
 use Test;
 
-plan 7;
+plan 8;
 
 # L<S04/Closure traits/END "at run time" ALAP>
 
