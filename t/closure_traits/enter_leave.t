@@ -60,7 +60,7 @@ plan 11;
         ENTER { $str ~= "E$_" }
         LEAVE { $str ~= "L$_ " }
     }
-    is $str, 'E1,L1 E2,L2', 'ENTER/LEAVE repeats on loop blocks';
+    is $str, 'E1,L1 E2,L2 ', 'ENTER/LEAVE repeats on loop blocks';
 }
 
 # L<S04/Closure traits/LEAVE "at every block exit time">
