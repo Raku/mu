@@ -411,7 +411,11 @@ reduceSyn "block" [exp]
             fail "Blocks with implicit params cannot occur at statement level"
         env <- ask
         enterSub (sub{ subEnv = Just env }) . reduce $ case unwrap (subBody sub) of
-            Syn "block" [exp]   -> exp
+            Syn "block" [exp] -> case unwrap exp of
+                -- Here we have a nested statement-level block: "{ { 3 } }";
+                -- we actually want to create two OUTER blocks, so reduce normally.
+                Syn "sub" [Val (VCode MkCode{ subType = SubBlock })] -> subBody sub
+                _   -> exp
             _                   -> subBody sub
     | otherwise = enterBlock $ reduce exp
     
@@ -464,8 +468,6 @@ reduceSyn name [cond, bodyIf, bodyElse]
             then reduce bodyIf
             else reduce bodyElse
 
-reduceSyn "postfix:for" xs = reduceSyn "for" xs
-
 reduceSyn "for" [list, body] = enterLoop $ do
     av    <- enterLValue $ enterEvalContext cxtSlurpyAny list
     sub   <- fromCodeExp body
@@ -516,10 +518,6 @@ reduceSyn "loop" exps = enterLoop $ do
                 valPost <- evalExp post
                 vb      <- evalCond
                 trapVal valPost $ if vb then runBody else retEmpty
-
-reduceSyn "postfix:given" [topic, body] = enterGiven $ do
-    sub     <- fromCodeExp body
-    apply sub Nothing [App (_Var "&VAR") (Just topic) []]
 
 reduceSyn "given" [topic, body] = enterGiven $ do
     sub     <- fromCodeExp body
