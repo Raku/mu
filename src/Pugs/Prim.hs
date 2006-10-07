@@ -96,8 +96,9 @@ op0 "Pugs::Internals::pi" = const $ return $ VNum pi
 op0 "self" = const $ expToEvalVal (_Var "&self")
 op0 "say" = const $ op1 "IO::say" (VHandle stdout)
 op0 "print" = const $ op1 "IO::print" (VHandle stdout)
-op0 "return" = const $ op1Return (shiftT . const $ retEmpty)
-op0 "yield" = const $ op1Yield (shiftT . const $ retEmpty)
+op0 "return" = const $ op1Return (shiftT . const $ return (VControl (ControlLeave (<= SubRoutine) 0 undef)))
+op0 "yield" = const $ op1Yield (shiftT . const $ return (VControl (ControlLeave (<= SubRoutine) 0 undef)))
+op0 "leave" = const $ shiftT . const $ return (VControl (ControlLeave (>= SubBlock) 0 undef))
 op0 "take" = const $ retEmpty
 op0 "nothing" = const . return $ VBool True
 op0 "Pugs::Safe::safe_getc" = const . op1Getc $ VHandle stdin
@@ -315,11 +316,14 @@ op1 "lazy" = \v -> do
     return . VRef . thunkRef $ MkThunk thunk typ
 
 op1 "defined" = op1Cast (VBool . defined)
-op1 "last" = const $ fail "cannot last() outside a loop"
-op1 "next" = const $ fail "cannot next() outside a loop"
-op1 "redo" = const $ fail "cannot redo() outside a loop"
-op1 "return" = op1Return . op1ShiftOut
-op1 "yield" = op1Yield . op1ShiftOut
+op1 "last" = const $ op1LoopControl $ op1ShiftOut (VControl (ControlLoop LoopLast))
+op1 "next" = const $ op1LoopControl $ op1ShiftOut (VControl (ControlLoop LoopNext))
+op1 "redo" = const $ op1LoopControl $ op1ShiftOut (VControl (ControlLoop LoopRedo))
+op1 "continue" = const $ op1GivenControl $ op1ShiftOut (VControl (ControlGiven GivenContinue))
+op1 "break" = const $ op1GivenControl $ op1ShiftOut (VControl (ControlGiven GivenBreak))
+op1 "return" = op1Return . op1ShiftOut . VControl . ControlLeave (<= SubRoutine) 0
+op1 "yield" = op1Yield . op1ShiftOut . VControl . ControlLeave (<= SubRoutine) 0
+op1 "leave" = op1ShiftOut . VControl . ControlLeave (>= SubBlock) 0
 op1 "take" = \v -> do
     lex <- asks envLexical
     arr <- findSymRef (cast "@?TAKE") lex
@@ -726,10 +730,20 @@ cascadeMethod f meth v args = do
                 ]
     return undef
 
+op1LoopControl :: Eval Val -> Eval Val
+op1LoopControl action = do
+    frames <- asks envDepth
+    if all (/= FrameLoop) frames then fail "cannot use loop control outside a loop" else action
+
+op1GivenControl :: Eval Val -> Eval Val
+op1GivenControl action = do
+    frames <- asks envDepth
+    if all (/= FrameGiven) frames then fail "cannot use break/continue outside a given block" else action
+
 op1Return :: Eval Val -> Eval Val
 op1Return action = do
-    depth <- asks envDepth
-    if depth == 0 then fail "cannot return() outside a subroutine" else do
+    frames <- asks envDepth
+    if all (/= FrameRoutine) frames then fail "cannot return() outside a subroutine" else do
     sub   <- fromVal =<< readVar (cast "&?ROUTINE")
     -- If this is a coroutine, reset the entry point
     case subCont sub of
@@ -744,8 +758,8 @@ op1Return action = do
 
 op1Yield :: Eval Val -> Eval Val
 op1Yield action = do
-    depth <- asks envDepth
-    if depth == 0 then fail "cannot yield() outside a coroutine" else do
+    frames <- asks envDepth
+    if all (/= FrameRoutine) frames then fail "cannot yield() outside a coroutine" else do
     sub   <- fromVal =<< readVar (cast "&?ROUTINE")
     case subCont sub of
         Nothing -> fail $ "cannot yield() from a " ++ pretty (subType sub)
@@ -1885,6 +1899,8 @@ initSyms = mapM primDecl syms
 \\n   Any       pre     last    safe   (?Int=1)\
 \\n   Any       pre     next    safe   (?Int=1)\
 \\n   Any       pre     redo    safe   (?Int=1)\
+\\n   Any       pre     continue    safe   (?Int=1)\
+\\n   Any       pre     break    safe   (?Int=1)\
 \\n   Any       pre     exit    unsafe (?Int=0)\
 \\n   Any       pre     srand   safe   (?Num)\
 \\n   Num       pre     rand    safe   (?Num=1)\
@@ -1929,6 +1945,9 @@ initSyms = mapM primDecl syms
 \\n   Void      pre     return  safe   ()\
 \\n   Void      pre     return  safe   (rw!Any)\
 \\n   Void      pre     return  safe   (List)\
+\\n   Void      pre     leave   safe   ()\
+\\n   Void      pre     leave   safe   (rw!Any)\
+\\n   Void      pre     leave   safe   (List)\
 \\n   Void      pre     yield   safe   ()\
 \\n   Void      pre     yield   safe   (rw!Any)\
 \\n   Void      pre     yield   safe   (List)\
