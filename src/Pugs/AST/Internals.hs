@@ -361,6 +361,7 @@ instance Value VHash where
         l <- liftIO $ C.mapToList (\k ivar -> do { v <- readIVar ivar; return (k, v) }) (objAttrs o)
         fmap Map.fromList $ sequence l
     fromVal VType{} = return Map.empty -- ::Hash<foo>
+    fromVal (VRef r) = fromVal =<< readRef r
     fromVal v = do
         list <- fromVal v
         fmap Map.fromList $ forM list $ \(k, v) -> do

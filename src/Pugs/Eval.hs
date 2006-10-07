@@ -1393,14 +1393,16 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
                 (True, False)   -> do
                     --- not scalarRef! -- use the new "transparent IType" thing!
                     case showType (typeOfSigilVar var) of
-                        "Hash"  -> case v of
+                        "Hash"  -> ($ v) . fix $ \redo x -> case x of
                             VRef (MkRef (IHash h)) -> return (VRef $ hashRef h) 
+                            VRef ref@(MkRef IScalar{}) -> redo =<< readRef ref
                             _ -> fmap (VRef . hashRef) (fromVal v :: Eval VHash)
-                        "Array" -> case v of
+                        "Array" -> ($ v) . fix $ \redo x -> case x of
                             VRef (MkRef (IArray a)) -> return (VRef $ arrayRef a) 
+                            VRef ref@(MkRef IScalar{}) -> redo =<< readRef ref
                             _ -> fmap (VRef . arrayRef) (fromVal v :: Eval VArray)
                         _       -> case v of
-                            VRef (MkRef (IScalar _)) -> return (VRef $ scalarRef v) 
+                            VRef (MkRef IScalar{}) -> return (VRef $ scalarRef v) 
                             VRef _ -> return v -- XXX - preserving ref
                             _ -> return (VRef $ scalarRef v) 
                 (False, False)  -> return v -- XXX reduce to val?
