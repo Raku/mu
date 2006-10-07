@@ -162,6 +162,9 @@ package Pugs::Runtime::Perl6::Scalar;
     
     sub isa {
         my $self = $_[0];
+        return $self->isa( $_[1] )
+            if     Scalar::Util::blessed $self 
+                && UNIVERSAL::can( $self, 'isa' );
         return 1 if $_[1] eq 'Hash'  && ref($_[0]) eq 'HASH';
         return 1 if $_[1] eq 'Array' && ref($_[0]) eq 'ARRAY';
         return 1 if $_[1] eq 'Str'   && defined $_[0];
@@ -239,6 +242,7 @@ package Pugs::Runtime::Perl6::Bool;
     sub WHAT { 
         'Bool';  # XXX box
     }
+    sub isa { $_[0]->WHAT eq $_[1] }
 package Pugs::Runtime::Perl6::Str;
     use overload (
         '""'     => sub { ${$_[0]} },
@@ -250,6 +254,7 @@ package Pugs::Runtime::Perl6::Str;
     sub WHAT { 
         'Str';  # XXX box
     }
+    sub isa { $_[0]->WHAT eq $_[1] }
 package Pugs::Runtime::Perl6::Int;
     use overload (
         '""'     => sub { ${$_[0]} },
@@ -261,6 +266,7 @@ package Pugs::Runtime::Perl6::Int;
     sub WHAT { 
         'Int';  # XXX box
     }
+    sub isa { $_[0]->WHAT eq $_[1] }
 package Pugs::Runtime::Perl6::Num;
     use overload (
         '""'     => \&str,
@@ -272,6 +278,7 @@ package Pugs::Runtime::Perl6::Num;
     sub WHAT { 
         'Num';  # XXX box
     }
+    sub isa { $_[0]->WHAT eq $_[1] }
     sub str { 
         my $n = ${$_[0]}; 
         $n == 'Inf' 

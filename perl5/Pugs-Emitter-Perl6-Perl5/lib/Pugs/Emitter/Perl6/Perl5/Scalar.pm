@@ -15,8 +15,8 @@ package Pugs::Emitter::Perl6::Perl5::Scalar;
     }
 
 sub isa { 
-    my $self = $_[0];
-    return $_[0]->WHAT->eq( $_[1]->WHAT ); 
+        $_[0]->node( 'BoolExpression',
+                'Pugs::Runtime::Perl6::Scalar::isa( '. $_[0] . ', ' . $_[1] . ')' );
 }
 
 sub get {
@@ -60,6 +60,10 @@ sub num {
 
 sub int {
     return $_[0]->node( 'IntExpression',  $_[0] . '->int' )
+} 
+
+sub true {
+    return $_[0]->node( 'BoolExpression',  $_[0] . '->true' )
 } 
 
 sub elems {
