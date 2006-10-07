@@ -238,7 +238,7 @@ popClosureTrait = do
         }
 
 addClosureTrait :: String -> VCode -> RuleParser ()
-addClosureTrait name trait = do
+addClosureTrait name code = do
     let names = words " ENTER LEAVE KEEP UNDO FIRST NEXT LAST PRE POST CATCH CONTROL "
     when (not $ name `elem` names) $
         fail ("Invalid closure trait: " ++ name) 
@@ -248,16 +248,23 @@ addClosureTrait name trait = do
             (f:fs)  -> ((addTrait . f) : fs)
         }
     where
+    trait = code{ subName = cast name }
     addTrait block = case name of 
         "CONTROL"   -> block{ subControlBlocks = trait:subControlBlocks block }
         "CATCH"     -> block{ subCatchBlocks = trait:subCatchBlocks block }
-        "KEEP"      -> block{ subKeepBlocks = trait:subKeepBlocks block }
-        "UNDO"      -> block{ subUndoBlocks = trait:subUndoBlocks block }
+        "KEEP"      -> block
+            { subKeepBlocks     = trait:subKeepBlocks block
+            , subLeaveBlocks    = trait:subLeaveBlocks block
+            }
+        "UNDO"      -> block
+            { subUndoBlocks     = trait:subUndoBlocks block
+            , subLeaveBlocks    = trait:subLeaveBlocks block
+            }
         "ENTER"     -> block{ subEnterBlocks = subEnterBlocks block ++ [trait] }
         "LEAVE"     -> block{ subLeaveBlocks = trait:subLeaveBlocks block }
         "NEXT"      -> block{ subNextBlocks = trait:subNextBlocks block }
         "LAST"      -> block{ subLastBlocks = trait:subLastBlocks block }
-        "PRE"       -> trace "PRE case" block{ subPreBlocks = subPreBlocks block ++ [trait] }
+        "PRE"       -> block{ subPreBlocks = subPreBlocks block ++ [trait] }
         "POST"      -> block{ subPostBlocks = trait:subPostBlocks block }
         "FIRST"     -> block{ subFirstBlocks = subFirstBlocks block ++ [trait] }
         _           -> trace ("Wrong closure trait name: "++name) block
