@@ -88,7 +88,7 @@ Basic C<pairs> tests, see S29.
 
     lives_ok { for @array.pairs -> $pair {
         $pair.value += 100;
-    } }, 'aliases returned by @array.pairs should be rw (1)', :todo<bug>;
+    } }, 'aliases returned by @array.pairs should be rw (1)';
 
     is @array[1], 123, 'aliases returned by @array.pairs should be rw (2)', :todo<bug>;
 }
@@ -98,7 +98,7 @@ Basic C<pairs> tests, see S29.
 
     lives_ok { for $pair.pairs -> $p {
         $p.value += 100;
-    } }, 'aliases returned by $pair.value should be rw (1)', :todo<bug>;
+    } }, 'aliases returned by $pair.value should be rw (1)';
 
     is $pair.value, 142, 'aliases returned by $pair.kv should be rw (2)', :todo<bug>;
 }

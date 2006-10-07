@@ -21,8 +21,7 @@ plan 8;
     is(
         eval('sub mylast { last; }; my $tracker = 0; for 1 .. 5 { $tracker = $_; mylast(); } $tracker'),
         1,
-        "tracker is 1 because mylast exits loop",
-        :todo(1)
+        "tracker is 1 because mylast exits loop";
     );
 }
 

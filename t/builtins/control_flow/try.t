@@ -73,8 +73,8 @@ plan 25;
         $was_in_foo++;
         return 23;
     }
-    is foo(), 42,      'return() inside try{}-blocks works (1)', :todo<bug>;
-    is $was_in_foo, 1, 'return() inside try{}-blocks works (2)', :todo<bug>;
+    is foo(), 42,      'return() inside try{}-blocks works (1)';
+    is $was_in_foo, 1, 'return() inside try{}-blocks works (2)';
 }
 
 {

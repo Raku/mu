@@ -115,7 +115,7 @@ for %hash.kv -> $key,$value {
 
     lives_ok { for %hash.kv -> $key, $value is rw {
         $value += 100;
-    } }, 'aliases returned by %hash.kv should be rw (1)', :todo<feature>;
+    } }, 'aliases returned by %hash.kv should be rw (1)';
 
     is %hash<b>, 102, 'aliases returned by %hash.kv should be rw (2)', :todo<feature>;
 }
@@ -125,7 +125,7 @@ for %hash.kv -> $key,$value {
 
     lives_ok { for @array.kv -> $key, $value is rw {
         $value += 100;
-    } }, 'aliases returned by @array.kv should be rw (1)', :todo<feature>;
+    } }, 'aliases returned by @array.kv should be rw (1)';
 
     is @array[1], 123, 'aliases returned by @array.kv should be rw (2)', :todo<feature>;
 }
@@ -135,7 +135,7 @@ for %hash.kv -> $key,$value {
 
     lives_ok { for $pair.kv -> $key, $value is rw {
         $value += 100;
-    } }, 'aliases returned by $pair.kv should be rw (1)', :todo<feature>;
+    } }, 'aliases returned by $pair.kv should be rw (1)';
 
     is $pair.value, 142, 'aliases returned by $pair.kv should be rw (2)', :todo<feature>;
 }

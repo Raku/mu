@@ -14,7 +14,7 @@ plan 8;
     my %h = 1..4;
     lives_ok {
         for %h.values -> $v is rw { $v += 1 }
-    }, 'aliases returned by %hash.values should be rw (1)', :todo<bug>;
+    }, 'aliases returned by %hash.values should be rw (1)';
 
     is %h<3>, 5, 'aliases returned by %hash.values should be rw (2)', :todo<bug>;
 }
@@ -23,7 +23,7 @@ plan 8;
     my @a = 1..4;
     lives_ok {
         for @a.values -> $v is rw { $v += 1 }
-    }, 'aliases returned by @array.values should be rw (1)', :todo<bug>;
+    }, 'aliases returned by @array.values should be rw (1)';
 
     is @a[2], 4, 'aliases returned by @array.values should be rw (2)', :todo<bug>;
 }
@@ -32,7 +32,7 @@ plan 8;
     my $pair = (a => 42);
     lives_ok {
         for $pair.values -> $v is rw { $v += 1 }
-    }, 'aliases returned by $pair.values should be rw (1)', :todo<bug>;
+    }, 'aliases returned by $pair.values should be rw (1)';
 
     is $pair.values, 43, 'aliases returned by $pair.values should be rw (2)', :todo<bug>;
 }
@@ -42,7 +42,7 @@ plan 8;
     my $pair = (a => $var);
     lives_ok {
         for $pair.values -> $v is rw { $v += 1 }
-    }, 'aliases returned by $pair.values should be rw (1)', :todo<bug>;
+    }, 'aliases returned by $pair.values should be rw (1)';
 
     is $pair.values, 43, 'aliases returned by $pair.values should be rw (2)', :todo<bug>;
 }
