@@ -32,13 +32,13 @@ if $*OS eq "browser" {
 #pugs> for .. { say }; 
 
     my $out = open("tmpfile", :w);
-    for 1 { say $out, };
+    for 1 { $out.say() };
     close $out; 
     my$in = open "tmpfile"; 
     my $s = =$in; close $in;
     unlink "tmpfile";
 
     isnt $s,"3", 'and global $_ should not be the default topic of "for"'; 
-    lives_ok { for 1 .. 3 { $_++ } }, 'default topic is rw by default',:todo<bug>; 
+    lives_ok { for 1 .. 3 { $_++ } }, 'default topic is rw by default';
 # #*** Error: cannot modify constant item at 1
 
