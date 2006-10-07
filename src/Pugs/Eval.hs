@@ -511,13 +511,15 @@ reduceSyn "loop" exps = enterLoop $ do
     vb      <- evalCond
     if not vb then retEmpty else fix $ \runBody -> do
         valBody <- apply (sub `beforeLeave` subNextBlocks) Nothing []
-        case valBody of
-            VControl (ControlLoop LoopRedo) -> runBody
-            VControl (ControlLoop LoopLast) -> retEmpty
-            _                               -> trapVal valBody $ do
+        let runNext = do
                 valPost <- evalExp post
                 vb      <- evalCond
                 trapVal valPost $ if vb then runBody else retEmpty
+        case valBody of
+            VControl (ControlLoop LoopRedo) -> runBody
+            VControl (ControlLoop LoopLast) -> retEmpty
+            VControl (ControlLoop LoopNext) -> runNext
+            _                               -> trapVal valBody runNext
 
 reduceSyn "given" [topic, body] = enterGiven $ do
     sub     <- fromCodeExp body
