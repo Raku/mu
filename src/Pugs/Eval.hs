@@ -123,10 +123,10 @@ evaluateMain exp = do
     -- S04: END {...}       at run time, ALAP
     endAV       <- reduceVar $ cast "@*END"
     endSubs     <- fromVals endAV
-    endMainAV   <- reduceVar $ cast "@*Main::END"
-    endMainSubs <- fromVals endAV
+    endMainAV   <- reduceVar $ cast "@Main::END"
+    endMainSubs <- fromVals endMainAV
     enterContext CxtVoid $ do
-        mapM_ evalExp [ App (Val sub) Nothing [] | sub <- endSubs ++ endMainSubs ]
+        mapM_ evalExp [ App (Val sub) Nothing [] | sub@VCode{} <- endSubs ++ endMainSubs ]
     return val
 
 {-|
