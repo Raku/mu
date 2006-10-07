@@ -76,7 +76,7 @@ module Pugs.Internals (
     inlinePerformIO,
     inlinePerformSTM,
     unsafePerformSTM,
-    maybeM,
+    maybeM, finallyM,
     safeMode,
     traceM,
     warn,
@@ -361,6 +361,16 @@ catchIO = Control.Exception.catch
 
 evaluateIO :: a -> IO a
 evaluateIO = Control.Exception.evaluate
+
+{-# INLINE finallyM #-}
+finallyM :: (Monad m) 
+     => m a     -- ^ The actual action
+     -> m b     -- ^ the finalizer
+     -> m a     -- ^ Result of the actual action
+finallyM ma mb = do
+    r <- ma
+    mb
+    return r
 
 -- On GHC 6.6 we actually want to use the builtin forM and forM_ in Control.Monad
 
