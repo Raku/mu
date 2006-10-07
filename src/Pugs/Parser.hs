@@ -942,6 +942,7 @@ ruleClosureTrait rhs = tryRule "closure trait" $ do
     let names = words " BEGIN CHECK INIT END START ENTER LEAVE KEEP UNDO FIRST NEXT LAST PRE POST CATCH CONTROL"
     name    <- choice $ map symbol $ names
     block   <- ruleBlock
+    popClosureTrait
     when (rhs && not (name `elem` rhsTraits)) $
         fail (name ++ " may only be used at statement level")
     let (fun, params) = extractPlaceholderVars block Set.empty

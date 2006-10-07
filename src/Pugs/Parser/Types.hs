@@ -6,7 +6,7 @@ module Pugs.Parser.Types (
     RuleOperator, RuleOperatorTable,
     getRuleEnv, modifyRuleEnv, putRuleEnv, insertIntoPosition,
     clearDynParsers, enterBracketLevel, getCurrCharClass, getPrevCharClass, charClassOf,
-    addBlockPad, addClosureTrait, addOuterVar,
+    addBlockPad, popClosureTrait, addClosureTrait, addOuterVar,
     -- Alternate Char implementations that keeps track of s_charClass
     satisfy, string, oneOf, noneOf, char, hexDigit, octDigit,
     digit, upper, anyChar, perl6WhiteSpace, expRule, parserWarn, mkPos,
@@ -227,6 +227,15 @@ addBlockPad scope pad = do
             ++ unwords (map show (Set.elems dupSyms))
             ++ " conflicts with earlier OUTER references in the same scope"
     put state{ s_blockPads = Map.insertWith unionPads scope pad (s_blockPads state) }
+
+popClosureTrait :: RuleParser ()
+popClosureTrait = do
+    modify $ \state -> state
+        { s_closureTraits = case s_closureTraits state of
+            []      -> [id]
+            [_]     -> [id]
+            (_:fs)  -> fs
+        }
 
 addClosureTrait :: String -> VCode -> RuleParser ()
 addClosureTrait name trait = do
