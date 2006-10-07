@@ -1491,10 +1491,12 @@ readRef (MkRef (IHash hv)) = do
 readRef (MkRef (IArray av)) = do
     vals <- array_fetch av
     return $ VList vals
+
 -- XXX - This case is entirely bogus; but no time to fix it now.
 readRef (MkRef (IPair pv)) = do
     (k, v) <- pair_fetch pv
     return $ VList [k, v]
+
 readRef (MkRef (IHandle io)) = return . VHandle =<< handle_fetch io
 readRef (MkRef (IRule rx)) = return . VRule =<< rule_fetch rx
 readRef (MkRef (IThunk tv)) = readRef =<< fromVal =<< thunk_force tv
