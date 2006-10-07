@@ -1321,8 +1321,10 @@ sub infix {
             #print "{'='}: set scalar ",Dumper($n->{exp2});
 
             my $v = _emit( $n->{exp2} );
-            return _emit( $n->{exp1} ) . ' = ' . $v->scalar
-                if Scalar::Util::blessed $v;              
+
+            # XXX uncomment when Data::Bind accepts refs
+            #return _emit( $n->{exp1} ) . ' = ' . $v->scalar
+            #    if Scalar::Util::blessed $v;              
             if  (  exists $n->{exp2}{'bare_block'} 
                 ) {
                 if ( closure_is_hash( $n->{exp2} ) ) {
