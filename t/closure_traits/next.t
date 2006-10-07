@@ -125,9 +125,9 @@ plan 13;
     my $n = 0;
     my $i;
     while $n < 5 {
-        NEXT { ++$n }
         NEXT { $str ~= $n }
-        last if $i++ > 100; # infinite-loop prevension
+        NEXT { ++$n }
+        last if $i++ > 100; # recursion prevension
     }
     is $str, '01234', 'NEXT {} ran in reversed order';
 }
