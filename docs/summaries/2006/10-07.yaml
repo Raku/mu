@@ -871,7 +871,7 @@ lists:
           values should be.
           
           Some additional questions were asked in 
-          '<msg_id:1a83bc10610041649r6b9bb7eep5356be79437da4be@mail.gmail.com>'.
+          '<msgid:1a83bc10610041649r6b9bb7eep5356be79437da4be@mail.gmail.com>'.
       - date_from: 1159836873
         date_to: 1160261560
         hidden: ~
@@ -1012,7 +1012,7 @@ lists:
           an external lib.  He also described two other possible approaches.
           
           A related thread is
-          '<msg_id:1a83bc10610021658y63c67e16k473c9d896fe1bd23@mail.gmail.com>'.
+          '<msgid:1a83bc10610021658y63c67e16k473c9d896fe1bd23@mail.gmail.com>'.
       - date_from: 1160026417
         date_to: 1160071757
         hidden: ~
