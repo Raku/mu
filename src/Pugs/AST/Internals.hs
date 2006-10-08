@@ -937,29 +937,29 @@ data SubAssoc
 
 -- | Represents a sub, method, closure etc. -- basically anything callable.
 data VCode = MkCode
-    { isMulti       :: !Bool        -- ^ Is this a multi sub\/method?
-    , subName       :: !ByteString  -- ^ Name of the closure
-    , subType       :: !SubType     -- ^ Type of the closure
-    , subEnv        :: !(Maybe Env) -- ^ Lexical pad for sub\/method
-    , subAssoc      :: !SubAssoc    -- ^ Associativity
-    , subParams     :: !Params      -- ^ Parameters list
-    , subBindings   :: !Bindings    -- ^ Currently assumed bindings
-    , subSlurpLimit :: !SlurpLimit  -- ^ Max. number of slurpy arguments
-    , subReturns    :: !Type        -- ^ Return type
-    , subLValue     :: !Bool        -- ^ Is this a lvalue sub?
-    , subBody       :: !Exp         -- ^ Body of the closure
-    , subCont       :: !(Maybe (TVar VThunk)) -- ^ Coroutine re-entry point
-    , subPreBlocks   :: ![VCode]
-    , subPostBlocks  :: ![VCode]
-    , subFirstBlocks :: ![VCode]
-    , subLastBlocks  :: ![VCode]
-    , subNextBlocks  :: ![VCode]
-    , subKeepBlocks  :: ![VCode]
-    , subUndoBlocks  :: ![VCode]
-    , subEnterBlocks :: ![VCode]
-    , subLeaveBlocks :: ![VCode]
-    , subControlBlocks :: ![VCode]
-    , subCatchBlocks  :: ![VCode]
+    { isMulti           :: !Bool        -- ^ Is this a multi sub\/method?
+    , subName           :: !ByteString  -- ^ Name of the closure
+    , subType           :: !SubType     -- ^ Type of the closure
+    , subEnv            :: !(Maybe Env) -- ^ Lexical pad for sub\/method
+    , subAssoc          :: !SubAssoc    -- ^ Associativity
+    , subParams         :: !Params      -- ^ Parameters list
+    , subBindings       :: !Bindings    -- ^ Currently assumed bindings
+    , subSlurpLimit     :: !SlurpLimit  -- ^ Max. number of slurpy arguments
+    , subReturns        :: !Type        -- ^ Return type
+    , subLValue         :: !Bool        -- ^ Is this a lvalue sub?
+    , subBody           :: !Exp         -- ^ Body of the closure
+    , subCont           :: !(Maybe (TVar VThunk)) -- ^ Coroutine re-entry point
+    , subPreBlocks      :: [VCode]
+    , subPostBlocks     :: [VCode]
+    , subFirstBlocks    :: [VCode]
+    , subLastBlocks     :: [VCode]
+    , subNextBlocks     :: [VCode]
+    , subKeepBlocks     :: [VCode]
+    , subUndoBlocks     :: [VCode]
+    , subEnterBlocks    :: [VCode]
+    , subLeaveBlocks    :: [VCode]
+    , subControlBlocks  :: [VCode]
+    , subCatchBlocks    :: [VCode]
     }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
@@ -1482,7 +1482,7 @@ emptyExp :: Exp
 emptyExp = Noop
 
 retControl :: VControl -> Eval a
-retControl c = shiftT $ const (return $ VControl c)
+retControl = retShift . VControl
 
 retShift :: Val -> Eval a
 retShift = shiftT . const . return

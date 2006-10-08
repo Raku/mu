@@ -179,7 +179,7 @@ trapVal :: Val -> Eval a -> Eval a
 trapVal val action = case val of
     VError str posList -> do
         pos <- asks envPos
-        shiftT . const . return $ VError str (pos:posList)
+        retShift $ VError str (pos:posList)
     VControl c      -> retControl c
     _               -> action
 
@@ -484,7 +484,7 @@ reduceSyn "for" [list, body] = enterLoop $ do
         runBody vs sub' isFirst = do
             let (these, rest) = arity `splitAt` vs
                 realSub
-                    = (if null rest then (`afterLeave` subLastBlocks) else id)
+                    = (`afterLeave` if null rest then subLastBlocks else const [])
                     . (`beforeLeave` subNextBlocks)
                     $ if isFirst then sub' `beforeEnter` subFirstBlocks else sub'
             rv <- apply realSub Nothing $ map (Val . VRef . MkRef) these
