@@ -305,7 +305,7 @@ matchSlurpy MkCurrentFunction
 matchSlurpy _ = False
 
 fileTestOperatorNames :: String
-fileTestOperatorNames = "rwxoRWXOezsfdlpSbctugkTBMAC"
+fileTestOperatorNames = "ABCMORSTWXbcdefgkloprstuwxz"
 
 circumOps, rightSyn, chainOps, nonSyn, listSyn, preSyn, optPreSyn, preOps, preSymOps, optSymOps, postOps, optOps, leftOps, rightOps, nonOps, listOps :: Set OpName -> [RuleOperator Exp]
 preSyn      = ops  $ makeOp1 Prefix "" Syn
