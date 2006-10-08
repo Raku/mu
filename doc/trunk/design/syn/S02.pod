@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 1 Oct 2006
+  Last Modified: 8 Oct 2006
   Number: 2
-  Version: 74
+  Version: 75
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1461,6 +1461,15 @@ in a shell-like fashion, so that C<«'$foo' "@bar[]"»> is guaranteed to
 produce a list of two "words" equivalent to C<< ('$foo', "@bar[]") >>.
 C<Pair> notation is also recognized inside C<«...»> and such "words" are
 returned as C<Pair> objects.
+
+Colon pairs (but not arrow pairs) are recognized within double angles.
+In addition, the double angles allow for comments beginning with C<#>.
+These comments work exactly like ordinary comments in Perl code.
+That is, C<#> at beginning of line is always a line-end comment,
+otherwise a following bracket sequence implies an inline comment;
+also, unlike in the shells, any literal C<#> must be quoted, even
+ones without whitespace in front of them, but note that this comes
+more or less for free with a colon pair like C<< :char<#x263a> >>.
 
 =item *
 
