@@ -21,12 +21,12 @@ sub identity {
 }
 /, :lang<perl5>);
 
-my $japh = { "Just another $_ hacker" };
-my $japh2 = -> $name { "Just another $name hacker" };
-my $id   = eval("Id", :lang<perl5>);
+my $japh    = { "Just another $_ hacker" };
+my $japh2   = -> $name { "Just another $name hacker" };
+my $id      = eval("Id->new($_[0])", :lang<perl5>);
 
-is($id.new($japh).identity.('Pugs'), 'Just another Pugs hacker', "Closure roundtrips");
-is($id.new($japh2).identity.('Pugs'), 'Just another Pugs hacker', "Closure roundtrips");
+is($id($japh).identity.('Pugs'), 'Just another Pugs hacker', "Closure roundtrips");
+is($id($japh2).identity.('Pugs'), 'Just another Pugs hacker', "Closure roundtrips");
 
 my $keys_p5 = eval('sub {keys %{$_[0]}}', :lang<perl5>);
 my $tohash_p5 = eval('sub { return {map {$_ => 1} @_ } }', :lang<perl5>);
