@@ -19,7 +19,7 @@ plan 14;
   is $a, 3, "basic sanity";
   my $role;
   ok eval('$role = role { has $.cool = "yeah" }'), "anonymous role definition", :todo<feature>;
-  ok eval('$a does $role'), "anonymous role variable mixin");
+  ok eval('$a does $role'), "anonymous role variable mixin";
   is $a, 3, "still basic sanity";
   is eval('$a.cool'), "yeah", "anonymous role variable gave us an attribute", :todo<feature>;
 }
