@@ -299,18 +299,19 @@ makeParams MkEnv{ envContext = cxt, envLValue = lv }
         } ]
 
 evalVal :: Val -> Eval Val
-evalVal val = do
+evalVal val@(VRef ref) = do
     lv  <- asks envLValue
-    cls <- asks envClasses
-    typ <- evalValType val
-    if lv then return val else do
-    case val of
-        VRef ref | refType ref == mkType "Scalar::Const" -> do
-            evalVal =<< readRef ref
-        VRef ref | isaType cls "Junction" typ -> do
-            evalVal =<< readRef ref
-        _ -> do
-            return val
+    if lv
+        then return val
+        else if refType ref == mkType "Scalar::Const"
+            then evalVal =<< readRef ref
+            else do
+                cls <- asks envClasses
+                typ <- evalValType val
+                if isaType cls "Junction" typ
+                    then evalVal =<< readRef ref
+                    else return val
+evalVal val = return val
 
 tempVar :: Var -> Val -> Eval a -> Eval a
 tempVar var val action = do
