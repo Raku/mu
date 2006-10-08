@@ -31,7 +31,7 @@ sub error {
 sub test { "1" }
 ], :lang<perl5>);
 
-my $foo = eval("Foo",:lang<perl5>);
+my $foo = eval("Foo->new",:lang<perl5>);
 try { $foo.error };
 lives_ok( {
     my $err = $!;
