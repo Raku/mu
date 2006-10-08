@@ -89,8 +89,8 @@ staticLevels :: [[RuleOperator Exp]]
 staticLevels =
     [ nonSyn   (opWords " but does ")                            -- Traits
       ++ nonOps (opWords " leg cmp <=> .. ^.. ..^ ^..^ ff ^ff ff^ ^ff^ fff ^fff fff^ ^fff^ ")  -- Non-chaining Binary
-    , chainOps (opWords " != == < <= > >= ~~ eqv eq ne lt le gt ge =:= === ")
-                                                                -- Chained Binary
+    , chainOps (opWords " != == < <= > >= eqv eq ne lt le gt ge =:= === ")
+      ++ matchOps (opWords " ~~ ")
     , leftOps  (opWords "&&")                                    -- Tight And
     , leftOps  (opWords " || ^^ // ")                            -- Tight Or
     , [ternOp "??" "!!" "if"]                                   -- Ternary
@@ -319,6 +319,7 @@ leftOps     = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix
 rightOps    = (ops $ makeOp2 AssocRight "&infix:" doApp) . addHyperInfix
 nonOps      = ops  $ makeOp2 AssocNone "&infix:" doApp
 listOps     = ops  $ makeOp2 AssocLeft "&infix:" doApp
+matchOps    = (ops $ makeOp2Match AssocLeft "&infix:" doApp) . addHyperInfix . addNegation
 chainOps    = (ops $ makeOp2 AssocLeft "&infix:" doApp) . addHyperInfix . addNegation
 rightSyn    = ops $ makeOp2 AssocRight "" Syn
 nonSyn      = ops $ makeOp2 AssocNone "" Syn
@@ -389,6 +390,17 @@ makeOp2Assign :: Assoc -> String -> (String -> [Exp] -> Exp) -> RuleOperator Exp
 makeOp2Assign prec _ con = (`Infix` prec) $ do
     symbol "="
     return $ \invExp argExp -> stateAssignHack (con "=" [invExp, argExp])
+
+-- Rewrite "EXP ~~ .meth" into "?(EXP.meth)"
+makeOp2Match :: Assoc -> String -> (String -> [Exp] -> Exp) -> String -> RuleOperator Exp
+makeOp2Match prec sigil con name = (`Infix` prec) $ do
+    symbol name
+    return $ \x y -> case y of
+        Syn syn [Var var, rhs] | var == varTopic ->
+            App (_Var "&prefix:?") Nothing [Syn syn [x, rhs]]
+        App app (Just (Var var)) args | var == varTopic ->
+            App (_Var "&prefix:?") Nothing [App app (Just x) args]
+        _ -> con (sigil ++ name) [x,y]
 
 stateAssignHack :: Exp -> Exp
 stateAssignHack exp@(Syn "=" [lhs, _]) | isStateAssign lhs = 

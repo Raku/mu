@@ -244,7 +244,7 @@ bindSomeParams sub invExp argsExp = do
     let (slurpNamed, slurpPos) = partition ((SHash ==) . v_sigil . paramName) slurpyPrms
         -- defaultPos      = if hasDefaultArray  then [] else [defaultArrayParam]
         defaultScalar   = if hasDefaultScalar then [] else [] -- XXX - fetch from *@_
-        hasDefaultScalar= isJust (find ((_dollarUnderscore ==) . paramName) params)
+        hasDefaultScalar= isJust (find ((varTopic ==) . paramName) params)
         
     boundHash   <- bindHash namedForSlurp slurpNamed -- put leftover named args in %_
     (boundArray, newSlurpLimit) <- bindArray posForSlurp slurpPos slurpLimit
@@ -267,5 +267,3 @@ bindSomeParams sub invExp argsExp = do
         , subSlurpLimit = newSlurpLimit
         }
 
-_dollarUnderscore :: Var
-_dollarUnderscore = cast "$_"

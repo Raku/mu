@@ -530,8 +530,8 @@ reduceSyn "given" [topic, body] = enterGiven $ do
 
 reduceSyn "when" [match, body] = do
     result  <- reduce $ case unwrap match of
-        App _ (Just (Var var)) _ | var == cast "$_" -> match
-        _ -> App (_Var "&*infix:~~") Nothing [(_Var "$_"), match]
+        App _ (Just (Var var)) _ | var == varTopic -> match
+        _ -> App (_Var "&*infix:~~") Nothing [Var varTopic, match]
     rb      <- fromVal result
     if not rb then retEmpty else do
         sub     <- fromCodeExp body
@@ -793,7 +793,7 @@ reduceSyn "match" exps = do
         cxt = envContext env
         typ = typeOfCxt cxt
     if isaType cls "Bool" typ
-        then reduceApp (_Var "&infix:~~") Nothing [_Var "$_", Syn "rx" exps]
+        then reduceApp (_Var "&infix:~~") Nothing [Var varTopic, Syn "rx" exps]
         else reduceSyn "rx" exps
 
 reduceSyn "subst" [exp, subst, adverbs] = do

@@ -9,7 +9,6 @@ import Pugs.AST
 import Pugs.Parser
 import Pugs.Rule
 import Text.ParserCombinators.Parsec.Error (showErrorMessages, errorMessages)
-import Text.ParserCombinators.Parsec.Pos (initialPos)
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 
