@@ -23,7 +23,7 @@ sub identity {
 
 my $japh    = { "Just another $_ hacker" };
 my $japh2   = -> $name { "Just another $name hacker" };
-my $id      = eval("Id->new($_[0])", :lang<perl5>);
+my $id      = eval('sub { Id->new($_[0]) }', :lang<perl5>);
 
 is($id($japh).identity.('Pugs'), 'Just another Pugs hacker', "Closure roundtrips");
 is($id($japh2).identity.('Pugs'), 'Just another Pugs hacker', "Closure roundtrips");
