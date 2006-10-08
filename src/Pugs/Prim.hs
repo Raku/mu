@@ -279,7 +279,7 @@ op1 "Pugs::Internals::eval_perl5" = \v -> do
     tryIO undef $ do
         envSV <- mkVal (VControl $ ControlEnv env)
         sv <- evalPerl5 str envSV $ enumCxt (envContext env)
-        return $ PerlSV sv
+        svToVal sv
 op1 "Pugs::Internals::eval_p6y" = op1EvalP6Y
 op1 "Pugs::Internals::eval_haskell" = op1EvalHaskell
 op1 "Pugs::Internals::eval_yaml" = evalYaml
