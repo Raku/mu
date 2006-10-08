@@ -168,6 +168,10 @@ varNullScalar = MkVar
     , v_meta    = MNil
     }
 
+-- | the topical variable $_
+varTopic :: Var
+varTopic = cast "$_"
+
 data VarMeta
     = MNil
     | MFold             -- [+]
