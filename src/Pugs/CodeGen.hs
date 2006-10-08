@@ -20,7 +20,7 @@ import Pugs.CodeGen.Perl5 (genPerl5)
 import Pugs.CodeGen.YAML (genParseYAML, genParseHsYAML, genYAML)
 import Pugs.CodeGen.JSON (genJSON)
 import Pugs.Compile.Pugs (genPugs)
-import Pugs.Compile.Haskell (genGHC)
+-- import Pugs.Compile.Haskell (genGHC)
 -- import Pugs.CodeGen.XML (genXML)
 import qualified Data.Map as Map
 
@@ -28,8 +28,7 @@ type Generator = Eval Val
 
 generators :: Map String Generator
 generators = Map.fromList $
-    [ ("GHC",         genGHC)
-    , ("PIR",         genPIR)
+    [ ("PIR",         genPIR)
     , ("PIR-YAML",    genPIR_YAML)
     , ("PIL1",        genPIL1)
     , ("PIL1-Perl5",  genPerl5)
@@ -39,6 +38,7 @@ generators = Map.fromList $
 --  , ("PIL2-Perl5",  genPIL2Perl5)
 --  , ("PIL2-JSON",   genPIL2JSON)
 --  , ("PIL2-YAML",   genPIL2YAML)
+ -- , ("GHC",         genGHC)
     , ("Pugs",        genPugs)
     , ("Parse-YAML",  genParseYAML)
     , ("Parse-HsYAML",genParseHsYAML)
