@@ -79,15 +79,15 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 #L<<S03/Smart matching/Hash .{Any} "hash element truth*">>
 { 
     my $string is context = "foo";
-    ok eval_elsewhere('(%+hash5 ~~ .{$+string})'), 'hash.{Any} truth', :todo;
+    ok eval_elsewhere('(%+hash5 ~~ .{$+string})'), 'hash.{Any} truth';
     $string = "gorch";
-    ok eval_elsewhere('!(%+hash5 ~~ .{$+string})'), 'hash.{Any} untruth', :todo;
+    ok eval_elsewhere('!(%+hash5 ~~ .{$+string})'), 'hash.{Any} untruth';
 };
 
 #L<<S03/Smart matching/Hash .<string> "hash element truth*">>
 { 
-    ok eval_elsewhere('(%+hash5 ~~ .<foo>)'), "hash<string> truth", :todo;
-    ok eval_elsewhere('!(%+hash5 ~~ .<gorch>)'), "hash<string> untruth", :todo;
+    ok eval_elsewhere('(%+hash5 ~~ .<foo>)'), "hash<string> truth";
+    ok eval_elsewhere('!(%+hash5 ~~ .<gorch>)'), "hash<string> untruth";
 };
 
 #L<<S03/Smart matching/Array Array "arrays are comparable" »~~«>>
@@ -122,7 +122,7 @@ my %hash5 is context = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 #L<<S03/Smart matching/Array .[number] "array element truth*">>
 { 
     ok eval('((undef, 1, undef) ~~ .[1])'),
-        "element 1 of (undef, 1, undef) is true", :todo;
+        "element 1 of (undef, 1, undef) is true";
     ok eval('!((undef, undef) ~~ .[0])'),
         "element 0 of (undef, undef) is false";
 };
