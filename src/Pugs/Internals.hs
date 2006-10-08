@@ -152,7 +152,6 @@ import GHC.Exts (unsafeCoerce#, Word(W#), Word#)
 import qualified Data.Seq as Seq
 
 import qualified UTF8
-import qualified Judy.StrMap as H
 import qualified Judy.CollectionsM as C
 import qualified Foreign as Foreign
 import qualified Control.Exception (catch, evaluate)
@@ -519,7 +518,7 @@ __ = UTF8.pack
 (+++) = UTF8.append
 
 {-# NOINLINE _BufToID #-}
-_BufToID :: H.StrMap ByteString ID
+_BufToID :: IORef (Map ByteString ID)
 _BufToID = unsafePerformIO C.new
 
 {-# NOINLINE _ID_count #-}
@@ -544,11 +543,11 @@ bufToID buf = do
     a'      <- C.lookup buf _BufToID
     case a' of
         Just a  -> do
-            -- hPrint stderr ("HIT", buf, W# (unsafeCoerce# _BufToID), W# (unsafeCoerce# cache))
+            -- hPrint stderr ("HIT", buf, W# (unsafeCoerce# _BufToID))
             return a
         _       -> do
             i <- Foreign.peek _ID_count
-            -- hPrint stderr ("MISS", buf, W# (unsafeCoerce# _BufToID), W# (unsafeCoerce# cache), i)
+            -- hPrint stderr ("MISS", buf, W# (unsafeCoerce# _BufToID), i)
             Foreign.poke _ID_count (succ i)
             let a = MkID{ idKey = i, idBuf = buf }
             C.insert buf a _BufToID
