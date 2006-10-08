@@ -893,8 +893,8 @@ reduceApp (Var var) invs args
         case res of
             [x] -> return x
             _   -> return $ VList res
-    | var == cast "&hash" = do
-        enterEvalContext cxtItemAny $ Syn "\\{}" [Syn "," $ maybeToList invs ++ args]
+    | var == cast "&hash", Nothing <- invs= do
+        enterEvalContext cxtItemAny $ Syn "\\{}" [Syn "," args]
     | var == cast "&list" = do
         enterEvalContext cxtSlurpyAny $ case maybeToList invs ++ args of
             []    -> Val (VList [])
