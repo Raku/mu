@@ -241,12 +241,17 @@ op1 "require_parrot" = \v -> do
     liftIO $ evalParrotFile name
     return $ VBool True
 op1 "require_perl5" = \v -> do
-    name    <- fromVal v
-    val     <- op1 "Pugs::Internals::eval_perl5" (VStr $ "require " ++ name ++ "; '" ++ name ++ "'")
-    evalExp $ _Sym SGlobal ('$':'*':name) (Syn ":=" [_Var ('$':'*':name), Val val])
-    case val of
-        PerlSV _  -> return val
-        _         -> fail "perl5 is not available"
+    pkg     <- fromVal v
+    env     <- ask
+    let requireLine = "require " ++ pkg ++ "; '" ++ pkg ++ "'"
+    val     <- guardIO $ do
+        envSV   <- mkVal (VControl $ ControlEnv env)
+        sv      <- evalPerl5 requireLine envSV $ enumCxt cxtItemAny
+        return (PerlSV sv)
+    evalExp $ Stmts
+        (_Sym SGlobal (':':'*':pkg) (Syn ":=" [ _Var (':':'*':pkg), Val val]))
+        (newMetaType pkg)
+    return val
 op1 "Pugs::Internals::eval_parrot" = \v -> do
     code    <- fromVal v
     liftIO . evalParrot $ case code of

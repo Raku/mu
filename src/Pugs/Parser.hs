@@ -758,10 +758,7 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
     when use $ do   -- for &no, don't load code
         env  <- ask
         env' <- unsafeEvalEnv $ if lang == "perl5"
-            then Stmts (_Sym SGlobal (':':'*':pkg)
-                            (Syn ":=" [ _Var (':':'*':pkg)
-                               , App (_Var "&require_perl5") Nothing [Val $ VStr pkg] ]))
-                       (newMetaType pkg) -- Perl5's ::CGI is same as ::CGI.meta
+            then (App (_Var "&require_perl5") Nothing [Val $ VStr pkg])
             else (App (_Var "&use") Nothing [Val $ VStr pkg])
         modify $ \state -> state
             { s_env = env
