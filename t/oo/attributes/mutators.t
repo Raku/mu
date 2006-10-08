@@ -20,10 +20,8 @@ class LValueMutator {
 }
 
 my $lvm = LValueMutator.new(:foo(3));
-is($lvm.foo, 3, "constructor uses lvalue accessor method",
-   :todo<bug>);
-is($lvm.get_foo, undef, "constructor doesn't simply set attributes",
-   :todo<bug>);
+is($lvm.foo, 3, "constructor uses lvalue accessor method", :todo<bug>);
+is($lvm.get_foo, undef, "constructor doesn't simply set attributes");
 
 lives_ok { $lvm.get_foo = 6 }, "lvalue accessors seem to work";
 is($lvm.get_foo, 6, "lvalue accessors work");
