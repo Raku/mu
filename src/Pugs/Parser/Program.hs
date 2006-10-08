@@ -9,6 +9,7 @@ import Pugs.AST
 import Pugs.Parser
 import Pugs.Rule
 import Text.ParserCombinators.Parsec.Error (showErrorMessages, errorMessages)
+import Text.ParserCombinators.Parsec.Pos (initialPos)
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 
@@ -101,9 +102,11 @@ makeState env = MkState
     , s_parseProgram  = parseProgram
     , s_dynParsers    = MkDynParsersEmpty
     , s_bracketLevel  = StatementBracket
-    , s_char          = ' '
-    , s_name          = nullID
-    , s_pos           = 0
+--  , s_char          = ' '
+--  , s_name          = nullID
+--  , s_pos           = 0
+    , s_wsLine        = 0
+    , s_wsColumn      = 0
     , s_blockPads     = Map.empty
     , s_closureTraits = [id]
     , s_outerVars     = Set.empty

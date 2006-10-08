@@ -20,7 +20,7 @@ module Pugs.Lexer (
 
     rule, verbatimRule, literalRule,
     tryRule, tryVerbatimRule,
-    tryChoice, ruleComma, ruleWs,
+    tryChoice, ruleComma, 
 
     ruleScope, ruleTrait, ruleTraitName, ruleBareTrait, ruleType,
     verbatimParens, verbatimBrackets, verbatimBraces,
@@ -31,6 +31,7 @@ import Pugs.Rule
 import Pugs.Types
 import Pugs.Parser.Types
 import Pugs.Parser.Charnames
+import Text.ParserCombinators.Parsec.Pos (sourceColumn, sourceLine)
 
 identStart, identLetter :: RuleParser Char
 identStart  = satisfy isWordAlpha
@@ -132,6 +133,7 @@ balanced = do
     char $ balancedDelim opendelim
     return contents
 
+{-
 -- The \b rule.
 _ruleWordBoundary :: RuleParser ()
 _ruleWordBoundary = do
@@ -153,6 +155,7 @@ ruleWs = do
             if prev == curr then mandatoryWhiteSpace else case curr of
                 SpaceClass  -> whiteSpace
                 _           -> return ()
+-}
 
 {-|
 Match one or more identifiers, separated internally by the given delimiter.
@@ -199,8 +202,8 @@ ruleEndOfLine = choice [ do { char '\n'; return () }, eof ]
 symbol :: String -> RuleParser String
 symbol s = try $ do
     rv <- string s
-    let ahead  = if isWordAny lastCh then aheadWord else aheadSym
-        lastCh = last rv
+    let lastCh = last s
+        ahead  = if isWordAny lastCh then aheadWord else aheadSym
     choice [ lookAhead (satisfy (ahead lastCh)), eof >> return ' ' ]
     whiteSpace
     return rv
@@ -529,7 +532,9 @@ skipToLineEnd = do
 
 simpleSpace :: RuleParser ()
 simpleSpace = do
-    skipMany1 (satisfy (isSpace))
+    skipMany1 (satisfy isSpace)
+    pos <- getPosition
+    modify (\s -> s{ s_wsLine = sourceLine pos, s_wsColumn = sourceColumn pos })
 
 multiLineComment :: RuleParser ()
 multiLineComment = do

@@ -576,7 +576,7 @@ makeParser simpleTerm ops = do
         posts   <- many postfixOp
         fmap (foldOp posts) $ foldM maybeApplyPrefixMacro x' (map liftEither $ reverse pres)
 
-    maybeApplyPrefixMacro t f = possiblyApplyMacro (f t)
+    maybeApplyPrefixMacro t f = {-# SCC "maybeApplyPrefixMacro" #-} possiblyApplyMacro (f t)
 
     liftEither (Left x) = x
     liftEither (Right x) = x

@@ -5,11 +5,11 @@ module Pugs.Parser.Types (
     DynParsers(..), ParensOption(..), FormalsOption(..), BracketLevel(..),
     RuleOperator, RuleOperatorTable,
     getRuleEnv, modifyRuleEnv, putRuleEnv, insertIntoPosition,
-    clearDynParsers, enterBracketLevel, getCurrCharClass, getPrevCharClass, charClassOf,
+    clearDynParsers, enterBracketLevel, getCurrCharClass, charClassOf,
     addBlockPad, popClosureTrait, addClosureTrait, addOuterVar,
     -- Alternate Char implementations that keeps track of s_charClass
     satisfy, string, oneOf, noneOf, char, hexDigit, octDigit,
-    digit, upper, anyChar, perl6WhiteSpace, expRule, parserWarn, mkPos,
+    digit, upper, anyChar, expRule, parserWarn, mkPos,
 
     Operator(..), Assoc(..),
 ) where
@@ -23,20 +23,20 @@ import Debug.Trace
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 
+{-# INLINE satisfy #-}
 satisfy :: (Char -> Bool) -> RuleParser Char
-satisfy f = tokenPrimEx
+satisfy f = tokenPrim
     (\c -> show [c]) 
     (\pos c _ -> updatePosChar pos c) 
-    (Just (\_ c _ state -> state{ s_char = c }))
+    -- (Just (\_ c _ state -> state{ s_char = c }))
     (\c -> if f c then Just c else Nothing)
 
+{-# INLINE string #-}
 string :: String -> RuleParser String
-string s = do
-    tokens show updatePosString s
-    let lastCh = last s
-    modify (\state -> state{ s_char = lastCh })
-    return (lastCh `seq` s)
+string s = tokens show updatePosString s
+--    `finallyM` modify (\state -> state{ s_char = last s })
 
+{-
 _captureNamed :: ID -> RuleParser a -> RuleParser a
 _captureNamed newState rule = do
     prev <- gets s_name
@@ -52,6 +52,7 @@ _capturePositioned pos rule = do
     rv <- rule
     modify $ \state -> state{ s_pos = prev }
     return rv
+-}
 
 charClassOf :: Char -> CharClass
 charClassOf c   | isAlphaNum c  = WordClass
@@ -62,10 +63,13 @@ charClassOf c   | isAlphaNum c  = WordClass
 getCurrCharClass :: RuleParser CharClass
 getCurrCharClass = fmap charClassOf (lookAhead anyToken) <|> return SpaceClass
 
+{-
 getPrevCharClass :: RuleParser CharClass
 getPrevCharClass = do
-    c <- gets s_char
-    return $ charClassOf c
+    p   <- gets s_wsPos
+    p'  <- getPosition
+    return (if (p == p') then SpaceClass else WordClass)
+-}
 
 oneOf, noneOf :: [Char] -> RuleParser Char
 oneOf cs    = satisfy (\c -> elem c cs)
@@ -74,21 +78,25 @@ noneOf cs   = satisfy (\c -> not (elem c cs))
 char :: Char -> RuleParser Char
 char c      = satisfy (==c)  <?> show [c]
 
-hexDigit, octDigit, digit, upper, whiteSpace :: RuleParser Char
+hexDigit, octDigit, digit, upper :: RuleParser Char
 hexDigit    = satisfy (isHexDigit)  <?> "hexadecimal digit"
 octDigit    = satisfy (isOctDigit)  <?> "octal digit"
 
 digit       = satisfy (isDigit)     <?> "digit"
 upper       = satisfy (isUpper)     <?> "uppercase letter"
 
+{-
 whiteSpace  = satisfy (\c -> charClassOf c == SpaceClass)
                                     <?> "whitespace"
+-}
 
+{-
 perl6WhiteSpace :: RuleParser String
 perl6WhiteSpace = do
     cls <- getPrevCharClass 
     let mod = if cls == WordClass then many1 else many
     mod whiteSpace <|> (satisfy (\c -> charClassOf c /= WordClass) >> return "")
+-}
 
 anyChar :: RuleParser Char
 anyChar     = satisfy (const True)
@@ -121,9 +129,11 @@ data RuleState = MkState
                                         --     parsers
     , s_bracketLevel  :: !BracketLevel  -- ^ The kind of "bracket" we are in
                                         --     part and has to suppress {..} literals
-    , s_char          :: !Char          -- ^ What the previous character contains
-    , s_name          :: !ID            -- ^ Capture name
-    , s_pos           :: !Int           -- ^ Capture position
+--  , s_char          :: Char           -- ^ What the previous character contains
+--  , s_name          :: !ID            -- ^ Capture name
+--  , s_pos           :: !Int           -- ^ Capture position
+    , s_wsLine        :: !Line          -- ^ Last whitespace position
+    , s_wsColumn      :: !Column        -- ^ Last whitespace position
     , s_blockPads     :: Map Scope Pad  -- ^ Hoisted pad for this block
     , s_outerVars     :: Set Var        -- ^ OUTER symbols we remembers
                                        

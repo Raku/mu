@@ -51,7 +51,7 @@ numLiteral = do
     n <- naturalOrRat
     -- XXX - This is a hack to allow \b to work with numbers
     --       because Parser.Number is currently not a RuleParser
-    modify $ \state -> state{ s_char = '0' }
+    -- modify $ \state -> state{ s_char = '0' }
     case n of
         Left  i -> return . Val $ VInt i
         Right d -> return . Val $ VRat d
@@ -178,6 +178,7 @@ ruleLongDot = verbatimRule "long dot" $ do
     char '.'
     return ()
 
+{-
 -- zero-width, non-consuming word boundary assertion (\b)
 ruleWordBoundary :: RuleParser ()
 ruleWordBoundary = verbatimRule "word boundary" $ do
@@ -186,6 +187,7 @@ ruleWordBoundary = verbatimRule "word boundary" $ do
     return ()
     where
     look op = lookAhead (satisfy (\c -> SpaceClass `op` charClassOf c))
+-}
 
 -- Interpolating constructs
 qInterpolatorChar :: RuleParser Exp

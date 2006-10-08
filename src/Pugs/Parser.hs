@@ -1396,13 +1396,21 @@ parseTerm = rule "term" $! do
         --        so that ($x) = f() gives list context.
         , fmap (Ann Parens) (verbatimParens ruleBracketedExpression)
         ] 
-    cls  <- getPrevCharClass
-    case cls of
-        SpaceClass -> return term
-        _ -> do
+    pos <- getPosition
+    col <- gets s_wsColumn
+    -- If we terminated on whitespace, don't apply postterms.
+    if (col == sourceColumn pos)
+        then do
+            ln  <- gets s_wsLine
+            if ln == sourceLine pos
+                then return term
+                else do
+                    fs <- many s_postTerm
+                    return (combine (reverse fs) term)
+        else do
             -- s_postTerm returns an (Exp -> Exp) that we apply to the original term
             fs <- many s_postTerm
-            return $! combine (reverse fs) term
+            return (combine (reverse fs) term)
 
 ruleSignatureVal :: RuleParser Exp
 ruleSignatureVal = rule "signature value" $ do
@@ -1708,11 +1716,11 @@ ruleApply isFolded = verbatimRule "apply" $
 ruleApplyImplicitMethod :: RuleParser Exp
 ruleApplyImplicitMethod = do
     lookAhead (char '.')
-    prevChar <- gets s_char
+    -- prevChar <- gets s_char
     fs <- many s_postTerm
-    when (prevChar == '}') $ do
-        pos <- getPosition
-        traceM ("Warning: '{...}.method' treated as '{...}; .method' at " ++ show pos)
+    -- when (prevChar == '}') $ do
+    --     pos <- getPosition
+    --     traceM ("Warning: '{...}.method' treated as '{...}; .method' at " ++ show pos)
     return (combine (reverse fs) (Var _dollarUnderscore))
 
 ruleSubNameWithoutPostfixModifier :: RuleParser String
@@ -1985,7 +1993,6 @@ ruleVar = do
     case exp of
         Var var | TAttribute <- v_twigil var -> do
             let methName = ('&':cast (v_name var))
-                selfVar  = _Var "&self"
             postApp <- ruleInvocationArguments Nothing methName False
             return $ Syn (shows (v_sigil var) "{}") [postApp (_Var "&self")]
         _   -> return exp
