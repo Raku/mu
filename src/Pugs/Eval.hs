@@ -293,9 +293,10 @@ _scalarContext :: Cxt
 _scalarContext = CxtItem $ mkType "Scalar"
 
 reduceStmts :: Exp -> Exp -> Eval Val
-reduceStmts this rest
-    | Noop <- unwrap rest = reduce this
-    | Noop <- unwrap this = reduce rest
+reduceStmts Noop rest           = reduce rest
+reduceStmts (Ann _ Noop) rest   = reduce rest
+reduceStmts this Noop           = reduce this
+reduceStmts this (Ann _ Noop)   = reduce this
 
 -- XXX - Hack to get context propagating to "return"
 reduceStmts this@(App (Var var) _ _) _ | var == cast "&return" = reduce this
@@ -307,12 +308,14 @@ reduceStmts this rest = do
             Ann _ (App (Var var) _ _) | var == cast "&yield" -> id
             _  -> enterContext cxtVoid
     val <- withCxt (reduce this)
-    trapVal val $ case unwrap rest of
-        (Syn "env" []) -> do
+    let writeEnv = do
             env <- ask
             writeVar (cast "$*_") val
             return . VControl $ ControlEnv env
-        _ -> reduce rest
+    trapVal val $ case rest of
+        Ann _ (Syn "env" [])    -> writeEnv
+        Syn "env" []            -> writeEnv
+        _                       -> reduce rest
 
 reducePrag :: [Pragma] -> Exp -> Eval Val
 reducePrag prag exp = do
