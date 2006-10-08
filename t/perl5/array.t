@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 15;
+plan 18;
 
 unless try({ eval("1", :lang<perl5>) }) {
     skip_rest;
@@ -69,26 +69,24 @@ lives_ok {
 }, 'can retro fetch';
 ok $match, 'retro fetch';
 
-# XXX - Infinite loop
-skip_rest; exit;
-
-is($retarray.elems, @array.elems, 'retro elems');
+is(eval(q{$retarray.elems}), @array.elems, 'retro elems');
 is($retarray.exists(1), @array.exists(1), 'retro exists');
 is($retarray.exists(10), @array.exists(10), 'retro nonexists' );
 
 ok (eval '$p5array.push(9)'), 'can push';
 
-is((eval '$p5array.fetch(4)'), 9, 'push result via obj', :todo<feature>);
+is((eval '$p5array.fetch(4)'), 9, 'push result via obj');
 is((eval '@array[4]'), 9, 'push result via array', :todo<feature>);
 
+flunk("push(9) non-terminates");
 #$retarray.push(9);  # this will loop
 
-#is($p5array.fetch(5), 9, 'retro push result');
-#is(@array[5], 9, 'retro push result');
+is($p5array.fetch(5), 9, 'retro push result');
+is(@array[5], 9, 'retro push result');
 
 ok (eval '$p5array.store(0,3)'), 'can store';
 
 is(@array[0], 3, 'store result', :todo<feature>);
-is((eval '$p5array.fetch(0)'), 3, 'store result', :todo<feature>);
+is((eval '$p5array.fetch(0)'), 3, 'store result');
 
 # TODO: pop, shift, unshift, splice, delete
