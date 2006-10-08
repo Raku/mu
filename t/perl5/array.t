@@ -52,9 +52,9 @@ sub push {
 1;
 /, :lang<perl5>);
 
-my $p5ar = eval("My::Array", :lang<perl5>);
+my $p5ar = eval('sub { My::Array->new($_[0]) }', :lang<perl5>);
 my @array = (5,6,7,8);
-my $p5array = $p5ar.new(VAR @array);
+my $p5array = $p5ar(VAR @array);
 
 my $retarray = $p5array.array;
 
