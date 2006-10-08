@@ -66,20 +66,11 @@ my $filename = 'tempfile';
     $fh.close();
 }
 
-### Pugs Bugs FIXME
-### these two test groups below will fail
-### with the error:
-###
-###    pugs: tempfile: hGetLine: illegal operation (handle is closed)
-###
-### it seems that accessing it when it is 
-### in the for loop is not okay.
-
 { # now read it in with the $fh controling the loop but call 
   # the =$fh inside the loop inside parens (is this list context??)
     my $fh = open($filename);
     my $num = 1;
-    for (=$fh) -> $line {
+    for =$fh -> $line {
         is($line, "$num", '... got the right line ((=$fh) controlled loop)');
         $num++;
         my $line2 = =$fh;
