@@ -38,6 +38,8 @@ David Brunton - dbrunton@plusthree.com
 
 =cut
 
+use Automata::Cellular::Rule;
+
 class Automata::Cellular-0.1 
     does Automata::Cellular::Rule
 {
@@ -72,16 +74,16 @@ class Automata::Cellular-0.1
         "Stage $.stage: $state";
     }
 
-    method postfix:<++> {
-        my @old_state = @.state;
+    multi sub *postfix:<++> (Automata::Cellular $self) {
+        my @old_state = $self.state;
         for ( 0 .. (@old_state.elems - 2) ) -> $index {
             my $index_key =
                 :2((+<<@old_state[ $index .. $index + 2 ]).join(""));
-            @.state[ $index + 1 ] = $.rule.rule{$index_key};
+            $self.state[ $index + 1 ] = $self.rule.rule{$index_key};
         }
 
-        $.stage = $.stage + 1; # since ++ is overloaded and no OUTER:: yet
-        if $.stage >= $.steps { return Bool::False; }
+        $self.stage = $self.stage + 1;
+        if $self.stage >= $self.steps { return Bool::False; }
         else { return Bool::True; }
     }
 
