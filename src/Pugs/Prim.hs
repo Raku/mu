@@ -1569,8 +1569,8 @@ withDefined (_:xs) c = withDefined xs c
 -- The Pad symbol name is prefixed with \"&*\" for functions and
 -- \"&*\" ~ fixity ~ \":\" for operators.
 primOp :: String -> String -> Params -> String -> Bool -> Bool -> Bool -> STM PadMutator
-primOp sym assoc prms ret isSafe isMacro isExport = do
-    prim <- genMultiSym (cast name) (sub (isSafe || not safeMode))
+primOp sym assoc prms ret isSafe isMacro isExport = fullEval $ do
+    prim <- genMultiSym var (sub (isSafe || not safeMode))
     case assoc of
         -- Manufacture &infix:<!===> from &infix:<===>.
         "chain" | head sym /= '!' -> do
@@ -1578,16 +1578,21 @@ primOp sym assoc prms ret isSafe isMacro isExport = do
             return (prim . prim')
         _       | isExport -> do
             -- Here we rewrite a multi form that redispatches into the method form.
-            prim' <- genMultiSym ((cast name){ v_package = emptyPkg }) (sub (isSafe || not safeMode))
+            prim' <- genMultiSym (var{ v_package = emptyPkg }) (sub (isSafe || not safeMode))
             return (prim . prim')
         _       -> return prim
     where
+    -- It is vital that we generate the ID for the Var for all the primitives at once,
+    -- otherwise they'll be generated unpredictably during runtime with an as-needed basis,
+    -- which may introduce race conditions under e.g. anotmer atomic block.
+    fullEval x = idKey (v_name var) `seq` x
+
     -- In safemode, we filter all prims marked as "unsafe".
-    name | isAlpha (head sym)
-         , fixity == "prefix"
-         = "&*" ++ sym
-         | otherwise
-         = "&*" ++ fixity ++ (':':sym)
+    var | isAlpha (head sym)
+        , fixity == "prefix"
+        = cast ("&*" ++ sym)
+        | otherwise
+        = cast ("&*" ++ fixity ++ (':':sym))
 
     pkg = do
         (_, pre) <- breakOnGlue "::" (reverse sym)
@@ -1644,11 +1649,12 @@ data Arity = Arity0 | Arity1 | Arity2
 
 -- |Produce a Pad update transaction with 'primOp' from a string description
 primDecl :: String -> STM PadMutator
-primDecl str = primOp sym assoc params ret
-    ("safe" `isPrefixOf` traits)
-    ("macro" `isSuffixOf` traits)
-    ("export" `isSuffixOf` traits)
+primDecl str = length str `seq` rv `seq` rv
     where
+    rv = primOp sym assoc params ret
+        ("safe" `isPrefixOf` traits)
+        ("macro" `isSuffixOf` traits)
+        ("export" `isSuffixOf` traits)
     (ret:assoc:sym:traits:prms) = words str
     takeWord = takeWhile isWord . dropWhile (not . isWord)
     isWord = not . (`elem` "(),:")
@@ -1756,7 +1762,9 @@ toQuoteMeta c =
 --
 -- >  ret_val   assoc   op_name [safe|unsafe] args
 initSyms :: STM [PadMutator]
-initSyms = mapM primDecl syms
+initSyms = seq (length syms) $ do
+    rv <- mapM primDecl syms
+    length rv `seq` return (length rv `seq` rv)
     where
     syms = filter (not . null) . lines $ "\
 \\n   Bool      spre    !       safe   (Bool)\
