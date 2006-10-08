@@ -4,8 +4,7 @@ use Test;
 
 plan(2);
 
-# XXX: can't catch exception from try { use perl5: }
-unless try({ use jsperl5:Digest::MD5 <md5_hex>; 1 }) {
+unless try({ use perl5:Digest::MD5 <md5_hex>; 1 }) {
     skip_rest $!;
     exit;
 }
