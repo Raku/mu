@@ -1984,10 +1984,10 @@ ruleVar = do
     exp <- ruleSigiledVar
     case exp of
         Var var | TAttribute <- v_twigil var -> do
-            postApp <- ruleInvocationArguments Nothing ('&':cast (v_name var)) False
-            case postApp (_Var "&self") of
-                App _ _ []  -> return exp
-                exp'        -> return exp'
+            let methName = ('&':cast (v_name var))
+                selfVar  = _Var "&self"
+            postApp <- ruleInvocationArguments Nothing methName False
+            return $ Syn (shows (v_sigil var) "{}") [postApp (_Var "&self")]
         _   -> return exp
 
 ruleSymbolicDeref :: RuleParser Exp
