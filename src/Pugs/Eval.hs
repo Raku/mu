@@ -884,53 +884,66 @@ reduceSyn "CCallDyn" (Val (VStr quant):methExp:invExp:args) = do
 reduceSyn name exps =
     retError "Unknown syntactic construct" (Syn name exps)
 
-reduceApp :: Exp -> (Maybe Exp) -> [Exp] -> Eval Val
--- XXX absolutely evil bloody hack for context hinters
-reduceApp (Var var) invs args
-    | var == cast "&VAR" = do
+data SpecialApp
+    = AppSub        !([Exp] -> Eval Val)
+    | AppMeth       !(Exp -> [Exp] -> Eval Val)
+    | AppSubMeth    !(Maybe Exp -> [Exp] -> Eval Val)
+    deriving (Typeable)
+
+class SpecialAppHelper a where
+    (...) :: String -> a -> (Var, SpecialApp)
+
+instance SpecialAppHelper (Maybe Exp -> [Exp] -> Eval Val) where
+    n ... f = (cast n, AppSubMeth f)
+
+instance SpecialAppHelper ([Exp] -> Eval Val) where
+    n ... f = (cast n, AppSub f)
+
+instance SpecialAppHelper (Exp -> [Exp] -> Eval Val) where
+    n ... f = (cast n, AppMeth f)
+
+specialApp :: Map Var SpecialApp
+specialApp = Map.fromList
+    [ "&VAR"        ... \invs args -> do
         res <- forM (maybeToList invs ++ args) $ \exp -> do
             enterLValue (enterEvalContext cxtItemAny exp)
         case res of
             [x] -> return x
             _   -> return $ VList res
-    | var == cast "&hash", Nothing <- invs= do
-        enterEvalContext cxtItemAny $ Syn "\\{}" [Syn "," args]
-    | var == cast "&list" = do
-        enterEvalContext cxtSlurpyAny $ case maybeToList invs ++ args of
+    , "&hash"       ... (enterEvalContext cxtItemAny . Syn "\\{}" . (:[]) . Syn ",")
+    , "&list"       ... \args -> do
+        enterEvalContext cxtSlurpyAny $ case args of
             []    -> Val (VList [])
             [exp] -> exp
             exps  -> Syn "," exps
-    | var == cast "&item" = do
-        case maybeToList invs ++ args of
-            [exp] -> enterRValue $ enterEvalContext cxtItemAny exp
-            _     -> enterRValue $ enterEvalContext cxtItemAny $ Syn "," (maybeToList invs ++ args)
-    | var == cast "&cat", Nothing <- invs = do
+    , "&item"       ... \args -> do
+        enterRValue . enterEvalContext cxtItemAny $ case args of
+            [exp] -> exp
+            _     -> Syn "," args
+    , "&cat"        ... \args -> do
         vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) args
         val  <- op0Cat vals
         retVal val
-    | var == cast "&each", Nothing <- invs = do
+    , "&each"       ... \args -> do
         vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) args
         val  <- op0Each vals
         retVal val
-    | var == cast "&roundrobin", Nothing <- invs = do
+    , "&roundrobin" ... \args -> do
         vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) args
         val  <- op0RoundRobin vals
         retVal val
-    | var == cast "&zip", Nothing <- invs = do
+    , "&zip"        ... \args -> do
         vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) args
         val  <- op0Zip vals
         retVal val
-    -- XXX absolutely evil bloody hack for "return"
-    | var == cast "&return" = do
+    , "&return"     ... \args -> do
         op1Return . shiftT . const . fmap (VControl . ControlLeave (<= SubRoutine) 0) $ 
-            case maybeToList invs ++ args of
+            case args of
                 []      -> retEmpty
                 [arg]   -> evalExp arg
                 args    -> evalExp (Syn "," args)
-    -- XXX absolutely evil bloody hack for "goto"
-    | var == cast "&goto", Just subExp <- invs = do
-        vsub <- enterEvalContext (cxtItem "Code") subExp
-        sub <- fromVal vsub
+    , "&goto"       ... \inv args -> do
+        sub     <- fromCodeExp inv
         let callerEnv :: Env -> Env
             callerEnv env = let caller = maybe env id (envCaller env) in
                 env{ envCaller  = envCaller caller
@@ -942,10 +955,9 @@ reduceApp (Var var) invs args
         local callerEnv $ do
             val <- apply sub Nothing args
             shiftT $ const (retVal val)
-    -- XXX absolutely evil bloody hack for "call"
-    | var == cast "&call", Just subExp <- invs = do
-        vsub <- enterRValue (enterEvalContext (cxtItem "Code") subExp)
-        sub  <- fromVal vsub
+            retEmpty
+    , "&call"       ... \inv args -> do
+        sub     <- fromCodeExp inv
         let callerEnv :: Env -> Env
             callerEnv env = let caller = maybe env id (envCaller env) in
                 env{ envCaller  = envCaller caller
@@ -958,23 +970,13 @@ reduceApp (Var var) invs args
             []      -> return (CaptSub { c_feeds = [] })
             (x:_)   -> castVal =<< fromVal =<< enterRValue (enterEvalContext (cxtItem "Capture") x)
         local callerEnv $ applyCapture sub vcap
-    -- XXX absolutely evil bloody hack for "assuming"
-    | var == cast "&assuming", Just subExp <- invs = do
-        vsub <- enterEvalContext (cxtItem "Code") subExp
-        sub  <- fromVal vsub
+    , "&assuming"   ... \inv args -> do
+        sub     <- fromCodeExp inv
         case bindSomeParams sub Nothing args of
             Left errMsg      -> fail errMsg
             Right curriedSub -> retVal $ castV $ curriedSub
-    | var == cast "&infix:=>" = do
-        reduceSyn "=>" $ maybeToList invs ++ args
--- We have three rules here:
---      close($fh)  => try sub first, fallback to method
---      $fh.close   => try meth first, fallback to sub
---      &close($fh) => try sub, method is not considered
--- XXX - special handling of forced-no-invocant-reinterpretation.
---       (see Eval.Var.)
-    -- XXX absolutely evil bloody hack for captures
-    | var == cast "&circumfix:\\( )" = do -- || var == cast "&prefix:\\" = do
+    , "&infix:=>"   ... reduceSyn "=>"
+    , "&circumfix:\\( )" ... \invs args -> do
         feeds <- argsFeed [] Nothing [args]
         case invs of
             Just i' -> do
@@ -983,26 +985,31 @@ reduceApp (Var var) invs args
                 return $ VV $ val $ CaptMeth{ c_invocant = vv, c_feeds = feeds }
             Nothing -> do
                 return $ VV $ val $ CaptSub{ c_feeds = feeds }
-    | var == cast "&prefix:|<<" = do -- XXX this is wrong as well - should handle at args level
-        reduceSyn "," $ maybeToList invs ++ args 
-    | C_postcircumfix <- v_categ var = do
-        -- XXX Hack - This turns "postcircumfix:[ ]" into Syn "[]".
-        let syn = filter (not . isSpace) (cast (v_name var))
-        reduceSyn syn (maybeToList invs ++ args)
-    | SCodeMulti <- v_sigil var = do
-        doCall var{ v_sigil = SCode } invs args
-    | SCode <- v_sigil var, Nothing <- invs, [inv] <- args = 
-        let dispatchSub  = doCall var Nothing [inv]
-            dispatchMeth = doCall var (Just inv) [] -- XXX - This will go away!
-        in case inv of
-            Syn "named" _           -> dispatchSub
-            _ | isInterpolated inv  -> dispatchSub
-            _                       -> do
+    , "&prefix:|<<" ... reduceSyn "," -- XXX this is wrong as well - should handle at args level
+    ]
+
+reduceApp :: Exp -> Maybe Exp -> [Exp] -> Eval Val
+reduceApp (Var var) invs args
+    | SCodeMulti <- sig = doCall var{ v_sigil = SCode } invs args
+    | SCode <- sig = case Map.lookup var specialApp of
+        Just (AppSub f)     | Nothing <- invs   -> f args
+        Just (AppMeth f)    | Just inv <- invs  -> f inv args
+        Just (AppSubMeth f)                     -> f invs args
+        _ | Nothing <- invs
+          , [inv] <- args
+          , not (isInterpolated inv)            -> case inv of
+            Syn "named" _   -> normalDispatch
+            _               -> do
                 -- Try a local lookup of subs only.  If found, don't bother a method lookup.
                 rv <- findVar var
-                if isJust rv then dispatchSub else dispatchMeth
-    | otherwise = do
-        doCall var invs args
+                if isJust rv
+                    then normalDispatch
+                    else doCall var (Just inv) [] -- XXX - This will go away!
+        _ -> doCall var invs args
+    | otherwise = normalDispatch
+    where
+    sig = v_sigil var
+    normalDispatch  = doCall var invs args
 
 reduceApp subExp invs args = do
     vsub <- enterEvalContext (cxtItem "Code") subExp
