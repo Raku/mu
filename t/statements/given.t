@@ -154,7 +154,7 @@ Tests the given block, as defined in L<S04/"Switch statements">
     };
     is($foo, 1, 'first iteration');
     is($bar, 1, 'second iteration');
-    is($baz, 0, 'continue worked');
+    is($baz, 0, 'continue worked', :todo<unspecced>);
     is($quux, 1, "break didn't abort loop");
     ok(!$bad, "didn't fall through");
 }
