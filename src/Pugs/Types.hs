@@ -147,12 +147,12 @@ mkType str
     = MkType (cast str)
 
 data Var = MkVar
-    { v_name    :: ID
-    , v_sigil   :: VarSigil
-    , v_twigil  :: VarTwigil
-    , v_categ   :: VarCateg
-    , v_package :: Pkg
-    , v_meta    :: VarMeta
+    { v_name    :: !ID
+    , v_sigil   :: !VarSigil
+    , v_twigil  :: !VarTwigil
+    , v_categ   :: !VarCateg
+    , v_package :: !Pkg
+    , v_meta    :: !VarMeta
     }
     deriving (Eq, Ord, Typeable, Data)
 
