@@ -1,6 +1,6 @@
 use v6-alpha;
 use Test;
-plan 17;
+plan 18;
 
 unless try({ eval("1", :lang<perl5>) }) {
     skip_rest;
@@ -52,21 +52,21 @@ my %h = ( a => 1 );
 my @a = <b c d>;
 
 {
-    my $test = q{ (@a) # received as array };
+    my $test = q{ (@a) received as array };
     my @o = $p5_dumper(@a);
     is(@o[0], "b", $test);
     is(@o[2], "d", $test);
 }
 
 {
-    my $test = q{ (\@a) # received as arrayref };
+    my $test = q{ (\@a) received as arrayref };
     my $o = $p5_dumper(\@a);
     is($o[0], "b", $test);
     is($o[2], "d", $test);
 }
 
 {
-    my $test = q{ (VAR @a) # received as arrayref };
+    my $test = q{ (VAR @a) received as arrayref };
     my $o = $p5_dumper(VAR @a);
     is($o[0], "b", $test);
     is($o[2], "d", $test);
@@ -75,19 +75,30 @@ my @a = <b c d>;
 my $s = 'str';
 
 {
-   my $test = q{ $p5_dumper($s);      # received as scalar };
+   my $test = q{ ($s) received as scalar };
    my $o = $p5_dumper($s);
    is($o, $s, $test);
 }
 
 {
-   my $test = q{ $p5_dumper(\$s);      # received as scalarref };
+   my $test = q{ (\$s) received as scalarref };
    my $o = $p5_dumper(\$s);
    is($$o, $s, $test);
 }
 
 {
-   my $test = q{ $p5_dumper(VAR $s);      # received as scalarref };
+   my $test = q{ (VAR $s) received as scalarref };
    my $o = $p5_dumper(VAR $s);
    is($$o, $s, $test);
 }
+
+{
+    my $test = q{ (&p6func) Passing a Perl 6 coderef to Perl 5 };
+
+    sub  plus_one (Int $int) { $int+1 }
+    my $sub = eval('sub { my $p6_coderef = shift; $p6_coderef->(3) }', :lang<perl5>);
+    my $result = $sub(&plus_one);
+    is($result,4,$test);
+}
+
+
