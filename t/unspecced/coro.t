@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan 12;
+plan 13;
 
 # Standard function of fp
 sub grab (Int $n, Code &f) { (1..$n).map:{ f() } }
@@ -32,9 +32,16 @@ sub grab (Int $n, Code &f) { (1..$n).map:{ f() } }
   my @array = grab 5, {
     coro {
       my $num;
-      while 1 {
-        yield ++$num;
-      }
+      yield ++$num;
+      yield ++$num;
+      yield ++$num;
+      yield ++$num;
+      yield ++$num;
+      yield ++$num;
+      yield ++$num;
+      yield ++$num;
+      yield ++$num;
+      yield ++$num;
     };
   };
 
@@ -50,9 +57,16 @@ sub grab (Int $n, Code &f) { (1..$n).map:{ f() } }
   my @array = grab 5, {
     coro {
       state $num;
-      while 1 {
-        yield ++$num;
-      }
+      yield ++$num;
+      yield ++$num;
+      yield ++$num;
+      yield ++$num;
+      yield ++$num;
+      yield ++$num;
+      yield ++$num;
+      yield ++$num;
+      yield ++$num;
+      yield ++$num;
     };
   };
 
@@ -80,3 +94,10 @@ try {
 # I've marked this failure as unspecced, should a yield be able to
 # jump up many scopes like that?
 ok $!, "yield() should work from inside a closure (unspecced!)";
+
+# Test that yield() works with loop blocks
+{
+    my $coro = coro { loop { yield 1 } };
+    is ~grab(2, $coro), '1 1', 'yield() works inside loop{} blocks', :todo<bug>;
+}
+
