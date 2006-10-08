@@ -1265,11 +1265,15 @@ applyThunk styp bound@(arg:_) thunk = do
     pad <- formal
     enterLex (inv ++ pad) $ thunk_force thunk
     where
-    formal = mapM argNameValue $ filter (not . (== cast "") . argName) bound
+    -- Don't generate pad entries for siglets such as "$" and "@".
+    formal = sequence
+        [ genSym var =<< fromVal val
+        | ApplyArg var val _ <- bound
+        , v_name var /= nullID
+        ]
     aliased names = do
         argRef  <- fromVal (argValue arg)
         mapM (`genSym` argRef) names
-    argNameValue (ApplyArg name val _) = genSym name =<< fromVal val
 
 {-|
 Apply a sub (or other code object) to an (optional) invocant, and
