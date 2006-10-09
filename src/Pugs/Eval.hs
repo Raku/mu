@@ -120,7 +120,7 @@ evaluateMain exp = do
         mapM_ evalExp [ App (Val sub) Nothing [] | sub@VCode{} <- initSubs ]
     evalExp (Syn "=" [_Var "@*INIT", Syn "," []])
     -- The main runtime
-    resetT (evaluate exp) `finallyM` do
+    tryT (evaluate exp) `finallyM` do
         -- S04: END {...}       at run time, ALAP
         endAV       <- reduceVar $ cast "@*END"
         endSubs     <- fromVals endAV
@@ -345,12 +345,12 @@ reducePad STemp lex exp = do
     tmps <- mapM (\(sym, _) -> evalExp $ App (_Var "&TEMP") (Just $ Var sym) []) $ padToList lex
     -- default to nonlocal exit
     isNonLocal  <- liftSTM $ newTVar True
-    val <- resetT $ do
+    val <- tryT $ do
         -- if the liftSTM is reached, exp evaluated without error; no need to shift out
         evalExp exp `finallyM` liftSTM (writeTVar isNonLocal False)
     mapM_ (\tmp -> evalExp $ App (Val tmp) Nothing []) tmps
     isn <- liftSTM $ readTVar isNonLocal
-    (if isn then (shiftT . const) else id) (return val)
+    (if isn then retShift else return) val
 
 reducePad _ lex exp = do
     local (\e -> e{ envLexical = lex `unionPads` envLexical e }) $ do
@@ -941,7 +941,7 @@ specialApp = Map.fromList
         val  <- op0Zip vals
         retVal val
     , "&return"     ... \args -> do
-        op1Return . shiftT . const . fmap (VControl . ControlLeave (<= SubRoutine) 0) $ 
+        (op1Return . retControl . ControlLeave (<= SubRoutine) 0) =<<
             case args of
                 []      -> retEmpty
                 [arg]   -> evalExp arg
@@ -958,7 +958,7 @@ specialApp = Map.fromList
                    }
         local callerEnv $ do
             val <- apply sub Nothing args
-            shiftT $ const (retVal val)
+            retShift =<< retVal val
             retEmpty
     , "&call"       ... \inv args -> do
         sub     <- fromCodeExp inv
