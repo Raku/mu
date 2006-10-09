@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
+module DrIFT.XML where
 import Pugs.AST.Internals
 import Text.XML.HaXml.Haskell2Xml
 
