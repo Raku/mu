@@ -1964,7 +1964,11 @@ verbatimVarNameString = verbatimRule "variable name" $ tryChoice
     ]
 
 ruleSigil :: RuleParser VarSigil
-ruleSigil = fmap cast (oneOf "$@%&")
+ruleSigil = do
+    ch  <- oneOf "$@%&"
+    case cast ch of
+        SArray -> option SArray (char '@' >> return SArrayMulti)
+        sig -> return sig
 
 regularVarName :: RuleParser String
 regularVarName = do
