@@ -16,7 +16,7 @@ is(~$union.WHAT, "Set", "set() - union");
 
 my $stringified = $set.stringify;
 ok($stringified ~~ rx:perl5/^set\([^<]*<obj:Person>[^<]*\)$/,
-   "stringify");
+   "stringify", :todo<bug>);
 diag("stringified to $stringified");
 
 ok($union.equal(set(0..6, $bob)), "set() - equal");
