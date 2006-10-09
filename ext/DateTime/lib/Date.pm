@@ -55,7 +55,7 @@ multi submethod BUILD (Str $string) returns Date {
 
 # day as Str where { rx:i/^last$/ }
 multi submethod BUILD (Int :$year, Int :$month = 1, Int|Str :$day is copy = 1) returns Date {
-    if $day ~~ rx:perl5<i>/^last$/ {
+    if $day.lc eq 'last' {
         my @lengths := _is_leap_year($year) ?? @LeapYearMonthLengths !! @MonthLengths;
 
         $day = @lengths[ $month - 1 ];
