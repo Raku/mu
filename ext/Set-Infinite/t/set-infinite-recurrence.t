@@ -4,7 +4,6 @@ use Test;
 plan 27;
 
 use Set::Infinite; pass "(dummy instead of broken use_ok)";
-use Set::Infinite;   # XXX should not need this
 use Recurrence;
 
 my $universe_recurr = Recurrence.new( 
@@ -67,14 +66,10 @@ my $even_numbers = Set::Infinite.new(
 );
 
 is( $even_numbers.next( 10 ), 12, 'next even' );
-is( try { $even_numbers.previous( 10 ) }, 8, 'previous even', :todo<bug> );
+is( try { $even_numbers.previous( 10 ) }, 8, 'previous even' );
 
 # Unfortunately, the rest of this also creates infinite loops.
 # So we'll skip the rest. ;(
-
-flunk "intersection() not yet implemented correctly", :todo<bug>;
-skip_rest;
-exit;
 
 {
     # union
