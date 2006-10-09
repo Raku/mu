@@ -222,7 +222,12 @@ package Pugs::Runtime::Perl6::Array;
     Data::Bind->sub_signature(\&map, { var => '$code', type => 'Code' }, { var => '@array'} );
 
 package Pugs::Runtime::Perl6::Hash;
-
+    use overload (
+        '""'     => \&str,
+        '0+'     => sub { scalar keys %{$_[0]} },
+        'bool'   => sub { 1 },
+        fallback => 1,
+    );
     sub str {
         join( "\n",
             map {
