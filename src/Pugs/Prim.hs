@@ -330,9 +330,11 @@ op1 "return" = op1Return . op1ShiftOut . VControl . ControlLeave (<= SubRoutine)
 op1 "yield" = op1Yield . op1ShiftOut . VControl . ControlLeave (<= SubRoutine) 0
 op1 "leave" = op1ShiftOut . VControl . ControlLeave (>= SubBlock) 0
 op1 "take" = \v -> do
-    lex <- asks envLexical
-    arr <- findSymRef (cast "@?TAKE") lex
-    op2 "push" (VRef arr) v
+    lex     <- asks envLexical
+    arr     <- findSymRef (cast "@?TAKE") lex
+    push    <- doArray (VRef arr) array_push
+    push (listVal v)
+    retEmpty
 op1 "sign" = \v -> withDefined [v] $
     op1Cast (VInt . signum) v
 
