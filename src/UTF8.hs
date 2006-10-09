@@ -158,9 +158,11 @@ zip,
 zipWith,
 count,
 unzip,
-transpose
+transpose,
+hash
     ) where
 
+import Data.Int
 import qualified Prelude as P
 import Prelude hiding           (reverse,head,tail,last,init,null
                                 ,length,map,lines,foldl,foldr,unlines
@@ -820,3 +822,13 @@ inlinePerformIO (IO m) = case m realWorld# of (# _, r #) -> r
 #else
 inlinePerformIO = unsafePerformIO
 #endif
+
+hash :: ByteString -> Int32
+hash (PS x s l) = inlinePerformIO $ withForeignPtr x $ \p ->
+    go (0 :: Int32) (p `plusPtr` s) l
+    where
+    go :: Int32 -> Ptr Word8 -> Int -> IO Int32
+    STRICT3(go)
+    go h _ 0 = return h
+    go h p n = do w <- peek p
+                  go (fromIntegral w + rotateL h 8) (p `plusPtr` 1) (n-1)
