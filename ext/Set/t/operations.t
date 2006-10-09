@@ -12,12 +12,10 @@ my $bert = Person.new;
 
 my $set = set(0, 1, 2, 3, $bob);
 my $union = $set.union(set(4,5,6));
-is(~$union.WHAT, "Set", "set() - union");
+is($union.WHAT, Set, "set() - union");
 
 my $stringified = $set.stringify;
-ok($stringified ~~ rx:perl5/^set\([^<]*<obj:Person>[^<]*\)$/,
-   "stringify", :todo<bug>);
-diag("stringified to $stringified");
+ok($stringified ~~ rx:perl5/^set\(.*Person.*\)$/, "stringify");
 
 ok($union.equal(set(0..6, $bob)), "set() - equal");
 ok(!$union.not_equal(set(0..6, $bob)), "set() - !not_equal");
