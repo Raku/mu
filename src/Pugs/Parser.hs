@@ -112,7 +112,7 @@ ruleStatementList :: RuleParser Exp
 ruleStatementList = rule "statements" .
     enterBracketLevel StatementBracket .
         sepLoop $ do
-            optional $ try (ruleVerbatimIdentifier >> char ':' >> whiteSpace)
+            optional $ try (ruleVerbatimIdentifier >> char ':' >> mandatoryWhiteSpace)
             choice
                 [ noSep     ruleDocBlock
                 , nonSep    ruleBlockDeclaration
