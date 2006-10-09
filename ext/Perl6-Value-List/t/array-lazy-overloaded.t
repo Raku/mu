@@ -5,7 +5,9 @@ plan 11;
  
 use Perl6::Value::List;
 
-multi infix:<..> ( Int $a, Int $b ) { Perl6::Value::List.from_range( start => $a, end => $b, step => 1 ) }
+my sub infix:<..> ( Int $a, Int $b ) {
+    Perl6::Value::List.from_range( start => $a, end => $b, step => 1 )
+}
 
 multi pop ( Array @a ) { 
     return unless @a;
@@ -31,9 +33,9 @@ multi pop ( Array @a ) {
   is( $span.pop, Inf, 'pop' );
   
   # reverse
-  my $rev = $span.reverse();
+  my $rev = $span.reverse;
 
-  isa_ok( $rev, 'List', 'reversed' );
+  isa_ok( $rev, Perl6::Value::List, 'reversed' );
 
   is( $rev.shift, Inf, 'shift reverse' );
   is( $rev.pop,   2,   'pop reverse' );
