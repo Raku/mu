@@ -1105,7 +1105,7 @@ _Sym :: Scope -> String -> Exp -> Exp
 _Sym scope str exp = Sym scope (cast str) exp
 
 _Var :: String -> Exp
-_Var str = Var (cast str)
+_Var str = Var (possiblyFixOperatorName (cast str))
 
 instance Value Exp where
     {- Val -> Eval Exp -}

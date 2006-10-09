@@ -612,7 +612,7 @@ reduceSyn ":=" exps
         names <- forM vars $ \var -> case unwrap var of
             Var name -> return name
             Syn [sigil,':',':','(',')'] [vexp]
-                | Val (VStr name) <- unwrap vexp -> return $ cast (sigil:name)
+                | Val (VStr name) <- unwrap vexp -> return $ possiblyFixOperatorName (cast (sigil:name))
             _        -> retError "Cannot bind this as lhs" var
         bindings <- forM (names `zip` vexps) $ \(var, vexp) -> enterLValue $ do
             {- FULL THUNKING
