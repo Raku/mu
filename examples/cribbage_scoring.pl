@@ -13,13 +13,13 @@ use v6-alpha;
 my $next = combo(5, new_deck());
 while $combo == 1 {
     # Skip all hands that do not contain a 5
-#    next if none( @combo>>.<val> ) == 5;
+#    next if none( @combo.>>.<val> ) == 5;
 
     # Skip all hands that have a score of at least 2
 #    next if score( @combo ) > 1;
 
     # Print out the rest
-#    say ~@combo>>.<suit>;
+#    say ~@combo.>>.<suit>;
 }
 
 sub score ( @hand ) returns Int {
@@ -27,12 +27,12 @@ sub score ( @hand ) returns Int {
 
     # [234] of a kind
     my %ordval;
-    for @hand>>.<num> { %ordval{$_}++ };
+    for @hand.>>.<num> { %ordval{$_}++ };
     for %ordval.values { $score += $_ * $_ - 1 }
 
     # Flush
-    $score += ([eq] @hand[0..3]>>.<suit>)
-        ?? ([eq] @hand[3,4]>>.<suit>) ?? 5 !! 4
+    $score += ([eq] @hand[0..3].>>.<suit>)
+        ?? ([eq] @hand[3,4].>>.<suit>) ?? 5 !! 4
         !! 0;
 
     # Check for right-jack, @hand[-1] is community card
