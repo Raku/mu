@@ -204,7 +204,7 @@ symbol s = try $ do
     rv <- string s
     let lastCh = last s
         ahead  = if isWordAny lastCh then aheadWord else aheadSym
-    choice [ lookAhead (satisfy (ahead lastCh)), eof >> return ' ' ]
+    lookAhead (satisfy (ahead lastCh)) <|> (eof >> return ' ')
     whiteSpace
     return rv
     where
