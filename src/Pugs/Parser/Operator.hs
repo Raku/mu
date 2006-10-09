@@ -498,6 +498,16 @@ addHyperPostfix xs = xs `Set.union` hyperTexan `Set.union` hyperFrench
     texan x = cast (__">>" +++ cast x)
     french x = cast (cast "\187" +++ cast x)
 
+{-|
+Add prefix \
+
+-}
+addScanPrefix :: Set OpName -> Set OpName
+addScanPrefix xs = xs `Set.union` scanPrefix
+    where
+    scanPrefix = Set.mapMonotonic scan xs
+    scan x = cast (Buf.cons '\\' (cast x))
+
 addNegation :: Set OpName -> Set OpName
 addNegation xs = xs `Set.union` Set.mapMonotonic negation xs
     where
@@ -701,26 +711,32 @@ ruleHyperPost :: RuleParser String
 ruleHyperPost = ((char '\171' >> return "<<") <|> (string "<<"))
 
 -- XXX - the rulePipeHyper below should be more generic and put all +<< etc to listop level
-rulePipeHyper :: RuleParser String
+rulePipeHyper :: RuleParser Var
 rulePipeHyper = verbatimRule "" $ do
     -- sig <- (fmap show ruleSigil) <|> string "|"
     char '|'
     ruleHyperPost
-    return $ "&prefix:|<<"
+    return $ cast "&prefix:|<<"
 
-ruleFoldOp :: RuleParser String
+ruleFoldOp :: RuleParser Var
 ruleFoldOp = tryVerbatimRule "reduce metaoperator" $ (rulePipeHyper <|>) $ do
     char '['
-    keep <- option "" $ string "\\"
     -- XXX - Instead of a lookup, add a cached parseInfix here!
     MkTightFunctions{ r_infix = infixOps } <- currentTightFunctions
     -- name <- choice $ ops (try . string) (addHyperInfix $ infixOps ++ defaultInfixOps)
     name <- verbatimRule "infix operator" $ do
         choice $ ops (try . string)
-            (addHyperInfix (Map.keysSet infixOps `Set.union` defaultInfixOps))
+            (addScanPrefix (addHyperInfix (Map.keysSet infixOps `Set.union` defaultInfixOps)))
     char ']'
 --    possiblyHyper <- option "" ruleHyperPost
-    return $ "&prefix:[" ++ keep ++ name ++ "]" -- ++ possiblyHyper
+--
+    -- S03: If there is ambiguity between a triangular reduce and an infix operator
+    --      beginning with backslash, the infix operator is chosen.
+    let var = cast ("&prefix:[" ++ name ++ "]")
+        nameID = cast name
+    return $ case name of
+        ('\\':_) | MkOpName nameID `Map.member` infixOps -> var{ v_name = nameID, v_meta = MFold }
+        _ -> var
     where
     -- XXX !~~ needs to turn into metaop plus ~~
     defaultInfixOps = opWords $ concat
