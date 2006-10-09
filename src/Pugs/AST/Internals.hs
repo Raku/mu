@@ -1491,7 +1491,7 @@ retControl = retShift . VControl
 
 retShift :: Val -> Eval a
 -- retShift = shiftT . const . return
-retShift = EvalT . throwError
+retShift = EvalT . return . RException
 
 retShiftEmpty :: Eval a
 -- retShiftEmpty = shiftT (const retEmpty)
@@ -1853,7 +1853,7 @@ data VRef where
 instance Typeable VRef where
     typeOf (MkRef x) = typeOf x
 
-instance Typeable1 (EvalT (ErrorT Val (ReaderT Env SIO))) where
+instance Typeable1 (EvalT (ReaderT Env SIO)) where
     typeOf1 _ = typeOf ()
 
 instance Typeable1 IVar where

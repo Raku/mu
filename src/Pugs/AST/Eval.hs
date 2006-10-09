@@ -9,20 +9,25 @@ import Pugs.AST.SIO
 import {-# SOURCE #-} Pugs.AST.Internals
 
 {- Eval Monad -}
-type Eval = EvalT (ErrorT Val (ReaderT Env SIO))
-newtype EvalT m a = EvalT { runEvalT :: m a }
+type Eval = EvalT (ReaderT Env SIO)
+newtype EvalT m a = EvalT { runEvalT :: m (EvalResult a) }
+
+data EvalResult a
+    = RNormal    !a
+    | RException !Val
+    deriving (Typeable)
 
 instance ((:>:) (Eval a)) (SIO a) where cast = liftSIO
 
-liftEither :: Either a a -> a
-liftEither (Left a) = a
-liftEither (Right a) = a
+liftResult :: EvalResult Val -> Val
+liftResult (RNormal x) = x
+liftResult (RException x) = x
 
 runEvalSTM :: Env -> Eval Val -> STM Val
-runEvalSTM env = fmap liftEither . runSTM . (`runReaderT` enterAtomicEnv env) . runErrorT . runEvalT
+runEvalSTM env = fmap liftResult . runSTM . (`runReaderT` enterAtomicEnv env) . runEvalT
 
 runEvalIO :: Env -> Eval Val -> IO Val
-runEvalIO env = fmap liftEither . runIO . (`runReaderT` env) . runErrorT . runEvalT
+runEvalIO env = fmap liftResult . runIO . (`runReaderT` env) . runEvalT
 
 tryIO :: a -> IO a -> Eval a
 tryIO err = lift . liftIO . (`catchIO` (const $ return err))
@@ -46,7 +51,7 @@ shiftT :: ((a -> Eval Val) -> Eval Val)
        -> Eval a
 shiftT f = do
     rv <- f (error "invalid use of shiftT under ErrorT")
-    EvalT (throwError rv)
+    EvalT (return (RException rv))
 
 {-|
 Create an scope that 'shiftT'\'s subcontinuations are guaranteed to eventually
@@ -94,32 +99,44 @@ resetT :: Eval Val -- ^ An evaluation, possibly containing a 'shiftT'
 resetT e = catchError e return
 
 instance Monad Eval where
-    return a = EvalT $ return a
+    return a = EvalT $ return (RNormal a)
     m >>= k = EvalT $ do
         a <- runEvalT m
-        runEvalT (k a)
+        case a of
+            RNormal x   -> runEvalT (k x)
+            _           -> return (unsafeCoerce# a)
     fail str = do
         pos <- asks envPos'
-        EvalT (throwError $ errStrPos (cast str) pos)
+        EvalT $ return (RException (errStrPos (cast str) pos))
 
 instance Error Val where
     noMsg = errStr ""
     strMsg = errStr
 
 instance MonadTrans EvalT where
-    lift x = EvalT x
+    lift m = EvalT $ do
+        a <- m
+        return (RNormal a)
 
 instance Functor Eval where
-    fmap f (EvalT a) = EvalT (fmap f a)
+    fmap f m = EvalT $ do
+        a <- runEvalT m
+        case a of
+            RNormal x   -> return (RNormal (f x))
+            _           -> return (unsafeCoerce# a)
 
 instance MonadIO Eval where
-    liftIO io = EvalT (liftIO io)
+    liftIO = lift . liftIO
 
 instance MonadError Val Eval where
     throwError err = do
         pos <- asks envPos'
-        EvalT (throwError $ errValPos err pos)
-    catchError (EvalT action) handler = EvalT (catchError action (runEvalT . handler))
+        EvalT $ return (RException (errValPos err pos))
+    m `catchError` h = EvalT $ do
+        a <- runEvalT m
+        case a of
+            RException l    -> runEvalT (h l)
+            _               -> return a
 
 {-|
 Perform an IO action and raise an exception if it fails.
@@ -157,12 +174,12 @@ guardSTM stm = do
         Right v -> return v
     
 instance MonadSTM Eval where
-    liftSIO = EvalT . lift . lift
+    liftSIO = EvalT . fmap RNormal . lift
     liftSTM stm = do
         atom <- asks envAtomic
         if atom
-            then EvalT (lift . lift . liftSTM $ stm)
-            else EvalT (lift . lift . liftIO . liftSTM $ stm)
+            then EvalT (fmap RNormal . lift . liftSTM $ stm)
+            else EvalT (fmap RNormal . lift . liftIO . liftSTM $ stm)
 
 instance MonadReader Env Eval where
     ask       = lift ask
