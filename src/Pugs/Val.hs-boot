@@ -8,12 +8,12 @@ import qualified Data.ByteString as Buf
 
 data Val
 data ValNative
-    = NBit      !NativeBit
-    | NInt      !NativeInt
-    | NUint     !NativeUint
-    | NBuf      !NativeBuf
-    | NNum      !NativeNum
-    | NComplex  !NativeComplex
+    = NBit      {-# UNPACK #-} !NativeBit
+    | NInt      {-# UNPACK #-} !NativeInt
+    | NUint     {-# UNPACK #-} !NativeUint
+    | NBuf      {-# UNPACK #-} !NativeBuf
+    | NNum      {-# UNPACK #-} !NativeNum
+    | NComplex  {-# UNPACK #-} !NativeComplex
 
 type NativeBit      = Bool
 type NativeInt      = Int
