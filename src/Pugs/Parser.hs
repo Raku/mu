@@ -377,16 +377,6 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     let mkExp n = Syn ":=" [_Var n, Syn "sub" [Val sub]]
         mkSym n = _Sym scope (mkMulti n) (mkExp n)
         
-    -- XXX this belongs in semantic analysis, not in the parser
-    -- also, maybe we should only warn when you try to export an
-    -- operator that is "standard"
-    -- XXX I can't figure out how to do this without trace
-    when (isExported && isOperatorName name) $
-        traceM 
-            ("You probably don't want to export an operator name; instead\n\
-  define a new variant on the new operator (eg. multi sub *infix:<+>): "
-                ++ show name ++ " at " ++ show namePos)
-            
     -- Don't add the sub if it's unsafe and we're in safemode.
     if "unsafe" `elem` traits && safeMode then return emptyExp else do
     rv <- case scope of
@@ -395,15 +385,23 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             -- then only the first consumer of a module will see it. Instead,
             -- make a note of this symbol being exportable, and defer the
             -- actual symbol table manipulation to opEval.
-            unsafeEvalExp $ mkSym nameQualified
+            Val rv <- unsafeEvalExp $ mkSym nameQualified
             -- push %*INC<This::Package><exports><&this_sub>, expression-binding-&this_sub
             --    ==>
             -- push %This::Package::EXPORTS<&this_sub>, expression-binding-&this_sub
             -- (a singleton list for subs, a full list of subs for multis)
-            return $
+            let exportedSub
+                    -- "method foo is export" is exported into "multi foo" here.
+                    | styp == SubMethod = VCode cv
+                        { isMulti   = True
+                        , subParams = map (\x -> x{ isInvocant = False }) (subParams cv)
+                        }
+                    | otherwise         = sub
+                VCode cv    = sub
+            return . seq rv $
                 App (_Var "&push")
                     (Just (Syn "{}" [_Var ("%" ++ pkg ++ "::EXPORTS"), Val $ VStr name]))
-                    [Val sub]
+                    [Val exportedSub]
         SGlobal -> do
             unsafeEvalExp $ mkSym nameQualified
             return emptyExp
