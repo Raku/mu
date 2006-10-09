@@ -14,7 +14,7 @@ module Pugs.Lexer (
     maybeParens, parens, whiteSpace, mandatoryWhiteSpace, lexeme, identifier, identLetter,
     braces, brackets, angles, balanced, balancedDelim, decimal,
 
-    ruleDelimitedIdentifier, ruleQualifiedIdentifier, ruleWhiteSpaceLine,
+    ruleVerbatimIdentifier, ruleDelimitedIdentifier, ruleQualifiedIdentifier, ruleWhiteSpaceLine,
 
     symbol, interpolatingStringLiteral, escapeCode,
 
