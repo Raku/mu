@@ -74,7 +74,7 @@ opRequire dumpEnv v = do
             timeYml <- getModificationTime pathNameYml
             return (timeYml < timePm)
         if isYamlStale then slowEval pathName else do
-        rv <- resetT $ fastEval pathNameYml
+        rv <- tryT $ fastEval pathNameYml
         case rv of
             VError _ [MkPos{posName=""}] -> slowEval pathName
             _                            -> opEval style pathName ""
@@ -116,7 +116,7 @@ opEvalFile filename = do
 op1EvalHaskell :: Val -> Eval Val
 op1EvalHaskell cv = do
     str     <- fromVal cv
-    val     <- resetT $ evalHaskell str
+    val     <- tryT $ evalHaskell str
     retEvalResult style val
     where
     style = MkEvalStyle{ evalError=EvalErrorUndef
@@ -135,7 +135,7 @@ op1EvalP6Y fileName = do
         Right yml' -> do
             globTVar    <- asks envGlobal
             MkCompUnit _ glob ast <- liftIO $ fromYAML yml'
-            resetT $ do
+            tryT $ do
                 -- Inject the global bindings
                 liftSTM $ do
                     glob' <- readTVar globTVar
@@ -152,7 +152,7 @@ opEval style path str = enterCaller $ do
     env     <- ask
     let errHandler err = return env{ envBody = Val $ VError (VStr (show err)) [] }
     env'    <- liftIO $ evaluateIO (parseProgram env path str) `catchIO` errHandler
-    val     <- resetT $ local (const env') $ do
+    val     <- tryT $ local (const env') $ do
         evl <- asks envEval
         initAV   <- evalExp (_Var "@*INIT")
         initSubs <- fromVals initAV
