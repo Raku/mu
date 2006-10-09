@@ -28,7 +28,7 @@ sub get_multidim_arglist (*@@AoA) { @@AoA }
 
 {
     dies_ok { get_multidim_arglist(1,2,3) },
-        "three scalars are not compatible with a sub expecting a multidim arglist", :todo<feature>;
+        "three scalars are not compatible with a sub expecting a multidim arglist";
 }
 
 # Unspecced
@@ -37,5 +37,5 @@ sub get_multidim_arglist (*@@AoA) { @@AoA }
     my $array2 = <d e f>;
 
     dies_ok { get_multidim_arglist($array1, $array2) },
-        "two arrayrefs are not compatible with a sub expecting a multidim arglist", :todo<feature>;
+        "two arrayrefs are not compatible with a sub expecting a multidim arglist";
 }
