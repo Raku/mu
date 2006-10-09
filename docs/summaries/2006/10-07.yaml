@@ -589,7 +589,7 @@ lists:
           He wondered if this meant that an else statement like
           `};`
           `else {`
-          would be the same as the same without the semicolon.
+          would be the same as without the semicolon.
       - date_from: 1160079094
         date_to: 1160081820
         hidden: ~
