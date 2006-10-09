@@ -1605,7 +1605,7 @@ ruleTypeVar = rule "type" $ do
 
 s_postTerm :: RuleParser (Exp -> Exp)
 s_postTerm = verbatimRule "term postfix" $ do
-    hasDot <- option Nothing $ choice [hyperDot, dotChar, try bangChar]
+    hasDot <- option Nothing $ choice [try hyperDot, dotChar, try bangChar]
     choice $ case hasDot of
         Just '.' -> (ruleInvocation:postTerms)
         Just '!' -> (bangKludged ruleInvocation:postTerms)
@@ -1619,7 +1619,7 @@ s_postTerm = verbatimRule "term postfix" $ do
         ]
     hyperDot = (<?> "") $ do
         ruleHyperPre
-        optional ruleDot
+        ruleDot
         return (Just '>')
     dotChar = do
         ruleDot
