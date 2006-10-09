@@ -52,7 +52,7 @@ module Pugs.AST.Internals (
 
     transformExp,
 
-    runEvalSTM, runEvalIO, shiftT, resetT, catchT,
+    runEvalSTM, runEvalIO, callCC, tryT, resetT, shiftT, catchT,
     undef, defined, tryIO, guardSTM, guardIO, guardIOexcept,
     readRef, writeRef, clearRef, dumpRef, forceRef,
     askGlobal, writeVar, readVar,
@@ -92,6 +92,7 @@ import qualified Judy.StrMap       as H
 import qualified Judy.IntMap       as I
 import GHC.Conc (unsafeIOToSTM)
 
+import Pugs.Cont (callCC)
 import Pugs.Parser.Number
 import Pugs.AST.Eval
 import Pugs.AST.Utils
@@ -131,7 +132,7 @@ import qualified Judy.Hash         as H
 #include "../Types/Object.hs"
 
 catchT :: ((Val -> Eval b) -> Eval Val) -> Eval Val
-catchT action = resetT (action retShift)
+catchT action = tryT (action retShift)
 
 {-|
 Return the appropriate 'empty' value for the current context -- either
