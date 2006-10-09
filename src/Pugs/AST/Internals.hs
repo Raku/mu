@@ -1593,7 +1593,7 @@ newObject typ = case showType typ of
         return $ MkRef (IPair (VRef key, VRef val))
     "Regex"     -> liftSTM $ fmap scalarRef $ newTVar undef -- XXX Wrong
     "Capture"   -> liftSTM $ fmap scalarRef $ newTVar undef -- XXX Wrong
-    _           -> fail ("Cannot create object: " ++ showType typ)
+    _           -> fail ("Class prototype occured where its instance object expected: " ++ showType typ)
 
 doPair :: Val -> (forall a. PairClass a => a -> b) -> Eval b
 doPair (VRef (MkRef (IPair pv))) f = return $ f pv
