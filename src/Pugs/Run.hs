@@ -100,6 +100,7 @@ prepareEnv name args = do
     checkAV <- newArray []
     initAV  <- newArray []
     endAV   <- newArray []
+    takeAV  <- newArray []
     matchAV <- newScalar (VMatch mkMatchFail)
     incAV   <- newArray (map VStr libs)
     incHV   <- newHash Map.empty
@@ -135,6 +136,7 @@ prepareEnv name args = do
         , gen "@*CHECK"      $ MkRef checkAV
         , gen "@*INIT"       $ MkRef initAV
         , gen "@*END"        $ MkRef endAV
+        , gen "$*TAKE"       $ MkRef takeAV
         , gen "$*IN"         $ hideInSafemode $ MkRef inGV
         , gen "$*OUT"        $ hideInSafemode $ MkRef outGV
         , gen "$*ERR"        $ hideInSafemode $ MkRef errGV

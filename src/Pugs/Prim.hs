@@ -19,7 +19,7 @@ module Pugs.Prim (
     -- used by Pugs.Compile.Haskell
     op0, op1, op2,
     -- used Pugs.Eval
-    foldParam, op2Hyper, op1HyperPrefix, op1HyperPostfix,
+    foldParam, op2Hyper, op1HyperPrefix, op1HyperPostfix, retSeq
 ) where
 import Pugs.Internals
 import Pugs.Junc
@@ -99,7 +99,7 @@ op0 "print" = const $ op1 "IO::print" (VHandle stdout)
 op0 "return" = const $ op1Return (retControl (ControlLeave (<= SubRoutine) 0 undef))
 op0 "yield" = const $ op1Yield (retControl (ControlLeave (<= SubRoutine) 0 undef))
 op0 "leave" = const $ retControl (ControlLeave (>= SubBlock) 0 undef)
-op0 "take" = const $ retEmpty
+op0 "take" = const $ assertFrame FrameGather retEmpty
 op0 "nothing" = const . return $ VBool True
 op0 "Pugs::Safe::safe_getc" = const . op1Getc $ VHandle stdin
 op0 "Pugs::Safe::safe_readline" = const . op1Readline $ VHandle stdin
@@ -193,14 +193,14 @@ op1 "sort" = \v -> do
     case sortBy of
         Nothing -> do
             strs    <- mapM fromVal valList
-            returnList . map snd . sort $ (strs :: [VStr]) `zip` valList
+            retSeq . map snd . sort $ (strs :: [VStr]) `zip` valList
         Just subVal -> do
             sub <- fromVal subVal
             sorted <- (`sortByM` valList) $ \v1 v2 -> do
                 rv  <- enterEvalContext (cxtItem "Int") $ App (Val sub) Nothing [Val v1, Val v2]
                 int <- fromVal rv
                 return (int <= (0 :: Int))
-            returnList sorted
+            retSeq sorted
 op1 "Scalar::reverse" = \v -> do
     str     <- fromVal v
     return (VStr $ reverse str)
@@ -321,17 +321,17 @@ op1 "lazy" = \v -> do
     return . VRef . thunkRef $ MkThunk thunk typ
 
 op1 "defined" = op1Cast (VBool . defined)
-op1 "last" = const $ op1LoopControl $ op1ShiftOut (VControl (ControlLoop LoopLast))
-op1 "next" = const $ op1LoopControl $ op1ShiftOut (VControl (ControlLoop LoopNext))
-op1 "redo" = const $ op1LoopControl $ op1ShiftOut (VControl (ControlLoop LoopRedo))
-op1 "continue" = const $ op1GivenControl $ op1ShiftOut (VControl (ControlGiven GivenContinue))
-op1 "break" = const $ op1GivenControl $ op1ShiftOut (VControl (ControlGiven GivenBreak))
+op1 "last" = const $ assertFrame FrameLoop $ op1ShiftOut (VControl (ControlLoop LoopLast))
+op1 "next" = const $ assertFrame FrameLoop $ op1ShiftOut (VControl (ControlLoop LoopNext))
+op1 "redo" = const $ assertFrame FrameLoop $ op1ShiftOut (VControl (ControlLoop LoopRedo))
+op1 "continue" = const $ assertFrame FrameGiven $ op1ShiftOut (VControl (ControlGiven GivenContinue))
+op1 "break" = const $ assertFrame FrameGiven $ op1ShiftOut (VControl (ControlGiven GivenBreak))
 op1 "return" = op1Return . op1ShiftOut . VControl . ControlLeave (<= SubRoutine) 0
 op1 "yield" = op1Yield . op1ShiftOut . VControl . ControlLeave (<= SubRoutine) 0
 op1 "leave" = op1ShiftOut . VControl . ControlLeave (>= SubBlock) 0
-op1 "take" = \v -> do
-    lex     <- asks envLexical
-    arr     <- findSymRef (cast "@?TAKE") lex
+op1 "take" = \v -> assertFrame FrameGather $ do
+    glob    <- askGlobal
+    arr     <- findSymRef (cast "$*TAKE") glob
     push    <- doArray (VRef arr) array_push
     push (listVal v)
     retEmpty
@@ -431,7 +431,7 @@ op1 "unlink" = \v -> do
 op1 "readdir" = \v -> do
     path  <- fromVal v
     files <- guardIO $ getDirectoryContents path
-    returnList (map VStr files)
+    retSeq (map VStr files)
 op1 "slurp" = \v -> do
     ifValTypeIsa v "IO"
         (do h <- fromVal v
@@ -461,7 +461,7 @@ op1 "IO::Dir::rewinddir" = guardedIO (rewindDirStream . fromObject)
 op1 "IO::Dir::readdir" = \v -> do
     dir <- fmap fromObject (fromVal v)
     ifListContext
-        (returnList =<< readDirStreamList dir)
+        (retSeq =<< readDirStreamList dir)
         (guardIO $ fmap (\x -> if null x then undef else castV x) $ readDirStream dir)
     where
     readDirStreamList dir = do
@@ -556,7 +556,7 @@ op1 "Pair::value" = \v -> do
     return . VRef . MkRef $ ivar
 op1 "pairs" = \v -> do
     pairs <- pairsFromVal v
-    returnList pairs
+    retSeq pairs
 op1 "List::kv" = \v -> do
     pairs <- pairsFromVal v
     kvs   <- forM pairs $ \(VRef ref) -> do
@@ -701,8 +701,8 @@ op1SigilHyper sig val = do
     vs <- fromVal val
     evalExp $ Syn "," (map (\x -> Syn (shows sig "{}") [Val x]) vs)
 
-returnList :: VList -> Eval Val
-returnList xs = length xs `seq` return (VList xs)
+retSeq :: VList -> Eval Val
+retSeq xs = length xs `seq` return (VList xs)
 
 handleExitCode :: ExitCode -> Eval Val
 handleExitCode exitCode = do
@@ -737,20 +737,8 @@ cascadeMethod f meth v args = do
                 ]
     return undef
 
-op1LoopControl :: Eval Val -> Eval Val
-op1LoopControl action = do
-    frames <- asks envDepth
-    if all (/= FrameLoop) frames then fail "cannot use loop control outside a loop" else action
-
-op1GivenControl :: Eval Val -> Eval Val
-op1GivenControl action = do
-    frames <- asks envDepth
-    if all (/= FrameGiven) frames then fail "cannot use break/continue outside a given block" else action
-
 op1Return :: Eval Val -> Eval Val
-op1Return action = do
-    frames <- asks envDepth
-    if all (/= FrameRoutine) frames then fail "cannot return() outside a subroutine" else do
+op1Return action = assertFrame FrameRoutine $ do
     sub   <- fromVal =<< readVar (cast "&?ROUTINE")
     -- If this is a coroutine, reset the entry point
     case subCont sub of
@@ -764,9 +752,7 @@ op1Return action = do
             action
 
 op1Yield :: Eval Val -> Eval Val
-op1Yield action = do
-    frames <- asks envDepth
-    if all (/= FrameRoutine) frames then fail "cannot yield() outside a coroutine" else do
+op1Yield action = assertFrame FrameRoutine $ do
     sub   <- fromVal =<< readVar (cast "&?ROUTINE")
     case subCont sub of
         Nothing -> fail $ "cannot yield() from a " ++ pretty (subType sub)
@@ -1319,19 +1305,19 @@ op3 "Pugs::Internals::localtime"  = \x y z -> do
     pico <- fromVal z
     c <- guardIO $ toCalendarTime $ TOD (offset + sec) pico
     if wantString then return $ VStr $ calendarTimeToString c else
-        returnList $ [ vI $ ctYear c
-                     , vI $ (1+) $ fromEnum $ ctMonth c
-                     , vI $ ctDay c
-                     , vI $ ctHour c
-                     , vI $ ctMin c
-                     , vI $ ctSec c
-                     , VInt $ ctPicosec c
-                     , vI $ (1+) $ fromEnum $ ctWDay c
-                     , vI $ ctYDay c
-                     , VStr $ ctTZName c
-                     , vI $ ctTZ c
-                     , VBool $ ctIsDST c
-                     ]
+        retSeq $ [ vI $ ctYear c
+                 , vI $ (1+) $ fromEnum $ ctMonth c
+                 , vI $ ctDay c
+                 , vI $ ctHour c
+                 , vI $ ctMin c
+                 , vI $ ctSec c
+                 , VInt $ ctPicosec c
+                 , vI $ (1+) $ fromEnum $ ctWDay c
+                 , vI $ ctYDay c
+                 , VStr $ ctTZName c
+                 , vI $ ctTZ c
+                 , VBool $ ctIsDST c
+                 ]
     where
        offset = 946684800 :: Integer -- diff between Haskell and Perl epochs (seconds)
        vI = VInt . toInteger
@@ -1511,7 +1497,7 @@ op3Caller kind skip _ = do                                 -- figure out label
     where
     formatFrame :: [(Env, Maybe VCode)] -> Eval Val
     formatFrame [] = retEmpty
-    formatFrame ((env, Just sub):_) = returnList
+    formatFrame ((env, Just sub):_) = retSeq
         [ VStr $ cast (envPackage env)                 -- .package
         , VStr $ posName $ envPos env                  -- .file
         , VInt $ toInteger $ posBeginLine $ envPos env -- .line
@@ -1520,7 +1506,7 @@ op3Caller kind skip _ = do                                 -- figure out label
         , VCode $ sub                                  -- .sub
         -- TODO: add more things as they are specced.
         ]
-    formatFrame ((env, _):_) = returnList
+    formatFrame ((env, _):_) = retSeq
         [ VStr $ cast (envPackage env)                 -- .package
         , VStr $ posName $ envPos env                  -- .file
         , VInt $ toInteger $ posBeginLine $ envPos env -- .line

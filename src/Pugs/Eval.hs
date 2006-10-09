@@ -73,7 +73,7 @@ emptyEnv name genPad = liftSTM $ do
         , envEval    = evaluate
         , envCaller  = Nothing
         , envOuter   = Nothing
-        , envDepth   = []
+        , envFrames  = emptyFrames
         , envBody    = Val undef
         , envDebug   = Just ref -- Set to "Nothing" to disable debugging
         , envPos     = MkPos name 1 1 1 1
@@ -499,10 +499,17 @@ reduceSyn "for" [list, body] = enterLoop $ do
 
 reduceSyn "gather" [exp] = do
     sub     <- fromVal =<< evalExp exp
-    av      <- newArray []
-    symTake <- genSym (cast "@?TAKE") (MkRef av)
-    apply (updateSubPad sub symTake) Nothing []
-    fmap VList $ readIVar av
+    globTV  <- asks envGlobal
+    glob    <- liftSTM $ readTVar globTV
+    oldAV   <- findSymRef takeVar glob
+    oldSym  <- genSym takeVar oldAV
+    newAV   <- newObject (mkType "Array")
+    newSym  <- genSym takeVar newAV
+    liftSTM $ writeTVar globTV (newSym glob)
+    enterGather $ apply sub Nothing []
+    readRef newAV `finallyM` liftSTM (modifyTVar globTV oldSym)
+    where
+    takeVar = cast "$*TAKE"
 
 reduceSyn "loop" exps = enterLoop $ do
     let [pre, cond, post, body] = case exps of { [_] -> exps'; _ -> exps }
@@ -732,7 +739,7 @@ reduceSyn (sigil:"::()") exps = do
     -- the parts with "::".
     let varname = sigil:(concat . (intersperse "::") $ parts)
     -- Finally, eval the varname.
-    evalExp . _Var $ varname
+    reduceVar (possiblyFixOperatorName (cast varname))
 
 reduceSyn "{}" [listExp, indexExp] = do
     varVal  <- enterLValue $ enterEvalContext (cxtItem "Hash") listExp
@@ -953,7 +960,7 @@ specialApp = Map.fromList
                 env{ envCaller  = envCaller caller
                    , envContext = envContext caller
                    , envLValue  = envLValue caller
-                   , envDepth   = envDepth caller
+                   , envFrames  = envFrames caller
                    , envPos     = envPos caller
                    }
         local callerEnv $ do
@@ -967,7 +974,7 @@ specialApp = Map.fromList
                 env{ envCaller  = envCaller caller
                    , envContext = envContext caller
                    , envLValue  = envLValue caller
-                   , envDepth   = envDepth caller
+                   , envFrames  = envFrames caller
                    , envPos     = envPos caller
                    }
         vcap <- case args of
