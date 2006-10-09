@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 4 Oct 2006
+   Last Modified: 8 Oct 2006
    Number: 5
-   Version: 35
+   Version: 36
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -88,9 +88,17 @@ There is no C</e> evaluation modifier on substitutions; instead use:
 
      s/pattern/{ doit() }/
 
+or:
+
+     s[pattern] = doit()
+
 Instead of C</ee> say:
 
      s/pattern/{ eval doit() }/
+
+or:
+
+     s[pattern] = eval doit()
 
 =item *
 
@@ -2876,15 +2884,71 @@ In the case that more than one sequence of input characters matches,
 the longest one wins.  In the case of two identical sequences the
 first in order wins.
 
+=back
+
+=head1 Substitution
+
 There are also method forms of C<m//> and C<s///>:
 
-     $str.match(//);
-     $str.subst(//, "replacement");
-     $str.subst(//, {"replacement"});
-     $str.=subst(//, "replacement");
-     $str.=subst(//, {"replacement"});
+     $str.match(/pat/);
+     $str.subst(/pat/, "replacement");
+     $str.subst(/pat/, {"replacement"});
+     $str.=subst(/pat/, "replacement");
+     $str.=subst(/pat/, {"replacement"});
 
-=back
+There is no syntactic sugar here, so in order to get deferred
+evaluation of the replacement you must put it into a closure.  The
+syntactic sugar is provided only by the quotelike forms.  First there
+is the standard "triple quote" form:
+
+    s/pattern/replacement/
+
+Only non-bracket characters may be used for the "triple quote".  The
+right side is always evaluated as if it were a double-quoted string
+regardless of the quote chosen.
+
+As with Perl 5, a bracketing form is also supported, but unlike Perl 5,
+Perl 6 uses the brackets I<only> around the pattern.  The replacement
+is then specified as if it were an ordinary item assignment, with ordinary
+quoting rules.  To pick your own quotes on the right just use one of the C<q>
+forms.  The substitution above is equivalent to:
+
+    s[pattern] = "replacement"
+
+or
+
+    s[pattern] = qq[replacement]
+
+This is not a normal assigment, since the right side is evaluated each
+time the substitution matches (much like the pseudo-assignment to declarators
+can happen at strange times).  It is therefore treated as a "thunk", that is,
+as if it has implicit curlies around it.  In fact, it makes no sense at
+all to say
+
+    s[pattern] = { doit }
+
+because that would try to substitute a closure into the string.
+
+Any scalar assignment operator may be used; the substitution macro
+knows how to turn
+
+    $target ~~ s:g [pattern] op= expr
+
+into something like:
+
+    $target.subst(rx:g [pattern], { $() op expr })
+
+So, for example, you can multiply every dollar amount by 2 with:
+
+    s:g [\$ <( \d+ )>] *= 2
+
+(Of course, the optimizer is free to do something faster than an actual
+method call.)
+
+You'll note from the last example that substitutions only happen on
+the "official" string result of the match, that is, the C<$()> value.
+(Here we captured C<$()> using the C<< <(...)> >> pair; otherwise we
+would have had to use lookbehind to match the C<$>.)
 
 =head1 Positional matching, fixed width types
 
