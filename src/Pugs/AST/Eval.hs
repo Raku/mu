@@ -2,7 +2,7 @@
 
 module Pugs.AST.Eval where
 import Pugs.Internals
-import Pugs.Cont hiding (shiftT, resetT)
+import Pugs.Cont hiding (resetT)
 import Control.Exception (try, Exception)
 
 import Pugs.AST.SIO
@@ -10,7 +10,7 @@ import {-# SOURCE #-} Pugs.AST.Internals
 
 {- Eval Monad -}
 type Eval = EvalT (ReaderT Env SIO)
-newtype EvalT m a = EvalT { runEvalT :: m (EvalResult a) }
+newtype EvalT m a = EvalT { runEvalT :: ContT (EvalResult Val) m (EvalResult a) }
 
 data EvalResult a
     = RNormal    !a
@@ -24,10 +24,10 @@ liftResult (RNormal x) = x
 liftResult (RException x) = x
 
 runEvalSTM :: Env -> Eval Val -> STM Val
-runEvalSTM env = fmap liftResult . runSTM . (`runReaderT` enterAtomicEnv env) . runEvalT
+runEvalSTM env = fmap liftResult . runSTM . (`runReaderT` enterAtomicEnv env) . (`runContT` return) . runEvalT
 
 runEvalIO :: Env -> Eval Val -> IO Val
-runEvalIO env = fmap liftResult . runIO . (`runReaderT` env) . runEvalT
+runEvalIO env = fmap liftResult . runIO . (`runReaderT` env) . (`runContT` return) . runEvalT
 
 tryIO :: a -> IO a -> Eval a
 tryIO err = lift . liftIO . (`catchIO` (const $ return err))
@@ -49,9 +49,7 @@ shiftT :: ((a -> Eval Val) -> Eval Val)
        -- ^ Typically a lambda function of the form @\\esc -> do ...@, where
        --     @esc@ is the current (sub)continuation
        -> Eval a
-shiftT f = do
-    rv <- f (error "invalid use of shiftT under ErrorT")
-    EvalT (return (RException rv))
+shiftT _ = fail "shiftT not yet implemented in Eval"
 
 {-|
 Create an scope that 'shiftT'\'s subcontinuations are guaranteed to eventually
@@ -96,7 +94,11 @@ nearest 'resetT'.
 -}
 resetT :: Eval Val -- ^ An evaluation, possibly containing a 'shiftT'
        -> Eval Val
-resetT e = catchError e return
+resetT (EvalT e) = EvalT (lift (e `runContT` return))
+
+tryT :: Eval Val -- ^ An evaluation, possibly containing an exception
+     -> Eval Val
+tryT e = catchError e return
 
 instance Monad Eval where
     return a = EvalT $ return (RNormal a)
@@ -115,7 +117,7 @@ instance Error Val where
 
 instance MonadTrans EvalT where
     lift m = EvalT $ do
-        a <- m
+        a <- ContT (m >>=)
         return (RNormal a)
 
 instance Functor Eval where
@@ -174,22 +176,22 @@ guardSTM stm = do
         Right v -> return v
     
 instance MonadSTM Eval where
-    liftSIO = EvalT . fmap RNormal . lift
+    liftSIO = EvalT . fmap RNormal . lift . lift
     liftSTM stm = do
         atom <- asks envAtomic
         if atom
-            then EvalT (fmap RNormal . lift . liftSTM $ stm)
-            else EvalT (fmap RNormal . lift . liftIO . liftSTM $ stm)
+            then EvalT (fmap RNormal . lift . lift . liftSTM $ stm)
+            else EvalT (fmap RNormal . lift . lift . liftIO . liftSTM $ stm)
 
 instance MonadReader Env Eval where
     ask       = lift ask
     local f m = EvalT $ local f (runEvalT m)
 
-{-
 instance MonadCont Eval where
     -- callCC :: ((a -> Eval b) -> Eval a) -> Eval a
-    callCC f = EvalT . callCCT $ \c -> runEvalT . f $ \a -> EvalT $ c a
--}
+    callCC f = EvalT $
+        callCCT $ \c ->
+            runEvalT (f (\a -> EvalT $ c (RNormal a)))
 
 {-
 instance MonadEval Eval
