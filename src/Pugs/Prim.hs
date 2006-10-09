@@ -96,9 +96,9 @@ op0 "Pugs::Internals::pi" = const $ return $ VNum pi
 op0 "self" = const $ expToEvalVal (_Var "&self")
 op0 "say" = const $ op1 "IO::say" (VHandle stdout)
 op0 "print" = const $ op1 "IO::print" (VHandle stdout)
-op0 "return" = const $ op1Return (shiftT . const $ return (VControl (ControlLeave (<= SubRoutine) 0 undef)))
-op0 "yield" = const $ op1Yield (shiftT . const $ return (VControl (ControlLeave (<= SubRoutine) 0 undef)))
-op0 "leave" = const $ shiftT . const $ return (VControl (ControlLeave (>= SubBlock) 0 undef))
+op0 "return" = const $ op1Return (retControl (ControlLeave (<= SubRoutine) 0 undef))
+op0 "yield" = const $ op1Yield (retControl (ControlLeave (<= SubRoutine) 0 undef))
+op0 "leave" = const $ retControl (ControlLeave (>= SubBlock) 0 undef)
 op0 "take" = const $ retEmpty
 op0 "nothing" = const . return $ VBool True
 op0 "Pugs::Safe::safe_getc" = const . op1Getc $ VHandle stdin
@@ -296,7 +296,7 @@ op1 "atomically" = \v -> do
 op1 "try" = \v -> do
     sub <- fromVal v
     env <- ask
-    val <- resetT $ case envAtomic env of
+    val <- tryT $ case envAtomic env of
         True    -> guardSTM . runEvalSTM env . evalExp $ App (Val $ VCode sub) Nothing []
         False   -> guardIO . runEvalIO env . evalExp $ App (Val $ VCode sub) Nothing []
     retEvalResult style val
@@ -363,7 +363,7 @@ op1 "Pugs::Safe::safe_print" = \v -> do
 op1 "die" = \v -> do
     pos <- asks envPos
     v'  <- fromVal $! v
-    shiftT . const . return $! VError (errmsg $! v') [pos]
+    retShift $! VError (errmsg $! v') [pos]
     where
     errmsg VUndef      = VStr "Died"
     errmsg VType{}     = VStr "Died"
@@ -384,8 +384,8 @@ op1 "fail_" = \v -> do
     throw <- fromVal =<< readVar (cast "$*FAIL_SHOULD_DIE")
     if throw then op1 "die" (errmsg v) else do
     pos   <- asks envPos
-    let die = shiftT . const . return $ VError (errmsg v) [pos]
-    shiftT . const . return . VRef . thunkRef $ MkThunk die anyType
+    let die = retShift $ VError (errmsg v) [pos]
+    retShift . VRef . thunkRef $ MkThunk die anyType
     where
     errmsg VUndef      = VStr "Failed"
     errmsg VType{}     = VStr "Failed"
@@ -768,13 +768,12 @@ op1Yield action = do
     sub   <- fromVal =<< readVar (cast "&?ROUTINE")
     case subCont sub of
         Nothing -> fail $ "cannot yield() from a " ++ pretty (subType sub)
-        -- XXX - WRONG! - NEED CALLCC!
-        Just tvar -> catchT $ \esc -> do
+        Just tvar -> callCC $ \esc -> do
             liftSTM $ writeTVar tvar (MkThunk (esc undef) anyType)
             action
 
 op1ShiftOut :: Val -> Eval Val
-op1ShiftOut v = shiftT . const $ do
+op1ShiftOut v = retShift =<< do
     evl <- asks envEval
     evl $ case v of
         VList [x]   -> Val x
@@ -784,8 +783,8 @@ op1Exit :: Val -> Eval a
 op1Exit v = do
     rv <- fromVal v
     if rv /= 0
-        then shiftT . const . return . VControl . ControlExit . ExitFailure $ rv
-        else shiftT . const . return . VControl . ControlExit $ ExitSuccess
+        then retControl . ControlExit . ExitFailure $ rv
+        else retControl . ControlExit $ ExitSuccess
 
 op1StrFirst :: (Char -> Char) -> Val -> Eval Val
 op1StrFirst f = op1Cast $ VStr .
