@@ -10,9 +10,8 @@ import {-# SOURCE #-} Pugs.Parser
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 import qualified Data.ByteString.Char8 as Buf
---import qualified Data.HashTable as Hash
-import qualified Judy.IntMap as L
-import qualified Judy.CollectionsM as C
+import qualified Data.HashTable as H
+import GHC.Int (Int32(I32#))
 
 import Pugs.Parser.Types
 import Pugs.Parser.Unsafe
@@ -178,18 +177,15 @@ currentFunctions = do
     return (length funs `seq` funs)
 
 {-# NOINLINE _RefToFunction #-}
---_RefToFunction :: Hash.HashTable Int CurrentFunction
-_RefToFunction :: L.IntMap (TVar VRef) CurrentFunction
-_RefToFunction = unsafePerformIO C.new
+_RefToFunction :: H.HashTable (TVar VRef) CurrentFunction
+_RefToFunction = unsafePerformIO (H.new (==) hashTVar)
 
--- Instance for IntMap
-instance Enum (TVar VRef) where
-    toEnum = unsafeCoerce#
-    fromEnum = unsafeCoerce#
+hashTVar :: TVar VRef -> Int32
+hashTVar x = I32# (unsafeCoerce# x)
 
 filterFun :: Var -> TVar VRef -> STM (Maybe CurrentFunction)
 filterFun var tvar = do
-    res <- unsafeIOToSTM (C.lookup tvar _RefToFunction)
+    res <- unsafeIOToSTM (H.lookup _RefToFunction tvar)
     case res of
         Just rv -> return (rv `seq` res)
         Nothing -> do
@@ -198,13 +194,13 @@ filterFun var tvar = do
                 MkRef (ICode cv)
                     | relevantToParsing (code_type cv) (code_assoc cv) -> do
                         let rv = MkCurrentFunction var (code_assoc cv) (code_params cv)
-                        unsafeIOToSTM (C.insert tvar rv _RefToFunction)
+                        unsafeIOToSTM (H.insert _RefToFunction tvar rv)
                         return (rv `seq` Just rv)
                 MkRef (IScalar sv)
                     | Just (VCode cv) <- scalar_const sv
                     , relevantToParsing (code_type cv) (code_assoc cv) -> do
                         let rv = MkCurrentFunction var (code_assoc cv) (code_params cv)
-                        unsafeIOToSTM (C.insert tvar rv _RefToFunction)
+                        unsafeIOToSTM (H.insert _RefToFunction tvar rv)
                         return (rv `seq` Just rv)
                 _ -> return Nothing
 
