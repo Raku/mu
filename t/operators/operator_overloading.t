@@ -189,8 +189,8 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
 {
 	my sub infix:<Z> is assoc('chain') ($a, $b) {
 		$a eq $b;
-	}
-	is (1 Z 1 C 1), Bool::True, "Chain-associative works.";
+	Z
+	is (1 Z 1 Z 1), Bool::True, "Chain-associative works.";
 	is (1 Z 1 Z 2), Bool::False, "Chain-associative works.";
 }
 
