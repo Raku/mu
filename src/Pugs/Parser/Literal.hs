@@ -99,21 +99,16 @@ pairAdverb = try $ do
             ]
     regularPair = do
         key <- many1 wordAny
-        val <- option (Val $ VBool True) $ choice [ valueDot, noValue, valueExp ]
+        lvl <- gets s_bracketLevel
+        val <- lexeme ((optional ruleDot >> valueExp lvl) <|> return (Val $ VBool True))
         return $ if (all isDigit key)
             then App (_Var "&Pugs::Internals::base") Nothing [Val (VStr key), val]
             else App (_Var "&infix:=>") Nothing [Val (VStr key), val]
-    valueDot = do
-        ruleDot
-        valueExp
-    noValue = do
-        mandatoryWhiteSpace
-        return (Val $ VBool True)
-    valueExp = do
-        lvl <- gets s_bracketLevel
+    valueExp lvl = do
         let blk | ConditionalBracket <- lvl = id
+                | QuoteAdverbBracket <- lvl = const [verbatimParens ruleBracketedExpression]
                 | otherwise                 = (ruleBlockLiteral:)
-        lexeme . choice . blk $
+        choice . blk $
             [ verbatimParens ruleBracketedExpression
             , arrayLiteral
             , angleBracketLiteral
@@ -582,8 +577,8 @@ rxLiteral6 :: Char -- ^ Opening delimiter
 rxLiteral6 delimStart delimEnd = qLiteral1 (string [delimStart]) (string [delimEnd]) $
     rxP6Flags { qfProtectedChar = delimStart }
 
-ruleAdverbHash :: RuleParser Exp
-ruleAdverbHash = do
+ruleQuoteAdverbs :: RuleParser Exp
+ruleQuoteAdverbs = enterBracketLevel QuoteAdverbBracket $ do
     pairs <- many pairAdverb
     return $ Syn "\\{}" [Syn "," pairs]
 
@@ -594,7 +589,7 @@ substLiteral = do
         , symbol "tr" >> return "trans"
         ]
     adverbs     <- case declarator of
-        "subst" -> ruleAdverbHash
+        "subst" -> ruleQuoteAdverbs
         _       -> return emptyExp
     (rep, ch)   <- openingDelim
     let endch = balancedDelim ch
@@ -622,10 +617,10 @@ rxLiteral = verbatimRule "regex expression" $ do
         [ symbol "rx" >> return (id, "rx")
         , symbol "m"  >> return (id, "match")
         , do advs <- ruleRegexDeclarator
-             lookAhead (ruleAdverbHash >> char '{')
+             lookAhead (ruleQuoteAdverbs >> char '{')
              return (advs, "rx")
         ]
-    adverbs <- fmap withAdvs ruleAdverbHash
+    adverbs <- fmap withAdvs ruleQuoteAdverbs
     ch      <- anyChar
     expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
     return $ Syn decl [expr, adverbs]

@@ -220,7 +220,7 @@ ruleRuleDeclaration = rule "rule declaration" $ do
     (withAdvs, name) <- try $ do
         advs <- ruleRegexDeclarator
         fmap ((,) advs) identifier
-    adverbs <- fmap withAdvs ruleAdverbHash
+    adverbs <- fmap withAdvs ruleQuoteAdverbs
     ch      <- char '{'
     expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
     let exp = Syn ":=" [_Var ('<':'*':name), Syn "rx" [expr, adverbs]]
