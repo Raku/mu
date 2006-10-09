@@ -145,6 +145,7 @@ data BracketLevel
     = ConditionalBracket    -- if ... {}
     | StatementBracket      -- ... ; ...
     | ParensBracket         -- (...)
+    | QuoteAdverbBracket    -- q...
     deriving (Show, Eq)
 
 {-|
