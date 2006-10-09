@@ -225,7 +225,7 @@ method pop () {
 
 method unshift ( *@item ) {
     # &*unshift(@.items: @item);
-    &*unshift(@.items: @item);       # XXX bug?
+    &*unshift(@(self.items): @item);       # XXX bug?
     return self;
 }
 
