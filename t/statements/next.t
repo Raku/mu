@@ -60,7 +60,6 @@ plan 12;
         $tracker,
         0,
         "tracker is 0 because next before increment",
-        :todo<bug>
     );
 }
 
@@ -78,7 +77,6 @@ plan 12;
         $tracker,
         0,
         "tracker is 0 because next before increment in nested loop",
-        :todo<bug>
     );
 }
 
