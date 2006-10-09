@@ -320,7 +320,7 @@ findSub _var _invs _args
     -- subs :: (_invs :: Maybe Exp, _args :: [Exp])
     --     => Int -> [(Var, Val)] -> Eval [((Bool, Bool, Int, Int), VCode)]
     subs slurpLens subSyms = fmap catMaybes . forM subSyms $ \(_, val) -> do
-        sub@(MkCode{ subReturns = ret, subParams = prms }) <- fromVal val
+        sub@(MkCode{ subReturns = ret }) <- fromVal val
         let (named, positional) = partition isNamedArg _invs_args
             isNamedArg (Syn "named" _) = True
             isNamedArg _               = False
@@ -328,11 +328,19 @@ findSub _var _invs _args
 
         maybeM rv $ \fun -> do
             -- if deltaFromCxt ret == 0 then return Nothing else do
-            let pairs = [ typeOfParam p | p <- prms, not (isSlurpy p) ] `zip` _invs_args
-            deltaCxt    <- deltaFromCxt ret
-            deltaArgs   <- mapM deltaFromPair pairs
-            let bound = either (const False) (const True) $ bindParams sub _invs _args
-            return ((isMulti sub, bound, sum deltaArgs, -(length deltaArgs), deltaCxt), fun)
+            (deltaArgs, deltaCxt) <- case bindParams sub _invs _args of
+                Left{}  -> return ([maxBound], 0)
+                Right s -> do
+                    cls <- asks envClasses
+                    ds  <- forM (subBindings s) $ \(prm, arg) -> case arg of
+                        Syn "param-default" _   -> return Nothing
+                        _  | isSlurpy prm       -> return Nothing
+                        _                       -> do
+                            argType <- inferExpType arg
+                            return (Just $ deltaType cls (typeOfParam prm) argType)
+                    cxt <- asks envContext
+                    return (catMaybes ds, deltaType cls (typeOfCxt cxt) ret)
+            return ((isMulti sub, sum deltaArgs, -(length deltaArgs), deltaCxt), fun)
 
     -- findBuiltinSub :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp])
     --     => FindSubFailure -> Var -> Eval (Either FindSubFailure VCode)
@@ -452,18 +460,6 @@ makeParams = map (\p -> p{ isWritable = isLValue p }) . foldr foldParam [] . map
     takeWord = takeWhile isWord . dropWhile (not . isWord)
     isWord   = not . (`elem` "(),:")
 
-deltaFromCxt :: Type -> Eval Int
-deltaFromCxt x  = do
-    cls <- asks envClasses
-    cxt <- asks envContext
-    return $ deltaType cls (typeOfCxt cxt) x
-
-deltaFromPair :: (Type, Exp) -> Eval Int
-deltaFromPair (x, y) = do
-    cls <- asks envClasses
-    typ <- inferExpType y
-    return $ deltaType cls x typ
-
 findAttrs :: Pkg -> Eval (Maybe [Pkg])
 findAttrs pkg = do
     maybeM (findVar $ metaVar pkg) $ \ref -> do
@@ -514,6 +510,7 @@ inferExpType (Syn "&{}" _)  = return $ mkType "Code"
 inferExpType (Syn "@{}" _)  = return $ mkType "Array"
 inferExpType (Syn "%{}" _)  = return $ mkType "Hash"
 inferExpType (Syn "=>" _)   = return $ mkType "Pair"
+inferExpType (Syn "named" [_, exp])   = inferExpType exp
 inferExpType exp@(Syn "{}" [_, idxExp]) = if isSimpleExp exp
     then fromVal =<< enterRValue (evalExp exp)
     else fmap typeOfCxt (inferExpCxt idxExp)
