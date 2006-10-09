@@ -224,12 +224,14 @@ method pop () {
 }
 
 method unshift ( *@item ) {
-    &*unshift(@(self.items): @item);
+    # &*unshift(@.items: @item);
+    &*unshift(@.items: @item);       # XXX bug?
     return self;
 }
 
 method push ( *@item ) {
-    &*push(@(self.items): @item);
+    # &*push(@.items: @item);
+    &*push(@(self.items): @item);    # XXX bug?
     return self;
 }
 
