@@ -14,12 +14,8 @@ my $set = set(0, 1, 2, 3, $bob);
 my $union = $set + set(4,5,6);
 isa_ok($union, Set, "set() - infix:<+>");
 
-my $stringified = "$set";
-ok($stringified ~~ rx:perl5/^set\([^<]*<obj:Person>[^<]*\)$/,
-   "prefix:<~>", :todo<bug>);
-diag("stringified to $stringified");
-
-#skip_rest("next test loops"); exit;
+my $stringified = ~$set;
+ok($stringified ~~ rx:P5/^set\(.*Person.*\)$/, "prefix:<~>");
 
 ok($union == set(0..6, $bob), "set() - infix:<==>");
 ok(!($union != set(0..6, $bob)), "set() - !infix:<!=>");
