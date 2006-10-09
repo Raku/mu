@@ -12,6 +12,14 @@ because we are using this module to test Pugs itself,
 so I want to be sure that the error is not coming from 
 within this module.
 
+We need to test that these functions produce 'not ok' at the
+right times, too.  Here, we do that by abusing :todo to mean
+"supposed to fail."  Thus, no ":todo" failure indicates
+a missing feature.
+
+If there is a bug in the implementation, you will see
+a (non-TODO) failure or an unexpected success.
+
 =cut
 
 ## ok
@@ -76,21 +84,21 @@ isa_ok(Foo.new(), 'Foo');
 
 ## like
 
-like("Hello World", rx:P5 {\s}, '... testing like()');
-like("Hello World", rx:P5 {\s}, desc => '... testing like()');
-like("Hello World", rx:P5 {\s}, :desc('... testing like()'));
+like("Hello World", rx:P5/\s/, '... testing like()');
+like("Hello World", rx:P5/\s/, desc => '... testing like()');
+like("Hello World", rx:P5/\s/, :desc('... testing like()'));
 
-like("HelloWorld", rx:P5 {\s}, desc => '... testing like()', todo => 1);
-like("HelloWorld", rx:P5 {\s}, :todo(1), :desc('... testing like()'));
+like("HelloWorld", rx:P5/\s/, desc => '... testing like()', todo => 1);
+like("HelloWorld", rx:P5/\s/, :todo(1), :desc('... testing like()'));
 
 ## unlike
 
-unlike("HelloWorld", rx:P5 {\s}, '... testing unlike()');
-unlike("HelloWorld", rx:P5 {\s}, desc => '... testing unlike()');
-unlike("HelloWorld", rx:P5 {\s}, :desc('... testing unlike()'));
+unlike("HelloWorld", rx:P5/\s/, '... testing unlike()');
+unlike("HelloWorld", rx:P5/\s/, desc => '... testing unlike()');
+unlike("HelloWorld", rx:P5/\s/, :desc('... testing unlike()'));
 
-unlike("Hello World", rx:P5 {\s}, todo => 1, desc => '... testing unlike()');
-unlike("Hello World", rx:P5 {\s}, :desc('... testing unlike()'), :todo(1));
+unlike("Hello World", rx:P5/\s/, todo => 1, desc => '... testing unlike()');
+unlike("Hello World", rx:P5/\s/, :desc('... testing unlike()'), :todo(1));
 
 ## cmp_ok
 
