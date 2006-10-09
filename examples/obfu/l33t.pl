@@ -172,7 +172,7 @@ method debug_interactive() returns Bool {
 
 
 method debug_help {
-    say qq:to/END/
+    say qq:to/END/;
     h (help)   - print this message
     B          - list breakpoints
     b (break)  - toggle breakpoint here
@@ -190,7 +190,7 @@ method debug_help {
     s (step)   - single step [enter to keep stepping]
     t (trace)  - toggle trace prints [currently {$!trace ?? "ON" !! "OFF"}]
     w PROG     - write program fragment PROG beginning at MP (changes MP)
-    END;
+    END
 } # : f1x0rz v1m
 
 method debug_action(Str $cmd is copy) returns Bool {
