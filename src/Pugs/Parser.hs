@@ -111,13 +111,15 @@ ruleStatementModifier = verbatimRule "statement modifier" . option return $ choi
 ruleStatementList :: RuleParser Exp
 ruleStatementList = rule "statements" .
     enterBracketLevel StatementBracket .
-        sepLoop $ choice
-            [ noSep     ruleDocBlock
-            , nonSep    ruleBlockDeclaration
-            , semiSep   ruleDeclaration
-            , nonSep    ruleConstruct
-            , semiSep   ruleStatement
-            ]
+        sepLoop $ do
+            optional $ try (identifier >> char ':' >> whiteSpace)
+            choice
+                [ noSep     ruleDocBlock
+                , nonSep    ruleBlockDeclaration
+                , semiSep   ruleDeclaration
+                , nonSep    ruleConstruct
+                , semiSep   ruleStatement
+                ]
     where
     nonSep  = doSep many  -- must be followed by 0+ semicolons
     semiSep = doSep many1 -- must be followed by 1+ semicolons
@@ -1603,18 +1605,28 @@ ruleTypeVar = rule "type" $ do
 
 s_postTerm :: RuleParser (Exp -> Exp)
 s_postTerm = verbatimRule "term postfix" $ do
-    hasDot <- option Nothing $ choice [dotChar, try bangChar]
-    let maybeInvocation = case hasDot of
-            Just '.' -> (ruleInvocation:)
-            Just '!' -> (bangKludged ruleInvocation:)
-            _        -> id
-    choice $ maybeInvocation
+    hasDot <- option Nothing $ choice [hyperDot, dotChar, try bangChar]
+    choice $ case hasDot of
+        Just '.' -> (ruleInvocation:postTerms)
+        Just '!' -> (bangKludged ruleInvocation:postTerms)
+        Just '>' -> map hyperKludged (ruleInvocation:postTerms)
+        _        -> postTerms
+    where
+    postTerms = 
         [ ruleArraySubscript
         , ruleHashSubscript
         , ruleCodeSubscript
         ]
-    where
-    dotChar = do { ruleDot; return $ Just '.' }
+    hyperDot = (<?> "") $ do
+        ruleHyperPre
+        optional ruleDot
+        return (Just '>')
+    dotChar = do
+        ruleDot
+        option (Just '.') $ do
+            ruleHyperPre
+            optional ruleDot
+            return (Just '>')
     bangChar = do { char '!'; lookAhead ruleSubName; return $ Just '!' }
     -- XXX - this should happen only in a "trusts" class!
     bangKludged p = do
@@ -1623,6 +1635,16 @@ s_postTerm = verbatimRule "term postfix" $ do
             App (Var var) (Just inv) [] | ('&':name) <- cast var ->
                 Syn "{}" [inv, Val (VStr name)]
             e -> e
+    hyperKludged p = do
+        f <- p
+        return (transformHyper . f)
+    transformHyper (Ann ann exp)
+        = Ann ann (transformHyper exp)
+    transformHyper (App (Var var) (Just inv) args)
+        = App (Var var{ v_meta = MPre }) (Just inv) args
+    transformHyper (Syn syn [lhs, rhs])
+        = Syn "for" [lhs, Syn "block" [Syn syn [Var varTopic, rhs]]]
+    transformHyper x = x
 
 ruleInvocation :: RuleParser (Exp -> Exp)
 ruleInvocation = ruleInvocationCommon False
