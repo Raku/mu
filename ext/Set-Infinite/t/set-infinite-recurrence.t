@@ -40,7 +40,7 @@ is( $u.start_is_closed, Bool::True, "start_is_closed" );
 is( $u.end_is_closed,   Bool::True, "end_is_closed" );
 
 is( $u.next( 10 ), 11, 'next' );
-is( try { $u.previous( 10 ) }, 9, 'previous', :todo<bug> );
+is( try { $u.previous( 10 ) }, 9, 'previous');
 
 my $even_recurr = Recurrence.new( 
     closure_next =>     

@@ -4,7 +4,6 @@ use Test;
 plan 26;
 
 use Set::Infinite::Functional; pass "(dummy instead of broken use_ok)";
-use Set::Infinite::Functional;   # XXX should not need this
 
 my $span1 = Span::Num.new( 
     start => 1, end => 3, start_is_open => Bool::False, end_is_open => Bool::False );
@@ -45,10 +44,6 @@ is( $set1.end_is_closed,   Bool::True, "end_is_closed" );
 
 is( $set1.size, 2, "real size" );
 # XXX is( $set1.size( density => 1 ), 3, "integer size" );
-
-flunk "union() unimplemented and intersection() fails", :todo<bug>;
-skip_rest "union() unimplemented and intersection() fails";
-exit;
 
 is( $set1.intersects( $set2 ), Bool::True, 'intersects' );
 
