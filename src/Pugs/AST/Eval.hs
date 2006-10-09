@@ -106,7 +106,7 @@ instance Monad Eval where
         a <- runEvalT m
         case a of
             RNormal x   -> runEvalT (k x)
-            _           -> return (unsafeCoerce# a)
+            RException x-> return (RException x)
     fail str = do
         pos <- asks envPos'
         EvalT $ return (RException (errStrPos (cast str) pos))
@@ -123,9 +123,9 @@ instance MonadTrans EvalT where
 instance Functor Eval where
     fmap f m = EvalT $ do
         a <- runEvalT m
-        case a of
-            RNormal x   -> return (RNormal (f x))
-            _           -> return (unsafeCoerce# a)
+        return $ case a of
+            RNormal x   -> RNormal (f x)
+            RException x-> RException x
 
 instance MonadIO Eval where
     liftIO = lift . liftIO
