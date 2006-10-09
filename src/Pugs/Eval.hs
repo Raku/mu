@@ -1470,4 +1470,17 @@ beforeEnter code@MkCode{ subBody = Syn "block" [Val (VCode code')] } f =
 beforeEnter code f = code{ subEnterBlocks = f code ++ subEnterBlocks code }
 
 fromCodeExp :: Exp -> Eval VCode
-fromCodeExp = (fromVal =<<) . enterRValue . enterEvalContext (cxtItem "Code")
+fromCodeExp x = case x of
+    Syn "block" [Val VCode{}]   -> fromClosure x
+    Syn "block" [_]             -> do
+        env <- ask
+        return $ mkCode
+            { subEnv        = Just env
+            , subType       = SubBlock
+            , subParams     = [defaultScalarParam]
+            , subBody       = x
+            }
+    _                           -> fromClosure x
+    where
+    fromClosure = (fromVal =<<) . enterRValue . enterEvalContext (cxtItem "Code")
+
