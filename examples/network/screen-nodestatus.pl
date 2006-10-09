@@ -145,7 +145,7 @@ sub write_if_change(Str $host, Code &callback) {
 
 # Write the status line.
 sub write_status() {
-  for %letter.keys.sort:{ %letter{$^a} cmp %letter{$^b} } {
+  for %letter.keys.sort({ %letter{$^a} cmp %letter{$^b} }) {
     my $status = %status{$_};
     my $char   = %letter{$_};
 
