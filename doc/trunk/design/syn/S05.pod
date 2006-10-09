@@ -16,7 +16,7 @@ Allison Randal <al@shadowed.net>
    Date: 24 Jun 2002
    Last Modified: 9 Oct 2006
    Number: 5
-   Version: 37
+   Version: 38
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -691,16 +691,18 @@ whitespace) is passed as a string, so the previous may also be written as:
 
 To pass a string with leading whitespace you must use the parenthesized form.
 
-If the first character is a plus or minus, the initial identifier is taken
-as a character class, so
+If the first character is a plus or minus, the initial identifier
+is taken as a character class, so the first character after the
+identifier doesn't matter in this case, and you can use whitespace
+however you like.  Therefore
 
     <foo+bar-baz>
 
-is equivalent to
+can be written
 
-    <+foo+bar-baz>
+    <+ foo + bar - baz>
 
-(See below.)
+Likewise an initial left square bracket indicates character class syntax.  (See below.)
 
 =item *
 
@@ -882,6 +884,10 @@ in enumerated character classes are indicated with C<..>.
 
      / <[a..z_]>* /
      / <+[a..z_]>* /
+     / <+[ a..z _ ]>* /
+     / <+ [ a .. z _ ] >* /
+
+Whitespace is ignored within square brackets and after the initial C<+>.
 
 =item *
 
@@ -893,12 +899,14 @@ This is essentially the same as using negative lookahead and dot:
 
     / <![a..z_]> . <!alpha> . /
 
+Whitespace is ignored after the initial C<->.
+
 =item *
 
 Character classes can be combined (additively or subtractively) within
-a single set of angle brackets. For example:
+a single set of angle brackets.  Whitespace is ignored. For example:
 
-     / <[a..z]-[aeiou]+xdigit> /      # consonant or hex digit
+     / <[a..z] - [aeiou] + xdigit> /      # consonant or hex digit
 
 If such a combination starts with a named character class, a leading
 C<+> is allowed but not required, provided the next character is a
@@ -906,6 +914,12 @@ character set operation:
 
      / <+alpha-[Jj]> /              # J-less alpha
      / <alpha-[Jj]> /               # same thing
+     / <+ alpha - [ Jj ]> /         # still the same thing
+
+However, whitespace is not allowed after the first identifier if it
+immediately follows the left angle.
+
+     / <alpha - [Jj]> /             # WRONG, means <alpha(/- [Jj]/)>
 
 =item *
 
@@ -955,7 +969,9 @@ A leading C<!> indicates a negated meaning (always a zero-width assertion):
      / <!before _ > /    # We aren't before an _
 
 Note that C<< <!alpha> >> is different from C<< <-alpha> >> because the
-latter matches C</./> when it is not an alpha.
+latter matches C</./> when it is not an alpha.  Note also that as a
+metacharacter C<!> doesn't change the parsing rules of whatever follows
+(unlike, say, C<+> or C<->).
 
 =back
 
@@ -995,6 +1011,11 @@ these need not be balanced.)  Perl 5's C<\b> is replaced by a C<< <?wb> >>
 these are dependent on the definition of C<< <ws> >>, but only on the C<\s>
 definition of whitespace.)
 
+item *
+
+A C<< < >> followed by whitespace is illegal.  Use C<< \< >> to match a literal
+left angle.
+
 =back
 
 =head1 Backslash reform
@@ -1004,7 +1025,7 @@ definition of whitespace.)
 =item *
 
 The C<\p> and C<\P> properties become intrinsic grammar rules such as
-(C<< <alpha> >> and C<< <!alpha> >>).  They may be combined using the
+(C<< <alpha> >> and C<< <-alpha> >>).  They may be combined using the
 above-mentioned character class notation: C<< <[_]+alpha+digit> >>.
 Regardless of the higher-level character class names, low-level
 Unicode properties are always available with a prefix of C<is>.
