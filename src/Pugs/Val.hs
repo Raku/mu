@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fallow-overlapping-instances -cpp -funbox-strict-fields #-}
+{-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fallow-overlapping-instances -cpp #-}
 {-! global : YAML_Pos, Perl6Class, MooseClass !-}
 {-|
     Perl 6 Values.
