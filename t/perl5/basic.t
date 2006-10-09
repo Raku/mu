@@ -89,7 +89,7 @@ my $s = 'str';
 {
    my $test = q{ (VAR $s) received as scalarref };
    my $o = $p5_dumper(VAR $s);
-   is($$o, $s, $test);
+   is($$o, $s, $test, :todo<bug>);
 }
 
 {
