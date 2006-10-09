@@ -166,16 +166,17 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
 }
 
 {
-	my sub infix:<X> ($a, $b) {
+	my sub infix:<Z> ($a, $b) {
 		$a ** $b;
 	}
-	is (2 X 1 X 2), 4, "default Left-associative works.";
+	is (2 Z 1 Z 2), 4, "default Left-associative works.";
 }
 
 {
 	my sub infix:<Z> is assoc('left') ($a, $b) {
 		$a ** $b;
 	}
+
 	is (2 Z 1 Z 2), 4, "Left-associative works.";
 }
 
@@ -183,13 +184,16 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
 	my sub infix:<Z> is assoc('right') ($a, $b) {
 		$a ** $b;
 	}
+
 	is (2 Z 1 Z 2), 2, "Right-associative works.";
 }
 
 {
 	my sub infix:<Z> is assoc('chain') ($a, $b) {
 		$a eq $b;
-	Z
+	}
+
+
 	is (1 Z 1 Z 1), Bool::True, "Chain-associative works.";
 	is (1 Z 1 Z 2), Bool::False, "Chain-associative works.";
 }
