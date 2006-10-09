@@ -341,11 +341,11 @@ list2LoL n list
 op2Join :: Val -> Val -> Eval Val
 -- op2Join (VList [x@(VRef _)]) y = op2Join x y
 op2Join x y = do
-    (strVal, listVal) <- ifValTypeIsa x "Scalar"
-        (return (x, y))
+    (strVal, valList) <- ifValTypeIsa x "Scalar"
+        (return (x, (VRef (arrayRef (listVal y)))))
         (return (y, x))
     str     <- fromVal strVal
-    ref     <- fromVal listVal
+    ref     <- fromVal valList
     list    <- readRef ref
     strList <- fromVals list
     return . VStr . concat . intersperse str $ strList
