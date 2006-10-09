@@ -3,18 +3,26 @@ module lib-0.0.1;
 
 our @ORIG_INC = @*INC;  # take a copy of the original
 
-sub import (Str $pkg: *@_paths) returns Void {
-    my @paths = @_paths.reverse();
-    for @paths -> $path {
+sub import (Str $pkg: *@paths) returns Void {
+    @*INC.unshift: @paths.reverse.map: -> $path {
         if ($path eq '') {
             $*ERR.say("Empty compile time value given to lib.import()");
         }
-        if (-e $path and not -d $path) {
+        elsif (-e $path and not -d $path) {
             $*ERR.say("Parameter to lib.import() must be directory, not file");
         }
-        # add to the @*INC, but do not allow duplicates
-        @*INC.unshift($path) unless $path eq any(@*INC);
-    }
+        elsif ($path ne all(@*INC)) {
+            # add to the @*INC, but do not allow duplicates
+            $path;
+        }
+        else {
+            ();
+        }
+    };
+
+    # This step is crucial as it defeats the lazy evaluation at "map" above.
+    # It's needed until we have a Seq(@paths) form that forces evaluation.
+    return @*INC.elems;
 }
 
 # I am purposfully leaving out the archname, version_dir, version_arch_dir
