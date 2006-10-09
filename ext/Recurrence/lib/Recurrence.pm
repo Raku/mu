@@ -184,15 +184,15 @@ method negate ($set: ) {
 # --------- scalar functions -----------
 
 method next ( $x ) { 
-    return $.closure_next( $x );
+    return $.closure_next()( $x );
 }
 
 method previous ( $x ) { 
-    return $.closure_previous( $x );
+    return $.closure_previous()( $x );
 }
 
 method current ( $x ) {
-    return $.closure_next( $.closure_previous( $x ) );
+    return $.closure_next()( $.closure_previous()( $x ) );
 }
 
 method contains ($self: $x ) returns bool {
