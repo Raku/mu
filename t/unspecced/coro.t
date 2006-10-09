@@ -98,6 +98,6 @@ ok $!, "yield() should work from inside a closure (unspecced!)";
 # Test that yield() works with loop blocks
 {
     my $coro = coro { loop { yield 1 } };
-    is ~grab(2, $coro), '1 1', 'yield() works inside loop{} blocks', :todo<bug>;
+    is ~grab(2, $coro), '1 1', 'yield() works inside loop{} blocks';
 }
 
