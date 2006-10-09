@@ -6,13 +6,21 @@ use strict;
 use warnings;
 use base 'Pugs::Emitter::Perl6::Perl5::node';
 
-sub name {
-    $_[0]->{name}
-}
+    use overload (
+        '""'     => sub { $_[0]->{name} },
+        fallback => 1,
+    );
+    sub boxed {
+        $_[0]
+    }
 
-sub WHAT { 
-    $_[0]->node( 'Str', 'Any' );
-}
+    sub name {
+        $_[0]->{name}
+    }
+
+    sub WHAT { 
+        $_[0]->node( 'Str', 'Any' );
+    }
 
 sub isa { 
     return $_[0]->WHAT . ' eq ' . $_[1]->WHAT;
@@ -33,7 +41,7 @@ sub str {
 }
 
 sub perl {
-    $_[0]->node( 'StrExpression', 'Pugs::Runtime::Perl6::Scalar::perl( ' . $_[0] . ' )' );
+    $_[0]->node( 'str', "$_[0]" )
 }
     
 sub defined {

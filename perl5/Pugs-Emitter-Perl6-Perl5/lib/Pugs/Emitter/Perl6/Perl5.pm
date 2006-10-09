@@ -174,7 +174,7 @@ sub _emit_angle_quoted {
 
 sub _emit_pair {
     my ( $k, $v ) = ( _emit( $_[0] ), _emit( $_[1] ) );
-    return Pugs::Emitter::Perl6::Perl5::node->node( 'Pair', [ $k, $v ] )
+    return Pugs::Emitter::Perl6::Perl5::node->node( 'pair', [ $k, $v ] )
             if     Scalar::Util::blessed $k 
                 && Scalar::Util::blessed $v;
     return "{ $k => $v }";

@@ -5,7 +5,7 @@ use warnings;
 # TODO - TypedExpression base module
 # TODO - ScalarExpression, HashExpression
 
-package Pugs::Emitter::Perl6::Perl5::AnyExpression;
+package Pugs::Emitter::Perl6::Perl5::Expression;
     use base 'Pugs::Emitter::Perl6::Perl5::Any';
     use overload (
         '""'     => sub { $_[0]->{name} },
@@ -14,14 +14,13 @@ package Pugs::Emitter::Perl6::Perl5::AnyExpression;
     sub WHAT {
         $_[0]->node( 'StrExpression', $_[0] . '->WHAT' );
     }
-    sub perl {
-        $_[0]->str;
-    }
     sub true { 
-        return $_[0]->node( 'BoolExpression', $_[0] )
+        return $_[0]->node( 'BoolExpression', $_[0] . '->true' )
     }
+package Pugs::Emitter::Perl6::Perl5::AnyExpression;
+    use base 'Pugs::Emitter::Perl6::Perl5::Expression';
 package Pugs::Emitter::Perl6::Perl5::BoolExpression;
-    use base 'Pugs::Emitter::Perl6::Perl5::AnyExpression';
+    use base 'Pugs::Emitter::Perl6::Perl5::Expression';
     use overload (
         '""'     => sub { $_[0]->{name} },
         fallback => 1,
@@ -40,19 +39,15 @@ package Pugs::Emitter::Perl6::Perl5::BoolExpression;
     }
 package Pugs::Emitter::Perl6::Perl5::StrExpression;
     use base 'Pugs::Emitter::Perl6::Perl5::AnyExpression';
-    use overload (
-        '""'     => sub { $_[0]->{name} },
-        fallback => 1,
-    );
     sub WHAT { 
-        return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Str' } );
+        return $_[0]->node( 'str', 'Str' );
     }
     sub str {
         $_[0]
     }
     sub scalar {
         return Pugs::Emitter::Perl6::Perl5::Scalar->new( {
-            name => 'bless \\' . $_[0]->perl . 
+            name => 'bless \\' . $_[0] . 
                     ", 'Pugs::Runtime::Perl6::Str'" 
         } );
     }
@@ -62,10 +57,6 @@ package Pugs::Emitter::Perl6::Perl5::StrExpression;
     }
 package Pugs::Emitter::Perl6::Perl5::IntExpression;
     use base 'Pugs::Emitter::Perl6::Perl5::AnyExpression';
-    use overload (
-        '""'     => sub { $_[0]->{name} },
-        fallback => 1,
-    );
     sub WHAT { 
         return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Int' } );
     }
@@ -77,10 +68,6 @@ package Pugs::Emitter::Perl6::Perl5::IntExpression;
     }
 package Pugs::Emitter::Perl6::Perl5::NumExpression;
     use base 'Pugs::Emitter::Perl6::Perl5::AnyExpression';
-    use overload (
-        '""'     => sub { $_[0]->{name} },
-        fallback => 1,
-    );
     sub WHAT { 
         return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'Num' } );
     }

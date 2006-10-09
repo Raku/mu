@@ -39,9 +39,10 @@ sub str {
     return $_[0]->node( 'StrExpression', ' Pugs::Runtime::Perl6::Hash::str( \\' . $_[0] . ' ) ' )
 }
 
-sub perl {
-    # TODO
-}
+    sub perl {
+        $_[0]->node( 'StrExpression',
+                'Pugs::Runtime::Perl6::Scalar::perl( '. $_[0] . ')' );
+    }
     
 sub defined {
     # TODO

@@ -41,9 +41,10 @@ sub str {
     return $_[0]->node( 'StrExpression', '"' . $_[0] . '"' )
 }
 
-sub perl {
-    # TODO
-}
+    sub perl {
+        $_[0]->node( 'StrExpression',
+                'Pugs::Runtime::Perl6::Scalar::perl( '. $_[0] . ')' );
+    }
     
 sub kv {
     my $tmp = "( map { ( \$_, ".$_[0]->name."[\$_] ) } 0..".$_[0]->name."-1 )"; 

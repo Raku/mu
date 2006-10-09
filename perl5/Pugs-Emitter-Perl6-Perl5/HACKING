@@ -75,5 +75,25 @@ Special Classes
 
 These classes can be used internally for optimization.
 
-Perl5Array - An Array that doesn't contain Lazy components. This can be represented by a Perl5 Array.
-Perl5Hash - A Hash that only has Stringified keys. This can be represented by a Perl5 Hash.
+(Type)Scalar - a typed Scalar
+  ArrayScalar
+  HashScalar
+
+(Type)Seq - a typed Seq 
+  ArraySeq
+  HashSeq
+
+(Type)Expression - a typed expression
+  AnyExpression 
+  BoolExpression
+  IntExpression
+  StrExpression
+  ...
+  ArrayExpression
+  HashExpression
+
+Perl5Array - '@a'
+  An Array that doesn't contain Lazy components. This can be represented by a Perl5 Array.
+
+Perl5Hash - '%h'
+  A Hash that only has Stringified keys. This can be represented by a Perl5 Hash.
