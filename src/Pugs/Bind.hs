@@ -58,8 +58,9 @@ bindHash :: [Exp]   -- ^ Named arguments (pair expressions) that were not
                     --     consumed by explicit named parameters
          -> [Param] -- ^ List of slurpy hash parameters
          -> MaybeError Bindings
-bindHash _ []           = return []
+bindHash [] []          = return []
 bindHash [] [p]         = return [ (p, emptyHashExp) ]
+bindHash (v:_) []       = fail $ "Named argument found where no match parameter expected: " ++ show (unwrapNamedArg v)
 bindHash vs (p:ps@(_:_))= do
     first <- (bindHash vs [p])
     return $ first ++ (ps `zip` repeat emptyHashExp)
