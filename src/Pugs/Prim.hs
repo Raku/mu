@@ -429,7 +429,7 @@ op1 "unlink" = \v -> do
 op1 "readdir" = \v -> do
     path  <- fromVal v
     files <- guardIO $ getDirectoryContents path
-    return . VList $ map VStr files
+    returnList (map VStr files)
 op1 "slurp" = \v -> do
     ifValTypeIsa v "IO"
         (do h <- fromVal v
@@ -459,14 +459,14 @@ op1 "IO::Dir::rewinddir" = guardedIO (rewindDirStream . fromObject)
 op1 "IO::Dir::readdir" = \v -> do
     dir <- fmap fromObject (fromVal v)
     ifListContext
-        (fmap castV $ readDirStreamList dir)
+        (returnList =<< readDirStreamList dir)
         (guardIO $ fmap (\x -> if null x then undef else castV x) $ readDirStream dir)
     where
     readDirStreamList dir = do
         this <- tryIO "" $ readDirStream dir
         if null this then return [] else do
         rest <- readDirStreamList dir
-        return $ (this:rest)
+        return (VStr this:rest)
 op1 "Pugs::Internals::runShellCommand" = \v -> do
     str <- fromVal v
     cxt <- asks envContext
@@ -699,8 +699,8 @@ op1SigilHyper sig val = do
     vs <- fromVal val
     evalExp $ Syn "," (map (\x -> Syn (shows sig "{}") [Val x]) vs)
 
-returnList :: [Val] -> Eval Val
-returnList = return . VList
+returnList :: VList -> Eval Val
+returnList xs = length xs `seq` return (VList xs)
 
 handleExitCode :: ExitCode -> Eval Val
 handleExitCode exitCode = do
@@ -768,7 +768,8 @@ op1Yield action = do
     sub   <- fromVal =<< readVar (cast "&?ROUTINE")
     case subCont sub of
         Nothing -> fail $ "cannot yield() from a " ++ pretty (subType sub)
-        Just tvar -> callCC $ \esc -> do
+        -- XXX - WRONG! - NEED CALLCC!
+        Just tvar -> catchT $ \esc -> do
             liftSTM $ writeTVar tvar (MkThunk (esc undef) anyType)
             action
 
