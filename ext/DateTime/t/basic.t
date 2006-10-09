@@ -87,7 +87,7 @@ use Date;
 
     is( $date.year, 2004, "year is 2004" );
     is( $date.month, 6, "month is 6" );
-    is( $date.day, 1, "day is 1", :todo<bug> );
+    is( $date.day, 1, "day is 1" );
 }
 
 {

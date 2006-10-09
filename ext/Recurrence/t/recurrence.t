@@ -22,7 +22,8 @@ is( $universe.stringify, '-Inf..Inf', 'stringify' );
 is( $universe.next( 10 ), 11, 'next' );
 is( $universe.previous( 10 ), 9, 'previous' );
 
-is( $universe.intersects( $universe ), Bool::True, 'intersects with self' );
+is( $universe.moose( $universe ), Bool::True, 'intersects with self' );
+exit;
 
 my $even_numbers = Recurrence.new( 
     closure_next =>     sub { return -Inf if $_ == -Inf; Inf if $_ ==  Inf; return 2 * int( $_ / 2 ) + 2 },
