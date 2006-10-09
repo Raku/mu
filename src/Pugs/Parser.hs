@@ -299,7 +299,7 @@ ruleTraitsIsOnly = fmap (map snd) . many $ ruleTrait ["is"]
 
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
-    namePos <- getPosition
+    -- namePos <- getPosition
     (scope, typ, isMulti, styp, name) <- choice
         [ ruleSubScopedWithContext
         , ruleSubScoped
