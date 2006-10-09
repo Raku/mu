@@ -1265,7 +1265,7 @@ data Env = MkEnv
     , envCaller  :: !(Maybe Env)         -- ^ Caller's "env" pad
     , envOuter   :: !(Maybe Env)         -- ^ Outer block's env
     , envBody    :: !Exp                 -- ^ Current AST expression
-    , envDepth   :: ![Frame]             -- ^ Recursion depth
+    , envFrames  :: !(Set Frame)         -- ^ Recursion depth
     , envDebug   :: !DebugInfo           -- ^ Debug info map
     , envPos     :: !Pos                 -- ^ Source position range
     , envPragmas :: ![Pragma]            -- ^ List of pragmas in effect
@@ -1278,6 +1278,7 @@ data Env = MkEnv
 data Frame
     = FrameLoop
     | FrameGiven
+    | FrameGather
     | FrameRoutine
     deriving (Show, Eq, Ord, Typeable) -- don't derive YAML for now
 
@@ -1377,15 +1378,16 @@ instance Show Pad where
     show pad = "MkPad (padToList " ++ show (padToList pad) ++ ")"
 
 findSymRef :: Var -> Pad -> Eval VRef
-findSymRef name pad = do
-    case findSym name pad of
-        Just ref -> liftSTM $ readTVar ref
-        Nothing  -> fail $ "Cannot find variable: " ++ show name
+findSymRef name pad = liftSTM $ do
+    ref <- findSym name pad
+    readTVar ref
 
-findSym :: Var -> Pad -> Maybe (TVar VRef)
+{-# SPECIALISE findSym :: Var -> Pad -> Eval (TVar VRef) #-}
+{-# SPECIALISE findSym :: Var -> Pad -> Maybe (TVar VRef) #-}
+findSym :: Monad m => Var -> Pad -> m (TVar VRef)
 findSym name pad = case lookupPad name pad of
-    Just (x:_)  -> Just x
-    _           -> Nothing
+    Just (x:_)  -> return x
+    _           -> fail $ "Cannot find variable: " ++ show name
 
 -- | Look up a symbol in a 'Pad', returning the ref it is bound to.
 lookupPad :: Var -- ^ Symbol to look for
@@ -1399,7 +1401,7 @@ lookupPad :: Var -- ^ Symbol to look for
     stored as &infix:+, i.e. without the brackets.
 -}
 
-lookupPad key (MkPad map) = case Map.lookup (possiblyFixOperatorName key) map of
+lookupPad key (MkPad map) = case Map.lookup key map of
     Just (MkEntryMulti xs)   -> Just [tvar | (_, tvar) <- xs]
     Just (MkEntry (_, tvar)) -> Just [tvar]
     Nothing -> Nothing
@@ -1571,6 +1573,8 @@ clearRef (MkRef (IPair s))   = pair_storeVal s undef
 clearRef (MkRef (IThunk tv)) = clearRef =<< fromVal =<< thunk_force tv
 clearRef r = retError "Cannot clearRef" r
 
+{-# SPECIALISE newObject :: Type -> Eval VRef #-}
+{-# SPECIALISE newObject :: Type -> IO VRef #-}
 newObject :: (MonadSTM m, MonadIO m) => Type -> m VRef
 newObject typ = case showType typ of
     "Item"      -> liftSTM $ fmap scalarRef $ newTVar undef
@@ -1888,7 +1892,7 @@ _FakeEnv = unsafePerformIO $ liftSTM $ do
         , envEval    = const (return VUndef)
         , envCaller  = Nothing
         , envOuter   = Nothing
-        , envDepth   = []
+        , envFrames  = Set.empty
         , envBody    = Val undef
         , envDebug   = Just ref -- Set to "Nothing" to disable debugging
         , envPos     = MkPos "<null>" 1 1 1 1

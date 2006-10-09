@@ -15,9 +15,11 @@
 module Pugs.Monads (
     enterLValue, enterRValue,
     enterLex, enterContext, enterEvalContext, enterPackage, enterCaller,
-    enterGiven, enterWhen, enterLoop, genSymPrim, genSymCC,
+    enterGiven, enterWhen, enterLoop, enterGather, genSymPrim, genSymCC,
     enterBlock, enterSub, envEnterCaller,
     evalVal, tempVar,
+
+    enterFrame, assertFrame, emptyFrames,
     
     MaybeT, runMaybeT,
 ) where
@@ -26,7 +28,7 @@ import Pugs.AST
 import Pugs.Types
 import Control.Monad.RWS (MonadPlus(..))
 import qualified Data.Map as Map
-
+import qualified Data.Set as Set
 
 newtype MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
 
@@ -105,21 +107,32 @@ envEnterCaller env = env
     { envCaller = Just env
         { envLexical = MkPad (lex `Map.intersection` envImplicit env)
         }
-    , envDepth = (FrameRoutine:envDepth env)
+    , envFrames = FrameRoutine `Set.insert` envFrames env
     , envImplicit = Map.fromList [(cast "$_", ())]
     }
     where
     MkPad lex = envLexical env
 
 {-|
-Bind @\$_@ to the given topic value in a new lexical scope, then perform
-the specified evaluation in that scope.
-
-Used by "Pugs.Eval"'s implementation of 'Pugs.Eval.reduce' for @\"given\"@.
+Register the fact that we are inside a specially marked control block.
 -}
-enterGiven :: Eval a -- ^ Action to perform within the new scope
-           -> Eval a
-enterGiven = local (\e -> e{ envDepth = (FrameGiven:envDepth e) })
+enterFrame :: Frame -> Eval a -> Eval a
+enterFrame f = local (\e -> e{ envFrames = f `Set.insert` envFrames e})
+
+enterGather, enterLoop, enterGiven :: Eval Val -> Eval Val
+enterGather = enterFrame FrameGather
+enterLoop   = enterFrame FrameLoop
+enterGiven  = enterFrame FrameGiven
+
+assertFrame :: Frame -> Eval a -> Eval a
+assertFrame f action = do
+    frames <- asks envFrames
+    if Set.member f frames
+        then action
+        else fail ("Cannot use this control structure outside a '" ++ (map toLower (drop 5 (show f))) ++ "' structure")
+
+emptyFrames :: Set Frame
+emptyFrames = Set.empty
 
 {-|
 Note that this function is /not/ responsible for performing the actual @when@
@@ -135,13 +148,6 @@ enterWhen action = do
         VControl (ControlGiven GivenContinue)   -> retEmpty
         VControl (ControlGiven GivenBreak)      -> retShiftEmpty
         _                                       -> retShift rv
-
-{-|
-Register the fact that we are inside a loop block.
--}
-enterLoop :: Eval Val -- ^ Evaluation representing loop test & body
-          -> Eval Val
-enterLoop = local (\e -> e{ envDepth = (FrameLoop:envDepth e) })
 
 {-|
 Generate a new Perl 6 operation from a Haskell function, give it a name, and
