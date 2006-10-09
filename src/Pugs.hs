@@ -291,7 +291,7 @@ doExecuteHelper helper args = do
 doParseWith :: (Env -> FilePath -> IO a) -> FilePath -> String -> IO a
 doParseWith f name prog = do
     env <- tabulaRasa name
-    f' $ parseProgram env name prog
+    f' $ parseProgram env{ envDebug = Nothing } name prog
     where
     f' env | Val err@(VError _ _) <- envBody env = do
         hPutStrLn stderr $ pretty err
