@@ -42,7 +42,7 @@ class Perl::Compiler::CodeGen::NameGen {
     }
 
     method newreg() {
-        $.template($.counter[0]++);
+        $.template()($.counter[0]++);
     }
 }
 
