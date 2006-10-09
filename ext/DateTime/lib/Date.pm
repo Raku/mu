@@ -24,37 +24,33 @@ my @PreviousMonthDoLY =
 
 # probably this should be done as "multi submethod BUILD", but that
 # makes pugs barf last I checked
-multi submethod BUILD (Int|Num :$epoch) returns Date {
-    return Date.today() unless $epoch.defined;
-
-    $epoch = int $epoch;
-
-    # waiting for localtime in Pugs
-    my ( $y, $m, $d ) = (localtime)[5,4,3];
-    $y += 1900;
-    $m++;
-
-    return Date.SUPER::new( year  => $y,
-                            month => $m,
-                            day   => $d,
-                          );
+multi submethod BUILD () returns Date {
+    self.BUILD(time);
 }
 
-multi submethod BUILD (Str $string) returns Date {
-    my $meth;
-#    if ( $string ~~ /[today|now] { $meth = 'today }
-#                     tomorrow    { $meth = 'tomorrow' }
-#                     yesterday   { $meth = 'yesterday' }
-#                    / ) {
-#        return self.$meth();
-#    }
-#    else {
-#        # load a heavier weight parser - hand waving ensues
-#    }
+multi submethod BUILD (Int|Num $epoch) returns Date {
+    # waiting for localtime in Pugs
+    my $time = localtime(int $epoch);
+
+    $!year  = $time.year;
+    $!month = $time.month;
+    $!day   = $time.day;
+}
+
+multi submethod BUILD (Str $_) returns Date {
+    when 'now' {
+        self.BUILD();
+    }
+    when 'today' {
+        self.BUILD();
+    }
+    default {
+        fail "Cannot parse $_ in date format";
+    }
 }
 
 # day as Str where { rx:i/^last$/ }
-multi submethod BUILD (Int :$year, Int :$month = 1, Int|Str :$day is copy = 1) returns Date {
+multi submethod BUILD (Int :$year is mandatory, Int :$month = 1, Int|Str :$day is copy = 1) returns Date {
     if $day.lc eq 'last' {
         my @lengths := _is_leap_year($year) ?? @LeapYearMonthLengths !! @MonthLengths;
 
@@ -70,7 +66,9 @@ method today () returns Date {
     return Date.new( epoch => time );
 }
 
-our &Date::now ::= &Date::today;
+method now () returns Date {
+    return Date.new( epoch => time );
+}
 
 method tomorrow () returns Date {
     return Date.new( epoch => time ).add( days => 1 );
