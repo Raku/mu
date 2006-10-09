@@ -42,7 +42,7 @@ unsafeEvalExp exp = do
     -- clearDynParsers
     env <- getRuleEnv
     let val = unsafePerformIO $ do
-        runEvalIO (env{ envDebug = Nothing }) $ do
+        runEvalIO env $ do
             evl <- asks envEval
             evl exp
     case val of
@@ -66,7 +66,7 @@ possiblyApplyMacro app@(App (Var name) invs args) = do
     env <- getRuleEnv
     -- Note that we don't have to clearDynParsers, as we just do a variable
     -- lookup here.
-    subCode <- return $! unsafePerformIO $! runEvalIO (env{ envDebug = Nothing }) $! do
+    subCode <- return $! unsafePerformIO $! runEvalIO env $! do
         res <- findVar name
         maybe (return undef) readRef res
     case subCode of
