@@ -20,7 +20,7 @@ our $MEMSIZE  = 200; # use this till pugs becomes faster. :-(
 our $CELLSIZE = 256;
 our $INSULT   = 'j00 4r3 teh 5ux0r';
 
-has int8 @.mem;   # program and data memory space
+has int8 @!mem;   # program and data memory space
 has Int $.ip;     # instruction pointer
 has Int $.mp;     # memory pointer
 has Socket $con;  # "connection"; stdio when undef
@@ -34,7 +34,7 @@ has Str  $!coninfo;
 
 submethod BUILD {
    #say "BUILD";
-   @.mem[$_] = 0 for 0 .. ($MEMSIZE-1);
+   @!mem[$_] = 0 for 0 .. ($MEMSIZE-1);
    $.ip = 0;
    $.mp = 0;
    $!trace = $!step = $!debug;
@@ -47,11 +47,11 @@ submethod trace( Str $msg) {
 
 method load($self: Str $program is copy) {
     self.trace("loading >>\n $program\n<<");
-    $program ~~ s:perl5<s>/^\s*//;
-    for split rx:perl5/\s+/, $program -> $word {
-        my $val = ([+] $word ~~ rx:P5<g>/(\d)/) // 0;
+    $program ~~ s:P5/^\s*//;
+    for split rx:P5/\s+/, $program -> $word {
+        my $val = ([+] $word ~~ rx:P5:g/(\d)/) // 0;
         self.trace("word [$word] = $val");
-        @.mem[$.mp++] = $val;
+        @!mem[$.mp++] = $val;
         $.mp %= $MEMSIZE;
     }
     $.mp++; $.mp %= $MEMSIZE;
@@ -73,7 +73,7 @@ method run() {
     #try {
       loop {
         self.debug if $!debug; # XXX: figure out how to bind this once
-        given @.mem[$.ip] {
+        given @!mem[$.ip] {
             when 0 { self.IIP };                                      # NOP
             when 1 { self.write; };                                   # WRT
             when 2 { self.read; };                                    # RD
@@ -81,8 +81,8 @@ method run() {
             when 4 { self.bracket(4, 3) };                            # EIF
             when 5 { self.mem($.mp,        wrap=>$MEMSIZE) };         # FWD
             when 6 { self.mem($.mp,        wrap=>$MEMSIZE,  :down) }; # BAK
-            when 7 { self.mem(@.mem[$.mp], wrap=>$CELLSIZE) };        # INC
-            when 8 { self.mem(@.mem[$.mp], wrap=>$CELLSIZE, :down) }; # DEC
+            when 7 { self.mem(@!mem[$.mp], wrap=>$CELLSIZE) };        # INC
+            when 8 { self.mem(@!mem[$.mp], wrap=>$CELLSIZE, :down) }; # DEC
             when 9 { self.con };                                      # CON
             when 10 {                                              # END
                 $.con.close if defined $.con;
@@ -100,9 +100,9 @@ method run() {
 }
 
 method con() {
-    @.mem[$MEMSIZE .. $MEMSIZE+5] = @.mem[0 .. 5]; # ch33tz! 101
-    my $ip = join ".", @.mem[$.mp .. $.mp+3];
-    my $port = @.mem[$.mp+4] * 256 + @.mem[$.mp+5]; # >> f1x0rz v1m
+    @!mem[$MEMSIZE .. $MEMSIZE+5] = @.mem[0 .. 5]; # ch33tz! 101
+    my $ip = join ".", @!mem[$.mp .. $.mp+3];
+    my $port = @!mem[$.mp+4] * 256 + @.mem[$.mp+5]; # >> f1x0rz v1m
 
     my $newcon = connect($ip, $port);
     if $newcon {
@@ -118,18 +118,18 @@ method con() {
 
 method mem($target is rw, :$wrap!, $down?) {
     self.IIP;
-    $target += (@.mem[$.ip] + 1) * ($down ?? -1 !! 1);
+    $target += (@!mem[$.ip] + 1) * ($down ?? -1 !! 1);
     $target %= $wrap;
     self.IIP;
 }
 
 method bracket(: $own, $matching) {
     my $move     = (($own == 3) ?? {self.IIP} !! {self.DIP}); # mover in the right direction
-    if (($own == 3 && @.mem[$.mp] == 0) || ($own == 4 && @.mem[$.mp] != 0)) {
+    if (($own == 3 && @!mem[$.mp] == 0) || ($own == 4 && @.mem[$.mp] != 0)) {
         my $iflevel = 1;
         loop {
              $move();
-             given @.mem[$.ip] {
+             given @!mem[$.ip] {
                  when $own      { $iflevel++ };
                  when $matching { self.IIP, last unless --$iflevel };
              }
@@ -140,12 +140,12 @@ method bracket(: $own, $matching) {
 }
 
 method write() {
-    print chr @.mem[$.mp];
+    print chr @!mem[$.mp];
     self.IIP;
 }
 
 method read() {
-    @.mem[$.mp] = ord getc;
+    @!mem[$.mp] = ord getc;
     self.IIP;
 }
 
@@ -198,14 +198,14 @@ method debug_action(Str $cmd is copy) returns Bool {
     $cmd ||= $!last_db_command;
     $!last_db_command = $cmd;
     given $cmd {
-        when rx:perl5<i>/^\s*h|\?/ {        # h help
+        when rx:P5/^\s*[Hh]|\?/ {        # h help
             self.debug_help;
         };
         #when 'B' { say %!breakpoints.keys.sort:{$^a<=>$^b} };
         when 'B' {
             say %!breakpoints.keys.join(" ");
         };
-        when rx:perl5/^\s*b\s*(\d+)?$/ {
+        when rx:P5/^\s*b\s*(\d+)?$/ {
             my $addr = $0 // $.ip;
             %!breakpoints{$addr} ^^= 1;
             %!breakpoints.delete($addr) unless %!breakpoints{$addr};
@@ -219,28 +219,28 @@ method debug_action(Str $cmd is copy) returns Bool {
             say "tr4(3 m0de: " ~ ($!trace ?? "0n" !! "0ff");
             return Bool::True;
         };
-        when rx:perl5<i>/^\s*ip\s*(([-+])?\d+)/ {
+        when rx:P5/^\s*[iI][pP]\s*(([-+])?\d+)/ {
             if $1 { $.ip += $0 }
             else  { $.ip  = $0 }
             $.ip %= $MEMSIZE;
             return Bool::True;
         };
-        when rx:perl5<i>/^\s*mp\s*(([-+])?\d+)/ {
+        when rx:P5/^\s*[mM][pP]\s*(([-+])?\d+)/ {
             if $1 { $.mp += $0 }
             else  { $.mp  = $0 }
             $.mp %= $MEMSIZE;
             return Bool::True;
         };
-        when rx:perl5/^\s*r/ {              # r run
+        when rx:P5/^\s*r/ {              # r run
             $!step     = False;
             $!runnable = True;
         };
-        when rx:perl5<i>/^\s*l\s*(\d+)?/ {  # l list
+        when rx:P5/^\s*[lL]\s*(\d+)?/ {  # l list
             my $from = $0 // $.ip;
-            @.mem[$MEMSIZE .. $MEMSIZE+63] = @.mem[0 .. 63]; # ch33tz! 101
+            @!mem[$MEMSIZE .. $MEMSIZE+63] = @.mem[0 .. 63]; # ch33tz! 101
             for 0 .. 3 -> $off {
                 say "[{($from+$off*16)%$MEMSIZE}] " ~
-                    @.mem[($from+$off*16) .. (($from+$off*16)+15)].join(" ");
+                    @!mem[($from+$off*16) .. (($from+$off*16)+15)].join(" ");
             }
         };
         when 's' {                          # s step
@@ -251,7 +251,7 @@ method debug_action(Str $cmd is copy) returns Bool {
             $!trace ^^= 1;
         };
         when 'q' { die "Debugger::QUIT" };  # q quit
-        when rx:perl5<i>/^\s*w\s*(.+)/ {    # w write
+        when rx:P5/^\s*[wW]\s*(.+)/ {    # w write
             self.load($0);
             return True;
         };
@@ -264,30 +264,30 @@ method debug_action(Str $cmd is copy) returns Bool {
 method debug_trace() {
     return unless $!trace;
 
-    say("IP: $.ip => @.mem[$.ip]  MP: $.mp => @.mem[$.mp]");
+    say("IP: $.ip => @!mem[$.ip]  MP: $.mp => @.mem[$.mp]");
     my $msg; # I want rvalue given.
-    given @.mem[$.ip] {
+    given @!mem[$.ip] {
         when 0 { $msg = "NOP" };
-        when 1 { $msg = "WRT @.mem[$.mp]" };
-        when 2 { $msg = "RD => $.mp [01d v4l = @.mem[$.mp]" };
-        when 3 { $msg = "IF [{@.mem[$.mp] ?? 'tru3' !! 'f4l53'}]" };
-        when 4 { $msg = "EIF [{@.mem[$.mp] ?? 'f4l53' !! 'tru3'}]" };
+        when 1 { $msg = "WRT @!mem[$.mp]" };
+        when 2 { $msg = "RD => $.mp [01d v4l = @!mem[$.mp]" };
+        when 3 { $msg = "IF [{@!mem[$.mp] ?? 'tru3' !! 'f4l53'}]" };
+        when 4 { $msg = "EIF [{@!mem[$.mp] ?? 'f4l53' !! 'tru3'}]" };
         when 5 {
-            my $nmp = ($.mp + @.mem[($.ip+1) % $MEMSIZE] + 1) % $MEMSIZE;
-            $msg = "FWD {@.mem[($.ip+1) % $MEMSIZE]} => $nmp [@.mem[$.mp]]" };
+            my $nmp = ($.mp + @!mem[($.ip+1) % $MEMSIZE] + 1) % $MEMSIZE;
+            $msg = "FWD {@!mem[($.ip+1) % $MEMSIZE]} => $nmp [@.mem[$.mp]]" };
         when 6 {
-            my $nmp = ($.mp - @.mem[($.ip+1) % $MEMSIZE] + 1) % $MEMSIZE;
-            $msg = "BAK {@.mem[($.ip+1) % $MEMSIZE]} => $nmp [@.mem[$.mp]]" };
+            my $nmp = ($.mp - @!mem[($.ip+1) % $MEMSIZE] + 1) % $MEMSIZE;
+            $msg = "BAK {@!mem[($.ip+1) % $MEMSIZE]} => $nmp [@.mem[$.mp]]" };
         when 7 {
-            my $val = @.mem[($.ip+1) % $MEMSIZE];
-            $msg = "INC $val => {(@.mem[$.mp]+$val+1) % $CELLSIZE}" };
+            my $val = @!mem[($.ip+1) % $MEMSIZE];
+            $msg = "INC $val => {(@!mem[$.mp]+$val+1) % $CELLSIZE}" };
         when 8 {
-            my $val = @.mem[($.ip+1) % $MEMSIZE];
-            $msg = "INC $val => {(@.mem[$.mp]-$val+1) % $CELLSIZE}" };
+            my $val = @!mem[($.ip+1) % $MEMSIZE];
+            $msg = "INC $val => {(@!mem[$.mp]-$val+1) % $CELLSIZE}" };
         when 9 {
-            @.mem[$MEMSIZE .. $MEMSIZE+5] = @.mem[0 .. 5]; # ch33tz! 101
-            my $ip = join ".", @.mem[$.mp .. $.mp+3];
-            my $port = @.mem[$.mp+4] * 256 + @.mem[$.mp+5]; # >> f1x0rz v1m
+            @!mem[$MEMSIZE .. $MEMSIZE+5] = @.mem[0 .. 5]; # ch33tz! 101
+            my $ip = join ".", @!mem[$.mp .. $.mp+3];
+            my $port = @!mem[$.mp+4] * 256 + @.mem[$.mp+5]; # >> f1x0rz v1m
             $msg = "CON $ip:$port"; # 41nt 1 t3h sw33t
         };
         when 10 { $msg = "END" };
