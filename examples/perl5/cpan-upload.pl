@@ -53,7 +53,7 @@ sub initialise () {
     my $password;
 
 
-    ($PROGRAM = $*PROGRAM_NAME) ~~ s:P5 {^.*/}{};
+    ($PROGRAM = $*PROGRAM_NAME) ~~ s:P5{^.*/}{};
 
     #-------------------------------------------------------------------
     # Create an AppConfig::Std object, and define our interface
@@ -192,8 +192,8 @@ sub ftp_upload_files (*@files) {
                     print "Do you want to continue? [y] ";
                     $continue = =$*IN;
                     $continue = 'y' if $continue ~~ m:P5/^$/;
-                } while $continue !~~ m:P5<i>/^[yn]/;
-                exit(0) if $continue ~~ m:P5<i>/^n/;
+                } while $continue !~~ m:P5/^[ynYN]/;
+                exit(0) if $continue ~~ m:P5/^[nN]/;
             }
         }
     }
