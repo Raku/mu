@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 5 Oct 2006
+  Last Modified: 8 Oct 2006
   Number: 4
-  Version: 42
+  Version: 43
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -928,20 +928,19 @@ which means it's a "successful" return even though the list would evaluate
 to false in a boolean context.)  A list can have a defined length
 even if it contains undefined scalar values.  A list is of undefined
 length only if it contains an undefined generator, which, happily, is
-what is returned by the C<undef> function when used in list context.
+what is returned by the C<fail> function when used in list context.
 So any Perl 6 function can say
 
-    return undef;
+    fail "message";
 
 and not care about whether the function is being called in scalar or list
 context.  To return an explicit scalar undef, you can always say
 
-    return item(undef);
+    return undef;
 
 Then in list context, you're returning a list of length 1, which is
 defined (much like in Perl 5).  But generally you should be using
-C<fail> in such a case to return an exception object.  Exception
-objects also behave like undefined generators in list context.
+C<fail> in such a case to return an exception object.
 In any case, returning an unthrown exception is considered failure
 from the standpoint of C<let>.  Backtracking over a closure in a regex
 is also considered failure of the closure, which is how hypothetical
