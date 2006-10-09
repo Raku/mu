@@ -17,7 +17,7 @@ module Pugs.AST (
     strRangeInf, strRange, strInc,
     mergeStmts, isEmptyParams,
     newPackage, newType, newMetaType, typeMacro, isScalarLValue,
-    filterPrim, filterUserDefinedPad, typeOfParam,
+    filterPrim, filterUserDefinedPad, typeOfParam, listVal,
 
     module Pugs.AST.Internals,
     module Pugs.AST.Prag,
@@ -358,4 +358,7 @@ typeOfParam p = case v_sigil (paramName p) of
     SScalar -> typeOfCxt (paramContext p)
     s       -> typeOfSigil s
 
+listVal :: Val -> [Val]
+listVal (VList xs)  = xs
+listVal x           = [x]
 
