@@ -4,7 +4,7 @@ module lib-0.0.1;
 our @ORIG_INC = @*INC;  # take a copy of the original
 
 sub import (Str $pkg: *@paths) returns Void {
-    @*INC.unshift: @paths.reverse.map: -> $path {
+    @*INC.unshift: uniq(@paths).map: -> $path {
         if ($path eq '') {
             $*ERR.say("Empty compile time value given to lib.import()");
         }
