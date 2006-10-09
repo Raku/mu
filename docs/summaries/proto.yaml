@@ -35,7 +35,7 @@ extra:
     - name: Perl 6 Development
       uri: http://dev.perl.org/perl6
     - name: Planet Perl Six
-      uri: http://planetsix.perl.org/perl6
+      uri: http://planetsix.perlfoundation.org/
 lists:
   - name: perl6-language
     title: Language
