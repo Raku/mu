@@ -290,7 +290,7 @@ sub gen_html ($$$) {
 
     # substitutes the placeholders introduced by `gen_code_snippet`
     # with real code snippets:
-    $html =~ s,<p>\s*_SMART_LINK_(\d+)\s*</p>,$snippets[$1],sg;
+    $html =~ s,(?:<p>\s*)?\b_SMART_LINK_(\d+)\b(?:\s*</p>)?,$snippets[$1],sg;
     $html;
 }
 
