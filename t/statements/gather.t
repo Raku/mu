@@ -69,17 +69,15 @@ plan 10;
   is ~@outer, "5 1 2 3 5", "take on lists and multiple takes work";
 }
 
-# gather shadows take procedure
+# gather scopes dynamiclly, not lexically
 {
-  #sub take { 7; } # enabling this line breaks all tests
-  
-  my @outer = gather {
-    take 1;
-  };
+    my $dynamic_take = sub { take 7 };
+    my @outer = gather {
+        $dynamic_take();
+        take 1;
+    };
 
-  @outer = (take(), @outer);
-
-  is ~@outer, "7 1", "gather shadows existing take", :todo;
+    is ~@outer, "7 1", "gather scopes dynamically, not lexically";
 }
 
 # take on array-ref
