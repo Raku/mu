@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 8 Oct 2006
+  Last Modified: 9 Oct 2006
   Number: 2
-  Version: 75
+  Version: 76
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1476,17 +1476,17 @@ more or less for free with a colon pair like C<< :char<#x263a> >>.
 There is now a generalized adverbial form of Pair notation.  The
 following table shows the correspondence to the "fatarrow" notation:
 
-    Fat arrow		Adverbial pair
-    =========		==============
+    Fat arrow		Adverbial pair	Paren form
+    =========		==============	==========
     a => 1		:a
     a => 0		:!a
     a => 0		:a(0)
     a => $x		:a($x)
-    a => 'foo'		:a<foo>
-    a => <foo bar>	:a<foo bar>
-    a => «$foo @bar»	:a«$foo @bar»
-    a => {...}		:a{...}
-    a => [...]		:a[...]
+    a => 'foo'		:a<foo>		:a(<foo>)
+    a => <foo bar>	:a<foo bar>	:a(<foo bar>)
+    a => «$foo @bar»	:a«$foo @bar»	:a(«$foo @bar»)
+    a => {...}		:a{...}		:a({...})
+    a => [...]		:a[...]		:a([...])
     a => $a		:$a
     a => @a		:@a
     a => %a		:%a
@@ -1518,7 +1518,12 @@ look for an immediate bracketed argument, and will slurp it up.
 If that's not intended, you must use whitespace between the adverb and
 the opening bracket.  The syntax of individual adverbs is the same
 everywhere in Perl 6.  There are no exceptions based on whether an
-argument is wanted or not.  Except as noted above, the parser always
+argument is wanted or not.  (There is a minor exception for quote and
+regex adverbs, which accept I<only> parentheses as their bracketing
+operator, and ignore other brackets, which must be placed in parens
+if desired.  See "Paren form" in the table above.)
+
+Except as noted above, the parser always
 looks for the brackets.  Despite not indicating a true subscript,
 the brackets are similarly parsed as postfix operators.  As postfixes
 the brackets may be separated from their initial C<:foo> with either
@@ -1566,7 +1571,7 @@ definition as either a string or quasiquote:
 
     quote qx = 'qq:x';          # equivalent to P5's qx//
     quote qTO = 'qq:x:w:to';    # qq:x:w:to//
-    quote circumfix:<❰ ❱> = q:code { .quoteharder };  # or some such...
+    quote circumfix:<❰ ❱> = q:code{ .quoteharder };  # or some such...
 
 In particular, all these forms disable the lookahead for an adverbial argument,
 as if there were a space after the keyword.  So although
@@ -1594,10 +1599,8 @@ while
 
     q:n[stuff]
 
-is not so fine, if the user intended "stuff" to be the string rather
-than an argument to C<:n>.  Basically, you'll be fine if you just
-never use parens for quote delimiters, and always put a space after
-your adverbs.
+also happens to work because quote adverbs only all the paren form of
+bracketed adverbs.
 
 If this is all too much of a hardship, you can define your own quote
 adverbs and operators as standard macros.  The main difference is that,
@@ -1609,8 +1612,8 @@ declaring something like
 
     macro qn { 'q:n' }
 
-does I<not> disable the subsequent search for an argument to C<:n>.  To
-get the equivalent, you need to add a space:
+does I<not> disable the subsequent search for a parenthesized argument
+to C<:n>.  To get the equivalent, you need to add a space:
 
     macro qn { 'q:n ' }
 

@@ -14,9 +14,9 @@ Allison Randal <al@shadowed.net>
    Maintainer: Patrick Michaud <pmichaud@pobox.com> and
                Larry Wall <larry@wall.org>
    Date: 24 Jun 2002
-   Last Modified: 8 Oct 2006
+   Last Modified: 9 Oct 2006
    Number: 5
-   Version: 36
+   Version: 37
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them I<regex> rather than "regular
@@ -108,8 +108,8 @@ Modifiers are now placed as adverbs at the I<start> of a match/substitution:
 
 Every modifier must start with its own colon.  The delimiter must be
 separated from the final modifier by whitespace if it would otherwise be taken
-as an argument to the preceding modifier (which is true for any
-bracketing character).
+as an argument to the preceding modifier (which is true if and only if
+the next character is a left parenthesis.)
 
 =item *
 
@@ -180,7 +180,7 @@ which is effectively the same as:
 
 But in the case of
 
-     m:s {(a|\*) (b|\+)}
+     m:s{(a|\*) (b|\+)}
 
 or equivalently,
 
@@ -257,7 +257,7 @@ is the same as:
 which is almost the same as:
 
      $_.pos = 0;
-     s:c [ (<?ident>) = (\N+) $$] [$0 => $1] for 1..4;
+     s:c[ (<?ident>) = (\N+) $$] = "$0 => $1" for 1..4;
 
 except that the string is unchanged unless all four matches are found.
 However, ranges are allowed, so you can say C<:x(1..4)> to change anywhere
@@ -373,6 +373,13 @@ placed inside the regex (and are lexically scoped):
 
      m/:s alignment = [:i left|right|cent[er|re]] /
 
+As with modifiers outside, only parentheses are recognized as valid
+brackets for args to the adverb.  In particular:
+
+    m/:foo[xxx]/ 	Parses as :foo [xxx]
+    m/:foo{xxx}/ 	Parses as :foo {xxx}
+    m/:foo<xxx>/ 	Parses as :foo <xxx>
+
 =item *
 
 User-defined modifiers will be possible:
@@ -381,13 +388,13 @@ User-defined modifiers will be possible:
 
 =item *
 
-User-defined modifiers can also take arguments:
+User-defined modifiers can also take arguments, but only in parentheses:
 
          m:fuzzy('bare')/pattern/;
 
 =item *
 
-To use parens or brackets for your delimiters you have to separate:
+To use parens for your delimiters you have to separate:
 
          m:fuzzy (pattern);
 
@@ -2932,15 +2939,15 @@ because that would try to substitute a closure into the string.
 Any scalar assignment operator may be used; the substitution macro
 knows how to turn
 
-    $target ~~ s:g [pattern] op= expr
+    $target ~~ s:g[pattern] op= expr
 
 into something like:
 
-    $target.subst(rx:g [pattern], { $() op expr })
+    $target.subst(rx:g[pattern], { $() op expr })
 
 So, for example, you can multiply every dollar amount by 2 with:
 
-    s:g [\$ <( \d+ )>] *= 2
+    s:g[\$ <( \d+ )>] *= 2
 
 (Of course, the optimizer is free to do something faster than an actual
 method call.)
