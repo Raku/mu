@@ -782,13 +782,14 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
     try (do { verbatimParens whiteSpace ; return emptyExp}) <|> do
         imp <- option emptyExp ruleExpression
         let sub = _Var $ ('&':pkg) ++ if use then "::import" else "::unimport"
-        unsafeEvalExp $ Syn "if"
+
+        Val res <- unsafeEvalExp $ Syn "if"
             [ sub
             , App sub (Just $ Val $ VStr $ pkg) [imp]
             , emptyExp
             ]
 
-        Val (VList exportList) <- unsafeEvalExp $ case lang of
+        Val (VList exportList) <- res `seq` unsafeEvalExp $ case lang of
             -- map { ~$_, [::Pkg.can($_)] }, @importlist
             "perl5" -> App (_Var "&map") Nothing [Syn "sub"
                 [ Val . VCode $ mkSub
@@ -1056,20 +1057,20 @@ vcode2startBlock code = do
 
 vcode2initBlock :: Val -> RuleParser Exp
 vcode2initBlock code = do
-    body <- vcode2startBlock code
+    body    <- vcode2startBlock code
     fstcode <- unsafeEvalExp $ Syn "sub" [ Val $ VCode mkSub { subBody = body } ]
-    unsafeEvalExp $
+    Val res <- unsafeEvalExp $
         App (_Var "&push") (Just $ _Var "@*INIT") [ fstcode ]
-    return $ App fstcode Nothing []
+    return (res `seq` App fstcode Nothing [])
 
 vcode2checkBlock :: Val -> RuleParser Exp
 vcode2checkBlock code = do
-    body <- vcode2startBlock code
+    body    <- vcode2startBlock code
     fstcode <- unsafeEvalExp $ 
         Syn "sub" [ Val $ VCode mkSub { subBody = checkForIOLeak body } ]
-    unsafeEvalExp $
+    Val res <- unsafeEvalExp $
         App (_Var "&unshift") (Just $ _Var "@*CHECK") [ fstcode ]
-    return $ App fstcode Nothing []
+    return (res `seq` App fstcode Nothing [])
 
 -- Constructs ------------------------------------------------
 

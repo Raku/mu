@@ -9,7 +9,7 @@ module Pugs.AST.Internals (
     Value(..), -- uses Val, Eval
     InitDat(..),
 
-    EvalT(..), ContT(..), SubAssoc(..),
+    EvalT(..), SubAssoc(..),
 
     Pad(..), PadEntry(..), PadMutator, -- uses Var, TVar, VRef
     Param(..), -- uses Cxt, Exp
@@ -52,7 +52,7 @@ module Pugs.AST.Internals (
 
     transformExp,
 
-    runEvalSTM, runEvalIO, shiftT, resetT, callCC,
+    runEvalSTM, runEvalIO, shiftT, resetT, catchT,
     undef, defined, tryIO, guardSTM, guardIO, guardIOexcept,
     readRef, writeRef, clearRef, dumpRef, forceRef,
     askGlobal, writeVar, readVar,
@@ -75,7 +75,7 @@ module Pugs.AST.Internals (
     unwrap, -- Unwrap(..) -- not used in this file, suitable for factoring out
     newObjectId, runInvokePerl5,
     
-    errStrPos, errValPos, enterAtomicEnv, valToBool, envPos', -- for circularity
+    errStr, errStrPos, errValPos, enterAtomicEnv, valToBool, envPos', -- for circularity
     expToEvalVal, -- Hack, should be removed once it's figured out how
 
     newSVval, -- used in Run.Perl5
@@ -84,7 +84,6 @@ module Pugs.AST.Internals (
 ) where
 import Pugs.Internals
 import Pugs.Types
-import Pugs.Cont hiding (shiftT, resetT)
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 
@@ -130,6 +129,9 @@ import qualified Judy.Hash         as H
 #include "../Types/Rule.hs"
 #include "../Types/Pair.hs"
 #include "../Types/Object.hs"
+
+catchT :: ((Val -> Eval b) -> Eval Val) -> Eval Val
+catchT action = resetT (action retShift)
 
 {-|
 Return the appropriate 'empty' value for the current context -- either
@@ -710,6 +712,9 @@ data VRule
         , rxAdverbs   :: !Val
         }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
+
+errStr :: VStr -> Val
+errStr str = VError (VStr str) []
 
 errStrPos :: VStr -> Pos -> Val
 errStrPos str pos = VError (VStr str) [pos]
@@ -1485,10 +1490,12 @@ retControl :: VControl -> Eval a
 retControl = retShift . VControl
 
 retShift :: Val -> Eval a
-retShift = shiftT . const . return
+-- retShift = shiftT . const . return
+retShift = EvalT . throwError
 
 retShiftEmpty :: Eval a
-retShiftEmpty = shiftT (const retEmpty)
+-- retShiftEmpty = shiftT (const retEmpty)
+retShiftEmpty = retShift =<< retEmpty
 
 defined :: VScalar -> Bool
 defined VUndef  = False
@@ -1846,7 +1853,7 @@ data VRef where
 instance Typeable VRef where
     typeOf (MkRef x) = typeOf x
 
-instance Typeable1 (EvalT (ContT Val (ReaderT Env SIO))) where
+instance Typeable1 (EvalT (ErrorT Val (ReaderT Env SIO))) where
     typeOf1 _ = typeOf ()
 
 instance Typeable1 IVar where

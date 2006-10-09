@@ -186,7 +186,7 @@ trapVal val action = case val of
 evalRef :: VRef -> Eval Val
 evalRef ref = do
     if refType ref == (mkType "Thunk") then forceRef ref else do
-    val <- callCC $ \esc -> do
+    val <- catchT $ \esc -> do
         MkEnv{ envContext = cxt, envLValue = lv, envClasses = cls } <- ask
         let typ = typeOfCxt cxt
             isCollectionRef = isaType cls "List" (refType ref)

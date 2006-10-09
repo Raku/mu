@@ -121,7 +121,7 @@ import System.Directory (Permissions(..), getPermissions, getTemporaryDirectory,
 import Control.Exception (catchJust, errorCalls, Exception(..))
 import Control.Monad.RWS (MonadIO(..), MonadReader(..), MonadState(..), MonadWriter(..), MonadTrans(..), asks, ReaderT(..), WriterT(..), when, join, liftM, filterM, modify, unless, gets, foldM, guard, liftM2, liftM3, fix, mplus, mappend, mzero, mconcat, msum, censor)
 import Control.Monad.Identity (Identity(..))
-import Control.Monad.Error (MonadError(..))
+import Control.Monad.Error (MonadError(..), ErrorT(..), Error(..))
 import Control.Concurrent
 import Control.Concurrent.STM
 import Data.Bits hiding (shift)
@@ -152,7 +152,7 @@ import GHC.Exts (unsafeCoerce#, Word(W#), Word#)
 import qualified Data.Seq as Seq
 
 import qualified UTF8
-import qualified Judy.CollectionsM as C
+import qualified Judy.CollectionsM as C ()
 import qualified Data.HashTable as H
 import qualified Foreign as Foreign
 import qualified Control.Exception (catch, evaluate)

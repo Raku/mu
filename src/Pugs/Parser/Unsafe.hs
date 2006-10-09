@@ -46,8 +46,8 @@ unsafeEvalExp exp = do
             evl <- asks envEval
             evl exp
     case val of
-        VError _ _  -> error $ pretty (val :: Val)
-        _           -> return $ Val val
+        VError{} -> error $ pretty (val :: Val)
+        _        -> return $ Val val
 
 {-# NOINLINE possiblyApplyMacro #-}
 {-| @possiblyApplyMacro@ takes an @Exp@ containg only an @App@. It then checks

@@ -23,6 +23,7 @@ type VList = [Val]
 type VHash = Map VStr Val
 
 envPos' :: Env -> Pos
+errStr :: VStr -> Val
 errStrPos :: VStr -> Pos -> Val
 errValPos :: Val -> Pos -> Val
 envAtomic :: Env -> Bool

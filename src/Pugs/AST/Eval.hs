@@ -9,16 +9,20 @@ import Pugs.AST.SIO
 import {-# SOURCE #-} Pugs.AST.Internals
 
 {- Eval Monad -}
-type Eval = EvalT (ContT Val (ReaderT Env SIO))
+type Eval = EvalT (ErrorT Val (ReaderT Env SIO))
 newtype EvalT m a = EvalT { runEvalT :: m a }
 
 instance ((:>:) (Eval a)) (SIO a) where cast = liftSIO
 
+liftEither :: Either a a -> a
+liftEither (Left a) = a
+liftEither (Right a) = a
+
 runEvalSTM :: Env -> Eval Val -> STM Val
-runEvalSTM env = runSTM . (`runReaderT` enterAtomicEnv env) . (`runContT` return) . runEvalT
+runEvalSTM env = fmap liftEither . runSTM . (`runReaderT` enterAtomicEnv env) . runErrorT . runEvalT
 
 runEvalIO :: Env -> Eval Val -> IO Val
-runEvalIO env = runIO . (`runReaderT` env) . (`runContT` return) . runEvalT
+runEvalIO env = fmap liftEither . runIO . (`runReaderT` env) . runErrorT . runEvalT
 
 tryIO :: a -> IO a -> Eval a
 tryIO err = lift . liftIO . (`catchIO` (const $ return err))
@@ -40,8 +44,9 @@ shiftT :: ((a -> Eval Val) -> Eval Val)
        -- ^ Typically a lambda function of the form @\\esc -> do ...@, where
        --     @esc@ is the current (sub)continuation
        -> Eval a
-shiftT e = EvalT . ContT $ \k ->
-    runContT (runEvalT . e $ lift . lift . k) return
+shiftT f = do
+    rv <- f (error "invalid use of shiftT under ErrorT")
+    EvalT (throwError rv)
 
 {-|
 Create an scope that 'shiftT'\'s subcontinuations are guaranteed to eventually
@@ -86,8 +91,7 @@ nearest 'resetT'.
 -}
 resetT :: Eval Val -- ^ An evaluation, possibly containing a 'shiftT'
        -> Eval Val
-resetT e = lift . lift $
-    runContT (runEvalT e) return
+resetT e = catchError e return
 
 instance Monad Eval where
     return a = EvalT $ return a
@@ -96,7 +100,11 @@ instance Monad Eval where
         runEvalT (k a)
     fail str = do
         pos <- asks envPos'
-        shiftT . const . return $ errStrPos (cast str) pos
+        EvalT (throwError $ errStrPos (cast str) pos)
+
+instance Error Val where
+    noMsg = errStr ""
+    strMsg = errStr
 
 instance MonadTrans EvalT where
     lift x = EvalT x
@@ -110,8 +118,8 @@ instance MonadIO Eval where
 instance MonadError Val Eval where
     throwError err = do
         pos <- asks envPos'
-        shiftT . const . return $ errValPos err pos
-    catchError _ _ = fail "catchError unimplemented"
+        EvalT (throwError $ errValPos err pos)
+    catchError (EvalT action) handler = EvalT (catchError action (runEvalT . handler))
 
 {-|
 Perform an IO action and raise an exception if it fails.
@@ -160,9 +168,11 @@ instance MonadReader Env Eval where
     ask       = lift ask
     local f m = EvalT $ local f (runEvalT m)
 
+{-
 instance MonadCont Eval where
     -- callCC :: ((a -> Eval b) -> Eval a) -> Eval a
     callCC f = EvalT . callCCT $ \c -> runEvalT . f $ \a -> EvalT $ c a
+-}
 
 {-
 instance MonadEval Eval

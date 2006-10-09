@@ -185,7 +185,7 @@ genSymCC :: String -- ^ Name of the primitive in the symbol table ('Pad').
                                        --     it to perform some evaluation 
          -> Eval Val -- ^ Result of passing the pad-transformer to the 
                      --     \'action\'
-genSymCC symName action = callCC $ \esc -> do
+genSymCC symName action = catchT $ \esc -> do
     genSymPrim symName (const $ esc undef) action
 
 {-|
@@ -204,7 +204,7 @@ enterSub sub action
             then resetT $ do
                 doFix <- fixEnv return env
                 local doFix runAction
-            else resetT . callCC $ \cc -> do
+            else resetT . catchT $ \cc -> do
                 doFix <- fixEnv cc env
                 local doFix runAction
         runBlocks (filter (rejectKeepUndo rv . subName) . subLeaveBlocks)

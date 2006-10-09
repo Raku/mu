@@ -102,18 +102,17 @@ findVarRef var@MkVar{ v_sigil = sig, v_twigil = twi, v_name = name, v_package = 
 
 doFindVarRef :: Var -> Eval (Maybe (TVar VRef))
 doFindVarRef var = do
-    callCC $ \foundIt -> do
-        lexSym  <- fmap (findSym var . envLexical) ask
-        when (isJust lexSym) $ foundIt lexSym
-        -- XXX - this is bogus; we should not fallback if it's not in lex csope.
-        glob    <- liftSTM . readTVar . envGlobal =<< ask
-        var'    <- toQualified var
-        let globSym = findSym var' glob
-        when (isJust globSym) $ foundIt globSym
-        -- XXX - ditto for globals
-        let globSym = findSym (toGlobalVar var) glob
-        when (isJust globSym) $ foundIt globSym
-        return Nothing
+    lexSym  <- fmap (findSym var . envLexical) ask
+    if isJust lexSym then return lexSym else do
+    -- XXX - this is bogus; we should not fallback if it's not in lex csope.
+    glob    <- liftSTM . readTVar . envGlobal =<< ask
+    var'    <- toQualified var
+    let globSym = findSym var' glob
+    if isJust globSym then return globSym else do
+    -- XXX - ditto for globals
+    let globSym = findSym (toGlobalVar var) glob
+    if isJust globSym then return globSym else do
+    return Nothing
 
 
 {-|

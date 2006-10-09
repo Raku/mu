@@ -199,7 +199,7 @@ op2Reduce keep list sub = do
                 A_chain -> if arity /= 2            -- FIXME: incorrect for scans
                     then fail
                         "When reducing using a chain-associative sub,\nthe sub must take exactly two arguments."
-                    else callCC $ \esc -> do
+                    else catchT $ \esc -> do
                         let doFold' x y = do
                             val <- doFold [x, y]
                             case val of
