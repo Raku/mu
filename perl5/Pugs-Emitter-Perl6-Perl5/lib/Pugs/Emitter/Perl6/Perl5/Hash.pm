@@ -76,6 +76,12 @@ package Pugs::Emitter::Perl6::Perl5::SeqHash;
         #   even if they contain a Pair or a Hash
         # - variables starting with '%' or '@' do interpolate
         #   at runtime.
+        # - hash and list expressions interpolate
+        #   such as %$h
+        # - scalar expressions don't interpolate
+        #   such as $%h
+        # - values starting with '&' don't interpolate
+        # - expressions are called in list context
 
         #print "SeqHash.new ",Data::Dumper::Dumper(\@_);
         my @self = map {
