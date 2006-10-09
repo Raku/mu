@@ -2,8 +2,6 @@ use v6-alpha;
 use File::Find;
 use Test;
 
-force_todo(22, 45, 77, 79, 80, 81, 119);
-
 =pod
 
 Test examples
