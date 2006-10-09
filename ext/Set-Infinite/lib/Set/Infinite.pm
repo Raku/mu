@@ -55,8 +55,7 @@ class Set::Infinite-0.01
 
 submethod BUILD ($class: *%param ) {    
     my @spans;
-    for ( *%param<objects>, *%param<spans>, *%param<recurrence> ) -> $span
-    {
+    for %param<objects spans recurrence>.map:{ $_ ?? @$_ !! () } -> $span {
         # TODO - write t/test for Array (such as 1 .. 10 and 1..10,20..30)
         next unless defined( $span );
         my $sp;
