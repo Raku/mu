@@ -332,7 +332,7 @@ findSub _var _invs _args
             deltaCxt    <- deltaFromCxt ret
             deltaArgs   <- mapM deltaFromPair pairs
             let bound = either (const False) (const True) $ bindParams sub _invs _args
-            return ((isMulti sub, bound, sum deltaArgs, deltaCxt), fun)
+            return ((isMulti sub, bound, -(length deltaArgs), sum deltaArgs, deltaCxt), fun)
 
     -- findBuiltinSub :: (_var :: Var, _invs :: Maybe Exp, _args :: [Exp])
     --     => FindSubFailure -> Var -> Eval (Either FindSubFailure VCode)
