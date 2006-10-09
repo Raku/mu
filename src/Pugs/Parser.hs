@@ -184,9 +184,15 @@ ruleSubHead = rule "subroutine head" $ do
              return SubMethod
         , do symbol "macro"
              return SubMacro
+        , do symbol "subset"
+             return _SubSet_
         ] <|> implicitSub
     name    <- ruleSubName
     return (prefix == ImplicitMulti, styp, name)
+
+-- XXX - Kluged up way to mark a subset parsed as a sub
+_SubSet_ :: SubType
+_SubSet_ = SubPrim
 
 -- | Scope, context, isMulti, styp, name
 type SubDescription = (Scope, String, Bool, SubType, String)
@@ -315,6 +321,10 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             _   -> fail $ "Invalid associativity: " ++ show lit
     let returnsOrOf = try (ruleBareTrait "returns" <|> ruleBareTrait "of")
     typ'    <- option typ returnsOrOf
+
+    -- Here if it's a subset-parsed-as-sub, escape now
+    if styp == _SubSet_ then skipMany (symbol "where" >> parseTerm) >> return emptyExp else do
+
     formal  <- option Nothing $ ruleSubParameters ParensMandatory
     typ''   <- option typ' returnsOrOf
     traits  <- ruleTraitsIsOnly
@@ -1745,7 +1755,7 @@ ruleApplyImplicitMethod = do
     --     traceM ("Warning: '{...}.method' treated as '{...}; .method' at " ++ show pos)
     return (combine (reverse fs) (Var _dollarUnderscore))
 
-ruleSubNameWithoutPostfixModifier :: RuleParser String
+ruleSubNameWithoutPostfixModifier :: RuleParser Var
 ruleSubNameWithoutPostfixModifier = try $ do
     name <- ruleSubName
     case name of
@@ -1755,11 +1765,11 @@ ruleSubNameWithoutPostfixModifier = try $ do
         "&until"    -> fail "postfix op"
         "&given"    -> fail "postfix op"
         "&for"      -> fail "postfix op"
-        _           -> return name
+        _           -> return (cast name)
 
 ruleApplySub :: Bool -> RuleParser Exp
 ruleApplySub isFolded = do
-    name    <- if isFolded
+    var    <- if isFolded
         then ruleFoldOp
         else ruleSubNameWithoutPostfixModifier
 
@@ -1769,7 +1779,7 @@ ruleApplySub isFolded = do
         , mandatoryWhiteSpace >> parseNoParenArgList
         , return (Nothing, [])
         ]
-    possiblyApplyMacro $ App (_Var name) paramListInv args
+    possiblyApplyMacro $ App (Var var) paramListInv args
 {-
     -- True for `foo. .($bar)`-style applications
     let takeArguments = do
