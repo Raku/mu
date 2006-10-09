@@ -72,8 +72,8 @@ say "Default to first defined value of a list: $defined";
 $true ||= [||] ($true,$false,$string,$defined,$last); # 'string' 
 say "Default to first True value of a list: $true";
 
-sub infix:{qn'\\'} ($lhs,$rhs){ $rhs // $lhs };
-$last //= [\\] ($true,$false,$string,$defined,$last); # 0  
+sub infix:<??> ($lhs,$rhs){ $rhs // $lhs };
+$last //= [??] ($true,$false,$string,$defined,$last); # 0  
 say "Default to last defined value of a list: $last";
 
 # Or ... 
