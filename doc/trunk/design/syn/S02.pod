@@ -1599,7 +1599,7 @@ while
 
     q:n[stuff]
 
-also happens to work because quote adverbs only all the paren form of
+also happens to work because quote adverbs only allow the paren form of
 bracketed adverbs.
 
 If this is all too much of a hardship, you can define your own quote
