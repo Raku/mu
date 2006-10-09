@@ -41,7 +41,8 @@ my $rew_2 = rewinddir($dir);
 is($rew_2, 1, "success of rewinddir 2 returns 1");
 
 my @files_scalar;
-for readdir($dir) -> $f {
+loop {
+    my $f = readdir($dir) err last;
     @files_scalar.push($f);
 }
 is_deeply(\@files_scalar, @files, "same list of files retrieved after rewind, using scalar context");
@@ -79,7 +80,7 @@ ok(closedir($dir), "as does closedir");
 my $dh = opendir('.');
 isa_ok($dh, 'IO::Dir', "opendir worked");
 my @files_once_more = $dh.readdir;
-is_deeply([sort @files_once_more], [sort @files], 'same list of files,after reopen');
-ok($dir.closedir, 'closedir usinf $dir.closedir format');
+is_deeply(@files_once_more.sort, @files.sort, 'same list of files,after reopen');
+ok($dir.closedir, 'closedir using $dir.closedir format');
 
 
