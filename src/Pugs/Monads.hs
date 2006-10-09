@@ -185,7 +185,7 @@ genSymCC :: String -- ^ Name of the primitive in the symbol table ('Pad').
                                        --     it to perform some evaluation 
          -> Eval Val -- ^ Result of passing the pad-transformer to the 
                      --     \'action\'
-genSymCC symName action = catchT $ \esc -> do
+genSymCC symName action = callCC $ \esc -> do
     genSymPrim symName (const $ esc undef) action
 
 {-|
@@ -200,11 +200,24 @@ enterSub sub action
     | typ >= SubPrim = runAction -- primitives just happen
     | otherwise     = do
         env <- ask
-        rv  <- if typ >= SubBlock
-            then resetT $ do
+        rv  <- case typ of
+            _ | typ >= SubBlock -> tryT $ do
                 doFix <- fixEnv return env
                 local doFix runAction
-            else resetT . catchT $ \cc -> do
+
+            -- For coroutines, we secretly store a continuation into subCont
+            -- whenever "yield" occurs in it.  However, the inner CC must be
+            -- delimited on the subroutine boundary, otherwise the resuming
+            -- continuation will continue into the rest of the program,
+            -- which is now how coroutines are supposed to work.
+            -- On the other hand, the normal &?CALLER_CONTINUATION must still
+            -- work as an undelimiated continuation, which is why callCC here
+            -- occurs before resetT.
+            SubCoroutine -> tryT . callCC $ \cc -> resetT $ do
+                doFix <- fixEnv cc env
+                local doFix runAction
+
+            _ -> tryT . callCC $ \cc -> do
                 doFix <- fixEnv cc env
                 local doFix runAction
         runBlocks (filter (rejectKeepUndo rv . subName) . subLeaveBlocks)
