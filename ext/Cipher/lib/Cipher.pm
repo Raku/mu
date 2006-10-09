@@ -292,8 +292,8 @@ submethod BUILD($.mode = "enciphering") {
 method zeroize()                {...}
 method _cipher(Array $data) returns Array {...}
 # Many, but not all, ciphers will need to override these
-method _head() returns Array { return }
-method _tail() returns Array { return }
+method _head() returns Array { () }
+method _tail() returns Array { () }
 
 # What we implement for them.
 method finish(Cipher $self:) returns Array {
