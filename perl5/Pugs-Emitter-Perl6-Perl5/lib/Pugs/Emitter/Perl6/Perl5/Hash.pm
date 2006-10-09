@@ -71,8 +71,12 @@ package Pugs::Emitter::Perl6::Perl5::SeqHash;
         fallback => 1,
     );
     sub new {
-        # interpolate Pairs
-        # TODO: variables interpolate at runtime only (may be Pair)
+        # - interpolate Pair Values at compile-time
+        # - variables starting with '$' never interpolate
+        #   even if they contain a Pair or a Hash
+        # - variables starting with '%' or '@' do interpolate
+        #   at runtime.
+
         #print "SeqHash.new ",Data::Dumper::Dumper(\@_);
         my @self = map {
             #print "SeqHash.elem ",$_->WHAT->{name}," ",Data::Dumper::Dumper($_);
