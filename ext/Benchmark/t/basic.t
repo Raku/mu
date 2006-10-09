@@ -16,7 +16,7 @@ use Benchmark; pass "(dummy instead of broken use_ok)";
                          for (0..2) {
                              push @r, @a[$_] + @b[$_];
                          }
-                     }
+                     },
                    });
     }
 }
