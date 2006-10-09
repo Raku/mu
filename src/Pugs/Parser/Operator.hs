@@ -307,7 +307,7 @@ matchSlurpy _ = False
 fileTestOperatorNames :: String
 fileTestOperatorNames = "ABCMORSTWXbcdefgkloprstuwxz"
 
-circumOps, rightSyn, chainOps, nonSyn, listSyn, preSyn, optPreSyn, preOps, preSymOps, optSymOps, postOps, optOps, leftOps, rightOps, nonOps, listOps :: Set OpName -> [RuleOperator Exp]
+circumOps, rightSyn, chainOps, matchOps, nonSyn, listSyn, preSyn, optPreSyn, preOps, preSymOps, optSymOps, postOps, optOps, leftOps, rightOps, nonOps, listOps :: Set OpName -> [RuleOperator Exp]
 preSyn      = ops  $ makeOp1 Prefix "" Syn
 optPreSyn   = ops  $ makeOp1 OptionalPrefix "" Syn
 preOps      = (ops $ makeOp1 Prefix "&prefix:" doApp) . addHyperPrefix
@@ -693,6 +693,9 @@ parseExpWithCachedParser f = do
         MkDynParsersEmpty   -> refillCache state f
         p                   -> f p
 
+
+ruleHyperPre :: RuleParser String
+ruleHyperPre = ((char '\187' >> return ">>") <|> (string ">>"))
 
 ruleHyperPost :: RuleParser String
 ruleHyperPost = ((char '\171' >> return "<<") <|> (string "<<"))
