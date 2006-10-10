@@ -770,6 +770,15 @@ be underdimensioned, you can dwim on both sides:
 
     $left «*» $right
 
+[Note: if you are worried about Perl getting confused by something like this:
+
+    foo «*»
+
+then you shouldn't worry about it, because unlike previous versions,
+Perl 6 never guesses whether the next thing is a term or operator.
+In this case it is always expecting a term unless C<foo> is predeclared
+to be a 0-ary sub.]
+
 The upgrade never happens on the "blunt" end of a hyper.  If you write
 
     $bigger «*« $smaller
