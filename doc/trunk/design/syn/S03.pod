@@ -786,7 +786,7 @@ the last element of the list were arbitrarily replicated C<*> times.  But
 this happens only on the "dwimmy" side.
 
 When using a unary operator, you always aim the blunt end at the
-single operand, because no dwimmery every happens:
+single operand, because no dwimmery ever happens:
 
      @negatives = -« @positives;
 
