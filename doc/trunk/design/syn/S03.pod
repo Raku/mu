@@ -14,7 +14,7 @@ Luke Palmer <luke@luqui.org>
   Date: 8 Mar 2004
   Last Modified: 10 Oct 2006
   Number: 3
-  Version: 70
+  Version: 71
 
 =head1 Changes to Perl 5 operators
 
@@ -775,11 +775,15 @@ The upgrade never happens on the "blunt" end of a hyper.  If you write
     $bigger «*« $smaller
     $smaller »*» $bigger
 
-and exception is thrown, and if you write
+an exception is thrown, and if you write
 
     $foo »*« $bar
 
 you are requiring the shapes to be identical, or an exception will be thrown.
+By default this dwimmery only upgrades whole dimensions, not short lists.
+However, any list ending with C<*> can also be arbitrarily extended as if
+the last element of the list were arbitrarily replicated C<*> times.  But
+this happens only on the "dwimmy" side.
 
 When using a unary operator, you always aim the blunt end at the
 single operand, because no dwimmery every happens:
