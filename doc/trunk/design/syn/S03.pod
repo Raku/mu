@@ -717,30 +717,62 @@ The precedence of any negated operator is the same as the base operator.
 =head2 Hyper operators
 
 The Unicode characters C<»> (C<\x[BB]>) and C<«> (C<\x[AB]>) and
-their ASCII digraphs C<<< >> >>> and C<<< << >>> are used to denote
-"list operations", which operate on each element of two lists (or
-arrays) and return a list (or array) of the results.  Spaces are not
-allowed on the "pointy" end of each "hyper", but are allowed on the
-blunt end (except for postfix operators, which must still follow postfix
-spacing rules, but do allow for an additional dot before the "hyper").
+their ASCII digraphs C<<< >> >>> and C<<< << >>> are used to denote a
+"list operation" that operates on each element of its list (or array)
+argument (or arguments) and returns a single list (or array) of
+the results.  In otherwords, a hyper operator evaluates its arguments in
+scalar context but then distributes the operator over them as lists.
 
-The precedence of any hyperoperator is the same as its base operator.
-This means that you must parenthesize your lists for most operators.
-For example:
+When writing a hyper operator, spaces are not allowed on the inside,
+that is, between any "hyper" marker and the operator it's modifying.
+On the outside the spacing policy is the same as the base operator.
+Likewise the precedence of any hyperoperator is the same as its
+base operator.  This means that you must parenthesize your comma
+lists for most operators.  For example:
 
+     -« (1,2,3)                    # (-1, -2, -3)
      (1,1,2,3,5) »+« (1,2,3,5,8);  # (2,3,5,8,13)
 
-If either argument is insufficiently dimensioned, Perl "upgrades" it:
+A unary hyper operator (either prefix or postfix) has only one
+hyper marker, located on its argument side, while an infix operator
+always has one on each side to indicate there are two arguments.
+Unary operators always produce a list or array of exactly the same
+shape as their single argument.  When infix operators are presented with
+two lists or arrays of identical shape, a result of that same shape is
+produced.  Otherwise the result depends on how you write the hyper
+markers.
 
-     (3,8,2,9,3,8) >>-<< 1;          # (2,7,1,8,2,7)
+For an infix operator, if either argument is insufficiently
+dimensioned, Perl "upgrades" it, but only if you point the "sharp" end
+of the hypermarker at it.
 
-In fact, this is the I<only> form that will work for an unordered type
-such as a C<Bag>:
+     (3,8,2,9,3,8) >>->> 1;          # (2,7,1,8,2,7)
+     @array »+=» 42;                 # add 42 to each element
 
-     Bag(3,8,2,9,3,8) >>-<< 1;       # Bag(2,7,1,8,2,7) === Bag(1,2,2,7,7,8)
+In fact, an upgraded scalar is the only thing that will work for an
+unordered type such as a C<Bag>:
 
-When using a unary operator, only put the "hyper" on the side of the
-single operand:
+     Bag(3,8,2,9,3,8) >>->> 1;       # Bag(2,7,1,8,2,7) === Bag(1,2,2,7,7,8)
+
+In other words, pointing the small end at an argument tells the hyperoperator
+to "dwim" on that side.  If you don't know whether one side or the other will
+be underdimensioned, you can dwim on both sides:
+
+    $left «*» $right
+
+The upgrade never happens on the "blunt" end of a hyper.  If you write
+
+    $bigger «*« $smaller
+    $smaller »*» $bigger
+
+and exception is thrown, and if you write
+
+    $foo »*« $bar
+
+you are requiring the shapes to be identical, or an exception will be thrown.
+
+When using a unary operator, you always aim the blunt end at the
+single operand, because no dwimmery every happens:
 
      @negatives = -« @positives;
 
@@ -757,19 +789,22 @@ single operand:
 Note that method calls are really postfix operators, not infix, so you
 shouldn't put a C<«> after the dot.
 
-Hyper operators are defined recursively on arrays, so:
+Hyper operators are defined recursively on shaped arrays, so:
 
     -« [[1, 2], 3]               #    [-«[1, 2], -«3]
                                  # == [[-1, -2], -3]
-    [[1, 2], 3] »+« [4, [5, 6]]  #    [[1,2] »+« 4, 3 »+« [5, 6]]
+
+Likewise the dwimminess of dwimmy infixes propagates:
+
+    [[1, 2], 3] «+» [4, [5, 6]]  #    [[1,2] «+» 4, 3 «+» [5, 6]]
                                  # == [[5, 6], [8, 9]]
 
-More generally, hyper operators work recursively for any object
+More generally, a dwimmy hyper operator works recursively for any object
 matching the C<Each> role even if the object itself doesn't support
 the operator in question:
 
-    Bag(3,8,[2,Seq(9,3)],8) >>-<< 1;         # Bag(2,7,[1,Seq(8,2)],7)
-    Seq(3,8,[2,Seq(9,3)],8) >>-<< (1,1,2,1); # Seq(2,7,[0,Seq(7,1)],7)
+    Bag(3,8,[2,Seq(9,3)],8) >>->> 1;         # Bag(2,7,[1,Seq(8,2)],7)
+    Seq(3,8,[2,Seq(9,3)],8) >>->> (1,1,2,1); # Seq(2,7,[0,Seq(7,1)],7)
 
 In particular, tree node types with C<Each> semantics enable visitation:
 
@@ -815,6 +850,9 @@ absence of that, run-time analysis of partial MMD dispatch may save
 some MMD searching overhead.  Or particular object arrays might even
 keep track of their own run-time type purity and cache partial MMD
 dispatch tables when they know they're likely to be used in hyperops.
+
+Beyond all that, "array of scalar" types are known at compile time not to
+need recursive hypers, so the operations can be vectorized aggressively.
 
 =head2 Reduction operators
 
