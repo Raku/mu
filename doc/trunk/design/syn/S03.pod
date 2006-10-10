@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 28 Sept 2006
+  Last Modified: 10 Oct 2006
   Number: 3
-  Version: 69
+  Version: 70
 
 =head1 Changes to Perl 5 operators
 
@@ -500,6 +500,16 @@ supports the C<Ordered> role.
 
 Note: infinite lists are constructed lazily.  And even though C<*..*>
 can't be constructed at all, it's still useful as a selector object.
+
+For any kind of zip or dwimmy hyper operator, any list ending with C<*>
+is assumed to be infinitely extensible by taking its final element
+and replicating it:
+
+    @array, *
+
+is short for something like:
+
+    @array[0..^@array], @array[-1] xx *
 
 =item * The unary C<^> operator generates a range from C<0> up to
 one less than its argument.  So C<^4> is short for C<0..^4> or C<0..3>.
