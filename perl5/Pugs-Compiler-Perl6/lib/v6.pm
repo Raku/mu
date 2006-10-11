@@ -120,7 +120,12 @@ if (@ARGV and !caller) {
 
     while (@ARGV and $ARGV[0] =~ /^-(\w)(.+)/) {
         use Config;
-        $ENV{PERL6LIB} = "$2$Config{path_sep}$ENV{PERL6LIB}" if $1 eq 'I';
+        if($1 eq 'I') {
+            $ENV{PERL6LIB} = ((defined($ENV{PERL6LIB}) && $ENV{PERL6LIB} ne '')
+                              ? "$Config{path_sep}$ENV{PERL6LIB}"
+                              : "");
+            $ENV{PERL6LIB} = "$2$ENV{PERL6LIB}";
+        }
         shift @ARGV;
     }
 
@@ -165,7 +170,12 @@ elsif ( $0 eq '-e' ) {
 
     while (@ARGV and $ARGV[0] =~ /^-(\w)(.+)/) {
         use Config;
-        $ENV{PERL6LIB} = "$2$Config{path_sep}$ENV{PERL6LIB}" if $1 eq 'I';
+        if($1 eq 'I') {
+            $ENV{PERL6LIB} = ((defined($ENV{PERL6LIB}) && $ENV{PERL6LIB} ne '')
+                              ? "$Config{path_sep}$ENV{PERL6LIB}"
+                              : "");
+            $ENV{PERL6LIB} = "$2$ENV{PERL6LIB}";
+        }
         shift @ARGV;
     }
 
