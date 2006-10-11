@@ -2,8 +2,7 @@ RedSix was an attempt to build a perl6 implementation on ruby.
 See the History section for motivation.  It is currently abandoned.
 
 To run it, use ruby 1.9.0 of Spring'06.  More recent versions may also
-work.  "mkdir cache" before running.  You can swap the file for the
-pugs executable, and run make test.
+work.  "mkdir cache" before running.
 
 History
 
