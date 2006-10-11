@@ -714,7 +714,7 @@ test-pir :
 test-js :
 	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B JS+; system qq+$Config{make}+, q+test+"
 
-test-perl5 :
+test-Bperl5 :
 	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B PERL5+; system qq+$Config{make}+, q+test+"
 
 blib6/lib/Test.pm.yml :: ext/Test/lib/Test.pm
