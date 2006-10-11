@@ -31,7 +31,7 @@ use CGI::Carp qw(fatalsToBrowser);
 
 CGI::nph();   # Treat script as a non-parsed-header script
 $ENV{PATH} = ""; # no PATH should be needed
-
+$ENV{SAFE_MODE}=1;
 my $query=new CGI;
 
 my $sessionid=$query->param("sessionid") || crypt(rand(),'NM');

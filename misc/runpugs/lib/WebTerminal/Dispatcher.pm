@@ -35,11 +35,11 @@ sub send {
 			last;
 		};
 	} 
-    if ($cmd=~/\b(system|exec|fork|wait|open|slurp|eval|kill)\b|(\`)/) {
-    my $offending_command=$1||$2;
-    return "Sorry, \'$offending_command\' is not allowed.\npugs> ";
+#    if ($cmd=~/\b(system|exec|fork|wait|open|slurp|eval|kill)\b|(\`)/) {
+#    my $offending_command=$1||$2;
+#    return "Sorry, \'$offending_command\' is not allowed.\npugs> ";
 
-    } else {
+ #   } else {
     my $conn;
     my $ntries=5;
     for (1..$ntries) {
@@ -62,7 +62,7 @@ sub send {
 		die "Terminal server returned wrong id: $rid, should be $id";
 	}
 	return $reply;
-    }
+  #  }
 }
 
 sub rcvd_msg_from_server {
