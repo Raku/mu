@@ -15,6 +15,7 @@ sub new {
 	my $self     = {@_};
 	my $prompt = '/\>\ /';
 	## Start pugs
+    $ENV{PUGS_SAFEMODE}=1;
 	( $self->{'pty'},$self->{'pid'} ) = &spawn("/usr/bin/pugs");    # spawn() defined below
 
 	## Create a Net::Telnet object to perform I/O on pugs's tty.
