@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<title>Run Perl6 Now!</title>
+<link rel="stylesheet" type="text/css" href="/runpugs.css">
+<script language="JavaScript">
+
+function submitenter(myfield,e)
+{
+var keycode;
+if (window.event) keycode = window.event.keyCode;
+else if (e) keycode = e.which;
+else return true;
+if (keycode == 13)
+{
+document.terminal.submit();
+return false;
+}
+else
+return true;
+}
+
+</script>
+
+</head>
+
+<body>
+<div id="mainwindow">
+<h1>Run Perl6 now -- in your browser!</h1>
+<form style="text-align: center" name="terminal" action="/cgi-bin/runpugs" method="POST">                  
+                               
+<input type="hidden" name="sessionid" value="">
+<input type="hidden"    name="action" value="runpugs">
+<!--<textarea id="history" name="history"  rows="1" cols="1"
+style="overflow: hidden; border: 0px; width: 0px;
+font-size:0px">_CMD_</textarea>-->
+<label for="cmd">Interactive Pugs Session<br>
+<textarea id="cmd" name="cmd" rows="24" cols="80" wrap="virtual" onKeyPress="return submitenter(this,event)">
+pugs&gt;&nbsp;
+</textarea>
+</label>
+<br>
+<input id="enter" type="submit" value="Submit">&nbsp;&nbsp;&nbsp;
+</form>
+<script language="JavaScript">
+document.terminal.enter.style.display='none';
+document.terminal.cmd.focus()
+</script>
+<p class="copyright">&copy; Copyright 2006 by Wim Vanderbauwhede</p>
+</div>
+</body>
+</html>

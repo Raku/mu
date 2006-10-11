@@ -1,0 +1,29 @@
+BODY {width=100%;margin-left:10%;margin-right:10%; margin-top: 10px; font-family: Verdana, Geneva, Arial, Helvetica, sans-serif; font-size: 12pt; line-height: normal; background-color:#FFFFFF;}
+H1 {font-size: 24pt; 
+    font-family: Georgia, Serif, Times; 
+    font-weight: normal;
+    color: white;
+    background-color: #204a87;
+    padding: 15px;
+    }
+H2 { font-weight: bold; font-size: 12pt}
+LABEL {font-weight: bold; }
+.copyright {font-size: 9pt}
+#mainwindow {
+width: 750px 
+}
+#cmd {
+    font-family: "Andale Mono", courier, fixed, monospace;
+    font-size: 11pt;
+    line-height: 12pt;
+    color: #204a87;
+    background-color: #f2f2f0;
+    border: solid 2px #204a87;
+    padding: 5px;
+}
+/* Linkdefinities */
+A:link, A.bold:link { text-decoration: underline; color: #660066}
+A:active, A.bold:active { text-decoration: underline; color: #6699FF}
+A:visited, A.bold:visited { text-decoration: underline; color: #660066}
+A:hover, A.bold:hover { text-decoration: underline; color: #000099}
+

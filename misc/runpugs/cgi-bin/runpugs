@@ -1,0 +1,127 @@
+#!/usr/bin/perl -T -w
+
+#############################################################################
+#                                                                           #
+# This program is free software; you can redistribute it and/or             #
+# modify it under the terms of the GNU General Public License               #
+# as published by the Free Software Foundation; either version 2            #
+# of the License, or (at your option) any later version.                    #
+#                                                                           #
+# This program is distributed in the hope that it will be useful,           #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of            #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             #
+# GNU General Public License for more details.                              #
+#                                                                           #
+# You should have received a copy of the GNU General Public License         #
+# along with this program; if not, write to the Free Software Foundation,   #
+# Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.           #
+#############################################################################
+
+use strict;
+use lib '../lib/';
+#use WebTerminal::Settings;
+use WebTerminal::Dispatcher;
+
+#push (@INC, "$wwwpath$htmlpath$project");
+
+my $MAX_SIZE_UPLOAD = 64;
+use CGI qw(:standard);
+if ($MAX_SIZE_UPLOAD) { $CGI::POST_MAX=1024 * $MAX_SIZE_UPLOAD; }
+use CGI::Carp qw(fatalsToBrowser);
+
+CGI::nph();   # Treat script as a non-parsed-header script
+$ENV{PATH} = ""; # no PATH should be needed
+
+my $query=new CGI;
+
+my $sessionid=$query->param("sessionid") || crypt(rand(),'NM');
+
+my $access_OK=1; # no restrictions
+
+my $lang_charset = 'iso-8859-1';
+
+# once we print the header, we don't want to do it again if there's an error
+my $headerprinted = 0;
+my $validsession = 0;
+
+######### MAIN SITEMANAGER PROGRAM ###################
+
+if ( $query->param()) {      # an action has been chosen
+    my $cmd=$query->param("cmd");
+     my $action =  $query->param("action")||'runpugs';
+    if ($action =~ /^(\w+)$/) {
+	$action = $1;
+	if ($access_OK) {
+	    if ($action eq "runpugs") {
+		&runpugs($query,$cmd,$sessionid);
+	    } 
+    } else {
+	my $warning_message="Action has illegal chars: $action";
+    &runpugs($query,'',$sessionid);
+    }
+} else {            # no action has been taken, display login page
+    &runpugs($query,'',$sessionid);
+}
+} else {
+	 &runpugs($query,'',$sessionid);
+}
+###################### END MAIN ##############################
+=pod
+runpugs receives a command and a session id and passes it on to the Dispatcher.
+It returns the result
+For the easy, simple version, the command is the last non-blank line of the form.
+=cut
+
+sub runpugs {
+    my $query=shift;
+    my $cmd=shift;
+    my $sessionid=shift;
+    my $reply='pugs> ';
+    $cmd=~s/^.+?pugs([\>\.])/pugs$1/s;
+    if ($cmd=~/clear/) {$cmd=''} else {
+    $reply = &WebTerminal::Dispatcher::send($sessionid,$cmd);
+    $reply="\n".$reply;
+    }
+    my $html='';
+    open(HTML,"<../data/runpugs.html");
+    while(<HTML>) {
+
+	/input.*name=\"sessionid\"/ && do {$html.='<input type="hidden" name="sessionid" value="'.$sessionid.'">'."\n";next };
+	/(pugs\&gt\;\&nbsp\;)/ && do {$html.=$cmd.$reply;next};
+
+	/([^\`\\]+$)/ && do {$html.=$1};
+
+      }
+	close HTML;
+	&printhttpheader();
+	print $html;
+}
+################## END main_page ######################
+
+################### PRINTHTTPHEADER #######################
+sub printhttpheader {
+   my $cookie;
+     unless ($headerprinted) {
+
+     if ($sessionid) {
+         $cookie = $query->cookie( -name    => 'sessionid',
+                           -"value" => $sessionid,
+                           -path    => '/' );
+       }
+
+$headerprinted=1;
+
+     if ($sessionid) {
+         print $query->header(-pragma=>'no-cache',
+                      -cookie=>$cookie,
+                      -charset=>$lang_charset,
+			     );
+       } else {
+         print $query->header(-pragma=>'no-cache',
+                      -charset=>$lang_charset,
+			      );
+       }
+   }
+   }
+################### END PRINTHTTPHEADER #######################
+

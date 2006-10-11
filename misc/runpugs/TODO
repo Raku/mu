@@ -1,0 +1,9 @@
+runpugs TODO
+
+2006/10/10
+-add command history
+-make scrollbar jump to end of textarea
+-refactor to make more generic
+-let send() return reply and prompt separately
+-add POD
+-use async JavaScript for front-end
