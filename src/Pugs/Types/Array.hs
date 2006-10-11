@@ -127,26 +127,28 @@ instance ArrayClass IArraySlice where
     array_storeElem _ _ _ = retConstError undef
 
 instance ArrayClass IArray where
-    array_store (MkIArray av s) vals = liftIO $ do
-        new <- C.new
-        C.swapMaps new av
-        mapM_ (\(k, v) -> C.insert k (lazyScalar v) av) ([0..] `zip` vals)
+    array_store (MkIArray iv s) vals = liftIO $ do
+        new <- C.fromList [ (k, lazyScalar v) | k <- [0..] | v <- vals ]
+        writeIORef iv new
         writeIORef s (length vals)
     array_fetchSize MkIArray{ a_size = s } = liftIO $ do
         readIORef s
-    array_storeSize (MkIArray av s) sz = liftIO $ do
+    array_storeSize (MkIArray iv s) sz = liftIO $ do
         size <- readIORef s
         case size `compare` sz of
-            GT -> do new <- C.fromList =<< I.takeFirst sz av
-                     C.swapMaps new av
-                     writeIORef s sz
+            GT -> do 
+                av  <- readIORef iv
+                new <- C.fromList =<< I.takeFirst sz av
+                writeIORef iv new
+                writeIORef s sz
             EQ -> return ()
             LT -> writeIORef s sz
-    array_shift (MkIArray av s) = join . liftIO $ do
+    array_shift (MkIArray iv s) = join . liftIO $ do
         size <- readIORef s
         case size of
             0 -> return (return undef)
             _ -> do
+                av   <- readIORef iv
                 writeIORef s (size-1)
                 [(k, v)] <- I.takeFirst 1 av
                 case k of
@@ -154,24 +156,26 @@ instance ArrayClass IArray where
                         C.delete k av
                         l   <- C.mapToList (\k v -> (k-1,v)) av
                         new <- C.fromList l
-                        C.swapMaps new av
+                        writeIORef iv new
                         return (readIVar v)
                     _ -> do
                         l   <- C.mapToList (\k v -> (k-1,v)) av
                         new <- C.fromList l
-                        C.swapMaps new av
+                        writeIORef iv new
                         return (return undef)
-    array_unshift (MkIArray av s) vals = liftIO $ do
+    array_unshift (MkIArray iv s) vals = liftIO $ do
         let sz = length vals
+        av  <- readIORef iv
         l   <- C.mapToList (\k v -> (k+sz,v)) av
         new <- C.fromList $ ([0..] `zip` (map lazyScalar vals)) ++ l
-        C.swapMaps new av
+        writeIORef iv new
         modifyIORef s (+sz)
-    array_pop (MkIArray av s) = join . liftIO $ do
+    array_pop (MkIArray iv s) = join . liftIO $ do
         size <- readIORef s
         case size of
             0 -> return (return undef)
             _ -> do
+                av <- readIORef iv
                 writeIORef s (size-1)
                 e <- C.lookup (size-1) av
                 case e of
@@ -179,8 +183,9 @@ instance ArrayClass IArray where
                     Just x -> do
                         C.delete (size-1) av
                         return (readIVar x)
-    array_push (MkIArray av s) vals = liftIO $ do
+    array_push (MkIArray iv s) vals = liftIO $ do
         size <- readIORef s
+        av   <- readIORef iv
         writeIORef s (size + (length vals))
         mapM_ (\(k,v) -> C.insert k v av) $ [size..] `zip` (map lazyScalar vals)
     array_extendSize MkIArray{ a_size = s } sz = liftIO $ do
@@ -189,8 +194,8 @@ instance ArrayClass IArray where
         readIVar =<< getArrayIndex idx (Just $ constScalar undef)
             (return arr)
              Nothing -- don't bother extending
-    array_fetchKeys MkIArray{ a_data = av } = liftIO $ C.keys av
-    array_fetchElem arr@(MkIArray av s) idx = do
+    array_fetchKeys MkIArray{ a_data = iv } = liftIO (C.keys =<< readIORef iv)
+    array_fetchElem arr@(MkIArray iv s) idx = do
         sv <- getArrayIndex idx Nothing
             (return arr)
             (Just (array_extendSize arr $ idx+1))
@@ -201,28 +206,32 @@ instance ArrayClass IArray where
                 liftIO $ do
                     size <- readIORef s
                     let idx' = idx `mod` size
+                    av   <- readIORef iv
                     C.insert idx' sv' av
                     return sv'
             else return sv
     array_existsElem arr idx | idx < 0 = array_existsElem arr (abs idx - 1)    -- FIXME: missing mod?
-    array_existsElem MkIArray{ a_data = av } idx = liftIO $ C.member idx av
-    array_deleteElem (MkIArray av s) idx = liftIO $ do
+    array_existsElem MkIArray{ a_data = iv } idx = liftIO (C.member idx =<< readIORef iv)
+    array_deleteElem (MkIArray iv s) idx = liftIO $ do
         size <- readIORef s
         let idx' | idx < 0   = idx `mod` size        --- XXX wrong; wraparound => what do you mean?
                  | otherwise = idx
         case (size-1) `compare` idx' of
             LT -> return ()
             EQ -> do
+                av <- readIORef iv
                 writeIORef s (size-1)
                 C.delete idx' av
                 return ()
             GT -> do
+                av <- readIORef iv
                 C.delete idx' av
                 return ()
-    array_storeElem (MkIArray av s) idx sv = liftIO $ do
+    array_storeElem (MkIArray iv s) idx sv = liftIO $ do
         size <- readIORef s
         let idx' | idx < 0   = idx `mod` size        --- XXX wrong; wraparound => what do you mean?
                  | otherwise = idx
+        av <- readIORef iv
         C.insert idx' sv av
         if size > idx'
             then return ()

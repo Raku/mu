@@ -104,6 +104,7 @@ import Pugs.Embed.Perl5
 import qualified Pugs.Val as Val
 import qualified Data.ByteString.Char8 as Str
 import Foreign.StablePtr
+import Foreign.ForeignPtr (touchForeignPtr)
 
 {- <DrIFT> Imports for the DrIFT
 import Pugs.AST.Scope
@@ -259,11 +260,12 @@ toVV' x = error $ "don't know how to toVV': " ++ show x
 getArrayIndex :: Int -> Maybe (IVar VScalar) -> Eval IArray -> Maybe (Eval b) -> Eval (IVar VScalar)
 getArrayIndex idx def getArr _ | idx < 0 = do
     -- first, check if the list is at least abs(idx) long
-    MkIArray av s <- getArr
+    MkIArray iv s <- getArr
     size <- liftIO $ readIORef s
     if size > (abs (idx+1))
-        then do
-            e <- liftIO $ C.lookup (idx `mod` size) av
+        then liftIO $ do
+            av  <- readIORef iv
+            e   <- C.lookup (idx `mod` size) av
             case e of
                 Nothing -> return lazyUndef
                 Just x  -> return x
@@ -273,11 +275,12 @@ getArrayIndex idx def getArr ext = do
     let maybeExtend = do case ext of
                              Just doExt -> do { doExt; getArrayIndex idx def getArr Nothing }
                              Nothing    -> errIndex def idx
-    MkIArray av s <- getArr
+    MkIArray iv s <- getArr
     size <- liftIO $ readIORef s
     if size > idx
-        then do
-            e <- liftIO $ C.lookup idx av
+        then liftIO $ do
+            av  <- readIORef iv
+            e   <- C.lookup idx av
             case e of
                 Just a  -> return a
                 Nothing -> return lazyUndef
@@ -569,6 +572,20 @@ newSVval val = case val of
     VInt int    -> vintToSV int
     VRat rat    -> vnumToSV rat
     VNum num    -> vnumToSV num
+{-
+    VRef ref@(MkRef (IArray a)) -> case fromTypeable a of
+        Just (MkIArray iv@(I.IntMap fp) _) -> do
+            sv      <- vrefToSV ref
+            sptr    <- newStablePtr fp
+            warn "Fin: SPTR" fp
+            let fin = do
+                    warn "Fin: FPTR" (sptr == sptr)
+                    touchForeignPtr fp
+            modifyIORef _GlobalFinalizer (>> fin)
+            addFinalizer sv fin
+            return sv
+        _ -> vrefToSV ref
+-}
     VRef ref    -> vrefToSV ref
     VCode{}     -> mkValRef val "Code"
     VBlock{}    -> mkValRef val "Code"
@@ -1587,7 +1604,8 @@ newObject typ = case showType typ of
     "Array"     -> liftIO $ do
         s   <- newIORef 0
         av  <- C.new
-        return $ arrayRef (MkIArray av s)
+        iv  <- newIORef av
+        return $ arrayRef (MkIArray iv s)
     "Hash"      -> do
         h   <- liftIO (C.new :: IO IHash)
         return $ hashRef h
@@ -1815,7 +1833,8 @@ newArray vals = liftIO $ do
     --liftSTM $ unsafeIOToSTM $ putStrLn "new array"
     s   <- newIORef (length vals)
     av  <- C.fromList ([0..] `zip` map lazyScalar vals)
-    return $ IArray (MkIArray av s)
+    iv  <- newIORef av
+    return $ IArray (MkIArray iv s)
 
 newHash :: (MonadSTM m) => VHash -> m (IVar VHash)
 newHash hash = do
@@ -1846,7 +1865,7 @@ retConstError val = retError "Can't modify constant item" val
 
 -- Haddock doesn't like these; not sure why ...
 #ifndef HADDOCK
-type IArray'            = I.IntMap ArrayIndex (IVar VScalar)
+type IArray'            = IORef (I.IntMap ArrayIndex (IVar VScalar))
 data IArray             = MkIArray
     { a_data :: !IArray'
     , a_size :: !(IORef ArrayIndex)
@@ -1859,6 +1878,7 @@ type ICode              = TVar VCode
 type IScalarProxy       = (Eval VScalar, (VScalar -> Eval ()))
 type IScalarLazy        = Maybe VScalar
 type IPairHashSlice     = (VStr, IVar VScalar)
+
 
 -- these implementation allows no destructions
 type IRule   = VRule
