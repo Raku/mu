@@ -195,7 +195,20 @@ local $Regexp::Parser::ConvertToSix::env;
   package Regexp::Parser::branch;
   sub visual6 {
     my($o)=@_;
-    join("|",map { $_->visual6() } @{$o->data});
+    my $env = $Regexp::Parser::ConvertToSix::env;
+    my $first = $env->{capture_var}[-1];
+    my $next_cap = $first + 1;
+    my $pat = join("|",map {
+      my $a = $_;
+      local $env->{capture_var} = [@{$env->{capture_var}}];
+      $env->{capture_var}[-1] = $first;
+      my $re = join("", map {$_->visual6()} @$a);
+      my $cap = $env->{capture_var}[-1];
+      $next_cap = $cap if $cap > $next_cap;
+      $re;
+    } @{$o->data});
+    $env->{capture_var}[-1] = $next_cap;
+    $pat;
   }
 }
 {
@@ -499,7 +512,7 @@ What do $' $` look like in p6?
 Run over re_tests.
 Test with //x.
 Can we avoid losing comments?
-The order dependency on avoid_delim is problematic.  Should be local().  And it's fragile ('[').
+The order dependency on avoid_delim is problematic.  Should be local()?  And it's fragile ('[').
 More selective slashification.
 Make it a module.
 
