@@ -199,7 +199,7 @@ instance (Typeable a, YAML a) => YAML (TVar a) where
 
 asYAMLwith :: (YAML a, YAML b) => (a -> EmitAs b) -> a -> EmitAs YamlNode
 asYAMLwith f x = do
-    ptr  <- liftIO $ addressOf x
+    ptr  <- liftIO $ stableAddressOf x
     seen <- ask
     if IntSet.member ptr seen
         then return nilNode{ n_anchor = AReference ptr } 
@@ -207,8 +207,8 @@ asYAMLwith f x = do
             rv   <- local (IntSet.insert ptr) (asYAML =<< f x)
             return rv{ n_anchor = AAnchor ptr }
 
-addressOf :: a -> IO Int
-addressOf x = do
+stableAddressOf :: a -> IO Int
+stableAddressOf x = do
     ptr <- newStablePtr x
     return (castStablePtrToPtr ptr `minusPtr` (nullPtr :: Ptr ()))
 

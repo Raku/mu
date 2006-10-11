@@ -562,7 +562,7 @@ op1 "List::kv" = \v -> do
     kvs   <- forM pairs $ \(VRef ref) -> do
         pair   <- readRef ref
         fromVal pair
-    return (VList $ concat kvs)
+    retSeq $ concat kvs
 op1 "Pair::kv" = op1 "List::kv"
 op1 "keys" = keysFromVal
 op1 "values" = valuesFromVal
@@ -1684,7 +1684,7 @@ op1Pretty printer v = do
 
 prettyVal :: (?seen :: IntSet.IntSet, ?recur :: TVar Bool, ?printer :: PrettyPrinter) => Val -> Eval VStr
 prettyVal v@(VRef r) = do
-    ptr <- liftIO (addressOf r)
+    ptr <- liftIO (stableAddressOf r)
     if IntSet.member ptr ?seen
         then do
             liftSTM $ writeTVar ?recur True

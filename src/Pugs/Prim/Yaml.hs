@@ -1,8 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans #-}
 
-module Pugs.Prim.Yaml (
-  evalYaml, dumpYaml, addressOf,
-) where
+module Pugs.Prim.Yaml ( evalYaml, dumpYaml ) where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Pretty
@@ -71,19 +69,12 @@ dumpYaml v = do
 strNode :: String -> YamlNode
 strNode = mkNode . EStr . packBuf
 
-{-
-addressOf :: a -> IO Int
-addressOf x = do
-    ptr <- newStablePtr x
-    return (castStablePtrToPtr ptr `minusPtr` (nullPtr :: Ptr ()))
--}
-
 toYaml :: (?seen :: IntSet.IntSet) => Val -> Eval YamlNode
 toYaml VUndef       = return $ mkNode ENil
 toYaml (VBool x)    = return $ boolToYaml x
 toYaml (VStr str)   = return $ strNode (encodeUTF8 str)
 toYaml v@(VRef r)   = do
-    ptr <- liftIO $ addressOf r
+    ptr <- liftIO $ stableAddressOf r
     if IntSet.member ptr ?seen then return nilNode{ n_anchor = AReference ptr } else do
         let ?seen = IntSet.insert ptr ?seen
         node <- ifValTypeIsa v "Hash" (hashToYaml r) $ do
