@@ -20,7 +20,7 @@ module Pugs.AST.Internals (
     VRef(..), -- uses IVar
     VOpaque(..), -- uses Value
     VControl(..), -- uses Env, Eval, Val
-    ControlLoop(..), ControlGiven(..), Frame(..),
+    ControlLoop(..), ControlWhen(..), Frame(..),
     VScalar, -- uses Val
     VPair, -- uses Val
     VList, -- uses Val
@@ -806,7 +806,7 @@ data VControl
     = ControlExit  !ExitCode
     | ControlEnv   !Env
     | ControlLoop  !ControlLoop
-    | ControlGiven !ControlGiven
+    | ControlWhen  !ControlWhen
     | ControlLeave
         { leaveType     :: !(SubType -> Bool)
         , leaveDepth    :: !Int
@@ -821,9 +821,9 @@ data ControlLoop
     | LoopLast
     deriving (Show, Eq, Ord, Typeable) -- don't derive YAML for now
 
-data ControlGiven
-    = GivenContinue
-    | GivenBreak
+data ControlWhen
+    = WhenContinue
+    | WhenBreak
     deriving (Show, Eq, Ord, Typeable) -- don't derive YAML for now
 
 {-|
@@ -1277,7 +1277,7 @@ data Env = MkEnv
 
 data Frame
     = FrameLoop
-    | FrameGiven
+    | FrameWhen
     | FrameGather
     | FrameRoutine
     deriving (Show, Eq, Ord, Typeable) -- don't derive YAML for now

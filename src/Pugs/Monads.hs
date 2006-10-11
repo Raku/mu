@@ -122,7 +122,7 @@ enterFrame f = local (\e -> e{ envFrames = f `Set.insert` envFrames e})
 enterGather, enterLoop, enterGiven :: Eval Val -> Eval Val
 enterGather = enterFrame FrameGather
 enterLoop   = enterFrame FrameLoop
-enterGiven  = enterFrame FrameGiven
+enterGiven  = id
 
 assertFrame :: Frame -> Eval a -> Eval a
 assertFrame f action = do
@@ -143,11 +143,11 @@ test, nor is it responsible for adding the implicit @break@ to the end of the
 enterWhen :: Eval Val -- ^ The @when@'s body block, as an evaluation
           -> Eval Val
 enterWhen action = do
-    rv  <- action
+    rv  <- enterFrame FrameWhen action
     case rv of
-        VControl (ControlGiven GivenContinue)   -> retEmpty
-        VControl (ControlGiven GivenBreak)      -> retShiftEmpty
-        _                                       -> retShift rv
+        VControl (ControlWhen WhenContinue)   -> retEmpty
+        VControl (ControlWhen WhenBreak)      -> retShiftEmpty
+        _                                     -> retShift rv
 
 {-|
 Generate a new Perl 6 operation from a Haskell function, give it a name, and
