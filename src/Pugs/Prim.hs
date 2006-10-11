@@ -15,10 +15,12 @@ module Pugs.Prim (
     initSyms,
     op2ChainedList,
     op1Exit,
-    op1Return,
+
     -- used by Pugs.Compile.Haskell
     op0, op1, op2,
+
     -- used Pugs.Eval
+    op1Return, op1Yield,
     foldParam, op2Hyper, op1HyperPrefix, op1HyperPostfix, retSeq
 ) where
 import Pugs.Internals
@@ -324,8 +326,8 @@ op1 "defined" = op1Cast (VBool . defined)
 op1 "last" = const $ assertFrame FrameLoop $ op1ShiftOut (VControl (ControlLoop LoopLast))
 op1 "next" = const $ assertFrame FrameLoop $ op1ShiftOut (VControl (ControlLoop LoopNext))
 op1 "redo" = const $ assertFrame FrameLoop $ op1ShiftOut (VControl (ControlLoop LoopRedo))
-op1 "continue" = const $ assertFrame FrameGiven $ op1ShiftOut (VControl (ControlGiven GivenContinue))
-op1 "break" = const $ assertFrame FrameGiven $ op1ShiftOut (VControl (ControlGiven GivenBreak))
+op1 "continue" = const $ assertFrame FrameWhen $ op1ShiftOut (VControl (ControlWhen WhenContinue))
+op1 "break" = const $ assertFrame FrameWhen $ op1ShiftOut (VControl (ControlWhen WhenBreak))
 op1 "return" = op1Return . op1ShiftOut . VControl . ControlLeave (<= SubRoutine) 0
 op1 "yield" = op1Yield . op1ShiftOut . VControl . ControlLeave (<= SubRoutine) 0
 op1 "leave" = op1ShiftOut . VControl . ControlLeave (>= SubBlock) 0
