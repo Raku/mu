@@ -87,8 +87,9 @@ method header (
         $header ~= "\n";
     }
     
-    for %extra.kv -> $key, $value {
+    for %extra.keys.sort -> $key is copy {
         # XXX use $key is rw;
+        my $value = %extra{$key};
         my $temp_key = ucfirst(lc($key));
         
         $temp_key ~~ s:P5:g/[-_](\w)/-$0.uc()/;
@@ -194,13 +195,13 @@ method url_encode (Str $to_encode) returns Str {
 }
 
 method pack_params returns Str {
-    my @packed_params;
-    for (%!PARAMS.kv) -> $param, @values {
-        for @values -> $val {
-            @packed_params.push(self.url_encode($param) ~ '=' ~ self.url_encode($val));                            
+    join $!QS_DELIMITER, gather {
+        for %!PARAMS.keys.sort -> $param {
+            for each(%!PARAMS{$param}) -> $val {
+                take(self.url_encode($param) ~ '=' ~ self.url_encode($val));                            
+            }
         }
-    }
-    return join($!QS_DELIMITER, @packed_params);
+    };
 }
 
 method unpack_params (Str $data) returns Str {
@@ -306,29 +307,29 @@ method unescapeHTML (Str $string is copy) returns Str {
 
 # information functions (again)
 
-multi method param returns Array            { unless $!IS_PARAMS_LOADED {self.load_params}; %!PARAMS.keys;  }
+multi method param returns Array            { unless $!IS_PARAMS_LOADED {self.load_params}; %!PARAMS.keys.sort;  }
 multi method param (Str $key) returns Array { unless $!IS_PARAMS_LOADED {self.load_params}; %!PARAMS{$key}; }
 
 method Dump {
-    my @result;
     return '<ul></ul>' unless self.param;
 
-    @result.push("<ul>");
+    join "\n", gather {
+        take "<ul>";
 
-    for self.param -> $param {
-       my $name = self.escapeHTML($param);
-       @result.push("<li><strong>$name </strong></li>");
-       @result.push(" <ul>");
-       for each(self.param($param)) -> $value  {
-           my $esc_val = self.escapeHTML($value);
-           $esc_val ~~ s:g/\n/<br \/>\n/;
-           @result.push("<li>$esc_val </li>");
-       }
-       @result.push("</ul>");
+        for self.param -> $param {
+            my $name = self.escapeHTML($param);
+            take("<li><strong>$name </strong></li>");
+            take(" <ul>");
+            for each(self.param($param)) -> $value {
+                my $esc_val = self.escapeHTML($value);
+                $esc_val ~~ s:g/\n/<br \/>\n/;
+                take("<li>$esc_val </li>");
+            }
+            take("</ul>");
+        }
+
+        take "</ul>";
     }
-
-    push @result, "</ul>";
-    return @result.join("\n");
 }
 
 method as_yaml { %!PARAMS.yaml }
