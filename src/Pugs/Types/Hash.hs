@@ -7,7 +7,8 @@ class (Typeable a) => HashClass a where
     hash_fetch hv = do
         keys <- hash_fetchKeys hv
         vals <- mapM (hash_fetchVal hv) keys
-        return . Map.fromList $ keys `zip` vals
+        let ps = keys `zip` vals
+        return (length ps `seq` Map.fromList ps)
     hash_store       :: a -> VHash -> Eval ()
     hash_store hv vals = do
         hash_clear hv
@@ -94,15 +95,21 @@ instance HashClass IHashEnv where
     hash_deleteElem _ key = do
         liftIO $ unsetEnv key
 
+encodeKey, decodeKey :: HashIndex -> HashIndex
+encodeKey x = x
+decodeKey x = x
+
 instance HashClass IHash where
     hash_fetch hv = do
-        let f key sv = do { val <- readIVar sv; return (decodeUTF8 key, val) }
-        l <- liftIO $ C.mapToList f hv
-        fmap Map.fromList $ sequence l
-    hash_fetchKeys hv = fmap (map decodeUTF8) (liftIO $ C.keys hv)
+        ps  <- liftIO $ C.toList hv
+        ps' <- forM ps $ \(k, sv) -> do
+            val <- readIVar sv
+            return (decodeKey k, val)
+        return (length ps' `seq` Map.fromList ps')
+    hash_fetchKeys hv = do
+        fmap (map decodeKey) (liftIO $ C.keys hv)
     hash_fetchElem hv idx = do
-        --liftIO $ putStrLn $ "fetching " ++ (show hv) ++ ": " ++ (show idx)
-        let idx' = encodeUTF8 idx
+        let idx' = encodeKey idx
         r <- liftIO $ C.lookup idx' hv
         case r of
              Just sv -> return sv
@@ -111,13 +118,12 @@ instance HashClass IHash where
                 liftIO $ C.insert idx' sv hv
                 return sv
     hash_storeElem hv idx sv = do
-        liftIO $ C.insert (encodeUTF8 idx) sv hv
-        -- >>  (putStrLn $ "storing " ++ (show hv) ++  ": " ++ (show idx)))
+        liftIO $ C.insert (encodeKey idx) sv hv
     hash_deleteElem hv idx = do
-        --liftIO $ putStrLn $ "deleting " ++ (show hv) ++ ": " ++ (show idx)
-        liftIO $ C.delete (encodeUTF8 idx) hv
+        liftIO $ C.delete (encodeKey idx) hv
         return ()
-    hash_existsElem hv idx = liftIO $ C.member (encodeUTF8 idx) hv
+    hash_existsElem hv idx = do
+        liftIO $ C.member (encodeKey idx) hv
 
 instance HashClass PerlSV where
     hash_iType = const $ mkType "Hash::Perl"
