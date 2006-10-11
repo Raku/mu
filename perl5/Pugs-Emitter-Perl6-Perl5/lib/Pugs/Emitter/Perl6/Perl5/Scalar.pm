@@ -4,7 +4,7 @@ package Pugs::Emitter::Perl6::Perl5::Scalar;
     use base 'Pugs::Emitter::Perl6::Perl5::Value'; # XXX
     use overload (
         '""'     => sub { 
-            $_[0]->{name} 
+            Pugs::Runtime::Common::mangle_var( $_[0]->{name} )
         },
         fallback => 1,
     );
