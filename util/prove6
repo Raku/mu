@@ -80,7 +80,7 @@ Options:
     -r, --recurse Recursively descend into directories.
     --ext=x       Extensions (defaults to .t)
 
-    -update-yml   refresh Test.pm.yml and Prelude.pm.yml
+    --update-yml  Refresh Test.pm.yml and Prelude.pm.yml
 _EOC_
     exit(0);
 }
