@@ -89,11 +89,26 @@ package Pugs::Emitter::Perl6::Perl5::CodeExpression;
 package Pugs::Emitter::Perl6::Perl5::ListExpression;
     use base 'Pugs::Emitter::Perl6::Perl5::AnyExpression';
     use overload (
-        '""'     => sub { $_[0]->{name} },
+        '""'     => sub { 
+                #print "Expr->Perl ", $_[0]->{name}, "\n";
+                $_[0]->{name};
+            },
         fallback => 1,
     );
     sub WHAT { 
         return Pugs::Emitter::Perl6::Perl5::Str->new( { name => 'List' } );
+    }
+    sub str {
+        #print "Expr->Str ", $_[0]->{name}, "\n";
+        return Pugs::Emitter::Perl6::Perl5::StrExpression->new( { name => $_[0]->{name} } );
+    }
+    sub perl {
+        $_[0]->node( 'StrExpression',
+                'Pugs::Runtime::Perl6::Scalar::perl( '. $_[0] . ')' );
+    }
+    sub yaml {
+        $_[0]->node( 'StrExpression',
+                'Pugs::Runtime::Perl6::Scalar::yaml( '. $_[0] . ')' );
     }
 package Pugs::Emitter::Perl6::Perl5::HashExpression;
     use base 'Pugs::Emitter::Perl6::Perl5::AnyExpression';

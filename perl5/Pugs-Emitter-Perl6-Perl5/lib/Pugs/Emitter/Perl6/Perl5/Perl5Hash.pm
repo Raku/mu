@@ -35,13 +35,16 @@ sub set {
     return $self->name . ' = ' . $_[1]->hash->get;
 }
 
-sub str {
-    return $_[0]->node( 'StrExpression', ' Pugs::Runtime::Perl6::Hash::str( \\' . $_[0] . ' ) ' )
-}
-
+    sub str {
+        return $_[0]->node( 'StrExpression', ' Pugs::Runtime::Perl6::Hash::str( \\' . $_[0] . ' ) ' )
+    }
     sub perl {
         $_[0]->node( 'StrExpression',
-                'Pugs::Runtime::Perl6::Scalar::perl( '. $_[0] . ')' );
+                'Pugs::Runtime::Perl6::Scalar::perl( \\'. $_[0] . ')' );
+    }
+    sub yaml {
+        $_[0]->node( 'StrExpression',
+                'Pugs::Runtime::Perl6::Scalar::yaml( \\'. $_[0] . ')' );
     }
     
 sub defined {
@@ -78,8 +81,8 @@ sub hash {
 }
 
 sub array {
-    return $_[0]->node( 'ListExpression',  
-        '@{[' . $_[0]->name . ']}' )   
+    #print "\@Hash->Array\n";
+    return $_[0]->node( 'ListExpression', '@{[' . $_[0]->name . ']}' )   
 }
 
 sub scalar {

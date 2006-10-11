@@ -37,13 +37,17 @@ sub set {
     return $self->name . ' = ' . $_[1]->array->get;
 }
 
-sub str {
-    return $_[0]->node( 'StrExpression', '"' . $_[0] . '"' )
-}
+    sub str {
+        return $_[0]->node( 'StrExpression', '"' . $_[0] . '"' )
+    }
 
     sub perl {
         $_[0]->node( 'StrExpression',
-                'Pugs::Runtime::Perl6::Scalar::perl( '. $_[0] . ')' );
+                'Pugs::Runtime::Perl6::Scalar::perl( \\'. $_[0] . ')' );
+    }
+    sub yaml {
+        $_[0]->node( 'StrExpression',
+                'Pugs::Runtime::Perl6::Scalar::yaml( \\'. $_[0] . ')' );
     }
     
 sub kv {

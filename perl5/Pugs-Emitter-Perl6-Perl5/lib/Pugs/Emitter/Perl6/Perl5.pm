@@ -472,18 +472,33 @@ sub emit_parenthesis {
 
 sub closure_is_hash {
     my $n = $_[0];
+    
+    # not delimited by {...}
     return 0
         if $n && !$n->{bare_block};
+        
     #<audreyt> If the closure
     #<audreyt> appears to delimit nothing but a comma-separated list starting with
     #<audreyt> a pair (counting a single pair as a list of one element), the closure
     #<audreyt> will be immediately executed as a hash composer.
     #<audreyt> also, {} is a hash
-    #warn "block: ",Dumper $n;
+    
+    #print "block: ",Dumper $n;
+    
     if ( exists $n->{bare_block}{statements} ) {
+        # {}
         if ( @{$n->{bare_block}{statements}} == 0 ) {
             return 1;
         }
+        # { pair }
+        if (
+            @{$n->{bare_block}{statements}} == 1        &&
+            exists $n->{bare_block}{statements}[0]{op1} &&
+            $n->{bare_block}{statements}[0]{op1} eq '=>' 
+        ) {
+            return 1;
+        }
+        # { pair,pair, }
         if (
             @{$n->{bare_block}{statements}} == 1        &&
             exists $n->{bare_block}{statements}[0]{op1} &&
@@ -504,27 +519,12 @@ sub emit_block_nobraces {
     my $n = $_[0];
     $n = { bare_block => $n } 
         if $n && !$n->{bare_block};
-
-    #<audreyt> If the closure
-    #<audreyt> appears to delimit nothing but a comma-separated list starting with
-    #<audreyt> a pair (counting a single pair as a list of one element), the closure
-    #<audreyt> will be immediately executed as a hash composer.
-    #<audreyt> also, {} is a hash
-    #warn "block: ",Dumper $n;
+    #print "block: ",Dumper $n;
     if ( exists $n->{bare_block}{statements} ) {
         if ( @{$n->{bare_block}{statements}} == 0 ) {
             return " # hash\n";
         }
-        if (
-            @{$n->{bare_block}{statements}} == 1        &&
-            exists $n->{bare_block}{statements}[0]{op1} &&
-            (   $n->{bare_block}{statements}[0]{op1} eq ',' 
-            ||  (  ref $n->{bare_block}{statements}[0]{op1} eq 'HASH'
-                && $n->{bare_block}{statements}[0]{op1} eq '=>' 
-                )
-            )
-            # TODO -   && is it a pair?
-        ) {
+        if ( closure_is_hash( $n ) ) {
             return  _emit( $n->{bare_block}{statements}[0] ) . "  # hash\n";
         }
     }
@@ -1323,8 +1323,9 @@ sub infix {
             my $v = _emit( $n->{exp2} );
 
             # XXX uncomment when Data::Bind accepts refs
-            #return _emit( $n->{exp1} ) . ' = ' . $v->scalar
-            #    if Scalar::Util::blessed $v;              
+            return _emit( $n->{exp1} ) . ' = ' . $v->scalar
+                if Scalar::Util::blessed $v;              
+                
             if  (  exists $n->{exp2}{'bare_block'} 
                 ) {
                 if ( closure_is_hash( $n->{exp2} ) ) {
