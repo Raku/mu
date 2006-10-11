@@ -2,7 +2,7 @@ use v6-alpha;
 
 use Test;
 
-plan(7);
+plan(5);
 
 unless eval 'eval("1", :lang<perl5>)' {
     skip_rest;
@@ -32,15 +32,11 @@ my $keys_p5 = eval('sub {keys %{$_[0]}}', :lang<perl5>);
 my $tohash_p5 = eval('sub { return {map {$_ => 1} @_ } }', :lang<perl5>);
 my %hash = (foo => 'bar', hate => 'software');
 {
-    lives_ok {
     my $foo = $tohash_p5.(keys %hash);
     cmp_ok($foo, &infix:<cmp>, %hash);
-    cmp_ok($foo.keys, &infix:<cmp>, %hash.keys);
-    }
+    is_deeply([$foo.keys].sort, [%hash.keys].sort);
 }
 
 {
-    lives_ok { # is_deeply
-        cmp_ok(%hash.keys, &infix:<cmp>, $keys_p5(VAR %hash));
-    }
+    is_deeply([%hash.keys].sort, [$keys_p5(VAR %hash)].sort);
 }
