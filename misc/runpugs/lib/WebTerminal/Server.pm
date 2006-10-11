@@ -29,10 +29,15 @@ with the session id as first line.
 
 our %terminals=();
 our %lastcalled=();
+our %sessions_per_ip=();
 
 sub termhandler {
 	my $id  = shift;
+    my $ip=shift;
 	my $cmd = shift;
+if(scalar(keys %lastcalled)>50){
+    return "Sorry, I can't run any more sessions.\nPlease try again later.";
+} else {
 	$lastcalled{$id}=time;
 	if ( exists $terminals{$id} ) {
 		my $term  = $terminals{$id};
@@ -47,10 +52,16 @@ sub termhandler {
         }
 		return $lines;
 	} else {
+        if ($sessions_per_ip{$ip}>2) {
+         return "Sorry, you can't run more than 3 sessions in parallel\n";   
+        } else {
+            $sessions_per_ip{$ip}++;
 		$terminals{$id} = new WebTerminal::Server::Terminal();
 		my $term = $terminals{$id};
 		return $term->{'init'};
+        }
 	}
+}
 }
 
 sub rcvd_msg_from_client {
@@ -59,9 +70,9 @@ sub rcvd_msg_from_client {
 
 		my $len = length($msg);
 		if ( $len > 0 ) {
-			( my $id, my $cmd ) = split( "\n", $msg, 2 );
+			( my $id, my $ip, my $cmd ) = split( "\n", $msg, 3 );
 
-			my $lines = &termhandler( $id, $cmd );
+			my $lines = &termhandler( $id, $ip, $cmd );
 			$conn->send_now("$id\n$lines");
 
 		}
@@ -77,7 +88,7 @@ sub run {
 my $host=shift;
 my $port=shift;
 $SIG{USR1}=\&timeout;
-Proc::Daemon::Init;
+#Proc::Daemon::Init;
 # fork/exec by the book:
 use Errno qw(EAGAIN);
 my $pid;
@@ -88,7 +99,7 @@ if ($pid=fork) {
     WebTerminal::Msg->event_loop();
 } elsif (defined $pid) {
    # child here
-   while (1) {
+   while (getppid()) {
        sleep 600;
        kill 'USR1',getppid();
     }

@@ -32,6 +32,7 @@ use CGI::Carp qw(fatalsToBrowser);
 CGI::nph();   # Treat script as a non-parsed-header script
 $ENV{PATH} = ""; # no PATH should be needed
 $ENV{SAFE_MODE}=1;
+
 my $query=new CGI;
 
 my $sessionid=$query->param("sessionid") || crypt(rand(),'NM');
@@ -44,6 +45,8 @@ my $lang_charset = 'iso-8859-1';
 my $headerprinted = 0;
 my $validsession = 0;
 
+my $ip=$ENV{'REMOTE_ADDR'};
+
 ######### MAIN SITEMANAGER PROGRAM ###################
 
 if ( $query->param()) {      # an action has been chosen
@@ -53,17 +56,17 @@ if ( $query->param()) {      # an action has been chosen
 	$action = $1;
 	if ($access_OK) {
 	    if ($action eq "runpugs") {
-		&runpugs($query,$cmd,$sessionid);
+		&runpugs($query,$cmd,$sessionid,$ip);
 	    } 
     } else {
 	my $warning_message="Action has illegal chars: $action";
-    &runpugs($query,'',$sessionid);
+    &runpugs($query,'',$sessionid,$ip);
     }
 } else {            # no action has been taken, display login page
-    &runpugs($query,'',$sessionid);
+    &runpugs($query,'',$sessionid,$ip);
 }
 } else {
-	 &runpugs($query,'',$sessionid);
+	 &runpugs($query,'',$sessionid,$ip);
 }
 ###################### END MAIN ##############################
 =pod
@@ -76,12 +79,14 @@ sub runpugs {
     my $query=shift;
     my $cmd=shift;
     my $sessionid=shift;
+    my $ip=shift;
     my $reply='pugs> ';
     $cmd=~s/^.+?pugs([\>\.])/pugs$1/s;
     if ($cmd=~/clear/) {$cmd=''} else {
-    $reply = &WebTerminal::Dispatcher::send($sessionid,$cmd);
+    $reply = &WebTerminal::Dispatcher::send($sessionid,$ip,$cmd);
     $reply="\n".$reply;
     }
+    #$reply.="\n$ip\n$sessionid\n";
     my $html='';
     open(HTML,"<../data/runpugs.html");
     while(<HTML>) {
