@@ -66,6 +66,7 @@ plan 8;
         eval('my $var=0; DONE: for (1..2) { last DONE; $var++;} $var'),
         0,
         "var is 0 because last before increment",
+        :todo<bug>
     );
 }
 
