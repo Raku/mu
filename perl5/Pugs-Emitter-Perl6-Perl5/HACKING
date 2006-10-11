@@ -1,11 +1,3 @@
---------------
-
-Miscellaneus 
-
-* use ::unicode_sub sub {...} to define methods with non alphanumeric names
-
---------------
-
 Compile-Time objects
 
 See Also: S06 
@@ -73,7 +65,7 @@ Value types, Implementation types, Hierarchical types, Polymorphic types, Parame
 
 Special Classes
 
-These classes can be used internally for optimization.
+These classes are used internally to optimize the implementation, by moving boxing and type-checks to compile-time.
 
 (Type)Scalar - a typed Scalar
   ArrayScalar
@@ -81,6 +73,7 @@ These classes can be used internally for optimization.
 
 (Type)Seq - a typed Seq 
   ArraySeq
+    - An Array that doesn't contain Lazy components. This can be represented by a Perl5 Array.
   HashSeq
 
 (Type)Expression - a typed expression
@@ -92,8 +85,23 @@ These classes can be used internally for optimization.
   ArrayExpression
   HashExpression
 
+Perl5Scalar - '$a'
+  A Scalar called by name
+
 Perl5Array - '@a'
-  An Array that doesn't contain Lazy components. This can be represented by a Perl5 Array.
+  An Array called by name
 
 Perl5Hash - '%h'
+  A Hash called by name
+
+(TODO)
   A Hash that only has Stringified keys. This can be represented by a Perl5 Hash.
+
+--------------
+
+Miscellaneus 
+
+* use ::unicode_sub sub {...} to define methods with non alphanumeric names
+
+--------------
+

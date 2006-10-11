@@ -203,7 +203,18 @@ sub _emit {
 
     return Pugs::Emitter::Perl6::Perl5::node->node( 'str', $n->{single_quoted} )
         if exists $n->{single_quoted};
+
+    # Containers with sigil
             
+    return Pugs::Emitter::Perl6::Perl5::node->node( 'Perl5Scalar', $n->{scalar} )
+        if exists $n->{scalar};
+        
+    return Pugs::Emitter::Perl6::Perl5::node->node( 'Perl5Array', $n->{array} )
+        if exists $n->{array};
+        
+    return Pugs::Emitter::Perl6::Perl5::node->node( 'Perl5Hash', $n->{hash} )
+        if exists $n->{hash};
+        
     # ---
 
     if (exists $n->{statements}) {
@@ -225,15 +236,6 @@ sub _emit {
         
     return _emit_pair( $n->{pair}{key}, $n->{pair}{value} )
         if exists $n->{pair};
-        
-    return Pugs::Emitter::Perl6::Perl5::node->node( 'Perl5Scalar', $n->{scalar} )
-        if exists $n->{scalar};
-        
-    return Pugs::Emitter::Perl6::Perl5::node->node( 'Perl5Array', $n->{array} )
-        if exists $n->{array};
-        
-    return Pugs::Emitter::Perl6::Perl5::node->node( 'Perl5Hash', $n->{hash} )
-        if exists $n->{hash};
         
     return _emit_double_quoted( $n->{double_quoted} )
         if exists $n->{double_quoted};
