@@ -11,7 +11,7 @@ Adding comments about the papers is welcome/encouraged.
 Papers which stick around for a while, or are highly thought of, or
 relevant could be moved to READTHEM.
 
-Last updated 2006-08-22.
+Last updated 2006-10-10.
 
 A Functional Perspective on SSA Optimisation Algorithms
 http://www.cse.unsw.edu.au/~chak/papers/CKZ03.html
@@ -137,3 +137,7 @@ http://colabti.de/irclogger/irclogger_log/perl6?date=2006-08-30,Wed#l615
 Title: Rewriting Haskell Strings
 http://www.cse.unsw.edu.au/~dons/papers/CSL06.html
 [mentioned by audreyt 2006-09-04]
+
+Software Extension and Integration with Type Classes
+http://homepages.cwi.nl/~ralf/gpce06/
+[mentioned by gaal 2006-10-10]
