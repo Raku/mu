@@ -68,30 +68,25 @@ sub head (Str $url) is export {
   # memory all at once
 
   if ($head ~~ rx:P5"^HTTP\/\d+\.\d+\s+(\d+) (?:.*?\x0D?\x0A)((?:.*?\x0D?\x0A)*?)\x0D?\x0A") {
-    my ($code,$head) = ($0,$1);
+    my ($code, $head) = ($0, $1);
 
-    # if (want.Boolean) {
-    #  return $code ~~ rx:P5/^2/;
-    # }
-    # if (want.Int) {
-    #  return $code
-    # }
-    #say $code;
-    #say $head;
-
-    # XXX want() is not yet implemented :(
-    #if (want.Item) {
-      return $head
-    #};
-    # my @list = "X-LWP-HTTP-Status: $code", (split rx:P5/\x0D?\x0A/, $head);
-    #if (want.List) { return @list };
-    #if (want.Hash) {
-    #  my %res = map { rx:P5/^(.*?): (.*)/; ($0 => $1) }, @list;
-    #  return %res
-    #} else {
-    #  # What context can we also get?
-    #  return $head;
-    #};
+    given want {
+        when rx:P5/Bool/ {
+            $code ~~ rx:P5/^2/;
+        }
+        when rx:P5/Int/ {
+            +$code
+        }
+        when rx:P5/List/ { 
+            ("X-LWP-HTTP-Status: $code", (split rx:P5/\x0D?\x0A/, $head)).map:{
+                m:P5/^(.*?): (.*)/;
+                ($0 => ~$1)
+            }
+        }
+        default {
+            ~$head
+        }
+    }
   };
 };
 
