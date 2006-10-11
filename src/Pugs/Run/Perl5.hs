@@ -72,6 +72,7 @@ pugs_apply subPtr invPtr argsPtr cxt = do
             VStr name@('&':_)   -> _Var name
             VStr name           -> _Var ('&':name)
             _                   -> Val sub
+    -- warn "Applying:" (subExp, inv, args, envLexical env)
     val <- runEvalIO env $
         evalExp (Ann (Cxt (cxtEnum cxt)) $
             App subExp (fmap Val inv) (map Val args))
@@ -84,10 +85,10 @@ deEnv :: PugsEnv -> IO Env
 deEnv ptr = deRefStablePtr ptr
 
 nullVal :: PugsVal
-nullVal = unsafeCoerce# nullPtr
+nullVal = castPtrToStablePtr nullPtr
 
 deValMaybe :: PugsVal -> IO (Maybe Val)
-deValMaybe ptr | nullVal == nullVal = return Nothing
+deValMaybe ptr | castStablePtrToPtr ptr == nullPtr = return Nothing
 deValMaybe ptr = fmap Just (deVal ptr)
 
 valToSv :: PugsVal -> IO PerlSV
