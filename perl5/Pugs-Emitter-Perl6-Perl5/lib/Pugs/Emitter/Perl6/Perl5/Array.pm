@@ -35,9 +35,14 @@ sub str {
     return $_[0]->node( 'StrExpression', '"' . $_[0] . '"' )
 }
 
-sub perl {
-    # TODO
-}
+    sub perl {
+        $_[0]->node( 'StrExpression',
+                'Pugs::Runtime::Perl6::Scalar::perl( '. $_[0] . ')' );
+    }
+    sub yaml {
+        $_[0]->node( 'StrExpression',
+                'Pugs::Runtime::Perl6::Scalar::yaml( '. $_[0] . ')' );
+    }
     
 sub kv {
     my $tmp = "( map { ( \$_, ".$_[0]->name."[\$_] ) } 0..".$_[0]->name."-1 )"; 
@@ -89,8 +94,13 @@ sub array {
 }
 
 sub scalar {
-    return $_[0]->node( 'Array', 'bless \\' . $_[0]->name . ", 'Pugs::Runtime::Perl6::Array'" )
+    $_[0];
+    # return $_[0]->node( 'Array', 'bless \\' . $_[0]->name . ", 'Pugs::Runtime::Perl6::Array'" )
 }
+    sub list { 
+        #print "Array->List ", $_[0]->name , "\n";
+        $_[0]->node( 'ListExpression', $_[0]->name );
+    }
 
 sub _91__93_ {
     # .[]
@@ -99,6 +109,23 @@ sub _91__93_ {
     return $_[0] unless $other;  # TODO
     return $self->_dollar_name . '[' . $other . ']';
 }
+package Pugs::Emitter::Perl6::Perl5::SeqArray;
+    use base 'Pugs::Emitter::Perl6::Perl5::Array';
+    use overload (
+        '""'     => sub { 
+            '(' . join( ', ', map { $_->boxed } @{$_[0]->{name}} ) . ')' 
+        },
+        fallback => 1,
+    );
+    sub scalar {
+        return $_[0]->node( 'Scalar', '( bless ' . $_[0] . ", 'Pugs::Runtime::Perl6::Array' )" )
+    }
+    sub str {
+        return $_[0]->node( 'StrExpression', ' "@[{ ' . $_[0] . ' ]}" ' )
+    }
+    sub list {
+        return $_[0]->node( 'List', $_[0]{name} )
+    }
 
 1;
 

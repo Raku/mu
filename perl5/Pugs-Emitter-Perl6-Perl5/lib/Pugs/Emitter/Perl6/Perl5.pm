@@ -1421,7 +1421,13 @@ sub circumfix {
          $n->{op2} eq ']' ) {
         return '[]'
             unless defined  $n->{exp1};
-        return '[' . _emit( $n->{exp1} ) . ']';
+        my $v = _emit( $n->{exp1} );
+        #print "List ", ref($v), " = ", $v, "\n";
+        #print "Array ", ref($v->array), " = ", $v->array, "\n";
+        #print "Scalar ", ref($v->array->scalar), " = ", $v->array->scalar, "\n";
+        return $v->list->scalar
+            if Scalar::Util::blessed( $v );
+        return '[' . $v . ']';
     }
 
     return _not_implemented( $n, "circumfix" );
@@ -1577,10 +1583,10 @@ sub prefix {
             if Scalar::Util::blessed $v;
     }
     
-    if (  $n->{op1} eq 'array' 
+    if (  $n->{op1} eq 'array'  # XXX list ?
        || $n->{op1} eq '@' 
        ) {
-        return $v->array
+        return $v->list
             if Scalar::Util::blessed $v;
     }
     

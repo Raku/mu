@@ -60,9 +60,12 @@ sub keys {
     return $_[0]->node( 'ListExpression',  $tmp );
 }
 
-sub values {
-    return $_[0]
-} 
+    sub values {
+        return $_[0]
+    } 
+    sub list { 
+        return $_[0]
+    }
 
 sub num {
     return $_[0]->elems

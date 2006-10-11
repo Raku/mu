@@ -11,6 +11,9 @@ package Pugs::Emitter::Perl6::Perl5::Native;
     sub boxed {
         $_[0]->scalar
     }
+    sub list { 
+        $_[0]->node( 'Seq', [ $_[0] ] );
+    }
 package Pugs::Emitter::Perl6::Perl5::bool;
     use base 'Pugs::Emitter::Perl6::Perl5::Native';
     use overload (
@@ -18,7 +21,7 @@ package Pugs::Emitter::Perl6::Perl5::bool;
         fallback => 1,
     );
     sub WHAT { 
-        return Pugs::Emitter::Perl6::Perl5::str->new( { name => 'Bool' } );
+        $_[0]->node( 'str', 'Bool' );
     }
     sub str {
         return Pugs::Emitter::Perl6::Perl5::str->new( 

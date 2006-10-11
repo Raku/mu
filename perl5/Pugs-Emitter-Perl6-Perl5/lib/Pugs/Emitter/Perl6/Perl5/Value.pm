@@ -10,6 +10,9 @@ use warnings;
 
 package Pugs::Emitter::Perl6::Perl5::Value;
     use base 'Pugs::Emitter::Perl6::Perl5::Any';
+    sub list { 
+        $_[0]->node( 'Seq', [ $_[0] ] );
+    }
 package Pugs::Emitter::Perl6::Perl5::Bool;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
     use overload (
@@ -170,11 +173,14 @@ package Pugs::Emitter::Perl6::Perl5::Seq;
     sub WHAT { 
         $_[0]->node( 'str', 'Seq' );
     }
+    sub list { 
+        $_[0]
+    }
     sub array {
-        $_[0]->node( 'Perl5Array', '( bless [' . $_[0] . "], 'Pugs::Runtime::Perl5Container::Array' )" )
+        $_[0]
     }
     sub scalar {
-        $_[0]->array
+        $_[0]->node( 'SeqArray', $_[0]{name} )
     }
     sub hash {
         $_[0]->node( 'SeqHash', $_[0]{name} );
@@ -191,6 +197,9 @@ package Pugs::Emitter::Perl6::Perl5::Seq;
     sub int {
         $_[0]->elems
     }
+package Pugs::Emitter::Perl6::Perl5::List;
+    use base 'Pugs::Emitter::Perl6::Perl5::Seq';
+    # TODO
 package Pugs::Emitter::Perl6::Perl5::pair;
     use base 'Pugs::Emitter::Perl6::Perl5::Value';
     use overload (
@@ -222,6 +231,9 @@ package Pugs::Emitter::Perl6::Perl5::pair;
     }
     sub array {
         return $_[0]->scalar->array
+    }
+    sub list {
+        return $_[0]->scalar->list
     }
 
 sub isa { 

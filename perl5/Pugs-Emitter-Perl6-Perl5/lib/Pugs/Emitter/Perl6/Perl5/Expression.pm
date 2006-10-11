@@ -102,6 +102,12 @@ package Pugs::Emitter::Perl6::Perl5::ListExpression;
         #print "Expr->Str ", $_[0]->{name}, "\n";
         return Pugs::Emitter::Perl6::Perl5::StrExpression->new( { name => $_[0]->{name} } );
     }
+    sub array {
+        $_[0]
+    }
+    sub scalar {
+        $_[0]->node( 'Array', '( bless [' . $_[0] . "], 'Pugs::Runtime::Perl5Container::Array' )" )
+    }
     sub perl {
         $_[0]->node( 'StrExpression',
                 'Pugs::Runtime::Perl6::Scalar::perl( '. $_[0] . ')' );

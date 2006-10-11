@@ -82,6 +82,10 @@ sub scalar {
     return $_[0]
 }
 
+    sub list { 
+        $_[0]->node( 'Seq', [ $_[0] ] );
+    }
+
 sub _123__125_ {
     # .{}
     my $self = $_[0];

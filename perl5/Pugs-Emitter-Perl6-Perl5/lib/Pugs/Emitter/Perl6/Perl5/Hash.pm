@@ -55,6 +55,9 @@ package Pugs::Emitter::Perl6::Perl5::Hash;
     sub scalar {
         return $_[0]->node( 'Scalar', '( bless \\' . $_[0] . ", 'Pugs::Runtime::Perl6::Hash' )" )
     }    
+    sub list { 
+        $_[0]->node( 'Seq', [ $_[0] ] );
+    }
     sub _123__125_ {
         # .{}
         my $self = $_[0];
