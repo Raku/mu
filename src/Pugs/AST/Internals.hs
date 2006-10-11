@@ -88,7 +88,7 @@ import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 
 import qualified Judy.CollectionsM as C
-import qualified Judy.StrMap       as H
+import qualified Data.HashTable    as H
 import qualified Judy.IntMap       as I
 import GHC.Conc (unsafeIOToSTM)
 
@@ -118,7 +118,7 @@ import qualified Data.Map       as Map
 import qualified Pugs.Val       as Val
 
 import qualified Judy.CollectionsM as C
-import qualified Judy.Hash         as H
+import qualified Data.HashTable    as H
  </DrIFT> -}
  
 #include "../Types/Array.hs"
@@ -1058,8 +1058,8 @@ mkCode = MkCode
 instance Ord VComplex where
     compare (a :+ ai) (b :+ bi) = compare (a, ai) (b, bi)
 
-instance (Typeable a) => Show (TVar a) where
-    show tv = "<ref:0x" ++ showHex (W# (unsafeCoerce# tv :: Word#)) ">"
+instance Show (TVar a) where
+    show = showAddressOf "ref"
 
 {- Expression annotation
 -}
@@ -1752,10 +1752,19 @@ refType (MkRef x) = object_iType x
 
 -- Haddock doesn't seem to like data/instance declarations with a where clause.
 #ifndef HADDOCK
+instance Eq IHash where
+    x == y = addressOf x == addressOf y
+instance Ord IHash where
+    compare x y = compare (addressOf x) (addressOf y)
+instance Show IHash where
+    show = showAddressOf "Hash"
+instance Typeable2 H.HashTable where
+    typeOf2 _ = typeOf ()
+
 instance Eq VRef where
-    (==) = const $ const False
+    x == y = addressOf x == addressOf y
 instance Ord VRef where
-    compare _ _ = EQ
+    compare x y = compare (addressOf x) (addressOf y)
 instance Show VRef where
     show ref@(MkRef ivar) = case ivar of
         IScalar x -> showAddr x
@@ -1767,18 +1776,17 @@ instance Show VRef where
         IThunk  x -> showAddr x
         IPair   x -> showAddr x
         where
-        showAddr v = let addr = W# (unsafeCoerce# v)
-            in addr `seq` ('<' : showType (refType ref) ++ ":0x" ++ showHex addr ">")
+        showAddr x = showAddressOf (showType (refType ref)) x
 
 instance Typeable a => Show (IVar a) where
     show ivar = show (MkRef ivar)
 
 instance Eq (IVar a) where
-    (==) = const $ const False
+    x == y = addressOf x == addressOf y
 instance Ord (IVar a) where
-    compare _ _ = EQ
+    compare x y = compare (addressOf x) (addressOf y)
 instance Ord (TVar a) where
-    compare _ _ = EQ
+    compare x y = compare (addressOf x) (addressOf y)
 #endif
 
 scalarRef   :: ScalarClass a=> a -> VRef
@@ -1840,7 +1848,7 @@ data IArray             = MkIArray
     }
     deriving (Typeable)
 type IArraySlice        = [IVar VScalar]
-type IHash              = H.StrMap VStr (IVar VScalar) -- XXX UTF8 handled at Types/Hash.hs
+type IHash              = H.HashTable VStr (IVar VScalar) -- XXX UTF8 handled at Types/Hash.hs
 type IScalar            = TVar Val
 type ICode              = TVar VCode
 type IScalarProxy       = (Eval VScalar, (VScalar -> Eval ()))
