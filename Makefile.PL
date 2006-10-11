@@ -106,7 +106,7 @@ clean_files     (map fixpaths($_),
     src/Pugs/pugs_config.h src/Pugs/Config.hs blib6 dist
     src/Pugs/Prelude.hs src/Pugs/CodeGen/PIR/Prelude.hs test.log
     src/Pugs/Embed/Parrot.hs src/Pugs/Embed/Parrot_hsc.*
-    src/Pugs/Run/Perl5_stub.*
+    src/Pugs/*/*_stub.*
     util/ghc-pkg-wrapper.hs util/ghc-pkg-wrapper.hi util/ghc-pkg-wrapper.o
     util/runcompiler.hs util/runcompiler.hi util/runcompiler.o
     temp-ex* unlink-test* Prelude Pugs.cabal Setup.hi Setup.o
