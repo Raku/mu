@@ -23,8 +23,8 @@ been in Apocalypse 11.
 
 =head1 Modules
 
-As in Perl 5, a module is just a kind of package.  Unlike in
-Perl 5, modules and classes are declared with separate keywords,
+As in Perl 5, a module is just a kind of package.  Unlike in
+Perl 5, modules and classes are declared with separate keywords,
 but they're still just packages with extra behaviors.
 
 A module is declared with the C<module> keyword.  There are
@@ -40,9 +40,9 @@ The first form is allowed only as the first statement in the file.
 A named module declaration can occur as part of an expression, just like
 named subroutine declarations.
 
-Since there are no barewords in Perl 6, module names must be predeclared,
+Since there are no barewords in Perl 6, module names must be predeclared,
 or use the sigil-like C<::ModuleName> syntax.  The C<::> prefix does not
-imply top-levelness as it does in Perl 5.  (Use C<::*> or C<GLOBAL::> for that.)
+imply top-levelness as it does in Perl 5.  (Use C<::*> or C<GLOBAL::> for that.)
 
 A bare C<module> declarator declares an C<our> module name in the current
 package.  At the start of the file, the current package is C<*>, so the
@@ -53,14 +53,14 @@ declare a module in the current package (or module, or class).
 To declare a lexically scoped module, use C<my module>.
 Module names are always searched for from innermost scopes to outermost.
 As with an initial C<::>, the presence of a C<::> within the name
-does not imply globalness (unlike in Perl 5).
+does not imply globalness (unlike in Perl 5).
 
 The C<::*> namespace is not "main".  The default namespace for the
 main program is C<::*Main>, which it switches to from * as soon as
 it sees the first declaration, if that declaration doesn't set the
 package name.  (Putting C<module Main;> at the top of your program
 is redundant, except insofar as it tells Perl that the code is Perl
-6 code and not Perl 5 code.  But it's better to say "use v6" for that.)
+6 code and not Perl 5 code.  But it's better to say "use v6" for that.)
 
 But note that if you say
 
@@ -121,7 +121,7 @@ C<EXPORT> method with the class itself as the invocant.
 =head1 Compile-time Importation
 
 Importing via C<use> binds into the current lexical scope by default
-(rather than the current package, as in Perl 5).
+(rather than the current package, as in Perl 5).
 
     use Sense <common @horse>;
 
@@ -197,7 +197,7 @@ you're really only giving one part of the name of the module.
 The full name of the module or class includes other metadata,
 in particular, the version, and the author.
 
-Modules posted to CPAN or entered into any standard Perl 6 library
+Modules posted to CPAN or entered into any standard Perl 6 library
 are required to declare their full name so that installations can know
 where to keep them, such that multiple versions by different authors
 can coexist, all of them available to any installed version of Perl.
@@ -252,7 +252,7 @@ which is short for:
 
     use Perl-6;
 
-you're asking for any version of Perl 6.  You need to say:
+you're asking for any version of Perl 6.  You need to say:
 
     use Perl-6.0;
     use Perl-6.0.0;
@@ -269,14 +269,14 @@ Perl is the default module name, so this means the same thing:
 
     use v6-cpan:TPF;
 
-Before the full specification of Perl 6.0.0 is released, you can use C<alpha>
+Before the full specification of Perl 6.0.0 is released, you can use C<alpha>
 as the author slot to denote a program using syntax that is still subject
 to change:
 
     use v6-alpha;
 
-The C<use v6-alpha> line also serves as the Perl 5 incantation to switch to
-Perl 6 parsing.  In Perl 5 this actually ends up calling the v6.pm module with a
+The C<use v6-alpha> line also serves as the Perl 5 incantation to switch to
+Perl 6 parsing.  In Perl 5 this actually ends up calling the v6.pm module with a
 C<-alpha> argument, for insane-but-useful reasons.
 
 For wildcards any valid smartmatch selector works:
@@ -307,10 +307,10 @@ by a colon.  For instance:
     use perl5:Acme::Bleach-1.12-DCONWAY;
     use ruby:Rails <PR_MACHINE>;
 
-=head1 Forcing Perl 6
+=head1 Forcing Perl 6
 
-To get Perl 6 parsing rather than the default Perl 5 parsing,
-we said you could force Perl 6 mode in your main program with:
+To get Perl 6 parsing rather than the default Perl 5 parsing,
+we said you could force Perl 6 mode in your main program with:
 
     use Perl-6;
 
@@ -320,7 +320,7 @@ Actually, you can just start your main program with any of:
     module;
     class;
 
-Those all specify the latest Perl 6 semantics, and are equivalent to
+Those all specify the latest Perl 6 semantics, and are equivalent to
 
     use Perl-(v6..*)-(Any);
 
@@ -337,11 +337,11 @@ version number or other literal:
     6;
     "Coolness, dude!";
 
-it runs Perl 6 in "lax" mode, without strictures or warnings, since obviously
+it runs Perl 6 in "lax" mode, without strictures or warnings, since obviously
 a bare literal in a void context I<ought> to have produced a warning.
 (Invoking perl with C<-e6> has the same effect.)
 
-It's not necessary to force Perl 6 if the interpreter or command
+It's not necessary to force Perl 6 if the interpreter or command
 specified already implies it, such as use of a "C<#!/usr/bin/perl6>"
-shebang line.  Nor is it necessary to force Perl 6 in any file that
+shebang line.  Nor is it necessary to force Perl 6 in any file that
 begins with the "class" or "module" keywords.

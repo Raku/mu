@@ -23,8 +23,8 @@ been in Apocalypse 13.
 
 =head1 Multiple dispatch
 
-The overloading mechanism of Perl 5 has been superseded by Perl
-6's multiple dispatch mechanism.  Nearly all internal functions
+The overloading mechanism of Perl 5 has been superseded by Perl 6's
+multiple dispatch mechanism.  Nearly all internal functions
 are defined as C<multi> subs or C<multi> methods on generic types.
 Built-in operators are merely oddly named functions with an alternate
 call syntax.  All you have to do to overload them is to define your
@@ -32,7 +32,7 @@ own C<multi> subs and methods that operate on arguments with more
 specific types.
 
 For unary operators, this makes little effective difference, but for
-binary operators, multiple dispatch fixes the Perl 5 problem of paying
+binary operators, multiple dispatch fixes the Perl 5 problem of paying
 attention only to the type of the left argument.  Since both argument
 types are used in deciding which routine to call, there is no longer
 any trickery involving swapping the arguments to use the right argument's
@@ -77,9 +77,9 @@ C<< infix:<+> >> is defined.  Similar constraints apply to lexically scoped
 multi subs.  Generally you want to put your multi subs into the C<*>
 space, however, so that they work everywhere.
 
-The C<use overload> syntax had one benefit over Perl 6's syntax in that
+The C<use overload> syntax had one benefit over Perl 6's syntax in that
 it was easy to alias several different operators to the same service
-routine.  This can easily be handled with Perl 6's aliasing:
+routine.  This can easily be handled with Perl 6's aliasing:
 
     multi sub unimpl (MyFoo $x, MyFoo $y) { upchuck(); }
     &infix:<+> ::= &unimpl;
@@ -114,7 +114,7 @@ The mappings of magical names to sub definitions is controlled by the
 C<%?DEEPMAGIC> compiler hash.  Pragmas can influence the contents of
 this hash over a lexical scope, so you could have different policies
 on magical autogeneration.  The default mappings correspond to the
-standard fallback mappings of Perl 5 overloading.
+standard fallback mappings of Perl 5 overloading.
 
 =head1 Type Casting
 

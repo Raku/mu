@@ -32,7 +32,7 @@ Taken as an object, a class represents all of the possible values of
 its type, and the class object can thus be used as a proxy for any
 "real" object of that type in calculating what a generic object of
 that type can do.  The class object is an Object, but it is not a
-Class, because there is no mandatory Class class in Perl 6.  We wish
+Class, because there is no mandatory Class class in Perl 6.  We wish
 to support both class-based and prototype-based OO programming.
 So all metaprogramming is done through the current object's C<HOW>
 object, which can delegate metaprogramming to any metamodel it likes.
@@ -62,7 +62,7 @@ Classes are primarily for instance management, not code reuse.
 Consider using C<roles> when you simply want to factor out
 common code.
 
-Perl 6 supports multiple inheritance, anonymous classes, and autoboxing.
+Perl 6 supports multiple inheritance, anonymous classes, and autoboxing.
 
 All public method calls are "virtual" in the C++ sense.  More
 surprisingly, any class name mentioned in a method is also considered
@@ -72,7 +72,7 @@ You may derive from any built-in type, but the derivation of a low-level
 type like C<int> may only add behaviors, not change the representation.
 Use composition and/or delegation to change the representation.
 
-Since there are no barewords in Perl 6, bare class names must be
+Since there are no barewords in Perl 6, bare class names must be
 predeclared.  You can predeclare a stub class and fill it in later
 just as you would a subroutine.  Alternately, you can define a local
 class or type variable using the C<::> type sigil.  In an rvalue
@@ -91,7 +91,7 @@ class), use C<our class> or just C<class>.  To declare a lexically
 scoped class, use C<my class>.  Class names are always searched
 for from innermost scopes to outermost.  As with an initial C<::>,
 the presence of a C<::> within the name does not imply globalness
-(unlike in Perl 5).  So the outward search can look in children
+(unlike in Perl 5).  So the outward search can look in children
 of the searched namespaces.
 
 Class traits are set using C<is>:
@@ -121,7 +121,7 @@ You may put these inside as well:
 Every object (including any class object) delegates to an instance of
 its metaclass.  You can get at the metaclass of any object via the
 C<HOW> method.  A "class" object is just considered an "empty"
-instance in Perl 6, more properly called a "prototype" object.
+instance in Perl 6, more properly called a "prototype" object.
 The actual class object is the metaclass object pointed to by the
 C<HOW> syntax.  So when you say "Dog", you're referring to both a
 package and a prototype object, that latter of which points to the
@@ -147,7 +147,7 @@ Roles take on some of the compile-time function of closed classes,
 so you should probably use those instead anyway.
 
 A private class can be declared using C<my>; most privacy issues are
-handled with lexical scoping in Perl 6.  The fact that importation
+handled with lexical scoping in Perl 6.  The fact that importation
 is lexical by default also means that any names your class imports
 are also private by default.
 
@@ -353,7 +353,7 @@ You can also get at the container through the appropriate symbol table:
 =head1 Class methods
 
 Other OO languages give you the ability to declare "class" methods that either don't
-need or actively prohibit calls on instances.  Perl 6 gives you a choice.
+need or actively prohibit calls on instances.  Perl 6 gives you a choice.
 If you declare an ordinary method, it can function as a "class" method when you
 pass it a prototype object such as "Dog" regardless of how defined the prototype
 object is, as long as the method body doesn't try to access any information that
@@ -488,11 +488,11 @@ is generated according to the secondary sigil:
 All classes inherit a default C<new> constructor from C<Object>.  It
 expects all arguments to be named parameters initializing attributes of
 the same name.  You may write your own C<new> to override the default,
-or write constructors with any other name you like.  As in Perl 5,
-a constructor is any routine that calls C<bless>.  Unlike in Perl 5,
+or write constructors with any other name you like.  As in Perl 5,
+a constructor is any routine that calls C<bless>.  Unlike in Perl 5,
 you call it as a method on the class object (though any object may be
 used as a class object), passing the candidate as the first argument.
-To bless a hash as in Perl 5, say:
+To bless a hash as in Perl 5, say:
 
     $object = $class.bless({k1 => $v1, k2 => $v2, ...});
 
@@ -770,7 +770,7 @@ that name.  There is no fail-over from subroutine to method dispatch.
 Multi submethods work just like multi subs except they are constrained
 to an exact type match on the invocant.
 
-Perl 6.0.0 is not required to support multiple dispatch on named parameters,
+Perl 6.0.0 is not required to support multiple dispatch on named parameters,
 only on positional parameters.  Note that most builtins will map known
 named parameters to positional via a C<proto> declaration.
 
@@ -799,7 +799,7 @@ A C<proto> declaration must come before any matching multis, if at all.
 =head1 Roles
 
 Classes are primarily in charge of object management, and only
-secondarily in charge of software reuse.  In Perl 6, roles take over
+secondarily in charge of software reuse.  In Perl 6, roles take over
 the job of managing software reuse.  Depending on how you care to look
 at it, a role is like a partial class, or an interface with default
 implementation, or a set of generic methods and their associated data,
@@ -1228,7 +1228,7 @@ If your delegation object happens to be an array:
 
     has @handlers handles 'foo';
 
-then Perl 6 assumes that your array contains a list of potential
+then Perl 6 assumes that your array contains a list of potential
 handlers, and you just want to call the I<first> one that succeeds.
 This is not considered a wildcard match unless the "handles" argument
 forces it to be.
@@ -1374,7 +1374,7 @@ is equivalent to:
 
 The enum installer inspects list values for pairs, where the value
 of the pair sets the next value explicitly.  Non-pairs C<++> the
-previous value.  (Str and buf types increment like Perl 5 strings.)
+previous value.  (Str and buf types increment like Perl 5 strings.)
 Since the C<«...»> quoter automatically recognizes
 pair syntax along with interpolations, we can simply say:
 
@@ -1480,7 +1480,7 @@ Otherwise you'll get a class redefinition error.  (Also, to completely
 replace a definition, use "C<is instead>" instead of "C<is also>"...but
 don't do that.)
 
-For optimization purposes, Perl 6 gives the top-level application the
+For optimization purposes, Perl 6 gives the top-level application the
 right to close and finalize classes.
 
     use optimize :classes<close finalize>;
@@ -1563,12 +1563,12 @@ variable form anyway:
 
 which also bypasses the macros.
 
-For now Perl 6 reserves the right to change how all these macros and the
+For now Perl 6 reserves the right to change how all these macros and the
 corresponding C<^> forms are defined in terms of each other.
 
 In general, use of these in ordinary code should be a red flag that
 Something Very Strange is going on.  (Hence the allcaps.)  Most code
-should use Perl 6's operators that make use of this information
+should use Perl 6's operators that make use of this information
 implicitly.  For instance, instead of
 
     $obj.WHAT eq 'Dog'
@@ -1616,7 +1616,7 @@ Class traits may include:
     disambig      how to deal with ambiguous method names from roles
     layout        P6opaque, P6hash, P5hash, P5array, PyDict, Cstruct, etc.
 
-These are for the standard Perl 6 Meta-Object Protocol, but other MOPs
+These are for the standard Perl 6 Meta-Object Protocol, but other MOPs
 may define other traits.  The identifier should probably be accessed
 through the C<.WHO> object in any case, which may have its own object
 methods depending on how type namespaces evolve over time.  Which of
@@ -1686,8 +1686,8 @@ actually calls:
 which is true if C<$obj> either "does" or "isa" C<Dog> (or "isa"
 something that "does" C<Dog>).
 
-Unlike in Perl 5 where C<.can> returns a single C<Code> object,
-Perl 6's version of C<.HOW.can> returns a "WALK" iterator for a
+Unlike in Perl 5 where C<.can> returns a single C<Code> object,
+Perl 6's version of C<.HOW.can> returns a "WALK" iterator for a
 set of routines that match the name, including all autoloaded and
 wildcarded possibilities.  In particular, C<.can> interrogates
 any class package's C<CANDO> method for names that are to be considered autoloadable methods

@@ -81,8 +81,8 @@ The return type may also be put inside the parentheses:
 
     sub NAME (PARAMS --> RETTYPE) {...}
 
-Unlike in Perl 5, named subroutines are considered expressions,
-so this is valid Perl 6:
+Unlike in Perl 5, named subroutines are considered expressions,
+so this is valid Perl 6:
 
     my @subs = (sub foo { ... }, sub bar { ... });
 
@@ -103,7 +103,7 @@ See L<"Properties and traits">.
 
 =head2 Perl5ish subroutine declarations
 
-You can declare a sub without parameter list, as in Perl 5:
+You can declare a sub without parameter list, as in Perl 5:
 
     sub foo {...}
 
@@ -122,7 +122,7 @@ with the C<is rw> trait:
 
 =head2 Blocks
 
-Raw blocks are also executable code structures in Perl 6.
+Raw blocks are also executable code structures in Perl 6.
 
 Every block defines an object of type C<Code>, which may either be
 executed immediately or passed on as a C<Code> object.  A
@@ -159,11 +159,11 @@ To predeclare a subroutine without actually defining it, use a "stub block":
 
     sub foo {...}     # Yes, those three dots are part of the actual syntax
 
-The old Perl 5 form:
+The old Perl 5 form:
 
     sub foo;
 
-is a compile-time error in Perl 6 (because it would imply that the body of the
+is a compile-time error in Perl 6 (because it would imply that the body of the
 subroutine extends from that statement to the end of the file, as C<class> and
 C<module> declarations do).  The only allowed use of the semicolon form is to
 declare a C<MAIN> sub--see L</Declaring a MAIN subroutine> below.
@@ -324,7 +324,7 @@ non-standard syntax available to other scopes.
 
 =head1 Parameters and arguments
 
-Perl 6 subroutines may be declared with parameter lists.
+Perl 6 subroutines may be declared with parameter lists.
 
 By default, all parameters are readonly aliases to their corresponding
 arguments--the parameter is just another name for the original
@@ -334,7 +334,7 @@ trait.
 
 Parameters may be required or optional. They may be passed by position,
 or by name. Individual parameters may confer a scalar or list context
-on their corresponding arguments, but unlike in Perl 5, this is decided
+on their corresponding arguments, but unlike in Perl 5, this is decided
 lazily at parameter binding time.
 
 Arguments destined for required positional parameters must come before
@@ -447,7 +447,7 @@ arguments with parentheses or quotes:
     push @array, 1, 2, (:a<b>);
     push @array, 1, 2, 'a' => 'b';
 
-Perl 6 allows multiple same-named arguments, and records the relative
+Perl 6 allows multiple same-named arguments, and records the relative
 order of arguments with the same name.  When there are more than one
 argument, the C<@> sigil in the parameter list causes the arguments
 to be concatenated:
@@ -1445,8 +1445,8 @@ given as a trait of the variable:
     my $spot is PersistentScalar;
     my $spot is DataBase;
 
-Defining an implementation type is the Perl 6 equivalent to tying
-a variable in Perl 5.  But Perl 6 variables are tied directly at
+Defining an implementation type is the Perl 6 equivalent to tying
+a variable in Perl 5.  But Perl 6 variables are tied directly at
 declaration time, and for performance reasons may not be tied with a
 run-time C<tie> statement unless the variable is explicitly declared
 with an implementation type that does the C<Tieable> role.
@@ -2329,7 +2329,7 @@ is probably to be construed as Bad Style:
 
 (Note to implementors: this must not be implemented by finding
 the final closing delimiter and preprocessing, or we'll violate our
-one-pass parsing rule.  Perl 6 parsing rules are parameterized to know
+one-pass parsing rule.  Perl 6 parsing rules are parameterized to know
 their closing delimiter, so adding the opening delimiter should not
 be a hardship.  Alternately the opening delimiter can be deduced from
 the closing delimiter.  Writing a rule that looks for three opening
@@ -2517,7 +2517,7 @@ Proto or multi definitions may not be written in semicolon form,
 nor may C<MAIN> subs within a module or class.  (A C<MAIN> routine
 is allowed in a module or class, but is not usually invoked unless
 the file is run directly (see a above).  This corresponds to the
-"unless caller" idiom of Perl 5.)  In general, you may have only one
+"unless caller" idiom of Perl 5.)  In general, you may have only one
 semicolon-style declaration that controls the whole file.
 
 If the dispatch to C<MAIN> fails the C<USAGE> routine is called.
@@ -2564,7 +2564,7 @@ as follows:
     :name='spacy value'        :name«'spacy value'»
     :name=val1,'val 2', etc    :name«val1 'val 2' etc»
 
-Exact Perl 6 forms are okay if quoted from shell processing:
+Exact Perl 6 forms are okay if quoted from shell processing:
 
     ':name<value>'             :name<value>
     ':name(42)'                :name(42)
