@@ -226,7 +226,7 @@ sub _emit {
     return _emit_pair( $n->{pair}{key}, $n->{pair}{value} )
         if exists $n->{pair};
         
-    return Pugs::Emitter::Perl6::Perl5::node->node( 'Scalar', $n->{scalar} )
+    return Pugs::Emitter::Perl6::Perl5::node->node( 'Perl5Scalar', $n->{scalar} )
         if exists $n->{scalar};
         
     return Pugs::Emitter::Perl6::Perl5::node->node( 'Perl5Array', $n->{array} )

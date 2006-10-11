@@ -4,7 +4,7 @@ package Pugs::Emitter::Perl6::Perl5::Scalar;
     use base 'Pugs::Emitter::Perl6::Perl5::Value'; # XXX
     use overload (
         '""'     => sub { 
-            Pugs::Runtime::Common::mangle_var( $_[0]->{name} )
+            $_[0]->{name} 
         },
         fallback => 1,
     );
@@ -93,6 +93,14 @@ sub _123__125_ {
     return $_[0] unless $other;  # TODO
     return $self->_dollar_name . '{' . $other . '}';
 }
+package Pugs::Emitter::Perl6::Perl5::Perl5Scalar;
+    use base 'Pugs::Emitter::Perl6::Perl5::Scalar';
+    use overload (
+        '""'     => sub { 
+            Pugs::Runtime::Common::mangle_var( $_[0]->{name} )
+        },
+        fallback => 1,
+    );
 
 1;
 
