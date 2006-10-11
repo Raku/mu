@@ -48,7 +48,7 @@ import qualified Data.Map       as Map
 import qualified Pugs.Val       as Val
 
 import qualified Judy.CollectionsM as C
-import qualified Judy.Hash         as H
+import qualified Data.HashTable    as H
 
 {-# NOINLINE _FakeEnv #-}
 _FakeEnv :: Env
