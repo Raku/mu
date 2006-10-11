@@ -5,7 +5,7 @@ module CGI::Util-0.0.1;
 sub make_attribute(%attrs, Bool $escape = 0) is export {
     my @return;
     
-    for %attrs.keys -> $key {
+    for %attrs.keys.sort -> $key {
         my $copy = lc $key;
         
         $copy ~~ s:P5:g/_/-/;
