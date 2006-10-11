@@ -309,8 +309,7 @@ findSub _var _invs _args
     --     => Int -> [(Var, Val)] -> Eval (Maybe VCode)
     doFindSub slurpLens subSyms = do
         subs' <- subs slurpLens subSyms
-        -- let foo (x, sub) = show x ++ show (map paramContext $ subParams sub)
-        -- trace (unlines $ map foo $ sort subs') return ()
+        -- traceM (unlines $ map (\(x, y) -> show (x, subParams y)) subs')
         return $ case sort subs' of
             ((_, sub):_)    -> Just sub
             _               -> Nothing
@@ -494,12 +493,9 @@ inferExpType (App (Var var) (Just inv) _)
     = inferExpType $ unwrap inv
 inferExpType (App (Var name) invs args) = do
     sub <- findSub name invs args
-    case sub of
-        Right sub    -> return $ subReturns sub
-        Left _       -> return $ mkType "Any"
+    return (either (const anyType) subReturns sub)
 inferExpType (Ann (Cxt cxt) _) | typeOfCxt cxt /= (mkType "Any") = return $ typeOfCxt cxt
-inferExpType (Ann (Cxt _) exp) = inferExpType exp
-inferExpType (Ann (Pos _) exp) = inferExpType exp
+inferExpType (Ann _ exp) = inferExpType exp
 inferExpType (Pad _ _ exp) = inferExpType exp
 inferExpType (Sym _ _ exp) = inferExpType exp
 inferExpType (Stmts _ exp) = inferExpType exp
