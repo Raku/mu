@@ -35,13 +35,15 @@ Yet Another Haskell Tutorial                                 - Hal Daume III
     (partial PDF -> KWID transcription in docs/yaht.kwid)
 Haskell Mini-Primer                    (this covers infix $ and . operators)
     http://conal.net/pan/haskell-primer.htm
+Monad Transformers Step by Step                          - Martin Grabmüller
+    http://uebb.cs.tu-berlin.de/~magr/pub/Transformers.en.html
 Harrorth implementation journal                               - Yuval Kogman
     http://feather.perl6.nl/~nothingmuch/harrorth/
 All About Monads                                              - Jeff Newbern
     http://www.nomaware.com/monads/html/index.html
-how i/o can work in a purely functional language
+How I/O can work in a purely functional language
     http://community.livejournal.com/evan_tech/197471.html     - Evan Martin
-applications of monads
+Applications of monads
     http://community.livejournal.com/evan_tech/198116.html     - Evan Martin
 You Could Have Invented Monads! (And Maybe You Already Have.)
     http://sigfpe.blogspot.com/2006/08/you-could-have-invented-monads-and.html
