@@ -1,4 +1,4 @@
-﻿use v6-alpha;
+# use v6-alpha; # No. This is "fake" perl6 code understood by PIL-Run.
 
 # XXX - doesnt work quite yet...
 #module PIL::Run::Root::P5Runtime::PrimP6-0.0.1;
