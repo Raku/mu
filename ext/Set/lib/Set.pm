@@ -286,17 +286,17 @@ multi sub *infix:<∉> ($member, Set $set) returns Bool {
 }
 
 # these methods are for overloaded operations with non-sets
-multi sub *infix:<+> (Set $one, *@args) returns Set {
-    $one.union(set(@args));
+multi sub *infix:<+> (Set $one, $arg) returns Set {
+    $one.union(set($arg));
 }
-multi sub *infix:<-> (Set $one, *@args) returns Set {
-    $one.difference(set(@args));
+multi sub *infix:<-> (Set $one, $arg) returns Set {
+    $one.difference(set($arg));
 }
-multi sub *infix:<*> (Set $one, *@args) returns Set {
-    $one.intersection(set(@args));
+multi sub *infix:<*> (Set $one, $arg) returns Set {
+    $one.intersection(set($arg));
 }
-multi sub *infix:<%> (Set $one, *@args) returns Set {
-    $one.symmetric_difference(set(@args));
+multi sub *infix:<%> (Set $one, $arg) returns Set {
+    $one.symmetric_difference(set($arg));
 }
 multi sub *infix:<~~> (Set $one, $member) returns Bool {
     $one.includes($member);
