@@ -1244,6 +1244,10 @@ sub infix {
     }
 
     if ( $n->{op1} eq ':=' ) {
+
+        # experimenting with Lexical::Alias
+        #return ' Lexical::Alias::alias( ' . _emit($n->{exp1}) . ', ' . _emit($n->{exp2}) . ' )';
+
         #warn "bind: ", Dumper( $n );
         # The hassle here is that we can't use \(@x) or \(my @x)
         my $_emit_value = sub { exists $_[0]->{array} ||
