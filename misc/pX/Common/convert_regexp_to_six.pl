@@ -383,9 +383,10 @@ package Regexp::Parser;
 sub convert_pattern_to_six {
   my($self,$preserve_capture_numbers)=@_;
   my $env = { preserve_capture_numbers => $preserve_capture_numbers,
-              capture_map => {},
+              capture_map => {0=>'$/'},
               capture_var => [0],
-              required_modifiers => ""
+              required_modifiers => "",
+              avoid_delim => ""
           };
   $self->{ConvertToSix_env} = $env;
   local $Regexp::Parser::ConvertToSix::env = $env;
@@ -399,8 +400,14 @@ sub visual6 {
 
 sub convert_string_with_match_vars {
   my($self,$str)=@_;
+  my $slash = 0; # need_slash
   my $map = $self->{ConvertToSix_env}{capture_map};
-  $str =~ s/(?<!\\)\$(\d+)/$map->{$1} || ''/eg;
+  my $noesc = qr/(?<!\\)|(?<=\\\\)/;
+  $str =~ s/$noesc\$(\d+)/$map->{$1} || ''/eg;
+  $str =~ s/$noesc\$\-\[(\d+)\]/$slash++ if $1 == 0;'{'.$map->{$1}.'.from}'/eg;
+  $str =~ s/$noesc\$\+\[(\d+)\]/$slash++ if $1 == 0;'{'.$map->{$1}.'.to}'/eg;
+  $str =~ s/$noesc\$&/\$\//g and $slash++;
+  $self->{ConvertToSix_env}{avoid_delim} .= '/' if $slash;
   $str;
 }
 
@@ -408,17 +415,22 @@ sub convert_literal_to_six {
   use re 'eval';
   my($self,$lit5)=@_;
   $lit5 =~ s/^\s+//; $lit5 =~ s/\s+$//;
+
   my $modre = qr/[imsxogce]/;
   my %close = ('('=>qr/\)/,'{'=>qr/}/,'['=>qr/]/,'<'=>qr/>/);
   my $cl = sub{my $s = $_[0]; $close{$s}||qr/$s/ };
   my($op,$delim,$pat5,$delimC,$subst,$mod5);
   if($lit5 =~ /^()(\/)(.+?)(\/)()($modre*)$/) {
     ($op,$delim,$pat5,$delimC,$subst,$mod5)=($1,$2,$3,$4,$5,$6);
-  } elsif($lit5 =~ /^(qr|m)(.)(.+?)((??{$cl->($2)}))()($modre*)$/) {
+  }
+  elsif($lit5 =~ /^(qr|m)(.)(.+?)((??{$cl->($2)}))()($modre*)$/) {
     ($op,$delim,$pat5,$delimC,$subst,$mod5)=($1,$2,$3,$4,$5,$6);
-  } elsif($lit5 =~ /^(s)(.)(.+?)((??{$cl->($2)}))\2(.+?)\4($modre*)$/){
+  }
+  elsif($lit5 =~ /^(s)(.)(.+?)((??{$cl->($2)}))\2?(.+?)\4($modre*)$/){
     ($op,$delim,$pat5,$delimC,$subst,$mod5)=($1,$2,$3,$4,$5,$6);
-  } else { die "invalid literal: $lit5" }
+  }
+  else { die "invalid literal: $lit5" }
+
   my $premod = $mod5;
   $premod =~ s/[^msx]//g;
   my $use_pat = "(?:$pat5)";
@@ -426,17 +438,27 @@ sub convert_literal_to_six {
   $self->regex($use_pat);
   my $pat = $self->convert_pattern_to_six();
   $pat =~ s/^\s*\[//; $pat =~ s/\]\s*$//;
+
   my $rest = "";
   if($op eq 's') {
     my $subst6 = $self->convert_string_with_match_vars($subst);
+
+    my $avoid = qr/[ $self->{ConvertToSix_env}{avoid_delim}]/;
+    if($delim =~ $avoid) {
+      die 'assert' if '{' =~ $avoid;
+      $delim = '{'; $delimC = '}';
+    }
+
     $subst6 = "eval(q{$subst6},:lang<perl5>)" if $mod5 =~ /e/;
-    $rest = $delim.$subst6.$delimC;
+    $rest = ($delim eq $delimC ? '' : $delim).$subst6.$delimC;
   }
+
   my $mod = "";
   $mod .= $self->{ConvertToSix_env}{required_modifiers};
   $mod .= ':i' if $mod5 =~ /i/;
   $mod .= ':g' if $mod5 =~ /g/;
   $mod .= ':pos' if $mod5 =~ /c/;
+
   my $op6 .= ($op eq 's') ? 's' : ($delim eq '/' && $mod eq '') ? '' : 'rx';
   $op6.$mod.$delim.$pat.$delimC.$rest;
 }
@@ -468,14 +490,17 @@ repl;
 BUGS
 
 This module should be a class which inherits from Regexp::Parser, rather than infesting it.
-\G handling
+\G handling - unclear how to support non-leftmost \G in p6.
+Regexp::Parser does not support $^N $+ $' $` in patterns.
 
 TODO
 
-More selective slashification.
+What do $' $` look like in p6?
 Run over re_tests.
-Make it a module.
-Can we avoid losing comments?
 Test with //x.
+Can we avoid losing comments?
+The order dependency on avoid_delim is problematic.  Should be local().  And it's fragile ('[').
+More selective slashification.
+Make it a module.
 
 =cut
