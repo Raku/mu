@@ -75,7 +75,7 @@ module Pugs.AST.Internals (
     unwrap, -- Unwrap(..) -- not used in this file, suitable for factoring out
     newObjectId, runInvokePerl5,
     
-    errStr, errStrPos, errValPos, enterAtomicEnv, valToBool, envPos', -- for circularity
+    showVal, errStr, errStrPos, errValPos, enterAtomicEnv, valToBool, envPos', -- for circularity
     expToEvalVal, -- Hack, should be removed once it's figured out how
 
     newSVval, -- used in Run.Perl5
@@ -405,7 +405,7 @@ runInvokePerl5 :: PerlSV -> PerlSV -> [PerlSV] -> Eval Val
 runInvokePerl5 sub inv args = do 
     env     <- ask
     rv      <- liftIO $ do
-        envSV   <- mkVal (VControl $ ControlEnv env)
+        envSV   <- mkEnv env
         invokePerl5 sub inv args envSV (enumCxt $ envContext env)
     case rv of
         Perl5ReturnValues [x]   -> svToVal x
@@ -416,7 +416,7 @@ runInvokePerl5 sub inv args = do
 #ifdef PUGS_HAVE_PERL5
     svToVal ptr = liftIO $ do
         pv  <- pugs_SvToVal ptr
-        deRefStablePtr (castPtrToStablePtr pv)
+        deRefStablePtr pv
 #else
     svToVal _ = fail "Perl 5 not embedded"
 #endif
@@ -575,6 +575,8 @@ newSVval val = case val of
     VHandle{}   -> mkValRef val "Handle"
     VSocket{}   -> mkValRef val "Socket"
     VList{}     -> mkValRef val "Array"
+    VUndef      -> svUndef
+    VError{}    -> svUndef
     _           -> mkValRef val ""
 
 vrefToSV :: VRef -> IO PerlSV
@@ -713,6 +715,9 @@ data VRule
         , rxAdverbs   :: !Val
         }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
+
+showVal :: Val -> String
+showVal = show
 
 errStr :: VStr -> Val
 errStr str = VError (VStr str) []

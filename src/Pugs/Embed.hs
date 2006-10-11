@@ -31,7 +31,7 @@ evalEmbedded "Pugs" = evalPugs
     evalHaskell code
     return () -}
 evalEmbedded "Perl5" = \code -> do
-    interp <- initPerl5 "" (Nothing :: Maybe ())
-    evalPerl5 code nullSV 0
+    interp <- initPerl5 "" Nothing
+    evalPerl5 code nullEnv 0
     freePerl5 interp
 evalEmbedded s = const . fail $ "Cannot evaluate in " ++ s

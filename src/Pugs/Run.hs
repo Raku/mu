@@ -169,7 +169,7 @@ prepareEnv name args = do
             , envImplicit = Map.singleton "$_" ()
             }
     -}
-    initPerl5 "" (Just . VControl $ ControlEnv env'{ envDebug = Nothing })
+    initPerl5 "" (Just env')
     initPreludePC env'             -- null in first pass
     where
     hideInSafemode x = if safeMode then MkRef $ constScalar undef else x

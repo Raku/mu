@@ -247,7 +247,7 @@ op1 "require_perl5" = \v -> do
     env     <- ask
     let requireLine = "require " ++ pkg ++ "; '" ++ pkg ++ "'"
     val     <- guardIO $ do
-        envSV   <- mkVal (VControl $ ControlEnv env)
+        envSV   <- mkEnv env
         sv      <- evalPerl5 requireLine envSV $ enumCxt cxtItemAny
         return (PerlSV sv)
     evalExp $ Stmts
@@ -284,7 +284,7 @@ op1 "Pugs::Internals::eval_perl5" = \v -> do
     str <- fromVal v
     env <- ask
     tryIO undef $ do
-        envSV <- mkVal (VControl $ ControlEnv env)
+        envSV <- mkEnv env
         sv <- evalPerl5 str envSV $ enumCxt (envContext env)
         svToVal sv
 op1 "Pugs::Internals::eval_p6y" = op1EvalP6Y

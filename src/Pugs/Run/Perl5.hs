@@ -48,13 +48,7 @@ foreign export ccall "pugs_UndefVal"
     undefVal :: IO PugsVal
 
 askPerl5Env :: IO Env
-askPerl5Env = do
-    val <- deVal =<< pugs_getenv
-    case val of
-        VControl (ControlEnv env)   -> return env
-        _                           -> do
-            print val
-            fail "cannot fetch $pugs::env"
+askPerl5Env = deEnv =<< pugs_getenv
 
 pugs_eval :: CString -> IO PugsVal
 pugs_eval cstr = do
@@ -73,7 +67,7 @@ pugs_apply subPtr invPtr argsPtr cxt = do
     env     <- askPerl5Env
     sub     <- deVal subPtr
     inv     <- deValMaybe invPtr
-    args    <- mapM deVal =<< peekArray0 nullPtr argsPtr
+    args    <- mapM deVal =<< peekArray0 nullVal argsPtr
     let subExp = case sub of
             VStr name@('&':_)   -> _Var name
             VStr name           -> _Var ('&':name)
@@ -84,10 +78,16 @@ pugs_apply subPtr invPtr argsPtr cxt = do
     newSVval val
 
 deVal :: PugsVal -> IO Val
-deVal ptr = deRefStablePtr (castPtrToStablePtr ptr)
+deVal ptr = deRefStablePtr ptr
+
+deEnv :: PugsEnv -> IO Env
+deEnv ptr = deRefStablePtr ptr
+
+nullVal :: PugsVal
+nullVal = unsafeCoerce# nullPtr
 
 deValMaybe :: PugsVal -> IO (Maybe Val)
-deValMaybe ptr | ptr == nullPtr = return Nothing
+deValMaybe ptr | nullVal == nullVal = return Nothing
 deValMaybe ptr = fmap Just (deVal ptr)
 
 valToSv :: PugsVal -> IO PerlSV

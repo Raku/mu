@@ -279,7 +279,7 @@ instance ArrayClass (IVar VPair) where
 perl5EvalApply :: String -> [PerlSV] -> Eval Val
 perl5EvalApply code args = do
     env     <- ask
-    envSV   <- liftIO $ mkVal env
+    envSV   <- liftIO $ mkEnv env
     subSV   <- liftIO $ evalPerl5 code envSV (enumCxt cxtItemAny)
     runInvokePerl5 subSV nullSV args
 

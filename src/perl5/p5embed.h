@@ -20,4 +20,4 @@ bool perl5_can(SV *inv, char *subname);
 SV * perl5_eval(char *code, void *env, int cxt);
 SV * perl5_get_sv ( const char *name );
 void perl5_finalize ( SV* sv );
-
+SV * perl5_sv_undef ();

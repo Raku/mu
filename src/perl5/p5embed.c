@@ -402,6 +402,12 @@ perl5_SvROK ( SV * sv )
 }
 
 SV *
+perl5_sv_undef ()
+{
+    return(&PL_sv_undef);
+}
+
+SV *
 perl5_newSVpvn ( char * pv, int len )
 {
     SV *sv = newSVpvn(pv, len);
