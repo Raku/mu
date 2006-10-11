@@ -88,7 +88,7 @@ module Pugs.Internals (
     unsafeIOToSTM,
     ID(..), bufToID,
 
-    __, (+++), nullID,
+    __, (+++), nullID, addressOf, showAddressOf
 ) where
 
 import Pugs.Compat
@@ -554,3 +554,12 @@ bufToID buf = do
             H.insert _BufToID buf a
             return a
 
+{-# INLINE addressOf #-}
+addressOf :: a -> Word
+addressOf x = W# (unsafeCoerce# x)
+
+{-# INLINE showAddressOf #-}
+showAddressOf :: String -> a -> String
+showAddressOf typ x = addr `seq` ('<' : typ ++ ":0x" ++ showHex addr ">")
+    where
+    addr = addressOf x
