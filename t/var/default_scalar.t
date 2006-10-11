@@ -39,6 +39,7 @@ if $*OS eq "browser" {
     unlink "tmpfile";
 
     isnt $s,"3", 'and global $_ should not be the default topic of "for"'; 
-    lives_ok { for 1 .. 3 { $_++ } }, 'default topic is rw by default';
+    my @mutable_array = 1..3;
+    lives_ok { for @mutable_array { $_++ } }, 'default topic is rw by default';
 # #*** Error: cannot modify constant item at 1
 
