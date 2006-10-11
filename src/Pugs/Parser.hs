@@ -386,9 +386,9 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             -- make a note of this symbol being exportable, and defer the
             -- actual symbol table manipulation to opEval.
             Val rv <- unsafeEvalExp $ mkSym nameQualified
-            -- push %*INC<This::Package><exports><&this_sub>, expression-binding-&this_sub
+            -- %*INC<This::Package><exports><&this_sub> |= expression-binding-&this_sub
             --    ==>
-            -- push %This::Package::EXPORTS<&this_sub>, expression-binding-&this_sub
+            -- %This::Package::EXPORTS<&this_sub> |= expression-binding-&this_sub
             -- (a singleton list for subs, a full list of subs for multis)
             let exportedSub
                     -- "method foo is export" is exported into "multi foo" here.
@@ -398,10 +398,10 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
                         }
                     | otherwise         = sub
                 VCode cv    = sub
-            return . seq rv $
-                App (_Var "&push")
-                    (Just (Syn "{}" [_Var ("%" ++ pkg ++ "::EXPORTS"), Val $ VStr name]))
-                    [Val exportedSub]
+            return . seq rv $ Syn "|="
+                [ Syn "{}" [_Var ("%" ++ pkg ++ "::EXPORTS"), Val $ VStr name]
+                , Val exportedSub
+                ]
         SGlobal -> do
             unsafeEvalExp $ mkSym nameQualified
             return emptyExp
