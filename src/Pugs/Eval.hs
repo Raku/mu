@@ -947,6 +947,12 @@ specialApp = Map.fromList
         vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) args
         val  <- op0Zip vals
         retVal val
+    , "&yield"     ... \args -> do
+        (op1Yield . retControl . ControlLeave (<= SubRoutine) 0) =<<
+            case args of
+                []      -> retEmpty
+                [arg]   -> evalExp arg
+                args    -> evalExp (Syn "," args)
     , "&return"     ... \args -> do
         (op1Return . retControl . ControlLeave (<= SubRoutine) 0) =<<
             case args of
