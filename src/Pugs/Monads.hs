@@ -240,7 +240,10 @@ enterSub sub action
                 if depth' < 0
                     then return val
                     else retControl l{ leaveDepth = depth' }
-            VControl ControlExit{} -> retShift rv
+            VControl ControlExit{}  -> retShift rv
+            VError{}                -> do
+                -- XXX - Implement CATCH block here
+                retShift rv
             _ -> return rv
     where
     rejectKeepUndo VUndef     = (/= __"KEEP")
