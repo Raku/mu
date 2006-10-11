@@ -19,10 +19,9 @@ smoke_upload: 0
 precompile_prelude: true
 
 # Include additional modules in the precompiled Prelude? This requires the
-# preceding option to be enabled. This makes pugs even slower to build,
-# but makes the test suite faster still. It's worth it if you're running
-# smoke tests, but otherwise probably not.
-#
+# preceding option to be enabled.  Including Test makes pugs even slower to
+# build, but makes the test suite slightly faster still.  It may be worth
+# it if you're running smoke tests, but otherwise probably not.
 # Pass a *single line* YAML array of filenames here, comma separated.
 
 precompile_modules: [ ext/Math-Basic/lib/Math/Basic.pm ]
