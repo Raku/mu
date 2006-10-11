@@ -47,8 +47,8 @@ plan 76;
   my @a = (1,2,3);
   my @b = (1,2,3);
 
-  ok  (\@a === \@a), "=== on array references (1)");
-  ok  (\@b === \@b), "=== on array references (2)");
+  ok  (\@a === \@a), "=== on array references (1)";
+  ok  (\@b === \@b), "=== on array references (2)";
   ok !(\@a === \@b), "=== on array references (3)";
 }
 
