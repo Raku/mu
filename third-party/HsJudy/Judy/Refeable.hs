@@ -22,16 +22,14 @@ import GHC.Exts (unsafeCoerce#)
 
 class Refeable a where
     toRef :: a -> IO Value
+    toRef = GC.newRef
     fromRef :: Value -> IO a
+    fromRef = deRefStablePtr . castPtrToStablePtr . wordPtrToPtr
     needGC :: a -> Bool
+    needGC _ = True
     
 --instance Dummy a => Refeable a where
 instance Refeable a where
-    toRef = GC.newRef
-    fromRef v = do
-        a <- deRefStablePtr (castPtrToStablePtr (wordPtrToPtr v))
-        return a
-    needGC _ = True
 
 instance Refeable Int where
     toRef i = return $ unsafeCoerce# i
