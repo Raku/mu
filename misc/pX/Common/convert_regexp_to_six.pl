@@ -197,7 +197,7 @@ local $Regexp::Parser::ConvertToSix::env;
     my($o)=@_;
     my $env = $Regexp::Parser::ConvertToSix::env;
     my $first = $env->{capture_var}[-1];
-    my $next_cap = $first + 1;
+    my $next_cap = $first;
     my $pat = join("|",map {
       my $a = $_;
       local $env->{capture_var} = [@{$env->{capture_var}}];
