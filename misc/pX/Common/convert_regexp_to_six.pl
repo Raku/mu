@@ -445,6 +445,7 @@ sub convert_literal_to_six {
 package main;
 sub repl {
   use Data::Dumper;
+  print "Enter a p5 regexp pattern or literal.\n";
   while(<>) {
     chomp;
     my $parser = Regexp::Parser->new($_);  
@@ -454,7 +455,8 @@ sub repl {
     print $parser->convert_pattern_to_six(1),"\n";
     print "As pattern (normal):  ";
     print $parser->convert_pattern_to_six(),"\n";
-#    print $parser->convert_string_with_match_vars('$1,$2,$3,$4,$5,$6'),"\n";
+    print "Captures:    ";
+    print $parser->convert_string_with_match_vars('$1, $2, $3, $4, $5, $6'),"\n";
     print "As literal:  ";
     eval { print $parser->convert_literal_to_six($_),"\n"; } or print $@;
   }
@@ -472,5 +474,8 @@ TODO
 
 More selective slashification.
 Run over re_tests.
+Make it a module.
+Can we avoid losing comments?
+Test with //x.
 
 =cut
