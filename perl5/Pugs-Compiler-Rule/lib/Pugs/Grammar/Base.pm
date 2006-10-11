@@ -53,12 +53,12 @@ sub at {
 }
 
 sub prior {
-    warn "Error: <prior> is undefined" 
+    die "Error: <prior> is undefined" 
         unless defined $main::_V6_PRIOR_;
 
-    use warnings FATAL => 'recursion';
-    @_ = @_[0, 1, 2, 2];
-    goto &{$main::_V6_PRIOR_};  # XXX fix parameter list
+    my $prior = $main::_V6_PRIOR_;
+    local $main::_V6_PRIOR_;
+    $prior->(@_[0, 1, 2, 2]);  # XXX fix parameter list
 }
 
 *null = Pugs::Compiler::RegexPerl5->compile( 
