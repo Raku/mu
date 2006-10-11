@@ -2,6 +2,7 @@ package WebTerminal::Server::Terminal;
 use vars qw( $VERSION );
 $VERSION='0.1.0';
 use strict;
+use utf8;
 =pod
 A thin wrapper around Net::Telnet
 new() starts the session;
@@ -42,7 +43,7 @@ sub write {
 	chomp $cmd;
 	my $ps = '';
 
-		if ( $cmd eq ':q' ) {
+	if ( $cmd eq ':q' ) {
 		kill 9, $obj->{'pid'};		
 		return "\nLeaving pugs.\n";
 	}

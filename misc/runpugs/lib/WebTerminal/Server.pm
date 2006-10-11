@@ -2,6 +2,7 @@ package WebTerminal::Server;
 
 use vars qw( $VERSION );
 $VERSION = '0.1.0';
+use utf8;
 
 use strict;
 use lib '.';
@@ -35,7 +36,7 @@ sub termhandler {
 	my $id  = shift;
     my $ip=shift;
 	my $cmd = shift;
-if(scalar(keys %lastcalled)>50){
+if(scalar(keys %lastcalled)>100){
     return "Sorry, I can't run any more sessions.\nPlease try again later.";
 } else {
 	$lastcalled{$id}=time;
@@ -52,8 +53,9 @@ if(scalar(keys %lastcalled)>50){
         }
 		return $lines;
 	} else {
-        if ($sessions_per_ip{$ip}>2) {
-         return "Sorry, you can't run more than 3 sessions in parallel\n";   
+        if ($sessions_per_ip{$ip}>10) {
+         return "Sorry, you can't run more than 10 sessions from one IP
+         address.\n";   
         } else {
             $sessions_per_ip{$ip}++;
 		$terminals{$id} = new WebTerminal::Server::Terminal();
@@ -67,11 +69,11 @@ if(scalar(keys %lastcalled)>50){
 sub rcvd_msg_from_client {
 	my ( $conn, $msg, $err ) = @_;
 	if ( defined $msg ) {
-
 		my $len = length($msg);
 		if ( $len > 0 ) {
 			( my $id, my $ip, my $cmd ) = split( "\n", $msg, 3 );
-
+            $cmd=pack("U0C*", unpack("C*",$cmd));
+#            print "CMD:",$cmd,"\n";
 			my $lines = &termhandler( $id, $ip, $cmd );
 			$conn->send_now("$id\n$lines");
 

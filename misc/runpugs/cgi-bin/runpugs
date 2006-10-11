@@ -18,6 +18,7 @@
 #############################################################################
 
 use strict;
+use utf8;
 use lib '../lib/';
 #use WebTerminal::Settings;
 use WebTerminal::Dispatcher;
@@ -39,7 +40,8 @@ my $sessionid=$query->param("sessionid") || crypt(rand(),'NM');
 
 my $access_OK=1; # no restrictions
 
-my $lang_charset = 'iso-8859-1';
+#my $lang_charset = 'iso-8859-1';
+my $lang_charset = 'utf-8';
 
 # once we print the header, we don't want to do it again if there's an error
 my $headerprinted = 0;
@@ -81,10 +83,14 @@ sub runpugs {
     my $sessionid=shift;
     my $ip=shift;
     my $reply='pugs> ';
+    if ("$ip" ne "130.209.241.223") {
+    $reply = "Sorry, runpugs is not available at the moment.";
+    } else {
     $cmd=~s/^.+?pugs([\>\.])/pugs$1/s;
     if ($cmd=~/clear/) {$cmd=''} else {
     $reply = &WebTerminal::Dispatcher::send($sessionid,$ip,$cmd);
     $reply="\n".$reply;
+    }
     }
     #$reply.="\n$ip\n$sessionid\n";
     my $html='';

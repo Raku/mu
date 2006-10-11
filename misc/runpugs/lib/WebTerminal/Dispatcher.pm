@@ -3,7 +3,7 @@ package WebTerminal::Dispatcher;
 use vars qw( $VERSION );
 $VERSION = '0.1.0';
 use strict;
-
+use utf8;
 #
 # based on testmsg.pl from "Advanced Perl Programming"
 #
@@ -43,7 +43,7 @@ sub send {
  #   } else {
     my $conn;
     my $ntries=5;
-    for (1..$ntries) {
+#    for (1..$ntries) {
 	$conn = WebTerminal::Msg->connect( $host, $port, \&rcvd_msg_from_server );
 #	die "Client could not connect to $host:$port ($wd)\n" unless $conn;
     if (not $conn) {
@@ -51,8 +51,9 @@ sub send {
 #WV: disabled until stable
 #       system("/usr/bin/perl ../bin/termserv.pl");
 #       sleep 5;
-    } else {last;}
-    }
+#    } else {last;}
+        return "Sorry, the pugs server is not running.";
+    } else {
 	my $msg = "$id\n$ip\n" . $cmd;
 	$conn->send_now($msg);
 	( my $rmesg, my $err ) = $conn->rcv_now();
@@ -62,7 +63,7 @@ sub send {
 		die "Terminal server returned wrong id: $rid, should be $id";
 	}
 	return $reply;
-  #  }
+   }
 }
 
 sub rcvd_msg_from_server {
