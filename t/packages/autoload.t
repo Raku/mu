@@ -90,17 +90,17 @@ is(@a.join(","), q[auto,bar,3], "Returns correct var", :todo<feature>);
 
 # hash
 my %h = OughtaWork::AUTOHASH("test");
-is(%h.kv.join(","), q[auto,test,num,1], "AUTOHASH sanity test");
+is(%h.kv.sort.join(","), q[1,auto,num,test], "AUTOHASH sanity test");
 
 lives_ok { %h = %OughtaWork::foo }, "AUTOHASH - first";
-is(%h.kv.join(","), q[auto,foo,num,2], "Returns correct var", :todo<feature>);
+is(%h.kv.sort.join(","), q[2,auto,foo,num], "Returns correct var", :todo<feature>);
 
 %h=();
 lives_ok { %h = %OughtaWork::foo }, "AUTOHASH - repeat";
-is(%h.kv.join(","), q[auto,foo,num,2], "AUTOHASH only called once", :todo<feature>);
+is(%h.kv.sort.join(","), q[2,auto,foo,num], "AUTOHASH only called once", :todo<feature>);
 
 lives_ok { %h = %OughtaWork::bar }, "AUTOHASH - second";
-is(%h.kv.join(","), q[auto,bar,num,3], "Returns correct var", :todo<feature>);
+is(%h.kv.sort.join(","), q[3,auto,bar,num], "Returns correct var", :todo<feature>);
 
 
 # sub

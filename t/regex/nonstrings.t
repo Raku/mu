@@ -19,7 +19,7 @@ my $stream;
 eval '$stream is from($fh)';
 
 ok(eval('$stream ~~ /<cheese>/'), 'rules on streams, positive', :todo<feature>); # should match
-ok(eval('! ($stream ~~ /<monster>/)'), 'rules on streams, negative', :todo<feature>); # shouldn't match
+ok(eval('! ($stream ~~ /<monster>/)'), 'rules on streams, negative'); # shouldn't match
 
 # And arrays...
 
