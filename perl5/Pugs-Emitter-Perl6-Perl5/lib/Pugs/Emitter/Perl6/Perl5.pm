@@ -1245,6 +1245,12 @@ sub infix {
 
     if ( $n->{op1} eq ':=' ) {
 
+        my $v1 = _emit($n->{exp1}); 
+        my $v2 = _emit($n->{exp2}); 
+        print "v1 ",Dumper($v1);
+        print "v2 ",Dumper($v2);
+        return '( ' . $v1->cell . ' = ' . $v2->cell . ' )';
+
         # experimenting with Lexical::Alias
         #return ' Lexical::Alias::alias( ' . _emit($n->{exp1}) . ', ' . _emit($n->{exp2}) . ' )';
 
@@ -1686,7 +1692,9 @@ sub variable_declarator {
             $n->{exp1}{my} = $n->{'variable_declarator'};
             return _emit( $n->{exp1} );
         }
-        return $n->{'variable_declarator'} . ' ' . _emit( $n->{exp1} );
+        my $v1 = _emit( $n->{exp1} );
+        return $v1->my if $n->{'variable_declarator'} eq 'my';
+        return '( ' . $n->{'variable_declarator'} . ' ' . _emit( $n->{exp1} )->cell . ' )';
     }
 
     if ( $n->{'variable_declarator'} eq 'constant' ) {
