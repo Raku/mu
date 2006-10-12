@@ -69,8 +69,8 @@ lives_ok {
 }, 'can retro fetch';
 ok $match, 'retro fetch';
 
-is(eval(q{$retarray.elems}), @array.elems, 'retro elems', :todo<bug>);
-is($retarray.exists(1), @array.exists(1), 'retro exists', :todo<bug>);
+is(eval(q{$retarray.elems}), @array.elems, 'retro elems');
+is($retarray.exists(1), @array.exists(1), 'retro exists');
 is($retarray.exists(10), @array.exists(10), 'retro nonexists' );
 
 ok(($p5array.push(9)), 'can push');
