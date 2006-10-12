@@ -6,8 +6,11 @@ You want to expand a function call or expression within a string.
 
 =cut
 
+sub function { 'jumped' };
+class Dog { method bark { 'woof!' } }
+
 # You can break your string into concatenated pieces (the long way):
-$answer = 'The quick ' ~ func() ~ ' over the lazy dog';
+my $answer = 'The quick ' ~ function() ~ ' over the lazy dog';
 
 # Or you can interpolate function calls using &function() by using "", qq//,
 # or q:f// string delimeters. The function call must begin with ampersand (&)
@@ -20,30 +23,29 @@ $answer = q:f/STRING &function() MORE STRING/; # interpolates functions only
 $answer = "STRING {Dog.bark} MORE STRING";
 
 # And for expressions take the long route:
-$phrase = "I have " ~ ($n + 1) ~ " guanacos.";
+my $n = 100;
+my $phrase = "I have " ~ ($n + 1) ~ " guanacos.";
 
 # Or use closure curlies within "", qq//, or q:c// quoted strings:
 $phrase = "I have {$n + 1} guanacos.";
 $phrase = qq/I have {$n + 1} guanacos./;      # liberal interpolation
 $phrase = q:c/I have {$n + 1} guanacos./;     # interpolation closures only
 
-# XXX Style issue, but I always put whitespace in {} that are closures, and
-# these are.
-
 # Interpolate into a here document:
-# XXX: Confirming via p6l that this works as the first param like this:
-# XXX I think s/<<//
+sub send_mail { say '1..1'; say 'ok 1' }
+sub get_manager_list { 'manager@example.org' }
+my $naughty = my $target = 'naughty@example.org';
 die "Couldn't send mail" unless send_mail(qq:to/EOTEXT/, $target);
     To: $naughty
     From: Your Bank
     Cc: &get_manager_list($naughty)
     Date: { do { my $now = `date`; $now .= chomp; $now } } (today)
-    
+
     Dear $naughty,
-    
+
     Today, you bounced check number { 500 + int rand(100) } to us.
     Your account is now closed.
-    
+
     Sincerely,
     the management
     EOTEXT
