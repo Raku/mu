@@ -1746,7 +1746,9 @@ ruleApply isFolded = verbatimRule "apply" $
 
 ruleApplyImplicitMethod :: RuleParser Exp
 ruleApplyImplicitMethod = do
-    ch <- (char '.' >> option '.' (char '='))
+    ch <- do
+        char '.'
+        option '.' (char '=') -- non-canonical -- allow ".=foo" as a term to parse as "$_ .= $_.foo".
     insertIntoPosition '.'
     -- prevChar <- gets s_char
     fs <- many s_postTerm
