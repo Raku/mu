@@ -1,7 +1,7 @@
 use v6-alpha;
 
 use Test;
-plan 4;
+plan 5;
 
 my %unicode = (
 	'a'  => "\x61",
@@ -17,3 +17,5 @@ for %unicode.kv -> $literal, $codepoint {
 		'Does a character codepoint (\x..) evaluate to the same thing as its literal?'
 	);
 }
+
+is("møøse".perl.chars, 7, 'Is .perl handling unicode now?');
