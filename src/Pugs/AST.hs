@@ -17,7 +17,7 @@ module Pugs.AST (
     strRangeInf, strRange, strInc,
     mergeStmts, isEmptyParams,
     newPackage, newType, newMetaType, typeMacro, isScalarLValue,
-    filterPrim, filterUserDefinedPad, typeOfParam, listVal,
+    filterPrim, filterUserDefinedPad, typeOfParam, listVal, isImmediateMatchContext,
 
     module Pugs.AST.Internals,
     module Pugs.AST.Prag,
@@ -362,3 +362,10 @@ listVal :: Val -> [Val]
 listVal (VList xs)  = xs
 listVal x           = [x]
 
+isImmediateMatchContext :: Eval Bool
+isImmediateMatchContext = do
+    env <- ask
+    let cls = envClasses env
+        cxt = envContext env
+        typ = typeOfCxt cxt
+    return (cxt == CxtVoid || (any (\x -> isaType cls x typ) ["Bool", "Num", "Str"]))

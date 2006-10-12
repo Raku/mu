@@ -792,11 +792,8 @@ reduceSyn "rx" [exp, adverbs] = do
 reduceSyn "//" exps = reduceSyn "match" exps -- XXX - this is wrong
 
 reduceSyn "match" exps = do
-    env <- ask
-    let cls = envClasses env
-        cxt = envContext env
-        typ = typeOfCxt cxt
-    if isaType cls "Bool" typ
+    immediate <- isImmediateMatchContext
+    if immediate
         then reduceApp (_Var "&infix:~~") Nothing [Var varTopic, Syn "rx" exps]
         else reduceSyn "rx" exps
 
