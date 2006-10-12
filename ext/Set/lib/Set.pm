@@ -129,7 +129,7 @@ method proper_superset(Set $other) returns Bool {
 }
 
 method stringify() returns Str {
-    return("set(@.members[])");
+    return("set({$!members.values})");
 }
 
 
