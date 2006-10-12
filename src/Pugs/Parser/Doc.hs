@@ -33,21 +33,31 @@ ruleDocIntroducer = (<?> "Doc intro") $ do
     ruleBeginOfLine
     char '='
 
-ruleDocBody :: String -> RuleParser [String]
-ruleDocBody section = (eof >> return []) <|> do
+ruleDocBody :: DocHead -> RuleParser [String]
+ruleDocBody docHead = (eof >> return []) <|> do
     line    <- many (satisfy (/= '\n'))
     newline -- XXX - paragraph mode
     case line of
         "=cut"  -> return []
         "=end"  -> return []
-        ('=':'e':'n':'d':' ':sec) | sec == section -> return []
+        ('=':'e':'n':'d':' ':sec) | docHead /= Misc, sec == headSection docHead -> return []
+        ""  | For{} <- docHead  -> return []
         _       -> do
-            lines   <- ruleDocBody section
+            lines   <- ruleDocBody docHead
             return (line:lines)
+
+
+type Section = String
+data DocHead
+    = Begin { headSection :: Section }
+    | For { headSection :: Section, headText :: String }
+    | Cut
+    | Misc
+    deriving (Eq)
 
 ruleDocBlock :: RuleParser Exp
 ruleDocBlock = verbatimRule "Doc block" $ do
-    maybeSection <- try $ do
+    docHead <- try $ do
         ruleDocIntroducer
         introducer <- do
             c   <- wordAlpha
@@ -58,26 +68,33 @@ ruleDocBlock = verbatimRule "Doc block" $ do
             -- XXX: drop trailing spaces?
             many $ satisfy (/= '\n')
         return $ case introducer of
-            "begin" -> Just section
-            "cut" | null section -> Nothing
-            _       -> Just ""
-    eof <|> skipMany1 newline
-    case maybeSection of
-        Nothing     -> return emptyExp  -- "=cut" does not start a block (unspecced but useful)
-        Just "END"  -> do
+            "begin" | not (null section)    -> Begin section
+            "for"   | not (null section)    -> uncurry For (break isSpace section)
+            "cut"   | null section          -> Cut
+            _                               -> Misc
+    eof <|> (newline >> return ())
+    case docHead of
+        Cut -> return emptyExp  -- "=cut" does not start a block (unspecced but useful)
+        Misc -> do
+            ruleDocBody Misc
+            whiteSpace
+            return emptyExp
+        Begin "END" -> do
             setInput ""
             return emptyExp
-        Just section -> do
-            rv <- case section of
-                ""  -> ruleDocBody "" >> return Noop
-                _   -> do
-                    lines <- ruleDocBody section
-                    let linesVal    = map VStr lines
-                        linesList   = VList (length linesVal `seq` linesVal)
-                    unsafeEvalExp $ Stmts
-                        (App (_Var "&push") (Just $ _Var ("@=" ++ section)) [Val (VStr (unlines lines))])
-                        $ Stmts 
-                            (App (_Var "&push") (Just $ _Var ("$=" ++ section)) [Val linesList])
-                            (App (_Var "&push") (Just $ Syn "{}" [_Var "%=POD", Val (VStr section)]) [Val linesList])
+        _ -> do
+            let section = headSection docHead 
+            rv <- do
+                lns <- ruleDocBody docHead
+                let lns' | For _ (_:txt) <- docHead = txt:lns
+                         | otherwise                = lns
+                    linesVal    = map VStr lns'
+                    linesStr    = unlines lns'
+                    linesList   = VList (length linesVal `seq` linesVal)
+                unsafeEvalExp $ Stmts
+                    (App (_Var "&push") (Just $ _Var ("@=" ++ section)) [Val (VStr linesStr)])
+                    $ Stmts 
+                        (App (_Var "&push") (Just $ _Var ("$=" ++ section)) [Val linesList])
+                        (App (_Var "&push") (Just $ Syn "{}" [_Var "%=POD", Val (VStr section)]) [Val linesList])
             whiteSpace
             return (rv `seq` emptyExp)
